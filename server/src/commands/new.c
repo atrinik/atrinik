@@ -606,6 +606,9 @@ static void set_first_map(object *op)
 		EXIT_Y(current) = 1;
 		current->last_eat = MAP_PLAYER_MAP;
 		enter_exit(op, current);
+		/* Update save bed position, so if we die, we don't end up in
+		 * the public version of the map. */
+		strncpy(CONTR(op)->savebed_map, CONTR(op)->maplevel, sizeof(CONTR(op)->savebed_map) - 1);
 	}
 	else
 	{
@@ -676,6 +679,10 @@ static _new_char_template new_char_template[] =
 	{"human_female", 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14},
 	{"half_elf_male", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
 	{"half_elf_female", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
+	{"dwarf_male", 5, 13, 15, 11, 13, 13, 15, 12, 14, 12, 14, 11, 13, 12, 14},
+	{"dwarf_female", 5, 13, 15, 11, 13, 13, 15, 12, 14, 12, 14, 11, 13, 12, 14},
+	{"thelra_male", 5, 12, 13, 12, 14, 13, 14, 14, 15, 12, 14, 13, 15, 12, 14},
+	{"thelra_female", 5, 12, 13, 12, 14, 13, 14, 14, 15, 12, 14, 13, 15, 12, 14},
 	{NULL, 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14}
 };
 
@@ -763,8 +770,10 @@ void command_new_char(char *params, int len, player *pl)
 	op->name = name_tmp;
 	op->x = x;
 	op->y = y;
-	/* So player faces south */
-	SET_ANIMATION(op, 4 * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
+	/* So the player faces east. */
+	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 3;
+	/* We assume that players always have a valid animation. */
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 
 	pl->orig_stats.Str = stats[0];
 	pl->orig_stats.Dex = stats[1];
@@ -796,22 +805,6 @@ void command_new_char(char *params, int len, player *pl)
 	if (!CONTR(op)->dm_stealth)
 	{
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, op, "%s entered the game.", op->name);
-
-		if (dm_list)
-		{
-			player *pl_tmp;
-			int players;
-			objectlink *ol;
-
-			for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
-			{
-			}
-
-			for (ol = dm_list; ol; ol = ol->next)
-			{
-				new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "DM: %d players now playing.", players);
-			}
-		}
 	}
 
 	CLEAR_FLAG(op, FLAG_WIZ);
@@ -838,27 +831,27 @@ void command_new_char(char *params, int len, player *pl)
 
 /**
  * Request a face command.
- * @param params Parameters.
+ * @param buf Data.
  * @param len Length.
- * @param pl Player. */
-void command_face_request(char *params, int len, player *pl)
+ * @param ns Socket. */
+void command_face_request(char *buf, int len, socket_struct *ns)
 {
 	int i, count;
 
-	if (!params || !len)
+	if (!buf || !len)
 	{
 		return;
 	}
 
-	count = *(uint8 *) params;
+	count = *(uint8 *) buf;
 
 	for (i = 0; i < count; i++)
 	{
-		if (esrv_send_face(&pl->socket, *((short *) (params + 1) + i), 0) == SEND_FACE_OUT_OF_BOUNDS)
+		if (esrv_send_face(ns, *((short *) (buf + 1) + i), 0) == SEND_FACE_OUT_OF_BOUNDS)
 		{
-			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. Player: %s. Close connection.\n", *((short *) (params + 1) + i), pl->ob ? pl->ob->name : "(->ob <no name>)");
+			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. Close connection.\n", *((short *) (buf + 1) + i));
 			/* Kill socket */
-			pl->socket.status = Ns_Dead;
+			ns->status = Ns_Dead;
 			return;
 		}
 	}
@@ -992,14 +985,7 @@ static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *s
 		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
 	}
 
-	if (COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1027))
-	{
-		stringbuffer_append_printf(sb, "/%s:%d:%c", spells[spell_number].name, cost, spelllist_determine_path(op, spell_number));
-	}
-	else
-	{
-		stringbuffer_append_printf(sb, "/%s:%d", spells[spell_number].name, cost);
-	}
+	stringbuffer_append_printf(sb, "/%s:%d:%c", spells[spell_number].name, cost, spelllist_determine_path(op, spell_number));
 }
 
 /**
@@ -1121,11 +1107,11 @@ void send_golem_control(object *golem, int mode)
 void generate_ext_title(player *pl)
 {
 	object *walk;
-	char *gender;
 	char prof[32] = "";
 	char title[32] = "";
 	char rank[32] = "";
 	char align[32] = "";
+	char race[MAX_BUF];
 
 	for (walk = pl->ob->inv; walk; walk = walk->below)
 	{
@@ -1165,19 +1151,6 @@ void generate_ext_title(player *pl)
 		}
 	}
 
-	if (QUERY_FLAG(pl->ob, FLAG_IS_MALE))
-	{
-		gender = QUERY_FLAG(pl->ob, FLAG_IS_FEMALE) ? "hermaphrodite" : "male";
-	}
-	else if (QUERY_FLAG(pl->ob, FLAG_IS_FEMALE))
-	{
-		gender = "female";
-	}
-	else
-	{
-		gender = "neuter";
-	}
-
 	strcpy(pl->quick_name, rank);
 	strcat(pl->quick_name, pl->ob->name);
 
@@ -1191,5 +1164,5 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [SHOP]");
 	}
 
-	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", pl->ob->race, prof, align, determine_god(pl->ob), *gender);
+	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", player_get_race_class(pl->ob, race, sizeof(race)), prof, align, determine_god(pl->ob), *gender_noun[object_get_gender(pl->ob)]);
 }

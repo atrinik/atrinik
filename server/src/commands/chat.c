@@ -31,46 +31,6 @@
 #include <global.h>
 
 /**
- * This function does three things:
- * -# Controls that we have a legal string; if not, return NULL
- * -# Removes all left whitespace (if all whitespace return NULL)
- * -# Change and/or process all control characters like '^', '~', etc.
- * @param ustring The string to cleanup
- * @return Cleaned up string, or NULL */
-char *cleanup_chat_string(char *ustring)
-{
-	int i;
-
-	if (!ustring)
-	{
-		return NULL;
-	}
-
-	/* This happens when whitespace only string was submitted. */
-	if (!ustring || *ustring == '\0')
-	{
-		return NULL;
-	}
-
-	/* Now clear all special characters. */
-	for (i = 0; *(ustring + i) != '\0'; i++)
-	{
-		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|')
-		{
-			*(ustring + i) = ' ';
-		}
-	}
-
-	/* Kill all whitespace. */
-	while (*ustring != '\0' && isspace(*ustring))
-	{
-		ustring++;
-	}
-
-	return ustring;
-}
-
-/**
  * Say command, used to say a message for the whole map to hear.
  * @param op The object saying this.
  * @param params The message.
@@ -101,13 +61,13 @@ int command_say(object *op, char *params)
  * This command is only available to DMs.
  *
  * It is similar to /shout, however, it will display the message in red
- * only to other logged in DMs using ::dm_list.
+ * only to other logged in DMs, or those with /dmsay command permission.
  * @param op The object saying this.
  * @param params The message.
  * @return 1 on success, 0 on failure. */
 int command_dmsay(object *op, char *params)
 {
-	objectlink *ol;
+	player *pl;
 
 	if (!params)
 	{
@@ -124,9 +84,12 @@ int command_dmsay(object *op, char *params)
 		return 0;
 	}
 
-	for (ol = dm_list; ol; ol = ol->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, ol->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
+		if (can_do_wiz_command(pl, "dmsay"))
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[DM Channel]: %s: %s", op->name, params);
+		}
 	}
 
 	return 1;
@@ -141,6 +104,12 @@ int command_shout(object *op, char *params)
 {
 	if (!params)
 	{
+		return 0;
+	}
+
+	if (CONTR(op)->no_shout)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You are no longer allowed to shout.");
 		return 0;
 	}
 
@@ -199,6 +168,10 @@ int command_tell(object *op, char *params)
 		{
 			msg = NULL;
 		}
+		else
+		{
+			msg = cleanup_chat_string(msg);
+		}
 	}
 
 	if (!name)
@@ -216,7 +189,7 @@ int command_tell(object *op, char *params)
 		return 1;
 	}
 
-	if (!msg)
+	if (!msg || *msg == '\0')
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "Tell %s what?", name);
 		return 1;
@@ -241,7 +214,7 @@ int command_tell(object *op, char *params)
 			}
 			else
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE, op, "You tell %s: %s", name, msg);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY, op, "You tell %s: %s", name, msg);
 				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you: %s", op->name, msg);
 				return 1;
 			}
@@ -320,60 +293,587 @@ int command_t_tell(object *op, char *params)
  * @param op The player.
  * @param target The target object.
  * @param str Name.
- * @param buf First buffer.
- * @param buf2 Second buffer.
- * @param buf3 Third buffer.
+ * @param buf Buffer containing string to send to player.
+ * @param size Size of 'buf'.
+ * @param buf2 Buffer containing string to send to target.
+ * @param size2 Size of 'buf2'.
+ * @param buf3 Buffer containing string to send to everyone else on map.
+ * @param size3 Size of 'buf3'.
  * @param emotion Emotion ID. */
-static void emote_other(object *op, object *target, char *str, char *buf, char *buf2, char *buf3, int emotion)
+static void emote_other(object *op, object *target, char *str, char *buf, size_t size, char *buf2, size_t size2, char *buf3, size_t size3, int emotion)
 {
 	const char *name = str;
-	emotes_array *emote;
 
 	if (target && target->name)
 	{
 		name = target->name;
 	}
 
-	emote = find_emote(emotion, emotes_other, emotes_other_size);
+	switch (emotion)
+	{
+		case EMOTE_NOD:
+			snprintf(buf, size, "You nod solemnly to %s.", name);
+			snprintf(buf2, size2, "%s nods solemnly to you.", op->name);
+			snprintf(buf3, size3, "%s nods solemnly to %s.", op->name, name);
+			break;
 
-	if (emote)
-	{
-		sprintf(buf, emote->text1, name);
-		sprintf(buf2, emote->text2, op->name);
-		sprintf(buf3, emote->text3, op->name, name);
-	}
-	else
-	{
-		sprintf(buf, "You are still nuts.");
-		sprintf(buf2, "You get the distinct feeling that %s is nuts.", op->name);
-		sprintf(buf3, "%s is eyeing %s quizzically.", name, op->name);
+		case EMOTE_DANCE:
+			snprintf(buf, size, "You grab %s and begin doing the Cha-Cha!", name);
+			snprintf(buf2, size2, "%s grabs you, and begins dancing!", op->name);
+			snprintf(buf3, size3, "Yipe! %s and %s are doing the Macarena!", op->name, name);
+			break;
+
+		case EMOTE_KISS:
+			snprintf(buf, size, "You kiss %s.", name);
+			snprintf(buf2, size2, "%s kisses you.", op->name);
+			snprintf(buf3, size3, "%s kisses %s.", op->name, name);
+			break;
+
+		case EMOTE_BOUNCE:
+			snprintf(buf, size, "You bounce around the room with %s.", name);
+			snprintf(buf2, size2, "%s bounces around the room with you.", op->name);
+			snprintf(buf3, size3, "%s bounces around the room with %s.", op->name, name);
+			break;
+
+		case EMOTE_SMILE:
+			snprintf(buf, size, "You smile at %s.", name);
+			snprintf(buf2, size2, "%s smiles at you.", op->name);
+			snprintf(buf3, size3, "%s beams a smile at %s.", op->name, name);
+			break;
+
+		case EMOTE_LAUGH:
+			snprintf(buf, size, "You take one look at %s and fall down laughing.", name);
+			snprintf(buf2, size2, "%s looks at you and falls down on the ground laughing.", op->name);
+			snprintf(buf3, size3, "%s looks at %s and falls down on the ground laughing.", op->name, name);
+			break;
+
+		case EMOTE_SHAKE:
+			snprintf(buf, size, "You shake %s's hand.", name);
+			snprintf(buf2, size2, "%s shakes your hand.", op->name);
+			snprintf(buf3, size3, "%s shakes %s's hand.", op->name, name);
+			break;
+
+		case EMOTE_PUKE:
+			snprintf(buf, size, "You puke on %s.", name);
+			snprintf(buf2, size2, "%s pukes on your clothes!", op->name);
+			snprintf(buf3, size3, "%s pukes on %s.", op->name, name);
+			break;
+
+		case EMOTE_HUG:
+			snprintf(buf, size, "You hug %s.", name);
+			snprintf(buf2, size2, "%s hugs you.", op->name);
+			snprintf(buf3, size3, "%s hugs %s.", op->name, name);
+			break;
+
+		case EMOTE_CRY:
+			snprintf(buf, size, "You cry on %s's shoulder.", name);
+			snprintf(buf2, size2, "%s cries on your shoulder.", op->name);
+			snprintf(buf3, size3, "%s cries on %s's shoulder.", op->name, name);
+			break;
+
+		case EMOTE_POKE:
+			snprintf(buf, size, "You poke %s in the ribs.", name);
+			snprintf(buf2, size2, "%s pokes you in the ribs.", op->name);
+			snprintf(buf3, size3, "%s pokes %s in the ribs.", op->name, name);
+			break;
+
+		case EMOTE_ACCUSE:
+			snprintf(buf, size, "You look accusingly at %s.", name);
+			snprintf(buf2, size2, "%s looks accusingly at you.", op->name);
+			snprintf(buf3, size3, "%s looks accusingly at %s.", op->name, name);
+			break;
+
+		case EMOTE_GRIN:
+			snprintf(buf, size, "You grin at %s.", name);
+			snprintf(buf2, size2, "%s grins evilly at you.", op->name);
+			snprintf(buf3, size3, "%s grins evilly at %s.", op->name, name);
+			break;
+
+		case EMOTE_BOW:
+			snprintf(buf, size, "You bow before %s.", name);
+			snprintf(buf2, size2, "%s bows before you.", op->name);
+			snprintf(buf3, size3, "%s bows before %s.", op->name, name);
+			break;
+
+		case EMOTE_FROWN:
+			snprintf(buf, size, "You frown darkly at %s.", name);
+			snprintf(buf2, size2, "%s frowns darkly at you.", op->name);
+			snprintf(buf3, size3, "%s frowns darkly at %s.", op->name, name);
+			break;
+
+		case EMOTE_GLARE:
+			snprintf(buf, size, "You glare icily at %s.", name);
+			snprintf(buf2, size2, "%s glares icily at you, you feel cold to your bones.", op->name);
+			snprintf(buf3, size3, "%s glares at %s.", op->name, name);
+			break;
+
+		case EMOTE_LICK:
+			snprintf(buf, size, "You lick %s.", name);
+			snprintf(buf2, size2, "%s licks you.", op->name);
+			snprintf(buf3, size3, "%s licks %s.", op->name, name);
+			break;
+
+		case EMOTE_SHRUG:
+			snprintf(buf, size, "You shrug at %s.", name);
+			snprintf(buf2, size2, "%s shrugs at you.", op->name);
+			snprintf(buf3, size3, "%s shrugs at %s.", op->name, name);
+			break;
+
+		case EMOTE_SLAP:
+			snprintf(buf, size, "You slap %s.", name);
+			snprintf(buf2, size2, "You are slapped by %s.", op->name);
+			snprintf(buf3, size3, "%s slaps %s.", op->name, name);
+			break;
+
+		case EMOTE_SNEEZE:
+			snprintf(buf, size, "You sneeze and a film of snot shoots onto %s.", name);
+			snprintf(buf2, size2, "%s sneezes on you, you feel the snot cover you. EEEEEEW.", op->name);
+			snprintf(buf3, size3, "%s sneezes and a film of snot covers %s.", op->name, name);
+			break;
+
+		case EMOTE_SNIFF:
+			snprintf(buf, size, "You sniff %s.", name);
+			snprintf(buf2, size2, "%s sniffs you.", op->name);
+			snprintf(buf3, size3, "%s sniffs %s.", op->name, name);
+			break;
+
+		case EMOTE_SPIT:
+			snprintf(buf, size, "You spit on %s.", name);
+			snprintf(buf2, size2, "%s spits in your face!", op->name);
+			snprintf(buf3, size3, "%s spits in %s's face.", op->name, name);
+			break;
+
+		case EMOTE_THANK:
+			snprintf(buf, size, "You thank %s heartily.", name);
+			snprintf(buf2, size2, "%s thanks you heartily.", op->name);
+			snprintf(buf3, size3, "%s thanks %s heartily.", op->name, name);
+			break;
+
+		case EMOTE_WAVE:
+			snprintf(buf, size, "You wave goodbye to %s.", name);
+			snprintf(buf2, size2, "%s waves goodbye to you. Have a good journey.", op->name);
+			snprintf(buf3, size3, "%s waves goodbye to %s.", op->name, name);
+			break;
+
+		case EMOTE_WHISTLE:
+			snprintf(buf, size, "You whistle at %s.", name);
+			snprintf(buf2, size2, "%s whistles at you.", op->name);
+			snprintf(buf3, size3, "%s whistles at %s.", op->name, name);
+			break;
+
+		case EMOTE_WINK:
+			snprintf(buf, size, "You wink suggestively at %s.", name);
+			snprintf(buf2, size2, "%s winks suggestively at you.", op->name);
+			snprintf(buf3, size3, "%s winks at %s.", op->name, name);
+			break;
+
+		case EMOTE_BEG:
+			snprintf(buf, size, "You beg %s for mercy.", name);
+			snprintf(buf2, size2, "%s begs you for mercy! Show no quarter!", op->name);
+			snprintf(buf3, size3, "%s begs %s for mercy!", op->name, name);
+			break;
+
+		case EMOTE_BLEED:
+			snprintf(buf, size, "You slash your wrist and bleed all over %s.", name);
+			snprintf(buf2, size2, "%s slashes %s wrist and bleeds all over you.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf3, size3, "%s slashes %s wrist and bleeds all over %s.", op->name, gender_possessive[object_get_gender(op)], name);
+			break;
+
+		case EMOTE_CRINGE:
+			snprintf(buf, size, "You cringe away from %s.", name);
+			snprintf(buf2, size2, "%s cringes away from you.", op->name);
+			snprintf(buf3, size3, "%s cringes away from %s in mortal terror.", op->name, name);
+			break;
+
+		default:
+			snprintf(buf, size, "You are still nuts.");
+			snprintf(buf2, size2, "You get the distinct feeling that %s is nuts.", op->name);
+			snprintf(buf3, size3, "%s is eyeing %s quizzically.", name, op->name);
+			break;
 	}
 }
 
 /**
  * Look for an emote that is triggered with the command user being the
  * target, hence the name 'self'.
- * @param op The player.
- * @param buf First buffer.
- * @param buf2 Second buffer.
+ * @param op The player doing the emotion.
+ * @param buf Buffer containing string to send to player doing the emotion.
+ * @param size Size of 'buf'.
+ * @param buf2 Buffer containing string to send to everyone else on map.
+ * @param size2 Size of 'buf2'.
  * @param emotion Emotion ID. */
-static void emote_self(object *op, char *buf, char *buf2, int emotion)
+static void emote_self(object *op, char *buf, size_t size, char *buf2, size_t size2, int emotion)
 {
-	emotes_array *emote;
-
-	/* Find the emotion. */
-	emote = find_emote(emotion, emotes_self, emotes_self_size);
-
-	/* Found it? */
-	if (emote)
+	switch (emotion)
 	{
-		sprintf(buf, emote->text1, op->name);
-		sprintf(buf2, emote->text2, op->name);
+		case EMOTE_DANCE:
+			snprintf(buf, size, "You skip and dance around by yourself.");
+			snprintf(buf2, size2, "%s embraces %s and begins to dance!", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_LAUGH:
+			snprintf(buf, size, "Laugh at yourself all you want, the others won't understand.");
+			snprintf(buf2, size2, "%s is laughing at something.", op->name);
+			break;
+
+		case EMOTE_SHAKE:
+			snprintf(buf, size, "You are shaken by yourself.");
+			snprintf(buf2, size2, "%s shakes and quivers like a bowlful of jelly.", op->name);
+			break;
+
+		case EMOTE_PUKE:
+			snprintf(buf, size, "You puke on yourself.");
+			snprintf(buf2, size2, "%s pukes on %s clothes.", op->name, gender_possessive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_HUG:
+			snprintf(buf, size, "You hug yourself.");
+			snprintf(buf2, size2, "%s hugs %s.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_CRY:
+			snprintf(buf, size, "You cry to yourself.");
+			snprintf(buf2, size2, "%s sobs quietly to %s.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_POKE:
+			snprintf(buf, size, "You poke yourself in the ribs, feeling very silly.");
+			snprintf(buf2, size2, "%s pokes %s in the ribs, looking very sheepish.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_ACCUSE:
+			snprintf(buf, size, "You accuse yourself.");
+			snprintf(buf2, size2, "%s seems to have a bad conscience.", op->name);
+			break;
+
+		case EMOTE_BOW:
+			snprintf(buf, size, "You kiss your toes.");
+			snprintf(buf2, size2, "%s folds up like a jackknife and kisses %s own toes.", op->name, gender_possessive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_FROWN:
+			snprintf(buf, size, "You frown at yourself.");
+			snprintf(buf2, size2, "%s frowns at %s.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_GLARE:
+			snprintf(buf, size, "You glare icily at your feet, they are suddenly very cold.");
+			snprintf(buf2, size2, "%s glares at %s feet, what is bothering him?", op->name, gender_possessive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_LICK:
+			snprintf(buf, size, "You lick yourself.");
+			snprintf(buf2, size2, "%s licks %s - YUCK.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_SLAP:
+			snprintf(buf, size, "You slap yourself, silly you.");
+			snprintf(buf2, size2, "%s slaps %s, really strange...", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_SNEEZE:
+			snprintf(buf, size, "You sneeze on yourself, what a mess!");
+			snprintf(buf2, size2, "%s sneezes, and covers %s in a slimy substance.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_SNIFF:
+			snprintf(buf, size, "You sniff yourself.");
+			snprintf(buf2, size2, "%s sniffs %s.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_SPIT:
+			snprintf(buf, size, "You drool all over yourself.");
+			snprintf(buf2, size2, "%s drools all over %s.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_THANK:
+			snprintf(buf, size, "You thank yourself since nobody else wants to!");
+			snprintf(buf2, size2, "%s thanks %s since you won't.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_WAVE:
+			snprintf(buf, size, "Are you going on adventures as well??");
+			snprintf(buf2, size2, "%s waves goodbye to %s.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_WHISTLE:
+			snprintf(buf, size, "You whistle while you work.");
+			snprintf(buf2, size2, "%s whistles to %s in boredom.", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_WINK:
+			snprintf(buf, size, "You wink at yourself?? What are you up to?");
+			snprintf(buf2, size2, "%s winks at %s - something strange is going on...", op->name, gender_reflexive[object_get_gender(op)]);
+			break;
+
+		case EMOTE_BLEED:
+			snprintf(buf, size, "Very impressive! You wipe your blood all over yourself.");
+			snprintf(buf2, size2, "%s performs some satanic ritual while wiping %s blood on %s.", op->name, gender_possessive[object_get_gender(op)], gender_reflexive[object_get_gender(op)]);
+			break;
+
+		default:
+			snprintf(buf, size, "My god! is that LEGAL?");
+			snprintf(buf2, size2, "You look away from %s.", op->name);
+			break;
 	}
-	else
+}
+
+/**
+ * Emotes player can do with no target.
+ * @param op The player doing the emotion.
+ * @param buf Buffer containing string to send to everyone else on map.
+ * @param size Size of 'buf'.
+ * @param buf2 Buffer containing string to send to player doing the emotion.
+ * @param size2 Size of 'buf2'.
+ * @param emotion Emotion ID. */
+static void emote_no_target(object *op, char *buf, size_t size, char *buf2, size_t size2, int emotion)
+{
+	switch (emotion)
 	{
-		sprintf(buf, "My god! Is that LEGAL?");
-		sprintf(buf2, "You look away from %s.", op->name);
+		case EMOTE_NOD:
+			snprintf(buf, size, "%s nods solemnly.", op->name);
+			snprintf(buf2, size2, "You nod solemnly.");
+			break;
+
+		case EMOTE_DANCE:
+			snprintf(buf, size, "%s expresses %s through interpretive dance.", op->name, gender_reflexive[object_get_gender(op)]);
+			snprintf(buf2, size2, "You dance with glee.");
+			break;
+
+		case EMOTE_KISS:
+			snprintf(buf, size, "%s makes a weird facial contortion", op->name);
+			snprintf(buf2, size2, "All the lonely people..");
+			break;
+
+		case EMOTE_BOUNCE:
+			snprintf(buf, size, "%s bounces around.", op->name);
+			snprintf(buf2, size2, "BOIINNNNNNGG!");
+			break;
+
+		case EMOTE_SMILE:
+			snprintf(buf, size, "%s smiles happily.", op->name);
+			snprintf(buf2, size2, "You smile happily.");
+			break;
+
+		case EMOTE_CACKLE:
+			snprintf(buf, size, "%s throws back %s head and cackles with insane glee!", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "You cackle gleefully.");
+			break;
+
+		case EMOTE_LAUGH:
+			snprintf(buf, size, "%s falls down laughing.", op->name);
+			snprintf(buf2, size2, "You fall down laughing.");
+			break;
+
+		case EMOTE_GIGGLE:
+			snprintf(buf, size, "%s giggles.", op->name);
+			snprintf(buf2, size2, "You giggle.");
+			break;
+
+		case EMOTE_SHAKE:
+			snprintf(buf, size, "%s shakes %s head.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "You shake your head.");
+			break;
+
+		case EMOTE_PUKE:
+			snprintf(buf, size, "%s pukes.", op->name);
+			snprintf(buf2, size2, "Bleaaaaaghhhhhhh!");
+			break;
+
+		case EMOTE_GROWL:
+			snprintf(buf, size, "%s growls.", op->name);
+			snprintf(buf2, size2, "Grrrrrrrrr....");
+			break;
+
+		case EMOTE_SCREAM:
+			snprintf(buf, size, "%s screams at the top of %s lungs!", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "ARRRRRRRRRRGH!!!!!");
+			break;
+
+		case EMOTE_SIGH:
+			snprintf(buf, size, "%s sighs loudly.", op->name);
+			snprintf(buf2, size2, "You sigh.");
+			break;
+
+		case EMOTE_SULK:
+			snprintf(buf, size, "%s sulks in the corner.", op->name);
+			snprintf(buf2, size2, "You sulk.");
+			break;
+
+		case EMOTE_CRY:
+			snprintf(buf, size, "%s bursts into tears.", op->name);
+			snprintf(buf2, size2, "Waaaaaaahhh..");
+			break;
+
+		case EMOTE_GRIN:
+			snprintf(buf, size, "%s grins evilly.", op->name);
+			snprintf(buf2, size2, "You grin evilly.");
+			break;
+
+		case EMOTE_BOW:
+			snprintf(buf, size, "%s bows deeply.", op->name);
+			snprintf(buf2, size2, "You bow deeply.");
+			break;
+
+		case EMOTE_CLAP:
+			snprintf(buf, size, "%s gives a round of applause.", op->name);
+			snprintf(buf2, size2, "Clap, clap, clap.");
+			break;
+
+		case EMOTE_BLUSH:
+			snprintf(buf, size, "%s blushes.", op->name);
+			snprintf(buf2, size2, "Your cheeks are burning.");
+			break;
+
+		case EMOTE_BURP:
+			snprintf(buf, size, "%s burps loudly.", op->name);
+			snprintf(buf2, size2, "You burp loudly.");
+			break;
+
+		case EMOTE_CHUCKLE:
+			snprintf(buf, size, "%s chuckles politely.", op->name);
+			snprintf(buf2, size2, "You chuckle politely");
+			break;
+
+		case EMOTE_COUGH:
+			snprintf(buf, size, "%s coughs loudly.", op->name);
+			snprintf(buf2, size2, "Yuck, try to cover your mouth next time!");
+			break;
+
+		case EMOTE_FLIP:
+			snprintf(buf, size, "%s flips head over heels.", op->name);
+			snprintf(buf2, size2, "You flip head over heels.");
+			break;
+
+		case EMOTE_FROWN:
+			snprintf(buf, size, "%s frowns.", op->name);
+			snprintf(buf2, size2, "What's bothering you?");
+			break;
+
+		case EMOTE_GASP:
+			snprintf(buf, size, "%s gasps in astonishment.", op->name);
+			snprintf(buf2, size2, "You gasp in astonishment.");
+			break;
+
+		case EMOTE_GLARE:
+			snprintf(buf, size, "%s glares around him.", op->name);
+			snprintf(buf2, size2, "You glare at nothing in particular.");
+			break;
+
+		case EMOTE_GROAN:
+			snprintf(buf, size, "%s groans loudly.", op->name);
+			snprintf(buf2, size2, "You groan loudly.");
+			break;
+
+		case EMOTE_HICCUP:
+			snprintf(buf, size, "%s hiccups.", op->name);
+			snprintf(buf2, size2, "*HIC*");
+			break;
+
+		case EMOTE_LICK:
+			snprintf(buf, size, "%s licks %s mouth and smiles.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "You lick your mouth and smile.");
+			break;
+
+		case EMOTE_POUT:
+			snprintf(buf, size, "%s pouts.", op->name);
+			snprintf(buf2, size2, "Aww, don't take it so hard.");
+			break;
+
+		case EMOTE_SHIVER:
+			snprintf(buf, size, "%s shivers uncomfortably.", op->name);
+			snprintf(buf2, size2, "Brrrrrrrrr.");
+			break;
+
+		case EMOTE_SHRUG:
+			snprintf(buf, size, "%s shrugs helplessly.", op->name);
+			snprintf(buf2, size2, "You shrug.");
+			break;
+
+		case EMOTE_SMIRK:
+			snprintf(buf, size, "%s smirks.", op->name);
+			snprintf(buf2, size2, "You smirk.");
+			break;
+
+		case EMOTE_SNAP:
+			snprintf(buf, size, "%s snaps %s fingers.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "PRONTO! You snap your fingers.");
+			break;
+
+		case EMOTE_SNEEZE:
+			snprintf(buf, size, "%s sneezes.", op->name);
+			snprintf(buf2, size2, "Gesundheit!");
+			break;
+
+		case EMOTE_SNICKER:
+			snprintf(buf, size, "%s snickers softly.", op->name);
+			snprintf(buf2, size2, "You snicker softly.");
+			break;
+
+		case EMOTE_SNIFF:
+			snprintf(buf, size, "%s sniffs sadly.", op->name);
+			snprintf(buf2, size2, "You sniff sadly. *SNIFF*");
+			break;
+
+		case EMOTE_SNORE:
+			snprintf(buf, size, "%s snores loudly.", op->name);
+			snprintf(buf2, size2, "Zzzzzzzzzzzzzzz.");
+			break;
+
+		case EMOTE_SPIT:
+			snprintf(buf, size, "%s spits over %s left shoulder.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "You spit over your left shoulder.");
+			break;
+
+		case EMOTE_STRUT:
+			snprintf(buf, size, "%s struts proudly.", op->name);
+			snprintf(buf2, size2, "Strut your stuff.");
+			break;
+
+		case EMOTE_TWIDDLE:
+			snprintf(buf, size, "%s patiently twiddles %s thumbs.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "You patiently twiddle your thumbs.");
+			break;
+
+		case EMOTE_WAVE:
+			snprintf(buf, size, "%s waves happily.", op->name);
+			snprintf(buf2, size2, "You wave.");
+			break;
+
+		case EMOTE_WHISTLE:
+			snprintf(buf, size, "%s whistles appreciatively.", op->name);
+			snprintf(buf2, size2, "You whistle appreciatively.");
+			break;
+
+		case EMOTE_WINK:
+			snprintf(buf, size, "%s winks suggestively.", op->name);
+			snprintf(buf2, size2, "Have you got something in your eye?");
+			break;
+
+		case EMOTE_YAWN:
+			snprintf(buf, size, "%s yawns sleepily.", op->name);
+			snprintf(buf2, size2, "You open up your yap and let out a big breeze of stale air.");
+			break;
+
+		case EMOTE_CRINGE:
+			snprintf(buf, size, "%s cringes in terror!", op->name);
+			snprintf(buf2, size2, "You cringe in terror.");
+			break;
+
+		case EMOTE_BLEED:
+			snprintf(buf, size, "%s is bleeding all over the carpet - got a spare tourniquet?", op->name);
+			snprintf(buf2, size2, "You bleed all over your nice new armour.");
+			break;
+
+		case EMOTE_THINK:
+			snprintf(buf, size, "%s closes %s eyes and thinks really hard.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "Anything in particular that you'd care to think about?");
+			break;
+
+		default:
+			snprintf(buf, size, "%s dances with glee.", op->name);
+			snprintf(buf2, size2, "You are nuts.");
+			break;
 	}
 }
 
@@ -387,13 +887,14 @@ static void emote_self(object *op, char *buf, char *buf2, int emotion)
  * of the emote arrays in @ref commands.c, add the emotion ID to
  * @ref commands.h and add a command wrapper to this function, similar
  * to the functions below this one.
- * @param op Player.
- * @param params Message.
+ * @param op Player doing the emotion.
+ * @param params Possible parameters for the emotion (target name for the
+ * emotion, message for /me, etc).
  * @param emotion Emotion code, one of @ref EMOTE_xxx.
- * @return 0 on invalid emotion, 1 otherwise. */
+ * @return 0. */
 static int basic_emote(object *op, char *params, int emotion)
 {
-	char buf[HUGE_BUF], buf2[HUGE_BUF], buf3[HUGE_BUF];
+	char buf[MAX_BUF], buf2[MAX_BUF], buf3[MAX_BUF];
 
 	LOG(llevDebug, "EMOTE: %s (params: >%s<) (t: %s) %d\n", query_name(op, NULL), params ? params : "NULL", CONTR(op) ? query_name(CONTR(op)->target_object, NULL) : "NULL", emotion);
 
@@ -413,8 +914,6 @@ static int basic_emote(object *op, char *params, int emotion)
 
 	if (!params)
 	{
-		emotes_array *emote;
-
 		/* If we are a player with legal target, use it as target for the
 		 * emote. */
 		if (op->type == PLAYER && CONTR(op)->target_object != op && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && CONTR(op)->target_object->name)
@@ -423,7 +922,7 @@ static int basic_emote(object *op, char *params, int emotion)
 
 			if (get_rangevector(op, CONTR(op)->target_object, &rv, 0) && rv.distance <= 4)
 			{
-				emote_other(op, CONTR(op)->target_object, NULL, buf, buf2, buf3, emotion);
+				emote_other(op, CONTR(op)->target_object, NULL, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
 				new_draw_info(NDI_UNIQUE, op, buf);
 
 				if (CONTR(op)->target_object->type == PLAYER)
@@ -446,22 +945,10 @@ static int basic_emote(object *op, char *params, int emotion)
 				new_draw_info(NDI_UNIQUE, op, "Usage: /me <emote to display>");
 			}
 
-			return 1;
+			return 0;
 		}
 
-		emote = find_emote(emotion, emotes_no_target, emotes_no_target_size);
-
-		if (emote)
-		{
-			snprintf(buf, sizeof(buf), emote->text1, op->name);
-			snprintf(buf2, sizeof(buf2), emote->text2, op->name);
-		}
-		else
-		{
-			snprintf(buf, sizeof(buf), "%s dances with glee.", op->name);
-			snprintf(buf2, sizeof(buf2), "You are nuts.");
-		}
-
+		emote_no_target(op, buf, sizeof(buf), buf2, sizeof(buf2), emotion);
 		new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 		if (op->type == PLAYER)
@@ -493,10 +980,9 @@ static int basic_emote(object *op, char *params, int emotion)
 
 			if (op->type == PLAYER && strcmp(op->name, params) == 0)
 			{
-				emote_self(op, buf, buf2, emotion);
+				emote_self(op, buf, sizeof(buf), buf2, sizeof(buf2), emotion);
 				new_draw_info(NDI_UNIQUE, op, buf);
 				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
-
 				return 0;
 			}
 
@@ -510,14 +996,14 @@ static int basic_emote(object *op, char *params, int emotion)
 				{
 					if (op->type == PLAYER)
 					{
-						emote_other(op, pl->ob, NULL, buf, buf2, buf3, emotion);
+						emote_other(op, pl->ob, NULL, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
 						new_draw_info(NDI_UNIQUE, op, buf);
 						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
 						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, pl->ob, buf3);
 					}
 					else
 					{
-						emote_other(op, NULL, params, buf, buf2, buf3, emotion);
+						emote_other(op, NULL, params, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
 						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
 						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, pl->ob, buf3);
 					}
@@ -532,13 +1018,13 @@ static int basic_emote(object *op, char *params, int emotion)
 
 			if (op->type == PLAYER)
 			{
-				emote_self(op, buf, buf2, -1);
+				emote_self(op, buf, sizeof(buf), buf2, sizeof(buf2), -1);
 				new_draw_info(NDI_UNIQUE, op, buf);
 				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 			}
 			else
 			{
-				emote_other(op, NULL, params, buf, buf2, buf3, emotion);
+				emote_other(op, NULL, params, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
 				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf3);
 			}
 		}

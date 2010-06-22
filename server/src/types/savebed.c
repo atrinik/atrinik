@@ -34,17 +34,12 @@
  * @param op The player applying the savebed. */
 void apply_savebed(object *op)
 {
-	if (!op->stats.exp)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You don't deserve to save your character yet.");
-		return;
-	}
-
-	/* update respawn position */
+	/* Update respawn position. */
 	strcpy(CONTR(op)->savebed_map, op->map->path);
 	CONTR(op)->bed_x = op->x;
 	CONTR(op)->bed_y = op->y;
 
-	new_draw_info(NDI_UNIQUE, op, "You save and leave the game. Bye!\nLeaving...");
-	CONTR(op)->socket.status = Ns_Dead;
+	new_draw_info(NDI_UNIQUE, op, "You save and your save bed location is updated.");
+	hiscore_check(op, 0);
+	save_player(op, 1);
 }

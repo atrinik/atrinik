@@ -26,15 +26,30 @@
 # All the lexical loaders
 LOADERS := $(wildcard loaders/*.l)
 
+# Compilation flags
+CFLAGS = @CFLAGS@ @CHECK_CFLAGS@ $(EXTRA_CFLAGS)
+# Include directories
+INCLUDES = -Iinclude -Irandom_maps -Ilibs/zlib/include -Itests $(EXTRA_INCLUDES)
+# Libraries needed
+LIBS = @LIBS@ @CHECK_LIBS@ $(EXTRA_LIBS)
+
 # Now the source files
 SRCS := \
 	$(wildcard commands/*.c) \
-	$(wildcard libs/zlib/*.c) \
 	$(LOADERS:.l=.c) \
 	$(wildcard random_maps/*.c) \
 	$(wildcard server/*.c) \
+	$(wildcard skills/*.c) \
 	$(wildcard socket/*.c) \
 	$(wildcard types/*.c)
+
+ifneq (@CHECK_LIBS@,)
+	SRCS += \
+		$(wildcard tests/*.c) \
+		$(wildcard tests/unit/commands/*.c) \
+		$(wildcard tests/unit/server/*.c) \
+		$(wildcard tests/bugs/*.c)
+endif
 
 # Object files
 OBJS = $(SRCS:.c=.o)
@@ -50,13 +65,6 @@ MKDIR = @MKDIR@
 # Location of 'cp'
 CP = @CP@
 
-# Compilation flags
-CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
-# Include directories
-INCLUDES = -Iinclude -Irandom_maps -Ilibs/zlib/include $(EXTRA_INCLUDES)
-# Libraries needed
-LIBS = @LIBS@ $(EXTRA_LIBS)
-
 # Compile the server.
 atrinik_server: $(OBJS)
 	$(RM) -f $@
@@ -64,11 +72,17 @@ atrinik_server: $(OBJS)
 
 # Create prototype declarations.
 proto:
-	cproto -o include/proto.h.bak -D__CPROTO__ $(INCLUDES) $(patsubst libs/zlib/%,,$(SRCS)) || exit 5
+	cproto -o include/proto.h.bak -D__CPROTO__ $(INCLUDES) $(patsubst tests/%,,$(SRCS)) || exit 5
 	echo "#ifndef __CPROTO__" > include/proto.h
 	$(SED) -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < include/proto.h.bak >> include/proto.h
 	echo "#endif" >> include/proto.h
 	$(RM) -f include/proto.h.bak
+
+	cproto -o tests/check_proto.h.bak -D__CPROTO__ $(INCLUDES) $(filter tests/%,$(SRCS)) || exit 5
+	echo "#ifndef __CPROTO__" > tests/check_proto.h
+	$(SED) -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < tests/check_proto.h.bak >> tests/check_proto.h
+	echo "#endif" >> tests/check_proto.h
+	$(RM) -f tests/check_proto.h.bak
 
 clean::
 	$(RM) -f atrinik_server $(OBJS) $(LOADERS:.l=.c)

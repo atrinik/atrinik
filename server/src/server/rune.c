@@ -67,7 +67,7 @@ static void rune_attack(object *op, object *victim)
 	}
 	else
 	{
-		hit_map(op, 0);
+		hit_map(op, 0, 0);
 	}
 
 	op->stats.dam = dam;
@@ -184,7 +184,7 @@ void spring_trap(object *trap, object *victim)
  * @retval 1 Trap was spotted. */
 int trap_see(object *op, object *trap, int level)
 {
-	int chance = random_roll(0, 99, op, PREFER_HIGH);
+	int chance = rndm(0, 99);
 
 	/* Decide if we can see the rune or not */
 	if ((trap->level <= level && RANDOM() % 10) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0))))))
@@ -252,17 +252,15 @@ int trap_show(object *trap, object *where)
 
 /**
  * Try to disarm a trap.
- * @param disarmer Object disarming the trap.
+ * @param disarmer Player disarming the trap.
  * @param trap Trap to disarm.
- * @param risk If 0, trap won't spring if disarm fails. Otherwise it
- * will spring.
  * @return 1 if trap was disarmed, 0 otherwise. */
-int trap_disarm(object *disarmer, object *trap, int risk)
+int trap_disarm(object *disarmer, object *trap)
 {
 	object *env = trap->env;
-	int disarmer_level = SK_level(disarmer);
+	int disarmer_level = CONTR(disarmer)->exp_ptr[EXP_AGILITY]->level;
 
-	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(random_roll(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
+	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{
 		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
@@ -276,7 +274,7 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 
 		if ((trap->level > disarmer_level * 1.4f || (RANDOM() % 3)))
 		{
-			if (!(random_roll(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1, disarmer, PREFER_LOW)) && risk)
+			if (!(rndm(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1)))
 			{
 				new_draw_info(NDI_UNIQUE, disarmer, "In fact, you set it off!");
 				spring_trap(trap, disarmer);

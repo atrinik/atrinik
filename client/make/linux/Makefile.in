@@ -45,7 +45,7 @@
 
 # EXTRA_CFLAGS
 # Any extra special options for the C compiler.
-EXTRA_CFLAGS=-Wall -W -Werror -pedantic -ansi
+EXTRA_CFLAGS=-Wall -W -Werror
 
 #
 #
@@ -70,7 +70,6 @@ VERSION = atrinik-1.0
 ARCHIVE = /tmp/$(VERSION)
 
 SUBDIRS = \
-	../../src/zlib \
 	../../src/client
 
 FILES = configure configure.in

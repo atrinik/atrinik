@@ -36,11 +36,11 @@
  * @param pl Player searching.
  * @param level Level of the find traps skill.
  * @return Experience gained for finding traps. */
-int find_traps(object *pl, int level)
+sint64 find_traps(object *pl, int level)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
-	int xt, yt, i, suc = 0, expsum = 0;
+	int xt, yt, i, suc = 0;
 
 	/* First we search all around us for runes and traps, which are
 	 * all type RUNE */
@@ -64,7 +64,7 @@ int find_traps(object *pl, int level)
 				continue;
 			}
 
-			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
 			{
 				if (tmp2->type == RUNE)
 				{
@@ -74,13 +74,6 @@ int find_traps(object *pl, int level)
 
 						if (tmp2->stats.Cha > 1)
 						{
-							if (!tmp2->owner || tmp2->owner->type != PLAYER)
-							{
-								expsum += calc_skill_exp(pl, tmp2, -1);
-							}
-
-							/* Store the original charisma */
-							tmp2->stats.Int = tmp2->stats.Cha;
 							/* Unhide the trap */
 							tmp2->stats.Cha = 1;
 						}
@@ -110,13 +103,6 @@ int find_traps(object *pl, int level)
 
 					if (tmp->stats.Cha > 1)
 					{
-						if (!tmp->owner || tmp->owner->type != PLAYER)
-						{
-							expsum += calc_skill_exp(pl, tmp, -1);
-						}
-
-						/* Store the original charisma */
-						tmp->stats.Int = tmp->stats.Cha;
 						/* Unhide the trap */
 						tmp->stats.Cha = 1;
 					}
@@ -148,18 +134,18 @@ int find_traps(object *pl, int level)
 		new_draw_info(NDI_UNIQUE, pl, "You detect trap signs!");
 	}
 
-	return expsum;
+	return 0;
 }
 
 /**
  * This skill will disarm any previously discovered trap.
- * @param op Player disarming. Must be on a map.
- * @return Experience gained to disarm. */
-int remove_trap(object *op)
+ * @param op Player disarming.
+ * @return 0. */
+sint64 remove_trap(object *op)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
-	int i, x, y, success = 0;
+	int i, x, y;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -176,7 +162,7 @@ int remove_trap(object *op)
 		{
 			/* And now we'd better do an inventory traversal of each
 			 * of these objects' inventory */
-			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
 			{
 				if (tmp2->type == RUNE && tmp2->stats.Cha <= 1)
 				{
@@ -185,16 +171,8 @@ int remove_trap(object *op)
 						trap_show(tmp2, tmp);
 					}
 
-					if (trap_disarm(op, tmp2, 1) && (!tmp2->owner || tmp2->owner->type != PLAYER))
-					{
-						tmp2->stats.exp = tmp2->stats.Cha * tmp2->level;
-						success += calc_skill_exp(op, tmp2, -1);
-					}
-					/* Can't continue to disarm after failure */
-					else
-					{
-						return success;
-					}
+					trap_disarm(op, tmp2);
+					return 0;
 				}
 			}
 
@@ -205,26 +183,14 @@ int remove_trap(object *op)
 					trap_show(tmp, tmp);
 				}
 
-				if (trap_disarm(op, tmp, 1) && (!tmp->owner || tmp->owner->type != PLAYER))
-				{
-					tmp->stats.exp = tmp->stats.Cha * tmp->level;
-					success += calc_skill_exp(op, tmp, -1);
-				}
-				/* Can't continue to disarm after failure */
-				else
-				{
-					return success;
-				}
+				trap_disarm(op, tmp);
+				return 0;
 			}
 		}
 	}
 
-	if (!success)
-	{
-		new_draw_info(NDI_UNIQUE, op, "There is no trap to remove nearby.");
-	}
-
-	return success;
+	new_draw_info(NDI_UNIQUE, op, "There is no trap to remove nearby.");
+	return 0;
 }
 
 /**
@@ -270,18 +236,18 @@ object *find_throw_tag(object *op, tag_t tag)
 		if (tmp->type != WEAPON || !QUERY_FLAG(tmp, FLAG_IS_THROWN))
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "You can't throw %s.", query_base_name(tmp, NULL));
-			tmp = NULL;
+			return NULL;
 		}
 		else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You can't throw god given item!");
-			tmp = NULL;
+			new_draw_info(NDI_UNIQUE, op, "You can't throw god-given item!");
+			return NULL;
 		}
 		/* If cursed or damned, we can't unapply it - no throwing. */
 		else if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "The %s sticks to your hand!", query_base_name(tmp, NULL));
-			tmp = NULL;
+			return NULL;
 		}
 		/* It's a throw hybrid weapon - unapply it. Then we will fire it
 		 * after this function returns. */
@@ -290,7 +256,7 @@ object *find_throw_tag(object *op, tag_t tag)
 			if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
 			{
 				LOG(llevBug, "BUG: find_throw_ob(): couldn't unapply throwing item %s from %s\n", query_name(tmp, NULL), query_name(op, NULL));
-				tmp = NULL;
+				return NULL;
 			}
 		}
 	}
@@ -300,54 +266,17 @@ object *find_throw_tag(object *op, tag_t tag)
 		if ((tmp->type != WEAPON && tmp->type != POTION) && !QUERY_FLAG(tmp, FLAG_IS_THROWN))
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "You can't throw %s.", query_base_name(tmp, NULL));
-			tmp = NULL;
+			return NULL;
 		}
 		/* Special message for throw hybrid weapons. */
 		else if (tmp->type == WEAPON)
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "You must apply the %s first.", query_base_name(tmp, NULL));
-			tmp = NULL;
+			return NULL;
 		}
 	}
 
 	return tmp;
-}
-
-/**
- * We construct the 'carrier' object in which we will insert the object
- * that is being thrown. This combination  becomes the 'thrown object'.
- * @param orig Object to wrap.
- * @return Object to throw. */
-static object *make_throw_ob(object *orig)
-{
-	object *toss_item;
-
-	if (!orig)
-	{
-		return NULL;
-	}
-
-	toss_item = get_object();
-
-	if (QUERY_FLAG(orig, FLAG_APPLIED))
-	{
-		LOG(llevBug, "BUG: make_throw_ob(): ob is applied (%s)\n", query_name(orig, NULL));
-		/* Insufficient workaround, but better than nothing. */
-		CLEAR_FLAG(orig, FLAG_APPLIED);
-	}
-
-	copy_object(orig, toss_item);
-	toss_item->type = THROWN_OBJ;
-	SET_FLAG(toss_item, FLAG_IS_MISSILE);
-	CLEAR_FLAG(toss_item, FLAG_CHANGING);
-	/* Default damage */
-	toss_item->stats.dam = 0;
-#ifdef DEBUG_THROW
-	LOG(llevDebug, "DEBUG: inserting %s(%d) in toss_item(%d)\n", orig->name, orig->count, toss_item->count);
-#endif
-	insert_ob_in_ob(orig, toss_item);
-
-	return toss_item;
 }
 
 /**
@@ -359,12 +288,9 @@ void do_throw(object *op, object *toss_item, int dir)
 {
 	object *left_cont, *throw_ob = toss_item, *left = NULL, *tmp_op;
 	tag_t left_tag;
-	int eff_str = 0, str = op->stats.Str, dam = 0, weight_f = 0;
-	int target_throw = 0;
 	rv_vector range_vector;
-	float str_factor = 1.0f, load_factor = 1.0f, item_factor = 1.0f;
 
-	if (throw_ob == NULL)
+	if (!throw_ob)
 	{
 		if (op->type == PLAYER)
 		{
@@ -384,47 +310,11 @@ void do_throw(object *op, object *toss_item, int dir)
 		return;
 	}
 
-	/* Because throwing effectiveness must be reduced by the
-	 * encumbrance of the thrower and weight of the object. Thus,
-	 * we use the concept of 'effective strength' as defined below.  */
-	/* if str exceeds MAX_STAT (30, eg giants), lets assign a str_factor > 1 */
-	if (str > MAX_STAT)
-	{
-		str_factor = (float) str / (float) MAX_STAT;
-		str = MAX_STAT;
-	}
-
-	/* we need something more clever here, using weight_limit */
-	load_factor = 1.0f;
-
-	/* Lighter items are thrown harder, farther, faster. */
 	if (throw_ob->weight <= 0)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "You can't throw %s.\n", query_base_name(throw_ob, NULL));
 		return;
 	}
-
-	eff_str = (int) ((float) str * (load_factor < 1.0f ? load_factor : 1.0f));
-	eff_str = (int) ((float) eff_str * item_factor * str_factor);
-
-	/* alas, arrays limit us to a value of MAX_STAT (30). Use str_factor to
-	 * account for super-strong throwers. */
-	if (eff_str > MAX_STAT)
-	{
-		eff_str = MAX_STAT;
-	}
-
-	if (eff_str < 1)
-	{
-		eff_str = 1;
-	}
-
-#ifdef DEBUG_THROW
-	LOG(llevDebug, "%s carries %d, eff_str=%d\n", op->name, op->carrying, eff_str);
-	LOG(llevDebug, " max_c=%d, item_f=%f, load_f=%f, str=%d\n", maxc, item_factor, load_factor, op->stats.Str);
-	LOG(llevDebug, " str_factor=%f\n", str_factor);
-	LOG(llevDebug, " item %s weight= %d\n", throw_ob->name, throw_ob->weight);
-#endif
 
 	/* These are throwing objects left to the player */
 	left = throw_ob;
@@ -435,9 +325,6 @@ void do_throw(object *op, object *toss_item, int dir)
 	 * and returns NULL. We must use 'left' then */
 	if ((throw_ob = get_split_ob(throw_ob, 1, NULL, 0)) == NULL)
 	{
-#ifdef DEBUG_THROW
-		LOG(llevDebug, " get_split_ob(): failed to split throw ob %s\n", left->name);
-#endif
 		throw_ob = left;
 		remove_ob(left);
 		check_walk_off(left, NULL, MOVE_APPLY_VANISHED);
@@ -479,16 +366,11 @@ void do_throw(object *op, object *toss_item, int dir)
 	if (!dir && op->type == PLAYER && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
 	{
 		dir = get_dir_to_target(op, CONTR(op)->target_object, &range_vector);
-		target_throw = 1;
-	}
-	else
-	{
-		throw_ob->stats.grace = 0;
 	}
 
 	/* Three things here prevent a throw, you aimed at your feet, you
 	 * have no effective throwing strength, or you threw at a wall */
-	if (!dir || eff_str <= 1 || wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
+	if (!dir || wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
 	{
 		/* Bounces off 'wall', and drops to feet */
 		if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))
@@ -511,11 +393,7 @@ void do_throw(object *op, object *toss_item, int dir)
 
 		if (op->type == PLAYER)
 		{
-			if (eff_str <= 1)
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "Your load is so heavy you drop %s to the ground.", query_name(throw_ob, NULL));
-			}
-			else if (!dir)
+			if (!dir)
 			{
 				new_draw_info_format(NDI_UNIQUE, op, "You drop %s at the ground.", query_name(throw_ob, NULL));
 			}
@@ -528,106 +406,36 @@ void do_throw(object *op, object *toss_item, int dir)
 		return;
 	}
 
-	/* Make a thrown object -- insert real object in a 'carrier' object.
-	 * If unsuccessfull at making the "thrown_obj", we just reinsert
-	 * the original object back into inventory and exit */
-	if ((toss_item = make_throw_ob(throw_ob)))
-	{
-		throw_ob = toss_item;
-	}
-	else
-	{
-		insert_ob_in_ob(throw_ob, op);
-		return;
-	}
-
-	/* At some point in the attack code, the actual real object (op->inv)
-	 * becomes the hitter.  As such, we need to make sure that has a proper
-	 * owner value so exp goes to the right place. */
 	set_owner(throw_ob, op);
 	set_owner(throw_ob->inv, op);
 	throw_ob->direction = dir;
 	throw_ob->x = op->x;
 	throw_ob->y = op->y;
 
-	/* Targetting throwing */
-	if (target_throw)
-	{
-		int dx = range_vector.distance_x, dy = range_vector.distance_y, stepx, stepy;
-
-		if (dy < 0)
-		{
-			dy = -dy;
-			stepy = -1;
-		}
-		else
-		{
-			stepy = 1;
-		}
-
-		if (dx < 0)
-		{
-			dx = -dx;
-			stepx = -1;
-		}
-		else
-		{
-			stepx = 1;
-		}
-
-		throw_ob->stats.hp = dx << 1;
-		throw_ob->stats.sp = dy << 1;
-		throw_ob->stats.maxhp = stepx;
-		throw_ob->stats.maxsp = stepy;
-		throw_ob->stats.grace = 666;
-
-		/* Fraction */
-		if (dx > dy)
-		{
-			/* Same as 2*dy - dx */
-			throw_ob->stats.exp = (dy << 1) - dx;
-		}
-		else
-		{
-			/* Same as 2*dx - dy */
-			throw_ob->stats.exp = (dx << 1) - dy;
-		}
-	}
-
-	/* The damage bonus from the force of the throw */
-	dam = (int) (str_factor * (float) dam_bonus[eff_str]);
-
-	/* Now, lets adjust the properties of the thrown_ob. */
+	/* Save original wc and dam */
+	throw_ob->last_heal = throw_ob->stats.wc;
+	throw_ob->stats.hp = throw_ob->stats.dam;
 
 	/* Speed */
-	throw_ob->speed = (speed_bonus[eff_str] + 1.0f) / 1.5f;
-	/* No faster than an arrow! */
-	throw_ob->speed = MIN(1.0f, throw_ob->speed);
+	throw_ob->speed = MIN(1.0f, (speed_bonus[op->stats.Str] + 1.0f) / 1.5f);
 
-	/* Item damage. Eff_str and item weight influence damage done */
-	weight_f = (throw_ob->weight / 2000) > MAX_STAT ? MAX_STAT : (throw_ob->weight / 2000);
-	throw_ob->stats.dam += (dam / 3) + dam_bonus[weight_f] + (throw_ob->weight / 15000) - 2;
-
-	/* Chance of breaking. Proportional to force used and weight of item */
-	throw_ob->stats.food = (dam / 2) + (throw_ob->weight / 60000);
-
-	/* Now we get the wc from the used skill! this will allow customized skill */
+	/* Now we get the wc from the used skill. */
 	if ((tmp_op = SK_skill(op)))
 	{
-		throw_ob->stats.wc = tmp_op->last_heal;
+		throw_ob->stats.wc += tmp_op->last_heal;
 	}
-	/* Mobs */
+	/* Monsters */
 	else
 	{
-		throw_ob->stats.wc = 10;
+		throw_ob->stats.wc += 10;
 	}
 
 	throw_ob->stats.wc_range = op->stats.wc_range;
 
-	if (QUERY_FLAG(throw_ob->inv, FLAG_IS_THROWN))
+	if (QUERY_FLAG(throw_ob, FLAG_IS_THROWN))
 	{
-		throw_ob->stats.dam = throw_ob->inv->stats.dam + throw_ob->magic;
-		throw_ob->stats.wc += throw_ob->magic + throw_ob->inv->stats.wc;
+		throw_ob->stats.dam += throw_ob->magic;
+		throw_ob->stats.wc += throw_ob->magic;
 
 		/* Adjust for players */
 		if (op->type == PLAYER)
@@ -654,69 +462,14 @@ void do_throw(object *op, object *toss_item, int dir)
 		/* Adjust damage with item condition */
 		throw_ob->stats.dam = (sint16) (((float) throw_ob->stats.dam / 100.0f) * (float) throw_ob->item_condition);
 	}
-	else
-	{
-		/* Some materials will adjust properties.. */
-		if (throw_ob->material & M_LEATHER)
-		{
-			throw_ob->stats.dam -= 1;
-			throw_ob->stats.food -= 10;
-		}
-
-		if (throw_ob->material & M_GLASS)
-		{
-			throw_ob->stats.food += 60;
-		}
-
-		if (throw_ob->material & M_ORGANIC)
-		{
-			throw_ob->stats.dam -= 3;
-			throw_ob->stats.food += 55;
-		}
-
-		if (throw_ob->material & M_PAPER || throw_ob->material & M_CLOTH)
-		{
-			throw_ob->stats.dam -= 5;
-			throw_ob->speed *= 0.8f;
-			throw_ob->stats.wc += 3;
-			throw_ob->stats.food -= 30;
-		}
-
-		/* Light obj have more wind resistance, fly slower */
-		if (throw_ob->weight > 500)
-		{
-			throw_ob->speed *= 0.8f;
-		}
-
-		if (throw_ob->weight > 50)
-		{
-			throw_ob->speed *= 0.5f;
-		}
-	}
 
 	if (throw_ob->stats.dam < 0)
 	{
 		throw_ob->stats.dam = 0;
 	}
 
-	if (throw_ob->stats.food < 0)
-	{
-		throw_ob->stats.food = 0;
-	}
-
-	if (throw_ob->stats.food > 100)
-	{
-		throw_ob->stats.food = 100;
-	}
-
-	if (throw_ob->stats.wc > 30)
-	{
-		throw_ob->stats.wc = 30;
-	}
-
 	update_ob_speed(throw_ob);
 	throw_ob->speed_left = 0;
-	throw_ob->map = op->map;
 
 	SET_MULTI_FLAG(throw_ob, FLAG_FLYING);
 	SET_FLAG(throw_ob, FLAG_FLY_ON);
@@ -725,13 +478,7 @@ void do_throw(object *op, object *toss_item, int dir)
 	play_sound_map(op->map, op->x, op->y, SOUND_THROW, SOUND_NORMAL);
 
 	/* Trigger the THROW event */
-	trigger_event(EVENT_THROW, op, throw_ob->inv, throw_ob, NULL, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-
-#ifdef DEBUG_THROW
-	LOG(llevDebug, " pause_f=%d \n", pause_f);
-	LOG(llevDebug, " %s stats: wc=%d dam=%d dist=%d spd=%f break=%d\n", throw_ob->name, throw_ob->stats.wc, throw_ob->stats.dam, throw_ob->last_sp, throw_ob->speed, throw_ob->stats.food);
-	LOG(llevDebug, "inserting tossitem (%d) into map\n", throw_ob->count);
-#endif
+	trigger_event(EVENT_THROW, op, throw_ob, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 
 	if (insert_ob_in_map(throw_ob, op->map, op, 0))
 	{

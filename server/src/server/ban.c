@@ -160,7 +160,7 @@ int add_ban(char *input)
 {
 	char *tmp[2];
 
-	if (split_string(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2)
+	if (split_string(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0')
 	{
 		return 0;
 	}
@@ -186,7 +186,7 @@ int remove_ban(char *input)
 	char *tmp[2];
 	objectlink *ol;
 
-	if (split_string(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2)
+	if (split_string(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0')
 	{
 		return 0;
 	}

@@ -131,13 +131,26 @@ struct plugin_hooklist hooklist =
 	play_sound_player_only,
 	new_draw_info_format,
 	was_destroyed,
+	object_get_gender,
+	change_abil,
+	decrease_ob_nr,
+	check_walk_off,
+	wall,
+	blocked,
 
 	season_name,
 	weekdays,
 	month_name,
 	periodsofday,
 	spells,
-	&shstr_cons
+	&shstr_cons,
+	gender_noun,
+	gender_subjective,
+	gender_subjective_upper,
+	gender_objective,
+	gender_possessive,
+	gender_reflexive,
+	object_flag_names
 };
 
 /** The list of loaded plugins. */
@@ -214,7 +227,7 @@ object *get_event_object(object *op, int event_nr)
 
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
-		if (tmp->type == EVENT_OBJECT && tmp->sub_type1 == event_nr)
+		if (tmp->type == EVENT_OBJECT && tmp->sub_type == event_nr)
 		{
 			return tmp;
 		}

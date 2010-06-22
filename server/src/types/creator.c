@@ -90,8 +90,8 @@ void move_creator(object *op)
 		insert_ob_in_map(tmp, op->map, op, 0);
 	}
 	/* Clone from inventory. System objects won't be copied, with an exception for player movers. */
-    else if (op->inv)
-    {
+	else if (op->inv)
+	{
 		object *source, *tmp;
 		int didit = 0, cloneindex = 0;
 
@@ -149,7 +149,7 @@ void move_creator(object *op)
 		{
 			op->stats.hp--;
 		}
-    }
+	}
 	else
 	{
 		LOG(llevDebug, "DEBUG: Creator object with no other_arch/inventory: %s (%d, %d)\n", op->map->path, op->x, op->y);

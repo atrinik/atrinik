@@ -12,10 +12,10 @@ direction 5
 terrain_flag 1
 weapon_speed 0.035
 attack_fire 80
-resist_cold -35
-resist_fire 100
+protect_cold -35
+protect_fire 100
 type 80
-Wis 6
+Wis 3
 randomitems mob_fire
 animation lavagolem
 is_animated 1

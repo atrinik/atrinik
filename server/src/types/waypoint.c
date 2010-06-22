@@ -199,7 +199,6 @@ void waypoint_compute_path(object *waypoint)
 
 	if (!path)
 	{
-		SET_FLAG(waypoint, FLAG_CONFUSED);
 		return;
 	}
 

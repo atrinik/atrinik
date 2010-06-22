@@ -7,7 +7,7 @@ wc_range 20
 last_grace 7
 dam 3
 wc 0
-last_sp 5
+last_sp 6
 attack_pierce 100
 type 13
 sub_type 1

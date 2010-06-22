@@ -34,7 +34,7 @@
  *
  * Around level 11 you need to kill 38 + (2 * (your_level - 11)) yellow
  * monsters with a base exp of 125 to level up. */
-uint32 new_levels[MAXLEVEL + 2] =
+uint64 new_levels[MAXLEVEL + 2] =
 {
 	0,          0,          1500,       4000,       8000,
 	16000,      32000,      64000,      125000,     250000,
@@ -51,14 +51,15 @@ uint32 new_levels[MAXLEVEL + 2] =
 	177500000,  183600000,  189800000,  196100000,  202500000,
 	209000000,  215600000,  222300000,  229100000,  236000000,
 	243000000,  250100000,  257300000,  264600000,  272000000,
-	279500000,  287100000,  294800000,  302600000,  310500000,
-	318500000,  326600000,  334800000,  343100000,  351500000,
-	360000000,  368600000,  377300000,  386100000,  395000000,
-	404000000,  413100000,  422300000,  431600000,  441000000,
-	450500000,  460100000,  469800000,  479600000,  489500000,
-	499500000,  509600000,  519800000,  530100000,  540500000,
-	551000000,  561600000,  572300000,  583100000,  594000000,
-	605000000,  700000000
+	280200000,  294800000,  310200000,  326300000,  343200000,
+	361000000,  379700000,  399300000,  419900000,  441500000,
+	464200000,  488100000,  513100000,  539400000,  567000000,
+	596000000,  626400000,  658300000,  691900000,  727100000,
+	764100000,  802900000,  843700000,  886500000,  931500000,
+	978700000,  1028200000, 1080300000, 1134900000, 1192300000,
+	1252500000, 1315800000, 1382200000, 1451900000, 1525100000,
+	2100000000LLU, 4200000000LLU, 8400000000LLU, 16800000000LLU, 33600000000LLU,
+	67200000000LLU, 134400000000LLU
 };
 
 /**
@@ -281,9 +282,9 @@ _level_color level_color[201] =
  * @return The experience needed.
  * @todo Remove, since the param expmul seems to always be passed as
  * '1.0'? */
-uint32 level_exp(int level, double expmul)
+uint64 level_exp(int level, double expmul)
 {
-	return (uint32) (expmul * (double) new_levels[level]);
+	return (uint64) (expmul * (double) new_levels[level]);
 }
 
 /**
@@ -293,10 +294,10 @@ uint32 level_exp(int level, double expmul)
  * negative, subtract).
  * @param skill_nr Skill ID.
  * @return 0 on failure, experience gained on success. */
-sint32 add_exp(object *op, int exp, int skill_nr)
+sint64 add_exp(object *op, sint64 exp, int skill_nr)
 {
 	object *exp_ob = NULL, *exp_skill = NULL;
-	int limit = 0;
+	sint64 limit = 0;
 
 	/* Sanity check */
 	if (!op)
@@ -367,10 +368,10 @@ sint32 add_exp(object *op, int exp, int skill_nr)
 	}
 
 	/* Notify the player of the exp gain */
-	new_draw_info_format(NDI_UNIQUE, op, "You got %d exp in skill %s.", exp, skills[skill_nr].name);
+	new_draw_info_format(NDI_UNIQUE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
 
 	/* The real experience we have added to our skill */
-	return (sint32) exp;
+	return exp;
 }
 
 /**
@@ -397,7 +398,7 @@ void player_lvl_adj(object *who, object *op)
 		return;
 	}
 
-	if (op->level < MAXLEVEL && op->stats.exp >= (sint32) level_exp(op->level + 1, 1.0))
+	if (op->level < MAXLEVEL && op->stats.exp >= (sint64) level_exp(op->level + 1, 1.0))
 	{
 		op->level++;
 
@@ -425,11 +426,6 @@ void player_lvl_adj(object *who, object *op)
 					}
 				}
 			}
-		}
-
-		if (op == who && op->stats.exp > 1 && is_dragon_pl(who))
-		{
-			dragon_level_gain(who);
 		}
 
 		if (who && who->type == PLAYER && op->type != EXPERIENCE && op->type != SKILL && who->level > 1)
@@ -515,7 +511,7 @@ void player_lvl_adj(object *who, object *op)
 		/* To increase more levels. */
 		player_lvl_adj(who, op);
 	}
-	else if (op->level > 1 && op->stats.exp < (sint32) level_exp(op->level, 1.0))
+	else if (op->level > 1 && op->stats.exp < (sint64) level_exp(op->level, 1.0))
 	{
 		op->level--;
 
@@ -564,11 +560,11 @@ void player_lvl_adj(object *who, object *op)
  * @param op Skill object.
  * @param exp Experience.
  * @return 0 on failure, experience we added otherwise. */
-int adjust_exp(object *pl, object *op, int exp)
+sint64 adjust_exp(object *pl, object *op, sint64 exp)
 {
 	object *tmp;
 	int i, sk_nr;
-	sint32 sk_exp, pl_exp;
+	sint64 sk_exp, pl_exp;
 
 	/* Be sure this is a skill object from a player. */
 	if (op->type != SKILL || !pl || pl->type != PLAYER)
@@ -586,7 +582,7 @@ int adjust_exp(object *pl, object *op, int exp)
 		op->stats.exp = 0;
 	}
 
-	if (op->stats.exp > (sint32) MAX_EXPERIENCE)
+	if (op->stats.exp > (sint64) MAX_EXPERIENCE)
 	{
 		exp = exp - (op->stats.exp - MAX_EXPERIENCE);
 		op->stats.exp = MAX_EXPERIENCE;
@@ -638,7 +634,7 @@ void apply_death_exp_penalty(object *op)
 {
 	object *tmp;
 	float loss_p;
-	long level_exp, loss_exp;
+	sint64 level_exp, loss_exp;
 
 	/* Mark the skills for update */
 	CONTR(op)->update_skills = 1;

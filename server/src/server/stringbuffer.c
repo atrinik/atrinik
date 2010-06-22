@@ -188,3 +188,12 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 	sb->buf = tmp;
 	sb->size = new_size;
 }
+
+/**
+ * Return the current length of the buffer.
+ * @param sb The string buffer to check.
+ * @return Current length of 'sb'. */
+size_t stringbuffer_length(StringBuffer *sb)
+{
+	return sb->pos;
+}

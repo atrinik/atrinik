@@ -2,7 +2,7 @@ arch map
 name Testmaps - Special Objects
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-06-14 Alex Tokar
 endmsg
 width 17
 height 17
@@ -495,10 +495,13 @@ arch floor_ostone1
 x 5
 y 4
 end
-arch guard
-friendly 1
+arch spawn_point
 x 5
 y 4
+arch guard
+friendly 1
+type 83
+end
 end
 arch floor_ostone1
 x 5
@@ -520,10 +523,13 @@ arch floor_ostone1
 x 5
 y 9
 end
-arch guard
-friendly 1
+arch spawn_point
 x 5
 y 9
+arch guard
+friendly 1
+type 83
+end
 end
 arch floor_ostone1
 x 5
@@ -1136,17 +1142,20 @@ arch floor_ostone1
 x 12
 y 2
 end
+arch spawn_point
+x 12
+y 2
 arch ogre
 Dex 2
 can_use_bow 1
 Wis 4
 stand_still 1
-x 12
-y 2
+type 83
 arch ability_stone_throw
 end
 arch t_rock
 sys_object 1
+end
 end
 end
 arch floor_ostone1
@@ -1201,16 +1210,19 @@ arch floor_ostone1
 x 12
 y 14
 end
+arch spawn_point
+x 12
+y 14
 arch skel_mage
 maxsp 30
 Pow 10
 magic 0
 stand_still 1
-x 12
-y 14
+type 83
 arch ability_cause_lig_wound
 end
 arch ability_mbullet
+end
 end
 end
 arch floor_ostone1
@@ -1317,18 +1329,21 @@ arch floor_ostone1
 x 14
 y 2
 end
+arch spawn_point
+x 14
+y 2
 arch ogre
-can_reflect_missile 1
+reflect_missile 1
 Dex 2
 can_use_bow 1
 stand_still 1
 Wis 4
-x 14
-y 2
+type 83
 arch ability_stone_throw
 end
 arch t_rock
 sys_object 1
+end
 end
 end
 arch floor_ostone1
@@ -1383,17 +1398,20 @@ arch floor_ostone1
 x 14
 y 14
 end
+arch spawn_point
+x 14
+y 14
 arch skel_mage
-can_reflect_spell 1
+reflect_spell 1
 maxsp 30
 Pow 10
 magic 0
 stand_still 1
-x 14
-y 14
+type 83
 arch ability_cause_lig_wound
 end
 arch ability_mbullet
+end
 end
 end
 arch floor_ostone1

@@ -3,7 +3,7 @@
 ## functions like removing/adding members, querying member ranks, etc.
 
 from Atrinik import *
-import string, os, shelve
+import shelve
 
 ## The Guild class.
 ##
@@ -138,7 +138,7 @@ class Guild:
 			enter_map = ""
 			guild_maps = []
 
-			for line in guild_options_object.message.splitlines():
+			for line in guild_options_object.msg.splitlines():
 				if line.startswith("guild_maps: "):
 					guild_maps = line[12:].split("|")
 				elif line.startswith("enter_map: "):

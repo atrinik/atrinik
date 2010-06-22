@@ -47,9 +47,9 @@ player *find_player(char *plname)
 {
 	player *pl;
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (pl->ob != NULL && !QUERY_FLAG(pl->ob, FLAG_REMOVED) && !strcmp(query_name(pl->ob, NULL), plname))
+		if (pl->ob && pl->state == ST_PLAYING && !strncasecmp(pl->ob->name, plname, MAX_NAME))
 		{
 			return pl;
 		}
@@ -134,8 +134,6 @@ static player *get_player(player *p)
 
 	if (!p)
 	{
-		player *tmp;
-
 		p = (player *) get_poolchunk(pool_player);
 		memset(p, 0, sizeof(player));
 
@@ -144,29 +142,16 @@ static player *get_player(player *p)
 			LOG(llevError, "ERROR: get_player(): Out of memory\n");
 		}
 
-		/* This adds the player in the linked list.  There is extra
-		 * complexity here because we want to add the new player at the
-		 * end of the list - there is in fact no compelling reason that
-		 * that needs to be done except for things like output of
-		 * '/who'. */
-		tmp = first_player;
-
-		while (tmp != NULL && tmp->next != NULL)
+		if (!last_player)
 		{
-			tmp = tmp->next;
-		}
-
-
-		if (tmp != NULL)
-		{
-			tmp->next = p;
+			first_player = last_player = p;
 		}
 		else
 		{
-			first_player = p;
+			last_player->next = p;
+			p->prev = last_player;
+			last_player = p;
 		}
-
-		p->next = NULL;
 	}
 	else
 	{
@@ -188,9 +173,6 @@ static player *get_player(player *p)
 	p->ob = op;
 	op->speed_left = 0.5;
 	op->speed = 1.0;
-	/* So player faces south */
-	op->direction = 5;
-	/* Then we panick... */
 	op->run_away = 0;
 	op->quickslot = 0;
 
@@ -213,7 +195,6 @@ static player *get_player(player *p)
 	}
 
 	p->chosen_spell = -1;
-	CLEAR_FLAG(op, FLAG_READY_SKILL);
 
 	/* We need to clear these to -1 and not zero - otherwise, if a player
 	 * quits and starts a new character, we won't send new values to the
@@ -239,26 +220,15 @@ static player *get_player(player *p)
  * @param pl The player structure to free. */
 void free_player(player *pl)
 {
-	/* Remove from list of players */
-	if (first_player != pl)
+	if (pl->ob)
 	{
-		player *prev = first_player;
+		SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
 
-		while (prev != NULL && prev->next != NULL && prev->next != pl)
+		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
-			prev = prev->next;
+			remove_ob(pl->ob);
+			check_walk_off(pl->ob, NULL, MOVE_APPLY_VANISHED);
 		}
-
-		if (prev->next != pl)
-		{
-			LOG(llevError, "ERROR: free_player(): Can't find previous player.\n");
-		}
-
-		prev->next = pl->next;
-	}
-	else
-	{
-		first_player = pl->next;
 	}
 
 	/* Free command permissions. */
@@ -277,18 +247,31 @@ void free_player(player *pl)
 		free(pl->cmd_permissions);
 	}
 
-	if (pl->ob != NULL)
+	/* Now remove from list of players. */
+	if (pl->prev)
 	{
-		SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+		pl->prev->next = pl->next;
+	}
+	else
+	{
+		first_player = pl->next;
+	}
 
-		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
-		{
-			remove_ob(pl->ob);
-			check_walk_off(pl->ob, NULL, MOVE_APPLY_VANISHED);
-		}
+	if (pl->next)
+	{
+		pl->next->prev = pl->prev;
+	}
+	else
+	{
+		last_player = pl->prev;
 	}
 
 	free_newsocket(&pl->socket);
+
+	if (pl->ob)
+	{
+		destroy_object(pl->ob);
+	}
 }
 
 /**
@@ -551,11 +534,11 @@ static void fire_bow(object *op, int dir)
 	if ((tmp_op = SK_skill(op)))
 	{
 		/* wc is in last heal */
-		arrow->stats.wc = tmp_op->last_heal;
+		arrow->stats.wc += tmp_op->last_heal;
 	}
 	else
 	{
-		arrow->stats.wc = 10;
+		arrow->stats.wc += 10;
 	}
 
 	/* Now we determine how many tiles the arrow will fly. Again we use
@@ -911,7 +894,7 @@ trick_jump:
 				return;
 			}
 
-			if (op->chosen_skill->sub_type1 != ST1_SKILL_USE)
+			if (op->chosen_skill->sub_type != ST1_SKILL_USE)
 			{
 				new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
 			}
@@ -939,13 +922,6 @@ int move_player(object *op, int dir)
 
 	if (op->map == NULL || op->map->in_memory != MAP_IN_MEMORY)
 	{
-		return 0;
-	}
-
-	/* Do not allow the player to move if he is in player shop interface. */
-	if (QUERY_FLAG(op, FLAG_PLAYER_SHOP))
-	{
-		new_draw_info(NDI_UNIQUE, op, "Close your player shop before attempting to move.");
 		return 0;
 	}
 
@@ -1011,32 +987,38 @@ int move_player(object *op, int dir)
  * This is sort of special, in that the new client/server actually uses
  * the new speed values for commands.
  * @param pl Player to handle.
- * @return 1 if there are more actions we can do, 0 otherwise. */
+ * @retval -1 Player is invalid.
+ * @retval 0 No more actions to do.
+ * @retval 1 There are more actions we can do. */
 int handle_newcs_player(player *pl)
 {
-	object *op;
+	object *op = pl->ob;
 
-	/* Call this here - we also will call this in do_ericserver, but
-	 * the players time has been increased when doericserver has been
-	 * called, so we recheck it here. */
+	if (!op || !OBJECT_ACTIVE(op))
+	{
+		return -1;
+	}
+
 	handle_client(&pl->socket, pl);
-	op = pl->ob;
 
+	if (!op || !OBJECT_ACTIVE(op) || pl->socket.status == Ns_Dead)
+	{
+		return -1;
+	}
+
+	/* Check speed. */
 	if (op->speed_left < 0.0f)
 	{
 		return 0;
 	}
 
-	/* If we are here, we're never paralyzed anymore */
+	/* If we are here, we're never paralyzed anymore. */
 	CLEAR_FLAG(op, FLAG_PARALYZED);
 
 	if (op->direction && (CONTR(op)->run_on || CONTR(op)->fire_on))
 	{
-		/* All move commands take 1 tick, at least for now */
+		/* All move commands take 1 tick, at least for now. */
 		op->speed_left--;
-		/* Instead of all the stuff below, let move_player take care
-		 * of it. Also, some of the skill stuff is only put in
-		 * there, as well as the confusion stuff. */
 		move_player(op, op->direction);
 
 		if (op->speed_left > 0)
@@ -1138,200 +1120,218 @@ static void remove_unpaid_objects(object *op, object *env)
 }
 
 /**
- * Regenerate hp/sp/gr, decreases food. This only works for players.
+ * Regenerate player's hp/mana/grace, decrease food, etc.
+ *
+ * We will only regenerate HP and mana if the player has some food in their
+ * stomach.
  * @param op Player. */
 void do_some_living(object *op)
 {
-	if (CONTR(op)->state == ST_PLAYING)
-	{
-		/* HP regeneration */
-		if (CONTR(op)->gen_hp)
-		{
-			if (--op->last_heal < 0)
-			{
-				op->last_heal = CONTR(op)->base_hp_reg;
+	int last_food = op->stats.food;
+	int gen_hp, gen_sp, gen_grace;
+	int rate_hp = 2000;
+	int rate_sp = 1200;
+	int rate_grace = 400;
 
-				/* Halved regeneration speed */
+	if (CONTR(op)->state != ST_PLAYING)
+	{
+		return;
+	}
+
+	gen_hp = (CONTR(op)->gen_hp * (rate_hp / 20)) + (op->stats.maxhp / 4);
+	gen_sp = (CONTR(op)->gen_sp * (rate_sp / 20)) + op->stats.maxsp;
+	gen_grace = (CONTR(op)->gen_grace * (rate_grace / 20)) + op->stats.maxgrace;
+
+	gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
+
+	/* Update client's regen rates. */
+	CONTR(op)->gen_client_hp = ((float) (1000000 / MAX_TIME) / ((float) rate_hp / (MAX(gen_hp, 20) + 10))) * 10.0f;
+	CONTR(op)->gen_client_sp = ((float) (1000000 / MAX_TIME) / ((float) rate_sp / (MAX(gen_sp, 20) + 10))) * 10.0f;
+	CONTR(op)->gen_client_grace = ((float) (1000000 / MAX_TIME) / ((float) rate_grace / (MAX(gen_grace, 20) + 10))) * 10.0f;
+
+	/* Regenerate hit points. */
+	if (--op->last_heal < 0)
+	{
+		if (op->stats.hp < op->stats.maxhp && op->stats.food)
+		{
+			op->stats.hp++;
+
+			/* DMs do not consume food. */
+			if (!QUERY_FLAG(op, FLAG_WIZ))
+			{
+				op->stats.food--;
+
+				if (CONTR(op)->digestion < 0)
+				{
+					op->stats.food += CONTR(op)->digestion;
+				}
+				else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion))
+				{
+					op->stats.food = last_food;
+				}
+			}
+		}
+
+		op->last_heal = rate_hp / (MAX(gen_hp, 20) + 10);
+	}
+
+	/* Regenerate mana. */
+	if (--op->last_sp < 0)
+	{
+		if (op->stats.sp < op->stats.maxsp && op->stats.food)
+		{
+			op->stats.sp++;
+
+			/* DMs do not consume food. */
+			if (!QUERY_FLAG(op, FLAG_WIZ))
+			{
+				op->stats.food--;
+
+				if (CONTR(op)->digestion < 0)
+				{
+					op->stats.food += CONTR(op)->digestion;
+				}
+				else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion))
+				{
+					op->stats.food = last_food;
+				}
+			}
+		}
+
+		op->last_sp = rate_sp / (MAX(gen_sp, 20) + 10);
+	}
+
+	/* Stop and pray. */
+	if (CONTR(op)->praying && !CONTR(op)->was_praying)
+	{
+		if (op->stats.grace < op->stats.maxgrace)
+		{
+			object *god = find_god(determine_god(op));
+
+			if (god)
+			{
 				if (CONTR(op)->combat_mode)
 				{
-					op->last_heal += op->last_heal;
-				}
-
-				if (op->stats.hp < op->stats.maxhp)
-				{
-					int last_food = op->stats.food;
-
-					op->stats.hp += CONTR(op)->reg_hp_num;
-
-					if (op->stats.hp > op->stats.maxhp)
-					{
-						op->stats.hp = op->stats.maxhp;
-					}
-
-					/* Faster hp reg - faster digestion */
-					op->stats.food--;
-
-					if (CONTR(op)->digestion < 0)
-					{
-						op->stats.food += CONTR(op)->digestion;
-					}
-					else if (CONTR(op)->digestion > 0 && random_roll(0, CONTR(op)->digestion, op, PREFER_HIGH))
-					{
-						op->stats.food = last_food;
-					}
-				}
-			}
-		}
-
-		/* Mana regeneration */
-		if (CONTR(op)->gen_sp)
-		{
-			if (--op->last_sp < 0)
-			{
-				op->last_sp = CONTR(op)->base_sp_reg;
-
-				if (op->stats.sp < op->stats.maxsp)
-				{
-					op->stats.sp += CONTR(op)->reg_sp_num;
-
-					if (op->stats.sp > op->stats.maxsp)
-					{
-						op->stats.sp = op->stats.maxsp;
-					}
-				}
-			}
-		}
-
-		/* Stay and pray */
-		if (CONTR(op)->praying && !CONTR(op)->was_praying)
-		{
-			if (op->stats.grace < op->stats.maxgrace)
-			{
-				object *god = find_god(determine_god(op));
-
-				if (god)
-				{
-					if (CONTR(op)->combat_mode)
-					{
-						new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
-						CONTR(op)->combat_mode = 0;
-						send_target_command(CONTR(op));
-					}
-					else
-					{
-						new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
-					}
-
-					CONTR(op)->was_praying = 1;
+					new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
+					CONTR(op)->combat_mode = 0;
+					send_target_command(CONTR(op));
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
-					CONTR(op)->praying = 0;
+					new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
 				}
 
-				op->last_grace = CONTR(op)->base_grace_reg;
+				CONTR(op)->was_praying = 1;
 			}
 			else
 			{
+				new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
 				CONTR(op)->praying = 0;
+			}
+
+			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
+		}
+		else
+		{
+			CONTR(op)->praying = 0;
+			CONTR(op)->was_praying = 0;
+		}
+	}
+	else if (!CONTR(op)->praying && CONTR(op)->was_praying)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You stop praying.");
+		CONTR(op)->was_praying = 0;
+		op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
+	}
+
+	/* Regenerate grace. */
+	if (CONTR(op)->praying)
+	{
+		if (--op->last_grace < 0)
+		{
+			if (op->stats.grace < op->stats.maxgrace)
+			{
+				op->stats.grace++;
+			}
+
+			if (op->stats.grace >= op->stats.maxgrace)
+			{
+				op->stats.grace = op->stats.maxgrace;
+				new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
 				CONTR(op)->was_praying = 0;
 			}
+
+			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
 		}
-		else if (!CONTR(op)->praying && CONTR(op)->was_praying)
+	}
+
+	/* Digestion */
+	if (--op->last_eat < 0)
+	{
+		int bonus = MAX(CONTR(op)->digestion, 0);
+		int penalty = MAX(-CONTR(op)->digestion, 0);
+
+		if (CONTR(op)->gen_hp > 0)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You stop praying.");
-			CONTR(op)->was_praying = 0;
-			op->last_grace = CONTR(op)->base_grace_reg;
+			op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
 		}
-
-		/* Grace regeneration */
-		if (CONTR(op)->praying && CONTR(op)->gen_grace)
+		else
 		{
-			if (--op->last_grace < 0)
-			{
-				if (op->stats.grace < op->stats.maxgrace)
-				{
-					op->stats.grace += CONTR(op)->reg_grace_num;
-				}
-
-				if (op->stats.grace >= op->stats.maxgrace)
-				{
-					op->stats.grace = op->stats.maxgrace;
-					new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
-					CONTR(op)->was_praying = 0;
-				}
-
-				op->last_grace = CONTR(op)->base_grace_reg;
-			}
+			op->last_eat = 25 * (1 + bonus) / (penalty + 1);
 		}
 
-		/* Digestion */
-		if (--op->last_eat < 0)
+		/* DMs do not consume food. */
+		if (!QUERY_FLAG(op, FLAG_WIZ))
 		{
-			int bonus = CONTR(op)->digestion > 0 ? CONTR(op)->digestion : 0, penalty = CONTR(op)->digestion < 0? -CONTR(op)->digestion : 0;
-
-			if (CONTR(op)->gen_hp > 0)
-			{
-				op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
-			}
-			else
-			{
-				op->last_eat = 25 * (1 + bonus) / (penalty + 1);
-			}
-
 			op->stats.food--;
 		}
+	}
 
-		if (op->stats.food < 0 && op->stats.hp >= 0)
+	if (op->stats.food < 0 && op->stats.hp >= 0)
+	{
+		object *tmp, *flesh = NULL;
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
 		{
-			object *tmp, *flesh = NULL;
-
-			for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+			if (!QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				if (!QUERY_FLAG(tmp, FLAG_UNPAID))
+				if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
 				{
-					if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
-					{
-						new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
-						manual_apply(op, tmp, 0);
+					new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+					manual_apply(op, tmp, 0);
 
-						if (op->stats.food >= 0 || op->stats.hp < 0)
-						{
-							break;
-						}
-					}
-					else if (tmp->type == FLESH)
+					if (op->stats.food >= 0 || op->stats.hp < 0)
 					{
-						flesh = tmp;
+						break;
 					}
 				}
-			}
-
-			/* If player is still starving, it means they don't have any food, so
-			 * eat flesh instead. */
-			if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
-			{
-				new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
-				manual_apply(op, flesh, 0);
+				else if (tmp->type == FLESH)
+				{
+					flesh = tmp;
+				}
 			}
 		}
 
-		while (op->stats.food < 0 && op->stats.hp > 0)
+		/* If player is still starving, it means they don't have any food, so
+		 * eat flesh instead. */
+		if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
 		{
-			op->stats.food++;
-
-			if (op->stats.hp)
-			{
-				op->stats.hp--;
-			}
+			new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+			manual_apply(op, flesh, 0);
 		}
+	}
 
-		/* We can't die by no food but perhaps by poisoned food? */
-		if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
-		{
-			kill_player(op);
-		}
+	while (op->stats.food < 0 && op->stats.hp > 0)
+	{
+		op->stats.food++;
+		op->stats.hp--;
+	}
+
+	if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
+	{
+		new_draw_info_format(NDI_ALL, NULL, "%s starved to death.", op->name);
+		strcpy(CONTR(op)->killer, "starvation");
+		kill_player(op);
 	}
 }
 
@@ -1352,11 +1352,6 @@ void kill_player(object *op)
 	int lost_a_stat;
 	int lose_this_stat;
 	int this_stat;
-
-	if (save_life(op))
-	{
-		return;
-	}
 
 	if (pvp_area(NULL, op))
 	{
@@ -1379,9 +1374,11 @@ void kill_player(object *op)
 
 		if (tmp != NULL)
 		{
+			char race[MAX_BUF];
+
 			snprintf(buf, sizeof(buf), "%s's finger", op->name);
 			FREE_AND_COPY_HASH(tmp->name, buf);
-			snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when he was defeated at level %d by %s.", op->name, op->race, (int)(op->level), strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
+			snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, player_get_race_class(op, race, sizeof(race)), gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
 			FREE_AND_COPY_HASH(tmp->msg, buf);
 			tmp->value = 0, tmp->material = 0, tmp->type = 0;
 			tmp->x = op->x, tmp->y = op->y;
@@ -1393,6 +1390,11 @@ void kill_player(object *op)
 		return;
 	}
 
+	if (save_life(op))
+	{
+		return;
+	}
+
 	/* Trigger the DEATH event */
 	if (trigger_event(EVENT_DEATH, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
 	{
@@ -1401,16 +1403,6 @@ void kill_player(object *op)
 
 	/* Trigger the global GDEATH event */
 	trigger_global_event(EVENT_GDEATH, NULL, op);
-
-	if (op->stats.food < 0)
-	{
-		snprintf(buf, sizeof(buf), "%s starved to death.", op->name);
-		strcpy(CONTR(op)->killer, "starvation");
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "%s died.", op->name);
-	}
 
 	play_sound_player_only(CONTR(op), SOUND_PLAYER_DIES, SOUND_NORMAL, 0, 0);
 
@@ -1499,7 +1491,7 @@ void kill_player(object *op)
 					else
 					{
 						/* Take loss chance vs keep chance to see if we retain the stat. */
-						if (random_roll(0, loss_chance + keep_chance - 1, op, PREFER_LOW) < keep_chance)
+						if (rndm(0, loss_chance + keep_chance - 1) < keep_chance)
 						{
 							lose_this_stat = 0;
 						}
@@ -1668,7 +1660,6 @@ int pvp_area(object *attacker, object *victim)
 		return 0;
 	}
 
-	/* If both are the same, this is probably a firestorm from attacker or something. Don't want to kill ourselves! */
 	if (attacker && victim && attacker == victim)
 	{
 		return 0;
@@ -1676,7 +1667,7 @@ int pvp_area(object *attacker, object *victim)
 
 	if (attacker && attacker->map)
 	{
-		if (!(attacker->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_IS_PVP))
+		if (!(attacker->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_NO_PVP)
 		{
 			return 0;
 		}
@@ -1684,154 +1675,13 @@ int pvp_area(object *attacker, object *victim)
 
 	if (victim && victim->map)
 	{
-		if (!(victim->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_IS_PVP))
+		if (!(victim->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_NO_PVP)
 		{
 			return 0;
 		}
 	}
 
 	return 1;
-}
-
-/**
- * When a dragon player gains a new stage of evolution,
- * he gets some treasure.
- * @param who The dragon player
- * @param atnr The attack number of the ability focus
- * @param level Ability level */
-void dragon_ability_gain(object *who, int atnr, int level)
-{
-	treasurelist *trlist = NULL;
-	treasure *tr;
-	object *tmp, *item;
-	int i = 0, j = 0;
-
-	/* Get the appropriate treasurelist */
-	if (atnr == ATNR_FIRE)
-	{
-		trlist = find_treasurelist("dragon_ability_fire");
-	}
-	else if (atnr == ATNR_COLD)
-	{
-		trlist = find_treasurelist("dragon_ability_cold");
-	}
-	else if (atnr == ATNR_ELECTRICITY)
-	{
-		trlist = find_treasurelist("dragon_ability_elec");
-	}
-	else if (atnr == ATNR_POISON)
-	{
-		trlist = find_treasurelist("dragon_ability_poison");
-	}
-
-	if (trlist == NULL || who->type != PLAYER)
-	{
-		return;
-	}
-
-	for (i = 0, tr = trlist->items; tr != NULL && i < level - 1; tr = tr->next, i++)
-	{
-	}
-
-	if (tr == NULL || tr->item == NULL)
-	{
-		return;
-	}
-
-	/* Everything seems okay - now bring on the gift. */
-	item = &(tr->item->clone);
-
-	/* Grant direct spell */
-	if (item->type == SPELLBOOK)
-	{
-		int spell = look_up_spell_name(item->slaying);
-
-		if (spell < 0 || check_spell_known(who, spell))
-		{
-			return;
-		}
-
-		if (IS_SYS_INVISIBLE(item))
-		{
-			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, who, "You gained the ability of %s", spells[spell].name);
-			do_learn_spell(who, spell, 0);
-			return;
-		}
-	}
-	else if (item->type == FORCE)
-	{
-		char buf[MAX_BUF];
-		/* Forces in the treasurelist can alter the player's stats */
-		object *skin;
-
-		/* First get the dragon skin force */
-		for (skin = who->inv; skin != NULL && strcmp(skin->arch->name, "dragon_skin_force") != 0; skin = skin->below)
-		{
-		}
-
-		if (skin == NULL)
-		{
-			return;
-		}
-
-		/* Adding new spellpath attunements */
-		if (item->path_attuned > 0 && !(skin->path_attuned & item->path_attuned))
-		{
-			/* Add attunement to skin */
-			skin->path_attuned += item->path_attuned;
-
-			snprintf(buf, sizeof(buf), "You feel attuned to ");
-
-			for (i = 0, j = 0; i<NRSPELLPATHS; i++)
-			{
-				if (item->path_attuned & (1 << i))
-				{
-					if (j)
-						strcat(buf, " and ");
-					else
-						j = 1;
-					strcat(buf, spellpathnames[i]);
-				}
-			}
-
-			strcat(buf, ".");
-
-			new_draw_info(NDI_UNIQUE | NDI_BLUE, who, buf);
-		}
-
-		if (QUERY_FLAG(item, FLAG_XRAYS))
-		{
-			SET_FLAG(skin, FLAG_XRAYS);
-		}
-
-		if (QUERY_FLAG(item, FLAG_STEALTH))
-		{
-			SET_FLAG(skin, FLAG_STEALTH);
-		}
-
-		if (QUERY_FLAG(item, FLAG_SEE_IN_DARK))
-		{
-			SET_FLAG(skin, FLAG_SEE_IN_DARK);
-		}
-
-		/* Print message if there is one. */
-		if (item->msg)
-		{
-			new_draw_info(NDI_UNIQUE | NDI_BLUE, who, item->msg);
-		}
-	}
-	else
-	{
-		/* Generate misc. treasure */
-		tmp = arch_to_object(tr->item);
-		new_draw_info_format(NDI_UNIQUE | NDI_BLUE, who, "You gained %s.", query_short_name(tmp, NULL));
-		tmp = insert_ob_in_ob(tmp, who);
-
-		if (who->type == PLAYER)
-		{
-			esrv_send_item(who, tmp);
-		}
-	}
 }
 
 /**
@@ -1937,30 +1787,49 @@ object *find_skill(object *op, int skillnr)
 }
 
 /**
- * Determine if the attacktype represented by the specified attack number
- * is enabled for dragon players.
- * @param attacknr Attacktype to check
- * @return 1 if the player can gain resistances in that, 0 otherwise. */
-int atnr_is_dragon_enabled(int attacknr)
+ * Check whether player can carry an object.
+ * @param pl Player.
+ * @param ob The object player wants to carry.
+ * @param nrof Number of objects.
+ * @return 1 if the player can carry that number of objects, 0 otherwise. */
+int player_can_carry(object *pl, object *ob, uint32 nrof)
 {
-	if (attacknr == ATNR_MAGIC || attacknr == ATNR_FIRE || attacknr == ATNR_ELECTRICITY || attacknr == ATNR_COLD || attacknr == ATNR_ACID || attacknr == ATNR_POISON)
+	uint32 weight, effective_weight_limit;
+
+	weight = ob->weight * nrof;
+
+	if (ob->inv)
 	{
-		return 1;
+		weight += ob->carrying;
 	}
 
-	return 0;
+	if (pl->stats.Str <= MAX_STAT)
+	{
+		effective_weight_limit = weight_limit[pl->stats.Str];
+	}
+	else
+	{
+		effective_weight_limit = weight_limit[MAX_STAT];
+	}
+
+	return (pl->carrying + weight) < effective_weight_limit;
 }
 
 /**
- * Checks if player is a dragon.
- * @param op Player to check.
- * @return 1 if the player is of the dragon race, 0 otherwise. */
-int is_dragon_pl(object *op)
+ * Combine player's race with their class (if there is one).
+ * @param op Player.
+ * @param buf Buffer to write into.
+ * @param size Size of 'buf'.
+ * @return 'buf'. */
+char *player_get_race_class(object *op, char *buf, size_t size)
 {
-	if (op != NULL && op->type == PLAYER && op->arch != NULL && op->arch->clone.race != NULL && strcmp(op->arch->clone.race, "dragon") == 0)
+	strncpy(buf, op->race, size - 1);
+
+	if (CONTR(op)->class_ob)
 	{
-		return 1;
+		strncat(buf, " ", size - strlen(buf) - 1);
+		strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
 	}
 
-	return 0;
+	return buf;
 }

@@ -84,7 +84,6 @@ static void create_one_treasure(treasurelist *tl, object *op, int flag, int diff
 static int set_ring_bonus(object *op, int bonus, int level);
 static int get_magic(int diff);
 static void dump_monster_treasure_rec(const char *name, treasure *t, int depth);
-static void fix_flesh_item(object *item, object *donor);
 static void free_treasurestruct(treasure *t);
 static void free_charlinks(linked_char *lc);
 static void free_artifactlist();
@@ -539,7 +538,6 @@ void init_artifacts()
 			FREE_AND_COPY_HASH(art->def_at_name, cp + 9);
 			/* Copy the default arch */
 			memcpy(&art->def_at, atemp, sizeof(archetype));
-			art->def_at.base_clone = &atemp->clone;
 			ADD_REF_NOT_NULL_HASH(art->def_at.clone.name);
 			ADD_REF_NOT_NULL_HASH(art->def_at.clone.title);
 			ADD_REF_NOT_NULL_HASH(art->def_at.clone.race);
@@ -938,8 +936,6 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 					if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED))
 					{
 						SET_FLAG(tmp, FLAG_IDENTIFIED);
-						SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-						SET_FLAG(tmp, FLAG_KNOWN_CURSED);
 					}
 				}
 				/* We have a wealth object - expand it to real money */
@@ -1126,8 +1122,6 @@ create_one_treasure_again_jmp:
 			if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
 				SET_FLAG(tmp, FLAG_IDENTIFIED);
-				SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-				SET_FLAG(tmp, FLAG_KNOWN_CURSED);
 			}
 		}
 		/* We have a wealth object - expand it to real money */
@@ -1290,15 +1284,15 @@ void set_abs_magic(object *op, int magic)
 		}
 		else if (magic == 3)
 		{
-			op->value += 62300;
+			op->value += 24300;
 		}
 		else if (magic == 4)
 		{
-			op->value += 130300;
+			op->value += 52300;
 		}
 		else
 		{
-			op->value += 250300;
+			op->value += 88300;
 		}
 
 		if (op->type == ARMOUR)
@@ -1346,8 +1340,7 @@ void set_abs_magic(object *op, int magic)
  * @param bonus Bonus to add to item.
  * @param level Level.
  * @return 1.
- * @todo Get rid of the gotos in here.
- */
+ * @todo Get rid of the gotos in here. */
 static int set_ring_bonus(object *op, int bonus, int level)
 {
 	int tmp, r, off;
@@ -1638,8 +1631,10 @@ make_prot_items:
 		case 15:
 		case 16:
 		case 17:
+		case 18:
+		case 19:
 		{
-			int b = 5 + FABS(bonus), val, protect = RANDOM() % (NROFPROTECTIONS - 4 + off);
+			int b = 5 + FABS(bonus), val, protect = RANDOM() % (LAST_PROTECTION - 4 + off);
 
 			/* Roughly generate a bonus between 100 and 35 (depending on the bonus) */
 			val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
@@ -1669,53 +1664,10 @@ make_prot_items:
 					goto set_ring_bonus_jump1;
 				}
 
-				protect = RANDOM() % (NROFPROTECTIONS - 4 + off);
+				protect = RANDOM() % (LAST_PROTECTION - 4 + off);
 			}
 
 			op->protection[protect] = val;
-			break;
-		}
-
-		case 18:
-		case 19:
-		{
-			int b = 5 + FABS(bonus), val, resist = RANDOM() % (num_resist_table - 4 + off);
-
-			/* Roughly generate a bonus between 100 and 35 (depending on the bonus) */
-			val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
-
-			/* Cursed items need to have higher negative values to equal
-			 * out with positive values for how protections work out. Put
-			 * another little random element in since that they don't
-			 * always end up with even values. */
-			if (bonus < 0)
-			{
-				val = 2 * -val - RANDOM() % b;
-			}
-
-			/* Upper limit */
-			if (val > 35)
-			{
-				val = 35;
-			}
-
-			b = 0;
-
-			while (op->resist[resist_table[resist]] != 0)
-			{
-				/* Not able to find a free resistance */
-				if (b++ >= 4)
-				{
-					goto set_ring_bonus_jump1;
-				}
-
-				resist = RANDOM() % (num_resist_table - 4 + off);
-			}
-
-			op->resist[resist_table[resist]] = val;
-
-			/* We should probably do something more clever here to adjust
-			 * value based on how good a resistance we gave. */
 			break;
 		}
 
@@ -1779,6 +1731,86 @@ make_prot_items:
 }
 
 /**
+ * Calculate the item power of the given ring/amulet.
+ * @param ob The ring/amulet. */
+static void set_ring_item_power(object *ob)
+{
+	int tmp, i;
+
+	if (ob->stats.maxhp > 0)
+	{
+		ob->item_power += ob->stats.maxhp / 50;
+	}
+
+	if (ob->stats.maxsp > 0)
+	{
+		ob->item_power += ob->stats.maxsp / 50;
+	}
+
+	if (ob->stats.exp >= 2)
+	{
+		ob->item_power += ob->stats.exp - 1;
+	}
+
+	if (ob->stats.ac > 0)
+	{
+		ob->item_power += ob->stats.ac;
+	}
+
+	if (ob->stats.dam > 0)
+	{
+		ob->item_power += ob->stats.dam;
+	}
+
+	if (ob->stats.wc > 0)
+	{
+		ob->item_power += ob->stats.wc;
+	}
+
+	if (QUERY_FLAG(ob, FLAG_REFL_MISSILE))
+	{
+		ob->item_power++;
+	}
+
+	if (QUERY_FLAG(ob, FLAG_REFL_SPELL))
+	{
+		ob->item_power += 2;
+	}
+
+	if (ob->stats.hp > 0)
+	{
+		ob->item_power++;
+	}
+
+	if (ob->stats.sp > 0)
+	{
+		ob->item_power += 2;
+	}
+
+	tmp = 0;
+
+	for (i = 0; i < NROFATTACKS; i++)
+	{
+		tmp += ob->protection[i];
+	}
+
+	if (tmp > 0)
+	{
+		ob->item_power += (tmp + 10) / 20;
+	}
+
+	for (i = 0; i < NUM_STATS; i++)
+	{
+		tmp = get_attr_value(&ob->stats, i);
+
+		if (tmp >= 2)
+		{
+			ob->item_power += tmp - 1;
+		}
+	}
+}
+
+/**
  * Will return a random number between 0 and 4.
  *
  * It is only used in fix_generated_treasure() to set bonuses on rings
@@ -1837,6 +1869,20 @@ static int get_random_spell(int level, int flags)
 
 	/* If we are here, there is no fitting spell. */
 	return SP_NO_SPELL;
+}
+
+/**
+ * Assign a random slaying race to an object, for weapons, arrows
+ * and such.
+ * @param op Object. */
+static void add_random_race(object *op)
+{
+	ob_race *race = race_get_random();
+
+	if (race)
+	{
+		FREE_AND_COPY_HASH(op->slaying, race->name);
+	}
 }
 
 #define DICE2 (get_magic(2) == 2 ? 2 : 1)
@@ -1938,7 +1984,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 			case POTION:
 			{
 				/* Balm */
-				if (!op->sub_type1)
+				if (!op->sub_type)
 				{
 					if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BALM)) == SP_NO_SPELL)
 					{
@@ -1949,7 +1995,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 					op->value = (int) (150.0f * spells[op->stats.sp].value_mul);
 				}
 				/* Dust */
-				else if (op->sub_type1 > 128)
+				else if (op->sub_type > 128)
 				{
 					if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_DUST)) == SP_NO_SPELL)
 					{
@@ -2064,31 +2110,30 @@ jump_break1:
 
 				set_ring_bonus(op, QUERY_FLAG(op, FLAG_CURSED) ? -DICE2 : DICE2, difficulty);
 
-				/* Amulets have only one ability, don't bother adding any more */
-				if (op->type != RING)
+				if (op->type == RING)
 				{
-					break;
-				}
-
-				if (!(RANDOM() % 4))
-				{
-					int d = (RANDOM() % 2 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
-
-					if (set_ring_bonus(op, d, difficulty))
-					{
-						op->value = (int) ((float) op->value * 1.95f);
-					}
-
 					if (!(RANDOM() % 4))
 					{
-						int d = (RANDOM() % 3 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+						int d = (RANDOM() % 2 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 						if (set_ring_bonus(op, d, difficulty))
 						{
 							op->value = (int) ((float) op->value * 1.95f);
 						}
+
+						if (!(RANDOM() % 4))
+						{
+							int d = (RANDOM() % 3 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+
+							if (set_ring_bonus(op, d, difficulty))
+							{
+								op->value = (int) ((float) op->value * 1.95f);
+							}
+						}
 					}
 				}
+
+				set_ring_item_power(op);
 
 				break;
 
@@ -2109,7 +2154,7 @@ jump_break1:
 
 						if (ob->map && ob->map->difficulty)
 						{
-							op->level = MIN(RANDOM() % (ob->map->difficulty) + RANDOM() % 10 + 1, MAXLEVEL);
+							op->level = MIN(RANDOM() % (ob->map->difficulty) + RANDOM() % 3 + 1, MAXLEVEL);
 						}
 						else
 						{
@@ -2251,13 +2296,13 @@ jump_break1:
 						change_attr_value(&op->stats, RANDOM() % NUM_STATS, strong_curse ? -2 : -1);
 					}
 
-					/* Put a negative value on random resist */
-					op->resist[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+					/* Put a negative value on random protection. */
+					op->protection[RANDOM() % LAST_PROTECTION] = strong_curse ? -25 : -10;
 
-					/* And again, if this is strong curse food, half a chance to curse another resist */
+					/* And again, if this is strong curse food, half a chance to curse another protection. */
 					if (strong_curse && RANDOM() % 2)
 					{
-						op->resist[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+						op->protection[RANDOM() % LAST_PROTECTION] = strong_curse ? -25 : -10;
 					}
 
 					/* Change food, hp, mana and grace bonuses to negative values */
@@ -2292,12 +2337,12 @@ jump_break1:
 						}
 					}
 
-					/* And the same for resists. */
+					/* And the same for protections. */
 					for (i = 0; i < NROFATTACKS; i++)
 					{
-						if (op->resist[i] > 0)
+						if (op->protection[i] > 0)
 						{
-							op->resist[i] = -op->resist[i];
+							op->protection[i] = -op->protection[i];
 						}
 					}
 
@@ -2315,20 +2360,18 @@ jump_break1:
 	{
 		switch (op->type)
 		{
-			/* Let's check we have a slaying/assassination arrow */
 			case ARROW:
-				/* Compare hash pointers. */
 				if (op->slaying == shstr_cons.none)
 				{
-					int tmp = RANDOM() % global_race_counter;
-					racelink *list;
+					add_random_race(op);
+				}
 
-					/* get the right race */
-					for (list = first_race; list && tmp; list = list->next, tmp--)
-					{
-					}
+				break;
 
-					FREE_AND_COPY_HASH(op->slaying, list->name);
+			case WEAPON:
+				if (op->slaying == shstr_cons.none)
+				{
+					add_random_race(op);
 				}
 
 				break;
@@ -2350,11 +2393,6 @@ jump_break1:
 		{
 			op->value = 0;
 		}
-	}
-
-	if (!(flags & GT_ENVIRONMENT))
-	{
-		fix_flesh_item(op, creator);
 	}
 
 	return retval;
@@ -2687,7 +2725,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 		}
 
 		/* Map difficulty not high enough OR the t_style is set and don't match */
-		if (difficulty < art->difficulty || (t_style == -1 && (art->t_style && art->t_style != T_STYLE_UNSET)) || (t_style && (art->t_style != t_style && art->t_style != T_STYLE_UNSET)))
+		if (difficulty < art->difficulty || (t_style == -1 && art->t_style && art->t_style != T_STYLE_UNSET) || (t_style && art->t_style && art->t_style != t_style && art->t_style != T_STYLE_UNSET))
 		{
 			continue;
 		}
@@ -2714,7 +2752,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 				continue;
 			}
 
-			if (difficulty < art->difficulty || (t_style == -1 && (art->t_style && art->t_style != T_STYLE_UNSET)) || (t_style && (art->t_style != t_style && art->t_style != T_STYLE_UNSET)))
+			if (difficulty < art->difficulty || (t_style == -1 && art->t_style && art->t_style != T_STYLE_UNSET) || (t_style && art->t_style && art->t_style != t_style && art->t_style != T_STYLE_UNSET))
 			{
 				continue;
 			}
@@ -2737,61 +2775,6 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 	}
 
 	return 1;
-}
-
-/**
- * Objects of type FLESH are similar to type FOOD, except they inherit
- * properties (name, food value, etc).
- * @param item The FLESH object to adjust.
- * @param donor THe original owner. */
-static void fix_flesh_item(object *item, object *donor)
-{
-	char tmpbuf[MAX_BUF];
-	int i;
-
-	if (item->type != FLESH || !donor)
-	{
-		return;
-	}
-
-	/* Change the name */
-	snprintf(tmpbuf, sizeof(tmpbuf), "%s's %s", donor->name, item->name);
-	FREE_AND_COPY_HASH(item->name, tmpbuf);
-
-	/* Weight is FLESH weight/100 * donor */
-	if ((item->weight = (signed long) (((double) item->weight / (double) 100.0) * (double) donor->weight)) == 0)
-	{
-		item->weight = 1;
-	}
-
-	/* Value is multiplied by level of donor */
-	item->value *= isqrt(donor->level * 2);
-
-	/* Food value */
-	item->stats.food += (donor->stats.hp / 100) + donor->stats.Con;
-
-	/* Flesh items inherit some abilities of donor, but not
-	 * full effect. */
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		item->resist[i] = donor->resist[i] / 2;
-	}
-
-	/* Item inherits donor's level (important for quezals) */
-	item->level = donor->level;
-
-	/* If donor has some attacktypes, the flesh is poisonous */
-	if (donor->attack[ATNR_POISON])
-	{
-		item->type = POISON;
-	}
-
-	if (donor->attack[ATNR_ACID])
-	{
-		item->stats.hp = -1 * item->stats.food;
-	}
-
-	SET_FLAG(item, FLAG_NO_STEAL);
 }
 
 /**

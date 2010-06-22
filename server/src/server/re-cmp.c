@@ -109,6 +109,13 @@ const char *re_cmp(const char *str, const char *regexp)
 
 	while (*str != '\0' && !(matched = re_match_token(*str, re_token[0])))
 	{
+		/* If '^' was present and we didn't get a match above, return
+		 * NULL now so things like '^hi$' won't match on 'thi'. */
+		if (once)
+		{
+			return NULL;
+		}
+
 		str++;
 	}
 
@@ -189,9 +196,24 @@ const char *re_cmp(const char *str, const char *regexp)
 				break;
 		}
 
+		/* The logic here is that re_match_token only sees if the one
+		 * letter matches. Thus, if the regex is like '@match dragon', and
+		 * the the user enters anything with 'd', re_match_token returns
+		 * true, but they really need to match the entire regexp, which
+		 * re_cmp_step will do. However, what happens is that there can
+		 * be a case where the string being match is something like
+		 * 'where is dragon'. In this case, the re_match_token matches
+		 * that first 'd', but the re_cmp_step below, fails because the
+		 * next character ('a') doesn't match the 'r'. So we call re_cmp
+		 * with the string after the first 'a', so that it should hopefully
+		 * match up properly. */
 		if (re_cmp_step(str + 1, next_regexp, 1, 0))
 		{
 			return str;
+		}
+		else if (*(str + 1) != 0)
+		{
+			return re_cmp(str + 1, regexp);
 		}
 	}
 
@@ -251,7 +273,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
 
 	if (*str == '\0')
 	{
-		return (*next_regexp == '\0' || re_token[slot]->type == sel_end);
+		return (*next_regexp == '\0' || re_token[slot]->type == sel_end) && matched;
 	}
 
 	switch (re_token[slot]->repeat)
@@ -481,7 +503,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 							{
 								/* On the form [A-G] or [^A-G]. Note that [G-A]
 								 * is a syntax error. Fair enough, I think. */
-#ifdef SAFE_CHECK
+#ifdef SAFE_CHECKS
 								if (first > last)
 								{
 									return NULL;
@@ -507,7 +529,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 						if (last)
 						{
 							/* It starts with a range */
-#ifdef SAFE_CHECK
+#ifdef SAFE_CHECKS
 							if (first > last)
 							{
 								return NULL;
@@ -544,7 +566,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 
 								if (looking_at != ']')
 								{
-#ifdef SAFE_CHECK
+#ifdef SAFE_CHECKS
 									if (previous > looking_at)
 									{
 										return NULL;

@@ -12,4 +12,4 @@ if not beacon:
 	raise error("Could not find beacon named '" + beacon_name + "'.")
 
 # Make the waypoint apply the switch, so the click sound is not heard.
-WhoAmI().Apply(beacon.environment, APPLY_TOGGLE)
+WhoAmI().Apply(beacon.env, APPLY_TOGGLE)

@@ -53,7 +53,7 @@ static void pace_moveh(object *ob);
 static void pace2_movev(object *ob);
 static void pace2_moveh(object *ob);
 static void rand_move(object *ob);
-static int talk_to_wall(object *npc, char *txt);
+static int talk_to_wall(object *op, object *npc, char *txt);
 
 /**
  * Update (or clear) an NPC's enemy. Perform most of the housekeeping
@@ -288,7 +288,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 	if (!tmp)
 	{
 		/* If we have an attacker, check him */
-		if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count))
+		if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count) && !IS_INVISIBLE(npc->attacked_by, npc) && !QUERY_FLAG(npc->attacked_by, FLAG_INVULNERABLE))
 		{
 			/* We don't want a fight evil vs evil or good against non evil. */
 			if (is_friend_of(npc, npc->attacked_by))
@@ -349,7 +349,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 	}
 
 	/* We check for sys_invisible and normal */
-	if (IS_INVISIBLE(enemy, op))
+	if (IS_INVISIBLE(enemy, op) || QUERY_FLAG(enemy, FLAG_INVULNERABLE))
 	{
 		return 0;
 	}
@@ -561,60 +561,40 @@ int move_monster(object *op)
 		return 0;
 	}
 
+	part = rv.part;
+	dir = rv.direction;
+
 	/* Move the check for scared up here - if the monster was scared,
 	 * we were not doing any of the logic below, so might as well save
 	 * a few cpu cycles. */
 	if (!QUERY_FLAG(op, FLAG_SCARED))
 	{
-		rv_vector rv1;
-
-		/* Test every part of an object */
-		for (part = op; part != NULL; part = part->more)
+		if (op->last_grace)
 		{
-			get_rangevector(part, enemy, &rv1, 0x1);
-			dir = rv1.direction;
+			op->last_grace--;
+		}
 
-			if (QUERY_FLAG(op, FLAG_RUN_AWAY))
+		if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
+		{
+			if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
 			{
-				dir = absdir(dir + 4);
-			}
-
-			if (QUERY_FLAG(op, FLAG_CONFUSED))
-			{
-				dir = get_randomized_dir(dir);
-			}
-
-			if (op->last_grace)
-			{
-				op->last_grace--;
-			}
-
-			if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
-			{
-				if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
+				if (monster_cast_spell(op, part, dir, &rv, SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF))
 				{
-					if (monster_cast_spell(op, part, dir, &rv1, SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF))
-					{
-						/* Add monster casting delay */
-						op->last_grace += op->magic;
-						return 0;
-					}
+					/* Add monster casting delay */
+					op->last_grace += op->magic;
+					return 0;
 				}
+			}
 
-				if (QUERY_FLAG(op, FLAG_READY_BOW) && !(RANDOM() % 4))
+			if (QUERY_FLAG(op, FLAG_READY_BOW) && !(RANDOM() % 4))
+			{
+				if (monster_use_bow(op, part, dir) && !(RANDOM() % 2))
 				{
-					if (monster_use_bow(op, part, dir) && !(RANDOM() % 2))
-					{
-						return 0;
-					}
+					return 0;
 				}
 			}
 		}
 	}
-
-	part = rv.part;
-	/* dir is now direction towards enemy */
-	dir = rv.direction;
 
 	if (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY))
 	{
@@ -779,7 +759,7 @@ int move_monster(object *op)
 static int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv)
 {
 	/* We check for sys_invisible and normal */
-	if (IS_INVISIBLE(target, op))
+	if (IS_INVISIBLE(target, op) || QUERY_FLAG(target, FLAG_INVULNERABLE))
 	{
 		return 0;
 	}
@@ -841,9 +821,9 @@ static object *find_nearest_enemy(object *ob)
 		aggro_stealth = MIN_MON_RADIUS;
 	}
 
-    for (i = -aggro_range; i <= aggro_range; i++)
+	for (i = -aggro_range; i <= aggro_range; i++)
 	{
-        for (j = -aggro_range; j <= aggro_range; j++)
+		for (j = -aggro_range; j <= aggro_range; j++)
 		{
 			xt = ob->x + i;
 			yt = ob->y + j;
@@ -1597,6 +1577,12 @@ void communicate(object *op, char *txt)
 	if (op->type == PLAYER)
 	{
 		new_info_map(NDI_WHITE | NDI_PLAYER | NDI_SAY, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+
+		/* No talking to NPCs/magic ears while in player shop. */
+		if (QUERY_FLAG(op, FLAG_PLAYER_SHOP))
+		{
+			return;
+		}
 	}
 	else
 	{
@@ -1627,7 +1613,7 @@ void communicate(object *op, char *txt)
 				/* The ear. */
 				if (npc->type == MAGIC_EAR)
 				{
-					talk_to_wall(npc, txt);
+					talk_to_wall(op, npc, txt);
 				}
 				else if (QUERY_FLAG(npc, FLAG_ALIVE))
 				{
@@ -1795,10 +1781,11 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 /**
  * Talk to a magic ear.
+ * @param op Who is talking.
  * @param npc The magic ear.
  * @param txt Text said.
  * @return 1 if text matches something, 0 otherwise. */
-static int talk_to_wall(object *npc, char *txt)
+static int talk_to_wall(object *op, object *npc, char *txt)
 {
 	char *cp;
 
@@ -1814,7 +1801,15 @@ static int talk_to_wall(object *npc, char *txt)
 		return 0;
 	}
 
-	new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+	if (QUERY_FLAG(npc, FLAG_XRAYS))
+	{
+		new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, cp);
+	}
+
 	use_trigger(npc);
 	free(cp);
 
@@ -1828,8 +1823,14 @@ static int talk_to_wall(object *npc, char *txt)
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
+	/* We are obviously friends with ourselves. */
+	if (op == obj)
+	{
+		return 1;
+	}
+
 	/* TODO: Add a few other odd types here, such as god and golem */
-	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER || op == obj)
+	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER)
 	{
 		return 0;
 	}
@@ -1948,7 +1949,7 @@ int check_good_armour(object *who, object *item)
 	val = item->stats.ac - other_armour->stats.ac;
 	val += (item->magic - other_armour->magic) * 3;
 
-	for (i = 0; i < NROFPROTECTIONS; i++)
+	for (i = 0; i < NROFATTACKS; i++)
 	{
 		if (item->protection[i] > other_armour->protection[i])
 		{

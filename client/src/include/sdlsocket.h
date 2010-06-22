@@ -30,8 +30,27 @@
 #ifndef SDLSOCKET_H
 #define SDLSOCKET_H
 
+/**
+ * Timeout when attempting a connection in milliseconds. */
+#define SOCKET_TIMEOUT_MS 4000
+
 #define SOCKET_NO -1
-/** Timeout in seconds. */
-#define SOCKET_TIMEOUT_SEC 8
+
+/**
+ * One command buffer. */
+typedef struct _command_buffer
+{
+	/** Next command in queue. */
+	struct _command_buffer *next;
+
+	/** Previous command in queue. */
+	struct _command_buffer *prev;
+
+	/** Length of the data. */
+	int len;
+
+	/** The data. */
+	uint8 data[1];
+} command_buffer;
 
 #endif

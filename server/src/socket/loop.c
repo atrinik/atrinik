@@ -48,6 +48,8 @@
 
 #include <newserver.h>
 
+static fd_set tmp_read, tmp_exceptions, tmp_write;
+
 /** Prototype for functions the client sends without player interaction. */
 typedef void (*func_uint8_int_ns)(char *, int, socket_struct *);
 
@@ -72,27 +74,28 @@ struct player_cmd_mapping
 
 	/** Function to call. */
 	func_uint8_int_pl cmdproc;
+
+	/** Command flags. */
+	int flags;
 };
 
 /** Commands sent by the client, based on player's actions. */
 static const struct player_cmd_mapping player_commands[] =
 {
-	{"ex",          ExamineCmd},
-	{"ap",          ApplyCmd},
-	{"mv",          MoveCmd},
-	{"reply",       ReplyCmd},
-	{"cm",          (func_uint8_int_pl) PlayerCmd},
-	{"mapredraw",   MapRedrawCmd},
-	{"lock",        (func_uint8_int_pl) LockItem},
-	{"mark",        (func_uint8_int_pl) MarkItem},
-	{"/fire",       command_fire},
-	{"fr",          command_face_request},
-	{"nc",          command_new_char},
-	{"pt",          PartyCmd},
-	{"qs",          QuickSlotCmd},
-	{"shop",        ShopCmd},
-	{"qlist",       QuestListCmd},
-	{NULL, NULL}
+	{"ex",          ExamineCmd, 0},
+	{"ap",          ApplyCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"mv",          MoveCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"reply",       ReplyCmd, 0},
+	{"cm",          PlayerCmd, 0},
+	{"lock",        (func_uint8_int_pl) LockItem, CMD_FLAG_NO_PLAYER_SHOP},
+	{"mark",        (func_uint8_int_pl) MarkItem, 0},
+	{"/fire",       command_fire, 0},
+	{"nc",          command_new_char, 0},
+	{"pt",          PartyCmd, 0},
+	{"qs",          QuickSlotCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"shop",        ShopCmd, 0},
+	{"qlist",       QuestListCmd, 0},
+	{NULL, NULL, 0}
 };
 
 /** Commands sent directly by the client, when connecting or needed. */
@@ -106,6 +109,7 @@ static const struct client_cmd_mapping client_commands[] =
 	{"setup",       SetUp},
 	{"version",     VersionCmd},
 	{"rf",          RequestFileCmd},
+	{"fr",          command_face_request},
 	{NULL, NULL}
 };
 
@@ -118,6 +122,11 @@ void RequestInfo(char *buf, int len, socket_struct *ns)
 	char *params = NULL, *cp;
 	char bigbuf[MAX_BUF];
 	size_t slen = 1;
+
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	/* Set up replyinfo before we modify any of the buffers - this is
 	 * used if we don't find a match. */
@@ -152,111 +161,221 @@ void RequestInfo(char *buf, int len, socket_struct *ns)
 }
 
 /**
+ * Used to check whether read data is a client command in fill_command_buffer().
+ * @param ns Socket.
+ * @return 1 if the read data is a client command, 0 otherwise. */
+static int check_client_command(socket_struct *ns)
+{
+	unsigned char *data;
+	int i, data_len;
+
+	for (i = 0; client_commands[i].cmdname; i++)
+	{
+		if ((int) strlen(client_commands[i].cmdname) <= ns->inbuf.len - 2 && !strncmp((char *) ns->inbuf.buf + 2, client_commands[i].cmdname, strlen(client_commands[i].cmdname)))
+		{
+			/* Pre-process the command. */
+			data = (unsigned char *) strchr((char *) ns->inbuf.buf + 2, ' ');
+
+			if (data)
+			{
+				*data = '\0';
+				data++;
+				data_len = ns->inbuf.len - (data - ns->inbuf.buf);
+			}
+			else
+			{
+				data_len = 0;
+			}
+
+			client_commands[i].cmdproc((char *) data, data_len, ns);
+
+			/* We have successfully added this client. */
+			if (ns->addme)
+			{
+				ns->addme = 0;
+			}
+
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Fill a command buffer with data we read from socket.
+ * @param ns Socket. */
+static void fill_command_buffer(socket_struct *ns)
+{
+	int rr;
+
+	do
+	{
+		if (ns->outputbuffer.len >= (int) (MAXSOCKBUF * 0.75))
+		{
+			if (!ns->write_overflow)
+			{
+				ns->write_overflow = 1;
+				LOG(llevDebug, "OVERFLOW: fill_command_buffer(): Socket write overflow protection activated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
+			}
+
+			return;
+		}
+		else if (ns->write_overflow && (ns->outputbuffer.len <= (int) (MAXSOCKBUF * 0.33)))
+		{
+			ns->write_overflow = 0;
+			LOG(llevDebug, "OVERFLOW: fill_command_buffer(): Socket write overflow protection deactivated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
+		}
+
+		if ((rr = SockList_ReadCommand(&ns->readbuf, &ns->inbuf)))
+		{
+			/* Terminate buffer - useful for string data. */
+			ns->inbuf.buf[ns->inbuf.len] = '\0';
+
+			if (check_client_command(ns))
+			{
+				if (ns->status == Ns_Dead)
+				{
+					return;
+				}
+			}
+			else
+			{
+				memcpy(ns->cmdbuf.buf + ns->cmdbuf.len, ns->inbuf.buf, rr);
+				ns->cmdbuf.len += rr;
+			}
+		}
+	}
+	while (rr);
+}
+
+/**
+ * Used to check whether parsed data is valid client or player command in handle_client().
+ * @param ns Socket.
+ * @param pl Player. Can be NULL, in which case player commands are not considered.
+ * @return 1 if the parsed data is a valid command, 0 otherwise. */
+static int check_command(socket_struct *ns, player *pl)
+{
+	int i, len = 0;
+	unsigned char *data;
+
+	/* Terminate buffer - useful for string data */
+	ns->inbuf.buf[ns->inbuf.len] = '\0';
+
+	/* First, break out beginning word. There are at least
+	 * a few commands that do not have any parameters. If
+	 * we get such a command, don't worry about trying
+	 * to break it up. */
+	data = (unsigned char *) strchr((char *) ns->inbuf.buf + 2, ' ');
+
+	if (data)
+	{
+		*data = '\0';
+		data++;
+		len = ns->inbuf.len - (data - ns->inbuf.buf);
+	}
+	else
+	{
+		len = 0;
+	}
+
+	for (i = 0; client_commands[i].cmdname; i++)
+	{
+		if (strcmp((char *) ns->inbuf.buf + 2, client_commands[i].cmdname) == 0)
+		{
+			client_commands[i].cmdproc((char *) data, len, ns);
+			ns->inbuf.len = 0;
+
+			/* We have successfully added this connect! */
+			if (ns->addme)
+			{
+				ns->addme = 0;
+			}
+
+			return 1;
+		}
+	}
+
+	/* Only valid players can use these commands */
+	if (pl)
+	{
+		for (i = 0; player_commands[i].cmdname; i++)
+		{
+			if (strcmp((char *) ns->inbuf.buf + 2, player_commands[i].cmdname) == 0)
+			{
+				if (player_commands[i].flags & CMD_FLAG_NO_PLAYER_SHOP && QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
+				{
+					new_draw_info(NDI_UNIQUE, pl->ob, "You can't do that while in player shop.");
+					ns->inbuf.len = 0;
+					return 1;
+				}
+
+				player_commands[i].cmdproc((char *) data, len, pl);
+				ns->inbuf.len = 0;
+				return 1;
+			}
+		}
+	}
+
+	LOG(llevDebug, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
+	return 0;
+}
+
+/**
  * Handle client commands.
  *
  * We only get here once there is input, and only do basic connection
  * checking.
  * @param ns Socket sending the command.
  * @param pl Player associated to the socket. If NULL, only commands in
- * client_cmd_mapping will be checked. */
+ * client_commands will be checked. */
 void handle_client(socket_struct *ns, player *pl)
 {
-	int len = 0, i, cmd_count = 0;
-	unsigned char *data;
+	int cmd_count = 0;
 
 	/* Loop through this - maybe we have several complete packets here. */
 	while (1)
 	{
 		/* If it is a player, and they don't have any speed left, we
-		 * return, and will read in the data when they do have time. */
-		if (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0)
+		 * return, and will parse the data when they do have time. */
+		if (ns->status == Ns_Zombie || ns->status == Ns_Dead || (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0))
 		{
 			return;
 		}
 
-		i = SockList_ReadPacket(ns->fd, &ns->inbuf, MAXSOCKBUF - 1);
-
-		if (i < 0)
+		if (ns->outputbuffer.len >= (int) (MAXSOCKBUF * 0.75))
 		{
-			ns->status = Ns_Dead;
+			if (!ns->write_overflow)
+			{
+				ns->write_overflow = 1;
+				LOG(llevDebug, "OVERFLOW: handle_client(): Socket write overflow protection activated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
+			}
+
+			return;
+		}
+		else if (ns->write_overflow && (ns->outputbuffer.len <= (int) (MAXSOCKBUF * 0.33)))
+		{
+			ns->write_overflow = 0;
+			LOG(llevDebug, "OVERFLOW: handle_client(): Socket write overflow protection deactivated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
+		}
+
+		if (!SockList_ReadCommand(&ns->cmdbuf, &ns->inbuf))
+		{
 			return;
 		}
 
-		/* Still don't have a full packet */
-		if (i == 0)
-		{
-			return;
-		}
-
-		/* reset idle counter */
+		/* Reset idle counter. */
 		if (pl && pl->state == ST_PLAYING)
 		{
 			ns->login_count = 0;
 		}
 
-		/* First, break out beginning word.  There are at least
-		 * a few commands that do not have any parameters.  If
-		 * we get such a command, don't worry about trying
-		 * to break it up. */
-		data = (unsigned char *) strchr((char *) ns->inbuf.buf + 2, ' ');
-
-		if (data)
+		if (check_command(ns, pl))
 		{
-			*data = '\0';
-			data++;
-			len = ns->inbuf.len - (data - ns->inbuf.buf);
-		}
-		else
-		{
-			len = 0;
-		}
-
-		/* Terminate buffer - useful for string data */
-		ns->inbuf.buf[ns->inbuf.len] = '\0';
-
-		for (i = 0; client_commands[i].cmdname; i++)
-		{
-			if (strcmp((char *) ns->inbuf.buf + 2, client_commands[i].cmdname) == 0)
+			if (cmd_count++ <= 8 && ns->status != Ns_Dead)
 			{
-				client_commands[i].cmdproc((char *) data, len, ns);
-				ns->inbuf.len = 0;
-
-				/* We have successfully added this connect! */
-				if (ns->addme)
-				{
-					ns->addme = 0;
-					return;
-				}
-
-				goto next_command;
+				continue;
 			}
-		}
-
-		/* Only valid players can use these commands */
-		if (pl)
-		{
-			for (i = 0; player_commands[i].cmdname; i++)
-			{
-				if (strcmp((char *) ns->inbuf.buf + 2, player_commands[i].cmdname) == 0)
-				{
-					player_commands[i].cmdproc((char *) data, len, pl);
-					ns->inbuf.len = 0;
-					goto next_command;
-				}
-			}
-		}
-
-		/* If we get here, we didn't find a valid command.  Logging
-		 * this might be questionable, because a broken client/malicious
-		 * user could certainly send a whole bunch of invalid commands. */
-		LOG(llevDebug, "Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
-		ns->status = Ns_Dead;
-		return;
-
-next_command:
-		if (cmd_count++ <= 8 && ns->status != Ns_Dead)
-		{
-			continue;
 		}
 
 		return;
@@ -300,65 +419,51 @@ void remove_ns_dead_player(player *pl)
 		return;
 	}
 
-	if (pl->state != ST_PLAYING)
+	if (pl->state == ST_PLAYING)
 	{
-		pl->ob->type = DEAD_OBJECT;
+		/* Trigger the global LOGOUT event */
+		trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
+
+		if (!pl->dm_stealth)
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+		}
+
+		/* If this player is in a party, leave the party */
+		if (pl->party)
+		{
+			command_party(pl->ob, "leave");
+		}
+
+		strncpy(pl->killer, "left", MAX_BUF - 1);
+		hiscore_check(pl->ob, 1);
+
+		/* Be sure we have closed container when we leave */
+		container_unlink(pl, NULL);
+
+		save_player(pl->ob, 0);
 
 		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
-			remove_ob(pl->ob);
+			leave_map(pl->ob);
 		}
 
-		return;
-	}
-
-	/* Remove DM entry */
-	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
-	{
-		remove_active_DM(pl->ob);
-	}
-
-	/* Trigger the global LOGOUT event */
-	trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
-
-	if (!pl->dm_stealth)
-	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
-	}
-
-	/* If this player is in a party, leave the party */
-	if (pl->party)
-	{
-		command_party(pl->ob, "leave");
-	}
-
-	strncpy(pl->killer, "left", MAX_BUF - 1);
-	hiscore_check(pl->ob, 1);
-
-	/* Be sure we have closed container when we leave */
-	container_unlink(pl, NULL);
-
-	save_player(pl->ob, 0);
-
-	if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
-	{
-		leave_map(pl->ob);
-	}
-
-	LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
-
-	if (pl->ob->map)
-	{
-		if (pl->ob->map->in_memory == MAP_IN_MEMORY)
+		if (pl->ob->map)
 		{
-			pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
-		}
+			if (pl->ob->map->in_memory == MAP_IN_MEMORY)
+			{
+				pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
+			}
 
-		pl->ob->map = NULL;
+			pl->ob->map = NULL;
+		}
 	}
+
+	LOG(llevInfo, "LOGOUT: >%s< from IP %s\n", pl->ob->name, pl->socket.host);
 
 	/* To avoid problems with inventory window */
 	pl->ob->type = DEAD_OBJECT;
+	free_player(pl);
 }
 
 /**
@@ -389,9 +494,7 @@ static int is_fd_valid(int fd)
  * There are 2 lists we need to look through - init_sockets is a list */
 void doeric_server()
 {
-	int i, pollret;
-	uint32 update_below;
-	fd_set tmp_read, tmp_exceptions, tmp_write;
+	int i, pollret, rr;
 	struct sockaddr_in addr;
 	socklen_t addrlen = sizeof(addr);
 	player *pl, *next;
@@ -419,12 +522,19 @@ void doeric_server()
 		{
 			FREE_SOCKET(i);
 		}
+		else if (init_sockets[i].status == Ns_Zombie)
+		{
+			if (init_sockets[i].login_count++ >= 1000000 / MAX_TIME)
+			{
+				init_sockets[i].status = Ns_Dead;
+			}
+		}
 		else if (init_sockets[i].status != Ns_Avail)
 		{
 			if (init_sockets[i].status > Ns_Wait)
 			{
 				/* Kill this socket after being 3 minutes idle */
-				if (init_sockets[i].login_count++ == 60 * 4 * (1000000 / MAX_TIME))
+				if (init_sockets[i].login_count++ >= 60 * 4 * (1000000 / MAX_TIME))
 				{
 					FREE_SOCKET(i);
 					continue;
@@ -454,8 +564,16 @@ void doeric_server()
 			remove_ns_dead_player(pl);
 			pl = npl;
 		}
+		else if (pl->socket.status == Ns_Zombie)
+		{
+			if (pl->socket.login_count++ >= 1000000 / MAX_TIME)
+			{
+				pl->socket.status = Ns_Dead;
+			}
+		}
 		else
 		{
+
 			FD_SET((uint32) pl->socket.fd, &tmp_read);
 			FD_SET((uint32) pl->socket.fd, &tmp_write);
 			FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
@@ -558,7 +676,17 @@ void doeric_server()
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_read))
 			{
-				handle_client(&init_sockets[i], NULL);
+				rr = SockList_ReadPacket(&init_sockets[i], MAXSOCKBUF_IN - 1);
+
+				if (rr < 0)
+				{
+					LOG(llevDebug, "Drop connection: %s\n", STRING_SAFE(init_sockets[i].host));
+					init_sockets[i].status = Ns_Dead;
+				}
+				else
+				{
+					fill_command_buffer(&init_sockets[i]);
+				}
 			}
 
 			if (init_sockets[i].status == Ns_Dead)
@@ -567,19 +695,16 @@ void doeric_server()
 				continue;
 			}
 
-            if (FD_ISSET(init_sockets[i].fd, &tmp_write))
+			if (FD_ISSET(init_sockets[i].fd, &tmp_write))
 			{
-                write_socket_buffer(&init_sockets[i]);
+				init_sockets[i].can_write = 1;
+				write_socket_buffer(&init_sockets[i]);
+				init_sockets[i].can_write = 0;
 			}
 
 			if (init_sockets[i].status == Ns_Dead)
 			{
 				FREE_SOCKET(i);
-			}
-
-			if (FD_ISSET(init_sockets[i].fd, &tmp_write))
-			{
-				init_sockets[i].can_write = 1;
 			}
 		}
 	}
@@ -598,20 +723,54 @@ void doeric_server()
 
 		if (FD_ISSET(pl->socket.fd, &tmp_read))
 		{
-			handle_client(&pl->socket, pl);
+			rr = SockList_ReadPacket(&pl->socket, MAXSOCKBUF_IN - 1);
+
+			if (rr < 0)
+			{
+				LOG(llevDebug, "Drop connection: %s (%s)\n", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
+				pl->socket.status = Ns_Dead;
+			}
+			else
+			{
+				fill_command_buffer(&pl->socket);
+			}
 		}
 
 		/* Perhaps something was bad in handle_client(), or player has
-		 * left the game */
+		 * left the game. */
 		if (pl->socket.status == Ns_Dead)
 		{
 			remove_ns_dead_player(pl);
 			continue;
 		}
 
-		/* Update the players stats once per tick. More efficient
-		 * than sending them whenever they change, and probably
-		 * just as useful */
+		if (FD_ISSET(pl->socket.fd, &tmp_write))
+		{
+			pl->socket.can_write = 1;
+			write_socket_buffer(&pl->socket);
+			pl->socket.can_write = 0;
+		}
+	}
+}
+
+/**
+ * Write to players' sockets. */
+void doeric_server_write()
+{
+	player *pl, *next;
+	uint32 update_below;
+
+	/* This does roughly the same thing, but for the players now */
+	for (pl = first_player; pl; pl = next)
+	{
+		next = pl->next;
+
+		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
+		{
+			remove_ns_dead_player(pl);
+			continue;
+		}
+
 		esrv_update_stats(pl);
 
 		if (pl->update_skills)
@@ -630,14 +789,8 @@ void doeric_server()
 
 		if (FD_ISSET(pl->socket.fd, &tmp_write))
 		{
-			if (!pl->socket.can_write)
-			{
-				pl->socket.can_write = 1;
-				write_socket_buffer(&pl->socket);
-			}
-		}
-		else
-		{
+			pl->socket.can_write = 1;
+			write_socket_buffer(&pl->socket);
 			pl->socket.can_write = 0;
 		}
 	}

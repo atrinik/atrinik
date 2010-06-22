@@ -30,49 +30,6 @@
 
 #include <global.h>
 
-/**
- * @defgroup RN_xxx Race types
- * Race types for ::item_race_table.
- *@{*/
-
-/** Default value - human like. */
-#define RN_DEFAULT      1
-#define RN_DWARVEN      2
-#define RN_ELVEN        4
-#define RN_GNOMISH      8
-#define RN_DROW         16
-#define RN_ORCISH       32
-#define RN_GOBLIN       64
-/** Counts as tiny, but also "unclean". */
-#define RN_KOBOLD       128
-/** All demihumans "bigger than humans". */
-#define RN_GIANT        256
-/** Different small race (sprites, ...). */
-#define RN_TINY         512
-#define RN_GENIE        1024
-#define RN_DEMONISH     2048
-#define RN_DRACONISH    4096
-/*@}*/
-
-/**
- * The race table. */
-_races item_race_table[RACE_NAME_INIT] =
-{
-	{"",             RN_DEFAULT},
-	{"dwarven ",     RN_DWARVEN},
-	{"elven ",       RN_ELVEN},
-	{"gnomish ",     RN_GNOMISH},
-	{"drow ",        RN_DROW},
-	{"orcish ",      RN_ORCISH},
-	{"goblin ",      RN_GOBLIN},
-	{"kobold ",      RN_KOBOLD},
-	{"giant ",       RN_GIANT},
-	{"tiny ",        RN_TINY},
-	{"demonish ",    RN_DEMONISH},
-	{"draconish ",   RN_DRACONISH},
-	{"ogre ",        RN_GIANT}
-};
-
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0f
 
@@ -117,7 +74,7 @@ static float wis_bonus[MAX_STAT + 1] =
 {
 	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
 	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	0.1f, 0.2f, 0.3f, 0.24f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
+	0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
 };
 
 /**
@@ -182,7 +139,13 @@ int learn_spell[MAX_STAT + 1] =
  * Probability of messing up a divine spell. Based on wisdom. */
 int cleric_chance[MAX_STAT + 1] =
 {
-	100, 100, 100, 100, 90, 80, 70, 60, 50, 40, 35, 30, 25, 20, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0
+	100, 100, 100, 100, 90,
+	80, 70, 60, 50, 40,
+	30, 20, 10, 9, 8,
+	7, 6, 5, 4, 3,
+	2, 1, 0, 0, 0,
+	0, 0, 0, 0, 0,
+	0
 };
 
 /**
@@ -195,17 +158,7 @@ int savethrow[MAXLEVEL + 1] =
 	6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4,
 	4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
-
-/** Attack type names. */
-const char *const attacks[NROFATTACKS] =
-{
-	"hit", "magical", "fire", "electricity", "cold", "confusion",
-	"acid", "drain", "weaponmagic", "ghosthit", "poison", "slow",
-	"paralyze", "turn undead", "fear", "cancellation", "depletion", "death",
-	"chaos","counterspell","god power","holy power","blinding", "",
-	"life stealing", "slash", "cleave", "pierce"
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
 /** Message when a player is drained of a stat. */
@@ -567,7 +520,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_CAN_REFL_MISSILE))
+	if (QUERY_FLAG(op, FLAG_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_REFL_MISSILE))
 	{
 		success = 1;
 
@@ -581,7 +534,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_CAN_REFL_SPELL) != QUERY_FLAG(&refop, FLAG_CAN_REFL_SPELL))
+	if (QUERY_FLAG(op, FLAG_REFL_SPELL) != QUERY_FLAG(&refop, FLAG_REFL_SPELL))
 	{
 		success = 1;
 
@@ -854,26 +807,8 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	/* Messages for changed resistance */
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		if (op->resist[i] != refop.resist[i])
-		{
-			success = 1;
-
-			if (op->resist[i] > refop.resist[i])
-			{
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Your resistance to %s rises to %d%%.", change_resist_msg[i], op->resist[i]);
-			}
-			else
-			{
-				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your resistance to %s drops to %d%%.", change_resist_msg[i], op->resist[i]);
-			}
-		}
-	}
-
 	/* Messages for changed protections */
-	for (i = 0; i < NROFPROTECTIONS; i++)
+	for (i = 0; i < NROFATTACKS; i++)
 	{
 		if (op->protection[i] != refop.protection[i])
 		{
@@ -881,11 +816,11 @@ int change_abil(object *op, object *tmp)
 
 			if (op->protection[i] > refop.protection[i])
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Your protection to %s rises to %d%%.", protection_name[i], op->protection[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your protection to %s drops to %d%%.", protection_name[i], op->protection[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
 			}
 		}
 	}
@@ -914,20 +849,6 @@ int change_abil(object *op, object *tmp)
 					new_draw_info(NDI_UNIQUE | NDI_GREY, op, lose_msg[j]);
 				}
 			}
-		}
-	}
-
-	if (tmp->stats.luck)
-	{
-		success = 1;
-
-		if (flag > 0)
-		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel less lucky.");
-		}
-		else
-		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel more lucky.");
 		}
 	}
 
@@ -989,14 +910,11 @@ void fix_player(object *op)
 	int tmp_item, old_glow, max_boni_hp = 0, max_boni_sp = 0, max_boni_grace = 0;
 	float tmp_con;
 	int i, j, inv_flag, inv_see_flag, light, weapon_weight, best_wc, best_ac, wc, ac;
-	int resists_boni[NROFATTACKS], resists_mali[NROFATTACKS];
-	int protect_boni[NROFPROTECTIONS], protect_mali[NROFPROTECTIONS];
-	int potion_resist_boni[NROFATTACKS], potion_resist_mali[NROFATTACKS], potion_attack[NROFATTACKS];
+	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS];
+	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
 	object *grace_obj = NULL, *mana_obj = NULL, *hp_obj = NULL, *wc_obj = NULL, *tmp, *skill_weapon = NULL;
 	float f,max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
-	int base_reg;
-	float reg_sec;
 
 	if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER))
 	{
@@ -1033,6 +951,7 @@ void fix_player(object *op)
 	pl->gen_sp = 1;
 	pl->gen_grace = 1;
 	pl->gen_sp_armour = 0;
+	pl->item_power = 0;
 	/* The used skills for fast access */
 	pl->set_skill_weapon = NO_SKILL_READY;
 	pl->set_skill_archery = NO_SKILL_READY;
@@ -1059,7 +978,6 @@ void fix_player(object *op)
 	old_glow = op->glow_radius;
 	light = op->arch->clone.glow_radius;
 
-	op->stats.luck = op->arch->clone.stats.luck;
 	op->speed = op->arch->clone.speed;
 	op->weapon_speed = op->arch->clone.weapon_speed;
 	op->path_attuned = op->arch->clone.path_attuned;
@@ -1131,14 +1049,14 @@ void fix_player(object *op)
 		CLEAR_MULTI_FLAG(op, FLAG_FLYING);
 	}
 
-	if (!QUERY_FLAG(&op->arch->clone, FLAG_CAN_REFL_SPELL))
+	if (!QUERY_FLAG(&op->arch->clone, FLAG_REFL_SPELL))
 	{
-		CLEAR_FLAG(op, FLAG_CAN_REFL_SPELL);
+		CLEAR_FLAG(op, FLAG_REFL_SPELL);
 	}
 
-	if (!QUERY_FLAG(&op->arch->clone, FLAG_CAN_REFL_MISSILE))
+	if (!QUERY_FLAG(&op->arch->clone, FLAG_REFL_MISSILE))
 	{
-		CLEAR_FLAG(op, FLAG_CAN_REFL_MISSILE);
+		CLEAR_FLAG(op, FLAG_REFL_MISSILE);
 	}
 
 	if (!QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD))
@@ -1153,29 +1071,14 @@ void fix_player(object *op)
 
 	memset(&protect_boni, 0, sizeof(protect_boni));
 	memset(&protect_mali, 0, sizeof(protect_mali));
-	memset(&potion_resist_boni, 0, sizeof(potion_resist_boni));
-	memset(&potion_resist_mali, 0, sizeof(potion_resist_mali));
+	memset(&potion_protection_bonus, 0, sizeof(potion_protection_bonus));
+	memset(&potion_protection_malus, 0, sizeof(potion_protection_malus));
 	memset(&potion_attack, 0, sizeof(potion_attack));
 
 	/* Initializing player arrays from the values in player archetype clone:  */
 	memset(&pl->equipment, 0, sizeof(pl->equipment));
 	memcpy(&op->protection, &op->arch->clone.protection, sizeof(op->protection));
 	memcpy(&op->attack, &op->arch->clone.attack, sizeof(op->attack));
-	memcpy(&op->resist, &op->arch->clone.resist, sizeof(op->resist));
-
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		if (op->resist[i] > 0)
-		{
-			resists_boni[i] = op->resist[i];
-			resists_mali[i] = 0;
-		}
-		else
-		{
-			resists_mali[i] = -(op->resist[i]);
-			resists_boni[i] = 0;
-		}
-	}
 
 	/* Now we browse the inventory... There is not only our equipment -
 	 * there are all our skills, forces and hidden system objects. */
@@ -1234,11 +1137,15 @@ void fix_player(object *op)
 
 					break;
 
+				case SKILL_ITEM:
+					pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
+					break;
+
 				case WEAPON:
 					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 					/* Our weapon */
 					pl->selected_weapon = tmp;
-					i = tmp->sub_type1 % 4;
+					i = tmp->sub_type % 4;
 
 					if (i == WEAP_1H_IMPACT)
 					{
@@ -1285,6 +1192,7 @@ void fix_player(object *op)
 					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
+					pl->item_power += tmp->item_power;
 
 					for (i = 0; i < 7; i++)
 					{
@@ -1352,6 +1260,7 @@ fix_player_no_armour:
 					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
+					pl->item_power += tmp->item_power;
 
 					for (i = 0; i < 7; i++)
 					{
@@ -1385,11 +1294,11 @@ fix_player_no_armour:
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}
 
-					if (tmp->sub_type1 == RANGE_WEAP_BOW)
+					if (tmp->sub_type == RANGE_WEAP_BOW)
 					{
 						pl->set_skill_archery = SK_MISSILE_WEAPON;
 					}
-					else if (tmp->sub_type1 == RANGE_WEAP_XBOWS)
+					else if (tmp->sub_type == RANGE_WEAP_XBOWS)
 					{
 						pl->set_skill_archery = SK_XBOW_WEAP;
 					}
@@ -1412,13 +1321,13 @@ fix_player_no_armour:
 					for (i = 0; i < NROFATTACKS; i++)
 					{
 						/* Collect highest/lowest resistance */
-						if (tmp->resist[i] > potion_resist_boni[i])
+						if (tmp->protection[i] > potion_protection_bonus[i])
 						{
-							potion_resist_boni[i] = tmp->resist[i];
+							potion_protection_bonus[i] = tmp->protection[i];
 						}
-						else if (tmp->resist[i] < potion_resist_mali[i])
+						else if (tmp->protection[i] < potion_protection_malus[i])
 						{
-							potion_resist_mali[i] = tmp->resist[i];
+							potion_protection_malus[i] = tmp->protection[i];
 						}
 
 						if (tmp->attack[i] > potion_attack[i])
@@ -1479,6 +1388,23 @@ fix_player_no_armour:
 					pl->encumbrance += (int) 3 * tmp->weight / 1000;
 					break;
 
+				case CLASS:
+					/* Copy some values from the class object to the
+					 * player. */
+					for (i = 0; i < NUM_STATS; i++)
+					{
+						change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+					}
+
+					wc += tmp->stats.wc;
+					op->stats.dam += tmp->stats.dam;
+					ac += tmp->stats.ac;
+					op->stats.maxhp += tmp->stats.maxhp;
+					op->stats.maxsp += tmp->stats.maxsp;
+					op->stats.maxgrace += tmp->stats.maxgrace;
+					CONTR(op)->class_ob = tmp;
+					break;
+
 				case FORCE:
 					if (ARMOUR_SPEED(tmp) && (float)ARMOUR_SPEED(tmp) / 10.0f < max)
 					{
@@ -1532,17 +1458,16 @@ fix_player_no_armour:
 					}
 
 				case POISONING:
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
+						change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
 					}
 
-				case CLASS:
 				case BLINDNESS:
 				case CONFUSION:
 fix_player_jump_resi:
 
-					for (i = 0; i < NROFPROTECTIONS; i++)
+					for (i = 0; i < NROFATTACKS; i++)
 					{
 						if (tmp->protection[i] > 0)
 						{
@@ -1551,20 +1476,6 @@ fix_player_jump_resi:
 						else if (tmp->protection[i] < 0)
 						{
 							protect_mali[i] += ((100 - protect_mali[i]) * (-tmp->protection[i])) / 100;
-						}
-					}
-
-					/* Calculate resistance and attacks */
-					for (i = 0; i < NROFATTACKS; i++)
-					{
-						/* We add resists boni/mali */
-						if (tmp->resist[i] > 0)
-						{
-							resists_boni[i] += ((100 - resists_boni[i]) * tmp->resist[i]) / 100;
-						}
-						else if (tmp->resist[i] < 0)
-						{
-							resists_mali[i] += ((100 - resists_mali[i]) * (-tmp->resist[i])) / 100;
 						}
 
 						if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
@@ -1598,7 +1509,6 @@ fix_player_jump_resi:
 			op->path_attuned |= tmp->path_attuned;
 			op->path_repelled |= tmp->path_repelled;
 			op->path_denied |= tmp->path_denied;
-			op->stats.luck += tmp->stats.luck;
 
 			if (QUERY_FLAG(tmp, FLAG_LIFESAVE))
 			{
@@ -1607,12 +1517,12 @@ fix_player_jump_resi:
 
 			if (QUERY_FLAG(tmp, FLAG_REFL_SPELL))
 			{
-				SET_FLAG(op, FLAG_CAN_REFL_SPELL);
+				SET_FLAG(op, FLAG_REFL_SPELL);
 			}
 
 			if (QUERY_FLAG(tmp, FLAG_REFL_MISSILE))
 			{
-				SET_FLAG(op, FLAG_CAN_REFL_MISSILE);
+				SET_FLAG(op, FLAG_REFL_MISSILE);
 			}
 
 			if (QUERY_FLAG(tmp, FLAG_STEALTH))
@@ -1702,7 +1612,7 @@ fix_player_jump_resi:
 			tmp_con = (float) tmp->item_condition / 100.0f;
 
 			/* Only quality adjustment for *positive* values! */
-			for (i = 0; i < NROFPROTECTIONS; i++)
+			for (i = 0; i < NROFATTACKS; i++)
 			{
 				if (tmp->protection[i] > 0)
 				{
@@ -1712,21 +1622,6 @@ fix_player_jump_resi:
 				else if (tmp->protection[i] < 0)
 				{
 					protect_mali[i] += ((100 - protect_mali[i]) * (-tmp->protection[i])) / 100;
-				}
-			}
-
-			/* Calculate resistance and attacks */
-			for (i = 0; i < NROFATTACKS; i++)
-			{
-				/* We add resists boni/mali */
-				if (tmp->resist[i] > 0)
-				{
-					tmp_item = (int) ((float) tmp->resist[i] * tmp_con);
-					resists_boni[i] += ((100 - resists_boni[i]) * tmp_item) / 100;
-				}
-				else if (tmp->resist[i] < 0)
-				{
-					resists_mali[i] += ((100 - resists_mali[i]) * (-tmp->resist[i])) / 100;
 				}
 
 				if (tmp->type != BOW)
@@ -1764,31 +1659,30 @@ fix_player_jump_resi:
 				op->attack[i] += potion_attack[i];
 			}
 		}
-
-		/* Add in the potion resists boni/mali */
-		if (potion_resist_boni[i] > 0)
-		{
-			resists_boni[i] += ((100 - resists_boni[i]) * potion_resist_boni[i]) / 100;
-		}
-
-		if (potion_resist_mali[i] < 0)
-		{
-			resists_mali[i] += ((100 - resists_mali[i]) * (-potion_resist_mali[i])) / 100;
-		}
-
-		/* And generate the REAL resists of the player! */
-		op->resist[i] = resists_boni[i] - resists_mali[i];
 	}
 
-	/* Add protection boni/mali.
+	/* Add protection bonuses.
 	 * Ensure that protection is between 0 - 100. */
-	for (i = 0; i < NROFPROTECTIONS; i++)
+	for (i = 0; i < NROFATTACKS; i++)
 	{
-		int ptemp = protect_boni[i] - protect_mali[i];
+		int ptemp;
 
-		if (ptemp < 0)
+		/* Add in the potion protections. */
+		if (potion_protection_bonus[i] > 0)
 		{
-			op->protection[i] = 0;
+			protect_boni[i] += ((100 - protect_boni[i]) * potion_protection_bonus[i]) / 100;
+		}
+
+		if (potion_protection_malus[i] < 0)
+		{
+			protect_mali[i] += ((100 - protect_mali[i]) * (-potion_protection_malus[i])) / 100;
+		}
+
+		ptemp = protect_boni[i] - protect_mali[i];
+
+		if (ptemp < -100)
+		{
+			op->protection[i] = -100;
 		}
 		else if (ptemp > 100)
 		{
@@ -1909,6 +1803,25 @@ fix_player_jump_resi:
 	op->stats.maxsp += (int) ((float) op->stats.maxsp * pow_bonus[op->stats.Pow]) + max_boni_sp;
 	op->stats.maxgrace += (int) ((float) op->stats.maxgrace * wis_bonus[op->stats.Wis]) + max_boni_grace;
 
+	/* HP/SP/Grace adjustements coming from class-defining object. */
+	if (CONTR(op)->class_ob)
+	{
+		if (CONTR(op)->class_ob->stats.hp)
+		{
+			op->stats.maxhp += ((float) op->stats.maxhp / 100.0f) * (float) CONTR(op)->class_ob->stats.hp;
+		}
+
+		if (CONTR(op)->class_ob->stats.sp)
+		{
+			op->stats.maxsp += ((float) op->stats.maxsp / 100.0f) * (float) CONTR(op)->class_ob->stats.sp;
+		}
+
+		if (CONTR(op)->class_ob->stats.grace)
+		{
+			op->stats.maxgrace += ((float) op->stats.maxgrace / 100.0f) * (float) CONTR(op)->class_ob->stats.grace;
+		}
+	}
+
 	if (op->stats.maxhp < 1)
 	{
 		op->stats.maxhp = 1;
@@ -2017,139 +1930,6 @@ fix_player_jump_resi:
 	/* For the client */
 	pl->weapon_sp = (char) (op->weapon_speed / 0.0025f);
 
-	/* Regenerate HP */
-
-	/* Default value */
-	base_reg = 38;
-
-	if (CONTR(op)->gen_hp > 0)
-	{
-		CONTR(op)->reg_hp_num =(CONTR(op)->gen_hp / 2) + 1;
-		base_reg = (base_reg - CONTR(op)->gen_hp) / CONTR(op)->gen_hp;
-	}
-	else
-	{
-		CONTR(op)->reg_hp_num = 1;
-		base_reg += (CONTR(op)->gen_hp * CONTR(op)->gen_hp) + 5;
-	}
-
-	if (base_reg < 0)
-	{
-		base_reg = 0;
-	}
-
-	/* This can happen if we changed equipment. */
-	if (op->last_heal > base_reg)
-	{
-		op->last_heal = base_reg;
-	}
-
-	/* The real HP regeneation count in ticks */
-	CONTR(op)->base_hp_reg = base_reg;
-
-	reg_sec = ((float) (1000000 / MAX_TIME) / (float) base_reg) * (float) CONTR(op)->reg_hp_num;
-
-	if (reg_sec > 100)
-	{
-		reg_sec = 99.9f;
-	}
-	else if (reg_sec && reg_sec < 0.1)
-	{
-		reg_sec = 0.1f;
-	}
-
-	/* The value for the client */
-	CONTR(op)->gen_client_hp = (uint16) (reg_sec * 10.0f);
-
-	/* Regenerate Mana */
-
-	/* Default value */
-	base_reg = 35;
-
-	if (CONTR(op)->gen_sp > 0)
-	{
-		CONTR(op)->reg_sp_num = (CONTR(op)->gen_sp / 3) + 1;
-		base_reg = ((base_reg + CONTR(op)->gen_sp_armour) - CONTR(op)->gen_sp) / CONTR(op)->gen_sp;
-	}
-	else
-	{
-		CONTR(op)->reg_sp_num = 1;
-		base_reg += (CONTR(op)->gen_sp * CONTR(op)->gen_sp) + 5 + CONTR(op)->gen_sp_armour;
-	}
-
-	if (base_reg < 0)
-	{
-		base_reg = 0;
-	}
-
-	/* This can happen if we changed equipment. */
-	if (op->last_sp > base_reg)
-		op->last_sp = base_reg;
-
-	/* The real mana regeneration count in ticks */
-	CONTR(op)->base_sp_reg = base_reg;
-
-	reg_sec = ((float) (1000000 / MAX_TIME) / (float) base_reg) * (float) CONTR(op)->reg_sp_num;
-
-	if (reg_sec > 100)
-	{
-		reg_sec = 99.9f;
-	}
-	else if (reg_sec && reg_sec < 0.1)
-	{
-		reg_sec = 0.1f;
-	}
-
-	CONTR(op)->gen_client_sp = (uint16) (reg_sec * 10.0f);
-
-	/* Regenerate Grace */
-
-	/* Default value */
-	base_reg = 9;
-
-	if (CONTR(op)->gen_grace > 0)
-	{
-		CONTR(op)->reg_grace_num = (CONTR(op)->gen_grace / 3) + 1;
-		base_reg = (base_reg - CONTR(op)->gen_grace) / CONTR(op)->gen_grace;
-	}
-	else
-	{
-		CONTR(op)->reg_grace_num = 1;
-		base_reg += (CONTR(op)->gen_grace * CONTR(op)->gen_grace) + 5;
-	}
-
-	if (CONTR(op)->skill_ptr[SK_PRAYING])
-	{
-		CONTR(op)->reg_grace_num += CONTR(op)->skill_ptr[SK_PRAYING]->level / 10;
-	}
-
-	if (base_reg < 0)
-	{
-		base_reg = 0;
-	}
-
-	/* This can happen if we changed equipment. */
-	if (op->last_grace > base_reg)
-	{
-		op->last_grace = base_reg;
-	}
-
-	/* The real grace regeneration count in ticks */
-	CONTR(op)->base_grace_reg = base_reg;
-
-	reg_sec = ((float) (1000000 / MAX_TIME) / (float) base_reg) * (float) CONTR(op)->reg_grace_num;
-
-	if (reg_sec > 100)
-	{
-		reg_sec = 99.9f;
-	}
-	else if (reg_sec && reg_sec < 0.1)
-	{
-		reg_sec = 0.1f;
-	}
-
-	CONTR(op)->gen_client_grace = (uint16) (reg_sec * 10.0f);
-
 	if (QUERY_FLAG(op, FLAG_IS_INVISIBLE))
 	{
 		/* We must reinsert us in the invisible chain */
@@ -2176,145 +1956,6 @@ fix_player_jump_resi:
 	{
 		pl->socket.update_tile = 0;
 	}
-}
-/**
- * Set the new dragon name after gaining levels or
- * changing ability focus (later this can be extended to
- * eventually change the player's face and animation).
- * @param pl Player's object to change.
- * @param abil Dragon's innate abilities.
- * @param skin Dragon's skin.
- * @todo Change this so the commented-out part works. */
-void set_dragon_name(object *pl, object *abil, object *skin)
-{
-	/* Attacknumber of highest level */
-	int atnr = -1;
-	/* Highest level */
-	int level = 0;
-	int i;
-
-	/* First, look for the highest level */
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		if (atnr_is_dragon_enabled(i) && (atnr == -1 || abil->resist[i] > abil->resist[atnr]))
-		{
-			level = abil->resist[i];
-			atnr = i;
-		}
-	}
-
-	/* Now if there are equals at highest level, pick the one with focus,
-	 * or else at random */
-	if (atnr_is_dragon_enabled(abil->stats.exp) && abil->resist[abil->stats.exp] >= level)
-	{
-		atnr = abil->stats.exp;
-	}
-
-	level = (int) (level / 5.);
-
-	(void) pl;
-	(void) skin;
-
-#if 0
-	/* Now set the new title */
-	if (CONTR(pl))
-	{
-		if (level == 0)
-		{
-			sprintf(CONTR(pl)->title, "%s hatchling", attacks[atnr]);
-		}
-		else if (level == 1)
-		{
-			sprintf(CONTR(pl)->title, "%s wyrm", attacks[atnr]);
-		}
-		else if (level == 2)
-		{
-			sprintf(CONTR(pl)->title, "%s wyvern", attacks[atnr]);
-		}
-		else if (level == 3)
-		{
-			sprintf(CONTR(pl)->title, "%s dragon", attacks[atnr]);
-		}
-		else
-		{
-			if (skin->resist[atnr] > 80)
-			{
-				sprintf(CONTR(pl)->title, "legendary %s dragon", attacks[atnr]);
-			}
-			else if (skin->resist[atnr] > 50)
-			{
-				sprintf(CONTR(pl)->title, "ancient %s dragon", attacks[atnr]);
-			}
-			else
-			{
-				sprintf(CONTR(pl)->title, "big %s dragon", attacks[atnr]);
-			}
-		}
-	}
-#endif
-}
-
-/**
- * This function is called when a dragon-player gains an overall level.
- * Here, the dragon might gain new abilities or change the ability-focus.
- * @param who Dragon's object. */
-void dragon_level_gain(object *who)
-{
-	/* pointer to dragon ability force */
-	object *abil = NULL;
-	/* pointer to dragon skin force */
-	object *skin = NULL;
-	/* tmp. object */
-	object *tmp = NULL;
-
-	/* Now grab the 'dragon_ability'-forces from the player's inventory */
-	for (tmp = who->inv; tmp != NULL; tmp = tmp->below)
-	{
-		if (tmp->type == FORCE)
-		{
-			if (strcmp(tmp->arch->name, "dragon_ability_force") == 0)
-			{
-				abil = tmp;
-			}
-
-			if (strcmp(tmp->arch->name, "dragon_skin_force") == 0)
-			{
-				skin = tmp;
-			}
-		}
-	}
-
-	/* If the force is missing -> bail out */
-	if (abil == NULL)
-	{
-		return;
-	}
-
-	/* The ability_force keeps track of maximum level ever achieved.
-	 * New abilties can only be gained by surpassing this max level */
-	if (who->level > abil->level)
-	{
-		/* Increase our focused ability */
-		abil->resist[abil->stats.exp]++;
-
-		if (abil->resist[abil->stats.exp] > 0 && abil->resist[abil->stats.exp] % 5 == 0)
-		{
-			/* Time to hand out a new ability-gift */
-			dragon_ability_gain(who, abil->stats.exp, (int)((1 + abil->resist[abil->stats.exp]) / 5.));
-		}
-
-		if (abil->last_eat > 0 && atnr_is_dragon_enabled(abil->last_eat))
-		{
-			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, who, "Your metabolism now focuses on %s!", change_resist_msg[abil->last_eat]);
-			abil->stats.exp = abil->last_eat;
-			abil->last_eat = 0;
-		}
-
-		abil->level = who->level;
-	}
-
-	/* Last but not least, set the new title for the dragon */
-	set_dragon_name(who, abil, skin);
 }
 
 /**
@@ -2370,7 +2011,7 @@ void fix_monster(object *op)
 		op->stats.grace = op->stats.maxgrace;
 	}
 
-	op->stats.ac = base->stats.ac + op->level + (op->level / 6);
+	op->stats.ac = base->stats.ac + op->level;
 	/* + level / 4 to catch up the equipment improvements of
 	 * the players in armour items. */
 	op->stats.wc = base->stats.wc + op->level + (op->level / 4);
@@ -2421,7 +2062,7 @@ void fix_monster(object *op)
 			}
 			else if (IS_ARMOR(tmp))
 			{
-				for (i = 0; i < NROFPROTECTIONS; i++)
+				for (i = 0; i < NROFATTACKS; i++)
 				{
 					op->protection[i] = MIN(op->protection[i] + tmp->protection[i], 15);
 				}

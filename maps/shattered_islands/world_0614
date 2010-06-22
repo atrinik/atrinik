@@ -2,11 +2,11 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-02 Alex Tokar
+Modified: 2010-06-22 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 25
 outdoor 1
 tile_path_1 world_0615
 tile_path_2 world_0714
@@ -564,8 +564,8 @@ speed -0.02317
 x 3
 y 16
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 28
 dam 40
@@ -580,11 +580,12 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+Wis 7
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -917,6 +918,7 @@ x 6
 y 4
 arch orc_outlaw
 type 83
+Wis 6
 level 29
 end
 end
@@ -961,11 +963,12 @@ speed -0.02317
 x 6
 y 10
 arch orc_outlaw
-type 83
 level 28
 random_move 1
 item_race 5
 item_level 2
+Wis 6
+type 83
 end
 end
 arch grassd_4
@@ -1134,8 +1137,8 @@ speed -0.02317
 x 7
 y 17
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 29
 dam 40
@@ -1150,11 +1153,12 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+Wis 7
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -1189,8 +1193,8 @@ speed -0.02317
 x 7
 y 22
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 28
 dam 40
@@ -1205,11 +1209,12 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+Wis 7
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -1239,6 +1244,7 @@ x 8
 y 2
 arch orc_warlord
 type 83
+Wis 6
 level 30
 arch rand_drop
 container 18
@@ -1250,13 +1256,14 @@ end
 end
 arch orc_warlord
 name Warlord Ghorl
-can_reflect_missile 1
+reflect_missile 1
 level 31
 object_int1 8500
 dam 100
 wc 14
 maxhp 110
 ac 14
+Wis 6
 type 83
 arch rand_drop
 container 150
@@ -1509,14 +1516,15 @@ x 9
 y 17
 arch mage_old
 name battle mage
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 30
 maxhp 70
 Con 10
 attack_impact 75
 attack_weaponmagic 0
+can_cast_spell 1
 sp -1
 maxsp 16
 Pow 20
@@ -1525,13 +1533,12 @@ Dex 2
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 1
+stand_still 1
 Wis 9
-resist_impact 0
-resist_slash 0
-resist_pierce 0
-resist_cleave 0
-resist_magic 0
+protect_impact 0
+protect_slash 0
+protect_cleave 0
+protect_pierce 0
 type 83
 arch ability_mbullet
 sp 0
@@ -1856,6 +1863,7 @@ arch orc_outlaw
 level 29
 Dex 3
 can_use_bow 1
+Wis 6
 type 83
 arch ability_stone_throw
 race arrows
@@ -1946,8 +1954,8 @@ x 12
 y 19
 arch guard
 name Forest guard
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 29
 dam 50
@@ -1959,11 +1967,12 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 5
-resist_slash 0
-resist_pierce 0
-resist_cleave 0
-resist_magic -50
+Wis 7
+protect_impact 5
+protect_slash 0
+protect_pierce 0
+protect_cleave 0
+protect_magic -50
 type 83
 end
 end
@@ -2078,8 +2087,8 @@ x 13
 y 16
 arch guard
 name Forest guard
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 29
 dam 50
@@ -2091,11 +2100,12 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 5
-resist_slash 0
-resist_pierce 0
-resist_cleave 0
-resist_magic -50
+Wis 7
+protect_impact 5
+protect_slash 0
+protect_pierce 0
+protect_cleave 0
+protect_magic -50
 type 83
 end
 end
@@ -2576,8 +2586,8 @@ speed -0.02317
 x 17
 y 14
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 29
 dam 40
@@ -2592,11 +2602,12 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+Wis 7
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -2711,6 +2722,7 @@ level 28
 random_move 1
 item_race 5
 item_level 2
+Wis 6
 type 83
 end
 end
@@ -2897,8 +2909,8 @@ x 19
 y 17
 arch guard_pole
 name Forest guard
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 25
 dam 50
@@ -2911,11 +2923,12 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 5
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic -50
+Wis 7
+protect_impact 5
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic -50
 type 83
 end
 end
@@ -3023,8 +3036,8 @@ speed -0.02317
 x 20
 y 14
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 29
 dam 40
@@ -3039,11 +3052,12 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+Wis 7
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -3356,8 +3370,8 @@ speed -0.02317
 x 22
 y 22
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 28
 dam 40
@@ -3372,11 +3386,12 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+Wis 7
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -3449,6 +3464,7 @@ arch orc_outlaw
 level 29
 Dex 3
 can_use_bow 1
+Wis 6
 type 83
 arch ability_stone_throw
 race arrows

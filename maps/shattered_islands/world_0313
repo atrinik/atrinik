@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-06-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -638,14 +638,18 @@ x 4
 y 18
 arch smith
 msg
-@match unique
-Yes, unique. You see, everything you sell in here, will stay in my shop until the map resets or another player buys it. It is a perfect place to sell things which could help new players!
-@match *
-Well, hello there! This is my ^unique^ item shop.
+
 endmsg
 type 83
 level 30
 friendly 1
+name Galann
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/brynknot/galann.py
+end
+arch ring_prayers
+end
 end
 end
 arch shop_floor_normal
@@ -1553,9 +1557,17 @@ arch grassd_8
 x 11
 y 13
 end
-arch tree_big4b
+arch spawn_point
 x 11
 y 13
+arch guard_royal
+type 83
+level 60
+unaggressive 0
+friendly 1
+stand_still 0
+name Guard Captain Talthor
+end
 end
 arch floor_flagm2
 x 11
@@ -2316,7 +2328,7 @@ end
 arch spawn_point
 x 17
 y 13
-arch guard_royal
+arch guard
 type 83
 level 60
 unaggressive 0
@@ -2349,20 +2361,20 @@ arch grassd_m3
 x 17
 y 16
 end
-arch grassd_2
+arch grassd_5
 x 17
 y 17
 end
 arch spawn_point
 x 17
 y 17
-arch guard_royal
+arch guard
 type 83
 level 60
 unaggressive 0
 friendly 1
 stand_still 0
-direction 1
+direction 3
 end
 end
 arch grassd_8

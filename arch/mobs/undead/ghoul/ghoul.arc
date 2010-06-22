@@ -11,10 +11,10 @@ direction 5
 is_evil 1
 terrain_flag 1
 weapon_speed 0.035
-attack_slash 43
-attack_drain 43
+attack_slash 70
+attack_drain 20
 type 80
-Wis 6
+Wis 3
 randomitems mob_ghoul
 animation ghoul
 is_animated 1

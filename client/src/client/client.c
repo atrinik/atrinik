@@ -148,62 +148,25 @@ static void face_flag_extension(int pnum, char *buf);
 
 /**
  * Do client. The main loop for commands. From this, the data and
- * commands from server are received.
- * @param csocket Socket. */
-void DoClient(ClientSocket *csocket)
+ * commands from server are received. */
+void DoClient()
 {
-	int i, len;
-	uint8 cmd_id;
-	unsigned char *data;
+	command_buffer *cmd;
 
-	while (1)
+	/* Handle all enqueued commands */
+	while ((cmd = get_next_input_command()))
 	{
-		i = socket_read(csocket->fd, &csocket->inbuf, MAXSOCKBUF - 1);
-
-		if (i == -1)
+		if (!cmd->data[0] || cmd->data[0] > BINAR_CMD)
 		{
-			/* Need to add some better logic here */
-			LOG(llevMsg, "Got error on read (error %d)\n", socket_get_error());
-			socket_close(csocket->fd);
-
-			return;
-		}
-
-		/* Don't have a full packet */
-		if (i == 0)
-		{
-			return;
-		}
-
-		csocket->inbuf.buf[csocket->inbuf.len] = '\0';
-
-		/* 3 byte header */
-		if (csocket->inbuf.buf[0] & 0x80)
-		{
-			cmd_id = (uint8) csocket->inbuf.buf[3];
-			data = csocket->inbuf.buf + 4;
-			/* 3 byte package len + 1 byte binary cmd */
-			len = csocket->inbuf.len - 4;
+			LOG(llevError, "Bad command from server (%d)\n", cmd->data[0]);
 		}
 		else
 		{
-			cmd_id = (uint8) csocket->inbuf.buf[2];
-			data = csocket->inbuf.buf + 3;
-			/* 2 byte package len + 1 byte binary cmd */
-			len = csocket->inbuf.len - 3;
+			script_trigger_event(commands[cmd->data[0] - 1].cmdname, cmd->data + 1, cmd->len - 1, commands[cmd->data[0] - 11].cmdformat);
+			commands[cmd->data[0] - 1].cmdproc(cmd->data + 1, cmd->len - 1);
 		}
 
-		if (!cmd_id || cmd_id >= BINAR_CMD)
-		{
-			LOG(llevError, "Bad command from server (%d) (%d)\n", cmd_id, BINAR_CMD);
-		}
-		else
-		{
-			script_trigger_event(commands[cmd_id - 1].cmdname, data, len, commands[cmd_id - 1].cmdformat);
-			commands[cmd_id - 1].cmdproc(data, len);
-		}
-
-		csocket->inbuf.len = 0;
+		command_buffer_free(cmd);
 	}
 }
 
@@ -258,6 +221,19 @@ int GetInt_String(const unsigned char *data)
 }
 
 /**
+ * 64-bit version of GetInt_String().
+ * @param data The string.
+ * @return Integer from the string. */
+sint64 GetInt64_String(const unsigned char *data)
+{
+#ifdef WIN32
+	return (((sint64) data[0] << 56) + ((sint64) data[1] << 48) + ((sint64) data[2] << 40) + ((sint64) data[3] << 32) + ((sint64) data[4] << 24) + ((sint64) data[5] << 16) + ((sint64) data[6] << 8) + (sint64) data[7]);
+#else
+	return (((uint64) data[0] << 56) + ((uint64) data[1] << 48) + ((uint64) data[2] << 40) + ((uint64) data[3] << 32) + ((uint64) data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7]);
+#endif
+}
+
+/**
  * Does the reverse of SockList_AddShort, but on strings instead.
  * @param data The string.
  * @return Short integer from the string. */
@@ -267,34 +243,19 @@ short GetShort_String(const unsigned char *data)
 }
 
 /**
- * Send With Handling.
- * @param fd File descriptor to send the socklist to.
- * @param msg Message to send.
- * @return 0 on success, -1 on failure. */
-int send_socklist(int fd, SockList msg)
-{
-	unsigned char sbuf[2];
-
-	sbuf[0] = ((uint32)(msg.len) >> 8) & 0xFF;
-	sbuf[1] = ((uint32)(msg.len)) & 0xFF;
-
-	socket_write(fd, sbuf, 2);
-	return socket_write(fd, msg.buf, msg.len);
-}
-
-/**
  * Takes a string of data, and writes it out to the socket.
  * @param fd File descriptor to send the string to.
  * @param buf The string.
  * @param len Length of the string.
  * @return 0 on success, -1 on failure. */
-int cs_write_string(int fd, char *buf, size_t len)
+int cs_write_string(char *buf, size_t len)
 {
 	SockList sl;
 
 	sl.len = (int) len;
 	sl.buf = (unsigned char *) buf;
-	return send_socklist(fd, sl);
+
+	return send_socklist(sl);
 }
 
 /**
@@ -375,7 +336,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 
 	face_flag_extension(pnum, buf);
 	snprintf(buf, sizeof(buf), "askface %d", pnum);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -469,52 +430,17 @@ static int load_picture_from_pack(int num)
 	return 0;
 }
 
-/** Maximum face request */
-#define REQUEST_FACE_MAX 250
-
 /**
- * We got a face - test if we have it loaded. If not, ask the server to
- * send us face command.
- * @param pnum Face ID.
- * @param mode Mode.
- * @return 0 if face is not there, 1 if face was requested or loaded. */
-int request_face(int pnum, int mode)
+ * Load face from user's graphics directory.
+ * @param num ID of the face to load.
+ * @return 1 on success, 0 on failure. */
+static int load_gfx_user_face(uint16 num)
 {
-	char buf[256 * 2];
+	char buf[MAX_BUF];
 	FILE *stream;
 	struct stat statbuf;
 	size_t len;
 	unsigned char *data;
-	static int count = 0;
-	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
-	uint16 num = (uint16)(pnum &~ 0x8000);
-
-	/* Forced flush buffer and command */
-	if (mode)
-	{
-		if (count)
-		{
-			fr_buf[0] = 'f';
-			fr_buf[1] = 'r';
-			fr_buf[2] = ' ';
-			cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
-			count = 0;
-		}
-
-		return 1;
-	}
-
-	/* Loaded or requested */
-	if (FaceList[num].name || FaceList[num].flags & FACE_REQUESTED)
-	{
-		return 1;
-	}
-
-	if (num >= bmaptype_table_size)
-	{
-		LOG(llevError, "REQUEST_FILE(): server sent picture id to big (%d %d)\n", num, bmaptype_table_size);
-		return 0;
-	}
 
 	/* First check for this image in gfx_user directory. */
 	snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
@@ -536,7 +462,7 @@ int request_face(int pnum, int mode)
 			{
 				face_flag_extension(num, buf);
 				snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
-				FaceList[num].name = (char*) malloc(strlen(buf) + 1);
+				FaceList[num].name = (char *) malloc(strlen(buf) + 1);
 				strcpy(FaceList[num].name, buf);
 				FaceList[num].checksum = crc32(1L, data, len);
 				free(data);
@@ -546,6 +472,62 @@ int request_face(int pnum, int mode)
 
 		/* If we are here something was wrong with the file. */
 		free(data);
+	}
+
+	return 0;
+}
+
+/** Maximum face request */
+#define REQUEST_FACE_MAX 250
+
+/**
+ * We got a face - test if we have it loaded. If not, ask the server to
+ * send us face command.
+ * @param pnum Face ID.
+ * @param mode Mode.
+ * @return 0 if face is not there, 1 if face was requested or loaded. */
+int request_face(int pnum, int mode)
+{
+	char buf[MAX_BUF];
+	static int count = 0;
+	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
+	uint16 num = (uint16) (pnum &~ 0x8000);
+
+	/* Forced flush buffer and command */
+	if (mode)
+	{
+		if (count)
+		{
+			fr_buf[0] = 'f';
+			fr_buf[1] = 'r';
+			fr_buf[2] = ' ';
+			cs_write_string(fr_buf, 4 + count * sizeof(uint16));
+			count = 0;
+		}
+
+		return 1;
+	}
+
+	if (options.reload_gfx_user && load_gfx_user_face(num))
+	{
+		return 1;
+	}
+
+	/* Loaded or requested */
+	if (FaceList[num].name || FaceList[num].flags & FACE_REQUESTED)
+	{
+		return 1;
+	}
+
+	if (num >= bmaptype_table_size)
+	{
+		LOG(llevError, "REQUEST_FILE(): Server sent picture ID too big (%d, max: %d)\n", num, bmaptype_table_size);
+		return 0;
+	}
+
+	if (load_gfx_user_face(num))
+	{
+		return 1;
 	}
 
 	/* Best case - we have it in atrinik.p0 */

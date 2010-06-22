@@ -1,0 +1,61 @@
+/**
+@page page_plugin_python Python Plugin
+
+@section sec_plugin_python_introduction Introduction
+
+The Python plugin is used in various important tasks thorough Atrinik maps. It plays an important role in making quests, events, shop NPCs and much much more.
+
+Python scripts in the game allow a lot greater flexibility than changing the server core code to implement a quest or a new type of NPC. It is not a fast way to do it, true, but flexible, because Python scripts can be changed on the fly without even restarting the server.
+
+@section sec_plugin_python_atrinik Atrinik Python plugin functions
+
+The Atrinik Python plugin functions are used to make an interface with the Atrinik C server code, get script options, activator, etc.
+
+@see @ref plugin_python_functions
+@see @ref plugin_python_constants
+
+@section sec_plugin_python_atrinik_map Atrinik Map Python plugin functions
+
+The Atrinik Map Python plugin functions allow you to access map related functions, the map structure fields, and so on.
+
+@see @ref plugin_python_map_functions
+@see @ref plugin_python_map_fields
+@see @ref plugin_python_map_flags
+
+@section sec_plugin_python_atrinik_object Atrinik Object Python plugin functions
+
+The Atrinik Object Python plugin functions allow you great flexibility in manipulating objects, players, and about everything related to object structure.
+
+@see @ref plugin_python_object_functions
+@see @ref plugin_python_object_fields
+@see @ref plugin_python_object_flags
+
+@section sec_plugin_python_atrinik_party Atrinik Party Python plugin functions
+
+The Atrinik Party Python plugin functions allow you to make interesting events or dungeons, where in order to participate, one must/mustn't be in a party.
+
+@see @ref plugin_python_party_functions
+@see @ref plugin_python_party_fields
+
+@section sec_plugin_python_atrinik_region Atrinik Region Python plugin functions
+
+Provides an interface to get information about map's region.
+
+@see @ref plugin_python_region_fields
+
+@section sec_plugin_python_atrinik_player Atrinik Player Python plugin functions
+
+Interface to get information about player's structure, for example, save bed location, party, etc.
+
+@see @ref plugin_python_player_functions
+@see @ref plugin_python_player_fields
+
+@section sec_plugin_python_atrinik_archetype Atrinik Archetype Python plugin functions
+
+Archetype interface allows you to get object's arch name, for example. The following would print the activator's arch name:
+@code
+print(WhoIsActivator().arch.name)
+@endcode
+
+@see @ref plugin_python_archetype_fields
+*/

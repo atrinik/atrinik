@@ -103,8 +103,7 @@ static void expand_misc(char **newlayout, int i, int j, char **layout)
  *	1	match on (i+1, j)
  *	2	match on (i, j+1)
  *	4	match on (i+1, j+1)
- * and the possible combinations thereof.
- */
+ * and the possible combinations thereof. */
 /**
  * Returns a bitmap that represents which squares on the right and bottom
  * edges of a square (i, j) match the given character.

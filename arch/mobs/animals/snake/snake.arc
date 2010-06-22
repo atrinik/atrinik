@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_poison 80
 attack_slash 20
 type 80
-Wis 6
+Wis 3
 animation snake
 is_animated 1
 anim_speed 4

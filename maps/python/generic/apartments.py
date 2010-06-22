@@ -32,17 +32,17 @@ apartments_info = {
 				"id": 3,
 				"price": 150000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_expensive",
-				"x": 1,
-				"y": 2,
+				"x": 2,
+				"y": 1,
 			},
 			"luxurious":
 			{
-				"info": "\nThe luxurious apartment will cost you 200 gold.\nIt is very large for a single apartment and has a lot of places to store items including a nice bed room.\nEvery apartment is a kind of ^pocket dimension^.\nYou can enter it by using the teleporter there.\nSay ^sell me luxurious apartment^ to buy it!\nChoose wisely!",
+				"info": "\nThe luxurious apartment will cost you 30 gold.\nIt is very large for a single apartment and has a lot of places to store items including a nice bed room.\nEvery apartment is a kind of ^pocket dimension^.\nYou can enter it by using the teleporter there.\nSay ^sell me luxurious apartment^ to buy it!\nChoose wisely!",
 				"id": 4,
-				"price": 2000000,
+				"price": 300000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_luxurious",
-				"x": 2,
-				"y": 1,
+				"x": 1,
+				"y": 2,
 			},
 		},
 		"apartment_ids":

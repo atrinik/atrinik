@@ -28,9 +28,26 @@ they should be updated, and it makes it easier to find out
 whether or not specific versions are compatible with each other.
 
 SDL:       1.2.14 (with patch r4990 reverted)
+           http://www.libsdl.org
+           Used by Atrinik
 SDL_image: 1.2.10
+           http://www.libsdl.org/projects/SDL_image
+           Used by Atrinik
 SDL_mixer: 1.2.11
-zlib:      1.2.3
-libpng:    1.4.1  (used by SDL_image)
-libogg:    1.1.4  (used by SDL_mixer)
-libvorbis: 1.2.3  (used by SDL_mixer)
+           http://www.libsdl.org/projects/SDL_mixer
+           Used by Atrinik
+libcurl:   7.20.1 (HTTP, FTP and FILE)
+           http://curl.haxx.se
+           Used by Atrinik
+zlib:      1.2.5
+           http://www.zlib.net
+           Used by libpng and Atrinik
+libpng:    1.4.1
+           http://www.libpng.org
+           Used by SDL_image
+libogg:    1.2.0
+           http://xiph.org/ogg
+           Used by SDL_mixer
+libvorbis: 1.3.1
+           http://xiph.org/ogg
+           Used by SDL_mixer

@@ -2,11 +2,11 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-28 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 13
 outdoor 1
 tile_path_1 world_1503
 tile_path_3 world_1501
@@ -68,6 +68,7 @@ y 13
 arch treant_evil
 type 83
 level 13
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -348,6 +349,7 @@ y 7
 arch quickwood
 type 83
 level 14
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -536,6 +538,7 @@ y 3
 arch quickwood
 type 83
 level 14
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -1050,6 +1053,7 @@ y 20
 arch quickwood
 type 83
 level 12
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -1131,6 +1135,7 @@ y 13
 arch treant_evil
 type 83
 level 13
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -1640,6 +1645,7 @@ y 8
 arch treant_evil
 type 83
 level 13
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -1888,6 +1894,7 @@ y 17
 arch quickwood
 type 83
 level 12
+dam 54
 unaggressive 1
 Wis 4
 end
@@ -1933,6 +1940,7 @@ y 2
 arch quickwood
 type 83
 level 14
+dam 54
 unaggressive 1
 Wis 4
 end

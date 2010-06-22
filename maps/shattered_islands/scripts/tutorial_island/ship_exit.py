@@ -7,7 +7,6 @@
 
 from Atrinik import *
 
-## The activator.
 activator = WhoIsActivator()
 
 if activator.GetSaveBed()["map"] == "/shattered_islands/world_0303":

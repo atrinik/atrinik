@@ -12,8 +12,6 @@ protect_impact 22
 protect_slash 30
 protect_cleave 22
 protect_pierce 22
-is_vul_magic 1
-is_vul_sphere 1
 weight 6100
 value 12500
 end

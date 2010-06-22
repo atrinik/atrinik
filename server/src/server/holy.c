@@ -206,7 +206,7 @@ void dump_gods()
 
 		LOG(llevInfo, " aligned_race(s): %s\n", god->race);
 		LOG(llevInfo, " enemy_race(s): %s\n", (god->slaying ? god->slaying : "none"));
-		LOG(llevInfo, "%s", describe_resistance(god, 1));
+		LOG(llevInfo, "%s", describe_protections(god, 1));
 
 		strcat(tmpbuf, "\n aura:");
 
@@ -316,12 +316,6 @@ void dump_gods()
 		{
 			gifts = 1;
 			LOG(llevInfo, "\n  grace regenerates at %d",god->last_grace);
-		}
-
-		if (god->stats.luck)
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  luck is %d",god->stats.luck);
 		}
 
 		if (!gifts)

@@ -123,7 +123,6 @@ void push_button(object *op)
 				{
 					tmp->last_eat != 0 ? (tmp->last_eat = 0) : (tmp->last_eat = 1);
 				}
-
 				/* "normal" connection - turn wall */
 				else
 				{
@@ -161,6 +160,10 @@ void push_button(object *op)
 
 			case CREATOR:
 				move_creator(tmp);
+				break;
+
+			case SPAWN_POINT:
+				spawn_point(tmp);
 				break;
 		}
 	}
@@ -323,9 +326,13 @@ static void trigger_move(object *op, int state)
 	if (state)
 	{
 		use_trigger(op);
-		op->speed = 1.0f / (float)op->arch->clone.stats.exp;
-		update_ob_speed(op);
-		op->speed_left = -1;
+
+		if (op->stats.exp)
+		{
+			op->speed = 1.0f / op->stats.exp;
+			update_ob_speed(op);
+			op->speed_left = -1;
+		}
 	}
 	else
 	{

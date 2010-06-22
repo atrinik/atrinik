@@ -72,10 +72,6 @@ static key_macro defkey_macro[] =
 	{"?M_PAGEUP",		    "scroll up",        KEYFUNC_PAGEUP,       	0, SC_NORMAL},
 	{"?M_PAGEDOWN",	    	"scroll down",      KEYFUNC_PAGEDOWN,     	0, SC_NORMAL},
 	{"?M_FIRE_READY",   	"fire_ready <tag>", KEYFUNC_FIREREADY,    	0, SC_NORMAL},
-	{"?M_LAYER0",		    "l0",               KEYFUNC_LAYER0,       	0, SC_NORMAL},
-	{"?M_LAYER1",		    "l1",               KEYFUNC_LAYER1,       	0, SC_NORMAL},
-	{"?M_LAYER2",		    "l2",               KEYFUNC_LAYER2,       	0, SC_NORMAL},
-	{"?M_LAYER3",		    "l3",               KEYFUNC_LAYER3,       	0, SC_NORMAL},
 	{"?M_HELP",             "show help",        KEYFUNC_HELP,         	0, SC_NORMAL},
 	{"?M_PAGEUP_TOP",	  	"scroll up",        KEYFUNC_PAGEUP_TOP,   	0, SC_NORMAL},
 	{"?M_PAGEDOWN_TOP", 	"scroll down",      KEYFUNC_PAGEDOWN_TOP, 	0, SC_NORMAL},
@@ -576,7 +572,7 @@ int Event_PollInputDevice()
 						cpl.inventory_win = IWIN_BELOW;
 						get_tile_position(x, y, &tx, &ty);
 						snprintf(tbuf, sizeof(tbuf), "/target !%d %d", tx - MAP_MAX_SIZE / 2, ty - MAP_MAX_SIZE / 2);
-						send_command(tbuf, -1, SC_NORMAL);
+						send_command(tbuf);
 					}
 
 					break;
@@ -1119,7 +1115,7 @@ static int key_event(SDL_KeyboardEvent *key)
 
 				case SDLK_LALT:
 				case SDLK_RALT:
-					send_command("/run_stop", -1, SC_FIRERUN);
+					send_command("/run_stop");
 #if 0
 					draw_info("run_stop", COLOR_DGOLD);
 #endif
@@ -1315,7 +1311,7 @@ static int key_event(SDL_KeyboardEvent *key)
 								}
 								else if (esc_menu_index == ESC_MENU_LOGOUT)
 								{
-									socket_close(csocket.fd);
+									socket_close(&csocket);
 									GameStatus = GAME_STATUS_INIT;
 								}
 
@@ -1459,7 +1455,7 @@ static void process_macro(_keymap macro)
 
 		if (!client_command_check(cp))
 		{
-			send_command(cp, -1, SC_NORMAL);
+			send_command(cp);
 		}
 
 		cp = strtok(NULL, ";");
@@ -1571,19 +1567,19 @@ int process_macro_keys(int id, int value)
 			break;
 
 		case KEYFUNC_TARGET_ENEMY:
-			send_command("/target 0", -1, SC_NORMAL);
+			send_command("/target 0");
 			break;
 
 		case KEYFUNC_TARGET_FRIEND:
-			send_command("/target 1", -1, SC_NORMAL);
+			send_command("/target 1");
 			break;
 
 		case KEYFUNC_TARGET_SELF:
-			send_command("/target 2", -1, SC_NORMAL);
+			send_command("/target 2");
 			break;
 
 		case KEYFUNC_COMBAT:
-			send_command("/combat", -1, SC_NORMAL);
+			send_command("/combat");
 			break;
 
 		case KEYFUNC_SPELL:
@@ -1652,7 +1648,7 @@ int process_macro_keys(int id, int value)
 
 		case KEYFUNC_RUN:
 			if (!(cpl.runkey_on = cpl.runkey_on ? 0 : 1))
-				send_command("/run_stop", -1, SC_FIRERUN);
+				send_command("/run_stop");
 
 			snprintf(buf, sizeof(buf), "runmode %s", cpl.runkey_on ? "on" : "off");
 #if 0
@@ -1837,46 +1833,6 @@ int process_macro_keys(int id, int value)
 			client_send_move(loc, tag, nrof);
 			return 0;
 
-		case KEYFUNC_LAYER0:
-			if (debug_layer[0])
-				debug_layer[0] = 0;
-			else
-				debug_layer[0] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 0 %s.", debug_layer[0] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
-		case KEYFUNC_LAYER1:
-			if (debug_layer[1])
-				debug_layer[1] = 0;
-			else
-				debug_layer[1] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 1 %s.", debug_layer[1] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
-		case KEYFUNC_LAYER2:
-			if (debug_layer[2])
-				debug_layer[2] = 0;
-			else
-				debug_layer[2] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 2 %s.", debug_layer[2] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
-		case KEYFUNC_LAYER3:
-			if (debug_layer[3])
-				debug_layer[3] = 0;
-			else
-				debug_layer[3] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 3 %s.", debug_layer[3] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
 		case KEYFUNC_HELP:
 			show_help("main");
 			break;
@@ -1950,7 +1906,7 @@ int process_macro_keys(int id, int value)
 			return 0;
 
 		case KEYFUNC_QLIST:
-			cs_write_string(csocket.fd, "qlist", 5);
+			cs_write_string("qlist", 5);
 			break;
 
 		default:
@@ -2050,7 +2006,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 				quick_slots[slot].tag = -1;
 
 				snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
-				cs_write_string(csocket.fd, buf, strlen(buf));
+				cs_write_string(buf, strlen(buf));
 
 				snprintf(buf, sizeof(buf), "Unset F%d of group %d.", real_slot + 1, quickslot_group);
 				draw_info(buf, COLOR_DGOLD);
@@ -2063,7 +2019,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 				quick_slots[slot].tag = spell_list_set.entry_nr;
 
 				snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", slot + 1, spell_list_set.group_nr, spell_list_set.class_nr, spell_list_set.entry_nr);
-				cs_write_string(csocket.fd, buf, strlen(buf));
+				cs_write_string(buf, strlen(buf));
 
 				snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].name);
 				draw_info(buf, COLOR_DGOLD);
@@ -2087,7 +2043,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 		{
 			quick_slots[slot].tag = -1;
 			snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(buf, strlen(buf));
 		}
 		else
 		{
@@ -2096,7 +2052,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 			quick_slots[slot].tag = tag;
 
 			snprintf(buf, sizeof(buf), "qs set %d %d", slot + 1, tag);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(buf, strlen(buf));
 
 			snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, locate_item(tag)->s_name);
 			draw_info(buf, COLOR_DGOLD);
@@ -2202,7 +2158,7 @@ static int movement_queue_thread(void *junk)
 		}
 
 		entry = movement_queue_pop();
-		send_command(directions[entry->num], -1, SC_FIRERUN);
+		send_command(directions[entry->num]);
 		free(entry);
 		SDL_Delay(((float) MAX_TIME / FABS((float) ((float) cpl.stats.speed / 100))));
 	}
@@ -2225,7 +2181,7 @@ static void move_keys(int num)
 	/* Runmode on, or ALT key trigger */
 	if ((cpl.runkey_on || cpl.run_on) && (!cpl.firekey_on && !cpl.fire_on))
 	{
-		send_command(directionsrun[num], -1, SC_FIRERUN);
+		send_command(directionsrun[num]);
 		strcpy(buf, "run ");
 	}
 	/* That's the range menu - we handle its messages unique */
@@ -2521,7 +2477,7 @@ void check_menu_keys(int menu, int key)
 
 		if (cpl.menustatus == MENU_CREATE)
 		{
-			socket_close(csocket.fd);
+			socket_close(&csocket);
 			GameStatus = GAME_STATUS_INIT;
 		}
 
@@ -2732,7 +2688,7 @@ void check_menu_keys(int menu, int key)
 					if (shiftPressed)
 					{
 						/* If the next time won't be over maximum, go to the below tab and switch tab. */
-						if (gui_interface_party->tab + 1 < (strcmp(cpl.partyname, "") == 0 ? PARTY_TAB_LIST + 1 : PARTY_TABS))
+						if (gui_interface_party->tab + 1 < (cpl.partyname[0] == '\0' ? PARTY_TAB_LIST + 1 : PARTY_TABS))
 						{
 							gui_interface_party->tab++;
 							gui_interface_party->selected = 0;
@@ -2784,8 +2740,8 @@ void check_menu_keys(int menu, int key)
 							/* ... and it's not party we're member of, send command to server and close the GUI. */
 							if (strcmp(partyname, cpl.partyname))
 							{
-								snprintf(buf, sizeof(buf), "pt join %s", partyname);
-								cs_write_string(csocket.fd, buf, strlen(buf));
+								snprintf(buf, sizeof(buf), "/party join %s", partyname);
+								send_command(buf);
 
 								map_udate_flag = 2;
 								cpl.menustatus = MENU_NO;
@@ -2802,7 +2758,7 @@ void check_menu_keys(int menu, int key)
 					{
 						/* Check the command */
 						if (!client_command_check("/party leave"))
-							send_command("/party leave", -1, SC_NORMAL);
+							send_command("/party leave");
 
 						/* Close the menu */
 						cpl.menustatus = MENU_NO;
@@ -2811,7 +2767,7 @@ void check_menu_keys(int menu, int key)
 					else if (strcmp(gui_interface_party->command, "askpassword") == 0)
 					{
 						/* Load the party interface - mostly we need it to set the command. */
-						gui_interface_party = load_party_interface("passwordset", 11);
+						gui_interface_party = load_party_interface("passwordset", -1);
 						cpl.input_mode = INPUT_MODE_CONSOLE;
 
 						/* Open the console, with a maximum of 8 chars. */
@@ -2840,7 +2796,7 @@ void check_menu_keys(int menu, int key)
 					if (strcmp(gui_interface_party->command, "list") == 0)
 					{
 						/* Load the party interface */
-						gui_interface_party = load_party_interface("form", 4);
+						gui_interface_party = load_party_interface("form", -1);
 
 						cpl.input_mode = INPUT_MODE_CONSOLE;
 

@@ -9,6 +9,7 @@ is_animated 1
 anim_speed 1
 speed 1
 no_pick 1
+no_pass 1
 end
 More
 Object fireplace_rightb
@@ -19,6 +20,7 @@ layer 5
 mpart_nr 1
 type 79
 no_pick 1
+no_pass 1
 end
 
 Object fireplace_right_off
@@ -28,6 +30,7 @@ mpart_id 2
 type 79
 layer 5
 no_pick 1
+no_pass 1
 end
 More
 Object fireplace_right_offb
@@ -39,6 +42,7 @@ x 1
 type 79
 layer 5
 no_pick 1
+no_pass 1
 end
 
 Object fireplace_left
@@ -52,6 +56,7 @@ is_animated 1
 anim_speed 1
 speed 1
 no_pick 1
+no_pass 1
 end
 More
 Object fireplace_leftb
@@ -62,6 +67,7 @@ layer 5
 mpart_nr 1
 type 79
 no_pick 1
+no_pass 1
 end
 
 Object fireplace_left_off
@@ -71,6 +77,7 @@ mpart_id 1
 type 79
 layer 5
 no_pick 1
+no_pass 1
 end
 More
 Object fireplace_left_offb
@@ -82,4 +89,5 @@ y 1
 type 79
 layer 5
 no_pick 1
+no_pass 1
 end

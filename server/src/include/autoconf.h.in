@@ -123,6 +123,9 @@
 /* Define if you have the des library (-ldes).  */
 #undef HAVE_LIBDES
 
+/* Define if you have the check library (-lcheck).  */
+#undef HAVE_CHECK
+
 /* Just a phoney so that we will recompile if the user changes the
  * prefix or libdir
  */

@@ -15,10 +15,18 @@ activator = WhoIsActivator()
 guildname = GetOptions()
 
 # Sanity check
-if guildname:
-	## The guild we're managing.
-	guild = Guild(guildname)
+if not guildname:
+	raise error("Guild entrance is missing event options.")
 
+## The guild we're managing.
+guild = Guild(guildname)
+
+def main():
 	if not activator.f_wiz and not guild.is_member_of(activator.name, guildname):
 		activator.Write("You are not member of this guild. You may not enter.", COLOR_RED)
 		SetReturnValue(1)
+
+try:
+	main()
+finally:
+	guild.guilddb.close()

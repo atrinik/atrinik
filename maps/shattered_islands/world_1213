@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-02 Alex Tokar
+Modified: 2010-06-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,13 +24,13 @@ arch floor_flagm1
 end
 arch fwall_fstone2
 end
-arch floor_flagm1
+arch floor_flagm3
 y 1
 end
 arch floor_flagm2
 y 2
 end
-arch floor_flagm1
+arch floor_flagm2
 y 3
 end
 arch floor_flagm2
@@ -117,14 +117,13 @@ end
 arch grassd_6
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 y 21
+end
+arch water_still
+y 22
 end
 arch grassd_m10
-y 21
-end
-arch bridge_wood_EW.111
 y 22
 end
 arch water_still
@@ -132,10 +131,6 @@ player_only 1
 y 23
 end
 arch grassd_m14
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 y 23
 end
 arch floor_flagm4
@@ -265,19 +260,27 @@ arch grassd_6
 x 1
 y 20
 end
-arch bridge_wood_NS.181
+arch plant_flower14
 x 1
 y 20
 end
-arch bridge_wood_NS.171
+arch grassd_3
 x 1
 y 21
 end
-arch bridge_wood_corner.161
+arch water_still
 x 1
 y 22
 end
-arch bridge_wood_NS.171
+arch grassd_m6
+x 1
+y 22
+end
+arch water_still
+x 1
+y 23
+end
+arch grassd_m8
 x 1
 y 23
 end
@@ -291,7 +294,7 @@ arch floor_flagm3
 x 2
 y 1
 end
-arch floor_flagm1
+arch floor_flagm4
 x 2
 y 2
 end
@@ -424,49 +427,15 @@ arch grassd_7
 x 2
 y 20
 end
-arch bridge_wood_NS.121
-x 2
-y 20
-end
-arch water_still
-player_only 1
+arch grassd_3
 x 2
 y 21
 end
-arch grassd_m6
-x 2
-y 21
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 21
-end
-arch water_still
-player_only 1
+arch grassd_4
 x 2
 y 22
 end
-arch grassd_m8
-x 2
-y 22
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 22
-end
-arch water_still
-player_only 1
-x 2
-y 23
-end
-arch grassd_m8
-x 2
-y 23
-end
-arch bridge_wood_NS.131
-layer 3
+arch grassd_4
 x 2
 y 23
 end
@@ -476,7 +445,7 @@ end
 arch fwall_fstone2
 x 3
 end
-arch floor_flagm1
+arch floor_flagm4
 x 3
 y 1
 end
@@ -484,7 +453,7 @@ arch floor_flagm2
 x 3
 y 2
 end
-arch floor_flagm1
+arch floor_flagm4
 x 3
 y 3
 end
@@ -500,11 +469,15 @@ arch grassd_7
 x 3
 y 5
 end
+arch wall_flagstone1.131
+x 3
+y 5
+end
 arch grassd_2
 x 3
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1.141
 x 3
 y 6
 end
@@ -631,7 +604,7 @@ end
 arch fwall_fstone2
 x 4
 end
-arch floor_flagm4
+arch floor_flagm2
 x 4
 y 1
 end
@@ -639,7 +612,7 @@ arch floor_flagm4
 x 4
 y 2
 end
-arch floor_flagm2
+arch floor_flagm1
 x 4
 y 3
 end
@@ -651,11 +624,18 @@ arch fwall_fstone2
 x 4
 y 4
 end
-arch grassd_4
+arch floor_flagm2
 x 4
 y 5
 end
-arch grassd_2
+arch exit
+slaying world_1112
+hp 12
+sp 12
+x 4
+y 5
+end
+arch floor_flagm2
 x 4
 y 6
 end
@@ -798,15 +778,15 @@ end
 arch fwall_fstone2
 x 5
 end
-arch floor_flagm3
+arch floor_flagm2
 x 5
 y 1
 end
-arch floor_flagm4
+arch floor_flagm2
 x 5
 y 2
 end
-arch floor_flagm3
+arch floor_flagm2
 x 5
 y 3
 end
@@ -818,15 +798,23 @@ arch fwall_fstone2
 x 5
 y 4
 end
-arch grassd_2
+arch floor_flagm4
 x 5
 y 5
 end
-arch grassd_5
+arch sign
+msg
+This portal allows you to enter the arena in spectator mode.
+You'll be placed into the center of the arena, but you will only be able to watch the fight behind gates.
+endmsg
+x 5
+y 5
+end
+arch floor_flagm3
 x 5
 y 6
 end
-arch wall_flagstone1.111
+arch door1_locked
 x 5
 y 6
 end
@@ -946,15 +934,15 @@ end
 arch fwall_fstone2
 x 6
 end
-arch floor_flagm4
+arch floor_flagm3
 x 6
 y 1
 end
-arch floor_flagm1
+arch floor_flagm2
 x 6
 y 2
 end
-arch floor_flagm1
+arch floor_flagm3
 x 6
 y 3
 end
@@ -966,15 +954,19 @@ arch fwall_fstone2
 x 6
 y 4
 end
-arch grassd_1
+arch floor_flagm2
 x 6
 y 5
 end
-arch grassd_7
+arch wall_flagstone1.131
+x 6
+y 5
+end
+arch floor_flagm2
 x 6
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1.141
 x 6
 y 6
 end
@@ -1064,15 +1056,15 @@ end
 arch fwall_fstone2
 x 7
 end
-arch floor_flagm1
+arch floor_flagm3
 x 7
 y 1
 end
-arch floor_flagm4
+arch floor_flagm2
 x 7
 y 2
 end
-arch floor_flagm3
+arch floor_flagm1
 x 7
 y 3
 end
@@ -1085,10 +1077,6 @@ x 7
 y 4
 end
 arch grassd_2
-x 7
-y 5
-end
-arch plant_mushroom4
 x 7
 y 5
 end
@@ -1206,7 +1194,7 @@ end
 arch fwall_fstone2
 x 8
 end
-arch floor_flagm4
+arch floor_flagm3
 x 8
 y 1
 end
@@ -1214,7 +1202,7 @@ arch floor_flagm2
 x 8
 y 2
 end
-arch floor_flagm2
+arch floor_flagm4
 x 8
 y 3
 end
@@ -1317,7 +1305,7 @@ arch floor_flagm4
 x 8
 y 18
 end
-arch grassd_m8
+arch grassd_m12
 x 8
 y 18
 end
@@ -1325,15 +1313,7 @@ arch floor_flagm3
 x 8
 y 19
 end
-arch grassd_m8
-x 8
-y 19
-end
 arch floor_flagm3
-x 8
-y 20
-end
-arch grassd_m8
 x 8
 y 20
 end
@@ -1341,7 +1321,7 @@ arch floor_flagm1
 x 8
 y 21
 end
-arch grassd_m8
+arch grassd_m11
 x 8
 y 21
 end
@@ -1371,11 +1351,11 @@ arch floor_flagm4
 x 9
 y 1
 end
-arch floor_flagm1
+arch floor_flagm2
 x 9
 y 2
 end
-arch floor_flagm1
+arch floor_flagm3
 x 9
 y 3
 end
@@ -1484,19 +1464,37 @@ arch grassd_3
 x 9
 y 17
 end
-arch grassd_3
+arch spawn_point
+x 9
+y 17
+arch guard
+name jail guard
+level 80
+friendly 1
+type 83
+end
+end
+arch floor_flagm2
 x 9
 y 18
 end
-arch grassd_7
+arch grassd_m10
+x 9
+y 18
+end
+arch floor_flagm3
 x 9
 y 19
 end
-arch grassd_1
+arch floor_flagm1
 x 9
 y 20
 end
-arch grassd_8
+arch floor_flagm3
+x 9
+y 21
+end
+arch grassd_m7
 x 9
 y 21
 end
@@ -1522,11 +1520,11 @@ end
 arch fwall_fstone2
 x 10
 end
-arch floor_flagm4
+arch floor_flagm2
 x 10
 y 1
 end
-arch floor_flagm1
+arch floor_flagm4
 x 10
 y 2
 end
@@ -1585,7 +1583,7 @@ end
 arch exit
 slaying world_1112
 hp 12
-sp 13
+sp 16
 x 10
 y 12
 arch event_obj
@@ -1627,23 +1625,27 @@ arch grassd_3
 x 10
 y 17
 end
-arch grassd_3
+arch floor_flagm2
 x 10
 y 18
 end
-arch tree_big4b
+arch grassd_m10
 x 10
 y 18
 end
-arch grassd_4
+arch floor_flagm4
 x 10
 y 19
 end
-arch grassd_3
+arch floor_flagm2
 x 10
 y 20
 end
-arch grassd_3
+arch floor_flagm3
+x 10
+y 21
+end
+arch grassd_m7
 x 10
 y 21
 end
@@ -1661,11 +1663,11 @@ end
 arch fwall_fstone2
 x 11
 end
-arch floor_flagm1
+arch floor_flagm2
 x 11
 y 1
 end
-arch floor_flagm1
+arch floor_flagm2
 x 11
 y 2
 end
@@ -1682,10 +1684,6 @@ x 11
 y 4
 end
 arch grassd_5
-x 11
-y 5
-end
-arch plant_mushroom2
 x 11
 y 5
 end
@@ -1757,11 +1755,15 @@ arch grassd_5
 x 11
 y 14
 end
+arch wall_flagstone1.131
+x 11
+y 14
+end
 arch grassd_7
 x 11
 y 15
 end
-arch plant5
+arch wall_flagstone1.131
 x 11
 y 15
 end
@@ -1769,31 +1771,78 @@ arch grassd_6
 x 11
 y 16
 end
+arch wall_flagstone1.131
+x 11
+y 16
+end
+arch picture10
+direction 7
+x 11
+y 16
+end
 arch grassd_3
 x 11
 y 17
 end
-arch grassd_2
+arch wall_flagstone1.131
+x 11
+y 17
+end
+arch floor_flagm1
 x 11
 y 18
 end
-arch grassd_3
+arch grassd_m6
+x 11
+y 18
+end
+arch wall_flagstone1.131
+x 11
+y 18
+end
+arch floor_flagm4
 x 11
 y 19
 end
-arch grassd_5
+arch grassd_m12
+x 11
+y 19
+end
+arch door1_locked
+direction 3
+x 11
+y 19
+end
+arch floor_flagm4
 x 11
 y 20
 end
-arch plant1
+arch grassd_m11
 x 11
 y 20
 end
-arch grassd_2
+arch door1_locked
+direction 5
+x 11
+y 20
+end
+arch floor_flagm2
+x 11
+y 21
+end
+arch grassd_m5
+x 11
+y 21
+end
+arch wall_flagstone1.131
 x 11
 y 21
 end
 arch grassd_1
+x 11
+y 22
+end
+arch wall_flagstone1.131
 x 11
 y 22
 end
@@ -1807,11 +1856,11 @@ end
 arch fwall_fstone2
 x 12
 end
-arch floor_flagm1
+arch floor_flagm2
 x 12
 y 1
 end
-arch floor_flagm1
+arch floor_flagm4
 x 12
 y 2
 end
@@ -1835,1210 +1884,1622 @@ arch grassd_4
 x 12
 y 6
 end
-arch grassd_1
+arch wall_flagstone1.111
+x 12
+y 6
+end
+arch floor_marble_grey
 x 12
 y 7
 end
-arch grassd_8
+arch spawn_point
+x 12
+y 7
+arch guard
+name jail guard
+level 80
+friendly 1
+type 83
+end
+end
+arch torch_wall_1
+x 12
+y 7
+end
+arch floor_marble_grey
 x 12
 y 8
 end
-arch grassd_7
+arch floor_marble_grey
 x 12
 y 9
 end
-arch grassd_7
+arch door1_locked
+x 12
+y 9
+end
+arch floor_marble_grey
 x 12
 y 10
 end
-arch grassd_6
+arch floor_marble_grey
 x 12
 y 11
 end
-arch grassd_7
+arch floor_marble_grey
 x 12
 y 12
 end
-arch grassd_5
+arch torch_wall_1
+direction 7
+x 12
+y 12
+end
+arch floor_marble_grey
 x 12
 y 13
 end
-arch grassd_7
+arch floor_marble_grey
 x 12
 y 14
 end
-arch grassd_6
+arch floor_marble_grey
 x 12
 y 15
 end
-arch grassd_5
+arch torch_wall_1
+direction 7
+x 12
+y 15
+end
+arch floor_marble_grey
 x 12
 y 16
 end
-arch grassd_5
+arch floor_marble_grey
 x 12
 y 17
 end
-arch grassd_2
+arch floor_marble_grey
 x 12
 y 18
 end
-arch grassd_3
+arch torch_wall_1
+direction 7
+x 12
+y 18
+end
+arch floor_marble_grey
 x 12
 y 19
+end
+arch floor_marble_grey
+x 12
+y 20
+end
+arch floor_marble_grey
+x 12
+y 21
+end
+arch spawn_point
+x 12
+y 21
+arch guard
+name jail guard
+level 80
+friendly 1
+type 83
+end
+end
+arch torch_wall_1
+direction 7
+x 12
+y 21
+end
+arch floor_marble_grey
+x 12
+y 22
+end
+arch wall_flagstone1.111
+x 12
+y 22
+end
+arch grassd_5
+x 12
+y 23
+end
+arch floor_flagm2
+x 13
+end
+arch fwall_fstone2
+x 13
+end
+arch floor_flagm2
+x 13
+y 1
+end
+arch floor_flagm2
+x 13
+y 2
+end
+arch floor_flagm4
+x 13
+y 3
+end
+arch floor_flagm1
+x 13
+y 4
+end
+arch fwall_fstone2
+x 13
+y 4
+end
+arch grassd_2
+x 13
+y 5
 end
 arch grassd_4
-x 12
+x 13
+y 6
+end
+arch wall_flagstone1.111
+x 13
+y 6
+end
+arch chains1.151
+x 13
+y 6
+end
+arch floor_marble_grey
+x 13
+y 7
+end
+arch blood_floor2
+x 13
+y 7
+end
+arch floor_marble_grey
+x 13
+y 8
+end
+arch floor_marble_grey
+x 13
+y 9
+end
+arch door1_locked
+direction 7
+x 13
+y 9
+end
+arch floor_marble_grey
+x 13
+y 10
+end
+arch floor_marble_grey
+x 13
+y 11
+end
+arch floor_marble_grey
+x 13
+y 12
+end
+arch floor_marble_grey
+x 13
+y 13
+end
+arch floor_marble_grey
+x 13
+y 14
+end
+arch floor_marble_grey
+x 13
+y 15
+end
+arch floor_marble_grey
+x 13
+y 16
+end
+arch floor_marble_grey
+x 13
+y 17
+end
+arch floor_marble_grey
+x 13
+y 18
+end
+arch floor_marble_grey
+x 13
+y 19
+end
+arch floor_marble_grey
+x 13
 y 20
 end
-arch grassd_7
-x 12
+arch floor_marble_grey
+x 13
 y 21
 end
+arch floor_marble_grey
+x 13
+y 22
+end
+arch wall_flagstone1.111
+x 13
+y 22
+end
+arch grassd_4
+x 13
+y 23
+end
+arch floor_flagm2
+x 14
+end
+arch fwall_fstone2
+x 14
+end
+arch floor_flagm3
+x 14
+y 1
+end
+arch floor_flagm3
+x 14
+y 2
+end
+arch floor_flagm1
+x 14
+y 3
+end
+arch floor_flagm4
+x 14
+y 4
+end
+arch fwall_fstone2
+x 14
+y 4
+end
+arch grassd_5
+x 14
+y 5
+end
+arch grassd_6
+x 14
+y 6
+end
+arch wall_flagstone1.111
+x 14
+y 6
+end
+arch chains1.151
+x 14
+y 6
+end
+arch floor_marble_grey
+x 14
+y 7
+end
+arch floor_marble_grey
+x 14
+y 8
+end
+arch floor_marble_grey
+x 14
+y 9
+end
+arch wall_flagstone1.111
+x 14
+y 9
+end
+arch floor_marble_grey
+x 14
+y 10
+end
+arch wall_flagstone1.131
+x 14
+y 10
+end
+arch floor_marble_grey
+x 14
+y 11
+end
+arch grate1_3
+x 14
+y 11
+end
+arch floor_marble_grey
+x 14
+y 12
+end
+arch grate1_3
+x 14
+y 12
+end
+arch floor_marble_grey
+x 14
+y 13
+end
+arch grate1_3
+x 14
+y 13
+end
+arch floor_marble_grey
+x 14
+y 14
+end
+arch grate1_3
+x 14
+y 14
+end
+arch floor_marble_grey
+x 14
+y 15
+end
+arch grate1_3
+x 14
+y 15
+end
+arch floor_marble_grey
+x 14
+y 16
+end
+arch grate1_3
+x 14
+y 16
+end
+arch floor_marble_grey
+x 14
+y 17
+end
+arch wall_flagstone1.131
+x 14
+y 17
+end
+arch floor_marble_grey
+x 14
+y 18
+end
+arch wall_flagstone1.131
+x 14
+y 18
+end
+arch floor_marble_grey
+x 14
+y 19
+end
+arch grate1_3
+x 14
+y 19
+end
+arch floor_marble_grey
+x 14
+y 20
+end
+arch grate1_3
+x 14
+y 20
+end
+arch floor_marble_grey
+x 14
+y 21
+end
+arch grate1_3
+x 14
+y 21
+end
+arch floor_marble_grey
+x 14
+y 22
+end
+arch wall_flagstone1.141
+x 14
+y 22
+end
+arch grassd_6
+x 14
+y 23
+end
+arch floor_flagm1
+x 15
+end
+arch fwall_fstone2
+x 15
+end
+arch floor_flagm1
+x 15
+y 1
+end
+arch floor_flagm4
+x 15
+y 2
+end
+arch floor_flagm2
+x 15
+y 3
+end
+arch floor_flagm1
+x 15
+y 4
+end
+arch fwall_fstone2
+x 15
+y 4
+end
+arch grassd_8
+x 15
+y 5
+end
 arch grassd_2
-x 12
+x 15
+y 6
+end
+arch wall_flagstone1.111
+x 15
+y 6
+end
+arch floor_marble_grey
+x 15
+y 7
+end
+arch torch_wall_1
+x 15
+y 7
+end
+arch floor_marble_grey
+x 15
+y 8
+end
+arch floor_marble_grey
+x 15
+y 9
+end
+arch wall_flagstone1.111
+x 15
+y 9
+end
+arch floor_marble_grey
+x 15
+y 10
+end
+arch box1.101
+x 15
+y 10
+end
+arch floor_marble_grey
+x 15
+y 11
+end
+arch floor_marble_grey
+x 15
+y 12
+end
+arch dirt_floor4
+x 15
+y 12
+end
+arch floor_marble_grey
+x 15
+y 13
+end
+arch floor_marble_grey
+x 15
+y 14
+end
+arch blood_floor2
+x 15
+y 14
+end
+arch floor_marble_grey
+x 15
+y 15
+end
+arch floor_marble_grey
+x 15
+y 16
+end
+arch trash_wood2.101
+x 15
+y 16
+end
+arch floor_marble_grey
+x 15
+y 17
+end
+arch wall_flagstone1.111
+x 15
+y 17
+end
+arch floor_marble_grey
+x 15
+y 18
+end
+arch pottery6.101
+x 15
+y 18
+end
+arch floor_marble_grey
+x 15
+y 19
+end
+arch floor_marble_grey
+x 15
+y 20
+end
+arch floor_marble_grey
+x 15
+y 21
+end
+arch dirt_floor4
+x 15
+y 21
+end
+arch floor_marble_grey
+x 15
+y 22
+end
+arch wall_flagstone1.111
+x 15
+y 22
+end
+arch grassd_7
+x 15
+y 23
+end
+arch floor_flagm4
+x 16
+end
+arch fwall_fstone2
+x 16
+end
+arch floor_flagm2
+x 16
+y 1
+end
+arch floor_flagm2
+x 16
+y 2
+end
+arch floor_flagm4
+x 16
+y 3
+end
+arch floor_flagm4
+x 16
+y 4
+end
+arch fwall_fstone2
+x 16
+y 4
+end
+arch grassd_3
+x 16
+y 5
+end
+arch grassd_7
+x 16
+y 6
+end
+arch wall_flagstone1.111
+x 16
+y 6
+end
+arch picture3.151
+x 16
+y 6
+end
+arch floor_marble_grey
+x 16
+y 7
+end
+arch stairs_stone_down
+slaying strakewood_island/greyton/jail/jail
+hp 1
+sp 19
+x 16
+y 7
+end
+arch floor_marble_grey
+x 16
+y 8
+end
+arch stairs_stone_down
+slaying strakewood_island/greyton/jail/jail
+hp 1
+sp 20
+x 16
+y 8
+end
+arch floor_marble_grey
+x 16
+y 9
+end
+arch wall_flagstone1.111
+x 16
+y 9
+end
+arch chains3.151
+x 16
+y 9
+end
+arch floor_marble_grey
+x 16
+y 10
+end
+arch blood_floor1
+x 16
+y 10
+end
+arch prison_deco1.131
+x 16
+y 10
+end
+arch floor_marble_grey
+x 16
+y 11
+end
+arch floor_marble_grey
+x 16
+y 12
+end
+arch dirt_floor3
+x 16
+y 12
+end
+arch floor_marble_grey
+x 16
+y 13
+end
+arch prison_deco2.131
+direction 7
+x 16
+y 13
+end
+arch light3
+x 16
+y 13
+end
+arch floor_marble_grey
+x 16
+y 14
+end
+arch prison_deco2.131
+direction 7
+x 16
+y 14
+end
+arch floor_marble_grey
+x 16
+y 15
+end
+arch dirt_floor1
+x 16
+y 15
+end
+arch floor_marble_grey
+x 16
+y 16
+end
+arch pottery3.101
+x 16
+y 16
+end
+arch floor_marble_grey
+x 16
+y 17
+end
+arch wall_flagstone1.111
+x 16
+y 17
+end
+arch wall_blood2
+x 16
+y 17
+end
+arch floor_marble_grey
+x 16
+y 18
+end
+arch pottery1.101
+x 16
+y 18
+end
+arch floor_marble_grey
+x 16
+y 19
+end
+arch prison_deco2.131
+x 16
+y 19
+end
+arch floor_marble_grey
+x 16
+y 20
+end
+arch pile_floor1
+x 16
+y 20
+end
+arch floor_marble_grey
+x 16
+y 21
+end
+arch dirt_floor2
+x 16
+y 21
+end
+arch floor_marble_grey
+x 16
+y 22
+end
+arch wall_flagstone1.111
+x 16
 y 22
 end
 arch grassd_5
-x 12
+x 16
 y 23
 end
-arch floor_flagm4
-x 13
+arch floor_flagm1
+x 17
 end
 arch fwall_fstone2
-x 13
+x 17
 end
-arch floor_flagm4
-x 13
+arch floor_flagm3
+x 17
 y 1
 end
-arch floor_flagm2
-x 13
+arch floor_flagm4
+x 17
 y 2
 end
 arch floor_flagm2
-x 13
+x 17
+y 3
+end
+arch floor_flagm4
+x 17
+y 4
+end
+arch fwall_fstone2
+x 17
+y 4
+end
+arch grassd_6
+x 17
+y 5
+end
+arch grassd_1
+x 17
+y 6
+end
+arch wall_flagstone1.111
+x 17
+y 6
+end
+arch floor_marble_grey
+x 17
+y 7
+end
+arch wall_flagstone1.131
+x 17
+y 7
+end
+arch floor_marble_grey
+x 17
+y 8
+end
+arch wall_flagstone1.131
+x 17
+y 8
+end
+arch floor_marble_grey
+x 17
+y 9
+end
+arch wall_flagstone1.141
+x 17
+y 9
+end
+arch floor_marble_grey
+x 17
+y 10
+end
+arch candlelight4.101
+x 17
+y 10
+end
+arch wall_flagstone1.131
+x 17
+y 10
+end
+arch light5
+x 17
+y 10
+end
+arch floor_marble_grey
+x 17
+y 11
+end
+arch wall_flagstone1.131
+x 17
+y 11
+end
+arch floor_marble_grey
+x 17
+y 12
+end
+arch wall_flagstone1.131
+x 17
+y 12
+end
+arch floor_marble_grey
+x 17
+y 13
+end
+arch wall_flagstone1.131
+x 17
+y 13
+end
+arch floor_marble_grey
+x 17
+y 14
+end
+arch wall_flagstone1.131
+x 17
+y 14
+end
+arch floor_marble_grey
+x 17
+y 15
+end
+arch wall_flagstone1.131
+x 17
+y 15
+end
+arch floor_marble_grey
+x 17
+y 16
+end
+arch candlelight3.101
+x 17
+y 16
+end
+arch wall_flagstone1.131
+x 17
+y 16
+end
+arch light5
+x 17
+y 16
+end
+arch floor_marble_grey
+x 17
+y 17
+end
+arch wall_flagstone1.141
+x 17
+y 17
+end
+arch floor_marble_grey
+x 17
+y 18
+end
+arch candlelight4.101
+x 17
+y 18
+end
+arch wall_flagstone1.131
+x 17
+y 18
+end
+arch light5
+x 17
+y 18
+end
+arch floor_marble_grey
+x 17
+y 19
+end
+arch wall_flagstone1.131
+x 17
+y 19
+end
+arch floor_marble_grey
+x 17
+y 20
+end
+arch wall_flagstone1.131
+x 17
+y 20
+end
+arch floor_marble_grey
+x 17
+y 21
+end
+arch wall_flagstone1.131
+x 17
+y 21
+end
+arch floor_marble_grey
+x 17
+y 22
+end
+arch candlelight4.101
+x 17
+y 22
+end
+arch wall_flagstone1.141
+x 17
+y 22
+end
+arch light5
+x 17
+y 22
+end
+arch grassd_8
+x 17
+y 23
+end
+arch floor_flagm4
+x 18
+end
+arch fwall_fstone2
+x 18
+end
+arch floor_flagm4
+x 18
+y 1
+end
+arch floor_flagm2
+x 18
+y 2
+end
+arch floor_flagm2
+x 18
 y 3
 end
 arch floor_flagm1
-x 13
+x 18
 y 4
 end
 arch fwall_fstone2a
-x 13
+x 18
 y 4
 end
 arch floor_flagm4
-x 13
+x 18
 y 5
 end
 arch fwall_fstone2
-x 13
+x 18
 y 5
 end
 arch floor_flagm1
-x 13
+x 18
 y 6
 end
 arch fwall_fstone2
-x 13
+x 18
 y 6
 end
 arch floor_flagm1
-x 13
+x 18
 y 7
 end
 arch fwall_fstone2
-x 13
+x 18
 y 7
 end
 arch floor_flagm1
-x 13
+x 18
 y 8
 end
 arch fwall_fstone2
-x 13
+x 18
 y 8
 end
 arch floor_flagm3
-x 13
+x 18
 y 9
 end
 arch fwall_fstone2
-x 13
+x 18
 y 9
 end
 arch floor_flagm2
-x 13
+x 18
 y 10
 end
 arch fwall_fstone2
-x 13
+x 18
 y 10
 end
 arch floor_flagm3
-x 13
+x 18
 y 11
 end
 arch fwall_fstone2
-x 13
+x 18
 y 11
 end
 arch floor_flagm2
-x 13
+x 18
 y 12
 end
 arch fwall_fstone2
-x 13
+x 18
 y 12
 end
 arch floor_flagm3
-x 13
+x 18
 y 13
 end
 arch fwall_fstone2
-x 13
+x 18
 y 13
 end
 arch floor_flagm1
-x 13
+x 18
 y 14
 end
 arch fwall_fstone2
-x 13
+x 18
 y 14
 end
 arch floor_flagm3
-x 13
+x 18
 y 15
 end
 arch fwall_fstone2
-x 13
+x 18
 y 15
 end
 arch floor_flagm4
-x 13
+x 18
 y 16
 end
 arch fwall_fstone2
-x 13
+x 18
 y 16
 end
 arch floor_flagm1
-x 13
+x 18
 y 17
 end
 arch fwall_fstone2
-x 13
+x 18
 y 17
 end
 arch floor_flagm2
-x 13
+x 18
 y 18
 end
 arch fwall_fstone2
-x 13
+x 18
 y 18
 end
 arch floor_flagm2
-x 13
+x 18
 y 19
 end
 arch fwall_fstone2
-x 13
+x 18
 y 19
 end
 arch floor_flagm2
-x 13
+x 18
 y 20
 end
 arch fwall_fstone2
-x 13
+x 18
 y 20
 end
 arch floor_flagm1
-x 13
+x 18
 y 21
 end
 arch fwall_fstone2
-x 13
+x 18
 y 21
 end
 arch floor_flagm2
-x 13
+x 18
 y 22
 end
 arch fwall_fstone2
-x 13
+x 18
 y 22
 end
 arch floor_flagm4
-x 13
+x 18
 y 23
 end
 arch fwall_fstone2
-x 13
+x 18
 y 23
 end
 arch floor_flagm3
-x 14
+x 19
 end
 arch fwall_fstone2
-x 14
+x 19
 end
 arch floor_flagm1
-x 14
+x 19
 y 1
 end
 arch floor_flagm3
-x 14
+x 19
 y 2
 end
 arch floor_flagm4
-x 14
+x 19
 y 3
 end
 arch floor_flagm2
-x 14
+x 19
 y 4
 end
 arch floor_flagm4
-x 14
+x 19
 y 5
 end
 arch floor_flagm1
-x 14
+x 19
 y 6
 end
 arch floor_flagm4
-x 14
+x 19
 y 7
 end
 arch floor_flagm4
-x 14
+x 19
 y 8
 end
 arch floor_flagm2
-x 14
+x 19
 y 9
 end
 arch floor_flagm4
-x 14
+x 19
 y 10
 end
 arch floor_flagm2
-x 14
+x 19
 y 11
 end
 arch floor_flagm4
-x 14
+x 19
 y 12
 end
 arch floor_flagm1
-x 14
+x 19
 y 13
 end
 arch floor_flagm4
-x 14
+x 19
 y 14
 end
 arch floor_flagm1
-x 14
+x 19
 y 15
 end
 arch floor_flagm4
-x 14
+x 19
 y 16
 end
 arch floor_flagm4
-x 14
+x 19
 y 17
 end
 arch floor_flagm3
-x 14
+x 19
 y 18
 end
 arch floor_flagm2
-x 14
+x 19
 y 19
 end
 arch floor_flagm3
-x 14
+x 19
 y 20
 end
 arch floor_flagm1
-x 14
+x 19
 y 21
 end
 arch floor_flagm2
-x 14
+x 19
 y 22
 end
 arch floor_flagm4
-x 14
+x 19
 y 23
 end
 arch water_still
-x 15
+x 20
 end
 arch fwall_fstone2a
-x 15
+x 20
 end
 arch floor_flagm2
-x 15
+x 20
 y 1
 end
 arch fwall_fstone2b
-x 15
+x 20
 y 1
 end
 arch floor_flagm4
-x 15
+x 20
 y 2
 end
 arch floor_flagm1
-x 15
+x 20
 y 3
 end
 arch floor_flagm3
-x 15
+x 20
 y 4
 end
 arch floor_flagm2
-x 15
+x 20
 y 5
 end
 arch floor_flagm1
-x 15
+x 20
 y 6
 end
 arch floor_flagm2
-x 15
+x 20
 y 7
 end
 arch floor_flagm2
-x 15
+x 20
 y 8
 end
 arch floor_flagm3
-x 15
+x 20
 y 9
 end
 arch floor_flagm4
-x 15
+x 20
 y 10
 end
 arch floor_flagm3
-x 15
+x 20
 y 11
 end
 arch floor_flagm2
-x 15
+x 20
 y 12
 end
 arch floor_flagm1
-x 15
+x 20
 y 13
 end
 arch floor_flagm1
-x 15
+x 20
 y 14
 end
 arch floor_flagm2
-x 15
+x 20
 y 15
 end
 arch floor_flagm3
-x 15
+x 20
 y 16
 end
 arch floor_flagm1
-x 15
+x 20
 y 17
 end
 arch floor_flagm4
-x 15
+x 20
 y 18
 end
 arch floor_flagm1
-x 15
+x 20
 y 19
 end
 arch floor_flagm4
-x 15
+x 20
 y 20
 end
 arch floor_flagm2
-x 15
+x 20
 y 21
 end
 arch floor_flagm1
-x 15
+x 20
 y 22
 end
 arch floor_flagm1
-x 15
+x 20
 y 23
 end
 arch water_still
-x 16
+x 21
 end
 arch water_still
-x 16
+x 21
 y 1
 end
 arch fwall_fstone2a
-x 16
+x 21
 y 1
 end
 arch floor_flagm3
-x 16
+x 21
 y 2
 end
 arch fwall_fstone2b
-x 16
+x 21
 y 2
 end
 arch floor_flagm1
-x 16
+x 21
 y 3
 end
 arch floor_flagm2
-x 16
+x 21
 y 4
 end
 arch floor_flagm2
-x 16
+x 21
 y 5
 end
 arch floor_flagm1
-x 16
+x 21
 y 6
 end
 arch floor_flagm4
-x 16
+x 21
 y 7
 end
 arch floor_flagm2
-x 16
+x 21
 y 8
 end
 arch floor_flagm1
-x 16
+x 21
 y 9
 end
 arch floor_flagm4
-x 16
+x 21
 y 10
 end
 arch floor_flagm4
-x 16
+x 21
 y 11
 end
 arch floor_flagm1
-x 16
+x 21
 y 12
 end
 arch floor_flagm2
-x 16
+x 21
 y 13
 end
 arch floor_flagm4
-x 16
+x 21
 y 14
 end
 arch floor_flagm1
-x 16
+x 21
 y 15
 end
 arch floor_flagm2
-x 16
+x 21
 y 16
 end
 arch floor_flagm3
-x 16
+x 21
 y 17
 end
 arch floor_flagm4
-x 16
+x 21
 y 18
 end
 arch floor_flagm2
-x 16
+x 21
 y 19
 end
 arch floor_flagm1
-x 16
+x 21
 y 20
 end
 arch floor_flagm4
-x 16
+x 21
 y 21
 end
 arch floor_flagm4
-x 16
+x 21
 y 22
 end
 arch floor_flagm1
-x 16
+x 21
 y 23
 end
 arch water_still
-x 17
+x 22
 end
 arch water_still
-x 17
+x 22
 y 1
 end
 arch water_still
-x 17
+x 22
 y 2
 end
 arch fwall_fstone2a
-x 17
-y 2
-end
-arch floor_flagm1
-x 17
-y 3
-end
-arch fwall_fstone2
-x 17
-y 3
-end
-arch floor_flagm4
-x 17
-y 4
-end
-arch fwall_fstone2
-x 17
-y 4
-end
-arch floor_flagm1
-x 17
-y 5
-end
-arch fwall_fstone2
-x 17
-y 5
-end
-arch floor_flagm2
-x 17
-y 6
-end
-arch fwall_fstone2
-x 17
-y 6
-end
-arch floor_flagm1
-x 17
-y 7
-end
-arch fwall_fstone2
-x 17
-y 7
-end
-arch floor_flagm4
-x 17
-y 8
-end
-arch fwall_fstone2
-x 17
-y 8
-end
-arch floor_flagm4
-x 17
-y 9
-end
-arch fwall_fstone2
-x 17
-y 9
-end
-arch floor_flagm1
-x 17
-y 10
-end
-arch fwall_fstone2
-x 17
-y 10
-end
-arch floor_flagm2
-x 17
-y 11
-end
-arch fwall_fstone2
-x 17
-y 11
-end
-arch floor_flagm1
-x 17
-y 12
-end
-arch fwall_fstone2
-x 17
-y 12
-end
-arch floor_flagm1
-x 17
-y 13
-end
-arch fwall_fstone2
-x 17
-y 13
-end
-arch floor_flagm2
-x 17
-y 14
-end
-arch fwall_fstone2
-x 17
-y 14
-end
-arch floor_flagm2
-x 17
-y 15
-end
-arch fwall_fstone2
-x 17
-y 15
-end
-arch floor_flagm4
-x 17
-y 16
-end
-arch fwall_fstone2
-x 17
-y 16
-end
-arch floor_flagm1
-x 17
-y 17
-end
-arch fwall_fstone2
-x 17
-y 17
-end
-arch floor_flagm2
-x 17
-y 18
-end
-arch fwall_fstone2
-x 17
-y 18
-end
-arch floor_flagm4
-x 17
-y 19
-end
-arch fwall_fstone2
-x 17
-y 19
-end
-arch floor_flagm4
-x 17
-y 20
-end
-arch fwall_fstone2
-x 17
-y 20
-end
-arch floor_flagm2
-x 17
-y 21
-end
-arch fwall_fstone2
-x 17
-y 21
-end
-arch floor_flagm2
-x 17
-y 22
-end
-arch fwall_fstone2
-x 17
-y 22
-end
-arch floor_flagm1
-x 17
-y 23
-end
-arch fwall_fstone2
-x 17
-y 23
-end
-arch water_still
-x 18
-end
-arch water_still
-x 18
-y 1
-end
-arch water_still
-x 18
-y 2
-end
-arch water_still
-x 18
-y 3
-end
-arch water_still
-x 18
-y 4
-end
-arch water_still
-x 18
-y 5
-end
-arch water_still
-x 18
-y 6
-end
-arch water_still
-x 18
-y 7
-end
-arch water_still
-x 18
-y 8
-end
-arch water_still
-x 18
-y 9
-end
-arch water_still
-x 18
-y 10
-end
-arch water_still
-x 18
-y 11
-end
-arch water_still
-x 18
-y 12
-end
-arch water_still
-x 18
-y 13
-end
-arch water_still
-x 18
-y 14
-end
-arch water_still
-x 18
-y 15
-end
-arch water_still
-x 18
-y 16
-end
-arch water_still
-x 18
-y 17
-end
-arch water_still
-x 18
-y 18
-end
-arch water_still
-x 18
-y 19
-end
-arch water_still
-x 18
-y 20
-end
-arch water_still
-x 18
-y 21
-end
-arch water_still
-x 18
-y 22
-end
-arch water_still
-x 18
-y 23
-end
-arch water_still
-x 19
-end
-arch water_still
-x 19
-y 1
-end
-arch water_still
-x 19
-y 2
-end
-arch water_still
-x 19
-y 3
-end
-arch water_still
-x 19
-y 4
-end
-arch water_still
-x 19
-y 5
-end
-arch water_still
-x 19
-y 6
-end
-arch water_still
-x 19
-y 7
-end
-arch water_still
-x 19
-y 8
-end
-arch water_still
-x 19
-y 9
-end
-arch water_still
-x 19
-y 10
-end
-arch water_still
-x 19
-y 11
-end
-arch water_still
-x 19
-y 12
-end
-arch water_still
-x 19
-y 13
-end
-arch water_still
-x 19
-y 14
-end
-arch water_still
-x 19
-y 15
-end
-arch water_still
-x 19
-y 16
-end
-arch water_still
-x 19
-y 17
-end
-arch water_still
-x 19
-y 18
-end
-arch water_still
-x 19
-y 19
-end
-arch water_still
-x 19
-y 20
-end
-arch water_still
-x 19
-y 21
-end
-arch water_still
-x 19
-y 22
-end
-arch water_still
-x 19
-y 23
-end
-arch water_still
-x 20
-end
-arch water_still
-x 20
-y 1
-end
-arch water_still
-x 20
-y 2
-end
-arch water_still
-x 20
-y 3
-end
-arch water_still
-x 20
-y 4
-end
-arch water_still
-x 20
-y 5
-end
-arch water_still
-x 20
-y 6
-end
-arch water_still
-x 20
-y 7
-end
-arch water_still
-x 20
-y 8
-end
-arch water_still
-x 20
-y 9
-end
-arch water_still
-x 20
-y 10
-end
-arch water_still
-x 20
-y 11
-end
-arch water_still
-x 20
-y 12
-end
-arch water_still
-x 20
-y 13
-end
-arch water_still
-x 20
-y 14
-end
-arch water_still
-x 20
-y 15
-end
-arch water_still
-x 20
-y 16
-end
-arch water_still
-x 20
-y 17
-end
-arch water_still
-x 20
-y 18
-end
-arch water_still
-x 20
-y 19
-end
-arch water_still
-x 20
-y 20
-end
-arch water_still
-x 20
-y 21
-end
-arch water_still
-x 20
-y 22
-end
-arch water_still
-x 20
-y 23
-end
-arch water_still
-x 21
-end
-arch water_still
-x 21
-y 1
-end
-arch water_still
-x 21
-y 2
-end
-arch water_still
-x 21
-y 3
-end
-arch water_still
-x 21
-y 4
-end
-arch water_still
-x 21
-y 5
-end
-arch water_still
-x 21
-y 6
-end
-arch water_still
-x 21
-y 7
-end
-arch water_still
-x 21
-y 8
-end
-arch water_still
-x 21
-y 9
-end
-arch water_still
-x 21
-y 10
-end
-arch water_still
-x 21
-y 11
-end
-arch water_still
-x 21
-y 12
-end
-arch water_still
-x 21
-y 13
-end
-arch water_still
-x 21
-y 14
-end
-arch water_still
-x 21
-y 15
-end
-arch water_still
-x 21
-y 16
-end
-arch water_still
-x 21
-y 17
-end
-arch water_still
-x 21
-y 18
-end
-arch water_still
-x 21
-y 19
-end
-arch water_still
-x 21
-y 20
-end
-arch water_still
-x 21
-y 21
-end
-arch water_still
-x 21
-y 22
-end
-arch water_still
-x 21
-y 23
-end
-arch water_still
-x 22
-end
-arch water_still
-x 22
-y 1
-end
-arch water_still
 x 22
 y 2
 end
-arch water_still
+arch floor_flagm1
 x 22
 y 3
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 3
+end
+arch floor_flagm4
 x 22
 y 4
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 4
+end
+arch floor_flagm1
 x 22
 y 5
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 5
+end
+arch floor_flagm2
 x 22
 y 6
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 6
+end
+arch floor_flagm1
 x 22
 y 7
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 7
+end
+arch floor_flagm4
 x 22
 y 8
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 8
+end
+arch floor_flagm4
 x 22
 y 9
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 9
+end
+arch floor_flagm1
 x 22
 y 10
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 10
+end
+arch floor_flagm2
 x 22
 y 11
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 11
+end
+arch floor_flagm1
 x 22
 y 12
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 12
+end
+arch floor_flagm1
 x 22
 y 13
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 13
+end
+arch floor_flagm2
 x 22
 y 14
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 14
+end
+arch floor_flagm2
 x 22
 y 15
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 15
+end
+arch floor_flagm4
 x 22
 y 16
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 16
+end
+arch floor_flagm1
 x 22
 y 17
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 17
+end
+arch floor_flagm2
 x 22
 y 18
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 18
+end
+arch floor_flagm4
 x 22
 y 19
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 19
+end
+arch floor_flagm4
 x 22
 y 20
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 20
+end
+arch floor_flagm2
 x 22
 y 21
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 21
+end
+arch floor_flagm2
 x 22
 y 22
 end
-arch water_still
+arch fwall_fstone2
+x 22
+y 22
+end
+arch floor_flagm1
+x 22
+y 23
+end
+arch fwall_fstone2
 x 22
 y 23
 end

@@ -277,7 +277,6 @@ sub_type 2
 arch rod_heavy
 name Jahrlen's heavy rod of magic bullet
 type 79
-one_drop 1
 identified 1
 end
 end

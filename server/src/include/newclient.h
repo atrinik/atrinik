@@ -53,15 +53,19 @@
 #define MAXSOCKBUF (128 * 1024)
 
 /**
+ * Maximum size of socket input buffer we can read/fill when reading from
+ * socket. This is raw data until we sort it out and put it in the player
+ * command queue. */
+#define MAXSOCKBUF_IN (2 * 1024)
+
+/**
  * @defgroup CS_QUERY_xxx Client/server queries
  * Client/server queries
  *@{*/
 /** Yes/no question */
 #define CS_QUERY_YESNO      0x1
-
 /** Single character response expected */
 #define CS_QUERY_SINGLECHAR 0x2
-
 /** Hide input being entered */
 #define CS_QUERY_HIDEINPUT  0x4
 /*@}*/
@@ -71,10 +75,8 @@
  * These are multiplication values that should be used when changing
  * floats to ints, and vice versa.
  *@{*/
-
 /** Integer representatin (float to int) */
 #define FLOAT_MULTI	100000
-
 /** Float representatin (int to float) */
 #define FLOAT_MULTF	100000.0
 /*@}*/
@@ -153,32 +155,8 @@
 #define CS_STAT_SKILLEXP_WISDOM 	128
 #define CS_STAT_SKILLEXP_WILEVEL 	129
 
-#define CS_STAT_PROT_START		130
-#define CS_STAT_PROT_END		149
-
-#define CS_STAT_PROT_HIT		130
-#define CS_STAT_PROT_SLASH		131
-#define CS_STAT_PROT_CLEAVE		132
-#define CS_STAT_PROT_PIERCE		133
-#define CS_STAT_PROT_WMAGIC		134
-
-#define CS_STAT_PROT_FIRE		135
-#define CS_STAT_PROT_COLD		136
-#define CS_STAT_PROT_ELEC		137
-#define CS_STAT_PROT_POISON		138
-#define CS_STAT_PROT_ACID		139
-
-#define CS_STAT_PROT_MAGIC		140
-#define CS_STAT_PROT_MIND		141
-#define CS_STAT_PROT_BODY		142
-#define CS_STAT_PROT_PSIONIC	143
-#define CS_STAT_PROT_ENERGY		144
-
-#define CS_STAT_PROT_NETHER		145
-#define CS_STAT_PROT_CHAOS		146
-#define CS_STAT_PROT_DEATH		147
-#define CS_STAT_PROT_HOLY		148
-#define CS_STAT_PROT_CORRUPT	149
+#define CS_STAT_PROT_START 130
+#define CS_STAT_PROT_END 149
 /*@}*/
 
 /**
@@ -458,13 +436,6 @@ enum
 	/* last entry */
 	BINAR_CMD
 };
-
-/**
- * Compare two client versions.
- * @todo This macro was created because the original 1.0 client had version
- * 991017, but the current one has 10xx. Remove this macro at some point when
- * 1.0 client is no longer used. */
-#define COMPARE_CLIENT_VERSION(ver1, ver2) ((ver1) != 991017 && (ver1) >= (ver2))
 
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1

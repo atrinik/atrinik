@@ -28,6 +28,7 @@
  * Server main related functions. */
 
 #include <global.h>
+#include <check_proto.h>
 
 #ifdef HAVE_DES_H
 #	include <des.h>
@@ -45,7 +46,7 @@ extern void check_use_object_list();
 static object marker;
 
 static char *unclean_path(const char *src);
-static void process_players1(mapstruct *map);
+static void process_players1();
 static void process_players2();
 static void dequeue_path_requests();
 static void do_specials();
@@ -174,7 +175,7 @@ void leave_map(object *op)
 	remove_ob(op);
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 
-	if (oldmap && !oldmap->player_first && !oldmap->perm_load)
+	if (oldmap && !oldmap->player_first)
 	{
 		set_map_timeout(oldmap);
 	}
@@ -333,41 +334,35 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		/* If the player is changing maps, we need to do some special things
 		 * Do this after the player is on the new map - otherwise the force swap of the
 		 * old map does not work. */
-		if (oldmap != newmap && oldmap && !oldmap->player_first && !oldmap->perm_load)
+		if (oldmap != newmap && oldmap && !oldmap->player_first)
 		{
 			set_map_timeout(oldmap);
-		}
-
-		if (!COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-		{
-			MapNewmapCmd(CONTR(op));
 		}
 	}
 }
 
 /**
  * Sets map timeout value.
- * @param oldmap The map to set the timeout for */
-void set_map_timeout(mapstruct *oldmap)
+ * @param map The map to set the timeout for. */
+void set_map_timeout(mapstruct *map)
 {
-#if MAP_MAXTIMEOUT
-	oldmap->timeout = MAP_TIMEOUT(oldmap);
-	/* Do MINTIMEOUT first, so that MAXTIMEOUT is used if that is
-	 * lower than the min value. */
-#	if MAP_MINTIMEOUT
-	if (oldmap->timeout < MAP_MINTIMEOUT)
-	{
-		oldmap->timeout = MAP_MINTIMEOUT;
-	}
-#	endif
+#if MAP_DEFAULTTIMEOUT
+	uint32 swap_time = MAP_SWAP_TIME(map);
 
-	if (oldmap->timeout > MAP_MAXTIMEOUT)
+	if (swap_time == 0)
 	{
-		oldmap->timeout = MAP_MAXTIMEOUT;
+		swap_time = MAP_DEFAULTTIMEOUT;
 	}
+
+	if (swap_time >= MAP_MAXTIMEOUT)
+	{
+		swap_time = MAP_MAXTIMEOUT;
+	}
+
+	map->timeout = swap_time;
 #else
-	/* save out the map */
-	swap_map(oldmap, 0);
+	/* Save out the map. */
+	swap_map(map, 0);
 #endif
 }
 
@@ -581,7 +576,7 @@ void enter_exit(object *op, object *exit_ob)
 				return;
 			}
 
-			if (exit_ob->sub_type1 == ST1_EXIT_SOUND && exit_ob->map)
+			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
 				play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 			}
@@ -595,7 +590,7 @@ void enter_exit(object *op, object *exit_ob)
 				return;
 			}
 
-			if (exit_ob->sub_type1 == ST1_EXIT_SOUND && exit_ob->map)
+			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
 				play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 			}
@@ -633,14 +628,14 @@ void enter_exit(object *op, object *exit_ob)
 						return;
 					}
 
-                    /* Maps that go down have a message set. However, maps
+					/* Maps that go down have a message set. However, maps
 					 * that go up, don't. If the going home has reset, there
 					 * isn't much point generating a random map, because it
 					 * won't match the maps, so just teleport the player
 					 * to their savebed map. */
 					if (exit_ob->msg)
 					{
-						if (exit_ob->sub_type1 == ST1_EXIT_SOUND && op->map)
+						if (exit_ob->sub_type == ST1_EXIT_SOUND && op->map)
 						{
 							play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 						}
@@ -731,7 +726,7 @@ void enter_exit(object *op, object *exit_ob)
 				save_player(op, 1);
 			}
 
-			if (exit_ob->sub_type1 == ST1_EXIT_SOUND && exit_ob->map)
+			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
 				play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 			}
@@ -799,98 +794,56 @@ void enter_exit(object *op, object *exit_ob)
 
 /**
  * Do all player-related stuff before objects have been updated.
- * @param map If not NULL, only process players on that map.
  * @sa process_players2(). */
-static void process_players1(mapstruct *map)
+static void process_players1()
 {
-	int flag;
 	player *pl, *plnext;
+	int retval;
 
-	/* Basically, we keep looping until all the players have done their actions. */
-	for (flag = 1; flag != 0; )
+	for (pl = first_player; pl; pl = plnext)
 	{
-		flag = 0;
+		plnext = pl->next;
 
-		for (pl = first_player; pl; pl = plnext)
+		while ((retval = handle_newcs_player(pl)) == 1)
 		{
-			/* In case a player exits the game in handle_player() */
-			plnext = pl->next;
-
-			if (pl->followed_player[0])
-			{
-				player *followed = find_player(pl->followed_player);
-
-				if (followed && followed->ob && followed->ob->map)
-				{
-					rv_vector rv;
-
-					if (pl->ob->map != followed->ob->map || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
-					{
-						int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
-
-						if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
-						{
-							remove_ob(pl->ob);
-							pl->ob->x = followed->ob->x + freearr_x[space];
-							pl->ob->y = followed->ob->y + freearr_y[space];
-							insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
-						}
-					}
-				}
-				else
-				{
-					new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "Player %s left.", pl->followed_player);
-					pl->followed_player[0] = '\0';
-				}
-			}
-
-#ifdef AUTOSAVE
-			/* check for ST_PLAYING state so that we don't try to save off when
-			 * the player is logging in. */
-			if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
-			{
-				/* Don't save the player on unholy ground.  Instead, increase the
-				 * tick time so it will be about 10 seconds before we try and save
-				 * again. */
-				if (blocks_cleric(pl->ob->map, pl->ob->x, pl->ob->y))
-				{
-					pl->last_save_tick += 100;
-				}
-				else
-				{
-					save_player(pl->ob, 1);
-					pl->last_save_tick = pticks;
-					hiscore_check(pl->ob, 1);
-				}
-			}
-#endif
-			if (pl->ob == NULL)
-			{
-				/* I take it this should never happen, but it seems to anyway :( */
-				flag = 1;
-			}
-			else if (pl->ob->speed_left > 0)
-			{
-				if (handle_newcs_player(pl))
-				{
-					flag = 1;
-				}
-
-				pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
-			}
 		}
-	}
 
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (map && (pl->ob == NULL || pl->ob->map != map))
+		if (retval == -1)
 		{
 			continue;
 		}
 
-		do_some_living(pl->ob);
+		if (pl->followed_player[0])
+		{
+			player *followed = find_player(pl->followed_player);
 
-		/* Use the new target system to hit our target - don't hit friendly
+			if (followed && followed->ob && followed->ob->map)
+			{
+				rv_vector rv;
+
+				if (pl->ob->map != followed->ob->map || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
+				{
+					int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
+
+					if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
+					{
+						remove_ob(pl->ob);
+						pl->ob->x = followed->ob->x + freearr_x[space];
+						pl->ob->y = followed->ob->y + freearr_y[space];
+						insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
+					}
+				}
+			}
+			else
+			{
+				new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "Player %s left.", pl->followed_player);
+				pl->followed_player[0] = '\0';
+			}
+		}
+
+		pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
+
+		/* Use the target system to hit our target - don't hit friendly
 		 * objects, ourselves or when we are not in combat mode. */
 		if (pl->target_object && pl->combat_mode && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && ((pl->target_object->type == PLAYER && pvp_area(pl->ob, pl->target_object)) || (pl->target_object->type == MONSTER && !QUERY_FLAG(pl->target_object, FLAG_FRIENDLY))))
 		{
@@ -931,6 +884,19 @@ static void process_players1(mapstruct *map)
 				pl->ob->weapon_speed_left = 0;
 			}
 		}
+
+		do_some_living(pl->ob);
+
+#ifdef AUTOSAVE
+		/* Check for ST_PLAYING state so that we don't try to save off when
+		 * the player is logging in. */
+		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
+		{
+			save_player(pl->ob, 1);
+			pl->last_save_tick = pticks;
+			hiscore_check(pl->ob, 1);
+		}
+#endif
 	}
 }
 
@@ -964,7 +930,7 @@ void process_events(mapstruct *map)
 	object *op;
 	tag_t tag;
 
-	process_players1(map);
+	process_players1();
 
 	/* Put marker object at beginning of active list */
 	marker.active_next = active_objects;
@@ -1155,7 +1121,6 @@ void cleanup()
 {
 	LOG(llevDebug, "Cleanup called. Freeing data.\n");
 	clean_tmp_files();
-	write_book_archive();
 #if MEMORY_DEBUG
 	free_all_maps();
 	free_style_maps();
@@ -1168,12 +1133,11 @@ void cleanup()
 	free_all_readable();
 	free_all_god();
 	free_all_anim();
-    free_strings();
-	free_racelist();
+	free_strings();
+	race_free();
 	free_exp_objects();
 	free_srv_files();
 	free_regions();
-	free_mon_info();
 	free_mempools();
 	remove_plugins();
 #endif
@@ -1377,9 +1341,9 @@ static void do_specials()
 		flush_old_maps();
 	}
 
-	if (!(pticks % 5003))
+	if (settings.meta_on && !(pticks % 2521))
 	{
-		write_book_archive();
+		metaserver_info_update();
 	}
 }
 
@@ -1492,7 +1456,7 @@ static void process_keyboard_input(char *input)
 		input = cleanup_chat_string(input);
 
 		LOG(llevInfo, "CLOG SYSTEM: %s\n", input);
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, 0, NULL, "[System]: %s", input);
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, NULL, "[System]: %s", input);
 	}
 	/* Ban command */
 	else if (strncmp(input, "ban ", 4) == 0)
@@ -1575,6 +1539,8 @@ static void iterate_main_loop()
 	/* Routines called from time to time. */
 	do_specials();
 
+	doeric_server_write();
+
 	/* Clean up the object pool */
 	object_gc();
 
@@ -1598,6 +1564,17 @@ int main(int argc, char **argv)
 	init(argc, argv);
 	init_plugins();
 	compile_info();
+
+#ifdef HAVE_CHECK
+	/* Now that we have everything loaded, we can run unit tests. */
+	if (settings.unit_tests)
+	{
+		LOG(llevInfo, "\nRunning unit tests...\n");
+		check_main();
+		exit(0);
+	}
+#endif
+
 	memset(&marker, 0, sizeof(struct obj));
 
 	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");

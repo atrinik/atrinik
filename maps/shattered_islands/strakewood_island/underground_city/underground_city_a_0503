@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -312,8 +312,8 @@ x 3
 y 6
 arch raas
 level 52
+exp 120
 Con 5
-Wis 3
 type 83
 end
 end
@@ -486,8 +486,8 @@ x 5
 y 2
 arch raas
 level 52
+exp 120
 Con 5
-Wis 3
 type 83
 end
 end
@@ -628,8 +628,8 @@ x 6
 y 12
 arch raas
 level 51
+exp 120
 Con 5
-Wis 3
 type 83
 end
 end
@@ -863,11 +863,13 @@ x 8
 y 8
 arch raas
 level 53
+exp 130
 dam 88
 maxhp 90
 Con 10
 can_cast_spell 1
-Wis 3
+maxsp 30
+magic 0
 type 83
 arch ability_firestorm
 hp 13
@@ -876,7 +878,7 @@ arch ability_icestorm
 sp 13
 end
 arch rand_drop
-container 70
+container 50
 arch light_sandals
 end
 end
@@ -1209,7 +1211,10 @@ x 10
 y 20
 arch skel_mage
 level 49
-Wis 3
+exp 121
+sp -1
+maxsp 30
+magic 0
 type 83
 arch ability_icestorm
 hp 13
@@ -1268,8 +1273,8 @@ x 11
 y 5
 arch raas
 level 51
+exp 120
 Con 5
-Wis 3
 type 83
 end
 end
@@ -1422,8 +1427,8 @@ x 12
 y 12
 arch raas
 level 50
+exp 120
 Con 5
-Wis 3
 type 83
 end
 end
@@ -2532,8 +2537,11 @@ y 4
 arch skel_mage
 name skeleton priest
 level 51
+exp 116
+sp -1
+maxsp 30
+magic 0
 Dex 4
-Wis 3
 type 83
 arch ability_cause_lig_wound
 sp 2

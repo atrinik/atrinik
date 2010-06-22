@@ -119,61 +119,7 @@ static char levelnumbers_10[11][20] =
 };
 
 static char *describe_attack(object *op, int newline);
-static char *describe_protections(object *op, int newline);
 static char *get_number(int i);
-
-/**
- * Generates the visible naming for resistances.
- * Returns a static array of the description. This can return a
- * big buffer.
- * @param op Object to get the resistances for.
- * @param newline If true, don't put parens around the description
- * but do put a newline at the end. Useful when dumping to files.
- * @return Static buffer with the resistances. */
-char *describe_resistance(object *op, int newline)
-{
-	static char buf[VERY_BIG_BUF];
-	char buf1[VERY_BIG_BUF];
-	int tmpvar, flag = 1;
-
-	buf[0] = '\0';
-
-	for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
-	{
-		if (op->resist[tmpvar] && (op->type != FLESH || atnr_is_dragon_enabled(tmpvar) == 1))
-		{
-			if (flag && !newline)
-			{
-				strncat(buf, "(Resists: ", sizeof(buf) - strlen(buf) - 1);
-			}
-
-			if (!newline)
-			{
-				if (!flag)
-				{
-					strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
-				}
-
-				snprintf(buf1, sizeof(buf1), "%s %+d%%", resist_plus[tmpvar], op->resist[tmpvar]);
-			}
-			else
-			{
-				snprintf(buf1, sizeof(buf1), "%s %d%%\n", resist_plus[tmpvar], op->resist[tmpvar]);
-			}
-
-			flag = 0;
-			strncat(buf, buf1, sizeof(buf) - strlen(buf) - 1);
-		}
-	}
-
-	if (!newline && !flag)
-	{
-		strncat(buf, ") ", sizeof(buf) - strlen(buf) - 1);
-	}
-
-	return buf;
-}
-
 
 /**
  * Generates the visible naming for attack forms.
@@ -207,11 +153,11 @@ static char *describe_attack(object *op, int newline)
 					strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
 				}
 
-				snprintf(buf1, sizeof(buf1), "%s %+d%%", attacktype_desc[tmpvar], op->attack[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %+d%%", attack_name[tmpvar], op->attack[tmpvar]);
 			}
 			else
 			{
-				snprintf(buf1, sizeof(buf1), "%s %+d%%\n", attacktype_desc[tmpvar], op->attack[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %+d%%\n", attack_name[tmpvar], op->attack[tmpvar]);
 			}
 
 			flag = 0;
@@ -235,7 +181,7 @@ static char *describe_attack(object *op, int newline)
  * @param newline If true, don't put parens around the description
  * but do put a newline at the end. Useful when dumping to files.
  * @return Static buffer with the protections. */
-static char *describe_protections(object *op, int newline)
+char *describe_protections(object *op, int newline)
 {
 	static char buf[VERY_BIG_BUF];
 	char buf1[VERY_BIG_BUF];
@@ -243,7 +189,7 @@ static char *describe_protections(object *op, int newline)
 
 	buf[0] = '\0';
 
-	for (tmpvar = 0; tmpvar < NROFPROTECTIONS; tmpvar++)
+	for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
 	{
 		if (op->protection[tmpvar])
 		{
@@ -259,11 +205,11 @@ static char *describe_protections(object *op, int newline)
 					strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
 				}
 
-				snprintf(buf1, sizeof(buf1), "%s %+d%%", protection_name[tmpvar], op->protection[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %+d%%", attack_name[tmpvar], op->protection[tmpvar]);
 			}
 			else
 			{
-				snprintf(buf1, sizeof(buf1), "%s %d%%\n", protection_name[tmpvar], op->protection[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %d%%\n", attack_name[tmpvar], op->protection[tmpvar]);
 			}
 
 			flag = 0;
@@ -390,10 +336,10 @@ char *query_short_name(object *op, object *caller)
 			/* Add the item race name */
 			if (!IS_LIVE(op) && op->type != BASE_INFO)
 			{
-				safe_strcat(buf, item_race_table[op->item_race].name, &len, sizeof(buf));
+				safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
 			}
 
-			if (op->material_real && QUERY_FLAG(op,FLAG_IDENTIFIED))
+			if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
 				safe_strcat(buf, material_real[op->material_real].name, &len, sizeof(buf));
 			}
@@ -432,7 +378,7 @@ char *query_short_name(object *op, object *caller)
 		{
 			if (!IS_LIVE(op) && op->type != BASE_INFO)
 			{
-				safe_strcat(buf, item_race_table[op->item_race].name, &len, sizeof(buf));
+				safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
 			}
 
 			if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
@@ -456,9 +402,9 @@ char *query_short_name(object *op, object *caller)
 				}
 			}
 
-			if (op->sub_type1 >= ST1_CONTAINER_NORMAL_party)
+			if (op->sub_type >= ST1_CONTAINER_NORMAL_party)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_party)
 				{
 					if (op->slaying)
 					{
@@ -490,9 +436,9 @@ char *query_short_name(object *op, object *caller)
 					}
 				}
 			}
-			else if (op->sub_type1 >= ST1_CONTAINER_NORMAL_player)
+			else if (op->sub_type >= ST1_CONTAINER_NORMAL_player)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_player)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_player)
 				{
 					if (op->slaying)
 					{
@@ -620,7 +566,7 @@ char *query_short_name(object *op, object *caller)
 				safe_strcat(buf, op->title, &len, sizeof(buf));
 			}
 
-			if (op->type == ARROW && op->slaying)
+			if ((op->type == ARROW || op->type == WEAPON) && op->slaying)
 			{
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->slaying, &len, sizeof(buf));
@@ -660,6 +606,15 @@ char *query_name(object *op, object *caller)
 
 	safe_strcat(buf[use_buf], query_short_name(op, caller), &len, HUGE_BUF);
 
+	if (QUERY_FLAG(op, FLAG_ONE_DROP))
+	{
+		safe_strcat(buf[use_buf], " (one-drop)", &len, HUGE_BUF);
+	}
+	else if (QUERY_FLAG(op, FLAG_QUEST_ITEM))
+	{
+		safe_strcat(buf[use_buf], " (quest)", &len, HUGE_BUF);
+	}
+
 	if (QUERY_FLAG(op, FLAG_INV_LOCKED))
 	{
 		safe_strcat(buf[use_buf], " *", &len, HUGE_BUF);
@@ -677,7 +632,7 @@ char *query_name(object *op, object *caller)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_KNOWN_CURSED) || QUERY_FLAG(op, FLAG_IDENTIFIED))
+	if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		if (QUERY_FLAG(op, FLAG_PERM_DAMNED))
 		{
@@ -697,7 +652,7 @@ char *query_name(object *op, object *caller)
 		}
 	}
 
-	if ((QUERY_FLAG(op, FLAG_KNOWN_MAGICAL && QUERY_FLAG(op, FLAG_IS_MAGICAL))) || (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
+	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
 		safe_strcat(buf[use_buf], " (magical)", &len, HUGE_BUF);
 	}
@@ -735,6 +690,7 @@ char *query_name(object *op, object *caller)
 				break;
 
 			case SKILL:
+			case SKILL_ITEM:
 			default:
 				safe_strcat(buf[use_buf], " (applied)", &len, HUGE_BUF);
 		}
@@ -778,7 +734,7 @@ char *query_base_name(object *op, object *caller)
 		/* Add the item race name */
 		if (!IS_LIVE(op) && op->type != BASE_INFO)
 		{
-			strcpy(buf, item_race_table[op->item_race].name);
+			strcpy(buf, item_races[op->item_race]);
 		}
 
 		if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
@@ -809,9 +765,9 @@ char *query_base_name(object *op, object *caller)
 				}
 			}
 
-			if (op->sub_type1 >= ST1_CONTAINER_NORMAL_party)
+			if (op->sub_type >= ST1_CONTAINER_NORMAL_party)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_party)
 				{
 					if (op->slaying)
 					{
@@ -843,9 +799,9 @@ char *query_base_name(object *op, object *caller)
 					}
 				}
 			}
-			else if (op->sub_type1 >= ST1_CONTAINER_NORMAL_player)
+			else if (op->sub_type >= ST1_CONTAINER_NORMAL_player)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_player)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_player)
 				{
 					if (op->slaying)
 					{
@@ -973,7 +929,7 @@ char *query_base_name(object *op, object *caller)
 				safe_strcat(buf, op->title, &len, sizeof(buf));
 			}
 
-			if (op->type == ARROW && op->slaying)
+			if ((op->type == ARROW || op->type == WEAPON) && op->slaying)
 			{
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->slaying, &len, sizeof(buf));
@@ -1064,21 +1020,21 @@ char *describe_item(object *op)
 			strcat(retbuf, buf);
 		}
 
-		if (CONTR(op)->gen_grace)
+		if (CONTR(op)->gen_client_grace)
 		{
-			sprintf(buf, "(grace reg.%+d)", CONTR(op)->gen_grace);
+			sprintf(buf, "(grace reg. %3.1f)", (float) CONTR(op)->gen_client_grace / 10);
 			strcat(retbuf, buf);
 		}
 
-		if (CONTR(op)->gen_sp)
+		if (CONTR(op)->gen_client_sp)
 		{
-			sprintf(buf, "(mana reg.%+d)", CONTR(op)->gen_sp);
+			sprintf(buf, "(mana reg. %3.1f)", (float) CONTR(op)->gen_client_sp / 10);
 			strcat(retbuf, buf);
 		}
 
-		if (CONTR(op)->gen_hp)
+		if (CONTR(op)->gen_client_hp)
 		{
-			sprintf(buf, "(regeneration%+d)", CONTR(op)->gen_hp);
+			sprintf(buf, "(hp reg. %3.1f)", (float) CONTR(op)->gen_client_hp / 10);
 			strcat(retbuf, buf);
 		}
 	}
@@ -1115,26 +1071,6 @@ char *describe_item(object *op)
 		if (QUERY_FLAG(op, FLAG_USE_ARMOUR))
 		{
 			strcat(retbuf, "(wear armour)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_USE_RING))
-		{
-			strcat(retbuf, "(wear ring)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_USE_SCROLL))
-		{
-			strcat(retbuf, "(literated)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_USE_RANGE))
-		{
-			strcat(retbuf, "(use range device)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_CAN_USE_SKILL))
-		{
-			strcat(retbuf, "(skill user)");
 		}
 
 		if (QUERY_FLAG(op, FLAG_CAST_SPELL))
@@ -1321,51 +1257,42 @@ char *describe_item(object *op)
 				case FOOD:
 				case FLESH:
 				case DRINK:
+				{
+					int curse_multiplier = 1;
+
 					sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
 					strcat(retbuf, buf);
 
-					if (op->type == FLESH && op->last_eat > 0 && atnr_is_dragon_enabled(op->last_eat))
+					if (QUERY_FLAG(op, FLAG_CURSED))
 					{
-						sprintf(buf, "(%s metabolism)", change_resist_msg[op->last_eat]);
+						curse_multiplier = 2;
+					}
+
+					if (QUERY_FLAG(op, FLAG_DAMNED))
+					{
+						curse_multiplier = 3;
+					}
+
+					if (op->stats.hp)
+					{
+						snprintf(buf, sizeof(buf), "(hp%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.hp * curse_multiplier);
 						strcat(retbuf, buf);
 					}
 
-					if (!QUERY_FLAG(op, FLAG_CURSED))
+					if (op->stats.sp)
 					{
-						if (op->stats.hp)
-						{
-							strcat(retbuf, "(heals)");
-						}
-
-						if (op->stats.sp)
-						{
-							strcat(retbuf, "(mana regen)");
-						}
-
-						if (op->stats.grace)
-						{
-							strcat(retbuf, "(grace regen)");
-						}
+						snprintf(buf, sizeof(buf), "(mana%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.sp * curse_multiplier);
+						strcat(retbuf, buf);
 					}
-					else
+
+					if (op->stats.grace)
 					{
-						if (op->stats.hp)
-						{
-							strcat(retbuf, "(damages)");
-						}
-
-						if (op->stats.sp)
-						{
-							strcat(retbuf, "(mana depletion)");
-						}
-
-						if (op->stats.grace)
-						{
-							strcat(retbuf, "(grace depletion)");
-						}
+						snprintf(buf, sizeof(buf), "(grace%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.grace * curse_multiplier);
+						strcat(retbuf, buf);
 					}
 
 					break;
+				}
 
 				case POTION:
 					if (op->last_sp)
@@ -1377,7 +1304,13 @@ char *describe_item(object *op)
 					break;
 
 				case BOOK:
-					if (op->msg != NULL)
+					if (op->level)
+					{
+						sprintf(buf, "(lvl %d)", op->level);
+						strcat(retbuf, buf);
+					}
+
+					if (op->msg)
 					{
 						if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
 						{
@@ -1410,19 +1343,19 @@ char *describe_item(object *op)
 	{
 		if (op->stats.sp)
 		{
-			sprintf(buf, "(mana reg.%+d)", op->stats.sp);
+			sprintf(buf, "(mana reg.%+3.1f)", 0.4f * op->stats.sp);
 			strcat(retbuf, buf);
 		}
 
 		if (op->stats.grace)
 		{
-			sprintf(buf, "(grace reg.%+d)", op->stats.grace);
+			sprintf(buf, "(grace reg.%+3.1f)", 0.4f * op->stats.grace);
 			strcat(retbuf, buf);
 		}
 
 		if (op->stats.hp)
 		{
-			sprintf(buf, "(regeneration%+d)", op->stats.hp);
+			sprintf(buf, "(hp reg.%+3.1f)", 0.4f * op->stats.hp);
 			strcat(retbuf, buf);
 		}
 
@@ -1442,7 +1375,7 @@ char *describe_item(object *op)
 
 		if (op->stats.exp)
 		{
-			sprintf(buf, "(speed %+d)", op->stats.exp);
+			sprintf(buf, "(speed %+"FMT64")", op->stats.exp);
 			strcat(retbuf, buf);
 		}
 	}
@@ -1450,12 +1383,6 @@ char *describe_item(object *op)
 	/* Here we deal with all the special flags */
 	if (id_true || QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER)
 	{
-		if (op->stats.luck)
-		{
-			sprintf(buf, "(luck%+d)", op->stats.luck);
-			strcat(retbuf, buf);
-		}
-
 		if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
 		{
 			strcat(retbuf, "(see invisible)");
@@ -1496,12 +1423,12 @@ char *describe_item(object *op)
 			strcat(retbuf, "(lifesaving)");
 		}
 
-		if (QUERY_FLAG(op, FLAG_REFL_SPELL) || QUERY_FLAG(op, FLAG_CAN_REFL_SPELL))
+		if (QUERY_FLAG(op, FLAG_REFL_SPELL))
 		{
 			strcat(retbuf, "(reflect spells)");
 		}
 
-		if (QUERY_FLAG(op, FLAG_REFL_MISSILE) || QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE))
+		if (QUERY_FLAG(op, FLAG_REFL_MISSILE))
 		{
 			strcat(retbuf, "(reflect missiles)");
 		}
@@ -1527,14 +1454,8 @@ char *describe_item(object *op)
 		}
 
 		strcat(retbuf, describe_attack(op, 0));
-
-		/* Resistance on flesh is only visible to dragons */
-		if (op->type != FLESH || QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
-		{
-			strcat(retbuf, describe_resistance(op, 0));
-		}
-
 		strcat(retbuf, describe_protections(op, 0));
+
 		DESCRIBE_PATH(retbuf, op->path_attuned, "Attuned");
 		DESCRIBE_PATH(retbuf, op->path_repelled, "Repelled");
 		DESCRIBE_PATH(retbuf, op->path_denied, "Denied");
@@ -1554,6 +1475,12 @@ char *describe_item(object *op)
 		if (op->stats.maxgrace)
 		{
 			sprintf(buf, "(grace%+d)", op->stats.maxgrace);
+			strcat(retbuf, buf);
+		}
+
+		if (op->item_power)
+		{
+			sprintf(buf, "(item power%+d)", op->item_power);
 			strcat(retbuf, buf);
 		}
 	}
@@ -1625,14 +1552,7 @@ void identify(object *op)
 	}
 
 	SET_FLAG(op, FLAG_IDENTIFIED);
-	CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL);
 	CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT);
-
-	/* We want autojoining of equal objects */
-	if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
 
 	if (op->type == POTION && op->arch != (archetype *) NULL)
 	{

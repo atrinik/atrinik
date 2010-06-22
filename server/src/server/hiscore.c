@@ -77,7 +77,7 @@ static score_table hiscore_table;
  * @param size Size of the buffer. */
 static void put_score(const score *sc, char *buf, int size)
 {
-    snprintf(buf, size, "%s:%s:%"FMT64":%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+	snprintf(buf, size, "%s:%s:%"FMT64U":%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 }
 
 /**
@@ -148,7 +148,7 @@ static int get_score(char *bp, score *sc)
 	strncpy(sc->title, tmp[1], sizeof(sc->title));
 	sc->title[sizeof(sc->title) - 1] = '\0';
 
-	sscanf(tmp[2], "%"FMT64, &sc->exp);
+	sscanf(tmp[2], "%"FMT64U, &sc->exp);
 
 	strncpy(sc->killer, tmp[3], sizeof(sc->killer));
 	sc->killer[sizeof(sc->killer) - 1] = '\0';
@@ -172,7 +172,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
 	if (sc->killer[0] == '\0')
 	{
-		snprintf(buf, size, "%3d %10"FMT64" %s the %s (%s) <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "~%3d~ %s ~%s~ the %s (%s) <%d><%d><%d>.", sc->position, format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 	else
 	{
@@ -189,7 +189,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 			s2 = sc->killer;
 		}
 
-		snprintf(buf, size, "%3d %10"FMT64" %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "~%3d~ %s ~%s~ the %s %s %s on map %s <%d><%d><%d>.", sc->position, format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 
 	return buf;
@@ -338,7 +338,7 @@ void hiscore_init()
 void hiscore_check(object *op, int quiet)
 {
 	score new_score, old_score;
-	char bufscore[MAX_BUF];
+	char bufscore[MAX_BUF], race[MAX_BUF];
 	const char *message;
 
 	if (!op->stats.exp)
@@ -359,7 +359,7 @@ void hiscore_check(object *op, int quiet)
 	strncpy(new_score.name, op->name, sizeof(new_score.name));
 	new_score.name[sizeof(new_score.name) - 1] = '\0';
 
-	strncpy(new_score.title, op->race, sizeof(new_score.title));
+	strncpy(new_score.title, player_get_race_class(op, race, sizeof(race)), sizeof(new_score.title));
 	new_score.title[sizeof(new_score.title) - 1] = '\0';
 
 	strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));

@@ -19,8 +19,8 @@
 					<Add option="-W" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
-					<Add option="-DMIN_GW" />
+					<Add option="-DDEBUG" />
+					<Add option="-DMINGW" />
 					<Add option="-DCURL_STATICLIB" />
 					<Add option="-O3" />
 				</Compiler>
@@ -46,6 +46,7 @@
 			<Add directory="..\..\..\src\porting" />
 			<Add directory="..\..\..\src\random_maps" />
 			<Add directory="..\..\..\src\libs\zlib\include" />
+			<Add directory="..\..\..\src\tests" />
 			<Add directory="..\CodeBlocks" />
 			<Add directory="curl" />
 		</Compiler>
@@ -618,6 +619,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="../../../src/server/race.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../../src/server/readable.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -867,6 +872,10 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="../../../src/types/weapon_improver.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../../src/skills/construction.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>

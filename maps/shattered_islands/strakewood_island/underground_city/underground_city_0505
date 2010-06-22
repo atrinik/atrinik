@@ -2328,7 +2328,6 @@ msg
 Key from Vlassa, an undead mage smith in Underground City.
 endmsg
 name Underground City Key 1
-one_drop 1
 identified 1
 slaying underground_city_key1
 startequip 1

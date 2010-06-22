@@ -126,7 +126,7 @@ _option opt[] =
 	{"Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_SWSURFACE, VAL_BOOL},
 	{"Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWACCEL, VAL_BOOL},
 	{"Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_DOUBLEBUF, VAL_BOOL},
-	{"Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ANYFORMAT, VAL_BOOL},
+	{"Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_ANYFORMAT, VAL_BOOL},
 	{"Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ASYNCBLIT, VAL_BOOL},
 	{"Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWPALETTE, VAL_BOOL},
 	{"Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_RESIZABLE, VAL_BOOL},
@@ -151,6 +151,7 @@ _option opt[] =
 	{"Show Framerate:", "Show the framerate.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_frame, VAL_BOOL},
 	{"Force Redraw:", "Forces the system to redraw EVERY frame.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.force_redraw, VAL_BOOL},
 	{"Use Update Rect:", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
+	{"Reload user's graphics", "If on, always try to reload faces from user's graphics (gfx_user)\ndirectory, even if they have been reloaded previously.\nThis is especially useful when creating new images and testing out how\nthey look in the game.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.reload_gfx_user, VAL_BOOL},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	{0, "", "", 0, 0, 0, 0, 0, 0, 0},
@@ -944,7 +945,7 @@ void show_skilllist()
 			}
 			else
 			{
-				sprintf(buf, "%d", skill_list[skill_list_set.group_nr].entry[i].exp);
+				sprintf(buf, "%"FMT64, skill_list[skill_list_set.group_nr].entry[i].exp);
 			}
 
 			StringBlt(ScreenSurface, &SystemFont, buf, x + TXT_START_EXP, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);

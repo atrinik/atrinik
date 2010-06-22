@@ -169,8 +169,8 @@ static object *find_symptom(object *disease)
  * @param disease Disease infecting. */
 static void check_infection(object *disease)
 {
-	int x, y, i, j, range, xt, yt, mflags, old_x, old_y;
-	mapstruct *map, *mt, *old_map;
+	int x, y, i, j, range, xt, yt;
+	mapstruct *map, *m;
 	object *tmp;
 	rv_vector rv;
 
@@ -194,37 +194,31 @@ static void check_infection(object *disease)
 		return;
 	}
 
-	old_x = disease->x, old_y = disease->y;
-	old_map = disease->map;
-	disease->x = x, disease->y = y;
-	disease->map = map;
-
-    for (i = -range; i <= range; i++)
+	for (i = -range; i <= range; i++)
 	{
-        for (j = -range; j <= range; j++)
+		for (j = -range; j <= range; j++)
 		{
-			xt = x + i, yt = y + j;
+			xt = x + i;
+			yt = y + j;
 
-			if (!(mt = get_map_from_coord(map, &xt, &yt)))
+			if (!(m = get_map_from_coord(map, &xt, &yt)))
 			{
 				continue;
 			}
 
-			mflags = GET_MAP_FLAGS(mt, xt, yt);
-
-			if (!(mflags & P_IS_ALIVE))
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
 			{
 				continue;
 			}
 
-			for (tmp = GET_MAP_OB(mt, xt, yt); tmp; tmp = tmp->above)
+			for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
 			{
 				if (!QUERY_FLAG(tmp, FLAG_MONSTER) && tmp->type != PLAYER)
 				{
 					continue;
 				}
 
-				if (!get_rangevector(disease, tmp, &rv, 0) || !obj_in_line_of_sight(tmp, &rv))
+				if (!get_rangevector(disease->env ? disease->env : disease, tmp, &rv, 0) || !obj_in_line_of_sight(tmp, &rv))
 				{
 					continue;
 				}
@@ -233,9 +227,6 @@ static void check_infection(object *disease)
 			}
 		}
 	}
-
-	disease->x = old_x, disease->y = old_y;
-	disease->map = old_map;
 }
 
 /**
@@ -280,7 +271,7 @@ int infect_object(object *victim, object *disease, int force)
 	}
 
 	/* roll the dice on infection before doing the inventory check! */
-	if (!force && (random_roll(0, 126, victim, PREFER_HIGH) >= disease->stats.wc))
+	if (!force && (rndm(0, 126) >= disease->stats.wc))
 	{
 		return 0;
 	}
@@ -436,7 +427,7 @@ static void do_symptoms(object *disease)
 			int dam = disease->stats.dam;
 
 			/* reduce the damage, on average, 50%, and making things random. */
-			dam = random_roll(1, FABS(dam), victim, PREFER_LOW);
+			dam = rndm(1, FABS(dam));
 
 			if (disease->stats.dam < 0)
 			{
@@ -685,7 +676,7 @@ int cure_disease(object *sufferer, object *caster)
 		{
 			is_disease = 1;
 
-			if ((casting_level >= disease->level) || (!(random_roll(0, (disease->level - casting_level - 1), caster, PREFER_LOW))))
+			if ((casting_level >= disease->level) || (!(rndm(0, (disease->level - casting_level - 1)))))
 			{
 				if (sufferer->type == PLAYER)
 				{

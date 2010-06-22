@@ -34,14 +34,15 @@
 #include <loader.h>
 #include <newserver.h>
 
-#define YY_DECL int lex_load(object *op, int map_flags)
+#define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
+#define MAXDEPTH 10
 
 static char *yval();
 
 /* thats needed to track the used buffers for recursive calling */
 static void *cur_buffer;
 static int object_load_flag;
-static int lex_error, msg_flag;
+static int lex_error;
 static char msgbuf[HUGE_BUF];
 
 /**
@@ -62,17 +63,6 @@ static char msgbuf[HUGE_BUF];
 	}                                       \
 }
 
-/* SET_RESIST is really only really needed for transition code.  We normally
- * don't care about multiple values overwriting each other, but this is
- * to catch items that have multiple protection/immune/vulnerable.
- * This can be simplified later on to just do the set after all the archs
- * and maps have been updated.
- * We always keep the last value because otherwise the value from the
- * arch may take precedence.
- * Unfortunately, we will report warnings here simply because an object has
- * been modified from the arch.
- */
-#define SET_RESIST(op, type, val)  op->resist[type] = val;
 #define SET_ATTACK(op, type, val)  op->attack[type] = val;
 #define SET_PROTECTION(op, type, val)  op->protection[type] = val;
 
@@ -158,6 +148,16 @@ static void add_key_value(object *op)
 
 	object_set_value(op, key, value, 1);
 }
+
+static void set_random_protection(object *op, int val)
+{
+	op->protection[RANDOM() % NROFATTACKS] = val;
+}
+
+static void set_random_attack(object *op, int val)
+{
+	op->attack[RANDOM() % NROFATTACKS] = val;
+}
 %}
 
 LF	\x0A
@@ -186,6 +186,7 @@ WS	[ \t]*{NL}
 %{
 int ismore = 0;
 lex_error = 0;
+object *op = items[*depth];
 %}
 
 ^arch{S}            {
@@ -195,7 +196,6 @@ lex_error = 0;
 						if (op->arch)
 						{
 							object *tmp;
-							float old_sleft, old_speed;
 
 							tmp = get_object();
 							tmp->arch = find_archetype(yval());
@@ -206,31 +206,43 @@ lex_error = 0;
 							}
 
 							strcpy(msgbuf, "");
-							old_sleft = tmp->speed_left;
-							old_speed = tmp->speed;
-							lex_load(tmp, map_flags);
 
-							/* We set here AND in load_object the material real values.
-							 * We do: if item_quality == 0 AND material defines a base
-							 * material, then use material_real to set quality and condition.
-							 * So, we don't set it for floors or or some other objects which
-							 * don't need it. */
-							if (tmp->material && !tmp->item_quality)
+							(*depth)++;
+							items[*depth] = tmp;
+
+							if (linemode == 0)
 							{
-								tmp->item_quality = material_real[tmp->material_real].quality;
-								tmp->item_condition = tmp->item_quality;
-							}
+								lex_load(depth, items, maxdepth, map_flags, linemode);
+								(*depth)--;
 
-							if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-							{
-								SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-								SET_FLAG(tmp, FLAG_KNOWN_CURSED);
-							}
+								if (tmp->arch)
+								{
+									/* We set here AND in load_object the material real values.
+									 * We do: if item_quality == 0 AND material defines a base
+									 * material, then use material_real to set quality and condition.
+									 * So, we don't set it for floors or or some other objects which
+									 * don't need it. */
+									if (tmp->material && !tmp->item_quality)
+									{
+										tmp->item_quality = material_real[tmp->material_real].quality;
+										tmp->item_condition = tmp->item_quality;
+									}
 
-							insert_ob_in_ob(tmp, op);
+									insert_ob_in_ob(tmp, op);
+								}
+								else
+								{
+									LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
+								}
+							}
 
 							if (!(map_flags & MAP_STYLE))
 							{
+								float old_sleft, old_speed;
+
+								old_sleft = tmp->speed_left;
+								old_speed = tmp->speed;
+
 								/* First adjust speed.
 								 * Only change something if we:
 								 *  1. Don't have speed_left set in the loading, or
@@ -309,27 +321,24 @@ lex_error = 0;
 ^msg{WS}            {
 						BEGIN(MESSAGE);
 						msgbuf[0] = '\0';
-						msg_flag = 0;
                     }
 <MESSAGE>^endmsg{WS} {
+						size_t len = strlen(msgbuf);
+
 						BEGIN(INITIAL);
 
+						/* Remove last newline. */
+						msgbuf[len - 1] = '\0';
 						FREE_AND_COPY_HASH(op->msg, msgbuf);
 
 						/* Just print a warning so we can be reasonably safe
 					 	 * about not overflowing the buffer. */
-						if (strlen(op->msg) > (HUGE_BUF / 2))
+						if (len > (HUGE_BUF / 2))
 						{
 							LOG(llevDebug, "\n\tWarning: message length > %d (max allowed=%d): %d\n>%.80s<\n", HUGE_BUF / 2, HUGE_BUF, strlen(op->msg), op->msg);
 						}
                      }
-<MESSAGE>.*	        {
-						if (msg_flag)
-						{
-							strcat(msgbuf, "\n");
-						}
-
-						msg_flag = 1;
+<MESSAGE>.*{NL}	    {
 						strcat(msgbuf, yytext);
 					}
 ^name{S}            {
@@ -378,6 +387,17 @@ lex_error = 0;
                     }
 
 ^end{WS}            {
+						if (linemode)
+						{
+							/* Linemode is only set for artifact loading. */
+							if ((*depth) > 0)
+							{
+								insert_ob_in_ob(items[*depth], items[(*depth) - 1]);
+							}
+
+							return LL_NORMAL;
+						}
+
 						if (ismore)
 						{
 							return LL_MORE;
@@ -397,10 +417,7 @@ lex_error = 0;
 ^speed{S}           op->speed = FVAL;
 
 ^speed_left{S}      op->speed_left = FVAL;
-^slow_move{S}       {
-						SET_SLOW_PENALTY(op, FVAL);
-						SET_FLAG(op, FLAG_SLOW_MOVE);
-                    }
+^slow_move{S}       SET_OR_CLEAR_FLAG(op, FLAG_SLOW_MOVE, IVAL);
 ^face{S}            {
 						int _face_ = find_face(yval(), 0);
 						op->face = &new_faces[_face_ ];
@@ -433,7 +450,7 @@ lex_error = 0;
 ^maxsp{S}           op->stats.maxsp = IVAL;
 ^grace{S}           op->stats.grace = IVAL;
 ^maxgrace{S}        op->stats.maxgrace = IVAL;
-^exp{S}             op->stats.exp = atol(yval());
+^exp{S}             op->stats.exp = atoll(yval());
 ^food{S}            op->stats.food = IVAL;
 ^dam{S}             op->stats.dam = IVAL;
 ^dam_add{S}         op->stats.dam += IVAL;
@@ -480,12 +497,11 @@ lex_error = 0;
 ^is_named{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL);
 ^is_player{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_PLAYER, IVAL);
 ^sys_object{S}      SET_OR_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL);
-^generator{S}       SET_OR_CLEAR_FLAG(op, FLAG_GENERATOR, IVAL);
+^generator{S}       {}
 ^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
 ^is_thrown{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
 ^auto_apply{S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
-^treasure{S}        SET_OR_CLEAR_FLAG(op, FLAG_TREASURE, IVAL);
-^was_reflected{S}   SET_OR_CLEAR_FLAG(op, FLAG_WAS_REFLECTED, IVAL);
+^treasure{S}        {}
 ^is_assassin{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
 ^is_missile{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
 ^see_invisible{S}   SET_OR_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
@@ -508,11 +524,7 @@ lex_error = 0;
 ^walk_off{S}        SET_OR_CLEAR_FLAG(op, FLAG_WALK_OFF, IVAL);
 ^fly_on{S}          SET_OR_CLEAR_FLAG(op, FLAG_FLY_ON, IVAL);
 ^fly_off{S}         SET_OR_CLEAR_FLAG(op, FLAG_FLY_OFF, IVAL);
-^is_animated{S}     {
-						SET_OR_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL);
-						/* We are using this flag for debugging - ignore */
-						SET_FLAG(op, FLAG_CLIENT_SENT);
-                    }
+^is_animated{S}     SET_OR_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL);
 ^flying{S}          SET_OR_CLEAR_FLAG(op, FLAG_FLYING, IVAL);
 ^monster{S}         SET_OR_CLEAR_FLAG(op, FLAG_MONSTER, IVAL);
 ^no_attack{S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL);
@@ -531,7 +543,6 @@ lex_error = 0;
 						if (IVAL)
 						{
 							SET_FLAG(op, FLAG_IDENTIFIED);
-							CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL);
 						}
 						else
 						{
@@ -548,9 +559,9 @@ lex_error = 0;
 ^scared{S}          SET_OR_CLEAR_FLAG(op, FLAG_SCARED, IVAL);
 ^unaggressive{S}    SET_OR_CLEAR_FLAG(op, FLAG_UNAGGRESSIVE, IVAL);
 ^reflect_missile{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
-^can_reflect_missile{S} SET_OR_CLEAR_FLAG(op, FLAG_CAN_REFL_MISSILE, IVAL);
 ^reflect_spell{S}   SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
-^can_reflect_spell{S} SET_OR_CLEAR_FLAG(op, FLAG_CAN_REFL_SPELL, IVAL);
+^can_reflect_missile{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
+^can_reflect_spell{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
 ^no_magic{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_MAGIC, IVAL);
 ^no_cleric{S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_CLERIC, IVAL);
 ^wiz{S}             {
@@ -568,8 +579,8 @@ lex_error = 0;
                     }
 ^was_wiz{S}         SET_OR_CLEAR_FLAG(op, FLAG_WAS_WIZ, IVAL);
 ^no_fix_player{S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
-^tear_down{S}       SET_OR_CLEAR_FLAG(op, FLAG_TEAR_DOWN, IVAL);
-^luck{S}            op->stats.luck = IVAL;
+^tear_down{S}       {}
+^luck{S}            {}
 ^run_away{S}        op->run_away = IVAL;
 ^pass_thru{S}       SET_OR_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL);
 ^can_pass_thru{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_PASS_THRU, IVAL);
@@ -580,13 +591,13 @@ lex_error = 0;
 ^use_fix_pos{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL);
 ^is_ethereal{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
 ^can_cast_spell{S}  SET_OR_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL);
-^can_use_scroll{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_SCROLL, IVAL);
-^can_use_range{S}   SET_OR_CLEAR_FLAG(op, FLAG_USE_RANGE, IVAL);
+^can_use_scroll{S}  {}
+^can_use_range{S}   {}
 ^can_use_bow{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_BOW, IVAL);
 ^can_use_armour{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_ARMOUR, IVAL);
 ^can_use_weapon{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_WEAPON, IVAL);
-^can_use_ring{S}    SET_OR_CLEAR_FLAG(op, FLAG_USE_RING, IVAL);
-^has_ready_range{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_RANGE, IVAL);
+^can_use_ring{S}    {}
+^has_ready_range{S} {}
 ^has_ready_bow{S}   SET_OR_CLEAR_FLAG(op, FLAG_READY_BOW, IVAL);
 ^xrays{S}           SET_OR_CLEAR_FLAG(op, FLAG_XRAYS, IVAL);
 ^no_save{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_SAVE, IVAL);
@@ -608,94 +619,116 @@ lex_error = 0;
 ^is_magical{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
 
 	/* Start of various attacktypes */
-^attack_impact{S}   SET_ATTACK(op, ATNR_PHYSICAL, IVAL);
-^attack_magic{S}    SET_ATTACK(op, ATNR_MAGIC, IVAL);
-^attack_fire{S}     SET_ATTACK(op, ATNR_FIRE, IVAL);
-^attack_electricity{S} SET_ATTACK(op, ATNR_ELECTRICITY, IVAL);
-^attack_cold{S}     SET_ATTACK(op, ATNR_COLD, IVAL);
-^attack_confusion{S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
-^attack_acid{S}     SET_ATTACK(op, ATNR_ACID, IVAL);
-^attack_drain{S}    SET_ATTACK(op, ATNR_DRAIN, IVAL);
-^attack_weaponmagic{S} SET_ATTACK(op, ATNR_WEAPONMAGIC, IVAL);
-^attack_ghosthit{S} SET_ATTACK(op, ATNR_GHOSTHIT, IVAL);
-^attack_poison{S}   SET_ATTACK(op, ATNR_POISON, IVAL);
-^attack_slow{S}     SET_ATTACK(op, ATNR_SLOW, IVAL);
-^attack_paralyze{S} SET_ATTACK(op, ATNR_PARALYZE, IVAL);
-^attack_time{S}     SET_ATTACK(op, ATNR_TIME, IVAL);
-^attack_fear{S}     SET_ATTACK(op, ATNR_FEAR, IVAL);
-^attack_cancellation{S} SET_ATTACK(op, ATNR_CANCELLATION, IVAL);
-^attack_depletion{S} SET_ATTACK(op, ATNR_DEPLETE, IVAL);
-^attack_death{S}    SET_ATTACK(op, ATNR_DEATH, IVAL);
-^attack_chaos{S}    SET_ATTACK(op, ATNR_CHAOS, IVAL);
-^attack_counterspell{S} SET_ATTACK(op, ATNR_COUNTERSPELL, IVAL);
-^attack_godpower{S} SET_ATTACK(op, ATNR_GODPOWER, IVAL);
-^attack_purity{S}   SET_ATTACK(op, ATNR_HOLYWORD, IVAL);
-^attack_blind{S}    SET_ATTACK(op, ATNR_BLIND, IVAL);
-^attack_internal{S} SET_ATTACK(op, ATNR_INTERNAL, IVAL);
-^attack_life_steal{S} SET_ATTACK(op, ATNR_LIFE_STEALING, IVAL);
+^attack_impact{S}   SET_ATTACK(op, ATNR_IMPACT, IVAL);
 ^attack_slash{S}    SET_ATTACK(op, ATNR_SLASH, IVAL);
 ^attack_cleave{S}   SET_ATTACK(op, ATNR_CLEAVE, IVAL);
 ^attack_pierce{S}   SET_ATTACK(op, ATNR_PIERCE, IVAL);
-^attack_nether{S}   SET_ATTACK(op, ATNR_NETHER, IVAL);
-^attack_sonic{S}    SET_ATTACK(op, ATNR_SONIC, IVAL);
-^attack_demonic{S}  SET_ATTACK(op, ATNR_DEMONIC, IVAL);
-^attack_psionic{S}  SET_ATTACK(op, ATNR_PSIONIC, IVAL);
+^attack_weaponmagic{S}    SET_ATTACK(op, ATNR_WEAPON_MAGIC, IVAL);
 
-	/* Start of various resists */
-^resist_impact{S}   SET_RESIST(op, ATNR_PHYSICAL, IVAL);
-^resist_magic{S}    SET_RESIST(op, ATNR_MAGIC, IVAL);
-^resist_fire{S}     SET_RESIST(op, ATNR_FIRE, IVAL);
-^resist_electricity{S} SET_RESIST(op, ATNR_ELECTRICITY, IVAL);
-^resist_cold{S}     SET_RESIST(op, ATNR_COLD, IVAL);
-^resist_confusion{S} SET_RESIST(op, ATNR_CONFUSION, IVAL);
-^resist_acid{S}     SET_RESIST(op, ATNR_ACID, IVAL);
-^resist_drain{S}    SET_RESIST(op, ATNR_DRAIN, IVAL);
-^resist_weaponmagic{S} SET_RESIST(op, ATNR_WEAPONMAGIC, IVAL);
-^resist_ghosthit{S} SET_RESIST(op, ATNR_GHOSTHIT, IVAL);
-^resist_poison{S}   SET_RESIST(op, ATNR_POISON, IVAL);
-^resist_slow{S}     SET_RESIST(op, ATNR_SLOW, IVAL);
-^resist_paralyze{S} SET_RESIST(op, ATNR_PARALYZE, IVAL);
-^resist_time{S}     SET_RESIST(op, ATNR_TIME, IVAL);
-^resist_fear{S}     SET_RESIST(op, ATNR_FEAR, IVAL);
-^resist_cancellation{S} SET_RESIST(op, ATNR_CANCELLATION, IVAL);
-^resist_depletion{S} SET_RESIST(op, ATNR_DEPLETE, IVAL);
-^resist_death{S}    SET_RESIST(op, ATNR_DEATH, IVAL);
-^resist_chaos{S}    SET_RESIST(op, ATNR_CHAOS, IVAL);
-^resist_counterspell{S} SET_RESIST(op, ATNR_COUNTERSPELL, IVAL);
-^resist_godpower{S} SET_RESIST(op, ATNR_GODPOWER, IVAL);
-^resist_purity{S}   SET_RESIST(op, ATNR_HOLYWORD, IVAL);
-^resist_blind{S}    SET_RESIST(op, ATNR_BLIND, IVAL);
-^resist_internal{S} SET_RESIST(op, ATNR_INTERNAL, IVAL);
-^resist_life_steal{S} SET_RESIST(op, ATNR_LIFE_STEALING, IVAL);
-^resist_slash{S}    SET_RESIST(op, ATNR_SLASH, IVAL);
-^resist_cleave{S}   SET_RESIST(op, ATNR_CLEAVE, IVAL);
-^resist_pierce{S}   SET_RESIST(op, ATNR_PIERCE, IVAL);
-^resist_nether{S}   SET_RESIST(op, ATNR_NETHER, IVAL);
-^resist_sonic{S}    SET_RESIST(op, ATNR_SONIC, IVAL);
-^resist_demonic{S}  SET_RESIST(op, ATNR_DEMONIC, IVAL);
-^resist_psionic{S}  SET_RESIST(op, ATNR_PSIONIC, IVAL);
+^attack_fire{S}     SET_ATTACK(op, ATNR_FIRE, IVAL);
+^attack_cold{S}     SET_ATTACK(op, ATNR_COLD, IVAL);
+^attack_electricity{S} SET_ATTACK(op, ATNR_ELECTRICITY, IVAL);
+^attack_poison{S}   SET_ATTACK(op, ATNR_POISON, IVAL);
+^attack_acid{S}     SET_ATTACK(op, ATNR_ACID, IVAL);
+
+^attack_magic{S}    SET_ATTACK(op, ATNR_MAGIC, IVAL);
+^attack_mind{S}     SET_ATTACK(op, ATNR_MIND, IVAL);
+^attack_blind{S}    SET_ATTACK(op, ATNR_BLIND, IVAL);
+^attack_paralyze{S} SET_ATTACK(op, ATNR_PARALYZE, IVAL);
+^attack_force{S}    SET_ATTACK(op, ATNR_FORCE, IVAL);
+
+^attack_godpower{S} SET_ATTACK(op, ATNR_GODPOWER, IVAL);
+^attack_chaos{S}    SET_ATTACK(op, ATNR_CHAOS, IVAL);
+^attack_drain{S}    SET_ATTACK(op, ATNR_DRAIN, IVAL);
+^attack_slow{S}     SET_ATTACK(op, ATNR_SLOW, IVAL);
+^attack_confusion{S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
+
+^attack_internal{S} SET_ATTACK(op, ATNR_INTERNAL, IVAL);
+
+	/* The following attack types are deprecated and are here
+	 * for backwards compatibility. */
+^attack_psionic{S}  set_random_attack(op, IVAL);
+^attack_sonic{S}    set_random_attack(op, IVAL);
+^attack_demonic{S}  set_random_attack(op, IVAL);
+^attack_counterspell{S} set_random_attack(op, IVAL);
+^attack_purity{S}   set_random_attack(op, IVAL);
+^attack_life_steal{S} set_random_attack(op, IVAL);
+^attack_death{S}    set_random_attack(op, IVAL);
+^attack_time{S}     set_random_attack(op, IVAL);
+^attack_fear{S}     set_random_attack(op, IVAL);
+^attack_cancellation{S} set_random_attack(op, IVAL);
+^attack_depletion{S} set_random_attack(op, IVAL);
+^attack_ghosthit{S} set_random_attack(op, IVAL);
+
+	/* All these resists are deprecated and are here for
+	 * backwards compatibility. */
+^resist_impact{S}   SET_PROTECTION(op, ATNR_IMPACT, IVAL);
+^resist_magic{S}    SET_PROTECTION(op, ATNR_MAGIC, IVAL);
+^resist_fire{S}     SET_PROTECTION(op, ATNR_FIRE, IVAL);
+^resist_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
+^resist_cold{S}     SET_PROTECTION(op, ATNR_COLD, IVAL);
+^resist_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+^resist_acid{S}     SET_PROTECTION(op, ATNR_ACID, IVAL);
+^resist_drain{S}    SET_PROTECTION(op, ATNR_DRAIN, IVAL);
+^resist_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
+^resist_ghosthit{S} set_random_protection(op, IVAL);
+^resist_poison{S}   SET_PROTECTION(op, ATNR_POISON, IVAL);
+^resist_slow{S}     set_random_protection(op, IVAL);
+^resist_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^resist_time{S}     set_random_protection(op, IVAL);
+^resist_fear{S}     set_random_protection(op, IVAL);
+^resist_cancellation{S} set_random_protection(op, IVAL);
+^resist_depletion{S} set_random_protection(op, IVAL);
+^resist_death{S}    set_random_protection(op, IVAL);
+^resist_chaos{S}    SET_PROTECTION(op, ATNR_CHAOS, IVAL);
+^resist_counterspell{S} set_random_protection(op, IVAL);
+^resist_godpower{S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
+^resist_purity{S}   set_random_protection(op, IVAL);
+^resist_blind{S}    SET_PROTECTION(op, ATNR_BLIND, IVAL);
+^resist_internal{S} set_random_protection(op, IVAL);
+^resist_life_steal{S} set_random_protection(op, IVAL);
+^resist_slash{S}    SET_PROTECTION(op, ATNR_SLASH, IVAL);
+^resist_cleave{S}   SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
+^resist_pierce{S}   SET_PROTECTION(op, ATNR_PIERCE, IVAL);
+^resist_nether{S}   set_random_protection(op, IVAL);
+^resist_sonic{S}    set_random_protection(op, IVAL);
+^resist_demonic{S}  set_random_protection(op, IVAL);
+^resist_psionic{S}  set_random_protection(op, IVAL);
 
 	/* Start of various protections */
-^protect_impact{S}  SET_PROTECTION(op, PROTECT_PHYSICAL, IVAL);
-^protect_slash{S}   SET_PROTECTION(op, PROTECT_SLASH, IVAL);
-^protect_cleave{S}  SET_PROTECTION(op, PROTECT_CLEAVE, IVAL);
-^protect_pierce{S}  SET_PROTECTION(op, PROTECT_PIERCE, IVAL);
-^protect_weapon_magic{S} SET_PROTECTION(op, PROTECT_WEAPON_MAGIC, IVAL);
-^protect_fire{S}    SET_PROTECTION(op, PROTECT_FIRE, IVAL);
-^protect_cold{S}    SET_PROTECTION(op, PROTECT_COLD, IVAL);
-^protect_electricity{S} SET_PROTECTION(op, PROTECT_ELECTRICITY, IVAL);
-^protect_poison{S}  SET_PROTECTION(op, PROTECT_POISON, IVAL);
-^protect_acid{S}    SET_PROTECTION(op, PROTECT_ACID, IVAL);
-^protect_magic{S}   SET_PROTECTION(op, PROTECT_MAGIC, IVAL);
-^protect_mind{S}    SET_PROTECTION(op, PROTECT_MIND, IVAL);
-^protect_body{S}    SET_PROTECTION(op, PROTECT_BODY, IVAL);
-^protect_psionic{S} SET_PROTECTION(op, PROTECT_PSIONIC, IVAL);
-^protect_force{S}   SET_PROTECTION(op, PROTECT_FORCE, IVAL);
-^protect_nether{S}  SET_PROTECTION(op, PROTECT_NETHER, IVAL);
-^protect_chaos{S}   SET_PROTECTION(op, PROTECT_CHAOS, IVAL);
-^protect_death{S}   SET_PROTECTION(op, PROTECT_DEATH, IVAL);
-^protect_spiritual{S} SET_PROTECTION(op, PROTECT_SPIRITUAL, IVAL);
-^protect_corruption{S} SET_PROTECTION(op, PROTECT_CORRUPTION, IVAL);
+^protect_impact{S}  SET_PROTECTION(op, ATNR_IMPACT, IVAL);
+^protect_slash{S}   SET_PROTECTION(op, ATNR_SLASH, IVAL);
+^protect_cleave{S}  SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
+^protect_pierce{S}  SET_PROTECTION(op, ATNR_PIERCE, IVAL);
+^protect_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
+
+^protect_fire{S}    SET_PROTECTION(op, ATNR_FIRE, IVAL);
+^protect_cold{S}    SET_PROTECTION(op, ATNR_COLD, IVAL);
+^protect_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
+^protect_poison{S}  SET_PROTECTION(op, ATNR_POISON, IVAL);
+^protect_acid{S}    SET_PROTECTION(op, ATNR_ACID, IVAL);
+
+^protect_magic{S}   SET_PROTECTION(op, ATNR_MAGIC, IVAL);
+^protect_mind{S}    SET_PROTECTION(op, ATNR_MIND, IVAL);
+^protect_blind{S}   SET_PROTECTION(op, ATNR_BLIND, IVAL);
+^protect_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^protect_force{S}   SET_PROTECTION(op, ATNR_FORCE, IVAL);
+
+^protect_godpower{S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
+^protect_chaos{S}   SET_PROTECTION(op, ATNR_CHAOS, IVAL);
+^protect_drain{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
+^protect_slow{S} SET_PROTECTION(op, ATNR_SLOW, IVAL);
+^protect_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+
+^protect_internal{S} SET_PROTECTION(op, ATNR_INTERNAL, IVAL);
+
+	/* The following protections are deprecated, and are here only
+	 * for backwards compatibility. */
+^protect_body{S} SET_PROTECTION(op, ATNR_BLIND, IVAL);
+^protect_psionic{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^protect_corruption{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+^protect_spiritual{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^protect_death{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
 
 ^movement_type{S}   op->move_type = IVAL;
 ^attack_move_type{S} op->attack_move_type = IVAL;
@@ -706,10 +739,12 @@ lex_error = 0;
 ^connected{S}       add_button_link(op, op->map, IVAL);
 ^cursed{S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
 ^damned{S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
-^see_anywhere{S}    SET_OR_CLEAR_FLAG(op, FLAG_SEE_ANYWHERE, IVAL);
-^known_magical{S}   SET_OR_CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL, IVAL);
-^known_cursed{S}    SET_OR_CLEAR_FLAG(op, FLAG_KNOWN_CURSED, IVAL);
-^can_use_skill{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_USE_SKILL, IVAL);
+^is_buildable{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_BUILDABLE, IVAL);
+^no_pvp{S}          SET_OR_CLEAR_FLAG(op, FLAG_NO_PVP, IVAL);
+^known_magical{S}   {/* Deprecated. */}
+^known_cursed{S}    {/* Deprecated. */}
+^attacktype{S}      {/* Deprecated. */}
+^can_use_skill{S}   {}
 ^been_applied{S}    SET_OR_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
 ^title{S}           {
 						char *y = yval();
@@ -725,9 +760,9 @@ lex_error = 0;
                     }
 ^unique{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
 ^inv_locked{S}      SET_OR_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL);
-^is_wooded{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_WOODED, IVAL);
-^is_hilly{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_HILLY, IVAL);
-^has_ready_skill{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_SKILL, IVAL);
+^is_wooded{S}       {}
+^is_hilly{S}        {}
+^has_ready_skill{S} {}
 ^has_ready_weapon{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_WEAPON, IVAL);
 ^no_skill_ident{S}  SET_OR_CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT, IVAL);
 ^glow_radius{S}     op->glow_radius = IVAL;
@@ -736,22 +771,22 @@ lex_error = 0;
 ^is_cauldron{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_CAULDRON, IVAL);
 ^randomitems{S}     op->randomitems = find_treasurelist(yval());
 ^is_dust{S}         SET_OR_CLEAR_FLAG(op, FLAG_DUST, IVAL);
-^no_steal{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_STEAL, IVAL);
+^no_steal{S}        {}
 ^one_hit{S}         SET_OR_CLEAR_FLAG(op, FLAG_ONE_HIT, IVAL);
 
-^is_vul_elemental{S} SET_OR_CLEAR_FLAG(op, FLAG_VUL_ELEMENTAL, IVAL);
-^is_proof_elemental{S} SET_OR_CLEAR_FLAG(op, FLAG_PROOF_ELEMENTAL, IVAL);
-^is_vul_magic{S}    SET_OR_CLEAR_FLAG(op, FLAG_VUL_MAGIC, IVAL);
-^is_proof_magic{S}  SET_OR_CLEAR_FLAG(op, FLAG_PROOF_MAGIC, IVAL);
-^is_vul_physical{S} SET_OR_CLEAR_FLAG(op, FLAG_VUL_PHYSICAL, IVAL);
-^is_proof_physical{S} SET_OR_CLEAR_FLAG(op, FLAG_PROOF_PHYSICAL, IVAL);
-^is_vul_sphere{S}   SET_OR_CLEAR_FLAG(op, FLAG_VUL_SPHERE, IVAL);
-^is_proof_sphere{S} SET_OR_CLEAR_FLAG(op, FLAG_PROOF_SPHERE, IVAL);
+^is_vul_elemental{S} {}
+^is_proof_elemental{S} {}
+^is_vul_magic{S}    {}
+^is_proof_magic{S}  {}
+^is_vul_physical{S} {}
+^is_proof_physical{S} {}
+^is_vul_sphere{S}   {}
+^is_proof_sphere{S} {}
 ^is_indestructible{S} SET_OR_CLEAR_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
 
 	/* Ignore editor_folder values. */
 ^editor_folder{S}   {}
-^sub_type{S}        op->sub_type1 = IVAL;
+^sub_type{S}        op->sub_type = IVAL;
 ^terrain_flag{S}    op->terrain_flag = IVAL;
 ^terrain_type{S}    op->terrain_type = IVAL;
 ^item_quality{S}    op->item_quality = IVAL;
@@ -784,6 +819,7 @@ lex_error = 0;
 						op->weapon_speed_left = 0;
 						op->weapon_speed_add = op->weapon_speed;
                     }
+^item_power{S}      op->item_power = IVAL;
 
 	/* Ignore empty lines, newlines we don't do above */
 <*>(^{WS})|{NL}     {}
@@ -904,6 +940,8 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	int retval = 0;
 	float old_speed, old_sleft;
 	char inbuf[MAX_BUF];
+	object *items[MAXDEPTH];
+	int depth = 0;
 
 	/* At this point we perhaps have an "arch" parse or an "object" parse
 	 * - we don't know. "arch" parse means, arches are loaded - we hit an
@@ -923,6 +961,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	object_load_flag = 0;
 
 	*msgbuf = '\0';
+	items[0] = op;
 
 	if (bufstate == LO_REPEAT)
 	{
@@ -933,7 +972,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			yy_switch_to_buffer(mybuffer);
 		}
 
-		retval = lex_load(op, map_flags);
+		retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
 	}
 	else if (bufstate == LO_MEMORYMODE)
 	{
@@ -955,7 +994,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			yybufstate = yy_scan_string(strptr);
 			/* Hopefully we have here an "end" - or we stay in this while
 			 * for a bit. */
-			retval = lex_load(op, map_flags);
+			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
 			yy_delete_buffer(yybufstate);
 
 			if (retval == LL_NORMAL)
@@ -977,7 +1016,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		while (fgets(inbuf, MAX_BUF - 3, (FILE *) fp))
 		{
 			yybufstate = yy_scan_string(inbuf);
-			retval = lex_load(op, map_flags);
+			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
 			yy_delete_buffer(yybufstate);
 
 			if (retval == LL_NORMAL)
@@ -988,7 +1027,14 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 					yy_switch_to_buffer(cur_buffer);
 				}
 
-				return retval;
+				if (depth == 0)
+				{
+					return retval;
+				}
+				else
+				{
+					depth--;
+				}
 			}
 		}
 
@@ -1001,12 +1047,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		}
 
 		return LL_EOF;
-	}
-
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
 	}
 
 	/* We set here the material real values.
@@ -1071,63 +1111,30 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
  * values.
  * @param op Object to alter.
  * @param buf Modifications to apply. */
-int set_variable(object *op,char *buf)
+int set_variable(object *op, char *buf)
 {
-    YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
-    int retval;
+	YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
+	int retval, depth;
+	object *items[MAXDEPTH];
 
-    strcpy(msgbuf, "");
-    yy_push_state(INITIAL);
-    yybufstate = yy_scan_string(buf);
-    retval = lex_load(op, 0);
+	strcpy(msgbuf, "");
+	yy_push_state(INITIAL);
+	yybufstate = yy_scan_string(buf);
 
-    if (yycurbuf)
+	items[0] = op;
+	depth = 0;
+	retval = lex_load(&depth, items, MAXDEPTH, 0, 0);
+
+	if (yycurbuf)
 	{
-    	yy_switch_to_buffer(yycurbuf);
+		yy_switch_to_buffer(yycurbuf);
 	}
 
-    yy_delete_buffer(yybufstate);
-    yy_pop_state();
+	yy_delete_buffer(yybufstate);
+	yy_pop_state();
 
-    return retval;
+	return retval;
 }
-
-/**
- * This is a list of pointers that correspond to the FLAG_.. values.
- * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then
- * the 15'th element of this array should match that name.
- * If an entry is NULL, that is a flag not to loaded/saved.
- * @see flag_defines */
-static char *flag_names[NUM_FLAGS + 1] = {
-	"sleep",               "confused",          NULL,              "scared",          "is_blind",
-	"is_invisible",        "is_ethereal",       "is_good",         "no_pick",         "walk_on",
-	"no_pass",             "is_animated",       NULL,              "flying",          "monster",
-	"friendly",            NULL,                "been_applied",    "auto_apply",      "treasure",
-	"is_neutral",          "see_invisible",     "can_roll",        "generator",       "is_turnable",
-	"walk_off",            "fly_on",            "fly_off",         "is_used_up",      "identified",
-	"reflecting",          "changing",          "splitting",       "hitback",         "startequip",
-	"blocksview",          "undead",            "can_stack",       "unaggressive",    "reflect_missile",
-	"reflect_spell",       "no_magic",          "no_fix_player",   "is_evil",         "tear_down",
-	"run_away",            "pass_thru",         "can_pass_thru",   "pick_up",         "unique",
-	"no_drop",             "is_indestructible", "can_cast_spell",  "can_use_scroll",  "can_use_range",
-	"can_use_bow",         "can_use_armour",    "can_use_weapon",  "can_use_ring",    "has_ready_range",
-	"has_ready_bow",       "xrays",             NULL,              "is_floor",        "lifesave",
-	"is_magical",          "alive",             "stand_still",     "random_move",     "only_attack",
-	"wiz",                 "stealth",           NULL,              NULL,              "cursed",
-	"damned",              "see_anywhere",      "known_magical",   "known_cursed",    "can_use_skill",
-	"is_thrown",           "is_vul_sphere",     "is_proof_sphere", "is_male",         "is_female",
-	"applied",             "inv_locked",        "is_wooded",       "is_hilly",        "has_ready_skill",
-	"has_ready_weapon",    "no_skill_ident",    "was_wiz",         "can_see_in_dark", "is_cauldron",
-	"is_dust",             "no_steal",          "one_hit",         NULL,              "berserk",
-	"no_attack",           "invulnerable",      "quest_item",      "is_trapped",      "is_vul_elemental",
-	"is_proof_elemental",  "is_vul_magic",      "is_proof_magic",  "is_vul_physical", "is_proof_physical",
-	"sys_object",          "use_fix_pos",       "unpaid",          NULL,              "make_invisible",
-	"make_ethereal",       "is_player",         "is_named",        NULL,              "no_teleport",
-	"corpse",              "corpse_forced",     "player_only",     "no_cleric",       "one_drop",
-	"cursed_perm",         "damned_perm",       "door_closed",     "was_reflected",   "is_missile",
-	"can_reflect_missile", "can_reflect_spell", "is_assassin",     NULL,              "no_save",
-	NULL
-};
 
 /** Adds a line to the buffer. */
 #define ADD_STRINGLINE_ENTRY(sb__, entryname__, entryvalue__) do {\
@@ -1152,8 +1159,8 @@ static char *flag_names[NUM_FLAGS + 1] = {
  * @param op2 Object's original archetype. */
 void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 {
-    key_value *my_field, *arch_field;
-  	int tmp;
+	key_value *my_field, *arch_field;
+	int tmp;
 
 	/* This saves the key/value lists. We do it first so that any
 	 * keys that match field names will be overwritten by the loader. */
@@ -1321,7 +1328,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 
 	if (op->stats.exp != op2->stats.exp)
 	{
-		FAST_SAVE_LONG(sb, "exp ", op->stats.exp);
+		stringbuffer_append_printf(sb, "exp %"FMT64"\n", op->stats.exp);
 	}
 
 	if (op->stats.food != op2->stats.food)
@@ -1332,11 +1339,6 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->stats.dam != op2->stats.dam)
 	{
 		FAST_SAVE_LONG(sb, "dam ", op->stats.dam);
-	}
-
-	if (op->stats.luck != op2->stats.luck)
-	{
-		FAST_SAVE_LONG(sb, "luck ", op->stats.luck);
 	}
 
 	if (op->stats.wc != op2->stats.wc)
@@ -1379,9 +1381,9 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "material_real ", op->material_real);
 	}
 
-	if (op->sub_type1 != op2->sub_type1)
+	if (op->sub_type != op2->sub_type)
 	{
-		FAST_SAVE_LONG(sb, "sub_type ", op->sub_type1);
+		FAST_SAVE_LONG(sb, "sub_type ", op->sub_type);
 	}
 
 	if (op->terrain_flag != op2->terrain_flag)
@@ -1474,28 +1476,20 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "type ", op->type);
 	}
 
-  	for (tmp = 0; tmp < NROFATTACKS; tmp++)
-	{
-   		if (op->resist[tmp] != op2->resist[tmp])
-		{
-			stringbuffer_append_printf(sb, "resist_%s %d\n", resist_save[tmp], op->resist[tmp]);
-    	}
-  	}
-
-	/* resist_save[] holds the attack form also for attack_xx */
+	/* attack_save[] holds the attack form also for attack_xx */
 	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
 		if (op->attack[tmp] != op2->attack[tmp])
 		{
-			stringbuffer_append_printf(sb, "attack_%s %d\n", resist_save[tmp], op->attack[tmp]);
+			stringbuffer_append_printf(sb, "attack_%s %d\n", attack_save[tmp], op->attack[tmp]);
 		}
 	}
 
-	for (tmp = 0; tmp < NROFPROTECTIONS; tmp++)
+	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
 		if (op->protection[tmp] != op2->protection[tmp])
 		{
-			stringbuffer_append_printf(sb, "protect_%s %d\n", protection_save[tmp], op->protection[tmp]);
+			stringbuffer_append_printf(sb, "protect_%s %d\n", attack_save[tmp], op->protection[tmp]);
 		}
 	}
 
@@ -1604,24 +1598,18 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "quickslot ", op->quickslot);
 	}
 
-  	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
+	if (op->item_power != op2->item_power)
 	{
-		if (flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
-		{
-			ADD_STRINGLINE_ENTRY(sb, flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
-    	}
-  	}
+		FAST_SAVE_LONG(sb, "item_power ", op->item_power);
+	}
 
-  	/* The old code was buggy - it would lose custom SLOW_PENALTY if the archetype
-   	 * had a different slow_penalty (eg, when saving, it would also reset to the
-   	 * archetype value. */
-  	if (QUERY_FLAG(op, FLAG_SLOW_MOVE))
+	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
 	{
-    	if (!QUERY_FLAG(op2, FLAG_SLOW_MOVE) || SLOW_PENALTY(op) != SLOW_PENALTY(op2))
+		if (object_flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
 		{
-			FAST_SAVE_DOUBLE(sb, "slow_move ", SLOW_PENALTY(op));
-    	}
-  	}
+			ADD_STRINGLINE_ENTRY(sb, object_flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
+		}
+	}
 }
 
 /**

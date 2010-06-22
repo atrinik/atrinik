@@ -320,7 +320,7 @@ void shop_open()
 	}
 
 	/* Write the socket string to server */
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 
 	/* The shop is now open */
 	shop_gui->shop_state = SHOP_STATE_OPEN;
@@ -366,7 +366,7 @@ void shop_buy_item()
 	snprintf(buf, sizeof(buf), "shop buy %s %d %d", shop_gui->shop_owner, shop_item->tag, shop_item_tmp->nrof);
 
 	/* Send the buffer */
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -427,7 +427,7 @@ void clear_shop(int send_to_server)
 
 	if (send_to_server)
 	{
-		cs_write_string(csocket.fd, "shop close", 10);
+		cs_write_string("shop close", 10);
 	}
 
 	shop_item = shop_gui->shop_items;
@@ -537,7 +537,7 @@ static void shop_add_button(int x, int y, const char *text)
 					char buf[MAX_BUF];
 
 					snprintf(buf, sizeof(buf), "shop examine %s %d", shop_gui->shop_owner, shop_gui->selected_tag);
-					cs_write_string(csocket.fd, buf, strlen(buf));
+					cs_write_string(buf, strlen(buf));
 				}
 				/* Otherwise buy the item */
 				else if (strcmp(text, "Buy") == 0)
@@ -577,13 +577,13 @@ int shop_put_item(int x, int y)
 	{
 		_shop_struct *shop_item_tmp;
 		item *item_object;
+		int i;
 
 		/* If we're not opening or the item limit was reached, return */
 		if (shop_gui->shop_state != SHOP_STATE_NONE || shop_gui->shop_items_count >= SHOP_MAX_ITEMS)
 		{
 			draggingInvItem(DRAG_NONE);
 			itemExamined = 0;
-
 			return 1;
 		}
 
@@ -595,7 +595,6 @@ int shop_put_item(int x, int y)
 			{
 				draggingInvItem(DRAG_NONE);
 				itemExamined = 0;
-
 				return 1;
 			}
 		}
@@ -608,18 +607,33 @@ int shop_put_item(int x, int y)
 		{
 			draggingInvItem(DRAG_NONE);
 			itemExamined = 0;
-
+			return 1;
+		}
+		else if (item_object->itype == TYPE_MONEY)
+		{
+			draw_info_format(COLOR_WHITE, "The %s is not allowed to be sold in a player shop.", item_object->s_name);
+			draggingInvItem(DRAG_NONE);
+			itemExamined = 0;
+			return 1;
+		}
+		else if (item_object->locked)
+		{
+			draw_info_format(COLOR_WHITE, "You must unlock the %s before attempting to sell it.", item_object->s_name);
+			draggingInvItem(DRAG_NONE);
+			itemExamined = 0;
 			return 1;
 		}
 
-		if (item_object->itype == TYPE_MONEY)
+		/* Don't allow things from the quickslots. */
+		for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
 		{
-			draw_info_format(COLOR_WHITE, "The %s is not allowed to be sold in a player shop.", item_object->s_name);
-
-			draggingInvItem(DRAG_NONE);
-			itemExamined = 0;
-
-			return 1;
+			if (quick_slots[i].tag == cpl.win_inv_tag)
+			{
+				draw_info_format(COLOR_WHITE, "You must first remove %s from your quickslots.", item_object->s_name);
+				draggingInvItem(DRAG_NONE);
+				itemExamined = 0;
+				return 1;
+			}
 		}
 
 		/* Allocate a new item */

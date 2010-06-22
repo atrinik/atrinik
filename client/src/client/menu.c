@@ -61,8 +61,9 @@ _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
 /** Current quickslot group */
 int quickslot_group = 1;
 
-/** Quickslot positions, because some things change depending on
-  * which quickslot bitmap is displayed. */
+/**
+ * Quickslot positions, because some things change depending on
+ * which quickslot bitmap is displayed. */
 int quickslots_pos[MAX_QUICK_SLOTS][2] =
 {
 	{17,	1},
@@ -119,7 +120,7 @@ void do_console()
 			}
 
 			if (!client_command_check(InputString))
-				send_command(buf, -1, SC_NORMAL);
+				send_command(buf);
 		}
 
 		reset_keys();
@@ -274,54 +275,6 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
-	else if (!strncmp(cmd, "/party ", 7))
-	{
-		cmd += 7;
-
-		if (!strncmp(cmd, "join ", 5))
-		{
-			cmd += 5;
-
-			sprintf(tmp, "pt join %s", cmd);
-			cs_write_string(csocket.fd, tmp, strlen(tmp));
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "leave", 5))
-		{
-			strcpy(cpl.partyname, "");
-		}
-		else if (!strncmp(cmd, "form ", 5))
-		{
-			cmd += 5;
-
-			sprintf(tmp, "pt form %s", cmd);
-			cs_write_string(csocket.fd, tmp, strlen(tmp));
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "password ", 9))
-		{
-			cmd += 9;
-
-			sprintf(tmp, "pt password %s", cmd);
-			cs_write_string(csocket.fd, tmp, strlen(tmp));
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "who", 3))
-		{
-			cs_write_string(csocket.fd, "pt who", 6);
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "list", 4))
-		{
-			cs_write_string(csocket.fd, "pt list", 7);
-
-			return 1;
-		}
-	}
 	else if (!strncmp(cmd, "/script ", 8))
 	{
 		cmd += 8;
@@ -388,7 +341,7 @@ int client_command_check(char *cmd)
 				char buf[2048];
 
 				snprintf(buf, sizeof(buf), "/tell %s %s", cpl.player_reply, cmd);
-				send_command(buf, -1, SC_NORMAL);
+				send_command(buf);
 			}
 		}
 
@@ -598,9 +551,10 @@ void widget_show_resist(widgetdata *widget)
 			StringBlt(widget->widgetSF, &SystemFont, protections[protectionID], protection_x + 2 - (int) strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
 
 			/* Now output the protection value. No protection will be drawn gray,
-			 * some protection will be white, and immunity (100%) will be orange. */
+			 * some protection will be white, immunity (100%) will be orange, and
+			 * negative will be red. */
 			snprintf(buf, sizeof(buf), "%02d", cpl.stats.protection[protectionID]);
-			StringBlt(widget->widgetSF, &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] == 100 ? COLOR_ORANGE : COLOR_WHITE) : COLOR_GREY, NULL, NULL);
+			StringBlt(widget->widgetSF, &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] < 0 ? COLOR_RED : (cpl.stats.protection[protectionID] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY, NULL, NULL);
 
 			protection_x += 30;
 		}
@@ -1542,7 +1496,7 @@ void load_settings()
 			}
 			else if (last_cmd == 1)
 			{
-				server_level.exp[para_count++] = strtoul(buf, NULL, 16);
+				server_level.exp[para_count++] = strtoull(buf, NULL, 16);
 
 				if (para_count >tmp_level)
 					last_cmd = 0;
@@ -2252,7 +2206,7 @@ void widget_event_target(widgetdata *widget, int x, int y)
 	if (y > widget->y1 + 7 && y < widget->y1 + 25 && x > widget->x1 + 223 && x < widget->x1 + 259)
 	{
 		if (cpl.target_code)
-			send_command("/t_tell hello", -1, SC_NORMAL);
+			send_command("/t_tell hello");
 	}
 }
 
@@ -2323,7 +2277,7 @@ void widget_show_target(widgetdata *widget)
 				char tmp_buf[MAX_BUF];
 
 				snprintf(tmp_buf, sizeof(tmp_buf), "shop load %s", cpl.target_name);
-				cs_write_string(csocket.fd, tmp_buf, strlen(tmp_buf));
+				cs_write_string(tmp_buf, strlen(tmp_buf));
 			}
 
 			StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 200, widget->y1 + 3, COLOR_HGOLD, NULL, NULL);
@@ -2564,7 +2518,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 
 					/* Tell server to set this quickslot to spell */
 					snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", ind + 1,  quick_slots[ind].groupNr, quick_slots[ind].classNr, quick_slots[ind].tag);
-					cs_write_string(csocket.fd, buf, strlen(buf));
+					cs_write_string(buf, strlen(buf));
 
 					cpl.win_quick_tag = -1;
 				}
@@ -2598,7 +2552,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 
 						/* Send to server to set this item */
 						snprintf(buf, sizeof(buf), "qs set %d %d", ind + 1, cpl.win_quick_tag);
-						cs_write_string(csocket.fd, buf, strlen(buf));
+						cs_write_string(buf, strlen(buf));
 
 						snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", ind + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, locate_item(cpl.win_quick_tag)->s_name);
 						draw_info(buf, COLOR_DGOLD);
@@ -2651,7 +2605,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 
 			/* Unset this item */
 			snprintf(buf, sizeof(buf), "qs unset %d", ind + 1);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(buf, strlen(buf));
 		}
 		else if (x >= widget->x1 + 266 && x <= widget->x1 + 282 && y >= widget->y1 && y <= widget->y1 + 34 && (widget->ht <= 34))
 		{

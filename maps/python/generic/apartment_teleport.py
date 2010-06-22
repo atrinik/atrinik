@@ -4,7 +4,6 @@
 ## Used to teleport apartment owners to their apartment.
 
 from Atrinik import *
-import string, os
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -17,7 +16,7 @@ exec(open(CreatePathname("/python/generic/apartments.py")).read())
 apartment_id = GetOptions()
 
 if not apartment_id or not apartments_info[apartment_id]:
-	activator.SetPosition(me.hitpoints, me.spellpoints)
+	activator.SetPosition(me.hp, me.sp)
 else:
 	## The apartments we're dealing with.
 	apartments = apartments_info[apartment_id]["apartments"]
@@ -28,7 +27,7 @@ else:
 	# No apartment, teleport them back
 	if pinfo == None:
 		activator.Write("You don't own an apartment here!", 0)
-		activator.SetPosition(me.hitpoints, me.spellpoints)
+		activator.SetPosition(me.hp, me.sp)
 	else:
 		if apartments[pinfo.slaying]:
 			# The apartment info
@@ -37,9 +36,9 @@ else:
 			activator.TeleportTo(apartment_info["path"], apartment_info["x"], apartment_info["y"], 1)
 
 			pinfo.race = me.map.path
-			pinfo.last_sp = me.hitpoints
-			pinfo.last_grace = me.spellpoints
+			pinfo.last_sp = me.hp
+			pinfo.last_grace = me.sp
 		else:
-			activator.SetPosition(activator.me.hitpoints, me.spellpoints)
+			activator.SetPosition(activator.me.hp, me.sp)
 
 SetReturnValue(1)

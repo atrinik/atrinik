@@ -108,10 +108,18 @@ typedef struct _anim_table
 extern _anim_table anim_table[MAXANIM];
 extern Animations animations[MAXANIM];
 
-/* Contains the base information we use to make up a packet we want to send. */
+/**
+ * Contains the base information we use to make up a packet we want to send. */
 typedef struct SockList
 {
+	/**
+	 * How much data in buf. */
 	int len;
+	/**
+	 * Start of data in buf. */
+	int pos;
+	/**
+	 * Daa. */
 	unsigned char *buf;
 } SockList;
 
@@ -123,6 +131,7 @@ typedef struct ClientSocket
 	/* Typedef your socket type to SOCKET */
 	SOCKET fd;
 	SockList inbuf;
+	SockList outbuf;
 
 	/* These are used for the newer 'windowing' method of commands -
 	 * number of last command sent, number of received confirmation */
@@ -143,25 +152,25 @@ typedef struct Stat_struct
 	sint8 level;
 
 	/* Hit Points. */
-	sint16 hp;
+	sint32 hp;
 
 	/* Max hit points*/
-	sint16 maxhp;
+	sint32 maxhp;
 
 	/* Spell points.  Used to cast spells. */
-	sint16 sp;
+	sint32 sp;
 
 	/* Max spell points. */
-	sint16 maxsp;
+	sint32 maxsp;
 
 	/* Grace.  Used to cast prayers. */
-	sint16 grace;
+	sint32 grace;
 
 	/* Max grace */
-	sint16 maxgrace;
+	sint32 maxgrace;
 
 	/* Experience.  Killers gain 1/10. */
-	sint32 exp;
+	sint64 exp;
 
 	/* How much food in stomach.  0 = starved. */
 	sint16 food;
@@ -185,7 +194,7 @@ typedef struct Stat_struct
 	sint16 skill_level[MAX_SKILL];
 
 	/* Skills */
-	sint32 skill_exp[MAX_SKILL];
+	sint64 skill_exp[MAX_SKILL];
 } Stats;
 
 typedef enum _inventory_win
@@ -543,3 +552,44 @@ extern Client_Player cpl;
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
+
+/**
+ * @defgroup MAP2_FLAG_xxx Map2 layer flags
+ * Flags used to mark what kind of data there is on layers
+ * in map2 protocol.
+ *@{*/
+/** Multi-arch object. */
+#define MAP2_FLAG_MULTI      1
+/** Player name. */
+#define MAP2_FLAG_NAME       2
+/** Target's HP bar. */
+#define MAP2_FLAG_PROBE      4
+/** Tile's Z position. */
+#define MAP2_FLAG_HEIGHT     8
+/*@}*/
+
+/**
+ * @defgroup MAP2_FLAG_EXT_xxx Map2 tile flags
+ * Flags used to mark what kind of data there is on different
+ * tiles in map2 protocol.
+ *@{*/
+/** An animation. */
+#define MAP2_FLAG_EXT_ANIM   1
+/*@}*/
+
+/**
+ * @defgroup MAP2_MASK_xxx Map2 mask flags
+ * Flags used for masks in map2 protocol.
+ *@{*/
+/** Clear cell, with all layers. */
+#define MAP2_MASK_CLEAR      0x2
+/** Add darkness. */
+#define MAP2_MASK_DARKNESS   0x4
+/*@}*/
+
+/**
+ * @defgroup MAP2_LAYER_xxx Map2 layer types
+ *@{*/
+/** Clear this layer. */
+#define MAP2_LAYER_CLEAR 255
+/*@}*/

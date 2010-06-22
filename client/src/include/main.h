@@ -217,8 +217,6 @@ extern _srv_client_files srv_client_files[SRV_CLIENT_FILES];
 extern 	Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 extern int mb_clicked;
 
-#define MAXFACES 4
-
 /* IMPORTANT: datatype must also be changed in dialog.c */
 typedef struct _options
 {
@@ -308,6 +306,7 @@ typedef struct _options
 	Uint8 real_video_bpp;
 	uint32 videoflags_full;
 	uint32 videoflags_win;
+	int reload_gfx_user;
 }_options;
 
 extern struct _options options;
@@ -374,7 +373,7 @@ typedef struct _skill_list_entry
 	int exp_level;
 
 	/* exp of this skill */
-	int exp;
+	sint64 exp;
 }_skill_list_entry;
 
 typedef struct _skill_list
@@ -579,7 +578,6 @@ extern int f_custom_cursor;
 extern int x_custom_cursor;
 extern int y_custom_cursor;
 
-extern int debug_layer[MAXFACES];
 extern int music_global_fade;
 extern _game_status GameStatus;
 extern int MapStatusX;

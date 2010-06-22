@@ -176,7 +176,7 @@ struct plugin_hooklist
 	void (*esrv_send_inventory)(object *, object *);
 	object *(*get_archetype)(const char *);
 	mapstruct *(*ready_map_name)(const char *, int);
-	sint32 (*add_exp)(object *, int, int);
+	sint64 (*add_exp)(object *, sint64, int);
 	const char *(*determine_god)(object *);
 	object *(*find_god)(const char *);
 	void (*register_global_event)(const char *, int);
@@ -214,10 +214,10 @@ struct plugin_hooklist
 	object *(*beacon_locate)(const char *);
 	char *(*strdup_local)(const char *);
 	void (*adjust_player_name)(char *);
-	partylist_struct *(*find_party)(char *);
-	void (*add_party_member)(partylist_struct *, object *);
-	void (*remove_party_member)(partylist_struct *, object *);
-	void (*send_party_message)(partylist_struct *, char *, int, object *);
+	party_struct *(*find_party)(const char *);
+	void (*add_party_member)(party_struct *, object *);
+	void (*remove_party_member)(party_struct *, object *);
+	void (*send_party_message)(party_struct *, char *, int, object *);
 	void (*Write_String_To_Socket)(socket_struct *, char, char *, int);
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)();
@@ -231,6 +231,12 @@ struct plugin_hooklist
 	void (*play_sound_player_only)(player *, int, int, int, int);
 	void (*new_draw_info_format)(int, object *, char *, ...);
 	int (*was_destroyed)(object *, tag_t);
+	int (*object_get_gender)(object *);
+	int (*change_abil)(object *, object *);
+	object *(*decrease_ob_nr)(object *, uint32);
+	int (*check_walk_off)(object *, object *, int);
+	int (*wall)(mapstruct *, int, int);
+	int (*blocked)(object *, mapstruct *, int, int, int);
 
 	const char **season_name;
 	const char **weekdays;
@@ -238,6 +244,13 @@ struct plugin_hooklist
 	const char **periodsofday;
 	spell *spells;
 	struct shstr_constants *shstr_cons;
+	const char **gender_noun;
+	const char **gender_subjective;
+	const char **gender_subjective_upper;
+	const char **gender_objective;
+	const char **gender_possessive;
+	const char **gender_reflexive;
+	const char **object_flag_names;
 };
 
 /** General API function. */
@@ -287,7 +300,7 @@ typedef struct _atrinik_plugin
 	sint8 gevent[NR_EVENTS];
 
 	/** Next plugin in list. */
-    struct _atrinik_plugin *next;
+	struct _atrinik_plugin *next;
 } atrinik_plugin;
 
 /**

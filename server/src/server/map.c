@@ -679,7 +679,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
 	if (flags & P_IS_PLAYER)
 	{
-		if (!op || flags & P_IS_PVP || m->map_flags & MAP_FLAG_PVP)
+		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP)))
 		{
 			return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
 		}
@@ -696,7 +696,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 		/* Player only space and not a player - no pass and possible checker here */
 		if ((flags & P_PLAYER_ONLY) && op->type != PLAYER)
 		{
-			return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV));
+			return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV | P_PLAYER_ONLY));
 		}
 
 		if (flags & P_CHECK_INV)
@@ -725,7 +725,7 @@ int blocked_link(object *op, int xoff, int yoff)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
-	int xtemp, ytemp;
+	int xtemp, ytemp, flags;
 
 	for (tmp = op; tmp; tmp = tmp->more)
 	{
@@ -756,9 +756,17 @@ int blocked_link(object *op, int xoff, int yoff)
 			}
 
 			/* We use always head for tests - no need to copy any flags to the tail */
-			if ((xtemp = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
+			if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
 			{
-				return xtemp;
+				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
+				{
+					if (open_door(op, m, xtemp, ytemp, 1))
+					{
+						continue;
+					}
+				}
+
+				return flags;
 			}
 		}
 	}
@@ -779,7 +787,7 @@ int blocked_link(object *op, int xoff, int yoff)
 int blocked_link_2(object *op, mapstruct *map, int x, int y)
 {
 	object *tmp, *tmp2;
-	int xtemp, ytemp;
+	int xtemp, ytemp, flags;
 	mapstruct *m;
 
 	for (tmp = op; tmp; tmp = tmp->more)
@@ -808,9 +816,17 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 			}
 
 			/* We use always head for tests - no need to copy any flags to the tail */
-			if ((xtemp = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
+			if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
 			{
-				return xtemp;
+				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
+				{
+					if (open_door(op, m, xtemp, ytemp, 0))
+					{
+						continue;
+					}
+				}
+
+				return flags;
 			}
 		}
 	}
@@ -1428,8 +1444,8 @@ mapstruct *get_linked_map()
 	 * map archetype. Mimic that behaviour. */
 	MAP_WIDTH(map) = 16;
 	MAP_HEIGHT(map) = 16;
-	MAP_RESET_TIMEOUT(map) = 7200;
-	MAP_TIMEOUT(map) = 300;
+	MAP_RESET_TIMEOUT(map) = 0;
+	MAP_TIMEOUT(map) = MAP_DEFAULTTIMEOUT;
 	set_map_darkness(map, MAP_DEFAULT_DARKNESS);
 
 	MAP_ENTER_X(map) = 0;
@@ -2157,8 +2173,7 @@ void free_all_maps()
 void update_position(mapstruct *m, int x, int y)
 {
 	object *tmp;
-	MapSpace *mp;
-	int i, ii, flags, move_flags, light;
+	int flags, move_flags, light;
 
 #ifdef DEBUG_OLDFLAGS
 	int oldflags;
@@ -2228,16 +2243,6 @@ void update_position(mapstruct *m, int x, int y)
 				flags |= P_BLOCKSVIEW;
 			}
 
-			if (QUERY_FLAG(tmp, FLAG_CAN_REFL_SPELL))
-			{
-				flags |= P_REFL_SPELLS;
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_CAN_REFL_MISSILE))
-			{
-				flags |= P_REFL_MISSILE;
-			}
-
 			if (QUERY_FLAG(tmp, FLAG_WALK_ON))
 			{
 				flags |= P_WALK_ON;
@@ -2282,6 +2287,11 @@ void update_position(mapstruct *m, int x, int y)
 			{
 				move_flags |= tmp->terrain_type;
 			}
+
+			if (QUERY_FLAG(tmp, FLAG_NO_PVP))
+			{
+				flags |= P_NO_PVP;
+			}
 		}
 
 #ifdef DEBUG_OLDFLAGS
@@ -2304,75 +2314,6 @@ void update_position(mapstruct *m, int x, int y)
 		return;
 	}
 
-#ifdef DEBUG_CORE
-	LOG(llevDebug, "UP - LAYER: %d,%d\n", x, y);
-#endif
-
-	mp = &m->spaces[x + m->width * y];
-	/* ALWAYS is client layer 0 (cl0) a floor. force it */
-	mp->client_mlayer[0] = 0;
-	mp->client_mlayer_inv[0] = 0;
-
-	if (mp->layer[1])
-	{
-		mp->client_mlayer[1] = 1;
-		mp->client_mlayer_inv[1] = 1;
-	}
-	else
-	{
-		mp->client_mlayer_inv[1] = mp->client_mlayer[1] = -1;
-	}
-
-	/* and 2 layers for moving stuff */
-	mp->client_mlayer[2] = mp->client_mlayer[3] = -1;
-	mp->client_mlayer_inv[2] = mp->client_mlayer_inv[3] = -1;
-
-	/* Now we first look for a object for cl3 */
-	for (i = 6; i > 1; i--)
-	{
-		if (mp->layer[i])
-		{
-			/* The last */
-			mp->client_mlayer_inv[3] = mp->client_mlayer[3] = i;
-			i--;
-			break;
-		}
-	}
-
-	/* We skip layer 7 - no invisible stuff on layer 7 */
-	for (ii = 6 + 7; ii > i + 6; ii--)
-	{
-		if (mp->layer[ii])
-		{
-			mp->client_mlayer_inv[2] = mp->client_mlayer_inv[3];
-			/* The last */
-			mp->client_mlayer_inv[3] = ii;
-			break;
-		}
-	}
-
-	/* And a last one for cl2 */
-	for (; i > 1; i--)
-	{
-		if (mp->layer[i])
-		{
-			/* The last */
-			mp->client_mlayer[2] = mp->client_mlayer_inv[2] = i;
-			break;
-		}
-	}
-
-	/* In layer[2] we have now normal layer 3 or normal layer 2
-	 * now seek a possible inv. object to substitute normal */
-	for (ii--; ii > 8; ii--)
-	{
-		if (mp->layer[ii])
-		{
-			mp->client_mlayer_inv[2] = ii;
-			break;
-		}
-	}
-
 	/* Clear out need update flag */
 	SET_MAP_FLAGS(m, x, y, GET_MAP_FLAGS(m, x, y) & ~P_NEED_UPDATE);
 }
@@ -2382,17 +2323,19 @@ void update_position(mapstruct *m, int x, int y)
  * @param map Map to update. */
 void set_map_reset_time(mapstruct *map)
 {
-#ifdef MAP_RESET
-#ifdef MAP_MAXRESET
-	if (MAP_RESET_TIMEOUT(map) > MAP_MAXRESET)
-		MAP_WHEN_RESET(map) = seconds() + MAP_MAXRESET;
-	else
-#endif
-		MAP_WHEN_RESET(map) = seconds() + MAP_RESET_TIMEOUT(map);
-#else
-	/* Will never be reset */
-	MAP_WHEN_RESET(map) = -1;
-#endif
+	uint32 timeout = MAP_RESET_TIMEOUT(map);
+
+	if (timeout == 0)
+	{
+		timeout = MAP_DEFAULTRESET;
+	}
+
+	if (timeout >= MAP_MAXRESET)
+	{
+		timeout = MAP_MAXRESET;
+	}
+
+	MAP_WHEN_RESET(map) = seconds() + timeout;
 }
 
 /**
@@ -2408,7 +2351,7 @@ void set_map_reset_time(mapstruct *map)
  * map. */
 mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 {
-    /* m should never be null, but if a tiled map fails to load below, it
+	/* m should never be null, but if a tiled map fails to load below, it
 	 * could happen. */
 	if (!m)
 	{
@@ -2806,19 +2749,17 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
  * @todo Document. */
 int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 {
-	object *best;
-
 	if (!get_rangevector_from_mapcoords(op1->map, op1->x, op1->y, op2->map, op2->x, op2->y, retval, flags | RV_NO_DISTANCE))
 	{
 		return 0;
 	}
 
-	best = op1;
+	retval->part = op1;
 
 	/* If this is multipart, find the closest part now */
 	if (!(flags & RV_IGNORE_MULTIPART) && op1->more)
 	{
-		object *tmp;
+		object *tmp, *best = NULL;
 		int best_distance = retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y, tmpi;
 
 		/* we just tkae the offset of the piece to head to figure
@@ -2828,7 +2769,7 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 		 * below works. */
 		for (tmp = op1->more; tmp; tmp = tmp->more)
 		{
-			tmpi = (op1->x - tmp->x + retval->distance_x) * (op1->x - tmp->x + retval->distance_x) + (op1->y - tmp->y + retval->distance_y) * (op1->y - tmp->y + retval->distance_y);
+			tmpi = (retval->distance_x - tmp->arch->clone.x) * (retval->distance_x - tmp->arch->clone.x) + (retval->distance_y - tmp->arch->clone.y) * (retval->distance_y - tmp->arch->clone.y);
 
 			if (tmpi < best_distance)
 			{
@@ -2837,14 +2778,14 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 			}
 		}
 
-		if (best != op1)
+		if (best)
 		{
-			retval->distance_x += op1->x - best->x;
-			retval->distance_y += op1->y - best->y;
+			retval->distance_x -= best->arch->clone.x;
+			retval->distance_y -= best->arch->clone.y;
+			retval->part = best;
 		}
 	}
 
-	retval->part = best;
 	retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
 	retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
 

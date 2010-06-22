@@ -251,8 +251,8 @@ enum spellnrs
 	SP_CURE_DISEASE,
 	SP_STRENGTH,
 	SP_IDENTIFY,
-	SP_DETECT_MAGIC,
-	SP_DETECT_CURSE,
+	SP_ASTEROID,
+	SP_FROST_NOVA,
 	SP_REMOVE_CURSE,
 	SP_REMOVE_DAMNATION,
 	SP_CAUSE_LIGHT,
@@ -285,7 +285,16 @@ enum spellnrs
 	SP_BULLET_STORM,
 	SP_DESTRUCTION,
 	SP_BOMB,
-	SP_CURE_CONFUSION
+	SP_CURE_CONFUSION,
+	SP_TRANSFORM_WEALTH,
+	SP_MAGIC_MISSILE,
+	SP_RAIN_HEAL,
+	SP_PARTY_HEAL,
+	SP_FROSTBOLT,
+	SP_FIREBOLT,
+	SP_LIGHTNING,
+	SP_FORKED_LIGHTNING,
+	SP_NEGABOLT
 };
 
 extern spell spells[NROFREALSPELLS];
@@ -308,5 +317,9 @@ typedef enum SpellTypeFrom
 	spellPotion,
 	spellNPC
 } SpellTypeFrom;
+
+/**
+ * 20% sacrifice of money when casting the 'transform wealth' spell. */
+#define TRANSFORM_WEALTH_SACRIFICE 0.80f
 
 #endif

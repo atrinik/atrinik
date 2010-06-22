@@ -36,6 +36,18 @@ static int lex_error, msg_flag;
 
 #define IVAL atoi(yval())
 
+#define SET_OR_CLEAR_MAP_FLAG(m, flag, val) \
+{ \
+	if (val) \
+	{ \
+		m->map_flags |= (flag); \
+	} \
+	else \
+	{ \
+		m->map_flags &= ~(flag); \
+	} \
+}
+
 #define YY_NO_INPUT
 %}
 
@@ -49,6 +61,12 @@ WS	[ \t]*
 
 /* Disable unput */
 %option nounput
+
+/* Disable tt_top_state */
+%option noyy_top_state
+
+/* need yy_push_state, yy_pop_state */
+%option stack
 
 %%
 
@@ -66,7 +84,7 @@ lex_error = 0;
 ^height{S}           m->height = IVAL;
 
 ^reset_timeout{S}    m->reset_timeout = IVAL;
-^swap_time{S}        m->timeout = IVAL;
+^swap_time{S}        m->swap_time = IVAL;
 ^difficulty{S}       m->difficulty = IVAL;
 ^darkness{S}         {
 						int v = IVAL;
@@ -75,26 +93,24 @@ lex_error = 0;
 						{
 							LOG(llevBug, "BUG: Illegal map darkness %d (must be -1 to %d, defaulting to -1).\n", v, MAX_DARKNESS);
 						}
-						else if (v != MAP_DEFAULT_DARKNESS)
+						else
 						{
 							set_map_darkness(m, v);
 						}
                      }
 ^light{S}            m->light_value = IVAL;
-^no_save{S}          m->map_flags |= MAP_FLAG_NO_SAVE;
-^no_magic{S}         m->map_flags |= MAP_FLAG_NOMAGIC;
-^no_priest{S}        m->map_flags |= MAP_FLAG_NOPRIEST;
-^no_harm{S}          m->map_flags |= MAP_FLAG_NOHARM;
-^no_summon{S}        m->map_flags |= MAP_FLAG_NOSUMMON;
-^fixed_login{S}      m->map_flags |= MAP_FLAG_FIXED_LOGIN;
-^perm_death{S}       m->map_flags |= MAP_FLAG_PERMDEATH;
-^ultra_death{S}      m->map_flags |= MAP_FLAG_ULTRADEATH;
-^ultimate_death{S}   m->map_flags |= MAP_FLAG_ULTIMATEDEATH;
-^pvp{S}              m->map_flags |= MAP_FLAG_PVP;
-^outdoor{S}          m->map_flags |= MAP_FLAG_OUTDOOR;
-^unique{S}           m->map_flags |= MAP_FLAG_UNIQUE;
-^fixed_resettime{S}  m->map_flags |= MAP_FLAG_FIXED_RTIME;
-^plugins{S}          m->map_flags |= MAP_FLAG_PLUGINS;
+^no_save{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NO_SAVE, IVAL);
+^no_magic{S}         SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOMAGIC, IVAL);
+^no_priest{S}        SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOPRIEST, IVAL);
+^no_harm{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOHARM, IVAL);
+^no_summon{S}        SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOSUMMON, IVAL);
+^fixed_login{S}      SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_LOGIN, IVAL);
+^player_no_save{S}   SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_PLAYER_NO_SAVE, IVAL);
+^pvp{S}              SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_PVP, IVAL);
+^outdoor{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_OUTDOOR, IVAL);
+^unique{S}           SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_UNIQUE, IVAL);
+^fixed_resettime{S}  SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_RTIME, IVAL);
+^plugins{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_PLUGINS, IVAL);
 ^tile_path_[1-8]{S}  {
 						int tile = atoi(yytext + 10);
 
@@ -230,6 +246,27 @@ static char *yval()
 	}
 
 	return cp;
+}
+
+int map_set_variable(mapstruct *m, char *buf)
+{
+	YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
+	int retval;
+
+	yy_push_state(INITIAL);
+	yybufstate = yy_scan_string(buf);
+
+	retval = map_lex_load(m);
+
+	if (yycurbuf)
+	{
+		yy_switch_to_buffer(yycurbuf);
+	}
+
+	yy_delete_buffer(yybufstate);
+	yy_pop_state();
+
+	return retval;
 }
 
 /**
@@ -376,21 +413,6 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 	if (MAP_FIXEDLOGIN(m))
 	{
 		fprintf(fp, "fixed_login 1\n");
-	}
-
-	if (MAP_PERMDEATH(m))
-	{
-		fprintf(fp, "perm_death 1\n");
-	}
-
-	if (MAP_ULTRADEATH(m))
-	{
-		fprintf(fp, "ultra_death 1\n");
-	}
-
-	if (MAP_ULTIMATEDEATH(m))
-	{
-		fprintf(fp, "ultimate_death 1\n");
 	}
 
 	if (MAP_PVP(m))

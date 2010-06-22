@@ -284,7 +284,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	spell *s = find_spell(type);
 	shstr *godname = NULL;
 	object *target = NULL;
-	int success = 0, duration;
+	int success = 0, duration, spell_cost = 0;
 
 	if (!s)
 	{
@@ -487,7 +487,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		if (item == spellNormal && op->type == PLAYER)
 		{
 			/* Chance to fumble the spell by too low wisdom. */
-			if (s->flags & SPELL_DESC_WIS && random_roll(0, 99, op, PREFER_HIGH) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
+			if (s->flags & SPELL_DESC_WIS && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
 			{
 				play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
@@ -498,17 +498,17 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 					return 0;
 				}
 
-				return random_roll(1, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
+				return rndm(1, SP_level_spellpoint_cost(caster, type, -1));
 			}
 
 			if (!(s->flags & SPELL_DESC_WIS))
 			{
-				int failure = random_roll(0, 199, op, PREFER_LOW) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
+				int failure = rndm(0, 199) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
 
 				if (failure < 0)
 				{
 					new_draw_info(NDI_UNIQUE, op, "You bungle the spell because you have too much heavy equipment in use.");
-					return random_roll(0, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
+					return rndm(0, SP_level_spellpoint_cost(caster, type, -1));
 				}
 			}
 		}
@@ -534,6 +534,18 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	if ((caster && !OBJECT_ACTIVE(caster)) || (target && !OBJECT_ACTIVE(target)))
 	{
 		return 0;
+	}
+
+	/* We need to calculate the spell point cost before the spell actually
+	 * does something, otherwise the following can happen (example):
+	 * Player has 7 mana left, kills a monster with magic bullet (which costs 7
+	 * mana) while standing right next to it, magic bullet kills the monster before
+	 * we reach the return here, player levels up, cost of magic bullet increases
+	 * from 7 to 8. So the function would return 8 instead of 7, resulting in the
+	 * player's mana being -1. */
+	if (item != spellNPC)
+	{
+		spell_cost = SP_level_spellpoint_cost(caster, type, -1);
 	}
 
 	switch ((enum spellnrs) type)
@@ -564,11 +576,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = cast_change_attr(op, caster, target, type);
 			break;
 
-		case SP_DETECT_MAGIC:
-		case SP_DETECT_CURSE:
-			success = cast_detection(op, target, type);
-			break;
-
 		case SP_IDENTIFY:
 			success = cast_identify(target, SK_level(caster), NULL, IDENTIFY_MODE_NORMAL);
 			break;
@@ -579,10 +586,23 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
 			break;
 
+		case SP_PROBE:
+			if (!dir)
+			{
+				examine(op, op);
+				success = 1;
+			}
+			else
+			{
+				success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
+			}
+
+			break;
+
 		case SP_BULLET:
 		case SP_CAUSE_LIGHT:
-		case SP_PROBE:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
+		case SP_MAGIC_MISSILE:
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, target);
 			break;
 
 		case SP_TOWN_PORTAL:
@@ -619,18 +639,24 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		case SP_POISON_FOG:
 		case SP_METEOR:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
+		case SP_ASTEROID:
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
 			break;
 
 		case SP_METEOR_SWARM:
 			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, 3, 0);
+			break;
+
+		case SP_FROST_NOVA:
+			success = 1;
+			fire_swarm(op, caster, dir, spellarch[type], SP_ASTEROID, 3, 0);
 			break;
 
 		case SP_BULLET_SWARM:
 		case SP_BULLET_STORM:
 			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 3, 0);
 			break;
 
 		case SP_DESTRUCTION:
@@ -639,6 +665,23 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		case SP_BOMB:
 			success = create_bomb(op, caster, dir, type);
+			break;
+
+		case SP_TRANSFORM_WEALTH:
+			success = cast_transform_wealth(op);
+			break;
+
+		case SP_RAIN_HEAL:
+		case SP_PARTY_HEAL:
+			success = cast_heal_around(op, SK_level(caster), type);
+			break;
+
+		case SP_FROSTBOLT:
+		case SP_FIREBOLT:
+		case SP_LIGHTNING:
+		case SP_FORKED_LIGHTNING:
+		case SP_NEGABOLT:
+			success = fire_bolt(op, caster, dir, type);
 			break;
 
 		default:
@@ -653,7 +696,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		return success;
 	}
 
-	return success ? SP_level_spellpoint_cost(caster, type, -1) : 0;
+	return success ? spell_cost : 0;
 }
 
 /**
@@ -744,7 +787,8 @@ static int ok_to_put_more(mapstruct *m, int x, int y, object *op)
  * @retval 1 Bolt was fired (but may have been destroyed already). */
 int fire_bolt(object *op, object *caster, int dir, int type)
 {
-	object *tmp = NULL;
+	object *tmp;
+	int w;
 
 	if (!spellarch[type])
 	{
@@ -753,20 +797,23 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	tmp = arch_to_object(spellarch[type]);
 
-	if (tmp == NULL)
+	if (!tmp)
 	{
 		return 0;
 	}
 
-	/* We should have from the arch type the default damage - we add our
-	 * new damage profile. */
-	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
+	if (!dir)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You can't fire that at yourself!");
+		return 0;
+	}
 
-	/* For duration use the old formula */
+	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
-	tmp->x = op->x, tmp->y = op->y;
 	tmp->direction = dir;
+	tmp->x = op->x + DIRX(tmp);
+	tmp->y = op->y + DIRY(tmp);
 
 	if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE))
 	{
@@ -775,20 +822,29 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	set_owner(tmp, op);
 	tmp->level = SK_level(caster);
-	tmp->x += DIRX(tmp), tmp->y += DIRY(tmp);
+	w = wall(op->map, tmp->x, tmp->y);
+
+	if (w && !QUERY_FLAG(tmp, FLAG_REFLECTING))
+	{
+		return 0;
+	}
+
+	if (w || reflwall(op->map, tmp->x, tmp->y, tmp))
+	{
+		tmp->direction = absdir(tmp->direction + 4);
+		tmp->x = op->x + DIRX(tmp);
+		tmp->y = op->y + DIRY(tmp);
+	}
 
 	if (wall(op->map, tmp->x, tmp->y))
 	{
-		if (!QUERY_FLAG(tmp, FLAG_REFLECTING))
-		{
-			return 0;
-		}
-
-		tmp->x = op->x, tmp->y = op->y;
-		tmp->direction = absdir(tmp->direction + 4);
+		new_draw_info(NDI_UNIQUE, op, "There is something in the way.");
+		return 0;
 	}
 
-	if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) != NULL)
+	tmp = insert_ob_in_map(tmp, op->map, op, 0);
+
+	if (tmp)
 	{
 		move_bolt(tmp);
 	}
@@ -806,7 +862,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
  * @param at The archetype to fire.
  * @param type Spell ID.
  * @return 0 on failure, 1 on success. */
-int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type)
+int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target)
 {
 	object *tmp, *env;
 
@@ -838,6 +894,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	tmp->direction = dir;
 	tmp->stats.grace = tmp->last_sp;
 	tmp->stats.maxgrace = 60 + (RANDOM() % 12);
+	tmp->enemy = target;
 
 	if (get_owner(op) != NULL)
 	{
@@ -1023,7 +1080,7 @@ void move_cone(object *op)
 	/* Lava saves it's life, but not yours :) */
 	if (QUERY_FLAG(op, FLAG_LIFESAVE))
 	{
-		hit_map(op, 0);
+		hit_map(op, 0, 0);
 		return;
 	}
 
@@ -1038,7 +1095,7 @@ void move_cone(object *op)
 	/* Hit map returns 1 if it hits a monster.  If it does, set
 	 * food to 1, which will stop the cone from progressing. */
 	tag = op->count;
-	op->stats.food |= hit_map(op, 0);
+	op->stats.food |= hit_map(op, 0, 1);
 
 	if (was_destroyed(op, tag))
 	{
@@ -1178,7 +1235,7 @@ void explosion(object *op)
 		CLEAR_FLAG(op, FLAG_NO_APPLY);
 	}
 
-	hit_map(op, 0);
+	hit_map(op, 0, 1);
 
 	if (op->stats.hp > 2 && !op->value)
 	{
@@ -1254,6 +1311,7 @@ void forklightning(object *op, object *tmp)
 		object *new_bolt = get_object();
 
 		copy_object(tmp, new_bolt);
+		new_bolt->stats.food = 0;
 		/* Reduce chances of subsequent forking */
 		new_bolt->stats.Dex -= 10;
 		/* Less forks from main bolt too */
@@ -1294,31 +1352,19 @@ void forklightning(object *op, object *tmp)
  * @return 1 if reflected, 0 otherwise. */
 int reflwall(mapstruct *m, int x, int y, object *sp_op)
 {
-	/* No reflection when we have a illegal space and/or non reflection flag set */
-	if (!(m = get_map_from_coord(m, &x, &y)) || !(GET_MAP_FLAGS(m, x, y) & P_REFL_SPELLS))
+	object *tmp;
+
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return 0;
 	}
 
-	/* we have reflection. But there is a small chance it will fail.
-	 * test it. */
-
-	/* Reflect always */
-	if (sp_op->type == LIGHTNING)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
 	{
-		return 1;
-	}
-
-	if (!missile_reflection_adjust(sp_op, QUERY_FLAG(sp_op, FLAG_WAS_REFLECTED)))
-	{
-		return 0;
-	}
-
-	/* We get resisted - except a small fail chance */
-	if ((rndm(0, 99)) < 90 - sp_op->level / 10)
-	{
-		SET_FLAG(sp_op, FLAG_WAS_REFLECTED);
-		return 1;
+		if (QUERY_FLAG(tmp->head ? tmp->head : tmp, FLAG_REFL_SPELL) && (rndm(0, 99)) < 90 - (sp_op->level / 10))
+		{
+			return 1;
+		}
 	}
 
 	return 0;
@@ -1330,8 +1376,8 @@ int reflwall(mapstruct *m, int x, int y, object *sp_op)
  * @param op The bolt object moving. */
 void move_bolt(object *op)
 {
-	object *tmp;
 	int w, r;
+	object *tmp;
 
 	if (--(op->stats.hp) < 0)
 	{
@@ -1339,102 +1385,94 @@ void move_bolt(object *op)
 		return;
 	}
 
-	hit_map(op, 0);
-
-	if (!op->value && --(op->stats.exp) > 0)
+	if (!op->direction)
 	{
-		op->value = 1;
+		return;
+	}
 
-		if (!op->direction)
+	if (blocks_magic(op->map, op->x + DIRX(op), op->y + DIRY(op)))
+	{
+		return;
+	}
+
+	check_fired_arch(op);
+
+	if (!OBJECT_ACTIVE(op))
+	{
+		return;
+	}
+
+	w = wall(op->map, op->x + DIRX(op), op->y + DIRY(op));
+	r = reflwall(op->map, op->x + DIRX(op), op->y + DIRY(op), op);
+
+	if (w && !QUERY_FLAG(op, FLAG_REFLECTING))
+	{
+		return;
+	}
+
+	/* We're about to bounce */
+	if (w || r)
+	{
+		if (op->direction & 1)
 		{
-			return;
+			op->direction = absdir(op->direction + 4);
 		}
-
-		if (blocks_view(op->map, op->x + DIRX(op), op->y + DIRY(op)))
+		else
 		{
-			return;
-		}
+			int left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
 
-		w = wall(op->map, op->x + DIRX(op), op->y + DIRY(op));
-		r = reflwall(op->map, op->x + DIRX(op), op->y + DIRY(op), op);
-
-		if (w && !QUERY_FLAG(op, FLAG_REFLECTING))
-		{
-			return;
-		}
-
-		/* We're about to bounce */
-		if (w || r)
-		{
-			if (!QUERY_FLAG(op, FLAG_REFLECTING))
-			{
-				return;
-			}
-
-			op->value = 0;
-
-			if (op->direction & 1)
+			if (left == right)
 			{
 				op->direction = absdir(op->direction + 4);
 			}
-			else
+			else if (left)
 			{
-				int left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
-
-				if (left == right)
-				{
-					op->direction = absdir(op->direction + 4);
-				}
-				else if (left)
-				{
-					op->direction = absdir(op->direction + 2);
-				}
-				else if (right)
-				{
-					op->direction = absdir(op->direction - 2);
-				}
+				op->direction = absdir(op->direction + 2);
 			}
-
-			/* A bolt *must* be IS_TURNABLE */
-			update_turn_face(op);
-			return;
+			else if (right)
+			{
+				op->direction = absdir(op->direction - 2);
+			}
 		}
-		/* Create a copy of this object and put it ahead */
+
+		update_turn_face(op);
+		return;
+	}
+
+	if (op->stats.food || !op->stats.hp)
+	{
+		return;
+	}
+
+	op->stats.food = 1;
+
+	/* Create a copy of this object and put it ahead */
+	tmp = get_object();
+	copy_object(op, tmp);
+	tmp->speed_left = -0.1f;
+	tmp->x += DIRX(tmp);
+	tmp->y += DIRY(tmp);
+
+	if (!insert_ob_in_map(tmp, op->map, op, 0))
+	{
+		return;
+	}
+
+	if (rndm(0, 99) < tmp->stats.Dex)
+	{
+		forklightning(op, tmp);
+	}
+
+	if (tmp)
+	{
+		if (!tmp->stats.food)
+		{
+			tmp->stats.food = 1;
+			move_bolt(tmp);
+		}
 		else
 		{
-			tmp = get_object();
-			copy_object(op, tmp);
-			tmp->speed_left = -0.1f;
-			tmp->value = 0;
-			tmp->stats.hp++;
-			tmp->x += DIRX(tmp), tmp->y += DIRY(tmp);
-
-			if (!insert_ob_in_map(tmp, op->map, op, 0))
-			{
-				return;
-			}
-
-			/* New forking code.  Possibly create forks of this object
-			 * going off in other directions. */
-
-			/* stats.Dex % of forking */
-			if (rndm(0, 99) < tmp->stats.Dex)
-			{
-				forklightning(op, tmp);
-			}
-
-			if (tmp)
-			{
-				if (!tmp->stats.food)
-				{
-					tmp->stats.food = 1;
-					move_bolt(tmp);
-				}
-				else
-				{
-					tmp->stats.food = 0;
-				}
-			}
+			tmp->stats.food = 0;
 		}
 	}
 }
@@ -1579,70 +1617,6 @@ void control_golem(object *op, int dir)
 }
 
 /**
- * Move a missile object.
- * @param op The missile that needs to be moved. */
-void move_missile(object *op)
-{
-	int i, new_x, new_y;
-	object *owner;
-	mapstruct *mt;
-
-	owner = get_owner(op);
-
-	if (owner == NULL)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	new_x = op->x + DIRX(op);
-	new_y = op->y + DIRY(op);
-
-	if (!(mt = get_map_from_coord(op->map, &new_x, &new_y)))
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	if (blocked(op, mt, new_x, new_y, op->terrain_flag))
-	{
-		tag_t tag = op->count;
-		hit_map(op, op->direction);
-
-		if (!was_destroyed(op, tag))
-		{
-			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		}
-
-		return;
-	}
-
-	remove_ob(op);
-	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-
-	if (!op->direction || wall (mt, new_x, new_y) || blocks_view(mt, new_x, new_y))
-	{
-		return;
-	}
-
-	op->x = new_x;
-	op->y = new_y;
-	op->map = mt;
-	i = find_dir(mt, op->x, op->y, get_owner(op));
-
-	if (i && i != op->direction)
-	{
-		op->direction = absdir(op->direction + ((op->direction - i + 8) % 8 < 4 ? -1 : 1));
-		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-	}
-
-	insert_ob_in_map(op, mt, op, 0);
-}
-
-/**
  * Causes an object to explode, eg, a firebullet, poison cloud ball, etc.
  * @param op The object to explode. */
 void explode_object(object *op)
@@ -1700,6 +1674,7 @@ void explode_object(object *op)
 
 			copy_owner(tmp, op);
 			cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
+			hit_map(op, 0, 0);
 			break;
 		}
 	}
@@ -1722,7 +1697,7 @@ void check_fired_arch(object *op)
 {
 	tag_t op_tag = op->count, tmp_tag;
 	object *tmp, *hitter, *head;
-	int dam, flag;
+	int dam;
 
 	/* we return here if we have NOTHING blocking here */
 	if (!blocked(op, op->map, op->x, op->y, op->terrain_flag))
@@ -1754,8 +1729,6 @@ void check_fired_arch(object *op)
 	{
 		hitter = hitter->head;
 	}
-
-	flag = GET_MAP_FLAGS(op->map, op->x, op->y) & P_IS_PVP;
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
@@ -1811,6 +1784,21 @@ void move_fired_arch(object *op)
 		{
 			return;
 		}
+	}
+
+	if (op->stats.sp == SP_MAGIC_MISSILE)
+	{
+		rv_vector rv;
+
+		if (!op->enemy || OBJECT_FREE(op->enemy) || !get_rangevector(op, op->enemy, &rv, 0))
+		{
+			remove_ob(op);
+			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+			return;
+		}
+
+		op->direction = rv.direction;
+		update_turn_face(op);
 	}
 
 	new_x = op->x + DIRX(op);
@@ -1993,15 +1981,17 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 	/* A monster or rune/firewall/etc */
 	else
 	{
-		/* we use op->enemy as target from non player caster.
-		 * we need to set this from outside and for healing spells,
-		 * we must set from outside temporary the enemy to a friendly unit.
-		 * This is safe because we do no AI stuff here - we simply USE the
-		 * target here even the stuff above looks like we select one...
-		 * its only a fallback. */
-
-		/* Sanity check for a legal target */
-		if (op->enemy && OBJECT_ACTIVE(op->enemy) && op->enemy->count == op->enemy_count)
+		if ((flags & SPELL_DESC_SELF) && !(flags & (SPELL_DESC_ENEMY | SPELL_DESC_FRIENDLY)))
+		{
+			*target = op;
+			return 1;
+		}
+		else if ((flags & SPELL_DESC_ENEMY) && op->enemy && OBJECT_ACTIVE(op->enemy) && op->enemy->count == op->enemy_count)
+		{
+			*target = op->enemy;
+			return 1;
+		}
+		else
 		{
 			*target = op;
 			return 1;
@@ -2102,7 +2092,7 @@ void move_ball_lightning(object *op)
 		/* Hmm, I not sure this is always correct, but we will see
 		 * perhaps we must add more checks to avoid bad hits on the
 		 * map. */
-		hit_map(op, j);
+		hit_map(op, j, 0);
 
 		/* Insert the other arch */
 		if (op->other_arch)
@@ -2184,7 +2174,7 @@ int spell_find_dir(mapstruct *m, int x, int y, object *exclude)
 		{
 			tmp = get_map_ob(m, nx, ny);
 
-			while (tmp != NULL && (((owner_type == PLAYER && !QUERY_FLAG(tmp, FLAG_MONSTER) && !QUERY_FLAG(tmp, FLAG_GENERATOR) && !(tmp->type == PLAYER && pvp_area(NULL, tmp))) || (owner_type != PLAYER && tmp->type != PLAYER)) || (tmp == exclude || (tmp->head && tmp->head == exclude))))
+			while (tmp != NULL && (((owner_type == PLAYER && !QUERY_FLAG(tmp, FLAG_MONSTER) && !(tmp->type == PLAYER && pvp_area(NULL, tmp))) || (owner_type != PLAYER && tmp->type != PLAYER)) || (tmp == exclude || (tmp->head && tmp->head == exclude))))
 			{
 				tmp = tmp->above;
 			}
@@ -2364,7 +2354,7 @@ void move_swarm_spell(object *op)
 
 	if (!wall(op->map, target_x, target_y))
 	{
-		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp);
+		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp, NULL);
 	}
 }
 

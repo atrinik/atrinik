@@ -14,10 +14,6 @@ protect_cleave 20
 protect_pierce 20
 material 32
 material_real 323
-is_vul_physical 1
-is_vul_elemental 1
-is_vul_magic 1
-is_vul_sphere 1
 weight 18500
 value 2850
 end

@@ -159,9 +159,9 @@ void pray_at_altar(object *pl, object *altar)
 
 		/* Every once in a while, the god decides to checkup on their
 		 * follower, and may intervene to help them out. */
-		bonus = MAX(1, bonus + MAX(pl->stats.luck, -3));
+		bonus = MAX(1, bonus);
 
-		if (((random_roll(0, 399, pl, PREFER_LOW)) - bonus) < 0)
+		if (((rndm(0, 399)) - bonus) < 0)
 		{
 			god_intervention(pl, pl_god);
 		}
@@ -181,7 +181,7 @@ void pray_at_altar(object *pl, object *altar)
 		{
 			angry = 2;
 
-			if (random_roll(0, SK_level(pl) + 2, pl, PREFER_LOW) - 5 > 0)
+			if (rndm(0, SK_level(pl) + 2) - 5 > 0)
 			{
 				/* you really screwed up */
 				angry = 3;
@@ -202,12 +202,12 @@ void pray_at_altar(object *pl, object *altar)
 
 		if (loss)
 		{
-			lose_priest_exp(pl, random_roll(0, loss * angry - 1, pl, PREFER_LOW));
+			lose_priest_exp(pl, rndm(0, loss * angry - 1));
 		}
 
 		/* May switch Gods, but it's random chance based on our current
 		 * level. Note it gets harder to swap gods the higher we get */
-		if ((angry == 1) && !(random_roll(0, pl->chosen_skill->exp_obj->level, pl, PREFER_LOW)))
+		if ((angry == 1) && !(rndm(0, pl->chosen_skill->exp_obj->level)))
 		{
 			become_follower(pl, &altar->other_arch->clone);
 		}
@@ -301,7 +301,7 @@ static void check_special_prayers(object *op, object *god)
 /**
  * This function is called whenever a player has switched to a new god.
  * It basically handles all the stat changes that happen to the player,
- * including the removal of godgiven items (from the former cult).
+ * including the removal of god-given items (from the former cult).
  * @param op Player switching cults.
  * @param new_god New god to worship. */
 void become_follower(object *op, object *new_god)
@@ -339,7 +339,7 @@ void become_follower(object *op, object *new_god)
 	{
 		new_draw_info_format(NDI_UNIQUE | NDI_NAVY, op, "Fool! %s detests your kind!", new_god->name);
 
-		if (random_roll(0, op->level - 1, op, PREFER_LOW) - 5 > 0)
+		if (rndm(0, op->level - 1) - 5 > 0)
 		{
 			cast_magic_storm(op, get_archetype("loose_magic"), new_god->level + 10);
 		}
@@ -363,16 +363,16 @@ void become_follower(object *op, object *new_god)
 	exp_obj->path_attuned = new_god->path_attuned;
 	exp_obj->path_repelled = new_god->path_repelled;
 	exp_obj->path_denied = new_god->path_denied;
-	/* copy god's resistances */
-	memcpy(exp_obj->resist, new_god->resist, sizeof(new_god->resist));
+	/* copy god's protections */
+	memcpy(exp_obj->protection, new_god->protection, sizeof(new_god->protection));
 
 	/* make sure that certain immunities do NOT get passed to the
 	 * follower! */
 	for (i = 0; i < NROFATTACKS; i++)
 	{
-		if (exp_obj->resist[i] > 30 && (i == ATNR_FIRE || i == ATNR_COLD || i == ATNR_ELECTRICITY || i == ATNR_POISON))
+		if (exp_obj->protection[i] > 30 && (i == ATNR_FIRE || i == ATNR_COLD || i == ATNR_ELECTRICITY || i == ATNR_POISON))
 		{
-			exp_obj->resist[i] = 30;
+			exp_obj->protection[i] = 30;
 		}
 	}
 
@@ -381,11 +381,10 @@ void become_follower(object *op, object *new_god)
 	exp_obj->stats.sp = (sint16) new_god->last_sp;
 	exp_obj->stats.grace = (sint16) new_god->last_grace;
 	exp_obj->stats.food = (sint16) new_god->last_eat;
-	exp_obj->stats.luck = (sint8) new_god->stats.luck;
 	/* gods may pass on certain flag properties */
 	update_priest_flag(new_god, exp_obj, FLAG_SEE_IN_DARK);
-	update_priest_flag(new_god, exp_obj, FLAG_CAN_REFL_SPELL);
-	update_priest_flag(new_god, exp_obj, FLAG_CAN_REFL_MISSILE);
+	update_priest_flag(new_god, exp_obj, FLAG_REFL_SPELL);
+	update_priest_flag(new_god, exp_obj, FLAG_REFL_MISSILE);
 	update_priest_flag(new_god, exp_obj, FLAG_STEALTH);
 	update_priest_flag(new_god, exp_obj, FLAG_SEE_INVISIBLE);
 	update_priest_flag(new_god, exp_obj, FLAG_UNDEAD);
@@ -623,7 +622,6 @@ static int god_removes_curse(object *op, int remove_damnation)
 			success = 1;
 			CLEAR_FLAG(tmp, FLAG_DAMNED);
 			CLEAR_FLAG(tmp, FLAG_CURSED);
-			CLEAR_FLAG(tmp, FLAG_KNOWN_CURSED);
 
 			if (op->type == PLAYER)
 			{
@@ -775,8 +773,7 @@ static int same_string(const char *s1, const char *s2)
  * (recursively).
  * @param op Object to check.
  * @param item Object to check for.
- * @return 1 if found, 0 otherwise.
- */
+ * @return 1 if found, 0 otherwise. */
 static int follower_has_similar_item(object *op, object *item)
 {
 	object *tmp;
@@ -854,7 +851,7 @@ static void god_intervention(object *op, object *god)
 	{
 		object *item;
 
-		if (tr->chance <= random_roll(0, 99, op, PREFER_HIGH))
+		if (tr->chance <= rndm(0, 99))
 		{
 			continue;
 		}
@@ -906,7 +903,7 @@ static void god_intervention(object *op, object *god)
 				continue;
 			}
 
-			op->stats.grace = random_roll(0, 9, op, PREFER_HIGH);
+			op->stats.grace = rndm(0, 9);
 			new_draw_info(NDI_UNIQUE, op, "You are returned to a state of grace.");
 			return;
 		}
@@ -929,7 +926,7 @@ static void god_intervention(object *op, object *god)
 		{
 			int max = (int) ((float) op->stats.maxsp * ((float) item->stats.maxsp / (float) 100.0));
 			/* Restore to 50 .. 100%, if sp < 50% */
-			int new_sp = (int) ((float) random_roll(1000, 1999, op, PREFER_HIGH) / (float) 2000.0 * (float) max);
+			int new_sp = (int) ((float) rndm(1000, 1999) / (float) 2000.0 * (float) max);
 
 			if (op->stats.sp >= max / 2)
 			{
@@ -1128,9 +1125,9 @@ static int god_examines_priest(object *op, object *god)
 			loss = (int) ((float) 0.05 * (float) op->chosen_skill->exp_obj->stats.exp);
 		}
 
-		lose_priest_exp(op, random_roll(0, loss * angry - 1, op, PREFER_LOW));
+		lose_priest_exp(op, rndm(0, loss * angry - 1));
 
-		if (random_roll(0, angry, op, PREFER_LOW))
+		if (rndm(0, angry))
 		{
 			cast_magic_storm(op, get_archetype("loose_magic"), SK_level(op) + (angry * 3));
 		}

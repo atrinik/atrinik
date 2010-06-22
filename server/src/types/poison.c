@@ -86,5 +86,24 @@ void poison_more(object *op)
 		new_draw_info(NDI_UNIQUE, op->env, "You feel very sick...");
 	}
 
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+	/* If we successfully do damage to the player, the poison effects
+	 * worsen... */
+	if (hit_player(op->env, op->stats.dam, op, AT_INTERNAL))
+	{
+		int i;
+
+		/* Pick some stats to 'deplete'. */
+		for (i = 0; i < NUM_STATS; i++)
+		{
+			if (!(RANDOM() % 2) && get_attr_value(&op->stats, i) > -(MAX_STAT / 2))
+			{
+				/* Now deplete the stat. Relatively small chance that the depletion
+				 * will be worse than usual. */
+				change_attr_value(&op->stats, i, !(RANDOM() % 6) ? -2 : -1);
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op->env, lose_msg[i]);
+			}
+		}
+
+		fix_player(op->env);
+	}
 }

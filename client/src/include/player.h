@@ -36,7 +36,7 @@
 typedef struct _server_level
 {
 	int level;
-	uint32 exp[500];
+	sint64 exp[500];
 } _server_level;
 
 /** IDs of the player doll items. */
@@ -52,7 +52,7 @@ typedef enum _player_doll_enum
 	PDOLL_LRING,
 	PDOLL_BRACER,
 	PDOLL_AMULET,
-	PDOLL_SKILL,
+	PDOLL_SKILL_ITEM,
 	PDOLL_WAND,
 	PDOLL_BOW,
 	PDOLL_GAUNTLET,

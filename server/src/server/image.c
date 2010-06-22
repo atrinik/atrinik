@@ -175,7 +175,7 @@ int read_bmap_names()
 
 	nrofpixmaps++;
 
-	qsort(xbm, nrofbmaps, sizeof(struct bmappair), (int (*)())compar);
+	qsort(xbm, nrofbmaps, sizeof(struct bmappair), (void *) (int (*)())compar);
 
 	blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
 	next_item_face = &new_faces[find_face(NEXT_ITEM_FACE_NAME, 0)];
@@ -212,7 +212,7 @@ int find_face(char *name, int error)
 	}
 
 	tmp.name = name;
-	bp = (struct bmappair *) bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (int (*)()) compar);
+	bp = (struct bmappair *) bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (void *) (int (*)()) compar);
 
 	return bp ? bp->number : (unsigned int) error;
 }

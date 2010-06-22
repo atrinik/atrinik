@@ -28,6 +28,12 @@ w a 5 si_017.png
 "flies in one direction until it hits something. "
 " "
 " "
+"magic missile"
+w b 5 si_037.png
+"Fires a missile at currently selected target, following the target"
+"wherever they go."
+" "
+" "
 "strength self"
 w a 6 si_063.png
 "This spell may increase your strength by some amount."
@@ -106,6 +112,18 @@ p e 9 si_080.png
 " "
 " "
 " "
+"rain of healing"
+p f 9 si_084.png
+"This prayer heals all friends around and below the caster."
+" "
+" "
+" "
+"party heal"
+p g 9 si_085.png
+"Heals all nearby party members."
+" "
+" "
+" "
 "town portal"
 p a 13 si_079.png
 "This spell allows you to set up magic portals from one map to another. "
@@ -142,3 +160,9 @@ p a 19 si_013.png
 "power of your god."
 " "
 " "
+"transform wealth"
+w a 15 si_124.png
+"Mark wealth object (money, coppers for example) and cast this spell."
+"The coppers will be transformed into silvers at regular money rate (you"
+"must have enough copper coins). There is 20% of the money sacrifice to"
+"cast it, so 100 coppers will become 80 coppers."

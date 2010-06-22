@@ -2,7 +2,7 @@ arch map
 name Testmap for Shops
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-04-19 Alex Tokar
 endmsg
 width 17
 height 17
@@ -57,10 +57,6 @@ end
 arch wall_stone_3
 y 7
 end
-arch wmask_fire_on_1
-direction 5
-y 7
-end
 arch floor_ostone1
 y 8
 end
@@ -77,10 +73,6 @@ arch floor_ostone1
 y 10
 end
 arch wall_stone_3
-y 10
-end
-arch wmask_fire_on_1
-direction 5
 y 10
 end
 arch floor_ostone1
@@ -284,15 +276,6 @@ arch floor_ostone1
 x 3
 y 1
 end
-arch sign
-msg
-this is a big pile of item - for testing
-the block wise sending of items in the
-look window.
-endmsg
-x 3
-y 1
-end
 arch floor_ostone1
 x 3
 y 2
@@ -373,378 +356,7 @@ end
 arch wall_stone_1
 x 4
 end
-arch wmask_fire_off_1
-x 4
-end
 arch floor_ostone1
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch low_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch high_boots
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch bracers_ac
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch cloak
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch girdle
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gloves
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch gauntlets
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch small_shield
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_iron
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch helm_leather
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch full_helmet
-x 4
-y 1
-end
-arch leather_armour
-x 4
-y 1
-end
-arch leather_armour
-x 4
-y 1
-end
-arch leather_armour
-x 4
-y 1
-end
-arch leather_armour
-x 4
-y 1
-end
-arch leather_armour
-x 4
-y 1
-end
-arch leather_armour
-x 4
-y 1
-end
-arch leather_armour
 x 4
 y 1
 end
@@ -890,9 +502,6 @@ arch floor_ostone1
 x 6
 end
 arch wall_stone_1
-x 6
-end
-arch wmask_fire_off_1
 x 6
 end
 arch floor_ostone1

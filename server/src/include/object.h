@@ -126,38 +126,11 @@ typedef struct obj
 	/** Points to the main object of a large body */
 	struct obj *head;
 
-	/** Monster/player to follow even if not closest */
-	struct obj *enemy;
-
-	/** This object starts to attack us! Only player & monster */
-	struct obj *attacked_by;
-
-	/**
-	 * Pointer to the object which controls this one
-	 * Owner should not be referred to directly
-	 * - get_owner() should be used instead. */
-	struct obj *owner;
-
-	/** The skill chosen to use */
-	struct obj *chosen_skill;
-
-	/** The exp. obj (category) associated with this object */
-	struct obj *exp_obj;
-
 	/** Pointer to the map in which this object is present */
 	struct mapdef *map;
 
 	/** Unique object number for this object */
 	tag_t count;
-
-	/** What count the enemy has */
-	tag_t enemy_count;
-
-	/** What count the owner had (in case owner has been freed) */
-	tag_t ownercount;
-
-	/** The tag of attacker, so we can be sure */
-	tag_t attacked_by_count;
 
 	/* These get an extra add_refcount(), after having been copied by memcpy().
 	 * All fields beow this point are automatically copied by memcpy.  If
@@ -184,6 +157,34 @@ typedef struct obj
 
 	/** Artifact name that was applied to this object by give_artifact_abilities(). */
 	shstr *artifact;
+
+	/** Monster/player to follow even if not closest */
+	struct obj *enemy;
+
+	/** This object starts to attack us! Only player & monster */
+	struct obj *attacked_by;
+
+	/**
+	 * Pointer to the object which controls this one.
+	 *
+	 * Owner should not be referred to directly - get_owner() should be
+	 * used instead. */
+	struct obj *owner;
+
+	/** The skill chosen to use */
+	struct obj *chosen_skill;
+
+	/** The exp. obj (category) associated with this object */
+	struct obj *exp_obj;
+
+	/** What count the enemy has */
+	tag_t enemy_count;
+
+	/** What count the owner had (in case owner has been freed) */
+	tag_t ownercount;
+
+	/** The tag of attacker, so we can be sure */
+	tag_t attacked_by_count;
 
 	/** Pointer to archetype */
 	struct archt *arch;
@@ -318,7 +319,7 @@ typedef struct obj
 	uint8 type;
 
 	/** Sub type definition - this will be sent to client too */
-	uint8 sub_type1;
+	uint8 sub_type;
 
 	/** Quality of an item in range from 0-100 */
 	uint8 item_quality;
@@ -380,9 +381,6 @@ typedef struct obj
 	/** Quickslot ID this object goes in */
 	uint8 quickslot;
 
-	/** Intrinsic resist against damage - range from -125 to +125 */
-	sint8 resist[NROFATTACKS];
-
 	/**
 	 * our attack values - range from 0%-125%. (negative values makes no sense).
 	 * Note: we can in theory allow 300% damage for a attacktype.
@@ -398,7 +396,10 @@ typedef struct obj
 	uint8 attack[NROFATTACKS];
 
 	/** Resistance against attacks in % - range from -125 to 125 */
-	sint8 protection[NROFPROTECTIONS];
+	sint8 protection[NROFATTACKS];
+
+	/** Power rating of the object. */
+	sint8 item_power;
 
 	/** The overall speed of this object */
 	float speed;
@@ -422,7 +423,7 @@ typedef struct obj
 	void *custom_attrset;
 
 	/** Fields not explictly known by the loader. */
-    key_value *key_values;
+	key_value *key_values;
 } object;
 
 #ifdef WIN32
@@ -540,5 +541,35 @@ extern struct mempool_chunk *removed_objects;
 
 /** Decrease an object by one. */
 #define decrease_ob(xyz) decrease_ob_nr(xyz, 1)
+
+/**
+ * @defgroup GENDER_xxx Gender IDs.
+ * IDs of the various genders.
+ *@{*/
+/** Neuter: no gender. */
+#define GENDER_NEUTER 0
+/** Male. */
+#define GENDER_MALE 1
+/** Female. */
+#define GENDER_FEMALE 2
+/** Hermaphrodite: both genders. */
+#define GENDER_HERMAPHRODITE 3
+/** Total number of genders. */
+#define GENDER_MAX 4
+/*@}*/
+
+/**
+ * Returns the head part of an object. For single-tile objects returns the
+ * object itself.
+ * @param op The object.
+ * @return The head object. */
+#define HEAD(op) ((op)->head ? (op)->head : (op))
+
+extern const char *gender_noun[];
+extern const char *gender_subjective[];
+extern const char *gender_subjective_upper[];
+extern const char *gender_objective[];
+extern const char *gender_possessive[];
+extern const char *gender_reflexive[];
 
 #endif

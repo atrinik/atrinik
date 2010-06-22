@@ -155,7 +155,7 @@ void open_locked_door(object *op, object *opener)
 
 		insert_ob_in_map(tmp, op->map, op, 0);
 
-		if (op->sub_type1 == ST1_DOOR_NORMAL)
+		if (op->sub_type == ST1_DOOR_NORMAL)
 		{
 			play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
 		}
@@ -198,7 +198,7 @@ void open_locked_door(object *op, object *opener)
 			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
 		}
 
-		if (op->sub_type1 == ST1_DOOR_NORMAL)
+		if (op->sub_type == ST1_DOOR_NORMAL)
 		{
 			play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
 		}
@@ -286,7 +286,7 @@ void close_locked_door(object *op)
 			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
 		}
 
-		if (op->sub_type1 == ST1_DOOR_NORMAL)
+		if (op->sub_type == ST1_DOOR_NORMAL)
 		{
 			play_sound_map(op->map, op->x, op->y, SOUND_DOOR_CLOSE, SOUND_NORMAL);
 		}

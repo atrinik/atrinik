@@ -14,7 +14,7 @@ attack_cleave 75
 unaggressive 1
 random_move 1
 type 80
-Wis 6
+Wis 3
 randomitems mob_ant
 animation ant_red
 is_animated 1

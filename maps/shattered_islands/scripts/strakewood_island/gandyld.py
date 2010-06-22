@@ -44,25 +44,25 @@ def create_crystal():
 
 	# Figure out how much capacity to give...
 	if qm2.completed():
-		crystal.max_spellpoints = 150
+		crystal.maxsp = 200
 	elif qm.completed():
-		crystal.max_spellpoints = 100
+		crystal.maxsp = 100
 	else:
-		crystal.max_spellpoints = 50
+		crystal.maxsp = 50
 
 	# So that it will disappear if we drop it
 	crystal.f_startequip = True
-	activator.Write("%s hands you a shining mana crystal." % me.name, COLOR_GREEN)
+	activator.Write("{0} hands you a shining mana crystal.".format(me.name), COLOR_GREEN)
 
 ## Upgrade an existing crystal.
 def upgrade_crystal(crystal, capacity):
 	me.SayTo(activator, "You have done it! Now allow me to boost your mana crystal...", 1)
-	activator.Write("%s casts some strange magic..." % me.name, COLOR_BLUE)
-	crystal.max_spellpoints = capacity
+	activator.Write("{0} casts some strange magic...".format(me.name), COLOR_BLUE)
+	crystal.maxsp = capacity
 
 if msg == "hello" or msg == "hi" or msg == "hey":
 	if not player_info:
-		activator.Write("\nThe old mage %s mumbles something and slowly turns his attention to you." % me.name)
+		activator.Write("\nThe old mage {0} mumbles something and slowly turns his attention to you.".format(me.name))
 		me.SayTo(activator, "\nWhat is it? Can't you see I'm ^busy^ here?")
 	else:
 		crystal = activator.CheckInventory(2, crystal_arch, crystal_name)
@@ -72,7 +72,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 			me.SayTo(activator, "\nYou lost the mana crystal?! You're in luck, I have a spare one right here...")
 			create_crystal()
 		else:
-			me.SayTo(activator, "\nHello again, %s." % activator.name)
+			me.SayTo(activator, "\nHello again, {0}.".format(activator.name))
 
 			# First quest
 			if not qm.completed():
@@ -88,7 +88,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 				if not qm2.started():
 					me.SayTo(activator, "Would you be interested in ^boosting^ your mana crystal even further?", 1)
 				elif qm2.finished():
-					upgrade_crystal(crystal, 150)
+					upgrade_crystal(crystal, 200)
 					qm2.complete()
 				else:
 					me.SayTo(activator, "Find and kill King Rhun at the end of Old Outpost, located west of here.", 1)

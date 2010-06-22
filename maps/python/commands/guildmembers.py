@@ -9,16 +9,24 @@ from Guild import Guild
 activator = WhoIsActivator()
 guild = Guild(None)
 
-## Check which guild the player is member of.
-guildname = guild.is_in_guild(activator.name)
+def main():
+	## Check which guild the player is member of.
+	guildname = guild.is_in_guild(activator.name)
 
-if guildname:
+	if not guildname:
+		activator.Write("You are not member of any guild.", COLOR_RED)
+		return
+
 	msg = WhatIsMessage()
+	# Do we want to show all members, or just online ones?
 	all_members = msg == "all"
 
+	# Simply switch the guild name we are managing.
 	guild.guildname = guildname
+	# Get the guild founder.
 	founder = guild.get_founder()
 
+	# Online marker for the founder.
 	online_marker = all_members and FindPlayer(founder) and "~" or ""
 
 	activator.Write("\n{0} of {1}:".format(all_members and "Members" or "Online members", guildname), COLOR_WHITE)
@@ -37,10 +45,13 @@ if guildname:
 		if not all_members and not player:
 			continue
 
+		# Online marker for the member.
 		online_marker = all_members and player and "~" or ""
 
+		# Regular member?
 		if not guild.is_administrator(member):
 			members.append(online_marker + member + online_marker)
+		# Otherwise an administrator, check that it's not the founder (which we showed above).
 		elif member != founder:
 			admins.append(online_marker + member + online_marker)
 
@@ -52,8 +63,7 @@ if guildname:
 		members.sort()
 		activator.Write("\nMembers:\n" + ", ".join(members), COLOR_WHITE)
 
-else:
-	activator.Write("You are not member of any guild.", COLOR_RED)
-
-# Close the guild database.
-guild.guilddb.close()
+try:
+	main()
+finally:
+	guild.guilddb.close()

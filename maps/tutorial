@@ -10,6 +10,10 @@ difficulty 1
 darkness -1
 no_save 1
 region creation
+swap_time 1
+reset_timeout 1
+fixed_resettime 1
+player_no_save 1
 end
 arch floor_stone_b3
 end

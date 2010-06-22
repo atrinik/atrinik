@@ -15,7 +15,7 @@ dam 41
 hp -1
 maxhp 50
 terrain_flag 1
-Wis 6
+Wis 3
 can_see_in_dark 1
 face slime.111
 animation slime

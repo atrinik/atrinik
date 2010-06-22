@@ -1,11 +1,11 @@
 arch map
-name Strakewood Island - Normal Apartment
+name Normal Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-04 Alex Tokar
+Modified: 2010-05-16 Alex Tokar
 endmsg
 width 7
-height 6
+height 7
 difficulty 1
 darkness -1
 no_summon 1
@@ -13,45 +13,55 @@ no_harm 1
 bg_music harmony2.ogg|0|-1
 region strakewood_island
 end
-arch floor_inv
+arch floor_ostone5
 end
 arch wall_pattern2.181
 end
-arch floor_inv
+arch floor_ostone5
 y 1
 end
 arch wall_pattern2.131
 y 1
 end
-arch floor_inv
+arch floor_ostone5
 y 2
 end
 arch wall_pattern2.131
 y 2
 end
-arch wmask_bflag_fire1_1
-direction 5
+arch picture4.151
+direction 7
 y 2
 end
-arch floor_inv
+arch floor_ostone5
 y 3
 end
 arch wall_pattern2.131
 y 3
 end
-arch floor_inv
+arch floor_ostone5
 y 4
 end
 arch wall_pattern2.131
 y 4
 end
-arch floor_inv
+arch floor_ostone5
 y 5
 end
 arch wall_pattern2.131
 y 5
 end
-arch floor_inv
+arch wmask_fire_on_1
+direction 7
+y 5
+end
+arch floor_ostone5
+y 6
+end
+arch wall_pattern2.131
+y 6
+end
+arch floor_ostone5
 x 1
 end
 arch wall_pattern2.111
@@ -86,8 +96,19 @@ arch floor_ostone5
 x 1
 y 4
 end
-arch rack.111
-direction 5
+arch letter
+msg
+<tt="Welcome to your new apartment!">
+You have several containers here
+you can use to store your valuable
+items. Notice that even the weapon
+rack there is a container.
+All items here will be PERMANENTLY
+saved - even after a server restart.
+To ensure that nothing bad can happen,
+type "/save" when you leave here to force
+the saving of this apartment.
+endmsg
 x 1
 y 4
 end
@@ -95,11 +116,19 @@ arch floor_ostone5
 x 1
 y 5
 end
+arch floor_ostone5
+x 1
+y 6
+end
+arch candlelight4.101
+x 1
+y 6
+end
 arch wall_pattern2.111
 x 1
-y 5
+y 6
 end
-arch floor_inv
+arch floor_ostone5
 x 2
 end
 arch wall_pattern2.111
@@ -122,6 +151,10 @@ x 2
 y 2
 end
 arch floor_ostone5
+x 2
+y 3
+end
+arch candlelight4.101
 x 2
 y 3
 end
@@ -129,24 +162,27 @@ arch wall_pattern2.141
 x 2
 y 3
 end
-arch floor_ostone5
+arch wmask_bflag_fire1_1
 x 2
-y 4
+y 3
 end
-arch shelf_wall.111
-container 45000
+arch floor_ostone5
 x 2
 y 4
 end
 arch floor_ostone5
 x 2
 y 5
+end
+arch floor_ostone5
+x 2
+y 6
 end
 arch wall_pattern2.111
 x 2
-y 5
+y 6
 end
-arch floor_inv
+arch floor_ostone5
 x 3
 end
 arch wall_pattern2.111
@@ -168,50 +204,32 @@ arch floor_ostone5
 x 3
 y 2
 end
-arch chest_4.111
-direction 5
-x 3
-y 2
-end
 arch floor_ostone5
 x 3
 y 3
 end
-arch shelf3b.111
+arch rack.111
 direction 5
 x 3
 y 3
 end
 arch floor_ostone5
-x 3
-y 4
-end
-arch letter
-name letter - a'pply to read
-msg
-<tt="Welcome to your new apartment!">
-You have several containers here
-you can use to store your valuable
-items. Notice that even the weapon
-rack there is a container.
-All items here will be PERMANENTLY
-saved - even after a server restart.
-To ensure that nothing bad can happen,
-type "/save" when you leave here to force
-the saving of this apartment.
-endmsg
 x 3
 y 4
 end
 arch floor_ostone5
 x 3
 y 5
+end
+arch floor_ostone5
+x 3
+y 6
 end
 arch wall_pattern2.111
 x 3
-y 5
+y 6
 end
-arch floor_inv
+arch floor_ostone5
 x 4
 end
 arch wall_pattern2.111
@@ -248,17 +266,25 @@ arch floor_ostone5
 x 4
 y 5
 end
+arch floor_ostone5
+x 4
+y 6
+end
 arch wall_pattern2.111
 x 4
-y 5
+y 6
 end
-arch floor_inv
+arch floor_ostone5
 x 5
 end
 arch wall_pattern2.111
 x 5
 end
 arch floor_ostone5
+x 5
+y 1
+end
+arch chest_4.111
 x 5
 y 1
 end
@@ -270,16 +296,7 @@ arch floor_ostone5
 x 5
 y 3
 end
-arch table_small1
-x 5
-y 3
-end
 arch floor_ostone5
-x 5
-y 4
-end
-arch chair1_111
-direction 5
 x 5
 y 4
 end
@@ -287,17 +304,25 @@ arch floor_ostone5
 x 5
 y 5
 end
+arch floor_ostone5
+x 5
+y 6
+end
 arch wall_pattern2.111
 x 5
-y 5
+y 6
 end
-arch floor_inv
+arch floor_ostone5
 x 6
 end
 arch wall_pattern2.111
 x 6
 end
 arch floor_ostone5
+x 6
+y 1
+end
+arch candlelight4.101
 x 6
 y 1
 end
@@ -332,8 +357,20 @@ end
 arch floor_ostone5
 x 6
 y 5
+end
+arch wall_pattern2.131
+x 6
+y 5
+end
+arch floor_ostone5
+x 6
+y 6
+end
+arch candlelight4.101
+x 6
+y 6
 end
 arch wall_pattern2.141
 x 6
-y 5
+y 6
 end

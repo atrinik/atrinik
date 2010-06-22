@@ -10,10 +10,6 @@ last_sp 6
 material 2
 material_real 65
 ac 8
-is_vul_physical 1
-is_vul_elemental 1
-is_vul_magic 1
-is_vul_sphere 1
 protect_impact 40
 protect_slash 20
 protect_cleave 20

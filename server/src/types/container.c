@@ -92,7 +92,7 @@ int esrv_apply_container(object *op, object *sack)
 	if (sack->slaying || sack->stats.maxhp)
 	{
 		/* Locked container */
-		if (sack->sub_type1 == ST1_CONTAINER_NORMAL)
+		if (sack->sub_type == ST1_CONTAINER_NORMAL)
 		{
 			tmp = find_key(op, sack);
 
@@ -117,15 +117,14 @@ int esrv_apply_container(object *op, object *sack)
 		else
 		{
 			/* Party corpse */
-			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && (!CONTR(op)->party || sack->slaying != CONTR(op)->party->name))
+			if (sack->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(op, sack))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "It's not your party's bounty.");
 				return 0;
 			}
 			/* Only give player with right name access */
-			else if (sack->sub_type1 == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
+			else if (sack->sub_type == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "It's not your bounty.");
+				new_draw_info(NDI_UNIQUE, op, "It's not your bounty.");
 				return 0;
 			}
 		}
@@ -152,6 +151,11 @@ int esrv_apply_container(object *op, object *sack)
 
 		new_draw_info_format(NDI_UNIQUE, op, "You open %s.", query_name(sack, op));
 		container_link(CONTR(op), sack);
+
+		if (sack->slaying && sack->sub_type == ST1_CONTAINER_CORPSE_party)
+		{
+			party_handle_corpse(op, sack);
+		}
 	}
 	/* Sack is in player's inventory */
 	else
@@ -461,4 +465,20 @@ static int container_trap(object *op, object *container)
 	}
 
 	return ret;
+}
+
+/**
+ * We don't to allow putting magical container inside another magical
+ * container, so we check for it here.
+ * @param op Object being put into the container.
+ * @param container The container.
+ * @return 1 if both op and container are magical containers, 0 otherwise. */
+int check_magical_container(object *op, object *container)
+{
+	if (op->type == CONTAINER && container->type == CONTAINER && op->weapon_speed != 1.0f && container->weapon_speed != 1.0f)
+	{
+		return 1;
+	}
+
+	return 0;
 }

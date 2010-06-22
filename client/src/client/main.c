@@ -60,7 +60,6 @@ int music_global_fade = 0;
 /** Whether the mouse button was clicked. */
 int mb_clicked = 0;
 
-int debug_layer[MAXFACES];
 /** Bitmaps table size. */
 int bmaptype_table_size;
 /** The srv/client files. */
@@ -395,15 +394,10 @@ static void init_game_data()
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
-	for (i = 0; i < MAXFACES; i++)
-	{
-		debug_layer[i] = 1;
-	}
-
 	init_widgets_fromCurrent();
 
 	memset(&options, 0, sizeof(struct _options));
-	InitMapData(0, 0, 0, 0);
+	init_map_data(0, 0, 0, 0);
 
 	for (i = 0; i < (int) BITMAP_MAX; i++)
 	{
@@ -754,7 +748,7 @@ static int game_status_chain()
 
 		if ((int) csocket.fd != SOCKET_NO)
 		{
-			socket_close(csocket.fd);
+			socket_close(&csocket);
 		}
 
 		clear_map();
@@ -778,19 +772,20 @@ static int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_CONNECT)
 	{
-		if (!open_socket(&csocket.fd, &csocket, selected_server->ip, selected_server->port))
+		if (!socket_open(&csocket, selected_server->ip, selected_server->port))
 		{
 			draw_info("Connection failed!", COLOR_RED);
 			GameStatus = GAME_STATUS_START;
 			return 1;
 		}
 
+		socket_thread_start();
 		GameStatus = GAME_STATUS_VERSION;
 		draw_info("Connected. Exchange version.", COLOR_GREEN);
 	}
 	else if (GameStatus == GAME_STATUS_VERSION)
 	{
-		SendVersion(csocket);
+		SendVersion();
 		GameStatus = GAME_STATUS_SETUP;
 	}
 	else if (GameStatus == GAME_STATUS_SETUP)
@@ -806,7 +801,7 @@ static int game_status_chain()
 
 		snprintf(buf, sizeof(buf), "setup sound %d map2cmd 1 mapsize %dx%d darkness 1 facecache 1 skf %d|%x spf %d|%x bpf %d|%x stf %d|%x amf %d|%x hpf %d|%x", SoundStatus, MapStatusX, MapStatusY, srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc, srv_client_files[SRV_CLIENT_SPELLS].len, srv_client_files[SRV_CLIENT_SPELLS].crc, srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc, srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc, srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc, srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc);
 
-		cs_write_string(csocket.fd, buf, strlen(buf));
+		cs_write_string(buf, strlen(buf));
 		request_file_chain = 0;
 		request_file_flags = 0;
 
@@ -819,7 +814,7 @@ static int game_status_chain()
 			if (srv_client_files[SRV_CLIENT_SETTINGS].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 1;
-				RequestFile(csocket, SRV_CLIENT_SETTINGS);
+				RequestFile(SRV_CLIENT_SETTINGS);
 			}
 			else
 			{
@@ -831,7 +826,7 @@ static int game_status_chain()
 			if (srv_client_files[SRV_CLIENT_SPELLS].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 3;
-				RequestFile(csocket, SRV_CLIENT_SPELLS);
+				RequestFile(SRV_CLIENT_SPELLS);
 			}
 			else
 			{
@@ -843,7 +838,7 @@ static int game_status_chain()
 			if (srv_client_files[SRV_CLIENT_SKILLS].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 5;
-				RequestFile(csocket, SRV_CLIENT_SKILLS);
+				RequestFile(SRV_CLIENT_SKILLS);
 			}
 			else
 			{
@@ -855,7 +850,7 @@ static int game_status_chain()
 			if (srv_client_files[SRV_CLIENT_BMAPS].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 7;
-				RequestFile(csocket, SRV_CLIENT_BMAPS);
+				RequestFile(SRV_CLIENT_BMAPS);
 			}
 			else
 			{
@@ -867,7 +862,7 @@ static int game_status_chain()
 			if (srv_client_files[SRV_CLIENT_ANIMS].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 9;
-				RequestFile(csocket, SRV_CLIENT_ANIMS);
+				RequestFile(SRV_CLIENT_ANIMS);
 			}
 			else
 			{
@@ -879,7 +874,7 @@ static int game_status_chain()
 			if (srv_client_files[SRV_CLIENT_HFILES].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 11;
-				RequestFile(csocket, SRV_CLIENT_HFILES);
+				RequestFile(SRV_CLIENT_HFILES);
 			}
 			else
 			{
@@ -914,7 +909,7 @@ static int game_status_chain()
 	{
 		cpl.mark_count = -1;
 		map_transfer_flag = 0;
-		SendAddMe(csocket);
+		SendAddMe();
 		cpl.name[0] = '\0';
 		cpl.password[0] = '\0';
 		GameStatus = GAME_STATUS_LOGIN;
@@ -1444,9 +1439,6 @@ int main(int argc, char *argv[])
 	uint32 anim_tick;
 	Uint32 videoflags;
 	int i, done = 0;
-	fd_set tmp_read, tmp_write, tmp_exceptions;
-	int pollret, maxfd;
-	struct timeval timeout;
 
 	init_signals();
 	init_game_data();
@@ -1643,13 +1635,19 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	maxfd = csocket.fd + 1;
 	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
 	GameTicksSec = 0;
 
 	while (!done)
 	{
 		done = Event_PollInputDevice();
+
+		/* Have we been shutdown? */
+		if (handle_socket_shutdown())
+		{
+			GameStatus = GAME_STATUS_INIT;
+			continue;
+		}
 
 #ifdef INSTALL_SOUND
 		if (music_global_fade)
@@ -1662,52 +1660,9 @@ int main(int argc, char *argv[])
 
 		if (GameStatus > GAME_STATUS_CONNECT)
 		{
-			if ((int) csocket.fd == SOCKET_NO)
-			{
-				/* Connection closed, so we go back to INIT here */
-				if (GameStatus == GAME_STATUS_PLAY)
-				{
-					GameStatus = GAME_STATUS_INIT;
-				}
-				else
-				{
-					GameStatus = GAME_STATUS_START;
-				}
-			}
-			else
-			{
-				FD_ZERO(&tmp_read);
-				FD_ZERO(&tmp_write);
-				FD_ZERO(&tmp_exceptions);
-
-				FD_SET((unsigned int) csocket.fd, &tmp_exceptions);
-				FD_SET((unsigned int) csocket.fd, &tmp_read);
-				FD_SET((unsigned int) csocket.fd, &tmp_write);
-
-				script_fdset(&maxfd, &tmp_read);
-
-				timeout.tv_sec = 0;
-				timeout.tv_usec = 0;
-
-				/* main poll point for the socket */
-				if ((pollret = select(maxfd, &tmp_read, &tmp_write, &tmp_exceptions, &timeout)) == -1)
-				{
-					LOG(llevMsg, "Got errno %d on selectcall.\n", socket_get_error());
-				}
-				else if (FD_ISSET(csocket.fd, &tmp_read))
-				{
-					DoClient(&csocket);
-				}
-#ifndef WIN32
-				else
-				{
-					script_process(&tmp_read);
-				}
-#endif
-
-				/* Flush face request buffer */
-				request_face(0, 1);
-			}
+			DoClient();
+			/* Flush face request buffer. */
+			request_face(0, 1);
 		}
 
 		if (GameStatus == GAME_STATUS_PLAY)
@@ -1877,9 +1832,7 @@ int main(int argc, char *argv[])
 		FrameCount++;
 		LastTick = SDL_GetTicks();
 
-#ifdef WIN32
-		script_process(NULL);
-#endif
+		script_process();
 
 		/* Process message animations */
 		if ((GameStatus == GAME_STATUS_PLAY) && msg_anim.message[0] != '\0')

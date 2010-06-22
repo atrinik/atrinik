@@ -34,6 +34,8 @@ SRCS = \
 	atrinik_map.c \
 	atrinik_party.c \
 	atrinik_object.c \
+	atrinik_player.c \
+	atrinik_archetype.c \
 	atrinik_region.c
 
 OBJECTS = $(SRCS:.c=.o)

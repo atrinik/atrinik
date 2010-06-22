@@ -17,8 +17,8 @@ monster 1
 alive 1
 attack_slash 50
 attack_electricity 50
-resist_electricity 100
-resist_impact 40
+protect_electricity 100
+protect_impact 40
 path_attuned 131096
 path_repelled 256
 path_denied 66561

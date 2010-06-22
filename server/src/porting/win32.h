@@ -82,14 +82,38 @@
 /* Many defines to redirect unix functions or fake standard unix values */
 #define inline __inline
 #define unlink(__a) _unlink(__a)
-#define mkdir(__a, __b) mkdir(__a)
+#define mkdir(__a, __b) _mkdir(__a)
 #define getpid() _getpid()
 #define popen(__a, __b) _popen(__a, __b)
 #define pclose(__a) _pclose(__a)
 #define vsnprintf _vsnprintf
 
+#ifndef MINGW
+#	define strdup _strdup
+#	define fileno _fileno
+#	define lseek _lseek
+#	define access _access
+#	define stricmp _stricmp
+#	define strnicmp _strnicmp
+#	define chmod _chmod
+#	define umask _umask
+#	define hypot _hypot
+	/* Conversion from 'xxx' to 'yyy', possible loss of data */
+#	pragma warning(disable: 4244)
+	/* Conversion from 'size_t' to 'int', possible loss of data */
+#	pragma warning(disable: 4267)
+	/* Initializing float f = 0.05; instead of f = 0.05f; */
+#	pragma warning(disable: 4305)
+	/* Right shift by too large amount, data loss */
+#	pragma warning(disable: 4333)
+#endif
+
 #ifndef R_OK
 #define R_OK 6
+#endif
+
+#ifndef W_OK
+#define W_OK 2
 #endif
 
 #ifndef F_OK

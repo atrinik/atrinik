@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2375,7 +2375,6 @@ x 15
 y 3
 end
 arch spear
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2391,7 +2390,6 @@ x 15
 y 4
 end
 arch sword2h
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2403,7 +2401,6 @@ x 15
 y 5
 end
 arch quaterstaff
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2415,7 +2412,6 @@ x 15
 y 6
 end
 arch axe_2h
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2431,7 +2427,6 @@ x 15
 y 7
 end
 arch axe_small
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2443,7 +2438,6 @@ x 15
 y 8
 end
 arch shortsword
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2455,7 +2449,6 @@ x 15
 y 9
 end
 arch hammer_small
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2467,7 +2460,6 @@ x 15
 y 10
 end
 arch dagger
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2586,7 +2578,6 @@ x 16
 y 2
 end
 arch food_generic
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2598,18 +2589,12 @@ arch shop_floor
 x 16
 y 3
 end
-arch light9
-x 16
-y 3
-end
-arch potion_generic
-layer 4
-unpaid 1
+arch potion_cure_sickness
+value 79
 no_pick 1
 identified 1
-value 99
+unpaid 1
 level 15
-sp 3
 x 16
 y 3
 end
@@ -2782,7 +2767,6 @@ x 17
 y 2
 end
 arch sack
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2794,7 +2778,6 @@ x 17
 y 3
 end
 arch leather_armour
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2806,7 +2789,6 @@ x 17
 y 4
 end
 arch helm_leather
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2818,7 +2800,6 @@ x 17
 y 5
 end
 arch girdle
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2830,7 +2811,6 @@ x 17
 y 6
 end
 arch gloves
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2846,7 +2826,6 @@ x 17
 y 7
 end
 arch cloak
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2858,7 +2837,6 @@ x 17
 y 8
 end
 arch low_boots
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2870,7 +2848,6 @@ x 17
 y 9
 end
 arch buckler
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2882,7 +2859,6 @@ x 17
 y 10
 end
 arch t_axe
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -2895,7 +2871,6 @@ x 17
 y 11
 end
 arch t_star
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3015,7 +2990,6 @@ x 18
 y 2
 end
 arch pouch
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3031,7 +3005,6 @@ x 18
 y 3
 end
 arch arrow
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3044,7 +3017,6 @@ x 18
 y 4
 end
 arch bow_short
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3056,7 +3028,6 @@ x 18
 y 5
 end
 arch bolt
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3073,7 +3044,6 @@ x 18
 y 6
 end
 arch crossbow_small
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3085,7 +3055,6 @@ x 18
 y 7
 end
 arch sstone
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3098,7 +3067,6 @@ x 18
 y 8
 end
 arch sling_small
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3118,7 +3086,6 @@ x 18
 y 10
 end
 arch t_hammer
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3131,7 +3098,6 @@ x 18
 y 11
 end
 arch t_dagger
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3211,7 +3177,6 @@ x 19
 y 2
 end
 arch lamp
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3223,7 +3188,6 @@ x 19
 y 3
 end
 arch oil_lamp
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3236,7 +3200,6 @@ x 19
 y 4
 end
 arch torch
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3248,7 +3211,6 @@ x 19
 y 5
 end
 arch quiver
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3260,7 +3222,6 @@ x 19
 y 6
 end
 arch quiver_b
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3272,7 +3233,6 @@ x 19
 y 7
 end
 arch quiver_s
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3288,7 +3248,6 @@ x 19
 y 8
 end
 arch glaive
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3300,7 +3259,6 @@ x 19
 y 9
 end
 arch partisan
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3316,7 +3274,6 @@ x 19
 y 10
 end
 arch lucern_hammer
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -3328,7 +3285,6 @@ x 19
 y 11
 end
 arch bardiche
-layer 4
 unpaid 1
 no_pick 1
 identified 1

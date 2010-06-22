@@ -1,9 +1,9 @@
 arch map
 name <unnamed>
 msg
-Modified: 2009-12-27 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
-width 1
+width 6
 height 1
 difficulty 1
 end
@@ -18,6 +18,121 @@ end
 arch quest_container
 name Knowledge of Meteor Swarm
 sub_type 1
+end
+end
+end
+arch spawn_point
+x 1
+arch demon_fire
+item_condition 4
+exp 105
+type 83
+arch quest_container
+name Knowledge of Meteor
+sub_type 1
+end
+arch quest_container
+name Knowledge of Meteor Swarm
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 2
+arch demon_fire
+item_condition 4
+exp 125
+can_cast_spell 1
+sp -10
+maxsp 30
+Pow 6
+Dex 2
+type 83
+arch quest_container
+name Knowledge of Meteor
+sub_type 1
+end
+arch quest_container
+name Knowledge of Meteor Swarm
+sub_type 1
+end
+arch ability_firestorm
+end
+end
+end
+arch spawn_point
+x 3
+arch demon_fire
+item_condition 4
+exp 135
+can_cast_spell 1
+sp -10
+maxsp 30
+Pow 6
+Dex 2
+type 83
+arch quest_container
+name Knowledge of Meteor
+sub_type 1
+end
+arch quest_container
+name Knowledge of Meteor Swarm
+sub_type 1
+end
+arch ability_firestorm
+sp 34
+hp 34
+end
+end
+end
+arch spawn_point
+x 4
+arch demon_fire
+item_condition 3
+exp 135
+can_cast_spell 1
+sp -10
+maxsp 30
+Pow 6
+Dex 2
+type 83
+arch quest_container
+name Knowledge of Meteor
+sub_type 1
+end
+arch quest_container
+name Knowledge of Meteor Swarm
+sub_type 1
+end
+arch ability_firestorm
+sp 34
+hp 34
+end
+end
+end
+arch spawn_point
+x 5
+arch demon_fire
+item_condition 3
+exp 135
+can_cast_spell 1
+sp -10
+maxsp 30
+Pow 6
+Dex 2
+behavior 3
+type 83
+arch quest_container
+name Knowledge of Meteor
+sub_type 1
+end
+arch quest_container
+name Knowledge of Meteor Swarm
+sub_type 1
+end
+arch ability_firestorm
+sp 2
+hp 2
 end
 end
 end

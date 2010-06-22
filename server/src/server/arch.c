@@ -42,75 +42,14 @@ int arch_search = 0;
 /** True if doing arch initialization */
 int arch_init;
 
-static archetype *find_archetype_by_object_name(const char *name);
 static void clear_archetable();
 static void init_archetable();
 static archetype *get_archetype_struct();
 static void first_arch_pass(FILE *fp);
 static void second_arch_pass(FILE *fp_start);
 static void load_archetypes();
-static object *create_singularity(const char *name);
 static unsigned long hasharch(const char *str, int tablesize);
 static void add_arch(archetype *at);
-static archetype *type_to_archetype(int type);
-
-/**
- * This function retrieves an archetype given the name that appears
- * during the game (for example, "writing pen" instead of "stylus").
- * It does not use the hashtable system, but browse the whole archlist each time.
- * I suggest not to use it unless you really need it because of performance issue.
- * It is currently used by scripting extensions (create-object).
- * @param name The name we're searching for (ex: "writing pen").
- * @return The archetype found or NULL if nothing was found. */
-static archetype *find_archetype_by_object_name(const char *name)
-{
-	archetype *at;
-
-	if (name == NULL)
-	{
-		return NULL;
-	}
-
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (!strcmp(at->clone.name, name))
-		{
-			return at;
-		}
-	}
-
-	return NULL;
-}
-
-/**
- * Creates an object given the name that appears during the game
- * (for example, "writing pen" instead of "stylus").
- * @param name The name we're searching for (ex: "writing pen"), must not
- * be NULL.
- * @return A corresponding object if found; a singularity object if not
- * found. */
-object *get_archetype_by_object_name(const char *name)
-{
-	archetype *at;
-	char tmpname[MAX_BUF];
-	size_t i;
-
-	strncpy(tmpname, name, MAX_BUF - 1);
-	tmpname[MAX_BUF - 1] = '\0';
-
-	for (i = strlen(tmpname); i > 0; i--)
-	{
-		tmpname[i] = '\0';
-		at = find_archetype_by_object_name(tmpname);
-
-		if (at != NULL)
-		{
-			return arch_to_object(at);
-		}
-	}
-
-	return create_singularity(name);
-}
 
 /**
  * Get the skill object for skill ID.
@@ -129,153 +68,6 @@ archetype *get_skill_archetype(int skillnr)
 	}
 
 	return NULL;
-}
-
-/**
- * This is a subset of the parse_id command. Basically, name can be a
- * string seperated lists of things to match, with certain keywords.
- *
- * Calling function takes care of what action might need to be done and
- * if it is valid (pickup, drop, etc).
- *
- * Brief outline of the procedure:
- *
- * We take apart the name variable into the individual components.
- * cases for 'all' and unpaid are pretty obvious.
- *
- * Next, we check for a count (either specified in name, or in the
- * player object). If count is 1, make a quick check on the name. If
- * count is >1, we need to make plural name.  Return if match.
- *
- * Last, make a check on the full name.
- * @param pl Player (only needed to set count properly).
- * @param op The item we're trying to match.
- * @param name String we're searching.
- * @return Non-zero if we have a match. A higher value means a better
- * match. Zero means no match. */
-int item_matched_string(object *pl, object *op, const char *name)
-{
-	char *cp, local_name[MAX_BUF];
-	int count, retval = 0;
-
-	/* strtok is destructive to name */
-	strcpy(local_name, name);
-
-	for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ","))
-	{
-		/* Get rid of spaces */
-		while (cp[0] == ' ')
-		{
-			cp++;
-		}
-
-		/* All is a very generic match - low match value */
-		if (!strcmp(cp, "all"))
-		{
-			return 1;
-		}
-
-		/* Unpaid is a little more specific */
-		if (!strcmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
-		{
-			return 2;
-		}
-
-		if (!strcmp(cp, "cursed") && (QUERY_FLAG(op, FLAG_KNOWN_CURSED) || QUERY_FLAG(op, FLAG_IDENTIFIED)) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
-		{
-			return 2;
-		}
-
-		if (!strcmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
-		{
-			return 2;
-		}
-
-		/* Allow for things like '100 arrows' */
-		if ((count = atoi(cp)) != 0)
-		{
-			cp = strchr(cp, ' ');
-
-			/* Get rid of spaces */
-			while (cp && cp[0] == ' ')
-			{
-				cp++;
-			}
-		}
-		else
-		{
-			if (pl->type == PLAYER)
-			{
-				count = CONTR(pl)->count;
-			}
-			else
-			{
-				count = 0;
-			}
-		}
-
-		if (!cp || cp[0] == '\0' || count < 0)
-		{
-			return 0;
-		}
-
-		/* Base name matched - not bad */
-		if (strcasecmp(cp, op->name) == 0 && !count)
-		{
-			return 4;
-		}
-		/* Need to plurify name for proper match */
-		else if (count > 1)
-		{
-			char newname[MAX_BUF];
-			strcpy(newname, op->name);
-
-			if (!strcasecmp(newname, cp))
-			{
-				/* May not do anything */
-				CONTR(pl)->count = count;
-				return 6;
-			}
-		}
-		else if (count == 1)
-		{
-			if (!strcasecmp(op->name, cp))
-			{
-				/* May not do anything */
-				CONTR(pl)->count = count;
-				return 6;
-			}
-		}
-
-		if (!strcasecmp(cp, query_name(op, NULL)))
-		{
-			retval = 20;
-		}
-		else if (!strcasecmp(cp, query_short_name(op, NULL)))
-		{
-			retval = 18;
-		}
-		else if (!strcasecmp(cp, query_base_name(op, pl)))
-		{
-			retval = 16;
-		}
-		else if (!strncasecmp(cp, query_base_name(op, pl), MIN(strlen(cp), strlen(query_base_name(op, pl)))))
-		{
-			retval = 14;
-		}
-
-		if (retval)
-		{
-			if (pl->type == PLAYER)
-			{
-				CONTR(pl)->count = count;
-			}
-
-			return retval;
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -439,16 +231,18 @@ static void first_arch_pass(FILE *fp)
 	object *op;
 	void *mybuffer;
 	archetype *at,*prev = NULL, *last_more = NULL;
-	int i;
+	int i, first = 2;
 
 	op = get_object();
 	op->arch = first_archetype = at = get_archetype_struct();
 	mybuffer = create_loader_buffer(fp);
 
-	while ((i = load_object(fp, op, mybuffer, LO_REPEAT, MAP_STYLE)))
+	while ((i = load_object(fp, op, mybuffer, first, MAP_STYLE)))
 	{
+		first = 0;
+
 		/* Use copy_object_data() - we don't want adjust any speed_left here! */
-		copy_object_data(op,&at->clone);
+		copy_object_data(op, &at->clone);
 
 		/* Now we have the right speed_left value for out object.
 		 * copy_object() now will track down negative speed values, to
@@ -502,8 +296,6 @@ static void first_arch_pass(FILE *fp)
 				break;
 		}
 
-		/* We are using this flag for debugging - ignore */
-		CLEAR_FLAG((&at->clone), FLAG_CLIENT_SENT);
 		at = get_archetype_struct();
 		initialize_object(op);
 		op->arch = at;
@@ -525,6 +317,7 @@ static void second_arch_pass(FILE *fp_start)
 	int comp;
 	char filename[MAX_BUF], buf[MAX_BUF], *variable = buf, *argument, *cp;
 	archetype *at = NULL, *other;
+	object *inv;
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
@@ -580,6 +373,20 @@ static void second_arch_pass(FILE *fp_start)
 				{
 					at->clone.randomitems = tl;
 				}
+			}
+		}
+		else if (!strcmp("arch", variable))
+		{
+			inv = get_archetype(argument);
+			load_object(fp, inv, NULL, LO_LINEMODE, 0);
+
+			if (at)
+			{
+				insert_ob_in_ob(inv, &at->clone);
+			}
+			else
+			{
+				LOG(llevError, "Got an arch %s not inside an Object.\n", argument);
 			}
 		}
 	}
@@ -748,7 +555,7 @@ object *arch_to_object(archetype *at)
 	}
 
 	op = get_object();
-	copy_object(&at->clone, op);
+	copy_object_with_inv(&at->clone, op);
 	op->arch = at;
 
 	return op;
@@ -763,7 +570,7 @@ object *arch_to_object(archetype *at)
  * @param name Name to give the dummy object.
  * @return Object of specified name. It fill have the ::FLAG_NO_PICK flag
  * set. */
-static object *create_singularity(const char *name)
+object *create_singularity(const char *name)
 {
 	object *op;
 	char buf[MAX_BUF];
@@ -890,45 +697,3 @@ static void add_arch(archetype *at)
 	}
 }
 
-/**
- * Returns the first archetype using the given types.
- *
- * Used in treasure generation.
- * @param type Type to look for.
- * @return The archetype if found, NULL otherwise. */
-static archetype *type_to_archetype(int type)
-{
-	archetype *at;
-
-	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
-	{
-		if (at->clone.type == type)
-		{
-			return at;
-		}
-	}
-
-	return NULL;
-}
-
-/**
- * Returns a new object copied from the first archetype matching the
- * given type.
- *
- * Used in treasure-generation.
- * @param type The type.
- * @return New object if the type is found, NULL otherwise. */
-object *clone_arch(int type)
-{
-	archetype *at;
-	object *op = get_object();
-
-	if ((at = type_to_archetype(type)) == NULL)
-	{
-		LOG(llevBug, "BUG: Can't clone archetype %d.\n", type);
-		return NULL;
-	}
-
-	copy_object(&at->clone, op);
-	return op;
-}

@@ -86,6 +86,12 @@ int move_ob(object *op, int dir, object *originator)
 		return 0;
 	}
 
+	/* Don't allow non-players to move onto player-only tiles. */
+	if (op->type != PLAYER && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY)
+	{
+		return 0;
+	}
+
 	/* multi arch objects... */
 	if (op->more)
 	{
@@ -109,12 +115,6 @@ int move_ob(object *op, int dir, object *originator)
 			tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
 		}
 
-		if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-		{
-			esrv_map_scroll(&CONTR(op)->socket, freearr_x[dir], freearr_y[dir]);
-			CONTR(op)->socket.look_position = 0;
-		}
-
 		insert_ob_in_map(op, op->map, op, 0);
 
 		return 1;
@@ -126,17 +126,18 @@ int move_ob(object *op, int dir, object *originator)
 		/* Is the spot blocked from something? */
 		if ((flags = blocked(op, m, xt, yt, op->terrain_flag)))
 		{
-			/* A (closed) door which we can open? */
-			if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
+			/* A closed door which we can open? */
+			if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS) && open_door(op, m, xt, yt, 1))
 			{
-				/* Yes, we can open this door */
-				if (open_door(op, m, xt, yt, 1))
+				if (op->type == PLAYER)
 				{
 					return 1;
 				}
 			}
-
-			return 0;
+			else
+			{
+				return 0;
+			}
 		}
 	}
 
@@ -149,12 +150,6 @@ int move_ob(object *op, int dir, object *originator)
 
 	op->x += freearr_x[dir];
 	op->y += freearr_y[dir];
-
-	if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-	{
-		esrv_map_scroll(&CONTR(op)->socket, freearr_x[dir], freearr_y[dir]);
-		CONTR(op)->socket.look_position = 0;
-	}
 
 	insert_ob_in_map(op, op->map, originator, 0);
 
@@ -224,11 +219,6 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	}
 
 	ret = (insert_ob_in_map(op, op->map, originator, 0) == NULL);
-
-	if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-	{
-		MapNewmapCmd(CONTR(op));
-	}
 
 	return ret;
 }
@@ -326,103 +316,29 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 
 	tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
 
-	if (tmp && tmp->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(tmp)->socket.socket_version, 1029))
-	{
-		MapNewmapCmd(CONTR(tmp));
-	}
-
 	return (tmp == NULL);
 }
 
 /**
- * An object is pushed by another which is trying to take its place.
- * @param op What is being pushed.
- * @param dir Pushing direction.
- * @param pusher What is pushing op. */
-void recursive_roll(object *op, int dir, object *pusher)
-{
-	if (!roll_ob(op, dir, pusher))
-	{
-		new_draw_info_format(NDI_UNIQUE, pusher, "You fail to push the %s.", query_name(op, NULL));
-		return;
-	}
-
-	move_ob(pusher, dir, pusher);
-	new_draw_info_format(NDI_WHITE, pusher, "You roll the %s.", query_name(op, NULL));
-}
-
-/**
- * Checks if an objects fits on a specified spot.
- *
- * This is a new version of blocked, this one handles objects
- * that can be passed through by monsters with the CAN_PASS_THRU defined.
- *
- * Very new version handles also multipart objects
- * @param op What object to fit.
- * @param x X position on the map.
- * @param y Y position on the map.
- * @return 1 if the object fits, 0 otherwise. */
-int try_fit(object *op, int x, int y)
-{
-	object *tmp, *more;
-	mapstruct *m;
-	int tx, ty;
-
-	if (op->head)
-	{
-		op = op->head;
-	}
-
-	for (more = op; more; more = more->more)
-	{
-		tx = x + more->x - op->x;
-		ty = y + more->y - op->y;
-
-		if (!(m = get_map_from_coord(op->map, &tx, &ty)))
-		{
-			return 1;
-		}
-
-		for (tmp = get_map_ob(m, tx, ty); tmp; tmp = tmp->above)
-		{
-			if (tmp->head == op || tmp == op)
-			{
-				continue;
-			}
-
-			if (IS_LIVE(tmp))
-			{
-				return 1;
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_NO_PASS) && (!QUERY_FLAG(tmp, FLAG_PASS_THRU) || !QUERY_FLAG(more, FLAG_CAN_PASS_THRU)))
-			{
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-/**
- * An object is being pushed, and may push other objects.
+ * An object is being pushed.
  * @param op What is being pushed.
  * @param dir Pushing direction.
  * @param pusher What is pushing op.
- * @return 0 if the object couldn't move, 1 otherwise. */
-int roll_ob(object *op, int dir, object *pusher)
+ * @return 0 if the object couldn't be pushed, 1 otherwise. */
+int push_ob(object *op, int dir, object *pusher)
 {
-	object *tmp;
+	object *tmp, *floor;
 	mapstruct *m;
 	int x, y, flags;
 
+	/* Don't allow pushing multi-arch objects. */
 	if (op->head)
 	{
-		op = op->head;
+		return 0;
 	}
 
-	if (!QUERY_FLAG(op, FLAG_CAN_ROLL) || (op->weight && (op->weight / 50000 - 1 > 0 ? random_roll(0, op->weight / 50000 - 1, pusher, PREFER_LOW) : 0) > pusher->stats.Str))
+	/* Check whether we are strong enough to push this object. */
+	if (op->weight && (op->weight / 50000 - 1 > 0 ? rndm(0, op->weight / 50000 - 1) : 0) > pusher->stats.Str)
 	{
 		return 0;
 	}
@@ -435,34 +351,35 @@ int roll_ob(object *op, int dir, object *pusher)
 		return 0;
 	}
 
-	if ((flags = blocked(op, m, x, y, TERRAIN_ALL)))
-	{
-		if (flags & (P_NO_PASS | P_CHECK_INV))
-		{
-			return 0;
-		}
-		else if ((flags & P_DOOR_CLOSED) && !open_door(op, m, x, y, 1))
-		{
-			return 0;
-		}
-	}
+	floor = GET_MAP_OB_LAYER(m, x, y, 0);
 
-	for (tmp = get_map_ob(m, x, y); tmp != NULL; tmp = tmp->above)
-	{
-		if (tmp->head == op)
-		{
-			continue;
-		}
-
-		if (IS_LIVE(tmp) || tmp->type == TELEPORTER || tmp->type == SHOP_MAT || (QUERY_FLAG(tmp, FLAG_NO_PASS) && !roll_ob(tmp, dir, pusher)))
-		{
-			return 0;
-		}
-	}
-
-	if (try_fit(op, op->x + freearr_x[dir], op->y + freearr_y[dir]))
+	/* Floor has no-push flag set? */
+	if (floor && QUERY_FLAG(floor, FLAG_XRAYS))
 	{
 		return 0;
+	}
+
+	flags = blocked(op, m, x, y, op->terrain_flag);
+
+	if (flags)
+	{
+		if (flags & (P_NO_PASS | P_CHECK_INV) || ((flags & P_DOOR_CLOSED) && !open_door(op, m, x, y, 1)))
+		{
+			return 0;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	/* Try to find something that would block the push. */
+	for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above)
+	{
+		if (tmp->head || IS_LIVE(tmp) || tmp->type == TELEPORTER || tmp->type == SHOP_MAT)
+		{
+			return 0;
+		}
 	}
 
 	remove_ob(op);
@@ -472,63 +389,10 @@ int roll_ob(object *op, int dir, object *pusher)
 		return 0;
 	}
 
-	for (tmp = op; tmp != NULL; tmp = tmp->more)
-	{
-		tmp->x += freearr_x[dir];
-		tmp->y += freearr_y[dir];
-	}
-
+	op->x = op->x + freearr_x[dir];
+	op->y = op->y + freearr_y[dir];
 	insert_ob_in_map(op, op->map, pusher, 0);
-
 	return 1;
-}
-
-/**
- * Push an object, using the /push command.
- * @param op Object pushing.
- * @param dir Direction to push.
- * @return 1 if successfully pushed an object, 0 otherwise. */
-int push_roll_object(object *op, int dir)
-{
-	object *tmp;
-	mapstruct *m;
-	int xt, yt, ret = 0;
-
-	/* we check for all conditions where op can't push anything */
-	if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED))
-	{
-		return 0;
-	}
-
-	xt = op->x + freearr_x[dir];
-	yt = op->y + freearr_y[dir];
-
-	if (!(m = get_map_from_coord(op->map, &xt, &yt)))
-	{
-		return 0;
-	}
-
-	for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
-	{
-		if (QUERY_FLAG(tmp, FLAG_CAN_ROLL))
-		{
-			break;
-		}
-	}
-
-	if (tmp == NULL)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You fail to push anything.");
-		return 0;
-	}
-
-	if (QUERY_FLAG(tmp, FLAG_CAN_ROLL))
-	{
-		tmp->direction = dir;
-		recursive_roll(tmp, dir, op);
-	}
-
-	return ret;
 }
 
 int missile_reflection_adjust(object *op, int flag)

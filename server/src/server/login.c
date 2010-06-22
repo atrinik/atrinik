@@ -30,9 +30,6 @@
 #include <global.h>
 #include <loader.h>
 
-/** Objects link of DMs. */
-objectlink *dm_list = NULL;
-
 /** Minimum length a player name must have. */
 #define PLAYER_NAME_MIN 2
 
@@ -142,12 +139,6 @@ int save_player(object *op, int flag)
 	player *pl = CONTR(op);
 	int i, wiz = QUERY_FLAG(op, FLAG_WIZ);
 
-	/* No experience, no save */
-	if (!op->stats.exp && (!CONTR(op) || !CONTR(op)->player_loaded))
-	{
-		return 0;
-	}
-
 	flag &= 1;
 
 	/* Sanity check - some stuff changes this when player is exiting */
@@ -159,6 +150,12 @@ int save_player(object *op, int flag)
 	/* Prevent accidental saves if connection is reset after player has
 	 * mostly exited. */
 	if (pl->state != ST_PLAYING)
+	{
+		return 0;
+	}
+
+	/* Is this a map players can't save on? */
+	if (op->map && MAP_PLAYER_NO_SAVE(op->map))
 	{
 		return 0;
 	}
@@ -180,6 +177,7 @@ int save_player(object *op, int flag)
 	fprintf(fp, "password %s\n", pl->password);
 	fprintf(fp, "dm_stealth %d\n", pl->dm_stealth);
 	fprintf(fp, "ms_privacy %d\n", pl->ms_privacy);
+	fprintf(fp, "no_shout %d\n", pl->no_shout);
 	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
 	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
@@ -215,17 +213,17 @@ int save_player(object *op, int flag)
 	}
 
 	/* Save sp table */
-	fprintf(fp, "lev_sp %d\n", pl->sp_exp_ptr->level);
+	fprintf(fp, "lev_sp %d\n", pl->exp_ptr[EXP_MAGICAL]->level);
 
-	for (i = 1; i <= pl->sp_exp_ptr->level; i++)
+	for (i = 1; i <= pl->exp_ptr[EXP_MAGICAL]->level; i++)
 	{
 		fprintf(fp, "%d\n", pl->levsp[i]);
 	}
 
 	/* Save grace table */
-	fprintf(fp, "lev_grace %d\n", pl->grace_exp_ptr->level);
+	fprintf(fp, "lev_grace %d\n", pl->exp_ptr[EXP_WISDOM]->level);
 
-	for (i = 1; i <= pl->grace_exp_ptr->level; i++)
+	for (i = 1; i <= pl->exp_ptr[EXP_WISDOM]->level; i++)
 	{
 		fprintf(fp, "%d\n", pl->levgrace[i]);
 	}
@@ -329,7 +327,7 @@ static void wrong_password(player *pl)
 	{
 		LOG(llevSystem, "CRACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "You have failed to provide a correct password too many times.");
-		pl->socket.status = Ns_Dead;
+		pl->socket.status = Ns_Zombie;
 	}
 	else
 	{
@@ -378,7 +376,7 @@ void check_login(object *op)
 	{
 		LOG(llevSystem, "CRACK: >%s< from IP %s - double login!\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
-		pl->socket.status = Ns_Dead;
+		pl->socket.status = Ns_Zombie;
 		return;
 	}
 
@@ -386,7 +384,7 @@ void check_login(object *op)
 	{
 		LOG(llevInfo, "BAN: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou are banned!");
-		pl->socket.status = Ns_Dead;
+		pl->socket.status = Ns_Zombie;
 		return;
 	}
 
@@ -466,6 +464,10 @@ void check_login(object *op)
 		else if (!strcmp(buf, "ms_privacy"))
 		{
 			pl->ms_privacy = value;
+		}
+		else if (!strcmp(buf, "no_shout"))
+		{
+			pl->no_shout = value;
 		}
 		else if (!strcmp(buf, "gen_hp"))
 		{
@@ -665,54 +667,12 @@ void check_login(object *op)
 
 	fix_player(op);
 
-	/* If it's a dragon player, set the correct title here */
-	if (is_dragon_pl(op) && op->inv)
-	{
-		object *tmp, *abil = NULL, *skin = NULL;
-
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == FORCE)
-			{
-				if (strcmp(tmp->arch->name, "dragon_ability_force") == 0)
-				{
-					abil = tmp;
-				}
-				else if (strcmp(tmp->arch->name, "dragon_skin_force") == 0)
-				{
-					skin = tmp;
-				}
-			}
-		}
-
-		set_dragon_name(op, abil, skin);
-	}
-
-	/* Important: there is a player file */
-	pl->player_loaded = 1;
-
 	/* Display Message of the Day */
 	display_motd(op);
 
 	if (!pl->dm_stealth)
 	{
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
-
-		if (dm_list)
-		{
-			objectlink *ol;
-			player *pl_tmp;
-			int players;
-
-			for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
-			{
-			}
-
-			for (ol = dm_list; ol; ol = ol->next)
-			{
-				new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "DM: %d players now playing.", players);
-			}
-		}
 	}
 
 	/* Trigger the global LOGIN event */
@@ -723,7 +683,7 @@ void check_login(object *op)
 
 	/* This seems to compile without warnings now.  Don't know if it works
 	 * on SGI's or not, however. */
-	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (int (*)()) spell_sort);
+	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (void *) (int (*)()) spell_sort);
 
 	if (!QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
@@ -736,6 +696,10 @@ void check_login(object *op)
 	pl->socket.update_tile = 0;
 	pl->socket.look_position = 0;
 	pl->socket.ext_title_flag = 1;
+	/* So the player faces southeast. */
+	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 4;
+	/* We assume that players always have a valid animation. */
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 	esrv_new_player(pl, op->weight + op->carrying);
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);

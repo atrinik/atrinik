@@ -6,7 +6,7 @@ face arrow_elven.101
 wc_range 20
 last_grace 7
 dam 3
-wc 0
+wc 1
 last_sp 5
 attack_pierce 100
 type 13

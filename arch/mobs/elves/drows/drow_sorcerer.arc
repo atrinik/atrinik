@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_pierce 75
 type 80
-Wis 6
+Wis 3
 randomitems mob_drow_mage
 animation drow_sorcerer
 is_animated 1

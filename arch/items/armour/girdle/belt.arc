@@ -11,10 +11,6 @@ ac 1
 item_level 10
 weight 2000
 value 200
-is_vul_physical 1
-is_vul_elemental 1
-is_vul_magic 1
-is_vul_sphere 1
 material_real 65
 material 2
 end

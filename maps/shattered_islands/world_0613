@@ -252,7 +252,7 @@ arch spawn_point
 x 1
 y 13
 arch ranger
-can_reflect_spell 0
+reflect_spell 0
 level 30
 dam 40
 maxhp 90
@@ -262,11 +262,11 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 10
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -317,7 +317,7 @@ x 1
 y 18
 arch guard
 name Forest guard
-can_reflect_missile 0
+reflect_missile 0
 direction 1
 level 25
 dam 50
@@ -326,11 +326,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 end
 end
@@ -1868,7 +1868,7 @@ arch spawn_point
 x 11
 y 1
 arch ranger
-can_reflect_spell 0
+reflect_spell 0
 level 30
 dam 40
 maxhp 90
@@ -1878,11 +1878,11 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 10
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 10
 type 83
 direction 3
 arch ability_stone_throw
@@ -2567,7 +2567,7 @@ x 15
 y 1
 arch guard_pole
 name Forest guard
-can_reflect_missile 0
+reflect_missile 0
 level 25
 dam 50
 maxhp 90
@@ -2575,11 +2575,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 direction 7
 end
@@ -2662,7 +2662,7 @@ x 15
 y 15
 arch guard_pole
 name Tolowen
-can_reflect_missile 0
+reflect_missile 0
 direction 7
 level 25
 dam 50
@@ -2671,11 +2671,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 arch event_obj
 sub_type 6
@@ -3888,7 +3888,7 @@ x 23
 y 15
 arch guard
 name Forest guard
-can_reflect_missile 0
+reflect_missile 0
 level 25
 dam 50
 maxhp 90
@@ -3896,11 +3896,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 end
 end
@@ -3940,7 +3940,7 @@ arch spawn_point
 x 23
 y 19
 arch ranger
-can_reflect_spell 0
+reflect_spell 0
 level 30
 dam 40
 maxhp 90
@@ -3950,11 +3950,11 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 10
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 10
 type 83
 direction 3
 arch ability_stone_throw

@@ -51,6 +51,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <direct.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_main.h>
@@ -66,11 +67,20 @@
 #	define fileno _fileno
 #	define unlink _unlink
 #	define lseek _lseek
+#	define access _access
+#	define strtoull _strtoui64
+#	define F_OK 6
+#	define R_OK 6
+#	define W_OK 2
 	/* Conversion from 'xxx' to 'yyy', possible loss of data */
 #	pragma warning(disable: 4244)
+	/* Conversion from 'size_t' to 'int', possible loss of data */
+#	pragma warning(disable: 4267)
 	/* Initializing float f = 0.05; instead of f = 0.05f; */
 #	pragma warning(disable: 4305)
 #endif
+
+#define mkdir(__a, __b) _mkdir(__a)
 
 #define HAVE_STRICMP
 #define HAVE_STRNICMP
@@ -82,19 +92,19 @@
 #define PACKAGE_NAME "Atrinik Client"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Atrinik Client 1.0"
+#define PACKAGE_STRING "Atrinik Client 1.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "atrinik-client"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.0"
+#define PACKAGE_VERSION "1.1"
 
 /* Installation prefix */
-#define PREFIX "../../../client-1.0"
+#define PREFIX "../../../client-1.1"
 
 /* Use the SDL_mixer sound system. Remove when you have no sound card or slow
-   computer */
+ * computer */
 #define INSTALL_SOUND
 
 #endif

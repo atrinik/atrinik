@@ -29,45 +29,22 @@
 
 #include <plugin_python.h>
 
-/** Party fields structure. */
-typedef struct
-{
-	/** Name of the field */
-	char *name;
-
-	/** Field type */
-	field_type type;
-
-	/** Offset in party structure */
-	uint32 offset;
-
-	/** Flags for special handling */
-	uint32 flags;
-} party_fields_struct;
-
 /**
  * Party fields. */
-party_fields_struct party_fields[] =
+/* @cparser
+ * @page plugin_python_party_fields Python party fields
+ * <h2>Python party fields</h2>
+ * List of the party fields and their meaning. */
+static fields_struct fields[] =
 {
-	{"name",            FIELDTYPE_SHSTR,    offsetof(partylist_struct, name),       FIELDFLAG_READONLY},
-	{"leader",          FIELDTYPE_SHSTR,    offsetof(partylist_struct, leader),     0},
-	{"password",        FIELDTYPE_CARY,     offsetof(partylist_struct, passwd),     FIELDFLAG_READONLY},
+	{"name", FIELDTYPE_SHSTR, offsetof(party_struct, name), FIELDFLAG_READONLY, 0},
+	{"leader", FIELDTYPE_SHSTR, offsetof(party_struct, leader), 0, 0},
+	{"password", FIELDTYPE_CARY, offsetof(party_struct, passwd), FIELDFLAG_READONLY, 0}
 };
-
-/** Number of party fields */
-#define NUM_PARTYFIELDS (sizeof(party_fields) / sizeof(party_fields[0]))
+/* @endcparser */
 
 /**
- * Party related constants. */
-static Atrinik_Constant party_constants[] =
-{
-	{"PARTY_MESSAGE_STATUS",   PARTY_MESSAGE_STATUS},
-	{"PARTY_MESSAGE_CHAT",     PARTY_MESSAGE_CHAT},
-	{NULL,                     0}
-};
-
-/**
- * @defgroup plugin_python_party_functions Python plugin party functions
+ * @defgroup plugin_python_party_functions Python party functions
  * Party related functions used in Atrinik Python plugin.
  *@{*/
 
@@ -78,7 +55,6 @@ static Atrinik_Constant party_constants[] =
 static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob;
-	char buf[MAX_BUF];
 
 	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
 	{
@@ -102,8 +78,6 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 	}
 
 	hooks->add_party_member(party->party, ob->obj);
-	snprintf(buf, sizeof(buf), "Xjoin\nsuccess\n%s", party->party->name);
-	hooks->Write_String_To_Socket(&CONTR(ob->obj)->socket, BINARY_CMD_PARTY, buf, strlen(buf));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -116,7 +90,6 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob;
-	char buf[MAX_BUF];
 
 	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
 	{
@@ -133,8 +106,6 @@ static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args
 	}
 
 	hooks->remove_party_member(party->party, ob->obj);
-	strcpy(buf, "Xjoin\nsuccess\n ");
-	hooks->Write_String_To_Socket(&CONTR(ob->obj)->socket, BINARY_CMD_PARTY, buf, strlen(buf));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -192,12 +163,7 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
 {
-	void *field_ptr;
-	party_fields_struct *field = (party_fields_struct *) context;
-
-	field_ptr = (void *) ((char *) (party->party) + field->offset);
-
-	return generic_field_getter(field->type, field_ptr, NULL);
+	return generic_field_getter((fields_struct *) context, party->party);
 }
 
 /**
@@ -208,17 +174,7 @@ static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
  * @return 0 on success, -1 on failure. */
 static int Party_SetAttribute(Atrinik_Party *party, PyObject *value, void *context)
 {
-	void *field_ptr;
-	party_fields_struct *field = (party_fields_struct *) context;
-
-	if (field->flags & FIELDFLAG_READONLY)
-	{
-		INTRAISE("Trying to modify readonly field.");
-	}
-
-	field_ptr = (void *) ((char *) (party->party) + field->offset);
-
-	if (generic_field_setter(field->type, field_ptr, value) == -1)
+	if (generic_field_setter((fields_struct *) context, party->party, value) == -1)
 	{
 		return -1;
 	}
@@ -288,44 +244,17 @@ static int Atrinik_Party_InternalCompare(Atrinik_Party *left, Atrinik_Party *rig
 
 static PyObject *Atrinik_Party_RichCompare(Atrinik_Party *left, Atrinik_Party *right, int op)
 {
-	int result;
-
 	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_PartyType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_PartyType))
 	{
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
 
-	result = Atrinik_Party_InternalCompare(left, right);
-
-	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
-	switch (op)
-	{
-		case Py_EQ:
-			result = (result == 0);
-			break;
-		case Py_NE:
-			result = (result != 0);
-			break;
-		case Py_LE:
-			result = (result <= 0);
-			break;
-		case Py_GE:
-			result = (result >= 0);
-			break;
-		case Py_LT:
-			result = (result == -1);
-			break;
-		case Py_GT:
-			result = (result == 1);
-			break;
-	}
-
-	return PyBool_FromLong(result);
+	return generic_rich_compare(op, Atrinik_Party_InternalCompare(left, right));
 }
 
 /** This is filled in when we initialize our party type. */
-static PyGetSetDef Party_getseters[NUM_PARTYFIELDS + 1];
+static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python PartyType. */
 PyTypeObject Atrinik_PartyType =
@@ -356,7 +285,7 @@ PyTypeObject Atrinik_PartyType =
 	0, 0, 0,
 	PartyMethods,
 	0,
-	Party_getseters,
+	getseters,
 	0, 0, 0, 0, 0, 0, 0,
 	Atrinik_Party_new,
 	0, 0, 0, 0, 0, 0, 0, 0
@@ -374,27 +303,18 @@ int Atrinik_Party_init(PyObject *module)
 	size_t i;
 
 	/* Field getters */
-	for (i = 0; i < NUM_PARTYFIELDS; i++)
+	for (i = 0; i < NUM_FIELDS; i++)
 	{
-		PyGetSetDef *def = &Party_getseters[i];
+		PyGetSetDef *def = &getseters[i];
 
-		def->name = party_fields[i].name;
+		def->name = fields[i].name;
 		def->get = (getter) Party_GetAttribute;
 		def->set = (setter) Party_SetAttribute;
 		def->doc = NULL;
-		def->closure = (void *) &party_fields[i];
+		def->closure = (void *) &fields[i];
 	}
 
-	Party_getseters[NUM_PARTYFIELDS].name = NULL;
-
-	/* Add constants */
-	for (i = 0; party_constants[i].name; i++)
-	{
-		if (PyModule_AddIntConstant(module, party_constants[i].name, party_constants[i].value))
-		{
-			return 0;
-		}
-	}
+	getseters[i].name = NULL;
 
 	Atrinik_PartyType.tp_new = PyType_GenericNew;
 
@@ -413,7 +333,7 @@ int Atrinik_Party_init(PyObject *module)
  * Utility method to wrap a party.
  * @param what Party to wrap.
  * @return Python object wrapping the real party. */
-PyObject *wrap_party(partylist_struct *what)
+PyObject *wrap_party(party_struct *what)
 {
 	Atrinik_Party *wrapper;
 

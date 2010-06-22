@@ -14,10 +14,6 @@ protect_impact 15
 protect_cleave 15
 protect_slash 30
 protect_pierce 15
-is_vul_physical 1
-is_vul_elemental 1
-is_vul_magic 1
-is_vul_sphere 1
 weight 11000
 value 1400
 end

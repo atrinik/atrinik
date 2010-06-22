@@ -13,6 +13,7 @@ weight 4250
 sp 8
 wc 6
 wc_range 25
+dam 2
 last_sp 5
 value 1450
 end

@@ -60,7 +60,7 @@ void check_quest(object *op, object *quest_container)
 	object *quest_object = find_quest(op, quest_container->name), *tmp;
 
 	/* If this is not a one-drop item quest, it must first be accepted. */
-	if (quest_container->sub_type1 != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED))
+	if (quest_container->sub_type != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED))
 	{
 		return;
 	}
@@ -68,11 +68,11 @@ void check_quest(object *op, object *quest_container)
 	tmp = quest_container->inv;
 
 	/* This allows new quest types to be added fairly easily. */
-	switch (quest_container->sub_type1)
+	switch (quest_container->sub_type)
 	{
 		case QUEST_TYPE_ITEM:
 			/* Sanity checks. */
-			if (!tmp || (QUERY_FLAG(tmp, FLAG_ONE_DROP) && has_quest_item(op, tmp, FLAG_ONE_DROP)) || (!QUERY_FLAG(tmp, FLAG_ONE_DROP) && quest_object))
+			if (!tmp || (!QUERY_FLAG(tmp, FLAG_ONE_DROP) && has_quest_item(op, tmp, 0)) || (QUERY_FLAG(tmp, FLAG_ONE_DROP) && quest_object))
 			{
 				return;
 			}
@@ -101,7 +101,7 @@ void check_quest(object *op, object *quest_container)
 			{
 				if (quest_object->last_sp == quest_object->last_grace)
 				{
-					snprintf(buf, sizeof(buf), "Quest '%s' completed! Return to your quest giver for a reward.\n", quest_container->name);
+					snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
 					play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
 				}
 				else
@@ -130,7 +130,7 @@ void check_quest(object *op, object *quest_container)
 			CLEAR_FLAG(tmp, FLAG_SYS_OBJECT);
 			/* Insert the object to the player. */
 			insert_ob_in_ob(tmp, op);
-			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_name(tmp, NULL));
+			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(tmp, NULL));
 			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
 			play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
 			esrv_send_item(op, tmp);
@@ -138,7 +138,7 @@ void check_quest(object *op, object *quest_container)
 			break;
 
 		default:
-			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type1);
+			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type);
 	}
 }
 
@@ -222,15 +222,20 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag)
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
 		/* Compare the values. */
-		if (QUERY_FLAG(tmp, flag) && tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name)
+		if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag)))
 		{
 			return 1;
 		}
 
-		/* If it has inventory, go on recursively. */
-		if (tmp->inv)
+		/* If it has inventory and is not a system object, go on recursively. */
+		if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 		{
-			return has_quest_item(tmp, quest_item, flag);
+			int ret = has_quest_item(tmp, quest_item, flag);
+
+			if (ret)
+			{
+				return 1;
+			}
 		}
 	}
 

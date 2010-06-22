@@ -14,10 +14,6 @@ protect_impact 38
 protect_slash 18
 protect_cleave 18
 protect_pierce 18
-is_vul_physical 1
-is_vul_elemental 1
-is_vul_magic 1
-is_vul_sphere 1
 weight 29500
 value 2600
 end

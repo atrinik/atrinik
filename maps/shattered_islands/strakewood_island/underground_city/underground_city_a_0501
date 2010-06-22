@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2010-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -117,9 +117,17 @@ arch fwall_flagstone2a
 x 2
 y 4
 end
+arch floor_sblack3b
+x 2
+y 5
+end
 arch fwall_fstone1b
 x 2
 y 5
+end
+arch floor_sblack2b
+x 2
+y 6
 end
 arch fwall_fstone1b
 x 2
@@ -130,22 +138,42 @@ direction 7
 x 2
 y 6
 end
+arch floor_sblack3b
+x 2
+y 7
+end
 arch fwall_fstone1b
 x 2
 y 7
+end
+arch floor_sblack1b
+x 2
+y 8
 end
 arch fwall_fstone1a
 x 2
 y 8
 end
+arch floor_sblack1b
+x 2
+y 9
+end
 arch fwall_fstone1c
 x 2
 y 9
+end
+arch floor_sblack1b
+x 2
+y 10
 end
 arch fwall_fstone1b
 x 2
 y 10
 end
+arch floor_sblack3b
+x 2
+y 11
+end
 arch fwall_fstone1a
 x 2
 y 11
@@ -155,17 +183,33 @@ direction 7
 x 2
 y 11
 end
-arch fwall_fstone1b
+arch floor_sblack2b
 x 2
 y 12
 end
 arch fwall_fstone1b
 x 2
+y 12
+end
+arch floor_sblack1b
+x 2
 y 13
+end
+arch fwall_fstone1b
+x 2
+y 13
+end
+arch floor_sblack3b
+x 2
+y 14
 end
 arch fwall_fstone1a
 x 2
 y 14
+end
+arch floor_sblack2b
+x 2
+y 15
 end
 arch fwall_fstone1a
 x 2
@@ -176,21 +220,41 @@ direction 7
 x 2
 y 15
 end
+arch floor_sblack1b
+x 2
+y 16
+end
 arch fwall_fstone1c
 x 2
 y 16
+end
+arch floor_sblack2b
+x 2
+y 17
 end
 arch fwall_fstone1b
 x 2
 y 17
 end
-arch fwall_fstone1c
+arch floor_sblack1b
 x 2
 y 18
 end
 arch fwall_fstone1c
 x 2
+y 18
+end
+arch floor_sblack3b
+x 2
 y 20
+end
+arch fwall_fstone1c
+x 2
+y 20
+end
+arch floor_sblack3b
+x 2
+y 21
 end
 arch fwall_fstone1b
 x 2
@@ -201,6 +265,10 @@ direction 7
 x 2
 y 21
 end
+arch floor_sblack3b
+x 2
+y 22
+end
 arch fwall_fstone1b
 x 2
 y 22
@@ -209,6 +277,10 @@ arch plant1_wall.151
 direction 7
 x 2
 y 22
+end
+arch floor_sblack3b
+x 2
+y 23
 end
 arch fwall_fstone1b
 x 2
@@ -298,9 +370,17 @@ arch floor_sblack2b
 x 3
 y 17
 end
+arch floor_sblack3b
+x 3
+y 18
+end
 arch fwall_fstone1c
 x 3
 y 18
+end
+arch floor_sblack2b
+x 3
+y 20
 end
 arch fwall_fstone1b
 x 3
@@ -363,49 +443,97 @@ arch fwall_flagstone2a
 x 4
 y 4
 end
+arch floor_sblack3b
+x 4
+y 5
+end
 arch fwall_fstone1b
 x 4
 y 5
+end
+arch floor_sblack3b
+x 4
+y 6
 end
 arch fwall_fstone1c
 x 4
 y 6
 end
-arch fwall_fstone1b
+arch floor_sblack2b
 x 4
 y 7
 end
 arch fwall_fstone1b
 x 4
+y 7
+end
+arch floor_sblack2b
+x 4
 y 8
+end
+arch fwall_fstone1b
+x 4
+y 8
+end
+arch floor_sblack2b
+x 4
+y 9
 end
 arch fwall_fstone1c
 x 4
 y 9
 end
+arch floor_sblack2b
+x 4
+y 10
+end
 arch fwall_fstone1a
 x 4
 y 10
+end
+arch floor_sblack1b
+x 4
+y 11
 end
 arch fwall_fstone1b
 x 4
 y 11
 end
-arch fwall_fstone1c
+arch floor_sblack3b
 x 4
 y 12
 end
 arch fwall_fstone1c
 x 4
+y 12
+end
+arch floor_sblack1b
+x 4
 y 13
+end
+arch fwall_fstone1c
+x 4
+y 13
+end
+arch floor_sblack2b
+x 4
+y 14
 end
 arch fwall_fstone1c
 x 4
 y 14
 end
+arch floor_sblack1b
+x 4
+y 15
+end
 arch fwall_fstone1b
 x 4
 y 15
+end
+arch floor_sblack1b
+x 4
+y 16
 end
 arch fwall_fstone1b
 x 4
@@ -415,9 +543,17 @@ arch floor_sblack1b
 x 4
 y 17
 end
+arch floor_sblack2b
+x 4
+y 18
+end
 arch fwall_fstone1b
 x 4
 y 18
+end
+arch floor_sblack1b
+x 4
+y 20
 end
 arch fwall_fstone1a
 x 4
@@ -431,9 +567,17 @@ arch blood_floor1
 x 4
 y 21
 end
+arch floor_sblack3b
+x 4
+y 22
+end
 arch fwall_fstone1b
 x 4
 y 22
+end
+arch floor_sblack3b
+x 4
+y 23
 end
 arch fwall_fstone1a
 x 4
@@ -466,6 +610,10 @@ arch fwall_flagstone2a
 x 5
 y 4
 end
+arch floor_sblack1b
+x 5
+y 16
+end
 arch fwall_fstone1b
 x 5
 y 16
@@ -478,9 +626,17 @@ arch floor_sblack1b
 x 5
 y 17
 end
+arch floor_sblack1b
+x 5
+y 18
+end
 arch fwall_fstone1a
 x 5
 y 18
+end
+arch floor_sblack2b
+x 5
+y 20
 end
 arch fwall_fstone1c
 x 5
@@ -489,6 +645,10 @@ end
 arch floor_sblack3b
 x 5
 y 21
+end
+arch floor_sblack2b
+x 5
+y 22
 end
 arch fwall_fstone1c
 x 5
@@ -520,6 +680,10 @@ arch fwall_flagstone2a
 x 6
 y 4
 end
+arch floor_sblack2b
+x 6
+y 16
+end
 arch fwall_fstone1a
 x 6
 y 16
@@ -527,6 +691,10 @@ end
 arch floor_sblack1b
 x 6
 y 17
+end
+arch floor_sblack1b
+x 6
+y 18
 end
 arch fwall_fstone1a
 x 6
@@ -537,9 +705,17 @@ direction 7
 x 6
 y 18
 end
+arch floor_sblack3b
+x 6
+y 19
+end
 arch fwall_fstone1a
 x 6
 y 19
+end
+arch floor_sblack2b
+x 6
+y 20
 end
 arch fwall_fstone1a
 x 6
@@ -552,6 +728,10 @@ end
 arch floor_sblack2b
 x 6
 y 21
+end
+arch floor_sblack2b
+x 6
+y 22
 end
 arch fwall_fstone1a
 x 6
@@ -584,6 +764,10 @@ arch fwall_flagstone2a
 x 7
 y 4
 end
+arch floor_sblack2b
+x 7
+y 16
+end
 arch fwall_fstone1a
 x 7
 y 16
@@ -604,6 +788,10 @@ arch blood_floor1
 x 7
 y 19
 end
+arch floor_sblack3b
+x 7
+y 20
+end
 arch fwall_fstone1c
 x 7
 y 20
@@ -611,6 +799,10 @@ end
 arch floor_sblack3b
 x 7
 y 21
+end
+arch floor_sblack2b
+x 7
+y 22
 end
 arch fwall_fstone1c
 x 7
@@ -737,13 +929,25 @@ arch wall_dungeon_3
 x 8
 y 15
 end
-arch fwall_fstone1c
+arch floor_sblack3b
 x 8
 y 16
 end
 arch fwall_fstone1c
 x 8
+y 16
+end
+arch floor_sblack3b
+x 8
 y 17
+end
+arch fwall_fstone1c
+x 8
+y 17
+end
+arch floor_sblack2b
+x 8
+y 18
 end
 arch fwall_fstone1c
 x 8
@@ -752,6 +956,10 @@ end
 arch floor_sblack3b
 x 8
 y 19
+end
+arch floor_sblack2b
+x 8
+y 20
 end
 arch fwall_fstone1a
 x 8
@@ -764,6 +972,10 @@ end
 arch trash_wood1.101
 x 8
 y 21
+end
+arch floor_sblack3b
+x 8
+y 22
 end
 arch fwall_fstone1a
 x 8
@@ -900,6 +1112,10 @@ arch wall_dungeon_1
 x 9
 y 15
 end
+arch floor_sblack2b
+x 9
+y 18
+end
 arch fwall_fstone1a
 x 9
 y 18
@@ -907,6 +1123,10 @@ end
 arch floor_sblack1b
 x 9
 y 19
+end
+arch floor_sblack1b
+x 9
+y 20
 end
 arch fwall_fstone1c
 x 9
@@ -920,6 +1140,10 @@ end
 arch floor_sblack1b
 x 9
 y 21
+end
+arch floor_sblack1b
+x 9
+y 22
 end
 arch fwall_fstone1b
 x 9
@@ -1036,6 +1260,10 @@ arch wall_dungeon_1
 x 10
 y 15
 end
+arch floor_sblack2b
+x 10
+y 18
+end
 arch fwall_fstone1c
 x 10
 y 18
@@ -1051,6 +1279,10 @@ end
 arch floor_sblack1b
 x 10
 y 21
+end
+arch floor_sblack2b
+x 10
+y 22
 end
 arch fwall_fstone1a
 x 10
@@ -1145,21 +1377,41 @@ arch wall_dungeon_1
 x 11
 y 15
 end
+arch floor_sblack2b
+x 11
+y 18
+end
 arch fwall_fstone1b
 x 11
 y 18
 end
-arch fwall_fstone1c
+arch floor_sblack1b
 x 11
 y 19
 end
 arch fwall_fstone1c
 x 11
+y 19
+end
+arch floor_sblack2b
+x 11
 y 20
+end
+arch fwall_fstone1c
+x 11
+y 20
+end
+arch floor_sblack2b
+x 11
+y 21
 end
 arch fwall_fstone1b
 x 11
 y 21
+end
+arch floor_sblack3b
+x 11
+y 22
 end
 arch fwall_fstone1c
 x 11

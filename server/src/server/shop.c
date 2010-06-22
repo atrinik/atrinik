@@ -558,6 +558,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 	if (bank_object && bank_object->value != 0 && remain != 0 && bank_object->value >= remain)
 	{
 		bank_object->value -= remain;
+		remain = 0;
 	}
 
 	for (i = 0; i < NUM_COINS; i++)
@@ -727,7 +728,7 @@ int get_money_from_string(char *text, struct _money_block *money)
 	memset(money, 0, sizeof(struct _money_block));
 
 	/* Kill all whitespace */
-	while (*text !='\0' && isspace(*text))
+	while (*text !='\0' && (isspace(*text) || !isprint(*text)))
 	{
 		text++;
 	}

@@ -61,7 +61,7 @@ void dump_abilities()
 		}
 
 		ch = describe_item(&at->clone);
-		LOG(llevInfo, "%-16s|%6d|%4d|%3d|%s|%s|%s\n", at->clone.name, at->clone.stats.exp, at->clone.stats.hp, at->clone.stats.ac, ch, at->name, gen_name);
+		LOG(llevInfo, "%-16s|%6"FMT64"|%4d|%3d|%s|%s|%s\n", at->clone.name, at->clone.stats.exp, at->clone.stats.hp, at->clone.stats.ac, ch, at->name, gen_name);
 	}
 }
 
@@ -93,10 +93,10 @@ void print_monsters()
 
 			for (i = 0; i < NROFATTACKS; i++)
 			{
-				LOG(llevInfo, "%4d", op->resist[i]);
+				LOG(llevInfo, "%4d", op->protection[i]);
 			}
 
-			LOG(llevInfo, " |%8d|\n", op->stats.exp);
+			LOG(llevInfo, " |%8"FMT64"|\n", op->stats.exp);
 		}
 	}
 }

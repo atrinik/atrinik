@@ -58,7 +58,9 @@ struct Settings settings =
 	"",
 	"",
 	0,
-	0
+	0,
+	0,
+	1.0f
 };
 
 /** World's darkness value. */
@@ -78,11 +80,6 @@ static void help();
 static void init_beforeplay();
 static void fatal_signal(int make_core);
 static void init_signals();
-static void setup_library();
-static void init_races();
-static void dump_races();
-static void add_to_racelist(const char *race_name, object *op);
-static racelink *get_racelist();
 static void dump_level_colors_table();
 static void init_environ();
 static void init_defaults();
@@ -260,6 +257,7 @@ void init_globals()
 	global_race_counter = 0;
 
 	first_player = NULL;
+	last_player = NULL;
 	first_map = NULL;
 	first_treasurelist = NULL;
 	first_artifactlist = NULL;
@@ -546,6 +544,16 @@ static void balanced_stat_loss_false()
 	settings.balanced_stat_loss = 0;
 }
 
+static void set_unit_tests()
+{
+#if defined(HAVE_CHECK)
+	settings.unit_tests = 1;
+#else
+	LOG(llevInfo, "\nThe server was built without the check unit testing framework.\nIf you want to run unit tests, you must first install this framework.\n");
+	exit(0);
+#endif
+}
+
 /** @endcond */
 
 /** One command line option definition. */
@@ -619,6 +627,8 @@ struct Command_Line_Options options[] =
 	{"-m10", 0, 3, set_dumpmon10},
 	{"-m11", 1, 3, set_dumpmon11},
 	{"-m12", 0, 3, set_dumpmon12},
+
+	{"-tests", 0, 3, set_unit_tests},
 
 	{"-s", 0, 3, showscores},
 	{"-score", 1, 3, showscoresparm},
@@ -808,6 +818,19 @@ static void load_settings()
 		{
 			strcpy(settings.meta_comment, cp);
 		}
+		else if (!strcasecmp(buf, "item_power_factor"))
+		{
+			float tmp = atof(cp);
+
+			if (tmp < 0)
+			{
+				LOG(llevError, "ERROR: load_settings(): item_power_factor must be a positive number (%f < 0).\n", tmp);
+			}
+			else
+			{
+				settings.item_power_factor = tmp;
+			}
+		}
 		else
 		{
 			LOG(llevBug, "BUG: Unknown value in %s file: %s\n", SETTINGS, buf);
@@ -848,8 +871,6 @@ void init(int argc, char **argv)
 
 	/* Sets up signal interceptions */
 	init_signals();
-	/* Set up callback function pointers */
-	setup_library();
 	/* Sort command tables */
 	init_commands();
 	/* Load up the old temp map files */
@@ -928,13 +949,12 @@ static void help()
 }
 
 /**
- * Initialize before playing.
- */
+ * Initialize before playing. */
 static void init_beforeplay()
 {
 	init_archetypes();
 	init_spells();
-	init_races();
+	race_init();
 	init_gods();
 	init_readable();
 	init_archetype_pointers();
@@ -966,7 +986,7 @@ static void init_beforeplay()
 				break;
 
 			case DUMP_VALUE_RACES:
-				dump_races();
+				race_dump();
 				break;
 
 			case DUMP_VALUE_ALCHEMY:
@@ -1048,12 +1068,6 @@ void compile_info()
 	LOG(llevInfo, "Tmpdir:\t\t%s\n", settings.tmpdir);
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
 
-#ifdef MAP_RESET
-	LOG(llevInfo, "Map reset:\t<true>\n");
-#else
-	LOG(llevInfo, "Map reset:\t<false>\n");
-#endif
-
 	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated, pool_object->nrof_free);
 
 #ifdef USE_CALLOC
@@ -1071,7 +1085,7 @@ void compile_info()
 	LOG(llevInfo, "MapSpaceSize:\t%d\n", sizeof(MapSpace));
 	LOG(llevInfo, "PlayerSize:\t%d\n", sizeof(player));
 	LOG(llevInfo, "SocketSize:\t%d\n", sizeof(socket_struct));
-	LOG(llevInfo, "PartylistSize:\t%d\n", sizeof(partylist_struct));
+	LOG(llevInfo, "PartylistSize:\t%d\n", sizeof(party_struct));
 	LOG(llevInfo, "KeyValueSize:\t%d\n", sizeof(key_value));
 
 	LOG(llevInfo, "Setup info: Done.\n");
@@ -1202,193 +1216,6 @@ static void init_signals()
 #endif
 	signal(SIGTERM, rec_sigterm);
 #endif
-}
-
-/**
- * Set up the function pointers which will point back from the library
- * into the server. */
-static void setup_library()
-{
-	setup_poolfunctions(pool_player, NULL, (chunk_destructor) free_player);
-}
-
-/**
- * Add corpse to race list.
- * @param race_name Race name
- * @param op Archetype of the corpse. */
-static void add_corpse_to_racelist(const char *race_name, archetype *op)
-{
-	racelink *race;
-
-	if (!op || !race_name)
-	{
-		return;
-	}
-
-	race = find_racelink(race_name);
-
-	/* If we don't have this race, just skip the corpse. */
-	if (race)
-	{
-		race->corpse = op;
-	}
-}
-
-/**
- * Initialize races by looking through all the archetypes and checking if
- * the archetype is a @ref MONSTER or @ref PLAYER.
- *
- * We use object::sub_type1 as selector - every monster of race X will be
- * added to race list. */
-static void init_races()
-{
-	archetype *at, *tmp;
-	racelink *list;
-	static int init_done = 0;
-
-	if (init_done)
-	{
-		return;
-	}
-
-	init_done = 1;
-
-	first_race = NULL;
-	LOG(llevDebug, "Init races... ");
-
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (at->clone.type == MONSTER || at->clone.type == PLAYER)
-		{
-			add_to_racelist(at->clone.race, &at->clone);
-		}
-	}
-
-	/* Now search for corpses and add them to the race list */
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (at->clone.type == CONTAINER && at->clone.sub_type1 == ST1_CONTAINER_CORPSE)
-		{
-			add_corpse_to_racelist(at->clone.race, at);
-		}
-	}
-
-	/* Last action: for all races without a special defined corpse add
-	 * our corpse_default arch to it. */
-	tmp = find_archetype("corpse_default");
-
-	if (!tmp)
-	{
-		LOG(llevError, "ERROR: init_races: Can't find corpse_default in archetypes.\n");
-	}
-
-	for (list = first_race; list; list = list->next)
-	{
-		if (!list->corpse)
-		{
-			list->corpse = tmp;
-		}
-	}
-
-#ifdef DEBUG
-	dump_races();
-#endif
-
-	LOG(llevDebug, "\ndone.\n");
-}
-
-/**
- * Dumps all race information. */
-static void dump_races()
-{
-	racelink *list;
-	objectlink *tmp;
-
-	for (list = first_race; list; list = list->next)
-	{
-		LOG(llevInfo, "\nRACE %s (%s - %d member): ", list->name, list->corpse->name, list->nrof);
-
-		for (tmp = list->member; tmp; tmp = tmp->next)
-		{
-			LOG(llevInfo, "%s(%d), ", tmp->objlink.ob->arch->name, tmp->objlink.ob->sub_type1);
-		}
-	}
-}
-
-/**
- * Add an object to the racelist.
- * @param race_name Race name.
- * @param op What object to add to the race. */
-static void add_to_racelist(const char *race_name, object *op)
-{
-	racelink *race;
-
-	if (!op || !race_name)
-	{
-		return;
-	}
-
-	race = find_racelink(race_name);
-
-	/* Add in a new race list */
-	if (!race)
-	{
-		/* We need this for treasure generation (slaying race) */
-		global_race_counter++;
-		race = get_racelist();
-		race->next = first_race;
-		first_race = race;
-		FREE_AND_COPY_HASH(race->name, race_name);
-	}
-
-	if (race->member->objlink.ob)
-	{
-		objectlink *tmp = get_objectlink();
-		tmp->next=race->member;
-		race->member = tmp;
-	}
-
-	race->nrof++;
-	race->member->objlink.ob = op;
-}
-
-/**
- * Create a new ::racelink structure.
- * @return Empty structure. */
-static racelink *get_racelist()
-{
-	racelink *list;
-
-	list = (racelink *) malloc(sizeof(racelink));
-	list->name = NULL;
-	list->corpse = NULL;
-	list->nrof = 0;
-	list->member = get_objectlink();
-	list->next = NULL;
-
-	return list;
-}
-
-/**
- * Frees all race related information. */
-void free_racelist()
-{
-	racelink *list, *next;
-	objectlink *tmp, *tmp_next;
-
-	for (list = first_race; list; list = next)
-	{
-		next = list->next;
-		FREE_ONLY_HASH(list->name);
-
-		for (tmp = list->member; tmp; tmp = tmp_next)
-		{
-			tmp_next = tmp->next;
-			free_objectlink_simple(tmp);
-		}
-
-		free(list);
-	}
 }
 
 /**

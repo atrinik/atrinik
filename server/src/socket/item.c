@@ -40,6 +40,12 @@ static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op);
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);
 
+/**
+ * Legacy macro to support older clients, and properly show skill items
+ * in client's player doll.
+ * @deprecated */
+#define SOCKET_OBJ_TYPE(ob, pl) (CONTR((pl))->socket.socket_version < 1031 ? (ob->type == SKILL_ITEM ? SKILL : (ob->type == SKILL ? 0 : ob->type)) : ob->type)
+
 /** This is the maximum number of bytes we expect any item to take up. */
 #define MAXITEMLEN 300
 
@@ -124,7 +130,7 @@ unsigned int query_flags(object *op)
 		flags |= F_TRAPPED;
 	}
 
-	if (QUERY_FLAG(op,FLAG_KNOWN_CURSED))
+	if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		if (QUERY_FLAG(op, FLAG_DAMNED))
 		{
@@ -136,7 +142,7 @@ unsigned int query_flags(object *op)
 		}
 	}
 
-	if ((QUERY_FLAG(op, FLAG_KNOWN_MAGICAL) && QUERY_FLAG(op, FLAG_IS_MAGICAL)) || (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
+	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
 		flags |= F_MAGIC;
 	}
@@ -348,7 +354,6 @@ void esrv_draw_look(object *pl)
 		SockList_AddChar(&sl, (char) anim_speed);
 
 		SockList_AddInt(&sl, tmp->nrof);
-		SET_FLAG(tmp, FLAG_CLIENT_SENT);
 		got_one++;
 
 		if (sl.len > (MAXSOCKBUF - MAXITEMLEN))
@@ -494,7 +499,6 @@ static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op)
 		SockList_AddChar(sl, (char) anim_speed);
 
 		SockList_AddInt(sl, tmp->nrof);
-		SET_FLAG(tmp, FLAG_CLIENT_SENT);
 		got_one++;
 
 		if (sl->len > (MAXSOCKBUF - MAXITEMLEN))
@@ -579,8 +583,8 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 		}
 
 		SockList_AddChar(sl, tmp->facing);
-		SockList_AddChar(sl, tmp->type);
-		SockList_AddChar(sl, tmp->sub_type1);
+		SockList_AddChar(sl, SOCKET_OBJ_TYPE(tmp, pl));
+		SockList_AddChar(sl, tmp->sub_type);
 
 		if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
@@ -645,7 +649,6 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 
 		SockList_AddChar(sl, (char) anim_speed);
 		SockList_AddInt(sl, tmp->nrof);
-		SET_FLAG(tmp, FLAG_CLIENT_SENT);
 		got_one++;
 
 		/* It is possible for players to accumulate a huge amount of
@@ -729,8 +732,8 @@ void esrv_send_inventory(object *pl, object *op)
 			}
 
 			SockList_AddChar(&sl, tmp->facing);
-			SockList_AddChar(&sl, tmp->type);
-			SockList_AddChar(&sl, tmp->sub_type1);
+			SockList_AddChar(&sl, SOCKET_OBJ_TYPE(tmp, pl));
+			SockList_AddChar(&sl, tmp->sub_type);
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{
@@ -795,7 +798,6 @@ void esrv_send_inventory(object *pl, object *op)
 
 			SockList_AddChar(&sl, (char) anim_speed);
 			SockList_AddInt(&sl, tmp->nrof);
-			SET_FLAG(tmp, FLAG_CLIENT_SENT);
 			got_one++;
 
 			/* It is possible for players to accumulate a huge amount of
@@ -1042,8 +1044,8 @@ static void esrv_send_item_send(object *pl, object *op)
 	/* If not below */
 	if (op->env)
 	{
-		SockList_AddChar(&sl, op->type);
-		SockList_AddChar(&sl, op->sub_type1);
+		SockList_AddChar(&sl, SOCKET_OBJ_TYPE(op, pl));
+		SockList_AddChar(&sl, op->sub_type);
 
 		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
@@ -1110,7 +1112,6 @@ static void esrv_send_item_send(object *pl, object *op)
 	SockList_AddChar(&sl, (char) anim_speed);
 	SockList_AddInt(&sl, op->nrof);
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
-	SET_FLAG(op, FLAG_CLIENT_SENT);
 	free(sl.buf);
 }
 
@@ -1312,10 +1313,16 @@ static object *esrv_get_ob_from_count_DM(object *pl, tag_t count)
  * @param pl Player. */
 void ExamineCmd(char *buf, int len, player *pl)
 {
-	long tag = atoi(buf);
-	object *op = esrv_get_ob_from_count(pl->ob, tag);
+	long tag;
+	object *op;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	tag = atoi(buf);
+	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (!op)
 	{
@@ -1407,7 +1414,10 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 	char *cp, tmpbuf[MAX_BUF];
 	int quickslot;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	/* Set command. We want to set an object's quickslot */
 	if (strncmp(buf, "set ", 4) == 0)
@@ -1487,10 +1497,16 @@ void QuickSlotCmd(char *buf, int len, player *pl)
  * @param pl Player. */
 void ApplyCmd(char *buf, int len, player *pl)
 {
-	uint32 tag = atoi(buf);
-	object *op = esrv_get_ob_from_count(pl->ob, tag);
+	uint32 tag;
+	object *op;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	tag = atoi(buf);
+	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (QUERY_FLAG(pl->ob, FLAG_REMOVED))
 	{
@@ -1523,7 +1539,10 @@ void LockItem(uint8 *data, int len, player *pl)
 	int flag, tag;
 	object *op;
 
-	(void) len;
+	if (!data || !len)
+	{
+		return;
+	}
 
 	flag = data[0];
 	tag = GetInt_String(data + 1);
@@ -1564,7 +1583,10 @@ void MarkItem(uint8 *data, int len, player *pl)
 	int tag;
 	object *op;
 
-	(void) len;
+	if (!data || !len)
+	{
+		return;
+	}
 
 	tag = GetInt_String(data);
 	op = esrv_get_ob_from_count(pl->ob, tag);
@@ -1623,7 +1645,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		if ((tmp = check_container(pl, op)))
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all one-drop items from this container!");
+			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(pl, FLAG_INV_LOCKED))
 		{
@@ -1676,11 +1698,11 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		}
 		else if (tmp && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all one-drop items from this container!");
+			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't store one-drop items outside your inventory!");
+			new_draw_info(NDI_UNIQUE, pl, "You can't store god-given items outside your inventory!");
 		}
 		else
 		{

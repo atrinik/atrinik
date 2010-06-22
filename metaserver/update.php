@@ -144,7 +144,6 @@ db_query('
 	UPDATE servers
 	SET
 		ip_address = \'' . $_SERVER['REMOTE_ADDR'] . '\',
-		port = ' . $_POST['port'] . ',
 		num_players = ' . $_POST['num_players'] . ',
 		version = \'' . $_POST['version'] . '\',
 		text_comment = \'' . $_POST['text_comment'] . '\',
@@ -152,7 +151,8 @@ db_query('
 		players = \'' . $_POST['players'] . '\',
 		name = \'' . $_POST['name'] . '\'
 	WHERE
-		hostname = \'' . $_POST['hostname'] . '\'');
+		hostname = \'' . $_POST['hostname'] . '\' AND
+		port = ' . $_POST['port']);
 
 // If no rows were affected (there wasn't a row to update), this is a new insert
 if (db_affected_rows() < 1)

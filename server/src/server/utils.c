@@ -25,142 +25,30 @@
 
 /**
  * @file
- * General convenience functions for Atrinik.
- *
- * The random functions here take luck into account when rolling random
- * dice or numbers.  This function has less of an impact the larger the
- * difference becomes in the random numbers.  IE, the effect is lessened
- * on a 1-1000 roll, vs a 1-6 roll.  This can be used by crafty programmers,
- * to specifically disable luck in certain rolls, simply by making the
- * numbers larger (ie, 1d1000 > 500 vs 1d6 > 3) */
+ * General convenience functions for Atrinik. */
 
 #include <global.h>
 
 /**
- * Roll a random number between min and max.  Uses op to determine luck,
- * and if goodbad is non-zero, luck increases the roll, if zero, it decreases.
- * Generally, op should be the player/caster/hitter requesting the roll,
- * not the recipient (ie, the poor slob getting hit). */
-int random_roll(int min, int max, const object *op, int goodbad)
-{
-	int omin, diff, luck, base, ran;
-
-	omin = min;
-	diff = max - min + 1;
-	/* d2 and d3 are corner cases */
-	((diff > 2) ? (base = 20) : (base = 50));
-
-	if (max < 1 || diff < 1)
-	{
-		LOG(llevBug, "BUG: Calling random_roll with min=%d max=%d\n", min, max);
-		/* avoids a float exception */
-		return min;
-	}
-
-	ran = RANDOM();
-
-	if (op->type != PLAYER)
-	{
-		return (ran % diff) + min;
-	}
-
-	luck = op->stats.luck;
-
-	if (RANDOM() % base < MIN(10, abs(luck)))
-	{
-		/* we have a winner */
-		((luck > 0) ? (luck = 1) : (luck = -1));
-		diff -= luck;
-
-		/* check again */
-		if (diff < 1)
-		{
-			return(omin);
-		}
-
-		((goodbad) ? (min += luck) : (diff));
-
-		return (MAX(omin, MIN(max, (ran % diff) + min)));
-	}
-
-	return ((ran % diff) + min);
-}
-
-/**
- * Roll a number of dice (2d3, 4d6).  Uses op to determine luck,
- * If goodbad is non-zero, luck increases the roll, if zero, it decreases.
- * Generally, op should be the player/caster/hitter requesting the roll,
- * not the recipient (ie, the poor slob getting hit).
- * The args are num D size (ie 4d6) */
-int die_roll(int num, int size, const object *op, int goodbad)
-{
-	int min, diff, luck, total, i, gotlucky, base;
-
-	diff = size;
-	min = 1;
-	luck = total = gotlucky = 0;
-	/* d2 and d3 are corner cases */
-	((diff > 2) ? (base = 20) : (base = 50));
-
-	if (size < 2 || diff < 1)
-	{
-		LOG(llevBug, "BUG: Calling die_roll with num=%d size=%d\n", num, size);
-		/* avoids a float exception */
-		return num;
-	}
-
-	if (op->type == PLAYER)
-	{
-		luck = op->stats.luck;
-	}
-
-	for (i = 0; i < num; i++)
-	{
-		if (RANDOM() % base < MIN(10, abs(luck)) && !gotlucky)
-		{
-			/* we have a winner */
-			gotlucky++;
-			((luck > 0) ? (luck = 1) : (luck = -1));
-			diff -= luck;
-
-			/* check again */
-			if (diff < 1)
-			{
-				return num;
-			}
-
-			((goodbad) ? (min += luck) : (diff));
-			total += MAX(1, MIN(size, (RANDOM() % diff) + min));
-		}
-		else
-		{
-			total += RANDOM() % size + 1;
-		}
-	}
-
-	return total;
-}
-
-/**
- * Returns a number between min and max.
+ * Calculates a random number between min and max.
  *
- * It is suggested one use these functions rather than RANDOM()%, as it
+ * It is suggested one uses this function rather than RANDOM()%, as it
  * would appear that a number of off-by-one-errors exist due to improper
  * use of %.
  *
- * This should also prevent SIGFPE. */
+ * This should also prevent SIGFPE.
+ * @param min Starting range.
+ * @param max Ending range.
+ * @return The random number. */
 int rndm(int min, int max)
 {
-	int diff;
-
-	diff = max - min + 1;
-
-	if (max < 1 || diff < 1)
+	if (max < 1 || max - min + 1 < 1)
 	{
+		LOG(llevBug, "BUG: Calling rndm() with min=%d max=%d\n", min, max);
 		return min;
 	}
 
-	return (RANDOM() % diff + min);
+	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }
 
 /**
@@ -220,28 +108,6 @@ void replace(const char *src, const char *key, const char *replacement, char *re
 }
 
 /**
- * Find a racelink.
- * @param name The name of the race to look for.
- * @return The racelink if found, NULL otherwise. */
-racelink *find_racelink(const char *name)
-{
-	racelink *test = NULL;
-
-	if (name && first_race)
-	{
-		for (test = first_race; test && test != test->next; test = test->next)
-		{
-			if (!test->name || !strcmp(name, test->name))
-			{
-				break;
-			}
-		}
-	}
-
-	return test;
-}
-
-/**
  * Checks for a legal string by first trimming left whitespace and then
  * checking if there is anything left.
  * @param ustring The string to clean up.
@@ -250,7 +116,7 @@ racelink *find_racelink(const char *name)
 char *cleanup_string(char *ustring)
 {
 	/* Trim all left whitespace */
-	while (*ustring != '\0' && isspace(*ustring))
+	while (*ustring != '\0' && (isspace(*ustring) || !isprint(*ustring)))
 	{
 		ustring++;
 	}
@@ -437,4 +303,98 @@ int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
 	}
 
 	return 0;
+}
+
+/**
+ * This function does three things:
+ * -# Controls that we have a legal string; if not, return NULL
+ * -# Removes all left whitespace (if all whitespace return NULL)
+ * -# Change and/or process all control characters like '^', '~', etc.
+ * @param ustring The string to cleanup
+ * @return Cleaned up string, or NULL */
+char *cleanup_chat_string(char *ustring)
+{
+	int i;
+
+	if (!ustring)
+	{
+		return NULL;
+	}
+
+	/* This happens when whitespace only string was submitted. */
+	if (!ustring || *ustring == '\0')
+	{
+		return NULL;
+	}
+
+	/* Now clear all special characters. */
+	for (i = 0; *(ustring + i) != '\0'; i++)
+	{
+		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|')
+		{
+			*(ustring + i) = ' ';
+		}
+	}
+
+	/* Kill all whitespace. */
+	while (*ustring != '\0' && (isspace(*ustring) || !isprint(*ustring)))
+	{
+		ustring++;
+	}
+
+	return ustring;
+}
+
+/**
+ * Adds thousand separators to a given number.
+ * @param num Number.
+ * @return Thousands-separated string. */
+char *format_number_comma(uint64 num)
+{
+	static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
+	char *buf;
+	int i = 0;
+
+	buf = &retbuf[sizeof(retbuf) - 1];
+	*buf = '\0';
+
+	do
+	{
+		if (i % 3 == 0 && i != 0)
+		{
+			*--buf = ',';
+		}
+
+		*--buf = '0' + num % 10;
+		num /= 10;
+		i++;
+	}
+	while (num != 0);
+
+	return buf;
+}
+
+/**
+ * Copy a file.
+ * @param filename Source file.
+ * @param fpout Where to copy to. */
+void copy_file(const char *filename, FILE *fpout)
+{
+	FILE *fp;
+	char buf[MAX_BUF];
+
+	fp = fopen(filename, "r");
+
+	if (!fp)
+	{
+		LOG(llevBug, "BUG: copy_file(): Failed to open '%s'.\n", filename);
+		return;
+	}
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		fputs(buf, fpout);
+	}
+
+	fclose(fp);
 }

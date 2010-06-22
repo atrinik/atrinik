@@ -966,7 +966,6 @@ arch quest_container
 name Moroch Temple Key 3
 arch key2
 name dread beholder master key
-one_drop 1
 identified 1
 slaying moroch_temple_key3
 end
@@ -2252,7 +2251,6 @@ arch quest_container
 name Moroch Temple Key 4
 arch key_blue
 name raas master key
-one_drop 1
 identified 1
 slaying moroch_temple_key4
 end

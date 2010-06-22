@@ -29,35 +29,24 @@
 
 #include <plugin_python.h>
 
-/** Region fields structure. */
-typedef struct
-{
-	/** Name of the field */
-	char *name;
-
-	/** Field type */
-	field_type type;
-
-	/** Offset in region structure */
-	uint32 offset;
-} region_fields_struct;
-
 /**
  * Region fields. */
-region_fields_struct region_fields[] =
+/* @cparser
+ * @page plugin_python_region_fields Python region fields
+ * <h2>Python region fields</h2>
+ * List of the region fields and their meaning. */
+static fields_struct fields[] =
 {
-	{"next",            FIELDTYPE_REGION,     offsetof(region, next)},
-	{"parent",          FIELDTYPE_REGION,     offsetof(region, parent)},
-	{"name",            FIELDTYPE_CSTR,       offsetof(region, name)},
-	{"longname",        FIELDTYPE_CSTR,       offsetof(region, longname)},
-	{"msg",             FIELDTYPE_CSTR,       offsetof(region, msg)},
-	{"jailmap",         FIELDTYPE_CSTR,       offsetof(region, jailmap)},
-	{"jailx",           FIELDTYPE_SINT16,     offsetof(region, jailx)},
-	{"jaily",           FIELDTYPE_SINT16,     offsetof(region, jaily)}
+	{"next", FIELDTYPE_REGION, offsetof(region, next), 0, 0},
+	{"parent", FIELDTYPE_REGION, offsetof(region, parent), 0, 0},
+	{"name", FIELDTYPE_CSTR, offsetof(region, name), 0, 0},
+	{"longname", FIELDTYPE_CSTR, offsetof(region, longname), 0, 0},
+	{"msg", FIELDTYPE_CSTR, offsetof(region, msg), 0, 0},
+	{"jailmap", FIELDTYPE_CSTR, offsetof(region, jailmap), 0, 0},
+	{"jailx", FIELDTYPE_SINT16, offsetof(region, jailx), 0, 0},
+	{"jaily", FIELDTYPE_SINT16, offsetof(region, jaily), 0, 0}
 };
-
-/** Number of region fields */
-#define NUM_REGIONFIELDS (sizeof(region_fields) / sizeof(region_fields[0]))
+/* @endcparser */
 
 /**
  * Get region's attribute.
@@ -66,12 +55,7 @@ region_fields_struct region_fields[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 {
-	void *field_ptr;
-	region_fields_struct *field = (region_fields_struct *) context;
-
-	field_ptr = (void *) ((char *) (r->region) + field->offset);
-
-	return generic_field_getter(field->type, field_ptr, NULL);
+	return generic_field_getter((fields_struct *) context, r->region);
 }
 
 /**
@@ -126,44 +110,18 @@ static int Atrinik_Region_InternalCompare(Atrinik_Region *left, Atrinik_Region *
 
 static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left, Atrinik_Region *right, int op)
 {
-	int result;
-
 	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_RegionType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_RegionType))
 	{
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
 
-	result = Atrinik_Region_InternalCompare(left, right);
-
-	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
-	switch (op)
-	{
-		case Py_EQ:
-			result = (result == 0);
-			break;
-		case Py_NE:
-			result = (result != 0);
-			break;
-		case Py_LE:
-			result = (result <= 0);
-			break;
-		case Py_GE:
-			result = (result >= 0);
-			break;
-		case Py_LT:
-			result = (result == -1);
-			break;
-		case Py_GT:
-			result = (result == 1);
-			break;
-	}
-
-	return PyBool_FromLong(result);
+	return generic_rich_compare(op, Atrinik_Region_InternalCompare(left, right));
 }
 
-/** This is filled in when we initialize our region type. */
-static PyGetSetDef Region_getseters[NUM_REGIONFIELDS + 1];
+/**
+ * This is filled in when we initialize our region type. */
+static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python RegionType. */
 PyTypeObject Atrinik_RegionType =
@@ -194,7 +152,7 @@ PyTypeObject Atrinik_RegionType =
 	0, 0, 0,
 	NULL,
 	0,
-	Region_getseters,
+	getseters,
 	0, 0, 0, 0, 0, 0, 0,
 	Atrinik_Region_new,
 	0, 0, 0, 0, 0, 0, 0, 0
@@ -212,18 +170,18 @@ int Atrinik_Region_init(PyObject *module)
 	size_t i;
 
 	/* Field getters */
-	for (i = 0; i < NUM_REGIONFIELDS; i++)
+	for (i = 0; i < NUM_FIELDS; i++)
 	{
-		PyGetSetDef *def = &Region_getseters[i];
+		PyGetSetDef *def = &getseters[i];
 
-		def->name = region_fields[i].name;
+		def->name = fields[i].name;
 		def->get = (getter) Region_GetAttribute;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *) &region_fields[i];
+		def->closure = (void *) &fields[i];
 	}
 
-	Region_getseters[NUM_REGIONFIELDS].name = NULL;
+	getseters[i].name = NULL;
 
 	Atrinik_RegionType.tp_new = PyType_GenericNew;
 

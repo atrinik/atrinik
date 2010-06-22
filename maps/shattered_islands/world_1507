@@ -2,11 +2,11 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-28 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 20
 outdoor 1
 tile_path_1 world_1508
 tile_path_3 world_1506
@@ -981,6 +981,9 @@ y 16
 arch ant_red
 type 83
 level 27
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4
@@ -1110,6 +1113,9 @@ y 13
 arch ant_red
 type 83
 level 27
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4
@@ -1393,6 +1399,9 @@ y 18
 arch ant_red
 type 83
 level 27
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4
@@ -1760,11 +1769,14 @@ arch spawn_point
 x 12
 y 13
 arch ant_red
-type 83
 level 25
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4
+type 83
 end
 end
 arch grassd_7
@@ -1793,6 +1805,9 @@ y 18
 arch ant_red
 type 83
 level 26
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4
@@ -2056,6 +2071,9 @@ y 16
 arch ant_red
 type 83
 level 26
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4
@@ -2303,6 +2321,9 @@ y 18
 arch ant_red
 type 83
 level 26
+dam 57
+maxhp 70
+ac 10
 item_race 3
 item_level 3
 Wis 4

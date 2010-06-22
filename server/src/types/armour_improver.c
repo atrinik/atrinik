@@ -71,7 +71,7 @@ void apply_armour_improver(object *op, object *tmp)
  * @param armour The armour to be improved. */
 static void improve_armour(object *op, object *improver, object *armour)
 {
-	int new_armour = armour->resist[ATNR_PHYSICAL] + armour->resist[ATNR_PHYSICAL] / 25 + op->level / 20 + 1;
+	int new_armour = armour->protection[ATNR_IMPACT] + armour->protection[ATNR_IMPACT] / 25 + op->level / 20 + 1;
 
 	if (new_armour > 90)
 	{
@@ -84,9 +84,9 @@ static void improve_armour(object *op, object *improver, object *armour)
 		return;
 	}
 
-	if (new_armour > armour->resist[ATNR_PHYSICAL])
+	if (new_armour > armour->protection[ATNR_IMPACT])
 	{
-		armour->resist[ATNR_PHYSICAL] = new_armour;
+		armour->protection[ATNR_IMPACT] = new_armour;
 		armour->weight += (unsigned long) ((double) armour->weight * (double) 0.05);
 	}
 	else

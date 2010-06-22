@@ -434,7 +434,6 @@ arch quest_container
 name Moroch Temple Key 2
 arch key_brown
 name skeleton mage master key
-one_drop 1
 identified 1
 slaying moroch_temple_key2
 end

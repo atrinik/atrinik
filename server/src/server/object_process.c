@@ -259,7 +259,7 @@ static void change_object(object *op)
 				{
 					op->stats.food = 0;
 
-					if (op->other_arch && op->other_arch->clone.sub_type1 & 1)
+					if (op->other_arch && op->other_arch->clone.sub_type & 1)
 					{
 						op->animation_id = op->other_arch->clone.animation_id;
 						SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
@@ -423,7 +423,7 @@ void process_object(object *op)
 		{
 			/* We have a decaying container on the floor (assuming it's
 			 * only possible here) */
-			if (op->type == CONTAINER && (op->sub_type1 & 1) == ST1_CONTAINER_CORPSE)
+			if (op->type == CONTAINER && (op->sub_type & 1) == ST1_CONTAINER_CORPSE)
 			{
 				/* This means someone has the corpse open. */
 				if (op->attacked_by)
@@ -546,10 +546,6 @@ void process_object(object *op)
 
 		case BULLET:
 			move_fired_arch(op);
-			return;
-
-		case MMISSILE:
-			move_missile(op);
 			return;
 
 		case THROWN_OBJ:

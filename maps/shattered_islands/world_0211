@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-02-19 Alex Tokar
+Modified: 2010-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -38,7 +38,6 @@ arch shop_floor
 y 4
 end
 arch bardiche
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -48,7 +47,6 @@ arch shop_floor
 y 5
 end
 arch t_dagger
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -59,7 +57,6 @@ arch shop_floor
 y 6
 end
 arch t_star
-layer 4
 unpaid 1
 no_pick 1
 identified 1
@@ -824,6 +821,20 @@ arch floor_flagm1
 x 5
 y 17
 end
+arch ladder_down3
+msg
+You lift the plate and enter the sewers.
+endmsg
+name sewer hole plate
+face sewer_plate2.101
+animation NONE
+is_turnable 0
+slaying strakewood_island/brynknot/sewers_0101
+hp 23
+sp 21
+x 5
+y 17
+end
 arch floor_flagm3
 x 5
 y 18
@@ -1021,15 +1032,11 @@ arch floor_flagm4
 x 7
 y 7
 end
-arch grassd_m8
+arch grassd_m12
 x 7
 y 7
 end
-arch floor_flagm4
-x 7
-y 8
-end
-arch grassd_m8
+arch floor_flagm2
 x 7
 y 8
 end
@@ -1037,7 +1044,7 @@ arch floor_flagm1
 x 7
 y 9
 end
-arch grassd_m8
+arch grassd_m11
 x 7
 y 9
 end
@@ -1173,15 +1180,23 @@ direction 1
 x 8
 y 6
 end
-arch grassd_6
+arch floor_flagm1
 x 8
 y 7
 end
-arch grassd_3
+arch grassd_m10
+x 8
+y 7
+end
+arch floor_flagm1
 x 8
 y 8
 end
-arch grassd_3
+arch floor_flagm3
+x 8
+y 9
+end
+arch grassd_m7
 x 8
 y 9
 end
@@ -1284,7 +1299,7 @@ arch grassd_8
 x 9
 y 2
 end
-arch plant11
+arch wall_stone9_8
 x 9
 y 2
 end
@@ -1292,7 +1307,15 @@ arch grassd_2
 x 9
 y 3
 end
+arch wall_stone9_3
+x 9
+y 3
+end
 arch grassd_4
+x 9
+y 4
+end
+arch wall_stone9_3
 x 9
 y 4
 end
@@ -1300,23 +1323,53 @@ arch grassd_6
 x 9
 y 5
 end
+arch wall_stone9_3
+x 9
+y 5
+end
 arch grassd_3
 x 9
 y 6
 end
-arch grassd_5
+arch wall_stone9_w.131
+x 9
+y 6
+end
+arch floor_flagm2
 x 9
 y 7
 end
-arch grassd_1
+arch grassd_m6
+x 9
+y 7
+end
+arch wall_stone9_3
+x 9
+y 7
+end
+arch floor_flagm1
 x 9
 y 8
 end
-arch grassd_8
+arch door1_locked
+direction 3
+x 9
+y 8
+end
+arch floor_flagm1
 x 9
 y 9
 end
-arch plant_mushroom3
+arch grassd_m5
+x 9
+y 9
+end
+arch wall_stone9_3
+x 9
+y 9
+end
+arch picture2.151
+direction 7
 x 9
 y 9
 end
@@ -1324,7 +1377,15 @@ arch grassd_2
 x 9
 y 10
 end
+arch wall_stone9_w.131
+x 9
+y 10
+end
 arch grassd_2
+x 9
+y 11
+end
+arch wall_stone9_3
 x 9
 y 11
 end
@@ -1332,7 +1393,15 @@ arch grassd_8
 x 9
 y 12
 end
+arch wall_stone9_3
+x 9
+y 12
+end
 arch grassd_6
+x 9
+y 13
+end
+arch wall_stone9_3
 x 9
 y 13
 end
@@ -1403,55 +1472,112 @@ arch grassd_4
 x 10
 y 2
 end
-arch grassd_1
+arch wall_stone9_1
+x 10
+y 2
+end
+arch floor_rhomb
 x 10
 y 3
 end
-arch grassd_2
+arch candlelight4.101
+x 10
+y 3
+end
+arch floor_rhomb
 x 10
 y 4
 end
-arch grassd_8
+arch shelf5_wall.111
+direction 7
+x 10
+y 4
+end
+arch floor_rhomb
 x 10
 y 5
 end
-arch grassd_8
+arch carpet1.131
+x 10
+y 5
+end
+arch shelf6_wall.111
+direction 7
+x 10
+y 5
+end
+arch floor_rhomb
 x 10
 y 6
 end
-arch grassd_8
+arch carpet1.131
+x 10
+y 6
+end
+arch floor_rhomb
 x 10
 y 7
 end
-arch grassd_4
+arch carpet1.131
+x 10
+y 7
+end
+arch mirror_big.111
+direction 7
+x 10
+y 7
+end
+arch floor_rhomb
 x 10
 y 8
 end
-arch grassd_6
+arch carpet1.131
+x 10
+y 8
+end
+arch floor_rhomb
 x 10
 y 9
 end
-arch plant5
+arch carpet1.131
 x 10
 y 9
 end
-arch grassd_1
+arch floor_rhomb
 x 10
 y 10
 end
-arch grassd_6
+arch carpet1.131
+x 10
+y 10
+end
+arch floor_rhomb
 x 10
 y 11
 end
-arch tree_big4b
+arch carpet1.131
 x 10
 y 11
 end
-arch grassd_8
+arch shelf3a.111
+direction 7
+x 10
+y 11
+end
+arch floor_rhomb
 x 10
 y 12
 end
-arch grassd_6
+arch shelf1.111
+direction 7
+x 10
+y 12
+end
+arch floor_rhomb
+x 10
+y 13
+end
+arch wall_stone9_1
 x 10
 y 13
 end
@@ -1459,8 +1585,7 @@ arch grassd_7
 x 10
 y 14
 end
-arch lantern_magic.131
-direction 3
+arch lantern2_magic.131
 x 10
 y 14
 end
@@ -1537,63 +1662,123 @@ arch grassd_4
 x 11
 y 2
 end
-arch grassd_7
+arch wall_stone9_1
+x 11
+y 2
+end
+arch floor_rhomb
 x 11
 y 3
 end
-arch grassd_3
+arch shelf3c.111
+x 11
+y 3
+end
+arch floor_rhomb
 x 11
 y 4
 end
-arch grassd_3
+arch carpet1.151
+x 11
+y 4
+end
+arch floor_rhomb
 x 11
 y 5
 end
-arch plant_big1
+arch carpet1
 x 11
 y 5
 end
-arch grassd_7
+arch light5
+x 11
+y 5
+end
+arch floor_rhomb
 x 11
 y 6
 end
-arch grassd_5
+arch carpet1
+x 11
+y 6
+end
+arch floor_rhomb
 x 11
 y 7
 end
-arch grassd_3
+arch carpet1
+x 11
+y 7
+end
+arch floor_rhomb
 x 11
 y 8
 end
-arch grassd_2
+arch carpet1
+x 11
+y 8
+end
+arch light2
+x 11
+y 8
+end
+arch floor_rhomb
 x 11
 y 9
 end
-arch plant13
+arch carpet1
 x 11
 y 9
 end
-arch grassd_8
+arch floor_rhomb
 x 11
 y 10
 end
-arch grassd_7
+arch carpet1
+x 11
+y 10
+end
+arch light5
+x 11
+y 10
+end
+arch floor_rhomb
 x 11
 y 11
 end
-arch grassd_4
+arch carpet1
+x 11
+y 11
+end
+arch floor_rhomb
 x 11
 y 12
 end
-arch grassd_4
+arch carpet1.111
+x 11
+y 12
+end
+arch floor_rhomb
 x 11
 y 13
 end
-arch plant_mushroom4
+arch wall_stone9_1
 x 11
 y 13
 end
-arch grassd_1
+arch floor_flagm3
+x 11
+y 14
+end
+arch grassd_m4
+x 11
+y 14
+end
+arch announcement
+msg
+~Class Chooser~
+The Class Chooser will teach you the class of your choice.
+endmsg
 x 11
 y 14
 end
@@ -1601,7 +1786,7 @@ arch floor_flagm1
 x 11
 y 15
 end
-arch grassd_m10
+arch grassd_m13
 x 11
 y 15
 end
@@ -1659,67 +1844,126 @@ arch grassd_1
 x 12
 y 2
 end
-arch grassd_5
+arch wall_stone9_1
+x 12
+y 2
+end
+arch floor_rhomb
 x 12
 y 3
 end
-arch plant16
+arch chair2_111
 x 12
 y 3
 end
-arch grassd_2
+arch spawn_point
+x 12
+y 3
+arch mage_old
+name Class Chooser
+level 30
+can_cast_spell 0
+friendly 1
+type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/brynknot/class_chooser.py
+end
+end
+end
+arch floor_rhomb
 x 12
 y 4
 end
-arch grassd_7
+arch carpet1.151
+x 12
+y 4
+end
+arch table_lab3.111
+x 12
+y 4
+end
+arch floor_rhomb
 x 12
 y 5
 end
-arch grassd_5
+arch carpet1
+x 12
+y 5
+end
+arch floor_rhomb
 x 12
 y 6
 end
-arch grassd_7
+arch carpet1
+x 12
+y 6
+end
+arch floor_rhomb
 x 12
 y 7
 end
-arch grassd_6
+arch carpet1
+x 12
+y 7
+end
+arch floor_rhomb
 x 12
 y 8
 end
-arch grassd_6
+arch carpet1
+x 12
+y 8
+end
+arch floor_rhomb
 x 12
 y 9
 end
-arch grassd_1
+arch carpet1
+x 12
+y 9
+end
+arch floor_rhomb
 x 12
 y 10
 end
-arch grassd_3
+arch carpet1
+x 12
+y 10
+end
+arch floor_rhomb
 x 12
 y 11
 end
-arch grassd_5
+arch carpet1
+x 12
+y 11
+end
+arch floor_rhomb
 x 12
 y 12
 end
-arch stone1
+arch carpet1.111
 x 12
 y 12
 end
-arch grassd_3
+arch floor_rhomb
 x 12
 y 13
 end
-arch grassd_5
+arch door1_locked
+x 12
+y 13
+end
+arch floor_flagm1
+x 12
+y 14
+end
+arch grassd_m13
 x 12
 y 14
 end
 arch floor_flagm2
-x 12
-y 15
-end
-arch grassd_m10
 x 12
 y 15
 end
@@ -1774,63 +2018,108 @@ arch grassd_8
 x 13
 y 2
 end
-arch grassd_2
+arch wall_stone9_1
+x 13
+y 2
+end
+arch wmask_fire_on_1
+x 13
+y 2
+end
+arch floor_rhomb
 x 13
 y 3
 end
-arch grassd_4
+arch floor_rhomb
 x 13
 y 4
 end
-arch grassd_2
+arch carpet1.151
+x 13
+y 4
+end
+arch floor_rhomb
 x 13
 y 5
 end
-arch grassd_4
+arch carpet1
+x 13
+y 5
+end
+arch floor_rhomb
 x 13
 y 6
 end
-arch grassd_2
+arch carpet1
+x 13
+y 6
+end
+arch floor_rhomb
 x 13
 y 7
 end
-arch grassd_7
+arch carpet1
+x 13
+y 7
+end
+arch floor_rhomb
 x 13
 y 8
 end
-arch plant17
+arch carpet1
 x 13
 y 8
 end
-arch grassd_2
+arch floor_rhomb
 x 13
 y 9
 end
-arch grassd_1
+arch carpet1
+x 13
+y 9
+end
+arch floor_rhomb
 x 13
 y 10
 end
-arch grassd_7
+arch carpet1
+x 13
+y 10
+end
+arch floor_rhomb
 x 13
 y 11
 end
-arch grassd_7
+arch carpet1
+x 13
+y 11
+end
+arch floor_rhomb
 x 13
 y 12
 end
-arch grassd_1
+arch carpet1.111
+x 13
+y 12
+end
+arch floor_rhomb
 x 13
 y 13
 end
-arch grassd_4
+arch door1_locked
+direction 7
 x 13
-y 14
+y 13
 end
 arch floor_flagm2
 x 13
-y 15
+y 14
 end
-arch grassd_m10
+arch grassd_m12
+x 13
+y 14
+end
+arch floor_flagm1
 x 13
 y 15
 end
@@ -1889,55 +2178,133 @@ arch grassd_3
 x 14
 y 2
 end
-arch grassd_1
+arch wall_stone9_1
+x 14
+y 2
+end
+arch floor_rhomb
 x 14
 y 3
 end
-arch plant13
+arch shelf3b.111
 x 14
 y 3
 end
-arch grassd_7
+arch floor_rhomb
 x 14
 y 4
 end
-arch grassd_6
+arch carpet1.151
+x 14
+y 4
+end
+arch floor_rhomb
 x 14
 y 5
 end
-arch grassd_1
+arch carpet1
+x 14
+y 5
+end
+arch light5
+x 14
+y 5
+end
+arch floor_rhomb
 x 14
 y 6
 end
-arch grassd_6
+arch carpet1
+x 14
+y 6
+end
+arch chair1_111
+direction 7
+x 14
+y 6
+end
+arch floor_rhomb
 x 14
 y 7
 end
-arch grassd_3
+arch carpet1
+x 14
+y 7
+end
+arch floor_rhomb
 x 14
 y 8
 end
-arch grassd_1
+arch carpet1
+x 14
+y 8
+end
+arch light2
+x 14
+y 8
+end
+arch floor_rhomb
 x 14
 y 9
 end
-arch grassd_2
+arch carpet1
+x 14
+y 9
+end
+arch floor_rhomb
 x 14
 y 10
 end
-arch grassd_8
+arch carpet1
+x 14
+y 10
+end
+arch light5
+x 14
+y 10
+end
+arch floor_rhomb
 x 14
 y 11
 end
-arch grassd_4
+arch carpet1
+x 14
+y 11
+end
+arch chair1_111
+direction 7
+x 14
+y 11
+end
+arch floor_rhomb
 x 14
 y 12
 end
-arch grassd_2
+arch carpet1.111
+x 14
+y 12
+end
+arch floor_rhomb
 x 14
 y 13
 end
-arch grassd_2
+arch wall_stone9_1
+x 14
+y 13
+end
+arch floor_flagm4
+x 14
+y 14
+end
+arch grassd_m6
+x 14
+y 14
+end
+arch announcement
+msg
+~Class Chooser~
+The Class Chooser will teach you the class of your choice.
+endmsg
 x 14
 y 14
 end
@@ -1945,7 +2312,7 @@ arch floor_flagm3
 x 14
 y 15
 end
-arch grassd_m10
+arch grassd_m12
 x 14
 y 15
 end
@@ -2008,51 +2375,106 @@ arch grassd_3
 x 15
 y 2
 end
-arch grassd_8
+arch wall_stone9_1
+x 15
+y 2
+end
+arch floor_rhomb
 x 15
 y 3
 end
-arch grassd_6
+arch shelf3a.111
+x 15
+y 3
+end
+arch light2
+x 15
+y 3
+end
+arch floor_rhomb
 x 15
 y 4
 end
-arch grassd_1
+arch floor_rhomb
 x 15
 y 5
 end
-arch grassd_2
+arch carpet1.171
+x 15
+y 5
+end
+arch floor_rhomb
 x 15
 y 6
 end
-arch grassd_5
+arch carpet1.171
+x 15
+y 6
+end
+arch table_lab1.111
+direction 7
+x 15
+y 6
+end
+arch floor_rhomb
 x 15
 y 7
 end
-arch grassd_6
+arch carpet1.171
+x 15
+y 7
+end
+arch floor_rhomb
 x 15
 y 8
 end
-arch grassd_3
+arch carpet1.171
+x 15
+y 8
+end
+arch floor_rhomb
 x 15
 y 9
 end
-arch grassd_1
+arch carpet1.171
+x 15
+y 9
+end
+arch floor_rhomb
 x 15
 y 10
 end
-arch grassd_8
+arch carpet1.171
+x 15
+y 10
+end
+arch table_lab2.111
+direction 7
+x 15
+y 10
+end
+arch floor_rhomb
 x 15
 y 11
 end
-arch tree_big5b
+arch carpet1.171
 x 15
 y 11
 end
-arch grassd_2
+arch table_lab3.111
+direction 7
+x 15
+y 11
+end
+arch floor_rhomb
 x 15
 y 12
 end
-arch grassd_1
+arch floor_rhomb
+x 15
+y 13
+end
+arch wall_stone9_w.111
 x 15
 y 13
 end
@@ -2135,63 +2557,107 @@ arch grassd_2
 x 16
 y 2
 end
-arch plant11
+arch wall_stone9_1
 x 16
 y 2
 end
-arch grassd_2
+arch floor_rhomb
 x 16
 y 3
 end
-arch grassd_8
+arch candlelight4.101
+x 16
+y 3
+end
+arch wall_stone9_3
+x 16
+y 3
+end
+arch floor_rhomb
 x 16
 y 4
 end
-arch grassd_1
+arch wall_stone9_3
+x 16
+y 4
+end
+arch floor_rhomb
 x 16
 y 5
 end
-arch small_stones
+arch wall_stone9_w.131
 x 16
 y 5
 end
-arch grassd_7
+arch floor_rhomb
 x 16
 y 6
 end
-arch grassd_4
+arch wall_stone9_3
+x 16
+y 6
+end
+arch floor_rhomb
 x 16
 y 7
 end
-arch tree_big4b
+arch candlelight4.101
 x 16
 y 7
 end
-arch grassd_2
+arch wall_stone9_3
+x 16
+y 7
+end
+arch floor_rhomb
 x 16
 y 8
 end
-arch grassd_3
+arch wall_stone9_3
+x 16
+y 8
+end
+arch floor_rhomb
 x 16
 y 9
 end
-arch grassd_1
+arch wall_stone9_w.131
+x 16
+y 9
+end
+arch floor_rhomb
 x 16
 y 10
 end
-arch plant_flower5
+arch wall_stone9_3
 x 16
 y 10
 end
-arch grassd_6
+arch floor_rhomb
 x 16
 y 11
 end
-arch grassd_5
+arch candlelight4.101
+x 16
+y 11
+end
+arch wall_stone9_3
+x 16
+y 11
+end
+arch floor_rhomb
 x 16
 y 12
 end
-arch grassd_5
+arch wall_stone9_3
+x 16
+y 12
+end
+arch floor_rhomb
+x 16
+y 13
+end
+arch wall_stone9_4
 x 16
 y 13
 end
@@ -2199,13 +2665,11 @@ arch grassd_7
 x 16
 y 14
 end
-arch lantern_magic.131
-direction 3
+arch lantern2_magic.131
 x 16
 y 14
 end
 arch light7
-direction 3
 x 16
 y 14
 end

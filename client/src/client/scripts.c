@@ -359,45 +359,37 @@ void script_list()
 	}
 }
 
-void script_fdset(int *maxfd, fd_set *set)
-{
-#ifndef WIN32
-	int i;
-
-	for (i = 0; i < num_scripts; i++)
-	{
-		FD_SET(scripts[i].in_fd, set);
-
-		if (scripts[i].in_fd >= *maxfd)
-		{
-			*maxfd = scripts[i].in_fd + 1;
-		}
-	}
-#else
-	(void) maxfd;
-	(void) set;
-#endif
-}
-
 /**
- * Process loaded scripts.
- * @param set */
-void script_process(fd_set *set)
+ * Process loaded scripts. */
+void script_process()
 {
 	int i, r;
 #ifdef WIN32
 	DWORD nAvailBytes = 0, dwStatus;
 	char cTmp;
 	BOOL bRC, bStatus;
-
-	(void) set;
+#else
+	fd_set tmp_read;
+	int pollret;
+	struct timeval timeout;
 #endif
 
 	/* Determine which script's fd is set */
 	for (i = 0; i < num_scripts; i++)
 	{
 #ifndef WIN32
-		if (FD_ISSET(scripts[i].in_fd, set))
+		FD_ZERO(&tmp_read);
+		FD_SET(scripts[i].in_fd, &tmp_read);
+
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+
+		if ((pollret = select(scripts[i].in_fd + 1, &tmp_read, NULL, NULL, &timeout)) == -1)
+		{
+			LOG(llevMsg, "Got errno %d on select call: %s.\n", errno, strerror(errno));
+		}
+
+		if (FD_ISSET(scripts[i].in_fd, &tmp_read))
 #else
 		bStatus = GetExitCodeProcess(scripts[i].process, &dwStatus);
 		bRC = PeekNamedPipe(scripts[i].in_fd, &cTmp, 1, NULL, &nAvailBytes, NULL);
@@ -456,7 +448,7 @@ static void script_process_cmd(int i)
 	/* Strip out just this one command */
 	for (l = 0; l < scripts[i].cmd_count; l++)
 	{
-      	if (scripts[i].cmd[l] == '\n')
+		if (scripts[i].cmd[l] == '\n')
 		{
 			break;
 		}
@@ -588,7 +580,7 @@ static void script_process_cmd(int i)
 				snprintf(buf, sizeof(buf), "request stat stats %d %d %d %d %d %d %d\n", cpl.stats.Str, cpl.stats.Dex, cpl.stats.Con, cpl.stats.Int, cpl.stats.Wis, cpl.stats.Pow, cpl.stats.Cha);
 				w = write(scripts[i].out_fd, buf, strlen(buf));
 			}
-			else if (!strncmp(c, "combat", 4))
+			else if (!strncmp(c, "combat", 6))
 			{
 				snprintf(buf, sizeof(buf), "request stat combat %d %d %d %d %d\n", cpl.stats.wc, cpl.stats.ac, cpl.stats.dam, cpl.stats.speed, cpl.stats.weapon_sp);
 				w = write(scripts[i].out_fd, buf, strlen(buf));
@@ -598,16 +590,16 @@ static void script_process_cmd(int i)
 				snprintf(buf, sizeof(buf), "request stat hp %d %d %d %d %d %d %d\n", cpl.stats.hp, cpl.stats.maxhp, cpl.stats.sp, cpl.stats.maxsp, cpl.stats.grace, cpl.stats.maxgrace, cpl.stats.food);
 				w = write(scripts[i].out_fd,buf,strlen(buf));
 			}
-			else if (!strncmp(c, "exp", 2))
+			else if (!strncmp(c, "exp", 3))
 			{
 				int s;
 
-				snprintf(buf, sizeof(buf), "request stat exp %d %d", cpl.stats.level, cpl.stats.exp);
+				snprintf(buf, sizeof(buf), "request stat exp %d %"FMT64, cpl.stats.level, cpl.stats.exp);
 				w = write(scripts[i].out_fd, buf, strlen(buf));
 
 				for (s = 0; s < MAX_SKILL; s++)
 				{
-					snprintf(buf, sizeof(buf), " %d %d", cpl.stats.skill_level[s], cpl.stats.skill_exp[s]);
+					snprintf(buf, sizeof(buf), " %d %"FMT64, cpl.stats.skill_level[s], cpl.stats.skill_exp[s]);
 					w = write(scripts[i].out_fd, buf, strlen(buf));
 				}
 
@@ -692,14 +684,14 @@ static void script_process_cmd(int i)
 
 			if (!client_command_check(c))
 			{
-				send_command(c, -1, SC_NORMAL);
+				send_command(c);
 			}
 		}
 		else if (!strncmp(c, "string ", 7))
 		{
 			c += 7;
 
-			cs_write_string(csocket.fd, c, strlen(c));
+			cs_write_string(c, strlen(c));
 		}
 	}
 	else if (!strncmp(cmd, "event ", 6))
@@ -990,8 +982,8 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 								case CS_STAT_SKILLEXP_PHYSIQUE:
 								case CS_STAT_SKILLEXP_MAGIC:
 								case CS_STAT_SKILLEXP_WISDOM:
-									be += snprintf(buf + be, sizeof(buf) - be, " skill_exp %d %d\n", (c - CS_STAT_SKILLEXP_START) / 2, GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " skill_exp %d %"FMT64"\n", (c - CS_STAT_SKILLEXP_START) / 2, GetInt64_String(data + i));
+									i += 8;
 									break;
 
 								case CS_STAT_SKILLEXP_AGLEVEL:

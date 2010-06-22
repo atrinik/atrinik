@@ -39,8 +39,8 @@ enum skillnrs
 	SK_LITERACY,
 	/** Sells items to shops at Cha + level-based bonus (30 max) */
 	SK_BARGAINING,
-	/** Unused skill. Used to be inscription. */
-	SK_UNUSED,
+	/** Player is able to alter maps like apartment in real-time. */
+	SK_CONSTRUCTION,
 
 	/** Can attack hand-to-hand, see attack_hth() */
 	SK_BOXING,
@@ -100,21 +100,6 @@ typedef struct skill_struct
 
 	/** Base number of ticks it takes to use the skill */
 	short time;
-
-	/** Base exp gain for this skill */
-	long bexp;
-
-	/** Level multiplier of exp gain for using this skill */
-	float lexp;
-
-	/** Primary stat affecting use of this skill */
-	short stat1;
-
-	/** Secondary stat for this skill */
-	short stat2;
-
-	/** Tertiary stat for this skill */
-	short stat3;
 } skill;
 
 extern skill skills[];

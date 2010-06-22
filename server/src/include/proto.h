@@ -1,6 +1,5 @@
 #ifndef __CPROTO__
 /* commands/chat.c */
-char *cleanup_chat_string(char *ustring);
 int command_say(object *op, char *params);
 int command_dmsay(object *op, char *params);
 int command_shout(object *op, char *params);
@@ -65,13 +64,12 @@ int command_me(object *op, char *params);
 /* commands/commands.c */
 void init_commands();
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
+int can_do_wiz_command(player *pl, const char *command);
 int execute_newserver_command(object *pl, char *command);
-emotes_array *find_emote(int emotion, emotes_array *emotes, int emotessize);
 
 /* commands/misc.c */
 void map_info(object *op);
 int command_motd(object *op, char *params);
-int command_roll(object *op, char *params);
 void malloc_info(object *op);
 int command_who(object *op, char *params);
 int command_mapinfo(object *op, char *params);
@@ -88,6 +86,7 @@ int command_gsay(object *op, char *params);
 int command_party(object *op, char *params);
 int command_whereami(object *op, char *params);
 int command_ms_privacy(object *op, char *params);
+int command_statistics(object *op, char *params);
 
 /* commands/move.c */
 int command_east(object *op, char *params);
@@ -110,7 +109,7 @@ void send_target_command(player *pl);
 int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
 void command_new_char(char *params, int len, player *pl);
-void command_face_request(char *params, int len, player *pl);
+void command_face_request(char *buf, int len, socket_struct *ns);
 void command_fire(char *params, int len, player *pl);
 void send_mapstats_cmd(object *op, struct mapdef *map);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
@@ -129,7 +128,7 @@ void pick_up(object *op, object *alt);
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
 void drop_object(object *op, object *tmp, long nrof);
 void drop(object *op, object *tmp);
-int command_dropall(object *op, char *params);
+int command_take(object *op, char *params);
 int command_drop(object *op, char *params);
 object *find_marked_object(object *op);
 void examine_living(object *op, object *tmp);
@@ -159,7 +158,6 @@ int command_addexp(object *op, char *params);
 int command_speed(object *op, char *params);
 int command_stats(object *op, char *params);
 int command_resetmap(object *op, char *params);
-void remove_active_DM(object *op);
 int command_nowiz(object *op, char *params);
 int command_dm(object *op, char *params);
 int command_learn_spell(object *op, char *params);
@@ -192,6 +190,10 @@ int command_follow(object *op, char *params);
 int command_insert_into(object *op, char *params);
 int command_arrest(object *op, char *params);
 int command_cmd_permission(object *op, char *params);
+int command_map_save(object *op, char *params);
+int command_map_reset(object *op, char *params);
+int command_map_patch(object *op, char *params);
+int command_no_shout(object *op, char *params);
 
 /* loaders/map_header.c */
 int map_lex_load(mapstruct *m);
@@ -209,11 +211,12 @@ int yy_map_headerget_debug();
 void yy_map_headerset_debug(int bdebug);
 int yy_map_headerlex_destroy();
 void yy_map_headerfree(void *ptr);
+int map_set_variable(mapstruct *m, char *buf);
 int load_map_header(mapstruct *m, FILE *fp);
 void save_map_header(mapstruct *m, FILE *fp, int flag);
 
 /* loaders/object.c */
-int lex_load(object *op, int map_flags);
+int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
 void yy_objectrestart(FILE *input_file);
 void yy_objectpop_buffer_state();
 int yy_objectget_lineno();
@@ -352,22 +355,20 @@ int apply_special(object *who, object *op, int aflags);
 int monster_apply_special(object *who, object *op, int aflags);
 
 /* server/arch.c */
-object *get_archetype_by_object_name(const char *name);
 archetype *get_skill_archetype(int skillnr);
-int item_matched_string(object *pl, object *op, const char *name);
 void init_archetypes();
 void arch_info(object *op);
 void dump_all_archetypes();
 void free_all_archs();
 object *arch_to_object(archetype *at);
+object *create_singularity(const char *name);
 object *get_archetype(const char *name);
 archetype *find_archetype(const char *name);
-object *clone_arch(int type);
 
 /* server/attack.c */
 int attack_ob(object *op, object *hitter);
 int hit_player(object *op, int dam, object *hitter, int type);
-int hit_map(object *op, int dir);
+int hit_map(object *op, int dir, int reduce);
 int kill_object(object *op, int dam, object *hitter, int type);
 object *hit_with_arrow(object *op, object *victim);
 void confuse_living(object *op);
@@ -399,10 +400,10 @@ void check_inv(object *op, object *trig);
 void become_daemon(char *filename);
 
 /* server/exp.c */
-uint32 level_exp(int level, double expmul);
-sint32 add_exp(object *op, int exp, int skill_nr);
+uint64 level_exp(int level, double expmul);
+sint64 add_exp(object *op, sint64 exp, int skill_nr);
 void player_lvl_adj(object *who, object *op);
-int adjust_exp(object *pl, object *op, int exp);
+sint64 adjust_exp(object *pl, object *op, sint64 exp);
 void apply_death_exp_penalty(object *op);
 float calc_level_difference(int who_lvl, int op_lvl);
 uint64 calculate_total_exp(object *op);
@@ -442,10 +443,9 @@ void init_globals();
 void write_todclock();
 void init(int argc, char **argv);
 void compile_info();
-void free_racelist();
 
 /* server/item.c */
-char *describe_resistance(object *op, int newline);
+char *describe_protections(object *op, int newline);
 char *query_weight(object *op);
 char *get_levelnumber(int i);
 char *query_short_name(object *op, object *caller);
@@ -472,8 +472,6 @@ int change_abil(object *op, object *tmp);
 void drain_stat(object *op);
 void drain_specific_stat(object *op, int deplete_stats);
 void fix_player(object *op);
-void set_dragon_name(object *pl, object *abil, object *skin);
-void dragon_level_gain(object *who);
 void fix_monster(object *op);
 object *insert_base_info_object(object *op);
 object *find_base_info_object(object *op);
@@ -505,7 +503,7 @@ char *crypt_string(char *str, char *salt);
 int check_password(char *typed, char *crypted);
 void enter_player_savebed(object *op);
 void leave_map(object *op);
-void set_map_timeout(mapstruct *oldmap);
+void set_map_timeout(mapstruct *map);
 char *clean_path(const char *file);
 void enter_exit(object *op, object *exit_ob);
 void process_events(mapstruct *map);
@@ -564,10 +562,7 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc);
 int move_ob(object *op, int dir, object *originator);
 int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
 int teleport(object *teleporter, uint8 tele_type, object *user);
-void recursive_roll(object *op, int dir, object *pusher);
-int try_fit(object *op, int x, int y);
-int roll_ob(object *op, int dir, object *pusher);
-int push_roll_object(object *op, int dir);
+int push_ob(object *op, int dir, object *pusher);
 int missile_reflection_adjust(object *op, int flag);
 
 /* server/object.c */
@@ -577,6 +572,9 @@ void object_gc();
 int CAN_MERGE(object *ob1, object *ob2);
 object *merge_ob(object *op, object *top);
 signed long sum_weight(object *op);
+void add_weight(object *op, sint32 weight);
+void sub_weight(object *op, sint32 weight);
+object *get_env_recursive(object *op);
 object *is_player_inv(object *op);
 void dump_object(object *op, StringBuffer *sb);
 void free_all_object_data();
@@ -587,6 +585,7 @@ void copy_owner(object *op, object *clone);
 void initialize_object(object *op);
 void copy_object(object *op2, object *op);
 void copy_object_data(object *op2, object *op);
+void copy_object_with_inv(object *src_ob, object *dest_ob);
 object *get_object();
 void update_turn_face(object *op);
 void update_ob_speed(object *op);
@@ -610,7 +609,6 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
 int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y);
 int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range);
 void get_search_arr(int *search_arr);
-int find_dir(mapstruct *m, int x, int y, object *exclude);
 int find_dir_2(int x, int y);
 int absdir(int d);
 int dirdiff(int dir1, int dir2);
@@ -626,6 +624,8 @@ key_value *object_get_key_link(const object *ob, const char *key);
 const char *object_get_value(const object *op, const char *const key);
 int object_set_value(object *op, const char *key, const char *value, int add_key);
 void init_object_initializers();
+int item_matched_string(object *pl, object *op, const char *name);
+int object_get_gender(object *op);
 
 /* server/object_process.c */
 object *stop_item(object *op);
@@ -634,13 +634,16 @@ void move_firewall(object *op);
 void process_object(object *op);
 
 /* server/party.c */
-void add_party_member(partylist_struct *party, object *op);
-void remove_party_member(partylist_struct *party, object *op);
-partylist_struct *make_party(char *name);
+void add_party_member(party_struct *party, object *op);
+void remove_party_member(party_struct *party, object *op);
+party_struct *make_party(char *name);
 void form_party(object *op, char *name);
-partylist_struct *find_party(char *name);
-void send_party_message(partylist_struct *party, char *msg, int flag, object *op);
-void remove_party(partylist_struct *party);
+party_struct *find_party(const char *name);
+sint16 party_member_get_skill(object *op, object *skill);
+int party_can_open_corpse(object *pl, object *corpse);
+void party_handle_corpse(object *pl, object *corpse);
+void send_party_message(party_struct *party, char *msg, int flag, object *op);
+void remove_party(party_struct *party);
 void PartyCmd(char *buf, int len, player *pl);
 
 /* server/pathfinder.c */
@@ -673,7 +676,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 char *tempnam_local(const char *dir, const char *pfx);
 char *strdup_local(const char *str);
 char *strerror_local(int errnum);
-int isqrt(int n);
+unsigned long isqrt(unsigned long n);
 FILE *open_and_uncompress(const char *name, int flag, int *compressed);
 void close_and_delete(FILE *fp, int compressed);
 void make_path_to_file(char *filename);
@@ -683,14 +686,19 @@ const char *strcasestr_local(const char *s, const char *find);
 object *create_quest_container(object *op);
 void check_quest(object *op, object *quest_container);
 
+/* server/race.c */
+ob_race *race_find(shstr *name);
+ob_race *race_get_random();
+void race_init();
+void race_dump();
+void race_free();
+
 /* server/readable.c */
-int book_overflow(const char *buf1, const char *buf2, int booksize);
-void free_mon_info();
+int book_overflow(const char *buf1, const char *buf2, size_t booksize);
 void init_readable();
 object *get_random_mon();
 void tailor_readable_ob(object *book, int msg_type);
 void free_all_readable();
-void write_book_archive();
 
 /* server/recipe.c */
 recipelist *get_formulalist(int i);
@@ -717,7 +725,7 @@ void free_regions();
 void spring_trap(object *trap, object *victim);
 int trap_see(object *op, object *trap, int level);
 int trap_show(object *trap, object *where);
-int trap_disarm(object *disarmer, object *trap, int risk);
+int trap_disarm(object *disarmer, object *trap);
 void trap_adjust(object *trap, int difficulty);
 
 /* server/shop.c */
@@ -748,16 +756,16 @@ void ss_dump_statistics(char *buf, size_t size);
 void ss_dump_table(int what, char *buf, size_t size);
 
 /* server/skills.c */
-int find_traps(object *pl, int level);
-int remove_trap(object *op);
+sint64 find_traps(object *pl, int level);
+sint64 remove_trap(object *op);
 object *find_throw_tag(object *op, tag_t tag);
 void do_throw(object *op, object *toss_item, int dir);
 
 /* server/skill_util.c */
 int find_skill_exp_level(object *pl, int item_skill);
 char *find_skill_exp_skillname(int item_skill);
-int do_skill(object *op, int dir);
-int calc_skill_exp(object *who, object *op, int level);
+sint64 do_skill(object *op, int dir);
+sint64 calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
 void free_exp_objects();
 void dump_skills();
@@ -777,9 +785,6 @@ int SK_level(object *op);
 object *SK_skill(object *op);
 float get_skill_time(object *op, int skillnr);
 int check_skill_action_time(object *op, object *skill);
-int get_skill_stat1(object *op);
-int get_skill_stat2(object *op);
-int get_skill_stat3(object *op);
 
 /* server/spell_effect.c */
 void prayer_failure(object *op, int failure, int power);
@@ -790,6 +795,7 @@ int probe(object *op);
 int cast_wor(object *op, object *caster);
 int cast_create_town_portal(object *op);
 int cast_destruction(object *op, object *caster, int dam, int attacktype);
+int cast_heal_around(object *op, int level, int type);
 int cast_heal(object *op, int level, object *target, int spell_type);
 int cast_change_attr(object *op, object *caster, object *target, int spell_type);
 int create_bomb(object *op, object *caster, int dir, int spell_type);
@@ -797,11 +803,11 @@ void animate_bomb(object *op);
 int remove_depletion(object *op, object *target);
 int remove_curse(object *op, object *target, int type, SpellTypeFrom src);
 int cast_identify(object *op, int level, object *single_ob, int mode);
-int cast_detection(object *op, object *target, int type);
 int cast_consecrate(object *op);
 int finger_of_death(object *op, object *target);
 int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type);
 void move_aura(object *aura);
+int cast_transform_wealth(object *op);
 
 /* server/spell_util.c */
 void init_spells();
@@ -812,7 +818,7 @@ int check_spell_known(object *op, int spell_type);
 int cast_spell(object *op, object *caster, int dir, int type, int ability, SpellTypeFrom item, char *stringarg);
 int cast_create_obj(object *op, object *new_op, int dir);
 int fire_bolt(object *op, object *caster, int dir, int type);
-int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type);
+int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target);
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);
 void cone_drop(object *op);
 void move_cone(object *op);
@@ -823,7 +829,6 @@ int reflwall(mapstruct *m, int x, int y, object *sp_op);
 void move_bolt(object *op);
 void move_golem(object *op);
 void control_golem(object *op, int dir);
-void move_missile(object *op);
 void explode_object(object *op);
 void check_fired_arch(object *op);
 void move_fired_arch(object *op);
@@ -846,6 +851,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb);
 void stringbuffer_append_string(StringBuffer *sb, const char *str);
 void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...);
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
+size_t stringbuffer_length(StringBuffer *sb);
 
 /* server/swap.c */
 void read_map_log();
@@ -889,12 +895,9 @@ int get_enviroment_level(object *op);
 object *create_artifact(object *op, char *artifactname);
 
 /* server/utils.c */
-int random_roll(int min, int max, const object *op, int goodbad);
-int die_roll(int num, int size, const object *op, int goodbad);
 int rndm(int min, int max);
 int look_up_spell_name(const char *spname);
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
-racelink *find_racelink(const char *name);
 char *cleanup_string(char *ustring);
 char *get_word_from_string(char *str, int *pos);
 void adjust_player_name(char *name);
@@ -903,17 +906,23 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep);
 int get_random_dir();
 int get_randomized_dir(int dir);
 int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
+char *cleanup_chat_string(char *ustring);
+char *format_number_comma(uint64 num);
+void copy_file(const char *filename, FILE *fpout);
 
 /* server/weather.c */
 void init_world_darkness();
 void tick_the_clock();
+
+/* skills/construction.c */
+void construction_do(object *op, int dir);
 
 /* socket/image.c */
 int is_valid_faceset(int fsn);
 void free_socket_images();
 void read_client_images();
 void SetFaceMode(char *buf, int len, socket_struct *ns);
-void SendFaceCmd(char *buff, int len, socket_struct *ns);
+void SendFaceCmd(char *buf, int len, socket_struct *ns);
 int esrv_send_face(socket_struct *ns, short face_num, int nocache);
 void send_image_info(socket_struct *ns, char *params);
 void send_image_sums(socket_struct *ns, char *params);
@@ -957,27 +966,29 @@ void handle_client(socket_struct *ns, player *pl);
 void watchdog();
 void remove_ns_dead_player(player *pl);
 void doeric_server();
+void doeric_server_write();
 
 /* socket/lowlevel.c */
 void SockList_AddString(SockList *sl, char *data);
-int SockList_ReadPacket(int fd, SockList *sl, int len);
+int SockList_ReadPacket(socket_struct *ns, int len);
+int SockList_ReadCommand(SockList *sl, SockList *sl2);
 void write_socket_buffer(socket_struct *ns);
 void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len);
 void Send_With_Handling(socket_struct *ns, SockList *msg);
 void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len);
 
 /* socket/metaserver.c */
+void metaserver_info_update();
 void metaserver_init();
 
 /* socket/request.c */
 void SetUp(char *buf, int len, socket_struct *ns);
 void AddMeCmd(char *buf, int len, socket_struct *ns);
-void PlayerCmd(uint8 *buf, int len, player *pl);
+void PlayerCmd(char *buf, int len, player *pl);
 void ReplyCmd(char *buf, int len, player *pl);
 void RequestFileCmd(char *buf, int len, socket_struct *ns);
 void VersionCmd(char *buf, int len, socket_struct *ns);
 void SetSound(char *buf, int len, socket_struct *ns);
-void MapRedrawCmd(char *buff, int len, player *pl);
 void MapNewmapCmd(player *pl);
 void MoveCmd(char *buf, int len, player *pl);
 void send_query(socket_struct *ns, uint8 flags, char *text);
@@ -1021,6 +1032,7 @@ int esrv_apply_container(object *op, object *sack);
 int container_link(player *pl, object *sack);
 int container_unlink(player *pl, object *sack);
 void free_container_monster(object *monster, object *op);
+int check_magical_container(object *op, object *container);
 
 /* types/converter.c */
 int convert_item(object *item, object *converter);
@@ -1053,7 +1065,6 @@ void close_locked_door(object *op);
 void apply_food(object *op, object *tmp);
 void create_food_force(object *who, object *food, object *force);
 void eat_special_food(object *who, object *food);
-int dragon_eat_flesh(object *op, object *meal);
 
 /* types/gate.c */
 void move_gate(object *op);
@@ -1105,11 +1116,10 @@ void do_some_living(object *op);
 void kill_player(object *op);
 void cast_dust(object *op, object *throw_ob, int dir);
 int pvp_area(object *attacker, object *victim);
-void dragon_ability_gain(object *who, int atnr, int level);
 int player_exists(char *player_name);
 object *find_skill(object *op, int skillnr);
-int atnr_is_dragon_enabled(int attacknr);
-int is_dragon_pl(object *op);
+int player_can_carry(object *pl, object *ob, uint32 nrof);
+char *player_get_race_class(object *op, char *buf, size_t size);
 
 /* types/player_mover.c */
 void move_player_mover(object *op);

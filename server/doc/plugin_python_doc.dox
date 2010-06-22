@@ -1,639 +1,3273 @@
 /**
-
-@page plugin_python_map_fields Python map fields
-List of the map fields and their meaning:
-
-- <b>name</b>: (string) @copydoc mapstruct::name
-- <b>message</b>: (string) @copydoc mapstruct::msg
-- <b>reset_interval</b>: (integer) @copydoc mapstruct::reset_timeout
-- <b>difficulty</b>: (integer) @copydoc mapstruct::difficulty
-- <b>height</b>: (integer) @copydoc mapstruct::height
-- <b>width</b>: (integer) @copydoc mapstruct::width
-- <b>darkness</b>: (integer) @copydoc mapstruct::darkness
-- <b>path</b>: (string) @copydoc mapstruct::path
-- <b>enter_x</b>: (integer) @copydoc mapstruct::enter_x
-- <b>enter_y</b>: (integer) @copydoc mapstruct::enter_y
-- <b>region</b>: (region) @copydoc mapstruct::region
-@page plugin_python_map_flags Python map flags
-List of the map flags and their meaning:
-
-- <b>f_outdoor</b>: @copydoc MAP_FLAG_OUTDOOR
-- <b>f_unique</b>: @copydoc MAP_FLAG_UNIQUE
-- <b>f_fixed_rtime</b>: @copydoc MAP_FLAG_FIXED_RTIME
-- <b>f_nomagic</b>: @copydoc MAP_FLAG_NOMAGIC
-- <b>f_nopriest</b>: @copydoc MAP_FLAG_NOPRIEST
-- <b>f_noharm</b>: @copydoc MAP_FLAG_NOHARM
-- <b>f_nosummon</b>: @copydoc MAP_FLAG_NOSUMMON
-- <b>f_fixed_login</b>: @copydoc MAP_FLAG_FIXED_LOGIN
-- <b>f_permdeath</b>: @copydoc MAP_FLAG_PERMDEATH
-- <b>f_ultradeath</b>: @copydoc MAP_FLAG_ULTRADEATH
-- <b>f_ultimatedeath</b>: @copydoc MAP_FLAG_ULTIMATEDEATH
-- <b>f_pvp</b>: @copydoc MAP_FLAG_PVP
-- <b>f_no_save</b>: @copydoc MAP_FLAG_NO_SAVE
-- <b>f_plugins</b>: @copydoc MAP_FLAG_PLUGINS
-@page plugin_python_map_constants Python map constants
-List of the map constants and their meaning:
-
-- <b>COST_TRUE</b>: @copydoc F_TRUE
-- <b>COST_BUY</b>: @copydoc F_BUY
-- <b>COST_SELL</b>: @copydoc F_SELL
-@page plugin_python_region_fields Python region fields
-List of the region fields and their meaning:
-
-- <b>next</b>: (region) @copydoc region::next
-- <b>parent</b>: (region) @copydoc region::parent
-- <b>name</b>: (string) @copydoc region::name
-- <b>longname</b>: (string) @copydoc region::longname
-- <b>msg</b>: (string) @copydoc region::msg
-- <b>jailmap</b>: (string) @copydoc region::jailmap
-- <b>jailx</b>: (integer) @copydoc region::jailx
-- <b>jaily</b>: (integer) @copydoc region::jaily
-@page plugin_python_object_fields Python object fields
-List of the object fields and their meaning:
-
-- <b>below</b>: (object) @copydoc object::below
-- <b>above</b>: (object) @copydoc object::above
-- <b>inventory</b>: (object) @copydoc object::inv
-- <b>environment</b>: (object) @copydoc object::env
-- <b>map</b>: (map) @copydoc object::map
-- <b>name</b>: (string) @copydoc object::name
-- <b>title</b>: (string) @copydoc object::title
-- <b>race</b>: (string) @copydoc object::race
-- <b>slaying</b>: (string) @copydoc object::slaying
-- <b>message</b>: (string) @copydoc object::msg
-- <b>artifact</b>: (string) @copydoc object::artifact
-- <b>weight</b>: (integer) @copydoc object::weight
-- <b>weight_limit</b>: (integer) @copydoc object::weight_limit
-- <b>carrying</b>: (integer) @copydoc object::carrying
-- <b>path_attuned</b>: (integer) @copydoc object::path_attuned
-- <b>path_repelled</b>: (integer) @copydoc object::path_repelled
-- <b>path_denied</b>: (integer) @copydoc object::path_denied
-- <b>value</b>: (integer) @copydoc object::value
-- <b>quantity</b>: (integer) @copydoc object::nrof
-- <b>enemy</b>: (object) @copydoc object::enemy
-- <b>attacked_by</b>: (object) @copydoc object::attacked_by
-- <b>owner</b>: (object) @copydoc object::owner
-- <b>x</b>: (integer) @copydoc object::x
-- <b>y</b>: (integer) @copydoc object::y
-- <b>attacked_by_distance</b>: (integer) @copydoc object::attacked_by_distance
-- <b>last_damage</b>: (integer) @copydoc object::last_damage
-- <b>terrain_type</b>: (integer) @copydoc object::terrain_type
-- <b>terrain_flag</b>: (integer) @copydoc object::terrain_flag
-- <b>material</b>: (integer) @copydoc object::material
-- <b>material_real</b>: (integer) @copydoc object::material_real
-- <b>last_heal</b>: (integer) @copydoc object::last_heal
-- <b>last_sp</b>: (integer) @copydoc object::last_sp
-- <b>last_grace</b>: (integer) @copydoc object::last_grace
-- <b>last_eat</b>: (integer) @copydoc object::last_eat
-- <b>animation_id</b>: (integer) @copydoc object::animation_id
-- <b>inv_animation_id</b>: (integer) @copydoc object::inv_animation_id
-- <b>magic</b>: (integer) @copydoc object::magic
-- <b>state</b>: (integer) @copydoc object::state
-- <b>level</b>: (integer) @copydoc object::level
-- <b>direction</b>: (integer) @copydoc object::direction
-- <b>facing</b>: (integer) @copydoc object::facing
-- <b>quick_pos</b>: (integer) @copydoc object::quick_pos
-- <b>type</b>: (integer) @copydoc object::type
-- <b>sub_type_1</b>: (integer) @copydoc object::sub_type1
-- <b>item_quality</b>: (integer) @copydoc object::item_quality
-- <b>item_condition</b>: (integer) @copydoc object::item_condition
-- <b>item_race</b>: (integer) @copydoc object::item_race
-- <b>item_level</b>: (integer) @copydoc object::item_level
-- <b>item_skill</b>: (integer) @copydoc object::item_skill
-- <b>glow_radius</b>: (integer) @copydoc object::glow_radius
-- <b>move_status</b>: (integer) @copydoc object::move_status
-- <b>move_type</b>: (integer) @copydoc object::move_type
-- <b>anim_enemy_dir</b>: (integer) @copydoc object::anim_enemy_dir
-- <b>anim_moving_dir</b>: (integer) @copydoc object::anim_moving_dir
-- <b>anim_enemy_dir_last</b>: (integer) @copydoc object::anim_enemy_dir_last
-- <b>anim_moving_dir_last</b>: (integer) @copydoc object::anim_moving_dir_last
-- <b>anim_last_facing</b>: (integer) @copydoc object::anim_last_facing
-- <b>anim_last_facing_last</b>: (integer) @copydoc object::anim_last_facing_last
-- <b>anim_speed</b>: (integer) @copydoc object::anim_speed
-- <b>last_anim</b>: (integer) @copydoc object::last_anim
-- <b>behavior</b>: (integer) @copydoc object::behavior
-- <b>run_away</b>: (integer) @copydoc object::run_away
-- <b>layer</b>: (integer) @copydoc object::layer
-- <b>speed</b>: (float) @copydoc object::speed
-- <b>speed_left</b>: (float) @copydoc object::speed_left
-- <b>weapon_speed</b>: (float) @copydoc object::weapon_speed
-- <b>weapon_speed_left</b>: (float) @copydoc object::weapon_speed_left
-- <b>weapon_speed_add</b>: (float) @copydoc object::weapon_speed_add
-- <b>experience</b>: (integer) @copydoc living::exp
-- <b>hitpoints</b>: (integer) @copydoc living::hp
-- <b>max_hitpoints</b>: (integer) @copydoc living::maxhp
-- <b>spellpoints</b>: (integer) @copydoc living::sp
-- <b>max_spellpoints</b>: (integer) @copydoc living::maxsp
-- <b>grace</b>: (integer) @copydoc living::grace
-- <b>max_grace</b>: (integer) @copydoc living::maxgrace
-- <b>food</b>: (integer) @copydoc living::food
-- <b>damage</b>: (integer) @copydoc living::dam
-- <b>weapon_class</b>: (integer) @copydoc living::wc
-- <b>armour_class</b>: (integer) @copydoc living::ac
-- <b>weapon_class_range</b>: (integer) @copydoc living::wc_range
-- <b>strength</b>: (integer) @copydoc living::Str
-- <b>dexterity</b>: (integer) @copydoc living::Dex
-- <b>constitution</b>: (integer) @copydoc living::Con
-- <b>wisdom</b>: (integer) @copydoc living::Wis
-- <b>charisma</b>: (integer) @copydoc living::Cha
-- <b>intelligence</b>: (integer) @copydoc living::Int
-- <b>power</b>: (integer) @copydoc living::Pow
-- <b>luck</b>: (integer) @copydoc living::luck
 @page plugin_python_object_flags Python object flags
-List of the object flags and their meaning:
-
-- <b>f_sleep</b>: @copydoc FLAG_SLEEP
-- <b>f_confused</b>: @copydoc FLAG_CONFUSED
-- <b>f_paralyzed</b>: @copydoc FLAG_PARALYZED
-- <b>f_scared</b>: @copydoc FLAG_SCARED
-- <b>f_is_blind</b>: @copydoc FLAG_BLIND
-- <b>f_is_invisible</b>: @copydoc FLAG_IS_INVISIBLE
-- <b>f_is_ethereal</b>: @copydoc FLAG_IS_ETHEREAL
-- <b>f_is_good</b>: @copydoc FLAG_IS_GOOD
-- <b>f_no_pick</b>: @copydoc FLAG_NO_PICK
-- <b>f_walk_on</b>: @copydoc FLAG_WALK_ON
-- <b>f_no_pass</b>: @copydoc FLAG_NO_PASS
-- <b>f_is_animated</b>: @copydoc FLAG_ANIMATE
-- <b>f_slow_move</b>: @copydoc FLAG_SLOW_MOVE
-- <b>f_flying</b>: @copydoc FLAG_FLYING
-- <b>f_monster</b>: @copydoc FLAG_MONSTER
-- <b>f_friendly</b>: @copydoc FLAG_FRIENDLY
-- <b>f_been_applied</b>: @copydoc FLAG_BEEN_APPLIED
-- <b>f_auto_apply</b>: @copydoc FLAG_AUTO_APPLY
-- <b>f_treasure</b>: @copydoc FLAG_TREASURE
-- <b>f_is_neutral</b>: @copydoc FLAG_IS_NEUTRAL
-- <b>f_see_invisible</b>: @copydoc FLAG_SEE_INVISIBLE
-- <b>f_can_roll</b>: @copydoc FLAG_CAN_ROLL
-- <b>f_generator</b>: @copydoc FLAG_GENERATOR
-- <b>f_is_turnable</b>: @copydoc FLAG_IS_TURNABLE
-- <b>f_walk_off</b>: @copydoc FLAG_WALK_OFF
-- <b>f_fly_on</b>: @copydoc FLAG_FLY_ON
-- <b>f_fly_off</b>: @copydoc FLAG_FLY_OFF
-- <b>f_is_used_up</b>: @copydoc FLAG_IS_USED_UP
-- <b>f_identified</b>: @copydoc FLAG_IDENTIFIED
-- <b>f_reflecting</b>: @copydoc FLAG_REFLECTING
-- <b>f_changing</b>: @copydoc FLAG_CHANGING
-- <b>f_splitting</b>: @copydoc FLAG_SPLITTING
-- <b>f_hitback</b>: @copydoc FLAG_HITBACK
-- <b>f_startequip</b>: @copydoc FLAG_STARTEQUIP
-- <b>f_blocksview</b>: @copydoc FLAG_BLOCKSVIEW
-- <b>f_undead</b>: @copydoc FLAG_UNDEAD
-- <b>f_can_stack</b>: @copydoc FLAG_CAN_STACK
-- <b>f_unaggressive</b>: @copydoc FLAG_UNAGGRESSIVE
-- <b>f_reflect_missile</b>: @copydoc FLAG_REFL_MISSILE
-- <b>f_reflect_spell</b>: @copydoc FLAG_REFL_SPELL
-- <b>f_no_magic</b>: @copydoc FLAG_NO_MAGIC
-- <b>f_no_fix_player</b>: @copydoc FLAG_NO_FIX_PLAYER
-- <b>f_is_evil</b>: @copydoc FLAG_IS_EVIL
-- <b>f_tear_down</b>: @copydoc FLAG_TEAR_DOWN
-- <b>f_run_away</b>: @copydoc FLAG_RUN_AWAY
-- <b>f_pass_thru</b>: @copydoc FLAG_PASS_THRU
-- <b>f_can_pass_thru</b>: @copydoc FLAG_CAN_PASS_THRU
-- <b>f_pick_up</b>: @copydoc FLAG_PICK_UP
-- <b>f_unique</b>: @copydoc FLAG_UNIQUE
-- <b>f_no_drop</b>: @copydoc FLAG_NO_DROP
-- <b>f_is_indestructible</b>: @copydoc FLAG_INDESTRUCTIBLE
-- <b>f_can_cast_spell</b>: @copydoc FLAG_CAST_SPELL
-- <b>f_can_use_scroll</b>: @copydoc FLAG_USE_SCROLL
-- <b>f_can_use_range</b>: @copydoc FLAG_USE_RANGE
-- <b>f_can_use_bow</b>: @copydoc FLAG_USE_BOW
-- <b>f_can_use_armour</b>: @copydoc FLAG_USE_ARMOUR
-- <b>f_can_use_weapon</b>: @copydoc FLAG_USE_WEAPON
-- <b>f_can_use_ring</b>: @copydoc FLAG_USE_RING
-- <b>f_has_ready_range</b>: @copydoc FLAG_READY_RANGE
-- <b>f_has_ready_bow</b>: @copydoc FLAG_READY_BOW
-- <b>f_xrays</b>: @copydoc FLAG_XRAYS
-- <b>f_no_apply</b>: @copydoc FLAG_NO_APPLY
-- <b>f_is_floor</b>: @copydoc FLAG_IS_FLOOR
-- <b>f_lifesave</b>: @copydoc FLAG_LIFESAVE
-- <b>f_is_magical</b>: @copydoc FLAG_IS_MAGICAL
-- <b>f_alive</b>: @copydoc FLAG_ALIVE
-- <b>f_stand_still</b>: @copydoc FLAG_STAND_STILL
-- <b>f_random_move</b>: @copydoc FLAG_RANDOM_MOVE
-- <b>f_only_attack</b>: @copydoc FLAG_ONLY_ATTACK
-- <b>f_wiz</b>: @copydoc FLAG_WIZ
-- <b>f_stealth</b>: @copydoc FLAG_STEALTH
-- <b>f_cursed</b>: @copydoc FLAG_CURSED
-- <b>f_damned</b>: @copydoc FLAG_DAMNED
-- <b>f_see_anywhere</b>: @copydoc FLAG_SEE_ANYWHERE
-- <b>f_known_magical</b>: @copydoc FLAG_KNOWN_MAGICAL
-- <b>f_known_cursed</b>: @copydoc FLAG_KNOWN_CURSED
-- <b>f_can_use_skill</b>: @copydoc FLAG_CAN_USE_SKILL
-- <b>f_is_thrown</b>: @copydoc FLAG_IS_THROWN
-- <b>f_is_vul_sphere</b>: @copydoc FLAG_VUL_SPHERE
-- <b>f_is_proof_sphere</b>: @copydoc FLAG_PROOF_SPHERE
-- <b>f_is_male</b>: @copydoc FLAG_IS_MALE
-- <b>f_is_female</b>: @copydoc FLAG_IS_FEMALE
-- <b>f_applied</b>: @copydoc FLAG_APPLIED
-- <b>f_inv_locked</b>: @copydoc FLAG_INV_LOCKED
-- <b>f_is_wooded</b>: @copydoc FLAG_IS_WOODED
-- <b>f_is_hilly</b>: @copydoc FLAG_IS_HILLY
-- <b>f_has_ready_skill</b>: @copydoc FLAG_READY_SKILL
-- <b>f_has_ready_weapon</b>: @copydoc FLAG_READY_WEAPON
-- <b>f_no_skill_ident</b>: @copydoc FLAG_NO_SKILL_IDENT
-- <b>f_can_see_in_dark</b>: @copydoc FLAG_SEE_IN_DARK
-- <b>f_is_cauldron</b>: @copydoc FLAG_IS_CAULDRON
-- <b>f_is_dust</b>: @copydoc FLAG_DUST
-- <b>f_no_steal</b>: @copydoc FLAG_NO_STEAL
-- <b>f_one_hit</b>: @copydoc FLAG_ONE_HIT
-- <b>f_berserk</b>: @copydoc FLAG_BERSERK
-- <b>f_no_attack</b>: @copydoc FLAG_NO_ATTACK
-- <b>f_invulnerable</b>: @copydoc FLAG_INVULNERABLE
-- <b>f_quest_item</b>: @copydoc FLAG_QUEST_ITEM
-- <b>f_is_vul_elemental</b>: @copydoc FLAG_VUL_ELEMENTAL
-- <b>f_is_proof_elemental</b>: @copydoc FLAG_PROOF_ELEMENTAL
-- <b>f_is_vul_magic</b>: @copydoc FLAG_VUL_MAGIC
-- <b>f_is_proof_magic</b>: @copydoc FLAG_PROOF_MAGIC
-- <b>f_is_vul_physical</b>: @copydoc FLAG_VUL_PHYSICAL
-- <b>f_is_proof_physical</b>: @copydoc FLAG_PROOF_PHYSICAL
-- <b>f_sys_object</b>: @copydoc FLAG_SYS_OBJECT
-- <b>f_use_fix_pos</b>: @copydoc FLAG_USE_FIX_POS
-- <b>f_unpaid</b>: @copydoc FLAG_UNPAID
-- <b>f_make_invisible</b>: @copydoc FLAG_MAKE_INVISIBLE
-- <b>f_make_ethereal</b>: @copydoc FLAG_MAKE_ETHEREAL
-- <b>f_is_named</b>: @copydoc FLAG_IS_NAMED
-- <b>f_no_teleport</b>: @copydoc FLAG_NO_TELEPORT
-- <b>f_corpse</b>: @copydoc FLAG_CORPSE
-- <b>f_corpse_forced</b>: @copydoc FLAG_CORPSE_FORCED
-- <b>f_player_only</b>: @copydoc FLAG_PLAYER_ONLY
-- <b>f_no_cleric</b>: @copydoc FLAG_NO_CLERIC
-- <b>f_one_drop</b>: @copydoc FLAG_ONE_DROP
-- <b>f_cursed_perm</b>: @copydoc FLAG_PERM_CURSED
-- <b>f_damned_perm</b>: @copydoc FLAG_PERM_DAMNED
-- <b>f_door_closed</b>: @copydoc FLAG_DOOR_CLOSED
-- <b>f_is_missile</b>: @copydoc FLAG_IS_MISSILE
-- <b>f_can_reflect_missile</b>: @copydoc FLAG_CAN_REFL_MISSILE
-- <b>f_can_reflect_spell</b>: @copydoc FLAG_CAN_REFL_SPELL
-- <b>flag_is_assassination</b>: @copydoc FLAG_IS_ASSASSINATION
-@page plugin_python_object_constants Python object constants
-List of the object constants and their meaning:
-
-- <b>MAP_INFO_NORMAL</b>: @copydoc MAP_INFO_NORMAL
-- <b>MAP_INFO_ALL</b>: @copydoc MAP_INFO_ALL
-- <b>COST_TRUE</b>: @copydoc F_TRUE
-- <b>COST_BUY</b>: @copydoc F_BUY
-- <b>COST_SELL</b>: @copydoc F_SELL
-- <b>APPLY_TOGGLE</b>: 0
-- <b>APPLY_ALWAYS</b>: @copydoc AP_APPLY
-- <b>UNAPPLY_ALWAYS</b>: @copydoc AP_UNAPPLY
-- <b>UNAPPLY_NO_MERGE</b>: @copydoc AP_NO_MERGE
-- <b>UNAPPLY_IGNORE_CURSE</b>: @copydoc AP_IGNORE_CURSE
-- <b>NEUTER</b>: 0
-- <b>MALE</b>: 1
-- <b>FEMALE</b>: 2
-- <b>HERMAPHRODITE</b>: 3
-- <b>CAST_NORMAL</b>: 0
-- <b>CAST_POTION</b>: 1
-- <b>LEARN</b>: 0
-- <b>UNLEARN</b>: 1
-- <b>UNIDENTIFIED</b>: 0
-- <b>IDENTIFIED</b>: 1
-- <b>IDENTIFY_NORMAL</b>: @copydoc IDENTIFY_MODE_NORMAL
-- <b>IDENTIFY_ALL</b>: @copydoc IDENTIFY_MODE_ALL
-- <b>IDENTIFY_MARKED</b>: @copydoc IDENTIFY_MODE_MARKED
-- <b>CLONE_WITH_INVENTORY</b>: 0
-- <b>CLONE_WITHOUT_INVENTORY</b>: 1
-- <b>EXP_AGILITY</b>: 1
-- <b>EXP_MENTAL</b>: 2
-- <b>EXP_MAGICAL</b>: 3
-- <b>EXP_PERSONAL</b>: 4
-- <b>EXP_PHYSICAL</b>: 5
-- <b>EXP_WISDOM</b>: 6
-- <b>COLOR_WHITE</b>: @copydoc NDI_WHITE
-- <b>COLOR_ORANGE</b>: @copydoc NDI_ORANGE
-- <b>COLOR_NAVY</b>: @copydoc NDI_NAVY
-- <b>COLOR_RED</b>: @copydoc NDI_RED
-- <b>COLOR_GREEN</b>: @copydoc NDI_GREEN
-- <b>COLOR_BLUE</b>: @copydoc NDI_BLUE
-- <b>COLOR_GREY</b>: @copydoc NDI_GREY
-- <b>COLOR_BROWN</b>: @copydoc NDI_BROWN
-- <b>COLOR_PURPLE</b>: @copydoc NDI_PURPLE
-- <b>COLOR_PINK</b>: @copydoc NDI_PINK
-- <b>COLOR_YELLOW</b>: @copydoc NDI_YELLOW
-- <b>COLOR_DK_NAVY</b>: @copydoc NDI_DK_NAVY
-- <b>COLOR_DK_GREEN</b>: @copydoc NDI_DK_GREEN
-- <b>COLOR_DK_ORANGE</b>: @copydoc NDI_DK_ORANGE
-- <b>NDI_SAY</b>: @copydoc NDI_SAY
-- <b>NDI_SHOUT</b>: @copydoc NDI_SHOUT
-- <b>NDI_TELL</b>: @copydoc NDI_TELL
-- <b>NDI_PLAYER</b>: @copydoc NDI_PLAYER
-- <b>NDI_ANIM</b>: @copydoc NDI_ANIM
-- <b>NDI_EMOTE</b>: @copydoc NDI_EMOTE
-- <b>NDI_ALL</b>: @copydoc NDI_ALL
-- <b>PLAYER_EQUIP_MAIL</b>: @copydoc PLAYER_EQUIP_MAIL
-- <b>PLAYER_EQUIP_GAUNTLET</b>: @copydoc PLAYER_EQUIP_GAUNTLET
-- <b>PLAYER_EQUIP_BRACER</b>: @copydoc PLAYER_EQUIP_BRACER
-- <b>PLAYER_EQUIP_HELM</b>: @copydoc PLAYER_EQUIP_HELM
-- <b>PLAYER_EQUIP_BOOTS</b>: @copydoc PLAYER_EQUIP_BOOTS
-- <b>PLAYER_EQUIP_CLOAK</b>: @copydoc PLAYER_EQUIP_CLOAK
-- <b>PLAYER_EQUIP_GIRDLE</b>: @copydoc PLAYER_EQUIP_GIRDLE
-- <b>PLAYER_EQUIP_SHIELD</b>: @copydoc PLAYER_EQUIP_SHIELD
-- <b>PLAYER_EQUIP_RRING</b>: @copydoc PLAYER_EQUIP_RRING
-- <b>PLAYER_EQUIP_LRING</b>: @copydoc PLAYER_EQUIP_LRING
-- <b>PLAYER_EQUIP_AMULET</b>: @copydoc PLAYER_EQUIP_AMULET
-- <b>PLAYER_EQUIP_WEAPON</b>: @copydoc PLAYER_EQUIP_WEAPON
-- <b>PLAYER_EQUIP_BOW</b>: @copydoc PLAYER_EQUIP_BOW
-- <b>QUEST_TYPE_KILL</b>: @copydoc QUEST_TYPE_KILL
-- <b>QUEST_TYPE_KILL_ITEM</b>: @copydoc QUEST_TYPE_KILL_ITEM
-- <b>QUEST_STATUS_COMPLETED</b>: @copydoc QUEST_STATUS_COMPLETED
-- <b>TYPE_PLAYER</b>: @ref PLAYER "Player"
-- <b>TYPE_BULLET</b>: @ref BULLET "Bullet"
-- <b>TYPE_ROD</b>: @ref ROD "Rod"
-- <b>TYPE_TREASURE</b>: @ref TREASURE "Treasure"
-- <b>TYPE_POTION</b>: @ref POTION "Potion"
-- <b>TYPE_FOOD</b>: @ref FOOD "Food"
-- <b>TYPE_POISON</b>: @ref POISON "Poison"
-- <b>TYPE_BOOK</b>: @ref BOOK "Book"
-- <b>TYPE_CLOCK</b>: @ref CLOCK "Clock"
-- <b>TYPE_FBULLET</b>: @ref FBULLET "Fbullet"
-- <b>TYPE_FBALL</b>: @ref FBALL "Fball"
-- <b>TYPE_LIGHTNING</b>: @ref LIGHTNING "Lightning"
-- <b>TYPE_ARROW</b>: @ref ARROW "Arrow"
-- <b>TYPE_BOW</b>: @ref BOW "Bow"
-- <b>TYPE_WEAPON</b>: @ref WEAPON "Weapon"
-- <b>TYPE_ARMOUR</b>: @ref ARMOUR "Armour"
-- <b>TYPE_PEDESTAL</b>: @ref PEDESTAL "Pedestal"
-- <b>TYPE_ALTAR</b>: @ref ALTAR "Altar"
-- <b>TYPE_CONFUSION</b>: @ref CONFUSION "Confusion"
-- <b>TYPE_LOCKED_DOOR</b>: @ref LOCKED_DOOR "Locked Door"
-- <b>TYPE_SPECIAL_KEY</b>: @ref SPECIAL_KEY "Special Key"
-- <b>TYPE_MAP</b>: @ref MAP "Map"
-- <b>TYPE_DOOR</b>: @ref DOOR "Door"
-- <b>TYPE_KEY</b>: @ref KEY "Key"
-- <b>TYPE_MMISSILE</b>: @ref MMISSILE "Mmissile"
-- <b>TYPE_TIMED_GATE</b>: @ref TIMED_GATE "Timed Gate"
-- <b>TYPE_TRIGGER</b>: @ref TRIGGER "Trigger"
-- <b>TYPE_GRIMREAPER</b>: @ref GRIMREAPER "Grimreaper"
-- <b>TYPE_MAGIC_EAR</b>: @ref MAGIC_EAR "Magic Ear"
-- <b>TYPE_TRIGGER_BUTTON</b>: @ref TRIGGER_BUTTON "Trigger Button"
-- <b>TYPE_TRIGGER_ALTAR</b>: @ref TRIGGER_ALTAR "Trigger Altar"
-- <b>TYPE_TRIGGER_PEDESTAL</b>: @ref TRIGGER_PEDESTAL "Trigger Pedestal"
-- <b>TYPE_SHIELD</b>: @ref SHIELD "Shield"
-- <b>TYPE_HELMET</b>: @ref HELMET "Helmet"
-- <b>TYPE_HORN</b>: @ref HORN "Horn"
-- <b>TYPE_MONEY</b>: @ref MONEY "Money"
-- <b>TYPE_CLASS</b>: @ref CLASS "Class"
-- <b>TYPE_GRAVESTONE</b>: @ref GRAVESTONE "Gravestone"
-- <b>TYPE_AMULET</b>: @ref AMULET "Amulet"
-- <b>TYPE_PLAYERMOVER</b>: @ref PLAYERMOVER "Playermover"
-- <b>TYPE_TELEPORTER</b>: @ref TELEPORTER "Teleporter"
-- <b>TYPE_CREATOR</b>: @ref CREATOR "Creator"
-- <b>TYPE_SKILL</b>: @ref SKILL "Skill"
-- <b>TYPE_EXPERIENCE</b>: @ref EXPERIENCE "Experience"
-- <b>TYPE_EARTHWALL</b>: @ref EARTHWALL "Earthwall"
-- <b>TYPE_GOLEM</b>: @ref GOLEM "Golem"
-- <b>TYPE_BOMB</b>: @ref BOMB "Bomb"
-- <b>TYPE_THROWN_OBJ</b>: @ref THROWN_OBJ "Thrown Obj"
-- <b>TYPE_BLINDNESS</b>: @ref BLINDNESS "Blindness"
-- <b>TYPE_GOD</b>: @ref GOD "God"
-- <b>TYPE_DETECTOR</b>: @ref DETECTOR "Detector"
-- <b>TYPE_DEAD_OBJECT</b>: @ref DEAD_OBJECT "Dead Object"
-- <b>TYPE_DRINK</b>: @ref DRINK "Drink"
-- <b>TYPE_MARKER</b>: @ref MARKER "Marker"
-- <b>TYPE_HOLY_ALTAR</b>: @ref HOLY_ALTAR "Holy Altar"
-- <b>TYPE_PLAYER_CHANGER</b>: @ref PLAYER_CHANGER "Player Changer"
-- <b>TYPE_PEARL</b>: @ref PEARL "Pearl"
-- <b>TYPE_GEM</b>: @ref GEM "Gem"
-- <b>TYPE_FIRECHEST</b>: @ref FIRECHEST "Firechest"
-- <b>TYPE_FIREWALL</b>: @ref FIREWALL "Firewall"
-- <b>TYPE_CHECK_INV</b>: @ref CHECK_INV "Check Inv"
-- <b>TYPE_MOOD_FLOOR</b>: @ref MOOD_FLOOR "Mood Floor"
-- <b>TYPE_EXIT</b>: @ref EXIT "Exit"
-- <b>TYPE_SHOP_FLOOR</b>: @ref SHOP_FLOOR "Shop Floor"
-- <b>TYPE_SHOP_MAT</b>: @ref SHOP_MAT "Shop Mat"
-- <b>TYPE_RING</b>: @ref RING "Ring"
-- <b>TYPE_FLOOR</b>: @ref FLOOR "Floor"
-- <b>TYPE_FLESH</b>: @ref FLESH "Flesh"
-- <b>TYPE_INORGANIC</b>: @ref INORGANIC "Inorganic"
-- <b>TYPE_LIGHT_APPLY</b>: @ref LIGHT_APPLY "Light Apply"
-- <b>TYPE_LIGHTER</b>: @ref LIGHTER "Lighter"
-- <b>TYPE_WALL</b>: @ref WALL "Wall"
-- <b>TYPE_LIGHT_SOURCE</b>: @ref LIGHT_SOURCE "Light Source"
-- <b>TYPE_MISC_OBJECT</b>: @ref MISC_OBJECT "Misc Object"
-- <b>TYPE_MONSTER</b>: @ref MONSTER "Monster"
-- <b>TYPE_SPAWN_POINT</b>: @ref SPAWN_POINT "Spawn Point"
-- <b>TYPE_LIGHT_REFILL</b>: @ref LIGHT_REFILL "Light Refill"
-- <b>TYPE_SPAWN_POINT_MOB</b>: @ref SPAWN_POINT_MOB "Spawn Point Mob"
-- <b>TYPE_SPAWN_POINT_INFO</b>: @ref SPAWN_POINT_INFO "Spawn Point Info"
-- <b>TYPE_SPELLBOOK</b>: @ref SPELLBOOK "Spellbook"
-- <b>TYPE_ORGANIC</b>: @ref ORGANIC "Organic"
-- <b>TYPE_CLOAK</b>: @ref CLOAK "Cloak"
-- <b>TYPE_CONE</b>: @ref CONE "Cone"
-- <b>TYPE_AURA</b>: @ref AURA "Aura"
-- <b>TYPE_SPINNER</b>: @ref SPINNER "Spinner"
-- <b>TYPE_GATE</b>: @ref GATE "Gate"
-- <b>TYPE_BUTTON</b>: @ref BUTTON "Button"
-- <b>TYPE_HANDLE</b>: @ref HANDLE "Handle"
-- <b>TYPE_PIT</b>: @ref PIT "Pit"
-- <b>TYPE_TRAPDOOR</b>: @ref TRAPDOOR "Trapdoor"
-- <b>TYPE_WORD_OF_RECALL</b>: @ref WORD_OF_RECALL "Word Of Recall"
-- <b>TYPE_SIGN</b>: @ref SIGN "Sign"
-- <b>TYPE_BOOTS</b>: @ref BOOTS "Boots"
-- <b>TYPE_GLOVES</b>: @ref GLOVES "Gloves"
-- <b>TYPE_BASE_INFO</b>: @ref BASE_INFO "Base Info"
-- <b>TYPE_RANDOM_DROP</b>: @ref RANDOM_DROP "Random Drop"
-- <b>TYPE_CONVERTER</b>: @ref CONVERTER "Converter"
-- <b>TYPE_BRACERS</b>: @ref BRACERS "Bracers"
-- <b>TYPE_POISONING</b>: @ref POISONING "Poisoning"
-- <b>TYPE_SAVEBED</b>: @ref SAVEBED "Savebed"
-- <b>TYPE_POISONCLOUD</b>: @ref POISONCLOUD "Poisoncloud"
-- <b>TYPE_WAND</b>: @ref WAND "Wand"
-- <b>TYPE_ABILITY</b>: @ref ABILITY "Ability"
-- <b>TYPE_SCROLL</b>: @ref SCROLL "Scroll"
-- <b>TYPE_DIRECTOR</b>: @ref DIRECTOR "Director"
-- <b>TYPE_GIRDLE</b>: @ref GIRDLE "Girdle"
-- <b>TYPE_FORCE</b>: @ref FORCE "Force"
-- <b>TYPE_POTION_EFFECT</b>: @ref POTION_EFFECT "Potion Effect"
-- <b>TYPE_JEWEL</b>: @ref JEWEL "Jewel"
-- <b>TYPE_NUGGET</b>: @ref NUGGET "Nugget"
-- <b>TYPE_EVENT_OBJECT</b>: @ref EVENT_OBJECT "Event Object"
-- <b>TYPE_WAYPOINT_OBJECT</b>: @ref WAYPOINT_OBJECT "Waypoint Object"
-- <b>TYPE_QUEST_CONTAINER</b>: @ref QUEST_CONTAINER "Quest Container"
-- <b>TYPE_CLOSE_CON</b>: @ref CLOSE_CON "Close Con"
-- <b>TYPE_CONTAINER</b>: @ref CONTAINER "Container"
-- <b>TYPE_ARMOUR_IMPROVER</b>: @ref ARMOUR_IMPROVER "Armour Improver"
-- <b>TYPE_WEAPON_IMPROVER</b>: @ref WEAPON_IMPROVER "Weapon Improver"
-- <b>TYPE_WEALTH</b>: @ref WEALTH "Wealth"
-- <b>TYPE_SKILLSCROLL</b>: @ref SKILLSCROLL "Skillscroll"
-- <b>TYPE_DEEP_SWAMP</b>: @ref DEEP_SWAMP "Deep Swamp"
-- <b>TYPE_IDENTIFY_ALTAR</b>: @ref IDENTIFY_ALTAR "Identify Altar"
-- <b>TYPE_CANCELLATION</b>: @ref CANCELLATION "Cancellation"
-- <b>TYPE_BALL_LIGHTNING</b>: @ref BALL_LIGHTNING "Ball Lightning"
-- <b>TYPE_SWARM_SPELL</b>: @ref SWARM_SPELL "Swarm Spell"
-- <b>TYPE_RUNE</b>: @ref RUNE "Rune"
-- <b>TYPE_POWER_CRYSTAL</b>: @ref POWER_CRYSTAL "Power Crystal"
-- <b>TYPE_CORPSE</b>: @ref CORPSE "Corpse"
-- <b>TYPE_DISEASE</b>: @ref DISEASE "Disease"
-- <b>TYPE_SYMPTOM</b>: @ref SYMPTOM "Symptom"
-- <b>SOUNDTYPE_NORMAL</b>: @copydoc SOUND_NORMAL
-- <b>SOUNDTYPE_SPELL</b>: @copydoc SOUND_SPELL
-- <b>SOUND_LEVEL_UP</b>: @copydoc SOUND_LEVEL_UP
-- <b>SOUND_FIRE_ARROW</b>: @copydoc SOUND_FIRE_ARROW
-- <b>SOUND_LEARN_SPELL</b>: @copydoc SOUND_LEARN_SPELL
-- <b>SOUND_FUMBLE_SPELL</b>: @copydoc SOUND_FUMBLE_SPELL
-- <b>SOUND_WAND_POOF</b>: @copydoc SOUND_WAND_POOF
-- <b>SOUND_OPEN_DOOR</b>: @copydoc SOUND_OPEN_DOOR
-- <b>SOUND_PUSH_PLAYER</b>: @copydoc SOUND_PUSH_PLAYER
-- <b>SOUND_HIT_IMPACT</b>: @copydoc SOUND_HIT_IMPACT
-- <b>SOUND_HIT_CLEAVE</b>: @copydoc SOUND_HIT_CLEAVE
-- <b>SOUND_HIT_SLASH</b>: @copydoc SOUND_HIT_SLASH
-- <b>SOUND_HIT_PIERCE</b>: @copydoc SOUND_HIT_PIERCE
-- <b>SOUND_MISS_BLOCK</b>: @copydoc SOUND_MISS_BLOCK
-- <b>SOUND_MISS_HAND</b>: @copydoc SOUND_MISS_HAND
-- <b>SOUND_MISS_MOB</b>: @copydoc SOUND_MISS_MOB
-- <b>SOUND_MISS_PLAYER</b>: @copydoc SOUND_MISS_PLAYER
-- <b>SOUND_PET_IS_KILLED</b>: @copydoc SOUND_PET_IS_KILLED
-- <b>SOUND_PLAYER_DIES</b>: @copydoc SOUND_PLAYER_DIES
-- <b>SOUND_OB_EVAPORATE</b>: @copydoc SOUND_OB_EVAPORATE
-- <b>SOUND_OB_EXPLODE</b>: @copydoc SOUND_OB_EXPLODE
-- <b>SOUND_PLAYER_KILLS</b>: @copydoc SOUND_PLAYER_KILLS
-- <b>SOUND_TURN_HANDLE</b>: @copydoc SOUND_TURN_HANDLE
-- <b>SOUND_FALL_HOLE</b>: @copydoc SOUND_FALL_HOLE
-- <b>SOUND_DRINK_POISON</b>: @copydoc SOUND_DRINK_POISON
-- <b>SOUND_DROP_THROW</b>: @copydoc SOUND_DROP_THROW
-- <b>SOUND_LOSE_SOME</b>: @copydoc SOUND_LOSE_SOME
-- <b>SOUND_THROW</b>: @copydoc SOUND_THROW
-- <b>SOUND_GATE_OPEN</b>: @copydoc SOUND_GATE_OPEN
-- <b>SOUND_GATE_CLOSE</b>: @copydoc SOUND_GATE_CLOSE
-- <b>SOUND_OPEN_CONTAINER</b>: @copydoc SOUND_OPEN_CONTAINER
-- <b>SOUND_GROWL</b>: @copydoc SOUND_GROWL
-- <b>SOUND_ARROW_HIT</b>: @copydoc SOUND_ARROW_HIT
-- <b>SOUND_DOOR_CLOSE</b>: @copydoc SOUND_DOOR_CLOSE
-- <b>SOUND_TELEPORT</b>: @copydoc SOUND_TELEPORT
-- <b>SOUND_CLICK</b>: @copydoc SOUND_CLICK
-- <b>SOUND_MAGIC_DEFAULT</b>: @copydoc SOUND_MAGIC_DEFAULT
-- <b>SOUND_MAGIC_ACID</b>: @copydoc SOUND_MAGIC_ACID
-- <b>SOUND_MAGIC_ANIMATE</b>: @copydoc SOUND_MAGIC_ANIMATE
-- <b>SOUND_MAGIC_AVATAR</b>: @copydoc SOUND_MAGIC_AVATAR
-- <b>SOUND_MAGIC_BOMB</b>: @copydoc SOUND_MAGIC_BOMB
-- <b>SOUND_MAGIC_BULLET1</b>: @copydoc SOUND_MAGIC_BULLET1
-- <b>SOUND_MAGIC_BULLET2</b>: @copydoc SOUND_MAGIC_BULLET2
-- <b>SOUND_MAGIC_CANCEL</b>: @copydoc SOUND_MAGIC_CANCEL
-- <b>SOUND_MAGIC_COMET</b>: @copydoc SOUND_MAGIC_COMET
-- <b>SOUND_MAGIC_CONFUSION</b>: @copydoc SOUND_MAGIC_CONFUSION
-- <b>SOUND_MAGIC_CREATE</b>: @copydoc SOUND_MAGIC_CREATE
-- <b>SOUND_MAGIC_DARK</b>: @copydoc SOUND_MAGIC_DARK
-- <b>SOUND_MAGIC_DEATH</b>: @copydoc SOUND_MAGIC_DEATH
-- <b>SOUND_MAGIC_DESTRUCTION</b>: @copydoc SOUND_MAGIC_DESTRUCTION
-- <b>SOUND_MAGIC_ELEC</b>: @copydoc SOUND_MAGIC_ELEC
-- <b>SOUND_MAGIC_FEAR</b>: @copydoc SOUND_MAGIC_FEAR
-- <b>SOUND_MAGIC_FIRE</b>: @copydoc SOUND_MAGIC_FIRE
-- <b>SOUND_MAGIC_FIREBALL1</b>: @copydoc SOUND_MAGIC_FIREBALL1
-- <b>SOUND_MAGIC_FIREBALL2</b>: @copydoc SOUND_MAGIC_FIREBALL2
-- <b>SOUND_MAGIC_HWORD</b>: @copydoc SOUND_MAGIC_HWORD
-- <b>SOUND_MAGIC_ICE</b>: @copydoc SOUND_MAGIC_ICE
-- <b>SOUND_MAGIC_INVISIBLE</b>: @copydoc SOUND_MAGIC_INVISIBLE
-- <b>SOUND_MAGIC_INVOKE</b>: @copydoc SOUND_MAGIC_INVOKE
-- <b>SOUND_MAGIC_INVOKE2</b>: @copydoc SOUND_MAGIC_INVOKE2
-- <b>SOUND_MAGIC_MAGIC</b>: @copydoc SOUND_MAGIC_MAGIC
-- <b>SOUND_MAGIC_MANABALL</b>: @copydoc SOUND_MAGIC_MANABALL
-- <b>SOUND_MAGIC_MISSILE</b>: @copydoc SOUND_MAGIC_MISSILE
-- <b>SOUND_MAGIC_MMAP</b>: @copydoc SOUND_MAGIC_MMAP
-- <b>SOUND_MAGIC_ORB</b>: @copydoc SOUND_MAGIC_ORB
-- <b>SOUND_MAGIC_PARALYZE</b>: @copydoc SOUND_MAGIC_PARALYZE
-- <b>SOUND_MAGIC_POISON</b>: @copydoc SOUND_MAGIC_POISON
-- <b>SOUND_MAGIC_PROTECTION</b>: @copydoc SOUND_MAGIC_PROTECTION
-- <b>SOUND_MAGIC_RSTRIKE</b>: @copydoc SOUND_MAGIC_RSTRIKE
-- <b>SOUND_MAGIC_RUNE</b>: @copydoc SOUND_MAGIC_RUNE
-- <b>SOUND_MAGIC_SBALL</b>: @copydoc SOUND_MAGIC_SBALL
-- <b>SOUND_MAGIC_SLOW</b>: @copydoc SOUND_MAGIC_SLOW
-- <b>SOUND_MAGIC_SNOWSTORM</b>: @copydoc SOUND_MAGIC_SNOWSTORM
-- <b>SOUND_MAGIC_STAT</b>: @copydoc SOUND_MAGIC_STAT
-- <b>SOUND_MAGIC_STEAMBOLT</b>: @copydoc SOUND_MAGIC_STEAMBOLT
-- <b>SOUND_MAGIC_SUMMON1</b>: @copydoc SOUND_MAGIC_SUMMON1
-- <b>SOUND_MAGIC_SUMMON2</b>: @copydoc SOUND_MAGIC_SUMMON2
-- <b>SOUND_MAGIC_SUMMON3</b>: @copydoc SOUND_MAGIC_SUMMON3
-- <b>SOUND_MAGIC_TELEPORT</b>: @copydoc SOUND_MAGIC_TELEPORT
-- <b>SOUND_MAGIC_TURN</b>: @copydoc SOUND_MAGIC_TURN
-- <b>SOUND_MAGIC_WALL</b>: @copydoc SOUND_MAGIC_WALL
-- <b>SOUND_MAGIC_WALL2</b>: @copydoc SOUND_MAGIC_WALL2
-- <b>SOUND_MAGIC_WOUND</b>: @copydoc SOUND_MAGIC_WOUND
-@page plugin_python_general_constants Python general constants
-List of the general constants and their meaning:
-
-- <b>NORTH</b>: 1
-- <b>NORTHEAST</b>: 2
-- <b>EAST</b>: 3
-- <b>SOUTHEAST</b>: 4
-- <b>SOUTH</b>: 5
-- <b>SOUTHWEST</b>: 6
-- <b>WEST</b>: 7
-- <b>NORTHWEST</b>: 8
-- <b>llevError</b>: @copydoc llevError
-- <b>llevBug</b>: @copydoc llevBug
-- <b>llevInfo</b>: @copydoc llevInfo
-- <b>llevDebug</b>: @copydoc llevDebug
-- <b>EVENT_APPLY</b>: @copydoc EVENT_APPLY
-- <b>EVENT_ATTACK</b>: @copydoc EVENT_ATTACK
-- <b>EVENT_DEATH</b>: @copydoc EVENT_DEATH
-- <b>EVENT_DROP</b>: @copydoc EVENT_DROP
-- <b>EVENT_PICKUP</b>: @copydoc EVENT_PICKUP
-- <b>EVENT_SAY</b>: @copydoc EVENT_SAY
-- <b>EVENT_STOP</b>: @copydoc EVENT_STOP
-- <b>EVENT_TIME</b>: @copydoc EVENT_TIME
-- <b>EVENT_THROW</b>: @copydoc EVENT_THROW
-- <b>EVENT_TRIGGER</b>: @copydoc EVENT_TRIGGER
-- <b>EVENT_CLOSE</b>: @copydoc EVENT_CLOSE
-- <b>EVENT_TIMER</b>: @copydoc EVENT_TIMER
-- <b>EVENT_BORN</b>: @copydoc EVENT_BORN
-- <b>EVENT_CLOCK</b>: @copydoc EVENT_CLOCK
-- <b>EVENT_CRASH</b>: @copydoc EVENT_CRASH
-- <b>EVENT_GDEATH</b>: @copydoc EVENT_GDEATH
-- <b>EVENT_GKILL</b>: @copydoc EVENT_GKILL
-- <b>EVENT_LOGIN</b>: @copydoc EVENT_LOGIN
-- <b>EVENT_LOGOUT</b>: @copydoc EVENT_LOGOUT
-- <b>EVENT_MAPENTER</b>: @copydoc EVENT_MAPENTER
-- <b>EVENT_MAPLEAVE</b>: @copydoc EVENT_MAPLEAVE
-- <b>EVENT_MAPRESET</b>: @copydoc EVENT_MAPRESET
-- <b>EVENT_REMOVE</b>: @copydoc EVENT_REMOVE
-- <b>EVENT_SHOUT</b>: @copydoc EVENT_SHOUT
-- <b>EVENT_TELL</b>: @copydoc EVENT_TELL
+<h2>Python object flags</h2>
+List of the object flags and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="90%">Details</th>
+	</tr>
+	<tr>
+		<td>f_sleep</td>
+		<td>@copydoc FLAG_SLEEP</td>
+	</tr>
+	<tr>
+		<td>f_confused</td>
+		<td>@copydoc FLAG_CONFUSED</td>
+	</tr>
+	<tr>
+		<td>f_scared</td>
+		<td>@copydoc FLAG_SCARED</td>
+	</tr>
+	<tr>
+		<td>f_is_blind</td>
+		<td>@copydoc FLAG_BLIND</td>
+	</tr>
+	<tr>
+		<td>f_is_invisible</td>
+		<td>@copydoc FLAG_IS_INVISIBLE</td>
+	</tr>
+	<tr>
+		<td>f_is_ethereal</td>
+		<td>@copydoc FLAG_IS_ETHEREAL</td>
+	</tr>
+	<tr>
+		<td>f_is_good</td>
+		<td>@copydoc FLAG_IS_GOOD</td>
+	</tr>
+	<tr>
+		<td>f_no_pick</td>
+		<td>@copydoc FLAG_NO_PICK</td>
+	</tr>
+	<tr>
+		<td>f_walk_on</td>
+		<td>@copydoc FLAG_WALK_ON</td>
+	</tr>
+	<tr>
+		<td>f_no_pass</td>
+		<td>@copydoc FLAG_NO_PASS</td>
+	</tr>
+	<tr>
+		<td>f_is_animated</td>
+		<td>@copydoc FLAG_ANIMATE</td>
+	</tr>
+	<tr>
+		<td>f_slow_move</td>
+		<td>@copydoc FLAG_SLOW_MOVE</td>
+	</tr>
+	<tr>
+		<td>f_flying</td>
+		<td>@copydoc FLAG_FLYING</td>
+	</tr>
+	<tr>
+		<td>f_monster</td>
+		<td>@copydoc FLAG_MONSTER</td>
+	</tr>
+	<tr>
+		<td>f_friendly</td>
+		<td>@copydoc FLAG_FRIENDLY</td>
+	</tr>
+	<tr>
+		<td>f_been_applied</td>
+		<td>@copydoc FLAG_BEEN_APPLIED</td>
+	</tr>
+	<tr>
+		<td>f_auto_apply</td>
+		<td>@copydoc FLAG_AUTO_APPLY</td>
+	</tr>
+	<tr>
+		<td>f_treasure</td>
+		<td>@copydoc FLAG_TREASURE</td>
+	</tr>
+	<tr>
+		<td>f_is_neutral</td>
+		<td>@copydoc FLAG_IS_NEUTRAL</td>
+	</tr>
+	<tr>
+		<td>f_see_invisible</td>
+		<td>@copydoc FLAG_SEE_INVISIBLE</td>
+	</tr>
+	<tr>
+		<td>f_can_roll</td>
+		<td>@copydoc FLAG_CAN_ROLL</td>
+	</tr>
+	<tr>
+		<td>f_generator</td>
+		<td>@copydoc FLAG_GENERATOR</td>
+	</tr>
+	<tr>
+		<td>f_is_turnable</td>
+		<td>@copydoc FLAG_IS_TURNABLE</td>
+	</tr>
+	<tr>
+		<td>f_walk_off</td>
+		<td>@copydoc FLAG_WALK_OFF</td>
+	</tr>
+	<tr>
+		<td>f_fly_on</td>
+		<td>@copydoc FLAG_FLY_ON</td>
+	</tr>
+	<tr>
+		<td>f_fly_off</td>
+		<td>@copydoc FLAG_FLY_OFF</td>
+	</tr>
+	<tr>
+		<td>f_is_used_up</td>
+		<td>@copydoc FLAG_IS_USED_UP</td>
+	</tr>
+	<tr>
+		<td>f_identified</td>
+		<td>@copydoc FLAG_IDENTIFIED</td>
+	</tr>
+	<tr>
+		<td>f_reflecting</td>
+		<td>@copydoc FLAG_REFLECTING</td>
+	</tr>
+	<tr>
+		<td>f_changing</td>
+		<td>@copydoc FLAG_CHANGING</td>
+	</tr>
+	<tr>
+		<td>f_splitting</td>
+		<td>@copydoc FLAG_SPLITTING</td>
+	</tr>
+	<tr>
+		<td>f_hitback</td>
+		<td>@copydoc FLAG_HITBACK</td>
+	</tr>
+	<tr>
+		<td>f_startequip</td>
+		<td>@copydoc FLAG_STARTEQUIP</td>
+	</tr>
+	<tr>
+		<td>f_blocksview</td>
+		<td>@copydoc FLAG_BLOCKSVIEW</td>
+	</tr>
+	<tr>
+		<td>f_undead</td>
+		<td>@copydoc FLAG_UNDEAD</td>
+	</tr>
+	<tr>
+		<td>f_can_stack</td>
+		<td>@copydoc FLAG_CAN_STACK</td>
+	</tr>
+	<tr>
+		<td>f_unaggressive</td>
+		<td>@copydoc FLAG_UNAGGRESSIVE</td>
+	</tr>
+	<tr>
+		<td>f_reflect_missile</td>
+		<td>@copydoc FLAG_REFL_MISSILE</td>
+	</tr>
+	<tr>
+		<td>f_reflect_spell</td>
+		<td>@copydoc FLAG_REFL_SPELL</td>
+	</tr>
+	<tr>
+		<td>f_no_magic</td>
+		<td>@copydoc FLAG_NO_MAGIC</td>
+	</tr>
+	<tr>
+		<td>f_no_fix_player</td>
+		<td>@copydoc FLAG_NO_FIX_PLAYER</td>
+	</tr>
+	<tr>
+		<td>f_is_evil</td>
+		<td>@copydoc FLAG_IS_EVIL</td>
+	</tr>
+	<tr>
+		<td>f_tear_down</td>
+		<td>@copydoc FLAG_TEAR_DOWN</td>
+	</tr>
+	<tr>
+		<td>f_run_away</td>
+		<td>@copydoc FLAG_RUN_AWAY</td>
+	</tr>
+	<tr>
+		<td>f_pass_thru</td>
+		<td>@copydoc FLAG_PASS_THRU</td>
+	</tr>
+	<tr>
+		<td>f_can_pass_thru</td>
+		<td>@copydoc FLAG_CAN_PASS_THRU</td>
+	</tr>
+	<tr>
+		<td>f_pick_up</td>
+		<td>@copydoc FLAG_PICK_UP</td>
+	</tr>
+	<tr>
+		<td>f_unique</td>
+		<td>@copydoc FLAG_UNIQUE</td>
+	</tr>
+	<tr>
+		<td>f_no_drop</td>
+		<td>@copydoc FLAG_NO_DROP</td>
+	</tr>
+	<tr>
+		<td>f_is_indestructible</td>
+		<td>@copydoc FLAG_INDESTRUCTIBLE</td>
+	</tr>
+	<tr>
+		<td>f_can_cast_spell</td>
+		<td>@copydoc FLAG_CAST_SPELL</td>
+	</tr>
+	<tr>
+		<td>f_can_use_scroll</td>
+		<td>@copydoc FLAG_USE_SCROLL</td>
+	</tr>
+	<tr>
+		<td>f_can_use_range</td>
+		<td>@copydoc FLAG_USE_RANGE</td>
+	</tr>
+	<tr>
+		<td>f_can_use_bow</td>
+		<td>@copydoc FLAG_USE_BOW</td>
+	</tr>
+	<tr>
+		<td>f_can_use_armour</td>
+		<td>@copydoc FLAG_USE_ARMOUR</td>
+	</tr>
+	<tr>
+		<td>f_can_use_weapon</td>
+		<td>@copydoc FLAG_USE_WEAPON</td>
+	</tr>
+	<tr>
+		<td>f_can_use_ring</td>
+		<td>@copydoc FLAG_USE_RING</td>
+	</tr>
+	<tr>
+		<td>f_has_ready_range</td>
+		<td>@copydoc FLAG_READY_RANGE</td>
+	</tr>
+	<tr>
+		<td>f_has_ready_bow</td>
+		<td>@copydoc FLAG_READY_BOW</td>
+	</tr>
+	<tr>
+		<td>f_xrays</td>
+		<td>@copydoc FLAG_XRAYS</td>
+	</tr>
+	<tr>
+		<td>f_is_floor</td>
+		<td>@copydoc FLAG_IS_FLOOR</td>
+	</tr>
+	<tr>
+		<td>f_lifesave</td>
+		<td>@copydoc FLAG_LIFESAVE</td>
+	</tr>
+	<tr>
+		<td>f_is_magical</td>
+		<td>@copydoc FLAG_IS_MAGICAL</td>
+	</tr>
+	<tr>
+		<td>f_alive</td>
+		<td>@copydoc FLAG_ALIVE</td>
+	</tr>
+	<tr>
+		<td>f_stand_still</td>
+		<td>@copydoc FLAG_STAND_STILL</td>
+	</tr>
+	<tr>
+		<td>f_random_move</td>
+		<td>@copydoc FLAG_RANDOM_MOVE</td>
+	</tr>
+	<tr>
+		<td>f_only_attack</td>
+		<td>@copydoc FLAG_ONLY_ATTACK</td>
+	</tr>
+	<tr>
+		<td>f_wiz</td>
+		<td>@copydoc FLAG_WIZ</td>
+	</tr>
+	<tr>
+		<td>f_stealth</td>
+		<td>@copydoc FLAG_STEALTH</td>
+	</tr>
+	<tr>
+		<td>f_cursed</td>
+		<td>@copydoc FLAG_CURSED</td>
+	</tr>
+	<tr>
+		<td>f_damned</td>
+		<td>@copydoc FLAG_DAMNED</td>
+	</tr>
+	<tr>
+		<td>f_is_buildable</td>
+		<td>@copydoc FLAG_IS_BUILDABLE</td>
+	</tr>
+	<tr>
+		<td>f_no_pvp</td>
+		<td>@copydoc FLAG_NO_PVP</td>
+	</tr>
+	<tr>
+		<td>f_can_use_skill</td>
+		<td>@copydoc FLAG_CAN_USE_SKILL</td>
+	</tr>
+	<tr>
+		<td>f_is_thrown</td>
+		<td>@copydoc FLAG_IS_THROWN</td>
+	</tr>
+	<tr>
+		<td>f_is_vul_sphere</td>
+		<td>@copydoc FLAG_VUL_SPHERE</td>
+	</tr>
+	<tr>
+		<td>f_is_proof_sphere</td>
+		<td>@copydoc FLAG_PROOF_SPHERE</td>
+	</tr>
+	<tr>
+		<td>f_is_male</td>
+		<td>@copydoc FLAG_IS_MALE</td>
+	</tr>
+	<tr>
+		<td>f_is_female</td>
+		<td>@copydoc FLAG_IS_FEMALE</td>
+	</tr>
+	<tr>
+		<td>f_applied</td>
+		<td>@copydoc FLAG_APPLIED</td>
+	</tr>
+	<tr>
+		<td>f_inv_locked</td>
+		<td>@copydoc FLAG_INV_LOCKED</td>
+	</tr>
+	<tr>
+		<td>f_is_wooded</td>
+		<td>@copydoc FLAG_IS_WOODED</td>
+	</tr>
+	<tr>
+		<td>f_is_hilly</td>
+		<td>@copydoc FLAG_IS_HILLY</td>
+	</tr>
+	<tr>
+		<td>f_has_ready_skill</td>
+		<td>@copydoc FLAG_READY_SKILL</td>
+	</tr>
+	<tr>
+		<td>f_has_ready_weapon</td>
+		<td>@copydoc FLAG_READY_WEAPON</td>
+	</tr>
+	<tr>
+		<td>f_no_skill_ident</td>
+		<td>@copydoc FLAG_NO_SKILL_IDENT</td>
+	</tr>
+	<tr>
+		<td>f_was_wiz</td>
+		<td>@copydoc FLAG_WAS_WIZ</td>
+	</tr>
+	<tr>
+		<td>f_can_see_in_dark</td>
+		<td>@copydoc FLAG_SEE_IN_DARK</td>
+	</tr>
+	<tr>
+		<td>f_is_cauldron</td>
+		<td>@copydoc FLAG_IS_CAULDRON</td>
+	</tr>
+	<tr>
+		<td>f_is_dust</td>
+		<td>@copydoc FLAG_DUST</td>
+	</tr>
+	<tr>
+		<td>f_no_steal</td>
+		<td>@copydoc FLAG_NO_STEAL</td>
+	</tr>
+	<tr>
+		<td>f_one_hit</td>
+		<td>@copydoc FLAG_ONE_HIT</td>
+	</tr>
+	<tr>
+		<td>f_berserk</td>
+		<td>@copydoc FLAG_BERSERK</td>
+	</tr>
+	<tr>
+		<td>f_no_attack</td>
+		<td>@copydoc FLAG_NO_ATTACK</td>
+	</tr>
+	<tr>
+		<td>f_invulnerable</td>
+		<td>@copydoc FLAG_INVULNERABLE</td>
+	</tr>
+	<tr>
+		<td>f_quest_item</td>
+		<td>@copydoc FLAG_QUEST_ITEM</td>
+	</tr>
+	<tr>
+		<td>f_is_trapped</td>
+		<td>@copydoc FLAG_IS_TRAPPED</td>
+	</tr>
+	<tr>
+		<td>f_is_vul_elemental</td>
+		<td>@copydoc FLAG_VUL_ELEMENTAL</td>
+	</tr>
+	<tr>
+		<td>f_is_proof_elemental</td>
+		<td>@copydoc FLAG_PROOF_ELEMENTAL</td>
+	</tr>
+	<tr>
+		<td>f_is_vul_magic</td>
+		<td>@copydoc FLAG_VUL_MAGIC</td>
+	</tr>
+	<tr>
+		<td>f_is_proof_magic</td>
+		<td>@copydoc FLAG_PROOF_MAGIC</td>
+	</tr>
+	<tr>
+		<td>f_is_vul_physical</td>
+		<td>@copydoc FLAG_VUL_PHYSICAL</td>
+	</tr>
+	<tr>
+		<td>f_is_proof_physical</td>
+		<td>@copydoc FLAG_PROOF_PHYSICAL</td>
+	</tr>
+	<tr>
+		<td>f_sys_object</td>
+		<td>@copydoc FLAG_SYS_OBJECT</td>
+	</tr>
+	<tr>
+		<td>f_use_fix_pos</td>
+		<td>@copydoc FLAG_USE_FIX_POS</td>
+	</tr>
+	<tr>
+		<td>f_unpaid</td>
+		<td>@copydoc FLAG_UNPAID</td>
+	</tr>
+	<tr>
+		<td>f_make_invisible</td>
+		<td>@copydoc FLAG_MAKE_INVISIBLE</td>
+	</tr>
+	<tr>
+		<td>f_make_ethereal</td>
+		<td>@copydoc FLAG_MAKE_ETHEREAL</td>
+	</tr>
+	<tr>
+		<td>f_is_player</td>
+		<td>@copydoc FLAG_IS_PLAYER</td>
+	</tr>
+	<tr>
+		<td>f_is_named</td>
+		<td>@copydoc FLAG_IS_NAMED</td>
+	</tr>
+	<tr>
+		<td>f_no_teleport</td>
+		<td>@copydoc FLAG_NO_TELEPORT</td>
+	</tr>
+	<tr>
+		<td>f_corpse</td>
+		<td>@copydoc FLAG_CORPSE</td>
+	</tr>
+	<tr>
+		<td>f_corpse_forced</td>
+		<td>@copydoc FLAG_CORPSE_FORCED</td>
+	</tr>
+	<tr>
+		<td>f_player_only</td>
+		<td>@copydoc FLAG_PLAYER_ONLY</td>
+	</tr>
+	<tr>
+		<td>f_no_cleric</td>
+		<td>@copydoc FLAG_NO_CLERIC</td>
+	</tr>
+	<tr>
+		<td>f_one_drop</td>
+		<td>@copydoc FLAG_ONE_DROP</td>
+	</tr>
+	<tr>
+		<td>f_cursed_perm</td>
+		<td>@copydoc FLAG_PERM_CURSED</td>
+	</tr>
+	<tr>
+		<td>f_damned_perm</td>
+		<td>@copydoc FLAG_PERM_DAMNED</td>
+	</tr>
+	<tr>
+		<td>f_door_closed</td>
+		<td>@copydoc FLAG_DOOR_CLOSED</td>
+	</tr>
+	<tr>
+		<td>f_is_missile</td>
+		<td>@copydoc FLAG_IS_MISSILE</td>
+	</tr>
+	<tr>
+		<td>f_is_assassin</td>
+		<td>@copydoc FLAG_IS_ASSASSINATION</td>
+	</tr>
+	<tr>
+		<td>f_no_save</td>
+		<td>@copydoc FLAG_NO_SAVE</td>
+	</tr>
+</table>
+*/
+/**
 @page plugin_python_party_fields Python party fields
-List of the party fields and their meaning:
-
-- <b>name</b>: (string) @copydoc partylist_struct::name
-- <b>leader</b>: (string) @copydoc partylist_struct::leader
-- <b>password</b>: (string) @copydoc partylist_struct::passwd
-@page plugin_python_party_constants Python party constants
-List of the party constants and their meaning:
-
-- <b>PARTY_MESSAGE_STATUS</b>: @copydoc PARTY_MESSAGE_STATUS
-- <b>PARTY_MESSAGE_CHAT</b>: @copydoc PARTY_MESSAGE_CHAT
-@page page_plugin_python Python Plugin
-
-@section sec_plugin_python_introduction Introduction
-
-The Python plugin is used in various important tasks thorough Atrinik maps. It plays an important role in making quests, events, shop NPCs and much much more.
-
-Python scripts in the game allow a lot greater flexibility than changing the server core code to implement a quest or a new type of NPC. It is not a fast way to do it, true, but flexible, because Python scripts can be changed on the fly without even restarting the server.
-
-@section sec_plugin_python_atrinik Atrinik Python plugin functions
-
-The Atrinik Python plugin functions are used to make an interface with the Atrinik C server code, get script options, activator, etc.
-
-@see plugin_python_functions, @ref plugin_python_general_constants
-
-@section sec_plugin_python_atrinik_map Atrinik Map Python plugin functions
-
-The Atrinik Map Python plugin functions allow you to access map related functions, the map structure fields, and so on.
-
-@see plugin_python_map_functions, @ref plugin_python_map_fields, @ref plugin_python_map_flags, @ref plugin_python_map_constants
-
-@section sec_plugin_python_atrinik_object Atrinik Object Python plugin functions
-
-The Atrinik Object Python plugin functions allow you great flexibility in manipulating objects, players, and about everything related to object structure.
-
-@see plugin_python_object_functions, @ref plugin_python_object_fields, @ref plugin_python_object_flags, @ref plugin_python_object_constants
-
-@section sec_plugin_python_atrinik_party Atrinik Party Python plugin functions
-
-The Atrinik Party Python plugin functions allow you to make interesting events or dungeons, where in order to participate, one must/mustn't be in a party.
-
-@see plugin_python_party_functions, @ref plugin_python_party_fields, @ref plugin_python_party_constants
-
-@section sec_plugin_python_atrinik_region Atrinik Region Python plugin functions
-
-Provides an interface to get information about map's region.
-
-@see @ref plugin_python_region_fields
+<h2>Python party fields</h2>
+List of the party fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>string</td>
+		<td>@copydoc party_struct::name</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>leader</td>
+		<td>string</td>
+		<td>@copydoc party_struct::leader</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>password</td>
+		<td>string</td>
+		<td>@copydoc party_struct::passwd</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_region_fields Python region fields
+<h2>Python region fields</h2>
+List of the region fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>next</td>
+		<td>region</td>
+		<td>@copydoc region::next</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>parent</td>
+		<td>region</td>
+		<td>@copydoc region::parent</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>string</td>
+		<td>@copydoc region::name</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>longname</td>
+		<td>string</td>
+		<td>@copydoc region::longname</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>msg</td>
+		<td>string</td>
+		<td>@copydoc region::msg</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>jailmap</td>
+		<td>string</td>
+		<td>@copydoc region::jailmap</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>jailx</td>
+		<td>integer</td>
+		<td>@copydoc region::jailx</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>jaily</td>
+		<td>integer</td>
+		<td>@copydoc region::jaily</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_player_fields Python player fields
+<h2>Python player fields</h2>
+List of the player fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>party</td>
+		<td>party</td>
+		<td>@copydoc player::party</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>class_ob</td>
+		<td>object</td>
+		<td>@copydoc player::class_ob</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td>Shall not be modified in any way. Instead, one should use @ref Atrinik_Player_Fix "player.Fix()",
+which will set class_ob to the last @ref CLASS object it finds in
+player's inventory. In some cases, this is done automatically after
+a script has finished executing (say events do this, for example).</td>
+	</tr>
+	<tr>
+		<td>savebed_map</td>
+		<td>string</td>
+		<td>@copydoc player::savebed_map</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>bed_x</td>
+		<td>integer</td>
+		<td>@copydoc player::bed_x</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>bed_y</td>
+		<td>integer</td>
+		<td>@copydoc player::bed_y</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ob</td>
+		<td>object</td>
+		<td>@copydoc player::ob</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>s_ext_title_flag</td>
+		<td>integer</td>
+		<td>@copydoc socket_struct::ext_title_flag</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>s_host</td>
+		<td>string</td>
+		<td>@copydoc socket_struct::host</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_map_fields Python map fields
+<h2>Python map fields</h2>
+List of the map fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>string</td>
+		<td>@copydoc mapstruct::name</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>msg</td>
+		<td>string</td>
+		<td>@copydoc mapstruct::msg</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>reset_timeout</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::reset_timeout</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>difficulty</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::difficulty</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::height</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>width</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::width</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>darkness</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::darkness</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>path</td>
+		<td>string</td>
+		<td>@copydoc mapstruct::path</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>enter_x</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::enter_x</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>enter_y</td>
+		<td>integer</td>
+		<td>@copydoc mapstruct::enter_y</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>region</td>
+		<td>region</td>
+		<td>@copydoc mapstruct::region</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_map_flags Python map flags
+<h2>Python map flags</h2>
+List of the map flags and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="90%">Details</th>
+	</tr>
+	<tr>
+		<td>f_outdoor</td>
+		<td>@copydoc MAP_FLAG_OUTDOOR</td>
+	</tr>
+	<tr>
+		<td>f_unique</td>
+		<td>@copydoc MAP_FLAG_UNIQUE</td>
+	</tr>
+	<tr>
+		<td>f_fixed_rtime</td>
+		<td>@copydoc MAP_FLAG_FIXED_RTIME</td>
+	</tr>
+	<tr>
+		<td>f_nomagic</td>
+		<td>@copydoc MAP_FLAG_NOMAGIC</td>
+	</tr>
+	<tr>
+		<td>f_nopriest</td>
+		<td>@copydoc MAP_FLAG_NOPRIEST</td>
+	</tr>
+	<tr>
+		<td>f_noharm</td>
+		<td>@copydoc MAP_FLAG_NOHARM</td>
+	</tr>
+	<tr>
+		<td>f_nosummon</td>
+		<td>@copydoc MAP_FLAG_NOSUMMON</td>
+	</tr>
+	<tr>
+		<td>f_fixed_login</td>
+		<td>@copydoc MAP_FLAG_FIXED_LOGIN</td>
+	</tr>
+	<tr>
+		<td>f_permdeath</td>
+		<td>@copydoc MAP_FLAG_PLAYER_NO_SAVE</td>
+	</tr>
+	<tr>
+		<td>f_ultradeath</td>
+		<td>@copydoc MAP_FLAG_UNUSED2</td>
+	</tr>
+	<tr>
+		<td>f_ultimatedeath</td>
+		<td>@copydoc MAP_FLAG_UNUSED3</td>
+	</tr>
+	<tr>
+		<td>f_pvp</td>
+		<td>@copydoc MAP_FLAG_PVP</td>
+	</tr>
+	<tr>
+		<td>f_no_save</td>
+		<td>@copydoc MAP_FLAG_NO_SAVE</td>
+	</tr>
+	<tr>
+		<td>f_plugins</td>
+		<td>@copydoc MAP_FLAG_PLUGINS</td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_archetype_fields Python archetype fields
+<h2>Python archetype fields</h2>
+List of the archetype fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>string</td>
+		<td>@copydoc archetype::name</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>next</td>
+		<td>archetype</td>
+		<td>@copydoc archetype::next</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>head</td>
+		<td>archetype</td>
+		<td>@copydoc archetype::head</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>more</td>
+		<td>archetype</td>
+		<td>@copydoc archetype::more</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>clone</td>
+		<td>object</td>
+		<td>@copydoc archetype::clone</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_constants Python constants
+<h2>Python constants</h2>
+List of the Python plugin constants and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="50%">Details</th>
+		<th width="40%">Notes</th>
+	</tr>
+	<tr>
+		<td>NORTH</td>
+		<td>1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NORTHEAST</td>
+		<td>2</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EAST</td>
+		<td>3</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUTHEAST</td>
+		<td>4</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUTH</td>
+		<td>5</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUTHWEST</td>
+		<td>6</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>WEST</td>
+		<td>7</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NORTHWEST</td>
+		<td>8</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>llevError</td>
+		<td>@copydoc llevError</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>llevBug</td>
+		<td>@copydoc llevBug</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>llevInfo</td>
+		<td>@copydoc llevInfo</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>llevDebug</td>
+		<td>@copydoc llevDebug</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_APPLY</td>
+		<td>@copydoc EVENT_APPLY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_ATTACK</td>
+		<td>@copydoc EVENT_ATTACK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_DEATH</td>
+		<td>@copydoc EVENT_DEATH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_DROP</td>
+		<td>@copydoc EVENT_DROP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_PICKUP</td>
+		<td>@copydoc EVENT_PICKUP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_SAY</td>
+		<td>@copydoc EVENT_SAY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_STOP</td>
+		<td>@copydoc EVENT_STOP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_TIME</td>
+		<td>@copydoc EVENT_TIME</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_THROW</td>
+		<td>@copydoc EVENT_THROW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_TRIGGER</td>
+		<td>@copydoc EVENT_TRIGGER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_CLOSE</td>
+		<td>@copydoc EVENT_CLOSE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_TIMER</td>
+		<td>@copydoc EVENT_TIMER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_BORN</td>
+		<td>@copydoc EVENT_BORN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_CLOCK</td>
+		<td>@copydoc EVENT_CLOCK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_CRASH</td>
+		<td>@copydoc EVENT_CRASH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_GDEATH</td>
+		<td>@copydoc EVENT_GDEATH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_GKILL</td>
+		<td>@copydoc EVENT_GKILL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_LOGIN</td>
+		<td>@copydoc EVENT_LOGIN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_LOGOUT</td>
+		<td>@copydoc EVENT_LOGOUT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_MAPENTER</td>
+		<td>@copydoc EVENT_MAPENTER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_MAPLEAVE</td>
+		<td>@copydoc EVENT_MAPLEAVE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_MAPRESET</td>
+		<td>@copydoc EVENT_MAPRESET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_REMOVE</td>
+		<td>@copydoc EVENT_REMOVE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_SHOUT</td>
+		<td>@copydoc EVENT_SHOUT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EVENT_TELL</td>
+		<td>@copydoc EVENT_TELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>MAP_INFO_NORMAL</td>
+		<td>@copydoc MAP_INFO_NORMAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>MAP_INFO_ALL</td>
+		<td>@copydoc MAP_INFO_ALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COST_TRUE</td>
+		<td>@copydoc F_TRUE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COST_BUY</td>
+		<td>@copydoc F_BUY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COST_SELL</td>
+		<td>@copydoc F_SELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>APPLY_TOGGLE</td>
+		<td>0</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>APPLY_ALWAYS</td>
+		<td>@copydoc AP_APPLY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>UNAPPLY_ALWAYS</td>
+		<td>@copydoc AP_UNAPPLY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>UNAPPLY_NO_MERGE</td>
+		<td>@copydoc AP_NO_MERGE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>UNAPPLY_IGNORE_CURSE</td>
+		<td>@copydoc AP_IGNORE_CURSE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>APPLY_NO_EVENT</td>
+		<td>@copydoc AP_NO_EVENT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NEUTER</td>
+		<td>@copydoc GENDER_NEUTER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>MALE</td>
+		<td>@copydoc GENDER_MALE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>FEMALE</td>
+		<td>@copydoc GENDER_FEMALE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>HERMAPHRODITE</td>
+		<td>@copydoc GENDER_HERMAPHRODITE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>MAXLEVEL</td>
+		<td>@copydoc MAXLEVEL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CAST_NORMAL</td>
+		<td>0</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CAST_POTION</td>
+		<td>1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>LEARN</td>
+		<td>0</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>UNLEARN</td>
+		<td>1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>UNIDENTIFIED</td>
+		<td>0</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>IDENTIFIED</td>
+		<td>1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>IDENTIFY_NORMAL</td>
+		<td>@copydoc IDENTIFY_MODE_NORMAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>IDENTIFY_ALL</td>
+		<td>@copydoc IDENTIFY_MODE_ALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>IDENTIFY_MARKED</td>
+		<td>@copydoc IDENTIFY_MODE_MARKED</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CLONE_WITH_INVENTORY</td>
+		<td>0</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CLONE_WITHOUT_INVENTORY</td>
+		<td>1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EXP_AGILITY</td>
+		<td>@copydoc EXP_AGILITY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EXP_MENTAL</td>
+		<td>@copydoc EXP_MENTAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EXP_MAGICAL</td>
+		<td>@copydoc EXP_MAGICAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EXP_PERSONAL</td>
+		<td>@copydoc EXP_PERSONAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EXP_PHYSICAL</td>
+		<td>@copydoc EXP_PHYSICAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>EXP_WISDOM</td>
+		<td>@copydoc EXP_WISDOM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_WHITE</td>
+		<td>@copydoc NDI_WHITE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_ORANGE</td>
+		<td>@copydoc NDI_ORANGE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_NAVY</td>
+		<td>@copydoc NDI_NAVY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_RED</td>
+		<td>@copydoc NDI_RED</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_GREEN</td>
+		<td>@copydoc NDI_GREEN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_BLUE</td>
+		<td>@copydoc NDI_BLUE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_GREY</td>
+		<td>@copydoc NDI_GREY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_BROWN</td>
+		<td>@copydoc NDI_BROWN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_PURPLE</td>
+		<td>@copydoc NDI_PURPLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_PINK</td>
+		<td>@copydoc NDI_PINK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_YELLOW</td>
+		<td>@copydoc NDI_YELLOW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_DK_NAVY</td>
+		<td>@copydoc NDI_DK_NAVY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_DK_GREEN</td>
+		<td>@copydoc NDI_DK_GREEN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COLOR_DK_ORANGE</td>
+		<td>@copydoc NDI_DK_ORANGE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_SAY</td>
+		<td>@copydoc NDI_SAY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_SHOUT</td>
+		<td>@copydoc NDI_SHOUT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_TELL</td>
+		<td>@copydoc NDI_TELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_PLAYER</td>
+		<td>@copydoc NDI_PLAYER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_ANIM</td>
+		<td>@copydoc NDI_ANIM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_EMOTE</td>
+		<td>@copydoc NDI_EMOTE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NDI_ALL</td>
+		<td>@copydoc NDI_ALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_MAIL</td>
+		<td>@copydoc PLAYER_EQUIP_MAIL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_GAUNTLET</td>
+		<td>@copydoc PLAYER_EQUIP_GAUNTLET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_BRACER</td>
+		<td>@copydoc PLAYER_EQUIP_BRACER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_HELM</td>
+		<td>@copydoc PLAYER_EQUIP_HELM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_BOOTS</td>
+		<td>@copydoc PLAYER_EQUIP_BOOTS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_CLOAK</td>
+		<td>@copydoc PLAYER_EQUIP_CLOAK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_GIRDLE</td>
+		<td>@copydoc PLAYER_EQUIP_GIRDLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_SHIELD</td>
+		<td>@copydoc PLAYER_EQUIP_SHIELD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_RRING</td>
+		<td>@copydoc PLAYER_EQUIP_RRING</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_LRING</td>
+		<td>@copydoc PLAYER_EQUIP_LRING</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_AMULET</td>
+		<td>@copydoc PLAYER_EQUIP_AMULET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_WEAPON</td>
+		<td>@copydoc PLAYER_EQUIP_WEAPON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PLAYER_EQUIP_BOW</td>
+		<td>@copydoc PLAYER_EQUIP_BOW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>QUEST_TYPE_SPECIAL</td>
+		<td>@copydoc QUEST_TYPE_SPECIAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>QUEST_TYPE_KILL</td>
+		<td>@copydoc QUEST_TYPE_KILL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>QUEST_TYPE_KILL_ITEM</td>
+		<td>@copydoc QUEST_TYPE_KILL_ITEM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>QUEST_STATUS_COMPLETED</td>
+		<td>@copydoc QUEST_STATUS_COMPLETED</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_PLAYER</td>
+		<td>@copydoc PLAYER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BULLET</td>
+		<td>@copydoc BULLET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ROD</td>
+		<td>@copydoc ROD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TREASURE</td>
+		<td>@copydoc TREASURE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_POTION</td>
+		<td>@copydoc POTION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FOOD</td>
+		<td>@copydoc FOOD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_POISON</td>
+		<td>@copydoc POISON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BOOK</td>
+		<td>@copydoc BOOK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CLOCK</td>
+		<td>@copydoc CLOCK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FBULLET</td>
+		<td>@copydoc FBULLET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FBALL</td>
+		<td>@copydoc FBALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_LIGHTNING</td>
+		<td>@copydoc LIGHTNING</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ARROW</td>
+		<td>@copydoc ARROW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BOW</td>
+		<td>@copydoc BOW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WEAPON</td>
+		<td>@copydoc WEAPON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ARMOUR</td>
+		<td>@copydoc ARMOUR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_PEDESTAL</td>
+		<td>@copydoc PEDESTAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ALTAR</td>
+		<td>@copydoc ALTAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CONFUSION</td>
+		<td>@copydoc CONFUSION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_LOCKED_DOOR</td>
+		<td>@copydoc LOCKED_DOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SPECIAL_KEY</td>
+		<td>@copydoc SPECIAL_KEY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MAP</td>
+		<td>@copydoc MAP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DOOR</td>
+		<td>@copydoc DOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_KEY</td>
+		<td>@copydoc KEY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MMISSILE</td>
+		<td>@copydoc MMISSILE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TIMED_GATE</td>
+		<td>@copydoc TIMED_GATE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TRIGGER</td>
+		<td>@copydoc TRIGGER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GRIMREAPER</td>
+		<td>@copydoc GRIMREAPER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MAGIC_EAR</td>
+		<td>@copydoc MAGIC_EAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TRIGGER_BUTTON</td>
+		<td>@copydoc TRIGGER_BUTTON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TRIGGER_ALTAR</td>
+		<td>@copydoc TRIGGER_ALTAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TRIGGER_PEDESTAL</td>
+		<td>@copydoc TRIGGER_PEDESTAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SHIELD</td>
+		<td>@copydoc SHIELD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_HELMET</td>
+		<td>@copydoc HELMET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_HORN</td>
+		<td>@copydoc HORN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MONEY</td>
+		<td>@copydoc MONEY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CLASS</td>
+		<td>@copydoc CLASS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GRAVESTONE</td>
+		<td>@copydoc GRAVESTONE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_AMULET</td>
+		<td>@copydoc AMULET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_PLAYERMOVER</td>
+		<td>@copydoc PLAYERMOVER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TELEPORTER</td>
+		<td>@copydoc TELEPORTER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CREATOR</td>
+		<td>@copydoc CREATOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SKILL</td>
+		<td>@copydoc SKILL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_EXPERIENCE</td>
+		<td>@copydoc EXPERIENCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_EARTHWALL</td>
+		<td>@copydoc EARTHWALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GOLEM</td>
+		<td>@copydoc GOLEM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BOMB</td>
+		<td>@copydoc BOMB</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_THROWN_OBJ</td>
+		<td>@copydoc THROWN_OBJ</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BLINDNESS</td>
+		<td>@copydoc BLINDNESS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GOD</td>
+		<td>@copydoc GOD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DETECTOR</td>
+		<td>@copydoc DETECTOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SKILL_ITEM</td>
+		<td>@copydoc SKILL_ITEM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DEAD_OBJECT</td>
+		<td>@copydoc DEAD_OBJECT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DRINK</td>
+		<td>@copydoc DRINK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MARKER</td>
+		<td>@copydoc MARKER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_HOLY_ALTAR</td>
+		<td>@copydoc HOLY_ALTAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_PLAYER_CHANGER</td>
+		<td>@copydoc PLAYER_CHANGER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_PEARL</td>
+		<td>@copydoc PEARL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GEM</td>
+		<td>@copydoc GEM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FIRECHEST</td>
+		<td>@copydoc FIRECHEST</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FIREWALL</td>
+		<td>@copydoc FIREWALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CHECK_INV</td>
+		<td>@copydoc CHECK_INV</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MOOD_FLOOR</td>
+		<td>@copydoc MOOD_FLOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_EXIT</td>
+		<td>@copydoc EXIT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SHOP_FLOOR</td>
+		<td>@copydoc SHOP_FLOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SHOP_MAT</td>
+		<td>@copydoc SHOP_MAT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_RING</td>
+		<td>@copydoc RING</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FLOOR</td>
+		<td>@copydoc FLOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FLESH</td>
+		<td>@copydoc FLESH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_INORGANIC</td>
+		<td>@copydoc INORGANIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_LIGHT_APPLY</td>
+		<td>@copydoc LIGHT_APPLY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_LIGHTER</td>
+		<td>@copydoc LIGHTER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WALL</td>
+		<td>@copydoc WALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_LIGHT_SOURCE</td>
+		<td>@copydoc LIGHT_SOURCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MISC_OBJECT</td>
+		<td>@copydoc MISC_OBJECT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_MONSTER</td>
+		<td>@copydoc MONSTER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SPAWN_POINT</td>
+		<td>@copydoc SPAWN_POINT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_LIGHT_REFILL</td>
+		<td>@copydoc LIGHT_REFILL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SPAWN_POINT_MOB</td>
+		<td>@copydoc SPAWN_POINT_MOB</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SPAWN_POINT_INFO</td>
+		<td>@copydoc SPAWN_POINT_INFO</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SPELLBOOK</td>
+		<td>@copydoc SPELLBOOK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ORGANIC</td>
+		<td>@copydoc ORGANIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CLOAK</td>
+		<td>@copydoc CLOAK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CONE</td>
+		<td>@copydoc CONE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_AURA</td>
+		<td>@copydoc AURA</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SPINNER</td>
+		<td>@copydoc SPINNER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GATE</td>
+		<td>@copydoc GATE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BUTTON</td>
+		<td>@copydoc BUTTON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_HANDLE</td>
+		<td>@copydoc HANDLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_PIT</td>
+		<td>@copydoc PIT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_TRAPDOOR</td>
+		<td>@copydoc TRAPDOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WORD_OF_RECALL</td>
+		<td>@copydoc WORD_OF_RECALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SIGN</td>
+		<td>@copydoc SIGN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BOOTS</td>
+		<td>@copydoc BOOTS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GLOVES</td>
+		<td>@copydoc GLOVES</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BASE_INFO</td>
+		<td>@copydoc BASE_INFO</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_RANDOM_DROP</td>
+		<td>@copydoc RANDOM_DROP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CONVERTER</td>
+		<td>@copydoc CONVERTER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BRACERS</td>
+		<td>@copydoc BRACERS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_POISONING</td>
+		<td>@copydoc POISONING</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SAVEBED</td>
+		<td>@copydoc SAVEBED</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_POISONCLOUD</td>
+		<td>@copydoc POISONCLOUD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WAND</td>
+		<td>@copydoc WAND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ABILITY</td>
+		<td>@copydoc ABILITY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SCROLL</td>
+		<td>@copydoc SCROLL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DIRECTOR</td>
+		<td>@copydoc DIRECTOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_GIRDLE</td>
+		<td>@copydoc GIRDLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_FORCE</td>
+		<td>@copydoc FORCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_POTION_EFFECT</td>
+		<td>@copydoc POTION_EFFECT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_JEWEL</td>
+		<td>@copydoc JEWEL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_NUGGET</td>
+		<td>@copydoc NUGGET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_EVENT_OBJECT</td>
+		<td>@copydoc EVENT_OBJECT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WAYPOINT_OBJECT</td>
+		<td>@copydoc WAYPOINT_OBJECT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_QUEST_CONTAINER</td>
+		<td>@copydoc QUEST_CONTAINER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CLOSE_CON</td>
+		<td>@copydoc CLOSE_CON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CONTAINER</td>
+		<td>@copydoc CONTAINER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_ARMOUR_IMPROVER</td>
+		<td>@copydoc ARMOUR_IMPROVER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WEAPON_IMPROVER</td>
+		<td>@copydoc WEAPON_IMPROVER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_WEALTH</td>
+		<td>@copydoc WEALTH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SKILLSCROLL</td>
+		<td>@copydoc SKILLSCROLL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DEEP_SWAMP</td>
+		<td>@copydoc DEEP_SWAMP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_IDENTIFY_ALTAR</td>
+		<td>@copydoc IDENTIFY_ALTAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CANCELLATION</td>
+		<td>@copydoc CANCELLATION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_BALL_LIGHTNING</td>
+		<td>@copydoc BALL_LIGHTNING</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SWARM_SPELL</td>
+		<td>@copydoc SWARM_SPELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_RUNE</td>
+		<td>@copydoc RUNE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_POWER_CRYSTAL</td>
+		<td>@copydoc POWER_CRYSTAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_CORPSE</td>
+		<td>@copydoc CORPSE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_DISEASE</td>
+		<td>@copydoc DISEASE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>TYPE_SYMPTOM</td>
+		<td>@copydoc SYMPTOM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUNDTYPE_NORMAL</td>
+		<td>@copydoc SOUND_NORMAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUNDTYPE_SPELL</td>
+		<td>@copydoc SOUND_SPELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_LEVEL_UP</td>
+		<td>@copydoc SOUND_LEVEL_UP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_FIRE_ARROW</td>
+		<td>@copydoc SOUND_FIRE_ARROW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_LEARN_SPELL</td>
+		<td>@copydoc SOUND_LEARN_SPELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_FUMBLE_SPELL</td>
+		<td>@copydoc SOUND_FUMBLE_SPELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_WAND_POOF</td>
+		<td>@copydoc SOUND_WAND_POOF</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_OPEN_DOOR</td>
+		<td>@copydoc SOUND_OPEN_DOOR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_PUSH_PLAYER</td>
+		<td>@copydoc SOUND_PUSH_PLAYER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_HIT_IMPACT</td>
+		<td>@copydoc SOUND_HIT_IMPACT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_HIT_CLEAVE</td>
+		<td>@copydoc SOUND_HIT_CLEAVE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_HIT_SLASH</td>
+		<td>@copydoc SOUND_HIT_SLASH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_HIT_PIERCE</td>
+		<td>@copydoc SOUND_HIT_PIERCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MISS_BLOCK</td>
+		<td>@copydoc SOUND_MISS_BLOCK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MISS_HAND</td>
+		<td>@copydoc SOUND_MISS_HAND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MISS_MOB</td>
+		<td>@copydoc SOUND_MISS_MOB</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MISS_PLAYER</td>
+		<td>@copydoc SOUND_MISS_PLAYER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_PET_IS_KILLED</td>
+		<td>@copydoc SOUND_PET_IS_KILLED</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_PLAYER_DIES</td>
+		<td>@copydoc SOUND_PLAYER_DIES</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_OB_EVAPORATE</td>
+		<td>@copydoc SOUND_OB_EVAPORATE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_OB_EXPLODE</td>
+		<td>@copydoc SOUND_OB_EXPLODE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_PLAYER_KILLS</td>
+		<td>@copydoc SOUND_PLAYER_KILLS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_TURN_HANDLE</td>
+		<td>@copydoc SOUND_TURN_HANDLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_FALL_HOLE</td>
+		<td>@copydoc SOUND_FALL_HOLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_DRINK_POISON</td>
+		<td>@copydoc SOUND_DRINK_POISON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_DROP_THROW</td>
+		<td>@copydoc SOUND_DROP_THROW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_LOSE_SOME</td>
+		<td>@copydoc SOUND_LOSE_SOME</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_THROW</td>
+		<td>@copydoc SOUND_THROW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_GATE_OPEN</td>
+		<td>@copydoc SOUND_GATE_OPEN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_GATE_CLOSE</td>
+		<td>@copydoc SOUND_GATE_CLOSE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_OPEN_CONTAINER</td>
+		<td>@copydoc SOUND_OPEN_CONTAINER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_GROWL</td>
+		<td>@copydoc SOUND_GROWL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_ARROW_HIT</td>
+		<td>@copydoc SOUND_ARROW_HIT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_DOOR_CLOSE</td>
+		<td>@copydoc SOUND_DOOR_CLOSE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_TELEPORT</td>
+		<td>@copydoc SOUND_TELEPORT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_CLICK</td>
+		<td>@copydoc SOUND_CLICK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_DEFAULT</td>
+		<td>@copydoc SOUND_MAGIC_DEFAULT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_ACID</td>
+		<td>@copydoc SOUND_MAGIC_ACID</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_ANIMATE</td>
+		<td>@copydoc SOUND_MAGIC_ANIMATE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_AVATAR</td>
+		<td>@copydoc SOUND_MAGIC_AVATAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_BOMB</td>
+		<td>@copydoc SOUND_MAGIC_BOMB</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_BULLET1</td>
+		<td>@copydoc SOUND_MAGIC_BULLET1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_BULLET2</td>
+		<td>@copydoc SOUND_MAGIC_BULLET2</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_CANCEL</td>
+		<td>@copydoc SOUND_MAGIC_CANCEL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_COMET</td>
+		<td>@copydoc SOUND_MAGIC_COMET</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_CONFUSION</td>
+		<td>@copydoc SOUND_MAGIC_CONFUSION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_CREATE</td>
+		<td>@copydoc SOUND_MAGIC_CREATE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_DARK</td>
+		<td>@copydoc SOUND_MAGIC_DARK</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_DEATH</td>
+		<td>@copydoc SOUND_MAGIC_DEATH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_DESTRUCTION</td>
+		<td>@copydoc SOUND_MAGIC_DESTRUCTION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_ELEC</td>
+		<td>@copydoc SOUND_MAGIC_ELEC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_FEAR</td>
+		<td>@copydoc SOUND_MAGIC_FEAR</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_FIRE</td>
+		<td>@copydoc SOUND_MAGIC_FIRE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_FIREBALL1</td>
+		<td>@copydoc SOUND_MAGIC_FIREBALL1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_FIREBALL2</td>
+		<td>@copydoc SOUND_MAGIC_FIREBALL2</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_HWORD</td>
+		<td>@copydoc SOUND_MAGIC_HWORD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_ICE</td>
+		<td>@copydoc SOUND_MAGIC_ICE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_INVISIBLE</td>
+		<td>@copydoc SOUND_MAGIC_INVISIBLE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_INVOKE</td>
+		<td>@copydoc SOUND_MAGIC_INVOKE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_INVOKE2</td>
+		<td>@copydoc SOUND_MAGIC_INVOKE2</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_MAGIC</td>
+		<td>@copydoc SOUND_MAGIC_MAGIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_MANABALL</td>
+		<td>@copydoc SOUND_MAGIC_MANABALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_MISSILE</td>
+		<td>@copydoc SOUND_MAGIC_MISSILE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_MMAP</td>
+		<td>@copydoc SOUND_MAGIC_MMAP</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_ORB</td>
+		<td>@copydoc SOUND_MAGIC_ORB</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_PARALYZE</td>
+		<td>@copydoc SOUND_MAGIC_PARALYZE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_POISON</td>
+		<td>@copydoc SOUND_MAGIC_POISON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_PROTECTION</td>
+		<td>@copydoc SOUND_MAGIC_PROTECTION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_RSTRIKE</td>
+		<td>@copydoc SOUND_MAGIC_RSTRIKE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_RUNE</td>
+		<td>@copydoc SOUND_MAGIC_RUNE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_SBALL</td>
+		<td>@copydoc SOUND_MAGIC_SBALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_SLOW</td>
+		<td>@copydoc SOUND_MAGIC_SLOW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_SNOWSTORM</td>
+		<td>@copydoc SOUND_MAGIC_SNOWSTORM</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_STAT</td>
+		<td>@copydoc SOUND_MAGIC_STAT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_STEAMBOLT</td>
+		<td>@copydoc SOUND_MAGIC_STEAMBOLT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_SUMMON1</td>
+		<td>@copydoc SOUND_MAGIC_SUMMON1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_SUMMON2</td>
+		<td>@copydoc SOUND_MAGIC_SUMMON2</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_SUMMON3</td>
+		<td>@copydoc SOUND_MAGIC_SUMMON3</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_TELEPORT</td>
+		<td>@copydoc SOUND_MAGIC_TELEPORT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_TURN</td>
+		<td>@copydoc SOUND_MAGIC_TURN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_WALL</td>
+		<td>@copydoc SOUND_MAGIC_WALL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_WALL2</td>
+		<td>@copydoc SOUND_MAGIC_WALL2</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SOUND_MAGIC_WOUND</td>
+		<td>@copydoc SOUND_MAGIC_WOUND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PARTY_MESSAGE_STATUS</td>
+		<td>@copydoc PARTY_MESSAGE_STATUS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>PARTY_MESSAGE_CHAT</td>
+		<td>@copydoc PARTY_MESSAGE_CHAT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COST_TRUE</td>
+		<td>@copydoc F_TRUE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COST_BUY</td>
+		<td>@copydoc F_BUY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>COST_SELL</td>
+		<td>@copydoc F_SELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_IMPACT</td>
+		<td>@copydoc ATNR_IMPACT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_SLASH</td>
+		<td>@copydoc ATNR_SLASH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_CLEAVE</td>
+		<td>@copydoc ATNR_CLEAVE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_PIERCE</td>
+		<td>@copydoc ATNR_PIERCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_WEAPON_MAGIC</td>
+		<td>@copydoc ATNR_WEAPON_MAGIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_FIRE</td>
+		<td>@copydoc ATNR_FIRE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_COLD</td>
+		<td>@copydoc ATNR_COLD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_ELECTRICITY</td>
+		<td>@copydoc ATNR_ELECTRICITY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_POISON</td>
+		<td>@copydoc ATNR_POISON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_ACID</td>
+		<td>@copydoc ATNR_ACID</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_MAGIC</td>
+		<td>@copydoc ATNR_MAGIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_MIND</td>
+		<td>@copydoc ATNR_MIND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_BLIND</td>
+		<td>@copydoc ATNR_BLIND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_PARALYZE</td>
+		<td>@copydoc ATNR_PARALYZE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_FORCE</td>
+		<td>@copydoc ATNR_FORCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_GODPOWER</td>
+		<td>@copydoc ATNR_GODPOWER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_CHAOS</td>
+		<td>@copydoc ATNR_CHAOS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_DRAIN</td>
+		<td>@copydoc ATNR_DRAIN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_SLOW</td>
+		<td>@copydoc ATNR_SLOW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_CONFUSION</td>
+		<td>@copydoc ATNR_CONFUSION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_INTERNAL</td>
+		<td>@copydoc ATNR_INTERNAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NROFATTACKS</td>
+		<td>@copydoc NROFATTACKS</td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
+@page plugin_python_object_fields Python object fields
+<h2>Python object fields</h2>
+List of the object fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>below</td>
+		<td>object</td>
+		<td>@copydoc object::below</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>above</td>
+		<td>object</td>
+		<td>@copydoc object::above</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>inv</td>
+		<td>object</td>
+		<td>@copydoc object::inv</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>env</td>
+		<td>object</td>
+		<td>@copydoc object::env</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>map</td>
+		<td>map</td>
+		<td>@copydoc object::map</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>string</td>
+		<td>@copydoc object::name</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>title</td>
+		<td>string</td>
+		<td>@copydoc object::title</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>race</td>
+		<td>string</td>
+		<td>@copydoc object::race</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>slaying</td>
+		<td>string</td>
+		<td>@copydoc object::slaying</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>msg</td>
+		<td>string</td>
+		<td>@copydoc object::msg</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>artifact</td>
+		<td>string</td>
+		<td>@copydoc object::artifact</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>weight</td>
+		<td>integer</td>
+		<td>@copydoc object::weight</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>weight_limit</td>
+		<td>integer</td>
+		<td>@copydoc object::weight_limit</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>carrying</td>
+		<td>integer</td>
+		<td>@copydoc object::carrying</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>path_attuned</td>
+		<td>integer</td>
+		<td>@copydoc object::path_attuned</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>path_repelled</td>
+		<td>integer</td>
+		<td>@copydoc object::path_repelled</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>path_denied</td>
+		<td>integer</td>
+		<td>@copydoc object::path_denied</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>value</td>
+		<td>integer</td>
+		<td>@copydoc object::value</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>nrof</td>
+		<td>integer</td>
+		<td>@copydoc object::nrof</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>enemy</td>
+		<td>object</td>
+		<td>@copydoc object::enemy</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>attacked_by</td>
+		<td>object</td>
+		<td>@copydoc object::attacked_by</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>owner</td>
+		<td>object</td>
+		<td>@copydoc object::owner</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>x</td>
+		<td>integer</td>
+		<td>@copydoc object::x</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>y</td>
+		<td>integer</td>
+		<td>@copydoc object::y</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>attacked_by_distance</td>
+		<td>integer</td>
+		<td>@copydoc object::attacked_by_distance</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>last_damage</td>
+		<td>integer</td>
+		<td>@copydoc object::last_damage</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>terrain_type</td>
+		<td>integer</td>
+		<td>@copydoc object::terrain_type</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>terrain_flag</td>
+		<td>integer</td>
+		<td>@copydoc object::terrain_flag</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>material</td>
+		<td>integer</td>
+		<td>@copydoc object::material</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>material_real</td>
+		<td>integer</td>
+		<td>@copydoc object::material_real</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>last_heal</td>
+		<td>integer</td>
+		<td>@copydoc object::last_heal</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>last_sp</td>
+		<td>integer</td>
+		<td>@copydoc object::last_sp</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>last_grace</td>
+		<td>integer</td>
+		<td>@copydoc object::last_grace</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>last_eat</td>
+		<td>integer</td>
+		<td>@copydoc object::last_eat</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>animation_id</td>
+		<td>integer</td>
+		<td>@copydoc object::animation_id</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>inv_animation_id</td>
+		<td>integer</td>
+		<td>@copydoc object::inv_animation_id</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>magic</td>
+		<td>integer</td>
+		<td>@copydoc object::magic</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>state</td>
+		<td>integer</td>
+		<td>@copydoc object::state</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>level</td>
+		<td>integer</td>
+		<td>@copydoc object::level</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td>integer</td>
+		<td>@copydoc object::direction</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>facing</td>
+		<td>integer</td>
+		<td>@copydoc object::facing</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>quick_pos</td>
+		<td>integer</td>
+		<td>@copydoc object::quick_pos</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>quickslot</td>
+		<td>integer</td>
+		<td>@copydoc object::quickslot</td>
+		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>type</td>
+		<td>integer</td>
+		<td>@copydoc object::type</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>sub_type</td>
+		<td>integer</td>
+		<td>@copydoc object::sub_type</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>item_quality</td>
+		<td>integer</td>
+		<td>@copydoc object::item_quality</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>item_condition</td>
+		<td>integer</td>
+		<td>@copydoc object::item_condition</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>item_race</td>
+		<td>integer</td>
+		<td>@copydoc object::item_race</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>item_level</td>
+		<td>integer</td>
+		<td>@copydoc object::item_level</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>item_skill</td>
+		<td>integer</td>
+		<td>@copydoc object::item_skill</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>glow_radius</td>
+		<td>integer</td>
+		<td>@copydoc object::glow_radius</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>move_status</td>
+		<td>integer</td>
+		<td>@copydoc object::move_status</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>move_type</td>
+		<td>integer</td>
+		<td>@copydoc object::move_type</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_enemy_dir</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_enemy_dir</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_moving_dir</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_moving_dir</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_enemy_dir_last</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_enemy_dir_last</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_moving_dir_last</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_moving_dir_last</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_last_facing</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_last_facing</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_last_facing_last</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_last_facing_last</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>anim_speed</td>
+		<td>integer</td>
+		<td>@copydoc object::anim_speed</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>last_anim</td>
+		<td>integer</td>
+		<td>@copydoc object::last_anim</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>behavior</td>
+		<td>integer</td>
+		<td>@copydoc object::behavior</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>run_away</td>
+		<td>integer</td>
+		<td>@copydoc object::run_away</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>layer</td>
+		<td>integer</td>
+		<td>@copydoc object::layer</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>speed</td>
+		<td>float</td>
+		<td>@copydoc object::speed</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>speed_left</td>
+		<td>float</td>
+		<td>@copydoc object::speed_left</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>weapon_speed</td>
+		<td>float</td>
+		<td>@copydoc object::weapon_speed</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>weapon_speed_left</td>
+		<td>float</td>
+		<td>@copydoc object::weapon_speed_left</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>weapon_speed_add</td>
+		<td>float</td>
+		<td>@copydoc object::weapon_speed_add</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>exp</td>
+		<td>integer</td>
+		<td>@copydoc living::exp</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>hp</td>
+		<td>integer</td>
+		<td>@copydoc living::hp</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>maxhp</td>
+		<td>integer</td>
+		<td>@copydoc living::maxhp</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>sp</td>
+		<td>integer</td>
+		<td>@copydoc living::sp</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>maxsp</td>
+		<td>integer</td>
+		<td>@copydoc living::maxsp</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>grace</td>
+		<td>integer</td>
+		<td>@copydoc living::grace</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>maxgrace</td>
+		<td>integer</td>
+		<td>@copydoc living::maxgrace</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>food</td>
+		<td>integer</td>
+		<td>@copydoc living::food</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>dam</td>
+		<td>integer</td>
+		<td>@copydoc living::dam</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>wc</td>
+		<td>integer</td>
+		<td>@copydoc living::wc</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ac</td>
+		<td>integer</td>
+		<td>@copydoc living::ac</td>
+		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>wc_range</td>
+		<td>integer</td>
+		<td>@copydoc living::wc_range</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Str</td>
+		<td>integer</td>
+		<td>@copydoc living::Str</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Dex</td>
+		<td>integer</td>
+		<td>@copydoc living::Dex</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Con</td>
+		<td>integer</td>
+		<td>@copydoc living::Con</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Wis</td>
+		<td>integer</td>
+		<td>@copydoc living::Wis</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Cha</td>
+		<td>integer</td>
+		<td>@copydoc living::Cha</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Int</td>
+		<td>integer</td>
+		<td>@copydoc living::Int</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Pow</td>
+		<td>integer</td>
+		<td>@copydoc living::Pow</td>
+		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>arch</td>
+		<td>archetype</td>
+		<td>@copydoc object::arch</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
 */

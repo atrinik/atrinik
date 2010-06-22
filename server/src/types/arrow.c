@@ -90,7 +90,7 @@ object *fix_stopped_arrow(object *op)
 	op->face = op->arch->clone.face;
 
 	/* So that stopped arrows will be saved */
-	op->owner = NULL;
+	clear_owner(op);
 	update_object(op, UP_OBJ_FACE);
 
 	return op;
@@ -102,8 +102,8 @@ object *fix_stopped_arrow(object *op)
 void move_arrow(object *op)
 {
 	object *tmp = NULL, *hitter;
-	int new_x, new_y;
-	int flag_tmp;
+	int x, y;
+	int flags;
 	int was_reflected;
 	mapstruct *m = op->map;
 
@@ -115,11 +115,13 @@ void move_arrow(object *op)
 		return;
 	}
 
-	/* we need to stop thrown objects and arrows at some point. Like here. */
+	/* We need to stop thrown objects and arrows at some point. Like here. */
 	if (op->type == THROWN_OBJ)
 	{
 		if (op->inv == NULL)
+		{
 			return;
+		}
 	}
 
 	if (op->last_sp-- < 0)
@@ -128,57 +130,12 @@ void move_arrow(object *op)
 		return;
 	}
 
-	/* Calculate target map square */
-	if (op->stats.grace == 666)
-	{
-		/* Experimental target throwing hack. Using bresenham line algo */
-		int dx = op->stats.hp, dy = op->stats.sp;
-
-		if (dx > dy)
-		{
-			if (op->stats.exp >= 0)
-			{
-				new_y = op->y + op->stats.maxsp;
-				/* same as fraction -= 2*dx */
-				op->stats.exp -= dx;
-			}
-			else
-			{
-				new_y = op->y;
-			}
-
-			new_x = op->x + op->stats.maxhp;
-			/* same as fraction -= 2*dy */
-			op->stats.exp += dy;
-		}
-		else
-		{
-			if (op->stats.exp >= 0)
-			{
-				new_x = op->x + op->stats.maxhp;
-				op->stats.exp -= dy;
-			}
-			else
-			{
-				new_x = op->x;
-			}
-
-			new_y = op->y + op->stats.maxsp;
-			op->stats.exp += dx;
-		}
-	}
-	else
-	{
-		new_x = op->x + DIRX(op);
-		new_y = op->y + DIRY(op);
-	}
-
+	x = op->x + DIRX(op);
+	y = op->y + DIRY(op);
 	was_reflected = 0;
 
-	/* check we are legal */
-	if (!(m = get_map_from_coord(op->map, &new_x, &new_y)))
+	if (!(m = get_map_from_coord(op->map, &x, &y)))
 	{
-		/* out of map... here is the end */
 		stop_arrow(op);
 		return;
 	}
@@ -188,24 +145,46 @@ void move_arrow(object *op)
 		hitter = op;
 	}
 
-	/* ok, lets check there is something we can hit */
-	if ((flag_tmp = GET_MAP_FLAGS(m, new_x, new_y)) & (P_IS_ALIVE | P_IS_PLAYER))
+	if ((flags = GET_MAP_FLAGS(m, x, y)) & (P_IS_ALIVE | P_IS_PLAYER))
 	{
-		/* search for a vulnerable object */
-		for (tmp = GET_MAP_OB_LAYER(m, new_x, new_y, 5); tmp != NULL; tmp = tmp->above)
+		/* Search for a vulnerable object. */
+		for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
 		{
+			tmp = HEAD(tmp);
+
 			/* Now, let friends fire through friends */
-			if (is_friend_of(hitter, tmp) || tmp == hitter)
+			if (!IS_LIVE(tmp) || is_friend_of(hitter, tmp) || tmp == hitter)
 			{
 				continue;
 			}
 
-			if (IS_LIVE(tmp) && (!QUERY_FLAG(tmp, FLAG_CAN_REFL_MISSILE) || (rndm(0, 99)) < 90 - op->level / 10))
+			if (QUERY_FLAG(tmp, FLAG_REFL_MISSILE) && rndm(0, 99) < 90 - op->level / 10)
+			{
+				op->direction = absdir(op->direction + 4);
+				op->state = 0;
+
+				if (GET_ANIM_ID(op))
+				{
+					SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
+				}
+
+				if (wall(m, x, y))
+				{
+					/* Target is standing on a wall. Let arrow turn around before
+					 * the wall. */
+					x = op->x;
+					y = op->y;
+				}
+
+				/* Skip normal movement calculations. */
+				was_reflected = 1;
+				break;
+			}
+			else
 			{
 				/* Attack the object. */
 				op = hit_with_arrow(op, tmp);
 
-				/* the arrow has hit and is destroyed! */
 				if (op == NULL)
 				{
 					return;
@@ -214,54 +193,27 @@ void move_arrow(object *op)
 		}
 	}
 
-	/* if we are here, there is no target and/or we have not hit.
-	 * now we do a simple reflection test. */
-	if (flag_tmp & P_REFL_MISSILE)
+	if (!was_reflected && wall(m, x, y))
 	{
-		missile_reflection_adjust(op, QUERY_FLAG(op, FLAG_WAS_REFLECTED));
-
-		op->direction = absdir (op->direction + 4);
-		op->state = 0;
-
-		if (GET_ANIM_ID(op))
-		{
-			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-		}
-
-		if (wall(m, new_x, new_y))
-		{
-			/* Target is standing on a wall.  Let arrow turn around before
-			 * the wall. */
-			new_x = op->x;
-			new_y = op->y;
-		}
-
-		SET_FLAG(op, FLAG_WAS_REFLECTED);
-		/* skip normal movement calculations */
-		was_reflected = 1;
-	}
-
-	if (!was_reflected && wall(m, new_x, new_y))
-	{
-		/* if the object doesn't reflect, stop the arrow from moving */
+		/* If the object doesn't reflect, stop the arrow from moving. */
 		if (!QUERY_FLAG(op, FLAG_REFLECTING) || !(rndm(0, 19)))
 		{
-			stop_arrow (op);
+			stop_arrow(op);
 			return;
 		}
-		/* object is reflected */
 		else
 		{
-			/* If one of the major directions (n,s,e,w), just reverse it */
+			/* If one of the major directions (n, s, e, w), just reverse it */
 			if (op->direction & 1)
 			{
 				op->direction = absdir(op->direction + 4);
 			}
 			else
 			{
-				/* The below is just logic for figuring out what direction
-				 * the object should now take. */
-				int left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
+				int left, right;
+
+				left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]);
+				right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
 
 				if (left == right)
 				{
@@ -277,29 +229,18 @@ void move_arrow(object *op)
 				}
 			}
 
-			/* Is the new direction also a wall?  If show, shuffle again */
-			if (wall(op->map, op->x + DIRX(op), op->y + DIRY(op)))
-			{
-				int left= wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
+			x = op->x + DIRX(op);
+			y = op->y + DIRY(op);
 
-				if (!left)
-				{
-					op->direction = absdir(op->direction - 1);
-				}
-				else if (!right)
-				{
-					op->direction = absdir(op->direction + 1);
-				}
-				/* is this possible? */
-				else
-				{
-					stop_arrow(op);
-					return;
-				}
+			/* Couldn't find a direction to move the arrow to - just stop
+			 * it from moving. */
+			if (!(m = get_map_from_coord(op->map, &x, &y)) || wall(m, x, y))
+			{
+				stop_arrow(op);
+				return;
 			}
 
-			/* update object image for new facing */
-			/* many thrown objects *don't* have more than one face */
+			/* Update object image for new facing. */
 			if (GET_ANIM_ID(op))
 			{
 				SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
@@ -312,9 +253,9 @@ void move_arrow(object *op)
 
 	if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
 	{
-		op->x = new_x;
-		op->y = new_y;
-		insert_ob_in_map(op, m, op,0);
+		op->x = x;
+		op->y = y;
+		insert_ob_in_map(op, m, op, 0);
 	}
 }
 

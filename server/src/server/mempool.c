@@ -42,14 +42,14 @@
  * The Life Cycle of an Object:
  *
  * - <b>expand_mempool()</b>: Allocated from system memory and put into
-     the freelist of the object pool.
+ *   the freelist of the object pool.
  * - <b>get_object()</b>: Removed from freelist & put into removedlist (
  *   since it is not inserted anywhere yet).
  * - <b>insert_ob_in_(map/ob)()</b>: Filled with data and inserted into
  *   (any) environment
  * - <b>...</b> end of timestep
  * - <b>object_gc()</b>: Removed from removedlist, but not freed (since it sits in
-     an env).
+ *   an env).
  * - <b>...</b>
  * - <b>remove_ob()</b>: Removed from environment
  * - Sits in removedlist until the end of this server timestep
@@ -190,7 +190,7 @@ void init_mempools()
 	pool_player = create_mempool("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
 	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
 	pool_bans = create_mempool("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
-	pool_parties = create_mempool("parties", 25, sizeof(partylist_struct), 0, NULL, NULL, NULL, NULL);
+	pool_parties = create_mempool("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
 
 	/* Initialize end-of-list pointers and a few other values*/
 	removed_objects = &end_marker;

@@ -1,0 +1,1010 @@
+arch map
+name Greyton Jail
+msg
+Created:  2010-06-16 Alex Tokar
+Modified: 2010-06-16 Alex Tokar
+endmsg
+width 12
+height 13
+difficulty 1
+darkness -1
+bg_music escape.ogg|0|-1
+region greyton
+end
+arch blocked
+end
+arch wall_stone7_8
+end
+arch blocked
+y 1
+end
+arch wall_stone7_3
+y 1
+end
+arch blocked
+y 2
+end
+arch wall_stone7_3
+y 2
+end
+arch blocked
+y 3
+end
+arch wall_stone7_3
+y 3
+end
+arch blocked
+y 4
+end
+arch wall_stone7_3
+y 4
+end
+arch blocked
+y 5
+end
+arch wall_stone7_3
+y 5
+end
+arch blocked
+y 6
+end
+arch wall_stone7_3
+y 6
+end
+arch blocked
+y 7
+end
+arch wall_stone7_3
+y 7
+end
+arch picture2.151
+direction 7
+y 7
+end
+arch blocked
+y 8
+end
+arch wall_stone7_3
+y 8
+end
+arch blocked
+y 10
+end
+arch blocked
+y 11
+end
+arch blocked
+y 12
+end
+arch blocked
+x 1
+end
+arch wall_stone7_1
+x 1
+end
+arch floor_rhomb
+x 1
+y 1
+end
+arch shelf5_wall.111
+x 1
+y 1
+end
+arch floor_rhomb
+x 1
+y 2
+end
+arch shelf1.111
+direction 7
+x 1
+y 2
+end
+arch floor_rhomb
+x 1
+y 3
+end
+arch shelf1.111
+direction 7
+x 1
+y 3
+end
+arch floor_rhomb
+x 1
+y 4
+end
+arch floor_rhomb
+x 1
+y 5
+end
+arch chair1_111
+direction 7
+x 1
+y 5
+end
+arch floor_rhomb
+x 1
+y 6
+end
+arch floor_rhomb
+x 1
+y 7
+end
+arch floor_rhomb
+x 1
+y 8
+end
+arch wall_stone7_1
+x 1
+y 8
+end
+arch blocked
+x 1
+y 10
+end
+arch floor_orange1
+x 1
+y 11
+end
+arch exit
+x 1
+y 11
+arch event_obj
+msg
+[
+    ["jail", 2, 3],
+    ["jail", 2, 9],
+    ["jail", 2, 15],
+    ["jail", 12, 3],
+    ["jail", 12, 9],
+    ["jail", 12, 15]
+]
+endmsg
+sub_type 10
+race /python/generic/jail_exit.py
+end
+end
+arch blocked
+x 1
+y 12
+end
+arch blocked
+x 2
+end
+arch wall_stone7_1
+x 2
+end
+arch picture4.151
+x 2
+end
+arch floor_rhomb
+x 2
+y 1
+end
+arch floor_rhomb
+x 2
+y 2
+end
+arch floor_rhomb
+x 2
+y 3
+end
+arch floor_rhomb
+x 2
+y 4
+end
+arch chair1_111
+x 2
+y 4
+end
+arch floor_rhomb
+x 2
+y 5
+end
+arch table_poker2
+x 2
+y 5
+end
+arch floor_rhomb
+x 2
+y 6
+end
+arch chair1_111
+direction 5
+x 2
+y 6
+end
+arch floor_rhomb
+x 2
+y 7
+end
+arch floor_rhomb
+x 2
+y 8
+end
+arch wall_stone7_1
+x 2
+y 8
+end
+arch blocked
+x 2
+y 10
+end
+arch blocked
+x 2
+y 11
+end
+arch blocked
+x 2
+y 12
+end
+arch blocked
+x 3
+end
+arch wall_stone7_1
+x 3
+end
+arch floor_rhomb
+x 3
+y 1
+end
+arch shelf3a.111
+x 3
+y 1
+end
+arch floor_rhomb
+x 3
+y 2
+end
+arch floor_rhomb
+x 3
+y 3
+end
+arch carpet1.131
+x 3
+y 3
+end
+arch floor_rhomb
+x 3
+y 4
+end
+arch carpet1.131
+x 3
+y 4
+end
+arch floor_rhomb
+x 3
+y 5
+end
+arch carpet1.131
+x 3
+y 5
+end
+arch chair1_111
+direction 3
+x 3
+y 5
+end
+arch floor_rhomb
+x 3
+y 6
+end
+arch carpet1.131
+x 3
+y 6
+end
+arch floor_rhomb
+x 3
+y 7
+end
+arch floor_rhomb
+x 3
+y 8
+end
+arch wall_stone7_1
+x 3
+y 8
+end
+arch blocked
+x 4
+end
+arch wall_stone7_1
+x 4
+end
+arch floor_rhomb
+x 4
+y 1
+end
+arch shelf3c.111
+x 4
+y 1
+end
+arch floor_rhomb
+x 4
+y 2
+end
+arch carpet1.151
+x 4
+y 2
+end
+arch floor_rhomb
+x 4
+y 3
+end
+arch carpet1
+x 4
+y 3
+end
+arch floor_rhomb
+x 4
+y 4
+end
+arch carpet1
+x 4
+y 4
+end
+arch floor_rhomb
+x 4
+y 5
+end
+arch carpet1
+x 4
+y 5
+end
+arch floor_rhomb
+x 4
+y 6
+end
+arch carpet1
+x 4
+y 6
+end
+arch floor_rhomb
+x 4
+y 7
+end
+arch carpet1.111
+x 4
+y 7
+end
+arch floor_rhomb
+x 4
+y 8
+end
+arch wall_stone7_1
+x 4
+y 8
+end
+arch blocked
+x 4
+y 9
+end
+arch wall_stone7_3
+x 4
+y 9
+end
+arch picture5.151
+direction 7
+x 4
+y 9
+end
+arch blocked
+x 4
+y 10
+end
+arch wall_stone7_3
+x 4
+y 10
+end
+arch blocked
+x 4
+y 11
+end
+arch wall_stone7_3
+x 4
+y 11
+end
+arch blocked
+x 4
+y 12
+end
+arch wall_stone7_3
+x 4
+y 12
+end
+arch blocked
+x 5
+end
+arch wall_stone7_1
+x 5
+end
+arch floor_rhomb
+x 5
+y 1
+end
+arch switch_wall
+layer 4
+connected 101
+x 5
+y 1
+end
+arch creator
+connected 101
+lifesave 1
+one_drop 1
+x 5
+y 1
+arch key2
+msg
+Key to all jails of the world.
+endmsg
+name Jail Key
+face key_gold_red.111
+is_magical 1
+slaying jail_key
+end
+end
+arch floor_rhomb
+x 5
+y 2
+end
+arch carpet1.151
+x 5
+y 2
+end
+arch floor_rhomb
+x 5
+y 3
+end
+arch carpet1
+x 5
+y 3
+end
+arch floor_rhomb
+x 5
+y 4
+end
+arch carpet1
+x 5
+y 4
+end
+arch floor_rhomb
+x 5
+y 5
+end
+arch carpet1
+x 5
+y 5
+end
+arch floor_rhomb
+x 5
+y 6
+end
+arch carpet1
+x 5
+y 6
+end
+arch floor_rhomb
+x 5
+y 7
+end
+arch carpet1.111
+x 5
+y 7
+end
+arch floor_rhomb
+x 5
+y 8
+end
+arch door1_locked
+x 5
+y 8
+end
+arch floor_rhomb
+x 5
+y 9
+end
+arch floor_rhomb
+x 5
+y 10
+end
+arch floor_rhomb
+x 5
+y 11
+end
+arch stairs_red_up
+direction 1
+slaying jail
+hp 12
+sp 19
+x 5
+y 11
+end
+arch floor_rhomb
+x 5
+y 12
+end
+arch wall_stone7_1
+x 5
+y 12
+end
+arch blocked
+x 6
+end
+arch wall_stone7_1
+x 6
+end
+arch floor_rhomb
+x 6
+y 1
+end
+arch table_lab3.111
+x 6
+y 1
+end
+arch floor_rhomb
+x 6
+y 2
+end
+arch carpet1.151
+x 6
+y 2
+end
+arch chair2_111
+direction 5
+x 6
+y 2
+end
+arch spawn_point
+x 6
+y 2
+arch guard_royal
+name jail guard captain
+direction 1
+type 83
+arch event_obj
+msg
+[
+    ["jail", 2, 3],
+    ["jail", 2, 9],
+    ["jail", 2, 15],
+    ["jail", 12, 3],
+    ["jail", 12, 9],
+    ["jail", 12, 15]
+]
+endmsg
+sub_type 6
+race /python/generic/jail_manager.py
+end
+end
+end
+arch floor_rhomb
+x 6
+y 3
+end
+arch carpet1
+x 6
+y 3
+end
+arch floor_rhomb
+x 6
+y 4
+end
+arch carpet1
+x 6
+y 4
+end
+arch floor_rhomb
+x 6
+y 5
+end
+arch carpet1
+x 6
+y 5
+end
+arch floor_rhomb
+x 6
+y 6
+end
+arch carpet1
+x 6
+y 6
+end
+arch floor_rhomb
+x 6
+y 7
+end
+arch carpet1.111
+x 6
+y 7
+end
+arch floor_rhomb
+x 6
+y 8
+end
+arch door1_locked
+direction 7
+x 6
+y 8
+end
+arch floor_rhomb
+x 6
+y 9
+end
+arch floor_rhomb
+x 6
+y 10
+end
+arch floor_rhomb
+x 6
+y 11
+end
+arch stairs_red_up
+direction 1
+slaying jail
+hp 13
+sp 19
+x 6
+y 11
+end
+arch floor_rhomb
+x 6
+y 12
+end
+arch wall_stone7_1
+x 6
+y 12
+end
+arch blocked
+x 7
+end
+arch wall_stone7_1
+x 7
+end
+arch floor_rhomb
+x 7
+y 1
+end
+arch shelf2_wall.111
+x 7
+y 1
+end
+arch floor_rhomb
+x 7
+y 2
+end
+arch carpet1.151
+x 7
+y 2
+end
+arch floor_rhomb
+x 7
+y 3
+end
+arch carpet1
+x 7
+y 3
+end
+arch floor_rhomb
+x 7
+y 4
+end
+arch carpet1
+x 7
+y 4
+end
+arch floor_rhomb
+x 7
+y 5
+end
+arch carpet1
+x 7
+y 5
+end
+arch floor_rhomb
+x 7
+y 6
+end
+arch carpet1
+x 7
+y 6
+end
+arch floor_rhomb
+x 7
+y 7
+end
+arch carpet1.111
+x 7
+y 7
+end
+arch floor_rhomb
+x 7
+y 8
+end
+arch wall_stone7_1
+x 7
+y 8
+end
+arch floor_rhomb
+x 7
+y 9
+end
+arch wall_stone7_3
+x 7
+y 9
+end
+arch floor_rhomb
+x 7
+y 10
+end
+arch wall_stone7_3
+x 7
+y 10
+end
+arch floor_rhomb
+x 7
+y 11
+end
+arch wall_stone7_3
+x 7
+y 11
+end
+arch floor_rhomb
+x 7
+y 12
+end
+arch wall_stone7_4
+x 7
+y 12
+end
+arch blocked
+x 8
+end
+arch wall_stone7_1
+x 8
+end
+arch picture7
+x 8
+end
+arch floor_rhomb
+x 8
+y 1
+end
+arch floor_rhomb
+x 8
+y 2
+end
+arch carpet1.151
+x 8
+y 2
+end
+arch floor_rhomb
+x 8
+y 3
+end
+arch carpet1
+x 8
+y 3
+end
+arch floor_rhomb
+x 8
+y 4
+end
+arch carpet1
+x 8
+y 4
+end
+arch floor_rhomb
+x 8
+y 5
+end
+arch carpet1
+x 8
+y 5
+end
+arch floor_rhomb
+x 8
+y 6
+end
+arch carpet1
+x 8
+y 6
+end
+arch floor_rhomb
+x 8
+y 7
+end
+arch carpet1.111
+x 8
+y 7
+end
+arch floor_rhomb
+x 8
+y 8
+end
+arch wall_stone7_1
+x 8
+y 8
+end
+arch blocked
+x 9
+end
+arch wall_stone7_1
+x 9
+end
+arch floor_rhomb
+x 9
+y 1
+end
+arch fireplace_right
+x 9
+y 1
+end
+arch floor_rhomb
+x 9
+y 2
+end
+arch floor_rhomb
+x 9
+y 3
+end
+arch carpet1.171
+x 9
+y 3
+end
+arch floor_rhomb
+x 9
+y 4
+end
+arch carpet1.171
+x 9
+y 4
+end
+arch floor_rhomb
+x 9
+y 5
+end
+arch carpet1.171
+x 9
+y 5
+end
+arch floor_rhomb
+x 9
+y 6
+end
+arch carpet1.171
+x 9
+y 6
+end
+arch floor_rhomb
+x 9
+y 7
+end
+arch floor_rhomb
+x 9
+y 8
+end
+arch wall_stone7_1
+x 9
+y 8
+end
+arch blocked
+x 10
+end
+arch wall_stone7_1
+x 10
+end
+arch floor_rhomb
+x 10
+y 1
+end
+arch floor_rhomb
+x 10
+y 2
+end
+arch floor_rhomb
+x 10
+y 3
+end
+arch floor_rhomb
+x 10
+y 4
+end
+arch floor_rhomb
+x 10
+y 5
+end
+arch floor_rhomb
+x 10
+y 6
+end
+arch kettle_table
+x 10
+y 6
+end
+arch floor_rhomb
+x 10
+y 7
+end
+arch chair2_111
+direction 5
+x 10
+y 7
+end
+arch floor_rhomb
+x 10
+y 8
+end
+arch wall_stone7_1
+x 10
+y 8
+end
+arch blocked
+x 11
+end
+arch wall_stone7_1
+x 11
+end
+arch floor_rhomb
+x 11
+y 1
+end
+arch wall_stone7_3
+x 11
+y 1
+end
+arch floor_rhomb
+x 11
+y 2
+end
+arch wall_stone7_3
+x 11
+y 2
+end
+arch floor_rhomb
+x 11
+y 3
+end
+arch wall_stone7_3
+x 11
+y 3
+end
+arch floor_rhomb
+x 11
+y 4
+end
+arch wall_stone7_3
+x 11
+y 4
+end
+arch floor_rhomb
+x 11
+y 5
+end
+arch wall_stone7_3
+x 11
+y 5
+end
+arch floor_rhomb
+x 11
+y 6
+end
+arch wall_stone7_3
+x 11
+y 6
+end
+arch floor_rhomb
+x 11
+y 7
+end
+arch wall_stone7_3
+x 11
+y 7
+end
+arch floor_rhomb
+x 11
+y 8
+end
+arch wall_stone7_4
+x 11
+y 8
+end

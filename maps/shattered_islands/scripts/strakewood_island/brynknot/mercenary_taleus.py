@@ -3,15 +3,12 @@
 ## Taleus in the Brynknot Mercenary Guild.
 
 from Atrinik import *
-import string
 from QuestManager import QuestManager
 
-## Activator object.
 activator = WhoIsActivator()
-## Object who has the event object in their inventory.
 me = WhoAmI()
 
-## Info about the quest for QuestManager.
+## Info about the quest.
 quest = {
 	"quest_name": "Dark Cave Elder Wyverns",
 	"type": 2,
@@ -23,91 +20,78 @@ quest = {
 ## Initialize QuestManager.
 qm = QuestManager(activator, quest)
 
-## Get the ::activator's physical experience object, so we can check if
+## Get the activator's physical experience object, so we can check if
 ## they are high enough level for the quest.
 eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
 
 msg = WhatIsMessage().strip().lower()
 text = msg.split()
 
-if text[0] == "archery" or text[0] == "chereth":
-	me.SayTo(activator, "\nYou should ask Chereth about the three archery skills.\nShe still teaches archery and her knowledge about it is superior.\nAfter she lost her eyes she was transferred to the Tutorial Island.");
+def main():
+	if msg == "hello" or msg == "hi" or msg == "hey":
+		if qm.started() and qm.completed():
+			me.SayTo(activator, "\nHello {0}.\nGood to see you back.".format(activator.name))
+			return
 
-elif text[0] == "teach":
-	skill = GetSkillNr("two-hand mastery")
-	sobj = activator.GetSkill(TYPE_SKILL, skill)
-
-	if qm.started() and qm.completed():
-		me.SayTo(activator, "\nI can't teach you more.")
-	else:
-		if eobj != None and eobj.level < 10:
-			me.SayTo(activator, "\nYou are not strong enough. Come back later!")
-		else:
-			if not qm.finished():
-				me.SayTo(activator, "\nFirst bring me the elder wyvern tooth!")
-			else:
-				qm.complete()
-				activator.Write("Taleus takes %s from your inventory." % quest["item_name"], COLOR_WHITE)
-
-				if sobj != None:
-					me.SayTo(activator, "\nYou already know that skill?!")
-				else:
-					me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Taleus teaches some ancient skill.", COLOR_YELLOW)
-					activator.AcquireSkill(skill)
-
-elif text[0] == "two-hand":
-	me.SayTo(activator, "\nTwo-hand mastery will allow you to fight with two-hand weapons. You will do more damage and hit better at the cost of lower protection because you can't wield a shield.");
-
-# Accept the quest.
-elif text[0] == "accept":
-	if not qm.started():
-		me.SayTo(activator, "\nReturn to me with the elder wyvern tooth and I will reward you.")
-		qm.start()
-	elif qm.completed():
-		me.SayTo(activator, "\nThank you for helping us out.")
-
-elif text[0] == "elder" or text[0] == "quest":
-	if not qm.started() or not qm.completed():
 		if not qm.finished():
-			me.SayTo(activator, "\nThe elder wyverns are the most aggressive and strongest of the wyverns in that cave.");
-
-			if eobj != None and eobj.level >= 10:
-				me.SayTo(activator, "Hmm, it seems you are strong enough to try it...\nIf you can kill one or two I will help you too.\nI'll make a deal with you:\nBring me the tooth of an elder wyvern and I will teach you ^two-hand^ mastery.", 1);
-
-				if not qm.started():
-					me.SayTo(activator, "Do you ^accept^ this quest?", 1)
-			else:
-				me.SayTo(activator, "But they are too strong for you at the moment.\nTrain some more melee fighting.\nWhen you have become stronger I will give you a quest.", 1)
+			me.SayTo(activator, "\nHello {0}.\nI am the current ^archery^ commander after ^Chereth^ lost her eyes in this terrible fight with the ^wyverns^.".format(activator.name))
 		else:
-			me.SayTo(activator, "\nAh, you are back.\nDo you have the tooth?\nThen I will ^teach^ you two-hand mastery!")
-	else:
-		me.SayTo(activator, "\nYes, you have done good work in the wyvern cave.")
+			me.SayTo(activator, "\nAh, you are back.\nAnd I see you have the tooth!\nNow I will ^teach^ you two-hand mastery!")
 
-elif text[0] == "wyverns" or text[0] == "wyvern":
-	if not qm.started() or not qm.completed():
+	elif text[0] == "archery" or text[0] == "chereth":
+		me.SayTo(activator, "\nYou should ask Chereth about the three archery skills.\nShe still teaches archery and her knowledge about it is superior.\nAfter she lost her eyes she was transferred to the Tutorial Island.")
+
+	elif text[0] == "teach":
+		if qm.started() and qm.completed():
+			me.SayTo(activator, "\nI can't teach you more.")
+			return
+
+		## Get the activator's physical experience object, so we can check if
+		## they are high enough level for the quest.
+		eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
+
 		if not qm.finished():
-			me.SayTo(activator, "\nThe wyverns live in a big cave southeast of Brynknot.\nThey are dangerous and attacked us several times.\nWe have sent some expeditions but there are a lot of them.\nThe biggest problem are the ^elder^ wyverns.")
+			me.SayTo(activator, "\nFirst bring me the elder wyvern tooth!")
+			return
+		elif not eobj or eobj.level < 10:
+			me.SayTo(activator, "\nYour level is too low. Come back later!")
+			return
 
-			if eobj != None and eobj.level <10:
-				me.SayTo(activator, "Hmm, your physique level is not high enough.\nCome back after you get stronger and I will have a quest for you!", 1)
-			else:
-				me.SayTo(activator, "You are strong enough now.\nI have a ^quest^ for you.", 1)
+		skill = GetSkillNr("two-hand mastery")
+		sobj = activator.GetSkill(TYPE_SKILL, skill)
+
+		qm.complete()
+		activator.Write("Taleus takes {0} from your inventory.".format(quest["item_name"]), COLOR_WHITE)
+
+		if sobj != None:
+			me.SayTo(activator, "\nYou already know that skill?!")
 		else:
-			me.SayTo(activator, "\nAh, you are back.\nDo you have the tooth?\nThen I will ^teach^ you two-hand mastery!")
-	else:
-		me.SayTo(activator, "\nYes, you have done good work in the wyvern cave.")
+			me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Taleus teaches some ancient skill.", COLOR_YELLOW)
+			activator.AcquireSkill(skill)
 
-elif msg == "hello" or msg == "hi" or msg == "hey":
-	if not qm.started() or not qm.completed():
+	elif text[0] == "two-hand":
+		me.SayTo(activator, "\nTwo-hand mastery will allow you to fight with two-hand weapons. You will do more damage and hit better at the cost of lower protection because you can't wield a shield.")
+
+	elif text[0] == "accept":
+		if not qm.started():
+			me.SayTo(activator, "\nReturn to me with the elder wyvern tooth and I will reward you.")
+			qm.start()
+
+	elif text[0] == "elder":
+		if qm.started() and qm.completed():
+			return
+
 		if not qm.finished():
-			me.SayTo(activator, "\nHello %s.\nI am the current ^archery^ commander after ^Chereth^ lost her eyes in this terrible fight with the ^wyverns^." % activator.name)
-		else:
-			if eobj == None or eobj.level < 10:
-				me.SayTo(activator, "\nYou have a wyvern tooth?\nAmazing! When you are stronger, bring me the wyvern tooth and I will reward you!")
-			else:
-				me.SayTo(activator, "\nAh, you are back.\nDo you have the tooth?\nThen I will ^teach^ you two-hand mastery!")
-	else:
-		me.SayTo(activator, "\nHello %s.\nGood to see you back." % activator.name)
+			me.SayTo(activator, "\nThe elder wyverns are the most aggressive and strongest of the wyverns in that cave.\nIf you can kill one or two I will help you too.\nI'll make a deal with you:\nBring me the tooth of an elder wyvern and I will teach you ^two-hand^ mastery.")
 
-else:
-	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)
+			if not qm.started():
+				me.SayTo(activator, "Do you ^accept^ this quest?", 1)
+
+	elif text[0] == "wyverns" or text[0] == "wyvern":
+		if qm.started() and qm.completed():
+			return
+
+		if not qm.finished():
+ 			me.SayTo(activator, "\nThe wyverns live in a big cave southeast of Brynknot.\nThey are dangerous and attacked us several times.\nWe have sent some expeditions but there are a lot of them.\nThe biggest problem are the ^elder^ wyverns.")
+
+main()

@@ -8,7 +8,6 @@ wc -1
 food 1
 no_pick 1
 walk_on 1
-is_wooded 1
 slow_move 3
 attack_pierce 1
 speed 0.2

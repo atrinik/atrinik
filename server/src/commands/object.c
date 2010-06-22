@@ -193,7 +193,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 		snprintf(buf, sizeof(buf), "You can't put the %s into itself.", query_name(sack, NULL));
 	}
 
-	if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
+	if ((sack->race && (sack->sub_type & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
 	{
 		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
@@ -231,7 +231,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 {
 	char buf[HUGE_BUF];
 	object *env = tmp->env;
-	uint32 weight, effective_weight_limit;
 	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
 	if (pl->type == PLAYER)
@@ -246,11 +245,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	if (QUERY_FLAG(pl, FLAG_FLYING) && !QUERY_FLAG(pl, FLAG_WIZ) && is_player_inv(tmp) != pl)
 	{
 		new_draw_info(NDI_UNIQUE, pl, "You are levitating, you can't reach the ground!");
-		return;
-	}
-
-	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
-	{
 		return;
 	}
 
@@ -277,24 +271,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		nrof = tmp_nrof;
 	}
 
-	/* Figure out how much weight this object will add to the player */
-	weight = tmp->weight * nrof;
-
-	if (tmp->inv)
-	{
-		weight += tmp->carrying;
-	}
-
-	if (pl->stats.Str <= MAX_STAT)
-	{
-		effective_weight_limit = weight_limit[pl->stats.Str];
-	}
-	else
-	{
-		effective_weight_limit = weight_limit[MAX_STAT];
-	}
-
-	if ((pl->carrying + weight) > effective_weight_limit)
+	if (!player_can_carry(pl, tmp, nrof))
 	{
 		new_draw_info(NDI_UNIQUE, pl, "That item is too heavy for you to pick up.");
 		return;
@@ -571,6 +548,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	tag_t tmp_tag, tmp2_tag;
 	object *tmp2, *tmp_cont;
 	char buf[MAX_BUF];
+	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
 	if (op->type != PLAYER)
 	{
@@ -590,12 +568,23 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		return;
 	}
 
+	if (check_magical_container(tmp, sack))
+	{
+		new_draw_info(NDI_UNIQUE, op, "You can't put a magical container into another magical container.");
+		return;
+	}
+
 	if (tmp->type == CONTAINER)
 	{
 		container_unlink(NULL, tmp);
 	}
 
-	if (!sack_can_hold(op, sack, tmp, (nrof ? nrof : (int) tmp->nrof)))
+	if (nrof > tmp_nrof || nrof == 0)
+	{
+		nrof = tmp_nrof;
+	}
+
+	if (!sack_can_hold(op, sack, tmp, nrof))
 	{
 		return;
 	}
@@ -608,8 +597,29 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		}
 	}
 
+	if (QUERY_FLAG(tmp, FLAG_UNPAID))
+	{
+		/* This is a clone shop - clone an item for inventory */
+		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
+		{
+			tmp = object_create_clone(tmp);
+			CLEAR_FLAG(tmp, FLAG_NO_PICK);
+			SET_FLAG(tmp, FLAG_STARTEQUIP);
+			tmp->nrof = nrof;
+			tmp_nrof = nrof;
+			new_draw_info_format(NDI_UNIQUE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+		}
+		/* This is an unique shop item */
+		else
+		{
+			tmp->nrof = nrof;
+			new_draw_info_format(NDI_UNIQUE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			tmp->nrof = tmp_nrof;
+		}
+	}
+
 	/* We want to put some portion of the item into the container */
-	if (nrof && tmp->nrof != (uint32) nrof)
+	if (nrof != tmp_nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		char err[MAX_BUF];
@@ -634,37 +644,17 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 			esrv_send_item(op, tmp2);
 		}
 	}
-	else if (!QUERY_FLAG(tmp, FLAG_UNPAID) || !QUERY_FLAG(tmp, FLAG_NO_PICK))
-	{
-		remove_ob(tmp);
-
-		if (check_walk_off(tmp, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
-		{
-			return;
-		}
-	}
-	/* Don't delete clone shop objects - clone them */
 	else
 	{
-		tmp = object_create_clone(tmp);
-	}
-
-	if (QUERY_FLAG(tmp, FLAG_UNPAID))
-	{
-		/* This is a clone shop - clone a item for inventory */
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
+		/* If the object is in a container, send a delete to the client.
+		 * - we are moving all the items from the container to elsewhere,
+		 * so it needs to be deleted. */
+		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
 		{
-			CLEAR_FLAG(tmp, FLAG_NO_PICK);
-			SET_FLAG(tmp, FLAG_STARTEQUIP);
-			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			esrv_del_item(CONTR(op), tmp->count, tmp->env);
+			/* Unlink it - no move off check */
+			remove_ob(tmp);
 		}
-		/* This is a unique shop item */
-		else
-		{
-			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
-		}
-
-		new_draw_info(NDI_UNIQUE, op, buf);
 	}
 
 	snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
@@ -782,12 +772,14 @@ void drop_object(object *op, object *tmp, long nrof)
 				/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
 				if (floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
 				{
+					tmp->x = op->x;
+					tmp->y = op->y;
 					insert_ob_in_map(tmp, op->map, op, 0);
 				}
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "The one-drop item vanish to nowhere as you drop it!");
+				new_draw_info(NDI_UNIQUE, op, "The god-given item vanishes to nowhere as you drop it!");
 			}
 		}
 
@@ -898,135 +890,86 @@ void drop(object *op, object *tmp)
 }
 
 /**
- * Command to drop all items that have not been locked.
+ * /take command.
  * @param op Player.
- * @param params Optional specifier, like 'armour', 'weapon' and such.
+ * @param params What to take.
  * @return 0. */
-int command_dropall(object *op, char *params)
+int command_take(object *op, char *params)
 {
-	object *curinv, *nextinv;
+	object *tmp, *next;
+	int did_one = 0, missed = 0, ival;
 
-	if (op->inv == NULL)
+	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing to drop!");
+		new_draw_info(NDI_UNIQUE, op, "Take what?");
 		return 0;
 	}
 
-	curinv = op->inv;
-
-	if (params == NULL)
+	if (CONTR(op)->container)
 	{
-		while (curinv != NULL)
+		tmp = CONTR(op)->container->inv;
+	}
+	else
+	{
+		tmp = GET_MAP_OB_LAST(op->map, op->x, op->y);
+	}
+
+	if (!tmp)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Nothing to take.");
+		return 0;
+	}
+
+	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	for ( ; tmp; tmp = next)
+	{
+		next = tmp->below;
+
+		if ((tmp->layer != 3 && tmp->layer != 4) || QUERY_FLAG(tmp, FLAG_NO_PICK) || IS_SYS_INVISIBLE(tmp))
 		{
-			nextinv = curinv->below;
+			continue;
+		}
 
-			while (nextinv && nextinv->type == MONEY)
+		ival = item_matched_string(op, tmp, params);
+
+		if (ival > 0)
+		{
+			if (ival <= 2 && !can_pick(op, tmp))
 			{
-				nextinv = nextinv->below;
+				missed++;
 			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && curinv->type != MONEY && curinv->type != FOOD && curinv->type != KEY && curinv->type != SPECIAL_KEY && (curinv->type != GEM && curinv->type != PEARL && curinv->type != JEWEL && curinv->type != NUGGET) && !IS_SYS_INVISIBLE(curinv) && (curinv->type != CONTAINER || (op->type == PLAYER && CONTR(op)->container != curinv)))
+			else
 			{
-				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-				{
-					drop(op, curinv);
-				}
+				pick_up(op, tmp);
+				did_one = 1;
 			}
-
-			curinv = nextinv;
 		}
 	}
-	else if (strcmp(params, "weapons") == 0)
+
+	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	if (did_one)
 	{
-		while (curinv != NULL)
-		{
-			nextinv = curinv->below;
-
-			while (nextinv && nextinv->type == MONEY)
-			{
-				nextinv = nextinv->below;
-			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && ((curinv->type == WEAPON) || (curinv->type == BOW) || (curinv->type == ARROW)))
-			{
-				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-				{
-					drop(op, curinv);
-				}
-			}
-
-			curinv = nextinv;
-		}
+		fix_player(op);
 	}
-	else if (strcmp(params, "armor") == 0 || strcmp(params, "armour") == 0)
+	else if (!missed)
 	{
-		while (curinv != NULL)
-		{
-			nextinv = curinv->below;
-
-			while (nextinv && nextinv->type == MONEY)
-			{
-				nextinv = nextinv->below;
-			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && ((curinv->type == ARMOUR) || curinv->type == SHIELD || curinv->type == HELMET))
-			{
-				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-				{
-					drop(op, curinv);
-				}
-			}
-
-			curinv = nextinv;
-		}
+		new_draw_info(NDI_UNIQUE, op, "Nothing to take.");
 	}
-	else if (strcmp(params, "misc") == 0)
+
+	if (missed == 1)
 	{
-		while (curinv != NULL)
-		{
-			nextinv = curinv->below;
+		new_draw_info(NDI_UNIQUE, op, "You were unable to take one of the items.");
+	}
+	else if (missed > 1)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "You were unable to take %d of the items.", missed);
+	}
 
-			while (nextinv && nextinv->type == MONEY)
-			{
-				nextinv = nextinv->below;
-			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && !QUERY_FLAG(curinv, FLAG_APPLIED))
-			{
-				switch (curinv->type)
-				{
-					case HORN:
-					case BOOK:
-					case SPELLBOOK:
-					case GIRDLE:
-					case AMULET:
-					case RING:
-					case CLOAK:
-					case BOOTS:
-					case GLOVES:
-					case BRACERS:
-					case SCROLL:
-					case ARMOUR_IMPROVER:
-					case WEAPON_IMPROVER:
-					case WAND:
-					case ROD:
-					case POTION:
-						if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-						{
-							drop(op, curinv);
-						}
-
-						curinv = nextinv;
-						break;
-
-					default:
-						curinv = nextinv;
-						break;
-				}
-			}
-
-			curinv = nextinv;
-		}
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->count = 0;
 	}
 
 	return 0;
@@ -1039,36 +982,60 @@ int command_dropall(object *op, char *params)
  * @return 0. */
 int command_drop(object *op, char *params)
 {
-	object  *tmp, *next;
-	int did_one = 0;
+	object *tmp, *next;
+	int did_one = 0, missed = 0, ival;
 
 	if (!params)
 	{
 		new_draw_info(NDI_UNIQUE, op, "Drop what?");
 		return 0;
 	}
-	else
+
+	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	for (tmp = op->inv; tmp; tmp = next)
 	{
-		for (tmp = op->inv; tmp; tmp = next)
+		next = tmp->below;
+
+		if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_SYS_INVISIBLE(tmp))
 		{
-			next = tmp->below;
+			continue;
+		}
 
-			if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_SYS_INVISIBLE(tmp))
+		ival = item_matched_string(op, tmp, params);
+
+		if (ival > 0)
+		{
+			if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED))
 			{
-				continue;
+				missed++;
 			}
-
-			if (item_matched_string(op, tmp, params))
+			else
 			{
 				drop(op, tmp);
 				did_one = 1;
 			}
 		}
+	}
 
-		if (!did_one)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Nothing to drop.");
-		}
+	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	if (did_one)
+	{
+		fix_player(op);
+	}
+	else if (!missed)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Nothing to drop.");
+	}
+
+	if (missed == 1)
+	{
+		new_draw_info(NDI_UNIQUE, op, "One item couldn't be dropped because it was locked.");
+	}
+	else if (missed > 1)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "%d items couldn't be dropped because they were locked.", missed);
 	}
 
 	if (op->type == PLAYER)
@@ -1153,63 +1120,39 @@ object *find_marked_object(object *op)
 void examine_living(object *op, object *tmp)
 {
 	object *mon = tmp->head ? tmp->head : tmp;
-	char *gender, *att;
-	int val, val2, i;
+	int val, val2, i, gender;
 
 	CONTR(op)->praying = 0;
-
-	if (QUERY_FLAG(mon, FLAG_IS_MALE))
-	{
-		if (QUERY_FLAG(mon, FLAG_IS_FEMALE))
-		{
-			gender = "hermaphrodite";
-			att = "It";
-		}
-		else
-		{
-			gender = "male";
-			att = "He";
-		}
-	}
-	else if (QUERY_FLAG(mon, FLAG_IS_FEMALE))
-	{
-		gender = "female";
-		att = "She";
-	}
-	else
-	{
-		gender = "neuter";
-		att = "It";
-	}
+	gender = object_get_gender(mon);
 
 	if (QUERY_FLAG(mon, FLAG_IS_GOOD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a good aligned %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_EVIL))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is an evil aligned %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a neutral aligned %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "%s is level %d.", att, mon->level);
-	new_draw_info_format(NDI_UNIQUE, op, "%s has a base damage of %d and hp of %d.", att, mon->stats.dam, mon->stats.maxhp);
-	new_draw_info_format(NDI_UNIQUE, op, "%s has a wc of %d and ac of %d.", att, mon->stats.wc, mon->stats.ac);
+	new_draw_info_format(NDI_UNIQUE, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
+	new_draw_info_format(NDI_UNIQUE, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
+	new_draw_info_format(NDI_UNIQUE, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
 
 	for (val = val2 = -1, i = 0; i < NROFATTACKS; i++)
 	{
-		if (mon->resist[i] > 0)
+		if (mon->protection[i] > 0)
 		{
 			val = i;
 		}
-		else if (mon->resist[i] < 0)
+		else if (mon->protection[i] < 0)
 		{
 			val = i;
 		}
@@ -1217,15 +1160,15 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s can naturally resist some attacks.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
 	}
 
 	if (val2 != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is naturally vulnerable to some attacks.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
 	}
 
-	for (val =- 1, val2 = i = 0; i < NROFPROTECTIONS; i++)
+	for (val =- 1, val2 = i = 0; i < NROFATTACKS; i++)
 	{
 		if (mon->protection[i] > val2)
 		{
@@ -1236,36 +1179,36 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Best armour protection seems to be for %s.", protection_name[val]);
+		new_draw_info_format(NDI_UNIQUE, op, "Best armour protection seems to be for %s.", attack_name[val]);
 	}
 
 	if (QUERY_FLAG(mon, FLAG_UNDEAD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is an undead force.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is an undead force.", gender_subjective_upper[gender]);
 	}
 
 	switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
 	{
 		case 1:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is in a bad shape.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
 			break;
 
 		case 2:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is hurt.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is hurt.", gender_subjective_upper[gender]);
 			break;
 
 		case 3:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is somewhat hurt.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
 			break;
 
 		default:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is in excellent shape.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
 			break;
 	}
 
 	if (present_in_ob(POISONING, mon) != NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s looks very ill.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s looks very ill.", gender_subjective_upper[gender]);
 	}
 }
 
@@ -1357,21 +1300,9 @@ void examine(object *op, object *tmp)
 		return;
 	}
 
-	/* Only quetzals can see the resistances on flesh. To realize
-	 * this, we temporarily flag the flesh with SEE_INVISIBLE */
-	if (op->type == PLAYER && tmp->type == FLESH && is_dragon_pl(op))
-	{
-		SET_FLAG(tmp, FLAG_SEE_INVISIBLE);
-	}
-
 	strcpy(buf, "That is ");
 	strncat(buf, long_desc(tmp, op), VERY_BIG_BUF - strlen(buf) - 1);
 	buf[VERY_BIG_BUF - 1] = '\0';
-
-	if (op->type == PLAYER && tmp->type == FLESH)
-	{
-		CLEAR_FLAG(tmp, FLAG_SEE_INVISIBLE);
-	}
 
 	/* Only add this for usable items, not for objects like walls or
 	 * floors for example. */
@@ -1426,143 +1357,6 @@ void examine(object *op, object *tmp)
 			else
 			{
 				new_draw_info_format(NDI_UNIQUE, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
-
-				if (QUERY_FLAG(tmp, FLAG_PROOF_ELEMENTAL) || QUERY_FLAG(tmp, FLAG_PROOF_MAGIC) || QUERY_FLAG(tmp, FLAG_PROOF_SPHERE) || QUERY_FLAG(tmp, FLAG_PROOF_PHYSICAL))
-				{
-					int ft = 0;
-
-					strcpy(buf, "It is ");
-
-					if (QUERY_FLAG(tmp, FLAG_PROOF_PHYSICAL))
-					{
-						strcpy(tmp_buf, "acid-proof");
-						ft = 1;
-					}
-
-					if (QUERY_FLAG(tmp, FLAG_PROOF_ELEMENTAL))
-					{
-						if (ft)
-						{
-							strcat(buf, tmp_buf);
-						}
-
-						strcpy(tmp_buf, "elemental-proof");
-						ft += 1;
-					}
-
-					if (QUERY_FLAG(tmp, FLAG_PROOF_MAGIC))
-					{
-						if (ft)
-						{
-							if (ft > 1)
-							{
-								strcat(buf, ", ");
-							}
-
-							strcat(buf, tmp_buf);
-						}
-
-						strcpy(tmp_buf, "magic-proof");
-						ft += 1;
-					}
-
-					if (QUERY_FLAG(tmp, FLAG_PROOF_SPHERE))
-					{
-						if (ft)
-						{
-							if (ft > 1)
-							{
-								strcat(buf, ", ");
-							}
-
-							strcat(buf, tmp_buf);
-						}
-
-						strcpy(tmp_buf, "sphere-proof");
-						ft += 1;
-					}
-
-					if (ft)
-					{
-						if (ft > 1)
-						{
-							strcat(buf, " and ");
-						}
-
-						strcat(buf, tmp_buf);
-						strcat(buf, ".");
-					}
-
-					new_draw_info(NDI_UNIQUE, op, buf);
-				}
-
-				if ((QUERY_FLAG(tmp, FLAG_VUL_ELEMENTAL) && !QUERY_FLAG(tmp, FLAG_PROOF_ELEMENTAL)) || (QUERY_FLAG(tmp, FLAG_VUL_MAGIC) && !QUERY_FLAG(tmp, FLAG_PROOF_MAGIC)) || (QUERY_FLAG(tmp, FLAG_VUL_SPHERE) && !QUERY_FLAG(tmp, FLAG_PROOF_SPHERE)) || (QUERY_FLAG(tmp, FLAG_VUL_PHYSICAL) && !QUERY_FLAG(tmp, FLAG_PROOF_PHYSICAL)))
-				{
-					int ft = 0;
-
-					strcpy(buf, "It is vulnerable from ");
-
-					if (QUERY_FLAG(tmp, FLAG_VUL_PHYSICAL) && !QUERY_FLAG(tmp, FLAG_PROOF_PHYSICAL))
-					{
-						strcpy(tmp_buf, "physical");
-						ft = 1;
-					}
-
-					if (QUERY_FLAG(tmp, FLAG_VUL_ELEMENTAL) && !QUERY_FLAG(tmp, FLAG_PROOF_ELEMENTAL))
-					{
-						if (ft)
-						{
-							strcat(buf, tmp_buf);
-						}
-
-						strcpy(tmp_buf, "elemental");
-						ft += 1;
-					}
-
-					if (QUERY_FLAG(tmp, FLAG_VUL_MAGIC) && !QUERY_FLAG(tmp, FLAG_PROOF_MAGIC))
-					{
-						if (ft)
-						{
-							if (ft > 1)
-							{
-								strcat(buf, ", ");
-							}
-							strcat(buf, tmp_buf);
-						}
-
-						strcpy(tmp_buf, "magic");
-						ft += 1;
-					}
-
-					if (QUERY_FLAG(tmp, FLAG_VUL_SPHERE) && !QUERY_FLAG(tmp, FLAG_PROOF_SPHERE))
-					{
-						if (ft)
-						{
-							if (ft > 1)
-							{
-								strcat(buf, ", ");
-							}
-
-							strcat(buf, tmp_buf);
-						}
-
-						strcpy(tmp_buf, "sphere");
-						ft += 1;
-					}
-
-					if (ft)
-					{
-						if (ft > 1)
-						{
-							strcat(buf, " and ");
-						}
-
-						strcat(buf, tmp_buf);
-						strcat(buf, ".");
-					}
-
-					new_draw_info(NDI_UNIQUE, op, buf);
-				}
 			}
 		}
 
@@ -1574,7 +1368,7 @@ void examine(object *op, object *tmp)
 		case SPELLBOOK:
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) && tmp->stats.sp >= 0 && tmp->stats.sp <= NROFREALSPELLS)
 			{
-				if (tmp->sub_type1 == ST1_SPELLBOOK_CLERIC)
+				if (tmp->sub_type == ST1_SPELLBOOK_CLERIC)
 				{
 					snprintf(buf, sizeof(buf), "%s is a %d level prayer.", spells[tmp->stats.sp].name, spells[tmp->stats.sp].level);
 				}
@@ -1650,11 +1444,8 @@ void examine(object *op, object *tmp)
 					}
 				}
 
-				if (tmp->carrying)
-				{
-					new_draw_info(NDI_UNIQUE, op, buf);
-					snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.f);
-				}
+				new_draw_info(NDI_UNIQUE, op, buf);
+				snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
 			}
 
 			break;
@@ -1755,20 +1546,33 @@ void examine(object *op, object *tmp)
 
 	if (tmp->weight)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", (float)(tmp->nrof ? WEIGHT(tmp) * (int) tmp->nrof : WEIGHT(tmp)) / 1000.0f);
+		float weight = (float) (tmp->nrof ? tmp->weight * (int) tmp->nrof : tmp->weight) / 1000.0f;
+
+		if (tmp->type == MONSTER)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
+		}
+		else if (tmp->type == PLAYER)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
+		}
 	}
 
-	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_ONE_DROP))
+	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 	{
 		/* Unpaid clone shop item */
 		if (QUERY_FLAG(tmp, FLAG_UNPAID))
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, F_BUY));
 		}
-		/* Real one drop item */
+		/* God-given item */
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s one-drop item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
+			new_draw_info_format(NDI_UNIQUE, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{

@@ -1,12 +1,12 @@
 arch map
-name World
+name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-06-13 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 65
 outdoor 1
 tile_path_1 world_0510
 tile_path_2 world_0609
@@ -16,6 +16,8 @@ tile_path_5 world_0610
 tile_path_6 world_0608
 tile_path_7 world_0408
 tile_path_8 world_0410
+bg_music desert_town.ogg|0|-1
+region dragons_island
 end
 arch water_still
 end
@@ -650,7 +652,15 @@ arch water_still
 x 6
 y 21
 end
+arch desert_fmask.118
+x 6
+y 21
+end
 arch water_still
+x 6
+y 22
+end
+arch desert_fmask.107
 x 6
 y 22
 end
@@ -658,6 +668,10 @@ arch water_still
 x 6
 y 23
 end
+arch desert_fmask.107
+x 6
+y 23
+end
 arch water_still
 x 7
 end
@@ -741,15 +755,27 @@ arch water_still
 x 7
 y 20
 end
+arch desert_fmask.118
+x 7
+y 20
+end
 arch water_still
 x 7
 y 21
 end
-arch water_still
+arch desert_fmask.108
+x 7
+y 21
+end
+arch desert.103
 x 7
 y 22
 end
-arch water_still
+arch plant18
+x 7
+y 22
+end
+arch desert.103
 x 7
 y 23
 end
@@ -828,7 +854,15 @@ arch water_still
 x 8
 y 18
 end
+arch desert_fmask.118
+x 8
+y 18
+end
 arch water_still
+x 8
+y 19
+end
+arch desert_fmask.107
 x 8
 y 19
 end
@@ -836,15 +870,27 @@ arch water_still
 x 8
 y 20
 end
-arch water_still
+arch desert_fmask.108
+x 8
+y 20
+end
+arch desert.103
 x 8
 y 21
 end
-arch water_still
+arch tree47
+x 8
+y 21
+end
+arch light7
+x 8
+y 21
+end
+arch desert.103
 x 8
 y 22
 end
-arch water_still
+arch desert.103
 x 8
 y 23
 end
@@ -915,7 +961,15 @@ arch water_still
 x 9
 y 16
 end
+arch desert_fmask.118
+x 9
+y 16
+end
 arch water_still
+x 9
+y 17
+end
+arch desert_fmask.107
 x 9
 y 17
 end
@@ -923,23 +977,27 @@ arch water_still
 x 9
 y 18
 end
-arch water_still
+arch desert_fmask.108
+x 9
+y 18
+end
+arch desert.103
 x 9
 y 19
 end
-arch water_still
+arch desert.103
 x 9
 y 20
 end
-arch water_still
+arch desert.103
 x 9
 y 21
 end
-arch water_still
+arch desert.103
 x 9
 y 22
 end
-arch water_still
+arch desert.101
 x 9
 y 23
 end
@@ -1006,35 +1064,86 @@ arch water_still
 x 10
 y 15
 end
+arch desert_fmask.118
+x 10
+y 15
+end
 arch water_still
 x 10
 y 16
 end
-arch water_still
+arch desert_fmask.108
+x 10
+y 16
+end
+arch tree51
+x 10
+y 16
+end
+arch light7
+x 10
+y 16
+end
+arch desert.103
 x 10
 y 17
 end
-arch water_still
+arch desert.103
 x 10
 y 18
 end
-arch water_still
+arch stone6
+x 10
+y 18
+end
+arch desert.103
 x 10
 y 19
 end
-arch water_still
+arch desert.103
 x 10
 y 20
 end
-arch water_still
+arch desert.103
 x 10
 y 21
 end
-arch water_still
+arch stone3
+x 10
+y 21
+end
+arch desert.102
 x 10
 y 22
 end
-arch water_still
+arch spawn_point
+x 10
+y 22
+arch jelly_blue
+name cold jelly
+randomitems mob_ice
+level 38
+exp 111
+dam 62
+maxhp 67
+ac 12
+attack_impact 40
+attack_cold 60
+protect_fire -20
+protect_cold 75
+protect_poison 0
+type 83
+end
+end
+arch desert.103
+x 10
+y 23
+end
+arch cactus3
+x 10
+y 23
+end
+arch light7
 x 10
 y 23
 end
@@ -1097,39 +1206,74 @@ arch water_still
 x 11
 y 14
 end
+arch desert_fmask.118
+x 11
+y 14
+end
 arch water_still
 x 11
 y 15
 end
-arch water_still
+arch desert_fmask.108
+x 11
+y 15
+end
+arch plant22
+x 11
+y 15
+end
+arch desert.103
 x 11
 y 16
 end
-arch water_still
+arch desert.103
 x 11
 y 17
 end
-arch water_still
+arch spawn_point
+x 11
+y 17
+arch jelly_blue
+name cold jelly
+randomitems mob_ice
+level 37
+exp 111
+dam 62
+maxhp 67
+ac 12
+attack_impact 40
+attack_cold 60
+protect_fire -20
+protect_cold 75
+protect_poison 0
+type 83
+end
+end
+arch desert.103
 x 11
 y 18
 end
-arch water_still
+arch desert.103
 x 11
 y 19
 end
-arch water_still
+arch desert.103
 x 11
 y 20
 end
-arch water_still
+arch plant21
+x 11
+y 20
+end
+arch desert.102
 x 11
 y 21
 end
-arch water_still
+arch desert.102
 x 11
 y 22
 end
-arch water_still
+arch desert.104
 x 11
 y 23
 end
@@ -1188,43 +1332,55 @@ arch water_still
 x 12
 y 13
 end
+arch desert_fmask.118
+x 12
+y 13
+end
 arch water_still
 x 12
 y 14
 end
-arch water_still
+arch desert_fmask.108
+x 12
+y 14
+end
+arch desert.103
 x 12
 y 15
 end
-arch water_still
+arch desert.103
 x 12
 y 16
 end
-arch water_still
+arch desert.103
 x 12
 y 17
 end
-arch water_still
+arch small_stones
+x 12
+y 17
+end
+arch desert.103
 x 12
 y 18
 end
-arch water_still
+arch desert.102
 x 12
 y 19
 end
-arch water_still
+arch desert.102
 x 12
 y 20
 end
-arch water_still
+arch desert.103
 x 12
 y 21
 end
-arch water_still
+arch desert.104
 x 12
 y 22
 end
-arch water_still
+arch desert.101
 x 12
 y 23
 end
@@ -1279,47 +1435,67 @@ arch water_still
 x 13
 y 12
 end
+arch desert_fmask.118
+x 13
+y 12
+end
 arch water_still
 x 13
 y 13
 end
-arch water_still
+arch desert_fmask.108
+x 13
+y 13
+end
+arch desert.103
 x 13
 y 14
 end
-arch water_still
+arch desert.103
 x 13
 y 15
 end
-arch water_still
+arch small_stones
+x 13
+y 15
+end
+arch desert.103
 x 13
 y 16
 end
-arch water_still
+arch desert.103
 x 13
 y 17
 end
-arch water_still
+arch desert.102
 x 13
 y 18
 end
-arch water_still
+arch plant19
+x 13
+y 18
+end
+arch desert.102
 x 13
 y 19
 end
-arch water_still
+arch desert.103
 x 13
 y 20
 end
-arch water_still
+arch stone6
+x 13
+y 20
+end
+arch desert.101
 x 13
 y 21
 end
-arch water_still
+arch desert.103
 x 13
 y 22
 end
-arch water_still
+arch desert.102
 x 13
 y 23
 end
@@ -1370,51 +1546,96 @@ arch water_still
 x 14
 y 11
 end
+arch desert_fmask.118
+x 14
+y 11
+end
 arch water_still
 x 14
 y 12
 end
-arch water_still
+arch desert_fmask.108
+x 14
+y 12
+end
+arch tree50
+x 14
+y 12
+end
+arch light7
+x 14
+y 12
+end
+arch desert.103
 x 14
 y 13
 end
-arch water_still
+arch spawn_point
+x 14
+y 13
+arch jelly_red
+name fire jelly
+randomitems mob_fire
+level 37
+exp 111
+dam 62
+maxhp 67
+ac 12
+attack_impact 40
+attack_fire 60
+attack_poison 0
+attack_acid 0
+protect_fire 75
+protect_cold -20
+protect_poison 0
+type 83
+end
+end
+arch desert.103
 x 14
 y 14
 end
-arch water_still
+arch plant21
+x 14
+y 14
+end
+arch desert.103
 x 14
 y 15
 end
-arch water_still
+arch desert.103
 x 14
 y 16
 end
-arch water_still
+arch desert.104
 x 14
 y 17
 end
-arch water_still
+arch desert.103
 x 14
 y 18
 end
-arch water_still
+arch desert.103
 x 14
 y 19
 end
-arch water_still
+arch desert.101
 x 14
 y 20
 end
-arch water_still
+arch desert.104
 x 14
 y 21
 end
-arch water_still
+arch desert.104
 x 14
 y 22
 end
-arch water_still
+arch desert.102
+x 14
+y 23
+end
+arch rock_big3
 x 14
 y 23
 end
@@ -1461,55 +1682,79 @@ arch water_still
 x 15
 y 10
 end
+arch desert_fmask.118
+x 15
+y 10
+end
 arch water_still
 x 15
 y 11
 end
-arch water_still
+arch desert_fmask.108
+x 15
+y 11
+end
+arch desert.103
 x 15
 y 12
 end
-arch water_still
+arch desert.103
 x 15
 y 13
 end
-arch water_still
+arch desert.103
 x 15
 y 14
 end
-arch water_still
+arch desert.103
 x 15
 y 15
 end
-arch water_still
+arch light7
+x 15
+y 15
+end
+arch desert.103
 x 15
 y 16
 end
-arch water_still
+arch desert.104
 x 15
 y 17
 end
-arch water_still
+arch desert.103
 x 15
 y 18
 end
-arch water_still
+arch desert.103
 x 15
 y 19
 end
-arch water_still
+arch desert.102
 x 15
 y 20
 end
-arch water_still
+arch desert.102
 x 15
 y 21
 end
-arch water_still
+arch rock_big3
+x 15
+y 21
+end
+arch desert.101
 x 15
 y 22
 end
-arch water_still
+arch rock_big3
+x 15
+y 22
+end
+arch desert.101
+x 15
+y 23
+end
+arch rock_big1
 x 15
 y 23
 end
@@ -1552,59 +1797,83 @@ arch water_still
 x 16
 y 9
 end
+arch desert_fmask.118
+x 16
+y 9
+end
 arch water_still
 x 16
 y 10
 end
-arch water_still
+arch desert_fmask.108
+x 16
+y 10
+end
+arch desert.103
 x 16
 y 11
 end
-arch water_still
+arch desert.103
 x 16
 y 12
 end
-arch water_still
+arch small_stones
+x 16
+y 12
+end
+arch desert.103
 x 16
 y 13
 end
-arch water_still
+arch desert.103
 x 16
 y 14
 end
-arch water_still
+arch desert.102
 x 16
 y 15
 end
-arch water_still
+arch desert.102
 x 16
 y 16
 end
-arch water_still
+arch desert.101
 x 16
 y 17
 end
-arch water_still
+arch desert.101
 x 16
 y 18
 end
-arch water_still
+arch desert.103
 x 16
 y 19
 end
-arch water_still
+arch rock_big3
+x 16
+y 19
+end
+arch desert.101
 x 16
 y 20
 end
-arch water_still
+arch rock_big1
+x 16
+y 20
+end
+arch desert.102
 x 16
 y 21
 end
-arch water_still
+arch rock_big3
+x 16
+y 21
+end
+arch desert.101
 x 16
 y 22
 end
-arch water_still
+arch desert.103
 x 16
 y 23
 end
@@ -1647,59 +1916,83 @@ arch water_still
 x 17
 y 9
 end
-arch water_still
+arch desert_fmask.101
+x 17
+y 9
+end
+arch desert.103
 x 17
 y 10
 end
-arch water_still
+arch small_stones
+x 17
+y 10
+end
+arch desert.103
 x 17
 y 11
 end
-arch water_still
+arch desert.103
 x 17
 y 12
 end
-arch water_still
+arch desert.103
 x 17
 y 13
 end
-arch water_still
+arch desert.102
 x 17
 y 14
 end
-arch water_still
+arch desert.101
 x 17
 y 15
 end
-arch water_still
+arch desert.101
 x 17
 y 16
 end
-arch water_still
+arch rock_big1
+x 17
+y 16
+end
+arch desert.103
 x 17
 y 17
 end
-arch water_still
+arch rock_big1
+x 17
+y 17
+end
+arch desert.104
 x 17
 y 18
 end
-arch water_still
+arch rock_big3
+x 17
+y 18
+end
+arch desert.102
 x 17
 y 19
 end
-arch water_still
+arch rock_big1
+x 17
+y 19
+end
+arch desert.104
 x 17
 y 20
 end
-arch water_still
+arch desert.103
 x 17
 y 21
 end
-arch water_still
+arch desert.104
 x 17
 y 22
 end
-arch water_still
+arch desert.102
 x 17
 y 23
 end
@@ -1738,63 +2031,99 @@ arch water_still
 x 18
 y 8
 end
+arch desert_fmask.118
+x 18
+y 8
+end
 arch water_still
 x 18
 y 9
 end
-arch water_still
+arch desert_fmask.108
+x 18
+y 9
+end
+arch desert.103
 x 18
 y 10
 end
-arch water_still
+arch desert.103
 x 18
 y 11
 end
-arch water_still
+arch plant21
+x 18
+y 11
+end
+arch light7
+x 18
+y 11
+end
+arch desert.103
 x 18
 y 12
 end
-arch water_still
+arch desert.102
 x 18
 y 13
 end
-arch water_still
+arch desert.102
 x 18
 y 14
 end
-arch water_still
+arch desert.102
 x 18
 y 15
 end
-arch water_still
+arch rock_big3
+x 18
+y 15
+end
+arch desert.103
 x 18
 y 16
 end
-arch water_still
+arch rock_big1
+x 18
+y 16
+end
+arch desert.102
 x 18
 y 17
 end
-arch water_still
+arch rock_big1
+x 18
+y 17
+end
+arch desert.104
 x 18
 y 18
 end
-arch water_still
+arch desert.102
 x 18
 y 19
 end
-arch water_still
+arch desert.102
 x 18
 y 20
 end
-arch water_still
+arch desert.101
 x 18
 y 21
 end
-arch water_still
+arch desert.102
 x 18
 y 22
 end
-arch water_still
+arch stone3
+x 18
+y 22
+end
+arch desert.104
+x 18
+y 23
+end
+arch plant18
 x 18
 y 23
 end
@@ -1829,69 +2158,126 @@ arch water_still
 x 19
 y 7
 end
+arch desert_fmask.118
+x 19
+y 7
+end
 arch water_still
 x 19
 y 8
 end
-arch water_still
+arch desert_fmask.108
+x 19
+y 8
+end
+arch desert.103
 x 19
 y 9
 end
-arch water_still
+arch spawn_point
+x 19
+y 9
+arch jelly_blue
+name cold jelly
+randomitems mob_ice
+level 37
+exp 111
+dam 62
+maxhp 67
+ac 12
+attack_impact 40
+attack_cold 60
+protect_fire -20
+protect_cold 75
+protect_poison 0
+type 83
+end
+end
+arch desert.103
 x 19
 y 10
 end
-arch water_still
+arch desert.103
 x 19
 y 11
 end
-arch water_still
+arch desert.102
 x 19
 y 12
 end
-arch water_still
+arch desert.101
 x 19
 y 13
 end
-arch water_still
+arch rock_big1
+x 19
+y 13
+end
+arch desert.103
 x 19
 y 14
 end
-arch water_still
+arch rock_big3
+x 19
+y 14
+end
+arch desert.102
 x 19
 y 15
 end
-arch water_still
+arch rock_big1
+x 19
+y 15
+end
+arch desert.104
 x 19
 y 16
 end
-arch water_still
+arch desert.104
 x 19
 y 17
 end
-arch water_still
+arch desert.101
 x 19
 y 18
 end
-arch water_still
+arch desert.104
 x 19
 y 19
 end
-arch water_still
+arch desert.102
 x 19
 y 20
 end
-arch water_still
+arch desert.103
 x 19
 y 21
 end
-arch water_still
+arch desert.104
 x 19
 y 22
 end
-arch water_still
+arch desert.102
 x 19
 y 23
+end
+arch spawn_point
+x 19
+y 23
+arch dragon_black
+level 72
+exp 122
+can_cast_spell 1
+sp -1
+maxsp 30
+Pow 2
+Dex 3
+type 83
+arch ability_firestorm
+end
+arch ability_icestorm
+end
+end
 end
 arch water_still
 x 20
@@ -1924,67 +2310,91 @@ arch water_still
 x 20
 y 7
 end
-arch water_still
+arch desert_fmask.101
+x 20
+y 7
+end
+arch desert.103
 x 20
 y 8
 end
-arch water_still
+arch desert.103
 x 20
 y 9
 end
-arch water_still
+arch desert.103
 x 20
 y 10
 end
-arch water_still
+arch desert.104
 x 20
 y 11
 end
-arch water_still
+arch rock_big3
+x 20
+y 11
+end
+arch desert.102
 x 20
 y 12
 end
-arch water_still
+arch rock_big3
+x 20
+y 12
+end
+arch desert.101
 x 20
 y 13
 end
-arch water_still
+arch rock_big1
+x 20
+y 13
+end
+arch desert.101
 x 20
 y 14
 end
-arch water_still
+arch desert.101
 x 20
 y 15
 end
-arch water_still
+arch desert.104
 x 20
 y 16
 end
-arch water_still
+arch desert.102
 x 20
 y 17
 end
-arch water_still
+arch desert.102
 x 20
 y 18
 end
-arch water_still
+arch desert.102
 x 20
 y 19
 end
-arch water_still
+arch desert.102
 x 20
 y 20
 end
-arch water_still
+arch desert.102
 x 20
 y 21
 end
-arch water_still
+arch tree47
+x 20
+y 21
+end
+arch light7
+x 20
+y 21
+end
+arch desert.104
 x 20
 y 22
 end
-arch water_still
+arch desert.104
 x 20
 y 23
 end
@@ -2015,71 +2425,99 @@ arch water_still
 x 21
 y 6
 end
+arch desert_fmask.118
+x 21
+y 6
+end
 arch water_still
 x 21
 y 7
 end
-arch water_still
+arch desert_fmask.108
+x 21
+y 7
+end
+arch desert.103
 x 21
 y 8
 end
-arch water_still
+arch desert.103
 x 21
 y 9
 end
-arch water_still
+arch desert.103
 x 21
 y 10
 end
-arch water_still
+arch rock_big3
+x 21
+y 10
+end
+arch desert.104
 x 21
 y 11
 end
-arch water_still
+arch rock_big3
+x 21
+y 11
+end
+arch desert.103
 x 21
 y 12
 end
-arch water_still
+arch desert.101
 x 21
 y 13
 end
-arch water_still
+arch desert.103
 x 21
 y 14
 end
-arch water_still
+arch desert.104
 x 21
 y 15
 end
-arch water_still
+arch desert.101
 x 21
 y 16
 end
-arch water_still
+arch desert.101
 x 21
 y 17
 end
-arch water_still
+arch desert.104
 x 21
 y 18
 end
-arch water_still
+arch cactus1
+x 21
+y 18
+end
+arch light5
+x 21
+y 18
+end
+arch desert.103
 x 21
 y 19
 end
-arch water_still
+arch desert.101
 x 21
 y 20
 end
-arch water_still
+arch desert.104
 x 21
 y 21
 end
-arch water_still
+arch stone4
+x 21
+y 21
+end
+arch desert.103
 x 21
 y 22
 end
-arch water_still
+arch desert.101
 x 21
 y 23
 end
@@ -2106,75 +2544,119 @@ arch water_still
 x 22
 y 5
 end
+arch desert_fmask.118
+x 22
+y 5
+end
 arch water_still
 x 22
 y 6
 end
-arch water_still
+arch desert_fmask.108
+x 22
+y 6
+end
+arch desert.103
 x 22
 y 7
 end
-arch water_still
+arch plant22
+x 22
+y 7
+end
+arch light7
+x 22
+y 7
+end
+arch desert.103
 x 22
 y 8
 end
-arch water_still
+arch desert.103
 x 22
 y 9
 end
-arch water_still
+arch rock_big1
+x 22
+y 9
+end
+arch desert.104
 x 22
 y 10
 end
-arch water_still
+arch rock_big3
+x 22
+y 10
+end
+arch desert.103
 x 22
 y 11
 end
-arch water_still
+arch desert.101
 x 22
 y 12
 end
-arch water_still
+arch desert.102
 x 22
 y 13
 end
-arch water_still
+arch plant20
+x 22
+y 13
+end
+arch desert.104
 x 22
 y 14
 end
-arch water_still
+arch desert.103
 x 22
 y 15
 end
-arch water_still
+arch stone2
+x 22
+y 15
+end
+arch desert.104
 x 22
 y 16
 end
-arch water_still
+arch tree51
+x 22
+y 16
+end
+arch light7
+x 22
+y 16
+end
+arch desert.102
 x 22
 y 17
 end
-arch water_still
+arch desert.104
 x 22
 y 18
 end
-arch water_still
+arch desert.104
 x 22
 y 19
 end
-arch water_still
+arch plant18
+x 22
+y 19
+end
+arch desert.104
 x 22
 y 20
 end
-arch water_still
+arch desert.103
 x 22
 y 21
 end
-arch water_still
+arch desert.104
 x 22
 y 22
 end
-arch water_still
+arch desert.102
 x 22
 y 23
 end
@@ -2201,75 +2683,87 @@ arch water_still
 x 23
 y 5
 end
-arch water_still
+arch desert_fmask.101
+x 23
+y 5
+end
+arch desert.103
 x 23
 y 6
 end
-arch water_still
+arch desert.103
 x 23
 y 7
 end
-arch water_still
+arch desert.103
 x 23
 y 8
 end
-arch water_still
+arch desert.103
 x 23
 y 9
 end
-arch water_still
+arch rock_big1
+x 23
+y 9
+end
+arch desert.102
 x 23
 y 10
 end
-arch water_still
+arch desert.101
 x 23
 y 11
 end
-arch water_still
+arch desert.102
 x 23
 y 12
 end
-arch water_still
+arch desert.102
 x 23
 y 13
 end
-arch water_still
+arch stone3
+x 23
+y 13
+end
+arch desert.104
 x 23
 y 14
 end
-arch water_still
+arch desert.104
 x 23
 y 15
 end
-arch water_still
+arch desert.102
 x 23
 y 16
 end
-arch water_still
+arch desert.102
 x 23
 y 17
 end
-arch water_still
+arch desert.103
 x 23
 y 18
 end
-arch water_still
+arch desert.104
 x 23
 y 19
 end
-arch water_still
+arch desert.102
 x 23
 y 20
 end
-arch water_still
+arch desert.104
 x 23
 y 21
 end
-arch water_still
+arch desert.102
 x 23
 y 22
 end
-arch water_still
+arch desert.101
 x 23
 y 23
 end

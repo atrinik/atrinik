@@ -39,9 +39,9 @@ int apply_potion(object *op, object *tmp)
 	int i;
 
 	/* some sanity checks */
-	if (!op || !tmp || (op->type == PLAYER && (!CONTR(op) || !CONTR(op)->sp_exp_ptr || !CONTR(op)->grace_exp_ptr)))
+	if (!op || !tmp || (op->type == PLAYER && (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])))
 	{
-		LOG(llevBug,"apply_potion() called with invalid objects! obj: %s (%s - %s) tmp:%s\n", query_name(op, NULL), CONTR(op) ? query_name(CONTR(op)->sp_exp_ptr, NULL) : "<no contr>", CONTR(op) ? query_name(CONTR(op)->grace_exp_ptr, NULL) : "<no contr>", query_name(tmp, NULL));
+		LOG(llevBug,"apply_potion() called with invalid objects! obj: %s (%s - %s) tmp:%s\n", query_name(op, NULL), CONTR(op) ? query_name(CONTR(op)->exp_ptr[EXP_MAGICAL], NULL) : "<no contr>", CONTR(op) ? query_name(CONTR(op)->exp_ptr[EXP_WISDOM], NULL) : "<no contr>", query_name(tmp, NULL));
 		return 0;
 	}
 
@@ -94,30 +94,31 @@ int apply_potion(object *op, object *tmp)
 
 				for (i = 0; i < NROFATTACKS; i++)
 				{
-					int tmp_r, tmp_a;
+					int tmp_a;
+					int tmp_p;
 
-					tmp_r = tmp->resist[i] > 0 ? -tmp->resist[i] : tmp->resist[i];
 					tmp_a = tmp->attack[i] > 0 ? -tmp->attack[i] : tmp->attack[i];
+					tmp_p = tmp->protection[i] > 0 ? -tmp->protection[i] : tmp->protection[i];
 
 					/* double bad effect when damned */
 					if (QUERY_FLAG(tmp, FLAG_DAMNED))
 					{
-						tmp_r *= 2;
 						tmp_a *= 2;
+						tmp_p *= 2;
 					}
 
 					/* we don't want out of bound values ... */
-					if ((int) force->resist[i] + tmp_r > 100)
+					if ((int) force->protection[i] + tmp_p > 100)
 					{
-						force->resist[i] = 100;
+						force->protection[i] = 100;
 					}
-					else if ((int) force->resist[i] + tmp_r < -100)
+					else if ((int) force->protection[i] + tmp_p < -100)
 					{
-						force->resist[i] = -100;
+						force->protection[i] = -100;
 					}
 					else
 					{
-						force->resist[i] += (sint8) tmp_r;
+						force->protection[i] += (sint8) tmp_p;
 					}
 
 					if ((int) force->attack[i] + tmp_a > 100)
@@ -142,7 +143,7 @@ int apply_potion(object *op, object *tmp)
 			{
 				/* we don't must do the hard way like cursed/damned (no multiplication or
 				 * sign change). */
-				memcpy(force->resist, tmp->resist, sizeof(tmp->resist));
+				memcpy(force->protection, tmp->protection, sizeof(tmp->protection));
 				memcpy(force->attack, tmp->attack, sizeof(tmp->attack));
 				insert_spell_effect("meffect_green", op->map, op->x, op->y);
 				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
@@ -274,7 +275,7 @@ sp_jump:
 					/* mark we have checked sp chain */
 					sp_flag = 1;
 
-					for (i = 2; i <= CONTR(op)->sp_exp_ptr->level; i++)
+					for (i = 2; i <= CONTR(op)->exp_ptr[EXP_MAGICAL]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levsp[i] != 1)
@@ -288,7 +289,7 @@ grace_jump:
 					/* mark we have checked grace chain */
 					grace_flag = 1;
 
-					for (i = 2; i <= CONTR(op)->grace_exp_ptr->level; i++)
+					for (i = 2; i <= CONTR(op)->exp_ptr[EXP_WISDOM]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levgrace[i] != 1)
@@ -338,7 +339,7 @@ sp_jump2:
 					/* mark we have checked sp chain */
 					sp_flag = 1;
 
-					for (i = 1; i <= CONTR(op)->sp_exp_ptr->level; i++)
+					for (i = 1; i <= CONTR(op)->exp_ptr[EXP_MAGICAL]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levsp[i] != (char) op->arch->clone.stats.maxsp)
@@ -352,7 +353,7 @@ grace_jump2:
 					/* mark we have checked grace chain */
 					grace_flag = 1;
 
-					for (i = 1; i <= CONTR(op)->grace_exp_ptr->level; i++)
+					for (i = 1; i <= CONTR(op)->exp_ptr[EXP_WISDOM]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levgrace[i] != (char) op->arch->clone.stats.maxgrace)

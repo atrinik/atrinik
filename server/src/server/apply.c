@@ -70,8 +70,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		return;
 	}
 
-	recursion_depth++;
-
 	if (trap->head)
 	{
 		trap = trap->head;
@@ -82,6 +80,8 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 	{
 		return;
 	}
+
+	recursion_depth++;
 
 	switch (trap->type)
 	{
@@ -138,16 +138,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		case DIRECTOR:
 			if (victim->direction)
 			{
-				if (QUERY_FLAG(victim, FLAG_IS_MISSILE))
-				{
-					SET_FLAG(victim, FLAG_WAS_REFLECTED);
-
-					if (!missile_reflection_adjust(victim, 0))
-					{
-						break;
-					}
-				}
-
 				victim->direction = trap->direction;
 				update_turn_face(victim);
 			}
@@ -201,6 +191,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			break;
 
 		case CONE:
+		case LIGHTNING:
 			break;
 
 		case FBULLET:
@@ -285,7 +276,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			/* If no map path specified, we assume it is the map path of the exit. */
 			if (!EXIT_PATH(trap))
 			{
-				trap->slaying = trap->map->path;
+				FREE_AND_ADD_REF_HASH(EXIT_PATH(trap), trap->map->path);
 			}
 
 			if (!(flags & MOVE_APPLY_VANISHED) && victim->type == PLAYER && EXIT_PATH(trap) && EXIT_Y(trap) != -1 && EXIT_X(trap) != -1)
@@ -445,7 +436,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 		CONTR(op)->chosen_spell = spell;
 	}
 
-	/* For godgiven spells the player gets a reminder-mark inserted, that
+	/* For god-given spells the player gets a reminder-mark inserted, that
 	 * this spell must be removed on changing cults! */
 	if (special_prayer)
 	{
@@ -645,6 +636,11 @@ int manual_apply(object *op, object *tmp, int aflag)
 		tmp = tmp->head;
 	}
 
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->praying = 0;
+	}
+
 	if (QUERY_FLAG(tmp, FLAG_UNPAID) && !QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
 		if (op->type == PLAYER)
@@ -743,7 +739,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			/* If no map path specified, we assume it is the map path of the exit. */
 			if (!EXIT_PATH(tmp))
 			{
-				tmp->slaying = tmp->map->path;
+				FREE_AND_ADD_REF_HASH(EXIT_PATH(tmp), tmp->map->path);
 			}
 
 			if (!EXIT_PATH(tmp) || !is_legal_2ways_exit(op, tmp) || (EXIT_Y(tmp) == -1 && EXIT_X(tmp) == -1))
@@ -847,6 +843,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		case HORN:
 		case SKILL:
 		case BOW:
+		case SKILL_ITEM:
 			/* Not in inventory */
 			if (tmp->env != op)
 			{
@@ -912,6 +909,11 @@ int manual_apply(object *op, object *tmp, int aflag)
 				return 1;
 			}
 
+			return 0;
+
+		/* So the below default case doesn't execute for these objects,
+		 * even if they have message. */
+		case LOCKED_DOOR:
 			return 0;
 
 		/* Nothing from the above... but show a message if it has one. */
@@ -1035,6 +1037,28 @@ void player_apply_below(object *pl)
 }
 
 /**
+ * Checks for item power restrictions when applying an item.
+ * @param who The object applying the item.
+ * @param op The item being applied.
+ * @return Whether applying is possible. */
+static int apply_check_item_power(object *who, const object *op)
+{
+	if (who->type != PLAYER)
+	{
+		return 1;
+	}
+
+	if (op->item_power == 0 || op->item_power + CONTR(who)->item_power <= settings.item_power_factor * who->level)
+	{
+		return 1;
+	}
+
+	new_draw_info(NDI_UNIQUE, who, "Equipping that combined with other items would consume your soul!");
+
+	return 0;
+}
+
+/**
  * Apply an object.
  *
  * This function doesn't check for unpaid items, but checks other
@@ -1069,7 +1093,14 @@ int apply_special(object *who, object *op, int aflags)
 	/* Needs to be initialized */
 	buf[0] = '\0';
 
-	if (QUERY_FLAG(op, FLAG_APPLIED))
+	if (!QUERY_FLAG(op, FLAG_APPLIED))
+	{
+		if (!apply_check_item_power(who, op))
+		{
+			return 1;
+		}
+	}
+	else
 	{
 		/* Always apply, so no reason to unapply */
 		if (basic_flag == AP_APPLY)
@@ -1125,7 +1156,6 @@ int apply_special(object *who, object *op, int aflags)
 
 				(void) change_abil(who, op);
 				who->chosen_skill = NULL;
-				CLEAR_FLAG(who, FLAG_READY_SKILL);
 				buf[0] = '\0';
 				break;
 
@@ -1139,7 +1169,7 @@ int apply_special(object *who, object *op, int aflags)
 			case GIRDLE:
 			case BRACERS:
 			case CLOAK:
-				(void) change_abil(who, op);
+				change_abil(who, op);
 				snprintf(buf, sizeof(buf), "You unwear %s.", query_name(op, NULL));
 				break;
 
@@ -1152,21 +1182,6 @@ int apply_special(object *who, object *op, int aflags)
 				if (who->type == PLAYER)
 				{
 					CONTR(who)->shoottype = range_none;
-				}
-				else
-				{
-					switch (op->type)
-					{
-						case ROD:
-						case HORN:
-						case WAND:
-							CLEAR_FLAG(who, FLAG_READY_RANGE);
-							break;
-
-						case BOW:
-							CLEAR_FLAG(who, FLAG_READY_BOW);
-							break;
-					}
 				}
 
 				break;
@@ -1287,7 +1302,7 @@ int apply_special(object *who, object *op, int aflags)
 			}
 
 			/* If we have applied a shield, don't allow applying of polearm or two-handed weapons */
-			if ((op->sub_type1 >= WEAP_POLE_IMPACT || op->sub_type1 >= WEAP_2H_IMPACT) && who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_SHIELD])
+			if ((op->sub_type >= WEAP_POLE_IMPACT || op->sub_type >= WEAP_2H_IMPACT) && who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_SHIELD])
 			{
 				new_draw_info(NDI_UNIQUE, who, "You can't wield this weapon and a shield.");
 
@@ -1318,7 +1333,7 @@ int apply_special(object *who, object *op, int aflags)
 
 		case SHIELD:
 			/* Don't allow polearm or two-handed weapons with a shield */
-			if ((who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]) && (CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]->sub_type1 >= WEAP_POLE_IMPACT || CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]->sub_type1 >= WEAP_2H_IMPACT))
+			if ((who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]) && (CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_POLE_IMPACT || CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_2H_IMPACT))
 			{
 				new_draw_info(NDI_UNIQUE, who, "You can't use a shield with your current weapon.");
 
@@ -1392,7 +1407,6 @@ int apply_special(object *who, object *op, int aflags)
 			SET_FLAG(op, FLAG_APPLIED);
 			(void) change_abil(who, op);
 			who->chosen_skill = op;
-			SET_FLAG (who, FLAG_READY_SKILL);
 			buf[0] = '\0';
 			break;
 
@@ -1419,21 +1433,7 @@ int apply_special(object *who, object *op, int aflags)
 					CONTR(who)->known_spell = (QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED));
 				}
 			}
-			else
-			{
-				switch (op->type)
-				{
-					case ROD:
-					case HORN:
-					case WAND:
-						SET_FLAG(who, FLAG_READY_RANGE);
-						break;
 
-					case BOW:
-						SET_FLAG(who, FLAG_READY_BOW);
-						break;
-				}
-			}
 			break;
 
 		default:
@@ -1477,7 +1477,6 @@ int apply_special(object *who, object *op, int aflags)
 		if (who->type == PLAYER)
 		{
 			new_draw_info(NDI_UNIQUE, who, "Oops, it feels deadly cold!");
-			SET_FLAG(op, FLAG_KNOWN_CURSED);
 		}
 	}
 

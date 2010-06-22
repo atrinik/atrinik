@@ -22,7 +22,7 @@
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
-					<Add option="-DMIN_GW" />
+					<Add option="-DMINGW" />
 				</Compiler>
 				<Linker>
 					<Add library="winmm" />
@@ -58,6 +58,12 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_region.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_player.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_archetype.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\plugin_python.c">

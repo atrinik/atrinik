@@ -27,17 +27,19 @@
  * @file
  * Book related definitions (type BOOK). */
 
-/**
- * Message buf size. */
-#define BOOK_BUF 800
-
-/** If little books aren't getting enough text generated, enlarge this */
-#define BASE_BOOK_BUF 250
+#ifndef BOOK_H
+#define BOOK_H
 
 /**
- * Book buffer size. We shouldn't let little books/scrolls have more
- * information than big, weighty tomes! So let's base the 'natural'
- * book message buffer size on its weight. But never let a book
- * message buffer exceed the maximum size (BOOK_BUF) */
-#define BOOKSIZE(xyz) \
-	BASE_BOOK_BUF + ((xyz)->weight / 10) > BOOK_BUF ? BOOK_BUF : BASE_BOOK_BUF + ((xyz)->weight / 10);
+ * Maximum message buf size for books.
+ * @note Note that the book messages are stored in the msg buf, which is
+ * limited by 'HUGE_BUF' in the loader. */
+#define BOOK_BUF ((HUGE_BUF / 2) - 10)
+
+#define MSGTYPE_MSGFILE 0
+#define MSGTYPE_MONSTER 1
+#define MSGTYPE_ARTIFACT 2
+#define MSGTYPE_SPELLPATH 3
+#define MSGTYPE_NUM 3
+
+#endif

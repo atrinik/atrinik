@@ -33,8 +33,6 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
-AC_ARG_ENABLE(old-layout, [ --enable-old-layout    Use the old (0.95.3 and earlier) install layout],
-	old_layout=yes, old_layout=no)
 AC_ARG_WITH(python,
             [AS_HELP_STRING([--with-python=dir], [Directory to look for python headers/library (default=standard system location)])],
             PYTHON_HOME="$withval")
@@ -111,10 +109,6 @@ AC_ARG_WITH(includes, [  --with-includes=dir     provide different compiler opti
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(socket, main)
 
-# Checks for libraries.
-# Start of X11 libraries
-AC_PATH_XTRA
-
 CPPFLAGS="$CPPFLAGS $EXTRA_INC"
 LDFLAGS="$LDFLAGS $EXTRA_LIB"
 
@@ -124,23 +118,21 @@ AC_CHECK_LIB(m, main)
 AC_CHECK_LIB(crypt, main)
 AC_CHECK_LIB(des, des_crypt)
 
-# Gros - Changed this to support some external programs that do not like dmalloc (like Python).
-# If you really need to make some memory debugging, uncomment the dmalloc line and comment out the dmalloclp one.
+AC_CHECK_LIB(pthread, pthread_create)
 
 AC_CHECK_LIB(dmalloclp, main)
-# AC_CHECK_LIB(dmalloc, main)
-
-# Gros - Support for the dynamic loader library
 AC_CHECK_LIB(dl, main)
+
+AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
+AC_PATH_PROGS(CURL, curl, no)
+
+# Check for zlib.
+AX_CHECK_ZLIB()
 
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h sys/time.h time.h unistd.h stddef.h stdlib.h crypt.h arpa/inet.h des.h)
-
-AC_CHECK_HEADERS(curl/curl.h)
-AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
-AC_PATH_PROGS(CURL, curl, no)
+AC_CHECK_HEADERS(fcntl.h sys/time.h time.h unistd.h stddef.h stdlib.h crypt.h arpa/inet.h des.h pthread.h curl/curl.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -224,6 +216,24 @@ AC_DEFINE_UNQUOTED(GUNZIP,"${GUNZIP}")
 AC_DEFINE_UNQUOTED(BZIP,"${BZIP}")
 AC_DEFINE_UNQUOTED(BUNZIP,"${BUNZIP}")
 
+########################
+# Unit test configuration
+
+have_check="no"
+disable_check="no"
+
+AC_ARG_ENABLE(tests, [  --disable-tests         disable unit tests, even if check is available],
+	disable_check="yes", )
+
+if test x"$disable_check" = "xno" ; then
+	AM_PATH_CHECK(,[have_check="yes"],
+		AC_MSG_WARN([Check not found; cannot run unit tests!])
+		[have_check="no"])
+	if test x"$have_check" = "xyes" ; then
+		AC_DEFINE(HAVE_CHECK)
+	fi
+fi
+
 datadir=${ndatadir}
 localstatedir=${nlocaldir}
 
@@ -244,3 +254,10 @@ AC_MSG_NOTICE([])
 AC_MSG_NOTICE([  Build options])
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([    Will build python plugin?            $will_build_python])
+if test "x$have_check" = "xyes" ; then
+AC_MSG_NOTICE([    Will build unit tests?               yes])
+else
+AC_MSG_NOTICE([    Will build unit tests?               no])
+AC_MSG_NOTICE([      If you are a developer, you MUST install the check framework])
+AC_MSG_NOTICE([      and write automated tests for all your add-ons!])
+fi

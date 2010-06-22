@@ -103,9 +103,9 @@ void apply_spellbook(object *op, object *tmp)
 	if (QUERY_FLAG(op, FLAG_CONFUSED))
 	{
 		new_draw_info(NDI_UNIQUE, op, "In your confused state you flub the wording of the text!");
-		spellbook_failure(op, 0 - random_roll(0, spells[tmp->stats.sp].level, op, PREFER_LOW), spells[tmp->stats.sp].sp);
+		spellbook_failure(op, 0 - rndm(0, spells[tmp->stats.sp].level), spells[tmp->stats.sp].sp);
 	}
-	else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || random_roll(0, 149, op, PREFER_LOW) - (2 * SK_level(op)) < learn_spell[spells[tmp->stats.sp].flags&SPELL_DESC_WIS ? op->stats.Wis : op->stats.Int])
+	else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || rndm(0, 149) - (2 * SK_level(op)) < learn_spell[spells[tmp->stats.sp].flags&SPELL_DESC_WIS ? op->stats.Wis : op->stats.Int])
 	{
 		new_draw_info(NDI_UNIQUE, op, "You succeed in learning the spell!");
 		do_learn_spell(op, tmp->stats.sp, 0);
@@ -151,7 +151,7 @@ static void spellbook_failure(object *op, int failure, int power)
 	else if (failure <= -15 && failure > -35)
 	{
 		new_draw_info(NDI_UNIQUE, op, "Your mana is drained!");
-		op->stats.sp -= random_roll(0, power - 1, op, PREFER_LOW);
+		op->stats.sp -= rndm(0, power - 1);
 
 		if (op->stats.sp < 0)
 		{

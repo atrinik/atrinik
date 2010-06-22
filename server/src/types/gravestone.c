@@ -36,14 +36,14 @@
 const char *gravestone_text(object *op)
 {
 	static char buf2[MAX_BUF];
-	char buf[MAX_BUF];
+	char buf[MAX_BUF], race[MAX_BUF];
 	time_t now = time(NULL);
 
 	strcpy(buf2, "R.I.P.\n\n");
 
 	if (op->type == PLAYER)
 	{
-		snprintf(buf, sizeof(buf), "Here rests the hero %s the %s\n", op->name, op->race);
+		snprintf(buf, sizeof(buf), "Here rests the hero %s the %s\n", op->name, player_get_race_class(op, race, sizeof(race)));
 	}
 	else
 	{

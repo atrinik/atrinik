@@ -40,18 +40,78 @@
 #pragma pack(push,1)
 #endif
 
-/** One map cell, as sent to the client. */
+/**
+ * @defgroup MAP2_FLAG_xxx Map2 layer flags
+ * Flags used to mark what kind of data there is on layers
+ * in map2 protocol.
+ *@{*/
+/** Multi-arch object. */
+#define MAP2_FLAG_MULTI      1
+/** Player name. */
+#define MAP2_FLAG_NAME       2
+/** Target's HP bar. */
+#define MAP2_FLAG_PROBE      4
+/** Tile's Z position. */
+#define MAP2_FLAG_HEIGHT     8
+/*@}*/
+
+/**
+ * @defgroup MAP2_FLAG_EXT_xxx Map2 tile flags
+ * Flags used to mark what kind of data there is on different
+ * tiles in map2 protocol.
+ *@{*/
+/** An animation. */
+#define MAP2_FLAG_EXT_ANIM   1
+/*@}*/
+
+/**
+ * @defgroup ANIM_xxx Animation types
+ * Animation types.
+ *@{*/
+/** Damage animation. */
+#define ANIM_DAMAGE     1
+/** Kill animation. */
+#define ANIM_KILL       2
+/*@}*/
+
+/**
+ * @defgroup MAP2_MASK_xxx Map2 mask flags
+ * Flags used for masks in map2 protocol.
+ *@{*/
+/** Clear cell, with all layers. */
+#define MAP2_MASK_CLEAR      0x2
+/** Add darkness. */
+#define MAP2_MASK_DARKNESS   0x4
+/*@}*/
+
+/**
+ * @defgroup MAP2_LAYER_xxx Map2 layer types
+ *@{*/
+/** Clear this layer. */
+#define MAP2_LAYER_CLEAR    255
+/*@}*/
+
+/**
+ * One map cell. Used to hold 'cache' of faces we already sent
+ * to the client. */
 typedef struct MapCell_struct
 {
+	/** Darkness cache. */
 	int	count;
 
-	short faces[MAP_LAYERS];
+	/** Faces we sent. */
+	sint16 faces[MAX_ARCH_LAYERS];
 
-	uint8 fflag[MAP_LAYERS];
+	/** Multi-arch cache. */
+	uint8 quick_pos[MAX_ARCH_LAYERS];
 
-	uint8 ff_probe[MAP_LAYERS];
+	/** Flags cache. */
+	uint8 flags[MAX_ARCH_LAYERS];
 
-	char quick_pos[MAP_LAYERS];
+	/**
+	 * Probe cache. No need for an array, since this only appears
+	 * for players or monsters, both on layer 6. */
+	uint8 probe;
 } MapCell;
 
 /** One map for a player. */
@@ -61,16 +121,6 @@ struct Map
 	struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
 };
 
-/** Contains the last range/title information sent to client. */
-struct statsinfo
-{
-	/** Last range. */
-	char *range;
-
-	/** Last title. */
-	char *ext_title;
-};
-
 /** Possible socket statuses. */
 enum Sock_Status
 {
@@ -78,7 +128,8 @@ enum Sock_Status
 	Ns_Wait,
 	Ns_Add,
 	Ns_Login,
-	Ns_Dead
+	Ns_Dead,
+	Ns_Zombie
 };
 
 /**
@@ -147,9 +198,6 @@ typedef struct socket_struct
 	/** Always use map2 protocol command. */
 	uint32 map2cmd:1;
 
-	/** Send ext title to client. */
-	uint32 ext_title_flag:1;
-
 	/** True if client wants darkness information. */
 	uint32 darkness:1;
 
@@ -183,6 +231,9 @@ typedef struct socket_struct
 	/** Is the client a bot? */
 	uint32 is_bot:1;
 
+	/** Write overflow? */
+	uint32 write_overflow:1;
+
 	/** Start of drawing of look window. */
 	sint16 look_position;
 
@@ -194,17 +245,23 @@ typedef struct socket_struct
 	 * password. */
 	uint8 password_fails;
 
+	/** Send ext title to client. */
+	uint8 ext_title_flag;
+
 	/** Current state of the socket. */
 	enum Sock_Status status;
 
 	/** Last map. */
 	struct Map lastmap;
 
-	/** Socket stats. */
-	struct statsinfo stats;
-
-	/** If we get an incomplete packet, this is used to hold the data. */
+	/** Holds one command to handle. */
 	SockList inbuf;
+
+	/** Raw data read in from the socket. */
+	SockList readbuf;
+
+	/** Buffer for player commands. */
+	SockList cmdbuf;
 
 	/** For undeliverable data. */
 	Buffer outputbuffer;

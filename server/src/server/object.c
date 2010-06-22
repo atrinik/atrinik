@@ -110,22 +110,59 @@ static const int reduction_dir[SIZEOFFREE][3] =
 	{24, 9, -1}
 };
 
-/** Material types */
+/**
+ * Gender nouns. */
+const char *gender_noun[GENDER_MAX] =
+{
+	"neuter", "male", "female", "hermaphrodite"
+};
+/**
+ * Subjective pronouns. */
+const char *gender_subjective[GENDER_MAX] =
+{
+	"it", "he", "she", "it"
+};
+/**
+ * Subjective pronouns, with first letter in uppercase. */
+const char *gender_subjective_upper[GENDER_MAX] =
+{
+	"It", "He", "She", "It"
+};
+/**
+ * Objective pronouns. */
+const char *gender_objective[GENDER_MAX] =
+{
+	"it", "him", "her", "it"
+};
+/**
+ * Possessive pronouns. */
+const char *gender_possessive[GENDER_MAX] =
+{
+	"its", "his", "her", "its"
+};
+/**
+ * Reflexive pronouns. */
+const char *gender_reflexive[GENDER_MAX] =
+{
+	"itself", "himself", "herself", "itself"
+};
+
+/** Material types. */
 materialtype material[NROFMATERIALS] =
 {
-	{"paper",          {15, 10, 17, 9, 5, 7,13, 0, 20, 15, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"metal",          {2, 12, 3, 12, 2,10, 7, 0, 20, 15, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"crystal",        {14, 11, 8, 3, 10, 5, 1, 0, 20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"leather",        {5, 10, 10, 3, 3, 10,10, 0, 20, 15, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"wood",           {10, 11, 13, 2, 2, 10, 9, 0, 20, 15, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"organics",       {3, 12, 9, 11, 3, 10, 9, 0, 20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"stone",          {2, 5, 2, 2, 2, 2, 1, 0, 20, 15, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"cloth",          {14, 11, 13, 4, 4, 5, 10, 0, 20, 15, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"magic material", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"liquid",         {0, 8, 9, 6, 17, 0, 15, 0, 20, 15, 12, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"soft metal",     {6, 12, 6, 14, 2, 10, 1, 0, 20, 15, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"bone",           {10, 9, 4, 5, 3, 10, 10, 0, 20, 15, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0}},
-	{"ice",            {14, 11, 16, 5, 0, 5, 6, 0, 20, 15, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0}}
+	{"paper"},
+	{"metal"},
+	{"crystal"},
+	{"leather"},
+	{"wood"},
+	{"organics"},
+	{"stone"},
+	{"cloth"},
+	{"magic material"},
+	{"liquid"},
+	{"soft metal"},
+	{"bone"},
+	{"ice"}
 };
 
 #define NUM_MATERIALS_REAL NROFMATERIALS * NROFMATERIALS_REAL + 1
@@ -135,9 +172,7 @@ materialtype material[NROFMATERIALS] =
  * init_materials(). */
 material_real_struct material_real[NUM_MATERIALS_REAL];
 
-static void sub_weight(object *op, sint32 weight);
 static void remove_ob_inv(object *op);
-static void add_weight(object *op, sint32 weight);
 
 /**
  * Initialize materials from file. */
@@ -240,6 +275,50 @@ int freedir[SIZEOFFREE] =
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 2, 2, 3, 4, 4, 4, 5, 6, 6, 6, 7, 8, 8, 8,
 	1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 6, 6, 6, 6, 6, 7, 8, 8, 8, 8, 8
 };
+
+/**
+ * This is a list of pointers that correspond to the FLAG_.. values.
+ * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15'th
+ * element of this array should match that name.
+ *
+ * If an entry is NULL, that is a flag not to be loaded/saved.
+ * @see flag_defines */
+/* @cparser FLAG_(.*)
+ * @page plugin_python_object_flags Python object flags
+ * <h2>Python object flags</h2>
+ * List of the object flags and their meaning. */
+const char *object_flag_names[NUM_FLAGS + 1] =
+{
+	"sleep", "confused", NULL, "scared", "is_blind",
+	"is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
+	"no_pass", "is_animated", "slow_move", "flying", "monster",
+	"friendly", NULL, "been_applied", "auto_apply", NULL,
+	"is_neutral", "see_invisible", "can_roll", NULL, "is_turnable",
+	"walk_off", "fly_on", "fly_off", "is_used_up", "identified",
+	"reflecting", "changing", "splitting", "hitback", "startequip",
+	"blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
+	"reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
+	"run_away", "pass_thru", "can_pass_thru", NULL, "unique",
+	"no_drop", "is_indestructible", "can_cast_spell", NULL, NULL,
+	"can_use_bow", "can_use_armour", "can_use_weapon", NULL, NULL,
+	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
+	"is_magical", "alive", "stand_still", "random_move", "only_attack",
+	"wiz", "stealth", NULL, NULL, "cursed",
+	"damned", "is_buildable", "no_pvp", NULL, NULL,
+	"is_thrown", NULL, NULL, "is_male", "is_female",
+	"applied", "inv_locked", NULL, NULL, NULL,
+	"has_ready_weapon", "no_skill_ident", "was_wiz", "can_see_in_dark", "is_cauldron",
+	"is_dust", NULL, "one_hit", NULL, "berserk",
+	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
+	NULL, NULL, NULL, NULL, NULL,
+	"sys_object", "use_fix_pos", "unpaid", NULL, "make_invisible",
+	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
+	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
+	"cursed_perm", "damned_perm", "door_closed", NULL, "is_missile",
+	NULL, NULL, "is_assassin", NULL, "no_save",
+	NULL
+};
+/* @endcparser */
 
 /**
  * Put an object in the list of removal candidates.
@@ -369,6 +448,14 @@ int CAN_MERGE(object *ob1, object *ob2)
 		return 0;
 	}
 
+	/* Do not merge objects if nrof would overflow. We use 1UL << 31 since that
+	 * value could not be stored in a sint32 (which unfortunately sometimes is
+	 * used to store nrof). */
+	if (ob1->nrof + ob2->nrof >= 1UL << 31)
+	{
+		return 0;
+	}
+
 	/* just some quick hack */
 	if (ob1->type == MONEY && ob1->type == ob2->type && ob1->arch == ob2->arch)
 	{
@@ -389,7 +476,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 
 	/* just a brain dead long check for things NEVER NEVER should be different
 	 * this is true under all circumstances for all objects. */
-	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type1 != ob2->sub_type1 || ob1->material != ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality != ob2->item_quality || ob1->item_condition != ob2->item_condition || ob1->item_race != ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
+	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type != ob2->sub_type || ob1->material != ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality != ob2->item_quality || ob1->item_condition != ob2->item_condition || ob1->item_race != ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
 	{
 		return 0;
 	}
@@ -446,13 +533,13 @@ int CAN_MERGE(object *ob1, object *ob2)
 	}
 
 	/* Compare the static arrays/structs */
-	if ((memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0) || (memcmp(&ob1->resist, &ob2->resist, sizeof(ob1->resist)) != 0) || (memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack)) != 0) || (memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0))
+	if ((memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0) || (memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack)) != 0) || (memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0))
 	{
 		return 0;
 	}
 
 	/* Ignore REMOVED and BEEN_APPLIED */
-	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300) != (ob2->flags[0] | 0x300) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level)
+	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300) != (ob2->flags[0] | 0x300) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power)
 	{
 		return 0;
 	}
@@ -544,28 +631,37 @@ signed long sum_weight(object *op)
 	sint32 sum;
 	object *inv;
 
+	if (QUERY_FLAG(op, FLAG_SYS_OBJECT))
+	{
+		return 0;
+	}
+
 	for (sum = 0, inv = op->inv; inv != NULL; inv = inv->below)
 	{
+		if (QUERY_FLAG(inv, FLAG_SYS_OBJECT))
+		{
+			continue;
+		}
+
 		if (inv->inv)
 		{
 			sum_weight(inv);
 		}
 
-		sum += inv->carrying + (inv->nrof ? inv->weight * (int) inv->nrof : inv->weight);
+		sum += WEIGHT_NROF(inv);
 	}
 
-	/* because we avoid calculating for EVERY item in the loop above
-	 * the weight adjustment for magic containers, we can run here in some
-	 * rounding problems... in the worst case, we can remove a item from the
-	 * container but we are not able to put it back because rounding.
-	 * well, a small prize for saving *alot* of muls in player houses for example. */
 	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 	{
+		/* We'll store the calculated value in damage_round_tag, so
+		 * we can use that as 'cache' for unmodified carrying weight.
+		 * This allows us to reliably calculate the weight again in
+		 * add_weight() and sub_weight() without rounding errors. */
+		op->damage_round_tag = sum;
 		sum = (sint32) ((float) sum * op->weapon_speed);
 	}
 
 	op->carrying = sum;
-
 	return sum;
 }
 
@@ -574,17 +670,22 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-static void add_weight(object *op, sint32 weight)
+void add_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
-		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
-			weight = (sint32) ((float) weight * op->weapon_speed);
-		}
+			sint32 old_carrying = op->carrying;
 
-		op->carrying += weight;
+			op->damage_round_tag += weight;
+			op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+			weight = op->carrying - old_carrying;
+		}
+		else
+		{
+			op->carrying += weight;
+		}
 
 		if (op->env && op->env->type == PLAYER)
 		{
@@ -600,17 +701,22 @@ static void add_weight(object *op, sint32 weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-static void sub_weight(object *op, sint32 weight)
+void sub_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
-		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
-			weight = (sint32) ((float) weight * op->weapon_speed);
-		}
+			sint32 old_carrying = op->carrying;
 
-		op->carrying -= weight;
+			op->damage_round_tag -= weight;
+			op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+			weight = old_carrying - op->carrying;
+		}
+		else
+		{
+			op->carrying -= weight;
+		}
 
 		if (op->env && op->env->type == PLAYER)
 		{
@@ -619,6 +725,20 @@ static void sub_weight(object *op, sint32 weight)
 
 		op = op->env;
 	}
+}
+
+/**
+ * Utility function.
+ * @param op Object we want the environment of. Can't be NULL.
+ * @return The outermost environment object for a given object. Will not be NULL. */
+object *get_env_recursive(object *op)
+{
+	while (op->env)
+	{
+		op = op->env;
+	}
+
+	return op;
 }
 
 /**
@@ -694,7 +814,7 @@ object *get_owner(object *op)
 		return op->owner;
 	}
 
-	op->owner = NULL, op->ownercount = 0;
+	op->owner = NULL;
 
 	return NULL;
 }
@@ -749,13 +869,6 @@ static void set_skill_pointers(object *op, object *chosen_skill, object *exp_obj
 {
 	op->chosen_skill = chosen_skill;
 	op->exp_obj = exp_obj;
-
-	/* unfortunately, we can't allow summoned monsters skill use
-	 * because we will need the chosen_skill field to pick the
-	 * right skill/stat modifiers for calc_skill_exp(). See
-	 * hit_player() in server/attack.c -b.t. */
-	CLEAR_FLAG(op, FLAG_CAN_USE_SKILL);
-	CLEAR_FLAG(op, FLAG_READY_SKILL);
 }
 
 /**
@@ -770,15 +883,13 @@ void set_owner(object *op, object *owner)
 		return;
 	}
 
+	/* Ensure we have a head. */
+	owner = HEAD(owner);
 	set_owner_simple(op, owner);
 
 	if (owner->type == PLAYER && owner->chosen_skill)
 	{
 		set_skill_pointers(op, owner->chosen_skill, owner->chosen_skill->exp_obj);
-	}
-	else if (op->type != PLAYER)
-	{
-		CLEAR_FLAG(op, FLAG_READY_SKILL);
 	}
 }
 
@@ -817,10 +928,6 @@ void copy_owner(object *op, object *clone)
 	if (clone->chosen_skill)
 	{
 		set_skill_pointers(op, clone->chosen_skill, clone->exp_obj);
-	}
-	else if (op->type != PLAYER)
-	{
-		CLEAR_FLAG(op, FLAG_READY_SKILL);
 	}
 }
 
@@ -879,7 +986,7 @@ void copy_object(object *op2, object *op)
 
 	free_key_values(op);
 
-	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
+	memcpy((void *)((char *) op + offsetof(object, name)), (void *) ((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
 	if (is_removed)
 	{
@@ -892,12 +999,6 @@ void copy_object(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->slaying);
 	ADD_REF_NOT_NULL_HASH(op->msg);
 	ADD_REF_NOT_NULL_HASH(op->artifact);
-
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
 
 	/* Only alter speed_left when we sure we have not done it before */
 	if (op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
@@ -976,12 +1077,6 @@ void copy_object_data(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->msg);
 	ADD_REF_NOT_NULL_HASH(op->artifact);
 
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
-
 	/* Copy over key_values, if any. */
 	if (op2->key_values)
 	{
@@ -1017,6 +1112,24 @@ void copy_object_data(object *op2, object *op)
 				tail = new_link;
 			}
 		}
+	}
+}
+
+/**
+ * Copy an object with an inventory, duplicating the inv too.
+ * @param src_ob Object to copy.
+ * @param dest_ob Where to copy. */
+void copy_object_with_inv(object *src_ob, object *dest_ob)
+{
+	object *walk, *tmp;
+
+	copy_object(src_ob, dest_ob);
+
+	for (walk = src_ob->inv; walk; walk = walk->below)
+	{
+		tmp = get_object();
+		copy_object(walk, tmp);
+		insert_ob_in_ob(tmp, dest_ob);
 	}
 }
 
@@ -1263,14 +1376,9 @@ void update_object(object *op, int action)
 				newflags |= P_DOOR_CLOSED;
 			}
 
-			if (QUERY_FLAG(op, FLAG_CAN_REFL_SPELL))
+			if (QUERY_FLAG(op, FLAG_NO_PVP))
 			{
-				newflags |= P_REFL_SPELLS;
-			}
-
-			if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE))
-			{
-				newflags |= P_REFL_MISSILE;
+				newflags |= P_NO_PVP;
 			}
 		}
 	}
@@ -1287,7 +1395,7 @@ void update_object(object *op, int action)
 		}
 
 		/* We must rebuild the flags when one of these flags is touched from our object */
-		if (QUERY_FLAG(op, FLAG_ALIVE) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op, FLAG_CAN_REFL_SPELL) || QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR)
+		if (QUERY_FLAG(op, FLAG_ALIVE) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR)
 		{
 			newflags |= P_FLAGS_UPDATE;
 		}
@@ -1377,7 +1485,7 @@ void drop_ob_inv(object *ob)
 	/* Create race corpse and/or drop stuff to floor */
 	if ((QUERY_FLAG(ob, FLAG_CORPSE) && !QUERY_FLAG(ob, FLAG_STARTEQUIP)) || QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
 	{
-		racelink *race_corpse = find_racelink(ob->race);
+		ob_race *race_corpse = race_find(ob->race);
 
 		if (race_corpse)
 		{
@@ -1473,11 +1581,11 @@ void drop_ob_inv(object *ob)
 			if (CONTR(enemy)->party)
 			{
 				FREE_AND_ADD_REF_HASH(corpse->slaying, CONTR(enemy)->party->name);
-				corpse->sub_type1 = ST1_CONTAINER_CORPSE_party;
+				corpse->sub_type = ST1_CONTAINER_CORPSE_party;
 			}
 			else
 			{
-				corpse->sub_type1 = ST1_CONTAINER_CORPSE_player;
+				corpse->sub_type = ST1_CONTAINER_CORPSE_player;
 			}
 		}
 
@@ -1643,7 +1751,10 @@ void remove_ob(object *op)
 	 * inventory. */
 	if (op->env)
 	{
-		sub_weight(op->env, WEIGHT_NROF(op));
+		if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
+		{
+			sub_weight(op->env, WEIGHT_NROF(op));
+		}
 
 		/* NO_FIX_PLAYER is set when a great many changes are being
 		 * made to players inventory. If set, avoid the call to save cpu time. */
@@ -2267,7 +2378,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 	}
 	else if (!is_removed)
 	{
-		if (orig_ob->env)
+		if (orig_ob->env && !QUERY_FLAG(orig_ob, FLAG_SYS_OBJECT))
 		{
 			sub_weight(orig_ob->env, orig_ob->weight * nr);
 		}
@@ -2321,15 +2432,19 @@ object *decrease_ob_nr(object *op, uint32 i)
 		if (!tmp)
 		{
 			if (op->env->type == CONTAINER && op->env->attacked_by && CONTR(op->env->attacked_by) && CONTR(op->env->attacked_by)->container == op->env)
-            {
+			{
 				tmp = op->env->attacked_by;
 			}
 		}
 
 		if (i < op->nrof)
 		{
-			sub_weight (op->env, op->weight * i);
 			op->nrof -= i;
+
+			if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
+			{
+				sub_weight(op->env, op->weight * i);
+			}
 
 			if (tmp)
 			{
@@ -2402,7 +2517,7 @@ object *decrease_ob_nr(object *op, uint32 i)
  * object was merged. */
 object *insert_ob_in_ob(object *op, object *where)
 {
-	object *tmp, *otmp;
+	object *otmp;
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
@@ -2444,36 +2559,41 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	CLEAR_FLAG(op, FLAG_REMOVED);
 
-	for (tmp = where->inv; tmp; tmp = tmp->below)
+	if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
-		if (CAN_MERGE(tmp, op))
+		object *tmp;
+
+		for (tmp = where->inv; tmp; tmp = tmp->below)
 		{
-			/* Return the original object and remove inserted object
-			 * (client needs the original object) */
-			tmp->nrof += op->nrof;
+			if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && CAN_MERGE(tmp, op))
+			{
+				/* Return the original object and remove inserted object
+				 * (client needs the original object) */
+				tmp->nrof += op->nrof;
 
-			/* Weight handling gets pretty funky. Since we are adding to
-			 * tmp->nrof, we need to increase the weight. */
-			add_weight(where, WEIGHT_NROF(op));
+				/* Weight handling gets pretty funky. Since we are adding to
+				 * tmp->nrof, we need to increase the weight. */
+				add_weight(where, WEIGHT_NROF(op));
 
-			/* Make sure we get rid of the old object */
-			SET_FLAG(op, FLAG_REMOVED);
+				/* Make sure we get rid of the old object */
+				SET_FLAG(op, FLAG_REMOVED);
 
-			op = tmp;
-			/* And fix old object's links (we will insert it further down)*/
-			remove_ob(op);
-			/* Just kidding about previous remove */
-			CLEAR_FLAG(op, FLAG_REMOVED);
-			break;
+				op = tmp;
+				/* And fix old object's links (we will insert it further down)*/
+				remove_ob(op);
+				/* Just kidding about previous remove */
+				CLEAR_FLAG(op, FLAG_REMOVED);
+				break;
+			}
 		}
-	}
 
-	/* I assume stackable objects have no inventory
-	 * We add the weight - this object could have just been removed
-	 * (if it was possible to merge).  calling remove_ob will subtract
-	 * the weight, so we need to add it in again, since we actually do
-	 * the linking below */
-	add_weight(where, WEIGHT_NROF(op));
+		/* I assume stackable objects have no inventory
+		 * We add the weight - this object could have just been removed
+		 * (if it was possible to merge).  calling remove_ob will subtract
+		 * the weight, so we need to add it in again, since we actually do
+		 * the linking below */
+		add_weight(where, WEIGHT_NROF(op));
+	}
 
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->map = NULL;
@@ -2501,22 +2621,16 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	/* Check for event object and set the owner object
 	 * event flags. */
-	if (op->type == EVENT_OBJECT && op->sub_type1)
+	if (op->type == EVENT_OBJECT && op->sub_type)
 	{
-		where->event_flags |= (1U << (op->sub_type1 - 1));
+		where->event_flags |= (1U << (op->sub_type - 1));
 	}
 
-	/* If player, adjust one drop items and fix player if not
-	 * marked as no fix. */
+	/* If player, fix player if not marked as no fix. */
 	otmp = is_player_inv(where);
 
 	if (otmp && CONTR(otmp) != NULL)
 	{
-		if (QUERY_FLAG(op, FLAG_ONE_DROP))
-		{
-			SET_FLAG(op, FLAG_STARTEQUIP);
-		}
-
 		if (!QUERY_FLAG(otmp, FLAG_NO_FIX_PLAYER))
 		{
 			fix_player(otmp);
@@ -2668,7 +2782,7 @@ int check_walk_off(object *op, object *originator, int flags)
 		{
 			local_walk_semaphore = 1;
 			static_walk_semaphore = 1;
-			CLEAR_FLAG(op, FLAG_OBJECT_WAS_MOVED);
+			CLEAR_FLAG(part, FLAG_OBJECT_WAS_MOVED);
 		}
 
 		/* Ok, check objects here... */
@@ -2946,59 +3060,6 @@ void get_search_arr(int *search_arr)
 }
 
 /**
- * Searches some close squares in the given map at the given coordinates for
- * alive objects.
- * @param m Map.
- * @param x X position on map.
- * @param y Y position on map.
- * @param exclude An object that will be ignored. Can be NULL.
- * @return Direction toward the first/closest live object if it finds any,
- * otherwise 0. */
-int find_dir(mapstruct *m, int x, int y, object *exclude)
-{
-	int i, xt, yt, max = SIZEOFFREE;
-	mapstruct *mt;
-	object *tmp;
-
-	if (exclude && exclude->head)
-	{
-		exclude = exclude->head;
-	}
-
-	for (i = 1; i < max; i++)
-	{
-		xt = x + freearr_x[i];
-		yt = y + freearr_y[i];
-
-		if (wall(m, xt, yt))
-		{
-			max = maxfree[i];
-		}
-		else
-		{
-			if (!(mt = get_map_from_coord(m, &xt, &yt)))
-			{
-				continue;
-			}
-
-			tmp = GET_MAP_OB(mt, xt, yt);
-
-			while (tmp != NULL && ((tmp != NULL && !QUERY_FLAG(tmp, FLAG_MONSTER) && tmp->type != PLAYER) || (tmp == exclude || (tmp->head && tmp->head == exclude))))
-			{
-				tmp = tmp->above;
-			}
-
-			if (tmp != NULL)
-			{
-				return freedir[i];
-			}
-		}
-	}
-
-	return 0;
-}
-
-/**
  * Computes a direction which you should travel to move of x and y.
  * @param x Delta.
  * @param y Delta.
@@ -3085,7 +3146,6 @@ int absdir(int d)
 	return d;
 }
 
-
 /**
  * Computes a direction difference.
  * @param dir1 First direction to compare.
@@ -3117,7 +3177,11 @@ int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 {
 	int dir;
 
-	get_rangevector(op, target, range_vector, 0);
+	if (!get_rangevector(op, target, range_vector, 0))
+	{
+		return 0;
+	}
+
 	dir = range_vector->direction;
 
 	if (op->type == PLAYER)
@@ -3136,7 +3200,6 @@ int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 
 	return dir;
 }
-
 
 /**
  * Finds out if an object can be picked up.
@@ -3252,35 +3315,19 @@ int was_destroyed(object *op, tag_t old_tag)
 
 /**
  * Creates an object using a string representing its content.
- *
- * Basically, we save the content of the string to a temp file, then call
- * load_object on it.
  * @param obstr String to load the object from.
- * @return The newly created object. */
+ * @return The newly created object, NULL on failure. */
 object *load_object_str(char *obstr)
 {
-	object *op;
-	FILE *tempfile;
-	void *mybuffer;
-	char filename[MAX_BUF];
+	object *ob = get_object();
 
-	snprintf(filename, sizeof(filename), "%s/cfloadobstr2044", settings.tmpdir);
-	tempfile = fopen(filename, "w+");
-
-	if (tempfile == NULL)
+	if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0))
 	{
-		LOG(llevError, "ERROR: load_object_str(): Unable to access load object temp file\n");
+		LOG(llevBug, "BUG: load_object_str(): load_object() failed.");
 		return NULL;
 	}
 
-	fprintf(tempfile, "%s", obstr);
-	op = get_object();
-	rewind(tempfile);
-	mybuffer = create_loader_buffer(tempfile);
-	load_object(tempfile, op, mybuffer, LO_REPEAT, 0);
-	delete_loader_buffer(mybuffer);
-	fclose(tempfile);
-	return op;
+	return ob;
 }
 
 /**
@@ -3637,4 +3684,207 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 void init_object_initializers()
 {
 	object_initializers[BEACON] = beacon_add;
+}
+
+/**
+ * This is a subset of the parse_id command. Basically, name can be a
+ * string seperated lists of things to match, with certain keywords.
+ *
+ * Calling function takes care of what action might need to be done and
+ * if it is valid (pickup, drop, etc).
+ *
+ * Brief outline of the procedure:
+ *
+ * We take apart the name variable into the individual components.
+ * cases for 'all' and unpaid are pretty obvious.
+ *
+ * Next, we check for a count (either specified in name, or in the
+ * player object). If count is 1, make a quick check on the name. If
+ * count is >1, we need to make plural name.  Return if match.
+ *
+ * Last, make a check on the full name.
+ * @param pl Player (only needed to set count properly).
+ * @param op The item we're trying to match.
+ * @param name String we're searching.
+ * @return Non-zero if we have a match. A higher value means a better
+ * match. Zero means no match. */
+int item_matched_string(object *pl, object *op, const char *name)
+{
+	char *cp, local_name[MAX_BUF];
+	int count, retval = 0, book_level;
+
+	/* strtok is destructive to name */
+	strcpy(local_name, name);
+
+	for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ","))
+	{
+		/* Get rid of spaces */
+		while (cp[0] == ' ')
+		{
+			cp++;
+		}
+
+		/* All is a very generic match - low match value */
+		if (!strcmp(cp, "all"))
+		{
+			return 1;
+		}
+
+		/* Unpaid is a little more specific */
+		if (!strcmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
+		{
+			return 2;
+		}
+
+		if (!strcmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
+		{
+			return 2;
+		}
+
+		if (!strcmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
+		{
+			return 2;
+		}
+
+		if (op->type == BOOK)
+		{
+			if (!strcmp(cp, "books"))
+			{
+				return 2;
+			}
+
+			if (!op->msg && !strcmp(cp, "empty books"))
+			{
+				return 2;
+			}
+
+			if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
+			{
+				if (!strcmp(cp, "unread books"))
+				{
+					return 2;
+				}
+
+				if (sscanf(cp, "unread level %d books", &book_level) == 1 && op->level == book_level)
+				{
+					return 2;
+				}
+			}
+			else
+			{
+				if (!strcmp(cp, "read books"))
+				{
+					return 2;
+				}
+
+				if (sscanf(cp, "read level %d books", &book_level) == 1 && op->level == book_level)
+				{
+					return 2;
+				}
+			}
+		}
+
+		count = 0;
+
+		/* Allow for things like '100 arrows', but don't accept
+		 * strings like '+2', '-1' as numbers. */
+		if (isdigit(cp[0]) && (count = atoi(cp)) != 0)
+		{
+			cp = strchr(cp, ' ');
+
+			/* Get rid of spaces */
+			while (cp && cp[0] == ' ')
+			{
+				cp++;
+			}
+		}
+
+		if (!cp || cp[0] == '\0' || count < 0)
+		{
+			return 0;
+		}
+
+		/* Base name matched - not bad */
+		if (strcasecmp(cp, op->name) == 0 && !count)
+		{
+			retval = 4;
+		}
+		/* Need to plurify name for proper match */
+		else if (count > 1)
+		{
+			char newname[MAX_BUF];
+			strcpy(newname, op->name);
+
+			if (!strcasecmp(newname, cp))
+			{
+				retval = 6;
+			}
+		}
+		else if (count == 1)
+		{
+			if (!strcasecmp(op->name, cp))
+			{
+				retval = 6;
+			}
+		}
+
+		if (!strcasecmp(cp, query_name(op, NULL)))
+		{
+			retval = 20;
+		}
+		else if (!strcasecmp(cp, query_short_name(op, NULL)))
+		{
+			retval = 18;
+		}
+		else if (!strcasecmp(cp, query_base_name(op, pl)))
+		{
+			retval = 16;
+		}
+		else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp)))
+		{
+			retval = 14;
+		}
+		/* Do substring checks, so things like 'Str+1' will match.
+		 * retval of these should perhaps be lower - they are lower
+		 * then the specific strcasecmp aboves, but still higher than
+		 * some other match criteria. */
+		else if (strstr(query_base_name(op, pl), cp))
+		{
+			retval = 12;
+		}
+		else if (strstr(query_short_name(op, NULL), cp))
+		{
+			retval = 12;
+		}
+
+		if (retval)
+		{
+			if (pl->type == PLAYER)
+			{
+				CONTR(pl)->count = count;
+			}
+
+			return retval;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Get object's gender ID, as defined in @ref GENDER_xxx.
+ * @param op Object to get gender ID of.
+ * @return The gender ID. */
+int object_get_gender(object *op)
+{
+	if (QUERY_FLAG(op, FLAG_IS_MALE))
+	{
+		return QUERY_FLAG(op, FLAG_IS_FEMALE) ? GENDER_HERMAPHRODITE : GENDER_MALE;
+	}
+	else if (QUERY_FLAG(op, FLAG_IS_FEMALE))
+	{
+		return GENDER_FEMALE;
+	}
+
+	return GENDER_NEUTER;
 }

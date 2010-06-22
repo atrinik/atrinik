@@ -1263,6 +1263,13 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 		/* Show the system cursor */
 		SDL_ShowCursor(1);
 
+		/* Due to a bug in SDL 1.2.x, the mouse X/Y position is not updated
+		 * while in fullscreen with the cursor hidden, so we must take care
+		 * of it ourselves. Apparently SDL 1.3 should fix it.
+		 * See http://old.nabble.com/Mouse-movement-problems-in-fullscreen-mode-td20890669.html
+		 * for details. */
+		SDL_WarpMouse(x, y);
+
 		/* Somehow the owner before the widget dragging is gone now. Not a good idea to carry on... */
 		if (!widget)
 		{
@@ -1505,6 +1512,15 @@ int widget_event_start_move(widgetdata *widget, int x, int y)
 	f_custom_cursor = MSCURSOR_MOVE;
 	/* hide the system cursor */
 	SDL_ShowCursor(0);
+
+#ifdef WIN32
+	/* Workaround another bug with SDL 1.2.x on Windows. Make sure the cursor
+	 * is in the centre of the screen if we are in fullscreen mode. */
+	if (ScreenSurface->flags & SDL_FULLSCREEN)
+	{
+		SDL_WarpMouse(Screensize->x / 2, Screensize->y / 2);
+	}
+#endif
 
 	return 1;
 }

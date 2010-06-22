@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_slash 80
 attack_pierce 20
 type 80
-Wis 6
+Wis 3
 animation tiger
 is_animated 1
 anim_speed 4

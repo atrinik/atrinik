@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2010-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -559,7 +559,6 @@ msg
 Key that provides a one-way passage to second level of Underground City by entering Ogre Guard map west of Fort Ghzal and looking for hidden stairs.
 endmsg
 name Underground City Drow Key
-one_drop 1
 slaying underground_city_key_drow
 startequip 1
 end
@@ -2361,10 +2360,6 @@ arch torch_wall_1
 x 16
 y 14
 end
-arch torch_wall_1
-x 16
-y 14
-end
 arch floor_stone_b2
 x 16
 y 15
@@ -3106,10 +3101,6 @@ x 21
 y 9
 end
 arch floor_stone_b1
-x 21
-y 10
-end
-arch basin1_full.101
 x 21
 y 10
 end

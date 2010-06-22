@@ -182,6 +182,64 @@ static object *find_object_both(object *op, char *params)
 }
 
 /**
+ * Remove all players from the specified map, marking them with
+ * player::dm_removed_from_map so we can re-insert them later.
+ * @param m Map to remove players from.
+ * @return How many players were removed. */
+static int dm_map_remove_players(mapstruct *m)
+{
+	int count = 0;
+	player *pl;
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (pl->ob->map == m)
+		{
+			count++;
+			remove_ob(pl->ob);
+			pl->dm_removed_from_map = 1;
+			pl->ob->map = NULL;
+		}
+	}
+
+	return count;
+}
+
+/**
+ * Re-insert players from previous reset of a map.
+ * @param m Map to place the players to.
+ * @param op Player object doing the reset. */
+static void dm_map_reinsert_players(mapstruct *m, object *op)
+{
+	player *pl;
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (pl->dm_removed_from_map)
+		{
+			pl->dm_removed_from_map = 0;
+			insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
+			/* So that we don't access invalid values of old player's last_update map
+			 * pointer when sending map to the client. */
+			pl->last_update = NULL;
+
+			if (pl->ob != op)
+			{
+				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+				{
+					new_draw_info_format(NDI_UNIQUE, pl->ob, "Map reset by %s.", op->name);
+				}
+				/* Write a nice little confusing message to the players */
+				else
+				{
+					new_draw_info(NDI_UNIQUE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
+				}
+			}
+		}
+	}
+}
+
+/**
  * Sets the god for some objects.
  * @param op The DM.
  * @param params Should contain two values - first the object to change,
@@ -245,7 +303,7 @@ int command_setgod(object *op, char *params)
  * @return 1. */
 int command_kick(object *ob, char *params)
 {
-	player *pl;
+	player *pl, *pl_next;
 
 	if (ob && params == NULL)
 	{
@@ -259,8 +317,16 @@ int command_kick(object *ob, char *params)
 		return 1;
 	}
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl_next)
 	{
+		pl_next = pl->next;
+
+		/* Ignore players not playing. */
+		if (pl->state != ST_PLAYING)
+		{
+			continue;
+		}
+
 		if (!ob || (pl->ob != ob && pl->ob->name && !strncasecmp(pl->ob->name, params, MAX_NAME)))
 		{
 			object *op = pl->ob;
@@ -277,9 +343,6 @@ int command_kick(object *ob, char *params)
 			LOG(llevInfo, "%s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
 
 			CONTR(op)->socket.status = Ns_Dead;
-#if MAP_MAXTIMEOUT
-			op->map->timeout = MAP_TIMEOUT(op->map);
-#endif
 			remove_ns_dead_player(CONTR(op));
 		}
 	}
@@ -493,19 +556,16 @@ int command_teleport(object *op, char *params)
  * DM wants to create an object.
  * @param op DM.
  * @param params Object variables.
- * @return 1 unless op is NULL. */
+ * @return 1. */
 int command_create(object *op, char *params)
 {
 	object *tmp = NULL;
-	int nrof, i, magic, set_magic = 0, set_nrof = 0, gotquote, gotspace;
-	char buf[MAX_BUF], *cp, *bp = buf, *bp2, *bp3, *bp4 = NULL, *obp, *cp2;
+	uint32 i;
+	int magic, set_magic = 0, set_nrof = 0, gotquote, gotspace;
+	uint32 nrof;
+	char *cp, *bp, *bp2, *bp3, *bp4, *endline;
 	archetype *at;
 	artifact *art = NULL;
-
-	if (!op)
-	{
-		return 0;
-	}
 
 	if (params == NULL)
 	{
@@ -515,9 +575,12 @@ int command_create(object *op, char *params)
 
 	bp = params;
 
-	if (sscanf(bp, "%d ", &nrof))
+	/* We need to know where the line ends */
+	endline = bp + strlen(bp);
+
+	if (sscanf(bp, "%u ", &nrof))
 	{
-		if ((bp = strchr(params, ' ')) == NULL)
+		if (!(bp = strchr(params, ' ')))
 		{
 			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
@@ -525,23 +588,21 @@ int command_create(object *op, char *params)
 
 		bp++;
 		set_nrof = 1;
-		LOG(llevDebug, "%s creates: (%d) %s\n", op->name, nrof, bp);
 	}
 
 	if (sscanf(bp, "%d ", &magic))
 	{
-		if ((bp = strchr(bp, ' ')) == NULL)
+		if (!(bp = strchr(bp, ' ')))
 		{
-			new_draw_info(NDI_UNIQUE, op, "Usage: create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
 
 		bp++;
 		set_magic = 1;
-		LOG(llevDebug, "%s creates: (%d) (%d) %s\n", op->name, nrof, magic, bp);
 	}
 
-	if ((cp = strstr(bp, " of ")) != NULL)
+	if ((cp = strstr(bp, " of ")))
 	{
 		*cp = '\0';
 		cp += 4;
@@ -558,7 +619,7 @@ int command_create(object *op, char *params)
 	}
 
 	/* First step: browse the archetypes for the name. */
-	if ((at = find_archetype(bp)) == NULL)
+	if (!(at = find_archetype(bp)))
 	{
 		new_draw_info(NDI_UNIQUE, op, "No such archetype or artifact name.");
 		return 1;
@@ -566,15 +627,6 @@ int command_create(object *op, char *params)
 
 	if (cp)
 	{
-		for (cp2 = cp; *cp2; cp2++)
-		{
-			if (*cp2 == ' ')
-			{
-				*cp2 = '\0';
-				break;
-			}
-		}
-
 		if (find_artifactlist(at->clone.type) == NULL)
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "No artifact list for type %d\n", at->clone.type);
@@ -585,68 +637,89 @@ int command_create(object *op, char *params)
 
 			do
 			{
-				if (!strcmp(art->def_at.clone.name, cp))
+				if (!strcmp(art->name, cp))
 				{
 					break;
 				}
 
 				art = art->next;
-			}
-			while (art != NULL);
+			} while (art);
 
 			if (!art)
 			{
 				new_draw_info_format(NDI_UNIQUE, op, "No such artifact ([%d] of %s)", at->clone.type, cp);
 			}
 		}
-
-		LOG(llevDebug, "%s creates: (%d) (%d) (%s) of (%s)\n", op->name, set_nrof ? nrof : 0, set_magic ? magic : 0, bp, cp);
 	}
 
-	if (at->clone.nrof)
+	/* Rather than have two different blocks with a lot of similar code,
+	 * just create one object, do all the processing, and then determine
+	 * if that one object should be inserted or if we need to make copies. */
+	tmp = arch_to_object(at);
+
+	if (set_magic)
 	{
-		tmp = arch_to_object(at);
-		tmp->x = op->x, tmp->y = op->y;
+		set_abs_magic(tmp, magic);
+	}
 
-		if (set_nrof)
+	if (art)
+	{
+		give_artifact_abilities(tmp, art);
+	}
+
+	if (need_identify(tmp))
+	{
+		SET_FLAG(tmp, FLAG_IDENTIFIED);
+	}
+
+	/* This entire block here tries to find variable pairings,
+	 * eg, 'hp 4' or the like. The mess here is that values
+	 * can be quoted (eg "my cool sword"); So the basic logic
+	 * is we want to find two spaces, but if we got a quote,
+	 * any spaces there don't count. */
+	while (*bp2 && bp2 <= endline)
+	{
+		bp4 = NULL;
+		gotspace = 0;
+		gotquote = 0;
+
+		/* Find the first quote. */
+		for (bp3 = bp2; *bp3 && gotspace < 2; bp3++)
 		{
-			tmp->nrof = nrof;
-		}
-
-		tmp->map = op->map;
-
-		if (set_magic)
-		{
-			set_abs_magic(tmp, magic);
-		}
-
-		if (art)
-		{
-			give_artifact_abilities(tmp, art);
-		}
-
-		if (need_identify(tmp))
-		{
-			SET_FLAG(tmp, FLAG_IDENTIFIED);
-			CLEAR_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-		}
-
-		while (*bp2)
-		{
-			bp4 = NULL;
-
-			/* Find the first quote. */
-			for (bp3 = bp2, gotquote = 0, gotspace = 0; *bp3 && gotspace < 2; bp3++)
+			/* Found a quote. */
+			if (*bp3 == '"')
 			{
-				if (*bp3 == '"')
+				*bp3 = ' ';
+				gotquote++;
+				bp3++;
+
+				for (bp4 = bp3; *bp4; bp4++)
 				{
-					*bp3 = ' ';
-					gotquote++;
+					if (*bp4 == '"')
+					{
+						*bp4 = '\0';
+						break;
+					}
+				}
+			}
+			else if (*bp3 == ' ')
+			{
+				gotspace++;
+			}
+		}
+
+		if (!gotquote)
+		{
+			/* Then find the second space. */
+			for (bp3 = bp2; *bp3; bp3++)
+			{
+				if (*bp3 == ' ')
+				{
 					bp3++;
 
 					for (bp4 = bp3; *bp4; bp4++)
 					{
-						if (*bp4 == '"')
+						if (*bp4 == ' ')
 						{
 							*bp4 = '\0';
 							break;
@@ -655,189 +728,102 @@ int command_create(object *op, char *params)
 
 					break;
 				}
-				else if (*bp3 == ' ')
-				{
-					gotspace++;
-				}
 			}
-
-			if (!gotquote)
-			{
-				/* then find the second space */
-				for (bp3 = bp2; *bp3; bp3++)
-				{
-					if (*bp3 == ' ')
-					{
-						bp3++;
-
-						for (bp4 = bp3; *bp4; bp4++)
-						{
-							if (*bp4 == ' ')
-							{
-								*bp4 = '\0';
-								break;
-							}
-						}
-
-						break;
-					}
-				}
-			}
-
-			if (bp4 == NULL)
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "No parameter value for variable %s", bp2);
-				break;
-			}
-
-			/* Now bp3 should be the argument, and bp2 the whole command. */
-			if (set_variable(tmp, bp2) == -1)
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", bp2);
-			}
-			else
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
-			}
-
-			if (gotquote)
-			{
-				bp2 = bp4 + 2;
-			}
-			else
-			{
-				bp2 = bp4 + 1;
-			}
-
-			obp = bp2;
 		}
 
-		tmp = insert_ob_in_ob(tmp, op);
-		esrv_send_item(op, tmp);
+		if (!bp4)
+		{
+			/* Unfortunately, we've clobbered lots of values, so printing
+			 * out what we have probably isn't useful. Break out, because
+			 * trying to recover is probably won't get anything useful
+			 * anyways, and we'd be confused about end of line pointers
+			 * anyways. */
+			new_draw_info_format(NDI_UNIQUE, op, "Malformed create line: %s", bp2);
+			break;
+		}
+
+		/* bp2 should still point to the start of this line,
+		 * with bp3 pointing to the end. */
+		if (set_variable(tmp, bp2) == -1)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", bp2);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s", tmp->name, tmp->count, bp2);
+		}
+
+		if (gotquote)
+		{
+			bp2 = bp4 + 2;
+		}
+		else
+		{
+			bp2 = bp4 + 1;
+		}
+	}
+
+	if (at->clone.nrof)
+	{
+		if (set_nrof)
+		{
+			tmp->nrof = nrof;
+		}
+
+		if (tmp->randomitems)
+		{
+			create_treasure(tmp->randomitems, tmp, GT_APPLY, tmp->type == MONSTER ? tmp->level : get_enviroment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+		}
+
+		/* If the created object is alive or is multi arch, insert it on
+		 * the map. */
+		if (IS_LIVE(tmp) || tmp->more)
+		{
+			if (tmp->type == MONSTER)
+			{
+				fix_monster(tmp);
+			}
+
+			insert_ob_in_map(tmp, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+		}
+		/* Into the DM's inventory otherwise. */
+		else
+		{
+			tmp = insert_ob_in_ob(tmp, op);
+			esrv_send_item(op, tmp);
+		}
+
 		return 1;
 	}
 
-	for (i = 0 ; i < (set_nrof ? nrof : 1); i++)
+	for (i = 0; i < (set_nrof ? nrof : 1); i++)
 	{
 		archetype *atmp;
-		object *prev = NULL, *head = NULL;
+		object *prev = NULL, *head = NULL, *dup;
 
-		for (atmp = at; atmp != NULL; atmp = atmp->more)
+		for (atmp = at; atmp; atmp = atmp->more)
 		{
-			tmp = arch_to_object(atmp);
+			dup = arch_to_object(atmp);
 
+			/* The head is what contains all the important bits,
+			 * so just copying it over should be fine. */
 			if (head == NULL)
 			{
-				head = tmp;
+				head = dup;
+				copy_object(tmp, dup);
 			}
 
-			tmp->x = op->x + tmp->arch->clone.x;
-			tmp->y = op->y + tmp->arch->clone.y;
-			tmp->map = op->map;
+			dup->x = op->x + dup->arch->clone.x;
+			dup->y = op->y + dup->arch->clone.y;
+			dup->map = op->map;
 
-			if (set_magic)
+			if (head != dup)
 			{
-				set_abs_magic(tmp, magic);
+				dup->head = head;
+				prev->more = dup;
 			}
 
-			if (art)
-			{
-				give_artifact_abilities(tmp, art);
-			}
-
-			if (need_identify(tmp))
-			{
-				SET_FLAG(tmp, FLAG_IDENTIFIED);
-				CLEAR_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-			}
-
-			while (*bp2)
-			{
-				bp4 = NULL;
-
-				/* Find the first quote */
-				for (bp3 = bp2, gotquote = 0, gotspace = 0; *bp3 && gotspace < 2; bp3++)
-				{
-					if (*bp3 == '"')
-					{
-						*bp3 = ' ';
-						gotquote++;
-						bp3++;
-
-						for (bp4 = bp3; *bp4; bp4++)
-						{
-							if (*bp4 == '"')
-							{
-								*bp4 = '\0';
-								break;
-							}
-						}
-
-						break;
-					}
-					else if (*bp3 == ' ')
-					{
-						gotspace++;
-					}
-				}
-
-				if (!gotquote)
-				{
-					/* Fhen find the second space */
-					for (bp3 = bp2; *bp3; bp3++)
-					{
-						if (*bp3 == ' ')
-						{
-							bp3++;
-
-							for (bp4 = bp3; *bp4; bp4++)
-							{
-								if (*bp4 == ' ')
-								{
-									*bp4 = '\0';
-									break;
-								}
-							}
-
-							break;
-						}
-					}
-				}
-
-				if (bp4 == NULL)
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "No parameter value for variable %s", bp2);
-					break;
-				}
-
-				/* Now bp3 should be the argument, and bp2 the whole command */
-				if (set_variable(tmp, bp2) == -1)
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "Unknown variable '%s'", bp2);
-				}
-				else
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
-				}
-
-				if (gotquote)
-				{
-					bp2 = bp4 + 2;
-				}
-				else
-				{
-					bp2 = bp4 + 1;
-				}
-
-				obp = bp2;
-			}
-
-			if (head != tmp)
-			{
-				tmp->head = head, prev->more = tmp;
-			}
-
-			prev = tmp;
+			prev = dup;
 		}
 
 		if (head->randomitems)
@@ -1035,11 +1021,12 @@ int command_remove(object *op, char *params)
 int command_addexp(object *op, char *params)
 {
 	char buf[MAX_BUF];
-	int exp, snr;
+	int snr;
+	sint64 exp;
 	object *exp_skill, *exp_ob;
 	player *pl;
 
-	if (params == NULL || sscanf(params, "%s %d %d", buf, &snr, &exp) != 3)
+	if (params == NULL || sscanf(params, "%s %d %"FMT64, buf, &snr, &exp) != 3)
 	{
 		int i;
 
@@ -1178,9 +1165,8 @@ int command_stats(object *op, char *params)
  * @return 1. */
 int command_resetmap(object *op, char *params)
 {
-	int count;
 	mapstruct *m;
-	player *pl;
+	shstr *path;
 
 	if (params == NULL)
 	{
@@ -1188,7 +1174,7 @@ int command_resetmap(object *op, char *params)
 	}
 	else
 	{
-		const char *mapfile_sh = add_string(params);
+		shstr *mapfile_sh = add_string(params);
 
 		m = has_been_loaded_sh(mapfile_sh);
 		free_string_shared(mapfile_sh);
@@ -1212,117 +1198,26 @@ int command_resetmap(object *op, char *params)
 		return 1;
 	}
 
-	if (m->in_memory != MAP_SWAPPED)
+	if (m->in_memory != MAP_IN_MEMORY)
 	{
-		if (m->in_memory != MAP_IN_MEMORY)
-		{
-			LOG(llevBug, "BUG: Tried to swap out map which was not in memory.\n");
-			return 0;
-		}
-
-		new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path ? m->path : ">NULL<");
-
-		/* Now remove all players from this map - flag them so we can put
-		 * them back later. */
-		count = 0;
-
-		for (pl = first_player; pl; pl = pl->next)
-		{
-			if (pl->ob->map == m)
-			{
-				count++;
-				/* No walk off check */
-				remove_ob(pl->ob);
-				pl->dm_removed_from_map = 1;
-				pl->ob->map = NULL;
-			}
-			else
-			{
-				pl->dm_removed_from_map = 0;
-			}
-		}
-
-		new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Swap map.", count);
-		swap_map(m, 1);
+		LOG(llevBug, "BUG: Tried to swap out map which was not in memory.\n");
+		return 0;
 	}
 
-	if (m->in_memory == MAP_SWAPPED)
-	{
-		LOG(llevDebug, "Resetting map %s.\n", m->path);
-		clean_tmp_map(m);
+	new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path);
+	new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Reset map.", dm_map_remove_players(m));
+	m->reset_time = seconds();
+	m->map_flags |= MAP_FLAG_FIXED_RTIME;
+	/* Store the path, so we can load it after swapping is done. */
+	path = add_refcount(m->path);
+	swap_map(m, 1);
 
-		if (m->tmpname)
-		{
-			free(m->tmpname);
-		}
-
-		m->tmpname = NULL;
-		/* Setting this effectively causes an immediate reload */
-		m->reset_time = 1;
-		new_draw_info(NDI_UNIQUE, op, "Swap successful. Inserting players.");
-
-		add_refcount(m->path);
-		m = ready_map_name(m->path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
-
-		for (pl = first_player; pl; pl = pl->next)
-		{
-			if (pl->dm_removed_from_map)
-			{
-				insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
-				/* So that we don't access invalid values of old player's last_update map
-				 * pointer when sending map to the client. */
-				pl->last_update = NULL;
-
-				if (pl->ob != op)
-				{
-					if (QUERY_FLAG(pl->ob, FLAG_WIZ))
-					{
-						new_draw_info_format(NDI_UNIQUE, pl->ob, "Map reset by %s.", op->name);
-					}
-					/* Write a nice little confusing message to the players */
-					else
-					{
-						new_draw_info(NDI_UNIQUE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
-					}
-				}
-			}
-		}
-
-		new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
-	}
-	else
-	{
-		/* Need to re-insert players if swap failed for some reason. */
-		for (pl = first_player; pl; pl = pl->next)
-		{
-			if (pl->dm_removed_from_map)
-			{
-				insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-			}
-		}
-
-		new_draw_info(NDI_UNIQUE, op, "Reset failed, couldn't swap map!");
-	}
+	m = ready_map_name(path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
+	free_string_shared(path);
+	new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
+	dm_map_reinsert_players(m, op);
 
 	return 1;
-}
-
-/**
- * Remove DM from the list of DMs.
- * @param op The DM object to remove. */
-void remove_active_DM(object *op)
-{
-	objectlink *ol;
-
-	for (ol = dm_list; ol; ol = ol->next)
-	{
-		if (ol->objlink.ob == op)
-		{
-			objectlink_unlink(&dm_list, NULL, ol);
-			return_poolchunk(ol, pool_objectlink);
-			break;
-		}
-	}
 }
 
 /**
@@ -1336,10 +1231,6 @@ int command_nowiz(object *op, char *params)
 
 	CLEAR_FLAG(op, FLAG_WIZ);
 	CONTR(op)->followed_player[0] = '\0';
-
-	/* Clear this DM from DMs list. */
-	remove_active_DM(op);
-
 	CLEAR_FLAG(op, FLAG_WIZPASS);
 	CLEAR_MULTI_FLAG(op, FLAG_FLYING);
 	fix_player(op);
@@ -1421,12 +1312,6 @@ int command_dm(object *op, char *params)
 
 	if (checkdm(op, (params ? params : "*")))
 	{
-		objectlink *ol = get_objectlink();
-
-		ol->objlink.ob = op;
-		ol->id = op->count;
-		objectlink_link(&dm_list, NULL, NULL, dm_list, ol);
-
 		SET_FLAG(op, FLAG_WIZ);
 		SET_FLAG(op, FLAG_WAS_WIZ);
 		SET_FLAG(op, FLAG_WIZPASS);
@@ -2358,7 +2243,6 @@ int command_arrest(object *op, char *params)
 	}
 
 	enter_exit(pl->ob, dummy);
-	new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You have been arrested.");
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Jailed %s.", pl->ob->name);
 	LOG(llevInfo, "Player %s arrested by %s\n", pl->ob->name, op->name);
 	return 1;
@@ -2460,6 +2344,166 @@ int command_cmd_permission(object *op, char *params)
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "%s has no command permissions.", pl->ob->name);
 		}
+	}
+
+	return 1;
+}
+
+/**
+ * Saves the DM's current map to the original map file.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_map_save(object *op, char *params)
+{
+	char buf[MAX_BUF], path[MAX_BUF], map_path[MAX_BUF];
+	struct stat stats;
+	mapstruct *m;
+
+	(void) params;
+
+	/* Don't allow doing this for unique or random maps. */
+	if (MAP_UNIQUE(op->map) || !strncmp(op->map->path, "/random/", 8))
+	{
+		new_draw_info(NDI_UNIQUE, op, "Cannot be used on unique or random maps.");
+		return 1;
+	}
+
+	/* Store the map's path. */
+	strncpy(map_path, op->map->path, sizeof(map_path));
+	/* Create a path name to the actual map file. */
+	strncpy(path, create_pathname(op->map->path), sizeof(path) - 1);
+	/* Path to the original file. */
+	snprintf(buf, sizeof(buf), "%s.map_old", path);
+
+	/* No original file yet? Create one. */
+	if (stat(buf, &stats))
+	{
+		FILE *fp = fopen(buf, "w");
+
+		if (!fp)
+		{
+			LOG(llevBug, "BUG: command_map_save(): Could not open '%s' for writing.\n", buf);
+			new_draw_info_format(NDI_UNIQUE, op, "ERROR: Could not open '%s' for writing.", buf);
+			return 1;
+		}
+
+		copy_file(path, fp);
+		fclose(fp);
+	}
+
+	/* Remove players from the map. */
+	m = op->map;
+	dm_map_remove_players(m);
+
+	/* Try to save the map. */
+	if (new_save_map(m, 1) == -1)
+	{
+		unlink(path);
+		rename(buf, path);
+		new_draw_info(NDI_UNIQUE, op, "Map save error!");
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, op, "Current map has been saved to the original map file.");
+	}
+
+	free_map(m, 1);
+	/* Reload the map and re-insert players. */
+	m = ready_map_name(map_path, 0);
+	dm_map_reinsert_players(m, op);
+	return 1;
+}
+
+/**
+ * Resets DM's current map to the original version.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_map_reset(object *op, char *params)
+{
+	char buf[MAX_BUF], path[MAX_BUF];
+	struct stat stats;
+
+	(void) params;
+
+	/* Create a path name to the actual map file. */
+	strncpy(path, create_pathname(op->map->path), sizeof(path) - 1);
+	/* Path to the original file. */
+	snprintf(buf, sizeof(buf), "%s.map_old", path);
+
+	/* Is there the original map file? */
+	if (!stat(buf, &stats))
+	{
+		unlink(path);
+		rename(buf, path);
+		new_draw_info(NDI_UNIQUE, op, "Current map reset.");
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, op, "There is no original map to reset to.");
+	}
+
+	return 1;
+}
+
+/**
+ * Patch map header variables of a map.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_map_patch(object *op, char *params)
+{
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Patch what values?");
+		return 1;
+	}
+
+	if (map_set_variable(op->map, params) == -1)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "Unknown value for map header: %s", params);
+	}
+	else
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "(%s)->%s", op->map->name, params);
+	}
+
+	return 1;
+}
+
+/**
+ * The /no_shout command.
+ * @param op Wizard.
+ * @param params Parameters.
+ * @return 1. */
+int command_no_shout(object *op, char *params)
+{
+	player *pl;
+
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /no_shout <player>");
+		return 1;
+	}
+
+	pl = find_player(params);
+
+	if (!pl)
+	{
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		return 1;
+	}
+
+	if (pl->no_shout)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "%s is able to shout again.", pl->ob->name);
+		pl->no_shout = 0;
+	}
+	else
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "%s is now not able to shout.", pl->ob->name);
+		pl->no_shout = 1;
 	}
 
 	return 1;

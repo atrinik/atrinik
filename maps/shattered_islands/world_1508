@@ -2,11 +2,11 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-28 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 23
 outdoor 1
 tile_path_1 world_1509
 tile_path_3 world_1507
@@ -91,6 +91,9 @@ y 19
 arch tiger
 type 83
 level 28
+dam 60
+maxhp 71
+Con 2
 Wis 3
 end
 end
@@ -304,9 +307,12 @@ arch spawn_point
 x 2
 y 15
 arch tiger
-type 83
 level 28
+dam 60
+maxhp 71
+Con 2
 Wis 3
+type 83
 end
 end
 arch grassd_6
@@ -571,6 +577,9 @@ y 18
 arch tiger
 type 83
 level 28
+dam 60
+maxhp 71
+Con 2
 Wis 3
 end
 end
@@ -824,6 +833,9 @@ y 16
 arch tiger
 type 83
 level 29
+dam 60
+maxhp 71
+Con 2
 Wis 3
 end
 end
@@ -1101,6 +1113,9 @@ y 14
 arch tiger
 type 83
 level 29
+dam 60
+maxhp 71
+Con 2
 Wis 3
 end
 end
@@ -1126,6 +1141,9 @@ y 18
 arch tiger
 type 83
 level 29
+dam 60
+maxhp 71
+Con 2
 Wis 3
 end
 end

@@ -14,7 +14,7 @@ flying 1
 weapon_speed 0.038
 attack_cleave 80
 type 80
-Wis 6
+Wis 3
 animation bat_brown
 is_animated 1
 anim_speed 4

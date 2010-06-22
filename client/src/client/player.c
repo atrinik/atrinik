@@ -113,7 +113,7 @@ void new_char(_server_char *nc)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "nc %s %d %d %d %d %d %d %d", nc->char_arch[nc->gender_selected], nc->stats[0], nc->stats[1], nc->stats[2], nc->stats[3], nc->stats[4], nc->stats[5], nc->stats[6]);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -124,7 +124,7 @@ void client_send_apply(int tag)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "ap %d", tag);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -135,7 +135,7 @@ void client_send_examine(int tag)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "ex %d", tag);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -148,55 +148,26 @@ void client_send_move(int loc, int tag, int nrof)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "mv %d %d %d", loc, tag, nrof);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
  * This should be used for all 'command' processing. Other functions
  * should call this so that proper windowing will be done.
  * @param command Text command.
- * @param repeat Count value or -1 if none desired and we don't want
- * to reset the current count.
- * @param must_send Means we must send this command no matter what (ie,
- * it is an administrative type of command like fire_stop, and failure to
- * send it will cause definite problems).
  * @return 1 if command was sent, 0 otherwise. */
-void send_command(const char *command, int repeat, int must_send)
+void send_command(const char *command)
 {
 	char buf[MAX_BUF];
-	static char last_command[MAX_BUF] = "";
 	SockList sl;
-	int commdiff = csocket.command_sent - csocket.command_received;
-
-	if (commdiff < 0)
-	{
-		commdiff += 256;
-	}
-
-	/* Don't want to copy in administrative commands */
-	if (!must_send)
-	{
-		strncpy(last_command, command, sizeof(last_command) - 1);
-	}
-
-	csocket.command_sent++;
-	/* Max out at 255 */
-	csocket.command_sent &= 0xff;
 
 	sl.buf = (unsigned char *) buf;
 	strcpy((char *) sl.buf, "cm ");
 	sl.len = 3;
-	SockList_AddShort(&sl, (uint16) csocket.command_sent);
-	SockList_AddInt(&sl, repeat);
 	strncpy((char *) sl.buf + sl.len, command, MAX_BUF - sl.len);
 	sl.buf[MAX_BUF - 1] = '\0';
 	sl.len += (int) strlen(command);
-	send_socklist(csocket.fd, sl);
-
-	if (repeat != -1)
-	{
-		cpl.count = 0;
-	}
+	send_socklist(sl);
 }
 
 /**
@@ -258,7 +229,7 @@ void init_player_data()
 	/* This is set from title in stat cmd */
 	strcpy(cpl.pname, "");
 	strcpy(cpl.title, "");
-	strcpy(cpl.partyname, "");
+	cpl.partyname[0] = '\0';
 
 	cpl.menustatus = MENU_NO;
 	cpl.menustatus = MENU_NO;
@@ -296,7 +267,7 @@ void widget_player_data_event(widgetdata *widget, int x, int y)
 	{
 		if (!client_command_check("/pray"))
 		{
-			send_command("/pray", -1, SC_NORMAL);
+			send_command("/pray");
 		}
 	}
 }
@@ -589,7 +560,7 @@ void widget_menubuttons_event(widgetdata *widget, int x, int y)
 		/* Party GUI */
 		else if (dy >= 51 && dy <= 74)
 		{
-			cs_write_string(csocket.fd, "pt list", 7);
+			send_command("/party list");
 		}
 		/* Help system */
 		else if (dy >= 76 && dy <= 99)
@@ -800,8 +771,8 @@ void widget_show_player_doll(widgetdata *widget)
 					index = PDOLL_AMULET;
 					break;
 
-				case TYPE_SKILL:
-					index = PDOLL_SKILL;
+				case TYPE_SKILL_ITEM:
+					index = PDOLL_SKILL_ITEM;
 					break;
 
 				case TYPE_BOW:
@@ -880,7 +851,8 @@ void widget_show_main_lvl(widgetdata *widget)
 	{
 		char buf[MAX_BUF];
 		double multi, line;
-		int s, level_exp;
+		int s;
+		sint64 level_exp;
 		_BLTFX bltfx;
 
 		widget->redraw = 0;
@@ -902,7 +874,7 @@ void widget_show_main_lvl(widgetdata *widget)
 			StringBlt(widget->widgetSF, &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_WHITE, NULL, NULL);
 		}
 
-		snprintf(buf, sizeof(buf), "%d", cpl.stats.exp);
+		snprintf(buf, sizeof(buf), "%"FMT64, cpl.stats.exp);
 		StringBlt(widget->widgetSF, &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
 
 		/* Calculate the exp bubbles */
@@ -983,14 +955,15 @@ void widget_show_skill_exp(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		int s, level_exp;
+		int s;
+		sint64 level_exp;
 		_BLTFX bltfx;
 		char buf[MAX_BUF];
-		long int liLExp = 0;
-		long int liLExpTNL = 0;
-		long int liTExp = 0;
-		long int liTExpTNL = 0;
-		float fLExpPercent = 0;
+		sint64 liLExp = 0;
+		sint64 liLExpTNL = 0;
+		sint64 liTExp = 0;
+		sint64 liTExpTNL = 0;
+		double fLExpPercent = 0;
 		double multi = 0, line = 0;
 
 		widget->redraw = 0;
@@ -1053,7 +1026,7 @@ void widget_show_skill_exp(widgetdata *widget)
 				case 0:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%d / %-9d", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level,skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
+						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level, skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
 					}
 					else if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
 					{
@@ -1083,7 +1056,7 @@ void widget_show_skill_exp(widgetdata *widget)
 				case 2:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%ld / %ld", liLExp, liLExpTNL);
+						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liLExp, liLExpTNL);
 					}
 					else
 					{
@@ -1096,7 +1069,7 @@ void widget_show_skill_exp(widgetdata *widget)
 				case 3:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%ld / %ld", liTExp, liTExpTNL);
+						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liTExp, liTExpTNL);
 					}
 					else
 					{
@@ -1109,7 +1082,7 @@ void widget_show_skill_exp(widgetdata *widget)
 				case 4:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%#05.2f%% - %ld", fLExpPercent, liLExpTNL - liLExp);
+						snprintf(buf, sizeof(buf), "%#05.2f%% - %"FMT64, fLExpPercent, liLExpTNL - liLExp);
 					}
 					else
 					{

@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Party related structures and defines. */
+ * Party code header file. */
 
 #ifndef PARTY_H
 #define PARTY_H
@@ -34,33 +34,87 @@
  * @defgroup PARTY_MESSAGE_xxx Party message types
  * Party message types.
  *@{*/
-
 /**
  * Status is used for party messages like password change, join/leave,
- * etc */
-#define PARTY_MESSAGE_STATUS    1
-/** Chat is used for party chat messages from party members */
-#define PARTY_MESSAGE_CHAT      2
+ * etc. */
+#define PARTY_MESSAGE_STATUS 1
+/**
+ * Chat is used for party chat messages from party members. */
+#define PARTY_MESSAGE_CHAT 2
 /*@}*/
+
+/**
+ * Party looting modes.
+ * @anchor PARTY_LOOT_xxx */
+enum
+{
+	/**
+	 * Normal looting: any party member can loot the corpse. */
+	PARTY_LOOT_NORMAL,
+	/**
+	 * Only leader can loot the corpse. */
+	PARTY_LOOT_LEADER,
+	/**
+	 * Loot is randomly split between party members when the corpse is
+	 * opened. */
+	PARTY_LOOT_RANDOM,
+	/**
+	 * Total number of the modes. */
+	PARTY_LOOT_MAX
+};
 
 /**
  * Party structure. */
 typedef struct party_struct
 {
-	/** Name of the party leader. */
+	/**
+	 * Name of the party leader. */
 	shstr *leader;
 
-	/** Password this party requires. */
-	char passwd[9];
-
-	/** Name of the party. */
+	/**
+	 * Name of the party. */
 	shstr *name;
 
-	/** Party members. */
+	/**
+	 * Password this party requires. */
+	char passwd[9];
+
+	/**
+	 * Looting mode. One of @ref PARTY_LOOT_xxx. */
+	uint8 loot;
+
+	/**
+	 * Party members. */
 	objectlink *members;
 
-	/** Next party in the list. */
+	/**
+	 * Next party in the list. */
 	struct party_struct *next;
-} partylist_struct;
+} party_struct;
+
+/**
+ * @defgroup CMD_PARTY_xxx Party socket command types
+ * Various types of the BINARY_CMD_PARTY socket command.
+ *@{*/
+/**
+ * Show a list of all parties in the game. */
+#define CMD_PARTY_LIST 1
+/**
+ * Show current members of your party. */
+#define CMD_PARTY_WHO 2
+/**
+ * Successfully joined a party. */
+#define CMD_PARTY_JOIN 3
+/**
+ * Joining a party requires a password. */
+#define CMD_PARTY_PASSWORD 4
+/**
+ * We're leaving a party. */
+#define CMD_PARTY_LEAVE 5
+/*@}*/
+
+party_struct *first_party;
+const char *party_loot_modes[PARTY_LOOT_MAX];
+const char *party_loot_modes_help[PARTY_LOOT_MAX];
 
 #endif

@@ -19,7 +19,6 @@ name barrel
 face barrel2.101
 no_pick 1
 no_pass 1
-can_roll 1
 type 79
 layer 4
 end

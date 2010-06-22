@@ -53,21 +53,25 @@ PythonContext *current_context;
 
 /**
  * Useful constants */
-static Atrinik_Constant module_constants[] =
+/* @cparser
+ * @page plugin_python_constants Python constants
+ * <h2>Python constants</h2>
+ * List of the Python plugin constants and their meaning. */
+static Atrinik_Constant constants[] =
 {
-	{"NORTH",       1},
-	{"NORTHEAST",   2},
-	{"EAST",        3},
-	{"SOUTHEAST",   4},
-	{"SOUTH",       5},
-	{"SOUTHWEST",   6},
-	{"WEST",        7},
-	{"NORTHWEST",   8},
+	{"NORTH", 1},
+	{"NORTHEAST", 2},
+	{"EAST", 3},
+	{"SOUTHEAST", 4},
+	{"SOUTH", 5},
+	{"SOUTHWEST", 6},
+	{"WEST", 7},
+	{"NORTHWEST", 8},
 
-	{"llevError",   llevError},
-	{"llevBug",     llevBug},
-	{"llevInfo",    llevInfo},
-	{"llevDebug",   llevDebug},
+	{"llevError", llevError},
+	{"llevBug", llevBug},
+	{"llevInfo", llevInfo},
+	{"llevDebug", llevDebug},
 
 	{"EVENT_APPLY", EVENT_APPLY},
 	{"EVENT_ATTACK", EVENT_ATTACK},
@@ -95,8 +99,374 @@ static Atrinik_Constant module_constants[] =
 	{"EVENT_SHOUT", EVENT_SHOUT},
 	{"EVENT_TELL", EVENT_TELL},
 
+	{"MAP_INFO_NORMAL", MAP_INFO_NORMAL},
+	{"MAP_INFO_ALL", MAP_INFO_ALL},
+
+	{"COST_TRUE", F_TRUE},
+	{"COST_BUY", F_BUY},
+	{"COST_SELL", F_SELL},
+
+	{"APPLY_TOGGLE", 0},
+	{"APPLY_ALWAYS", AP_APPLY},
+	{"UNAPPLY_ALWAYS", AP_UNAPPLY},
+	{"UNAPPLY_NO_MERGE", AP_NO_MERGE},
+	{"UNAPPLY_IGNORE_CURSE", AP_IGNORE_CURSE},
+	{"APPLY_NO_EVENT", AP_NO_EVENT},
+
+	{"NEUTER", GENDER_NEUTER},
+	{"MALE", GENDER_MALE},
+	{"FEMALE", GENDER_FEMALE},
+	{"HERMAPHRODITE", GENDER_HERMAPHRODITE},
+
+	{"MAXLEVEL", MAXLEVEL},
+
+	{"CAST_NORMAL", 0},
+	{"CAST_POTION", 1},
+
+	{"LEARN", 0},
+	{"UNLEARN", 1},
+
+	{"UNIDENTIFIED", 0},
+	{"IDENTIFIED", 1},
+
+	{"IDENTIFY_NORMAL", IDENTIFY_MODE_NORMAL},
+	{"IDENTIFY_ALL", IDENTIFY_MODE_ALL},
+	{"IDENTIFY_MARKED", IDENTIFY_MODE_MARKED},
+
+	{"CLONE_WITH_INVENTORY", 0},
+	{"CLONE_WITHOUT_INVENTORY", 1},
+
+	{"EXP_AGILITY", EXP_AGILITY},
+	{"EXP_MENTAL", EXP_MENTAL},
+	{"EXP_MAGICAL", EXP_MAGICAL},
+	{"EXP_PERSONAL", EXP_PERSONAL},
+	{"EXP_PHYSICAL", EXP_PHYSICAL},
+	{"EXP_WISDOM", EXP_WISDOM},
+
+	{"COLOR_WHITE", NDI_WHITE},
+	{"COLOR_ORANGE", NDI_ORANGE},
+	{"COLOR_NAVY", NDI_NAVY},
+	{"COLOR_RED", NDI_RED},
+	{"COLOR_GREEN", NDI_GREEN},
+	{"COLOR_BLUE", NDI_BLUE},
+	{"COLOR_GREY", NDI_GREY},
+	{"COLOR_BROWN", NDI_BROWN},
+	{"COLOR_PURPLE", NDI_PURPLE},
+	{"COLOR_PINK", NDI_PINK},
+	{"COLOR_YELLOW", NDI_YELLOW},
+	{"COLOR_DK_NAVY", NDI_DK_NAVY},
+	{"COLOR_DK_GREEN", NDI_DK_GREEN},
+	{"COLOR_DK_ORANGE", NDI_DK_ORANGE},
+
+	{"NDI_SAY", NDI_SAY},
+	{"NDI_SHOUT", NDI_SHOUT},
+	{"NDI_TELL", NDI_TELL},
+	{"NDI_PLAYER", NDI_PLAYER},
+	{"NDI_ANIM", NDI_ANIM},
+	{"NDI_EMOTE", NDI_EMOTE},
+	{"NDI_ALL", NDI_ALL},
+
+	{"PLAYER_EQUIP_MAIL", PLAYER_EQUIP_MAIL},
+	{"PLAYER_EQUIP_GAUNTLET", PLAYER_EQUIP_GAUNTLET},
+	{"PLAYER_EQUIP_BRACER", PLAYER_EQUIP_BRACER},
+	{"PLAYER_EQUIP_HELM", PLAYER_EQUIP_HELM},
+	{"PLAYER_EQUIP_BOOTS", PLAYER_EQUIP_BOOTS},
+	{"PLAYER_EQUIP_CLOAK", PLAYER_EQUIP_CLOAK},
+	{"PLAYER_EQUIP_GIRDLE", PLAYER_EQUIP_GIRDLE},
+	{"PLAYER_EQUIP_SHIELD", PLAYER_EQUIP_SHIELD},
+	{"PLAYER_EQUIP_RRING", PLAYER_EQUIP_RRING},
+	{"PLAYER_EQUIP_LRING", PLAYER_EQUIP_LRING},
+	{"PLAYER_EQUIP_AMULET", PLAYER_EQUIP_AMULET},
+	{"PLAYER_EQUIP_WEAPON", PLAYER_EQUIP_WEAPON},
+	{"PLAYER_EQUIP_BOW", PLAYER_EQUIP_BOW},
+
+	{"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
+	{"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
+	{"QUEST_TYPE_KILL_ITEM", QUEST_TYPE_KILL_ITEM},
+	{"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
+
+	{"TYPE_PLAYER", PLAYER},
+	{"TYPE_BULLET", BULLET},
+	{"TYPE_ROD", ROD},
+	{"TYPE_TREASURE", TREASURE},
+	{"TYPE_POTION", POTION},
+	{"TYPE_FOOD", FOOD},
+	{"TYPE_POISON", POISON},
+	{"TYPE_BOOK", BOOK},
+	{"TYPE_CLOCK", CLOCK},
+	{"TYPE_FBULLET", FBULLET},
+	{"TYPE_FBALL", FBALL},
+	{"TYPE_LIGHTNING", LIGHTNING},
+	{"TYPE_ARROW", ARROW},
+	{"TYPE_BOW", BOW},
+	{"TYPE_WEAPON", WEAPON},
+	{"TYPE_ARMOUR", ARMOUR},
+	{"TYPE_PEDESTAL", PEDESTAL},
+	{"TYPE_ALTAR", ALTAR},
+	{"TYPE_CONFUSION", CONFUSION},
+	{"TYPE_LOCKED_DOOR", LOCKED_DOOR},
+	{"TYPE_SPECIAL_KEY", SPECIAL_KEY},
+	{"TYPE_MAP", MAP},
+	{"TYPE_DOOR", DOOR},
+	{"TYPE_KEY", KEY},
+	{"TYPE_MMISSILE", MMISSILE},
+	{"TYPE_TIMED_GATE", TIMED_GATE},
+	{"TYPE_TRIGGER", TRIGGER},
+	{"TYPE_GRIMREAPER", GRIMREAPER},
+	{"TYPE_MAGIC_EAR", MAGIC_EAR},
+	{"TYPE_TRIGGER_BUTTON", TRIGGER_BUTTON},
+	{"TYPE_TRIGGER_ALTAR", TRIGGER_ALTAR},
+	{"TYPE_TRIGGER_PEDESTAL", TRIGGER_PEDESTAL},
+	{"TYPE_SHIELD", SHIELD},
+	{"TYPE_HELMET", HELMET},
+	{"TYPE_HORN", HORN},
+	{"TYPE_MONEY", MONEY},
+	{"TYPE_CLASS", CLASS},
+	{"TYPE_GRAVESTONE", GRAVESTONE},
+	{"TYPE_AMULET", AMULET},
+	{"TYPE_PLAYERMOVER", PLAYERMOVER},
+	{"TYPE_TELEPORTER", TELEPORTER},
+	{"TYPE_CREATOR", CREATOR},
+	{"TYPE_SKILL", SKILL},
+	{"TYPE_EXPERIENCE", EXPERIENCE},
+	{"TYPE_EARTHWALL", EARTHWALL},
+	{"TYPE_GOLEM", GOLEM},
+	{"TYPE_BOMB", BOMB},
+	{"TYPE_THROWN_OBJ", THROWN_OBJ},
+	{"TYPE_BLINDNESS", BLINDNESS},
+	{"TYPE_GOD", GOD},
+	{"TYPE_DETECTOR", DETECTOR},
+	{"TYPE_SKILL_ITEM", SKILL_ITEM},
+	{"TYPE_DEAD_OBJECT", DEAD_OBJECT},
+	{"TYPE_DRINK", DRINK},
+	{"TYPE_MARKER", MARKER},
+	{"TYPE_HOLY_ALTAR", HOLY_ALTAR},
+	{"TYPE_PLAYER_CHANGER", PLAYER_CHANGER},
+	{"TYPE_PEARL", PEARL},
+	{"TYPE_GEM", GEM},
+	{"TYPE_FIRECHEST", FIRECHEST},
+	{"TYPE_FIREWALL", FIREWALL},
+	{"TYPE_CHECK_INV", CHECK_INV},
+	{"TYPE_MOOD_FLOOR", MOOD_FLOOR},
+	{"TYPE_EXIT", EXIT},
+	{"TYPE_SHOP_FLOOR", SHOP_FLOOR},
+	{"TYPE_SHOP_MAT", SHOP_MAT},
+	{"TYPE_RING", RING},
+	{"TYPE_FLOOR", FLOOR},
+	{"TYPE_FLESH", FLESH},
+	{"TYPE_INORGANIC", INORGANIC},
+	{"TYPE_LIGHT_APPLY", LIGHT_APPLY},
+	{"TYPE_LIGHTER", LIGHTER},
+	{"TYPE_WALL", WALL},
+	{"TYPE_LIGHT_SOURCE", LIGHT_SOURCE},
+	{"TYPE_MISC_OBJECT", MISC_OBJECT},
+	{"TYPE_MONSTER", MONSTER},
+	{"TYPE_SPAWN_POINT", SPAWN_POINT},
+	{"TYPE_LIGHT_REFILL", LIGHT_REFILL},
+	{"TYPE_SPAWN_POINT_MOB", SPAWN_POINT_MOB},
+	{"TYPE_SPAWN_POINT_INFO", SPAWN_POINT_INFO},
+	{"TYPE_SPELLBOOK", SPELLBOOK},
+	{"TYPE_ORGANIC", ORGANIC},
+	{"TYPE_CLOAK", CLOAK},
+	{"TYPE_CONE", CONE},
+	{"TYPE_AURA", AURA},
+	{"TYPE_SPINNER", SPINNER},
+	{"TYPE_GATE", GATE},
+	{"TYPE_BUTTON", BUTTON},
+	{"TYPE_HANDLE", HANDLE},
+	{"TYPE_PIT", PIT},
+	{"TYPE_TRAPDOOR", TRAPDOOR},
+	{"TYPE_WORD_OF_RECALL", WORD_OF_RECALL},
+	{"TYPE_SIGN", SIGN},
+	{"TYPE_BOOTS", BOOTS},
+	{"TYPE_GLOVES", GLOVES},
+	{"TYPE_BASE_INFO", BASE_INFO},
+	{"TYPE_RANDOM_DROP", RANDOM_DROP},
+	{"TYPE_CONVERTER", CONVERTER},
+	{"TYPE_BRACERS", BRACERS},
+	{"TYPE_POISONING", POISONING},
+	{"TYPE_SAVEBED", SAVEBED},
+	{"TYPE_POISONCLOUD", POISONCLOUD},
+	{"TYPE_WAND", WAND},
+	{"TYPE_ABILITY", ABILITY},
+	{"TYPE_SCROLL", SCROLL},
+	{"TYPE_DIRECTOR", DIRECTOR},
+	{"TYPE_GIRDLE", GIRDLE},
+	{"TYPE_FORCE", FORCE},
+	{"TYPE_POTION_EFFECT", POTION_EFFECT},
+	{"TYPE_JEWEL", JEWEL},
+	{"TYPE_NUGGET", NUGGET},
+	{"TYPE_EVENT_OBJECT", EVENT_OBJECT},
+	{"TYPE_WAYPOINT_OBJECT", WAYPOINT_OBJECT},
+	{"TYPE_QUEST_CONTAINER", QUEST_CONTAINER},
+	{"TYPE_CLOSE_CON", CLOSE_CON},
+	{"TYPE_CONTAINER", CONTAINER},
+	{"TYPE_ARMOUR_IMPROVER", ARMOUR_IMPROVER},
+	{"TYPE_WEAPON_IMPROVER", WEAPON_IMPROVER},
+	{"TYPE_WEALTH", WEALTH},
+	{"TYPE_SKILLSCROLL", SKILLSCROLL},
+	{"TYPE_DEEP_SWAMP", DEEP_SWAMP},
+	{"TYPE_IDENTIFY_ALTAR", IDENTIFY_ALTAR},
+	{"TYPE_CANCELLATION", CANCELLATION},
+	{"TYPE_BALL_LIGHTNING", BALL_LIGHTNING},
+	{"TYPE_SWARM_SPELL", SWARM_SPELL},
+	{"TYPE_RUNE", RUNE},
+	{"TYPE_POWER_CRYSTAL", POWER_CRYSTAL},
+	{"TYPE_CORPSE", CORPSE},
+	{"TYPE_DISEASE", DISEASE},
+	{"TYPE_SYMPTOM", SYMPTOM},
+
+	{"SOUNDTYPE_NORMAL", SOUND_NORMAL},
+	{"SOUNDTYPE_SPELL", SOUND_SPELL},
+
+	{"SOUND_LEVEL_UP", SOUND_LEVEL_UP},
+	{"SOUND_FIRE_ARROW", SOUND_FIRE_ARROW},
+	{"SOUND_LEARN_SPELL", SOUND_LEARN_SPELL},
+	{"SOUND_FUMBLE_SPELL", SOUND_FUMBLE_SPELL},
+	{"SOUND_WAND_POOF", SOUND_WAND_POOF},
+	{"SOUND_OPEN_DOOR", SOUND_OPEN_DOOR},
+	{"SOUND_PUSH_PLAYER", SOUND_PUSH_PLAYER},
+	{"SOUND_HIT_IMPACT", SOUND_HIT_IMPACT},
+	{"SOUND_HIT_CLEAVE", SOUND_HIT_CLEAVE},
+	{"SOUND_HIT_SLASH", SOUND_HIT_SLASH},
+	{"SOUND_HIT_PIERCE", SOUND_HIT_PIERCE},
+	{"SOUND_MISS_BLOCK", SOUND_MISS_BLOCK},
+	{"SOUND_MISS_HAND", SOUND_MISS_HAND},
+	{"SOUND_MISS_MOB", SOUND_MISS_MOB},
+	{"SOUND_MISS_PLAYER", SOUND_MISS_PLAYER},
+	{"SOUND_PET_IS_KILLED", SOUND_PET_IS_KILLED},
+	{"SOUND_PLAYER_DIES", SOUND_PLAYER_DIES},
+	{"SOUND_OB_EVAPORATE", SOUND_OB_EVAPORATE},
+	{"SOUND_OB_EXPLODE", SOUND_OB_EXPLODE},
+	{"SOUND_PLAYER_KILLS", SOUND_PLAYER_KILLS},
+	{"SOUND_TURN_HANDLE", SOUND_TURN_HANDLE},
+	{"SOUND_FALL_HOLE", SOUND_FALL_HOLE},
+	{"SOUND_DRINK_POISON", SOUND_DRINK_POISON},
+	{"SOUND_DROP_THROW", SOUND_DROP_THROW},
+	{"SOUND_LOSE_SOME", SOUND_LOSE_SOME},
+	{"SOUND_THROW", SOUND_THROW},
+	{"SOUND_GATE_OPEN", SOUND_GATE_OPEN},
+	{"SOUND_GATE_CLOSE", SOUND_GATE_CLOSE},
+	{"SOUND_OPEN_CONTAINER", SOUND_OPEN_CONTAINER},
+	{"SOUND_GROWL", SOUND_GROWL},
+	{"SOUND_ARROW_HIT", SOUND_ARROW_HIT},
+	{"SOUND_DOOR_CLOSE", SOUND_DOOR_CLOSE},
+	{"SOUND_TELEPORT", SOUND_TELEPORT},
+	{"SOUND_CLICK", SOUND_CLICK},
+
+	{"SOUND_MAGIC_DEFAULT", SOUND_MAGIC_DEFAULT},
+	{"SOUND_MAGIC_ACID", SOUND_MAGIC_ACID},
+	{"SOUND_MAGIC_ANIMATE", SOUND_MAGIC_ANIMATE},
+	{"SOUND_MAGIC_AVATAR", SOUND_MAGIC_AVATAR},
+	{"SOUND_MAGIC_BOMB", SOUND_MAGIC_BOMB},
+	{"SOUND_MAGIC_BULLET1", SOUND_MAGIC_BULLET1},
+	{"SOUND_MAGIC_BULLET2", SOUND_MAGIC_BULLET2},
+	{"SOUND_MAGIC_CANCEL", SOUND_MAGIC_CANCEL},
+	{"SOUND_MAGIC_COMET", SOUND_MAGIC_COMET},
+	{"SOUND_MAGIC_CONFUSION", SOUND_MAGIC_CONFUSION},
+	{"SOUND_MAGIC_CREATE", SOUND_MAGIC_CREATE},
+	{"SOUND_MAGIC_DARK", SOUND_MAGIC_DARK},
+	{"SOUND_MAGIC_DEATH", SOUND_MAGIC_DEATH},
+	{"SOUND_MAGIC_DESTRUCTION", SOUND_MAGIC_DESTRUCTION},
+	{"SOUND_MAGIC_ELEC", SOUND_MAGIC_ELEC},
+	{"SOUND_MAGIC_FEAR", SOUND_MAGIC_FEAR},
+	{"SOUND_MAGIC_FIRE", SOUND_MAGIC_FIRE},
+	{"SOUND_MAGIC_FIREBALL1", SOUND_MAGIC_FIREBALL1},
+	{"SOUND_MAGIC_FIREBALL2", SOUND_MAGIC_FIREBALL2},
+	{"SOUND_MAGIC_HWORD", SOUND_MAGIC_HWORD},
+	{"SOUND_MAGIC_ICE", SOUND_MAGIC_ICE},
+	{"SOUND_MAGIC_INVISIBLE", SOUND_MAGIC_INVISIBLE},
+	{"SOUND_MAGIC_INVOKE", SOUND_MAGIC_INVOKE},
+	{"SOUND_MAGIC_INVOKE2", SOUND_MAGIC_INVOKE2},
+	{"SOUND_MAGIC_MAGIC", SOUND_MAGIC_MAGIC},
+	{"SOUND_MAGIC_MANABALL", SOUND_MAGIC_MANABALL},
+	{"SOUND_MAGIC_MISSILE", SOUND_MAGIC_MISSILE},
+	{"SOUND_MAGIC_MMAP", SOUND_MAGIC_MMAP},
+	{"SOUND_MAGIC_ORB", SOUND_MAGIC_ORB},
+	{"SOUND_MAGIC_PARALYZE", SOUND_MAGIC_PARALYZE},
+	{"SOUND_MAGIC_POISON", SOUND_MAGIC_POISON},
+	{"SOUND_MAGIC_PROTECTION", SOUND_MAGIC_PROTECTION},
+	{"SOUND_MAGIC_RSTRIKE", SOUND_MAGIC_RSTRIKE},
+	{"SOUND_MAGIC_RUNE", SOUND_MAGIC_RUNE},
+	{"SOUND_MAGIC_SBALL", SOUND_MAGIC_SBALL},
+	{"SOUND_MAGIC_SLOW", SOUND_MAGIC_SLOW},
+	{"SOUND_MAGIC_SNOWSTORM", SOUND_MAGIC_SNOWSTORM},
+	{"SOUND_MAGIC_STAT", SOUND_MAGIC_STAT},
+	{"SOUND_MAGIC_STEAMBOLT", SOUND_MAGIC_STEAMBOLT},
+	{"SOUND_MAGIC_SUMMON1", SOUND_MAGIC_SUMMON1},
+	{"SOUND_MAGIC_SUMMON2", SOUND_MAGIC_SUMMON2},
+	{"SOUND_MAGIC_SUMMON3", SOUND_MAGIC_SUMMON3},
+	{"SOUND_MAGIC_TELEPORT", SOUND_MAGIC_TELEPORT},
+	{"SOUND_MAGIC_TURN", SOUND_MAGIC_TURN},
+	{"SOUND_MAGIC_WALL", SOUND_MAGIC_WALL},
+	{"SOUND_MAGIC_WALL2", SOUND_MAGIC_WALL2},
+	{"SOUND_MAGIC_WOUND", SOUND_MAGIC_WOUND},
+
+	{"PARTY_MESSAGE_STATUS", PARTY_MESSAGE_STATUS},
+	{"PARTY_MESSAGE_CHAT", PARTY_MESSAGE_CHAT},
+
+	{"COST_TRUE", F_TRUE},
+	{"COST_BUY", F_BUY},
+	{"COST_SELL", F_SELL},
+
+	{"ATNR_IMPACT", ATNR_IMPACT},
+	{"ATNR_SLASH", ATNR_SLASH},
+	{"ATNR_CLEAVE", ATNR_CLEAVE},
+	{"ATNR_PIERCE", ATNR_PIERCE},
+	{"ATNR_WEAPON_MAGIC", ATNR_WEAPON_MAGIC},
+	{"ATNR_FIRE", ATNR_FIRE},
+	{"ATNR_COLD", ATNR_COLD},
+	{"ATNR_ELECTRICITY", ATNR_ELECTRICITY},
+	{"ATNR_POISON", ATNR_POISON},
+	{"ATNR_ACID", ATNR_ACID},
+	{"ATNR_MAGIC", ATNR_MAGIC},
+	{"ATNR_MIND", ATNR_MIND},
+	{"ATNR_BLIND", ATNR_BLIND},
+	{"ATNR_PARALYZE", ATNR_PARALYZE},
+	{"ATNR_FORCE", ATNR_FORCE},
+	{"ATNR_GODPOWER", ATNR_GODPOWER},
+	{"ATNR_CHAOS", ATNR_CHAOS},
+	{"ATNR_DRAIN", ATNR_DRAIN},
+	{"ATNR_SLOW", ATNR_SLOW},
+	{"ATNR_CONFUSION", ATNR_CONFUSION},
+	{"ATNR_INTERNAL", ATNR_INTERNAL},
+	{"NROFATTACKS", NROFATTACKS},
+
+	{"TERRAIN_NOTHING", TERRAIN_NOTHING},
+	{"TERRAIN_AIRBREATH", TERRAIN_NOTHING},
+	{"TERRAIN_WATERWALK", TERRAIN_WATERWALK},
+	{"TERRAIN_WATERBREATH", TERRAIN_WATERBREATH},
+	{"TERRAIN_FIREWALK", TERRAIN_FIREWALK},
+	{"TERRAIN_FIREBREATH", TERRAIN_FIREBREATH},
+	{"TERRAIN_CLOUDWALK", TERRAIN_CLOUDWALK},
+	{"TERRAIN_ALL", TERRAIN_ALL},
+
+	{"P_BLOCKSVIEW", P_BLOCKSVIEW},
+	{"P_NO_MAGIC", P_NO_MAGIC},
+	{"P_NO_PASS", P_NO_PASS},
+	{"P_IS_PLAYER", P_IS_PLAYER},
+	{"P_IS_ALIVE", P_IS_ALIVE},
+	{"P_NO_CLERIC", P_NO_CLERIC},
+	{"P_PLAYER_ONLY", P_PLAYER_ONLY},
+	{"P_DOOR_CLOSED", P_DOOR_CLOSED},
+	{"P_CHECK_INV", P_CHECK_INV},
+	{"P_NO_PVP", P_NO_PVP},
+	{"P_PASS_THRU", P_PASS_THRU},
+	{"P_MAGIC_EAR", P_MAGIC_EAR},
+	{"P_WALK_ON", P_WALK_ON},
+	{"P_WALK_OFF", P_WALK_OFF},
+	{"P_FLY_OFF", P_FLY_OFF},
+	{"P_FLY_ON", P_FLY_ON},
+	{"P_OUT_OF_MAP", P_OUT_OF_MAP},
+	{"P_FLAGS_ONLY", P_FLAGS_ONLY},
+	{"P_FLAGS_UPDATE", P_FLAGS_UPDATE},
+	{"P_NEED_UPDATE", P_NEED_UPDATE},
+	{"P_NO_ERROR", P_NO_ERROR},
+	{"P_NO_TERRAIN", P_NO_TERRAIN},
+
 	{NULL, 0}
 };
+/* @endcparser */
 
 /** All the custom commands. */
 static PythonCmd CustomCommand[NR_CUSTOM_CMD];
@@ -104,7 +474,7 @@ static PythonCmd CustomCommand[NR_CUSTOM_CMD];
 static int NextCustomCommand;
 
 /** Maximum number of cached scripts. */
-#define PYTHON_CACHE_SIZE 16
+#define PYTHON_CACHE_SIZE 256
 
 /** One cache entry. */
 typedef struct
@@ -181,7 +551,7 @@ static void freeContext(PythonContext *context)
 }
 
 /**
- * @defgroup plugin_python_functions Python plugin functions
+ * @defgroup plugin_python_functions Python functions
  *@{*/
 
 /**
@@ -388,7 +758,7 @@ static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
-	return Py_BuildValue("i", current_context->event->sub_type1);
+	return Py_BuildValue("i", current_context->event->sub_type);
 }
 
 /**
@@ -792,6 +1162,83 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
 	return Py_BuildValue("i", hooks->find_animation(name));
 }
 
+/**
+ * <h1>Atrinik.GetGenderStr(<i>\<int\></i> gender, <i>\<string\></i> type)</h1>
+ * Get string representation of a gender ID depending on 'type'.
+ * @param gender Gender ID. One of @ref GENDER_xxx, or -1 to get a list of
+ * possible genders.
+ * @param type Type of the gender string to get:
+ * - <b>noun</b>: 'male', 'female', ...
+ * - <b>subjective</b>: 'he', 'she', ...
+ * - <b>subjective_upper</b>: 'He', 'She', ...
+ * - <b>objective</b>: 'him', 'her', 'it', ...
+ * - <b>possessive</b>: 'his', 'her', ...
+ * - <b>reflexive</b>: 'himself', 'herself', ...
+ * @return String representation of the gender, or a list of possible genders
+ * if 'gender' was -1. */
+static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
+{
+	int gender;
+	char *type;
+	const char **arr;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "is", &gender, &type))
+	{
+		return NULL;
+	}
+
+	if (gender < -1 || gender >= GENDER_MAX)
+	{
+		RAISE("GetGenderStr(): Invalid value for gender parameter.");
+	}
+
+	if (!strcmp(type, "noun"))
+	{
+		arr = hooks->gender_noun;
+	}
+	else if (!strcmp(type, "subjective"))
+	{
+		arr = hooks->gender_subjective;
+	}
+	else if (!strcmp(type, "subjective_upper"))
+	{
+		arr = hooks->gender_subjective_upper;
+	}
+	else if (!strcmp(type, "objective"))
+	{
+		arr = hooks->gender_objective;
+	}
+	else if (!strcmp(type, "possessive"))
+	{
+		arr = hooks->gender_possessive;
+	}
+	else if (!strcmp(type, "reflexive"))
+	{
+		arr = hooks->gender_reflexive;
+	}
+	else
+	{
+		RAISE("GetGenderStr(): Invalid value for type parameter.");
+	}
+
+	if (gender == -1)
+	{
+		PyObject *list = PyList_New(0);
+		size_t i;
+
+		for (i = 0; i < GENDER_MAX; i++)
+		{
+			PyList_Append(list, Py_BuildValue("s", arr[i]));
+		}
+
+		return list;
+	}
+
+	return Py_BuildValue("s", arr[gender]);
+}
+
 /*@}*/
 
 /**
@@ -933,9 +1380,12 @@ static int RunPythonScript(const char *path, object *event_object)
 	{
 		FILE *pyfile;
 
-		/* Safe to call on NULL */
-		Py_XDECREF(replace->code);
-		replace->code = NULL;
+		/* Old code? Free it. */
+		if (replace->code)
+		{
+			PyObject_Free(replace->code);
+			replace->code = NULL;
+		}
 
 		/* Need to replace path string? */
 		if (replace->file != sh_path)
@@ -979,6 +1429,39 @@ static int RunPythonScript(const char *path, object *event_object)
 	/* Run an old or new code object */
 	if (run && run->code)
 	{
+#ifdef PYTHON_DEBUG
+		PyObject *modules = PyImport_GetModuleDict(), *key, *value;
+		Py_ssize_t pos = 0;
+		const char *m_filename;
+		char m_buf[MAX_BUF];
+
+		/* Create path name to the Python scripts directory. */
+		strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
+
+		/* Go through the loaded modules. */
+		while (PyDict_Next(modules, &pos, &key, &value))
+		{
+			m_filename = PyModule_GetFilename(value);
+
+			if (!m_filename)
+			{
+				PyErr_Clear();
+				continue;
+			}
+
+			/* If this module was loaded from one of our script files,
+			 * reload it. */
+			if (!strncmp(m_filename, m_buf, strlen(m_buf)))
+			{
+				PyImport_ReloadModule(value);
+
+				if (PyErr_Occurred())
+				{
+					PyErr_Print();
+				}
+			}
+		}
+#endif
 		/* Create a new environment with each execution. Don't want any old variables hanging around */
 		globdict = PyDict_New();
 		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
@@ -1003,6 +1486,7 @@ static int RunPythonScript(const char *path, object *event_object)
 #ifdef PYTHON_DEBUG
 		LOG(llevDebug, "closing. ");
 #endif
+
 		Py_DECREF(globdict);
 	}
 
@@ -1247,6 +1731,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 					rtn_cmd->name = CustomCommand[i].name;
 					rtn_cmd->time = (float) CustomCommand[i].speed;
 					rtn_cmd->func = cmd_customPython;
+					rtn_cmd->flags = 0;
 					NextCustomCommand = i;
 					return rtn_cmd;
 				}
@@ -1362,6 +1847,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"FindFace",            Atrinik_FindFace,              METH_VARARGS, 0},
 	{"FindAnimation",       Atrinik_FindAnimation,         METH_VARARGS, 0},
 	{"GetEventParameters",  Atrinik_GetEventParameters,    METH_VARARGS, 0},
+	{"GetGenderStr",        Atrinik_GetGenderStr,          METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -1394,7 +1880,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	LOG(llevDebug, "Atrinik Plugin loading...\n");
 
 #ifdef IS_PY26
-    Py_Py3kWarningFlag++;
+	Py_Py3kWarningFlag++;
 #endif
 
 #ifdef IS_PY3K
@@ -1422,18 +1908,18 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		CustomCommand[i].speed = 0.0;
 	}
 
-	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m))
+	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m))
 	{
 		return;
 	}
 
 	/* Initialize integer constants */
-	for (i = 0; module_constants[i].name; i++)
+	for (i = 0; constants[i].name; i++)
 	{
-		PyModule_AddIntConstant(m, module_constants[i].name, module_constants[i].value);
+		PyModule_AddIntConstant(m, constants[i].name, constants[i].value);
 	}
 
-	LOG(llevDebug, "[Done]\n");
+	LOG(llevDebug, "  [Done]\n");
 }
 
 /**
@@ -1442,28 +1928,66 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
  * @param[out] field_ptr Field pointer.
  * @param value Value to set for the field pointer.
  * @return 0 on success, -1 on failure. */
-int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
+int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 {
-	switch (type)
+	void *field_ptr;
+
+	if ((field->flags & FIELDFLAG_READONLY))
+	{
+		INTRAISE("Trying to modify readonly field.");
+	}
+
+	field_ptr = (void *) ((char *) ptr + field->offset);
+
+	switch (field->type)
 	{
 		case FIELDTYPE_SHSTR:
-			if (PyString_Check(value))
+			if (value == Py_None)
 			{
-				char *str = PyString_AsString(value);
-
-				if (*(char **) field_ptr)
-				{
-					FREE_AND_CLEAR_HASH(*(char **) field_ptr);
-				}
-
-				if (str && strcmp(str, ""))
-				{
-					FREE_AND_COPY_HASH(*(const char **) field_ptr, str);
-				}
+				FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
+			}
+			else if (PyString_Check(value))
+			{
+				FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
+				FREE_AND_COPY_HASH(*(shstr **) field_ptr, PyString_AsString(value));
 			}
 			else
 			{
-				INTRAISE("Illegal value for text field.");
+				INTRAISE("Illegal value for shared string field.");
+			}
+
+			break;
+
+		case FIELDTYPE_CSTR:
+			if (value == Py_None)
+			{
+				FREE_AND_NULL_PTR(*(char **) field_ptr);
+			}
+			else if (PyString_Check(value))
+			{
+				free(*(char **) field_ptr);
+				*(char **) field_ptr = hooks->strdup_local(PyString_AsString(value));
+			}
+			else
+			{
+				INTRAISE("Illegal value for C string field.");
+			}
+
+			break;
+
+		case FIELDTYPE_CARY:
+			if (value == Py_None)
+			{
+				((char *) field_ptr)[0] = '\0';
+			}
+			else if (PyString_Check(value))
+			{
+				memcpy((char *) field_ptr, PyString_AsString(value), field->extra_data);
+				((char *) field_ptr)[field->extra_data] = '\0';
+			}
+			else
+			{
+				INTRAISE("Illegal value for C char array field.");
 			}
 
 			break;
@@ -1471,7 +1995,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_UINT8:
 			if (PyInt_Check(value))
 			{
-				*(uint8 *) field_ptr = (uint8) PyInt_AsLong(value);
+				long val = PyLong_AsLong(value);
+
+				if (val < 0 || (unsigned long) val > UINT8_MAX)
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint8 field.");
+					return -1;
+				}
+
+				*(uint8 *) field_ptr = (uint8) val;
 			}
 			else
 			{
@@ -1483,7 +2015,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_SINT8:
 			if (PyInt_Check(value))
 			{
-				*(sint8 *) field_ptr = (sint8) PyInt_AsLong(value);
+				long val = PyLong_AsLong(value);
+
+				if (val < SINT8_MIN || val > SINT8_MAX)
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint8 field.");
+					return -1;
+				}
+
+				*(sint8 *) field_ptr = (sint8) val;
 			}
 			else
 			{
@@ -1495,7 +2035,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_UINT16:
 			if (PyInt_Check(value))
 			{
-				*(uint16 *) field_ptr = (uint16) PyInt_AsLong(value);
+				long val = PyLong_AsLong(value);
+
+				if (val < 0 || (unsigned long) val > UINT16_MAX)
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint16 field.");
+					return -1;
+				}
+
+				*(uint16 *) field_ptr = (uint16) val;
 			}
 			else
 			{
@@ -1507,7 +2055,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_SINT16:
 			if (PyInt_Check(value))
 			{
-				*(sint16 *) field_ptr = (sint16) PyInt_AsLong(value);
+				long val = PyLong_AsLong(value);
+
+				if (val < SINT16_MIN || val > SINT16_MAX)
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint16 field.");
+					return -1;
+				}
+
+				*(sint16 *) field_ptr = (sint16) val;
 			}
 			else
 			{
@@ -1519,7 +2075,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_UINT32:
 			if (PyInt_Check(value))
 			{
-				*(uint32 *) field_ptr = (uint32) PyInt_AsLong(value);
+				long val = PyLong_AsLong(value);
+
+				if (val < 0 || (unsigned long) val > UINT32_MAX)
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint32 field.");
+					return -1;
+				}
+
+				*(uint32 *) field_ptr = (uint32) val;
 			}
 			else
 			{
@@ -1531,7 +2095,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_SINT32:
 			if (PyInt_Check(value))
 			{
-				*(sint32 *) field_ptr = (sint32)PyInt_AsLong(value);
+				long val = PyLong_AsLong(value);
+
+				if (val < SINT32_MIN || val > SINT32_MAX)
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint32 field.");
+					return -1;
+				}
+
+				*(sint32 *) field_ptr = (sint32) val;
 			}
 			else
 			{
@@ -1543,7 +2115,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_UINT64:
 			if (PyInt_Check(value))
 			{
-				*(uint64 *) field_ptr = (uint64) PyInt_AsLong(value);
+				unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
+
+				if (PyErr_Occurred())
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint64 field.");
+					return -1;
+				}
+
+				*(uint64 *) field_ptr = (uint64) val;
 			}
 			else
 			{
@@ -1555,7 +2135,15 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 		case FIELDTYPE_SINT64:
 			if (PyInt_Check(value))
 			{
-				*(sint64 *) field_ptr = (sint64) PyInt_AsLong(value);
+				PY_LONG_LONG val = PyLong_AsLongLong(value);
+
+				if (PyErr_Occurred())
+				{
+					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint64 field.");
+					return -1;
+				}
+
+				*(sint64 *) field_ptr = (sint64) val;
 			}
 			else
 			{
@@ -1571,7 +2159,7 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 			}
 			else if (PyInt_Check(value))
 			{
-				*(float *) field_ptr = (float) PyInt_AsLong(value);
+				*(float *) field_ptr = (float) PyLong_AsLong(value);
 			}
 			else
 			{
@@ -1580,8 +2168,108 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
 
 			break;
 
-		default:
-			INTRAISE("BUG: Unknown field type.");
+		case FIELDTYPE_OBJECT:
+			if (value == Py_None)
+			{
+				*(object **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_ObjectType))
+			{
+				*(object **) field_ptr = (object *) ((Atrinik_Object *) value)->obj;
+			}
+			else
+			{
+				INTRAISE("Illegal value for object field.");
+			}
+
+			break;
+
+		case FIELDTYPE_MAP:
+			if (value == Py_None)
+			{
+				*(mapstruct **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_MapType))
+			{
+				*(mapstruct **) field_ptr = (mapstruct *) ((Atrinik_Map *) value)->map;
+			}
+			else
+			{
+				INTRAISE("Illegal value for map field.");
+			}
+
+			break;
+
+		case FIELDTYPE_OBJECTREF:
+		{
+			void *field_ptr2 = (void *) ((char *) ptr + field->extra_data);
+			object *tmp = (object *) ((Atrinik_Object *) value)->obj;
+
+			if (value == Py_None)
+			{
+				*(object **) field_ptr = NULL;
+				*(tag_t *) field_ptr2 = 0;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_ObjectType))
+			{
+				*(object **) field_ptr = tmp;
+				*(tag_t *) field_ptr2 = tmp->count;
+			}
+			else
+			{
+				INTRAISE("Illegal value for object+reference field.");
+			}
+
+			break;
+		}
+
+		case FIELDTYPE_REGION:
+			if (value == Py_None)
+			{
+				*(region **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_RegionType))
+			{
+				*(region **) field_ptr = (region *) ((Atrinik_Region *) value)->region;
+			}
+			else
+			{
+				INTRAISE("Illegal value for region field.");
+			}
+
+			break;
+
+		case FIELDTYPE_PARTY:
+			if (value == Py_None)
+			{
+				*(party_struct **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_PartyType))
+			{
+				*(party_struct **) field_ptr = (party_struct *) ((Atrinik_Party *) value)->party;
+			}
+			else
+			{
+				INTRAISE("Illegal value for party field.");
+			}
+
+			break;
+
+		case FIELDTYPE_ARCH:
+			if (value == Py_None)
+			{
+				*(archetype **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType))
+			{
+				*(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
+			}
+			else
+			{
+				INTRAISE("Illegal value for archetype field.");
+			}
+
+			break;
 	}
 
 	return 0;
@@ -1593,9 +2281,13 @@ int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
  * @param field_ptr Field pointer.
  * @param field_ptr2 Field pointer for extra data.
  * @return Python object containing value of field_ptr (and field_ptr2, if applicable). */
-PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr2)
+PyObject *generic_field_getter(fields_struct *field, void *ptr)
 {
-	switch (type)
+	void *field_ptr;
+
+	field_ptr = (void *) ((char *) ptr + field->offset);
+
+	switch (field->type)
 	{
 		case FIELDTYPE_SHSTR:
 		case FIELDTYPE_CSTR:
@@ -1608,25 +2300,25 @@ PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr
 			return Py_BuildValue("s", (char *) field_ptr);
 
 		case FIELDTYPE_UINT8:
-			return Py_BuildValue("b", *(uint8 *) field_ptr);
+			return Py_BuildValue("B", *(uint8 *) field_ptr);
 
 		case FIELDTYPE_SINT8:
 			return Py_BuildValue("b", *(sint8 *) field_ptr);
 
 		case FIELDTYPE_UINT16:
-			return Py_BuildValue("i", *(uint16 *) field_ptr);
+			return Py_BuildValue("H", *(uint16 *) field_ptr);
 
 		case FIELDTYPE_SINT16:
-			return Py_BuildValue("i", *(sint16 *) field_ptr);
+			return Py_BuildValue("h", *(sint16 *) field_ptr);
 
 		case FIELDTYPE_UINT32:
-			return Py_BuildValue("l", *(uint32 *) field_ptr);
+			return Py_BuildValue("I", *(uint32 *) field_ptr);
 
 		case FIELDTYPE_SINT32:
 			return Py_BuildValue("l", *(sint32 *) field_ptr);
 
 		case FIELDTYPE_UINT64:
-			return Py_BuildValue("L", *(uint64 *) field_ptr);
+			return Py_BuildValue("K", *(uint64 *) field_ptr);
 
 		case FIELDTYPE_SINT64:
 			return Py_BuildValue("L", *(sint64 *) field_ptr);
@@ -1643,12 +2335,19 @@ PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr
 		case FIELDTYPE_OBJECTREF:
 		{
 			object *obj = *(object **) field_ptr;
-			tag_t tag = *(tag_t *) field_ptr2;
+			tag_t tag = *(tag_t *) (void *) ((char *) ptr + field->extra_data);;
+
 			return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
 		}
 
 		case FIELDTYPE_REGION:
 			return wrap_region(*(region **) field_ptr);
+
+		case FIELDTYPE_PARTY:
+			return wrap_party(*(party_struct **) field_ptr);
+
+		case FIELDTYPE_ARCH:
+			return wrap_archetype(*(archetype **) field_ptr);
 	}
 
 	RAISE("BUG: Unknown field type.");
@@ -1661,4 +2360,37 @@ PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr
 void Py_INCREF_TYPE(PyTypeObject *ob)
 {
 	Py_INCREF(ob);
+}
+
+/**
+ * Generic rich comparison function.
+ * @param op
+ * @param result
+ * @return  */
+PyObject *generic_rich_compare(int op, int result)
+{
+	/* Based on how Python 3.0 (GPL compatible) implements it for internal types. */
+	switch (op)
+	{
+		case Py_EQ:
+			result = (result == 0);
+			break;
+		case Py_NE:
+			result = (result != 0);
+			break;
+		case Py_LE:
+			result = (result <= 0);
+			break;
+		case Py_GE:
+			result = (result >= 0);
+			break;
+		case Py_LT:
+			result = (result == -1);
+			break;
+		case Py_GT:
+			result = (result == 1);
+			break;
+	}
+
+	return PyBool_FromLong(result);
 }

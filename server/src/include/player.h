@@ -122,6 +122,8 @@ enum
 	PLAYER_EQUIP_WEAPON,
 	/** Bow/crossbow/etc. */
 	PLAYER_EQUIP_BOW,
+	/** Skill item. */
+	PLAYER_EQUIP_SKILL_ITEM,
 
 	/** Maximum number of equipment. */
 	PLAYER_EQUIP_MAX
@@ -148,157 +150,19 @@ enum
 /** The player structure. */
 typedef struct pl_player
 {
+	/** Pointer to previous player, NULL if this is first. */
+	struct pl_player *prev;
+
 	/** Pointer to next player, NULL if this is last. */
 	struct pl_player *next;
 
 	/** Socket information for this player. */
 	socket_struct socket;
 
-	/**
-	 * Last sent map. */
-	struct mapdef *last_update;
-
-	/** The object representing the player. */
-	object *ob;
-
-	/** Which golem is controlled. */
-	object *golem;
-
-	/** The weapon in our hand. */
-	object *selected_weapon;
-
-	/**
-	 * The hand-to-hand skill we use when we not using a weapon (like
-	 * karate). */
-	object *skill_weapon;
-
-	/** Target object. */
-	object *target_object;
-
-	/** Experience object pointer to man) defining exp object. */
-	object *sp_exp_ptr;
-
-	/** Experience object pointer to grace defining exp object. */
-	object *grace_exp_ptr;
-
-	/** Pointers to applied items in the player's inventory. */
-	object *equipment[PLAYER_EQUIP_MAX];
-
-	/** Quick jump table to skill objects in the player's inventory. */
-	object *skill_ptr[NROFSKILLS];
-
-	/** The exp object table. */
-	object *last_skill_ob[MAX_EXP_CAT];
-
-	/** Marked object. */
-	object *mark;
-
-	/** Pointer used from local map player chain. */
-	object *map_below;
-
-	/** Pointer used from local map player chain. */
-	object *map_above;
-
-	/** Current container being used. */
-	object *container;
-
-	/** First player accessing player::container. */
-	object *container_above;
-
-	/** Last player accessing player::container. */
-	object *container_below;
-
-	/** For the client target HP marker. */
-	int target_hp;
-
-	/** Skill number of used weapon skill for fast access. */
-	int set_skill_weapon;
-
-	/** Skill number of used archery skill for fast access. */
-	int set_skill_archery;
-
-	/** X coordinate of respawn (savebed). */
-	int bed_x;
-
-	/** Y coordinate of respawn (savebed). */
-	int bed_y;
-
-	/** firemode_xxx are set from command_fire() */
-	int firemode_type;
-
-	/** ID of the object being thrown. */
-	int firemode_tag1;
-
-	/** ID of the object being used as ammunition for bow/crossbow/etc. */
-	int firemode_tag2;
-
-	/** Number of items the player has in his shop. */
-	int shop_items_count;
-
-	/**
-	 * Array showing what spaces the player can see. For maps smaller
-	 * than MAP_CLIENT_.., the upper left is used. */
-	int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
-
-	/** How much HP the player regenerates every tick. */
-	int reg_hp_num;
-
-	/** How much SP the player regenerates every tick. */
-	int reg_sp_num;
-
-	/** How much grace the player regenerates every tick. */
-	int reg_grace_num;
-
-	/** This is initialized from init_player_exp(). */
-	int last_skill_index;
-
-	/** Map update command. */
-	int map_update_cmd;
-
-	/** Tile for map update. */
-	int map_update_tile;
-
-	/** Last X position we sent to client. */
-	int map_tile_x;
-
-	/** Last Y position we sent to client. */
-	int map_tile_y;
-
-	/** Scroll X offset between 2 map updates. */
-	int map_off_x;
-
-	/** Scroll Y offset between 2 map updates. */
-	int map_off_y;
-
-	/** Number of player::cmd_permissions. */
-	int num_cmd_permissions;
-
-	/** weapon_speed_left * 1000 and cast from float to int for client. */
-	float action_timer;
-
-	/** Previous value of action timer sent to the client. */
-	float last_action_timer;
-
-	/** Last speed value sent to client. */
-	float last_speed;
+	/* Everything below will be cleared by memset() in get_player(). */
 
 	/** Name of the map the player is on. */
 	char maplevel[MAX_BUF];
-
-	/** For the client target HP real % value. */
-	char target_hp_p;
-
-	/** Weapon speed index (mainly used for client). */
-	char weapon_sp;
-
-	/** Last weapon speed index. */
-	char last_weapon_sp;
-
-	/** Last experience category level sent to client. */
-	char last_skill_level[MAX_EXP_CAT];
-
-	/** The CS_STATS_ id for client STATS cmd. */
-	uint8 last_skill_id[MAX_EXP_CAT];
 
 	/** Skill used for fire mode. */
 	char firemode_name[BIG_NAME * 2];
@@ -335,6 +199,141 @@ typedef struct pl_player
 
 	/** DM command permissions. */
 	char **cmd_permissions;
+
+	/**
+	 * Last sent map. */
+	struct mapdef *last_update;
+
+	/** The object representing the player. */
+	object *ob;
+
+	/** Which golem is controlled. */
+	object *golem;
+
+	/** The weapon in our hand. */
+	object *selected_weapon;
+
+	/**
+	 * The hand-to-hand skill we use when we not using a weapon (like
+	 * karate). */
+	object *skill_weapon;
+
+	/** Target object. */
+	object *target_object;
+
+	/** Pointers to applied items in the player's inventory. */
+	object *equipment[PLAYER_EQUIP_MAX];
+
+	/** Quick jump table to skill objects in the player's inventory. */
+	object *skill_ptr[NROFSKILLS];
+
+	/** The exp object table. */
+	object *last_skill_ob[MAX_EXP_CAT];
+
+	/** Experience objects. */
+	object *exp_ptr[MAX_EXP_CAT];
+
+	/** Marked object. */
+	object *mark;
+
+	/** Pointer used from local map player chain. */
+	object *map_below;
+
+	/** Pointer used from local map player chain. */
+	object *map_above;
+
+	/** Current container being used. */
+	object *container;
+
+	/** First player accessing player::container. */
+	object *container_above;
+
+	/** Last player accessing player::container. */
+	object *container_below;
+
+	/**
+	 * Object defining player's class. Can be NULL. */
+	object *class_ob;
+
+	/** For the client target HP marker. */
+	int target_hp;
+
+	/** Skill number of used weapon skill for fast access. */
+	int set_skill_weapon;
+
+	/** Skill number of used archery skill for fast access. */
+	int set_skill_archery;
+
+	/** X coordinate of respawn (savebed). */
+	int bed_x;
+
+	/** Y coordinate of respawn (savebed). */
+	int bed_y;
+
+	/** firemode_xxx are set from command_fire() */
+	int firemode_type;
+
+	/** ID of the object being thrown. */
+	int firemode_tag1;
+
+	/** ID of the object being used as ammunition for bow/crossbow/etc. */
+	int firemode_tag2;
+
+	/** Number of items the player has in his shop. */
+	int shop_items_count;
+
+	/**
+	 * Array showing what spaces the player can see. For maps smaller
+	 * than MAP_CLIENT_.., the upper left is used. */
+	int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
+
+	/** This is initialized from init_player_exp(). */
+	int last_skill_index;
+
+	/** Map update command. */
+	int map_update_cmd;
+
+	/** Tile for map update. */
+	int map_update_tile;
+
+	/** Last X position we sent to client. */
+	int map_tile_x;
+
+	/** Last Y position we sent to client. */
+	int map_tile_y;
+
+	/** Scroll X offset between 2 map updates. */
+	int map_off_x;
+
+	/** Scroll Y offset between 2 map updates. */
+	int map_off_y;
+
+	/** Number of player::cmd_permissions. */
+	int num_cmd_permissions;
+
+	/** weapon_speed_left * 1000 and cast from float to int for client. */
+	float action_timer;
+
+	/** Previous value of action timer sent to the client. */
+	float last_action_timer;
+
+	/** Last speed value sent to client. */
+	float last_speed;
+
+	/** For the client target HP real % value. */
+	char target_hp_p;
+
+	/** Weapon speed index (mainly used for client). */
+	char weapon_sp;
+
+	/** Last weapon speed index. */
+	char last_weapon_sp;
+
+	/** Last experience category level sent to client. */
+	char last_skill_level[MAX_EXP_CAT];
+
+	/** The CS_STATS_ id for client STATS cmd. */
+	uint8 last_skill_id[MAX_EXP_CAT];
 
 	/** Last overall level sent to the client. */
 	unsigned char last_level;
@@ -392,10 +391,10 @@ typedef struct pl_player
 	uint32 mark_count;
 
 	/** Last skill category experience sent to client. */
-	sint32 last_skill_exp[MAX_EXP_CAT];
+	sint64 last_skill_exp[MAX_EXP_CAT];
 
 	/** Skill experience for all skills. */
-	sint32 skill_exp[NROFSKILLS];
+	sint64 skill_exp[NROFSKILLS];
 
 	/** Count of target. */
 	uint32 target_object_count;
@@ -405,12 +404,6 @@ typedef struct pl_player
 
 	/** Last weight limit sent to client. */
 	uint32 last_weight_limit;
-
-	/**
-	 * This flag is set when the player is loaded from file
-	 * and not just created. It is used to overrule the "no save
-	 * when exp is 0" rule - which can lead to inventory duping. */
-	uint32 player_loaded:1;
 
 	/** If true, update line of sight with update_los(). */
 	uint32 update_los:1;
@@ -456,15 +449,6 @@ typedef struct pl_player
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;
 
-	/** Real tick counter for HP regenerations. */
-	sint16 base_hp_reg;
-
-	/** Real tick counter for mana regenerations. */
-	sint16 base_sp_reg;
-
-	/** Real tick counter for grace regenerations. */
-	sint16 base_grace_reg;
-
 	/** Regeneration speed of HP. */
 	uint16 gen_client_hp;
 
@@ -501,8 +485,14 @@ typedef struct pl_player
 	/** Spells known by the player. */
 	sint16 known_spells[NROFREALSPELLS];
 
+	/** Total item power of objects equipped. */
+	sint16 item_power;
+
 	/** Table of protections last sent to the client. */
-	sint8 last_protection[NROFPROTECTIONS];
+	sint8 last_protection[NROFATTACKS];
+
+	/** If 1, the player is not able to shout. */
+	uint8 no_shout;
 
 	/** Which range attack is being used by player. */
 	rangetype shoottype;
@@ -519,7 +509,7 @@ typedef struct pl_player
 	player_shop *shop_items;
 
 	/** Pointer to the party this player is member of. */
-	partylist_struct *party;
+	party_struct *party;
 } player;
 
 #ifdef WIN32

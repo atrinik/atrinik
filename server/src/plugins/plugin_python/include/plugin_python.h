@@ -212,7 +212,11 @@ typedef enum
 	/** Object pointer + tag. */
 	FIELDTYPE_OBJECTREF,
 	/** Pointer to region. */
-	FIELDTYPE_REGION
+	FIELDTYPE_REGION,
+	/** Pointer to a party. */
+	FIELDTYPE_PARTY,
+	/** Pointer to an archetype. */
+	FIELDTYPE_ARCH
 } field_type;
 
 /**
@@ -220,28 +224,44 @@ typedef enum
  * Special flags for object attribute access.
  *@{*/
 /** Changing value not allowed. */
-#define FIELDFLAG_READONLY        1
+#define FIELDFLAG_READONLY 1
 /** Changing value is not allowed if object is a player. */
 #define FIELDFLAG_PLAYER_READONLY 2
 /** Fix player or monster after change. */
-#define FIELDFLAG_PLAYER_FIX      4
+#define FIELDFLAG_PLAYER_FIX 4
 /*@}*/
 
-extern PyTypeObject Atrinik_ObjectType;
-extern PyObject *wrap_object(object *what);
-extern int Atrinik_Object_init(PyObject *module);
+PyTypeObject Atrinik_ObjectType;
+PyObject *wrap_object(object *what);
+int Atrinik_Object_init(PyObject *module);
+
+/**
+ * @defgroup OBJ_ITER_TYPE_xxx Object iteration types
+ * These determine how we're iterating over an object.
+ *@{*/
+/** Nothing to iterate over. */
+#define OBJ_ITER_TYPE_NONE 0
+/** Using object::below. */
+#define OBJ_ITER_TYPE_BELOW 1
+/** Using object::above. */
+#define OBJ_ITER_TYPE_ABOVE 2
+/*@}*/
 
 /** The Atrinik_Object structure. */
-typedef struct
+typedef struct Atrinik_Object
 {
 	PyObject_HEAD
 	/** Pointer to the Atrinik object we wrap. */
 	object *obj;
+	/** Pointer for iteration. */
+	struct Atrinik_Object *iter;
+	/** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
+	uint8 iter_type;
 } Atrinik_Object;
 
-extern PyTypeObject Atrinik_MapType;
-extern PyObject *wrap_map(mapstruct *map);
-extern int Atrinik_Map_init(PyObject *module);
+PyTypeObject Atrinik_MapType;
+PyObject *wrap_map(mapstruct *map);
+int Atrinik_Map_init(PyObject *module);
 
 /** The Atrinik_Map structure. */
 typedef struct
@@ -251,21 +271,21 @@ typedef struct
 	mapstruct *map;
 } Atrinik_Map;
 
-extern PyTypeObject Atrinik_PartyType;
-extern PyObject *wrap_party(partylist_struct *party);
-extern int Atrinik_Party_init(PyObject *module);
+PyTypeObject Atrinik_PartyType;
+PyObject *wrap_party(party_struct *party);
+int Atrinik_Party_init(PyObject *module);
 
 /** The Atrinik_Party structure. */
 typedef struct
 {
 	PyObject_HEAD
 	/** Pointer to the Atrinik party we wrap. */
-	partylist_struct *party;
+	party_struct *party;
 } Atrinik_Party;
 
-extern PyTypeObject Atrinik_RegionType;
-extern PyObject *wrap_region(region *region);
-extern int Atrinik_Region_init(PyObject *module);
+PyTypeObject Atrinik_RegionType;
+PyObject *wrap_region(region *region);
+int Atrinik_Region_init(PyObject *module);
 
 /** The Atrinik_Region structure. */
 typedef struct
@@ -274,6 +294,30 @@ typedef struct
 	/** Pointer to the Atrinik region we wrap. */
 	region *region;
 } Atrinik_Region;
+
+PyTypeObject Atrinik_PlayerType;
+PyObject *wrap_player(player *pl);
+int Atrinik_Player_init(PyObject *module);
+
+/** The Atrinik_Player structure. */
+typedef struct
+{
+	PyObject_HEAD
+	/** Pointer to the Atrinik player we wrap. */
+	player *pl;
+} Atrinik_Player;
+
+PyTypeObject Atrinik_ArchetypeType;
+PyObject *wrap_archetype(archetype *at);
+int Atrinik_Archetype_init(PyObject *module);
+
+/** The Atrinik_Archetype structure. */
+typedef struct
+{
+	PyObject_HEAD
+	/** Pointer to the Atrinik archetype we wrap. */
+	archetype *at;
+} Atrinik_Archetype;
 
 /** This structure is used to define one Python-implemented command. */
 typedef struct PythonCmdStruct
@@ -288,6 +332,36 @@ typedef struct PythonCmdStruct
 	double speed;
 } PythonCmd;
 
+/**
+ * General structure for Python object fields. */
+typedef struct
+{
+	/**
+	 * Name of the field. */
+	char *name;
+
+	/**
+	 * Field type. */
+	field_type type;
+
+	/**
+	 * Offset in player structure. */
+	uint32 offset;
+
+	/**
+	 * Flags for special handling. */
+	uint32 flags;
+
+	/**
+	 * Extra data for some special fields. */
+	uint32 extra_data;
+} fields_struct;
+
+/**
+ * Get number of fields in the fields array.
+ * @return Number of fields. */
+#define NUM_FIELDS (sizeof(fields) / sizeof(fields[0]))
+
 /** Number of custom commands to allow. */
 #define NR_CUSTOM_CMD 1024
 
@@ -295,13 +369,14 @@ typedef struct PythonCmdStruct
 { \
 	if (!ob || !ob->obj || hooks->was_destroyed(ob->obj, ob->obj->count)) \
 	{ \
-		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists"); \
+		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
 		return -1; \
 	} \
 }
 
-int generic_field_setter(field_type type, void *field_ptr, PyObject *value);
-PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr2);
+int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
+PyObject *generic_field_getter(fields_struct *field, void *ptr);
 void Py_INCREF_TYPE(PyTypeObject *ob);
+PyObject *generic_rich_compare(int op, int result);
 
 #endif

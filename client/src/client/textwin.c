@@ -115,7 +115,7 @@ static char *get_keyword_start(widgetdata *widget, int mouseX, int *row)
 
 	while (text[pos] && pos2 <= mouseX)
 	{
-		if (text[pos++] == '^')
+		if (text[pos] == '^')
 		{
 			/* Start of a keyword */
 			if (key_start < 0)
@@ -127,11 +127,13 @@ static char *get_keyword_start(widgetdata *widget, int mouseX, int *row)
 			{
 				key_start = -1;
 			}
-
-			continue;
+		}
+		else
+		{
+			pos2 += textwin_font->c[(int) (text[pos])].w + textwin_font->char_offset;
 		}
 
-		pos2 += textwin_font->c[(int) text[pos]].w + textwin_font->char_offset;
+		pos++;
 	}
 
 	/* No keyword here */
@@ -171,6 +173,11 @@ void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY)
 		return;
 	}
 
+	if (*text == '^')
+	{
+		text++;
+	}
+
 	while (*text && *text != '^')
 	{
 		cmdBuf[pos++] = *text++;
@@ -207,12 +214,12 @@ void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY)
 
 		if (!client_command_check(cmdBuf2))
 		{
-			send_command(cmdBuf2, -1, SC_NORMAL);
+			send_command(cmdBuf2);
 		}
 	}
 	else
 	{
-		send_command(cmdBuf, -1, SC_NORMAL);
+		send_command(cmdBuf);
 	}
 }
 
