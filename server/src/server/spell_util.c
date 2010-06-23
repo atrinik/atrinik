@@ -654,6 +654,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			break;
 
 		case SP_BULLET_SWARM:
+			success = 1;
+			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 5, 0);
+			break;
+
 		case SP_BULLET_STORM:
 			success = 1;
 			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 3, 0);
