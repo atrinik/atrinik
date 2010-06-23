@@ -874,16 +874,8 @@ trick_jump:
 
 		/* Control summoned monsters from scrolls */
 		case range_scroll:
-			if (CONTR(op)->golem == NULL)
-			{
-				CONTR(op)->shoottype = range_none;
-				CONTR(op)->chosen_spell = -1;
-			}
-			else
-			{
-				control_golem(CONTR(op)->golem, dir);
-			}
-
+			CONTR(op)->shoottype = range_none;
+			CONTR(op)->chosen_spell = -1;
 			return;
 
 		case range_skill:

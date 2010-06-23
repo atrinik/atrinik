@@ -93,7 +93,7 @@ void spring_trap(object *trap, object *victim)
 
 	/* get the spell number from the name in the slaying field, and set
 	 * that as the spell to be cast. */
-	if (trap->slaying && (spell_in_rune = look_up_spell_by_name(NULL, trap->slaying)) != -1)
+	if (trap->slaying && (spell_in_rune = look_up_spell_name(trap->slaying)) != -1)
 	{
 		trap->stats.sp = spell_in_rune;
 	}

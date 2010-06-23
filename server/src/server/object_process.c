@@ -36,7 +36,6 @@ static void remove_confusion(object *op);
 static void execute_wor(object *op);
 static void animate_trigger(object *op);
 static void change_object(object *op);
-static void move_firechest(object *op);
 
 /**
  * Remove a force object from player, like potion effect.
@@ -381,20 +380,6 @@ void move_firewall(object *op)
 }
 
 /**
- * Move for ::FIRECHEST.
- * @param op Firechest. */
-static void move_firechest(object *op)
-{
-	/* DM has created a firechest in his inventory. */
-	if (!op->map)
-	{
-		return;
-	}
-
-	fire_a_ball(op, get_random_dir(), 7);
-}
-
-/**
  * Main object move function.
  * @param op Object to move. */
 void process_object(object *op)
@@ -557,11 +542,6 @@ void process_object(object *op)
 			move_fired_arch(op);
 			return;
 
-		case FBALL:
-		case POISONCLOUD:
-			explosion(op);
-			return;
-
 		/* It now moves twice as fast */
 		case LIGHTNING:
 			move_bolt(op);
@@ -584,20 +564,12 @@ void process_object(object *op)
 			animate_bomb(op);
 			return;
 
-		case GOLEM:
-			move_golem(op);
-			return;
-
 		case EARTHWALL:
 			hit_player(op, 2, op, AT_PHYSICAL);
 			return;
 
 		case FIREWALL:
 			move_firewall(op);
-			return;
-
-		case FIRECHEST:
-			move_firechest(op);
 			return;
 
 		case MOOD_FLOOR:
@@ -631,10 +603,6 @@ void process_object(object *op)
 			move_deep_swamp(op);
 			return;
 
-		case BALL_LIGHTNING:
-			move_ball_lightning(op);
-			return;
-
 		case SWARM_SPELL:
 			move_swarm_spell(op);
 			return;
@@ -649,10 +617,6 @@ void process_object(object *op)
 
 		case MARKER:
 			move_marker(op);
-			return;
-
-		case AURA:
-			move_aura(op);
 			return;
 	}
 }
