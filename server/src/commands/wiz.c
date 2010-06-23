@@ -861,23 +861,48 @@ int command_create(object *op, char *params)
  * @return 1 unless params is NULL. */
 int command_inventory(object *op, char *params)
 {
-	object *tmp;
+	object *ob = NULL, *tmp;
+	char *str = NULL;
 
 	if (!params)
 	{
-		inventory(op, NULL);
+		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
 		return 0;
 	}
 
-	tmp = find_object_both(op, params);
-
-	if (!tmp)
+	if (!strncmp(params, "me", 2))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
-		return 1;
+		ob = op;
+	}
+	else
+	{
+		char name[MAX_BUF];
+
+		if (sscanf(params, "%s", name) == 1)
+		{
+			ob = find_object_both(op, name);
+		}
+
+		if (!ob)
+		{
+			new_draw_info(NDI_UNIQUE, op, "No such object.");
+			return 0;
+		}
 	}
 
-	inventory(op, tmp);
+	str = strchr(params, ' ');
+	new_draw_info_format(NDI_UNIQUE, op, "\nInventory of '%s':\n", query_name(ob, op));
+
+	for (tmp = ob->inv; tmp; tmp = tmp->below)
+	{
+		if (str && !item_matched_string(op, tmp, str))
+		{
+			continue;
+		}
+
+		new_draw_info_format(NDI_UNIQUE, op, "#~%d~: %s", tmp->count, query_name(tmp, op));
+	}
+
 	return 1;
 }
 
@@ -2506,5 +2531,37 @@ int command_no_shout(object *op, char *params)
 		pl->no_shout = 1;
 	}
 
+	return 1;
+}
+
+/**
+ * Take an object and put it in DM's inventory.
+ * @param op DM.
+ * @param params Object to take.
+ * @return 1. */
+int command_dmtake(object *op, char *params)
+{
+	object *tmp;
+
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Take what object?");
+		return 1;
+	}
+
+	tmp = find_object_both(op, params);
+
+	if (!tmp)
+	{
+		new_draw_info(NDI_UNIQUE, op, "No such object.");
+		return 1;
+	}
+
+	if (tmp->env == op)
+	{
+		return 1;
+	}
+
+	pick_up(op, tmp);
 	return 1;
 }
