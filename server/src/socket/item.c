@@ -27,9 +27,7 @@
  * @file
  * This containes item logic for client/server. It doesn't contain the
  * actual commands that send the data, but does contain the logic for
- * what items should be sent.
- *
- * @todo Cleanup the duplicated code in this file. */
+ * what items should be sent. */
 
 #include <global.h>
 #include <object.h>
@@ -50,26 +48,6 @@ static int check_container(object *pl, object *con);
 
 /** Maximum quickslots allowed. */
 #define MAX_QUICKSLOT 32
-
-/**
- * Adds the specified buffer into the socklist, but prepends a single
- * byte in the length. If the data is longer than that byte, it is
- * truncated appropriately.
- * @param buf Buffer to add.
- * @param sl Socklist to add the buffer to. */
-static void add_stringlen_to_sockbuf(char *buf, SockList *sl)
-{
-	size_t len = strlen(buf);
-
-	if (len > 255)
-	{
-		len = 255;
-	}
-
-	SockList_AddChar(sl, (char) len);
-	strncpy((char *) sl->buf + sl->len, buf, len);
-	sl->len += len;
-}
 
 /**
  * This is a similar to query_name, but returns flags to be sent to
@@ -166,7 +144,139 @@ unsigned int query_flags(object *op)
 		flags |= F_ETHEREAL;
 	}
 
+	if (QUERY_FLAG(op, FLAG_NO_PICK))
+	{
+		flags |= F_NOPICK;
+	}
+
 	return flags;
+}
+
+/**
+ * Add data about object to a SockList instance.
+ * @param sl SockList instance to add to.
+ * @param op Object to add information about.
+ * @param pl Player that will receive the data.
+ * @param flags Combination of @ref UPD_XXX. */
+static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 flags)
+{
+	SockList_AddInt(sl, op->count);
+
+	if (flags & UPD_LOCATION)
+	{
+		SockList_AddInt(sl, op->env ? op->env->count : 0);
+	}
+
+	if (flags & UPD_FLAGS)
+	{
+		SockList_AddInt(sl, query_flags(op));
+	}
+
+	if (flags & UPD_WEIGHT)
+	{
+		SockList_AddInt(sl, WEIGHT(op));
+	}
+
+	if (flags & UPD_FACE)
+	{
+		if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
+		{
+			SockList_AddInt(sl, op->inv_face->number);
+		}
+		else
+		{
+			SockList_AddInt(sl, op->face->number);
+		}
+	}
+
+	if (flags & UPD_DIRECTION)
+	{
+		SockList_AddChar(sl, op->facing);
+	}
+
+	if (flags & UPD_TYPE)
+	{
+		SockList_AddChar(sl, SOCKET_OBJ_TYPE(op, pl));
+		SockList_AddChar(sl, op->sub_type);
+
+		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
+		{
+			SockList_AddChar(sl, op->item_quality);
+			SockList_AddChar(sl, op->item_condition);
+			SockList_AddChar(sl, op->item_level);
+			SockList_AddChar(sl, op->item_skill);
+		}
+		else
+		{
+			SockList_AddChar(sl, (char) 255);
+			SockList_AddChar(sl, (char) 255);
+			SockList_AddChar(sl, (char) 255);
+			SockList_AddChar(sl, (char) 255);
+		}
+	}
+
+	if (flags & UPD_NAME)
+	{
+		size_t len;
+		char item_name[MAX_BUF];
+
+		memcpy(item_name, query_base_name(op, pl), 127);
+		item_name[127] = '\0';
+		len = strlen(item_name);
+		SockList_AddLen8Data(sl, item_name, len);
+	}
+
+	if (flags & UPD_ANIM)
+	{
+		if (!(flags & UPD_ANIM_NO_INV) && op->inv_animation_id)
+		{
+			SockList_AddShort(sl, op->inv_animation_id);
+		}
+		else
+		{
+			SockList_AddShort(sl, op->animation_id);
+		}
+	}
+
+	if (flags & UPD_ANIMSPEED)
+	{
+		int anim_speed = 0;
+
+		if (QUERY_FLAG(op, FLAG_ANIMATE))
+		{
+			if (op->anim_speed)
+			{
+				anim_speed = op->anim_speed;
+			}
+			else
+			{
+				if (FABS(op->speed) < 0.001)
+				{
+					anim_speed = 255;
+				}
+				else if (FABS(op->speed) >= 1.0)
+				{
+					anim_speed = 1;
+				}
+				else
+				{
+					anim_speed = (int) (1.0 / FABS(op->speed));
+				}
+			}
+
+			if (anim_speed > 255)
+			{
+				anim_speed = 255;
+			}
+		}
+
+		SockList_AddChar(sl, (char) anim_speed);
+	}
+
+	if (flags & UPD_NROF)
+	{
+		SockList_AddInt(sl, op->nrof);
+	}
 }
 
 /**
@@ -178,10 +288,9 @@ unsigned int query_flags(object *op)
 void esrv_draw_look(object *pl)
 {
 	socket_struct *ns = &CONTR(pl)->socket;
-	char *tmp_sp, buf[MAX_BUF];
-	object *head, *tmp, *last;
-	int flags, got_one = 0, anim_speed, start_look = 0, end_look = 0;
-	size_t len;
+	char buf[MAX_BUF];
+	object *tmp, *last;
+	int got_one = 0, start_look = 0, end_look = 0;
 	SockList sl;
 
 	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_REAL_MAP(pl->map, pl->x, pl->y))
@@ -206,8 +315,8 @@ void esrv_draw_look(object *pl)
 		SockList_AddInt(&sl, -1);
 		SockList_AddInt(&sl, prev_item_face->number);
 		SockList_AddChar(&sl, 0);
-		sprintf(buf, "Click here to see %d previous items", NUM_LOOK_OBJECTS);
-		add_stringlen_to_sockbuf(buf, &sl);
+		snprintf(buf, sizeof(buf), "Apply to see %d previous items", NUM_LOOK_OBJECTS);
+		SockList_AddLen8Data(&sl, buf, MIN(strlen(buf), 255));
 		SockList_AddShort(&sl,0);
 		SockList_AddChar(&sl, 0);
 		SockList_AddInt(&sl, 0);
@@ -245,114 +354,15 @@ void esrv_draw_look(object *pl)
 			SockList_AddInt(&sl, -1);
 			SockList_AddInt(&sl, next_item_face->number);
 			SockList_AddChar(&sl, 0);
-			sprintf(buf,"Click here to see next group of items");
-			add_stringlen_to_sockbuf(buf, &sl);
+			snprintf(buf, sizeof(buf), "Apply to see next group of items");
+			SockList_AddLen8Data(&sl, buf, MIN(strlen(buf), 255));
 			SockList_AddShort(&sl, 0);
 			SockList_AddChar(&sl, 0);
 			SockList_AddInt(&sl, 0);
 			break;
 		}
 
-		/* Now we start sending this item here */
-		flags = query_flags(tmp);
-
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			flags |= F_NOPICK;
-		}
-
-		SockList_AddInt(&sl, tmp->count);
-		SockList_AddInt(&sl, flags);
-		SockList_AddInt(&sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
-
-		if (tmp->head)
-		{
-			if (tmp->head->inv_face && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-			{
-				SockList_AddInt(&sl, tmp->head->inv_face->number);
-			}
-			else
-			{
-				SockList_AddInt(&sl, tmp->head->face->number);
-			}
-		}
-		else
-		{
-			if (tmp->inv_face && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-			{
-				SockList_AddInt(&sl, tmp->inv_face->number);
-			}
-			else
-			{
-				SockList_AddInt(&sl, tmp->face->number);
-			}
-		}
-
-		SockList_AddChar(&sl, tmp->facing);
-
-		if (tmp->head)
-		{
-			head = tmp->head;
-		}
-		else
-		{
-			head = tmp;
-		}
-
-		/* +1 = 0 marker for string end */
-		len = strlen((tmp_sp = query_base_name(head, pl))) + 1;
-
-		if (len > 128)
-		{
-			/* 127 chars + 0 marker */
-			len = 128;
-			SockList_AddChar(&sl, (char ) len);
-			strncpy((char *) sl.buf + sl.len, tmp_sp, 127);
-			sl.len += len;
-			*(sl.buf + sl.len) = '\0';
-		}
-		else
-		{
-			SockList_AddChar(&sl, (char) len);
-			strcpy((char *) sl.buf + sl.len, tmp_sp);
-			sl.len += len;
-		}
-
-		/* Handle animations */
-		SockList_AddShort(&sl, tmp->animation_id);
-		anim_speed = 0;
-
-		if (QUERY_FLAG(tmp, FLAG_ANIMATE))
-		{
-			if (tmp->anim_speed)
-			{
-				anim_speed = tmp->anim_speed;
-			}
-			else
-			{
-				if (FABS(tmp->speed) < 0.001)
-				{
-					anim_speed = 255;
-				}
-				else if (FABS(tmp->speed) >= 1.0)
-				{
-					anim_speed = 1;
-				}
-				else
-				{
-					anim_speed = (int) (1.0 / FABS(tmp->speed));
-				}
-			}
-
-			if (anim_speed > 255)
-			{
-				anim_speed = 255;
-			}
-		}
-
-		SockList_AddChar(&sl, (char) anim_speed);
-
-		SockList_AddInt(&sl, tmp->nrof);
+		add_object_to_socklist(&sl, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
 		got_one++;
 
 		if (sl.len > (MAXSOCKBUF - MAXITEMLEN))
@@ -400,10 +410,8 @@ void esrv_close_container(object *op)
 void esrv_send_inventory(object *pl, object *op)
 {
 	object *tmp;
-	int flags, got_one = 0, anim_speed;
-	size_t len;
+	int got_one = 0;
 	SockList sl;
-	char item_n[MAX_BUF];
 
 	sl.buf = malloc(MAXSOCKBUF);
 
@@ -435,93 +443,7 @@ void esrv_send_inventory(object *pl, object *op)
 
 		if (LOOK_OBJ(tmp) || QUERY_FLAG(pl, FLAG_WIZ))
 		{
-			flags = query_flags(tmp);
-
-			if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-			{
-				flags |= F_NOPICK;
-			}
-
-			SockList_AddInt(&sl, tmp->count);
-			SockList_AddInt(&sl, flags);
-			SockList_AddInt(&sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
-
-			if (tmp->inv_face && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-			{
-				SockList_AddInt(&sl, tmp->inv_face->number);
-			}
-			else
-			{
-				SockList_AddInt(&sl, tmp->face->number);
-			}
-
-			SockList_AddChar(&sl, tmp->facing);
-			SockList_AddChar(&sl, SOCKET_OBJ_TYPE(tmp, pl));
-			SockList_AddChar(&sl, tmp->sub_type);
-
-			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-			{
-				SockList_AddChar(&sl, tmp->item_quality);
-				SockList_AddChar(&sl, tmp->item_condition);
-				SockList_AddChar(&sl, tmp->item_level);
-				SockList_AddChar(&sl, tmp->item_skill);
-			}
-			else
-			{
-				SockList_AddChar(&sl, (char) 255);
-				SockList_AddChar(&sl, (char) 255);
-				SockList_AddChar(&sl, (char) 255);
-				SockList_AddChar(&sl, (char) 255);
-			}
-
-			strncpy(item_n, query_base_name(tmp, pl), 127);
-			item_n[127] = '\0';
-			len = strlen(item_n) + 1;
-			SockList_AddChar(&sl, (char) len);
-			memcpy(sl.buf + sl.len, item_n, len);
-			sl.len += len;
-
-			if (tmp->inv_animation_id)
-			{
-				SockList_AddShort(&sl,tmp->inv_animation_id);
-			}
-			else
-			{
-				SockList_AddShort(&sl, tmp->animation_id);
-			}
-
-			anim_speed = 0;
-
-			if (QUERY_FLAG(tmp, FLAG_ANIMATE))
-			{
-				if (tmp->anim_speed)
-				{
-					anim_speed = tmp->anim_speed;
-				}
-				else
-				{
-					if (FABS(tmp->speed) < 0.001)
-					{
-						anim_speed = 255;
-					}
-					else if (FABS(tmp->speed) >= 1.0)
-					{
-						anim_speed = 1;
-					}
-					else
-					{
-						anim_speed = (int) (1.0 / FABS(tmp->speed));
-					}
-				}
-
-				if (anim_speed > 255)
-				{
-					anim_speed = 255;
-				}
-			}
-
-			SockList_AddChar(&sl, (char) anim_speed);
-			SockList_AddInt(&sl, tmp->nrof);
+			add_object_to_socklist(&sl, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 			got_one++;
 
 			/* It is possible for players to accumulate a huge amount of
@@ -571,109 +493,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_UPITEM);
 	SockList_AddShort(&sl, (uint16) flags);
-	SockList_AddInt(&sl, op->count);
-
-	if (flags & UPD_LOCATION)
-	{
-		SockList_AddInt(&sl, op->env? op->env->count:0);
-	}
-
-	if (flags & UPD_FLAGS)
-	{
-		SockList_AddInt(&sl, query_flags(op));
-	}
-
-	if (flags & UPD_WEIGHT)
-	{
-		SockList_AddInt(&sl, WEIGHT(op));
-	}
-
-	if (flags & UPD_FACE)
-	{
-		if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
-		{
-			SockList_AddInt(&sl, op->inv_face->number);
-		}
-		else
-		{
-			SockList_AddInt(&sl, op->face->number);
-		}
-	}
-
-	if (flags & UPD_DIRECTION)
-	{
-		SockList_AddChar(&sl, (char)op->facing);
-	}
-
-	if (flags & UPD_NAME)
-	{
-		size_t len;
-		char *item_p, item_n[MAX_BUF];
-
-		strncpy(item_n, query_base_name(op, pl), 127);
-		item_n[127] = '\0';
-		len = strlen(item_n);
-		item_p = query_base_name(op, pl);
-		strncpy(item_n + len + 1, item_p, 127);
-		item_n[254] = '\0';
-		len += strlen(item_n + 1 + len) + 1;
-		SockList_AddChar(&sl, (char)len);
-		memcpy(sl.buf + sl.len, item_n, len);
-		sl.len += len;
-	}
-
-	if (flags & UPD_ANIM)
-	{
-		if (op->inv_animation_id)
-		{
-			SockList_AddShort(&sl, op->inv_animation_id);
-		}
-		else
-		{
-			SockList_AddShort(&sl, op->animation_id);
-		}
-	}
-
-	if (flags & UPD_ANIMSPEED)
-	{
-		int anim_speed = 0;
-
-		if (QUERY_FLAG(op, FLAG_ANIMATE))
-		{
-			if (op->anim_speed)
-			{
-				anim_speed = op->anim_speed;
-			}
-			else
-			{
-				if (FABS(op->speed) < 0.001)
-				{
-					anim_speed = 255;
-				}
-				else if (FABS(op->speed) >= 1.0)
-				{
-					anim_speed = 1;
-				}
-				else
-				{
-					anim_speed = (int) (1.0 / FABS(op->speed));
-				}
-			}
-
-			if (anim_speed > 255)
-			{
-				anim_speed = 255;
-			}
-		}
-
-		SockList_AddChar(&sl, (char) anim_speed);
-	}
-
-	if (flags & UPD_NROF)
-	{
-		SockList_AddInt(&sl, op->nrof);
-	}
-
+	add_object_to_socklist(&sl, op, pl, flags);
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
 	free(sl.buf);
 }
@@ -707,10 +527,7 @@ void esrv_update_item(int flags, object *pl, object *op)
  * @param op Object to send information of. */
 static void esrv_send_item_send(object *pl, object *op)
 {
-	int anim_speed;
-	size_t len;
 	SockList sl;
-	char item_n[MAX_BUF];
 
 	/* If this is not the player object, do some more checks. */
 	if (op != pl)
@@ -727,106 +544,18 @@ static void esrv_send_item_send(object *pl, object *op)
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMX);
 	/* no delinv */
 	SockList_AddInt(&sl, -4);
-	SockList_AddInt(&sl, (op->env? op->env->count:0));
-	SockList_AddInt(&sl, op->count);
-	SockList_AddInt(&sl, query_flags(op));
-	SockList_AddInt(&sl, WEIGHT(op));
-
-	if (op->head)
-	{
-		if (op->head->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
-		{
-			SockList_AddInt(&sl, op->head->inv_face->number);
-		}
-		else
-		{
-			SockList_AddInt(&sl, op->head->face->number);
-		}
-	}
-	else
-	{
-		if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
-		{
-			SockList_AddInt(&sl, op->inv_face->number);
-		}
-		else
-		{
-			SockList_AddInt(&sl, op->face->number);
-		}
-	}
-
-	SockList_AddChar(&sl, op->facing);
+	SockList_AddInt(&sl, op->env ? op->env->count : 0);
 
 	/* If not below */
 	if (op->env)
 	{
-		SockList_AddChar(&sl, SOCKET_OBJ_TYPE(op, pl));
-		SockList_AddChar(&sl, op->sub_type);
-
-		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-		{
-			SockList_AddChar(&sl, op->item_quality);
-			SockList_AddChar(&sl, op->item_condition);
-			SockList_AddChar(&sl, op->item_level);
-			SockList_AddChar(&sl, op->item_skill);
-		}
-		else
-		{
-			SockList_AddChar(&sl, (char) 255);
-			SockList_AddChar(&sl, (char) 255);
-			SockList_AddChar(&sl, (char) 255);
-			SockList_AddChar(&sl, (char) 255);
-		}
-	}
-
-	strncpy(item_n, query_base_name(op, pl), 127);
-	item_n[127] = '\0';
-	len = strlen(item_n) + 1;
-	SockList_AddChar(&sl, (char) len);
-	memcpy(sl.buf + sl.len, item_n, len);
-	sl.len += len;
-
-	if (op->env && op->inv_animation_id)
-	{
-		SockList_AddShort(&sl,op->inv_animation_id);
+		add_object_to_socklist(&sl, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 	}
 	else
 	{
-		SockList_AddShort(&sl,op->animation_id);
+		add_object_to_socklist(&sl, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
 	}
 
-	anim_speed = 0;
-
-	if (QUERY_FLAG(op, FLAG_ANIMATE))
-	{
-		if (op->anim_speed)
-		{
-			anim_speed = op->anim_speed;
-		}
-		else
-		{
-			if (FABS(op->speed) < 0.001)
-			{
-				anim_speed = 255;
-			}
-			else if (FABS(op->speed) >= 1.0)
-			{
-				anim_speed = 1;
-			}
-			else
-			{
-				anim_speed = (int) (1.0 / FABS(op->speed));
-			}
-		}
-
-		if (anim_speed > 255)
-		{
-			anim_speed = 255;
-		}
-	}
-
-	SockList_AddChar(&sl, (char) anim_speed);
-	SockList_AddInt(&sl, op->nrof);
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
 	free(sl.buf);
 }

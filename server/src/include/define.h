@@ -1388,6 +1388,24 @@
 	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 8) & 0xff);  \
 	(_sl_)->buf[(_sl_)->len++] = (char) ((_data_) & 0xff)
 
+/**
+ * Adds a data block.
+ * @param _sl_ SockList instance to add to.
+ * @param _data_ The value to add.
+ * @param _len_ The length in byte. */
+#define SockList_AddData(_sl_, _data_, _len_) \
+	memcpy((_sl_)->buf + (_sl_)->len, (_data_), (_len_)); \
+	(_sl_)->len += (_len_)
+
+/**
+ * Adds a data block prepended with an 8 bit length field.
+ * @param _sl_ The SockList instance to add to.
+ * @param _data_ The value to add.
+ * @param _len_ The length in byte; must not exceed 255. */
+#define SockList_AddLen8Data(_sl_, _data_, _len_) \
+    SockList_AddChar((_sl_), (_len_)); \
+    SockList_AddData((_sl_), (_data_), (_len_))
+
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */
 #define GetInt_String(_data_)                                                      \

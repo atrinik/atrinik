@@ -293,18 +293,31 @@ enum
 /*@}*/
 
 /**
- * @defgroup cs_item_update_flags Client/server item update flags
- * Client/server item update flags
+ * @defgroup UPD_XXX Item update flags
+ * Client/server item update flags.
  *@{*/
-#define UPD_LOCATION    0x01
-#define UPD_FLAGS       0x02
-#define UPD_WEIGHT      0x04
-#define UPD_FACE        0x08
-#define UPD_NAME        0x10
-#define UPD_ANIM        0x20
-#define UPD_ANIMSPEED   0x40
-#define UPD_NROF        0x80
-#define UPD_DIRECTION   0x100
+/** Update ID location where this object is. */
+#define UPD_LOCATION 1
+/** Update object's flags. */
+#define UPD_FLAGS 2
+/** Update object's weight. */
+#define UPD_WEIGHT 4
+/** Update object's face. */
+#define UPD_FACE 8
+/** Update object's name. */
+#define UPD_NAME 16
+/** Update object's animation. */
+#define UPD_ANIM 32
+/** Update object's animation speed. */
+#define UPD_ANIMSPEED 64
+/** Update object's nrof. */
+#define UPD_NROF 128
+/** Update object's facing direction. */
+#define UPD_DIRECTION 256
+/** Update object's type, subtype, qua/con, level and skill. */
+#define UPD_TYPE 512
+/** If set, do not use object's inventory animation instead of normal animation. */
+#define UPD_ANIM_NO_INV 1024
 /*@}*/
 
 /**

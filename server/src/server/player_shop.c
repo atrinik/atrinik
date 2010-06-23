@@ -83,11 +83,6 @@ static void player_shop_send_items(player *pl, player *seller)
 
 		flags = query_flags(tmp);
 
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			flags |= F_NOPICK;
-		}
-
 		/* Add the object's count */
 		SockList_AddInt(&sl, tmp->count);
 
