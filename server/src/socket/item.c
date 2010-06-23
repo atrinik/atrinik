@@ -36,7 +36,6 @@
 #include <newclient.h>
 #include <newserver.h>
 
-static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op);
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);
 
@@ -365,16 +364,6 @@ void esrv_draw_look(object *pl)
 			SockList_AddInt(&sl, 0);
 			got_one = 0;
 		}
-
-		/* For DMs, force sending of all objects in the inventory of this
-		 * object. */
-		if (QUERY_FLAG(pl, FLAG_WIZ))
-		{
-			if (tmp->inv)
-			{
-				got_one = esrv_draw_DM_inv(pl, &sl, tmp);
-			}
-		}
 	}
 
 	if (got_one || (!got_one && !ns->below_clear))
@@ -384,150 +373,6 @@ void esrv_draw_look(object *pl)
 	}
 
 	free(sl.buf);
-}
-
-/**
- * Used for DMs, draw inventory of objects, recursively.
- *
- * Useful for debugging.
- * @param pl Player object.
- * @param sl Socket list.
- * @param op Object to draw inventory of.
- * @return How many items we got. */
-static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op)
-{
-	char *tmp_sp;
-	object *tmp, *head;
-	int got_one = 0, flags, anim_speed;
-	size_t len;
-
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, -1);
-	SockList_AddInt(sl, blank_face->number);
-	len = strlen("in inventory") + 1;
-	SockList_AddChar(sl, (char) len);
-	add_stringlen_to_sockbuf("in inventory", sl);
-	SockList_AddShort(sl, 0);
-	SockList_AddChar(sl, 0);
-	SockList_AddInt(sl, 0);
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		flags = query_flags(tmp);
-
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			flags |=  F_NOPICK;
-		}
-
-		SockList_AddInt(sl, tmp->count);
-		SockList_AddInt(sl, flags);
-		SockList_AddInt(sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
-
-		if (tmp->head)
-		{
-			SockList_AddInt(sl, tmp->head->face->number);
-		}
-		else
-		{
-			SockList_AddInt(sl, tmp->face->number);
-		}
-
-		SockList_AddChar(sl, tmp->facing);
-
-		if (tmp->head)
-		{
-			head = tmp->head;
-		}
-		else
-		{
-			head = tmp;
-		}
-
-		/* +1 = 0 marker for string end */
-		len = strlen((tmp_sp = query_base_name(head, pl))) + 1;
-
-		if (len > 128)
-		{
-			/* 127 chars + 0 marker */
-			len = 128;
-			SockList_AddChar(sl, (char ) len);
-			strncpy((char *) sl->buf + sl->len, tmp_sp, 127);
-			sl->len += len;
-			*(sl->buf + sl->len) = '\0';
-		}
-		else
-		{
-			SockList_AddChar(sl, (char ) len);
-			strcpy((char *) sl->buf + sl->len, tmp_sp);
-			sl->len += len;
-		}
-
-		/* Handle animations. */
-		SockList_AddShort(sl, tmp->animation_id);
-		anim_speed = 0;
-
-		if (QUERY_FLAG(tmp, FLAG_ANIMATE))
-		{
-			if (tmp->anim_speed)
-			{
-				anim_speed = tmp->anim_speed;
-			}
-			else
-			{
-				if (FABS(tmp->speed) < 0.001)
-				{
-					anim_speed = 255;
-				}
-				else if (FABS(tmp->speed) >= 1.0)
-				{
-					anim_speed = 1;
-				}
-				else
-				{
-					anim_speed = (int) (1.0 / FABS(tmp->speed));
-				}
-			}
-
-			if (anim_speed > 255)
-			{
-				anim_speed = 255;
-			}
-		}
-
-		SockList_AddChar(sl, (char) anim_speed);
-
-		SockList_AddInt(sl, tmp->nrof);
-		got_one++;
-
-		if (sl->len > (MAXSOCKBUF - MAXITEMLEN))
-		{
-			Send_With_Handling(&CONTR(pl)->socket, sl);
-			SOCKET_SET_BINARY_CMD(sl, BINARY_CMD_ITEMY);
-			SockList_AddInt(sl, -2);
-			SockList_AddInt(sl, 0);
-			got_one = 0;
-		}
-
-		if (tmp->inv)
-		{
-			got_one = esrv_draw_DM_inv(pl, sl, tmp);
-		}
-	}
-
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, -1);
-	SockList_AddInt(sl, blank_face->number);
-	len = strlen("end of inventory") + 1;
-	SockList_AddChar(sl, (char) len);
-	add_stringlen_to_sockbuf("end of inventory", sl);
-	SockList_AddShort(sl, 0);
-	SockList_AddChar(sl, 0);
-	SockList_AddInt(sl, 0);
-
-	return got_one;
 }
 
 /**
@@ -545,127 +390,6 @@ void esrv_close_container(object *op)
 
 	Send_With_Handling(&CONTR(op)->socket, &sl);
 	free(sl.buf);
-}
-
-/**
- * Send inventory of an object, when sending player's inventory.
- * @param pl Player.
- * @param sl Socklist.
- * @param op Object to send inventory of.
- * @return How many items we got. */
-static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
-{
-	object *tmp;
-	int flags, got_one = 0, anim_speed;
-	size_t len;
-	char item_n[MAX_BUF];
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		flags = query_flags(tmp);
-
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			flags |= F_NOPICK;
-		}
-
-		SockList_AddInt(sl, tmp->count);
-		SockList_AddInt(sl, flags);
-		SockList_AddInt(sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
-
-		if (tmp->inv_face && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-		{
-			SockList_AddInt(sl, tmp->inv_face->number);
-		}
-		else
-		{
-			SockList_AddInt(sl, tmp->face->number);
-		}
-
-		SockList_AddChar(sl, tmp->facing);
-		SockList_AddChar(sl, SOCKET_OBJ_TYPE(tmp, pl));
-		SockList_AddChar(sl, tmp->sub_type);
-
-		if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-		{
-			SockList_AddChar(sl, tmp->item_quality);
-			SockList_AddChar(sl, tmp->item_condition);
-			SockList_AddChar(sl, tmp->item_level);
-			SockList_AddChar(sl, tmp->item_skill);
-		}
-		else
-		{
-			SockList_AddChar(sl, (char) 255);
-			SockList_AddChar(sl, (char) 255);
-			SockList_AddChar(sl, (char) 255);
-			SockList_AddChar(sl, (char) 255);
-		}
-
-		strncpy(item_n, query_base_name(tmp, pl), 127);
-		item_n[127] = '\0';
-		len = strlen(item_n) + 1;
-		SockList_AddChar(sl, (char) len);
-		memcpy(sl->buf + sl->len, item_n, len);
-		sl->len += len;
-
-		if (tmp->inv_animation_id)
-		{
-			SockList_AddShort(sl, tmp->inv_animation_id);
-		}
-		else
-		{
-			SockList_AddShort(sl, tmp->animation_id);
-		}
-
-		anim_speed = 0;
-
-		if (QUERY_FLAG(tmp, FLAG_ANIMATE))
-		{
-			if (tmp->anim_speed)
-			{
-				anim_speed = tmp->anim_speed;
-			}
-			else
-			{
-				if (FABS(tmp->speed) < 0.001)
-				{
-					anim_speed = 255;
-				}
-				else if (FABS(tmp->speed) >= 1.0)
-				{
-					anim_speed = 1;
-				}
-				else
-				{
-					anim_speed = (int) (1.0 / FABS(tmp->speed));
-				}
-			}
-
-			if (anim_speed > 255)
-			{
-				anim_speed = 255;
-			}
-		}
-
-		SockList_AddChar(sl, (char) anim_speed);
-		SockList_AddInt(sl, tmp->nrof);
-		got_one++;
-
-		/* It is possible for players to accumulate a huge amount of
-		 * items (especially with some of the bags out there) to overflow
-		 * the buffer. If so, send multiple item1 commands. */
-		if (sl->len > (MAXSOCKBUF - MAXITEMLEN))
-		{
-			Send_With_Handling(&CONTR(pl)->socket, sl);
-			SOCKET_SET_BINARY_CMD(sl, BINARY_CMD_ITEMY);
-			/* no delinv */
-			SockList_AddInt(sl, -3);
-			SockList_AddInt(sl, op->count);
-			got_one = 0;
-		}
-	}
-
-	return got_one;
 }
 
 /**
@@ -763,7 +487,7 @@ void esrv_send_inventory(object *pl, object *op)
 			}
 			else
 			{
-				SockList_AddShort(&sl,tmp->animation_id);
+				SockList_AddShort(&sl, tmp->animation_id);
 			}
 
 			anim_speed = 0;
@@ -812,14 +536,6 @@ void esrv_send_inventory(object *pl, object *op)
 				SockList_AddInt(&sl, -3);
 				SockList_AddInt(&sl, op->count);
 				got_one = 0;
-			}
-
-			if (QUERY_FLAG(pl, FLAG_WIZ))
-			{
-				if (tmp->inv && tmp->type != CONTAINER)
-				{
-					got_one = esrv_send_inventory_DM(pl, &sl, tmp);
-				}
 			}
 		}
 	}
