@@ -117,15 +117,6 @@ int command_cast_spell(object *op, char *params)
 		return 0;
 	}
 
-	/* When we control a golem we can't cast again - if we do, it breaks
-	 * control. */
-	if (CONTR(op)->golem != NULL)
-	{
-		send_golem_control(CONTR(op)->golem, GOLEM_CTR_RELEASE);
-		destruct_ob(CONTR(op)->golem);
-		CONTR(op)->golem = NULL;
-	}
-
 	/* This assumes simply that if the name of
 	 * the spell being cast as input by the player is shorter than or
 	 * equal to the length of the spell name, then there is no options
@@ -225,15 +216,6 @@ int fire_cast_spell(object *op, char *params)
 	{
 		new_draw_info(NDI_UNIQUE, op, "Cast which spell?");
 		return 0;
-	}
-
-	/* When we control a golem we can't cast again - if we do, it breaks
-	 * control. */
-	if (CONTR(op)->golem != NULL)
-	{
-		send_golem_control(CONTR(op)->golem, GOLEM_CTR_RELEASE);
-		destruct_ob(CONTR(op)->golem);
-		CONTR(op)->golem = NULL;
 	}
 
 	/* This assumes simply that if the name of

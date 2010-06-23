@@ -504,7 +504,7 @@ const char *determine_god(object *op)
 	int godnr = -1;
 
 	/* spells */
-	if ((op->type == FBULLET || op->type == CONE || op->type == FBALL || op->type == SWARM_SPELL) && op->title)
+	if ((op->type == CONE || op->type == SWARM_SPELL) && op->title)
 	{
 		if (lookup_god_by_name(op->title) >= 0)
 		{

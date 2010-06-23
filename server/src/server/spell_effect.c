@@ -1149,6 +1149,11 @@ void animate_bomb(object *op)
 	int i;
 	archetype *at;
 
+	if (!op->map)
+	{
+		return;
+	}
+
 	if (op->state != NUM_ANIMATIONS(op) - 1)
 	{
 		op->state++;

@@ -292,43 +292,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			CONTR(op)->count = 0;
 		}
 
-		/* Update any golems */
-		if (CONTR(op)->golem != NULL)
-		{
-			int i = find_free_spot(CONTR(op)->golem->arch, NULL, newmap, x, y, 1, SIZEOFFREE + 1);
-
-			remove_ob(CONTR(op)->golem);
-
-			if (check_walk_off(CONTR(op)->golem, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
-			{
-				return;
-			}
-
-			if (i == -1)
-			{
-				send_golem_control(CONTR(op)->golem, GOLEM_CTR_RELEASE);
-				CONTR(op)->golem = NULL;
-			}
-			else
-			{
-				object *tmp;
-
-				for (tmp = CONTR(op)->golem; tmp != NULL; tmp = tmp->more)
-				{
-					tmp->x = x + freearr_x[i]+ (tmp->arch == NULL ? 0 : tmp->arch->clone.x);
-					tmp->y = y + freearr_y[i]+ (tmp->arch == NULL ? 0 : tmp->arch->clone.y);
-					tmp->map = newmap;
-				}
-
-				if (!insert_ob_in_map(CONTR(op)->golem, newmap, NULL, 0))
-				{
-					return;
-				}
-
-				CONTR(op)->golem->direction = find_dir_2(op->x - CONTR(op)->golem->x, op->y - CONTR(op)->golem->y);
-			}
-		}
-
 		op->direction = 0;
 
 		/* If the player is changing maps, we need to do some special things

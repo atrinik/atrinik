@@ -538,10 +538,6 @@ void process_object(object *op)
 			move_arrow(op);
 			return;
 
-		case FBULLET:
-			move_fired_arch(op);
-			return;
-
 		/* It now moves twice as fast */
 		case LIGHTNING:
 			move_bolt(op);
@@ -552,7 +548,7 @@ void process_object(object *op)
 			return;
 
 		/* Handle autoclosing */
-		case LOCKED_DOOR:
+		case DOOR:
 			close_locked_door(op);
 			return;
 
@@ -562,10 +558,6 @@ void process_object(object *op)
 
 		case BOMB:
 			animate_bomb(op);
-			return;
-
-		case EARTHWALL:
-			hit_player(op, 2, op, AT_PHYSICAL);
 			return;
 
 		case FIREWALL:

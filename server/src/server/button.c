@@ -689,16 +689,9 @@ void do_mood_floor(object *op)
 			{
 				CLEAR_FLAG(tmp, FLAG_FRIENDLY);
 				tmp->move_type = 0;
-				/* Lots of checks here, but want to make sure we don't
-				 * dereference a null value */
-				if (tmp->type == GOLEM && tmp->owner && tmp->owner->type == PLAYER && CONTR(tmp->owner)->golem == tmp)
-				{
-					send_golem_control(tmp, GOLEM_CTR_RELEASE);
-					CONTR(tmp->owner)->golem = NULL;
-				}
-
 				tmp->owner = NULL;
 			}
+
 			break;
 
 		/* Angry -- get neutral monsters mad */

@@ -1257,34 +1257,6 @@ save_objects_jump1:
 
 				if (head->owner)
 				{
-					/* A golem needs a valid release from the player... */
-					if (head->type == GOLEM)
-					{
-						send_golem_control(head, GOLEM_CTR_RELEASE);
-						remove_ob(head);
-						check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
-
-						/* Invalid next pointer */
-						if (otmp && (QUERY_FLAG(otmp, FLAG_REMOVED) || OBJECT_FREE(otmp)))
-						{
-							if (!QUERY_FLAG(op, FLAG_REMOVED) && !OBJECT_FREE(op))
-							{
-								otmp = op->above;
-							}
-							else if (last_valid)
-							{
-								otmp = last_valid->above;
-							}
-							/* Should be really rare */
-							else
-							{
-								otmp = get_map_ob(m, i, j);
-							}
-						}
-
-						continue;
-					}
-
 					LOG(llevDebug, "WARNING (only debug): save_obj(): obj w. owner. map:%s obj:%s (%s) (%d,%d)\n", m->path, query_name(op, NULL), op->arch && op->arch->name ? op->arch->name : "<no arch name>", op->x, op->y);
 					head->owner = NULL;
 					continue;

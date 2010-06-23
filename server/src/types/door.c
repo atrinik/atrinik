@@ -52,7 +52,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 	/* Look for objects on layer 5. */
 	for (tmp = GET_MAP_OB_LAYER(m, x, y, 4); tmp && tmp->layer == 5; tmp = tmp->above)
 	{
-		if (tmp->type == LOCKED_DOOR)
+		if (tmp->type == DOOR)
 		{
 			/* Door needs a key? */
 			if (tmp->slaying)
@@ -75,7 +75,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 
 				if (op->type == PLAYER && key)
 				{
-					if (key->type == SPECIAL_KEY)
+					if (key->type == KEY)
 					{
 						new_draw_info_format(NDI_UNIQUE, op, "You open the door with the %s.", query_short_name(key, NULL));
 					}
@@ -106,7 +106,7 @@ object *find_key(object *op, object *door)
 	/* First, let's try to find a key in the top level inventory. */
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		if ((tmp->type == SPECIAL_KEY || tmp->type == FORCE) && tmp->slaying == door->slaying)
+		if ((tmp->type == KEY || tmp->type == FORCE) && tmp->slaying == door->slaying)
 		{
 			return tmp;
 		}
@@ -214,7 +214,7 @@ void open_locked_door(object *op, object *opener)
 		/* Let's search for a locked door on nearby tiles */
 		for (i = 1; i < 9; i += 2)
 		{
-			tmp = present(LOCKED_DOOR, op->map, op->x + freearr_x[i], op->y + freearr_y[i]);
+			tmp = present(DOOR, op->map, op->x + freearr_x[i], op->y + freearr_y[i]);
 
 			/* Found it, slaying matches, it has FLAG_CURSED and not opened? */
 			if (tmp && tmp->slaying == op->slaying && QUERY_FLAG(tmp, FLAG_CURSED) && tmp->state == 0)

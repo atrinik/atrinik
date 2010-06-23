@@ -198,7 +198,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
 
-	if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
+	if (op->type == KEY && sack->slaying && op->slaying)
 	{
 		snprintf(buf, sizeof(buf), "You don't want put the key into %s.", query_name(sack, NULL));
 	}

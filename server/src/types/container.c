@@ -98,7 +98,7 @@ int esrv_apply_container(object *op, object *sack)
 
 			if (tmp)
 			{
-				if (tmp->type == SPECIAL_KEY)
+				if (tmp->type == KEY)
 				{
 					new_draw_info_format(NDI_UNIQUE, op, "You unlock %s with %s.", query_name(sack, op), query_name(tmp, op));
 				}

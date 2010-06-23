@@ -1082,26 +1082,6 @@ void send_ready_skill(object *op, const char *skillname)
 }
 
 /**
- * Send to client the golem face and name.
- * @param golem Golem object (will grab golem owner from this).
- * @param mode One of @ref golem_control_modes. */
-void send_golem_control(object *golem, int mode)
-{
-	char tmp[MAX_BUF];
-
-	if (mode == GOLEM_CTR_RELEASE)
-	{
-		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, 0, golem->name);
-	}
-	else
-	{
-		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, golem->face->number, golem->name);
-	}
-
-	Write_String_To_Socket(&CONTR(golem->owner)->socket, BINARY_CMD_GOLEMCMD, tmp, strlen(tmp));
-}
-
-/**
  * Generate player's extended name from race, gender, guild, etc.
  * @param pl The player. */
 void generate_ext_title(player *pl)

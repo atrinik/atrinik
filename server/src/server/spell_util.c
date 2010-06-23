@@ -1365,6 +1365,7 @@ void explode_object(object *op)
 {
 	tag_t op_tag = op->count;
 	object *tmp;
+	int type;
 
 	play_sound_map(op->map, op->x, op->y, SOUND_OB_EXPLODE, SOUND_NORMAL);
 
@@ -1377,49 +1378,16 @@ void explode_object(object *op)
 	}
 
 	tmp = arch_to_object(op->other_arch);
+	type = tmp->stats.sp;
 
-	switch (tmp->type)
+	if (!type)
 	{
-		case POISONCLOUD:
-		case FBALL:
-		{
-			tmp->stats.dam = (sint16) SP_level_dam_adjust(op, op->stats.sp, tmp->stats.dam);
-
-			copy_owner(tmp, op);
-
-			if (op->stats.hp)
-			{
-				tmp->stats.hp = op->stats.hp;
-			}
-
-			/* Unique ID */
-			tmp->stats.maxhp = op->count;
-			tmp->x = op->x;
-			tmp->y = op->y;
-
-			/* Prevent recursion */
-			CLEAR_FLAG(op, FLAG_WALK_ON);
-			CLEAR_FLAG(op, FLAG_FLY_ON);
-
-			insert_ob_in_map(tmp, op->map, op, 0);
-			break;
-		}
-
-		case CONE:
-		{
-			int type = tmp->stats.sp;
-
-			if (!type)
-			{
-				type = op->stats.sp;
-			}
-
-			copy_owner(tmp, op);
-			cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
-			hit_map(op, 0, 0);
-			break;
-		}
+		type = op->stats.sp;
 	}
+
+	copy_owner(tmp, op);
+	cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
+	hit_map(op, 0, 0);
 
 	/* remove the firebullet */
 	if (!was_destroyed(op, op_tag))

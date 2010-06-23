@@ -135,7 +135,7 @@ spell spells[NROFREALSPELLS] =
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, SOUND_MAGIC_SUMMON1,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
-	 PATH_SUMMON, "golem"
+	 PATH_SUMMON, NULL
 	},
 
 	{"remove depletion", SPELL_TYPE_PRIEST,

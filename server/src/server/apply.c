@@ -181,20 +181,10 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 			break;
 
-		case CANCELLATION:
-		case BALL_LIGHTNING:
-			if (IS_LIVE(victim) && !(flags & MOVE_APPLY_VANISHED))
-			{
-				hit_player(victim, trap->stats.dam, trap, AT_INTERNAL);
-			}
-
-			break;
-
 		case CONE:
 		case LIGHTNING:
 			break;
 
-		case FBULLET:
 		case BULLET:
 			if ((QUERY_FLAG(victim, FLAG_NO_PASS) || IS_LIVE(victim)) && !(flags & MOVE_APPLY_VANISHED))
 			{
@@ -913,7 +903,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 		/* So the below default case doesn't execute for these objects,
 		 * even if they have message. */
-		case LOCKED_DOOR:
+		case DOOR:
 			return 0;
 
 		/* Nothing from the above... but show a message if it has one. */
