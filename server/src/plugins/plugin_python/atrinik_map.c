@@ -336,10 +336,6 @@ static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args, PyObject *ke
  *
  * If you simply need to check if there's a wall on a square, you should use
  * @ref Atrinik_Map_Wall "map.Wall()" instead.
- *
- * @note 'map', 'x', 'y' should all be valid, and 'map' cannot be None. Use
- * @ref Atrinik_Map_GetMapFromCoord "map.GetMapFromCoord()" if doing modification
- * of x/y to get the real map/x/y values with tiling taken into consideration.
  * @param ob Object we're checking.
  * @param x X coordinate.
  * @param y Y coordinate.
@@ -349,16 +345,21 @@ static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args, PyObject *ke
 static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
 	Atrinik_Object *ob;
-	sint16 x, y;
-	int terrain;
+	int x, y, terrain;
+	mapstruct *m;
 	static char *kwlist[] = {"ob", "x", "y", "terrain", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!hhi", kwlist, &Atrinik_ObjectType, &ob, &x, &y, &terrain))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!iii", kwlist, &Atrinik_ObjectType, &ob, &x, &y, &terrain))
 	{
 		return NULL;
 	}
 
-	return Py_BuildValue("i", hooks->blocked(ob->obj, map->map, x, y, terrain));
+	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
+	{
+		RAISE("Unable to get map using get_map_from_coord().");
+	}
+
+	return Py_BuildValue("i", hooks->blocked(ob->obj, m, x, y, terrain));
 }
 
 /*@}*/
