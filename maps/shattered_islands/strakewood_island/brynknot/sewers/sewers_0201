@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-06-14 Alex Tokar
+Modified: 2010-06-18 Kiana
 endmsg
 width 24
 height 24
@@ -878,6 +878,9 @@ x 9
 y 20
 end
 arch sewer_hole2
+slaying sewers_a_0201
+hp 9
+sp 20
 x 9
 y 20
 end
