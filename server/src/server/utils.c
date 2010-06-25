@@ -63,7 +63,7 @@ int rndm_chance(uint32 n)
 		return 0;
 	}
 
-	return RANDOM() < (RAND_MAX + 1U) / n;
+	return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
 }
 
 /**
