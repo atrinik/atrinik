@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-22 Kiana
-Modified: 2010-06-24 Kiana
+Modified: 2010-06-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -85,7 +85,7 @@ end
 arch stairs_stone_up
 layer 4
 direction 5
-slaying sewers_a_0a0b
+slaying sewers_a_aaab
 hp 1
 sp 22
 x 1
@@ -451,14 +451,12 @@ wc 5
 maxhp 75
 ac 13
 can_see_in_dark 1
-Wis 10
+Wis 5
 protect_impact 10
 protect_slash 7
 protect_cleave 5
 protect_pierce 7
 type 83
-arch quest_container
-name Redhelm's Lost Pouch
 arch pouch
 title of minor holding
 value 550
@@ -492,6 +490,8 @@ end
 arch amethyst_small
 end
 end
+arch quest_container
+name Redhelm's Lost Pouch
 end
 end
 end

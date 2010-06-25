@@ -1552,7 +1552,7 @@ x 9
 y 15
 end
 arch sewer_hole2
-slaying sewers_a_0a01
+slaying sewers_a_aa01
 hp 15
 sp 11
 x 9

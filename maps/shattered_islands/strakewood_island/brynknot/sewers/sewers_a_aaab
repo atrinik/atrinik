@@ -2,17 +2,15 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Kiana
-Modified: 2010-06-24 Kiana
+Modified: 2010-06-25 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 7
 darkness 2
-tile_path_1 sewers_a_0a0a
-tile_path_2 sewers_a_010b
-tile_path_3 sewers_a_0a0c
-tile_path_5 sewers_a_010a
-tile_path_6 sewers_a_010c
+tile_path_1 sewers_a_aaaa
+tile_path_2 sewers_a_01ab
+tile_path_5 sewers_a_01aa
 region brynknot
 end
 arch blocked
@@ -331,7 +329,7 @@ y 22
 end
 arch stairs_stone_down
 direction 5
-slaying sewers_b_0a0c
+slaying sewers_b_aaac
 hp 1
 sp 1
 x 1
@@ -1937,9 +1935,6 @@ x 13
 y 13
 end
 arch stone_1
-msg
-sewers_a_0a0b 13 13
-endmsg
 weight 300000
 can_roll 1
 terrain_flag 1
@@ -3001,7 +2996,7 @@ arch check_inv
 layer 0
 sys_object 1
 direction 7
-slaying sewers2
+slaying brynknot_sewers2
 sp 1
 last_grace 1
 x 21
@@ -3010,7 +3005,7 @@ end
 arch gate1_locked
 glow_radius 1
 direction 7
-slaying sewers2
+slaying brynknot_sewers2
 sp 2
 x 21
 y 22

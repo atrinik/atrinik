@@ -12,8 +12,8 @@ difficulty 7
 darkness 2
 fixed_resettime 1
 tile_path_2 sewers_a_0101
-tile_path_3 sewers_a_0a0a
-tile_path_6 sewers_a_010a
+tile_path_3 sewers_a_aaaa
+tile_path_6 sewers_a_01aa
 region brynknot
 end
 arch blocked

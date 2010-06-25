@@ -4,31 +4,35 @@
 from Atrinik import *
 import os
 
-rock_beacons = [
-	"brynknot_sewers_a_rock_1", "brynknot_sewers_a_rock_2",
-	"brynknot_sewers_a_rock_3", "brynknot_sewers_a_rock_4"
+me = WhoAmI()
+
+# The rocks.
+rocks = [
+	["sewers_a_aaab", 13, 13, "brynknot_sewers_a_rock_1"],
+	["sewers_a_01ab", 0, 4, "brynknot_sewers_a_rock_2"],
+	["sewers_a_02ab", 1, 19, "brynknot_sewers_a_rock_3"],
+	["sewers_a_02ab", 0, 9, "brynknot_sewers_a_rock_4"],
 ]
 
-for beacon_name in rock_beacons:
-	beacon = LocateBeacon(beacon_name)
+if GetEventNumber() == EVENT_TIMER:
+	for rock in rocks:
+		ReadyMap(os.path.dirname(me.map.path) + "/" + rock[0]).Insert(LocateBeacon(rock[3]).env, rock[1], rock[2])
 
-	if not beacon:
-		raise Error("Could not find beacon '{0}'.".format(beacon_name))
+	me.f_splitting = False
+else:
+	for rock in rocks:
+		ReadyMap(os.path.dirname(me.map.path) + "/" + rock[0])
 
-	(map_name, x, y) = beacon.env.msg.split()
-	m = ReadyMap(os.path.dirname(beacon.env.map.path) + "/" + map_name)
+	key = me.CheckInventory(0, "key2")
 
-	if not m:
-		raise Error("Could not load map.")
+	if not key:
+		raise Error("Could not find key inside myself.")
 
-	m.Insert(beacon.env, int(x), int(y))
+	activator = WhoIsActivator()
 
-key = WhoAmI().CheckInventory(0, "key2")
+	if not activator.CheckInventory(2, "key2", key.name):
+		key.Clone().InsertInside(activator)
 
-if not key:
-	raise Error("Could not find key inside myself.")
-
-activator = WhoIsActivator()
-
-if not activator.CheckInventory(2, "key2", key.name):
-	key.Clone().InsertInside(activator)
+	if not me.f_splitting:
+		me.CreateTimer(1, 2)
+		me.f_splitting = True

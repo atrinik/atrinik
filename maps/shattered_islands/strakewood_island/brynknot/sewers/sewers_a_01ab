@@ -2,20 +2,20 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Kiana
-Modified: 2010-06-23 Kiana
+Modified: 2010-06-25 Alex Tokar
 endmsg
 width 24
 height 24
+enter_x 10
+enter_y 12
 difficulty 7
 darkness 2
-tile_path_1 sewers_a_010a
-tile_path_2 sewers_a_020b
-tile_path_3 sewers_a_010c
-tile_path_4 sewers_a_0a0b
-tile_path_5 sewers_a_020a
-tile_path_6 sewers_a_020c
-tile_path_7 sewers_a_0a0c
-tile_path_8 sewers_a_0a0a
+fixed_login 1
+tile_path_1 sewers_a_01aa
+tile_path_2 sewers_a_02ab
+tile_path_4 sewers_a_aaab
+tile_path_5 sewers_a_02aa
+tile_path_8 sewers_a_aaaa
 region brynknot
 end
 arch blocked
@@ -36,9 +36,6 @@ arch floor_grey6
 y 4
 end
 arch stone_2
-msg
-sewers_a_010b 0 4
-endmsg
 weight 300000
 can_roll 1
 terrain_flag 1
@@ -1072,12 +1069,19 @@ sp 13
 x 7
 y 11
 arch key2
+msg
+Key from sewers under Brynknot, receieved by completing the rocks puzzle.
+endmsg
 name brown sewer key
-slaying sewers1
 face key_brown.111
+slaying brynknot_sewers1
 end
 arch event_obj
 sub_type 10
+race scripts/rocks_puzzle.py
+end
+arch event_obj
+sub_type 12
 race scripts/rocks_puzzle.py
 end
 end
@@ -3267,7 +3271,7 @@ arch check_inv
 layer 0
 sys_object 1
 direction 7
-slaying sewers1
+slaying brynknot_sewers1
 sp 1
 last_grace 1
 x 21
@@ -3276,7 +3280,7 @@ end
 arch gate1_locked
 glow_radius 1
 direction 7
-slaying sewers1
+slaying brynknot_sewers1
 sp 2
 x 21
 y 22
