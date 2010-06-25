@@ -132,11 +132,23 @@ typedef struct obj
 	/** Unique object number for this object */
 	tag_t count;
 
+	/**
+	 * Needed for the damage info for client in map2. Also used for
+	 * unmodified carrying weight of magical containers to prevent rounding
+	 * errors. */
+	uint32 damage_round_tag;
+
+	/**
+	 * How much weight this object contains (of objects in inv). This
+	 * is not copied by memcpy(), since the memcpy() doesn't actually
+	 * copy over the inventory either, so it would create bogus carrying
+	 * weight in some cases. */
+	sint32 carrying;
+
 	/* These get an extra add_refcount(), after having been copied by memcpy().
-	 * All fields beow this point are automatically copied by memcpy.  If
+	 * All fields beow this point are automatically copied by memcpy. If
 	 * adding something that needs a refcount updated, make sure you modify
-	 * copy_object to do so.  Everything below here also gets cleared
-	 * by clear_object() */
+	 * copy_object to do so. */
 
 	/** The name of the object, obviously... */
 	const char *name;
@@ -215,9 +227,6 @@ typedef struct obj
 	 * perhaps we can substitute it? */
 	uint32 weight_limit;
 
-	/** How much weight this object contains (of objects in inv) */
-	sint32 carrying;
-
 	/** Paths the object is attuned to */
 	uint32 path_attuned;
 
@@ -229,9 +238,6 @@ typedef struct obj
 
 	/** How many of the objects */
 	uint32 nrof;
-
-	/** Needed for the damage info for client in map2 */
-	uint32 damage_round_tag;
 
 	/** This is used from map2 update! */
 	uint32 update_tag;
