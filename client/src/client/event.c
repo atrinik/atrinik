@@ -2011,11 +2011,8 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 		}
 	}
 	/* Put item into quickslot */
-	else if (key && key->keysym.mod & (KMOD_SHIFT | KMOD_ALT))
+	else if (key && key->keysym.mod & KMOD_SHIFT && cpl.inventory_win == IWIN_INV)
 	{
-		if (cpl.inventory_win == IWIN_BELOW)
-			return;
-
 		tag = cpl.win_inv_tag;
 
 		if (tag == -1 || !locate_item(tag))
