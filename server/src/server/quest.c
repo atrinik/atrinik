@@ -41,7 +41,7 @@ object *create_quest_container(object *op)
 {
 	object *quest_container = get_object();
 
-	copy_object(get_archetype(QUEST_CONTAINER_ARCHETYPE), quest_container);
+	copy_object(get_archetype(QUEST_CONTAINER_ARCHETYPE), quest_container, 0);
 	insert_ob_in_ob(quest_container, op);
 
 	return quest_container;
@@ -159,7 +159,7 @@ static void add_one_drop_quest_item(object *op, object *quest_item, const char *
 	}
 
 	/* Copy the object data. */
-	copy_object_data(quest_item, quest_item_tmp);
+	copy_object(quest_item, quest_item_tmp, 1);
 	/* Remove it from the active list. */
 	quest_item_tmp->speed = 0.0f;
 	/* Mark this quest as completed. */

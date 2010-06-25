@@ -1348,12 +1348,12 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 	if (!(quest_container = hooks->present_in_ob(QUEST_CONTAINER, WHO)))
 	{
 		quest_container = hooks->get_object();
-		hooks->copy_object(myob, quest_container);
+		hooks->copy_object(myob, quest_container, 0);
 		hooks->insert_ob_in_ob(quest_container, WHO);
 	}
 
 	quest_object = hooks->get_object();
-	hooks->copy_object(myob, quest_object);
+	hooks->copy_object(myob, quest_object, 0);
 
 	quest_object->magic = 0;
 	FREE_AND_COPY_HASH(quest_object->name, quest_name);
@@ -1987,7 +1987,7 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 	else
 	{
 		clone = hooks->get_object();
-		hooks->copy_object(WHO, clone);
+		hooks->copy_object(WHO, clone, 0);
 	}
 
 	if (clone->type == PLAYER || QUERY_FLAG(clone, FLAG_IS_PLAYER))

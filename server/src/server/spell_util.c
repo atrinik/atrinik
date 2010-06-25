@@ -1195,7 +1195,7 @@ void forklightning(object *op, object *tmp)
 	{
 		object *new_bolt = get_object();
 
-		copy_object(tmp, new_bolt);
+		copy_object(tmp, new_bolt, 0);
 		new_bolt->stats.food = 0;
 		/* Reduce chances of subsequent forking */
 		new_bolt->stats.Dex -= 10;
@@ -1333,7 +1333,7 @@ void move_bolt(object *op)
 
 	/* Create a copy of this object and put it ahead */
 	tmp = get_object();
-	copy_object(op, tmp);
+	copy_object(op, tmp, 0);
 	tmp->speed_left = -0.1f;
 	tmp->x += DIRX(tmp);
 	tmp->y += DIRY(tmp);

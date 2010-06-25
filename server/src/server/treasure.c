@@ -954,7 +954,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 						if (value / coins_arch[i]->clone.value > 0)
 						{
 							tmp = get_object();
-							copy_object(&coins_arch[i]->clone, tmp);
+							copy_object(&coins_arch[i]->clone, tmp, 0);
 							tmp->nrof = value / tmp->value;
 							value -= tmp->nrof * tmp->value;
 							put_treasure(tmp, op, flag);
@@ -1140,7 +1140,7 @@ create_one_treasure_again_jmp:
 				if (value / coins_arch[i]->clone.value > 0)
 				{
 					tmp = get_object();
-					copy_object(&coins_arch[i]->clone, tmp);
+					copy_object(&coins_arch[i]->clone, tmp, 0);
 					tmp->nrof = value / tmp->value;
 					value -= tmp->nrof * tmp->value;
 					put_treasure(tmp, op, flag);

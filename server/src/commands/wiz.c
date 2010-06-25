@@ -810,7 +810,7 @@ int command_create(object *op, char *params)
 			if (head == NULL)
 			{
 				head = dup;
-				copy_object(tmp, dup);
+				copy_object(tmp, dup, 0);
 			}
 
 			dup->x = op->x + dup->arch->clone.x;

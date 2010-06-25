@@ -241,8 +241,7 @@ static void first_arch_pass(FILE *fp)
 	{
 		first = 0;
 
-		/* Use copy_object_data() - we don't want adjust any speed_left here! */
-		copy_object_data(op, &at->clone);
+		copy_object(op, &at->clone, 1);
 
 		/* Now we have the right speed_left value for out object.
 		 * copy_object() now will track down negative speed values, to

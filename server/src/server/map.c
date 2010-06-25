@@ -1000,7 +1000,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 			do
 			{
 				tmp = get_object();
-				copy_object(&tail->clone, tmp);
+				copy_object(&tail->clone, tmp, 0);
 
 				tmp->x += op->x;
 				tmp->y += op->y;

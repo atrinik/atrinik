@@ -1184,7 +1184,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 	if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT))
 	{
 		object *new_arrow = get_object();
-		copy_object(arrow, new_arrow);
+		copy_object(arrow, new_arrow, 0);
 		CLEAR_FLAG(new_arrow, FLAG_SYS_OBJECT);
 		new_arrow->nrof = 0;
 

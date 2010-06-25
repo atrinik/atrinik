@@ -172,7 +172,7 @@ int cast_create_food(object *op, object *caster, int dir, char *stringarg)
 
 	food_value /= at->clone.stats.food;
 	new_op = get_object();
-	copy_object(&at->clone, new_op);
+	copy_object(&at->clone, new_op, 0);
 	new_op->nrof = food_value;
 
 	new_op->value = 0;

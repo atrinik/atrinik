@@ -365,7 +365,7 @@ static void init_exp_obj()
 			exp_cat[nrofexpcat] = get_object();
 			exp_cat[nrofexpcat]->level = 1;
 			exp_cat[nrofexpcat]->stats.exp = 0;
-			copy_object(&at->clone, exp_cat[nrofexpcat]);
+			copy_object(&at->clone, exp_cat[nrofexpcat], 0);
 			/* avoid gc on these objects */
 			insert_ob_in_ob(exp_cat[nrofexpcat], &void_container);
 			nrofexpcat++;
@@ -762,7 +762,7 @@ int init_player_exp(object *pl)
 		for (j = 0; j < nrofexpcat; j++)
 		{
 			tmp = get_object();
-			copy_object(exp_cat[j], tmp);
+			copy_object(exp_cat[j], tmp, 0);
 			insert_ob_in_ob(tmp, pl);
 			tmp->stats.exp = 0;
 			exp_ob[j] = tmp;

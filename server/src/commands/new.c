@@ -763,7 +763,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	/* need to copy the name to new arch */
 	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
-	copy_object(&p_arch->clone, op);
+	copy_object(&p_arch->clone, op, 0);
 	op->custom_attrset = pl;
 	pl->ob = op;
 	FREE_AND_CLEAR_HASH2(op->name);

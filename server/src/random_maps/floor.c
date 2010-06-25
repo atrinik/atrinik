@@ -61,7 +61,7 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
 		{
 			object *the_floor = pick_random_object(style_map), *thisfloor = get_object();
 
-			copy_object(the_floor, thisfloor);
+			copy_object(the_floor, thisfloor, 0);
 			thisfloor->x = x;
 			thisfloor->y = y;
 

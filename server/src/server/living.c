@@ -2139,7 +2139,7 @@ object *insert_base_info_object(object *op)
 	tmp = get_object();
 	tmp->arch = op->arch;
 	/* Copy without putting it on active list */
-	copy_object_data(head, tmp);
+	copy_object(head, tmp, 1);
 	tmp->type = BASE_INFO;
 	tmp->speed_left = tmp->speed;
 	/* Ensure this object will not be active in any way */

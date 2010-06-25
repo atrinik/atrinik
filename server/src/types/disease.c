@@ -290,7 +290,7 @@ int infect_object(object *victim, object *disease, int force)
 
 	/* If we've gotten this far, go ahead and infect the victim. */
 	new_disease = get_object();
-	copy_object(disease, new_disease);
+	copy_object(disease, new_disease, 0);
 	new_disease->stats.food = disease->stats.maxgrace;
 	new_disease->value = disease->stats.maxhp;
 	/* self-limiting factor */

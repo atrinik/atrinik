@@ -118,7 +118,7 @@ void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)
 				}
 
 				new_door = arch_to_object(this_door->arch);
-				copy_object(this_door, new_door);
+				copy_object(this_door, new_door, 0);
 				new_door->x = x;
 				new_door->y = y;
 

@@ -56,14 +56,14 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 		if (head == NULL)
 		{
 			monster->type = MONSTER;
-			copy_object(monster, op);
+			copy_object(monster, op, 0);
 			monster->type = SPAWN_POINT_MOB;
 			ret = op;
 		}
 		/* But the tails for multi arch from the clones */
 		else
 		{
-			copy_object(&at->clone, op);
+			copy_object(&at->clone, op, 0);
 		}
 
 		op->x = spawn_point->x + freearr_x[i] + at->clone.x;
@@ -228,7 +228,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 					else
 					{
 						item = get_object();
-						copy_object(tmp2, item);
+						copy_object(tmp2, item, 0);
 						insert_ob_in_ob(item, monster);
 
 						if (tmp2->inv)
@@ -242,7 +242,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 		else
 		{
 			item = get_object();
-			copy_object(tmp, item);
+			copy_object(tmp, item, 0);
 			insert_ob_in_ob(item, monster);
 
 			if (tmp->inv)

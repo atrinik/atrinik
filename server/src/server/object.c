@@ -969,11 +969,12 @@ void initialize_object(object *op)
 
 /**
  * Copy object first frees everything allocated by the second object,
- * and then copies the contends of the first object into the second
+ * and then copies the contents of the first object into the second
  * object, allocating what needs to be allocated.
  * @param op2 Object that we copy from.
- * @param op Object that we copy to. */
-void copy_object(object *op2, object *op)
+ * @param op Object that we copy to.
+ * @param no_speed If set, do not touch the active list. */
+void copy_object(object *op2, object *op, int no_speed)
 {
 	int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
 
@@ -1001,7 +1002,7 @@ void copy_object(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->artifact);
 
 	/* Only alter speed_left when we sure we have not done it before */
-	if (op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
+	if (!no_speed && op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
 	{
 		op->speed_left += (RANDOM() % 90) / 100.0f;
 	}
@@ -1043,75 +1044,9 @@ void copy_object(object *op2, object *op)
 		}
 	}
 
-	update_ob_speed(op);
-}
-
-/**
- * Same as copy_object(), but not touching the active list.
- * @param op2
- * @param op  */
-void copy_object_data(object *op2, object *op)
-{
-	int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
-
-	FREE_ONLY_HASH(op->name);
-	FREE_ONLY_HASH(op->title);
-	FREE_ONLY_HASH(op->race);
-	FREE_ONLY_HASH(op->slaying);
-	FREE_ONLY_HASH(op->msg);
-	FREE_ONLY_HASH(op->artifact);
-
-	free_key_values(op);
-
-	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
-
-	if (is_removed)
+	if (!no_speed)
 	{
-		SET_FLAG(op, FLAG_REMOVED);
-	}
-
-	ADD_REF_NOT_NULL_HASH(op->name);
-	ADD_REF_NOT_NULL_HASH(op->title);
-	ADD_REF_NOT_NULL_HASH(op->race);
-	ADD_REF_NOT_NULL_HASH(op->slaying);
-	ADD_REF_NOT_NULL_HASH(op->msg);
-	ADD_REF_NOT_NULL_HASH(op->artifact);
-
-	/* Copy over key_values, if any. */
-	if (op2->key_values)
-	{
-		key_value *tail = NULL, *i;
-
-		op->key_values = NULL;
-
-		for (i = op2->key_values; i; i = i->next)
-		{
-			key_value *new_link = malloc(sizeof(key_value));
-
-			new_link->next = NULL;
-			new_link->key = add_refcount(i->key);
-
-			if (i->value)
-			{
-				new_link->value = add_refcount(i->value);
-			}
-			else
-			{
-				new_link->value = NULL;
-			}
-
-			/* Try and be clever here, too. */
-			if (op->key_values == NULL)
-			{
-				op->key_values = new_link;
-				tail = new_link;
-			}
-			else
-			{
-				tail->next = new_link;
-				tail = new_link;
-			}
-		}
+		update_ob_speed(op);
 	}
 }
 
@@ -1123,12 +1058,12 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
 {
 	object *walk, *tmp;
 
-	copy_object(src_ob, dest_ob);
+	copy_object(src_ob, dest_ob, 0);
 
 	for (walk = src_ob->inv; walk; walk = walk->below)
 	{
 		tmp = get_object();
-		copy_object(walk, tmp);
+		copy_object(walk, tmp, 0);
 		insert_ob_in_ob(tmp, dest_ob);
 	}
 }
@@ -2352,7 +2287,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 	}
 
 	newob = get_object();
-	copy_object(orig_ob, newob);
+	copy_object(orig_ob, newob, 0);
 
 	/* Copy inventory (event objects) */
 	for (tmp = orig_ob->inv; tmp; tmp = tmp->below)
@@ -2360,7 +2295,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 		if (tmp->type == EVENT_OBJECT)
 		{
 			event = get_object();
-			copy_object(tmp, event);
+			copy_object(tmp, event, 0);
 			insert_ob_in_ob(event, newob);
 		}
 	}
@@ -3268,7 +3203,7 @@ object *object_create_clone(object *asrc)
 	for (part = src; part; part = part->more)
 	{
 		tmp = get_object();
-		copy_object(part, tmp);
+		copy_object(part, tmp, 0);
 		tmp->x -= src->x;
 		tmp->y -= src->y;
 
