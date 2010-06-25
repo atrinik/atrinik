@@ -457,41 +457,30 @@ protect_slash 7
 protect_cleave 5
 protect_pierce 7
 type 83
-arch pouch
-title of minor holding
-value 550
-material_real 194
-one_drop 1
-is_magical 1
-weapon_speed 0.85
-arch emerald_poor
-identified 1
+arch quest_container
+name Redhelm's Lost Pouch
+arch redhelm_quest_pouch
+arch amethyst_small
 end
-arch jasper_small
+arch diamond_poor
 end
-arch zircon_small
-end
-arch sapphire_poor
-identified 1
-end
-arch jade_small
-end
-arch opal_poor
-identified 1
+arch ruby_poor
 end
 arch aquamarine_small
 end
-arch ruby_poor
-identified 1
+arch opal_small
 end
-arch diamond_poor
-identified 1
+arch jade_small
 end
-arch amethyst_small
+arch sapphire_poor
+end
+arch zircon_small
+end
+arch jasper_small
+end
+arch emerald_small
 end
 end
-arch quest_container
-name Redhelm's Lost Pouch
 end
 end
 end
