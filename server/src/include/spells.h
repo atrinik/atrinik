@@ -139,20 +139,6 @@ extern int cleric_chance[];
 #define SPELL_DESC_FRIENDLY     0x08
 /** Spell can be cast on enemy creature. */
 #define SPELL_DESC_ENEMY        0x10
-/**
- * Spell can be cast on party members.
- * @todo Implement. I think the idea is 'buffs' of some sort. */
-#define SPELL_DESC_PARTY        0x20
-/** Spell summons something. */
-#define SPELL_DESC_SUMMON       0x40
-/**
- * Spell can be cast even when paralyzed.
- * @todo Implement. */
-#define SPELL_DESC_PARALYZED    0x80
-/**
- * If set, this is a prayer using wisdom stat, instead of intelligence
- * stat of an object. */
-#define SPELL_DESC_WIS          0x100
 /*@}*/
 
 /** Spell structure. */

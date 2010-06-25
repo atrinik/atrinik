@@ -743,7 +743,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 	 * in our message buffer */
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
-		if ((prayers && !(spells[i].flags & SPELL_DESC_WIS)) || !(pnum & spells[i].path))
+		if ((prayers && spells[i].type != SPELL_TYPE_PRIEST) || !(pnum & spells[i].path))
 		{
 			continue;
 		}

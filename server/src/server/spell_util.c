@@ -65,11 +65,6 @@ void init_spells()
 			if ((value = object_get_value(tmp, "spell_type")))
 			{
 				spells[i].type = !strcmp(value, "wizard") ? SPELL_TYPE_WIZARD : SPELL_TYPE_PRIEST;
-
-				if (spells[i].type == SPELL_TYPE_PRIEST && !(spells[i].flags & SPELL_DESC_WIS))
-				{
-					spells[i].flags |= SPELL_DESC_WIS;
-				}
 			}
 
 			if ((value = object_get_value(tmp, "spell_level")))
@@ -331,14 +326,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		}
 
 		/* No magic and not a prayer. */
-		if (MAP_NOMAGIC(cast_op->map) && !(spells[type].flags & SPELL_DESC_WIS))
+		if (MAP_NOMAGIC(cast_op->map) && spells[type].type == SPELL_TYPE_WIZARD)
 		{
 			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all spellcasting here!");
 			return 0;
 		}
 
 		/* No prayer and a prayer. */
-		if (MAP_NOPRIEST(cast_op->map) && (spells[type].flags & SPELL_DESC_WIS))
+		if (MAP_NOPRIEST(cast_op->map) && spells[type].type == SPELL_TYPE_PRIEST)
 		{
 			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all prayer spells here!");
 			return 0;
@@ -348,13 +343,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		if (MAP_NOHARM(cast_op->map) && !(spells[type].flags & SPELL_DESC_TOWN))
 		{
 			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all harmful magic here!");
-			return 0;
-		}
-
-		/* No summon and a summon cast. */
-		if (MAP_NOSUMMON(cast_op->map) && (spells[type].flags & SPELL_DESC_SUMMON))
-		{
-			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all summoning here!");
 			return 0;
 		}
 
@@ -374,13 +362,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 				if (!(QUERY_FLAG(op, FLAG_WIZ)))
 				{
-					if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
+					if (spells[type].type == SPELL_TYPE_PRIEST && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
 					{
 						new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
 						return 0;
 					}
 
-					if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
+					if (spells[type].type == SPELL_TYPE_WIZARD && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
 					{
 						new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
 						return 0;
@@ -390,7 +378,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 			/* If it a prayer, grab the player's god - if we have none, we
 			 * can't cast, except for potions. */
-			if (spells[type].flags & SPELL_DESC_WIS && item != spellPotion)
+			if (spells[type].type == SPELL_TYPE_PRIEST && item != spellPotion)
 			{
 				if ((godname = determine_god(op)) == shstr_cons.none)
 				{
@@ -441,14 +429,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			new_draw_info(NDI_UNIQUE, op, "You auto-target yourself with this spell!");
 		}
 
-		if (!ability && ((!(s->flags & SPELL_DESC_WIS) && blocks_magic(op->map, op->x, op->y)) || ((s->flags & SPELL_DESC_WIS) && blocks_cleric(op->map, op->x, op->y))))
+		if (!ability && ((s->type == SPELL_TYPE_WIZARD && blocks_magic(op->map, op->x, op->y)) || (s->type == SPELL_TYPE_PRIEST && blocks_cleric(op->map, op->x, op->y))))
 		{
 			if (op->type != PLAYER)
 			{
 				return 0;
 			}
 
-			if (s->flags & SPELL_DESC_WIS)
+			if (s->type == SPELL_TYPE_PRIEST)
 			{
 				new_draw_info_format(NDI_UNIQUE, op, "This ground is unholy! %s ignores you.", godname);
 			}
@@ -487,7 +475,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		if (item == spellNormal && op->type == PLAYER)
 		{
 			/* Chance to fumble the spell by too low wisdom. */
-			if (s->flags & SPELL_DESC_WIS && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
+			if (s->type == SPELL_TYPE_PRIEST && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
 			{
 				play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
@@ -501,7 +489,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 				return rndm(1, SP_level_spellpoint_cost(caster, type, -1));
 			}
 
-			if (!(s->flags & SPELL_DESC_WIS))
+			if (s->type == SPELL_TYPE_WIZARD)
 			{
 				int failure = rndm(0, 199) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
 

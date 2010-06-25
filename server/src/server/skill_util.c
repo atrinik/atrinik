@@ -551,7 +551,7 @@ int check_skill_to_fire(object *who)
 			break;
 
 		case range_magic:
-			if (spells[CONTR(who)->chosen_spell].flags & SPELL_DESC_WIS)
+			if (spells[CONTR(who)->chosen_spell].type == SPELL_TYPE_PRIEST)
 			{
 				skillnr = SK_PRAYING;
 			}

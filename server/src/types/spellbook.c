@@ -105,7 +105,7 @@ void apply_spellbook(object *op, object *tmp)
 		new_draw_info(NDI_UNIQUE, op, "In your confused state you flub the wording of the text!");
 		spellbook_failure(op, 0 - rndm(0, spells[tmp->stats.sp].level), spells[tmp->stats.sp].sp);
 	}
-	else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || rndm(0, 149) - (2 * SK_level(op)) < learn_spell[spells[tmp->stats.sp].flags&SPELL_DESC_WIS ? op->stats.Wis : op->stats.Int])
+	else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || rndm(0, 149) - (2 * SK_level(op)) < learn_spell[spells[tmp->stats.sp].type == SPELL_TYPE_PRIEST ? op->stats.Wis : op->stats.Int])
 	{
 		new_draw_info(NDI_UNIQUE, op, "You succeed in learning the spell!");
 		do_learn_spell(op, tmp->stats.sp, 0);

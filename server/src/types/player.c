@@ -710,7 +710,7 @@ void fire(object *op, int dir)
 
 			spellcost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, spellNormal, NULL);
 
-			if (spells[CONTR(op)->chosen_spell].flags & SPELL_DESC_WIS)
+			if (spells[CONTR(op)->chosen_spell].type == SPELL_TYPE_PRIEST)
 			{
 				op->stats.grace -= spellcost;
 			}
