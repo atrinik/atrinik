@@ -1434,7 +1434,7 @@ void kill_player(object *op)
 		{
 			/* Pick a random stat and take a point off it. Tell the
 			 * player what he lost. */
-			i = RANDOM() % 7;
+			i = rndm(0, NUM_STATS - 1);
 			change_attr_value(&(op->stats), i, -1);
 			check_stat_bounds(&(op->stats));
 			change_attr_value(&(CONTR(op)->orig_stats), i, -1);
@@ -1448,7 +1448,7 @@ void kill_player(object *op)
 			archetype *deparch = find_archetype("depletion");
 			object *dep;
 
-			i = RANDOM() % 7;
+			i = rndm(0, NUM_STATS - 1);
 			dep = present_arch_in_ob(deparch, op);
 
 			if (!dep)

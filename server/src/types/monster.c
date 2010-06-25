@@ -472,7 +472,7 @@ int move_monster(object *op)
 	}
 
 	/* Time to regain some "guts"... */
-	if (QUERY_FLAG(op, FLAG_SCARED) && !(RANDOM() % 20))
+	if (QUERY_FLAG(op, FLAG_SCARED) && rndm_chance(20))
 	{
 		CLEAR_FLAG(op, FLAG_SCARED);
 	}
@@ -484,7 +484,7 @@ int move_monster(object *op)
 			op->last_grace--;
 		}
 
-		if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
+		if (op->stats.Dex && rndm_chance(op->stats.Dex))
 		{
 			if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
 			{
@@ -574,7 +574,7 @@ int move_monster(object *op)
 			op->last_grace--;
 		}
 
-		if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
+		if (op->stats.Dex && rndm_chance(op->stats.Dex))
 		{
 			if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
 			{
@@ -586,9 +586,9 @@ int move_monster(object *op)
 				}
 			}
 
-			if (QUERY_FLAG(op, FLAG_READY_BOW) && !(RANDOM() % 4))
+			if (QUERY_FLAG(op, FLAG_READY_BOW) && rndm_chance(4))
 			{
-				if (monster_use_bow(op, part, dir) && !(RANDOM() % 2))
+				if (monster_use_bow(op, part, dir) && rndm_chance(2))
 				{
 					return 0;
 				}
@@ -985,7 +985,7 @@ static object *monster_choose_random_spell(object *monster, uint32 flags)
 		return NULL;
 	}
 
-	return altern[RANDOM() % i];
+	return altern[rndm(0, i - 1)];
 }
 
 /**
@@ -1384,7 +1384,7 @@ static void circ1_move(object *ob)
 
 	if (!(move_object(ob, circle[ob->move_status])))
 	{
-		move_object(ob, RANDOM() % 8 + 1);
+		move_object(ob, rndm(1, 8));
 	}
 }
 
@@ -1402,7 +1402,7 @@ static void circ2_move(object *ob)
 
 	if (!(move_object(ob, circle[ob->move_status])))
 	{
-		move_object(ob, RANDOM() % 8 + 1);
+		move_object(ob, rndm(1, 8));
 	}
 }
 
@@ -1501,11 +1501,11 @@ static void rand_move(object *ob)
 {
 	int i;
 
-	if (ob->move_status < 1 || ob->move_status > 8 || !(move_object(ob, ob->move_status || !(RANDOM() % 9))))
+	if (ob->move_status < 1 || ob->move_status > 8 || !(move_object(ob, ob->move_status || rndm_chance(9))))
 	{
 		for (i = 0; i < 5; i++)
 		{
-			if (move_object(ob, ob->move_status = RANDOM() % 8 + 1))
+			if (move_object(ob, ob->move_status = rndm(1, 8)))
 			{
 				return;
 			}

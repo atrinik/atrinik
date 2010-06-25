@@ -52,6 +52,21 @@ int rndm(int min, int max)
 }
 
 /**
+ * Calculates a chance of 1 in 'n'.
+ * @param n Number.
+ * @return 1 if the chance of 1/n was successful, 0 otherwise. */
+int rndm_chance(uint32 n)
+{
+	if (!n)
+	{
+		LOG(llevBug, "BUG: Calling rndm_chance() with n=0.\n");
+		return 0;
+	}
+
+	return RANDOM() < (RAND_MAX + 1U) / n;
+}
+
+/**
  * Return the number of the spell that whose name matches the passed
  * string argument.
  * @param spname Name of the spell to look up.

@@ -215,7 +215,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 
 		if (tmp->type == RANDOM_DROP)
 		{
-			if (!tmp->weight_limit || !(RANDOM() % (tmp->weight_limit + 1)))
+			if (!tmp->weight_limit || rndm_chance(tmp->weight_limit))
 			{
 				for (tmp2 = tmp->inv; tmp2; tmp2 = next2)
 				{
@@ -291,19 +291,17 @@ void spawn_point(object *op)
 	 * useful when saving/loading maps. */
 	if (op->stats.sp == -1)
 	{
-		int gg;
-
 		if (op->last_grace <= -1)
 		{
 			return;
 		}
 
-		if (op->last_grace && (gg = (RANDOM() % (op->last_grace + 1))))
+		if (op->last_grace && !rndm_chance(op->last_grace))
 		{
 			return;
 		}
 
-		op->stats.sp = (RANDOM() % SPAWN_RANDOM_RANGE);
+		op->stats.sp = rndm(0, SPAWN_RANDOM_RANGE - 1);
 	}
 
 	/* Spawn point without inventory! */

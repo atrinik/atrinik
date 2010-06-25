@@ -884,6 +884,7 @@ object *create_artifact(object *op, char *artifactname);
 
 /* server/utils.c */
 int rndm(int min, int max);
+int rndm_chance(uint32 n);
 int look_up_spell_name(const char *spname);
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 char *cleanup_string(char *ustring);

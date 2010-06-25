@@ -900,7 +900,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 		a_chance = t->artifact_chance;
 	}
 
-	if ((t->chance_fix != CHANCE_FIX && !(RANDOM() % (int) t->chance_fix)) || (int) t->chance >= 100 || ((RANDOM() % 100 + 1) < (int) t->chance))
+	if ((t->chance_fix != CHANCE_FIX && rndm_chance(t->chance_fix)) || (int) t->chance >= 100 || (rndm(1, 100) < (int) t->chance))
 	{
 		if (t->name)
 		{
@@ -919,7 +919,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 
 					if (t->nrof && tmp->nrof <= 1)
 					{
-						tmp->nrof = RANDOM() % ((int) t->nrof) + 1;
+						tmp->nrof = rndm(1, t->nrof);
 					}
 
 					/* Ret 1 = artifact is generated - don't overwrite anything here */
@@ -947,7 +947,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 					value *= (difficulty / 2) + 1;
 
 					/* So we have 80% to 120% of the fixed value */
-					value = (int) ((float) value * 0.8f + (float) value * ((float) (RANDOM() % 40) / 100.0f));
+					value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
 
 					for (i = 0; i < NUM_COINS; i++)
 					{
@@ -1009,14 +1009,14 @@ create_one_treasure_again_jmp:
 		return;
 	}
 
-	value = RANDOM() % tl->total_chance;
+	value = rndm(0, tl->total_chance - 1);
 
 	for (t = tl->items; t != NULL; t = t->next)
 	{
 		/* chance_fix will overrule the normal chance stuff!. */
 		if (t->chance_fix != CHANCE_FIX)
 		{
-			if (!(RANDOM() % t->chance_fix))
+			if (rndm_chance(t->chance_fix))
 			{
 				/* Only when allowed, we go on! */
 				if (difficulty >= t->difficulty)
@@ -1106,7 +1106,7 @@ create_one_treasure_again_jmp:
 
 			if (t->nrof && tmp->nrof <= 1)
 			{
-				tmp->nrof = RANDOM() % ((int) t->nrof) + 1;
+				tmp->nrof = rndm(1, t->nrof);
 			}
 
 			set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
@@ -1133,7 +1133,7 @@ create_one_treasure_again_jmp:
 			value *= difficulty;
 
 			/* So we have 80% to 120% of the fixed value */
-			value = (int) ((float) value * 0.8f + (float) value * ((float) (RANDOM() % 40) / 100.0f));
+			value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
 
 			for (i = 0; i < NUM_COINS; i++)
 			{
@@ -1224,9 +1224,9 @@ static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, 
 		i = 0;
 
 		/* chance_magic 0 means always no magic bonus */
-		if (((RANDOM() % 100) + 1) <= chance_magic || ((RANDOM() % 200) + 1) <= difficulty)
+		if (rndm(1, 100) <= chance_magic || rndm(1, 200) <= difficulty)
 		{
-			i = (RANDOM() % abs(max_magic)) + 1;
+			i = rndm(1, abs(max_magic));
 
 			if (max_magic < 0)
 			{
@@ -1301,7 +1301,7 @@ void set_abs_magic(object *op, int magic)
 		}
 
 		/* You can't just check the weight always */
-		if (magic < 0 && !(RANDOM() % 3))
+		if (magic < 0 && !rndm(0, 2))
 		{
 			magic = (-magic);
 		}
@@ -1316,7 +1316,7 @@ void set_abs_magic(object *op, int magic)
 		}
 
 		/* You can't just check the weight always */
-		if (magic < 0 && !(RANDOM() % 3))
+  if (magic < 0 && !rndm(0, 2))
 		{
 			magic = (-magic);
 		}
@@ -1830,7 +1830,7 @@ static int get_magic(int diff)
 
 	for (i = 0; i < 4; i++)
 	{
-		if (RANDOM() % diff)
+		if (rndm(0, diff - 1))
 		{
 			return i;
 		}
@@ -1864,7 +1864,7 @@ static int get_random_spell(int level, int flags)
 	/* If we found any spells we can use, select randomly. */
 	if (num_spells)
 	{
-		return possible_spells[RANDOM() % num_spells];
+		return possible_spells[rndm(0, num_spells - 1)];
 	}
 
 	/* If we are here, there is no fitting spell. */
@@ -1927,7 +1927,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
 		if (a_chance != 0)
 		{
-			if ((!was_magic && !(RANDOM() % CHANCE_FOR_ARTIFACT)) || op->type == HORN || difficulty >= 999 || ((RANDOM() % 100) + 1) <= a_chance)
+			if ((!was_magic && rndm_chance(CHANCE_FOR_ARTIFACT)) || op->type == HORN || difficulty >= 999 || rndm(1, 100) <= a_chance)
 			{
 				retval = generate_artifact(op, difficulty, t_style, a_chance);
 			}
@@ -1960,8 +1960,8 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 				/* Marks as magical */
 				SET_FLAG(op, FLAG_IS_MAGICAL);
 				/* Charges */
-				op->stats.food = RANDOM() % spells[op->stats.sp].charges + 1;
-				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * (RANDOM() % 35))) / 100;
+				op->stats.food = rndm(1, spells[op->stats.sp].charges);
+				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
 				if (temp < 1)
 				{
@@ -2018,7 +2018,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 					}
 				}
 
-				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * (RANDOM() % 35))) / 100;
+				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
 				if (temp < 1)
 				{
@@ -2042,13 +2042,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 				 * great risk! */
 				if (is_special && !(flags & GT_ONLY_GOOD))
 				{
-					if (RANDOM() % 2)
+					if (rndm_chance(2))
 					{
-						SET_FLAG(op, FLAG_CURSED);
-					}
-					else if (RANDOM() % 2)
-					{
-						SET_FLAG(op, FLAG_DAMNED);
+						SET_FLAG(op, rndm_chance(2) ? FLAG_CURSED : FLAG_DAMNED);
 					}
 				}
 
@@ -2103,7 +2099,7 @@ jump_break1:
 				generate_artifact(op, difficulty, t_style, 99);
 
 				/* Now we add the random boni/mali to the item */
-				if (!(flags & GT_ONLY_GOOD) && !(RANDOM() % 3))
+				if (!(flags & GT_ONLY_GOOD) && rndm_chance(4))
 				{
 					SET_FLAG(op, FLAG_CURSED);
 				}
@@ -2112,18 +2108,18 @@ jump_break1:
 
 				if (op->type == RING)
 				{
-					if (!(RANDOM() % 4))
+					if (rndm_chance(4))
 					{
-						int d = (RANDOM() % 2 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+						int d = (!rndm_chance(2) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 						if (set_ring_bonus(op, d, difficulty))
 						{
 							op->value = (int) ((float) op->value * 1.95f);
 						}
 
-						if (!(RANDOM() % 4))
+						if (rndm_chance(4))
 						{
-							int d = (RANDOM() % 3 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+							int d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 							if (set_ring_bonus(op, d, difficulty))
 							{
@@ -2141,7 +2137,7 @@ jump_break1:
 				/* Is it an empty book? If yes let's make a special msg
 				 * for it, and tailor its properties based on the creator
 				 * and/or map level we found it on. */
-				if (!op->msg && RANDOM() % 10)
+				if (!op->msg && !rndm_chance(10))
 				{
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
@@ -2154,16 +2150,16 @@ jump_break1:
 
 						if (ob->map && ob->map->difficulty)
 						{
-							op->level = MIN(RANDOM() % (ob->map->difficulty) + RANDOM() % 3 + 1, MAXLEVEL);
+							op->level = MIN(rndm(1, ob->map->difficulty) + rndm(0, 2), MAXLEVEL);
 						}
 						else
 						{
-							op->level = RANDOM() % 20 + 1;
+							op->level = rndm(1, 20);
 						}
 					}
 					else
 					{
-						op->level = RANDOM() % creator->level;
+						op->level = rndm(1, creator->level);
 					}
 
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
@@ -2206,9 +2202,9 @@ jump_break1:
 				/* Marks as magical */
 				SET_FLAG(op, FLAG_IS_MAGICAL);
 				/* Charges */
-				op->stats.food = (RANDOM() % spells[op->stats.sp].charges + 1) + 12;
+				op->stats.food = rndm(1, spells[op->stats.sp].charges) + 12;
 
-				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * (RANDOM() % 35))) / 100;
+				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
 				if (temp < 1)
 				{
@@ -2241,11 +2237,11 @@ jump_break1:
 
 				if (op->stats.maxhp)
 				{
-					op->stats.maxhp += RANDOM() % op->stats.maxhp;
+					op->stats.maxhp += rndm(1, op->stats.maxhp);
 				}
 
 				op->stats.hp = op->stats.maxhp;
-				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * (RANDOM() % 35))) / 100;
+				temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
 				if (temp < 1)
 				{
@@ -2274,35 +2270,35 @@ jump_break1:
 
 			/* Generate some special food */
 			case FOOD:
-				if (!(RANDOM() % 3))
+				if (rndm_chance(4))
 				{
 					generate_artifact(op, difficulty, T_STYLE_UNSET, 100);
 				}
 
 				/* Small chance to become cursed food */
-				if (!(flags & GT_ONLY_GOOD) && !(RANDOM() % 20))
+				if (!(flags & GT_ONLY_GOOD) && rndm_chance(20))
 				{
-					int strong_curse = RANDOM() % 2, i;
+					int strong_curse = rndm(0, 1), i;
 
 					SET_FLAG(op, FLAG_CURSED);
 					SET_FLAG(op, FLAG_PERM_CURSED);
 
 					/* Pick a random stat to put negative value on */
-					change_attr_value(&op->stats, RANDOM() % NUM_STATS, strong_curse ? -2 : -1);
+					change_attr_value(&op->stats, rndm(0, NUM_STATS - 1), strong_curse ? -2 : -1);
 
 					/* If this is strong curse food, give it half a chance to curse another stat */
-					if (strong_curse && RANDOM() % 2)
+					if (strong_curse && rndm(0, 1))
 					{
-						change_attr_value(&op->stats, RANDOM() % NUM_STATS, strong_curse ? -2 : -1);
+						change_attr_value(&op->stats, rndm(0, NUM_STATS - 1), strong_curse ? -2 : -1);
 					}
 
 					/* Put a negative value on random protection. */
-					op->protection[RANDOM() % LAST_PROTECTION] = strong_curse ? -25 : -10;
+					op->protection[rndm(0, LAST_PROTECTION - 1)] = strong_curse ? -25 : -10;
 
 					/* And again, if this is strong curse food, half a chance to curse another protection. */
-					if (strong_curse && RANDOM() % 2)
+					if (strong_curse && rndm(0, 1))
 					{
-						op->protection[RANDOM() % LAST_PROTECTION] = strong_curse ? -25 : -10;
+						op->protection[rndm(0, LAST_PROTECTION - 1)] = strong_curse ? -25 : -10;
 					}
 
 					/* Change food, hp, mana and grace bonuses to negative values */
@@ -2706,7 +2702,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 
 	for (i = 0; i < ARTIFACT_TRIES; i++)
 	{
-		int roll = RANDOM() % al->total_chance;
+		int roll = rndm(0, al->total_chance - 1);
 
 		for (art = al->items; art != NULL; art = art->next)
 		{
@@ -2928,7 +2924,7 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
 		/* Skip if material is 0 (aka neutralized material setting) */
 		if (change_arch->material_range > 0 && change_arch->material)
 		{
-			op->material_real += (RANDOM() % (change_arch->material_range + 1));
+			op->material_real += rndm(0, change_arch->material_range);
 		}
 	}
 
@@ -3001,7 +2997,7 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
 
 		if (change_arch->material_range > 0)
 		{
-			m_range += (RANDOM() % (change_arch->material_range + 1));
+			m_range += rndm(0, change_arch->material_range);
 		}
 
 		if (op->material_real)
@@ -3074,7 +3070,7 @@ set_material_real:
 
 	if (change_arch->quality_range > 0)
 	{
-		op->item_quality += (RANDOM() % (change_arch->quality_range + 1));
+		op->item_quality += rndm(0, change_arch->quality_range);
 
 		if (op->item_quality > 100)
 		{

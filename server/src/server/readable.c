@@ -455,20 +455,20 @@ static void new_text_name(object *book, int msgtype)
 	switch (msgtype)
 	{
 		case MSGTYPE_MONSTER:
-			name = mon_book_name[RANDOM() % arraysize(mon_book_name)];
+			name = mon_book_name[rndm(0, arraysize(mon_book_name) - 1)];
 			break;
 
 		case MSGTYPE_ARTIFACT:
-			name = art_book_name[RANDOM() % arraysize(art_book_name)];
+			name = art_book_name[rndm(0, arraysize(art_book_name) - 1)];
 			break;
 
 		case MSGTYPE_SPELLPATH:
-			name = path_book_name[RANDOM() % arraysize(path_book_name)];
+			name = path_book_name[rndm(0, arraysize(path_book_name) - 1)];
 			break;
 
 		case MSGTYPE_MSGFILE:
 		default:
-			name = book_name[RANDOM() % arraysize(book_name)];
+			name = book_name[rndm(0, arraysize(book_name) - 1)];
 			break;
 	}
 
@@ -493,20 +493,20 @@ static void add_author(object *op, int msgtype)
 	switch (msgtype)
 	{
 		case MSGTYPE_MONSTER:
-			name = mon_author[RANDOM() % arraysize(mon_author)];
+			name = mon_author[rndm(0, arraysize(mon_author) - 1)];
 			break;
 
 		case MSGTYPE_ARTIFACT:
-			name = art_author[RANDOM() % arraysize(art_author)];
+			name = art_author[rndm(0, arraysize(art_author) - 1)];
 			break;
 
 		case MSGTYPE_SPELLPATH:
-			name = path_author[RANDOM() % arraysize(path_author)];
+			name = path_author[rndm(0, arraysize(path_author) - 1)];
 			break;
 
 		case MSGTYPE_MSGFILE:
 		default:
-			name = book_author[RANDOM() % arraysize(book_author)];
+			name = book_author[rndm(0, arraysize(book_author) - 1)];
 	}
 
 	snprintf(title, sizeof(title), "of %s", name);
@@ -641,7 +641,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 	 * take our starting position randomly... */
 	art = al->items;
 
-	for (i = RANDOM() % level + RANDOM() % 2 + 1; i > 0; i--)
+	for (i = rndm(1, level) + rndm(0, 1); i > 0; i--)
 	{
 		/* Out of stuff, loop back around */
 		if (art == NULL)

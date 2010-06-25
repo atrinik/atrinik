@@ -101,8 +101,8 @@ char *crypt_string(char *str, char *salt)
 	{
 		size_t stringlen = strlen(c);
 
-		s[0] = c[RANDOM() % stringlen];
-		s[1] = c[RANDOM() % stringlen];
+		s[0] = c[rndm(0, stringlen - 1)];
+		s[1] = c[rndm(0, stringlen - 1)];
 	}
 	else
 	{
