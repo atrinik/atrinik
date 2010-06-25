@@ -575,6 +575,7 @@ void player_shop_buy(char *data, player *pl)
 
 			insert_coins(seller->ob, to_pay);
 			insert_ob_in_ob(tmp, pl->ob);
+			new_draw_info_format(NDI_UNIQUE | NDI_GREEN, pl->ob, "You bought %s from %s.", query_name(tmp, NULL), seller->ob->name);
 			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, seller->ob, "%s bought %s.", pl->ob->name, query_name(tmp, NULL));
 
 			esrv_send_inventory(pl->ob, pl->ob);
