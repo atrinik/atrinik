@@ -979,7 +979,39 @@ int command_patch(object *op, char *params)
 		arg2++;
 	}
 
-	if (set_variable(tmp, arg) == -1)
+	if (!strncmp(arg, "msg", 3))
+	{
+		char buf[HUGE_BUF / 2];
+
+		arg += 4;
+
+		if (!arg || *arg == '\0')
+		{
+			FREE_AND_CLEAR_HASH(tmp->msg);
+			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->msg=", tmp->name, tmp->count);
+			return 1;
+		}
+
+		buf[0] = '\0';
+
+		if (tmp->msg)
+		{
+			strncpy(buf, tmp->msg, sizeof(buf) - 1);
+		}
+
+		convert_newline(arg);
+
+		if (buf_overflow(buf, arg, sizeof(buf) - 1))
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Message string would overflow.");
+			return 1;
+		}
+
+		strncat(buf, arg, sizeof(buf) - strlen(buf) - 1);
+		FREE_AND_COPY_HASH(tmp->msg, buf);
+		new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->msg=%s", tmp->name, tmp->count, buf);
+	}
+	else if (set_variable(tmp, arg) == -1)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", arg);
 	}
