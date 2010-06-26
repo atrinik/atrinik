@@ -1316,7 +1316,7 @@ void set_abs_magic(object *op, int magic)
 		}
 
 		/* You can't just check the weight always */
-  if (magic < 0 && !rndm(0, 2))
+		if (magic < 0 && !rndm(0, 2))
 		{
 			magic = (-magic);
 		}

@@ -1403,8 +1403,8 @@
  * @param _data_ The value to add.
  * @param _len_ The length in byte; must not exceed 255. */
 #define SockList_AddLen8Data(_sl_, _data_, _len_) \
-    SockList_AddChar((_sl_), (_len_)); \
-    SockList_AddData((_sl_), (_data_), (_len_))
+	SockList_AddChar((_sl_), (_len_)); \
+	SockList_AddData((_sl_), (_data_), (_len_))
 
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */
