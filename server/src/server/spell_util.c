@@ -362,13 +362,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 				if (!(QUERY_FLAG(op, FLAG_WIZ)))
 				{
-					if (spells[type].type == SPELL_TYPE_PRIEST && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
+					if (spells[type].type == SPELL_TYPE_WIZARD && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
 					{
 						new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
 						return 0;
 					}
 
-					if (spells[type].type == SPELL_TYPE_WIZARD && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
+					if (spells[type].type == SPELL_TYPE_PRIEST && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
 					{
 						new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
 						return 0;

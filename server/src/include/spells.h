@@ -108,11 +108,6 @@ extern int cleric_chance[];
  * @defgroup SPELL_TYPE_xxx Spell types
  * Spell types.
  *@{*/
-
-/**
- * Special case: this is use like a spell but natural ability - effect
- * is non magical */
-#define SPELL_TYPE_NATURAL 0
 /** Base mage spell: using mana. */
 #define SPELL_TYPE_WIZARD  1
 /** Base cleric spell: using grace. */
