@@ -862,7 +862,7 @@ int command_create(object *op, char *params)
 int command_inventory(object *op, char *params)
 {
 	object *ob = NULL, *tmp;
-	char *str = NULL;
+	char *cp;
 
 	if (!params)
 	{
@@ -870,18 +870,16 @@ int command_inventory(object *op, char *params)
 		return 0;
 	}
 
+	params = strtok(params, "$");
+	cp = strtok(NULL, "$");
+
 	if (!strncmp(params, "me", 2))
 	{
 		ob = op;
 	}
 	else
 	{
-		char name[MAX_BUF];
-
-		if (sscanf(params, "%s", name) == 1)
-		{
-			ob = find_object_both(op, name);
-		}
+		ob = find_object_both(op, params);
 
 		if (!ob)
 		{
@@ -890,12 +888,11 @@ int command_inventory(object *op, char *params)
 		}
 	}
 
-	str = strchr(params, ' ');
 	new_draw_info_format(NDI_UNIQUE, op, "\nInventory of '%s':\n", query_name(ob, op));
 
 	for (tmp = ob->inv; tmp; tmp = tmp->below)
 	{
-		if (str && !item_matched_string(op, tmp, str))
+		if (cp && !item_matched_string(op, tmp, cp))
 		{
 			continue;
 		}
