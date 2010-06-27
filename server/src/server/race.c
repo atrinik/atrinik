@@ -140,7 +140,7 @@ ob_race *race_get_random()
 		return NULL;
 	}
 
-	return races[rndm(0, num_races - 1)];
+	return races[rndm(1, num_races) - 1];
 }
 
 /**

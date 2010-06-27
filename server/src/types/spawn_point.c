@@ -301,7 +301,7 @@ void spawn_point(object *op)
 			return;
 		}
 
-		op->stats.sp = rndm(0, SPAWN_RANDOM_RANGE - 1);
+		op->stats.sp = rndm(1, SPAWN_RANDOM_RANGE) - 1;
 	}
 
 	/* Spawn point without inventory! */

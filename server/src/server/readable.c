@@ -455,20 +455,20 @@ static void new_text_name(object *book, int msgtype)
 	switch (msgtype)
 	{
 		case MSGTYPE_MONSTER:
-			name = mon_book_name[rndm(0, arraysize(mon_book_name) - 1)];
+			name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
 			break;
 
 		case MSGTYPE_ARTIFACT:
-			name = art_book_name[rndm(0, arraysize(art_book_name) - 1)];
+			name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
 			break;
 
 		case MSGTYPE_SPELLPATH:
-			name = path_book_name[rndm(0, arraysize(path_book_name) - 1)];
+			name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
 			break;
 
 		case MSGTYPE_MSGFILE:
 		default:
-			name = book_name[rndm(0, arraysize(book_name) - 1)];
+			name = book_name[rndm(1, arraysize(book_name)) - 1];
 			break;
 	}
 
@@ -493,20 +493,20 @@ static void add_author(object *op, int msgtype)
 	switch (msgtype)
 	{
 		case MSGTYPE_MONSTER:
-			name = mon_author[rndm(0, arraysize(mon_author) - 1)];
+			name = mon_author[rndm(1, arraysize(mon_author)) - 1];
 			break;
 
 		case MSGTYPE_ARTIFACT:
-			name = art_author[rndm(0, arraysize(art_author) - 1)];
+			name = art_author[rndm(1, arraysize(art_author)) - 1];
 			break;
 
 		case MSGTYPE_SPELLPATH:
-			name = path_author[rndm(0, arraysize(path_author) - 1)];
+			name = path_author[rndm(1, arraysize(path_author)) - 1];
 			break;
 
 		case MSGTYPE_MSGFILE:
 		default:
-			name = book_author[rndm(0, arraysize(book_author) - 1)];
+			name = book_author[rndm(1, arraysize(book_author)) - 1];
 	}
 
 	snprintf(title, sizeof(title), "of %s", name);
@@ -546,7 +546,7 @@ object *get_random_mon()
 		return NULL;
 	}
 
-	return monsters[rndm(0, num_monsters - 1)];
+	return monsters[rndm(1, num_monsters) - 1];
 }
 
 /**
@@ -623,7 +623,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 
 	do
 	{
-		index = rndm(0, arraysize(art_name_array) - 1);
+		index = rndm(1, arraysize(art_name_array)) - 1;
 		type = art_name_array[index].type;
 		al = find_artifactlist(type);
 		i++;
@@ -727,7 +727,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
  * @return 'buf'. */
 static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
-	int path = rndm(0, NRSPELLPATHS - 1), prayers = rndm(0, 1);
+	int path = rndm(1, NRSPELLPATHS) - 1, prayers = rndm(0, 1);
 	int i, did_first_sp = 0;
 	uint32 pnum = spellpathdef[path];
 	StringBuffer *desc;
@@ -797,7 +797,7 @@ static char *msgfile_msg(size_t booksize)
 	/* Get a random message. */
 	if (msgs && num_msgs)
 	{
-		msg = msgs[rndm(0, num_msgs)];
+		msg = msgs[rndm(1, num_msgs) - 1];
 	}
 
 	if (msg && !book_overflow(buf, msg, booksize))

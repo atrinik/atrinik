@@ -985,7 +985,7 @@ static object *monster_choose_random_spell(object *monster, uint32 flags)
 		return NULL;
 	}
 
-	return altern[rndm(0, i - 1)];
+	return altern[rndm(1, i) - 1];
 }
 
 /**

@@ -860,7 +860,7 @@ int change_abil(object *op, object *tmp)
  * @param op Object to drain. */
 void drain_stat(object *op)
 {
-	drain_specific_stat(op, rndm(0, NUM_STATS - 1));
+	drain_specific_stat(op, rndm(1, NUM_STATS) - 1);
 }
 
 /**

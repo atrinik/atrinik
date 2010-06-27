@@ -260,7 +260,7 @@ int trap_disarm(object *disarmer, object *trap)
 	object *env = trap->env;
 	int disarmer_level = CONTR(disarmer)->exp_ptr[EXP_AGILITY]->level;
 
-	if ((trap->level <= disarmer_level && rndm_chance(1)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
+	if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{
 		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);

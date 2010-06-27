@@ -1009,7 +1009,7 @@ create_one_treasure_again_jmp:
 		return;
 	}
 
-	value = rndm(0, tl->total_chance - 1);
+	value = rndm(1, tl->total_chance) - 1;
 
 	for (t = tl->items; t != NULL; t = t->next)
 	{
@@ -1864,7 +1864,7 @@ static int get_random_spell(int level, int flags)
 	/* If we found any spells we can use, select randomly. */
 	if (num_spells)
 	{
-		return possible_spells[rndm(0, num_spells - 1)];
+		return possible_spells[rndm(1, num_spells) - 1];
 	}
 
 	/* If we are here, there is no fitting spell. */
@@ -2044,7 +2044,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 				{
 					if (rndm_chance(2))
 					{
-						SET_FLAG(op, rndm_chance(2) ? FLAG_CURSED : FLAG_DAMNED);
+						SET_FLAG(op, (rndm_chance(2) ? FLAG_CURSED : FLAG_DAMNED));
 					}
 				}
 
@@ -2284,21 +2284,21 @@ jump_break1:
 					SET_FLAG(op, FLAG_PERM_CURSED);
 
 					/* Pick a random stat to put negative value on */
-					change_attr_value(&op->stats, rndm(0, NUM_STATS - 1), strong_curse ? -2 : -1);
+					change_attr_value(&op->stats, rndm(1, NUM_STATS) - 1, strong_curse ? -2 : -1);
 
 					/* If this is strong curse food, give it half a chance to curse another stat */
 					if (strong_curse && rndm(0, 1))
 					{
-						change_attr_value(&op->stats, rndm(0, NUM_STATS - 1), strong_curse ? -2 : -1);
+						change_attr_value(&op->stats, rndm(1, NUM_STATS) - 1, strong_curse ? -2 : -1);
 					}
 
 					/* Put a negative value on random protection. */
-					op->protection[rndm(0, LAST_PROTECTION - 1)] = strong_curse ? -25 : -10;
+					op->protection[rndm(1, LAST_PROTECTION) - 1] = strong_curse ? -25 : -10;
 
 					/* And again, if this is strong curse food, half a chance to curse another protection. */
 					if (strong_curse && rndm(0, 1))
 					{
-						op->protection[rndm(0, LAST_PROTECTION - 1)] = strong_curse ? -25 : -10;
+						op->protection[rndm(1, LAST_PROTECTION) - 1] = strong_curse ? -25 : -10;
 					}
 
 					/* Change food, hp, mana and grace bonuses to negative values */
@@ -2702,7 +2702,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 
 	for (i = 0; i < ARTIFACT_TRIES; i++)
 	{
-		int roll = rndm(0, al->total_chance - 1);
+		int roll = rndm(1, al->total_chance) - 1;
 
 		for (art = al->items; art != NULL; art = art->next)
 		{

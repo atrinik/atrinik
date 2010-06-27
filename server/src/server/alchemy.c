@@ -71,7 +71,7 @@ static const char *cauldron_sound()
 {
 	int size = sizeof(cauldron_effect) / sizeof(char *);
 
-	return cauldron_effect[rndm(0, size - 1)];
+	return cauldron_effect[rndm(1, size) - 1];
 }
 
 /**

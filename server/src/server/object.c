@@ -2909,7 +2909,7 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
 		return -1;
 	}
 
-	return altern[rndm(0, index - 1)];
+	return altern[rndm(1, index) - 1];
 }
 
 /**
@@ -2962,7 +2962,7 @@ static void permute(int *arr, int begin, int end)
 
 	for (i = begin; i < end; i++)
 	{
-		j = begin + rndm(0, len - 1);
+		j = begin + rndm(1, len) - 1;
 
 		tmp = arr[i];
 		arr[i] = arr[j];
