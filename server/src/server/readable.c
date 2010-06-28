@@ -412,7 +412,7 @@ static void init_mon_info()
 		if (QUERY_FLAG(&at->clone, FLAG_MONSTER))
 		{
 			num_monsters++;
-			monsters = realloc(monsters, sizeof(char *) * num_monsters);
+			monsters = realloc(monsters, sizeof(object *) * num_monsters);
 			monsters[num_monsters - 1] = &at->clone;
 		}
 	}
