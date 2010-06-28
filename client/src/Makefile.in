@@ -23,75 +23,45 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-VPATH = @srcdir@
-srcdir = @srcdir@
+# Compilation flags
+CFLAGS = @CFLAGS@ @SDL_CFLAGS@ $(EXTRA_CFLAGS)
+# Include directories
+INCLUDES= $(EXTRA_INCLUDES) -Iinclude
+# Libraries needed
+LIBS = @LIBS@ @SDL_LIBS@ -lSDL_image -lSDL_mixer $(EXTRA_LIBS)
 
-SRCS = \
-	book.c \
-	client.c \
-	commands.c \
-	event.c \
-	ignore.c \
-	inventory.c \
-	item.c \
-	main.c \
-	map.c \
-	menu.c \
-	metaserver.c \
-	misc.c \
-	player.c \
-	player_shop.c \
-	scripts.c \
-	party.c \
-	socket.c \
-	sound.c \
-	sprite.c \
-	textwin.c \
-	wrapper.c \
-	widget.c \
-	dialog.c \
-	tilestretcher.c
+# Now the source files
+SRCS := \
+	$(wildcard client/*.c)
 
-DEPEND = @DEPEND@
-
+# Object files
 OBJS = $(SRCS:.c=.o)
 
-SDL_CFLAGS = @SDL_CFLAGS@
-SDL_CONFIG = @SDL_CONFIG@
-SDL_LIBS = @SDL_LIBS@ -lSDL_image -lSDL_mixer
-
-CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS) $(SDL_CFLAGS)
-
-INCLUDES= $(EXTRA_INCLUDES) -I../include
-
-LDFLAGS = @LDFLAGS@
-
-LIBS = @LIBS@ $(EXTRA_LIBS) $(SDL_LIBS)
-
-CC = @CC@
+# Location of 'rm'
 RM = @RM@
+# Location of 'sed'
 SED = @SED@
 
+# Compile the client.
 atrinik-client: $(OBJS)
 	$(RM) -f $@
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CC) -o $@ $(OBJS) $(LIBS)
 
-depend:
-	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
-
-clean::
-	$(RM) -f atrinik-client $(OBJS) Makefile.bak
-
-distclean:: clean
-	$(RM) -f Makefile ./include/define.h
-
+# Create prototype declarations.
 proto:
 	cproto -o ../include/proto.h.bak -D__LINUX -D__CPROTO__ $(INCLUDES) $(SDL_CFLAGS) $(SRCS)
 	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/proto.h.bak > ../include/proto.h
 	chmod 644 ../include/proto.h
 	$(RM) -f ../include/proto.h.bak
 
+clean::
+	$(RM) -f atrinik-client $(OBJS)
+
+distclean:: clean
+	$(RM) -f Makefile ./include/define.h
+
+# Compile the C files.
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $*.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 all: atrinik-client

@@ -23,54 +23,22 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-# Start of configuration items
-# In theory, you should not need to change any of this - configure
-# will find and figure out the correct values.
-# However, if you want, you can add in extra items, or hardcode (force)
-# programs to use.  it is the @VAL@ things that get substitute by configure.
-
-# EXTRA_INCLUDES
-# Add any -I commands for extra directories to search for include
-# files.  Hopefully should not be needed in most cases.
-#
-#EXTRA_INCLUDES = -I/usr/X11R6/include
-
-# EXTRA_LIBS
-# add any extra libraries or -L options needed.
-#EXTRA_LIBS = -lX11 -lcrypt
-
-# MFLAGS
-# Any special options you want to give to make.
-# MFLAGS=-j2
-
-# EXTRA_CFLAGS
 # Any extra special options for the C compiler.
-EXTRA_CFLAGS=-Wall -W -Werror
+EXTRA_CFLAGS=-Wall -W -Werror -D__LINUX
 
-#
-#
+# Location of 'gcc'
 CC=@CC@
-
+# Location of 'mkdir'
 MKDIR = @MKDIR@
+# Location of 'cp'
 CP = @CP@
+# Location of 'rm'
 RM = @RM@
-
+# Installation prefix.
 prefix = @prefix@
-exec_prefix = @exec_prefix@
-
-##############################################################################
-# End of configuration options - nothing below here should need to be
-# Changed.
-#
-
-XX_EXTRA_CFLAGS = $(EXTRA_CFLAGS) -D__LINUX
-
-VERSION = atrinik-1.0
-
-ARCHIVE = /tmp/$(VERSION)
 
 SUBDIRS = \
-	../../src/client
+	../../src
 
 FILES = configure configure.in
 
@@ -78,28 +46,21 @@ all::
 	@for dir in $(SUBDIRS); \
 	do \
 	    echo "making all in $$dir..."; \
-	   (cd $$dir;  $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(XX_EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all; ) \
-	done;
-
-depend::
-	@for dir in $(SUBDIRS); \
-	do \
-	    echo "making depend in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(XX_EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' depend;) \
+		(cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all;) || exit 5; \
 	done;
 
 clean::
 	@for dir in $(SUBDIRS); \
 	do \
 	    echo "making clean in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(XX_EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' clean;) \
+	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' clean;) \
 	done;
 
 distclean:: clean
 	@for dir in $(SUBDIRS); \
 	do \
 	    echo "making distclean in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(XX_EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' distclean;) \
+	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' distclean;) \
 	done;
 	$(RM) -f Makefile
 	$(RM) -rf $(prefix)
@@ -108,7 +69,7 @@ proto:
 	@for dir in $(SUBDIRS); \
 	do \
 	    echo "making proto in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(XX_EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' proto;) \
+	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' proto;) \
 	done;
 
 install:: all

@@ -74,4 +74,4 @@ else
 fi
 
 AC_CONFIG_HEADER(../../src/include/define.h)
-AC_OUTPUT(Makefile ../../src/client/Makefile ../../src/zlib/Makefile)
+AC_OUTPUT(Makefile ../../src/Makefile)
