@@ -961,8 +961,8 @@ void doeric_server_write();
 void SockList_AddString(SockList *sl, char *data);
 int SockList_ReadPacket(socket_struct *ns, int len);
 int SockList_ReadCommand(SockList *sl, SockList *sl2);
-void write_socket_buffer(socket_struct *ns);
-void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len);
+void socket_buffer_clear(socket_struct *ns);
+void socket_buffer_write(socket_struct *ns);
 void Send_With_Handling(socket_struct *ns, SockList *msg);
 void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len);
 

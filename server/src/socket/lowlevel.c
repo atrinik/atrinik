@@ -158,199 +158,122 @@ int SockList_ReadCommand(SockList *sl, SockList *sl2)
 }
 
 /**
- * Adds data to a socket buffer for whatever reason.
+ * Enqueue data to the socket buffer queue.
  * @param ns The socket we are adding the data to.
- * @param buf Start of the data.
+ * @param buf The data.
  * @param len Number of bytes to add. */
-static void add_to_buffer(socket_struct *ns, unsigned char *buf, int len)
+static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t len)
 {
-	int avail, end;
+	socket_buffer *buffer = (socket_buffer *) malloc(sizeof(socket_buffer));
 
-	if ((len + ns->outputbuffer.len) > MAXSOCKBUF)
+	buffer->buf = (char *) malloc(len + 1);
+	memcpy(buffer->buf, buf, len);
+	buffer->len = len;
+	buffer->next = NULL;
+	buffer->pos = 0;
+
+	if (!ns->buffer_back)
 	{
-		LOG(llevDebug, "Socket host %s has overrun internal buffer - marking as dead.\n", STRING_SAFE(ns->host));
-		ns->status = Ns_Dead;
-		return;
-	}
-
-	/* data + end is where we start putting the new data. The last byte
-	 * currently in use is actually data + end - 1 */
-	end = ns->outputbuffer.start + ns->outputbuffer.len;
-
-	/* The buffer is already in a wrapped state, so adjust end. */
-	if (end >= MAXSOCKBUF)
-	{
-		end -= MAXSOCKBUF;
-	}
-
-	avail = MAXSOCKBUF - end;
-
-	/* We can all fit it behind the current data without wrapping. */
-	if (avail >= len)
-	{
-		memcpy(ns->outputbuffer.data + end, buf, len);
+		ns->buffer_front = ns->buffer_back = buffer;
 	}
 	else
 	{
-		memcpy(ns->outputbuffer.data + end, buf, avail);
-		memcpy(ns->outputbuffer.data, buf + avail, len - avail);
+		ns->buffer_back->next = buffer;
+		ns->buffer_back = buffer;
+	}
+}
+
+/**
+ * Dequeue data from the socket buffer queue.
+ * @param ns Socket we're going to dequeue the first socket buffer from. */
+static void socket_buffer_dequeue(socket_struct *ns)
+{
+	socket_buffer *tmp = ns->buffer_front;
+
+	ns->buffer_front = ns->buffer_front->next;
+
+	if (ns->buffer_back == tmp)
+	{
+		ns->buffer_back = ns->buffer_back->next;
 	}
 
-	ns->outputbuffer.len += len;
+	free(tmp->buf);
+	free(tmp);
+}
+
+/**
+ * Dequeue all socket buffer in the queue.
+ * @param ns Socket to clear the socket buffers for. */
+void socket_buffer_clear(socket_struct *ns)
+{
+	while (ns->buffer_back)
+	{
+		socket_buffer_dequeue(ns);
+	}
 }
 
 /**
  * Write data to socket.
- *
- * When the socket is clear to write, and we have backlogged data, this
- * is called to write it out.
  * @param ns The socket we are writing to. */
-void write_socket_buffer(socket_struct *ns)
+void socket_buffer_write(socket_struct *ns)
 {
-	int amt, max;
+	socket_buffer *tmp, *next;
+	int amt;
 
-	if (ns->outputbuffer.len == 0)
+	/* Nothing to send? */
+	if (!ns->buffer_front)
 	{
 		return;
 	}
 
-	do
+	for (tmp = ns->buffer_front; tmp; tmp = next)
 	{
-		max = MAXSOCKBUF - ns->outputbuffer.start;
+		next = tmp->next;
 
-		if (ns->outputbuffer.len < max)
-		{
-			max = ns->outputbuffer.len;
-		}
-
-#ifdef WIN32
-		amt = send(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max, 0);
-#else
 		do
 		{
-			amt = write(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max);
-		}
-		while (amt < 0 && errno == EINTR);
-#endif
-
-		/* Error. */
-		if (amt < 0)
-		{
 #ifdef WIN32
-			if (WSAGetLastError() != WSAEWOULDBLOCK)
-			{
-				LOG(llevDebug, "write_socket_buffer(): New socket write failed (%d).\n", WSAGetLastError());
+			amt = send(ns->fd, tmp->buf + tmp->pos, tmp->len, 0);
 #else
-			if (errno != EWOULDBLOCK)
+			do
 			{
-				LOG(llevDebug, "write_socket_buffer(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+				amt = write(ns->fd, tmp->buf + tmp->pos, tmp->len);
+			}
+			while (amt < 0 && errno == EINTR);
 #endif
-				ns->status = Ns_Dead;
-				return;
-			}
-			/* EWOULDBLOCK: We can't write because socket is busy. */
-			else
+
+			/* Error. */
+			if (amt < 0)
 			{
-				ns->can_write = 0;
-				return;
+#ifdef WIN32
+				if (WSAGetLastError() != WSAEWOULDBLOCK)
+				{
+					LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
+#else
+				if (errno != EWOULDBLOCK)
+				{
+					LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+#endif
+					ns->status = Ns_Dead;
+					return;
+				}
+				/* EWOULDBLOCK: We can't write because socket is busy. */
+				else
+				{
+					return;
+				}
 			}
-		}
 
-		ns->outputbuffer.start += amt;
-
-		/* Wrap back to start of buffer. */
-		if (ns->outputbuffer.start == MAXSOCKBUF)
-		{
-			ns->outputbuffer.start = 0;
-		}
-
-		ns->outputbuffer.len -= amt;
+			tmp->pos += amt;
+			tmp->len -= amt;
 #if CS_LOGSTATS
-		cst_tot.obytes += amt;
-		cst_lst.obytes += amt;
+			cst_tot.obytes += amt;
+			cst_lst.obytes += amt;
 #endif
-	}
-	while (ns->outputbuffer.len > 0);
-}
-
-/**
- * This writes data to the socket.
- *
- * It is very low level - all we try to do is write out the data to the
- * socket provided.
- *
- * The function itself doesn't return anything - rather, it updates the
- * ns structure if we get an error.
- * @param ns The socket to write to
- * @param buf Data to write
- * @param len Number of bytes to write */
-void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
-{
-	int amt = 0;
-	unsigned char *pos = buf;
-
-	if (ns->status == Ns_Dead || !buf)
-	{
-		LOG(llevDebug, "Write_To_Socket() called with dead socket.\n");
-		return;
-	}
-
-	if (!ns->can_write)
-	{
-		add_to_buffer(ns, buf, len);
-		return;
-	}
-
-	/* If we manage to write more than we wanted, take it as a bonus. */
-	while (len > 0)
-	{
-#ifdef WIN32
-		amt = send(ns->fd, pos, len, 0);
-#else
-		do
-		{
-			amt = write(ns->fd, pos, len);
 		}
-		while (amt < 0 && errno == EINTR);
-#endif
+		while (tmp->len > 0);
 
-		/* Error. */
-		if (amt < 0)
-		{
-#ifdef WIN32
-			if (amt == -1 && WSAGetLastError() != WSAEWOULDBLOCK)
-			{
-				LOG(llevDebug, "Write_To_Socket(): New socket write failed (%d).\n", WSAGetLastError());
-#else
-			if (errno != EWOULDBLOCK)
-			{
-				LOG(llevDebug, "Write_To_Socket(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
-#endif
-				ns->status = Ns_Dead;
-				return;
-			}
-			/* EWOULDBLOCK */
-			else
-			{
-				/* Can't write it, so store it away. */
-				add_to_buffer(ns, pos, len);
-				ns->can_write = 0;
-				return;
-			}
-		}
-		/* amt gets set to 0 above in blocking code, so we do this as
-		 * an else if to make sure we don't reprocess it. */
-		else if (amt == 0)
-		{
-			LOG(llevDebug, "Write_To_Socket(): No data written out.\n");
-		}
-
-		len -= amt;
-		pos += amt;
-#if CS_LOGSTATS
-		cst_tot.obytes += amt;
-		cst_lst.obytes += amt;
-#endif
+		socket_buffer_dequeue(ns);
 	}
 }
 
@@ -370,13 +293,6 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 		return;
 	}
 
-	/* Almost certainly we've overflowed a buffer, so quit now to make
-	 * it easier to debug. */
-	if (msg->len >= MAXSOCKBUF)
-	{
-		LOG(llevError, "Trying to send a buffer beyond properly size, len =%d\n", msg->len);
-	}
-
 	/* If more than 32kb use 3 bytes header and set the high bit to show
 	 * it to the client. */
 	if (msg->len > 32 * 1024 - 1)
@@ -387,17 +303,17 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 		sbuf[1] = ((uint32) (msg->len) >> 8) & 0xFF;
 		sbuf[2] = ((uint32) (msg->len)) & 0xFF;
 
-		Write_To_Socket(ns, sbuf, 3);
+		socket_buffer_enqueue(ns, sbuf, 3);
 	}
 	else
 	{
 		sbuf[0] = ((uint32) (msg->len) >> 8) & 0xFF;
 		sbuf[1] = ((uint32) (msg->len)) & 0xFF;
 
-		Write_To_Socket(ns, sbuf, 2);
+		socket_buffer_enqueue(ns, sbuf, 2);
 	}
 
-	Write_To_Socket(ns, msg->buf, msg->len);
+	socket_buffer_enqueue(ns, msg->buf, msg->len);
 }
 
 /**

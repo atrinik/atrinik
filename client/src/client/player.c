@@ -172,13 +172,8 @@ void send_command(const char *command)
  * @param len Length of the data. */
 void CompleteCmd(unsigned char *data, int len)
 {
-	if (len != 6)
-	{
-		LOG(llevError, "comc - invalid length %d - ignoring\n", len);
-	}
-
-	csocket.command_received = GetShort_String(data);
-	csocket.command_time = GetInt_String(data + 2);
+	(void) data;
+	(void) len;
 }
 
 /**

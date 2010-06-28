@@ -112,7 +112,7 @@ _bmaptype *bmap_table[BMAPTABLE];
 
 /* update map area */
 int map_udate_flag, map_transfer_flag, map_redraw_flag;
-int request_file_chain, request_file_flags;
+int request_file_chain;
 
 int ToggleScreenFlag;
 char InputString[MAX_INPUT_STRING];
@@ -136,8 +136,10 @@ help_files_struct *help_files;
 /** Global status identifier. */
 _game_status GameStatus;
 /** The stored "anim commands" we created out of anims.tmp. */
-_anim_table anim_table[MAXANIM];
-Animations animations[MAXANIM];
+_anim_table *anim_table = NULL;
+Animations *animations = NULL;
+/** Number of animations. */
+size_t animations_num = 0;
 
 /** Size of the screen. */
 struct screensize *Screensize;
@@ -385,8 +387,6 @@ static void init_game_data()
 	esc_menu_flag = 0;
 	srand(time(NULL));
 
-	memset(anim_table, 0, sizeof(anim_table));
-	memset(animations, 0, sizeof(animations));
 	memset(bmaptype_table, 0, sizeof(bmaptype_table));
 
 	ToggleScreenFlag = 0;
@@ -825,7 +825,6 @@ static int game_status_chain()
 
 		cs_write_string(buf, strlen(buf));
 		request_file_chain = 0;
-		request_file_flags = 0;
 
 		GameStatus = GAME_STATUS_WAITSETUP;
 	}
@@ -905,25 +904,15 @@ static int game_status_chain()
 		}
 		else if (request_file_chain == 12)
 		{
-			/* This ensures one loop tick and updating the messages */
-			request_file_chain++;
-		}
-		else if (request_file_chain == 13)
-		{
-			/* OK, now we check for bmap and anims processing... */
-			read_bmap_tmp();
-			read_anim_tmp();
+			read_skills();
+			read_spells();
+			read_settings();
 			load_settings();
+			read_bmaps();
+			read_bmap_tmp();
+			read_anims();
+			read_anim_tmp();
 			read_help_files();
-			request_file_chain++;
-		}
-		else if (request_file_chain == 14)
-		{
-			/* This ensures one loop tick and updating the messages */
-			request_file_chain++;
-		}
-		else if (request_file_chain == 15)
-		{
 			GameStatus = GAME_STATUS_ADDME;
 		}
 	}

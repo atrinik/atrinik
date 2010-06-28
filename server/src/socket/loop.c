@@ -211,22 +211,6 @@ static void fill_command_buffer(socket_struct *ns)
 
 	do
 	{
-		if (ns->outputbuffer.len >= (int) (MAXSOCKBUF * 0.75))
-		{
-			if (!ns->write_overflow)
-			{
-				ns->write_overflow = 1;
-				LOG(llevDebug, "OVERFLOW: fill_command_buffer(): Socket write overflow protection activated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
-			}
-
-			return;
-		}
-		else if (ns->write_overflow && (ns->outputbuffer.len <= (int) (MAXSOCKBUF * 0.33)))
-		{
-			ns->write_overflow = 0;
-			LOG(llevDebug, "OVERFLOW: fill_command_buffer(): Socket write overflow protection deactivated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
-		}
-
 		if ((rr = SockList_ReadCommand(&ns->readbuf, &ns->inbuf)))
 		{
 			/* Terminate buffer - useful for string data. */
@@ -341,22 +325,6 @@ void handle_client(socket_struct *ns, player *pl)
 		if (ns->status == Ns_Zombie || ns->status == Ns_Dead || (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0))
 		{
 			return;
-		}
-
-		if (ns->outputbuffer.len >= (int) (MAXSOCKBUF * 0.75))
-		{
-			if (!ns->write_overflow)
-			{
-				ns->write_overflow = 1;
-				LOG(llevDebug, "OVERFLOW: handle_client(): Socket write overflow protection activated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
-			}
-
-			return;
-		}
-		else if (ns->write_overflow && (ns->outputbuffer.len <= (int) (MAXSOCKBUF * 0.33)))
-		{
-			ns->write_overflow = 0;
-			LOG(llevDebug, "OVERFLOW: handle_client(): Socket write overflow protection deactivated: %s (%d)\n", STRING_SAFE(ns->host), ns->outputbuffer.len);
 		}
 
 		if (!SockList_ReadCommand(&ns->cmdbuf, &ns->inbuf))
@@ -697,9 +665,7 @@ void doeric_server()
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_write))
 			{
-				init_sockets[i].can_write = 1;
-				write_socket_buffer(&init_sockets[i]);
-				init_sockets[i].can_write = 0;
+				socket_buffer_write(&init_sockets[i]);
 			}
 
 			if (init_sockets[i].status == Ns_Dead)
@@ -746,9 +712,7 @@ void doeric_server()
 
 		if (FD_ISSET(pl->socket.fd, &tmp_write))
 		{
-			pl->socket.can_write = 1;
-			write_socket_buffer(&pl->socket);
-			pl->socket.can_write = 0;
+			socket_buffer_write(&pl->socket);
 		}
 	}
 }
@@ -789,9 +753,7 @@ void doeric_server_write()
 
 		if (FD_ISSET(pl->socket.fd, &tmp_write))
 		{
-			pl->socket.can_write = 1;
-			write_socket_buffer(&pl->socket);
-			pl->socket.can_write = 0;
+			socket_buffer_write(&pl->socket);
 		}
 	}
 }

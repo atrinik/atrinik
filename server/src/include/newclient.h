@@ -351,17 +351,17 @@ typedef struct CS_Stats
 /** Srv client files. */
 typedef struct _srv_client_files
 {
-	/** File data, compressed or not */
+	/** Compressed file data. */
 	char *file;
 
-	/** If -1, the file is not compressed */
-	int len;
+	/** Compressed file length. */
+	size_t len;
 
 	/** Original uncompressed file length */
-	int len_ucomp;
+	size_t len_ucomp;
 
-	/** CRC adler32 */
-	unsigned int crc;
+	/** CRC32 sum. */
+	unsigned long crc;
 } _srv_client_files;
 
 /** Srv client files. */

@@ -75,7 +75,7 @@ extern _server_char new_character;
 #define MAXHASHSTRING 20
 
 /* Prime nubmer for hash table */
-#define BMAPTABLE 15823
+#define BMAPTABLE 32767
 
 /** Structure for bitmap data */
 typedef struct _bmaptype
@@ -147,7 +147,7 @@ typedef struct msg_anim_struct
 
 extern struct msg_anim_struct msg_anim;
 
-#define MAX_BMAPTYPE_TABLE 10000
+#define MAX_BMAPTYPE_TABLE 32767
 
 typedef struct _bmaptype_table
 {
@@ -590,7 +590,6 @@ extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
 extern server_struct *start_server;
 extern int metaserver_sel, metaserver_count;
 extern int request_file_chain;
-extern int request_file_flags;
 extern int esc_menu_flag;
 extern int esc_menu_index;
 

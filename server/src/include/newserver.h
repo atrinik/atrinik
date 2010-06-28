@@ -133,16 +133,22 @@ enum Sock_Status
 };
 
 /**
- * The following is the setup for a ring buffer for storing output
- * data that the OS can't handle right away. */
-typedef struct Buffer_struct
+ * Structure that holds one or more socket buffers that are to be sent to
+ * the client. */
+typedef struct socket_buffer
 {
-	int	start;
+	/** Next socket buffer. */
+	struct socket_buffer *next;
 
-	int	len;
+	/** The data. */
+	char *buf;
 
-	char data[MAXSOCKBUF];
-} Buffer;
+	/** Length of ::buf. */
+	size_t len;
+
+	/** Position in ::buf. */
+	size_t pos;
+} socket_buffer;
 
 #ifdef WIN32
 #pragma pack(pop)
@@ -263,8 +269,11 @@ typedef struct socket_struct
 	/** Buffer for player commands. */
 	SockList cmdbuf;
 
-	/** For undeliverable data. */
-	Buffer outputbuffer;
+	/** Front socket buffer. */
+	socket_buffer *buffer_front;
+
+	/** Last socket buffer. */
+	socket_buffer *buffer_back;
 } socket_struct;
 
 /** Holds some system related information. */
