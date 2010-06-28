@@ -49,16 +49,17 @@ atrinik-client: $(OBJS)
 
 # Create prototype declarations.
 proto:
-	cproto -o ../include/proto.h.bak -D__LINUX -D__CPROTO__ $(INCLUDES) $(SDL_CFLAGS) $(SRCS)
-	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/proto.h.bak > ../include/proto.h
-	chmod 644 ../include/proto.h
-	$(RM) -f ../include/proto.h.bak
+	cproto -o include/proto.h.bak -D__LINUX -D__CPROTO__ @SDL_CFLAGS@ $(INCLUDES) $(SRCS)
+	echo "#ifndef __CPROTO__" > include/proto.h
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < include/proto.h.bak >> include/proto.h
+	echo "#endif" >> include/proto.h
+	$(RM) -f include/proto.h.bak
 
 clean::
 	$(RM) -f atrinik-client $(OBJS)
 
 distclean:: clean
-	$(RM) -f Makefile ./include/define.h
+	$(RM) -f Makefile include/define.h
 
 # Compile the C files.
 .c.o:

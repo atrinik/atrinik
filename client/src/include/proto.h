@@ -1,9 +1,10 @@
-/* book.c */
+#ifndef __CPROTO__
+/* client/book.c */
 _gui_book_struct *book_gui_load(char *data, int len);
 void book_gui_show();
 void book_gui_handle_mouse(int x, int y);
 
-/* client.c */
+/* client/client.c */
 void DoClient();
 void SockList_Init(SockList *sl);
 void SockList_AddChar(SockList *sl, char c);
@@ -18,7 +19,7 @@ int request_face(int pnum, int mode);
 void check_animation_status(int anum);
 char *adjust_string(char *buf);
 
-/* commands.c */
+/* client/commands.c */
 void BookCmd(unsigned char *data, int len);
 void PartyCmd(unsigned char *data, int len);
 void SoundCmd(unsigned char *data, int len);
@@ -58,7 +59,22 @@ void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
 void QuestListCmd(unsigned char *data, int len);
 
-/* event.c */
+/* client/dialog.c */
+void draw_frame(int x, int y, int w, int h);
+void add_close_button(int x, int y, int menu);
+int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text, int color);
+void add_value(void *value, int type, int offset, int min, int max);
+void optwin_draw_options(int x, int y);
+void show_skilllist();
+void show_spelllist();
+void show_optwin();
+void show_keybind();
+void show_newplayer_server();
+void show_login_server();
+void show_meta_server(server_struct *node, int metaserver_sel);
+void metaserver_mouse(SDL_Event *e);
+
+/* client/event.c */
 void init_keys();
 void reset_keys();
 int mouseInPlayfield(int x, int y);
@@ -73,13 +89,13 @@ void read_keybind_file(char *fname);
 void save_keybind_file(char *fname);
 void check_menu_keys(int menu, int key);
 
-/* ignore.c */
+/* client/ignore.c */
 void ignore_list_clear();
 void ignore_list_load();
 int ignore_check(char *name, char *type);
 void ignore_command(char *cmd);
 
-/* inventory.c */
+/* client/inventory.c */
 int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
 void widget_inventory_event(int x, int y, SDL_Event event);
 void widget_show_inventory_window(int x, int y);
@@ -90,7 +106,7 @@ void blt_inv_item(item *tmp, int x, int y, int nrof);
 void examine_range_inv();
 void examine_range_marks(int tag);
 
-/* item.c */
+/* client/item.c */
 void init_item_types();
 void update_item_sort(item *it);
 char *get_number(int i);
@@ -112,13 +128,13 @@ void update_item(int tag, int loc, char *name, int weight, int face, int flags, 
 void print_inventory(item *op);
 void animate_objects();
 
-/* main.c */
+/* client/main.c */
 void save_options_dat();
 void open_input_mode(int maxchar);
 void list_vid_modes();
 int main(int argc, char *argv[]);
 
-/* map.c */
+/* client/map.c */
 void load_mapdef_dat();
 void clear_map();
 void display_mapscroll(int dx, int dy);
@@ -133,7 +149,7 @@ void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
 int get_tile_position(int x, int y, int *tx, int *ty);
 
-/* menu.c */
+/* client/menu.c */
 void do_console();
 int client_command_check(char *cmd);
 void show_help(char *helpname);
@@ -172,14 +188,14 @@ void show_quickslots(int x, int y);
 void update_quickslots(int del_item);
 void widget_show_fps(int x, int y);
 
-/* metaserver.c */
+/* client/metaserver.c */
 server_struct *metaserver_get_selected(int num);
 void metaserver_clear_data();
 void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
 int metaserver_thread(void *dummy);
 void metaserver_get_servers();
 
-/* misc.c */
+/* client/misc.c */
 _bmaptype *find_bmap(char *name);
 void add_bmap(_bmaptype *at);
 void FreeMemory(void **p);
@@ -188,7 +204,16 @@ int isqrt(int n);
 char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 
-/* player.c */
+/* client/party.c */
+void switch_tabs();
+void draw_party_tabs(int x, int y);
+void show_party();
+void gui_party_interface_mouse(SDL_Event *e);
+void clear_party_interface();
+_gui_party_struct *load_party_interface(char *data, int len);
+int console_party();
+
+/* client/player.c */
 void clear_player();
 void new_player(long tag, char *name, long weight, short face);
 void new_char(_server_char *nc);
@@ -212,7 +237,7 @@ void widget_show_skill_exp(int x, int y);
 void widget_skill_exp_event();
 void widget_show_regeneration(int x, int y);
 
-/* player_shop.c */
+/* client/player_shop.c */
 void widget_show_shop(int x, int y);
 void shop_open();
 void shop_buy_item();
@@ -226,7 +251,7 @@ char *shop_show_input(char *text, struct _Font *font, int wlen, int append_under
 int shop_price2int(char *text);
 char *shop_int2price(int value);
 
-/* scripts.c */
+/* client/scripts.c */
 void script_load(const char *cparams);
 void script_list();
 void script_process();
@@ -236,16 +261,7 @@ void script_killall();
 void script_autoload();
 void script_unload(const char *params);
 
-/* party.c */
-void switch_tabs();
-void draw_party_tabs(int x, int y);
-void show_party();
-void gui_party_interface_mouse(SDL_Event *e);
-void clear_party_interface();
-_gui_party_struct *load_party_interface(char *data, int len);
-int console_party();
-
-/* socket.c */
+/* client/socket.c */
 void command_buffer_free(command_buffer *buf);
 int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
 int send_socklist(SockList msg);
@@ -259,7 +275,7 @@ int socket_initialize();
 void socket_deinitialize();
 int socket_open(struct ClientSocket *csock, char *host, int port);
 
-/* sound.c */
+/* client/sound.c */
 void sound_init();
 void sound_deinit();
 void sound_loadall();
@@ -270,7 +286,7 @@ void sound_play_one_repeat(int soundid, int special_id);
 void sound_play_music(char *fname, int vol, int fade, int loop, int mode);
 void sound_fadeout_music(int i);
 
-/* sprite.c */
+/* client/sprite.c */
 void sprite_init_system();
 _Sprite *sprite_load_file(char *fname, uint32 flags);
 _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop);
@@ -291,7 +307,7 @@ void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
 SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 
-/* textwin.c */
+/* client/textwin.c */
 void say_clickedKeyword(int actWin, int mouseX, int mouseY);
 void textwin_init();
 void draw_info_format(int flags, char *format, ...);
@@ -306,7 +322,25 @@ void textwin_clearhistory();
 void textwin_putstring(char *text);
 void change_textwin_font(int font);
 
-/* wrapper.c */
+/* client/tilestretcher.c */
+int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
+int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
+int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
+SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
+
+/* client/widget.c */
+void init_widgets_fromCurrent();
+void kill_widgets();
+void save_interface_file();
+int widget_event_mousedn(int x, int y, SDL_Event *event);
+int widget_event_mouseup(int x, int y, SDL_Event *event);
+int widget_event_mousemv(int x, int y, SDL_Event *event);
+int get_widget_owner(int x, int y);
+void process_widgets();
+uint32 GetMouseState(int *mx, int *my, int widget_id);
+void SetPriorityWidget(int nWidgetID);
+
+/* client/wrapper.c */
 void LOG(int logLevel, char *format, ...);
 void SYSTEM_Start();
 int SYSTEM_End();
@@ -323,36 +357,4 @@ FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
 Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
 Mix_Music *Mix_LoadMUS_wrapper(const char *file);
-
-/* widget.c */
-void init_widgets_fromCurrent();
-void kill_widgets();
-void save_interface_file();
-int widget_event_mousedn(int x, int y, SDL_Event *event);
-int widget_event_mouseup(int x, int y, SDL_Event *event);
-int widget_event_mousemv(int x, int y, SDL_Event *event);
-int get_widget_owner(int x, int y);
-void process_widgets();
-uint32 GetMouseState(int *mx, int *my, int widget_id);
-void SetPriorityWidget(int nWidgetID);
-
-/* dialog.c */
-void draw_frame(int x, int y, int w, int h);
-void add_close_button(int x, int y, int menu);
-int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text, int color);
-void add_value(void *value, int type, int offset, int min, int max);
-void optwin_draw_options(int x, int y);
-void show_skilllist();
-void show_spelllist();
-void show_optwin();
-void show_keybind();
-void show_newplayer_server();
-void show_login_server();
-void show_meta_server(server_struct *node, int metaserver_sel);
-void metaserver_mouse(SDL_Event *e);
-
-/* tilestretcher.c */
-int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
-int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
-int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
-SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
+#endif
