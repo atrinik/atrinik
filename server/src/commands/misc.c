@@ -192,11 +192,11 @@ static void current_map_info(object *op)
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "%s (%s)", m->name, m->path);
+	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, x: %d, y: %d)", m->name, m->path, op->x, op->y);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
+		new_draw_info_format(NDI_UNIQUE, op, "Players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
 	}
 
 	if (m->msg)
