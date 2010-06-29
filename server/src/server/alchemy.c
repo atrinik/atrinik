@@ -71,7 +71,7 @@ static const char *cauldron_sound()
 {
 	int size = sizeof(cauldron_effect) / sizeof(char *);
 
-	return cauldron_effect[rndm(0, size - 1)];
+	return cauldron_effect[rndm(1, size) - 1];
 }
 
 /**
@@ -719,10 +719,6 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 		if (!tmp)
 		{
 			alchemy_failure_effect(op, cauldron, rp, level);
-		}
-		else if (summon_hostile_monsters(cauldron, rndm(1, 10), tmp->arch->name))
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "The %s %s and then pours forth monsters!", cauldron->name, cauldron_sound());
 		}
 
 		return;

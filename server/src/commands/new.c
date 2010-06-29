@@ -763,7 +763,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	/* need to copy the name to new arch */
 	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
-	copy_object(&p_arch->clone, op);
+	copy_object(&p_arch->clone, op, 0);
 	op->custom_attrset = pl;
 	pl->ob = op;
 	FREE_AND_CLEAR_HASH2(op->name);
@@ -1079,26 +1079,6 @@ void send_ready_skill(object *op, const char *skillname)
 
 	snprintf(tmp, sizeof(tmp), "X%s", skillname);
 	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
-}
-
-/**
- * Send to client the golem face and name.
- * @param golem Golem object (will grab golem owner from this).
- * @param mode One of @ref golem_control_modes. */
-void send_golem_control(object *golem, int mode)
-{
-	char tmp[MAX_BUF];
-
-	if (mode == GOLEM_CTR_RELEASE)
-	{
-		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, 0, golem->name);
-	}
-	else
-	{
-		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, golem->face->number, golem->name);
-	}
-
-	Write_String_To_Socket(&CONTR(golem->owner)->socket, BINARY_CMD_GOLEMCMD, tmp, strlen(tmp));
 }
 
 /**

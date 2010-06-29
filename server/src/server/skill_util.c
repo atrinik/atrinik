@@ -365,7 +365,7 @@ static void init_exp_obj()
 			exp_cat[nrofexpcat] = get_object();
 			exp_cat[nrofexpcat]->level = 1;
 			exp_cat[nrofexpcat]->stats.exp = 0;
-			copy_object(&at->clone, exp_cat[nrofexpcat]);
+			copy_object(&at->clone, exp_cat[nrofexpcat], 0);
 			/* avoid gc on these objects */
 			insert_ob_in_ob(exp_cat[nrofexpcat], &void_container);
 			nrofexpcat++;
@@ -551,7 +551,7 @@ int check_skill_to_fire(object *who)
 			break;
 
 		case range_magic:
-			if (spells[CONTR(who)->chosen_spell].flags & SPELL_DESC_WIS)
+			if (spells[CONTR(who)->chosen_spell].type == SPELL_TYPE_PRIEST)
 			{
 				skillnr = SK_PRAYING;
 			}
@@ -762,7 +762,7 @@ int init_player_exp(object *pl)
 		for (j = 0; j < nrofexpcat; j++)
 		{
 			tmp = get_object();
-			copy_object(exp_cat[j], tmp);
+			copy_object(exp_cat[j], tmp, 0);
 			insert_ob_in_ob(tmp, pl);
 			tmp->stats.exp = 0;
 			exp_ob[j] = tmp;
@@ -1225,7 +1225,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 
 		for (tmp = get_map_ob(m, xt, yt); tmp; tmp = tmp->above)
 		{
-			if ((IS_LIVE(tmp) && (tmp->head == NULL ? tmp->stats.hp > 0 : tmp->head->stats.hp > 0)) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || tmp->type == LOCKED_DOOR)
+			if ((IS_LIVE(tmp) && (tmp->head == NULL ? tmp->stats.hp > 0 : tmp->head->stats.hp > 0)) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || tmp->type == DOOR)
 			{
 				if (pl->type == PLAYER && tmp->type == PLAYER && !pvp_area(pl, tmp))
 				{

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-12 Alex Tokar
+Modified: 2010-06-24 Kiana
 endmsg
 width 24
 height 24
@@ -614,7 +614,7 @@ name sewer hole plate
 face sewer_plate2.101
 animation NONE
 is_turnable 0
-slaying strakewood_island/brynknot/sewers_0102
+slaying strakewood_island/brynknot/sewers/sewers_0102
 hp 23
 sp 4
 x 5
@@ -763,7 +763,7 @@ name sewer hole plate
 face sewer_plate2.101
 animation NONE
 is_turnable 0
-slaying strakewood_island/brynknot/sewers_0101
+slaying strakewood_island/brynknot/sewers/sewers_0101
 hp 23
 sp 1
 x 5
@@ -1459,10 +1459,13 @@ msg
 @match ^hi$|^hey$|^hello$
 Well, hello there! I'm a traveller looking for interesting artifacts and treasures. Have you seen the leftovers of a ^shop^ in the Brynknot sewers?
 @match ^shop$
-The shop has once been active, with various treasures being sold there for high prices, but now it's just a ruin, with rats all around the place. There's not much left there.
-You can however visit it - or what's left of it anyway - by going down to the ^sewers^.
+The shop has once been active, with various treasures being sold there for high prices, but now there's not much left of it. I used to buy stuff there and venture down the ^sewers^ you know..
 @match ^sewers$
-Use any of the sewer holes around in the town to enter the Brynknot sewers.
+Yes, use any of the sewer holes around town to enter the Brynknot sewer system. It's bigger than it looks. One time I was attacked by a terrible ^monster^!
+@match ^monster$
+You see this scar? That's not all it did to me, it also ate my magical ^pouch^ filled with gems and jewels!
+@match ^pouch$|^gems$|^jewels$
+A magical pouch with inside my costly collection of gems and jewels.. If you ever happen to find it, do as you please and keep it all or sell the jewels and gems to a regular shop.
 endmsg
 name Redhelm
 level 10

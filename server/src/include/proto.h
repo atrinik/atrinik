@@ -115,7 +115,6 @@ void send_mapstats_cmd(object *op, struct mapdef *map);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
 void send_skilllist_cmd(object *op, object *skillp, int mode);
 void send_ready_skill(object *op, const char *skillname);
-void send_golem_control(object *golem, int mode);
 void generate_ext_title(player *pl);
 
 /* commands/object.c */
@@ -134,7 +133,6 @@ object *find_marked_object(object *op);
 void examine_living(object *op, object *tmp);
 char *long_desc(object *tmp, object *caller);
 void examine(object *op, object *tmp);
-void inventory(object *op, object *inv);
 
 /* commands/range.c */
 int command_cast_spell(object *op, char *params);
@@ -194,6 +192,7 @@ int command_map_save(object *op, char *params);
 int command_map_reset(object *op, char *params);
 int command_map_patch(object *op, char *params);
 int command_no_shout(object *op, char *params);
+int command_dmtake(object *op, char *params);
 
 /* loaders/map_header.c */
 int map_lex_load(mapstruct *m);
@@ -583,8 +582,7 @@ void clear_owner(object *op);
 void set_owner(object *op, object *owner);
 void copy_owner(object *op, object *clone);
 void initialize_object(object *op);
-void copy_object(object *op2, object *op);
-void copy_object_data(object *op2, object *op);
+void copy_object(object *op2, object *op, int no_speed);
 void copy_object_with_inv(object *src_ob, object *dest_ob);
 object *get_object();
 void update_turn_face(object *op);
@@ -787,7 +785,6 @@ float get_skill_time(object *op, int skillnr);
 int check_skill_action_time(object *op, object *skill);
 
 /* server/spell_effect.c */
-void prayer_failure(object *op, int failure, int power);
 void cast_magic_storm(object *op, object *tmp, int lvl);
 int recharge(object *op);
 int cast_create_food(object *op, object *caster, int dir, char *stringarg);
@@ -806,7 +803,6 @@ int cast_identify(object *op, int level, object *single_ob, int mode);
 int cast_consecrate(object *op);
 int finger_of_death(object *op, object *target);
 int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type);
-void move_aura(object *aura);
 int cast_transform_wealth(object *op);
 
 /* server/spell_util.c */
@@ -822,27 +818,18 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);
 void cone_drop(object *op);
 void move_cone(object *op);
-void fire_a_ball(object *op, int dir, int strength);
-void explosion(object *op);
 void forklightning(object *op, object *tmp);
 int reflwall(mapstruct *m, int x, int y, object *sp_op);
 void move_bolt(object *op);
-void move_golem(object *op);
-void control_golem(object *op, int dir);
 void explode_object(object *op);
 void check_fired_arch(object *op);
 void move_fired_arch(object *op);
 int find_target_for_spell(object *op, object **target, uint32 flags);
-void move_ball_lightning(object *op);
-int spell_find_dir(mapstruct *m, int x, int y, object *exclude);
 int SP_level_dam_adjust(object *caster, int spell_type, int base_dam);
 int SP_level_strength_adjust(object *caster, int spell_type);
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
-int look_up_spell_by_name(object *op, const char *spname);
-void put_a_monster(object *op, const char *monstername);
-int summon_hostile_monsters(object *op, int n, const char *monstername);
 
 /* server/stringbuffer.c */
 StringBuffer *stringbuffer_new();
@@ -896,6 +883,7 @@ object *create_artifact(object *op, char *artifactname);
 
 /* server/utils.c */
 int rndm(int min, int max);
+int rndm_chance(uint32 n);
 int look_up_spell_name(const char *spname);
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 char *cleanup_string(char *ustring);
@@ -909,6 +897,7 @@ int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 char *cleanup_chat_string(char *ustring);
 char *format_number_comma(uint64 num);
 void copy_file(const char *filename, FILE *fpout);
+void convert_newline(char *str);
 
 /* server/weather.c */
 void init_world_darkness();
@@ -972,8 +961,8 @@ void doeric_server_write();
 void SockList_AddString(SockList *sl, char *data);
 int SockList_ReadPacket(socket_struct *ns, int len);
 int SockList_ReadCommand(SockList *sl, SockList *sl2);
-void write_socket_buffer(socket_struct *ns);
-void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len);
+void socket_buffer_clear(socket_struct *ns);
+void socket_buffer_write(socket_struct *ns);
 void Send_With_Handling(socket_struct *ns, SockList *msg);
 void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len);
 

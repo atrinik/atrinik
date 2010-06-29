@@ -508,7 +508,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 			}
 
 			coin_objs[i] = get_object();
-			copy_object(&at->clone, coin_objs[i]);
+			copy_object(&at->clone, coin_objs[i], 0);
 			coin_objs[i]->nrof = 0;
 		}
 	}
@@ -905,7 +905,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
 void insert_money_in_player(object *pl, object *money, uint32 nrof)
 {
 	object *tmp = get_object();
-	copy_object(money, tmp);
+	copy_object(money, tmp, 0);
 	tmp->nrof = nrof;
 	tmp = insert_ob_in_ob(tmp, pl);
 	esrv_send_item(pl, tmp);
@@ -1117,7 +1117,7 @@ sint64 insert_coins(object *pl, sint64 value)
 						}
 
 						tmp = get_object();
-						copy_object(&at->clone, tmp);
+						copy_object(&at->clone, tmp, 0);
 						tmp->nrof = n;
 						value -= tmp->nrof * tmp->value;
 						tmp = insert_ob_in_ob(tmp, pouch);
@@ -1133,7 +1133,7 @@ sint64 insert_coins(object *pl, sint64 value)
 			if (value / at->clone.value > 0)
 			{
 				tmp = get_object();
-				copy_object(&at->clone, tmp);
+				copy_object(&at->clone, tmp, 0);
 				tmp->nrof = (uint32) (value / tmp->value);
 				value -= tmp->nrof * tmp->value;
 				tmp = insert_ob_in_ob(tmp, pl);

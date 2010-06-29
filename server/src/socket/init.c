@@ -65,10 +65,6 @@ socket_struct *init_sockets;
  * point. */
 void init_connection(socket_struct *ns, const char *from_ip)
 {
-	unsigned char buf[256];
-	int	bufsize = MAXSOCKBUF, oldbufsize;
-	socklen_t buflen = sizeof(int);
-
 #ifdef WIN32
 	u_long temp = 1;
 
@@ -81,30 +77,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	{
 		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
-#endif
-
-	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
-	{
-		oldbufsize = 0;
-	}
-
-	if (oldbufsize < bufsize)
-	{
-#ifdef ESRV_DEBUG
-		LOG(llevDebug, "init_connection(): Default buffer size was %d bytes, will reset it to %d\n", oldbufsize, bufsize);
-#endif
-
-		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
-		{
-			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
-		}
-	}
-
-	buflen = sizeof(oldbufsize);
-	getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen);
-
-#ifdef ESRV_DEBUG
-	LOG(llevDebug, "init_connection(): Socket buffer size now %d bytes\n", oldbufsize);
 #endif
 
 	ns->login_count = 0;
@@ -146,14 +118,15 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->cmdbuf.buf[0] = '\0';
 
 	memset(&ns->lastmap, 0, sizeof(struct Map));
+	ns->buffer_front = NULL;
+	ns->buffer_back = NULL;
 
-	ns->outputbuffer.start = 0;
-	ns->outputbuffer.len = 0;
 	ns->sent_scroll = 0;
 	ns->host = strdup_local(from_ip);
 
 	/* Legacy support for older clients. */
 	{
+		unsigned char buf[256];
 		SockList sl;
 
 		strncpy((char *) buf, "X991017 991017 Atrinik Server", sizeof(buf) - 1);
@@ -349,6 +322,8 @@ void free_newsocket(socket_struct *ns)
 		free(ns->cmdbuf.buf);
 	}
 
+	socket_buffer_clear(ns);
+
 	memset(ns, 0, sizeof(ns));
 }
 
@@ -357,12 +332,11 @@ void free_newsocket(socket_struct *ns)
  * @param fname Filename of the server file.
  * @param id ID of the server file.
  * @param cmd The data command. */
-static void load_srv_file(char *fname, int id, int cmd)
+static void load_srv_file(char *fname, int id)
 {
 	FILE *fp;
-	char *file_tmp, *comp_tmp;
-	int flen;
-	unsigned long numread;
+	char *contents, *compressed;
+	size_t fsize, numread;
 	struct stat statbuf;
 
 	LOG(llevDebug, "Loading %s...", fname);
@@ -373,45 +347,49 @@ static void load_srv_file(char *fname, int id, int cmd)
 	}
 
 	fstat(fileno(fp), &statbuf);
-	flen = (int) statbuf.st_size;
-	file_tmp = malloc(flen);
-	numread = (unsigned long) fread(file_tmp, sizeof(char), flen, fp);
+	fsize = statbuf.st_size;
+	/* Allocate a buffer to hold the whole file. */
+	contents = malloc(fsize);
 
-	/* Get a crc from the unpacked file */
-	SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) file_tmp, numread);
+	if (!contents)
+	{
+		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
+	}
+
+	numread = fread(contents, 1, fsize, fp);
+	fclose(fp);
+
+	/* Get a crc from the uncompressed file. */
+	SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
+	/* Store uncompressed length. */
 	SrvClientFiles[id].len_ucomp = numread;
 
-	numread = flen * 2;
-	comp_tmp = (char *) malloc(numread);
-	compress2((Bytef *) comp_tmp, &numread, (const unsigned char FAR *) file_tmp, flen, Z_BEST_COMPRESSION);
+	/* Calculate the upper bound of the compressed size. */
+	numread = compressBound(fsize);
+	/* Allocate a buffer to hold the compressed file. */
+	compressed = malloc(numread);
 
-	/* We prepare the files with the right commands - so we can flush
-	 * then directly from this buffer to the client. */
-	if ((int) numread < flen)
+	if (!compressed)
 	{
-		/* Copy the compressed file in the right buffer */
-		SrvClientFiles[id].file = malloc(numread + 2);
-		memcpy(SrvClientFiles[id].file + 2, comp_tmp, numread);
-		SrvClientFiles[id].file[1] = (char) DATA_PACKED_CMD;
-		SrvClientFiles[id].len = numread;
-	}
-	else
-	{
-		/* Compress has no positive effect here */
-		SrvClientFiles[id].file = malloc(flen + 2);
-		memcpy(SrvClientFiles[id].file + 2, file_tmp,flen);
-		SrvClientFiles[id].file[1] = 0;
-		SrvClientFiles[id].len = -1;
-		numread = flen;
+		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
 	}
 
-	SrvClientFiles[id].file[0] = BINARY_CMD_DATA;
-	SrvClientFiles[id].file[1] |= cmd;
-	free(file_tmp);
-	free(comp_tmp);
+	compress2((Bytef *) compressed, &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+	SrvClientFiles[id].file = malloc(numread);
+
+	if (!SrvClientFiles[id].file)
+	{
+		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
+	}
+
+	memcpy(SrvClientFiles[id].file, compressed, numread);
+	SrvClientFiles[id].len = numread;
+
+	/* Free temporary buffers. */
+	free(contents);
+	free(compressed);
 
 	LOG(llevDebug, "(size: %d (%d) (crc uncomp.: %x)\n", SrvClientFiles[id].len_ucomp, numread, SrvClientFiles[id].crc);
-	fclose(fp);
 }
 
 /**
@@ -477,24 +455,24 @@ void init_srv_files()
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
 	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
-	load_srv_file(buf, SRV_CLIENT_HFILES, DATA_CMD_HFILES_LIST);
+	load_srv_file(buf, SRV_CLIENT_HFILES);
 
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
-	load_srv_file(buf, SRV_CLIENT_ANIMS, DATA_CMD_ANIM_LIST);
+	load_srv_file(buf, SRV_CLIENT_ANIMS);
 
 	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
-	load_srv_file(buf, SRV_CLIENT_BMAPS, DATA_CMD_BMAP_LIST);
+	load_srv_file(buf, SRV_CLIENT_BMAPS);
 
 	snprintf(buf, sizeof(buf), "%s/client_skills", settings.datadir);
-	load_srv_file(buf, SRV_CLIENT_SKILLS, DATA_CMD_SKILL_LIST);
+	load_srv_file(buf, SRV_CLIENT_SKILLS);
 
 	snprintf(buf, sizeof(buf), "%s/client_spells", settings.datadir);
-	load_srv_file(buf, SRV_CLIENT_SPELLS, DATA_CMD_SPELL_LIST);
+	load_srv_file(buf, SRV_CLIENT_SPELLS);
 
 	create_client_settings();
 
 	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
-	load_srv_file(buf, SRV_CLIENT_SETTINGS, DATA_CMD_SETTINGS_LIST);
+	load_srv_file(buf, SRV_CLIENT_SETTINGS);
 }
 
 /**
@@ -523,16 +501,25 @@ void send_srv_file(socket_struct *ns, int id)
 {
 	SockList sl;
 
-	sl.buf = (unsigned char *) SrvClientFiles[id].file;
+	/* 1 byte for the command type, 1 byte for the srv file type,
+	 * 4 bytes for original uncompressed length. */
+	sl.buf = malloc(SrvClientFiles[id].len + 6);
 
-	if (SrvClientFiles[id].len != -1)
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DATA);
+
+	if (ns->socket_version < 1036)
 	{
-		sl.len = SrvClientFiles[id].len + 2;
+		SockList_AddChar(&sl, (char) (id + 1) | DATA_PACKED_CMD);
 	}
 	else
 	{
-		sl.len = SrvClientFiles[id].len_ucomp + 2;
+	SockList_AddChar(&sl, (char) id);
+	SockList_AddInt(&sl, SrvClientFiles[id].len_ucomp);
 	}
 
+	memcpy(sl.buf + sl.len, SrvClientFiles[id].file, SrvClientFiles[id].len);
+	sl.len += SrvClientFiles[id].len;
+
 	Send_With_Handling(ns, &sl);
+	free(sl.buf);
 }

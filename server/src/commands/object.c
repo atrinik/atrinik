@@ -198,7 +198,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
 
-	if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
+	if (op->type == KEY && sack->slaying && op->slaying)
 	{
 		snprintf(buf, sizeof(buf), "You don't want put the key into %s.", query_name(sack, NULL));
 	}
@@ -1445,7 +1445,19 @@ void examine(object *op, object *tmp)
 				}
 
 				new_draw_info(NDI_UNIQUE, op, buf);
-				snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
+
+				if (tmp->weapon_speed == 1.0f)
+				{
+					snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
+				}
+				else if (tmp->weapon_speed > 1.0f)
+				{
+					snprintf(buf, sizeof(buf), "It contains %3.3f kg, increased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+				}
+				else
+				{
+					snprintf(buf, sizeof(buf), "It contains %3.3f kg, decreased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+				}
 			}
 
 			break;
@@ -1669,85 +1681,5 @@ dirty_little_jump1:
 		diff = stringbuffer_finish(sb);
 		new_draw_info(NDI_UNIQUE, op, diff);
 		free(diff);
-	}
-}
-
-/**
- * Prints object's inventory.
- * @param op Who to print for.
- * @param inv If NULL then print op's inventory, else print the inventory
- * of inv. */
-void inventory(object *op, object *inv)
-{
-	object *tmp;
-	char *in;
-	int items = 0, length;
-
-	if (inv == NULL && op == NULL)
-	{
-		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
-		return;
-	}
-
-	tmp = inv ? inv->inv : op->inv;
-
-	while (tmp)
-	{
-		if ((!IS_SYS_INVISIBLE(tmp) && (inv == NULL || inv->type == CONTAINER || QUERY_FLAG(tmp, FLAG_APPLIED))) || (!op || QUERY_FLAG(op, FLAG_WIZ)))
-		{
-			items++;
-		}
-
-		tmp = tmp->below;
-	}
-
-	/* Player's inventory */
-	if (inv == NULL)
-	{
-		if (items == 0)
-		{
-			new_draw_info(NDI_UNIQUE, op, "You carry nothing.");
-			return;
-		}
-		else
-		{
-			length = 28;
-			in = "";
-			new_draw_info(NDI_UNIQUE, op, "Inventory:");
-		}
-	}
-	else
-	{
-		if (items == 0)
-		{
-			return;
-		}
-		else
-		{
-			length = 28;
-			in = "  ";
-		}
-	}
-
-	for (tmp = inv ? inv->inv : op->inv; tmp; tmp = tmp->below)
-	{
-		if ((!op || !QUERY_FLAG(op, FLAG_WIZ)) && (IS_SYS_INVISIBLE(tmp) || (inv && inv->type != CONTAINER && !QUERY_FLAG(tmp, FLAG_APPLIED))))
-		{
-			continue;
-		}
-
-		if ((!op || QUERY_FLAG(op, FLAG_WIZ)))
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s- %-*.*s (%5d) %-8s", in, length, length, query_name(tmp, NULL), tmp->count, query_weight(tmp));
-		}
-		else
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s- %-*.*s %-8s", in, length + 8, length + 8, query_name(tmp, NULL), query_weight(tmp));
-		}
-	}
-
-	if (!inv && op)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "%-*s %-8s", 41, "Total weight :", query_weight(op));
 	}
 }

@@ -207,9 +207,6 @@ typedef struct pl_player
 	/** The object representing the player. */
 	object *ob;
 
-	/** Which golem is controlled. */
-	object *golem;
-
 	/** The weapon in our hand. */
 	object *selected_weapon;
 
@@ -377,9 +374,6 @@ typedef struct pl_player
 
 	/** The count of the container. */
 	uint32 container_count;
-
-	/** Which golem is controlled - the ID count. */
-	uint32 golem_count;
 
 	/** Used for action timer for spell casting. */
 	uint32 action_casting;

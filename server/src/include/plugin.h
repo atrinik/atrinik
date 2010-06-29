@@ -190,7 +190,7 @@ struct plugin_hooklist
 	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
 	object *(*get_object)();
-	void (*copy_object)(object *, object *);
+	void (*copy_object)(object *, object *, int);
 	void (*enter_exit)(object *, object *);
 	void (*play_sound_map)(mapstruct *, int, int, int, int);
 	int (*learn_skill)(object *, object *, char *, int, int);

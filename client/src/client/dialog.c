@@ -1788,13 +1788,6 @@ void show_login_server()
 		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 92, COLOR_WHITE, NULL, NULL);
 	}
 
-	/* If set, we have requested something and the stuff in the socket buffer is our file! */
-	if (request_file_chain == 1 || request_file_chain == 3 || request_file_chain ==  5 || request_file_chain == 7 || request_file_chain == 9 || request_file_chain == 11)
-	{
-		snprintf(buf, sizeof(buf), "received ~%d~ bytes", csocket.inbuf.len);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 1, y + 150, COLOR_WHITE, NULL, NULL);
-	}
-
 	/* Update progress bar of requested files */
 	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], x, y + (168 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->h - 5), NULL, NULL);
 

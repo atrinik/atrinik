@@ -431,12 +431,6 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 
 	if (!face_sprite)
 	{
-		face = MAX_FACE_TILES - 1;
-		face_sprite = FaceList[face].sprite;
-	}
-
-	if (!face_sprite)
-	{
 		return;
 	}
 
@@ -759,7 +753,7 @@ void map_draw_map()
 	int player_height_offset;
 	int x, y, layer;
 
- 	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height;
+	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height;
 
 	/* First draw floor and floor masks. */
 	for (x = 0; x < MAP_MAX_SIZE; x++)

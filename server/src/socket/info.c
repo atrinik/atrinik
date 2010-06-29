@@ -448,6 +448,5 @@ void send_socket_message(int flags, socket_struct *ns, const char *buf)
 
 	snprintf(tmp, sizeof(tmp), "X%d %s", flags, buf);
 	Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, tmp, strlen(tmp));
-	ns->can_write = 1;
-	write_socket_buffer(ns);
+	socket_buffer_write(ns);
 }

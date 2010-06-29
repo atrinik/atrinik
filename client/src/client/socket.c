@@ -58,15 +58,8 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * @return A new command buffer or NULL in case of an error. */
 static command_buffer *command_buffer_new(size_t len, uint8 *data)
 {
-	command_buffer *buf;
+	command_buffer *buf = (command_buffer *) malloc(sizeof(command_buffer) + len + 1);
 
-	if (len > MAXSOCKBUF)
-	{
-		LOG(llevDebug, "Tried to allocate huge command buffer (%d bytes)\n", len);
-		return NULL;
-	}
-
-	buf = (command_buffer *) malloc(sizeof(command_buffer) + len + 1);
 	buf->next = buf->prev = NULL;
 	buf->len = len;
 
@@ -209,13 +202,19 @@ command_buffer *get_next_input_command()
 
 static int reader_thread_loop(void *dummy)
 {
-	uint8 readbuf[MAXSOCKBUF + 1];
+	static uint8 *readbuf = NULL;
+	static int readbuf_size = 256;
 	int readbuf_len = 0;
 	int header_len = 0;
 	int cmd_len = -1;
 
 	(void) dummy;
 	LOG(llevDebug, "Reader thread started.\n");
+
+	if (!readbuf)
+	{
+		readbuf = malloc(readbuf_size);
+	}
 
 	while (!abort_thread)
 	{
@@ -259,6 +258,16 @@ static int reader_thread_loop(void *dummy)
 			}
 
 			toread = cmd_len + header_len - readbuf_len;
+
+			if (cmd_len + 16 > readbuf_size)
+			{
+				uint8 *tmp = readbuf;
+
+				readbuf_size = cmd_len + 16;
+				readbuf = (uint8 *) malloc(readbuf_size);
+				memcpy(readbuf, tmp, readbuf_len);
+				free(tmp);
+			}
 		}
 
 		ret = recv(csocket.fd, (char *) readbuf + readbuf_len, toread, 0);
@@ -306,6 +315,8 @@ static int reader_thread_loop(void *dummy)
 	}
 
 	socket_close(&csocket);
+	free(readbuf);
+	readbuf = NULL;
 	LOG(llevDebug, "Reader thread stopped.\n");
 	return -1;
 }
@@ -497,13 +508,6 @@ int socket_close(struct ClientSocket *csock)
 	closesocket(csock->fd);
 #endif
 
-	free(csock->inbuf.buf);
-	free(csock->outbuf.buf);
-	csock->inbuf.buf = csock->outbuf.buf = NULL;
-	csock->inbuf.len = 0;
-	csock->outbuf.len = 0;
-	csock->inbuf.pos = 0;
-	csock->outbuf.pos = 0;
 	csock->fd = SOCKET_NO;
 
 	abort_thread = 1;
@@ -886,17 +890,6 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 	}
 
 	LOG(llevMsg, "Connected to %s:%d\n", host, port);
-
-	csock->inbuf.buf = (unsigned char *) malloc(MAXSOCKBUF);
-	csock->inbuf.len = 0;
-	csock->inbuf.pos = 0;
-	csock->outbuf.buf = (unsigned char *) malloc(MAXSOCKBUF);
-	csock->outbuf.len = 0;
-	csock->outbuf.pos = 0;
-
-	csock->command_sent = 0;
-	csock->command_received = 0;
-	csock->command_time = 0;
 
 	if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{

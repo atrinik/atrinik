@@ -202,7 +202,7 @@ object *op = items[*depth];
 
 							if (tmp->arch != NULL)
 							{
-								copy_object_data(&tmp->arch->clone, tmp);
+								copy_object(&tmp->arch->clone, tmp, 1);
 							}
 
 							strcpy(msgbuf, "");
@@ -294,7 +294,7 @@ object *op = items[*depth];
 							if (op->arch != NULL)
 							{
 								/* Speed will handled in load_object() for this. */
-								copy_object_data(&op->arch->clone, op);
+								copy_object(&op->arch->clone, op, 1);
 							}
 						}
                     }

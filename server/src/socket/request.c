@@ -69,7 +69,7 @@
 static void parse_srv_setup(char *param, char *cmdback, int type)
 {
 	char *cp;
-	int x = 0;
+	uint32 x = 0;
 	uint32 y = 0;
 
 	/* is x our files len and y the crc */
@@ -88,7 +88,7 @@ static void parse_srv_setup(char *param, char *cmdback, int type)
 	{
 		char tmpbuf[MAX_BUF];
 
-		snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
+		snprintf(tmpbuf, sizeof(tmpbuf), "%ld|%lx", SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
 		strcat(cmdback, tmpbuf);
 	}
 	else
@@ -826,6 +826,7 @@ void esrv_update_stats(player *pl)
 		{
 			AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
 		}
+
 		AddIfShort(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC);
 		AddIfShort(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC);
 		AddIfShort(pl->last_stats.dam, pl->client_dam, CS_STAT_DAM);

@@ -89,10 +89,7 @@ void apply_scroll(object *op, object *tmp)
 
 	if (op->type == PLAYER)
 	{
-		if (CONTR(op)->golem == NULL)
-		{
-			CONTR(op)->shoottype = old_shoot;
-			CONTR(op)->chosen_spell = old_spell;
-		}
+		CONTR(op)->shoottype = old_shoot;
+		CONTR(op)->chosen_spell = old_spell;
 	}
 }

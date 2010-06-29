@@ -93,7 +93,7 @@ void spring_trap(object *trap, object *victim)
 
 	/* get the spell number from the name in the slaying field, and set
 	 * that as the spell to be cast. */
-	if (trap->slaying && (spell_in_rune = look_up_spell_by_name(NULL, trap->slaying)) != -1)
+	if (trap->slaying && (spell_in_rune = look_up_spell_name(trap->slaying)) != -1)
 	{
 		trap->stats.sp = spell_in_rune;
 	}
@@ -187,7 +187,7 @@ int trap_see(object *op, object *trap, int level)
 	int chance = rndm(0, 99);
 
 	/* Decide if we can see the rune or not */
-	if ((trap->level <= level && RANDOM() % 10) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0))))))
+	if ((trap->level <= level && rndm_chance(10)) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0))))))
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
 		return 1;
@@ -217,7 +217,7 @@ int trap_show(object *trap, object *where)
 	CLEAR_MULTI_FLAG(trap, FLAG_IS_INVISIBLE);
 	trap->layer = 7;
 
-	if (env && env->type != PLAYER && env->type != MONSTER && env->type != LOCKED_DOOR && !QUERY_FLAG(env, FLAG_NO_PASS))
+	if (env && env->type != PLAYER && env->type != MONSTER && env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS))
 	{
 		SET_FLAG(env, FLAG_IS_TRAPPED);
 
@@ -260,7 +260,7 @@ int trap_disarm(object *disarmer, object *trap)
 	object *env = trap->env;
 	int disarmer_level = CONTR(disarmer)->exp_ptr[EXP_AGILITY]->level;
 
-	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
+	if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{
 		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
@@ -272,7 +272,7 @@ int trap_disarm(object *disarmer, object *trap)
 	{
 		new_draw_info_format(NDI_UNIQUE, disarmer, "You fail to remove the %s (lvl %d).", trap->name, trap->level);
 
-		if ((trap->level > disarmer_level * 1.4f || (RANDOM() % 3)))
+		if (trap->level > disarmer_level * 1.4f || rndm(0, 2))
 		{
 			if (!(rndm(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1)))
 			{

@@ -69,7 +69,7 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
 			{
 				object *this_object = get_object();
 
-				copy_object(new_decor_object, this_object);
+				copy_object(new_decor_object, this_object, 0);
 				this_object->x = i;
 				this_object->y = j;
 

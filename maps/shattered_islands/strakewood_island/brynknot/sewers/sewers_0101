@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-06-12 Alex Tokar
+Modified: 2010-06-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -430,7 +430,7 @@ x 4
 y 1
 end
 arch ladder_up
-slaying ../../world_0112
+slaying ../../../world_0112
 hp 10
 sp 21
 x 4
@@ -1446,8 +1446,13 @@ arch floor_earth1d
 x 9
 y 5
 end
-arch sewer_close.101
-no_pass 0
+arch sewer_hole2
+msg
+The sewer plate won't move.
+endmsg
+hp 9
+sp 5
+face sewer_close.101
 x 9
 y 5
 end
@@ -1547,6 +1552,9 @@ x 9
 y 15
 end
 arch sewer_hole2
+slaying sewers_a_aa01
+hp 15
+sp 11
 x 9
 y 15
 end
@@ -1745,6 +1753,11 @@ x 10
 y 15
 end
 arch floor_earth1e
+x 10
+y 16
+end
+arch sewer_plate.101
+name sewer plate
 x 10
 y 16
 end
@@ -2617,7 +2630,7 @@ friendly 1
 direction 1
 arch event_obj
 sub_type 6
-race ../../scripts/strakewood_island/brynknot/mercenary_taleus.py
+race ../../../scripts/strakewood_island/brynknot/mercenary_taleus.py
 end
 end
 end
@@ -3006,8 +3019,13 @@ arch floor_earth1b
 x 17
 y 5
 end
-arch sewer_close.101
-no_pass 0
+arch sewer_hole2
+msg
+The sewer plate won't move.
+endmsg
+hp 17
+sp 5
+face sewer_close.101
 x 17
 y 5
 end
@@ -3102,8 +3120,13 @@ direction 6
 x 17
 y 15
 end
-arch sewer_close.101
-no_pass 0
+arch sewer_hole2
+msg
+The sewer plate won't move.
+endmsg
+hp 17
+sp 15
+face sewer_close.101
 x 17
 y 15
 end
@@ -4142,13 +4165,6 @@ arch floor_earth1a
 x 23
 y 1
 end
-arch ladder_up
-slaying ../../world_0212
-hp 5
-sp 21
-x 23
-y 1
-end
 arch floor_earth1b
 x 23
 y 2
@@ -4350,7 +4366,7 @@ x 23
 y 21
 end
 arch ladder_up
-slaying ../../world_0211
+slaying ../../../world_0211
 hp 5
 sp 17
 x 23

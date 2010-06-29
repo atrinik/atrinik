@@ -52,6 +52,21 @@ int rndm(int min, int max)
 }
 
 /**
+ * Calculates a chance of 1 in 'n'.
+ * @param n Number.
+ * @return 1 if the chance of 1/n was successful, 0 otherwise. */
+int rndm_chance(uint32 n)
+{
+	if (!n)
+	{
+		LOG(llevBug, "BUG: Calling rndm_chance() with n=0.\n");
+		return 0;
+	}
+
+	return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
+}
+
+/**
  * Return the number of the spell that whose name matches the passed
  * string argument.
  * @param spname Name of the spell to look up.
@@ -397,4 +412,22 @@ void copy_file(const char *filename, FILE *fpout)
 	}
 
 	fclose(fp);
+}
+
+/**
+ * Replaces "\n" by a newline char.
+ *
+ * Since we are replacing 2 chars by 1, no overflow should happen.
+ * @param line Text to replace into. */
+void convert_newline(char *str)
+{
+	char *next, buf[MAX_BUF];
+
+	while ((next = strstr(str, "\\n")))
+	{
+		*next = '\n';
+		*(next + 1) = '\0';
+		snprintf(buf, sizeof(buf), "%s%s", str, next + 2);
+		strcpy(str, buf);
+	}
 }

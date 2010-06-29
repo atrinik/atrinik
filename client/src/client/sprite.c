@@ -297,9 +297,9 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			{
 				blt_sprite = sprite->dark_level[bltfx->dark_level];
 			}
- 			else
- 			{
- 				blt_sprite = SDL_DisplayFormatAlpha(sprite->bitmap);
+			else
+			{
+				blt_sprite = SDL_DisplayFormatAlpha(sprite->bitmap);
 				SDL_BlitSurface(darkness_filter[bltfx->dark_level], NULL, blt_sprite, NULL);
 				sprite->dark_level[bltfx->dark_level] = blt_sprite;
 			}

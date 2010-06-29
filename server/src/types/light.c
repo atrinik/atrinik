@@ -187,7 +187,7 @@ void apply_player_light(object *who, object *op)
 			if (op->nrof > 1)
 			{
 				object *one = get_object();
-				copy_object(op, one);
+				copy_object(op, one, 0);
 				op->nrof -= 1;
 				one->nrof = 1;
 
@@ -416,7 +416,7 @@ void apply_lighter(object *who, object *lighter)
 			if (lighter->nrof > 1)
 			{
 				object *oneLighter = get_object();
-				copy_object(lighter, oneLighter);
+				copy_object(lighter, oneLighter, 0);
 				lighter->nrof -= 1;
 				oneLighter->nrof = 1;
 				oneLighter->stats.food--;

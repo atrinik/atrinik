@@ -4929,3 +4929,19 @@ name Scursaur's Smoking Pipe
 is_named 1
 one_drop 1
 end
+
+Allowed none
+chance 1
+artifact redhelm_quest_pouch
+def_arch pouch
+Object
+is_magical 1
+title of minor holding
+type 122
+value 550
+weapon_speed 0.85
+one_drop 1
+material_real 194
+item_quality 81
+item_condition 81
+end

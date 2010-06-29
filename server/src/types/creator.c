@@ -114,7 +114,7 @@ void move_creator(object *op)
 				return;
 			}
 
-			cloneindex = RANDOM() % numobs;
+			cloneindex = rndm(1, numobs) - 1;
 		}
 
 		for (source = op->inv; source && cloneindex >= 0; source = source->below)

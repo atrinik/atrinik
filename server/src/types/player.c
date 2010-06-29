@@ -710,7 +710,7 @@ void fire(object *op, int dir)
 
 			spellcost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, spellNormal, NULL);
 
-			if (spells[CONTR(op)->chosen_spell].flags & SPELL_DESC_WIS)
+			if (spells[CONTR(op)->chosen_spell].type == SPELL_TYPE_PRIEST)
 			{
 				op->stats.grace -= spellcost;
 			}
@@ -874,16 +874,8 @@ trick_jump:
 
 		/* Control summoned monsters from scrolls */
 		case range_scroll:
-			if (CONTR(op)->golem == NULL)
-			{
-				CONTR(op)->shoottype = range_none;
-				CONTR(op)->chosen_spell = -1;
-			}
-			else
-			{
-				control_golem(CONTR(op)->golem, dir);
-			}
-
+			CONTR(op)->shoottype = range_none;
+			CONTR(op)->chosen_spell = -1;
 			return;
 
 		case range_skill:
@@ -1442,7 +1434,7 @@ void kill_player(object *op)
 		{
 			/* Pick a random stat and take a point off it. Tell the
 			 * player what he lost. */
-			i = RANDOM() % 7;
+			i = rndm(1, NUM_STATS) - 1;
 			change_attr_value(&(op->stats), i, -1);
 			check_stat_bounds(&(op->stats));
 			change_attr_value(&(CONTR(op)->orig_stats), i, -1);
@@ -1456,7 +1448,7 @@ void kill_player(object *op)
 			archetype *deparch = find_archetype("depletion");
 			object *dep;
 
-			i = RANDOM() % 7;
+			i = rndm(1, NUM_STATS) - 1;
 			dep = present_arch_in_ob(deparch, op);
 
 			if (!dep)

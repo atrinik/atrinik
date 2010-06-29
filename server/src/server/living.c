@@ -860,7 +860,7 @@ int change_abil(object *op, object *tmp)
  * @param op Object to drain. */
 void drain_stat(object *op)
 {
-	drain_specific_stat(op, RANDOM() % NUM_STATS);
+	drain_specific_stat(op, rndm(1, NUM_STATS) - 1);
 }
 
 /**
@@ -2139,7 +2139,7 @@ object *insert_base_info_object(object *op)
 	tmp = get_object();
 	tmp->arch = op->arch;
 	/* Copy without putting it on active list */
-	copy_object_data(head, tmp);
+	copy_object(head, tmp, 1);
 	tmp->type = BASE_INFO;
 	tmp->speed_left = tmp->speed;
 	/* Ensure this object will not be active in any way */

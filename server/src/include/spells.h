@@ -108,11 +108,6 @@ extern int cleric_chance[];
  * @defgroup SPELL_TYPE_xxx Spell types
  * Spell types.
  *@{*/
-
-/**
- * Special case: this is use like a spell but natural ability - effect
- * is non magical */
-#define SPELL_TYPE_NATURAL 0
 /** Base mage spell: using mana. */
 #define SPELL_TYPE_WIZARD  1
 /** Base cleric spell: using grace. */
@@ -139,20 +134,6 @@ extern int cleric_chance[];
 #define SPELL_DESC_FRIENDLY     0x08
 /** Spell can be cast on enemy creature. */
 #define SPELL_DESC_ENEMY        0x10
-/**
- * Spell can be cast on party members.
- * @todo Implement. I think the idea is 'buffs' of some sort. */
-#define SPELL_DESC_PARTY        0x20
-/** Spell summons something. */
-#define SPELL_DESC_SUMMON       0x40
-/**
- * Spell can be cast even when paralyzed.
- * @todo Implement. */
-#define SPELL_DESC_PARALYZED    0x80
-/**
- * If set, this is a prayer using wisdom stat, instead of intelligence
- * stat of an object. */
-#define SPELL_DESC_WIS          0x100
 /*@}*/
 
 /** Spell structure. */
@@ -258,7 +239,7 @@ enum spellnrs
 	SP_CAUSE_LIGHT,
 	SP_CONFUSION,
 	SP_BULLET,
-	SP_GOLEM,
+	SP_UNUSED1,
 	SP_REMOVE_DEPLETION,
 	SP_PROBE,
 	SP_TOWN_PORTAL,

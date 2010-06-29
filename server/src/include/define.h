@@ -115,16 +115,6 @@
 #define SPLIST_MODE_UPDATE  2
 /*@}*/
 
-/**
- * @defgroup golem_control_modes Golem control modes
- * For golem control function sent to client.
- *@{*/
-/** Release a golem. */
-#define GOLEM_CTR_RELEASE   0
-/** Get control over a golem. */
-#define GOLEM_CTR_ADD       1
-/*@}*/
-
 /** Marks no skill used. */
 #define CHOSEN_SKILL_NO (99999)
 
@@ -164,137 +154,168 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 127, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 152, 155.
+ * 148, 149, 150, 152, 155, 151, 141, 107, 89, 61, 57, 45, 28, 10, 11,
+ * 46, 24.
  *@{*/
-
-/** The object is a player object. */
-#define PLAYER                  1
-/** A spell bullet. */
-#define BULLET                  2
-/** Rod. */
-#define ROD                     3
-/** Some kind of treasure. */
-#define TREASURE                4
-/** Potion. */
-#define POTION                  5
-/** Food. */
-#define FOOD                    6
-/** Poison. */
-#define POISON                  7
-/** Book. */
-#define BOOK                    8
-/** Clock. */
-#define CLOCK                   9
-/** Fired bullet. */
-#define FBULLET                 10
-/** Fired ball. */
-#define FBALL                   11
-/** Lightning. */
-#define LIGHTNING               12
-/** An arrow. */
-#define ARROW                   13
-/** Bow. */
-#define BOW                     14
-/** Weapon. */
-#define WEAPON                  15
-/** Armour. */
-#define ARMOUR                  16
-/** Pedestal. */
-#define PEDESTAL                17
-/** Altar. */
-#define ALTAR                   18
-/** Confusion force. */
-#define CONFUSION               19
-/** Locked door. */
-#define LOCKED_DOOR             20
-/** Key to unlock @ref LOCKED_DOOR "a locked door". */
-#define SPECIAL_KEY             21
-#define MAP                     22
-/** Door. */
-#define DOOR                    23
-/** A key. */
-#define KEY                     24
-/** Magic missile. */
-#define MMISSILE                25
-/** Timed gate. */
-#define TIMED_GATE              26
-/** Trigger. */
-#define TRIGGER                 27
-#define GRIMREAPER              28
-/** Magic ear. */
-#define MAGIC_EAR               29
-/** Trigger button. */
-#define TRIGGER_BUTTON          30
-/** Trigger altar. */
-#define TRIGGER_ALTAR           31
-/** Trigger pedestal. */
-#define TRIGGER_PEDESTAL        32
-/** Shield. */
-#define SHIELD                  33
-/** Helmet. */
-#define HELMET                  34
-/** Horn. */
-#define HORN                    35
-/** Money (copper, silver, etc). */
-#define MONEY                   36
-/** Object for applying character class modifications to someone. */
-#define CLASS                   37
-/** Objects that appear on place of player's death. */
-#define GRAVESTONE              38
-/** An amulet. */
-#define AMULET                  39
-/** Player mover. */
-#define PLAYERMOVER             40
-/** Teleporter. */
-#define TELEPORTER              41
-/** Creator object. */
-#define CREATOR                 42
-/** Skills are similar to abilites, but not related to spells. */
-#define SKILL                   43
-/** An experience object. */
-#define EXPERIENCE              44
-/** An earthwall. */
-#define EARTHWALL               45
-/** Golem. */
-#define GOLEM                   46
-/** Bomb. */
-#define BOMB                    47
-/** Thrown object. */
-#define THROWN_OBJ              48
-/** Blindness force object. */
-#define BLINDNESS               49
-/** God. */
-#define GOD                     50
-
+/**
+ * The object is a player object. */
+#define PLAYER 1
+/**
+ * A fired spell bullet. */
+#define BULLET 2
+/**
+ * Rod. */
+#define ROD 3
+/**
+ * An object that will generate treasure. */
+#define TREASURE 4
+/**
+ * Potion. */
+#define POTION 5
+/**
+ * Food. */
+#define FOOD 6
+/**
+ * Poison. */
+#define POISON 7
+/**
+ * Book. */
+#define BOOK 8
+/**
+ * Clock. Shows the in-game time. */
+#define CLOCK 9
+/**
+ * Lightning. */
+#define LIGHTNING 12
+/**
+ * An arrow. */
+#define ARROW 13
+/**
+ * Bow. */
+#define BOW 14
+/**
+ * Weapon. */
+#define WEAPON 15
+/**
+ * Armour. */
+#define ARMOUR 16
+/**
+ * Pedestal. */
+#define PEDESTAL 17
+/**
+ * Altar. */
+#define ALTAR 18
+/**
+ * Confusion force. */
+#define CONFUSION 19
+/**
+ * Door. */
+#define DOOR 20
+/**
+ * Key to unlock @ref DOOR "a locked door". */
+#define KEY 21
+#define MAP 22
+/**
+ * Magic missile. */
+#define MMISSILE 25
+/**
+ * Timed gate. */
+#define TIMED_GATE 26
+/**
+ * Trigger. */
+#define TRIGGER 27
+/**
+ * Magic ear. */
+#define MAGIC_EAR 29
+/**
+ * Trigger button. */
+#define TRIGGER_BUTTON 30
+/**
+ * Trigger altar. */
+#define TRIGGER_ALTAR 31
+/**
+ * Trigger pedestal. */
+#define TRIGGER_PEDESTAL 32
+/**
+ * Shield. */
+#define SHIELD 33
+/**
+ * Helmet. */
+#define HELMET 34
+/**
+ * Horn. */
+#define HORN 35
+/**
+ * Money (copper, silver, etc). */
+#define MONEY 36
+/**
+ * Object for applying character class modifications to someone. */
+#define CLASS 37
+/**
+ * Objects that appear on place of player's death. */
+#define GRAVESTONE 38
+/**
+ * An amulet. */
+#define AMULET 39
+/**
+ * Player mover. */
+#define PLAYERMOVER 40
+/**
+ * Teleporter. */
+#define TELEPORTER 41
+/**
+ * Creator object. */
+#define CREATOR 42
+/**
+ * Skill object. */
+#define SKILL 43
+/**
+ * An experience object. */
+#define EXPERIENCE 44
+/**
+ * Bomb. */
+#define BOMB 47
+/**
+ * Thrown object. */
+#define THROWN_OBJ 48
+/**
+ * Blindness force object. */
+#define BLINDNESS 49
+/**
+ * God. */
+#define GOD 50
 /**
  * Detector is an object which notices the presense of another object and
  * is triggered like buttons. */
-#define DETECTOR                51
-/** Item required to be equipped in order to use a skill. */
-#define SKILL_ITEM              52
-/** Players become a DEAD_OBJECT when they logout. */
-#define DEAD_OBJECT             53
-/** Drink. */
-#define DRINK                   54
+#define DETECTOR 51
+/**
+ * Item required to be equipped in order to use a skill. */
+#define SKILL_ITEM 52
+/**
+ * Players become a DEAD_OBJECT when they logout. */
+#define DEAD_OBJECT 53
+/**
+ * Drink. */
+#define DRINK 54
 /**
  * Inserts an invisible, weightless force into a player with a specified
  * string. */
-#define MARKER                  55
-/** Holy altar. */
-#define HOLY_ALTAR              56
-/** Player changer. */
-#define PLAYER_CHANGER          57
-/** Pearl. */
-#define PEARL                   59
-/** Gem. */
-#define GEM                     60
-/** Fire chest. */
-#define FIRECHEST               61
-/** Fire wall. */
-#define FIREWALL                62
-/** Inventory checker. */
-#define CHECK_INV               64
-
+#define MARKER 55
+/**
+ * Holy altar. */
+#define HOLY_ALTAR 56
+/**
+ * Pearl. */
+#define PEARL 59
+/**
+ * Gem. */
+#define GEM 60
+/**
+ * Fire wall. */
+#define FIREWALL 62
+/**
+ * Inventory checker. */
+#define CHECK_INV 64
 /**
  * Mood floor can affect how monsters behave once they step on it.
  *
@@ -305,160 +326,209 @@
  * <li>2 = calm, all aggressive monsters calm down</li>
  * <li>3 = sleep, all monsters fall asleep</li>
  * </ul> */
-#define MOOD_FLOOR              65
-/** Stairs, holes, portals, etc. */
-#define EXIT                    66
-/** Shop floor. */
-#define SHOP_FLOOR              68
-/** Shop mat. */
-#define SHOP_MAT                69
-/** A ring. */
-#define RING                    70
-/** This is a floor tile. */
-#define FLOOR                   71
-/** Animal body parts. */
-#define FLESH                   72
-/** Metals and minerals. */
-#define INORGANIC               73
-/** Light source for players - torch, lantern, etc. */
-#define LIGHT_APPLY             74
-/** Lighter. */
-#define LIGHTER                 75
-/** This is a wall. */
-#define WALL                    77
-/** Light source on a map (invisible light). */
-#define LIGHT_SOURCE            78
+#define MOOD_FLOOR 65
+/**
+ * Stairs, holes, portals, etc. */
+#define EXIT 66
+/**
+ * Shop floor. */
+#define SHOP_FLOOR 68
+/**
+ * Shop mat. */
+#define SHOP_MAT 69
+/**
+ * A ring. */
+#define RING 70
+/**
+ * This is a floor tile. */
+#define FLOOR 71
+/**
+ * Animal body parts. */
+#define FLESH 72
+/**
+ * Metals and minerals. */
+#define INORGANIC 73
+/**
+ * Light source for players - torch, lantern, etc. */
+#define LIGHT_APPLY 74
+/**
+ * Lighter. */
+#define LIGHTER 75
+/**
+ * This is a wall. */
+#define WALL 77
+/**
+ * Light source on a map (invisible light). */
+#define LIGHT_SOURCE 78
 /**
  * Miscellaneous objects are for objects without a function in the
  * engine, like statues, clocks, chairs, etc. */
-#define MISC_OBJECT             79
-/** A real living creature. */
-#define MONSTER                 80
-/** A spawn point object. */
-#define SPAWN_POINT             81
-/** Refilling item for @ref LIGHT_APPLY. */
-#define LIGHT_REFILL            82
+#define MISC_OBJECT 79
 /**
- * Inactive monster tmplate inside spawn point inv.
- *
- * It's only a copy and not a real monster nor an active object. */
-#define SPAWN_POINT_MOB         83
+ * A real living creature. */
+#define MONSTER 80
+/**
+ * A spawn point object. */
+#define SPAWN_POINT 81
+/**
+ * Refilling item for @ref LIGHT_APPLY. */
+#define LIGHT_REFILL 82
+/**
+ * Monster inside a spawn point. */
+#define SPAWN_POINT_MOB 83
 /**
  * Used to find spawn point where monster came from. */
-#define SPAWN_POINT_INFO        84
-/** Spell book. */
-#define SPELLBOOK               85
-/** Body parts which can't be eaten - dragon scales for example */
-#define ORGANIC                 86
-/** A cloak. */
-#define CLOAK                   87
-/** Cone spell. */
-#define CONE                    88
-/** Aura spell object. */
-#define AURA                    89
-/** Spinner. */
-#define SPINNER                 90
-/** Gate. */
-#define GATE                    91
-/** Button. */
-#define BUTTON                  92
-/** Handle. */
-#define HANDLE                  93
+#define SPAWN_POINT_INFO 84
+/**
+ * Spell book. */
+#define SPELLBOOK 85
+/**
+ * Body parts which can't be eaten - dragon scales for example */
+#define ORGANIC 86
+/**
+ * A cloak. */
+#define CLOAK 87
+/**
+ * Cone spell. */
+#define CONE 88
+/**
+ * Spinner. */
+#define SPINNER 90
+/**
+ * Gate. */
+#define GATE 91
+/**
+ * Button. */
+#define BUTTON 92
+/**
+ * Handle. */
+#define HANDLE 93
 /**
  * Pit is like an @ref EXIT "exit", but it does damage to alive object
  * falling into it. */
-#define PIT                     94
-/** A trapdoor. */
-#define TRAPDOOR                95
-/** Special force for word of recall. */
-#define WORD_OF_RECALL          96
-/** Sign. */
-#define SIGN                    98
-/** Boots. */
-#define BOOTS                   99
-/** Gloves. */
-#define GLOVES                  100
-/** This object holds the real base stats of monsters or other active objects. */
-#define BASE_INFO               101
+#define PIT 94
+/**
+ * A trapdoor. */
+#define TRAPDOOR 95
+/**
+ * Special force for word of recall. */
+#define WORD_OF_RECALL 96
+/**
+ * Sign. */
+#define SIGN 98
+/**
+ * Boots. */
+#define BOOTS 99
+/**
+ * Gloves. */
+#define GLOVES 100
+/**
+ * This object holds the real base stats of monsters. */
+#define BASE_INFO 101
 /**
  * Only used for spawn point monsters:
  *
  * If found inside the monster, there is a random chance based on the
  * object's weight limit to drop the object's inventory into the
  * monster. */
-#define RANDOM_DROP             102
-/** Convert one object into another. */
-#define CONVERTER               103
-/** Bracers. */
-#define BRACERS                 104
-/** Poison force. */
-#define POISONING               105
-/** A savebed. */
-#define SAVEBED                 106
-/** Poison cloud. */
-#define POISONCLOUD             107
-/** Wand. */
-#define WAND                    109
-/** Ability. */
-#define ABILITY                 110
-/** Scroll. */
-#define SCROLL                  111
-/** Director. */
-#define DIRECTOR                112
-/** Girdle. */
-#define GIRDLE                  113
-/** A generic force object. */
-#define FORCE                   114
-/** A force, holding the effect of a potion. */
-#define POTION_EFFECT           115
-/** A jewel. */
-#define JEWEL                   116
-/** Nugget. */
-#define NUGGET                  117
-/** Event/script object. */
-#define EVENT_OBJECT            118
-/** Waypoint object. */
-#define WAYPOINT_OBJECT         119
-/** Used to store quest informations in players. */
-#define QUEST_CONTAINER         120
-/** Id for close_container archetype. */
-#define CLOSE_CON               121
-/** A container. */
-#define CONTAINER               122
-/** Armour improver scroll. */
-#define ARMOUR_IMPROVER         123
-/** Weapon improver scroll. */
-#define WEAPON_IMPROVER         124
+#define RANDOM_DROP 102
+/**
+ * Convert one object into another. */
+#define CONVERTER 103
+/**
+ * Bracers. */
+#define BRACERS 104
+/**
+ * Poison force. */
+#define POISONING 105
+/**
+ * A savebed. */
+#define SAVEBED 106
+/**
+ * Wand. */
+#define WAND 109
+/**
+ * Ability. */
+#define ABILITY 110
+/**
+ * Scroll. */
+#define SCROLL 111
+/**
+ * Director. */
+#define DIRECTOR 112
+/**
+ * Girdle. */
+#define GIRDLE 113
+/**
+ * A generic force object. */
+#define FORCE 114
+/**
+ * A force, holding the effect of a potion. */
+#define POTION_EFFECT 115
+/**
+ * A jewel. */
+#define JEWEL 116
+/**
+ * Nugget. */
+#define NUGGET 117
+/**
+ * Event/script object. */
+#define EVENT_OBJECT 118
+/**
+ * Waypoint object. */
+#define WAYPOINT_OBJECT 119
+/**
+ * Used to store quest informations in players. */
+#define QUEST_CONTAINER 120
+/**
+ * Id for close_container archetype. */
+#define CLOSE_CON 121
+/**
+ * A container. */
+#define CONTAINER 122
+/**
+ * Armour improver scroll. */
+#define ARMOUR_IMPROVER 123
+/**
+ * Weapon improver scroll. */
+#define WEAPON_IMPROVER 124
 /**
  * This is a raw wealth object. When generated it's tranformed into real
  * money depending on the enviroment where it's generated. */
-#define WEALTH                  125
-/** A beacon. */
-#define BEACON                  126
-/** Can teach player a skill it holds. */
-#define SKILLSCROLL             130
-/** Deep swamp. */
-#define DEEP_SWAMP             138
-/** Identification altar. */
-#define IDENTIFY_ALTAR         139
-/** Cancellation effect. */
-#define CANCELLATION           141
-/** Ball lightning and color spray. */
-#define BALL_LIGHTNING          151
-/** A swarm spell. */
-#define SWARM_SPELL             153
-/** Rune. */
-#define RUNE                    154
-/** Power crystal. */
-#define POWER_CRYSTAL           156
-/** Corpse. */
-#define CORPSE                  157
-/** Disease. */
-#define DISEASE                 158
-/** Disease symptom. */
-#define SYMPTOM                 159
-/** Pure internal system object. */
-#define VOID_CONTAINER          255
+#define WEALTH 125
+/**
+ * A beacon. */
+#define BEACON 126
+/**
+ * Can teach player a skill it holds. */
+#define SKILLSCROLL 130
+/**
+ * Deep swamp. */
+#define DEEP_SWAMP 138
+/**
+ * Identification altar. */
+#define IDENTIFY_ALTAR 139
+/**
+ * A swarm spell. */
+#define SWARM_SPELL 153
+/**
+ * Rune. */
+#define RUNE 154
+/**
+ * Power crystal. */
+#define POWER_CRYSTAL 156
+/**
+ * Corpse. */
+#define CORPSE 157
+/**
+ * Disease. */
+#define DISEASE 158
+/**
+ * Disease symptom. */
+#define SYMPTOM 159
+/**
+ * Pure internal system object. */
+#define VOID_CONTAINER 255
 /*@}*/
 
 /**
@@ -1317,6 +1387,24 @@
 	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 16) & 0xff); \
 	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 8) & 0xff);  \
 	(_sl_)->buf[(_sl_)->len++] = (char) ((_data_) & 0xff)
+
+/**
+ * Adds a data block.
+ * @param _sl_ SockList instance to add to.
+ * @param _data_ The value to add.
+ * @param _len_ The length in byte. */
+#define SockList_AddData(_sl_, _data_, _len_) \
+	memcpy((_sl_)->buf + (_sl_)->len, (_data_), (_len_)); \
+	(_sl_)->len += (_len_)
+
+/**
+ * Adds a data block prepended with an 8 bit length field.
+ * @param _sl_ The SockList instance to add to.
+ * @param _data_ The value to add.
+ * @param _len_ The length in byte; must not exceed 255. */
+#define SockList_AddLen8Data(_sl_, _data_, _len_) \
+	SockList_AddChar((_sl_), (_len_)); \
+	SockList_AddData((_sl_), (_data_), (_len_))
 
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */

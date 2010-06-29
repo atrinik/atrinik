@@ -29,111 +29,6 @@
 
 #include <global.h>
 
-#ifdef SPELL_FAILURE_EFFECTS
-
-/**
- * Handles the various effects for differing degrees of failure badness.
- * @param op Player that failed.
- * @param failure Random value of how badly you failed.
- * @param power How many spellpoints you'd normally need for the spell. */
-void spell_failure(object *op, int failure, int power)
-{
-	/* wonder */
-	if (failure <= -20 && failure > -40)
-	{
-		new_draw_info(NDI_UNIQUE, op, "Your spell causes an unexpected effect.");
-		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
-	}
-	/* confusion */
-	else if (failure <= -40 && failure > -60)
-	{
-		new_draw_info(NDI_UNIQUE, op, "Your magic recoils on you!");
-		confuse_living(op);
-	}
-	/* paralysis */
-	else if (failure <= -60 && failure > -80)
-	{
-		new_draw_info(NDI_UNIQUE, op, "Your magic recoils on you!");
-		paralyze_living(op, 99);
-	}
-	/* blast the immediate area */
-	else if (failure <= -80)
-	{
-		object *tmp;
-
-		/* Safety check to make sure we don't get any mana storms in scorn */
-		if (blocks_magic(op->map, op->x, op->y))
-		{
-			new_draw_info(NDI_UNIQUE, op, "The magic warps and you are turned inside out!");
-			hit_player(tmp, 9998, op, AT_INTERNAL);
-		}
-		else
-		{
-			new_draw_info(NDI_UNIQUE, op, "You lose control of the mana! The uncontrolled magic blasts you!");
-			tmp = get_archetype("loose_magic");
-			tmp->level = SK_level(op);
-			tmp->x = op->x;
-			tmp->y = op->y;
-
-			/* increase the area of destruction a little for more powerful spells */
-			tmp->stats.hp += isqrt(power);
-
-			if (power > 25)
-				tmp->stats.dam = 25 + isqrt(power);
-			/* nasty recoils! */
-			else
-				tmp->stats.dam = power;
-
-			tmp->stats.maxhp = tmp->count;
-			insert_ob_in_map(tmp, op->map, NULL, 0);
-		}
-	}
-}
-#endif
-
-/**
- * Called when a player fails at casting a prayer.
- * @param op Player.
- * @param failure Basically how much grace they had.
- * @param power How much grace the spell would normally take to cast. */
-void prayer_failure(object *op, int failure, int power)
-{
-	const char *godname;
-
-	if ((godname = determine_god(op)) == shstr_cons.none)
-	{
-		godname = "Your spirit";
-	}
-
-	/* Wonder */
-	if (failure <= -20 && failure > -40)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s gives a sign to renew your faith.", godname);
-#if 0
-		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
-#endif
-	}
-	/* Confusion */
-	else if (failure <= -40 && failure > -60)
-	{
-		new_draw_info(NDI_UNIQUE, op, "Your diety touches your mind!");
-		confuse_living(op);
-	}
-	/* Paralysis */
-	else if (failure <= -60 && failure> -150)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s requires you to pray NOW.", godname);
-		new_draw_info(NDI_UNIQUE, op, "You comply, ignoring all else.");
-		paralyze_living(op, 99);
-	}
-	/* Blast the immediate area. */
-	else if (failure <= -150)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s smites you!", godname);
-		cast_magic_storm(op, get_archetype("god_power"), power);
-	}
-}
-
 /**
  * This is really used mostly for spell fumbles at the like.
  * @param op What is casting this.
@@ -193,7 +88,7 @@ int recharge(object *op)
 	new_draw_info_format(NDI_UNIQUE, op, "The %s glows with power.", query_name(wand, NULL));
 
 	wand->stats.food += rndm(1, spells[wand->stats.sp].charges);
-	cap = (RANDOM() % spells[wand->stats.sp].charges + 1) + 12;
+	cap = spells[wand->stats.sp].charges + 12;
 
 	/* Place a cap on it. */
 	if (wand->stats.food > cap)
@@ -277,7 +172,7 @@ int cast_create_food(object *op, object *caster, int dir, char *stringarg)
 
 	food_value /= at->clone.stats.food;
 	new_op = get_object();
-	copy_object(&at->clone, new_op);
+	copy_object(&at->clone, new_op, 0);
 	new_op->nrof = food_value;
 
 	new_op->value = 0;
@@ -1254,6 +1149,11 @@ void animate_bomb(object *op)
 	int i;
 	archetype *at;
 
+	if (!op->map)
+	{
+		return;
+	}
+
 	if (op->state != NUM_ANIMATIONS(op) - 1)
 	{
 		op->state++;
@@ -1785,80 +1685,6 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 
 	new_draw_info(NDI_UNIQUE, op, "No one caught anything!");
 	return 0;
-}
-
-/**
- * Process an aura. An aura is a part of someone's inventory, which he
- * carries with him, but which acts on the map immediately around him.
- *
- * Aura parameters:
- *
- * food: Duration counter.
- * attacktype: Aura's attacktype.
- * other_arch: Archetype to drop where we attack.
- * @param aura The spell effect. */
-void move_aura(object *aura)
-{
-	int i, nx, ny;
-	object *env = aura->env, *new_ob;
-	mapstruct *m;
-
-	/* No matter what we've gotta remove the aura...
-	 * We'll put it back if its time isn't up. */
-	remove_ob(aura);
-
-	/* Exit if we're out of gas */
-	if (aura->stats.food-- < 0)
-	{
-		return;
-	}
-
-	/* Auras only exist in inventories */
-	if (env == NULL || env->map == NULL)
-	{
-		return;
-	}
-
-	aura->x = env->x;
-	aura->y = env->y;
-
-	/* We need to jump out of the inventory for a bit in order to hit the
-	 * map conveniently. */
-	if (!insert_ob_in_map(aura, env->map, aura, 0))
-	{
-		return;
-	}
-
-	for (i = 1; i < 9; i++)
-	{
-		hit_map(aura, i, 0);
-
-		if (aura->other_arch)
-		{
-			nx = aura->x + freearr_x[i];
-			ny = aura->y + freearr_y[i];
-
-			/* We're done if the "i" square next to us is full */
-			if (!(m = get_map_from_coord(aura->map, &nx, &ny)))
-			{
-				continue;
-			}
-
-			if (wall(m, nx, ny))
-			{
-				continue;
-			}
-
-			new_ob = arch_to_object(aura->other_arch);
-			new_ob->x = nx;
-			new_ob->y = ny;
-			insert_ob_in_map(new_ob, m, aura, 0);
-		}
-	}
-
-	/* Put the aura back in the player's inventory */
-	remove_ob(aura);
-	insert_ob_in_ob(aura, env);
 }
 
 /**

@@ -83,11 +83,6 @@ static void player_shop_send_items(player *pl, player *seller)
 
 		flags = query_flags(tmp);
 
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			flags |= F_NOPICK;
-		}
-
 		/* Add the object's count */
 		SockList_AddInt(&sl, tmp->count);
 
@@ -580,6 +575,7 @@ void player_shop_buy(char *data, player *pl)
 
 			insert_coins(seller->ob, to_pay);
 			insert_ob_in_ob(tmp, pl->ob);
+			new_draw_info_format(NDI_UNIQUE | NDI_GREEN, pl->ob, "You bought %s from %s.", query_name(tmp, NULL), seller->ob->name);
 			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, seller->ob, "%s bought %s.", pl->ob->name, query_name(tmp, NULL));
 
 			esrv_send_inventory(pl->ob, pl->ob);

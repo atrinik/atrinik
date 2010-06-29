@@ -104,9 +104,9 @@ typedef struct _anim_table
 	char *anim_cmd;
 }_anim_table;
 
-/* The stored "anim commands" we created out of anims.tmp */
-extern _anim_table anim_table[MAXANIM];
-extern Animations animations[MAXANIM];
+extern _anim_table *anim_table;
+extern Animations *animations;
+extern size_t animations_num;
 
 /**
  * Contains the base information we use to make up a packet we want to send. */
@@ -130,15 +130,6 @@ typedef struct ClientSocket
 {
 	/* Typedef your socket type to SOCKET */
 	SOCKET fd;
-	SockList inbuf;
-	SockList outbuf;
-
-	/* These are used for the newer 'windowing' method of commands -
-	 * number of last command sent, number of received confirmation */
-	int command_sent, command_received;
-
-	/* Time (in ms) players commands currently take to execute */
-	int command_time;
 } ClientSocket;
 
 extern ClientSocket csocket;

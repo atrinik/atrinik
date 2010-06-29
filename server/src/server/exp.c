@@ -432,11 +432,11 @@ void player_lvl_adj(object *who, object *op)
 		{
 			if (who->level > 4)
 			{
-				CONTR(who)->levhp[who->level] = (char) ((RANDOM() % who->arch->clone.stats.maxhp) + 1);
+				CONTR(who)->levhp[who->level] = (char) rndm(1, who->arch->clone.stats.maxhp);
 			}
 			else if (who->level > 2)
 			{
-				CONTR(who)->levhp[who->level] = (char) ((RANDOM() % (who->arch->clone.stats.maxhp / 2)) + 1) + (who->arch->clone.stats.maxhp / 2);
+				CONTR(who)->levhp[who->level] = (char) rndm(1, who->arch->clone.stats.maxhp / 2) + (who->arch->clone.stats.maxhp / 2);
 			}
 			else
 			{
@@ -453,7 +453,7 @@ void player_lvl_adj(object *who, object *op)
 				{
 					if (op->level > 4)
 					{
-						CONTR(who)->levsp[op->level] = (char) ((RANDOM() % who->arch->clone.stats.maxsp) + 1);
+						CONTR(who)->levsp[op->level] = (char) rndm(1, who->arch->clone.stats.maxsp);
 					}
 					else
 					{
@@ -465,7 +465,7 @@ void player_lvl_adj(object *who, object *op)
 				{
 					if (op->level > 4)
 					{
-						CONTR(who)->levgrace[op->level] = (char) ((RANDOM() % who->arch->clone.stats.maxgrace) + 1);
+						CONTR(who)->levgrace[op->level] = (char) rndm(1, who->arch->clone.stats.maxgrace);
 					}
 					else
 					{

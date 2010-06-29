@@ -56,14 +56,14 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 		if (head == NULL)
 		{
 			monster->type = MONSTER;
-			copy_object(monster, op);
+			copy_object(monster, op, 0);
 			monster->type = SPAWN_POINT_MOB;
 			ret = op;
 		}
 		/* But the tails for multi arch from the clones */
 		else
 		{
-			copy_object(&at->clone, op);
+			copy_object(&at->clone, op, 0);
 		}
 
 		op->x = spawn_point->x + freearr_x[i] + at->clone.x;
@@ -215,7 +215,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 
 		if (tmp->type == RANDOM_DROP)
 		{
-			if (!tmp->weight_limit || !(RANDOM() % (tmp->weight_limit + 1)))
+			if (!tmp->weight_limit || rndm_chance(tmp->weight_limit))
 			{
 				for (tmp2 = tmp->inv; tmp2; tmp2 = next2)
 				{
@@ -228,7 +228,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 					else
 					{
 						item = get_object();
-						copy_object(tmp2, item);
+						copy_object(tmp2, item, 0);
 						insert_ob_in_ob(item, monster);
 
 						if (tmp2->inv)
@@ -242,7 +242,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 		else
 		{
 			item = get_object();
-			copy_object(tmp, item);
+			copy_object(tmp, item, 0);
 			insert_ob_in_ob(item, monster);
 
 			if (tmp->inv)
@@ -291,19 +291,17 @@ void spawn_point(object *op)
 	 * useful when saving/loading maps. */
 	if (op->stats.sp == -1)
 	{
-		int gg;
-
 		if (op->last_grace <= -1)
 		{
 			return;
 		}
 
-		if (op->last_grace && (gg = (RANDOM() % (op->last_grace + 1))))
+		if (op->last_grace && !rndm_chance(op->last_grace))
 		{
 			return;
 		}
 
-		op->stats.sp = (RANDOM() % SPAWN_RANDOM_RANGE);
+		op->stats.sp = rndm(1, SPAWN_RANDOM_RANGE) - 1;
 	}
 
 	/* Spawn point without inventory! */

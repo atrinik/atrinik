@@ -28,7 +28,7 @@
  * This is the config file for the client. */
 
 /** Socket version. */
-#define SOCKET_VERSION 1035
+#define SOCKET_VERSION 1036
 
 /** File with all the key bindings. */
 #define KEYBIND_FILE "keys.dat"
@@ -49,10 +49,7 @@
 /*#define WIDGET_SNAP*/
 
 /** Maximum number of faces. */
-#define MAX_FACE_TILES 30000
-
-/** Maximum number of animations. */
-#define MAXANIM 10000
+#define MAX_FACE_TILES 32767
 
 /** Maximum map size. */
 #define MAP_MAX_SIZE 17
@@ -61,13 +58,6 @@
 #define MAX_INPUT_STRING 256
 /** Max input history lines. */
 #define MAX_HISTORY_LINES 20
-
-/**
- * Maximum size of any packet we expect. Using this makes it so we don't
- * need to allocate and deallocate the same buffer over and over again
- * at the price of using a bit of extra memory. It also makes the code
- * simpler. */
-#define MAXSOCKBUF (256 * 1024)
 
 /** Should be the same as server's MAX_TIME. */
 #define MAX_TIME 125000

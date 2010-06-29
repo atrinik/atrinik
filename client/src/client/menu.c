@@ -731,45 +731,51 @@ void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, in
  * Load temporary animations. */
 static int load_anim_tmp()
 {
-	int i, anim_len = 0, new_anim = 1;
+	int anim_len = 0, new_anim = 1;
 	uint8 faces = 0;
-	uint16 count = 0, face_id;
 	FILE *stream;
 	char buf[HUGE_BUF];
 	unsigned char anim_cmd[2048];
+	size_t count = 0;
 
-	/* Clear both animation tables
-	 * This *must* be reloaded every time we connect
-	 * - remember that different servers can have different
-	 * animations! */
-	for (i = 0; i < MAXANIM; i++)
+	if (animations_num)
 	{
-		if (animations[i].faces)
-			free(animations[i].faces);
+		size_t i;
 
-		if (anim_table[i].anim_cmd)
-			free(anim_table[i].anim_cmd);
+		/* Clear both animation tables. */
+		for (i = 0; i < animations_num; i++)
+		{
+			if (animations[i].faces)
+			{
+				free(animations[i].faces);
+			}
+
+			if (anim_table[i].anim_cmd)
+			{
+				free(anim_table[i].anim_cmd);
+			}
+		}
+
+		free(animations);
+		animations = NULL;
+		free(anim_table);
+		anim_table = NULL;
+		animations_num = 0;
 	}
 
-	memset(animations, 0, sizeof(animations));
+	anim_table = malloc(sizeof(anim_table));
 
-	/* Animation #0 is like face id #0 a bug catch - if ever
-	 * appear in game flow its a sign of a uninit of simply
-	 * buggy operation. */
-	anim_cmd[0] = (unsigned char)((count >> 8) & 0xff);
-	anim_cmd[1] = (unsigned char)(count & 0xff);
-
-	/* flags ... */
+	/* Animation #0 is like face id #0. */
+	anim_cmd[0] = (unsigned char) ((count >> 8) & 0xff);
+	anim_cmd[1] = (unsigned char) (count & 0xff);
 	anim_cmd[2] = 0;
 	anim_cmd[3] = 1;
-	/* face id o */
 	anim_cmd[4] = 0;
 	anim_cmd[5] = 0;
 
 	anim_table[count].anim_cmd = malloc(6);
 	memcpy(anim_table[count].anim_cmd, anim_cmd, 6);
 	anim_table[count].len = 6;
-
 	count++;
 
 	if ((stream = fopen_wrapper(FILE_ANIMS_TMP, "rt")) == NULL)
@@ -780,7 +786,7 @@ static int load_anim_tmp()
 		exit(0);
 	}
 
-	while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
+	while (fgets(buf, sizeof(buf) - 1, stream) != NULL)
 	{
 		/* Are we outside an anim body? */
 		if (new_anim == 1)
@@ -809,12 +815,8 @@ static int load_anim_tmp()
 			}
 			else if (!strncmp(buf, "mina", 4))
 			{
-#if 0
-				LOG(llevDebug, "LOAD ANIM: #%d - len: %d (%d)\n", count, anim_len, faces);
-#endif
-				/* flags ... */
+				anim_table = realloc(anim_table, sizeof(_anim_table) * (count + 1));
 				anim_cmd[2] = 0;
-				/* facings */
 				anim_cmd[3] = faces;
 				anim_table[count].len = anim_len;
 				anim_table[count].anim_cmd = malloc(anim_len);
@@ -824,17 +826,19 @@ static int load_anim_tmp()
 			}
 			else
 			{
-				face_id = (uint16) atoi(buf);
-				anim_cmd[anim_len++] = (unsigned char)((face_id >> 8) & 0xff);
-				anim_cmd[anim_len++] = (unsigned char)(face_id & 0xff);
+				uint16 face_id = atoi(buf);
+
+				anim_cmd[anim_len++] = (unsigned char) ((face_id >> 8) & 0xff);
+				anim_cmd[anim_len++] = (unsigned char) (face_id & 0xff);
 			}
 		}
 	}
 
+	animations_num = count;
+	animations = calloc(animations_num, sizeof(Animations));
 	fclose(stream);
 	return 1;
 }
-
 
 /**
  * Read temporary animations. */
@@ -1281,7 +1285,6 @@ create_bmap_tmp:
 
 	return load_bmap_tmp(); /* all fine */
 }
-
 
 /**
  * Read bitmaps file. */

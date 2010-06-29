@@ -351,7 +351,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 
 	/* if what we found is a door, don't remove it, set the_wall to NULL to
 	    signal that later. */
-	if (the_wall && (the_wall->type == DOOR || the_wall->type == LOCKED_DOOR))
+	if (the_wall && the_wall->type == DOOR)
 	{
 		the_wall = NULL;
 

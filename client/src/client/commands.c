@@ -346,15 +346,15 @@ void GoodbyeCmd(unsigned char *data, int len)
 /**
  * Animation command.
  * @param data The incoming data
- * @param len Length of the data
- */
+ * @param len Length of the data */
 void AnimCmd(unsigned char *data, int len)
 {
 	short anum;
 	int i, j;
 
 	anum = GetShort_String(data);
-	if (anum < 0 || anum > MAXANIM)
+
+	if (anum < 0)
 	{
 		fprintf(stderr, "AnimCmd: animation number invalid: %d\n", anum);
 		return;
@@ -363,6 +363,7 @@ void AnimCmd(unsigned char *data, int len)
 	animations[anum].flags = *(data + 2);
 	animations[anum].facings = *(data + 3);
 	animations[anum].num_animations = (len - 4) / 2;
+
 	if (animations[anum].num_animations < 1)
 	{
 		LOG(llevDebug, "AnimCmd: num animations invalid: %d\n", animations[anum].num_animations);
@@ -1031,9 +1032,9 @@ void handle_query(char *data)
  * @param text Null terminated string of text to send. */
 void send_reply(char *text)
 {
-	char buf[MAXSOCKBUF];
+	char buf[HUGE_BUF];
 
-	sprintf(buf, "reply %s", text);
+	snprintf(buf, sizeof(buf), "reply %s", text);
 	cs_write_string(buf, strlen(buf));
 }
 
@@ -1951,105 +1952,51 @@ void NewCharCmd()
  * @param len Length of the data */
 void DataCmd(unsigned char *data, int len)
 {
-	uint8 data_type = (uint8) (*data);
-	uint8 data_comp;
-	/* warning! if the uncompressed size of a incoming compressed(!) file is larger
-	 * than this dest_len default setting, the file is cut and
-	 * the rest skiped. Look at the zlib docu for more info. */
-	unsigned long dest_len = 512 * 1024;
+	uint8 data_type;
+	unsigned long len_ucomp;
 	unsigned char *dest;
 
-	dest = malloc(dest_len);
-	data_comp = (data_type & DATA_PACKED_CMD);
+	data_type = *data++;
+	len_ucomp = GetInt_String(data);
+	data += 4;
+	len -= 5;
+	/* Allocate large enough buffer to hold the uncompressed file. */
+	dest = malloc(len_ucomp);
 
-	len--;
-	data++;
+	LOG(llevDebug, "DEBUG: DataCmd(): Uncompressing file #%d (len: %d, uncompressed len: %d)\n", data_type, len, len_ucomp);
+	uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data, (uLong) len);
+	data = dest;
+	len = len_ucomp;
+	request_file_chain++;
 
-	switch (data_type &~ DATA_PACKED_CMD)
+	switch (data_type)
 	{
-		case DATA_CMD_SKILL_LIST:
-			/* this is a server send skill list *
-			 * uncompress when needed and save it */
-			if (data_comp)
-			{
-				LOG(llevDebug, "data cmd: compressed skill list(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				data = dest;
-				len = dest_len;
-			}
-
-			request_file_chain++;
+		case SRV_CLIENT_SKILLS:
 			save_data_cmd_file(FILE_CLIENT_SKILLS, data, len);
-			read_skills();
 			break;
 
-		case DATA_CMD_SPELL_LIST:
-			if (data_comp)
-			{
-				LOG(llevDebug, "data cmd: compressed spell list(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				data = dest;
-				len = dest_len;
-			}
-			request_file_chain++;
+		case SRV_CLIENT_SPELLS:
 			save_data_cmd_file(FILE_CLIENT_SPELLS, data, len);
-			read_spells();
 			break;
 
-		case DATA_CMD_SETTINGS_LIST:
-			if (data_comp)
-			{
-				LOG(llevDebug, "data cmd: compressed settings file(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				data = dest;
-				len = dest_len;
-			}
-			request_file_chain++;
+		case SRV_CLIENT_SETTINGS:
 			save_data_cmd_file(FILE_CLIENT_SETTINGS, data, len);
-			/*read_settings();*/
 			break;
 
-		case DATA_CMD_BMAP_LIST:
-			if (data_comp)
-			{
-				LOG(llevDebug, "data cmd: compressed bmaps file(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				data = dest;
-				len = dest_len;
-			}
-			request_file_chain++;
-			save_data_cmd_file(FILE_CLIENT_BMAPS, data, len);
-			request_file_flags |= SRV_CLIENT_FLAG_BMAP;
-			break;
-
-		case DATA_CMD_ANIM_LIST:
-			if (data_comp)
-			{
-				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				LOG(llevDebug, "data cmd: compressed anims file(len:%d) -> %d\n", len, dest_len);
-				data = dest;
-				len = dest_len;
-			}
-			request_file_chain++;
+		case SRV_CLIENT_ANIMS:
 			save_data_cmd_file(FILE_CLIENT_ANIMS, data, len);
-			request_file_flags |= SRV_CLIENT_FLAG_ANIM;
 			break;
 
-		case DATA_CMD_HFILES_LIST:
-			if (data_comp)
-			{
-				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				LOG(llevDebug, "data cmd: compressed hfiles file(len:%d) -> %d\n", len, dest_len);
-				data = dest;
-				len = dest_len;
-			}
-			request_file_chain++;
+		case SRV_CLIENT_BMAPS:
+			save_data_cmd_file(FILE_CLIENT_BMAPS, data, len);
+			break;
+
+		case SRV_CLIENT_HFILES:
 			save_data_cmd_file(FILE_CLIENT_HFILES, data, len);
-			request_file_flags |= SRV_CLIENT_FLAG_HFILES;
 			break;
 
 		default:
-			LOG(llevError, "data cmd: unknown type %d (len:%d)\n", data_type, len);
+			LOG(llevError, "ERROR: DataCmd(): Unknown data type %d\n", data_type);
 	}
 
 	free(dest);

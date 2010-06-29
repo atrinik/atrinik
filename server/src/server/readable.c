@@ -412,7 +412,7 @@ static void init_mon_info()
 		if (QUERY_FLAG(&at->clone, FLAG_MONSTER))
 		{
 			num_monsters++;
-			monsters = realloc(monsters, sizeof(char *) * num_monsters);
+			monsters = realloc(monsters, sizeof(object *) * num_monsters);
 			monsters[num_monsters - 1] = &at->clone;
 		}
 	}
@@ -455,20 +455,20 @@ static void new_text_name(object *book, int msgtype)
 	switch (msgtype)
 	{
 		case MSGTYPE_MONSTER:
-			name = mon_book_name[RANDOM() % arraysize(mon_book_name)];
+			name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
 			break;
 
 		case MSGTYPE_ARTIFACT:
-			name = art_book_name[RANDOM() % arraysize(art_book_name)];
+			name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
 			break;
 
 		case MSGTYPE_SPELLPATH:
-			name = path_book_name[RANDOM() % arraysize(path_book_name)];
+			name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
 			break;
 
 		case MSGTYPE_MSGFILE:
 		default:
-			name = book_name[RANDOM() % arraysize(book_name)];
+			name = book_name[rndm(1, arraysize(book_name)) - 1];
 			break;
 	}
 
@@ -493,20 +493,20 @@ static void add_author(object *op, int msgtype)
 	switch (msgtype)
 	{
 		case MSGTYPE_MONSTER:
-			name = mon_author[RANDOM() % arraysize(mon_author)];
+			name = mon_author[rndm(1, arraysize(mon_author)) - 1];
 			break;
 
 		case MSGTYPE_ARTIFACT:
-			name = art_author[RANDOM() % arraysize(art_author)];
+			name = art_author[rndm(1, arraysize(art_author)) - 1];
 			break;
 
 		case MSGTYPE_SPELLPATH:
-			name = path_author[RANDOM() % arraysize(path_author)];
+			name = path_author[rndm(1, arraysize(path_author)) - 1];
 			break;
 
 		case MSGTYPE_MSGFILE:
 		default:
-			name = book_author[RANDOM() % arraysize(book_author)];
+			name = book_author[rndm(1, arraysize(book_author)) - 1];
 	}
 
 	snprintf(title, sizeof(title), "of %s", name);
@@ -546,7 +546,7 @@ object *get_random_mon()
 		return NULL;
 	}
 
-	return monsters[rndm(0, num_monsters - 1)];
+	return monsters[rndm(1, num_monsters) - 1];
 }
 
 /**
@@ -623,7 +623,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 
 	do
 	{
-		index = rndm(0, arraysize(art_name_array) - 1);
+		index = rndm(1, arraysize(art_name_array)) - 1;
 		type = art_name_array[index].type;
 		al = find_artifactlist(type);
 		i++;
@@ -641,7 +641,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 	 * take our starting position randomly... */
 	art = al->items;
 
-	for (i = RANDOM() % level + RANDOM() % 2 + 1; i > 0; i--)
+	for (i = rndm(1, level) + rndm(0, 1); i > 0; i--)
 	{
 		/* Out of stuff, loop back around */
 		if (art == NULL)
@@ -727,7 +727,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
  * @return 'buf'. */
 static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
-	int path = rndm(0, NRSPELLPATHS - 1), prayers = rndm(0, 1);
+	int path = rndm(1, NRSPELLPATHS) - 1, prayers = rndm(0, 1);
 	int i, did_first_sp = 0;
 	uint32 pnum = spellpathdef[path];
 	StringBuffer *desc;
@@ -743,7 +743,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 	 * in our message buffer */
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
-		if ((prayers && !(spells[i].flags & SPELL_DESC_WIS)) || !(pnum & spells[i].path))
+		if ((prayers && spells[i].type != SPELL_TYPE_PRIEST) || !(pnum & spells[i].path))
 		{
 			continue;
 		}
@@ -797,7 +797,7 @@ static char *msgfile_msg(size_t booksize)
 	/* Get a random message. */
 	if (msgs && num_msgs)
 	{
-		msg = msgs[rndm(0, num_msgs)];
+		msg = msgs[rndm(1, num_msgs) - 1];
 	}
 
 	if (msg && !book_overflow(buf, msg, booksize))

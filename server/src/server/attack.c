@@ -450,11 +450,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 			}
 		}
 	}
-	else if ((type & AT_DRAIN) && hitter->type == GRIMREAPER && hitter->value++ > 10)
-	{
-		remove_ob(hitter);
-		check_walk_off(hitter, NULL, MOVE_APPLY_VANISHED);
-	}
 
 	return maxdam;
 }
@@ -1307,7 +1302,7 @@ static void poison_player(object *op, object *hitter, float dam)
 			if (hitter->type == POISON)
 			{
 				dam /= 2.0f;
-				tmp->stats.dam = (int) (((dam + RANDOM() % ((int) dam + 1)) * LEVEL_DAMAGE(hitter->level)) * 0.9f);
+				tmp->stats.dam = (int) (((dam + rndm(0, dam + 1)) * LEVEL_DAMAGE(hitter->level)) * 0.9f);
 
 				if (tmp->stats.dam > op->stats.maxhp / 3)
 				{
@@ -1323,7 +1318,7 @@ static void poison_player(object *op, object *hitter, float dam)
 			else
 			{
 				dam /= 2.0f;
-				tmp->stats.dam = (int) ((int) dam + RANDOM() % (int) (dam + 1));
+				tmp->stats.dam = (int) ((int) dam + rndm(0, dam + 1));
 
 				if (tmp->stats.dam > op->stats.maxhp / 3)
 				{
@@ -1653,7 +1648,7 @@ static int adj_attackroll(object *hitter, object *target)
  * @return 1 if aimed missile, 0 otherwise. */
 static int is_aimed_missile(object *op)
 {
-	if (op && QUERY_FLAG(op, FLAG_FLYING) && (op->type == ARROW || op->type == THROWN_OBJ || op->type == FBULLET || op->type == FBALL))
+	if (op && QUERY_FLAG(op, FLAG_FLYING) && (op->type == ARROW || op->type == THROWN_OBJ))
 	{
 		return 1;
 	}

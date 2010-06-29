@@ -810,7 +810,7 @@ int command_create(object *op, char *params)
 			if (head == NULL)
 			{
 				head = dup;
-				copy_object(tmp, dup);
+				copy_object(tmp, dup, 0);
 			}
 
 			dup->x = op->x + dup->arch->clone.x;
@@ -861,23 +861,45 @@ int command_create(object *op, char *params)
  * @return 1 unless params is NULL. */
 int command_inventory(object *op, char *params)
 {
-	object *tmp;
+	object *ob = NULL, *tmp;
+	char *cp;
 
 	if (!params)
 	{
-		inventory(op, NULL);
+		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
 		return 0;
 	}
 
-	tmp = find_object_both(op, params);
+	params = strtok(params, "$");
+	cp = strtok(NULL, "$");
 
-	if (!tmp)
+	if (!strncmp(params, "me", 2))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
-		return 1;
+		ob = op;
+	}
+	else
+	{
+		ob = find_object_both(op, params);
+
+		if (!ob)
+		{
+			new_draw_info(NDI_UNIQUE, op, "No such object.");
+			return 0;
+		}
 	}
 
-	inventory(op, tmp);
+	new_draw_info_format(NDI_UNIQUE, op, "\nInventory of '%s':\n", query_name(ob, op));
+
+	for (tmp = ob->inv; tmp; tmp = tmp->below)
+	{
+		if (cp && !item_matched_string(op, tmp, cp))
+		{
+			continue;
+		}
+
+		new_draw_info_format(NDI_UNIQUE, op, "#~%d~: %s", tmp->count, query_name(tmp, op));
+	}
+
 	return 1;
 }
 
@@ -957,7 +979,39 @@ int command_patch(object *op, char *params)
 		arg2++;
 	}
 
-	if (set_variable(tmp, arg) == -1)
+	if (!strncmp(arg, "msg", 3))
+	{
+		char buf[HUGE_BUF / 2];
+
+		arg += 4;
+
+		if (!arg || *arg == '\0')
+		{
+			FREE_AND_CLEAR_HASH(tmp->msg);
+			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->msg=", tmp->name, tmp->count);
+			return 1;
+		}
+
+		buf[0] = '\0';
+
+		if (tmp->msg)
+		{
+			strncpy(buf, tmp->msg, sizeof(buf) - 1);
+		}
+
+		convert_newline(arg);
+
+		if (buf_overflow(buf, arg, sizeof(buf) - 1))
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Message string would overflow.");
+			return 1;
+		}
+
+		strncat(buf, arg, sizeof(buf) - strlen(buf) - 1);
+		FREE_AND_COPY_HASH(tmp->msg, buf);
+		new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->msg=%s", tmp->name, tmp->count, buf);
+	}
+	else if (set_variable(tmp, arg) == -1)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", arg);
 	}
@@ -2506,5 +2560,37 @@ int command_no_shout(object *op, char *params)
 		pl->no_shout = 1;
 	}
 
+	return 1;
+}
+
+/**
+ * Take an object and put it in DM's inventory.
+ * @param op DM.
+ * @param params Object to take.
+ * @return 1. */
+int command_dmtake(object *op, char *params)
+{
+	object *tmp;
+
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Take what object?");
+		return 1;
+	}
+
+	tmp = find_object_both(op, params);
+
+	if (!tmp)
+	{
+		new_draw_info(NDI_UNIQUE, op, "No such object.");
+		return 1;
+	}
+
+	if (tmp->env == op)
+	{
+		return 1;
+	}
+
+	pick_up(op, tmp);
 	return 1;
 }
