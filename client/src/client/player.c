@@ -1349,6 +1349,7 @@ void widget_show_container(widgetdata *widget)
 	SDL_BlitSurface(widget->widgetSF, &box2, ScreenSurface, &box);
 }
 
+/* Handles highlighting of menuitems when the cursor is hovering over them. */
 void widget_highlight_menu(widgetdata *widget)
 {
 	widgetdata *tmp, *tmp2, *tmp3;
@@ -1526,4 +1527,11 @@ void widget_show_label(widgetdata *widget)
 	_widget_label *label = LABEL(widget);
 
 	StringBlt(ScreenSurface, label->font, label->text, widget->x1, widget->y1, label->color, NULL, NULL);
+}
+
+void widget_show_bitmap(widgetdata *widget)
+{
+	_widget_bitmap *bitmap = BITMAP(widget);
+
+	sprite_blt(Bitmaps[bitmap->bitmap_id], widget->x1, widget->y1, NULL, NULL);
 }

@@ -169,6 +169,13 @@ typedef struct _widget_label
 
 } _widget_label;
 
+typedef struct _widget_bitmap
+{
+	/** The ID of the bitmap. */
+	int bitmap_id;
+
+} _widget_bitmap;
+
 /** A more specialised kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
 typedef struct _widget_container_strip
 {
@@ -246,6 +253,7 @@ typedef enum WidgetID
 	FPS_ID,
 	CONTAINER_ID,
 	LABEL_ID,
+	BITMAP_ID,
 
 	/** The total number of widgets. */
 	TOTAL_WIDGETS
@@ -330,6 +338,7 @@ extern int old_alpha_option;
 #define TEXTWIN(__textwin) (_textwin *) (__textwin->subwidget)
 #define CONTAINER(__widget_container) (_widget_container *) (__widget_container->subwidget)
 #define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
+#define BITMAP(__widget_bitmap) (_widget_bitmap *) (__widget_bitmap->subwidget)
 #define CONTAINER_STRIP(__widget_container_strip) \
     (_widget_container_strip *) ( ((_widget_container *) (__widget_container_strip->subwidget)) ->subcontainer)
 #define MENU(__menu) \

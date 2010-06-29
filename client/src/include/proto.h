@@ -213,6 +213,7 @@ void widget_skill_exp_event();
 void widget_show_regeneration(widgetdata *widget);
 void widget_show_container(widgetdata *widget);
 void widget_show_label(widgetdata *widget);
+void widget_show_bitmap(widgetdata *widget);
 void widget_highlight_menu(widgetdata *widget);
 void widget_menu_event(widgetdata *widget, int x, int y);
 void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_ptr)(widgetdata *, int, int));

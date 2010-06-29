@@ -106,7 +106,8 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"SHOP",            300, 147, 200, 320, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 1, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"LABEL",             0,   0,  5,   5,  1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	/* subwidgets */
 	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 1, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -212,6 +213,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	_menu *menu;
 	_menuitem *menuitem;
     _widget_label *label;
+	_widget_bitmap *bitmap;
     int widget_type_id = widget_subtype_id, i;
 
 	/* map the widget subtype to widget type */
@@ -365,6 +367,17 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			label->color = COLOR_DEFAULT;
 			/* have the subwidget point to it */
 			widget->subwidget = (_widget_label *) label;
+			break;
+		case BITMAP_ID:
+			bitmap = malloc(sizeof (_widget_bitmap));
+			if (!bitmap)
+			{
+				exit(0);
+			}
+			/* begin initialising the members */
+			bitmap->bitmap_id = 0;
+			/* have the subwidget point to it */
+			widget->subwidget = (_widget_bitmap *) bitmap;
 			break;
 	}
 
@@ -1746,6 +1759,10 @@ static void process_widget(widgetdata *widget)
 		case LABEL_ID:
 			widget_show_label(widget);
 			break;
+
+		case BITMAP_ID:
+			widget_show_bitmap(widget);
+			break;
 	}
 }
 
@@ -2252,6 +2269,23 @@ widgetdata *add_label(char *text, _Font *font, int color)
 	return widget;
 }
 
+/** Creates a bitmap. */
+widgetdata *add_bitmap(int bitmap_id)
+{
+	widgetdata *widget;
+	_widget_bitmap *bitmap;
+
+	widget = create_widget_object(BITMAP_ID);
+	bitmap = BITMAP(widget);
+
+	bitmap->bitmap_id = bitmap_id;
+
+	resize_widget(widget, RESIZE_RIGHT, Bitmaps[bitmap_id]->bitmap->w);
+	resize_widget(widget, RESIZE_BOTTOM, Bitmaps[bitmap_id]->bitmap->h);
+
+	return widget;
+}
+
 /** Initialises a menu widget. */
 widgetdata *create_menu(int x, int y, widgetdata *owner)
 {
@@ -2277,7 +2311,7 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 /** Adds a menuitem to a menu. */
 void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type)
 {
-	widgetdata *widget_menuitem, *widget_label, *tmp;
+	widgetdata *widget_menuitem, *widget_label, *widget_bitmap, *tmp;
 	_widget_container *container_menuitem, *container_menu;
 	_widget_container_strip *container_strip_menuitem;
 	_menuitem *menuitem;
@@ -2292,11 +2326,16 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 	container_menuitem->outer_padding_right = 2;
 	container_menuitem->outer_padding_top = 0;
 	container_menuitem->outer_padding_bottom = 0;
-	container_strip_menuitem->inner_padding = 0;
+	container_strip_menuitem->inner_padding = 4;
     container_strip_menuitem->horizontal = 1;
 
 	widget_label = add_label(text, &SystemFont, COLOR_WHITE);
+	/* This is really just test code to see if bitmaps work.
+	 * Menuitems will later contain checkboxes later anyway,
+	 * so this will probably evolve into proper code later. */
+	widget_bitmap = add_bitmap(BITMAP_LOCK);
 
+	insert_widget_in_container(widget_menuitem, widget_bitmap);
 	insert_widget_in_container(widget_menuitem, widget_label);
 	insert_widget_in_container(menu, widget_menuitem);
 
@@ -2317,7 +2356,7 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 			{
 				container_menuitem = CONTAINER(tmp);
 
-				resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
+				resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - tmp->inv_rev->wd - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
 			}
 		}
 	}
