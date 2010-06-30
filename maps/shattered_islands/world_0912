@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-06-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2094,14 +2094,14 @@ arch spawn_point
 x 15
 y 16
 arch archer
-type 83
+direction 1
 level 75
 Dex 1
 can_use_bow 1
 unaggressive 0
-friendly 1
+stand_still 1
 Wis 12
-direction 1
+type 83
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2205,13 +2205,13 @@ arch spawn_point
 x 16
 y 7
 arch archer
-type 83
 level 75
 Dex 1
 can_use_bow 1
 unaggressive 0
-friendly 1
+stand_still 1
 Wis 12
+type 83
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2290,14 +2290,14 @@ arch spawn_point
 x 16
 y 16
 arch archer
-type 83
+direction 1
 level 75
 Dex 1
 can_use_bow 1
 unaggressive 0
-friendly 1
+stand_still 1
 Wis 12
-direction 1
+type 83
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2396,13 +2396,13 @@ arch spawn_point
 x 17
 y 7
 arch archer
-type 83
 level 75
 Dex 1
 can_use_bow 1
 unaggressive 0
-friendly 1
+stand_still 1
 Wis 12
+type 83
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2546,6 +2546,8 @@ x 18
 y 9
 end
 arch wall_fortified_high.131
+blocksview 0
+no_pass 0
 x 18
 y 9
 end
@@ -2669,6 +2671,8 @@ x 19
 y 9
 end
 arch wall_fortified_high.141
+blocksview 0
+no_pass 0
 x 19
 y 9
 end

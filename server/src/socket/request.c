@@ -69,8 +69,8 @@
 static void parse_srv_setup(char *param, char *cmdback, int type)
 {
 	char *cp;
-	uint32 x = 0;
-	uint32 y = 0;
+	size_t x = 0;
+	unsigned long y = 0;
 
 	/* is x our files len and y the crc */
 	for (cp = param; *cp != '\0'; cp++)
@@ -88,7 +88,7 @@ static void parse_srv_setup(char *param, char *cmdback, int type)
 	{
 		char tmpbuf[MAX_BUF];
 
-		snprintf(tmpbuf, sizeof(tmpbuf), "%ld|%lx", SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
+		snprintf(tmpbuf, sizeof(tmpbuf), "%lu|%lx", (unsigned long) SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
 		strcat(cmdback, tmpbuf);
 	}
 	else
@@ -1705,4 +1705,18 @@ void QuestListCmd(char *data, int len, player *pl)
 	cp = stringbuffer_finish(sb);
 	Write_String_To_Socket(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
 	free(cp);
+}
+
+/**
+ * Clears the commands cache.
+ * @param buf Data.
+ * @param len Length.
+ * @param ns Socket. */
+void command_clear_cmds(char *buf, int len, socket_struct *ns)
+{
+	(void) buf;
+	(void) len;
+
+	ns->cmdbuf.len = 0;
+	ns->cmdbuf.buf[0] = '\0';
 }

@@ -374,7 +374,7 @@ static void load_srv_file(char *fname, int id)
 		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
 	}
 
-	compress2((Bytef *) compressed, &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+	compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
 	SrvClientFiles[id].file = malloc(numread);
 
 	if (!SrvClientFiles[id].file)
