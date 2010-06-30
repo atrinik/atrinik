@@ -69,8 +69,8 @@
 static void parse_srv_setup(char *param, char *cmdback, int type)
 {
 	char *cp;
-	uint32 x = 0;
-	uint32 y = 0;
+	size_t x = 0;
+	unsigned long y = 0;
 
 	/* is x our files len and y the crc */
 	for (cp = param; *cp != '\0'; cp++)
@@ -88,7 +88,7 @@ static void parse_srv_setup(char *param, char *cmdback, int type)
 	{
 		char tmpbuf[MAX_BUF];
 
-		snprintf(tmpbuf, sizeof(tmpbuf), "%ld|%lx", SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
+		snprintf(tmpbuf, sizeof(tmpbuf), "%lu|%lx", (unsigned long) SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
 		strcat(cmdback, tmpbuf);
 	}
 	else
