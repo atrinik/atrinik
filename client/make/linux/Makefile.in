@@ -93,7 +93,7 @@ install:: all
 	$(CP) ../../atrinik.p0 $(prefix)
 	$(CP) ../../License $(prefix)
 	$(CP) ../../archdef.dat $(prefix)
-	$(CP) ../../src/client/atrinik-client $(prefix)
+	$(CP) ../../src/atrinik-client $(prefix)
 	@echo "*** Atrinik client successfully installed!"
 	@echo "*** Enter your install directory and type ./atrinik-client"
 	@echo "*** to start the game!"
