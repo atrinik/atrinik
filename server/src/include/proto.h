@@ -990,6 +990,7 @@ void draw_client_map2(object *pl);
 void esrv_map_scroll(socket_struct *ns, int dx, int dy);
 void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
+void command_clear_cmds(char *buf, int len, socket_struct *ns);
 
 /* socket/sounds.c */
 void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, int y);

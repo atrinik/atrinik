@@ -1706,3 +1706,17 @@ void QuestListCmd(char *data, int len, player *pl)
 	Write_String_To_Socket(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
 	free(cp);
 }
+
+/**
+ * Clears the commands cache.
+ * @param buf Data.
+ * @param len Length.
+ * @param ns Socket. */
+void command_clear_cmds(char *buf, int len, socket_struct *ns)
+{
+	(void) buf;
+	(void) len;
+
+	ns->cmdbuf.len = 0;
+	ns->cmdbuf.buf[0] = '\0';
+}
