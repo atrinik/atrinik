@@ -92,6 +92,10 @@ extern enum
 	VAL_U32
 } value_type;
 
+#define TXT_START_NAME  136
+#define TXT_Y_START      82
+
+extern int active_button;
 extern int dialog_yoff;
 
 extern const char *opt_tab[];

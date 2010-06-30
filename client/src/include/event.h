@@ -156,4 +156,14 @@ typedef struct movement
 	struct movement *next;
 } movement;
 
+int get_action_keycode, drop_action_keycode;
+
+typedef struct _keys
+{
+	int pressed; /*true: key is pressed*/
+	uint32 time; /*tick time last repeat is initiated*/
+} _keys;
+
+_keys keys[MAX_KEYS];
+
 #endif

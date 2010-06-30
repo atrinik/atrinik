@@ -1,9 +1,4 @@
 #ifndef __CPROTO__
-/* client/book.c */
-_gui_book_struct *book_gui_load(char *data, int len);
-void book_gui_show();
-void book_gui_handle_mouse(int x, int y);
-
 /* client/client.c */
 void DoClient();
 void SockList_Init(SockList *sl);
@@ -62,49 +57,17 @@ void QuestListCmd(unsigned char *data, int len);
 /* client/dialog.c */
 void draw_frame(int x, int y, int w, int h);
 void add_close_button(int x, int y, int menu);
+int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h);
+int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char *text_h);
 int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text, int color);
 void add_value(void *value, int type, int offset, int min, int max);
-void optwin_draw_options(int x, int y);
-void show_skilllist();
-void show_spelllist();
-void show_optwin();
-void show_keybind();
-void show_newplayer_server();
-void show_login_server();
-void show_meta_server(server_struct *node, int metaserver_sel);
-void metaserver_mouse(SDL_Event *e);
-
-/* client/event.c */
-void init_keys();
-void reset_keys();
-int mouseInPlayfield(int x, int y);
-int draggingInvItem(int src);
-int Event_PollInputDevice();
-void key_connection_event(SDL_KeyboardEvent *key);
-int key_meta_menu(SDL_KeyboardEvent *key);
-int check_menu_macros(char *text);
-void check_keys(int key);
-int process_macro_keys(int id, int value);
-void read_keybind_file(char *fname);
-void save_keybind_file(char *fname);
-void check_menu_keys(int menu, int key);
+void draw_tabs(const char *tabs[], int *act_tab, const char *head_text, int x, int y);
 
 /* client/ignore.c */
 void ignore_list_clear();
 void ignore_list_load();
 int ignore_check(char *name, char *type);
 void ignore_command(char *cmd);
-
-/* client/inventory.c */
-int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
-void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
-void widget_show_inventory_window(widgetdata *widget);
-void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
-void widget_show_below_window(widgetdata *widget);
-int blt_inv_item_centered(item *tmp, int x, int y);
-void blt_inv_item(item *tmp, int x, int y, int nrof);
-void examine_range_inv();
-void examine_range_marks(int tag);
 
 /* client/item.c */
 void init_item_types();
@@ -133,21 +96,6 @@ void save_options_dat();
 void open_input_mode(int maxchar);
 void list_vid_modes();
 int main(int argc, char *argv[]);
-
-/* client/map.c */
-void load_mapdef_dat();
-void clear_map();
-void display_mapscroll(int dx, int dy);
-void map_draw_map_clear();
-void update_map_data(const char *name, char *bg_music);
-void init_map_data(int xl, int yl, int px, int py);
-void align_tile_stretch(int x, int y);
-void adjust_tile_stretch();
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe);
-void map_clear_cell(int x, int y);
-void map_set_darkness(int x, int y, uint8 darkness);
-void map_draw_map();
-int get_tile_position(int x, int y, int *tx, int *ty);
 
 /* client/menu.c */
 void do_console();
@@ -182,9 +130,9 @@ void widget_show_range(widgetdata *widget);
 void widget_event_target(widgetdata *widget, int x, int y);
 void widget_show_target(widgetdata *widget);
 int get_quickslot(int x, int y);
+void show_quickslots(int x, int y, int vertical_quickslot);
 void widget_quickslots(widgetdata *widget);
 void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent);
-void show_quickslots(int x, int y, int vertical_quickslot);
 void update_quickslots(int del_item);
 void widget_show_fps(widgetdata *widget);
 
@@ -203,15 +151,6 @@ const char *show_input_string(const char *text, struct _Font *font, int wlen);
 int isqrt(int n);
 char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
-
-/* client/party.c */
-void switch_tabs();
-void draw_party_tabs(int x, int y);
-void show_party();
-void gui_party_interface_mouse(SDL_Event *e);
-void clear_party_interface();
-_gui_party_struct *load_party_interface(char *data, int len);
-int console_party();
 
 /* client/player.c */
 void clear_player();
@@ -234,28 +173,14 @@ void widget_show_player_doll_event();
 void widget_show_player_doll(widgetdata *widget);
 void widget_show_main_lvl(widgetdata *widget);
 void widget_show_skill_exp(widgetdata *widget);
-void widget_skill_exp_event();
+void widget_skill_exp_event(widgetdata *widget);
 void widget_show_regeneration(widgetdata *widget);
 void widget_show_container(widgetdata *widget);
-void widget_show_label(widgetdata *widget);
-void widget_show_bitmap(widgetdata *widget);
 void widget_highlight_menu(widgetdata *widget);
 void widget_menu_event(widgetdata *widget, int x, int y);
 void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_ptr)(widgetdata *, int, int));
-
-/* client/player_shop.c */
-void widget_show_shop(widgetdata *widget);
-void shop_open();
-void shop_buy_item();
-void initialize_shop(int shop_state);
-void clear_shop(int send_to_server);
-void shop_add_close_button(int x, int y);
-int shop_put_item(int x, int y);
-void shop_remove_item(sint32 tag);
-int check_shop_keys(SDL_KeyboardEvent *key);
-char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore);
-int shop_price2int(char *text);
-char *shop_int2price(int value);
+void widget_show_label(widgetdata *widget);
+void widget_show_bitmap(widgetdata *widget);
 
 /* client/scripts.c */
 void script_load(const char *cparams);
@@ -313,51 +238,11 @@ void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
 SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 
-/* client/textwin.c */
-void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY);
-void draw_info_format(int flags, char *format, ...);
-void draw_info(char *str, int flags);
-void textwin_show(int x, int y);
-void widget_textwin_show(widgetdata *widget);
-void textwin_button_event(widgetdata *widget, SDL_Event event);
-int textwin_move_event(widgetdata *widget, SDL_Event event);
-void textwin_event(int e, SDL_Event *event, widgetdata *widget);
-void textwin_addhistory(char *text);
-void textwin_clearhistory();
-void textwin_putstring(char *text);
-void change_textwin_font(int font);
-
 /* client/tilestretcher.c */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
 int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
 SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
-
-/* client/widget.c */
-void init_widgets_fromCurrent();
-void kill_widgets();
-widgetdata *create_widget_object(int widget_type_id);
-void remove_widget_object(widgetdata *widget);
-void detach_widget(widgetdata *widget);
-void save_interface_file();
-int widget_event_mousedn(int x, int y, SDL_Event *event);
-int widget_event_mouseup(int x, int y, SDL_Event *event);
-int widget_event_mousemv(int x, int y, SDL_Event *event);
-widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
-void process_widgets();
-void move_widget(widgetdata *widget, int x, int y);
-void resize_widget(widgetdata *widget, int side, int offset);
-void SetPriorityWidget(widgetdata *widget);
-void widget_redraw_all(int widget_type_id);
-void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
-widgetdata *get_outermost_container(widgetdata *widget);
-widgetdata *create_menu(int x, int y, widgetdata *owner);
-void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type);
-void menu_move_widget(widgetdata *widget, int x, int y);
-void menu_create_widget(widgetdata *widget, int x, int y);
-void menu_remove_widget(widgetdata *widget, int x, int y);
-void menu_detach_widget(widgetdata *widget, int x, int y);
-void submenu_chatwindow_filters(widgetdata *widget, int x, int y);
 
 /* client/wrapper.c */
 void LOG(int logLevel, char *format, ...);
@@ -376,4 +261,181 @@ FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
 Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
 Mix_Music *Mix_LoadMUS_wrapper(const char *file);
+
+/* events/console.c */
+void key_string_event(SDL_KeyboardEvent *key);
+void mouse_InputNumber();
+
+/* events/event.c */
+int draggingInvItem(int src);
+void resize_window(int width, int height);
+int Event_PollInputDevice();
+
+/* events/keys.c */
+int key_event(SDL_KeyboardEvent *key);
+int event_poll_key(SDL_Event *event);
+void cursor_keys(int num);
+void key_repeat();
+void check_menu_keys(int menu, int key);
+
+/* events/macro.c */
+void init_keys();
+void reset_keys();
+int check_menu_macros(char *text);
+int check_keys_menu_status(int key);
+void process_macro(_keymap macro);
+void check_keys(int key);
+int process_macro_keys(int id, int value);
+void read_keybind_file(char *fname);
+void save_keybind_file(char *fname);
+
+/* events/move.c */
+int mouseInPlayfield(int x, int y);
+void mouse_moveHero();
+int movement_queue_thread(void *junk);
+void move_keys(int num);
+
+/* gui/book.c */
+_gui_book_struct *book_gui_load(char *data, int len);
+void book_gui_show();
+void book_gui_handle_mouse(int x, int y);
+
+/* gui/connect.c */
+void show_login_server();
+void key_connection_event(SDL_KeyboardEvent *key);
+
+/* gui/create_character.c */
+void show_newplayer_server();
+
+/* gui/inventory.c */
+int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
+void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
+void widget_show_inventory_window(widgetdata *widget);
+void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
+void widget_show_below_window(widgetdata *widget);
+int blt_inv_item_centered(item *tmp, int x, int y);
+void blt_inv_item(item *tmp, int x, int y, int nrof);
+void examine_range_inv();
+void examine_range_marks(int tag);
+
+/* gui/keybind.c */
+void show_keybind();
+
+/* gui/main.c */
+void show_meta_server(server_struct *node, int metaserver_sel);
+void metaserver_mouse(SDL_Event *e);
+int key_meta_menu(SDL_KeyboardEvent *key);
+
+/* gui/map.c */
+void load_mapdef_dat();
+void clear_map();
+void display_mapscroll(int dx, int dy);
+void map_draw_map_clear();
+void update_map_data(const char *name, char *bg_music);
+void init_map_data(int xl, int yl, int px, int py);
+void align_tile_stretch(int x, int y);
+void adjust_tile_stretch();
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe);
+void map_clear_cell(int x, int y);
+void map_set_darkness(int x, int y, uint8 darkness);
+void map_draw_map();
+int get_tile_position(int x, int y, int *tx, int *ty);
+
+/* gui/party.c */
+void switch_tabs();
+void draw_party_tabs(int x, int y);
+void show_party();
+void gui_party_interface_mouse(SDL_Event *e);
+void clear_party_interface();
+_gui_party_struct *load_party_interface(char *data, int len);
+int console_party();
+
+/* gui/player_shop.c */
+void widget_show_shop(widgetdata *widget);
+void shop_open();
+void shop_buy_item();
+void initialize_shop(int shop_state);
+void clear_shop(int send_to_server);
+void shop_add_close_button(int x, int y);
+int shop_put_item(int x, int y);
+void shop_remove_item(sint32 tag);
+int check_shop_keys(SDL_KeyboardEvent *key);
+char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore);
+int shop_price2int(char *text);
+char *shop_int2price(int value);
+
+/* gui/quickslots.c */
+void quickslot_key(SDL_KeyboardEvent *key, int slot);
+
+/* gui/settings.c */
+void optwin_draw_options(int x, int y);
+void show_optwin();
+
+/* gui/skill_list.c */
+void show_skilllist();
+
+/* gui/spell_list.c */
+void show_spelllist();
+
+/* gui/textwin.c */
+void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY);
+void draw_info_format(int flags, char *format, ...);
+void draw_info(char *str, int flags);
+void textwin_show(int x, int y);
+void widget_textwin_show(widgetdata *widget);
+void textwin_button_event(widgetdata *widget, SDL_Event event);
+int textwin_move_event(widgetdata *widget, SDL_Event event);
+void textwin_event(int e, SDL_Event *event, widgetdata *widget);
+void textwin_addhistory(char *text);
+void textwin_clearhistory();
+void textwin_putstring(char *text);
+void change_textwin_font(int font);
+
+/* widgets/widget.c */
+void init_widgets_fromCurrent();
+widgetdata *create_widget_object(int widget_subtype_id);
+void remove_widget_object(widgetdata *widget);
+void remove_widget_object_intern(widgetdata *widget);
+void remove_widget_inv(widgetdata *widget);
+void init_widgets();
+void kill_widgets();
+void kill_widget_tree(widgetdata *widget);
+widgetdata *create_widget(int widget_id);
+void remove_widget(widgetdata *widget);
+void detach_widget(widgetdata *widget);
+void save_interface_file();
+void save_interface_file_rec(widgetdata *widget, FILE *stream);
+int widget_event_mousedn(int x, int y, SDL_Event *event);
+int widget_event_mouseup(int x, int y, SDL_Event *event);
+int widget_event_mousemv(int x, int y, SDL_Event *event);
+int widget_event_start_move(widgetdata *widget, int x, int y);
+int widget_event_respond(int x, int y);
+int widget_event_override();
+widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
+widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *end);
+void process_widgets();
+void process_widgets_rec(widgetdata *widget);
+void SetPriorityWidget(widgetdata *node);
+void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
+widgetdata *get_outermost_container(widgetdata *widget);
+void move_widget(widgetdata *widget, int x, int y);
+void move_widget_rec(widgetdata *widget, int x, int y);
+void resize_widget(widgetdata *widget, int side, int offset);
+void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height);
+widgetdata *add_label(char *text, _Font *font, int color);
+widgetdata *add_bitmap(int bitmap_id);
+widgetdata *create_menu(int x, int y, widgetdata *owner);
+void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type);
+void add_separator(widgetdata *widget);
+void widget_redraw_all(int widget_type_id);
+void menu_move_widget(widgetdata *widget, int x, int y);
+void menu_create_widget(widgetdata *widget, int x, int y);
+void menu_remove_widget(widgetdata *widget, int x, int y);
+void menu_detach_widget(widgetdata *widget, int x, int y);
+void menu_set_say_filter(widgetdata *widget, int x, int y);
+void menu_set_shout_filter(widgetdata *widget, int x, int y);
+void menu_set_gsay_filter(widgetdata *widget, int x, int y);
+void menu_set_tell_filter(widgetdata *widget, int x, int y);
+void menu_set_channel_filter(widgetdata *widget, int x, int y);
+void submenu_chatwindow_filters(widgetdata *widget, int x, int y);
 #endif

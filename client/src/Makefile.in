@@ -32,7 +32,10 @@ LIBS = @LIBS@ @SDL_LIBS@ -lSDL_image -lSDL_mixer $(EXTRA_LIBS)
 
 # Now the source files
 SRCS := \
-	$(wildcard client/*.c)
+	$(wildcard client/*.c) \
+	$(wildcard events/*.c) \
+	$(wildcard gui/*.c) \
+	$(wildcard widgets/*.c)
 
 # Object files
 OBJS = $(SRCS:.c=.o)
