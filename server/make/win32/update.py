@@ -4,7 +4,7 @@
 import os
 
 directory = "../../src"
-fp_cb = open("codeblocks.txt", "wb")
+fp_cb = open("codeblocks.txt", "w")
 vc_data = {}
 
 def scan(directory):
@@ -39,7 +39,7 @@ def scan(directory):
 scan(directory)
 fp_cb.close()
 
-fp_vc = open("visualc-include.txt", "wb")
+fp_vc = open("visualc-include.txt", "w")
 fp_vc.write("\n\t\t<Filter\n\t\t\tName=\"Header Files\"\n\t\t\tFilter=\"h;hpp;hxx;hm;inl;inc;xsd\"\n\t\t\tUniqueIdentifier=\"{93995380-89BD-4b04-88EB-625FBE52EBFB}\"\n\t\t\t>")
 vc_data["include"].sort()
 
@@ -49,7 +49,7 @@ for f in vc_data["include"]:
 fp_vc.write("\n\t\t</Filter>")
 fp_vc.close()
 
-fp_vc = open("visualc-source.txt", "wb")
+fp_vc = open("visualc-source.txt", "w")
 fp_vc.write("\n\t\t<Filter\n\t\t\tName=\"Source Files\"\n\t\t\tFilter=\"cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx\"\n\t\t\tUniqueIdentifier=\"{4FC737F1-C7A5-4376-A066-2A32D752A2FF}\"\n\t\t\t>")
 
 for d in vc_data:
