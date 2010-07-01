@@ -69,6 +69,7 @@
 #	define lseek _lseek
 #	define access _access
 #	define strtoull _strtoui64
+#	define strtok_r strtok_s
 #	define F_OK 6
 #	define R_OK 6
 #	define W_OK 2
