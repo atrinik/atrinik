@@ -50,13 +50,13 @@
  * at the price of using a bit of extra memory.
  *
  * It also makes the code simpler. */
-#define MAXSOCKBUF (128 * 1024)
+#define MAXSOCKBUF (64 * 1024)
 
 /**
  * Maximum size of socket input buffer we can read/fill when reading from
  * socket. This is raw data until we sort it out and put it in the player
  * command queue. */
-#define MAXSOCKBUF_IN (2 * 1024)
+#define MAXSOCKBUF_IN (3 * 1024)
 
 /**
  * @defgroup CS_QUERY_xxx Client/server queries

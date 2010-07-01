@@ -218,7 +218,7 @@ void socket_buffer_clear(socket_struct *ns)
 void socket_buffer_write(socket_struct *ns)
 {
 	socket_buffer *tmp, *next;
-	int amt;
+	int amt, max;
 
 	/* Nothing to send? */
 	if (!ns->buffer_front)
@@ -230,50 +230,47 @@ void socket_buffer_write(socket_struct *ns)
 	{
 		next = tmp->next;
 
-		do
+		max = tmp->len - tmp->pos;
+		amt = send(ns->fd, tmp->buf + tmp->pos, max, MSG_DONTWAIT);
+
+#ifndef WIN32
+		if (!amt)
+		{
+			amt = max;
+		}
+		else
+#endif
+		if (amt < 0)
 		{
 #ifdef WIN32
-			amt = send(ns->fd, tmp->buf + tmp->pos, tmp->len, 0);
-#else
-			do
+			if (WSAGetLastError() != WSAEWOULDBLOCK)
 			{
-				amt = write(ns->fd, tmp->buf + tmp->pos, tmp->len);
-			}
-			while (amt < 0 && errno == EINTR);
-#endif
-
-			/* Error. */
-			if (amt < 0)
-			{
-#ifdef WIN32
-				if (WSAGetLastError() != WSAEWOULDBLOCK)
-				{
-					LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
+				LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
 #else
-				if (errno != EWOULDBLOCK)
-				{
-					LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+			if (errno != EWOULDBLOCK)
+			{
+				LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
-					ns->status = Ns_Dead;
-					return;
-				}
-				/* EWOULDBLOCK: We can't write because socket is busy. */
-				else
-				{
-					return;
-				}
+				ns->status = Ns_Dead;
+				return;
 			}
-
-			tmp->pos += amt;
-			tmp->len -= amt;
-#if CS_LOGSTATS
-			cst_tot.obytes += amt;
-			cst_lst.obytes += amt;
-#endif
+			/* EWOULDBLOCK: We can't write because socket is busy. */
+			else
+			{
+				return;
+			}
 		}
-		while (tmp->len > 0);
 
-		socket_buffer_dequeue(ns);
+		tmp->pos += amt;
+#if CS_LOGSTATS
+		cst_tot.obytes += amt;
+		cst_lst.obytes += amt;
+#endif
+
+		if (tmp->len - tmp->pos == 0)
+		{
+			socket_buffer_dequeue(ns);
+		}
 	}
 }
 
