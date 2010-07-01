@@ -343,10 +343,8 @@ int event_poll_key(SDL_Event *event)
 	{
 		if (GameStatus <= GAME_STATUS_WAITLOOP)
 			return key_meta_menu(&event->key);
-		else if (GameStatus == GAME_STATUS_PLAY || GameStatus == GAME_STATUS_NEW_CHAR)
-			return key_event(&event->key);
 		else
-			key_connection_event(&event->key);
+			return key_event(&event->key);
 	}
 
 	return 0;

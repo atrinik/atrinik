@@ -194,23 +194,3 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "You will be asked to ~verify~ the password for new characters.", x - 10, y + 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "You will be asked to ~verify~ the password for new characters.", x - 11, y, COLOR_WHITE, NULL, NULL);
 }
-
-void key_connection_event(SDL_KeyboardEvent *key)
-{
-	char buf[256];
-
-	if (key->type == SDL_KEYDOWN)
-	{
-		switch (key->keysym.sym)
-		{
-			case SDLK_ESCAPE:
-				snprintf(buf, sizeof(buf), "Connection closed. Select new server.");
-				draw_info(buf, COLOR_RED);
-				GameStatus = GAME_STATUS_START;
-				break;
-
-			default:
-				break;
-		}
-	}
-}
