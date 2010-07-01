@@ -147,10 +147,6 @@ struct screensize *Screensize;
 /** Face data */
 _face_struct FaceList[MAX_FACE_TILES];
 
-/** The list of the servers. */
-server_struct *start_server;
-int metaserver_sel, metaserver_count = 0;
-
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
 
@@ -410,7 +406,6 @@ static void init_game_data()
 
 	init_keys();
 	init_player_data();
-	metaserver_clear_data();
 	reset_input_mode();
 
 	msg_anim.message[0] = '\0';
@@ -418,7 +413,6 @@ static void init_game_data()
 	start_anim = NULL;
 
 	map_transfer_flag = 0;
-	start_server = NULL;
 	argServerName[0] = '\0';
 	argServerPort = 13327;
 
@@ -462,6 +456,7 @@ static void init_game_data()
 
 	textwin_clearhistory();
 	delete_player_lists();
+	metaserver_init();
 }
 
 /**
@@ -733,7 +728,7 @@ static int game_status_chain()
 		if (options.no_meta)
 		{
 			draw_info("Metaserver ignored.", COLOR_GREEN);
-			metaserver_connecting = 0;
+			ms_connecting(0);
 		}
 		else
 		{
@@ -1784,7 +1779,7 @@ int main(int argc, char *argv[])
 
 		if (GameStatus < GAME_STATUS_REQUEST_FILES)
 		{
-			show_meta_server(start_server, metaserver_sel);
+			show_meta_server();
 		}
 		else if (GameStatus >= GAME_STATUS_REQUEST_FILES && GameStatus < GAME_STATUS_NEW_CHAR)
 		{

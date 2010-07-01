@@ -587,8 +587,6 @@ extern uint32 tmpGameTick;
 extern uint32 FrameCount;
 extern server_struct *selected_server;
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
-extern server_struct *start_server;
-extern int metaserver_sel, metaserver_count;
 extern int request_file_chain;
 extern int esc_menu_flag;
 extern int esc_menu_index;

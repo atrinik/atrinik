@@ -40,4 +40,4 @@ typedef struct metaserver_struct
 	size_t size;
 } metaserver_struct;
 
-extern int metaserver_connecting;
+int server_sel;

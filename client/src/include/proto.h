@@ -137,7 +137,10 @@ void update_quickslots(int del_item);
 void widget_show_fps(widgetdata *widget);
 
 /* client/metaserver.c */
-server_struct *metaserver_get_selected(int num);
+void metaserver_init();
+server_struct *server_get_id(size_t num);
+size_t server_get_count();
+int ms_connecting(int val);
 void metaserver_clear_data();
 void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
 int metaserver_thread(void *dummy);
@@ -292,7 +295,6 @@ void save_keybind_file(char *fname);
 /* events/move.c */
 int mouseInPlayfield(int x, int y);
 void mouse_moveHero();
-int movement_queue_thread(void *junk);
 void move_keys(int num);
 
 /* gui/book.c */
@@ -302,7 +304,6 @@ void book_gui_handle_mouse(int x, int y);
 
 /* gui/connect.c */
 void show_login_server();
-void key_connection_event(SDL_KeyboardEvent *key);
 
 /* gui/create_character.c */
 void show_newplayer_server();
@@ -322,7 +323,7 @@ void examine_range_marks(int tag);
 void show_keybind();
 
 /* gui/main.c */
-void show_meta_server(server_struct *node, int metaserver_sel);
+void show_meta_server();
 void metaserver_mouse(SDL_Event *e);
 int key_meta_menu(SDL_KeyboardEvent *key);
 

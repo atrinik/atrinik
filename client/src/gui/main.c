@@ -30,15 +30,15 @@
 #include <include.h>
 
 /**
- * Show metaserver window.
- * @param node First server.
- * @param metaserver_sel Selected server. */
-void show_meta_server(server_struct *node, int metaserver_sel)
+ * Show metaserver window. */
+void show_meta_server()
 {
-	int x, y, i;
+	int x, y;
 	char buf[1024];
 	SDL_Rect rec_name, rec_desc, box;
 	int mx, my, mb;
+	int i, count = server_get_count();
+	server_struct *node;
 
 	mb = SDL_GetMouseState(&mx, &my);
 
@@ -65,9 +65,9 @@ void show_meta_server(server_struct *node, int metaserver_sel)
 	draw_frame(box.x + box.w + 4, box.y + 11, 10, 313);
 
 	/* Show scrollbar, and adjust its position by yoff */
-	blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], metaserver_count - 18, 8, dialog_yoff, -1, box.x + box.w + 5, box.y + 12);
+	blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], count - 18, 8, dialog_yoff, -1, box.x + box.w + 5, box.y + 12);
 
-	if (metaserver_connecting)
+	if (ms_connecting(-1))
 	{
 		StringBlt(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + TXT_START_NAME + 81, y + TXT_Y_START - 13, COLOR_BLACK, NULL, NULL);
 		StringBlt(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + TXT_START_NAME + 80, y + TXT_Y_START - 14, COLOR_HGOLD, NULL, NULL);
@@ -103,7 +103,7 @@ void show_meta_server(server_struct *node, int metaserver_sel)
 		}
 	}
 
-	for (i = 0; i < metaserver_count && node; i++, node = node->next)
+	for (i = 0; i < count; i++)
 	{
 		if (i < dialog_yoff)
 		{
@@ -115,7 +115,9 @@ void show_meta_server(server_struct *node, int metaserver_sel)
 			break;
 		}
 
-		if (i == metaserver_sel)
+		node = server_get_id(i);
+
+		if (i == server_sel)
 		{
 			int tmp_y = 0, width = 0;
 			char tmpbuf[MAX_BUF], *cp;
@@ -183,15 +185,17 @@ void metaserver_mouse(SDL_Event *e)
 	/* Mousewheel up/down */
 	if (e->button.button == 4 || e->button.button == 5)
 	{
+		int count = server_get_count();
+
 		/* Scroll down... */
 		if (e->button.button == 5)
 		{
-			if (metaserver_sel < metaserver_count - 1)
+			if (server_sel < count - 1)
 			{
-				metaserver_sel++;
+				server_sel++;
 			}
 
-			if (metaserver_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
+			if (server_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
 			{
 				dialog_yoff++;
 			}
@@ -199,34 +203,34 @@ void metaserver_mouse(SDL_Event *e)
 		/* .. or up */
 		else
 		{
-			if (metaserver_sel)
+			if (server_sel)
 			{
-				metaserver_sel--;
+				server_sel--;
 			}
 
-			if (dialog_yoff > metaserver_sel)
+			if (dialog_yoff > server_sel)
 			{
 				dialog_yoff--;
 			}
 		}
 
 		/* Sanity checks for going out of bounds. */
-		if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
+		if (dialog_yoff < 0 || count < DIALOG_LIST_ENTRY)
 		{
 			dialog_yoff = 0;
 		}
-		else if (dialog_yoff >= metaserver_count - DIALOG_LIST_ENTRY)
+		else if (dialog_yoff >= count - DIALOG_LIST_ENTRY)
 		{
-			dialog_yoff = metaserver_count - DIALOG_LIST_ENTRY;
+			dialog_yoff = count - DIALOG_LIST_ENTRY;
 		}
 
-		if (metaserver_sel < 0)
+		if (server_sel < 0)
 		{
-			metaserver_sel = 0;
+			server_sel = 0;
 		}
-		else if (metaserver_sel >= metaserver_count)
+		else if (server_sel >= count)
 		{
-			metaserver_sel = metaserver_count;
+			server_sel = count;
 		}
 	}
 }
@@ -236,25 +240,27 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 {
 	if (key->type == SDL_KEYDOWN)
 	{
+		int count = server_get_count();
+
 		switch (key->keysym.sym)
 		{
 			case SDLK_UP:
-				if (metaserver_sel)
+				if (server_sel)
 				{
-					metaserver_sel--;
+					server_sel--;
 
-					if (dialog_yoff > metaserver_sel)
+					if (dialog_yoff > server_sel)
 						dialog_yoff--;
 				}
 
 				break;
 
 			case SDLK_DOWN:
-				if (metaserver_sel < metaserver_count - 1)
+				if (server_sel < count - 1)
 				{
-					metaserver_sel++;
+					server_sel++;
 
-					if (metaserver_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
+					if (server_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
 						dialog_yoff++;
 				}
 
@@ -262,7 +268,7 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
-				selected_server = metaserver_get_selected(metaserver_sel);
+				selected_server = server_get_id(server_sel);
 
 				if (selected_server)
 				{
@@ -275,16 +281,16 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 				return 1;
 
 			case SDLK_PAGEUP:
-				if (metaserver_sel)
-					metaserver_sel -= DIALOG_LIST_ENTRY;
+				if (server_sel)
+					server_sel -= DIALOG_LIST_ENTRY;
 
 				dialog_yoff -= DIALOG_LIST_ENTRY;
 
 				break;
 
 			case SDLK_PAGEDOWN:
-				if (metaserver_sel < metaserver_count - DIALOG_LIST_ENTRY)
-					metaserver_sel += DIALOG_LIST_ENTRY;
+				if (server_sel < count - DIALOG_LIST_ENTRY)
+					server_sel += DIALOG_LIST_ENTRY;
 
 				dialog_yoff += DIALOG_LIST_ENTRY;
 
@@ -295,15 +301,15 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 		}
 
 		/* Sanity checks for going out of bounds */
-		if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
+		if (dialog_yoff < 0 || count < DIALOG_LIST_ENTRY)
 			dialog_yoff = 0;
-		else if (dialog_yoff >= metaserver_count - DIALOG_LIST_ENTRY)
-			dialog_yoff = metaserver_count - DIALOG_LIST_ENTRY;
+		else if (dialog_yoff >= count - DIALOG_LIST_ENTRY)
+			dialog_yoff = count - DIALOG_LIST_ENTRY;
 
-		if (metaserver_sel < 0)
-			metaserver_sel = 0;
-		else if (metaserver_sel >= metaserver_count)
-			metaserver_sel = metaserver_count;
+		if (server_sel < 0)
+			server_sel = 0;
+		else if (server_sel >= count)
+			server_sel = count;
 	}
 
 	return 0;
