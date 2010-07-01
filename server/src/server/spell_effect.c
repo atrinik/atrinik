@@ -87,7 +87,7 @@ int recharge(object *op)
 
 	new_draw_info_format(NDI_UNIQUE, op, "The %s glows with power.", query_name(wand, NULL));
 
-	wand->stats.food += rndm(1, spells[wand->stats.sp].charges);
+	wand->stats.food += 12 + rndm(1, spells[wand->stats.sp].charges);
 	cap = spells[wand->stats.sp].charges + 12;
 
 	/* Place a cap on it. */
