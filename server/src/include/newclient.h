@@ -281,18 +281,6 @@ enum
 /*@}*/
 
 /**
- * @defgroup image_face_modes Image face modes
- * Image face modes.
- * @see SetFaceMode()
- *@{*/
-#define CF_FACE_NONE    0
-#define CF_FACE_BITMAP  1
-#define CF_FACE_XPM     2
-#define CF_FACE_PNG     3
-#define CF_FACE_CACHE   0x10
-/*@}*/
-
-/**
  * @defgroup UPD_XXX Item update flags
  * Client/server item update flags.
  *@{*/

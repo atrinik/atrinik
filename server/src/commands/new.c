@@ -830,34 +830,6 @@ void command_new_char(char *params, int len, player *pl)
 }
 
 /**
- * Request a face command.
- * @param buf Data.
- * @param len Length.
- * @param ns Socket. */
-void command_face_request(char *buf, int len, socket_struct *ns)
-{
-	int i, count;
-
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	count = *(uint8 *) buf;
-
-	for (i = 0; i < count; i++)
-	{
-		if (esrv_send_face(ns, *((short *) (buf + 1) + i), 0) == SEND_FACE_OUT_OF_BOUNDS)
-		{
-			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. Close connection.\n", *((short *) (buf + 1) + i));
-			/* Kill socket */
-			ns->status = Ns_Dead;
-			return;
-		}
-	}
-}
-
-/**
  * The fire command.
  *
  * Sent by the client by pressing Ctrl + numpad.

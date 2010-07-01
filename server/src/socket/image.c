@@ -334,48 +334,10 @@ void read_client_images()
 }
 
 /**
- * Client tells us what type of faces it wants.  Also sets
- * the caching attribute.
- * @param buf The data given to us
- * @param len Length of buf
- * @param ns Client's socket */
-void SetFaceMode(char *buf, int len, socket_struct *ns)
-{
-	int mask, mode;
-
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	mask = (atoi(buf) & CF_FACE_CACHE);
-	mode = (atoi(buf) & ~CF_FACE_CACHE);
-
-	if (mode == CF_FACE_NONE)
-	{
-		ns->facecache = 1;
-	}
-	else if (mode != CF_FACE_PNG)
-	{
-		send_socket_message(NDI_RED, ns, "Warning - send unsupported face mode. Will use Png.");
-#ifdef ESRV_DEBUG
-		LOG(llevDebug, "SetFaceMode: Invalid mode from client: %d\n", mode);
-#endif
-	}
-
-	if (mask)
-	{
-		ns->facecache = 1;
-	}
-}
-
-/**
- * Client has requested pixmap that it somehow missed getting.
- * This will be called often if the client is
- * caching images.
- * @param buff The data sent to us
- * @param len Length of buf
- * @param ns Client's socket */
+ * Client has requested a face.
+ * @param buf The data sent to us.
+ * @param len Length of 'buf'.
+ * @param ns Client's socket. */
 void SendFaceCmd(char *buf, int len, socket_struct *ns)
 {
 	long tmpnum;
@@ -391,22 +353,16 @@ void SendFaceCmd(char *buf, int len, socket_struct *ns)
 
 	if (facenum != 0)
 	{
-		esrv_send_face(ns, facenum, 1);
+		esrv_send_face(ns, facenum);
 	}
 }
 
 /**
- * Sends a face to client if they are in pixmap mode. Nothing gets sent
- * in bitmap mode.
- * @param ns Client's socket
- * @param face_num Face number to send
- * @param nocache If true (non-zero), ignore the cache setting from the
- * client - this is needed for the askface, in which we really do want to
- * send the face (and askface is the only place that should be setting
- * it).  Otherwise, we look at the facecache, and if set, send the image
- * name.
- * @return One of SEND_FACE_xxx. */
-int esrv_send_face(socket_struct *ns, short face_num, int nocache)
+ * Sends a face to client.
+ * @param ns Client's socket.
+ * @param face_num Face number to send.
+ * @return One of @ref SEND_FACE_xxx. */
+int esrv_send_face(socket_struct *ns, short face_num)
 {
 	SockList sl;
 	int fallback;
@@ -414,138 +370,28 @@ int esrv_send_face(socket_struct *ns, short face_num, int nocache)
 	if (face_num < 0 || face_num >= nrofpixmaps)
 	{
 		LOG(llevBug, "BUG: esrv_send_face(): Face %d out of bounds!\n", face_num);
-
 		return SEND_FACE_OUT_OF_BOUNDS;
 	}
 
-	sl.buf = malloc(MAXSOCKBUF);
 	fallback = get_face_fallback(ns->faceset, face_num);
 
 	if (facesets[fallback].faces[face_num].data == NULL)
 	{
 		LOG(llevBug, "BUG: esrv_send_face(): faces[%d].data == NULL\n", face_num);
-
 		return SEND_FACE_NO_DATA;
 	}
 
-	if (ns->facecache && !nocache)
-	{
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_FACE1);
-		SockList_AddShort(&sl, face_num);
-		SockList_AddInt(&sl, facesets[fallback].faces[face_num].checksum);
-		strcpy((char *) sl.buf + sl.len, new_faces[face_num].name);
-		sl.len += strlen(new_faces[face_num].name);
-		Send_With_Handling(ns, &sl);
-	}
-	else
-	{
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_IMAGE);
-		SockList_AddInt(&sl, face_num);
-		SockList_AddInt(&sl, facesets[fallback].faces[face_num].datalen);
-		memcpy(sl.buf + sl.len, facesets[fallback].faces[face_num].data, facesets[fallback].faces[face_num].datalen);
-		sl.len += facesets[fallback].faces[face_num].datalen;
-		Send_With_Handling(ns, &sl);
-	}
+	/* 1 byte for the command ID, 4 bytes for the face ID, 4 bytes for
+	 * length of the face data. */
+	sl.buf = malloc(1 + 4 + 4 + facesets[fallback].faces[face_num].datalen);
 
-	/*ns->faces_sent[face_num] = 1;*/
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_IMAGE);
+	SockList_AddInt(&sl, face_num);
+	SockList_AddInt(&sl, facesets[fallback].faces[face_num].datalen);
+	memcpy(sl.buf + sl.len, facesets[fallback].faces[face_num].data, facesets[fallback].faces[face_num].datalen);
+	sl.len += facesets[fallback].faces[face_num].datalen;
+	Send_With_Handling(ns, &sl);
 	free(sl.buf);
 
 	return SEND_FACE_OK;
-}
-
-/**
- * Sends the number of images, checksum of the face file, and the
- * image_info file information.
- * @param ns Client's socket
- * @param params Unused. */
-void send_image_info(socket_struct *ns, char *params)
-{
-	SockList sl;
-	int i;
-
-	(void) params;
-
-	sl.buf = malloc(MAXSOCKBUF);
-
-	snprintf((char *) sl.buf, MAXSOCKBUF, "replyinfo image_info\n%d\n%d\n", nrofpixmaps - 1, bmaps_checksum);
-
-	for (i = 0; i < MAX_FACE_SETS; i++)
-	{
-		if (facesets[i].prefix)
-		{
-			snprintf((char *) sl.buf + strlen((char *) sl.buf), MAXSOCKBUF, "%d:%s:%s:%d:%s:%s:%s", i, facesets[i].prefix, facesets[i].fullname, facesets[i].fallback, facesets[i].size, facesets[i].extension, facesets[i].comment);
-		}
-	}
-
-	sl.len = strlen((char *) sl.buf);
-	Send_With_Handling(ns, &sl);
-
-	free(sl.buf);
-}
-
-/**
- * Send image checksums.
- * @param ns Client's socket
- * @param params Parameters */
-void send_image_sums(socket_struct *ns, char *params)
-{
-	int start, stop, qq, i;
-	char *cp, buf[MAX_BUF];
-	SockList sl;
-
-	sl.buf = malloc(MAXSOCKBUF);
-
-	start = atoi(params);
-
-	for (cp = params; *cp != '\0'; cp++)
-	{
-		if (*cp == ' ')
-		{
-			break;
-		}
-	}
-
-	stop = atoi(cp);
-
-	if (stop < start || *cp == '\0' || (stop-start) > 1000 || stop >= nrofpixmaps)
-	{
-		snprintf(buf, sizeof(buf), "Ximage_sums %d %d", start, stop);
-		Write_String_To_Socket(ns, BINARY_CMD_REPLYINFO, buf, strlen(buf));
-
-		return;
-	}
-
-	snprintf((char *) sl.buf, MAXSOCKBUF, "Ximage_sums %d %d ", start, stop);
-	*sl.buf = BINARY_CMD_REPLYINFO;
-
-	sl.len = strlen((char *)sl.buf);
-
-	for (i = start; i <= stop; i++)
-	{
-		SockList_AddShort(&sl, (uint16) i);
-
-		qq = get_face_fallback(ns->faceset, i);
-		SockList_AddInt(&sl, facesets[qq].faces[i].checksum);
-		SockList_AddChar(&sl, (char) qq);
-
-		qq = strlen(new_faces[i].name);
-		SockList_AddChar(&sl, (char) (qq + 1));
-		strcpy((char *) sl.buf + sl.len, new_faces[i].name);
-		sl.len += qq;
-
-		SockList_AddChar(&sl, 0);
-	}
-
-	/* It would make more sense to catch this pre-emptively in the code
-	 * above. However, if this really happens, we probably just want to
-	 * cut down the size to less than 1000, since that is what we claim
-	 * the protocol would support. */
-	if (sl.len > MAXSOCKBUF)
-	{
-		LOG(llevError, "ERROR: send_image_sums(): buffer overrun, %s > %s\n", sl.len, MAXSOCKBUF);
-	}
-
-	Send_With_Handling(ns, &sl);
-
-	free(sl.buf);
 }

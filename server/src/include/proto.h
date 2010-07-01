@@ -109,7 +109,6 @@ void send_target_command(player *pl);
 int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
 void command_new_char(char *params, int len, player *pl);
-void command_face_request(char *buf, int len, socket_struct *ns);
 void command_fire(char *params, int len, player *pl);
 void send_mapstats_cmd(object *op, struct mapdef *map);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
@@ -910,11 +909,8 @@ void construction_do(object *op, int dir);
 int is_valid_faceset(int fsn);
 void free_socket_images();
 void read_client_images();
-void SetFaceMode(char *buf, int len, socket_struct *ns);
 void SendFaceCmd(char *buf, int len, socket_struct *ns);
-int esrv_send_face(socket_struct *ns, short face_num, int nocache);
-void send_image_info(socket_struct *ns, char *params);
-void send_image_sums(socket_struct *ns, char *params);
+int esrv_send_face(socket_struct *ns, short face_num);
 
 /* socket/info.c */
 void new_draw_info(int flags, object *pl, const char *buf);
@@ -950,7 +946,6 @@ void MarkItem(uint8 *data, int len, player *pl);
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 
 /* socket/loop.c */
-void RequestInfo(char *buf, int len, socket_struct *ns);
 void handle_client(socket_struct *ns, player *pl);
 void watchdog();
 void remove_ns_dead_player(player *pl);

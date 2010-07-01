@@ -82,11 +82,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->login_count = 0;
 	ns->addme = 0;
 	ns->faceset = 0;
-	ns->facecache = 0;
-	ns->sound = 0;
 	ns->ext_title_flag = 1;
-	ns->map2cmd = 0;
-	ns->darkness = 1;
 	ns->status = Ns_Add;
 	ns->mapx = 17;
 	ns->mapy = 17;
@@ -102,8 +98,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->rf_bmaps = 0;
 	ns->password_fails = 0;
 	ns->is_bot = 0;
-	ns->can_write = 0;
-	ns->write_overflow = 0;
 
 	ns->inbuf.len = 0;
 	ns->inbuf.buf = malloc(MAXSOCKBUF_IN);
@@ -121,7 +115,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->buffer_front = NULL;
 	ns->buffer_back = NULL;
 
-	ns->sent_scroll = 0;
 	ns->host = strdup_local(from_ip);
 
 	/* Legacy support for older clients. */
