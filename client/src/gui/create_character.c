@@ -31,6 +31,9 @@
 
 int dialog_new_char_warn = 0;
 
+/** Create list set */
+struct _dialog_list_set create_list_set;
+
 #define CREATE_Y0 120
 
 /** The attributes, like Strength, Charisma, etc. */

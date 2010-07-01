@@ -29,6 +29,12 @@
 
 #include <include.h>
 
+/** Skill list entries */
+struct _skill_list skill_list[SKILL_LIST_MAX];
+
+/** Skill list set */
+struct _dialog_list_set skill_list_set;
+
 #define TXT_START_LEVEL 370
 #define TXT_START_EXP   400
 
@@ -225,4 +231,119 @@ void show_skilllist()
 	{
 		active_button = -1;
 	}
+}
+
+/**
+ * Read skills from file */
+void read_skills()
+{
+	int i, ii, panel;
+	char *temp_buf;
+	char nchar, *tmp, *tmp2;
+	struct stat statbuf;
+	FILE *stream;
+	char line[255], name[255], d1[255], d2[255], d3[255], d4[255], icon[128];
+
+	for (i = 0; i < SKILL_LIST_MAX; i++)
+	{
+		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
+		{
+			skill_list[i].entry[ii].flag = LIST_ENTRY_UNUSED;
+			skill_list[i].entry[ii].name[0] = 0;
+		}
+	}
+
+	skill_list_set.group_nr = 0;
+	skill_list_set.entry_nr = 0;
+
+	srv_client_files[SRV_CLIENT_SKILLS].len = 0;
+	srv_client_files[SRV_CLIENT_SKILLS].crc = 0;
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SKILLS);
+
+	if ((stream = fopen_wrapper(FILE_CLIENT_SKILLS, "rb")) != NULL)
+	{
+		/* Temporary load the file and get the data we need for compare with server */
+		fstat(fileno(stream), &statbuf);
+		i = (int) statbuf.st_size;
+		srv_client_files[SRV_CLIENT_SKILLS].len = i;
+		temp_buf = malloc(i);
+
+		if (fread(temp_buf, 1, i, stream))
+			srv_client_files[SRV_CLIENT_SKILLS].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
+
+		free(temp_buf);
+		rewind(stream);
+
+		for (i = 0; ; i++)
+		{
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(name, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			sscanf(line, "%d %c %s", &panel, &nchar, icon);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d1, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d2, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d3, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d4, tmp + 1);
+
+			skill_list[panel].entry[nchar - 'a'].flag = LIST_ENTRY_USED;
+			skill_list[panel].entry[nchar - 'a'].exp = 0;
+			skill_list[panel].entry[nchar - 'a'].exp_level = 0;
+
+			strcpy(skill_list[panel].entry[nchar - 'a'].icon_name, icon);
+			snprintf(line, sizeof(line), "%s%s", GetIconDirectory(), icon);
+			skill_list[panel].entry[nchar - 'a'].icon = sprite_load_file(line, SURFACE_FLAG_DISPLAYFORMAT);
+
+			strcpy(skill_list[panel].entry[nchar - 'a'].name, name);
+			strcpy(skill_list[panel].entry[nchar - 'a'].desc[0], d1);
+			strcpy(skill_list[panel].entry[nchar - 'a'].desc[1], d2);
+			strcpy(skill_list[panel].entry[nchar - 'a'].desc[2], d3);
+			strcpy(skill_list[panel].entry[nchar - 'a'].desc[3], d4);
+		}
+
+		fclose(stream);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc);
+	}
+
+	LOG(llevDebug, " Done.\n");
 }

@@ -29,6 +29,27 @@
 
 #include <include.h>
 
+/** Quick slot entries */
+_quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
+
+/** Current quickslot group */
+int quickslot_group = 1;
+
+/**
+ * Quickslot positions, because some things change depending on
+ * which quickslot bitmap is displayed. */
+int quickslots_pos[MAX_QUICK_SLOTS][2] =
+{
+	{17,	1},
+	{50,	1},
+	{83,	1},
+	{116,	1},
+	{149,	1},
+	{182,	1},
+	{215,	1},
+	{248,	1}
+};
+
 /* Handle quickslot key event. */
 void quickslot_key(SDL_KeyboardEvent *key, int slot)
 {
@@ -123,5 +144,287 @@ void quickslot_key(SDL_KeyboardEvent *key, int slot)
 
 		snprintf(buf, sizeof(buf), "F%d of group %d quick slot is empty", real_slot + 1, quickslot_group);
 		draw_info(buf, COLOR_DGOLD);
+	}
+}
+
+/**
+ * Get the current quickslot ID based on mouse coordinates.
+ * @param x Mouse X
+ * @param y Mouse Y
+ * @return Quickslot ID if mouse is over it, -1 if not */
+int get_quickslot(int x, int y)
+{
+	int i, j;
+	int qsx, qsy, xoff;
+
+	if (cur_widget[QUICKSLOT_ID]->ht > 34)
+	{
+		qsx = 1;
+		qsy = 0;
+		xoff = 0;
+	}
+	else
+	{
+		qsx = 0;
+		qsy = 1;
+		xoff = -17;
+	}
+
+	for (i = 0; i < MAX_QUICK_SLOTS; i++)
+	{
+		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
+
+		if (x >= cur_widget[QUICKSLOT_ID]->x1 + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID]->x1 + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID]->y1 + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID]->y1 + quickslots_pos[i][qsy] + 32)
+			return j;
+	}
+
+	return -1;
+}
+
+/**
+ * Show quickslots widget.
+ * @param x X position of the quickslots
+ * @param y Y position of the quickslots
+ * @param vertical_quickslot Is the quickslot vertical? 1 for vertical, 0 for horizontal. */
+void show_quickslots(int x, int y, int vertical_quickslot)
+{
+	int i, j, mx, my;
+	char buf[16];
+	int qsx, qsy, xoff;
+
+	/* Figure out which bitmap to use */
+	if (vertical_quickslot)
+	{
+		qsx = 1;
+		qsy = 0;
+		xoff = 0;
+		sprite_blt(Bitmaps[BITMAP_QUICKSLOTSV], x, y, NULL, NULL);
+	}
+	else
+	{
+		qsx = 0;
+		qsy = 1;
+		xoff = -17;
+		sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
+	}
+
+	SDL_GetMouseState(&mx, &my);
+	update_quickslots(-1);
+
+	/* Loop through quickslots. Do not loop through all the quickslots,
+	 * like MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS. */
+	for (i = 0; i < MAX_QUICK_SLOTS; i++)
+	{
+		/* Now calculate the real quickslot, according to the selected group */
+		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
+
+		/* If it's not empty */
+		if (quick_slots[j].tag != -1)
+		{
+			/* Spell in quickslot */
+			if (quick_slots[j].spell)
+			{
+				/* Output the sprite */
+				sprite_blt(spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], NULL, NULL);
+
+				/* If mouse is over the quickslot, show a tooltip */
+				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
+					show_tooltip(mx, my, spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].name);
+			}
+			/* Item in quickslot */
+			else
+			{
+				item *tmp = locate_item_from_item(cpl.ob, quick_slots[j].tag);
+
+				/* If we located the item */
+				if (tmp)
+				{
+					/* Show it */
+					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], 0);
+
+					/* And show tooltip, if mouse is over it */
+					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
+					{
+						show_tooltip(mx, my, tmp->s_name);
+					}
+				}
+			}
+		}
+
+		/* For each quickslot, output the F1-F8 shortcut */
+		snprintf(buf, sizeof(buf), "F%d", i + 1);
+		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 6, COLOR_DEFAULT, NULL, NULL);
+	}
+
+	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
+
+	/* Now output the group */
+	if (vertical_quickslot)
+		StringBlt(ScreenSurface, &Font6x3Out, buf, x + 3, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+	else
+		StringBlt(ScreenSurface, &Font6x3Out, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+}
+
+/** We come here for quickslots shown during the game */
+void widget_quickslots(widgetdata *widget)
+{
+	if (widget->ht > 34)
+		show_quickslots(widget->x1, widget->y1, 1);
+	else
+		show_quickslots(widget->x1, widget->y1, 0);
+}
+
+/**
+ * Handle mouse events over quickslots.
+ * @param x Mouse X position
+ * @param y Mouse Y position
+ * @param MEvent Mouse event */
+void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
+{
+	/* Mouseup Event */
+	if (MEvent == 1)
+	{
+		if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
+		{
+			int ind = get_quickslot(x, y);
+			char buf[MAX_BUF];
+
+			/* Valid slot */
+			if (ind != -1)
+			{
+				if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT_SPELL)
+				{
+					quick_slots[ind].spell = 1;
+					quick_slots[ind].groupNr = quick_slots[cpl.win_quick_tag].groupNr;
+					quick_slots[ind].classNr = quick_slots[cpl.win_quick_tag].classNr;
+					quick_slots[ind].tag = quick_slots[cpl.win_quick_tag].spellNr;
+
+					/* Tell server to set this quickslot to spell */
+					snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", ind + 1,  quick_slots[ind].groupNr, quick_slots[ind].classNr, quick_slots[ind].tag);
+					cs_write_string(buf, strlen(buf));
+
+					cpl.win_quick_tag = -1;
+				}
+				else
+				{
+					if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
+						cpl.win_quick_tag = cpl.win_inv_tag;
+					else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_PDOLL)
+						cpl.win_quick_tag = cpl.win_pdoll_tag;
+
+					update_quickslots(cpl.win_quick_tag);
+
+					quick_slots[ind].tag = cpl.win_quick_tag;
+					quick_slots[ind].spell = 0;
+
+					/* Now we do some tests... First, ensure this item can fit */
+					update_quickslots(-1);
+
+					/* Now: if this is null, item is *not* in the main inventory
+					 * of the player - then we can't put it in quickbar!
+					 * Server will not allow apply of items in containers! */
+					if (!locate_item_from_inv(cpl.ob->inv, cpl.win_quick_tag))
+					{
+						sound_play_effect(SOUND_CLICKFAIL, 0, 100);
+						draw_info("Only items from main inventory are allowed in quickslots!", COLOR_RED);
+					}
+					else
+					{
+						/* We 'get' it in quickslots */
+						sound_play_effect(SOUND_GET, 0, 100);
+
+						/* Send to server to set this item */
+						snprintf(buf, sizeof(buf), "qs set %d %d", ind + 1, cpl.win_quick_tag);
+						cs_write_string(buf, strlen(buf));
+
+						snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", ind + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, locate_item(cpl.win_quick_tag)->s_name);
+						draw_info(buf, COLOR_DGOLD);
+					}
+				}
+			}
+
+			draggingInvItem(DRAG_NONE);
+			/* ready for next item */
+			itemExamined = 0;
+		}
+	}
+	/* Mousedown Event */
+	else
+	{
+		/* Drag from quickslots */
+		int ind = get_quickslot(x, y);
+		char buf[MAX_BUF];
+
+		/* valid slot */
+		if (ind != -1 && quick_slots[ind].tag != -1)
+		{
+			cpl.win_quick_tag = quick_slots[ind].tag;
+
+			if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
+			{
+				if (quick_slots[ind].spell)
+				{
+					draggingInvItem(DRAG_QUICKSLOT_SPELL);
+					quick_slots[ind].spellNr = quick_slots[ind].tag;
+					cpl.win_quick_tag = ind;
+				}
+				else
+				{
+					draggingInvItem(DRAG_QUICKSLOT);
+				}
+
+				quick_slots[ind].tag = -1;
+			}
+			else
+			{
+				int stemp = cpl.inventory_win, itemp = cpl.win_inv_tag;
+
+				cpl.inventory_win = IWIN_INV;
+				cpl.win_inv_tag = quick_slots[ind].tag;
+				process_macro_keys(KEYFUNC_APPLY, 0);
+				cpl.inventory_win = stemp;
+				cpl.win_inv_tag = itemp;
+			}
+
+			/* Unset this item */
+			snprintf(buf, sizeof(buf), "qs unset %d", ind + 1);
+			cs_write_string(buf, strlen(buf));
+		}
+		else if (x >= widget->x1 + 266 && x <= widget->x1 + 282 && y >= widget->y1 && y <= widget->y1 + 34 && (widget->ht <= 34))
+		{
+			widget->wd = 34;
+			widget->ht = 282;
+			widget->x1 += 266;
+		}
+		else if (x >= widget->x1 && x <= widget->x1 + 34 && y >= widget->y1 && y <= widget->y1 + 15 && (widget->ht > 34))
+		{
+			widget->wd = 282;
+			widget->ht = 34;
+			widget->x1 -= 266;
+		}
+	}
+}
+
+/**
+ * Update quickslots. Makes sure no items are where they shouldn't be.
+ * @param del_item Item tag to remove from quickslots, -1 to not remove anything */
+void update_quickslots(int del_item)
+{
+	int i;
+
+	for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
+	{
+		if (quick_slots[i].tag == del_item)
+			quick_slots[i].tag = -1;
+
+		if (quick_slots[i].tag == -1)
+			continue;
+
+		/* Only items in the *main* inventory can be used with quickslots */
+		if (quick_slots[i].spell == 0)
+		{
+			if (!locate_item_from_inv(cpl.ob->inv, quick_slots[i].tag))
+				quick_slots[i].tag = -1;
+		}
 	}
 }

@@ -29,6 +29,9 @@
 
 #include <include.h>
 
+/** Option list set */
+struct _dialog_list_set option_list_set;
+
 /** Option tabs. */
 const char *opt_tab[] =
 {

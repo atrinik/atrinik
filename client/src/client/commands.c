@@ -287,27 +287,6 @@ void SetupCmd(char *buf, int len)
 }
 
 /**
- * Only used if the server believes we are caching images.
- * We rely on the fact that the server will only send a face command for
- * a particular number once - at current time, we have no way of knowing
- * if we have already received a face for a particular number.
- * @param data Incoming data.
- * @param len Length of the data */
-void Face1Cmd(unsigned char *data,  int len)
-{
-	int pnum;
-	uint32  checksum;
-	char *face;
-
-	pnum = GetShort_String(data);
-	checksum = GetInt_String(data + 2);
-	face = (char*)data + 6;
-	data[len] = '\0';
-
-	finish_face_cmd(pnum, checksum, face);
-}
-
-/**
  * Handles when the server says we can't be added.  In reality, we need to
  * close the connection and quit out, because the client is going to close
  * us down anyways. */
@@ -333,14 +312,6 @@ void AddMeSuccess(unsigned char *data, int len)
 
 	LOG(llevMsg, "addme_success received.\n");
 	return;
-}
-
-/**
- * Goodbye command. Currently doesn't do anything. */
-void GoodbyeCmd(unsigned char *data, int len)
-{
-	(void) data;
-	(void) len;
 }
 
 /**

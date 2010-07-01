@@ -564,3 +564,40 @@ static void musicDone(void)
 	music_global_fade = 0;
 }
 #endif
+
+/**
+ * Initialize media from tag.
+ * @param tag String to init the media from, usually comes from map data
+ * @return 1 if success, 0 if not */
+int init_media_tag(char *tag)
+{
+	char *p1, *p2;
+	int ret = 0;
+
+	if (tag == NULL)
+	{
+		LOG(llevMsg, "MediaTagError: Tag == NULL\n");
+		return ret;
+	}
+
+	p1 = strchr(tag, '|');
+	p2 = strrchr(tag, '|');
+
+	if (p1 == NULL || p2 == NULL)
+	{
+		LOG(llevMsg, "MediaTagError: Parameter == NULL (%x %x)\n", p1, p2);
+		return ret;
+	}
+
+	*p1++ = 0;
+	*p2++ = 0;
+
+	if (strstr(tag, ".ogg"))
+	{
+		sound_play_music(tag, options.music_volume, atoi(p1), atoi(p2), MUSIC_MODE_NORMAL);
+		/* Because we have called sound_play_music, we don't have to fade out extern */
+		ret = 1;
+	}
+
+	return ret;
+}

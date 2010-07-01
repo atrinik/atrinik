@@ -29,6 +29,9 @@
 
 #include <include.h>
 
+/** Bindkey list set */
+struct _dialog_list_set bindkey_list_set;
+
 #define X_COL1 136
 #define X_COL2 290
 #define X_COL3 430

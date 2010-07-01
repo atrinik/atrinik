@@ -29,6 +29,12 @@
 
 #include <include.h>
 
+/** Spell list entries */
+struct _spell_list spell_list[SPELL_LIST_MAX];
+
+/** Spell list set */
+struct _dialog_list_set spell_list_set;
+
 /** The spell paths. */
 static const char *spell_tab[] =
 {
@@ -225,4 +231,121 @@ void show_spelllist()
 	{
 		active_button = -1;
 	}
+}
+
+/**
+ * Read spells file. */
+void read_spells()
+{
+	int i, ii, panel;
+	char type, nchar, *tmp, *tmp2;
+	struct stat statbuf;
+	FILE *stream;
+	char *temp_buf;
+	char line[255], name[255], d1[255], d2[255], d3[255], d4[255], icon[128];
+
+	for (i = 0; i < SPELL_LIST_MAX; i++)
+	{
+		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
+		{
+			spell_list[i].entry[0][ii].flag = LIST_ENTRY_UNUSED;
+			spell_list[i].entry[1][ii].flag = LIST_ENTRY_UNUSED;
+			spell_list[i].entry[0][ii].name[0] = 0;
+			spell_list[i].entry[1][ii].name[0] = 0;
+		}
+	}
+
+	spell_list_set.class_nr = 0;
+	spell_list_set.entry_nr = 0;
+	spell_list_set.group_nr = 0;
+
+	srv_client_files[SRV_CLIENT_SPELLS].len = 0;
+	srv_client_files[SRV_CLIENT_SPELLS].crc = 0;
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SPELLS);
+
+	if ((stream = fopen_wrapper(FILE_CLIENT_SPELLS, "rb")) != NULL)
+	{
+		/* Temporary load the file and get the data we need for compare with server */
+		fstat(fileno(stream), &statbuf);
+		i = (int) statbuf.st_size;
+		srv_client_files[SRV_CLIENT_SPELLS].len = i;
+		temp_buf = malloc(i);
+
+		if (fread(temp_buf, 1, i, stream))
+			srv_client_files[SRV_CLIENT_SPELLS].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
+
+		free(temp_buf);
+		rewind(stream);
+
+		for (i = 0; ; i++)
+		{
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(name, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			sscanf(line, "%c %c %d %s", &type, &nchar, &panel, icon);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d1, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d2, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d3, tmp + 1);
+
+			if (fgets(line, 255, stream) == NULL)
+				break;
+
+			line[250] = 0;
+			tmp = strchr(line, '"');
+			tmp2 = strchr(tmp + 1, '"');
+			*tmp2 = 0;
+			strcpy(d4, tmp + 1);
+			panel--;
+
+			spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].flag = LIST_ENTRY_USED;
+			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon_name, icon);
+
+			sprintf(line, "%s%s", GetIconDirectory(), icon);
+			spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon = sprite_load_file(line, SURFACE_FLAG_DISPLAYFORMAT);
+
+			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].name, name);
+			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[0], d1);
+			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[1], d2);
+			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[2], d3);
+			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[3], d4);
+		}
+
+		fclose(stream);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SPELLS].len, srv_client_files[SRV_CLIENT_SPELLS].crc);
+	}
+
+	LOG(llevDebug, " Done.\n");
 }

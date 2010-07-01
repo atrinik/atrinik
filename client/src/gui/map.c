@@ -71,6 +71,15 @@ void load_mapdef_dat()
 }
 
 /**
+ * Show map name widget.
+ * @param x X position of the map name
+ * @param y Y position of the map name */
+void widget_show_mapname(widgetdata *widget)
+{
+	StringBlt(ScreenSurface, &BigFont, MapData.name, widget->x1, widget->y1, COLOR_HGOLD, NULL, NULL);
+}
+
+/**
  * Clear the map. */
 void clear_map()
 {
