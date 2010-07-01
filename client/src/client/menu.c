@@ -763,7 +763,7 @@ static int load_anim_tmp()
 		animations_num = 0;
 	}
 
-	anim_table = malloc(sizeof(anim_table));
+	anim_table = malloc(sizeof(_anim_table));
 
 	/* Animation #0 is like face id #0. */
 	anim_cmd[0] = (unsigned char) ((count >> 8) & 0xff);
