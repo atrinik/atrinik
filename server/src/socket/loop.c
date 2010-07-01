@@ -607,6 +607,11 @@ void doeric_server()
 				}
 			}
 
+			if (init_sockets[i].status == Ns_Avail)
+			{
+				continue;
+			}
+
 			if (init_sockets[i].status == Ns_Dead)
 			{
 				FREE_SOCKET(i);

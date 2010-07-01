@@ -140,6 +140,9 @@ typedef struct socket_buffer
 	/** Next socket buffer. */
 	struct socket_buffer *next;
 
+	/** Last socket buffer. */
+	struct socket_buffer *last;
+
 	/** The data. */
 	char *buf;
 
