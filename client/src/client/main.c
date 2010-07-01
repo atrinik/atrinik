@@ -709,12 +709,12 @@ static int game_status_chain()
 
 		clear_map();
 		LOG(llevMsg, "GAMES_STATUS_INIT_3\n");
-		metaserver_clear_data();
 		LOG(llevMsg, "GAMES_STATUS_INIT_4\n");
 		GameStatus = GAME_STATUS_META;
 	}
 	else if (GameStatus == GAME_STATUS_META)
 	{
+		metaserver_clear_data();
 		map_udate_flag = 2;
 
 		metaserver_add("127.0.0.1", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
