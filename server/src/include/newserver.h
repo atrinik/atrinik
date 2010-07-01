@@ -140,6 +140,9 @@ typedef struct socket_buffer
 	/** Next socket buffer. */
 	struct socket_buffer *next;
 
+	/** Last socket buffer. */
+	struct socket_buffer *last;
+
 	/** The data. */
 	char *buf;
 
@@ -192,23 +195,8 @@ typedef struct socket_struct
 	/** When set, a "connect" was initialized as "player". */
 	uint32 addme:1;
 
-	/** If true, client is caching images. */
-	uint32 facecache:1;
-
-	/** Sent map scroll command. */
-	uint32 sent_scroll:1;
-
 	/** Does the client want sound? */
 	uint32 sound:1;
-
-	/** Always use map2 protocol command. */
-	uint32 map2cmd:1;
-
-	/** True if client wants darkness information. */
-	uint32 darkness:1;
-
-	/** Can we write to this socket? */
-	uint32 can_write:1;
 
 	/** Has the client sent version command? */
 	uint32 version:1;
@@ -236,9 +224,6 @@ typedef struct socket_struct
 
 	/** Is the client a bot? */
 	uint32 is_bot:1;
-
-	/** Write overflow? */
-	uint32 write_overflow:1;
 
 	/** Start of drawing of look window. */
 	sint16 look_position;

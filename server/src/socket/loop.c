@@ -103,63 +103,12 @@ static const struct client_cmd_mapping client_commands[] =
 {
 	{"addme",       AddMeCmd},
 	{"askface",     SendFaceCmd},
-	{"requestinfo", RequestInfo},
-	{"setfacemode", SetFaceMode},
-	{"setsound",    SetSound},
 	{"setup",       SetUp},
 	{"version",     VersionCmd},
 	{"rf",          RequestFileCmd},
-	{"fr",          command_face_request},
 	{"clr", command_clear_cmds},
 	{NULL, NULL}
 };
-
-/**
- * RequestInfo is sort of a meta command - there is some specific request
- * of information, but we call other functions to provide that
- * information. */
-void RequestInfo(char *buf, int len, socket_struct *ns)
-{
-	char *params = NULL, *cp;
-	char bigbuf[MAX_BUF];
-	size_t slen = 1;
-
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	/* Set up replyinfo before we modify any of the buffers - this is
-	 * used if we don't find a match. */
-	bigbuf[0] = BINARY_CMD_REPLYINFO;
-	bigbuf[1] = '\0';
-	safe_strcat(bigbuf, buf, &slen, sizeof(bigbuf));
-
-	/* Find the first space, make it NULL, and update the params
-	 * pointer. */
-	for (cp = buf; *cp != '\0'; cp++)
-	{
-		if (*cp == ' ')
-		{
-			*cp = '\0';
-			params = cp + 1;
-			break;
-		}
-	}
-
-	if (!strcmp(buf, "image_info"))
-	{
-		send_image_info(ns, params);
-	}
-	else if (!strcmp(buf, "image_sums"))
-	{
-		send_image_sums(ns, params);
-	}
-	else
-	{
-		Write_String_To_Socket(ns, BINARY_CMD_REPLYINFO, bigbuf, len);
-	}
-}
 
 /**
  * Used to check whether read data is a client command in fill_command_buffer().
@@ -656,6 +605,11 @@ void doeric_server()
 				{
 					fill_command_buffer(&init_sockets[i]);
 				}
+			}
+
+			if (init_sockets[i].status == Ns_Avail)
+			{
+				continue;
 			}
 
 			if (init_sockets[i].status == Ns_Dead)

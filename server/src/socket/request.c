@@ -166,34 +166,7 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		strcat(cmdback, cmd);
 		strcat(cmdback, " ");
 
-		if (!strcmp(cmd, "sound"))
-		{
-			ns->sound = atoi(param);
-			strcat(cmdback, param);
-		}
-		else if (!strcmp(cmd, "darkness"))
-		{
-			ns->darkness = atoi(param);
-			strcat(cmdback, param);
-		}
-		else if (!strcmp(cmd, "map2cmd"))
-		{
-			ns->map2cmd = atoi(param);
-
-			/* If beyond this size, need to use map2cmd no matter what */
-			if (ns->mapx > 11 || ns->mapy > 11)
-			{
-				ns->map2cmd = 1;
-			}
-
-			strcat(cmdback, ns->map2cmd ? "1" : "0");
-		}
-		else if (!strcmp(cmd, "facecache"))
-		{
-			ns->facecache = atoi(param);
-			strcat(cmdback, param);
-		}
-		else if (!strcmp(cmd, "faceset"))
+		if (!strcmp(cmd, "faceset"))
 		{
 			int q = atoi(param);
 
@@ -577,18 +550,6 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 		ns->status = Ns_Zombie;
 		return;
 	}
-}
-
-/**
- * Sound related functions. */
-void SetSound(char *buf, int len, socket_struct *ns)
-{
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	ns->sound = atoi(buf);
 }
 
 /**
@@ -1593,7 +1554,6 @@ void esrv_map_scroll(socket_struct *ns, int dx, int dy)
 	}
 
 	memcpy(&(ns->lastmap), &newmap, sizeof(struct Map));
-	ns->sent_scroll = 1;
 }
 
 /**

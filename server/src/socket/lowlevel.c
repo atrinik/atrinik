@@ -172,29 +172,36 @@ static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t 
 	buffer->next = NULL;
 	buffer->pos = 0;
 
-	if (!ns->buffer_back)
+	if (ns->buffer_front)
 	{
-		ns->buffer_front = ns->buffer_back = buffer;
+		ns->buffer_front->last = buffer;
+		buffer->next = ns->buffer_front;
+		buffer->last = NULL;
+		ns->buffer_front = buffer;
 	}
 	else
 	{
-		ns->buffer_back->next = buffer;
-		ns->buffer_back = buffer;
+		ns->buffer_back = ns->buffer_front = buffer;
+		buffer->next = buffer->last = NULL;
 	}
 }
 
 /**
  * Dequeue data from the socket buffer queue.
- * @param ns Socket we're going to dequeue the first socket buffer from. */
+ * @param ns Socket we're going to dequeue the socket buffer from. */
 static void socket_buffer_dequeue(socket_struct *ns)
 {
-	socket_buffer *tmp = ns->buffer_front;
+	socket_buffer *tmp = ns->buffer_back;
 
-	ns->buffer_front = ns->buffer_front->next;
+	ns->buffer_back = ns->buffer_back->last;
 
-	if (ns->buffer_back == tmp)
+	if (ns->buffer_back)
 	{
-		ns->buffer_back = ns->buffer_back->next;
+		ns->buffer_back->next = NULL;
+	}
+	else
+	{
+		ns->buffer_front = NULL;
 	}
 
 	free(tmp->buf);
@@ -202,7 +209,7 @@ static void socket_buffer_dequeue(socket_struct *ns)
 }
 
 /**
- * Dequeue all socket buffer in the queue.
+ * Dequeue all socket buffers in the queue.
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
@@ -217,63 +224,57 @@ void socket_buffer_clear(socket_struct *ns)
  * @param ns The socket we are writing to. */
 void socket_buffer_write(socket_struct *ns)
 {
-	socket_buffer *tmp, *next;
-	int amt;
+	int amt, max;
 
 	/* Nothing to send? */
-	if (!ns->buffer_front)
+	if (!ns->buffer_back)
 	{
 		return;
 	}
 
-	for (tmp = ns->buffer_front; tmp; tmp = next)
+	while (ns->buffer_back)
 	{
-		next = tmp->next;
+		max = ns->buffer_back->len - ns->buffer_back->pos;
+		amt = send(ns->fd, ns->buffer_back->buf + ns->buffer_back->pos, max, MSG_DONTWAIT);
 
-		do
+#ifndef WIN32
+		if (!amt)
+		{
+			amt = max;
+		}
+		else
+#endif
+		if (amt < 0)
 		{
 #ifdef WIN32
-			amt = send(ns->fd, tmp->buf + tmp->pos, tmp->len, 0);
-#else
-			do
+			if (WSAGetLastError() != WSAEWOULDBLOCK)
 			{
-				amt = write(ns->fd, tmp->buf + tmp->pos, tmp->len);
-			}
-			while (amt < 0 && errno == EINTR);
-#endif
-
-			/* Error. */
-			if (amt < 0)
-			{
-#ifdef WIN32
-				if (WSAGetLastError() != WSAEWOULDBLOCK)
-				{
-					LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
+				LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
 #else
-				if (errno != EWOULDBLOCK)
-				{
-					LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+			if (errno != EWOULDBLOCK)
+			{
+				LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
-					ns->status = Ns_Dead;
-					return;
-				}
-				/* EWOULDBLOCK: We can't write because socket is busy. */
-				else
-				{
-					return;
-				}
+				ns->status = Ns_Dead;
+				return;
 			}
-
-			tmp->pos += amt;
-			tmp->len -= amt;
-#if CS_LOGSTATS
-			cst_tot.obytes += amt;
-			cst_lst.obytes += amt;
-#endif
+			/* EWOULDBLOCK: We can't write because socket is busy. */
+			else
+			{
+				return;
+			}
 		}
-		while (tmp->len > 0);
 
-		socket_buffer_dequeue(ns);
+		ns->buffer_back->pos += amt;
+#if CS_LOGSTATS
+		cst_tot.obytes += amt;
+		cst_lst.obytes += amt;
+#endif
+
+		if (ns->buffer_back->len - ns->buffer_back->pos == 0)
+		{
+			socket_buffer_dequeue(ns);
+		}
 	}
 }
 

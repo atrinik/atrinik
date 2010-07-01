@@ -50,13 +50,13 @@
  * at the price of using a bit of extra memory.
  *
  * It also makes the code simpler. */
-#define MAXSOCKBUF (128 * 1024)
+#define MAXSOCKBUF (64 * 1024)
 
 /**
  * Maximum size of socket input buffer we can read/fill when reading from
  * socket. This is raw data until we sort it out and put it in the player
  * command queue. */
-#define MAXSOCKBUF_IN (2 * 1024)
+#define MAXSOCKBUF_IN (3 * 1024)
 
 /**
  * @defgroup CS_QUERY_xxx Client/server queries
@@ -278,18 +278,6 @@ enum
 #define F_LOCKED        0x8000
 /** @copydoc FLAG_IS_TRAPPED */
 #define F_TRAPPED       0x10000
-/*@}*/
-
-/**
- * @defgroup image_face_modes Image face modes
- * Image face modes.
- * @see SetFaceMode()
- *@{*/
-#define CF_FACE_NONE    0
-#define CF_FACE_BITMAP  1
-#define CF_FACE_XPM     2
-#define CF_FACE_PNG     3
-#define CF_FACE_CACHE   0x10
 /*@}*/
 
 /**
