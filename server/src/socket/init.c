@@ -82,6 +82,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->login_count = 0;
 	ns->addme = 0;
 	ns->faceset = 0;
+	ns->sound = 0;
 	ns->ext_title_flag = 1;
 	ns->status = Ns_Add;
 	ns->mapx = 17;

@@ -107,6 +107,7 @@ static const struct client_cmd_mapping client_commands[] =
 	{"version",     VersionCmd},
 	{"rf",          RequestFileCmd},
 	{"clr", command_clear_cmds},
+	{"setsound", SetSound},
 	{NULL, NULL}
 };
 

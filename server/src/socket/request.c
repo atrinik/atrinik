@@ -166,7 +166,12 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		strcat(cmdback, cmd);
 		strcat(cmdback, " ");
 
-		if (!strcmp(cmd, "faceset"))
+		if (!strcmp(cmd, "sound"))
+		{
+			ns->sound = atoi(param);
+			strcat(cmdback, param);
+		}
+		else if (!strcmp(cmd, "faceset"))
 		{
 			int q = atoi(param);
 
@@ -1679,4 +1684,16 @@ void command_clear_cmds(char *buf, int len, socket_struct *ns)
 
 	ns->cmdbuf.len = 0;
 	ns->cmdbuf.buf[0] = '\0';
+}
+
+/**
+ * Sound related functions. */
+void SetSound(char *buf, int len, socket_struct *ns)
+{
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	ns->sound = atoi(buf);
 }

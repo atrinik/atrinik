@@ -972,7 +972,6 @@ void PlayerCmd(char *buf, int len, player *pl);
 void ReplyCmd(char *buf, int len, player *pl);
 void RequestFileCmd(char *buf, int len, socket_struct *ns);
 void VersionCmd(char *buf, int len, socket_struct *ns);
-void SetSound(char *buf, int len, socket_struct *ns);
 void MapNewmapCmd(player *pl);
 void MoveCmd(char *buf, int len, player *pl);
 void send_query(socket_struct *ns, uint8 flags, char *text);
@@ -986,6 +985,7 @@ void esrv_map_scroll(socket_struct *ns, int dx, int dy);
 void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
 void command_clear_cmds(char *buf, int len, socket_struct *ns);
+void SetSound(char *buf, int len, socket_struct *ns);
 
 /* socket/sounds.c */
 void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, int y);
