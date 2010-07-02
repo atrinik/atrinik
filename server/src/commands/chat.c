@@ -923,14 +923,14 @@ static int basic_emote(object *op, char *params, int emotion)
 			if (get_rangevector(op, CONTR(op)->target_object, &rv, 0) && rv.distance <= 4)
 			{
 				emote_other(op, CONTR(op)->target_object, NULL, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
-				new_draw_info(NDI_UNIQUE, op, buf);
+				new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf);
 
 				if (CONTR(op)->target_object->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE | NDI_YELLOW, CONTR(op)->target_object, buf2);
+					new_draw_info(NDI_YELLOW | NDI_PLAYER, CONTR(op)->target_object, buf2);
 				}
 
-				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, CONTR(op)->target_object, buf3);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, CONTR(op)->target_object, buf3);
 				return 0;
 			}
 
@@ -949,11 +949,15 @@ static int basic_emote(object *op, char *params, int emotion)
 		}
 
 		emote_no_target(op, buf, sizeof(buf), buf2, sizeof(buf2), emotion);
-		new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, op, buf2);
+			new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf2);
+		}
+		else
+		{
+			new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
 
 		return 0;
@@ -964,11 +968,11 @@ static int basic_emote(object *op, char *params, int emotion)
 		if (emotion == EMOTE_ME)
 		{
 			snprintf(buf, sizeof(buf), "%s %s", op->name, params);
-			new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 			if (op->type == PLAYER)
 			{
-				new_draw_info(NDI_UNIQUE, op, buf);
+				new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf);
 			}
 
 			return 0;
@@ -981,8 +985,8 @@ static int basic_emote(object *op, char *params, int emotion)
 			if (op->type == PLAYER && strcmp(op->name, params) == 0)
 			{
 				emote_self(op, buf, sizeof(buf), buf2, sizeof(buf2), emotion);
-				new_draw_info(NDI_UNIQUE, op, buf);
-				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
+				new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 				return 0;
 			}
 
@@ -997,14 +1001,14 @@ static int basic_emote(object *op, char *params, int emotion)
 					if (op->type == PLAYER)
 					{
 						emote_other(op, pl->ob, NULL, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
-						new_draw_info(NDI_UNIQUE, op, buf);
-						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
-						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, pl->ob, buf3);
+						new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf);
+						new_draw_info(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, pl->ob, buf2);
+						new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, pl->ob, buf3);
 					}
 					else
 					{
 						emote_other(op, NULL, params, buf, sizeof(buf), buf2, sizeof(buf2), buf3, sizeof(buf3), emotion);
-						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
+						new_draw_info(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, pl->ob, buf2);
 						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, pl->ob, buf3);
 					}
 				}
@@ -1019,8 +1023,8 @@ static int basic_emote(object *op, char *params, int emotion)
 			if (op->type == PLAYER)
 			{
 				emote_self(op, buf, sizeof(buf), buf2, sizeof(buf2), -1);
-				new_draw_info(NDI_UNIQUE, op, buf);
-				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
+				new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 			}
 			else
 			{
