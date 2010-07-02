@@ -1,10 +1,15 @@
 #ifndef __CPROTO__
+/* client/animations.c */
+int read_anim_tmp();
+void read_anims();
+
 /* client/client.c */
 void DoClient();
 void SockList_Init(SockList *sl);
 void SockList_AddChar(SockList *sl, char c);
 void SockList_AddShort(SockList *sl, uint16 data);
 void SockList_AddInt(SockList *sl, uint32 data);
+void SockList_AddString(SockList *sl, char *data);
 int GetInt_String(const unsigned char *data);
 sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
@@ -19,10 +24,8 @@ void BookCmd(unsigned char *data, int len);
 void PartyCmd(unsigned char *data, int len);
 void SoundCmd(unsigned char *data, int len);
 void SetupCmd(char *buf, int len);
-void Face1Cmd(unsigned char *data, int len);
 void AddMeFail(unsigned char *data, int len);
 void AddMeSuccess(unsigned char *data, int len);
-void GoodbyeCmd(unsigned char *data, int len);
 void AnimCmd(unsigned char *data, int len);
 void ImageCmd(unsigned char *data, int len);
 void SkillRdyCmd(char *data, int len);
@@ -39,7 +42,6 @@ void ItemYCmd(unsigned char *data, int len);
 void UpdateItemCmd(unsigned char *data, int len);
 void DeleteItem(unsigned char *data, int len);
 void DeleteInventory(unsigned char *data);
-void QuickSlotCmd(char *data);
 void Map2Cmd(unsigned char *data, int len);
 void MagicMapCmd(unsigned char *data, int len);
 void VersionCmd(char *data);
@@ -68,6 +70,12 @@ void ignore_list_clear();
 void ignore_list_load();
 int ignore_check(char *name, char *type);
 void ignore_command(char *cmd);
+
+/* client/image.c */
+void read_bmaps_p0();
+void delete_bmap_tmp();
+int read_bmap_tmp();
+void read_bmaps();
 
 /* client/item.c */
 void init_item_types();
@@ -98,43 +106,10 @@ void list_vid_modes();
 int main(int argc, char *argv[]);
 
 /* client/menu.c */
-void do_console();
 int client_command_check(char *cmd);
-void show_help(char *helpname);
-void do_number();
-void do_keybind_input();
-void widget_show_resist(widgetdata *widget);
 void blt_inventory_face_from_tag(int tag, int x, int y);
 void show_menu();
-int init_media_tag(char *tag);
 void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y);
-int read_anim_tmp();
-void read_anims();
-void read_bmaps_p0();
-void delete_bmap_tmp();
-int read_bmap_tmp();
-void read_bmaps();
-void delete_server_chars();
-void load_settings();
-void read_settings();
-void read_spells();
-void free_help_files();
-void read_help_files();
-void read_skills();
-void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent);
-void widget_number_event(widgetdata *widget, int x, int y);
-void widget_show_console(widgetdata *widget);
-void widget_show_number(widgetdata *widget);
-void widget_show_mapname(widgetdata *widget);
-void widget_show_range(widgetdata *widget);
-void widget_event_target(widgetdata *widget, int x, int y);
-void widget_show_target(widgetdata *widget);
-int get_quickslot(int x, int y);
-void show_quickslots(int x, int y, int vertical_quickslot);
-void widget_quickslots(widgetdata *widget);
-void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent);
-void update_quickslots(int del_item);
-void widget_show_fps(widgetdata *widget);
 
 /* client/metaserver.c */
 void metaserver_init();
@@ -195,6 +170,11 @@ void script_killall();
 void script_autoload();
 void script_unload(const char *params);
 
+/* client/server_settings.c */
+void load_settings();
+void read_settings();
+void delete_server_chars();
+
 /* client/socket.c */
 void command_buffer_free(command_buffer *buf);
 int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
@@ -219,6 +199,7 @@ int sound_play_effect(int soundid, int pan, int vol);
 void sound_play_one_repeat(int soundid, int special_id);
 void sound_play_music(char *fname, int vol, int fade, int loop, int mode);
 void sound_fadeout_music(int i);
+int init_media_tag(char *tag);
 
 /* client/sprite.c */
 void sprite_init_system();
@@ -308,6 +289,22 @@ void show_login_server();
 /* gui/create_character.c */
 void show_newplayer_server();
 
+/* gui/fps.c */
+void widget_show_fps(widgetdata *widget);
+
+/* gui/help.c */
+void free_help_files();
+void read_help_files();
+void show_help(char *helpname);
+
+/* gui/input.c */
+void widget_number_event(widgetdata *widget, int x, int y);
+void widget_show_console(widgetdata *widget);
+void widget_show_number(widgetdata *widget);
+void do_number();
+void do_keybind_input();
+void do_console();
+
 /* gui/inventory.c */
 int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
 void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
@@ -329,6 +326,7 @@ int key_meta_menu(SDL_KeyboardEvent *key);
 
 /* gui/map.c */
 void load_mapdef_dat();
+void widget_show_mapname(widgetdata *widget);
 void clear_map();
 void display_mapscroll(int dx, int dy);
 void map_draw_map_clear();
@@ -365,8 +363,21 @@ char *shop_show_input(char *text, struct _Font *font, int wlen, int append_under
 int shop_price2int(char *text);
 char *shop_int2price(int value);
 
+/* gui/protections.c */
+void widget_show_resist(widgetdata *widget);
+
 /* gui/quickslots.c */
 void quickslot_key(SDL_KeyboardEvent *key, int slot);
+int get_quickslot(int x, int y);
+void show_quickslots(int x, int y, int vertical_quickslot);
+void widget_quickslots(widgetdata *widget);
+void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent);
+void update_quickslots(int del_item);
+void QuickSlotCmd(unsigned char *data, int len);
+
+/* gui/range.c */
+void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent);
+void widget_show_range(widgetdata *widget);
 
 /* gui/settings.c */
 void optwin_draw_options(int x, int y);
@@ -374,9 +385,16 @@ void show_optwin();
 
 /* gui/skill_list.c */
 void show_skilllist();
+void read_skills();
 
 /* gui/spell_list.c */
 void show_spelllist();
+void read_spells();
+int find_spell(const char *name, int *spell_group, int *spell_class, int *spell_nr);
+
+/* gui/target.c */
+void widget_event_target(widgetdata *widget, int x, int y);
+void widget_show_target(widgetdata *widget);
 
 /* gui/textwin.c */
 void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY);

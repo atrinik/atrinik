@@ -349,3 +349,39 @@ void read_spells()
 
 	LOG(llevDebug, " Done.\n");
 }
+
+/**
+ * Find a spell in the ::spell_list based on its name.
+ * @param name Spell name to find.
+ * @param[out] spell_group Will contain the spell's group.
+ * @param[out] spell_class Will contain the spell's class.
+ * @param[out] spell_nr Will contain the spell's nr.
+ * @return 1 if the spell was found, 0 otherwise. */
+int find_spell(const char *name, int *spell_group_out, int *spell_class_out, int *spell_nr_out)
+{
+	int spell_group, spell_class, spell_nr;
+
+	for (spell_group = 0; spell_group < SPELL_LIST_MAX; spell_group++)
+	{
+		for (spell_class = 0; spell_class < SPELL_LIST_CLASS; spell_class++)
+		{
+			for (spell_nr = 0; spell_nr < DIALOG_LIST_ENTRY; spell_nr++)
+			{
+				if (spell_list[spell_group].entry[spell_class][spell_nr].flag == LIST_ENTRY_UNUSED)
+				{
+					continue;
+				}
+
+				if (!strcmp(spell_list[spell_group].entry[spell_class][spell_nr].name, name))
+				{
+					*spell_group_out = spell_group;
+					*spell_class_out = spell_class;
+					*spell_nr_out = spell_nr;
+					return 1;
+				}
+			}
+		}
+	}
+
+	return 0;
+}

@@ -1396,55 +1396,6 @@ void DeleteInventory(unsigned char *data)
 }
 
 /**
- * Parses data returned by the server for quickslots.
- * First, it assigns all quickslots default values,
- * then it goes through the data, line-by-line and
- * assigns values from the server.
- * @param data The data to parse */
-void QuickSlotCmd(char *data)
-{
-	char *p, *buf;
-	int tag, slot, i, group_nr, class_nr;
-
-	buf = (char *)malloc(strlen(data) + 1);
-
-	sprintf(buf, "%s", data);
-
-	p = strtok(buf, "\n");
-
-	for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
-	{
-		quick_slots[i].spell = 0;
-		quick_slots[i].tag = -1;
-		quick_slots[i].classNr = 0;
-		quick_slots[i].spellNr = 0;
-		quick_slots[i].groupNr = 0;
-	}
-
-	while (p)
-	{
-		/* Item */
-		if (p[0] == 'i' && sscanf(p, "i %d %d", &tag, &slot))
-		{
-			quick_slots[slot - 1].tag = tag;
-		}
-		/* Spell */
-		else if (p[0] == 's' && sscanf(p, "s %d %d %d %d", &slot, &group_nr, &class_nr, &tag))
-		{
-			quick_slots[slot - 1].spell = 1;
-			quick_slots[slot - 1].groupNr = group_nr;
-			quick_slots[slot - 1].classNr = class_nr;
-			quick_slots[slot - 1].spellNr = tag;
-			quick_slots[slot - 1].tag = tag;
-		}
-
-		p = strtok(NULL, "\n");
-	}
-
-	free(buf);
-}
-
-/**
  * Map2 command.
  * @param data The incoming data
  * @param len Length of the data */

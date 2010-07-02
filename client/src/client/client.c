@@ -135,7 +135,7 @@ struct CmdMapping commands[] =
 	{"itemy", ItemYCmd, MIXED},
 	{"book", BookCmd, ASCII},
 	{"pt", PartyCmd, ASCII},
-	{"qs", (CmdProc) QuickSlotCmd, ASCII},
+	{"qs", QuickSlotCmd, ASCII},
 	{"shop", ShopCmd, ASCII},
 	{"qlist", QuestListCmd, ASCII},
 
@@ -209,6 +209,39 @@ void SockList_AddInt(SockList *sl, uint32 data)
 	sl->buf[sl->len++] = (data >> 16) & 0xff;
 	sl->buf[sl->len++] = (data >> 8) & 0xff;
 	sl->buf[sl->len++] = data & 0xff;
+}
+
+/**
+ * Add an unterminated string.
+ * @param sl SockList instance to add to.
+ * @param data The string to add. */
+void SockList_AddString(SockList *sl, char *data)
+{
+	char c;
+
+	while ((c = *data++))
+	{
+		sl->buf[sl->len] = c;
+		sl->len++;
+	}
+}
+
+/**
+ * Add a NULL terminated string.
+ * @param sl SockList instance to add to.
+ * @param data The string to add. */
+void SockList_AddStringTerminated(SockList *sl, char *data)
+{
+	char c;
+
+	while ((c = *data++))
+	{
+		sl->buf[sl->len] = c;
+		sl->len++;
+	}
+
+	sl->buf[sl->len] = c;
+	sl->len++;
 }
 
 /**
