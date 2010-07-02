@@ -1362,80 +1362,96 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
 }
 
 /**
+ * Actually identify an object when casting identify.
+ * @param tmp What to identify.
+ * @param op Who is receiving the spell effect.
+ * @param mode One of @ref identify_modes.
+ * @param[out] done Contains the number of objects identified so far.
+ * @param level Maximum level of items we can identify.
+ * @return 1 if we can keep identifying items, 0 otherwise. */
+int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
+{
+	if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) || IS_SYS_INVISIBLE(tmp) || !need_identify(tmp))
+	{
+		return 1;
+	}
+
+	if (level < tmp->level)
+	{
+		if (op->type == PLAYER)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "The %s is too powerful for this identify!", query_base_name(tmp, NULL));
+		}
+	}
+	else
+	{
+		identify(tmp);
+
+		if (op->type == PLAYER)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "You have %s.", long_desc(tmp, NULL));
+
+			if (tmp->msg)
+			{
+				new_draw_info(NDI_UNIQUE, op, "The item has a story:");
+				new_draw_info(NDI_UNIQUE, op, tmp->msg);
+			}
+		}
+
+		*done += 1;
+	}
+
+	if (mode == IDENTIFY_MODE_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level + op->stats.Int)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+/**
  * Cast identify spell.
- * @param op Caster.
+ * @param op Object receiving the spell effects.
  * @param level Level of the identification.
- * @param single_ob If mode is IDENTIFY_MODE_MARKED, only this object will
- * be identified.
+ * @param single_ob If set, and mode is @ref IDENTIFY_MODE_MARKED, only
+ * this object will be identified, otherwise contents of this object.
+ * If NULL, the inventory of 'op' will be identified.
  * @param mode One of @ref identify_modes.
  * @return Number of objects identified. */
 int cast_identify(object *op, int level, object *single_ob, int mode)
 {
-	object *tmp = op->inv;
-	int success = 0, success2 = 0;
-	int chance = 8 + op->stats.Wis;
+	int done = 0;
 
-	if (chance < 1)
-	{
-		chance = 1;
-	}
+	insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
 
 	if (mode == IDENTIFY_MODE_MARKED)
 	{
-		tmp = single_ob;
+		do_cast_identify(single_ob, op, mode, &done, level);
 	}
 	else
 	{
-		insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
-	}
+		object *tmp = op->inv;
 
-	for ( ; tmp; tmp = tmp->below)
-	{
-		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED) && !IS_SYS_INVISIBLE(tmp) && need_identify(tmp))
+		if (single_ob && single_ob->type == CONTAINER)
 		{
-			success2++;
-
-			if (level < tmp->level)
-			{
-				if (op->type == PLAYER)
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "The %s is too powerful for this identify!", query_base_name(tmp, NULL));
-				}
-			}
-			else
-			{
-				identify(tmp);
-
-				if (op->type == PLAYER)
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "You have %s.", long_desc(tmp, NULL));
-
-					if (tmp->msg)
-					{
-						new_draw_info(NDI_UNIQUE, op, "The item has a story:");
-						new_draw_info(NDI_UNIQUE, op, tmp->msg);
-					}
-				}
-
-				if (mode == IDENTIFY_MODE_NORMAL && rndm(0, chance - 1) > (chance - ++success - 2))
-				{
-					break;
-				}
-			}
+			tmp = single_ob->inv;
 		}
 
-		if (mode == IDENTIFY_MODE_MARKED)
+		for ( ; tmp; tmp = tmp->below)
 		{
-			break;
+			if (!do_cast_identify(tmp, op, mode, &done, level))
+			{
+				break;
+			}
 		}
 	}
 
-	if (op->type == PLAYER && (!success && !success2))
+	if (op->type == PLAYER && !done)
 	{
 		new_draw_info(NDI_UNIQUE, op, "You can't reach anything unidentified in your inventory.");
 	}
 
-	return success2;
+	return done;
 }
 
 /**

@@ -1748,52 +1748,39 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.IdentifyItem(<i>\<object\></i> target, <i>\<object\></i>
- * marked, <i>\<long\></i> mode)</h1>
- *
- * Object identifies object(s) in target's inventory.
- *
- * @param target The target object
- * @param marked Marked object. Only use if mode is
- * Atrinik.IDENTIFY_MARKED, otherwise use None.
+ * <h1>object.IdentifyItem(\<object\> target, \<int\> mode, [object] marked)</h1>
+ * Identify item(s) in target's inventory.
+ * @param target The target object.
  * @param mode Possible modes:
- * - <b>Atrinik.IDENTIFY_NORMAL</b>: Normal identify
- * - <b>Atrinik.IDENTIFY_ALL</b>: Identify all items
- * - <b>Atrinik.IDENTIFY_MARKED</b>: Identify only marked item */
+ * - <b>Atrinik.IDENTIFY_NORMAL</b>: Normal identify.
+ * - <b>Atrinik.IDENTIFY_ALL</b>: Identify all items, if 'marked' is set,
+ *   all items inside that.
+ * - <b>Atrinik.IDENTIFY_MARKED</b>: Identify only marked item.
+ * @param marked Marked item. */
 static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *target;
-	PyObject *ob;
-	object *marked = NULL;
-	long mode;
+	PyObject *marked = NULL;
+	object *ob = NULL;
+	int mode;
 
-	if (!PyArg_ParseTuple(args, "O!Ol", &Atrinik_ObjectType, &target, &ob, &mode))
+	if (!PyArg_ParseTuple(args, "O!i|O", &Atrinik_ObjectType, &target, &mode, &marked))
 	{
 		return NULL;
 	}
 
-	if (mode == 2)
+	if (marked && marked != Py_None)
 	{
-		if (!PyObject_TypeCheck(ob, &Atrinik_ObjectType))
+		if (!PyObject_TypeCheck(marked, &Atrinik_ObjectType))
 		{
-			RAISE("Parameter 2 must be a Atrinik.Object for mode IDENTIFY_MARKED");
+			PyErr_SetString(PyExc_TypeError, "Must be Atrinik.Object");
+			return NULL;
 		}
 
-		marked = ((Atrinik_Object *) ob)->obj;
-	}
-	else if (mode == 0 || mode == 1)
-	{
-		if (ob != Py_None)
-		{
-			RAISE("Parameter 2 must be None for modes IDENTIFY_NORMAL and IDENTIFY_ALL");
-		}
-	}
-	else
-	{
-		RAISE("Mode must be IDENTIFY_NORMAL, IDENTIFY_ALL or IDENTIFY_MARKED");
+		ob = ((Atrinik_Object *) marked)->obj;
 	}
 
-	hooks->cast_identify(target->obj, WHO->level, marked, mode);
+	hooks->cast_identify(target->obj, WHO->level, ob, mode);
 
 	if (WHO)
 	{
