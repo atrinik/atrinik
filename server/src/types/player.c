@@ -194,6 +194,11 @@ static player *get_player(player *p)
 		p->known_spells[i] = -1;
 	}
 
+	for (i = 0; i < MAX_QUICKSLOT; i++)
+	{
+		p->spell_quickslots[i] = SP_NO_SPELL;
+	}
+
 	p->chosen_spell = -1;
 
 	/* We need to clear these to -1 and not zero - otherwise, if a player

@@ -861,7 +861,7 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	if (spell < 0 || spell > NROFREALSPELLS)
+	if (spell < 0 || spell >= NROFREALSPELLS)
 	{
 		RAISE("Invalid ID of a spell.");
 	}

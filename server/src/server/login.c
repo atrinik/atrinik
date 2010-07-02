@@ -241,6 +241,14 @@ int save_player(object *op, int flag)
 		}
 	}
 
+	for (i = 0; i < MAX_QUICKSLOT; i++)
+	{
+		if (pl->spell_quickslots[i] != SP_NO_SPELL)
+		{
+			fprintf(fp, "spell_quickslot %d %d\n", i, pl->spell_quickslots[i]);
+		}
+	}
+
 	fprintf(fp, "endplst\n");
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -606,6 +614,18 @@ void check_login(object *op)
 			pl->num_cmd_permissions++;
 			pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
 			pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup_local(cp);
+		}
+		else if (!strcmp(buf, "spell_quickslot"))
+		{
+			char *cp = strrchr(bufall, ' ');
+			sint16 spell_id = atoi(cp + 1);
+
+			if (spell_id < 0 || spell_id >= NROFREALSPELLS)
+			{
+				LOG(llevDebug, "BUG: check_login(): Bogus spell ID (#%d) in %s\n", spell_id, filename);
+			}
+
+			pl->spell_quickslots[value] = spell_id;
 		}
 	}
 

@@ -442,4 +442,26 @@ enum
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
 
+/**
+ * @defgroup CMD_QUICKSLOT_xxx Quickslot commands
+ * The various quickslot commands.
+ *@{*/
+/** Set an item as a quickslot. Uses object::quickslot. */
+#define CMD_QUICKSLOT_SET 1
+/** Set a spell as a quickslot. Uses player::spell_quickslots. */
+#define CMD_QUICKSLOT_SETSPELL 2
+/** Unset a quickslot, be it spell or item. */
+#define CMD_QUICKSLOT_UNSET 3
+/*@}*/
+
+/**
+ * @defgroup QUICKSLOT_TYPE_xxx Quickslot data types
+ * Quickslot data types.
+ *@{*/
+/** Item quickslot. */
+#define QUICKSLOT_TYPE_ITEM 1
+/** Spell quickslot. */
+#define QUICKSLOT_TYPE_SPELL 2
+/*@}*/
+
 #endif

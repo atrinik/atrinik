@@ -66,7 +66,7 @@ void apply_spellbook(object *op, object *tmp)
 		return;
 	}
 
-	if (tmp->stats.sp < 0 || tmp->stats.sp > NROFREALSPELLS || spells[tmp->stats.sp].level > (SK_level(op) + 10))
+	if (tmp->stats.sp < 0 || tmp->stats.sp >= NROFREALSPELLS || spells[tmp->stats.sp].level > (SK_level(op) + 10))
 	{
 		new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
 		return;

@@ -232,7 +232,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
  * @return The spell from the ::spells array, NULL if not found. */
 spell *find_spell(int spelltype)
 {
-	if (spelltype < 0 || spelltype > NROFREALSPELLS)
+	if (spelltype < 0 || spelltype >= NROFREALSPELLS)
 	{
 		return NULL;
 	}

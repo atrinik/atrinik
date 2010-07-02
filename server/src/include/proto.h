@@ -939,7 +939,7 @@ void esrv_del_item(player *pl, int tag, object *cont);
 object *esrv_get_ob_from_count(object *pl, tag_t count);
 void ExamineCmd(char *buf, int len, player *pl);
 void send_quickslots(player *pl);
-void QuickSlotCmd(char *buf, int len, player *pl);
+void QuickSlotCmd(uint8 *buf, int len, player *pl);
 void ApplyCmd(char *buf, int len, player *pl);
 void LockItem(uint8 *data, int len, player *pl);
 void MarkItem(uint8 *data, int len, player *pl);

@@ -143,6 +143,9 @@ enum
 #define PLAYER_AFLAG_ADDFRAME   4
 /*@}*/
 
+/** Maximum quickslots allowed. */
+#define MAX_QUICKSLOT 32
+
 #ifdef WIN32
 #pragma pack(push,1)
 #endif
@@ -481,6 +484,9 @@ typedef struct pl_player
 
 	/** Total item power of objects equipped. */
 	sint16 item_power;
+
+	/** IDs of spell quickslots. */
+	sint16 spell_quickslots[MAX_QUICKSLOT];
 
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFATTACKS];

@@ -46,9 +46,6 @@ static int check_container(object *pl, object *con);
 /** This is the maximum number of bytes we expect any item to take up. */
 #define MAXITEMLEN 300
 
-/** Maximum quickslots allowed. */
-#define MAX_QUICKSLOT 32
-
 /**
  * This is a similar to query_name, but returns flags to be sent to
  * client.
@@ -778,17 +775,16 @@ void ExamineCmd(char *buf, int len, player *pl)
 }
 
 /**
- * Go through object's inventory and find any quickslot match with slot.
- *
- * If match is found, if the object is a player info, remove it,
- * otherwise just set the quickslot to 0.
+ * Remove any quickslots of player 'pl' matching slot 'slot'.
  * @param slot ID of the quickslot to look for.
- * @param ob Inside what object's inventory to search in. */
-static void remove_quickslot(int slot, object *ob)
+ * @param pl Inside which player to search in. */
+static void remove_quickslot(uint8 slot, player *pl)
+{
+if (pl->socket.socket_version < 1037)
 {
 	object *tmp;
 
-	for (tmp = ob->inv; tmp; tmp = tmp->below)
+	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->quickslot && tmp->quickslot == slot)
 		{
@@ -803,11 +799,32 @@ static void remove_quickslot(int slot, object *ob)
 		}
 	}
 }
+else
+{
+	object *tmp;
+
+	if (pl->spell_quickslots[slot - 1] != SP_NO_SPELL)
+	{
+		pl->spell_quickslots[slot - 1] = SP_NO_SPELL;
+		return;
+	}
+
+	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->quickslot && tmp->quickslot == slot)
+		{
+			tmp->quickslot = 0;
+		}
+	}
+}
+}
 
 /**
  * Send quickslots to player.
  * @param pl Player to send the quickslots to. */
 void send_quickslots(player *pl)
+{
+if (pl->socket.socket_version < 1037)
 {
 	char tmp[HUGE_BUF * 12], tmpbuf[MAX_BUF];
 	object *op;
@@ -841,18 +858,48 @@ void send_quickslots(player *pl)
 		Write_String_To_Socket(&pl->socket, BINARY_CMD_QUICKSLOT, tmp, strlen(tmp));
 	}
 }
+else
+{
+	SockList sl;
+	unsigned char buf[MAXSOCKBUF];
+	object *tmp;
+	uint8 i;
+
+	sl.buf = buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_QUICKSLOT);
+
+	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->quickslot)
+		{
+			SockList_AddChar(&sl, QUICKSLOT_TYPE_ITEM);
+			SockList_AddChar(&sl, tmp->quickslot - 1);
+			SockList_AddInt(&sl, tmp->count);
+		}
+	}
+
+	for (i = 0; i < MAX_QUICKSLOT; i++)
+	{
+		if (pl->spell_quickslots[i] != SP_NO_SPELL)
+		{
+			SockList_AddChar(&sl, QUICKSLOT_TYPE_SPELL);
+			SockList_AddChar(&sl, i);
+			SockList_AddString(&sl, spells[pl->spell_quickslots[i]].name);
+		}
+	}
+
+	Send_With_Handling(&pl->socket, &sl);
+}
+}
 
 /**
- * Quick slot command. The quickslot system works like this:
- *  - For spells: Players adds the spell to their quickslot, client sends
- *    data to store that information. The information is stored in a
- *    player_info inside player's inventory.
- *  - For items: Same as spells, except the information is instead stored
- *    inside the object's object::quickslot field.
+ * Quick slot command.
  * @param buf Data.
- * @param len Unused.
+ * @param len Length of 'buf'.
  * @param pl Player. */
-void QuickSlotCmd(char *buf, int len, player *pl)
+void QuickSlotCmd(uint8 *buf, int len, player *pl)
+{
+if (pl->socket.socket_version < 1037)
 {
 	long tag;
 	object *op;
@@ -865,14 +912,14 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 	}
 
 	/* Set command. We want to set an object's quickslot */
-	if (strncmp(buf, "set ", 4) == 0)
+	if (strncmp((char *) buf, "set ", 4) == 0)
 	{
 		buf += 4;
 
 		/* Get the slot ID */
-		quickslot = atoi(buf);
+		quickslot = atoi((char *) buf);
 
-		if (!(cp = strchr(buf, ' ')))
+		if (!(cp = strchr((char *) buf, ' ')))
 		{
 			return;
 		}
@@ -890,22 +937,22 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 		}
 
 		/* First, find any old items/spells for this quickslot */
-		remove_quickslot(quickslot, pl->ob);
+		remove_quickslot(quickslot, pl);
 
 		/* Then set this item a new quickslot ID */
 		op->quickslot = quickslot;
 	}
 	/* Bit different logic for spell quickslots */
-	else if (strncmp(buf, "setspell ", 9) == 0)
+	else if (strncmp((char *) buf, "setspell ", 9) == 0)
 	{
 		buf += 9;
 
 		/* Get the slot ID */
-		quickslot = atoi(buf);
+		quickslot = atoi((char *) buf);
 		snprintf(tmpbuf, sizeof(tmpbuf), "%d", quickslot);
 		buf += strlen(tmpbuf);
 
-		if (!(cp = strchr(buf, ' ')))
+		if (!(cp = strchr((char *) buf, ' ')))
 		{
 			return;
 		}
@@ -916,7 +963,7 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 			return;
 		}
 
-		remove_quickslot(quickslot, pl->ob);
+		remove_quickslot(quickslot, pl);
 		replace_unprintable_chars(cp);
 
 		/* Create a new player_info */
@@ -927,12 +974,81 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 		insert_ob_in_ob(op, pl->ob);
 	}
 	/* Unset command. */
-	else if (strncmp(buf, "unset ", 6) == 0)
+	else if (strncmp((char *) buf, "unset ", 6) == 0)
 	{
 		buf += 6;
 
-		remove_quickslot(atoi(buf), pl->ob);
+		remove_quickslot(atoi((char *) buf), pl);
 	}
+}
+else
+{
+	uint8 command, quickslot;
+
+	if (!buf || len < 2)
+	{
+		return;
+	}
+
+	command = buf[0];
+	quickslot = buf[1];
+
+	if (quickslot < 1 || quickslot > MAX_QUICKSLOT)
+	{
+		return;
+	}
+
+	if (command == CMD_QUICKSLOT_SET)
+	{
+		tag_t tag;
+		object *op;
+
+		if (len < 6)
+		{
+			return;
+		}
+
+		tag = GetInt_String(buf + 2);
+		op = esrv_get_ob_from_count(pl->ob, tag);
+
+		if (!op)
+		{
+			return;
+		}
+
+		remove_quickslot(quickslot, pl);
+		op->quickslot = quickslot;
+	}
+	else if (command == CMD_QUICKSLOT_SETSPELL)
+	{
+		sint16 spell_id;
+
+		/* Assumes that all spells have at least 2 letters. */
+		if (len < 4)
+		{
+			return;
+		}
+
+		spell_id = look_up_spell_name((char *) buf + 2);
+
+		if (spell_id == SP_NO_SPELL)
+		{
+			return;
+		}
+
+		remove_quickslot(quickslot, pl);
+		pl->spell_quickslots[quickslot - 1] = spell_id;
+	}
+	else if (command == CMD_QUICKSLOT_UNSET)
+	{
+		remove_quickslot(quickslot, pl);
+	}
+	else
+	{
+		LOG(llevDebug, "CRACK: Client %s@%s sent invalid quickslot command.\n", pl->ob->name, pl->socket.host);
+		pl->socket.status = Ns_Dead;
+	}
+}
 }
 
 /**
