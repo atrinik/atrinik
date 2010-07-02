@@ -50,6 +50,12 @@ def main():
 			me.SayTo(activator, "\nYou already know the spell {0}.".format(sp["spell"]))
 			return
 
+		sp_info = GetSpell(sp_nr)
+
+		if activator.GetSkill(0, skill).level < sp_info["level"]:
+			me.SayTo(activator, "\nBut it seems that your wizardry spells skill is too low level!\n{0} requires at least level {1} wizardry spells.".format(sp["spell"].capitalize(), sp_info["level"]))
+			return
+
 		if activator.PayAmount(sp["cost"]) == 1:
 			activator.Write("\nYou hand over {0} to {1}.".format(me.ShowCost(sp["cost"]), me.name), COLOR_YELLOW)
 			me.SayTo(activator, "\nHere we go!")
@@ -66,7 +72,7 @@ def main():
 			return
 
 		sp = l[0]
-		me.SayTo(activator, "\n{0}\n{1} will cost you {2}. Do you want to ^learn {3}^?".format(sp["msg"], sp["spell"].capitalize(), me.ShowCost(sp["cost"]), sp["spell"]))
+		me.SayTo(activator, "\n{0}\nIt requires level {1} wizardry spells to use.\n{2} will cost you {3}. Do you want to ^learn {4}^?".format(sp["msg"], GetSpell(GetSpellNr(sp["spell"]))["level"], sp["spell"].capitalize(), me.ShowCost(sp["cost"]), sp["spell"]))
 
 
 main()
