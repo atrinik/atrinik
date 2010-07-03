@@ -73,7 +73,7 @@ static int scrolldx = 0, scrolldy = 0;
  * @param len Length of the data */
 void BookCmd(unsigned char *data, int len)
 {
-	sound_play_effect(SOUND_BOOK, 0, 100);
+	sound_play_effect(SOUND_BOOK, 100);
 	cpl.menustatus = MENU_BOOK;
 
 	data += 4;
@@ -114,27 +114,19 @@ void SoundCmd(unsigned char *data,  int len)
 	num = GetShort_String(data + 2);
 	type = data[4];
 
+	if (num < 0 || num >= SOUND_MAX)
+	{
+		LOG(llevError, "Got invalid sound id: %d\n", num);
+		return;
+	}
+
 	if (type == SOUND_SPELL)
 	{
-		if (num < 0 || num >= SPELL_SOUND_MAX)
-		{
-			LOG(llevError, "Got invalid spell sound id: %d\n", num);
-			return;
-		}
-
 		/* This maps us to the spell sound table part */
-		num += SOUND_MAX;
-	}
-	else
-	{
-		if (num < 0 || num >= SOUND_MAX)
-		{
-			LOG(llevError, "Got invalid sound id: %d\n", num);
-			return;
-		}
+		num += SOUND_MAGIC_DEFAULT;
 	}
 
-	calculate_map_sound(num, x, y);
+	sound_play_map_effect(num, x, y);
 }
 
 /**
@@ -589,9 +581,9 @@ void TargetObject(unsigned char *data, int len)
 	cpl.target_mode = *data++;
 
 	if (cpl.target_mode)
-		sound_play_effect(SOUND_WEAPON_ATTACK, 0, 100);
+		sound_play_effect(SOUND_WEAPON_ATTACK, 100);
 	else
-		sound_play_effect(SOUND_WEAPON_HOLD, 0, 100);
+		sound_play_effect(SOUND_WEAPON_HOLD, 100);
 
 	cpl.target_color = *data++;
 	cpl.target_code = *data++;
@@ -1472,12 +1464,12 @@ void Map2Cmd(unsigned char *data, int len)
 
 				if (step % 2)
 				{
-					sound_play_effect(SOUND_STEP1, 0, 100);
+					sound_play_effect(SOUND_STEP1, 100);
 				}
 				else
 				{
 					step = 0;
-					sound_play_effect(SOUND_STEP2, 0, 100);
+					sound_play_effect(SOUND_STEP2, 100);
 				}
 
 				tick = LastTick;
@@ -2068,7 +2060,7 @@ void ShopCmd(unsigned char *data, int len)
  * @param len Length of the data. */
 void QuestListCmd(unsigned char *data, int len)
 {
-	sound_play_effect(SOUND_BOOK, 0, 100);
+	sound_play_effect(SOUND_BOOK, 100);
 	cpl.menustatus = MENU_BOOK;
 
 	data += 4;

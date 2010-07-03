@@ -87,15 +87,7 @@ typedef signed char sint8;
 
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 
-/* Just so that the entries in proto.h don't error on this... */
-#ifndef INSTALL_SOUND
-#define Mix_Chunk int
-#define Mix_Music int
-#endif
-
-#ifdef INSTALL_SOUND
-#	include <SDL_mixer.h>
-#endif
+#include <SDL_sound.h>
 
 #ifdef WIN32
 #	include "win32.h"
@@ -156,11 +148,6 @@ typedef enum LogLevel
 
 /** Default log level. */
 #define LOGLEVEL llevDebug
-
-#ifdef INSTALL_SOUND
-Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
-Mix_Music *Mix_LoadMUS_wrapper(const char *file);
-#endif
 
 #include <signal.h>
 #include <curl/curl.h>

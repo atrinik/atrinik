@@ -123,7 +123,7 @@ int check_menu_macros(char *text)
 		else
 			cpl.menustatus = MENU_NO;
 
-		sound_play_effect(SOUND_SCROLL, 0, 100);
+		sound_play_effect(SOUND_SCROLL, 100);
 		reset_keys();
 		return 1;
 	}
@@ -139,7 +139,7 @@ int check_menu_macros(char *text)
 		else
 			cpl.menustatus = MENU_NO;
 
-		sound_play_effect(SOUND_SCROLL, 0, 100);
+		sound_play_effect(SOUND_SCROLL, 100);
 		reset_keys();
 		return 1;
 	}
@@ -158,7 +158,7 @@ int check_menu_macros(char *text)
 			cpl.menustatus = MENU_NO;
 		}
 
-		sound_play_effect(SOUND_SCROLL, 0, 100);
+		sound_play_effect(SOUND_SCROLL, 100);
 		reset_keys();
 		return 1;
 	}
@@ -346,7 +346,7 @@ int process_macro_keys(int id, int value)
 
 		case KEYFUNC_SPELL:
 			map_udate_flag = 2;
-			sound_play_effect(SOUND_SCROLL, 0, 100);
+			sound_play_effect(SOUND_SCROLL, 100);
 
 			if (cpl.menustatus == MENU_KEYBIND)
 				save_keybind_file(KEYBIND_FILE);
@@ -365,7 +365,7 @@ int process_macro_keys(int id, int value)
 			if (cpl.menustatus == MENU_KEYBIND)
 				save_keybind_file(KEYBIND_FILE);
 
-			sound_play_effect(SOUND_SCROLL, 0, 100);
+			sound_play_effect(SOUND_SCROLL, 100);
 
 			if (cpl.menustatus != MENU_SKILL)
 				cpl.menustatus = MENU_SKILL;
@@ -389,12 +389,12 @@ int process_macro_keys(int id, int value)
 				cpl.menustatus = MENU_NO;
 			}
 
-			sound_play_effect(SOUND_SCROLL, 0, 100);
+			sound_play_effect(SOUND_SCROLL, 100);
 			reset_keys();
 			break;
 
 		case KEYFUNC_CONSOLE:
-			sound_play_effect(SOUND_CONSOLE, 0, 100);
+			sound_play_effect(SOUND_CONSOLE, 100);
 			reset_keys();
 
 			if (cpl.input_mode == INPUT_MODE_NO)
@@ -589,7 +589,7 @@ int process_macro_keys(int id, int value)
 				}
 			}
 
-			sound_play_effect(SOUND_GET, 0, 100);
+			sound_play_effect(SOUND_GET, 100);
 			snprintf(buf, sizeof(buf), "get %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);
@@ -638,7 +638,7 @@ int process_macro_keys(int id, int value)
 
 			if (it->locked)
 			{
-				sound_play_effect(SOUND_CLICKFAIL, 0, 100);
+				sound_play_effect(SOUND_CLICKFAIL, 100);
 				draw_info("Unlock item first!", COLOR_DGOLD);
 				return 0;
 			}
@@ -661,7 +661,7 @@ int process_macro_keys(int id, int value)
 				return 0;
 			}
 
-			sound_play_effect(SOUND_DROP, 0, 100);
+			sound_play_effect(SOUND_DROP, 100);
 			snprintf(buf, sizeof(buf), "drop %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);

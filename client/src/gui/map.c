@@ -137,22 +137,15 @@ void map_draw_map_clear()
 void update_map_data(const char *name, char *bg_music)
 {
 	widgetdata *widget;
-	int music_fade = 0;
 
-	if (strcmp(bg_music, "no_music"))
+	if (!strcmp(bg_music, "no_music"))
+	{
+		sound_stop_bg_music();
+	}
+	else
 	{
 		strncpy(MapData.music, bg_music, sizeof(MapData.music));
-
-		if (init_media_tag(bg_music))
-		{
-			music_fade = 1;
-		}
-	}
-
-	/* There was no music tag or playon tag in this map - fade out */
-	if (!music_fade)
-	{
-		sound_fadeout_music(0);
+		parse_map_bg_music(bg_music);
 	}
 
 	if (name)

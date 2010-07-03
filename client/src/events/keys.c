@@ -141,7 +141,7 @@ int key_event(SDL_KeyboardEvent *key)
 						}
 						else
 						{
-							sound_play_effect(SOUND_SCROLL, 0, 100);
+							sound_play_effect(SOUND_SCROLL, 100);
 							strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname, SDL_GetKeyName(key->keysym.sym));
 							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = key->keysym.sym;
 						}
@@ -247,7 +247,7 @@ int key_event(SDL_KeyboardEvent *key)
 					else
 						esc_menu_flag = 0;
 
-					sound_play_effect(SOUND_SCROLL, 0, 100);
+					sound_play_effect(SOUND_SCROLL, 100);
 					break;
 
 				default:
@@ -279,7 +279,7 @@ int key_event(SDL_KeyboardEvent *key)
 									GameStatus = GAME_STATUS_INIT;
 								}
 
-								sound_play_effect(SOUND_SCROLL, 0, 100);
+								sound_play_effect(SOUND_SCROLL, 100);
 								esc_menu_flag = 0;
 
 								break;
@@ -507,11 +507,11 @@ void check_menu_keys(int menu, int key)
 					if (gui_interface_book->page_show < 0)
 					{
 						gui_interface_book->page_show = 0;
-						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_CLICKFAIL, MENU_SOUND_VOL);
 					}
 					else
 					{
-						sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_PAGE, MENU_SOUND_VOL);
 					}
 
 					break;
@@ -522,11 +522,11 @@ void check_menu_keys(int menu, int key)
 					if (gui_interface_book->page_show > (gui_interface_book->pages - 1))
 					{
 						gui_interface_book->page_show = (gui_interface_book->pages - 1) &~ 1;
-						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_CLICKFAIL, MENU_SOUND_VOL);
 					}
 					else
 					{
-						sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_PAGE, MENU_SOUND_VOL);
 					}
 
 					break;
@@ -539,13 +539,11 @@ void check_menu_keys(int menu, int key)
 			{
 				case SDLK_LEFT:
 					option_list_set.key_change =-1;
-					/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
 					menuRepeatKey = SDLK_LEFT;
 					break;
 
 				case SDLK_RIGHT:
 					option_list_set.key_change = 1;
-					/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
 					menuRepeatKey = SDLK_RIGHT;
 					break;
 
@@ -555,7 +553,7 @@ void check_menu_keys(int menu, int key)
 						if (option_list_set.entry_nr > 0)
 							option_list_set.entry_nr--;
 						else
-							sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+							sound_play_effect(SOUND_CLICKFAIL, MENU_SOUND_VOL);
 					}
 					else
 					{
@@ -587,7 +585,7 @@ void check_menu_keys(int menu, int key)
 					break;
 
 				case SDLK_d:
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					map_udate_flag = 2;
 
 					if (cpl.menustatus == MENU_KEYBIND)
@@ -839,10 +837,10 @@ void check_menu_keys(int menu, int key)
 					{
 						fire_mode_tab[FIRE_MODE_SKILL].skill = &skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr];
 						RangeFireMode = FIRE_MODE_SKILL;
-						sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					}
 					else
-						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_CLICKFAIL, MENU_SOUND_VOL);
 
 					map_udate_flag = 2;
 					cpl.menustatus = MENU_NO;
@@ -929,10 +927,10 @@ void check_menu_keys(int menu, int key)
 					{
 						fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr];
 						RangeFireMode = FIRE_MODE_SPELL;
-						sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					}
 					else
-						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_CLICKFAIL, MENU_SOUND_VOL);
 
 					map_udate_flag = 2;
 					cpl.menustatus = MENU_NO;
@@ -943,14 +941,14 @@ void check_menu_keys(int menu, int key)
 					if (spell_list_set.class_nr > 0)
 						spell_list_set.class_nr--;
 
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_RIGHT:
 					if (spell_list_set.class_nr < SPELL_LIST_CLASS - 1)
 						spell_list_set.class_nr++;
 
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_UP:
@@ -1033,28 +1031,28 @@ void check_menu_keys(int menu, int key)
 
 				case SDLK_d:
 					save_keybind_file(KEYBIND_FILE);
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					map_udate_flag = 2;
 					cpl.menustatus = MENU_NO;
 					reset_keys();
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_RETURN:
 				case SDLK_KP_ENTER:
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					keybind_status = KEYBIND_STATUS_EDIT;
 					reset_keys();
 					open_input_mode(240);
 					textwin_putstring(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text);
 					cpl.input_mode = INPUT_MODE_GETKEY;
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_r:
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag = bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag ? 0 : 1;
-					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
 					break;
 			}
 
@@ -1070,7 +1068,7 @@ void check_menu_keys(int menu, int key)
 					if (new_character.stat_points)
 					{
 						dialog_new_char_warn = 1;
-						sound_play_effect(SOUND_CLICKFAIL, 0, 100);
+						sound_play_effect(SOUND_CLICKFAIL, 100);
 						break;
 					}
 

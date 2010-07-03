@@ -10,6 +10,7 @@ void SockList_AddChar(SockList *sl, char c);
 void SockList_AddShort(SockList *sl, uint16 data);
 void SockList_AddInt(SockList *sl, uint32 data);
 void SockList_AddString(SockList *sl, char *data);
+void SockList_AddStringTerminated(SockList *sl, char *data);
 int GetInt_String(const unsigned char *data);
 sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
@@ -192,14 +193,12 @@ int socket_open(struct ClientSocket *csock, char *host, int port);
 /* client/sound.c */
 void sound_init();
 void sound_deinit();
-void sound_loadall();
-void sound_freeall();
-void calculate_map_sound(int soundnr, int xoff, int yoff);
-int sound_play_effect(int soundid, int pan, int vol);
-void sound_play_one_repeat(int soundid, int special_id);
-void sound_play_music(char *fname, int vol, int fade, int loop, int mode);
-void sound_fadeout_music(int i);
-int init_media_tag(char *tag);
+void sound_play_effect(int soundid, int volume);
+void sound_play_map_effect(int soundid, int x, int y);
+void sound_start_bg_music(char *filename, int volume, int loop);
+void sound_stop_bg_music();
+void parse_map_bg_music(const char *bg_music);
+void sound_update_volume(int old_volume);
 
 /* client/sprite.c */
 void sprite_init_system();
@@ -243,8 +242,6 @@ uint32 get_video_flags();
 char *file_path(const char *fname, const char *mode);
 FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
-Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
-Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 
 /* events/console.c */
 void key_string_event(SDL_KeyboardEvent *key);

@@ -30,30 +30,55 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-/** Possible statuses of the sound system */
-typedef enum _sound_system
-{
-	SOUND_SYSTEM_NONE,
-	SOUND_SYSTEM_OFF,
-	SOUND_SYSTEM_ON
-} _sound_system;
+/**
+ * @defgroup SOUND_TYPE_xxx Sound types
+ * The sound types.
+ *@{*/
+/** Background music. */
+#define SOUND_TYPE_BACKGROUND 1
+/** Effect sound. */
+#define SOUND_TYPE_EFFECT 2
+/*@}*/
 
-extern _sound_system SoundSystem;
+/**
+ * Single sound data. */
+typedef struct sound_data_struct
+{
+	/** Next sound. */
+	struct sound_data_struct *next;
+
+	/** Previous sound. */
+	struct sound_data_struct *prev;
+
+	/** The sound. */
+	Sound_Sample *sample;
+
+	/** Decoded pointer. */
+    Uint8 *decoded_ptr;
+
+	/** Bytes decoded. */
+    Uint32 decoded_bytes;
+
+	/** Volume to use. */
+	int volume;
+
+	/** How many loops to do, -1 for infinite. */
+    int looping;
+
+	/** Are we done playing this? */
+	int done;
+
+	/** Name of file this was loaded from. */
+	char *filename;
+
+	/** One of @ref SOUND_TYPE_xxx. */
+	int type;
+} sound_data_struct;
+
+#define POW2(x) ((x) * (x))
 
 #define SOUND_NORMAL	0
 #define SOUND_SPELL		1
-
-/**
- * @defgroup MUSIC_MODE_xxx Music modes
- * Music modes.
- *@{*/
-/** Normal mode. */
-#define MUSIC_MODE_NORMAL 1
-/** Direct music. */
-#define MUSIC_MODE_DIRECT 2
-/** Forced music. */
-#define MUSIC_MODE_FORCED 4
-/*@}*/
 
 /** Sound IDs. */
 typedef enum _sound_id
@@ -92,32 +117,6 @@ typedef enum _sound_id
 	SOUND_DOOR_CLOSE,
 	SOUND_TELEPORT,
 	SOUND_SCROLL,
-
-	/* Here we have client side sounds - add server
-	 * sounds BEFORE this. */
-	SOUND_STEP1,
-	SOUND_STEP2,
-	SOUND_PRAY,
-	SOUND_CONSOLE,
-	SOUND_CLICKFAIL,
-	SOUND_CHANGE1,
-	SOUND_WARN_FOOD,
-	SOUND_WARN_DRAIN,
-	SOUND_WARN_STATUP,
-	SOUND_WARN_STATDOWN,
-	SOUND_WARN_HP,
-	SOUND_WARN_HP2,
-	SOUND_WEAPON_ATTACK,
-	SOUND_WEAPON_HOLD,
-	SOUND_GET,
-	SOUND_BOOK,
-	SOUND_PAGE,
-	SOUND_MAX
-} _sound_id1;
-
-/** Spell sound IDs. */
-typedef enum _spell_sound_id
-{
 	SOUND_MAGIC_DEFAULT,
 	SOUND_MAGIC_ACID,
 	SOUND_MAGIC_ANIMATE,
@@ -166,54 +165,29 @@ typedef enum _spell_sound_id
 	SOUND_MAGIC_WALL2,
 	SOUND_MAGIC_WOUND,
 
-	SPELL_SOUND_MAX
-} _sound_id;
+	/* Here we have client side sounds - add server
+	 * sounds BEFORE this. */
+	SOUND_STEP1,
+	SOUND_STEP2,
+	SOUND_PRAY,
+	SOUND_CONSOLE,
+	SOUND_CLICKFAIL,
+	SOUND_CHANGE1,
+	SOUND_WARN_FOOD,
+	SOUND_WARN_DRAIN,
+	SOUND_WARN_STATUP,
+	SOUND_WARN_STATDOWN,
+	SOUND_WARN_HP,
+	SOUND_WARN_HP2,
+	SOUND_WEAPON_ATTACK,
+	SOUND_WEAPON_HOLD,
+	SOUND_GET,
+	SOUND_BOOK,
+	SOUND_PAGE,
+	SOUND_MAX
+} _sound_id1;
 
-
-#ifdef INSTALL_SOUND
-typedef struct _wave
-{
-	Mix_Chunk *sound;
-
-	/* Length of wave data */
-	Uint32 soundlen;
-
-	/* Current play position */
-	int soundpos;
-} _wave;
-
-typedef struct music_data
-{
-	/* If 1, struct is loaded */
-	int flag;
-
-	/* Data != 0, buffer is allocated */
-	Mix_Music *data;
-
-	/* If flag = 1, this is a valid music name */
-	char name[256];
-
-	/* Loop data for init music_play() */
-	int loop;
-
-	int fade;
-	int vol;
-}music_data;
-
-extern _wave Sounds[];
-extern music_data music;
-extern music_data music_new;
-#endif
-
-/** Special sound IDs. */
-enum
-{
-	SPECIAL_SOUND_FOOD,
-	SPECIAL_SOUND_STATDOWN,
-	SPECIAL_SOUND_STATUP,
-	SPECIAL_SOUND_DRAIN,
-
-	SPECIAL_SOUND_INIT
-};
+/** This value is defined in server too - change only both at once */
+#define MAX_SOUND_DISTANCE 12
 
 #endif

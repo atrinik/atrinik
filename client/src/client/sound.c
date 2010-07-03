@@ -27,34 +27,17 @@
  * @file
  * Sound related functions. */
 
-#include "include.h"
+#include <include.h>
 
-/** The SoundSystem status */
-_sound_system SoundSystem;
+/** An array of all the sounds that are currently playing. */
+static sound_data_struct *sound_data;
+/** Mutex for protecting ::sound_data. */
+static SDL_mutex *sound_data_mutex;
+/** Pointer to the background sound that is playing. */
+static sound_data_struct *sound_background;
 
-#ifdef INSTALL_SOUND
-
-/** The music we're playing - if NULL, no music */
-music_data music;
-
-/** When we get a new piece of music, we store it here and
- * give the current music the command to fade out or
- * to break (if new music parameter force it).
- * Then we copy new_music to music and start it. */
-music_data music_new;
-
-/** Special sounds */
-static int special_sounds[SPECIAL_SOUND_INIT];
-#endif
-
-#define POW2(x) ((x) * (x))
-
-#ifdef INSTALL_SOUND
-/** Sounds */
-_wave Sounds[SOUND_MAX + SPELL_SOUND_MAX];
-
-/** The sound files */
-static char *sound_files[SOUND_MAX] =
+/** The sound files. */
+char *sound_files[SOUND_MAX] =
 {
 	"event01.wav",
 	"bow1.wav",
@@ -94,29 +77,6 @@ static char *sound_files[SOUND_MAX] =
 	"teleport.wav",
 	"scroll.wav",
 
-	/* Here start the client side sounds */
-	"step1.wav",
-	"step2.wav",
-	"pray.wav",
-	"console.wav",
-	"click_fail.wav",
-	"change1.wav",
-	"warning_food.wav",
-	"warning_drain.wav",
-	"warning_statup.wav",
-	"warning_statdown.wav",
-	"warning_hp.wav",
-	"warning_hp2.wav",
-	"weapon_attack.wav",
-	"weapon_hold.wav",
-	"get.wav",
-	"book.wav",
-	"page.wav"
-};
-
-/** Spell sound files */
-static char *spell_sound_files[SPELL_SOUND_MAX] =
-{
 	"magic_default.wav",
 	"magic_acid.wav",
 	"magic_animate.wav",
@@ -164,440 +124,376 @@ static char *spell_sound_files[SPELL_SOUND_MAX] =
 	"magic_wall.wav",
 	"magic_walls.wav",
 	"magic_wound.wav"
+
+	/* Here start the client side sounds */
+	"step1.wav",
+	"step2.wav",
+	"pray.wav",
+	"console.wav",
+	"click_fail.wav",
+	"change1.wav",
+	"warning_food.wav",
+	"warning_drain.wav",
+	"warning_statup.wav",
+	"warning_statdown.wav",
+	"warning_hp.wav",
+	"warning_hp2.wav",
+	"weapon_attack.wav",
+	"weapon_hold.wav",
+	"get.wav",
+	"book.wav",
+	"page.wav"
 };
-#endif
-
-/** This value is defined in server too - change only both at once */
-#define MAX_SOUND_DISTANCE 12
-
-#ifdef INSTALL_SOUND
-static void musicDone(void);
-static void sound_start_music(char *fname, int vol, int fade, int loop);
-#endif
 
 /**
- * Initialize the sound system */
+ * Add sound to ::sound_data.
+ * @param filename Name of the sound file.
+ * @param volume Volume to use.
+ * @param looping How many times to loop, -1 for infinite number.
+ * @param type One of @ref SOUND_TYPE_xxx.
+ * @return Pointer to the new sound. */
+static sound_data_struct *sound_add_music(const char *filename, int volume, int looping, int type)
+{
+	Sound_Sample *sample;
+	sound_data_struct *tmp;
+
+	sample = Sound_NewSampleFromFile(filename, NULL, 16384);
+
+	if (!sample)
+	{
+		LOG(llevError, "ERROR: Could not load music '%s'.\n", filename);
+		return NULL;
+	}
+
+	tmp = calloc(1, sizeof(sound_data_struct));
+	tmp->sample = sample;
+	tmp->volume = volume;
+	tmp->looping = looping;
+	tmp->sample = sample;
+	tmp->filename = strdup(filename);
+	tmp->type = type;
+
+	SDL_LockMutex(sound_data_mutex);
+
+	if (!sound_data)
+	{
+		sound_data = tmp;
+	}
+	else
+	{
+		if (sound_data->prev)
+		{
+			tmp->prev = sound_data->prev;
+			sound_data->prev->next = tmp;
+		}
+
+		sound_data->prev = tmp;
+		tmp->next = sound_data;
+		sound_data = tmp;
+	}
+
+	SDL_UnlockMutex(sound_data_mutex);
+	return tmp;
+}
+
+/**
+ * Remove sound from ::sound_data.
+ * @param tmp What to remove. */
+static void sound_remove_music(sound_data_struct *tmp)
+{
+	SDL_LockMutex(sound_data_mutex);
+
+	if (sound_data == tmp)
+	{
+		sound_data = tmp->next;
+	}
+
+	if (tmp->prev)
+	{
+		tmp->prev->next = tmp->next;
+	}
+
+	if (tmp->next)
+	{
+		tmp->next->prev = tmp->prev;
+	}
+
+	Sound_FreeSample(tmp->sample);
+	free(tmp->filename);
+	free(tmp);
+	SDL_UnlockMutex(sound_data_mutex);
+}
+
+/**
+ * This updates sound_data_struct::decoded_bytes and sound_data_struct::decoded_ptr
+ * with more audio data, taking into account potentional looping.
+ * @param tmp Sound data.
+ * @return Decoded bytes. */
+static int read_more_data(sound_data_struct *tmp)
+{
+	if (tmp->done)
+	{
+		tmp->decoded_bytes = 0;
+		return 0;
+	}
+
+	if (tmp->decoded_bytes > 0)
+	{
+		return tmp->decoded_bytes;
+	}
+
+	/* See if there's more to be read... */
+	if (!(tmp->sample->flags & (SOUND_SAMPLEFLAG_ERROR | SOUND_SAMPLEFLAG_EOF)))
+	{
+		tmp->decoded_bytes = Sound_Decode(tmp->sample);
+
+		if (tmp->sample->flags & SOUND_SAMPLEFLAG_ERROR)
+		{
+			LOG(llevError, "ERROR: read_more_data(): Error decoding sound file: %s\n", Sound_GetError());
+		}
+
+		tmp->decoded_ptr = tmp->sample->buffer;
+		return read_more_data(tmp);
+	}
+
+	/* No more to be read from stream, but we may want to loop the sample. */
+	if (!tmp->looping)
+	{
+		return 0;
+	}
+
+	if (tmp->looping != -1)
+	{
+		tmp->looping--;
+	}
+
+	Sound_Rewind(tmp->sample);
+	return read_more_data(tmp);
+}
+
+/**
+ * Audio callback, used by SDL audio to play the sound files.
+ * @param userdata Unused.
+ * @param stream Where to write the sound data.
+ * @param len Max length. */
+static void audio_callback(void *userdata, Uint8 *stream, int len)
+{
+	sound_data_struct *tmp, *next;
+
+	(void) userdata;
+
+	SDL_LockMutex(sound_data_mutex);
+
+	for (tmp = sound_data; tmp; tmp = next)
+	{
+		int bw = 0;
+
+		next = tmp->next;
+
+		/* This sound has finished playing, remove it from the list. */
+		if (tmp->done)
+		{
+			sound_remove_music(tmp);
+			continue;
+		}
+
+		while (bw < len)
+		{
+			size_t cpysize;
+
+			/* Read more data, if needed. */
+			if (!read_more_data(tmp))
+			{
+				memset(stream + bw, 0, len - bw);
+				tmp->done = 1;
+				break;
+			}
+
+			/* decoded_bytes and decoder_ptr are updated as necessary. */
+			cpysize = len - bw;
+
+			if (cpysize > tmp->decoded_bytes)
+			{
+				cpysize = tmp->decoded_bytes;
+			}
+
+			if (cpysize > 0)
+			{
+				SDL_MixAudio(stream + bw, (Uint8 *) tmp->decoded_ptr, cpysize, tmp->volume);
+				bw += cpysize;
+				tmp->decoded_ptr += cpysize;
+				tmp->decoded_bytes -= cpysize;
+			}
+		}
+	}
+
+	SDL_UnlockMutex(sound_data_mutex);
+}
+
+/**
+ * Initialize the sound system. */
 void sound_init()
 {
-#ifdef INSTALL_SOUND
-	/* We want no sound */
-	if (SoundSystem == SOUND_SYSTEM_NONE)
-		return;
+	SDL_AudioSpec sdl_desired;
 
-	music.flag = 0;
-	music.data = NULL;
-	music_new.flag = 0;
-	music_new.data = NULL;
-
-	SoundSystem = SOUND_SYSTEM_OFF;
-
-	/* Open the audio device */
-	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
+	if (!Sound_Init())
 	{
-		LOG(llevMsg, "Warning: Couldn't set sound device. Reason: %s\n", SDL_GetError());
-		return;
+		LOG(llevError, "ERROR: Sound_Init() failed! Reason: %s\n", Sound_GetError());
+		SYSTEM_End();
+		exit(0);
 	}
 
-#endif
-	SoundSystem = SOUND_SYSTEM_ON;
+	sound_data = NULL;
+	sound_background = NULL;
+	sound_data_mutex = SDL_CreateMutex();
+
+	memset(&sdl_desired, 0, sizeof(SDL_AudioSpec));
+	sdl_desired.freq = 44100;
+	sdl_desired.format = 32784;
+	sdl_desired.channels = 2;
+	sdl_desired.samples = 4096;
+	sdl_desired.callback = audio_callback;
+
+	if (SDL_OpenAudio(&sdl_desired, NULL) < 0)
+	{
+		LOG(llevError, "ERROR: Couldn't open audio device: %s\n", SDL_GetError());
+		SYSTEM_End();
+		exit(0);
+	}
+
+	SDL_PauseAudio(0);
 }
 
 /**
- * Deinitialize the sound system  */
+ * Deinitialize the sound system. */
 void sound_deinit()
 {
-#ifdef INSTALL_SOUND
-	if (SoundSystem == SOUND_SYSTEM_ON)
-		Mix_CloseAudio();
-#endif
+	Sound_Quit();
+	SDL_CloseAudio();
 }
 
 /**
- * Load all different sound groups to one array. */
-void sound_loadall()
+ * Play a sounf effect.
+ * @param soundid Sound ID to play.
+ * @param volume Volume to play at. */
+void sound_play_effect(int soundid, int volume)
 {
-#ifdef INSTALL_SOUND
-	int i, ii;
-	char buf[2048];
+	char filename[HUGE_BUF];
 
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
+	volume = (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) 100 / (double) 100)));
+	snprintf(filename, sizeof(filename), "%s%s", GetSfxDirectory(), sound_files[soundid]);
+	sound_add_music(filename, volume, 0, SOUND_TYPE_EFFECT);
+}
 
-	for (i = 0; i < SOUND_MAX; i++)
+/**
+ * Play a sound on map.
+ * @param soundid Sound ID to play.
+ * @param x X position of player.
+ * @param y Y position of player. */
+void sound_play_map_effect(int soundid, int x, int y)
+{
+	int volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
+
+	if (volume < 0)
 	{
-		snprintf(buf, sizeof(buf), "%s%s", GetSfxDirectory(), sound_files[i]);
-		Sounds[i].sound = NULL;
-		Sounds[i].sound = Mix_LoadWAV_wrapper(buf);
-
-		if (!Sounds[i].sound)
-			LOG(llevError, "sound_loadall: missing sound file %s\n", buf);
+		volume = 0;
 	}
 
-	for (ii = 0; ii < SPELL_SOUND_MAX; ii++)
-	{
-		snprintf(buf, sizeof(buf), "%s%s", GetSfxDirectory(), spell_sound_files[ii]);
-		Sounds[i + ii].sound = NULL;
-		Sounds[i + ii].sound = Mix_LoadWAV_wrapper(buf);
-
-		if (!Sounds[i + ii].sound)
-			LOG(llevError, "sound_loadall: missing sound file %s\n", buf);
-	}
-#endif
+	/* The real volume in %. */
+	volume = 100 - volume * (100 / MAX_SOUND_DISTANCE);
+	sound_play_effect(soundid, volume);
 }
 
 /**
- * Free all loaded sounds */
-void sound_freeall()
+ * Start background music.
+ * @param filename Filename of the music to start.
+ * @param volume Volume to use.
+ * @param loop How many times to loop, -1 for infinite number. */
+void sound_start_bg_music(char *filename, int volume, int loop)
 {
-#ifdef INSTALL_SOUND
-	int i;
+	char path[HUGE_BUF];
 
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
+	snprintf(path, sizeof(path), "%s%s", GetMediaDirectory(), filename);
 
-	for (i = 0; i < SOUND_MAX + SPELL_SOUND_MAX; i++)
+	/* Any background music already playing? */
+	if (sound_background)
 	{
-		Mix_FreeChunk(Sounds[i].sound);
-	}
-#endif
-}
-
-/**
- * Calculate map sound effect and play it
- * @param soundnr Sound ID
- * @param xoff X offset
- * @param yoff Y offset */
-void calculate_map_sound(int soundnr, int xoff, int yoff)
-{
-	/* We got xoff/yoff relative to 0, when this will change, exchange 0
-	 * with the right default position */
-#ifdef INSTALL_SOUND
-	int pane, distance = isqrt(POW2(0 - xoff) + POW2(0 - yoff)) - 1;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (distance < 0)
-		distance = 0;
-
-	/* That's our real volume in % */
-	distance = 100 - distance * (100 / MAX_SOUND_DISTANCE);
-
-	/* Now we set the panning.
-	 * Because reducing volume from one to another reduce volume too,
-	 * we used only yoff real volume. */
-	pane = isqrt(POW2(0 - xoff)) - 1;
-
-	if (pane < 0)
-		pane = 0;
-
-	/* That's "% use of left or right speaker" */
-	/* Note that as higher is the xoff distance, so more we use one direction
-	 * only */
-	pane = pane * (100 / MAX_SOUND_DISTANCE);
-
-	pane = (int) ((double) pane * ((double) 255 / (double) 100));
-
-	/* Now mark this is left or right pane. Left is *(-1) */
-	if (xoff < 0)
-		pane *= -1;
-
-	sound_play_effect(soundnr, pane, distance);
-#else
-	(void) soundnr;
-	(void) xoff;
-	(void) yoff;
-#endif
-}
-
-/**
- * Play a sound.
- * @param soundid Sound ID
- * @param pan Panning value, -255 (total left) to +255 (total right)
- * @param vol Volume
- * @return Channel ID of the sound, or -1 if error */
-int sound_play_effect(int soundid, int pan, int vol)
-{
-#ifdef INSTALL_SOUND
-	int tmp;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return -1;
-
-	tmp = Mix_PlayChannel(-1, Sounds[soundid].sound, 0);
-
-	if (tmp != -1)
-	{
-		int l = 255, r = 255;
-
-		Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * ((double) vol * ((double) MIX_MAX_VOLUME / (double) 100))));
-
-		if (pan < 0)
+		/* If it's the same music, there's nothing to do. */
+		if (!strcmp(sound_background->filename, path))
 		{
-			l = 255;
-			r = 255 + pan;
-		}
-		else if (pan > 0)
-		{
-			l = 255 - pan;
-			r = 255;
-		}
-
-		Mix_SetPanning(tmp, (Uint8) l, (Uint8) r);
-	}
-
-	return tmp;
-#else
-	(void) soundid;
-	(void) pan;
-	(void) vol;
-	return -1;
-#endif
-}
-
-/**
- * Play a repeat sound.
- * @param soundid Sound ID
- * @param special_id Special sound ID */
-void sound_play_one_repeat(int soundid, int special_id)
-{
-#ifdef INSTALL_SOUND
-	int tmp,s;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (special_sounds[special_id] != -1)
-	{
-		if (Mix_Playing(special_sounds[special_id]))
-			return;
-	}
-
-	tmp = Mix_PlayChannel(-1, Sounds[soundid].sound, 0);
-
-	if (tmp == -1)
-	{
-		/* We failed... */
-		special_sounds[special_id] = -1;
-		return;
-	}
-
-	Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * (double) MIX_MAX_VOLUME));
-
-	/* That's the wild part: when we got a channel, we must delete every same old entry */
-	for (s = 0; s < SPECIAL_SOUND_INIT; s++)
-	{
-		if (special_sounds[s] == tmp)
-			special_sounds[s] = -1;
-	}
-
-	special_sounds[special_id] = tmp;
-#else
-	(void) soundid;
-	(void) special_id;
-#endif
-}
-
-/**
- * Play music.
- * @param fname File name in the media directory
- * @param vol Volume
- * @param fade Should the music fade?
- * @param loop Should the music loop?
- * @param mode Mode */
-void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
-{
-#ifdef INSTALL_SOUND
-	int vol2 = vol;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (mode & MUSIC_MODE_DIRECT)
-		fade = 0;
-	else if (mode & MUSIC_MODE_FORCED)
-		vol2 = 100;
-
-	/* Same sound? */
-	if (music.data && !strcmp(fname, music.name))
-	{
-		music.fade = fade;
-		music.loop = loop;
-
-		if (vol != music.vol)
-		{
-			music.vol = vol;
-			Mix_VolumeMusic(vol);
-		}
-
-		return;
-	}
-
-	/* Only when set, we still play something */
-	if (music.flag && !(mode & MUSIC_MODE_DIRECT))
-	{
-		music_new.flag = 1;
-		music_new.loop = loop;
-		music_new.fade = fade;
-		music_new.vol = vol;
-		strcpy(music_new.name, fname);
-		/* Lets fade out old music */
-		sound_fadeout_music(music.flag);
-		/* The music_new will be fired in the music hook function after fadeout */
-	}
-	/* No playing music, we fire our new music up */
-	else
-	{
-		/* We don't care about the old buffer data - when we overwrite is always right */
-		music_new.flag = 0;
-		sound_start_music(fname, vol2, fade, loop);
-	}
-#else
-	(void) fname;
-	(void) vol;
-	(void) fade;
-	(void) loop;
-	(void) mode;
-#endif
-}
-
-#ifdef INSTALL_SOUND
-/**
- * Start music.
- * @param fname File name in the media directory
- * @param vol Volume
- * @param fade Should the music fade?
- * @param loop Should the music loop? */
-static void sound_start_music(char *fname, int vol, int fade, int loop)
-{
-	char buf[4096];
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (music.data)
-	{
-		Mix_HaltMusic();
-		Mix_FreeMusic(music.data);
-		music.data = NULL;
-		music.flag = 0;
-	}
-
-	/* Try to load the ogg */
-	snprintf(buf, sizeof(buf), "%s%s", GetMediaDirectory(), fname);
-	music.data = Mix_LoadMUS_wrapper(buf);
-
-	if (!music.data)
-	{
-		return;
-	}
-
-	music.fade = fade;
-	music.loop = loop;
-	music.vol = vol;
-	music.flag = 1;
-	strcpy(music.name, fname);
-
-	Mix_VolumeMusic(vol);
-
-	if (fade)
-		Mix_FadeInMusic(music.data, loop, fade);
-	else
-		Mix_PlayMusic(music.data, loop);
-
-	Mix_HookMusicFinished(musicDone);
-}
-#endif
-
-/**
- * Fade out music.
- * @param i Value */
-void sound_fadeout_music(int i)
-{
-#ifdef INSTALL_SOUND
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (music.flag)
-	{
-		/* Give a fadeout cmd to the music buffer */
-		if (!Mix_FadeOutMusic(4000))
-		{
-			/* Fadeout has failed - buffer is busy or a different fade is still on the way */
-			music_new.flag = i;
-
-			/* Now set the global main loop marker - we poll it for the hard way */
-			music_global_fade = 1;
-
 			return;
 		}
 
-		/* All ok, we fade out and the callback will do the rest */
-		music_new.flag = i;
+		sound_remove_music(sound_background);
 	}
 
-	music_global_fade = 0;
-#else
-	(void) i;
-#endif
+	sound_background = sound_add_music(path, volume, loop, SOUND_TYPE_BACKGROUND);
 }
 
-#ifdef INSTALL_SOUND
 /**
- * Callback function from current played music sound */
-static void musicDone(void)
+ * Stop the background music, if there is any. */
+void sound_stop_bg_music()
 {
-	if (music.data)
+	/* Anything playing? */
+	if (sound_background)
 	{
-		Mix_HaltMusic();
-		Mix_FreeMusic(music.data);
-		music.data = NULL;
-		music.flag = 0;
+		/* We will mark this pointer as done, so when audio_callback()
+		 * picks it up, it will be freed, but we'll also mark this pointer
+		 * as NULL (audio_callback() doesn't use it, it will pick it up from
+		 * ::sound_data). */
+		sound_background->done = 1;
+		sound_background = NULL;
 	}
-
-	if (music_new.flag)
-	{
-		sound_start_music(music_new.name, options.music_volume, music_new.fade, music_new.loop);
-		music_new.flag = 0;
-	}
-
-	music_global_fade = 0;
 }
-#endif
 
 /**
- * Initialize media from tag.
- * @param tag String to init the media from, usually comes from map data
- * @return 1 if success, 0 if not */
-int init_media_tag(char *tag)
+ * Parse map's background music information.
+ * @param bg_music What to parse. */
+void parse_map_bg_music(const char *bg_music)
 {
-	char *p1, *p2;
-	int ret = 0;
+	int loop = -1, vol = 0;
+	char filename[MAX_BUF];
 
-	if (tag == NULL)
+	/* Backwards compatibility for maps using the old syntax. */
+	if (strstr(bg_music, "|"))
 	{
-		LOG(llevMsg, "MediaTagError: Tag == NULL\n");
-		return ret;
+		int junk = 0;
+
+		if (sscanf(bg_music, "%256[^|]|%d|%d", filename, &junk, &loop) != 3)
+		{
+			LOG(llevMsg, "BUG: parse_map_bg_music(): Bogus old-style background music: '%s'\n", bg_music);
+			return;
+		}
+	}
+	else
+	{
+		if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
+		{
+			LOG(llevMsg, "BUG: parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+			return;
+		}
 	}
 
-	p1 = strchr(tag, '|');
-	p2 = strrchr(tag, '|');
+	sound_start_bg_music(filename, options.music_volume + vol, loop);
+}
 
-	if (p1 == NULL || p2 == NULL)
+/**
+ * Update volume of the sounds being played.
+ * @todo Actually use this when changing volume in the options.
+ * @param old_volume Old music volume. */
+void sound_update_volume(int old_volume)
+{
+	sound_data_struct *tmp;
+
+	SDL_LockMutex(sound_data_mutex);
+
+	for (tmp = sound_data; tmp; tmp = tmp->next)
 	{
-		LOG(llevMsg, "MediaTagError: Parameter == NULL (%x %x)\n", p1, p2);
-		return ret;
+		if (tmp->type == SOUND_TYPE_BACKGROUND)
+		{
+			tmp->volume = tmp->volume - old_volume + options.music_volume;
+		}
 	}
 
-	*p1++ = 0;
-	*p2++ = 0;
-
-	if (strstr(tag, ".ogg"))
-	{
-		sound_play_music(tag, options.music_volume, atoi(p1), atoi(p2), MUSIC_MODE_NORMAL);
-		/* Because we have called sound_play_music, we don't have to fade out extern */
-		ret = 1;
-	}
-
-	return ret;
+	SDL_UnlockMutex(sound_data_mutex);
 }

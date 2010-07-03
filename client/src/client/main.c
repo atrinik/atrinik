@@ -416,7 +416,6 @@ static void init_game_data()
 	argServerName[0] = '\0';
 	argServerPort = 13327;
 
-	SoundSystem = SOUND_SYSTEM_OFF;
 	GameStatus = GAME_STATUS_INIT;
 	CacheStatus = CF_FACE_CACHE;
 	SoundStatus = 1;
@@ -699,14 +698,7 @@ static int game_status_chain()
 		map_udate_flag = 2;
 		delete_player_lists();
 		LOG(llevMsg, "GAMES_STATUS_INIT_2\n");
-
-#ifdef INSTALL_SOUND
-		if (!music.flag || strcmp(music.name, "orchestral.ogg"))
-		{
-			sound_play_music("orchestral.ogg", options.music_volume, 0, -1, MUSIC_MODE_DIRECT);
-		}
-#endif
-
+		sound_start_bg_music("orchestral.ogg", options.music_volume, -1);
 		clear_map();
 		LOG(llevMsg, "GAMES_STATUS_INIT_3\n");
 		LOG(llevMsg, "GAMES_STATUS_INIT_4\n");
@@ -1141,33 +1133,15 @@ void open_input_mode(int maxchar)
  * Play various action sounds. */
 static void play_action_sounds()
 {
-	if (cpl.warn_statdown)
-	{
-		sound_play_one_repeat(SOUND_WARN_STATDOWN, SPECIAL_SOUND_STATDOWN);
-		cpl.warn_statdown = 0;
-	}
-
-	if (cpl.warn_statup)
-	{
-		sound_play_one_repeat(SOUND_WARN_STATUP, SPECIAL_SOUND_STATUP);
-		cpl.warn_statup = 0;
-	}
-
-	if (cpl.warn_drain)
-	{
-		sound_play_one_repeat(SOUND_WARN_DRAIN, SPECIAL_SOUND_DRAIN);
-		cpl.warn_drain = 0;
-	}
-
 	if (cpl.warn_hp)
 	{
 		if (cpl.warn_hp == 2)
 		{
-			sound_play_effect(SOUND_WARN_HP2, 0, 100);
+			sound_play_effect(SOUND_WARN_HP2, 100);
 		}
 		else
 		{
-			sound_play_effect(SOUND_WARN_HP, 0, 100);
+			sound_play_effect(SOUND_WARN_HP, 100);
 		}
 
 		cpl.warn_hp = 0;
@@ -1548,8 +1522,6 @@ int main(int argc, char *argv[])
 
 	sound_init();
 	show_intro("Start sound system");
-
-	sound_loadall();
 	show_intro("Load sounds");
 
 	read_keybind_file(KEYBIND_FILE);
@@ -1579,7 +1551,7 @@ int main(int argc, char *argv[])
 	read_help_files();
 	show_intro("Load help files");
 
-	sound_play_music("orchestral.ogg", options.music_volume, 0, -1, MUSIC_MODE_DIRECT);
+	sound_start_bg_music("orchestral.ogg", options.music_volume, -1);
 	show_intro(NULL);
 
 	while (1)
@@ -1590,7 +1562,6 @@ int main(int argc, char *argv[])
 
 		if (event.type == SDL_QUIT)
 		{
-			sound_freeall();
 			sound_deinit();
 			free_bitmaps();
 			SYSTEM_End();
@@ -1632,13 +1603,6 @@ int main(int argc, char *argv[])
 			GameStatus = GAME_STATUS_INIT;
 			continue;
 		}
-
-#ifdef INSTALL_SOUND
-		if (music_global_fade)
-		{
-			sound_fadeout_music(music_new.flag);
-		}
-#endif
 
 		GameTicksSec = LastTick - tmpGameTick;
 
@@ -1860,7 +1824,6 @@ int main(int argc, char *argv[])
 	kill_widgets();
 	curl_global_cleanup();
 	socket_deinitialize();
-	sound_freeall();
 	sound_deinit();
 	free_bitmaps();
 	SYSTEM_End();
