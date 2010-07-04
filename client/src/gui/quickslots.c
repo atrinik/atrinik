@@ -476,7 +476,7 @@ void update_quickslots(int del_item)
  * @param len Length of 'data'. */
 void QuickSlotCmd(unsigned char *data, int len)
 {
-	int pos;
+	int pos = 0;
 	uint8 type, slot;
 
 	/* Clear all quickslots. */

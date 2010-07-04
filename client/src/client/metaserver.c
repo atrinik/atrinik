@@ -275,7 +275,7 @@ static int metaserver_connect(const char *metaserver_url)
 		/* If we go the data, might as well do something with it. */
 		if (chunk->memory)
 		{
-			char *buf = strdup(chunk->memory), *cp, *saveptr;
+			char *buf = strdup(chunk->memory), *cp, *saveptr = NULL;
 
 			/* No need to connect to other mirror metaservers */
 			success = 1;
