@@ -228,7 +228,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			{
 				if (!sound_was_played)
 				{
-					play_sound_map(trap->map, trap->x, trap->y, SOUND_FALL_HOLE, SOUND_NORMAL);
+					play_sound_map(trap->map, SOUND_FALL_HOLE, NULL, trap->x, trap->y, 0, 0);
 					sound_was_played = 1;
 				}
 
@@ -251,7 +251,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 				break;
 			}
 
-			play_sound_map(victim->map, victim->x, victim->y, SOUND_FALL_HOLE, SOUND_NORMAL);
+			play_sound_map(victim->map, SOUND_FALL_HOLE, NULL, victim->x, victim->y, 0, 0);
 
 			if (victim->type == PLAYER)
 			{
@@ -418,7 +418,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 		remove_ob(tmp);
 	}
 
-	play_sound_player_only(CONTR(op), SOUND_LEARN_SPELL, SOUND_NORMAL, 0, 0);
+	play_sound_player_only(CONTR(op), SOUND_LEARN_SPELL, NULL, 0, 0, 0, 0);
 	CONTR(op)->known_spells[CONTR(op)->nrofknownspells++] = spell;
 
 	if (CONTR(op)->nrofknownspells == 1)
@@ -458,7 +458,7 @@ void do_forget_spell(object *op, int spell)
 		return;
 	}
 
-	play_sound_player_only(CONTR(op), SOUND_LOSE_SOME,SOUND_NORMAL,0,0);
+	play_sound_player_only(CONTR(op), SOUND_LOSE_SOME,NULL, 0, 0, 0, 0);
 	new_draw_info_format(NDI_UNIQUE, op, "You lose knowledge of %s.", spells[spell].name);
 
 	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_REMOVE);
@@ -699,7 +699,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 		case HANDLE:
 			new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
-			play_sound_map(op->map, op->x, op->y, SOUND_TURN_HANDLE, SOUND_NORMAL);
+			play_sound_map(op->map, SOUND_TURN_HANDLE, NULL, op->x, op->y, 0, 0);
 			tmp->value = tmp->value ? 0 : 1;
 			SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
 			update_object(tmp, UP_OBJ_FACE);
@@ -711,7 +711,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			if (check_trigger(tmp, op))
 			{
 				new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
-				play_sound_map(tmp->map, tmp->x, tmp->y, SOUND_TURN_HANDLE, SOUND_NORMAL);
+				play_sound_map(tmp->map, SOUND_TURN_HANDLE, NULL, tmp->x, tmp->y, 0, 0);
 			}
 			else
 			{
@@ -947,7 +947,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 
 	if (op->type != PLAYER && QUERY_FLAG(op, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
-		play_sound_map(pl->map, pl->x, pl->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
+		play_sound_map(pl->map, SOUND_OB_EVAPORATE, NULL, pl->x, pl->y, 0, 0);
 		new_draw_info(NDI_UNIQUE, pl, "The object disappears in a puff of smoke!");
 		new_draw_info(NDI_UNIQUE, pl, "It must have been an illusion.");
 		remove_ob(op);

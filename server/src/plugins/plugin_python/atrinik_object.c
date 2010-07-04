@@ -375,7 +375,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 
 	if (WHO->map)
 	{
-		hooks->play_sound_map(WHO->map, WHO->x, WHO->y, SOUND_TELEPORT, SOUND_NORMAL);
+		hooks->play_sound_map(WHO->map, SOUND_TELEPORT, NULL, WHO->x, WHO->y, 0, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -1784,11 +1784,11 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 
 	if (WHO)
 	{
-		hooks->play_sound_map(WHO->map, WHO->x, WHO->y, hooks->spells[SP_IDENTIFY].sound, SOUND_SPELL);
+		hooks->play_sound_map(WHO->map, hooks->spells[SP_IDENTIFY].sound, NULL, WHO->x, WHO->y, 0, 0);
 	}
 	else if (target->obj)
 	{
-		hooks->play_sound_map(target->obj->map, target->obj->x, target->obj->y, hooks->spells[SP_IDENTIFY].sound, SOUND_SPELL);
+		hooks->play_sound_map(target->obj->map, hooks->spells[SP_IDENTIFY].sound, NULL, target->obj->x, target->obj->y, 0, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -2130,30 +2130,31 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 }
 
 /**
- * <h1>player.Sound(<i>\<int\></i> x, <i>\<int\></i> y, <i>\<int\></i> soundnumber, <i>[int]</i> soundtype)</h1>
- *
- * Play a sound to player.
- * @param x X position on the map where the sound is coming from, can be 0.
- * @param y Y position on the map where the sound is coming from, can be 0.
- * @param soundnumber ID of the sound to play.
- * @param soundtype Type of the sound, one of:
- * - SOUNDTYPE_NORMAL (default): Sound number should be one of @ref sound_numbers_normal "normal sound numbers".
- * - SOUNDTYPE_SPELL: Sound number should be one of @ref sound_numbers_spell "spell sound numbers". */
+ * <h1>player.Sound(\<int\> soundnumber, [string] filename, [int] x, [int] y, [int] loop, [int] volume)</h1>
+ * Play a sound to the specified player.
+ * @param soundnumber ID of the sound to play, one of ::sounds_id_enum.
+ * @param filename If passed, play this background music instead of the
+ * above 'sound_num'.
+ * @param x X position where the sound is playing from. Can be 0.
+ * @param y Y position where the sound is playing from. Can be 0.
+ * @param loop How many times to loop the sound, -1 for infinite number.
+ * @param volume Volume adjustment. */
 static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 {
-	int x, y, sound_number, sound_type = SOUND_NORMAL;
+	int sound_number, x = 0, y = 0, loop = 0, volume = 0;
+	char *filename = NULL;
 
-	if (!PyArg_ParseTuple(args, "iii|i", &x, &y, &sound_number, &sound_type))
+	if (!PyArg_ParseTuple(args, "i|siiii", &sound_number, &filename, &x, &y, &loop, &volume))
 	{
 		return NULL;
 	}
 
-	if (WHO->type != PLAYER || !CONTR(WHO))
+	if (WHO->type != PLAYER)
 	{
 		RAISE("Sound(): Can only be used on players.");
 	}
 
-	hooks->play_sound_player_only(CONTR(WHO), sound_number, sound_type, x, y);
+	hooks->play_sound_player_only(CONTR(WHO), sound_number, filename, x, y, loop, volume);
 
 	Py_INCREF(Py_None);
 	return Py_None;

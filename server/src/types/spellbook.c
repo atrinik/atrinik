@@ -118,7 +118,7 @@ void apply_spellbook(object *op, object *tmp)
 	}
 	else
 	{
-		play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
+		play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, NULL, 0, 0, 0, 0);
 		new_draw_info(NDI_UNIQUE, op, "You fail to learn the spell.\n");
 	}
 

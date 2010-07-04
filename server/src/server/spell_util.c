@@ -477,7 +477,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			/* Chance to fumble the spell by too low wisdom. */
 			if (s->type == SPELL_TYPE_PRIEST && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
 			{
-				play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
+				play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, NULL, 0, 0, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
 
 				/* Shouldn't happen... */
@@ -681,7 +681,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			break;
 	}
 
-	play_sound_map(op->map, op->x, op->y, spells[type].sound, SOUND_SPELL);
+	play_sound_map(op->map, spells[type].sound, NULL, op->x, op->y, 0, 0);
 
 	if (item == spellNPC)
 	{
@@ -1359,7 +1359,7 @@ void explode_object(object *op)
 	object *tmp;
 	int type;
 
-	play_sound_map(op->map, op->x, op->y, SOUND_OB_EXPLODE, SOUND_NORMAL);
+	play_sound_map(op->map, SOUND_OB_EXPLODE, NULL, op->x, op->y, 0, 0);
 
 	if (op->other_arch == NULL)
 	{

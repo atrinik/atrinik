@@ -192,7 +192,7 @@ struct plugin_hooklist
 	object *(*get_object)();
 	void (*copy_object)(object *, object *, int);
 	void (*enter_exit)(object *, object *);
-	void (*play_sound_map)(mapstruct *, int, int, int, int);
+	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
 	int (*learn_skill)(object *, object *, char *, int, int);
 	object *(*find_marked_object)(object *);
 	int (*cast_identify)(object *, int, object *, int);
@@ -228,7 +228,7 @@ struct plugin_hooklist
 	int (*cftimer_destroy)(int);
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
-	void (*play_sound_player_only)(player *, int, int, int, int);
+	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
 	void (*new_draw_info_format)(int, object *, char *, ...);
 	int (*was_destroyed)(object *, tag_t);
 	int (*object_get_gender)(object *);

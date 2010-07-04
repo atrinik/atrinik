@@ -37,7 +37,7 @@ void apply_poison(object *op, object *tmp)
 {
 	if (op->type == PLAYER)
 	{
-		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
+		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON, NULL, 0, 0, 0, 0);
 		new_draw_info(NDI_UNIQUE, op, "Yech! That tasted poisonous!");
 		strcpy(CONTR(op)->killer, "poisonous food");
 	}

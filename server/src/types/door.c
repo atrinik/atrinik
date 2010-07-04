@@ -157,7 +157,7 @@ void open_locked_door(object *op, object *opener)
 
 		if (op->sub_type == ST1_DOOR_NORMAL)
 		{
-			play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
+			play_sound_map(op->map, SOUND_OPEN_DOOR, NULL, op->x, op->y, 0, 0);
 		}
 
 		remove_ob(op);
@@ -200,7 +200,7 @@ void open_locked_door(object *op, object *opener)
 
 		if (op->sub_type == ST1_DOOR_NORMAL)
 		{
-			play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
+			play_sound_map(op->map, SOUND_OPEN_DOOR, NULL, op->x, op->y, 0, 0);
 		}
 
 		insert_ob_in_map(op, op->map, op, 0);
@@ -288,7 +288,7 @@ void close_locked_door(object *op)
 
 		if (op->sub_type == ST1_DOOR_NORMAL)
 		{
-			play_sound_map(op->map, op->x, op->y, SOUND_DOOR_CLOSE, SOUND_NORMAL);
+			play_sound_map(op->map, SOUND_DOOR_CLOSE, NULL, op->x, op->y, 0, 0);
 		}
 
 		insert_ob_in_map(op, op->map, op, 0);

@@ -577,7 +577,7 @@ static void fire_bow(object *op, int dir)
 	arrow->stats.grace = arrow->last_sp;
 	/* Reflection timer */
 	arrow->stats.maxgrace = 60 + (RANDOM() % 12);
-	play_sound_map(op->map, op->x, op->y, SOUND_FIRE_ARROW, SOUND_NORMAL);
+	play_sound_map(op->map, SOUND_FIRE_ARROW, NULL, op->x, op->y, 0, 0);
 
 	if (insert_ob_in_map(arrow, op->map, op, 0))
 	{
@@ -760,7 +760,7 @@ void fire(object *op, int dir)
 
 			if (weap->stats.food <= 0)
 			{
-				play_sound_player_only(CONTR(op), SOUND_WAND_POOF, SOUND_NORMAL, 0, 0);
+				play_sound_player_only(CONTR(op), SOUND_WAND_POOF, NULL, 0, 0, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "The wand says poof.");
 				return;
 			}
@@ -846,7 +846,7 @@ trick_jump:
 
 			if (weap->stats.hp < spells[weap->stats.sp].sp)
 			{
-				play_sound_player_only(CONTR(op), SOUND_WAND_POOF, SOUND_NORMAL, 0, 0);
+				play_sound_player_only(CONTR(op), SOUND_WAND_POOF, NULL, 0, 0, 0, 0);
 
 				if (CONTR(op)->shoottype == range_rod)
 				{
@@ -1050,7 +1050,7 @@ static int save_life(object *op)
 	{
 		if (QUERY_FLAG(tmp, FLAG_APPLIED) && QUERY_FLAG(tmp, FLAG_LIFESAVE))
 		{
-			play_sound_map(op->map, op->x, op->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
+			play_sound_map(op->map, SOUND_OB_EVAPORATE, NULL, op->x, op->y, 0, 0);
 			new_draw_info_format(NDI_UNIQUE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
 
 			if (CONTR(op))
@@ -1401,7 +1401,7 @@ void kill_player(object *op)
 	/* Trigger the global GDEATH event */
 	trigger_global_event(EVENT_GDEATH, NULL, op);
 
-	play_sound_player_only(CONTR(op), SOUND_PLAYER_DIES, SOUND_NORMAL, 0, 0);
+	play_sound_player_only(CONTR(op), SOUND_PLAYER_DIES, NULL, 0, 0, 0, 0);
 
 	/* Save the map location for corpse, gravestone */
 	x = op->x;

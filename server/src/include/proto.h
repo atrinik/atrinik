@@ -798,6 +798,7 @@ int create_bomb(object *op, object *caster, int dir, int spell_type);
 void animate_bomb(object *op);
 int remove_depletion(object *op, object *target);
 int remove_curse(object *op, object *target, int type, SpellTypeFrom src);
+int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
 int cast_identify(object *op, int level, object *single_ob, int mode);
 int cast_consecrate(object *op);
 int finger_of_death(object *op, object *target);
@@ -988,8 +989,8 @@ void command_clear_cmds(char *buf, int len, socket_struct *ns);
 void SetSound(char *buf, int len, socket_struct *ns);
 
 /* socket/sounds.c */
-void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, int y);
-void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type);
+void play_sound_player_only(player *pl, int sound_num, const char *filename, int x, int y, int loop, int volume);
+void play_sound_map(mapstruct *map, int sound_num, const char *filename, int x, int y, int loop, int volume);
 
 /* types/altar.c */
 int apply_altar(object *altar, object *sacrifice, object *originator);

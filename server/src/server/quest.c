@@ -83,7 +83,7 @@ void check_quest(object *op, object *quest_container)
 			add_one_drop_quest_item(op, tmp, quest_container->name);
 			snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
 			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
-			play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
+			play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, NULL, 0, 0, 0, 0);
 			esrv_send_item(op, tmp);
 
 			break;
@@ -102,7 +102,7 @@ void check_quest(object *op, object *quest_container)
 				if (quest_object->last_sp == quest_object->last_grace)
 				{
 					snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
-					play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
+					play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, NULL, 0, 0, 0, 0);
 				}
 				else
 				{
@@ -132,7 +132,7 @@ void check_quest(object *op, object *quest_container)
 			insert_ob_in_ob(tmp, op);
 			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(tmp, NULL));
 			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
-			play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
+			play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, NULL, 0, 0, 0, 0);
 			esrv_send_item(op, tmp);
 
 			break;

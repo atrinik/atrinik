@@ -407,7 +407,7 @@ void player_lvl_adj(object *who, object *op)
 		{
 			object *effect_ob;
 
-			play_sound_player_only(CONTR(who), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
+			play_sound_player_only(CONTR(who), SOUND_LEVEL_UP, NULL, 0, 0, 0, 0);
 
 			if (level_up_arch)
 			{

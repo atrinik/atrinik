@@ -475,7 +475,7 @@ void do_throw(object *op, object *toss_item, int dir)
 	SET_FLAG(throw_ob, FLAG_FLY_ON);
 	SET_FLAG(throw_ob, FLAG_WALK_ON);
 
-	play_sound_map(op->map, op->x, op->y, SOUND_THROW, SOUND_NORMAL);
+	play_sound_map(op->map, SOUND_THROW, NULL, op->x, op->y, 0, 0);
 
 	/* Trigger the THROW event */
 	trigger_event(EVENT_THROW, op, throw_ob, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);

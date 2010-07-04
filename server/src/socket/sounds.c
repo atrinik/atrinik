@@ -42,15 +42,17 @@
 /**
  * Plays a sound for specified player only.
  * @param pl Player to play sound to.
- * @param sound_num ID of the sound. See @ref sound_numbers_normal and
- * @ref sound_numbers_spell.
- * @param sound_type Sound type, see @ref sound_types "the sound types".
+ * @param sound_num ID of the sound, one of ::sound_ids_enum.
+ * @param filename If passed, play this background music instead of the
+ * above 'sound_num'.
  * @param x X position where the sound is playing from.
- * @param y Y position where the sound is playing from. */
-void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, int y)
+ * @param y Y position where the sound is playing from.
+ * @param loop How many times to loop the sound, -1 for infinite number.
+ * @param volume Volume adjustment. */
+void play_sound_player_only(player *pl, int sound_num, const char *filename, int x, int y, int loop, int volume)
 {
 	SockList sl;
-	char buf[32];
+	unsigned char buf[MAX_BUF];
 
 	/* Player has disabled sound */
 	if (!pl->socket.sound)
@@ -58,14 +60,44 @@ void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, in
 		return;
 	}
 
-	sl.buf = (unsigned char *) buf;
-
+	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_SOUND);
 
-	SockList_AddChar(&sl, (char) x);
-	SockList_AddChar(&sl, (char) y);
-	SockList_AddShort(&sl, (uint16) sound_num);
-	SockList_AddChar(&sl, (char) sound_type);
+	if (pl->socket.version < 1038)
+	{
+		SockList_AddChar(&sl, (char) x);
+		SockList_AddChar(&sl, (char) y);
+
+		if (sound_num < SOUND_MAGIC_DEFAULT)
+		{
+			SockList_AddShort(&sl, (uint16) sound_num);
+			SockList_AddChar(&sl, 0);
+		}
+		else
+		{
+			SockList_AddShort(&sl, (uint16) sound_num - SOUND_MAGIC_DEFAULT);
+			SockList_AddChar(&sl, 1);
+		}
+	}
+	else
+	{
+	if (!filename)
+	{
+		SockList_AddChar(&sl, (char) CMD_SOUND_EFFECT);
+		SockList_AddChar(&sl, (char) x);
+		SockList_AddChar(&sl, (char) y);
+		SockList_AddShort(&sl, (uint16) sound_num);
+	}
+	else
+	{
+		SockList_AddChar(&sl, (char) CMD_SOUND_BACKGROUND);
+		SockList_AddString(&sl, (char *) filename);
+	}
+
+	SockList_AddChar(&sl, loop);
+	SockList_AddChar(&sl, volume);
+	}
+
 	Send_With_Handling(&pl->socket, &sl);
 }
 
@@ -74,18 +106,22 @@ void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, in
  *
  * Considers tiled maps.
  * @param map Map to play the sound on.
- * @param x X position on map.
- * @param y Y position on map.
- * @param sound_num ID of the sound. See @ref sound_numbers_normal and
- * @ref sound_numbers_spell.
- * @param sound_type Sound type, see @ref sound_types "the sound types". */
-void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
+ * @param sound_num ID of the sound, one of ::sound_ids_enum.
+ * @param filename If passed, play this background music instead of the
+ * above 'sound_num'.
+ * @param x X position where the sound is playing from.
+ * @param y Y position where the sound is playing from.
+ * @param loop How many times to loop the sound, -1 for infinite number.
+ * @param volume Volume adjustment. */
+void play_sound_map(mapstruct *map, int sound_num, const char *filename, int x, int y, int loop, int volume)
 {
 	int xt, yt;
 	object *tmp;
 
 	if (!map || map->in_memory != MAP_IN_MEMORY)
+	{
 		return;
+	}
 
 	/* any player on this map? */
 	if (map->player_first)
@@ -94,7 +130,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, x - tmp->x, y - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, x - tmp->x, y - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -107,7 +143,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, x - tmp->x, yt - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, x - tmp->x, yt - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -120,7 +156,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, xt - tmp->x, y - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, xt - tmp->x, y - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -133,7 +169,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, x - tmp->x, yt - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, x - tmp->x, yt - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -146,7 +182,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, xt - tmp->x, y - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, xt - tmp->x, y - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -156,11 +192,11 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		yt = y + MAP_HEIGHT(map->tile_map[4]);
 		xt = x - MAP_WIDTH(map);
 
-		for (tmp = map->tile_map[4]->player_first;tmp;tmp=CONTR(tmp)->map_above)
+		for (tmp = map->tile_map[4]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, xt - tmp->x, yt - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, xt - tmp->x, yt - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -174,7 +210,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, xt - tmp->x, yt - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, xt - tmp->x, yt - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -188,7 +224,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, xt - tmp->x, yt - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, xt - tmp->x, yt - tmp->y, loop, volume);
 			}
 		}
 	}
@@ -202,7 +238,7 @@ void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
 			{
-				play_sound_player_only(CONTR(tmp), sound_num, sound_type, xt - tmp->x, yt - tmp->y);
+				play_sound_player_only(CONTR(tmp), sound_num, filename, xt - tmp->x, yt - tmp->y, loop, volume);
 			}
 		}
 	}

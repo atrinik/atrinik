@@ -31,68 +31,58 @@
 #define SOUNDS_H
 
 /**
- * @defgroup sound_types Sounds types
- * If we send a sound to the client, this defines what kind of sound we
- * have and how the client should use the sound number.
+ * @defgroup CMD_SOUND_xxx Sound command types
+ * The sound command types.
  *@{*/
-/** Normal sound. */
-#define SOUND_NORMAL    0
-/** Spell type sound. */
-#define SOUND_SPELL     1
+/** A sound effect, like poison, melee/range hit, spell sound, etc. */
+#define CMD_SOUND_EFFECT 1
+/** Background music. */
+#define CMD_SOUND_BACKGROUND 2
 /*@}*/
 
 /**
- * @defgroup sound_numbers_normal Sound numbers for normal sounds
- * These are sounds for SOUND_NORMAL type sounds.
- * @note The order here must match the order used in the client.
- *@{*/
-#define SOUND_LEVEL_UP          0
-#define SOUND_FIRE_ARROW        1
-#define SOUND_LEARN_SPELL       2
-#define SOUND_FUMBLE_SPELL      3
-#define SOUND_WAND_POOF         4
-#define SOUND_OPEN_DOOR         5
-#define SOUND_PUSH_PLAYER       6
-
-#define SOUND_HIT_IMPACT        7
-#define SOUND_HIT_CLEAVE        8
-#define SOUND_HIT_SLASH         9
-#define SOUND_HIT_PIERCE        10
-#define SOUND_MISS_BLOCK        11
-#define SOUND_MISS_HAND         12
-#define SOUND_MISS_MOB          13
-#define SOUND_MISS_PLAYER       14
-
-#define SOUND_PET_IS_KILLED     15
-#define SOUND_PLAYER_DIES       16
-#define SOUND_OB_EVAPORATE      17
-#define SOUND_OB_EXPLODE        18
-#define SOUND_PLAYER_KILLS      19
-#define SOUND_TURN_HANDLE       20
-#define SOUND_FALL_HOLE         21
-#define SOUND_DRINK_POISON      22
-
-#define SOUND_DROP_THROW        23
-#define SOUND_LOSE_SOME         24
-#define SOUND_THROW             25
-#define SOUND_GATE_OPEN         26
-#define SOUND_GATE_CLOSE        27
-#define SOUND_OPEN_CONTAINER    28
-#define SOUND_GROWL             29
-#define SOUND_ARROW_HIT         30
-#define SOUND_DOOR_CLOSE        31
-#define SOUND_TELEPORT          32
-#define SOUND_CLICK             33
-/*@}*/
-
-/**
- * Sound numbers for spell sounds.
- *
- * Different spells can, of course, use the same sound.
- * @note The order here must match the order used in the client.
- * @anchor sound_numbers_spell */
-typedef enum _spell_sound_id
+ * Sound numbers.
+ * @note The order here must match the order used in the client. */
+typedef enum sound_ids_enum
 {
+	SOUND_LEVEL_UP,
+	SOUND_FIRE_ARROW,
+	SOUND_LEARN_SPELL,
+	SOUND_FUMBLE_SPELL,
+	SOUND_WAND_POOF,
+	SOUND_OPEN_DOOR,
+	SOUND_PUSH_PLAYER,
+
+	SOUND_HIT_IMPACT,
+	SOUND_HIT_CLEAVE,
+	SOUND_HIT_SLASH,
+	SOUND_HIT_PIERCE,
+	SOUND_MISS_BLOCK,
+	SOUND_MISS_HAND,
+	SOUND_MISS_MOB,
+	SOUND_MISS_PLAYER,
+
+	SOUND_PET_IS_KILLED,
+	SOUND_PLAYER_DIES,
+	SOUND_OB_EVAPORATE,
+	SOUND_OB_EXPLODE,
+	SOUND_PLAYER_KILLS,
+	SOUND_TURN_HANDLE,
+	SOUND_FALL_HOLE,
+	SOUND_DRINK_POISON,
+
+	SOUND_DROP_THROW,
+	SOUND_LOSE_SOME,
+	SOUND_THROW,
+	SOUND_GATE_OPEN,
+	SOUND_GATE_CLOSE,
+	SOUND_OPEN_CONTAINER,
+	SOUND_GROWL,
+	SOUND_ARROW_HIT,
+	SOUND_DOOR_CLOSE,
+	SOUND_TELEPORT,
+	SOUND_CLICK,
+
 	SOUND_MAGIC_DEFAULT,
 	SOUND_MAGIC_ACID,
 	SOUND_MAGIC_ANIMATE,
@@ -141,7 +131,25 @@ typedef enum _spell_sound_id
 	SOUND_MAGIC_WALL2,
 	SOUND_MAGIC_WOUND,
 
+	SOUND_STEP1,
+	SOUND_STEP2,
+	SOUND_PRAY,
+	SOUND_CONSOLE,
+	SOUND_CLICKFAIL,
+	SOUND_CHANGE1,
+	SOUND_WARN_FOOD,
+	SOUND_WARN_DRAIN,
+	SOUND_WARN_STATUP,
+	SOUND_WARN_STATDOWN,
+	SOUND_WARN_HP,
+	SOUND_WARN_HP2,
+	SOUND_WEAPON_ATTACK,
+	SOUND_WEAPON_HOLD,
+	SOUND_GET,
+	SOUND_BOOK,
+	SOUND_PAGE,
+
 	SPELL_SOUND_MAX
-} _sound_id;
+} sound_ids_enum;
 
 #endif

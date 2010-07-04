@@ -136,7 +136,7 @@ int apply_potion(object *op, object *tmp)
 				}
 
 				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, op->x, op->y, SOUND_DRINK_POISON, SOUND_NORMAL);
+				play_sound_map(op->map, SOUND_DRINK_POISON, NULL, op->x, op->y, 0, 0);
 			}
 			/* all positive (when not on default negative) */
 			else
@@ -146,7 +146,7 @@ int apply_potion(object *op, object *tmp)
 				memcpy(force->protection, tmp->protection, sizeof(tmp->protection));
 				memcpy(force->attack, tmp->attack, sizeof(tmp->attack));
 				insert_spell_effect("meffect_green", op->map, op->x, op->y);
-				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
+				play_sound_map(op->map, SOUND_MAGIC_DEFAULT, NULL, op->x, op->y, 0, 0);
 			}
 
 			/* now copy stats values */
@@ -198,7 +198,7 @@ int apply_potion(object *op, object *tmp)
 				fix_player(op);
 				decrease_ob(tmp);
 				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, op->x, op->y, SOUND_DRINK_POISON, SOUND_NORMAL);
+				play_sound_map(op->map, SOUND_DRINK_POISON, NULL, op->x, op->y, 0, 0);
 				return 1;
 			}
 
@@ -231,7 +231,7 @@ int apply_potion(object *op, object *tmp)
 
 			decrease_ob(tmp);
 			insert_spell_effect("meffect_green", op->map, op->x, op->y);
-			play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
+			play_sound_map(op->map, SOUND_MAGIC_DEFAULT, NULL, op->x, op->y, 0, 0);
 			return 1;
 		}
 		/* improvement potion */
@@ -373,27 +373,27 @@ improve_done:
 			if (!success_flag)
 			{
 				new_draw_info(NDI_UNIQUE, op, "The potion had no effect - you are already perfect.");
-				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
+				play_sound_map(op->map, SOUND_MAGIC_DEFAULT, NULL, op->x, op->y, 0, 0);
 			}
 			else if (success_flag == 1)
 			{
 				fix_player(op);
 				insert_spell_effect("meffect_yellow", op->map, op->x, op->y);
-				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
+				play_sound_map(op->map, SOUND_MAGIC_DEFAULT, NULL, op->x, op->y, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "You feel a little more perfect!");
 			}
 			else if (success_flag == 2)
 			{
 				fix_player(op);
 				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, op->x, op->y, SOUND_DRINK_POISON, SOUND_NORMAL);
+				play_sound_map(op->map, SOUND_DRINK_POISON, NULL, op->x, op->y, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "The foul potion burns like fire in you!");
 			}
 			/* bad potion but all values of this player are 1! poor poor guy.... */
 			else
 			{
 				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, op->x, op->y, SOUND_DRINK_POISON, SOUND_NORMAL);
+				play_sound_map(op->map, SOUND_DRINK_POISON, NULL, op->x, op->y, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "The potion was foul but had no effect on your tortured body.");
 			}
 
