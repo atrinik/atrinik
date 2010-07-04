@@ -63,7 +63,7 @@ void play_sound_player_only(player *pl, int sound_num, const char *filename, int
 	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_SOUND);
 
-	if (pl->socket.version < 1038)
+	if (pl->socket.socket_version < 1038)
 	{
 		SockList_AddChar(&sl, (char) x);
 		SockList_AddChar(&sl, (char) y);
