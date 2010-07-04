@@ -23,7 +23,6 @@ char *adjust_string(char *buf);
 /* client/commands.c */
 void BookCmd(unsigned char *data, int len);
 void PartyCmd(unsigned char *data, int len);
-void SoundCmd(unsigned char *data, int len);
 void SetupCmd(char *buf, int len);
 void AddMeFail(unsigned char *data, int len);
 void AddMeSuccess(unsigned char *data, int len);
@@ -194,11 +193,11 @@ int socket_open(struct ClientSocket *csock, char *host, int port);
 void sound_init();
 void sound_deinit();
 void sound_play_effect(int soundid, int volume);
-void sound_play_map_effect(int soundid, int x, int y);
 void sound_start_bg_music(char *filename, int volume, int loop);
 void sound_stop_bg_music();
 void parse_map_bg_music(const char *bg_music);
 void sound_update_volume(int old_volume);
+void SoundCmd(uint8 *data, int len);
 
 /* client/sprite.c */
 void sprite_init_system();

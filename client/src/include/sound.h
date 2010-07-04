@@ -165,8 +165,6 @@ typedef enum _sound_id
 	SOUND_MAGIC_WALL2,
 	SOUND_MAGIC_WOUND,
 
-	/* Here we have client side sounds - add server
-	 * sounds BEFORE this. */
 	SOUND_STEP1,
 	SOUND_STEP2,
 	SOUND_PRAY,

@@ -373,7 +373,7 @@ void sound_deinit()
 }
 
 /**
- * Play a sounf effect.
+ * Play a sound effect.
  * @param soundid Sound ID to play.
  * @param volume Volume to play at. */
 void sound_play_effect(int soundid, int volume)
@@ -383,25 +383,6 @@ void sound_play_effect(int soundid, int volume)
 	volume = (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) 100 / (double) 100)));
 	snprintf(filename, sizeof(filename), "%s%s", GetSfxDirectory(), sound_files[soundid]);
 	sound_add_music(filename, volume, 0, SOUND_TYPE_EFFECT);
-}
-
-/**
- * Play a sound on map.
- * @param soundid Sound ID to play.
- * @param x X position of player.
- * @param y Y position of player. */
-void sound_play_map_effect(int soundid, int x, int y)
-{
-	int volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
-
-	if (volume < 0)
-	{
-		volume = 0;
-	}
-
-	/* The real volume in %. */
-	volume = 100 - volume * (100 / MAX_SOUND_DISTANCE);
-	sound_play_effect(soundid, volume);
 }
 
 /**
@@ -496,4 +477,73 @@ void sound_update_volume(int old_volume)
 	}
 
 	SDL_UnlockMutex(sound_data_mutex);
+}
+
+/**
+ * Sound command, used to play a sound.
+ * @param data Data to initialize the sound data from.
+ * @param len Length of 'data'. */
+void SoundCmd(uint8 *data, int len)
+{
+	size_t pos = 0;
+	uint8 type;
+	int sound_id, x = 0, y = 0, loop, volume;
+	char filename[MAX_BUF];
+
+	(void) len;
+	filename[0] = '\0';
+	type = data[pos++];
+
+	if (type == CMD_SOUND_EFFECT)
+	{
+		x = data[pos++];
+		y = data[pos++];
+		sound_id = GetShort_String(data + pos);
+		pos += 2;
+
+		if (sound_id < 0 || sound_id >= SOUND_MAX)
+		{
+			LOG(llevError, "Got invalid sound ID: %d\n", sound_id);
+			return;
+		}
+	}
+	else if (type == CMD_SOUND_BACKGROUND)
+	{
+		char c;
+		size_t i = 0;
+
+		while ((c = (char) (data[pos++])))
+		{
+			filename[i++] = c;
+		}
+
+		filename[i] = '\0';
+	}
+	else
+	{
+		LOG(llevError, "ERROR: SoundCmd(): Invalid sound type: %d\n", type);
+		return;
+	}
+
+	loop = data[pos++];
+	volume = data[pos++];
+
+	if (type == CMD_SOUND_EFFECT)
+	{
+		int dist_volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
+		char path[HUGE_BUF];
+
+		if (dist_volume < 0)
+		{
+			dist_volume = 0;
+		}
+
+		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
+		snprintf(path, sizeof(path), "%s%s", GetSfxDirectory(), sound_files[sound_id]);
+		sound_add_music(path, dist_volume + volume, loop, SOUND_TYPE_EFFECT);
+	}
+	else if (type == CMD_SOUND_BACKGROUND)
+	{
+		sound_start_bg_music(filename, options.music_volume + volume, loop);
+	}
 }

@@ -96,40 +96,6 @@ void PartyCmd(unsigned char *data, int len)
 }
 
 /**
- * Sound command, used to play a sound.
- * @param data Data to initialize the music data from, like x, y, type, etc
- * @param len Length of the data */
-void SoundCmd(unsigned char *data,  int len)
-{
-	int x, y, num, type;
-
-	if (len != 5)
-	{
-		LOG(llevError, "Got invalid length on sound command: %d\n", len);
-		return;
-	}
-
-	x = (signed char) data[0];
-	y = (signed char) data[1];
-	num = GetShort_String(data + 2);
-	type = data[4];
-
-	if (num < 0 || num >= SOUND_MAX)
-	{
-		LOG(llevError, "Got invalid sound id: %d\n", num);
-		return;
-	}
-
-	if (type == SOUND_SPELL)
-	{
-		/* This maps us to the spell sound table part */
-		num += SOUND_MAGIC_DEFAULT;
-	}
-
-	sound_play_map_effect(num, x, y);
-}
-
-/**
  * Parse server file information from the setup command.
  * @param param Parameter for the command.
  * @param command The setup command (amf, hpf, etc).

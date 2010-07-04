@@ -606,3 +606,13 @@ extern Client_Player cpl;
 /** Spell quickslot. */
 #define QUICKSLOT_TYPE_SPELL 2
 /*@}*/
+
+/**
+ * @defgroup CMD_SOUND_xxx Sound command types
+ * The sound command types.
+ *@{*/
+/** A sound effect, like poison, melee/range hit, spell sound, etc. */
+#define CMD_SOUND_EFFECT 1
+/** Background music. */
+#define CMD_SOUND_BACKGROUND 2
+/*@}*/
