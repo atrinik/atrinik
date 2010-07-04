@@ -4936,6 +4936,7 @@ artifact redhelm_quest_pouch
 def_arch pouch
 Object
 is_magical 1
+name Redhelm's pouch
 title of minor holding
 type 122
 value 550
@@ -4944,4 +4945,5 @@ one_drop 1
 material_real 194
 item_quality 81
 item_condition 81
+is_named 1
 end
