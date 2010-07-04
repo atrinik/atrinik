@@ -118,7 +118,7 @@ else:
 		switch_beacon.env.Apply(switch_beacon.env, APPLY_TOGGLE)
 
 		# Give the player a hint...
-		activator.Sound(0, 0, SOUND_GATE_OPEN)
+		activator.Sound(SOUND_GATE_OPEN)
 		activator.Write("You hear the sound of old gears turning...", COLOR_YELLOW)
 
 		# Make all torches impossible to apply until the effect finishes.
@@ -131,4 +131,4 @@ else:
 		me.CreateTimer(4, 2)
 	else:
 		# Drop the player a hint that extinguishing the torch did something.
-		activator.Sound(0, 0, SOUND_TURN_HANDLE)
+		activator.Sound(SOUND_TURN_HANDLE)

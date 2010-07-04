@@ -16,7 +16,7 @@ tile_path_5 world_1007
 tile_path_6 world_1005
 tile_path_7 world_0805
 tile_path_8 world_0807
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region dragons_island
 end
 arch desert.104

@@ -10,7 +10,7 @@ difficulty 1
 darkness -1
 no_summon 1
 no_harm 1
-bg_music harmony2.ogg|0|-1
+bg_music harmony2.mid
 region strakewood_island
 end
 arch floor_ostone5

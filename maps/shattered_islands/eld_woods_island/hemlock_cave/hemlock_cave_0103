@@ -11,7 +11,7 @@ darkness -1
 tile_path_2 hemlock_cave_0203
 tile_path_3 hemlock_cave_0102
 tile_path_6 hemlock_cave_0202
-bg_music ghostly.ogg|0|-1
+bg_music ghostly.ogg
 region eld_woods_island
 end
 arch floor_nstone3

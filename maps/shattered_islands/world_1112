@@ -19,7 +19,7 @@ tile_path_5 world_1213
 tile_path_6 world_1211
 tile_path_7 world_1011
 tile_path_8 world_1013
-bg_music courage.ogg|0|-1
+bg_music courage.mid
 region greyton
 end
 arch grassd_6

@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness 4
-bg_music hidden_passage.ogg|0|-1
+bg_music hidden_passage.ogg
 region world
 end
 arch blocked

@@ -13,7 +13,7 @@ tile_path_2 world_0208
 tile_path_3 world_0107
 tile_path_5 world_0209
 tile_path_6 world_0207
-bg_music escape.ogg|0|-1
+bg_music escape.mid
 region promethia_island
 end
 arch water_still

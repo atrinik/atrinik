@@ -9,7 +9,7 @@ height 24
 difficulty 3
 darkness 3
 tile_path_1 slime_lords_0102
-bg_music ghostly_passage.ogg|0|-1
+bg_music ghostly_passage.ogg
 region tutorial_island
 end
 arch floor_sand_d2

@@ -11,7 +11,7 @@ swap_time 1
 difficulty 1
 darkness 7
 fixed_resettime 1
-bg_music joyful_life.ogg|0|-1
+bg_music joyful_life.ogg
 region berri_lur
 end
 arch grassd_8

@@ -13,7 +13,7 @@ tile_path_3 hemlock_cave_0202
 tile_path_4 hemlock_cave_0103
 tile_path_6 hemlock_cave_0302
 tile_path_7 hemlock_cave_0102
-bg_music ghostly.ogg|0|-1
+bg_music ghostly.ogg
 region eld_woods_island
 end
 arch floor_nstone2

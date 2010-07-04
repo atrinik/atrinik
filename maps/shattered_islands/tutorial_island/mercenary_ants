@@ -8,7 +8,7 @@ width 16
 height 16
 difficulty 1
 darkness 3
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region tutorial_island
 end
 arch fstone1c

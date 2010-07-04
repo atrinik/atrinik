@@ -17,7 +17,7 @@ tile_path_5 world_1518
 tile_path_6 world_1516
 tile_path_7 world_1316
 tile_path_8 world_1318
-bg_music harmony2.ogg|0|-1
+bg_music harmony2.mid
 region berri_lur
 end
 arch floor_flagm1

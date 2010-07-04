@@ -12,7 +12,7 @@ tile_path_1 dark_cave_0102
 tile_path_3 dark_cave_01aa
 tile_path_4 dark_cave_aa01
 tile_path_7 dark_cave_aaaa
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region dark_cave
 end
 arch floor_ruin4

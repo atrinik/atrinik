@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness 2
-bg_music travelling.ogg|0|-1
+bg_music travelling.ogg
 region ship
 end
 arch blocked

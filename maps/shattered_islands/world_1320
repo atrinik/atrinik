@@ -11,7 +11,7 @@ outdoor 1
 tile_path_1 world_1321
 tile_path_3 world_1319
 tile_path_7 world_1219
-bg_music swamp.ogg|0|-1
+bg_music swamp.ogg
 region berri_lur
 end
 arch earth_dark2

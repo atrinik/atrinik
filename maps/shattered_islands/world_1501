@@ -11,7 +11,7 @@ outdoor 1
 tile_path_1 world_1502
 tile_path_4 world_1401
 tile_path_8 world_1402
-bg_music jungle1.ogg|0|-1
+bg_music jungle1.ogg
 region eld_woods_island
 end
 arch grassd_8

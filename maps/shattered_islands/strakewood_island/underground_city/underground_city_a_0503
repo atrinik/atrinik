@@ -9,7 +9,7 @@ height 24
 difficulty 50
 darkness 2
 tile_path_3 underground_city_a_0502
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region underground_city
 end
 arch floor_sand_d1

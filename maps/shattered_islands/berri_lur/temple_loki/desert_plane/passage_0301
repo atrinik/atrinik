@@ -10,7 +10,7 @@ difficulty 1
 darkness -1
 tile_path_2 passage_0101
 tile_path_4 passage_0201
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region berri_lur
 end
 arch desert.102

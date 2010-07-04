@@ -17,7 +17,7 @@ tile_path_5 world_0413
 tile_path_6 world_0411
 tile_path_7 world_0211
 tile_path_8 world_0213
-bg_music rainthunder.ogg|0|-1
+bg_music rainthunder.ogg
 region brynknot
 end
 arch floor_flagm4

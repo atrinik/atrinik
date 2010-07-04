@@ -11,7 +11,7 @@ darkness 2
 tile_path_1 underground_city_a_0302
 tile_path_2 underground_city_a_0401
 tile_path_5 underground_city_a_0402
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region underground_city
 end
 arch floor_black1a

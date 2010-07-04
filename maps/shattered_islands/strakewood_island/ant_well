@@ -10,7 +10,7 @@ enter_x 9
 enter_y 1
 difficulty 23
 darkness 3
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region strakewood_island
 end
 arch floor_cave6

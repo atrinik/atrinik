@@ -16,7 +16,7 @@ tile_path_5 world_0407
 tile_path_6 world_0405
 tile_path_7 world_0205
 tile_path_8 world_0207
-bg_music escape.ogg|0|-1
+bg_music escape.mid
 region promethia_island
 end
 arch floor_volcano_1

@@ -8,7 +8,7 @@ width 12
 height 13
 difficulty 1
 darkness -1
-bg_music escape.ogg|0|-1
+bg_music escape.mid
 region greyton
 end
 arch blocked

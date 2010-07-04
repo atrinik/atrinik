@@ -17,7 +17,7 @@ tile_path_5 world_0403
 tile_path_6 world_0401
 tile_path_7 world_0201
 tile_path_8 world_0203
-bg_music allusion_world.ogg|0|-1
+bg_music allusion_world.ogg
 region tutorial_island
 end
 arch grassd_5

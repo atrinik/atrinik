@@ -16,7 +16,7 @@ tile_path_5 world_0308
 tile_path_6 world_0306
 tile_path_7 world_0106
 tile_path_8 world_0108
-bg_music escape.ogg|0|-1
+bg_music escape.mid
 region promethia_island
 end
 arch floor_volcano_2
@@ -362,7 +362,7 @@ darkness 3
 level_increment 2
 orientation 1
 dungeon_name Promethia Island Volcano
-bg_music escape.ogg|0|-1
+bg_music escape.mid
 endmsg
 direction 7
 slaying /random/

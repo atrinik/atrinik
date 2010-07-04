@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness 7
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region berri_lur
 end
 arch desert.101

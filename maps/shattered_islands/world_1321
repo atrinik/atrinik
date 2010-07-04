@@ -9,7 +9,7 @@ height 24
 difficulty 1
 outdoor 1
 tile_path_3 world_1320
-bg_music swamp.ogg|0|-1
+bg_music swamp.ogg
 region berri_lur
 end
 arch swamp1

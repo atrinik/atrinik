@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 10
 darkness 2
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region strakewood_island
 end
 arch fstone1b

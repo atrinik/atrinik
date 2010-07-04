@@ -9,7 +9,7 @@ height 15
 difficulty 1
 darkness -1
 no_harm 1
-bg_music solemn.ogg|0|-1
+bg_music solemn.mid
 region lyondale_archipelago_wizard
 end
 arch floor_bw1

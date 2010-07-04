@@ -17,7 +17,7 @@ tile_path_5 world_1112
 tile_path_6 world_1110
 tile_path_7 world_0910
 tile_path_8 world_0912
-bg_music town_music.ogg|0|-1
+bg_music town_music.ogg
 region greyton
 end
 arch floor_flagm4

@@ -9,7 +9,7 @@ height 24
 difficulty 7
 darkness 2
 tile_path_2 giant_stronghold_0201
-bg_music ruins.ogg|0|-1
+bg_music ruins.mid
 region giant_stronghold
 end
 arch floor_stone1a

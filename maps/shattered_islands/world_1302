@@ -16,7 +16,7 @@ tile_path_5 world_1403
 tile_path_6 world_1401
 tile_path_7 world_1201
 tile_path_8 world_1203
-bg_music swamp.ogg|0|-1
+bg_music swamp.ogg
 region eld_woods_island
 end
 arch grassd_8

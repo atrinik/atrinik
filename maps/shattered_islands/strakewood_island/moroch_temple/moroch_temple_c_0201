@@ -10,7 +10,7 @@ difficulty 92
 darkness 2
 tile_path_1 moroch_temple_c_0202
 tile_path_4 moroch_temple_c_0101
-bg_music ghostly.ogg|0|-1
+bg_music ghostly.ogg
 region moroch_temple
 end
 arch floor_sblack3b

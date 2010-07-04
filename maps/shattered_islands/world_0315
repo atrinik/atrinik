@@ -13,7 +13,7 @@ tile_path_3 world_0314
 tile_path_4 world_0215
 tile_path_6 world_0414
 tile_path_7 world_0214
-bg_music swamp.ogg|0|-1
+bg_music swamp.ogg
 region strakewood_island
 end
 arch grassd_1

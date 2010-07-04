@@ -16,7 +16,7 @@ tile_path_5 world_1004
 tile_path_6 world_1002
 tile_path_7 world_0802
 tile_path_8 world_0804
-bg_music jungle1.ogg|0|-1
+bg_music jungle1.ogg
 region eld_woods_island
 end
 arch water_still

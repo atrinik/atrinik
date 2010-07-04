@@ -13,7 +13,7 @@ tile_path_3 world_1503
 tile_path_4 world_1404
 tile_path_7 world_1403
 tile_path_8 world_1405
-bg_music lonely_travel.ogg|0|-1
+bg_music lonely_travel.ogg
 region eld_woods_island
 end
 arch grassd_5

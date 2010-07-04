@@ -11,7 +11,7 @@ outdoor 1
 tile_path_2 world_0921
 tile_path_3 world_0820
 tile_path_6 world_0920
-bg_music campfire_tales.ogg|0|-1
+bg_music campfire_tales.mid
 region lyondale_archipelago_wizard
 end
 arch water_still

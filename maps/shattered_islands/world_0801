@@ -14,7 +14,7 @@ tile_path_2 world_0901
 tile_path_4 world_0701
 tile_path_5 world_0902
 tile_path_8 world_0702
-bg_music harmony2.ogg|0|-1
+bg_music harmony2.mid
 region clearhaven
 end
 arch grassd_3

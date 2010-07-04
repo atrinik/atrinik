@@ -1152,7 +1152,28 @@ void draw_client_map2(object *pl)
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
 		SockList_AddString(&sl, pl->map->name);
-		SockList_AddString(&sl, pl->map->bg_music ? pl->map->bg_music : "no_music");
+
+		if (CONTR(pl)->socket.socket_version < 1038)
+		{
+			if (!pl->map->bg_music)
+			{
+				SockList_AddString(&sl, "no_music");
+			}
+			else
+			{
+				char bg_music_tmp[MAX_BUF];
+
+				/* Replace .mid uses with .ogg variant. */
+				replace(pl->map->bg_music, ".mid", ".ogg", bg_music_tmp, sizeof(bg_music_tmp) - 20);
+				/* Add the fade/loop settings older clients require. */
+				strncat(bg_music_tmp, "|0|-1", sizeof(bg_music_tmp) - strlen(bg_music_tmp) - 1);
+				SockList_AddString(&sl, bg_music_tmp);
+			}
+		}
+		else
+		{
+			SockList_AddString(&sl, pl->map->bg_music ? pl->map->bg_music : "no_music");
+		}
 
 		if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
 		{

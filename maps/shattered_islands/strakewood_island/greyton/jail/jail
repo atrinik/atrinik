@@ -11,7 +11,7 @@ darkness 4
 no_magic 1
 no_priest 1
 no_harm 1
-bg_music escape.ogg|0|-1
+bg_music escape.mid
 region greyton
 end
 arch blocked

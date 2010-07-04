@@ -9,7 +9,7 @@ height 24
 difficulty 90
 darkness 3
 tile_path_2 tol_0201
-bg_music bubblyghost.ogg|0|-1
+bg_music bubblyghost.ogg
 region berri_lur
 end
 arch floor_fire1c

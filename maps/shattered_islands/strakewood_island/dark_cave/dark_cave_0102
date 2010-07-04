@@ -9,7 +9,7 @@ height 24
 difficulty 10
 darkness 2
 tile_path_3 dark_cave_0101
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region dark_cave
 end
 arch floor_ruin4

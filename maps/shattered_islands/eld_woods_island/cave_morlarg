@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 9
 darkness 2
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region eld_woods_island
 end
 arch floor_marble_b1c

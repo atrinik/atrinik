@@ -17,7 +17,7 @@ tile_path_5 world_1313
 tile_path_6 world_1311
 tile_path_7 world_1111
 tile_path_8 world_1113
-bg_music town_music.ogg|0|-1
+bg_music town_music.ogg
 region greyton
 end
 arch water_still

@@ -13,7 +13,7 @@ tile_path_3 world_1506
 tile_path_4 world_1407
 tile_path_7 world_1406
 tile_path_8 world_1408
-bg_music jungle1.ogg|0|-1
+bg_music jungle1.ogg
 region eld_woods_island
 end
 arch grassd_3

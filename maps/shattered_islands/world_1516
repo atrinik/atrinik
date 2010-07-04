@@ -17,7 +17,7 @@ tile_path_5 world_1617
 tile_path_6 world_1615
 tile_path_7 world_1415
 tile_path_8 world_1417
-bg_music ocean.ogg|0|-1
+bg_music ocean.ogg
 region berri_lur
 end
 arch water_still

@@ -10,7 +10,7 @@ difficulty 14
 darkness 2
 tile_path_1 old_outpost_0202
 tile_path_4 old_outpost_0101
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region old_outpost
 end
 arch floor_stone3d

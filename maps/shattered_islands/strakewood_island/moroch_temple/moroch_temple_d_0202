@@ -11,7 +11,7 @@ darkness 3
 tile_path_3 moroch_temple_d_0201
 tile_path_4 moroch_temple_d_0102
 tile_path_7 moroch_temple_d_0101
-bg_music ghostly.ogg|0|-1
+bg_music ghostly.ogg
 region moroch_temple
 end
 arch floor_sblack2b

@@ -11,7 +11,7 @@ darkness 7
 tile_path_1 desert_plane_0102
 tile_path_2 desert_plane_0201
 tile_path_5 desert_plane_0202
-bg_music desert_town.ogg|0|-1
+bg_music desert_town.mid
 region berri_lur
 end
 arch desert.102

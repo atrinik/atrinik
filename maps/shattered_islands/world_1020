@@ -13,7 +13,7 @@ tile_path_3 world_1019
 tile_path_4 world_0920
 tile_path_7 world_0919
 tile_path_8 world_0921
-bg_music campfire_tales.ogg|0|-1
+bg_music campfire_tales.mid
 region lyondale_archipelago_wizard
 end
 arch floor_sand_d2

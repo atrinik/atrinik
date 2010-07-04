@@ -10,7 +10,7 @@ difficulty 50
 darkness 2
 tile_path_1 underground_city_a_0401
 tile_path_2 underground_city_a_05aa
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 region underground_city
 end
 arch floor_cave6

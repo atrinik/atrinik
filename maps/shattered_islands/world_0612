@@ -16,7 +16,7 @@ tile_path_5 world_0713
 tile_path_6 world_0711
 tile_path_7 world_0511
 tile_path_8 world_0513
-bg_music jungle1.ogg|0|-1
+bg_music jungle1.ogg
 region strakewood_island
 end
 arch grassd_7
@@ -2801,7 +2801,7 @@ num_monsters 10
 darkness 3
 orientation 1
 dungeon_name Ant Well
-bg_music thonkdonk.ogg|0|-1
+bg_music thonkdonk.ogg
 symmetry 1
 final_map /shattered_islands/strakewood_island/ant_well
 endmsg
