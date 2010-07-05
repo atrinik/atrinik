@@ -612,4 +612,6 @@ extern Client_Player cpl;
 #define CMD_SOUND_EFFECT 1
 /** Background music. */
 #define CMD_SOUND_BACKGROUND 2
+/** Path to sound effect with an absolute filename. MIDI is not supported. */
+#define CMD_SOUND_ABSOLUTE 3
 /*@}*/

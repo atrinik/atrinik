@@ -73,7 +73,7 @@ static int scrolldx = 0, scrolldy = 0;
  * @param len Length of the data */
 void BookCmd(unsigned char *data, int len)
 {
-	sound_play_effect(SOUND_BOOK, 100);
+	sound_play_effect("book.ogg", 100);
 	cpl.menustatus = MENU_BOOK;
 
 	data += 4;
@@ -547,9 +547,9 @@ void TargetObject(unsigned char *data, int len)
 	cpl.target_mode = *data++;
 
 	if (cpl.target_mode)
-		sound_play_effect(SOUND_WEAPON_ATTACK, 100);
+		sound_play_effect("weapon_attack.ogg", 100);
 	else
-		sound_play_effect(SOUND_WEAPON_HOLD, 100);
+		sound_play_effect("weapon_hold.ogg", 100);
 
 	cpl.target_color = *data++;
 	cpl.target_code = *data++;
@@ -1430,12 +1430,12 @@ void Map2Cmd(unsigned char *data, int len)
 
 				if (step % 2)
 				{
-					sound_play_effect(SOUND_STEP1, 100);
+					sound_play_effect("step1.ogg", 100);
 				}
 				else
 				{
 					step = 0;
-					sound_play_effect(SOUND_STEP2, 100);
+					sound_play_effect("step2.ogg", 100);
 				}
 
 				tick = LastTick;
@@ -2026,7 +2026,7 @@ void ShopCmd(unsigned char *data, int len)
  * @param len Length of the data. */
 void QuestListCmd(unsigned char *data, int len)
 {
-	sound_play_effect(SOUND_BOOK, 100);
+	sound_play_effect("book.ogg", 100);
 	cpl.menustatus = MENU_BOOK;
 
 	data += 4;

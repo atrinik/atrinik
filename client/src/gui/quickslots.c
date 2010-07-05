@@ -372,13 +372,13 @@ void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 					 * Server will not allow apply of items in containers! */
 					if (!locate_item_from_inv(cpl.ob->inv, cpl.win_quick_tag))
 					{
-						sound_play_effect(SOUND_CLICKFAIL, 100);
+						sound_play_effect("click_fail.ogg", 100);
 						draw_info("Only items from main inventory are allowed in quickslots!", COLOR_RED);
 					}
 					else
 					{
 						/* We 'get' it in quickslots */
-						sound_play_effect(SOUND_GET, 100);
+						sound_play_effect("get.ogg", 100);
 						quickslot_set_item(ind + 1, cpl.win_quick_tag);
 
 						snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", ind + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, locate_item(cpl.win_quick_tag)->s_name);

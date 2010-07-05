@@ -1430,7 +1430,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 #if 0
 						draw_info_format(COLOR_RED, "%s l=%d r=%d t=%d b=%d", cur_widget[nID].name, LEFT(nID), RIGHT(nID), TOP(nID), BOTTOM(nID));
 #endif
-						sound_play_effect(SOUND_SCROLL, 10);
+						sound_play_effect("scroll.ogg", 10);
 
 						/* Acts as a brake, preventing mID from 'skipping' through a stack of nodes */
 						event->motion.xrel = event->motion.yrel = 0;

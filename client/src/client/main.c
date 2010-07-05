@@ -1137,11 +1137,11 @@ static void play_action_sounds()
 	{
 		if (cpl.warn_hp == 2)
 		{
-			sound_play_effect(SOUND_WARN_HP2, 100);
+			sound_play_effect("warning_hp2.ogg", 100);
 		}
 		else
 		{
-			sound_play_effect(SOUND_WARN_HP, 100);
+			sound_play_effect("warning_hp.ogg", 100);
 		}
 
 		cpl.warn_hp = 0;

@@ -67,7 +67,7 @@ int client_command_check(char *cmd)
 							{
 								fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[i].entry[0][ii];
 								RangeFireMode = FIRE_MODE_SPELL;
-								sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
+								sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
 								draw_info("Spell ready.", COLOR_GREEN);
 								return 1;
 							}
@@ -82,7 +82,7 @@ int client_command_check(char *cmd)
 							{
 								fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[i].entry[1][ii];
 								RangeFireMode = FIRE_MODE_SPELL;
-								sound_play_effect(SOUND_SCROLL, MENU_SOUND_VOL);
+								sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
 								draw_info("Spell ready.", COLOR_GREEN);
 								return 1;
 							}
@@ -150,7 +150,7 @@ int client_command_check(char *cmd)
 			cpl.menustatus = MENU_NO;
 		}
 
-		sound_play_effect(SOUND_SCROLL, 100);
+		sound_play_effect("scroll.ogg", 100);
 		reset_keys();
 		return 1;
 	}

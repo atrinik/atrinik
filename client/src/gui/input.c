@@ -112,9 +112,9 @@ void do_number()
 				snprintf(buf, sizeof(buf), "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
 
 				if (cpl.nummode == NUM_MODE_GET)
-					sound_play_effect(SOUND_GET, 100);
+					sound_play_effect("get.ogg", 100);
 				else
-					sound_play_effect(SOUND_DROP, 100);
+					sound_play_effect("drop.ogg", 100);
 
 				draw_info(buf, COLOR_DGOLD);
 			}
@@ -136,7 +136,7 @@ void do_keybind_input()
 	if (InputStringEscFlag)
 	{
 		reset_keys();
-		sound_play_effect(SOUND_CLICKFAIL, 100);
+		sound_play_effect("click_fail.ogg", 100);
 		cpl.input_mode = INPUT_MODE_NO;
 		keybind_status = KEYBIND_STATUS_NO;
 		map_udate_flag = 2;
@@ -179,7 +179,7 @@ void do_console()
 		if (gui_interface_party)
 			clear_party_interface();
 
-		sound_play_effect(SOUND_CONSOLE, 100);
+		sound_play_effect("console.ogg", 100);
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
 		cur_widget[IN_CONSOLE_ID]->show = 0;
@@ -188,7 +188,7 @@ void do_console()
 	/* If set, we've got a finished input */
 	if (InputStringFlag == 0 && InputStringEndFlag)
 	{
-		sound_play_effect(SOUND_CONSOLE, 100);
+		sound_play_effect("console.ogg", 100);
 
 		if (InputString[0])
 		{
