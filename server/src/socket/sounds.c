@@ -81,7 +81,7 @@ void play_sound_player_only(player *pl, int sound_num, const char *filename, int
 	}
 	else
 	{
-	if (!filename)
+	if (!filename || *filename == '\0')
 	{
 		SockList_AddChar(&sl, (char) CMD_SOUND_EFFECT);
 		SockList_AddChar(&sl, (char) x);
