@@ -87,7 +87,7 @@ typedef signed char sint8;
 
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 
-#include <SDL_sound.h>
+#include <SDL_mixer.h>
 
 #ifdef WIN32
 #	include "win32.h"

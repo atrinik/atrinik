@@ -29,15 +29,13 @@
 
 #include <include.h>
 
-/** An array of all the sounds that are currently playing. */
-static sound_data_struct *sound_data;
-/** Mutex for protecting ::sound_data. */
-static SDL_mutex *sound_data_mutex;
 /** Pointer to the background sound that is playing. */
-static sound_data_struct *sound_background;
+static Mix_Music *sound_background;
+/** Sound effects loaded from ::sound_files. */
+static Mix_Chunk *sound_effects[SOUND_MAX];
 
 /** The sound files. */
-char *sound_files[SOUND_MAX] =
+static const char *const sound_files[SOUND_MAX] =
 {
 	"event01.ogg",
 	"bow1.ogg",
@@ -125,7 +123,6 @@ char *sound_files[SOUND_MAX] =
 	"magic_walls.ogg",
 	"magic_wound.ogg",
 
-	/* Here start the client side sounds */
 	"step1.ogg",
 	"step2.ogg",
 	"pray.ogg",
@@ -146,243 +143,74 @@ char *sound_files[SOUND_MAX] =
 };
 
 /**
- * Add sound to ::sound_data.
- * @param filename Name of the sound file.
- * @param volume Volume to use.
- * @param looping How many times to loop, -1 for infinite number.
- * @param type One of @ref SOUND_TYPE_xxx.
- * @return Pointer to the new sound. */
-static sound_data_struct *sound_add_music(const char *filename, int volume, int looping, int type)
-{
-	Sound_Sample *sample;
-	sound_data_struct *tmp;
-
-	sample = Sound_NewSampleFromFile(filename, NULL, 16384);
-
-	if (!sample)
-	{
-		LOG(llevError, "ERROR: Could not load music '%s'.\n", filename);
-		return NULL;
-	}
-
-	tmp = calloc(1, sizeof(sound_data_struct));
-	tmp->sample = sample;
-	tmp->volume = volume;
-	tmp->looping = looping;
-	tmp->sample = sample;
-	tmp->filename = strdup(filename);
-	tmp->type = type;
-
-	SDL_LockMutex(sound_data_mutex);
-
-	if (!sound_data)
-	{
-		sound_data = tmp;
-	}
-	else
-	{
-		if (sound_data->prev)
-		{
-			tmp->prev = sound_data->prev;
-			sound_data->prev->next = tmp;
-		}
-
-		sound_data->prev = tmp;
-		tmp->next = sound_data;
-		sound_data = tmp;
-	}
-
-	SDL_UnlockMutex(sound_data_mutex);
-	return tmp;
-}
-
-/**
- * Remove sound from ::sound_data.
- * @param tmp What to remove. */
-static void sound_remove_music(sound_data_struct *tmp)
-{
-	SDL_LockMutex(sound_data_mutex);
-
-	if (sound_data == tmp)
-	{
-		sound_data = tmp->next;
-	}
-
-	if (tmp->prev)
-	{
-		tmp->prev->next = tmp->next;
-	}
-
-	if (tmp->next)
-	{
-		tmp->next->prev = tmp->prev;
-	}
-
-	Sound_FreeSample(tmp->sample);
-	free(tmp->filename);
-	free(tmp);
-	SDL_UnlockMutex(sound_data_mutex);
-}
-
-/**
- * This updates sound_data_struct::decoded_bytes and sound_data_struct::decoded_ptr
- * with more audio data, taking into account potentional looping.
- * @param tmp Sound data.
- * @return Decoded bytes. */
-static int read_more_data(sound_data_struct *tmp)
-{
-	if (tmp->done)
-	{
-		tmp->decoded_bytes = 0;
-		return 0;
-	}
-
-	if (tmp->decoded_bytes > 0)
-	{
-		return tmp->decoded_bytes;
-	}
-
-	/* See if there's more to be read... */
-	if (!(tmp->sample->flags & (SOUND_SAMPLEFLAG_ERROR | SOUND_SAMPLEFLAG_EOF)))
-	{
-		tmp->decoded_bytes = Sound_Decode(tmp->sample);
-
-		if (tmp->sample->flags & SOUND_SAMPLEFLAG_ERROR)
-		{
-			LOG(llevError, "ERROR: read_more_data(): Error decoding sound file: %s\n", Sound_GetError());
-		}
-
-		tmp->decoded_ptr = tmp->sample->buffer;
-		return read_more_data(tmp);
-	}
-
-	/* No more to be read from stream, but we may want to loop the sample. */
-	if (!tmp->looping)
-	{
-		return 0;
-	}
-
-	if (tmp->looping != -1)
-	{
-		tmp->looping--;
-	}
-
-	Sound_Rewind(tmp->sample);
-	return read_more_data(tmp);
-}
-
-/**
- * Audio callback, used by SDL audio to play the sound files.
- * @param userdata Unused.
- * @param stream Where to write the sound data.
- * @param len Max length. */
-static void audio_callback(void *userdata, Uint8 *stream, int len)
-{
-	sound_data_struct *tmp, *next;
-
-	(void) userdata;
-
-	SDL_LockMutex(sound_data_mutex);
-
-	for (tmp = sound_data; tmp; tmp = next)
-	{
-		int bw = 0;
-
-		next = tmp->next;
-
-		/* This sound has finished playing, remove it from the list. */
-		if (tmp->done)
-		{
-			sound_remove_music(tmp);
-			continue;
-		}
-
-		while (bw < len)
-		{
-			size_t cpysize;
-
-			/* Read more data, if needed. */
-			if (!read_more_data(tmp))
-			{
-				memset(stream + bw, 0, len - bw);
-				tmp->done = 1;
-				break;
-			}
-
-			/* decoded_bytes and decoder_ptr are updated as necessary. */
-			cpysize = len - bw;
-
-			if (cpysize > tmp->decoded_bytes)
-			{
-				cpysize = tmp->decoded_bytes;
-			}
-
-			if (cpysize > 0)
-			{
-				SDL_MixAudio(stream + bw, (Uint8 *) tmp->decoded_ptr, cpysize, tmp->volume);
-				bw += cpysize;
-				tmp->decoded_ptr += cpysize;
-				tmp->decoded_bytes -= cpysize;
-			}
-		}
-	}
-
-	SDL_UnlockMutex(sound_data_mutex);
-}
-
-/**
  * Initialize the sound system. */
 void sound_init()
 {
-	SDL_AudioSpec sdl_desired;
+	size_t i;
+	char filename[HUGE_BUF];
 
-	if (!Sound_Init())
-	{
-		LOG(llevError, "ERROR: Sound_Init() failed! Reason: %s\n", Sound_GetError());
-		SYSTEM_End();
-		exit(0);
-	}
-
-	sound_data = NULL;
 	sound_background = NULL;
-	sound_data_mutex = SDL_CreateMutex();
 
-	memset(&sdl_desired, 0, sizeof(SDL_AudioSpec));
-	sdl_desired.freq = 44100;
-	sdl_desired.format = 32784;
-	sdl_desired.channels = 2;
-	sdl_desired.samples = 4096;
-	sdl_desired.callback = audio_callback;
-
-	if (SDL_OpenAudio(&sdl_desired, NULL) < 0)
+	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
-		LOG(llevError, "ERROR: Couldn't open audio device: %s\n", SDL_GetError());
+		LOG(llevError, "ERROR: sound_init(): Couldn't set sound device. Reason: %s\n", SDL_GetError());
 		SYSTEM_End();
 		exit(0);
 	}
 
-	SDL_PauseAudio(0);
+	for (i = 0; i < SOUND_MAX; i++)
+	{
+		snprintf(filename, sizeof(filename), "%s%s", GetSfxDirectory(), sound_files[i]);
+		sound_effects[i] = Mix_LoadWAV(filename);
+
+		if (!sound_effects[i])
+		{
+			LOG(llevError, "ERROR: sound_init(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
+			SYSTEM_End();
+			exit(0);
+		}
+	}
 }
 
 /**
  * Deinitialize the sound system. */
 void sound_deinit()
 {
-	Sound_Quit();
-	SDL_CloseAudio();
+	size_t i;
+
+	for (i = 0; i < SOUND_MAX; i++)
+	{
+		Mix_FreeChunk(sound_effects[i]);
+	}
+
+	Mix_CloseAudio();
+}
+
+/**
+ * Add sound effect to the playing queue from ::sound_effects.
+ * @param sound_id Sound ID to play.
+ * @param volume Volume to play at.
+ * @param loop How many times to loop, -1 for infinite number. */
+static void sound_add_effect(int sound_id, int volume, int loop)
+{
+	int tmp = Mix_PlayChannel(-1, sound_effects[sound_id], loop);
+
+	if (tmp == -1)
+	{
+		LOG(llevMsg, "BUG: sound_add_effect(): %s\n", Mix_GetError());
+		return;
+	}
+
+	Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
 }
 
 /**
  * Play a sound effect.
- * @param soundid Sound ID to play.
+ * @param sound_id Sound ID to play.
  * @param volume Volume to play at. */
-void sound_play_effect(int soundid, int volume)
+void sound_play_effect(int sound_id, int volume)
 {
-	char filename[HUGE_BUF];
-
-	volume = (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) 100 / (double) 100)));
-	snprintf(filename, sizeof(filename), "%s%s", GetSfxDirectory(), sound_files[soundid]);
-	sound_add_music(filename, volume, 0, SOUND_TYPE_EFFECT);
+	sound_add_effect(sound_id, volume, 0);
 }
 
 /**
@@ -390,39 +218,32 @@ void sound_play_effect(int soundid, int volume)
  * @param filename Filename of the music to start.
  * @param volume Volume to use.
  * @param loop How many times to loop, -1 for infinite number. */
-void sound_start_bg_music(char *filename, int volume, int loop)
+void sound_start_bg_music(const char *filename, int volume, int loop)
 {
 	char path[HUGE_BUF];
 
 	snprintf(path, sizeof(path), "%s%s", GetMediaDirectory(), filename);
+	sound_stop_bg_music();
+	sound_background = Mix_LoadMUS(path);
 
-	/* Any background music already playing? */
-	if (sound_background)
+	if (!sound_background)
 	{
-		/* If it's the same music, there's nothing to do. */
-		if (!strcmp(sound_background->filename, path))
-		{
-			return;
-		}
-
-		sound_remove_music(sound_background);
+		LOG(llevError, "ERROR: sound_add_music(): Could not load '%s'.\n", path);
+		return;
 	}
 
-	sound_background = sound_add_music(path, volume, loop, SOUND_TYPE_BACKGROUND);
+	Mix_VolumeMusic(volume);
+	Mix_PlayMusic(sound_background, loop);
 }
 
 /**
  * Stop the background music, if there is any. */
 void sound_stop_bg_music()
 {
-	/* Anything playing? */
 	if (sound_background)
 	{
-		/* We will mark this pointer as done, so when audio_callback()
-		 * picks it up, it will be freed, but we'll also mark this pointer
-		 * as NULL (audio_callback() doesn't use it, it will pick it up from
-		 * ::sound_data). */
-		sound_background->done = 1;
+		Mix_HaltMusic();
+		Mix_FreeMusic(sound_background);
 		sound_background = NULL;
 	}
 }
@@ -459,24 +280,12 @@ void parse_map_bg_music(const char *bg_music)
 }
 
 /**
- * Update volume of the sounds being played.
+ * Update volume of the background sound being played.
  * @todo Actually use this when changing volume in the options.
  * @param old_volume Old music volume. */
 void sound_update_volume(int old_volume)
 {
-	sound_data_struct *tmp;
-
-	SDL_LockMutex(sound_data_mutex);
-
-	for (tmp = sound_data; tmp; tmp = tmp->next)
-	{
-		if (tmp->type == SOUND_TYPE_BACKGROUND)
-		{
-			tmp->volume = tmp->volume - old_volume + options.music_volume;
-		}
-	}
-
-	SDL_UnlockMutex(sound_data_mutex);
+	Mix_VolumeMusic(Mix_VolumeMusic(-1) - old_volume + options.music_volume);
 }
 
 /**
@@ -487,7 +296,7 @@ void SoundCmd(uint8 *data, int len)
 {
 	size_t pos = 0;
 	uint8 type;
-	int sound_id, x = 0, y = 0, loop, volume;
+	int sound_id = 0, x = 0, y = 0, loop, volume;
 	char filename[MAX_BUF];
 
 	(void) len;
@@ -531,7 +340,6 @@ void SoundCmd(uint8 *data, int len)
 	if (type == CMD_SOUND_EFFECT)
 	{
 		int dist_volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
-		char path[HUGE_BUF];
 
 		if (dist_volume < 0)
 		{
@@ -539,8 +347,7 @@ void SoundCmd(uint8 *data, int len)
 		}
 
 		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
-		snprintf(path, sizeof(path), "%s%s", GetSfxDirectory(), sound_files[sound_id]);
-		sound_add_music(path, dist_volume + volume, loop, SOUND_TYPE_EFFECT);
+		sound_add_effect(sound_id, dist_volume + volume, loop);
 	}
 	else if (type == CMD_SOUND_BACKGROUND)
 	{

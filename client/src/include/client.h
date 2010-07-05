@@ -515,9 +515,6 @@ extern Client_Player cpl;
 #define UPD_NROF		0x80
 #define UPD_DIRECTION	0x100
 
-#define SOUND_NORMAL	0
-#define SOUND_SPELL		1
-
 /* White */
 #define COLOR_DEFAULT 	0
 #define COLOR_WHITE  	0

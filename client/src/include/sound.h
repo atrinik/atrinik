@@ -30,55 +30,7 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-/**
- * @defgroup SOUND_TYPE_xxx Sound types
- * The sound types.
- *@{*/
-/** Background music. */
-#define SOUND_TYPE_BACKGROUND 1
-/** Effect sound. */
-#define SOUND_TYPE_EFFECT 2
-/*@}*/
-
-/**
- * Single sound data. */
-typedef struct sound_data_struct
-{
-	/** Next sound. */
-	struct sound_data_struct *next;
-
-	/** Previous sound. */
-	struct sound_data_struct *prev;
-
-	/** The sound. */
-	Sound_Sample *sample;
-
-	/** Decoded pointer. */
-    Uint8 *decoded_ptr;
-
-	/** Bytes decoded. */
-    Uint32 decoded_bytes;
-
-	/** Volume to use. */
-	int volume;
-
-	/** How many loops to do, -1 for infinite. */
-    int looping;
-
-	/** Are we done playing this? */
-	int done;
-
-	/** Name of file this was loaded from. */
-	char *filename;
-
-	/** One of @ref SOUND_TYPE_xxx. */
-	int type;
-} sound_data_struct;
-
 #define POW2(x) ((x) * (x))
-
-#define SOUND_NORMAL	0
-#define SOUND_SPELL		1
 
 /** Sound IDs. */
 typedef enum _sound_id
