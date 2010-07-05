@@ -79,6 +79,8 @@
 #	pragma warning(disable: 4267)
 	/* Initializing float f = 0.05; instead of f = 0.05f; */
 #	pragma warning(disable: 4305)
+#else
+#   define strtok_r(_s, _sep, _lasts) (*(_lasts) = strtok((_s), (_sep)))
 #endif
 
 #define mkdir(__a, __b) _mkdir(__a)
