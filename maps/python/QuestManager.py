@@ -23,7 +23,7 @@ class QuestManager:
 
 	## Start a quest, calling the relevant function in Atrinik Python
 	## plugin, and setting any initial values for different quest types.
-	def start(self, sound = SOUND_LEARN_SPELL):
+	def start(self, sound = "learnspell.ogg"):
 		self.quest_object = self.activator.StartQuest(self.quest["quest_name"])
 		self.quest_object.sub_type = self.quest["type"]
 
@@ -35,7 +35,7 @@ class QuestManager:
 		if self.quest["type"] == QUEST_TYPE_KILL:
 			self.quest_object.last_grace = self.quest["kills"]
 
-		if sound != -1:
+		if sound:
 			self.activator.Sound(sound)
 
 	## Check if the quest has been started.
@@ -60,10 +60,10 @@ class QuestManager:
 		return 0
 
 	## Complete a quest.
-	def complete(self, sound = SOUND_LEARN_SPELL):
+	def complete(self, sound = "learnspell.ogg"):
 		self.quest_object.magic = QUEST_STATUS_COMPLETED
 
-		if sound != -1:
+		if sound:
 			self.activator.Sound(sound)
 
 		# Do anything extra for the kill item quest type.

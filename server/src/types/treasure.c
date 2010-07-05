@@ -47,7 +47,7 @@ void apply_treasure(object *op, object *tmp)
 
 	if (tmp->map)
 	{
-		play_sound_map(tmp->map, SOUND_OPEN_CONTAINER, NULL, tmp->x, tmp->y, 0, 0);
+		play_sound_map(tmp->map, CMD_SOUND_EFFECT, "open_container.ogg", tmp->x, tmp->y, 0, 0);
 	}
 
 	/* msg like "the chest crumbles to dust" */

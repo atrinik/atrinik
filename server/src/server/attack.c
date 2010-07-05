@@ -147,25 +147,25 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
 		if (hitter->type == ARROW)
 		{
-			play_sound_map(hitter->map, SOUND_ARROW_HIT, NULL, hitter->x, hitter->y, 0, 0);
+			play_sound_map(hitter->map, CMD_SOUND_EFFECT, "arrow_hit.ogg", hitter->x, hitter->y, 0, 0);
 		}
 		else
 		{
 			if (hitter->attack[ATNR_SLASH])
 			{
-				play_sound_map(hitter->map, SOUND_HIT_SLASH, NULL, hitter->x, hitter->y, 0, 0);
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_slash.ogg", hitter->x, hitter->y, 0, 0);
 			}
 			else if (hitter->attack[ATNR_CLEAVE])
 			{
-				play_sound_map(hitter->map, SOUND_HIT_CLEAVE, NULL, hitter->x, hitter->y, 0, 0);
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_cleave.ogg", hitter->x, hitter->y, 0, 0);
 			}
 			else if (hitter->attack[ATNR_IMPACT])
 			{
-				play_sound_map(hitter->map, SOUND_HIT_IMPACT, NULL, hitter->x, hitter->y, 0, 0);
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_impact.ogg", hitter->x, hitter->y, 0, 0);
 			}
 			else
 			{
-				play_sound_map(hitter->map, SOUND_HIT_PIERCE, NULL, hitter->x, hitter->y, 0, 0);
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_pierce.ogg", hitter->x, hitter->y, 0, 0);
 			}
 		}
 
@@ -215,7 +215,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		{
 			if (hitter->type == PLAYER)
 			{
-				play_sound_map(hitter->map, SOUND_MISS_PLAYER, NULL, hitter->x, hitter->y, 0, 0);
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_player1.ogg", hitter->x, hitter->y, 0, 0);
 				new_draw_info_format(NDI_ORANGE, hitter, "You miss %s!", op->name);
 
 				if (op->type == PLAYER)
@@ -225,7 +225,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			}
 			else
 			{
-				play_sound_map(hitter->map, SOUND_MISS_MOB, NULL, hitter->x, hitter->y, 0, 0);
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_mob1.ogg", hitter->x, hitter->y, 0, 0);
 				new_draw_info_format(NDI_PURPLE, op, "%s misses you!", hitter->name);
 			}
 		}
@@ -971,7 +971,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 	if (op->map)
 	{
-		play_sound_map(op->map, SOUND_PLAYER_KILLS, NULL, op->x, op->y, 0, 0);
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "kill.ogg", op->x, op->y, 0, 0);
 	}
 
 	/* Figure out who to credit for the kill. */

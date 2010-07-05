@@ -110,7 +110,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 		/* Monster has changed status from normal to attack - let's hear it! */
 		if (npc->enemy == NULL && !QUERY_FLAG(npc, FLAG_FRIENDLY))
 		{
-			play_sound_map(npc->map, SOUND_GROWL, NULL, npc->x, npc->y, 0, 0);
+			play_sound_map(npc->map, CMD_SOUND_EFFECT, "growl.ogg", npc->x, npc->y, 0, 0);
 		}
 
 		if (QUERY_FLAG(npc, FLAG_UNAGGRESSIVE))
@@ -1222,7 +1222,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 	tag = arrow->count;
 	arrow->stats.grace = arrow->last_sp;
 	arrow->stats.maxgrace = 60 + (RANDOM() % 12);
-	play_sound_map(arrow->map, SOUND_THROW, NULL, arrow->x, arrow->y, 0, 0);
+	play_sound_map(arrow->map, CMD_SOUND_EFFECT, "throw.ogg", arrow->x, arrow->y, 0, 0);
 
 	if (!insert_ob_in_map(arrow, head->map, head, 0))
 	{

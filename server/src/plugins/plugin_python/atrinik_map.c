@@ -163,26 +163,26 @@ static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args, P
 }
 
 /**
- * <h1>map.PlaySound(\<int\> x, \<int\> y, \<int\> soundnumber, [string] filename, [int] loop, [int] volume)</h1>
+ * <h1>map.PlaySound(\<int\> x, \<int\> y, \<string\> filename, [int] type, [int] loop, [int] volume)</h1>
  * Play a sound on map.
  * @param x X position where the sound is playing from.
  * @param y Y position where the sound is playing from.
- * @param soundnumber ID of the sound to play, one of ::sounds_id_enum.
- * @param filename If passed, play this background music instead of the
- * above 'sound_num'.
+ * @param filename Sound file to play.
+ * @param type Sound type being played, one of @ref CMD_SOUND_xxx. By
+ * default, @ref CMD_SOUND_EFFECT is used.
  * @param loop How many times to loop the sound, -1 for infinite number.
  * @param volume Volume adjustment. */
 static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 {
-	int x, y, soundnumber, loop = 0, volume = 0;
-	char *filename = NULL;
+	int x, y, type = CMD_SOUND_EFFECT, loop = 0, volume = 0;
+	char *filename;
 
-	if (!PyArg_ParseTuple(args, "iii|sii", &x, &y, &soundnumber, &filename, &loop, &volume))
+	if (!PyArg_ParseTuple(args, "iis|iii", &x, &y, &filename, &type, &loop, &volume))
 	{
 		return NULL;
 	}
 
-	hooks->play_sound_map(whereptr->map, soundnumber, filename, x, y, loop, volume);
+	hooks->play_sound_map(whereptr->map, type, filename, x, y, loop, volume);
 
 	Py_INCREF(Py_None);
 	return Py_None;

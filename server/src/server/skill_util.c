@@ -962,7 +962,7 @@ int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_
 	/* Everything is cool. Give 'em the skill */
 	insert_ob_in_ob(tmp,pl);
 	link_player_skill(pl, tmp);
-	play_sound_player_only (CONTR(pl), SOUND_LEARN_SPELL,NULL, 0, 0, 0, 0);
+	play_sound_player_only (CONTR(pl), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
 	new_draw_info_format(NDI_UNIQUE, pl, "You have learned the skill %s!", tmp->name);
 
 	send_skilllist_cmd(pl, tmp, SPLIST_MODE_ADD);

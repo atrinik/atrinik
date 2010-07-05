@@ -79,7 +79,7 @@ int recharge(object *op)
 	if (!(rndm(0, 6)))
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
-		play_sound_map(op->map, SOUND_OB_EXPLODE, NULL, op->x, op->y, 0, 0);
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 		esrv_del_item(CONTR(op), wand->count, wand->env);
 		remove_ob(wand);
 		return 1;

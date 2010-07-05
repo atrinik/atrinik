@@ -541,7 +541,7 @@ void enter_exit(object *op, object *exit_ob)
 
 			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
-				play_sound_map(exit_ob->map, SOUND_TELEPORT, NULL, exit_ob->x, exit_ob->y, 0, 0);
+				play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
 			}
 
 			enter_random_map(op, exit_ob);
@@ -555,7 +555,7 @@ void enter_exit(object *op, object *exit_ob)
 
 			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
-				play_sound_map(exit_ob->map, SOUND_TELEPORT, NULL, exit_ob->x, exit_ob->y, 0, 0);
+				play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
 			}
 
 			enter_unique_map(op, exit_ob);
@@ -600,7 +600,7 @@ void enter_exit(object *op, object *exit_ob)
 					{
 						if (exit_ob->sub_type == ST1_EXIT_SOUND && op->map)
 						{
-							play_sound_map(exit_ob->map, SOUND_TELEPORT, NULL, exit_ob->x, exit_ob->y, 0, 0);
+							play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
 						}
 
 						enter_random_map(op, exit_ob);
@@ -691,7 +691,7 @@ void enter_exit(object *op, object *exit_ob)
 
 			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
-				play_sound_map(exit_ob->map, SOUND_TELEPORT, NULL, exit_ob->x, exit_ob->y, 0, 0);
+				play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
 			}
 
 			enter_map(op, newmap, x, y, QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));

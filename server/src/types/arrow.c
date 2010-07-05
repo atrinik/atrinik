@@ -264,7 +264,7 @@ void move_arrow(object *op)
  * @param op The object. */
 void stop_arrow(object *op)
 {
-	play_sound_map(op->map, SOUND_DROP_THROW, NULL, op->x, op->y, 0, 0);
+	play_sound_map(op->map, CMD_SOUND_EFFECT, "drop.ogg", op->x, op->y, 0, 0);
 	CLEAR_FLAG(op, FLAG_IS_MISSILE);
 
 	if (op->inv)

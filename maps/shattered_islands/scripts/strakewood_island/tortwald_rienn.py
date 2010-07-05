@@ -146,7 +146,7 @@ def npc_rienn():
 			# Create Rienn's letter.
 			create_letter()
 			# Start Rienn's quest (but do not play a sound effect).
-			qm_r.start(-1)
+			qm_r.start(None)
 
 			# Tortwald's quest.
 			qm_t = QuestManager(activator, quest_tortwald)

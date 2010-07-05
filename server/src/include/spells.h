@@ -194,8 +194,8 @@ typedef struct spell_struct
 	 * levels. */
 	int spl;
 
-	/** Number of sound ID for this sound. */
-	int sound;
+	/** Sound the spell produces when cast. */
+	const char *sound;
 
 	/** A combination of @ref SPELL_USE_xxx. */
 	int spell_use;

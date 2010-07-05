@@ -275,14 +275,14 @@ int command_t_tell(object *op, char *params)
 					LOG(llevInfo, "CLOG T_TELL:%s >%s<\n", query_name(op, NULL), params);
 					new_draw_info_format(NDI_UNIQUE | NDI_WHITE, op, "You say to %s: %s", query_name(t_obj, NULL), params);
 					talk_to_npc(op, t_obj, params);
-					play_sound_player_only(CONTR(op), SOUND_CLICK, NULL, 0, 0, 0, 0);
+					play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "scroll.ogg", 0, 0, 0, 0);
 					return 1;
 				}
 			}
 		}
 	}
 
-	play_sound_player_only(CONTR(op), SOUND_WAND_POOF, NULL, 0, 0, 0, 0);
+	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
 	return 1;
 }
 

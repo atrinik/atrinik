@@ -375,7 +375,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 
 	if (WHO->map)
 	{
-		hooks->play_sound_map(WHO->map, SOUND_TELEPORT, NULL, WHO->x, WHO->y, 0, 0);
+		hooks->play_sound_map(WHO->map, CMD_SOUND_EFFECT, "teleport.ogg", WHO->x, WHO->y, 0, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -1784,11 +1784,11 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 
 	if (WHO)
 	{
-		hooks->play_sound_map(WHO->map, hooks->spells[SP_IDENTIFY].sound, NULL, WHO->x, WHO->y, 0, 0);
+		hooks->play_sound_map(WHO->map, CMD_SOUND_EFFECT, hooks->spells[SP_IDENTIFY].sound, WHO->x, WHO->y, 0, 0);
 	}
 	else if (target->obj)
 	{
-		hooks->play_sound_map(target->obj->map, hooks->spells[SP_IDENTIFY].sound, NULL, target->obj->x, target->obj->y, 0, 0);
+		hooks->play_sound_map(target->obj->map, CMD_SOUND_EFFECT, hooks->spells[SP_IDENTIFY].sound, target->obj->x, target->obj->y, 0, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -2130,21 +2130,21 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 }
 
 /**
- * <h1>player.Sound(\<int\> soundnumber, [string] filename, [int] x, [int] y, [int] loop, [int] volume)</h1>
+ * <h1>player.Sound(\<string\> filename, [int] type, [int] x, [int] y, [int] loop, [int] volume)</h1>
  * Play a sound to the specified player.
- * @param soundnumber ID of the sound to play, one of ::sounds_id_enum.
- * @param filename If passed, play this background music instead of the
- * above 'sound_num'.
+ * @param filename Sound file to play.
+ * @param type Sound type being played, one of @ref CMD_SOUND_xxx. By
+ * default, @ref CMD_SOUND_EFFECT is used.
  * @param x X position where the sound is playing from. Can be 0.
  * @param y Y position where the sound is playing from. Can be 0.
  * @param loop How many times to loop the sound, -1 for infinite number.
  * @param volume Volume adjustment. */
 static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 {
-	int sound_number, x = 0, y = 0, loop = 0, volume = 0;
-	char *filename = NULL;
+	int type = CMD_SOUND_EFFECT, x = 0, y = 0, loop = 0, volume = 0;
+	char *filename;
 
-	if (!PyArg_ParseTuple(args, "i|siiii", &sound_number, &filename, &x, &y, &loop, &volume))
+	if (!PyArg_ParseTuple(args, "s|iiiii", &filename, &type, &x, &y, &loop, &volume))
 	{
 		return NULL;
 	}
@@ -2154,7 +2154,7 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 		RAISE("Sound(): Can only be used on players.");
 	}
 
-	hooks->play_sound_player_only(CONTR(WHO), sound_number, filename, x, y, loop, volume);
+	hooks->play_sound_player_only(CONTR(WHO), type, filename, x, y, loop, volume);
 
 	Py_INCREF(Py_None);
 	return Py_None;
