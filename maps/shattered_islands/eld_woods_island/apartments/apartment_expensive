@@ -2,7 +2,7 @@ arch map
 name Expensive Treehouse
 msg
 Created:  2010-07-06 Kiana
-Modified: 2010-07-06 Kiana
+Modified: 2010-07-06 Alex Tokar
 endmsg
 width 12
 height 12
@@ -10,7 +10,7 @@ difficulty 1
 outdoor 1
 no_summon 1
 no_harm 1
-bg_music harmony2.ogg|0|-1
+bg_music harmony2.mid
 region clearhaven
 end
 arch grassd_3

@@ -2,14 +2,14 @@ arch map
 name Clearhaven Treehome
 msg
 Created:  2010-07-06 Kiana
-Modified: 2010-07-06 Kiana
+Modified: 2010-07-06 Alex Tokar
 endmsg
 width 9
 height 9
 difficulty 5
 outdoor 1
 no_harm 1
-bg_music harmony2.ogg|0|-1
+bg_music harmony2.mid
 region clearhaven
 end
 arch grassd_3
