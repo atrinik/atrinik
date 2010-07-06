@@ -29,17 +29,89 @@
 
 #include <include.h>
 
-/** Pointer to the background sound that is playing. */
-static Mix_Music *sound_background;
-/** Name of the background music being played. */
-static char sound_bg_name[HUGE_BUF];
+/** Path to the background music file being played. */
+static char *sound_background;
+/** Loaded sounds. */
+static sound_data_struct *sound_data;
+/** Number of ::sound_data. */
+static size_t sound_data_num;
+
+/**
+ * Compare two sound data structure filenames.
+ * @param a First sound data.
+ * @param b Second sound data.
+ * @return Return value of strcmp(). */
+static int sound_compare(const void *a, const void *b)
+{
+	return strcmp(((sound_data_struct *) a)->filename, ((sound_data_struct *) b)->filename);
+}
+
+/**
+ * (Re-)Sort the ::sound_data array using Quicksort. */
+static void sound_sort()
+{
+	qsort((void *) sound_data, sound_data_num, sizeof(sound_data_struct), (void *) (int (*)()) sound_compare);
+}
+
+/**
+ * Try to find the specified sound file name in ::sound_data.
+ * @param filename What to look for.
+ * @return The ::sound_data entry if found, NULL otherwise. */
+static sound_data_struct *sound_find(const char *filename)
+{
+	sound_data_struct key;
+
+	key.filename = (char *) filename;
+	return (sound_data_struct *) bsearch((void *) &key, (void *) sound_data, sound_data_num, sizeof(sound_data_struct), sound_compare);
+}
+
+/**
+ * Add a sound entry to the ::sound_data array.
+ * @param type Type of the sound, one of @ref SOUND_TYPE_xxx.
+ * @param filename Sound's file name.
+ * @param data Loaded sound data to store.
+ * @return Pointer to the entry in ::sound_data. */
+static sound_data_struct *sound_new(int type, const char *filename, void *data)
+{
+	sound_data_num++;
+	sound_data = realloc(sound_data, sizeof(sound_data_struct) * sound_data_num);
+	sound_data[sound_data_num - 1].type = type;
+	sound_data[sound_data_num - 1].filename = strdup(filename);
+	sound_data[sound_data_num - 1].data = data;
+
+	return &sound_data[sound_data_num - 1];
+}
+
+/**
+ * Free one sound data entry.
+ * @param tmp What to free. */
+static void sound_free(sound_data_struct *tmp)
+{
+	switch (tmp->type)
+	{
+		case SOUND_TYPE_CHUNK:
+			Mix_FreeChunk((Mix_Chunk *) tmp->data);
+			break;
+
+		case SOUND_TYPE_MUSIC:
+			Mix_FreeMusic((Mix_Music *) tmp->data);
+			break;
+
+		default:
+			LOG(llevMsg, "BUG: sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
+			return;
+	}
+
+	free(tmp->filename);
+}
 
 /**
  * Initialize the sound system. */
 void sound_init()
 {
 	sound_background = NULL;
-	sound_bg_name[0] = '\0';
+	sound_data = NULL;
+	sound_data_num = 0;
 
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
@@ -53,6 +125,16 @@ void sound_init()
  * Deinitialize the sound system. */
 void sound_deinit()
 {
+	size_t i;
+
+	for (i = 0; i < sound_data_num; i++)
+	{
+		sound_free(&sound_data[i]);
+	}
+
+	free(sound_data);
+	sound_data = NULL;
+	sound_data_num = 0;
 	Mix_CloseAudio();
 }
 
@@ -63,25 +145,41 @@ void sound_deinit()
  * @param loop How many times to loop, -1 for infinite number. */
 static void sound_add_effect(const char *filename, int volume, int loop)
 {
-	Mix_Chunk *chunk;
-	int tmp;
+	int channel;
+	sound_data_struct *tmp;
+	Mix_Chunk *chunk = NULL;
 
-	chunk = Mix_LoadWAV(filename);
+	/* Try to find the sound first. */
+	tmp = sound_find(filename);
 
-	if (!chunk)
+	if (!tmp)
 	{
-		LOG(llevMsg, "ERROR: sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
+		chunk = Mix_LoadWAV(filename);
+
+		if (!chunk)
+		{
+			LOG(llevError, "ERROR: sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
+			return;
+		}
+
+		/* We loaded it now, so add it to the array of loaded sounds. */
+		tmp = sound_new(SOUND_TYPE_CHUNK, filename, chunk);
+	}
+
+	channel = Mix_PlayChannel(-1, (Mix_Chunk *) tmp->data, loop);
+
+	if (channel == -1)
+	{
 		return;
 	}
 
-	tmp = Mix_PlayChannel(-1, chunk, loop);
+	Mix_Volume(channel, (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
 
-	if (tmp == -1)
+	/* Re-sort the array as needed. */
+	if (chunk)
 	{
-		return;
+		sound_sort();
 	}
-
-	Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
 }
 
 /**
@@ -104,6 +202,8 @@ void sound_play_effect(const char *filename, int volume)
 void sound_start_bg_music(const char *filename, int volume, int loop)
 {
 	char path[HUGE_BUF];
+	sound_data_struct *tmp;
+	Mix_Music *music = NULL;
 
 	if (!strcmp(filename, "no_music"))
 	{
@@ -112,22 +212,40 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 	snprintf(path, sizeof(path), "%s%s", GetMediaDirectory(), filename);
 
-	if (sound_background && strcmp(sound_bg_name, path))
+	/* Same background music, nothing to do. */
+	if (sound_background && !strcmp(sound_background, path))
 	{
-		sound_stop_bg_music();
-	}
-
-	sound_background = Mix_LoadMUS(path);
-
-	if (!sound_background)
-	{
-		LOG(llevError, "ERROR: sound_add_music(): Could not load '%s'.\n", path);
 		return;
 	}
 
-	strncpy(sound_bg_name, path, sizeof(sound_bg_name) - 1);
+	/* Try to find the music. */
+	tmp = sound_find(path);
+
+	if (!tmp)
+	{
+		music = Mix_LoadMUS(path);
+
+		if (!music)
+		{
+			LOG(llevError, "ERROR: sound_add_effect(): Could not load '%s'. Reason: %s.\n", path, Mix_GetError());
+			return;
+		}
+
+		/* Add the loaded music to the array. */
+		tmp = sound_new(SOUND_TYPE_MUSIC, path, music);
+	}
+
+	sound_stop_bg_music();
+
+	sound_background = strdup(path);
 	Mix_VolumeMusic(volume);
-	Mix_PlayMusic(sound_background, loop);
+	Mix_PlayMusic((Mix_Music *) tmp->data, loop);
+
+	/* Re-sort the array as needed. */
+	if (music)
+	{
+		sound_sort();
+	}
 }
 
 /**
@@ -137,9 +255,8 @@ void sound_stop_bg_music()
 	if (sound_background)
 	{
 		Mix_HaltMusic();
-		Mix_FreeMusic(sound_background);
+		free(sound_background);
 		sound_background = NULL;
-		sound_bg_name[0] = '\0';
 	}
 }
 
@@ -151,24 +268,10 @@ void parse_map_bg_music(const char *bg_music)
 	int loop = -1, vol = 0;
 	char filename[MAX_BUF];
 
-	/* Backwards compatibility for maps using the old syntax. */
-	if (strstr(bg_music, "|"))
+	if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
 	{
-		int junk = 0;
-
-		if (sscanf(bg_music, "%256[^|]|%d|%d", filename, &junk, &loop) != 3)
-		{
-			LOG(llevMsg, "BUG: parse_map_bg_music(): Bogus old-style background music: '%s'\n", bg_music);
-			return;
-		}
-	}
-	else
-	{
-		if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
-		{
-			LOG(llevMsg, "BUG: parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
-			return;
-		}
+		LOG(llevMsg, "BUG: parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+		return;
 	}
 
 	sound_start_bg_music(filename, options.music_volume + vol, loop);
