@@ -1,0 +1,746 @@
+arch map
+name Clearhaven Treehome
+msg
+Created:  2010-07-06 Kiana
+Modified: 2010-07-06 Alex Tokar
+endmsg
+width 11
+height 11
+difficulty 5
+outdoor 1
+no_harm 1
+bg_music harmony2.mid
+region clearhaven
+end
+arch grassd_8
+end
+arch tree_big2
+end
+arch grassd_6
+y 1
+end
+arch tree_big5b
+y 1
+end
+arch grassd_5
+y 2
+end
+arch tree_big3
+y 2
+end
+arch grassd_6
+y 3
+end
+arch tree_big
+y 3
+end
+arch grassd_4
+y 4
+end
+arch tree_big2
+y 4
+end
+arch grassd_4
+y 5
+end
+arch tree_big
+y 5
+end
+arch grassd_6
+y 6
+end
+arch tree_big3
+y 6
+end
+arch grassd_4
+y 7
+end
+arch tree_big5b
+y 7
+end
+arch grassd_4
+y 8
+end
+arch tree_big2
+y 8
+end
+arch grassd_1
+y 9
+end
+arch tree_big4b
+y 9
+end
+arch grassd_8
+y 10
+end
+arch tree_big5b
+y 10
+end
+arch grassd_2
+x 1
+end
+arch tree_big3
+x 1
+end
+arch grassd_2
+x 1
+y 1
+end
+arch tree_big
+x 1
+y 1
+end
+arch grassd_1
+x 1
+y 2
+end
+arch tree_big5b
+x 1
+y 2
+end
+arch grassd_2
+x 1
+y 3
+end
+arch grassd_3
+x 1
+y 4
+end
+arch grassd_4
+x 1
+y 5
+end
+arch grassd_4
+x 1
+y 6
+end
+arch tree_big4b
+x 1
+y 6
+end
+arch grassd_5
+x 1
+y 7
+end
+arch grassd_8
+x 1
+y 8
+end
+arch tree_big4b
+x 1
+y 8
+end
+arch grassd_8
+x 1
+y 9
+end
+arch grassd_5
+x 1
+y 10
+end
+arch tree_big4b
+x 1
+y 10
+end
+arch grassd_2
+x 2
+end
+arch tree_big5b
+x 2
+end
+arch grassd_7
+x 2
+y 1
+end
+arch tree_big3
+x 2
+y 1
+end
+arch grassd_1
+x 2
+y 2
+end
+arch grassd_5
+x 2
+y 3
+end
+arch small_stones
+x 2
+y 3
+end
+arch grassd_6
+x 2
+y 4
+end
+arch plant_flower11
+x 2
+y 4
+end
+arch grassd_1
+x 2
+y 5
+end
+arch grassd_3
+x 2
+y 6
+end
+arch grassd_8
+x 2
+y 7
+end
+arch grassd_8
+x 2
+y 8
+end
+arch grassd_1
+x 2
+y 9
+end
+arch tree_big2
+x 2
+y 9
+end
+arch grassd_2
+x 2
+y 10
+end
+arch tree_big5b
+x 2
+y 10
+end
+arch grassd_1
+x 3
+end
+arch tree_big4b
+x 3
+end
+arch grassd_3
+x 3
+y 1
+end
+arch grassd_5
+x 3
+y 2
+end
+arch tree_big4b
+x 3
+y 2
+end
+arch floor_sand_d1
+x 3
+y 3
+end
+arch grassd_m2
+x 3
+y 3
+end
+arch light4
+x 3
+y 3
+end
+arch ladder_down
+slaying treehome_3
+hp 2
+sp 2
+x 3
+y 3
+end
+arch grassd_6
+x 3
+y 4
+end
+arch grassd_4
+x 3
+y 5
+end
+arch grassd_8
+x 3
+y 6
+end
+arch grassd_1
+x 3
+y 7
+end
+arch grassd_7
+x 3
+y 8
+end
+arch tree_big2
+x 3
+y 8
+end
+arch grassd_7
+x 3
+y 9
+end
+arch grassd_6
+x 3
+y 10
+end
+arch tree_big4b
+x 3
+y 10
+end
+arch grassd_2
+x 4
+end
+arch tree_big5b
+x 4
+end
+arch grassd_3
+x 4
+y 1
+end
+arch grassd_1
+x 4
+y 2
+end
+arch plant_flower5
+x 4
+y 2
+end
+arch grassd_2
+x 4
+y 3
+end
+arch grassd_2
+x 4
+y 4
+end
+arch grassd_5
+x 4
+y 5
+end
+arch plant_flower1
+x 4
+y 5
+end
+arch grassd_7
+x 4
+y 6
+end
+arch grassd_8
+x 4
+y 7
+end
+arch light4
+x 4
+y 7
+end
+arch exit
+hp 4
+sp 6
+x 4
+y 7
+arch event_obj
+sub_type 10
+race ../../../python/generic/apartment_teleport.py
+slaying eld_woods_island
+end
+end
+arch grassd_1
+x 4
+y 8
+end
+arch grassd_6
+x 4
+y 9
+end
+arch grassd_4
+x 4
+y 10
+end
+arch tree_big
+x 4
+y 10
+end
+arch grassd_2
+x 5
+end
+arch tree_big4b
+x 5
+end
+arch grassd_4
+x 5
+y 1
+end
+arch grassd_1
+x 5
+y 2
+end
+arch grassd_7
+x 5
+y 3
+end
+arch plant_flower2
+x 5
+y 3
+end
+arch grassd_8
+x 5
+y 4
+end
+arch grassd_7
+x 5
+y 5
+end
+arch grassd_8
+x 5
+y 6
+end
+arch plant_flower2
+x 5
+y 6
+end
+arch grassd_5
+x 5
+y 7
+end
+arch grassd_4
+x 5
+y 8
+end
+arch grassd_6
+x 5
+y 9
+end
+arch grassd_6
+x 5
+y 10
+end
+arch tree_big5b
+x 5
+y 10
+end
+arch grassd_2
+x 6
+end
+arch tree_big4b
+x 6
+end
+arch grassd_6
+x 6
+y 1
+end
+arch tree_big4b
+x 6
+y 1
+end
+arch grassd_4
+x 6
+y 2
+end
+arch grassd_2
+x 6
+y 3
+end
+arch grassd_4
+x 6
+y 4
+end
+arch grassd_5
+x 6
+y 5
+end
+arch light4
+x 6
+y 5
+end
+arch spawn_point
+x 6
+y 5
+arch archer
+name Delari
+type 83
+level 34
+arch event_obj
+sub_type 6
+race ../../../python/generic/apartment_seller.py
+slaying eld_woods_island
+end
+end
+end
+arch grassd_3
+x 6
+y 6
+end
+arch grassd_5
+x 6
+y 7
+end
+arch plant_flower5
+x 6
+y 7
+end
+arch grassd_8
+x 6
+y 8
+end
+arch grassd_2
+x 6
+y 9
+end
+arch grassd_1
+x 6
+y 10
+end
+arch tree_big
+x 6
+y 10
+end
+arch grassd_7
+x 7
+end
+arch tree_big3
+x 7
+end
+arch grassd_7
+x 7
+y 1
+end
+arch grassd_4
+x 7
+y 2
+end
+arch grassd_8
+x 7
+y 3
+end
+arch plant16
+x 7
+y 3
+end
+arch grassd_4
+x 7
+y 4
+end
+arch grassd_2
+x 7
+y 5
+end
+arch grassd_6
+x 7
+y 6
+end
+arch grassd_7
+x 7
+y 7
+end
+arch grassd_8
+x 7
+y 8
+end
+arch grassd_2
+x 7
+y 9
+end
+arch grassd_6
+x 7
+y 10
+end
+arch tree_big5b
+x 7
+y 10
+end
+arch grassd_1
+x 8
+end
+arch tree_big4b
+x 8
+end
+arch grassd_2
+x 8
+y 1
+end
+arch grassd_2
+x 8
+y 2
+end
+arch tree_big4b
+x 8
+y 2
+end
+arch grassd_5
+x 8
+y 3
+end
+arch grassd_6
+x 8
+y 4
+end
+arch grassd_6
+x 8
+y 5
+end
+arch tree_big
+x 8
+y 5
+end
+arch grassd_8
+x 8
+y 6
+end
+arch grassd_4
+x 8
+y 7
+end
+arch grassd_6
+x 8
+y 8
+end
+arch grassd_4
+x 8
+y 9
+end
+arch tree_big
+x 8
+y 9
+end
+arch grassd_6
+x 8
+y 10
+end
+arch tree_big3
+x 8
+y 10
+end
+arch grassd_1
+x 9
+end
+arch tree_big
+x 9
+end
+arch grassd_3
+x 9
+y 1
+end
+arch grassd_1
+x 9
+y 2
+end
+arch grassd_3
+x 9
+y 3
+end
+arch grassd_5
+x 9
+y 4
+end
+arch grassd_5
+x 9
+y 5
+end
+arch grassd_5
+x 9
+y 6
+end
+arch grassd_7
+x 9
+y 7
+end
+arch tree_big5b
+x 9
+y 7
+end
+arch grassd_4
+x 9
+y 8
+end
+arch grassd_7
+x 9
+y 9
+end
+arch grassd_1
+x 9
+y 10
+end
+arch tree_big3
+x 9
+y 10
+end
+arch grassd_8
+x 10
+end
+arch tree_big2
+x 10
+end
+arch grassd_6
+x 10
+y 1
+end
+arch tree_big
+x 10
+y 1
+end
+arch grassd_4
+x 10
+y 2
+end
+arch tree_big
+x 10
+y 2
+end
+arch grassd_4
+x 10
+y 3
+end
+arch tree_big4b
+x 10
+y 3
+end
+arch grassd_6
+x 10
+y 4
+end
+arch tree_big
+x 10
+y 4
+end
+arch grassd_1
+x 10
+y 5
+end
+arch tree_big2
+x 10
+y 5
+end
+arch grassd_4
+x 10
+y 6
+end
+arch tree_big4b
+x 10
+y 6
+end
+arch grassd_8
+x 10
+y 7
+end
+arch tree_big2
+x 10
+y 7
+end
+arch grassd_8
+x 10
+y 8
+end
+arch tree_big3
+x 10
+y 8
+end
+arch grassd_6
+x 10
+y 9
+end
+arch tree_big5b
+x 10
+y 9
+end
+arch grassd_4
+x 10
+y 10
+end
+arch tree_big4b
+x 10
+y 10
+end

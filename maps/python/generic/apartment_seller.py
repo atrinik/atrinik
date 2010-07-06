@@ -28,7 +28,7 @@ pinfo = activator.GetPlayerInfo(apartment_tag)
 ## Function to upgrade an old apartment to a new one.
 def upgrade_apartment(ap_old, ap_new, pid, x, y):
 	activator.Write("You pay the money.", 0)
-	activator.Write("Darlin is casting some strange magic.", 0)
+	activator.Write("{0} is casting some strange magic.".format(me.name), 0)
 
 	if activator.SwapApartments(ap_old, ap_new, x, y) != 1:
 		me.SayTo(activator, "\nSomething is very wrong... Call a DM!")

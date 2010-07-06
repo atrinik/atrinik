@@ -73,7 +73,6 @@ end
 Object wall_wood_w_1
 name wood wall
 face wall_wood_w.111
-blocksview 1
 type 77
 layer 5
 no_pick 1
@@ -82,7 +81,6 @@ end
 Object wall_wood_w_3
 name wood wall
 face wall_wood_w.131
-blocksview 1
 type 77
 layer 5
 no_pick 1
