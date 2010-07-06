@@ -78,7 +78,6 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 
 	if (tmp == -1)
 	{
-		LOG(llevMsg, "BUG: sound_add_effect(): %s\n", Mix_GetError());
 		return;
 	}
 
