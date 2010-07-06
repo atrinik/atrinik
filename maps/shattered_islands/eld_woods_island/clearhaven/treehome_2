@@ -1,0 +1,420 @@
+arch map
+name Clearhaven Treehome
+msg
+Created:  2010-07-06 Kiana
+Modified: 2010-07-06 Kiana
+endmsg
+width 8
+height 8
+difficulty 5
+outdoor 1
+no_harm 1
+bg_music harmony2.ogg|0|-1
+region clearhaven
+end
+arch grassd_2
+end
+arch tree_big3
+end
+arch grassd_7
+y 1
+end
+arch tree_big2
+y 1
+end
+arch grassd_4
+y 2
+end
+arch tree_big
+y 2
+end
+arch grassd_4
+y 3
+end
+arch tree_big5b
+y 3
+end
+arch grassd_6
+y 4
+end
+arch tree_big3
+y 4
+end
+arch grassd_6
+y 5
+end
+arch tree_big5b
+y 5
+end
+arch grassd_2
+y 6
+end
+arch tree_big3
+y 6
+end
+arch grassd_7
+y 7
+end
+arch tree_big5b
+y 7
+end
+arch grassd_6
+x 1
+end
+arch tree_big
+x 1
+end
+arch floor_sand_d1
+x 1
+y 1
+end
+arch grassd_m2
+x 1
+y 1
+end
+arch light4
+x 1
+y 1
+end
+arch ladder_down
+slaying treehome_1
+hp 2
+sp 2
+x 1
+y 1
+end
+arch grassd_5
+x 1
+y 2
+end
+arch tree_big2
+x 1
+y 2
+end
+arch grassd_3
+x 1
+y 3
+end
+arch plant_mushroom5
+x 1
+y 3
+end
+arch grassd_7
+x 1
+y 4
+end
+arch grassd_5
+x 1
+y 5
+end
+arch tree_big2
+x 1
+y 5
+end
+arch grassd_1
+x 1
+y 6
+end
+arch grassd_3
+x 1
+y 7
+end
+arch tree_big5b
+x 1
+y 7
+end
+arch grassd_2
+x 2
+end
+arch tree_big5b
+x 2
+end
+arch grassd_5
+x 2
+y 1
+end
+arch grassd_3
+x 2
+y 2
+end
+arch grassd_2
+x 2
+y 3
+end
+arch grassd_6
+x 2
+y 4
+end
+arch grassd_8
+x 2
+y 5
+end
+arch grassd_1
+x 2
+y 6
+end
+arch tree_big2
+x 2
+y 6
+end
+arch grassd_2
+x 2
+y 7
+end
+arch tree_big
+x 2
+y 7
+end
+arch grassd_8
+x 3
+end
+arch tree_big4b
+x 3
+end
+arch grassd_5
+x 3
+y 1
+end
+arch tree_big2
+x 3
+y 1
+end
+arch grassd_3
+x 3
+y 2
+end
+arch stone1
+x 3
+y 2
+end
+arch floor_sand_d1
+x 3
+y 3
+end
+arch grassd_m2
+x 3
+y 3
+end
+arch light4
+x 3
+y 3
+end
+arch ladder_up
+slaying treehome_3
+hp 4
+sp 4
+x 3
+y 3
+end
+arch grassd_7
+x 3
+y 4
+end
+arch grassd_4
+x 3
+y 5
+end
+arch grassd_5
+x 3
+y 6
+end
+arch grassd_6
+x 3
+y 7
+end
+arch tree_big4b
+x 3
+y 7
+end
+arch grassd_1
+x 4
+end
+arch tree_big4b
+x 4
+end
+arch grassd_6
+x 4
+y 1
+end
+arch grassd_4
+x 4
+y 2
+end
+arch grassd_7
+x 4
+y 3
+end
+arch grassd_8
+x 4
+y 4
+end
+arch grassd_4
+x 4
+y 5
+end
+arch grassd_6
+x 4
+y 6
+end
+arch grassd_4
+x 4
+y 7
+end
+arch tree_big2
+x 4
+y 7
+end
+arch grassd_7
+x 5
+end
+arch tree_big3
+x 5
+end
+arch grassd_4
+x 5
+y 1
+end
+arch grassd_7
+x 5
+y 2
+end
+arch grassd_7
+x 5
+y 3
+end
+arch grassd_5
+x 5
+y 4
+end
+arch plant_flower11
+x 5
+y 4
+end
+arch grassd_2
+x 5
+y 5
+end
+arch grassd_2
+x 5
+y 6
+end
+arch tree_big3
+x 5
+y 6
+end
+arch grassd_6
+x 5
+y 7
+end
+arch tree_big
+x 5
+y 7
+end
+arch grassd_4
+x 6
+end
+arch tree_big3
+x 6
+end
+arch grassd_8
+x 6
+y 1
+end
+arch tree_big5b
+x 6
+y 1
+end
+arch grassd_5
+x 6
+y 2
+end
+arch grassd_8
+x 6
+y 3
+end
+arch grassd_1
+x 6
+y 4
+end
+arch tree_big
+x 6
+y 4
+end
+arch grassd_4
+x 6
+y 5
+end
+arch grassd_4
+x 6
+y 6
+end
+arch grassd_3
+x 6
+y 7
+end
+arch tree_big3
+x 6
+y 7
+end
+arch grassd_3
+x 7
+end
+arch tree_big5b
+x 7
+end
+arch grassd_1
+x 7
+y 1
+end
+arch tree_big2
+x 7
+y 1
+end
+arch grassd_7
+x 7
+y 2
+end
+arch tree_big2
+x 7
+y 2
+end
+arch grassd_8
+x 7
+y 3
+end
+arch tree_big4b
+x 7
+y 3
+end
+arch grassd_2
+x 7
+y 4
+end
+arch tree_big3
+x 7
+y 4
+end
+arch grassd_3
+x 7
+y 5
+end
+arch tree_big2
+x 7
+y 5
+end
+arch grassd_2
+x 7
+y 6
+end
+arch tree_big2
+x 7
+y 6
+end
+arch grassd_3
+x 7
+y 7
+end
+arch tree_big3
+x 7
+y 7
+end

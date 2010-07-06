@@ -1,13 +1,14 @@
 arch map
-name World
+name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-07-06 Kiana
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
+no_harm 1
 tile_path_1 world_0804
 tile_path_2 world_0903
 tile_path_3 world_0802
@@ -16,6 +17,8 @@ tile_path_5 world_0904
 tile_path_6 world_0902
 tile_path_7 world_0702
 tile_path_8 world_0704
+bg_music harmony2.ogg|0|-1
+region clearhaven
 end
 arch water_still
 end
@@ -1390,31 +1393,59 @@ arch water_still
 x 14
 y 16
 end
-arch water_still
+arch grassd_3
 x 14
 y 17
 end
-arch water_still
+arch tree_big3
+x 14
+y 17
+end
+arch grassd_2
 x 14
 y 18
 end
-arch water_still
+arch tree_big3
+x 14
+y 18
+end
+arch grassd_2
 x 14
 y 19
 end
-arch water_still
+arch tree_big4b
+x 14
+y 19
+end
+arch grassd_7
 x 14
 y 20
 end
-arch water_still
+arch tree_big
+x 14
+y 20
+end
+arch grassd_1
 x 14
 y 21
 end
-arch water_still
+arch tree_big3
+x 14
+y 21
+end
+arch grassd_1
 x 14
 y 22
 end
-arch water_still
+arch tree_big4b
+x 14
+y 22
+end
+arch grassd_8
+x 14
+y 23
+end
+arch tree_big4b
 x 14
 y 23
 end
@@ -1485,31 +1516,47 @@ arch water_still
 x 15
 y 16
 end
-arch water_still
+arch grassd_4
 x 15
 y 17
 end
-arch water_still
+arch tree_big2
+x 15
+y 17
+end
+arch grassd_3
 x 15
 y 18
 end
-arch water_still
+arch tree_big5b
+x 15
+y 18
+end
+arch grassd_2
 x 15
 y 19
 end
-arch water_still
+arch grassd_2
 x 15
 y 20
 end
-arch water_still
+arch tree_big3
+x 15
+y 20
+end
+arch grassd_7
 x 15
 y 21
 end
-arch water_still
+arch grassd_6
 x 15
 y 22
 end
-arch water_still
+arch tree_big4b
+x 15
+y 22
+end
+arch grassd_6
 x 15
 y 23
 end
@@ -1580,31 +1627,47 @@ arch water_still
 x 16
 y 16
 end
-arch water_still
+arch grassd_8
 x 16
 y 17
 end
-arch water_still
+arch tree_big3
+x 16
+y 17
+end
+arch grassd_8
 x 16
 y 18
 end
-arch water_still
+arch tree_big3
+x 16
+y 18
+end
+arch grassd_5
 x 16
 y 19
 end
-arch water_still
+arch tree_big2
+x 16
+y 19
+end
+arch grassd_2
 x 16
 y 20
 end
-arch water_still
+arch tree_big4b
+x 16
+y 20
+end
+arch grassd_4
 x 16
 y 21
 end
-arch water_still
+arch grassd_2
 x 16
 y 22
 end
-arch water_still
+arch grassd_7
 x 16
 y 23
 end
@@ -1675,31 +1738,55 @@ arch water_still
 x 17
 y 16
 end
-arch water_still
+arch grassd_3
 x 17
 y 17
 end
-arch water_still
+arch tree_big4b
+x 17
+y 17
+end
+arch grassd_5
 x 17
 y 18
 end
-arch water_still
+arch tree_big5b
+x 17
+y 18
+end
+arch grassd_4
 x 17
 y 19
 end
-arch water_still
+arch floor_sand_d3
 x 17
 y 20
 end
-arch water_still
+arch grassd_m4
+x 17
+y 20
+end
+arch floor_sand_d2
 x 17
 y 21
 end
-arch water_still
+arch grassd_m9
+x 17
+y 21
+end
+arch floor_sand_d2
 x 17
 y 22
 end
-arch water_still
+arch grassd_m9
+x 17
+y 22
+end
+arch floor_sand_d3
+x 17
+y 23
+end
+arch grassd_m9
 x 17
 y 23
 end
@@ -1770,31 +1857,54 @@ arch water_still
 x 18
 y 16
 end
-arch water_still
+arch grassd_5
 x 18
 y 17
 end
-arch water_still
+arch tree_big2
+x 18
+y 17
+end
+arch grassd_2
 x 18
 y 18
 end
-arch water_still
+arch grassd_3
 x 18
 y 19
 end
-arch water_still
+arch floor_sand_d4
 x 18
 y 20
 end
-arch water_still
+arch grassd_m10
+x 18
+y 20
+end
+arch floor_sand_d3
 x 18
 y 21
 end
-arch water_still
+arch light4
+x 18
+y 21
+end
+arch ladder_up
+slaying eld_woods_island/clearhaven/treehome_1
+hp 4
+sp 4
+x 18
+y 21
+end
+arch floor_sand_d3
 x 18
 y 22
 end
-arch water_still
+arch light2
+x 18
+y 22
+end
+arch floor_sand_d4
 x 18
 y 23
 end
@@ -1865,31 +1975,55 @@ arch water_still
 x 19
 y 16
 end
-arch water_still
+arch grassd_8
 x 19
 y 17
 end
-arch water_still
+arch tree_big3
+x 19
+y 17
+end
+arch grassd_4
 x 19
 y 18
 end
-arch water_still
+arch tree_big3
+x 19
+y 18
+end
+arch grassd_6
 x 19
 y 19
 end
-arch water_still
+arch floor_sand_d3
 x 19
 y 20
 end
-arch water_still
+arch grassd_m6
+x 19
+y 20
+end
+arch floor_sand_d1
 x 19
 y 21
 end
-arch water_still
+arch grassd_m8
+x 19
+y 21
+end
+arch floor_sand_d3
 x 19
 y 22
 end
-arch water_still
+arch grassd_m8
+x 19
+y 22
+end
+arch floor_sand_d3
+x 19
+y 23
+end
+arch grassd_m8
 x 19
 y 23
 end
@@ -1960,31 +2094,47 @@ arch water_still
 x 20
 y 16
 end
-arch water_still
+arch grassd_7
 x 20
 y 17
 end
-arch water_still
+arch tree_big4b
+x 20
+y 17
+end
+arch grassd_1
 x 20
 y 18
 end
-arch water_still
+arch tree_big5b
+x 20
+y 18
+end
+arch grassd_6
 x 20
 y 19
 end
-arch water_still
+arch tree_big2
+x 20
+y 19
+end
+arch grassd_2
 x 20
 y 20
 end
-arch water_still
+arch grassd_2
 x 20
 y 21
 end
-arch water_still
+arch tree_big3
+x 20
+y 21
+end
+arch grassd_3
 x 20
 y 22
 end
-arch water_still
+arch grassd_5
 x 20
 y 23
 end
@@ -2055,31 +2205,35 @@ arch water_still
 x 21
 y 16
 end
-arch water_still
+arch grassd_5
 x 21
 y 17
 end
-arch water_still
+arch tree_big
+x 21
+y 17
+end
+arch grassd_4
 x 21
 y 18
 end
-arch water_still
+arch grassd_8
 x 21
 y 19
 end
-arch water_still
+arch grassd_1
 x 21
 y 20
 end
-arch water_still
+arch grassd_8
 x 21
 y 21
 end
-arch water_still
+arch grassd_1
 x 21
 y 22
 end
-arch water_still
+arch grassd_3
 x 21
 y 23
 end
@@ -2150,31 +2304,59 @@ arch water_still
 x 22
 y 16
 end
-arch water_still
+arch grassd_1
 x 22
 y 17
 end
-arch water_still
+arch tree_big5b
+x 22
+y 17
+end
+arch grassd_4
 x 22
 y 18
 end
-arch water_still
+arch tree_big5b
+x 22
+y 18
+end
+arch grassd_2
 x 22
 y 19
 end
-arch water_still
+arch tree_big3
+x 22
+y 19
+end
+arch grassd_3
 x 22
 y 20
 end
-arch water_still
+arch tree_big
+x 22
+y 20
+end
+arch grassd_7
 x 22
 y 21
 end
-arch water_still
+arch tree_big4b
+x 22
+y 21
+end
+arch grassd_4
 x 22
 y 22
 end
-arch water_still
+arch tree_big
+x 22
+y 22
+end
+arch grassd_3
+x 22
+y 23
+end
+arch tree_big4b
 x 22
 y 23
 end

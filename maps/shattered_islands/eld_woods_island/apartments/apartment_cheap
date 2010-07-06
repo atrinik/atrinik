@@ -1,0 +1,555 @@
+arch map
+name Cheap Treehouse
+msg
+Created:  2010-07-06 Kiana
+Modified: 2010-07-06 Kiana
+endmsg
+width 9
+height 9
+difficulty 1
+outdoor 1
+no_summon 1
+no_harm 1
+bg_music harmony2.ogg|0|-1
+region clearhaven
+end
+arch grassd_3
+end
+arch tree_big
+end
+arch grassd_8
+y 1
+end
+arch tree_big
+y 1
+end
+arch grassd_7
+y 2
+end
+arch tree_big5b
+y 2
+end
+arch grassd_8
+y 3
+end
+arch tree_big
+y 3
+end
+arch grassd_7
+y 4
+end
+arch tree_big5b
+y 4
+end
+arch grassd_4
+y 5
+end
+arch tree_big5b
+y 5
+end
+arch grassd_5
+y 6
+end
+arch tree_big3
+y 6
+end
+arch grassd_1
+y 7
+end
+arch tree_big2
+y 7
+end
+arch grassd_3
+y 8
+end
+arch tree_big5b
+y 8
+end
+arch grassd_6
+x 1
+end
+arch tree_big4b
+x 1
+end
+arch grassd_3
+x 1
+y 1
+end
+arch light4
+x 1
+y 1
+end
+arch exit
+x 1
+y 1
+arch event_obj
+sub_type 10
+race /python/generic/apartment_out.py
+slaying eld_woods_island
+end
+end
+arch grassd_4
+x 1
+y 2
+end
+arch grassd_8
+x 1
+y 3
+end
+arch light4
+x 1
+y 3
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 1
+y 3
+end
+arch grassd_1
+x 1
+y 4
+end
+arch fence_01.113
+x 1
+y 4
+end
+arch grassd_6
+x 1
+y 5
+end
+arch grassd_2
+x 1
+y 6
+end
+arch grassd_6
+x 1
+y 7
+end
+arch grassd_5
+x 1
+y 8
+end
+arch tree_big4b
+x 1
+y 8
+end
+arch grassd_1
+x 2
+end
+arch tree_big
+x 2
+end
+arch grassd_6
+x 2
+y 1
+end
+arch grassd_7
+x 2
+y 2
+end
+arch plant_flower2
+x 2
+y 2
+end
+arch grassd_4
+x 2
+y 3
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 2
+y 3
+end
+arch grassd_5
+x 2
+y 4
+end
+arch fence_01.111
+x 2
+y 4
+end
+arch grassd_6
+x 2
+y 5
+end
+arch tree_big3
+x 2
+y 5
+end
+arch grassd_7
+x 2
+y 6
+end
+arch tree_big5b
+x 2
+y 6
+end
+arch grassd_4
+x 2
+y 7
+end
+arch grassd_7
+x 2
+y 8
+end
+arch tree_big
+x 2
+y 8
+end
+arch grassd_5
+x 3
+end
+arch tree_big3
+x 3
+end
+arch grassd_5
+x 3
+y 1
+end
+arch letter
+msg
+<tt="Welcome to your new treehouse!">
+You have a container here you can use
+to store your collected items.
+All items here will be PERMANENTLY
+saved - even after a server restart.
+To ensure that nothing bad can happen,
+type "/save" when you leave here to force
+the saving of this treehouse.
+endmsg
+x 3
+y 1
+end
+arch grassd_4
+x 3
+y 2
+end
+arch grassd_8
+x 3
+y 3
+end
+arch grassd_7
+x 3
+y 4
+end
+arch fence_01.111
+x 3
+y 4
+end
+arch grassd_2
+x 3
+y 5
+end
+arch tree_big5b
+x 3
+y 5
+end
+arch grassd_6
+x 3
+y 6
+end
+arch grassd_4
+x 3
+y 7
+end
+arch grassd_7
+x 3
+y 8
+end
+arch tree_big5b
+x 3
+y 8
+end
+arch grassd_7
+x 4
+end
+arch tree_big2
+x 4
+end
+arch grassd_3
+x 4
+y 1
+end
+arch light4
+x 4
+y 1
+end
+arch grassd_2
+x 4
+y 2
+end
+arch grassd_5
+x 4
+y 3
+end
+arch light4
+x 4
+y 3
+end
+arch chest_4.111
+direction 7
+x 4
+y 3
+end
+arch grassd_7
+x 4
+y 4
+end
+arch fence_01.111
+x 4
+y 4
+end
+arch grassd_4
+x 4
+y 5
+end
+arch grassd_8
+x 4
+y 6
+end
+arch grassd_3
+x 4
+y 7
+end
+arch grassd_6
+x 4
+y 8
+end
+arch tree_big3
+x 4
+y 8
+end
+arch grassd_7
+x 5
+end
+arch tree_big3
+x 5
+end
+arch grassd_3
+x 5
+y 1
+end
+arch fence_01.173
+x 5
+y 1
+end
+arch grassd_7
+x 5
+y 2
+end
+arch fence_01.171
+x 5
+y 2
+end
+arch grassd_2
+x 5
+y 3
+end
+arch fence_01.171
+x 5
+y 3
+end
+arch grassd_7
+x 5
+y 4
+end
+arch fence_01.182
+x 5
+y 4
+end
+arch grassd_8
+x 5
+y 5
+end
+arch grassd_6
+x 5
+y 6
+end
+arch tree_big3
+x 5
+y 6
+end
+arch grassd_6
+x 5
+y 7
+end
+arch grassd_6
+x 5
+y 8
+end
+arch tree_big2
+x 5
+y 8
+end
+arch grassd_4
+x 6
+end
+arch tree_big5b
+x 6
+end
+arch grassd_4
+x 6
+y 1
+end
+arch grassd_8
+x 6
+y 2
+end
+arch grassd_2
+x 6
+y 3
+end
+arch grassd_1
+x 6
+y 4
+end
+arch grassd_8
+x 6
+y 5
+end
+arch grassd_4
+x 6
+y 6
+end
+arch tree_big
+x 6
+y 6
+end
+arch grassd_4
+x 6
+y 7
+end
+arch grassd_3
+x 6
+y 8
+end
+arch tree_big5b
+x 6
+y 8
+end
+arch grassd_8
+x 7
+end
+arch tree_big2
+x 7
+end
+arch grassd_2
+x 7
+y 1
+end
+arch grassd_8
+x 7
+y 2
+end
+arch tree_big3
+x 7
+y 2
+end
+arch grassd_1
+x 7
+y 3
+end
+arch grassd_8
+x 7
+y 4
+end
+arch tree_big2
+x 7
+y 4
+end
+arch grassd_6
+x 7
+y 5
+end
+arch grassd_4
+x 7
+y 6
+end
+arch grassd_8
+x 7
+y 7
+end
+arch grassd_5
+x 7
+y 8
+end
+arch tree_big3
+x 7
+y 8
+end
+arch grassd_5
+x 8
+end
+arch tree_big4b
+x 8
+end
+arch grassd_3
+x 8
+y 1
+end
+arch tree_big2
+x 8
+y 1
+end
+arch grassd_3
+x 8
+y 2
+end
+arch tree_big
+x 8
+y 2
+end
+arch grassd_8
+x 8
+y 3
+end
+arch tree_big3
+x 8
+y 3
+end
+arch grassd_3
+x 8
+y 4
+end
+arch tree_big5b
+x 8
+y 4
+end
+arch grassd_6
+x 8
+y 5
+end
+arch tree_big5b
+x 8
+y 5
+end
+arch grassd_7
+x 8
+y 6
+end
+arch tree_big3
+x 8
+y 6
+end
+arch grassd_7
+x 8
+y 7
+end
+arch tree_big4b
+x 8
+y 7
+end
+arch grassd_3
+x 8
+y 8
+end
+arch tree_big3
+x 8
+y 8
+end
