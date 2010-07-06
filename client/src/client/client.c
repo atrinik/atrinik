@@ -162,7 +162,7 @@ void DoClient()
 		}
 		else
 		{
-			script_trigger_event(commands[cmd->data[0] - 1].cmdname, cmd->data + 1, cmd->len - 1, commands[cmd->data[0] - 11].cmdformat);
+			script_trigger_event(commands[cmd->data[0] - 1].cmdname, cmd->data + 1, cmd->len - 1, commands[cmd->data[0] - 1].cmdformat);
 			commands[cmd->data[0] - 1].cmdproc(cmd->data + 1, cmd->len - 1);
 		}
 
