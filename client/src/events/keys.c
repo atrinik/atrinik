@@ -601,6 +601,7 @@ void check_menu_keys(int menu, int key)
 						}
 
 						change_textwin_font(options.chat_font_size);
+						sound_update_volume();
 						WIDGET_REDRAW_ALL(CHATWIN_ID);
 						WIDGET_REDRAW_ALL(MSGWIN_ID);
 

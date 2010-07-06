@@ -278,12 +278,10 @@ void parse_map_bg_music(const char *bg_music)
 }
 
 /**
- * Update volume of the background sound being played.
- * @todo Actually use this when changing volume in the options.
- * @param old_volume Old music volume. */
-void sound_update_volume(int old_volume)
+ * Update volume of the background sound being played. */
+void sound_update_volume()
 {
-	Mix_VolumeMusic(Mix_VolumeMusic(-1) - old_volume + options.music_volume);
+	Mix_VolumeMusic(options.music_volume);
 }
 
 /**

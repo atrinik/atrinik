@@ -196,7 +196,7 @@ void sound_play_effect(const char *filename, int volume);
 void sound_start_bg_music(const char *filename, int volume, int loop);
 void sound_stop_bg_music();
 void parse_map_bg_music(const char *bg_music);
-void sound_update_volume(int old_volume);
+void sound_update_volume();
 void SoundCmd(uint8 *data, int len);
 
 /* client/sprite.c */
