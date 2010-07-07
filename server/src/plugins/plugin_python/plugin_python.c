@@ -1186,54 +1186,31 @@ static FILE *python_pyfile_asfile(PyObject *obj)
 }
 
 /**
- * Execute a script, handling loading, parsing and caching.
- * @param path Path to the script.
- * @param event_object Event object.
- * @return -1 on failure, 0 on success. */
-static int RunPythonScript(const char *path, object *event_object)
+ * Outputs the compiled bytecode for a given python file, using in-memory
+ * caching of bytecode. */
+static PyCodeObject *compilePython(char *filename)
 {
 	PyObject *scriptfile;
-	char *fullpath = hooks->create_pathname(path);
-	const char *sh_path = NULL;
+	shstr *sh_path = NULL;
 	struct stat stat_buf;
-	int i, result = -1;
-	cacheentry *replace = NULL, *run = NULL;
 	struct _node *n;
-	PyObject *globdict;
+	int i;
+	cacheentry *replace = NULL, *run = NULL;
 
-	if (event_object && fullpath[0] != '/')
+	if (!(scriptfile = python_openfile(filename)))
 	{
-		char tmp_path[HUGE_BUF];
-		object *outermost = event_object;
-
-		while (outermost && outermost->env)
-		{
-			outermost = outermost->env;
-		}
-
-		if (outermost && outermost->map)
-		{
-			hooks->normalize_path(outermost->map->path, path, tmp_path);
-
-			fullpath = hooks->create_pathname(tmp_path);
-		}
+		LOG(llevDebug, "PYTHON:: The script file %s can't be opened.\n", filename);
+		return NULL;
 	}
 
-	if (!(scriptfile = python_openfile(fullpath)))
+	if (stat(filename, &stat_buf))
 	{
-		LOG(llevDebug, "PYTHON:: The script file %s can't be opened\n", path);
-		return -1;
-	}
-
-	if (stat(fullpath, &stat_buf))
-	{
-		LOG(llevDebug, "PYTHON:: The script file %s can't be stat()ed\n", fullpath);
+		LOG(llevDebug, "PYTHON:: The script file %s can't be stat()ed.\n", filename);
 		Py_DECREF(scriptfile);
-		return -1;
+		return NULL;
 	}
 
-	/* Create a shared string */
-	FREE_AND_COPY_HASH(sh_path, fullpath);
+	FREE_AND_COPY_HASH(sh_path, filename);
 
 	/* Search through cache. Three cases:
 	 * 1) script in cache, but older than file  -> replace cached
@@ -1242,80 +1219,61 @@ static int RunPythonScript(const char *path, object *event_object)
 	 * 4) script not in cache, cache full       -> replace least recently used */
 	for (i = 0; i < PYTHON_CACHE_SIZE; i++)
 	{
+		/* Script not in cache, cache not full */
 		if (python_cache[i].file == NULL)
 		{
-#ifdef PYTHON_DEBUG
-			LOG(llevDebug, "PYTHON:: Adding file to cache\n");
-#endif
-			/* Case 3 */
+			/* Add to end of cache. */
 			replace = &python_cache[i];
 			break;
 		}
 		else if (python_cache[i].file == sh_path)
 		{
-			/* Found it. Compare timestamps. */
-			if (python_cache[i].code == NULL || python_cache[i].cached_time < stat_buf.st_mtime)
+			/* Script in cache */
+			if (python_cache[i].code == NULL || (python_cache[i].cached_time < stat_buf.st_mtime))
 			{
-#ifdef PYTHON_DEBUG
-				LOG(llevDebug, "PYTHON:: File newer than cached bytecode -> reloading\n");
-#endif
-				/* Case 1 */
+				/* Cache older than file, replace cached. */
 				replace = &python_cache[i];
 			}
 			else
 			{
-#ifdef PYTHON_DEBUG
-				LOG(llevDebug, "PYTHON:: Using cached version\n");
-#endif
-				/* Case 2 */
+				/* cache uptodate, use cached*/
 				replace = NULL;
 				run = &python_cache[i];
 			}
+
 			break;
 		}
-		/* Prepare for case 4 */
 		else if (replace == NULL || python_cache[i].used_time < replace->used_time)
 		{
+			/* If we haven't found it yet, set replace to the oldest cache */
 			replace = &python_cache[i];
 		}
 	}
 
-	/* Replace a specific cache index with the file */
+	/* Replace a specific cache index with the file. */
 	if (replace)
 	{
 		FILE *pyfile;
 
-		/* Old code? Free it. */
-		if (replace->code)
-		{
-			PyObject_Free(replace->code);
-			replace->code = NULL;
-		}
+		Py_XDECREF(replace->code);
+		replace->code = NULL;
 
 		/* Need to replace path string? */
 		if (replace->file != sh_path)
 		{
 			if (replace->file)
 			{
-#ifdef PYTHON_DEBUG
-				LOG(llevDebug, "PYTHON:: Purging %s (cache index %d): \n", replace->file, replace - python_cache);
-#endif
 				FREE_AND_CLEAR_HASH(replace->file);
 			}
 
 			FREE_AND_COPY_HASH(replace->file, sh_path);
 		}
 
-		/* Load, parse and compile */
-#ifdef PYTHON_DEBUG
-		LOG(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
-#endif
-
 		pyfile = python_pyfile_asfile(scriptfile);
 
-		if ((n = PyParser_SimpleParseFile(pyfile, fullpath, Py_file_input)))
+		if ((n = PyParser_SimpleParseFile(pyfile, filename, Py_file_input)))
 		{
-			replace->code = PyNode_Compile(n, fullpath);
+			replace->code = PyNode_Compile(n, filename);
 			PyNode_Free(n);
 		}
 
@@ -1326,13 +1284,51 @@ static int RunPythonScript(const char *path, object *event_object)
 		else
 		{
 			replace->cached_time = stat_buf.st_mtime;
+			replace->used_time = time(NULL);
 		}
 
 		run = replace;
 	}
 
-	/* Run an old or new code object */
-	if (run && run->code)
+	FREE_AND_CLEAR_HASH(sh_path);
+	Py_DECREF(scriptfile);
+
+	if (run)
+	{
+		return run->code;
+	}
+
+	return NULL;
+}
+
+static int do_script(PythonContext *context, const char *filename, object *event)
+{
+	PyCodeObject *pycode;
+	PyObject *dict, *ret;
+	char path[HUGE_BUF];
+
+	strncpy(path, hooks->create_pathname(filename), sizeof(path) - 1);
+
+	if (event && path[0] != '/')
+	{
+		char tmp_path[HUGE_BUF];
+		object *outermost = event;
+
+		while (outermost && outermost->env)
+		{
+			outermost = outermost->env;
+		}
+
+		if (outermost && outermost->map)
+		{
+			hooks->normalize_path(outermost->map->path, filename, tmp_path);
+			strncpy(path, hooks->create_pathname(tmp_path), sizeof(path) - 1);
+		}
+	}
+
+	pycode = compilePython(path);
+
+	if (pycode)
 	{
 #ifdef PYTHON_DEBUG
 		PyObject *modules = PyImport_GetModuleDict(), *key, *value;
@@ -1367,38 +1363,24 @@ static int RunPythonScript(const char *path, object *event_object)
 			}
 		}
 #endif
-		/* Create a new environment with each execution. Don't want any old variables hanging around */
-		globdict = PyDict_New();
-		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
 
-#ifdef PYTHON_DEBUG
-		LOG(llevDebug, "PYTHON:: PyEval_EvalCode (cache index %d): \n", run - python_cache);
-#endif
-
-		PyEval_EvalCode(run->code, globdict, NULL);
+		pushContext(context);
+		dict = PyDict_New();
+		PyDict_SetItemString(dict, "__builtins__", PyEval_GetBuiltins());
+		ret = PyEval_EvalCode(pycode, dict, NULL);
 
 		if (PyErr_Occurred())
 		{
 			PyErr_Print();
 		}
-		else
-		{
-			/* Only return 0 if we actually succeeded */
-			result = 0;
-			run->used_time = time(NULL);
-		}
 
-#ifdef PYTHON_DEBUG
-		LOG(llevDebug, "closing. ");
-#endif
+		Py_XDECREF(ret);
+		Py_DECREF(dict);
 
-		Py_DECREF(globdict);
+		return 1;
 	}
 
-	FREE_AND_CLEAR_HASH(sh_path);
-	Py_DECREF(scriptfile);
-
-	return result;
+	return 0;
 }
 
 /**
@@ -1429,9 +1411,7 @@ static int HandleEvent(va_list args)
 	LOG(llevDebug, "PYTHON:: Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
 #endif
 
-	pushContext(context);
-
-	if (RunPythonScript(script, context->who))
+	if (!do_script(context, script, context->who))
 	{
 		freeContext(context);
 		return 0;
@@ -1496,8 +1476,6 @@ static int HandleGlobalEvent(int event_type, va_list args)
 	context->options = NULL;
 	context->returnvalue = 0;
 
-	pushContext(context);
-
 	switch (event_type)
 	{
 		case EVENT_CRASH:
@@ -1545,7 +1523,7 @@ static int HandleGlobalEvent(int event_type, va_list args)
 			break;
 	}
 
-	if (RunPythonScript("python/events/python_event.py", NULL))
+	if (!do_script(context, "/python/events/python_event.py", NULL))
 	{
 		freeContext(context);
 		return 0;
@@ -1692,9 +1670,7 @@ static int cmd_customPython(object *op, char *params)
 	context->options = NULL;
 	context->returnvalue = 0;
 
-	pushContext(context);
-
-	if (RunPythonScript(CustomCommand[NextCustomCommand].script, NULL))
+	if (!do_script(context, CustomCommand[NextCustomCommand].script, NULL))
 	{
 		freeContext(context);
 		return 0;
@@ -1713,9 +1689,22 @@ static int cmd_customPython(object *op, char *params)
 
 MODULEAPI void postinitPlugin()
 {
+	PyObject *scriptfile;
+	char path[HUGE_BUF];
+
 	LOG(llevDebug, "PYTHON:: Start postinitPlugin.\n");
 	initContextStack();
-	RunPythonScript("python/events/python_init.py", NULL);
+
+	strncpy(path, hooks->create_pathname("/python/events/python_init.py"), sizeof(path) - 1);
+	scriptfile = python_openfile(path);
+
+	if (scriptfile)
+	{
+		FILE *pyfile = python_pyfile_asfile(scriptfile);
+
+		PyRun_SimpleFile(pyfile, path);
+		Py_DECREF(scriptfile);
+	}
 }
 
 /**
