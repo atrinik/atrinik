@@ -1122,6 +1122,10 @@ void fix_player(object *op)
 			/* Save in table for quick access */
 			pl->skill_ptr[tmp->stats.sp] = tmp;
 		}
+		else if (tmp->type == QUEST_CONTAINER)
+		{
+			pl->quest_container = tmp;
+		}
 
 		/* This checks all applied items in the inventory */
 		if (QUERY_FLAG(tmp, FLAG_APPLIED))
@@ -1929,6 +1933,15 @@ fix_player_jump_resi:
 
 	/* For the client */
 	pl->weapon_sp = (char) (op->weapon_speed / 0.0025f);
+
+	if (!pl->quest_container)
+	{
+		object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
+
+		LOG(llevBug, "BUG: fix_player(): Player %s had no quest container, fixing.\n", op->name);
+		insert_ob_in_ob(quest_container, op);
+		pl->quest_container = quest_container;
+	}
 
 	if (QUERY_FLAG(op, FLAG_IS_INVISIBLE))
 	{

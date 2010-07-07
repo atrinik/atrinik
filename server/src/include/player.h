@@ -255,6 +255,9 @@ typedef struct pl_player
 	 * Object defining player's class. Can be NULL. */
 	object *class_ob;
 
+	/** Player's quest container. */
+	object *quest_container;
+
 	/** For the client target HP marker. */
 	int target_hp;
 

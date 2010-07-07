@@ -1305,20 +1305,17 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 		return NULL;
 	}
 
-	/* Let's first check the inventory for the quest_container object */
-	for (walk = WHO->inv; walk != NULL; walk = walk->below)
+	if (WHO->type != PLAYER)
 	{
-		if (walk->type == QUEST_CONTAINER)
-		{
-			for (walk = walk->inv; walk != NULL; walk = walk->below)
-			{
-				if (!strcmp(walk->name, quest_name))
-				{
-					return wrap_object(walk);
-				}
-			}
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
 
-			break;
+	for (walk = CONTR(WHO)->quest_container->inv; walk; walk = walk->below)
+	{
+		if (!strcmp(walk->name, quest_name))
+		{
+			return wrap_object(walk);
 		}
 	}
 
@@ -1335,7 +1332,7 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
  * @return The newly created quest object. */
 static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *args)
 {
-	object *quest_container, *quest_object, *myob;
+	object *quest_object;
 	char *quest_name;
 
 	if (!PyArg_ParseTuple(args, "s", &quest_name))
@@ -1343,21 +1340,16 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 		return NULL;
 	}
 
-	myob = hooks->get_archetype(QUEST_CONTAINER_ARCHETYPE);
-
-	if (!(quest_container = hooks->present_in_ob(QUEST_CONTAINER, WHO)))
+	if (WHO->type != PLAYER)
 	{
-		quest_container = hooks->get_object();
-		hooks->copy_object(myob, quest_container, 0);
-		hooks->insert_ob_in_ob(quest_container, WHO);
+		Py_INCREF(Py_None);
+		return Py_None;
 	}
 
-	quest_object = hooks->get_object();
-	hooks->copy_object(myob, quest_object, 0);
-
+	quest_object = hooks->get_archetype(QUEST_CONTAINER_ARCHETYPE);
 	quest_object->magic = 0;
 	FREE_AND_COPY_HASH(quest_object->name, quest_name);
-	hooks->insert_ob_in_ob(quest_object, quest_container);
+	hooks->insert_ob_in_ob(quest_object, CONTR(WHO)->quest_container);
 
 	return wrap_object(quest_object);
 }

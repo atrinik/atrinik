@@ -58,6 +58,8 @@ treasure player_human_male
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_human_female
@@ -95,6 +97,8 @@ treasure player_human_female
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_half_elf_male
@@ -132,6 +136,8 @@ treasure player_half_elf_male
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_half_elf_female
@@ -169,6 +175,8 @@ treasure player_half_elf_female
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_dwarf_male
@@ -206,6 +214,8 @@ treasure player_dwarf_male
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_dwarf_female
@@ -243,6 +253,8 @@ treasure player_dwarf_female
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_thelra_male
@@ -280,6 +292,8 @@ treasure player_thelra_male
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasure player_thelra_female
@@ -317,6 +331,8 @@ treasure player_thelra_female
     title true neutral
   more
   arch guild_force
+  more
+  arch quest_container
 end
 
 treasureone player_starting_wealth

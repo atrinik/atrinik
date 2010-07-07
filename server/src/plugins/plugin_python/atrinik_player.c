@@ -47,6 +47,7 @@ static fields_struct fields[] =
 	{"bed_x", FIELDTYPE_SINT16, offsetof(player, bed_x), 0, 0},
 	{"bed_y", FIELDTYPE_SINT16, offsetof(player, bed_y), 0, 0},
 	{"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
+	{"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
 
 	{"s_ext_title_flag", FIELDTYPE_UINT8, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0}

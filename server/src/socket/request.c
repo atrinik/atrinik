@@ -1636,7 +1636,7 @@ void ShopCmd(char *buf, int len, player *pl)
  * @param pl The player. */
 void QuestListCmd(char *data, int len, player *pl)
 {
-	object *quest_container = present_in_ob(QUEST_CONTAINER, pl->ob), *tmp;
+	object *quest_container = pl->quest_container, *tmp;
 	StringBuffer *sb = stringbuffer_new();
 	char *cp;
 	size_t cp_len;

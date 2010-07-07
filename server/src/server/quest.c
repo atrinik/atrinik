@@ -34,20 +34,6 @@ static object *find_quest(object *op, const char *quest_name);
 static int has_quest_item(object *op, object *quest_item, sint32 flag);
 
 /**
- * Create a quest container inside the specified object.
- * @param op The object that will get the new quest container.
- * @return The newly created container. */
-object *create_quest_container(object *op)
-{
-	object *quest_container = get_object();
-
-	copy_object(get_archetype(QUEST_CONTAINER_ARCHETYPE), quest_container, 0);
-	insert_ob_in_ob(quest_container, op);
-
-	return quest_container;
-}
-
-/**
  * When a monster drops inventory and there is quest container object in
  * it, this function is called to parse the quest container and its
  * contents for any possible quests player may be running.
@@ -150,18 +136,13 @@ void check_quest(object *op, object *quest_container)
  * @param quest_name Name of the quest. */
 static void add_one_drop_quest_item(object *op, object *quest_item, const char *quest_name)
 {
-	object *quest_container = present_in_ob(QUEST_CONTAINER, op), *quest_item_tmp = get_object();
-
-	/* If the quest container doesn't exist yet, create it. */
-	if (!quest_container)
-	{
-		quest_container = create_quest_container(op);
-	}
+	object *quest_item_tmp = get_object();
 
 	/* Copy the object data. */
 	copy_object(quest_item, quest_item_tmp, 1);
 	/* Remove it from the active list. */
 	quest_item_tmp->speed = 0.0f;
+	update_ob_speed(quest_item_tmp);
 	/* Mark this quest as completed. */
 	quest_item_tmp->magic = QUEST_STATUS_COMPLETED;
 	/* Clear some flags the quest marker shouldn't have. */
@@ -170,7 +151,7 @@ static void add_one_drop_quest_item(object *op, object *quest_item, const char *
 	/* Store the quest name. */
 	FREE_AND_COPY_HASH(quest_item_tmp->name, quest_name);
 	/* Insert it inside the quest container. */
-	insert_ob_in_ob(quest_item_tmp, quest_container);
+	insert_ob_in_ob(quest_item_tmp, CONTR(op)->quest_container);
 
 	SET_FLAG(quest_item, FLAG_IDENTIFIED);
 	/* Insert the quest item inside the player. */
@@ -185,16 +166,10 @@ static void add_one_drop_quest_item(object *op, object *quest_item, const char *
  * container, NULL if no matching quest found. */
 static object *find_quest(object *op, const char *quest_name)
 {
-	object *tmp = present_in_ob(QUEST_CONTAINER, op);
-
-	/* No quest container? */
-	if (!tmp)
-	{
-		return NULL;
-	}
+	object *tmp;
 
 	/* Go through the objects in the quest container */
-	for (tmp = tmp->inv; tmp; tmp = tmp->below)
+	for (tmp = CONTR(op)->quest_container->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->name == quest_name)
 		{
