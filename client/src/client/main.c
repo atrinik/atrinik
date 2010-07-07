@@ -872,11 +872,11 @@ static int game_status_chain()
 			read_skills();
 			read_spells();
 			read_settings();
-			load_settings();
 			read_bmaps();
 			read_bmap_tmp();
 			read_anims();
 			read_anim_tmp();
+			load_settings();
 			read_help_files();
 			GameStatus = GAME_STATUS_ADDME;
 		}
