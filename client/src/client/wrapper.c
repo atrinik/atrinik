@@ -89,11 +89,10 @@ void SYSTEM_Start()
 	if ((icon = IMG_Load_wrapper(buf)) != NULL)
 	{
 		SDL_WM_SetIcon(icon, 0);
+		SDL_FreeSurface(icon);
 	}
 
 	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
-
-	SDL_FreeSurface(icon);
 
 	logstream = fopen_wrapper(LOG_FILE, "w");
 }
