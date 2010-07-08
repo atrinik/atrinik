@@ -277,6 +277,64 @@ static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 
 }
 
 /**
+ * Recursively draw inventory of an object for DMs.
+ * @param pl DM.
+ * @param sl SockList instance to append to.
+ * @param op Object of which inventory is going to be sent.
+ * @return Number of items sent. */
+static int esrv_draw_look_rec(object *pl, SockList *sl, object *op)
+{
+	char buf[MAX_BUF];
+	object *tmp;
+	int got_one = 0;
+
+	SockList_AddInt(sl, 0);
+	SockList_AddInt(sl, 0);
+	SockList_AddInt(sl, -1);
+	SockList_AddInt(sl, (uint32) blank_face->number);
+	SockList_AddChar(sl, 0);
+	strncpy(buf, "in inventory", sizeof(buf));
+	buf[sizeof(buf) - 1] = '\0';
+	SockList_AddLen8Data(sl, buf, MIN(strlen(buf), 255));
+	SockList_AddShort(sl, 0);
+	SockList_AddChar(sl, 0);
+	SockList_AddInt(sl, 0);
+
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		add_object_to_socklist(sl, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
+		got_one++;
+
+		if (sl->len > (MAXSOCKBUF - MAXITEMLEN))
+		{
+			Send_With_Handling(&CONTR(pl)->socket, sl);
+			SOCKET_SET_BINARY_CMD(sl, BINARY_CMD_ITEMY);
+			SockList_AddInt(sl, -2);
+			SockList_AddInt(sl, 0);
+			got_one = 0;
+		}
+
+		if (tmp->inv && tmp->type != PLAYER)
+		{
+			got_one = esrv_draw_look_rec(pl, sl, tmp);
+		}
+	}
+
+	SockList_AddInt(sl, 0);
+	SockList_AddInt(sl, 0);
+	SockList_AddInt(sl, -1);
+	SockList_AddInt(sl, (uint32) blank_face->number);
+	SockList_AddChar(sl, 0);
+	strncpy(buf, "end inventory", sizeof(buf));
+	buf[sizeof(buf) - 1] = '\0';
+	SockList_AddLen8Data(sl, buf, MIN(strlen(buf), 255));
+	SockList_AddShort(sl, 0);
+	SockList_AddChar(sl, 0);
+	SockList_AddInt(sl, 0);
+	return got_one;
+}
+
+/**
  * Draw the look window. Don't need to do animations here.
  *
  * This sends all the faces to the client, not just updates. This is
@@ -287,7 +345,7 @@ void esrv_draw_look(object *pl)
 	socket_struct *ns = &CONTR(pl)->socket;
 	char buf[MAX_BUF];
 	object *tmp, *last;
-	int got_one = 0, start_look = 0, end_look = 0;
+	int got_one = 0, start_look = 0, end_look = 0, wiz;
 	SockList sl;
 
 	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_REAL_MAP(pl->map, pl->x, pl->y))
@@ -295,6 +353,7 @@ void esrv_draw_look(object *pl)
 		return;
 	}
 
+	wiz = QUERY_FLAG(pl, FLAG_WIZ);
 	/* Grab last (top) object without browsing the objects. */
 	tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
@@ -314,7 +373,7 @@ void esrv_draw_look(object *pl)
 		SockList_AddChar(&sl, 0);
 		snprintf(buf, sizeof(buf), "Apply to see %d previous items", NUM_LOOK_OBJECTS);
 		SockList_AddLen8Data(&sl, buf, MIN(strlen(buf), 255));
-		SockList_AddShort(&sl,0);
+		SockList_AddShort(&sl, 0);
 		SockList_AddChar(&sl, 0);
 		SockList_AddInt(&sl, 0);
 	}
@@ -370,6 +429,11 @@ void esrv_draw_look(object *pl)
 			SockList_AddInt(&sl, -2);
 			SockList_AddInt(&sl, 0);
 			got_one = 0;
+		}
+
+		if (wiz && tmp->inv && tmp->type != PLAYER)
+		{
+			got_one = esrv_draw_look_rec(pl, &sl, tmp);
 		}
 	}
 
