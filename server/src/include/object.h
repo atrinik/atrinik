@@ -170,6 +170,9 @@ typedef struct obj
 	/** Artifact name that was applied to this object by give_artifact_abilities(). */
 	shstr *artifact;
 
+	/** Custom name assigned by player. */
+	shstr *custom_name;
+
 	/** Monster/player to follow even if not closest */
 	struct obj *enemy;
 

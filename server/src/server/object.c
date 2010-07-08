@@ -570,6 +570,12 @@ int CAN_MERGE(object *ob1, object *ob2)
 		}
 	}
 
+	/* Don't merge items with differing custom names. */
+	if (ob1->custom_name != ob2->custom_name)
+	{
+		return 0;
+	}
+
 	/* Can merge! */
 	return 1;
 }
@@ -945,6 +951,7 @@ void initialize_object(object *op)
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
 	FREE_ONLY_HASH(op->artifact);
+	FREE_ONLY_HASH(op->custom_name);
 
 	/* Using this memset is a lot easier (and probably faster)
 	 * than explicitly clearing the fields. */
@@ -984,6 +991,7 @@ void copy_object(object *op2, object *op, int no_speed)
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
 	FREE_ONLY_HASH(op->artifact);
+	FREE_ONLY_HASH(op->custom_name);
 
 	free_key_values(op);
 
@@ -1000,6 +1008,7 @@ void copy_object(object *op2, object *op, int no_speed)
 	ADD_REF_NOT_NULL_HASH(op->slaying);
 	ADD_REF_NOT_NULL_HASH(op->msg);
 	ADD_REF_NOT_NULL_HASH(op->artifact);
+	ADD_REF_NOT_NULL_HASH(op->custom_name);
 
 	/* Only alter speed_left when we sure we have not done it before */
 	if (!no_speed && op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
@@ -1629,6 +1638,7 @@ void destroy_object(object *ob)
 	FREE_AND_CLEAR_HASH2(ob->slaying);
 	FREE_AND_CLEAR_HASH2(ob->msg);
 	FREE_AND_CLEAR_HASH2(ob->artifact);
+	FREE_AND_CLEAR_HASH2(ob->custom_name);
 
 	/* Mark object as "do not use" and invalidate all references to it */
 	ob->count = 0;
@@ -3774,6 +3784,10 @@ int item_matched_string(object *pl, object *op, const char *name)
 		{
 			retval = 16;
 		}
+		else if (op->custom_name && !strcasecmp(cp, op->custom_name))
+		{
+			retval = 15;
+		}
 		else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp)))
 		{
 			retval = 14;
@@ -3789,6 +3803,11 @@ int item_matched_string(object *pl, object *op, const char *name)
 		else if (strstr(query_short_name(op, NULL), cp))
 		{
 			retval = 12;
+		}
+		/* Check for partial custom name, but give a really low priority. */
+		else if (op->custom_name && strstr(op->custom_name, cp))
+		{
+			retval = 3;
 		}
 
 		if (retval)

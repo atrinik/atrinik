@@ -132,6 +132,7 @@ object *find_marked_object(object *op);
 void examine_living(object *op, object *tmp);
 char *long_desc(object *tmp, object *caller);
 void examine(object *op, object *tmp);
+int command_rename_item(object *op, char *params);
 
 /* commands/range.c */
 int command_cast_spell(object *op, char *params);
@@ -981,7 +982,6 @@ void esrv_update_stats(player *pl);
 void esrv_new_player(player *pl, uint32 weight);
 void draw_client_map(object *pl);
 void draw_client_map2(object *pl);
-void esrv_map_scroll(socket_struct *ns, int dx, int dy);
 void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
 void command_clear_cmds(char *buf, int len, socket_struct *ns);

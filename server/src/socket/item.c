@@ -217,7 +217,15 @@ static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 
 		size_t len;
 		char item_name[MAX_BUF];
 
-		memcpy(item_name, query_base_name(op, pl), 127);
+		if (op->custom_name)
+		{
+			memcpy(item_name, op->custom_name, 127);
+		}
+		else
+		{
+			memcpy(item_name, query_base_name(op, pl), 127);
+		}
+
 		item_name[127] = '\0';
 		len = strlen(item_name);
 		SockList_AddLen8Data(sl, item_name, len);

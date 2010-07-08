@@ -215,7 +215,7 @@ void replace_unprintable_chars(char *buf)
 
 	for (p = buf; *p != '\0'; p++)
 	{
-		if (*p < ' ')
+		if (*p < ' ' || *p > '~')
 		{
 			*p = ' ';
 		}
@@ -345,14 +345,14 @@ char *cleanup_chat_string(char *ustring)
 	/* Now clear all special characters. */
 	for (i = 0; *(ustring + i) != '\0'; i++)
 	{
-		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|')
+		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|' || *(ustring + i) < ' ' || *(ustring + i) > '~')
 		{
 			*(ustring + i) = ' ';
 		}
 	}
 
 	/* Kill all whitespace. */
-	while (*ustring != '\0' && (isspace(*ustring) || !isprint(*ustring)))
+	while (*ustring != '\0' && isspace(*ustring))
 	{
 		ustring++;
 	}

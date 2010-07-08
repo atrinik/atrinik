@@ -1056,13 +1056,14 @@ int command_drop(object *op, char *params)
 static object *find_marked_object_rec(object *op, object **marked, uint32 *marked_count)
 {
 	object *tmp, *tmp2;
+	int wiz = QUERY_FLAG(op, FLAG_WIZ);
 
 	/* This may seem like overkill, but we need to make sure that they
 	 * player hasn't dropped the item. We use count on the off chance
 	 * that an item got reincarnated at some point. */
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		if (IS_SYS_INVISIBLE(tmp))
+		if (IS_SYS_INVISIBLE(tmp) && !wiz)
 		{
 			continue;
 		}
@@ -1314,6 +1315,11 @@ void examine(object *op, object *tmp)
 	buf[VERY_BIG_BUF - 1] = '\0';
 	new_draw_info(NDI_UNIQUE, op, buf);
 	buf[0] = '\0';
+
+	if (tmp->custom_name)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "You name it %s.", tmp->custom_name);
+	}
 
 	if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
 	{
@@ -1682,4 +1688,75 @@ dirty_little_jump1:
 		new_draw_info(NDI_UNIQUE, op, diff);
 		free(diff);
 	}
+}
+
+/**
+ * Add a custom name to the marked object.
+ * @param op Player.
+ * @param params New name.
+ * @return 1. */
+int command_rename_item(object *op, char *params)
+{
+	object *tmp = find_marked_object(op), *merged, *cont;
+	tag_t del_tag;
+
+	if (!tmp)
+	{
+		new_draw_info(NDI_UNIQUE, op, "No marked item to rename.");
+		return 1;
+	}
+
+	/* Will also clear unprintable chars. */
+	params = cleanup_chat_string(params);
+
+	/* Clear custom name. */
+	if (!params)
+	{
+		if (!tmp->custom_name)
+		{
+			new_draw_info(NDI_UNIQUE, op, "This item has no custom name.");
+			return 1;
+		}
+
+		FREE_AND_CLEAR_HASH(tmp->custom_name);
+		new_draw_info_format(NDI_UNIQUE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
+	}
+	else
+	{
+		if (tmp->type == MONEY)
+		{
+			new_draw_info(NDI_UNIQUE, op, "You cannot rename that item.");
+			return 1;
+		}
+
+		if (strlen(params) > 127)
+		{
+			new_draw_info(NDI_UNIQUE, op, "New name is too long, maximum is 127 characters.");
+			return 1;
+		}
+
+		if (tmp->custom_name && !strcmp(tmp->custom_name, params))
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
+			return 1;
+		}
+
+		/* Set custom name */
+		FREE_AND_COPY_HASH(tmp->custom_name, params);
+		new_draw_info_format(NDI_UNIQUE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+	}
+
+	del_tag = tmp->count;
+	cont = tmp->env;
+	merged = merge_ob(tmp, NULL);
+
+	/* It was merged. */
+	if (merged)
+	{
+		esrv_del_item(CONTR(op), del_tag, cont);
+		tmp = merged;
+	}
+
+	esrv_send_item(op, tmp);
+	return 1;
 }

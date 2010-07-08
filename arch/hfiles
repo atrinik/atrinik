@@ -42,6 +42,7 @@ List of ^contributors^
 ^guild^
 ^guildmembers^
 ^statistics^
+^rename^
 <p><t t="Miscellaneous">
 ^drop and take^
 ==========
@@ -477,6 +478,21 @@ Title: Statistics Command
 The /statistics command will show you various statistics related to your character, like total experience, experience needed for next level, item power of all equipped items, and so on.
 
 <t t="Syntax:">/statistics
+==========
+Name: rename
+Title: Rename Command
+The /rename command can be used to rename any item in your inventory, except money. Simply mark the item you want to rename, and use, for example:
+
+/rename Hello World!
+
+The item's name will then appear as "Hello World!" in inventories, the below inventory, etc for all to see, but examine will still have its original name, along with the custom name.
+
+Use /rename with no parameters to clear the custom name of an item.
+
+<t t="Syntax:">/rename \<new name\>
+
+To clear item's custom name:
+/rename
 ==========
 Name: summon
 Title: Summon Command

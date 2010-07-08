@@ -688,6 +688,11 @@ void sell_item(object *op, object *pl, sint64 value)
 		i = query_cost(op, pl, F_SELL);
 	}
 
+	if (op && op->custom_name)
+	{
+		FREE_AND_CLEAR_HASH(op->custom_name);
+	}
+
 	if (!i)
 	{
 		if (op)

@@ -353,6 +353,18 @@ object *op = items[*depth];
 							FREE_AND_COPY_HASH(op->name, yv);
 						}
                     }
+^custom_name{S}     {
+						char *yv = yval();
+
+						if (*yv == '\0')
+						{
+							LOG(llevBug, "BUG: Custom name without val.\n");
+						}
+						else
+						{
+							FREE_AND_COPY_HASH(op->custom_name, yv);
+						}
+                    }
 ^race{S}            FREE_AND_COPY_HASH(op->race, yval());
 ^slaying{S}         FREE_AND_COPY_HASH(op->slaying, yval());
 ^artifact{S}        FREE_AND_COPY_HASH(op->artifact, yval());
@@ -1188,6 +1200,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->name && op->name != op2->name)
 	{
 		ADD_STRINGLINE_ENTRY(sb, "name ", op->name);
+	}
+
+	if (op->custom_name && op->custom_name != op2->custom_name)
+	{
+		ADD_STRINGLINE_ENTRY(sb, "custom_name ", op->custom_name);
 	}
 
 	if (op->title && op->title != op2->title)
