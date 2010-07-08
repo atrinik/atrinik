@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-07-08 Kiana
 endmsg
 width 24
 height 24
@@ -71,43 +71,69 @@ end
 arch wall_dungeon_1
 y 12
 end
-arch floor_stone_b3
+arch floor_sand_d1
 y 15
 end
-arch wall_dungeon_1
+arch fwall_ruin1a
 y 15
 end
-arch plant1_wall.151
+arch magic_wall
+layer 0
+sys_object 1
+dam 11
+level 35
+no_pass 1
+alive 0
+direction 6
+name orc priest
 y 15
 end
-arch floor_stone_b1
+arch floor_sand_d2
 y 16
 end
-arch floor_stone_b3
+arch pottery6.101
+y 16
+end
+arch floor_sand_d2
 y 17
 end
-arch dirt_floor1
-y 17
-end
-arch floor_stone_b3
+arch floor_sand_d2
 y 18
 end
-arch floor_stone_b1
+arch director
+layer 0
+sys_object 1
+direction 8
+y 18
+end
+arch floor_sand_d4
 y 19
 end
-arch floor_stone_b2
+arch director
+layer 0
+sys_object 1
+direction 6
+y 19
+end
+arch floor_sand_d4
 y 20
 end
-arch dirt_floor2
+arch blood_floor1
 y 20
 end
-arch floor_stone_b3
+arch floor_sand_d3
 y 21
 end
-arch floor_stone_b1
+arch pottery6.101
+y 21
+end
+arch floor_sand_d3
 y 22
 end
-arch floor_stone_b2
+arch floor_sand_d3
+y 23
+end
+arch fwall_ruin1a
 y 23
 end
 arch floor_stone_b1
@@ -187,61 +213,59 @@ arch wall_dungeon_1
 x 1
 y 12
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 1
 y 15
 end
-arch wall_dungeon_1
+arch fwall_ruin1b
 x 1
 y 15
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 1
 y 16
 end
-arch blood_floor1
-x 1
-y 16
-end
-arch torch_wall_1
-glow_radius 5
-is_animated 1
-x 1
-y 16
-end
-arch floor_stone_b2
+arch floor_sand_d3
 x 1
 y 17
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 1
 y 18
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 1
 y 19
 end
-arch floor_stone_b4
+arch floor_sand_d4
 x 1
 y 20
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 1
 y 21
 end
-arch blood_floor2
-x 1
-y 21
-end
-arch floor_stone_b4
+arch floor_sand_d2
 x 1
 y 22
 end
-arch dirt_floor1
+arch floor_sand_d3
 x 1
-y 22
+y 23
 end
-arch floor_stone_b1
+arch fwall_ruin1b
+x 1
+y 23
+end
+arch magic_wall
+layer 0
+sys_object 1
+dam 11
+level 35
+no_pass 1
+alive 0
+direction 8
+name orc priest
 x 1
 y 23
 end
@@ -312,75 +336,75 @@ arch wall_dungeon_1
 x 2
 y 12
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 2
 y 15
 end
-arch wall_dungeon_1
+arch fwall_ruin1c
 x 2
 y 15
 end
-arch floor_stone_b3
+arch floor_sand_d2
 x 2
 y 16
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 2
 y 16
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 2
 y 17
 end
-arch wall_dungeon_3
+arch fwall_ruin1b
 x 2
 y 17
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 2
 y 18
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 2
 y 18
 end
-arch floor_stone_b4
+arch floor_sand_d3
 x 2
 y 19
 end
-arch wall_dungeon_3
+arch fwall_ruin1b
 x 2
 y 19
 end
-arch floor_stone_b1
+arch floor_sand_d2
 x 2
 y 20
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 2
 y 20
 end
-arch floor_stone_b3
+arch floor_sand_d4
 x 2
 y 21
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 2
 y 21
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 2
 y 22
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 2
 y 22
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 2
 y 23
 end
-arch wall_dungeon_3
+arch fwall_ruin1b
 x 2
 y 23
 end

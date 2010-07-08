@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-07-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2810,6 +2810,59 @@ arch wall_dungeon_1
 x 20
 y 6
 end
+arch floor_sand_d2
+x 20
+y 10
+end
+arch wall_ruin1a_181
+x 20
+y 10
+end
+arch floor_sand_d3
+x 20
+y 11
+end
+arch wall_ruin1a_131
+x 20
+y 11
+end
+arch floor_sand_d1
+x 20
+y 12
+end
+arch wall_ruin1c_131
+x 20
+y 12
+end
+arch floor_sand_d2
+x 20
+y 13
+end
+arch wall_ruin1a_131
+x 20
+y 13
+end
+arch plant1_wall.151
+direction 5
+x 20
+y 13
+end
+arch floor_sand_d4
+x 20
+y 14
+end
+arch wall_ruin1c_131
+x 20
+y 14
+end
+arch floor_sand_d3
+x 20
+y 15
+end
+arch wall_ruin1b_131
+x 20
+y 15
+end
 arch floor_stone_b1
 x 21
 end
@@ -2849,6 +2902,53 @@ arch wall_dungeon_1
 x 21
 y 6
 end
+arch floor_sand_d1
+x 21
+y 10
+end
+arch wall_ruin1c_111
+x 21
+y 10
+end
+arch plant1_wall.151
+x 21
+y 10
+end
+arch floor_sand_d3
+x 21
+y 11
+end
+arch floor_sand_d1
+x 21
+y 12
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 21
+y 12
+end
+arch floor_sand_d3
+x 21
+y 13
+end
+arch floor_sand_d2
+x 21
+y 14
+end
+arch pottery1.101
+x 21
+y 14
+end
+arch floor_sand_d1
+x 21
+y 15
+end
+arch wall_ruin1c_111
+x 21
+y 15
+end
 arch floor_stone_b3
 x 22
 end
@@ -2884,51 +2984,110 @@ arch wall_dungeon_1
 x 22
 y 6
 end
-arch floor_stone_b3
+arch floor_sand_d1
+x 22
+y 10
+end
+arch wall_ruin1e_111
+x 22
+y 10
+end
+arch chains3.151
+x 22
+y 10
+end
+arch floor_sand_d1
+x 22
+y 11
+end
+arch floor_sand_d4
+x 22
+y 12
+end
+arch portal_green
+slaying ../../world_0311
+hp 0
+sp 7
+walk_on 1
+fly_on 1
+type 66
+x 22
+y 12
+arch event_obj
+sub_type 10
+race scripts/lake_portal.py
+end
+end
+arch floor_sand_d4
+x 22
+y 13
+end
+arch blood_floor2
+x 22
+y 13
+end
+arch floor_sand_d1
+x 22
+y 14
+end
+arch floor_sand_d3
+x 22
+y 15
+end
+arch wall_ruin1b_111
+x 22
+y 15
+end
+arch floor_sand_d3
 x 22
 y 18
 end
-arch wall_dungeon_8
+arch wall_ruin1a_181
 x 22
 y 18
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 22
 y 19
 end
-arch wall_dungeon_3
+arch wall_ruin1c_131
 x 22
 y 19
 end
-arch floor_stone_b3
+arch floor_sand_d4
 x 22
 y 20
 end
-arch wall_dungeon_3
+arch wall_ruin1c_131
 x 22
 y 20
 end
-arch floor_stone_b2
+arch plant1_wall.151
+direction 5
+x 22
+y 20
+end
+arch floor_sand_d1
 x 22
 y 21
 end
-arch wall_dungeon_3
+arch wall_ruin1b_131
 x 22
 y 21
 end
-arch floor_stone_b3
+arch floor_sand_d3
 x 22
 y 22
 end
-arch wall_dungeon_3
+arch wall_ruin1a_131
 x 22
 y 22
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 22
 y 23
 end
-arch wall_dungeon_3
+arch wall_ruin1c_131
 x 22
 y 23
 end
@@ -2974,31 +3133,104 @@ arch wall_dungeon_1
 x 23
 y 6
 end
-arch floor_stone_b2
+arch floor_sand_d2
+x 23
+y 10
+end
+arch wall_ruin1c_111
+x 23
+y 10
+end
+arch floor_sand_d4
+x 23
+y 11
+end
+arch dirt_floor2
+x 23
+y 11
+end
+arch floor_sand_d4
+x 23
+y 12
+end
+arch floor_sand_d2
+x 23
+y 13
+end
+arch floor_sand_d1
+x 23
+y 14
+end
+arch floor_sand_d4
+x 23
+y 15
+end
+arch wall_ruin1a_111
+x 23
+y 15
+end
+arch floor_sand_d4
+x 23
+y 16
+end
+arch wall_ruin1c_131
+x 23
+y 16
+end
+arch floor_sand_d2
+x 23
+y 17
+end
+arch wall_ruin1b_131
+x 23
+y 17
+end
+arch plant1_wall.151
+direction 5
+x 23
+y 17
+end
+arch floor_sand_d2
 x 23
 y 18
 end
-arch wall_dungeon_1
+arch wall_ruin1a_141
 x 23
 y 18
 end
-arch floor_stone_b3
+arch plant1_wall.151
+x 23
+y 18
+end
+arch floor_sand_d2
 x 23
 y 19
 end
-arch floor_stone_b2
+arch pottery1.101
+x 23
+y 19
+end
+arch floor_sand_d2
 x 23
 y 20
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 23
 y 21
 end
-arch floor_stone_b2
+arch barrel2.101
+x 23
+y 21
+end
+arch floor_sand_d3
 x 23
 y 22
 end
-arch floor_stone_b3
+arch barrel2.101
+x 23
+y 22
+end
+arch floor_sand_d4
 x 23
 y 23
 end

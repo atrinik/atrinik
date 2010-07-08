@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-07-08 Kiana
 endmsg
 width 24
 height 24
@@ -19,23 +19,23 @@ tile_path_8 underground_city_0104
 bg_music thonkdonk.ogg
 region underground_city
 end
-arch floor_stone_b2
+arch floor_sand_d1
 end
 arch dirt_floor1
 end
-arch floor_stone_b1
+arch floor_sand_d3
 y 1
 end
-arch floor_stone_b2
+arch floor_sand_d4
 y 2
 end
 arch dirt_floor2
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d2
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1c_111
 y 3
 end
 arch floor_stone_b3
@@ -133,22 +133,32 @@ end
 arch floor_stone_b2
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 1
 end
-arch floor_stone_b3
+arch candlelight3.101
+x 1
+end
+arch light3
+x 1
+end
+arch floor_sand_d2
 x 1
 y 1
 end
-arch floor_stone_b2
+arch barrel2.101
+x 1
+y 1
+end
+arch floor_sand_d2
 x 1
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d4
 x 1
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1b_111
 x 1
 y 3
 end
@@ -252,10 +262,10 @@ arch dirt_floor2
 x 1
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 2
 end
-arch floor_stone_b3
+arch floor_sand_d1
 x 2
 y 1
 end
@@ -263,15 +273,15 @@ arch blood_floor1
 x 2
 y 1
 end
-arch floor_stone_b3
+arch floor_sand_d3
 x 2
 y 2
 end
-arch floor_stone_b1
+arch floor_sand_d1
 x 2
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1a_111
 x 2
 y 3
 end
@@ -380,10 +390,10 @@ arch floor_stone_b4
 x 2
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d4
 x 3
 end
-arch floor_stone_b4
+arch floor_sand_d2
 x 3
 y 1
 end
@@ -391,15 +401,15 @@ arch dirt_floor1
 x 3
 y 1
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 3
 y 2
 end
-arch floor_stone_b3
+arch floor_sand_d2
 x 3
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1c_111
 x 3
 y 3
 end
@@ -495,25 +505,29 @@ arch floor_stone_b2
 x 3
 y 23
 end
-arch floor_stone_b4
+arch floor_sand_d4
 x 4
 end
 arch blood_floor2
 x 4
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 4
 y 1
 end
-arch floor_stone_b2
+arch pile_floor1
+x 4
+y 1
+end
+arch floor_sand_d2
 x 4
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 4
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1d_111
 x 4
 y 3
 end
@@ -628,22 +642,22 @@ arch floor_stone_b3
 x 4
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d3
 x 5
 end
-arch floor_stone_b3
+arch floor_sand_d1
 x 5
 y 1
 end
-arch floor_stone_b3
+arch floor_sand_d1
 x 5
 y 2
 end
-arch floor_stone_b1
+arch floor_sand_d2
 x 5
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1a_111
 x 5
 y 3
 end
@@ -757,17 +771,25 @@ arch floor_stone_b4
 x 5
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d3
 x 6
 end
 arch dirt_floor1
 x 6
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 6
 y 1
 end
-arch floor_stone_b1
+arch candlelight1.101
+x 6
+y 1
+end
+arch light2
+x 6
+y 1
+end
+arch floor_sand_d2
 x 6
 y 2
 end
@@ -775,11 +797,11 @@ arch blood_floor2
 x 6
 y 2
 end
-arch floor_stone_b3
+arch floor_sand_d2
 x 6
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1c_111
 x 6
 y 3
 end
@@ -859,14 +881,14 @@ arch floor_stone_b2
 x 6
 y 23
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 7
 end
-arch floor_stone_b1
+arch floor_sand_d2
 x 7
 y 1
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 7
 y 2
 end
@@ -874,11 +896,11 @@ arch dirt_floor2
 x 7
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 7
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1a_111
 x 7
 y 3
 end
@@ -986,33 +1008,33 @@ arch wall_dungeon_3
 x 7
 y 23
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 8
 end
-arch wall_dungeon_3
+arch wall_ruin1c_131
 x 8
 end
-arch floor_stone_b4
-x 8
-y 1
-end
-arch wall_dungeon_3
+arch floor_sand_d4
 x 8
 y 1
 end
-arch floor_stone_b1
+arch wall_ruin1b_131
+x 8
+y 1
+end
+arch floor_sand_d4
 x 8
 y 2
 end
-arch wall_dungeon_3
+arch wall_ruin1b_131
 x 8
 y 2
 end
-arch floor_stone_b3
+arch floor_sand_d3
 x 8
 y 3
 end
-arch wall_dungeon_4
+arch wall_ruin1a_141
 x 8
 y 3
 end
@@ -1232,17 +1254,17 @@ arch wall_dungeon_4
 x 10
 y 23
 end
-arch floor_stone_b1
+arch floor_sand_d3
 x 11
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 11
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 11
 y 1
 end
-arch wall_dungeon_3
+arch fwall_ruin1b
 x 11
 y 1
 end
@@ -1251,19 +1273,19 @@ direction 5
 x 11
 y 1
 end
-arch floor_stone_b3
+arch floor_sand_d3
 x 11
 y 2
 end
-arch wall_dungeon_3
+arch fwall_ruin1a
 x 11
 y 2
 end
-arch floor_stone_b4
+arch floor_sand_d4
 x 11
 y 3
 end
-arch wall_dungeon_3
+arch fwall_ruin1c
 x 11
 y 3
 end
@@ -1393,33 +1415,37 @@ arch floor_stone_b3
 x 11
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d4
 x 12
 end
-arch floor_stone_b4
+arch box2.101
 x 12
-y 1
 end
-arch blood_floor1
-x 12
-y 1
-end
-arch torch_wall_1
-direction 5
-glow_radius 5
-is_animated 1
+arch floor_sand_d1
 x 12
 y 1
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 12
 y 2
 end
-arch floor_stone_b1
+arch floor_sand_d2
 x 12
 y 3
 end
-arch wall_dungeon_1
+arch fwall_ruin1a
+x 12
+y 3
+end
+arch magic_wall
+layer 0
+sys_object 1
+dam 11
+level 35
+no_pass 1
+alive 0
+direction 2
+name orc priest
 x 12
 y 3
 end
@@ -1427,7 +1453,7 @@ arch floor_stone_b2
 x 12
 y 4
 end
-arch wall_dungeon_3
+arch wall_dungeon_8
 x 12
 y 4
 end
@@ -1545,25 +1571,26 @@ arch floor_stone_b4
 x 12
 y 23
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 13
 end
-arch dirt_floor1
-x 13
-end
-arch floor_stone_b2
+arch floor_sand_d3
 x 13
 y 1
 end
-arch floor_stone_b1
+arch blood_floor2
+x 13
+y 1
+end
+arch floor_sand_d2
 x 13
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 13
 y 3
 end
-arch dirt_floor2
+arch fwall_ruin1a
 x 13
 y 3
 end
@@ -1571,11 +1598,11 @@ arch floor_stone_b2
 x 13
 y 4
 end
-arch floor_stone_b2
+arch wall_dungeon_4
 x 13
-y 5
+y 4
 end
-arch wall_dungeon_1
+arch floor_stone_b2
 x 13
 y 5
 end
@@ -1663,34 +1690,50 @@ arch dirt_floor2
 x 13
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d3
 x 14
 end
-arch floor_stone_b1
+arch director
+layer 0
+sys_object 1
+direction 5
+x 14
+end
+arch floor_sand_d1
 x 14
 y 1
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 14
 y 2
 end
-arch floor_stone_b1
+arch floor_sand_d1
 x 14
 y 3
 end
-arch floor_stone_b1
+arch fwall_ruin1a
+no_pass 0
+layer 7
 x 14
-y 4
-end
-arch blood_floor2
-x 14
-y 4
+y 3
 end
 arch floor_stone_b4
 x 14
-y 5
+y 4
+end
+arch sand_dm6
+x 14
+y 4
 end
 arch door1_locked
+x 14
+y 4
+end
+arch floor_stone_b1
+x 14
+y 5
+end
+arch blood_floor2
 x 14
 y 5
 end
@@ -1819,41 +1862,42 @@ arch wall_dungeon_3
 x 14
 y 23
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 15
 end
-arch dirt_floor2
-x 15
-end
-arch floor_stone_b4
+arch floor_sand_d4
 x 15
 y 1
 end
-arch floor_stone_b1
+arch pile_floor1
+x 15
+y 1
+end
+arch floor_sand_d4
 x 15
 y 2
 end
-arch floor_stone_b3
+arch floor_sand_d2
 x 15
 y 3
 end
-arch wall_dungeon_8
+arch fwall_ruin1b
 x 15
 y 3
-end
-arch floor_stone_b3
-x 15
-y 4
-end
-arch wall_dungeon_3
-x 15
-y 4
 end
 arch floor_stone_b1
 x 15
-y 5
+y 4
 end
 arch wall_dungeon_4
+x 15
+y 4
+end
+arch floor_stone_b3
+x 15
+y 5
+end
+arch wall_dungeon_3
 x 15
 y 5
 end
@@ -1945,26 +1989,45 @@ arch wall_dungeon_1
 x 15
 y 21
 end
-arch floor_stone_b3
+arch floor_sand_d1
 x 16
 end
-arch floor_stone_b3
+arch director
+layer 0
+sys_object 1
+x 16
+end
+arch floor_sand_d2
 x 16
 y 1
 end
-arch blood_floor1
+arch director
+layer 0
+sys_object 1
+direction 8
 x 16
 y 1
 end
-arch floor_stone_b4
+arch floor_sand_d4
 x 16
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d4
 x 16
 y 3
 end
-arch wall_dungeon_1
+arch fwall_ruin1c
+x 16
+y 3
+end
+arch magic_wall
+layer 0
+sys_object 1
+dam 11
+level 35
+no_pass 1
+alive 0
+name orc priest
 x 16
 y 3
 end
@@ -2066,22 +2129,26 @@ arch wall_dungeon_1
 x 16
 y 21
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 17
 end
-arch floor_stone_b1
+arch statue_black1
+glow_radius 4
+x 17
+end
+arch floor_sand_d1
 x 17
 y 1
 end
-arch floor_stone_b1
+arch floor_sand_d1
 x 17
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 17
 y 3
 end
-arch wall_dungeon_1
+arch fwall_ruin1c
 x 17
 y 3
 end
@@ -2193,26 +2260,26 @@ arch wall_dungeon_4
 x 17
 y 21
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 18
 end
-arch floor_stone_b2
-x 18
-y 1
-end
-arch dirt_floor1
+arch floor_sand_d3
 x 18
 y 1
 end
-arch floor_stone_b3
+arch blood_floor2
+x 18
+y 1
+end
+arch floor_sand_d4
 x 18
 y 2
 end
-arch floor_stone_b4
+arch floor_sand_d2
 x 18
 y 3
 end
-arch wall_dungeon_1
+arch fwall_ruin1b
 x 18
 y 3
 end
@@ -2264,22 +2331,35 @@ arch wall_dungeon_1
 x 18
 y 19
 end
-arch floor_stone_b2
+arch floor_sand_d4
 x 19
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 19
 y 1
 end
-arch floor_stone_b2
+arch floor_sand_d3
 x 19
 y 2
 end
-arch floor_stone_b1
+arch floor_sand_d1
 x 19
 y 3
 end
-arch wall_dungeon_1
+arch fwall_ruin1a
+x 19
+y 3
+end
+arch magic_wall
+name orc priest
+layer 0
+sys_object 1
+direction 8
+dam 11
+level 35
+speed -0.01
+no_pass 1
+alive 0
 x 19
 y 3
 end
@@ -2351,33 +2431,30 @@ arch wall_dungeon_4
 x 19
 y 19
 end
-arch floor_stone_b1
+arch floor_sand_d2
 x 20
 end
-arch dirt_floor2
-x 20
-end
-arch floor_stone_b2
+arch floor_sand_d3
 x 20
 y 1
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 20
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d1
 x 20
 y 3
 end
-arch wall_dungeon_1
+arch fwall_ruin1b
 x 20
 y 3
 end
-arch floor_stone_b2
+arch floor_stone_b1
 x 20
 y 4
 end
-arch wall_dungeon_3
+arch wall_dungeon_8
 x 20
 y 4
 end
@@ -2393,21 +2470,21 @@ end
 arch wall_dungeon_3
 x 20
 y 5
+end
+arch floor_stone_b4
+x 20
+y 6
+end
+arch wall_dungeon_3
+x 20
+y 6
+end
+arch plant1_wall.151
+direction 5
+x 20
+y 6
 end
 arch floor_stone_b3
-x 20
-y 6
-end
-arch wall_dungeon_3
-x 20
-y 6
-end
-arch plant1_wall.151
-direction 5
-x 20
-y 6
-end
-arch floor_stone_b2
 x 20
 y 7
 end
@@ -2517,22 +2594,43 @@ arch wall_dungeon_3
 x 20
 y 21
 end
-arch floor_stone_b2
+arch floor_sand_d4
 x 21
 end
-arch floor_stone_b1
+arch fwall_ruin1c
+x 21
+end
+arch floor_sand_d4
 x 21
 y 1
 end
-arch floor_stone_b2
+arch fwall_ruin1a
+x 21
+y 1
+end
+arch floor_sand_d3
 x 21
 y 2
 end
-arch floor_stone_b1
+arch fwall_ruin1b
+no_pass 0
+layer 7
+x 21
+y 2
+end
+arch floor_sand_d1
 x 21
 y 3
 end
-arch floor_stone_b1
+arch fwall_ruin1c
+x 21
+y 3
+end
+arch floor_stone_b2
+x 21
+y 4
+end
+arch wall_dungeon_1
 x 21
 y 4
 end
@@ -2638,26 +2736,35 @@ arch wall_dungeon_1
 x 21
 y 21
 end
-arch floor_stone_b1
-x 22
-end
-arch floor_stone_b2
+arch floor_sand_d4
 x 22
 y 1
 end
-arch dirt_floor1
+arch wall_ruin1b_111
 x 22
 y 1
 end
-arch floor_stone_b4
+arch floor_sand_d4
 x 22
 y 2
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 22
 y 3
 end
-arch floor_stone_b3
+arch wall_ruin1d_111
+x 22
+y 3
+end
+arch floor_stone_b2
+x 22
+y 4
+end
+arch wall_dungeon_1
+x 22
+y 4
+end
+arch plant1_wall.151
 x 22
 y 4
 end
@@ -2759,10 +2866,17 @@ arch wall_dungeon_1
 x 22
 y 21
 end
-arch floor_stone_b2
+arch floor_stone_b3
 x 23
 end
-arch floor_stone_b3
+arch wall_dungeon_8
+x 23
+end
+arch floor_stone_b4
+x 23
+y 1
+end
+arch wall_dungeon_4
 x 23
 y 1
 end
@@ -2770,19 +2884,34 @@ arch floor_stone_b2
 x 23
 y 2
 end
-arch blood_floor2
+arch sand_dm8
 x 23
 y 2
 end
-arch floor_stone_b2
+arch door1_locked
+face door_lock1.131
+direction 3
 x 23
-y 3
+y 2
 end
 arch floor_stone_b4
 x 23
+y 3
+end
+arch wall_dungeon_4
+x 23
+y 3
+end
+arch plant1_wall.151
+direction 5
+x 23
+y 3
+end
+arch floor_stone_b1
+x 23
 y 4
 end
-arch dirt_floor2
+arch wall_dungeon_4
 x 23
 y 4
 end

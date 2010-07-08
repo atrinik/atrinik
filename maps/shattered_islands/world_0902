@@ -1143,9 +1143,9 @@ y 1
 arch traveller_wife
 msg
 @match hi|hey
-What? Talking to me, <player>?
+What? Talking to me?
 @match hello|greetings
-Good day, <player>.
+Good day, adventurer.
 I'm Cernye, I collect ^herbs^.
 @match herbs
 Eld Woods Island is home to a variety of herbs, but I'm especially fond of ^Athalas^.

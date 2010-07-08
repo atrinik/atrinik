@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-06-12 Alex Tokar
+Modified: 2010-07-08 Kiana
 endmsg
 width 24
 height 24
@@ -1931,6 +1931,174 @@ x 16
 y 6
 end
 arch blocked
+x 16
+y 8
+end
+arch wall_flagstone1.181
+x 16
+y 8
+end
+arch blocked
+x 16
+y 9
+end
+arch wall_flagstone1b.131
+x 16
+y 9
+end
+arch plant1_wall.151
+direction 7
+x 16
+y 9
+end
+arch blocked
+x 16
+y 10
+end
+arch wall_flagstone1b.131
+x 16
+y 10
+end
+arch blocked
+x 16
+y 11
+end
+arch wall_flagstone1b.131
+x 16
+y 11
+end
+arch blocked
+x 16
+y 12
+end
+arch wall_flagstone1b.131
+x 16
+y 12
+end
+arch plant1_wall.151
+direction 7
+x 16
+y 12
+end
+arch blocked
+x 16
+y 13
+end
+arch wall_flagstone1b.131
+x 16
+y 13
+end
+arch blocked
+x 16
+y 14
+end
+arch wall_flagstone1b.131
+x 16
+y 14
+end
+arch blocked
+x 16
+y 15
+end
+arch wall_flagstone1b.131
+x 16
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 16
+y 15
+end
+arch blocked
+x 16
+y 16
+end
+arch wall_flagstone1b.131
+x 16
+y 16
+end
+arch plant2_wall.151
+direction 7
+x 16
+y 16
+end
+arch blocked
+x 16
+y 17
+end
+arch wall_flagstone1b.131
+x 16
+y 17
+end
+arch plant1_wall.151
+direction 7
+x 16
+y 17
+end
+arch blocked
+x 16
+y 18
+end
+arch wall_flagstone1b.131
+x 16
+y 18
+end
+arch blocked
+x 16
+y 19
+end
+arch wall_flagstone1b.131
+x 16
+y 19
+end
+arch blocked
+x 16
+y 20
+end
+arch wall_flagstone1b.131
+x 16
+y 20
+end
+arch plant1_wall.151
+direction 5
+x 16
+y 20
+end
+arch blocked
+x 16
+y 21
+end
+arch wall_flagstone1b.131
+x 16
+y 21
+end
+arch blocked
+x 16
+y 22
+end
+arch wall_flagstone1b.131
+x 16
+y 22
+end
+arch plant2_wall.151
+direction 7
+x 16
+y 22
+end
+arch blocked
+x 16
+y 23
+end
+arch wall_flagstone1b.131
+x 16
+y 23
+end
+arch plant1_wall.151
+direction 7
+x 16
+y 23
+end
+arch blocked
 x 17
 end
 arch wall_flagstone1b.131
@@ -1976,6 +2144,155 @@ arch plant2_wall.151
 x 17
 y 6
 end
+arch blocked
+x 17
+y 8
+end
+arch wall_flagstone1b.111
+x 17
+y 8
+end
+arch floor_earth1d
+x 17
+y 9
+end
+arch hole
+slaying sewers_a_0202
+hp 12
+sp 14
+x 17
+y 9
+end
+arch floor_earth1b
+x 17
+y 10
+end
+arch floor_earth1d
+x 17
+y 11
+end
+arch wall_flagstone1b.111
+x 17
+y 11
+end
+arch floor_earth1c
+x 17
+y 12
+end
+arch pile_floor2
+x 17
+y 12
+end
+arch spawn_point
+x 17
+y 12
+arch oty
+name oty captain
+direction 3
+level 50
+type 83
+arch quest_container
+name Investigation for Maplevale
+sub_type 2
+arch note
+msg
+oty captain,
+This war with the humans has been going on for far too long. I've found a way to make an end to this. With the help of Moroch we can wipe those humans from the surface. Come and visit me tomorrow with all oty under your contro! I will show you how we'll do it. I've asked the ghouls to help you dig a tunnel. They will come tomorrow too, don't be late!
+Nyhelobo
+endmsg
+name Letter from Nyhelobo to oty captain
+end
+end
+end
+end
+arch floor_earth1e
+x 17
+y 13
+end
+arch dirt_floor2
+x 17
+y 13
+end
+arch floor_earth1e
+x 17
+y 14
+end
+arch spawn_point
+x 17
+y 14
+arch oty
+level 50
+type 83
+end
+end
+arch floor_earth1a
+x 17
+y 15
+end
+arch plant8
+x 17
+y 15
+end
+arch floor_earth1a
+x 17
+y 16
+end
+arch plant7
+x 17
+y 16
+end
+arch floor_earth1e
+x 17
+y 17
+end
+arch plant7
+x 17
+y 17
+end
+arch light3
+x 17
+y 17
+end
+arch floor_earth1d
+x 17
+y 18
+end
+arch dirt_floor1
+x 17
+y 18
+end
+arch floor_earth1e
+x 17
+y 19
+end
+arch pile_floor2
+x 17
+y 19
+end
+arch floor_earth1b
+x 17
+y 20
+end
+arch floor_earth1c
+x 17
+y 21
+end
+arch floor_earth1e
+x 17
+y 22
+end
+arch plant8
+x 17
+y 22
+end
+arch floor_earth1c
+x 17
+y 23
+end
+arch plant6
+x 17
+y 23
+end
 arch floor_earth1e
 x 18
 end
@@ -2006,6 +2323,137 @@ end
 arch wall_flagstone1b.111
 x 18
 y 6
+end
+arch blocked
+x 18
+y 8
+end
+arch wall_flagstone1b.111
+x 18
+y 8
+end
+arch plant2_wall.151
+x 18
+y 8
+end
+arch floor_earth1b
+x 18
+y 9
+end
+arch dirt_floor1
+x 18
+y 9
+end
+arch light2
+x 18
+y 9
+end
+arch floor_earth1a
+x 18
+y 10
+end
+arch floor_earth1c
+x 18
+y 11
+end
+arch door1_locked
+msg
+The lock bears the symbol of Brynknot. Only the guard captain has the key, he probably wouldn't give it to you without a reason though.
+endmsg
+slaying brynknot_maze_key
+no_magic 1
+damned 1
+x 18
+y 11
+end
+arch floor_earth1e
+x 18
+y 12
+end
+arch dirt_floor2
+x 18
+y 12
+end
+arch floor_earth1b
+x 18
+y 13
+end
+arch spawn_point
+x 18
+y 13
+arch oty
+level 50
+type 83
+direction 4
+end
+end
+arch floor_earth1b
+x 18
+y 14
+end
+arch plant8
+x 18
+y 14
+end
+arch floor_earth1c
+x 18
+y 15
+end
+arch plant8
+x 18
+y 15
+end
+arch floor_earth1c
+x 18
+y 16
+end
+arch plant8
+x 18
+y 16
+end
+arch floor_earth1d
+x 18
+y 17
+end
+arch floor_earth1b
+x 18
+y 18
+end
+arch floor_earth1e
+x 18
+y 19
+end
+arch floor_earth1c
+x 18
+y 20
+end
+arch dirt_floor2
+x 18
+y 20
+end
+arch floor_earth1c
+x 18
+y 21
+end
+arch dirt_floor4
+x 18
+y 21
+end
+arch floor_earth1d
+x 18
+y 22
+end
+arch floor_earth1e
+x 18
+y 23
+end
+arch plant7
+x 18
+y 23
+end
+arch light3
+x 18
+y 23
 end
 arch floor_earth1d
 x 19
@@ -2048,6 +2496,164 @@ end
 arch wall_flagstone1b.111
 x 19
 y 6
+end
+arch blocked
+x 19
+y 8
+end
+arch wall_flagstone1b.111
+x 19
+y 8
+end
+arch floor_earth1c
+x 19
+y 9
+end
+arch wall_flagstone1b.131
+x 19
+y 9
+end
+arch floor_earth1c
+x 19
+y 10
+end
+arch wall_flagstone1b.131
+x 19
+y 10
+end
+arch plant1_wall.151
+direction 7
+x 19
+y 10
+end
+arch floor_earth1d
+x 19
+y 11
+end
+arch wall_flagstone1b.141
+x 19
+y 11
+end
+arch floor_earth1b
+x 19
+y 12
+end
+arch wall_flagstone1b.131
+x 19
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 12
+end
+arch floor_earth1d
+x 19
+y 13
+end
+arch wall_flagstone1b.131
+x 19
+y 13
+end
+arch floor_earth1d
+x 19
+y 14
+end
+arch wall_flagstone1b.131
+x 19
+y 14
+end
+arch plant1_wall.151
+direction 7
+x 19
+y 14
+end
+arch floor_earth1a
+x 19
+y 15
+end
+arch wall_flagstone1b.131
+x 19
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 15
+end
+arch floor_earth1d
+x 19
+y 16
+end
+arch wall_flagstone1b.131
+x 19
+y 16
+end
+arch floor_earth1b
+x 19
+y 17
+end
+arch wall_flagstone1b.131
+x 19
+y 17
+end
+arch floor_earth1c
+x 19
+y 18
+end
+arch wall_flagstone1b.131
+x 19
+y 18
+end
+arch floor_earth1a
+x 19
+y 19
+end
+arch wall_flagstone1b.131
+x 19
+y 19
+end
+arch plant1_wall.151
+direction 7
+x 19
+y 19
+end
+arch floor_earth1d
+x 19
+y 20
+end
+arch wall_flagstone1b.131
+x 19
+y 20
+end
+arch floor_earth1b
+x 19
+y 21
+end
+arch wall_flagstone1b.131
+x 19
+y 21
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 21
+end
+arch floor_earth1d
+x 19
+y 22
+end
+arch wall_flagstone1b.131
+x 19
+y 22
+end
+arch floor_earth1c
+x 19
+y 23
+end
+arch wall_flagstone1b.131
+x 19
+y 23
 end
 arch floor_earth1e
 x 20

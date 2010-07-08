@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-24 Kiana
+Modified: 2010-07-08 Kiana
 endmsg
 width 24
 height 24
@@ -1461,7 +1461,7 @@ Well, hello there! I'm a traveller looking for interesting artifacts and treasur
 @match ^shop$
 The shop has once been active, with various treasures being sold there for high prices, but now there's not much left of it. I used to buy stuff there and venture down the ^sewers^ you know..
 @match ^sewers$
-Yes, use any of the sewer holes around town to enter the Brynknot sewer system. It's bigger than it looks. One time I was attacked by a terrible ^monster^!
+Yes, use any of the sewer holes around town to enter the Brynknot sewer system. It's bigger than it looks and sometimes you need to ~/push~ your way through. One time I was attacked by a terrible ^monster^!
 @match ^monster$
 You see this scar? That's not all it did to me, it also ate my magical ^pouch^ filled with gems and jewels!
 @match ^pouch$|^gems$|^jewels$

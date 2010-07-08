@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-07-06 Kiana
 endmsg
 width 24
 height 24
@@ -2855,17 +2855,17 @@ direction 5
 x 21
 y 23
 end
-arch floor_stone_b2
+arch floor_sand_d3
 x 22
 end
-arch wall_dungeon_3
+arch wall_ruin1a_131
 x 22
 end
-arch floor_stone_b4
+arch floor_sand_d1
 x 22
 y 1
 end
-arch wall_dungeon_3
+arch wall_ruin1a_131
 x 22
 y 1
 end
@@ -2874,19 +2874,19 @@ direction 5
 x 22
 y 1
 end
-arch floor_stone_b1
+arch floor_sand_d2
 x 22
 y 2
 end
-arch wall_dungeon_3
+arch wall_ruin1d_131
 x 22
 y 2
 end
-arch floor_stone_b3
+arch floor_sand_d3
 x 22
 y 3
 end
-arch wall_dungeon_3
+arch wall_ruin1c_131
 x 22
 y 3
 end
@@ -2984,17 +2984,17 @@ arch floor_stone_b2
 x 22
 y 23
 end
-arch floor_stone_b4
+arch floor_sand_d4
 x 23
 end
 arch blood_floor2
 x 23
 end
-arch floor_stone_b1
+arch floor_sand_d4
 x 23
 y 1
 end
-arch floor_stone_b2
+arch floor_sand_d3
 x 23
 y 2
 end
@@ -3002,11 +3002,11 @@ arch dirt_floor1
 x 23
 y 2
 end
-arch floor_stone_b2
+arch floor_sand_d2
 x 23
 y 3
 end
-arch wall_dungeon_1
+arch wall_ruin1d_111
 x 23
 y 3
 end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-10 Alex Tokar
+Modified: 2010-07-08 Kiana
 endmsg
 width 24
 height 24
@@ -1567,6 +1567,18 @@ unaggressive 0
 friendly 1
 stand_still 0
 name Guard Captain Talthor
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/maplevale_talthor.py
+end
+arch key2
+msg
+Key bearing the symbol of Brynknot. It opens a door in the sewers.
+endmsg
+name Brynknot Maze Key
+face key_yervas.111
+slaying brynknot_maze_key
+end
 end
 end
 arch floor_flagm2
