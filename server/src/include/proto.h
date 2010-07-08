@@ -680,7 +680,6 @@ void make_path_to_file(char *filename);
 const char *strcasestr_local(const char *s, const char *find);
 
 /* server/quest.c */
-object *create_quest_container(object *op);
 void check_quest(object *op, object *quest_container);
 
 /* server/race.c */
@@ -989,8 +988,12 @@ void command_clear_cmds(char *buf, int len, socket_struct *ns);
 void SetSound(char *buf, int len, socket_struct *ns);
 
 /* socket/sounds.c */
-void play_sound_player_only(player *pl, int sound_num, const char *filename, int x, int y, int loop, int volume);
-void play_sound_map(mapstruct *map, int sound_num, const char *filename, int x, int y, int loop, int volume);
+void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
+void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);
+
+/* socket/updates.c */
+void updates_init();
+void cmd_request_update(char *buf, int len, socket_struct *ns);
 
 /* types/altar.c */
 int apply_altar(object *altar, object *sacrifice, object *originator);

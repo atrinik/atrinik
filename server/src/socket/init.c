@@ -263,6 +263,7 @@ void init_ericserver()
 
 	init_sockets[0].status = Ns_Wait;
 	read_client_images();
+	updates_init();
 	init_srv_files();
 }
 
@@ -467,6 +468,9 @@ void init_srv_files()
 
 	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
 	load_srv_file(buf, SRV_CLIENT_SETTINGS);
+
+	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, UPDATES_FILE_NAME);
+	load_srv_file(buf, SRV_FILE_UPDATES);
 }
 
 /**

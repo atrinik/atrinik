@@ -280,6 +280,37 @@ typedef struct Socket_Info_struct
 extern Socket_Info socket_info;
 
 /**
+ * A single file loaded from the updates directory that the client can
+ * request. */
+typedef struct update_file_struct
+{
+	/** File's CRC32. */
+	unsigned long checksum;
+
+	/** Length of the file. */
+	size_t len;
+
+	/** Uncompressed length of the file. */
+	size_t ucomp_len;
+
+	/** Name of the file. */
+	char *filename;
+
+	/** Compressed contents of the file. */
+	char *contents;
+
+	/** Socklist instance for sending the data about the file. */
+	SockList sl;
+} update_file_struct;
+
+/** Filename used to store information about the updated files. */
+#define UPDATES_FILE_NAME "updates"
+/**
+ * Directory to recursively traverse, looking for files that the client
+ * can request for an update. */
+#define UPDATES_DIR_NAME "updates"
+
+/**
  * Maximum password failures allowed before the server kills the
  * socket. */
 #define MAX_PASSWORD_FAILURES 3

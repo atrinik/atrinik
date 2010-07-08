@@ -243,6 +243,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
 		}
+		else if (!strcmp(cmd, "upf"))
+		{
+			parse_srv_setup(param, cmdback, SRV_FILE_UPDATES);
+		}
 		else if (!strcmp(cmd, "bot"))
 		{
 			int is_bot = atoi(param);
@@ -1550,36 +1554,6 @@ void draw_client_map2(object *pl)
 	{
 		Send_With_Handling(&CONTR(pl)->socket, &sl);
 	}
-}
-
-/**
- * Send a map scroll command. */
-void esrv_map_scroll(socket_struct *ns, int dx, int dy)
-{
-	struct Map newmap;
-	int x,y;
-	char buf[MAXSOCKBUF];
-
-	snprintf(buf, sizeof(buf), "X%d %d", dx, dy);
-	Write_String_To_Socket(ns, BINARY_CMD_MAP_SCROLL, buf, strlen(buf));
-
-	/* the x and y here are coordinates for the new map, i.e. if we moved
-	 * (dx,dy), newmap[x][y] = oldmap[x-dx][y-dy] */
-	for (x = 0; x < ns->mapx; x++)
-	{
-		for (y = 0; y < ns->mapy; y++)
-		{
-			if (x + dx < 0 || x + dx >= ns->mapx || y + dy < 0 || y + dy >= ns->mapy)
-			{
-				memset(&(newmap.cells[x][y]), 0, sizeof(MapCell));
-				continue;
-			}
-
-			memcpy(&(newmap.cells[x][y]), &(ns->lastmap.cells[x + dx][y + dy]), sizeof(MapCell));
-		}
-	}
-
-	memcpy(&(ns->lastmap), &newmap, sizeof(struct Map));
 }
 
 /**
