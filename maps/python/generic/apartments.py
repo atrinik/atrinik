@@ -78,7 +78,7 @@ apartments_info = {
 			},
 			"expensive":
 			{
-				"info": "\nThe expensive treehouse will cost you 11 gold.\nIt is large for a single treehouse and has many places to store items including a nice bed room.\nEvery apartment is a kind of ^pocket dimension^.\nYou can enter it by using the teleporter there.\nSay ^sell me expensive apartment^ to buy it!\nChoose wisely!",
+				"info": "\nThe expensive treehouse will cost you 11 gold.\nIt is large for a single treehouse and has many places to store items including a nice bed room.\nEvery treehouse is a kind of ^pocket dimension^.\nYou can enter it by using the teleporter there.\nSay ^sell me expensive apartment^ to buy it!\nChoose wisely!",
 				"id": 3,
 				"price": 110000,
 				"path": "/shattered_islands/eld_woods_island/apartments/apartment_expensive",

@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2010-07-07 Kiana
 endmsg
 width 24
 height 24
@@ -209,6 +209,15 @@ arch grassd_m7
 x 1
 y 16
 end
+arch marker3
+msg
+West: Bank, Inn and Docking place.
+East: Smithy and Shop, Leave town
+North: Other buildings
+endmsg
+x 1
+y 16
+end
 arch grassd_6
 x 1
 y 17
@@ -222,6 +231,10 @@ x 1
 y 19
 end
 arch grassd_1
+x 1
+y 20
+end
+arch plant_flower11
 x 1
 y 20
 end
@@ -494,6 +507,10 @@ arch grassd_6
 x 3
 y 13
 end
+arch small_stones
+x 3
+y 13
+end
 arch floor_sand_d1
 x 3
 y 14
@@ -546,6 +563,10 @@ arch grassd_5
 x 3
 y 22
 end
+arch plant_flower11
+x 3
+y 22
+end
 arch grassd_2
 x 3
 y 23
@@ -555,6 +576,9 @@ x 3
 y 23
 end
 arch grassd_2
+x 4
+end
+arch stone1
 x 4
 end
 arch grassd_6
@@ -715,7 +739,7 @@ arch tree_big3
 x 4
 y 23
 end
-arch grassd_1
+arch grass_flowers1
 x 5
 end
 arch grassd_4
@@ -869,7 +893,7 @@ arch tree_big5b
 x 5
 y 23
 end
-arch grassd_4
+arch grass_flowers3
 x 6
 end
 arch grassd_4
@@ -952,6 +976,17 @@ arch grassd_7
 x 6
 y 13
 end
+arch light2
+x 6
+y 13
+end
+arch marker1
+msg
+Smithy and Shop
+endmsg
+x 6
+y 13
+end
 arch floor_sand_d2
 x 6
 y 14
@@ -1012,7 +1047,7 @@ arch tree_big2
 x 6
 y 23
 end
-arch grassd_3
+arch grass_flowers2
 x 7
 end
 arch plant3
@@ -1023,6 +1058,10 @@ x 7
 y 1
 end
 arch grassd_7
+x 7
+y 2
+end
+arch plant_flower2
 x 7
 y 2
 end
@@ -1186,6 +1225,10 @@ x 8
 y 1
 end
 arch grassd_2
+x 8
+y 2
+end
+arch tree_big3
 x 8
 y 2
 end
@@ -1481,7 +1524,7 @@ arch grassd_6
 x 10
 y 2
 end
-arch stone1
+arch small_stones
 x 10
 y 2
 end
@@ -1757,6 +1800,10 @@ x 11
 y 19
 end
 arch grassd_6
+x 11
+y 20
+end
+arch plant_mushroom3
 x 11
 y 20
 end
@@ -2106,7 +2153,7 @@ end
 arch grassd_7
 x 14
 end
-arch stone1
+arch small_stones
 x 14
 end
 arch grassd_4
@@ -2534,6 +2581,10 @@ arch grassd_7
 x 17
 y 7
 end
+arch tree_big4b
+x 17
+y 7
+end
 arch grassd_5
 x 17
 y 8
@@ -2555,6 +2606,10 @@ x 17
 y 11
 end
 arch grassd_6
+x 17
+y 12
+end
+arch tree_big3
 x 17
 y 12
 end
@@ -2610,6 +2665,10 @@ arch grassd_2
 x 17
 y 21
 end
+arch plant_flower11
+x 17
+y 21
+end
 arch grassd_3
 x 17
 y 22
@@ -2629,11 +2688,19 @@ arch grassd_7
 x 18
 y 1
 end
+arch tree_big4b
+x 18
+y 1
+end
 arch grassd_8
 x 18
 y 2
 end
 arch grassd_5
+x 18
+y 3
+end
+arch tree_big4b
 x 18
 y 3
 end
@@ -2653,6 +2720,10 @@ arch grassd_2
 x 18
 y 6
 end
+arch tree_big3
+x 18
+y 6
+end
 arch grassd_5
 x 18
 y 7
@@ -2666,6 +2737,10 @@ x 18
 y 9
 end
 arch grassd_4
+x 18
+y 10
+end
+arch tree_big5b
 x 18
 y 10
 end
@@ -2768,6 +2843,10 @@ arch grassd_2
 x 19
 y 5
 end
+arch tree_big2
+x 19
+y 5
+end
 arch grassd_2
 x 19
 y 6
@@ -2784,6 +2863,10 @@ arch grassd_7
 x 19
 y 9
 end
+arch tree_big2
+x 19
+y 9
+end
 arch grassd_3
 x 19
 y 10
@@ -2793,6 +2876,10 @@ x 19
 y 11
 end
 arch grassd_4
+x 19
+y 12
+end
+arch tree_big3
 x 19
 y 12
 end
@@ -2875,6 +2962,10 @@ arch grassd_2
 x 20
 y 3
 end
+arch tree_big3
+x 20
+y 3
+end
 arch grassd_1
 x 20
 y 4
@@ -2887,7 +2978,15 @@ arch grassd_8
 x 20
 y 6
 end
+arch plant_flower1
+x 20
+y 6
+end
 arch grassd_7
+x 20
+y 7
+end
+arch tree_big4b
 x 20
 y 7
 end
@@ -2900,6 +2999,10 @@ x 20
 y 8
 end
 arch grassd_7
+x 20
+y 9
+end
+arch tree_big5b
 x 20
 y 9
 end
@@ -3038,6 +3141,10 @@ arch grassd_6
 x 21
 y 11
 end
+arch plant_flower5
+x 21
+y 11
+end
 arch grassd_8
 x 21
 y 12
@@ -3157,6 +3264,10 @@ x 22
 y 1
 end
 arch grassd_7
+x 22
+y 2
+end
+arch plant_flower5
 x 22
 y 2
 end

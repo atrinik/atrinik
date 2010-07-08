@@ -1,5 +1,5 @@
 Object dir_sign
-name big sign ('a'pply to read)
+name big sign
 face dir_signs.111
 type 98
 animation dir_sign

@@ -2,11 +2,11 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-05-02 Alex Tokar
+Modified: 2010-07-07 Kiana
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
 tile_path_1 world_0802
@@ -209,6 +209,10 @@ x 1
 y 8
 end
 arch grassd_8
+x 1
+y 9
+end
+arch plant_mushroom5
 x 1
 y 9
 end
@@ -538,6 +542,10 @@ arch grassd_8
 x 3
 y 18
 end
+arch tree_big4b
+x 3
+y 18
+end
 arch grassd_4
 x 3
 y 19
@@ -555,6 +563,10 @@ x 3
 y 21
 end
 arch grassd_5
+x 3
+y 22
+end
+arch plant_flower5
 x 3
 y 22
 end
@@ -811,6 +823,10 @@ x 5
 y 18
 end
 arch grassd_4
+x 5
+y 19
+end
+arch tree_big2
 x 5
 y 19
 end
@@ -1540,6 +1556,10 @@ arch grassd_2
 x 10
 y 22
 end
+arch plant_flower1
+x 10
+y 22
+end
 arch tree_big3
 x 10
 y 22
@@ -1663,20 +1683,20 @@ arch floor_sand_d3
 x 11
 y 14
 end
-arch floor_sand_d3
+arch grassd_m7
+x 11
+y 14
+end
+arch grassd_1
 x 11
 y 15
 end
-arch grassd_m3
+arch light4
 x 11
 y 15
 end
 arch lantern2_magic.131
 direction 7
-x 11
-y 15
-end
-arch light4
 x 11
 y 15
 end
@@ -1799,11 +1819,11 @@ arch floor_sand_d1
 x 12
 y 14
 end
-arch floor_sand_d4
-x 12
-y 15
-end
 arch grassd_m7
+x 12
+y 14
+end
+arch grassd_7
 x 12
 y 15
 end
@@ -1934,11 +1954,11 @@ arch floor_sand_d1
 x 13
 y 14
 end
-arch floor_sand_d2
-x 13
-y 15
-end
 arch grassd_m7
+x 13
+y 14
+end
+arch grassd_5
 x 13
 y 15
 end
@@ -1955,6 +1975,10 @@ x 13
 y 18
 end
 arch grassd_7
+x 13
+y 19
+end
+arch plant_mushroom3
 x 13
 y 19
 end
@@ -2099,11 +2123,11 @@ arch floor_sand_d4
 x 14
 y 14
 end
-arch floor_sand_d1
-x 14
-y 15
-end
 arch grassd_m7
+x 14
+y 14
+end
+arch grassd_8
 x 14
 y 15
 end
@@ -2238,11 +2262,23 @@ arch floor_sand_d2
 x 15
 y 14
 end
-arch floor_sand_d1
+arch grassd_m7
+x 15
+y 14
+end
+arch grassd_1
 x 15
 y 15
 end
-arch grassd_m7
+arch light2
+x 15
+y 15
+end
+arch marker1
+msg
+Bank
+endmsg
+direction 7
 x 15
 y 15
 end
@@ -2389,11 +2425,15 @@ arch floor_sand_d4
 x 16
 y 14
 end
+arch grassd_m14
+x 16
+y 14
+end
 arch floor_sand_d2
 x 16
 y 15
 end
-arch grassd_m7
+arch grassd_m3
 x 16
 y 15
 end
@@ -2911,6 +2951,10 @@ arch grassd_7
 x 19
 y 22
 end
+arch plant_flower5
+x 19
+y 22
+end
 arch tree_big5b
 x 19
 y 22
@@ -2996,6 +3040,17 @@ x 20
 y 10
 end
 arch grassd_6
+x 20
+y 11
+end
+arch light2
+x 20
+y 11
+end
+arch marker1
+msg
+Clearhaven Inn
+endmsg
 x 20
 y 11
 end

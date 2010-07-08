@@ -7,6 +7,7 @@ is_female 1
 is_male 1
 corpse 1
 behavior 2
+can_see_in_dark 1
 layer 6
 direction 5
 is_neutral 1

@@ -1,5 +1,5 @@
 Object sign
-name sign ('a'pply to read)
+name sign
 face sign.111
 type 98
 layer 4
