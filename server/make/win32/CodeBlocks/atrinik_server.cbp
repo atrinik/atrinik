@@ -715,6 +715,9 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\socket\updates.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../../../src/socket/metaserver.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
