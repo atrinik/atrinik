@@ -1,0 +1,4565 @@
+arch map
+name Nyhelobo's Lab
+msg
+Created:  2010-07-06 Kiana
+Modified: 2010-07-06 Kiana
+endmsg
+width 24
+height 24
+difficulty 60
+darkness 2
+region brynknot
+end
+arch blocked
+end
+arch wall_black1.181
+end
+arch blocked
+y 1
+end
+arch wall_black1.131
+y 1
+end
+arch blocked
+y 2
+end
+arch wall_black1.131
+y 2
+end
+arch blocked
+y 3
+end
+arch wall_black1.131
+y 3
+end
+arch plant2_wall.151
+direction 7
+y 3
+end
+arch blocked
+y 4
+end
+arch wall_black1.131
+y 4
+end
+arch blocked
+y 5
+end
+arch wall_black1.131
+y 5
+end
+arch plant2_wall.151
+direction 7
+y 5
+end
+arch blocked
+y 6
+end
+arch wall_black1.131
+y 6
+end
+arch blocked
+y 7
+end
+arch wall_black1.131
+y 7
+end
+arch blocked
+y 8
+end
+arch wall_black1.131
+y 8
+end
+arch blocked
+y 9
+end
+arch wall_black1.131
+y 9
+end
+arch blocked
+y 10
+end
+arch wall_black1.131
+y 10
+end
+arch plant2_wall.151
+direction 7
+y 10
+end
+arch blocked
+y 11
+end
+arch wall_black1.131
+y 11
+end
+arch blocked
+y 12
+end
+arch wall_black1.131
+y 12
+end
+arch plant2_wall.151
+direction 7
+y 12
+end
+arch blocked
+y 13
+end
+arch wall_black1.131
+y 13
+end
+arch blocked
+y 14
+end
+arch wall_black1.131
+y 14
+end
+arch blocked
+y 15
+end
+arch wall_black1.131
+y 15
+end
+arch plant2_wall.151
+direction 7
+y 15
+end
+arch blocked
+y 16
+end
+arch wall_black1.131
+y 16
+end
+arch blocked
+y 17
+end
+arch wall_black1.131
+y 17
+end
+arch blocked
+y 18
+end
+arch wall_black1.131
+y 18
+end
+arch blocked
+y 19
+end
+arch wall_black1.131
+y 19
+end
+arch blocked
+y 20
+end
+arch wall_black1.131
+y 20
+end
+arch plant2_wall.151
+direction 7
+y 20
+end
+arch blocked
+y 21
+end
+arch wall_black1.131
+y 21
+end
+arch blocked
+y 22
+end
+arch wall_black1.131
+y 22
+end
+arch blocked
+y 23
+end
+arch wall_black1.131
+y 23
+end
+arch blocked
+x 1
+end
+arch wall_black1.111
+x 1
+end
+arch floor_flagstone1a
+x 1
+y 1
+end
+arch bones3
+x 1
+y 1
+end
+arch floor_flagstone1a
+x 1
+y 2
+end
+arch bones1
+x 1
+y 2
+end
+arch floor_flagstone1b
+x 1
+y 3
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 1
+y 3
+end
+arch floor_flagstone1a
+x 1
+y 4
+end
+arch plant8
+x 1
+y 4
+end
+arch floor_flagstone1a
+x 1
+y 5
+end
+arch shelf_wall_dem1.111
+direction 7
+x 1
+y 5
+end
+arch floor_flagstone1a
+x 1
+y 6
+end
+arch shelf_wall_dem2.111
+direction 7
+x 1
+y 6
+end
+arch floor_flagstone1b
+x 1
+y 7
+end
+arch trash_wood1.101
+x 1
+y 7
+end
+arch floor_flagstone1a
+x 1
+y 8
+end
+arch plant7
+x 1
+y 8
+end
+arch floor_flagstone1b
+x 1
+y 9
+end
+arch floor_flagstone1a
+x 1
+y 10
+end
+arch dirt_floor2
+x 1
+y 10
+end
+arch shelf_wall_dem2.111
+direction 7
+x 1
+y 10
+end
+arch floor_flagstone1b
+x 1
+y 11
+end
+arch shelf_wall_dem3.111
+direction 7
+x 1
+y 11
+end
+arch floor_flagstone1a
+x 1
+y 12
+end
+arch dirt_floor3
+x 1
+y 12
+end
+arch floor_flagstone1b
+x 1
+y 13
+end
+arch tree_branch3
+name wood
+x 1
+y 13
+end
+arch spawn_point
+x 1
+y 13
+arch ghoul
+item_condition 5
+type 83
+direction 1
+end
+end
+arch floor_flagstone1b
+x 1
+y 14
+end
+arch dirt_floor2
+x 1
+y 14
+end
+arch floor_flagstone1a
+x 1
+y 15
+end
+arch bone_skull
+x 1
+y 15
+end
+arch floor_flagstone1a
+x 1
+y 16
+end
+arch plant7
+x 1
+y 16
+end
+arch floor_flagstone1b
+x 1
+y 17
+end
+arch bones1
+x 1
+y 17
+end
+arch floor_flagstone1b
+x 1
+y 18
+end
+arch shelf3_dem1.111
+direction 7
+x 1
+y 18
+end
+arch floor_flagstone1b
+x 1
+y 19
+end
+arch shelf3_dem2.111
+direction 7
+x 1
+y 19
+end
+arch floor_flagstone1b
+x 1
+y 20
+end
+arch shelf3_dem2.111
+direction 7
+x 1
+y 20
+end
+arch floor_flagstone1b
+x 1
+y 21
+end
+arch shelf3_dem1.111
+direction 7
+x 1
+y 21
+end
+arch floor_flagstone1b
+x 1
+y 22
+end
+arch rubbish.101
+x 1
+y 22
+end
+arch floor_flagstone1a
+x 1
+y 23
+end
+arch wall_black1.111
+x 1
+y 23
+end
+arch blocked
+x 2
+end
+arch wall_black1.111
+x 2
+end
+arch floor_flagstone1a
+x 2
+y 1
+end
+arch plant8
+x 2
+y 1
+end
+arch floor_flagstone1a
+x 2
+y 2
+end
+arch floor_flagstone1b
+x 2
+y 3
+end
+arch floor_flagstone1a
+x 2
+y 4
+end
+arch floor_flagstone1b
+x 2
+y 5
+end
+arch floor_flagstone1b
+x 2
+y 6
+end
+arch floor_flagstone1a
+x 2
+y 7
+end
+arch tree_branch3
+name wood
+x 2
+y 7
+end
+arch spawn_point
+x 2
+y 7
+arch ghoul
+item_condition 6
+type 83
+direction 1
+end
+end
+arch floor_flagstone1a
+x 2
+y 8
+end
+arch floor_flagstone1a
+x 2
+y 9
+end
+arch shelf3_dem2.111
+x 2
+y 9
+end
+arch floor_flagstone1a
+x 2
+y 10
+end
+arch floor_flagstone1b
+x 2
+y 11
+end
+arch plant6
+x 2
+y 11
+end
+arch floor_flagstone1a
+x 2
+y 12
+end
+arch floor_flagstone1a
+x 2
+y 13
+end
+arch floor_flagstone1b
+x 2
+y 14
+end
+arch floor_flagstone1b
+x 2
+y 15
+end
+arch trash_wood2.101
+x 2
+y 15
+end
+arch floor_flagstone1b
+x 2
+y 16
+end
+arch floor_flagstone1a
+x 2
+y 17
+end
+arch dirt_floor4
+x 2
+y 17
+end
+arch floor_flagstone1a
+x 2
+y 18
+end
+arch bone_skull
+x 2
+y 18
+end
+arch floor_flagstone1b
+x 2
+y 19
+end
+arch dirt_floor2
+x 2
+y 19
+end
+arch spawn_point
+x 2
+y 19
+arch oty
+item_condition 5
+type 83
+direction 4
+end
+end
+arch floor_flagstone1b
+x 2
+y 20
+end
+arch trash_wood2.101
+x 2
+y 20
+end
+arch floor_flagstone1a
+x 2
+y 21
+end
+arch plant7
+x 2
+y 21
+end
+arch floor_flagstone1b
+x 2
+y 22
+end
+arch bone_broken
+x 2
+y 22
+end
+arch floor_flagstone1a
+x 2
+y 23
+end
+arch wall_black1.111
+x 2
+y 23
+end
+arch blocked
+x 3
+end
+arch wall_black1.111
+x 3
+end
+arch floor_flagstone1a
+x 3
+y 1
+end
+arch shelf_wall_dem2.111
+x 3
+y 1
+end
+arch floor_flagstone1a
+x 3
+y 2
+end
+arch dirt_floor2
+x 3
+y 2
+end
+arch floor_flagstone1a
+x 3
+y 3
+end
+arch rubbish.101
+x 3
+y 3
+end
+arch floor_flagstone1b
+x 3
+y 4
+end
+arch floor_flagstone1a
+x 3
+y 5
+end
+arch shelf3_dem2.111
+direction 7
+x 3
+y 5
+end
+arch floor_flagstone1b
+x 3
+y 6
+end
+arch shelf3_dem1.111
+direction 7
+x 3
+y 6
+end
+arch floor_flagstone1a
+x 3
+y 7
+end
+arch plant7
+x 3
+y 7
+end
+arch floor_flagstone1b
+x 3
+y 8
+end
+arch floor_flagstone1a
+x 3
+y 9
+end
+arch dirt_floor3
+x 3
+y 9
+end
+arch floor_flagstone1b
+x 3
+y 10
+end
+arch floor_flagstone1b
+x 3
+y 11
+end
+arch shelf3_dem1.111
+direction 7
+x 3
+y 11
+end
+arch floor_flagstone1b
+x 3
+y 12
+end
+arch floor_flagstone1a
+x 3
+y 13
+end
+arch shelf3_dem2.111
+x 3
+y 13
+end
+arch floor_flagstone1a
+x 3
+y 14
+end
+arch trash_wood1.101
+x 3
+y 14
+end
+arch floor_flagstone1a
+x 3
+y 15
+end
+arch floor_flagstone1b
+x 3
+y 16
+end
+arch floor_flagstone1b
+x 3
+y 17
+end
+arch floor_flagstone1a
+x 3
+y 18
+end
+arch plant6
+x 3
+y 18
+end
+arch floor_flagstone1b
+x 3
+y 19
+end
+arch floor_flagstone1b
+x 3
+y 20
+end
+arch floor_flagstone1b
+x 3
+y 21
+end
+arch floor_flagstone1a
+x 3
+y 22
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 3
+y 22
+end
+arch floor_flagstone1a
+x 3
+y 23
+end
+arch wall_black1.111
+x 3
+y 23
+end
+arch plant2_wall.151
+x 3
+y 23
+end
+arch blocked
+x 4
+end
+arch wall_black1.111
+x 4
+end
+arch plant2_wall.151
+x 4
+end
+arch floor_flagstone1b
+x 4
+y 1
+end
+arch shelf_wall_dem3.111
+x 4
+y 1
+end
+arch floor_flagstone1b
+x 4
+y 2
+end
+arch spawn_point
+x 4
+y 2
+arch oty
+item_condition 6
+type 83
+end
+end
+arch floor_flagstone1a
+x 4
+y 3
+end
+arch floor_flagstone1a
+x 4
+y 4
+end
+arch tree_branch3
+name wood
+x 4
+y 4
+end
+arch floor_flagstone1b
+x 4
+y 5
+end
+arch dirt_floor3
+x 4
+y 5
+end
+arch floor_flagstone1b
+x 4
+y 6
+end
+arch dirt_floor3
+x 4
+y 6
+end
+arch floor_flagstone1b
+x 4
+y 7
+end
+arch bone_skull
+x 4
+y 7
+end
+arch floor_flagstone1b
+x 4
+y 8
+end
+arch trash_wood1.101
+x 4
+y 8
+end
+arch floor_flagstone1a
+x 4
+y 9
+end
+arch floor_flagstone1a
+x 4
+y 10
+end
+arch dirt_floor3
+x 4
+y 10
+end
+arch floor_flagstone1a
+x 4
+y 11
+end
+arch bone_skull
+x 4
+y 11
+end
+arch floor_flagstone1a
+x 4
+y 12
+end
+arch dirt_floor4
+x 4
+y 12
+end
+arch floor_flagstone1b
+x 4
+y 13
+end
+arch floor_flagstone1a
+x 4
+y 14
+end
+arch tree_branch3
+name wood
+x 4
+y 14
+end
+arch floor_flagstone1a
+x 4
+y 15
+end
+arch floor_flagstone1b
+x 4
+y 16
+end
+arch tree_branch3
+name wood
+x 4
+y 16
+end
+arch floor_flagstone1a
+x 4
+y 17
+end
+arch trash_wood2.101
+x 4
+y 17
+end
+arch floor_flagstone1a
+x 4
+y 18
+end
+arch shelf3_dem1.111
+x 4
+y 18
+end
+arch floor_flagstone1b
+x 4
+y 19
+end
+arch dirt_floor1
+x 4
+y 19
+end
+arch floor_flagstone1b
+x 4
+y 20
+end
+arch shelf3_dem2.111
+direction 7
+x 4
+y 20
+end
+arch floor_flagstone1a
+x 4
+y 21
+end
+arch shelf3_dem3.111
+direction 7
+x 4
+y 21
+end
+arch floor_flagstone1a
+x 4
+y 22
+end
+arch plant7
+x 4
+y 22
+end
+arch floor_flagstone1a
+x 4
+y 23
+end
+arch wall_black1.111
+x 4
+y 23
+end
+arch blocked
+x 5
+end
+arch wall_black1.111
+x 5
+end
+arch plant2_wall.151
+x 5
+end
+arch floor_flagstone1b
+x 5
+y 1
+end
+arch dirt_floor3
+x 5
+y 1
+end
+arch floor_flagstone1a
+x 5
+y 2
+end
+arch trash_wood1.101
+x 5
+y 2
+end
+arch floor_flagstone1a
+x 5
+y 3
+end
+arch floor_flagstone1a
+x 5
+y 4
+end
+arch floor_flagstone1b
+x 5
+y 5
+end
+arch floor_flagstone1a
+x 5
+y 6
+end
+arch dirt_floor2
+x 5
+y 6
+end
+arch floor_flagstone1a
+x 5
+y 7
+end
+arch tree_branch3
+name wood
+x 5
+y 7
+end
+arch floor_flagstone1a
+x 5
+y 8
+end
+arch floor_flagstone1b
+x 5
+y 9
+end
+arch floor_flagstone1a
+x 5
+y 10
+end
+arch floor_flagstone1a
+x 5
+y 11
+end
+arch spawn_point
+x 5
+y 11
+arch oty
+item_condition 5
+type 83
+end
+end
+arch floor_flagstone1b
+x 5
+y 12
+end
+arch floor_flagstone1b
+x 5
+y 13
+end
+arch floor_flagstone1a
+x 5
+y 14
+end
+arch tree_branch2
+name wood
+x 5
+y 14
+end
+arch floor_flagstone1b
+x 5
+y 15
+end
+arch trash_wood1.101
+x 5
+y 15
+end
+arch floor_flagstone1a
+x 5
+y 16
+end
+arch spawn_point
+x 5
+y 16
+arch ghoul
+item_condition 5
+type 83
+end
+end
+arch floor_flagstone1b
+x 5
+y 17
+end
+arch floor_flagstone1b
+x 5
+y 18
+end
+arch floor_flagstone1b
+x 5
+y 19
+end
+arch floor_flagstone1a
+x 5
+y 20
+end
+arch bone_broken
+x 5
+y 20
+end
+arch floor_flagstone1b
+x 5
+y 21
+end
+arch spawn_point
+x 5
+y 21
+arch ghoul
+item_condition 5
+type 83
+end
+end
+arch floor_flagstone1a
+x 5
+y 22
+end
+arch bones1
+x 5
+y 22
+end
+arch floor_flagstone1b
+x 5
+y 23
+end
+arch wall_black1.111
+x 5
+y 23
+end
+arch blocked
+x 6
+end
+arch wall_black1.111
+x 6
+end
+arch floor_flagstone1b
+x 6
+y 1
+end
+arch plant6
+x 6
+y 1
+end
+arch floor_flagstone1a
+x 6
+y 2
+end
+arch tree_branch3
+name wood
+x 6
+y 2
+end
+arch floor_flagstone1b
+x 6
+y 3
+end
+arch floor_flagstone1b
+x 6
+y 4
+end
+arch bones1
+x 6
+y 4
+end
+arch floor_flagstone1b
+x 6
+y 5
+end
+arch floor_flagstone1b
+x 6
+y 6
+end
+arch floor_flagstone1b
+x 6
+y 7
+end
+arch floor_flagstone1b
+x 6
+y 8
+end
+arch floor_flagstone1a
+x 6
+y 9
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 6
+y 9
+end
+arch floor_flagstone1b
+x 6
+y 10
+end
+arch plant8
+x 6
+y 10
+end
+arch floor_flagstone1b
+x 6
+y 11
+end
+arch plant7
+x 6
+y 11
+end
+arch floor_flagstone1b
+x 6
+y 12
+end
+arch plant8
+x 6
+y 12
+end
+arch floor_flagstone1a
+x 6
+y 13
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 6
+y 13
+end
+arch floor_flagstone1b
+x 6
+y 14
+end
+arch floor_flagstone1a
+x 6
+y 15
+end
+arch floor_flagstone1b
+x 6
+y 16
+end
+arch plant6
+x 6
+y 16
+end
+arch floor_flagstone1b
+x 6
+y 17
+end
+arch plant6
+x 6
+y 17
+end
+arch floor_flagstone1b
+x 6
+y 18
+end
+arch dirt_floor4
+x 6
+y 18
+end
+arch floor_flagstone1b
+x 6
+y 19
+end
+arch floor_flagstone1b
+x 6
+y 20
+end
+arch floor_flagstone1a
+x 6
+y 21
+end
+arch floor_flagstone1a
+x 6
+y 22
+end
+arch bones3
+x 6
+y 22
+end
+arch floor_flagstone1a
+x 6
+y 23
+end
+arch wall_black1.111
+x 6
+y 23
+end
+arch blocked
+x 7
+end
+arch wall_black1.111
+x 7
+end
+arch floor_flagstone1a
+x 7
+y 1
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 7
+y 1
+end
+arch floor_flagstone1b
+x 7
+y 2
+end
+arch floor_flagstone1b
+x 7
+y 3
+end
+arch tree_branch2
+name wood
+x 7
+y 3
+end
+arch floor_flagstone1b
+x 7
+y 4
+end
+arch floor_flagstone1b
+x 7
+y 5
+end
+arch dirt_floor4
+x 7
+y 5
+end
+arch floor_flagstone1a
+x 7
+y 6
+end
+arch tree_branch3
+name wood
+x 7
+y 6
+end
+arch floor_flagstone1b
+x 7
+y 7
+end
+arch floor_flagstone1b
+x 7
+y 8
+end
+arch wall_black1.181
+x 7
+y 8
+end
+arch floor_flagstone1b
+x 7
+y 9
+end
+arch wall_black1.131
+x 7
+y 9
+end
+arch floor_flagstone1b
+x 7
+y 10
+end
+arch wall_black1.131
+x 7
+y 10
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 10
+end
+arch floor_flagstone1b
+x 7
+y 11
+end
+arch wall_black1.131
+x 7
+y 11
+end
+arch floor_flagstone1a
+x 7
+y 12
+end
+arch wall_black1.131
+x 7
+y 12
+end
+arch floor_flagstone1a
+x 7
+y 13
+end
+arch wall_black1.131
+x 7
+y 13
+end
+arch floor_flagstone1b
+x 7
+y 14
+end
+arch wall_black1.131
+x 7
+y 14
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 14
+end
+arch floor_flagstone1b
+x 7
+y 15
+end
+arch wall_black1.131
+x 7
+y 15
+end
+arch floor_flagstone1b
+x 7
+y 16
+end
+arch wall_black1.131
+x 7
+y 16
+end
+arch floor_flagstone1b
+x 7
+y 17
+end
+arch plant8
+x 7
+y 17
+end
+arch floor_flagstone1a
+x 7
+y 18
+end
+arch floor_flagstone1a
+x 7
+y 19
+end
+arch bones1
+x 7
+y 19
+end
+arch floor_flagstone1a
+x 7
+y 20
+end
+arch floor_flagstone1b
+x 7
+y 21
+end
+arch shelf3_dem1.111
+x 7
+y 21
+end
+arch floor_flagstone1a
+x 7
+y 22
+end
+arch dirt_floor3
+x 7
+y 22
+end
+arch floor_flagstone1a
+x 7
+y 23
+end
+arch wall_black1.111
+x 7
+y 23
+end
+arch blocked
+x 8
+end
+arch wall_black1.111
+x 8
+end
+arch floor_flagstone1b
+x 8
+y 1
+end
+arch plant7
+x 8
+y 1
+end
+arch floor_flagstone1a
+x 8
+y 2
+end
+arch plant8
+x 8
+y 2
+end
+arch floor_flagstone1a
+x 8
+y 3
+end
+arch carpet1.131
+x 8
+y 3
+end
+arch dirt_floor1
+layer 3
+x 8
+y 3
+end
+arch floor_flagstone1b
+x 8
+y 4
+end
+arch carpet1.131
+x 8
+y 4
+end
+arch floor_flagstone1a
+x 8
+y 5
+end
+arch carpet1.131
+x 8
+y 5
+end
+arch floor_flagstone1b
+x 8
+y 6
+end
+arch floor_flagstone1b
+x 8
+y 7
+end
+arch plant6
+x 8
+y 7
+end
+arch floor_flagstone1b
+x 8
+y 8
+end
+arch wall_black1.111
+x 8
+y 8
+end
+arch plant2_wall.151
+x 8
+y 8
+end
+arch blocked
+x 8
+y 16
+end
+arch wall_black1.111
+x 8
+y 16
+end
+arch plant2_wall.151
+x 8
+y 16
+end
+arch floor_flagstone1a
+x 8
+y 17
+end
+arch dirt_floor1
+x 8
+y 17
+end
+arch floor_flagstone1b
+x 8
+y 18
+end
+arch pile_floor2
+x 8
+y 18
+end
+arch floor_flagstone1b
+x 8
+y 19
+end
+arch floor_flagstone1b
+x 8
+y 20
+end
+arch tree_branch2
+name wood
+x 8
+y 20
+end
+arch floor_flagstone1b
+x 8
+y 21
+end
+arch trash_wood1.101
+x 8
+y 21
+end
+arch floor_flagstone1a
+x 8
+y 22
+end
+arch bone_skull
+x 8
+y 22
+end
+arch floor_flagstone1b
+x 8
+y 23
+end
+arch wall_black1.111
+x 8
+y 23
+end
+arch plant2_wall.151
+x 8
+y 23
+end
+arch blocked
+x 9
+end
+arch wall_black1.111
+x 9
+end
+arch floor_flagstone1b
+x 9
+y 1
+end
+arch shelf_wall_dem2.111
+x 9
+y 1
+end
+arch floor_flagstone1b
+x 9
+y 2
+end
+arch carpet1.151
+x 9
+y 2
+end
+arch dirt_floor1
+layer 3
+x 9
+y 2
+end
+arch floor_flagstone1a
+x 9
+y 3
+end
+arch carpet1
+x 9
+y 3
+end
+arch floor_flagstone1b
+x 9
+y 4
+end
+arch carpet1
+x 9
+y 4
+end
+arch dirt_floor1
+layer 3
+x 9
+y 4
+end
+arch floor_flagstone1b
+x 9
+y 5
+end
+arch carpet1
+x 9
+y 5
+end
+arch floor_flagstone1b
+x 9
+y 6
+end
+arch carpet1.111
+x 9
+y 6
+end
+arch floor_flagstone1a
+x 9
+y 7
+end
+arch pile_floor2
+x 9
+y 7
+end
+arch floor_flagstone1b
+x 9
+y 8
+end
+arch wall_black1.111
+x 9
+y 8
+end
+arch blocked
+x 9
+y 9
+end
+arch wall_black1.131
+x 9
+y 9
+end
+arch blocked
+x 9
+y 10
+end
+arch wall_black1.131
+x 9
+y 10
+end
+arch plant2_wall.151
+direction 7
+x 9
+y 10
+end
+arch blocked
+x 9
+y 11
+end
+arch wall_black1.131
+x 9
+y 11
+end
+arch blocked
+x 9
+y 12
+end
+arch wall_black1.131
+x 9
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 9
+y 12
+end
+arch blocked
+x 9
+y 13
+end
+arch wall_black1.131
+x 9
+y 13
+end
+arch blocked
+x 9
+y 16
+end
+arch wall_black1.111
+x 9
+y 16
+end
+arch floor_flagstone1b
+x 9
+y 17
+end
+arch shelf_wall_dem3.111
+x 9
+y 17
+end
+arch dirt_floor4
+x 9
+y 17
+end
+arch floor_flagstone1a
+x 9
+y 18
+end
+arch spawn_point
+x 9
+y 18
+arch oty
+item_condition 6
+type 83
+direction 4
+end
+end
+arch floor_flagstone1a
+x 9
+y 19
+end
+arch floor_flagstone1a
+x 9
+y 20
+end
+arch shelf3_dem3.111
+x 9
+y 20
+end
+arch floor_flagstone1a
+x 9
+y 21
+end
+arch trash_wood2.101
+x 9
+y 21
+end
+arch floor_flagstone1b
+x 9
+y 22
+end
+arch plant6
+x 9
+y 22
+end
+arch floor_flagstone1a
+x 9
+y 23
+end
+arch wall_black1.111
+x 9
+y 23
+end
+arch plant2_wall.151
+x 9
+y 23
+end
+arch blocked
+x 10
+end
+arch wall_black1.111
+x 10
+end
+arch plant2_wall.151
+x 10
+end
+arch floor_flagstone1b
+x 10
+y 1
+end
+arch plant8
+x 10
+y 1
+end
+arch floor_flagstone1b
+x 10
+y 2
+end
+arch carpet1.151
+x 10
+y 2
+end
+arch plant8
+x 10
+y 2
+end
+arch floor_flagstone1b
+x 10
+y 3
+end
+arch carpet1
+x 10
+y 3
+end
+arch floor_flagstone1b
+x 10
+y 4
+end
+arch carpet1
+x 10
+y 4
+end
+arch pile_floor2
+layer 3
+x 10
+y 4
+end
+arch floor_flagstone1b
+x 10
+y 5
+end
+arch carpet1
+x 10
+y 5
+end
+arch bones1
+x 10
+y 5
+end
+arch floor_flagstone1a
+x 10
+y 6
+end
+arch carpet1.111
+x 10
+y 6
+end
+arch dirt_floor1
+layer 3
+x 10
+y 6
+end
+arch floor_flagstone1b
+x 10
+y 7
+end
+arch bone_skull
+x 10
+y 7
+end
+arch floor_flagstone1b
+x 10
+y 8
+end
+arch wall_black1_d2.111
+x 10
+y 8
+end
+arch floor_flagstone1a
+x 10
+y 9
+end
+arch dirt_floor2
+x 10
+y 9
+end
+arch plant7
+x 10
+y 9
+end
+arch floor_flagstone1b
+x 10
+y 10
+end
+arch dirt_floor2
+x 10
+y 10
+end
+arch wall_black1_d1.111
+blocksview 0
+no_pass 0
+x 10
+y 10
+end
+arch floor_flagstone1a
+x 10
+y 11
+end
+arch dirt_floor1
+x 10
+y 11
+end
+arch plant6
+x 10
+y 11
+end
+arch torch_wall_1
+direction 7
+x 10
+y 11
+end
+arch floor_flagstone1a
+x 10
+y 12
+end
+arch dirt_floor1
+x 10
+y 12
+end
+arch plant7
+x 10
+y 12
+end
+arch floor_flagstone1a
+x 10
+y 13
+end
+arch wall_black1.111
+x 10
+y 13
+end
+arch plant2_wall.151
+x 10
+y 13
+end
+arch blocked
+x 10
+y 16
+end
+arch wall_black1.111
+x 10
+y 16
+end
+arch plant2_wall.151
+x 10
+y 16
+end
+arch floor_flagstone1b
+x 10
+y 17
+end
+arch plant6
+x 10
+y 17
+end
+arch floor_flagstone1b
+x 10
+y 18
+end
+arch floor_flagstone1a
+x 10
+y 19
+end
+arch floor_flagstone1a
+x 10
+y 20
+end
+arch floor_flagstone1a
+x 10
+y 21
+end
+arch floor_flagstone1a
+x 10
+y 22
+end
+arch plant7
+x 10
+y 22
+end
+arch floor_flagstone1b
+x 10
+y 23
+end
+arch wall_black1.111
+x 10
+y 23
+end
+arch blocked
+x 11
+end
+arch wall_black1.111
+x 11
+end
+arch floor_flagstone1a
+x 11
+y 1
+end
+arch shelf_wall_dem3.111
+x 11
+y 1
+end
+arch floor_flagstone1b
+x 11
+y 2
+end
+arch carpet1.151
+x 11
+y 2
+end
+arch plant8
+x 11
+y 2
+end
+arch floor_flagstone1b
+x 11
+y 3
+end
+arch carpet1
+x 11
+y 3
+end
+arch dirt_floor2
+layer 3
+x 11
+y 3
+end
+arch floor_flagstone1b
+x 11
+y 4
+end
+arch carpet1
+x 11
+y 4
+end
+arch floor_flagstone1a
+x 11
+y 5
+end
+arch carpet1
+x 11
+y 5
+end
+arch dirt_floor4
+layer 3
+x 11
+y 5
+end
+arch floor_flagstone1b
+x 11
+y 6
+end
+arch carpet1.111
+x 11
+y 6
+end
+arch pile_floor2
+layer 3
+x 11
+y 6
+end
+arch floor_flagstone1a
+x 11
+y 7
+end
+arch floor_flagstone1a
+x 11
+y 8
+end
+arch floor_flagstone1a
+x 11
+y 9
+end
+arch dirt_floor2
+x 11
+y 9
+end
+arch plant6
+x 11
+y 9
+end
+arch floor_flagstone1b
+x 11
+y 10
+end
+arch dirt_floor1
+x 11
+y 10
+end
+arch gate1_locked
+slaying locked
+no_magic 1
+damned 1
+direction 5
+x 11
+y 10
+end
+arch floor_flagstone1b
+x 11
+y 11
+end
+arch dirt_floor2
+x 11
+y 11
+end
+arch floor_flagstone1a
+x 11
+y 12
+end
+arch dirt_floor1
+x 11
+y 12
+end
+arch portal_green
+slaying /shattered_islands/strakewood_island/underground_city/underground_city_0104
+hp 23
+sp 13
+walk_on 1
+fly_on 1
+type 66
+x 11
+y 12
+end
+arch floor_flagstone1a
+x 11
+y 13
+end
+arch wall_black1.111
+x 11
+y 13
+end
+arch blocked
+x 11
+y 16
+end
+arch wall_black1.111
+x 11
+y 16
+end
+arch floor_flagstone1a
+x 11
+y 17
+end
+arch shelf_wall_dem2.111
+x 11
+y 17
+end
+arch floor_flagstone1b
+x 11
+y 18
+end
+arch bones1
+x 11
+y 18
+end
+arch floor_flagstone1a
+x 11
+y 19
+end
+arch plant7
+x 11
+y 19
+end
+arch floor_flagstone1b
+x 11
+y 20
+end
+arch dirt_floor3
+x 11
+y 20
+end
+arch floor_flagstone1a
+x 11
+y 21
+end
+arch shelf3_dem1.111
+direction 7
+x 11
+y 21
+end
+arch floor_flagstone1a
+x 11
+y 22
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 11
+y 22
+end
+arch floor_flagstone1a
+x 11
+y 23
+end
+arch wall_black1.111
+x 11
+y 23
+end
+arch blocked
+x 12
+end
+arch wall_black1.111
+x 12
+end
+arch floor_flagstone1b
+x 12
+y 1
+end
+arch plant8
+x 12
+y 1
+end
+arch floor_flagstone1a
+x 12
+y 2
+end
+arch plant6
+x 12
+y 2
+end
+arch floor_flagstone1b
+x 12
+y 3
+end
+arch carpet1.171
+x 12
+y 3
+end
+arch floor_flagstone1b
+x 12
+y 4
+end
+arch carpet1.171
+x 12
+y 4
+end
+arch bones1
+x 12
+y 4
+end
+arch floor_flagstone1b
+x 12
+y 5
+end
+arch carpet1.171
+x 12
+y 5
+end
+arch dirt_floor3
+layer 3
+x 12
+y 5
+end
+arch floor_flagstone1b
+x 12
+y 6
+end
+arch dirt_floor1
+x 12
+y 6
+end
+arch floor_flagstone1a
+x 12
+y 7
+end
+arch plant7
+x 12
+y 7
+end
+arch floor_flagstone1b
+x 12
+y 8
+end
+arch wall_black1.111
+x 12
+y 8
+end
+arch plant2_wall.151
+x 12
+y 8
+end
+arch floor_flagstone1a
+x 12
+y 9
+end
+arch wall_black1.131
+x 12
+y 9
+end
+arch plant2_wall.151
+direction 7
+x 12
+y 9
+end
+arch floor_flagstone1b
+x 12
+y 10
+end
+arch wall_black1.131
+x 12
+y 10
+end
+arch floor_flagstone1a
+x 12
+y 11
+end
+arch wall_black1.131
+x 12
+y 11
+end
+arch plant2_wall.151
+direction 7
+x 12
+y 11
+end
+arch floor_flagstone1b
+x 12
+y 12
+end
+arch wall_black1.131
+x 12
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 12
+y 12
+end
+arch floor_flagstone1b
+x 12
+y 13
+end
+arch wall_black1.141
+x 12
+y 13
+end
+arch plant2_wall.151
+x 12
+y 13
+end
+arch blocked
+x 12
+y 16
+end
+arch wall_black1.111
+x 12
+y 16
+end
+arch floor_flagstone1a
+x 12
+y 17
+end
+arch shelf_wall_dem3.111
+x 12
+y 17
+end
+arch floor_flagstone1b
+x 12
+y 18
+end
+arch floor_flagstone1b
+x 12
+y 19
+end
+arch bone_broken
+x 12
+y 19
+end
+arch floor_flagstone1a
+x 12
+y 20
+end
+arch tree_branch3
+name wood
+x 12
+y 20
+end
+arch floor_flagstone1b
+x 12
+y 21
+end
+arch tree_branch1
+name wood
+x 12
+y 21
+end
+arch spawn_point
+x 12
+y 21
+arch ghoul
+item_condition 6
+type 83
+end
+end
+arch floor_flagstone1a
+x 12
+y 22
+end
+arch floor_flagstone1a
+x 12
+y 23
+end
+arch wall_black1.111
+x 12
+y 23
+end
+arch blocked
+x 13
+end
+arch wall_black1.111
+x 13
+end
+arch floor_flagstone1a
+x 13
+y 1
+end
+arch plant6
+x 13
+y 1
+end
+arch floor_flagstone1a
+x 13
+y 2
+end
+arch floor_flagstone1b
+x 13
+y 3
+end
+arch plant8
+x 13
+y 3
+end
+arch floor_flagstone1a
+x 13
+y 4
+end
+arch dirt_floor1
+x 13
+y 4
+end
+arch floor_flagstone1b
+x 13
+y 5
+end
+arch plant8
+x 13
+y 5
+end
+arch floor_flagstone1a
+x 13
+y 6
+end
+arch plant7
+x 13
+y 6
+end
+arch floor_flagstone1b
+x 13
+y 7
+end
+arch plant6
+x 13
+y 7
+end
+arch floor_flagstone1a
+x 13
+y 8
+end
+arch wall_black1.111
+x 13
+y 8
+end
+arch blocked
+x 13
+y 16
+end
+arch wall_black1.111
+x 13
+y 16
+end
+arch plant2_wall.151
+x 13
+y 16
+end
+arch floor_flagstone1a
+x 13
+y 17
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 13
+y 17
+end
+arch floor_flagstone1a
+x 13
+y 18
+end
+arch dirt_floor2
+x 13
+y 18
+end
+arch floor_flagstone1b
+x 13
+y 19
+end
+arch trash_wood2.101
+x 13
+y 19
+end
+arch floor_flagstone1a
+x 13
+y 20
+end
+arch dirt_floor4
+x 13
+y 20
+end
+arch floor_flagstone1a
+x 13
+y 21
+end
+arch bone_skull
+x 13
+y 21
+end
+arch floor_flagstone1a
+x 13
+y 22
+end
+arch plant6
+x 13
+y 22
+end
+arch floor_flagstone1b
+x 13
+y 23
+end
+arch wall_black1.111
+x 13
+y 23
+end
+arch blocked
+x 14
+end
+arch wall_black1.111
+x 14
+end
+arch plant2_wall.151
+x 14
+end
+arch floor_flagstone1b
+x 14
+y 1
+end
+arch shelf_wall_dem2.111
+x 14
+y 1
+end
+arch floor_flagstone1a
+x 14
+y 2
+end
+arch floor_flagstone1b
+x 14
+y 3
+end
+arch floor_flagstone1b
+x 14
+y 4
+end
+arch plant8
+x 14
+y 4
+end
+arch floor_flagstone1b
+x 14
+y 5
+end
+arch pile_floor2
+x 14
+y 5
+end
+arch floor_flagstone1b
+x 14
+y 6
+end
+arch plant7
+x 14
+y 6
+end
+arch floor_flagstone1b
+x 14
+y 7
+end
+arch bones1
+x 14
+y 7
+end
+arch floor_flagstone1a
+x 14
+y 8
+end
+arch wall_black1.111
+x 14
+y 8
+end
+arch plant2_wall.151
+x 14
+y 8
+end
+arch blocked
+x 14
+y 16
+end
+arch wall_black1.111
+x 14
+y 16
+end
+arch floor_flagstone1a
+x 14
+y 17
+end
+arch spawn_point
+x 14
+y 17
+arch ghoul
+item_condition 6
+type 83
+end
+end
+arch floor_flagstone1b
+x 14
+y 18
+end
+arch plant8
+x 14
+y 18
+end
+arch floor_flagstone1a
+x 14
+y 19
+end
+arch floor_flagstone1b
+x 14
+y 20
+end
+arch floor_flagstone1b
+x 14
+y 21
+end
+arch tree_branch1
+name wood
+x 14
+y 21
+end
+arch floor_flagstone1b
+x 14
+y 22
+end
+arch rubbish.101
+x 14
+y 22
+end
+arch floor_flagstone1a
+x 14
+y 23
+end
+arch wall_black1.111
+x 14
+y 23
+end
+arch plant2_wall.151
+x 14
+y 23
+end
+arch blocked
+x 15
+end
+arch wall_black1.111
+x 15
+end
+arch floor_flagstone1a
+x 15
+y 1
+end
+arch shelf_wall_dem3.111
+x 15
+y 1
+end
+arch floor_flagstone1a
+x 15
+y 2
+end
+arch dirt_floor4
+x 15
+y 2
+end
+arch shelf3_dem2.111
+direction 7
+x 15
+y 2
+end
+arch floor_flagstone1a
+x 15
+y 3
+end
+arch pile_floor2
+x 15
+y 3
+end
+arch floor_flagstone1a
+x 15
+y 4
+end
+arch dirt_floor1
+x 15
+y 4
+end
+arch shelf3_dem3.111
+x 15
+y 4
+end
+arch floor_flagstone1b
+x 15
+y 5
+end
+arch plant6
+x 15
+y 5
+end
+arch floor_flagstone1b
+x 15
+y 6
+end
+arch floor_flagstone1a
+x 15
+y 7
+end
+arch plant6
+x 15
+y 7
+end
+arch floor_flagstone1b
+x 15
+y 8
+end
+arch wall_black1.111
+x 15
+y 8
+end
+arch blocked
+x 15
+y 9
+end
+arch blocked
+x 15
+y 10
+end
+arch wall_black1.131
+x 15
+y 10
+end
+arch blocked
+x 15
+y 11
+end
+arch wall_black1.131
+x 15
+y 11
+end
+arch blocked
+x 15
+y 12
+end
+arch wall_black1.131
+x 15
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 15
+y 12
+end
+arch blocked
+x 15
+y 13
+end
+arch wall_black1.131
+x 15
+y 13
+end
+arch blocked
+x 15
+y 14
+end
+arch wall_black1.131
+x 15
+y 14
+end
+arch plant2_wall.151
+direction 7
+x 15
+y 14
+end
+arch blocked
+x 15
+y 15
+end
+arch wall_black1.131
+x 15
+y 15
+end
+arch blocked
+x 15
+y 16
+end
+arch wall_black1.141
+x 15
+y 16
+end
+arch floor_flagstone1b
+x 15
+y 17
+end
+arch shelf_wall_dem2.111
+x 15
+y 17
+end
+arch floor_flagstone1b
+x 15
+y 18
+end
+arch floor_flagstone1b
+x 15
+y 19
+end
+arch floor_flagstone1b
+x 15
+y 20
+end
+arch floor_flagstone1a
+x 15
+y 21
+end
+arch shelf3_dem1.111
+x 15
+y 21
+end
+arch floor_flagstone1b
+x 15
+y 22
+end
+arch plant8
+x 15
+y 22
+end
+arch floor_flagstone1b
+x 15
+y 23
+end
+arch wall_black1.111
+x 15
+y 23
+end
+arch blocked
+x 16
+end
+arch wall_black1.111
+x 16
+end
+arch floor_flagstone1b
+x 16
+y 1
+end
+arch dirt_floor3
+x 16
+y 1
+end
+arch shelf_wall_dem2.111
+x 16
+y 1
+end
+arch floor_flagstone1b
+x 16
+y 2
+end
+arch dirt_floor1
+x 16
+y 2
+end
+arch plant6
+x 16
+y 2
+end
+arch floor_flagstone1b
+x 16
+y 3
+end
+arch plant7
+x 16
+y 3
+end
+arch floor_flagstone1a
+x 16
+y 4
+end
+arch dirt_floor3
+x 16
+y 4
+end
+arch floor_flagstone1a
+x 16
+y 5
+end
+arch pile_floor2
+x 16
+y 5
+end
+arch floor_flagstone1b
+x 16
+y 6
+end
+arch bone_skull
+x 16
+y 6
+end
+arch floor_flagstone1b
+x 16
+y 7
+end
+arch rubbish.101
+x 16
+y 7
+end
+arch floor_flagstone1b
+x 16
+y 8
+end
+arch wall_black1.111
+x 16
+y 8
+end
+arch blocked
+x 16
+y 9
+end
+arch wall_black1.111
+x 16
+y 9
+end
+arch floor_flagstone1a
+x 16
+y 10
+end
+arch earth_m5
+x 16
+y 10
+end
+arch bones2
+x 16
+y 10
+end
+arch floor_flagstone1a
+x 16
+y 11
+end
+arch earth_m13
+x 16
+y 11
+end
+arch bone_skull
+x 16
+y 11
+end
+arch floor_flagstone1b
+x 16
+y 12
+end
+arch earth_m13
+x 16
+y 12
+end
+arch plant6
+x 16
+y 12
+end
+arch floor_flagstone1b
+x 16
+y 13
+end
+arch earth_m13
+x 16
+y 13
+end
+arch floor_flagstone1a
+x 16
+y 14
+end
+arch earth_m8
+x 16
+y 14
+end
+arch grave_fire.101
+face grave_fire_on.101
+last_sp 3
+glow_radius 3
+x 16
+y 14
+end
+arch floor_flagstone1b
+x 16
+y 15
+end
+arch plant7
+x 16
+y 15
+end
+arch floor_flagstone1b
+x 16
+y 16
+end
+arch floor_flagstone1b
+x 16
+y 17
+end
+arch tree_branch3
+name wood
+x 16
+y 17
+end
+arch floor_flagstone1a
+x 16
+y 18
+end
+arch floor_flagstone1b
+x 16
+y 19
+end
+arch shelf3_dem2.111
+x 16
+y 19
+end
+arch floor_flagstone1a
+x 16
+y 20
+end
+arch floor_flagstone1a
+x 16
+y 21
+end
+arch bone_skull
+x 16
+y 21
+end
+arch floor_flagstone1b
+x 16
+y 22
+end
+arch bones1
+x 16
+y 22
+end
+arch floor_flagstone1b
+x 16
+y 23
+end
+arch wall_black1.111
+x 16
+y 23
+end
+arch plant2_wall.151
+x 16
+y 23
+end
+arch blocked
+x 17
+end
+arch wall_black1.111
+x 17
+end
+arch plant2_wall.151
+x 17
+end
+arch floor_flagstone1b
+x 17
+y 1
+end
+arch dirt_floor2
+x 17
+y 1
+end
+arch plant8
+x 17
+y 1
+end
+arch floor_flagstone1b
+x 17
+y 2
+end
+arch pile_floor2
+x 17
+y 2
+end
+arch floor_flagstone1a
+x 17
+y 3
+end
+arch dirt_floor1
+x 17
+y 3
+end
+arch floor_flagstone1a
+x 17
+y 4
+end
+arch dirt_floor4
+x 17
+y 4
+end
+arch floor_flagstone1b
+x 17
+y 5
+end
+arch dirt_floor4
+x 17
+y 5
+end
+arch floor_flagstone1a
+x 17
+y 6
+end
+arch dirt_floor1
+x 17
+y 6
+end
+arch shelf3_dem1.111
+x 17
+y 6
+end
+arch floor_flagstone1a
+x 17
+y 7
+end
+arch plant6
+x 17
+y 7
+end
+arch floor_flagstone1b
+x 17
+y 8
+end
+arch wall_black1.111
+x 17
+y 8
+end
+arch plant2_wall.151
+x 17
+y 8
+end
+arch blocked
+x 17
+y 9
+end
+arch wall_black1.111
+x 17
+y 9
+end
+arch floor_flagstone1b
+x 17
+y 10
+end
+arch earth_m20
+x 17
+y 10
+end
+arch bones1
+x 17
+y 10
+end
+arch spawn_point
+x 17
+y 10
+arch oty
+item_condition 6
+type 83
+end
+end
+arch floor_earth1d
+x 17
+y 11
+end
+arch earth_m5
+x 17
+y 11
+end
+arch floor_earth1c
+x 17
+y 12
+end
+arch earth_m13
+x 17
+y 12
+end
+arch floor_earth1d
+x 17
+y 13
+end
+arch earth_m8
+x 17
+y 13
+end
+arch floor_flagstone1a
+x 17
+y 14
+end
+arch earth_m19
+x 17
+y 14
+end
+arch bones1
+x 17
+y 14
+end
+arch floor_flagstone1a
+x 17
+y 15
+end
+arch earth_m8
+x 17
+y 15
+end
+arch floor_flagstone1a
+x 17
+y 16
+end
+arch bone_broken
+x 17
+y 16
+end
+arch floor_flagstone1a
+x 17
+y 17
+end
+arch floor_flagstone1a
+x 17
+y 18
+end
+arch pile_floor2
+x 17
+y 18
+end
+arch floor_flagstone1b
+x 17
+y 19
+end
+arch floor_flagstone1b
+x 17
+y 20
+end
+arch shelf3_dem1.111
+direction 7
+x 17
+y 20
+end
+arch floor_flagstone1b
+x 17
+y 21
+end
+arch floor_flagstone1b
+x 17
+y 22
+end
+arch plant7
+x 17
+y 22
+end
+arch floor_flagstone1a
+x 17
+y 23
+end
+arch wall_black1.111
+x 17
+y 23
+end
+arch blocked
+x 18
+end
+arch wall_black1.111
+x 18
+end
+arch floor_flagstone1a
+x 18
+y 1
+end
+arch pile_floor2
+x 18
+y 1
+end
+arch shelf_wall_dem1.111
+x 18
+y 1
+end
+arch floor_flagstone1a
+x 18
+y 2
+end
+arch dirt_floor2
+x 18
+y 2
+end
+arch spawn_point
+x 18
+y 2
+arch oty
+item_condition 5
+type 83
+end
+end
+arch floor_flagstone1b
+x 18
+y 3
+end
+arch dirt_floor2
+x 18
+y 3
+end
+arch lab_cauld_brk
+x 18
+y 3
+end
+arch floor_flagstone1a
+x 18
+y 4
+end
+arch dirt_floor3
+x 18
+y 4
+end
+arch plant6
+x 18
+y 4
+end
+arch floor_flagstone1b
+x 18
+y 5
+end
+arch bones1
+x 18
+y 5
+end
+arch floor_flagstone1a
+x 18
+y 6
+end
+arch dirt_floor2
+x 18
+y 6
+end
+arch plant8
+x 18
+y 6
+end
+arch floor_flagstone1a
+x 18
+y 7
+end
+arch dirt_floor2
+x 18
+y 7
+end
+arch spawn_point
+x 18
+y 7
+arch oty
+item_condition 6
+type 83
+direction 4
+end
+end
+arch floor_flagstone1b
+x 18
+y 8
+end
+arch wall_black1.111
+x 18
+y 8
+end
+arch blocked
+x 18
+y 9
+end
+arch wall_black1.111
+x 18
+y 9
+end
+arch plant2_wall.151
+x 18
+y 9
+end
+arch floor_earth1b
+x 18
+y 10
+end
+arch earth_m5
+x 18
+y 10
+end
+arch bones1
+x 18
+y 10
+end
+arch floor_earth1b
+x 18
+y 11
+end
+arch earth_m20
+x 18
+y 11
+end
+arch pillar_rune3
+x 18
+y 11
+end
+arch earth_brown3
+x 18
+y 12
+end
+arch fwall_sand1b
+x 18
+y 12
+end
+arch floor_earth1d
+x 18
+y 13
+end
+arch earth_m19
+x 18
+y 13
+end
+arch pillar_rune3
+x 18
+y 13
+end
+arch floor_earth1a
+x 18
+y 14
+end
+arch earth_m8
+x 18
+y 14
+end
+arch floor_flagstone1a
+x 18
+y 15
+end
+arch earth_m10
+x 18
+y 15
+end
+arch floor_flagstone1b
+x 18
+y 16
+end
+arch floor_flagstone1b
+x 18
+y 17
+end
+arch floor_flagstone1a
+x 18
+y 18
+end
+arch floor_flagstone1b
+x 18
+y 19
+end
+arch trash_wood1.101
+x 18
+y 19
+end
+arch floor_flagstone1a
+x 18
+y 20
+end
+arch floor_flagstone1a
+x 18
+y 21
+end
+arch dirt_floor2
+x 18
+y 21
+end
+arch floor_flagstone1b
+x 18
+y 22
+end
+arch tree_branch2
+name wood
+x 18
+y 22
+end
+arch spawn_point
+x 18
+y 22
+arch ghoul
+item_condition 6
+type 83
+direction 1
+end
+end
+arch floor_flagstone1a
+x 18
+y 23
+end
+arch wall_black1.111
+x 18
+y 23
+end
+arch blocked
+x 19
+end
+arch wall_black1.111
+x 19
+end
+arch floor_flagstone1b
+x 19
+y 1
+end
+arch dirt_floor4
+x 19
+y 1
+end
+arch plant7
+x 19
+y 1
+end
+arch floor_flagstone1b
+x 19
+y 2
+end
+arch dirt_floor3
+x 19
+y 2
+end
+arch plant6
+x 19
+y 2
+end
+arch floor_flagstone1b
+x 19
+y 3
+end
+arch dirt_floor4
+x 19
+y 3
+end
+arch floor_flagstone1a
+x 19
+y 4
+end
+arch pile_floor2
+x 19
+y 4
+end
+arch floor_flagstone1b
+x 19
+y 5
+end
+arch pile_floor2
+x 19
+y 5
+end
+arch floor_flagstone1a
+x 19
+y 6
+end
+arch dirt_floor1
+x 19
+y 6
+end
+arch floor_flagstone1a
+x 19
+y 7
+end
+arch dirt_floor3
+x 19
+y 7
+end
+arch floor_flagstone1a
+x 19
+y 8
+end
+arch wall_black1.111
+x 19
+y 8
+end
+arch blocked
+x 19
+y 9
+end
+arch wall_black1.111
+x 19
+y 9
+end
+arch floor_earth1e
+x 19
+y 10
+end
+arch earth_m15
+x 19
+y 10
+end
+arch earth_brown4
+x 19
+y 11
+end
+arch fwall_sand1a
+x 19
+y 11
+end
+arch earth_brown2
+x 19
+y 12
+end
+arch fwall_sand1a
+x 19
+y 12
+end
+arch earth_brown1
+x 19
+y 13
+end
+arch ladder_up
+slaying sewers_a_0404
+hp 14
+sp 21
+x 19
+y 13
+end
+arch floor_earth1c
+x 19
+y 14
+end
+arch earth_m14
+x 19
+y 14
+end
+arch floor_flagstone1a
+x 19
+y 15
+end
+arch earth_m10
+x 19
+y 15
+end
+arch bones1
+x 19
+y 15
+end
+arch floor_flagstone1a
+x 19
+y 16
+end
+arch floor_flagstone1a
+x 19
+y 17
+end
+arch floor_flagstone1b
+x 19
+y 18
+end
+arch shelf3_dem2.111
+x 19
+y 18
+end
+arch floor_flagstone1b
+x 19
+y 19
+end
+arch plant8
+x 19
+y 19
+end
+arch floor_flagstone1a
+x 19
+y 20
+end
+arch floor_flagstone1a
+x 19
+y 21
+end
+arch floor_flagstone1b
+x 19
+y 22
+end
+arch floor_flagstone1b
+x 19
+y 23
+end
+arch wall_black1.111
+x 19
+y 23
+end
+arch blocked
+x 20
+end
+arch wall_black1.111
+x 20
+end
+arch floor_flagstone1a
+x 20
+y 1
+end
+arch dirt_floor2
+x 20
+y 1
+end
+arch floor_flagstone1a
+x 20
+y 2
+end
+arch bone_broken
+x 20
+y 2
+end
+arch floor_flagstone1a
+x 20
+y 3
+end
+arch dirt_floor1
+x 20
+y 3
+end
+arch floor_flagstone1a
+x 20
+y 4
+end
+arch dirt_floor2
+x 20
+y 4
+end
+arch floor_flagstone1a
+x 20
+y 5
+end
+arch dirt_floor4
+x 20
+y 5
+end
+arch floor_flagstone1b
+x 20
+y 6
+end
+arch dirt_floor4
+x 20
+y 6
+end
+arch floor_flagstone1b
+x 20
+y 7
+end
+arch shelf3_dem3.111
+x 20
+y 7
+end
+arch floor_flagstone1b
+x 20
+y 8
+end
+arch wall_black1.111
+x 20
+y 8
+end
+arch blocked
+x 20
+y 9
+end
+arch wall_black1.111
+x 20
+y 9
+end
+arch floor_earth1e
+x 20
+y 10
+end
+arch earth_m6
+x 20
+y 10
+end
+arch floor_earth1b
+x 20
+y 11
+end
+arch earth_m17
+x 20
+y 11
+end
+arch pillar_rune3
+x 20
+y 11
+end
+arch earth_brown3
+x 20
+y 12
+end
+arch fwall_sand1b
+x 20
+y 12
+end
+arch floor_earth1c
+x 20
+y 13
+end
+arch earth_m18
+x 20
+y 13
+end
+arch pillar_rune3
+x 20
+y 13
+end
+arch floor_earth1c
+x 20
+y 14
+end
+arch earth_m7
+x 20
+y 14
+end
+arch floor_flagstone1a
+x 20
+y 15
+end
+arch earth_m10
+x 20
+y 15
+end
+arch floor_flagstone1b
+x 20
+y 16
+end
+arch tree_branch2
+name wood
+x 20
+y 16
+end
+arch floor_flagstone1a
+x 20
+y 17
+end
+arch pile_floor2
+x 20
+y 17
+end
+arch floor_flagstone1b
+x 20
+y 18
+end
+arch floor_flagstone1b
+x 20
+y 19
+end
+arch floor_flagstone1b
+x 20
+y 20
+end
+arch floor_flagstone1a
+x 20
+y 21
+end
+arch shelf3_dem2.111
+x 20
+y 21
+end
+arch floor_flagstone1b
+x 20
+y 22
+end
+arch trash_wood1.101
+x 20
+y 22
+end
+arch floor_flagstone1b
+x 20
+y 23
+end
+arch wall_black1.111
+x 20
+y 23
+end
+arch plant2_wall.151
+x 20
+y 23
+end
+arch blocked
+x 21
+end
+arch wall_black1.111
+x 21
+end
+arch plant2_wall.151
+x 21
+end
+arch floor_flagstone1a
+x 21
+y 1
+end
+arch dirt_floor3
+x 21
+y 1
+end
+arch shelf3_dem1.111
+direction 7
+x 21
+y 1
+end
+arch floor_flagstone1a
+x 21
+y 2
+end
+arch dirt_floor2
+x 21
+y 2
+end
+arch shelf3_dem1.111
+direction 7
+x 21
+y 2
+end
+arch floor_flagstone1a
+x 21
+y 3
+end
+arch dirt_floor4
+x 21
+y 3
+end
+arch shelf3_dem2.111
+direction 7
+x 21
+y 3
+end
+arch floor_flagstone1b
+x 21
+y 4
+end
+arch dirt_floor2
+x 21
+y 4
+end
+arch shelf3_dem2.111
+direction 7
+x 21
+y 4
+end
+arch floor_flagstone1b
+x 21
+y 5
+end
+arch dirt_floor1
+x 21
+y 5
+end
+arch plant6
+x 21
+y 5
+end
+arch floor_flagstone1a
+x 21
+y 6
+end
+arch dirt_floor3
+x 21
+y 6
+end
+arch shelf3_dem3.111
+direction 7
+x 21
+y 6
+end
+arch floor_flagstone1b
+x 21
+y 7
+end
+arch dirt_floor1
+x 21
+y 7
+end
+arch plant8
+x 21
+y 7
+end
+arch floor_flagstone1b
+x 21
+y 8
+end
+arch wall_black1.111
+x 21
+y 8
+end
+arch plant2_wall.151
+x 21
+y 8
+end
+arch blocked
+x 21
+y 9
+end
+arch wall_black1.111
+x 21
+y 9
+end
+arch plant2_wall.151
+x 21
+y 9
+end
+arch floor_flagstone1a
+x 21
+y 10
+end
+arch earth_m17
+x 21
+y 10
+end
+arch bone_broken
+x 21
+y 10
+end
+arch floor_earth1b
+x 21
+y 11
+end
+arch earth_m6
+x 21
+y 11
+end
+arch floor_earth1c
+x 21
+y 12
+end
+arch earth_m16
+x 21
+y 12
+end
+arch floor_earth1b
+x 21
+y 13
+end
+arch earth_m7
+x 21
+y 13
+end
+arch floor_flagstone1b
+x 21
+y 14
+end
+arch earth_m18
+x 21
+y 14
+end
+arch floor_flagstone1b
+x 21
+y 15
+end
+arch earth_m7
+x 21
+y 15
+end
+arch floor_flagstone1b
+x 21
+y 16
+end
+arch floor_flagstone1b
+x 21
+y 17
+end
+arch floor_flagstone1a
+x 21
+y 18
+end
+arch floor_flagstone1b
+x 21
+y 19
+end
+arch shelf3_dem2.111
+direction 7
+x 21
+y 19
+end
+arch dirt_floor1
+x 21
+y 19
+end
+arch floor_flagstone1a
+x 21
+y 20
+end
+arch dirt_floor4
+x 21
+y 20
+end
+arch floor_flagstone1a
+x 21
+y 21
+end
+arch spawn_point
+x 21
+y 21
+arch oty
+item_condition 6
+type 83
+end
+end
+arch floor_flagstone1a
+x 21
+y 22
+end
+arch plant8
+x 21
+y 22
+end
+arch floor_flagstone1a
+x 21
+y 23
+end
+arch wall_black1.111
+x 21
+y 23
+end
+arch blocked
+x 22
+end
+arch wall_black1.111
+x 22
+end
+arch floor_flagstone1b
+x 22
+y 1
+end
+arch bones3
+x 22
+y 1
+end
+arch floor_flagstone1a
+x 22
+y 2
+end
+arch bone_broken
+x 22
+y 2
+end
+arch spawn_point
+x 22
+y 2
+arch oty
+item_condition 5
+type 83
+end
+end
+arch floor_flagstone1a
+x 22
+y 3
+end
+arch dirt_floor2
+x 22
+y 3
+end
+arch plant8
+x 22
+y 3
+end
+arch floor_flagstone1b
+x 22
+y 4
+end
+arch dirt_floor1
+x 22
+y 4
+end
+arch plant8
+x 22
+y 4
+end
+arch floor_flagstone1b
+x 22
+y 5
+end
+arch bones1
+x 22
+y 5
+end
+arch spawn_point
+x 22
+y 5
+arch ghoul
+item_condition 5
+type 83
+direction 1
+end
+end
+arch floor_flagstone1b
+x 22
+y 6
+end
+arch dirt_floor4
+x 22
+y 6
+end
+arch floor_flagstone1b
+x 22
+y 7
+end
+arch bones2
+x 22
+y 7
+end
+arch floor_flagstone1b
+x 22
+y 8
+end
+arch wall_black1.111
+x 22
+y 8
+end
+arch blocked
+x 22
+y 9
+end
+arch wall_black1.111
+x 22
+y 9
+end
+arch floor_flagstone1b
+x 22
+y 10
+end
+arch earth_m6
+x 22
+y 10
+end
+arch bones3
+x 22
+y 10
+end
+arch floor_flagstone1b
+x 22
+y 11
+end
+arch earth_m12
+x 22
+y 11
+end
+arch bone_skull
+x 22
+y 11
+end
+arch spawn_point
+x 22
+y 11
+arch oty
+item_condition 6
+type 83
+direction 4
+end
+end
+arch floor_flagstone1b
+x 22
+y 12
+end
+arch earth_m12
+x 22
+y 12
+end
+arch bone_skull
+x 22
+y 12
+end
+arch floor_flagstone1a
+x 22
+y 13
+end
+arch earth_m12
+x 22
+y 13
+end
+arch floor_flagstone1a
+x 22
+y 14
+end
+arch earth_m7
+x 22
+y 14
+end
+arch rubbish.101
+x 22
+y 14
+end
+arch floor_flagstone1a
+x 22
+y 15
+end
+arch shelf3_dem2.111
+x 22
+y 15
+end
+arch floor_flagstone1a
+x 22
+y 16
+end
+arch plant6
+x 22
+y 16
+end
+arch floor_flagstone1a
+x 22
+y 17
+end
+arch plant8
+x 22
+y 17
+end
+arch floor_flagstone1a
+x 22
+y 18
+end
+arch bones1
+x 22
+y 18
+end
+arch spawn_point
+x 22
+y 18
+arch oty
+item_condition 6
+type 83
+end
+end
+arch floor_flagstone1a
+x 22
+y 19
+end
+arch floor_flagstone1b
+x 22
+y 20
+end
+arch plant8
+x 22
+y 20
+end
+arch floor_flagstone1a
+x 22
+y 21
+end
+arch bones1
+x 22
+y 21
+end
+arch floor_flagstone1a
+x 22
+y 22
+end
+arch floor_flagstone1a
+x 22
+y 23
+end
+arch wall_black1.111
+x 22
+y 23
+end
+arch blocked
+x 23
+end
+arch wall_black1.111
+x 23
+end
+arch floor_flagstone1a
+x 23
+y 1
+end
+arch wall_black1.131
+x 23
+y 1
+end
+arch floor_flagstone1a
+x 23
+y 2
+end
+arch wall_black1.131
+x 23
+y 2
+end
+arch floor_flagstone1b
+x 23
+y 3
+end
+arch wall_black1.131
+x 23
+y 3
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 3
+end
+arch floor_flagstone1a
+x 23
+y 4
+end
+arch wall_black1.131
+x 23
+y 4
+end
+arch floor_flagstone1a
+x 23
+y 5
+end
+arch wall_black1.131
+x 23
+y 5
+end
+arch floor_flagstone1b
+x 23
+y 6
+end
+arch wall_black1.131
+x 23
+y 6
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 6
+end
+arch floor_flagstone1b
+x 23
+y 7
+end
+arch wall_black1.131
+x 23
+y 7
+end
+arch floor_flagstone1b
+x 23
+y 8
+end
+arch wall_black1.141
+x 23
+y 8
+end
+arch blocked
+x 23
+y 9
+end
+arch wall_black1.111
+x 23
+y 9
+end
+arch floor_flagstone1b
+x 23
+y 10
+end
+arch wall_black1.131
+x 23
+y 10
+end
+arch floor_flagstone1a
+x 23
+y 11
+end
+arch wall_black1.131
+x 23
+y 11
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 11
+end
+arch floor_flagstone1b
+x 23
+y 12
+end
+arch wall_black1.131
+x 23
+y 12
+end
+arch floor_flagstone1b
+x 23
+y 13
+end
+arch wall_black1.131
+x 23
+y 13
+end
+arch floor_flagstone1b
+x 23
+y 14
+end
+arch wall_black1.131
+x 23
+y 14
+end
+arch floor_flagstone1a
+x 23
+y 15
+end
+arch wall_black1.131
+x 23
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 15
+end
+arch floor_flagstone1b
+x 23
+y 16
+end
+arch wall_black1.131
+x 23
+y 16
+end
+arch floor_flagstone1a
+x 23
+y 17
+end
+arch wall_black1.131
+x 23
+y 17
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 17
+end
+arch floor_flagstone1b
+x 23
+y 18
+end
+arch wall_black1.131
+x 23
+y 18
+end
+arch floor_flagstone1a
+x 23
+y 19
+end
+arch wall_black1.131
+x 23
+y 19
+end
+arch floor_flagstone1a
+x 23
+y 20
+end
+arch wall_black1.131
+x 23
+y 20
+end
+arch floor_flagstone1b
+x 23
+y 21
+end
+arch wall_black1.131
+x 23
+y 21
+end
+arch floor_flagstone1b
+x 23
+y 22
+end
+arch wall_black1.131
+x 23
+y 22
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 22
+end
+arch floor_flagstone1a
+x 23
+y 23
+end
+arch wall_black1.141
+x 23
+y 23
+end

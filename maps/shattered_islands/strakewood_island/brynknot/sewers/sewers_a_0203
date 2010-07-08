@@ -1,0 +1,3415 @@
+arch map
+name Brynknot Sewers
+msg
+Created:  2010-07-06 Kiana
+Modified: 2010-07-06 Kiana
+endmsg
+width 24
+height 24
+difficulty 60
+darkness 1
+tile_path_1 sewers_a_0204
+tile_path_2 sewers_a_0303
+tile_path_3 sewers_a_0202
+tile_path_5 sewers_a_0304
+tile_path_6 sewers_a_0302
+region brynknot
+end
+arch floor_earth1b
+x 1
+y 1
+end
+arch fwall_sand1a
+x 1
+y 1
+end
+arch floor_earth1d
+x 1
+y 2
+end
+arch fwall_sand1b
+x 1
+y 2
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 2
+end
+arch floor_earth1d
+x 1
+y 3
+end
+arch fwall_sand1b
+x 1
+y 3
+end
+arch floor_earth1d
+x 1
+y 4
+end
+arch fwall_sand1a
+x 1
+y 4
+end
+arch plant2_wall.151
+x 1
+y 4
+end
+arch floor_earth1b
+x 1
+y 13
+end
+arch fwall_sand1a
+x 1
+y 13
+end
+arch floor_earth1b
+x 1
+y 14
+end
+arch fwall_sand1a
+x 1
+y 14
+end
+arch floor_earth1d
+x 1
+y 15
+end
+arch fwall_sand1b
+x 1
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 15
+end
+arch floor_earth1d
+x 1
+y 16
+end
+arch fwall_sand1a
+x 1
+y 16
+end
+arch floor_earth1e
+x 1
+y 17
+end
+arch fwall_sand1a
+x 1
+y 17
+end
+arch floor_earth1d
+x 2
+end
+arch fwall_sand1a
+x 2
+end
+arch plant2_wall.151
+direction 7
+x 2
+end
+arch floor_earth1d
+x 2
+y 1
+end
+arch fwall_sand1a
+x 2
+y 1
+end
+arch plant2_wall.151
+x 2
+y 1
+end
+arch floor_earth1e
+x 2
+y 2
+end
+arch plant6
+x 2
+y 2
+end
+arch floor_earth1e
+x 2
+y 3
+end
+arch floor_earth1e
+x 2
+y 4
+end
+arch fwall_sand1a
+x 2
+y 4
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 4
+end
+arch floor_earth1b
+x 2
+y 5
+end
+arch fwall_sand1b
+x 2
+y 5
+end
+arch floor_earth1c
+x 2
+y 6
+end
+arch fwall_sand1a
+x 2
+y 6
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 6
+end
+arch floor_earth1e
+x 2
+y 7
+end
+arch fwall_sand1a
+x 2
+y 7
+end
+arch floor_earth1b
+x 2
+y 8
+end
+arch fwall_sand1b
+x 2
+y 8
+end
+arch floor_earth1d
+x 2
+y 12
+end
+arch fwall_sand1b
+x 2
+y 12
+end
+arch floor_earth1c
+x 2
+y 13
+end
+arch fwall_sand1a
+x 2
+y 13
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 13
+end
+arch floor_earth1d
+x 2
+y 14
+end
+arch plant7
+x 2
+y 14
+end
+arch floor_earth1d
+x 2
+y 15
+end
+arch plant6
+x 2
+y 15
+end
+arch floor_earth1a
+x 2
+y 16
+end
+arch plant7
+x 2
+y 16
+end
+arch floor_earth1a
+x 2
+y 17
+end
+arch fwall_sand1b
+x 2
+y 17
+end
+arch floor_earth1e
+x 2
+y 18
+end
+arch fwall_sand1a
+x 2
+y 18
+end
+arch floor_earth1a
+x 3
+end
+arch plant7
+x 3
+end
+arch floor_earth1e
+x 3
+y 1
+end
+arch floor_earth1c
+x 3
+y 2
+end
+arch bone_skull
+x 3
+y 2
+end
+arch floor_earth1e
+x 3
+y 3
+end
+arch dirt_floor2
+x 3
+y 3
+end
+arch floor_earth1d
+x 3
+y 4
+end
+arch floor_earth1d
+x 3
+y 5
+end
+arch plant7
+x 3
+y 5
+end
+arch floor_earth1e
+x 3
+y 6
+end
+arch plant8
+x 3
+y 6
+end
+arch floor_earth1b
+x 3
+y 7
+end
+arch plant6
+x 3
+y 7
+end
+arch floor_earth1d
+x 3
+y 8
+end
+arch fwall_sand1a
+x 3
+y 8
+end
+arch floor_earth1c
+x 3
+y 9
+end
+arch fwall_sand1a
+x 3
+y 9
+end
+arch floor_earth1e
+x 3
+y 12
+end
+arch fwall_sand1b
+x 3
+y 12
+end
+arch plant2_wall.151
+x 3
+y 12
+end
+arch floor_earth1d
+x 3
+y 13
+end
+arch plant7
+x 3
+y 13
+end
+arch floor_earth1b
+x 3
+y 14
+end
+arch floor_earth1c
+x 3
+y 15
+end
+arch bones1
+x 3
+y 15
+end
+arch floor_earth1b
+x 3
+y 16
+end
+arch floor_earth1c
+x 3
+y 17
+end
+arch plant6
+x 3
+y 17
+end
+arch floor_earth1b
+x 3
+y 18
+end
+arch fwall_sand1b
+x 3
+y 18
+end
+arch floor_earth1c
+x 3
+y 19
+end
+arch fwall_sand1b
+x 3
+y 19
+end
+arch plant2_wall.151
+x 3
+y 19
+end
+arch floor_earth1a
+x 4
+end
+arch dirt_floor1
+x 4
+end
+arch bones1
+x 4
+end
+arch floor_earth1e
+x 4
+y 1
+end
+arch floor_earth1e
+x 4
+y 2
+end
+arch floor_earth1c
+x 4
+y 3
+end
+arch floor_earth1c
+x 4
+y 4
+end
+arch floor_earth1e
+x 4
+y 5
+end
+arch floor_earth1e
+x 4
+y 6
+end
+arch earth_m5
+x 4
+y 6
+end
+arch bones1
+x 4
+y 6
+end
+arch spawn_point
+x 4
+y 6
+arch oty
+item_condition 4
+type 83
+direction 4
+end
+end
+arch floor_earth1a
+x 4
+y 7
+end
+arch earth_m9
+x 4
+y 7
+end
+arch bones1
+x 4
+y 7
+end
+arch floor_earth1c
+x 4
+y 8
+end
+arch earth_m8
+x 4
+y 8
+end
+arch grave_fire.101
+glow_radius 5
+face grave_fire_on.101
+x 4
+y 8
+end
+arch floor_earth1d
+x 4
+y 9
+end
+arch fwall_sand1b
+x 4
+y 9
+end
+arch floor_earth1e
+x 4
+y 10
+end
+arch fwall_sand1a
+x 4
+y 10
+end
+arch plant2_wall.151
+x 4
+y 10
+end
+arch floor_earth1b
+x 4
+y 12
+end
+arch fwall_sand1a
+x 4
+y 12
+end
+arch floor_earth1a
+x 4
+y 13
+end
+arch spawn_point
+x 4
+y 13
+arch ghoul
+item_condition 2
+type 83
+direction 1
+end
+end
+arch floor_earth1d
+x 4
+y 14
+end
+arch floor_earth1d
+x 4
+y 15
+end
+arch fwall_sand1b
+x 4
+y 15
+end
+arch floor_earth1b
+x 4
+y 16
+end
+arch floor_earth1b
+x 4
+y 17
+end
+arch dirt_floor2
+x 4
+y 17
+end
+arch floor_earth1b
+x 4
+y 18
+end
+arch plant8
+x 4
+y 18
+end
+arch floor_earth1d
+x 4
+y 19
+end
+arch fwall_sand1b
+x 4
+y 19
+end
+arch floor_earth1d
+x 5
+end
+arch earth_m8
+x 5
+end
+arch floor_earth1c
+x 5
+y 1
+end
+arch floor_earth1e
+x 5
+y 2
+end
+arch plant8
+x 5
+y 2
+end
+arch floor_earth1d
+x 5
+y 3
+end
+arch fwall_sand1b
+x 5
+y 3
+end
+arch floor_earth1d
+x 5
+y 4
+end
+arch fwall_sand1a
+x 5
+y 4
+end
+arch plant2_wall.151
+direction 7
+x 5
+y 4
+end
+arch floor_earth1d
+x 5
+y 5
+end
+arch fwall_sand1b
+x 5
+y 5
+end
+arch floor_earth1d
+x 5
+y 6
+end
+arch earth_m6
+x 5
+y 6
+end
+arch floor_earth1d
+x 5
+y 7
+end
+arch earth_m16
+x 5
+y 7
+end
+arch bones2
+x 5
+y 7
+end
+arch floor_earth1c
+x 5
+y 8
+end
+arch earth_m7
+x 5
+y 8
+end
+arch floor_earth1b
+x 5
+y 9
+end
+arch plant7
+x 5
+y 9
+end
+arch floor_earth1e
+x 5
+y 10
+end
+arch fwall_sand1b
+x 5
+y 10
+end
+arch plant2_wall.151
+direction 7
+x 5
+y 10
+end
+arch floor_earth1a
+x 5
+y 11
+end
+arch fwall_sand1b
+x 5
+y 11
+end
+arch floor_earth1b
+x 5
+y 12
+end
+arch fwall_sand1b
+x 5
+y 12
+end
+arch floor_earth1d
+x 5
+y 13
+end
+arch bone_broken
+x 5
+y 13
+end
+arch floor_earth1a
+x 5
+y 14
+end
+arch plant8
+x 5
+y 14
+end
+arch floor_earth1a
+x 5
+y 15
+end
+arch fwall_sand1a
+x 5
+y 15
+end
+arch floor_earth1c
+x 5
+y 16
+end
+arch fwall_sand1b
+x 5
+y 16
+end
+arch plant2_wall.151
+x 5
+y 16
+end
+arch floor_earth1c
+x 5
+y 17
+end
+arch bone_broken
+x 5
+y 17
+end
+arch floor_earth1e
+x 5
+y 18
+end
+arch floor_earth1e
+x 5
+y 19
+end
+arch fwall_sand1b
+x 5
+y 19
+end
+arch plant2_wall.151
+direction 7
+x 5
+y 19
+end
+arch floor_earth1d
+x 5
+y 20
+end
+arch fwall_sand1a
+x 5
+y 20
+end
+arch floor_earth1e
+x 6
+end
+arch earth_m7
+x 6
+end
+arch floor_earth1c
+x 6
+y 1
+end
+arch plant7
+x 6
+y 1
+end
+arch floor_earth1c
+x 6
+y 2
+end
+arch fwall_sand1a
+x 6
+y 2
+end
+arch floor_earth1a
+x 6
+y 3
+end
+arch fwall_sand1a
+x 6
+y 3
+end
+arch plant2_wall.151
+x 6
+y 3
+end
+arch floor_earth1b
+x 6
+y 5
+end
+arch fwall_sand1a
+x 6
+y 5
+end
+arch floor_earth1d
+x 6
+y 6
+end
+arch fwall_sand1a
+x 6
+y 6
+end
+arch floor_earth1e
+x 6
+y 7
+end
+arch plant6
+x 6
+y 7
+end
+arch floor_earth1e
+x 6
+y 8
+end
+arch bones1
+x 6
+y 8
+end
+arch floor_earth1c
+x 6
+y 9
+end
+arch dirt_floor2
+x 6
+y 9
+end
+arch floor_earth1a
+x 6
+y 10
+end
+arch plant7
+x 6
+y 10
+end
+arch floor_earth1a
+x 6
+y 11
+end
+arch plant6
+x 6
+y 11
+end
+arch floor_earth1a
+x 6
+y 12
+end
+arch dirt_floor1
+x 6
+y 12
+end
+arch floor_earth1a
+x 6
+y 13
+end
+arch floor_earth1c
+x 6
+y 14
+end
+arch plant8
+x 6
+y 14
+end
+arch floor_earth1e
+x 6
+y 15
+end
+arch fwall_sand1a
+x 6
+y 15
+end
+arch plant2_wall.151
+x 6
+y 15
+end
+arch floor_earth1e
+x 6
+y 16
+end
+arch fwall_sand1b
+x 6
+y 16
+end
+arch floor_earth1e
+x 6
+y 17
+end
+arch plant7
+x 6
+y 17
+end
+arch floor_earth1a
+x 6
+y 18
+end
+arch earth_m5
+x 6
+y 18
+end
+arch floor_earth1b
+x 6
+y 19
+end
+arch earth_m8
+x 6
+y 19
+end
+arch plant8
+x 6
+y 19
+end
+arch floor_earth1c
+x 6
+y 20
+end
+arch fwall_sand1a
+x 6
+y 20
+end
+arch floor_earth1d
+x 6
+y 21
+end
+arch fwall_sand1b
+x 6
+y 21
+end
+arch floor_earth1a
+x 6
+y 23
+end
+arch fwall_sand1b
+x 6
+y 23
+end
+arch floor_earth1e
+x 7
+end
+arch bone_skull
+x 7
+end
+arch floor_earth1a
+x 7
+y 1
+end
+arch plant8
+x 7
+y 1
+end
+arch floor_earth1b
+x 7
+y 2
+end
+arch fwall_sand1b
+x 7
+y 2
+end
+arch floor_earth1d
+x 7
+y 6
+end
+arch fwall_sand1a
+x 7
+y 6
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 6
+end
+arch floor_earth1d
+x 7
+y 7
+end
+arch fwall_sand1b
+x 7
+y 7
+end
+arch floor_earth1c
+x 7
+y 8
+end
+arch fwall_sand1a
+x 7
+y 8
+end
+arch plant2_wall.151
+x 7
+y 8
+end
+arch floor_earth1e
+x 7
+y 9
+end
+arch plant6
+x 7
+y 9
+end
+arch floor_earth1e
+x 7
+y 10
+end
+arch floor_earth1e
+x 7
+y 11
+end
+arch bone_broken
+x 7
+y 11
+end
+arch floor_earth1a
+x 7
+y 12
+end
+arch floor_earth1d
+x 7
+y 13
+end
+arch floor_earth1d
+x 7
+y 14
+end
+arch fwall_sand1b
+x 7
+y 14
+end
+arch floor_earth1d
+x 7
+y 15
+end
+arch fwall_sand1a
+x 7
+y 15
+end
+arch floor_earth1e
+x 7
+y 16
+end
+arch fwall_sand1b
+x 7
+y 16
+end
+arch floor_earth1a
+x 7
+y 17
+end
+arch fwall_sand1b
+x 7
+y 17
+end
+arch floor_earth1e
+x 7
+y 18
+end
+arch earth_m15
+x 7
+y 18
+end
+arch bones2
+x 7
+y 18
+end
+arch floor_earth1c
+x 7
+y 19
+end
+arch earth_m10
+x 7
+y 19
+end
+arch spawn_point
+x 7
+y 19
+arch oty
+item_condition 2
+type 83
+end
+end
+arch floor_earth1c
+x 7
+y 20
+end
+arch plant8
+x 7
+y 20
+end
+arch floor_earth1d
+x 7
+y 21
+end
+arch fwall_sand1b
+x 7
+y 21
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 21
+end
+arch floor_earth1e
+x 7
+y 22
+end
+arch fwall_sand1a
+x 7
+y 22
+end
+arch floor_earth1a
+x 7
+y 23
+end
+arch fwall_sand1a
+x 7
+y 23
+end
+arch floor_earth1e
+x 8
+end
+arch floor_earth1c
+x 8
+y 1
+end
+arch floor_earth1d
+x 8
+y 2
+end
+arch fwall_sand1a
+x 8
+y 2
+end
+arch floor_earth1b
+x 8
+y 3
+end
+arch fwall_sand1b
+x 8
+y 3
+end
+arch floor_earth1a
+x 8
+y 8
+end
+arch fwall_sand1a
+x 8
+y 8
+end
+arch floor_earth1c
+x 8
+y 9
+end
+arch fwall_sand1a
+x 8
+y 9
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 9
+end
+arch floor_earth1a
+x 8
+y 10
+end
+arch fwall_sand1a
+x 8
+y 10
+end
+arch floor_earth1b
+x 8
+y 11
+end
+arch fwall_sand1b
+x 8
+y 11
+end
+arch plant2_wall.151
+x 8
+y 11
+end
+arch floor_earth1c
+x 8
+y 12
+end
+arch floor_earth1b
+x 8
+y 13
+end
+arch fwall_sand1a
+x 8
+y 13
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 13
+end
+arch floor_earth1c
+x 8
+y 14
+end
+arch fwall_sand1b
+x 8
+y 14
+end
+arch floor_earth1a
+x 8
+y 15
+end
+arch fwall_sand1a
+x 8
+y 15
+end
+arch floor_earth1c
+x 8
+y 16
+end
+arch fwall_sand1b
+x 8
+y 16
+end
+arch floor_earth1e
+x 8
+y 17
+end
+arch dirt_floor1
+x 8
+y 17
+end
+arch grave_fire.101
+glow_radius 5
+face grave_fire_on.101
+x 8
+y 17
+end
+arch floor_earth1a
+x 8
+y 18
+end
+arch earth_m6
+x 8
+y 18
+end
+arch floor_earth1d
+x 8
+y 19
+end
+arch earth_m7
+x 8
+y 19
+end
+arch bones1
+x 8
+y 19
+end
+arch floor_earth1e
+x 8
+y 20
+end
+arch floor_earth1a
+x 8
+y 21
+end
+arch floor_earth1c
+x 8
+y 22
+end
+arch floor_earth1e
+x 8
+y 23
+end
+arch floor_earth1e
+x 9
+end
+arch fwall_sand1a
+x 9
+end
+arch plant2_wall.151
+x 9
+end
+arch floor_earth1a
+x 9
+y 1
+end
+arch floor_earth1c
+x 9
+y 2
+end
+arch floor_earth1b
+x 9
+y 3
+end
+arch fwall_sand1a
+x 9
+y 3
+end
+arch floor_earth1c
+x 9
+y 11
+end
+arch fwall_sand1a
+x 9
+y 11
+end
+arch floor_earth1a
+x 9
+y 12
+end
+arch floor_earth1a
+x 9
+y 13
+end
+arch floor_earth1d
+x 9
+y 14
+end
+arch fwall_sand1b
+x 9
+y 14
+end
+arch plant2_wall.151
+direction 7
+x 9
+y 14
+end
+arch floor_earth1a
+x 9
+y 15
+end
+arch fwall_sand1b
+x 9
+y 15
+end
+arch floor_earth1e
+x 9
+y 16
+end
+arch plant8
+x 9
+y 16
+end
+arch floor_earth1d
+x 9
+y 17
+end
+arch floor_earth1d
+x 9
+y 18
+end
+arch floor_earth1c
+x 9
+y 19
+end
+arch floor_earth1c
+x 9
+y 20
+end
+arch plant8
+x 9
+y 20
+end
+arch floor_earth1d
+x 9
+y 21
+end
+arch fwall_sand1b
+x 9
+y 21
+end
+arch floor_earth1c
+x 9
+y 22
+end
+arch fwall_sand1b
+x 9
+y 22
+end
+arch floor_earth1a
+x 9
+y 23
+end
+arch fwall_sand1a
+x 9
+y 23
+end
+arch plant2_wall.151
+x 9
+y 23
+end
+arch floor_earth1b
+x 10
+end
+arch fwall_sand1a
+x 10
+end
+arch floor_earth1c
+x 10
+y 1
+end
+arch plant7
+x 10
+y 1
+end
+arch floor_earth1e
+x 10
+y 2
+end
+arch floor_earth1a
+x 10
+y 3
+end
+arch fwall_sand1a
+x 10
+y 3
+end
+arch floor_earth1d
+x 10
+y 4
+end
+arch fwall_sand1a
+x 10
+y 4
+end
+arch plant2_wall.151
+x 10
+y 4
+end
+arch floor_earth1e
+x 10
+y 11
+end
+arch fwall_sand1a
+x 10
+y 11
+end
+arch floor_earth1e
+x 10
+y 12
+end
+arch floor_earth1c
+x 10
+y 13
+end
+arch floor_earth1a
+x 10
+y 14
+end
+arch fwall_sand1a
+x 10
+y 14
+end
+arch plant2_wall.151
+x 10
+y 14
+end
+arch floor_earth1d
+x 10
+y 15
+end
+arch plant6
+x 10
+y 15
+end
+arch floor_earth1e
+x 10
+y 16
+end
+arch floor_earth1b
+x 10
+y 18
+end
+arch plant8
+x 10
+y 18
+end
+arch floor_earth1c
+x 10
+y 19
+end
+arch fwall_sand1b
+x 10
+y 19
+end
+arch floor_earth1a
+x 10
+y 20
+end
+arch fwall_sand1b
+x 10
+y 20
+end
+arch plant2_wall.151
+direction 7
+x 10
+y 20
+end
+arch floor_earth1d
+x 10
+y 21
+end
+arch fwall_sand1b
+x 10
+y 21
+end
+arch floor_earth1c
+x 10
+y 22
+end
+arch fwall_sand1b
+x 10
+y 22
+end
+arch floor_earth1c
+x 10
+y 23
+end
+arch plant6
+x 10
+y 23
+end
+arch floor_earth1a
+x 11
+end
+arch fwall_sand1b
+x 11
+end
+arch floor_earth1e
+x 11
+y 1
+end
+arch fwall_sand1a
+x 11
+y 1
+end
+arch floor_earth1e
+x 11
+y 2
+end
+arch floor_earth1a
+x 11
+y 3
+end
+arch plant7
+x 11
+y 3
+end
+arch floor_earth1a
+x 11
+y 4
+end
+arch fwall_sand1b
+x 11
+y 4
+end
+arch floor_earth1e
+x 11
+y 11
+end
+arch fwall_sand1b
+x 11
+y 11
+end
+arch floor_earth1a
+x 11
+y 12
+end
+arch fwall_sand1a
+x 11
+y 12
+end
+arch floor_earth1a
+x 11
+y 13
+end
+arch bone_skull
+x 11
+y 13
+end
+arch floor_earth1d
+x 11
+y 14
+end
+arch bone_broken
+x 11
+y 14
+end
+arch spawn_point
+x 11
+y 14
+arch oty
+item_condition 3
+type 83
+end
+end
+arch floor_earth1a
+x 11
+y 15
+end
+arch dirt_floor2
+x 11
+y 15
+end
+arch floor_earth1c
+x 11
+y 16
+end
+arch floor_earth1b
+x 11
+y 17
+end
+arch floor_earth1d
+x 11
+y 18
+end
+arch fwall_sand1a
+x 11
+y 18
+end
+arch floor_earth1d
+x 11
+y 19
+end
+arch fwall_sand1a
+x 11
+y 19
+end
+arch floor_earth1b
+x 11
+y 22
+end
+arch fwall_sand1a
+x 11
+y 22
+end
+arch plant2_wall.151
+x 11
+y 22
+end
+arch floor_earth1a
+x 11
+y 23
+end
+arch plant6
+x 11
+y 23
+end
+arch floor_earth1b
+x 12
+y 1
+end
+arch fwall_sand1b
+x 12
+y 1
+end
+arch floor_earth1b
+x 12
+y 2
+end
+arch dirt_floor2
+x 12
+y 2
+end
+arch grave_fire.101
+glow_radius 5
+face grave_fire_on.101
+x 12
+y 2
+end
+arch floor_earth1b
+x 12
+y 3
+end
+arch bones1
+x 12
+y 3
+end
+arch floor_earth1a
+x 12
+y 4
+end
+arch fwall_sand1b
+x 12
+y 4
+end
+arch floor_earth1e
+x 12
+y 5
+end
+arch fwall_sand1b
+x 12
+y 5
+end
+arch floor_earth1d
+x 12
+y 12
+end
+arch fwall_sand1a
+x 12
+y 12
+end
+arch plant2_wall.151
+x 12
+y 12
+end
+arch floor_earth1d
+x 12
+y 13
+end
+arch plant8
+x 12
+y 13
+end
+arch floor_earth1e
+x 12
+y 14
+end
+arch earth_m5
+x 12
+y 14
+end
+arch floor_earth1c
+x 12
+y 15
+end
+arch earth_m8
+x 12
+y 15
+end
+arch bones1
+x 12
+y 15
+end
+arch floor_earth1c
+x 12
+y 16
+end
+arch floor_earth1e
+x 12
+y 17
+end
+arch plant8
+x 12
+y 17
+end
+arch floor_earth1d
+x 12
+y 18
+end
+arch fwall_sand1a
+x 12
+y 18
+end
+arch plant2_wall.151
+x 12
+y 18
+end
+arch floor_earth1d
+x 12
+y 22
+end
+arch fwall_sand1a
+x 12
+y 22
+end
+arch floor_earth1a
+x 12
+y 23
+end
+arch plant7
+x 12
+y 23
+end
+arch floor_earth1e
+x 13
+y 1
+end
+arch fwall_sand1a
+x 13
+y 1
+end
+arch floor_earth1c
+x 13
+y 2
+end
+arch fwall_sand1b
+x 13
+y 2
+end
+arch plant2_wall.151
+x 13
+y 2
+end
+arch floor_earth1d
+x 13
+y 3
+end
+arch floor_earth1b
+x 13
+y 4
+end
+arch plant6
+x 13
+y 4
+end
+arch floor_earth1a
+x 13
+y 5
+end
+arch fwall_sand1b
+x 13
+y 5
+end
+arch floor_earth1e
+x 13
+y 6
+end
+arch fwall_sand1b
+x 13
+y 6
+end
+arch floor_earth1c
+x 13
+y 12
+end
+arch fwall_sand1b
+x 13
+y 12
+end
+arch plant2_wall.151
+x 13
+y 12
+end
+arch floor_earth1b
+x 13
+y 13
+end
+arch plant8
+x 13
+y 13
+end
+arch floor_earth1b
+x 13
+y 14
+end
+arch earth_m11
+x 13
+y 14
+end
+arch bones3
+x 13
+y 14
+end
+arch floor_earth1c
+x 13
+y 15
+end
+arch earth_m14
+x 13
+y 15
+end
+arch floor_earth1d
+x 13
+y 16
+end
+arch plant7
+x 13
+y 16
+end
+arch floor_earth1c
+x 13
+y 17
+end
+arch fwall_sand1b
+x 13
+y 17
+end
+arch floor_earth1d
+x 13
+y 18
+end
+arch fwall_sand1a
+x 13
+y 18
+end
+arch floor_earth1b
+x 13
+y 22
+end
+arch fwall_sand1a
+x 13
+y 22
+end
+arch plant2_wall.151
+direction 7
+x 13
+y 22
+end
+arch floor_earth1d
+x 13
+y 23
+end
+arch fwall_sand1a
+x 13
+y 23
+end
+arch plant2_wall.151
+x 13
+y 23
+end
+arch floor_earth1d
+x 14
+end
+arch fwall_sand1a
+x 14
+end
+arch floor_earth1e
+x 14
+y 2
+end
+arch fwall_sand1b
+x 14
+y 2
+end
+arch floor_earth1c
+x 14
+y 3
+end
+arch floor_earth1d
+x 14
+y 4
+end
+arch plant8
+x 14
+y 4
+end
+arch spawn_point
+x 14
+y 4
+arch oty
+item_condition 3
+type 83
+end
+end
+arch floor_earth1a
+x 14
+y 5
+end
+arch plant6
+x 14
+y 5
+end
+arch floor_earth1c
+x 14
+y 6
+end
+arch fwall_sand1a
+x 14
+y 6
+end
+arch floor_earth1e
+x 14
+y 7
+end
+arch fwall_sand1b
+x 14
+y 7
+end
+arch plant2_wall.151
+x 14
+y 7
+end
+arch floor_earth1a
+x 14
+y 12
+end
+arch fwall_sand1b
+x 14
+y 12
+end
+arch floor_earth1d
+x 14
+y 13
+end
+arch floor_earth1b
+x 14
+y 14
+end
+arch earth_m6
+x 14
+y 14
+end
+arch floor_earth1d
+x 14
+y 15
+end
+arch earth_m7
+x 14
+y 15
+end
+arch floor_earth1b
+x 14
+y 16
+end
+arch floor_earth1b
+x 14
+y 17
+end
+arch fwall_sand1b
+x 14
+y 17
+end
+arch plant2_wall.151
+x 14
+y 17
+end
+arch floor_earth1b
+x 14
+y 23
+end
+arch fwall_sand1a
+x 14
+y 23
+end
+arch floor_earth1b
+x 15
+end
+arch fwall_sand1b
+x 15
+end
+arch plant2_wall.151
+direction 7
+x 15
+end
+arch floor_earth1c
+x 15
+y 1
+end
+arch fwall_sand1b
+x 15
+y 1
+end
+arch floor_earth1a
+x 15
+y 2
+end
+arch fwall_sand1a
+x 15
+y 2
+end
+arch floor_earth1a
+x 15
+y 3
+end
+arch fwall_sand1a
+x 15
+y 3
+end
+arch plant2_wall.151
+direction 7
+x 15
+y 3
+end
+arch floor_earth1e
+x 15
+y 4
+end
+arch floor_earth1e
+x 15
+y 5
+end
+arch plant6
+x 15
+y 5
+end
+arch floor_earth1a
+x 15
+y 6
+end
+arch plant7
+x 15
+y 6
+end
+arch floor_earth1e
+x 15
+y 7
+end
+arch fwall_sand1b
+x 15
+y 7
+end
+arch floor_earth1b
+x 15
+y 8
+end
+arch fwall_sand1b
+x 15
+y 8
+end
+arch floor_earth1b
+x 15
+y 12
+end
+arch fwall_sand1b
+x 15
+y 12
+end
+arch floor_earth1d
+x 15
+y 13
+end
+arch plant8
+x 15
+y 13
+end
+arch floor_earth1d
+x 15
+y 14
+end
+arch floor_earth1c
+x 15
+y 15
+end
+arch bone_broken
+x 15
+y 15
+end
+arch floor_earth1a
+x 15
+y 16
+end
+arch floor_earth1a
+x 15
+y 17
+end
+arch fwall_sand1a
+x 15
+y 17
+end
+arch floor_earth1b
+x 15
+y 23
+end
+arch fwall_sand1a
+x 15
+y 23
+end
+arch floor_earth1c
+x 16
+end
+arch dirt_floor1
+x 16
+end
+arch floor_earth1d
+x 16
+y 1
+end
+arch dirt_floor1
+x 16
+y 1
+end
+arch bones1
+x 16
+y 1
+end
+arch floor_earth1e
+x 16
+y 2
+end
+arch fwall_sand1a
+x 16
+y 2
+end
+arch plant2_wall.151
+x 16
+y 2
+end
+arch floor_earth1e
+x 16
+y 3
+end
+arch fwall_sand1a
+x 16
+y 3
+end
+arch floor_earth1b
+x 16
+y 4
+end
+arch fwall_sand1b
+x 16
+y 4
+end
+arch plant2_wall.151
+x 16
+y 4
+end
+arch floor_earth1b
+x 16
+y 5
+end
+arch floor_earth1a
+x 16
+y 6
+end
+arch bone_broken
+x 16
+y 6
+end
+arch floor_earth1a
+x 16
+y 7
+end
+arch floor_earth1d
+x 16
+y 8
+end
+arch fwall_sand1b
+x 16
+y 8
+end
+arch floor_earth1b
+x 16
+y 9
+end
+arch fwall_sand1b
+x 16
+y 9
+end
+arch floor_earth1a
+x 16
+y 12
+end
+arch fwall_sand1a
+x 16
+y 12
+end
+arch floor_earth1d
+x 16
+y 13
+end
+arch fwall_sand1b
+x 16
+y 13
+end
+arch floor_earth1a
+x 16
+y 14
+end
+arch dirt_floor1
+x 16
+y 14
+end
+arch floor_earth1c
+x 16
+y 15
+end
+arch dirt_floor2
+x 16
+y 15
+end
+arch floor_earth1b
+x 16
+y 16
+end
+arch plant6
+x 16
+y 16
+end
+arch floor_earth1b
+x 16
+y 17
+end
+arch fwall_sand1a
+x 16
+y 17
+end
+arch plant2_wall.151
+direction 7
+x 16
+y 17
+end
+arch floor_earth1a
+x 16
+y 18
+end
+arch fwall_sand1a
+x 16
+y 18
+end
+arch floor_earth1b
+x 16
+y 23
+end
+arch fwall_sand1a
+x 16
+y 23
+end
+arch floor_earth1b
+x 17
+end
+arch plant7
+x 17
+end
+arch floor_earth1d
+x 17
+y 1
+end
+arch floor_earth1b
+x 17
+y 2
+end
+arch plant6
+x 17
+y 2
+end
+arch floor_earth1a
+x 17
+y 3
+end
+arch fwall_sand1b
+x 17
+y 3
+end
+arch floor_earth1b
+x 17
+y 4
+end
+arch fwall_sand1b
+x 17
+y 4
+end
+arch floor_earth1a
+x 17
+y 5
+end
+arch fwall_sand1b
+x 17
+y 5
+end
+arch floor_earth1c
+x 17
+y 6
+end
+arch plant6
+x 17
+y 6
+end
+arch floor_earth1c
+x 17
+y 7
+end
+arch floor_earth1a
+x 17
+y 8
+end
+arch plant8
+x 17
+y 8
+end
+arch floor_earth1b
+x 17
+y 9
+end
+arch fwall_sand1b
+x 17
+y 9
+end
+arch plant2_wall.151
+direction 7
+x 17
+y 9
+end
+arch floor_earth1b
+x 17
+y 10
+end
+arch fwall_sand1a
+x 17
+y 10
+end
+arch plant2_wall.151
+x 17
+y 10
+end
+arch floor_earth1e
+x 17
+y 13
+end
+arch fwall_sand1b
+x 17
+y 13
+end
+arch floor_earth1e
+x 17
+y 14
+end
+arch floor_earth1a
+x 17
+y 15
+end
+arch dirt_floor1
+x 17
+y 15
+end
+arch floor_earth1e
+x 17
+y 16
+end
+arch floor_earth1d
+x 17
+y 17
+end
+arch plant6
+x 17
+y 17
+end
+arch floor_earth1d
+x 17
+y 18
+end
+arch fwall_sand1b
+x 17
+y 18
+end
+arch floor_earth1a
+x 17
+y 23
+end
+arch fwall_sand1a
+x 17
+y 23
+end
+arch floor_earth1a
+x 18
+end
+arch fwall_sand1b
+x 18
+end
+arch floor_earth1c
+x 18
+y 1
+end
+arch fwall_sand1a
+x 18
+y 1
+end
+arch floor_earth1e
+x 18
+y 2
+end
+arch floor_earth1b
+x 18
+y 3
+end
+arch plant6
+x 18
+y 3
+end
+arch floor_earth1c
+x 18
+y 4
+end
+arch fwall_sand1a
+x 18
+y 4
+end
+arch plant2_wall.151
+direction 7
+x 18
+y 4
+end
+arch floor_earth1a
+x 18
+y 5
+end
+arch fwall_sand1b
+x 18
+y 5
+end
+arch floor_earth1e
+x 18
+y 6
+end
+arch fwall_sand1b
+x 18
+y 6
+end
+arch plant2_wall.151
+direction 7
+x 18
+y 6
+end
+arch floor_earth1e
+x 18
+y 7
+end
+arch floor_earth1a
+x 18
+y 8
+end
+arch floor_earth1d
+x 18
+y 9
+end
+arch plant7
+x 18
+y 9
+end
+arch floor_earth1e
+x 18
+y 10
+end
+arch fwall_sand1b
+x 18
+y 10
+end
+arch floor_earth1b
+x 18
+y 11
+end
+arch fwall_sand1a
+x 18
+y 11
+end
+arch floor_earth1e
+x 18
+y 12
+end
+arch fwall_sand1a
+x 18
+y 12
+end
+arch floor_earth1c
+x 18
+y 13
+end
+arch fwall_sand1a
+x 18
+y 13
+end
+arch floor_earth1a
+x 18
+y 14
+end
+arch fwall_sand1b
+x 18
+y 14
+end
+arch floor_earth1a
+x 18
+y 15
+end
+arch plant8
+x 18
+y 15
+end
+arch floor_earth1d
+x 18
+y 16
+end
+arch dirt_floor1
+x 18
+y 16
+end
+arch floor_earth1e
+x 18
+y 17
+end
+arch floor_earth1a
+x 18
+y 18
+end
+arch fwall_sand1a
+x 18
+y 18
+end
+arch plant2_wall.151
+x 18
+y 18
+end
+arch floor_earth1a
+x 18
+y 23
+end
+arch fwall_sand1b
+x 18
+y 23
+end
+arch floor_earth1e
+x 19
+end
+arch plant6
+x 19
+end
+arch floor_earth1a
+x 19
+y 1
+end
+arch fwall_sand1a
+x 19
+y 1
+end
+arch floor_earth1a
+x 19
+y 2
+end
+arch fwall_sand1a
+x 19
+y 2
+end
+arch plant2_wall.151
+x 19
+y 2
+end
+arch floor_earth1a
+x 19
+y 3
+end
+arch spawn_point
+x 19
+y 3
+arch oty
+item_condition 3
+type 83
+end
+end
+arch floor_earth1e
+x 19
+y 4
+end
+arch bone_skull
+x 19
+y 4
+end
+arch floor_earth1a
+x 19
+y 5
+end
+arch fwall_sand1a
+x 19
+y 5
+end
+arch floor_earth1c
+x 19
+y 6
+end
+arch fwall_sand1a
+x 19
+y 6
+end
+arch floor_earth1c
+x 19
+y 7
+end
+arch fwall_sand1b
+x 19
+y 7
+end
+arch floor_earth1a
+x 19
+y 8
+end
+arch dirt_floor2
+x 19
+y 8
+end
+arch floor_earth1b
+x 19
+y 9
+end
+arch earth_m5
+x 19
+y 9
+end
+arch floor_earth1a
+x 19
+y 10
+end
+arch earth_m8
+x 19
+y 10
+end
+arch plant6
+x 19
+y 10
+end
+arch floor_earth1d
+x 19
+y 11
+end
+arch plant7
+x 19
+y 11
+end
+arch floor_earth1e
+x 19
+y 12
+end
+arch fwall_sand1b
+x 19
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 12
+end
+arch floor_earth1e
+x 19
+y 13
+end
+arch fwall_sand1a
+x 19
+y 13
+end
+arch floor_earth1d
+x 19
+y 14
+end
+arch fwall_sand1b
+x 19
+y 14
+end
+arch plant2_wall.151
+x 19
+y 14
+end
+arch floor_earth1b
+x 19
+y 15
+end
+arch plant6
+x 19
+y 15
+end
+arch floor_earth1c
+x 19
+y 16
+end
+arch floor_earth1b
+x 19
+y 17
+end
+arch floor_earth1a
+x 19
+y 18
+end
+arch fwall_sand1a
+x 19
+y 18
+end
+arch floor_earth1a
+x 19
+y 23
+end
+arch fwall_sand1b
+x 19
+y 23
+end
+arch floor_earth1d
+x 20
+end
+arch bones1
+x 20
+end
+arch floor_earth1d
+x 20
+y 1
+end
+arch plant7
+x 20
+y 1
+end
+arch floor_earth1b
+x 20
+y 2
+end
+arch fwall_sand1a
+x 20
+y 2
+end
+arch floor_earth1d
+x 20
+y 3
+end
+arch plant7
+x 20
+y 3
+end
+arch floor_earth1e
+x 20
+y 4
+end
+arch plant6
+x 20
+y 4
+end
+arch floor_earth1c
+x 20
+y 5
+end
+arch floor_earth1b
+x 20
+y 6
+end
+arch plant8
+x 20
+y 6
+end
+arch floor_earth1e
+x 20
+y 7
+end
+arch fwall_sand1a
+x 20
+y 7
+end
+arch plant2_wall.151
+x 20
+y 7
+end
+arch floor_earth1d
+x 20
+y 8
+end
+arch floor_earth1e
+x 20
+y 9
+end
+arch earth_m2
+x 20
+y 9
+end
+arch floor_earth1c
+x 20
+y 10
+end
+arch earth_m7
+x 20
+y 10
+end
+arch bones2
+x 20
+y 10
+end
+arch floor_earth1d
+x 20
+y 11
+end
+arch floor_earth1e
+x 20
+y 12
+end
+arch plant7
+x 20
+y 12
+end
+arch floor_earth1b
+x 20
+y 13
+end
+arch plant7
+x 20
+y 13
+end
+arch floor_earth1e
+x 20
+y 14
+end
+arch fwall_sand1a
+x 20
+y 14
+end
+arch plant2_wall.151
+direction 7
+x 20
+y 14
+end
+arch floor_earth1c
+x 20
+y 15
+end
+arch grave_fire.101
+glow_radius 5
+face grave_fire_on.101
+x 20
+y 15
+end
+arch floor_earth1c
+x 20
+y 16
+end
+arch spawn_point
+x 20
+y 16
+arch oty
+item_condition 3
+type 83
+end
+end
+arch floor_earth1d
+x 20
+y 17
+end
+arch floor_earth1d
+x 20
+y 18
+end
+arch fwall_sand1a
+x 20
+y 18
+end
+arch floor_earth1e
+x 20
+y 22
+end
+arch fwall_sand1a
+x 20
+y 22
+end
+arch floor_earth1d
+x 20
+y 23
+end
+arch fwall_sand1b
+x 20
+y 23
+end
+arch floor_earth1c
+x 21
+end
+arch dirt_floor1
+x 21
+end
+arch spawn_point
+x 21
+arch ghoul
+item_condition 5
+type 83
+end
+end
+arch floor_earth1d
+x 21
+y 1
+end
+arch floor_earth1c
+x 21
+y 2
+end
+arch fwall_sand1a
+x 21
+y 2
+end
+arch plant2_wall.151
+direction 7
+x 21
+y 2
+end
+arch floor_earth1d
+x 21
+y 3
+end
+arch fwall_sand1b
+x 21
+y 3
+end
+arch floor_earth1a
+x 21
+y 4
+end
+arch plant7
+x 21
+y 4
+end
+arch floor_earth1a
+x 21
+y 5
+end
+arch dirt_floor2
+x 21
+y 5
+end
+arch floor_earth1c
+x 21
+y 6
+end
+arch earth_m5
+x 21
+y 6
+end
+arch floor_earth1d
+x 21
+y 7
+end
+arch earth_m1
+x 21
+y 7
+end
+arch floor_earth1b
+x 21
+y 8
+end
+arch dirt_floor1
+x 21
+y 8
+end
+arch floor_earth1a
+x 21
+y 9
+end
+arch bone_skull
+x 21
+y 9
+end
+arch floor_earth1e
+x 21
+y 10
+end
+arch floor_earth1a
+x 21
+y 11
+end
+arch spawn_point
+x 21
+y 11
+arch oty
+item_condition 4
+type 83
+direction 4
+end
+end
+arch floor_earth1e
+x 21
+y 12
+end
+arch bone_broken
+x 21
+y 12
+end
+arch floor_earth1a
+x 21
+y 13
+end
+arch floor_earth1c
+x 21
+y 14
+end
+arch dirt_floor2
+x 21
+y 14
+end
+arch floor_earth1a
+x 21
+y 15
+end
+arch floor_earth1e
+x 21
+y 16
+end
+arch bones1
+x 21
+y 16
+end
+arch floor_earth1b
+x 21
+y 17
+end
+arch plant8
+x 21
+y 17
+end
+arch floor_earth1d
+x 21
+y 18
+end
+arch fwall_sand1a
+x 21
+y 18
+end
+arch floor_earth1c
+x 21
+y 19
+end
+arch fwall_sand1a
+x 21
+y 19
+end
+arch floor_earth1d
+x 21
+y 22
+end
+arch fwall_sand1a
+x 21
+y 22
+end
+arch plant2_wall.151
+x 21
+y 22
+end
+arch floor_earth1b
+x 21
+y 23
+end
+arch plant6
+x 21
+y 23
+end
+arch floor_earth1d
+x 22
+end
+arch plant6
+x 22
+end
+arch floor_earth1e
+x 22
+y 1
+end
+arch floor_earth1e
+x 22
+y 2
+end
+arch floor_earth1c
+x 22
+y 3
+end
+arch fwall_sand1a
+x 22
+y 3
+end
+arch floor_earth1d
+x 22
+y 4
+end
+arch fwall_sand1a
+x 22
+y 4
+end
+arch floor_earth1d
+x 22
+y 5
+end
+arch bone_skull
+x 22
+y 5
+end
+arch floor_earth1d
+x 22
+y 6
+end
+arch earth_m6
+x 22
+y 6
+end
+arch floor_earth1a
+x 22
+y 7
+end
+arch earth_m7
+x 22
+y 7
+end
+arch floor_earth1d
+x 22
+y 8
+end
+arch plant6
+x 22
+y 8
+end
+arch floor_earth1c
+x 22
+y 9
+end
+arch floor_earth1a
+x 22
+y 10
+end
+arch floor_earth1a
+x 22
+y 11
+end
+arch plant8
+x 22
+y 11
+end
+arch floor_earth1b
+x 22
+y 12
+end
+arch plant6
+x 22
+y 12
+end
+arch floor_earth1c
+x 22
+y 13
+end
+arch floor_earth1d
+x 22
+y 14
+end
+arch floor_earth1d
+x 22
+y 15
+end
+arch earth_m5
+x 22
+y 15
+end
+arch floor_earth1a
+x 22
+y 16
+end
+arch earth_m8
+x 22
+y 16
+end
+arch floor_earth1b
+x 22
+y 17
+end
+arch floor_earth1c
+x 22
+y 18
+end
+arch plant8
+x 22
+y 18
+end
+arch floor_earth1c
+x 22
+y 19
+end
+arch fwall_sand1b
+x 22
+y 19
+end
+arch plant2_wall.151
+x 22
+y 19
+end
+arch floor_earth1e
+x 22
+y 21
+end
+arch fwall_sand1b
+x 22
+y 21
+end
+arch floor_earth1d
+x 22
+y 22
+end
+arch fwall_sand1b
+x 22
+y 22
+end
+arch plant2_wall.151
+direction 7
+x 22
+y 22
+end
+arch floor_earth1b
+x 22
+y 23
+end
+arch plant7
+x 22
+y 23
+end
+arch floor_earth1d
+x 23
+end
+arch fwall_sand1b
+x 23
+end
+arch plant2_wall.151
+x 23
+end
+arch floor_earth1e
+x 23
+y 1
+end
+arch floor_earth1b
+x 23
+y 2
+end
+arch floor_earth1c
+x 23
+y 3
+end
+arch plant8
+x 23
+y 3
+end
+arch floor_earth1e
+x 23
+y 4
+end
+arch fwall_sand1b
+x 23
+y 4
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 4
+end
+arch floor_earth1b
+x 23
+y 5
+end
+arch fwall_sand1a
+x 23
+y 5
+end
+arch plant2_wall.151
+x 23
+y 5
+end
+arch floor_earth1d
+x 23
+y 6
+end
+arch floor_earth1e
+x 23
+y 7
+end
+arch plant7
+x 23
+y 7
+end
+arch floor_earth1d
+x 23
+y 8
+end
+arch plant7
+x 23
+y 8
+end
+arch floor_earth1c
+x 23
+y 9
+end
+arch fwall_sand1b
+x 23
+y 9
+end
+arch floor_earth1a
+x 23
+y 10
+end
+arch fwall_sand1b
+x 23
+y 10
+end
+arch plant2_wall.151
+direction 7
+x 23
+y 10
+end
+arch floor_earth1d
+x 23
+y 11
+end
+arch fwall_sand1a
+x 23
+y 11
+end
+arch floor_earth1c
+x 23
+y 12
+end
+arch fwall_sand1a
+x 23
+y 12
+end
+arch floor_earth1b
+x 23
+y 13
+end
+arch plant8
+x 23
+y 13
+end
+arch floor_earth1e
+x 23
+y 14
+end
+arch plant6
+x 23
+y 14
+end
+arch floor_earth1d
+x 23
+y 15
+end
+arch earth_m6
+x 23
+y 15
+end
+arch floor_earth1c
+x 23
+y 16
+end
+arch earth_m7
+x 23
+y 16
+end
+arch floor_earth1b
+x 23
+y 17
+end
+arch floor_earth1c
+x 23
+y 18
+end
+arch floor_earth1a
+x 23
+y 19
+end
+arch fwall_sand1a
+x 23
+y 19
+end
+arch floor_earth1b
+x 23
+y 21
+end
+arch fwall_sand1b
+x 23
+y 21
+end
+arch floor_earth1b
+x 23
+y 22
+end
+arch plant6
+x 23
+y 22
+end
+arch floor_earth1d
+x 23
+y 23
+end
+arch dirt_floor1
+x 23
+y 23
+end
