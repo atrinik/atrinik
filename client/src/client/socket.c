@@ -259,11 +259,11 @@ static int reader_thread_loop(void *dummy)
 
 			toread = cmd_len + header_len - readbuf_len;
 
-			if (cmd_len + 16 > readbuf_size)
+			if (readbuf_len + toread > readbuf_size)
 			{
 				uint8 *tmp = readbuf;
 
-				readbuf_size = cmd_len + 16;
+				readbuf_size = readbuf_len + toread;
 				readbuf = (uint8 *) malloc(readbuf_size);
 				memcpy(readbuf, tmp, readbuf_len);
 				free(tmp);
