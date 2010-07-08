@@ -91,6 +91,9 @@
 		<Unit filename="..\..\..\src\client\menu.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\client\updates.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\client\player.c">
 			<Option compilerVar="CC" />
 		</Unit>
