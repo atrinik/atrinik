@@ -176,6 +176,7 @@ extern int bmaptype_table_size;
 #define FILE_CLIENT_BMAPS "srv_files/client_bmap"
 #define FILE_CLIENT_ANIMS "srv_files/client_anims"
 #define FILE_CLIENT_HFILES "srv_files/help_files"
+#define FILE_UPDATES "srv_files/updates"
 
 enum
 {
@@ -185,6 +186,7 @@ enum
 	SRV_CLIENT_ANIMS,
 	SRV_CLIENT_BMAPS,
 	SRV_CLIENT_HFILES,
+	SRV_FILE_UPDATES,
 	/* last index */
 	SRV_CLIENT_FILES
 };
@@ -307,6 +309,7 @@ typedef struct _options
 	uint32 videoflags_full;
 	uint32 videoflags_win;
 	int reload_gfx_user;
+	int disable_updates;
 }_options;
 
 extern struct _options options;

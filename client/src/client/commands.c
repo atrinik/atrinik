@@ -223,6 +223,10 @@ void SetupCmd(char *buf, int len)
 		{
 			parse_srv_setup(param, cmd, SRV_CLIENT_HFILES);
 		}
+		else if (!strcmp(cmd, "upf"))
+		{
+			parse_srv_setup(param, cmd, SRV_FILE_UPDATES);
+		}
 		else if (!strcmp(cmd, "mapsize"))
 		{
 		}
@@ -1873,6 +1877,10 @@ void DataCmd(unsigned char *data, int len)
 
 		case SRV_CLIENT_HFILES:
 			save_data_cmd_file(FILE_CLIENT_HFILES, data, len);
+			break;
+
+		case SRV_FILE_UPDATES:
+			save_data_cmd_file(FILE_UPDATES, data, len);
 			break;
 
 		default:

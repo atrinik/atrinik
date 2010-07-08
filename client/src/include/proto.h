@@ -226,6 +226,12 @@ int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int
 int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
 SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 
+/* client/updates.c */
+void file_updates_init();
+void cmd_request_update(unsigned char *data, int len);
+int file_updates_finished();
+void file_updates_parse();
+
 /* client/wrapper.c */
 void LOG(int logLevel, char *format, ...);
 void SYSTEM_Start();

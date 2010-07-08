@@ -103,13 +103,18 @@ void show_login_server()
 
 	if (request_file_chain > 11)
 	{
-		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 92, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Updating client files from server...", x + 2, y + 92, COLOR_WHITE, NULL, NULL);
+	}
+
+	if (request_file_chain > 13)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 104, COLOR_WHITE, NULL, NULL);
 	}
 
 	/* Update progress bar of requested files */
 	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], x, y + (168 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->h - 5), NULL, NULL);
 
-	progress = MIN(100, request_file_chain * 9);
+	progress = MIN(100, request_file_chain * 8);
 	box.x = 0;
 	box.y = 0;
 	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
@@ -117,12 +122,12 @@ void show_login_server()
 	sprite_blt(Bitmaps[BITMAP_PROGRESS], x, y + (168 - Bitmaps[BITMAP_PROGRESS]->bitmap->h - 5), &box, NULL);
 
 	/* Login user part */
-	if (GameStatus == GAME_STATUS_REQUEST_FILES)
+	if (GameStatus == GAME_STATUS_REQUEST_FILES || !file_updates_finished())
 	{
 		return;
 	}
 
-	StringBlt(ScreenSurface, &SystemFont, "done.", x + 2, y + 104, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "done.", x + 2, y + 116, COLOR_WHITE, NULL, NULL);
 	y += 180;
 
 	StringBlt(ScreenSurface, &SystemFont, "Enter your name", x, y, COLOR_HGOLD, NULL, NULL);
