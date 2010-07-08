@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-09 Alex Tokar
+Modified: 2010-07-09 Kiana
 endmsg
 width 24
 height 24
@@ -2618,6 +2618,13 @@ x 17
 y 21
 end
 arch reed_sm10
+x 17
+y 21
+end
+arch sign
+msg
+To Promethia Island
+endmsg
 x 17
 y 21
 end
