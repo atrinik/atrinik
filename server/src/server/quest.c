@@ -67,7 +67,16 @@ void check_quest(object *op, object *quest_container)
 			remove_ob(tmp);
 			/* Now add it to the player. */
 			add_one_drop_quest_item(op, tmp, quest_container->name);
-			snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
+
+			if (QUERY_FLAG(tmp, FLAG_ONE_DROP))
+			{
+				snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
+			}
+			else
+			{
+				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(tmp, NULL));
+			}
+
 			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 			esrv_send_item(op, tmp);
@@ -142,7 +151,6 @@ static void add_one_drop_quest_item(object *op, object *quest_item, const char *
 	copy_object(quest_item, quest_item_tmp, 1);
 	/* Remove it from the active list. */
 	quest_item_tmp->speed = 0.0f;
-	update_ob_speed(quest_item_tmp);
 	/* Mark this quest as completed. */
 	quest_item_tmp->magic = QUEST_STATUS_COMPLETED;
 	/* Clear some flags the quest marker shouldn't have. */
