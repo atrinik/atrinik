@@ -641,7 +641,7 @@ static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
-	return wrap_object(current_context->event);
+	return wrap_object(current_context->other);
 }
 
 /**
