@@ -16,6 +16,12 @@ w c 2 si_194.png
 "in front of you, which then explode into cones of fire if they hit"
 "something."
 " "
+"firebolt"
+w d 2 si_020.png
+"A blast of fire is fired in straight line. Each part of it can hit enemies"
+"only once."
+" "
+" "
 "icestorm"
 w a 3 si_024.png
 "A cone of ice which freezes monsters facing the caster."
