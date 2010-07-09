@@ -130,14 +130,15 @@ def npc_talthor():
 
 	# Have we completed Maplevale's quest?
 	elif qm_m.completed():
-		if msg == "there are enemies under brynknot":
-			me.SayTo(activator, "\nWhat?! Tell me more about this.\n...\nI see. The passage you have discovered through the portal is actually a part of the Brynknot sewers, but it's been sealed off. It leads to a maze-like part of the sewers, dug out by monsters, and not by humans. But I don't know who is responsible for all of this. Would you go and try to kill their boss, whoever it is?\n\n^Okay^")
+		if not qm_t.started():
+			if msg == "there are enemies under brynknot":
+				me.SayTo(activator, "\nWhat?! Tell me more about this.\n...\nI see. The passage you have discovered through the portal is actually a part of the Brynknot sewers, but it's been sealed off. It leads to a maze-like part of the sewers, dug out by monsters, and not by humans. But I don't know who is responsible for all of this. Would you go and try to kill their boss, whoever it is?\n\n^Okay^")
 
-		elif msg == "okay":
-			me.SayTo(activator, "\nThe fate of our city rests upon you. Take this key, which will unlock the gate in the passage for you. Then kill whoever is responsible for the attack.")
-			give_key()
-			activator.Write("{0} hands you a key.".format(me.name), COLOR_GREEN)
-			qm_t.start()
+			elif msg == "okay":
+				me.SayTo(activator, "\nThe fate of our city rests upon you. Take this key, which will unlock the gate in the passage for you. Then kill whoever is responsible for the attack.")
+				give_key()
+				activator.Write("{0} hands you a key.".format(me.name), COLOR_GREEN)
+				qm_t.start()
 
 if me.name == "Maplevale":
 	npc_maplevale()
