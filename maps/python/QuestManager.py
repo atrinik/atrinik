@@ -45,6 +45,9 @@ class QuestManager:
 	## Check if the quest has been finished by checking the relevant
 	## values for different quest types.
 	def finished(self):
+		if not self.started():
+			return 0
+
 		# For the kill type quest check if we have killed enough
 		# monsters.
 		if self.quest["type"] == QUEST_TYPE_KILL:
