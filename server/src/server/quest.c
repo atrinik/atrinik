@@ -38,6 +38,7 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag);
  * it, this function is called to parse the quest container and its
  * contents for any possible quests player may be running.
  * @warning <b>ONLY</b> call on player objects.
+ * @todo Add support for multiple objects in quest_container's inventory?
  * @param op The player object.
  * @param quest_container The quest container. */
 void check_quest(object *op, object *quest_container)
@@ -52,6 +53,22 @@ void check_quest(object *op, object *quest_container)
 	}
 
 	tmp = quest_container->inv;
+
+	/* Check for events in this quest container. */
+	if (HAS_EVENT(quest_container, EVENT_TRIGGER))
+	{
+		/* Advance through the quest object's inventory, skipping the
+		 * event object. */
+		if (tmp->type == EVENT_OBJECT)
+		{
+			tmp = tmp->below;
+		}
+
+		if (trigger_event(EVENT_TRIGGER, op, quest_container, tmp, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+		{
+			return;
+		}
+	}
 
 	/* This allows new quest types to be added fairly easily. */
 	switch (quest_container->sub_type)
