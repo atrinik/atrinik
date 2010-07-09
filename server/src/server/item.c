@@ -1552,7 +1552,6 @@ void identify(object *op)
 	}
 
 	SET_FLAG(op, FLAG_IDENTIFIED);
-	CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT);
 
 	if (op->type == POTION && op->arch != (archetype *) NULL)
 	{
