@@ -138,16 +138,15 @@ typedef signed char sint8;
 /** The log levels. */
 typedef enum LogLevel
 {
-	/** A message. */
-	llevMsg,
-	/** An error. */
+	/** An irrecoverable error. */
 	llevError,
+	/** Bug report. */
+	llevBug,
 	/** Debugging message. */
-	llevDebug
+	llevDebug,
+	/** Information. */
+	llevInfo
 } LogLevel;
-
-/** Default log level. */
-#define LOGLEVEL llevDebug
 
 #include <signal.h>
 #include <curl/curl.h>

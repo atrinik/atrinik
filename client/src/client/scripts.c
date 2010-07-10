@@ -221,7 +221,7 @@ void script_load(const char *cparams)
 
 	if (fcntl(pipe[1], F_SETFL, O_NDELAY) == -1)
 	{
-		LOG(llevDebug, "DEBUG: Error on fcntl.");
+		LOG(llevDebug, "Error on fcntl.\n");
 	}
 #else
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -386,7 +386,7 @@ void script_process()
 
 		if ((pollret = select(scripts[i].in_fd + 1, &tmp_read, NULL, NULL, &timeout)) == -1)
 		{
-			LOG(llevMsg, "Got errno %d on select call: %s.\n", errno, strerror(errno));
+			LOG(llevDebug, "Got errno %d on select call: %s.\n", errno, strerror(errno));
 		}
 
 		if (FD_ISSET(scripts[i].in_fd, &tmp_read))
@@ -490,7 +490,7 @@ static void script_process_cmd(int i)
 		/* No color specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Draw command did not have color specified.\n");
+			LOG(llevBug, "script_process_cmd(): Draw command did not have color specified.\n");
 			return;
 		}
 
@@ -504,7 +504,7 @@ static void script_process_cmd(int i)
 		/* No message specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Draw command did not have message set.\n");
+			LOG(llevBug, "script_process_cmd(): Draw command did not have message set.\n");
 			return;
 		}
 
@@ -529,7 +529,7 @@ static void script_process_cmd(int i)
 		/* No log level specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Log command did not have log level set.\n");
+			LOG(llevBug, "script_process_cmd(): Log command did not have log level set.\n");
 			return;
 		}
 
@@ -543,7 +543,7 @@ static void script_process_cmd(int i)
 		/* No log message specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Log command did not have log message set.\n");
+			LOG(llevBug, "script_process_cmd(): Log command did not have log message set.\n");
 			return;
 		}
 
@@ -1188,7 +1188,7 @@ void script_autoload()
 
 	if (!(fp = fopen_wrapper(SCRIPTS_AUTOLOAD, "r+")))
 	{
-		LOG(llevMsg, "Can't find file %s. Will not load any scripts.\n", SCRIPTS_AUTOLOAD);
+		LOG(llevInfo, "Can't find file %s. Will not load any scripts.\n", SCRIPTS_AUTOLOAD);
 		return;
 	}
 

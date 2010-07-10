@@ -266,7 +266,7 @@ static int metaserver_connect(const char *metaserver_url)
 
 		if (res)
 		{
-			LOG(llevDebug, "DEBUG: metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
+			LOG(llevBug, "metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
 		}
 
 		/* Always cleanup */
@@ -351,6 +351,6 @@ void metaserver_get_servers()
 
 	if (!thread)
 	{
-		LOG(llevError, "ERROR: Thread creation failed.\n");
+		LOG(llevError, "metaserver_get_servers(): Thread creation failed.\n");
 	}
 }

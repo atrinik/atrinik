@@ -209,7 +209,7 @@ static int reader_thread_loop(void *dummy)
 	int cmd_len = -1;
 
 	(void) dummy;
-	LOG(llevDebug, "Reader thread started.\n");
+	LOG(llevInfo, "Reader thread started.\n");
 
 	if (!readbuf)
 	{
@@ -275,16 +275,16 @@ static int reader_thread_loop(void *dummy)
 		/* End of file */
 		if (ret == 0)
 		{
-			LOG(llevDebug, "Reader thread got EOF trying to read %d bytes.\n", toread);
+			LOG(llevInfo, "Reader thread got EOF trying to read %d bytes.\n", toread);
 			break;
 		}
 		else if (ret == -1)
 		{
 			/* IO error */
 #ifdef WIN32
-			LOG(llevDebug, "Reader thread got error %d\n", WSAGetLastError());
+			LOG(llevInfo, "Reader thread got error %d\n", WSAGetLastError());
 #else
-			LOG(llevDebug, "Reader thread got error %d: %s\n", errno, strerror(errno));
+			LOG(llevInfo, "Reader thread got error %d: %s\n", errno, strerror(errno));
 #endif
 			break;
 		}
@@ -317,7 +317,7 @@ static int reader_thread_loop(void *dummy)
 	socket_close(&csocket);
 	free(readbuf);
 	readbuf = NULL;
-	LOG(llevDebug, "Reader thread stopped.\n");
+	LOG(llevInfo, "Reader thread stopped.\n");
 	return -1;
 }
 
@@ -332,7 +332,7 @@ static int writer_thread_loop(void *dummy)
 	command_buffer *buf = NULL;
 
 	(void) dummy;
-	LOG(llevDebug, "Writer thread started.\n");
+	LOG(llevInfo, "Writer thread started.\n");
 
 	while (!abort_thread)
 	{
@@ -354,16 +354,16 @@ static int writer_thread_loop(void *dummy)
 
 			if (ret == 0)
 			{
-				LOG(llevDebug, "Writer thread got EOF.\n");
+				LOG(llevInfo, "Writer thread got EOF.\n");
 				break;
 			}
 			else if (ret == -1)
 			{
 				/* IO error */
 #ifdef WIN32
-				LOG(llevDebug, "Writer thread got error %d\n", WSAGetLastError());
+				LOG(llevInfo, "Writer thread got error %d\n", WSAGetLastError());
 #else
-				LOG(llevDebug, "Writer thread got error %d: %s\n", errno, strerror(errno));
+				LOG(llevInfo, "Writer thread got error %d: %s\n", errno, strerror(errno));
 #endif
 				break;
 			}
@@ -386,7 +386,7 @@ static int writer_thread_loop(void *dummy)
 	}
 
 	socket_close(&csocket);
-	LOG(llevDebug, "Writer thread stopped.\n");
+	LOG(llevInfo, "Writer thread stopped.\n");
 	return 0;
 }
 
@@ -394,7 +394,7 @@ static int writer_thread_loop(void *dummy)
  * Initialize and start up the worker threads. */
 void socket_thread_start()
 {
-	LOG(llevMsg, "Starting socket threads.\n");
+	LOG(llevInfo, "Starting socket threads.\n");
 
 	if (input_buffer_cond == NULL)
 	{
@@ -427,7 +427,7 @@ void socket_thread_start()
  * Closes the socket first, if it hasn't already been done. */
 void socket_thread_stop()
 {
-	LOG(llevMsg, "Stopping socket threads.\n");
+	LOG(llevInfo, "Stopping socket threads.\n");
 
 	socket_close(&csocket);
 
@@ -461,7 +461,7 @@ int handle_socket_shutdown()
 			command_buffer_free(command_buffer_dequeue(&output_queue_start, &output_queue_end));
 		}
 
-		LOG(llevDebug, "Connection lost.\n");
+		LOG(llevInfo, "Connection lost.\n");
 		return 1;
 	}
 
@@ -546,13 +546,13 @@ int socket_initialize()
 
 			if (error)
 			{
-				LOG(llevError, "ERROR: socket_initialize(): Error initializing WinSock: %d.\n", error);
+				LOG(llevBug, "socket_initialize(): Error initializing WinSock: %d.\n", error);
 				return(0);
 			}
 		}
 	}
 
-	LOG(llevMsg, "Using socket version %x.\n", w.wVersion);
+	LOG(llevInfo, "Using socket version %x.\n", w.wVersion);
 #endif
 	return 1;
 }
@@ -596,7 +596,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	if (!protox)
 	{
-		LOG(llevError, "Error getting prorobyname (tcp)\n");
+		LOG(llevBug, "Error getting protobyname (tcp)\n");
 		return 0;
 	}
 
@@ -621,7 +621,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 		if (!hostbn)
 		{
-			LOG(llevMsg, "Unknown host: %s\n", host);
+			LOG(llevBug, "Unknown host: %s\n", host);
 			return 0;
 		}
 
@@ -633,7 +633,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
 	{
-		LOG(llevError, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+		LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
 		*fd = SOCKET_NO;
 		return 0;
 	}
@@ -656,7 +656,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	/* Set back to blocking. */
 	if (fcntl(*fd, F_SETFL, flags) == -1)
 	{
-		LOG(llevError, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+		LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
 		*fd = SOCKET_NO;
 		return 0;
 	}
@@ -692,7 +692,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 		if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
 		{
-			LOG(llevError, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+			LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
 			*fd = SOCKET_NO;
 			return 0;
 		}
@@ -715,7 +715,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 		/* Set back to blocking. */
 		if (*fd != SOCKET_NO && fcntl(*fd, F_SETFL, flags) == -1)
 		{
-			LOG(llevError, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+			LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
 			*fd = SOCKET_NO;
 			return 0;
 		}
@@ -730,7 +730,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	if (*fd == SOCKET_NO)
 	{
-		perror("Can't connect to server.");
+		LOG(llevBug, "Can't connect to server.\n");
 		return 0;
 	}
 #endif
@@ -740,7 +740,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	if (setsockopt(*fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevError, "Error: Error on setsockopt LINGER\n");
+		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
 
 	if (getsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)
@@ -752,7 +752,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	{
 		if (setsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize)))
 		{
-			LOG(llevDebug, "socket_create(): setsockopt unable to set output buf size to %d\n", newbufsize);
+			LOG(llevBug, "socket_create(): setsockopt unable to set output buf size to %d\n", newbufsize);
 			setsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
 		}
 	}
@@ -787,7 +787,7 @@ int socket_create(SOCKET *fd, char *host, int port)
 
 		if (!hostbn)
 		{
-			LOG(llevError, "Unknown host: %s\n", host);
+			LOG(llevDebug, "Unknown host: %s\n", host);
 			*fd = SOCKET_NO;
 			return 0;
 		}
@@ -800,7 +800,7 @@ int socket_create(SOCKET *fd, char *host, int port)
 	/* Set non-blocking */
 	if (ioctlsocket(*fd, FIONBIO, &temp) == -1)
 	{
-		LOG(llevError, "ERROR: ioctlsocket(*fd, FIONBIO, &temp)\n");
+		LOG(llevBug, "ioctlsocket(*fd, FIONBIO, &temp)\n");
 		*fd = SOCKET_NO;
 		return 0;
 	}
@@ -810,7 +810,7 @@ int socket_create(SOCKET *fd, char *host, int port)
 
 	if (setsockopt(*fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevError, "ERROR: Error on setsockopt LINGER\n");
+		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
 
 	error = 0;
@@ -840,7 +840,7 @@ int socket_create(SOCKET *fd, char *host, int port)
 			continue;
 		}
 
-		LOG(llevMsg, "Connect error: %d\n", SocketStatusErrorNr);
+		LOG(llevBug, "Connect error: %d\n", SocketStatusErrorNr);
 		*fd = SOCKET_NO;
 		return 0;
 	}
@@ -850,7 +850,7 @@ int socket_create(SOCKET *fd, char *host, int port)
 	/* Set back to blocking. */
 	if (ioctlsocket(*fd, FIONBIO, &temp) == -1)
 	{
-		LOG(llevError, "ERROR: ioctlsocket(*fd, FIONBIO, &temp == 0)\n");
+		LOG(llevBug, "ioctlsocket(*fd, FIONBIO, &temp == 0)\n");
 		*fd = SOCKET_NO;
 		return 0;
 	}
@@ -882,18 +882,18 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 {
 	int tmp = 1;
 
-	printf("Connecting to %s:%d...\n", host, port);
+	LOG(llevInfo, "Connecting to %s:%d...\n", host, port);
 
 	if (!socket_create(&csock->fd, host, port))
 	{
 		return 0;
 	}
 
-	LOG(llevMsg, "Connected to %s:%d\n", host, port);
+	LOG(llevInfo, "Connected to %s:%d\n", host, port);
 
 	if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevError, "ERROR: setsockopt(TCP_NODELAY) failed\n");
+		LOG(llevBug, "setsockopt(TCP_NODELAY) failed\n");
 	}
 
 	return 1;

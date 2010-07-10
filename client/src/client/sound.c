@@ -98,7 +98,7 @@ static void sound_free(sound_data_struct *tmp)
 			break;
 
 		default:
-			LOG(llevMsg, "BUG: sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
+			LOG(llevBug, "sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
 			return;
 	}
 
@@ -115,9 +115,7 @@ void sound_init()
 
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
-		LOG(llevError, "ERROR: sound_init(): Couldn't set sound device. Reason: %s\n", SDL_GetError());
-		SYSTEM_End();
-		exit(0);
+		LOG(llevError, "sound_init(): Couldn't set sound device. Reason: %s\n", SDL_GetError());
 	}
 }
 
@@ -158,7 +156,7 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 
 		if (!chunk)
 		{
-			LOG(llevError, "ERROR: sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
+			LOG(llevBug, "sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
 			return;
 		}
 
@@ -228,7 +226,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 		if (!music)
 		{
-			LOG(llevError, "ERROR: sound_add_effect(): Could not load '%s'. Reason: %s.\n", path, Mix_GetError());
+			LOG(llevBug, "sound_start_bg_music(): Could not load '%s'. Reason: %s.\n", path, Mix_GetError());
 			return;
 		}
 
@@ -271,7 +269,7 @@ void parse_map_bg_music(const char *bg_music)
 
 	if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
 	{
-		LOG(llevMsg, "BUG: parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+		LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
 		return;
 	}
 
@@ -337,7 +335,7 @@ void SoundCmd(uint8 *data, int len)
 	}
 	else
 	{
-		LOG(llevError, "ERROR: SoundCmd(): Invalid sound type: %d\n", type);
+		LOG(llevBug, "SoundCmd(): Invalid sound type: %d\n", type);
 		return;
 	}
 }

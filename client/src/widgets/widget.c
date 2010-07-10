@@ -193,7 +193,7 @@ void init_widgets_fromCurrent()
 	if (!load_interface_file(INTERFACE_FILE))
 	{
 		/* Inform user */
-		LOG(llevMsg, "Can't open/load the interface file - %s. Resetting\n", INTERFACE_FILE);
+		LOG(llevInfo, "Can't open/load the interface file - %s. Resetting\n", INTERFACE_FILE);
 
 		/* Load the defaults - this also allocates priority list */
 		init_widgets_fromDefault();
@@ -578,7 +578,7 @@ widgetdata *create_widget(int widget_id)
 	static int widget_uid = 0; /* our unique widget count variable */
 
 #ifdef DEBUG_WIDGET
-	LOG(llevMsg, "Entering create_widget()..\n");
+	LOG(llevInfo, "Entering create_widget()..\n");
 #endif
 
 	/* allocate it */
@@ -629,7 +629,7 @@ widgetdata *create_widget(int widget_id)
 #ifdef DEBUG_WIDGET
 	debug_count_nodes(1);
 
-	LOG(llevMsg, "..create_widget(): Done.\n");
+	LOG(llevInfo, "..create_widget(): Done.\n");
 #endif
 
 	return node;
@@ -641,7 +641,7 @@ void remove_widget(widgetdata *widget)
 	widgetdata *tmp = NULL;
 
 #ifdef DEBUG_WIDGET
-	LOG(llevMsg, "Entering remove_widget()..\n");
+	LOG(llevInfo, "Entering remove_widget()..\n");
 #endif
 
 	/* node to delete is the only node in the tree, bye-bye binary tree :) */
@@ -742,7 +742,7 @@ void remove_widget(widgetdata *widget)
 
 #ifdef DEBUG_WIDGET
 	debug_count_nodes(1);
-	LOG(llevMsg, "..remove_widget(): Done.\n");
+	LOG(llevInfo, "..remove_widget(): Done.\n");
 #endif
 }
 
@@ -818,10 +818,10 @@ int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
             /* a way of representing graphically how many levels down we are */
             for (tmp = 0; tmp < j; ++ tmp)
 			{
-                LOG(llevDebug, "..");
+                printf("..");
 			}
 
-            LOG(llevMsg, "..%s, WidgetObjID: %d\n", widget->name, widget->WidgetObjID);
+            LOG(llevInfo, "..%s, WidgetObjID: %d\n", widget->name, widget->WidgetObjID);
         }
 
 	    ++i;
@@ -844,14 +844,14 @@ void debug_count_nodes(int output)
 {
     int i = 0;
 
-    LOG(llevMsg, "Output of widget nodes:\n");
-    LOG(llevMsg, "========================================\n");
+    LOG(llevInfo, "Output of widget nodes:\n");
+    LOG(llevInfo, "========================================\n");
     if (widget_list_head)
 	{
         i = debug_count_nodes_rec(widget_list_head, 0, 0, output);
 	}
-    LOG(llevMsg, "========================================\n");
-    LOG(llevMsg, "..Total widget nodes: %d\n", i);
+    LOG(llevInfo, "========================================\n");
+    LOG(llevInfo, "..Total widget nodes: %d\n", i);
 }
 #endif
 
@@ -874,7 +874,7 @@ static int load_interface_file(char *filename)
 	if (!(stream = fopen_wrapper(filename, "r")))
 	{
 		/* Inform user */
-		LOG(llevMsg, "load_interface_file(): Can't find file %s.\n", filename);
+		LOG(llevInfo, "load_interface_file(): Can't find file %s.\n", filename);
 		return 0;
 	}
 
@@ -904,7 +904,7 @@ static int load_interface_file(char *filename)
 		/* Beginning */
 		if (strncmp(keyword, "Widget:", 7) == 0)
 		{
-			LOG(llevDebug, "..Trying to find \"Widget: %s\"", parameter);
+			LOG(llevDebug, "..Trying to find \"Widget: %s\"\n", parameter);
 
 			pos = 0;
 
@@ -926,7 +926,7 @@ static int load_interface_file(char *filename)
 				if (!found_widget[pos])
 				{
 #ifdef DEBUG_WIDGET
-					LOG(llevMsg, "Found! (Index = %d) (%d widgets total)\n", pos, TOTAL_SUBWIDGETS);
+					LOG(llevInfo, "Found! (Index = %d) (%d widgets total)\n", pos, TOTAL_SUBWIDGETS);
 #endif
 					found_widget[pos] = 1;
 				}

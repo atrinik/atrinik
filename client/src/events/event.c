@@ -98,7 +98,6 @@ int Event_PollInputDevice()
 				if ((ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags)) == NULL)
 				{
 					LOG(llevError, "Unable to grab surface after resize event: %s\n", SDL_GetError());
-					exit(2);
 				}
 
 				resize_window(event.resize.w, event.resize.h);

@@ -613,17 +613,16 @@ void check_menu_keys(int menu, int key)
 
 							if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
 							{
-								/* We have a problem, not supportet screensize */
+								/* We have a problem, not supported screensize */
 								/* If we have higher resolution we try the default 800x600 */
 								if (Screensize->x > 800 && Screensize->y > 600)
 								{
-									LOG(llevError, "Try to set to default 800x600...\n");
+									LOG(llevInfo, "Try to set to default 800x600...\n");
 
 									if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
 									{
 										/* Now we have a really really big problem */
 										LOG(llevError, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
-										exit(2);
 									}
 									else
 									{

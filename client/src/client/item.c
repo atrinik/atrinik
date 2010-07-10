@@ -142,8 +142,7 @@ static item *new_item()
 
 	if (!op)
 	{
-		LOG(llevError, "ERROR: new_item(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "new_item(): Out of memory.\n");
 	}
 
 	op->next = op->prev = NULL;

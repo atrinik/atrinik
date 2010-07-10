@@ -61,7 +61,7 @@ void load_settings()
 	int tmp_level = 0;
 
 	delete_server_chars();
-	LOG(llevDebug, "Loading %s...\n", FILE_CLIENT_SETTINGS);
+	LOG(llevInfo, "Loading %s...\n", FILE_CLIENT_SETTINGS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
 	{
@@ -162,7 +162,7 @@ void load_settings()
 					if (tmp_level < 0 || tmp_level > 450)
 					{
 						fclose(stream);
-						LOG(llevError, "ERROR: load_settings(): Level command out of bounds! >%s<\n", buf);
+						LOG(llevBug, "load_settings(): Level command out of bounds! >%s<\n", buf);
 						return;
 					}
 
@@ -175,7 +175,7 @@ void load_settings()
 				else
 				{
 					fclose(stream);
-					LOG(llevError, "ERROR: Unknown command in client_settings! >%s<\n", buf);
+					LOG(llevBug, "Unknown command in client_settings! >%s<\n", buf);
 					return;
 				}
 			}
@@ -221,7 +221,7 @@ void read_settings()
 
 	srv_client_files[SRV_CLIENT_SETTINGS].len = 0;
 	srv_client_files[SRV_CLIENT_SETTINGS].crc = 0;
-	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SETTINGS);
+	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_SETTINGS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
 	{
@@ -236,10 +236,7 @@ void read_settings()
 
 		free(temp_buf);
 		fclose(stream);
-		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc);
 	}
-
-	LOG(llevDebug, " Done.\n");
 }
 
 /**

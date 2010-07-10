@@ -47,7 +47,7 @@ void file_updates_init()
 	srv_client_files[SRV_FILE_UPDATES].len = 0;
 	srv_client_files[SRV_FILE_UPDATES].crc = 0;
 
-	LOG(llevDebug, "Reading %s...\n", FILE_UPDATES);
+	LOG(llevInfo, "Reading %s...\n", FILE_UPDATES);
 	fp = fopen_wrapper(FILE_UPDATES, "rb");
 
 	if (!fp)
@@ -121,14 +121,14 @@ void cmd_request_update(unsigned char *data, int len)
 
 	if (!fp)
 	{
-		LOG(llevError, "ERROR: Could not open file '%s' for writing.\n", filename);
+		LOG(llevBug, "Could not open file '%s' for writing.\n", filename);
 		return;
 	}
 
 	/* Update the file. */
 	fwrite(data, 1, len, fp);
 	fclose(fp);
-	LOG(llevMsg, "Updated file '%s'.\n", filename);
+	LOG(llevInfo, "Updated file '%s'.\n", filename);
 }
 
 /**

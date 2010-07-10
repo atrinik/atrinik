@@ -74,7 +74,7 @@ _Sprite *sprite_load_file(char *fname, uint32 flags)
 
 	if (sprite == NULL)
 	{
-		LOG(llevError, "ERROR: sprite_load_file(): Can't load sprite %s\n", fname);
+		LOG(llevBug, "sprite_load_file(): Can't load sprite %s\n", fname);
 		return NULL;
 	}
 
@@ -1136,7 +1136,7 @@ void play_anims()
 					break;
 
 				default:
-					LOG(llevError, "WARNING: Unknown animation type\n");
+					LOG(llevBug, "Unknown animation type\n");
 					break;
 			}
 		}
@@ -1344,14 +1344,12 @@ static void zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst)
 	/* Allocate memory for row increments. */
 	if (!(sax = (Uint32 *) malloc(dst->w * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceY(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceY(): Out of memory.\n");
 	}
 
 	if (!(say = (Uint32 *) malloc(dst->h * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceY(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceY(): Out of memory.\n");
 	}
 
 	/* Precalculate row increments */
@@ -1457,14 +1455,12 @@ static void zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int
 
 	if (!(sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceRGBA(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceRGBA(): Out of memory.\n");
 	}
 
 	if (!(say = (int *) malloc((dst->h + 1) * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceRGBA(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceRGBA(): Out of memory.\n");
 	}
 
 	/* Precalculate row increments */

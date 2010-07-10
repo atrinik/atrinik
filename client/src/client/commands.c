@@ -104,7 +104,7 @@ static void parse_srv_setup(char *param, const char *command, int type)
 {
 	if (!strcmp(param, "FALSE"))
 	{
-		LOG(llevMsg, "Get %s:: %s\n", command, param);
+		LOG(llevInfo, "Get %s:: %s\n", command, param);
 	}
 	else if (strcmp(param, "OK"))
 	{
@@ -136,7 +136,7 @@ void SetupCmd(char *buf, int len)
 	char *cmd, *param;
 
 	scrolldy = scrolldx = 0;
-	LOG(llevMsg, "Get SetupCmd:: %s\n", buf);
+	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
 
 	for (s = 0; ;)
 	{
@@ -241,7 +241,7 @@ void SetupCmd(char *buf, int len)
 		}
 		else
 		{
-			LOG(llevError, "Got setup for a command we don't understand: %s %s\n", cmd, param);
+			LOG(llevBug, "Got setup for a command we don't understand: %s %s\n", cmd, param);
 		}
 	}
 
@@ -257,7 +257,7 @@ void AddMeFail(unsigned char *data, int len)
 	(void) data;
 	(void) len;
 
-	LOG(llevMsg, "addme_failed received.\n");
+	LOG(llevInfo, "addme_failed received.\n");
 	GameStatus = GAME_STATUS_START;
 
 	/* Add here error handling */
@@ -272,7 +272,7 @@ void AddMeSuccess(unsigned char *data, int len)
 	(void) data;
 	(void) len;
 
-	LOG(llevMsg, "addme_success received.\n");
+	LOG(llevInfo, "addme_success received.\n");
 	return;
 }
 
@@ -318,10 +318,6 @@ void AnimCmd(unsigned char *data, int len)
 
 	if (j != animations[anum].num_animations)
 		LOG(llevDebug, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
-
-#if 0
-	LOG(llevMsg, "Received animation %d, %d facings and %d faces\n", anum, animations[anum].facings, animations[anum].num_animations);
-#endif
 }
 
 /**
@@ -339,13 +335,13 @@ void ImageCmd(unsigned char *data, int len)
 
 	if (len < 8 || (len - 8) != plen)
 	{
-		LOG(llevError, "PixMapCmd: Lengths don't compare (%d, %d)\n", (len - 8), plen);
+		LOG(llevBug, "ImageCmd(): Lengths don't compare (%d, %d)\n", (len - 8), plen);
 		return;
 	}
 
 	/* Save picture to cache and load it to FaceList */
 	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
-	LOG(llevDebug, "ImageFromServer: %s\n", FaceList[pnum].name);
+	LOG(llevInfo, "ImageFromServer: %s\n", FaceList[pnum].name);
 
 	if ((stream = fopen_wrapper(buf, "wb+")) != NULL)
 	{
@@ -403,7 +399,7 @@ void DrawInfoCmd(unsigned char *data)
 
 	if (!buf)
 	{
-		LOG(llevError, "DrawInfoCmd - got no data\n");
+		LOG(llevBug, "DrawInfoCmd - got no data\n");
 		buf = "";
 	}
 	else
@@ -914,7 +910,7 @@ void PreParseInfoStat(char *cmd)
 	/* Find input name */
 	if (strstr(cmd, "What is your name?"))
 	{
-		LOG(llevMsg, "Login: Enter name\n");
+		LOG(llevInfo, "Login: Enter name\n");
 		cpl.name[0] = 0;
 		cpl.password[0] = 0;
 		GameStatus = GAME_STATUS_NAME;
@@ -922,13 +918,13 @@ void PreParseInfoStat(char *cmd)
 
 	if (strstr(cmd, "What is your password?"))
 	{
-		LOG(llevMsg, "Login: Enter password\n");
+		LOG(llevInfo, "Login: Enter password\n");
 		GameStatus = GAME_STATUS_PSWD;
 	}
 
 	if (strstr(cmd, "Please type your password again."))
 	{
-		LOG(llevMsg, "Login: Enter verify password\n");
+		LOG(llevInfo, "Login: Enter verify password\n");
 		GameStatus = GAME_STATUS_VERIFYPSWD;
 	}
 
@@ -953,7 +949,7 @@ void handle_query(char *data)
 		while ((buf = strchr(buf, '\n')) != NULL)
 		{
 			*buf++ = '\0';
-			LOG(llevMsg, "Received query string: %s\n", cp);
+			LOG(llevInfo, "Received query string: %s\n", cp);
 			PreParseInfoStat(cp);
 			cp = buf;
 		}
@@ -1025,10 +1021,6 @@ void ItemXCmd(unsigned char *data, int len)
 	dmode = GetInt_String(data);
 	pos += 4;
 
-#if 0
-	LOG(-1, "ITEMX:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");
-#endif
-
 	loc = GetInt_String(data+pos);
 
 	if (dmode >= 0)
@@ -1063,7 +1055,7 @@ void ItemXCmd(unsigned char *data, int len)
 
 	if (pos == len && loc != -1)
 	{
-		LOG(llevError, "ItemCmd: Got location with no other data\n");
+		LOG(llevBug, "ItemXCmd(): Got location with no other data\n");
 	}
 	else
 	{
@@ -1103,7 +1095,7 @@ void ItemXCmd(unsigned char *data, int len)
 		}
 
 		if (pos > len)
-			LOG(llevError, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
+			LOG(llevBug, "ItemXCmd(): Overread buffer: %d > %d\n", pos, len);
 	}
 
 	map_udate_flag = 2;
@@ -1125,10 +1117,6 @@ void ItemYCmd(unsigned char *data, int len)
 
 	dmode = GetInt_String(data);
 	pos += 4;
-
-#if 0
-	LOG(-1, "ITEMY:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");
-#endif
 
 	loc = GetInt_String(data + pos);
 
@@ -1166,7 +1154,6 @@ void ItemYCmd(unsigned char *data, int len)
 	if (pos == len && loc != -1)
 	{
 		/* server sends no clean command to clear below window */
-		/*LOG(llevError, "ItemCmd: Got location with no other data\n");*/
 	}
 	else
 	{
@@ -1206,7 +1193,7 @@ void ItemYCmd(unsigned char *data, int len)
 		}
 
 		if (pos > len)
-			LOG(llevError, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
+			LOG(llevBug, "ItemYCmd(): Overread buffer: %d > %d\n", pos, len);
 	}
 
 	map_udate_flag = 2;
@@ -1238,7 +1225,6 @@ void UpdateItemCmd(unsigned char *data, int len)
 
 	*name = '\0';
 	loc = ip->env ? ip->env->tag : 0;
-	/*LOG(-1, "UPDATE: loc:%d tag:%d\n", loc, tag); */
 	weight = (int)(ip->weight * 1000);
 	face = ip->face;
 	request_face(face, 0);
@@ -1620,10 +1606,6 @@ void SkilllistCmd(char *data)
 	sint64 e;
 	char name[256];
 
-#if 0
-	LOG(-1,"sklist: %s\n", data);
-#endif
-
 	/* We grab our mode */
 	mode = atoi(data);
 
@@ -1649,10 +1631,6 @@ void SkilllistCmd(char *data)
 		else
 			strcpy(name, data);
 
-#if 0
-		LOG(-1, "sname (%d): >%s<\n", mode, name);
-#endif
-
 		tmp3 = strchr(name, '|');
 		*tmp3 = 0;
 		tmp4 = strchr(tmp3 + 1, '|');
@@ -1671,9 +1649,6 @@ void SkilllistCmd(char *data)
 					/* And it is the one we searched for? */
 					if (!strcmp(skill_list[ii].entry[i].name, name))
 					{
-#if 0
-						LOG(-1, "skill found (%d): >%s< %d | %d\n", mode, name, l, e);
-#endif
 						/* Remove? */
 						if (mode == SPLIST_MODE_REMOVE)
 							skill_list[ii].entry[i].flag = LIST_ENTRY_USED;
@@ -1764,10 +1739,6 @@ void GolemCmd(unsigned char *data)
 	int mode, face;
 	char *tmp, buf[256];
 
-#if 0
-	LOG(llevDebug, "golem: <%s>\n", data);
-#endif
-
 	/* We grab our mode */
 	mode = atoi((char *)data);
 
@@ -1812,12 +1783,12 @@ static void save_data_cmd_file(char *path, unsigned char *data, int len)
 	if ((stream = fopen_wrapper(path, "wb")) != NULL)
 	{
 		if (fwrite(data, 1, len, stream) != (size_t) len)
-			LOG(llevError, "ERROR: save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
+			LOG(llevBug, "save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
 
 		fclose(stream);
 	}
 	else
-		LOG(llevError, "ERROR: save_data_cmd_file(): Can't open %s for writing. (len: %d)\n", path, len);
+		LOG(llevBug, "save_data_cmd_file(): Can't open %s for writing. (len: %d)\n", path, len);
 }
 
 /**
@@ -1847,7 +1818,7 @@ void DataCmd(unsigned char *data, int len)
 	/* Allocate large enough buffer to hold the uncompressed file. */
 	dest = malloc(len_ucomp);
 
-	LOG(llevDebug, "DEBUG: DataCmd(): Uncompressing file #%d (len: %d, uncompressed len: %d)\n", data_type, len, len_ucomp);
+	LOG(llevInfo, "DataCmd(): Uncompressing file #%d (len: %d, uncompressed len: %d)\n", data_type, len, len_ucomp);
 	uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data, (uLong) len);
 	data = dest;
 	len = len_ucomp;
@@ -1884,7 +1855,7 @@ void DataCmd(unsigned char *data, int len)
 			break;
 
 		default:
-			LOG(llevError, "ERROR: DataCmd(): Unknown data type %d\n", data_type);
+			LOG(llevBug, "DataCmd(): Unknown data type %d\n", data_type);
 	}
 
 	free(dest);
@@ -2021,7 +1992,7 @@ void ShopCmd(unsigned char *data, int len)
 
 		if (pos > len)
 		{
-			LOG(llevError, "ERROR: ShopCmd(): Overread buffer: %d > %d\n", pos, len);
+			LOG(llevBug, "ShopCmd(): Overread buffer: %d > %d\n", pos, len);
 		}
 	}
 }

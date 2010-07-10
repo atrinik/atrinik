@@ -66,7 +66,7 @@ void read_help_files()
 	srv_client_files[SRV_CLIENT_HFILES].len = 0;
 	srv_client_files[SRV_CLIENT_HFILES].crc = 0;
 
-	LOG(llevDebug, "Reading %s...", FILE_CLIENT_HFILES);
+	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_HFILES);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_HFILES, "rb")) != NULL)
 	{
@@ -143,10 +143,7 @@ void read_help_files()
 		}
 
 		fclose(stream);
-		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc);
 	}
-
-	LOG(llevDebug, " Done.\n");
 }
 
 /**

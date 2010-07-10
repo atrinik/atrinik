@@ -233,7 +233,7 @@ int file_updates_finished();
 void file_updates_parse();
 
 /* client/wrapper.c */
-void LOG(int logLevel, char *format, ...);
+void LOG(LogLevel logLevel, char *format, ...);
 void SYSTEM_Start();
 int SYSTEM_End();
 char *GetBitmapDirectory();

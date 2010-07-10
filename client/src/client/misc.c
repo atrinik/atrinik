@@ -104,7 +104,7 @@ void add_bmap(_bmaptype *at)
 	{
 		if (bmap_table[index] && !strcmp(bmap_table[index]->name, at->name))
 		{
-			LOG(llevError, "ERROR: add_bmap(): Double use of bmap name %s\n", at->name);
+			LOG(llevBug, "add_bmap(): Double use of bmap name %s\n", at->name);
 		}
 
 		if (bmap_table[index] == NULL)
@@ -120,7 +120,7 @@ void add_bmap(_bmaptype *at)
 
 		if (index == org_index)
 		{
-			LOG(llevError, "ERROR: add_bmap(): bmaptable too small for %s\n", at->name);
+			LOG(llevBug, "add_bmap(): bmaptable too small for %s\n", at->name);
 			return;
 		}
 	}

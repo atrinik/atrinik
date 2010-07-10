@@ -258,7 +258,7 @@ void read_skills()
 
 	srv_client_files[SRV_CLIENT_SKILLS].len = 0;
 	srv_client_files[SRV_CLIENT_SKILLS].crc = 0;
-	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SKILLS);
+	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_SKILLS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SKILLS, "rb")) != NULL)
 	{
@@ -342,8 +342,5 @@ void read_skills()
 		}
 
 		fclose(stream);
-		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc);
 	}
-
-	LOG(llevDebug, " Done.\n");
 }

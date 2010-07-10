@@ -46,11 +46,8 @@ static void load_bmaps_p0()
 	/* Try to open bmaps_p0 file */
 	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "rb")) == NULL)
 	{
-		LOG(llevError, "ERROR: Error loading bmaps.p0!\n");
-		/* Fatal */
-		SYSTEM_End();
 		unlink(FILE_BMAPS_P0);
-		exit(0);
+		LOG(llevError, "Error loading bmaps.p0!\n");
 	}
 
 	while (fgets(buf, HUGE_BUF - 1, fbmap) != NULL)
@@ -65,9 +62,6 @@ static void load_bmaps_p0()
 		at->len = len;
 		at->pos = pos;
 		add_bmap(at);
-#if 0
-		LOG(llevDebug, "%d %d %d %x >%s<\n", num, pos, len, crc, name);
-#endif
 	}
 
 	fclose(fbmap);
@@ -87,11 +81,8 @@ void read_bmaps_p0()
 
 	if ((fpic = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL)
 	{
-		LOG(llevError, "ERROR: Can't find atrinik.p0 file!\n");
-		/* Fatal */
-		SYSTEM_End();
 		unlink(FILE_BMAPS_P0);
-		exit(0);
+		LOG(llevError, "Can't find atrinik.p0 file!\n");
 	}
 
 	/* Get time stamp of the file atrinik.p0 */
@@ -116,12 +107,9 @@ void read_bmaps_p0()
 create_bmaps:
 	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "w")) == NULL)
 	{
-		LOG(llevError, "ERROR: Can't create bmaps.p0 file!\n");
-		/* Fatal */
-		SYSTEM_End();
 		fclose(fbmap);
 		unlink(FILE_BMAPS_P0);
-		exit(0);
+		LOG(llevError, " Can't create bmaps.p0 file!\n");
 	}
 
 	temp_buf = malloc((bufsize = 24 * 1024));
@@ -130,13 +118,10 @@ create_bmaps:
 	{
 		if (strncmp(buf, "IMAGE ", 6) != 0)
 		{
-			LOG(llevError, "ERROR: read_client_images(): Bad image line - not IMAGE, instead\n%s\n", buf);
-			/* Fatal */
-			SYSTEM_End();
 			fclose(fbmap);
 			fclose(fpic);
 			unlink(FILE_BMAPS_P0);
-			exit(0);
+			LOG(llevError, "read_client_images(): Bad image line - not IMAGE, instead\n%s\n", buf);
 		}
 
 		num = atoi(buf + 6);
@@ -157,13 +142,10 @@ create_bmaps:
 			/* We assume that this is nonsense */
 			if (len > 128 * 1024)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Size of picture out of bounds!(len:%d)(pos:%d)\n", len, pos);
-				/* Fatal */
-				SYSTEM_End();
 				fclose(fbmap);
 				fclose(fpic);
 				unlink(FILE_BMAPS_P0);
-				exit(0);
+				LOG(llevError, "read_client_images(): Size of picture out of bounds!(len:%d)(pos:%d)\n", len, pos);
 			}
 
 			bufsize = len;
@@ -178,9 +160,6 @@ create_bmaps:
 		/* Now we got all we needed */
 		sprintf(temp_buf, "%d %d %x %s", num, pos, crc, buf);
 		fputs(temp_buf, fbmap);
-#if 0
-		LOG(llevDebug, "FOUND: %s", temp_buf);
-#endif
 	}
 
 	free(temp_buf);
@@ -218,9 +197,7 @@ static int load_bmap_tmp()
 	delete_bmap_tmp();
 	if ( (stream = fopen_wrapper(FILE_BMAPS_TMP, "rt" )) == NULL )
 	{
-		LOG(llevError,"bmaptype_table(): error open file <bmap.tmp>");
-		SYSTEM_End(); /* fatal */
-		exit(0);
+		LOG(llevError,"bmaptype_table(): error open file <bmap.tmp>\n");
 	}
 
 	while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
@@ -339,7 +316,7 @@ void read_bmaps()
 
 	srv_client_files[SRV_CLIENT_BMAPS].len = 0;
 	srv_client_files[SRV_CLIENT_BMAPS].crc = 0;
-	LOG(llevDebug, "Reading %s...", FILE_CLIENT_BMAPS);
+	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_BMAPS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb")) != NULL)
 	{
@@ -354,12 +331,9 @@ void read_bmaps()
 
 		free(temp_buf);
 		fclose(stream);
-		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc);
 	}
 	else
 	{
 		unlink(FILE_BMAPS_TMP);
 	}
-
-	LOG(llevDebug, " Done.\n");
 }

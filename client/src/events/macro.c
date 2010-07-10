@@ -753,7 +753,7 @@ void read_keybind_file(char *fname)
 	{
 		sprintf(bindkey_list[0].entry[0].keyname, "File %s is corrupt!", fname);
 		strcpy(bindkey_list[0].entry[0].text, "ERROR!");
-		LOG(llevError, "ERROR: key-binding file %s is corrupt.\n", fname);
+		LOG(llevBug, "key-binding file %s is corrupt.\n", fname);
 	}
 
 	bindkey_list_set.group_nr = 0;

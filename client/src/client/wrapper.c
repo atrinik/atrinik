@@ -29,51 +29,54 @@
 
 #include <include.h>
 
-FILE *logstream;
+static FILE *logstream = NULL;
+
+/**
+ * Human-readable names of log levels. */
+static const char *const loglevel_names[] =
+{
+	"[Error] ",
+	"[Bug]   ",
+	"[Debug] ",
+	"[Info]  "
+};
 
 /**
  * Logs an error, debug output, etc.
- * @param logLevel Level of the log message (llevMsg, llevDebug, ...)
+ * @param logLevel Level of the log message (llevInfo, llevDebug, ...)
  * @param format Formatting of the message, like sprintf
  * @param ... Additional arguments for format */
-void LOG(int logLevel, char *format, ...)
+void LOG(LogLevel logLevel, char *format, ...)
 {
-	int flag = 0;
 	va_list ap;
+	char buf[HUGE_BUF * 4];
 
-	/* we want log exactly ONE logLevel */
-	if (LOGLEVEL < 0)
-	{
-		if (LOGLEVEL * (-1) == logLevel)
-			flag = 1;
-	}
-	/* we log all logLevel < LOGLEVEL */
-	else
-	{
-		if (logLevel <= LOGLEVEL)
-			flag = 1;
-	}
-
-	/* secure: we have no open stream */
 	if (!logstream)
 	{
 		logstream = fopen_wrapper(LOG_FILE, "w");
-
-		if (!logstream)
-			flag = 0;
 	}
 
-	if (flag)
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
+	va_end(ap);
+
+	fputs(loglevel_names[logLevel], stdout);
+	fputs(buf, stdout);
+
+	if (logstream)
 	{
-		va_start(ap, format);
-		vfprintf(stdout, format, ap);
-		va_end(ap);
-		va_start(ap, format);
-		vfprintf(logstream, format, ap);
-		va_end(ap);
+		fputs(loglevel_names[logLevel], logstream);
+		fputs(buf, logstream);
+		fflush(logstream);
 	}
 
-	fflush(logstream);
+	if (logLevel == llevError)
+	{
+		LOG(llevInfo, "\nFatal error encountered. Exiting...\n");
+		SYSTEM_End();
+		abort();
+		exit(-1);
+	}
 }
 
 /**
@@ -345,7 +348,7 @@ static void copy_file(const char *filename, const char *filename_out)
 
 	if (!fp)
 	{
-		LOG(llevError, "ERROR: copy_file(): Failed to open '%s' for reading.\n", filename);
+		LOG(llevBug, "copy_file(): Failed to open '%s' for reading.\n", filename);
 		return;
 	}
 
@@ -353,7 +356,7 @@ static void copy_file(const char *filename, const char *filename_out)
 
 	if (!fp_out)
 	{
-		LOG(llevError, "ERROR: copy_file(): Failed to open '%s' for writing.\n", filename_out);
+		LOG(llevBug, "copy_file(): Failed to open '%s' for writing.\n", filename_out);
 		fclose(fp);
 		return;
 	}

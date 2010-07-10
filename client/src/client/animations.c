@@ -82,10 +82,7 @@ static int load_anim_tmp()
 
 	if ((stream = fopen_wrapper(FILE_ANIMS_TMP, "rt")) == NULL)
 	{
-		LOG(llevError, "load_anim_tmp: Error reading anim.tmp!");
-		/* Fatal */
-		SYSTEM_End();
-		exit(0);
+		LOG(llevError, "load_anim_tmp: Error reading anim.tmp!\n");
 	}
 
 	while (fgets(buf, sizeof(buf) - 1, stream) != NULL)
@@ -105,7 +102,7 @@ static int load_anim_tmp()
 			/* we should never hit this point */
 			else
 			{
-				LOG(llevError, "ERROR: load_anim_tmp(): Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
+				LOG(llevBug, "load_anim_tmp(): Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
 			}
 		}
 		/* No, we are inside! */
@@ -154,18 +151,14 @@ int read_anim_tmp()
 	/* if this fails, we have a urgent problem somewhere before */
 	if ((stream = fopen_wrapper(FILE_BMAPS_TMP, "rb" )) == NULL)
 	{
-		LOG(llevError, "read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
-		SYSTEM_End(); /* fatal */
-		exit(0);
+		LOG(llevError, "read_anim_tmp:Error reading bmap.tmp for anim.tmp!\n");
 	}
 	fstat(fileno(stream), &stat_bmap);
 	fclose(stream);
 
 	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rb" )) == NULL )
 	{
-		LOG(llevError,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
-		SYSTEM_End(); /* fatal */
-		exit(0);
+		LOG(llevError,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!\n");
 	}
 	fstat(fileno(stream), &stat_anim);
 	fclose( stream );
@@ -187,16 +180,12 @@ int read_anim_tmp()
 	unlink(FILE_ANIMS_TMP); /* for some reason - recreate this file */
 	if ( (ftmp = fopen_wrapper(FILE_ANIMS_TMP, "wt" )) == NULL )
 	{
-		LOG(llevError,"read_anim_tmp:Error opening anims.tmp!");
-		SYSTEM_End(); /* fatal */
-		exit(0);
+		LOG(llevError,"read_anim_tmp:Error opening anims.tmp!\n");
 	}
 
 	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rt" )) == NULL )
 	{
-		LOG(llevError,"read_anim_tmp:Error reading client_anims for anims.tmp!");
-		SYSTEM_End(); /* fatal */
-		exit(0);
+		LOG(llevError, "read_anim_tmp:Error reading client_anims for anims.tmp!\n");
 	}
 
 	while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
@@ -212,7 +201,7 @@ int read_anim_tmp()
 			}
 			else /* we should never hit this point */
 			{
-				LOG(llevError,"read_anim_tmp:Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
+				LOG(llevBug,"read_anim_tmp:Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
 			}
 		}
 		else /* no, we are inside! */
@@ -244,7 +233,7 @@ int read_anim_tmp()
 					 * which we don't have in our bmaps file! Pretty bad. But because
 					 * face #0 is ALWAYS bug.101 - we simply use it here! */
 					i=0;
-					LOG(llevError,"read_anim_tmp: Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
+					LOG(llevBug,"read_anim_tmp: Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
 				}
 				sprintf(cmd, "%d\n",i);
 				fputs(cmd, ftmp);
@@ -266,7 +255,7 @@ void read_anims()
 	struct stat statbuf;
 	int i;
 
-	LOG(llevDebug, "Loading %s...", FILE_CLIENT_ANIMS);
+	LOG(llevInfo, "Loading %s...\n", FILE_CLIENT_ANIMS);
 	srv_client_files[SRV_CLIENT_ANIMS].len = 0;
 	srv_client_files[SRV_CLIENT_ANIMS].crc = 0;
 
@@ -283,8 +272,5 @@ void read_anims()
 
 		free(temp_buf);
 		fclose(stream);
-		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc);
 	}
-
-	LOG(llevDebug, " Done.\n");
 }

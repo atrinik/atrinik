@@ -158,7 +158,7 @@ void DoClient()
 	{
 		if (!cmd->data[0] || cmd->data[0] > BINAR_CMD)
 		{
-			LOG(llevError, "Bad command from server (%d)\n", cmd->data[0]);
+			LOG(llevBug, "Bad command from server (%d)\n", cmd->data[0]);
 		}
 		else
 		{
@@ -554,7 +554,7 @@ int request_face(int pnum, int mode)
 
 	if (num >= bmaptype_table_size)
 	{
-		LOG(llevError, "REQUEST_FILE(): Server sent picture ID too big (%d, max: %d)\n", num, bmaptype_table_size);
+		LOG(llevBug, "request_face(): Server sent picture ID too big (%d, max: %d)\n", num, bmaptype_table_size);
 		return 0;
 	}
 
