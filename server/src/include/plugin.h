@@ -61,6 +61,7 @@
 /**
  * @defgroup event_numbers Event number codes
  * Event ID codes.
+ * @todo Separate the global events from the object events?
  *@{*/
 
 /** No event. This exists only to reserve the "0". */
@@ -89,45 +90,47 @@
 #define EVENT_CLOSE	   11
 /** Timer connected triggered it. */
 #define EVENT_TIMER    12
+/** Marks that we should process quests in this object. */
+#define EVENT_QUEST 13
 
 /** A new character has been created. */
-#define EVENT_BORN     13
+#define EVENT_BORN     14
 /** Global time event. */
-#define EVENT_CLOCK    14
+#define EVENT_CLOCK    15
 /** Triggered when the server crashes. Not recursive */
-#define EVENT_CRASH    15
+#define EVENT_CRASH    16
 /** Global Death event */
-#define EVENT_GDEATH   16
+#define EVENT_GDEATH   17
 /** Triggered when anything got killed by anyone. */
-#define EVENT_GKILL    17
+#define EVENT_GKILL    18
 /** Player login. */
-#define EVENT_LOGIN    18
+#define EVENT_LOGIN    19
 /** Player logout. */
-#define EVENT_LOGOUT   19
+#define EVENT_LOGOUT   20
 /** A player entered a map. */
-#define EVENT_MAPENTER 20
+#define EVENT_MAPENTER 21
 /** A player left a map. */
-#define EVENT_MAPLEAVE 21
+#define EVENT_MAPLEAVE 22
 /** A map is resetting. */
-#define EVENT_MAPRESET 22
+#define EVENT_MAPRESET 23
 /** A player character has been removed. */
-#define EVENT_REMOVE   23
+#define EVENT_REMOVE   24
 /** A player shouts something. */
-#define EVENT_SHOUT    24
+#define EVENT_SHOUT    25
 /** A player tells something. */
-#define EVENT_TELL     25
+#define EVENT_TELL     26
 /*@}*/
 
 /** Number of local events */
-#define NR_LOCAL_EVENTS 13
+#define NR_LOCAL_EVENTS 14
 
 /** Number of events. */
-#define NR_EVENTS 26
+#define NR_EVENTS 27
 
 /**
  * Get an event flag from event number code.
  * @see event_numbers */
-#define EVENT_FLAG(x) (1 << (x - 1))
+#define EVENT_FLAG(x) (1U << (x - 1))
 
 /**
  * Check to see if object has an event in its object::event_flags.

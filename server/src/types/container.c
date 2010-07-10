@@ -211,6 +211,20 @@ int container_link(player *pl, object *sack)
 		container_unlink(pl, sack);
 	}
 
+	/* Check for quest containers. */
+	if (HAS_EVENT(sack, EVENT_QUEST))
+	{
+		object *tmp;
+
+		for (tmp = sack->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == QUEST_CONTAINER)
+			{
+				check_quest(pl->ob, tmp);
+			}
+		}
+	}
+
 	pl->container = sack;
 	pl->container_count = sack->count;
 
@@ -223,7 +237,7 @@ int container_link(player *pl, object *sack)
 	/* we are the first one opening this container */
 	else
 	{
-		SET_FLAG (sack, FLAG_APPLIED);
+		SET_FLAG(sack, FLAG_APPLIED);
 
 		/* faking open container face */
 		if (sack->other_arch)

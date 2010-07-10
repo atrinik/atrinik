@@ -29,9 +29,81 @@
 
 #include <global.h>
 
-static void add_one_drop_quest_item(object *op, object *quest_item, const char *quest_name);
-static object *find_quest(object *op, const char *quest_name);
-static int has_quest_item(object *op, object *quest_item, sint32 flag);
+/**
+ * Add a one drop quest item to player's quest container, to mark that
+ * it has been dropped for that player and will never drop for him again.
+ * @param op The player.
+ * @param quest_name Name of the quest. */
+static void add_one_drop_quest_item(object *op, const char *quest_name)
+{
+	object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
+
+	/* Mark this quest as completed. */
+	quest_container->magic = QUEST_STATUS_COMPLETED;
+	/* Store the quest name. */
+	FREE_AND_COPY_HASH(quest_container->name, quest_name);
+	/* Insert it inside player's quest container. */
+	insert_ob_in_ob(quest_container, CONTR(op)->quest_container);
+}
+
+/**
+ * Find a quest inside player's quest container.
+ * @param op The player object.
+ * @param quest_name Name of the quest.
+ * @return The object that is used to represent the quest in the quest
+ * container, NULL if no matching quest found. */
+static object *find_quest(object *op, const char *quest_name)
+{
+	object *tmp;
+
+	/* Go through the objects in the quest container */
+	for (tmp = CONTR(op)->quest_container->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->name == quest_name)
+		{
+			return tmp;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Check if specified player object has a given quest item in their
+ * inventory (name and arch name are compared).
+ * @note This function is recursive and will call itself on any
+ * non-system inventories inside the player until it finds a matching item.
+ * @param op The player object.
+ * @param quest_item The quest item we'll be comparing values from.
+ * @param flag Flag to compare the quest item against, 0 for no flag comparison.
+ * @return 1 if the player has the quest item, 0 otherwise. */
+static int has_quest_item(object *op, object *quest_item, sint32 flag)
+{
+	object *tmp;
+
+	/* Go through the objects in the object's inventory. */
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		/* Compare the values. */
+		if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag)))
+		{
+			return 1;
+		}
+
+		/* If it has inventory and is not a system object, go on recursively. */
+		if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
+		{
+			int ret = has_quest_item(tmp, quest_item, flag);
+
+			if (ret)
+			{
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
 
 /**
  * When a monster drops inventory and there is quest container object in
@@ -70,35 +142,55 @@ void check_quest(object *op, object *quest_container)
 		}
 	}
 
-	/* This allows new quest types to be added fairly easily. */
 	switch (quest_container->sub_type)
 	{
 		case QUEST_TYPE_ITEM:
-			/* Sanity checks. */
-			if (!tmp || (!QUERY_FLAG(tmp, FLAG_ONE_DROP) && has_quest_item(op, tmp, 0)) || (QUERY_FLAG(tmp, FLAG_ONE_DROP) && quest_object))
+		{
+			object *clone;
+			int one_drop;
+
+			if (!tmp)
 			{
 				return;
 			}
 
-			/* Remove the object first. */
-			remove_ob(tmp);
-			/* Now add it to the player. */
-			add_one_drop_quest_item(op, tmp, quest_container->name);
+			one_drop = QUERY_FLAG(tmp, FLAG_ONE_DROP);
 
-			if (QUERY_FLAG(tmp, FLAG_ONE_DROP))
+			/* Not one-drop, but we already have the quest object (keys,
+			 * for example). */
+			if (!one_drop && has_quest_item(op, tmp, 0))
 			{
+				return;
+			}
+			/* One-drop and we already found this quest object before
+			 * (Rhun's cloak, for example). */
+			else if (one_drop && quest_object)
+			{
+				return;
+			}
+
+			clone = get_object();
+			copy_object_with_inv(tmp, clone);
+			SET_FLAG(clone, FLAG_IDENTIFIED);
+			/* Insert the quest item inside the player. */
+			insert_ob_in_ob(clone, op);
+			esrv_send_item(op, clone);
+
+			if (one_drop)
+			{
+				/* So the item will never drop again for this player. */
+				add_one_drop_quest_item(op, quest_container->name);
 				snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(tmp, NULL));
+				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone, NULL));
 			}
 
 			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-			esrv_send_item(op, tmp);
-
 			break;
+		}
 
 		case QUEST_TYPE_KILL:
 			/* The +1 makes it so no messages are displayed when player
@@ -127,117 +219,30 @@ void check_quest(object *op, object *quest_container)
 			break;
 
 		case QUEST_TYPE_KILL_ITEM:
-			/* Sanity checks. */
+		{
+			object *clone;
+
+			/* Have we found this item already? */
 			if (!tmp || has_quest_item(op, tmp, FLAG_QUEST_ITEM))
 			{
 				return;
 			}
 
-			/* Remove the object first. */
-			remove_ob(tmp);
+			clone = get_object();
+			copy_object_with_inv(tmp, clone);
+			SET_FLAG(clone, FLAG_QUEST_ITEM);
+			SET_FLAG(clone, FLAG_STARTEQUIP);
+			CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
+			/* Insert the quest item inside the player. */
+			insert_ob_in_ob(clone, op);
+			esrv_send_item(op, clone);
 
-			/* Set and clear common flags. */
-			SET_FLAG(tmp, FLAG_QUEST_ITEM);
-			SET_FLAG(tmp, FLAG_STARTEQUIP);
-			CLEAR_FLAG(tmp, FLAG_SYS_OBJECT);
-			/* Insert the object to the player. */
-			insert_ob_in_ob(tmp, op);
-			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(tmp, NULL));
-			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
+			new_draw_info_format(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone, NULL));
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-			esrv_send_item(op, tmp);
-
 			break;
+		}
 
 		default:
 			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type);
 	}
-}
-
-/**
- * Add a one drop quest item to player's quest container, to mark that
- * it has been dropped for that player and will never drop for him again.
- * @param op The player.
- * @param quest_item The quest object we're going to give to the player.
- * @param quest_name Name of the quest. */
-static void add_one_drop_quest_item(object *op, object *quest_item, const char *quest_name)
-{
-	object *quest_item_tmp = get_object();
-
-	/* Copy the object data. */
-	copy_object(quest_item, quest_item_tmp, 1);
-	/* Remove it from the active list. */
-	quest_item_tmp->speed = 0.0f;
-	/* Mark this quest as completed. */
-	quest_item_tmp->magic = QUEST_STATUS_COMPLETED;
-	/* Clear some flags the quest marker shouldn't have. */
-	CLEAR_FLAG(quest_item_tmp, FLAG_ANIMATE);
-	CLEAR_FLAG(quest_item_tmp, FLAG_ALIVE);
-	/* Store the quest name. */
-	FREE_AND_COPY_HASH(quest_item_tmp->name, quest_name);
-	/* Insert it inside the quest container. */
-	insert_ob_in_ob(quest_item_tmp, CONTR(op)->quest_container);
-
-	SET_FLAG(quest_item, FLAG_IDENTIFIED);
-	/* Insert the quest item inside the player. */
-	insert_ob_in_ob(quest_item, op);
-}
-
-/**
- * Find a quest inside player's quest container.
- * @param op The player object.
- * @param quest_name Name of the quest.
- * @return The object that is used to represent the quest in the quest
- * container, NULL if no matching quest found. */
-static object *find_quest(object *op, const char *quest_name)
-{
-	object *tmp;
-
-	/* Go through the objects in the quest container */
-	for (tmp = CONTR(op)->quest_container->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->name == quest_name)
-		{
-			return tmp;
-		}
-	}
-
-	return NULL;
-}
-
-/**
- * Check if specified player object has a given quest item in their
- * inventory (name and arch name are compared).
- * @note This function is recursive and will call itself on any
- * inventories inside the player until it finds a matching item.
- * @param op The player object.
- * @param quest_item The quest item we'll be comparing values from.
- * @param flag Flag to compare the quest item against.
- * @return 1 if the player has the quest item, 0 otherwise. */
-static int has_quest_item(object *op, object *quest_item, sint32 flag)
-{
-	object *tmp;
-
-	/* Go through the objects in the object's inventory. */
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		/* Compare the values. */
-		if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag)))
-		{
-			return 1;
-		}
-
-		/* If it has inventory and is not a system object, go on recursively. */
-		if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
-		{
-			int ret = has_quest_item(tmp, quest_item, flag);
-
-			if (ret)
-			{
-				return 1;
-			}
-		}
-	}
-
-	return 0;
 }
