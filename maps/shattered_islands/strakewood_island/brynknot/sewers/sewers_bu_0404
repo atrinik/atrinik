@@ -2,13 +2,13 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Kiana
-Modified: 2010-07-08 Alex Tokar
+Modified: 2010-07-10 Kiana
 endmsg
 width 24
 height 24
 reset_timeout 1
 swap_time 1
-difficulty 60
+difficulty 72
 darkness 2
 no_save 1
 fixed_resettime 1
@@ -1490,7 +1490,7 @@ y 4
 arch beholder_dread
 name Nyhelobo
 randomitems none
-item_condition 5
+level 72
 exp 200
 corpse 0
 maxhp 87
@@ -1770,6 +1770,7 @@ x 11
 y 12
 end
 arch portal_green
+glow_radius 5
 x 11
 y 12
 end
