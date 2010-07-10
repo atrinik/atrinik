@@ -9,40 +9,41 @@ Move with numpad keys. Press C to toggle combat mode on/off. Press X to target n
 <t t="See also:">
 List of ^contributors^
 <p><t t="Useful commands">
-^apply^
-^run^
-^run_stop^
-^cast^
-^pray^
-^shout^
-^say^
-^tell^
-^reply^
-^who^
-^mapinfo^
-^motd^
-^time^
-^version^
-^mark^
-^save^
-^hiscore^
-^party^
-^drop_key^
-^drop^
-^take^
-^get^
-^push^
-^left^
-^right^
-^roll^
-^emotions^
 ^afk^
-^whereami^
-^ms_privacy^
+^apply^
+^cast^
+^drop^
+^drop_key^
+^emotions^
+^get^
 ^guild^
 ^guildmembers^
-^statistics^
+^hiscore^
+^left^
+^mapinfo^
+^mark^
+^motd^
+^ms_privacy^
+^party^
+^pray^
+^push^
 ^rename^
+^reply^
+^right^
+^roll^
+^run^
+^run_stop^
+^save^
+^say^
+^shout^
+^statistics^
+^take^
+^tell^
+^time^
+^version^
+^whereami^
+^who^
+
 <p><t t="Miscellaneous">
 ^drop and take^
 ==========
@@ -60,9 +61,9 @@ This would always apply the item 'amulet' from your inventory, never unapplying 
 This would always unapply the item 'amulet' from your inventory, never applying it:
 /apply -u amulet
 <p><t t="See Also:">
-^get^
-^drop_key^
 ^drop^
+^drop_key^
+^get^
 ==========
 Name: pray
 Title: Pray Command
@@ -97,9 +98,9 @@ The shout command is the main communication command. It will display your messag
 
 <t t="Syntax:">/shout [your message]
 <p><t t="See Also:">
-^tell^
 ^reply^
 ^say^
+^tell^
 ==========
 Name: tell
 Title: Tell Command
@@ -107,9 +108,9 @@ The tell command is used to send a private message to another player online. Onl
 
 <t t="Syntax:">/tell [name] [your message]
 <p><t t="See Also:">
-^shout^
 ^reply^
 ^say^
+^shout^
 ==========
 Name: reply
 Title: Reply Command
@@ -117,9 +118,9 @@ The reply command is used to reply to the last player that sent you a private me
 
 <t t="Syntax:">/reply [your message]
 <p><t t="See Also:">
+^say^
 ^shout^
 ^tell^
-^say^
 ==========
 Name: who
 Title: Who Command
@@ -146,31 +147,31 @@ Allows you to become a Dungeon Master, if you are allowed to.
 
 <t t="Syntax:">/dm
 <p><t t="See Also:">
-^summon^
-^teleport^
-^goto^
-^kick^
+^addexp^
+^arrest^
 ^ban^
+^cmd_permission^
+^create^
+^dmsay^
+^dm_light^
+^dm_password^
+^dm_stealth^
+^follow^
+^goto^
+^insert_into^
+^kick^
+^motd_set^
+^patch^
 ^plugin^
 ^plugout^
 ^pluglist^
+^remove^
+^resetmap^
 ^shutdown^
 ^shutdown_now^
-^resetmap^
-^create^
-^addexp^
-^dm_stealth^
-^dm_light^
+^summon^
+^teleport^
 ^wizpass^
-^motd_set^
-^dmsay^
-^arrest^
-^insert_into^
-^remove^
-^patch^
-^follow^
-^dm_password^
-^cmd_permission^
 ==========
 Name: time
 Title: Time Command
@@ -258,8 +259,8 @@ Title: Drop
 The drop key is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
 <p><t t="See Also:">
 ^apply^
-^get^
 ^drop^
+^get^
 ^take^
 ==========
 Name: drop and take
@@ -306,9 +307,9 @@ For syntax and usage, see
 ^drop and take^.
 <p><t t="See Also:">
 ^apply^
+^drop_key^
 ^get^
 ^take^
-^drop_key^
 ==========
 Name: take
 Title: Take Command
@@ -318,8 +319,8 @@ For syntax and usage, see
 ^drop and take^.
 <p><t t="See Also:">
 ^apply^
-^get^
 ^drop_key^
+^get^
 ==========
 Name: get
 Title: Get
@@ -368,42 +369,45 @@ Name: emotions
 Title: Emotion Commands
 This is the list of all emote commands:
 
-/nod
-/dance
-/kiss
-/bounce
-/smile
-/cackle
-/laugh
-/giggle
-/shake
-/puke
-/growl
-/scream
-/sigh
-/sulk
-/hug
-/cry
-/poke
+/me
 /accuse
-/grin
-/bow
-/clap
+/beg
+/bleed
 /blush
+/bounce
+/bow
 /burp
+/cackle
 /chuckle
+/clap
 /cough
+/cringe
+/cry
+/dance
 /flip
 /frown
 /gasp
+/giggle
 /glare
+/grin
 /groan
+/growl
 /hiccup
+/hug
+/kiss
+/laugh
 /lick
+/nod
+/poke
 /pout
+/puke
+/scream
+/shake
 /shiver
 /shrug
+/sigh
 /slap
+/smile
 /smirk
 /snap
 /sneeze
@@ -412,17 +416,14 @@ This is the list of all emote commands:
 /snore
 /spit
 /strut
+/sulk
 /thank
+/think
 /twiddle
 /wave
 /whistle
 /wink
 /yawn
-/beg
-/bleed
-/cringe
-/think
-/me
 ==========
 Name: afk
 Title: AFK Command
@@ -453,9 +454,9 @@ This command does not require you to type anything before your message; you just
 <t t="Syntax:">[your message]
 
 <t t="See Also:">
+^reply^
 ^shout^
 ^tell^
-^reply^
 ==========
 Name: guild
 Title: Guild Command
@@ -466,12 +467,9 @@ This command will send a message to all online members of your current guild.
 Name: guildmembers
 Title: Guild Members Command
 Autocomplete: 0
-This command will show all members of your guild.
+This command will show all online members of your guild.
 
 <t t="Syntax:">/guildmembers
-
-To only show online guild members:
-/guildmembers online
 ==========
 Name: statistics
 Title: Statistics Command
@@ -501,8 +499,8 @@ This command allows you to summon a player next to yourself. The summoned player
 
 <t t="Syntax:">/summon [player name]
 <p><t t="See Also:">
-^teleport^
 ^goto^
+^teleport^
 ==========
 Name: teleport
 Title: Teleport Command
@@ -511,8 +509,8 @@ This command allows you to teleport yourself next to another player. The player 
 
 <t t="Syntax:">/teleport [player name]
 <p><t t="See Also:">
-^summon^
 ^goto^
+^summon^
 ==========
 Name: goto
 Title: Go To Command
@@ -521,8 +519,8 @@ The goto command is used to teleport yourself to a specified map path, with opti
 
 <t t="Syntax:">/goto [map path] [x] [y]
 <p><t t="See Also:">
-^teleport^
 ^summon^
+^teleport^
 ==========
 Name: kick
 Title: Kick Command
@@ -564,8 +562,8 @@ This command will load a plugin based on its filename.
 
 <t t="Syntax:">/plugin [filename]
 <p><t t="See Also:">
-^plugout^
 ^pluglist^
+^plugout^
 ==========
 Name: plugout
 Title: Unload Plugin Command
