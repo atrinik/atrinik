@@ -207,6 +207,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 	if (!strcmp(filename, "no_music"))
 	{
+		sound_stop_bg_music();
 		return;
 	}
 
