@@ -2,7 +2,7 @@ arch map
 name Expensive Treehouse
 msg
 Created:  2010-07-06 Kiana
-Modified: 2010-07-06 Alex Tokar
+Modified: 2010-07-11 Kiana
 endmsg
 width 12
 height 12
@@ -160,7 +160,7 @@ arch grassd_5
 x 1
 y 8
 end
-arch wall_wood_4
+arch wall_wood3_3
 x 1
 y 8
 end
