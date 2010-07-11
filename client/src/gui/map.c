@@ -516,10 +516,6 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		bltfx.flags |= BLTFX_FLAG_RED;
 	}
-	else if (cpl.stats.flags & SF_XRAYS)
-	{
-		bltfx.flags |= BLTFX_FLAG_GREY;
-	}
 	else
 	{
 		bltfx.flags |= BLTFX_FLAG_DARK;
