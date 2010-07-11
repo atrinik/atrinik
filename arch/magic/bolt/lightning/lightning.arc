@@ -21,6 +21,6 @@ reflecting 1
 speed 1
 wc 200
 wc_range 20
-dam 3
+dam 4
 flying 1
 end
