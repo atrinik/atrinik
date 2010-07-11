@@ -83,15 +83,15 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"asteroid", SPELL_TYPE_WIZARD,
-	 30, 18, 32, 2, 0, 3, 1.0,
-	 4, 10, 4, 16, 9, "magic_rstrike.ogg",
+	 30, 20, 32, 2, 0, 3, 1.0,
+	 4, 10, 4, 16, 20, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FROST, "asteroid"
 	},
 
 	{"frost nova", SPELL_TYPE_WIZARD,
-	 80, 80, 80, 2, 0, 3, 1.0,
-	 4, 10, 4, 8, 30, "magic_rstrike.ogg",
+	 80, 70, 60, 2, 0, 3, 1.0,
+	 4, 10, 4, 8, 35, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FROST, "asteroid"
 	},
@@ -272,15 +272,15 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"meteor", SPELL_TYPE_WIZARD,
-	 30, 18, 32, 2, 0, 3, 1.0,
-	 4, 10, 4, 16, 9, "magic_rstrike.ogg",
+	 30, 20, 32, 2, 0, 3, 1.0,
+	 4, 10, 4, 16, 20, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "meteor"
 	},
 
 	{"meteor swarm", SPELL_TYPE_WIZARD,
-	 80, 70, 80, 2, 0, 3, 1.0,
-	 4, 10, 4, 8, 30, "magic_rstrike.ogg",
+	 80, 70, 60, 2, 0, 3, 1.0,
+	 4, 10, 4, 8, 35, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "meteor"
 	},
@@ -307,15 +307,15 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"destruction", SPELL_TYPE_WIZARD,
-	 18, 30, 20, 0, 3, 3, 1.0,
+	 18, 20, 20, 0, 3, 3, 1.0,
 	 2, 1, 3, 20, 20, "magic_destruction.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_WOUNDING, "spellobject_destruction"
 	},
 
 	{"create bomb", SPELL_TYPE_WIZARD,
-	 30, 20, 76, 2, 0, 3, 1.0,
-	 10, 9, 0, 30, 8, "magic_bomb.ogg",
+	 10, 10, 30, 2, 0, 3, 1.0,
+	 10, 9, 0, 30, 9, "magic_bomb.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_DETONATE, "bomb"
 	},
