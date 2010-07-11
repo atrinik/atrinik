@@ -1826,10 +1826,10 @@ void SetPriorityWidget(widgetdata *node)
 	}
 
 	LOG(llevDebug, "..BEFORE:\n");
-	LOG(llevDebug, "....node: %d - %s\n", node, node->name);
-	LOG(llevDebug, "....node->env: %d - %s\n", node->env, node->env? node->env->name: "NULL");
-	LOG(llevDebug, "....node->prev: %d - %s, node->next: %d - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
-	LOG(llevDebug, "....node->inv: %d - %s, node->inv_rev: %d - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
+	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
+	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
+	LOG(llevDebug, "....node->prev: %p - %s, node->next: %p - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
+	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
 
 	/* see if the node has a parent before continuing */
 	if (node->env)
@@ -1900,10 +1900,10 @@ void SetPriorityWidget(widgetdata *node)
 	node->prev = NULL;
 
 	LOG(llevDebug, "..AFTER:\n");
-	LOG(llevDebug, "....node: %d - %s\n", node, node->name);
-	LOG(llevDebug, "....node->env: %d - %s\n", node->env, node->env? node->env->name: "NULL");
-	LOG(llevDebug, "....node->prev: %d - %s, node->next: %d - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
-	LOG(llevDebug, "....node->inv: %d - %s, node->inv_rev: %d - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
+	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
+	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
+	LOG(llevDebug, "....node->prev: %p - %s, node->next: %p - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
+	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
 
 	LOG(llevDebug, "..SetPriorityWidget(): Done.\n");
 }

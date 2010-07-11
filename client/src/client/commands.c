@@ -1818,7 +1818,7 @@ void DataCmd(unsigned char *data, int len)
 	/* Allocate large enough buffer to hold the uncompressed file. */
 	dest = malloc(len_ucomp);
 
-	LOG(llevInfo, "DataCmd(): Uncompressing file #%d (len: %d, uncompressed len: %d)\n", data_type, len, len_ucomp);
+	LOG(llevInfo, "DataCmd(): Uncompressing file #%d (len: %d, uncompressed len: %lu)\n", data_type, len, len_ucomp);
 	uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data, (uLong) len);
 	data = dest;
 	len = len_ucomp;

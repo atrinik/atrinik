@@ -233,7 +233,7 @@ int file_updates_finished();
 void file_updates_parse();
 
 /* client/wrapper.c */
-void LOG(LogLevel logLevel, char *format, ...);
+void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
 void SYSTEM_Start();
 int SYSTEM_End();
 char *GetBitmapDirectory();
@@ -400,7 +400,7 @@ void widget_show_target(widgetdata *widget);
 
 /* gui/textwin.c */
 void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY);
-void draw_info_format(int flags, char *format, ...);
+void draw_info_format(int flags, char *format, ...) __attribute__((format(printf, 2, 3)));
 void draw_info(char *str, int flags);
 void textwin_show(int x, int y);
 void widget_textwin_show(widgetdata *widget);
