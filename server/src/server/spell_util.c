@@ -1707,8 +1707,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
  * @return Adjusted damage. */
 int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 {
-	float tmp_add;
-	int dam_adj, level = SK_level(caster);
+	int level = SK_level(caster);
 
 	/* Sanity check */
 	if (level <= 0 || level > MAXLEVEL)
@@ -1731,14 +1730,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 		base_dam = spells[spell_type].bdam;
 	}
 
-	if ((tmp_add = LEVEL_DAMAGE(level / 3) - 0.75f) < 0)
-	{
-		tmp_add = 0;
-	}
-
-	dam_adj = (sint16) ((float) base_dam * (LEVEL_DAMAGE(level) + tmp_add) * PATH_DMG_MULT(caster, find_spell(spell_type)));
-
-	return dam_adj;
+	return (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
 }
 
 /**
@@ -1792,7 +1784,7 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 		sp = spells[spell_type].sp;
 	}
 
-	return (int) ((float) MIN(sp, (spells[spell_type].sp + 50)) * (float) PATH_SP_MULT(caster, s));
+	return (int) ((float) sp * (float) PATH_SP_MULT(caster, s));
 }
 
 /**
