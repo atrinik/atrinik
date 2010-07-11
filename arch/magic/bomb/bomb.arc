@@ -12,4 +12,5 @@ sp 40
 no_save 1
 anim_speed 1
 is_animated 0
+level 1
 end
