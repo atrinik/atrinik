@@ -554,17 +554,17 @@ static void fire_bow(object *op, int dir)
 	/* Add in all our wc bonus */
 	arrow->stats.wc += (bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc);
 	arrow->stats.wc_range = bow->stats.wc_range;
-	arrow->stats.dam += dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic + arrow->magic;
-	arrow->stats.dam = FABS((int) ((float) (arrow->stats.dam * LEVEL_DAMAGE(SK_level(op)))));
 
-	/* Adjust with the lower of condition */
+	arrow->stats.dam = FABS((int) ((float) (arrow->stats.dam * LEVEL_DAMAGE(SK_level(op)))));
+	arrow->stats.dam += arrow->stats.dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic + arrow->magic) / 10;
+
 	if (bow->item_condition > arrow->item_condition)
 	{
-		arrow->stats.dam = (sint16) (((float) arrow->stats.dam / 100.0f) * (float) arrow->item_condition);
+		arrow->stats.dam = (sint16) (((float) arrow->stats.dam / 100.0f) * (float) bow->item_condition);
 	}
 	else
 	{
-		arrow->stats.dam = (sint16) (((float) arrow->stats.dam / 100.0f) * (float) bow->item_condition);
+		arrow->stats.dam = (sint16) (((float) arrow->stats.dam / 100.0f) * (float) arrow->item_condition);
 	}
 
 	arrow->level = SK_level(op);
