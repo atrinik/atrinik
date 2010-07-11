@@ -267,7 +267,7 @@ void update_buttons(mapstruct *m)
 		{
 			if (!ol->objlink.ob || ol->objlink.ob->count != ol->id)
 			{
-				LOG(llevBug, "BUG: Internal error in update_button (%s (%dx%d):%d, connected %d ).\n", ol->objlink.ob ? ol->objlink.ob->name : "null", ol->objlink.ob ? ol->objlink.ob->x:-1, ol->objlink.ob ? ol->objlink.ob->y:-1, ol->id, obp->value);
+				LOG(llevBug, "BUG: Internal error in update_button (%s (%dx%d):%d, connected %ld ).\n", ol->objlink.ob ? ol->objlink.ob->name : "null", ol->objlink.ob ? ol->objlink.ob->x:-1, ol->objlink.ob ? ol->objlink.ob->y:-1, ol->id, obp->value);
 				continue;
 			}
 

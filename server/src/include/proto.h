@@ -477,7 +477,7 @@ object *find_base_info_object(object *op);
 void set_mobile_speed(object *op, int index);
 
 /* server/logger.c */
-void LOG(LogLevel logLevel, const char *format, ...);
+void LOG(LogLevel logLevel, const char *format, ...) __attribute__((format(printf, 2, 3)));
 
 /* server/login.c */
 void emergency_save(int flag);
@@ -576,7 +576,6 @@ void sub_weight(object *op, sint32 weight);
 object *get_env_recursive(object *op);
 object *is_player_inv(object *op);
 void dump_object(object *op, StringBuffer *sb);
-void free_all_object_data();
 object *get_owner(object *op);
 void clear_owner(object *op);
 void set_owner(object *op, object *owner);
@@ -836,7 +835,7 @@ StringBuffer *stringbuffer_new();
 char *stringbuffer_finish(StringBuffer *sb);
 const char *stringbuffer_finish_shared(StringBuffer *sb);
 void stringbuffer_append_string(StringBuffer *sb, const char *str);
-void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...);
+void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 size_t stringbuffer_length(StringBuffer *sb);
 
@@ -915,7 +914,7 @@ int esrv_send_face(socket_struct *ns, short face_num);
 
 /* socket/info.c */
 void new_draw_info(int flags, object *pl, const char *buf);
-void new_draw_info_format(int flags, object *pl, char *format, ...);
+void new_draw_info_format(int flags, object *pl, char *format, ...) __attribute__((format(printf, 3, 4)));
 void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char *str);
 void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, object *op1, object *op, const char *str);
 void send_socket_message(int flags, socket_struct *ns, const char *buf);

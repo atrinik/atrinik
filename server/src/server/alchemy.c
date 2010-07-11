@@ -217,7 +217,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 						/* So when skill id this item, less xp is awarded */
 						item->stats.exp = 0;
 #ifdef EXTREME_ALCHEMY_DEBUG
-						LOG(llevDebug, "DEBUG: %s gains %d experience points.\n", caster->name, amount);
+						LOG(llevDebug, "DEBUG: %s gains %"FMT64" experience points.\n", caster->name, amount);
 #endif
 					}
 

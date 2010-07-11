@@ -626,7 +626,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 	/* Sanity check */
 	if (dam < 0)
 	{
-		LOG(llevBug, "BUG: hit_player_attacktype called with negative damage: %d from object: %s\n", dam, query_name(op, NULL));
+		LOG(llevBug, "BUG: hit_player_attacktype called with negative damage: %f from object: %s\n", dam, query_name(op, NULL));
 		return 0;
 	}
 

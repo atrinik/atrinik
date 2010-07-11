@@ -314,7 +314,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr)
 
 	if (skill_nr == CHOSEN_SKILL_NO)
 	{
-		LOG(llevDebug, "TODO: add_exp(): called for %s with exp %d. CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp);
+		LOG(llevDebug, "TODO: add_exp(): called for %s with exp %"FMT64". CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp);
 		return 0;
 	}
 
@@ -325,7 +325,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr)
 	/* Sanity */
 	if (!exp_skill)
 	{
-		LOG(llevDebug, "DEBUG: add_exp(): called for %s with skill nr %d / %d exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
+		LOG(llevDebug, "DEBUG: add_exp(): called for %s with skill nr %d / %"FMT64" exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
 		return 0;
 	}
 
@@ -651,7 +651,7 @@ void apply_death_exp_penalty(object *op)
 			/* Sanity check */
 			if (level_exp < 0)
 			{
-				LOG(llevBug, "apply_death_exp_penalty(): Skill %s (%d %d) for player %s -> less exp as level need!\n", query_name(tmp, NULL), tmp->level, tmp->stats.exp, query_name(op, NULL));
+				LOG(llevBug, "apply_death_exp_penalty(): Skill %s (%d %"FMT64") for player %s -> less exp as level need!\n", query_name(tmp, NULL), tmp->level, tmp->stats.exp, query_name(op, NULL));
 			}
 
 			if (!level_exp)

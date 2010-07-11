@@ -384,7 +384,7 @@ static void load_srv_file(char *fname, int id)
 	free(contents);
 	free(compressed);
 
-	LOG(llevDebug, "(size: %d (%d) (crc uncomp.: %x)\n", SrvClientFiles[id].len_ucomp, numread, SrvClientFiles[id].crc);
+	LOG(llevDebug, "(size: %lu (%lu) (crc uncomp.: %lx)\n", (unsigned long) SrvClientFiles[id].len_ucomp, (unsigned long) numread, SrvClientFiles[id].crc);
 }
 
 /**

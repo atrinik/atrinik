@@ -1076,7 +1076,7 @@ void compile_info()
 	LOG(llevInfo, "Tmpdir:\t\t%s\n", settings.tmpdir);
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
 
-	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated, pool_object->nrof_free);
+	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated[0], pool_object->nrof_free[0]);
 
 #ifdef USE_CALLOC
 	LOG(llevInfo, "Use_calloc:\t<true>\n");
@@ -1087,14 +1087,14 @@ void compile_info()
 	LOG(llevInfo, "Max_time:\t%d\n", MAX_TIME);
 
 	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);
-	LOG(llevInfo, "ObjectSize:\t%d (living: %d)\n", sizeof(object), sizeof(living));
-	LOG(llevInfo, "ObjectlinkSize:\t%d\n", sizeof(objectlink));
-	LOG(llevInfo, "MapStructSize:\t%d\n", sizeof(mapstruct));
-	LOG(llevInfo, "MapSpaceSize:\t%d\n", sizeof(MapSpace));
-	LOG(llevInfo, "PlayerSize:\t%d\n", sizeof(player));
-	LOG(llevInfo, "SocketSize:\t%d\n", sizeof(socket_struct));
-	LOG(llevInfo, "PartylistSize:\t%d\n", sizeof(party_struct));
-	LOG(llevInfo, "KeyValueSize:\t%d\n", sizeof(key_value));
+	LOG(llevInfo, "ObjectSize:\t%lu (living: %lu)\n", (unsigned long) sizeof(object), (unsigned long) sizeof(living));
+	LOG(llevInfo, "ObjectlinkSize:\t%lu\n", (unsigned long) sizeof(objectlink));
+	LOG(llevInfo, "MapStructSize:\t%lu\n", (unsigned long) sizeof(mapstruct));
+	LOG(llevInfo, "MapSpaceSize:\t%lu\n", (unsigned long) sizeof(MapSpace));
+	LOG(llevInfo, "PlayerSize:\t%lu\n", (unsigned long) sizeof(player));
+	LOG(llevInfo, "SocketSize:\t%lu\n", (unsigned long) sizeof(socket_struct));
+	LOG(llevInfo, "PartylistSize:\t%lu\n", (unsigned long) sizeof(party_struct));
+	LOG(llevInfo, "KeyValueSize:\t%lu\n", (unsigned long) sizeof(key_value));
 
 	LOG(llevInfo, "Setup info: Done.\n");
 }

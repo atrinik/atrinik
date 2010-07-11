@@ -119,7 +119,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 	memcpy(update_files[update_files_num].sl.buf + update_files[update_files_num].sl.len, update_files[update_files_num].contents, update_files[update_files_num].len);
 	update_files[update_files_num].sl.len += update_files[update_files_num].len;
 
-	LOG(llevDebug, "  Loaded '%s': ucomp: %d, comp: %d (%3.1f%%), CRC32: %x.\n", filename, update_files[update_files_num].ucomp_len, numread, (float) (numread * 100) / update_files[update_files_num].ucomp_len, update_files[update_files_num].checksum);
+	LOG(llevDebug, "  Loaded '%s': ucomp: %lu, comp: %lu (%3.1f%%), CRC32: %lx.\n", filename, (unsigned long) update_files[update_files_num].ucomp_len, (unsigned long) numread, (float) (numread * 100) / update_files[update_files_num].ucomp_len, update_files[update_files_num].checksum);
 	update_files_num++;
 }
 

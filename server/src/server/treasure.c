@@ -577,7 +577,7 @@ void init_artifacts()
 
 			if (fseek(fp, old_pos, SEEK_SET))
 			{
-				LOG(llevError, "ERROR: init_artifacts(): Could not fseek(fp, %d, SEEK_SET).\n", old_pos);
+				LOG(llevError, "ERROR: init_artifacts(): Could not fseek(fp, %ld, SEEK_SET).\n", old_pos);
 			}
 
 			/* The lex reader will bug when it don't get feed with a
@@ -599,14 +599,14 @@ void init_artifacts()
 				/* Should not possible. */
 				if (ftell(fp) > file_pos)
 				{
-					LOG(llevError, "ERROR: init_artifacts(): fgets() read too much data! (%d - %d)\n", file_pos, ftell(fp));
+					LOG(llevError, "ERROR: init_artifacts(): fgets() read too much data! (%ld - %ld)\n", file_pos, ftell(fp));
 				}
 			}
 
 			/* Now store the parse text in the artifacts list entry */
 			if ((art->parse_text = malloc(lcount)) == NULL)
 			{
-				LOG(llevError, "ERROR: init_artifacts(): out of memory in ->parse_text (size %d)\n", lcount);
+				LOG(llevError, "ERROR: init_artifacts(): out of memory in ->parse_text (size %lu)\n", (unsigned long) lcount);
 			}
 
 			memcpy(art->parse_text, buf_text, lcount);
@@ -3205,7 +3205,7 @@ static void check_treasurelist(treasure *t, treasurelist *tl)
 
 	if (t->chance >= 100 && t->next_yes && (t->next || t->next_no))
 	{
-		LOG(llevBug, "BUG: Treasurelist %s has element that has 100% generation, next_yes field as well as next or next_no\n", tl->name);
+		LOG(llevBug, "BUG: Treasurelist %s has element that has 100%% generation, next_yes field as well as next or next_no\n", tl->name);
 	}
 
 	/* find_treasurelist will print out its own error message */

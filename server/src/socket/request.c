@@ -1226,7 +1226,7 @@ void draw_client_map2(object *pl)
 			{
 				if (!QUERY_FLAG(pl, FLAG_WIZ))
 				{
-					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map: %s (%, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
+					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
 				}
 
 				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)

@@ -77,12 +77,14 @@ proto:
 	$(SED) -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < include/proto.h.bak >> include/proto.h
 	echo "#endif" >> include/proto.h
 	$(RM) -f include/proto.h.bak
+	python ../tools/adjust_proto.py include/proto.h || exit 5
 
 	cproto -o tests/check_proto.h.bak -D__CPROTO__ $(INCLUDES) $(filter tests/%,$(SRCS)) || exit 5
 	echo "#ifndef __CPROTO__" > tests/check_proto.h
 	$(SED) -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < tests/check_proto.h.bak >> tests/check_proto.h
 	echo "#endif" >> tests/check_proto.h
 	$(RM) -f tests/check_proto.h.bak
+	python ../tools/adjust_proto.py tests/check_proto.h || exit 5
 
 clean::
 	$(RM) -f atrinik_server $(OBJS) $(LOADERS:.l=.c)

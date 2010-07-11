@@ -398,7 +398,7 @@ static void init_msgfile()
 		close_and_delete(fp, comp);
 	}
 
-	LOG(llevDebug, "  Done, got %d messages.\n", num_msgs);
+	LOG(llevDebug, "  Done, got %lu messages.\n", (unsigned long) num_msgs);
 }
 
 /**
@@ -417,7 +417,7 @@ static void init_mon_info()
 		}
 	}
 
-	LOG(llevDebug, "init_mon_info() got %d monsters...", num_monsters);
+	LOG(llevDebug, "init_mon_info() got %lu monsters...", (unsigned long) num_monsters);
 }
 
 /**
@@ -889,8 +889,8 @@ void free_all_readable()
 	}
 
 	free(msgs);
-	LOG(llevDebug, "Freed %d book messages.\n", num_msgs);
+	LOG(llevDebug, "Freed %lu book messages.\n", (unsigned long) num_msgs);
 
 	free(monsters);
-	LOG(llevDebug, "Freed %d book monsters.\n", num_monsters);
+	LOG(llevDebug, "Freed %lu book monsters.\n", (unsigned long) num_monsters);
 }

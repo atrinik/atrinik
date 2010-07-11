@@ -34,6 +34,11 @@
 #define EXTERN extern
 #endif
 
+/* If we're not using GNU C, ignore __attribute__ */
+#ifndef __GNUC__
+#	define  __attribute__(x)
+#endif
+
 #include "includes.h"
 
 /* Type defines for specific signed/unsigned variables of a certain number

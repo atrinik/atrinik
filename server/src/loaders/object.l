@@ -335,7 +335,7 @@ object *op = items[*depth];
 					 	 * about not overflowing the buffer. */
 						if (len > (HUGE_BUF / 2))
 						{
-							LOG(llevDebug, "\n\tWarning: message length > %d (max allowed=%d): %d\n>%.80s<\n", HUGE_BUF / 2, HUGE_BUF, strlen(op->msg), op->msg);
+							LOG(llevDebug, "\n\tWarning: message length > %d (max allowed=%d): %lu\n>%.80s<\n", HUGE_BUF / 2, HUGE_BUF, (unsigned long) strlen(op->msg), op->msg);
 						}
                      }
 <MESSAGE>.*{NL}	    {

@@ -792,13 +792,6 @@ void dump_object(object *op, StringBuffer *sb)
 }
 
 /**
- * Destroys all allocated objects. */
-void free_all_object_data()
-{
-	LOG(llevDebug, "%d allocated objects, %d free objects\n", pool_object->nrof_allocated, pool_object->nrof_free);
-}
-
-/**
  * Returns the object which this object marks as being the owner.
  *
  * An ID scheme is used to avoid pointing to objects which have been
@@ -1413,7 +1406,7 @@ void drop_ob_inv(object *ob)
 	/* TODO */
 	if (ob->env == NULL && (ob->map == NULL || ob->map->in_memory != MAP_IN_MEMORY))
 	{
-		LOG(llevDebug, "BUG: drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%x)\n", ob->name, ob->map);
+		LOG(llevDebug, "BUG: drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%p)\n", ob->name, ob->map);
 		return;
 	}
 

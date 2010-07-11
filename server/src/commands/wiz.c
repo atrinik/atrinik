@@ -1120,7 +1120,7 @@ int command_addexp(object *op, char *params)
 	/* Our player doesn't have this skill? */
 	if (!exp_skill)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr]);
+		new_draw_info_format(NDI_UNIQUE, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr].name);
 		return 0;
 	}
 
@@ -1195,7 +1195,7 @@ int command_stats(object *op, char *params)
 			new_draw_info_format(NDI_UNIQUE, op, "Str : %-2d      H.P.   : %-4d  MAX : %d", pl->ob->stats.Str, pl->ob->stats.hp, pl->ob->stats.maxhp);
 			new_draw_info_format(NDI_UNIQUE, op, "Dex : %-2d      S.P.   : %-4d  MAX : %d", pl->ob->stats.Dex, pl->ob->stats.sp, pl->ob->stats.maxsp);
 			new_draw_info_format(NDI_UNIQUE, op, "Con : %-2d      AC     : %-4d  WC  : %d", pl->ob->stats.Con, pl->ob->stats.ac, pl->ob->stats.wc);
-			new_draw_info_format(NDI_UNIQUE, op, "Wis : %-2d      EXP    : %d", pl->ob->stats.Wis, pl->ob->stats.exp);
+			new_draw_info_format(NDI_UNIQUE, op, "Wis : %-2d      EXP    : %"FMT64, pl->ob->stats.Wis, pl->ob->stats.exp);
 			new_draw_info_format(NDI_UNIQUE, op, "Cha : %-2d      Food   : %d", pl->ob->stats.Cha, pl->ob->stats.food);
 			new_draw_info_format(NDI_UNIQUE, op, "Int : %-2d      Damage : %d", pl->ob->stats.Int, pl->ob->stats.dam);
 			new_draw_info_format(NDI_UNIQUE, op, "Pow : %-2d      Grace  : %d", pl->ob->stats.Pow, pl->ob->stats.grace);
