@@ -6,7 +6,7 @@ face skill.101
 sys_object 1
 no_drop 1
 sp 13
-last_heal 25
+last_heal 3
 last_sp 0
 last_eat 1
 level 1
