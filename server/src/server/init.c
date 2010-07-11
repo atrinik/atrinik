@@ -456,6 +456,12 @@ static void set_dumpmon12()
 	settings.dumpvalues = DUMP_VALUE_LEVEL_COLORS;
 }
 
+static void set_spell_dump(char *arg)
+{
+	settings.dumpvalues = DUMP_VALUE_SPELLS;
+	settings.dumparg = arg;
+}
+
 static void set_daemon()
 {
 	settings.daemonmode = 1;
@@ -627,6 +633,7 @@ struct Command_Line_Options options[] =
 	{"-m10", 0, 3, set_dumpmon10},
 	{"-m11", 1, 3, set_dumpmon11},
 	{"-m12", 0, 3, set_dumpmon12},
+	{"-spell", 1, 3, set_spell_dump},
 
 	{"-tests", 0, 3, set_unit_tests},
 
@@ -945,6 +952,7 @@ static void help()
 	LOG(llevInfo, " -m10        Dumps out all arches.\n");
 	LOG(llevInfo, " -m11 <arch> Dumps out list of treasures for a monster.\n");
 	LOG(llevInfo, " -m12        Dumps out level colors table.\n");
+	LOG(llevInfo, " -spell <name> Dumps various information about the specified spell (if 'all', information about all spells available). This is useful when debugging/balancing spells.\n");
 	exit(0);
 }
 

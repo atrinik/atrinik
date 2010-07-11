@@ -157,19 +157,46 @@ void dump_spells()
 
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
-		const char *name1 = NULL, *name2 = NULL;
-
-		if (spellarch[i])
+		if (!settings.dumparg)
 		{
-			name1 = spellarch[i]->name;
+			const char *name1 = NULL, *name2 = NULL;
 
-			if (spellarch[i]->clone.other_arch)
+			if (spellarch[i])
 			{
-				name2 = spellarch[i]->clone.other_arch->name;
+				name1 = spellarch[i]->name;
+
+				if (spellarch[i]->clone.other_arch)
+				{
+					name2 = spellarch[i]->clone.other_arch->name;
+				}
+			}
+
+			LOG(llevInfo, "%d: %s: %s: %s\n", i, spells[i].name, (name1 ? name1 : "null"), (name2 ? name2 : "null"));
+		}
+		else if (!strcmp(settings.dumparg, "all") || !strcmp(settings.dumparg, spells[i].name))
+		{
+			int j;
+			object *caster, *tmp = NULL;
+
+			LOG(llevInfo, "\nInformation about '%s' (ID: %d):\n", spells[i].name, i);
+			caster = get_object();
+
+			if (spellarch[i])
+			{
+				tmp = arch_to_object(spellarch[i]);
+			}
+
+			for (j = 1; j <= MAXLEVEL; j++)
+			{
+				caster->level = j;
+				LOG(llevInfo, " Level: %3d, Mana: %4d, Dam: %4d, Dam2: %4d\n", j, SP_level_spellpoint_cost(caster, i, -1), SP_level_dam_adjust(caster, i, -1), tmp ? SP_level_dam_adjust(caster, i, tmp->stats.dam) : 0);
+			}
+
+			if (strcmp(settings.dumparg, "all"))
+			{
+				exit(0);
 			}
 		}
-
-		LOG(llevInfo, "%d: %s: %s: %s\n", i, spells[i].name, (name1 ? name1 : "null"), (name2 ? name2 : "null"));
 	}
 }
 
