@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-07 Kiana
+Modified: 2010-07-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -620,11 +620,16 @@ x 4
 y 6
 end
 arch floor_wood2_l1
-auto_apply 1
-cursed 1
-randomitems random_read
-no_magic 1
 type 68
+no_magic 1
+x 4
+y 7
+end
+arch t_axe
+unpaid 1
+no_pick 1
+identified 1
+nrof 10
 x 4
 y 7
 end
@@ -789,11 +794,16 @@ x 5
 y 6
 end
 arch floor_wood2_l1
-auto_apply 1
-cursed 1
-randomitems random_read
-no_magic 1
 type 68
+no_magic 1
+x 5
+y 7
+end
+arch t_hammer
+unpaid 1
+no_pick 1
+identified 1
+nrof 10
 x 5
 y 7
 end
@@ -935,12 +945,16 @@ x 6
 y 6
 end
 arch floor_wood2_l1
-auto_apply 1
-cursed 1
-randomitems random_read
-exp 2
-no_magic 1
 type 68
+no_magic 1
+x 6
+y 7
+end
+arch t_dagger
+unpaid 1
+no_pick 1
+identified 1
+nrof 10
 x 6
 y 7
 end
@@ -1096,12 +1110,16 @@ x 7
 y 6
 end
 arch floor_wood2_l1
-auto_apply 1
-cursed 1
-randomitems random_read
-exp 2
-no_magic 1
 type 68
+no_magic 1
+x 7
+y 7
+end
+arch t_star
+unpaid 1
+no_pick 1
+identified 1
+nrof 10
 x 7
 y 7
 end
