@@ -13,7 +13,7 @@ flying 1
 walk_on 1
 fly_on 1
 attack_force 100
-dam 3
+dam 2
 no_save 1
 anim_speed 1
 is_animated 1
