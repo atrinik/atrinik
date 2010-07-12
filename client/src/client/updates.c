@@ -41,7 +41,7 @@ void file_updates_init()
 {
 	FILE *fp;
 	struct stat sb;
-	size_t st_size;
+	size_t st_size, numread;
 	char *contents;
 
 	srv_client_files[SRV_FILE_UPDATES].len = 0;
@@ -60,10 +60,10 @@ void file_updates_init()
 	srv_client_files[SRV_FILE_UPDATES].len = st_size;
 
 	contents = malloc(st_size);
-	fread(contents, 1, st_size, fp);
+	numread = fread(contents, 1, st_size, fp);
 	fclose(fp);
 
-	srv_client_files[SRV_FILE_UPDATES].crc = crc32(1L, (const unsigned char FAR *) contents, st_size);
+	srv_client_files[SRV_FILE_UPDATES].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
 	free(contents);
 }
 
@@ -162,12 +162,13 @@ void file_updates_parse()
 	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
 		char filename[MAX_BUF], crc_buf[MAX_BUF], *contents;
-		size_t size, st_size;
+		uint64 size;
+		size_t st_size, numread;
 		FILE *fp2;
 		unsigned long crc;
 		struct stat sb;
 
-		if (sscanf(buf, "%s %ld %s", filename, &size, crc_buf) != 3)
+		if (sscanf(buf, "%s %"FMT64U" %s", filename, &size, crc_buf) != 3)
 		{
 			continue;
 		}
@@ -184,15 +185,15 @@ void file_updates_parse()
 		fstat(fileno(fp2), &sb);
 		st_size = sb.st_size;
 		contents = malloc(st_size);
-		fread(contents, 1, st_size, fp2);
+		numread = fread(contents, 1, st_size, fp2);
 		fclose(fp2);
 
 		/* Get the CRC32... */
-		crc = crc32(1L, (const unsigned char FAR *) contents, st_size);
+		crc = crc32(1L, (const unsigned char FAR *) contents, numread);
 		free(contents);
 
 		/* If the checksum or the size doesn't match, we'll want to update it. */
-		if (crc != strtoul(crc_buf, NULL, 16) || st_size != size)
+		if (crc != strtoul(crc_buf, NULL, 16) || st_size != (size_t) size)
 		{
 			file_updates_request(filename);
 		}
