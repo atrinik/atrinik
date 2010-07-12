@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-11 Alex Tokar
+Modified: 2010-07-11 Kiana
 endmsg
 width 24
 height 24
@@ -206,6 +206,10 @@ x 1
 y 16
 end
 arch grassd_m7
+x 1
+y 16
+end
+arch light2
 x 1
 y 16
 end
