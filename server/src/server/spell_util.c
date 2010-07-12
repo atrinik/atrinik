@@ -908,7 +908,12 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	tmp->direction = dir;
 	tmp->stats.grace = tmp->last_sp;
 	tmp->stats.maxgrace = 60 + (RANDOM() % 12);
-	tmp->enemy = target;
+
+	if (target)
+	{
+		tmp->enemy = target;
+		tmp->enemy_count = target->count;
+	}
 
 	if (get_owner(op) != NULL)
 	{
@@ -1514,7 +1519,7 @@ void move_fired_arch(object *op)
 	{
 		rv_vector rv;
 
-		if (!op->enemy || OBJECT_FREE(op->enemy) || !get_rangevector(op, op->enemy, &rv, 0))
+		if (!OBJECT_VALID(op->enemy, op->enemy_count) || !get_rangevector(op, op->enemy, &rv, 0))
 		{
 			remove_ob(op);
 			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
