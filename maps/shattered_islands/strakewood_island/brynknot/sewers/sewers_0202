@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-07-09 Alex Tokar
+Modified: 2010-07-12 Kiana
 endmsg
 width 24
 height 24
@@ -2203,6 +2203,14 @@ endmsg
 name Letter from Nyhelobo to oty captain
 end
 end
+arch key2
+msg
+Key bearing the symbol of Brynknot. It opens a door in the sewers.
+endmsg
+name Brynknot Maze Key
+face key_yervas.111
+slaying brynknot_maze_key
+end
 end
 end
 arch floor_earth1e
@@ -2223,6 +2231,14 @@ y 14
 arch oty
 level 50
 type 83
+arch key2
+msg
+Key bearing the symbol of Brynknot. It opens a door in the sewers.
+endmsg
+name Brynknot Maze Key
+face key_yervas.111
+slaying brynknot_maze_key
+end
 end
 end
 arch floor_earth1a
@@ -2394,6 +2410,14 @@ arch oty
 level 50
 type 83
 direction 4
+arch key2
+msg
+Key bearing the symbol of Brynknot. It opens a door in the sewers.
+endmsg
+name Brynknot Maze Key
+face key_yervas.111
+slaying brynknot_maze_key
+end
 end
 end
 arch floor_earth1b
