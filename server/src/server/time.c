@@ -189,7 +189,7 @@ void sleep_delta()
 		 * for even a single second to sleep when there is someone connected. */
 		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
 		{
-			LOG(llevBug, "BUG: sleep_delta(): sleep delta out of range! (%lus %luus)\n", (unsigned long) sleep_time.tv_sec, (unsigned long) sleep_time.tv_usec);
+			LOG(llevBug, "BUG: sleep_delta(): sleep delta out of range! (%"FMT64U"s %"FMT64U"us)\n", (uint64) sleep_time.tv_sec, (uint64) sleep_time.tv_usec);
 		}
 
 #ifndef WIN32

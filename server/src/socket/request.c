@@ -88,7 +88,7 @@ static void parse_srv_setup(char *param, char *cmdback, int type)
 	{
 		char tmpbuf[MAX_BUF];
 
-		snprintf(tmpbuf, sizeof(tmpbuf), "%lu|%lx", (unsigned long) SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
+		snprintf(tmpbuf, sizeof(tmpbuf), "%"FMT64U"|%lx", (uint64) SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
 		strcat(cmdback, tmpbuf);
 	}
 	else

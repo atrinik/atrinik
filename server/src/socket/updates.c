@@ -119,7 +119,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 	memcpy(update_files[update_files_num].sl.buf + update_files[update_files_num].sl.len, update_files[update_files_num].contents, update_files[update_files_num].len);
 	update_files[update_files_num].sl.len += update_files[update_files_num].len;
 
-	LOG(llevDebug, "  Loaded '%s': ucomp: %lu, comp: %lu (%3.1f%%), CRC32: %lx.\n", filename, (unsigned long) update_files[update_files_num].ucomp_len, (unsigned long) numread, (float) (numread * 100) / update_files[update_files_num].ucomp_len, update_files[update_files_num].checksum);
+	LOG(llevDebug, "  Loaded '%s': ucomp: %"FMT64U", comp: %"FMT64U" (%3.1f%%), CRC32: %lx.\n", filename, (uint64) update_files[update_files_num].ucomp_len, (uint64) numread, (float) (numread * 100) / update_files[update_files_num].ucomp_len, update_files[update_files_num].checksum);
 	update_files_num++;
 }
 
@@ -216,7 +216,7 @@ void updates_init()
 	{
 		update_file_struct *tmp = &update_files[i];
 
-		fprintf(fp, "%s %lu %lx\n", tmp->filename, (unsigned long) tmp->ucomp_len, tmp->checksum);
+		fprintf(fp, "%s %"FMT64U" %lx\n", tmp->filename, (uint64) tmp->ucomp_len, tmp->checksum);
 	}
 
 	fclose(fp);

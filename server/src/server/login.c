@@ -420,7 +420,7 @@ void check_login(object *op)
 
 		if (elapsed_save_time < 0)
 		{
-			LOG(llevBug, "BUG: Player file %s was saved in the future? (%lu time)\n", filename, (unsigned long) elapsed_save_time);
+			LOG(llevBug, "BUG: Player file %s was saved in the future? (%"FMT64U" time)\n", filename, (uint64) elapsed_save_time);
 			elapsed_save_time = 0;
 		}
 	}

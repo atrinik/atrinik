@@ -606,7 +606,7 @@ void init_artifacts()
 			/* Now store the parse text in the artifacts list entry */
 			if ((art->parse_text = malloc(lcount)) == NULL)
 			{
-				LOG(llevError, "ERROR: init_artifacts(): out of memory in ->parse_text (size %lu)\n", (unsigned long) lcount);
+				LOG(llevError, "ERROR: init_artifacts(): out of memory in ->parse_text (size %"FMT64U")\n", (uint64) lcount);
 			}
 
 			memcpy(art->parse_text, buf_text, lcount);

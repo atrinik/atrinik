@@ -386,7 +386,7 @@ void ss_dump_table(int what, char *buf, size_t size)
 			++entries;
 			refs += (ss->refcount & ~TOPBIT);
 
-			LOG(llevSystem, "%4d -- %4lu refs '%s' %c\n", i, (unsigned long) (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? ' ' : '#'));
+			LOG(llevSystem, "%4d -- %4"FMT64U" refs '%s' %c\n", i, (uint64) (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? ' ' : '#'));
 
 			while (ss->next)
 			{
@@ -396,7 +396,7 @@ void ss_dump_table(int what, char *buf, size_t size)
 
 				if (what & SS_DUMP_TABLE)
 				{
-					LOG(llevSystem, "     -- %4lu refs '%s' %c\n", (unsigned long) (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? '*' : ' '));
+					LOG(llevSystem, "     -- %4"FMT64U" refs '%s' %c\n", (uint64) (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? '*' : ' '));
 				}
 			}
 		}

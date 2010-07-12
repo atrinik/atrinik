@@ -1087,14 +1087,14 @@ void compile_info()
 	LOG(llevInfo, "Max_time:\t%d\n", MAX_TIME);
 
 	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);
-	LOG(llevInfo, "ObjectSize:\t%lu (living: %lu)\n", (unsigned long) sizeof(object), (unsigned long) sizeof(living));
-	LOG(llevInfo, "ObjectlinkSize:\t%lu\n", (unsigned long) sizeof(objectlink));
-	LOG(llevInfo, "MapStructSize:\t%lu\n", (unsigned long) sizeof(mapstruct));
-	LOG(llevInfo, "MapSpaceSize:\t%lu\n", (unsigned long) sizeof(MapSpace));
-	LOG(llevInfo, "PlayerSize:\t%lu\n", (unsigned long) sizeof(player));
-	LOG(llevInfo, "SocketSize:\t%lu\n", (unsigned long) sizeof(socket_struct));
-	LOG(llevInfo, "PartylistSize:\t%lu\n", (unsigned long) sizeof(party_struct));
-	LOG(llevInfo, "KeyValueSize:\t%lu\n", (unsigned long) sizeof(key_value));
+	LOG(llevInfo, "ObjectSize:\t%"FMT64U" (living: %"FMT64U")\n", (uint64) sizeof(object), (uint64) sizeof(living));
+	LOG(llevInfo, "ObjectlinkSize:\t%"FMT64U"\n", (uint64) sizeof(objectlink));
+	LOG(llevInfo, "MapStructSize:\t%"FMT64U"\n", (uint64) sizeof(mapstruct));
+	LOG(llevInfo, "MapSpaceSize:\t%"FMT64U"\n", (uint64) sizeof(MapSpace));
+	LOG(llevInfo, "PlayerSize:\t%"FMT64U"\n", (uint64) sizeof(player));
+	LOG(llevInfo, "SocketSize:\t%"FMT64U"\n", (uint64) sizeof(socket_struct));
+	LOG(llevInfo, "PartylistSize:\t%"FMT64U"\n", (uint64) sizeof(party_struct));
+	LOG(llevInfo, "KeyValueSize:\t%"FMT64U"\n", (uint64) sizeof(key_value));
 
 	LOG(llevInfo, "Setup info: Done.\n");
 }

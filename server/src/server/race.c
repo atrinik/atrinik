@@ -233,5 +233,5 @@ void race_free()
 	}
 
 	free(races);
-	LOG(-1, "Freed %lu races.\n", (unsigned long) num_races);
+	LOG(-1, "Freed %"FMT64U" races.\n", (uint64) num_races);
 }
