@@ -538,9 +538,9 @@ void update_los(object *op)
 		{
 			int x, y;
 
-			for (x = -4; x <= 4; x++)
+			for (x = -3; x <= 3; x++)
 			{
-				for (y = -4; y <= 4; y++)
+				for (y = -3; y <= 3; y++)
 				{
 					if (CONTR(op)->blocked_los[dx + x][dy + y] & BLOCKED_LOS_BLOCKED)
 					{
