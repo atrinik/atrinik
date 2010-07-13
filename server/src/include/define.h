@@ -154,7 +154,7 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 127, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 152, 155, 151, 141, 107, 89, 61, 57, 45, 28, 10, 11,
+ * 148, 149, 150, 152, 155, 151, 141, 107, 89, 61, 57, 45, 28, 11,
  * 46, 24.
  *@{*/
 /**
@@ -184,6 +184,9 @@
 /**
  * Clock. Shows the in-game time. */
 #define CLOCK 9
+/**
+ * Material used for the construction skill. */
+#define MATERIAL 10
 /**
  * Lightning. */
 #define LIGHTNING 12
@@ -695,6 +698,30 @@
 #define ST1_DOOR_NORMAL     0
 /** Different sound */
 #define ST1_DOOR_CURTAIN    1
+/*@}*/
+
+/**
+ * @defgroup ST_BD_xxx Construction sub types
+ * Sub types used for construction skill items.
+ *@{*/
+/** Destroys a previously built item. */
+#define ST_BD_REMOVE 1
+/** Builds marked material. */
+#define ST_BD_BUILD 2
+/*@}*/
+
+/**
+ * @defgroup ST_MAT_xxx Material sub types
+ * Sub types used for construction materials.
+ *@{*/
+/** Floor material. */
+#define ST_MAT_FLOOR 1
+/** Wall material. */
+#define ST_MAT_WALL 2
+/** Object material. */
+#define ST_MAT_ITEM 3
+/** Window material. */
+#define ST_MAT_WIN 4
 /*@}*/
 /*@}*/
 

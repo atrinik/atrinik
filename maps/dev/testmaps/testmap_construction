@@ -1,0 +1,3495 @@
+arch map
+name Testmap: Construction
+msg
+Created:  2010-07-13 Alex Tokar
+Modified: 2010-07-13 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+end
+arch blocked
+end
+arch wall_wood_8
+end
+arch blocked
+y 1
+end
+arch wall_wood_3
+y 1
+end
+arch blocked
+y 2
+end
+arch wall_wood_3
+y 2
+end
+arch blocked
+y 3
+end
+arch wall_wood_3
+y 3
+end
+arch blocked
+y 4
+end
+arch wall_wood_3
+y 4
+end
+arch blocked
+y 5
+end
+arch wall_wood_3
+y 5
+end
+arch blocked
+y 6
+end
+arch wall_wood_3
+y 6
+end
+arch blocked
+y 7
+end
+arch wall_wood_3
+y 7
+end
+arch blocked
+y 8
+end
+arch wall_wood_3
+y 8
+end
+arch blocked
+y 9
+end
+arch wall_wood_3
+y 9
+end
+arch blocked
+y 10
+end
+arch wall_wood_3
+y 10
+end
+arch blocked
+y 11
+end
+arch wall_wood_3
+y 11
+end
+arch blocked
+y 12
+end
+arch wall_wood_3
+y 12
+end
+arch blocked
+y 13
+end
+arch wall_wood_3
+y 13
+end
+arch blocked
+y 14
+end
+arch wall_wood_3
+y 14
+end
+arch blocked
+y 15
+end
+arch wall_wood_3
+y 15
+end
+arch blocked
+y 16
+end
+arch wall_wood_3
+y 16
+end
+arch blocked
+y 17
+end
+arch wall_wood_3
+y 17
+end
+arch blocked
+y 18
+end
+arch wall_wood_3
+y 18
+end
+arch blocked
+y 19
+end
+arch wall_wood_3
+y 19
+end
+arch blocked
+y 20
+end
+arch wall_wood_3
+y 20
+end
+arch blocked
+y 21
+end
+arch wall_wood_3
+y 21
+end
+arch blocked
+y 22
+end
+arch wall_wood_3
+y 22
+end
+arch blocked
+y 23
+end
+arch wall_wood_3
+y 23
+end
+arch blocked
+x 1
+end
+arch wall_wood_1
+x 1
+end
+arch floor_wood3g
+is_buildable 1
+x 1
+y 1
+end
+arch stairs_wood_up
+slaying testmap_main
+hp 13
+sp 15
+x 1
+y 1
+end
+arch floor_wood3g
+is_buildable 1
+x 1
+y 2
+end
+arch shop_floor_normal
+x 1
+y 3
+end
+arch constr_fireplace
+nrof 10000
+x 1
+y 3
+end
+arch shop_floor_normal
+x 1
+y 4
+end
+arch constr_build
+nrof 1000
+x 1
+y 4
+end
+arch shop_floor_normal
+x 1
+y 5
+end
+arch constr_remove
+nrof 1000
+x 1
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 1
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 1
+y 6
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 7
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 8
+end
+arch floor_wood3a
+is_buildable 1
+x 1
+y 9
+end
+arch floor_wood3b
+is_buildable 1
+x 1
+y 10
+end
+arch floor_wood3a
+is_buildable 1
+x 1
+y 11
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 1
+y 13
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 1
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 15
+end
+arch floor_wood3b
+is_buildable 1
+x 1
+y 16
+end
+arch floor_wood3g
+is_buildable 1
+x 1
+y 17
+end
+arch floor_wood3a
+is_buildable 1
+x 1
+y 18
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 20
+end
+arch floor_wood3h
+is_buildable 1
+x 1
+y 21
+end
+arch floor_wood3f
+is_buildable 1
+x 1
+y 22
+end
+arch floor_wood3a
+x 1
+y 23
+end
+arch wall_wood_1
+x 1
+y 23
+end
+arch blocked
+x 2
+end
+arch wall_wood_1
+x 2
+end
+arch floor_wood3a
+is_buildable 1
+x 2
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 2
+y 2
+end
+arch floor_wood3g
+is_buildable 1
+x 2
+y 3
+end
+arch shop_floor_normal
+x 2
+y 4
+end
+arch constr_floor_wood3b
+nrof 10000
+x 2
+y 4
+end
+arch shop_floor_normal
+x 2
+y 5
+end
+arch constr_floor_wood3a
+nrof 10000
+x 2
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 2
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 2
+y 6
+end
+arch floor_wood3a
+is_buildable 1
+x 2
+y 7
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 8
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 10
+end
+arch floor_wood3b
+is_buildable 1
+x 2
+y 11
+end
+arch floor_wood3f
+is_buildable 1
+x 2
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 2
+y 14
+end
+arch floor_wood3g
+is_buildable 1
+x 2
+y 15
+end
+arch floor_wood3f
+is_buildable 1
+x 2
+y 16
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 2
+y 18
+end
+arch floor_wood3a
+is_buildable 1
+x 2
+y 19
+end
+arch floor_wood3h
+is_buildable 1
+x 2
+y 20
+end
+arch floor_wood3a
+is_buildable 1
+x 2
+y 21
+end
+arch floor_wood3b
+is_buildable 1
+x 2
+y 22
+end
+arch floor_wood3g
+x 2
+y 23
+end
+arch wall_wood_1
+x 2
+y 23
+end
+arch blocked
+x 3
+end
+arch wall_wood_1
+x 3
+end
+arch floor_wood3a
+is_buildable 1
+x 3
+y 1
+end
+arch floor_wood3h
+is_buildable 1
+x 3
+y 2
+end
+arch floor_wood3b
+is_buildable 1
+x 3
+y 3
+end
+arch shop_floor_normal
+x 3
+y 4
+end
+arch constr_window
+nrof 10000
+x 3
+y 4
+end
+arch shop_floor_normal
+x 3
+y 5
+end
+arch constr_wall_wood
+nrof 10000
+x 3
+y 5
+end
+arch floor_wood3g
+is_buildable 1
+x 3
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 3
+y 6
+end
+arch floor_wood3g
+is_buildable 1
+x 3
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 3
+y 8
+end
+arch floor_wood3a
+is_buildable 1
+x 3
+y 9
+end
+arch floor_wood3f
+is_buildable 1
+x 3
+y 10
+end
+arch floor_wood3h
+is_buildable 1
+x 3
+y 11
+end
+arch floor_wood3a
+is_buildable 1
+x 3
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 3
+y 13
+end
+arch floor_wood3a
+is_buildable 1
+x 3
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 3
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 3
+y 15
+end
+arch floor_wood3h
+is_buildable 1
+x 3
+y 16
+end
+arch floor_wood3h
+is_buildable 1
+x 3
+y 17
+end
+arch floor_wood3h
+is_buildable 1
+x 3
+y 18
+end
+arch floor_wood3f
+is_buildable 1
+x 3
+y 19
+end
+arch floor_wood3a
+is_buildable 1
+x 3
+y 20
+end
+arch floor_wood3b
+is_buildable 1
+x 3
+y 21
+end
+arch floor_wood3g
+is_buildable 1
+x 3
+y 22
+end
+arch floor_wood3h
+x 3
+y 23
+end
+arch wall_wood_1
+x 3
+y 23
+end
+arch blocked
+x 4
+end
+arch wall_wood_1
+x 4
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 1
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 2
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 3
+end
+arch shop_floor_normal
+x 4
+y 4
+end
+arch constr_bookshelf
+nrof 10000
+x 4
+y 4
+end
+arch shop_floor_normal
+x 4
+y 5
+end
+arch constr_chest
+nrof 10000
+x 4
+y 5
+end
+arch floor_wood3g
+is_buildable 1
+x 4
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 4
+y 6
+end
+arch floor_wood3f
+is_buildable 1
+x 4
+y 7
+end
+arch floor_wood3f
+is_buildable 1
+x 4
+y 8
+end
+arch floor_wood3f
+is_buildable 1
+x 4
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 4
+y 10
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 11
+end
+arch floor_wood3b
+is_buildable 1
+x 4
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 4
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 4
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 4
+y 14
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 15
+end
+arch floor_wood3f
+is_buildable 1
+x 4
+y 16
+end
+arch floor_wood3b
+is_buildable 1
+x 4
+y 17
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 18
+end
+arch floor_wood3a
+is_buildable 1
+x 4
+y 19
+end
+arch floor_wood3h
+is_buildable 1
+x 4
+y 20
+end
+arch floor_wood3h
+is_buildable 1
+x 4
+y 21
+end
+arch floor_wood3b
+is_buildable 1
+x 4
+y 22
+end
+arch floor_wood3g
+x 4
+y 23
+end
+arch wall_wood_1
+x 4
+y 23
+end
+arch blocked
+x 5
+end
+arch wall_wood_1
+x 5
+end
+arch floor_wood3a
+is_buildable 1
+x 5
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 5
+y 2
+end
+arch floor_wood3a
+is_buildable 1
+x 5
+y 3
+end
+arch shop_floor_normal
+x 5
+y 4
+end
+arch constr_altar
+nrof 10000
+x 5
+y 4
+end
+arch shop_floor_normal
+x 5
+y 5
+end
+arch constr_desk
+nrof 10000
+x 5
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 5
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 5
+y 6
+end
+arch floor_wood3f
+is_buildable 1
+x 5
+y 7
+end
+arch floor_wood3g
+is_buildable 1
+x 5
+y 8
+end
+arch floor_wood3f
+is_buildable 1
+x 5
+y 9
+end
+arch floor_wood3b
+is_buildable 1
+x 5
+y 10
+end
+arch floor_wood3f
+is_buildable 1
+x 5
+y 11
+end
+arch floor_wood3a
+is_buildable 1
+x 5
+y 12
+end
+arch floor_wood3a
+is_buildable 1
+x 5
+y 13
+end
+arch floor_wood3b
+is_buildable 1
+x 5
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 5
+y 14
+end
+arch floor_wood3h
+is_buildable 1
+x 5
+y 15
+end
+arch floor_wood3h
+is_buildable 1
+x 5
+y 16
+end
+arch floor_wood3a
+is_buildable 1
+x 5
+y 17
+end
+arch floor_wood3h
+is_buildable 1
+x 5
+y 18
+end
+arch floor_wood3f
+is_buildable 1
+x 5
+y 19
+end
+arch floor_wood3h
+is_buildable 1
+x 5
+y 20
+end
+arch floor_wood3b
+is_buildable 1
+x 5
+y 21
+end
+arch floor_wood3b
+is_buildable 1
+x 5
+y 22
+end
+arch floor_wood3f
+x 5
+y 23
+end
+arch wall_wood_1
+x 5
+y 23
+end
+arch blocked
+x 6
+end
+arch wall_wood_1
+x 6
+end
+arch floor_wood3a
+is_buildable 1
+x 6
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 6
+y 2
+end
+arch floor_wood3g
+is_buildable 1
+x 6
+y 3
+end
+arch shop_floor_normal
+x 6
+y 4
+end
+arch constr_rack
+nrof 10000
+x 6
+y 4
+end
+arch shop_floor_normal
+x 6
+y 5
+end
+arch constr_sign
+nrof 10000
+x 6
+y 5
+end
+arch floor_wood3f
+is_buildable 1
+x 6
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 6
+y 6
+end
+arch floor_wood3g
+is_buildable 1
+x 6
+y 7
+end
+arch floor_wood3b
+is_buildable 1
+x 6
+y 8
+end
+arch floor_wood3g
+is_buildable 1
+x 6
+y 9
+end
+arch floor_wood3f
+is_buildable 1
+x 6
+y 10
+end
+arch floor_wood3b
+is_buildable 1
+x 6
+y 11
+end
+arch floor_wood3b
+is_buildable 1
+x 6
+y 12
+end
+arch floor_wood3g
+is_buildable 1
+x 6
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 6
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 6
+y 14
+end
+arch floor_wood3a
+is_buildable 1
+x 6
+y 15
+end
+arch floor_wood3a
+is_buildable 1
+x 6
+y 16
+end
+arch floor_wood3f
+is_buildable 1
+x 6
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 6
+y 18
+end
+arch floor_wood3h
+is_buildable 1
+x 6
+y 19
+end
+arch floor_wood3b
+is_buildable 1
+x 6
+y 20
+end
+arch floor_wood3a
+is_buildable 1
+x 6
+y 21
+end
+arch floor_wood3b
+is_buildable 1
+x 6
+y 22
+end
+arch floor_wood3g
+x 6
+y 23
+end
+arch wall_wood_1
+x 6
+y 23
+end
+arch blocked
+x 7
+end
+arch wall_wood_1
+x 7
+end
+arch floor_wood3a
+is_buildable 1
+x 7
+y 1
+end
+arch wall_wood_3
+is_buildable 1
+x 7
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 7
+y 2
+end
+arch wall_wood_3
+is_buildable 1
+x 7
+y 2
+end
+arch floor_wood3a
+is_buildable 1
+x 7
+y 3
+end
+arch floor_wood3g
+is_buildable 1
+x 7
+y 4
+end
+arch wall_wood_3
+is_buildable 1
+x 7
+y 4
+end
+arch floor_wood3b
+is_buildable 1
+x 7
+y 5
+end
+arch wall_wood_3
+is_buildable 1
+x 7
+y 5
+end
+arch floor_wood3g
+is_buildable 1
+x 7
+y 6
+end
+arch wall_wood_4
+is_buildable 1
+x 7
+y 6
+end
+arch floor_wood3h
+is_buildable 1
+x 7
+y 7
+end
+arch floor_wood3g
+is_buildable 1
+x 7
+y 8
+end
+arch floor_wood3a
+is_buildable 1
+x 7
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 7
+y 10
+end
+arch floor_wood3h
+is_buildable 1
+x 7
+y 11
+end
+arch floor_wood3a
+is_buildable 1
+x 7
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 7
+y 13
+end
+arch floor_wood3g
+is_buildable 1
+x 7
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 7
+y 14
+end
+arch floor_wood3b
+is_buildable 1
+x 7
+y 15
+end
+arch floor_wood3b
+is_buildable 1
+x 7
+y 16
+end
+arch floor_wood3b
+is_buildable 1
+x 7
+y 17
+end
+arch floor_wood3b
+is_buildable 1
+x 7
+y 18
+end
+arch floor_wood3a
+is_buildable 1
+x 7
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 7
+y 20
+end
+arch floor_wood3f
+is_buildable 1
+x 7
+y 21
+end
+arch floor_wood3h
+is_buildable 1
+x 7
+y 22
+end
+arch floor_wood3h
+x 7
+y 23
+end
+arch wall_wood_1
+x 7
+y 23
+end
+arch blocked
+x 8
+end
+arch wall_wood_1
+x 8
+end
+arch floor_wood3a
+is_buildable 1
+x 8
+y 1
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 2
+end
+arch floor_wood3b
+is_buildable 1
+x 8
+y 3
+end
+arch floor_wood3a
+is_buildable 1
+x 8
+y 4
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 5
+end
+arch floor_wood3a
+is_buildable 1
+x 8
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 8
+y 6
+end
+arch floor_wood3g
+is_buildable 1
+x 8
+y 7
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 7
+end
+arch floor_wood3f
+is_buildable 1
+x 8
+y 8
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 8
+end
+arch floor_wood3g
+is_buildable 1
+x 8
+y 9
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 10
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 10
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 11
+end
+arch floor_wood3f
+is_buildable 1
+x 8
+y 12
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 13
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 14
+end
+arch wall_wood_4
+is_buildable 1
+x 8
+y 14
+end
+arch floor_wood3g
+is_buildable 1
+x 8
+y 15
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 15
+end
+arch floor_wood3h
+is_buildable 1
+x 8
+y 16
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 16
+end
+arch floor_wood3b
+is_buildable 1
+x 8
+y 17
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 17
+end
+arch floor_wood3f
+is_buildable 1
+x 8
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 8
+y 19
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 19
+end
+arch floor_wood3a
+is_buildable 1
+x 8
+y 20
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 8
+y 21
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 21
+end
+arch floor_wood3g
+is_buildable 1
+x 8
+y 22
+end
+arch wall_wood_3
+is_buildable 1
+x 8
+y 22
+end
+arch floor_wood3g
+x 8
+y 23
+end
+arch wall_wood_4
+x 8
+y 23
+end
+arch blocked
+x 9
+end
+arch wall_wood_1
+x 9
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 1
+end
+arch floor_wood3g
+is_buildable 1
+x 9
+y 2
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 3
+end
+arch floor_wood3b
+is_buildable 1
+x 9
+y 4
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 5
+end
+arch floor_wood3h
+is_buildable 1
+x 9
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 9
+y 6
+end
+arch floor_wood3h
+is_buildable 1
+x 9
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 8
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 9
+y 10
+end
+arch floor_wood3g
+is_buildable 1
+x 9
+y 11
+end
+arch floor_wood3g
+is_buildable 1
+x 9
+y 12
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 13
+end
+arch floor_wood3b
+is_buildable 1
+x 9
+y 14
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 15
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 16
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 9
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 9
+y 19
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 20
+end
+arch floor_wood3b
+is_buildable 1
+x 9
+y 21
+end
+arch floor_wood3a
+is_buildable 1
+x 9
+y 22
+end
+arch floor_wood3a
+x 9
+y 23
+end
+arch wall_wood_1
+x 9
+y 23
+end
+arch blocked
+x 10
+end
+arch wall_wood_1
+x 10
+end
+arch floor_wood3a
+is_buildable 1
+x 10
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 2
+end
+arch floor_wood3a
+is_buildable 1
+x 10
+y 3
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 4
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 10
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 10
+y 6
+end
+arch floor_wood3b
+is_buildable 1
+x 10
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 10
+y 8
+end
+arch floor_wood3g
+is_buildable 1
+x 10
+y 9
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 10
+end
+arch floor_wood3h
+is_buildable 1
+x 10
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 10
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 10
+y 13
+end
+arch floor_wood3g
+is_buildable 1
+x 10
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 15
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 16
+end
+arch floor_wood3h
+is_buildable 1
+x 10
+y 17
+end
+arch floor_wood3a
+is_buildable 1
+x 10
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 10
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 10
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 10
+y 21
+end
+arch floor_wood3a
+is_buildable 1
+x 10
+y 22
+end
+arch floor_wood3b
+x 10
+y 23
+end
+arch wall_wood_1
+x 10
+y 23
+end
+arch blocked
+x 11
+end
+arch wall_wood_1
+x 11
+end
+arch floor_wood3f
+is_buildable 1
+x 11
+y 1
+end
+arch floor_wood3g
+is_buildable 1
+x 11
+y 2
+end
+arch floor_wood3f
+is_buildable 1
+x 11
+y 3
+end
+arch floor_wood3b
+is_buildable 1
+x 11
+y 4
+end
+arch floor_wood3f
+is_buildable 1
+x 11
+y 5
+end
+arch floor_wood3h
+is_buildable 1
+x 11
+y 6
+end
+arch floor_wood3g
+is_buildable 1
+x 11
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 11
+y 8
+end
+arch floor_wood3h
+is_buildable 1
+x 11
+y 9
+end
+arch floor_wood3g
+is_buildable 1
+x 11
+y 10
+end
+arch floor_wood3f
+is_buildable 1
+x 11
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 11
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 11
+y 13
+end
+arch floor_wood3a
+is_buildable 1
+x 11
+y 14
+end
+arch floor_wood3g
+is_buildable 1
+x 11
+y 15
+end
+arch floor_wood3g
+is_buildable 1
+x 11
+y 16
+end
+arch floor_wood3h
+is_buildable 1
+x 11
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 11
+y 18
+end
+arch floor_wood3h
+is_buildable 1
+x 11
+y 19
+end
+arch floor_wood3b
+is_buildable 1
+x 11
+y 20
+end
+arch floor_wood3f
+is_buildable 1
+x 11
+y 21
+end
+arch floor_wood3b
+is_buildable 1
+x 11
+y 22
+end
+arch floor_wood3f
+x 11
+y 23
+end
+arch wall_wood_1
+x 11
+y 23
+end
+arch blocked
+x 12
+end
+arch wall_wood_1
+x 12
+end
+arch floor_wood3g
+is_buildable 1
+x 12
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 2
+end
+arch floor_wood3g
+is_buildable 1
+x 12
+y 3
+end
+arch floor_wood3a
+is_buildable 1
+x 12
+y 4
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 5
+end
+arch floor_wood3h
+is_buildable 1
+x 12
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 12
+y 6
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 12
+y 8
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 9
+end
+arch floor_wood3a
+is_buildable 1
+x 12
+y 10
+end
+arch floor_wood3a
+is_buildable 1
+x 12
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 12
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 13
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 15
+end
+arch floor_wood3f
+is_buildable 1
+x 12
+y 16
+end
+arch floor_wood3b
+is_buildable 1
+x 12
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 12
+y 18
+end
+arch floor_wood3h
+is_buildable 1
+x 12
+y 19
+end
+arch floor_wood3a
+is_buildable 1
+x 12
+y 20
+end
+arch floor_wood3a
+is_buildable 1
+x 12
+y 21
+end
+arch floor_wood3h
+is_buildable 1
+x 12
+y 22
+end
+arch floor_wood3a
+x 12
+y 23
+end
+arch wall_wood_1
+x 12
+y 23
+end
+arch blocked
+x 13
+end
+arch wall_wood_1
+x 13
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 1
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 2
+end
+arch floor_wood3a
+is_buildable 1
+x 13
+y 3
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 4
+end
+arch floor_wood3b
+is_buildable 1
+x 13
+y 5
+end
+arch floor_wood3a
+is_buildable 1
+x 13
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 13
+y 6
+end
+arch floor_wood3a
+is_buildable 1
+x 13
+y 7
+end
+arch floor_wood3b
+is_buildable 1
+x 13
+y 8
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 9
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 10
+end
+arch floor_wood3b
+is_buildable 1
+x 13
+y 11
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 13
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 15
+end
+arch floor_wood3g
+is_buildable 1
+x 13
+y 16
+end
+arch floor_wood3h
+is_buildable 1
+x 13
+y 17
+end
+arch floor_wood3h
+is_buildable 1
+x 13
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 13
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 13
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 13
+y 21
+end
+arch floor_wood3h
+is_buildable 1
+x 13
+y 22
+end
+arch floor_wood3b
+x 13
+y 23
+end
+arch wall_wood_1
+x 13
+y 23
+end
+arch blocked
+x 14
+end
+arch wall_wood_1
+x 14
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 1
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 1
+end
+arch floor_wood3b
+is_buildable 1
+x 14
+y 2
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 2
+end
+arch floor_wood3h
+is_buildable 1
+x 14
+y 3
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 3
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 4
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 4
+end
+arch floor_wood3a
+is_buildable 1
+x 14
+y 5
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 5
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 6
+end
+arch wall_wood_4
+is_buildable 1
+x 14
+y 6
+end
+arch floor_wood3a
+is_buildable 1
+x 14
+y 7
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 14
+y 8
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 8
+end
+arch floor_wood3h
+is_buildable 1
+x 14
+y 9
+end
+arch floor_wood3a
+is_buildable 1
+x 14
+y 10
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 10
+end
+arch floor_wood3a
+is_buildable 1
+x 14
+y 11
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 11
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 12
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 14
+y 13
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 13
+end
+arch floor_wood3f
+is_buildable 1
+x 14
+y 14
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 14
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 15
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 15
+end
+arch floor_wood3h
+is_buildable 1
+x 14
+y 16
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 16
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 17
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 17
+end
+arch floor_wood3f
+is_buildable 1
+x 14
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 19
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 19
+end
+arch floor_wood3h
+is_buildable 1
+x 14
+y 20
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 20
+end
+arch floor_wood3h
+is_buildable 1
+x 14
+y 21
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 21
+end
+arch floor_wood3g
+is_buildable 1
+x 14
+y 22
+end
+arch wall_wood_3
+is_buildable 1
+x 14
+y 22
+end
+arch floor_wood3f
+x 14
+y 23
+end
+arch wall_wood_4
+x 14
+y 23
+end
+arch blocked
+x 15
+end
+arch wall_wood_1
+x 15
+end
+arch floor_wood3a
+is_buildable 1
+x 15
+y 1
+end
+arch floor_wood3a
+is_buildable 1
+x 15
+y 2
+end
+arch floor_wood3f
+is_buildable 1
+x 15
+y 3
+end
+arch floor_wood3b
+is_buildable 1
+x 15
+y 4
+end
+arch floor_wood3f
+is_buildable 1
+x 15
+y 5
+end
+arch floor_wood3a
+is_buildable 1
+x 15
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 15
+y 6
+end
+arch floor_wood3f
+is_buildable 1
+x 15
+y 7
+end
+arch floor_wood3h
+is_buildable 1
+x 15
+y 8
+end
+arch floor_wood3h
+is_buildable 1
+x 15
+y 9
+end
+arch floor_wood3a
+is_buildable 1
+x 15
+y 10
+end
+arch floor_wood3a
+is_buildable 1
+x 15
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 15
+y 12
+end
+arch floor_wood3g
+is_buildable 1
+x 15
+y 13
+end
+arch floor_wood3f
+is_buildable 1
+x 15
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 15
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 15
+y 15
+end
+arch floor_wood3h
+is_buildable 1
+x 15
+y 16
+end
+arch floor_wood3g
+is_buildable 1
+x 15
+y 17
+end
+arch floor_wood3h
+is_buildable 1
+x 15
+y 18
+end
+arch floor_wood3b
+is_buildable 1
+x 15
+y 19
+end
+arch floor_wood3h
+is_buildable 1
+x 15
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 15
+y 21
+end
+arch floor_wood3a
+is_buildable 1
+x 15
+y 22
+end
+arch floor_wood3b
+x 15
+y 23
+end
+arch wall_wood_1
+x 15
+y 23
+end
+arch blocked
+x 16
+end
+arch wall_wood_1
+x 16
+end
+arch floor_wood3b
+is_buildable 1
+x 16
+y 1
+end
+arch floor_wood3b
+is_buildable 1
+x 16
+y 2
+end
+arch floor_wood3h
+is_buildable 1
+x 16
+y 3
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 4
+end
+arch floor_wood3a
+is_buildable 1
+x 16
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 16
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 16
+y 6
+end
+arch floor_wood3h
+is_buildable 1
+x 16
+y 7
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 8
+end
+arch floor_wood3f
+is_buildable 1
+x 16
+y 9
+end
+arch floor_wood3b
+is_buildable 1
+x 16
+y 10
+end
+arch floor_wood3f
+is_buildable 1
+x 16
+y 11
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 16
+y 13
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 16
+y 14
+end
+arch floor_wood3a
+is_buildable 1
+x 16
+y 15
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 16
+end
+arch floor_wood3a
+is_buildable 1
+x 16
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 18
+end
+arch floor_wood3b
+is_buildable 1
+x 16
+y 19
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 16
+y 21
+end
+arch floor_wood3b
+is_buildable 1
+x 16
+y 22
+end
+arch floor_wood3g
+x 16
+y 23
+end
+arch wall_wood_1
+x 16
+y 23
+end
+arch blocked
+x 17
+end
+arch wall_wood_1
+x 17
+end
+arch floor_wood3a
+is_buildable 1
+x 17
+y 1
+end
+arch floor_wood3g
+is_buildable 1
+x 17
+y 2
+end
+arch floor_wood3h
+is_buildable 1
+x 17
+y 3
+end
+arch floor_wood3b
+is_buildable 1
+x 17
+y 4
+end
+arch floor_wood3b
+is_buildable 1
+x 17
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 17
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 17
+y 6
+end
+arch floor_wood3b
+is_buildable 1
+x 17
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 17
+y 8
+end
+arch floor_wood3g
+is_buildable 1
+x 17
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 17
+y 10
+end
+arch floor_wood3b
+is_buildable 1
+x 17
+y 11
+end
+arch floor_wood3f
+is_buildable 1
+x 17
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 17
+y 13
+end
+arch floor_wood3a
+is_buildable 1
+x 17
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 17
+y 14
+end
+arch floor_wood3g
+is_buildable 1
+x 17
+y 15
+end
+arch floor_wood3a
+is_buildable 1
+x 17
+y 16
+end
+arch floor_wood3g
+is_buildable 1
+x 17
+y 17
+end
+arch floor_wood3f
+is_buildable 1
+x 17
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 17
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 17
+y 20
+end
+arch floor_wood3b
+is_buildable 1
+x 17
+y 21
+end
+arch floor_wood3a
+is_buildable 1
+x 17
+y 22
+end
+arch floor_wood3g
+x 17
+y 23
+end
+arch wall_wood_1
+x 17
+y 23
+end
+arch blocked
+x 18
+end
+arch wall_wood_1
+x 18
+end
+arch floor_wood3g
+is_buildable 1
+x 18
+y 1
+end
+arch floor_wood3g
+is_buildable 1
+x 18
+y 2
+end
+arch floor_wood3h
+is_buildable 1
+x 18
+y 3
+end
+arch floor_wood3h
+is_buildable 1
+x 18
+y 4
+end
+arch floor_wood3b
+is_buildable 1
+x 18
+y 5
+end
+arch floor_wood3f
+is_buildable 1
+x 18
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 18
+y 6
+end
+arch floor_wood3h
+is_buildable 1
+x 18
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 18
+y 8
+end
+arch floor_wood3a
+is_buildable 1
+x 18
+y 9
+end
+arch floor_wood3f
+is_buildable 1
+x 18
+y 10
+end
+arch floor_wood3g
+is_buildable 1
+x 18
+y 11
+end
+arch floor_wood3f
+is_buildable 1
+x 18
+y 12
+end
+arch floor_wood3g
+is_buildable 1
+x 18
+y 13
+end
+arch floor_wood3f
+is_buildable 1
+x 18
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 18
+y 14
+end
+arch floor_wood3a
+is_buildable 1
+x 18
+y 15
+end
+arch floor_wood3a
+is_buildable 1
+x 18
+y 16
+end
+arch floor_wood3g
+is_buildable 1
+x 18
+y 17
+end
+arch floor_wood3a
+is_buildable 1
+x 18
+y 18
+end
+arch floor_wood3b
+is_buildable 1
+x 18
+y 19
+end
+arch floor_wood3b
+is_buildable 1
+x 18
+y 20
+end
+arch floor_wood3h
+is_buildable 1
+x 18
+y 21
+end
+arch floor_wood3f
+is_buildable 1
+x 18
+y 22
+end
+arch floor_wood3h
+x 18
+y 23
+end
+arch wall_wood_1
+x 18
+y 23
+end
+arch blocked
+x 19
+end
+arch wall_wood_1
+x 19
+end
+arch floor_wood3g
+is_buildable 1
+x 19
+y 1
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 2
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 3
+end
+arch floor_wood3a
+is_buildable 1
+x 19
+y 4
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 5
+end
+arch floor_wood3b
+is_buildable 1
+x 19
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 19
+y 6
+end
+arch floor_wood3g
+is_buildable 1
+x 19
+y 7
+end
+arch floor_wood3g
+is_buildable 1
+x 19
+y 8
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 10
+end
+arch floor_wood3a
+is_buildable 1
+x 19
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 13
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 19
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 15
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 16
+end
+arch floor_wood3b
+is_buildable 1
+x 19
+y 17
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 18
+end
+arch floor_wood3h
+is_buildable 1
+x 19
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 19
+y 21
+end
+arch floor_wood3f
+is_buildable 1
+x 19
+y 22
+end
+arch floor_wood3g
+x 19
+y 23
+end
+arch wall_wood_1
+x 19
+y 23
+end
+arch blocked
+x 20
+end
+arch wall_wood_1
+x 20
+end
+arch floor_wood3g
+is_buildable 1
+x 20
+y 1
+end
+arch floor_wood3a
+is_buildable 1
+x 20
+y 2
+end
+arch floor_wood3g
+is_buildable 1
+x 20
+y 3
+end
+arch floor_wood3a
+is_buildable 1
+x 20
+y 4
+end
+arch floor_wood3g
+is_buildable 1
+x 20
+y 5
+end
+arch floor_wood3g
+is_buildable 1
+x 20
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 20
+y 6
+end
+arch floor_wood3a
+is_buildable 1
+x 20
+y 7
+end
+arch floor_wood3b
+is_buildable 1
+x 20
+y 8
+end
+arch floor_wood3b
+is_buildable 1
+x 20
+y 9
+end
+arch floor_wood3h
+is_buildable 1
+x 20
+y 10
+end
+arch floor_wood3b
+is_buildable 1
+x 20
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 20
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 20
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 20
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 20
+y 14
+end
+arch floor_wood3b
+is_buildable 1
+x 20
+y 15
+end
+arch floor_wood3h
+is_buildable 1
+x 20
+y 16
+end
+arch floor_wood3g
+is_buildable 1
+x 20
+y 17
+end
+arch floor_wood3a
+is_buildable 1
+x 20
+y 18
+end
+arch floor_wood3g
+is_buildable 1
+x 20
+y 19
+end
+arch floor_wood3a
+is_buildable 1
+x 20
+y 20
+end
+arch floor_wood3f
+is_buildable 1
+x 20
+y 21
+end
+arch floor_wood3f
+is_buildable 1
+x 20
+y 22
+end
+arch floor_wood3h
+x 20
+y 23
+end
+arch wall_wood_1
+x 20
+y 23
+end
+arch blocked
+x 21
+end
+arch wall_wood_1
+x 21
+end
+arch floor_wood3g
+is_buildable 1
+x 21
+y 1
+end
+arch floor_wood3a
+is_buildable 1
+x 21
+y 2
+end
+arch floor_wood3b
+is_buildable 1
+x 21
+y 3
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 4
+end
+arch floor_wood3a
+is_buildable 1
+x 21
+y 5
+end
+arch floor_wood3g
+is_buildable 1
+x 21
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 21
+y 6
+end
+arch floor_wood3f
+is_buildable 1
+x 21
+y 7
+end
+arch floor_wood3a
+is_buildable 1
+x 21
+y 8
+end
+arch floor_wood3g
+is_buildable 1
+x 21
+y 9
+end
+arch floor_wood3f
+is_buildable 1
+x 21
+y 10
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 12
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 13
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 21
+y 14
+end
+arch floor_wood3b
+is_buildable 1
+x 21
+y 15
+end
+arch floor_wood3a
+is_buildable 1
+x 21
+y 16
+end
+arch floor_wood3f
+is_buildable 1
+x 21
+y 17
+end
+arch floor_wood3g
+is_buildable 1
+x 21
+y 18
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 19
+end
+arch floor_wood3g
+is_buildable 1
+x 21
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 21
+y 21
+end
+arch floor_wood3h
+is_buildable 1
+x 21
+y 22
+end
+arch floor_wood3g
+x 21
+y 23
+end
+arch wall_wood_1
+x 21
+y 23
+end
+arch blocked
+x 22
+end
+arch wall_wood_1
+x 22
+end
+arch floor_wood3b
+is_buildable 1
+x 22
+y 1
+end
+arch floor_wood3g
+is_buildable 1
+x 22
+y 2
+end
+arch floor_wood3g
+is_buildable 1
+x 22
+y 3
+end
+arch floor_wood3b
+is_buildable 1
+x 22
+y 4
+end
+arch floor_wood3h
+is_buildable 1
+x 22
+y 5
+end
+arch floor_wood3h
+is_buildable 1
+x 22
+y 6
+end
+arch wall_wood_1
+is_buildable 1
+x 22
+y 6
+end
+arch floor_wood3g
+is_buildable 1
+x 22
+y 7
+end
+arch floor_wood3g
+is_buildable 1
+x 22
+y 8
+end
+arch floor_wood3a
+is_buildable 1
+x 22
+y 9
+end
+arch floor_wood3b
+is_buildable 1
+x 22
+y 10
+end
+arch floor_wood3f
+is_buildable 1
+x 22
+y 11
+end
+arch floor_wood3h
+is_buildable 1
+x 22
+y 12
+end
+arch floor_wood3f
+is_buildable 1
+x 22
+y 13
+end
+arch floor_wood3g
+is_buildable 1
+x 22
+y 14
+end
+arch wall_wood_1
+is_buildable 1
+x 22
+y 14
+end
+arch floor_wood3f
+is_buildable 1
+x 22
+y 15
+end
+arch floor_wood3b
+is_buildable 1
+x 22
+y 16
+end
+arch floor_wood3a
+is_buildable 1
+x 22
+y 17
+end
+arch floor_wood3a
+is_buildable 1
+x 22
+y 18
+end
+arch floor_wood3f
+is_buildable 1
+x 22
+y 19
+end
+arch floor_wood3f
+is_buildable 1
+x 22
+y 20
+end
+arch floor_wood3g
+is_buildable 1
+x 22
+y 21
+end
+arch floor_wood3f
+is_buildable 1
+x 22
+y 22
+end
+arch floor_wood3g
+x 22
+y 23
+end
+arch wall_wood_1
+x 22
+y 23
+end
+arch blocked
+x 23
+end
+arch wall_wood_1
+x 23
+end
+arch floor_wood3h
+x 23
+y 1
+end
+arch wall_wood_3
+x 23
+y 1
+end
+arch floor_wood3f
+x 23
+y 2
+end
+arch wall_wood_3
+x 23
+y 2
+end
+arch floor_wood3h
+x 23
+y 3
+end
+arch wall_wood_3
+x 23
+y 3
+end
+arch floor_wood3f
+x 23
+y 4
+end
+arch wall_wood_3
+x 23
+y 4
+end
+arch floor_wood3g
+x 23
+y 5
+end
+arch wall_wood_3
+x 23
+y 5
+end
+arch floor_wood3a
+x 23
+y 6
+end
+arch wall_wood_4
+x 23
+y 6
+end
+arch floor_wood3f
+x 23
+y 7
+end
+arch wall_wood_3
+x 23
+y 7
+end
+arch floor_wood3f
+x 23
+y 8
+end
+arch wall_wood_3
+x 23
+y 8
+end
+arch floor_wood3g
+x 23
+y 9
+end
+arch wall_wood_3
+x 23
+y 9
+end
+arch floor_wood3h
+x 23
+y 10
+end
+arch wall_wood_3
+x 23
+y 10
+end
+arch floor_wood3a
+x 23
+y 11
+end
+arch wall_wood_3
+x 23
+y 11
+end
+arch floor_wood3b
+x 23
+y 12
+end
+arch wall_wood_3
+x 23
+y 12
+end
+arch floor_wood3a
+x 23
+y 13
+end
+arch wall_wood_3
+x 23
+y 13
+end
+arch floor_wood3b
+x 23
+y 14
+end
+arch wall_wood_4
+x 23
+y 14
+end
+arch floor_wood3f
+x 23
+y 15
+end
+arch wall_wood_3
+x 23
+y 15
+end
+arch floor_wood3g
+x 23
+y 16
+end
+arch wall_wood_3
+x 23
+y 16
+end
+arch floor_wood3a
+x 23
+y 17
+end
+arch wall_wood_3
+x 23
+y 17
+end
+arch floor_wood3g
+x 23
+y 18
+end
+arch wall_wood_3
+x 23
+y 18
+end
+arch floor_wood3h
+x 23
+y 19
+end
+arch wall_wood_3
+x 23
+y 19
+end
+arch floor_wood3g
+x 23
+y 20
+end
+arch wall_wood_3
+x 23
+y 20
+end
+arch floor_wood3f
+x 23
+y 21
+end
+arch wall_wood_3
+x 23
+y 21
+end
+arch floor_wood3a
+x 23
+y 22
+end
+arch wall_wood_3
+x 23
+y 22
+end
+arch floor_wood3h
+x 23
+y 23
+end
+arch wall_wood_4
+x 23
+y 23
+end

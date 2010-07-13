@@ -2,7 +2,7 @@ arch map
 name Testmap: Main
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-03-18 Alex Tokar
+Modified: 2010-07-13 Alex Tokar
 endmsg
 width 17
 height 17
@@ -1326,7 +1326,22 @@ arch floor_ostone1
 x 13
 y 14
 end
+arch sign
+msg
+Testmap for the construction skill. Learn the construction skill by talking to Skillgiver first.
+endmsg
+x 13
+y 14
+end
 arch floor_ostone1
+x 13
+y 15
+end
+arch stairs_stone_down
+direction 1
+slaying testmap_construction
+hp 1
+sp 1
 x 13
 y 15
 end
