@@ -50,7 +50,8 @@ static fields_struct fields[] =
 	{"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
 
 	{"s_ext_title_flag", FIELDTYPE_UINT8, offsetof(player, socket.ext_title_flag), 0, 0},
-	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0}
+	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},
+	{"s_socket_version", FIELDTYPE_UINT32, offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0}
 };
 /* @endcparser */
 
