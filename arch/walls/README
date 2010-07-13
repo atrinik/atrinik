@@ -1,0 +1,18 @@
+=== NAMING CONVENTION FOR WALL ARCHETYPES ===
+
+All directional walls should be named in the following convention:
+
+<wall name><window>_<direction>
+
+where:
+
+<wall name> is the wall's name, for example, wall_wood2, wall_white, etc
+<window> should only be used for walls with window, and should always be "_w".
+<direction> is the wall's direction:
+            - 1 for walls facing south
+            - 3 for walls facing east
+            - 4 for walls facing both south and east
+            - 8 for walls facing both north and west
+
+
+Look at the wall_wood_xxx archetypes for an example.
