@@ -624,8 +624,26 @@ static void construction_destroyer(object *op, int x, int y)
 		case WALL:
 		case DOOR:
 		case SIGN:
-			new_draw_info_format(NDI_UNIQUE, op, "You remove the %s.", query_name(item, NULL));
 			remove_ob(item);
+
+			/* Fix walls around the one that was removed. */
+			if (item->type == WALL)
+			{
+				int xt, yt;
+
+				for (xt = x - 1; xt <= x + 1; xt++)
+				{
+					for (yt = y - 1; yt <= y + 1; yt++)
+					{
+						if (!OUT_OF_REAL_MAP(op->map, xt, yt))
+						{
+							fix_walls(op->map, xt, yt);
+						}
+					}
+				}
+			}
+
+			new_draw_info_format(NDI_UNIQUE, op, "You remove the %s.", query_name(item, NULL));
 			break;
 	}
 }
