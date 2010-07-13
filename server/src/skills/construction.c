@@ -149,11 +149,22 @@ static int builder_item(object *op, object *new_item, int x, int y)
 		new_draw_info_format(NDI_UNIQUE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
 		return 0;
 	}
-	/* Wallmask, only allow building on top of blocked square. */
-	else if (new_item->type == WALL && (!w || !get_wall(op->map, x, y)))
+	/* Wallmask, only allow building on top of blocked square that only
+	 * contains a wall. */
+	else if (new_item->type == WALL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
-		return 0;
+		object *wall = get_wall(op->map, x, y);
+
+		if (!w || !wall)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
+			return 0;
+		}
+		else if (wall->above && wall->above->type == WALL)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall->above, NULL));
+			return 0;
+		}
 	}
 
 	/* Only allow building if there is a floor. */
@@ -202,9 +213,9 @@ static int builder_item(object *op, object *new_item, int x, int y)
 	}
 
 	/* If the item is turnable, adjust direction. */
-	if (QUERY_FLAG(new_item, FLAG_IS_TURNABLE) && op->direction)
+	if (QUERY_FLAG(new_item, FLAG_IS_TURNABLE) && op->facing)
 	{
-		new_item->direction = op->direction;
+		new_item->direction = op->facing;
 		SET_ANIMATION(new_item, (NUM_ANIMATIONS(new_item) / NUM_FACINGS(new_item)) * new_item->direction);
 	}
 
@@ -579,12 +590,18 @@ static void construction_builder(object *op, int x, int y)
  *
  * Removes first buildable item except floor.
  * @param op Player removing an item.
- * @param item What to remove. Should not be NULL. */
-static void construction_destroyer(object *op, object *item)
+ * @param x X Where to remove.
+ * @param y Y where to remove. */
+static void construction_destroyer(object *op, int x, int y)
 {
-	if (item->type == FLOOR || QUERY_FLAG(item, FLAG_IS_FLOOR))
+	object *item;
+
+	for (item = GET_MAP_OB_LAST(op->map, x, y); item; item = item->below)
 	{
-		item = item->above;
+		if (item->type != FLOOR && QUERY_FLAG(item, FLAG_IS_BUILDABLE))
+		{
+			break;
+		}
 	}
 
 	if (!item)
@@ -682,10 +699,31 @@ void construction_do(object *op, int dir)
 		}
 	}
 
+	/* Prevent players without destroyer from getting themselves stuck. */
+	if (skill_item->sub_type != ST_BD_REMOVE)
+	{
+		int found_destroyer = 0;
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == SKILL_ITEM && tmp->sub_type == ST_BD_REMOVE)
+			{
+				found_destroyer = 1;
+				break;
+			}
+		}
+
+		if (!found_destroyer)
+		{
+			new_draw_info(NDI_UNIQUE, op, "You cannot build without having a destroyer at hand.");
+			return;
+		}
+	}
+
 	switch (skill_item->sub_type)
 	{
 		case ST_BD_REMOVE:
-			construction_destroyer(op, floor);
+			construction_destroyer(op, x, y);
 			break;
 
 		case ST_BD_BUILD:
