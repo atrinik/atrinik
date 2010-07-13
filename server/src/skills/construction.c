@@ -44,7 +44,7 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
 	{
 		tmp = HEAD(tmp);
 
-		if (QUERY_FLAG(tmp, FLAG_IS_BUILDABLE))
+		if (QUERY_FLAG(tmp, FLAG_IS_BUILDABLE) || QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 		{
 			continue;
 		}
@@ -598,6 +598,11 @@ static void construction_destroyer(object *op, int x, int y)
 
 	for (item = GET_MAP_OB_LAST(op->map, x, y); item; item = item->below)
 	{
+		if (QUERY_FLAG(item, FLAG_SYS_OBJECT))
+		{
+			continue;
+		}
+
 		if (item->type != FLOOR && QUERY_FLAG(item, FLAG_IS_BUILDABLE))
 		{
 			break;
@@ -693,9 +698,7 @@ void construction_do(object *op, int dir)
 	}
 
 	/* Check specified square
-	 * The square must have only buildable items
-	 * Exception: marking runes are all right,
-	 * since they are used for special things like connecting doors / buttons */
+	 * The square must have only buildable items. */
 	floor = GET_MAP_OB(op->map, x, y);
 
 	if (!floor)
@@ -709,6 +712,11 @@ void construction_do(object *op, int dir)
 	{
 		for (tmp = floor; tmp; tmp = tmp->above)
 		{
+			if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
+			{
+				continue;
+			}
+
 			if (!QUERY_FLAG(tmp, FLAG_IS_BUILDABLE))
 			{
 				new_draw_info(NDI_UNIQUE, op, "You can't build there.");
