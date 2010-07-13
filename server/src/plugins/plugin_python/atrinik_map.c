@@ -41,13 +41,14 @@ static fields_struct fields[] =
 	{"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
 	{"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
 	{"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
-	{"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), 0, 0},
-	{"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), 0, 0},
+	{"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), FIELDFLAG_READONLY, 0},
+	{"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), FIELDFLAG_READONLY, 0},
 	{"darkness", FIELDTYPE_UINT8, offsetof(mapstruct, darkness), 0, 0},
-	{"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), 0, 0},
+	{"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), FIELDFLAG_READONLY, 0},
 	{"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
 	{"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
-	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), 0, 0}
+	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
+	{"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0}
 };
 /* @endcparser */
 
@@ -370,9 +371,25 @@ static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args, PyObject 
  * @param map Python map wrapper.
  * @param context Void pointer to the field.
  * @return Python object with the attribute value, NULL on failure. */
-static PyObject *Map_GetAttribute(Atrinik_Map *map, void *context)
+static PyObject *get_attribute(Atrinik_Map *map, void *context)
 {
 	return generic_field_getter((fields_struct *) context, map->map);
+}
+
+/**
+ * Set attribute of a map.
+ * @param map Python map wrapper.
+ * @param value Value to set.
+ * @param context Void pointer to the field.
+ * @return 0 on success, -1 on failure. */
+static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
+{
+	if (generic_field_setter((fields_struct *) context, map->map, value) == -1)
+	{
+		return -1;
+	}
+
+	return 0;
 }
 
 /**
@@ -528,8 +545,8 @@ int Atrinik_Map_init(PyObject *module)
 		PyGetSetDef *def = &getseters[i];
 
 		def->name = fields[i].name;
-		def->get = (getter) Map_GetAttribute;
-		def->set = NULL;
+		def->get = (getter) get_attribute;
+		def->set = (setter) set_attribute;
 		def->doc = NULL;
 		def->closure = (void *) &fields[i];
 	}
