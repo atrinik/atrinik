@@ -2,7 +2,7 @@ Object constr_rack
 name rack container material
 type 10
 sub_type 3
-face constr_rack.101
+face rack.111
 slaying rack.111
 layer 3
 value 10000
@@ -18,7 +18,7 @@ Object constr_chest
 name large chest material
 type 10
 sub_type 3
-face constr_chest_large.101
+face chest_lm_closed.111
 slaying chest_m
 layer 3
 value 10000
@@ -34,7 +34,7 @@ Object constr_bookshelf
 name bookshelf material
 type 10
 sub_type 3
-face constr_bookshelf.101
+face shelf3a.111
 slaying shelf3a.111
 layer 3
 value 7500
@@ -50,7 +50,7 @@ Object constr_desk
 name desk material
 type 10
 sub_type 3
-face constr_desk.101
+face desk2.111
 slaying desk2
 layer 3
 value 5000
@@ -66,7 +66,7 @@ Object constr_sign
 name sign material
 type 10
 sub_type 3
-face constr_sign.101
+face sign.111
 slaying sign
 layer 3
 value 2000
@@ -82,7 +82,7 @@ Object constr_altar
 name altar material
 type 10
 sub_type 3
-face constr_altar.101
+face altar_default.111
 slaying altar_normal
 layer 3
 value 100000
