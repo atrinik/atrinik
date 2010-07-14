@@ -309,7 +309,8 @@ void SoundCmd(uint8 *data, int len)
 
 	if (type == CMD_SOUND_EFFECT)
 	{
-		int dist_volume, x, y;
+		sint8 x, y;
+		int dist_volume;
 		char path[HUGE_BUF];
 
 		x = data[pos++];
