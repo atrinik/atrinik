@@ -1949,6 +1949,19 @@ void free_map(mapstruct *m, int flag)
 		FREE_AND_CLEAR_HASH(m->tile_path[i]);
 	}
 
+	if (m->events)
+	{
+		map_event *tmp, *next;
+
+		for (tmp = m->events; tmp; tmp = next)
+		{
+			next = tmp->next;
+			map_event_free(tmp);
+		}
+
+		m->events = NULL;
+	}
+
 	FREE_AND_NULL_PTR(m->bitmap);
 	m->in_memory = MAP_SWAPPED;
 }

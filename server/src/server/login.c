@@ -696,7 +696,7 @@ void check_login(object *op)
 	}
 
 	/* Trigger the global LOGIN event */
-	trigger_global_event(EVENT_LOGIN, pl, pl->socket.host);
+	trigger_global_event(GEVENT_LOGIN, pl, pl->socket.host);
 
 	esrv_new_player(pl, op->weight + op->carrying);
 	esrv_send_inventory(op, op);

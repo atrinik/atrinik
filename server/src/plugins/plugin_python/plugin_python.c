@@ -73,6 +73,10 @@ static Atrinik_Constant constants[] =
 	{"llevInfo", llevInfo},
 	{"llevDebug", llevDebug},
 
+	{"PLUGIN_EVENT_NORMAL", PLUGIN_EVENT_NORMAL},
+	{"PLUGIN_EVENT_GLOBAL", PLUGIN_EVENT_GLOBAL},
+	{"PLUGIN_EVENT_MAP", PLUGIN_EVENT_MAP},
+
 	{"EVENT_APPLY", EVENT_APPLY},
 	{"EVENT_ATTACK", EVENT_ATTACK},
 	{"EVENT_DEATH", EVENT_DEATH},
@@ -85,19 +89,15 @@ static Atrinik_Constant constants[] =
 	{"EVENT_TRIGGER", EVENT_TRIGGER},
 	{"EVENT_CLOSE", EVENT_CLOSE},
 	{"EVENT_TIMER", EVENT_TIMER},
-	{"EVENT_BORN", EVENT_BORN},
-	{"EVENT_CLOCK", EVENT_CLOCK},
-	{"EVENT_CRASH", EVENT_CRASH},
-	{"EVENT_GDEATH", EVENT_GDEATH},
-	{"EVENT_GKILL", EVENT_GKILL},
-	{"EVENT_LOGIN", EVENT_LOGIN},
-	{"EVENT_LOGOUT", EVENT_LOGOUT},
-	{"EVENT_MAPENTER", EVENT_MAPENTER},
-	{"EVENT_MAPLEAVE", EVENT_MAPLEAVE},
-	{"EVENT_MAPRESET", EVENT_MAPRESET},
-	{"EVENT_REMOVE", EVENT_REMOVE},
-	{"EVENT_SHOUT", EVENT_SHOUT},
-	{"EVENT_TELL", EVENT_TELL},
+
+	{"MEVENT_ENTER", MEVENT_ENTER},
+	{"MEVENT_LEAVE", MEVENT_LEAVE},
+	{"MEVENT_RESET", MEVENT_RESET},
+
+	{"GEVENT_BORN", GEVENT_BORN},
+	{"GEVENT_LOGIN", GEVENT_LOGIN},
+	{"GEVENT_LOGOUT", GEVENT_LOGOUT},
+	{"GEVENT_PLAYER_DEATH", GEVENT_PLAYER_DEATH},
 
 	{"MAP_INFO_NORMAL", MAP_INFO_NORMAL},
 	{"MAP_INFO_ALL", MAP_INFO_ALL},
@@ -1384,10 +1384,10 @@ static int do_script(PythonContext *context, const char *filename, object *event
 }
 
 /**
- * Handles standard local events.
+ * Handles normal events.
  * @param args List of arguments for context.
  * @return 0 on failure, script's return value otherwise. */
-static int HandleEvent(va_list args)
+static int handle_event(va_list args)
 {
 	char *script;
 	PythonContext *context = malloc(sizeof(PythonContext));
@@ -1456,11 +1456,43 @@ static int HandleEvent(va_list args)
 }
 
 /**
- * Handle a global event.
- * @param event_type The event type.
+ * Handles map events.
+ * @param args List of arguments for context.
+ * @return 0 on failure, script's return value otherwise. */
+static int handle_map_event(va_list args)
+{
+	PythonContext *context = calloc(1, sizeof(PythonContext));
+	char *script;
+	int rv;
+
+	context->activator = va_arg(args, object *);
+	context->who = va_arg(args, object *);
+	context->event = context->who;
+	context->other = va_arg(args, object *);
+	script = va_arg(args, char *);
+	context->options = va_arg(args, char *);
+	context->text = va_arg(args, char *);
+	context->parms[0] = va_arg(args, int);
+
+	if (!do_script(context, script, context->who))
+	{
+		freeContext(context);
+		return 0;
+	}
+
+	context = popContext();
+	rv = context->returnvalue;
+	freeContext(context);
+
+	return rv;
+}
+
+/**
+ * Handles global event.
+ * @param event_type The event ID.
  * @param args List of arguments for context.
  * @return 0. */
-static int HandleGlobalEvent(int event_type, va_list args)
+static int handle_global_event(int event_type, va_list args)
 {
 	PythonContext *context = malloc(sizeof(PythonContext));
 
@@ -1478,48 +1510,21 @@ static int HandleGlobalEvent(int event_type, va_list args)
 
 	switch (event_type)
 	{
-		case EVENT_CRASH:
-			LOG(llevDebug, "Unimplemented for now\n");
-			break;
-
-		case EVENT_BORN:
+		case GEVENT_BORN:
 			context->activator = (object *) va_arg(args, void *);
 			break;
 
-		case EVENT_LOGIN:
+		case GEVENT_LOGIN:
 			context->activator = ((player *) va_arg(args, void *))->ob;
-			context->who = ((player *) va_arg(args, void *))->ob;
 			context->text = (char *) va_arg(args, void *);
 			break;
 
-		case EVENT_LOGOUT:
+		case GEVENT_LOGOUT:
 			context->activator = ((player *) va_arg(args, void *))->ob;
-			context->who = ((player *) va_arg(args, void *))->ob;
 			context->text = (char *) va_arg(args, void *);
 			break;
 
-		case EVENT_REMOVE:
-			context->activator = (object *) va_arg(args, void *);
-			break;
-
-		case EVENT_SHOUT:
-			context->activator = (object *) va_arg(args, void *);
-			context->text = (char *) va_arg(args, void *);
-			break;
-
-		case EVENT_MAPENTER:
-			context->activator = (object *) va_arg(args, void *);
-			break;
-
-		case EVENT_MAPLEAVE:
-			context->activator = (object *) va_arg(args, void *);
-			break;
-
-		case EVENT_CLOCK:
-			break;
-
-		case EVENT_MAPRESET:
-			context->text = (char *) va_arg(args, void *);
+		case GEVENT_PLAYER_DEATH:
 			break;
 	}
 
@@ -1538,49 +1543,33 @@ static int HandleGlobalEvent(int event_type, va_list args)
 MODULEAPI void *triggerEvent(int *type, ...)
 {
 	va_list args;
-	int eventcode;
+	int eventcode, event_type;
 	static int result = 0;
 
 	va_start(args, type);
+	event_type = va_arg(args, int);
 	eventcode = va_arg(args, int);
 
 #ifdef PYTHON_DEBUG
 	LOG(llevDebug, "PYTHON:: triggerEvent(): eventcode %d\n", eventcode);
 #endif
 
-	switch (eventcode)
+	switch (event_type)
 	{
-		case EVENT_NONE:
-			LOG(llevDebug, "PYTHON:: Warning - EVENT_NONE requested\n");
+		case PLUGIN_EVENT_NORMAL:
+			result = handle_event(args);
 			break;
 
-		case EVENT_ATTACK:
-		case EVENT_APPLY:
-		case EVENT_DEATH:
-		case EVENT_DROP:
-		case EVENT_PICKUP:
-		case EVENT_SAY:
-		case EVENT_STOP:
-		case EVENT_TELL:
-		case EVENT_TIME:
-		case EVENT_THROW:
-		case EVENT_TRIGGER:
-		case EVENT_CLOSE:
-		case EVENT_TIMER:
-			result = HandleEvent(args);
+		case PLUGIN_EVENT_MAP:
+			result = handle_map_event(args);
 			break;
 
-		case EVENT_BORN:
-		case EVENT_CRASH:
-		case EVENT_LOGIN:
-		case EVENT_LOGOUT:
-		case EVENT_REMOVE:
-		case EVENT_SHOUT:
-		case EVENT_MAPENTER:
-		case EVENT_MAPLEAVE:
-		case EVENT_CLOCK:
-		case EVENT_MAPRESET:
-			result = HandleGlobalEvent(eventcode, args);
+		case PLUGIN_EVENT_GLOBAL:
+			result = handle_global_event(eventcode, args);
+			break;
+
+		default:
+			LOG(llevBug, "PYTHON:: BUG: Requested unknown event type %d.\n", event_type);
 			break;
 	}
 

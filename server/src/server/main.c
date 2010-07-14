@@ -257,10 +257,9 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		}
 	}
 
-	if (op->map && op->type == PLAYER && !op->head && MAP_PLUGINS(op->map))
+	if (op->map && op->type == PLAYER && !op->head && op->map->events)
 	{
-		/* Trigger the global MAPLEAVE event */
-		trigger_global_event(EVENT_MAPLEAVE, op, NULL);
+		trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, 0);
 	}
 
 	/* Set single or all part of a multi arch */
@@ -275,10 +274,9 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		return;
 	}
 
-	if (MAP_PLUGINS(newmap))
+	if (newmap->events)
 	{
-		/* Trigger the global MAPENTER event */
-		trigger_global_event(EVENT_MAPENTER, op, NULL);
+		trigger_map_event(MEVENT_ENTER, newmap, op, NULL, NULL, 0);
 	}
 
 	newmap->timeout = 0;
@@ -1489,11 +1487,6 @@ static void iterate_main_loop()
 
 	/* Process the timers */
 	cftimer_process_timers();
-
-#ifdef PLUGINS_X
-	/* Trigger the global CLOCK event */
-	trigger_global_event(EVENT_CLOCK, NULL, NULL);
-#endif
 
 	/* Removes unused maps after a certain timeout */
 	check_active_maps();

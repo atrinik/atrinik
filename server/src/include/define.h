@@ -152,7 +152,7 @@
  *
  * Type 0 will be undefined and show a non valid type information.
  *
- * Currently unused types to fill: 63, 67, 76, 97, 108, 127, 128, 129,
+ * Currently unused types to fill: 63, 67, 76, 97, 108, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
  * 148, 149, 150, 152, 155, 151, 141, 107, 89, 61, 57, 45, 28, 11,
  * 46, 24.
@@ -502,6 +502,9 @@
 /**
  * A beacon. */
 #define BEACON 126
+/**
+ * Map event object. */
+#define MAP_EVENT_OBJ 127
 /**
  * Can teach player a skill it holds. */
 #define SKILLSCROLL 130

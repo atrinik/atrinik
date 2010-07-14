@@ -788,10 +788,10 @@ void command_new_char(char *params, int len, player *pl)
 	esrv_new_player(CONTR(op), op->weight + op->carrying);
 
 	/* Trigger the global BORN event */
-	trigger_global_event(EVENT_BORN, op, NULL);
+	trigger_global_event(GEVENT_BORN, op, NULL);
 
 	/* Trigger the global LOGIN event */
-	trigger_global_event(EVENT_LOGIN, CONTR(op), CONTR(op)->socket.host);
+	trigger_global_event(GEVENT_LOGIN, CONTR(op), CONTR(op)->socket.host);
 
 	CONTR(op)->state = ST_PLAYING;
 	FREE_AND_CLEAR_HASH2(op->msg);

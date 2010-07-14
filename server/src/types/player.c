@@ -1399,7 +1399,7 @@ void kill_player(object *op)
 	}
 
 	/* Trigger the global GDEATH event */
-	trigger_global_event(EVENT_GDEATH, NULL, op);
+	trigger_global_event(GEVENT_PLAYER_DEATH, NULL, op);
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
 

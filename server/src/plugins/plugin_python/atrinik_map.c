@@ -64,8 +64,8 @@ static char *mapflag_names[] =
 {
 	"f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
 	"f_nopriest", "f_noharm", "f_nosummon", "f_fixed_login",
-	"f_permdeath", "f_ultradeath", "f_ultimatedeath", "f_pvp",
-	"f_no_save", "f_plugins"
+	"f_player_no_save", "f_unused2", "f_unused3", "f_pvp",
+	"f_no_save"
 };
 /* @endcparser */
 

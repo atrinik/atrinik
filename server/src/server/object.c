@@ -1624,6 +1624,13 @@ void destroy_object(object *ob)
 	{
 		beacon_remove(ob);
 	}
+	else if (ob->type == MAP_EVENT_OBJ)
+	{
+		if (ob->map->in_memory == MAP_IN_MEMORY)
+		{
+			map_event_obj_deinit(ob);
+		}
+	}
 
 	FREE_AND_CLEAR_HASH2(ob->name);
 	FREE_AND_CLEAR_HASH2(ob->title);
@@ -3625,6 +3632,7 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 void init_object_initializers()
 {
 	object_initializers[BEACON] = beacon_add;
+	object_initializers[MAP_EVENT_OBJ] = map_event_obj_init;
 }
 
 /**

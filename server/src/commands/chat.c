@@ -125,9 +125,6 @@ int command_shout(object *op, char *params)
 
 	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE | NDI_SHOUT, NULL, "%s shouts: %s", op->name, params);
 
-	/* Trigger the global SHOUT event. */
-	trigger_global_event(EVENT_SHOUT, op, params);
-
 	return 1;
 }
 

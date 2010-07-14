@@ -64,8 +64,8 @@
  * To determine when to decrease number of players or parties in the
  * arena, it uses MAPLEAVE, LOGOUT and GDEATH global events.
  *
- * The arena map MUST have plugins 1 map attribute set for MAPLEAVE to
- * work.
+ * The arena map MUST have a map event object with plugin name "Arena" and
+ * event set to "player leaves".
  *
  * It is also possible to make arena signs. These signs can be places
  * ANYWHERE and still work. They are simply created by placing any object
@@ -213,8 +213,7 @@ MODULEAPI void postinitPlugin()
 {
 	LOG(llevDebug, "Start postinitPlugin.\n");
 
-	hooks->register_global_event(PLUGIN_NAME, EVENT_MAPLEAVE);
-	hooks->register_global_event(PLUGIN_NAME, EVENT_LOGOUT);
+	hooks->register_global_event(PLUGIN_NAME, GEVENT_LOGOUT);
 }
 
 /**
@@ -646,42 +645,43 @@ static int arena_leave(object *who)
 MODULEAPI void *triggerEvent(int *type, ...)
 {
 	object *activator, *who, *other, *event;
-	char *text, *script, *options;
-	int parm1, parm2, parm3, parm4;
 	va_list args;
-	int eventcode;
+	int eventcode, event_type;
 	static int result = 0;
 
 	va_start(args, type);
+	event_type = va_arg(args, int);
 	eventcode = va_arg(args, int);
 	LOG(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
 
 	activator = va_arg(args, object *);
-	who = va_arg(args, object *);
-	other = va_arg(args, object *);
-	event = va_arg(args, object *);
-	text = va_arg(args, char *);
-	parm1 = va_arg(args, int);
-	parm2 = va_arg(args, int);
-	parm3 = va_arg(args, int);
-	parm4 = va_arg(args, int);
-	script = va_arg(args, char *);
-	options = va_arg(args, char *);
 
 	switch (eventcode)
 	{
-		case EVENT_NONE:
-			LOG(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
-			break;
-
 		case EVENT_APPLY:
 		case EVENT_TRIGGER:
+		{
+			char *text, *script, *options;
+			int parm1, parm2, parm3, parm4;
+
+			who = va_arg(args, object *);
+			other = va_arg(args, object *);
+			event = va_arg(args, object *);
+			text = va_arg(args, char *);
+			parm1 = va_arg(args, int);
+			parm2 = va_arg(args, int);
+			parm3 = va_arg(args, int);
+			parm4 = va_arg(args, int);
+			script = va_arg(args, char *);
+			options = va_arg(args, char *);
+
 			result = arena_event(activator, who, options, script);
 			break;
+		}
 
-		case EVENT_GDEATH:
-		case EVENT_MAPLEAVE:
-		case EVENT_LOGOUT:
+		case GEVENT_PLAYER_DEATH:
+		case MEVENT_LEAVE:
+		case GEVENT_LOGOUT:
 			result = arena_leave(activator);
 			break;
 	}

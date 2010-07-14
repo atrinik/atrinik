@@ -666,6 +666,10 @@ void init_plugins();
 void init_plugin(const char *pluginfile);
 void remove_plugin(const char *id);
 void remove_plugins();
+void map_event_obj_init(object *ob);
+void map_event_free(map_event *tmp);
+void map_event_obj_deinit(object *ob);
+int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, char *text, int parm);
 void trigger_global_event(int event_type, void *parm1, void *parm2);
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 

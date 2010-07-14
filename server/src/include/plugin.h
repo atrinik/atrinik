@@ -59,73 +59,80 @@
 #endif
 
 /**
- * @defgroup event_numbers Event number codes
- * Event ID codes.
- * @todo Separate the global events from the object events?
+ * @defgroup PLUGIN_EVENT_xxx Plugin event types
+ * The plugin event types.
  *@{*/
-
-/** No event. This exists only to reserve the "0". */
-#define EVENT_NONE     0
-/** Object applied-unapplied. */
-#define EVENT_APPLY    1
-/** Monster attacked or Scripted Weapon used. */
-#define EVENT_ATTACK   2
-/** Player or monster dead. */
-#define EVENT_DEATH    3
-/** Object dropped on the floor. */
-#define EVENT_DROP     4
-/** Object picked up. */
-#define EVENT_PICKUP   5
-/** Someone speaks. */
-#define EVENT_SAY      6
-/** Thrown object stopped. */
-#define EVENT_STOP     7
-/** Triggered each time the object can react/move. */
-#define EVENT_TIME     8
-/** Object is thrown. */
-#define EVENT_THROW    9
-/** Button pushed, lever pulled, etc. */
-#define EVENT_TRIGGER  10
-/** Container closed. */
-#define EVENT_CLOSE	   11
-/** Timer connected triggered it. */
-#define EVENT_TIMER    12
-/** Marks that we should process quests in this object. */
-#define EVENT_QUEST 13
-
-/** A new character has been created. */
-#define EVENT_BORN     14
-/** Global time event. */
-#define EVENT_CLOCK    15
-/** Triggered when the server crashes. Not recursive */
-#define EVENT_CRASH    16
-/** Global Death event */
-#define EVENT_GDEATH   17
-/** Triggered when anything got killed by anyone. */
-#define EVENT_GKILL    18
-/** Player login. */
-#define EVENT_LOGIN    19
-/** Player logout. */
-#define EVENT_LOGOUT   20
-/** A player entered a map. */
-#define EVENT_MAPENTER 21
-/** A player left a map. */
-#define EVENT_MAPLEAVE 22
-/** A map is resetting. */
-#define EVENT_MAPRESET 23
-/** A player character has been removed. */
-#define EVENT_REMOVE   24
-/** A player shouts something. */
-#define EVENT_SHOUT    25
-/** A player tells something. */
-#define EVENT_TELL     26
+/**
+ * Normal event: the event is attached directly to the object in
+ * question. */
+#define PLUGIN_EVENT_NORMAL 1
+/** Map-wide event. */
+#define PLUGIN_EVENT_MAP 2
+/** Global event, requires no attaching of event. */
+#define PLUGIN_EVENT_GLOBAL 3
 /*@}*/
 
-/** Number of local events */
-#define NR_LOCAL_EVENTS 14
+/**
+ * @defgroup event_numbers Event number codes
+ * Event ID codes.
+ *@{*/
+/** No event. */
+#define EVENT_NONE 0
+/** Object applied/unapplied. */
+#define EVENT_APPLY 1
+/** Monster attacked or scripted weapon was used. */
+#define EVENT_ATTACK 2
+/** Player or monster was killed. */
+#define EVENT_DEATH 3
+/** Object dropped on the floor. */
+#define EVENT_DROP 4
+/** Object picked up. */
+#define EVENT_PICKUP 5
+/** Someone speaks. */
+#define EVENT_SAY 6
+/** Thrown object stopped. */
+#define EVENT_STOP 7
+/** Triggered each time the object can react/move. */
+#define EVENT_TIME 8
+/** Object is thrown. */
+#define EVENT_THROW 9
+/** Button pushed, lever pulled, etc. */
+#define EVENT_TRIGGER 10
+/** Container closed. */
+#define EVENT_CLOSE	11
+/** Timer connected triggered it. */
+#define EVENT_TIMER 12
+/** Marks that we should process quests in this object. */
+#define EVENT_QUEST 13
+/*@}*/
 
-/** Number of events. */
-#define NR_EVENTS 27
+/**
+ * @defgroup MEVENT_xxx Map event numbers
+ * Map-wide events.
+ *@{*/
+/** A player entered a map. */
+#define MEVENT_ENTER 1
+/** A player left a map. */
+#define MEVENT_LEAVE 2
+/** A map is resetting. */
+#define MEVENT_RESET 3
+/*@}*/
+
+/**
+ * @defgroup GEVENT_xxx Global event numbers
+ * Global event IDs.
+ *@{*/
+/** A new character has been created. */
+#define GEVENT_BORN 1
+/** Player login. */
+#define GEVENT_LOGIN 2
+/** Player logout. */
+#define GEVENT_LOGOUT 3
+/** Player was killed. */
+#define GEVENT_PLAYER_DEATH 4
+/** Number of global events. */
+#define GEVENT_NUM 4
+/*@}*/
 
 /**
  * Get an event flag from event number code.
@@ -300,7 +307,7 @@ typedef struct _atrinik_plugin
 	char fullname[MAX_BUF];
 
 	/** Global events registered. */
-	sint8 gevent[NR_EVENTS];
+	sint8 gevent[GEVENT_NUM];
 
 	/** Next plugin in list. */
 	struct _atrinik_plugin *next;

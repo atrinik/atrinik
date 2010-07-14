@@ -17,6 +17,13 @@
 	<listentry value="12" name="timer" />
 </list>
 
+<list name="map_event">
+	<listentry value="0" name="no event" />
+	<listentry value="1" name="player enters" />
+	<listentry value="2" name="player leaves" />
+	<listentry value="3" name="map resets" />
+</list>
+
 <list name="direction">
 	<listentry value="0" name="&lt;none&gt;" />
 	<listentry value="1" name="north" />

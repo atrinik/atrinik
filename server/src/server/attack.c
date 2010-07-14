@@ -957,9 +957,6 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		return 0;
 	}
 
-	/* Trigger the global GKILL event */
-	trigger_global_event(EVENT_GKILL, hitter, op);
-
 	maxdam = op->stats.hp - 1;
 
 	/* Only when some damage is stored, and we're on a map. */

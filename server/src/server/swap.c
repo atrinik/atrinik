@@ -159,10 +159,10 @@ void swap_map(mapstruct *map, int force_flag)
 
 		LOG(llevDebug, "Resetting1 map %s.\n", map->path);
 
-		if (MAP_PLUGINS(map))
+		if (map->events)
 		{
-			/* Trigger the global MAPRESET event */
-			trigger_global_event(EVENT_MAPRESET, (void *) map->path, NULL);
+			/* Trigger the map reset event */
+			trigger_map_event(MEVENT_RESET, map, NULL, NULL, (void *) map->path, 0);
 		}
 
 		map = map->next;
@@ -258,10 +258,10 @@ void flush_old_maps()
 		{
 			LOG(llevDebug, "Resetting3 map %s.\n", m->path);
 
-			if (MAP_PLUGINS(m))
+			if (m->events)
 			{
-				/* Trigger the global MAPRESET event */
-				trigger_global_event(EVENT_MAPRESET, (void *) m->path, NULL);
+				/* Trigger the map reset event */
+				trigger_map_event(MEVENT_RESET, m, NULL, NULL, (void *) m->path, 0);
 			}
 
 			clean_tmp_map(m);

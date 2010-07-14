@@ -86,8 +86,6 @@ int map_tiled_reverse[TILED_MAPS];
 #define MAP_PLAYER_NO_SAVE(m) ((m)->map_flags & MAP_FLAG_PLAYER_NO_SAVE)
 /** Is the map PVP area? */
 #define MAP_PVP(m)             ((m)->map_flags & MAP_FLAG_PVP)
-/** Should global map plugins activate for this map? */
-#define MAP_PLUGINS(m)         ((m)->map_flags & MAP_FLAG_PLUGINS)
 /** Darkness of a map */
 #define MAP_DARKNESS(m)        (m)->darkness
 /** Width of a map */
@@ -405,8 +403,6 @@ typedef struct MapSpace_s
 #define MAP_FLAG_PVP 4096
 /** Don't save maps - only used with unique maps. */
 #define MAP_FLAG_NO_SAVE 8192
-/** Call plugin map events for this map. */
-#define MAP_FLAG_PLUGINS 16384
 /*@}*/
 
 /**
@@ -478,6 +474,21 @@ typedef struct regiondef
 } region;
 
 /**
+ * A single map event, holding a pointer to map event object on map. */
+typedef struct map_event
+{
+	/** Next map event in linked list. */
+	struct map_event *next;
+
+	/** Pointer to the actual map event. */
+	object *event;
+
+	/**
+	 * Plugin the map event object is using. */
+	struct _atrinik_plugin *plugin;
+} map_event;
+
+/**
  * In general, code should always use the macros above (or functions in
  * map.c) to access many of the values in the map structure. Failure to
  * do this will almost certainly break various features.
@@ -522,6 +533,9 @@ typedef struct mapdef
 
 	/** Pointer to the region this map is in. */
 	struct regiondef *region;
+
+	/** Map-wide events for this map. */
+	struct map_event *events;
 
 	/** Linked list of linked lists of buttons */
 	objectlink *buttons;

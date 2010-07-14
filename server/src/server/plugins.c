@@ -422,7 +422,7 @@ void init_plugin(const char *pluginfile)
 
 	plugin = malloc(sizeof(atrinik_plugin));
 
-	for (i = 0; i < NR_EVENTS; i++)
+	for (i = 0; i < GEVENT_NUM; i++)
 	{
 		plugin->gevent[i] = 0;
 	}
@@ -509,6 +509,107 @@ void remove_plugins()
 }
 
 /**
+ * Initialize map event object.
+ * @param ob What to initialize. */
+void map_event_obj_init(object *ob)
+{
+	map_event *tmp;
+
+	if (!ob->map)
+	{
+		LOG(llevBug, "BUG: Map event object not on map.\n");
+		return;
+	}
+
+	tmp = malloc(sizeof(map_event));
+	tmp->plugin = NULL;
+	tmp->event = ob;
+
+	tmp->next = ob->map->events;
+	ob->map->events = tmp;
+}
+
+/**
+ * Free a ::map_event.
+ * @param tmp What to free. */
+void map_event_free(map_event *tmp)
+{
+	free(tmp);
+}
+
+/**
+ * Deinitialize map event object.
+ * @param ob What to deinitialize. */
+void map_event_obj_deinit(object *ob)
+{
+	map_event *tmp, *prev = NULL;
+
+	if (!ob->map)
+	{
+		return;
+	}
+
+	for (tmp = ob->map->events; tmp; prev = tmp, tmp = tmp->next)
+	{
+		if (tmp->event == ob)
+		{
+			if (!prev)
+			{
+				ob->map->events = tmp->next;
+			}
+			else
+			{
+				prev->next = tmp->next;
+			}
+
+			map_event_free(tmp);
+			break;
+		}
+	}
+}
+
+/**
+ * Triggers a map-wide event.
+ * @param event_id Event ID to trigger.
+ * @param m Map we're working on.
+ * @param activator Activator.
+ * @param other Some other object related to this event.
+ * @param text String related to this event.
+ * @param parm Integer related to this event.
+ * @return 1 if the event returns an event value, 0 otherwise. */
+int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, char *text, int parm)
+{
+	map_event *tmp;
+
+	if (!m->events)
+	{
+		return 0;
+	}
+
+	for (tmp = m->events; tmp; tmp = tmp->next)
+	{
+		if (tmp->event->sub_type == event_id)
+		{
+			/* Load the event object's plugin as needed. */
+			if (!tmp->plugin)
+			{
+				tmp->plugin = find_plugin(tmp->event->name);
+
+				if (!tmp->plugin)
+				{
+					LOG(llevBug, "BUG: trigger_map_event(): Tried to trigger map event #%d, but could not find plugin '%s'.\n", event_id, tmp->event->name);
+					return 0;
+				}
+			}
+
+			return *(int *) (tmp->plugin->eventfunc)(0, PLUGIN_EVENT_MAP, event_id, activator, tmp->event, other, tmp->event->race, tmp->event->slaying, text, parm);
+		}
+	}
+
+	return 0;
+}
+
+/**
  * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
  * etc.
  * @param event_type The event type.
@@ -527,7 +628,7 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
 	{
 		if (plugin->gevent[event_type])
 		{
-			(plugin->eventfunc)(0, event_type, parm1, parm2);
+			(plugin->eventfunc)(0, PLUGIN_EVENT_GLOBAL, event_type, parm1, parm2);
 		}
 	}
 }
@@ -572,7 +673,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		gettimeofday(&start, NULL);
 #endif
 
-		returnvalue = *(int *) plugin->eventfunc(0, event_type, activator, me, other, event_obj, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
+		returnvalue = *(int *) plugin->eventfunc(0, PLUGIN_EVENT_NORMAL, event_type, activator, me, other, event_obj, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
 
 #ifdef TIME_SCRIPTS
 		gettimeofday(&stop, NULL);
