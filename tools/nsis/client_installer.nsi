@@ -22,6 +22,9 @@ Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
 
+; Play nice with UAC in Vista and newer.
+RequestExecutionLevel admin
+
 ; What to install.
 Section "Client (required)"
   SectionIn RO
@@ -55,10 +58,6 @@ Section "Client (required)"
   SetOutPath $INSTDIR\media
   File "media\*.*"
 
-  CreateDirectory $INSTDIR\settings
-  SetOutPath $INSTDIR\settings
-;  File "settings\*.*"
-
   CreateDirectory $INSTDIR\sfx
   SetOutPath $INSTDIR\sfx
   File "sfx\*.*"
@@ -71,6 +70,9 @@ Section "Client (required)"
 
   WriteRegStr HKLM SOFTWARE\Atrinik-Client-1.1.1 "Install_Dir" "$INSTDIR"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayName" "Atrinik Client"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayVersion" "1.1.1"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayIcon" "$INSTDIR\bitmaps\icon.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "Publisher" "Atrinik Team"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "NoRepair" 1
@@ -79,6 +81,8 @@ SectionEnd
 
 ; Optional start menu shortcuts.
 Section "Start Menu Shortcuts"
+  SetShellVarContext all
+
   CreateDirectory "$SMPROGRAMS\Atrinik Client 1.1.1"
   CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
@@ -86,6 +90,8 @@ SectionEnd
 
 ; Uninstaller.
 Section "Uninstall"
+  SetShellVarContext all
+
   ; Remove registry keys.
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1"
   DeleteRegKey HKLM SOFTWARE\Atrinik-Client-1.1.1
