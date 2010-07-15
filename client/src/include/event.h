@@ -146,16 +146,6 @@ enum
 	MB_DN
 };
 
-/** Movement queue. */
-typedef struct movement
-{
-	/** Direction to move to. */
-	int num;
-
-	/** Next entry. */
-	struct movement *next;
-} movement;
-
 int get_action_keycode, drop_action_keycode;
 
 typedef struct _keys
