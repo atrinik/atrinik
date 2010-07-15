@@ -81,7 +81,6 @@ extern _server_char new_character;
 typedef struct _bmaptype
 {
 	char *name;
-	int num;
 	int len;
 	int pos;
 	unsigned int crc;

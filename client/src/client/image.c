@@ -35,7 +35,7 @@ static void load_bmaps_p0()
 {
 	char buf[HUGE_BUF];
 	char name[HUGE_BUF];
-	int len, pos, num;
+	int len, pos;
 	unsigned int crc;
 	_bmaptype *at;
 	FILE *fbmap;
@@ -52,13 +52,12 @@ static void load_bmaps_p0()
 
 	while (fgets(buf, HUGE_BUF - 1, fbmap) != NULL)
 	{
-		sscanf(buf, "%d %d %x %d %s", &num, &pos, &crc, &len, name);
+		sscanf(buf, "%d %x %d %s", &pos, &crc, &len, name);
 
 		at = (_bmaptype *) malloc(sizeof(_bmaptype));
 		at->name = (char *) malloc(strlen(name) + 1);
 		strcpy(at->name, name);
 		at->crc = crc;
-		at->num = num;
 		at->len = len;
 		at->pos = pos;
 		add_bmap(at);
@@ -158,7 +157,7 @@ create_bmaps:
 		crc = crc32(1L, (const unsigned char FAR *) temp_buf,len);
 
 		/* Now we got all we needed */
-		sprintf(temp_buf, "%d %d %x %s", num, pos, crc, buf);
+		sprintf(temp_buf, "%d %x %s", pos, crc, buf);
 		fputs(temp_buf, fbmap);
 	}
 
