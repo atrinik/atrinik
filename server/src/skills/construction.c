@@ -616,42 +616,33 @@ static void construction_destroyer(object *op, int x, int y)
 		return;
 	}
 
-	switch (item->type)
+	/* Do not allow destroying containers with inventory. */
+	if (item->type == CONTAINER && item->inv)
 	{
-		case CONTAINER:
-			/* Do not allow destroying containers with inventory,
-			 * otherwise fall through. */
-			if (item->inv)
+		new_draw_info_format(NDI_UNIQUE, op, "You cannot remove the %s, since it contains items.", query_name(item, NULL));
+		return;
+	}
+
+	remove_ob(item);
+
+	/* Fix walls around the one that was removed. */
+	if (item->type == WALL)
+	{
+		int xt, yt;
+
+		for (xt = x - 1; xt <= x + 1; xt++)
+		{
+			for (yt = y - 1; yt <= y + 1; yt++)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You cannot remove the %s, since it contains items.", query_name(item, NULL));
-				return;
-			}
-
-		case WALL:
-		case DOOR:
-		case SIGN:
-			remove_ob(item);
-
-			/* Fix walls around the one that was removed. */
-			if (item->type == WALL)
-			{
-				int xt, yt;
-
-				for (xt = x - 1; xt <= x + 1; xt++)
+				if (!OUT_OF_REAL_MAP(op->map, xt, yt))
 				{
-					for (yt = y - 1; yt <= y + 1; yt++)
-					{
-						if (!OUT_OF_REAL_MAP(op->map, xt, yt))
-						{
-							fix_walls(op->map, xt, yt);
-						}
-					}
+					fix_walls(op->map, xt, yt);
 				}
 			}
-
-			new_draw_info_format(NDI_UNIQUE, op, "You remove the %s.", query_name(item, NULL));
-			break;
+		}
 	}
+
+	new_draw_info_format(NDI_UNIQUE, op, "You remove the %s.", query_name(item, NULL));
 }
 
 /**
