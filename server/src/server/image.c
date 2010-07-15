@@ -81,11 +81,11 @@ static int compar(struct bmappair *a, struct bmappair *b)
  * display the person is on will not make a difference). */
 int read_bmap_names()
 {
-	char buf[MAX_BUF], *p, *q;
+	char buf[MAX_BUF], *cp;
 	FILE *fp;
-	int value, nrofbmaps = 0, i;
+	int nrofbmaps = 0, i;
+	size_t line = 0;
 
-	bmaps_checksum = 0;
 	snprintf(buf, sizeof(buf), "%s/bmaps", settings.datadir);
 	LOG(llevDebug, "Reading bmaps from %s...", buf);
 
@@ -95,7 +95,7 @@ int read_bmap_names()
 	}
 
 	/* First count how many bitmaps we have, so we can allocate correctly */
-	while (fgets(buf, MAX_BUF, fp) != NULL)
+	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
 		if (buf[0] != '#' && buf[0] != '\n')
 		{
@@ -108,52 +108,42 @@ int read_bmap_names()
 	xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
 	memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
 
-	while (fgets(buf, MAX_BUF, fp) != NULL)
+	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
 		if (*buf == '#')
 		{
 			continue;
 		}
 
-		p = (*buf == '\\') ? (buf + 1): buf;
+		cp = strchr(buf, '\n');
 
-		if (!(p = strtok(p, " \t")) || !(q = strtok(NULL, " \t\n")))
+		if (cp)
 		{
-			LOG(llevDebug, "Warning, syntax error: %s\n", buf);
-			continue;
+			*cp = '\0';
 		}
 
-		value = atoi(p);
-		xbm[nroffiles].name = strdup_local(q);
+		cp = strchr(buf, ' ');
 
-		/* We need to calculate the checksum of the bmaps file
-		 * name->number mapping to send to the client.  This does not
-		 * need to match what sum or other utility may come up with -
-		 * as long as we get the same results on the same real file
-		 * data, it does the job as it lets the client know if
-		 * the file has the same data or not. */
-		ROTATE_RIGHT(bmaps_checksum);
-		bmaps_checksum += value & 0xff;
-		bmaps_checksum &= 0xffffffff;
-
-		ROTATE_RIGHT(bmaps_checksum);
-		bmaps_checksum += (value >> 8) & 0xff;
-		bmaps_checksum &= 0xffffffff;
-
-		for (i = 0; i < (int) strlen(q); i++)
+		if (cp)
 		{
-			ROTATE_RIGHT(bmaps_checksum);
-			bmaps_checksum += q[i];
-			bmaps_checksum &= 0xffffffff;
+			cp++;
+			xbm[nroffiles].name = strdup_local(cp);
+		}
+		else
+		{
+			xbm[nroffiles].name = strdup_local(buf);
 		}
 
-		xbm[nroffiles].number = value;
+		xbm[nroffiles].number = line;
+
 		nroffiles++;
 
-		if (value > nrofpixmaps)
+		if ((int) line > nrofpixmaps)
 		{
-			nrofpixmaps = value;
+			nrofpixmaps++;
 		}
+
+		line++;
 	}
 
 	fclose(fp);

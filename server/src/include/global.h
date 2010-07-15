@@ -404,7 +404,7 @@ EXTERN int global_race_counter;
 /** Used for main loop timing. */
 EXTERN struct timeval last_time;
 EXTERN Animations *animations;
-EXTERN int num_animations, animations_allocated, bmaps_checksum;
+EXTERN int num_animations, animations_allocated;
 
 /** Use to get a safe string, even if the string is NULL. */
 #define STRING_SAFE(__string__) (__string__ ? __string__ : ">NULL<")
@@ -416,9 +416,6 @@ EXTERN int num_animations, animations_allocated, bmaps_checksum;
 #define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
 /** Use to get a safe slaying value of an object, even if the slaying value is NULL. */
 #define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying ? (__ob__)->slaying : ">NULL<")
-
-/** Rotate right from bsd sum. This is used in various places for checksumming. */
-#define ROTATE_RIGHT(c) if ((c) & 01) (c) = ((c) >>1) + 0x80000000; else (c) >>= 1;
 
 /**
  * Set object's face by its animation ID.
