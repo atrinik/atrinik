@@ -1,9 +1,9 @@
-AC_INIT([Atrinik Client], [1.1], [admin@atrinik.org])
+AC_INIT([Atrinik Client], [1.1.1], [admin@atrinik.org])
 
 AC_CONFIG_AUX_DIR(make_utils)
 AC_CANONICAL_SYSTEM
 
-AC_PREFIX_DEFAULT(../../../client-1.1)
+AC_PREFIX_DEFAULT(../../../client-1.1.1)
 
 AC_PROG_CC
 AC_PROG_MAKE_SET

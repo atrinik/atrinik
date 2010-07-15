@@ -3,16 +3,16 @@
 ; run `makensis client_installer.nsi`
 
 ; Installer name.
-Name "Atrinik Client 1.1"
+Name "Atrinik Client 1.1.1"
 
 ; Installer filename.
-OutFile "atrinik-client-1.1.exe"
+OutFile "atrinik-client-1.1.1.exe"
 
 ; Default installation directory.
-InstallDir "$PROGRAMFILES\Atrinik Client 1.1"
+InstallDir "$PROGRAMFILES\Atrinik Client 1.1.1"
 
 ; Registry key.
-InstallDirRegKey HKLM "Software\Atrinik-Client-1.1" "Install_Dir"
+InstallDirRegKey HKLM "Software\Atrinik-Client-1.1.1" "Install_Dir"
 
 ; Pages.
 Page components
@@ -69,28 +69,28 @@ Section "Client (required)"
 
   SetOutPath $INSTDIR
 
-  WriteRegStr HKLM SOFTWARE\Atrinik-Client-1.1 "Install_Dir" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1" "DisplayName" "Atrinik Client"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1" "NoRepair" 1
+  WriteRegStr HKLM SOFTWARE\Atrinik-Client-1.1.1 "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayName" "Atrinik Client"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
 SectionEnd
 
 ; Optional start menu shortcuts.
 Section "Start Menu Shortcuts"
-  CreateDirectory "$SMPROGRAMS\Atrinik Client 1.1"
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "Run Atrinik Client" "$INSTDIR\bitmaps\icon.ico"
+  CreateDirectory "$SMPROGRAMS\Atrinik Client 1.1.1"
+  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "Run Atrinik Client" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Uninstaller.
 Section "Uninstall"
   ; Remove registry keys.
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1"
-  DeleteRegKey HKLM SOFTWARE\Atrinik-Client-1.1
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1"
+  DeleteRegKey HKLM SOFTWARE\Atrinik-Client-1.1.1
 
-  RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client 1.1"
+  RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client 1.1.1"
   RMDir /r /REBOOTOK "$INSTDIR"
 SectionEnd
 
