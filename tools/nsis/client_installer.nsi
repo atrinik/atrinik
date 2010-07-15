@@ -81,7 +81,7 @@ SectionEnd
 Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\Atrinik Client 1.1.1"
   CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "Run Atrinik Client" "$INSTDIR\bitmaps\icon.ico"
+  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Uninstaller.
