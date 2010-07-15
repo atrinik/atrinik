@@ -1,0 +1,6780 @@
+arch map
+name DM World
+msg
+Created:  2010-07-13 Kiana
+Modified: 2010-07-15 Kiana
+endmsg
+width 24
+height 24
+enter_x 12
+enter_y 12
+difficulty 1
+darkness -1
+tile_path_1 /hall_of_dms
+region creation
+end
+arch floor_dark1b
+end
+arch floor_dark1b
+y 1
+end
+arch floor_dark1a
+y 2
+end
+arch floor_dark1b
+y 3
+end
+arch floor_dark1b
+y 4
+end
+arch floor_dark1a
+y 5
+end
+arch floor_dark1b
+y 6
+end
+arch floor_dark1b
+y 7
+end
+arch floor_dark1a
+y 8
+end
+arch floor_dark1a
+y 9
+end
+arch floor_dark1a
+y 10
+end
+arch floor_dark1a
+y 11
+end
+arch floor_dark1a
+y 12
+end
+arch floor_dark1b
+y 13
+end
+arch floor_dark1b
+y 14
+end
+arch floor_dark1b
+y 15
+end
+arch floor_dark1b
+y 16
+end
+arch floor_dark1a
+y 17
+end
+arch floor_dark1b
+y 18
+end
+arch floor_dark1a
+y 19
+end
+arch floor_dark1a
+y 20
+end
+arch floor_dark1a
+y 21
+end
+arch floor_dark1a
+y 22
+end
+arch floor_dark1b
+y 23
+end
+arch floor_dark1b
+x 1
+end
+arch floor_dark1a
+x 1
+y 1
+end
+arch floor_dark1a
+x 1
+y 2
+end
+arch floor_dark1a
+x 1
+y 3
+end
+arch floor_dark1b
+x 1
+y 4
+end
+arch floor_dark1b
+x 1
+y 5
+end
+arch floor_dark1a
+x 1
+y 6
+end
+arch floor_dark1a
+x 1
+y 7
+end
+arch floor_dark1b
+x 1
+y 8
+end
+arch floor_dark1b
+x 1
+y 9
+end
+arch floor_dark1a
+x 1
+y 10
+end
+arch floor_dark1b
+x 1
+y 11
+end
+arch floor_dark1a
+x 1
+y 12
+end
+arch floor_dark1b
+x 1
+y 13
+end
+arch floor_dark1a
+x 1
+y 14
+end
+arch floor_dark1a
+x 1
+y 15
+end
+arch floor_dark1a
+x 1
+y 16
+end
+arch floor_dark1a
+x 1
+y 17
+end
+arch floor_dark1a
+x 1
+y 18
+end
+arch floor_dark1a
+x 1
+y 19
+end
+arch floor_dark1b
+x 1
+y 20
+end
+arch floor_dark1a
+x 1
+y 21
+end
+arch floor_dark1b
+x 1
+y 22
+end
+arch floor_dark1a
+x 1
+y 23
+end
+arch floor_dark1b
+x 2
+end
+arch floor_dark1b
+x 2
+y 1
+end
+arch floor_dark1a
+x 2
+y 2
+end
+arch floor_dark1a
+x 2
+y 3
+end
+arch floor_dark1a
+x 2
+y 4
+end
+arch floor_dark1b
+x 2
+y 5
+end
+arch floor_dark1a
+x 2
+y 6
+end
+arch floor_dark1b
+x 2
+y 7
+end
+arch floor_dark1a
+x 2
+y 8
+end
+arch floor_dark1a
+x 2
+y 9
+end
+arch floor_dark1b
+x 2
+y 10
+end
+arch floor_dark1a
+x 2
+y 11
+end
+arch floor_dark1b
+x 2
+y 12
+end
+arch floor_dark1a
+x 2
+y 13
+end
+arch floor_dark1b
+x 2
+y 14
+end
+arch floor_dark1a
+x 2
+y 15
+end
+arch floor_dark1b
+x 2
+y 16
+end
+arch floor_dark1a
+x 2
+y 17
+end
+arch floor_dark1b
+x 2
+y 18
+end
+arch floor_dark1b
+x 2
+y 19
+end
+arch floor_dark1b
+x 2
+y 20
+end
+arch floor_dark1b
+x 2
+y 21
+end
+arch floor_dark1b
+x 2
+y 22
+end
+arch floor_dark1a
+x 2
+y 23
+end
+arch floor_dark1b
+x 3
+end
+arch floor_dark1b
+x 3
+y 1
+end
+arch floor_dark1a
+x 3
+y 2
+end
+arch floor_dark1b
+x 3
+y 3
+end
+arch floor_dark1b
+x 3
+y 4
+end
+arch floor_dark1a
+x 3
+y 5
+end
+arch floor_dark1a
+x 3
+y 6
+end
+arch floor_dark1a
+x 3
+y 7
+end
+arch floor_dark1b
+x 3
+y 8
+end
+arch floor_dark1b
+x 3
+y 9
+end
+arch floor_dark1a
+x 3
+y 10
+end
+arch floor_dark1a
+x 3
+y 11
+end
+arch floor_dark1a
+x 3
+y 12
+end
+arch floor_dark1a
+x 3
+y 13
+end
+arch floor_dark1a
+x 3
+y 14
+end
+arch floor_dark1a
+x 3
+y 15
+end
+arch floor_dark1a
+x 3
+y 16
+end
+arch floor_dark1a
+x 3
+y 17
+end
+arch floor_dark1b
+x 3
+y 18
+end
+arch floor_dark1b
+x 3
+y 19
+end
+arch floor_dark1a
+x 3
+y 20
+end
+arch floor_dark1a
+x 3
+y 21
+end
+arch floor_dark1a
+x 3
+y 22
+end
+arch floor_dark1a
+x 3
+y 23
+end
+arch floor_dark1a
+x 4
+end
+arch floor_dark1b
+x 4
+y 1
+end
+arch floor_dark1b
+x 4
+y 2
+end
+arch floor_dark1a
+x 4
+y 3
+end
+arch floor_dark1a
+x 4
+y 4
+end
+arch floor_dark1b
+x 4
+y 5
+end
+arch floor_dark1a
+x 4
+y 6
+end
+arch floor_earth1a
+x 4
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+name Strakewood Island - Graveyard
+face grave_cross1.111
+animation grave_cross1.111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0115
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 4
+y 7
+end
+arch grassd_1
+name floor
+x 4
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0114
+hp 17
+sp 15
+walk_on 0
+fly_on 0
+animation ettin
+face ettin.131
+anim_speed 4
+name Strakewood Island - Giant Stronghold
+direction 5
+x 4
+y 8
+end
+arch floor_flagm1
+x 4
+y 9
+end
+arch exit
+msg
+Brynknot
+endmsg
+face goldcoin.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0113
+hp 16
+sp 16
+walk_on 0
+fly_on 0
+name Brynknot - Bank
+x 4
+y 9
+end
+arch floor_flagm1
+x 4
+y 10
+end
+arch exit
+msg
+Brynknot
+endmsg
+name Brynknot - PO, Apts, Merc Guild
+face flag_04.u.151
+animation flag_04
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0112
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 4
+y 10
+end
+arch floor_flagm1
+x 4
+y 11
+end
+arch exit
+msg
+Brynknot
+endmsg
+name Brynknot - News, Quests, ShopSmith
+face anvil_big.111
+animation anvil_big_111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0111
+hp 10
+sp 10
+walk_on 0
+fly_on 0
+x 4
+y 11
+end
+arch bridge_wood_NS.101
+name floor
+x 4
+y 12
+end
+arch exit
+msg
+Brynknot
+endmsg
+face ship_n_steering_wheel_double.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0110
+hp 9
+sp 9
+walk_on 0
+fly_on 0
+name Brynknot - Ships to TutIsl and ClrH
+x 4
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 4
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0109
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 4
+y 13
+end
+arch floor_volcano_1
+x 4
+y 14
+end
+arch exit
+msg
+Promethia Island
+endmsg
+slaying /shattered_islands/world_0108
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_volcano_1.101
+is_animated 0
+anim_speed 0
+name Promethia Island
+x 4
+y 14
+end
+arch floor_volcano_1
+x 4
+y 15
+end
+arch exit
+msg
+Promethia Island
+endmsg
+slaying /shattered_islands/world_0107
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_volcano_1.101
+is_animated 0
+anim_speed 0
+name Promethia Island
+x 4
+y 15
+end
+arch floor_volcano_1
+x 4
+y 16
+end
+arch exit
+msg
+Promethia Island
+endmsg
+face ladder_down_01.101
+animation ladder_down2
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 7
+slaying /shattered_islands/world_0106
+hp 14
+sp 10
+walk_on 0
+fly_on 0
+name Promethia Island - Maze to Dragons Isl
+x 4
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 4
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0105
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 4
+y 17
+end
+arch water_still
+name floor
+terrain_type 1
+x 4
+y 18
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0104
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 4
+y 18
+end
+arch water_still
+name floor
+terrain_type 1
+x 4
+y 19
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0103
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 4
+y 19
+end
+arch water_still
+name floor
+terrain_type 1
+x 4
+y 20
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0102
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 4
+y 20
+end
+arch water_still
+name floor
+terrain_type 1
+x 4
+y 21
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0101
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 4
+y 21
+end
+arch floor_dark1b
+x 4
+y 22
+end
+arch floor_dark1a
+x 4
+y 23
+end
+arch floor_dark1b
+x 5
+end
+arch floor_dark1a
+x 5
+y 1
+end
+arch floor_dark1a
+x 5
+y 2
+end
+arch floor_dark1b
+x 5
+y 3
+end
+arch floor_dark1b
+x 5
+y 4
+end
+arch floor_dark1b
+x 5
+y 5
+end
+arch floor_dark1a
+x 5
+y 6
+end
+arch grassd_1
+name floor
+x 5
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0215
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation golem
+face golem.131
+anim_speed 4
+name Strakewood Island - Old Outpost
+direction 7
+x 5
+y 7
+end
+arch grassd_1
+name floor
+x 5
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0214
+hp 12
+sp 15
+walk_on 0
+fly_on 0
+animation ogre
+face ogre.131
+anim_speed 4
+name Strakewood Island - Ogres near Brynknot
+direction 3
+x 5
+y 8
+end
+arch floor_flagm1
+x 5
+y 9
+end
+arch exit
+msg
+Brynknot
+endmsg
+face bed_1a.171
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0213
+hp 11
+sp 17
+walk_on 0
+fly_on 0
+name Brynknot - Tavern
+x 5
+y 9
+end
+arch floor_flagm1
+x 5
+y 10
+end
+arch exit
+msg
+Brynknot
+endmsg
+name Brynknot - Square, Sewers
+face statue_black_small1.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0212
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 5
+y 10
+end
+arch floor_flagm1
+x 5
+y 11
+end
+arch exit
+msg
+Brynknot
+endmsg
+slaying /shattered_islands/world_0211
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation mage_old
+face mage_old.131
+anim_speed 4
+name Brynknot - Class Chooser, Lake
+direction 5
+x 5
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 5
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0210
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 5
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 5
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0209
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 5
+y 13
+end
+arch floor_volcano_1
+x 5
+y 14
+end
+arch exit
+msg
+Promethia Island
+endmsg
+face burnout.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0208
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Promethia Island - Meteor Swarm
+x 5
+y 14
+end
+arch floor_lava_1
+name floor
+terrain_type 1
+x 5
+y 15
+end
+arch exit
+msg
+Promethia Island
+endmsg
+slaying /shattered_islands/world_0207
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_lava_1.101
+is_animated 0
+anim_speed 0
+name Promethia Island - Volcano
+x 5
+y 15
+end
+arch floor_volcano_1
+x 5
+y 16
+end
+arch exit
+msg
+Promethia Island
+endmsg
+slaying /shattered_islands/world_0206
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_volcano_1.101
+is_animated 0
+anim_speed 0
+name Promethia Island
+x 5
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 5
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0205
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 5
+y 17
+end
+arch grassd_1
+name floor
+x 5
+y 18
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+slaying /shattered_islands/world_0204
+hp 12
+sp 16
+walk_on 0
+fly_on 0
+animation monk
+face monk.131
+anim_speed 4
+name Tutorial Island - NPCs
+direction 5
+x 5
+y 18
+end
+arch floor_flagm1
+x 5
+y 19
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+face sign.111
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0203
+hp 16
+sp 12
+walk_on 0
+fly_on 0
+name Tutorial Island - Weaponskill, Mobs
+x 5
+y 19
+end
+arch grassd_1
+name floor
+x 5
+y 20
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+slaying /shattered_islands/world_0202
+hp 18
+sp 9
+walk_on 0
+fly_on 0
+animation jelly_spotted
+face spotted_jelly.111
+anim_speed 4
+name Tutorial Island - Slime Lords
+direction 5
+x 5
+y 20
+end
+arch water_still
+name floor
+terrain_type 1
+x 5
+y 21
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0201
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 5
+y 21
+end
+arch floor_dark1b
+x 5
+y 22
+end
+arch floor_dark1a
+x 5
+y 23
+end
+arch floor_dark1b
+x 6
+end
+arch floor_dark1b
+x 6
+y 1
+end
+arch floor_dark1b
+x 6
+y 2
+end
+arch floor_dark1b
+x 6
+y 3
+end
+arch floor_dark1a
+x 6
+y 4
+end
+arch floor_dark1b
+x 6
+y 5
+end
+arch floor_dark1b
+x 6
+y 6
+end
+arch swamp1
+name floor
+x 6
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0315
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation mud_hand
+face mud_hand.101
+anim_speed 4
+name Strakewood Island - mudhands
+direction 5
+x 6
+y 7
+end
+arch grassd_1
+name floor
+x 6
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0314
+hp 14
+sp 15
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 6
+y 8
+end
+arch floor_flagm1
+x 6
+y 9
+end
+arch exit
+msg
+Brynknot
+endmsg
+face ring_adamant.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0313
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Brynknot - ShopUni, GuardCpt
+x 6
+y 9
+end
+arch floor_flagm1
+x 6
+y 10
+end
+arch exit
+msg
+Brynknot
+endmsg
+name Brynknot - Church
+face altar_default.111
+animation altar_tabernacle
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 7
+slaying /shattered_islands/world_0312
+hp 10
+sp 12
+walk_on 0
+fly_on 0
+x 6
+y 10
+end
+arch floor_flagm1
+x 6
+y 11
+end
+arch exit
+msg
+Brynknot
+endmsg
+slaying /shattered_islands/world_0311
+hp 10
+sp 12
+walk_on 0
+fly_on 0
+animation dragon_water_small
+face dragon_water.131
+anim_speed 4
+name Brynknot - Lake
+direction 5
+x 6
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 6
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0310
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 6
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 6
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0309
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 6
+y 13
+end
+arch floor_volcano_1
+x 6
+y 14
+end
+arch exit
+msg
+Promethia Island
+endmsg
+face meteor.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0308
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Promethia Island - Meteor, Volcano TP
+x 6
+y 14
+end
+arch floor_volcano_1
+x 6
+y 15
+end
+arch exit
+msg
+Promethia Island
+endmsg
+slaying /shattered_islands/world_0307
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_volcano_1.101
+is_animated 0
+anim_speed 0
+name Promethia Island
+x 6
+y 15
+end
+arch floor_volcano_1
+x 6
+y 16
+end
+arch exit
+msg
+Promethia Island
+endmsg
+face ship_w_steering_wheel.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0306
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Promethia Island - Ship to Strakewood Isl
+x 6
+y 16
+end
+arch floor_flagm1
+x 6
+y 17
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+face ship_w_steering_wheel.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0305
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Tutorial Island - Ship to Brynknot
+x 6
+y 17
+end
+arch floor_flagm1
+x 6
+y 18
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+slaying /shattered_islands/world_0304
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation guard_royal
+face guard_royal.131
+anim_speed 4
+name Tutorial Island - Gate
+direction 3
+x 6
+y 18
+end
+arch grassd_1
+name floor
+x 6
+y 19
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+name Tutorial Island - Church, Merc Guild, News
+face altar_default.111
+animation altar_tabernacle
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0303
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 6
+y 19
+end
+arch floor_flagm1
+x 6
+y 20
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+name Tutorial Island - Jail, Kobold Den, Ant Hive
+face prison_deco1.131
+animation prison_deco1.131
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0302
+hp 12
+sp 10
+walk_on 0
+fly_on 0
+x 6
+y 20
+end
+arch water_still
+name floor
+terrain_type 1
+x 6
+y 21
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0301
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 6
+y 21
+end
+arch floor_dark1b
+x 6
+y 22
+end
+arch floor_dark1b
+x 6
+y 23
+end
+arch floor_dark1b
+x 7
+end
+arch floor_dark1b
+x 7
+y 1
+end
+arch floor_dark1a
+x 7
+y 2
+end
+arch floor_dark1a
+x 7
+y 3
+end
+arch floor_dark1b
+x 7
+y 4
+end
+arch floor_dark1a
+x 7
+y 5
+end
+arch floor_dark1a
+x 7
+y 6
+end
+arch grassd_1
+name floor
+x 7
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0415
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation power_crystal
+face power_crystal.101
+name Strakewood Island - Mana Crystal
+x 7
+y 7
+end
+arch floor_sand_d2
+x 7
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0414
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_sand_d1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 7
+y 8
+end
+arch floor_sand_d2
+x 7
+y 9
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0413
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_sand_d1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 7
+y 9
+end
+arch grassd_1
+name floor
+x 7
+y 10
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0412
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grass_leaf2.101
+is_animated 0
+anim_speed 0
+name Strakewood Island - Evil Trees at Brynknot
+x 7
+y 10
+end
+arch grassd_1
+name floor
+x 7
+y 11
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0411
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face ring_gold_white.101
+is_animated 0
+anim_speed 0
+name Strakewood Island - souls, wasps
+x 7
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 12
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0410
+hp 12
+sp 9
+walk_on 0
+fly_on 0
+animation NONE
+face floor_fire1a.101
+is_animated 0
+anim_speed 0
+name Strakewood Island - Dark Cave
+x 7
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0409
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 7
+y 13
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 14
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0408
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 7
+y 14
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 15
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0407
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 7
+y 15
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 16
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0406
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 7
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0405
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 7
+y 17
+end
+arch grassd_1
+name floor
+x 7
+y 18
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+slaying /shattered_islands/world_0404
+hp 6
+sp 16
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Tutorial Island - Distance
+x 7
+y 18
+end
+arch floor_flagm1
+x 7
+y 19
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+name Tutorial Island - Bank, ShopSmith, Melee
+face anvil_big.111
+animation anvil_big_111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0403
+hp 9
+sp 12
+walk_on 0
+fly_on 0
+x 7
+y 19
+end
+arch grassd_1
+name floor
+x 7
+y 20
+end
+arch exit
+msg
+Tutorial Island
+endmsg
+slaying /shattered_islands/world_0402
+hp 5
+sp 9
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Tutorial Island
+x 7
+y 20
+end
+arch water_still
+name floor
+terrain_type 1
+x 7
+y 21
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0401
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 7
+y 21
+end
+arch floor_dark1a
+x 7
+y 22
+end
+arch floor_dark1b
+x 7
+y 23
+end
+arch floor_dark1b
+x 8
+end
+arch floor_dark1b
+x 8
+y 1
+end
+arch floor_dark1b
+x 8
+y 2
+end
+arch floor_dark1a
+x 8
+y 3
+end
+arch floor_dark1b
+x 8
+y 4
+end
+arch floor_dark1b
+x 8
+y 5
+end
+arch floor_dark1a
+x 8
+y 6
+end
+arch grassd_1
+name floor
+x 8
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0515
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 8
+y 7
+end
+arch floor_wood2_l1
+x 8
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0514
+hp 11
+sp 9
+walk_on 0
+fly_on 0
+animation wolf
+face wolf.151
+anim_speed 4
+name Strakewood Island - Quick Wolves Guild
+direction 5
+x 8
+y 8
+end
+arch floor_sand_d2
+x 8
+y 9
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0513
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation ogre
+face ogre.131
+anim_speed 4
+name Strakewood Island - Ogre Guard, (UC2)
+direction 5
+x 8
+y 9
+end
+arch grassd_1
+name floor
+x 8
+y 10
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0512
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation bee_killer
+face bee_killer.131
+anim_speed 4
+name Strakewood Island - bees
+direction 3
+x 8
+y 10
+end
+arch grassd_1
+name floor
+x 8
+y 11
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0511
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation wasp_giant
+face wasp_giant.131
+anim_speed 4
+name Strakewood Island - wasps, bears, wolf
+direction 5
+x 8
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 12
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0510
+hp 12
+sp 9
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 8
+y 12
+end
+arch desert.101
+name floor
+x 8
+y 13
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0509
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 8
+y 13
+end
+arch desert.101
+name floor
+x 8
+y 14
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0508
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 8
+y 14
+end
+arch desert.101
+name floor
+x 8
+y 15
+end
+arch exit
+msg
+Dragons Island
+endmsg
+face ladder_down_01.101
+animation ladder_down2
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0507
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Dragons Island - Maze to Promethia Island
+x 8
+y 15
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 16
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0506
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 8
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0505
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 8
+y 17
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 18
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0504
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 8
+y 18
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 19
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0503
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 8
+y 19
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 20
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0502
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 8
+y 20
+end
+arch water_still
+name floor
+terrain_type 1
+x 8
+y 21
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0501
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 8
+y 21
+end
+arch floor_dark1a
+x 8
+y 22
+end
+arch floor_dark1b
+x 8
+y 23
+end
+arch floor_dark1a
+x 9
+end
+arch floor_dark1a
+x 9
+y 1
+end
+arch floor_dark1b
+x 9
+y 2
+end
+arch floor_dark1a
+x 9
+y 3
+end
+arch floor_dark1a
+x 9
+y 4
+end
+arch floor_dark1b
+x 9
+y 5
+end
+arch floor_dark1b
+x 9
+y 6
+end
+arch floor_ruin1
+name floor
+x 9
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0615
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation orc_outlaw
+face orc_outlaw.131
+anim_speed 4
+name Strakewood Island - The Underground City
+direction 5
+x 9
+y 7
+end
+arch grassd_1
+name floor
+x 9
+y 8
+end
+arch exit
+msg
+Battle of Fort Ghzal
+endmsg
+slaying /shattered_islands/world_0614
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation orc_priest
+face orc_priest.131
+anim_speed 4
+name Battle of Fort Ghzal
+direction 5
+x 9
+y 8
+end
+arch floor_sblack3b
+x 9
+y 9
+end
+arch exit
+msg
+Fort Ghzal
+endmsg
+slaying /shattered_islands/world_0613
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation guard_pole
+face guard_pole.131
+anim_speed 4
+name Fort Ghzal - Rienn, Tolowen, Church
+direction 5
+x 9
+y 9
+end
+arch floor_sblack3b
+x 9
+y 10
+end
+arch exit
+msg
+Fort Ghzal
+endmsg
+slaying /shattered_islands/world_0612
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face wall_black1_d1.111
+is_animated 0
+anim_speed 0
+name Fort Ghzal
+x 9
+y 10
+end
+arch grassd_1
+name floor
+x 9
+y 11
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0611
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation bear_grey
+face bear_grey.131
+anim_speed 4
+name Strakewood Island - grey bears
+direction 2
+x 9
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 9
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0610
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 9
+y 12
+end
+arch desert.101
+name floor
+x 9
+y 13
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0609
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation probebullet
+face probe.101
+name Dragons Island - Azure TP
+anim_speed 3
+x 9
+y 13
+end
+arch desert.101
+name floor
+x 9
+y 14
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0608
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 9
+y 14
+end
+arch desert.101
+name floor
+x 9
+y 15
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0607
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 9
+y 15
+end
+arch desert.101
+name floor
+x 9
+y 16
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0606
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 9
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 9
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0605
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 9
+y 17
+end
+arch water_still
+name floor
+terrain_type 1
+x 9
+y 18
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0604
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 9
+y 18
+end
+arch water_still
+name floor
+terrain_type 1
+x 9
+y 19
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0603
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 9
+y 19
+end
+arch water_still
+name floor
+terrain_type 1
+x 9
+y 20
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0602
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 9
+y 20
+end
+arch water_still
+name floor
+terrain_type 1
+x 9
+y 21
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0601
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 9
+y 21
+end
+arch floor_dark1a
+x 9
+y 22
+end
+arch floor_dark1b
+x 9
+y 23
+end
+arch floor_dark1b
+x 10
+end
+arch floor_dark1b
+x 10
+y 1
+end
+arch floor_dark1a
+x 10
+y 2
+end
+arch floor_dark1a
+x 10
+y 3
+end
+arch floor_dark1b
+x 10
+y 4
+end
+arch floor_dark1a
+x 10
+y 5
+end
+arch floor_dark1a
+x 10
+y 6
+end
+arch grassd_1
+name floor
+x 10
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0715
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 10
+y 7
+end
+arch grassd_1
+name floor
+x 10
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0714
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 10
+y 8
+end
+arch floor_sand_d2
+x 10
+y 9
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0713
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_sand_d1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 10
+y 9
+end
+arch floor_sblack3b
+x 10
+y 10
+end
+arch exit
+msg
+Fort Ghzal
+endmsg
+slaying /shattered_islands/world_0712
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face wall_black1_d2.111
+is_animated 0
+anim_speed 0
+name Fort Ghzal - Churlgal
+x 10
+y 10
+end
+arch grassd_1
+name floor
+x 10
+y 11
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0711
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation bear_grey
+face bear_grey.131
+anim_speed 4
+name Strakewood Island - grey bears
+direction 6
+x 10
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 10
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0710
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 10
+y 12
+end
+arch desert.101
+name floor
+x 10
+y 13
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0709
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 10
+y 13
+end
+arch desert.101
+name floor
+x 10
+y 14
+end
+arch exit
+msg
+Dragons Island
+endmsg
+face smoking_pipe.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0708
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Dragons Island - Scursaur
+x 10
+y 14
+end
+arch desert.101
+name floor
+x 10
+y 15
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0707
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 10
+y 15
+end
+arch desert.101
+name floor
+x 10
+y 16
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0706
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 10
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 10
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0705
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 10
+y 17
+end
+arch water_still
+name floor
+terrain_type 1
+x 10
+y 18
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0704
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 10
+y 18
+end
+arch water_lt
+terrain_type 1
+x 10
+y 19
+end
+arch exit
+msg
+Clearhaven
+endmsg
+slaying /shattered_islands/world_0703
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face water_lt.101
+is_animated 0
+anim_speed 0
+name Clearhaven
+x 10
+y 19
+end
+arch grassd_1
+name floor
+x 10
+y 20
+end
+arch exit
+msg
+Clearhaven
+endmsg
+face ship_w_steering_wheel.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0702
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Clearhaven - Ship to Brynknot
+x 10
+y 20
+end
+arch water_lt
+terrain_type 1
+x 10
+y 21
+end
+arch exit
+msg
+Clearhaven
+endmsg
+slaying /shattered_islands/world_0701
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face ship_hull_prow_s_front_1.101
+is_animated 0
+anim_speed 0
+name Clearhaven
+x 10
+y 21
+end
+arch floor_dark1a
+x 10
+y 22
+end
+arch floor_dark1a
+x 10
+y 23
+end
+arch floor_dark1a
+x 11
+end
+arch snow1
+name floor
+x 11
+y 1
+end
+arch exit
+msg
+Lyondale Archipelago
+endmsg
+slaying /shattered_islands/world_0821
+hp 13
+sp 13
+walk_on 0
+fly_on 0
+animation snowman_evil
+face snowman_evil.151
+anim_speed 4
+name LA - Wizard's Tower Island
+direction 5
+x 11
+y 1
+end
+arch snow1
+name floor
+x 11
+y 2
+end
+arch exit
+msg
+Lyondale Archipelago
+endmsg
+slaying /shattered_islands/world_0820
+hp 15
+sp 10
+walk_on 0
+fly_on 0
+animation snowman_evil
+face snowman_evil.151
+anim_speed 4
+name LA - Wizard's Tower Island
+direction 5
+x 11
+y 2
+end
+arch floor_dark1a
+x 11
+y 3
+end
+arch floor_dark1b
+x 11
+y 4
+end
+arch floor_dark1a
+x 11
+y 5
+end
+arch floor_dark1a
+x 11
+y 6
+end
+arch floor_sblack3b
+x 11
+y 7
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+face altar_default.111
+animation altar_moroch
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0815
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Strakewood Island - Moroch Temple
+x 11
+y 7
+end
+arch floor_sand_d2
+x 11
+y 8
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0814
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_sand_d1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 11
+y 8
+end
+arch floor_sand_d2
+x 11
+y 9
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0813
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_sand_d1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 11
+y 9
+end
+arch floor_sand_d2
+x 11
+y 10
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0812
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_sand_d1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 11
+y 10
+end
+arch grassd_1
+name floor
+x 11
+y 11
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0811
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation ant_red
+face ant_red.131
+anim_speed 4
+name Strakewood Island - Finger of Death
+direction 5
+x 11
+y 11
+end
+arch grassd_1
+name floor
+x 11
+y 12
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+face ship_w_steering_wheel.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0810
+hp 12
+sp 9
+walk_on 0
+fly_on 0
+name Strakewood Island - Ship to Promethia Isl
+x 11
+y 12
+end
+arch desert.101
+name floor
+x 11
+y 13
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0809
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation probebullet
+face probe.101
+name Dragons Island - Red TP
+anim_speed 3
+x 11
+y 13
+end
+arch desert.101
+name floor
+x 11
+y 14
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0808
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 11
+y 14
+end
+arch desert.101
+name floor
+x 11
+y 15
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0807
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 11
+y 15
+end
+arch desert.101
+name floor
+x 11
+y 16
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0806
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 11
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 11
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0805
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 11
+y 17
+end
+arch water_still
+name floor
+terrain_type 1
+x 11
+y 18
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0804
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 11
+y 18
+end
+arch grassd_1
+name floor
+x 11
+y 19
+end
+arch exit
+msg
+Clearhaven
+endmsg
+face tree_big.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0803
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Clearhaven - Treehome
+x 11
+y 19
+end
+arch grassd_1
+name floor
+x 11
+y 20
+end
+arch exit
+msg
+Clearhaven
+endmsg
+face apple.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0802
+hp 11
+sp 9
+walk_on 0
+fly_on 0
+name Clearhaven - ShopFood, News
+x 11
+y 20
+end
+arch grassd_1
+name floor
+x 11
+y 21
+end
+arch exit
+msg
+Clearhaven
+endmsg
+face goldcoin.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0801
+hp 13
+sp 10
+walk_on 0
+fly_on 0
+name Clearhaven - Bank, Inn
+x 11
+y 21
+end
+arch floor_dark1a
+x 11
+y 22
+end
+arch floor_dark1a
+x 11
+y 23
+end
+arch floor_dark1b
+x 12
+end
+arch snow1
+name floor
+x 12
+y 1
+end
+arch exit
+msg
+Lyondale Archipelago
+endmsg
+slaying /shattered_islands/world_1021
+hp 13
+sp 13
+walk_on 0
+fly_on 0
+animation thelra_female
+face thelra_f.131
+anim_speed 4
+name LA - Wizard's Tower Island
+direction 5
+x 12
+y 1
+end
+arch snow1
+name floor
+x 12
+y 2
+end
+arch exit
+msg
+Lyondale Archipelago
+endmsg
+face ship_w_steering_wheel.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0920
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name LA - Wizard's Tower Isl - Ship to Greyton
+x 12
+y 2
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 3
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0919
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 3
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 4
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0918
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 4
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 5
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0917
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 5
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 6
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0916
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 6
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 7
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0915
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0914
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 8
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 9
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0913
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 9
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 10
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0912
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face bridge_wood_EW.101
+is_animated 0
+anim_speed 0
+name Strakewood Island - Bridge to Greyton
+x 12
+y 10
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 11
+end
+arch exit
+msg
+Strakewood Island
+endmsg
+slaying /shattered_islands/world_0911
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Strakewood Island
+x 12
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0910
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 13
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0909
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 12
+y 13
+end
+arch desert.101
+name floor
+x 12
+y 14
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0908
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 12
+y 14
+end
+arch desert.101
+name floor
+x 12
+y 15
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0907
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 12
+y 15
+end
+arch desert.101
+name floor
+x 12
+y 16
+end
+arch exit
+msg
+Dragons Island
+endmsg
+slaying /shattered_islands/world_0906
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face desert.101
+is_animated 0
+anim_speed 0
+name Dragons Island
+x 12
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0905
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 17
+end
+arch water_still
+name floor
+terrain_type 1
+x 12
+y 18
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_0904
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 12
+y 18
+end
+arch grassd_1
+name floor
+x 12
+y 19
+end
+arch exit
+msg
+Clearhaven
+endmsg
+face reed_small_m8.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0803
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Clearhaven
+x 12
+y 19
+end
+arch grassd_1
+name floor
+x 12
+y 20
+end
+arch exit
+msg
+Clearhaven
+endmsg
+face well_stone.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_0802
+hp 11
+sp 9
+walk_on 0
+fly_on 0
+name Clearhaven - Mine, Church, Rirain, Cernye
+x 12
+y 20
+end
+arch grassd_1
+name floor
+x 12
+y 21
+end
+arch exit
+msg
+Clearhaven
+endmsg
+name Clearhaven - ShopSmith
+face anvil_big.111
+animation anvil_big_111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_0901
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 12
+y 21
+end
+arch floor_dark1a
+x 12
+y 22
+end
+arch floor_dark1a
+x 12
+y 23
+end
+arch floor_dark1b
+x 13
+end
+arch snow1
+name floor
+x 13
+y 1
+end
+arch exit
+msg
+Lyondale Archipelago
+endmsg
+slaying /shattered_islands/world_1021
+hp 13
+sp 13
+walk_on 0
+fly_on 0
+animation snowman_evil
+face snowman_evil.151
+anim_speed 4
+name LA - Wizard's Tower Island
+direction 5
+x 13
+y 1
+end
+arch snow1
+name floor
+x 13
+y 2
+end
+arch exit
+msg
+Lyondale Archipelago
+endmsg
+slaying /shattered_islands/world_1020
+hp 15
+sp 10
+walk_on 0
+fly_on 0
+animation snowman_evil
+face snowman_evil.151
+anim_speed 4
+name LA - Wizard's Tower Island
+direction 5
+x 13
+y 2
+end
+arch floor_dark1b
+x 13
+y 3
+end
+arch floor_dark1a
+x 13
+y 4
+end
+arch floor_dark1a
+x 13
+y 5
+end
+arch floor_dark1a
+x 13
+y 6
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 7
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1015
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1014
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 8
+end
+arch floor_flagm1
+x 13
+y 9
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+face goldcoin.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1013
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton - Bank, RandShop
+x 13
+y 9
+end
+arch floor_flagm1
+x 13
+y 10
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+face sign.111
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1012
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton - Gate, News, *Donations Hall
+x 13
+y 10
+end
+arch floor_flagm1
+x 13
+y 11
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+name Greyton - Church, Apts
+face altar_default.111
+animation altar_tabernacle
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_1011
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 13
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1010
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1009
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 13
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 14
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1008
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 14
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 15
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1007
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 15
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 16
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1006
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 16
+end
+arch water_still
+name floor
+terrain_type 1
+x 13
+y 17
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1005
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 13
+y 17
+end
+arch grassd_1
+name floor
+x 13
+y 18
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1004
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation bear_grey
+face bear_grey.131
+anim_speed 4
+name Eld Woods Island - grey bears
+direction 4
+x 13
+y 18
+end
+arch grassd_1
+name floor
+x 13
+y 19
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1003
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation wasp_giant
+face wasp_giant.131
+anim_speed 4
+name Eld Woods Island - wasps, bees
+direction 5
+x 13
+y 19
+end
+arch grassd_1
+name floor
+x 13
+y 20
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1002
+hp 12
+sp 17
+walk_on 0
+fly_on 0
+animation lost_soul
+face lost_soul.131
+anim_speed 4
+name Eld Woods Island - Rirain's Nightmares
+direction 5
+x 13
+y 20
+end
+arch grassd_1
+name floor
+x 13
+y 21
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1001
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 13
+y 21
+end
+arch floor_dark1b
+x 13
+y 22
+end
+arch floor_dark1b
+x 13
+y 23
+end
+arch floor_dark1a
+x 14
+end
+arch floor_dark1a
+x 14
+y 1
+end
+arch floor_dark1b
+x 14
+y 2
+end
+arch floor_dark1a
+x 14
+y 3
+end
+arch floor_dark1b
+x 14
+y 4
+end
+arch floor_dark1a
+x 14
+y 5
+end
+arch floor_dark1b
+x 14
+y 6
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 7
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1115
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1114
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 8
+end
+arch floor_flagm1
+x 14
+y 9
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+name Greyton - Arena Medics House
+face couch1b.111
+animation couch1b
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 3
+slaying /shattered_islands/world_1113
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 14
+y 9
+end
+arch floor_flagm1
+x 14
+y 10
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+face shortsword.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1112
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton - ARENA
+x 14
+y 10
+end
+arch floor_flagm1
+x 14
+y 11
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+face finger.111
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1111
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton - Finger of Death Quest
+x 14
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1110
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1109
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 13
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 14
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1108
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 14
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 15
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1107
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 15
+end
+arch water_still
+name floor
+terrain_type 1
+x 14
+y 16
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1106
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 14
+y 16
+end
+arch grassd_1
+name floor
+x 14
+y 17
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1105
+hp 17
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 14
+y 17
+end
+arch grassd_1
+name floor
+x 14
+y 18
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1104
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation crocodile
+face crocodile.151
+anim_speed 4
+name Eld Woods Island - crocodiles
+direction 5
+x 14
+y 18
+end
+arch grassd_1
+name floor
+x 14
+y 19
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1103
+hp 10
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 14
+y 19
+end
+arch grassd_1
+name floor
+x 14
+y 20
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1102
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grass_leaf2.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island - Evil Trees
+x 14
+y 20
+end
+arch grassd_1
+name floor
+x 14
+y 21
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1101
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grass_leaf2.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island - Evil Trees
+x 14
+y 21
+end
+arch floor_dark1a
+x 14
+y 22
+end
+arch floor_dark1b
+x 14
+y 23
+end
+arch floor_dark1a
+x 15
+end
+arch floor_dark1b
+x 15
+y 1
+end
+arch floor_dark1a
+x 15
+y 2
+end
+arch floor_ruin1
+name floor
+x 15
+y 3
+end
+arch exit
+msg
+Berri Lur
+endmsg
+slaying /shattered_islands/world_1219
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face altar2.131
+is_animated 0
+anim_speed 0
+name Berri Lur - Temple of Loki
+x 15
+y 3
+end
+arch floor_dark1b
+x 15
+y 4
+end
+arch floor_dark1b
+x 15
+y 5
+end
+arch floor_dark1a
+x 15
+y 6
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 7
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1215
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 15
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1214
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 15
+y 8
+end
+arch floor_flagm1
+x 15
+y 9
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+name Greyton - Arena entrance, Jail
+face prison_deco1.131
+animation prison_deco1.131
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_1213
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 15
+y 9
+end
+arch floor_flagm1
+x 15
+y 10
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+face floor_flagm1.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1212
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton
+x 15
+y 10
+end
+arch floor_flagm1
+x 15
+y 11
+end
+arch exit
+msg
+The City of Greyton
+endmsg
+face floor_flagm1.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1211
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton
+x 15
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1210
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 15
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1209
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 15
+y 13
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 14
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1208
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 15
+y 14
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 15
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1207
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 15
+y 15
+end
+arch water_still
+name floor
+terrain_type 1
+x 15
+y 16
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1206
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 15
+y 16
+end
+arch grassd_1
+name floor
+x 15
+y 17
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1205
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation deer
+face deer.121
+anim_speed 4
+name Eld Woods Island - deer
+direction 3
+x 15
+y 17
+end
+arch grassd_1
+name floor
+x 15
+y 18
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1204
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation crocodile
+face crocodile.151
+anim_speed 4
+name Eld Woods Island - crocodiles
+direction 5
+x 15
+y 18
+end
+arch grassd_1
+name floor
+x 15
+y 19
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1203
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 15
+y 19
+end
+arch grassd_1
+name floor
+x 15
+y 20
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1202
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 15
+y 20
+end
+arch floor_marble_b1a
+x 15
+y 21
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1201
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation wolf
+face wolf.151
+anim_speed 4
+name Eld Woods Island - Cave of Morlarg
+direction 5
+x 15
+y 21
+end
+arch floor_dark1a
+x 15
+y 22
+end
+arch floor_dark1a
+x 15
+y 23
+end
+arch floor_dark1b
+x 16
+end
+arch swamp1
+name floor
+x 16
+y 1
+end
+arch exit
+msg
+Bog of Eternal Stench
+endmsg
+face reed_small_m1.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1321
+hp 10
+sp 12
+walk_on 0
+fly_on 0
+name Bog of Eternal Stench
+x 16
+y 1
+end
+arch swamp1
+name floor
+x 16
+y 2
+end
+arch exit
+msg
+Bog of Eternal Stench
+endmsg
+face reed_small_m8.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1320
+hp 11
+sp 11
+walk_on 0
+fly_on 0
+name Bog of Eternal Stench
+x 16
+y 2
+end
+arch grassd_1
+name floor
+x 16
+y 3
+end
+arch exit
+msg
+Berri Lur
+endmsg
+slaying /shattered_islands/world_1319
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Berri Lur
+x 16
+y 3
+end
+arch floor_flagm1
+x 16
+y 4
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+name Portu Baserrian - Church, graveyard
+face altar_default.111
+animation altar_tabernacle
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 7
+slaying /shattered_islands/world_1318
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 16
+y 4
+end
+arch floor_flagm1
+x 16
+y 5
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+name Portu Baserrian - ShopSmith
+face anvil_big.111
+animation anvil_big_111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_1317
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 16
+y 5
+end
+arch floor_flagm1
+x 16
+y 6
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+face goldcoin.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1316
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Portu Baserrian - Bank, PO
+x 16
+y 6
+end
+arch grassd_1
+name floor
+x 16
+y 7
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+slaying /shattered_islands/world_1315
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face water_floor.101
+is_animated 0
+anim_speed 0
+name Portu Baserrian - Magic Pool
+x 16
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1314
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 16
+y 8
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 9
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1313
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 16
+y 9
+end
+arch bridge_wood_EW.101
+name floor
+x 16
+y 10
+end
+arch exit
+msg
+Greyton Docks
+endmsg
+face ship_n_steering_wheel_double.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1312
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Greyton - Ships to LA and Berri Lur
+x 16
+y 10
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 11
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1311
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 16
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1310
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 16
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1309
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 16
+y 13
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 14
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1308
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 16
+y 14
+end
+arch water_still
+name floor
+terrain_type 1
+x 16
+y 15
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1307
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 16
+y 15
+end
+arch grassd_1
+name floor
+x 16
+y 16
+end
+arch exit
+msg
+Eldw Woods Island
+endmsg
+slaying /shattered_islands/world_1306
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation ogre
+face ogre.131
+anim_speed 4
+name Eldw Woods Island - Ogres, Giants
+direction 3
+x 16
+y 16
+end
+arch grassd_1
+name floor
+x 16
+y 17
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1305
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 16
+y 17
+end
+arch grassd_1
+name floor
+x 16
+y 18
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1304
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation crocodile
+face crocodile.151
+anim_speed 4
+name Eld Woods Island - crocodiles
+direction 5
+x 16
+y 18
+end
+arch grassd_1
+name floor
+x 16
+y 19
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1303
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 16
+y 19
+end
+arch swamp1
+name floor
+x 16
+y 20
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1302
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation mud_hand
+face mud_hand.101
+anim_speed 4
+name Eld Woods Island - mudhands
+direction 5
+x 16
+y 20
+end
+arch swamp1
+name floor
+x 16
+y 21
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1301
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation mud_hand
+face mud_hand.101
+anim_speed 4
+name Eld Woods Island - mudhands
+direction 5
+x 16
+y 21
+end
+arch floor_dark1b
+x 16
+y 22
+end
+arch floor_dark1a
+x 16
+y 23
+end
+arch floor_dark1b
+x 17
+end
+arch floor_dark1a
+x 17
+y 1
+end
+arch floor_dark1b
+x 17
+y 2
+end
+arch floor_dark1a
+x 17
+y 3
+end
+arch floor_flagm1
+x 17
+y 4
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+face beer.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1418
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Portu Baserrian - tavern
+x 17
+y 4
+end
+arch floor_flagm1
+x 17
+y 5
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+face bacon.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1417
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Portu Baserrian - watch house
+x 17
+y 5
+end
+arch floor_flagm1
+x 17
+y 6
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+name Portu Baserrian - Jail, Tax, Storage
+face prison_deco1.131
+animation prison_deco1.131
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_1416
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 17
+y 6
+end
+arch grassd_1
+name floor
+x 17
+y 7
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+slaying /shattered_islands/world_1415
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Portu Baserrian
+x 17
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1414
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 17
+y 8
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 9
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1413
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 17
+y 9
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 10
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1412
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 17
+y 10
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 11
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1411
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 17
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1410
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 17
+y 12
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 13
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1409
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 17
+y 13
+end
+arch water_still
+name floor
+terrain_type 1
+x 17
+y 14
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1408
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 17
+y 14
+end
+arch grassd_1
+name floor
+x 17
+y 15
+end
+arch exit
+msg
+Eldw Woods Island
+endmsg
+slaying /shattered_islands/world_1407
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation slug_giant
+face slug_giant.131
+anim_speed 4
+name Eldw Woods Island - giant slugs
+direction 5
+x 17
+y 15
+end
+arch grassd_1
+name floor
+x 17
+y 16
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1406
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 17
+y 16
+end
+arch grassd_1
+name floor
+x 17
+y 17
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1405
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 17
+y 17
+end
+arch bridge_wood_NS.101
+name floor
+x 17
+y 18
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1404
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation crocodile
+face crocodile.151
+anim_speed 4
+name Eld Woods Island - crocodiles
+direction 5
+x 17
+y 18
+end
+arch grassd_1
+name floor
+x 17
+y 19
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1403
+hp 7
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 17
+y 19
+end
+arch grassd_1
+name floor
+x 17
+y 20
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1402
+hp 7
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 17
+y 20
+end
+arch grassd_1
+name floor
+x 17
+y 21
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1401
+hp 7
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grassd_1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 17
+y 21
+end
+arch floor_dark1a
+x 17
+y 22
+end
+arch floor_dark1a
+x 17
+y 23
+end
+arch floor_dark1b
+x 18
+end
+arch floor_dark1b
+x 18
+y 1
+end
+arch floor_dark1b
+x 18
+y 2
+end
+arch floor_dark1b
+x 18
+y 3
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 4
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1518
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 4
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 5
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1517
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 5
+end
+arch bridge_wood_EW.101
+name floor
+x 18
+y 6
+end
+arch exit
+msg
+Portu Baserrian
+endmsg
+face ship_w_steering_wheel.101
+animation NONE
+anim_speed 0
+is_animated 0
+slaying /shattered_islands/world_1516
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+name Portu Baserrian - Ship to Greyton
+x 18
+y 6
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 7
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1515
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 7
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 8
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1514
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 8
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 9
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1513
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 9
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 10
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1512
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 10
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 11
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1511
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 11
+end
+arch water_still
+name floor
+terrain_type 1
+x 18
+y 12
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1510
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 18
+y 12
+end
+arch grassd_1
+name floor
+x 18
+y 13
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1509
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face floor_nstone1.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island - Hemlock Cave
+x 18
+y 13
+end
+arch grassd_1
+name floor
+x 18
+y 14
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1508
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation tiger
+face tiger.131
+anim_speed 4
+name Eld Woods Island - tigers
+direction 5
+x 18
+y 14
+end
+arch grassd_1
+name floor
+x 18
+y 15
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1507
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation ant_red
+face ant_red.131
+anim_speed 4
+name Eld Woods Island - ants
+direction 5
+x 18
+y 15
+end
+arch floor_earth1a
+x 18
+y 16
+end
+arch exit
+msg
+Eld Woods Island - Forgotten Graveyard
+endmsg
+name Eld Woods Island - Forgotten Graveyard
+face grave_cross1.111
+animation grave_cross1.111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_1506
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 18
+y 16
+end
+arch floor_earth1a
+x 18
+y 17
+end
+arch exit
+msg
+Eld Woods Island - Forgotten Graveyard
+endmsg
+name Eld Woods Island - Forgotten Graveyard
+face grave_cross1.111
+animation grave_cross1.111
+anim_speed 1
+is_animated 0
+is_turnable 1
+direction 1
+slaying /shattered_islands/world_1505
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+x 18
+y 17
+end
+arch grassd_1
+name floor
+x 18
+y 18
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1504
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face water_plant2.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island
+x 18
+y 18
+end
+arch grassd_1
+name floor
+x 18
+y 19
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1503
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grass_leaf2.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island - Evil Trees
+x 18
+y 19
+end
+arch grassd_1
+name floor
+x 18
+y 20
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1502
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grass_leaf2.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island - Evil Trees
+x 18
+y 20
+end
+arch grassd_1
+name floor
+x 18
+y 21
+end
+arch exit
+msg
+Eld Woods Island
+endmsg
+slaying /shattered_islands/world_1501
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation NONE
+face grass_leaf2.101
+is_animated 0
+anim_speed 0
+name Eld Woods Island - Evil Trees
+x 18
+y 21
+end
+arch floor_dark1a
+x 18
+y 22
+end
+arch floor_dark1a
+x 18
+y 23
+end
+arch floor_dark1a
+x 19
+end
+arch floor_dark1a
+x 19
+y 1
+end
+arch floor_dark1b
+x 19
+y 2
+end
+arch floor_dark1b
+x 19
+y 3
+end
+arch floor_dark1b
+x 19
+y 4
+end
+arch water_still
+name floor
+terrain_type 1
+x 19
+y 5
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1617
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 19
+y 5
+end
+arch water_still
+name floor
+terrain_type 1
+x 19
+y 6
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1616
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 19
+y 6
+end
+arch water_still
+name floor
+terrain_type 1
+x 19
+y 7
+end
+arch exit
+msg
+World
+endmsg
+slaying /shattered_islands/world_1615
+hp 12
+sp 12
+walk_on 0
+fly_on 0
+animation water_still
+face lake.101
+anim_speed 10
+name World
+x 19
+y 7
+end
+arch floor_dark1a
+x 19
+y 8
+end
+arch floor_dark1b
+x 19
+y 9
+end
+arch floor_dark1a
+x 19
+y 10
+end
+arch floor_dark1a
+x 19
+y 11
+end
+arch floor_dark1b
+x 19
+y 12
+end
+arch floor_dark1a
+x 19
+y 13
+end
+arch floor_dark1a
+x 19
+y 14
+end
+arch floor_dark1b
+x 19
+y 15
+end
+arch floor_dark1b
+x 19
+y 16
+end
+arch floor_dark1a
+x 19
+y 17
+end
+arch floor_dark1a
+x 19
+y 18
+end
+arch floor_dark1a
+x 19
+y 19
+end
+arch floor_dark1a
+x 19
+y 20
+end
+arch floor_dark1a
+x 19
+y 21
+end
+arch floor_dark1b
+x 19
+y 22
+end
+arch floor_dark1b
+x 19
+y 23
+end
+arch floor_dark1a
+x 20
+end
+arch floor_dark1b
+x 20
+y 1
+end
+arch floor_dark1a
+x 20
+y 2
+end
+arch floor_dark1a
+x 20
+y 3
+end
+arch floor_dark1a
+x 20
+y 4
+end
+arch floor_dark1b
+x 20
+y 5
+end
+arch floor_dark1b
+x 20
+y 6
+end
+arch floor_dark1b
+x 20
+y 7
+end
+arch floor_dark1b
+x 20
+y 8
+end
+arch floor_dark1b
+x 20
+y 9
+end
+arch floor_dark1b
+x 20
+y 10
+end
+arch floor_dark1b
+x 20
+y 11
+end
+arch floor_dark1a
+x 20
+y 12
+end
+arch floor_dark1a
+x 20
+y 13
+end
+arch floor_dark1b
+x 20
+y 14
+end
+arch floor_dark1a
+x 20
+y 15
+end
+arch floor_dark1a
+x 20
+y 16
+end
+arch floor_dark1a
+x 20
+y 17
+end
+arch floor_dark1b
+x 20
+y 18
+end
+arch floor_dark1a
+x 20
+y 19
+end
+arch floor_dark1b
+x 20
+y 20
+end
+arch floor_dark1a
+x 20
+y 21
+end
+arch floor_dark1a
+x 20
+y 22
+end
+arch floor_dark1b
+x 20
+y 23
+end
+arch floor_dark1a
+x 21
+end
+arch floor_dark1a
+x 21
+y 1
+end
+arch floor_dark1b
+x 21
+y 2
+end
+arch floor_dark1a
+x 21
+y 3
+end
+arch floor_dark1b
+x 21
+y 4
+end
+arch floor_dark1b
+x 21
+y 5
+end
+arch floor_dark1a
+x 21
+y 6
+end
+arch floor_dark1b
+x 21
+y 7
+end
+arch floor_dark1b
+x 21
+y 8
+end
+arch floor_dark1b
+x 21
+y 9
+end
+arch floor_dark1a
+x 21
+y 10
+end
+arch floor_dark1b
+x 21
+y 11
+end
+arch floor_dark1b
+x 21
+y 12
+end
+arch floor_dark1a
+x 21
+y 13
+end
+arch floor_dark1a
+x 21
+y 14
+end
+arch floor_dark1a
+x 21
+y 15
+end
+arch floor_dark1a
+x 21
+y 16
+end
+arch floor_dark1b
+x 21
+y 17
+end
+arch floor_dark1a
+x 21
+y 18
+end
+arch floor_dark1b
+x 21
+y 19
+end
+arch floor_dark1b
+x 21
+y 20
+end
+arch floor_dark1b
+x 21
+y 21
+end
+arch floor_dark1a
+x 21
+y 22
+end
+arch floor_dark1a
+x 21
+y 23
+end
+arch floor_dark1a
+x 22
+end
+arch floor_dark1a
+x 22
+y 1
+end
+arch floor_dark1a
+x 22
+y 2
+end
+arch floor_dark1b
+x 22
+y 3
+end
+arch floor_dark1b
+x 22
+y 4
+end
+arch floor_dark1b
+x 22
+y 5
+end
+arch floor_dark1b
+x 22
+y 6
+end
+arch floor_dark1b
+x 22
+y 7
+end
+arch floor_dark1a
+x 22
+y 8
+end
+arch floor_dark1a
+x 22
+y 9
+end
+arch floor_dark1b
+x 22
+y 10
+end
+arch floor_dark1b
+x 22
+y 11
+end
+arch floor_dark1b
+x 22
+y 12
+end
+arch floor_dark1a
+x 22
+y 13
+end
+arch floor_dark1b
+x 22
+y 14
+end
+arch floor_dark1a
+x 22
+y 15
+end
+arch floor_dark1a
+x 22
+y 16
+end
+arch floor_dark1b
+x 22
+y 17
+end
+arch floor_dark1b
+x 22
+y 18
+end
+arch floor_dark1a
+x 22
+y 19
+end
+arch floor_dark1a
+x 22
+y 20
+end
+arch floor_dark1b
+x 22
+y 21
+end
+arch floor_dark1a
+x 22
+y 22
+end
+arch floor_dark1a
+x 22
+y 23
+end
+arch floor_dark1a
+x 23
+end
+arch floor_dark1b
+x 23
+y 1
+end
+arch floor_dark1b
+x 23
+y 2
+end
+arch floor_dark1b
+x 23
+y 3
+end
+arch floor_dark1b
+x 23
+y 4
+end
+arch floor_dark1a
+x 23
+y 5
+end
+arch floor_dark1a
+x 23
+y 6
+end
+arch floor_dark1a
+x 23
+y 7
+end
+arch floor_dark1a
+x 23
+y 8
+end
+arch floor_dark1b
+x 23
+y 9
+end
+arch floor_dark1a
+x 23
+y 10
+end
+arch floor_dark1a
+x 23
+y 11
+end
+arch floor_dark1a
+x 23
+y 12
+end
+arch floor_dark1b
+x 23
+y 13
+end
+arch floor_dark1a
+x 23
+y 14
+end
+arch floor_dark1b
+x 23
+y 15
+end
+arch floor_dark1b
+x 23
+y 16
+end
+arch floor_dark1a
+x 23
+y 17
+end
+arch floor_dark1b
+x 23
+y 18
+end
+arch floor_dark1a
+x 23
+y 19
+end
+arch floor_dark1b
+x 23
+y 20
+end
+arch floor_dark1b
+x 23
+y 21
+end
+arch floor_dark1b
+x 23
+y 22
+end
+arch floor_dark1a
+x 23
+y 23
+end
