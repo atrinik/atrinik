@@ -1148,6 +1148,18 @@ void open_input_mode(int maxchar)
  * Play various action sounds. */
 static void play_action_sounds()
 {
+	if (cpl.warn_statdown)
+	{
+		sound_play_effect("warning_statdown.ogg", 100);
+		cpl.warn_statdown = 0;
+	}
+
+	if (cpl.warn_statup)
+	{
+		sound_play_effect("warning_statup.ogg", 100);
+		cpl.warn_statup = 0;
+	}
+
 	if (cpl.warn_hp)
 	{
 		if (cpl.warn_hp == 2)
