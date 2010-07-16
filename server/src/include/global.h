@@ -169,6 +169,35 @@ typedef struct _money_block
 	sint64 copper;
 } _money_block;
 
+/**
+ * @defgroup BANK_xxx Bank return values
+ * Meaningful constants of values returned by bank_withdraw() and
+ * bank_deposit().
+ *
+ * BANK_WITHDRAW_xxx constants can only be returned by bank_withdraw(),
+ * while BANK_DEPOSIT_xxx constants can only be returned by bank_deposit().
+ * Any other constants can be returned by both functions.
+ *@{*/
+/** Syntax error: did not get text in expected format. */
+#define BANK_SYNTAX_ERROR -1
+/** Successfully withdrawn/deposited money. */
+#define BANK_SUCCESS 0
+
+/** Withdraw value was too high. */
+#define BANK_WITHDRAW_HIGH 1
+/** Player wanted to withdraw more than they have in bank. */
+#define BANK_WITHDRAW_MISSING 2
+
+/** Player doesn't have enough copper coins on hand. */
+#define BANK_DEPOSIT_COPPER 1
+/** Player doesn't have enough silver coins on hand. */
+#define BANK_DEPOSIT_SILVER 2
+/** Player doesn't have enough gold coins on hand. */
+#define BANK_DEPOSIT_GOLD 3
+/** Player doesn't have enough mithril coins on hand. */
+#define BANK_DEPOSIT_MITHRIL 4
+/*@}*/
+
 #define POW2(x) ((x) * (x))
 
 /**
