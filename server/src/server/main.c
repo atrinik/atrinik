@@ -782,7 +782,7 @@ static void process_players1()
 			{
 				rv_vector rv;
 
-				if (pl->ob->map != followed->ob->map || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
+				if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
 				{
 					int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
 
