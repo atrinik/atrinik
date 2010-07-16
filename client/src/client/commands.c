@@ -1344,6 +1344,31 @@ void DeleteInventory(unsigned char *data)
 }
 
 /**
+ * Plays the footstep sounds when moving on the map. */
+static void map_play_footstep()
+{
+	static int step = 0;
+	static uint32 tick = 0;
+
+	if (LastTick - tick > 125)
+	{
+		step++;
+
+		if (step % 2)
+		{
+			sound_play_effect("step1.ogg", 100);
+		}
+		else
+		{
+			step = 0;
+			sound_play_effect("step2.ogg", 100);
+		}
+
+		tick = LastTick;
+	}
+}
+
+/**
  * Map2 command.
  * @param data The incoming data
  * @param len Length of the data */
@@ -1394,6 +1419,8 @@ void Map2Cmd(unsigned char *data, int len)
 			my = ypos;
 			remove_item_inventory(locate_item(0));
 			display_mapscroll(xoff, yoff);
+
+			map_play_footstep();
 		}
 
 		update_map_data(mapname, bg_music);
@@ -1406,30 +1433,11 @@ void Map2Cmd(unsigned char *data, int len)
 		/* we have moved */
 		if ((xpos - mx || ypos - my))
 		{
-			static int step = 0;
-			static uint32 tick = 0;
-
 			remove_item_inventory(locate_item(0));
 			cpl.win_below_slot = 0;
 
 			display_mapscroll(xpos - mx, ypos - my);
-
-			if (LastTick - tick > 125)
-			{
-				step++;
-
-				if (step % 2)
-				{
-					sound_play_effect("step1.ogg", 100);
-				}
-				else
-				{
-					step = 0;
-					sound_play_effect("step2.ogg", 100);
-				}
-
-				tick = LastTick;
-			}
+			map_play_footstep();
 		}
 
 		mx = xpos;
