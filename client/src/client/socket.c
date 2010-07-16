@@ -604,7 +604,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	if (*fd == SOCKET_NO)
 	{
-		perror("socket_create(): Error on socket command.\n");
+		perror("socket_create(): Error on socket command");
 		return 0;
 	}
 
@@ -647,7 +647,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 		if (start_timer + SOCKET_TIMEOUT_MS < SDL_GetTicks())
 		{
-			perror("Can't connect to server.");
+			LOG(llevDebug, "Can't connect to server %s:%d.\n", host, port);
 			*fd = SOCKET_NO;
 			return 0;
 		}
@@ -730,7 +730,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	if (*fd == SOCKET_NO)
 	{
-		LOG(llevBug, "Can't connect to server.\n");
+		LOG(llevDebug, "Can't connect to server %s:%d.\n", host, port);
 		return 0;
 	}
 #endif
