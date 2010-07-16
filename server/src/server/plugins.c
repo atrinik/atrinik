@@ -150,7 +150,9 @@ struct plugin_hooklist hooklist =
 	gender_objective,
 	gender_possessive,
 	gender_reflexive,
-	object_flag_names
+	object_flag_names,
+	freearr_x,
+	freearr_y
 };
 
 /** The list of loaded plugins. */

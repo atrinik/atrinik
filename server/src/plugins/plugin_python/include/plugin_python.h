@@ -87,6 +87,24 @@ extern struct plugin_hooklist *hooks;
 /** Get object from Atrinik_Object 'whereptr'. */
 #define WHERE (whereptr->obj)
 
+/**
+ * @defgroup AROUND_xxx Types for object.SquaresAround()
+ * The various types of squares returned by object.SquaresAround().
+ *@{*/
+/** All squares around the object. */
+#define AROUND_ALL 1
+/** Ignore squares that have a wall on them or are behind a wall. */
+#define AROUND_WALL 2
+/** Ignore squares that have a wall. */
+#define AROUND_WALL_ONLY 3
+/**
+ * Ignore squares that are blocking view or are behind an object that
+ * is blocking view. */
+#define AROUND_BLOCKSVIEW 4
+/** Ignore squares that are blocking view. */
+#define AROUND_BLOCKSVIEW_ONLY 5
+/*@}*/
+
 #undef LOG
 /** @copydoc LOG */
 #define LOG hooks->LOG

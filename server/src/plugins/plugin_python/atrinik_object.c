@@ -2313,6 +2313,127 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args
 	return wrap_object(hooks->decrease_ob_nr(WHAT, num));
 }
 
+/**
+ * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL ])</h1>
+ * Looks around the specified object and returns a list of tuples
+ * containing the squares around it in a specified range. The tuples
+ * have a format of <pre>(map, x, y)</pre>.
+ * @param range Range around which to look at the squares. Must be higher
+ * than 0.
+ * @param type One of @ref AROUND_xxx constants.
+ * @return A list containing tuples of the squares. */
+static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+{
+	uint8 range, type = AROUND_ALL;
+	static char *kwlist[] = {"range", "type", NULL};
+	int i, j, xt, x, yt, y, add;
+	mapstruct *m;
+	int fraction, dx2, dy2, stepx, stepy;
+	PyObject *list;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|B", kwlist, &range, &type))
+	{
+		return NULL;
+	}
+
+	if (range == 0)
+	{
+		PyErr_SetString(PyExc_ValueError, "SquaresAround(): 'range' must be higher than 0.");
+		return NULL;
+	}
+
+	list = PyList_New(0);
+
+	/* Go through the squares in the specified range. */
+	for (i = -range; i <= range; i++)
+	{
+		for (j = -range; j <= range; j++)
+		{
+			add = 0;
+
+			m = WHAT->map;
+			x = WHAT->x;
+			y = WHAT->y;
+			xt = WHAT->x + i;
+			yt = WHAT->y + j;
+
+			/* Skip ourselves. */
+			if (xt == x && yt == y)
+			{
+				continue;
+			}
+
+			/* We want all squares. */
+			if (type == AROUND_ALL)
+			{
+				m = hooks->get_map_from_coord(m, &x, &y);
+
+				if (m)
+				{
+					add = 1;
+				}
+			}
+			/* Only those that are not blocked by view or beyond a wall,
+			 * so use the Bresenham algorithm. */
+			else if (type == AROUND_BLOCKSVIEW || type == AROUND_WALL)
+			{
+				BRESENHAM_INIT(xt - x, yt - y, fraction, stepx, stepy, dx2, dy2);
+
+				while (1)
+				{
+					if (m == NULL || (type == AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) || (type == AROUND_WALL && hooks->wall(m, x, y)))
+					{
+						break;
+					}
+
+					if (x == xt && y == yt)
+					{
+						add = 1;
+						break;
+					}
+
+					BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
+
+					m = hooks->get_map_from_coord(m, &x, &y);
+				}
+			}
+			/* We only want to ignore squares that either block view or have
+			 * a wall, but not any squares behind them. */
+			else if (type == AROUND_BLOCKSVIEW_ONLY || type == AROUND_WALL_ONLY)
+			{
+				m = hooks->get_map_from_coord(m, &x, &y);
+
+				if (type == AROUND_BLOCKSVIEW_ONLY && !(GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW))
+				{
+					add = 1;
+				}
+				else if (type == AROUND_WALL_ONLY && !hooks->wall(m, x, y))
+				{
+					add = 1;
+				}
+			}
+			/* Invalid type was requested. */
+			else
+			{
+				PyErr_SetString(PyExc_ValueError, "SquaresAround(): 'type' has invalid value.");
+				return NULL;
+			}
+
+			if (add)
+			{
+				PyObject *tuple = PyTuple_New(3);
+
+				PyTuple_SET_ITEM(tuple, 0, wrap_map(m));
+				PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", x));
+				PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", y));
+				PyList_Append(list, tuple);
+			}
+		}
+	}
+
+	return list;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2387,6 +2508,7 @@ static PyMethodDef methods[] =
 	{"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS | METH_KEYWORDS, 0},
 	{"ChangeAbil", (PyCFunction) Atrinik_Object_ChangeAbil, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS | METH_KEYWORDS, 0},
+	{"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 
