@@ -40,7 +40,7 @@ const char *item_races[NROF_ITEM_RACES] =
 
 /**
  * Array of all the monster races. */
-static ob_race **races = NULL;
+static ob_race *races = NULL;
 /**
  * Number of all the monster races. */
 static size_t num_races = 0;
@@ -87,14 +87,29 @@ static void race_add(shstr *race_name, object *ob)
 	/* No such race yet? Initialize it then. */
 	if (!race)
 	{
-		/* Create a new race. */
-		race = (ob_race *) calloc(1, sizeof(ob_race));
-		FREE_AND_COPY_HASH(race->name, race_name);
+		size_t i, ii;
 
-		/* Now we add it to the end of the races array. */
+		races = realloc(races, sizeof(ob_race) * (num_races + 1));
+
+		/* Now, insert the race into the correct spot in the array. */
+		for (i = 0; i < num_races; i ++)
+		{
+			if (races[i].name > race_name)
+			{
+				break;
+			}
+		}
+
+		/* If this is not the special case of insertion at the last point, then shift everything. */
+		for (ii = num_races; ii > i; ii--)
+		{
+			races[ii] = races[ii - 1];
+		}
+
+		memset(&races[i], 0, sizeof(ob_race));
+		FREE_AND_COPY_HASH(races[i].name, race_name);
+		race = &races[i];
 		num_races++;
-		races = realloc(races, sizeof(ob_race) * num_races);
-		races[num_races - 1] = race;
 	}
 
 	ol = get_objectlink();
@@ -107,27 +122,51 @@ static void race_add(shstr *race_name, object *ob)
 }
 
 /**
+ * Comparison function for binary search in race_find(). */
+static int race_compare(const void *one, const void *two)
+{
+	ob_race *one_race = (ob_race *) one;
+	ob_race *two_race = (ob_race *) two;
+
+	if (one == NULL)
+	{
+		return -1;
+	}
+	else if (two == NULL)
+	{
+		return 1;
+	}
+
+	if (one_race->name < two_race->name)
+	{
+		return -1;
+	}
+	else if (one_race->name > two_race->name)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+/**
  * Find a race.
  * @param name The name of the race to look for.
  * @return The race if found, NULL otherwise. */
 ob_race *race_find(shstr *name)
 {
-	size_t i;
+	ob_race key;
 
 	if (!races || !name)
 	{
 		return NULL;
 	}
 
-	for (i = 0; i < num_races; i++)
-	{
-		if (races[i]->name == name)
-		{
-			return races[i];
-		}
-	}
+	key.name = name;
 
-	return NULL;
+	return bsearch(&key, races, num_races, sizeof(ob_race), race_compare);
 }
 
 /**
@@ -140,7 +179,7 @@ ob_race *race_get_random()
 		return NULL;
 	}
 
-	return races[rndm(1, num_races) - 1];
+	return &races[rndm(1, num_races) - 1];
 }
 
 /**
@@ -183,9 +222,9 @@ void race_init()
 	 * to those which do not have any yet. */
 	for (i = 0; i < num_races; i++)
 	{
-		if (!races[i]->corpse)
+		if (!races[i].corpse)
 		{
-			races[i]->corpse = tmp;
+			races[i].corpse = tmp;
 		}
 	}
 
@@ -201,9 +240,9 @@ void race_dump()
 
 	for (i = 0; i < num_races; i++)
 	{
-		LOG(llevInfo, "\nRACE '%s', corpse: '%s', %d members: ", races[i]->name, races[i]->corpse->name, races[i]->num_members);
+		LOG(llevInfo, "\nRACE '%s', corpse: '%s', %d members: ", races[i].name, races[i].corpse->name, races[i].num_members);
 
-		for (ol = races[i]->members; ol; ol = ol->next)
+		for (ol = races[i].members; ol; ol = ol->next)
 		{
 			LOG(llevInfo, "%s, ", ol->objlink.ob->arch->name);
 		}
@@ -221,15 +260,13 @@ void race_free()
 
 	for (i = 0; i < num_races; i++)
 	{
-		FREE_ONLY_HASH(races[i]->name);
+		FREE_ONLY_HASH(races[i].name);
 
-		for (ol = races[i]->members; ol; ol = ol_next)
+		for (ol = races[i].members; ol; ol = ol_next)
 		{
 			ol_next = ol->next;
 			free_objectlink_simple(ol);
 		}
-
-		free(races[i]);
 	}
 
 	free(races);
