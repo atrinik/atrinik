@@ -359,6 +359,11 @@ void waypoint_move(object *op, object *waypoint)
 		return;
 	}
 
+	if (HAS_EVENT(waypoint, EVENT_CLOSE) && trigger_event(EVENT_CLOSE, op, waypoint, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+	{
+		return;
+	}
+
 	/* Handle precomputed paths */
 
 	/* If we finished our current path, clear it so that we can get a new one. */
