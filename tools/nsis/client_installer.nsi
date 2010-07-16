@@ -8,6 +8,9 @@ Name "Atrinik Client 1.1.1"
 ; Installer filename.
 OutFile "atrinik-client-1.1.1.exe"
 
+; Installer icon.
+Icon "bitmaps\icon.ico"
+
 ; Default installation directory.
 InstallDir "$PROGRAMFILES\Atrinik Client 1.1.1"
 
@@ -89,6 +92,13 @@ Section "Start Menu Shortcuts"
   CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
+; Optional desktop shortcut.
+Section /o "Desktop Shortcut"
+  SetShellVarContext all
+  
+  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
+SectionEnd
+
 ; Uninstaller.
 Section "Uninstall"
   SetShellVarContext all
@@ -97,7 +107,7 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1"
   DeleteRegKey HKLM SOFTWARE\Atrinik-Client-1.1.1
 
+  Delete /REBOOTOK "$DESKTOP\Atrinik Client.lnk"
   RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client 1.1.1"
   RMDir /r /REBOOTOK "$INSTDIR"
 SectionEnd
-
