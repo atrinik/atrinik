@@ -185,8 +185,8 @@ WS	[ \t]*{NL}
 
 %{
 int ismore = 0;
-lex_error = 0;
 object *op = items[*depth];
+lex_error = 0;
 %}
 
 ^arch{S}            {
