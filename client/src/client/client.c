@@ -156,14 +156,49 @@ void DoClient()
 	/* Handle all enqueued commands */
 	while ((cmd = get_next_input_command()))
 	{
-		if (!cmd->data[0] || cmd->data[0] > BINAR_CMD)
+		uint8 *data = cmd->data, do_free = 0;
+		size_t len = cmd->len;
+
+		/* Binary command #0 is reserved for compressed data packets, so
+		 * attempt to uncompress it. */
+		if (data[0] == 0)
 		{
-			LOG(llevBug, "Bad command from server (%d)\n", cmd->data[0]);
+			unsigned long ucomp_len;
+			uint8 *dest;
+
+			/* Get original length so we can allocate a large enough
+			 * buffer. */
+			ucomp_len = GetInt_String(data + 1);
+			/* Allocate the buffer. */
+			dest = malloc(ucomp_len);
+
+			if (!dest)
+			{
+				LOG(llevError, "DoClient(): Out of memory.\n");
+			}
+
+			/* Mark that we should free the buffer later. */
+			do_free = 1;
+			uncompress((Bytef *) dest, (uLongf *) &ucomp_len, (const Bytef *) data + 5, (uLong) len - 5);
+			data = dest;
+			len = ucomp_len;
+		}
+
+		if (!data[0] || data[0] > BINAR_CMD)
+		{
+			LOG(llevBug, "Bad command from server (%d)\n", data[0]);
 		}
 		else
 		{
-			script_trigger_event(commands[cmd->data[0] - 1].cmdname, cmd->data + 1, cmd->len - 1, commands[cmd->data[0] - 1].cmdformat);
-			commands[cmd->data[0] - 1].cmdproc(cmd->data + 1, cmd->len - 1);
+			script_trigger_event(commands[data[0] - 1].cmdname, data + 1, len - 1, commands[data[0] - 1].cmdformat);
+			commands[data[0] - 1].cmdproc(data + 1, len - 1);
+		}
+
+		/* Should we free the data because it was allocated by previous
+		 * uncompression? */
+		if (do_free)
+		{
+			free(data);
 		}
 
 		command_buffer_free(cmd);
