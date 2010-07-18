@@ -332,4 +332,26 @@
 #define NO_EMERGENCY_SAVE
 
 /** Socket version. */
-#define SOCKET_VERSION 1038
+#define SOCKET_VERSION 1039
+
+/**
+ * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE
+ * will be compressed by zlib using the best compression available before
+ * being sent. The client will then uncompress the previously compressed
+ * data and treat it normally.
+ *
+ * This option is useful for bandwidth-limited servers, as it has nearly
+ * no CPU impact, but halves the bandwidth usage of most common data
+ * packets. */
+#define COMPRESS_DATA_PACKETS 0
+
+/**
+ * Only data packets longer than this will be compressed if @ref COMPRESS_DATA_PACKETS
+ * is 1. This option shouldn't be too high, since in such case it would have
+ * little effect, and not too low either, in which case it would do more
+ * harm than good.
+ *
+ * The default of '128' is a reasonable value, as such data packets will
+ * get compressed by zlib nicely (a data packet of size 20 would actually
+ * be bigger when compressed). */
+#define COMPRESS_DATA_PACKETS_SIZE 128

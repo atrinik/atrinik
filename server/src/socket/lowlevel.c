@@ -39,6 +39,7 @@ extern int errno;
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
+#include <zlib.h>
 
 /**
  * Add a NULL terminated string.
@@ -288,33 +289,69 @@ void socket_buffer_write(socket_struct *ns)
 void Send_With_Handling(socket_struct *ns, SockList *msg)
 {
 	unsigned char sbuf[4];
+	uint8 *buf;
+	size_t len;
+#if COMPRESS_DATA_PACKETS
+	uint8 *dest = NULL;
+#endif
 
 	if (ns->status == Ns_Dead || !msg)
 	{
 		return;
 	}
 
+	buf = msg->buf;
+	len = msg->len;
+
+#if COMPRESS_DATA_PACKETS
+	if (len > COMPRESS_DATA_PACKETS_SIZE && buf[0] != BINARY_CMD_DATA && ns->socket_version >= 1039)
+	{
+		size_t new_size = compressBound(len);
+
+		dest = malloc(new_size + 5);
+		/* Marker for the reserved #0 binary command. */
+		dest[0] = 0;
+		/* Add original length of the packet. */
+		dest[1] = (len >> 24) & 0xff;
+		dest[2] = (len >> 16) & 0xff;
+		dest[3] = (len >> 8) & 0xff;
+		dest[4] = (len) & 0xff;
+		/* Compress it. */
+		compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) buf, len, Z_BEST_COMPRESSION);
+		buf = dest;
+		len = new_size + 5;
+	}
+#endif
+
 	/* If more than 32kb use 3 bytes header and set the high bit to show
 	 * it to the client. */
-	if (msg->len > 32 * 1024 - 1)
+	if (len > 32 * 1024 - 1)
 	{
-		sbuf[0] = ((uint32) (msg->len) >> 16) & 0xFF;
+		sbuf[0] = ((uint32) (len) >> 16) & 0xFF;
 		/* High bit marker for the client */
 		sbuf[0] |= 0x80;
-		sbuf[1] = ((uint32) (msg->len) >> 8) & 0xFF;
-		sbuf[2] = ((uint32) (msg->len)) & 0xFF;
+		sbuf[1] = ((uint32) (len) >> 8) & 0xFF;
+		sbuf[2] = ((uint32) (len)) & 0xFF;
 
 		socket_buffer_enqueue(ns, sbuf, 3);
 	}
 	else
 	{
-		sbuf[0] = ((uint32) (msg->len) >> 8) & 0xFF;
-		sbuf[1] = ((uint32) (msg->len)) & 0xFF;
+		sbuf[0] = ((uint32) (len) >> 8) & 0xFF;
+		sbuf[1] = ((uint32) (len)) & 0xFF;
 
 		socket_buffer_enqueue(ns, sbuf, 2);
 	}
 
-	socket_buffer_enqueue(ns, msg->buf, msg->len);
+	socket_buffer_enqueue(ns, buf, len);
+
+#if COMPRESS_DATA_PACKETS
+	/* Free the buffer that was used for compression, if it was allocated. */
+	if (dest)
+	{
+		free(dest);
+	}
+#endif
 }
 
 /**
@@ -354,9 +391,7 @@ void write_cs_stats()
 	}
 
 	/* CSSTAT is put in so scripts can easily find the line */
-	LOG(llevInfo, "CSSTAT: %.16s tot in:%d out:%d maxc:%d time:%d last block-> in:%d out:%d maxc:%d time:%d\n", ctime(&now), cst_tot.ibytes, cst_tot.obytes, cst_tot.max_conn, now - cst_tot.time_start, cst_lst.ibytes, cst_lst.obytes, cst_lst.max_conn, now - cst_lst.time_start);
-
-	LOG(llevInfo, "SYSINFO: objs: %d used, %d free, arch-srh:%d (%d cmp)\n", mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free, arch_search, arch_cmp);
+	LOG(llevInfo, "CSSTAT: %.16s tot in:%d out:%d maxc:%d time:%lu last block-> in:%d out:%d maxc:%d time:%lu\n", ctime(&now), cst_tot.ibytes, cst_tot.obytes, cst_tot.max_conn, now - cst_tot.time_start, cst_lst.ibytes, cst_lst.obytes, cst_lst.max_conn, now - cst_lst.time_start);
 
 	cst_lst.ibytes = 0;
 	cst_lst.obytes = 0;

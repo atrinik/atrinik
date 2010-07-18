@@ -389,7 +389,12 @@ enum
 	(__s__)->buf[0] = __bc__;                \
 	(__s__)->len = 1
 
-/** All the possible binary commands. */
+/**
+ * All the possible binary commands.
+ *
+ * Note that the 0 is reserved to mark compressed data packets that the
+ * server sends to client if @ref COMPRESS_DATA_PACKETS is 1 and the data
+ * packet has more than @ref COMPRESS_DATA_PACKETS_SIZE bytes. */
 enum
 {
 	BINARY_CMD_COMC = 1,
