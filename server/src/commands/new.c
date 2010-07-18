@@ -86,23 +86,23 @@ static int map_pos_array[][2] =
  * @param params Command parameters. */
 int command_run(object *op, char *params)
 {
-	int dir = 0;
-	CONTR(op)->run_on = 1;
+	int dir;
 
-	if (params)
+	if (!params)
 	{
-		dir = atoi(params);
-
-		/* Check the direction */
-		if (dir > 9)
-		{
-			dir = 0;
-		}
-		else if (dir < 0)
-		{
-			dir = 0;
-		}
+		new_draw_info(NDI_UNIQUE, op, "Run into what direction?");
+		return 0;
 	}
+
+	dir = atoi(params);
+
+	if (dir <= 0 || dir > 9)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Can't run into a non-adjacent square.");
+		return 0;
+	}
+
+	CONTR(op)->run_on = 1;
 
 	if (dir == 9)
 	{
