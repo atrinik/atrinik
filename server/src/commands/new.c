@@ -90,7 +90,7 @@ int command_run(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Run into what direction?");
+		CONTR(op)->run_on = 1;
 		return 0;
 	}
 
