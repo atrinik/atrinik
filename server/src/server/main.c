@@ -1468,22 +1468,26 @@ static void process_keyboard_input(char *input)
  * Iterate the main loop. */
 static void iterate_main_loop()
 {
+	struct timeval timeout;
+
 	nroferrors = 0;
 
 	/* Check and run a shutdown count (with messages and shutdown) */
 	shutdown_agent(-1, NULL);
-
-	doeric_server();
 
 #ifdef MEMPOOL_OBJECT_TRACKING
 	check_use_object_list();
 #endif
 
 	/* Global round ticker. */
-	global_round_tag++;
+	pticks++;
 
 	/* "do" something with objects with speed */
 	process_events(NULL);
+
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+	doeric_server(SOCKET_UPDATE_PLAYER | SOCKET_UPDATE_CLIENT, &timeout);
 
 	/* Process the timers */
 	cftimer_process_timers();
@@ -1493,8 +1497,6 @@ static void iterate_main_loop()
 
 	/* Routines called from time to time. */
 	do_specials();
-
-	doeric_server_write();
 
 	/* Clean up the object pool */
 	object_gc();

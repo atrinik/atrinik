@@ -34,6 +34,7 @@
 #	include <sys/time.h>
 #	include <sys/socket.h>
 #	include <netinet/in.h>
+#	include <netinet/tcp.h>
 #	include <netdb.h>
 #	include <sys/stat.h>
 #	include <stdio.h>
@@ -55,6 +56,13 @@ Socket_Info socket_info;
 socket_struct *init_sockets;
 
 /**
+ * Buffer size for sending socket data. */
+static int send_bufsize = 24 * 1024;
+/**
+ * Buffer size for receiving socket data. */
+static int read_bufsize = 8 * 1024;
+
+/**
  * Initializes a connection - really, it just sets up the data structure,
  * socket setup is handled elsewhere.
  *
@@ -73,9 +81,9 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
 	}
 #else
-	if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
+	if (fcntl(ns->fd, F_SETFL, fcntl(ns->fd, F_GETFL) | O_NDELAY | O_NONBLOCK ) == -1)
 	{
-		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
+		LOG(llevError, "init_connection(): Error on fcntl %x.\n", fcntl(ns->fd, F_GETFL));
 	}
 #endif
 
@@ -145,12 +153,76 @@ void init_connection(socket_struct *ns, const char *from_ip)
 }
 
 /**
+ * Set various socket options on the specified file descriptor.
+ * @param fd File descriptor to set the options for. */
+static void setsockopts(int fd)
+{
+	struct linger linger_opt;
+	int tmp = 1;
+#ifdef WIN32
+	u_long tmp2 = 1;
+
+	if (ioctlsocket(fd, FIONBIO, &tmp2) == -1)
+	{
+		LOG(llevDebug, "setsockopts(): Error on ioctlsocket.\n");
+	}
+#else
+	if (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NDELAY | O_NONBLOCK ) == -1)
+	{
+		LOG(llevError, "setsockopts(): Error on fcntl %x.\n", fcntl(fd, F_GETFL));
+	}
+#endif
+
+	/* Turn LINGER off (don't send left data in background if socket gets closed) */
+	linger_opt.l_onoff = 0;
+	linger_opt.l_linger = 0;
+
+	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
+	{
+		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt LINGER\n");
+	}
+
+	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
+	{
+		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt TCP_NODELAY\n");
+	}
+
+	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *) &send_bufsize, sizeof(send_bufsize)))
+	{
+		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt SO_SNDBUF\n");
+	}
+
+	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *) &read_bufsize, sizeof(read_bufsize)))
+	{
+		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt SO_RCVBUF\n");
+	}
+
+	/* Would be nice to have an autoconf check for this. It appears that
+	 * these functions are both using the same calling syntax, just one
+	 * of them needs extra valus passed. */
+#if !defined(_WEIRD_OS_)
+	{
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
+		{
+			LOG(llevError, "ERROR: setsockopts(): Error on setsockopt REUSEADDR\n");
+		}
+	}
+#else
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
+	{
+		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt REUSEADDR\n");
+	}
+#endif
+}
+
+/**
  * This sets up the socket and reads all the image information into
  * memory. */
 void init_ericserver()
 {
+	int oldbufsize;
+	socklen_t buflen = sizeof(int);
 	struct sockaddr_in insock;
-	struct linger linger_opt;
 #ifndef WIN32
 	struct protoent *protox;
 
@@ -212,32 +284,34 @@ void init_ericserver()
 	insock.sin_port = htons(settings.csport);
 	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	linger_opt.l_onoff = 0;
-	linger_opt.l_linger = 0;
+	setsockopts(init_sockets[0].fd);
+	getsockopt(init_sockets[0].fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen);
 
-	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
+	if (oldbufsize > send_bufsize)
 	{
-		LOG(llevDebug, "Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
-	}
+		send_bufsize = (int) ((float) send_bufsize * ((float) send_bufsize / (float) oldbufsize));
 
-	/* Would be nice to have an autoconf check for this.  It appears that
-	 * these functions are both using the same calling syntax, just one
-	 * of them needs extra valus passed. */
-#if !defined(_WEIRD_OS_)
-	{
-		int tmp = 1;
-
-		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
+		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_SNDBUF, (char *) &send_bufsize, sizeof(send_bufsize)))
 		{
-			LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
+			LOG(llevError, "ERROR(): init_ericserver(): Error on setsockopt SO_SNDBUF\n");
 		}
+
+		LOG(llevDebug, "init_ericserver(): Send buffer adjusted to %d bytes! (old value: %d bytes)\n", send_bufsize, oldbufsize);
 	}
-#else
-	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
+
+	getsockopt(init_sockets[0].fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen);
+
+	if (oldbufsize > read_bufsize)
 	{
-		LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
+		read_bufsize = (int) ((float) read_bufsize * ((float) read_bufsize / (float) oldbufsize));
+
+		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_RCVBUF, (char *) &read_bufsize, sizeof(read_bufsize)))
+		{
+			LOG(llevError, "ERROR(): init_ericserver(): Error on setsockopt SO_RCVBUF\n");
+		}
+
+		LOG(llevDebug, "init_ericserver(): Read buffer adjusted to %d bytes! (old value: %d bytes)\n", read_bufsize, oldbufsize);
 	}
-#endif
 
 	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
 	{

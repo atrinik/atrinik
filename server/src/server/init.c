@@ -252,7 +252,7 @@ void init_globals()
 	}
 
 	/* Global round ticker */
-	global_round_tag = 1;
+	pticks = 1;
 	/* Global race counter */
 	global_race_counter = 0;
 
@@ -1231,7 +1231,6 @@ static void init_signals()
 static void dump_level_colors_table()
 {
 	int i, ii, range, tmp;
-
 	uint32 vx = 0, vc = 1000000;
 	float xc = 38;
 

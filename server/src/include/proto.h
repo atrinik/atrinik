@@ -953,8 +953,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 void handle_client(socket_struct *ns, player *pl);
 void watchdog();
 void remove_ns_dead_player(player *pl);
-void doeric_server();
-void doeric_server_write();
+void doeric_server(int update, struct timeval *timeout);
 
 /* socket/lowlevel.c */
 void SockList_AddString(SockList *sl, char *data);

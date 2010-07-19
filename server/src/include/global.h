@@ -423,10 +423,6 @@ EXTERN char first_map_path[MAX_BUF];
  * if that object is later removed). */
 EXTERN long ob_count;
 
-/** Round ticker. */
-EXTERN uint32 global_round_tag;
-#define ROUND_TAG global_round_tag /* put this here because the DIFF */
-
 /** Global race counter. */
 EXTERN int global_race_counter;
 

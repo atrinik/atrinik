@@ -641,7 +641,7 @@ void fire(object *op, int dir)
 
 				do_throw(op, tmp, dir);
 				get_skill_time(op, op->chosen_skill->stats.sp);
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - pticks) / (1000000 / MAX_TIME) * 1000.0f;
 
 				if (CONTR(op)->last_action_timer > 0)
 				{
@@ -696,7 +696,7 @@ void fire(object *op, int dir)
 
 				fire_bow(op, dir);
 				get_skill_time(op, op->chosen_skill->stats.sp);
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - pticks) / (1000000 / MAX_TIME) * 1000.0f;
 
 				if (CONTR(op)->last_action_timer > 0)
 				{
@@ -727,8 +727,8 @@ void fire(object *op, int dir)
 			/* Only change the action timer if the spell required mana/grace cost (ie, was successful). */
 			if (spellcost)
 			{
-				CONTR(op)->action_casting = ROUND_TAG + spells[CONTR(op)->chosen_spell].time;
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+				CONTR(op)->action_casting = pticks + spells[CONTR(op)->chosen_spell].time;
+				CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - pticks) / (1000000 / MAX_TIME) * 1000.0f;
 
 				if (CONTR(op)->last_action_timer > 0)
 				{
@@ -792,7 +792,7 @@ void fire(object *op, int dir)
 			}
 
 			get_skill_time(op, op->chosen_skill->stats.sp);
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - pticks) / (1000000 / MAX_TIME) * 1000.0f;
 
 			if (CONTR(op)->last_action_timer > 0)
 			{
@@ -868,7 +868,7 @@ trick_jump:
 			}
 
 			get_skill_time(op, op->chosen_skill->stats.sp);
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - pticks) / (1000000 / MAX_TIME) * 1000.0f;
 
 			if (CONTR(op)->last_action_timer > 0)
 			{

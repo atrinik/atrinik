@@ -315,4 +315,14 @@ typedef struct update_file_struct
  * socket. */
 #define MAX_PASSWORD_FAILURES 3
 
+/**
+ * @defgroup SOCKET_UPDATE_xxx Socket update types
+ * Bitmasks of what to update in doeric_server().
+ *@{*/
+/** Update player's map, stats, etc. */
+#define SOCKET_UPDATE_PLAYER 1
+/** Send socket data to client. */
+#define SOCKET_UPDATE_CLIENT 2
+/*@}*/
+
 #endif
