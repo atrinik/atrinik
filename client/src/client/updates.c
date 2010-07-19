@@ -122,12 +122,14 @@ void cmd_request_update(unsigned char *data, int len)
 	if (!fp)
 	{
 		LOG(llevBug, "Could not open file '%s' for writing.\n", filename);
+		free(dest);
 		return;
 	}
 
 	/* Update the file. */
 	fwrite(data, 1, len, fp);
 	fclose(fp);
+	free(dest);
 	LOG(llevInfo, "Updated file '%s'.\n", filename);
 }
 
