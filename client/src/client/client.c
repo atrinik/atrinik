@@ -156,7 +156,7 @@ void DoClient()
 	/* Handle all enqueued commands */
 	while ((cmd = get_next_input_command()))
 	{
-		uint8 *data = cmd->data, do_free = 0;
+		uint8 *data = cmd->data, *dest = NULL;
 		size_t len = cmd->len;
 
 		/* Binary command #0 is reserved for compressed data packets, so
@@ -164,11 +164,10 @@ void DoClient()
 		if (data[0] == 0)
 		{
 			unsigned long ucomp_len;
-			uint8 *dest;
 
 			/* Get original length so we can allocate a large enough
 			 * buffer. */
-			ucomp_len = GetInt_String(data + 1);
+			ucomp_len = GetInt_String(data + 1) + 1;
 			/* Allocate the buffer. */
 			dest = malloc(ucomp_len);
 
@@ -177,11 +176,10 @@ void DoClient()
 				LOG(llevError, "DoClient(): Out of memory.\n");
 			}
 
-			/* Mark that we should free the buffer later. */
-			do_free = 1;
 			uncompress((Bytef *) dest, (uLongf *) &ucomp_len, (const Bytef *) data + 5, (uLong) len - 5);
 			data = dest;
 			len = ucomp_len;
+			data[len] = '\0';
 		}
 
 		if (!data[0] || data[0] > BINAR_CMD)
@@ -196,9 +194,9 @@ void DoClient()
 
 		/* Should we free the data because it was allocated by previous
 		 * uncompression? */
-		if (do_free)
+		if (dest)
 		{
-			free(data);
+			free(dest);
 		}
 
 		command_buffer_free(cmd);
