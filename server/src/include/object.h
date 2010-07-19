@@ -136,7 +136,7 @@ typedef struct obj
 	 * Needed for the damage info for client in map2. Also used for
 	 * unmodified carrying weight of magical containers to prevent rounding
 	 * errors. */
-	uint32 damage_round_tag;
+	sint32 damage_round_tag;
 
 	/**
 	 * How much weight this object contains (of objects in inv). This
