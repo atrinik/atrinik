@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\tests;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;PTW32_STATIC_LIB"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\tests;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -225,7 +225,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\tests;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;PTW32_STATIC_LIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -316,7 +316,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\tests;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -396,6 +396,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\include\book.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\tests\check_proto.h"
 				>
 			</File>
 			<File
@@ -5498,27 +5502,15 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+			<Filter
+				Name="skills"
+				>
+				<File
+					RelativePath="..\..\..\src\skills\construction.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
-		<File
-			RelativePath=".\libs\curl\x64\libcurl.lib"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
 		<File
 			RelativePath=".\libs\curl\libcurl.lib"
 			>
@@ -5532,6 +5524,26 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\curl\x64\libcurl.lib"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool

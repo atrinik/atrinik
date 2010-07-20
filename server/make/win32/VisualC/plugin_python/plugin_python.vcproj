@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\src\random_maps;..\..\..\..\src\porting;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
+				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\..\src\random_maps;..\..\..\..\src\porting;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;PYTHON_PLUGIN_EXPORTS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -205,7 +205,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\src\random_maps;..\..\..\..\src\porting;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
+				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\..\src\random_maps;..\..\..\..\src\porting;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHON_PLUGIN_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -290,7 +290,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\src\random_maps;..\..\..\..\src\porting;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
+				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\..\src\random_maps;..\..\..\..\src\porting;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHON_PLUGIN_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -353,6 +353,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_archetype.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_map.c"
 				>
 			</File>
@@ -365,15 +369,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_region.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_player.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_archetype.c"
+				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_region.c"
 				>
 			</File>
 			<File
@@ -410,34 +410,6 @@
 			>
 		</Filter>
 		<File
-			RelativePath="..\libs\python\python26.lib"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\libs\python\x64\python26.lib"
 			>
 			<FileConfiguration
@@ -466,10 +438,38 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\libs\python\x64\python26_d.lib"
+			RelativePath="..\libs\python\python26.lib"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\libs\python\python26_d.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -494,10 +494,10 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\libs\python\python26_d.lib"
+			RelativePath="..\libs\python\x64\python26_d.lib"
 			>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Debug|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
