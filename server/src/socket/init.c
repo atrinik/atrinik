@@ -34,6 +34,7 @@
 #	include <sys/time.h>
 #	include <sys/socket.h>
 #	include <netinet/in.h>
+#	include <netinet/tcp.h>
 #	include <netdb.h>
 #	include <sys/stat.h>
 #	include <stdio.h>
@@ -73,7 +74,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
 	}
 #else
-	if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
+	if (fcntl(ns->fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
@@ -149,6 +150,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
  * memory. */
 void init_ericserver()
 {
+	int tmp = 1;
 	struct sockaddr_in insock;
 	struct linger linger_opt;
 #ifndef WIN32
@@ -218,6 +220,11 @@ void init_ericserver()
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
 		LOG(llevDebug, "Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
+	}
+
+	if (setsockopt(init_sockets[0].fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
+	{
+		LOG(llevError, "ERROR: init_ericserver(): Cannot setsockopt(TCP_NODELAY): %s\n", strerror_local(errno));
 	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that

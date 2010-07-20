@@ -493,7 +493,6 @@ void doeric_server()
 		}
 		else
 		{
-
 			FD_SET((uint32) pl->socket.fd, &tmp_read);
 			FD_SET((uint32) pl->socket.fd, &tmp_write);
 			FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
@@ -501,10 +500,9 @@ void doeric_server()
 		}
 	}
 
-	/* our one and only select() - after this call, every player socket
-	 * has signaled us in the tmp_xxxx objects the signal status:
-	 * FD_ISSET will check socket for socket for thats signal and trigger
-	 * read, write or exception (error on socket). */
+	socket_info.timeout.tv_sec = 0;
+	socket_info.timeout.tv_usec = 0;
+
 	pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
 
 	if (pollret == -1)
@@ -702,10 +700,10 @@ void doeric_server_write()
 
 		draw_client_map(pl->ob);
 
-		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) >= pl->socket.update_tile)
+		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) != pl->socket.update_tile)
 		{
 			esrv_draw_look(pl->ob);
-			pl->socket.update_tile = update_below + 1;
+			pl->socket.update_tile = update_below;
 		}
 
 		if (FD_ISSET(pl->socket.fd, &tmp_write))
