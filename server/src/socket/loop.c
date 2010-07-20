@@ -48,6 +48,8 @@
 
 #include <newserver.h>
 
+static fd_set tmp_read, tmp_exceptions, tmp_write;
+
 /** Prototype for functions the client sends without player interaction. */
 typedef void (*func_uint8_int_ns)(char *, int, socket_struct *);
 
@@ -409,18 +411,13 @@ static int is_fd_valid(int fd)
  * This checks the sockets for input and exceptions, does the right
  * thing.
  *
- * There are 2 lists we need to look through - init_sockets is a list.
- * @param update What to update, a combination of @ref SOCKET_UPDATE_xxx.
- * @param timeout Socket timeout value for socket() call. */
-void doeric_server(int update, struct timeval *timeout)
+ * There are 2 lists we need to look through - init_sockets is a list */
+void doeric_server()
 {
 	int i, pollret, rr;
 	struct sockaddr_in addr;
 	socklen_t addrlen = sizeof(addr);
 	player *pl, *next;
-	int update_client = update & SOCKET_UPDATE_CLIENT, update_player = update & SOCKET_UPDATE_PLAYER;
-	uint32 update_below;
-	fd_set tmp_read, tmp_exceptions, tmp_write;
 
 #if CS_LOGSTATS
 	if ((time(NULL) - cst_lst.time_start) >= CS_LOGTIME)
@@ -465,20 +462,15 @@ void doeric_server(int update, struct timeval *timeout)
 			}
 
 			FD_SET((uint32) init_sockets[i].fd, &tmp_read);
+			FD_SET((uint32) init_sockets[i].fd, &tmp_write);
 			FD_SET((uint32) init_sockets[i].fd, &tmp_exceptions);
-
-			if (init_sockets[i].buffer_back)
-			{
-				FD_SET((uint32) init_sockets[i].fd, &tmp_write);
-			}
 		}
 	}
 
-	/* Go through the players. */
-	for (pl = first_player; pl; pl = next)
+	/* Go through the players. Let the loop set the next pl value, since
+	 * we may remove some. */
+	for (pl = first_player; pl != NULL; )
 	{
-		next = pl->next;
-
 		if (pl->socket.status != Ns_Dead && !is_fd_valid(pl->socket.fd))
 		{
 			LOG(llevDebug, "doeric_server(): Invalid file descriptor for player %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
@@ -487,7 +479,10 @@ void doeric_server(int update, struct timeval *timeout)
 
 		if (pl->socket.status == Ns_Dead)
 		{
+			player *npl = pl->next;
+
 			remove_ns_dead_player(pl);
+			pl = npl;
 		}
 		else if (pl->socket.status == Ns_Zombie)
 		{
@@ -498,17 +493,19 @@ void doeric_server(int update, struct timeval *timeout)
 		}
 		else
 		{
-			FD_SET((uint32) pl->socket.fd, &tmp_read);
-			FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
 
-			if (pl->socket.buffer_back)
-			{
-				FD_SET((uint32) pl->socket.fd, &tmp_write);
-			}
+			FD_SET((uint32) pl->socket.fd, &tmp_read);
+			FD_SET((uint32) pl->socket.fd, &tmp_write);
+			FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
+			pl = pl->next;
 		}
 	}
 
-	pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, timeout);
+	/* our one and only select() - after this call, every player socket
+	 * has signaled us in the tmp_xxxx objects the signal status:
+	 * FD_ISSET will check socket for socket for thats signal and trigger
+	 * read, write or exception (error on socket). */
+	pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
 
 	if (pollret == -1)
 	{
@@ -670,31 +667,50 @@ void doeric_server(int update, struct timeval *timeout)
 			continue;
 		}
 
-		if (update_client)
+		if (FD_ISSET(pl->socket.fd, &tmp_write))
 		{
-			if (update_player && pl->state == ST_PLAYING)
-			{
-				esrv_update_stats(pl);
+			socket_buffer_write(&pl->socket);
+		}
+	}
+}
 
-				if (pl->update_skills)
-				{
-					esrv_update_skills(pl);
-					pl->update_skills = 0;
-				}
+/**
+ * Write to players' sockets. */
+void doeric_server_write()
+{
+	player *pl, *next;
+	uint32 update_below;
 
-				draw_client_map(pl->ob);
+	/* This does roughly the same thing, but for the players now */
+	for (pl = first_player; pl; pl = next)
+	{
+		next = pl->next;
 
-				if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) != pl->socket.update_tile)
-				{
-					esrv_draw_look(pl->ob);
-					pl->socket.update_tile = update_below;
-				}
-			}
+		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
+		{
+			remove_ns_dead_player(pl);
+			continue;
+		}
 
-			if (FD_ISSET(pl->socket.fd, &tmp_write))
-			{
-				socket_buffer_write(&pl->socket);
-			}
+		esrv_update_stats(pl);
+
+		if (pl->update_skills)
+		{
+			esrv_update_skills(pl);
+			pl->update_skills = 0;
+		}
+
+		draw_client_map(pl->ob);
+
+		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) >= pl->socket.update_tile)
+		{
+			esrv_draw_look(pl->ob);
+			pl->socket.update_tile = update_below + 1;
+		}
+
+		if (FD_ISSET(pl->socket.fd, &tmp_write))
+		{
+			socket_buffer_write(&pl->socket);
 		}
 	}
 }

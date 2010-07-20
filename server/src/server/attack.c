@@ -378,10 +378,10 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	}
 
 	/* This is needed to send the hit number animations to the clients */
-	if (op->damage_round_tag != pticks)
+	if (op->damage_round_tag != ROUND_TAG)
 	{
 		op->last_damage = 0;
-		op->damage_round_tag = pticks;
+		op->damage_round_tag = ROUND_TAG;
 	}
 
 	op->last_damage += maxdam;
@@ -960,10 +960,10 @@ int kill_object(object *op, int dam, object *hitter, int type)
 	maxdam = op->stats.hp - 1;
 
 	/* Only when some damage is stored, and we're on a map. */
-	if (op->damage_round_tag == pticks && op->map)
+	if (op->damage_round_tag == ROUND_TAG && op->map)
 	{
 		SET_MAP_DAMAGE(op->map, op->x, op->y, op->last_damage);
-		SET_MAP_RTAG(op->map, op->x, op->y, pticks);
+		SET_MAP_RTAG(op->map, op->x, op->y, ROUND_TAG);
 	}
 
 	if (op->map)

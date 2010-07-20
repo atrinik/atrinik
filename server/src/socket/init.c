@@ -34,7 +34,6 @@
 #	include <sys/time.h>
 #	include <sys/socket.h>
 #	include <netinet/in.h>
-#	include <netinet/tcp.h>
 #	include <netdb.h>
 #	include <sys/stat.h>
 #	include <stdio.h>
@@ -56,13 +55,6 @@ Socket_Info socket_info;
 socket_struct *init_sockets;
 
 /**
- * Buffer size for sending socket data. */
-static int send_bufsize = 24 * 1024;
-/**
- * Buffer size for receiving socket data. */
-static int read_bufsize = 8 * 1024;
-
-/**
  * Initializes a connection - really, it just sets up the data structure,
  * socket setup is handled elsewhere.
  *
@@ -73,9 +65,6 @@ static int read_bufsize = 8 * 1024;
  * point. */
 void init_connection(socket_struct *ns, const char *from_ip)
 {
-	int bufsize = 65535;
-	int oldbufsize;
-	socklen_t buflen = sizeof(int);
 #ifdef WIN32
 	u_long temp = 1;
 
@@ -84,24 +73,11 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
 	}
 #else
-	if (fcntl(ns->fd, F_SETFL, O_NONBLOCK) == -1)
+	if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
 	{
-		LOG(llevDebug, "init_connection(): Error on fcntl %x.\n", fcntl(ns->fd, F_GETFL));
+		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
 #endif
-
-	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
-	{
-		oldbufsize = 0;
-	}
-
-	if (oldbufsize < bufsize)
-	{
-		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
-		{
-			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
-		}
-	}
 
 	ns->login_count = 0;
 	ns->addme = 0;
@@ -169,74 +145,12 @@ void init_connection(socket_struct *ns, const char *from_ip)
 }
 
 /**
- * Set various socket options on the specified file descriptor.
- * @param fd File descriptor to set the options for. */
-static void setsockopts(int fd)
-{
-	struct linger linger_opt;
-	int tmp = 1;
-#ifdef WIN32
-	u_long tmp2 = 1;
-
-	if (ioctlsocket(fd, FIONBIO, &tmp2) == -1)
-	{
-		LOG(llevError, "ERROR(): setsockopts(): Error on ioctlsocket.\n");
-	}
-#else
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		LOG(llevError, "ERROR(): setsockopts(): Error on fcntl %x.\n", fcntl(fd, F_GETFL));
-	}
-#endif
-
-	/* Turn LINGER off (don't send left data in background if socket gets closed) */
-	linger_opt.l_onoff = 0;
-	linger_opt.l_linger = 0;
-
-	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
-	{
-		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt LINGER\n");
-	}
-
-	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
-	{
-		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt TCP_NODELAY\n");
-	}
-
-	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *) &send_bufsize, sizeof(send_bufsize)))
-	{
-		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt SO_SNDBUF\n");
-	}
-
-	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *) &read_bufsize, sizeof(read_bufsize)))
-	{
-		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt SO_RCVBUF\n");
-	}
-
-	/* Would be nice to have an autoconf check for this. It appears that
-	 * these functions are both using the same calling syntax, just one
-	 * of them needs extra valus passed. */
-#if !defined(_WEIRD_OS_)
-	{
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
-		{
-			LOG(llevError, "ERROR: setsockopts(): Error on setsockopt REUSEADDR\n");
-		}
-	}
-#else
-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
-	{
-		LOG(llevError, "ERROR: setsockopts(): Error on setsockopt REUSEADDR\n");
-	}
-#endif
-}
-
-/**
  * This sets up the socket and reads all the image information into
  * memory. */
 void init_ericserver()
 {
 	struct sockaddr_in insock;
+	struct linger linger_opt;
 #ifndef WIN32
 	struct protoent *protox;
 
@@ -284,6 +198,7 @@ void init_ericserver()
 	}
 
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+
 #else
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
@@ -297,7 +212,32 @@ void init_ericserver()
 	insock.sin_port = htons(settings.csport);
 	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	setsockopts(init_sockets[0].fd);
+	linger_opt.l_onoff = 0;
+	linger_opt.l_linger = 0;
+
+	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
+	{
+		LOG(llevDebug, "Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
+	}
+
+	/* Would be nice to have an autoconf check for this.  It appears that
+	 * these functions are both using the same calling syntax, just one
+	 * of them needs extra valus passed. */
+#if !defined(_WEIRD_OS_)
+	{
+		int tmp = 1;
+
+		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
+		{
+			LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
+		}
+	}
+#else
+	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
+	{
+		LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
+	}
+#endif
 
 	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
 	{

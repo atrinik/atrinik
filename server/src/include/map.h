@@ -202,7 +202,7 @@ int map_tiled_reverse[TILED_MAPS];
 	((M)->spaces[(X) + (M)->width * (Y)].last_damage)
 
 #define SET_MAP_RTAG(M, X, Y, tmp) \
-	((M)->spaces[(X) + (M)->width * (Y)].round_tag = (sint32) (tmp))
+	((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32) (tmp))
 #define GET_MAP_RTAG(M, X, Y) \
 	((M)->spaces[(X) + (M)->width * (Y)].round_tag)
 
@@ -339,7 +339,7 @@ typedef struct MapSpace_s
 	struct MapSpace_s *next_light;
 
 	/** Tag for last_damage */
-	sint32 round_tag;
+	uint32 round_tag;
 
 	/** Counter for update tile */
 	uint32 update_tile;

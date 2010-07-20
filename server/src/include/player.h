@@ -382,10 +382,10 @@ typedef struct pl_player
 	uint32 container_count;
 
 	/** Used for action timer for spell casting. */
-	sint32 action_casting;
+	uint32 action_casting;
 
 	/** Used for action timer for ranged attacks. */
-	sint32 action_range;
+	uint32 action_range;
 
 	/** Count of marked object. */
 	uint32 mark_count;

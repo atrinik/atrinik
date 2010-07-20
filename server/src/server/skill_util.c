@@ -1372,7 +1372,7 @@ float get_skill_time(object *op, int skillnr)
 
 	if (skillnr == SK_USE_MAGIC_ITEM || skillnr == SK_MISSILE_WEAPON || skillnr == SK_THROWING || skillnr == SK_XBOW_WEAP || skillnr == SK_SLING_WEAP)
 	{
-		CONTR(op)->action_range = pticks + op->chosen_skill->stats.maxsp;
+		CONTR(op)->action_range = global_round_tag + op->chosen_skill->stats.maxsp;
 		return 0;
 	}
 
@@ -1413,17 +1413,17 @@ int check_skill_action_time(object *op, object *skill)
 
 	if (skill->stats.sp == SK_PRAYING || skill->stats.sp == SK_SPELL_CASTING)
 	{
-		if (CONTR(op)->action_casting > pticks)
+		if (CONTR(op)->action_casting > global_round_tag)
 		{
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - pticks) / (1000000 / MAX_TIME) * 1000.0f;
+			CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 			return 0;
 		}
 	}
 	else
 	{
-		if (CONTR(op)->action_range > pticks)
+		if (CONTR(op)->action_range > global_round_tag)
 		{
-			CONTR(op)->action_timer = (float)(CONTR(op)->action_range - pticks) / (1000000 / MAX_TIME) * 1000.0f;
+			CONTR(op)->action_timer = (float)(CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 			return 0;
 		}
 	}

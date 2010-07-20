@@ -77,15 +77,10 @@ void apply_spellbook(object *op, object *tmp)
 	if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 	{
 		identify(tmp);
-
 		if (tmp->env)
-		{
-			esrv_update_item(UPD_FLAGS | UPD_NAME, op, tmp);
-		}
+			esrv_update_item(UPD_FLAGS|UPD_NAME,op,tmp);
 		else
-		{
 			CONTR(op)->socket.update_tile = 0;
-		}
 	}
 
 	if (check_spell_known(op, tmp->stats.sp) && (tmp->stats.Wis || find_special_prayer_mark(op, tmp->stats.sp) == NULL))

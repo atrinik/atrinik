@@ -165,15 +165,7 @@ int SockList_ReadCommand(SockList *sl, SockList *sl2)
  * @param len Number of bytes to add. */
 static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t len)
 {
-	socket_buffer *buffer;
-
-	if (!len)
-	{
-		LOG(llevDebug, "DEBUG: socket_buffer_enqueue(): Tried to add buffer with 0 length.\n");
-		return;
-	}
-
-	buffer = (socket_buffer *) malloc(sizeof(socket_buffer));
+	socket_buffer *buffer = (socket_buffer *) malloc(sizeof(socket_buffer));
 
 	buffer->buf = (char *) malloc(len + 1);
 	memcpy(buffer->buf, buf, len);

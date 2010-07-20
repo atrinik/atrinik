@@ -170,7 +170,7 @@ int command_cast_spell(object *op, char *params)
 
 	if (value)
 	{
-		CONTR(op)->action_casting = pticks + spells[spnum].time;
+		CONTR(op)->action_casting = ROUND_TAG + spells[spnum].time;
 
 		if (spells[spnum].type == SPELL_TYPE_PRIEST)
 		{
@@ -181,7 +181,7 @@ int command_cast_spell(object *op, char *params)
 			op->stats.sp -= value;
 		}
 
-		CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - pticks) / (1000000 / MAX_TIME) * 1000.0f;
+		CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
 		if (CONTR(op)->last_action_timer > 0)
 		{

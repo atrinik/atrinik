@@ -270,5 +270,5 @@ void race_free()
 	}
 
 	free(races);
-	LOG(llevInfo, "Freed %"FMT64U" races.\n", (uint64) num_races);
+	LOG(-1, "Freed %"FMT64U" races.\n", (uint64) num_races);
 }

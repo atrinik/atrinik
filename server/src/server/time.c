@@ -36,7 +36,21 @@
 #endif
 
 long max_time = MAX_TIME;
+
+/** Size of history buffer. */
+#define PBUFLEN 100
+
+/** Historic data. */
+static long process_utime_save[PBUFLEN];
+/** Index in ::process_utime_save. */
+static long psaveind;
+/** Longest cycle time. */
+static long process_max_utime = 0;
+/** Shortest cycle time. */
+static long process_min_utime = 999999999;
+static long process_tot_mtime;
 long pticks;
+static long process_utime_long_count;
 
 /** In-game seasons. */
 const char *season_name[SEASONS_PER_YEAR + 1] =
@@ -92,68 +106,46 @@ const char *periodsofday[PERIODS_PER_DAY] = {
  * Initialize all variables used in the timing routines. */
 void reset_sleep()
 {
+	int i;
+
+	for (i = 0; i < PBUFLEN; i++)
+	{
+		process_utime_save[i] = 0;
+	}
+
+	psaveind = 0;
+	process_max_utime = 0;
+	process_min_utime = 999999999;
+	process_tot_mtime = 0;
+	pticks = 0;
+
 	(void) GETTIMEOFDAY(&last_time);
 }
 
 /**
- * Generic function for simple timeval arithmetic. */
-static void add_time(struct timeval *dst, struct timeval *a, struct timeval *b)
+ * Adds time to our history list. */
+static void log_time(long process_utime)
 {
-	dst->tv_sec = a->tv_sec + b->tv_sec;
-	dst->tv_usec = a->tv_usec + b->tv_usec;
+	pticks++;
 
-	if (dst->tv_sec < 0 || (dst->tv_sec == 0 && dst->tv_usec < 0))
+	if (++psaveind >= PBUFLEN)
 	{
-		while (dst->tv_usec < -1000000)
-		{
-			dst->tv_sec -= 1;
-			dst->tv_usec += 1000000;
-		}
-	}
-	else
-	{
-		while (dst->tv_usec < 0)
-		{
-			dst->tv_sec -= 1;
-			dst->tv_usec += 1000000;
-		}
-
-		while (dst->tv_usec > 1000000)
-		{
-			dst->tv_sec += 1;
-			dst->tv_usec -= 1000000;
-		}
-	}
-}
-
-/**
- * Calculate time until the next tick. */
-static int time_until_next_tick(struct timeval *out)
-{
-	struct timeval now, next_tick, tick_time;
-
-	tick_time.tv_sec = 0;
-	tick_time.tv_usec = max_time;
-
-	add_time(&next_tick, &last_time, &tick_time);
-
-	GETTIMEOFDAY(&now);
-
-	if (next_tick.tv_sec < now.tv_sec || (next_tick.tv_sec == now.tv_sec && next_tick.tv_usec <= now.tv_usec))
-	{
-		last_time.tv_sec = now.tv_sec;
-		last_time.tv_usec = now.tv_usec;
-		out->tv_sec = 0;
-		out->tv_usec = 0;
-
-		return 0;
+		psaveind = 0;
 	}
 
-	now.tv_sec = -now.tv_sec;
-	now.tv_usec = -now.tv_usec;
-	add_time(out, &next_tick, &now);
+	process_utime_save[psaveind] = process_utime;
 
-	return 1;
+	if (process_utime > process_max_utime)
+	{
+		process_max_utime = process_utime;
+	}
+
+	if (process_utime < process_min_utime)
+	{
+		process_min_utime = process_utime;
+	}
+
+	process_tot_mtime += process_utime / 1000;
 }
 
 /**
@@ -162,11 +154,85 @@ static int time_until_next_tick(struct timeval *out)
  * select(). */
 void sleep_delta()
 {
-	struct timeval timeout;
+	static struct timeval new_time;
+	static struct timeval def_time = {0, 100000};
+	static struct timeval sleep_time;
+	long sleep_sec, sleep_usec;
 
-	while (time_until_next_tick(&timeout))
+	(void) GETTIMEOFDAY(&new_time);
+
+	sleep_sec = last_time.tv_sec - new_time.tv_sec;
+	sleep_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
+
+	/* This is very ugly, but probably the fastest for our use: */
+	while (sleep_usec < 0)
 	{
-		doeric_server(SOCKET_UPDATE_CLIENT, &timeout);
+		sleep_usec += 1000000;
+		sleep_sec -= 1;
+	}
+
+	while (sleep_usec > 1000000)
+	{
+		sleep_usec -= 1000000;
+		sleep_sec += 1;
+	}
+
+	log_time((new_time.tv_sec - last_time.tv_sec) * 1000000 + new_time.tv_usec - last_time.tv_usec);
+
+	if (sleep_sec >= 0 && sleep_usec > 0)
+	{
+		sleep_time.tv_sec = sleep_sec;
+		sleep_time.tv_usec = sleep_usec;
+
+		/*LOG(llevDebug, "SLEEP-Time: %ds and %dus\n", sleep_time.tv_sec, sleep_time.tv_usec);*/
+		/* we ignore seconds to sleep - there is NO reason to put the server
+		 * for even a single second to sleep when there is someone connected. */
+		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
+		{
+			LOG(llevBug, "BUG: sleep_delta(): sleep delta out of range! (%"FMT64U"s %"FMT64U"us)\n", (uint64) sleep_time.tv_sec, (uint64) sleep_time.tv_usec);
+		}
+
+#ifndef WIN32
+		/* 'select' doesn't work on Windows, 'Sleep' is used instead */
+		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
+		{
+			select(0, NULL, NULL, NULL, &def_time);
+		}
+		else
+		{
+			select(0, NULL, NULL, NULL, &sleep_time);
+		}
+#else
+		if (sleep_time.tv_usec >= 1000)
+		{
+			Sleep((int) (sleep_time.tv_usec / 1000));
+		}
+		else if (sleep_time.tv_usec)
+		{
+			Sleep(1);
+		}
+#endif
+	}
+	else
+	{
+		process_utime_long_count++;
+	}
+
+	/* Set last_time to when we're expected to wake up: */
+	last_time.tv_usec += max_time;
+
+	while (last_time.tv_usec > 1000000)
+	{
+		last_time.tv_usec -= 1000000;
+		last_time.tv_sec++;
+	}
+
+	/* Don't do too much catching up:
+	 * (Things can still get jerky on a slow/loaded computer) */
+	if (last_time.tv_sec * 1000000 + last_time.tv_usec < new_time.tv_sec * 1000000 + new_time.tv_usec)
+	{
+		last_time.tv_sec = new_time.tv_sec;
+		last_time.tv_usec = new_time.tv_usec;
 	}
 }
 
@@ -292,7 +358,42 @@ void print_tod(object *op)
  * @param op Player who requested time. */
 void time_info(object *op)
 {
+	int tot = 0, maxt = 0, mint = 99999999, long_count = 0, i;
+
 	print_tod(op);
+
+	if (!QUERY_FLAG(op, FLAG_WIZ))
+	{
+		return;
+	}
+
+	new_draw_info_format(NDI_UNIQUE, op, "Total time:\nticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
+	new_draw_info_format(NDI_UNIQUE, op, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
+	new_draw_info_format(NDI_UNIQUE, op, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
+	new_draw_info_format(NDI_UNIQUE, op, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
+
+	for (i = 0; i < (pticks > PBUFLEN ? PBUFLEN : pticks); i++)
+	{
+		tot += process_utime_save[i];
+
+		if (process_utime_save[i] > maxt)
+		{
+			maxt = process_utime_save[i];
+		}
+
+		if (process_utime_save[i] < mint)
+		{
+			mint = process_utime_save[i];
+		}
+
+		if (process_utime_save[i] > max_time)
+		{
+			long_count++;
+		}
+	}
+
+	new_draw_info_format(NDI_UNIQUE, op, "avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
+	new_draw_info_format(NDI_UNIQUE, op, "ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
 }
 
 /**

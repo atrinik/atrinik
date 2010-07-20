@@ -831,6 +831,11 @@ void esrv_update_stats(player *pl)
 		flags |= SF_RUNON;
 	}
 
+	/* we add additional player status flags - in old style, you got a msg
+	 * in the text windows when you get xray of get blineded - we will skip
+	 * this and add the info here, so the client can track it down and make
+	 * it the user visible in it own, server indepentend way. */
+
 	/* player is blind */
 	if (QUERY_FLAG(pl->ob, FLAG_BLIND))
 	{
@@ -1442,7 +1447,7 @@ void draw_client_map2(object *pl)
 					}
 
 					/* Damage animation? Store it for later. */
-					if (tmp->last_damage && tmp->damage_round_tag == pticks)
+					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
 					{
 						ext_flags |= MAP2_FLAG_EXT_ANIM;
 						anim_type = ANIM_DAMAGE;
@@ -1519,7 +1524,7 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Kill animation? */
-			if (GET_MAP_RTAG(m, nx, ny) == pticks)
+			if (GET_MAP_RTAG(m, nx, ny) == ROUND_TAG)
 			{
 				ext_flags |= MAP2_FLAG_EXT_ANIM;
 				anim_type = ANIM_KILL;
