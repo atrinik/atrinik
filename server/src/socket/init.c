@@ -73,6 +73,9 @@ static int read_bufsize = 8 * 1024;
  * point. */
 void init_connection(socket_struct *ns, const char *from_ip)
 {
+	int bufsize = 65535;
+	int oldbufsize;
+	socklen_t buflen = sizeof(int);
 #ifdef WIN32
 	u_long temp = 1;
 
@@ -81,11 +84,24 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
 	}
 #else
-	if (fcntl(ns->fd, F_SETFL, fcntl(ns->fd, F_GETFL) | O_NDELAY | O_NONBLOCK ) == -1)
+	if (fcntl(ns->fd, F_SETFL, O_NONBLOCK) == -1)
 	{
-		LOG(llevError, "init_connection(): Error on fcntl %x.\n", fcntl(ns->fd, F_GETFL));
+		LOG(llevDebug, "init_connection(): Error on fcntl %x.\n", fcntl(ns->fd, F_GETFL));
 	}
 #endif
+
+	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
+	{
+		oldbufsize = 0;
+	}
+
+	if (oldbufsize < bufsize)
+	{
+		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
+		{
+			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
+		}
+	}
 
 	ns->login_count = 0;
 	ns->addme = 0;
@@ -164,12 +180,12 @@ static void setsockopts(int fd)
 
 	if (ioctlsocket(fd, FIONBIO, &tmp2) == -1)
 	{
-		LOG(llevDebug, "setsockopts(): Error on ioctlsocket.\n");
+		LOG(llevError, "ERROR(): setsockopts(): Error on ioctlsocket.\n");
 	}
 #else
-	if (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NDELAY | O_NONBLOCK ) == -1)
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
-		LOG(llevError, "setsockopts(): Error on fcntl %x.\n", fcntl(fd, F_GETFL));
+		LOG(llevError, "ERROR(): setsockopts(): Error on fcntl %x.\n", fcntl(fd, F_GETFL));
 	}
 #endif
 
@@ -220,8 +236,6 @@ static void setsockopts(int fd)
  * memory. */
 void init_ericserver()
 {
-	int oldbufsize;
-	socklen_t buflen = sizeof(int);
 	struct sockaddr_in insock;
 #ifndef WIN32
 	struct protoent *protox;
@@ -270,7 +284,6 @@ void init_ericserver()
 	}
 
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
-
 #else
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
@@ -285,33 +298,6 @@ void init_ericserver()
 	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	setsockopts(init_sockets[0].fd);
-	getsockopt(init_sockets[0].fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen);
-
-	if (oldbufsize > send_bufsize)
-	{
-		send_bufsize = (int) ((float) send_bufsize * ((float) send_bufsize / (float) oldbufsize));
-
-		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_SNDBUF, (char *) &send_bufsize, sizeof(send_bufsize)))
-		{
-			LOG(llevError, "ERROR(): init_ericserver(): Error on setsockopt SO_SNDBUF\n");
-		}
-
-		LOG(llevDebug, "init_ericserver(): Send buffer adjusted to %d bytes! (old value: %d bytes)\n", send_bufsize, oldbufsize);
-	}
-
-	getsockopt(init_sockets[0].fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen);
-
-	if (oldbufsize > read_bufsize)
-	{
-		read_bufsize = (int) ((float) read_bufsize * ((float) read_bufsize / (float) oldbufsize));
-
-		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_RCVBUF, (char *) &read_bufsize, sizeof(read_bufsize)))
-		{
-			LOG(llevError, "ERROR(): init_ericserver(): Error on setsockopt SO_RCVBUF\n");
-		}
-
-		LOG(llevDebug, "init_ericserver(): Read buffer adjusted to %d bytes! (old value: %d bytes)\n", read_bufsize, oldbufsize);
-	}
 
 	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
 	{

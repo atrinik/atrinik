@@ -498,25 +498,6 @@ void doeric_server(int update, struct timeval *timeout)
 		}
 		else
 		{
-			if (update_player && pl->state == ST_PLAYING)
-			{
-				esrv_update_stats(pl);
-
-				if (pl->update_skills)
-				{
-					esrv_update_skills(pl);
-					pl->update_skills = 0;
-				}
-
-				draw_client_map(pl->ob);
-
-				if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) != pl->socket.update_tile)
-				{
-					esrv_draw_look(pl->ob);
-					pl->socket.update_tile = update_below;
-				}
-			}
-
 			FD_SET((uint32) pl->socket.fd, &tmp_read);
 			FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
 
@@ -689,9 +670,31 @@ void doeric_server(int update, struct timeval *timeout)
 			continue;
 		}
 
-		if (update_client && FD_ISSET(pl->socket.fd, &tmp_write))
+		if (update_client)
 		{
-			socket_buffer_write(&pl->socket);
+			if (update_player && pl->state == ST_PLAYING)
+			{
+				esrv_update_stats(pl);
+
+				if (pl->update_skills)
+				{
+					esrv_update_skills(pl);
+					pl->update_skills = 0;
+				}
+
+				draw_client_map(pl->ob);
+
+				if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) != pl->socket.update_tile)
+				{
+					esrv_draw_look(pl->ob);
+					pl->socket.update_tile = update_below;
+				}
+			}
+
+			if (FD_ISSET(pl->socket.fd, &tmp_write))
+			{
+				socket_buffer_write(&pl->socket);
+			}
 		}
 	}
 }
