@@ -109,3 +109,19 @@ item_condition 100
 item_quality 100
 identified 1
 end
+
+Object constr_carpet
+name carpet material
+type 10
+sub_type 3
+face carpet1.101
+slaying carpet1
+layer 3
+value 2500
+weight 500
+nrof 1
+can_stack 1
+item_condition 100
+item_quality 100
+identified 1
+end
