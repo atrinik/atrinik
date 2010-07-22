@@ -176,9 +176,9 @@ class House:
 	## @return True if the player owns the house, False otherwise.
 	def has_house(self):
 		if not self._player_info:
-			self._load_player_info()
+			self._load_player_info(False)
 
-		if self._find_house() != -1:
+		if self._player_info and self._find_house() != -1:
 			return True
 
 		return False
