@@ -129,6 +129,9 @@ class House:
 		if not self._player_info:
 			self._load_player_info(False)
 
+		if not self._player_info:
+			return None
+
 		return self._player_info.slaying
 
 	## Set information about the last house that the player left, which
