@@ -506,6 +506,7 @@ static int builder_window(object *op, int x, int y)
 		window->flags[flag] = old_flags[flag];
 	}
 
+	CLEAR_FLAG(window, FLAG_BLOCKSVIEW);
 	new_draw_info(NDI_UNIQUE, op, "You build a window in the wall.");
 	return 1;
 }
