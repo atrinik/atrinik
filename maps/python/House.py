@@ -10,7 +10,7 @@ class House:
 		"greyton": [
 			1500000,
 			"Greyton Luxury House",
-			7500,
+			5000,
 			120,
 			10,
 			("/shattered_islands/strakewood_island/greyton/house/luxury_house", 11, 26, 1),
