@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-01 Alex Tokar
+Modified: 2010-07-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1504,11 +1504,15 @@ arch grassd_1
 x 10
 y 10
 end
+arch wall_pattern1.181
+x 10
+y 10
+end
 arch grassd_4
 x 10
 y 11
 end
-arch plant12
+arch wall_pattern1.131
 x 10
 y 11
 end
@@ -1516,7 +1520,7 @@ arch grassd_7
 x 10
 y 12
 end
-arch plant_mushroom4
+arch wall_pattern1.131
 x 10
 y 12
 end
@@ -1524,7 +1528,15 @@ arch grassd_1
 x 10
 y 13
 end
+arch wall_pattern1.131
+x 10
+y 13
+end
 arch grassd_8
+x 10
+y 14
+end
+arch wall_pattern1.131
 x 10
 y 14
 end
@@ -1532,7 +1544,20 @@ arch grassd_1
 x 10
 y 15
 end
+arch wall_pattern1.131
+x 10
+y 15
+end
 arch grassd_2
+x 10
+y 16
+end
+arch wall_pattern1.131
+x 10
+y 16
+end
+arch wmask_fire_on_1
+direction 7
 x 10
 y 16
 end
@@ -1540,7 +1565,15 @@ arch grassd_1
 x 10
 y 17
 end
+arch wall_pattern1.131
+x 10
+y 17
+end
 arch grassd_5
+x 10
+y 18
+end
+arch wall_pattern1.131
 x 10
 y 18
 end
@@ -1639,43 +1672,83 @@ arch grassd_7
 x 11
 y 10
 end
-arch grassd_2
+arch wall_pattern1.111
+x 11
+y 10
+end
+arch picture3.151
+x 11
+y 10
+end
+arch floor_red1
 x 11
 y 11
 end
-arch grassd_3
+arch wood_pile.101
+x 11
+y 11
+end
+arch floor_red1
 x 11
 y 12
 end
-arch tree_big
+arch fireplace_left
 x 11
 y 12
 end
-arch grassd_2
+arch light5
+x 11
+y 12
+end
+arch floor_red1
 x 11
 y 13
 end
-arch grassd_4
+arch light5
+x 11
+y 13
+end
+arch floor_red1
 x 11
 y 14
 end
-arch grassd_7
+arch carpet1.131
+x 11
+y 14
+end
+arch floor_red1
 x 11
 y 15
 end
-arch grassd_3
+arch carpet1.131
+x 11
+y 15
+end
+arch floor_red1
 x 11
 y 16
 end
-arch tree_big2
+arch carpet1.131
 x 11
 y 16
 end
-arch grassd_4
+arch chair1_111
+x 11
+y 16
+end
+arch floor_red1
 x 11
 y 17
 end
-arch grassd_2
+arch table_poker1
+x 11
+y 17
+end
+arch floor_red1
+x 11
+y 18
+end
+arch wall_pattern1.111
 x 11
 y 18
 end
@@ -1766,35 +1839,87 @@ arch grassd_5
 x 12
 y 10
 end
-arch grassd_5
+arch wall_pattern1.111
+x 12
+y 10
+end
+arch floor_red1
 x 12
 y 11
 end
-arch grassd_8
+arch rack.111
+x 12
+y 11
+end
+arch floor_red1
 x 12
 y 12
 end
-arch grassd_2
+arch floor_red1
 x 12
 y 13
 end
-arch grassd_7
+arch carpet1.151
+x 12
+y 13
+end
+arch floor_red1
 x 12
 y 14
 end
-arch grassd_8
+arch carpet1
+x 12
+y 14
+end
+arch floor_red1
 x 12
 y 15
 end
-arch grassd_8
+arch carpet1
+x 12
+y 15
+end
+arch exit
+face portal_big.101
+animation portal_big
+x 12
+y 15
+arch event_obj
+sub_type 10
+race /python/house/exit.py
+slaying greyton,15,7
+end
+end
+arch light9
+x 12
+y 15
+end
+arch floor_red1
 x 12
 y 16
 end
-arch grassd_4
+arch carpet1
+x 12
+y 16
+end
+arch floor_red1
 x 12
 y 17
 end
-arch grassd_4
+arch carpet1.111
+x 12
+y 17
+end
+arch chair1_111
+direction 3
+x 12
+y 17
+end
+arch floor_red1
+x 12
+y 18
+end
+arch wall_pattern1.111
 x 12
 y 18
 end
@@ -1885,39 +2010,67 @@ arch grassd_4
 x 13
 y 10
 end
-arch grassd_5
+arch wall_pattern1.111
+x 13
+y 10
+end
+arch floor_red1
 x 13
 y 11
 end
-arch grassd_5
+arch shelf3a.111
+x 13
+y 11
+end
+arch floor_red1
 x 13
 y 12
 end
-arch grassd_7
+arch floor_red1
 x 13
 y 13
 end
-arch grassd_2
+arch carpet1.151
+x 13
+y 13
+end
+arch floor_red1
 x 13
 y 14
 end
-arch plant1
+arch carpet1
 x 13
 y 14
 end
-arch grassd_8
+arch floor_red1
 x 13
 y 15
 end
-arch grassd_2
+arch carpet1
+x 13
+y 15
+end
+arch floor_red1
 x 13
 y 16
 end
-arch grassd_3
+arch carpet1
+x 13
+y 16
+end
+arch floor_red1
 x 13
 y 17
 end
-arch grassd_6
+arch carpet1.111
+x 13
+y 17
+end
+arch floor_red1
+x 13
+y 18
+end
+arch wall_pattern1.111
 x 13
 y 18
 end
@@ -1992,15 +2145,23 @@ arch floor_flagm1
 x 14
 y 7
 end
+arch floor_flagm4
+x 14
+y 8
+end
+arch grassd_m14
+x 14
+y 8
+end
 arch floor_flagm3
 x 14
-y 8
+y 9
 end
-arch grassd_m7
+arch grassd_m3
 x 14
-y 8
+y 9
 end
-arch grassd_1
+arch light5
 x 14
 y 9
 end
@@ -2008,51 +2169,92 @@ arch grassd_5
 x 14
 y 10
 end
-arch plant_flower7
+arch wall_pattern1.111
 x 14
 y 10
 end
-arch grassd_4
+arch floor_red1
 x 14
 y 11
 end
-arch grassd_4
+arch torch_wall_1
+x 14
+y 11
+end
+arch floor_red1
 x 14
 y 12
 end
-arch plant_flower5
+arch carpet1.131
 x 14
 y 12
 end
-arch grassd_2
+arch floor_red1
 x 14
 y 13
 end
-arch grassd_5
+arch carpet1.131
+x 14
+y 13
+end
+arch carpet1.151
+layer 3
+x 14
+y 13
+end
+arch candlelight3.101
+x 14
+y 13
+end
+arch light7
+x 14
+y 13
+end
+arch floor_red1
 x 14
 y 14
 end
-arch grassd_4
+arch carpet1
+x 14
+y 14
+end
+arch floor_red1
 x 14
 y 15
 end
-arch plant15
+arch carpet1
 x 14
 y 15
 end
-arch grassd_2
+arch floor_red1
 x 14
 y 16
 end
-arch grassd_7
+arch carpet1
+x 14
+y 16
+end
+arch floor_red1
 x 14
 y 17
 end
-arch grassd_6
+arch carpet1.111
+x 14
+y 17
+end
+arch candlelight3.101
+x 14
+y 17
+end
+arch light7
+x 14
+y 17
+end
+arch floor_red1
 x 14
 y 18
 end
-arch plant_flower6
+arch wall_pattern1.111
 x 14
 y 18
 end
@@ -2136,64 +2338,83 @@ arch floor_flagm1
 x 15
 y 7
 end
-arch floor_flagm4
+arch floor_flagm3
 x 15
 y 8
 end
-arch grassd_m7
-x 15
-y 8
-end
-arch grassd_2
+arch floor_flagm1
 x 15
 y 9
 end
-arch lantern_magic.131
-direction 7
-x 15
-y 9
-end
-arch light5
-x 15
-y 9
-end
-arch grassd_5
+arch floor_flagm3
 x 15
 y 10
 end
-arch grassd_5
+arch door1_locked
+x 15
+y 10
+end
+arch floor_red1
 x 15
 y 11
 end
-arch grassd_2
+arch carpet1.151
+x 15
+y 11
+end
+arch floor_red1
 x 15
 y 12
 end
-arch grassd_2
+arch carpet1
+x 15
+y 12
+end
+arch floor_red1
 x 15
 y 13
 end
-arch grassd_2
+arch carpet1
+x 15
+y 13
+end
+arch floor_red1
 x 15
 y 14
 end
-arch grassd_4
+arch carpet1
+x 15
+y 14
+end
+arch floor_red1
 x 15
 y 15
 end
-arch grassd_1
+arch carpet1
+x 15
+y 15
+end
+arch floor_red1
 x 15
 y 16
 end
-arch grassd_6
+arch carpet1
+x 15
+y 16
+end
+arch floor_red1
 x 15
 y 17
 end
-arch grassd_3
+arch carpet1.111
+x 15
+y 17
+end
+arch floor_red1
 x 15
 y 18
 end
-arch plant3
+arch wall_pattern1.111
 x 15
 y 18
 end
@@ -2272,51 +2493,84 @@ arch floor_flagm4
 x 16
 y 7
 end
+arch floor_flagm3
+x 16
+y 8
+end
 arch floor_flagm1
-x 16
-y 8
-end
-arch grassd_m7
-x 16
-y 8
-end
-arch grassd_1
 x 16
 y 9
 end
-arch grassd_8
+arch floor_flagm2
 x 16
 y 10
 end
-arch grassd_1
+arch door1_locked
+direction 7
+x 16
+y 10
+end
+arch floor_red1
 x 16
 y 11
 end
-arch grassd_5
+arch carpet1.151
+x 16
+y 11
+end
+arch floor_red1
 x 16
 y 12
 end
-arch grassd_4
+arch carpet1
+x 16
+y 12
+end
+arch floor_red1
 x 16
 y 13
 end
-arch grassd_1
+arch carpet1
+x 16
+y 13
+end
+arch floor_red1
 x 16
 y 14
 end
-arch grassd_5
+arch carpet1
+x 16
+y 14
+end
+arch floor_red1
 x 16
 y 15
 end
-arch grassd_8
+arch carpet1
+x 16
+y 15
+end
+arch floor_red1
 x 16
 y 16
 end
-arch grassd_1
+arch carpet1
+x 16
+y 16
+end
+arch floor_red1
 x 16
 y 17
 end
-arch grassd_3
+arch carpet1.111
+x 16
+y 17
+end
+arch floor_red1
+x 16
+y 18
+end
+arch wall_pattern1.111
 x 16
 y 18
 end
@@ -2391,15 +2645,23 @@ arch floor_flagm1
 x 17
 y 7
 end
-arch floor_flagm3
+arch floor_flagm1
 x 17
 y 8
 end
-arch grassd_m7
+arch grassd_m11
 x 17
 y 8
 end
-arch grassd_6
+arch floor_flagm4
+x 17
+y 9
+end
+arch grassd_m5
+x 17
+y 9
+end
+arch light5
 x 17
 y 9
 end
@@ -2407,35 +2669,80 @@ arch grassd_8
 x 17
 y 10
 end
-arch grassd_5
+arch wall_pattern1.111
+x 17
+y 10
+end
+arch floor_red1
 x 17
 y 11
 end
-arch grassd_8
+arch carpet1.151
+x 17
+y 11
+end
+arch torch_wall_1
+x 17
+y 11
+end
+arch floor_red1
 x 17
 y 12
 end
-arch grassd_2
+arch carpet1
+x 17
+y 12
+end
+arch floor_red1
 x 17
 y 13
 end
-arch grassd_1
+arch carpet1
+x 17
+y 13
+end
+arch floor_red1
 x 17
 y 14
 end
-arch grassd_8
+arch carpet1.171
+x 17
+y 14
+end
+arch carpet1.111
+layer 3
+x 17
+y 14
+end
+arch light5
+x 17
+y 14
+end
+arch floor_red1
 x 17
 y 15
 end
-arch grassd_3
+arch carpet1.171
+x 17
+y 15
+end
+arch floor_red1
 x 17
 y 16
 end
-arch grassd_4
+arch carpet1.171
+x 17
+y 16
+end
+arch floor_red1
 x 17
 y 17
 end
-arch grassd_3
+arch floor_red1
+x 17
+y 18
+end
+arch wall_pattern1.111
 x 17
 y 18
 end
@@ -2530,43 +2837,79 @@ arch grassd_4
 x 18
 y 10
 end
-arch grassd_7
+arch wall_pattern1.111
+x 18
+y 10
+end
+arch flag_04
+x 18
+y 10
+end
+arch floor_red1
 x 18
 y 11
 end
-arch grassd_5
+arch carpet1.151
+x 18
+y 11
+end
+arch floor_red1
 x 18
 y 12
 end
-arch plant_mushroom5
+arch carpet1
 x 18
 y 12
 end
-arch grassd_4
+arch floor_red1
 x 18
 y 13
 end
-arch grassd_5
+arch carpet1
+x 18
+y 13
+end
+arch floor_red1
 x 18
 y 14
 end
-arch grassd_4
+arch carpet1.111
+x 18
+y 14
+end
+arch floor_red1
 x 18
 y 15
 end
-arch grassd_7
+arch amphora2.101
+x 18
+y 15
+end
+arch floor_red1
 x 18
 y 16
 end
-arch tree_big
+arch bank2c
+direction 5
+no_pass 1
 x 18
 y 16
 end
-arch grassd_5
+arch floor_red1
 x 18
 y 17
 end
-arch grassd_5
+arch bank2a
+direction 7
+no_pass 1
+x 18
+y 17
+end
+arch floor_red1
+x 18
+y 18
+end
+arch wall_pattern1.111
 x 18
 y 18
 end
@@ -2657,35 +3000,91 @@ arch grassd_7
 x 19
 y 10
 end
-arch grassd_2
+arch wall_pattern1.111
+x 19
+y 10
+end
+arch floor_red1
 x 19
 y 11
 end
-arch grassd_2
+arch carpet1.151
+x 19
+y 11
+end
+arch shelf5_wall.111
+x 19
+y 11
+end
+arch floor_red1
 x 19
 y 12
 end
-arch grassd_8
+arch carpet1
+x 19
+y 12
+end
+arch floor_red1
 x 19
 y 13
 end
-arch grassd_1
+arch carpet1
+x 19
+y 13
+end
+arch floor_red1
 x 19
 y 14
 end
-arch grassd_1
+arch carpet1.111
+x 19
+y 14
+end
+arch floor_red1
 x 19
 y 15
 end
-arch grassd_3
+arch bank2c
+no_pass 1
+x 19
+y 15
+end
+arch floor_red1
 x 19
 y 16
 end
-arch grassd_4
+arch spawn_point
+x 19
+y 16
+arch mage_old
+name House Agency Manager
+direction 1
+level 70
+type 83
+arch event_obj
+sub_type 6
+race /python/house/manager.py
+slaying greyton
+end
+end
+end
+arch floor_red1
 x 19
 y 17
 end
-arch grassd_8
+arch candlelight3.101
+x 19
+y 17
+end
+arch light7
+x 19
+y 17
+end
+arch floor_red1
+x 19
+y 18
+end
+arch wall_pattern1.111
 x 19
 y 18
 end
@@ -2776,43 +3175,68 @@ arch grassd_2
 x 20
 y 10
 end
-arch grassd_6
+arch wall_pattern1.111
+x 20
+y 10
+end
+arch floor_red1
 x 20
 y 11
 end
-arch grassd_1
+arch carpet1.151
+x 20
+y 11
+end
+arch shelf6_wall.111
+x 20
+y 11
+end
+arch floor_red1
 x 20
 y 12
 end
-arch tree_big
+arch carpet1
 x 20
 y 12
 end
-arch grassd_8
+arch floor_red1
 x 20
 y 13
 end
-arch grassd_7
+arch carpet1
+x 20
+y 13
+end
+arch floor_red1
 x 20
 y 14
 end
-arch grassd_3
+arch carpet1.111
+x 20
+y 14
+end
+arch floor_red1
 x 20
 y 15
 end
-arch grassd_2
+arch bank2b
+no_pass 1
+x 20
+y 15
+end
+arch floor_red1
 x 20
 y 16
 end
-arch grassd_5
+arch floor_red1
 x 20
 y 17
 end
-arch grassd_1
+arch floor_red1
 x 20
 y 18
 end
-arch plant12
+arch wall_pattern1.111
 x 20
 y 18
 end
@@ -2925,35 +3349,78 @@ arch grassd_5
 x 21
 y 10
 end
-arch grassd_2
+arch wall_pattern1.111
+x 21
+y 10
+end
+arch floor_red1
 x 21
 y 11
 end
-arch grassd_2
+arch mirror_big.111
+x 21
+y 11
+end
+arch floor_red1
 x 21
 y 12
 end
-arch grassd_5
+arch carpet1.171
+x 21
+y 12
+end
+arch light7
+x 21
+y 12
+end
+arch floor_red1
 x 21
 y 13
 end
-arch grassd_1
+arch carpet1.171
+x 21
+y 13
+end
+arch floor_red1
 x 21
 y 14
 end
-arch grassd_5
+arch floor_red1
 x 21
 y 15
 end
-arch grassd_2
+arch bank2a
+no_pass 1
+x 21
+y 15
+end
+arch floor_red1
 x 21
 y 16
 end
-arch grassd_8
+arch chest_w1
+direction 7
+x 21
+y 16
+end
+arch light5
+x 21
+y 16
+end
+arch floor_red1
 x 21
 y 17
 end
-arch grassd_7
+arch chest_4.111
+direction 7
+x 21
+y 17
+end
+arch floor_red1
+x 21
+y 18
+end
+arch wall_pattern1.111
 x 21
 y 18
 end
@@ -3044,43 +3511,75 @@ arch grassd_5
 x 22
 y 10
 end
-arch grassd_2
+arch wall_pattern1.111
+x 22
+y 10
+end
+arch floor_red1
 x 22
 y 11
 end
-arch plant9
+arch wall_pattern1.131
 x 22
 y 11
 end
-arch grassd_4
+arch floor_red1
 x 22
 y 12
 end
-arch grassd_1
+arch candlelight3.101
+x 22
+y 12
+end
+arch wall_pattern1.131
+x 22
+y 12
+end
+arch floor_red1
 x 22
 y 13
 end
-arch grassd_2
+arch wall_pattern1.131
+x 22
+y 13
+end
+arch floor_red1
 x 22
 y 14
 end
-arch grassd_4
+arch wall_pattern1.131
+x 22
+y 14
+end
+arch floor_red1
 x 22
 y 15
 end
-arch plant_mushroom1
+arch wall_pattern1.131
 x 22
 y 15
 end
-arch grassd_8
+arch floor_red1
 x 22
 y 16
 end
-arch grassd_2
+arch wall_pattern1.131
+x 22
+y 16
+end
+arch floor_red1
 x 22
 y 17
 end
-arch grassd_7
+arch wall_pattern1.131
+x 22
+y 17
+end
+arch floor_red1
+x 22
+y 18
+end
+arch wall_pattern1.141
 x 22
 y 18
 end

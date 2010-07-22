@@ -138,3 +138,10 @@ msg
 
 endmsg
 end
+region everlink
+parent world
+longname Everlink
+msg
+No one knows where this place is in the world, but only proud house owners can access it.
+endmsg
+end
