@@ -170,6 +170,11 @@ static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
 	/* Browse the inventory of object to find a matching skill or exp_obj. */
 	for (tmp = WHO->inv; tmp; tmp = tmp->below)
 	{
+		if (tmp->type != type)
+		{
+			continue;
+		}
+
 		if (tmp->type == SKILL && tmp->stats.sp == id)
 		{
 			return wrap_object(tmp);
