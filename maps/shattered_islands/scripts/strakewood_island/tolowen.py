@@ -29,7 +29,7 @@ def main():
 			me.SayTo(activator, "Thank you for your help, we think we can keep the ^orcs^ from the ^Underground City^ at bay now.", 1)
 		elif qm.finished():
 			me.SayTo(activator, "You have done very well against the ^orcs^.", 1)
-			skill = activator.GetSkill(0, GetSkillNr("divine prayers"))
+			skill = activator.GetSkill(TYPE_SKILL, GetSkillNr("divine prayers"))
 			spell = GetSpellNr("greater healing")
 			spell_level = GetSpell(spell)["level"]
 

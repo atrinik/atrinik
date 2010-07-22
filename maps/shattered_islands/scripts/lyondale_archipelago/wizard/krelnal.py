@@ -52,7 +52,7 @@ def main():
 
 		sp_info = GetSpell(sp_nr)
 
-		if activator.GetSkill(0, skill).level < sp_info["level"]:
+		if activator.GetSkill(TYPE_SKILL, skill).level < sp_info["level"]:
 			me.SayTo(activator, "\nBut it seems that your wizardry spells skill is too low level!\n{0} requires at least level {1} wizardry spells.".format(sp["spell"].capitalize(), sp_info["level"]))
 			return
 

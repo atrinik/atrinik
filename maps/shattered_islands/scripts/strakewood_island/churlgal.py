@@ -32,7 +32,7 @@ def main():
 			me.SayTo(activator, "Thank you for helping us out.", 1)
 		elif qm.finished():
 			me.SayTo(activator, "You have done an excellent job!", 1)
-			skill = activator.GetSkill(0, GetSkillNr("wizardry spells"))
+			skill = activator.GetSkill(TYPE_SKILL, GetSkillNr("wizardry spells"))
 			spell = GetSpellNr("destruction")
 			spell_level = GetSpell(spell)["level"]
 

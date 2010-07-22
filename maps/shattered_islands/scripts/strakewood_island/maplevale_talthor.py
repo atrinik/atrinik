@@ -114,7 +114,7 @@ def npc_talthor():
 		elif qm_t.finished():
 			me.SayTo(activator, "\nYou did it! Brynknot is safe now thanks to you.\nAs a reward, I'll teach you the secret knowledge of the firebolt spell.")
 
-			skill = activator.GetSkill(0, GetSkillNr("wizardry spells"))
+			skill = activator.GetSkill(TYPE_SKILL, GetSkillNr("wizardry spells"))
 			spell = GetSpellNr("firebolt")
 
 			if not skill:
