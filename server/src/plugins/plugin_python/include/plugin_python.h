@@ -90,19 +90,16 @@ extern struct plugin_hooklist *hooks;
 /**
  * @defgroup AROUND_xxx Types for object.SquaresAround()
  * The various types of squares returned by object.SquaresAround().
+ * @note These are bitmasks.
  *@{*/
 /** All squares around the object. */
-#define AROUND_ALL 1
-/** Ignore squares that have a wall on them or are behind a wall. */
-#define AROUND_WALL 2
+#define AROUND_ALL 0
 /** Ignore squares that have a wall. */
-#define AROUND_WALL_ONLY 3
-/**
- * Ignore squares that are blocking view or are behind an object that
- * is blocking view. */
-#define AROUND_BLOCKSVIEW 4
+#define AROUND_WALL 1
 /** Ignore squares that are blocking view. */
-#define AROUND_BLOCKSVIEW_ONLY 5
+#define AROUND_BLOCKSVIEW 2
+/** Ignore squares that are player only. */
+#define AROUND_PLAYER_ONLY 4
 /*@}*/
 
 #undef LOG

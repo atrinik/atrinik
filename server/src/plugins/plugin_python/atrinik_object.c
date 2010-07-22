@@ -2319,24 +2319,26 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args
 }
 
 /**
- * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL ])</h1>
+ * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL ], int [beyond = False])</h1>
  * Looks around the specified object and returns a list of tuples
  * containing the squares around it in a specified range. The tuples
  * have a format of <pre>(map, x, y)</pre>.
  * @param range Range around which to look at the squares. Must be higher
  * than 0.
- * @param type One of @ref AROUND_xxx constants.
+ * @param type One or a combination of @ref AROUND_xxx constants.
+ * @param beyond If True and one of checks from 'type' parameter matches, all
+ * squares beyon the one being checked will be ignored as well.
  * @return A list containing tuples of the squares. */
 static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
 {
 	uint8 range, type = AROUND_ALL;
-	static char *kwlist[] = {"range", "type", NULL};
-	int i, j, xt, x, yt, y, add;
+	static char *kwlist[] = {"range", "type", "beyond", NULL};
+	int i, j, xt, x, yt, y, add, beyond;
 	mapstruct *m;
 	int fraction, dx2, dy2, stepx, stepy;
 	PyObject *list;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|B", kwlist, &range, &type))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|Bi", kwlist, &range, &type, &beyond))
 	{
 		return NULL;
 	}
@@ -2378,15 +2380,15 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 					add = 1;
 				}
 			}
-			/* Only those that are not blocked by view or beyond a wall,
+			/* Only those that are not blocked by view, or beyond a wall, etc,
 			 * so use the Bresenham algorithm. */
-			else if (type == AROUND_BLOCKSVIEW || type == AROUND_WALL)
+			else if (beyond)
 			{
 				BRESENHAM_INIT(xt - x, yt - y, fraction, stepx, stepy, dx2, dy2);
 
 				while (1)
 				{
-					if (m == NULL || (type == AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) || (type == AROUND_WALL && hooks->wall(m, x, y)))
+					if (m == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, x, y) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, x, y)))
 					{
 						break;
 					}
@@ -2402,26 +2404,17 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 					m = hooks->get_map_from_coord(m, &x, &y);
 				}
 			}
-			/* We only want to ignore squares that either block view or have
-			 * a wall, but not any squares behind them. */
-			else if (type == AROUND_BLOCKSVIEW_ONLY || type == AROUND_WALL_ONLY)
-			{
-				m = hooks->get_map_from_coord(m, &x, &y);
-
-				if (type == AROUND_BLOCKSVIEW_ONLY && !(GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW))
-				{
-					add = 1;
-				}
-				else if (type == AROUND_WALL_ONLY && !hooks->wall(m, x, y))
-				{
-					add = 1;
-				}
-			}
-			/* Invalid type was requested. */
+			/* We only want to ignore squares that either block view, or have
+			 * a wall, etc, but not any squares behind them. */
 			else
 			{
-				PyErr_SetString(PyExc_ValueError, "SquaresAround(): 'type' has invalid value.");
-				return NULL;
+				m = hooks->get_map_from_coord(m, &x, &y);
+				add = 1;
+
+				if (!m || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, x, y) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, x, y)))
+				{
+					add = 0;
+				}
 			}
 
 			if (add)
