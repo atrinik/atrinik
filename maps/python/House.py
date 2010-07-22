@@ -183,16 +183,7 @@ class House:
 	## Check if player's fees for the working house have expired.
 	## @return True if they have expired, False otherwise.
 	def fees_expired(self):
-		if not self._player_info:
-			self._load_player_info()
-
-		i = self._find_house()
-
-		if i == -1:
-			return
-
-		# Check the timestamps.
-		return self._player_houses[i][1] < int(time.time())
+		return self.fees_days() > 0
 
 	## Get human-readable date of the fees expiration in UTC.
 	## @return The expiry date, None if we're working on a house the
@@ -230,9 +221,12 @@ class House:
 	def fees_cost_days(self, days):
 		return self.get(self.fee) * days
 
-	## Figure out number of days left of paid fees.
-	## @return The number of days left.
-	def fees_days_left(self):
+	## Calculate the number of days left of paid fees and/or the number of
+	## unpaid fees.
+	## @return The number of days. If negative, this is the number of days
+	## fees have been paid for, otherwise the number of how many days we haven't
+	## paid fees.
+	def fees_days(self):
 		if not self._player_info:
 			self._load_player_info()
 
@@ -242,4 +236,4 @@ class House:
 			return 0
 
 		# Calculate the days.
-		return int((self._player_houses[i][1] - int(time.time())) / 60 / 60 / 24)
+		return int((int(time.time()) - self._player_houses[i][1]) / 60 / 60 / 24)
