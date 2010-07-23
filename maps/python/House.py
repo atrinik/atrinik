@@ -159,7 +159,7 @@ class House:
 
 		self._player_houses.append([self._house, int(time.time())])
 		# Will also save the player info.
-		self.fees_pay(self.get(self.fees_prepaid))
+		self.fees_add(self.get(self.fees_prepaid))
 
 	## Find out ID of a house in player's houses.
 	##
@@ -186,26 +186,32 @@ class House:
 	## Check if player's fees for the working house have expired.
 	## @return True if they have expired, False otherwise.
 	def fees_expired(self):
-		return self.fees_days() > 0
-
-	## Get human-readable date of the fees expiration in UTC.
-	## @return The expiry date, None if we're working on a house the
-	## player doesn't have.
-	def get_fees_expiry_date(self):
 		if not self._player_info:
 			self._load_player_info()
 
 		i = self._find_house()
 
 		if i == -1:
-			return None
+			return
 
-		# Create the date.
-		return time.strftime("%d %B %Y %H:%M:%S UTC", time.gmtime(self._player_houses[i][1]))
+		return int(time.time()) > self._player_houses[i][1]
 
-	## Pay for fees.
-	## @param days How many days we're paying for.
-	def fees_pay(self, days):
+	## Reset the timestamp of the fees expiration to the current time.
+	def fees_reset(self):
+		if not self._player_info:
+			self._load_player_info()
+
+		i = self._find_house()
+
+		if i == -1:
+			return
+
+		self._player_houses[i][1] = int(time.time())
+		self._save_player_info()
+
+	## Add the specified number of days to the timestamp when fees expire.
+	## @param days How many days to add, defaults to 1.
+	def fees_add(self, days = 1):
 		if not self._player_info:
 			self._load_player_info()
 
@@ -216,27 +222,3 @@ class House:
 
 		self._player_houses[i][1] += 60 * 60 * 24 * days
 		self._save_player_info()
-
-	## Calculate cost of fees for the house we're working on for the specified
-	## number of days.
-	## @param days Number of days for the fees.
-	## @return The calculated cost.
-	def fees_cost_days(self, days):
-		return self.get(self.fee) * days
-
-	## Calculate the number of days left of paid fees and/or the number of
-	## unpaid fees.
-	## @return The number of days. If negative, this is the number of days
-	## fees have been paid for, otherwise the number of how many days we haven't
-	## paid fees.
-	def fees_days(self):
-		if not self._player_info:
-			self._load_player_info()
-
-		i = self._find_house()
-
-		if i == -1:
-			return 0
-
-		# Calculate the days.
-		return int((int(time.time()) - self._player_houses[i][1]) / 60 / 60 / 24)
