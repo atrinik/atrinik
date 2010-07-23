@@ -137,6 +137,8 @@ struct plugin_hooklist hooklist =
 	check_walk_off,
 	wall,
 	blocked,
+	get_rangevector,
+	get_rangevector_from_mapcoords,
 
 	season_name,
 	weekdays,

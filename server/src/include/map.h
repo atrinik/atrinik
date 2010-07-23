@@ -655,4 +655,26 @@ typedef struct rv_vector_s
 #define RV_NO_DISTANCE         (0x08 | 0x04)
 /*@}*/
 
+/**
+ * @defgroup direction_constants Direction constants
+ * The direction constants.
+ *@{*/
+/** North. */
+#define NORTH 1
+/** Northeast. */
+#define NORTHEAST 2
+/** East. */
+#define EAST 3
+/** Southeast. */
+#define SOUTHEAST 4
+/** South. */
+#define SOUTH 5
+/** Southwest. */
+#define SOUTHWEST 6
+/** West. */
+#define WEST 7
+/** Northwest. */
+#define NORTHWEST 8
+/*@}*/
+
 #endif

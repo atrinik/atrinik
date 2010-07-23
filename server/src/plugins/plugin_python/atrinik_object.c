@@ -2432,6 +2432,47 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 	return list;
 }
 
+/**
+ * <h1>object.GetRangeVector(object to, int [flags = 0])</h1>
+ * Get the distance and direction from one object to another.
+ * @param to Object to which the distance is calculated.
+ * @param flags One or a combination of @ref range_vector_flags.
+ * @return None if the distance couldn't be calculated, otherwise a tuple
+ * containining:
+ *  - Direction 'object' should head to reach 'to', one of @ref direction_constants.
+ *  - Distance between 'object' and 'to'.
+ *  - X distance.
+ *  - Y distance.
+ *  - Part of the object that is closest. */
+static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"to", "flags", NULL};
+	Atrinik_Object *to;
+	int flags = 0;
+	rv_vector rv;
+	PyObject *tuple;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!|i", kwlist, &Atrinik_ObjectType, &to, &flags))
+	{
+		return NULL;
+	}
+
+	if (!hooks->get_rangevector(obj->obj, to->obj, &rv, flags))
+	{
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	tuple = PyTuple_New(5);
+	PyTuple_SET_ITEM(tuple, 0, Py_BuildValue("i", rv.direction));
+	PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", rv.distance));
+	PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", rv.distance_x));
+	PyTuple_SET_ITEM(tuple, 3, Py_BuildValue("i", rv.distance_y));
+	PyTuple_SET_ITEM(tuple, 4, wrap_object(rv.part));
+
+	return tuple;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2507,6 +2548,7 @@ static PyMethodDef methods[] =
 	{"ChangeAbil", (PyCFunction) Atrinik_Object_ChangeAbil, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS | METH_KEYWORDS, 0},
 	{"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
+	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

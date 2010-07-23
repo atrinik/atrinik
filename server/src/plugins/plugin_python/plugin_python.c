@@ -59,14 +59,14 @@ PythonContext *current_context;
  * List of the Python plugin constants and their meaning. */
 static Atrinik_Constant constants[] =
 {
-	{"NORTH", 1},
-	{"NORTHEAST", 2},
-	{"EAST", 3},
-	{"SOUTHEAST", 4},
-	{"SOUTH", 5},
-	{"SOUTHWEST", 6},
-	{"WEST", 7},
-	{"NORTHWEST", 8},
+	{"NORTH", NORTH},
+	{"NORTHEAST", NORTHEAST},
+	{"EAST", EAST},
+	{"SOUTHEAST", SOUTHEAST},
+	{"SOUTH", SOUTH},
+	{"SOUTHWEST", SOUTHWEST},
+	{"WEST", WEST},
+	{"NORTHWEST", NORTHWEST},
 
 	{"llevError", llevError},
 	{"llevBug", llevBug},
@@ -1160,6 +1160,52 @@ static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
 	return Py_BuildValue("s", arr[gender]);
 }
 
+/**
+ * <h1>GetRangeVectorFromMapCoords(map map, int x, int y, map map2, int x2, int y2, int [flags = 0])</h1>
+ * Get the distance and direction from one map coordinate to another.
+ * @param map From which map to get distance from.
+ * @param x X on 'map'.
+ * @param y Y on 'map'.
+ * @param map2 Which map to get distance to.
+ * @param x2 X on 'map2'.
+ * @param y2 Y on 'map2'.
+ * @param flags One or a combination of @ref range_vector_flags.
+ * @return None if the distance couldn't be calculated, otherwise a tuple
+ * containining:
+ *  - Direction from the first coordinate to the second, one of @ref direction_constants.
+ *  - Distance between the two coordinates.
+ *  - X distance.
+ *  - Y distance. */
+static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"map", "x", "y", "map2", "x2", "y2", NULL};
+	Atrinik_Map *map, *map2;
+	int x, y, x2, y2, flags = 0;
+	rv_vector rv;
+	PyObject *tuple;
+
+	(void) self;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!iiO!ii|i", kwlist, &Atrinik_MapType, &map, &x, &y, &Atrinik_MapType, &map2, &x2, &y2, &flags))
+	{
+		return NULL;
+	}
+
+	if (!hooks->get_rangevector_from_mapcoords(map->map, x, y, map2->map, x2, y2, &rv, flags))
+	{
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	tuple = PyTuple_New(4);
+	PyTuple_SET_ITEM(tuple, 0, Py_BuildValue("i", rv.direction));
+	PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", rv.distance));
+	PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", rv.distance_x));
+	PyTuple_SET_ITEM(tuple, 3, Py_BuildValue("i", rv.distance_y));
+
+	return tuple;
+}
+
 /*@}*/
 
 /**
@@ -1747,6 +1793,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"FindAnimation",       Atrinik_FindAnimation,         METH_VARARGS, 0},
 	{"GetEventParameters",  Atrinik_GetEventParameters,    METH_VARARGS, 0},
 	{"GetGenderStr",        Atrinik_GetGenderStr,          METH_VARARGS, 0},
+	{"GetRangeVectorFromMapCoords", (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

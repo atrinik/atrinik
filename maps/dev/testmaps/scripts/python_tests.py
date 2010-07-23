@@ -24,7 +24,7 @@ def main_say():
 	marked = activator.FindMarkedObject()
 
 	if msg == "hello" or msg == "hey" or msg == "hi":
-		me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^")
+		me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^, ^vector^")
 
 	# GetEquipment is much more efficient than looping player's inventory for
 	# applied equipment.
@@ -249,6 +249,12 @@ def main_say():
 	elif msg == "region":
 		map = ReadyMap("/hall_of_dms")
 		me.SayTo(activator, "\nMap '{0}' is in region '{1}' with message:\n{2}".format(map.path, map.region.name, map.region.msg))
+
+	elif msg == "vector":
+		rv = me.GetRangeVector(activator)
+		me.SayTo(activator, "\nTesting GetRangeVector(): Direction to you: {0}, distance: {1}, distance_x: {2}, distance_y: {3}, closest part: {4}".format(rv[0], rv[1], rv[2], rv[3], rv[4]))
+		rv = GetRangeVectorFromMapCoords(me.map, me.x, me.y, me.map, 5, 1)
+		me.SayTo(activator, "\nTesting GetRangeVectorFromMapCoords(): Direction to 5,1: {0}, distance: {1}, distance_x: {2}, distance_y: {3}".format(rv[0], rv[1], rv[2], rv[3]), 1)
 
 if event_num == EVENT_TIMER:
 	main_timer()
