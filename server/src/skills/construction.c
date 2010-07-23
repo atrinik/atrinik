@@ -195,9 +195,9 @@ static int builder_item(object *op, object *new_item, int x, int y)
 			}
 		}
 
-		if (!book || !book->msg)
+		if (!book || (!book->msg && !book->custom_name))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You need to put a book with the message.");
+			new_draw_info(NDI_UNIQUE, op, "You need to put a book with your message (or custom name) on the floor.");
 			return 0;
 		}
 
@@ -207,8 +207,12 @@ static int builder_item(object *op, object *new_item, int x, int y)
 			FREE_AND_COPY_HASH(new_item->name, book->custom_name);
 		}
 
-		/* Copy the message and remove the book. */
-		FREE_AND_COPY_HASH(new_item->msg, book->msg);
+		/* Copy the message. */
+		if (book->msg)
+		{
+			FREE_AND_COPY_HASH(new_item->msg, book->msg);
+		}
+
 		remove_ob(book);
 	}
 
