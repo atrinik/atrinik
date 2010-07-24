@@ -33,7 +33,7 @@ SDL:       1.2.14 (with patch r4990 reverted)
 SDL_image: 1.2.10
            http://www.libsdl.org/projects/SDL_image
            Used by Atrinik
-SDL_mixer: 1.2.11
+SDL_mixer: 1.2.11 (with SDL_mixer.patch included)*
            http://www.libsdl.org/projects/SDL_mixer
            Used by Atrinik
 libcurl:   7.20.1 (HTTP, FTP and FILE)
@@ -51,3 +51,16 @@ libogg:    1.2.0
 libvorbis: 1.3.1
            http://xiph.org/ogg
            Used by SDL_mixer
+
+* SDL_mixer currently has a bug where the audio buffer is freed
+  in the wrong shared library, resulting in memory corruption.
+  This was causing crashes when loading ogg sounds.
+  See here: http://bugzilla.libsdl.org/show_bug.cgi?id=369
+  As a result, the SDL_mixer library has been modified to
+  include the fix for this bug. The new dll file cannot be used
+  interchangably with the old lib file and vice versa. However,
+  the modified library should still be 100% compatible with any
+  software using the SDL_mixer 1.2.x line. The source code for
+  the patch is in SDL_mixer.patch within this directory. This
+  note and patch code should remain here until the fix becomes
+  official.
