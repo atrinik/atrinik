@@ -68,6 +68,11 @@ void push_button(object *op)
 			return;
 		}
 
+		if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+		{
+			continue;
+		}
+
 		switch (tmp->type)
 		{
 			case GATE:
