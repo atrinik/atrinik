@@ -118,9 +118,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 			break;
 
-		case PLAYERMOVER:
-			break;
-
 		/* should be walk_on/fly_on only */
 		case SPINNER:
 			if (victim->direction)
@@ -181,10 +178,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 			break;
 
-		case CONE:
-		case LIGHTNING:
-			break;
-
 		case BULLET:
 			if ((QUERY_FLAG(victim, FLAG_NO_PASS) || IS_LIVE(victim)) && !(flags & MOVE_APPLY_VANISHED))
 			{
@@ -242,7 +235,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 			break;
 		}
-
 
 		case PIT:
 			/* Pit not open? */
@@ -334,10 +326,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 			break;
 #endif
-
-		default:
-			LOG(llevDebug, "name %s, arch %s, type %d with fly/walk on/off not handled in move_apply()\n", trap->name, trap->arch->name, trap->type);
-			break;
 	}
 
 	recursion_depth--;

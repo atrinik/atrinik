@@ -2597,7 +2597,7 @@ int check_walk_on(object *op, object *originator, int flags)
 	/* when TRUE, this function is root call for static_walk_semaphore setting */
 	int local_walk_semaphore = 0;
 	tag_t tag;
-	int fly;
+	int fly, slow_move;
 
 	if (QUERY_FLAG(op, FLAG_NO_APPLY))
 	{
@@ -2605,6 +2605,7 @@ int check_walk_on(object *op, object *originator, int flags)
 	}
 
 	fly = QUERY_FLAG(op, FLAG_FLYING);
+	slow_move = IS_LIVE(op) && !QUERY_FLAG(op, FLAG_WIZPASS);
 
 	if (fly)
 	{
@@ -2634,6 +2635,11 @@ int check_walk_on(object *op, object *originator, int flags)
 		if (tmp == op)
 		{
 			continue;
+		}
+
+		if (slow_move && QUERY_FLAG(tmp, FLAG_SLOW_MOVE))
+		{
+			op->speed_left -= SLOW_PENALTY(tmp) * FABS(op->speed);
 		}
 
 		if (fly ? QUERY_FLAG(tmp, FLAG_FLY_ON) : QUERY_FLAG(tmp, FLAG_WALK_ON))
