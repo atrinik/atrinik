@@ -165,6 +165,10 @@ void push_button(object *op)
 			case SPAWN_POINT:
 				spawn_point(tmp);
 				break;
+
+			case DUPLICATOR:
+				move_duplicator(tmp);
+				break;
 		}
 	}
 }

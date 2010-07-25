@@ -1053,6 +1053,9 @@ object *find_key(object *op, object *door);
 void open_locked_door(object *op, object *opener);
 void close_locked_door(object *op);
 
+/* types/duplicator.c */
+void move_duplicator(object *op);
+
 /* types/food.c */
 void apply_food(object *op, object *tmp);
 void create_food_force(object *who, object *food, object *force);
