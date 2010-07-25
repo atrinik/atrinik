@@ -25,7 +25,6 @@ face tree_big.101
 no_pick 1
 no_pass 1
 blocksview 1
-slow_move 1
 end
 
 Object tree_big2
