@@ -300,7 +300,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
 	"run_away", "pass_thru", "can_pass_thru", NULL, "unique",
 	"no_drop", "is_indestructible", "can_cast_spell", NULL, NULL,
-	"can_use_bow", "can_use_armour", "can_use_weapon", NULL, NULL,
+	"can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
 	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
 	"is_magical", "alive", "stand_still", "random_move", "only_attack",
 	"wiz", "stealth", NULL, NULL, "cursed",

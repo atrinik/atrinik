@@ -36,9 +36,6 @@ static objectlink *get_button_links(object *button);
 /**
  * Push the specified object. This can affect other buttons/gates/handles
  * altars/pedestals/holes on the whole map.
- *
- * The routine loops through _all_ objects on the map.
- * Better hurry with that linked list...
  * @param op The object to push */
 void push_button(object *op)
 {
@@ -66,6 +63,17 @@ void push_button(object *op)
 		{
 			LOG(llevDebug, "DEBUG: push_button: button link with invalid object! (%x - %x)", QUERY_FLAG(tmp, FLAG_REMOVED), tmp->count);
 			return;
+		}
+
+		/* If the criteria isn't appropriate, don't do anything. */
+		if (op->value && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH))
+		{
+			continue;
+		}
+
+		if (!op->value && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE))
+		{
+			continue;
 		}
 
 		if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))

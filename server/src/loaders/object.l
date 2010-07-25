@@ -630,6 +630,9 @@ lex_error = 0;
 ^berserk{S}         SET_OR_CLEAR_FLAG(op, FLAG_BERSERK, IVAL);
 ^is_magical{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
 
+^connect_no_push{S} SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_NO_PUSH, IVAL);
+^connect_no_release{S} SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_NO_RELEASE, IVAL);
+
 	/* Start of various attacktypes */
 ^attack_impact{S}   SET_ATTACK(op, ATNR_IMPACT, IVAL);
 ^attack_slash{S}    SET_ATTACK(op, ATNR_SLASH, IVAL);

@@ -880,7 +880,7 @@
  * The object flags.
  *
  * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108,
- * 109, 96, 87, 88, 58, 54, 53, 89, 79, 44, 23, 48, 59.
+ * 109, 96, 87, 88, 54, 53, 89, 79, 44, 23, 48.
  *
  * @note
  * ::object_flag_names has text-representations of these flags, used for
@@ -1052,6 +1052,12 @@
 /**
  * Monster can wield weapons. */
 #define FLAG_USE_WEAPON 57
+/**
+ * Connected object is not activated when 'pushed'. */
+#define FLAG_CONNECT_NO_PUSH 58
+/**
+ * Connected object is not activated when 'released'. */
+#define FLAG_CONNECT_NO_RELEASE 59
 /**
  * Monster has a readied bow. */
 #define FLAG_READY_BOW 60
