@@ -59,6 +59,7 @@ class types:
 	event_object = 118
 	beacon = 126
 	sign = 98
+	creator = 42
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -357,7 +358,7 @@ def check_obj(obj, map):
 		if not obj["type"] in (types.spawn_point_mob, types.beacon, types.event_object) and obj["env"]["type"] == types.spawn_point:
 			add_error(map["file"], "Object '{0}' is not a monster but is inside a spawn point.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
-		if obj["type"] in (types.spawn_point, types.exit, types.teleporter):
+		if obj["type"] == types.spawn_point or (obj["env"]["type"] != types.creator and obj["type"] in (types.exit, types.teleporter)):
 			add_error(map["file"], "Object '{0}' is inside inventory of another object, but it's not allowed for that object to be inside of inventory.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
 		if "x" in obj:
