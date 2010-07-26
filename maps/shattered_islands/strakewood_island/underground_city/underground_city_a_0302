@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-22 Alex Tokar
+Modified: 2010-07-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2186,7 +2186,9 @@ arch floor_black1a
 x 14
 y 2
 end
-arch wall_dungeon_3
+arch grate_closed
+direction 3
+connected 101
 x 14
 y 2
 end
@@ -2194,7 +2196,9 @@ arch floor_black1b
 x 14
 y 3
 end
-arch wall_dungeon_3
+arch grate_closed
+direction 3
+connected 101
 x 14
 y 3
 end
@@ -2319,6 +2323,32 @@ splitting 1
 direction 5
 x 14
 y 23
+end
+arch floor_black1b
+x 15
+end
+arch wall_dungeon_1
+x 15
+end
+arch floor_black1c
+x 15
+y 1
+end
+arch amphora1.101
+x 15
+y 1
+end
+arch floor_black1a
+x 15
+y 2
+end
+arch floor_black2a
+x 15
+y 3
+end
+arch floor_black1b
+x 15
+y 4
 end
 arch floor_black1d
 x 15
@@ -2451,6 +2481,44 @@ y 23
 end
 arch floor_black2b
 x 16
+end
+arch wall_dungeon_1
+x 16
+end
+arch floor_black1a
+x 16
+y 1
+end
+arch stairs_stone_down
+direction 1
+slaying underground_city_b_0302
+hp 16
+sp 1
+x 16
+y 1
+end
+arch floor_black1d
+x 16
+y 2
+end
+arch dirt_floor4
+x 16
+y 2
+end
+arch floor_black2b
+x 16
+y 3
+end
+arch floor_black2b
+x 16
+y 4
+end
+arch dirt_floor4
+x 16
+y 4
+end
+arch floor_black2b
+x 16
 y 5
 end
 arch wall_dungeon_1
@@ -2553,6 +2621,37 @@ arch wall_dungeon_1
 x 16
 y 23
 end
+arch floor_black2a
+x 17
+end
+arch wall_dungeon_1
+x 17
+end
+arch floor_black1b
+x 17
+y 1
+end
+arch basin1.101
+no_pass 1
+x 17
+y 1
+end
+arch torch_wall_1
+x 17
+y 1
+end
+arch floor_black1d
+x 17
+y 2
+end
+arch floor_black1c
+x 17
+y 3
+end
+arch floor_black1b
+x 17
+y 4
+end
 arch floor_black1b
 x 17
 y 5
@@ -2621,6 +2720,15 @@ arch floor_black1d
 x 17
 y 18
 end
+arch magic_mouth
+msg
+You see a switch on the wall. Could it have anything to do with the gate up north?
+
+You wonder how you're going to reach it...
+endmsg
+x 17
+y 18
+end
 arch floor_black2b
 x 17
 y 19
@@ -2652,6 +2760,36 @@ end
 arch wall_dungeon_1
 x 17
 y 23
+end
+arch floor_black1b
+x 18
+end
+arch wall_dungeon_1
+x 18
+end
+arch floor_black1c
+x 18
+y 1
+end
+arch stairs_stone_down
+direction 1
+slaying underground_city_b_0302
+hp 18
+sp 1
+x 18
+y 1
+end
+arch floor_black2a
+x 18
+y 2
+end
+arch floor_black2a
+x 18
+y 3
+end
+arch floor_black1c
+x 18
+y 4
 end
 arch floor_black2a
 x 18
@@ -2816,6 +2954,45 @@ end
 arch wall_dungeon_4
 x 18
 y 23
+end
+arch floor_black1a
+x 19
+end
+arch wall_dungeon_1
+x 19
+end
+arch floor_black2b
+x 19
+y 1
+end
+arch amphora1.101
+x 19
+y 1
+end
+arch floor_black1a
+x 19
+y 2
+end
+arch floor_black1d
+x 19
+y 3
+end
+arch blood_floor2
+x 19
+y 3
+end
+arch floor_black1c
+x 19
+y 4
+end
+arch portal_green
+hp 10
+sp 22
+walk_on 1
+fly_on 1
+type 66
+x 19
+y 4
 end
 arch floor_black1c
 x 19
@@ -2940,6 +3117,13 @@ arch floor_black1a
 x 19
 y 18
 end
+arch switch_wall
+exp 110
+connected 101
+type 27
+x 19
+y 18
+end
 arch floor_black1c
 x 19
 y 19
@@ -2989,7 +3173,7 @@ end
 arch floor_black2a
 x 20
 end
-arch wall_dungeon_8
+arch wall_dungeon_1
 x 20
 end
 arch floor_black2b
@@ -3157,6 +3341,7 @@ x 20
 y 21
 end
 arch wall_dungeon_3
+no_pass 0
 x 20
 y 21
 end
@@ -3179,7 +3364,7 @@ end
 arch floor_black2a
 x 21
 end
-arch wall_dungeon_1
+arch wall_dungeon_8
 x 21
 end
 arch floor_black1c
@@ -3343,6 +3528,43 @@ arch wall_dungeon_3
 x 21
 y 17
 end
+arch floor_cave5
+x 21
+y 20
+end
+arch wall_dungeon_1
+x 21
+y 20
+end
+arch floor_cave5
+x 21
+y 21
+end
+arch bone_broken
+x 21
+y 21
+end
+arch floor_cave6
+x 21
+y 22
+end
+arch wall_dungeon_1
+x 21
+y 22
+end
+arch floor_cave5
+x 21
+y 23
+end
+arch wall_dungeon_3
+x 21
+y 23
+end
+arch wall_blood4
+direction 7
+x 21
+y 23
+end
 arch floor_black1a
 x 22
 end
@@ -3469,6 +3691,38 @@ arch wall_dungeon_1
 x 22
 y 17
 end
+arch floor_cave2
+x 22
+y 20
+end
+arch wall_dungeon_1
+x 22
+y 20
+end
+arch wall_blood2
+x 22
+y 20
+end
+arch floor_cave5
+x 22
+y 21
+end
+arch light1
+x 22
+y 21
+end
+arch floor_cave2
+x 22
+y 22
+end
+arch floor_cave2
+x 22
+y 23
+end
+arch light1
+x 22
+y 23
+end
 arch floor_black1c
 x 23
 end
@@ -3570,4 +3824,36 @@ end
 arch wall_dungeon_1
 x 23
 y 17
+end
+arch floor_cave5
+x 23
+y 20
+end
+arch wall_dungeon_1
+x 23
+y 20
+end
+arch floor_cave5
+x 23
+y 21
+end
+arch wall_dungeon_3
+x 23
+y 21
+end
+arch floor_cave1
+x 23
+y 22
+end
+arch wall_dungeon_3
+x 23
+y 22
+end
+arch floor_cave2
+x 23
+y 23
+end
+arch wall_dungeon_3
+x 23
+y 23
 end

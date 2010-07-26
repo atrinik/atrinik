@@ -1,0 +1,4326 @@
+arch map
+name The Underground City III
+msg
+Created:  2010-06-05 Alex Tokar
+Modified: 2010-07-26 Alex Tokar
+endmsg
+width 24
+height 24
+enter_x 17
+enter_y 3
+difficulty 60
+darkness 2
+fixed_login 1
+tile_path_4 underground_city_b_0202
+bg_music thonkdonk.ogg
+region underground_city
+end
+arch floor_black1d
+end
+arch fwall_rock2
+end
+arch floor_black1d
+y 1
+end
+arch fwall_rock1
+y 1
+end
+arch floor_sand_d2
+y 5
+end
+arch fwall_rock3
+y 5
+end
+arch floor_sand_d3
+y 6
+end
+arch floor_sand_d2
+y 7
+end
+arch blood_floor2
+y 7
+end
+arch floor_sand_d3
+y 8
+end
+arch floor_sand_d2
+y 9
+end
+arch fwall_rock2
+y 9
+end
+arch blocked
+y 12
+end
+arch blocked
+y 13
+end
+arch blocked
+y 14
+end
+arch blocked
+y 17
+end
+arch blocked
+y 18
+end
+arch blocked
+y 19
+end
+arch floor_black1a
+x 1
+end
+arch grate_open
+connected 111
+layer 4
+x 1
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 1
+arch boulder
+can_roll 1
+terrain_flag 1
+race boulder
+end
+end
+arch floor_black1a
+x 1
+y 1
+end
+arch fwall_rock2
+x 1
+y 1
+end
+arch floor_sand_d3
+x 1
+y 4
+end
+arch fwall_rock2
+x 1
+y 4
+end
+arch floor_sand_d3
+x 1
+y 5
+end
+arch fwall_rock2
+x 1
+y 5
+end
+arch floor_sand_d4
+x 1
+y 6
+end
+arch floor_sand_d4
+x 1
+y 7
+end
+arch floor_sand_d3
+x 1
+y 8
+end
+arch floor_sand_d2
+x 1
+y 9
+end
+arch fwall_rock2
+x 1
+y 9
+end
+arch floor_sand_d3
+x 1
+y 10
+end
+arch fwall_rock1
+x 1
+y 10
+end
+arch plant1_wall.151
+direction 7
+x 1
+y 10
+end
+arch floor_sand_d2
+x 1
+y 11
+end
+arch fwall_rock2
+x 1
+y 11
+end
+arch floor_sand_d3
+x 1
+y 12
+end
+arch fwall_rock2
+x 1
+y 12
+end
+arch floor_sand_d1
+x 1
+y 13
+end
+arch fwall_rock1
+x 1
+y 13
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 3
+last_eat 0
+dam 8
+level 75
+speed -0.5
+connected 201
+alive 0
+x 1
+y 13
+end
+arch floor_sand_d2
+x 1
+y 14
+end
+arch fwall_rock1
+x 1
+y 14
+end
+arch floor_sand_d3
+x 1
+y 15
+end
+arch fwall_rock3
+x 1
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 15
+end
+arch floor_sand_d3
+x 1
+y 16
+end
+arch fwall_rock1
+x 1
+y 16
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 16
+end
+arch floor_sand_d2
+x 1
+y 17
+end
+arch fwall_rock2
+x 1
+y 17
+end
+arch ring_wall.151
+direction 7
+x 1
+y 17
+end
+arch floor_sand_d2
+x 1
+y 18
+end
+arch fwall_rock1
+x 1
+y 18
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 3
+x 1
+y 18
+end
+arch floor_sand_d3
+x 1
+y 19
+end
+arch fwall_rock2
+x 1
+y 19
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 19
+end
+arch floor_sand_d2
+x 1
+y 20
+end
+arch fwall_rock3
+x 1
+y 20
+end
+arch floor_sand_d2
+x 1
+y 21
+end
+arch fwall_rock2
+x 1
+y 21
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 21
+end
+arch floor_sand_d2
+x 1
+y 22
+end
+arch fwall_rock3
+x 1
+y 22
+end
+arch floor_sand_d1
+x 1
+y 23
+end
+arch fwall_rock3
+x 1
+y 23
+end
+arch floor_black2a
+x 2
+end
+arch button_small
+connected 112
+x 2
+end
+arch grate_open
+connected 112
+layer 4
+x 2
+end
+arch floor_black1b
+x 2
+y 1
+end
+arch fwall_rock1
+x 2
+y 1
+end
+arch blocked
+x 2
+y 3
+end
+arch floor_sand_d2
+x 2
+y 4
+end
+arch fwall_rock1
+x 2
+y 4
+end
+arch plant2_wall.151
+x 2
+y 4
+end
+arch floor_sand_d2
+x 2
+y 5
+end
+arch mushroom_giant2
+x 2
+y 5
+end
+arch floor_sand_d2
+x 2
+y 6
+end
+arch dirt_floor2
+x 2
+y 6
+end
+arch floor_sand_d4
+x 2
+y 7
+end
+arch spawn_point
+x 2
+y 7
+arch drow_captain
+level 65
+type 83
+end
+end
+arch floor_sand_d3
+x 2
+y 8
+end
+arch floor_sand_d4
+x 2
+y 9
+end
+arch torch_wall_1
+direction 7
+x 2
+y 9
+end
+arch floor_sand_d3
+x 2
+y 10
+end
+arch dirt_floor2
+x 2
+y 10
+end
+arch floor_sand_d4
+x 2
+y 11
+end
+arch floor_sand_d3
+x 2
+y 12
+end
+arch floor_sand_d2
+x 2
+y 13
+end
+arch blood_floor2
+x 2
+y 13
+end
+arch floor_sand_d3
+x 2
+y 14
+end
+arch floor_sand_d4
+x 2
+y 15
+end
+arch floor_sand_d2
+x 2
+y 16
+end
+arch blood_floor1
+x 2
+y 16
+end
+arch floor_sand_d2
+x 2
+y 17
+end
+arch torch_wall_1
+direction 7
+x 2
+y 17
+end
+arch floor_sand_d3
+x 2
+y 18
+end
+arch floor_sand_d4
+x 2
+y 19
+end
+arch floor_sand_d4
+x 2
+y 20
+end
+arch exit_green
+hp 11
+sp 20
+x 2
+y 20
+end
+arch light5
+x 2
+y 20
+end
+arch floor_sand_d3
+x 2
+y 21
+end
+arch dirt_floor3
+x 2
+y 21
+end
+arch floor_sand_d2
+x 2
+y 22
+end
+arch crystal_purple
+x 2
+y 22
+end
+arch light2
+x 2
+y 22
+end
+arch floor_sand_d2
+x 2
+y 23
+end
+arch fwall_rock1
+x 2
+y 23
+end
+arch floor_black2a
+x 3
+end
+arch button_small
+connected 113
+layer 2
+x 3
+end
+arch pedestal
+slaying boulder
+connected 112
+x 3
+end
+arch grate_open
+connected 113
+layer 4
+x 3
+end
+arch floor_black1b
+x 3
+y 1
+end
+arch fwall_rock1
+x 3
+y 1
+end
+arch blocked
+x 3
+y 3
+end
+arch floor_sand_d3
+x 3
+y 4
+end
+arch fwall_rock1
+x 3
+y 4
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 5
+x 3
+y 4
+end
+arch floor_sand_d1
+x 3
+y 5
+end
+arch trash_wood2.101
+x 3
+y 5
+end
+arch floor_sand_d4
+x 3
+y 6
+end
+arch floor_sand_d3
+x 3
+y 7
+end
+arch floor_sand_d1
+x 3
+y 8
+end
+arch floor_sand_d4
+x 3
+y 9
+end
+arch dirt_floor3
+x 3
+y 9
+end
+arch floor_sand_d3
+x 3
+y 10
+end
+arch floor_sand_d4
+x 3
+y 11
+end
+arch bridge_wood_EW.181
+x 3
+y 11
+end
+arch floor_sand_d3
+x 3
+y 12
+end
+arch bridge_wood_EW.171
+x 3
+y 12
+end
+arch floor_sand_d4
+x 3
+y 13
+end
+arch bridge_wood_EW.171
+x 3
+y 13
+end
+arch floor_sand_d3
+x 3
+y 14
+end
+arch bridge_wood_EW.171
+x 3
+y 14
+end
+arch floor_sand_d2
+x 3
+y 15
+end
+arch bridge_wood_EW.161
+x 3
+y 15
+end
+arch floor_sand_d4
+x 3
+y 16
+end
+arch spawn_point
+x 3
+y 16
+arch drow_annihilator
+level 65
+exp 130
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_firestorm
+hp 35
+end
+end
+end
+arch floor_sand_d2
+x 3
+y 17
+end
+arch floor_sand_d1
+x 3
+y 18
+end
+arch floor_sand_d4
+x 3
+y 19
+end
+arch blood_floor2
+x 3
+y 19
+end
+arch floor_sand_d4
+x 3
+y 20
+end
+arch floor_sand_d1
+x 3
+y 21
+end
+arch floor_sand_d2
+x 3
+y 22
+end
+arch floor_sand_d2
+x 3
+y 23
+end
+arch fwall_rock2
+x 3
+y 23
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 8
+level 75
+speed -0.5
+connected 201
+alive 0
+x 3
+y 23
+end
+arch floor_black2a
+x 4
+end
+arch button_small
+connected 114
+layer 2
+x 4
+end
+arch pedestal
+slaying boulder
+connected 113
+x 4
+end
+arch grate_open
+connected 114
+layer 4
+x 4
+end
+arch floor_black1b
+x 4
+y 1
+end
+arch fwall_rock1
+x 4
+y 1
+end
+arch blocked
+x 4
+y 3
+end
+arch floor_sand_d1
+x 4
+y 4
+end
+arch rock_big2_waterfall2
+x 4
+y 4
+end
+arch water_lt2
+x 4
+y 5
+end
+arch sand_dm8
+direction 5
+x 4
+y 5
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 4
+y 5
+end
+arch water_lt
+x 4
+y 6
+end
+arch sand_dm8
+direction 5
+x 4
+y 6
+end
+arch water_lt
+x 4
+y 7
+end
+arch sand_dm8
+direction 5
+x 4
+y 7
+end
+arch water_lt3
+x 4
+y 8
+end
+arch sand_dm8
+direction 5
+x 4
+y 8
+end
+arch director
+layer 0
+sys_object 1
+direction 4
+x 4
+y 8
+end
+arch water_lt
+x 4
+y 9
+end
+arch sand_dm8
+direction 5
+x 4
+y 9
+end
+arch water_lt2
+x 4
+y 10
+end
+arch sand_dm8
+direction 5
+x 4
+y 10
+end
+arch bridge_wood_EW.111
+x 4
+y 11
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 4
+y 11
+end
+arch bridge_wood_EW.101
+x 4
+y 12
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 4
+y 12
+end
+arch bridge_wood_EW.101
+x 4
+y 13
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 4
+y 13
+end
+arch bridge_wood_EW.101
+x 4
+y 14
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 4
+y 14
+end
+arch water_lt3
+x 4
+y 15
+end
+arch sand_dm8
+direction 5
+x 4
+y 15
+end
+arch bridge_wood_EW.151
+layer 3
+x 4
+y 15
+end
+arch water_lt
+x 4
+y 16
+end
+arch sand_dm8
+direction 5
+x 4
+y 16
+end
+arch water_lt2
+x 4
+y 17
+end
+arch sand_dm8
+direction 5
+x 4
+y 17
+end
+arch director
+layer 0
+sys_object 1
+direction 2
+x 4
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 115
+x 4
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 4
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 115
+x 4
+y 18
+end
+arch water_lt4
+x 4
+y 18
+end
+arch sand_dm8
+direction 5
+x 4
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 4
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 3
+sp 18
+end
+end
+arch creator
+connected 115
+lifesave 1
+one_drop 1
+x 4
+y 18
+arch bridge_wood_NS.101
+end
+end
+arch water_lt3
+x 4
+y 19
+end
+arch sand_dm8
+direction 5
+x 4
+y 19
+end
+arch water_lt4
+x 4
+y 20
+end
+arch sand_dm8
+direction 5
+x 4
+y 20
+end
+arch water_lt2
+x 4
+y 21
+end
+arch sand_dm8
+direction 5
+x 4
+y 21
+end
+arch water_lt3
+x 4
+y 22
+end
+arch sand_dm8
+direction 5
+x 4
+y 22
+end
+arch floor_sand_d4
+x 4
+y 23
+end
+arch fwall_rock3
+x 4
+y 23
+end
+arch floor_black2a
+x 5
+end
+arch button_small
+connected 115
+layer 2
+x 5
+end
+arch pedestal
+slaying boulder
+connected 114
+x 5
+end
+arch grate_open
+connected 115
+layer 4
+x 5
+end
+arch floor_black1b
+x 5
+y 1
+end
+arch fwall_rock1
+x 5
+y 1
+end
+arch floor_sand_d1
+x 5
+y 4
+end
+arch rock_big2_waterfall2
+x 5
+y 4
+end
+arch light3
+direction 5
+x 5
+y 4
+end
+arch water_lt3
+x 5
+y 5
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 5
+y 5
+end
+arch water_lt2
+x 5
+y 6
+end
+arch water_lt
+x 5
+y 7
+end
+arch water_lt2
+x 5
+y 8
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 5
+y 8
+end
+arch water_lt3
+x 5
+y 9
+end
+arch water_lt4
+x 5
+y 10
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 4
+last_eat 0
+dam 1
+level 65
+speed -0.35
+connected 102
+alive 0
+x 5
+y 10
+end
+arch bridge_wood_EW.111
+x 5
+y 11
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 5
+y 11
+end
+arch damager
+slow_move 1
+exp 5
+x 5
+y 11
+end
+arch bridge_wood_EW.101
+x 5
+y 12
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 5
+y 12
+end
+arch damager
+slow_move 1
+exp 5
+x 5
+y 12
+end
+arch bridge_wood_EW.101
+x 5
+y 13
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 5
+y 13
+end
+arch damager
+slow_move 1
+exp 5
+x 5
+y 13
+end
+arch bridge_wood_EW.101
+x 5
+y 14
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 5
+y 14
+end
+arch damager
+slow_move 1
+exp 5
+x 5
+y 14
+end
+arch water_lt3
+x 5
+y 15
+end
+arch bridge_wood_EW.151
+x 5
+y 15
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 2
+last_eat 0
+dam 0
+level 65
+speed -0.35
+connected 102
+alive 0
+x 5
+y 15
+end
+arch water_lt
+x 5
+y 16
+end
+arch water_lt4
+x 5
+y 17
+end
+arch director
+layer 0
+sys_object 1
+x 5
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 116
+x 5
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 5
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 116
+x 5
+y 18
+end
+arch water_lt4
+x 5
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 5
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 3
+sp 18
+end
+end
+arch creator
+connected 116
+lifesave 1
+one_drop 1
+x 5
+y 18
+arch bridge_wood_NS.101
+glow_radius 3
+end
+end
+arch water_lt2
+x 5
+y 19
+end
+arch water_lt2
+x 5
+y 20
+end
+arch water_lt
+x 5
+y 21
+end
+arch water_lt2
+x 5
+y 22
+end
+arch floor_sand_d2
+x 5
+y 23
+end
+arch fwall_rock1
+x 5
+y 23
+end
+arch floor_black2a
+x 6
+end
+arch button_small
+connected 116
+layer 2
+x 6
+end
+arch pedestal
+slaying boulder
+connected 115
+x 6
+end
+arch grate_open
+connected 116
+layer 4
+x 6
+end
+arch floor_black1b
+x 6
+y 1
+end
+arch fwall_rock1
+x 6
+y 1
+end
+arch blocked
+x 6
+y 2
+end
+arch blocked
+x 6
+y 3
+end
+arch floor_sand_d4
+x 6
+y 4
+end
+arch rock_big2_waterfall2
+x 6
+y 4
+end
+arch water_lt3
+x 6
+y 5
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 6
+y 5
+end
+arch water_lt3
+x 6
+y 6
+end
+arch water_lt3
+x 6
+y 7
+end
+arch water_lt2
+x 6
+y 8
+end
+arch sand_dm1
+x 6
+y 8
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 6
+y 8
+end
+arch water_lt
+x 6
+y 9
+end
+arch sand_dm9
+x 6
+y 9
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 6
+y 9
+end
+arch water_lt3
+x 6
+y 10
+end
+arch sand_dm2
+x 6
+y 10
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 5
+last_eat 0
+dam 37
+level 65
+speed -0.35
+connected 102
+alive 0
+x 6
+y 10
+end
+arch bridge_wood_EW.111
+x 6
+y 11
+end
+arch dirt_floor3
+x 6
+y 11
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 6
+y 11
+end
+arch bridge_wood_EW.101
+x 6
+y 12
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 6
+y 12
+end
+arch bridge_wood_EW.101
+x 6
+y 13
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 6
+y 13
+end
+arch bridge_wood_EW.101
+x 6
+y 14
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 6
+y 14
+end
+arch water_lt2
+x 6
+y 15
+end
+arch sand_dm1
+x 6
+y 15
+end
+arch bridge_wood_EW.151
+layer 3
+x 6
+y 15
+end
+arch water_lt2
+x 6
+y 16
+end
+arch sand_dm9
+x 6
+y 16
+end
+arch water_lt4
+x 6
+y 17
+end
+arch sand_dm2
+x 6
+y 17
+end
+arch director
+layer 0
+sys_object 1
+x 6
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 117
+x 6
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 6
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 117
+x 6
+y 18
+end
+arch water_lt4
+x 6
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 6
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 3
+sp 18
+end
+end
+arch creator
+connected 117
+lifesave 1
+one_drop 1
+x 6
+y 18
+arch bridge_wood_NS.101
+end
+end
+arch water_lt
+x 6
+y 19
+end
+arch water_lt
+x 6
+y 20
+end
+arch water_lt3
+x 6
+y 21
+end
+arch water_lt2
+x 6
+y 22
+end
+arch floor_sand_d1
+x 6
+y 23
+end
+arch fwall_rock2
+x 6
+y 23
+end
+arch floor_black2a
+x 7
+end
+arch button_small
+connected 117
+layer 2
+x 7
+end
+arch pedestal
+slaying boulder
+connected 116
+x 7
+end
+arch grate_open
+connected 117
+layer 4
+x 7
+end
+arch floor_black1b
+x 7
+y 1
+end
+arch fwall_rock1
+x 7
+y 1
+end
+arch blocked
+x 7
+y 2
+end
+arch floor_sand_d4
+x 7
+y 3
+end
+arch altar_trigger
+fly_on 1
+layer 0
+sys_object 1
+slaying magic bullet
+food 0
+connected 201
+last_eat 1
+x 7
+y 3
+end
+arch floor_sand_d1
+x 7
+y 4
+end
+arch rock_big2_waterfall2
+is_animated 0
+no_pass 0
+x 7
+y 4
+end
+arch altar_trigger
+layer 0
+sys_object 1
+slaying magic bullet
+food 0
+exp 80
+connected 111
+fly_on 1
+x 7
+y 4
+end
+arch light3
+direction 5
+x 7
+y 4
+end
+arch water_lt
+x 7
+y 5
+end
+arch water_lt
+x 7
+y 6
+end
+arch water_lt4
+x 7
+y 7
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 0
+last_eat 0
+dam 8
+level 75
+speed -0.5
+connected 201
+alive 0
+x 7
+y 7
+end
+arch water_lt4
+x 7
+y 8
+end
+arch sand_dm7
+x 7
+y 8
+end
+arch director
+layer 0
+sys_object 1
+x 7
+y 8
+end
+arch floor_sand_d4
+x 7
+y 9
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 5
+last_eat 0
+dam 50
+level 65
+speed -0.25
+connected 102
+no_pass 1
+alive 0
+x 7
+y 9
+end
+arch statue_fire_black1
+x 7
+y 9
+end
+arch light9
+x 7
+y 9
+end
+arch water_lt4
+x 7
+y 10
+end
+arch sand_dm6
+x 7
+y 10
+end
+arch magic_mouth
+msg
+INTRUDERS!!!
+
+Security system activated!!!
+endmsg
+connect_no_release 1
+connected 102
+walk_on 0
+fly_on 0
+x 7
+y 10
+end
+arch magic_mouth
+msg
+INTRUDERS!!!
+
+Security system activated!!!
+endmsg
+connected 201
+walk_on 0
+fly_on 0
+connect_no_release 1
+x 7
+y 10
+end
+arch bridge_wood_EW.111
+x 7
+y 11
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 7
+y 11
+end
+arch bridge_wood_EW.101
+x 7
+y 12
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 7
+y 12
+end
+arch bridge_wood_EW.101
+x 7
+y 13
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 7
+y 13
+end
+arch bridge_wood_EW.101
+x 7
+y 14
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 7
+y 14
+end
+arch water_lt
+x 7
+y 15
+end
+arch sand_dm7
+x 7
+y 15
+end
+arch bridge_wood_EW.151
+layer 3
+x 7
+y 15
+end
+arch floor_sand_d2
+x 7
+y 16
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 50
+level 65
+speed -0.4
+connected 102
+no_pass 1
+alive 0
+x 7
+y 16
+end
+arch statue_fire_black1
+x 7
+y 16
+end
+arch light9
+x 7
+y 16
+end
+arch water_lt3
+x 7
+y 17
+end
+arch sand_dm6
+x 7
+y 17
+end
+arch director
+layer 0
+sys_object 1
+x 7
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 118
+x 7
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 7
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 118
+x 7
+y 18
+end
+arch water_lt4
+x 7
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 7
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 11
+sp 18
+end
+end
+arch creator
+connected 118
+lifesave 1
+one_drop 1
+x 7
+y 18
+arch bridge_wood_NS.101
+glow_radius 3
+end
+end
+arch water_lt3
+x 7
+y 19
+end
+arch water_lt3
+x 7
+y 20
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+x 7
+y 20
+end
+arch water_lt4
+x 7
+y 21
+end
+arch water_lt3
+x 7
+y 22
+end
+arch floor_sand_d3
+x 7
+y 23
+end
+arch fwall_rock1
+x 7
+y 23
+end
+arch floor_black2a
+x 8
+end
+arch button_small
+connected 118
+layer 2
+x 8
+end
+arch pedestal
+slaying boulder
+connected 117
+x 8
+end
+arch grate_open
+connected 118
+layer 4
+x 8
+end
+arch floor_black1b
+x 8
+y 1
+end
+arch fwall_rock1
+x 8
+y 1
+end
+arch blocked
+x 8
+y 2
+end
+arch blocked
+x 8
+y 3
+end
+arch floor_sand_d1
+x 8
+y 4
+end
+arch rock_big2_waterfall2
+x 8
+y 4
+end
+arch water_lt
+x 8
+y 5
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 8
+y 5
+end
+arch water_lt4
+x 8
+y 6
+end
+arch water_lt2
+x 8
+y 7
+end
+arch water_lt4
+x 8
+y 8
+end
+arch sand_dm4
+x 8
+y 8
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 8
+y 8
+end
+arch water_lt3
+x 8
+y 9
+end
+arch sand_dm8
+x 8
+y 9
+end
+arch water_lt2
+x 8
+y 10
+end
+arch sand_dm3
+x 8
+y 10
+end
+arch magic_mouth
+msg
+You hear a great rumble, as if something was being pulled out from under the water!
+endmsg
+connect_no_release 1
+connected 111
+walk_on 0
+fly_on 0
+x 8
+y 10
+end
+arch bridge_wood_EW.111
+x 8
+y 11
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 8
+y 11
+end
+arch bridge_wood_EW.101
+x 8
+y 12
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 8
+y 12
+end
+arch bridge_wood_EW.101
+x 8
+y 13
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 8
+y 13
+end
+arch bridge_wood_EW.101
+x 8
+y 14
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 8
+y 14
+end
+arch water_lt
+x 8
+y 15
+end
+arch sand_dm4
+x 8
+y 15
+end
+arch bridge_wood_EW.151
+layer 3
+x 8
+y 15
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 37
+level 65
+speed -0.35
+connected 102
+alive 0
+x 8
+y 15
+end
+arch water_lt2
+x 8
+y 16
+end
+arch sand_dm8
+x 8
+y 16
+end
+arch water_lt4
+x 8
+y 17
+end
+arch sand_dm3
+x 8
+y 17
+end
+arch director
+layer 0
+sys_object 1
+x 8
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 117
+x 8
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 8
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 117
+x 8
+y 18
+end
+arch water_lt4
+x 8
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 8
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 11
+sp 18
+end
+end
+arch creator
+connected 117
+lifesave 1
+one_drop 1
+x 8
+y 18
+arch bridge_wood_NS.101
+end
+end
+arch water_lt3
+x 8
+y 19
+end
+arch water_lt3
+x 8
+y 20
+end
+arch water_lt4
+x 8
+y 21
+end
+arch water_lt4
+x 8
+y 22
+end
+arch floor_sand_d1
+x 8
+y 23
+end
+arch fwall_rock2
+x 8
+y 23
+end
+arch duplicator
+slaying boulder
+connected 119
+x 9
+end
+arch floor_black2a
+x 9
+end
+arch detector
+slaying boulder
+connected 119
+x 9
+end
+arch floor_black1b
+x 9
+y 1
+end
+arch fwall_rock1
+x 9
+y 1
+end
+arch floor_sand_d2
+x 9
+y 4
+end
+arch rock_big2_waterfall2
+x 9
+y 4
+end
+arch light3
+direction 5
+x 9
+y 4
+end
+arch water_lt
+x 9
+y 5
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 9
+y 5
+end
+arch water_lt
+x 9
+y 6
+end
+arch water_lt4
+x 9
+y 7
+end
+arch water_lt3
+x 9
+y 8
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 9
+y 8
+end
+arch water_lt4
+x 9
+y 9
+end
+arch water_lt2
+x 9
+y 10
+end
+arch bridge_wood_EW.111
+x 9
+y 11
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 9
+y 11
+end
+arch damager
+slow_move 1
+exp 5
+x 9
+y 11
+end
+arch bridge_wood_EW.101
+x 9
+y 12
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 9
+y 12
+end
+arch damager
+slow_move 1
+exp 5
+x 9
+y 12
+end
+arch bridge_wood_EW.101
+x 9
+y 13
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 9
+y 13
+end
+arch damager
+slow_move 1
+exp 5
+x 9
+y 13
+end
+arch bridge_wood_EW.101
+x 9
+y 14
+end
+arch pedestal_trigger
+exp 70
+layer 0
+sys_object 1
+connected 101
+x 9
+y 14
+end
+arch damager
+slow_move 1
+exp 5
+x 9
+y 14
+end
+arch water_lt2
+x 9
+y 15
+end
+arch bridge_wood_EW.151
+x 9
+y 15
+end
+arch water_lt4
+x 9
+y 16
+end
+arch water_lt2
+x 9
+y 17
+end
+arch director
+layer 0
+sys_object 1
+x 9
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 116
+x 9
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 9
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 116
+x 9
+y 18
+end
+arch water_lt4
+x 9
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 9
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 11
+sp 18
+end
+end
+arch creator
+connected 116
+lifesave 1
+one_drop 1
+x 9
+y 18
+arch bridge_wood_NS.101
+glow_radius 3
+end
+end
+arch water_lt4
+x 9
+y 19
+end
+arch water_lt3
+x 9
+y 20
+end
+arch water_lt3
+x 9
+y 21
+end
+arch water_lt2
+x 9
+y 22
+end
+arch floor_sand_d4
+x 9
+y 23
+end
+arch fwall_rock1
+x 9
+y 23
+end
+arch floor_black1d
+x 10
+end
+arch fwall_rock2
+x 10
+end
+arch floor_black1d
+x 10
+y 1
+end
+arch fwall_rock1
+x 10
+y 1
+end
+arch floor_sand_d3
+x 10
+y 4
+end
+arch rock_big2_waterfall2
+x 10
+y 4
+end
+arch water_lt4
+x 10
+y 5
+end
+arch sand_dm9
+direction 5
+x 10
+y 5
+end
+arch director
+layer 0
+sys_object 1
+direction 5
+x 10
+y 5
+end
+arch water_lt4
+x 10
+y 6
+end
+arch sand_dm9
+direction 5
+x 10
+y 6
+end
+arch water_lt4
+x 10
+y 7
+end
+arch sand_dm9
+direction 5
+x 10
+y 7
+end
+arch water_lt
+x 10
+y 8
+end
+arch sand_dm9
+direction 5
+x 10
+y 8
+end
+arch director
+layer 0
+sys_object 1
+direction 6
+x 10
+y 8
+end
+arch water_lt4
+x 10
+y 9
+end
+arch sand_dm9
+direction 5
+x 10
+y 9
+end
+arch water_lt3
+x 10
+y 10
+end
+arch sand_dm9
+direction 5
+x 10
+y 10
+end
+arch bridge_wood_EW.111
+x 10
+y 11
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 10
+y 11
+end
+arch magic_mouth
+msg
+As you step onto the bridge, you get the uneasy feeling of being watched.
+You wonder whether it's safe to cross the bridge.
+endmsg
+splitting 1
+direction 3
+x 10
+y 11
+end
+arch bridge_wood_EW.101
+x 10
+y 12
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 10
+y 12
+end
+arch magic_mouth
+msg
+As you step onto the bridge, you get the uneasy feeling of being watched.
+You wonder whether it's safe to cross the bridge.
+endmsg
+splitting 1
+direction 3
+x 10
+y 12
+end
+arch bridge_wood_EW.101
+x 10
+y 13
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 10
+y 13
+end
+arch magic_mouth
+msg
+As you step onto the bridge, you get the uneasy feeling of being watched.
+You wonder whether it's safe to cross the bridge.
+endmsg
+splitting 1
+direction 3
+x 10
+y 13
+end
+arch bridge_wood_EW.101
+x 10
+y 14
+end
+arch grate_open
+layer 2
+direction 3
+connected 101
+x 10
+y 14
+end
+arch magic_mouth
+msg
+As you step onto the bridge, you get the uneasy feeling of being watched.
+You wonder whether it's safe to cross the bridge.
+endmsg
+splitting 1
+direction 3
+x 10
+y 14
+end
+arch water_lt3
+x 10
+y 15
+end
+arch sand_dm9
+direction 5
+x 10
+y 15
+end
+arch bridge_wood_EW.151
+layer 3
+x 10
+y 15
+end
+arch water_lt2
+x 10
+y 16
+end
+arch sand_dm9
+direction 5
+x 10
+y 16
+end
+arch water_lt4
+x 10
+y 17
+end
+arch sand_dm9
+direction 5
+x 10
+y 17
+end
+arch director
+layer 0
+sys_object 1
+direction 8
+x 10
+y 17
+end
+arch duplicator
+slaying portal_big
+connected 115
+x 10
+y 18
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 111
+x 10
+y 18
+end
+arch duplicator
+slaying water_lt4
+connected 115
+x 10
+y 18
+end
+arch water_lt4
+x 10
+y 18
+end
+arch sand_dm9
+direction 5
+x 10
+y 18
+end
+arch creator
+connected 111
+lifesave 1
+one_drop 1
+x 10
+y 18
+arch water_lt4
+end
+arch portal_big
+player_only 1
+is_invisible 1
+hp 11
+sp 18
+end
+end
+arch creator
+connected 115
+lifesave 1
+one_drop 1
+x 10
+y 18
+arch bridge_wood_NS.101
+end
+end
+arch water_lt4
+x 10
+y 19
+end
+arch sand_dm9
+direction 5
+x 10
+y 19
+end
+arch water_lt2
+x 10
+y 20
+end
+arch sand_dm9
+direction 5
+x 10
+y 20
+end
+arch water_lt4
+x 10
+y 21
+end
+arch sand_dm9
+direction 5
+x 10
+y 21
+end
+arch water_lt
+x 10
+y 22
+end
+arch sand_dm9
+direction 5
+x 10
+y 22
+end
+arch floor_sand_d3
+x 10
+y 23
+end
+arch fwall_rock3
+x 10
+y 23
+end
+arch floor_black1a
+x 11
+end
+arch grate_open
+direction 3
+connected 101
+layer 4
+x 11
+end
+arch boulder
+can_roll 1
+terrain_flag 1
+x 11
+end
+arch floor_black1a
+x 11
+y 1
+end
+arch fwall_rock2
+x 11
+y 1
+end
+arch blocked
+x 11
+y 3
+end
+arch floor_sand_d3
+x 11
+y 4
+end
+arch fwall_rock3
+x 11
+y 4
+end
+arch plant1_wall.151
+x 11
+y 4
+end
+arch floor_sand_d2
+x 11
+y 5
+end
+arch trash_wood1.101
+x 11
+y 5
+end
+arch floor_sand_d3
+x 11
+y 6
+end
+arch floor_sand_d2
+x 11
+y 7
+end
+arch floor_sand_d2
+x 11
+y 8
+end
+arch corpse_human
+name slain half-elf warrior
+speed 0
+is_used_up 0
+x 11
+y 8
+end
+arch floor_sand_d1
+x 11
+y 9
+end
+arch spawn_point
+x 11
+y 9
+arch drow_sorcerer
+level 64
+exp 112
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_cause_lig_wound
+end
+end
+end
+arch floor_sand_d4
+x 11
+y 10
+end
+arch blood_floor1
+x 11
+y 10
+end
+arch floor_sand_d3
+x 11
+y 11
+end
+arch bridge_wood_EW.121
+x 11
+y 11
+end
+arch floor_sand_d3
+x 11
+y 12
+end
+arch bridge_wood_EW.131
+x 11
+y 12
+end
+arch floor_sand_d3
+x 11
+y 13
+end
+arch bridge_wood_EW.131
+x 11
+y 13
+end
+arch floor_sand_d1
+x 11
+y 14
+end
+arch bridge_wood_EW.131
+x 11
+y 14
+end
+arch floor_sand_d1
+x 11
+y 15
+end
+arch bridge_wood_EW.141
+x 11
+y 15
+end
+arch floor_sand_d4
+x 11
+y 16
+end
+arch floor_sand_d3
+x 11
+y 17
+end
+arch blood_floor1
+x 11
+y 17
+end
+arch floor_sand_d4
+x 11
+y 18
+end
+arch floor_sand_d1
+x 11
+y 19
+end
+arch floor_sand_d3
+x 11
+y 20
+end
+arch floor_sand_d2
+x 11
+y 21
+end
+arch trash_wood1.101
+x 11
+y 21
+end
+arch floor_sand_d1
+x 11
+y 22
+end
+arch floor_sand_d4
+x 11
+y 23
+end
+arch fwall_rock2
+x 11
+y 23
+end
+arch floor_black2a
+x 12
+end
+arch button_plate
+connected 102
+last_eat 1
+x 12
+end
+arch grate_closed
+connected 101
+layer 4
+x 12
+end
+arch floor_black1b
+x 12
+y 1
+end
+arch fwall_rock1
+x 12
+y 1
+end
+arch blocked
+x 12
+y 3
+end
+arch floor_sand_d2
+x 12
+y 4
+end
+arch fwall_rock2
+x 12
+y 4
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 5
+last_eat 0
+dam 8
+level 75
+speed -0.5
+connected 201
+alive 0
+x 12
+y 4
+end
+arch ring_wall.151
+x 12
+y 4
+end
+arch floor_sand_d1
+x 12
+y 5
+end
+arch corpse_human
+name slain half-elf warrior
+speed 0
+is_used_up 0
+x 12
+y 5
+arch letter
+msg
+<t t="Day 1:">
+We have penetrated the first defenses of Underground City easily. The orcs were no match for us, as our race was used to fighting them. Many orcs died that day, but more kept coming still. We hid in an empty room to catch some sleep, with one of us watching as guard. That night went without any trouble.
+
+<t t="Day 2:">
+More orcs were slain. We found some undead ghosts and ghouls, but they didn't see us, so we didn't attempt a fight. Finally, we reached the first drows, and the first challenge. There were many, and they weren't happy to see us.
+
+<t t="Day 3:">
+We found a powerful drow magician guarding a secret passage to lower level. We fought our way, only to find many skeletons and ghosts living there. We slashed our way through. We found more drows and a dead end, so we decided to rest there.
+
+<t t="Day 4:">
+We returned to the stairs we found earlier and tried the other way, fighting many undead. Eventually we found an ancient library with valuable information and a ghost guarding some key. We decided to rest there.
+
+<t t="Day 5:">
+Undead as far as the eye could see, but we eventually found something that looked like a temple. This was a very gruesome fight, and our last magicians fell, but we managed to win. We found a human guard prisoner in a hidden room there, but he was in no state to talk to us. We decided to rest again.
+
+<t t="Day 6:">
+We found stairs leading to yet another level. Using the knowledge we learned from the ancient library, we figured out that a ---ic bul--- was needed to be cast northwest from a fake torch, otherwise we would face nearly instant death. We had no magicians left however, so some of us tried to cross the bridge and...
+endmsg
+no_pick 1
+level 10
+exp 0
+end
+end
+arch floor_sand_d2
+x 12
+y 6
+end
+arch blood_floor2
+x 12
+y 6
+end
+arch floor_sand_d4
+x 12
+y 7
+end
+arch floor_sand_d3
+x 12
+y 8
+end
+arch floor_sand_d4
+x 12
+y 9
+end
+arch floor_sand_d3
+x 12
+y 10
+end
+arch trash_wood1.101
+x 12
+y 10
+end
+arch floor_sand_d1
+x 12
+y 11
+end
+arch dirt_floor2
+x 12
+y 11
+end
+arch floor_sand_d3
+x 12
+y 12
+end
+arch floor_sand_d2
+x 12
+y 13
+end
+arch spawn_point
+x 12
+y 13
+arch drow_captain
+level 64
+type 83
+end
+end
+arch floor_sand_d1
+x 12
+y 14
+end
+arch floor_sand_d3
+x 12
+y 15
+end
+arch floor_sand_d3
+x 12
+y 16
+end
+arch dirt_floor4
+x 12
+y 16
+end
+arch floor_sand_d4
+x 12
+y 17
+end
+arch floor_sand_d4
+x 12
+y 18
+end
+arch floor_sand_d2
+x 12
+y 19
+end
+arch spawn_point
+x 12
+y 19
+arch drow_guard
+level 65
+type 83
+end
+end
+arch floor_sand_d4
+x 12
+y 20
+end
+arch dirt_floor3
+x 12
+y 20
+end
+arch floor_sand_d4
+x 12
+y 21
+end
+arch floor_sand_d2
+x 12
+y 22
+end
+arch floor_sand_d3
+x 12
+y 23
+end
+arch fwall_rock1
+x 12
+y 23
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+x 12
+y 23
+end
+arch floor_black1c
+x 13
+end
+arch fwall_rock3
+x 13
+end
+arch floor_black2b
+x 13
+y 1
+end
+arch fwall_rock3
+x 13
+y 1
+end
+arch blocked
+x 13
+y 3
+end
+arch floor_sand_d3
+x 13
+y 4
+end
+arch fwall_rock1
+x 13
+y 4
+end
+arch floor_sand_d3
+x 13
+y 5
+end
+arch floor_sand_d2
+x 13
+y 6
+end
+arch floor_sand_d4
+x 13
+y 7
+end
+arch corpse_human
+name slain half-elf warrior
+speed 0
+is_used_up 0
+x 13
+y 7
+end
+arch floor_sand_d2
+x 13
+y 8
+end
+arch floor_sand_d2
+x 13
+y 9
+end
+arch floor_sand_d4
+x 13
+y 10
+end
+arch corpse_human
+name slain half-elf warrior
+speed 0
+is_used_up 0
+x 13
+y 10
+end
+arch floor_sand_d4
+x 13
+y 11
+end
+arch floor_sand_d3
+x 13
+y 12
+end
+arch floor_sand_d4
+x 13
+y 13
+end
+arch floor_sand_d4
+x 13
+y 14
+end
+arch floor_sand_d4
+x 13
+y 15
+end
+arch floor_sand_d1
+x 13
+y 16
+end
+arch floor_sand_d3
+x 13
+y 17
+end
+arch floor_sand_d2
+x 13
+y 18
+end
+arch floor_sand_d3
+x 13
+y 19
+end
+arch floor_sand_d4
+x 13
+y 20
+end
+arch floor_sand_d2
+x 13
+y 21
+end
+arch floor_sand_d3
+x 13
+y 22
+end
+arch floor_sand_d4
+x 13
+y 23
+end
+arch fwall_rock2
+x 13
+y 23
+end
+arch floor_sand_d1
+x 14
+y 4
+end
+arch fwall_rock1
+x 14
+y 4
+end
+arch floor_sand_d2
+x 14
+y 5
+end
+arch fwall_rock3
+x 14
+y 5
+end
+arch floor_sand_d2
+x 14
+y 6
+end
+arch fwall_rock2
+x 14
+y 6
+end
+arch plant2_wall.151
+direction 7
+x 14
+y 6
+end
+arch floor_sand_d1
+x 14
+y 7
+end
+arch fwall_rock2
+x 14
+y 7
+end
+arch ring_wall.151
+direction 7
+x 14
+y 7
+end
+arch floor_sand_d2
+x 14
+y 8
+end
+arch fwall_rock1
+x 14
+y 8
+end
+arch floor_sand_d2
+x 14
+y 9
+end
+arch fwall_rock3
+x 14
+y 9
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 3
+x 14
+y 9
+end
+arch floor_sand_d1
+x 14
+y 10
+end
+arch fwall_rock2
+x 14
+y 10
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 5
+last_eat 0
+dam 50
+level 75
+speed -0.5
+connected 201
+alive 0
+x 14
+y 10
+end
+arch floor_sand_d2
+x 14
+y 11
+end
+arch dirt_floor2
+x 14
+y 11
+end
+arch torch_wall_1
+x 14
+y 11
+end
+arch floor_sand_d3
+x 14
+y 12
+end
+arch floor_sand_d1
+x 14
+y 13
+end
+arch floor_sand_d2
+x 14
+y 14
+end
+arch fwall_rock1
+x 14
+y 14
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 49
+level 75
+speed -0.5
+connected 201
+alive 0
+x 14
+y 14
+end
+arch floor_sand_d3
+x 14
+y 15
+end
+arch floor_sand_d2
+x 14
+y 16
+end
+arch fwall_rock3
+x 14
+y 16
+end
+arch plant2_wall.151
+x 14
+y 16
+end
+arch floor_sand_d1
+x 14
+y 17
+end
+arch floor_sand_d3
+x 14
+y 18
+end
+arch fwall_rock1
+x 14
+y 18
+end
+arch plant1_wall.151
+direction 7
+x 14
+y 18
+end
+arch floor_sand_d3
+x 14
+y 19
+end
+arch floor_sand_d3
+x 14
+y 20
+end
+arch fwall_rock3
+x 14
+y 20
+end
+arch floor_sand_d1
+x 14
+y 21
+end
+arch fwall_rock2
+x 14
+y 21
+end
+arch floor_sand_d4
+x 14
+y 22
+end
+arch fwall_rock1
+x 14
+y 22
+end
+arch floor_sand_d3
+x 14
+y 23
+end
+arch fwall_rock3
+x 14
+y 23
+end
+arch blocked
+x 15
+end
+arch wall_dungeon_8
+x 15
+end
+arch blocked
+x 15
+y 1
+end
+arch wall_dungeon_3
+x 15
+y 1
+end
+arch blocked
+x 15
+y 2
+end
+arch wall_dungeon_3
+x 15
+y 2
+end
+arch plant2_wall.151
+direction 7
+x 15
+y 2
+end
+arch blocked
+x 15
+y 3
+end
+arch wall_dungeon_3
+x 15
+y 3
+end
+arch blocked
+x 15
+y 4
+end
+arch wall_dungeon_3
+x 15
+y 4
+end
+arch floor_sand_d1
+x 15
+y 5
+end
+arch fwall_rock2
+x 15
+y 5
+end
+arch plant1_wall.151
+x 15
+y 5
+end
+arch floor_sand_d2
+x 15
+y 6
+end
+arch floor_sand_d3
+x 15
+y 7
+end
+arch spawn_point
+x 15
+y 7
+arch drow_guard
+level 63
+type 83
+end
+end
+arch floor_sand_d2
+x 15
+y 8
+end
+arch dirt_floor3
+x 15
+y 8
+end
+arch floor_sand_d3
+x 15
+y 9
+end
+arch floor_sand_d2
+x 15
+y 10
+end
+arch crystal_purple_s
+x 15
+y 10
+end
+arch light2
+x 15
+y 10
+end
+arch floor_sand_d1
+x 15
+y 11
+end
+arch floor_sand_d4
+x 15
+y 12
+end
+arch floor_sand_d3
+x 15
+y 13
+end
+arch floor_sand_d3
+x 15
+y 14
+end
+arch fwall_rock3
+x 15
+y 14
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 5
+x 15
+y 14
+end
+arch floor_sand_d3
+x 15
+y 15
+end
+arch floor_sand_d1
+x 15
+y 16
+end
+arch torch_wall_1
+direction 7
+type 79
+x 15
+y 16
+end
+arch floor_sand_d3
+x 15
+y 17
+end
+arch floor_sand_d1
+x 15
+y 18
+end
+arch dirt_floor2
+x 15
+y 18
+end
+arch floor_sand_d4
+x 15
+y 19
+end
+arch floor_sand_d4
+x 15
+y 20
+end
+arch fwall_rock1
+x 15
+y 20
+end
+arch blocked
+x 16
+end
+arch wall_dungeon_1
+x 16
+end
+arch floor_black1a
+x 16
+y 1
+end
+arch stairs_stone_up
+direction 5
+slaying underground_city_a_0302
+hp 16
+sp 1
+x 16
+y 1
+end
+arch floor_black1d
+x 16
+y 2
+end
+arch floor_black1b
+x 16
+y 3
+end
+arch floor_black1c
+x 16
+y 4
+end
+arch wall_dungeon_1
+x 16
+y 4
+end
+arch floor_sand_d3
+x 16
+y 5
+end
+arch fwall_rock3
+x 16
+y 5
+end
+arch plant1_wall.151
+direction 7
+x 16
+y 5
+end
+arch floor_sand_d3
+x 16
+y 6
+end
+arch blood_floor1
+x 16
+y 6
+end
+arch torch_wall_1
+x 16
+y 6
+end
+arch floor_sand_d2
+x 16
+y 7
+end
+arch floor_sand_d2
+x 16
+y 8
+end
+arch floor_sand_d3
+x 16
+y 9
+end
+arch trash_wood2.101
+x 16
+y 9
+end
+arch floor_sand_d1
+x 16
+y 10
+end
+arch floor_sand_d3
+x 16
+y 11
+end
+arch floor_sand_d3
+x 16
+y 12
+end
+arch floor_sand_d1
+x 16
+y 13
+end
+arch floor_sand_d3
+x 16
+y 14
+end
+arch fwall_rock1
+x 16
+y 14
+end
+arch plant2_wall.151
+x 16
+y 14
+end
+arch floor_sand_d4
+x 16
+y 15
+end
+arch floor_sand_d3
+x 16
+y 16
+end
+arch floor_sand_d1
+x 16
+y 17
+end
+arch floor_sand_d4
+x 16
+y 18
+end
+arch floor_sand_d3
+x 16
+y 19
+end
+arch floor_sand_d2
+x 16
+y 20
+end
+arch fwall_rock3
+x 16
+y 20
+end
+arch blocked
+x 17
+end
+arch wall_dungeon_1
+x 17
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 5
+last_eat 0
+dam 8
+level 75
+speed -0.5
+connected 201
+alive 0
+x 17
+end
+arch floor_black2a
+x 17
+y 1
+end
+arch torch_wall_1
+x 17
+y 1
+end
+arch floor_black2a
+x 17
+y 2
+end
+arch blood_floor1
+x 17
+y 2
+end
+arch floor_black1d
+x 17
+y 3
+end
+arch floor_black1c
+x 17
+y 4
+end
+arch door1_locked
+x 17
+y 4
+end
+arch floor_sand_d2
+x 17
+y 5
+end
+arch floor_sand_d4
+x 17
+y 6
+end
+arch floor_sand_d3
+x 17
+y 7
+end
+arch floor_sand_d2
+x 17
+y 8
+end
+arch floor_sand_d4
+x 17
+y 9
+end
+arch mushroom_giant1
+x 17
+y 9
+end
+arch floor_sand_d4
+x 17
+y 10
+end
+arch dirt_floor2
+x 17
+y 10
+end
+arch floor_sand_d3
+x 17
+y 11
+end
+arch floor_sand_d4
+x 17
+y 12
+end
+arch dirt_floor3
+x 17
+y 12
+end
+arch floor_sand_d2
+x 17
+y 13
+end
+arch floor_sand_d2
+x 17
+y 14
+end
+arch fwall_rock2
+x 17
+y 14
+end
+arch ring_wall.151
+x 17
+y 14
+end
+arch floor_sand_d2
+x 17
+y 15
+end
+arch floor_sand_d2
+x 17
+y 16
+end
+arch blood_floor2
+x 17
+y 16
+end
+arch floor_sand_d4
+x 17
+y 17
+end
+arch floor_sand_d4
+x 17
+y 18
+end
+arch blood_floor1
+x 17
+y 18
+end
+arch floor_sand_d3
+x 17
+y 19
+end
+arch floor_sand_d1
+x 17
+y 20
+end
+arch fwall_rock2
+x 17
+y 20
+end
+arch blocked
+x 18
+end
+arch wall_dungeon_1
+x 18
+end
+arch floor_black1c
+x 18
+y 1
+end
+arch stairs_stone_up
+direction 5
+slaying underground_city_a_0302
+hp 18
+sp 1
+x 18
+y 1
+end
+arch floor_black2a
+x 18
+y 2
+end
+arch floor_black1d
+x 18
+y 3
+end
+arch floor_black1b
+x 18
+y 4
+end
+arch wall_dungeon_1
+x 18
+y 4
+end
+arch floor_sand_d4
+x 18
+y 5
+end
+arch fwall_rock3
+x 18
+y 5
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 5
+last_eat 0
+dam 8
+level 75
+speed -0.5
+connected 201
+alive 0
+x 18
+y 5
+end
+arch floor_sand_d4
+x 18
+y 6
+end
+arch dirt_floor1
+x 18
+y 6
+end
+arch floor_sand_d2
+x 18
+y 7
+end
+arch floor_sand_d1
+x 18
+y 8
+end
+arch floor_sand_d2
+x 18
+y 9
+end
+arch floor_sand_d4
+x 18
+y 10
+end
+arch floor_sand_d2
+x 18
+y 11
+end
+arch floor_sand_d4
+x 18
+y 12
+end
+arch spawn_point
+x 18
+y 12
+arch drow_sorcerer
+level 63
+exp 112
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_cause_lig_wound
+end
+end
+end
+arch floor_sand_d3
+x 18
+y 13
+end
+arch floor_sand_d3
+x 18
+y 14
+end
+arch fwall_rock1
+x 18
+y 14
+end
+arch plant2_wall.151
+x 18
+y 14
+end
+arch floor_sand_d1
+x 18
+y 15
+end
+arch trash_wood2.101
+x 18
+y 15
+end
+arch floor_sand_d2
+x 18
+y 16
+end
+arch spawn_point
+x 18
+y 16
+arch drow_annihilator
+level 64
+exp 130
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_firestorm
+hp 35
+end
+end
+end
+arch floor_sand_d2
+x 18
+y 17
+end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch mushroom_medium
+x 18
+y 18
+end
+arch floor_sand_d1
+x 18
+y 19
+end
+arch dirt_floor4
+x 18
+y 19
+end
+arch floor_sand_d3
+x 18
+y 20
+end
+arch fwall_rock2
+x 18
+y 20
+end
+arch blocked
+x 19
+end
+arch wall_dungeon_1
+x 19
+end
+arch floor_black1b
+x 19
+y 1
+end
+arch wall_dungeon_3
+x 19
+y 1
+end
+arch floor_black1b
+x 19
+y 2
+end
+arch wall_dungeon_3
+x 19
+y 2
+end
+arch floor_black2a
+x 19
+y 3
+end
+arch wall_dungeon_3
+x 19
+y 3
+end
+arch floor_black2b
+x 19
+y 4
+end
+arch wall_dungeon_4
+x 19
+y 4
+end
+arch floor_sand_d1
+x 19
+y 5
+end
+arch fwall_rock2
+x 19
+y 5
+end
+arch plant1_wall.151
+x 19
+y 5
+end
+arch floor_sand_d3
+x 19
+y 6
+end
+arch floor_sand_d2
+x 19
+y 7
+end
+arch floor_sand_d4
+x 19
+y 8
+end
+arch floor_sand_d1
+x 19
+y 9
+end
+arch floor_sand_d3
+x 19
+y 10
+end
+arch floor_sand_d1
+x 19
+y 11
+end
+arch floor_sand_d2
+x 19
+y 12
+end
+arch floor_sand_d1
+x 19
+y 13
+end
+arch floor_sand_d1
+x 19
+y 14
+end
+arch fwall_rock3
+x 19
+y 14
+end
+arch floor_sand_d3
+x 19
+y 15
+end
+arch floor_sand_d2
+x 19
+y 16
+end
+arch floor_sand_d1
+x 19
+y 17
+end
+arch floor_sand_d2
+x 19
+y 18
+end
+arch floor_sand_d3
+x 19
+y 19
+end
+arch crystal_purple
+x 19
+y 19
+end
+arch light2
+x 19
+y 19
+end
+arch floor_sand_d4
+x 19
+y 20
+end
+arch fwall_rock2
+x 19
+y 20
+end
+arch floor_sand_d1
+x 20
+y 4
+end
+arch fwall_rock2
+x 20
+y 4
+end
+arch floor_sand_d3
+x 20
+y 5
+end
+arch fwall_rock3
+x 20
+y 5
+end
+arch floor_sand_d2
+x 20
+y 6
+end
+arch fwall_rock3
+x 20
+y 6
+end
+arch floor_sand_d2
+x 20
+y 7
+end
+arch fwall_rock3
+x 20
+y 7
+end
+arch floor_sand_d2
+x 20
+y 8
+end
+arch fwall_rock2
+x 20
+y 8
+end
+arch floor_sand_d2
+x 20
+y 9
+end
+arch fwall_rock1
+x 20
+y 9
+end
+arch floor_sand_d2
+x 20
+y 10
+end
+arch fwall_rock1
+x 20
+y 10
+end
+arch floor_sand_d2
+x 20
+y 11
+end
+arch fwall_rock3
+x 20
+y 11
+end
+arch floor_sand_d1
+x 20
+y 12
+end
+arch fwall_rock2
+x 20
+y 12
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 7
+x 20
+y 12
+end
+arch floor_sand_d1
+x 20
+y 13
+end
+arch fwall_rock2
+x 20
+y 13
+end
+arch floor_sand_d4
+x 20
+y 14
+end
+arch fwall_rock2
+x 20
+y 14
+end
+arch floor_sand_d1
+x 20
+y 15
+end
+arch fwall_rock1
+x 20
+y 15
+end
+arch floor_sand_d3
+x 20
+y 16
+end
+arch fwall_rock1
+x 20
+y 16
+end
+arch floor_sand_d4
+x 20
+y 17
+end
+arch fwall_rock3
+x 20
+y 17
+end
+arch floor_sand_d3
+x 20
+y 18
+end
+arch fwall_rock1
+x 20
+y 18
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 7
+x 20
+y 18
+end
+arch floor_sand_d2
+x 20
+y 19
+end
+arch fwall_rock3
+x 20
+y 19
+end
+arch floor_sand_d1
+x 20
+y 20
+end
+arch fwall_rock2
+x 20
+y 20
+end
+arch blocked
+x 21
+y 11
+end
+arch blocked
+x 21
+y 12
+end
+arch blocked
+x 21
+y 13
+end
+arch blocked
+x 21
+y 17
+end
+arch blocked
+x 21
+y 18
+end
+arch blocked
+x 21
+y 19
+end
