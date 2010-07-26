@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-02 Alex Tokar
+Modified: 2010-07-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2063,13 +2063,8 @@ arch floor_stone_b2
 x 16
 y 16
 end
-arch wall_dungeon_3
-no_pass 0
-x 16
-y 16
-end
-arch plant1_wall.151
-direction 5
+arch door1_locked
+direction 3
 x 16
 y 16
 end
@@ -2077,7 +2072,8 @@ arch floor_stone_b1
 x 16
 y 17
 end
-arch wall_dungeon_3
+arch door1_locked
+direction 5
 x 16
 y 17
 end
@@ -2218,14 +2214,14 @@ arch floor_stone_b3
 x 17
 y 17
 end
+arch floor_stone_b1
+x 17
+y 18
+end
 arch torch_wall_1
 direction 5
 glow_radius 5
 is_animated 1
-x 17
-y 17
-end
-arch floor_stone_b1
 x 17
 y 18
 end
@@ -2609,12 +2605,12 @@ arch spawn_point
 x 20
 y 20
 arch drow_annihilator
-type 83
 level 50
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+Wis 4
+type 83
 arch ability_firestorm
 end
 arch ability_icestorm
