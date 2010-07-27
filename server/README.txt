@@ -1,11 +1,19 @@
-Atrinik Server
+======================
+=== Atrinik Server ===
+======================
 
 The Atrinik Server package comes in either a binary version or a source version.
 The binary package should contain the atrinik_server executable in the same
 directory as this README file, and no /make or /src directories. If you have this
 version of the package, you can skip the compiling stage and simply proceed to the
-Installation section of this file.
+INSTALLATION section of this file.
 
+In either case you will need to have Python installed. If you don't have it
+installed yet, download it from http://www.python.org/ and install it.
+
+=============
+= COMPILING =
+=============
 If you have the source package, it should contain a /make directory. Before you can
 install and run the server, you will need to compile it first.
 
@@ -28,10 +36,17 @@ the IDE/compiler you will be using, and read the README file in there. That file
 will give the necessary instructions for you to compile the server for your OS and
 IDE/compiler.
 
-When the server is compiled, proceed to the Installation section of this file.
+When the server is compiled, proceed to the INSTALLATION section of this file.
 
-Installation
-------------
+================
+= INSTALLATION =
+================
+
+First of all, you will need to run the 'collect.py' script in the '../tools' directory.
+Do not confuse it with the 'tools' directory in the directory with this README file!
+You will need to double-click the 'collect.py' file in that directory, or run it from
+the command line (the atrinikloop shell script does this automatically). This will
+collect the arches, treasures, and so on.
 
 To install the server you must go in the /install directory and run the installation
 script for your OS. Navigate to the subdirectory relevant to the OS you are running.
@@ -42,3 +57,4 @@ After the server is installed, you can start the atrinik_server executable in or
 to run it.
 
 Help: www.atrinik.org
+
