@@ -257,8 +257,8 @@ debug("Attempting to find Atrinik's version...")
 
 version = ""
 
-# Client's configure.in file.
-client_configure = repo_dir + "/client/make/linux/configure.in"
+# Client's configure.ac file.
+client_configure = repo_dir + "/client/make/linux/configure.ac"
 
 # Does it exist?
 if os.path.exists(client_configure):
