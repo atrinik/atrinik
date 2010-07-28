@@ -2800,7 +2800,7 @@ static PyObject *object_iter(PyObject *seq)
 	obj = PyObject_NEW(Atrinik_Object, &Atrinik_ObjectType);
 	Py_INCREF(seq);
 	obj->iter = (Atrinik_Object *) seq;
-	obj->iter_type = OBJ_ITER_TYPE_NONE;
+	obj->iter_type = OBJ_ITER_TYPE_ONE;
 
 	/* Select which iteration type we're doing. It's possible that
 	 * an object has both below and above set (it's not the first and
@@ -2836,6 +2836,10 @@ static PyObject *object_iternext(Atrinik_Object *obj)
 		else if (obj->iter_type == OBJ_ITER_TYPE_ABOVE)
 		{
 			obj->iter->obj = tmp->above;
+		}
+		else if (obj->iter_type == OBJ_ITER_TYPE_ONE)
+		{
+			obj->iter->obj = NULL;
 		}
 
 		/* Nothing left, so mark iter_type to show that. */

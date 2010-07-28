@@ -260,6 +260,8 @@ int Atrinik_Object_init(PyObject *module);
 #define OBJ_ITER_TYPE_BELOW 1
 /** Using object::above. */
 #define OBJ_ITER_TYPE_ABOVE 2
+/** There is nothing below or above the object. */
+#define OBJ_ITER_TYPE_ONE 3
 /*@}*/
 
 /** The Atrinik_Object structure. */
