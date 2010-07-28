@@ -391,6 +391,18 @@ typedef struct
 	} \
 }
 
+/**
+ * Helper macro for the object.SquaresAround() Python function. */
+#define SQUARES_AROUND_ADD(_m, _x, _y) \
+{ \
+	PyObject *tuple = PyTuple_New(3); \
+\
+	PyTuple_SET_ITEM(tuple, 0, wrap_map((_m))); \
+	PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", (_x))); \
+	PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", (_y))); \
+	PyList_Append(list, tuple); \
+}
+
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);
 void Py_INCREF_TYPE(PyTypeObject *ob);

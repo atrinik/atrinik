@@ -2333,9 +2333,8 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 {
 	uint8 range, type = AROUND_ALL;
 	static char *kwlist[] = {"range", "type", "beyond", NULL};
-	int i, j, xt, x, yt, y, add, beyond;
+	int i, j, xt, yt, beyond = 0;
 	mapstruct *m;
-	int fraction, dx2, dy2, stepx, stepy;
 	PyObject *list;
 
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|Bi", kwlist, &range, &type, &beyond))
@@ -2356,16 +2355,18 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 	{
 		for (j = -range; j <= range; j++)
 		{
-			add = 0;
-
-			m = WHAT->map;
-			x = WHAT->x;
-			y = WHAT->y;
 			xt = WHAT->x + i;
 			yt = WHAT->y + j;
 
 			/* Skip ourselves. */
-			if (xt == x && yt == y)
+			if (xt == WHAT->x && yt == WHAT->y)
+			{
+				continue;
+			}
+
+			m = hooks->get_map_from_coord(WHAT->map, &xt, &yt);
+
+			if (!m)
 			{
 				continue;
 			}
@@ -2373,58 +2374,54 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 			/* We want all squares. */
 			if (type == AROUND_ALL)
 			{
-				m = hooks->get_map_from_coord(m, &x, &y);
-
-				if (m)
-				{
-					add = 1;
-				}
+				SQUARES_AROUND_ADD(m, xt, yt);
 			}
 			/* Only those that are not blocked by view, or beyond a wall, etc,
 			 * so use the Bresenham algorithm. */
 			else if (beyond)
 			{
-				BRESENHAM_INIT(xt - x, yt - y, fraction, stepx, stepy, dx2, dy2);
+				int xt2, yt2, fraction, dx2, dy2, stepx, stepy;
+				mapstruct *m2;
+				rv_vector rv;
+
+				m2 = WHAT->map;
+				xt2 = WHAT->x;
+				yt2 = WHAT->y;
+
+				if (!hooks->get_rangevector_from_mapcoords(m2, xt2, yt2, m, xt, yt, &rv, RV_NO_DISTANCE))
+				{
+					continue;
+				}
+
+				BRESENHAM_INIT(rv.distance_x, rv.distance_y, fraction, stepx, stepy, dx2, dy2);
 
 				while (1)
 				{
-					if (m == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, x, y) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, x, y)))
+					if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)))
 					{
 						break;
 					}
 
-					if (x == xt && y == yt)
+					if (m2 == m && xt2 == xt && yt2 == yt)
 					{
-						add = 1;
+						SQUARES_AROUND_ADD(m, xt, yt);
 						break;
 					}
 
-					BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
-
-					m = hooks->get_map_from_coord(m, &x, &y);
+					BRESENHAM_STEP(xt2, yt2, fraction, stepx, stepy, dx2, dy2);
+					m2 = hooks->get_map_from_coord(m2, &xt2, &yt2);
 				}
 			}
 			/* We only want to ignore squares that either block view, or have
 			 * a wall, etc, but not any squares behind them. */
 			else
 			{
-				m = hooks->get_map_from_coord(m, &x, &y);
-				add = 1;
-
-				if (!m || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, x, y) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, x, y)))
+				if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)))
 				{
-					add = 0;
+					continue;
 				}
-			}
 
-			if (add)
-			{
-				PyObject *tuple = PyTuple_New(3);
-
-				PyTuple_SET_ITEM(tuple, 0, wrap_map(m));
-				PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", x));
-				PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", y));
-				PyList_Append(list, tuple);
+				SQUARES_AROUND_ADD(m, xt, yt);
 			}
 		}
 	}
