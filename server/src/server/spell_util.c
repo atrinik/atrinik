@@ -1740,6 +1740,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 {
 	int level = SK_level(caster);
+	sint16 dam;
 
 	/* Sanity check */
 	if (level <= 0 || level > MAXLEVEL)
@@ -1762,7 +1763,9 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 		base_dam = spells[spell_type].bdam;
 	}
 
-	return (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
+	dam = (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
+
+	return rndm(dam / 1.42857f + 1, dam);
 }
 
 /**
