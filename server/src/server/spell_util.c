@@ -1765,7 +1765,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 
 	dam = (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
 
-	return rndm(dam / 1.42857f + 1, dam);
+	return rndm(dam * 0.7f + 1, dam);
 }
 
 /**
