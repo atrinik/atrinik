@@ -1,0 +1,3974 @@
+arch map
+name The Underground City III
+msg
+Created:  2010-06-05 Alex Tokar
+Modified: 2010-07-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 80
+darkness 2
+tile_path_1 underground_city_b_0206
+tile_path_2 underground_city_b_0305
+tile_path_4 underground_city_b_0105
+tile_path_5 underground_city_b_0306
+bg_music thonkdonk.ogg
+region underground_city
+end
+arch floor_sand_d2
+y 15
+end
+arch fwall_rock1
+y 15
+end
+arch floor_sand_d4
+y 16
+end
+arch blood_floor2
+y 16
+end
+arch floor_sand_d2
+y 17
+end
+arch floor_sand_d2
+y 18
+end
+arch floor_sand_d2
+y 19
+end
+arch fwall_rock2
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+y 20
+end
+arch fwall_lava1d
+y 20
+end
+arch floor_sand_d2
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+y 22
+end
+arch sand_dm6
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+y 23
+end
+arch fwall_lava1e
+y 23
+end
+arch floor_sand_d3
+x 1
+y 14
+end
+arch fwall_rock2
+x 1
+y 14
+end
+arch floor_sand_d4
+x 1
+y 15
+end
+arch fwall_rock3
+x 1
+y 15
+end
+arch plant2_wall.151
+x 1
+y 15
+end
+arch floor_sand_d3
+x 1
+y 16
+end
+arch floor_sand_d1
+x 1
+y 17
+end
+arch floor_sand_d3
+x 1
+y 18
+end
+arch floor_sand_d4
+x 1
+y 19
+end
+arch fwall_rock3
+x 1
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 1
+y 20
+end
+arch fwall_lava1d
+x 1
+y 20
+end
+arch floor_sand_d4
+x 1
+y 21
+end
+arch dirt_floor1
+x 1
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 1
+y 22
+end
+arch sand_dm6
+x 1
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 1
+y 23
+end
+arch fwall_lava1d
+x 1
+y 23
+end
+arch floor_sand_d3
+x 2
+y 14
+end
+arch fwall_rock1
+x 2
+y 14
+end
+arch floor_sand_d2
+x 2
+y 15
+end
+arch mushroom_spot2
+x 2
+y 15
+end
+arch light3
+x 2
+y 15
+end
+arch floor_sand_d1
+x 2
+y 16
+end
+arch dirt_floor2
+x 2
+y 16
+end
+arch floor_sand_d1
+x 2
+y 17
+end
+arch floor_sand_d1
+x 2
+y 18
+end
+arch fwall_rock1
+x 2
+y 18
+end
+arch floor_sand_d2
+x 2
+y 19
+end
+arch fwall_rock1
+x 2
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 2
+y 20
+end
+arch fwall_lava1f
+x 2
+y 20
+end
+arch floor_sand_d4
+x 2
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 2
+y 22
+end
+arch sand_dm6
+x 2
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 2
+y 23
+end
+arch fwall_lava1d
+x 2
+y 23
+end
+arch floor_sand_d1
+x 3
+y 14
+end
+arch fwall_rock1
+x 3
+y 14
+end
+arch floor_sand_d1
+x 3
+y 15
+end
+arch floor_sand_d2
+x 3
+y 16
+end
+arch spawn_point
+x 3
+y 16
+arch drow_guard
+level 83
+exp 107
+attack_slash 80
+type 83
+end
+end
+arch floor_sand_d3
+x 3
+y 17
+end
+arch floor_sand_d4
+x 3
+y 18
+end
+arch fwall_rock1
+x 3
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 3
+y 19
+end
+arch fwall_lava1f
+x 3
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 3
+y 20
+end
+arch fwall_lava1e
+x 3
+y 20
+end
+arch floor_sand_d1
+x 3
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 3
+y 22
+end
+arch sand_dm6
+x 3
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 3
+y 23
+end
+arch fwall_lava1e
+x 3
+y 23
+end
+arch floor_sand_d2
+x 4
+y 13
+end
+arch fwall_rock3
+x 4
+y 13
+end
+arch floor_sand_d1
+x 4
+y 14
+end
+arch fwall_rock3
+x 4
+y 14
+end
+arch ring_wall.151
+x 4
+y 14
+end
+arch floor_sand_d2
+x 4
+y 15
+end
+arch mushroom_giant1
+x 4
+y 15
+end
+arch floor_sand_d2
+x 4
+y 16
+end
+arch floor_sand_d4
+x 4
+y 17
+end
+arch fwall_rock1
+x 4
+y 17
+end
+arch floor_sand_d3
+x 4
+y 18
+end
+arch fwall_rock3
+x 4
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 4
+y 19
+end
+arch fwall_lava1e
+x 4
+y 19
+end
+arch floor_sand_d2
+x 4
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 4
+y 21
+end
+arch sand_dm14
+x 4
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 4
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 4
+y 23
+end
+arch fwall_lava1f
+x 4
+y 23
+end
+arch floor_sand_d3
+x 5
+y 13
+end
+arch fwall_rock2
+x 5
+y 13
+end
+arch floor_sand_d3
+x 5
+y 14
+end
+arch crystal_purple_s
+x 5
+y 14
+end
+arch light3
+x 5
+y 14
+end
+arch floor_sand_d1
+x 5
+y 15
+end
+arch floor_sand_d3
+x 5
+y 16
+end
+arch floor_sand_d2
+x 5
+y 17
+end
+arch fwall_rock1
+x 5
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 5
+y 18
+end
+arch fwall_lava1f
+x 5
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 5
+y 19
+end
+arch fwall_lava1f
+x 5
+y 19
+end
+arch floor_sand_d3
+x 5
+y 20
+end
+arch blood_floor2
+x 5
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 5
+y 21
+end
+arch sand_dm6
+x 5
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 5
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 5
+y 23
+end
+arch fwall_lava1e
+x 5
+y 23
+end
+arch floor_sand_d2
+x 6
+y 13
+end
+arch fwall_rock2
+x 6
+y 13
+end
+arch plant1_wall.151
+x 6
+y 13
+end
+arch floor_sand_d3
+x 6
+y 14
+end
+arch floor_sand_d1
+x 6
+y 15
+end
+arch blood_floor1
+x 6
+y 15
+end
+arch floor_sand_d3
+x 6
+y 16
+end
+arch floor_sand_d3
+x 6
+y 17
+end
+arch fwall_rock3
+x 6
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 6
+y 18
+end
+arch fwall_lava1e
+x 6
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 6
+y 19
+end
+arch sand_dm13
+x 6
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 19
+end
+arch floor_sand_d4
+x 6
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 6
+y 21
+end
+arch sand_dm6
+x 6
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 6
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 6
+y 23
+end
+arch fwall_lava1f
+x 6
+y 23
+end
+arch floor_sand_d1
+x 7
+y 12
+end
+arch fwall_rock2
+x 7
+y 12
+end
+arch floor_sand_d2
+x 7
+y 13
+end
+arch fwall_rock3
+x 7
+y 13
+end
+arch floor_sand_d1
+x 7
+y 14
+end
+arch torch_wall_1
+x 7
+y 14
+end
+arch floor_sand_d3
+x 7
+y 15
+end
+arch floor_sand_d2
+x 7
+y 16
+end
+arch floor_sand_d2
+x 7
+y 17
+end
+arch fwall_rock3
+x 7
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 7
+y 18
+end
+arch fwall_lava1d
+x 7
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 7
+y 19
+end
+arch sand_dm7
+x 7
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 7
+y 19
+end
+arch floor_sand_d2
+x 7
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 7
+y 21
+end
+arch sand_dm6
+x 7
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 7
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 7
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 7
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 7
+y 23
+end
+arch fwall_lava1f
+x 7
+y 23
+end
+arch floor_sand_d4
+x 8
+end
+arch fwall_rock1
+x 8
+end
+arch floor_sand_d4
+x 8
+y 1
+end
+arch fwall_rock2
+x 8
+y 1
+end
+arch floor_sand_d3
+x 8
+y 2
+end
+arch fwall_rock1
+x 8
+y 2
+end
+arch floor_sand_d4
+x 8
+y 12
+end
+arch fwall_rock1
+x 8
+y 12
+end
+arch floor_sand_d1
+x 8
+y 13
+end
+arch crystal12
+x 8
+y 13
+end
+arch light2
+x 8
+y 13
+end
+arch floor_sand_d4
+x 8
+y 14
+end
+arch spawn_point
+x 8
+y 14
+arch drow_sorcerer
+level 83
+exp 127
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_cause_lig_wound
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_sand_d4
+x 8
+y 15
+end
+arch floor_sand_d3
+x 8
+y 16
+end
+arch fwall_rock2
+x 8
+y 16
+end
+arch floor_sand_d3
+x 8
+y 17
+end
+arch fwall_rock2
+x 8
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 8
+y 18
+end
+arch fwall_lava1d
+x 8
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 8
+y 19
+end
+arch sand_dm7
+x 8
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 19
+end
+arch floor_sand_d3
+x 8
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 8
+y 21
+end
+arch sand_dm6
+x 8
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 8
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 8
+y 23
+end
+arch fwall_lava1f
+x 8
+y 23
+end
+arch floor_sand_d4
+x 9
+end
+arch mushroom_spot1
+x 9
+end
+arch light3
+x 9
+end
+arch spawn_point
+x 9
+arch drow_guard
+level 85
+exp 107
+attack_slash 80
+type 83
+end
+end
+arch floor_sand_d2
+x 9
+y 1
+end
+arch mushroom_spot2
+x 9
+y 1
+end
+arch light3
+x 9
+y 1
+end
+arch floor_sand_d4
+x 9
+y 2
+end
+arch fwall_rock1
+x 9
+y 2
+end
+arch floor_sand_d4
+x 9
+y 3
+end
+arch fwall_rock2
+x 9
+y 3
+end
+arch floor_sand_d4
+x 9
+y 12
+end
+arch fwall_rock2
+x 9
+y 12
+end
+arch floor_sand_d1
+x 9
+y 13
+end
+arch blood_floor1
+x 9
+y 13
+end
+arch floor_sand_d4
+x 9
+y 14
+end
+arch floor_sand_d1
+x 9
+y 15
+end
+arch floor_sand_d4
+x 9
+y 16
+end
+arch fwall_rock2
+x 9
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 9
+y 18
+end
+arch fwall_lava1f
+x 9
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 9
+y 19
+end
+arch sand_dm16
+x 9
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 19
+end
+arch floor_sand_d2
+x 9
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 9
+y 21
+end
+arch sand_dm6
+x 9
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 9
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 9
+y 23
+end
+arch fwall_lava1f
+x 9
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 10
+end
+arch sand_dm13
+x 10
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+end
+arch floor_sand_d2
+x 10
+y 1
+end
+arch blood_floor2
+x 10
+y 1
+end
+arch floor_sand_d3
+x 10
+y 2
+end
+arch floor_sand_d4
+x 10
+y 3
+end
+arch fwall_rock1
+x 10
+y 3
+end
+arch floor_sand_d4
+x 10
+y 12
+end
+arch fwall_rock3
+x 10
+y 12
+end
+arch plant1_wall.151
+x 10
+y 12
+end
+arch floor_sand_d4
+x 10
+y 13
+end
+arch floor_sand_d4
+x 10
+y 14
+end
+arch floor_sand_d4
+x 10
+y 15
+end
+arch floor_sand_d1
+x 10
+y 16
+end
+arch fwall_rock1
+x 10
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 10
+y 18
+end
+arch fwall_lava1d
+x 10
+y 18
+end
+arch floor_sand_d4
+x 10
+y 19
+end
+arch spawn_point
+x 10
+y 19
+arch drow_annihilator
+level 83
+exp 147
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_firestorm
+sp 35
+hp 35
+end
+end
+end
+arch floor_sand_d2
+x 10
+y 20
+end
+arch dirt_floor4
+x 10
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 10
+y 21
+end
+arch sand_dm6
+x 10
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 10
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 10
+y 23
+end
+arch fwall_lava1d
+x 10
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 11
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 11
+y 1
+end
+arch sand_dm13
+x 11
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 1
+end
+arch floor_sand_d3
+x 11
+y 2
+end
+arch floor_sand_d2
+x 11
+y 3
+end
+arch fwall_rock2
+x 11
+y 3
+end
+arch floor_sand_d1
+x 11
+y 4
+end
+arch fwall_rock1
+x 11
+y 4
+end
+arch floor_sand_d2
+x 11
+y 11
+end
+arch fwall_rock1
+x 11
+y 11
+end
+arch floor_sand_d3
+x 11
+y 12
+end
+arch fwall_rock2
+x 11
+y 12
+end
+arch ring_wall.151
+x 11
+y 12
+end
+arch floor_sand_d3
+x 11
+y 13
+end
+arch floor_sand_d1
+x 11
+y 14
+end
+arch floor_sand_d1
+x 11
+y 15
+end
+arch crystal_red
+x 11
+y 15
+end
+arch light3
+x 11
+y 15
+end
+arch floor_sand_d2
+x 11
+y 16
+end
+arch fwall_rock3
+x 11
+y 16
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 11
+y 18
+end
+arch fwall_lava1d
+x 11
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 11
+y 19
+end
+arch sand_dm13
+x 11
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 19
+end
+arch floor_sand_d1
+x 11
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 11
+y 21
+end
+arch sand_dm6
+x 11
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 11
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 11
+y 23
+end
+arch fwall_lava1e
+x 11
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 12
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 12
+y 1
+end
+arch sand_dm16
+x 12
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 1
+end
+arch floor_sand_d3
+x 12
+y 2
+end
+arch floor_sand_d2
+x 12
+y 3
+end
+arch crystal_red
+x 12
+y 3
+end
+arch light3
+x 12
+y 3
+end
+arch floor_sand_d3
+x 12
+y 4
+end
+arch fwall_rock3
+x 12
+y 4
+end
+arch floor_sand_d2
+x 12
+y 11
+end
+arch fwall_rock3
+x 12
+y 11
+end
+arch floor_sand_d2
+x 12
+y 12
+end
+arch mushroom_giant3
+x 12
+y 12
+end
+arch floor_sand_d3
+x 12
+y 13
+end
+arch floor_sand_d1
+x 12
+y 14
+end
+arch floor_sand_d3
+x 12
+y 15
+end
+arch fwall_rock2
+x 12
+y 15
+end
+arch floor_sand_d3
+x 12
+y 16
+end
+arch fwall_rock2
+x 12
+y 16
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 12
+y 18
+end
+arch fwall_lava1f
+x 12
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 12
+y 19
+end
+arch fwall_lava1d
+x 12
+y 19
+end
+arch floor_sand_d1
+x 12
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 12
+y 21
+end
+arch sand_dm6
+x 12
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 12
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 12
+y 23
+end
+arch fwall_lava1d
+x 12
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 13
+end
+arch sand_dm16
+x 13
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+end
+arch floor_sand_d2
+x 13
+y 1
+end
+arch cave_pillar4
+x 13
+y 1
+end
+arch floor_sand_d3
+x 13
+y 2
+end
+arch mushroom_giant1
+x 13
+y 2
+end
+arch floor_sand_d2
+x 13
+y 3
+end
+arch floor_sand_d1
+x 13
+y 4
+end
+arch fwall_rock3
+x 13
+y 4
+end
+arch floor_sand_d4
+x 13
+y 5
+end
+arch fwall_rock2
+x 13
+y 5
+end
+arch floor_sand_d3
+x 13
+y 11
+end
+arch fwall_rock1
+x 13
+y 11
+end
+arch floor_sand_d3
+x 13
+y 12
+end
+arch mushroom_spot1
+x 13
+y 12
+end
+arch light2
+x 13
+y 12
+end
+arch floor_sand_d2
+x 13
+y 13
+end
+arch spawn_point
+x 13
+y 13
+arch drow_annihilator
+level 83
+exp 144
+maxsp 16
+Pow 20
+Dex 2
+type 83
+arch ability_firestorm
+end
+end
+end
+arch floor_sand_d1
+x 13
+y 14
+end
+arch floor_sand_d2
+x 13
+y 15
+end
+arch fwall_rock3
+x 13
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 13
+y 18
+end
+arch fwall_lava1f
+x 13
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 13
+y 19
+end
+arch fwall_lava1e
+x 13
+y 19
+end
+arch floor_sand_d2
+x 13
+y 20
+end
+arch blood_floor1
+x 13
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 13
+y 21
+end
+arch sand_dm6
+x 13
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 13
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 13
+y 23
+end
+arch fwall_lava1e
+x 13
+y 23
+end
+arch floor_sand_d1
+x 14
+end
+arch floor_sand_d1
+x 14
+y 1
+end
+arch floor_sand_d2
+x 14
+y 2
+end
+arch spawn_point
+x 14
+y 2
+arch drow_fighter
+level 85
+exp 109
+attack_slash 90
+type 83
+end
+end
+arch floor_sand_d3
+x 14
+y 3
+end
+arch dirt_floor1
+x 14
+y 3
+end
+arch floor_sand_d1
+x 14
+y 4
+end
+arch floor_sand_d3
+x 14
+y 5
+end
+arch fwall_rock1
+x 14
+y 5
+end
+arch floor_sand_d1
+x 14
+y 11
+end
+arch fwall_rock3
+x 14
+y 11
+end
+arch plant1_wall.151
+x 14
+y 11
+end
+arch floor_sand_d3
+x 14
+y 12
+end
+arch dirt_floor2
+x 14
+y 12
+end
+arch floor_sand_d3
+x 14
+y 13
+end
+arch floor_sand_d4
+x 14
+y 14
+end
+arch floor_sand_d2
+x 14
+y 15
+end
+arch fwall_rock2
+x 14
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 14
+y 19
+end
+arch fwall_lava1d
+x 14
+y 19
+end
+arch floor_sand_d4
+x 14
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 14
+y 21
+end
+arch sand_dm6
+x 14
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 14
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 14
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 14
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 14
+y 23
+end
+arch fwall_lava1f
+x 14
+y 23
+end
+arch floor_sand_d2
+x 15
+end
+arch dirt_floor4
+x 15
+end
+arch floor_sand_d4
+x 15
+y 1
+end
+arch floor_sand_d2
+x 15
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 15
+y 3
+end
+arch sand_dm14
+x 15
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 15
+y 4
+end
+arch sand_dm13
+x 15
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 4
+end
+arch floor_sand_d3
+x 15
+y 5
+end
+arch fwall_rock1
+x 15
+y 5
+end
+arch floor_sand_d2
+x 15
+y 6
+end
+arch fwall_rock1
+x 15
+y 6
+end
+arch floor_sand_d4
+x 15
+y 10
+end
+arch fwall_rock1
+x 15
+y 10
+end
+arch floor_sand_d1
+x 15
+y 11
+end
+arch fwall_rock1
+x 15
+y 11
+end
+arch floor_sand_d2
+x 15
+y 12
+end
+arch floor_sand_d2
+x 15
+y 13
+end
+arch floor_sand_d2
+x 15
+y 14
+end
+arch floor_sand_d4
+x 15
+y 15
+end
+arch fwall_rock2
+x 15
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 15
+y 19
+end
+arch fwall_lava1f
+x 15
+y 19
+end
+arch floor_sand_d1
+x 15
+y 20
+end
+arch dirt_floor3
+x 15
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 15
+y 21
+end
+arch sand_dm6
+x 15
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 15
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 15
+y 23
+end
+arch fwall_lava1f
+x 15
+y 23
+end
+arch floor_sand_d1
+x 16
+end
+arch floor_sand_d1
+x 16
+y 1
+end
+arch crystal14
+x 16
+y 1
+end
+arch light3
+x 16
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 16
+y 2
+end
+arch sand_dm14
+x 16
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 16
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 16
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 16
+y 5
+end
+arch sand_dm13
+x 16
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 5
+end
+arch floor_sand_d1
+x 16
+y 6
+end
+arch fwall_rock1
+x 16
+y 6
+end
+arch floor_sand_d3
+x 16
+y 10
+end
+arch fwall_rock3
+x 16
+y 10
+end
+arch floor_sand_d3
+x 16
+y 11
+end
+arch floor_sand_d2
+x 16
+y 12
+end
+arch floor_sand_d3
+x 16
+y 13
+end
+arch floor_sand_d2
+x 16
+y 14
+end
+arch fwall_rock1
+x 16
+y 14
+end
+arch floor_sand_d3
+x 16
+y 15
+end
+arch fwall_rock1
+x 16
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 16
+y 19
+end
+arch fwall_lava1f
+x 16
+y 19
+end
+arch floor_sand_d3
+x 16
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 16
+y 21
+end
+arch sand_dm6
+x 16
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 16
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 16
+y 23
+end
+arch fwall_lava1d
+x 16
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 17
+end
+arch sand_dm8
+x 17
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 17
+y 1
+end
+arch sand_dm8
+x 17
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 17
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 17
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 17
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 17
+y 5
+end
+arch sand_dm7
+x 17
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 5
+end
+arch floor_sand_d3
+x 17
+y 6
+end
+arch fwall_rock2
+x 17
+y 6
+end
+arch floor_sand_d3
+x 17
+y 10
+end
+arch fwall_rock1
+x 17
+y 10
+end
+arch plant1_wall.151
+x 17
+y 10
+end
+arch floor_sand_d3
+x 17
+y 11
+end
+arch torch_wall_1
+x 17
+y 11
+end
+arch floor_sand_d4
+x 17
+y 12
+end
+arch floor_sand_d4
+x 17
+y 13
+end
+arch floor_sand_d3
+x 17
+y 14
+end
+arch fwall_rock2
+x 17
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 17
+y 18
+end
+arch fwall_lava1d
+x 17
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 17
+y 19
+end
+arch fwall_lava1e
+x 17
+y 19
+end
+arch floor_sand_d2
+x 17
+y 20
+end
+arch blood_floor1
+x 17
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 17
+y 21
+end
+arch sand_dm6
+x 17
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 17
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 17
+y 23
+end
+arch fwall_lava1f
+x 17
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 18
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 18
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 18
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 18
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 18
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 18
+y 5
+end
+arch sand_dm7
+x 18
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 5
+end
+arch floor_sand_d1
+x 18
+y 6
+end
+arch fwall_rock2
+x 18
+y 6
+end
+arch floor_sand_d2
+x 18
+y 10
+end
+arch fwall_rock3
+x 18
+y 10
+end
+arch floor_sand_d1
+x 18
+y 11
+end
+arch dirt_floor2
+x 18
+y 11
+end
+arch floor_sand_d4
+x 18
+y 12
+end
+arch floor_sand_d4
+x 18
+y 13
+end
+arch mushroom_giant1
+x 18
+y 13
+end
+arch floor_sand_d2
+x 18
+y 14
+end
+arch fwall_rock1
+x 18
+y 14
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 15
+end
+arch fwall_lava1d
+x 18
+y 15
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 16
+end
+arch fwall_lava1e
+x 18
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 17
+end
+arch fwall_lava1d
+x 18
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 18
+end
+arch fwall_lava1e
+x 18
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 19
+end
+arch sand_dm16
+x 18
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 19
+end
+arch floor_sand_d4
+x 18
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 21
+end
+arch sand_dm6
+x 18
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 18
+y 23
+end
+arch fwall_lava1f
+x 18
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 19
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 19
+y 1
+end
+arch sand_dm9
+x 19
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 19
+y 2
+end
+arch sand_dm9
+x 19
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 19
+y 3
+end
+arch sand_dm9
+x 19
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 19
+y 4
+end
+arch sand_dm9
+x 19
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 19
+y 5
+end
+arch sand_dm16
+x 19
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 5
+end
+arch floor_sand_d2
+x 19
+y 6
+end
+arch fwall_rock3
+x 19
+y 6
+end
+arch floor_sand_d2
+x 19
+y 7
+end
+arch fwall_rock3
+x 19
+y 7
+end
+arch floor_sand_d2
+x 19
+y 8
+end
+arch fwall_rock3
+x 19
+y 8
+end
+arch floor_sand_d2
+x 19
+y 9
+end
+arch fwall_rock3
+x 19
+y 9
+end
+arch plant1_wall.151
+direction 7
+x 19
+y 9
+end
+arch floor_sand_d3
+x 19
+y 10
+end
+arch fwall_rock1
+x 19
+y 10
+end
+arch floor_sand_d3
+x 19
+y 11
+end
+arch mushroom_spot2
+x 19
+y 11
+end
+arch light2
+x 19
+y 11
+end
+arch floor_sand_d1
+x 19
+y 12
+end
+arch floor_sand_d1
+x 19
+y 13
+end
+arch floor_sand_d4
+x 19
+y 14
+end
+arch fwall_rock3
+no_pass 0
+x 19
+y 14
+end
+arch floor_sand_d1
+x 19
+y 15
+end
+arch floor_sand_d3
+x 19
+y 16
+end
+arch floor_sand_d2
+x 19
+y 17
+end
+arch floor_sand_d4
+x 19
+y 18
+end
+arch dirt_floor4
+x 19
+y 18
+end
+arch floor_sand_d4
+x 19
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 19
+y 20
+end
+arch sand_dm14
+x 19
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 19
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 19
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 19
+y 23
+end
+arch fwall_lava1f
+x 19
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 20
+end
+arch sand_dm7
+x 20
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+end
+arch floor_sand_d4
+x 20
+y 1
+end
+arch crystal_red_s
+x 20
+y 1
+end
+arch light3
+x 20
+y 1
+end
+arch floor_sand_d1
+x 20
+y 2
+end
+arch cave_pillar4
+x 20
+y 2
+end
+arch floor_sand_d3
+x 20
+y 3
+end
+arch mushroom_spot2
+x 20
+y 3
+end
+arch light3
+x 20
+y 3
+end
+arch floor_sand_d3
+x 20
+y 4
+end
+arch floor_sand_d3
+x 20
+y 5
+end
+arch floor_sand_d3
+x 20
+y 6
+end
+arch floor_sand_d4
+x 20
+y 7
+end
+arch mushroom_giant2
+x 20
+y 7
+end
+arch floor_sand_d3
+x 20
+y 8
+end
+arch dirt_floor1
+x 20
+y 8
+end
+arch floor_sand_d3
+x 20
+y 9
+end
+arch announcement
+msg
+Be very careful walking around. Do NOT approach the abyss, or you'll fall in to your death.
+endmsg
+direction 7
+name WARNING
+x 20
+y 9
+end
+arch floor_sand_d2
+x 20
+y 10
+end
+arch floor_sand_d1
+x 20
+y 11
+end
+arch spawn_point
+x 20
+y 11
+arch drow_guard
+level 84
+exp 107
+attack_slash 80
+type 83
+end
+end
+arch floor_sand_d3
+x 20
+y 12
+end
+arch floor_sand_d2
+x 20
+y 13
+end
+arch fwall_rock3
+x 20
+y 13
+end
+arch floor_sand_d4
+x 20
+y 14
+end
+arch fwall_rock1
+x 20
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 15
+end
+arch fwall_lava1e
+x 20
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 16
+end
+arch fwall_lava1d
+x 20
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 17
+end
+arch fwall_lava1e
+x 20
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 18
+end
+arch sand_dm8
+x 20
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 19
+end
+arch sand_dm8
+x 20
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 20
+y 23
+end
+arch fwall_lava1f
+x 20
+y 23
+end
+arch bridge_wood_NS.171
+x 21
+end
+arch floor_sand_d4
+x 21
+y 1
+end
+arch bridge_wood_NS.161
+x 21
+y 1
+end
+arch floor_sand_d3
+x 21
+y 2
+end
+arch floor_sand_d3
+x 21
+y 3
+end
+arch floor_sand_d2
+x 21
+y 4
+end
+arch floor_sand_d4
+x 21
+y 5
+end
+arch dirt_floor3
+x 21
+y 5
+end
+arch spawn_point
+x 21
+y 5
+arch drow_guard
+level 84
+exp 107
+attack_slash 80
+type 83
+end
+end
+arch floor_sand_d4
+x 21
+y 6
+end
+arch floor_sand_d3
+x 21
+y 7
+end
+arch floor_sand_d2
+x 21
+y 8
+end
+arch floor_sand_d4
+x 21
+y 9
+end
+arch floor_sand_d2
+x 21
+y 10
+end
+arch blood_floor2
+x 21
+y 10
+end
+arch floor_sand_d1
+x 21
+y 11
+end
+arch floor_sand_d2
+x 21
+y 12
+end
+arch floor_sand_d2
+x 21
+y 13
+end
+arch fwall_rock2
+x 21
+y 13
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 17
+end
+arch fwall_lava1d
+x 21
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 22
+end
+arch fwall_lava1d
+x 21
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 21
+y 23
+end
+arch fwall_lava1f
+x 21
+y 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 22
+end
+arch sand_dm7
+x 22
+end
+arch bridge_wood_NS.131
+layer 3
+x 22
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+end
+arch floor_sand_d1
+x 22
+y 1
+end
+arch bridge_wood_NS.141
+x 22
+y 1
+end
+arch floor_sand_d1
+x 22
+y 2
+end
+arch dirt_floor3
+x 22
+y 2
+end
+arch floor_sand_d2
+x 22
+y 3
+end
+arch floor_sand_d4
+x 22
+y 4
+end
+arch floor_sand_d4
+x 22
+y 5
+end
+arch floor_sand_d1
+x 22
+y 6
+end
+arch floor_sand_d4
+x 22
+y 7
+end
+arch floor_sand_d4
+x 22
+y 8
+end
+arch crystal12
+x 22
+y 8
+end
+arch light3
+x 22
+y 8
+end
+arch floor_sand_d4
+x 22
+y 9
+end
+arch floor_sand_d2
+x 22
+y 10
+end
+arch dirt_floor3
+x 22
+y 10
+end
+arch floor_sand_d3
+x 22
+y 11
+end
+arch floor_sand_d1
+x 22
+y 12
+end
+arch crystal_purple
+x 22
+y 12
+end
+arch light3
+x 22
+y 12
+end
+arch floor_sand_d1
+x 22
+y 13
+end
+arch fwall_rock1
+x 22
+y 13
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 22
+y 17
+end
+arch fwall_lava1d
+x 22
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
+x 22
+y 18
+end
+arch fwall_lava1f
+x 22
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 22
+y 19
+end
+arch fwall_lava1e
+x 22
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 22
+y 20
+end
+arch fwall_lava1f
+x 22
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 22
+y 21
+end
+arch fwall_lava1f
+x 22
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+player_only 1
+terrain_type 1
+x 22
+y 22
+end
+arch fwall_lava1d
+x 22
+y 22
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 23
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 23
+y 1
+end
+arch sand_dm8
+x 23
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 23
+y 2
+end
+arch sand_dm8
+x 23
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 23
+y 3
+end
+arch sand_dm8
+x 23
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 23
+y 4
+end
+arch sand_dm8
+x 23
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 23
+y 5
+end
+arch sand_dm13
+x 23
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 5
+end
+arch floor_sand_d4
+x 23
+y 6
+end
+arch fwall_rock2
+x 23
+y 6
+end
+arch floor_sand_d3
+x 23
+y 7
+end
+arch fwall_rock3
+x 23
+y 7
+end
+arch floor_sand_d1
+x 23
+y 8
+end
+arch fwall_rock2
+x 23
+y 8
+end
+arch floor_sand_d2
+x 23
+y 9
+end
+arch fwall_rock1
+x 23
+y 9
+end
+arch floor_sand_d4
+x 23
+y 10
+end
+arch fwall_rock2
+x 23
+y 10
+end
+arch floor_sand_d3
+x 23
+y 11
+end
+arch fwall_rock3
+x 23
+y 11
+end
+arch floor_sand_d1
+x 23
+y 12
+end
+arch fwall_rock1
+x 23
+y 12
+end
+arch floor_sand_d3
+x 23
+y 13
+end
+arch fwall_rock3
+x 23
+y 13
+end

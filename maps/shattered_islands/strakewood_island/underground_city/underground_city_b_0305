@@ -1,0 +1,683 @@
+arch map
+name The Underground City III
+msg
+Created:  2010-06-05 Alex Tokar
+Modified: 2010-07-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 80
+darkness 2
+tile_path_1 underground_city_b_0306
+tile_path_4 underground_city_b_0205
+tile_path_8 underground_city_b_0206
+bg_music thonkdonk.ogg
+region underground_city
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 5
+end
+arch sand_dm7
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 5
+end
+arch floor_sand_d3
+y 6
+end
+arch fwall_rock1
+y 6
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+end
+arch sand_dm9
+x 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 5
+end
+arch sand_dm16
+x 1
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 5
+end
+arch floor_sand_d2
+x 1
+y 6
+end
+arch fwall_rock3
+x 1
+y 6
+end
+arch floor_sand_d2
+x 2
+end
+arch dirt_floor3
+x 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 1
+end
+arch sand_dm15
+x 2
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 1
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 2
+end
+arch sand_dm9
+x 2
+y 2
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 4
+end
+arch sand_dm7
+x 2
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 4
+end
+arch floor_sand_d3
+x 2
+y 5
+end
+arch fwall_rock1
+x 2
+y 5
+end
+arch floor_sand_d3
+x 2
+y 6
+end
+arch fwall_rock3
+x 2
+y 6
+end
+arch floor_sand_d2
+x 3
+end
+arch cave_pillar3
+x 3
+end
+arch floor_sand_d1
+x 3
+y 1
+end
+arch crystal_purple_s
+x 3
+y 1
+end
+arch light3
+x 3
+y 1
+end
+arch floor_sand_d3
+x 3
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 3
+y 3
+end
+arch sand_dm15
+x 3
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 3
+y 4
+end
+arch sand_dm16
+x 3
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 4
+end
+arch floor_sand_d1
+x 3
+y 5
+end
+arch fwall_rock2
+x 3
+y 5
+end
+arch floor_sand_d2
+x 4
+end
+arch mushroom_spot2
+x 4
+end
+arch light3
+x 4
+end
+arch floor_sand_d4
+x 4
+y 1
+end
+arch mushroom_giant3
+x 4
+y 1
+end
+arch floor_sand_d2
+x 4
+y 2
+end
+arch dirt_floor3
+x 4
+y 2
+end
+arch spawn_point
+x 4
+y 2
+arch drow_guard
+level 85
+exp 107
+attack_slash 80
+type 83
+end
+end
+arch floor_sand_d2
+x 4
+y 3
+end
+arch floor_sand_d2
+x 4
+y 4
+end
+arch fwall_rock1
+x 4
+y 4
+end
+arch floor_sand_d1
+x 4
+y 5
+end
+arch fwall_rock1
+x 4
+y 5
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 5
+end
+arch sand_dm14
+x 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 5
+y 1
+end
+arch sand_dm13
+x 5
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 1
+end
+arch floor_sand_d2
+x 5
+y 2
+end
+arch floor_sand_d3
+x 5
+y 3
+end
+arch floor_sand_d4
+x 5
+y 4
+end
+arch fwall_rock3
+x 5
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 6
+end
+arch sand_dm15
+x 6
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 6
+y 1
+end
+arch sand_dm16
+x 6
+y 1
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 1
+end
+arch floor_sand_d4
+x 6
+y 2
+end
+arch floor_sand_d4
+x 6
+y 3
+end
+arch fwall_rock2
+x 6
+y 3
+end
+arch floor_sand_d4
+x 6
+y 4
+end
+arch fwall_rock3
+x 6
+y 4
+end
+arch floor_sand_d2
+x 7
+end
+arch crystal14
+x 7
+end
+arch light3
+x 7
+end
+arch floor_sand_d1
+x 7
+y 1
+end
+arch floor_sand_d4
+x 7
+y 2
+end
+arch floor_sand_d4
+x 7
+y 3
+end
+arch fwall_rock3
+x 7
+y 3
+end
+arch floor_sand_d3
+x 8
+end
+arch dirt_floor2
+x 8
+end
+arch floor_sand_d2
+x 8
+y 1
+end
+arch floor_sand_d2
+x 8
+y 2
+end
+arch floor_sand_d2
+x 8
+y 3
+end
+arch fwall_rock3
+x 8
+y 3
+end
+arch floor_sand_d1
+x 9
+end
+arch spawn_point
+x 9
+arch drow_captain
+level 85
+exp 108
+attack_slash 85
+type 83
+end
+end
+arch floor_sand_d1
+x 9
+y 1
+end
+arch floor_sand_d1
+x 9
+y 2
+end
+arch fwall_rock1
+x 9
+y 2
+end
+arch floor_sand_d2
+x 9
+y 3
+end
+arch fwall_rock1
+x 9
+y 3
+end
+arch floor_sand_d2
+x 10
+end
+arch floor_sand_d1
+x 10
+y 1
+end
+arch fwall_rock2
+x 10
+y 1
+end
+arch floor_sand_d4
+x 10
+y 2
+end
+arch fwall_rock3
+x 10
+y 2
+end
+arch floor_sand_d2
+x 11
+end
+arch fwall_rock1
+x 11
+end
+arch floor_sand_d4
+x 11
+y 1
+end
+arch fwall_rock3
+x 11
+y 1
+end

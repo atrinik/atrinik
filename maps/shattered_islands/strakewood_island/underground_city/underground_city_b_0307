@@ -1,0 +1,1163 @@
+arch map
+name The Underground City III
+msg
+Created:  2010-06-05 Alex Tokar
+Modified: 2010-07-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 85
+darkness 2
+tile_path_3 underground_city_b_0306
+tile_path_4 underground_city_b_0207
+tile_path_7 underground_city_b_0206
+bg_music thonkdonk.ogg
+region underground_city
+end
+arch floor_sand_d2
+end
+arch fwall_rock3
+end
+arch floor_sand_d4
+y 1
+end
+arch torch_wall_1
+y 1
+end
+arch floor_sand_d1
+y 2
+end
+arch dirt_floor2
+y 2
+end
+arch floor_sand_d2
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 4
+end
+arch sand_dm14
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 5
+end
+arch sand_dm3
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 5
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+y 6
+end
+arch sand_dm7
+y 6
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 6
+end
+arch floor_sand_d1
+y 7
+end
+arch floor_sand_d1
+y 8
+end
+arch floor_sand_d4
+y 9
+end
+arch floor_sand_d4
+y 10
+end
+arch blood_floor2
+y 10
+end
+arch floor_sand_d2
+y 11
+end
+arch floor_sand_d3
+y 12
+end
+arch floor_sand_d1
+y 13
+end
+arch floor_sand_d1
+y 14
+end
+arch floor_sand_d3
+y 15
+end
+arch floor_sand_d4
+y 16
+end
+arch floor_sand_d4
+y 17
+end
+arch floor_sand_d3
+y 18
+end
+arch floor_sand_d4
+y 19
+end
+arch floor_sand_d4
+y 20
+end
+arch floor_sand_d1
+y 21
+end
+arch floor_sand_d3
+y 22
+end
+arch floor_sand_d3
+y 23
+end
+arch floor_sand_d3
+x 1
+end
+arch fwall_rock2
+x 1
+end
+arch floor_sand_d1
+x 1
+y 1
+end
+arch mushroom_spot1
+x 1
+y 1
+end
+arch light3
+x 1
+y 1
+end
+arch floor_sand_d1
+x 1
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 3
+end
+arch sand_dm14
+x 1
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 5
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 1
+y 6
+end
+arch sand_dm7
+x 1
+y 6
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 6
+end
+arch floor_sand_d1
+x 1
+y 7
+end
+arch dirt_floor4
+x 1
+y 7
+end
+arch floor_sand_d3
+x 1
+y 8
+end
+arch floor_sand_d4
+x 1
+y 9
+end
+arch fwall_rock1
+x 1
+y 9
+end
+arch floor_sand_d2
+x 1
+y 10
+end
+arch fwall_rock3
+x 1
+y 10
+end
+arch floor_sand_d1
+x 1
+y 11
+end
+arch fwall_rock3
+x 1
+y 11
+end
+arch floor_sand_d3
+x 1
+y 12
+end
+arch fwall_rock3
+x 1
+y 12
+end
+arch floor_sand_d1
+x 1
+y 13
+end
+arch fwall_rock3
+x 1
+y 13
+end
+arch floor_sand_d2
+x 1
+y 14
+end
+arch fwall_rock1
+x 1
+y 14
+end
+arch floor_sand_d2
+x 1
+y 15
+end
+arch crystal_red_s
+x 1
+y 15
+end
+arch light3
+x 1
+y 15
+end
+arch floor_sand_d3
+x 1
+y 16
+end
+arch floor_sand_d4
+x 1
+y 17
+end
+arch floor_sand_d4
+x 1
+y 18
+end
+arch floor_sand_d4
+x 1
+y 19
+end
+arch floor_sand_d1
+x 1
+y 20
+end
+arch floor_sand_d4
+x 1
+y 21
+end
+arch floor_sand_d3
+x 1
+y 22
+end
+arch dirt_floor1
+x 1
+y 22
+end
+arch floor_sand_d2
+x 1
+y 23
+end
+arch floor_sand_d2
+x 2
+end
+arch fwall_rock1
+x 2
+end
+arch floor_sand_d1
+x 2
+y 1
+end
+arch mushroom_spot2
+x 2
+y 1
+end
+arch light3
+x 2
+y 1
+end
+arch floor_sand_d3
+x 2
+y 2
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 3
+end
+arch sand_dm15
+x 2
+y 3
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 3
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 4
+end
+arch sand_dm9
+x 2
+y 4
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 4
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 5
+end
+arch sand_dm9
+x 2
+y 5
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 5
+end
+arch blocked
+player_only 1
+blocksview 0
+no_pass 0
+x 2
+y 6
+end
+arch sand_dm16
+x 2
+y 6
+end
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 6
+end
+arch floor_sand_d1
+x 2
+y 7
+end
+arch floor_sand_d2
+x 2
+y 8
+end
+arch mushroom_giant3
+x 2
+y 8
+end
+arch floor_sand_d3
+x 2
+y 9
+end
+arch fwall_rock2
+x 2
+y 9
+end
+arch floor_sand_d3
+x 2
+y 14
+end
+arch fwall_rock1
+x 2
+y 14
+end
+arch floor_sand_d4
+x 2
+y 15
+end
+arch mushroom_giant1
+x 2
+y 15
+end
+arch floor_sand_d3
+x 2
+y 16
+end
+arch floor_sand_d1
+x 2
+y 17
+end
+arch floor_sand_d3
+x 2
+y 18
+end
+arch floor_sand_d1
+x 2
+y 19
+end
+arch cave_pillar4
+x 2
+y 19
+end
+arch floor_sand_d2
+x 2
+y 20
+end
+arch floor_sand_d2
+x 2
+y 21
+end
+arch floor_sand_d4
+x 2
+y 22
+end
+arch floor_sand_d2
+x 2
+y 23
+end
+arch floor_sand_d2
+x 3
+end
+arch fwall_rock1
+x 3
+end
+arch floor_sand_d3
+x 3
+y 1
+end
+arch crystal10
+x 3
+y 1
+end
+arch light3
+x 3
+y 1
+end
+arch floor_sand_d1
+x 3
+y 2
+end
+arch floor_sand_d1
+x 3
+y 3
+end
+arch floor_sand_d3
+x 3
+y 4
+end
+arch floor_sand_d4
+x 3
+y 5
+end
+arch floor_sand_d3
+x 3
+y 6
+end
+arch floor_sand_d1
+x 3
+y 7
+end
+arch floor_sand_d3
+x 3
+y 8
+end
+arch fwall_rock1
+x 3
+y 8
+end
+arch floor_sand_d3
+x 3
+y 9
+end
+arch fwall_rock2
+x 3
+y 9
+end
+arch floor_sand_d4
+x 3
+y 14
+end
+arch fwall_rock2
+x 3
+y 14
+end
+arch floor_sand_d4
+x 3
+y 15
+end
+arch fwall_rock2
+x 3
+y 15
+end
+arch floor_sand_d1
+x 3
+y 16
+end
+arch floor_sand_d4
+x 3
+y 17
+end
+arch floor_sand_d4
+x 3
+y 18
+end
+arch dirt_floor4
+x 3
+y 18
+end
+arch floor_sand_d4
+x 3
+y 19
+end
+arch floor_sand_d3
+x 3
+y 20
+end
+arch floor_sand_d3
+x 3
+y 21
+end
+arch dirt_floor2
+x 3
+y 21
+end
+arch floor_sand_d2
+x 3
+y 22
+end
+arch floor_sand_d1
+x 3
+y 23
+end
+arch floor_sand_d4
+x 4
+end
+arch fwall_rock3
+x 4
+end
+arch floor_sand_d2
+x 4
+y 1
+end
+arch mushroom_giant3
+x 4
+y 1
+end
+arch floor_sand_d1
+x 4
+y 2
+end
+arch floor_sand_d1
+x 4
+y 3
+end
+arch blood_floor1
+x 4
+y 3
+end
+arch floor_sand_d2
+x 4
+y 4
+end
+arch spawn_point
+x 4
+y 4
+arch drow_fighter
+level 90
+exp 109
+attack_slash 90
+type 83
+end
+end
+arch floor_sand_d2
+x 4
+y 5
+end
+arch floor_sand_d4
+x 4
+y 6
+end
+arch mushroom_spot1
+x 4
+y 6
+end
+arch light3
+x 4
+y 6
+end
+arch floor_sand_d4
+x 4
+y 7
+end
+arch fwall_rock2
+x 4
+y 7
+end
+arch floor_sand_d3
+x 4
+y 8
+end
+arch fwall_rock1
+x 4
+y 8
+end
+arch floor_sand_d2
+x 4
+y 15
+end
+arch fwall_rock3
+x 4
+y 15
+end
+arch floor_sand_d3
+x 4
+y 16
+end
+arch fwall_rock2
+x 4
+y 16
+end
+arch floor_sand_d2
+x 4
+y 17
+end
+arch mushroom_spot2
+x 4
+y 17
+end
+arch light3
+x 4
+y 17
+end
+arch floor_sand_d4
+x 4
+y 18
+end
+arch floor_sand_d2
+x 4
+y 19
+end
+arch floor_sand_d2
+x 4
+y 20
+end
+arch crystal10
+x 4
+y 20
+end
+arch light3
+x 4
+y 20
+end
+arch floor_sand_d3
+x 4
+y 21
+end
+arch floor_sand_d3
+x 4
+y 22
+end
+arch mushroom_giant2
+x 4
+y 22
+end
+arch floor_sand_d2
+x 4
+y 23
+end
+arch floor_sand_d3
+x 5
+end
+arch fwall_rock3
+x 5
+end
+arch floor_sand_d4
+x 5
+y 1
+end
+arch crystal_red
+x 5
+y 1
+end
+arch light3
+x 5
+y 1
+end
+arch floor_sand_d2
+x 5
+y 2
+end
+arch floor_sand_d4
+x 5
+y 3
+end
+arch cave_pillar4
+x 5
+y 3
+end
+arch floor_sand_d3
+x 5
+y 4
+end
+arch floor_sand_d3
+x 5
+y 5
+end
+arch floor_sand_d1
+x 5
+y 6
+end
+arch fwall_rock3
+x 5
+y 6
+end
+arch floor_sand_d3
+x 5
+y 7
+end
+arch fwall_rock3
+x 5
+y 7
+end
+arch floor_sand_d4
+x 5
+y 16
+end
+arch fwall_rock1
+x 5
+y 16
+end
+arch floor_sand_d1
+x 5
+y 17
+end
+arch fwall_rock1
+x 5
+y 17
+end
+arch floor_sand_d4
+x 5
+y 18
+end
+arch floor_sand_d1
+x 5
+y 19
+end
+arch floor_sand_d2
+x 5
+y 20
+end
+arch floor_sand_d3
+x 5
+y 21
+end
+arch spawn_point
+x 5
+y 21
+arch drow_guard
+level 89
+exp 107
+attack_slash 80
+type 83
+end
+end
+arch floor_sand_d3
+x 5
+y 22
+end
+arch floor_sand_d2
+x 5
+y 23
+end
+arch floor_sand_d3
+x 6
+end
+arch fwall_rock3
+x 6
+end
+arch floor_sand_d2
+x 6
+y 1
+end
+arch fwall_rock3
+x 6
+y 1
+end
+arch floor_sand_d3
+x 6
+y 2
+end
+arch crystal_purple_s
+x 6
+y 2
+end
+arch light3
+x 6
+y 2
+end
+arch floor_sand_d3
+x 6
+y 3
+end
+arch dirt_floor1
+x 6
+y 3
+end
+arch floor_sand_d1
+x 6
+y 4
+end
+arch floor_sand_d2
+x 6
+y 5
+end
+arch fwall_rock3
+x 6
+y 5
+end
+arch floor_sand_d3
+x 6
+y 6
+end
+arch fwall_rock2
+x 6
+y 6
+end
+arch floor_sand_d2
+x 6
+y 17
+end
+arch fwall_rock2
+x 6
+y 17
+end
+arch floor_sand_d2
+x 6
+y 18
+end
+arch fwall_rock2
+x 6
+y 18
+end
+arch floor_sand_d3
+x 6
+y 19
+end
+arch crystal_red
+x 6
+y 19
+end
+arch light3
+x 6
+y 19
+end
+arch floor_sand_d3
+x 6
+y 20
+end
+arch floor_sand_d2
+x 6
+y 21
+end
+arch floor_sand_d1
+x 6
+y 22
+end
+arch floor_sand_d3
+x 6
+y 23
+end
+arch floor_sand_d4
+x 7
+y 1
+end
+arch fwall_rock3
+x 7
+y 1
+end
+arch floor_sand_d2
+x 7
+y 2
+end
+arch fwall_rock1
+x 7
+y 2
+end
+arch floor_sand_d2
+x 7
+y 3
+end
+arch fwall_rock1
+x 7
+y 3
+end
+arch floor_sand_d4
+x 7
+y 4
+end
+arch fwall_rock1
+x 7
+y 4
+end
+arch floor_sand_d3
+x 7
+y 5
+end
+arch fwall_rock1
+x 7
+y 5
+end
+arch floor_sand_d2
+x 7
+y 18
+end
+arch fwall_rock3
+x 7
+y 18
+end
+arch floor_sand_d1
+x 7
+y 19
+end
+arch fwall_rock2
+x 7
+y 19
+end
+arch floor_sand_d4
+x 7
+y 20
+end
+arch floor_sand_d1
+x 7
+y 21
+end
+arch floor_sand_d2
+x 7
+y 22
+end
+arch cave_pillar4
+x 7
+y 22
+end
+arch floor_sand_d3
+x 7
+y 23
+end
+arch floor_sand_d3
+x 8
+y 19
+end
+arch fwall_rock1
+x 8
+y 19
+end
+arch floor_sand_d3
+x 8
+y 20
+end
+arch fwall_rock3
+x 8
+y 20
+end
+arch floor_sand_d4
+x 8
+y 21
+end
+arch mushroom_spot1
+x 8
+y 21
+end
+arch light3
+x 8
+y 21
+end
+arch floor_sand_d3
+x 8
+y 22
+end
+arch dirt_floor4
+x 8
+y 22
+end
+arch floor_sand_d1
+x 8
+y 23
+end
+arch floor_sand_d1
+x 9
+y 20
+end
+arch fwall_rock3
+x 9
+y 20
+end
+arch floor_sand_d4
+x 9
+y 21
+end
+arch fwall_rock3
+x 9
+y 21
+end
+arch floor_sand_d1
+x 9
+y 22
+end
+arch floor_sand_d1
+x 9
+y 23
+end
+arch floor_sand_d3
+x 10
+y 21
+end
+arch fwall_rock3
+x 10
+y 21
+end
+arch floor_sand_d1
+x 10
+y 22
+end
+arch fwall_rock3
+x 10
+y 22
+end
+arch floor_sand_d1
+x 10
+y 23
+end
+arch crystal_purple_s
+x 10
+y 23
+end
+arch light3
+x 10
+y 23
+end
+arch floor_sand_d4
+x 11
+y 22
+end
+arch fwall_rock2
+x 11
+y 22
+end
+arch floor_sand_d4
+x 11
+y 23
+end
+arch fwall_rock1
+x 11
+y 23
+end
