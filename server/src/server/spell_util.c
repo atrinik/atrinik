@@ -40,6 +40,8 @@ void init_spells()
 {
 	static int init_spells_done = 0;
 	int i;
+	FILE *fp;
+	char filename[MAX_BUF];
 
 	if (init_spells_done)
 	{
@@ -48,6 +50,14 @@ void init_spells()
 
 	LOG(llevDebug, "Initializing spells... ");
 	init_spells_done = 1;
+
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, SRV_FILE_SPELLS_FILENAME);
+	fp = fopen(filename, "w");
+
+	if (!fp)
+	{
+		LOG(llevError, "\nERROR: Cannot open file '%s' for writing.\n", filename);
+	}
 
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
@@ -82,24 +92,9 @@ void init_spells()
 				spells[i].time = atoi(value);
 			}
 
-			if ((value = object_get_value(tmp, "spell_scrolls")))
-			{
-				spells[i].charges = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_charges")))
-			{
-				spells[i].charges = atoi(value);
-			}
-
 			if ((value = object_get_value(tmp, "spell_range")))
 			{
 				spells[i].range = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_value_mul")))
-			{
-				spells[i].value_mul = atof(value);
 			}
 
 			if ((value = object_get_value(tmp, "spell_bdam")))
@@ -144,8 +139,31 @@ void init_spells()
 		{
 			spellarch[i] = NULL;
 		}
+
+		if (spells[i].icon)
+		{
+			if (!find_face(spells[i].icon, 0))
+			{
+				LOG(llevError, "ERROR: Spell '%s' needs face '%s', but it could not be found.\n", spells[i].name, spells[i].icon);
+			}
+		}
+
+		if (spells[i].icon && spells[i].description)
+		{
+			int j;
+
+			for (j = 0; j < NRSPELLPATHS; j++)
+			{
+				if (spells[i].path & (1 << j))
+				{
+					fprintf(fp, "%s\n%d\n%d\n%s\n%s\nend\n", spells[i].name, spells[i].type, j, spells[i].icon, spells[i].description);
+					break;
+				}
+			}
+		}
 	}
 
+	fclose(fp);
 	LOG(llevDebug, "done.\n");
 }
 

@@ -478,6 +478,9 @@ void init_srv_files()
 
 	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, UPDATES_FILE_NAME);
 	load_srv_file(buf, SRV_FILE_UPDATES);
+
+	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SRV_FILE_SPELLS_FILENAME);
+	load_srv_file(buf, SRV_FILE_SPELLS_V2);
 }
 
 /**

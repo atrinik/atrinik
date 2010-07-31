@@ -145,6 +145,14 @@ typedef struct spell_struct
 	/** @ref SPELL_TYPE_xxx "Type of spell". */
 	int type;
 
+	/**
+	 * Face name that should be used as an icon in client's spell
+	 * list/quickslots. */
+	char *icon;
+
+	/** Description of the spell for client's spell list. */
+	char *description;
+
 	/** Level required to cast this spell. */
 	int level;
 
