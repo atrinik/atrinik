@@ -303,4 +303,9 @@ typedef enum SpellTypeFrom
  * 20% sacrifice of money when casting the 'transform wealth' spell. */
 #define TRANSFORM_WEALTH_SACRIFICE 0.80f
 
+/** Minimum number for rolls in spell_attack_missed(). */
+#define SPELL_MISS_ROLL_MIN 5
+/** Maximum number for rolls in spell_attack_missed(). */
+#define SPELL_MISS_ROLL_MAX 20
+
 #endif

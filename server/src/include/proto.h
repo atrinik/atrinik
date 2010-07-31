@@ -373,6 +373,7 @@ object *hit_with_arrow(object *op, object *victim);
 void confuse_living(object *op);
 void paralyze_living(object *op, int dam);
 int is_melee_range(object *hitter, object *enemy);
+int spell_attack_missed(object *hitter, object *enemy);
 
 /* server/ban.c */
 void load_bans_file();

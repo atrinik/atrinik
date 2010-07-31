@@ -560,6 +560,11 @@ int hit_map(object *op, int dir, int reduce)
 		/* First, we check player... */
 		if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
 		{
+			if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp))
+			{
+				continue;
+			}
+
 			hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
 
 			if (was_destroyed(op, op_tag))
@@ -589,6 +594,11 @@ int hit_map(object *op, int dir, int reduce)
 							continue;
 					}
 				}
+			}
+
+			if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp_head))
+			{
+				continue;
 			}
 
 			if (tmp->quick_pos && reduce)
@@ -1687,4 +1697,24 @@ int is_melee_range(object *hitter, object *enemy)
 	}
 
 	return 0;
+}
+
+/**
+ * Checks if a spell attack missed its enemy.
+ * @param hitter The spell.
+ * @param enemy The enemy.
+ * @return 1 if the attack missed, 0 otherwise. */
+int spell_attack_missed(object *hitter, object *enemy)
+{
+	int roll = rndm(SPELL_MISS_ROLL_MIN, SPELL_MISS_ROLL_MAX);
+
+	/* Adjust roll for various situations. */
+	roll += adj_attackroll(hitter, enemy);
+
+	if (roll >= SPELL_MISS_ROLL_MAX || enemy->level <= hitter->level + roll)
+	{
+		return 0;
+	}
+
+	return 1;
 }

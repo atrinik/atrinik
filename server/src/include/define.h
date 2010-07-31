@@ -873,6 +873,8 @@
 #define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER) || QUERY_FLAG((op), FLAG_ALIVE))
 /** Is it an arrow? */
 #define IS_ARROW(op) (op->type == ARROW || op->type == MMISSILE || op->type == BULLET)
+/** Determine whether the object is an attack spell. */
+#define IS_ATTACK_SPELL(op) ((op)->type == MMISSILE || (op)->type == BULLET || (op)->type == CONE || (op)->type == LIGHTNING)
 /*@}*/
 
 /**
