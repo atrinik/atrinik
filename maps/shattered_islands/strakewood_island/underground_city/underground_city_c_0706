@@ -352,7 +352,7 @@ end
 arch spawn_point
 x 9
 y 10
-arch demon_green
+arch lom_lobon
 randomitems mob_drow_mage
 level 99
 exp 130
@@ -361,7 +361,6 @@ wc 5
 maxhp 70
 ac 11
 Con 3
-attack_cleave 90
 can_cast_spell 1
 sp -1
 maxsp 30
@@ -497,7 +496,7 @@ end
 arch spawn_point
 x 10
 y 15
-arch demon_green
+arch bone_devil
 randomitems mob_drow
 level 98
 exp 112
@@ -1711,7 +1710,7 @@ end
 arch spawn_point
 x 17
 y 8
-arch demon_green
+arch lom_lobon
 randomitems mob_drow_mage
 level 100
 exp 130
@@ -1720,7 +1719,6 @@ wc 5
 maxhp 70
 ac 11
 Con 3
-attack_cleave 90
 can_cast_spell 1
 sp -1
 maxsp 30
@@ -1880,7 +1878,7 @@ end
 arch spawn_point
 x 18
 y 14
-arch demon_green
+arch bone_devil
 randomitems mob_drow
 level 99
 exp 112
