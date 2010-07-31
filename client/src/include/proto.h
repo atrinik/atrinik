@@ -171,6 +171,7 @@ void script_autoload();
 void script_unload(const char *params);
 
 /* client/server_settings.c */
+int get_bmap_id(char *name);
 void load_settings();
 void read_settings();
 void delete_server_chars();
@@ -289,6 +290,7 @@ void book_gui_handle_mouse(int x, int y);
 void show_login_server();
 
 /* gui/create_character.c */
+void blit_face(int id, int x, int y);
 void show_newplayer_server();
 
 /* gui/fps.c */

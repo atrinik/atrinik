@@ -274,7 +274,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			if (quick_slots[j].spell)
 			{
 				/* Output the sprite */
-				sprite_blt(spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], NULL, NULL);
+				blit_face(spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 
 				/* If mouse is over the quickslot, show a tooltip */
 				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)

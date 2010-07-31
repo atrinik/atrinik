@@ -203,9 +203,9 @@ void SetupCmd(char *buf, int len)
 		{
 			parse_srv_setup(param, cmd, SRV_CLIENT_SKILLS);
 		}
-		else if (!strcmp(cmd, "spf"))
+		else if (!strcmp(cmd, "spfv2"))
 		{
-			parse_srv_setup(param, cmd, SRV_CLIENT_SPELLS);
+			parse_srv_setup(param, cmd, SRV_FILE_SPELLS_V2);
 		}
 		else if (!strcmp(cmd, "stf"))
 		{
@@ -1838,7 +1838,7 @@ void DataCmd(unsigned char *data, int len)
 			save_data_cmd_file(FILE_CLIENT_SKILLS, data, len);
 			break;
 
-		case SRV_CLIENT_SPELLS:
+		case SRV_FILE_SPELLS_V2:
 			save_data_cmd_file(FILE_CLIENT_SPELLS, data, len);
 			break;
 

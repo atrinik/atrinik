@@ -224,7 +224,7 @@ void widget_show_range(widgetdata *widget)
 
 				if (fire_mode_tab[FIRE_MODE_SPELL].spell->flag != -1)
 				{
-					sprite_blt(fire_mode_tab[FIRE_MODE_SPELL].spell->icon, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
+					blit_face(fire_mode_tab[FIRE_MODE_SPELL].spell->icon, widget->x1 + 43, widget->y1 + 2);
 					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SPELL].spell->name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 				}
 				else

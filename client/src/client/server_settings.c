@@ -33,7 +33,7 @@
  * Find a face ID by name. Request the face by finding it, loading it or requesting it.
  * @param name Face name to find
  * @return Face ID if found, -1 otherwise */
-static int get_bmap_id(char *name)
+int get_bmap_id(char *name)
 {
 	int i;
 

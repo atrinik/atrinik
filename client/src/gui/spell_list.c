@@ -183,23 +183,29 @@ void show_spelllist()
 			sprintf(buf, "%5d", spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].cost);
 			StringBlt(ScreenSurface, &SystemFont, buf, x + (Bitmaps[BITMAP_DIALOG_BG]->bitmap->w - 60), y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
 		}
+		else if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].flag == LIST_ENTRY_USED)
+		{
+			StringBlt(ScreenSurface, &SystemFont, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].name, x + TXT_START_NAME, y + TXT_Y_START, COLOR_GREY, NULL, NULL);
+		}
 	}
 
 	x += 160;
 	y += 120;
 
 	/* Print spell description */
-	if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
+	if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag != LIST_ENTRY_UNUSED)
 	{
+		char *tmpbuf, *cp;
+		int tmp_y = 0, width = 0, len;
+
 		/* Selected */
-		if (mb && mx > x - 40 && mx < x - 10 && my > y + 10 && my < y + 43)
+		if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag == LIST_ENTRY_KNOWN && mb && mx > x - 40 && mx < x - 10 && my > y + 10 && my < y + 43)
 		{
 			dblclk = 0;
 			check_menu_keys(MENU_SPELL, SDLK_RETURN);
 		}
 
-		sprite_blt(spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].icon, x - 42, y + 10, NULL, NULL);
-		sprite_blt(spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].icon, x - 42, y + 10, NULL, NULL);
+		blit_face(spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].icon, x - 42, y + 10);
 
 		/* Path relationship. */
 		if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].path == 'a')
@@ -218,12 +224,32 @@ void show_spelllist()
 			StringBlt(ScreenSurface, &BigFont, "Denied", x - 140, y + 25, COLOR_HGOLD, NULL, NULL);
 		}
 
-		/* Print textblock */
-		for (i = 0; i < 4; i++)
+		tmpbuf = strdup(spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].desc);
+		cp = strtok(tmpbuf, " ");
+
+		/* Loop through spaces */
+		while (cp)
 		{
-			StringBlt(ScreenSurface, &SystemFont, &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].desc[i][0], x - 2, y + 1, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].desc[i][0], x - 3, y, COLOR_WHITE, NULL, NULL);
-			y += 13;
+			len = get_string_pixel_length(cp, &SystemFont) + SystemFont.c[' '].w + SystemFont.char_offset;
+
+			/* Do we need to adjust for the next line? */
+			if (width + len > MAX_MS_DESC_LINE)
+			{
+				width = 0;
+				tmp_y += 12;
+			}
+
+			/* We hit the max */
+			if (tmp_y >= MAX_MS_DESC_Y)
+			{
+				break;
+			}
+
+			StringBlt(ScreenSurface, &SystemFont, cp, x - 2 + width, y + 1 + tmp_y, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, cp, x - 3 + width, y + tmp_y, COLOR_WHITE, NULL, NULL);
+			width += len;
+
+			cp = strtok(NULL, " ");
 		}
 	}
 
@@ -237,21 +263,21 @@ void show_spelllist()
  * Read spells file. */
 void read_spells()
 {
-	int i, ii, panel;
-	char type, nchar, *tmp, *tmp2;
-	struct stat statbuf;
-	FILE *stream;
-	char *temp_buf;
-	char line[255], name[255], d1[255], d2[255], d3[255], d4[255], icon[128];
+	size_t i, ii, iii;
+	FILE *fp;
+	struct stat sb;
+	size_t st_size, numread;
+	char *contents, line[HUGE_BUF];
 
 	for (i = 0; i < SPELL_LIST_MAX; i++)
 	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
+		for (ii = 0; ii < SPELL_LIST_CLASS; ii++)
 		{
-			spell_list[i].entry[0][ii].flag = LIST_ENTRY_UNUSED;
-			spell_list[i].entry[1][ii].flag = LIST_ENTRY_UNUSED;
-			spell_list[i].entry[0][ii].name[0] = 0;
-			spell_list[i].entry[1][ii].name[0] = 0;
+			for (iii = 0; iii < DIALOG_LIST_ENTRY; iii++)
+			{
+				spell_list[i].entry[ii][iii].flag = LIST_ENTRY_UNUSED;
+				spell_list[i].entry[ii][iii].name[0] = '\0';
+			}
 		}
 	}
 
@@ -259,92 +285,97 @@ void read_spells()
 	spell_list_set.entry_nr = 0;
 	spell_list_set.group_nr = 0;
 
-	srv_client_files[SRV_CLIENT_SPELLS].len = 0;
-	srv_client_files[SRV_CLIENT_SPELLS].crc = 0;
+	srv_client_files[SRV_FILE_SPELLS_V2].len = 0;
+	srv_client_files[SRV_FILE_SPELLS_V2].crc = 0;
+
 	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_SPELLS);
+	fp = fopen_wrapper(FILE_CLIENT_SPELLS, "rb");
 
-	if ((stream = fopen_wrapper(FILE_CLIENT_SPELLS, "rb")) != NULL)
+	if (!fp)
 	{
-		/* Temporary load the file and get the data we need for compare with server */
-		fstat(fileno(stream), &statbuf);
-		i = (int) statbuf.st_size;
-		srv_client_files[SRV_CLIENT_SPELLS].len = i;
-		temp_buf = malloc(i);
+		return;
+	}
 
-		if (fread(temp_buf, 1, i, stream))
-			srv_client_files[SRV_CLIENT_SPELLS].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
+	fstat(fileno(fp), &sb);
+	st_size = sb.st_size;
+	srv_client_files[SRV_FILE_SPELLS_V2].len = st_size;
 
-		free(temp_buf);
-		rewind(stream);
+	contents = malloc(st_size);
+	numread = fread(contents, 1, st_size, fp);
+	srv_client_files[SRV_FILE_SPELLS_V2].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
+	free(contents);
+	rewind(fp);
 
-		for (i = 0; ; i++)
+	while (fgets(line, sizeof(line) - 1, fp))
+	{
+		char *spell_name, *icon, desc[HUGE_BUF];
+		int spell_type, spell_path;
+
+		line[strlen(line) - 1] = '\0';
+		spell_name = strdup(line);
+
+		if (!fgets(line, sizeof(line) - 1, fp))
 		{
-			if (fgets(line, 255, stream) == NULL)
-				break;
-
-			line[250] = 0;
-			tmp = strchr(line, '"');
-			tmp2 = strchr(tmp + 1, '"');
-			*tmp2 = 0;
-			strcpy(name, tmp + 1);
-
-			if (fgets(line, 255, stream) == NULL)
-				break;
-
-			sscanf(line, "%c %c %d %s", &type, &nchar, &panel, icon);
-
-			if (fgets(line, 255, stream) == NULL)
-				break;
-
-			line[250] = 0;
-			tmp = strchr(line, '"');
-			tmp2 = strchr(tmp + 1, '"');
-			*tmp2 = 0;
-			strcpy(d1, tmp + 1);
-
-			if (fgets(line, 255, stream) == NULL)
-				break;
-
-			line[250] = 0;
-			tmp = strchr(line, '"');
-			tmp2 = strchr(tmp + 1, '"');
-			*tmp2 = 0;
-			strcpy(d2, tmp + 1);
-
-			if (fgets(line, 255, stream) == NULL)
-				break;
-
-			line[250] = 0;
-			tmp = strchr(line, '"');
-			tmp2 = strchr(tmp + 1, '"');
-			*tmp2 = 0;
-			strcpy(d3, tmp + 1);
-
-			if (fgets(line, 255, stream) == NULL)
-				break;
-
-			line[250] = 0;
-			tmp = strchr(line, '"');
-			tmp2 = strchr(tmp + 1, '"');
-			*tmp2 = 0;
-			strcpy(d4, tmp + 1);
-			panel--;
-
-			spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].flag = LIST_ENTRY_USED;
-			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon_name, icon);
-
-			sprintf(line, "%s%s", GetIconDirectory(), icon);
-			spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon = sprite_load_file(line, SURFACE_FLAG_DISPLAYFORMAT);
-
-			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].name, name);
-			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[0], d1);
-			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[1], d2);
-			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[2], d3);
-			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[3], d4);
+			LOG(llevBug, "  Got unexpected EOF reading spells file.\n");
+			break;
 		}
 
-		fclose(stream);
+		spell_type = atoi(line);
+
+		if (!fgets(line, sizeof(line) - 1, fp))
+		{
+			LOG(llevBug, "  Got unexpected EOF reading spells file.\n");
+			break;
+		}
+
+		spell_path = atoi(line);
+
+		if (!fgets(line, sizeof(line) - 1, fp))
+		{
+			LOG(llevBug, "  Got unexpected EOF reading spells file.\n");
+			break;
+		}
+
+		line[strlen(line) - 1] = '\0';
+		icon = strdup(line);
+		desc[0] = '\0';
+
+		while (fgets(line, sizeof(line) - 1, fp))
+		{
+			if (!strcmp(line, "end\n"))
+			{
+				_spell_list_entry *entry;
+
+				for (i = 0; i < DIALOG_LIST_ENTRY; i++)
+				{
+					if (spell_list[spell_path].entry[spell_type - 1][i].flag == LIST_ENTRY_UNUSED)
+					{
+						break;
+					}
+				}
+
+				if (i == DIALOG_LIST_ENTRY)
+				{
+					break;
+				}
+
+				entry = &spell_list[spell_path].entry[spell_type - 1][i];
+				entry->flag = LIST_ENTRY_USED;
+				strncpy(entry->name, spell_name, sizeof(entry->name));
+				desc[strlen(desc) - 1] = '\0';
+				strncpy(entry->desc, desc, sizeof(entry->desc));
+				strncpy(entry->icon_name, icon, sizeof(entry->icon_name));
+				entry->icon = get_bmap_id(entry->icon_name);
+				free(icon);
+				free(spell_name);
+				break;
+			}
+
+			strncat(desc, line, sizeof(desc) - strlen(desc) - 1);
+		}
 	}
+
+	fclose(fp);
 }
 
 /**

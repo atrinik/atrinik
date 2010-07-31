@@ -56,7 +56,7 @@ static const char *gender[] =
  * @param id ID of the face.
  * @param x X position.
  * @param y Y position. */
-static void blit_face(int id, int x, int y)
+void blit_face(int id, int x, int y)
 {
 	if (id == -1 || !FaceList[id].sprite)
 	{

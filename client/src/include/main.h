@@ -186,6 +186,7 @@ enum
 	SRV_CLIENT_BMAPS,
 	SRV_CLIENT_HFILES,
 	SRV_FILE_UPDATES,
+	SRV_FILE_SPELLS_V2,
 	/* last index */
 	SRV_CLIENT_FILES
 };
@@ -432,13 +433,13 @@ typedef struct _spell_list_entry
 	char name[LIST_NAME_MAX];
 
 	/** Icon name */
-	char icon_name[32];
+	char icon_name[128];
 
-	/** Spell's icon. */
-	struct _Sprite *icon;
+	/** Description. */
+	char desc[MAX_BUF];
 
-	/** Description (in 4 rows) */
-	char desc[4][96];
+	/** Spell's icon ID. */
+	int icon;
 
 	/** Cost of spell. */
 	int cost;

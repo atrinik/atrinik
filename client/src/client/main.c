@@ -784,10 +784,10 @@ static int game_status_chain()
 		srv_client_files[SRV_CLIENT_ANIMS].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_CLIENT_HFILES].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_CLIENT_SKILLS].status = SRV_CLIENT_STATUS_OK;
-		srv_client_files[SRV_CLIENT_SPELLS].status = SRV_CLIENT_STATUS_OK;
+		srv_client_files[SRV_FILE_SPELLS_V2].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_FILE_UPDATES].status = SRV_CLIENT_STATUS_OK;
 
-		snprintf(buf, sizeof(buf), "setup sound %d map2cmd 1 mapsize %dx%d darkness 1 facecache 1 skf %d|%x spf %d|%x bpf %d|%x stf %d|%x amf %d|%x hpf %d|%x upf %d|%x", SoundStatus, MapStatusX, MapStatusY, srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc, srv_client_files[SRV_CLIENT_SPELLS].len, srv_client_files[SRV_CLIENT_SPELLS].crc, srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc, srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc, srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc, srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc, srv_client_files[SRV_FILE_UPDATES].len, srv_client_files[SRV_FILE_UPDATES].crc);
+		snprintf(buf, sizeof(buf), "setup sound %d map2cmd 1 mapsize %dx%d darkness 1 facecache 1 skf %d|%x spfv2 %d|%x bpf %d|%x stf %d|%x amf %d|%x hpf %d|%x upf %d|%x", SoundStatus, MapStatusX, MapStatusY, srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc, srv_client_files[SRV_FILE_SPELLS_V2].len, srv_client_files[SRV_FILE_SPELLS_V2].crc, srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc, srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc, srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc, srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc, srv_client_files[SRV_FILE_UPDATES].len, srv_client_files[SRV_FILE_UPDATES].crc);
 
 		cs_write_string(buf, strlen(buf));
 		request_file_chain = 0;
@@ -810,10 +810,10 @@ static int game_status_chain()
 		}
 		else if (request_file_chain == 2)
 		{
-			if (srv_client_files[SRV_CLIENT_SPELLS].status == SRV_CLIENT_STATUS_UPDATE)
+			if (srv_client_files[SRV_FILE_SPELLS_V2].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 3;
-				RequestFile(SRV_CLIENT_SPELLS);
+				RequestFile(SRV_FILE_SPELLS_V2);
 			}
 			else
 			{
@@ -883,7 +883,6 @@ static int game_status_chain()
 		else if (request_file_chain == 14)
 		{
 			read_skills();
-			read_spells();
 			read_settings();
 			read_bmaps();
 			read_bmap_tmp();
@@ -893,6 +892,7 @@ static int game_status_chain()
 			read_help_files();
 			file_updates_init();
 			file_updates_parse();
+			read_spells();
 			GameStatus = GAME_STATUS_ADDME;
 		}
 	}
@@ -1056,22 +1056,6 @@ static void free_bitmaps()
 	for (i = 0; i < (int) BITMAP_MAX; i++)
 	{
 		sprite_free_sprite(Bitmaps[i]);
-	}
-
-	for (i = 0; i < SPELL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if ((spell_list[i].entry[0][ii].flag != LIST_ENTRY_UNUSED) && spell_list[i].entry[0][ii].icon)
-			{
-				sprite_free_sprite(spell_list[i].entry[0][ii].icon);
-			}
-
-			if ((spell_list[i].entry[1][ii].flag != LIST_ENTRY_UNUSED) && spell_list[i].entry[1][ii].icon)
-			{
-				sprite_free_sprite(spell_list[i].entry[1][ii].icon);
-			}
-		}
 	}
 
 	for (i = 0; i < SKILL_LIST_MAX; i++)
@@ -1557,9 +1541,6 @@ int main(int argc, char *argv[])
 	read_settings();
 	show_intro("Load settings");
 
-	read_spells();
-	show_intro("Load spells");
-
 	read_skills();
 	show_intro("Load skills");
 
@@ -1571,6 +1552,9 @@ int main(int argc, char *argv[])
 
 	read_help_files();
 	show_intro("Load help files");
+
+	read_spells();
+	show_intro("Load spells");
 
 	file_updates_init();
 	sound_start_bg_music("orchestral.ogg", options.music_volume, -1);
@@ -1754,7 +1738,7 @@ int main(int argc, char *argv[])
 
 			if (drag == DRAG_QUICKSLOT_SPELL)
 			{
-				sprite_blt(spell_list[quick_slots[cpl.win_quick_tag].groupNr].entry[quick_slots[cpl.win_quick_tag].classNr][quick_slots[cpl.win_quick_tag].spellNr].icon, x,y, NULL, NULL);
+				blit_face(spell_list[quick_slots[cpl.win_quick_tag].groupNr].entry[quick_slots[cpl.win_quick_tag].classNr][quick_slots[cpl.win_quick_tag].spellNr].icon, x, y);
 			}
 			else
 			{
