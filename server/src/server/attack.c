@@ -1708,8 +1708,11 @@ int spell_attack_missed(object *hitter, object *enemy)
 {
 	int roll = rndm(SPELL_MISS_ROLL_MIN, SPELL_MISS_ROLL_MAX);
 
-	/* Adjust roll for various situations. */
-	roll += adj_attackroll(hitter, enemy);
+	if (hitter->map)
+	{
+		/* Adjust roll for various situations. */
+		roll += adj_attackroll(hitter, enemy);
+	}
 
 	if (roll >= SPELL_MISS_ROLL_MAX || enemy->level <= hitter->level + roll)
 	{
