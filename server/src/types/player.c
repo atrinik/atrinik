@@ -1352,14 +1352,15 @@ void kill_player(object *op)
 
 	if (pvp_area(NULL, op))
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You have been defeated in combat!");
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "Local medics have saved your life...");
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
 
 		/* Restore player */
 		cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
 		/* Remove any disease */
 		cure_disease(op, NULL);
 		op->stats.hp = op->stats.maxhp;
+		op->stats.sp = op->stats.maxsp;
+		op->stats.grace = op->stats.maxgrace;
 
 		if (op->stats.food <= 0)
 		{
@@ -1377,7 +1378,9 @@ void kill_player(object *op)
 			FREE_AND_COPY_HASH(tmp->name, buf);
 			snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, player_get_race_class(op, race, sizeof(race)), gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
 			FREE_AND_COPY_HASH(tmp->msg, buf);
-			tmp->value = 0, tmp->material = 0, tmp->type = 0;
+			tmp->value = 0;
+			tmp->material = 0;
+			tmp->type = 0;
 			tmp->x = op->x, tmp->y = op->y;
 			insert_ob_in_map(tmp, op->map, op, 0);
 		}
