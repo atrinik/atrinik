@@ -116,6 +116,18 @@
 #define MEVENT_LEAVE 2
 /** A map is resetting. */
 #define MEVENT_RESET 3
+/** A spell is being cast. */
+#define MEVENT_SPELL_CAST 4
+/** A skill is being used. */
+#define MEVENT_SKILL_USED 5
+/** Player is dropping an item. */
+#define MEVENT_DROP 6
+/** Player is trying to pick up an item. */
+#define MEVENT_PICK 7
+/** Player is trying to put an item to a container on map. */
+#define MEVENT_PUT 8
+/** An item is being applied. */
+#define MEVENT_APPLY 9
 /*@}*/
 
 /**

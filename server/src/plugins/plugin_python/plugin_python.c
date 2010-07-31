@@ -93,6 +93,12 @@ static Atrinik_Constant constants[] =
 	{"MEVENT_ENTER", MEVENT_ENTER},
 	{"MEVENT_LEAVE", MEVENT_LEAVE},
 	{"MEVENT_RESET", MEVENT_RESET},
+	{"MEVENT_SPELL_CAST", MEVENT_SPELL_CAST},
+	{"MEVENT_SKILL_USED", MEVENT_SKILL_USED},
+	{"MEVENT_DROP", MEVENT_DROP},
+	{"MEVENT_PICK", MEVENT_PICK},
+	{"MEVENT_PUT", MEVENT_PUT},
+	{"MEVENT_APPLY", MEVENT_APPLY},
 
 	{"GEVENT_BORN", GEVENT_BORN},
 	{"GEVENT_LOGIN", GEVENT_LOGIN},
@@ -1528,9 +1534,9 @@ static int handle_map_event(va_list args)
 	int rv;
 
 	context->activator = va_arg(args, object *);
-	context->who = va_arg(args, object *);
-	context->event = context->who;
+	context->event = va_arg(args, object *);
 	context->other = va_arg(args, object *);
+	context->who = va_arg(args, object *);
 	script = va_arg(args, char *);
 	context->options = va_arg(args, char *);
 	context->text = va_arg(args, char *);

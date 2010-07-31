@@ -645,6 +645,17 @@ int manual_apply(object *op, object *tmp, int aflag)
 		return 1;
 	}
 
+	/* Trigger the map-wide apply event. */
+	if (!(aflag & AP_NO_EVENT) && op->map && op->map->events)
+	{
+		int retval = trigger_map_event(MEVENT_APPLY, op->map, op, tmp, NULL, NULL, aflag);
+
+		if (retval)
+		{
+			return retval - 1;
+		}
+	}
+
 	aflag &= ~AP_NO_EVENT;
 
 	/* Control apply by controling a set exp object level or player exp level */

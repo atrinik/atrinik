@@ -259,7 +259,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 
 	if (op->map && op->type == PLAYER && !op->head && op->map->events)
 	{
-		trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, 0);
+		trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, NULL, 0);
 	}
 
 	/* Set single or all part of a multi arch */
@@ -276,7 +276,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 
 	if (newmap->events)
 	{
-		trigger_map_event(MEVENT_ENTER, newmap, op, NULL, NULL, 0);
+		trigger_map_event(MEVENT_ENTER, newmap, op, NULL, NULL, NULL, 0);
 	}
 
 	newmap->timeout = 0;

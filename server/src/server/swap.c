@@ -162,7 +162,7 @@ void swap_map(mapstruct *map, int force_flag)
 		if (map->events)
 		{
 			/* Trigger the map reset event */
-			trigger_map_event(MEVENT_RESET, map, NULL, NULL, (void *) map->path, 0);
+			trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, (void *) map->path, 0);
 		}
 
 		map = map->next;
@@ -261,7 +261,7 @@ void flush_old_maps()
 			if (m->events)
 			{
 				/* Trigger the map reset event */
-				trigger_map_event(MEVENT_RESET, m, NULL, NULL, (void *) m->path, 0);
+				trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, (void *) m->path, 0);
 			}
 
 			clean_tmp_map(m);

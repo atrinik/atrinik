@@ -564,6 +564,18 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		return 0;
 	}
 
+	/* Trigger the map-wide spell event. */
+	if (op->map && op->map->events)
+	{
+		int retval = trigger_map_event(MEVENT_SPELL_CAST, op->map, op, caster, NULL, stringarg, type);
+
+		/* So the plugin's return value can affect the returned value. */
+		if (retval)
+		{
+			return retval - 1;
+		}
+	}
+
 	/* We need to calculate the spell point cost before the spell actually
 	 * does something, otherwise the following can happen (example):
 	 * Player has 7 mana left, kills a monster with magic bullet (which costs 7

@@ -578,10 +578,11 @@ void map_event_obj_deinit(object *ob)
  * @param m Map we're working on.
  * @param activator Activator.
  * @param other Some other object related to this event.
+ * @param other2 Another object related to this event.
  * @param text String related to this event.
  * @param parm Integer related to this event.
  * @return 1 if the event returns an event value, 0 otherwise. */
-int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, char *text, int parm)
+int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, char *text, int parm)
 {
 	map_event *tmp;
 
@@ -606,7 +607,7 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
 				}
 			}
 
-			return *(int *) (tmp->plugin->eventfunc)(0, PLUGIN_EVENT_MAP, event_id, activator, tmp->event, other, tmp->event->race, tmp->event->slaying, text, parm);
+			return *(int *) (tmp->plugin->eventfunc)(0, PLUGIN_EVENT_MAP, event_id, activator, tmp->event, other, other2, tmp->event->race, tmp->event->slaying, text, parm);
 		}
 	}
 

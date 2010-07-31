@@ -288,6 +288,12 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		return;
 	}
 
+	/* Trigger the map-wide pick up event. */
+	if (pl->map && pl->map->events && trigger_map_event(MEVENT_PICK, pl->map, pl, tmp, op, NULL, nrof))
+	{
+		return;
+	}
+
 #ifndef REAL_WIZ
 	if (QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
@@ -574,6 +580,12 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		return;
 	}
 
+	/* Trigger the map-wide put event. */
+	if (op->map && op->map->events && trigger_map_event(MEVENT_PUT, op->map, op, tmp, sack, NULL, nrof))
+	{
+		return;
+	}
+
 	if (tmp->type == CONTAINER)
 	{
 		container_unlink(NULL, tmp);
@@ -692,6 +704,13 @@ void drop_object(object *op, object *tmp, long nrof)
 		return;
 	}
 
+	/* Trigger the map-wide drop event. */
+	if (op->map && op->map->events && trigger_map_event(MEVENT_DROP, op->map, op, tmp, NULL, NULL, nrof))
+	{
+		return;
+	}
+
+	/* Stop praying. */
 	if (op->type == PLAYER)
 	{
 		CONTR(op)->praying = 0;

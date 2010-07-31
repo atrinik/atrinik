@@ -186,6 +186,18 @@ sint64 do_skill(object *op, int dir)
 	sint64 success = 0;
 	int skill = op->chosen_skill->stats.sp;
 
+	/* Trigger the map-wide skill event. */
+	if (op->map && op->map->events)
+	{
+		int retval = trigger_map_event(MEVENT_SKILL_USED, op->map, op, NULL, NULL, NULL, dir);
+
+		/* So the plugin's return value can affect the returned value. */
+		if (retval)
+		{
+			return retval - 1;
+		}
+	}
+
 	switch (skill)
 	{
 		case SK_KARATE:

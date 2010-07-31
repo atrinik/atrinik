@@ -22,6 +22,12 @@
 	<listentry value="1" name="player enters" />
 	<listentry value="2" name="player leaves" />
 	<listentry value="3" name="map resets" />
+	<listentry value="4" name="spell is cast" />
+	<listentry value="5" name="skill is used" />
+	<listentry value="6" name="item is dropped" />
+	<listentry value="7" name="item is picked up" />
+	<listentry value="8" name="item is put into a container" />
+	<listentry value="9" name="item is applied" />
 </list>
 
 <list name="direction">
