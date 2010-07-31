@@ -240,7 +240,7 @@ void show_spelllist()
 			}
 
 			/* We hit the max */
-			if (tmp_y >= MAX_MS_DESC_Y)
+			if (tmp_y >= 48)
 			{
 				break;
 			}
