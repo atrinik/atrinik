@@ -1537,7 +1537,8 @@ void kill_player(object *op)
 	snprintf(buf, sizeof(buf), "%s's gravestone", op->name);
 	FREE_AND_COPY_HASH(tmp->name, buf);
 	FREE_AND_COPY_HASH(tmp->msg, gravestone_text(op));
-	tmp->x = op->x, tmp->y = op->y;
+	tmp->x = op->x;
+	tmp->y = op->y;
 	insert_ob_in_map(tmp, op->map, NULL, 0);
 
 	/* Subtract the experience points, if we died because of food give us
@@ -1551,9 +1552,9 @@ void kill_player(object *op)
 	/* Apply death experience penalty. */
 	apply_death_exp_penalty(op);
 
-	if (op->stats.food < 0)
+	if (op->stats.food <= 0)
 	{
-		op->stats.food = 900;
+		op->stats.food = 999;
 	}
 
 	op->stats.hp = op->stats.maxhp;
