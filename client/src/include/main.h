@@ -436,7 +436,7 @@ typedef struct _spell_list_entry
 	char icon_name[128];
 
 	/** Description. */
-	char desc[MAX_BUF];
+	char desc[HUGE_BUF];
 
 	/** Spell's icon ID. */
 	int icon;
