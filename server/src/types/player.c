@@ -555,8 +555,9 @@ static void fire_bow(object *op, int dir)
 	arrow->stats.wc += (bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc);
 	arrow->stats.wc_range = bow->stats.wc_range;
 
+	arrow->stats.dam += arrow->magic;
 	arrow->stats.dam = FABS((int) ((float) (arrow->stats.dam * LEVEL_DAMAGE(SK_level(op)))));
-	arrow->stats.dam += arrow->stats.dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic + arrow->magic) / 10;
+	arrow->stats.dam += arrow->stats.dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
 
 	if (bow->item_condition > arrow->item_condition)
 	{
