@@ -124,7 +124,7 @@ int cast_create_food(object *op, object *caster, int dir, char *stringarg)
 	archetype *at = NULL;
 	object *new_op;
 
-	food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1);
+	food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
 
 	if (stringarg)
 	{
@@ -595,7 +595,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 
 	/* Calculate maximum range of the spell */
 	range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
-	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1);
+	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1, 0);
 
 	for (i = -range; i <= range; i++)
 	{
@@ -1087,7 +1087,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 	if (i)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "Your protection to %s grows.", attack_name[i]);
-		force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type, -1), 50);
+		force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type, -1, 0), 50);
 	}
 
 	force->speed_left = -1 - SP_level_strength_adjust(caster, spell_type) * 0.1f;
@@ -1131,7 +1131,7 @@ int create_bomb(object *op, object *caster, int dir, int spell_type)
 	tmp = arch_to_object(spellarch[spell_type]);
 
 	/* level dependencies for bomb  */
-	tmp->stats.dam = SP_level_dam_adjust(caster, spell_type, -1);
+	tmp->stats.dam = SP_level_dam_adjust(caster, spell_type, -1, 0);
 	tmp->stats.hp = spells[spell_type].bdur + SP_level_strength_adjust(caster, spell_type);
 	tmp->level = SK_level(caster);
 	set_owner(tmp,op);
@@ -1550,7 +1550,7 @@ int finger_of_death(object *op, object *target)
 		return 1;
 	}
 
-	dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam);
+	dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
 	hit_player(target, dam, hitter, AT_INTERNAL);
 	remove_ob(hitter);
 
@@ -1604,7 +1604,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 			}
 
 			disease = arch_to_object(disease_arch);
-			dam = SP_level_dam_adjust(caster, type, spells[type].bdam);
+			dam = SP_level_dam_adjust(caster, type, spells[type].bdam, 0);
 			strength = SP_level_strength_adjust(caster, type);
 
 			set_owner(disease, op);

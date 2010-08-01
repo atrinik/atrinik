@@ -207,7 +207,7 @@ void dump_spells()
 			for (j = 1; j <= MAXLEVEL; j++)
 			{
 				caster->level = j;
-				LOG(llevInfo, " Level: %3d, Mana: %4d, Dam: %4d, Dam2: %4d\n", j, SP_level_spellpoint_cost(caster, i, -1), SP_level_dam_adjust(caster, i, -1), tmp ? SP_level_dam_adjust(caster, i, tmp->stats.dam) : 0);
+				LOG(llevInfo, " Level: %3d, Mana: %4d, Dam: %4d, Dam2: %4d\n", j, SP_level_spellpoint_cost(caster, i, -1), SP_level_dam_adjust(caster, i, -1, 1), tmp ? SP_level_dam_adjust(caster, i, tmp->stats.dam, 1) : 0);
 			}
 
 			if (strcmp(settings.dumparg, "all"))
@@ -852,7 +852,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 		return 0;
 	}
 
-	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
+	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
 	tmp->direction = dir;
@@ -932,7 +932,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	}
 
 	tmp->stats.sp = type;
-	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
+	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 	tmp->x = x, tmp->y = y;
 	tmp->direction = dir;
@@ -1036,7 +1036,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 		}
 
 		tmp->stats.hp = strength;
-		tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam);
+		tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam, 0);
 		tmp->stats.maxhp = tmp->count;
 
 		if (!QUERY_FLAG(tmp, FLAG_FLYING))
@@ -1766,8 +1766,9 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
  * @param caster Who is casting.
  * @param spell_type Spell ID we're adjusting.
  * @param base_dam Base damage.
+ * @param exact Return exact damage, unadjusted by random percent?
  * @return Adjusted damage. */
-int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
+int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 {
 	int level = SK_level(caster);
 	sint16 dam;
@@ -1794,6 +1795,11 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 	}
 
 	dam = (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
+
+	if (exact)
+	{
+		return dam;
+	}
 
 	return rndm(dam * 0.8f + 1, dam);
 }

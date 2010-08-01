@@ -829,7 +829,7 @@ void explode_object(object *op);
 void check_fired_arch(object *op);
 void move_fired_arch(object *op);
 int find_target_for_spell(object *op, object **target, uint32 flags);
-int SP_level_dam_adjust(object *caster, int spell_type, int base_dam);
+int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact);
 int SP_level_strength_adjust(object *caster, int spell_type);
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 void move_swarm_spell(object *op);
