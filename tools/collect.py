@@ -189,13 +189,11 @@ def file_copy(file, output):
 	fp = open(file, "r")
 
 	for line in fp:
-		line = line.strip()
-
 		# Blank line or comment.
 		if not line or line[0] == "#":
 			continue
 
-		output.write(line + "\n")
+		output.write(line.rstrip() + "\n")
 
 	fp.close()
 
