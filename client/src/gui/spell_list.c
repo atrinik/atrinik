@@ -289,7 +289,7 @@ void read_spells()
 	srv_client_files[SRV_FILE_SPELLS_V2].crc = 0;
 
 	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_SPELLS);
-	fp = fopen_wrapper(FILE_CLIENT_SPELLS, "rb");
+	fp = fopen_wrapper(FILE_CLIENT_SPELLS, "r");
 
 	if (!fp)
 	{
