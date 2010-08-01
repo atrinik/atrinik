@@ -2213,13 +2213,13 @@ end
 #########
 Allowed all
 chance 10
-difficulty 20
+difficulty 30
 artifact helm_infravision
 def_arch helm_iron
 Object
 title of infravision
 type 34
-item_level_art 10
+item_level_art 30
 is_magical 1
 can_see_in_dark 1
 value 113000
@@ -2228,17 +2228,17 @@ end
 
 Allowed all
 chance 10
-difficulty 30
+difficulty 40
 artifact helm_xray
 def_arch helm_iron
 Object
 title of demon eyes
 type 34
-item_level_art 15
+item_level_art 40
 is_magical 1
 xrays 1
 value 213000
-item_power 5
+item_power 7
 end
 
 Allowed all
@@ -2426,14 +2426,38 @@ value 2100
 item_power 1
 end
 
+Allowed !crown_generic, all
+chance 20
+difficulty 35
+artifact helm_argoth
+def_arch helm_iron
+Object
+title of Argoth
+item_level_art 35
+type 34
+is_magical 1
+ac_add 1
+Cha 1
+protect_fire 17
+value 2500
+msg
+  Argoth was an ancient dwarven city in a mountain which
+  was infested with dragons.
+
+  The dwarves specialized in equipment which helped them
+  survive their environment.
+endmsg
+item_power 2
+end
+
 Allowed crown_generic
-chance 6
-difficulty 5
+chance 15
+difficulty 40
 artifact crown_xebinon
 def_arch crown_generic
 Object
 title of Xebinon
-item_level_art 5
+item_level_art 40
 item_skill 5
 type 34
 is_magical 1
@@ -2442,22 +2466,24 @@ path_attuned 1024
 sp 1
 value 3500
 msg
-  This valuable item created by the Archdaemonist Xebinon
-  enhances the mind of its wearer and channels the powers
-  of magic. It has a small influence on its wearer's
-  ability to regenerate spell points.
+  This valuable item created by the Archdaemonist
+  Xebinon enhances the mind of its wearer and channels
+  the powers of magic.
+
+  It has a small influence on its wearer's ability to
+  regenerate spell points.
 endmsg
-item_power 3
+item_power 8
 end
 
 Allowed crown_generic
-chance 2
-difficulty 35
+chance 15
+difficulty 70
 artifact crown_magi
 def_arch crown_generic
 Object
 title of the Magi
-item_level_art 30
+item_level_art 70
 item_skill 5
 type 34
 is_magical 1
@@ -2465,11 +2491,11 @@ value 5000
 sp 2
 Int 2
 Pow 2
-item_power 8
+item_power 15
 end
 
 Allowed crown_generic
-chance 10
+chance 15
 difficulty 15
 artifact crown_lordliness
 def_arch crown_generic
@@ -2483,30 +2509,8 @@ Cha 2
 item_power 1
 end
 
-Allowed !crown_generic, all
-chance 4
-difficulty 20
-artifact helm_argoth
-def_arch helm_iron
-Object
-title of Argoth
-item_level_art 15
-type 34
-is_magical 1
-ac_add 1
-Cha 1
-protect_fire 17
-value 2500
-msg
-  Argoth was an ancient dwarven city in a mountain which was
-  infested with dragons. The dwarves specialized in equipment
-  which helped them survive their environment.
-endmsg
-item_power 2
-end
-
 Allowed crown_generic
-chance 20
+chance 30
 difficulty 5
 artifact crown_stupidity
 def_arch crown_generic
@@ -4857,10 +4861,12 @@ is_magical 1
 item_level_art 20
 value 382000
 msg
-  Passed down from one of the elder this shield is amazing.
+  Passed down from one of the elder this shield is
+  amazing.
+
   Its soft glow hides a deep power which you feel you can
-  almost taste. It soon dawns on you that this must be one of
-  the most prized shields of all the lands.
+  almost taste. It soon dawns on you that this must be
+  one of the most prized shields of all the lands.
 endmsg
 item_power 15
 end

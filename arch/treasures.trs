@@ -2543,19 +2543,19 @@ treasureone random_armour_helm
   more
   arch crown_generic
     magic 1
-    chance 5
+    chance 10
     material_quality 80
     material_range 15
   more
   arch hat_feather
     magic 1
-    chance 5
+    chance 10
     material_quality 80
     material_range 15
   more
   arch hat_blue
     magic 1
-    chance 5
+    chance 10
     material_quality 80
     material_range 15
 end
