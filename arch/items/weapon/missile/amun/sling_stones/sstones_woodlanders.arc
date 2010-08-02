@@ -16,7 +16,7 @@ is_turnable 1
 type 13
 sub_type 3
 nrof 1
-weight 85
+weight 80
 value 15
 material 64
 material_real 385

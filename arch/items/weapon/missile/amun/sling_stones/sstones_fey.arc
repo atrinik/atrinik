@@ -7,7 +7,7 @@ last_grace 7
 dam 3
 wc 0
 wc_range 20
-last_sp 4
+last_sp 5
 attack_impact 100
 animation sstone_fey
 anim_speed 10
