@@ -1653,37 +1653,6 @@ static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *whoptr, PyObject 
 }
 
 /**
- * <h1>object.SetSaveBed(<i>\<map\></i> map, <i>\<int\></i> x, <i>\<int\>
- * </i> y)</h1>
- *
- * Sets new save bed position for object.
- *
- * @param map Map of the new save bed
- * @param x X position of the new save bed
- * @param y Y position of the new save bed
- * @deprecated Use the new Python player API. */
-static PyObject *Atrinik_Object_SetSaveBed(Atrinik_Object *whoptr, PyObject *args)
-{
-	Atrinik_Map *map;
-	int x, y;
-
-	if (!PyArg_ParseTuple(args, "O!ii", &Atrinik_MapType, &map, &x, &y))
-	{
-		return NULL;
-	}
-
-	if (WHO->type == PLAYER)
-	{
-		strcpy(CONTR(WHO)->savebed_map, map->map->path);
-		CONTR(WHO)->bed_x = x;
-		CONTR(WHO)->bed_y = y;
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.Remove()</h1>
  *
  * Takes the object out of whatever map or inventory it is in. The object
@@ -2005,36 +1974,6 @@ static PyObject *Atrinik_Object_SwapApartments(Atrinik_Object *whoptr, PyObject 
 	}
 
 	return Py_BuildValue("i", hooks->swap_apartments(mapold, mapnew, x, y, WHO));
-}
-
-/**
- * <h1>object.GetSaveBed()</h1>
- * Get a player's save bed location.
- * @note Can only be used on player objects.
- * @return A dictionary containing the information about the player's
- * save bed:
- * - <b>map</b>: Map path of the save bed.
- * - <b>x</b>: X location of the save bed.
- * - <b>y</b>: Y location of the save bed.
- * @deprecated Use the new Python player API. */
-static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *args)
-{
-	PyObject *dict;
-
-	(void) args;
-
-	if (WHO->type != PLAYER)
-	{
-		RAISE("Can only be used on player objects.");
-	}
-
-	dict = PyDict_New();
-
-	PyDict_SetItemString(dict, "map", Py_BuildValue("s", CONTR(WHO)->savebed_map));
-	PyDict_SetItemString(dict, "x", Py_BuildValue("i", CONTR(WHO)->bed_x));
-	PyDict_SetItemString(dict, "y", Py_BuildValue("i", CONTR(WHO)->bed_y));
-
-	return dict;
 }
 
 /**
@@ -2475,7 +2414,6 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] =
 {
-	{"SetSaveBed", (PyCFunction) Atrinik_Object_SetSaveBed, METH_VARARGS, 0},
 	{"SwapApartments", (PyCFunction) Atrinik_Object_SwapApartments, METH_VARARGS, 0},
 	{"GetSkill", (PyCFunction) Atrinik_Object_GetSkill, METH_VARARGS, 0},
 	{"SetSkill", (PyCFunction) Atrinik_Object_SetSkill, METH_VARARGS, 0},
@@ -2531,7 +2469,6 @@ static PyMethodDef methods[] =
 	{"SendCustomCommand", (PyCFunction) Atrinik_Object_SendCustomCommand, METH_VARARGS, 0},
 	{"CheckTrigger", (PyCFunction) Atrinik_Object_CheckTrigger, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
-	{"GetSaveBed", (PyCFunction) Atrinik_Object_GetSaveBed, METH_VARARGS, 0},
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
 	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
 	{"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},
