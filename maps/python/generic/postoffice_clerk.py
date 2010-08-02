@@ -65,7 +65,7 @@ def main():
 			text[1] = text[1].capitalize()
 
 			if check_send(text[1], marked):
-				me.SayTo(activator, "\nIt will cost you {0} to send the '{1}'. If you are pleased with that, say ^sendto {2}^ to send the item.".format(activator.ShowCost(post.get_price(marked)), marked.GetName(), text[1]))
+				me.SayTo(activator, "\nIt will cost you {0} to send the '{1}'. If you are pleased with that, say ^sendto {2}^ to send the item.".format(CostString(post.get_price(marked)), marked.GetName(), text[1]))
 		else:
 			me.SayTo(activator, "\nSend to whom? Do you want me to ^explain^ how to use the post office?")
 
@@ -76,7 +76,7 @@ def main():
 
 		if check_send(text[1], marked):
 			if activator.PayAmount(post.get_price(marked)):
-				activator.Write("You pay {0}.".format(activator.ShowCost(post.get_price(marked))))
+				activator.Write("You pay {0}.".format(CostString(post.get_price(marked))))
 				post.send_item(marked, text[1])
 				me.SayTo(activator, "\nThe '{0}' has been sent to {1} successfully.".format(marked.GetName(), text[1]))
 				marked.Remove()

@@ -26,7 +26,7 @@ def main():
 		if pinfo == None or pinfo.value == 0:
 			me.SayTo(activator, "\nYou have no money stored in your bank account.\nWould you like to ^deposit all^ your money?")
 		else:
-			me.SayTo(activator, "\nYour balance is {0}.".format(activator.ShowCost(pinfo.value)))
+			me.SayTo(activator, "\nYour balance is {0}.".format(CostString(pinfo.value)))
 
 	# Deposit money
 	elif text[0] == "deposit":
@@ -53,7 +53,7 @@ def main():
 			me.SayTo(activator, "\nYou don't have that many mithril coins.")
 		elif ret == BANK_SUCCESS:
 			if pinfo.value != 0:
-				me.SayTo(activator, "\nYour new balance is {0}.".format(activator.ShowCost(pinfo.value)))
+				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(pinfo.value)))
 			else:
 				me.SayTo(activator, "\nYou don't have any money on hand.")
 
@@ -81,6 +81,6 @@ def main():
 			if pinfo.value == 0:
 				me.SayTo(activator, "\nYou removed all your money.")
 			else:
-				me.SayTo(activator, "\nYour new balance is {0}.".format(activator.ShowCost(pinfo.value)))
+				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(pinfo.value)))
 
 main()

@@ -24,14 +24,14 @@ def main():
 		me.SayTo(activator, "\nBuildable areas of your house allow you to customize the house to your liking with things like chests, altars, walls, and so on. Of course, this all costs a price, but construction and materials are available at the secret island called ~Everlink~ which can be accessed from your house.")
 
 	elif msg == "fees":
-		me.SayTo(activator, "\nThe {0} requires {1} as daily fee to operate, and comes with {2} days of prepaid fees. Fees are paid automatically whenever you enter the house (either from hand or bank acount). If you don't have enough money to pay, you won't be able to enter the house, but will be able to leave it and enter the ~Everlink~ area.\nNote that if you don't pay, for, say, 20 days, you won't have to pay for all those days that you did not use your house.".format(house.get(house.name), me.ShowCost(house.get(house.fee)), house.get(house.fees_prepaid)))
+		me.SayTo(activator, "\nThe {0} requires {1} as daily fee to operate, and comes with {2} days of prepaid fees. Fees are paid automatically whenever you enter the house (either from hand or bank acount). If you don't have enough money to pay, you won't be able to enter the house, but will be able to leave it and enter the ~Everlink~ area.\nNote that if you don't pay, for, say, 20 days, you won't have to pay for all those days that you did not use your house.".format(house.get(house.name), CostString(house.get(house.fee)), house.get(house.fees_prepaid)))
 
 	else:
 		if house.has_house():
 			return
 
 		elif msg == "buy luxury house":
-			me.SayTo(activator, "\nCertainly! The {0} will cost you {1}. Are you sure that you want to buy this luxury house and that you understand the ^fees^ system?\n\nIf you are, say ~I'm sure~.".format(house.get(house.name), me.ShowCost(house.get(house.cost))))
+			me.SayTo(activator, "\nCertainly! The {0} will cost you {1}. Are you sure that you want to buy this luxury house and that you understand the ^fees^ system?\n\nIf you are, say ~I'm sure~.".format(house.get(house.name), CostString(house.get(house.cost))))
 
 		elif msg == "i'm sure":
 			if activator.PayAmount(house.get(house.cost)) == 1:

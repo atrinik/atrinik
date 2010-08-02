@@ -22,8 +22,8 @@ def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		## Cost strings.
 		cost_strings = {
-			"identify": activator.ShowCost(costs["identify"]),
-			"identify_all": activator.ShowCost(costs["identify_all"]),
+			"identify": CostString(costs["identify"]),
+			"identify_all": CostString(costs["identify_all"]),
 		}
 
 		# Some of the services are free if the player is under certain level

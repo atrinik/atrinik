@@ -30,7 +30,7 @@ def main():
 		me.SayTo(activator, "\nTo build using the construction builder, you need to mark a material you want to build. For example, an altar material, desk material, or wall material. Sign materials exist too, but to build them, you need a book on the square where you want to build the sign with the message you want the sign to have (custom name of the book will be copied to the sign). Windows, pictures, flags and so on can only be built on top of walls.")
 
 	elif msg == "construction" and not has_skill:
-		me.SayTo(activator, "\nThe construction skill allows you to build inside your house, you see. Building requires materials that you can buy in the shops around, but you need the construction skill first.\nWould you want me to teach you the construction skill, for a small fee of {0}?\n\n^Teach me^".format(me.ShowCost(cost)))
+		me.SayTo(activator, "\nThe construction skill allows you to build inside your house, you see. Building requires materials that you can buy in the shops around, but you need the construction skill first.\nWould you want me to teach you the construction skill, for a small fee of {0}?\n\n^Teach me^".format(CostString(cost)))
 
 	elif msg == "teach me" and not has_skill:
 		if activator.level < req_level:

@@ -20,13 +20,13 @@ if activator.type == TYPE_PLAYER:
 
 		# Paid successfully?
 		if activator.PayAmount(cost) == 1:
-			activator.Write("You have paid {0} as your daily fee.".format(activator.ShowCost(cost)), COLOR_GREEN)
+			activator.Write("You have paid {0} as your daily fee.".format(CostString(cost)), COLOR_GREEN)
 			# Reset it to the current time.
 			house.fees_reset()
 			# Now add one more day.
 			house.fees_add()
 		# Failed to pay!
 		else:
-			activator.Write("Your prepaid fees have expired and you do not have {0} to pay for one more day.".format(activator.ShowCost(cost)), COLOR_RED)
+			activator.Write("Your prepaid fees have expired and you do not have {0} to pay for one more day.".format(CostString(cost)), COLOR_RED)
 			(x, y) = house.get(house.fees_unpaid)
 			activator.SetPosition(x, y)

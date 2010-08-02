@@ -106,7 +106,7 @@ elif text[0] == "upgrade" and text[1] == "to" and text[2] in apartments and text
 		else:
 			pinfo.last_heal = apartments[text[2]]["id"]
 
-			me.SayTo(activator, "\nThe {0} apartment will cost you {1}.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to {0} apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it.".format(text[2], activator.ShowCost(apartments[text[2]]["price"])))
+			me.SayTo(activator, "\nThe {0} apartment will cost you {1}.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to {0} apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it.".format(text[2], CostString(apartments[text[2]]["price"])))
 
 # The player said "Yes, I do", and we can upgrade the apartment now.
 elif msg == "yes, i do":

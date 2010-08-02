@@ -25,7 +25,7 @@ def main():
 	pinfo = activator.GetPlayerInfo("BANK_GENERAL")
 
 	if pinfo and pinfo.value:
-		messages.append("You have {0} stored in bank.".format(activator.ShowCost(pinfo.value)))
+		messages.append("You have {0} stored in bank.".format(CostString(pinfo.value)))
 
 	# Any items in post office?
 	if post.get_items():

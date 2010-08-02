@@ -25,9 +25,9 @@ def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		# Cost strings that might need to be modified before being displayed
 		cost_strings = {
-			"remove_depletion": activator.ShowCost(costs["remove_depletion"]),
-			"cure_disease": activator.ShowCost(costs["cure_disease"]),
-			"cure_poison": activator.ShowCost(costs["cure_poison"]),
+			"remove_depletion": CostString(costs["remove_depletion"]),
+			"cure_disease": CostString(costs["cure_disease"]),
+			"cure_poison": CostString(costs["cure_poison"]),
 		}
 
 		# Some of the services are free if the player is under level three
@@ -36,7 +36,7 @@ def main():
 			cost_strings["cure_disease"] = "free"
 			cost_strings["cure_poison"] = "free"
 
-		me.SayTo(activator, "\nWelcome to the church of the Tabernacle.\nYou can join the cult of Eldath here.\nRead in the book of deities what you have to do.\nI can offer you the following services:\n^remove curse^ for {0}\n^remove damnation^ for {1}\n^remove depletion^ for {2}\n^cure disease^ for {3}\n^cure poison^ for {4}\nIf you are starving I can give you some ^food^.".format(activator.ShowCost(costs["remove_curse"]), activator.ShowCost(costs["remove_damnation"]), cost_strings["remove_depletion"], cost_strings["cure_disease"], cost_strings["cure_poison"]))
+		me.SayTo(activator, "\nWelcome to the church of the Tabernacle.\nYou can join the cult of Eldath here.\nRead in the book of deities what you have to do.\nI can offer you the following services:\n^remove curse^ for {0}\n^remove damnation^ for {1}\n^remove depletion^ for {2}\n^cure disease^ for {3}\n^cure poison^ for {4}\nIf you are starving I can give you some ^food^.".format(CostString(costs["remove_curse"]), CostString(costs["remove_damnation"]), cost_strings["remove_depletion"], cost_strings["cure_disease"], cost_strings["cure_poison"]))
 
 	# Remove curse
 	elif msg == "remove curse":

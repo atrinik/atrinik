@@ -1212,6 +1212,27 @@ static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *a
 	return tuple;
 }
 
+/**
+ * <h1>CostString(int value)</h1>
+ * Build a string representation of the value in the game's money syntax, for
+ * example, a vlaue of 134 would become "1 silver coin and 34 copper coins".
+ * @param value Value to build the string from.
+ * @return The built string. */
+static PyObject *Atrinik_CostString(PyObject *self, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"value", NULL};
+	sint64 value;
+
+	(void) self;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "L", kwlist, &value))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("s", hooks->cost_string_from_value(value));
+}
+
 /*@}*/
 
 /**
@@ -1800,6 +1821,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetEventParameters",  Atrinik_GetEventParameters,    METH_VARARGS, 0},
 	{"GetGenderStr",        Atrinik_GetGenderStr,          METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CostString", (PyCFunction) Atrinik_CostString, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

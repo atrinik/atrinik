@@ -1787,26 +1787,6 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.ShowCost(<i>\<sint64\></i> value)</h1>
- *
- * Show cost of value.
- * @param value Value to show cost from
- * @return string describing value as X gold, X silver, X copper. */
-static PyObject *Atrinik_Object_ShowCost(Atrinik_Object *whoptr, PyObject *args)
-{
-	sint64 value;
-
-	(void) whoptr;
-
-	if (!PyArg_ParseTuple(args, "L", &value))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("s", hooks->cost_string_from_value(value));
-}
-
-/**
  * <h1>object.GetItemCost(<i>\<object\></i> object, <i>\<int\></i> type)
  * </h1>
  *
@@ -2461,7 +2441,6 @@ static PyMethodDef methods[] =
 	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},
 	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_VARARGS, 0},
 	{"Save", (PyCFunction) Atrinik_Object_Save, METH_VARARGS, 0},
-	{"ShowCost", (PyCFunction) Atrinik_Object_ShowCost, METH_VARARGS, 0},
 	{"GetItemCost", (PyCFunction) Atrinik_Object_GetItemCost, METH_VARARGS, 0},
 	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_VARARGS, 0},
 	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
