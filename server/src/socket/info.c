@@ -45,7 +45,8 @@
  * @param buf The message to draw. */
 void new_draw_info(int flags, object *pl, const char *buf)
 {
-	char info_string[HUGE_BUF];
+	unsigned char info_string[HUGE_BUF];
+	size_t len;
 	SockList sl;
 
 	/* Handle global messages. */
@@ -53,7 +54,7 @@ void new_draw_info(int flags, object *pl, const char *buf)
 	{
 		player *tmppl;
 
-		for (tmppl = first_player; tmppl != NULL; tmppl = tmppl->next)
+		for (tmppl = first_player; tmppl; tmppl = tmppl->next)
 		{
 			new_draw_info((flags & ~NDI_ALL), tmppl->ob, buf);
 		}
@@ -77,11 +78,15 @@ void new_draw_info(int flags, object *pl, const char *buf)
 		return;
 	}
 
-	sl.buf = (unsigned char *) info_string;
+	sl.buf = info_string;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
 	SockList_AddShort(&sl, flags & NDI_FLAG_MASK);
-	strcpy((char *) sl.buf + sl.len, buf);
-	sl.len += strlen(buf);
+	/* Make sure we don't copy more bytes than available space in the buffer. */
+	len = MIN(strlen(buf), sizeof(info_string) - sl.len - 1);
+	memcpy((char *) sl.buf + sl.len, buf, len);
+	sl.len += len;
+	/* Terminate the string. */
+	SockList_AddChar(&sl, '\0');
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
 }
 
