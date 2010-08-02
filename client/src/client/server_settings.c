@@ -35,14 +35,25 @@
  * @return Face ID if found, -1 otherwise */
 int get_bmap_id(char *name)
 {
-	int i;
+	int l = 0, r = bmaptype_table_size - 1, x;
 
-	for (i=0;i<bmaptype_table_size;i++)
+	while (r >= l)
 	{
-		if (!strcmp(bmaptype_table[i].name,name))
+		x = (l + r) / 2;
+
+		if (strcmp(name, bmaptype_table[x].name) < 0)
 		{
-			request_face(i, 0);
-			return i;
+			r = x - 1;
+		}
+		else
+		{
+			l = x + 1;
+		}
+
+		if (!strcmp(name, bmaptype_table[x].name))
+		{
+			request_face(x, 0);
+			return x;
 		}
 	}
 
