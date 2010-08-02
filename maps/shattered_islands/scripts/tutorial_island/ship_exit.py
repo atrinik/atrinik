@@ -7,7 +7,9 @@
 
 from Atrinik import *
 
-activator = WhoIsActivator()
+pl = WhoIsActivator().Controller()
 
-if activator.GetSaveBed()["map"] == "/shattered_islands/world_0303":
-	activator.SetSaveBed(ReadyMap("/shattered_islands/world_0312", 0), 3, 7)
+if pl.savebed_map == "/shattered_islands/world_0303":
+	pl.savebed_map = "/shattered_islands/world_0312"
+	pl.bed_x = 3
+	pl.bed_y = 7

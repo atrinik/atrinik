@@ -3,6 +3,8 @@
 
 from Atrinik import *
 
-activator = WhoIsActivator()
+pl = WhoIsActivator().Controller()
 
-activator.SetSaveBed(ReadyMap("/shattered_islands/world_0303", 0), 6, 11)
+pl.savebed_map = "/shattered_islands/world_0303"
+pl.bed_x = 6
+pl.bed_y = 11

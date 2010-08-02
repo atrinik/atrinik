@@ -4,6 +4,7 @@
 from Atrinik import *
 
 activator = WhoIsActivator()
+pl = activator.Controller()
 me = WhoAmI()
 
 event_num = GetEventNumber()
@@ -164,10 +165,9 @@ def main_say():
 		me.SayTo(activator, "\nI can imitate a teleporter.")
 		me.map.PlaySound(me.x, me.y, "teleport.ogg")
 
-	# Example of using GetSaveBed().
+	# Example of using savebed info.
 	elif msg == "savebed":
-		savebed = activator.GetSaveBed()
-		me.SayTo(activator, "\nYour save bed map: {0} ({1}, {2})".format(savebed["map"], savebed["x"], savebed["y"]))
+		me.SayTo(activator, "\nYour save bed map: {0} ({1}, {2})".format(pl.savebed_map, pl.bed_x, pl.bed_y))
 
 	# An example showing how to send custom binary commands to the client.
 	elif msg == "book":
@@ -175,7 +175,7 @@ def main_say():
 		activator.SendCustomCommand(30, "book <b t=\"Fake Book\"><t t=\"A Fake Book\">This is a fake book, made using the SendCustomCommand() Python function.\n")
 
 	elif msg == "ip":
-		me.SayTo(activator, "\nYour IP is: {0}".format(activator.Controller().s_host))
+		me.SayTo(activator, "\nYour IP is: {0}".format(pl.s_host))
 
 	elif msg == "exception":
 		me.SayTo(activator, "\nI will now raise an exception...")
@@ -232,8 +232,8 @@ def main_say():
 		me.SayTo(activator, "{0} {1} {2}".format(activator.map.path, activator.map == emergency_map and "==" or "!=", emergency_map.path), 1)
 
 		me.SayTo(activator, "\nComparing some parties...\n", 1)
-		party1 = activator.Controller().party
-		party2 = activator.Controller().party
+		party1 = pl.party
+		party2 = pl.party
 
 		if not party1:
 			me.SayTo(activator, "You need to join a party to run this test.", 1)
