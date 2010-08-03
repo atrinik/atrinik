@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Storage
 msg
 Created:  2009-10-14 Alex Tokar
-Modified: 2009-12-25 Alex Tokar
+Modified: 2010-08-03 Alex Tokar
 endmsg
 width 18
 height 22
@@ -13,65 +13,65 @@ no_harm 1
 fixed_login 1
 region strakewood_island
 end
-arch floor_wood2_l2
+arch blocked
 end
 arch wall_wood_8
 end
-arch floor_wood2_l2
+arch blocked
 y 1
 end
 arch wall_wood1_3
 y 1
 end
-arch floor_wood2_l1
+arch blocked
 y 2
 end
 arch wall_wood1_3
 y 2
 end
-arch floor_wood2_l2
+arch blocked
 y 3
 end
 arch wall_wood1_3
 y 3
 end
-arch floor_wood2_l2
+arch blocked
 y 4
 end
 arch wall_wood2_3
 y 4
 end
-arch floor_wood2_l1
+arch blocked
 y 5
 end
 arch wall_wood3_3
 y 5
 end
-arch floor_wood2_l1
+arch blocked
 y 6
 end
 arch wall_wood1_3
 y 6
 end
-arch floor_wood2_l1
+arch blocked
 y 7
 end
 arch wall_wood3_3
 y 7
 end
-arch floor_wood2_l1
+arch blocked
 y 8
 end
 arch wall_wood3_3
 y 8
 end
-arch floor_wood2_l1
+arch blocked
 y 9
 end
 arch wall_wood2_3
 y 9
 end
-arch floor_wood2_l2
+arch blocked
 y 10
 end
 arch wall_wood2_3
@@ -81,25 +81,25 @@ arch picture5.151
 direction 7
 y 10
 end
-arch floor_wood2_l2
+arch blocked
 y 11
 end
 arch wall_wood2_3
 y 11
 end
-arch floor_wood2_l1
+arch blocked
 y 12
 end
 arch wall_wood3_3
 y 12
 end
-arch floor_wood2_l2
+arch blocked
 y 13
 end
 arch wall_wood2_3
 y 13
 end
-arch floor_wood2_l1
+arch blocked
 y 16
 end
 arch wall_wood3_1
@@ -132,7 +132,7 @@ end
 arch wall_wood2_1
 y 18
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 end
 arch wall_wood3_1
@@ -374,7 +374,7 @@ arch wall_wood2_1
 x 1
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 y 16
 end
@@ -398,7 +398,7 @@ arch wall_wood_4
 x 1
 y 18
 end
-arch floor_wood2_l1
+arch blocked
 x 2
 end
 arch wall_wood3_1
@@ -478,7 +478,7 @@ arch wall_wood2_1
 x 2
 y 13
 end
-arch floor_wood2_l1
+arch blocked
 x 3
 end
 arch wall_wood3_1
@@ -559,7 +559,7 @@ arch wall_wood3_1
 x 3
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 4
 end
 arch wall_wood1_1
@@ -636,7 +636,7 @@ arch wall_wood2_1
 x 4
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 5
 end
 arch wall_wood2_1
@@ -727,7 +727,7 @@ arch wall_wood1_1
 x 5
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 6
 end
 arch wall_wood3_1
@@ -854,7 +854,7 @@ arch wall_wood_4
 x 6
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 6
 y 14
 end
@@ -862,7 +862,7 @@ arch wall_wood2_3
 x 6
 y 14
 end
-arch floor_wood2_l1
+arch blocked
 x 6
 y 15
 end
@@ -875,7 +875,7 @@ direction 7
 x 6
 y 15
 end
-arch floor_wood2_l1
+arch blocked
 x 6
 y 16
 end
@@ -883,7 +883,7 @@ arch wall_wood1_3
 x 6
 y 16
 end
-arch floor_wood2_l2
+arch blocked
 x 6
 y 17
 end
@@ -891,7 +891,7 @@ arch wall_wood1_3
 x 6
 y 17
 end
-arch floor_wood2_l2
+arch blocked
 x 6
 y 18
 end
@@ -899,7 +899,7 @@ arch wall_wood1_3
 x 6
 y 18
 end
-arch floor_wood2_l2
+arch blocked
 x 6
 y 19
 end
@@ -907,7 +907,7 @@ arch wall_wood1_3
 x 6
 y 19
 end
-arch floor_wood2_l2
+arch blocked
 x 6
 y 20
 end
@@ -915,7 +915,7 @@ arch wall_wood3_3
 x 6
 y 20
 end
-arch floor_wood2_l1
+arch blocked
 x 6
 y 21
 end
@@ -923,7 +923,7 @@ arch wall_wood3_3
 x 6
 y 21
 end
-arch floor_wood2_l1
+arch blocked
 x 7
 end
 arch wall_wood2_1
@@ -1098,7 +1098,7 @@ arch wall_wood1_1
 x 7
 y 21
 end
-arch floor_wood2_l2
+arch blocked
 x 8
 end
 arch wall_wood2_1
@@ -1271,7 +1271,7 @@ arch wall_wood3_1
 x 8
 y 21
 end
-arch floor_wood2_l1
+arch blocked
 x 9
 end
 arch wall_wood3_1
@@ -1442,7 +1442,7 @@ arch wall_wood1_1
 x 9
 y 21
 end
-arch floor_wood2_l1
+arch blocked
 x 10
 end
 arch wall_wood2_1
@@ -1618,7 +1618,7 @@ arch wall_wood2_1
 x 10
 y 21
 end
-arch floor_wood2_l2
+arch blocked
 x 11
 end
 arch wall_wood2_1
@@ -1783,7 +1783,7 @@ arch wall_wood2_1
 x 11
 y 13
 end
-arch floor_wood2_l1
+arch blocked
 x 11
 y 17
 end
@@ -1823,7 +1823,7 @@ arch wall_wood2_1
 x 11
 y 21
 end
-arch floor_wood2_l2
+arch blocked
 x 12
 end
 arch wall_wood3_1
@@ -1928,7 +1928,7 @@ arch wall_wood2_1
 x 12
 y 13
 end
-arch floor_wood2_l1
+arch blocked
 x 12
 y 17
 end
@@ -1968,7 +1968,7 @@ arch wall_wood2_1
 x 12
 y 21
 end
-arch floor_wood2_l2
+arch blocked
 x 13
 end
 arch wall_wood2_1
@@ -2073,7 +2073,7 @@ arch wall_wood1_1
 x 13
 y 13
 end
-arch floor_wood2_l1
+arch blocked
 x 13
 y 17
 end
@@ -2117,7 +2117,7 @@ arch wall_wood2_1
 x 13
 y 21
 end
-arch floor_wood2_l2
+arch blocked
 x 14
 end
 arch wall_wood2_1
@@ -2201,7 +2201,7 @@ arch wall_wood3_1
 x 14
 y 13
 end
-arch floor_wood2_l1
+arch blocked
 x 14
 y 17
 end
@@ -2241,7 +2241,7 @@ arch wall_wood3_1
 x 14
 y 21
 end
-arch floor_wood2_l2
+arch blocked
 x 15
 end
 arch wall_wood1_1
@@ -2346,7 +2346,7 @@ arch wall_wood2_1
 x 15
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 15
 y 17
 end
@@ -2378,7 +2378,7 @@ arch wall_wood2_1
 x 15
 y 21
 end
-arch floor_wood2_l1
+arch blocked
 x 16
 end
 arch wall_wood2_1
@@ -2483,7 +2483,7 @@ arch wall_wood3_1
 x 16
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 16
 y 17
 end
@@ -2506,7 +2506,7 @@ end
 arch stairs_wood_down
 slaying guild
 hp 1
-sp 11
+sp 12
 x 16
 y 19
 end
@@ -2526,7 +2526,7 @@ arch wall_wood1_1
 x 16
 y 21
 end
-arch floor_wood2_l1
+arch blocked
 x 17
 end
 arch wall_wood3_1
@@ -2636,7 +2636,7 @@ arch wall_wood_4
 x 17
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 x 17
 y 17
 end

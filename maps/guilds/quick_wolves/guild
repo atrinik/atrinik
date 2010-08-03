@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2009-12-24 Alex Tokar
+Modified: 2010-08-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,37 +13,55 @@ no_harm 1
 fixed_login 1
 region strakewood_island
 end
-arch floor_wood2_l1
+arch blocked
 y 10
 end
 arch wall_wood_8
 y 10
 end
-arch floor_wood2_l1
+arch blocked
 y 11
 end
 arch wall_wood1_3
 y 11
 end
-arch floor_wood2_l2
+arch blocked
 y 12
 end
 arch wall_wood3_3
 y 12
 end
-arch floor_wood2_l1
+arch blocked
 y 13
 end
 arch wall_wood1_3
 y 13
 end
-arch floor_wood2_l2
+arch blocked
 y 14
 end
 arch wall_wood1_3
 y 14
 end
-arch floor_wood2_l2
+arch blocked
+y 15
+end
+arch wall_wood_3
+y 15
+end
+arch blocked
+y 16
+end
+arch wall_wood3_3
+y 16
+end
+arch blocked
+y 17
+end
+arch wall_wood_3
+y 17
+end
+arch blocked
 y 22
 end
 arch wall_wood1_1
@@ -70,7 +88,7 @@ race ../../python/guilds/guild_login.py
 slaying Quick Wolves|22|12
 end
 end
-arch floor_wood2_l1
+arch blocked
 x 1
 y 2
 end
@@ -78,7 +96,7 @@ arch wall_wood_8
 x 1
 y 2
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 y 3
 end
@@ -91,7 +109,7 @@ direction 7
 x 1
 y 3
 end
-arch floor_wood2_l1
+arch blocked
 x 1
 y 4
 end
@@ -99,7 +117,7 @@ arch wall_wood1_3
 x 1
 y 4
 end
-arch floor_wood2_l1
+arch blocked
 x 1
 y 5
 end
@@ -107,7 +125,7 @@ arch wall_wood3_3
 x 1
 y 5
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 y 6
 end
@@ -115,7 +133,7 @@ arch wall_wood2_3
 x 1
 y 6
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 y 7
 end
@@ -123,7 +141,7 @@ arch wall_wood1_3
 x 1
 y 7
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 y 8
 end
@@ -136,7 +154,7 @@ direction 7
 x 1
 y 8
 end
-arch floor_wood2_l2
+arch blocked
 x 1
 y 9
 end
@@ -144,7 +162,7 @@ arch wall_wood1_3
 x 1
 y 9
 end
-arch floor_wood2_l1
+arch blocked
 x 1
 y 10
 end
@@ -156,10 +174,11 @@ arch floor_wood2_l2
 x 1
 y 11
 end
-arch stairs_wood_up
-slaying storage
-hp 16
-sp 19
+arch carpet2.131
+x 1
+y 11
+end
+arch candlelight3.101
 x 1
 y 11
 end
@@ -167,31 +186,70 @@ arch floor_wood2_l1
 x 1
 y 12
 end
+arch carpet2.131
+x 1
+y 12
+end
+arch stairs_wood_up
+slaying storage
+hp 16
+sp 19
+x 1
+y 12
+end
 arch floor_wood2_l2
 x 1
 y 13
 end
-arch stairs_wood_up
+arch carpet2.131
+x 1
+y 13
+end
+arch amphora1.101
+x 1
+y 13
+end
+arch floor_wood2_l2
+x 1
+y 14
+end
+arch candlelight3.101
+x 1
+y 14
+end
+arch floor_wood2_l2
+x 1
+y 15
+end
+arch stairs_red_up
 slaying oracle
 hp 10
 sp 2
 x 1
-y 13
+y 15
 arch event_obj
 sub_type 1
 race ../../python/guilds/oracle_entrance.py
-slaying Quick Wolves|2|13
+slaying Quick Wolves|2|15
 end
 end
 arch floor_wood2_l2
 x 1
-y 14
+y 16
 end
-arch wall_wood3_1
+arch amphora2.101
 x 1
-y 14
+y 16
 end
 arch floor_wood2_l2
+x 1
+y 17
+end
+arch wall_wood2_1
+x 1
+y 17
+end
+arch blocked
 x 1
 y 22
 end
@@ -207,7 +265,7 @@ arch wall_wood3_3
 x 1
 y 23
 end
-arch floor_wood2_l1
+arch blocked
 x 2
 y 2
 end
@@ -231,7 +289,7 @@ arch floor_wood2_l2
 x 2
 y 5
 end
-arch candlelight1.101
+arch candlelight3.101
 x 2
 y 5
 end
@@ -275,11 +333,15 @@ arch floor_wood2_l2
 x 2
 y 11
 end
+arch carpet2i
+x 2
+y 11
+end
 arch floor_wood2_l2
 x 2
 y 12
 end
-arch carpet2.131
+arch carpet2e
 x 2
 y 12
 end
@@ -287,15 +349,43 @@ arch floor_wood2_l2
 x 2
 y 13
 end
+arch carpet2j
+x 2
+y 13
+end
 arch floor_wood2_l1
 x 2
 y 14
 end
-arch wall_wood2_1
+arch sign
+msg
+Right stairs: To the Guild Storage.
+Left stairs: To the Guild Administrators area.
+endmsg
 x 2
 y 14
 end
+arch floor_wood2_l1
+x 2
+y 15
+end
+arch carpet2a
+x 2
+y 15
+end
 arch floor_wood2_l2
+x 2
+y 16
+end
+arch floor_wood2_l2
+x 2
+y 17
+end
+arch wall_wood_1
+x 2
+y 17
+end
+arch blocked
 x 3
 y 2
 end
@@ -313,7 +403,6 @@ y 3
 arch priest_green
 name Book Maker
 level 16
-friendly 1
 type 83
 arch event_obj
 sub_type 6
@@ -381,7 +470,11 @@ arch floor_wood2_l1
 x 3
 y 11
 end
-arch carpet2.151
+arch carpet2f
+x 3
+y 11
+end
+arch bench1b.111
 x 3
 y 11
 end
@@ -389,7 +482,7 @@ arch floor_wood2_l2
 x 3
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 3
 y 12
 end
@@ -397,7 +490,7 @@ arch floor_wood2_l2
 x 3
 y 13
 end
-arch carpet2.111
+arch carpet2g
 x 3
 y 13
 end
@@ -405,11 +498,31 @@ arch floor_wood2_l1
 x 3
 y 14
 end
-arch wall_wood3_1
+arch carpet2b
 x 3
 y 14
 end
 arch floor_wood2_l1
+x 3
+y 15
+end
+arch carpet2k
+x 3
+y 15
+end
+arch floor_wood2_l2
+x 3
+y 16
+end
+arch floor_wood2_l2
+x 3
+y 17
+end
+arch wall_wood_1
+x 3
+y 17
+end
+arch blocked
 x 4
 y 2
 end
@@ -487,7 +600,11 @@ arch floor_wood2_l1
 x 4
 y 11
 end
-arch carpet2.151
+arch carpet2f
+x 4
+y 11
+end
+arch bench1a.111
 x 4
 y 11
 end
@@ -495,7 +612,7 @@ arch floor_wood2_l2
 x 4
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 4
 y 12
 end
@@ -503,7 +620,7 @@ arch floor_wood2_l2
 x 4
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 4
 y 13
 end
@@ -511,11 +628,39 @@ arch floor_wood2_l1
 x 4
 y 14
 end
-arch wall_wood1_1
+arch candlelight4.101
+x 4
+y 14
+end
+arch wall_wood_8
 x 4
 y 14
 end
 arch floor_wood2_l1
+x 4
+y 15
+end
+arch wall_wood3_3
+x 4
+y 15
+end
+arch floor_wood2_l2
+x 4
+y 16
+end
+arch wall_wood_3
+x 4
+y 16
+end
+arch floor_wood2_l2
+x 4
+y 17
+end
+arch wall_wood_4
+x 4
+y 17
+end
+arch blocked
 x 5
 y 2
 end
@@ -524,6 +669,10 @@ x 5
 y 2
 end
 arch floor_wood2_l1
+x 5
+y 3
+end
+arch candlelight4.101
 x 5
 y 3
 end
@@ -583,7 +732,7 @@ arch floor_wood2_l1
 x 5
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 5
 y 11
 end
@@ -591,7 +740,7 @@ arch floor_wood2_l1
 x 5
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 5
 y 12
 end
@@ -599,7 +748,7 @@ arch floor_wood2_l2
 x 5
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 5
 y 13
 end
@@ -611,7 +760,7 @@ arch wall_wood3_1
 x 5
 y 14
 end
-arch floor_wood2_l1
+arch blocked
 x 6
 y 2
 end
@@ -683,7 +832,7 @@ arch floor_wood2_l2
 x 6
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 6
 y 11
 end
@@ -691,7 +840,7 @@ arch floor_wood2_l2
 x 6
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 6
 y 12
 end
@@ -699,7 +848,7 @@ arch floor_wood2_l1
 x 6
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 6
 y 13
 end
@@ -711,7 +860,7 @@ arch wall_wood2_1
 x 6
 y 14
 end
-arch floor_wood2_l2
+arch blocked
 x 7
 y 2
 end
@@ -775,7 +924,7 @@ arch floor_wood2_l2
 x 7
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 7
 y 11
 end
@@ -783,7 +932,7 @@ arch floor_wood2_l1
 x 7
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 7
 y 12
 end
@@ -791,7 +940,7 @@ arch floor_wood2_l1
 x 7
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 7
 y 13
 end
@@ -803,7 +952,7 @@ arch wall_wood3_1
 x 7
 y 14
 end
-arch floor_wood2_l1
+arch blocked
 x 8
 y 2
 end
@@ -844,6 +993,10 @@ x 8
 y 6
 end
 arch floor_wood2_l2
+x 8
+y 7
+end
+arch candlelight4.101
 x 8
 y 7
 end
@@ -883,7 +1036,7 @@ arch floor_wood2_l2
 x 8
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 8
 y 11
 end
@@ -891,7 +1044,7 @@ arch floor_wood2_l2
 x 8
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 8
 y 12
 end
@@ -899,7 +1052,7 @@ arch floor_wood2_l1
 x 8
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 8
 y 13
 end
@@ -923,7 +1076,7 @@ arch floor_wood2_l1
 x 9
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 9
 y 11
 end
@@ -931,7 +1084,7 @@ arch floor_wood2_l1
 x 9
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 9
 y 12
 end
@@ -939,7 +1092,7 @@ arch floor_wood2_l2
 x 9
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 9
 y 13
 end
@@ -947,17 +1100,21 @@ arch floor_wood2_l1
 x 9
 y 14
 end
+arch candlelight4.101
+x 9
+y 14
+end
 arch wall_wood3_1
 x 9
 y 14
 end
-arch floor_wood2_l1
+arch blocked
 x 10
 end
 arch wall_wood_8
 x 10
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 1
 end
@@ -965,7 +1122,7 @@ arch wall_wood1_3
 x 10
 y 1
 end
-arch floor_wood2_l1
+arch blocked
 x 10
 y 2
 end
@@ -978,7 +1135,7 @@ direction 7
 x 10
 y 2
 end
-arch floor_wood2_l1
+arch blocked
 x 10
 y 3
 end
@@ -986,7 +1143,7 @@ arch wall_wood1_3
 x 10
 y 3
 end
-arch floor_wood2_l1
+arch blocked
 x 10
 y 4
 end
@@ -994,7 +1151,7 @@ arch wall_wood2_3
 x 10
 y 4
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 5
 end
@@ -1002,7 +1159,7 @@ arch wall_wood2_3
 x 10
 y 5
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 6
 end
@@ -1010,7 +1167,7 @@ arch wall_wood3_3
 x 10
 y 6
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 7
 end
@@ -1018,7 +1175,7 @@ arch wall_wood1_3
 x 10
 y 7
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 8
 end
@@ -1031,7 +1188,7 @@ direction 7
 x 10
 y 8
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 9
 end
@@ -1039,7 +1196,7 @@ arch wall_wood2_3
 x 10
 y 9
 end
-arch floor_wood2_l2
+arch blocked
 x 10
 y 10
 end
@@ -1051,7 +1208,11 @@ arch floor_wood2_l2
 x 10
 y 11
 end
-arch carpet2.151
+arch carpet2f
+x 10
+y 11
+end
+arch amphora2.101
 x 10
 y 11
 end
@@ -1059,7 +1220,7 @@ arch floor_wood2_l2
 x 10
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 10
 y 12
 end
@@ -1067,7 +1228,7 @@ arch floor_wood2_l2
 x 10
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 10
 y 13
 end
@@ -1079,7 +1240,7 @@ arch wall_wood3_1
 x 10
 y 14
 end
-arch floor_wood2_l2
+arch blocked
 x 11
 end
 arch wall_wood1_1
@@ -1161,7 +1322,7 @@ arch floor_wood2_l2
 x 11
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 11
 y 11
 end
@@ -1169,7 +1330,7 @@ arch floor_wood2_l1
 x 11
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 11
 y 12
 end
@@ -1177,7 +1338,7 @@ arch floor_wood2_l2
 x 11
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 11
 y 13
 end
@@ -1189,7 +1350,7 @@ arch wall_wood3_1
 x 11
 y 14
 end
-arch floor_wood2_l2
+arch blocked
 x 12
 end
 arch wall_wood3_1
@@ -1243,7 +1404,7 @@ arch floor_wood2_l2
 x 12
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 12
 y 11
 end
@@ -1251,7 +1412,7 @@ arch floor_wood2_l1
 x 12
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 12
 y 12
 end
@@ -1259,7 +1420,7 @@ arch floor_wood2_l2
 x 12
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 12
 y 13
 end
@@ -1271,7 +1432,7 @@ arch wall_wood2_1
 x 12
 y 14
 end
-arch floor_wood2_l2
+arch blocked
 x 13
 end
 arch wall_wood2_1
@@ -1329,7 +1490,7 @@ arch floor_wood2_l2
 x 13
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 13
 y 11
 end
@@ -1337,7 +1498,7 @@ arch floor_wood2_l1
 x 13
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 13
 y 12
 end
@@ -1345,7 +1506,7 @@ arch floor_wood2_l2
 x 13
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 13
 y 13
 end
@@ -1357,7 +1518,7 @@ arch wall_wood3_1
 x 13
 y 14
 end
-arch floor_wood2_l1
+arch blocked
 x 14
 end
 arch wall_wood1_1
@@ -1411,7 +1572,7 @@ arch floor_wood2_l2
 x 14
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 14
 y 11
 end
@@ -1419,7 +1580,7 @@ arch floor_wood2_l1
 x 14
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 14
 y 12
 end
@@ -1427,7 +1588,7 @@ arch floor_wood2_l1
 x 14
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 14
 y 13
 end
@@ -1435,11 +1596,15 @@ arch floor_wood2_l1
 x 14
 y 14
 end
+arch candlelight4.101
+x 14
+y 14
+end
 arch wall_wood1_1
 x 14
 y 14
 end
-arch floor_wood2_l2
+arch blocked
 x 15
 end
 arch wall_wood1_1
@@ -1503,7 +1668,11 @@ arch floor_wood2_l2
 x 15
 y 11
 end
-arch carpet2.151
+arch carpet2f
+x 15
+y 11
+end
+arch bench1b.111
 x 15
 y 11
 end
@@ -1511,7 +1680,7 @@ arch floor_wood2_l1
 x 15
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 15
 y 12
 end
@@ -1519,7 +1688,7 @@ arch floor_wood2_l1
 x 15
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 15
 y 13
 end
@@ -1531,7 +1700,7 @@ arch wall_wood3_1
 x 15
 y 14
 end
-arch floor_wood2_l1
+arch blocked
 x 16
 end
 arch wall_wood1_1
@@ -1605,7 +1774,11 @@ arch floor_wood2_l1
 x 16
 y 11
 end
-arch carpet2.151
+arch carpet2f
+x 16
+y 11
+end
+arch bench1a.111
 x 16
 y 11
 end
@@ -1613,7 +1786,7 @@ arch floor_wood2_l1
 x 16
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 16
 y 12
 end
@@ -1621,7 +1794,7 @@ arch floor_wood2_l1
 x 16
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 16
 y 13
 end
@@ -1633,7 +1806,7 @@ arch wall_wood3_1
 x 16
 y 14
 end
-arch floor_wood2_l2
+arch blocked
 x 17
 end
 arch wall_wood2_1
@@ -1705,7 +1878,11 @@ arch floor_wood2_l2
 x 17
 y 11
 end
-arch carpet2.151
+arch carpet2f
+x 17
+y 11
+end
+arch amphora1.101
 x 17
 y 11
 end
@@ -1713,7 +1890,7 @@ arch floor_wood2_l1
 x 17
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 17
 y 12
 end
@@ -1721,7 +1898,7 @@ arch floor_wood2_l1
 x 17
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 17
 y 13
 end
@@ -1733,7 +1910,68 @@ arch wall_wood1_1
 x 17
 y 14
 end
-arch floor_wood2_l1
+arch blocked
+x 17
+y 17
+end
+arch wall_wood_8
+x 17
+y 17
+end
+arch blocked
+x 17
+y 18
+end
+arch wall_wood3_3
+x 17
+y 18
+end
+arch blocked
+x 17
+y 19
+end
+arch wall_wood1_3
+x 17
+y 19
+end
+arch blocked
+x 17
+y 20
+end
+arch wall_wood3_3
+x 17
+y 20
+end
+arch blocked
+x 17
+y 21
+end
+arch wall_wood2_3
+x 17
+y 21
+end
+arch flag_02
+direction 7
+x 17
+y 21
+end
+arch blocked
+x 17
+y 22
+end
+arch wall_wood1_3
+x 17
+y 22
+end
+arch blocked
+x 17
+y 23
+end
+arch wall_wood2_3
+x 17
+y 23
+end
+arch blocked
 x 18
 end
 arch wall_wood3_1
@@ -1809,7 +2047,7 @@ arch floor_wood2_l2
 x 18
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 18
 y 11
 end
@@ -1817,7 +2055,7 @@ arch floor_wood2_l1
 x 18
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 18
 y 12
 end
@@ -1825,7 +2063,7 @@ arch floor_wood2_l1
 x 18
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 18
 y 13
 end
@@ -1837,7 +2075,69 @@ arch wall_wood1_1
 x 18
 y 14
 end
+arch blocked
+x 18
+y 17
+end
+arch wall_wood3_1
+x 18
+y 17
+end
+arch floor_wood2_l1
+x 18
+y 18
+end
+arch amphora2.101
+x 18
+y 18
+end
 arch floor_wood2_l2
+x 18
+y 19
+end
+arch carpet2.131
+x 18
+y 19
+end
+arch floor_wood2_l2
+x 18
+y 20
+end
+arch carpet2.131
+x 18
+y 20
+end
+arch stairs_wood_up
+hp 22
+sp 12
+x 18
+y 20
+end
+arch floor_wood2_l1
+x 18
+y 21
+end
+arch carpet2.131
+x 18
+y 21
+end
+arch floor_wood2_l1
+x 18
+y 22
+end
+arch amphora2.101
+x 18
+y 22
+end
+arch floor_wood2_l2
+x 18
+y 23
+end
+arch wall_wood1_1
+x 18
+y 23
+end
+arch blocked
 x 19
 end
 arch wall_wood2_1
@@ -1900,7 +2200,7 @@ arch floor_wood2_l2
 x 19
 y 11
 end
-arch carpet2.151
+arch carpet2f
 x 19
 y 11
 end
@@ -1908,7 +2208,7 @@ arch floor_wood2_l1
 x 19
 y 12
 end
-arch carpet2a
+arch carpet2g
 x 19
 y 12
 end
@@ -1916,7 +2216,7 @@ arch floor_wood2_l2
 x 19
 y 13
 end
-arch carpet2.111
+arch carpet2d
 x 19
 y 13
 end
@@ -1924,11 +2224,75 @@ arch floor_wood2_l1
 x 19
 y 14
 end
+arch candlelight4.101
+x 19
+y 14
+end
 arch wall_wood3_1
 x 19
 y 14
 end
+arch blocked
+x 19
+y 17
+end
+arch wall_wood1_1
+x 19
+y 17
+end
+arch flag_04
+x 19
+y 17
+end
+arch floor_wood2_l2
+x 19
+y 18
+end
+arch carpet2.151
+x 19
+y 18
+end
+arch floor_wood2_l2
+x 19
+y 19
+end
+arch carpet2i
+x 19
+y 19
+end
+arch floor_wood2_l2
+x 19
+y 20
+end
+arch carpet2e
+x 19
+y 20
+end
 arch floor_wood2_l1
+x 19
+y 21
+end
+arch carpet2j
+x 19
+y 21
+end
+arch floor_wood2_l1
+x 19
+y 22
+end
+arch carpet2.111
+x 19
+y 22
+end
+arch floor_wood2_l2
+x 19
+y 23
+end
+arch wall_wood1_1
+x 19
+y 23
+end
+arch blocked
 x 20
 end
 arch wall_wood3_1
@@ -1982,7 +2346,7 @@ arch floor_wood2_l2
 x 20
 y 11
 end
-arch carpet2.151
+arch carpet2h
 x 20
 y 11
 end
@@ -1990,7 +2354,7 @@ arch floor_wood2_l1
 x 20
 y 12
 end
-arch carpet2a
+arch carpet2c
 x 20
 y 12
 end
@@ -1998,7 +2362,7 @@ arch floor_wood2_l2
 x 20
 y 13
 end
-arch carpet2.111
+arch carpet2k
 x 20
 y 13
 end
@@ -2010,7 +2374,72 @@ arch wall_wood3_1
 x 20
 y 14
 end
+arch blocked
+x 20
+y 17
+end
+arch wall_wood1_1
+x 20
+y 17
+end
 arch floor_wood2_l2
+x 20
+y 18
+end
+arch carpet2.151
+x 20
+y 18
+end
+arch sign
+x 20
+y 18
+arch event_obj
+sub_type 1
+race /python/generic/news_sign.py
+slaying Quick Wolves Guild
+end
+end
+arch floor_wood2_l1
+x 20
+y 19
+end
+arch carpet2f
+x 20
+y 19
+end
+arch floor_wood2_l2
+x 20
+y 20
+end
+arch carpet2g
+x 20
+y 20
+end
+arch floor_wood2_l2
+x 20
+y 21
+end
+arch carpet2d
+x 20
+y 21
+end
+arch floor_wood2_l2
+x 20
+y 22
+end
+arch carpet2.111
+x 20
+y 22
+end
+arch floor_wood2_l1
+x 20
+y 23
+end
+arch wall_wood3_1
+x 20
+y 23
+end
+arch blocked
 x 21
 end
 arch wall_wood1_1
@@ -2074,6 +2503,10 @@ arch floor_wood2_l2
 x 21
 y 11
 end
+arch carpet2.171
+x 21
+y 11
+end
 arch floor_wood2_l2
 x 21
 y 12
@@ -2086,6 +2519,10 @@ arch floor_wood2_l2
 x 21
 y 13
 end
+arch carpet2.171
+x 21
+y 13
+end
 arch floor_wood2_l2
 x 21
 y 14
@@ -2094,7 +2531,63 @@ arch wall_wood1_1
 x 21
 y 14
 end
+arch blocked
+x 21
+y 17
+end
+arch wall_wood3_1
+x 21
+y 17
+end
+arch floor_wood2_l1
+x 21
+y 18
+end
+arch carpet2.151
+x 21
+y 18
+end
 arch floor_wood2_l2
+x 21
+y 19
+end
+arch carpet2h
+x 21
+y 19
+end
+arch floor_wood2_l1
+x 21
+y 20
+end
+arch carpet2c
+x 21
+y 20
+end
+arch floor_wood2_l1
+x 21
+y 21
+end
+arch carpet2k
+x 21
+y 21
+end
+arch floor_wood2_l1
+x 21
+y 22
+end
+arch carpet2.111
+x 21
+y 22
+end
+arch floor_wood2_l2
+x 21
+y 23
+end
+arch wall_wood2_1
+x 21
+y 23
+end
+arch blocked
 x 22
 end
 arch wall_wood1_1
@@ -2165,14 +2658,17 @@ arch floor_wood2_l2
 x 22
 y 11
 end
+arch candlelight4.101
+x 22
+y 11
+end
 arch floor_wood2_l2
 x 22
 y 12
 end
 arch stairs_wood_down
-slaying ../../shattered_islands/world_0514
-hp 9
-sp 16
+hp 18
+sp 20
 x 22
 y 12
 end
@@ -2188,7 +2684,66 @@ arch wall_wood1_1
 x 22
 y 14
 end
+arch blocked
+x 22
+y 17
+end
+arch wall_wood2_1
+x 22
+y 17
+end
+arch wmask_fire_on_1
+x 22
+y 17
+end
+arch floor_wood2_l2
+x 22
+y 18
+end
 arch floor_wood2_l1
+x 22
+y 19
+end
+arch carpet2.171
+x 22
+y 19
+end
+arch floor_wood2_l2
+x 22
+y 20
+end
+arch carpet2.171
+x 22
+y 20
+end
+arch exit
+slaying ../../shattered_islands/world_0514
+hp 11
+sp 9
+x 22
+y 20
+end
+arch floor_wood2_l2
+x 22
+y 21
+end
+arch carpet2.171
+x 22
+y 21
+end
+arch floor_wood2_l2
+x 22
+y 22
+end
+arch floor_wood2_l1
+x 22
+y 23
+end
+arch wall_wood1_1
+x 22
+y 23
+end
+arch blocked
 x 23
 end
 arch wall_wood3_1
@@ -2238,6 +2793,10 @@ arch floor_wood2_l1
 x 23
 y 6
 end
+arch candlelight4.101
+x 23
+y 6
+end
 arch wall_wood2_3
 x 23
 y 6
@@ -2305,4 +2864,60 @@ end
 arch wall_wood_4
 x 23
 y 14
+end
+arch blocked
+x 23
+y 17
+end
+arch wall_wood_1
+x 23
+y 17
+end
+arch floor_wood2_l2
+x 23
+y 18
+end
+arch wall_wood2_3
+x 23
+y 18
+end
+arch floor_wood2_l2
+x 23
+y 19
+end
+arch wall_wood1_3
+x 23
+y 19
+end
+arch floor_wood2_l1
+x 23
+y 20
+end
+arch wall_wood2_3
+x 23
+y 20
+end
+arch floor_wood2_l2
+x 23
+y 21
+end
+arch wall_wood1_3
+x 23
+y 21
+end
+arch floor_wood2_l1
+x 23
+y 22
+end
+arch wall_wood3_3
+x 23
+y 22
+end
+arch floor_wood2_l1
+x 23
+y 23
+end
+arch wall_wood_4
+x 23
+y 23
 end

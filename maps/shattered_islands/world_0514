@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-03-25 Alex Tokar
+Modified: 2010-08-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1288,6 +1288,11 @@ arch wall_wood3_3
 x 8
 y 16
 end
+arch wmask_fire_on_1
+direction 7
+x 8
+y 16
+end
 arch floor_wood2_l1
 x 8
 y 17
@@ -1296,7 +1301,7 @@ arch wall_wood2_3
 x 8
 y 17
 end
-arch flag_02
+arch picture2.151
 direction 7
 x 8
 y 17
@@ -1449,7 +1454,7 @@ arch floor_wood2_l1
 x 9
 y 14
 end
-arch amphora2.101
+arch table_poker2
 x 9
 y 14
 end
@@ -1457,7 +1462,12 @@ arch floor_wood2_l2
 x 9
 y 15
 end
-arch carpet2.131
+arch carpet1.131
+x 9
+y 15
+end
+arch chair1_111
+direction 5
 x 9
 y 15
 end
@@ -1465,27 +1475,27 @@ arch floor_wood2_l2
 x 9
 y 16
 end
-arch carpet2.131
+arch carpet1.131
 x 9
 y 16
 end
-arch stairs_wood_up
-slaying ../guilds/quick_wolves/guild
-hp 22
-sp 12
+arch candlelight4.101
 x 9
 y 16
-arch event_obj
-sub_type 1
-race ../python/guilds/guild_entrance.py
-slaying Quick Wolves
 end
+arch light5
+x 9
+y 16
 end
 arch floor_wood2_l1
 x 9
 y 17
 end
-arch carpet2.131
+arch carpet1.131
+x 9
+y 17
+end
+arch chair1_111
 x 9
 y 17
 end
@@ -1493,7 +1503,7 @@ arch floor_wood2_l1
 x 9
 y 18
 end
-arch amphora2.101
+arch table_round1
 x 9
 y 18
 end
@@ -1625,7 +1635,7 @@ arch wall_wood1_1
 x 10
 y 13
 end
-arch flag_04
+arch wmask_bflag_fire1_1
 x 10
 y 13
 end
@@ -1633,7 +1643,12 @@ arch floor_wood2_l2
 x 10
 y 14
 end
-arch carpet2.151
+arch carpet1.151
+x 10
+y 14
+end
+arch chair1_111
+direction 3
 x 10
 y 14
 end
@@ -1641,7 +1656,7 @@ arch floor_wood2_l2
 x 10
 y 15
 end
-arch carpet2i
+arch carpet1
 x 10
 y 15
 end
@@ -1649,7 +1664,7 @@ arch floor_wood2_l2
 x 10
 y 16
 end
-arch carpet2e
+arch carpet1
 x 10
 y 16
 end
@@ -1657,7 +1672,7 @@ arch floor_wood2_l1
 x 10
 y 17
 end
-arch carpet2j
+arch carpet1
 x 10
 y 17
 end
@@ -1665,7 +1680,12 @@ arch floor_wood2_l1
 x 10
 y 18
 end
-arch carpet2.111
+arch carpet1.111
+x 10
+y 18
+end
+arch chair1_111
+direction 3
 x 10
 y 18
 end
@@ -1802,13 +1822,12 @@ x 11
 y 12
 arch ranger
 name Guild Manager
-type 83
-friendly 1
 direction 1
+type 83
 arch event_obj
 sub_type 6
 race ../python/guilds/guild.py
-slaying Quick Wolves|11|16
+slaying Quick Wolves|20|20|/guilds/quick_wolves/guild
 end
 arch note
 msg
@@ -1833,24 +1852,23 @@ arch floor_wood2_l2
 x 11
 y 14
 end
-arch carpet2.151
+arch carpet1.151
 x 11
 y 14
 end
-arch sign
+arch candlelight3.101
 x 11
 y 14
-arch event_obj
-sub_type 1
-race /python/generic/news_sign.py
-slaying Quick Wolves Guild
 end
+arch light5
+x 11
+y 14
 end
 arch floor_wood2_l1
 x 11
 y 15
 end
-arch carpet2f
+arch carpet1
 x 11
 y 15
 end
@@ -1858,11 +1876,11 @@ arch floor_wood2_l2
 x 11
 y 16
 end
-arch carpet2g
+arch carpet1
 x 11
 y 16
 end
-arch light9
+arch kettle_table
 x 11
 y 16
 end
@@ -1870,7 +1888,7 @@ arch floor_wood2_l2
 x 11
 y 17
 end
-arch carpet2d
+arch carpet1
 x 11
 y 17
 end
@@ -1878,7 +1896,15 @@ arch floor_wood2_l2
 x 11
 y 18
 end
-arch carpet2.111
+arch carpet1.111
+x 11
+y 18
+end
+arch beer_barrel.101
+x 11
+y 18
+end
+arch light5
 x 11
 y 18
 end
@@ -2002,11 +2028,20 @@ arch wall_wood3_1
 x 12
 y 13
 end
+arch wmask_fire_on_1
+x 12
+y 13
+end
 arch floor_wood2_l1
 x 12
 y 14
 end
-arch carpet2.151
+arch carpet1.151
+x 12
+y 14
+end
+arch chair1_111
+direction 7
 x 12
 y 14
 end
@@ -2014,7 +2049,7 @@ arch floor_wood2_l2
 x 12
 y 15
 end
-arch carpet2h
+arch carpet1
 x 12
 y 15
 end
@@ -2022,7 +2057,7 @@ arch floor_wood2_l1
 x 12
 y 16
 end
-arch carpet2c
+arch carpet1
 x 12
 y 16
 end
@@ -2030,7 +2065,7 @@ arch floor_wood2_l1
 x 12
 y 17
 end
-arch carpet2k
+arch carpet1
 x 12
 y 17
 end
@@ -2038,7 +2073,12 @@ arch floor_wood2_l1
 x 12
 y 18
 end
-arch carpet2.111
+arch carpet1.111
+x 12
+y 18
+end
+arch chair1_111
+direction 7
 x 12
 y 18
 end
@@ -2166,11 +2206,15 @@ arch wall_wood2_1
 x 13
 y 13
 end
-arch wmask_fire_on_1
-x 13
-y 13
-end
 arch floor_wood2_l2
+x 13
+y 14
+end
+arch carpet1.151
+x 13
+y 14
+end
+arch table_round1
 x 13
 y 14
 end
@@ -2178,7 +2222,7 @@ arch floor_wood2_l1
 x 13
 y 15
 end
-arch carpet2.171
+arch carpet1
 x 13
 y 15
 end
@@ -2186,13 +2230,11 @@ arch floor_wood2_l2
 x 13
 y 16
 end
-arch carpet2.171
+arch carpet1
 x 13
 y 16
 end
-arch exit
-hp 11
-sp 9
+arch light5
 x 13
 y 16
 end
@@ -2200,11 +2242,23 @@ arch floor_wood2_l2
 x 13
 y 17
 end
-arch carpet2.171
+arch carpet1
+x 13
+y 17
+end
+arch chair1_111
 x 13
 y 17
 end
 arch floor_wood2_l2
+x 13
+y 18
+end
+arch carpet1.111
+x 13
+y 18
+end
+arch table_poker1
 x 13
 y 18
 end
@@ -2349,6 +2403,10 @@ arch floor_wood2_l2
 x 14
 y 14
 end
+arch carpet1.151
+x 14
+y 14
+end
 arch wall_wood2_3
 x 14
 y 14
@@ -2357,7 +2415,12 @@ arch floor_wood2_l2
 x 14
 y 15
 end
-arch wall_wood1_3
+arch carpet1
+x 14
+y 15
+end
+arch door_wood2
+direction 7
 x 14
 y 15
 end
@@ -2365,16 +2428,24 @@ arch floor_wood2_l1
 x 14
 y 16
 end
+arch carpet1.171
+x 14
+y 16
+end
+arch carpet1.111
+layer 3
+x 14
+y 16
+end
 arch wall_wood2_3
 x 14
 y 16
 end
-arch wmask_bflag_fire1_1
-direction 7
-x 14
-y 16
-end
 arch floor_wood2_l2
+x 14
+y 17
+end
+arch carpet1.171
 x 14
 y 17
 end
@@ -2529,6 +2600,10 @@ arch floor_wood2_l1
 x 15
 y 14
 end
+arch carpet1.151
+x 15
+y 14
+end
 arch beer_barrel.101
 x 15
 y 14
@@ -2537,7 +2612,15 @@ arch floor_wood2_l1
 x 15
 y 15
 end
+arch carpet1
+x 15
+y 15
+end
 arch floor_wood2_l1
+x 15
+y 16
+end
+arch carpet1.111
 x 15
 y 16
 end
@@ -2669,6 +2752,10 @@ x 16
 y 14
 end
 arch floor_wood2_l2
+x 16
+y 15
+end
+arch carpet1.171
 x 16
 y 15
 end

@@ -41,11 +41,9 @@ def main():
 
 	# Enter the guild.
 	elif msg == "enter":
-		## Is the activator a legitimate guild member?
-		is_member = guild.is_member_of(activator.name)
-
-		if is_member == True:
-			activator.SetPosition(int(event_options[1]), int(event_options[2]))
+		# Is the activator a legitimate guild member?
+		if guild.is_member_of(activator.name) or activator.f_wiz:
+			activator.TeleportTo(event_options[3], int(event_options[1]), int(event_options[2]))
 		else:
 			me.SayTo(activator, "\nYou cannot enter this guild.")
 
