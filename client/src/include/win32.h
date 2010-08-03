@@ -83,6 +83,11 @@
 #   define strtok_r(_s, _sep, _lasts) (*(_lasts) = strtok((_s), (_sep)))
 #endif
 
+/* Doesn't exist, just a plain int */
+#ifndef socklen_t
+#	define socklen_t int
+#endif
+
 #define mkdir(__a, __b) _mkdir(__a)
 
 #define HAVE_STRICMP

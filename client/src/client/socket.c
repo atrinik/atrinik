@@ -280,6 +280,15 @@ static int reader_thread_loop(void *dummy)
 		}
 		else if (ret == -1)
 		{
+#ifdef WIN32
+			if (WSAGetLastError() == EAGAIN)
+#else
+			if (errno == EAGAIN)
+#endif
+			{
+				SDL_Delay(1);
+				continue;
+			}
 			/* IO error */
 #ifdef WIN32
 			LOG(llevInfo, "Reader thread got error %d\n", WSAGetLastError());
@@ -293,7 +302,7 @@ static int reader_thread_loop(void *dummy)
 			readbuf_len += ret;
 		}
 
-		/* Finished with a command ? */
+		/* Finished with a command? */
 		if (readbuf_len == cmd_len + header_len && !abort_thread)
 		{
 			command_buffer *buf = command_buffer_new(readbuf_len - header_len, readbuf + header_len);
@@ -571,8 +580,6 @@ void socket_deinitialize()
 #endif
 }
 
-#ifndef WIN32
-
 /**
  * Create a new socket.
  * @param[out] fd File descriptor we'll update.
@@ -581,16 +588,14 @@ void socket_deinitialize()
  * @return 1 on success, 0 on failure. */
 static int socket_create(SOCKET *fd, char *host, int port)
 {
-	unsigned int oldbufsize, newbufsize = 65535, buflen = sizeof(int);
-	struct linger linger_opt;
-	int flags;
 	uint32 start_timer;
 
 	/* Use new (getaddrinfo()) or old (gethostbyname()) socket API */
-#ifndef HAVE_GETADDRINFO
+#if !defined(HAVE_GETADDRINFO) || defined(WIN32)
 	/* This method is preferable unless IPv6 is required, due to buggy distros. */
-	struct protoent *protox;
 	struct sockaddr_in insock;
+#ifndef WIN32
+	struct protoent *protox;
 
 	protox = getprotobyname("tcp");
 
@@ -601,10 +606,15 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	}
 
 	*fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+#else
+	int error = 0, SocketStatusErrorNr;
 
-	if (*fd == SOCKET_NO)
+	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
+
+	if (*fd == -1)
 	{
-		perror("socket_create(): Error on socket command");
+		LOG(llevBug, "socket_create(): Could not create socket.\n");
 		return 0;
 	}
 
@@ -621,21 +631,11 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 		if (!hostbn)
 		{
-			LOG(llevBug, "Unknown host: %s\n", host);
+			*fd = -1;
 			return 0;
 		}
 
 		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
-	}
-
-	/* Set non-blocking. */
-	flags = fcntl(*fd, F_GETFL);
-
-	if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
-	{
-		LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-		*fd = SOCKET_NO;
-		return 0;
 	}
 
 	/* Try to connect. */
@@ -647,18 +647,29 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 		if (start_timer + SOCKET_TIMEOUT_MS < SDL_GetTicks())
 		{
-			LOG(llevDebug, "Can't connect to server %s:%d.\n", host, port);
-			*fd = SOCKET_NO;
+			*fd = -1;
 			return 0;
 		}
-	}
 
-	/* Set back to blocking. */
-	if (fcntl(*fd, F_SETFL, flags) == -1)
-	{
-		LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-		*fd = SOCKET_NO;
+#ifdef WIN32
+		SocketStatusErrorNr = WSAGetLastError();
+
+		/* Connected. */
+		if (SocketStatusErrorNr == WSAEISCONN)
+		{
+			break;
+		}
+
+		if (SocketStatusErrorNr == WSAEWOULDBLOCK || SocketStatusErrorNr == WSAEALREADY || (SocketStatusErrorNr == WSAEINVAL && error))
+		{
+			error = 1;
+			continue;
+		}
+
+		LOG(llevBug, "Connect error: %d\n", SocketStatusErrorNr);
+		*fd = -1;
 		return 0;
+#endif
 	}
 #else
 	struct addrinfo hints;
@@ -682,19 +693,9 @@ static int socket_create(SOCKET *fd, char *host, int port)
 		getnameinfo(ai->ai_addr, ai->ai_addrlen, hostaddr, sizeof(hostaddr), NULL, 0, NI_NUMERICHOST);
 		*fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 
-		if (*fd == SOCKET_NO)
+		if (*fd == -1)
 		{
 			continue;
-		}
-
-		/* Set non-blocking. */
-		flags = fcntl(*fd, F_GETFL);
-
-		if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
-		{
-			LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-			*fd = SOCKET_NO;
-			return 0;
 		}
 
 		/* Try to connect. */
@@ -707,20 +708,12 @@ static int socket_create(SOCKET *fd, char *host, int port)
 			if (start_timer + SOCKET_TIMEOUT_MS < SDL_GetTicks())
 			{
 				close(*fd);
-				*fd = SOCKET_NO;
+				*fd = -1;
 				break;
 			}
 		}
 
-		/* Set back to blocking. */
-		if (*fd != SOCKET_NO && fcntl(*fd, F_SETFL, flags) == -1)
-		{
-			LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-			*fd = SOCKET_NO;
-			return 0;
-		}
-
-		if (*fd != SOCKET_NO)
+		if (*fd != -1)
 		{
 			break;
 		}
@@ -728,149 +721,14 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 	freeaddrinfo(res);
 
-	if (*fd == SOCKET_NO)
+	if (*fd == -1)
 	{
-		LOG(llevDebug, "Can't connect to server %s:%d.\n", host, port);
 		return 0;
 	}
 #endif
 
-	linger_opt.l_onoff = 1;
-	linger_opt.l_linger = 5;
-
-	if (setsockopt(*fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
-	{
-		LOG(llevBug, "Error on setsockopt LINGER\n");
-	}
-
-	if (getsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)
-	{
-		oldbufsize = 0;
-	}
-
-	if (oldbufsize < newbufsize)
-	{
-		if (setsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize)))
-		{
-			LOG(llevBug, "socket_create(): setsockopt unable to set output buf size to %d\n", newbufsize);
-			setsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
-		}
-	}
-
 	return 1;
 }
-#else
-int socket_create(SOCKET *fd, char *host, int port)
-{
-	int error, SocketStatusErrorNr;
-	u_long temp;
-	struct hostent *hostbn;
-	int oldbufsize;
-	int newbufsize = 65535, buflen = sizeof(int);
-	uint32 start_timer;
-	struct linger linger_opt;
-
-	/* The way to make the sockets work on XP Home - The 'unix' style socket
-	 * seems to fail under XP Home. */
-	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-	insock.sin_family = AF_INET;
-	insock.sin_port = htons((unsigned short) port);
-
-	if (isdigit(*host))
-	{
-		insock.sin_addr.s_addr = inet_addr(host);
-	}
-	else
-	{
-		hostbn = gethostbyname(host);
-
-		if (!hostbn)
-		{
-			LOG(llevDebug, "Unknown host: %s\n", host);
-			*fd = SOCKET_NO;
-			return 0;
-		}
-
-		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
-	}
-
-	temp = 1;
-
-	/* Set non-blocking */
-	if (ioctlsocket(*fd, FIONBIO, &temp) == -1)
-	{
-		LOG(llevBug, "ioctlsocket(*fd, FIONBIO, &temp)\n");
-		*fd = SOCKET_NO;
-		return 0;
-	}
-
-	linger_opt.l_onoff = 1;
-	linger_opt.l_linger = 5;
-
-	if (setsockopt(*fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
-	{
-		LOG(llevBug, "Error on setsockopt LINGER\n");
-	}
-
-	error = 0;
-	start_timer = SDL_GetTicks();
-
-	while (connect(*fd, (struct sockaddr *) &insock, sizeof(insock)) == SOCKET_ERROR)
-	{
-		SDL_Delay(3);
-
-		if (start_timer + SOCKET_TIMEOUT_MS < SDL_GetTicks())
-		{
-			*fd = SOCKET_NO;
-			return 0;
-		}
-
-		SocketStatusErrorNr = WSAGetLastError();
-
-		/* Connected. */
-		if (SocketStatusErrorNr == WSAEISCONN)
-		{
-			break;
-		}
-
-		if (SocketStatusErrorNr == WSAEWOULDBLOCK || SocketStatusErrorNr == WSAEALREADY || (SocketStatusErrorNr == WSAEINVAL && error))
-		{
-			error = 1;
-			continue;
-		}
-
-		LOG(llevBug, "Connect error: %d\n", SocketStatusErrorNr);
-		*fd = SOCKET_NO;
-		return 0;
-	}
-
-	temp = 0;
-
-	/* Set back to blocking. */
-	if (ioctlsocket(*fd, FIONBIO, &temp) == -1)
-	{
-		LOG(llevBug, "ioctlsocket(*fd, FIONBIO, &temp == 0)\n");
-		*fd = SOCKET_NO;
-		return 0;
-	}
-
-	if (getsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)
-	{
-		oldbufsize = 0;
-	}
-
-	if (oldbufsize < newbufsize)
-	{
-		if (setsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize)))
-		{
-			setsockopt(*fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
-		}
-	}
-
-	return 1;
-}
-#endif
 
 /**
  * Open a new socket.
@@ -880,21 +738,62 @@ int socket_create(SOCKET *fd, char *host, int port)
  * @return 1 on success, 0 on failure. */
 int socket_open(struct ClientSocket *csock, char *host, int port)
 {
-	int tmp = 1;
+	int tmp = 1, oldbufsize, newbufsize = 65535;
+	socklen_t buflen = sizeof(int);
+	struct linger linger_opt;
 
 	LOG(llevInfo, "Connecting to %s:%d...\n", host, port);
 
 	if (!socket_create(&csock->fd, host, port))
 	{
+		LOG(llevDebug, "Can't connect to server %s:%d.\n", host, port);
 		return 0;
 	}
 
-	LOG(llevInfo, "Connected to %s:%d\n", host, port);
+	linger_opt.l_onoff = 1;
+	linger_opt.l_linger = 5;
 
-	if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
+	if (setsockopt(csock->fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevBug, "setsockopt(TCP_NODELAY) failed\n");
+		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
+
+#ifndef WIN32
+	if (fcntl(csock->fd, F_SETFL, O_NDELAY) == -1)
+	{
+		LOG(llevBug, "socket_open(): Error on fcntl.");
+	}
+#else
+	{
+		u_long tmp = 1;
+
+		if (ioctlsocket(csock->fd, FIONBIO, &tmp) < 0)
+		{
+			LOG(llevBug, "socket_open(): Error on ioctlsocket.");
+		}
+	}
+#endif
+
+	if (setsockopt(csock->fd, SOL_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1)
+	{
+		LOG(llevBug, "socket_open(): Error setting TCP_NODELAY.");
+	}
+
+	if (getsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)
+	{
+		oldbufsize = 0;
+	}
+
+	if (oldbufsize < newbufsize)
+	{
+		if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize)))
+		{
+			LOG(llevBug, "socket_open(): Unable to set output buf size to %d", newbufsize);
+			setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
+		}
+	}
+
+	LOG(llevInfo, "Connected to %s:%d\n", host, port);
 
 	return 1;
 }
