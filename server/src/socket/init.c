@@ -74,7 +74,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
 	}
 #else
-	if (fcntl(ns->fd, F_SETFL, O_NONBLOCK) == -1)
+	if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1)
 	{
 		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
@@ -214,12 +214,28 @@ void init_ericserver()
 	insock.sin_port = htons(settings.csport);
 	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
+#ifdef WIN32
+	{
+		u_long tmp2 = 1;
+
+		if (ioctlsocket(init_sockets[0].fd, FIONBIO, &tmp2) == -1)
+		{
+			LOG(llevError, "ERROR: init_ericserver(): Error on ioctlsocket.\n");
+		}
+	}
+#else
+	if (fcntl(init_sockets[0].fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1)
+	{
+		LOG(llevError, "ERROR: init_ericserver(): Error on fcntl.\n");
+	}
+#endif
+
 	linger_opt.l_onoff = 0;
 	linger_opt.l_linger = 0;
 
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevDebug, "Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
+		LOG(llevError, "ERROR: init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
 	}
 
 	if (setsockopt(init_sockets[0].fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
