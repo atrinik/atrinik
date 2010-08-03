@@ -37,7 +37,7 @@ def main():
 		elif member["flags"] & guild.MEMBER_FLAG_REQUESTED:
 			me.SayTo(activator, "\nYour membership application request has not been decided yet. If you want to cancel it, say ^leave^.")
 		else:
-			me.SayTo(activator, "\nWelcome back {0}. It's good to see you again.\nIf you want to enter the guild, say ^enter^. If you want to leave the guild, say ^leave^.".format(activator.name))
+			me.SayTo(activator, "\nWelcome back {0}. It's good to see you again.\nIf you want to enter the guild, say ^enter^. If you no longer wish to be a member of this guild, say ~leave~.".format(activator.name))
 
 	# Enter the guild.
 	elif msg == "enter":
