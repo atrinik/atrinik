@@ -312,8 +312,8 @@ typedef enum SpellTypeFrom
 #define TRANSFORM_WEALTH_SACRIFICE 0.80f
 
 /** Minimum number for rolls in spell_attack_missed(). */
-#define SPELL_MISS_ROLL_MIN 8
+#define SPELL_MISS_ROLL_MIN 20
 /** Maximum number for rolls in spell_attack_missed(). */
-#define SPELL_MISS_ROLL_MAX 28
+#define SPELL_MISS_ROLL_MAX 35
 
 #endif
