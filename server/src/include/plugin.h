@@ -128,6 +128,8 @@
 #define MEVENT_PUT 8
 /** An item is being applied. */
 #define MEVENT_APPLY 9
+/** Player has logged in. */
+#define MEVENT_LOGIN 10
 /*@}*/
 
 /**

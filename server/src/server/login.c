@@ -724,4 +724,9 @@ void check_login(object *op)
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_quickslots(pl);
+
+	if (op->map && op->map->events)
+	{
+		trigger_map_event(MEVENT_LOGIN, op->map, op, NULL, NULL, NULL, 0);
+	}
 }
