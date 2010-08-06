@@ -2,7 +2,7 @@ arch map
 name Hemlock Cave
 msg
 Created:  2009-11-19 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2010-08-06 Edwin Miltenburg
 endmsg
 width 24
 height 24
@@ -16,13 +16,13 @@ tile_path_6 hemlock_cave_0201
 bg_music ghostly.ogg
 region eld_woods_island
 end
-arch floor_nstone1
+arch floor_earth1d
 x 4
 end
 arch fwall_fstone1c
 x 4
 end
-arch floor_nstone1
+arch floor_earth1b
 x 4
 y 1
 end
@@ -30,7 +30,7 @@ arch fwall_fstone1b
 x 4
 y 1
 end
-arch floor_nstone1
+arch floor_earth1e
 x 4
 y 2
 end
@@ -38,7 +38,7 @@ arch fwall_fstone1a
 x 4
 y 2
 end
-arch floor_nstone2
+arch floor_earth1a
 x 4
 y 3
 end
@@ -46,7 +46,7 @@ arch fwall_fstone1a
 x 4
 y 3
 end
-arch floor_nstone3
+arch floor_earth1d
 x 4
 y 4
 end
@@ -54,7 +54,7 @@ arch fwall_fstone1c
 x 4
 y 4
 end
-arch floor_nstone1
+arch floor_earth1d
 x 4
 y 5
 end
@@ -62,7 +62,7 @@ arch fwall_fstone1b
 x 4
 y 5
 end
-arch floor_nstone2
+arch floor_earth1e
 x 4
 y 6
 end
@@ -75,7 +75,7 @@ direction 7
 x 4
 y 6
 end
-arch floor_nstone2
+arch floor_earth1c
 x 4
 y 7
 end
@@ -83,7 +83,7 @@ arch fwall_fstone1a
 x 4
 y 7
 end
-arch floor_nstone2
+arch floor_earth1b
 x 4
 y 8
 end
@@ -96,7 +96,7 @@ direction 7
 x 4
 y 8
 end
-arch floor_nstone1
+arch floor_earth1c
 x 4
 y 9
 end
@@ -104,7 +104,7 @@ arch fwall_fstone1a
 x 4
 y 9
 end
-arch floor_nstone2
+arch floor_earth1a
 x 4
 y 10
 end
@@ -117,7 +117,7 @@ direction 7
 x 4
 y 10
 end
-arch floor_nstone1
+arch floor_earth1c
 x 4
 y 11
 end
@@ -125,7 +125,7 @@ arch fwall_fstone1a
 x 4
 y 11
 end
-arch floor_nstone3
+arch floor_earth1c
 x 4
 y 12
 end
@@ -133,7 +133,7 @@ arch fwall_fstone1b
 x 4
 y 12
 end
-arch floor_nstone2
+arch floor_earth1e
 x 4
 y 13
 end
@@ -141,7 +141,7 @@ arch fwall_fstone1c
 x 4
 y 13
 end
-arch floor_nstone3
+arch floor_earth1a
 x 4
 y 14
 end
@@ -154,7 +154,7 @@ direction 7
 x 4
 y 14
 end
-arch floor_nstone1
+arch floor_earth1e
 x 4
 y 15
 end
@@ -162,7 +162,7 @@ arch fwall_fstone1c
 x 4
 y 15
 end
-arch floor_nstone1
+arch floor_earth1a
 x 4
 y 16
 end
@@ -175,7 +175,7 @@ direction 7
 x 4
 y 16
 end
-arch floor_nstone2
+arch floor_earth1e
 x 4
 y 17
 end
@@ -183,7 +183,7 @@ arch fwall_fstone1a
 x 4
 y 17
 end
-arch floor_nstone2
+arch floor_earth1c
 x 4
 y 18
 end
@@ -196,7 +196,7 @@ direction 7
 x 4
 y 18
 end
-arch floor_nstone2
+arch floor_earth1a
 x 4
 y 19
 end
@@ -204,7 +204,7 @@ arch fwall_fstone1c
 x 4
 y 19
 end
-arch floor_nstone2
+arch floor_earth1a
 x 4
 y 20
 end
@@ -212,7 +212,7 @@ arch fwall_fstone1a
 x 4
 y 20
 end
-arch floor_nstone2
+arch floor_earth1b
 x 4
 y 21
 end
@@ -220,25 +220,25 @@ arch fwall_fstone1a
 x 4
 y 21
 end
-arch floor_nstone3
+arch floor_earth1d
 x 5
 end
 arch fwall_fstone1c
 x 5
 end
-arch floor_nstone2
+arch floor_earth1a
 x 5
 y 1
 end
-arch floor_nstone2
+arch floor_earth1e
 x 5
 y 2
 end
-arch floor_nstone3
+arch floor_earth1e
 x 5
 y 3
 end
-arch floor_nstone1
+arch floor_earth1d
 x 5
 y 4
 end
@@ -246,23 +246,23 @@ arch blood_floor2
 x 5
 y 4
 end
-arch floor_nstone1
+arch floor_earth1b
 x 5
 y 5
 end
-arch floor_nstone2
+arch floor_earth1a
 x 5
 y 6
 end
-arch floor_nstone3
+arch floor_earth1a
 x 5
 y 7
 end
-arch floor_nstone1
+arch floor_earth1d
 x 5
 y 8
 end
-arch floor_nstone2
+arch floor_earth1c
 x 5
 y 9
 end
@@ -275,51 +275,51 @@ level 30
 Wis 4
 end
 end
-arch floor_nstone2
+arch floor_earth1b
 x 5
 y 10
 end
-arch floor_nstone1
+arch floor_earth1d
 x 5
 y 11
 end
-arch floor_nstone3
+arch floor_earth1b
 x 5
 y 12
 end
-arch floor_nstone1
+arch floor_earth1a
 x 5
 y 13
 end
-arch floor_nstone2
+arch floor_earth1d
 x 5
 y 14
 end
-arch floor_nstone3
+arch floor_earth1a
 x 5
 y 15
 end
-arch floor_nstone1
+arch floor_earth1e
 x 5
 y 16
 end
-arch floor_nstone3
+arch floor_earth1e
 x 5
 y 17
 end
-arch floor_nstone2
+arch floor_earth1e
 x 5
 y 18
 end
-arch floor_nstone3
+arch floor_earth1d
 x 5
 y 19
 end
-arch floor_nstone1
+arch floor_earth1c
 x 5
 y 20
 end
-arch floor_nstone1
+arch floor_earth1c
 x 5
 y 21
 end
@@ -327,21 +327,21 @@ arch fwall_fstone1b
 x 5
 y 21
 end
-arch floor_nstone1
+arch floor_earth1d
 x 6
 end
 arch fwall_fstone1b
 x 6
 end
-arch floor_nstone2
+arch floor_earth1b
 x 6
 y 1
 end
-arch floor_nstone2
+arch floor_earth1d
 x 6
 y 2
 end
-arch floor_nstone1
+arch floor_earth1e
 x 6
 y 3
 end
@@ -349,63 +349,63 @@ arch dirt_floor1
 x 6
 y 3
 end
-arch floor_nstone2
+arch floor_earth1e
 x 6
 y 4
 end
-arch floor_nstone2
+arch floor_earth1a
 x 6
 y 5
 end
-arch floor_nstone1
+arch floor_earth1d
 x 6
 y 6
 end
-arch floor_nstone3
+arch floor_earth1d
 x 6
 y 7
 end
-arch floor_nstone1
+arch floor_earth1e
 x 6
 y 8
 end
-arch floor_nstone3
+arch floor_earth1d
 x 6
 y 9
 end
-arch floor_nstone1
+arch floor_earth1b
 x 6
 y 10
 end
-arch floor_nstone3
+arch floor_earth1e
 x 6
 y 11
 end
-arch floor_nstone1
+arch floor_earth1a
 x 6
 y 12
 end
-arch floor_nstone3
+arch floor_earth1b
 x 6
 y 13
 end
-arch floor_nstone1
+arch floor_earth1a
 x 6
 y 14
 end
-arch floor_nstone2
+arch floor_earth1b
 x 6
 y 15
 end
-arch floor_nstone3
+arch floor_earth1e
 x 6
 y 16
 end
-arch floor_nstone2
+arch floor_earth1e
 x 6
 y 17
 end
-arch floor_nstone2
+arch floor_earth1d
 x 6
 y 18
 end
@@ -419,15 +419,15 @@ Wis 4
 direction 3
 end
 end
-arch floor_nstone2
+arch floor_earth1c
 x 6
 y 19
 end
-arch floor_nstone3
+arch floor_earth1c
 x 6
 y 20
 end
-arch floor_nstone1
+arch floor_earth1e
 x 6
 y 21
 end
@@ -435,53 +435,53 @@ arch fwall_fstone1b
 x 6
 y 21
 end
-arch floor_nstone2
+arch floor_earth1a
 x 7
 end
 arch fwall_fstone1b
 x 7
 end
-arch floor_nstone2
+arch floor_earth1b
 x 7
 y 1
 end
-arch floor_nstone3
+arch floor_earth1b
 x 7
 y 2
 end
-arch floor_nstone2
+arch floor_earth1b
 x 7
 y 3
 end
-arch floor_nstone1
+arch floor_earth1e
 x 7
 y 4
 end
-arch floor_nstone2
+arch floor_earth1d
 x 7
 y 5
 end
-arch floor_nstone1
+arch floor_earth1e
 x 7
 y 6
 end
-arch floor_nstone3
+arch floor_earth1c
 x 7
 y 7
 end
-arch floor_nstone2
+arch floor_earth1a
 x 7
 y 8
 end
-arch floor_nstone2
+arch floor_earth1d
 x 7
 y 9
 end
-arch floor_nstone3
+arch floor_earth1a
 x 7
 y 10
 end
-arch floor_nstone3
+arch floor_earth1e
 x 7
 y 11
 end
@@ -489,23 +489,23 @@ arch dirt_floor2
 x 7
 y 11
 end
-arch floor_nstone1
+arch floor_earth1c
 x 7
 y 12
 end
-arch floor_nstone3
+arch floor_earth1d
 x 7
 y 13
 end
-arch floor_nstone1
+arch floor_earth1e
 x 7
 y 14
 end
-arch floor_nstone1
+arch floor_earth1b
 x 7
 y 15
 end
-arch floor_nstone1
+arch floor_earth1a
 x 7
 y 16
 end
@@ -513,7 +513,7 @@ arch blood_floor2
 x 7
 y 16
 end
-arch floor_nstone1
+arch floor_earth1a
 x 7
 y 17
 end
@@ -521,19 +521,19 @@ arch dirt_floor1
 x 7
 y 17
 end
-arch floor_nstone2
+arch floor_earth1c
 x 7
 y 18
 end
-arch floor_nstone3
+arch floor_earth1e
 x 7
 y 19
 end
-arch floor_nstone1
+arch floor_earth1c
 x 7
 y 20
 end
-arch floor_nstone3
+arch floor_earth1c
 x 7
 y 21
 end
@@ -541,7 +541,7 @@ arch fwall_fstone1a
 x 7
 y 21
 end
-arch floor_nstone3
+arch floor_earth1b
 x 8
 end
 arch fwall_fstone1b
@@ -550,15 +550,15 @@ end
 arch plant2_wall.151
 x 8
 end
-arch floor_nstone1
+arch floor_earth1b
 x 8
 y 1
 end
-arch floor_nstone2
+arch floor_earth1a
 x 8
 y 2
 end
-arch floor_nstone3
+arch floor_earth1d
 x 8
 y 3
 end
@@ -571,75 +571,75 @@ level 30
 Wis 4
 end
 end
-arch floor_nstone2
+arch floor_earth1a
 x 8
 y 4
 end
-arch floor_nstone3
+arch floor_earth1d
 x 8
 y 5
 end
-arch floor_nstone1
+arch floor_earth1b
 x 8
 y 6
 end
-arch floor_nstone3
+arch floor_earth1a
 x 8
 y 7
 end
-arch floor_nstone2
+arch floor_earth1c
 x 8
 y 8
 end
-arch floor_nstone3
+arch floor_earth1c
 x 8
 y 9
 end
-arch floor_nstone1
+arch floor_earth1c
 x 8
 y 10
 end
-arch floor_nstone2
+arch floor_earth1a
 x 8
 y 11
 end
-arch floor_nstone1
+arch floor_earth1e
 x 8
 y 12
 end
-arch floor_nstone1
+arch floor_earth1e
 x 8
 y 13
 end
-arch floor_nstone2
+arch floor_earth1a
 x 8
 y 14
 end
-arch floor_nstone2
+arch floor_earth1b
 x 8
 y 15
 end
-arch floor_nstone1
+arch floor_earth1a
 x 8
 y 16
 end
-arch floor_nstone1
+arch floor_earth1d
 x 8
 y 17
 end
-arch floor_nstone3
+arch floor_earth1b
 x 8
 y 18
 end
-arch floor_nstone2
+arch floor_earth1b
 x 8
 y 19
 end
-arch floor_nstone2
+arch floor_earth1e
 x 8
 y 20
 end
-arch floor_nstone2
+arch floor_earth1d
 x 8
 y 21
 end
@@ -647,93 +647,93 @@ arch fwall_fstone1b
 x 8
 y 21
 end
-arch floor_nstone1
+arch floor_earth1c
 x 9
 end
 arch fwall_fstone1c
 x 9
 end
-arch floor_nstone3
+arch floor_earth1b
 x 9
 y 1
 end
-arch floor_nstone3
+arch floor_earth1e
 x 9
 y 2
 end
-arch floor_nstone1
+arch floor_earth1c
 x 9
 y 3
 end
-arch floor_nstone1
+arch floor_earth1b
 x 9
 y 4
 end
-arch floor_nstone2
+arch floor_earth1a
 x 9
 y 5
 end
-arch floor_nstone3
+arch floor_earth1a
 x 9
 y 6
 end
-arch floor_nstone3
+arch floor_earth1d
 x 9
 y 7
 end
-arch floor_nstone3
+arch floor_earth1d
 x 9
 y 8
 end
-arch floor_nstone1
+arch floor_earth1a
 x 9
 y 9
 end
-arch floor_nstone2
+arch floor_earth1b
 x 9
 y 10
 end
-arch floor_nstone2
+arch floor_earth1e
 x 9
 y 11
 end
-arch floor_nstone2
+arch floor_earth1b
 x 9
 y 12
 end
-arch floor_nstone1
+arch floor_earth1b
 x 9
 y 13
 end
-arch floor_nstone3
+arch floor_earth1e
 x 9
 y 14
 end
-arch floor_nstone2
+arch floor_earth1b
 x 9
 y 15
 end
-arch floor_nstone2
+arch floor_earth1d
 x 9
 y 16
 end
-arch floor_nstone1
+arch floor_earth1a
 x 9
 y 17
 end
-arch floor_nstone2
+arch floor_earth1b
 x 9
 y 18
 end
-arch floor_nstone2
+arch floor_earth1c
 x 9
 y 19
 end
-arch floor_nstone3
+arch floor_earth1a
 x 9
 y 20
 end
-arch floor_nstone1
+arch floor_earth1c
 x 9
 y 21
 end
@@ -741,7 +741,7 @@ arch fwall_fstone1c
 x 9
 y 21
 end
-arch floor_nstone3
+arch floor_earth1d
 x 10
 end
 arch fwall_fstone1a
@@ -750,23 +750,23 @@ end
 arch wall_blood3
 x 10
 end
-arch floor_nstone1
+arch floor_earth1a
 x 10
 y 1
 end
-arch floor_nstone3
+arch floor_earth1d
 x 10
 y 2
 end
-arch floor_nstone2
+arch floor_earth1c
 x 10
 y 3
 end
-arch floor_nstone2
+arch floor_earth1e
 x 10
 y 4
 end
-arch floor_nstone2
+arch floor_earth1c
 x 10
 y 5
 end
@@ -774,7 +774,7 @@ arch fwall_fstone1b
 x 10
 y 5
 end
-arch floor_nstone1
+arch floor_earth1a
 x 10
 y 6
 end
@@ -782,7 +782,7 @@ arch fwall_fstone1b
 x 10
 y 6
 end
-arch floor_nstone2
+arch floor_earth1b
 x 10
 y 7
 end
@@ -790,7 +790,7 @@ arch fwall_fstone1a
 x 10
 y 7
 end
-arch floor_nstone3
+arch floor_earth1c
 x 10
 y 8
 end
@@ -799,7 +799,7 @@ direction 3
 x 10
 y 8
 end
-arch floor_nstone1
+arch floor_earth1c
 x 10
 y 9
 end
@@ -807,7 +807,7 @@ arch fwall_fstone1c
 x 10
 y 9
 end
-arch floor_nstone1
+arch floor_earth1b
 x 10
 y 10
 end
@@ -815,7 +815,7 @@ arch fwall_fstone1a
 x 10
 y 10
 end
-arch floor_nstone3
+arch floor_earth1a
 x 10
 y 11
 end
@@ -823,7 +823,7 @@ arch fwall_fstone1c
 x 10
 y 11
 end
-arch floor_nstone3
+arch floor_earth1c
 x 10
 y 12
 end
@@ -831,7 +831,7 @@ arch fwall_fstone1b
 x 10
 y 12
 end
-arch floor_nstone1
+arch floor_earth1d
 x 10
 y 13
 end
@@ -839,7 +839,7 @@ arch fwall_fstone1c
 x 10
 y 13
 end
-arch floor_nstone3
+arch floor_earth1e
 x 10
 y 14
 end
@@ -848,7 +848,7 @@ direction 3
 x 10
 y 14
 end
-arch floor_nstone1
+arch floor_earth1d
 x 10
 y 15
 end
@@ -856,7 +856,7 @@ arch fwall_fstone1a
 x 10
 y 15
 end
-arch floor_nstone2
+arch floor_earth1b
 x 10
 y 16
 end
@@ -864,7 +864,7 @@ arch fwall_fstone1b
 x 10
 y 16
 end
-arch floor_nstone1
+arch floor_earth1e
 x 10
 y 17
 end
@@ -872,19 +872,19 @@ arch fwall_fstone1a
 x 10
 y 17
 end
-arch floor_nstone2
+arch floor_earth1a
 x 10
 y 18
 end
-arch floor_nstone1
+arch floor_earth1c
 x 10
 y 19
 end
-arch floor_nstone3
+arch floor_earth1d
 x 10
 y 20
 end
-arch floor_nstone2
+arch floor_earth1d
 x 10
 y 21
 end
@@ -892,29 +892,29 @@ arch fwall_fstone1c
 x 10
 y 21
 end
-arch floor_nstone2
+arch floor_earth1c
 x 11
 end
 arch fwall_fstone1c
 x 11
 end
-arch floor_nstone1
+arch floor_earth1c
 x 11
 y 1
 end
-arch floor_nstone3
+arch floor_earth1a
 x 11
 y 2
 end
-arch floor_nstone3
+arch floor_earth1a
 x 11
 y 3
 end
-arch floor_nstone3
+arch floor_earth1a
 x 11
 y 4
 end
-arch floor_nstone1
+arch floor_earth1d
 x 11
 y 5
 end
@@ -922,7 +922,7 @@ arch fwall_fstone1b
 x 11
 y 5
 end
-arch floor_nstone1
+arch floor_earth1a
 x 11
 y 6
 end
@@ -930,19 +930,19 @@ arch barrel2.101
 x 11
 y 6
 end
-arch floor_nstone1
+arch floor_earth1a
 x 11
 y 7
 end
-arch floor_nstone3
+arch floor_earth1a
 x 11
 y 8
 end
-arch floor_nstone3
+arch floor_earth1e
 x 11
 y 9
 end
-arch floor_nstone3
+arch floor_earth1c
 x 11
 y 10
 end
@@ -950,7 +950,7 @@ arch straw1.101
 x 11
 y 10
 end
-arch floor_nstone1
+arch floor_earth1a
 x 11
 y 11
 end
@@ -958,7 +958,7 @@ arch fwall_fstone1a
 x 11
 y 11
 end
-arch floor_nstone1
+arch floor_earth1c
 x 11
 y 12
 end
@@ -966,15 +966,15 @@ arch barrel.101
 x 11
 y 12
 end
-arch floor_nstone1
+arch floor_earth1d
 x 11
 y 13
 end
-arch floor_nstone2
+arch floor_earth1e
 x 11
 y 14
 end
-arch floor_nstone2
+arch floor_earth1c
 x 11
 y 15
 end
@@ -982,7 +982,7 @@ arch pottery6.101
 x 11
 y 15
 end
-arch floor_nstone3
+arch floor_earth1e
 x 11
 y 16
 end
@@ -990,7 +990,7 @@ arch pottery3.101
 x 11
 y 16
 end
-arch floor_nstone2
+arch floor_earth1c
 x 11
 y 17
 end
@@ -998,19 +998,19 @@ arch fwall_fstone1a
 x 11
 y 17
 end
-arch floor_nstone2
+arch floor_earth1b
 x 11
 y 18
 end
-arch floor_nstone2
+arch floor_earth1a
 x 11
 y 19
 end
-arch floor_nstone1
+arch floor_earth1d
 x 11
 y 20
 end
-arch floor_nstone1
+arch floor_earth1a
 x 11
 y 21
 end
@@ -1018,29 +1018,29 @@ arch fwall_fstone1c
 x 11
 y 21
 end
-arch floor_nstone1
+arch floor_earth1a
 x 12
 end
 arch fwall_fstone1b
 x 12
 end
-arch floor_nstone2
+arch floor_earth1c
 x 12
 y 1
 end
-arch floor_nstone1
+arch floor_earth1a
 x 12
 y 2
 end
-arch floor_nstone1
+arch floor_earth1c
 x 12
 y 3
 end
-arch floor_nstone1
+arch floor_earth1a
 x 12
 y 4
 end
-arch floor_nstone1
+arch floor_earth1a
 x 12
 y 5
 end
@@ -1048,7 +1048,7 @@ arch fwall_fstone1b
 x 12
 y 5
 end
-arch floor_nstone1
+arch floor_earth1d
 x 12
 y 6
 end
@@ -1056,23 +1056,23 @@ arch pottery2.101
 x 12
 y 6
 end
-arch floor_nstone1
+arch floor_earth1c
 x 12
 y 7
 end
-arch floor_nstone2
+arch floor_earth1c
 x 12
 y 8
 end
-arch floor_nstone2
+arch floor_earth1d
 x 12
 y 9
 end
-arch floor_nstone3
+arch floor_earth1d
 x 12
 y 10
 end
-arch floor_nstone3
+arch floor_earth1a
 x 12
 y 11
 end
@@ -1084,7 +1084,7 @@ arch ring_wall.151
 x 12
 y 11
 end
-arch floor_nstone2
+arch floor_earth1b
 x 12
 y 12
 end
@@ -1092,23 +1092,23 @@ arch trash_wood1.101
 x 12
 y 12
 end
-arch floor_nstone1
+arch floor_earth1c
 x 12
 y 13
 end
-arch floor_nstone1
+arch floor_earth1d
 x 12
 y 14
 end
-arch floor_nstone3
+arch floor_earth1d
 x 12
 y 15
 end
-arch floor_nstone2
+arch floor_earth1c
 x 12
 y 16
 end
-arch floor_nstone1
+arch floor_earth1d
 x 12
 y 17
 end
@@ -1116,19 +1116,19 @@ arch fwall_fstone1a
 x 12
 y 17
 end
-arch floor_nstone1
+arch floor_earth1b
 x 12
 y 18
 end
-arch floor_nstone2
+arch floor_earth1e
 x 12
 y 19
 end
-arch floor_nstone2
+arch floor_earth1e
 x 12
 y 20
 end
-arch floor_nstone3
+arch floor_earth1e
 x 12
 y 21
 end
@@ -1136,7 +1136,7 @@ arch fwall_fstone1b
 x 12
 y 21
 end
-arch floor_nstone1
+arch floor_earth1c
 x 12
 y 22
 end
@@ -1144,7 +1144,7 @@ arch fwall_fstone1a
 x 12
 y 22
 end
-arch floor_nstone1
+arch floor_earth1c
 x 12
 y 23
 end
@@ -1157,29 +1157,29 @@ direction 7
 x 12
 y 23
 end
-arch floor_nstone3
+arch floor_earth1c
 x 13
 end
 arch fwall_fstone1a
 x 13
 end
-arch floor_nstone1
+arch floor_earth1d
 x 13
 y 1
 end
-arch floor_nstone1
+arch floor_earth1c
 x 13
 y 2
 end
-arch floor_nstone1
+arch floor_earth1b
 x 13
 y 3
 end
-arch floor_nstone3
+arch floor_earth1c
 x 13
 y 4
 end
-arch floor_nstone1
+arch floor_earth1c
 x 13
 y 5
 end
@@ -1191,7 +1191,7 @@ arch chains2.151
 x 13
 y 5
 end
-arch floor_nstone1
+arch floor_earth1b
 x 13
 y 6
 end
@@ -1199,7 +1199,7 @@ arch pottery4.101
 x 13
 y 6
 end
-arch floor_nstone3
+arch floor_earth1c
 x 13
 y 7
 end
@@ -1207,11 +1207,11 @@ arch blood_floor2
 x 13
 y 7
 end
-arch floor_nstone3
+arch floor_earth1a
 x 13
 y 8
 end
-arch floor_nstone3
+arch floor_earth1d
 x 13
 y 9
 end
@@ -1228,11 +1228,11 @@ level 31
 Wis 4
 end
 end
-arch floor_nstone2
+arch floor_earth1d
 x 13
 y 10
 end
-arch floor_nstone2
+arch floor_earth1a
 x 13
 y 11
 end
@@ -1240,7 +1240,7 @@ arch fwall_fstone1c
 x 13
 y 11
 end
-arch floor_nstone3
+arch floor_earth1d
 x 13
 y 12
 end
@@ -1248,23 +1248,23 @@ arch straw2.111
 x 13
 y 12
 end
-arch floor_nstone2
+arch floor_earth1e
 x 13
 y 13
 end
-arch floor_nstone2
+arch floor_earth1e
 x 13
 y 14
 end
-arch floor_nstone1
+arch floor_earth1e
 x 13
 y 15
 end
-arch floor_nstone1
+arch floor_earth1e
 x 13
 y 16
 end
-arch floor_nstone2
+arch floor_earth1e
 x 13
 y 17
 end
@@ -1272,53 +1272,53 @@ arch fwall_fstone1c
 x 13
 y 17
 end
-arch floor_nstone1
+arch floor_earth1d
 x 13
 y 18
 end
-arch floor_nstone2
+arch floor_earth1c
 x 13
 y 19
 end
-arch floor_nstone2
+arch floor_earth1b
 x 13
 y 20
 end
-arch floor_nstone3
+arch floor_earth1d
 x 13
 y 21
 end
-arch floor_nstone1
+arch floor_earth1e
 x 13
 y 22
 end
-arch floor_nstone2
+arch floor_earth1c
 x 13
 y 23
 end
-arch floor_nstone1
+arch floor_earth1b
 x 14
 end
 arch fwall_fstone1b
 x 14
 end
-arch floor_nstone3
+arch floor_earth1d
 x 14
 y 1
 end
-arch floor_nstone1
+arch floor_earth1c
 x 14
 y 2
 end
-arch floor_nstone2
+arch floor_earth1d
 x 14
 y 3
 end
-arch floor_nstone2
+arch floor_earth1e
 x 14
 y 4
 end
-arch floor_nstone1
+arch floor_earth1e
 x 14
 y 5
 end
@@ -1326,7 +1326,7 @@ arch fwall_fstone1a
 x 14
 y 5
 end
-arch floor_nstone1
+arch floor_earth1c
 x 14
 y 6
 end
@@ -1334,23 +1334,23 @@ arch pottery5.101
 x 14
 y 6
 end
-arch floor_nstone1
+arch floor_earth1b
 x 14
 y 7
 end
-arch floor_nstone1
+arch floor_earth1c
 x 14
 y 8
 end
-arch floor_nstone2
+arch floor_earth1e
 x 14
 y 9
 end
-arch floor_nstone2
+arch floor_earth1e
 x 14
 y 10
 end
-arch floor_nstone3
+arch floor_earth1e
 x 14
 y 11
 end
@@ -1358,27 +1358,27 @@ arch fwall_fstone1b
 x 14
 y 11
 end
-arch floor_nstone3
+arch floor_earth1a
 x 14
 y 12
 end
-arch floor_nstone1
+arch floor_earth1a
 x 14
 y 13
 end
-arch floor_nstone3
+arch floor_earth1e
 x 14
 y 14
 end
-arch floor_nstone1
+arch floor_earth1a
 x 14
 y 15
 end
-arch floor_nstone2
+arch floor_earth1d
 x 14
 y 16
 end
-arch floor_nstone1
+arch floor_earth1a
 x 14
 y 17
 end
@@ -1386,7 +1386,7 @@ arch fwall_fstone1c
 x 14
 y 17
 end
-arch floor_nstone1
+arch floor_earth1a
 x 14
 y 18
 end
@@ -1399,19 +1399,19 @@ level 29
 Wis 4
 end
 end
-arch floor_nstone1
+arch floor_earth1b
 x 14
 y 19
 end
-arch floor_nstone3
+arch floor_earth1b
 x 14
 y 20
 end
-arch floor_nstone1
+arch floor_earth1b
 x 14
 y 21
 end
-arch floor_nstone3
+arch floor_earth1b
 x 14
 y 22
 end
@@ -1419,11 +1419,11 @@ arch blood_floor1
 x 14
 y 22
 end
-arch floor_nstone3
+arch floor_earth1d
 x 14
 y 23
 end
-arch floor_nstone3
+arch floor_earth1a
 x 15
 end
 arch fwall_fstone1b
@@ -1432,15 +1432,15 @@ end
 arch sewer_wall
 x 15
 end
-arch floor_nstone3
+arch floor_earth1b
 x 15
 y 1
 end
-arch floor_nstone2
+arch floor_earth1a
 x 15
 y 2
 end
-arch floor_nstone2
+arch floor_earth1d
 x 15
 y 3
 end
@@ -1448,11 +1448,11 @@ arch blood_floor2
 x 15
 y 3
 end
-arch floor_nstone2
+arch floor_earth1e
 x 15
 y 4
 end
-arch floor_nstone3
+arch floor_earth1a
 x 15
 y 5
 end
@@ -1464,7 +1464,7 @@ arch wall_blood2
 x 15
 y 5
 end
-arch floor_nstone2
+arch floor_earth1b
 x 15
 y 6
 end
@@ -1472,7 +1472,7 @@ arch trash_wood1.101
 x 15
 y 6
 end
-arch floor_nstone2
+arch floor_earth1e
 x 15
 y 7
 end
@@ -1485,7 +1485,7 @@ level 31
 Wis 4
 end
 end
-arch floor_nstone1
+arch floor_earth1a
 x 15
 y 8
 end
@@ -1493,15 +1493,15 @@ arch dirt_floor1
 x 15
 y 8
 end
-arch floor_nstone2
+arch floor_earth1b
 x 15
 y 9
 end
-arch floor_nstone1
+arch floor_earth1c
 x 15
 y 10
 end
-arch floor_nstone2
+arch floor_earth1d
 x 15
 y 11
 end
@@ -1509,11 +1509,11 @@ arch fwall_fstone1c
 x 15
 y 11
 end
-arch floor_nstone1
+arch floor_earth1b
 x 15
 y 12
 end
-arch floor_nstone2
+arch floor_earth1e
 x 15
 y 13
 end
@@ -1526,7 +1526,7 @@ level 31
 Wis 4
 end
 end
-arch floor_nstone3
+arch floor_earth1b
 x 15
 y 14
 end
@@ -1534,15 +1534,15 @@ arch blood_floor1
 x 15
 y 14
 end
-arch floor_nstone2
+arch floor_earth1a
 x 15
 y 15
 end
-arch floor_nstone2
+arch floor_earth1d
 x 15
 y 16
 end
-arch floor_nstone3
+arch floor_earth1b
 x 15
 y 17
 end
@@ -1550,41 +1550,41 @@ arch fwall_fstone1c
 x 15
 y 17
 end
-arch floor_nstone3
+arch floor_earth1a
 x 15
 y 18
 end
-arch floor_nstone2
+arch floor_earth1a
 x 15
 y 19
 end
-arch floor_nstone2
+arch floor_earth1b
 x 15
 y 20
 end
-arch floor_nstone2
+arch floor_earth1c
 x 15
 y 21
 end
-arch floor_nstone1
+arch floor_earth1d
 x 15
 y 22
 end
-arch floor_nstone2
+arch floor_earth1e
 x 15
 y 23
 end
-arch floor_nstone2
+arch floor_earth1d
 x 16
 end
 arch fwall_fstone1b
 x 16
 end
-arch floor_nstone3
+arch floor_earth1b
 x 16
 y 1
 end
-arch floor_nstone1
+arch floor_earth1d
 x 16
 y 2
 end
@@ -1597,15 +1597,15 @@ level 31
 Wis 4
 end
 end
-arch floor_nstone3
+arch floor_earth1e
 x 16
 y 3
 end
-arch floor_nstone1
+arch floor_earth1e
 x 16
 y 4
 end
-arch floor_nstone1
+arch floor_earth1d
 x 16
 y 5
 end
@@ -1617,7 +1617,7 @@ arch ring_wall.151
 x 16
 y 5
 end
-arch floor_nstone2
+arch floor_earth1b
 x 16
 y 6
 end
@@ -1625,23 +1625,23 @@ arch prison_deco2.131
 x 16
 y 6
 end
-arch floor_nstone2
+arch floor_earth1c
 x 16
 y 7
 end
-arch floor_nstone3
+arch floor_earth1c
 x 16
 y 8
 end
-arch floor_nstone1
+arch floor_earth1a
 x 16
 y 9
 end
-arch floor_nstone3
+arch floor_earth1a
 x 16
 y 10
 end
-arch floor_nstone2
+arch floor_earth1a
 x 16
 y 11
 end
@@ -1649,27 +1649,27 @@ arch fwall_fstone1b
 x 16
 y 11
 end
-arch floor_nstone2
+arch floor_earth1e
 x 16
 y 12
 end
-arch floor_nstone1
+arch floor_earth1d
 x 16
 y 13
 end
-arch floor_nstone2
+arch floor_earth1c
 x 16
 y 14
 end
-arch floor_nstone3
+arch floor_earth1c
 x 16
 y 15
 end
-arch floor_nstone3
+arch floor_earth1c
 x 16
 y 16
 end
-arch floor_nstone1
+arch floor_earth1b
 x 16
 y 17
 end
@@ -1677,11 +1677,11 @@ arch fwall_fstone1c
 x 16
 y 17
 end
-arch floor_nstone3
+arch floor_earth1b
 x 16
 y 18
 end
-arch floor_nstone2
+arch floor_earth1b
 x 16
 y 19
 end
@@ -1689,23 +1689,23 @@ arch dirt_floor2
 x 16
 y 19
 end
-arch floor_nstone1
+arch floor_earth1b
 x 16
 y 20
 end
-arch floor_nstone1
+arch floor_earth1e
 x 16
 y 21
 end
-arch floor_nstone2
+arch floor_earth1c
 x 16
 y 22
 end
-arch floor_nstone1
+arch floor_earth1c
 x 16
 y 23
 end
-arch floor_nstone2
+arch floor_earth1d
 x 17
 end
 arch fwall_fstone1a
@@ -1714,23 +1714,23 @@ end
 arch wall_blood4
 x 17
 end
-arch floor_nstone1
+arch floor_earth1b
 x 17
 y 1
 end
-arch floor_nstone3
+arch floor_earth1d
 x 17
 y 2
 end
-arch floor_nstone3
+arch floor_earth1a
 x 17
 y 3
 end
-arch floor_nstone2
+arch floor_earth1d
 x 17
 y 4
 end
-arch floor_nstone3
+arch floor_earth1b
 x 17
 y 5
 end
@@ -1738,27 +1738,27 @@ arch fwall_fstone1c
 x 17
 y 5
 end
-arch floor_nstone3
+arch floor_earth1d
 x 17
 y 6
 end
-arch floor_nstone2
+arch floor_earth1b
 x 17
 y 7
 end
-arch floor_nstone1
+arch floor_earth1a
 x 17
 y 8
 end
-arch floor_nstone1
+arch floor_earth1a
 x 17
 y 9
 end
-arch floor_nstone2
+arch floor_earth1b
 x 17
 y 10
 end
-arch floor_nstone1
+arch floor_earth1e
 x 17
 y 11
 end
@@ -1766,27 +1766,27 @@ arch fwall_fstone1c
 x 17
 y 11
 end
-arch floor_nstone3
+arch floor_earth1a
 x 17
 y 12
 end
-arch floor_nstone1
+arch floor_earth1d
 x 17
 y 13
 end
-arch floor_nstone3
+arch floor_earth1b
 x 17
 y 14
 end
-arch floor_nstone3
+arch floor_earth1e
 x 17
 y 15
 end
-arch floor_nstone3
+arch floor_earth1b
 x 17
 y 16
 end
-arch floor_nstone3
+arch floor_earth1d
 x 17
 y 17
 end
@@ -1794,7 +1794,7 @@ arch fwall_fstone1b
 x 17
 y 17
 end
-arch floor_nstone2
+arch floor_earth1b
 x 17
 y 18
 end
@@ -1802,49 +1802,49 @@ arch pottery6.101
 x 17
 y 18
 end
-arch floor_nstone3
+arch floor_earth1b
 x 17
 y 19
 end
-arch floor_nstone3
+arch floor_earth1e
 x 17
 y 20
 end
-arch floor_nstone1
+arch floor_earth1c
 x 17
 y 21
 end
-arch floor_nstone3
+arch floor_earth1c
 x 17
 y 22
 end
-arch floor_nstone1
+arch floor_earth1a
 x 17
 y 23
 end
-arch floor_nstone3
+arch floor_earth1e
 x 18
 end
 arch fwall_fstone1a
 x 18
 end
-arch floor_nstone1
+arch floor_earth1a
 x 18
 y 1
 end
-arch floor_nstone3
+arch floor_earth1d
 x 18
 y 2
 end
-arch floor_nstone3
+arch floor_earth1c
 x 18
 y 3
 end
-arch floor_nstone3
+arch floor_earth1a
 x 18
 y 4
 end
-arch floor_nstone3
+arch floor_earth1d
 x 18
 y 5
 end
@@ -1852,7 +1852,7 @@ arch fwall_fstone1b
 x 18
 y 5
 end
-arch floor_nstone3
+arch floor_earth1a
 x 18
 y 6
 end
@@ -1860,7 +1860,7 @@ arch fwall_fstone1c
 x 18
 y 6
 end
-arch floor_nstone1
+arch floor_earth1b
 x 18
 y 7
 end
@@ -1868,7 +1868,7 @@ arch fwall_fstone1c
 x 18
 y 7
 end
-arch floor_nstone3
+arch floor_earth1a
 x 18
 y 8
 end
@@ -1876,7 +1876,7 @@ arch fwall_fstone1b
 x 18
 y 8
 end
-arch floor_nstone1
+arch floor_earth1c
 x 18
 y 9
 end
@@ -1884,7 +1884,7 @@ arch fwall_fstone1a
 x 18
 y 9
 end
-arch floor_nstone2
+arch floor_earth1b
 x 18
 y 10
 end
@@ -1892,7 +1892,7 @@ arch fwall_fstone1c
 x 18
 y 10
 end
-arch floor_nstone3
+arch floor_earth1d
 x 18
 y 11
 end
@@ -1900,7 +1900,7 @@ arch fwall_fstone1b
 x 18
 y 11
 end
-arch floor_nstone2
+arch floor_earth1c
 x 18
 y 12
 end
@@ -1908,7 +1908,7 @@ arch fwall_fstone1c
 x 18
 y 12
 end
-arch floor_nstone2
+arch floor_earth1d
 x 18
 y 13
 end
@@ -1916,7 +1916,7 @@ arch fwall_fstone1b
 x 18
 y 13
 end
-arch floor_nstone1
+arch floor_earth1d
 x 18
 y 14
 end
@@ -1924,7 +1924,7 @@ arch fwall_fstone1a
 x 18
 y 14
 end
-arch floor_nstone3
+arch floor_earth1b
 x 18
 y 15
 end
@@ -1932,7 +1932,7 @@ arch fwall_fstone1b
 x 18
 y 15
 end
-arch floor_nstone1
+arch floor_earth1e
 x 18
 y 16
 end
@@ -1940,7 +1940,7 @@ arch fwall_fstone1a
 x 18
 y 16
 end
-arch floor_nstone2
+arch floor_earth1e
 x 18
 y 17
 end
@@ -1948,7 +1948,7 @@ arch fwall_fstone1c
 x 18
 y 17
 end
-arch floor_nstone3
+arch floor_earth1e
 x 18
 y 18
 end
@@ -1956,7 +1956,7 @@ arch fwall_fstone1a
 x 18
 y 18
 end
-arch floor_nstone2
+arch floor_earth1e
 x 18
 y 19
 end
@@ -1969,7 +1969,7 @@ direction 7
 x 18
 y 19
 end
-arch floor_nstone1
+arch floor_earth1b
 x 18
 y 20
 end
@@ -1977,7 +1977,7 @@ arch fwall_fstone1b
 x 18
 y 20
 end
-arch floor_nstone3
+arch floor_earth1b
 x 18
 y 21
 end
@@ -1985,7 +1985,7 @@ arch fwall_fstone1a
 x 18
 y 21
 end
-arch floor_nstone3
+arch floor_earth1d
 x 18
 y 22
 end
@@ -1993,7 +1993,7 @@ arch fwall_fstone1b
 x 18
 y 22
 end
-arch floor_nstone1
+arch floor_earth1d
 x 18
 y 23
 end
@@ -2001,7 +2001,7 @@ arch fwall_fstone1b
 x 18
 y 23
 end
-arch floor_nstone3
+arch floor_earth1d
 x 19
 end
 arch fwall_fstone1a
@@ -2010,95 +2010,95 @@ end
 arch ring_wall.151
 x 19
 end
-arch floor_nstone3
+arch floor_earth1b
 x 19
 y 1
 end
-arch floor_nstone2
+arch floor_earth1e
 x 19
 y 2
 end
-arch floor_nstone1
+arch floor_earth1e
 x 19
 y 3
 end
-arch floor_nstone2
+arch floor_earth1e
 x 19
 y 4
 end
-arch floor_nstone2
+arch floor_earth1a
 x 19
 y 5
 end
-arch floor_nstone1
+arch floor_earth1c
 x 19
 y 6
 end
-arch floor_nstone1
+arch floor_earth1b
 x 19
 y 7
 end
-arch floor_nstone3
+arch floor_earth1e
 x 19
 y 8
 end
-arch floor_nstone3
+arch floor_earth1a
 x 19
 y 9
 end
-arch floor_nstone1
+arch floor_earth1b
 x 19
 y 10
 end
-arch floor_nstone1
+arch floor_earth1e
 x 19
 y 11
 end
-arch floor_nstone3
+arch floor_earth1d
 x 19
 y 12
 end
-arch floor_nstone1
+arch floor_earth1d
 x 19
 y 13
 end
-arch floor_nstone2
+arch floor_earth1b
 x 19
 y 14
 end
-arch floor_nstone2
+arch floor_earth1e
 x 19
 y 15
 end
-arch floor_nstone1
+arch floor_earth1e
 x 19
 y 16
 end
-arch floor_nstone3
+arch floor_earth1e
 x 19
 y 17
 end
-arch floor_nstone3
+arch floor_earth1e
 x 19
 y 18
 end
-arch floor_nstone1
+arch floor_earth1a
 x 19
 y 19
 end
-arch floor_nstone3
+arch floor_earth1b
 x 19
 y 20
 end
-arch floor_nstone3
+arch floor_earth1b
 x 19
 y 21
 end
-arch floor_nstone1
+arch floor_earth1c
 x 19
 y 22
 end
-arch floor_nstone1
+arch floor_earth1d
 x 19
 y 23
 end
@@ -2106,41 +2106,41 @@ arch fwall_fstone1a
 x 19
 y 23
 end
-arch floor_nstone3
+arch floor_earth1c
 x 20
 end
 arch fwall_fstone1a
 x 20
 end
-arch floor_nstone3
+arch floor_earth1e
 x 20
 y 1
 end
-arch floor_nstone2
+arch floor_earth1c
 x 20
 y 2
 end
-arch floor_nstone3
+arch floor_earth1a
 x 20
 y 3
 end
-arch floor_nstone1
+arch floor_earth1a
 x 20
 y 4
 end
-arch floor_nstone3
+arch floor_earth1c
 x 20
 y 5
 end
-arch floor_nstone3
+arch floor_earth1a
 x 20
 y 6
 end
-arch floor_nstone3
+arch floor_earth1e
 x 20
 y 7
 end
-arch floor_nstone2
+arch floor_earth1c
 x 20
 y 8
 end
@@ -2153,31 +2153,31 @@ level 32
 Wis 4
 end
 end
-arch floor_nstone1
+arch floor_earth1a
 x 20
 y 9
 end
-arch floor_nstone3
+arch floor_earth1c
 x 20
 y 10
 end
-arch floor_nstone3
+arch floor_earth1d
 x 20
 y 11
 end
-arch floor_nstone2
+arch floor_earth1c
 x 20
 y 12
 end
-arch floor_nstone1
+arch floor_earth1d
 x 20
 y 13
 end
-arch floor_nstone2
+arch floor_earth1b
 x 20
 y 14
 end
-arch floor_nstone1
+arch floor_earth1c
 x 20
 y 15
 end
@@ -2194,7 +2194,7 @@ arch ability_icestorm
 end
 end
 end
-arch floor_nstone2
+arch floor_earth1b
 x 20
 y 16
 end
@@ -2202,31 +2202,31 @@ arch dirt_floor2
 x 20
 y 16
 end
-arch floor_nstone2
+arch floor_earth1c
 x 20
 y 17
 end
-arch floor_nstone1
+arch floor_earth1d
 x 20
 y 18
 end
-arch floor_nstone2
+arch floor_earth1e
 x 20
 y 19
 end
-arch floor_nstone1
+arch floor_earth1a
 x 20
 y 20
 end
-arch floor_nstone3
+arch floor_earth1a
 x 20
 y 21
 end
-arch floor_nstone2
+arch floor_earth1e
 x 20
 y 22
 end
-arch floor_nstone2
+arch floor_earth1b
 x 20
 y 23
 end
@@ -2234,29 +2234,29 @@ arch fwall_fstone1b
 x 20
 y 23
 end
-arch floor_nstone3
+arch floor_earth1b
 x 21
 end
 arch fwall_fstone1c
 x 21
 end
-arch floor_nstone1
+arch floor_earth1e
 x 21
 y 1
 end
-arch floor_nstone2
+arch floor_earth1a
 x 21
 y 2
 end
-arch floor_nstone2
+arch floor_earth1a
 x 21
 y 3
 end
-arch floor_nstone1
+arch floor_earth1d
 x 21
 y 4
 end
-arch floor_nstone2
+arch floor_earth1d
 x 21
 y 5
 end
@@ -2264,15 +2264,15 @@ arch dirt_floor2
 x 21
 y 5
 end
-arch floor_nstone3
+arch floor_earth1a
 x 21
 y 6
 end
-arch floor_nstone1
+arch floor_earth1b
 x 21
 y 7
 end
-arch floor_nstone1
+arch floor_earth1c
 x 21
 y 8
 end
@@ -2280,63 +2280,63 @@ arch blood_floor1
 x 21
 y 8
 end
-arch floor_nstone1
+arch floor_earth1a
 x 21
 y 9
 end
-arch floor_nstone1
+arch floor_earth1b
 x 21
 y 10
 end
-arch floor_nstone3
+arch floor_earth1e
 x 21
 y 11
 end
-arch floor_nstone3
+arch floor_earth1b
 x 21
 y 12
 end
-arch floor_nstone3
+arch floor_earth1e
 x 21
 y 13
 end
-arch floor_nstone3
+arch floor_earth1a
 x 21
 y 14
 end
-arch floor_nstone3
+arch floor_earth1d
 x 21
 y 15
 end
-arch floor_nstone2
+arch floor_earth1b
 x 21
 y 16
 end
-arch floor_nstone3
+arch floor_earth1e
 x 21
 y 17
 end
-arch floor_nstone1
+arch floor_earth1b
 x 21
 y 18
 end
-arch floor_nstone1
+arch floor_earth1b
 x 21
 y 19
 end
-arch floor_nstone3
+arch floor_earth1d
 x 21
 y 20
 end
-arch floor_nstone2
+arch floor_earth1c
 x 21
 y 21
 end
-arch floor_nstone2
+arch floor_earth1d
 x 21
 y 22
 end
-arch floor_nstone1
+arch floor_earth1a
 x 21
 y 23
 end
@@ -2344,85 +2344,85 @@ arch fwall_fstone1c
 x 21
 y 23
 end
-arch floor_nstone1
+arch floor_earth1d
 x 22
 end
 arch fwall_fstone1a
 x 22
 end
-arch floor_nstone3
+arch floor_earth1b
 x 22
 y 1
 end
-arch floor_nstone3
+arch floor_earth1c
 x 22
 y 2
 end
-arch floor_nstone3
+arch floor_earth1d
 x 22
 y 3
 end
-arch floor_nstone3
+arch floor_earth1a
 x 22
 y 4
 end
-arch floor_nstone3
+arch floor_earth1e
 x 22
 y 5
 end
-arch floor_nstone2
+arch floor_earth1e
 x 22
 y 6
 end
-arch floor_nstone2
+arch floor_earth1d
 x 22
 y 7
 end
-arch floor_nstone1
+arch floor_earth1b
 x 22
 y 8
 end
-arch floor_nstone3
+arch floor_earth1a
 x 22
 y 9
 end
-arch floor_nstone2
+arch floor_earth1a
 x 22
 y 10
 end
-arch floor_nstone1
+arch floor_earth1a
 x 22
 y 11
 end
-arch floor_nstone2
+arch floor_earth1b
 x 22
 y 12
 end
-arch floor_nstone3
+arch floor_earth1c
 x 22
 y 13
 end
-arch floor_nstone1
+arch floor_earth1e
 x 22
 y 14
 end
-arch floor_nstone2
+arch floor_earth1e
 x 22
 y 15
 end
-arch floor_nstone2
+arch floor_earth1d
 x 22
 y 16
 end
-arch floor_nstone2
+arch floor_earth1a
 x 22
 y 17
 end
-arch floor_nstone1
+arch floor_earth1e
 x 22
 y 18
 end
-arch floor_nstone1
+arch floor_earth1d
 x 22
 y 19
 end
@@ -2430,19 +2430,19 @@ arch blood_floor1
 x 22
 y 19
 end
-arch floor_nstone2
+arch floor_earth1a
 x 22
 y 20
 end
-arch floor_nstone1
+arch floor_earth1e
 x 22
 y 21
 end
-arch floor_nstone1
+arch floor_earth1b
 x 22
 y 22
 end
-arch floor_nstone3
+arch floor_earth1d
 x 22
 y 23
 end
@@ -2450,13 +2450,13 @@ arch fwall_fstone1b
 x 22
 y 23
 end
-arch floor_nstone2
+arch floor_earth1e
 x 23
 end
 arch fwall_fstone1c
 x 23
 end
-arch floor_nstone2
+arch floor_earth1b
 x 23
 y 1
 end
@@ -2464,7 +2464,7 @@ arch fwall_fstone1c
 x 23
 y 1
 end
-arch floor_nstone3
+arch floor_earth1b
 x 23
 y 2
 end
@@ -2472,7 +2472,7 @@ arch fwall_fstone1a
 x 23
 y 2
 end
-arch floor_nstone3
+arch floor_earth1e
 x 23
 y 3
 end
@@ -2480,7 +2480,7 @@ arch fwall_fstone1c
 x 23
 y 3
 end
-arch floor_nstone3
+arch floor_earth1d
 x 23
 y 4
 end
@@ -2488,7 +2488,7 @@ arch fwall_fstone1a
 x 23
 y 4
 end
-arch floor_nstone3
+arch floor_earth1a
 x 23
 y 5
 end
@@ -2496,7 +2496,7 @@ arch fwall_fstone1b
 x 23
 y 5
 end
-arch floor_nstone2
+arch floor_earth1d
 x 23
 y 6
 end
@@ -2504,7 +2504,7 @@ arch fwall_fstone1b
 x 23
 y 6
 end
-arch floor_nstone3
+arch floor_earth1e
 x 23
 y 7
 end
@@ -2512,7 +2512,7 @@ arch fwall_fstone1a
 x 23
 y 7
 end
-arch floor_nstone2
+arch floor_earth1d
 x 23
 y 8
 end
@@ -2520,7 +2520,7 @@ arch fwall_fstone1b
 x 23
 y 8
 end
-arch floor_nstone2
+arch floor_earth1d
 x 23
 y 9
 end
@@ -2528,7 +2528,7 @@ arch fwall_fstone1a
 x 23
 y 9
 end
-arch floor_nstone1
+arch floor_earth1d
 x 23
 y 10
 end
@@ -2536,7 +2536,7 @@ arch fwall_fstone1a
 x 23
 y 10
 end
-arch floor_nstone2
+arch floor_earth1d
 x 23
 y 11
 end
@@ -2544,7 +2544,7 @@ arch fwall_fstone1b
 x 23
 y 11
 end
-arch floor_nstone2
+arch floor_earth1a
 x 23
 y 12
 end
@@ -2552,7 +2552,7 @@ arch fwall_fstone1c
 x 23
 y 12
 end
-arch floor_nstone2
+arch floor_earth1a
 x 23
 y 13
 end
@@ -2560,7 +2560,7 @@ arch fwall_fstone1b
 x 23
 y 13
 end
-arch floor_nstone2
+arch floor_earth1c
 x 23
 y 14
 end
@@ -2568,7 +2568,7 @@ arch fwall_fstone1a
 x 23
 y 14
 end
-arch floor_nstone1
+arch floor_earth1b
 x 23
 y 15
 end
@@ -2576,7 +2576,7 @@ arch fwall_fstone1a
 x 23
 y 15
 end
-arch floor_nstone2
+arch floor_earth1e
 x 23
 y 16
 end
@@ -2584,7 +2584,7 @@ arch fwall_fstone1c
 x 23
 y 16
 end
-arch floor_nstone2
+arch floor_earth1e
 x 23
 y 17
 end
@@ -2592,27 +2592,27 @@ arch fwall_fstone1b
 x 23
 y 17
 end
-arch floor_nstone2
+arch floor_earth1b
 x 23
 y 18
 end
-arch floor_nstone1
+arch floor_earth1c
 x 23
 y 19
 end
-arch floor_nstone3
+arch floor_earth1a
 x 23
 y 20
 end
-arch floor_nstone3
+arch floor_earth1e
 x 23
 y 21
 end
-arch floor_nstone1
+arch floor_earth1a
 x 23
 y 22
 end
-arch floor_nstone3
+arch floor_earth1b
 x 23
 y 23
 end
