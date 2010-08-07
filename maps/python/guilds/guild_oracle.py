@@ -37,7 +37,7 @@ def main():
 
 	# Show rank related commands.
 	elif msg == "ranks":
-		me.SayTo(activator, "\nDo you want to see the ^ranks list^, create a ^new rank^, ^remove rank^, ^change rank^ setting or ^view rank^ setting?\nYou can also ^assign^ a member to one of the existing ranks and ^clear rank^ of a member.")
+		me.SayTo(activator, "\nDo you want to see the ^ranks list^, create a ^new rank^, ^remove rank^, ^change rank^ setting or ^view rank^ setting?\nYou can also ^assign^ a member to one of the existing ranks and ^clear rank^ of a member, or see members ^without rank^.")
 
 	# Show the list of ranks.
 	elif msg == "ranks list":
@@ -45,6 +45,15 @@ def main():
 
 		for rank in guild.ranks_get_sorted():
 			me.SayTo(activator, guild.rank_string(rank), 1)
+
+	# Show members without rank.
+	elif msg == "without rank":
+		l = list(filter(lambda name: not guild.member_get_rank(name), guild.get_members()))
+
+		if l:
+			me.SayTo(activator, "\nMembers without any rank:\n{}".format(", ".join(l)))
+		else:
+			me.SayTo(activator, "\nThere are no members without rank.")
 
 	# Create a new rank.
 	elif msg[:8] == "new rank":
