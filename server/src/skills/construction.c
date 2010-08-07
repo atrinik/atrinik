@@ -121,6 +121,11 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 		}
 	}
 
+	if (tmp && QUERY_FLAG(tmp, FLAG_UNIQUE))
+	{
+		SET_FLAG(new_floor, FLAG_UNIQUE);
+	}
+
 	SET_FLAG(new_floor, FLAG_IS_FLOOR);
 	new_floor->type = FLOOR;
 	new_floor->x = x;
