@@ -496,7 +496,10 @@ class Guild:
 		if not self.rank_exists(rank):
 			return None
 
-		return list(filter(lambda name: self._members[name][self.m_rank] == rank, self._members.keys()))
+		l = list(filter(lambda name: self._members[name][self.m_rank] == rank, self._members.keys()))
+		l.sort()
+
+		return l
 
 	## Check if the specified rank exists.
 	## @param rank The rank name to check.
