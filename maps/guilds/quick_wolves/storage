@@ -2,15 +2,13 @@ arch map
 name Quick Wolves Storage
 msg
 Created:  2009-10-14 Alex Tokar
-Modified: 2010-08-03 Alex Tokar
+Modified: 2010-08-07 Alex Tokar
 endmsg
-width 18
-height 22
-enter_y 17
+width 25
+height 26
 difficulty 1
 darkness -1
 no_harm 1
-fixed_login 1
 region strakewood_island
 end
 arch blocked
@@ -20,25 +18,25 @@ end
 arch blocked
 y 1
 end
-arch wall_wood1_3
+arch wall_wood2_3
 y 1
 end
 arch blocked
 y 2
 end
-arch wall_wood1_3
+arch wall_wood2_3
 y 2
 end
 arch blocked
 y 3
 end
-arch wall_wood1_3
+arch wall_wood2_3
 y 3
 end
 arch blocked
 y 4
 end
-arch wall_wood2_3
+arch wall_wood3_3
 y 4
 end
 arch blocked
@@ -50,19 +48,19 @@ end
 arch blocked
 y 6
 end
-arch wall_wood1_3
+arch wall_wood2_3
 y 6
 end
 arch blocked
 y 7
 end
-arch wall_wood3_3
+arch wall_wood2_3
 y 7
 end
 arch blocked
 y 8
 end
-arch wall_wood3_3
+arch wall_wood_3
 y 8
 end
 arch blocked
@@ -74,63 +72,98 @@ end
 arch blocked
 y 10
 end
-arch wall_wood2_3
-y 10
-end
-arch picture5.151
-direction 7
+arch wall_wood3_3
 y 10
 end
 arch blocked
 y 11
 end
-arch wall_wood2_3
+arch wall_wood_3
 y 11
 end
 arch blocked
 y 12
+end
+arch wall_wood2_3
+y 12
+end
+arch blocked
+y 13
+end
+arch wall_wood2_3
+y 13
+end
+arch blocked
+y 14
 end
 arch wall_wood3_3
-y 12
+y 14
 end
 arch blocked
-y 13
+y 15
 end
 arch wall_wood2_3
-y 13
+y 15
 end
 arch blocked
 y 16
 end
-arch wall_wood3_1
+arch wall_wood2_3
 y 16
 end
-arch floor_wood2_l1
+arch blocked
 y 17
 end
-arch invis_exit
+arch wall_wood3_3
 y 17
-arch note
-msg
-guild_maps: /guilds/quick_wolves/guild|/guilds/quick_wolves/oracle|/guilds/quick_wolves/storage
-enter_map: /shattered_islands/world_0514
-enter_x: 11
-enter_y: 7
-endmsg
-name guild options
-sys_object 1
 end
-arch event_obj
-sub_type 10
-race ../../python/guilds/guild_login.py
-slaying Quick Wolves|16|19
-end
-end
-arch floor_wood2_l2
+arch blocked
 y 18
 end
-arch wall_wood2_1
+arch wall_wood2_3
 y 18
+end
+arch blocked
+y 19
+end
+arch wall_wood_3
+y 19
+end
+arch blocked
+y 20
+end
+arch wall_wood_3
+y 20
+end
+arch blocked
+y 21
+end
+arch wall_wood2_3
+y 21
+end
+arch blocked
+y 22
+end
+arch wall_wood_3
+y 22
+end
+arch blocked
+y 23
+end
+arch wall_wood_3
+y 23
+end
+arch blocked
+y 24
+end
+arch wall_wood2_3
+y 24
+end
+arch blocked
+y 25
+end
+arch wall_wood2_3
+y 25
 end
 arch blocked
 x 1
@@ -138,594 +171,978 @@ end
 arch wall_wood3_1
 x 1
 end
-arch floor_wood2_l2
-unique 1
-x 1
-y 1
-end
-arch chest_m
-no_pick 0
-direction 7
-x 1
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 1
-y 2
-end
-arch chest_sm_1
-no_pick 0
-direction 7
-x 1
-y 2
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 1
-y 3
-end
-arch chest7_111
-no_pick 0
-direction 7
-x 1
-y 3
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 1
-y 4
-end
-arch chest_sm_1
-no_pick 0
-direction 7
-x 1
-y 4
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 1
-y 5
-end
-arch chest_m
-no_pick 0
-direction 7
-x 1
-y 5
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
 arch floor_wood2_l1
-x 1
-y 6
-end
-arch wall_wood2_1
-x 1
-y 6
-end
-arch floor_wood2_l2
+is_buildable 1
 unique 1
 x 1
-y 7
+y 1
 end
 arch chest_w1
-no_pick 0
+is_buildable 1
+x 1
+y 1
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 1
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 1
+y 4
+end
+arch rack2
+is_buildable 1
 direction 7
+x 1
+y 4
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 5
+end
+arch rack.111
+is_buildable 1
+direction 7
+x 1
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 6
+end
+arch rack2
+is_buildable 1
+direction 7
+x 1
+y 6
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 1
 y 7
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
 end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
+arch wall_wood_1
+is_buildable 1
+x 1
+y 7
 end
 arch floor_wood2_l2
 unique 1
+is_buildable 1
 x 1
 y 8
 end
-arch chest_4.111
-no_pick 0
+arch chest_w1
+is_buildable 1
 direction 7
 x 1
 y 8
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
 end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
+arch floor_wood2_l1
+is_buildable 1
 unique 1
 x 1
 y 9
 end
-arch chest_sw_1
-no_pick 0
+arch chest_w1
+is_buildable 1
 direction 7
 x 1
 y 9
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
 end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
+arch floor_wood2_l1
+is_buildable 1
 unique 1
 x 1
 y 10
 end
-arch chest_4.111
-no_pick 0
+arch chest_w1
+is_buildable 1
 direction 7
 x 1
 y 10
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
 end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
+arch floor_wood2_l1
+is_buildable 1
 unique 1
 x 1
 y 11
 end
-arch chest_sw_1
-no_pick 0
+arch chest_w1
+is_buildable 1
 direction 7
 x 1
 y 11
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
 end
 arch floor_wood2_l2
 unique 1
+is_buildable 1
 x 1
 y 12
 end
 arch chest_w1
-no_pick 0
+is_buildable 1
 direction 7
 x 1
 y 12
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
 end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 13
 end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 13
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 1
-y 13
+y 14
 end
-arch wall_wood2_1
+arch chest_w1
+is_buildable 1
+direction 7
 x 1
-y 13
+y 14
 end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 15
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 15
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 1
 y 16
 end
-arch wall_wood1_1
+arch wall_wood_1
+is_buildable 1
 x 1
 y 16
 end
-arch floor_wood2_l2
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 1
 y 17
 end
-arch wall_wood3_3
+arch chest_w1
+is_buildable 1
+direction 7
 x 1
 y 17
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 1
 y 18
 end
-arch wall_wood_4
+arch chest_w1
+is_buildable 1
+direction 7
 x 1
 y 18
 end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 19
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 19
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 20
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 20
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 21
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 21
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 1
+y 22
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 1
+y 23
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 23
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 1
+y 24
+end
+arch chest_w1
+is_buildable 1
+direction 7
+x 1
+y 24
+end
+arch floor_wood2_l1
+x 1
+y 25
+end
+arch wall_wood_1
+x 1
+y 25
+end
 arch blocked
 x 2
+end
+arch wall_wood_1
+x 2
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 1
+end
+arch chest_w1
+is_buildable 1
+x 2
+y 1
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 7
+end
+arch wall_wood_1
+is_buildable 1
+x 2
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 8
+end
+arch rack3
+is_buildable 1
+x 2
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 10
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 11
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 13
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 16
+end
+arch wall_wood_1
+is_buildable 1
+x 2
+y 16
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 17
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 19
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 20
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 21
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 2
+y 23
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 2
+y 24
+end
+arch floor_wood2_l1
+x 2
+y 25
 end
 arch wall_wood3_1
 x 2
-end
-arch picture7
-x 2
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 1
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 4
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 5
-end
-arch floor_wood2_l1
-x 2
-y 6
-end
-arch wall_wood2_1
-x 2
-y 6
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 8
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 11
-end
-arch floor_wood2_l1
-unique 1
-x 2
-y 12
-end
-arch floor_wood2_l1
-x 2
-y 13
-end
-arch wall_wood2_1
-x 2
-y 13
+y 25
 end
 arch blocked
 x 3
+end
+arch wall_wood2_1
+x 3
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 1
+end
+arch chest_4.111
+is_buildable 1
+x 3
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 2
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 4
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 8
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 10
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 12
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 13
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 14
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 16
+end
+arch wall_wood_1
+is_buildable 1
+x 3
+y 16
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 19
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 20
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 21
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 3
+y 23
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 3
+y 24
+end
+arch floor_wood2_l1
+x 3
+y 25
+end
+arch wall_wood2_1
+x 3
+y 25
+end
+arch blocked
+x 4
+end
+arch wall_wood2_1
+x 4
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 1
+end
+arch chest_sw_1
+is_buildable 1
+x 4
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 2
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 3
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 5
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 7
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 10
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 12
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 15
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 16
+end
+arch wall_wood_1
+is_buildable 1
+x 4
+y 16
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 19
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 20
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 21
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 4
+y 23
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 4
+y 24
+end
+arch floor_wood2_l1
+x 4
+y 25
+end
+arch wall_wood_1
+x 4
+y 25
+end
+arch blocked
+x 5
+end
+arch wall_wood2_1
+x 5
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 1
+end
+arch chest_4.111
+is_buildable 1
+x 5
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 3
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 4
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 5
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 6
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 7
+end
+arch wall_wood_1
+is_buildable 1
+x 5
+y 7
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 8
+end
+arch chest_w1
+is_buildable 1
+x 5
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 10
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 13
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 16
+end
+arch wall_wood_1
+is_buildable 1
+x 5
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 19
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 20
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 21
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 5
+y 23
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 5
+y 24
+end
+arch floor_wood2_l1
+x 5
+y 25
 end
 arch wall_wood3_1
-x 3
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 1
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 4
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 5
-end
-arch floor_wood2_l1
-x 3
-y 6
-end
-arch wall_wood2_1
-x 3
-y 6
-end
-arch flag_01
-x 3
-y 6
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 8
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 11
-end
-arch floor_wood2_l1
-unique 1
-x 3
-y 12
-end
-arch floor_wood2_l2
-x 3
-y 13
-end
-arch wall_wood3_1
-x 3
-y 13
-end
-arch blocked
-x 4
-end
-arch wall_wood1_1
-x 4
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 1
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 4
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 5
-end
-arch floor_wood2_l2
-x 4
-y 6
-end
-arch wall_wood1_1
-x 4
-y 6
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 8
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 11
-end
-arch floor_wood2_l1
-unique 1
-x 4
-y 12
-end
-arch floor_wood2_l2
-x 4
-y 13
-end
-arch wall_wood2_1
-x 4
-y 13
-end
-arch blocked
 x 5
-end
-arch wall_wood2_1
-x 5
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 1
-end
-arch desk2
-no_pick 0
-x 5
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 2
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 3
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 4
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 5
-end
-arch floor_wood2_l1
-x 5
-y 6
-end
-arch wall_wood2_1
-x 5
-y 6
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 7
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 8
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 9
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 10
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 11
-end
-arch floor_wood2_l2
-unique 1
-x 5
-y 12
-end
-arch floor_wood2_l1
-x 5
-y 13
-end
-arch wall_wood1_1
-x 5
-y 13
+y 25
 end
 arch blocked
 x 6
@@ -734,1945 +1151,3457 @@ arch wall_wood3_1
 x 6
 end
 arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 1
 end
-arch wall_wood3_3
+arch chest_w1
+is_buildable 1
 x 6
 y 1
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 2
 end
-arch wall_wood1_3
-x 6
-y 2
-end
-arch floor_wood2_l1
-x 6
-y 3
-end
-arch door_wood1
-direction 7
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 3
 end
 arch floor_wood2_l1
-x 6
-y 4
-end
-arch wall_wood1_3
-x 6
-y 4
-end
-arch flag_04
-direction 7
+is_buildable 1
+unique 1
 x 6
 y 4
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 5
 end
-arch wall_wood1_3
-x 6
-y 5
-end
-arch floor_wood2_l1
-x 6
-y 6
-end
-arch wall_wood_4
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 6
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 7
 end
-arch wall_wood2_3
+arch wall_wood_1
+is_buildable 1
 x 6
 y 7
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 8
 end
-arch wall_wood2_3
-x 6
-y 8
-end
-arch wmask_fire_on_1
-direction 7
+arch chest_w1
+is_buildable 1
 x 6
 y 8
 end
 arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 9
 end
-arch wall_wood3_3
-x 6
-y 9
-end
-arch floor_wood2_l1
-x 6
-y 10
-end
-arch door_wood1
-direction 7
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 10
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 11
 end
-arch wall_wood2_3
-x 6
-y 11
-end
-arch floor_wood2_l2
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 12
 end
-arch wall_wood1_3
-x 6
-y 12
-end
-arch wmask_wanted.151
-direction 7
-x 6
-y 12
-end
-arch floor_wood2_l2
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 13
 end
-arch wall_wood_4
-x 6
-y 13
-end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 14
 end
-arch wall_wood2_3
-x 6
-y 14
-end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 15
 end
-arch wall_wood1_3
-x 6
-y 15
-end
-arch flag_04
-direction 7
-x 6
-y 15
-end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 16
 end
-arch wall_wood1_3
+arch wall_wood_1
+is_buildable 1
 x 6
 y 16
 end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 17
 end
-arch wall_wood1_3
-x 6
-y 17
-end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 18
 end
-arch wall_wood1_3
-x 6
-y 18
-end
-arch blocked
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 19
 end
-arch wall_wood1_3
-x 6
-y 19
-end
-arch blocked
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 6
 y 20
 end
-arch wall_wood3_3
-x 6
-y 20
-end
-arch blocked
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 6
 y 21
-end
-arch wall_wood3_3
-x 6
-y 21
-end
-arch blocked
-x 7
-end
-arch wall_wood2_1
-x 7
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 6
+y 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 6
+y 23
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 6
+y 24
+end
+arch floor_wood2_l1
+x 6
+y 25
+end
+arch wall_wood3_1
+x 6
+y 25
+end
+arch blocked
+x 7
+end
+arch wall_wood_1
+x 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 7
 y 1
 end
-arch amphora2.101
+arch chest_w1
+is_buildable 1
 x 7
 y 1
 end
 arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 7
 y 2
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 7
 y 3
 end
-arch carpet1.131
-x 7
-y 3
-end
-arch floor_wood2_l1
-x 7
-y 4
-end
-arch carpet1.131
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 7
 y 4
 end
 arch floor_wood2_l2
-x 7
-y 5
-end
-arch carpet1.131
+unique 1
+is_buildable 1
 x 7
 y 5
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 7
 y 6
 end
-arch carpet1.131
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 7
-y 6
+y 7
+end
+arch wall_wood_1
+is_buildable 1
+x 7
+y 7
 end
 arch floor_wood2_l2
-x 7
-y 7
-end
-arch carpet1.131
-x 7
-y 7
-end
-arch floor_wood2_l1
+unique 1
+is_buildable 1
 x 7
 y 8
 end
-arch carpet1.131
+arch chest_w1
+is_buildable 1
 x 7
 y 8
 end
-arch floor_wood2_l1
-x 7
-y 9
-end
-arch carpet1.131
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 7
 y 9
 end
 arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 7
 y 10
 end
-arch carpet1.131
-x 7
-y 10
-end
-arch floor_wood2_l1
-x 7
-y 11
-end
-arch carpet1.131
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 7
 y 11
 end
 arch floor_wood2_l1
-x 7
-y 12
-end
-arch magic_mouth
-msg
-~Storage Area~
-This is the guild storage area.
-If you put items in one of the rooms they will not disappear until someone picks them up.
-endmsg
+is_buildable 1
+unique 1
 x 7
 y 12
 end
 arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 7
 y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 7
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 7
+y 16
+end
+arch wall_wood_1
+is_buildable 1
+x 7
+y 16
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 18
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 19
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 20
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 21
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 7
+y 22
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 7
+y 23
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 7
+y 24
+end
+arch floor_wood2_l2
+x 7
+y 25
+end
+arch wall_wood3_1
+x 7
+y 25
+end
+arch blocked
+x 8
 end
 arch wall_wood2_1
-x 7
+x 8
+end
+arch floor_wood2_l2
+x 8
+y 1
+end
+arch wall_wood_3
+x 8
+y 1
+end
+arch floor_wood2_l1
+x 8
+y 2
+end
+arch wall_wood2_3
+x 8
+y 2
+end
+arch floor_wood2_l2
+x 8
+y 3
+end
+arch wall_wood3_3
+x 8
+y 3
+end
+arch floor_wood2_l2
+x 8
+y 4
+end
+arch wall_wood2_3
+x 8
+y 4
+end
+arch floor_wood2_l2
+x 8
+y 5
+end
+arch wall_wood3_3
+x 8
+y 5
+end
+arch floor_wood2_l2
+x 8
+y 6
+end
+arch wall_wood2_3
+x 8
+y 6
+end
+arch floor_wood2_l2
+x 8
+y 7
+end
+arch wall_wood_4
+x 8
+y 7
+end
+arch floor_wood2_l2
+x 8
+y 8
+end
+arch wall_wood_3
+x 8
+y 8
+end
+arch floor_wood2_l1
+x 8
+y 9
+end
+arch wall_wood_3
+x 8
+y 9
+end
+arch floor_wood2_l2
+x 8
+y 10
+end
+arch wall_wood2_3
+x 8
+y 10
+end
+arch floor_wood2_l1
+x 8
+y 11
+end
+arch wall_wood_w_3
+x 8
+y 11
+end
+arch floor_wood2_l1
+x 8
+y 12
+end
+arch door1_locked
+direction 3
+x 8
+y 12
+end
+arch floor_wood2_l2
+x 8
+y 13
+end
+arch door1_locked
+direction 5
+x 8
 y 13
 end
 arch floor_wood2_l2
-x 7
+x 8
 y 14
 end
-arch amphora1.101
-x 7
+arch wall_wood_w_3
+x 8
 y 14
-end
-arch floor_wood2_l1
-x 7
-y 15
-end
-arch carpet1.131
-x 7
-y 15
-end
-arch floor_wood2_l1
-x 7
-y 16
-end
-arch carpet1.131
-x 7
-y 16
 end
 arch floor_wood2_l2
-x 7
-y 17
+x 8
+y 15
 end
-arch carpet1.131
-x 7
-y 17
+arch wall_wood3_3
+x 8
+y 15
+end
+arch floor_wood2_l2
+x 8
+y 16
+end
+arch wall_wood_4
+x 8
+y 16
+end
+arch picture6.151
+direction 7
+x 8
+y 16
 end
 arch floor_wood2_l1
-x 7
+x 8
+y 17
+end
+arch wall_wood3_3
+x 8
+y 17
+end
+arch floor_wood2_l2
+x 8
 y 18
 end
-arch carpet1.131
-x 7
+arch wall_wood_w_3
+x 8
 y 18
+end
+arch floor_wood2_l1
+x 8
+y 19
+end
+arch wall_wood2_3
+x 8
+y 19
+end
+arch floor_wood2_l1
+x 8
+y 20
+end
+arch door1_locked
+direction 3
+x 8
+y 20
+end
+arch floor_wood2_l1
+x 8
+y 21
+end
+arch door1_locked
+direction 5
+x 8
+y 21
+end
+arch floor_wood2_l2
+x 8
+y 22
+end
+arch wall_wood_3
+x 8
+y 22
+end
+arch floor_wood2_l1
+x 8
+y 23
+end
+arch wall_wood_w_3
+x 8
+y 23
+end
+arch floor_wood2_l2
+x 8
+y 24
+end
+arch wall_wood2_3
+x 8
+y 24
+end
+arch floor_wood2_l2
+x 8
+y 25
+end
+arch wall_wood_4
+x 8
+y 25
+end
+arch blocked
+x 9
+y 7
+end
+arch wall_wood_1
+x 9
+y 7
+end
+arch floor_wood2_l1
+x 9
+y 8
 end
 arch fireplace_left
-x 7
+x 9
+y 8
+end
+arch floor_wood2_l1
+x 9
+y 9
+end
+arch floor_wood2_l1
+x 9
+y 10
+end
+arch bar1
+x 9
+y 10
+end
+arch floor_wood2_l2
+x 9
+y 11
+end
+arch carpet1.131
+x 9
+y 11
+end
+arch floor_wood2_l2
+x 9
+y 12
+end
+arch carpet1.131
+x 9
+y 12
+end
+arch floor_wood2_l1
+x 9
+y 13
+end
+arch carpet1.131
+x 9
+y 13
+end
+arch floor_wood2_l2
+x 9
+y 14
+end
+arch carpet1.131
+x 9
+y 14
+end
+arch floor_wood2_l2
+x 9
+y 15
+end
+arch carpet1.131
+x 9
+y 15
+end
+arch broom.111
+direction 7
+x 9
+y 15
+end
+arch floor_wood2_l1
+x 9
+y 16
+end
+arch carpet1.131
+x 9
+y 16
+end
+arch floor_wood2_l2
+x 9
+y 17
+end
+arch carpet1.131
+x 9
+y 17
+end
+arch candlelight4.101
+x 9
+y 17
+end
+arch floor_wood2_l1
+x 9
+y 18
+end
+arch carpet1.131
+x 9
 y 18
 end
 arch floor_wood2_l2
-x 7
+x 9
 y 19
 end
 arch carpet1.131
-x 7
+x 9
 y 19
 end
-arch floor_wood2_l2
-x 7
+arch floor_wood2_l1
+x 9
 y 20
 end
+arch carpet1.131
+x 9
+y 20
+end
+arch floor_wood2_l2
+x 9
+y 21
+end
+arch carpet1.131
+x 9
+y 21
+end
 arch floor_wood2_l1
-x 7
-y 21
+x 9
+y 22
 end
-arch wall_wood1_1
-x 7
-y 21
+arch carpet1.131
+x 9
+y 22
 end
-arch blocked
-x 8
+arch floor_wood2_l1
+x 9
+y 23
+end
+arch carpet1.131
+x 9
+y 23
+end
+arch floor_wood2_l2
+x 9
+y 24
+end
+arch candlelight4.101
+x 9
+y 24
+end
+arch floor_wood2_l1
+x 9
+y 25
 end
 arch wall_wood2_1
-x 8
-end
-arch flag_03
-x 8
-end
-arch floor_wood2_l1
-x 8
-y 1
-end
-arch floor_wood2_l2
-x 8
-y 2
-end
-arch carpet1.151
-x 8
-y 2
-end
-arch floor_wood2_l2
-x 8
-y 3
-end
-arch carpet1
-x 8
-y 3
-end
-arch floor_wood2_l1
-x 8
-y 4
-end
-arch carpet1
-x 8
-y 4
-end
-arch floor_wood2_l1
-x 8
-y 5
-end
-arch carpet1
-x 8
-y 5
-end
-arch floor_wood2_l1
-x 8
-y 6
-end
-arch carpet1
-x 8
-y 6
-end
-arch floor_wood2_l1
-x 8
-y 7
-end
-arch carpet1
-x 8
-y 7
-end
-arch floor_wood2_l1
-x 8
-y 8
-end
-arch carpet1
-x 8
-y 8
-end
-arch floor_wood2_l2
-x 8
-y 9
-end
-arch carpet1
-x 8
-y 9
-end
-arch floor_wood2_l2
-x 8
-y 10
-end
-arch carpet1
-x 8
-y 10
-end
-arch floor_wood2_l2
-x 8
-y 11
-end
-arch carpet1
-x 8
-y 11
-end
-arch floor_wood2_l1
-x 8
-y 12
-end
-arch carpet1.111
-x 8
-y 12
-end
-arch floor_wood2_l1
-x 8
-y 13
-end
-arch door_wood1
-x 8
-y 13
-end
-arch floor_wood2_l1
-x 8
-y 14
-end
-arch carpet1.151
-x 8
-y 14
-end
-arch floor_wood2_l1
-x 8
-y 15
-end
-arch carpet1
-x 8
-y 15
-end
-arch floor_wood2_l2
-x 8
-y 16
-end
-arch carpet1
-x 8
-y 16
-end
-arch floor_wood2_l2
-x 8
-y 17
-end
-arch carpet1
-x 8
-y 17
-end
-arch floor_wood2_l1
-x 8
-y 18
-end
-arch carpet1
-x 8
-y 18
-end
-arch floor_wood2_l2
-x 8
-y 19
-end
-arch carpet1
-x 8
-y 19
-end
-arch floor_wood2_l2
-x 8
-y 20
-end
-arch carpet1.111
-x 8
-y 20
-end
-arch floor_wood2_l1
-x 8
-y 21
-end
-arch wall_wood3_1
-x 8
-y 21
-end
-arch blocked
 x 9
-end
-arch wall_wood3_1
-x 9
-end
-arch floor_wood2_l2
-x 9
-y 1
-end
-arch amphora2.101
-x 9
-y 1
-end
-arch floor_wood2_l2
-x 9
-y 2
-end
-arch floor_wood2_l2
-x 9
-y 3
-end
-arch carpet1.171
-x 9
-y 3
-end
-arch floor_wood2_l1
-x 9
-y 4
-end
-arch carpet1.171
-x 9
-y 4
-end
-arch floor_wood2_l2
-x 9
-y 5
-end
-arch carpet1.171
-x 9
-y 5
-end
-arch floor_wood2_l2
-x 9
-y 6
-end
-arch carpet1.171
-x 9
-y 6
-end
-arch floor_wood2_l2
-x 9
-y 7
-end
-arch carpet1.171
-x 9
-y 7
-end
-arch floor_wood2_l2
-x 9
-y 8
-end
-arch carpet1.171
-x 9
-y 8
-end
-arch floor_wood2_l2
-x 9
-y 9
-end
-arch carpet1.171
-x 9
-y 9
-end
-arch floor_wood2_l2
-x 9
-y 10
-end
-arch carpet1.171
-x 9
-y 10
-end
-arch floor_wood2_l2
-x 9
-y 11
-end
-arch carpet1.171
-x 9
-y 11
-end
-arch floor_wood2_l1
-x 9
-y 12
-end
-arch floor_wood2_l2
-x 9
-y 13
-end
-arch wall_wood1_1
-x 9
-y 13
-end
-arch picture2.151
-x 9
-y 13
-end
-arch floor_wood2_l1
-x 9
-y 14
-end
-arch floor_wood2_l1
-x 9
-y 15
-end
-arch carpet1.171
-x 9
-y 15
-end
-arch floor_wood2_l1
-x 9
-y 16
-end
-arch carpet1.171
-x 9
-y 16
-end
-arch floor_wood2_l2
-x 9
-y 17
-end
-arch carpet1.171
-x 9
-y 17
-end
-arch floor_wood2_l1
-x 9
-y 18
-end
-arch carpet1.171
-x 9
-y 18
-end
-arch carpet1.151
-layer 3
-x 9
-y 18
-end
-arch floor_wood2_l2
-x 9
-y 19
-end
-arch carpet1
-x 9
-y 19
-end
-arch floor_wood2_l1
-x 9
-y 20
-end
-arch carpet1.111
-x 9
-y 20
-end
-arch floor_wood2_l2
-x 9
-y 21
-end
-arch wall_wood1_1
-x 9
-y 21
+y 25
 end
 arch blocked
 x 10
-end
-arch wall_wood2_1
-x 10
-end
-arch floor_wood2_l2
-x 10
-y 1
-end
-arch wall_wood3_3
-x 10
-y 1
-end
-arch floor_wood2_l2
-x 10
-y 2
-end
-arch wall_wood1_3
-x 10
-y 2
-end
-arch floor_wood2_l2
-x 10
-y 3
-end
-arch wall_wood3_3
-x 10
-y 3
-end
-arch floor_wood2_l2
-x 10
-y 4
-end
-arch door_wood1
-direction 7
-x 10
-y 4
-end
-arch floor_wood2_l1
-x 10
-y 5
-end
-arch wall_wood3_3
-x 10
-y 5
-end
-arch floor_wood2_l2
-x 10
-y 6
-end
-arch wall_wood2_3
-x 10
-y 6
-end
-arch floor_wood2_l2
-x 10
 y 7
 end
-arch wall_wood2_3
+arch wall_wood_1
 x 10
 y 7
-end
-arch floor_wood2_l1
-x 10
-y 8
-end
-arch wall_wood3_3
-x 10
-y 8
-end
-arch floor_wood2_l2
-x 10
-y 9
-end
-arch wall_wood1_3
-x 10
-y 9
-end
-arch floor_wood2_l2
-x 10
-y 10
-end
-arch door_wood1
-direction 7
-x 10
-y 10
-end
-arch floor_wood2_l2
-x 10
-y 11
-end
-arch wall_wood1_3
-x 10
-y 11
-end
-arch floor_wood2_l1
-x 10
-y 12
-end
-arch wall_wood1_3
-x 10
-y 12
-end
-arch floor_wood2_l1
-x 10
-y 13
-end
-arch wall_wood_4
-x 10
-y 13
-end
-arch floor_wood2_l2
-x 10
-y 14
-end
-arch wall_wood1_3
-x 10
-y 14
-end
-arch floor_wood2_l2
-x 10
-y 15
-end
-arch wall_wood2_3
-x 10
-y 15
-end
-arch floor_wood2_l1
-x 10
-y 16
-end
-arch wall_wood1_3
-x 10
-y 16
-end
-arch floor_wood2_l1
-x 10
-y 17
-end
-arch wall_wood2_3
-x 10
-y 17
-end
-arch floor_wood2_l1
-x 10
-y 18
-end
-arch carpet1.151
-x 10
-y 18
-end
-arch floor_wood2_l2
-x 10
-y 19
-end
-arch carpet1
-x 10
-y 19
-end
-arch floor_wood2_l1
-x 10
-y 20
-end
-arch carpet1.111
-x 10
-y 20
-end
-arch floor_wood2_l2
-x 10
-y 21
-end
-arch wall_wood2_1
-x 10
-y 21
-end
-arch blocked
-x 11
-end
-arch wall_wood2_1
-x 11
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 1
-end
-arch shelf3a.111
-no_pick 0
-x 11
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 11
-y 2
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 3
-end
-arch rack.111
-no_pick 0
-direction 7
-x 11
-y 3
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 4
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 5
-end
-arch rack.111
-no_pick 0
-direction 7
-x 11
-y 5
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 11
-y 6
-end
-arch floor_wood2_l1
-x 11
-y 7
-end
-arch wall_wood1_1
-x 11
-y 7
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 8
-end
-arch locker2.111
-no_pick 0
-x 11
-y 8
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 11
-y 9
-end
-arch rack2
-no_pick 0
-direction 7
-x 11
-y 9
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 10
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 11
-end
-arch rack2
-no_pick 0
-direction 7
-x 11
-y 11
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 11
-y 12
-end
-arch floor_wood2_l1
-x 11
-y 13
-end
-arch wall_wood2_1
-x 11
-y 13
-end
-arch blocked
-x 11
-y 17
-end
-arch wall_wood1_1
-x 11
-y 17
-end
-arch floor_wood2_l2
-x 11
-y 18
-end
-arch carpet1.151
-x 11
-y 18
-end
-arch floor_wood2_l2
-x 11
-y 19
-end
-arch carpet1
-x 11
-y 19
-end
-arch floor_wood2_l1
-x 11
-y 20
-end
-arch carpet1.111
-x 11
-y 20
-end
-arch floor_wood2_l2
-x 11
-y 21
-end
-arch wall_wood2_1
-x 11
-y 21
-end
-arch blocked
-x 12
-end
-arch wall_wood3_1
-x 12
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 1
-end
-arch shelf3b.111
-no_pick 0
-x 12
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 4
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 5
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 6
-end
-arch floor_wood2_l1
-x 12
-y 7
-end
-arch wall_wood3_1
-x 12
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 8
-end
-arch locker1.111
-no_pick 0
-x 12
-y 8
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 11
-end
-arch floor_wood2_l1
-unique 1
-x 12
-y 12
-end
-arch floor_wood2_l1
-x 12
-y 13
-end
-arch wall_wood2_1
-x 12
-y 13
-end
-arch blocked
-x 12
-y 17
-end
-arch wall_wood1_1
-x 12
-y 17
-end
-arch floor_wood2_l1
-x 12
-y 18
-end
-arch carpet1.151
-x 12
-y 18
-end
-arch floor_wood2_l1
-x 12
-y 19
-end
-arch carpet1
-x 12
-y 19
-end
-arch floor_wood2_l1
-x 12
-y 20
-end
-arch carpet1.111
-x 12
-y 20
-end
-arch floor_wood2_l1
-x 12
-y 21
-end
-arch wall_wood2_1
-x 12
-y 21
-end
-arch blocked
-x 13
-end
-arch wall_wood2_1
-x 13
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 1
-end
-arch shelf3c.111
-no_pick 0
-x 13
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 4
-end
-arch floor_wood2_l2
-unique 1
-x 13
-y 5
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 6
-end
-arch floor_wood2_l1
-x 13
-y 7
-end
-arch wall_wood2_1
-x 13
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 8
-end
-arch locker2.111
-no_pick 0
-x 13
-y 8
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 13
-y 11
-end
-arch floor_wood2_l2
-unique 1
-x 13
-y 12
-end
-arch floor_wood2_l1
-x 13
-y 13
-end
-arch wall_wood1_1
-x 13
-y 13
-end
-arch blocked
-x 13
-y 17
-end
-arch wall_wood2_1
-x 13
-y 17
-end
-arch flag_05
-x 13
-y 17
-end
-arch floor_wood2_l1
-x 13
-y 18
-end
-arch carpet1.151
-x 13
-y 18
-end
-arch floor_wood2_l2
-x 13
-y 19
-end
-arch carpet1
-x 13
-y 19
-end
-arch floor_wood2_l1
-x 13
-y 20
-end
-arch carpet1.111
-x 13
-y 20
-end
-arch floor_wood2_l1
-x 13
-y 21
-end
-arch wall_wood2_1
-x 13
-y 21
-end
-arch blocked
-x 14
-end
-arch wall_wood2_1
-x 14
-end
-arch flag_02
-x 14
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 1
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 4
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 5
-end
-arch floor_wood2_l2
-unique 1
-x 14
-y 6
-end
-arch floor_wood2_l2
-x 14
-y 7
-end
-arch wall_wood1_1
-x 14
-y 7
-end
-arch picture4.151
-x 14
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 8
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 11
-end
-arch floor_wood2_l1
-unique 1
-x 14
-y 12
-end
-arch floor_wood2_l1
-x 14
-y 13
-end
-arch wall_wood3_1
-x 14
-y 13
-end
-arch blocked
-x 14
-y 17
-end
-arch wall_wood2_1
-x 14
-y 17
-end
-arch floor_wood2_l2
-x 14
-y 18
-end
-arch carpet1.151
-x 14
-y 18
-end
-arch floor_wood2_l1
-x 14
-y 19
-end
-arch carpet1
-x 14
-y 19
-end
-arch floor_wood2_l2
-x 14
-y 20
-end
-arch carpet1.111
-x 14
-y 20
-end
-arch floor_wood2_l1
-x 14
-y 21
-end
-arch wall_wood3_1
-x 14
-y 21
-end
-arch blocked
-x 15
-end
-arch wall_wood1_1
-x 15
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 1
-end
-arch shelf2_wall.111
-no_pick 0
-x 15
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 2
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 3
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 4
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 5
-end
-arch floor_wood2_l1
-unique 1
-x 15
-y 6
-end
-arch floor_wood2_l2
-x 15
-y 7
-end
-arch wall_wood2_1
-x 15
-y 7
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 8
-end
-arch locker4
-no_pick 0
-x 15
-y 8
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 9
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 10
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 11
-end
-arch floor_wood2_l2
-unique 1
-x 15
-y 12
-end
-arch floor_wood2_l2
-x 15
-y 13
-end
-arch wall_wood2_1
-x 15
-y 13
-end
-arch blocked
-x 15
-y 17
-end
-arch wall_wood3_1
-x 15
-y 17
-end
-arch floor_wood2_l1
-x 15
-y 18
-end
-arch floor_wood2_l2
-x 15
-y 19
-end
-arch carpet1.171
-x 15
-y 19
-end
-arch floor_wood2_l1
-x 15
-y 20
-end
-arch floor_wood2_l1
-x 15
-y 21
-end
-arch wall_wood2_1
-x 15
-y 21
-end
-arch blocked
-x 16
-end
-arch wall_wood2_1
-x 16
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 1
-end
-arch shelf5_wall.111
-no_pick 0
-x 16
-y 1
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 2
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 3
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 4
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 5
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 6
-end
-arch floor_wood2_l1
-x 16
-y 7
-end
-arch wall_wood2_1
-x 16
-y 7
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 8
-end
-arch drawers1.111
-no_pick 0
-x 16
-y 8
-arch event_obj
-sub_type 4
-race /python/guilds/guild_drop.py
-end
-arch event_obj
-sub_type 5
-race /python/guilds/guild_get.py
-slaying Quick Wolves
-end
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 9
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 10
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 11
-end
-arch floor_wood2_l1
-unique 1
-x 16
-y 12
-end
-arch floor_wood2_l2
-x 16
-y 13
-end
-arch wall_wood3_1
-x 16
-y 13
-end
-arch blocked
-x 16
-y 17
-end
-arch wall_wood2_1
-x 16
-y 17
 end
 arch wmask_fire_on_1
+x 10
+y 7
+end
+arch floor_wood2_l1
+x 10
+y 8
+end
+arch floor_wood2_l1
+x 10
+y 9
+end
+arch spawn_point
+x 10
+y 9
+arch monk
+name Guild Storage Manager
+level 30
+type 83
+arch event_obj
+sub_type 6
+race /python/guilds/storage_manager.py
+slaying Quick Wolves
+end
+end
+end
+arch floor_wood2_l2
+x 10
+y 10
+end
+arch carpet1.151
+x 10
+y 10
+end
+arch bar1
+x 10
+y 10
+end
+arch floor_wood2_l1
+x 10
+y 11
+end
+arch carpet1
+x 10
+y 11
+end
+arch floor_wood2_l1
+x 10
+y 12
+end
+arch carpet1
+x 10
+y 12
+end
+arch floor_wood2_l1
+x 10
+y 13
+end
+arch carpet1
+x 10
+y 13
+end
+arch floor_wood2_l2
+x 10
+y 14
+end
+arch carpet1
+x 10
+y 14
+end
+arch floor_wood2_l1
+x 10
+y 15
+end
+arch carpet1
+x 10
+y 15
+end
+arch floor_wood2_l1
+x 10
+y 16
+end
+arch carpet1
+x 10
+y 16
+end
+arch floor_wood2_l2
+x 10
+y 17
+end
+arch carpet1
+x 10
+y 17
+end
+arch floor_wood2_l2
+x 10
+y 18
+end
+arch carpet1
+x 10
+y 18
+end
+arch chair1_111
+direction 7
+x 10
+y 18
+end
+arch floor_wood2_l1
+x 10
+y 19
+end
+arch carpet1
+x 10
+y 19
+end
+arch floor_wood2_l2
+x 10
+y 20
+end
+arch carpet1
+x 10
+y 20
+end
+arch floor_wood2_l1
+x 10
+y 21
+end
+arch carpet1
+x 10
+y 21
+end
+arch floor_wood2_l2
+x 10
+y 22
+end
+arch carpet1
+x 10
+y 22
+end
+arch floor_wood2_l2
+x 10
+y 23
+end
+arch carpet1
+x 10
+y 23
+end
+arch floor_wood2_l2
+x 10
+y 24
+end
+arch carpet1.111
+x 10
+y 24
+end
+arch floor_wood2_l1
+x 10
+y 25
+end
+arch wall_wood2_1
+x 10
+y 25
+end
+arch map_event_obj
+sub_type 10
+race /python/guilds/login.py
+slaying Quick Wolves
+x 11
+end
+arch map_event_obj
+sub_type 5
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 11
+y 1
+end
+arch map_event_obj
+sub_type 6
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 11
+y 2
+end
+arch blocked
+x 11
+y 7
+end
+arch wall_wood2_1
+x 11
+y 7
+end
+arch floor_wood2_l2
+x 11
+y 8
+end
+arch bar1
+direction 3
+x 11
+y 8
+end
+arch floor_wood2_l2
+x 11
+y 9
+end
+arch bar1
+direction 3
+x 11
+y 9
+end
+arch floor_wood2_l1
+x 11
+y 10
+end
+arch carpet1.151
+x 11
+y 10
+end
+arch bar1
+direction 4
+x 11
+y 10
+end
+arch floor_wood2_l2
+x 11
+y 11
+end
+arch carpet1
+x 11
+y 11
+end
+arch floor_wood2_l1
+x 11
+y 12
+end
+arch carpet1
+x 11
+y 12
+end
+arch floor_wood2_l1
+x 11
+y 13
+end
+arch carpet1
+x 11
+y 13
+end
+arch floor_wood2_l1
+x 11
+y 14
+end
+arch carpet1
+x 11
+y 14
+end
+arch floor_wood2_l2
+x 11
+y 15
+end
+arch carpet1
+x 11
+y 15
+end
+arch floor_wood2_l1
+x 11
+y 16
+end
+arch carpet1
+x 11
+y 16
+end
+arch floor_wood2_l1
+x 11
+y 17
+end
+arch carpet1
+x 11
+y 17
+end
+arch chair1_111
+x 11
+y 17
+end
+arch floor_wood2_l1
+x 11
+y 18
+end
+arch carpet1
+x 11
+y 18
+end
+arch table_poker1
+x 11
+y 18
+end
+arch floor_wood2_l2
+x 11
+y 19
+end
+arch carpet1
+x 11
+y 19
+end
+arch chair1_111
+direction 5
+x 11
+y 19
+end
+arch floor_wood2_l1
+x 11
+y 20
+end
+arch carpet1
+x 11
+y 20
+end
+arch floor_wood2_l1
+x 11
+y 21
+end
+arch carpet1
+x 11
+y 21
+end
+arch floor_wood2_l2
+x 11
+y 22
+end
+arch carpet1
+x 11
+y 22
+end
+arch floor_wood2_l1
+x 11
+y 23
+end
+arch carpet1
+x 11
+y 23
+end
+arch floor_wood2_l1
+x 11
+y 24
+end
+arch carpet1.111
+x 11
+y 24
+end
+arch floor_wood2_l1
+x 11
+y 25
+end
+arch wall_wood3_1
+x 11
+y 25
+end
+arch map_event_obj
+sub_type 7
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 12
+end
+arch map_event_obj
+sub_type 8
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 12
+y 1
+end
+arch map_event_obj
+sub_type 9
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 12
+y 2
+end
+arch blocked
+x 12
+y 7
+end
+arch wall_wood3_1
+x 12
+y 7
+end
+arch wmask_bflag_fire1_1
+x 12
+y 7
+end
+arch floor_wood2_l1
+x 12
+y 8
+end
+arch candlelight3.101
+x 12
+y 8
+end
+arch floor_wood2_l2
+x 12
+y 9
+end
+arch beer_barrel.101
+x 12
+y 9
+end
+arch floor_wood2_l1
+x 12
+y 10
+end
+arch carpet1.151
+x 12
+y 10
+end
+arch floor_wood2_l2
+x 12
+y 11
+end
+arch carpet1
+x 12
+y 11
+end
+arch floor_wood2_l2
+x 12
+y 12
+end
+arch carpet1
+x 12
+y 12
+end
+arch floor_wood2_l2
+x 12
+y 13
+end
+arch carpet1
+x 12
+y 13
+end
+arch floor_wood2_l1
+x 12
+y 14
+end
+arch carpet1
+x 12
+y 14
+end
+arch floor_wood2_l1
+x 12
+y 15
+end
+arch carpet1
+x 12
+y 15
+end
+arch floor_wood2_l2
+x 12
+y 16
+end
+arch carpet1
+x 12
+y 16
+end
+arch floor_wood2_l2
+x 12
+y 17
+end
+arch carpet1
+x 12
+y 17
+end
+arch floor_wood2_l2
+x 12
+y 18
+end
+arch carpet1
+x 12
+y 18
+end
+arch chair1_111
+direction 3
+x 12
+y 18
+end
+arch floor_wood2_l1
+x 12
+y 19
+end
+arch carpet1
+x 12
+y 19
+end
+arch floor_wood2_l1
+x 12
+y 20
+end
+arch carpet1
+x 12
+y 20
+end
+arch floor_wood2_l2
+x 12
+y 21
+end
+arch carpet1
+x 12
+y 21
+end
+arch floor_wood2_l2
+x 12
+y 22
+end
+arch carpet1
+x 12
+y 22
+end
+arch floor_wood2_l2
+x 12
+y 23
+end
+arch carpet1
+x 12
+y 23
+end
+arch floor_wood2_l1
+x 12
+y 24
+end
+arch carpet1.111
+x 12
+y 24
+end
+arch floor_wood2_l2
+x 12
+y 25
+end
+arch wall_wood3_1
+x 12
+y 25
+end
+arch blocked
+x 13
+y 7
+end
+arch wall_wood_1
+x 13
+y 7
+end
+arch wmask_bflag_fire1_1
+x 13
+y 7
+end
+arch floor_wood2_l1
+x 13
+y 8
+end
+arch chair2_111
+direction 7
+x 13
+y 8
+end
+arch floor_wood2_l2
+x 13
+y 9
+end
+arch floor_wood2_l2
+x 13
+y 10
+end
+arch carpet1.151
+x 13
+y 10
+end
+arch floor_wood2_l2
+x 13
+y 11
+end
+arch carpet1
+x 13
+y 11
+end
+arch floor_wood2_l1
+x 13
+y 12
+end
+arch carpet1
+x 13
+y 12
+end
+arch floor_wood2_l1
+x 13
+y 13
+end
+arch carpet1
+x 13
+y 13
+end
+arch floor_wood2_l1
+x 13
+y 14
+end
+arch carpet1
+x 13
+y 14
+end
+arch floor_wood2_l1
+x 13
+y 15
+end
+arch carpet1
+x 13
+y 15
+end
+arch floor_wood2_l1
+x 13
+y 16
+end
+arch carpet1
+x 13
+y 16
+end
+arch floor_wood2_l1
+x 13
+y 17
+end
+arch carpet1
+x 13
+y 17
+end
+arch floor_wood2_l2
+x 13
+y 18
+end
+arch carpet1
+x 13
+y 18
+end
+arch floor_wood2_l1
+x 13
+y 19
+end
+arch carpet1
+x 13
+y 19
+end
+arch floor_wood2_l1
+x 13
+y 20
+end
+arch carpet1
+x 13
+y 20
+end
+arch floor_wood2_l2
+x 13
+y 21
+end
+arch carpet1
+x 13
+y 21
+end
+arch floor_wood2_l1
+x 13
+y 22
+end
+arch carpet1
+x 13
+y 22
+end
+arch floor_wood2_l1
+x 13
+y 23
+end
+arch carpet1
+x 13
+y 23
+end
+arch floor_wood2_l1
+x 13
+y 24
+end
+arch carpet1.111
+x 13
+y 24
+end
+arch floor_wood2_l2
+x 13
+y 25
+end
+arch wall_wood2_1
+x 13
+y 25
+end
+arch blocked
+x 14
+y 7
+end
+arch wall_wood3_1
+x 14
+y 7
+end
+arch wmask_fire_on_1
+x 14
+y 7
+end
+arch floor_wood2_l2
+x 14
+y 8
+end
+arch table_poker2
+x 14
+y 8
+end
+arch floor_wood2_l1
+x 14
+y 9
+end
+arch chair2_111
+direction 5
+x 14
+y 9
+end
+arch floor_wood2_l1
+x 14
+y 10
+end
+arch floor_wood2_l1
+x 14
+y 11
+end
+arch carpet1.171
+x 14
+y 11
+end
+arch floor_wood2_l2
+x 14
+y 12
+end
+arch carpet1.171
+x 14
+y 12
+end
+arch floor_wood2_l2
+x 14
+y 13
+end
+arch carpet1.171
+x 14
+y 13
+end
+arch floor_wood2_l2
+x 14
+y 14
+end
+arch carpet1.171
+x 14
+y 14
+end
+arch floor_wood2_l1
+x 14
+y 15
+end
+arch carpet1.171
+x 14
+y 15
+end
+arch floor_wood2_l1
+x 14
+y 16
+end
+arch carpet1.171
+x 14
+y 16
+end
+arch floor_wood2_l2
+x 14
+y 17
+end
+arch carpet1.171
+x 14
+y 17
+end
+arch floor_wood2_l1
+x 14
+y 18
+end
+arch carpet1.171
+x 14
+y 18
+end
+arch floor_wood2_l1
+x 14
+y 19
+end
+arch carpet1.171
+x 14
+y 19
+end
+arch floor_wood2_l1
+x 14
+y 20
+end
+arch carpet1.171
+x 14
+y 20
+end
+arch beer_barrel.101
+x 14
+y 20
+end
+arch floor_wood2_l2
+x 14
+y 21
+end
+arch carpet1.171
+x 14
+y 21
+end
+arch floor_wood2_l1
+x 14
+y 22
+end
+arch carpet1.151
+x 14
+y 22
+end
+arch carpet1.171
+layer 3
+x 14
+y 22
+end
+arch floor_wood2_l1
+x 14
+y 23
+end
+arch carpet1
+x 14
+y 23
+end
+arch floor_wood2_l2
+x 14
+y 24
+end
+arch carpet1.111
+x 14
+y 24
+end
+arch floor_wood2_l2
+x 14
+y 25
+end
+arch wall_wood_1
+x 14
+y 25
+end
+arch blocked
+x 15
+end
+arch wall_wood_8
+x 15
+end
+arch blocked
+x 15
+y 1
+end
+arch wall_wood2_3
+x 15
+y 1
+end
+arch blocked
+x 15
+y 2
+end
+arch wall_wood2_3
+x 15
+y 2
+end
+arch blocked
+x 15
+y 3
+end
+arch wall_wood2_3
+x 15
+y 3
+end
+arch blocked
+x 15
+y 4
+end
+arch wall_wood_3
+x 15
+y 4
+end
+arch blocked
+x 15
+y 5
+end
+arch wall_wood2_3
+x 15
+y 5
+end
+arch blocked
+x 15
+y 6
+end
+arch wall_wood2_3
+x 15
+y 6
+end
+arch blocked
+x 15
+y 7
+end
+arch wall_wood_4
+x 15
+y 7
+end
+arch floor_wood2_l1
+x 15
+y 8
+end
+arch wall_wood2_3
+x 15
+y 8
+end
+arch floor_wood2_l2
+x 15
+y 9
+end
+arch wall_wood_w_3
+x 15
+y 9
+end
+arch floor_wood2_l1
+x 15
+y 10
+end
+arch wall_wood_3
+x 15
+y 10
+end
+arch floor_wood2_l1
+x 15
+y 11
+end
+arch door1_locked
+direction 3
+x 15
+y 11
+end
+arch floor_wood2_l1
+x 15
+y 12
+end
+arch door1_locked
+direction 5
+x 15
+y 12
+end
+arch floor_wood2_l1
+x 15
+y 13
+end
+arch wall_wood3_3
+x 15
+y 13
+end
+arch floor_wood2_l1
+x 15
+y 14
+end
+arch wall_wood_w_3
+x 15
+y 14
+end
+arch floor_wood2_l1
+x 15
+y 15
+end
+arch wall_wood3_3
+x 15
+y 15
+end
+arch floor_wood2_l2
+x 15
+y 16
+end
+arch door1_locked
+direction 3
+x 15
+y 16
+end
+arch floor_wood2_l2
+x 15
+y 17
+end
+arch door1_locked
+direction 5
+x 15
+y 17
+end
+arch floor_wood2_l2
+x 15
+y 18
+end
+arch wall_wood_3
+x 15
+y 18
+end
+arch floor_wood2_l2
+x 15
+y 19
+end
+arch wall_wood_w_3
+x 15
+y 19
+end
+arch floor_wood2_l2
+x 15
+y 20
+end
+arch wall_wood_3
+x 15
+y 20
+end
+arch floor_wood2_l2
+x 15
+y 21
+end
+arch wall_wood3_3
+x 15
+y 21
+end
+arch floor_wood2_l1
+x 15
+y 22
+end
+arch carpet1.151
+x 15
+y 22
+end
+arch wall_wood3_3
+x 15
+y 22
+end
+arch floor_wood2_l2
+x 15
+y 23
+end
+arch carpet1
+x 15
+y 23
+end
+arch door_wood2
+direction 3
+x 15
+y 23
+end
+arch floor_wood2_l1
+x 15
+y 24
+end
+arch carpet1.111
+x 15
+y 24
+end
+arch wall_wood2_3
+x 15
+y 24
+end
+arch picture1.151
+direction 7
+x 15
+y 24
+end
+arch floor_wood2_l2
+x 15
+y 25
+end
+arch wall_wood_4
+x 15
+y 25
+end
+arch blocked
+x 16
+end
+arch wall_wood3_1
+x 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 1
+end
+arch chest_m
+is_buildable 1
+x 16
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 2
+end
+arch shelf1.111
+is_buildable 1
+direction 7
+x 16
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 3
+end
+arch shelf2.111
+is_buildable 1
+direction 7
+x 16
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 4
+end
+arch shelf1.111
+is_buildable 1
+direction 7
+x 16
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 5
+end
+arch shelf2.111
+is_buildable 1
+direction 7
+x 16
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 6
+end
+arch shelf1.111
+is_buildable 1
+direction 7
+x 16
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 7
+end
+arch shelf1.111
+is_buildable 1
+direction 7
+x 16
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 8
+end
+arch shelf2.111
+is_buildable 1
+direction 7
+x 16
+y 8
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 9
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 10
+end
+arch rack.111
+is_buildable 1
+direction 7
+x 16
+y 10
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 16
+y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 14
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 16
+y 15
+end
+arch rack.111
+is_buildable 1
+direction 7
+x 16
+y 15
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 16
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
 x 16
 y 17
 end
 arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 16
 y 18
 end
-arch floor_wood2_l2
+arch rack.111
+is_buildable 1
+direction 7
+x 16
+y 18
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
 x 16
 y 19
+end
+arch floor_wood2_l1
+x 16
+y 20
+end
+arch wall_wood_1
+x 16
+y 20
+end
+arch blocked
+x 16
+y 21
+end
+arch wall_wood2_1
+x 16
+y 21
+end
+arch floor_wood2_l2
+x 16
+y 22
+end
+arch carpet1.151
+x 16
+y 22
+end
+arch candlelight4.101
+x 16
+y 22
+end
+arch floor_wood2_l1
+x 16
+y 23
+end
+arch carpet1
+x 16
+y 23
+end
+arch floor_wood2_l1
+x 16
+y 24
+end
+arch carpet1.111
+x 16
+y 24
+end
+arch floor_wood2_l1
+x 16
+y 25
+end
+arch wall_wood2_1
+x 16
+y 25
+end
+arch blocked
+x 17
+end
+arch wall_wood_1
+x 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 1
+end
+arch chest_m
+is_buildable 1
+x 17
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 17
+y 4
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 6
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 17
+y 7
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 17
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 10
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 17
+y 11
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 17
+y 12
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 17
+y 13
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 14
+end
+arch shelf3c.111
+is_buildable 1
+x 17
+y 14
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 17
+y 15
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 16
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 18
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 17
+y 19
+end
+arch floor_wood2_l2
+x 17
+y 20
+end
+arch wall_wood3_1
+x 17
+y 20
+end
+arch blocked
+x 17
+y 21
+end
+arch wall_wood2_1
+x 17
+y 21
+end
+arch floor_wood2_l1
+x 17
+y 22
+end
+arch carpet1.151
+x 17
+y 22
+end
+arch mirror_big.111
+x 17
+y 22
+end
+arch floor_wood2_l2
+x 17
+y 23
+end
+arch carpet1
+x 17
+y 23
+end
+arch floor_wood2_l2
+x 17
+y 24
+end
+arch carpet1.111
+x 17
+y 24
+end
+arch floor_wood2_l1
+x 17
+y 25
+end
+arch wall_wood3_1
+x 17
+y 25
+end
+arch blocked
+x 18
+end
+arch wall_wood3_1
+x 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 1
+end
+arch chest_m
+is_buildable 1
+x 18
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 3
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 6
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 8
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 9
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 10
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 18
+y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 14
+end
+arch shelf3c.111
+is_buildable 1
+x 18
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 18
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 18
+y 19
+end
+arch floor_wood2_l1
+x 18
+y 20
+end
+arch wall_wood_1
+x 18
+y 20
+end
+arch blocked
+x 18
+y 21
+end
+arch wall_wood2_1
+x 18
+y 21
+end
+arch flag_04
+x 18
+y 21
+end
+arch floor_wood2_l1
+x 18
+y 22
+end
+arch carpet1.151
+x 18
+y 22
+end
+arch floor_wood2_l2
+x 18
+y 23
+end
+arch carpet1
+x 18
+y 23
+end
+arch floor_wood2_l1
+x 18
+y 24
+end
+arch carpet1.111
+x 18
+y 24
+end
+arch floor_wood2_l1
+x 18
+y 25
+end
+arch wall_wood2_1
+x 18
+y 25
+end
+arch blocked
+x 19
+end
+arch wall_wood_1
+x 19
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 1
+end
+arch chest_m
+is_buildable 1
+x 19
+y 1
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 4
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 5
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 9
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 10
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 19
+y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 14
+end
+arch shelf3a.111
+is_buildable 1
+x 19
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 19
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 19
+y 19
+end
+arch floor_wood2_l1
+x 19
+y 20
+end
+arch wall_wood2_1
+x 19
+y 20
+end
+arch blocked
+x 19
+y 21
+end
+arch wall_wood_1
+x 19
+y 21
+end
+arch floor_wood2_l1
+x 19
+y 22
+end
+arch amphora1.101
+x 19
+y 22
+end
+arch floor_wood2_l2
+x 19
+y 23
 end
 arch stairs_wood_down
 slaying guild
 hp 1
 sp 12
-x 16
-y 19
+x 19
+y 23
 end
 arch floor_wood2_l2
-x 16
-y 20
+x 19
+y 24
 end
 arch amphora1.101
-x 16
-y 20
+x 19
+y 24
 end
 arch floor_wood2_l1
-x 16
-y 21
+x 19
+y 25
 end
 arch wall_wood1_1
-x 16
-y 21
+x 19
+y 25
 end
 arch blocked
-x 17
+x 20
 end
 arch wall_wood3_1
-x 17
+x 20
 end
 arch floor_wood2_l1
-x 17
+is_buildable 1
+unique 1
+x 20
 y 1
 end
-arch wall_wood2_3
-x 17
+arch chest_m
+is_buildable 1
+x 20
 y 1
 end
 arch floor_wood2_l2
-x 17
+unique 1
+is_buildable 1
+x 20
 y 2
 end
-arch wall_wood2_3
-x 17
-y 2
-end
-arch floor_wood2_l2
-x 17
-y 3
-end
-arch wall_wood2_3
-x 17
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 20
 y 3
 end
 arch floor_wood2_l1
-x 17
-y 4
-end
-arch wall_wood2_3
-x 17
+is_buildable 1
+unique 1
+x 20
 y 4
 end
 arch floor_wood2_l1
-x 17
-y 5
-end
-arch wall_wood3_3
-x 17
+is_buildable 1
+unique 1
+x 20
 y 5
 end
 arch floor_wood2_l2
-x 17
+unique 1
+is_buildable 1
+x 20
 y 6
-end
-arch wall_wood3_3
-x 17
-y 6
-end
-arch floor_wood2_l1
-x 17
-y 7
-end
-arch wall_wood_4
-x 17
-y 7
-end
-arch floor_wood2_l1
-x 17
-y 8
-end
-arch wall_wood3_3
-x 17
-y 8
 end
 arch floor_wood2_l2
-x 17
-y 9
+unique 1
+is_buildable 1
+x 20
+y 7
 end
-arch wall_wood3_3
-x 17
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 20
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 20
 y 9
 end
 arch floor_wood2_l2
-x 17
-y 10
-end
-arch wall_wood2_3
-x 17
+unique 1
+is_buildable 1
+x 20
 y 10
 end
 arch floor_wood2_l2
-x 17
+unique 1
+is_buildable 1
+x 20
 y 11
 end
-arch wall_wood3_3
-x 17
-y 11
-end
-arch floor_wood2_l1
-x 17
-y 12
-end
-arch wall_wood1_3
-x 17
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 20
 y 12
 end
 arch floor_wood2_l1
-x 17
+is_buildable 1
+unique 1
+x 20
 y 13
 end
-arch wall_wood_4
-x 17
+arch wall_wood_1
+is_buildable 1
+x 20
 y 13
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 20
+y 14
+end
+arch shelf3a.111
+is_buildable 1
+x 20
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 20
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 20
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 20
+y 17
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 20
+y 18
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 20
+y 19
+end
+arch floor_wood2_l1
+x 20
+y 20
+end
+arch wall_wood_1
+x 20
+y 20
 end
 arch blocked
-x 17
-y 17
+x 20
+y 21
 end
 arch wall_wood3_1
-x 17
+x 20
+y 21
+end
+arch floor_wood2_l1
+x 20
+y 22
+end
+arch wall_wood3_3
+x 20
+y 22
+end
+arch floor_wood2_l1
+x 20
+y 23
+end
+arch wall_wood1_3
+x 20
+y 23
+end
+arch floor_wood2_l2
+x 20
+y 24
+end
+arch wall_wood2_3
+x 20
+y 24
+end
+arch floor_wood2_l2
+x 20
+y 25
+end
+arch wall_wood_4
+x 20
+y 25
+end
+arch blocked
+x 21
+end
+arch wall_wood_1
+x 21
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 1
+end
+arch chest_m
+is_buildable 1
+x 21
+y 1
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 21
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 5
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 21
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 21
+y 8
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 21
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 21
+y 10
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 11
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 21
+y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 14
+end
+arch shelf3c.111
+is_buildable 1
+x 21
+y 14
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 21
+y 16
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 21
 y 17
 end
 arch floor_wood2_l1
-x 17
-y 18
-end
-arch wall_wood3_3
-x 17
+is_buildable 1
+unique 1
+x 21
 y 18
 end
 arch floor_wood2_l1
-x 17
-y 19
-end
-arch wall_wood1_3
-x 17
+is_buildable 1
+unique 1
+x 21
 y 19
 end
 arch floor_wood2_l2
-x 17
+x 21
 y 20
+end
+arch wall_wood3_1
+x 21
+y 20
+end
+arch blocked
+x 22
+end
+arch wall_wood2_1
+x 22
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 1
+end
+arch chest_m
+is_buildable 1
+x 22
+y 1
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 3
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 5
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 7
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 8
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 9
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 10
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 11
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 22
+y 13
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 14
+end
+arch shelf3a.111
+is_buildable 1
+x 22
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 15
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 22
+y 17
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 18
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 22
+y 19
+end
+arch floor_wood2_l2
+x 22
+y 20
+end
+arch wall_wood2_1
+x 22
+y 20
+end
+arch blocked
+x 23
+end
+arch wall_wood2_1
+x 23
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 1
+end
+arch chest_m
+is_buildable 1
+x 23
+y 1
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 2
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 2
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 23
+y 3
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 3
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 4
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 4
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 5
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 5
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 6
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 6
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 23
+y 7
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 7
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 8
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 8
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 9
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 9
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 10
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 10
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 11
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 11
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 12
+end
+arch chest_m
+is_buildable 1
+direction 7
+x 23
+y 12
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 13
+end
+arch wall_wood_1
+is_buildable 1
+x 23
+y 13
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 23
+y 14
+end
+arch shelf3c.111
+is_buildable 1
+x 23
+y 14
+end
+arch floor_wood2_l1
+is_buildable 1
+unique 1
+x 23
+y 15
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 16
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 17
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 18
+end
+arch floor_wood2_l2
+unique 1
+is_buildable 1
+x 23
+y 19
+end
+arch floor_wood2_l2
+x 23
+y 20
+end
+arch wall_wood3_1
+x 23
+y 20
+end
+arch blocked
+x 24
+end
+arch wall_wood3_1
+x 24
+end
+arch floor_wood2_l1
+x 24
+y 1
+end
+arch wall_wood_3
+x 24
+y 1
+end
+arch floor_wood2_l1
+x 24
+y 2
+end
+arch wall_wood_3
+x 24
+y 2
+end
+arch floor_wood2_l1
+x 24
+y 3
 end
 arch wall_wood2_3
-x 17
-y 20
+x 24
+y 3
+end
+arch floor_wood2_l1
+x 24
+y 4
+end
+arch wall_wood2_3
+x 24
+y 4
+end
+arch floor_wood2_l1
+x 24
+y 5
+end
+arch wall_wood_3
+x 24
+y 5
+end
+arch floor_wood2_l1
+x 24
+y 6
+end
+arch wall_wood_3
+x 24
+y 6
+end
+arch floor_wood2_l1
+x 24
+y 7
+end
+arch wall_wood_3
+x 24
+y 7
+end
+arch floor_wood2_l1
+x 24
+y 8
+end
+arch wall_wood3_3
+x 24
+y 8
 end
 arch floor_wood2_l2
-x 17
-y 21
+x 24
+y 9
+end
+arch wall_wood2_3
+x 24
+y 9
+end
+arch floor_wood2_l2
+x 24
+y 10
+end
+arch wall_wood3_3
+x 24
+y 10
+end
+arch floor_wood2_l1
+x 24
+y 11
+end
+arch wall_wood3_3
+x 24
+y 11
+end
+arch floor_wood2_l2
+x 24
+y 12
+end
+arch wall_wood3_3
+x 24
+y 12
+end
+arch floor_wood2_l1
+x 24
+y 13
 end
 arch wall_wood_4
-x 17
-y 21
+x 24
+y 13
+end
+arch floor_wood2_l2
+x 24
+y 14
+end
+arch wall_wood2_3
+x 24
+y 14
+end
+arch floor_wood2_l1
+x 24
+y 15
+end
+arch wall_wood2_3
+x 24
+y 15
+end
+arch floor_wood2_l2
+x 24
+y 16
+end
+arch wall_wood2_3
+x 24
+y 16
+end
+arch floor_wood2_l1
+x 24
+y 17
+end
+arch wall_wood2_3
+x 24
+y 17
+end
+arch floor_wood2_l1
+x 24
+y 18
+end
+arch wall_wood2_3
+x 24
+y 18
+end
+arch floor_wood2_l1
+x 24
+y 19
+end
+arch wall_wood2_3
+x 24
+y 19
+end
+arch floor_wood2_l2
+x 24
+y 20
+end
+arch wall_wood_4
+x 24
+y 20
 end

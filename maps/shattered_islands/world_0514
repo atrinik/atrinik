@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-03 Alex Tokar
+Modified: 2010-08-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1826,17 +1826,8 @@ direction 1
 type 83
 arch event_obj
 sub_type 6
-race ../python/guilds/guild.py
-slaying Quick Wolves|20|20|/guilds/quick_wolves/guild
-end
-arch note
-msg
-guild_maps: /guilds/quick_wolves/guild|/guilds/quick_wolves/oracle|/guilds/quick_wolves/storage
-enter_x: 11
-enter_y: 7
-endmsg
-name guild options
-sys_object 1
+race /python/guilds/guild.py
+slaying Quick Wolves
 end
 end
 end

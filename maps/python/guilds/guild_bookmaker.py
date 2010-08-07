@@ -19,7 +19,7 @@ if not info:
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nHello {0}! I'm the guild book maker. If you give me a book or guild sign, I can overwrite its text!\nUse ^add <your message>^ to add new text. You can use ~<nl>~ to indicate a new line.\nUse ^preview^ to see what your message would look like in the book.\nIf you are not pleased with the preview, you can ^revert^ the message and start over.\nWhen you are done, say ^save^ to save the message into your marked book or guild sign.\nThere are some tricks to consider when writing books, if you want I can ^explain^ them.".format(activator.name))
+		me.SayTo(activator, "\nHello {}! I'm the guild book maker. If you give me a book, I can overwrite its text!\nUse ^add <your message>^ to add new text. You can use ~<nl>~ to indicate a new line.\nUse ^preview^ to see what your message would look like in the book.\nIf you are not pleased with the preview, you can ^revert^ the message and start over.\nWhen you are done, say ^save^ to save the message into your marked book.\nThere are some tricks to consider when writing books, if you want I can ^explain^ them.".format(activator.name))
 
 	# Explain some useful tricks.
 	elif msg == "explain":
@@ -40,22 +40,22 @@ def main():
 				me.SayTo(activator, "\nI have added your message.\nUse ^save^ to save everything you have added so far to your marked book.")
 			else:
 				activator.Write("Trying to cheat, are we?", COLOR_RED)
-				LOG(llevInfo, "CRACK: Player {0} tried to write bogus message using guild book maker.\n".format(activator.name))
+				LOG(llevInfo, "CRACK: Player {} tried to write bogus message using guild book maker.\n".format(activator.name))
 		else:
 			me.SayTo(activator, "\nUse ^add <your message>^, for example, ^add Today is a nice day.^.\n~<nl>~ will automatically get converted to newline.")
 
 	# Preview what the new message would look like.
 	elif msg == "preview":
-		me.SayTo(activator, "\nText that would appear in your book:\n{0}".format(info.msg))
+		me.SayTo(activator, "\nText that would appear in your book:\n{}".format(info.msg))
 
 	# Save a message.
 	elif msg == "save":
 		marked = activator.FindMarkedObject()
 
 		if not marked:
-			me.SayTo(activator, "\nFirst mark the book or guild sign you want to save your message into.")
-		elif (marked.type != TYPE_SIGN and marked.name != "guild sign") and marked.type != TYPE_BOOK:
-			me.SayTo(activator, "\nMarked item is not a book or guild sign.")
+			me.SayTo(activator, "\nFirst mark the book you want to save your message into.")
+		elif marked.type != TYPE_BOOK:
+			me.SayTo(activator, "\nMarked item is not a book.")
 		else:
 			marked.msg = info.msg
 			info.msg = ""

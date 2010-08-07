@@ -11,9 +11,9 @@ guild = Guild(None)
 
 def main():
 	## Check which guild the player is member of.
-	guildname = guild.is_in_guild(activator.name)
+	g = guild.pl_get_guild(activator.name)
 
-	if not guildname:
+	if not g or not g[2]:
 		activator.Write("You are not member of any guild.", COLOR_RED)
 		return
 
@@ -22,21 +22,21 @@ def main():
 	all_members = msg == "all"
 
 	# Simply switch the guild name we are managing.
-	guild.guildname = guildname
+	guild.set(g[0])
 	# Get the guild founder.
 	founder = guild.get_founder()
 
 	# Online marker for the founder.
 	online_marker = all_members and FindPlayer(founder) and "~" or ""
 
-	activator.Write("\n{0} of {1}:".format(all_members and "Members" or "Online members", guildname), COLOR_WHITE)
+	activator.Write("\n{0} of {1}:".format(all_members and "Members" or "Online members", g[0]), COLOR_WHITE)
 	activator.Write("Founder: " + online_marker + founder + online_marker, COLOR_WHITE)
 
 	admins = []
 	members = []
 
-	for member in guild.guilddb[guild.guildname]["members"]:
-		if not guild.is_approved(member):
+	for member in guild.get_members():
+		if not guild.member_approved(member):
 			continue
 
 		player = FindPlayer(member)
@@ -49,7 +49,7 @@ def main():
 		online_marker = all_members and player and "~" or ""
 
 		# Regular member?
-		if not guild.is_administrator(member):
+		if not guild.member_is_admin(member):
 			members.append(online_marker + member + online_marker)
 		# Otherwise an administrator, check that it's not the founder (which we showed above).
 		elif member != founder:
@@ -66,4 +66,4 @@ def main():
 try:
 	main()
 finally:
-	guild.guilddb.close()
+	guild.exit()
