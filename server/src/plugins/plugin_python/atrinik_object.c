@@ -2004,7 +2004,7 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
  * etc. */
 static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
 {
-	Atrinik_Object *ob;
+	Atrinik_Object *ob = NULL;
 
 	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
 	{
