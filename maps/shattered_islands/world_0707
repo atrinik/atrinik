@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-13 Alex Tokar
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1388,7 +1388,6 @@ x 11
 y 7
 end
 arch light9
-direction 1
 x 11
 y 7
 end
@@ -1449,7 +1448,6 @@ x 11
 y 17
 end
 arch light9
-direction 1
 x 11
 y 17
 end
@@ -1568,7 +1566,6 @@ x 12
 y 13
 end
 arch light9
-direction 1
 x 12
 y 13
 end
@@ -1748,7 +1745,6 @@ x 13
 y 22
 end
 arch light9
-direction 1
 x 13
 y 22
 end

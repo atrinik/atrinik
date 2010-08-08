@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -251,7 +251,6 @@ x 1
 y 21
 end
 arch light7
-direction 3
 x 1
 y 21
 end
@@ -830,7 +829,6 @@ x 5
 y 21
 end
 arch light7
-direction 3
 x 5
 y 21
 end
@@ -2418,7 +2416,6 @@ x 16
 y 21
 end
 arch light7
-direction 3
 x 16
 y 21
 end
@@ -2959,7 +2956,6 @@ x 20
 y 21
 end
 arch light7
-direction 3
 x 20
 y 21
 end

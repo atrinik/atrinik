@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-10 Alex Tokar
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -975,7 +975,6 @@ x 5
 y 18
 end
 arch light7
-direction 3
 x 5
 y 18
 end
@@ -1200,7 +1199,6 @@ x 7
 y 1
 end
 arch light7
-direction 3
 x 7
 y 1
 end
@@ -1250,7 +1248,6 @@ x 7
 y 7
 end
 arch light7
-direction 3
 x 7
 y 7
 end
@@ -1284,7 +1281,6 @@ x 7
 y 13
 end
 arch light7
-direction 3
 x 7
 y 13
 end
@@ -1598,7 +1594,6 @@ x 9
 y 20
 end
 arch light7
-direction 3
 x 9
 y 20
 end
@@ -1690,7 +1685,6 @@ x 10
 y 16
 end
 arch light4
-direction 3
 x 10
 y 16
 end
@@ -2018,7 +2012,6 @@ x 13
 y 1
 end
 arch light7
-direction 3
 x 13
 y 1
 end
@@ -2051,7 +2044,6 @@ x 13
 y 7
 end
 arch light7
-direction 3
 x 13
 y 7
 end
@@ -2084,7 +2076,6 @@ x 13
 y 13
 end
 arch light7
-direction 3
 x 13
 y 13
 end
@@ -2268,7 +2259,6 @@ x 14
 y 14
 end
 arch light7
-direction 3
 x 14
 y 14
 end
@@ -2310,7 +2300,6 @@ x 14
 y 20
 end
 arch light7
-direction 3
 x 14
 y 20
 end
@@ -2338,7 +2327,6 @@ direction 7
 x 15
 end
 arch light7
-direction 3
 x 15
 end
 arch grassd_1
@@ -3143,7 +3131,6 @@ x 19
 y 20
 end
 arch light7
-direction 3
 x 19
 y 20
 end
@@ -3347,7 +3334,6 @@ direction 7
 x 21
 end
 arch light7
-direction 3
 x 21
 end
 arch grassd_4
@@ -3818,7 +3804,6 @@ x 23
 y 20
 end
 arch light7
-direction 3
 x 23
 y 20
 end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-24 Kiana
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -356,7 +356,6 @@ x 2
 y 6
 end
 arch light7
-direction 1
 x 2
 y 6
 end
@@ -402,7 +401,6 @@ x 2
 y 12
 end
 arch light7
-direction 1
 x 2
 y 12
 end
@@ -725,7 +723,6 @@ x 4
 y 20
 end
 arch light7
-direction 3
 x 4
 y 20
 end
@@ -813,7 +810,6 @@ x 5
 y 16
 end
 arch light3
-direction 1
 x 5
 y 16
 end
@@ -832,6 +828,7 @@ is_turnable 0
 slaying strakewood_island/brynknot/sewers/sewers_0101
 hp 23
 sp 21
+direction 0
 x 5
 y 17
 end
@@ -1176,7 +1173,6 @@ x 8
 y 6
 end
 arch light7
-direction 1
 x 8
 y 6
 end
@@ -1288,7 +1284,6 @@ direction 7
 x 9
 end
 arch light7
-direction 3
 x 9
 end
 arch grassd_3
@@ -1631,7 +1626,6 @@ x 10
 y 20
 end
 arch light7
-direction 3
 x 10
 y 20
 end
@@ -2364,7 +2358,6 @@ direction 7
 x 15
 end
 arch light7
-direction 3
 x 15
 end
 arch grassd_4
@@ -2711,7 +2704,6 @@ x 16
 y 20
 end
 arch light7
-direction 3
 x 16
 y 20
 end
@@ -3479,7 +3471,6 @@ x 22
 y 14
 end
 arch light7
-direction 3
 x 22
 y 14
 end
@@ -3521,7 +3512,6 @@ x 22
 y 20
 end
 arch light7
-direction 3
 x 22
 y 20
 end

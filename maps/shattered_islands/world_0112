@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-24 Kiana
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -243,7 +243,6 @@ x 1
 y 12
 end
 arch spawn_point
-direction 3
 x 1
 y 12
 arch female1
@@ -290,7 +289,6 @@ x 1
 y 18
 end
 arch spawn_point
-direction 3
 x 1
 y 18
 arch female1
@@ -588,7 +586,6 @@ x 3
 y 10
 end
 arch mailbox
-direction 3
 container 0
 x 3
 y 10
@@ -674,7 +671,6 @@ x 3
 y 21
 end
 arch mailbox
-direction 3
 container 0
 x 3
 y 21
@@ -951,7 +947,6 @@ x 5
 y 10
 end
 arch mailbox
-direction 3
 container 0
 x 5
 y 10
@@ -1029,7 +1024,6 @@ x 5
 y 21
 end
 arch mailbox
-direction 3
 container 0
 x 5
 y 21
@@ -1313,7 +1307,6 @@ x 7
 y 10
 end
 arch light7
-direction 3
 x 7
 y 10
 end
@@ -1401,7 +1394,6 @@ x 7
 y 21
 end
 arch light7
-direction 3
 x 7
 y 21
 end
@@ -1774,7 +1766,6 @@ x 10
 y 21
 end
 arch light7
-direction 3
 x 10
 y 21
 end
@@ -1786,6 +1777,7 @@ name sewer hole plate
 face sewer_plate2.101
 animation NONE
 is_turnable 0
+direction 0
 slaying strakewood_island/brynknot/sewers/sewers_0101
 hp 4
 sp 1
@@ -2094,7 +2086,6 @@ x 13
 y 4
 end
 arch light7
-direction 3
 x 13
 y 4
 end
@@ -2127,7 +2118,6 @@ x 13
 y 10
 end
 arch light7
-direction 3
 x 13
 y 10
 end
@@ -2172,7 +2162,6 @@ x 13
 y 16
 end
 arch light7
-direction 3
 x 13
 y 16
 end
@@ -2237,7 +2226,6 @@ x 14
 y 3
 end
 arch light7
-direction 3
 x 14
 y 3
 end
@@ -2467,7 +2455,6 @@ x 15
 y 18
 end
 arch light7
-direction 3
 x 15
 y 18
 end
@@ -2971,7 +2958,6 @@ x 19
 y 3
 end
 arch light7
-direction 3
 x 19
 y 3
 end
@@ -3546,7 +3532,6 @@ x 22
 y 18
 end
 arch light7
-direction 3
 x 22
 y 18
 end

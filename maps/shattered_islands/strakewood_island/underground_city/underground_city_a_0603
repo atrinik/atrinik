@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-19 Alex Tokar
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1525,7 +1525,6 @@ x 10
 y 21
 end
 arch fwall_sand1a
-direction 1
 x 10
 y 21
 end
@@ -1533,8 +1532,7 @@ arch floor_sand_d4
 x 10
 y 22
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 10
 y 22
 end
@@ -1543,7 +1541,6 @@ x 10
 y 23
 end
 arch fwall_sand1a
-direction 1
 x 10
 y 23
 end
@@ -1690,8 +1687,7 @@ arch floor_sand_d1
 x 11
 y 21
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 11
 y 21
 end
@@ -1836,8 +1832,7 @@ arch floor_sand_d3
 x 12
 y 21
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 12
 y 21
 end
@@ -1978,8 +1973,7 @@ arch floor_sand_d4
 x 13
 y 21
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 13
 y 21
 end
@@ -2131,7 +2125,6 @@ x 14
 y 21
 end
 arch fwall_sand1b
-direction 1
 x 14
 y 21
 end
@@ -2231,8 +2224,7 @@ arch floor_sand_d3
 x 15
 y 21
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 15
 y 21
 end
@@ -2397,7 +2389,6 @@ x 16
 y 21
 end
 arch fwall_sand1b
-direction 1
 x 16
 y 21
 end
@@ -2561,7 +2552,6 @@ x 17
 y 21
 end
 arch fwall_sand1b
-direction 1
 x 17
 y 21
 end
@@ -2710,8 +2700,7 @@ arch floor_sand_d2
 x 18
 y 21
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 18
 y 21
 end
@@ -2874,7 +2863,6 @@ x 19
 y 21
 end
 arch fwall_sand1a
-direction 1
 x 19
 y 21
 end
@@ -3024,7 +3012,6 @@ x 20
 y 21
 end
 arch fwall_sand1a
-direction 1
 x 20
 y 21
 end
@@ -3176,8 +3163,7 @@ arch floor_sand_d3
 x 21
 y 21
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 21
 y 21
 end
@@ -3342,7 +3328,6 @@ x 22
 y 21
 end
 arch fwall_sand1b
-direction 1
 x 22
 y 21
 end
@@ -3371,7 +3356,6 @@ x 23
 y 21
 end
 arch fwall_sand1a
-direction 1
 x 23
 y 21
 end
@@ -3380,7 +3364,6 @@ x 23
 y 22
 end
 arch fwall_sand1b
-direction 1
 x 23
 y 22
 end
@@ -3388,8 +3371,7 @@ arch floor_sand_d2
 x 23
 y 23
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 23
 y 23
 end

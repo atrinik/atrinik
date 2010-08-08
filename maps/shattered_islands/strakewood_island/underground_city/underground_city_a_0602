@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-01 Alex Tokar
+Modified: 2010-08-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1125,7 +1125,6 @@ arch floor_sand_d1
 x 10
 end
 arch fwall_sand1a
-direction 1
 x 10
 end
 arch floor_sand_d2
@@ -1133,7 +1132,6 @@ x 10
 y 1
 end
 arch fwall_sand1a
-direction 1
 x 10
 y 1
 end
@@ -1142,7 +1140,6 @@ x 10
 y 2
 end
 arch fwall_sand1a
-direction 1
 x 10
 y 2
 end
@@ -1151,7 +1148,6 @@ x 10
 y 3
 end
 arch fwall_sand1b
-direction 1
 x 10
 y 3
 end
@@ -1159,8 +1155,7 @@ arch floor_sand_d1
 x 10
 y 4
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 10
 y 4
 end
@@ -1169,7 +1164,6 @@ x 10
 y 5
 end
 arch fwall_sand1a
-direction 1
 x 10
 y 5
 end
@@ -1177,8 +1171,7 @@ arch floor_sand_d1
 x 10
 y 6
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 10
 y 6
 end
@@ -1186,8 +1179,7 @@ arch floor_sand_d4
 x 10
 y 7
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 10
 y 7
 end
@@ -1195,8 +1187,7 @@ arch floor_sand_d2
 x 10
 y 8
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 10
 y 8
 end
@@ -1205,7 +1196,6 @@ x 10
 y 9
 end
 arch fwall_sand1a
-direction 1
 x 10
 y 9
 end
@@ -1276,8 +1266,7 @@ arch floor_sand_d2
 x 11
 y 9
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 11
 y 9
 end
@@ -1286,7 +1275,6 @@ x 11
 y 10
 end
 arch fwall_sand1b
-direction 1
 x 11
 y 10
 end
@@ -1295,7 +1283,6 @@ x 11
 y 11
 end
 arch fwall_sand1b
-direction 1
 x 11
 y 11
 end
@@ -1304,7 +1291,6 @@ x 11
 y 12
 end
 arch fwall_sand1b
-direction 1
 x 11
 y 12
 end
@@ -1312,8 +1298,7 @@ arch floor_sand_d3
 x 11
 y 13
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 11
 y 13
 end
@@ -1322,7 +1307,6 @@ x 11
 y 14
 end
 arch fwall_sand1a
-direction 1
 x 11
 y 14
 end
@@ -1331,7 +1315,6 @@ x 11
 y 15
 end
 arch fwall_sand1b
-direction 1
 x 11
 y 15
 end
@@ -1340,7 +1323,6 @@ x 11
 y 16
 end
 arch fwall_sand1a
-direction 1
 x 11
 y 16
 end
@@ -1348,8 +1330,7 @@ arch floor_sand_d2
 x 11
 y 17
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 11
 y 17
 end
@@ -1357,8 +1338,7 @@ arch floor_sand_d2
 x 11
 y 18
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 11
 y 18
 end
@@ -1481,8 +1461,7 @@ arch floor_sand_d3
 x 12
 y 18
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 12
 y 18
 end
@@ -1671,8 +1650,7 @@ arch floor_sand_d2
 x 13
 y 18
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 13
 y 18
 end
@@ -2071,8 +2049,7 @@ arch floor_sand_d3
 x 16
 y 18
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 16
 y 18
 end
@@ -2235,7 +2212,6 @@ x 17
 y 18
 end
 arch fwall_sand1a
-direction 1
 x 17
 y 18
 end
@@ -2354,8 +2330,7 @@ arch floor_sand_d4
 x 18
 y 15
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 18
 y 15
 end
@@ -2364,7 +2339,6 @@ x 18
 y 16
 end
 arch fwall_sand1a
-direction 1
 x 18
 y 16
 end
@@ -2373,7 +2347,6 @@ x 18
 y 17
 end
 arch fwall_sand1b
-direction 1
 x 18
 y 17
 end
@@ -2381,8 +2354,7 @@ arch floor_sand_d1
 x 18
 y 18
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 18
 y 18
 end
@@ -2538,8 +2510,7 @@ arch floor_sand_d1
 x 19
 y 15
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 19
 y 15
 end
@@ -2638,8 +2609,7 @@ arch floor_sand_d3
 x 20
 y 15
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 20
 y 15
 end
@@ -2752,7 +2722,6 @@ x 21
 y 15
 end
 arch fwall_sand1a
-direction 1
 x 21
 y 15
 end
@@ -2820,7 +2789,6 @@ x 22
 y 15
 end
 arch fwall_sand1a
-direction 1
 x 22
 y 15
 end
@@ -2828,15 +2796,13 @@ arch floor_sand_d4
 x 23
 end
 arch fwall_sand1a
-direction 1
 x 23
 end
 arch floor_sand_d3
 x 23
 y 1
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 23
 y 1
 end
@@ -2845,7 +2811,6 @@ x 23
 y 2
 end
 arch fwall_sand1b
-direction 1
 x 23
 y 2
 end
@@ -2853,8 +2818,7 @@ arch floor_sand_d3
 x 23
 y 3
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 23
 y 3
 end
@@ -2863,7 +2827,6 @@ x 23
 y 4
 end
 arch fwall_sand1a
-direction 1
 x 23
 y 4
 end
@@ -2872,7 +2835,6 @@ x 23
 y 5
 end
 arch fwall_sand1a
-direction 1
 x 23
 y 5
 end
@@ -2880,8 +2842,7 @@ arch floor_sand_d4
 x 23
 y 6
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 23
 y 6
 end
@@ -2889,8 +2850,7 @@ arch floor_sand_d3
 x 23
 y 7
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 23
 y 7
 end
@@ -2898,8 +2858,7 @@ arch floor_sand_d3
 x 23
 y 8
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 23
 y 8
 end
@@ -2908,7 +2867,6 @@ x 23
 y 9
 end
 arch fwall_sand1b
-direction 1
 x 23
 y 9
 end
@@ -2916,8 +2874,7 @@ arch floor_sand_d4
 x 23
 y 10
 end
-arch fwall_sand1a
-direction 1
+arch fwall_sand1b
 x 23
 y 10
 end
@@ -2925,8 +2882,7 @@ arch floor_sand_d3
 x 23
 y 11
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 23
 y 11
 end
@@ -2934,8 +2890,7 @@ arch floor_sand_d4
 x 23
 y 12
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 23
 y 12
 end
@@ -2944,7 +2899,6 @@ x 23
 y 13
 end
 arch fwall_sand1b
-direction 1
 x 23
 y 13
 end
@@ -2952,8 +2906,7 @@ arch floor_sand_d2
 x 23
 y 14
 end
-arch fwall_sand1b
-direction 1
+arch fwall_sand1a
 x 23
 y 14
 end
@@ -2962,7 +2915,6 @@ x 23
 y 15
 end
 arch fwall_sand1b
-direction 1
 x 23
 y 15
 end
