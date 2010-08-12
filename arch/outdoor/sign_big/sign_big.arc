@@ -5,6 +5,7 @@ type 98
 layer 4
 no_pick 1
 end
+
 Object marker4
 name big sign
 face marker4.101
@@ -12,6 +13,7 @@ type 98
 layer 4
 no_pick 1
 end
+
 Object marker0
 name big sign
 face marker.111
@@ -24,6 +26,7 @@ direction 1
 layer 4
 no_pick 1
 end
+
 Object marker1
 name big sign
 face marker1.111
@@ -36,6 +39,7 @@ direction 1
 layer 4
 no_pick 1
 end
+
 Object marker2
 name big sign
 face marker2.121
@@ -48,6 +52,7 @@ direction 1
 layer 4
 no_pick 1
 end
+
 Object marker3
 name big sign
 face marker3.111

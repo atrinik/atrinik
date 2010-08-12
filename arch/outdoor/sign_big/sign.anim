@@ -1,0 +1,25 @@
+anim sign_generic
+facings 9
+dummy.111
+sign_generic.111
+sign_generic.111
+sign_generic.131
+sign_generic.131
+sign_generic.151
+sign_generic.151
+sign_generic.171
+sign_generic.171
+mina
+
+anim sign_pub
+facings 9
+dummy.111
+sign_pub.111
+sign_pub.111
+sign_pub.131
+sign_pub.131
+sign_pub.151
+sign_pub.151
+sign_pub.171
+sign_pub.171
+mina
