@@ -80,3 +80,10 @@ That path is not in front of your face.
 
    --- Unfinished song by a drow bard.
 ENDMSG
+
+MSG
+<t t="The Legendary Mana Crystal">
+It is rumored that there are rare gemstones that are able to store mana. Touching it when your mana is at maximum capacity will transfer half your mana into it. Touching it when you are below maximum capacity will retrieve any stored mana, up to your capacity. The amount a crystal can store varies, but it is rumored that there are crystals with capacities for 1000 mana and beyond.
+
+Needless to say, these are very much sought after by all spellcasters.
+ENDMSG
