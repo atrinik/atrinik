@@ -1,13 +1,12 @@
-# Moroch - deity of the bad
-Object Moroch
-name Moroch
+Object Terria
+name Terria
 randomitems deity_tabernacle
 type 50
 no_pick 1
 layer 6
 face dummy.111
 race god_lesser
-animation Moroch
+animation Terria
 is_animated 1
 anim_speed 3
 Str 30
@@ -24,8 +23,8 @@ terrain_flag 39
 weapon_speed 0.050
 unaggressive 1
 random_move 1
-attack_cleave 100
-attack_cold 100
+attack_slash 100
+attack_electricity 100
 path_attuned 0
 path_repelled 0
 path_denied 0
@@ -42,7 +41,7 @@ can_cast_spell 1
 can_use_weapon 1
 can_use_armour 1
 msg
-Moroch of Evil
+Goddess of peace, Guardian of life, Mother of nature
 endmsg
 weight 1
 end

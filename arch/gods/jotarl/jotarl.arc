@@ -1,13 +1,12 @@
-# Tabernacle - default deity
-Object Tabernacle
-name Tabernacle
+Object Jotarl
+name Jotarl
 randomitems deity_tabernacle
 type 50
 no_pick 1
 layer 6
 face dummy.111
 race god_lesser
-animation Tabernacle
+animation Jotarl
 is_animated 1
 anim_speed 3
 Str 30
@@ -42,7 +41,7 @@ can_cast_spell 1
 can_use_weapon 1
 can_use_armour 1
 msg
-Tabernacle of Life
+Father of giants, Lord Troll, The Titan King, Dwarf crusher
 endmsg
 weight 1
 end

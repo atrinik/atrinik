@@ -6,16 +6,9 @@
 # Default "deity" - The Tabernacle
 #
 treasure deity_tabernacle
-  arch tabernacle_avatar_info
-  more
-  arch tabernacle_holy_servant_info
-  more
   arch god_restore_grace
   more
   arch god_restore_hitpoints
-  more
-  arch tabernacle_general_info
-    chance 10
   more
   arch god_grace_limit_medium
 end

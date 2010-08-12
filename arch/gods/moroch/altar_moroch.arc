@@ -1,7 +1,7 @@
 Object altar_moroch
 name Altar of Moroch
 other_arch Moroch
-face altar_default.111
+face altar_moroch.111
 layer 4
 animation altar_moroch
 is_animated 0

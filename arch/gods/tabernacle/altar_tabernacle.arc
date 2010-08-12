@@ -1,7 +1,7 @@
 Object altar_tabernacle
 name Altar of Tabernacle
 other_arch Tabernacle
-face altar_default.111
+face altar_tabernacle.111
 layer 4
 animation altar_tabernacle
 is_animated 0
