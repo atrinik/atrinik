@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-12 Kiana
 endmsg
 width 24
 height 24
@@ -1723,7 +1723,7 @@ arch floor_wood2_l2
 x 14
 y 23
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 14
 y 23
 end
@@ -1857,7 +1857,7 @@ arch floor_wood2_l2
 x 15
 y 23
 end
-arch wall_wood1_1
+arch wall_wood3_1
 x 15
 y 23
 end
@@ -2474,7 +2474,7 @@ arch floor_wood2_l1
 x 19
 y 23
 end
-arch wall_wood2_1
+arch wall_wood3_1
 x 19
 y 23
 end
@@ -2625,7 +2625,7 @@ arch floor_wood2_l2
 x 20
 y 23
 end
-arch wall_wood1_1
+arch wall_wood_w_1
 x 20
 y 23
 end

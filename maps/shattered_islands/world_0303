@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-12 Kiana
 endmsg
 width 24
 height 24
@@ -613,7 +613,7 @@ arch grassd_5
 x 4
 y 7
 end
-arch wall_white2_1
+arch wall_white2_w.1
 x 4
 y 7
 end
@@ -649,7 +649,7 @@ arch floor_white2c
 x 4
 y 15
 end
-arch wall_white2_1
+arch wall_white2_w.1
 x 4
 y 15
 end
@@ -1120,7 +1120,7 @@ arch grassd_6
 x 8
 y 7
 end
-arch wall_white2_1
+arch wall_white2_w.1
 x 8
 y 7
 end
@@ -1156,7 +1156,7 @@ arch floor_white2c
 x 8
 y 15
 end
-arch wall_white2_1
+arch wall_white2_w.1
 x 8
 y 15
 end
@@ -1686,7 +1686,7 @@ arch floor_white2c
 x 12
 y 15
 end
-arch wall_white2_1
+arch wall_white2_w.1
 x 12
 y 15
 end
@@ -1758,7 +1758,7 @@ x 13
 y 6
 end
 arch sign
-name Church
+name Church of Tabernacle
 x 13
 y 6
 end

@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-26 Alex Tokar
+Modified: 2010-08-12 Kiana
 endmsg
 width 24
 height 24
@@ -1355,6 +1355,11 @@ arch grassd_7
 x 9
 y 8
 end
+arch sign
+name Shop & Smith
+x 9
+y 8
+end
 arch grassd_8
 x 9
 y 9
@@ -1436,6 +1441,11 @@ x 9
 y 21
 end
 arch grassd_m7
+x 9
+y 21
+end
+arch sign
+name Bank
 x 9
 y 21
 end
@@ -1690,6 +1700,15 @@ x 11
 y 3
 end
 arch shop_floor_normal
+x 11
+y 4
+end
+arch sign
+msg
+~Shops~
+Shops like this one are available in most towns and cities. Just drop ('d') any items you would like to sell and pick up ('g') anything you want to buy. When you sell something to a shop it will pay you less than the regular price, you can see this by examining ('e') the object.
+endmsg
+name Shops
 x 11
 y 4
 end
