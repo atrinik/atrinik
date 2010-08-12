@@ -96,10 +96,11 @@ def usage():
 	print("\n\t-a " + colors.underscore + "arch" + colors.end + ", --arch=" + colors.underscore + "arch" + colors.end + ":\n\t\tSpecify where 'arch' directory is located (to get artifacts, archetypes, etc from). Default is '../../arch'.")
 	print("\n\t-r " + colors.underscore + "file" + colors.end + ", --regions=" + colors.underscore + "file" + colors.end + ":\n\t\tSpecify where the 'regions.reg' file is located. Default is '../../maps/regions.reg.")
 	print("\n\t-m " + colors.underscore + "map" + colors.end + ", --map=" + colors.underscore + "map" + colors.end + ":\n\t\tSpecify the only map to check for errors.")
+	print("\n\t--non-rec:\n\t\tDo not go through directories recursively.")
 
 # Try to parse our command line options.
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "hcd:m:a:r:", ["help", "cli", "directory=", "map=", "arch=", "regions="])
+	opts, args = getopt.getopt(sys.argv[1:], "hcd:m:a:r:", ["help", "cli", "directory=", "map=", "arch=", "regions=", "non-rec"])
 except getopt.GetoptError as err:
 	# Invalid option, show the error, print usage, and exit.
 	print(err)
@@ -112,6 +113,7 @@ arch_dir = "../../arch"
 regions_file = "../../maps/regions.reg"
 map = None
 cli = False
+rec = True
 
 # Parse options.
 for o, a in opts:
@@ -128,6 +130,8 @@ for o, a in opts:
 		arch_dir = a
 	elif o in ("-r", "--regions"):
 		regions_file = a
+	elif o == "--non-rec":
+		rec = False
 
 # Errors we found in maps/objects.
 errors_l = []
@@ -311,7 +315,7 @@ def check_map(map):
 				# Now recursively check the object.
 				check_obj(obj, map)
 
-				if obj["type"] == types.shop_floor:
+				if "type" in obj and obj["type"] == types.shop_floor:
 					is_shop = True
 
 			# No layer 1 objects and there are other non-layer-0 objects? Missing floor.
@@ -343,9 +347,8 @@ def check_obj(obj, map):
 
 	env = get_env(obj)
 
-	if not "type" in obj:
-		add_error(map["file"], "Object '{0}' is missing type.", errors.high, env["x"], env["y"])
-		obj["type"] = -1
+	if not "type" in obj or not "type" in env:
+		return
 
 	# Spawn point without an inventory is an error.
 	if obj["type"] == types.spawn_point and not obj["inv"]:
@@ -367,9 +370,8 @@ def check_obj(obj, map):
 		if "y" in obj:
 			add_error(map["file"], "Object '{0}' has Y position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
-	if obj["type"] != types.scroll and obj["type"] != types.potion:
-		if len(obj["custom_attrs"]) and obj["archname"] in artifacts:
-			add_error(map["file"], "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
+	if "modified_artifact" in obj and obj["archname"] in artifacts:
+		add_error(map["file"], "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
 	if obj["type"] == types.monster or obj["type"] == types.spawn_point_mob:
 		if not "level" in obj:
@@ -405,6 +407,9 @@ def check_obj(obj, map):
 	wps = []
 
 	for tmp in obj["inv"]:
+		if not "type" in tmp:
+			continue
+
 		if tmp["type"] == types.ability:
 			abilities.append(tmp)
 		elif tmp["type"] == types.waypoint:
@@ -475,7 +480,7 @@ def scan_dirs(dir):
 		if os.path.isdir(dir + "/" + file):
 			# Skip obvious non-map directories. It's still possible to scan those
 			# if you pass --directory option however.
-			if file in ("styles", "python"):
+			if file in ("styles", "python") or not rec:
 				continue
 
 			scan_dirs(dir + "/" + file)
@@ -618,7 +623,7 @@ class ObjectParser:
 		self.map_file = map_file
 
 		for line in self.fp:
-			if line[:5] == "arch ":
+			if line.startswith("arch "):
 				arch = self.map_parse_rec(line[5:-1])
 				self.map_add_tile(arch)
 
@@ -655,7 +660,6 @@ class ObjectParser:
 		archetype["archname"] = archname
 		# Inventory.
 		archetype["inv"] = []
-		archetype["custom_attrs"] = {}
 
 		if env:
 			archetype["env"] = env
@@ -665,7 +669,7 @@ class ObjectParser:
 
 		for line in self.fp:
 			# Another arch? That means it's inside the previous one.
-			if line[:5] == "arch ":
+			if line.startswith("arch "):
 				# Add it to the object's inventory.
 				archetype["inv"].append(self.map_parse_rec(line[5:-1], archetype))
 			elif line == "end\n":
@@ -676,7 +680,9 @@ class ObjectParser:
 
 				if parsed:
 					(attr, value) = parsed
-					archetype["custom_attrs"][attr] = value
+
+					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value"):
+						archetype["modified_artifact"] = True
 
 		if invalid_arch:
 			env = get_env(archetype)
@@ -687,7 +693,7 @@ class ObjectParser:
 	# Parse attributes from a line.
 	# @param line Line to parse from.
 	# @param dict Dictionary add parsed attributes to.
-	def parse(self, line, dict):
+	def parse(self, line, d):
 		# Message start?
 		if line == "msg\n":
 			self.in_msg = True
@@ -696,7 +702,7 @@ class ObjectParser:
 			self.in_msg = False
 			msg = self.msg_buf[:-1]
 			# Add it to the dict without the last newline.
-			dict["msg"] = msg
+			d["msg"] = msg
 			return ("msg", msg)
 		# We are in a message, store it in a buffer.
 		elif self.in_msg:
@@ -708,12 +714,15 @@ class ObjectParser:
 			# Our value.
 			value = line[space_pos + 1:-1]
 
-			if isint(value):
-				value = int(value)
+			try:
+				integer = int(value)
+				value = integer
+			except:
+				pass
 
 			attr = line[:space_pos]
 			# Add it to the dictionary.
-			dict[attr] = value
+			d[attr] = value
 			return (attr, value)
 
 		return None
@@ -1280,7 +1289,7 @@ else:
 	print(colors.bold + colors.underscore + "Scan complete. Results:\n" + colors.end + colors.end)
 
 	# Print map errors.
-	for (map, map_errors) in errors_l:
+	for (map, map_errors) in sorted(errors_l):
 		print(colors.bold + map + ":" + colors.end)
 
 		for error in map_errors:
