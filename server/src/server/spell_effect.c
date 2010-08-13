@@ -1699,9 +1699,8 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 			}
 		}
 
-		/* No more infecting through walls - we will use PASS_THRU but
-		 * P_NO_PASS only will stop us. */
-		if ((wall(m, xt, yt) & (~(P_NO_PASS | P_PASS_THRU))) == P_NO_PASS)
+		/* No more infecting through walls. */
+		if (wall(m, xt, yt))
 		{
 			return 0;
 		}

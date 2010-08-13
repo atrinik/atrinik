@@ -332,8 +332,6 @@ int party_can_open_corpse(object *pl, object *corpse)
 
 			return 1;
 	}
-
-	return 1;
 }
 
 /**

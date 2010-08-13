@@ -115,9 +115,9 @@ char *crypt_string(char *str, char *salt)
 #	endif
 
 	return (char *) crypt(str, s);
-#endif
-
+#else
 	return str;
+#endif
 }
 
 /**
@@ -1325,9 +1325,9 @@ static int keyboard_press()
 	FD_SET(0, &fds);
 
 	return select(1, &fds, NULL, NULL, &tv);
-#endif
-
+#else
 	return 0;
+#endif
 }
 
 /**

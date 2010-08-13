@@ -772,8 +772,6 @@ int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP)
 
 		return length;
 	}
-
-	return -1;
 }
 
 /**
