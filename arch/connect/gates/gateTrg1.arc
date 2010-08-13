@@ -22,8 +22,8 @@ dam 1
 maxhp 20
 hp 20
 speed 0.35
-value 1
 end
+
 Object gateTrg1_open
 name gate
 type 26
@@ -47,5 +47,4 @@ maxhp 20
 hp 20
 attack_impact 100
 speed 0.35
-value 1
 end

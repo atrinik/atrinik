@@ -23,15 +23,13 @@ dam 1
 maxhp 20
 hp 20
 speed 0.35
-value 1
 end
+
 Object grateTrg1
 name gate
 no_teleport 1
 type 26
 layer 5
-#activate_on_push 1
-#activate_on_release 1
 no_pick 1
 face grate_door1.111
 animation grateTrg1
@@ -51,5 +49,4 @@ maxhp 20
 hp 20
 attack_impact 100
 speed 0.35
-value 1
 end

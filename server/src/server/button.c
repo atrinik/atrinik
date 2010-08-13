@@ -125,7 +125,7 @@ void push_button(object *op)
 				tmp->speed = tmp->arch->clone.speed;
 				/* original values */
 				update_ob_speed(tmp);
-				tmp->value = tmp->arch->clone.value;
+				tmp->value = 1;
 				tmp->stats.sp = 1;
 				tmp->stats.hp = tmp->stats.maxhp;
 				break;
