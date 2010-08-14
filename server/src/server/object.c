@@ -293,7 +293,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
 	"no_pass", "is_animated", "slow_move", "flying", "monster",
 	"friendly", NULL, "been_applied", "auto_apply", NULL,
-	"is_neutral", "see_invisible", "can_roll", NULL, "is_turnable",
+	"is_neutral", "see_invisible", "can_roll", "connect_reset", "is_turnable",
 	"walk_off", "fly_on", "fly_off", "is_used_up", "identified",
 	"reflecting", "changing", "splitting", "hitback", "startequip",
 	"blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",

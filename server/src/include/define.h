@@ -959,6 +959,11 @@
  * Object can be pushed. */
 #define FLAG_CAN_ROLL 22
 /**
+ * If set and when connected object is triggered, the object will have
+ * the connection reset, so it doesn't need to wait for object that
+ * triggered the connection to move off. */
+#define FLAG_CONNECT_RESET 23
+/**
  * Object will change face with direction. */
 #define FLAG_IS_TURNABLE 24
 /**

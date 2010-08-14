@@ -226,8 +226,12 @@ void update_button(object *op)
 			if (tmp->value)
 			{
 				any_down = 1;
-			}
 
+				if (QUERY_FLAG(tmp, FLAG_CONNECT_RESET))
+				{
+					tmp->value = 0;
+				}
+			}
 		}
 		else if (tmp->type == PEDESTAL)
 		{
@@ -248,6 +252,11 @@ void update_button(object *op)
 			if (tmp->value)
 			{
 				any_down = 1;
+
+				if (QUERY_FLAG(tmp, FLAG_CONNECT_RESET))
+				{
+					tmp->value = 0;
+				}
 			}
 		}
 	}
@@ -263,8 +272,14 @@ void update_button(object *op)
 	{
 		SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 		update_object(op, UP_OBJ_FACE);
-		/* Make all other buttons the same */
 		push_button(op);
+	}
+
+	if (op->value && QUERY_FLAG(op, FLAG_CONNECT_RESET))
+	{
+		op->value = 0;
+		SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
+		update_object(op, UP_OBJ_FACE);
 	}
 }
 

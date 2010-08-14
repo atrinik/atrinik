@@ -520,6 +520,7 @@ lex_error = 0;
 ^make_invisible{S}  SET_OR_CLEAR_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL);
 ^make_ethereal{S}   SET_OR_CLEAR_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL);
 ^can_roll{S}        SET_OR_CLEAR_FLAG(op, FLAG_CAN_ROLL, IVAL);
+^connect_reset{S}   SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_RESET, IVAL);
 ^is_turnable{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_TURNABLE, IVAL);
 ^is_used_up{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_USED_UP, IVAL);
 ^is_invisible{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_INVISIBLE, IVAL);
