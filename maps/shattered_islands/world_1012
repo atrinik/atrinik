@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-12 Kiana
+Modified: 2010-08-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -196,19 +196,17 @@ arch grassd_1
 x 1
 y 9
 end
-arch pedestal
+arch pedestal_trigger
 layer 0
 sys_object 1
-no_teleport 1
-direction 7
+direction 3
 connected 101
+exp 60
 x 1
 y 9
 end
 arch magic_mouth
 msg
-|Alvaro, the royal guard flips the switch.|
-
 Alvaro, the royal guard says:
 Welcome to Greyton!
 endmsg
@@ -221,19 +219,17 @@ arch grassd_6
 x 1
 y 10
 end
-arch pedestal
+arch pedestal_trigger
 layer 0
 sys_object 1
-no_teleport 1
-direction 7
+direction 3
 connected 101
+exp 60
 x 1
 y 10
 end
 arch magic_mouth
 msg
-|Alvaro, the royal guard flips the switch.|
-
 Alvaro, the royal guard says:
 Welcome to Greyton!
 endmsg
@@ -246,19 +242,17 @@ arch grassd_5
 x 1
 y 11
 end
-arch pedestal
+arch pedestal_trigger
 layer 0
 sys_object 1
-no_teleport 1
-direction 7
+direction 3
 connected 101
+exp 60
 x 1
 y 11
 end
 arch magic_mouth
 msg
-|Alvaro, the royal guard flips the switch.|
-
 Alvaro, the royal guard says:
 Welcome to Greyton!
 endmsg
@@ -271,19 +265,17 @@ arch grassd_5
 x 1
 y 12
 end
-arch pedestal
+arch pedestal_trigger
 layer 0
 sys_object 1
-no_teleport 1
-direction 7
+direction 3
 connected 101
+exp 60
 x 1
 y 12
 end
 arch magic_mouth
 msg
-|Alvaro, the royal guard flips the switch.|
-
 Alvaro, the royal guard says:
 Welcome to Greyton!
 endmsg
@@ -296,19 +288,17 @@ arch grassd_2
 x 1
 y 13
 end
-arch pedestal
+arch pedestal_trigger
 layer 0
 sys_object 1
-no_teleport 1
-direction 7
+direction 3
 connected 101
+exp 60
 x 1
 y 13
 end
 arch magic_mouth
 msg
-|Alvaro, the royal guard flips the switch.|
-
 Alvaro, the royal guard says:
 Welcome to Greyton!
 endmsg
@@ -404,7 +394,7 @@ arch grassd_1
 x 2
 y 9
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 101
 x 2
@@ -414,7 +404,7 @@ arch grassd_1
 x 2
 y 10
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 101
 x 2
@@ -424,7 +414,7 @@ arch grassd_8
 x 2
 y 11
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 101
 x 2
@@ -434,7 +424,7 @@ arch grassd_3
 x 2
 y 12
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 101
 x 2
@@ -444,7 +434,7 @@ arch grassd_5
 x 2
 y 13
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 101
 x 2
@@ -537,8 +527,12 @@ arch grassd_5
 x 3
 y 9
 end
-arch switch_wall
+arch pedestal_trigger
+layer 0
+sys_object 1
+direction 3
 connected 101
+exp 60
 x 3
 y 9
 end
@@ -546,7 +540,25 @@ arch grassd_5
 x 3
 y 10
 end
+arch pedestal_trigger
+layer 0
+sys_object 1
+direction 3
+connected 101
+exp 60
+x 3
+y 10
+end
 arch grassd_2
+x 3
+y 11
+end
+arch pedestal_trigger
+layer 0
+sys_object 1
+direction 3
+connected 101
+exp 60
 x 3
 y 11
 end
@@ -558,7 +570,25 @@ arch grassd_8
 x 3
 y 12
 end
+arch pedestal_trigger
+layer 0
+sys_object 1
+direction 3
+connected 101
+exp 60
+x 3
+y 12
+end
 arch grassd_4
+x 3
+y 13
+end
+arch pedestal_trigger
+layer 0
+sys_object 1
+direction 3
+connected 101
+exp 60
 x 3
 y 13
 end
