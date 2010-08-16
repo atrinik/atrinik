@@ -215,7 +215,7 @@ int trap_show(object *trap, object *where)
 	remove_ob(trap);
 	CLEAR_FLAG(trap, FLAG_SYS_OBJECT);
 	CLEAR_MULTI_FLAG(trap, FLAG_IS_INVISIBLE);
-	trap->layer = 7;
+	trap->layer = LAYER_EFFECT;
 
 	if (env && env->type != PLAYER && env->type != MONSTER && env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS))
 	{

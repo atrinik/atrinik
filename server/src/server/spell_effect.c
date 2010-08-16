@@ -675,7 +675,7 @@ int cast_heal_around(object *op, int level, int type)
 					continue;
 				}
 
-				for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
+				for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 				{
 					tmp = HEAD(tmp);
 

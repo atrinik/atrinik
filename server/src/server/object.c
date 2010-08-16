@@ -1982,7 +1982,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			if ((top = GET_MAP_SPACE_LAYER(mc, layer)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, layer_inv)) == NULL)
 			{
 				/* No, we are the first on this layer - let's search something above us we can chain with. */
-				for (lt = op->layer; lt < MAX_ARCH_LAYERS && (top = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
+				for (lt = op->layer; lt < NUM_LAYERS && (top = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
 				{
 				}
 			}
@@ -2039,7 +2039,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 				/* In this case, we have 1 or more normal objects on this layer,
 				 * so we must skip all of them. Easiest way is to get an upper layer
 				 * valid object. */
-				for (lt = op->layer; lt < MAX_ARCH_LAYERS && (tmp = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (tmp = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
+				for (lt = op->layer; lt < NUM_LAYERS && (tmp = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (tmp = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
 				{
 				}
 
@@ -2048,7 +2048,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			else
 			{
 				/* We are the first on this layer - let's search something above us we can chain with. */
-				for (lt = op->layer; lt < MAX_ARCH_LAYERS && (top = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
+				for (lt = op->layer; lt < NUM_LAYERS && (top = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
 				{
 				}
 

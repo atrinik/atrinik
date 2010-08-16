@@ -84,7 +84,7 @@ static object *get_wall(mapstruct *m, int x, int y)
 {
 	object *tmp;
 
-	for (tmp = GET_MAP_OB_LAYER(m, x, y, 4); tmp && tmp->layer == 5; tmp = tmp->above)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL - 1); tmp && tmp->layer == LAYER_WALL; tmp = tmp->above)
 	{
 		if (tmp->type == WALL)
 		{
@@ -106,7 +106,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 {
 	object *tmp;
 
-	for (tmp = GET_MAP_OB_LAYER(op->map, x, y, 0); tmp && tmp->layer == 1; tmp = tmp->above)
+	for (tmp = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR - 1); tmp && tmp->layer == LAYER_FLOOR; tmp = tmp->above)
 	{
 		if (tmp->type == FLOOR || QUERY_FLAG(tmp, FLAG_IS_FLOOR))
 		{
@@ -173,7 +173,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
 	}
 
 	/* Only allow building if there is a floor. */
-	for (floor = GET_MAP_OB_LAYER(op->map, x, y, 0); floor && floor->layer == 1; floor = floor->above)
+	for (floor = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR - 1); floor && floor->layer == LAYER_FLOOR; floor = floor->above)
 	{
 		if (floor->type == FLOOR || QUERY_FLAG(floor, FLAG_IS_FLOOR))
 		{

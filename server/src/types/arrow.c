@@ -148,7 +148,7 @@ void move_arrow(object *op)
 	if ((flags = GET_MAP_FLAGS(m, x, y)) & (P_IS_ALIVE | P_IS_PLAYER))
 	{
 		/* Search for a vulnerable object. */
-		for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
+		for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 		{
 			tmp = HEAD(tmp);
 

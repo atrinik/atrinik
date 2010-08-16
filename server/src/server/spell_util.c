@@ -1289,7 +1289,7 @@ int reflwall(mapstruct *m, int x, int y, object *sp_op)
 		return 0;
 	}
 
-	for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 	{
 		if (QUERY_FLAG(tmp->head ? tmp->head : tmp, FLAG_REFL_SPELL) && (rndm(0, 99)) < 90 - (sp_op->level / 10))
 		{

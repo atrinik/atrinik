@@ -945,7 +945,7 @@ int command_take(object *op, char *params)
 	{
 		next = tmp->below;
 
-		if ((tmp->layer != 3 && tmp->layer != 4) || QUERY_FLAG(tmp, FLAG_NO_PICK) || IS_SYS_INVISIBLE(tmp))
+		if ((tmp->layer != LAYER_ITEM && tmp->layer != LAYER_ITEM2) || QUERY_FLAG(tmp, FLAG_NO_PICK) || IS_SYS_INVISIBLE(tmp))
 		{
 			continue;
 		}

@@ -1357,7 +1357,7 @@ void draw_client_map2(object *pl)
 			num_layers = 0;
 
 			/* Go through the visible layers. */
-			for (layer = 0; layer < MAX_ARCH_LAYERS; layer++)
+			for (layer = 0; layer < NUM_LAYERS; layer++)
 			{
 				object *tmp = GET_MAP_SPACE_LAYER(msp, layer);
 
@@ -1377,7 +1377,7 @@ void draw_client_map2(object *pl)
 				/* This is done so that the player image is always shown
 				 * to the player, even if they are standing on top of another
 				 * player or monster. */
-				if (tmp && tmp->layer == 6 && pl->x == nx && pl->y == ny)
+				if (tmp && tmp->layer == LAYER_LIVING && pl->x == nx && pl->y == ny)
 				{
 					tmp = pl;
 				}
@@ -1445,7 +1445,7 @@ void draw_client_map2(object *pl)
 					}
 
 					/* Z position and we're on a floor layer? */
-					if (tmp->z && tmp->layer == 1)
+					if (tmp->z && tmp->layer == LAYER_FLOOR)
 					{
 						flags |= MAP2_FLAG_HEIGHT;
 					}

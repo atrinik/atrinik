@@ -41,9 +41,30 @@ int map_tiled_reverse[TILED_MAPS];
 #define MAP_PLAYER_MAP 1
 
 /**
- * Our 7 logical layers.
- * @note For first and last object, we will use 2 more fake layers */
-#define MAX_ARCH_LAYERS 7
+ * @defgroup LAYER_xxx Layer types
+ * The layer types used for different objects.
+ *@{*/
+/** System objects. */
+#define LAYER_SYS 0
+/** Floor. */
+#define LAYER_FLOOR 1
+/** Floor masks. */
+#define LAYER_FMASK 2
+/** Items: weapons, armour, books, etc. */
+#define LAYER_ITEM 3
+/** Another layer for items, often decoration. */
+#define LAYER_ITEM2 4
+/** Walls. */
+#define LAYER_WALL 5
+/** Living objects like players and monsters. */
+#define LAYER_LIVING 6
+/** Spell effects. */
+#define LAYER_EFFECT 7
+/*@}*/
+
+/**
+ * The number of object layers. */
+#define NUM_LAYERS 7
 
 /**
  * @defgroup map_struct_macros Map structure macros
@@ -324,7 +345,7 @@ typedef struct MapSpace_s
 	object *first;
 
 	/** Array of visible layer objects + for invisible (*2) */
-	object *layer[MAX_ARCH_LAYERS * 2];
+	object *layer[NUM_LAYERS * 2];
 
 	/** Last object in this list */
 	object *last;

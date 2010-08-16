@@ -50,7 +50,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 	}
 
 	/* Look for objects on layer 5. */
-	for (tmp = GET_MAP_OB_LAYER(m, x, y, 4); tmp && tmp->layer == 5; tmp = tmp->above)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL - 1); tmp && tmp->layer == LAYER_WALL; tmp = tmp->above)
 	{
 		if (tmp->type == DOOR)
 		{
