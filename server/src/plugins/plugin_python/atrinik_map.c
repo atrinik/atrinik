@@ -136,6 +136,67 @@ static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
 }
 
 /**
+ * <h1>map.GetLayer(int x, int y, int layer)</h1>
+ * Construct a list containing objects with the specified layer on the
+ * specified square.
+ *
+ * Note that there is another way to loop through objects on a square:
+ *
+ * @code
+for ob in WhoIsActivator().map.GetFirstObject(WhoIsActivator().x, WhoIsActivator().y):
+	print(ob)
+ * @endcode
+ * @param x X coordinate on map.
+ * @param y Y coordinate on map.
+ * @param layer Layer we are looking for, should be one of @ref LAYER_xxx.
+ * @return A list containing objects on the square with the specified layer. */
+static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+{
+	int x, y;
+	uint8 layer;
+	mapstruct *m;
+	static char *kwlist[] = {"x", "y", "layer", NULL};
+	PyObject *list;
+	object *tmp;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiB", kwlist, &x, &y, &layer))
+	{
+		return NULL;
+	}
+
+	/* Validate the layer ID. */
+	if (layer > NUM_LAYERS)
+	{
+		RAISE("Invalid layer ID.")
+	}
+
+	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
+	{
+		RAISE("Unable to get map using get_map_from_coord().");
+	}
+
+	list = PyList_New(0);
+
+	/* Handle layer 0 specially: it's always at the start. */
+	if (layer == 0)
+	{
+		for (tmp = GET_MAP_OB(m, x, y); tmp && tmp->layer == layer; tmp = tmp->above)
+		{
+			PyList_Append(list, wrap_object(tmp));
+		}
+	}
+	else
+	{
+		for (tmp = GET_MAP_OB_LAYER(m, x, y, layer - 1); tmp && tmp->layer == layer; tmp = tmp->above)
+		{
+			PyList_Append(list, wrap_object(tmp));
+		}
+	}
+
+	return list;
+}
+
+/**
  * <h1>map.GetMapFromCoord(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
  * Get real coordinates from map, taking tiling into consideration.
  * @param x X position on the map.
@@ -462,6 +523,7 @@ static PyMethodDef MapMethods[] =
 {
 	{"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
 	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
+	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS | METH_KEYWORDS, 0},
 	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS, 0},
 	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS, 0},
 	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS | METH_KEYWORDS, 0},
