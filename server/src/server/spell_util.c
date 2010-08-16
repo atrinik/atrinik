@@ -1796,7 +1796,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 
 	dam = (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
 
-	if (exact)
+	if (exact || !dam)
 	{
 		return dam;
 	}
