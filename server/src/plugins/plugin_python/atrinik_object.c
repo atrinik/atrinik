@@ -2317,6 +2317,9 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 
 				while (1)
 				{
+					BRESENHAM_STEP(xt2, yt2, fraction, stepx, stepy, dx2, dy2);
+					m2 = hooks->get_map_from_coord(m2, &xt2, &yt2);
+
 					if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)))
 					{
 						break;
@@ -2327,9 +2330,6 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 						SQUARES_AROUND_ADD(m, xt, yt);
 						break;
 					}
-
-					BRESENHAM_STEP(xt2, yt2, fraction, stepx, stepy, dx2, dy2);
-					m2 = hooks->get_map_from_coord(m2, &xt2, &yt2);
 				}
 			}
 			/* We only want to ignore squares that either block view, or have
