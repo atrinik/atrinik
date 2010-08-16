@@ -45,9 +45,6 @@ int map_tiled_reverse[TILED_MAPS];
  * @note For first and last object, we will use 2 more fake layers */
 #define MAX_ARCH_LAYERS 7
 
-/** Our 4 physical layers we really show */
-#define MAP_LAYERS  4
-
 /**
  * @defgroup map_struct_macros Map structure macros
  * These macros are used to access flags of a map, the map reset time,
