@@ -774,7 +774,7 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 	}
 #endif
 
-	if (setsockopt(csock->fd, SOL_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1)
+	if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1)
 	{
 		LOG(llevBug, "socket_open(): Error setting TCP_NODELAY.");
 	}

@@ -67,6 +67,6 @@ distclean:: clean
 
 # Compile the C files.
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 all: atrinik-client
