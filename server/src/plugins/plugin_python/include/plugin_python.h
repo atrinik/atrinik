@@ -407,5 +407,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);
 void Py_INCREF_TYPE(PyTypeObject *ob);
 PyObject *generic_rich_compare(int op, int result);
+int python_call_int(PyObject *callable, PyObject *arglist);
 
 #endif

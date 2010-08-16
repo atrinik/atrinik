@@ -2378,3 +2378,29 @@ PyObject *generic_rich_compare(int op, int result)
 
 	return PyBool_FromLong(result);
 }
+
+/**
+ * Call a function defined in Python script with the specified arguments.
+ * @param callable What to call.
+ * @param arglist Arguments to call the function with. Will have reference
+ * decreased.
+ * @return Integer value the function returned. */
+int python_call_int(PyObject *callable, PyObject *arglist)
+{
+	PyObject *result;
+	int retval = 0;
+
+	/* Call the Python function. */
+	result = PyEval_CallObject(callable, arglist);
+
+	/* Check the result. */
+	if (result && PyInt_Check(result))
+	{
+		retval = PyInt_AsLong(result);
+	}
+
+	Py_XDECREF(result);
+	Py_DECREF(arglist);
+
+	return retval;
+}

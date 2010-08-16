@@ -2239,25 +2239,51 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args
 }
 
 /**
- * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL ], int [beyond = False])</h1>
+ * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL ], int [beyond = False], function [callable = None])</h1>
  * Looks around the specified object and returns a list of tuples
  * containing the squares around it in a specified range. The tuples
- * have a format of <pre>(map, x, y)</pre>.
+ * have a format of <b>(map, x, y)</b>.
+ *
+ * Example that ignores walls and floors with grass:
+ * @code
+from Atrinik import *
+
+activator = WhoIsActivator()
+
+def cmp_squares(m, x, y, obj):
+	# 'obj' is now same as 'activator'.
+	try:
+		return m.GetLayer(x, y, LAYER_FLOOR)[0].name == "grass"
+	# Exception was raised; ignore it, as it probably means there is no
+	# floor.
+	except:
+		return False
+
+for (m, x, y) in activator.SquaresAround(1, type = AROUND_WALL, callable = cmp_squares):
+	for ob in m.GetLayer(x, y, LAYER_FLOOR):
+		print(ob)
+ * @endcode
  * @param range Range around which to look at the squares. Must be higher
  * than 0.
  * @param type One or a combination of @ref AROUND_xxx constants.
  * @param beyond If True and one of checks from 'type' parameter matches, all
- * squares beyon the one being checked will be ignored as well.
+ * squares beyond the one being checked will be ignored as well.
+ * @param callable Defines function to call for comparisons. The function
+ * should have parameters in the order of <b>map, x, y, obj</b> where
+ * map is the map, x/y are the coordinates and obj is the object that SquaresAround()
+ * was called for. The function should return True if the square should be
+ * considered ignored, False otherwise. 'type' being @ref AROUND_ALL takes
+ * no effect if this is set, but it can be combined with @ref AROUND_xxx "other types".
  * @return A list containing tuples of the squares. */
 static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
 {
 	uint8 range, type = AROUND_ALL;
-	static char *kwlist[] = {"range", "type", "beyond", NULL};
+	static char *kwlist[] = {"range", "type", "beyond", "callable", NULL};
 	int i, j, xt, yt, beyond = 0;
 	mapstruct *m;
-	PyObject *list;
+	PyObject *callable = NULL, *list;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|Bi", kwlist, &range, &type, &beyond))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|BiO", kwlist, &range, &type, &beyond, &callable))
 	{
 		return NULL;
 	}
@@ -2265,6 +2291,12 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 	if (range == 0)
 	{
 		PyErr_SetString(PyExc_ValueError, "SquaresAround(): 'range' must be higher than 0.");
+		return NULL;
+	}
+
+	if (callable && !PyCallable_Check(callable))
+	{
+		PyErr_SetString(PyExc_TypeError, "Argument 'callable' must be callable.");
 		return NULL;
 	}
 
@@ -2292,7 +2324,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 			}
 
 			/* We want all squares. */
-			if (type == AROUND_ALL)
+			if (type == AROUND_ALL && !callable)
 			{
 				SQUARES_AROUND_ADD(m, xt, yt);
 			}
@@ -2320,7 +2352,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 					BRESENHAM_STEP(xt2, yt2, fraction, stepx, stepy, dx2, dy2);
 					m2 = hooks->get_map_from_coord(m2, &xt2, &yt2);
 
-					if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)))
+					if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m2), xt2, yt2, wrap_object(WHAT)))))
 					{
 						break;
 					}
@@ -2336,7 +2368,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 			 * a wall, etc, but not any squares behind them. */
 			else
 			{
-				if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)))
+				if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), xt, yt, wrap_object(WHAT)))))
 				{
 					continue;
 				}
