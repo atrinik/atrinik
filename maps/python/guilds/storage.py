@@ -26,6 +26,15 @@ def main():
 		SetReturnValue(1)
 	# Allow anyone to drop items and put them to containers, but log it.
 	elif event_num == MEVENT_DROP:
+		# Find objects on the floor layer.
+		layer = activator.map.GetLayer(activator.x, activator.y, LAYER_FLOOR)
+
+		# There must be floor, and it must have 'unique 1' set.
+		if not layer or not layer[0] or not layer[0].f_unique:
+			activator.Write("You cannot drop that here; use one of the storage areas.", COLOR_RED)
+			SetReturnValue(1)
+			return
+
 		guild.log_add("{} dropped {}.".format(activator.name, other.GetName()))
 	elif event_num == MEVENT_PUT:
 		if is_in_player(WhoAmI()):
