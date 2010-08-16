@@ -281,9 +281,9 @@ static int reader_thread_loop(void *dummy)
 		else if (ret == -1)
 		{
 #ifdef WIN32
-			if (WSAGetLastError() == EAGAIN)
+			if (WSAGetLastError() == EAGAIN || WSAGetLastError() == WSAEWOULDBLOCK)
 #else
-			if (errno == EAGAIN)
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
 #endif
 			{
 				SDL_Delay(1);
