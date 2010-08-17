@@ -409,13 +409,16 @@ int process_macro_keys(int id, int value)
 			break;
 
 		case KEYFUNC_RUN:
-			if (!(cpl.runkey_on = cpl.runkey_on ? 0 : 1))
+			if (!cpl.runkey_on)
+			{
 				send_command("/run_stop");
+			}
 
 			snprintf(buf, sizeof(buf), "runmode %s", cpl.runkey_on ? "on" : "off");
 #if 0
 			draw_info(buf, COLOR_DGOLD);
 #endif
+			cpl.runkey_on = !cpl.runkey_on;
 			break;
 
 		case KEYFUNC_MOVE:
