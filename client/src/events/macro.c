@@ -409,6 +409,8 @@ int process_macro_keys(int id, int value)
 			break;
 
 		case KEYFUNC_RUN:
+			cpl.runkey_on = !cpl.runkey_on;
+
 			if (!cpl.runkey_on)
 			{
 				send_command("/run_stop");
@@ -418,7 +420,6 @@ int process_macro_keys(int id, int value)
 #if 0
 			draw_info(buf, COLOR_DGOLD);
 #endif
-			cpl.runkey_on = !cpl.runkey_on;
 			break;
 
 		case KEYFUNC_MOVE:
