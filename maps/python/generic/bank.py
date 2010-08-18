@@ -77,6 +77,8 @@ def main():
 			me.SayTo(activator, "\nYou can't withdraw that much at once.")
 		elif ret == BANK_WITHDRAW_MISSING:
 			me.SayTo(activator, "\nYou don't have that much money.")
+		elif ret == BANK_WITHDRAW_OVERWEIGHT:
+			me.SayTo(activator, "\nYou can't carry that much money.")
 		elif ret == BANK_SUCCESS:
 			if pinfo.value == 0:
 				me.SayTo(activator, "\nYou removed all your money.")

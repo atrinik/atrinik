@@ -1042,6 +1042,11 @@ int bank_withdraw(object *op, object *bank, char *text)
 			return BANK_WITHDRAW_MISSING;
 		}
 
+		if (!player_can_carry(op, money.mithril * coins_arch[0]->clone.weight + money.gold * coins_arch[1]->clone.weight + money.silver * coins_arch[2]->clone.weight + money.copper * coins_arch[3]->clone.weight))
+		{
+			return BANK_WITHDRAW_OVERWEIGHT;
+		}
+
 		if (money.mithril)
 		{
 			insert_money_in_player(op, &coins_arch[0]->clone, money.mithril);

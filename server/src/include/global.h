@@ -187,6 +187,8 @@ typedef struct _money_block
 #define BANK_WITHDRAW_HIGH 1
 /** Player wanted to withdraw more than they have in bank. */
 #define BANK_WITHDRAW_MISSING 2
+/** Withdrawing that much money would make the player overweight. */
+#define BANK_WITHDRAW_OVERWEIGHT 3
 
 /** Player doesn't have enough copper coins on hand. */
 #define BANK_DEPOSIT_COPPER 1
