@@ -4,8 +4,8 @@
 from Atrinik import *
 from PostOffice import *
 
-## Activator object.
 activator = WhoIsActivator()
+pl = activator.Controller()
 
 post = PostOffice(activator.name)
 
@@ -16,7 +16,13 @@ def main():
 
 		for i, item in enumerate(post.get_items()):
 			if item["accepted"] == 1:
-				LoadObject(item["contents"]).InsertInside(activator)
+				tmp = LoadObject(item["contents"])
+
+				if not pl.CanCarry(tmp):
+					activator.Write("The '{0}' from {1} is too heavy for you to carry.".format(item["name"], item["from"]), COLOR_RED)
+					continue
+
+				tmp.InsertInside(activator)
 				activator.Write("You receive '{0}' from {1}.".format(item["name"], item["from"]))
 				post.remove_item(i - removed)
 				removed += 1
