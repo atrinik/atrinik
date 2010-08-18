@@ -283,7 +283,7 @@ static void party_loot_random(object *pl, object *corpse)
 			{
 				if (num == pl_id)
 				{
-					if (player_can_carry(ol->objlink.ob, tmp, tmp->nrof ? tmp->nrof : 1))
+					if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof)))
 					{
 						new_draw_info_format(NDI_UNIQUE | NDI_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
 						esrv_del_item(CONTR(pl), tmp->count, tmp->env);

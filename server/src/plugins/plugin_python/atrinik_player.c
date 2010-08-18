@@ -102,22 +102,39 @@ static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args,
 }
 
 /**
- * <h1>player.CanCarry(object what)</h1>
+ * <h1>player.CanCarry(object|int what)</h1>
  * Check whether the player can carry the object 'what', taking weight limit
  * into consideration.
- * @param what Object that player wants to get.
+ * @param what Object that player wants to get. This can be the exact weight
+ * to check instead of calculating the object's weight.
+ * @throws ValueError if 'what' is neither an object nor an integer.
  * @return True if the player can carry the object, False otherwise. */
 static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"what", NULL};
-	Atrinik_Object *what;
+	PyObject *what;
+	uint32 weight;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!", kwlist, &Atrinik_ObjectType, &what))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist, &what))
 	{
 		return NULL;
 	}
 
-	Py_ReturnBoolean(hooks->player_can_carry(pl->pl->ob, what->obj, what->obj->nrof ? what->obj->nrof : 1));
+	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
+	{
+		weight = WEIGHT_NROF(((Atrinik_Object *) what)->obj, ((Atrinik_Object *) what)->obj->nrof);
+	}
+	else if (PyInt_Check(what))
+	{
+		weight = PyInt_AsLong(what);
+	}
+	else
+	{
+		PyErr_SetString(PyExc_ValueError, "Invalid value for 'what' parameter.");
+		return NULL;
+	}
+
+	Py_ReturnBoolean(hooks->player_can_carry(pl->pl->ob, weight));
 }
 
 /*@}*/

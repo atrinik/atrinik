@@ -654,7 +654,7 @@ signed long sum_weight(object *op)
 			sum_weight(inv);
 		}
 
-		sum += WEIGHT_NROF(inv);
+		sum += WEIGHT_NROF(inv, inv->nrof);
 	}
 
 	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
@@ -1698,7 +1698,7 @@ void remove_ob(object *op)
 	{
 		if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 		{
-			sub_weight(op->env, WEIGHT_NROF(op));
+			sub_weight(op->env, WEIGHT_NROF(op, op->nrof));
 		}
 
 		/* NO_FIX_PLAYER is set when a great many changes are being
@@ -2518,7 +2518,7 @@ object *insert_ob_in_ob(object *op, object *where)
 
 				/* Weight handling gets pretty funky. Since we are adding to
 				 * tmp->nrof, we need to increase the weight. */
-				add_weight(where, WEIGHT_NROF(op));
+				add_weight(where, WEIGHT_NROF(op, op->nrof));
 
 				/* Make sure we get rid of the old object */
 				SET_FLAG(op, FLAG_REMOVED);
@@ -2537,7 +2537,7 @@ object *insert_ob_in_ob(object *op, object *where)
 		 * (if it was possible to merge).  calling remove_ob will subtract
 		 * the weight, so we need to add it in again, since we actually do
 		 * the linking below */
-		add_weight(where, WEIGHT_NROF(op));
+		add_weight(where, WEIGHT_NROF(op, op->nrof));
 	}
 
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);

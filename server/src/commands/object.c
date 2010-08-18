@@ -271,7 +271,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		nrof = tmp_nrof;
 	}
 
-	if (!player_can_carry(pl, tmp, nrof))
+	if (!player_can_carry(pl, WEIGHT_NROF(tmp, nrof)))
 	{
 		new_draw_info(NDI_UNIQUE, pl, "That item is too heavy for you to pick up.");
 		return;

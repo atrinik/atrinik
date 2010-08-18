@@ -263,7 +263,7 @@ struct plugin_hooklist
 	int (*blocked)(object *, mapstruct *, int, int, int);
 	int (*get_rangevector)(object *, object *, rv_vector *, int);
 	int (*get_rangevector_from_mapcoords)(mapstruct *, int, int, mapstruct *, int, int, rv_vector *, int);
-	int (*player_can_carry)(object *, object *, uint32);
+	int (*player_can_carry)(object *, uint32);
 
 	const char **season_name;
 	const char **weekdays;

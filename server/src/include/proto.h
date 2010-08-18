@@ -1114,7 +1114,7 @@ void cast_dust(object *op, object *throw_ob, int dir);
 int pvp_area(object *attacker, object *victim);
 int player_exists(char *player_name);
 object *find_skill(object *op, int skillnr);
-int player_can_carry(object *pl, object *ob, uint32 nrof);
+int player_can_carry(object *pl, uint32 weight);
 char *player_get_race_class(object *op, char *buf, size_t size);
 
 /* types/player_mover.c */
