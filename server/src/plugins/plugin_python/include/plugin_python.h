@@ -403,6 +403,23 @@ typedef struct
 	PyList_Append(list, tuple); \
 }
 
+/**
+ * Returns Py_True (increasing its reference) if 'val' is non-NULL, otherwise
+ * returns Py_False. */
+#define Py_ReturnBoolean(val) \
+{ \
+	if (val) \
+	{ \
+		Py_INCREF(Py_True); \
+		return Py_True; \
+	} \
+	else \
+	{ \
+		Py_INCREF(Py_False); \
+		return Py_False; \
+	} \
+}
+
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);
 void Py_INCREF_TYPE(PyTypeObject *ob);

@@ -139,6 +139,7 @@ struct plugin_hooklist hooklist =
 	blocked,
 	get_rangevector,
 	get_rangevector_from_mapcoords,
+	player_can_carry,
 
 	season_name,
 	weekdays,

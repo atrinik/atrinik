@@ -77,16 +77,17 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>player.GetEquipment(\<int\> slot)</h1>
+ * <h1>player.GetEquipment(int slot)</h1>
  * Get a player's current equipment for a given slot.
  * @param slot One of @ref PLAYER_EQUIP_xxx constants.
  * @throws ValueError if 'slot' is lower than 0 or higher than @ref PLAYER_EQUIP_MAX.
  * @return The equipment for the given slot, can be None. */
-static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
+static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
 {
+	static char *kwlist[] = {"slot", NULL};
 	int slot;
 
-	if (!PyArg_ParseTuple(args, "i", &slot))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist, &slot))
 	{
 		return NULL;
 	}
@@ -100,12 +101,32 @@ static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
 	return wrap_object(pl->pl->equipment[slot]);
 }
 
+/**
+ * <h1>player.CanCarry(object what)</h1>
+ * Check whether the player can carry the object 'what', taking weight limit
+ * into consideration.
+ * @param what Object that player wants to get.
+ * @return True if the player can carry the object, False otherwise. */
+static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"what", NULL};
+	Atrinik_Object *what;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!", kwlist, &Atrinik_ObjectType, &what))
+	{
+		return NULL;
+	}
+
+	Py_ReturnBoolean(hooks->player_can_carry(pl->pl->ob, what->obj, what->obj->nrof ? what->obj->nrof : 1));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] =
 {
-	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
+	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 
