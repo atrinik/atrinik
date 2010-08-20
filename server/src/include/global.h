@@ -655,6 +655,9 @@ typedef struct cache_struct
 
 	/** Type of the data, one of @ref CACHE_TYPE_xxx. */
 	uint32 flags;
+
+	/** ID in the array. */
+	size_t id;
 } cache_struct;
 
 #ifndef tolower

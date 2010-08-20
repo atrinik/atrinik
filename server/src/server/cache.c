@@ -143,12 +143,15 @@ int cache_add(const char *key, void *ptr, uint32 flags)
 	for (ii = num_cache; ii > i; ii--)
 	{
 		cache[ii] = cache[ii - 1];
+		/* Increase the ID, as it's getting moved upwards. */
+		cache[ii].id++;
 	}
 
 	/* Store the values. */
 	cache[i].key = sh_key;
 	cache[i].ptr = ptr;
 	cache[i].flags = flags;
+	cache[i].id = i;
 	num_cache++;
 
 	return 1;
@@ -160,45 +163,39 @@ int cache_add(const char *key, void *ptr, uint32 flags)
  * @return 1 on success, 0 on failure (cache entry not found). */
 int cache_remove(shstr *key)
 {
-	size_t i, ii;
+	cache_struct *entry = cache_find(key);
+	size_t i;
 
-	if (!key)
+	if (!entry)
 	{
 		return 0;
 	}
 
-	/* Find the correct entry to remove. */
-	for (i = 0; i < num_cache; i++)
+	/* The entry wants global events, so send one about it being removed. */
+	if (entry->flags & CACHE_FLAG_GEVENT)
 	{
-		if (cache[i].key == key)
-		{
-			/* The entry wants global events, so send one about it being removed. */
-			if (cache[i].flags & CACHE_FLAG_GEVENT)
-			{
-				trigger_global_event(GEVENT_CACHE_REMOVED, cache[i].ptr, (uint32 *) &cache[i].flags);
-			}
-
-			/* Does it want to be freed automatically? */
-			if (cache[i].flags & CACHE_FLAG_AUTOFREE)
-			{
-				free(cache[i].ptr);
-			}
-
-			/* Shift the entries. */
-			for (ii = i + 1; ii < num_cache; ii++)
-			{
-				cache[ii - 1] = cache[ii];
-			}
-
-			/* Decrease the array's size. */
-			cache = realloc(cache, sizeof(cache_struct) * (num_cache - 1));
-			num_cache--;
-
-			return 1;
-		}
+		trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) &entry->flags);
 	}
 
-	return 0;
+	/* Does it want to be freed automatically? */
+	if (entry->flags & CACHE_FLAG_AUTOFREE)
+	{
+		free(entry->ptr);
+	}
+
+	/* Shift the entries. */
+	for (i = entry->id + 1; i < num_cache; i++)
+	{
+		cache[i - 1] = cache[i];
+		/* Moving downwards, decrease ID. */
+		cache[i - 1].id--;
+	}
+
+	/* Decrease the array's size. */
+	cache = realloc(cache, sizeof(cache_struct) * (num_cache - 1));
+	num_cache--;
+
+	return 1;
 }
 
 /**
