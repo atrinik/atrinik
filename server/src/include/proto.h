@@ -396,6 +396,13 @@ void do_mood_floor(object *op);
 object *check_inv_recursive(object *op, const object *trig);
 void check_inv(object *op, object *trig);
 
+/* server/cache.c */
+cache_struct *cache_find(shstr *key);
+int cache_add(const char *key, void *ptr, uint32 flags);
+int cache_remove(shstr *key);
+void cache_remove_all();
+void cache_remove_by_flags(uint32 flags);
+
 /* server/daemon.c */
 void become_daemon(char *filename);
 

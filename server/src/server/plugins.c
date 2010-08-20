@@ -140,6 +140,11 @@ struct plugin_hooklist hooklist =
 	get_rangevector,
 	get_rangevector_from_mapcoords,
 	player_can_carry,
+	cache_find,
+	cache_add,
+	cache_remove,
+	cache_remove_by_flags,
+	find_string,
 
 	season_name,
 	weekdays,
@@ -378,7 +383,7 @@ void init_plugin(const char *pluginfile)
 	LIBPTRTYPE ptr;
 	f_plug_api eventfunc, propfunc;
 	f_plug_init initfunc;
-	f_plug_pinit pinitfunc;
+	f_plug_pinit pinitfunc, closefunc;
 	atrinik_plugin *plugin;
 
 	ptr = plugins_dlopen(pluginfile);
@@ -425,6 +430,15 @@ void init_plugin(const char *pluginfile)
 		return;
 	}
 
+	closefunc = (f_plug_pinit) (plugins_dlsym(ptr, "closePlugin"));
+
+	if (!closefunc)
+	{
+		LOG(llevBug, "BUG: Error while requesting 'closePlugin' from %s: %s\n", pluginfile, plugins_dlerror());
+		plugins_dlclose(ptr);
+		return;
+	}
+
 	plugin = malloc(sizeof(atrinik_plugin));
 
 	for (i = 0; i < GEVENT_NUM; i++)
@@ -436,6 +450,7 @@ void init_plugin(const char *pluginfile)
 	plugin->propfunc = propfunc;
 	plugin->libptr = ptr;
 	plugin->next = NULL;
+	plugin->closefunc = closefunc;
 
 	initfunc(&hooklist);
 	propfunc(0, "Identification", plugin->id, sizeof(plugin->id));
@@ -481,6 +496,7 @@ void remove_plugin(const char *id)
 				prev->next = plugin->next;
 			}
 
+			plugin->closefunc();
 			plugins_dlclose(plugin->libptr);
 			free(plugin);
 			break;
@@ -505,6 +521,7 @@ void remove_plugins()
 	{
 		atrinik_plugin *next = plugin->next;
 
+		plugin->closefunc();
 		plugins_dlclose(plugin->libptr);
 		free(plugin);
 		plugin = next;

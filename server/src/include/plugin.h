@@ -144,8 +144,10 @@
 #define GEVENT_LOGOUT 3
 /** Player was killed. */
 #define GEVENT_PLAYER_DEATH 4
+/** Cache entry was removed. */
+#define GEVENT_CACHE_REMOVED 5
 /** Number of global events. */
-#define GEVENT_NUM 4
+#define GEVENT_NUM 5
 /*@}*/
 
 /**
@@ -264,6 +266,11 @@ struct plugin_hooklist
 	int (*get_rangevector)(object *, object *, rv_vector *, int);
 	int (*get_rangevector_from_mapcoords)(mapstruct *, int, int, mapstruct *, int, int, rv_vector *, int);
 	int (*player_can_carry)(object *, uint32);
+	cache_struct *(*cache_find)(shstr *);
+	int (*cache_add)(const char *, void *, uint32);
+	int (*cache_remove)(shstr *);
+	void (*cache_remove_by_flags)(uint32);
+	shstr *(*find_string)(const char *);
 
 	const char **season_name;
 	const char **weekdays;
@@ -316,6 +323,9 @@ typedef struct _atrinik_plugin
 	/** Plugin getProperty function. */
 	f_plug_api propfunc;
 
+	/** Plugin closePlugin function. */
+	f_plug_pinit closefunc;
+
 	/** Pointer to the plugin library. */
 	LIBPTRTYPE libptr;
 
@@ -357,6 +367,10 @@ extern MODULEAPI void *triggerEvent(int *type, ...);
 /**
  * Called by the server when the plugin loading is completed. */
 extern MODULEAPI void postinitPlugin();
+
+/**
+ * Called when the plugin is about to be unloaded. */
+extern MODULEAPI void closePlugin();
 /*@}*/
 
 #endif

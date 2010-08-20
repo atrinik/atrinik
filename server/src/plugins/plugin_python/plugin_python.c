@@ -105,6 +105,7 @@ static Atrinik_Constant constants[] =
 	{"GEVENT_LOGIN", GEVENT_LOGIN},
 	{"GEVENT_LOGOUT", GEVENT_LOGOUT},
 	{"GEVENT_PLAYER_DEATH", GEVENT_PLAYER_DEATH},
+	{"GEVENT_CACHE_REMOVED", GEVENT_CACHE_REMOVED},
 
 	{"MAP_INFO_NORMAL", MAP_INFO_NORMAL},
 	{"MAP_INFO_ALL", MAP_INFO_ALL},
@@ -1226,7 +1227,7 @@ static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *a
 /**
  * <h1>CostString(int value)</h1>
  * Build a string representation of the value in the game's money syntax, for
- * example, a vlaue of 134 would become "1 silver coin and 34 copper coins".
+ * example, a value of 134 would become "1 silver coin and 34 copper coins".
  * @param value Value to build the string from.
  * @return The built string. */
 static PyObject *Atrinik_CostString(PyObject *self, PyObject *args, PyObject *keywds)
@@ -1242,6 +1243,121 @@ static PyObject *Atrinik_CostString(PyObject *self, PyObject *args, PyObject *ke
 	}
 
 	return Py_BuildValue("s", hooks->cost_string_from_value(value));
+}
+
+/**
+ * <h1>CacheAdd(string key, object what)</h1>
+ * Store 'what' in memory identified by unique identifier 'key'.
+ *
+ * The object will be stored forever in memory, until it's either removed by
+ * @ref Atrinik_CacheRemove "CacheRemove()" or the server is shut down; in both
+ * cases, the object will be closed, if applicable (databases, file objects, etc).
+ *
+ * A stored object can be retrieved at any time using @ref Atrinik_CacheGet "CacheGet()".
+ * @param key The unique identifier for the cache entry.
+ * @param what Any Python object (string, integer, database, etc) to store in
+ * memory.
+ * @return True if the object was cached successfully, False otherwise (cache
+ * entry with same key name already exists).
+ * @param value Value to build the string from.
+ * @return The built string. */
+static PyObject *Atrinik_CacheAdd(PyObject *self, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"key", "what", NULL};
+	char *key;
+	PyObject *what;
+	int ret;
+
+	(void) self;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO", kwlist, &key, &what))
+	{
+		return NULL;
+	}
+
+	/* Add it to the cache. */
+	ret = hooks->cache_add(key, what, CACHE_FLAG_PYOBJ | CACHE_FLAG_GEVENT);
+
+	if (ret)
+	{
+		Py_INCREF(what);
+	}
+
+	Py_ReturnBoolean(ret);
+}
+
+/**
+ * <h1>CacheGet(string key)</h1>
+ * Attempt to find a cache entry identified by 'key' that was previously
+ * added using @ref Atrinik_CacheAdd "CacheAdd()".
+ * @param key Unique identifier of the cache entry to find.
+ * @throws ValueError if the cache entry could not be found.
+ * @return The cache entry. An exception is raised if the cache entry was
+ * not found. */
+static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"key", NULL};
+	char *key;
+	shstr *sh_key;
+	cache_struct *result;
+
+	(void) self;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s", kwlist, &key))
+	{
+		return NULL;
+	}
+
+	sh_key = hooks->find_string(key);
+
+	/* Even if the cache entry was found, pretend it doesn't exist if
+	 * CACHE_FLAG_PYOBJ is not set. */
+	if (!sh_key || !(result = hooks->cache_find(sh_key)) || !(result->flags & CACHE_FLAG_PYOBJ))
+	{
+		PyErr_SetString(PyExc_ValueError, "No such cache entry.");
+		return NULL;
+	}
+	else
+	{
+		Py_INCREF((PyObject *) result->ptr);
+		return (PyObject *) result->ptr;
+	}
+}
+
+/**
+ * <h1>CacheRemove(string key)</h1>
+ * Remove a cache entry that was added with a previous call to
+ * @ref Atrinik_CacheAdd "CacheAdd()".
+ * @param key Unique identifier of the cache entry to remove.
+ * @throws ValueError if the cache entry could not be removed (it didn't
+ * exist).
+ * @return True if the cache entry was removed. An exception is raised if
+ * the cache entry was not found. */
+static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"key", NULL};
+	char *key;
+	shstr *sh_key;
+
+	(void) self;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s", kwlist, &key))
+	{
+		return NULL;
+	}
+
+	sh_key = hooks->find_string(key);
+
+	if (!sh_key || !hooks->cache_remove(sh_key))
+	{
+		PyErr_SetString(PyExc_ValueError, "No such cache entry.");
+		return NULL;
+	}
+	else
+	{
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
 }
 
 /*@}*/
@@ -1594,8 +1710,32 @@ static int handle_map_event(va_list args)
  * @return 0. */
 static int handle_global_event(int event_type, va_list args)
 {
-	PythonContext *context = malloc(sizeof(PythonContext));
+	PythonContext *context;
 
+	switch (event_type)
+	{
+		case GEVENT_CACHE_REMOVED:
+		{
+			void *ptr = va_arg(args, void *);
+			uint32 flags = *(uint32 *) va_arg(args, void *);
+
+			if (flags & CACHE_FLAG_PYOBJ)
+			{
+				/* Attemp to close file/database/etc objects. */
+				if (PyObject_GetAttrString((PyObject *) ptr, "close"))
+				{
+					PyObject_CallMethod((PyObject *) ptr, "close", "");
+				}
+
+				/* Decrease the reference count. */
+				Py_DECREF((PyObject *) ptr);
+			}
+
+			return 0;
+		}
+	}
+
+	context = malloc(sizeof(PythonContext));
 	context->activator = NULL;
 	context->who = NULL;
 	context->other = NULL;
@@ -1833,6 +1973,9 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetGenderStr",        Atrinik_GetGenderStr,          METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CostString", (PyCFunction) Atrinik_CostString, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CacheAdd", (PyCFunction) Atrinik_CacheAdd, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CacheGet", (PyCFunction) Atrinik_CacheGet, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CacheRemove", (PyCFunction) Atrinik_CacheRemove, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -1905,6 +2048,13 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	}
 
 	LOG(llevDebug, "  [Done]\n");
+}
+
+MODULEAPI void closePlugin()
+{
+	LOG(llevInfo, "Python Plugin closing.\n");
+	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);
+	Py_Finalize();
 }
 
 /**

@@ -178,6 +178,11 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	LOG(llevDebug, "[Done]\n");
 }
 
+MODULEAPI void closePlugin()
+{
+	LOG(llevInfo, "Arena Plugin closing.\n");
+}
+
 MODULEAPI void *getPluginProperty(int *type, ...)
 {
 	va_list args;

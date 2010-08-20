@@ -663,6 +663,9 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\server\cache.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../../../src/server/stringbuffer.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

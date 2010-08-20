@@ -1114,12 +1114,6 @@ static void rec_sigint(int i)
 	(void) i;
 
 	LOG(llevSystem, "\nSIGINT received.\n");
-
-	if (init_done)
-	{
-		cleanup();
-	}
-
 	fatal_signal(0);
 }
 
@@ -1197,7 +1191,7 @@ static void fatal_signal(int make_core)
 	if (init_done)
 	{
 		emergency_save(0);
-		clean_tmp_files();
+		cleanup();
 	}
 
 	if (make_core)

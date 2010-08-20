@@ -11,6 +11,9 @@ void check_server_arch();
 /* tests/unit/server/check_ban.c */
 void check_server_ban();
 
+/* tests/unit/server/check_cache.c */
+void check_server_cache();
+
 /* tests/unit/server/check_object.c */
 void check_server_object();
 

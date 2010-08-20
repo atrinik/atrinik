@@ -632,6 +632,31 @@ typedef struct ban_struct
 	char *ip;
 } _ban_struct;
 
+/**
+ * @defgroup CACHE_FLAG_xxx Cache flags
+ * The various cache flag bitmasks.
+ *@{*/
+/** The cache contains pointer to a PyObject. */
+#define CACHE_FLAG_PYOBJ 1
+/** Automatically free() the pointer in the cache entry. */
+#define CACHE_FLAG_AUTOFREE 2
+/** Does the cache entry want plugin global event when it's removed? */
+#define CACHE_FLAG_GEVENT 4
+/*@}*/
+
+/** One cache entry. */
+typedef struct cache_struct
+{
+	/** Key name this entry is identified by. */
+	shstr *key;
+
+	/** The cached data. */
+	void *ptr;
+
+	/** Type of the data, one of @ref CACHE_TYPE_xxx. */
+	uint32 flags;
+} cache_struct;
+
 #ifndef tolower
 #	define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif

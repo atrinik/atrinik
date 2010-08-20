@@ -62,7 +62,7 @@ void fatal(int err)
 	if (init_done)
 	{
 		emergency_save(0);
-		clean_tmp_files();
+		cleanup();
 	}
 
 	abort();
@@ -1105,8 +1105,9 @@ void cleanup()
 	free_srv_files();
 	free_regions();
 	free_mempools();
-	remove_plugins();
 #endif
+	cache_remove_all();
+	remove_plugins();
 	exit(0);
 }
 
@@ -1564,6 +1565,4 @@ int main(int argc, char **argv)
 			iterate_main_loop();
 		}
 	}
-
-	return 0;
 }

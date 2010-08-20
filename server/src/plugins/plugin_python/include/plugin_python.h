@@ -54,6 +54,10 @@
 #	define PyString_AsString _PyUnicode_AsString
 #	define PyInt_Check PyLong_Check
 #	define PyInt_AsLong PyLong_AsLong
+	extern PyTypeObject PyIOBase_Type;
+#	define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
+#else
+#define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
 #endif
 
 #undef MODULEAPI
