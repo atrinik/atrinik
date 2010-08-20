@@ -1,6 +1,6 @@
 Object drink_generic
 name water
-face drink_generic.101
+face water.101
 food 50
 layer 3
 nrof 1
