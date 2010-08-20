@@ -2,25 +2,24 @@
 ## Implements the Guild class, which provides an API for guild management.
 
 from Atrinik import *
-import shelve, time
-from datetime import datetime
+import time
+
+## Guild database file.
+_guilddb_file = "../server/data/guilds"
+_data_dir = "../server/data"
+
+## Default configuration of the various guilds.
+_config = {
+	"Quick Wolves": [
+		["/guilds/quick_wolves/guild", "/guilds/quick_wolves/oracle", "/guilds/quick_wolves/storage"],
+		("/shattered_islands/world_0514", 11, 7),
+		(2, 15),
+		("/guilds/quick_wolves/guild", 20, 20),
+	],
+}
 
 ## The Guild class.
 class Guild:
-	## Guild database file.
-	_guilddb_file = "../server/data/guilds"
-	_data_dir = "../server/data"
-
-	## Default configuration of the various guilds.
-	_config = {
-		"Quick Wolves": [
-			["/guilds/quick_wolves/guild", "/guilds/quick_wolves/oracle", "/guilds/quick_wolves/storage"],
-			("/shattered_islands/world_0514", 11, 7),
-			(2, 15),
-			("/guilds/quick_wolves/guild", 20, 20),
-		],
-	}
-
 	## @defgroup guild_config Guild configuration
 	## Getting configuration options of the guild.
 	## @{
@@ -59,45 +58,6 @@ class Guild:
 	member_administrator = 2
 	## @}
 
-	## @defgroup guild_rank_fields Rank fields
-	## Members in a list of a single rank.
-	## @{
-
-	## Rank's value limit; if 0, unlimited.
-	r_value_limit = 0
-	## How many hours until the used up value is reset.
-	r_value_reset = 1
-	## @}
-
-	## @defgroup guild_member_fields Member fields
-	## Members in a list of a single member.
-	## @{
-
-	## Member's flags.
-	m_flags = 0
-	## Member's rank.
-	m_rank = 1
-	## Total value of items taken from storage.
-	m_value_used = 2
-	## Timer for calculating when the value total used should expire.
-	## Set on the first pickup if 0.
-	m_value_limit_time = 3
-	## @}
-
-	## @defgroup guild_fields Guild fields
-	## Members in a list of a single guild.
-	## @{
-
-	## Dictionary of guild's members.
-	g_members = 0
-	## Dictionary of ranks.
-	g_ranks = 1
-	## Various @ref guild_flags.
-	g_flags = 2
-	## The guild's founder.
-	g_founder = 3
-	## @}
-
 	## Maximum number of characters supported for rank names.
 	rank_max_chars = 20
 	## Minimum number of hours that can be configured for rank's reset time.
@@ -110,21 +70,32 @@ class Guild:
 	rank_value_max = 10000000
 
 	## The class initializer.
-	##
-	## Make sure to call Guild.exit() after you're finished with the guild
-	## instance.
 	## @param guild What guild we're managing. The default is None, which
 	## makes it so no new entry is created in the database if the guild does
 	## not exist.
 	def __init__(self, guild = None):
-		## Initialize guild database from the database file.
-		self._db = shelve.open(self._guilddb_file)
 		## Initialize guild name from parameters.
 		self._guild = guild
 
+		# Try to get the db from the cache.
+		try:
+			self._db = CacheGet("guild_db")
+		# Not in cache.
+		except:
+			import shelve
+			## Initialize guild database from the database file.
+			self._db = shelve.open(_guilddb_file, writeback = True)
+			# Add it to the cache.
+			CacheAdd("guild_db", self._db)
+
 		# If the guild does not exist yet, initialize a new one.
 		if self._guild and not self._guild in self._db:
-			self._db[self._guild] = [{}, {}, self.guild_closed, ""]
+			self._db[self._guild] = {
+				"members": {},
+				"ranks": {},
+				"flags": self.guild_closed,
+				"founder": "",
+			}
 
 		self.load()
 
@@ -140,10 +111,10 @@ class Guild:
 		if not self._guild:
 			return
 
-		self._members = self._db[self._guild][self.g_members]
-		self._ranks = self._db[self._guild][self.g_ranks]
-		self._flags = self._db[self._guild][self.g_flags]
-		self._founder = self._db[self._guild][self.g_founder]
+		self._members = self._db[self._guild]["members"]
+		self._ranks = self._db[self._guild]["ranks"]
+		self._flags = self._db[self._guild]["flags"]
+		self._founder = self._db[self._guild]["founder"]
 
 	## Get the guild's name.
 	## @return The guild's name.
@@ -154,7 +125,7 @@ class Guild:
 	## @param opt The option to get, one of @ref guild_config.
 	## @return The config option.
 	def get(self, opt):
-		return self._config[self._guild][opt]
+		return _config[self._guild][opt]
 
 	## Get the guild's members.
 	## @return Dictionary of the guild's members.
@@ -165,9 +136,12 @@ class Guild:
 	## @param name The member's name.
 	## @param flags Optional flags to set by default, one or a combination of @ref guild_member_flags.
 	def member_add(self, name, flags = 0):
-		temp = self._db[self._guild]
-		temp[self.g_members][name] = [flags, None, 0, 0]
-		self._db[self._guild] = temp
+		self._db[self._guild]["members"][name] = {
+			"flags": flags,
+			"rank": None,
+			"value_used": 0,
+			"value_limit_time": 0,
+		}
 
 	## Remove a member from the guild.
 	## @param name The member name to remove.
@@ -178,11 +152,8 @@ class Guild:
 
 		# Check if this is just a membership request. If so, we don't need to remove
 		# them from guild maps.
-		requested = self._members[name][self.m_flags] & self.member_requested
-
-		temp = self._db[self._guild]
-		del temp[self.g_members][name]
-		self._db[self._guild] = temp
+		requested = self._members[name]["flags"] & self.member_requested
+		del self._db[self._guild]["members"][name]
 
 		if not requested:
 			# Try to find the player.
@@ -203,9 +174,7 @@ class Guild:
 		if not self.member_exists(name):
 			return False
 
-		temp = self._db[self._guild]
-		temp[self.g_members][name][self.m_flags] &= ~self.member_requested
-		self._db[self._guild] = temp
+		self._db[self._guild]["members"][name]["flags"] &= ~self.member_requested
 
 		return True
 
@@ -213,7 +182,7 @@ class Guild:
 	## @param name The member name to check.
 	## @return True if they have been approved, False otherwise.
 	def member_approved(self, name):
-		if not self.member_exists(name) or self._members[name][self.m_flags] & self.member_requested:
+		if not self.member_exists(name) or self._members[name]["flags"] & self.member_requested:
 			return False
 
 		return True
@@ -245,8 +214,8 @@ class Guild:
 	## they have been approved or not.
 	def pl_get_guild(self, name):
 		for guild in self._db:
-			if name in self._db[guild][self.g_members]:
-				return (guild, self._db[guild][self.g_members], not self._db[guild][self.g_members][name][self.m_flags] & self.member_requested)
+			if name in self._db[guild]["members"]:
+				return (guild, self._db[guild]["members"], not self._db[guild]["members"][name]["flags"] & self.member_requested)
 
 		return None
 
@@ -258,12 +227,10 @@ class Guild:
 			return False
 
 		# Is the member an administrator already?
-		if self._members[name][self.m_flags] & self.member_administrator:
+		if self._members[name]["flags"] & self.member_administrator:
 			return False
 
-		temp = self._db[self._guild]
-		temp[self.g_members][name][self.m_flags] |= self.member_administrator
-		self._db[self._guild] = temp
+		self._db[self._guild]["members"][name]["flags"] |= self.member_administrator
 
 		return True
 
@@ -277,12 +244,10 @@ class Guild:
 
 		# Cannot remove administrator status from member who never had
 		# it.
-		if not self._members[name][self.m_flags] & self.member_administrator:
+		if not self._members[name]["flags"] & self.member_administrator:
 			return False
 
-		temp = self._db[self._guild]
-		temp[self.g_members][name][self.m_flags] &= ~self.member_administrator
-		self._db[self._guild] = temp
+		self._db[self._guild]["members"][name]["flags"] &= ~self.member_administrator
 
 		# Try to find the player.
 		member = FindPlayer(name)
@@ -301,7 +266,7 @@ class Guild:
 		if not self.member_approved(name):
 			return False
 
-		if not self._members[name][self.m_flags] & self.member_administrator:
+		if not self._members[name]["flags"] & self.member_administrator:
 			return False
 
 		return True
@@ -320,38 +285,33 @@ class Guild:
 		rank = self._ranks[rank_name]
 
 		# Unlimited.
-		if rank[self.r_value_limit] == 0:
+		if rank["value_limit"] == 0:
 			return True
 
-		m_time = self._members[name][self.m_value_limit_time]
+		m_time = self._members[name]["value_limit_time"]
 
 		# Is there a timer that was previously added? If so, check whether
 		# we should remove it.
 		if m_time:
 			if self.member_limit_remaining(name) == 0:
-				temp = self._db[self._guild]
-				temp[self.g_members][name][self.m_value_limit_time] = 0
-				temp[self.g_members][name][self.m_value_used] = 0
-				self._db[self._guild] = temp
+				self._db[self._guild]["members"][name]["value_limit_time"] = 0
+				self._db[self._guild]["members"][name]["value_used"] = 0
 
 		# Get the object's cost.
 		val = obj.GetItemCost(obj, COST_TRUE)
 
 		# Don't allow the object to be picked up if its value and the used
 		# up value would go above the limit.
-		if val + self._members[name][self.m_value_used] > rank[self.r_value_limit]:
+		if val + self._members[name]["value_used"] > rank["value_limit"]:
 			return False
 
 		# We passed the above check, add the object's value to the total,
 		# and if the timer has not been started yet, start it.
 		if val:
-			temp = self._db[self._guild]
-			temp[self.g_members][name][self.m_value_used] += val
+			self._db[self._guild]["members"][name]["value_used"] += val
 
 			if not m_time:
-				temp[self.g_members][name][self.m_value_limit_time] = int(time.time())
-
-			self._db[self._guild] = temp
+				self._db[self._guild]["members"][name]["value_limit_time"] = int(time.time())
 
 		return True
 
@@ -369,12 +329,10 @@ class Guild:
 		if not self.member_exists(name) or (rank and not self.rank_exists(rank)):
 			return False
 
-		temp = self._db[self._guild]
-		temp[self.g_members][name][self.m_rank] = rank
+		self._db[self._guild]["members"][name]["rank"] = rank
 		# Reset total used value and time.
-		temp[self.g_members][name][self.m_value_used] = 0
-		temp[self.g_members][name][self.m_value_limit_time] = 0
-		self._db[self._guild] = temp
+		self._db[self._guild]["members"][name]["value_used"] = 0
+		self._db[self._guild]["members"][name]["value_limit_time"] = 0
 
 		return True
 
@@ -384,16 +342,16 @@ class Guild:
 	def member_limit_remaining(self, name):
 		rank = self.member_get_rank(name)
 
-		if not rank or not self._ranks[rank][self.r_value_reset]:
+		if not rank or not self._ranks[rank]["value_reset"]:
 			return 0
 
-		m_time = self._members[name][self.m_value_limit_time]
+		m_time = self._members[name]["value_limit_time"]
 
 		if not m_time:
 			return 0
 
 		# Calculate the remaining time.
-		remaining = m_time - int(time.time()) + 60 * 60 * self._ranks[rank][self.r_value_reset]
+		remaining = m_time - int(time.time()) + 60 * 60 * self._ranks[rank]["value_reset"]
 
 		if remaining <= 0:
 			return 0
@@ -407,7 +365,7 @@ class Guild:
 		if not self.member_exists(name):
 			return None
 
-		return self._members[name][self.m_rank]
+		return self._members[name]["rank"]
 
 	## Construct a string containing information about the specified rank,
 	## its members, etc.
@@ -418,7 +376,7 @@ class Guild:
 			return None
 
 		# Get the value limit.
-		limit = self._ranks[rank][self.r_value_limit]
+		limit = self._ranks[rank]["value_limit"]
 
 		# Either create a 1g, 50s etc string or show "unlimited".
 		if limit:
@@ -427,7 +385,7 @@ class Guild:
 			limit = "unlimited"
 
 		# Construct the actual string.
-		return "~{}~\nLimit: {} [reset: {} hour(s)] \nMembers: {}".format(rank, limit, self._ranks[rank][self.r_value_reset], ", ".join(self.rank_get_members(rank)))
+		return "~{}~\nLimit: {} [reset: {} hour(s)] \nMembers: {}".format(rank, limit, self._ranks[rank]["value_reset"], ", ".join(self.rank_get_members(rank)))
 
 	## Get all the ranks.
 	## @return A dictionary of the currently configured ranks.
@@ -437,7 +395,7 @@ class Guild:
 	## Get all the ranks, sorted by the highest limit value first.
 	## @return A sorted dictionary of the ranks.
 	def ranks_get_sorted(self):
-		return sorted(self.ranks_get().keys(), key = lambda rank: self._ranks[rank][self.r_value_limit] == 0 and self.rank_value_max + 1 or self._ranks[rank][self.r_value_limit], reverse = True)
+		return sorted(self.ranks_get().keys(), key = lambda rank: self._ranks[rank]["value_limit"] == 0 and self.rank_value_max + 1 or self._ranks[rank]["value_limit"], reverse = True)
 
 	## Sanitize a rank name; strips whitespace, ensures the length is
 	## valid, etc.
@@ -464,9 +422,10 @@ class Guild:
 			return False
 
 		# Create the rank.
-		temp = self._db[self._guild]
-		temp[self.g_ranks][rank] = [0, self.rank_reset_default]
-		self._db[self._guild] = temp
+		self._db[self._guild]["ranks"][rank] = {
+			"value_limit": 0,
+			"value_reset": self.rank_reset_default,
+		}
 
 		return True
 
@@ -477,14 +436,11 @@ class Guild:
 		if not self.rank_exists(rank):
 			return False
 
-		temp = self._db[self._guild]
-
 		# Remove all members from this rank.
 		for name in self.rank_get_members(rank):
-			temp[self.g_members][name][self.m_rank] = None
+			self._db[self._guild]["members"][name]["rank"] = None
 
-		del temp[self.g_ranks][rank]
-		self._db[self._guild] = temp
+		del self._db[self._guild]["ranks"][rank]
 
 		return True
 
@@ -496,7 +452,7 @@ class Guild:
 		if not self.rank_exists(rank):
 			return None
 
-		l = list(filter(lambda name: self._members[name][self.m_rank] == rank, self._members.keys()))
+		l = list(filter(lambda name: self._members[name]["rank"] == rank, self._members.keys()))
 		l.sort()
 
 		return l
@@ -509,7 +465,7 @@ class Guild:
 
 	## Set rank's option.
 	## @param rank The rank name.
-	## @param what What to set, one of @ref guild_rank_fields.
+	## @param what What to set.
 	## @value value Value to set.
 	## @return True on success, False on failure.
 	def rank_set(self, rank, what, value):
@@ -517,15 +473,13 @@ class Guild:
 		if not self.rank_exists(rank) or type(self._ranks[rank][what]) != type(value):
 			return False
 
-		temp = self._db[self._guild]
-		temp[self.g_ranks][rank][what] = value
-		self._db[self._guild] = temp
+		self._db[self._guild]["ranks"][rank][what] = value
 
 		return True
 
 	## Get rank's option.
 	## @param rank The rank name.
-	## @param what What to get, one of @ref guild_rank_fields.
+	## @param what What to get.
 	## @return The option.
 	def rank_get(self, rank, what):
 		if not self.rank_exists(rank):
@@ -540,9 +494,7 @@ class Guild:
 		if name and not self.member_approved(name):
 			return False
 
-		temp = self._db[self._guild]
-		temp[self.g_founder] = name
-		self._db[self._guild] = temp
+		self._db[self._guild]["founder"] = name
 
 		return True
 
@@ -566,16 +518,12 @@ class Guild:
 	## Set a flag on the guild.
 	## @param flag Flag to set, one or a combination of @ref guild_flags.
 	def guild_set(self, flag):
-		temp = self._db[self._guild]
-		temp[self.g_flags] |= flag
-		self._db[self._guild] = temp
+		self._db[self._guild]["flags"] |= flag
 
 	## Unset a flag from the guild.
 	## @param flag Flag to unset, one or a combination of @ref guild_flags.
 	def guild_unset(self, flag):
-		temp = self._db[self._guild]
-		temp[self.g_flags] &= ~flag
-		self._db[self._guild] = temp
+		self._db[self._guild]["flags"] &= ~flag
 
 	## Check whether the guild has the specified flag set.
 	## @param flag Flag to check, one or a combination of @ref guild_flags.
@@ -589,14 +537,14 @@ class Guild:
 	## Write to the log file.
 	## @param s String to add to the log.
 	def log_add(self, s):
-		with open(self._data_dir + "/" + self._guild + ".log", "a") as f:
-			f.write("[" + datetime.now().strftime("%d-%m-%Y %H:%M:%S") + "] " + s + "\n")
+		from datetime import datetime
 
-	## Do cleanups, close the guild database, etc. After a call to this function,
-	## the previously initialized Guild instance should no longer be used.
-	##
-	## This function MUST be called at some point after initializing a Guild
-	## instance, even if an exception occurred after the Guild instance was
-	## initialized.
-	def exit(self):
-		self._db.close()
+		# Try to get the file pointer from the cache.
+		try:
+			fp = CacheGet("guild_fp_append")
+		# Not in cache, make a new one.
+		except:
+			fp = open(_data_dir + "/" + self._guild + ".log", "a")
+			CacheAdd("guild_fp_append", fp)
+
+		fp.write("[" + datetime.now().strftime("%d-%m-%Y %H:%M:%S") + "] " + s + "\n")

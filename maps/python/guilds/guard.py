@@ -27,8 +27,4 @@ def main():
 
 
 guild = Guild(GetOptions())
-
-try:
-	main()
-finally:
-	guild.exit()
+main()

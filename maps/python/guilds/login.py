@@ -16,8 +16,4 @@ def main():
 		guild.member_kick(activator)
 
 guild = Guild(GetOptions())
-
-try:
-	main()
-finally:
-	guild.exit()
+main()

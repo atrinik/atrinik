@@ -50,6 +50,5 @@ guild = Guild(None)
 try:
 	main()
 finally:
-	guild.exit()
 	post.db.close()
 	SetReturnValue(1)

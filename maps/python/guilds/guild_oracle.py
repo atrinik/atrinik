@@ -10,10 +10,6 @@ me = WhoAmI()
 msg = WhatIsMessage().strip().lower()
 text = msg.split()
 
-## Get possible rank settings.
-def get_rank_settings():
-	return {"limit": guild.r_value_limit, "time": guild.r_value_reset}
-
 def main():
 	# Only allow administrators or Wizards to use this script.
 	if not guild.member_is_admin(activator.name) and not activator.f_wiz:
@@ -126,26 +122,25 @@ def main():
 			what = text[2]
 			value = text[3]
 			rank = WhatIsMessage()[12 + len(what) + len(value) + 2:]
-			settings = get_rank_settings()
 
 			if not guild.rank_exists(rank):
 				me.SayTo(activator, "\nNo such rank '{}'.".format(rank))
-			elif not what in settings:
-				me.SayTo(activator, "\nInvalid setting, see ^change rank^ for possible settings.")
 			elif what == "limit":
 				if not value.isdigit() or int(value) < 0 or int(value) > guild.rank_value_max:
 					me.SayTo(activator, "\nInvalid value to set, must be 0-{}.".format(guild.rank_value_max))
-				elif guild.rank_set(rank, settings[what], int(value)):
+				elif guild.rank_set(rank, "value_limit", int(value)):
 					me.SayTo(activator, "\nSuccessfully changed {} to {}.".format(what, CostString(int(value))))
 				else:
 					me.SayTo(activator, "\nCould not change {} to {}.".format(what, CostString(int(value))))
 			elif what == "time":
 				if not value.isdigit() or int(value) < guild.rank_reset_min or int(value) > guild.rank_reset_max:
 					me.SayTo(activator, "\nInvalid value to set, must be {}-{}.".format(guild.rank_reset_min, guild.rank_reset_max))
-				elif guild.rank_set(rank, settings[what], int(value)):
+				elif guild.rank_set(rank, "value_reset", int(value)):
 					me.SayTo(activator, "\nSuccessfully changed {} to {} hour(s).".format(what, value))
 				else:
 					me.SayTo(activator, "\nCould not change {} to {} hour(s).".format(what, value))
+			else:
+				me.SayTo(activator, "\nInvalid setting, see ^change rank^ for possible settings.")
 
 	# View rank's setting.
 	elif msg[:9] == "view rank":
@@ -154,16 +149,15 @@ def main():
 		else:
 			what = text[2]
 			rank = WhatIsMessage()[10 + len(what) + 1:]
-			settings = get_rank_settings()
 
 			if not guild.rank_exists(rank):
 				me.SayTo(activator, "\nNo such rank '{}'.".format(rank))
-			elif not what in settings:
-				me.SayTo(activator, "\nInvalid setting, see ^view rank^ for possible settings.")
 			elif what == "limit":
-				me.SayTo(activator, "\nThe setting '{}' is set to {} for rank '{}'.".format(what, CostString(guild.rank_get(rank, settings[what])), rank))
+				me.SayTo(activator, "\nThe setting '{}' is set to {} for rank '{}'.".format(what, CostString(guild.rank_get(rank, "value_limit")), rank))
 			elif what == "time":
-				me.SayTo(activator, "\nThe setting '{}' is set to {} hour(s) for rank '{}'.".format(what, guild.rank_get(rank, settings[what]), rank))
+				me.SayTo(activator, "\nThe setting '{}' is set to {} hour(s) for rank '{}'.".format(what, guild.rank_get(rank, "value_reset"), rank))
+			else:
+				me.SayTo(activator, "\nInvalid setting, see ^view rank^ for possible settings.")
 
 	# Close the guild.
 	elif msg == "close":
@@ -298,8 +292,4 @@ def main():
 					me.SayTo(activator, "\nCould not make {} the guild founder.".format(name))
 
 guild = Guild(GetOptions())
-
-try:
-	main()
-finally:
-	guild.exit()
+main()

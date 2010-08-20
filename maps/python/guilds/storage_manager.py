@@ -23,11 +23,7 @@ def main():
 		remaining = guild.member_limit_remaining(activator.name)
 
 		if remaining:
-			me.SayTo(activator, "\nYour time limit resets in {0.".format(timedelta(seconds = remaining)), 1)
+			me.SayTo(activator, "\nYour time limit resets in {}.".format(timedelta(seconds = remaining)), 1)
 
 guild = Guild(GetOptions())
-
-try:
-	main()
-finally:
-	guild.exit()
+main()

@@ -63,7 +63,4 @@ def main():
 		members.sort()
 		activator.Write("\nMembers:\n" + ", ".join(members), COLOR_WHITE)
 
-try:
-	main()
-finally:
-	guild.exit()
+main()

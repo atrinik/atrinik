@@ -43,7 +43,4 @@ def main():
 		if player:
 			player.Write("[{0}] {1}: {2}".format(guildname, activator.name, message), COLOR_BLUE | NDI_PLAYER)
 
-try:
-	main()
-finally:
-	guild.exit()
+main()

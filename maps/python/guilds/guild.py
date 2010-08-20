@@ -62,8 +62,4 @@ def main():
 			me.SayTo(activator, "\nThis guild is closed. No new applications are accepted.")
 
 guild = Guild(GetOptions())
-
-try:
-	main()
-finally:
-	guild.exit()
+main()

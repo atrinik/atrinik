@@ -85,8 +85,4 @@ def main():
 			SetReturnValue(2)
 
 guild = Guild(GetOptions())
-
-try:
-	main()
-finally:
-	guild.exit()
+main()
