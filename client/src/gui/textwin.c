@@ -77,13 +77,13 @@ static char *get_keyword_start(widgetdata *widget, int mouseX, int *row)
 			int index = -1;
 			text = textwin->text[pos].buf;
 
-			while (text[++index] && pos2 <= mouseX && text[index] != '^')
+			while (text[++index] && pos2 <= mouseX && text[index] != '^' && text[index] != '~' && text[index] != '|')
 			{
 				pos2 += textwin_font->c[(int) text[index]].w + textwin_font->char_offset;
 			}
 
 			/* Clipped keyword was clicked, so we must start one row before */
-			if (text[index] != '^')
+			if (text[index] != '^' && text[index] != '~' && text[index] != '|')
 			{
 				(*row)--;
 				pos = (textwin->top_drawLine + (*row)) % TEXT_WIN_MAX - textwin->scroll;
@@ -128,7 +128,7 @@ static char *get_keyword_start(widgetdata *widget, int mouseX, int *row)
 				key_start = -1;
 			}
 		}
-		else
+		else if (text[pos] != '~' && text[pos] != '|')
 		{
 			pos2 += textwin_font->c[(int) (text[pos])].w + textwin_font->char_offset;
 		}
@@ -274,7 +274,7 @@ void draw_info(char *str, int flags)
 		widget = cur_widget[MIXWIN_ID];
 		textwin = TEXTWIN(widget);
 
-		if (str[i] != '^')
+		if (str[i] != '^' && str[i] != '~' && str[i] != '|')
 		{
 			len += textwin_font->c[(int) (str[i])].w + textwin_font->char_offset;
 		}

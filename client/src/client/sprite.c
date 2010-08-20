@@ -872,6 +872,11 @@ int get_string_pixel_length(const char *text, struct _Font *font)
 
 	for (i = 0; text[i] != '\0'; i++)
 	{
+		if (text[i] == '^' || text[i] == '~' || text[i] == '|')
+		{
+			continue;
+		}
+
 		len += font->c[(int) text[i]].w + font->char_offset;
 	}
 
