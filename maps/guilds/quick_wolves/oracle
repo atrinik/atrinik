@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2010-08-07 Alex Tokar
+Modified: 2010-08-17 Alex Tokar
 endmsg
 width 12
 height 12
@@ -488,16 +488,6 @@ arch event_obj
 sub_type 6
 race ../../python/guilds/guild_oracle.py
 slaying Quick Wolves
-end
-arch note
-msg
-guild_maps: /guilds/quick_wolves/guild|/guilds/quick_wolves/oracle|/guilds/quick_wolves/storage
-enter_map: /shattered_islands/world_0514
-enter_x: 11
-enter_y: 7
-endmsg
-name guild options
-sys_object 1
 end
 end
 end
