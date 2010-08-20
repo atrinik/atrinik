@@ -325,7 +325,7 @@ Name: get
 Title: Get
 The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
 
-However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -> General -> Collect All Items.
+However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -\> General -\> Collect All Items.
 <p><t t="See Also:">
 ^apply^
 ^drop^
