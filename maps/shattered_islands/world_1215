@@ -2,7 +2,7 @@ arch map
 name World
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,7 @@ tile_path_3 world_1214
 tile_path_4 world_1115
 tile_path_6 world_1314
 tile_path_7 world_1114
+tile_path_8 world_1116
 end
 arch water_still
 end

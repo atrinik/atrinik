@@ -12,7 +12,7 @@ _data_dir = "../server/data"
 _config = {
 	"Quick Wolves": [
 		["/guilds/quick_wolves/guild", "/guilds/quick_wolves/oracle", "/guilds/quick_wolves/storage"],
-		("/shattered_islands/world_0514", 11, 7),
+		("/shattered_islands/world_0515", 12, 3),
 		(2, 15),
 		("/guilds/quick_wolves/guild", 20, 20),
 	],
