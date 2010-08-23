@@ -85,13 +85,7 @@ end
 arch water_lt2
 y 22
 end
-arch grassd_m14
-y 22
-end
 arch water_lt4
-y 23
-end
-arch grassd_m9
 y 23
 end
 arch water_lt2

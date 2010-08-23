@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-18 Alex Tokar
+Modified: 2010-08-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,61 +17,33 @@ tile_path_7 world_1014
 tile_path_8 world_1016
 end
 arch grassd_5
-end
-arch reed_sm1
-end
-arch grassd_3
-y 1
-end
-arch reed_sm1
-y 1
-end
-arch grassd_5
 y 2
 end
-arch plant7
+arch wall_cave1b.121
 y 2
 end
 arch grassd_8
 y 3
 end
-arch plant8
+arch wall_cave1.161
 y 3
 end
 arch grassd_6
 y 4
 end
-arch plant8
-y 4
-end
 arch grassd_4
-y 5
-end
-arch plant8
 y 5
 end
 arch grassd_5
 y 6
 end
-arch plant8
-y 6
-end
 arch grassd_1
 y 7
 end
-arch plant7
-y 7
-end
 arch grassd_1
-y 8
-end
-arch plant7
 y 8
 end
 arch grassd_8
-y 9
-end
-arch plant8
 y 9
 end
 arch grassd_1
@@ -122,33 +94,11 @@ end
 arch reed_sm1
 y 23
 end
-arch water_lt
-x 1
-end
-arch grassd_m9
-x 1
-end
-arch water_lt2
-x 1
-y 1
-end
-arch grassd_m3
-x 1
-y 1
-end
-arch grassd_5
-x 1
-y 2
-end
-arch reed_sm1
-x 1
-y 2
-end
 arch grassd_4
 x 1
 y 3
 end
-arch reed_sm1
+arch wall_cave1.111
 x 1
 y 3
 end
@@ -156,15 +106,11 @@ arch grassd_2
 x 1
 y 4
 end
-arch reed_sm1
+arch rock_big1
 x 1
 y 4
 end
 arch grassd_2
-x 1
-y 5
-end
-arch reed_sm1
 x 1
 y 5
 end
@@ -172,31 +118,15 @@ arch grassd_3
 x 1
 y 6
 end
-arch reed_sm1
-x 1
-y 6
-end
 arch grassd_5
 x 1
 y 7
 end
-arch reed_sm1
-x 1
-y 7
-end
 arch grassd_6
 x 1
 y 8
 end
-arch reed_sm1
-x 1
-y 8
-end
 arch grassd_6
-x 1
-y 9
-end
-arch reed_sm1
 x 1
 y 9
 end
@@ -292,54 +222,43 @@ arch reed_sm1
 x 1
 y 23
 end
-arch water_lt4
-x 2
-end
-arch water_lt2
-x 2
-y 1
-end
-arch grassd_m14
-x 2
-y 1
-end
-arch water_lt
+arch grassd_2
 x 2
 y 2
 end
-arch grassd_m9
+arch rock_big3
 x 2
 y 2
 end
-arch water_lt4
+arch grassd_3
 x 2
 y 3
 end
-arch grassd_m9
+arch rock_big3
 x 2
 y 3
 end
-arch water_lt
+arch grassd_6
 x 2
 y 4
 end
-arch grassd_m9
+arch rock_big1
 x 2
 y 4
 end
-arch water_lt3
+arch grassd_7
 x 2
 y 5
 end
-arch grassd_m9
+arch rock_big1
 x 2
 y 5
 end
-arch water_lt3
+arch grassd_7
 x 2
 y 6
 end
-arch grassd_m9
+arch rock_big1
 x 2
 y 6
 end
@@ -347,15 +266,7 @@ arch water_lt
 x 2
 y 7
 end
-arch grassd_m9
-x 2
-y 7
-end
 arch water_lt3
-x 2
-y 8
-end
-arch grassd_m9
 x 2
 y 8
 end
@@ -463,26 +374,35 @@ arch reed_sm1
 x 2
 y 23
 end
-arch water_lt2
-x 3
-end
-arch water_lt3
-x 3
-y 1
-end
-arch water_lt4
+arch grassd_8
 x 3
 y 2
 end
-arch water_lt
+arch rock_big3
+x 3
+y 2
+end
+arch grassd_7
 x 3
 y 3
 end
-arch water_lt4
+arch rock_big1
+x 3
+y 3
+end
+arch grassd_7
 x 3
 y 4
 end
-arch water_lt2
+arch rock_big3
+x 3
+y 4
+end
+arch grassd_7
+x 3
+y 5
+end
+arch rock_big1
 x 3
 y 5
 end
@@ -614,22 +534,41 @@ arch reed_sm1
 x 3
 y 23
 end
-arch water_lt2
+arch grassd_7
 x 4
 end
-arch water_lt4
+arch rock_big3
+x 4
+end
+arch grassd_3
 x 4
 y 1
 end
-arch water_lt4
+arch rock_big1
+x 4
+y 1
+end
+arch grassd_2
 x 4
 y 2
 end
-arch water_lt2
+arch rock_big3
+x 4
+y 2
+end
+arch grassd_7
 x 4
 y 3
 end
-arch water_lt2
+arch rock_big1
+x 4
+y 3
+end
+arch grassd_3
+x 4
+y 4
+end
+arch rock_big1
 x 4
 y 4
 end
@@ -741,18 +680,33 @@ arch reed_sm1
 x 4
 y 23
 end
-arch water_lt3
+arch grassd_2
 x 5
 end
-arch water_lt2
+arch rock_big3
+x 5
+end
+arch grassd_4
 x 5
 y 1
 end
-arch water_lt2
+arch rock_big1
+x 5
+y 1
+end
+arch grassd_1
 x 5
 y 2
 end
-arch water_lt
+arch rock_big3
+x 5
+y 2
+end
+arch grassd_7
+x 5
+y 3
+end
+arch rock_big1
 x 5
 y 3
 end
@@ -864,14 +818,25 @@ arch grassd_m9
 x 5
 y 23
 end
-arch water_lt2
+arch grassd_7
 x 6
 end
-arch water_lt2
+arch rock_big3
+x 6
+end
+arch grassd_2
 x 6
 y 1
 end
-arch water_lt
+arch rock_big1
+x 6
+y 1
+end
+arch grassd_7
+x 6
+y 2
+end
+arch rock_big3
 x 6
 y 2
 end
@@ -975,10 +940,17 @@ arch water_lt4
 x 6
 y 23
 end
-arch water_lt
+arch grassd_2
 x 7
 end
-arch water_lt3
+arch rock_big3
+x 7
+end
+arch grassd_4
+x 7
+y 1
+end
+arch rock_big3
 x 7
 y 1
 end
