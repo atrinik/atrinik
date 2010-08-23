@@ -2,15 +2,18 @@ arch map
 name Eld Woods Island - Forgotten Graveyard
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2010-08-23 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 17
 outdoor 1
 tile_path_1 world_1507
+tile_path_2 world_1606
 tile_path_3 world_1505
 tile_path_4 world_1406
+tile_path_5 world_1607
+tile_path_6 world_1605
 tile_path_7 world_1405
 tile_path_8 world_1407
 bg_music escape.mid

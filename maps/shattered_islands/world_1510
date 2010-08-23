@@ -2,15 +2,18 @@ arch map
 name World
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-23 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
 tile_path_1 world_1511
+tile_path_2 world_1610
 tile_path_3 world_1509
 tile_path_4 world_1410
+tile_path_5 world_1611
+tile_path_6 world_1609
 tile_path_7 world_1409
 tile_path_8 world_1411
 end
