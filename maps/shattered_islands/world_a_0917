@@ -1,0 +1,2299 @@
+arch map
+name Under Strakewood Island
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-22 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+darkness 3
+tile_path_3 world_a_0916
+tile_path_6 world_a_1016
+end
+arch floor_sand_d3
+x 3
+y 20
+end
+arch wall_cave1.181
+x 3
+y 20
+end
+arch floor_sand_d2
+x 3
+y 21
+end
+arch wall_cave1.171
+x 3
+y 21
+end
+arch water_lt
+x 3
+y 22
+end
+arch wall_cave1.171
+x 3
+y 22
+end
+arch water_lt4
+x 3
+y 23
+end
+arch wall_cave1.171
+x 3
+y 23
+end
+arch floor_sand_d2
+x 4
+y 19
+end
+arch wall_cave1.181
+x 4
+y 19
+end
+arch floor_sand_d2
+x 4
+y 20
+end
+arch wall_cave1.141
+x 4
+y 20
+end
+arch floor_sand_d4
+x 4
+y 21
+end
+arch water_lt2_m
+direction 4
+x 4
+y 21
+end
+arch cave_pillar1
+x 4
+y 21
+end
+arch floor_sand_d2
+x 4
+y 22
+end
+arch water_lt_m
+direction 4
+x 4
+y 22
+end
+arch rock2
+x 4
+y 22
+end
+arch water_lt4
+terrain_type 1
+x 4
+y 23
+end
+arch mover
+direction 2
+x 4
+y 23
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 4
+y 23
+end
+arch plant8
+x 4
+y 23
+end
+arch floor_sand_d4
+x 5
+y 2
+end
+arch floor_sand_d4
+x 5
+y 3
+end
+arch floor_sand_d4
+x 5
+y 4
+end
+arch wall_cave1.181
+x 5
+y 4
+end
+arch floor_sand_d4
+x 5
+y 5
+end
+arch wall_cave1.171
+x 5
+y 5
+end
+arch floor_sand_d3
+x 5
+y 6
+end
+arch wall_cave1.171
+x 5
+y 6
+end
+arch floor_sand_d4
+x 5
+y 7
+end
+arch wall_cave1b.161
+x 5
+y 7
+end
+arch water_lt4
+x 5
+y 18
+end
+arch wall_cave1.181
+x 5
+y 18
+end
+arch floor_sand_d2
+x 5
+y 19
+end
+arch wall_cave1.141
+x 5
+y 19
+end
+arch floor_sand_d4
+x 5
+y 20
+end
+arch water_lt_m
+direction 3
+x 5
+y 20
+end
+arch rock6
+x 5
+y 20
+end
+arch floor_sand_d2
+x 5
+y 21
+end
+arch water_lt_m
+direction 4
+x 5
+y 21
+end
+arch rock2
+x 5
+y 21
+end
+arch water_lt
+terrain_type 1
+x 5
+y 22
+end
+arch mover
+direction 2
+x 5
+y 22
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 5
+y 22
+end
+arch plant8
+x 5
+y 22
+end
+arch water_lt2
+terrain_type 1
+x 5
+y 23
+end
+arch mover
+x 5
+y 23
+end
+arch floor_sand_d2
+x 6
+y 2
+end
+arch floor_sand_d2
+x 6
+y 3
+end
+arch wall_cave1.181
+x 6
+y 3
+end
+arch floor_sand_d4
+x 6
+y 4
+end
+arch wall_cave1.141
+x 6
+y 4
+end
+arch floor_sand_d4
+x 6
+y 5
+end
+arch crystal_red_s
+x 6
+y 5
+end
+arch light2
+x 6
+y 5
+end
+arch floor_sand_d4
+x 6
+y 6
+end
+arch mushroom_spot1
+x 6
+y 6
+end
+arch light2
+x 6
+y 6
+end
+arch floor_sand_d4
+x 6
+y 7
+end
+arch wall_cave1.121
+x 6
+y 7
+end
+arch floor_sand_d1
+x 6
+y 8
+end
+arch wall_cave1b.161
+x 6
+y 8
+end
+arch water_lt3
+x 6
+y 17
+end
+arch wall_cave1.181
+x 6
+y 17
+end
+arch water_lt4
+x 6
+y 18
+end
+arch wall_cave1.141
+x 6
+y 18
+end
+arch water_lt2
+terrain_type 1
+x 6
+y 19
+end
+arch mover
+direction 2
+x 6
+y 19
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 6
+y 19
+end
+arch plant8
+x 6
+y 19
+end
+arch water_lt4
+terrain_type 1
+x 6
+y 20
+end
+arch mover
+direction 2
+x 6
+y 20
+end
+arch damager
+name drowning
+dam 2
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 6
+y 20
+end
+arch plant7
+x 6
+y 20
+end
+arch water_lt2
+terrain_type 1
+x 6
+y 21
+end
+arch mover
+direction 2
+x 6
+y 21
+end
+arch damager
+name drowning
+dam 2
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 6
+y 21
+end
+arch water_lt3
+terrain_type 1
+x 6
+y 22
+end
+arch mover
+x 6
+y 22
+end
+arch water_lt4
+terrain_type 1
+x 6
+y 23
+end
+arch mover
+x 6
+y 23
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 6
+y 23
+end
+arch floor_sand_d2
+x 7
+y 2
+end
+arch wall_cave1.181
+x 7
+y 2
+end
+arch floor_sand_d4
+x 7
+y 3
+end
+arch wall_cave1.141
+x 7
+y 3
+end
+arch floor_sand_d4
+x 7
+y 4
+end
+arch floor_sand_d2
+x 7
+y 5
+end
+arch floor_sand_d1
+x 7
+y 6
+end
+arch floor_sand_d4
+x 7
+y 7
+end
+arch plant_mushroom1
+x 7
+y 7
+end
+arch floor_sand_d3
+x 7
+y 8
+end
+arch wall_cave1.121
+x 7
+y 8
+end
+arch floor_sand_d1
+x 7
+y 9
+end
+arch wall_cave1b.161
+x 7
+y 9
+end
+arch water_lt4
+x 7
+y 16
+end
+arch wall_cave1.181
+x 7
+y 16
+end
+arch water_lt
+x 7
+y 17
+end
+arch wall_cave1.141
+x 7
+y 17
+end
+arch water_lt
+terrain_type 1
+x 7
+y 18
+end
+arch mover
+direction 2
+x 7
+y 18
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 7
+y 18
+end
+arch plant8
+x 7
+y 18
+end
+arch water_lt4
+terrain_type 1
+x 7
+y 19
+end
+arch mover
+direction 2
+x 7
+y 19
+end
+arch plant7
+x 7
+y 19
+end
+arch water_lt2
+terrain_type 1
+x 7
+y 20
+end
+arch mover
+direction 2
+x 7
+y 20
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 7
+y 20
+end
+arch water_lt2
+terrain_type 1
+x 7
+y 21
+end
+arch mover
+direction 2
+x 7
+y 21
+end
+arch water_lt4
+terrain_type 1
+x 7
+y 22
+end
+arch mover
+direction 2
+x 7
+y 22
+end
+arch water_lt2
+terrain_type 1
+x 7
+y 23
+end
+arch mover
+x 7
+y 23
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 7
+y 23
+end
+arch plant7
+x 7
+y 23
+end
+arch floor_sand_d4
+x 8
+y 2
+end
+arch wall_cave1.111
+x 8
+y 2
+end
+arch floor_sand_d4
+x 8
+y 3
+end
+arch plant_mushroom2
+x 8
+y 3
+end
+arch floor_sand_d1
+x 8
+y 4
+end
+arch floor_sand_d1
+x 8
+y 5
+end
+arch floor_sand_d1
+x 8
+y 6
+end
+arch floor_sand_d3
+x 8
+y 7
+end
+arch spawn_point
+x 8
+y 7
+arch bat_brown
+level 11
+type 83
+end
+end
+arch floor_sand_d4
+x 8
+y 8
+end
+arch crystal10
+x 8
+y 8
+end
+arch light2
+x 8
+y 8
+end
+arch floor_sand_d2
+x 8
+y 9
+end
+arch wall_cave1.121
+x 8
+y 9
+end
+arch floor_sand_d3
+x 8
+y 10
+end
+arch wall_cave1b.161
+x 8
+y 10
+end
+arch water_lt
+x 8
+y 15
+end
+arch wall_cave1.181
+x 8
+y 15
+end
+arch water_lt2
+x 8
+y 16
+end
+arch wall_cave1.141
+x 8
+y 16
+end
+arch water_lt2
+terrain_type 1
+x 8
+y 17
+end
+arch mover
+direction 2
+x 8
+y 17
+end
+arch plant8
+x 8
+y 17
+end
+arch spawn_point
+x 8
+y 17
+arch bat_brown
+level 8
+Wis 4
+type 83
+end
+end
+arch water_lt3
+terrain_type 1
+x 8
+y 18
+end
+arch mover
+direction 2
+x 8
+y 18
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 8
+y 18
+end
+arch water_lt2
+terrain_type 1
+x 8
+y 19
+end
+arch mover
+direction 2
+x 8
+y 19
+end
+arch water_lt4
+terrain_type 1
+x 8
+y 20
+end
+arch mover
+direction 2
+x 8
+y 20
+end
+arch water_lt3
+terrain_type 1
+x 8
+y 21
+end
+arch mover
+direction 2
+x 8
+y 21
+end
+arch water_lt3
+x 8
+y 22
+end
+arch wall_cave1.101
+x 8
+y 22
+end
+arch water_lt4
+x 8
+y 23
+end
+arch wall_cave1.131
+x 8
+y 23
+end
+arch floor_sand_d2
+x 9
+y 2
+end
+arch wall_cave1.111
+x 9
+y 2
+end
+arch floor_sand_d2
+x 9
+y 3
+end
+arch floor_sand_d2
+x 9
+y 4
+end
+arch floor_sand_d4
+x 9
+y 5
+end
+arch mushroom_spot2
+x 9
+y 5
+end
+arch light2
+x 9
+y 5
+end
+arch floor_sand_d1
+x 9
+y 6
+end
+arch cave_pillar1
+x 9
+y 6
+end
+arch floor_sand_d1
+x 9
+y 7
+end
+arch floor_sand_d4
+x 9
+y 8
+end
+arch floor_sand_d1
+x 9
+y 9
+end
+arch plant_mushroom4
+x 9
+y 9
+end
+arch floor_sand_d4
+x 9
+y 10
+end
+arch wall_cave1.151
+x 9
+y 10
+end
+arch water_lt2
+x 9
+y 14
+end
+arch wall_cave1.181
+x 9
+y 14
+end
+arch water_lt2
+x 9
+y 15
+end
+arch wall_cave1.141
+x 9
+y 15
+end
+arch water_lt
+terrain_type 1
+x 9
+y 16
+end
+arch mover
+direction 2
+x 9
+y 16
+end
+arch water_lt2
+terrain_type 1
+x 9
+y 17
+end
+arch mover
+direction 2
+x 9
+y 17
+end
+arch water_lt4
+terrain_type 1
+x 9
+y 18
+end
+arch mover
+direction 2
+x 9
+y 18
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 9
+y 18
+end
+arch water_lt2
+terrain_type 1
+x 9
+y 19
+end
+arch mover
+direction 2
+x 9
+y 19
+end
+arch damager
+name drowning
+dam 2
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 9
+y 19
+end
+arch water_lt
+terrain_type 1
+x 9
+y 20
+end
+arch mover
+direction 2
+x 9
+y 20
+end
+arch water_lt4
+x 9
+y 21
+end
+arch wall_cave1.101
+x 9
+y 21
+end
+arch water_lt4
+x 9
+y 22
+end
+arch wall_cave1b.141
+x 9
+y 22
+end
+arch floor_sand_d4
+x 10
+y 2
+end
+arch wall_cave1.111
+x 10
+y 2
+end
+arch floor_sand_d1
+x 10
+y 3
+end
+arch mushroom_spot2
+x 10
+y 3
+end
+arch light2
+x 10
+y 3
+end
+arch floor_sand_d4
+x 10
+y 4
+end
+arch mushroom_giant1
+x 10
+y 4
+end
+arch floor_sand_d2
+x 10
+y 5
+end
+arch plant_mushroom2
+x 10
+y 5
+end
+arch floor_sand_d2
+x 10
+y 6
+end
+arch floor_sand_d1
+x 10
+y 7
+end
+arch mushroom_giant2
+x 10
+y 7
+end
+arch floor_sand_d3
+x 10
+y 8
+end
+arch floor_sand_d3
+x 10
+y 9
+end
+arch floor_sand_d3
+x 10
+y 10
+end
+arch wall_cave1.151
+x 10
+y 10
+end
+arch water_lt3
+x 10
+y 13
+end
+arch wall_cave1.181
+x 10
+y 13
+end
+arch water_lt2
+x 10
+y 14
+end
+arch wall_cave1.141
+x 10
+y 14
+end
+arch water_lt3
+terrain_type 1
+x 10
+y 15
+end
+arch mover
+direction 2
+x 10
+y 15
+end
+arch water_lt
+terrain_type 1
+x 10
+y 16
+end
+arch mover
+direction 2
+x 10
+y 16
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 10
+y 16
+end
+arch water_lt3
+terrain_type 1
+x 10
+y 17
+end
+arch mover
+direction 2
+x 10
+y 17
+end
+arch damager
+name drowning
+dam 2
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 10
+y 17
+end
+arch water_lt3
+terrain_type 1
+x 10
+y 18
+end
+arch mover
+direction 2
+x 10
+y 18
+end
+arch water_lt
+terrain_type 1
+x 10
+y 19
+end
+arch mover
+direction 2
+x 10
+y 19
+end
+arch water_lt2
+x 10
+y 20
+end
+arch wall_cave1.101
+x 10
+y 20
+end
+arch water_lt
+x 10
+y 21
+end
+arch wall_cave1b.141
+x 10
+y 21
+end
+arch floor_sand_d3
+x 11
+y 2
+end
+arch wall_cave1.111
+x 11
+y 2
+end
+arch floor_sand_d3
+x 11
+y 3
+end
+arch mushroom_spot2
+x 11
+y 3
+end
+arch light2
+x 11
+y 3
+end
+arch floor_sand_d1
+x 11
+y 4
+end
+arch spawn_point
+x 11
+y 4
+arch ogre
+name ogre rock thrower
+type 83
+level 10
+Dex 2
+can_use_bow 1
+arch ability_stone_throw
+end
+arch t_rock
+sys_object 1
+end
+end
+end
+arch floor_sand_d4
+x 11
+y 5
+end
+arch floor_sand_d4
+x 11
+y 6
+end
+arch floor_sand_d3
+x 11
+y 7
+end
+arch floor_sand_d4
+x 11
+y 8
+end
+arch floor_sand_d2
+x 11
+y 9
+end
+arch floor_sand_d2
+x 11
+y 10
+end
+arch wall_cave1.121
+x 11
+y 10
+end
+arch water_lt3
+x 11
+y 11
+end
+arch wall_cave1.171
+x 11
+y 11
+end
+arch water_lt
+x 11
+y 12
+end
+arch wall_cave1.171
+x 11
+y 12
+end
+arch water_lt4
+x 11
+y 13
+end
+arch wall_cave1.141
+x 11
+y 13
+end
+arch water_lt
+terrain_type 1
+x 11
+y 14
+end
+arch mover
+direction 2
+x 11
+y 14
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 11
+y 14
+end
+arch plant7
+x 11
+y 14
+end
+arch water_lt
+terrain_type 1
+x 11
+y 15
+end
+arch mover
+direction 2
+x 11
+y 15
+end
+arch water_lt4
+terrain_type 1
+x 11
+y 16
+end
+arch mover
+direction 2
+x 11
+y 16
+end
+arch water_lt4
+terrain_type 1
+x 11
+y 17
+end
+arch mover
+direction 2
+x 11
+y 17
+end
+arch damager
+name drowning
+dam 2
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 11
+y 17
+end
+arch water_lt2
+terrain_type 1
+x 11
+y 18
+end
+arch mover
+direction 2
+x 11
+y 18
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 11
+y 18
+end
+arch plant8
+x 11
+y 18
+end
+arch water_lt3
+x 11
+y 19
+end
+arch wall_cave1.101
+x 11
+y 19
+end
+arch water_lt2
+x 11
+y 20
+end
+arch wall_cave1b.141
+x 11
+y 20
+end
+arch floor_sand_d2
+x 12
+y 2
+end
+arch wall_cave1.111
+x 12
+y 2
+end
+arch floor_sand_d1
+x 12
+y 3
+end
+arch crystal_purple
+x 12
+y 3
+end
+arch light2
+x 12
+y 3
+end
+arch floor_sand_d1
+x 12
+y 4
+end
+arch floor_sand_d1
+x 12
+y 5
+end
+arch mushroom_spot2
+x 12
+y 5
+end
+arch light2
+x 12
+y 5
+end
+arch floor_sand_d4
+x 12
+y 6
+end
+arch floor_sand_d1
+x 12
+y 7
+end
+arch floor_sand_d1
+x 12
+y 8
+end
+arch plant_mushroom4
+x 12
+y 8
+end
+arch spawn_point
+x 12
+y 8
+arch ogre
+name ogre rock thrower
+type 83
+level 11
+Dex 2
+can_use_bow 1
+arch ability_stone_throw
+end
+arch t_rock
+sys_object 1
+end
+end
+end
+arch floor_sand_d4
+x 12
+y 9
+end
+arch floor_sand_d3
+x 12
+y 10
+end
+arch water_lt3
+terrain_type 1
+x 12
+y 11
+end
+arch sand_dm6
+x 12
+y 11
+end
+arch mover
+x 12
+y 11
+end
+arch water_lt4
+terrain_type 1
+x 12
+y 12
+end
+arch mover
+speed 1.0
+x 12
+y 12
+end
+arch plant8
+x 12
+y 12
+end
+arch water_lt4
+terrain_type 1
+x 12
+y 13
+end
+arch mover
+x 12
+y 13
+end
+arch plant8
+x 12
+y 13
+end
+arch water_lt4
+terrain_type 1
+x 12
+y 14
+end
+arch mover
+x 12
+y 14
+end
+arch water_lt3
+terrain_type 1
+x 12
+y 15
+end
+arch mover
+direction 2
+x 12
+y 15
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 12
+y 15
+end
+arch water_lt2
+terrain_type 1
+x 12
+y 16
+end
+arch mover
+direction 2
+x 12
+y 16
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 12
+y 16
+end
+arch water_lt
+terrain_type 1
+x 12
+y 17
+end
+arch mover
+direction 2
+x 12
+y 17
+end
+arch plant7
+x 12
+y 17
+end
+arch water_lt
+x 12
+y 18
+end
+arch wall_cave1.101
+x 12
+y 18
+end
+arch water_lt2
+x 12
+y 19
+end
+arch wall_cave1b.141
+x 12
+y 19
+end
+arch floor_sand_d2
+x 13
+y 2
+end
+arch wall_cave1b.121
+x 13
+y 2
+end
+arch floor_sand_d3
+x 13
+y 3
+end
+arch wall_cave1.161
+x 13
+y 3
+end
+arch floor_sand_d1
+x 13
+y 4
+end
+arch mushroom_spot2
+x 13
+y 4
+end
+arch light2
+x 13
+y 4
+end
+arch floor_sand_d4
+x 13
+y 5
+end
+arch cave_pillar3
+x 13
+y 5
+end
+arch floor_sand_d2
+x 13
+y 6
+end
+arch mushroom_spot1
+x 13
+y 6
+end
+arch light2
+x 13
+y 6
+end
+arch floor_sand_d3
+x 13
+y 7
+end
+arch floor_sand_d3
+x 13
+y 8
+end
+arch floor_sand_d3
+x 13
+y 9
+end
+arch floor_sand_d1
+x 13
+y 10
+end
+arch water_lt4
+terrain_type 1
+x 13
+y 11
+end
+arch sand_dm6
+x 13
+y 11
+end
+arch mover
+x 13
+y 11
+end
+arch water_lt
+terrain_type 1
+x 13
+y 12
+end
+arch mover
+speed 1.0
+x 13
+y 12
+end
+arch water_lt
+terrain_type 1
+x 13
+y 13
+end
+arch mover
+x 13
+y 13
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 13
+y 13
+end
+arch water_lt4
+terrain_type 1
+x 13
+y 14
+end
+arch mover
+x 13
+y 14
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 13
+y 14
+end
+arch water_lt3
+terrain_type 1
+x 13
+y 15
+end
+arch mover
+x 13
+y 15
+end
+arch water_lt3
+terrain_type 1
+x 13
+y 16
+end
+arch mover
+direction 2
+x 13
+y 16
+end
+arch plant8
+x 13
+y 16
+end
+arch water_lt
+x 13
+y 17
+end
+arch wall_cave1.101
+x 13
+y 17
+end
+arch water_lt
+x 13
+y 18
+end
+arch wall_cave1b.141
+x 13
+y 18
+end
+arch floor_sand_d1
+x 14
+y 3
+end
+arch wall_cave1b.121
+x 14
+y 3
+end
+arch floor_sand_d4
+x 14
+y 4
+end
+arch wall_cave1.161
+x 14
+y 4
+end
+arch floor_sand_d2
+x 14
+y 5
+end
+arch floor_sand_d4
+x 14
+y 6
+end
+arch floor_sand_d4
+x 14
+y 7
+end
+arch floor_sand_d4
+x 14
+y 8
+end
+arch mushroom_medium
+x 14
+y 8
+end
+arch light3
+x 14
+y 8
+end
+arch floor_sand_d4
+x 14
+y 9
+end
+arch floor_sand_d4
+x 14
+y 10
+end
+arch water_lt4
+terrain_type 1
+x 14
+y 11
+end
+arch sand_dm6
+x 14
+y 11
+end
+arch mover
+x 14
+y 11
+end
+arch water_lt3
+terrain_type 1
+x 14
+y 12
+end
+arch mover
+speed 1.0
+x 14
+y 12
+end
+arch water_lt3
+terrain_type 1
+x 14
+y 13
+end
+arch mover
+x 14
+y 13
+end
+arch damager
+name drowning
+dam 2
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 14
+y 13
+end
+arch water_lt
+terrain_type 1
+x 14
+y 14
+end
+arch mover
+x 14
+y 14
+end
+arch water_lt2
+terrain_type 1
+x 14
+y 15
+end
+arch mover
+x 14
+y 15
+end
+arch damager
+name drowning
+dam 1
+attack_paralyze 10
+attack_confusion 10
+attack_internal 100
+slow_move 1
+exp 3
+x 14
+y 15
+end
+arch plant7
+x 14
+y 15
+end
+arch water_lt2
+x 14
+y 16
+end
+arch wall_cave1.101
+x 14
+y 16
+end
+arch water_lt3
+x 14
+y 17
+end
+arch wall_cave1b.141
+x 14
+y 17
+end
+arch floor_sand_d2
+x 15
+y 4
+end
+arch wall_cave1.111
+x 15
+y 4
+end
+arch floor_sand_d2
+x 15
+y 5
+end
+arch mushroom_spot1
+x 15
+y 5
+end
+arch light2
+x 15
+y 5
+end
+arch floor_sand_d4
+x 15
+y 6
+end
+arch plant_mushroom3
+x 15
+y 6
+end
+arch floor_sand_d2
+x 15
+y 7
+end
+arch floor_sand_d3
+x 15
+y 8
+end
+arch plant_mushroom2
+x 15
+y 8
+end
+arch floor_sand_d4
+x 15
+y 9
+end
+arch floor_sand_d2
+x 15
+y 10
+end
+arch wall_cave1.101
+x 15
+y 10
+end
+arch water_lt3
+x 15
+y 11
+end
+arch sand_dm6
+x 15
+y 11
+end
+arch wall_cave1.131
+x 15
+y 11
+end
+arch water_lt
+x 15
+y 12
+end
+arch wall_cave1.131
+x 15
+y 12
+end
+arch water_lt
+x 15
+y 13
+end
+arch wall_cave1.131
+x 15
+y 13
+end
+arch water_lt
+x 15
+y 14
+end
+arch wall_cave1.131
+x 15
+y 14
+end
+arch water_lt
+x 15
+y 15
+end
+arch wall_cave1.131
+x 15
+y 15
+end
+arch water_lt3
+x 15
+y 16
+end
+arch wall_cave1b.141
+x 15
+y 16
+end
+arch floor_sand_d2
+x 16
+y 4
+end
+arch wall_cave1.111
+x 16
+y 4
+end
+arch floor_sand_d1
+x 16
+y 5
+end
+arch mushroom_spot2
+x 16
+y 5
+end
+arch light2
+x 16
+y 5
+end
+arch floor_sand_d3
+x 16
+y 6
+end
+arch floor_sand_d1
+x 16
+y 7
+end
+arch floor_sand_d4
+x 16
+y 8
+end
+arch floor_sand_d2
+x 16
+y 9
+end
+arch floor_sand_d3
+x 16
+y 10
+end
+arch wall_cave1.151
+x 16
+y 10
+end
+arch floor_sand_d3
+x 17
+y 4
+end
+arch wall_cave1.111
+x 17
+y 4
+end
+arch floor_sand_d2
+x 17
+y 5
+end
+arch mushroom_spot1
+x 17
+y 5
+end
+arch light2
+x 17
+y 5
+end
+arch floor_sand_d4
+x 17
+y 6
+end
+arch floor_sand_d2
+x 17
+y 7
+end
+arch spawn_point
+x 17
+y 7
+arch bat_brown
+level 10
+type 83
+end
+end
+arch floor_sand_d1
+x 17
+y 8
+end
+arch floor_sand_d1
+x 17
+y 9
+end
+arch mushroom_giant2
+x 17
+y 9
+end
+arch floor_sand_d1
+x 17
+y 10
+end
+arch wall_cave1.151
+x 17
+y 10
+end
+arch floor_sand_d2
+x 18
+y 3
+end
+arch wall_cave1.181
+x 18
+y 3
+end
+arch floor_sand_d4
+x 18
+y 4
+end
+arch wall_cave1.141
+x 18
+y 4
+end
+arch floor_sand_d4
+x 18
+y 5
+end
+arch floor_sand_d4
+x 18
+y 6
+end
+arch plant_mushroom5
+x 18
+y 6
+end
+arch floor_sand_d3
+x 18
+y 7
+end
+arch floor_sand_d1
+x 18
+y 8
+end
+arch cave_pillar4
+x 18
+y 8
+end
+arch floor_sand_d4
+x 18
+y 9
+end
+arch mushroom_spot2
+x 18
+y 9
+end
+arch light2
+x 18
+y 9
+end
+arch floor_sand_d2
+x 18
+y 10
+end
+arch wall_cave1.151
+x 18
+y 10
+end
+arch floor_sand_d2
+x 19
+y 2
+end
+arch wall_cave1.181
+x 19
+y 2
+end
+arch floor_sand_d3
+x 19
+y 3
+end
+arch wall_cave1.141
+x 19
+y 3
+end
+arch floor_sand_d4
+x 19
+y 4
+end
+arch mushroom_medium
+x 19
+y 4
+end
+arch light3
+x 19
+y 4
+end
+arch floor_sand_d4
+x 19
+y 5
+end
+arch floor_sand_d3
+x 19
+y 6
+end
+arch floor_sand_d1
+x 19
+y 7
+end
+arch mushroom_giant3
+x 19
+y 7
+end
+arch floor_sand_d3
+x 19
+y 8
+end
+arch mushroom_spot2
+x 19
+y 8
+end
+arch light2
+x 19
+y 8
+end
+arch floor_sand_d1
+x 19
+y 9
+end
+arch crystal_red_s
+x 19
+y 9
+end
+arch light2
+x 19
+y 9
+end
+arch floor_sand_d4
+x 19
+y 10
+end
+arch wall_cave1.151
+x 19
+y 10
+end
+arch floor_sand_d2
+x 20
+y 2
+end
+arch wall_cave1.111
+x 20
+y 2
+end
+arch floor_sand_d3
+x 20
+y 3
+end
+arch crystal_red
+x 20
+y 3
+end
+arch light2
+x 20
+y 3
+end
+arch floor_sand_d2
+x 20
+y 4
+end
+arch floor_sand_d3
+x 20
+y 5
+end
+arch plant_mushroom2
+x 20
+y 5
+end
+arch spawn_point
+x 20
+y 5
+arch ogre
+name ogre rock thrower
+type 83
+level 12
+Dex 2
+can_use_bow 1
+arch ability_stone_throw
+end
+arch t_rock
+sys_object 1
+end
+end
+end
+arch floor_sand_d4
+x 20
+y 6
+end
+arch floor_sand_d4
+x 20
+y 7
+end
+arch floor_sand_d4
+x 20
+y 8
+end
+arch plant_mushroom5
+x 20
+y 8
+end
+arch floor_sand_d2
+x 20
+y 9
+end
+arch wall_cave1.101
+x 20
+y 9
+end
+arch floor_sand_d3
+x 20
+y 10
+end
+arch wall_cave1b.141
+x 20
+y 10
+end
+arch floor_sand_d4
+x 21
+y 2
+end
+arch wall_cave1.111
+x 21
+y 2
+end
+arch floor_sand_d2
+x 21
+y 3
+end
+arch ladder_up
+slaying world_0917
+hp 21
+sp 3
+x 21
+y 3
+end
+arch floor_sand_d4
+x 21
+y 4
+end
+arch floor_sand_d1
+x 21
+y 5
+end
+arch wall_cave1.101
+x 21
+y 5
+end
+arch floor_sand_d4
+x 21
+y 6
+end
+arch wall_cave1.131
+x 21
+y 6
+end
+arch floor_sand_d3
+x 21
+y 7
+end
+arch wall_cave1.131
+x 21
+y 7
+end
+arch floor_sand_d4
+x 21
+y 8
+end
+arch wall_cave1.131
+x 21
+y 8
+end
+arch floor_sand_d3
+x 21
+y 9
+end
+arch wall_cave1b.141
+x 21
+y 9
+end
+arch floor_sand_d4
+x 22
+y 2
+end
+arch wall_cave1b.121
+x 22
+y 2
+end
+arch floor_sand_d2
+x 22
+y 3
+end
+arch wall_cave1.131
+x 22
+y 3
+end
+arch floor_sand_d2
+x 22
+y 4
+end
+arch wall_cave1.131
+x 22
+y 4
+end
+arch floor_sand_d2
+x 22
+y 5
+end
+arch wall_cave1b.141
+x 22
+y 5
+end

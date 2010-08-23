@@ -1,0 +1,4268 @@
+arch map
+name World
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-11 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0836
+tile_path_2 world_0935
+tile_path_3 world_0834
+tile_path_4 world_0735
+tile_path_5 world_0936
+tile_path_6 world_0934
+tile_path_7 world_0734
+tile_path_8 world_0736
+end
+arch floor_fs_grey1b
+z 50
+end
+arch grassd_m7
+end
+arch grassd_5
+z 50
+y 1
+end
+arch grassd_3
+z 50
+y 2
+end
+arch grassd_2
+z 50
+y 3
+end
+arch plant_flower7
+y 3
+end
+arch grassd_4
+z 50
+y 4
+end
+arch grassd_1
+z 50
+y 5
+end
+arch fwall_fstone2
+y 5
+end
+arch grassd_7
+z 50
+y 6
+end
+arch grassd_4
+z 50
+y 7
+end
+arch grassd_3
+z 50
+y 8
+end
+arch wall_pattern1.111
+y 8
+end
+arch floor_fs_grey1b
+z 50
+y 9
+end
+arch shelf3a.111
+name History - NF
+y 9
+arch fmask_ruin1a.111
+msg
+You can't seem to be able to read the tablet.
+endmsg
+name tablet
+value 15000
+material 64
+identified 1
+end
+arch book
+msg
+This book seems to be a scholarly translation of the tablet and contains nothing useful.
+endmsg
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+y 10
+end
+arch floor_fs_grey1b
+z 50
+y 11
+end
+arch carpet1.151
+y 11
+end
+arch floor_red1
+z 50
+y 12
+end
+arch chair1_111
+direction 7
+y 12
+end
+arch floor_fs_grey1b
+z 50
+y 13
+end
+arch carpet1.111
+y 13
+end
+arch floor_fs_grey1b
+z 50
+y 14
+end
+arch floor_fs_grey1b
+z 50
+y 15
+end
+arch floor_fs_grey1b
+z 50
+y 16
+end
+arch floor_fs_grey1b
+z 50
+y 17
+end
+arch wall_pattern1.111
+y 17
+end
+arch grassd_8
+z 50
+y 18
+end
+arch floor_fs_grey1b
+z 50
+y 19
+end
+arch grassd_m10
+y 19
+end
+arch floor_fs_grey1b
+z 50
+y 20
+end
+arch floor_fs_grey1b
+z 50
+y 21
+end
+arch grassd_m7
+y 21
+end
+arch grassd_1
+z 50
+y 22
+end
+arch grassd_1
+z 50
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 1
+end
+arch grassd_m7
+x 1
+end
+arch grassd_5
+z 50
+x 1
+y 1
+end
+arch lantern_magic.131
+glow_radius 7
+direction 7
+x 1
+y 1
+end
+arch grassd_1
+z 50
+x 1
+y 2
+end
+arch grassd_3
+z 50
+x 1
+y 3
+end
+arch grassd_5
+z 50
+x 1
+y 4
+end
+arch grassd_5
+z 50
+x 1
+y 5
+end
+arch fwall_fstone2
+x 1
+y 5
+end
+arch grassd_7
+z 50
+x 1
+y 6
+end
+arch grassd_7
+z 50
+x 1
+y 7
+end
+arch grassd_4
+z 50
+x 1
+y 8
+end
+arch wall_pattern1.111
+x 1
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 9
+end
+arch shelf3a.111
+name History - NF
+x 1
+y 9
+arch fmask_ruin1a.111
+msg
+You can't seem to be able to read the tablet.
+endmsg
+name tablet
+value 15000
+material 64
+identified 1
+end
+arch book
+msg
+This book contains a translation of the tablet.  It doesn't seem to be of much interest to anyone except historians.
+endmsg
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 10
+end
+arch carpet1.151
+x 1
+y 10
+end
+arch light7
+x 1
+y 11
+end
+arch floor_red1
+z 50
+x 1
+y 11
+end
+arch floor_red1
+z 50
+x 1
+y 12
+end
+arch table_wood1.111
+pass_thru 1
+x 1
+y 12
+end
+arch floor_red1
+z 50
+x 1
+y 13
+end
+arch chair1_111
+direction 5
+x 1
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 14
+end
+arch carpet1.111
+x 1
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 17
+end
+arch wall_pattern1.111
+x 1
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 18
+end
+arch grassd_m4
+x 1
+y 18
+end
+arch lantern2_magic.131
+glow_radius 7
+x 1
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 19
+end
+arch grassd_m13
+x 1
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 21
+end
+arch grassd_m7
+x 1
+y 21
+end
+arch grassd_3
+z 50
+x 1
+y 22
+end
+arch grassd_4
+z 50
+x 1
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 2
+end
+arch grassd_m7
+x 2
+end
+arch grassd_8
+z 50
+x 2
+y 1
+end
+arch grassd_1
+z 50
+x 2
+y 2
+end
+arch grassd_3
+z 50
+x 2
+y 3
+end
+arch grassd_3
+z 50
+x 2
+y 4
+end
+arch grassd_5
+z 50
+x 2
+y 5
+end
+arch fwall_fstone2
+x 2
+y 5
+end
+arch grassd_6
+z 50
+x 2
+y 6
+end
+arch grassd_2
+z 50
+x 2
+y 7
+end
+arch grassd_4
+z 50
+x 2
+y 8
+end
+arch wall_pattern1.111
+x 2
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 9
+end
+arch shelf3a.111
+name History - NF
+x 2
+y 9
+arch fmask_ruin1a.111
+msg
+You can't seem to be able to read the tablet.
+endmsg
+name tablet: The Fall of the Drow
+value 15000
+material 64
+identified 1
+end
+arch book
+msg
+.... and so it came to pass that the Drow were thrown out of elven society and forced underground to pay for their treachery.  Still to this day they hate the light and with their Queen, vow to destroy the world of the elves and men.
+endmsg
+name The Fall of the Drow
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 10
+end
+arch carpet1.151
+x 2
+y 10
+end
+arch floor_red1
+z 50
+x 2
+y 11
+end
+arch chair1_111
+x 2
+y 11
+end
+arch spawn_point
+x 2
+y 11
+arch female2
+name Princess Helena
+type 83
+level 18
+end
+end
+arch floor_red1
+z 50
+x 2
+y 12
+end
+arch table_wood1.111
+pass_thru 1
+x 2
+y 12
+end
+arch floor_red1
+z 50
+x 2
+y 13
+end
+arch light9
+x 2
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 14
+end
+arch carpet1.111
+x 2
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 17
+end
+arch door_wood1
+x 2
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 21
+end
+arch grassd_m7
+x 2
+y 21
+end
+arch grassd_8
+z 50
+x 2
+y 22
+end
+arch grassd_3
+z 50
+x 2
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 3
+end
+arch grassd_m7
+x 3
+end
+arch grass_thick2
+x 3
+y 1
+end
+arch grassd_1
+z 50
+x 3
+y 2
+end
+arch grassd_2
+z 50
+x 3
+y 3
+end
+arch grassd_8
+z 50
+x 3
+y 4
+end
+arch grassd_2
+z 50
+x 3
+y 5
+end
+arch fwall_fstone2
+x 3
+y 5
+end
+arch grassd_3
+z 50
+x 3
+y 6
+end
+arch grassd_1
+z 50
+x 3
+y 7
+end
+arch grassd_4
+z 50
+x 3
+y 8
+end
+arch wall_pattern1.111
+x 3
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 9
+end
+arch wall_pattern1.131
+x 3
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 11
+end
+arch carpet1.151
+x 3
+y 11
+end
+arch floor_red1
+z 50
+x 3
+y 12
+end
+arch chair1_111
+direction 3
+x 3
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 13
+end
+arch carpet1.111
+x 3
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 17
+end
+arch wall_pattern1.111
+x 3
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 18
+end
+arch grassd_m6
+x 3
+y 18
+end
+arch lantern2_magic.131
+glow_radius 7
+x 3
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 19
+end
+arch grassd_m12
+x 3
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 21
+end
+arch grassd_m7
+x 3
+y 21
+end
+arch grassd_2
+z 50
+x 3
+y 22
+end
+arch grassd_5
+z 50
+x 3
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 4
+end
+arch grassd_m7
+x 4
+end
+arch grassd_7
+z 50
+x 4
+y 1
+end
+arch grassd_8
+z 50
+x 4
+y 2
+end
+arch tree_big3
+x 4
+y 2
+end
+arch grassd_6
+z 50
+x 4
+y 3
+end
+arch grassd_8
+z 50
+x 4
+y 4
+end
+arch grassd_6
+z 50
+x 4
+y 5
+end
+arch fwall_fstone2
+x 4
+y 5
+end
+arch grassd_2
+z 50
+x 4
+y 6
+end
+arch grassd_1
+z 50
+x 4
+y 7
+end
+arch grassd_1
+z 50
+x 4
+y 8
+end
+arch wall_pattern1.111
+x 4
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 9
+end
+arch wall_pattern1.141
+x 4
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 10
+end
+arch lantern2_magic.131
+glow_radius 7
+x 4
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 12
+end
+arch carpet1.171
+x 4
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 14
+end
+arch wall_pattern1.181
+x 4
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 15
+end
+arch bar1
+direction 3
+x 4
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 16
+end
+arch bar1
+direction 3
+x 4
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 17
+end
+arch wall_pattern1.141
+x 4
+y 17
+end
+arch grassd_8
+z 50
+x 4
+y 18
+end
+arch sign_generic
+name Asteria Library
+direction 5
+x 4
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 19
+end
+arch grassd_m10
+x 4
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 21
+end
+arch grassd_m7
+x 4
+y 21
+end
+arch grassd_3
+z 50
+x 4
+y 22
+end
+arch lantern_magic.131
+glow_radius 7
+direction 7
+x 4
+y 22
+end
+arch grassd_4
+z 50
+x 4
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 5
+end
+arch grassd_m7
+x 5
+end
+arch grassd_1
+z 50
+x 5
+y 1
+end
+arch grassd_4
+z 50
+x 5
+y 2
+end
+arch grassd_1
+z 50
+x 5
+y 3
+end
+arch grassd_6
+z 50
+x 5
+y 4
+end
+arch grassd_7
+z 50
+x 5
+y 5
+end
+arch fwall_fstone2
+x 5
+y 5
+end
+arch grassd_5
+z 50
+x 5
+y 6
+end
+arch grassd_6
+z 50
+x 5
+y 7
+end
+arch grassd_6
+z 50
+x 5
+y 8
+end
+arch wall_pattern1.111
+x 5
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 14
+end
+arch grate_closed
+x 5
+y 14
+end
+arch light7
+x 5
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 15
+end
+arch spawn_point
+x 5
+y 15
+arch priest_green
+name Evelina Thash
+type 83
+level 20
+end
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 17
+end
+arch wall_pattern1.111
+x 5
+y 17
+end
+arch grassd_3
+z 50
+x 5
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 19
+end
+arch grassd_m10
+x 5
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 21
+end
+arch grassd_m7
+x 5
+y 21
+end
+arch grassd_3
+z 50
+x 5
+y 22
+end
+arch plant17
+x 5
+y 22
+end
+arch grassd_2
+z 50
+x 5
+y 23
+end
+arch tree_big3
+x 5
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 6
+end
+arch grassd_m5
+x 6
+end
+arch grass_thick2
+z 50
+x 6
+y 1
+end
+arch grassd_8
+z 50
+x 6
+y 2
+end
+arch grassd_5
+z 50
+x 6
+y 3
+end
+arch grassd_3
+z 50
+x 6
+y 4
+end
+arch grassd_7
+z 50
+x 6
+y 5
+end
+arch fwall_fstone2
+x 6
+y 5
+end
+arch grassd_3
+z 50
+x 6
+y 6
+end
+arch grassd_8
+z 50
+x 6
+y 7
+end
+arch grassd_8
+z 50
+x 6
+y 8
+end
+arch wall_pattern1.111
+x 6
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 9
+end
+arch wall_pattern1.131
+x 6
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 10
+end
+arch wall_pattern1.131
+x 6
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 13
+end
+arch wall_pattern1.181
+x 6
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 14
+end
+arch wall_pattern1.131
+x 6
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 15
+end
+arch wall_pattern1.131
+x 6
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 16
+end
+arch wall_pattern1.131
+x 6
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 17
+end
+arch wall_pattern1.141
+x 6
+y 17
+end
+arch grassd_3
+z 50
+x 6
+y 18
+end
+arch plant17
+x 6
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 19
+end
+arch grassd_m10
+x 6
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 21
+end
+arch grassd_m7
+x 6
+y 21
+end
+arch grassd_1
+z 50
+x 6
+y 22
+end
+arch grassd_4
+z 50
+x 6
+y 23
+end
+arch grassd_3
+z 50
+x 7
+end
+arch lantern_magic.131
+glow_radius 7
+x 7
+end
+arch grassd_4
+z 50
+x 7
+y 1
+end
+arch grassd_8
+z 50
+x 7
+y 2
+end
+arch grassd_6
+z 50
+x 7
+y 3
+end
+arch grassd_7
+z 50
+x 7
+y 4
+end
+arch grassd_6
+z 50
+x 7
+y 5
+end
+arch fwall_fstone2
+x 7
+y 5
+end
+arch grassd_6
+z 50
+x 7
+y 6
+end
+arch grassd_8
+z 50
+x 7
+y 7
+end
+arch grassd_8
+z 50
+x 7
+y 8
+end
+arch wall_pattern1.181
+x 7
+y 8
+end
+arch grassd_3
+z 50
+x 7
+y 9
+end
+arch wall_pattern1.131
+x 7
+y 9
+end
+arch grassd_3
+z 50
+x 7
+y 10
+end
+arch wall_pattern1.141
+x 7
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 11
+end
+arch shelf3a.111
+name Howto - NF
+x 7
+y 11
+arch book
+msg
+This book explains how to exterminate vermin in various situations.
+endmsg
+name How to be your own Exterminator
+no_pick 1
+end
+end
+arch light7
+x 7
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 13
+end
+arch wall_pattern1.111
+x 7
+y 13
+end
+arch grassd_8
+z 50
+x 7
+y 14
+end
+arch wall_pattern1.131
+x 7
+y 14
+end
+arch grassd_4
+z 50
+x 7
+y 15
+end
+arch wall_pattern1.131
+x 7
+y 15
+end
+arch grassd_1
+z 50
+x 7
+y 16
+end
+arch grassd_8
+z 50
+x 7
+y 17
+end
+arch grassd_6
+z 50
+x 7
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 19
+end
+arch grassd_m10
+x 7
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 21
+end
+arch grassd_m7
+x 7
+y 21
+end
+arch grassd_6
+z 50
+x 7
+y 22
+end
+arch grassd_4
+z 50
+x 7
+y 23
+end
+arch grassd_8
+z 50
+x 8
+end
+arch plant_flower5
+x 8
+end
+arch grassd_4
+z 50
+x 8
+y 1
+end
+arch grassd_5
+z 50
+x 8
+y 2
+end
+arch grassd_5
+z 50
+x 8
+y 3
+end
+arch grassd_4
+z 50
+x 8
+y 4
+end
+arch grassd_1
+z 50
+x 8
+y 5
+end
+arch fwall_fstone2
+x 8
+y 5
+end
+arch grassd_1
+z 50
+x 8
+y 6
+end
+arch grassd_1
+z 50
+x 8
+y 7
+end
+arch grassd_2
+z 50
+x 8
+y 8
+end
+arch wall_pattern1.111
+x 8
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 9
+end
+arch shelf3a.111
+name Medicine - NF
+x 8
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 15
+end
+arch wall_pattern1.111
+x 8
+y 15
+end
+arch grassd_6
+z 50
+x 8
+y 16
+end
+arch grassd_6
+z 50
+x 8
+y 17
+end
+arch grassd_8
+z 50
+x 8
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 19
+end
+arch grassd_m10
+x 8
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 21
+end
+arch grassd_m7
+x 8
+y 21
+end
+arch grassd_4
+z 50
+x 8
+y 22
+end
+arch plant_flower7
+x 8
+y 22
+end
+arch grassd_7
+z 50
+x 8
+y 23
+end
+arch grassd_1
+z 50
+x 9
+end
+arch grassd_1
+z 50
+x 9
+y 1
+end
+arch grassd_8
+z 50
+x 9
+y 2
+end
+arch grassd_8
+z 50
+x 9
+y 3
+end
+arch grassd_7
+z 50
+x 9
+y 4
+end
+arch wall_fstone_round.108
+x 9
+y 4
+end
+arch grassd_6
+z 50
+x 9
+y 5
+end
+arch fwall_fstone2
+x 9
+y 5
+end
+arch grassd_1
+z 50
+x 9
+y 6
+end
+arch wall_fstone_round.106
+x 9
+y 6
+end
+arch grassd_3
+z 50
+x 9
+y 7
+end
+arch grassd_7
+z 50
+x 9
+y 8
+end
+arch wall_pattern1.111
+x 9
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 9
+end
+arch shelf3a.111
+name Law - NF
+x 9
+y 9
+arch book
+msg
+This book lists important case precedent for the last 250 years.  You fall asleep after 20 pages, still only having gone through a year's worth of cases.
+endmsg
+name The History of Asterian Jurisprudence
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 10
+end
+arch wall_pattern1.111
+x 9
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 11
+end
+arch shelf3a.111
+name Religion - NF
+x 9
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 12
+end
+arch wall_pattern1.111
+x 9
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 13
+end
+arch shelf3a.111
+name Magic - NF
+x 9
+y 13
+arch book
+name Prestidigitation for Dummies
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 15
+end
+arch wall_pattern1.111
+x 9
+y 15
+end
+arch grassd_8
+z 50
+x 9
+y 16
+end
+arch grassd_3
+z 50
+x 9
+y 17
+end
+arch grassd_7
+z 50
+x 9
+y 18
+end
+arch lantern_magic.131
+glow_radius 7
+direction 3
+x 9
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 19
+end
+arch grassd_m10
+x 9
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 21
+end
+arch grassd_m7
+x 9
+y 21
+end
+arch grassd_3
+z 50
+x 9
+y 22
+end
+arch lantern_magic.131
+glow_radius 7
+direction 7
+x 9
+y 22
+end
+arch grassd_1
+z 50
+x 9
+y 23
+end
+arch grassd_2
+z 50
+x 10
+end
+arch fwall_fstone2
+x 10
+end
+arch grassd_3
+z 50
+x 10
+y 1
+end
+arch fwall_fstone2
+x 10
+y 1
+end
+arch grassd_2
+z 50
+x 10
+y 2
+end
+arch fwall_fstone2
+x 10
+y 2
+end
+arch grassd_3
+z 50
+x 10
+y 3
+end
+arch fwall_fstone2
+x 10
+y 3
+end
+arch grassd_3
+z 50
+x 10
+y 4
+end
+arch fwall_fstone2
+x 10
+y 4
+end
+arch grassd_5
+z 50
+x 10
+y 5
+end
+arch fwall_fstone2
+x 10
+y 5
+end
+arch grassd_3
+z 50
+x 10
+y 6
+end
+arch fwall_fstone2
+x 10
+y 6
+end
+arch grassd_2
+z 50
+x 10
+y 7
+end
+arch grassd_8
+z 50
+x 10
+y 8
+end
+arch wall_pattern1.111
+x 10
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 9
+end
+arch shelf3a.111
+x 10
+y 9
+arch book
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 10
+end
+arch wall_pattern1.111
+x 10
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 11
+end
+arch shelf3a.111
+name Religion - F
+x 10
+y 11
+arch book
+msg
+In the beginning, the Giver of Data
+(GOD) generated silicon and carbon, and
+the system without architecture, and
+un-initialized, randomness was apon
+the arrangement of the matrix.......
+endmsg
+name Binary Bible
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 12
+end
+arch wall_pattern1.111
+x 10
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 13
+end
+arch shelf3a.111
+name Magic Items - NF
+x 10
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 15
+end
+arch wall_pattern1.111
+x 10
+y 15
+end
+arch grassd_5
+z 50
+x 10
+y 16
+end
+arch grassd_4
+z 50
+x 10
+y 17
+end
+arch grassd_1
+z 50
+x 10
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 19
+end
+arch grassd_m10
+x 10
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 21
+end
+arch grassd_m7
+x 10
+y 21
+end
+arch grassd_7
+z 50
+x 10
+y 22
+end
+arch grassd_2
+z 50
+x 10
+y 23
+end
+arch grassd_8
+z 50
+x 11
+end
+arch grassd_7
+z 50
+x 11
+y 1
+end
+arch grassd_5
+z 50
+x 11
+y 2
+end
+arch plant_flower9
+x 11
+y 2
+end
+arch grassd_8
+z 50
+x 11
+y 3
+end
+arch grassd_2
+z 50
+x 11
+y 4
+end
+arch wall_fstone_round.102
+x 11
+y 4
+end
+arch grassd_1
+z 50
+x 11
+y 5
+end
+arch fwall_fstone2
+x 11
+y 5
+end
+arch grassd_1
+z 50
+x 11
+y 6
+end
+arch wall_fstone_round.104
+x 11
+y 6
+end
+arch grassd_5
+z 50
+x 11
+y 7
+end
+arch grassd_2
+z 50
+x 11
+y 8
+end
+arch wall_pattern1.111
+x 11
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 9
+end
+arch shelf3a.111
+name Alchemy - NF
+x 11
+y 9
+arch book
+msg
+This book covers a host of reagents from the common eye of newt and plies of sulfur to some extremely rare reagents such as uranium.
+endmsg
+name A Survey of Reagents
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 10
+end
+arch wall_pattern1.111
+x 11
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 11
+end
+arch shelf3a.111
+x 11
+y 11
+arch book
+no_pick 1
+end
+end
+arch light9
+x 11
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 12
+end
+arch wall_pattern1.111
+x 11
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 13
+end
+arch shelf3a.111
+x 11
+y 13
+arch book
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 15
+end
+arch wall_pattern1.111
+x 11
+y 15
+end
+arch grassd_2
+z 50
+x 11
+y 16
+end
+arch grassd_2
+z 50
+x 11
+y 17
+end
+arch grassd_7
+z 50
+x 11
+y 18
+end
+arch tree_big3
+x 11
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 19
+end
+arch grassd_m10
+x 11
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 21
+end
+arch grassd_m7
+x 11
+y 21
+end
+arch grassd_7
+z 50
+x 11
+y 22
+end
+arch grassd_4
+z 50
+x 11
+y 23
+end
+arch grassd_2
+z 50
+x 12
+end
+arch wall_marble1.111a
+x 12
+end
+arch grassd_4
+z 50
+x 12
+y 1
+end
+arch wall_marble1.111a
+x 12
+y 1
+end
+arch grassd_6
+z 50
+x 12
+y 2
+end
+arch wall_marble1.111
+x 12
+y 2
+end
+arch grass2
+z 50
+x 12
+y 3
+end
+arch grassd_1
+z 50
+x 12
+y 4
+end
+arch grassd_1
+z 50
+x 12
+y 5
+end
+arch grassd_2
+z 50
+x 12
+y 6
+end
+arch grassd_5
+z 50
+x 12
+y 7
+end
+arch grassd_1
+z 50
+x 12
+y 8
+end
+arch wall_pattern1.111
+x 12
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 9
+end
+arch shelf3a.111
+name Mathematics - NF
+x 12
+y 9
+arch book
+msg
+This book describes the basics of standard deviation, outliers and the bell curve.
+endmsg
+name Probability and Statistics
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 10
+end
+arch wall_pattern1.111
+x 12
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 11
+end
+arch shelf3a.111
+x 12
+y 11
+arch book
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 12
+end
+arch wall_pattern1.111
+x 12
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 13
+end
+arch shelf3a.111
+x 12
+y 13
+arch book
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 14
+end
+arch light7
+x 12
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 15
+end
+arch wall_pattern1.111
+x 12
+y 15
+end
+arch grassd_7
+z 50
+x 12
+y 16
+end
+arch grassd_1
+z 50
+x 12
+y 17
+end
+arch grassd_2
+z 50
+x 12
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 19
+end
+arch grassd_m10
+x 12
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 21
+end
+arch grassd_m7
+x 12
+y 21
+end
+arch grassd_4
+z 50
+x 12
+y 22
+end
+arch grassd_4
+z 50
+x 12
+y 23
+end
+arch plant_flower5
+x 12
+y 23
+end
+arch floor_ostone10
+z 50
+x 13
+end
+arch bench2.111
+x 13
+end
+arch floor_ostone10
+z 50
+x 13
+y 1
+end
+arch potted_plant5
+x 13
+y 1
+end
+arch floor_ostone10
+z 50
+x 13
+y 2
+end
+arch wall_marble1.131
+x 13
+y 2
+end
+arch grass3
+z 50
+x 13
+y 3
+end
+arch plant_flower7
+x 13
+y 3
+end
+arch grass3
+z 50
+x 13
+y 4
+end
+arch grassd_6
+z 50
+x 13
+y 5
+end
+arch grassd_3
+z 50
+x 13
+y 6
+end
+arch grassd_7
+z 50
+x 13
+y 7
+end
+arch plant_flower8
+x 13
+y 7
+end
+arch grassd_7
+z 50
+x 13
+y 8
+end
+arch wall_pattern1.111
+x 13
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 9
+end
+arch shelf3a.111
+name Games - NF
+x 13
+y 9
+arch book
+msg
+This book is a survey of the field of chess and lists some of the less commonly seen moves and strategies one can employ.
+endmsg
+name The Art of Chess
+no_pick 1
+end
+end
+arch light9
+x 13
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 10
+end
+arch wall_pattern1.111
+x 13
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 11
+end
+arch shelf3a.111
+x 13
+y 11
+arch book
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 12
+end
+arch wall_pattern1.111
+x 13
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 13
+end
+arch shelf3a.111
+x 13
+y 13
+arch book
+no_pick 1
+end
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 15
+end
+arch wall_pattern1.111
+x 13
+y 15
+end
+arch grassd_1
+z 50
+x 13
+y 16
+end
+arch grassd_1
+z 50
+x 13
+y 17
+end
+arch grassd_7
+z 50
+x 13
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 19
+end
+arch grassd_m10
+x 13
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 21
+end
+arch grassd_m7
+x 13
+y 21
+end
+arch grassd_2
+z 50
+x 13
+y 22
+end
+arch grassd_1
+z 50
+x 13
+y 23
+end
+arch floor_ostone10
+z 50
+x 14
+end
+arch bench2.111
+x 14
+end
+arch floor_ostone10
+z 50
+x 14
+y 1
+end
+arch floor_ostone10
+z 50
+x 14
+y 2
+end
+arch wall_marble1.131a
+x 14
+y 2
+end
+arch grass2
+z 50
+x 14
+y 3
+end
+arch lantern2_magic.131
+glow_radius 7
+x 14
+y 3
+end
+arch grass3
+z 50
+x 14
+y 4
+end
+arch grassd_8
+z 50
+x 14
+y 5
+end
+arch grassd_8
+z 50
+x 14
+y 6
+end
+arch tree_orange
+x 14
+y 6
+end
+arch grassd_7
+z 50
+x 14
+y 7
+end
+arch grassd_7
+z 50
+x 14
+y 8
+end
+arch wall_pattern1.111
+x 14
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 9
+end
+arch wall_pattern1.131
+x 14
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 10
+end
+arch wall_pattern1.141
+x 14
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 11
+end
+arch wall_pattern1.131
+x 14
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 12
+end
+arch wall_pattern1.141
+x 14
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 13
+end
+arch wall_pattern1.131
+x 14
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 14
+end
+arch wall_pattern1.131
+x 14
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 15
+end
+arch wall_pattern1.141
+x 14
+y 15
+end
+arch grassd_4
+z 50
+x 14
+y 16
+end
+arch grassd_5
+z 50
+x 14
+y 17
+end
+arch grassd_7
+z 50
+x 14
+y 18
+end
+arch lantern_magic.131
+glow_radius 7
+x 14
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 19
+end
+arch grassd_m10
+x 14
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 14
+y 21
+end
+arch grassd_m7
+x 14
+y 21
+end
+arch grassd_5
+z 50
+x 14
+y 22
+end
+arch grassd_3
+z 50
+x 14
+y 23
+end
+arch floor_ostone10
+z 50
+x 15
+end
+arch floor_ostone10
+z 50
+x 15
+y 1
+end
+arch floor_ostone10
+z 50
+x 15
+y 2
+end
+arch door1_locked
+x 15
+y 2
+end
+arch floor_fs_grey1b
+z 50
+x 15
+y 3
+end
+arch grassd_m4
+x 15
+y 3
+end
+arch floor_fs_grey1b
+z 50
+x 15
+y 4
+end
+arch grassd_m9
+x 15
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 15
+y 5
+end
+arch grassd_m3
+x 15
+y 5
+end
+arch grassd_4
+z 50
+x 15
+y 6
+end
+arch grassd_5
+z 50
+x 15
+y 7
+end
+arch pumpkin_02
+x 15
+y 7
+end
+arch grassd_5
+z 50
+x 15
+y 8
+end
+arch grassd_7
+z 50
+x 15
+y 9
+end
+arch plant_flower3
+x 15
+y 9
+end
+arch grassd_7
+z 50
+x 15
+y 10
+end
+arch grassd_1
+z 50
+x 15
+y 11
+end
+arch grassd_2
+z 50
+x 15
+y 12
+end
+arch grassd_5
+z 50
+x 15
+y 13
+end
+arch grassd_5
+z 50
+x 15
+y 14
+end
+arch grassd_3
+z 50
+x 15
+y 15
+end
+arch grassd_4
+z 50
+x 15
+y 16
+end
+arch grassd_6
+z 50
+x 15
+y 17
+end
+arch grassd_1
+z 50
+x 15
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 15
+y 19
+end
+arch grassd_m10
+x 15
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 15
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 15
+y 21
+end
+arch grassd_m7
+x 15
+y 21
+end
+arch grassd_6
+z 50
+x 15
+y 22
+end
+arch lantern_magic.131
+glow_radius 7
+direction 7
+x 15
+y 22
+end
+arch grassd_6
+z 50
+x 15
+y 23
+end
+arch floor_ostone10
+z 50
+x 16
+end
+arch bench2.111
+x 16
+end
+arch floor_ostone10
+z 50
+x 16
+y 1
+end
+arch floor_ostone10
+z 50
+x 16
+y 2
+end
+arch wall_marble1.131
+x 16
+y 2
+end
+arch grass3
+z 50
+x 16
+y 3
+end
+arch lantern2_magic.131
+glow_radius 7
+x 16
+y 3
+end
+arch floor_fs_grey1b
+z 50
+x 16
+y 4
+end
+arch grass_w
+x 16
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 16
+y 5
+end
+arch grassd_m7
+x 16
+y 5
+end
+arch grassd_2
+z 50
+x 16
+y 6
+end
+arch grassd_6
+z 50
+x 16
+y 7
+end
+arch grassd_5
+z 50
+x 16
+y 8
+end
+arch rock3
+x 16
+y 8
+end
+arch grassd_3
+z 50
+x 16
+y 9
+end
+arch plant_flower12
+x 16
+y 9
+end
+arch grassd_6
+z 50
+x 16
+y 10
+end
+arch grassd_4
+z 50
+x 16
+y 11
+end
+arch grassd_8
+z 50
+x 16
+y 12
+end
+arch grassd_6
+z 50
+x 16
+y 13
+end
+arch grassd_2
+z 50
+x 16
+y 14
+end
+arch rock6
+x 16
+y 14
+end
+arch grassd_7
+z 50
+x 16
+y 15
+end
+arch grassd_8
+z 50
+x 16
+y 16
+end
+arch grassd_2
+z 50
+x 16
+y 17
+end
+arch grassd_3
+z 50
+x 16
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 16
+y 19
+end
+arch grassd_m10
+x 16
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 16
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 16
+y 21
+end
+arch grassd_m7
+x 16
+y 21
+end
+arch grassd_6
+z 50
+x 16
+y 22
+end
+arch grassd_4
+z 50
+x 16
+y 23
+end
+arch floor_ostone10
+z 50
+x 17
+end
+arch bench2.111
+x 17
+end
+arch floor_ostone10
+z 50
+x 17
+y 1
+end
+arch potted_plant5
+x 17
+y 1
+end
+arch floor_ostone10
+z 50
+x 17
+y 2
+end
+arch wall_marble1.131a
+x 17
+y 2
+end
+arch grass2
+z 50
+x 17
+y 3
+end
+arch grass1
+z 50
+x 17
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 17
+y 5
+end
+arch grassd_m7
+x 17
+y 5
+end
+arch grassd_5
+z 50
+x 17
+y 6
+end
+arch grassd_8
+z 50
+x 17
+y 7
+end
+arch tree_apple
+x 17
+y 7
+end
+arch grassd_2
+z 50
+x 17
+y 8
+end
+arch pumpkin_01
+x 17
+y 8
+end
+arch grassd_6
+z 50
+x 17
+y 9
+end
+arch pumpkin_02
+x 17
+y 9
+end
+arch grassd_5
+z 50
+x 17
+y 10
+end
+arch grassd_6
+z 50
+x 17
+y 11
+end
+arch plant_big1
+x 17
+y 11
+end
+arch grassd_5
+z 50
+x 17
+y 12
+end
+arch grassd_5
+z 50
+x 17
+y 13
+end
+arch tree_big3
+x 17
+y 13
+end
+arch grassd_6
+z 50
+x 17
+y 14
+end
+arch grassd_7
+z 50
+x 17
+y 15
+end
+arch grassd_3
+z 50
+x 17
+y 16
+end
+arch grassd_3
+z 50
+x 17
+y 17
+end
+arch grassd_2
+z 50
+x 17
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 17
+y 19
+end
+arch grassd_m10
+x 17
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 17
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 17
+y 21
+end
+arch grassd_m7
+x 17
+y 21
+end
+arch grassd_7
+z 50
+x 17
+y 22
+end
+arch plant17
+x 17
+y 22
+end
+arch grassd_6
+z 50
+x 17
+y 23
+end
+arch floor_ostone10
+z 50
+x 18
+end
+arch wall_marble1.111
+x 18
+end
+arch floor_ostone10
+z 50
+x 18
+y 1
+end
+arch wall_marble1.111a
+x 18
+y 1
+end
+arch floor_ostone10
+z 50
+x 18
+y 2
+end
+arch wall_marble1.141
+x 18
+y 2
+end
+arch grass2
+z 50
+x 18
+y 3
+end
+arch plant_flower9
+x 18
+y 3
+end
+arch grass3
+z 50
+x 18
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 18
+y 5
+end
+arch grassd_m7
+x 18
+y 5
+end
+arch grassd_7
+z 50
+x 18
+y 6
+end
+arch plant_flower14
+x 18
+y 6
+end
+arch grassd_7
+z 50
+x 18
+y 7
+end
+arch grassd_8
+z 50
+x 18
+y 8
+end
+arch grassd_5
+z 50
+x 18
+y 9
+end
+arch pumpkin_01
+x 18
+y 9
+end
+arch grassd_1
+z 50
+x 18
+y 10
+end
+arch grassd_2
+z 50
+x 18
+y 11
+end
+arch rock2
+x 18
+y 11
+end
+arch grassd_5
+z 50
+x 18
+y 12
+end
+arch plant17
+x 18
+y 12
+end
+arch grassd_5
+z 50
+x 18
+y 13
+end
+arch grassd_4
+z 50
+x 18
+y 14
+end
+arch plant_flower7
+x 18
+y 14
+end
+arch grassd_2
+z 50
+x 18
+y 15
+end
+arch grassd_2
+z 50
+x 18
+y 16
+end
+arch grassd_6
+z 50
+x 18
+y 17
+end
+arch marker3
+msg
+North - Way of the Gods
+South - Southeast Circuit
+West - Government Avenue
+endmsg
+name street sign
+direction 7
+x 18
+y 17
+end
+arch light4
+x 18
+y 18
+end
+arch grassd_8
+z 50
+x 18
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 18
+y 19
+end
+arch grassd_m10
+x 18
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 18
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 18
+y 21
+end
+arch grassd_m7
+x 18
+y 21
+end
+arch grassd_4
+z 50
+x 18
+y 22
+end
+arch grassd_2
+z 50
+x 18
+y 23
+end
+arch grassd_4
+z 50
+x 19
+end
+arch grassd_7
+z 50
+x 19
+y 1
+end
+arch grassd_6
+z 50
+x 19
+y 2
+end
+arch grassd_5
+z 50
+x 19
+y 3
+end
+arch lantern_magic.131
+glow_radius 7
+direction 5
+x 19
+y 3
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 4
+end
+arch grass_thickm1
+x 19
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 5
+end
+arch grassd_m14
+x 19
+y 5
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 6
+end
+arch grassd_m3
+x 19
+y 6
+end
+arch sign_generic
+name Temple of Terria
+direction 3
+x 19
+y 6
+end
+arch grassd_2
+z 50
+x 19
+y 7
+end
+arch rock1
+x 19
+y 7
+end
+arch grassd_2
+z 50
+x 19
+y 8
+end
+arch lantern_magic.131
+glow_radius 7
+direction 5
+x 19
+y 8
+end
+arch grassd_2
+z 50
+x 19
+y 9
+end
+arch grassd_2
+z 50
+x 19
+y 10
+end
+arch grassd_8
+z 50
+x 19
+y 11
+end
+arch grassd_2
+z 50
+x 19
+y 12
+end
+arch plant_flower1
+x 19
+y 12
+end
+arch grassd_8
+z 50
+x 19
+y 13
+end
+arch lantern_magic.131
+glow_radius 7
+direction 5
+x 19
+y 13
+end
+arch grassd_5
+z 50
+x 19
+y 14
+end
+arch grassd_5
+z 50
+x 19
+y 15
+end
+arch rock1
+x 19
+y 15
+end
+arch grassd_6
+z 50
+x 19
+y 16
+end
+arch grassd_1
+z 50
+x 19
+y 17
+end
+arch plant_flower5
+x 19
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 18
+end
+arch grassd_m4
+x 19
+y 18
+end
+arch lantern_magic.131
+glow_radius 7
+direction 5
+x 19
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 19
+end
+arch grassd_m13
+x 19
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 21
+end
+arch grassd_m14
+x 19
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 19
+y 22
+end
+arch grassd_m3
+x 19
+y 22
+end
+arch grassd_8
+z 50
+x 19
+y 23
+end
+arch lantern_magic.131
+glow_radius 7
+direction 5
+x 19
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 20
+end
+arch grassd_m9
+x 20
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 1
+end
+arch grassd_m9
+x 20
+y 1
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 2
+end
+arch grassd_m9
+x 20
+y 2
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 3
+end
+arch grassd_m9
+x 20
+y 3
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 4
+end
+arch grassd_m13
+x 20
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 5
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 6
+end
+arch grassd_m14
+x 20
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 7
+end
+arch grassd_m9
+x 20
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 8
+end
+arch grassd_m9
+x 20
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 9
+end
+arch grassd_m9
+x 20
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 10
+end
+arch grassd_m9
+x 20
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 11
+end
+arch grassd_m9
+x 20
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 12
+end
+arch grassd_m9
+x 20
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 13
+end
+arch grassd_m9
+x 20
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 14
+end
+arch grassd_m9
+x 20
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 15
+end
+arch grassd_m9
+x 20
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 16
+end
+arch grassd_m9
+x 20
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 17
+end
+arch grassd_m9
+x 20
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 18
+end
+arch grassd_m13
+x 20
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 22
+end
+arch grassd_m14
+x 20
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 20
+y 23
+end
+arch grassd_m9
+x 20
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 21
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 1
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 2
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 3
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 5
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 21
+y 23
+end
+arch floor_fs_grey1b
+z 50
+x 22
+end
+arch grassd_m8
+x 22
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 1
+end
+arch grassd_m12
+x 22
+y 1
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 2
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 3
+end
+arch grassd_m11
+x 22
+y 3
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 4
+end
+arch grassd_m8
+x 22
+y 4
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 5
+end
+arch grassd_m8
+x 22
+y 5
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 6
+end
+arch grassd_m8
+x 22
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 7
+end
+arch grassd_m8
+x 22
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 8
+end
+arch grassd_m8
+x 22
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 9
+end
+arch grassd_m8
+x 22
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 10
+end
+arch grassd_m8
+x 22
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 11
+end
+arch grassd_m8
+x 22
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 12
+end
+arch grassd_m8
+x 22
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 13
+end
+arch grassd_m8
+x 22
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 14
+end
+arch grassd_m8
+x 22
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 15
+end
+arch grassd_m8
+x 22
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 16
+end
+arch grassd_m8
+x 22
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 17
+end
+arch grassd_m8
+x 22
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 18
+end
+arch grassd_m8
+x 22
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 19
+end
+arch grassd_m8
+x 22
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 20
+end
+arch grassd_m8
+x 22
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 21
+end
+arch grassd_m8
+x 22
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 22
+end
+arch grassd_m8
+x 22
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 22
+y 23
+end
+arch grassd_m8
+x 22
+y 23
+end
+arch grassd_4
+z 50
+x 23
+end
+arch floor_fs_grey1b
+z 50
+x 23
+y 1
+end
+arch grassd_m10
+x 23
+y 1
+end
+arch spawn_point
+x 23
+y 1
+arch guard
+name Asterian Guard
+type 83
+level 35
+end
+end
+arch floor_fs_grey1b
+z 50
+x 23
+y 2
+end
+arch grassd_m11
+x 23
+y 2
+end
+arch floor_fs_grey1b
+z 50
+x 23
+y 3
+end
+arch grassd_m5
+x 23
+y 3
+end
+arch lantern_magic.131
+glow_radius 7
+x 23
+y 3
+end
+arch grassd_4
+z 50
+x 23
+y 4
+end
+arch grassd_4
+z 50
+x 23
+y 5
+end
+arch grassd_7
+z 50
+x 23
+y 6
+end
+arch grassd_2
+z 50
+x 23
+y 7
+end
+arch grassd_7
+z 50
+x 23
+y 8
+end
+arch lantern_magic.131
+glow_radius 7
+x 23
+y 8
+end
+arch grassd_7
+z 50
+x 23
+y 9
+end
+arch grassd_4
+z 50
+x 23
+y 10
+end
+arch grassd_4
+z 50
+x 23
+y 11
+end
+arch grassd_7
+z 50
+x 23
+y 12
+end
+arch grassd_5
+z 50
+x 23
+y 13
+end
+arch lantern_magic.131
+glow_radius 7
+x 23
+y 13
+end
+arch grassd_1
+z 50
+x 23
+y 14
+end
+arch grassd_7
+z 50
+x 23
+y 15
+end
+arch grassd_8
+z 50
+x 23
+y 16
+end
+arch grassd_5
+z 50
+x 23
+y 17
+end
+arch grassd_1
+z 50
+x 23
+y 18
+end
+arch lantern_magic.131
+glow_radius 7
+x 23
+y 18
+end
+arch grassd_8
+z 50
+x 23
+y 19
+end
+arch grassd_7
+z 50
+x 23
+y 20
+end
+arch grassd_5
+z 50
+x 23
+y 21
+end
+arch grassd_7
+z 50
+x 23
+y 22
+end
+arch plant17
+x 23
+y 22
+end
+arch grassd_1
+z 50
+x 23
+y 23
+end
+arch lantern_magic.131
+glow_radius 7
+x 23
+y 23
+end

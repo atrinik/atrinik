@@ -1,0 +1,4317 @@
+arch map
+name Giant Mountains
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-21 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0825
+tile_path_2 world_0924
+tile_path_3 world_0823
+tile_path_4 world_0724
+tile_path_5 world_0925
+tile_path_6 world_0923
+tile_path_7 world_0723
+tile_path_8 world_0725
+end
+arch floor_sand_d4
+z 90
+end
+arch rock_big1
+end
+arch floor_sand_d1
+z 90
+y 1
+end
+arch rock_big1
+y 1
+end
+arch floor_sand_d2
+z 90
+y 2
+end
+arch rock_big3
+y 2
+end
+arch floor_sand_d1
+z 90
+y 3
+end
+arch reed_sm1
+y 3
+end
+arch mushroom_giant2
+y 3
+end
+arch floor_sand_d2
+z 90
+y 4
+end
+arch floor_sand_d2
+z 90
+y 5
+end
+arch floor_sand_d2
+z 90
+y 6
+end
+arch floor_sand_d4
+z 90
+y 7
+end
+arch fstone1m8
+y 7
+end
+arch fstone1c
+z 90
+y 8
+end
+arch fstone1b
+z 90
+y 9
+end
+arch floor_sand_d3
+z 90
+y 10
+end
+arch fstone1m12
+y 10
+end
+arch floor_sand_d4
+z 90
+y 11
+end
+arch floor_sand_d4
+z 90
+y 12
+end
+arch floor_sand_d1
+z 90
+y 13
+end
+arch floor_sand_d3
+z 90
+y 14
+end
+arch floor_sand_d1
+z 90
+y 15
+end
+arch tree_branch1
+y 15
+end
+arch floor_sand_d1
+z 90
+y 16
+end
+arch floor_sand_d4
+z 90
+y 17
+end
+arch floor_sand_d1
+z 90
+y 18
+end
+arch reed_sm1
+y 18
+end
+arch floor_sand_d4
+z 90
+y 19
+end
+arch rock_big1
+y 19
+end
+arch floor_sand_d1
+z 90
+y 20
+end
+arch rock_big1
+y 20
+end
+arch floor_sand_d1
+z 90
+y 21
+end
+arch rock_big3
+y 21
+end
+arch floor_sand_d3
+z 90
+y 22
+end
+arch rock_big3
+y 22
+end
+arch floor_sand_d2
+z 90
+y 23
+end
+arch rock_big1
+y 23
+end
+arch floor_sand_d4
+z 90
+x 1
+end
+arch rock_big1
+x 1
+end
+arch floor_sand_d3
+z 90
+x 1
+y 1
+end
+arch rock_big3
+x 1
+y 1
+end
+arch floor_sand_d4
+z 90
+x 1
+y 2
+end
+arch rock_big3
+x 1
+y 2
+end
+arch floor_sand_d3
+z 90
+x 1
+y 3
+end
+arch rock_big1
+x 1
+y 3
+end
+arch floor_sand_d2
+z 90
+x 1
+y 4
+end
+arch reed_sm1
+x 1
+y 4
+end
+arch floor_sand_d2
+z 90
+x 1
+y 5
+end
+arch tree_burned2
+x 1
+y 5
+end
+arch floor_sand_d1
+z 90
+x 1
+y 6
+end
+arch floor_sand_d4
+z 90
+x 1
+y 7
+end
+arch fstone1m8
+x 1
+y 7
+end
+arch fstone1b
+z 90
+x 1
+y 8
+end
+arch fstone1c
+z 90
+x 1
+y 9
+end
+arch floor_sand_d3
+z 90
+x 1
+y 10
+end
+arch fstone1m12
+x 1
+y 10
+end
+arch floor_sand_d1
+z 90
+x 1
+y 11
+end
+arch floor_sand_d3
+z 90
+x 1
+y 12
+end
+arch floor_sand_d4
+z 90
+x 1
+y 13
+end
+arch au_tree3
+x 1
+y 13
+end
+arch floor_sand_d4
+z 90
+x 1
+y 14
+end
+arch plant_mushroom3
+x 1
+y 14
+end
+arch floor_sand_d3
+z 90
+x 1
+y 15
+end
+arch floor_sand_d1
+z 90
+x 1
+y 16
+end
+arch floor_sand_d2
+z 90
+x 1
+y 17
+end
+arch plant_mushroom4
+x 1
+y 17
+end
+arch floor_sand_d3
+z 90
+x 1
+y 18
+end
+arch floor_sand_d1
+z 90
+x 1
+y 19
+end
+arch reed_sm1
+x 1
+y 19
+end
+arch floor_sand_d1
+z 90
+x 1
+y 20
+end
+arch rock_big1
+x 1
+y 20
+end
+arch floor_sand_d2
+z 90
+x 1
+y 21
+end
+arch rock_big3
+x 1
+y 21
+end
+arch floor_sand_d2
+z 90
+x 1
+y 22
+end
+arch rock_big1
+x 1
+y 22
+end
+arch floor_sand_d3
+z 90
+x 1
+y 23
+end
+arch rock_big3
+x 1
+y 23
+end
+arch floor_sand_d4
+z 90
+x 2
+end
+arch rock_big1
+x 2
+end
+arch floor_sand_d2
+z 90
+x 2
+y 1
+end
+arch rock_big3
+x 2
+y 1
+end
+arch floor_sand_d3
+z 90
+x 2
+y 2
+end
+arch rock_big3
+x 2
+y 2
+end
+arch floor_sand_d2
+z 90
+x 2
+y 3
+end
+arch rock_big1
+x 2
+y 3
+end
+arch floor_sand_d4
+z 90
+x 2
+y 4
+end
+arch reed_sm1
+x 2
+y 4
+end
+arch plant7
+x 2
+y 4
+end
+arch floor_sand_d1
+z 90
+x 2
+y 5
+end
+arch floor_sand_d1
+z 90
+x 2
+y 6
+end
+arch plant_mushroom2
+x 2
+y 6
+end
+arch floor_sand_d1
+z 90
+x 2
+y 7
+end
+arch fstone1m8
+x 2
+y 7
+end
+arch fstone1c
+z 90
+x 2
+y 8
+end
+arch tree_branch3
+x 2
+y 8
+end
+arch fstone1c
+z 90
+x 2
+y 9
+end
+arch floor_sand_d2
+z 90
+x 2
+y 10
+end
+arch fstone1m4
+x 2
+y 10
+end
+arch floor_sand_d4
+z 90
+x 2
+y 11
+end
+arch floor_sand_d4
+z 90
+x 2
+y 12
+end
+arch floor_sand_d2
+z 90
+x 2
+y 13
+end
+arch floor_sand_d2
+z 90
+x 2
+y 14
+end
+arch floor_sand_d2
+z 90
+x 2
+y 15
+end
+arch stone4
+x 2
+y 15
+end
+arch floor_sand_d2
+z 90
+x 2
+y 16
+end
+arch floor_sand_d1
+z 90
+x 2
+y 17
+end
+arch rock_big5
+x 2
+y 17
+end
+arch floor_sand_d1
+z 90
+x 2
+y 18
+end
+arch floor_sand_d1
+z 90
+x 2
+y 19
+end
+arch reed_sm1
+x 2
+y 19
+end
+arch floor_sand_d1
+z 90
+x 2
+y 20
+end
+arch rock_big3
+x 2
+y 20
+end
+arch floor_sand_d2
+z 90
+x 2
+y 21
+end
+arch rock_big3
+x 2
+y 21
+end
+arch floor_sand_d4
+z 90
+x 2
+y 22
+end
+arch rock_big1
+x 2
+y 22
+end
+arch floor_sand_d2
+z 90
+x 2
+y 23
+end
+arch rock_big1
+x 2
+y 23
+end
+arch floor_sand_d1
+z 90
+x 3
+end
+arch rock_big3
+x 3
+end
+arch floor_sand_d4
+z 90
+x 3
+y 1
+end
+arch rock_big1
+x 3
+y 1
+end
+arch floor_sand_d1
+z 90
+x 3
+y 2
+end
+arch rock_big1
+x 3
+y 2
+end
+arch floor_sand_d1
+z 90
+x 3
+y 3
+end
+arch rock_big3
+x 3
+y 3
+end
+arch floor_sand_d3
+z 90
+x 3
+y 4
+end
+arch reed_sm1
+x 3
+y 4
+end
+arch rock_big8
+x 3
+y 4
+end
+arch floor_sand_d2
+z 90
+x 3
+y 5
+end
+arch floor_sand_d2
+z 90
+x 3
+y 6
+end
+arch floor_sand_d1
+z 90
+x 3
+y 7
+end
+arch fstone1m8
+x 3
+y 7
+end
+arch fstone1b
+z 90
+x 3
+y 8
+end
+arch fstone1b
+z 90
+x 3
+y 9
+end
+arch fstone1c
+z 90
+x 3
+y 10
+end
+arch floor_sand_d1
+z 90
+x 3
+y 11
+end
+arch fstone1m4
+x 3
+y 11
+end
+arch floor_sand_d1
+z 90
+x 3
+y 12
+end
+arch tree_branch1
+x 3
+y 12
+end
+arch floor_sand_d3
+z 90
+x 3
+y 13
+end
+arch floor_sand_d2
+z 90
+x 3
+y 14
+end
+arch floor_sand_d1
+z 90
+x 3
+y 15
+end
+arch rock2
+x 3
+y 15
+end
+arch floor_sand_d3
+z 90
+x 3
+y 16
+end
+arch floor_sand_d2
+z 90
+x 3
+y 17
+end
+arch floor_sand_d2
+z 90
+x 3
+y 18
+end
+arch floor_sand_d1
+z 90
+x 3
+y 19
+end
+arch reed_sm1
+x 3
+y 19
+end
+arch floor_sand_d1
+z 90
+x 3
+y 20
+end
+arch rock_big3
+x 3
+y 20
+end
+arch floor_sand_d2
+z 90
+x 3
+y 21
+end
+arch rock_big1
+x 3
+y 21
+end
+arch floor_sand_d1
+z 90
+x 3
+y 22
+end
+arch rock_big3
+x 3
+y 22
+end
+arch floor_sand_d2
+z 90
+x 3
+y 23
+end
+arch rock_big3
+x 3
+y 23
+end
+arch floor_sand_d1
+z 90
+x 4
+end
+arch rock_big1
+x 4
+end
+arch floor_sand_d3
+z 90
+x 4
+y 1
+end
+arch rock_big1
+x 4
+y 1
+end
+arch floor_sand_d2
+z 90
+x 4
+y 2
+end
+arch rock_big1
+x 4
+y 2
+end
+arch floor_sand_d1
+z 90
+x 4
+y 3
+end
+arch rock_big1
+x 4
+y 3
+end
+arch floor_sand_d2
+z 90
+x 4
+y 4
+end
+arch reed_sm1
+x 4
+y 4
+end
+arch floor_sand_d2
+z 90
+x 4
+y 5
+end
+arch floor_sand_d1
+z 90
+x 4
+y 6
+end
+arch floor_sand_d1
+z 90
+x 4
+y 7
+end
+arch fstone1m8
+x 4
+y 7
+end
+arch fstone1c
+z 90
+x 4
+y 8
+end
+arch fstone1c
+z 90
+x 4
+y 9
+end
+arch fstone1b
+z 90
+x 4
+y 10
+end
+arch fstone1c
+z 90
+x 4
+y 11
+end
+arch floor_sand_d3
+z 90
+x 4
+y 12
+end
+arch fstone1m4
+x 4
+y 12
+end
+arch floor_sand_d2
+z 90
+x 4
+y 13
+end
+arch floor_sand_d2
+z 90
+x 4
+y 14
+end
+arch floor_sand_d1
+z 90
+x 4
+y 15
+end
+arch floor_sand_d1
+z 90
+x 4
+y 16
+end
+arch floor_sand_d2
+z 90
+x 4
+y 17
+end
+arch floor_sand_d1
+z 90
+x 4
+y 18
+end
+arch floor_sand_d2
+z 90
+x 4
+y 19
+end
+arch plant16
+x 4
+y 19
+end
+arch floor_sand_d3
+z 90
+x 4
+y 20
+end
+arch reed_sm1
+x 4
+y 20
+end
+arch rock2
+x 4
+y 20
+end
+arch floor_sand_d1
+z 90
+x 4
+y 21
+end
+arch reed_sm1
+x 4
+y 21
+end
+arch mushroom_giant1
+x 4
+y 21
+end
+arch floor_sand_d2
+z 90
+x 4
+y 22
+end
+arch rock_big1
+x 4
+y 22
+end
+arch floor_sand_d4
+z 90
+x 4
+y 23
+end
+arch rock_big3
+x 4
+y 23
+end
+arch floor_sand_d2
+z 90
+x 5
+end
+arch rock_big3
+x 5
+end
+arch floor_sand_d4
+z 90
+x 5
+y 1
+end
+arch rock_big3
+x 5
+y 1
+end
+arch floor_sand_d3
+z 90
+x 5
+y 2
+end
+arch rock_big3
+x 5
+y 2
+end
+arch floor_sand_d1
+z 90
+x 5
+y 3
+end
+arch reed_sm1
+x 5
+y 3
+end
+arch plant8
+x 5
+y 3
+end
+arch floor_sand_d3
+z 90
+x 5
+y 4
+end
+arch reed_sm1
+x 5
+y 4
+end
+arch floor_sand_d2
+z 90
+x 5
+y 5
+end
+arch floor_sand_d2
+z 90
+x 5
+y 6
+end
+arch tree_branch2
+x 5
+y 6
+end
+arch floor_sand_d2
+z 90
+x 5
+y 7
+end
+arch floor_sand_d2
+z 90
+x 5
+y 8
+end
+arch fstone1m1
+x 5
+y 8
+end
+arch fstone1b
+z 90
+x 5
+y 9
+end
+arch fstone1b
+z 90
+x 5
+y 10
+end
+arch fstone1b
+z 90
+x 5
+y 11
+end
+arch fstone1b
+z 90
+x 5
+y 12
+end
+arch floor_sand_d1
+z 90
+x 5
+y 13
+end
+arch fstone1m4
+x 5
+y 13
+end
+arch floor_sand_d4
+z 90
+x 5
+y 14
+end
+arch fstone1m11
+x 5
+y 14
+end
+arch floor_sand_d1
+z 90
+x 5
+y 15
+end
+arch floor_sand_d2
+z 90
+x 5
+y 16
+end
+arch floor_sand_d3
+z 90
+x 5
+y 17
+end
+arch floor_sand_d2
+z 90
+x 5
+y 18
+end
+arch floor_sand_d4
+z 90
+x 5
+y 19
+end
+arch floor_sand_d4
+z 90
+x 5
+y 20
+end
+arch floor_sand_d2
+z 90
+x 5
+y 21
+end
+arch au_tree2
+x 5
+y 21
+end
+arch floor_sand_d1
+z 90
+x 5
+y 22
+end
+arch reed_sm1
+x 5
+y 22
+end
+arch rock5
+x 5
+y 22
+end
+arch floor_sand_d3
+z 90
+x 5
+y 23
+end
+arch reed_sm1
+x 5
+y 23
+end
+arch floor_sand_d2
+z 90
+x 6
+end
+arch rock_big1
+x 6
+end
+arch floor_sand_d3
+z 90
+x 6
+y 1
+end
+arch rock_big3
+x 6
+y 1
+end
+arch floor_sand_d3
+z 90
+x 6
+y 2
+end
+arch rock_big3
+x 6
+y 2
+end
+arch floor_sand_d1
+z 90
+x 6
+y 3
+end
+arch rock_big1
+x 6
+y 3
+end
+arch floor_sand_d1
+z 90
+x 6
+y 4
+end
+arch rock_big3
+x 6
+y 4
+end
+arch floor_sand_d1
+z 90
+x 6
+y 5
+end
+arch reed_sm1
+x 6
+y 5
+end
+arch floor_sand_d4
+z 90
+x 6
+y 6
+end
+arch floor_sand_d3
+z 90
+x 6
+y 7
+end
+arch rock_big7
+x 6
+y 7
+end
+arch floor_sand_d4
+z 90
+x 6
+y 8
+end
+arch floor_sand_d1
+z 90
+x 6
+y 9
+end
+arch fstone1m1
+x 6
+y 9
+end
+arch fstone1b
+z 90
+x 6
+y 10
+end
+arch fstone1b
+z 90
+x 6
+y 11
+end
+arch fstone1c
+z 90
+x 6
+y 12
+end
+arch fstone1b
+z 90
+x 6
+y 13
+end
+arch fstone1b
+z 90
+x 6
+y 14
+end
+arch tree_branch1
+x 6
+y 14
+end
+arch floor_sand_d2
+z 90
+x 6
+y 15
+end
+arch fstone1m4
+x 6
+y 15
+end
+arch floor_sand_d1
+z 90
+x 6
+y 16
+end
+arch fstone1m11
+x 6
+y 16
+end
+arch floor_sand_d2
+z 90
+x 6
+y 17
+end
+arch fstone1m11
+x 6
+y 17
+end
+arch floor_sand_d1
+z 90
+x 6
+y 18
+end
+arch stone2
+x 6
+y 18
+end
+arch floor_sand_d2
+z 90
+x 6
+y 19
+end
+arch floor_sand_d3
+z 90
+x 6
+y 20
+end
+arch floor_sand_d2
+z 90
+x 6
+y 21
+end
+arch plant15
+x 6
+y 21
+end
+arch floor_sand_d3
+z 90
+x 6
+y 22
+end
+arch floor_sand_d1
+z 90
+x 6
+y 23
+end
+arch floor_sand_d4
+z 90
+x 7
+end
+arch rock_big3
+x 7
+end
+arch floor_sand_d2
+z 90
+x 7
+y 1
+end
+arch rock_big1
+x 7
+y 1
+end
+arch floor_sand_d2
+z 90
+x 7
+y 2
+end
+arch rock_big1
+x 7
+y 2
+end
+arch floor_sand_d4
+z 90
+x 7
+y 3
+end
+arch rock_big1
+x 7
+y 3
+end
+arch floor_sand_d2
+z 90
+x 7
+y 4
+end
+arch rock_big3
+x 7
+y 4
+end
+arch floor_sand_d2
+z 90
+x 7
+y 5
+end
+arch reed_sm1
+x 7
+y 5
+end
+arch rock2
+x 7
+y 5
+end
+arch floor_sand_d4
+z 90
+x 7
+y 6
+end
+arch floor_sand_d3
+z 90
+x 7
+y 7
+end
+arch tree_burned4
+x 7
+y 7
+end
+arch floor_sand_d2
+z 90
+x 7
+y 8
+end
+arch floor_sand_d1
+z 90
+x 7
+y 9
+end
+arch rock5
+x 7
+y 9
+end
+arch floor_sand_d4
+z 90
+x 7
+y 10
+end
+arch fstone1m1
+x 7
+y 10
+end
+arch fstone1c
+z 90
+x 7
+y 11
+end
+arch fstone1b
+z 90
+x 7
+y 12
+end
+arch fstone1c
+z 90
+x 7
+y 13
+end
+arch fstone1c
+z 90
+x 7
+y 14
+end
+arch fstone1b
+z 90
+x 7
+y 15
+end
+arch fstone1b
+z 90
+x 7
+y 16
+end
+arch fstone1c
+z 90
+x 7
+y 17
+end
+arch floor_sand_d4
+z 90
+x 7
+y 18
+end
+arch fstone1m4
+x 7
+y 18
+end
+arch floor_sand_d2
+z 90
+x 7
+y 19
+end
+arch fstone1m11
+x 7
+y 19
+end
+arch floor_sand_d3
+z 90
+x 7
+y 20
+end
+arch fstone1m11
+x 7
+y 20
+end
+arch floor_sand_d1
+z 90
+x 7
+y 21
+end
+arch fstone1m11
+x 7
+y 21
+end
+arch floor_sand_d2
+z 90
+x 7
+y 22
+end
+arch tree_branch3
+x 7
+y 22
+end
+arch floor_sand_d4
+z 90
+x 7
+y 23
+end
+arch floor_sand_d2
+z 90
+x 8
+end
+arch rock_big3
+x 8
+end
+arch floor_sand_d1
+z 90
+x 8
+y 1
+end
+arch rock_big1
+x 8
+y 1
+end
+arch floor_sand_d1
+z 90
+x 8
+y 2
+end
+arch rock_big1
+x 8
+y 2
+end
+arch floor_sand_d2
+z 90
+x 8
+y 3
+end
+arch rock_big1
+x 8
+y 3
+end
+arch floor_sand_d3
+z 90
+x 8
+y 4
+end
+arch rock_big1
+x 8
+y 4
+end
+arch floor_sand_d4
+z 90
+x 8
+y 5
+end
+arch reed_sm1
+x 8
+y 5
+end
+arch floor_sand_d1
+z 90
+x 8
+y 6
+end
+arch floor_sand_d2
+z 90
+x 8
+y 7
+end
+arch floor_sand_d2
+z 90
+x 8
+y 8
+end
+arch floor_sand_d4
+z 90
+x 8
+y 9
+end
+arch floor_sand_d2
+z 90
+x 8
+y 10
+end
+arch tree_huge2
+x 8
+y 10
+end
+arch floor_sand_d4
+z 90
+x 8
+y 11
+end
+arch fstone1m9
+x 8
+y 11
+end
+arch floor_sand_d1
+z 90
+x 8
+y 12
+end
+arch fstone1m1
+x 8
+y 12
+end
+arch fstone1b
+z 90
+x 8
+y 13
+end
+arch fstone1c
+z 90
+x 8
+y 14
+end
+arch fstone1c
+z 90
+x 8
+y 15
+end
+arch fstone1b
+z 90
+x 8
+y 16
+end
+arch fstone1c
+z 90
+x 8
+y 17
+end
+arch fstone1b
+z 90
+x 8
+y 18
+end
+arch fstone1b
+z 90
+x 8
+y 19
+end
+arch fstone1b
+z 90
+x 8
+y 20
+end
+arch fstone1b
+z 90
+x 8
+y 21
+end
+arch floor_sand_d1
+z 90
+x 8
+y 22
+end
+arch fstone1m4
+x 8
+y 22
+end
+arch floor_sand_d3
+z 90
+x 8
+y 23
+end
+arch fstone1m11
+x 8
+y 23
+end
+arch floor_sand_d3
+z 90
+x 9
+end
+arch rock_big3
+x 9
+end
+arch floor_sand_d1
+z 90
+x 9
+y 1
+end
+arch rock_big1
+x 9
+y 1
+end
+arch floor_sand_d3
+z 90
+x 9
+y 2
+end
+arch rock_big3
+x 9
+y 2
+end
+arch floor_sand_d4
+z 90
+x 9
+y 3
+end
+arch rock_big3
+x 9
+y 3
+end
+arch floor_sand_d4
+z 90
+x 9
+y 4
+end
+arch rock_big3
+x 9
+y 4
+end
+arch floor_sand_d2
+z 90
+x 9
+y 5
+end
+arch reed_sm1
+x 9
+y 5
+end
+arch rock6
+x 9
+y 5
+end
+arch floor_sand_d4
+z 90
+x 9
+y 6
+end
+arch floor_sand_d2
+z 90
+x 9
+y 7
+end
+arch floor_sand_d1
+z 90
+x 9
+y 8
+end
+arch tree_branch1
+x 9
+y 8
+end
+arch floor_sand_d1
+z 90
+x 9
+y 9
+end
+arch spawn_point
+x 9
+y 9
+arch ogre
+name ogre rock thrower
+level 7
+Dex 2
+can_use_bow 1
+type 83
+arch ability_stone_throw
+end
+arch t_rock
+sys_object 1
+end
+end
+end
+arch floor_sand_d4
+z 90
+x 9
+y 10
+end
+arch plant_mushroom5
+x 9
+y 10
+end
+arch floor_sand_d3
+z 90
+x 9
+y 11
+end
+arch floor_sand_d2
+z 90
+x 9
+y 12
+end
+arch floor_sand_d3
+z 90
+x 9
+y 13
+end
+arch fstone1m9
+x 9
+y 13
+end
+arch floor_sand_d1
+z 90
+x 9
+y 14
+end
+arch fstone1m9
+x 9
+y 14
+end
+arch floor_sand_d4
+z 90
+x 9
+y 15
+end
+arch fstone1m1
+x 9
+y 15
+end
+arch fstone1b
+z 90
+x 9
+y 16
+end
+arch fstone1c
+z 90
+x 9
+y 17
+end
+arch fstone1c
+z 90
+x 9
+y 18
+end
+arch fstone1b
+z 90
+x 9
+y 19
+end
+arch fstone1c
+z 90
+x 9
+y 20
+end
+arch fstone1c
+z 90
+x 9
+y 21
+end
+arch fstone1c
+z 90
+x 9
+y 22
+end
+arch fstone1b
+z 90
+x 9
+y 23
+end
+arch floor_sand_d2
+z 90
+x 10
+end
+arch rock_big1
+x 10
+end
+arch floor_sand_d2
+z 90
+x 10
+y 1
+end
+arch rock_big1
+x 10
+y 1
+end
+arch floor_sand_d2
+z 90
+x 10
+y 2
+end
+arch rock_big3
+x 10
+y 2
+end
+arch floor_sand_d2
+z 90
+x 10
+y 3
+end
+arch reed_sm1
+x 10
+y 3
+end
+arch plant7
+x 10
+y 3
+end
+arch floor_sand_d1
+z 90
+x 10
+y 4
+end
+arch reed_sm1
+x 10
+y 4
+end
+arch floor_sand_d3
+z 90
+x 10
+y 5
+end
+arch reed_sm1
+x 10
+y 5
+end
+arch floor_sand_d3
+z 90
+x 10
+y 6
+end
+arch floor_sand_d3
+z 90
+x 10
+y 7
+end
+arch plant_mushroom5
+x 10
+y 7
+end
+arch floor_sand_d1
+z 90
+x 10
+y 8
+end
+arch floor_sand_d4
+z 90
+x 10
+y 9
+end
+arch floor_sand_d3
+z 90
+x 10
+y 10
+end
+arch stone4
+x 10
+y 10
+end
+arch floor_sand_d2
+z 90
+x 10
+y 11
+end
+arch floor_sand_d4
+z 90
+x 10
+y 12
+end
+arch stone6
+x 10
+y 12
+end
+arch floor_sand_d3
+z 90
+x 10
+y 13
+end
+arch floor_sand_d3
+z 90
+x 10
+y 14
+end
+arch floor_sand_d2
+z 90
+x 10
+y 15
+end
+arch rock_big7
+x 10
+y 15
+end
+arch floor_sand_d1
+z 90
+x 10
+y 16
+end
+arch fstone1m9
+x 10
+y 16
+end
+arch floor_sand_d3
+z 90
+x 10
+y 17
+end
+arch fstone1m9
+x 10
+y 17
+end
+arch floor_sand_d1
+z 90
+x 10
+y 18
+end
+arch fstone1m9
+x 10
+y 18
+end
+arch floor_sand_d1
+z 90
+x 10
+y 19
+end
+arch fstone1m1
+x 10
+y 19
+end
+arch fstone1c
+z 90
+x 10
+y 20
+end
+arch fstone1b
+z 90
+x 10
+y 21
+end
+arch tree_branch3
+x 10
+y 21
+end
+arch fstone1b
+z 90
+x 10
+y 22
+end
+arch fstone1c
+z 90
+x 10
+y 23
+end
+arch floor_sand_d4
+z 90
+x 11
+end
+arch rock_big3
+x 11
+end
+arch floor_sand_d3
+z 90
+x 11
+y 1
+end
+arch rock_big1
+x 11
+y 1
+end
+arch floor_sand_d2
+z 90
+x 11
+y 2
+end
+arch rock_big1
+x 11
+y 2
+end
+arch floor_sand_d3
+z 90
+x 11
+y 3
+end
+arch reed_sm1
+x 11
+y 3
+end
+arch plant8
+x 11
+y 3
+end
+arch floor_sand_d3
+z 90
+x 11
+y 4
+end
+arch reed_sm1
+x 11
+y 4
+end
+arch floor_sand_d2
+z 90
+x 11
+y 5
+end
+arch floor_sand_d4
+z 90
+x 11
+y 6
+end
+arch stone4
+x 11
+y 6
+end
+arch floor_sand_d3
+z 90
+x 11
+y 7
+end
+arch rock_big5
+x 11
+y 7
+end
+arch floor_sand_d1
+z 90
+x 11
+y 8
+end
+arch floor_sand_d3
+z 90
+x 11
+y 9
+end
+arch floor_sand_d4
+z 90
+x 11
+y 10
+end
+arch floor_sand_d4
+z 90
+x 11
+y 11
+end
+arch floor_sand_d3
+z 90
+x 11
+y 12
+end
+arch floor_sand_d2
+z 90
+x 11
+y 13
+end
+arch rock_big9
+x 11
+y 13
+end
+arch floor_sand_d2
+z 90
+x 11
+y 14
+end
+arch floor_sand_d4
+z 90
+x 11
+y 15
+end
+arch floor_sand_d2
+z 90
+x 11
+y 16
+end
+arch floor_sand_d1
+z 90
+x 11
+y 17
+end
+arch floor_sand_d1
+z 90
+x 11
+y 18
+end
+arch floor_sand_d3
+z 90
+x 11
+y 19
+end
+arch floor_sand_d1
+z 90
+x 11
+y 20
+end
+arch fstone1m9
+x 11
+y 20
+end
+arch floor_sand_d1
+z 90
+x 11
+y 21
+end
+arch fstone1m1
+x 11
+y 21
+end
+arch fstone1c
+z 90
+x 11
+y 22
+end
+arch fstone1b
+z 90
+x 11
+y 23
+end
+arch floor_sand_d2
+z 90
+x 12
+end
+arch rock_big3
+x 12
+end
+arch floor_sand_d3
+z 90
+x 12
+y 1
+end
+arch rock_big3
+x 12
+y 1
+end
+arch floor_sand_d2
+z 90
+x 12
+y 2
+end
+arch rock_big3
+x 12
+y 2
+end
+arch floor_sand_d3
+z 90
+x 12
+y 3
+end
+arch rock_big3
+x 12
+y 3
+end
+arch floor_sand_d2
+z 90
+x 12
+y 4
+end
+arch reed_sm1
+x 12
+y 4
+end
+arch floor_sand_d3
+z 90
+x 12
+y 5
+end
+arch floor_sand_d2
+z 90
+x 12
+y 6
+end
+arch floor_sand_d4
+z 90
+x 12
+y 7
+end
+arch floor_sand_d2
+z 90
+x 12
+y 8
+end
+arch floor_sand_d3
+z 90
+x 12
+y 9
+end
+arch floor_sand_d4
+z 90
+x 12
+y 10
+end
+arch floor_sand_d1
+z 90
+x 12
+y 11
+end
+arch au_tree1
+x 12
+y 11
+end
+arch floor_sand_d1
+z 90
+x 12
+y 12
+end
+arch floor_sand_d3
+z 90
+x 12
+y 13
+end
+arch floor_sand_d4
+z 90
+x 12
+y 14
+end
+arch floor_sand_d1
+z 90
+x 12
+y 15
+end
+arch plant_mushroom4
+x 12
+y 15
+end
+arch floor_sand_d3
+z 90
+x 12
+y 16
+end
+arch floor_sand_d3
+z 90
+x 12
+y 17
+end
+arch floor_sand_d2
+z 90
+x 12
+y 18
+end
+arch stone2
+x 12
+y 18
+end
+arch floor_sand_d2
+z 90
+x 12
+y 19
+end
+arch floor_sand_d1
+z 90
+x 12
+y 20
+end
+arch plant15
+x 12
+y 20
+end
+arch floor_sand_d4
+z 90
+x 12
+y 21
+end
+arch floor_sand_d2
+z 90
+x 12
+y 22
+end
+arch fstone1m9
+x 12
+y 22
+end
+arch floor_sand_d4
+z 90
+x 12
+y 23
+end
+arch fstone1m9
+x 12
+y 23
+end
+arch floor_sand_d4
+z 90
+x 13
+end
+arch rock_big1
+x 13
+end
+arch floor_sand_d1
+z 90
+x 13
+y 1
+end
+arch rock_big3
+x 13
+y 1
+end
+arch floor_sand_d3
+z 90
+x 13
+y 2
+end
+arch rock_big3
+x 13
+y 2
+end
+arch floor_sand_d3
+z 90
+x 13
+y 3
+end
+arch rock_big3
+x 13
+y 3
+end
+arch floor_sand_d1
+z 90
+x 13
+y 4
+end
+arch reed_sm1
+x 13
+y 4
+end
+arch mushroom_giant2
+x 13
+y 4
+end
+arch floor_sand_d3
+z 90
+x 13
+y 5
+end
+arch floor_sand_d1
+z 90
+x 13
+y 6
+end
+arch au_tree1
+x 13
+y 6
+end
+arch floor_sand_d4
+z 90
+x 13
+y 7
+end
+arch floor_sand_d3
+z 90
+x 13
+y 8
+end
+arch plant5
+x 13
+y 8
+end
+arch floor_sand_d4
+z 90
+x 13
+y 9
+end
+arch floor_sand_d3
+z 90
+x 13
+y 10
+end
+arch floor_sand_d4
+z 90
+x 13
+y 11
+end
+arch floor_sand_d4
+z 90
+x 13
+y 12
+end
+arch floor_sand_d1
+z 90
+x 13
+y 13
+end
+arch floor_sand_d2
+z 90
+x 13
+y 14
+end
+arch floor_sand_d3
+z 90
+x 13
+y 15
+end
+arch floor_sand_d2
+z 90
+x 13
+y 16
+end
+arch floor_sand_d2
+z 90
+x 13
+y 17
+end
+arch spawn_point
+x 13
+y 17
+arch ogre
+name ogre rock thrower
+level 7
+Dex 2
+can_use_bow 1
+type 83
+arch ability_stone_throw
+end
+arch t_rock
+sys_object 1
+end
+end
+end
+arch floor_sand_d3
+z 90
+x 13
+y 18
+end
+arch floor_sand_d2
+z 90
+x 13
+y 19
+end
+arch floor_sand_d2
+z 90
+x 13
+y 20
+end
+arch floor_sand_d3
+z 90
+x 13
+y 21
+end
+arch floor_sand_d3
+z 90
+x 13
+y 22
+end
+arch floor_sand_d4
+z 90
+x 13
+y 23
+end
+arch floor_sand_d1
+z 90
+x 14
+end
+arch rock_big1
+x 14
+end
+arch floor_sand_d1
+z 90
+x 14
+y 1
+end
+arch rock_big1
+x 14
+y 1
+end
+arch floor_sand_d1
+z 90
+x 14
+y 2
+end
+arch rock_big3
+x 14
+y 2
+end
+arch floor_sand_d2
+z 90
+x 14
+y 3
+end
+arch reed_sm1
+x 14
+y 3
+end
+arch floor_sand_d2
+z 90
+x 14
+y 4
+end
+arch rock_big1
+x 14
+y 4
+end
+arch floor_sand_d2
+z 90
+x 14
+y 5
+end
+arch reed_sm1
+x 14
+y 5
+end
+arch floor_sand_d3
+z 90
+x 14
+y 6
+end
+arch floor_sand_d3
+z 90
+x 14
+y 7
+end
+arch floor_sand_d2
+z 90
+x 14
+y 8
+end
+arch floor_sand_d1
+z 90
+x 14
+y 9
+end
+arch floor_sand_d4
+z 90
+x 14
+y 10
+end
+arch floor_sand_d3
+z 90
+x 14
+y 11
+end
+arch floor_sand_d1
+z 90
+x 14
+y 12
+end
+arch floor_sand_d4
+z 90
+x 14
+y 13
+end
+arch floor_sand_d4
+z 90
+x 14
+y 14
+end
+arch floor_sand_d2
+z 90
+x 14
+y 15
+end
+arch floor_sand_d1
+z 90
+x 14
+y 16
+end
+arch floor_sand_d3
+z 90
+x 14
+y 17
+end
+arch au_tree2
+x 14
+y 17
+end
+arch floor_sand_d1
+z 90
+x 14
+y 18
+end
+arch floor_sand_d4
+z 90
+x 14
+y 19
+end
+arch floor_sand_d1
+z 90
+x 14
+y 20
+end
+arch rock_big6
+x 14
+y 20
+end
+arch floor_sand_d4
+z 90
+x 14
+y 21
+end
+arch floor_sand_d2
+z 90
+x 14
+y 22
+end
+arch floor_sand_d3
+z 90
+x 14
+y 23
+end
+arch floor_sand_d3
+z 90
+x 15
+end
+arch rock_big3
+x 15
+end
+arch floor_sand_d3
+z 90
+x 15
+y 1
+end
+arch rock_big1
+x 15
+y 1
+end
+arch floor_sand_d1
+z 90
+x 15
+y 2
+end
+arch rock_big3
+x 15
+y 2
+end
+arch floor_sand_d4
+z 90
+x 15
+y 3
+end
+arch reed_sm1
+x 15
+y 3
+end
+arch plant8
+x 15
+y 3
+end
+arch floor_sand_d4
+z 90
+x 15
+y 4
+end
+arch reed_sm1
+x 15
+y 4
+end
+arch floor_sand_d3
+z 90
+x 15
+y 5
+end
+arch rock5
+x 15
+y 5
+end
+arch floor_sand_d2
+z 90
+x 15
+y 6
+end
+arch floor_sand_d2
+z 90
+x 15
+y 7
+end
+arch floor_sand_d1
+z 90
+x 15
+y 8
+end
+arch floor_sand_d3
+z 90
+x 15
+y 9
+end
+arch tree_branch1
+x 15
+y 9
+end
+arch floor_sand_d2
+z 90
+x 15
+y 10
+end
+arch floor_sand_d4
+z 90
+x 15
+y 11
+end
+arch plant15
+x 15
+y 11
+end
+arch floor_sand_d1
+z 90
+x 15
+y 12
+end
+arch floor_sand_d2
+z 90
+x 15
+y 13
+end
+arch stone5
+x 15
+y 13
+end
+arch floor_sand_d4
+z 90
+x 15
+y 14
+end
+arch floor_sand_d2
+z 90
+x 15
+y 15
+end
+arch floor_sand_d1
+z 90
+x 15
+y 16
+end
+arch plant16
+x 15
+y 16
+end
+arch floor_sand_d4
+z 90
+x 15
+y 17
+end
+arch floor_sand_d3
+z 90
+x 15
+y 18
+end
+arch floor_sand_d1
+z 90
+x 15
+y 19
+end
+arch floor_sand_d2
+z 90
+x 15
+y 20
+end
+arch floor_sand_d3
+z 90
+x 15
+y 21
+end
+arch plant_mushroom2
+x 15
+y 21
+end
+arch floor_sand_d3
+z 90
+x 15
+y 22
+end
+arch floor_sand_d2
+z 90
+x 15
+y 23
+end
+arch floor_sand_d3
+z 90
+x 16
+end
+arch rock_big3
+x 16
+end
+arch floor_sand_d3
+z 90
+x 16
+y 1
+end
+arch rock_big1
+x 16
+y 1
+end
+arch floor_sand_d3
+z 90
+x 16
+y 2
+end
+arch rock_big3
+x 16
+y 2
+end
+arch floor_sand_d4
+z 90
+x 16
+y 3
+end
+arch rock_big3
+x 16
+y 3
+end
+arch floor_sand_d1
+z 90
+x 16
+y 4
+end
+arch reed_sm1
+x 16
+y 4
+end
+arch plant7
+x 16
+y 4
+end
+arch floor_sand_d1
+z 90
+x 16
+y 5
+end
+arch reed_sm1
+x 16
+y 5
+end
+arch floor_sand_d4
+z 90
+x 16
+y 6
+end
+arch floor_sand_d1
+z 90
+x 16
+y 7
+end
+arch tree_branch2
+x 16
+y 7
+end
+arch floor_sand_d4
+z 90
+x 16
+y 8
+end
+arch plant11
+x 16
+y 8
+end
+arch floor_sand_d3
+z 90
+x 16
+y 9
+end
+arch floor_sand_d2
+z 90
+x 16
+y 10
+end
+arch floor_sand_d1
+z 90
+x 16
+y 11
+end
+arch floor_sand_d1
+z 90
+x 16
+y 12
+end
+arch floor_sand_d3
+z 90
+x 16
+y 13
+end
+arch floor_sand_d2
+z 90
+x 16
+y 14
+end
+arch floor_sand_d3
+z 90
+x 16
+y 15
+end
+arch floor_sand_d2
+z 90
+x 16
+y 16
+end
+arch floor_sand_d4
+z 90
+x 16
+y 17
+end
+arch floor_sand_d3
+z 90
+x 16
+y 18
+end
+arch floor_sand_d2
+z 90
+x 16
+y 19
+end
+arch floor_sand_d3
+z 90
+x 16
+y 20
+end
+arch stone2
+x 16
+y 20
+end
+arch floor_sand_d2
+z 90
+x 16
+y 21
+end
+arch floor_sand_d3
+z 90
+x 16
+y 22
+end
+arch tree_burned4
+x 16
+y 22
+end
+arch floor_sand_d1
+z 90
+x 16
+y 23
+end
+arch floor_sand_d2
+z 90
+x 17
+end
+arch rock_big1
+x 17
+end
+arch floor_sand_d2
+z 90
+x 17
+y 1
+end
+arch rock_big3
+x 17
+y 1
+end
+arch floor_sand_d3
+z 90
+x 17
+y 2
+end
+arch rock_big1
+x 17
+y 2
+end
+arch floor_sand_d1
+z 90
+x 17
+y 3
+end
+arch rock_big3
+x 17
+y 3
+end
+arch floor_sand_d3
+z 90
+x 17
+y 4
+end
+arch rock_big3
+x 17
+y 4
+end
+arch floor_sand_d1
+z 90
+x 17
+y 5
+end
+arch reed_sm1
+x 17
+y 5
+end
+arch plant8
+x 17
+y 5
+end
+arch floor_sand_d2
+z 90
+x 17
+y 6
+end
+arch reed_sm1
+x 17
+y 6
+end
+arch floor_sand_d1
+z 90
+x 17
+y 7
+end
+arch floor_sand_d4
+z 90
+x 17
+y 8
+end
+arch floor_sand_d4
+z 90
+x 17
+y 9
+end
+arch floor_sand_d1
+z 90
+x 17
+y 10
+end
+arch tree_burned2
+x 17
+y 10
+end
+arch floor_sand_d3
+z 90
+x 17
+y 11
+end
+arch floor_sand_d2
+z 90
+x 17
+y 12
+end
+arch rock6
+x 17
+y 12
+end
+arch floor_sand_d3
+z 90
+x 17
+y 13
+end
+arch floor_sand_d1
+z 90
+x 17
+y 14
+end
+arch floor_sand_d3
+z 90
+x 17
+y 15
+end
+arch floor_sand_d2
+z 90
+x 17
+y 16
+end
+arch tree_burned4
+x 17
+y 16
+end
+arch floor_sand_d4
+z 90
+x 17
+y 17
+end
+arch floor_sand_d4
+z 90
+x 17
+y 18
+end
+arch floor_sand_d1
+z 90
+x 17
+y 19
+end
+arch floor_sand_d3
+z 90
+x 17
+y 20
+end
+arch floor_sand_d4
+z 90
+x 17
+y 21
+end
+arch floor_sand_d3
+z 90
+x 17
+y 22
+end
+arch floor_sand_d3
+z 90
+x 17
+y 23
+end
+arch floor_sand_d4
+z 90
+x 18
+end
+arch rock_big1
+x 18
+end
+arch floor_sand_d3
+z 90
+x 18
+y 1
+end
+arch rock_big1
+x 18
+y 1
+end
+arch floor_sand_d2
+z 90
+x 18
+y 2
+end
+arch rock_big3
+x 18
+y 2
+end
+arch floor_sand_d3
+z 90
+x 18
+y 3
+end
+arch rock_big3
+x 18
+y 3
+end
+arch floor_sand_d2
+z 90
+x 18
+y 4
+end
+arch rock_big3
+x 18
+y 4
+end
+arch floor_sand_d3
+z 90
+x 18
+y 5
+end
+arch rock_big3
+x 18
+y 5
+end
+arch floor_sand_d1
+z 90
+x 18
+y 6
+end
+arch reed_sm1
+x 18
+y 6
+end
+arch plant7
+x 18
+y 6
+end
+arch floor_sand_d2
+z 90
+x 18
+y 7
+end
+arch reed_sm1
+x 18
+y 7
+end
+arch floor_sand_d2
+z 90
+x 18
+y 8
+end
+arch reed_sm1
+x 18
+y 8
+end
+arch floor_sand_d4
+z 90
+x 18
+y 9
+end
+arch floor_sand_d1
+z 90
+x 18
+y 10
+end
+arch floor_sand_d1
+z 90
+x 18
+y 11
+end
+arch floor_sand_d1
+z 90
+x 18
+y 12
+end
+arch reed_sm1
+x 18
+y 12
+end
+arch floor_sand_d4
+z 90
+x 18
+y 13
+end
+arch reed_sm1
+x 18
+y 13
+end
+arch floor_sand_d4
+z 90
+x 18
+y 14
+end
+arch floor_sand_d2
+z 90
+x 18
+y 15
+end
+arch floor_sand_d4
+z 90
+x 18
+y 16
+end
+arch floor_sand_d1
+z 90
+x 18
+y 17
+end
+arch floor_sand_d4
+z 90
+x 18
+y 18
+end
+arch floor_sand_d1
+z 90
+x 18
+y 19
+end
+arch plant9
+x 18
+y 19
+end
+arch floor_sand_d4
+z 90
+x 18
+y 20
+end
+arch floor_sand_d4
+z 90
+x 18
+y 21
+end
+arch floor_sand_d2
+z 90
+x 18
+y 22
+end
+arch floor_sand_d4
+z 90
+x 18
+y 23
+end
+arch floor_sand_d4
+z 90
+x 19
+end
+arch rock_big3
+x 19
+end
+arch floor_sand_d4
+z 90
+x 19
+y 1
+end
+arch rock_big1
+x 19
+y 1
+end
+arch floor_sand_d4
+z 90
+x 19
+y 2
+end
+arch rock_big3
+x 19
+y 2
+end
+arch floor_sand_d1
+z 90
+x 19
+y 3
+end
+arch rock_big3
+x 19
+y 3
+end
+arch floor_sand_d4
+z 90
+x 19
+y 4
+end
+arch rock_big1
+x 19
+y 4
+end
+arch floor_sand_d4
+z 90
+x 19
+y 5
+end
+arch rock_big3
+x 19
+y 5
+end
+arch floor_sand_d4
+z 90
+x 19
+y 6
+end
+arch rock_big1
+x 19
+y 6
+end
+arch floor_sand_d4
+z 90
+x 19
+y 7
+end
+arch reed_sm1
+x 19
+y 7
+end
+arch floor_sand_d3
+z 90
+x 19
+y 8
+end
+arch rock_big1
+x 19
+y 8
+end
+arch floor_sand_d1
+z 90
+x 19
+y 9
+end
+arch reed_sm1
+x 19
+y 9
+end
+arch floor_sand_d2
+z 90
+x 19
+y 10
+end
+arch reed_sm1
+x 19
+y 10
+end
+arch floor_sand_d1
+z 90
+x 19
+y 11
+end
+arch reed_sm1
+x 19
+y 11
+end
+arch floor_sand_d4
+z 90
+x 19
+y 12
+end
+arch reed_sm1
+x 19
+y 12
+end
+arch floor_sand_d2
+z 90
+x 19
+y 13
+end
+arch rock_big1
+x 19
+y 13
+end
+arch floor_sand_d1
+z 90
+x 19
+y 14
+end
+arch reed_sm1
+x 19
+y 14
+end
+arch plant7
+x 19
+y 14
+end
+arch floor_sand_d4
+z 90
+x 19
+y 15
+end
+arch reed_sm1
+x 19
+y 15
+end
+arch plant8
+x 19
+y 15
+end
+arch floor_sand_d2
+z 90
+x 19
+y 16
+end
+arch reed_sm1
+x 19
+y 16
+end
+arch plant8
+x 19
+y 16
+end
+arch floor_sand_d4
+z 90
+x 19
+y 17
+end
+arch reed_sm1
+x 19
+y 17
+end
+arch floor_sand_d2
+z 90
+x 19
+y 18
+end
+arch reed_sm1
+x 19
+y 18
+end
+arch floor_sand_d3
+z 90
+x 19
+y 19
+end
+arch reed_sm1
+x 19
+y 19
+end
+arch rock5
+x 19
+y 19
+end
+arch floor_sand_d2
+z 90
+x 19
+y 20
+end
+arch floor_sand_d3
+z 90
+x 19
+y 21
+end
+arch floor_sand_d3
+z 90
+x 19
+y 22
+end
+arch reed_sm1
+x 19
+y 22
+end
+arch rock5
+x 19
+y 22
+end
+arch floor_sand_d2
+z 90
+x 19
+y 23
+end
+arch floor_sand_d4
+z 90
+x 20
+end
+arch rock_big1
+x 20
+end
+arch floor_sand_d2
+z 90
+x 20
+y 1
+end
+arch rock_big3
+x 20
+y 1
+end
+arch floor_sand_d3
+z 90
+x 20
+y 2
+end
+arch rock_big3
+x 20
+y 2
+end
+arch floor_sand_d4
+z 90
+x 20
+y 3
+end
+arch rock_big3
+x 20
+y 3
+end
+arch floor_sand_d2
+z 90
+x 20
+y 4
+end
+arch reed_sm1
+x 20
+y 4
+end
+arch floor_sand_d4
+z 90
+x 20
+y 5
+end
+arch reed_sm1
+x 20
+y 5
+end
+arch floor_sand_d1
+z 90
+x 20
+y 6
+end
+arch rock_big1
+x 20
+y 6
+end
+arch floor_sand_d1
+z 90
+x 20
+y 7
+end
+arch rock_big3
+x 20
+y 7
+end
+arch floor_sand_d4
+z 90
+x 20
+y 8
+end
+arch rock_big3
+x 20
+y 8
+end
+arch floor_sand_d3
+z 90
+x 20
+y 9
+end
+arch rock_big1
+x 20
+y 9
+end
+arch floor_sand_d1
+z 90
+x 20
+y 10
+end
+arch reed_sm1
+x 20
+y 10
+end
+arch mushroom_giant2
+x 20
+y 10
+end
+arch floor_sand_d3
+z 90
+x 20
+y 11
+end
+arch rock_big1
+x 20
+y 11
+end
+arch floor_sand_d4
+z 90
+x 20
+y 12
+end
+arch reed_sm1
+x 20
+y 12
+end
+arch plant8
+x 20
+y 12
+end
+arch floor_sand_d1
+z 90
+x 20
+y 13
+end
+arch rock_big1
+x 20
+y 13
+end
+arch floor_sand_d3
+z 90
+x 20
+y 14
+end
+arch rock_big3
+x 20
+y 14
+end
+arch floor_sand_d3
+z 90
+x 20
+y 15
+end
+arch rock_big3
+x 20
+y 15
+end
+arch floor_sand_d1
+z 90
+x 20
+y 16
+end
+arch rock_big3
+x 20
+y 16
+end
+arch floor_sand_d2
+z 90
+x 20
+y 17
+end
+arch rock_big3
+x 20
+y 17
+end
+arch floor_sand_d4
+z 90
+x 20
+y 18
+end
+arch rock_big3
+x 20
+y 18
+end
+arch floor_sand_d3
+z 90
+x 20
+y 19
+end
+arch rock_big1
+x 20
+y 19
+end
+arch floor_sand_d2
+z 90
+x 20
+y 20
+end
+arch reed_sm1
+x 20
+y 20
+end
+arch mushroom_giant2
+x 20
+y 20
+end
+arch floor_sand_d1
+z 90
+x 20
+y 21
+end
+arch reed_sm1
+x 20
+y 21
+end
+arch floor_sand_d4
+z 90
+x 20
+y 22
+end
+arch rock_big1
+x 20
+y 22
+end
+arch floor_sand_d3
+z 90
+x 20
+y 23
+end
+arch reed_sm1
+x 20
+y 23
+end
+arch floor_sand_d1
+z 90
+x 21
+end
+arch rock_big1
+x 21
+end
+arch floor_sand_d3
+z 90
+x 21
+y 1
+end
+arch rock_big3
+x 21
+y 1
+end
+arch floor_sand_d3
+z 90
+x 21
+y 2
+end
+arch rock_big3
+x 21
+y 2
+end
+arch floor_sand_d2
+z 90
+x 21
+y 3
+end
+arch rock_big1
+x 21
+y 3
+end
+arch floor_sand_d4
+z 90
+x 21
+y 4
+end
+arch rock_big3
+x 21
+y 4
+end
+arch floor_sand_d2
+z 90
+x 21
+y 5
+end
+arch rock_big1
+x 21
+y 5
+end
+arch floor_sand_d3
+z 90
+x 21
+y 6
+end
+arch rock_big1
+x 21
+y 6
+end
+arch floor_sand_d3
+z 90
+x 21
+y 7
+end
+arch rock_big3
+x 21
+y 7
+end
+arch floor_sand_d3
+z 90
+x 21
+y 8
+end
+arch rock_big1
+x 21
+y 8
+end
+arch floor_sand_d3
+z 90
+x 21
+y 9
+end
+arch rock_big1
+x 21
+y 9
+end
+arch floor_sand_d4
+z 90
+x 21
+y 10
+end
+arch rock_big3
+x 21
+y 10
+end
+arch floor_sand_d3
+z 90
+x 21
+y 11
+end
+arch rock_big1
+x 21
+y 11
+end
+arch floor_sand_d2
+z 90
+x 21
+y 12
+end
+arch rock_big3
+x 21
+y 12
+end
+arch floor_sand_d3
+z 90
+x 21
+y 13
+end
+arch rock_big3
+x 21
+y 13
+end
+arch floor_sand_d3
+z 90
+x 21
+y 14
+end
+arch rock_big1
+x 21
+y 14
+end
+arch floor_sand_d2
+z 90
+x 21
+y 15
+end
+arch rock_big3
+x 21
+y 15
+end
+arch floor_sand_d4
+z 90
+x 21
+y 16
+end
+arch rock_big1
+x 21
+y 16
+end
+arch floor_sand_d4
+z 90
+x 21
+y 17
+end
+arch rock_big3
+x 21
+y 17
+end
+arch floor_sand_d4
+z 90
+x 21
+y 18
+end
+arch rock_big1
+x 21
+y 18
+end
+arch floor_sand_d4
+z 90
+x 21
+y 19
+end
+arch rock_big3
+x 21
+y 19
+end
+arch floor_sand_d3
+z 90
+x 21
+y 20
+end
+arch rock_big3
+x 21
+y 20
+end
+arch floor_sand_d4
+z 90
+x 21
+y 21
+end
+arch rock_big1
+x 21
+y 21
+end
+arch floor_sand_d3
+z 90
+x 21
+y 22
+end
+arch rock_big1
+x 21
+y 22
+end
+arch floor_sand_d3
+z 90
+x 21
+y 23
+end
+arch rock_big3
+x 21
+y 23
+end
+arch floor_sand_d1
+z 90
+x 22
+end
+arch rock_big3
+x 22
+end
+arch floor_sand_d4
+z 90
+x 22
+y 1
+end
+arch rock_big1
+x 22
+y 1
+end
+arch floor_sand_d3
+z 90
+x 22
+y 2
+end
+arch rock_big1
+x 22
+y 2
+end
+arch floor_sand_d1
+z 90
+x 22
+y 3
+end
+arch rock_big1
+x 22
+y 3
+end
+arch floor_sand_d3
+z 90
+x 22
+y 4
+end
+arch rock_big3
+x 22
+y 4
+end
+arch floor_sand_d2
+z 90
+x 22
+y 5
+end
+arch rock_big3
+x 22
+y 5
+end
+arch floor_sand_d1
+z 90
+x 22
+y 6
+end
+arch rock_big1
+x 22
+y 6
+end
+arch floor_sand_d2
+z 90
+x 22
+y 7
+end
+arch rock_big3
+x 22
+y 7
+end
+arch floor_sand_d1
+z 90
+x 22
+y 8
+end
+arch rock_big3
+x 22
+y 8
+end
+arch floor_sand_d3
+z 90
+x 22
+y 9
+end
+arch rock_big1
+x 22
+y 9
+end
+arch floor_sand_d4
+z 90
+x 22
+y 10
+end
+arch rock_big3
+x 22
+y 10
+end
+arch floor_sand_d1
+z 90
+x 22
+y 11
+end
+arch rock_big3
+x 22
+y 11
+end
+arch floor_sand_d3
+z 90
+x 22
+y 12
+end
+arch rock_big1
+x 22
+y 12
+end
+arch floor_sand_d1
+z 90
+x 22
+y 13
+end
+arch rock_big3
+x 22
+y 13
+end
+arch floor_sand_d2
+z 90
+x 22
+y 14
+end
+arch rock_big3
+x 22
+y 14
+end
+arch floor_sand_d1
+z 90
+x 22
+y 15
+end
+arch rock_big1
+x 22
+y 15
+end
+arch floor_sand_d2
+z 90
+x 22
+y 16
+end
+arch rock_big3
+x 22
+y 16
+end
+arch floor_sand_d1
+z 90
+x 22
+y 17
+end
+arch rock_big1
+x 22
+y 17
+end
+arch floor_sand_d4
+z 90
+x 22
+y 18
+end
+arch rock_big1
+x 22
+y 18
+end
+arch floor_sand_d1
+z 90
+x 22
+y 19
+end
+arch rock_big1
+x 22
+y 19
+end
+arch floor_sand_d3
+z 90
+x 22
+y 20
+end
+arch rock_big3
+x 22
+y 20
+end
+arch floor_sand_d3
+z 90
+x 22
+y 21
+end
+arch rock_big3
+x 22
+y 21
+end
+arch floor_sand_d4
+z 90
+x 22
+y 22
+end
+arch rock_big1
+x 22
+y 22
+end
+arch floor_sand_d1
+z 90
+x 22
+y 23
+end
+arch rock_big3
+x 22
+y 23
+end
+arch floor_sand_d1
+z 90
+x 23
+end
+arch rock_big1
+x 23
+end
+arch floor_sand_d2
+z 90
+x 23
+y 1
+end
+arch rock_big3
+x 23
+y 1
+end
+arch floor_sand_d1
+z 90
+x 23
+y 2
+end
+arch rock_big1
+x 23
+y 2
+end
+arch floor_sand_d3
+z 90
+x 23
+y 3
+end
+arch rock_big3
+x 23
+y 3
+end
+arch floor_sand_d1
+z 90
+x 23
+y 4
+end
+arch rock_big1
+x 23
+y 4
+end
+arch floor_sand_d3
+z 90
+x 23
+y 5
+end
+arch rock_big3
+x 23
+y 5
+end
+arch floor_sand_d3
+z 90
+x 23
+y 6
+end
+arch rock_big3
+x 23
+y 6
+end
+arch floor_sand_d3
+z 90
+x 23
+y 7
+end
+arch rock_big1
+x 23
+y 7
+end
+arch floor_sand_d2
+z 90
+x 23
+y 8
+end
+arch rock_big3
+x 23
+y 8
+end
+arch floor_sand_d1
+z 90
+x 23
+y 9
+end
+arch rock_big3
+x 23
+y 9
+end
+arch floor_sand_d3
+z 90
+x 23
+y 10
+end
+arch rock_big3
+x 23
+y 10
+end
+arch floor_sand_d3
+z 90
+x 23
+y 11
+end
+arch rock_big1
+x 23
+y 11
+end
+arch floor_sand_d1
+z 90
+x 23
+y 12
+end
+arch rock_big1
+x 23
+y 12
+end
+arch floor_sand_d4
+z 90
+x 23
+y 13
+end
+arch rock_big1
+x 23
+y 13
+end
+arch floor_sand_d3
+z 90
+x 23
+y 14
+end
+arch rock_big1
+x 23
+y 14
+end
+arch floor_sand_d2
+z 90
+x 23
+y 15
+end
+arch rock_big1
+x 23
+y 15
+end
+arch floor_sand_d2
+z 90
+x 23
+y 16
+end
+arch rock_big1
+x 23
+y 16
+end
+arch floor_sand_d4
+z 90
+x 23
+y 17
+end
+arch rock_big1
+x 23
+y 17
+end
+arch floor_sand_d3
+z 90
+x 23
+y 18
+end
+arch rock_big1
+x 23
+y 18
+end
+arch floor_sand_d3
+z 90
+x 23
+y 19
+end
+arch rock_big3
+x 23
+y 19
+end
+arch floor_sand_d2
+z 90
+x 23
+y 20
+end
+arch rock_big1
+x 23
+y 20
+end
+arch floor_sand_d3
+z 90
+x 23
+y 21
+end
+arch rock_big3
+x 23
+y 21
+end
+arch floor_sand_d4
+z 90
+x 23
+y 22
+end
+arch rock_big1
+x 23
+y 22
+end
+arch floor_sand_d2
+z 90
+x 23
+y 23
+end
+arch rock_big1
+x 23
+y 23
+end

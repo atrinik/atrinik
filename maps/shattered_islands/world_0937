@@ -1,0 +1,3924 @@
+arch map
+name World
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-15 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0938
+tile_path_2 world_1037
+tile_path_3 world_0936
+tile_path_4 world_0837
+tile_path_5 world_1038
+tile_path_6 world_1036
+tile_path_7 world_0836
+tile_path_8 world_0838
+end
+arch grassd_3
+z 50
+end
+arch wall_dungeon_8
+end
+arch grassd_6
+z 50
+y 1
+end
+arch wall_dungeon_3
+y 1
+end
+arch grassd_2
+z 50
+y 2
+end
+arch wall_dungeon_3
+y 2
+end
+arch floor_fs_grey1b
+z 50
+y 3
+end
+arch door1_locked
+direction 5
+y 3
+end
+arch grassd_7
+z 50
+y 4
+end
+arch wall_dungeon_3
+y 4
+end
+arch grassd_4
+z 50
+y 5
+end
+arch wall_dungeon_3
+y 5
+end
+arch grassd_4
+z 50
+y 6
+end
+arch marker1
+msg
+East - Circle of Darkness
+endmsg
+name street sign
+direction 3
+y 6
+end
+arch floor_fs_grey1b
+z 50
+y 7
+end
+arch grassd_m10
+y 7
+end
+arch floor_fs_grey1b
+z 50
+y 8
+end
+arch grassd_m7
+y 8
+end
+arch grassd_2
+z 50
+y 9
+end
+arch grate1_8
+y 9
+end
+arch grassd_5
+z 50
+y 10
+end
+arch grate1_3
+y 10
+end
+arch grassd_2
+z 50
+y 11
+end
+arch grate1_3e
+y 11
+end
+arch grassd_1
+z 50
+y 12
+end
+arch grate1_3
+y 12
+end
+arch grassd_4
+z 50
+y 13
+end
+arch grate1_3e
+y 13
+end
+arch grassd_5
+z 50
+y 14
+end
+arch grate1_3
+y 14
+end
+arch grassd_3
+z 50
+y 15
+end
+arch grate1_3e
+y 15
+end
+arch grassd_2
+z 50
+y 16
+end
+arch grate1_3
+y 16
+end
+arch grassd_2
+z 50
+y 17
+end
+arch grate1_3e
+y 17
+end
+arch grassd_7
+z 50
+y 18
+end
+arch wall_stone8_8
+y 18
+end
+arch grassd_3
+z 50
+y 19
+end
+arch wall_stone8_3
+y 19
+end
+arch grassd_6
+z 50
+y 20
+end
+arch wall_stone8_3
+y 20
+end
+arch grassd_6
+z 50
+y 21
+end
+arch wall_stone8_3
+y 21
+end
+arch grassd_7
+z 50
+y 22
+end
+arch wall_stone8_3
+y 22
+end
+arch grassd_3
+z 50
+y 23
+end
+arch wall_stone8_3
+y 23
+end
+arch grassd_4
+z 50
+x 1
+end
+arch wall_dungeon_1
+x 1
+end
+arch floor_cave1
+z 50
+x 1
+y 1
+end
+arch cave_deco
+x 1
+y 1
+end
+arch floor_cave1
+z 50
+x 1
+y 2
+end
+arch cave_deco_f8.101
+x 1
+y 2
+end
+arch floor_cave1
+z 50
+x 1
+y 3
+end
+arch floor_cave1
+z 50
+x 1
+y 4
+end
+arch torch_wall_1
+direction 5
+x 1
+y 4
+end
+arch floor_cave1
+z 50
+x 1
+y 5
+end
+arch wall_dungeon_1
+x 1
+y 5
+end
+arch grassd_1
+z 50
+x 1
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 7
+end
+arch grassd_m10
+x 1
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 8
+end
+arch grassd_m7
+x 1
+y 8
+end
+arch grassd_7
+z 50
+x 1
+y 9
+end
+arch grate1_1
+x 1
+y 9
+end
+arch grassd_3
+z 50
+x 1
+y 10
+end
+arch grave_fire.101
+x 1
+y 10
+end
+arch grassd_4
+z 50
+x 1
+y 11
+end
+arch grassd_4
+z 50
+x 1
+y 12
+end
+arch grassd_7
+z 50
+x 1
+y 13
+end
+arch grassd_5
+z 50
+x 1
+y 14
+end
+arch grassd_2
+z 50
+x 1
+y 15
+end
+arch grassd_2
+z 50
+x 1
+y 16
+end
+arch grave_fire.101
+x 1
+y 16
+end
+arch grassd_2
+z 50
+x 1
+y 17
+end
+arch grate1_1
+x 1
+y 17
+end
+arch grassd_6
+z 50
+x 1
+y 18
+end
+arch wall_stone8_1
+x 1
+y 18
+end
+arch floor_sblack3
+z 50
+x 1
+y 19
+end
+arch spider_web
+slow_move 0
+x 1
+y 19
+end
+arch floor_sblack3
+z 50
+x 1
+y 20
+end
+arch floor_sblack3
+z 50
+x 1
+y 21
+end
+arch torch_wall_1
+direction 7
+x 1
+y 21
+end
+arch floor_sblack3
+z 50
+x 1
+y 22
+end
+arch chair_small
+x 1
+y 22
+end
+arch floor_sblack3
+z 50
+x 1
+y 23
+end
+arch wall_stone8_1
+x 1
+y 23
+end
+arch grassd_2
+z 50
+x 2
+end
+arch wall_dungeon_1
+x 2
+end
+arch floor_cave1
+z 50
+x 2
+y 1
+end
+arch cave_deco_f1.101
+x 2
+y 1
+end
+arch floor_cave1
+z 50
+x 2
+y 2
+end
+arch floor_cave1
+z 50
+x 2
+y 3
+end
+arch floor_cave1
+z 50
+x 2
+y 4
+end
+arch floor_cave1
+z 50
+x 2
+y 5
+end
+arch wall_dungeon_1
+x 2
+y 5
+end
+arch grassd_6
+z 50
+x 2
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 7
+end
+arch grassd_m10
+x 2
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 8
+end
+arch grassd_m7
+x 2
+y 8
+end
+arch grassd_4
+z 50
+x 2
+y 9
+end
+arch grate1_1e
+x 2
+y 9
+end
+arch grassd_5
+z 50
+x 2
+y 10
+end
+arch grassd_5
+z 50
+x 2
+y 11
+end
+arch grave2.111
+x 2
+y 11
+end
+arch grassd_2
+z 50
+x 2
+y 12
+end
+arch grassd_6
+z 50
+x 2
+y 13
+end
+arch grave2.111
+x 2
+y 13
+end
+arch grassd_7
+z 50
+x 2
+y 14
+end
+arch grassd_3
+z 50
+x 2
+y 15
+end
+arch grave1.111
+x 2
+y 15
+end
+arch grassd_4
+z 50
+x 2
+y 16
+end
+arch grassd_7
+z 50
+x 2
+y 17
+end
+arch grate1_1e
+x 2
+y 17
+end
+arch grassd_5
+z 50
+x 2
+y 18
+end
+arch wall_stone8_1
+x 2
+y 18
+end
+arch floor_sblack3
+z 50
+x 2
+y 19
+end
+arch spawn_point
+x 2
+y 19
+arch drow_priestess
+level 24
+can_cast_spell 0
+sp 0
+maxsp 0
+Pow 0
+magic 0
+friendly 1
+type 83
+arch event_obj
+name Lua
+sub_type 13
+race /scripts/temples/dalosha.lua
+end
+end
+end
+arch floor_sblack3
+z 50
+x 2
+y 20
+end
+arch altar_dalosha
+x 2
+y 20
+end
+arch floor_sblack3
+z 50
+x 2
+y 21
+end
+arch floor_sblack3
+z 50
+x 2
+y 22
+end
+arch floor_sblack3
+z 50
+x 2
+y 23
+end
+arch door_wood1
+x 2
+y 23
+end
+arch grassd_1
+z 50
+x 3
+end
+arch wall_dungeon_1
+x 3
+end
+arch floor_cave1
+z 50
+x 3
+y 1
+end
+arch torch_wall_1
+x 3
+y 1
+end
+arch floor_cave1
+z 50
+x 3
+y 2
+end
+arch floor_cave1
+z 50
+x 3
+y 3
+end
+arch floor_cave1
+z 50
+x 3
+y 4
+end
+arch chair1_111
+direction 5
+x 3
+y 4
+end
+arch floor_cave1
+z 50
+x 3
+y 5
+end
+arch wall_dungeon_1
+x 3
+y 5
+end
+arch grassd_6
+z 50
+x 3
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 7
+end
+arch grassd_m10
+x 3
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 3
+y 8
+end
+arch grassd_m7
+x 3
+y 8
+end
+arch grassd_4
+z 50
+x 3
+y 9
+end
+arch grate1_1
+x 3
+y 9
+end
+arch grassd_4
+z 50
+x 3
+y 10
+end
+arch grassd_1
+z 50
+x 3
+y 11
+end
+arch grassd_1
+z 50
+x 3
+y 12
+end
+arch grassd_3
+z 50
+x 3
+y 13
+end
+arch grassd_2
+z 50
+x 3
+y 14
+end
+arch grassd_1
+z 50
+x 3
+y 15
+end
+arch grassd_3
+z 50
+x 3
+y 16
+end
+arch grassd_4
+z 50
+x 3
+y 17
+end
+arch grate1_1
+x 3
+y 17
+end
+arch grassd_2
+z 50
+x 3
+y 18
+end
+arch wall_stone8_1
+x 3
+y 18
+end
+arch wmask_bflag_brown_1
+x 3
+y 18
+end
+arch floor_sblack3
+z 50
+x 3
+y 19
+end
+arch floor_sblack3
+z 50
+x 3
+y 20
+end
+arch floor_sblack3
+z 50
+x 3
+y 21
+end
+arch floor_sblack3
+z 50
+x 3
+y 22
+end
+arch chair_small
+x 3
+y 22
+end
+arch floor_sblack3
+z 50
+x 3
+y 23
+end
+arch wall_stone8_1
+x 3
+y 23
+end
+arch grassd_5
+z 50
+x 4
+end
+arch wall_dungeon_1
+x 4
+end
+arch floor_cave1
+z 50
+x 4
+y 1
+end
+arch spawn_point
+x 4
+y 1
+arch ogre
+name ogre priest
+level 22
+friendly 1
+type 83
+arch event_obj
+name Lua
+sub_type 13
+race /scripts/temples/jotarl.lua
+end
+end
+end
+arch floor_cave1
+z 50
+x 4
+y 2
+end
+arch altar_jotarl
+x 4
+y 2
+end
+arch floor_cave1
+z 50
+x 4
+y 3
+end
+arch floor_cave1
+z 50
+x 4
+y 4
+end
+arch chair1_111
+direction 5
+x 4
+y 4
+end
+arch floor_cave1
+z 50
+x 4
+y 5
+end
+arch wall_dungeon_1
+x 4
+y 5
+end
+arch grassd_3
+z 50
+x 4
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 7
+end
+arch grassd_m10
+x 4
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 4
+y 8
+end
+arch grassd_m7
+x 4
+y 8
+end
+arch grassd_3
+z 50
+x 4
+y 9
+end
+arch grate1_1e
+x 4
+y 9
+end
+arch grassd_7
+z 50
+x 4
+y 10
+end
+arch grassd_2
+z 50
+x 4
+y 11
+end
+arch grave1.111
+x 4
+y 11
+end
+arch grassd_1
+z 50
+x 4
+y 12
+end
+arch grassd_7
+z 50
+x 4
+y 13
+end
+arch grassd_2
+z 50
+x 4
+y 14
+end
+arch grassd_5
+z 50
+x 4
+y 15
+end
+arch grave_open.111
+x 4
+y 15
+end
+arch grassd_4
+z 50
+x 4
+y 16
+end
+arch grassd_5
+z 50
+x 4
+y 17
+end
+arch grate1_1e
+x 4
+y 17
+end
+arch grassd_6
+z 50
+x 4
+y 18
+end
+arch wall_stone8_1
+x 4
+y 18
+end
+arch floor_sblack3
+z 50
+x 4
+y 19
+end
+arch wall_stone8_3
+x 4
+y 19
+end
+arch floor_sblack3
+z 50
+x 4
+y 20
+end
+arch wall_stone8_3
+x 4
+y 20
+end
+arch floor_sblack3
+z 50
+x 4
+y 21
+end
+arch wall_stone8_3
+x 4
+y 21
+end
+arch floor_sblack3
+z 50
+x 4
+y 22
+end
+arch wall_stone8_3
+x 4
+y 22
+end
+arch floor_sblack3
+z 50
+x 4
+y 23
+end
+arch wall_stone8_4
+x 4
+y 23
+end
+arch grassd_3
+z 50
+x 5
+end
+arch wall_dungeon_1
+x 5
+end
+arch floor_cave1
+z 50
+x 5
+y 1
+end
+arch torch_wall_1
+x 5
+y 1
+end
+arch floor_cave1
+z 50
+x 5
+y 2
+end
+arch floor_cave1
+z 50
+x 5
+y 3
+end
+arch floor_cave1
+z 50
+x 5
+y 4
+end
+arch chair1_111
+direction 5
+x 5
+y 4
+end
+arch floor_cave1
+z 50
+x 5
+y 5
+end
+arch wall_dungeon_1
+x 5
+y 5
+end
+arch grassd_3
+z 50
+x 5
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 7
+end
+arch grassd_m10
+x 5
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 5
+y 8
+end
+arch grassd_m7
+x 5
+y 8
+end
+arch grassd_4
+z 50
+x 5
+y 9
+end
+arch wall_flagstone1.181
+x 5
+y 9
+end
+arch grassd_7
+z 50
+x 5
+y 10
+end
+arch wall_flagstone1.131
+x 5
+y 10
+end
+arch grassd_6
+z 50
+x 5
+y 11
+end
+arch wall_flagstone1.131
+x 5
+y 11
+end
+arch grassd_4
+z 50
+x 5
+y 12
+end
+arch wall_flagstone1.131
+x 5
+y 12
+end
+arch grassd_5
+z 50
+x 5
+y 13
+end
+arch door1_locked
+direction 5
+x 5
+y 13
+end
+arch grassd_7
+z 50
+x 5
+y 14
+end
+arch wall_flagstone1.131
+x 5
+y 14
+end
+arch grassd_5
+z 50
+x 5
+y 15
+end
+arch wall_flagstone1.131
+x 5
+y 15
+end
+arch chains2.151
+direction 3
+x 5
+y 15
+end
+arch grassd_6
+z 50
+x 5
+y 16
+end
+arch wall_flagstone1.131
+x 5
+y 16
+end
+arch grassd_2
+z 50
+x 5
+y 17
+end
+arch wall_flagstone1.131
+x 5
+y 17
+end
+arch grassd_7
+z 50
+x 5
+y 18
+end
+arch wall_stone17_8
+x 5
+y 18
+end
+arch grassd_2
+z 50
+x 5
+y 19
+end
+arch wall_stone17_3
+x 5
+y 19
+end
+arch grassd_5
+z 50
+x 5
+y 20
+end
+arch wall_stone17_3
+x 5
+y 20
+end
+arch wall_blood2
+direction 7
+x 5
+y 20
+end
+arch grassd_5
+z 50
+x 5
+y 21
+end
+arch wall_stone17_3
+x 5
+y 21
+end
+arch grassd_7
+z 50
+x 5
+y 22
+end
+arch wall_stone17_3
+x 5
+y 22
+end
+arch grassd_4
+z 50
+x 5
+y 23
+end
+arch wall_stone17_3
+x 5
+y 23
+end
+arch grassd_6
+z 50
+x 6
+end
+arch wall_dungeon_1
+x 6
+end
+arch floor_cave1
+z 50
+x 6
+y 1
+end
+arch cave_deco3
+x 6
+y 1
+end
+arch floor_cave1
+z 50
+x 6
+y 2
+end
+arch floor_cave1
+z 50
+x 6
+y 3
+end
+arch chair1_drop_111
+x 6
+y 3
+end
+arch floor_cave1
+z 50
+x 6
+y 4
+end
+arch floor_cave1
+z 50
+x 6
+y 5
+end
+arch wall_dungeon_1
+x 6
+y 5
+end
+arch grassd_1
+z 50
+x 6
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 7
+end
+arch grassd_m10
+x 6
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 6
+y 8
+end
+arch grassd_m7
+x 6
+y 8
+end
+arch grassd_7
+z 50
+x 6
+y 9
+end
+arch wall_flagstone1.111
+x 6
+y 9
+end
+arch floor_grey6
+z 50
+x 6
+y 10
+end
+arch floor_grey6
+z 50
+x 6
+y 11
+end
+arch torch_wall_1
+direction 7
+x 6
+y 11
+end
+arch floor_grey6
+z 50
+x 6
+y 12
+end
+arch floor_grey6
+z 50
+x 6
+y 13
+end
+arch spawn_point
+x 6
+y 13
+arch vampire
+name vampire priest
+direction 3
+level 25
+friendly 1
+type 83
+arch event_obj
+name Lua
+sub_type 13
+race /scripts/temples/zechna.lua
+end
+end
+end
+arch floor_grey6
+z 50
+x 6
+y 14
+end
+arch floor_grey6
+z 50
+x 6
+y 15
+end
+arch torch_wall_1
+direction 7
+x 6
+y 15
+end
+arch floor_grey6
+z 50
+x 6
+y 16
+end
+arch floor_grey6
+z 50
+x 6
+y 17
+end
+arch wall_flagstone1.111
+x 6
+y 17
+end
+arch grassd_2
+z 50
+x 6
+y 18
+end
+arch wall_stone17_1
+x 6
+y 18
+end
+arch floor_sblack3b
+z 50
+x 6
+y 19
+end
+arch floor_sblack3b
+z 50
+x 6
+y 20
+end
+arch blood_floor1
+x 6
+y 20
+end
+arch floor_sblack3b
+z 50
+x 6
+y 21
+end
+arch torch_wall_1
+direction 7
+x 6
+y 21
+end
+arch floor_sblack3b
+z 50
+x 6
+y 22
+end
+arch chair_small
+x 6
+y 22
+end
+arch floor_sblack3b
+z 50
+x 6
+y 23
+end
+arch wall_stone17_1
+x 6
+y 23
+end
+arch grassd_2
+z 50
+x 7
+end
+arch wall_dungeon_1
+x 7
+end
+arch floor_cave1
+z 50
+x 7
+y 1
+end
+arch cave_deco1
+x 7
+y 1
+end
+arch floor_cave1
+z 50
+x 7
+y 2
+end
+arch floor_cave1
+z 50
+x 7
+y 3
+end
+arch floor_cave1
+z 50
+x 7
+y 4
+end
+arch floor_cave1
+z 50
+x 7
+y 5
+end
+arch wall_dungeon_1
+x 7
+y 5
+end
+arch grassd_6
+z 50
+x 7
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 7
+end
+arch grassd_m10
+x 7
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 7
+y 8
+end
+arch grassd_m7
+x 7
+y 8
+end
+arch grassd_5
+z 50
+x 7
+y 9
+end
+arch wall_flagstone1.111
+x 7
+y 9
+end
+arch chains3.151
+x 7
+y 9
+end
+arch floor_grey6
+z 50
+x 7
+y 10
+end
+arch floor_grey6
+z 50
+x 7
+y 11
+end
+arch bank1.111
+direction 7
+x 7
+y 11
+end
+arch floor_grey6
+z 50
+x 7
+y 12
+end
+arch bank1.111
+direction 7
+x 7
+y 12
+end
+arch floor_grey6
+z 50
+x 7
+y 13
+end
+arch altar_moroch
+direction 7
+x 7
+y 13
+end
+arch floor_grey6
+z 50
+x 7
+y 14
+end
+arch floor_grey6
+z 50
+x 7
+y 15
+end
+arch bank1.111
+direction 7
+x 7
+y 15
+end
+arch floor_grey6
+z 50
+x 7
+y 16
+end
+arch bank1.111
+direction 7
+x 7
+y 16
+end
+arch floor_grey6
+z 50
+x 7
+y 17
+end
+arch wall_flagstone1.111
+x 7
+y 17
+end
+arch grassd_2
+z 50
+x 7
+y 18
+end
+arch wall_stone17_1
+x 7
+y 18
+end
+arch floor_sblack3b
+z 50
+x 7
+y 19
+end
+arch spawn_point
+x 7
+y 19
+arch raas
+name raas priest
+level 25
+friendly 1
+type 83
+arch event_obj
+name Lua
+sub_type 13
+race /scripts/temples/rashindel.lua
+end
+end
+end
+arch floor_sblack3b
+z 50
+x 7
+y 20
+end
+arch altar_rashindel
+x 7
+y 20
+end
+arch floor_sblack3b
+z 50
+x 7
+y 21
+end
+arch floor_sblack3b
+z 50
+x 7
+y 22
+end
+arch floor_sblack3b
+z 50
+x 7
+y 23
+end
+arch door1_locked
+x 7
+y 23
+end
+arch grassd_2
+z 50
+x 8
+end
+arch wall_dungeon_1
+x 8
+end
+arch floor_cave1
+z 50
+x 8
+y 1
+end
+arch wall_dungeon_3
+x 8
+y 1
+end
+arch floor_cave1
+z 50
+x 8
+y 2
+end
+arch wall_dungeon_3
+x 8
+y 2
+end
+arch floor_cave1
+z 50
+x 8
+y 3
+end
+arch wall_dungeon_3
+x 8
+y 3
+end
+arch floor_cave1
+z 50
+x 8
+y 4
+end
+arch wall_dungeon_3
+x 8
+y 4
+end
+arch floor_cave1
+z 50
+x 8
+y 5
+end
+arch wall_dungeon_4
+x 8
+y 5
+end
+arch grassd_4
+z 50
+x 8
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 7
+end
+arch grassd_m10
+x 8
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 8
+y 8
+end
+arch grassd_m7
+x 8
+y 8
+end
+arch grassd_4
+z 50
+x 8
+y 9
+end
+arch wall_flagstone1.111
+x 8
+y 9
+end
+arch floor_grey6
+z 50
+x 8
+y 10
+end
+arch torch_wall_1
+x 8
+y 10
+end
+arch floor_grey6
+z 50
+x 8
+y 11
+end
+arch floor_grey6
+z 50
+x 8
+y 12
+end
+arch floor_grey6
+z 50
+x 8
+y 13
+end
+arch floor_grey6
+z 50
+x 8
+y 14
+end
+arch floor_grey6
+z 50
+x 8
+y 15
+end
+arch floor_grey6
+z 50
+x 8
+y 16
+end
+arch floor_grey6
+z 50
+x 8
+y 17
+end
+arch wall_flagstone1.111
+x 8
+y 17
+end
+arch grassd_4
+z 50
+x 8
+y 18
+end
+arch wall_stone17_1
+x 8
+y 18
+end
+arch floor_sblack3b
+z 50
+x 8
+y 19
+end
+arch torch_wall_1
+x 8
+y 19
+end
+arch floor_sblack3b
+z 50
+x 8
+y 20
+end
+arch floor_sblack3b
+z 50
+x 8
+y 21
+end
+arch floor_sblack3b
+z 50
+x 8
+y 22
+end
+arch chair_small
+x 8
+y 22
+end
+arch floor_sblack3b
+z 50
+x 8
+y 23
+end
+arch wall_stone17_1
+x 8
+y 23
+end
+arch grassd_3
+z 50
+x 9
+end
+arch fwall_fstone2b
+x 9
+end
+arch grassd_1
+z 50
+x 9
+y 1
+end
+arch grassd_2
+z 50
+x 9
+y 2
+end
+arch grassd_7
+z 50
+x 9
+y 3
+end
+arch grassd_1
+z 50
+x 9
+y 4
+end
+arch grassd_1
+z 50
+x 9
+y 5
+end
+arch grassd_2
+z 50
+x 9
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 7
+end
+arch grassd_m10
+x 9
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 9
+y 8
+end
+arch grassd_m7
+x 9
+y 8
+end
+arch grassd_4
+z 50
+x 9
+y 9
+end
+arch wall_flagstone1.111
+x 9
+y 9
+end
+arch floor_grey6
+z 50
+x 9
+y 10
+end
+arch floor_grey6
+z 50
+x 9
+y 11
+end
+arch bank1.111
+direction 7
+x 9
+y 11
+end
+arch floor_grey6
+z 50
+x 9
+y 12
+end
+arch bank1.111
+direction 7
+x 9
+y 12
+end
+arch floor_grey6
+z 50
+x 9
+y 13
+end
+arch floor_grey6
+z 50
+x 9
+y 14
+end
+arch floor_grey6
+z 50
+x 9
+y 15
+end
+arch bank1.111
+direction 7
+x 9
+y 15
+end
+arch floor_grey6
+z 50
+x 9
+y 16
+end
+arch bank1.111
+direction 7
+x 9
+y 16
+end
+arch floor_grey6
+z 50
+x 9
+y 17
+end
+arch wall_flagstone1.111
+x 9
+y 17
+end
+arch grassd_4
+z 50
+x 9
+y 18
+end
+arch wall_stone17_1
+x 9
+y 18
+end
+arch chains2.151
+x 9
+y 18
+end
+arch floor_sblack3b
+z 50
+x 9
+y 19
+end
+arch floor_sblack3b
+z 50
+x 9
+y 20
+end
+arch floor_sblack3b
+z 50
+x 9
+y 21
+end
+arch crystal12
+x 9
+y 21
+end
+arch floor_sblack3b
+z 50
+x 9
+y 22
+end
+arch wall_stone17_8
+x 9
+y 22
+end
+arch floor_sblack3b
+z 50
+x 9
+y 23
+end
+arch wall_stone17_4
+x 9
+y 23
+end
+arch fstone1c
+z 50
+x 10
+end
+arch fwall_fstone2a
+x 10
+end
+arch grassd_3
+z 50
+x 10
+y 1
+end
+arch fwall_fstone2b
+x 10
+y 1
+end
+arch grassd_1
+z 50
+x 10
+y 2
+end
+arch grassd_1
+z 50
+x 10
+y 3
+end
+arch grassd_7
+z 50
+x 10
+y 4
+end
+arch grassd_2
+z 50
+x 10
+y 5
+end
+arch grassd_2
+z 50
+x 10
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 7
+end
+arch grassd_m10
+x 10
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 8
+end
+arch grassd_m14
+x 10
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 9
+end
+arch wall_flagstone1.111
+x 10
+y 9
+end
+arch floor_grey6
+z 50
+x 10
+y 10
+end
+arch wall_flagstone1.131
+x 10
+y 10
+end
+arch floor_grey6
+z 50
+x 10
+y 11
+end
+arch floor_grey6
+z 50
+x 10
+y 12
+end
+arch floor_grey6
+z 50
+x 10
+y 13
+end
+arch floor_grey6
+z 50
+x 10
+y 14
+end
+arch floor_grey6
+z 50
+x 10
+y 15
+end
+arch floor_grey6
+z 50
+x 10
+y 16
+end
+arch floor_grey6
+z 50
+x 10
+y 17
+end
+arch wall_flagstone1.111
+x 10
+y 17
+end
+arch grassd_4
+z 50
+x 10
+y 18
+end
+arch wall_stone17_1
+x 10
+y 18
+end
+arch floor_sblack3b
+z 50
+x 10
+y 19
+end
+arch floor_sblack3b
+z 50
+x 10
+y 20
+end
+arch floor_sblack3b
+z 50
+x 10
+y 21
+end
+arch wall_stone17_8
+x 10
+y 21
+end
+arch floor_sblack3b
+z 50
+x 10
+y 22
+end
+arch wall_stone17_4
+x 10
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 10
+y 23
+end
+arch grassd_m4
+x 10
+y 23
+end
+arch fstone1c
+z 50
+x 11
+end
+arch fstone1a
+z 50
+x 11
+y 1
+end
+arch fwall_fstone2a
+x 11
+y 1
+end
+arch grassd_1
+z 50
+x 11
+y 2
+end
+arch fwall_fstone2b
+x 11
+y 2
+end
+arch grassd_1
+z 50
+x 11
+y 3
+end
+arch grassd_1
+z 50
+x 11
+y 4
+end
+arch grassd_5
+z 50
+x 11
+y 5
+end
+arch grassd_1
+z 50
+x 11
+y 6
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 7
+end
+arch grassd_m6
+x 11
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 8
+end
+arch grassd_m12
+x 11
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 10
+end
+arch wall_flagstone1.111
+x 11
+y 10
+end
+arch floor_grey6
+z 50
+x 11
+y 11
+end
+arch wall_flagstone1.131
+x 11
+y 11
+end
+arch floor_grey6
+z 50
+x 11
+y 12
+end
+arch wall_flagstone1.131
+x 11
+y 12
+end
+arch floor_grey6
+z 50
+x 11
+y 13
+end
+arch door1_locked
+direction 5
+x 11
+y 13
+end
+arch floor_grey6
+z 50
+x 11
+y 14
+end
+arch wall_flagstone1.131
+x 11
+y 14
+end
+arch floor_grey6
+z 50
+x 11
+y 15
+end
+arch wall_flagstone1.131
+x 11
+y 15
+end
+arch floor_grey6
+z 50
+x 11
+y 16
+end
+arch wall_flagstone1.131
+x 11
+y 16
+end
+arch floor_grey6
+z 50
+x 11
+y 17
+end
+arch wall_flagstone1.141
+x 11
+y 17
+end
+arch grassd_2
+z 50
+x 11
+y 18
+end
+arch wall_stone17_1
+x 11
+y 18
+end
+arch floor_sblack3b
+z 50
+x 11
+y 19
+end
+arch wall_stone17_3
+x 11
+y 19
+end
+arch floor_sblack3b
+z 50
+x 11
+y 20
+end
+arch wall_stone17_3
+x 11
+y 20
+end
+arch floor_sblack3b
+z 50
+x 11
+y 21
+end
+arch wall_stone17_4
+x 11
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 22
+end
+arch grassd_m4
+x 11
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 11
+y 23
+end
+arch grassd_m13
+x 11
+y 23
+end
+arch fstone1c
+z 50
+x 12
+end
+arch fstone1b
+z 50
+x 12
+y 1
+end
+arch fstone1c
+z 50
+x 12
+y 2
+end
+arch fwall_fstone2a
+x 12
+y 2
+end
+arch fstone1a
+z 50
+x 12
+y 3
+end
+arch fwall_fstone2b
+x 12
+y 3
+end
+arch fstone1b
+z 50
+x 12
+y 4
+end
+arch fwall_fstone2c
+x 12
+y 4
+end
+arch fstone1b
+z 50
+x 12
+y 5
+end
+arch fwall_fstone2
+x 12
+y 5
+end
+arch fstone1c
+z 50
+x 12
+y 6
+end
+arch fwall_fstone2
+x 12
+y 6
+end
+arch fstone1c
+z 50
+x 12
+y 7
+end
+arch fwall_fstone2
+x 12
+y 7
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 8
+end
+arch grassd_m6
+x 12
+y 8
+end
+arch fwall_fstone2b
+x 12
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 9
+end
+arch grassd_m12
+x 12
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 14
+end
+arch sign_generic
+name Temple of Death
+direction 3
+x 12
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 15
+end
+arch torch_wall_1
+direction 7
+x 12
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 17
+end
+arch grassd_m14
+x 12
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 18
+end
+arch grassd_m9
+x 12
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 19
+end
+arch grassd_m13
+x 12
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 20
+end
+arch torch_wall_1
+direction 7
+x 12
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 12
+y 23
+end
+arch fstone1b
+z 50
+x 13
+end
+arch fstone1c
+z 50
+x 13
+y 1
+end
+arch fstone1b
+z 50
+x 13
+y 2
+end
+arch fstone1c
+z 50
+x 13
+y 3
+end
+arch fwall_fstone2a
+x 13
+y 3
+end
+arch fstone1b
+z 50
+x 13
+y 4
+end
+arch fwall_fstone2d
+x 13
+y 4
+end
+arch fstone1c
+z 50
+x 13
+y 5
+end
+arch fstone1a
+z 50
+x 13
+y 6
+end
+arch fstone1a
+z 50
+x 13
+y 7
+end
+arch fstone1c
+z 50
+x 13
+y 8
+end
+arch fwall_fstone2a
+x 13
+y 8
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 9
+end
+arch grassd_m6
+x 13
+y 9
+end
+arch fwall_fstone2b
+x 13
+y 9
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 10
+end
+arch grassd_m8
+x 13
+y 10
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 11
+end
+arch grassd_m8
+x 13
+y 11
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 12
+end
+arch grassd_m8
+x 13
+y 12
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 13
+end
+arch grassd_m8
+x 13
+y 13
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 14
+end
+arch grassd_m8
+x 13
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 15
+end
+arch grassd_m8
+x 13
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 16
+end
+arch grassd_m8
+x 13
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 17
+end
+arch grassd_m8
+x 13
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 18
+end
+arch grassd_m8
+x 13
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 19
+end
+arch grassd_m8
+x 13
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 20
+end
+arch grassd_m8
+x 13
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 21
+end
+arch grassd_m8
+x 13
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 22
+end
+arch grassd_m8
+x 13
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 13
+y 23
+end
+arch grassd_m5
+x 13
+y 23
+end
+arch fstone1c
+z 50
+x 14
+end
+arch fwall_fstone2b
+x 14
+end
+arch fstone1b
+z 50
+x 14
+y 1
+end
+arch fstone1c
+z 50
+x 14
+y 2
+end
+arch fstone1a
+z 50
+x 14
+y 3
+end
+arch fstone1c
+z 50
+x 14
+y 4
+end
+arch fstone1a
+z 50
+x 14
+y 5
+end
+arch fstone1b
+z 50
+x 14
+y 6
+end
+arch fstone1c
+z 50
+x 14
+y 7
+end
+arch fstone1b
+z 50
+x 14
+y 8
+end
+arch fstone1c
+z 50
+x 14
+y 9
+end
+arch fwall_fstone2a
+x 14
+y 9
+end
+arch grassd_6
+z 50
+x 14
+y 10
+end
+arch fwall_fstone2b
+x 14
+y 10
+end
+arch grassd_5
+z 50
+x 14
+y 11
+end
+arch grassd_6
+z 50
+x 14
+y 12
+end
+arch grassd_7
+z 50
+x 14
+y 13
+end
+arch grassd_7
+z 50
+x 14
+y 14
+end
+arch grassd_7
+z 50
+x 14
+y 15
+end
+arch grassd_5
+z 50
+x 14
+y 16
+end
+arch grassd_3
+z 50
+x 14
+y 17
+end
+arch grassd_3
+z 50
+x 14
+y 18
+end
+arch grassd_1
+z 50
+x 14
+y 19
+end
+arch grassd_2
+z 50
+x 14
+y 20
+end
+arch grassd_3
+z 50
+x 14
+y 21
+end
+arch grassd_7
+z 50
+x 14
+y 22
+end
+arch grassd_2
+z 50
+x 14
+y 23
+end
+arch blocked
+z 50
+x 15
+end
+arch fwall_fstone2a
+x 15
+end
+arch fstone1b
+z 50
+x 15
+y 1
+end
+arch fwall_fstone2b
+x 15
+y 1
+end
+arch fstone1b
+z 50
+x 15
+y 2
+end
+arch fstone1c
+z 50
+x 15
+y 3
+end
+arch fstone1b
+z 50
+x 15
+y 4
+end
+arch fstone1c
+z 50
+x 15
+y 5
+end
+arch fstone1b
+z 50
+x 15
+y 6
+end
+arch fstone1a
+z 50
+x 15
+y 7
+end
+arch fstone1b
+z 50
+x 15
+y 8
+end
+arch fstone1c
+z 50
+x 15
+y 9
+end
+arch fstone1c
+z 50
+x 15
+y 10
+end
+arch fwall_fstone2a
+x 15
+y 10
+end
+arch fstone1c
+z 50
+x 15
+y 11
+end
+arch fwall_fstone2
+x 15
+y 11
+end
+arch fstone1b
+z 50
+x 15
+y 12
+end
+arch fwall_fstone2
+x 15
+y 12
+end
+arch fstone1c
+z 50
+x 15
+y 13
+end
+arch fwall_fstone2
+x 15
+y 13
+end
+arch fstone1c
+z 50
+x 15
+y 14
+end
+arch fwall_fstone2
+x 15
+y 14
+end
+arch fstone1a
+z 50
+x 15
+y 15
+end
+arch fwall_fstone2
+x 15
+y 15
+end
+arch fstone1c
+z 50
+x 15
+y 16
+end
+arch fwall_fstone2
+x 15
+y 16
+end
+arch fstone1b
+z 50
+x 15
+y 17
+end
+arch fwall_fstone2
+x 15
+y 17
+end
+arch fstone1c
+z 50
+x 15
+y 18
+end
+arch fwall_fstone2
+x 15
+y 18
+end
+arch fstone1a
+z 50
+x 15
+y 19
+end
+arch fwall_fstone2
+x 15
+y 19
+end
+arch fstone1b
+z 50
+x 15
+y 20
+end
+arch fwall_fstone2
+x 15
+y 20
+end
+arch fstone1c
+z 50
+x 15
+y 21
+end
+arch fwall_fstone2
+x 15
+y 21
+end
+arch fstone1a
+z 50
+x 15
+y 22
+end
+arch fwall_fstone2
+x 15
+y 22
+end
+arch fstone1c
+z 50
+x 15
+y 23
+end
+arch fwall_fstone2
+x 15
+y 23
+end
+arch water_lt3
+x 16
+end
+arch fstone1c
+z 50
+x 16
+y 1
+end
+arch fwall_fstone2
+x 16
+y 1
+end
+arch fstone1a
+z 50
+x 16
+y 2
+end
+arch fstone1b
+z 50
+x 16
+y 3
+end
+arch fstone1a
+z 50
+x 16
+y 4
+end
+arch fstone1b
+z 50
+x 16
+y 5
+end
+arch fstone1c
+z 50
+x 16
+y 6
+end
+arch fstone1b
+z 50
+x 16
+y 7
+end
+arch fstone1c
+z 50
+x 16
+y 8
+end
+arch fstone1a
+z 50
+x 16
+y 9
+end
+arch fstone1c
+z 50
+x 16
+y 10
+end
+arch fstone1b
+z 50
+x 16
+y 11
+end
+arch fstone1a
+z 50
+x 16
+y 12
+end
+arch fstone1c
+z 50
+x 16
+y 13
+end
+arch fstone1c
+z 50
+x 16
+y 14
+end
+arch fstone1b
+z 50
+x 16
+y 15
+end
+arch fstone1b
+z 50
+x 16
+y 16
+end
+arch fstone1c
+z 50
+x 16
+y 17
+end
+arch fstone1b
+z 50
+x 16
+y 18
+end
+arch fstone1b
+z 50
+x 16
+y 19
+end
+arch fstone1c
+z 50
+x 16
+y 20
+end
+arch fstone1b
+z 50
+x 16
+y 21
+end
+arch fstone1c
+z 50
+x 16
+y 22
+end
+arch fstone1a
+z 50
+x 16
+y 23
+end
+arch water_lt4
+x 17
+end
+arch fstone1b
+z 50
+x 17
+y 1
+end
+arch fwall_fstone2
+x 17
+y 1
+end
+arch fstone1b
+z 50
+x 17
+y 2
+end
+arch fstone1c
+z 50
+x 17
+y 3
+end
+arch fstone1b
+z 50
+x 17
+y 4
+end
+arch fstone1b
+z 50
+x 17
+y 5
+end
+arch fstone1a
+z 50
+x 17
+y 6
+end
+arch wall_fstone_pillar
+x 17
+y 6
+end
+arch fstone1c
+z 50
+x 17
+y 7
+end
+arch fstone1b
+z 50
+x 17
+y 8
+end
+arch fstone1b
+z 50
+x 17
+y 9
+end
+arch fstone1b
+z 50
+x 17
+y 10
+end
+arch fstone1a
+z 50
+x 17
+y 11
+end
+arch fstone1c
+z 50
+x 17
+y 12
+end
+arch fstone1a
+z 50
+x 17
+y 13
+end
+arch fstone1c
+z 50
+x 17
+y 14
+end
+arch fstone1a
+z 50
+x 17
+y 15
+end
+arch fstone1c
+z 50
+x 17
+y 16
+end
+arch fstone1a
+z 50
+x 17
+y 17
+end
+arch fstone1c
+z 50
+x 17
+y 18
+end
+arch fstone1c
+z 50
+x 17
+y 19
+end
+arch fstone1b
+z 50
+x 17
+y 20
+end
+arch fstone1a
+z 50
+x 17
+y 21
+end
+arch fstone1c
+z 50
+x 17
+y 22
+end
+arch fstone1b
+z 50
+x 17
+y 23
+end
+arch water_lt4
+x 18
+end
+arch fstone1b
+z 50
+x 18
+y 1
+end
+arch fwall_fstone2
+x 18
+y 1
+end
+arch fstone1b
+z 50
+x 18
+y 2
+end
+arch fstone1c
+z 50
+x 18
+y 3
+end
+arch fstone1a
+z 50
+x 18
+y 4
+end
+arch fstone1c
+z 50
+x 18
+y 5
+end
+arch fstone1b
+z 50
+x 18
+y 6
+end
+arch fstone1b
+z 50
+x 18
+y 7
+end
+arch fstone1b
+z 50
+x 18
+y 8
+end
+arch fstone1a
+z 50
+x 18
+y 9
+end
+arch fstone1c
+z 50
+x 18
+y 10
+end
+arch fwall_fstone2c
+x 18
+y 10
+end
+arch fstone1c
+z 50
+x 18
+y 11
+end
+arch fwall_fstone2
+x 18
+y 11
+end
+arch fstone1c
+z 50
+x 18
+y 12
+end
+arch fwall_fstone2
+x 18
+y 12
+end
+arch fstone1b
+z 50
+x 18
+y 13
+end
+arch fwall_fstone2
+x 18
+y 13
+end
+arch fstone1c
+z 50
+x 18
+y 14
+end
+arch fwall_fstone2
+x 18
+y 14
+end
+arch fstone1b
+z 50
+x 18
+y 15
+end
+arch fwall_fstone2
+x 18
+y 15
+end
+arch fstone1b
+z 50
+x 18
+y 16
+end
+arch fwall_fstone2
+x 18
+y 16
+end
+arch fstone1c
+z 50
+x 18
+y 17
+end
+arch fwall_fstone2
+x 18
+y 17
+end
+arch fstone1b
+z 50
+x 18
+y 18
+end
+arch fwall_fstone2
+x 18
+y 18
+end
+arch fstone1a
+z 50
+x 18
+y 19
+end
+arch fwall_fstone2
+x 18
+y 19
+end
+arch fstone1c
+z 50
+x 18
+y 20
+end
+arch fwall_fstone2
+x 18
+y 20
+end
+arch fstone1c
+z 50
+x 18
+y 21
+end
+arch fwall_fstone2
+x 18
+y 21
+end
+arch fstone1a
+z 50
+x 18
+y 22
+end
+arch fwall_fstone2
+x 18
+y 22
+end
+arch fstone1c
+z 50
+x 18
+y 23
+end
+arch fwall_fstone2
+x 18
+y 23
+end
+arch water_lt2
+x 19
+end
+arch blocked
+z 50
+x 19
+y 1
+end
+arch fwall_fstone2a
+x 19
+y 1
+end
+arch fstone1a
+z 50
+x 19
+y 2
+end
+arch fwall_fstone2b
+x 19
+y 2
+end
+arch fstone1c
+z 50
+x 19
+y 3
+end
+arch fstone1c
+z 50
+x 19
+y 4
+end
+arch fstone1a
+z 50
+x 19
+y 5
+end
+arch fstone1c
+z 50
+x 19
+y 6
+end
+arch fstone1c
+z 50
+x 19
+y 7
+end
+arch fstone1a
+z 50
+x 19
+y 8
+end
+arch fstone1c
+z 50
+x 19
+y 9
+end
+arch fwall_fstone2c
+x 19
+y 9
+end
+arch blocked
+z 50
+x 19
+y 10
+end
+arch fwall_fstone2d
+x 19
+y 10
+end
+arch water_lt
+x 19
+y 11
+end
+arch water_lt2
+x 19
+y 12
+end
+arch water_lt4
+x 19
+y 13
+end
+arch water_lt
+x 19
+y 14
+end
+arch water_lt2
+x 19
+y 15
+end
+arch water_lt4
+x 19
+y 16
+end
+arch water_lt4
+x 19
+y 17
+end
+arch water_lt4
+x 19
+y 18
+end
+arch water_lt
+x 19
+y 19
+end
+arch water_lt
+x 19
+y 20
+end
+arch water_lt
+x 19
+y 21
+end
+arch water_lt3
+x 19
+y 22
+end
+arch water_lt3
+x 19
+y 23
+end
+arch water_lt
+x 20
+end
+arch water_lt2
+x 20
+y 1
+end
+arch blocked
+z 50
+x 20
+y 2
+end
+arch fwall_fstone2a
+x 20
+y 2
+end
+arch fstone1a
+z 50
+x 20
+y 3
+end
+arch fwall_fstone2b
+x 20
+y 3
+end
+arch fstone1b
+z 50
+x 20
+y 4
+end
+arch fstone1c
+z 50
+x 20
+y 5
+end
+arch fstone1a
+z 50
+x 20
+y 6
+end
+arch fstone1b
+z 50
+x 20
+y 7
+end
+arch fstone1b
+z 50
+x 20
+y 8
+end
+arch fwall_fstone2c
+x 20
+y 8
+end
+arch blocked
+z 50
+x 20
+y 9
+end
+arch fwall_fstone2d
+x 20
+y 9
+end
+arch water_lt2
+x 20
+y 10
+end
+arch water_lt2
+x 20
+y 11
+end
+arch water_lt2
+x 20
+y 12
+end
+arch water_lt4
+x 20
+y 13
+end
+arch water_lt3
+x 20
+y 14
+end
+arch water_lt4
+x 20
+y 15
+end
+arch water_lt4
+x 20
+y 16
+end
+arch water_lt
+x 20
+y 17
+end
+arch water_lt2
+x 20
+y 18
+end
+arch water_lt3
+x 20
+y 19
+end
+arch water_lt
+x 20
+y 20
+end
+arch water_lt4
+x 20
+y 21
+end
+arch water_lt4
+x 20
+y 22
+end
+arch water_lt
+x 20
+y 23
+end
+arch water_lt4
+x 21
+end
+arch water_lt3
+x 21
+y 1
+end
+arch water_lt2
+x 21
+y 2
+end
+arch blocked
+z 50
+x 21
+y 3
+end
+arch fwall_fstone2a
+x 21
+y 3
+end
+arch fstone1a
+z 50
+x 21
+y 4
+end
+arch fwall_fstone2
+x 21
+y 4
+end
+arch fstone1b
+z 50
+x 21
+y 5
+end
+arch fwall_fstone2
+x 21
+y 5
+end
+arch fstone1a
+z 50
+x 21
+y 6
+end
+arch fwall_fstone2
+x 21
+y 6
+end
+arch fstone1b
+z 50
+x 21
+y 7
+end
+arch fwall_fstone2
+x 21
+y 7
+end
+arch blocked
+z 50
+x 21
+y 8
+end
+arch fwall_fstone2d
+x 21
+y 8
+end
+arch water_lt3
+x 21
+y 9
+end
+arch water_lt
+x 21
+y 10
+end
+arch water_lt3
+x 21
+y 11
+end
+arch water_lt4
+x 21
+y 12
+end
+arch water_lt
+x 21
+y 13
+end
+arch water_lt
+x 21
+y 14
+end
+arch water_lt2
+x 21
+y 15
+end
+arch water_lt2
+x 21
+y 16
+end
+arch water_lt4
+x 21
+y 17
+end
+arch water_lt4
+x 21
+y 18
+end
+arch water_lt
+x 21
+y 19
+end
+arch water_lt3
+x 21
+y 20
+end
+arch water_lt3
+x 21
+y 21
+end
+arch water_lt
+x 21
+y 22
+end
+arch water_lt
+x 21
+y 23
+end
+arch water_lt
+x 22
+end
+arch water_lt3
+x 22
+y 1
+end
+arch water_lt
+x 22
+y 2
+end
+arch water_lt
+x 22
+y 3
+end
+arch water_lt4
+x 22
+y 4
+end
+arch water_lt2
+x 22
+y 5
+end
+arch water_lt2
+x 22
+y 6
+end
+arch water_lt2
+x 22
+y 7
+end
+arch water_lt2
+x 22
+y 8
+end
+arch water_lt4
+x 22
+y 9
+end
+arch water_lt4
+x 22
+y 10
+end
+arch water_lt2
+x 22
+y 11
+end
+arch water_lt
+x 22
+y 12
+end
+arch water_lt4
+x 22
+y 13
+end
+arch water_lt4
+x 22
+y 14
+end
+arch water_lt2
+x 22
+y 15
+end
+arch water_lt4
+x 22
+y 16
+end
+arch water_lt3
+x 22
+y 17
+end
+arch water_lt3
+x 22
+y 18
+end
+arch water_lt4
+x 22
+y 19
+end
+arch water_lt2
+x 22
+y 20
+end
+arch water_lt
+x 22
+y 21
+end
+arch water_lt
+x 22
+y 22
+end
+arch water_lt
+x 22
+y 23
+end
+arch water_lt3
+x 23
+end
+arch water_lt4
+x 23
+y 1
+end
+arch water_lt2
+x 23
+y 2
+end
+arch water_lt3
+x 23
+y 3
+end
+arch water_lt4
+x 23
+y 4
+end
+arch water_lt3
+x 23
+y 5
+end
+arch water_lt3
+x 23
+y 6
+end
+arch water_lt2
+x 23
+y 7
+end
+arch water_lt
+x 23
+y 8
+end
+arch water_lt3
+x 23
+y 9
+end
+arch water_lt2
+x 23
+y 10
+end
+arch water_lt
+x 23
+y 11
+end
+arch water_lt2
+x 23
+y 12
+end
+arch water_lt4
+x 23
+y 13
+end
+arch water_lt
+x 23
+y 14
+end
+arch water_lt4
+x 23
+y 15
+end
+arch water_lt4
+x 23
+y 16
+end
+arch water_lt4
+x 23
+y 17
+end
+arch water_lt
+x 23
+y 18
+end
+arch water_lt3
+x 23
+y 19
+end
+arch water_lt2
+x 23
+y 20
+end
+arch water_lt3
+x 23
+y 21
+end
+arch water_lt
+x 23
+y 22
+end
+arch water_lt2
+x 23
+y 23
+end

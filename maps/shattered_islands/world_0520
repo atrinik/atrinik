@@ -1,0 +1,3232 @@
+arch map
+name Aris
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-18 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0521
+tile_path_2 world_0620
+tile_path_3 world_0519
+tile_path_4 world_0420
+tile_path_5 world_0621
+tile_path_6 world_0619
+tile_path_7 world_0419
+tile_path_8 world_0421
+end
+arch grassd_2
+end
+arch plant_mushroom4
+end
+arch grassd_8
+y 1
+end
+arch grassd_8
+y 2
+end
+arch grassd_3
+y 3
+end
+arch grassd_4
+y 4
+end
+arch grassd_7
+y 5
+end
+arch grassd_8
+y 6
+end
+arch fence_01.113
+y 6
+end
+arch grassd_4
+y 7
+end
+arch grassd_1
+y 8
+end
+arch grassd_3
+y 9
+end
+arch grassd_6
+y 10
+end
+arch grassd_3
+y 11
+end
+arch floor_sand_d1
+y 12
+end
+arch grassd_m13
+y 12
+end
+arch floor_sand_d4
+y 13
+end
+arch grassd_m3
+y 13
+end
+arch floor_earth1d
+y 14
+end
+arch grassd_m4
+y 14
+end
+arch floor_earth1a
+y 15
+end
+arch grassd_m9
+y 15
+end
+arch floor_earth1b
+y 16
+end
+arch grassd_m9
+y 16
+end
+arch floor_earth1a
+y 17
+end
+arch grassd_m9
+y 17
+end
+arch floor_earth1d
+y 18
+end
+arch grassd_m9
+y 18
+end
+arch floor_earth1b
+y 19
+end
+arch grassd_m9
+y 19
+end
+arch floor_earth1a
+y 20
+end
+arch grassd_m9
+y 20
+end
+arch floor_earth1d
+y 21
+end
+arch grassd_m9
+y 21
+end
+arch floor_earth1b
+y 22
+end
+arch grassd_m9
+y 22
+end
+arch floor_earth1a
+y 23
+end
+arch grassd_m9
+y 23
+end
+arch grassd_5
+x 1
+end
+arch grassd_2
+x 1
+y 1
+end
+arch grassd_4
+x 1
+y 2
+end
+arch plant10
+x 1
+y 2
+end
+arch grassd_1
+x 1
+y 3
+end
+arch plant5
+x 1
+y 3
+end
+arch grassd_7
+x 1
+y 4
+end
+arch grassd_5
+x 1
+y 5
+end
+arch grassd_2
+x 1
+y 6
+end
+arch fence_01.111
+x 1
+y 6
+end
+arch grassd_3
+x 1
+y 7
+end
+arch grassd_5
+x 1
+y 8
+end
+arch plant17
+x 1
+y 8
+end
+arch grassd_5
+x 1
+y 9
+end
+arch grassd_7
+x 1
+y 10
+end
+arch grassd_6
+x 1
+y 11
+end
+arch floor_sand_d3
+x 1
+y 12
+end
+arch grassd_m6
+x 1
+y 12
+end
+arch floor_sand_d1
+x 1
+y 13
+end
+arch grassd_m12
+x 1
+y 13
+end
+arch floor_earth1a
+x 1
+y 14
+end
+arch sand_dm10
+x 1
+y 14
+end
+arch floor_farm1k
+x 1
+y 15
+end
+arch floor_farm1k
+x 1
+y 16
+end
+arch floor_farm1k
+x 1
+y 17
+end
+arch floor_farm1k
+x 1
+y 18
+end
+arch floor_farm1k
+x 1
+y 19
+end
+arch floor_farm1k
+x 1
+y 20
+end
+arch floor_farm1k
+x 1
+y 21
+end
+arch floor_farm1k
+x 1
+y 22
+end
+arch floor_farm1k
+x 1
+y 23
+end
+arch grassd_4
+x 2
+end
+arch grassd_4
+x 2
+y 1
+end
+arch grassd_4
+x 2
+y 2
+end
+arch grassd_7
+x 2
+y 3
+end
+arch grassd_1
+x 2
+y 4
+end
+arch grassd_6
+x 2
+y 5
+end
+arch grassd_4
+x 2
+y 6
+end
+arch fence_01.112
+x 2
+y 6
+end
+arch grassd_2
+x 2
+y 7
+end
+arch grassd_4
+x 2
+y 8
+end
+arch grassd_8
+x 2
+y 9
+end
+arch grassd_8
+x 2
+y 10
+end
+arch wood_pile.101
+x 2
+y 10
+end
+arch grassd_8
+x 2
+y 11
+end
+arch wood_pile.101
+x 2
+y 11
+end
+arch grassd_7
+x 2
+y 12
+end
+arch trash_wood1.101
+x 2
+y 12
+end
+arch floor_sand_d4
+x 2
+y 13
+end
+arch grassd_m10
+x 2
+y 13
+end
+arch floor_earth1b
+x 2
+y 14
+end
+arch sand_dm10
+x 2
+y 14
+end
+arch floor_farm1k
+x 2
+y 15
+end
+arch floor_farm1k
+x 2
+y 16
+end
+arch floor_farm1k
+x 2
+y 17
+end
+arch floor_farm1k
+x 2
+y 18
+end
+arch floor_farm1k
+x 2
+y 19
+end
+arch floor_farm1k
+x 2
+y 20
+end
+arch floor_farm1k
+x 2
+y 21
+end
+arch floor_farm1k
+x 2
+y 22
+end
+arch floor_farm1k
+x 2
+y 23
+end
+arch grassd_2
+x 3
+end
+arch grassd_7
+x 3
+y 1
+end
+arch wall_stone4_8
+x 3
+y 1
+end
+arch grassd_2
+x 3
+y 2
+end
+arch wall_stone4_3
+x 3
+y 2
+end
+arch grassd_8
+x 3
+y 3
+end
+arch wall_stone4_3
+x 3
+y 3
+end
+arch grassd_3
+x 3
+y 4
+end
+arch wall_stone4_3
+x 3
+y 4
+end
+arch grassd_4
+x 3
+y 5
+end
+arch wall_stone4_3
+x 3
+y 5
+end
+arch grassd_4
+x 3
+y 6
+end
+arch wall_stone4_3
+x 3
+y 6
+end
+arch grassd_5
+x 3
+y 7
+end
+arch wall_stone4_3
+x 3
+y 7
+end
+arch grassd_6
+x 3
+y 8
+end
+arch wall_stone4_3
+x 3
+y 8
+end
+arch grassd_5
+x 3
+y 9
+end
+arch wall_stone4_3
+x 3
+y 9
+end
+arch grassd_7
+x 3
+y 10
+end
+arch wall_stone4_3
+x 3
+y 10
+end
+arch grassd_5
+x 3
+y 11
+end
+arch wall_stone4_3
+x 3
+y 11
+end
+arch grassd_6
+x 3
+y 12
+end
+arch trash_wood1.101
+x 3
+y 12
+end
+arch floor_sand_d4
+x 3
+y 13
+end
+arch grassd_m10
+x 3
+y 13
+end
+arch floor_earth1d
+x 3
+y 14
+end
+arch sand_dm10
+x 3
+y 14
+end
+arch floor_farm1k
+x 3
+y 15
+end
+arch floor_farm1k
+x 3
+y 16
+end
+arch floor_farm1k
+x 3
+y 17
+end
+arch floor_farm1k
+x 3
+y 18
+end
+arch floor_farm1k
+x 3
+y 19
+end
+arch floor_farm1k
+x 3
+y 20
+end
+arch floor_farm1k
+x 3
+y 21
+end
+arch floor_farm1k
+x 3
+y 22
+end
+arch floor_farm1k
+x 3
+y 23
+end
+arch grassd_4
+x 4
+end
+arch plant12
+x 4
+end
+arch grassd_2
+x 4
+y 1
+end
+arch wall_stone4_1
+x 4
+y 1
+end
+arch floor_parquet2b
+x 4
+y 2
+end
+arch fire_cauld.131
+direction 3
+x 4
+y 2
+end
+arch floor_parquet2e
+x 4
+y 3
+end
+arch floor_parquet2d
+x 4
+y 4
+end
+arch kettle_table
+x 4
+y 4
+end
+arch floor_parquet2e
+x 4
+y 5
+end
+arch floor_parquet2e
+x 4
+y 6
+end
+arch wall_stone4_1
+x 4
+y 6
+end
+arch floor_parquet2e
+x 4
+y 7
+end
+arch floor_parquet2c
+x 4
+y 8
+end
+arch bed_1a.111
+x 4
+y 8
+end
+arch floor_parquet2c
+x 4
+y 9
+end
+arch floor_parquet2c
+x 4
+y 10
+end
+arch bed_1a.111
+x 4
+y 10
+end
+arch floor_parquet2c
+x 4
+y 11
+end
+arch wall_stone4_1
+x 4
+y 11
+end
+arch grassd_7
+x 4
+y 12
+end
+arch floor_sand_d2
+x 4
+y 13
+end
+arch grassd_m10
+x 4
+y 13
+end
+arch floor_earth1b
+x 4
+y 14
+end
+arch sand_dm10
+x 4
+y 14
+end
+arch floor_farm1k
+x 4
+y 15
+end
+arch floor_farm1k
+x 4
+y 16
+end
+arch floor_farm1k
+x 4
+y 17
+end
+arch floor_farm1k
+x 4
+y 18
+end
+arch floor_farm1k
+x 4
+y 19
+end
+arch floor_farm1k
+x 4
+y 20
+end
+arch floor_farm1k
+x 4
+y 21
+end
+arch floor_farm1k
+x 4
+y 22
+end
+arch floor_farm1k
+x 4
+y 23
+end
+arch scarecrow.111
+x 4
+y 23
+end
+arch grassd_5
+x 5
+end
+arch grassd_1
+x 5
+y 1
+end
+arch wall_stone4_1
+x 5
+y 1
+end
+arch floor_parquet2e
+x 5
+y 2
+end
+arch floor_parquet2e
+x 5
+y 3
+end
+arch floor_parquet2e
+x 5
+y 4
+end
+arch floor_parquet2f
+x 5
+y 5
+end
+arch floor_parquet2f
+x 5
+y 6
+end
+arch wall_stone4_1
+x 5
+y 6
+end
+arch floor_parquet2c
+x 5
+y 7
+end
+arch floor_parquet2c
+x 5
+y 8
+end
+arch bed_1b.111
+x 5
+y 8
+end
+arch floor_parquet2e
+x 5
+y 9
+end
+arch floor_parquet2c
+x 5
+y 10
+end
+arch bed_1b.111
+x 5
+y 10
+end
+arch floor_parquet2c
+x 5
+y 11
+end
+arch wall_stone4_1
+x 5
+y 11
+end
+arch grassd_6
+x 5
+y 12
+end
+arch floor_sand_d3
+x 5
+y 13
+end
+arch grassd_m10
+x 5
+y 13
+end
+arch floor_earth1b
+x 5
+y 14
+end
+arch sand_dm10
+x 5
+y 14
+end
+arch floor_farm1k
+x 5
+y 15
+end
+arch floor_farm1k
+x 5
+y 16
+end
+arch floor_farm1k
+x 5
+y 17
+end
+arch floor_farm1k
+x 5
+y 18
+end
+arch floor_farm1k
+x 5
+y 19
+end
+arch floor_farm1k
+x 5
+y 20
+end
+arch floor_farm1k
+x 5
+y 21
+end
+arch floor_farm1k
+x 5
+y 22
+end
+arch floor_farm1k
+x 5
+y 23
+end
+arch grassd_3
+x 6
+end
+arch grassd_1
+x 6
+y 1
+end
+arch wall_stone4_1
+x 6
+y 1
+end
+arch floor_parquet2e
+x 6
+y 2
+end
+arch floor_parquet2f
+x 6
+y 3
+end
+arch floor_parquet2e
+x 6
+y 4
+end
+arch floor_parquet2e
+x 6
+y 5
+end
+arch floor_parquet2c
+x 6
+y 6
+end
+arch door_wood2
+x 6
+y 6
+end
+arch floor_parquet2c
+x 6
+y 7
+end
+arch floor_parquet2e
+x 6
+y 8
+end
+arch floor_parquet2c
+x 6
+y 9
+end
+arch floor_parquet2c
+x 6
+y 10
+end
+arch floor_parquet2c
+x 6
+y 11
+end
+arch wall_stone4_1
+x 6
+y 11
+end
+arch grassd_4
+x 6
+y 12
+end
+arch floor_sand_d3
+x 6
+y 13
+end
+arch grassd_m10
+x 6
+y 13
+end
+arch floor_earth1d
+x 6
+y 14
+end
+arch sand_dm10
+x 6
+y 14
+end
+arch floor_farm1k
+x 6
+y 15
+end
+arch floor_farm1k
+x 6
+y 16
+end
+arch floor_farm1k
+x 6
+y 17
+end
+arch floor_farm1k
+x 6
+y 18
+end
+arch floor_farm1k
+x 6
+y 19
+end
+arch floor_farm1k
+x 6
+y 20
+end
+arch floor_farm1k
+x 6
+y 21
+end
+arch floor_farm1k
+x 6
+y 22
+end
+arch floor_farm1k
+x 6
+y 23
+end
+arch grassd_6
+x 7
+end
+arch wall_stone4_8
+x 7
+end
+arch grassd_1
+x 7
+y 1
+end
+arch wall_stone4_4
+x 7
+y 1
+end
+arch floor_parquet2e
+x 7
+y 2
+end
+arch floor_parquet2e
+x 7
+y 3
+end
+arch floor_parquet2d
+x 7
+y 4
+end
+arch keg_big.101
+x 7
+y 4
+end
+arch floor_parquet2a
+x 7
+y 5
+end
+arch floor_parquet2c
+x 7
+y 6
+end
+arch wall_stone4_1
+x 7
+y 6
+end
+arch floor_parquet2e
+x 7
+y 7
+end
+arch torch_wall_1
+face torch_wall.112
+x 7
+y 7
+end
+arch floor_parquet2c
+x 7
+y 8
+end
+arch floor_parquet2c
+x 7
+y 9
+end
+arch floor_parquet2e
+x 7
+y 10
+end
+arch floor_parquet2c
+x 7
+y 11
+end
+arch wall_stone4_1
+x 7
+y 11
+end
+arch floor_sand_d1
+x 7
+y 12
+end
+arch grassd_m9
+x 7
+y 12
+end
+arch floor_sand_d2
+x 7
+y 13
+end
+arch grassd_m13
+x 7
+y 13
+end
+arch floor_earth1a
+x 7
+y 14
+end
+arch sand_dm10
+x 7
+y 14
+end
+arch floor_earth1a
+x 7
+y 15
+end
+arch floor_earth1a
+x 7
+y 16
+end
+arch floor_earth1b
+x 7
+y 17
+end
+arch floor_earth1b
+x 7
+y 18
+end
+arch floor_earth1a
+x 7
+y 19
+end
+arch floor_earth1b
+x 7
+y 20
+end
+arch floor_earth1a
+x 7
+y 21
+end
+arch water_still
+x 7
+y 22
+end
+arch sand_dm20
+x 7
+y 22
+end
+arch water_still
+x 7
+y 23
+end
+arch sand_dm21
+x 7
+y 23
+end
+arch grassd_7
+x 8
+end
+arch wall_stone4_1
+x 8
+end
+arch floor_parquet2a
+x 8
+y 1
+end
+arch potted_plant5
+x 8
+y 1
+end
+arch floor_parquet2c
+x 8
+y 2
+end
+arch floor_parquet2a
+x 8
+y 3
+end
+arch wall_stone4_8
+x 8
+y 3
+end
+arch floor_parquet2c
+x 8
+y 4
+end
+arch wall_stone4_3
+x 8
+y 4
+end
+arch floor_parquet2c
+x 8
+y 5
+end
+arch wall_stone4_3
+x 8
+y 5
+end
+arch floor_parquet2c
+x 8
+y 6
+end
+arch wall_stone4_4
+x 8
+y 6
+end
+arch picture15
+direction 5
+x 8
+y 6
+end
+arch floor_parquet2c
+x 8
+y 7
+end
+arch wall_stone4_3
+x 8
+y 7
+end
+arch floor_parquet2c
+x 8
+y 8
+end
+arch wall_stone4_3
+x 8
+y 8
+end
+arch floor_parquet2f
+x 8
+y 9
+end
+arch wall_stone4_3
+x 8
+y 9
+end
+arch floor_parquet2c
+x 8
+y 10
+end
+arch wall_stone4_3
+x 8
+y 10
+end
+arch floor_parquet2c
+x 8
+y 11
+end
+arch wall_stone4_4
+x 8
+y 11
+end
+arch floor_sand_d1
+x 8
+y 12
+end
+arch grassd_1
+x 8
+y 13
+end
+arch sand_dm14
+x 8
+y 13
+end
+arch floor_earth1a
+x 8
+y 14
+end
+arch grassd_m10
+x 8
+y 14
+end
+arch floor_farm1d
+x 8
+y 15
+end
+arch floor_farm1d
+x 8
+y 16
+end
+arch floor_farm1d
+x 8
+y 17
+end
+arch floor_farm1d
+x 8
+y 18
+end
+arch floor_farm1d
+x 8
+y 19
+end
+arch floor_farm1d
+x 8
+y 20
+end
+arch floor_farm1d
+x 8
+y 21
+end
+arch floor_farm1d
+x 8
+y 22
+end
+arch floor_farm1d
+x 8
+y 23
+end
+arch grassd_8
+x 9
+end
+arch wall_stone4_1
+x 9
+end
+arch floor_parquet2d
+x 9
+y 1
+end
+arch floor_parquet2a
+x 9
+y 2
+end
+arch floor_parquet2f
+x 9
+y 3
+end
+arch wall_stone4_1
+x 9
+y 3
+end
+arch floor_parquet2c
+x 9
+y 4
+end
+arch potted_plant1
+x 9
+y 4
+end
+arch floor_parquet2f
+x 9
+y 5
+end
+arch floor_parquet2c
+x 9
+y 6
+end
+arch floor_parquet2c
+x 9
+y 7
+end
+arch floor_parquet2e
+x 9
+y 8
+end
+arch floor_parquet2e
+x 9
+y 9
+end
+arch fireplace_left_off
+x 9
+y 9
+end
+arch floor_parquet2e
+x 9
+y 10
+end
+arch floor_parquet2c
+x 9
+y 11
+end
+arch wall_stone4_1
+x 9
+y 11
+end
+arch floor_sand_d3
+x 9
+y 12
+end
+arch grassd_3
+x 9
+y 13
+end
+arch sand_dm10
+x 9
+y 13
+end
+arch floor_earth1a
+x 9
+y 14
+end
+arch grassd_m10
+x 9
+y 14
+end
+arch floor_farm1d
+x 9
+y 15
+end
+arch floor_farm1d
+x 9
+y 16
+end
+arch floor_farm1d
+x 9
+y 17
+end
+arch floor_farm1d
+x 9
+y 18
+end
+arch floor_farm1d
+x 9
+y 19
+end
+arch floor_farm1d
+x 9
+y 20
+end
+arch floor_farm1d
+x 9
+y 21
+end
+arch floor_farm1d
+x 9
+y 22
+end
+arch floor_farm1d
+x 9
+y 23
+end
+arch grassd_1
+x 10
+end
+arch wall_stone4_1
+x 10
+end
+arch floor_parquet2d
+x 10
+y 1
+end
+arch torch_wall_1
+face torch_wall.112
+x 10
+y 1
+end
+arch floor_parquet2b
+x 10
+y 2
+end
+arch floor_parquet2f
+x 10
+y 3
+end
+arch wall_stone4_1
+x 10
+y 3
+end
+arch floor_parquet2d
+x 10
+y 4
+end
+arch floor_parquet2b
+x 10
+y 5
+end
+arch floor_parquet2c
+x 10
+y 6
+end
+arch floor_parquet2f
+x 10
+y 7
+end
+arch chair2_111
+direction 7
+x 10
+y 7
+end
+arch spawn_point
+x 10
+y 7
+arch guard_pole
+name Boris
+type 83
+level 5
+end
+end
+arch floor_parquet2d
+x 10
+y 8
+end
+arch floor_parquet2c
+x 10
+y 9
+end
+arch floor_parquet2c
+x 10
+y 10
+end
+arch floor_parquet2c
+x 10
+y 11
+end
+arch wall_stone4_1
+x 10
+y 11
+end
+arch floor_sand_d4
+x 10
+y 12
+end
+arch grassd_6
+x 10
+y 13
+end
+arch sand_dm10
+x 10
+y 13
+end
+arch floor_earth1a
+x 10
+y 14
+end
+arch grassd_m10
+x 10
+y 14
+end
+arch floor_farm1d
+x 10
+y 15
+end
+arch floor_farm1d
+x 10
+y 16
+end
+arch floor_farm1d
+x 10
+y 17
+end
+arch floor_farm1d
+x 10
+y 18
+end
+arch floor_farm1d
+x 10
+y 19
+end
+arch floor_farm1d
+x 10
+y 20
+end
+arch floor_farm1d
+x 10
+y 21
+end
+arch floor_farm1d
+x 10
+y 22
+end
+arch floor_farm1d
+x 10
+y 23
+end
+arch scarecrow.111
+x 10
+y 23
+end
+arch grassd_1
+x 11
+end
+arch wall_stone4_1
+x 11
+end
+arch floor_parquet2d
+x 11
+y 1
+end
+arch floor_parquet2d
+x 11
+y 2
+end
+arch floor_parquet2a
+x 11
+y 3
+end
+arch wall_stone4_1
+x 11
+y 3
+end
+arch floor_parquet2f
+x 11
+y 4
+end
+arch floor_parquet2a
+x 11
+y 5
+end
+arch floor_parquet2c
+x 11
+y 6
+end
+arch chair2_111
+x 11
+y 6
+end
+arch floor_parquet2c
+x 11
+y 7
+end
+arch table_wood1.111
+direction 3
+x 11
+y 7
+end
+arch light4
+x 11
+y 7
+end
+arch floor_parquet2c
+x 11
+y 8
+end
+arch chair2_111
+direction 5
+x 11
+y 8
+end
+arch spawn_point
+x 11
+y 8
+arch traveller_wife
+name Amelia
+type 83
+level 4
+end
+end
+arch floor_parquet2c
+x 11
+y 9
+end
+arch floor_parquet2f
+x 11
+y 10
+end
+arch floor_parquet2c
+x 11
+y 11
+end
+arch wall_stone4_1
+x 11
+y 11
+end
+arch floor_sand_d2
+x 11
+y 12
+end
+arch grassd_3
+x 11
+y 13
+end
+arch sand_dm10
+x 11
+y 13
+end
+arch floor_earth1a
+x 11
+y 14
+end
+arch grassd_m10
+x 11
+y 14
+end
+arch floor_farm1d
+x 11
+y 15
+end
+arch floor_farm1d
+x 11
+y 16
+end
+arch floor_farm1d
+x 11
+y 17
+end
+arch floor_farm1d
+x 11
+y 18
+end
+arch floor_farm1d
+x 11
+y 19
+end
+arch floor_farm1d
+x 11
+y 20
+end
+arch floor_farm1d
+x 11
+y 21
+end
+arch floor_farm1d
+x 11
+y 22
+end
+arch floor_farm1d
+x 11
+y 23
+end
+arch floor_sand_d3
+x 12
+end
+arch door_wood2
+x 12
+end
+arch floor_parquet2d
+x 12
+y 1
+end
+arch pile_floor2
+x 12
+y 1
+end
+arch floor_parquet2f
+x 12
+y 2
+end
+arch floor_parquet2e
+x 12
+y 3
+end
+arch doorway_wood1_1
+x 12
+y 3
+end
+arch floor_parquet2e
+x 12
+y 4
+end
+arch floor_parquet2f
+x 12
+y 5
+end
+arch floor_parquet2c
+x 12
+y 6
+end
+arch chair2_111
+x 12
+y 6
+end
+arch floor_parquet2c
+x 12
+y 7
+end
+arch table_wood1.111
+direction 3
+x 12
+y 7
+end
+arch light4
+x 12
+y 7
+end
+arch floor_parquet2c
+x 12
+y 8
+end
+arch chair2_111
+direction 5
+x 12
+y 8
+end
+arch floor_parquet2c
+x 12
+y 9
+end
+arch floor_parquet2c
+x 12
+y 10
+end
+arch floor_parquet2c
+x 12
+y 11
+end
+arch door_wood1
+x 12
+y 11
+end
+arch floor_sand_d1
+x 12
+y 12
+end
+arch grassd_8
+x 12
+y 13
+end
+arch sand_dm10
+x 12
+y 13
+end
+arch floor_earth1b
+x 12
+y 14
+end
+arch grassd_m10
+x 12
+y 14
+end
+arch floor_farm1d
+x 12
+y 15
+end
+arch floor_farm1d
+x 12
+y 16
+end
+arch floor_farm1d
+x 12
+y 17
+end
+arch floor_farm1d
+x 12
+y 18
+end
+arch floor_farm1d
+x 12
+y 19
+end
+arch floor_farm1d
+x 12
+y 20
+end
+arch floor_farm1d
+x 12
+y 21
+end
+arch floor_farm1d
+x 12
+y 22
+end
+arch floor_farm1d
+x 12
+y 23
+end
+arch grassd_4
+x 13
+end
+arch wall_stone4_1
+x 13
+end
+arch floor_parquet2d
+x 13
+y 1
+end
+arch floor_parquet2d
+x 13
+y 2
+end
+arch floor_parquet2f
+x 13
+y 3
+end
+arch wall_stone4_1
+x 13
+y 3
+end
+arch floor_parquet2f
+x 13
+y 4
+end
+arch torch_wall_1
+face torch_wall.112
+x 13
+y 4
+end
+arch floor_parquet2f
+x 13
+y 5
+end
+arch floor_parquet2c
+x 13
+y 6
+end
+arch floor_parquet2a
+x 13
+y 7
+end
+arch chair2_111
+direction 3
+x 13
+y 7
+end
+arch floor_parquet2f
+x 13
+y 8
+end
+arch floor_parquet2c
+x 13
+y 9
+end
+arch floor_parquet2c
+x 13
+y 10
+end
+arch floor_parquet2d
+x 13
+y 11
+end
+arch wall_stone4_1
+x 13
+y 11
+end
+arch floor_sand_d2
+x 13
+y 12
+end
+arch grassd_4
+x 13
+y 13
+end
+arch sand_dm15
+x 13
+y 13
+end
+arch floor_earth1a
+x 13
+y 14
+end
+arch grassd_m10
+x 13
+y 14
+end
+arch floor_farm1d
+x 13
+y 15
+end
+arch floor_farm1d
+x 13
+y 16
+end
+arch floor_farm1d
+x 13
+y 17
+end
+arch floor_farm1d
+x 13
+y 18
+end
+arch floor_farm1d
+x 13
+y 19
+end
+arch floor_farm1d
+x 13
+y 20
+end
+arch floor_farm1d
+x 13
+y 21
+end
+arch water_still
+x 13
+y 22
+end
+arch sand_dm20
+x 13
+y 22
+end
+arch floor_farm1d
+x 13
+y 23
+end
+arch grassd_8
+x 14
+end
+arch wall_stone4_1
+x 14
+end
+arch floor_parquet2d
+x 14
+y 1
+end
+arch potted_plant5
+x 14
+y 1
+end
+arch floor_parquet2f
+x 14
+y 2
+end
+arch floor_parquet2f
+x 14
+y 3
+end
+arch wall_stone4_1
+x 14
+y 3
+end
+arch floor_parquet2f
+x 14
+y 4
+end
+arch potted_plant3
+x 14
+y 4
+end
+arch floor_parquet2f
+x 14
+y 5
+end
+arch floor_parquet2f
+x 14
+y 6
+end
+arch floor_parquet2f
+x 14
+y 7
+end
+arch floor_parquet2f
+x 14
+y 8
+end
+arch floor_parquet2c
+x 14
+y 9
+end
+arch floor_parquet2c
+x 14
+y 10
+end
+arch floor_parquet2f
+x 14
+y 11
+end
+arch wall_stone4_1
+x 14
+y 11
+end
+arch floor_sand_d3
+x 14
+y 12
+end
+arch grassd_m6
+x 14
+y 12
+end
+arch floor_sand_d3
+x 14
+y 13
+end
+arch grassd_m12
+x 14
+y 13
+end
+arch floor_earth1a
+x 14
+y 14
+end
+arch sand_dm10
+x 14
+y 14
+end
+arch floor_earth1a
+x 14
+y 15
+end
+arch floor_earth1b
+x 14
+y 16
+end
+arch floor_earth1a
+x 14
+y 17
+end
+arch floor_earth1d
+x 14
+y 18
+end
+arch water_still
+x 14
+y 19
+end
+arch sand_dm17
+x 14
+y 19
+end
+arch water_still
+x 14
+y 20
+end
+arch sand_dm8
+x 14
+y 20
+end
+arch water_still
+x 14
+y 21
+end
+arch sand_dm8
+x 14
+y 21
+end
+arch water_still
+x 14
+y 22
+end
+arch water_still
+x 14
+y 23
+end
+arch sand_dm8
+x 14
+y 23
+end
+arch grassd_3
+x 15
+end
+arch wall_stone4_1
+x 15
+end
+arch floor_parquet2a
+x 15
+y 1
+end
+arch wall_stone4_3
+x 15
+y 1
+end
+arch floor_parquet2f
+x 15
+y 2
+end
+arch door_wood2
+face door_wood2.131
+direction 3
+x 15
+y 2
+end
+arch floor_parquet2f
+x 15
+y 3
+end
+arch wall_stone4_4
+x 15
+y 3
+end
+arch floor_parquet2a
+x 15
+y 4
+end
+arch wall_stone4_3
+x 15
+y 4
+end
+arch floor_parquet2a
+x 15
+y 5
+end
+arch wall_stone4_3
+x 15
+y 5
+end
+arch floor_parquet2f
+x 15
+y 6
+end
+arch wall_stone4_3
+x 15
+y 6
+end
+arch floor_parquet2f
+x 15
+y 7
+end
+arch wall_stone4_3
+x 15
+y 7
+end
+arch picture5.151
+direction 5
+x 15
+y 7
+end
+arch floor_parquet2f
+x 15
+y 8
+end
+arch wall_stone4_3
+x 15
+y 8
+end
+arch floor_parquet2a
+x 15
+y 9
+end
+arch wall_stone4_3
+x 15
+y 9
+end
+arch floor_parquet2c
+x 15
+y 10
+end
+arch wall_stone4_3
+x 15
+y 10
+end
+arch picture6.151
+direction 5
+x 15
+y 10
+end
+arch floor_parquet2f
+x 15
+y 11
+end
+arch wall_stone4_4
+x 15
+y 11
+end
+arch grassd_5
+x 15
+y 12
+end
+arch floor_sand_d2
+x 15
+y 13
+end
+arch grassd_m10
+x 15
+y 13
+end
+arch floor_farm1i
+x 15
+y 14
+end
+arch floor_farm1i
+x 15
+y 15
+end
+arch floor_farm1i
+x 15
+y 16
+end
+arch floor_farm1i
+x 15
+y 17
+end
+arch floor_farm1i
+x 15
+y 18
+end
+arch floor_farm1i
+x 15
+y 19
+end
+arch water_still
+x 15
+y 20
+end
+arch sand_dm15
+x 15
+y 20
+end
+arch water_still
+x 15
+y 21
+end
+arch sand_dm5
+x 15
+y 21
+end
+arch water_still
+x 15
+y 22
+end
+arch sand_dm9
+x 15
+y 22
+end
+arch water_still
+x 15
+y 23
+end
+arch sand_dm5
+x 15
+y 23
+end
+arch grassd_1
+x 16
+end
+arch wall_stone4_1
+x 16
+end
+arch floor_parquet2d
+x 16
+y 1
+end
+arch wall_stone4_4
+x 16
+y 1
+end
+arch wmask_fire_on_1
+x 16
+y 1
+end
+arch floor_parquet2d
+x 16
+y 2
+end
+arch floor_parquet2d
+x 16
+y 3
+end
+arch bowl1_full.101
+x 16
+y 3
+end
+arch floor_parquet2d
+x 16
+y 4
+end
+arch wall_stone4_1
+x 16
+y 4
+end
+arch floor_parquet2d
+x 16
+y 5
+end
+arch floor_parquet2d
+x 16
+y 6
+end
+arch floor_parquet2d
+x 16
+y 7
+end
+arch floor_parquet2d
+x 16
+y 8
+end
+arch bed_2a.111
+x 16
+y 8
+end
+arch floor_parquet2d
+x 16
+y 9
+end
+arch bed_2a.111
+x 16
+y 9
+end
+arch floor_parquet2c
+x 16
+y 10
+end
+arch floor_parquet2d
+x 16
+y 11
+end
+arch wall_stone4_1
+x 16
+y 11
+end
+arch grassd_1
+x 16
+y 12
+end
+arch wall_well.131
+x 16
+y 12
+end
+arch floor_sand_d2
+x 16
+y 13
+end
+arch grassd_m10
+x 16
+y 13
+end
+arch floor_farm1i
+x 16
+y 14
+end
+arch floor_farm1i
+x 16
+y 15
+end
+arch floor_farm1i
+x 16
+y 16
+end
+arch floor_farm1i
+x 16
+y 17
+end
+arch floor_farm1i
+x 16
+y 18
+end
+arch floor_farm1i
+x 16
+y 19
+end
+arch floor_farm1i
+x 16
+y 20
+end
+arch floor_farm1i
+x 16
+y 21
+end
+arch floor_farm1i
+x 16
+y 22
+end
+arch floor_farm1i
+x 16
+y 23
+end
+arch grassd_3
+x 17
+end
+arch tree_branch1
+x 17
+end
+arch grassd_5
+x 17
+y 1
+end
+arch wall_stone4_1
+x 17
+y 1
+end
+arch floor_parquet2e
+x 17
+y 2
+end
+arch floor_parquet2f
+x 17
+y 3
+end
+arch floor_parquet2d
+x 17
+y 4
+end
+arch wall_stone4_1
+x 17
+y 4
+end
+arch floor_parquet2f
+x 17
+y 5
+end
+arch torch_wall_1
+face torch_wall.112
+speed_left -0.931544
+state 1
+glow_radius 5
+is_animated 1
+x 17
+y 5
+end
+arch floor_parquet2d
+x 17
+y 6
+end
+arch floor_parquet2c
+x 17
+y 7
+end
+arch floor_parquet2d
+x 17
+y 8
+end
+arch bed_2b.111
+x 17
+y 8
+end
+arch floor_parquet2c
+x 17
+y 9
+end
+arch bed_2b.111
+x 17
+y 9
+end
+arch floor_parquet2c
+x 17
+y 10
+end
+arch floor_parquet2b
+x 17
+y 11
+end
+arch wall_stone4_1
+x 17
+y 11
+end
+arch grassd_4
+x 17
+y 12
+end
+arch floor_sand_d1
+x 17
+y 13
+end
+arch grassd_m10
+x 17
+y 13
+end
+arch floor_farm1i
+x 17
+y 14
+end
+arch floor_farm1i
+x 17
+y 15
+end
+arch floor_farm1i
+x 17
+y 16
+end
+arch floor_farm1i
+x 17
+y 17
+end
+arch floor_farm1i
+x 17
+y 18
+end
+arch floor_farm1i
+x 17
+y 19
+end
+arch floor_farm1i
+x 17
+y 20
+end
+arch floor_farm1i
+x 17
+y 21
+end
+arch floor_farm1i
+x 17
+y 22
+end
+arch floor_farm1i
+x 17
+y 23
+end
+arch grassd_2
+x 18
+end
+arch grassd_1
+x 18
+y 1
+end
+arch wall_stone4_1
+x 18
+y 1
+end
+arch floor_parquet2a
+x 18
+y 2
+end
+arch torch_wall_1
+face torch_wall.112
+x 18
+y 2
+end
+arch floor_parquet2f
+x 18
+y 3
+end
+arch floor_parquet2d
+x 18
+y 4
+end
+arch door_wood2
+x 18
+y 4
+end
+arch floor_parquet2d
+x 18
+y 5
+end
+arch floor_parquet2d
+x 18
+y 6
+end
+arch floor_parquet2d
+x 18
+y 7
+end
+arch floor_parquet2c
+x 18
+y 8
+end
+arch floor_parquet2c
+x 18
+y 9
+end
+arch floor_parquet2e
+x 18
+y 10
+end
+arch floor_parquet2a
+x 18
+y 11
+end
+arch wall_stone4_1
+x 18
+y 11
+end
+arch grassd_3
+x 18
+y 12
+end
+arch floor_sand_d3
+x 18
+y 13
+end
+arch grassd_m10
+x 18
+y 13
+end
+arch floor_farm1i
+x 18
+y 14
+end
+arch floor_farm1i
+x 18
+y 15
+end
+arch floor_farm1i
+x 18
+y 16
+end
+arch floor_farm1i
+x 18
+y 17
+end
+arch floor_farm1i
+x 18
+y 18
+end
+arch floor_farm1i
+x 18
+y 19
+end
+arch floor_farm1i
+x 18
+y 20
+end
+arch floor_farm1i
+x 18
+y 21
+end
+arch floor_farm1i
+x 18
+y 22
+end
+arch floor_farm1i
+x 18
+y 23
+end
+arch scarecrow.111
+x 18
+y 23
+end
+arch grassd_3
+x 19
+end
+arch plant15
+x 19
+end
+arch grassd_8
+x 19
+y 1
+end
+arch wall_stone4_1
+x 19
+y 1
+end
+arch floor_parquet2b
+x 19
+y 2
+end
+arch floor_parquet2d
+x 19
+y 3
+end
+arch bath_tub_big1
+x 19
+y 3
+end
+arch floor_parquet2d
+x 19
+y 4
+end
+arch wall_stone4_1
+x 19
+y 4
+end
+arch floor_parquet2d
+x 19
+y 5
+end
+arch shelf3a.111
+object_int2 0
+x 19
+y 5
+end
+arch floor_parquet2f
+x 19
+y 6
+end
+arch floor_parquet2c
+x 19
+y 7
+end
+arch floor_parquet2c
+x 19
+y 8
+end
+arch floor_parquet2d
+x 19
+y 9
+end
+arch floor_parquet2c
+x 19
+y 10
+end
+arch floor_parquet2c
+x 19
+y 11
+end
+arch wall_stone4_1
+x 19
+y 11
+end
+arch grassd_3
+x 19
+y 12
+end
+arch floor_sand_d1
+x 19
+y 13
+end
+arch grassd_m10
+x 19
+y 13
+end
+arch floor_farm1i
+x 19
+y 14
+end
+arch floor_farm1i
+x 19
+y 15
+end
+arch floor_farm1i
+x 19
+y 16
+end
+arch floor_farm1i
+x 19
+y 17
+end
+arch floor_farm1i
+x 19
+y 18
+end
+arch floor_farm1i
+x 19
+y 19
+end
+arch floor_farm1i
+x 19
+y 20
+end
+arch floor_farm1i
+x 19
+y 21
+end
+arch floor_farm1i
+x 19
+y 22
+end
+arch floor_farm1i
+x 19
+y 23
+end
+arch grassd_7
+x 20
+end
+arch grassd_5
+x 20
+y 1
+end
+arch wall_stone4_1
+x 20
+y 1
+end
+arch floor_parquet2b
+x 20
+y 2
+end
+arch wall_stone4_3
+x 20
+y 2
+end
+arch floor_parquet2b
+x 20
+y 3
+end
+arch wall_stone4_3
+x 20
+y 3
+end
+arch floor_parquet2b
+x 20
+y 4
+end
+arch wall_stone4_4
+x 20
+y 4
+end
+arch floor_parquet2b
+x 20
+y 5
+end
+arch wall_stone4_3
+x 20
+y 5
+end
+arch floor_parquet2b
+x 20
+y 6
+end
+arch wall_stone4_3
+x 20
+y 6
+end
+arch floor_parquet2b
+x 20
+y 7
+end
+arch wall_stone4_3
+x 20
+y 7
+end
+arch floor_parquet2b
+x 20
+y 8
+end
+arch wall_stone4_3
+x 20
+y 8
+end
+arch floor_parquet2b
+x 20
+y 9
+end
+arch wall_stone4_3
+x 20
+y 9
+end
+arch floor_parquet2d
+x 20
+y 10
+end
+arch wall_stone4_3
+x 20
+y 10
+end
+arch floor_parquet2e
+x 20
+y 11
+end
+arch wall_stone4_4
+x 20
+y 11
+end
+arch grassd_2
+x 20
+y 12
+end
+arch floor_sand_d4
+x 20
+y 13
+end
+arch grassd_m10
+x 20
+y 13
+end
+arch floor_earth1a
+x 20
+y 14
+end
+arch sand_dm6
+x 20
+y 14
+end
+arch floor_earth1d
+x 20
+y 15
+end
+arch floor_earth1e
+x 20
+y 16
+end
+arch floor_earth1e
+x 20
+y 17
+end
+arch floor_earth1d
+x 20
+y 18
+end
+arch floor_earth1c
+x 20
+y 19
+end
+arch floor_earth1c
+x 20
+y 20
+end
+arch water_still
+x 20
+y 21
+end
+arch sand_dm21
+x 20
+y 21
+end
+arch water_still
+x 20
+y 22
+end
+arch sand_dm21
+x 20
+y 22
+end
+arch water_still
+x 20
+y 23
+end
+arch sand_dm21
+x 20
+y 23
+end
+arch floor_sand_d1
+x 21
+end
+arch grassd_m9
+x 21
+end
+arch floor_sand_d3
+x 21
+y 1
+end
+arch grassd_m3
+x 21
+y 1
+end
+arch grassd_4
+x 21
+y 2
+end
+arch grassd_6
+x 21
+y 3
+end
+arch fence_01.113
+x 21
+y 3
+end
+arch grassd_6
+x 21
+y 4
+end
+arch plant15
+x 21
+y 4
+end
+arch grassd_7
+x 21
+y 5
+end
+arch grassd_7
+x 21
+y 6
+end
+arch grassd_8
+x 21
+y 7
+end
+arch grassd_5
+x 21
+y 8
+end
+arch grassd_4
+x 21
+y 9
+end
+arch small_stones
+x 21
+y 9
+end
+arch grassd_5
+x 21
+y 10
+end
+arch grassd_8
+x 21
+y 11
+end
+arch floor_sand_d1
+x 21
+y 12
+end
+arch grassd_m4
+x 21
+y 12
+end
+arch floor_sand_d1
+x 21
+y 13
+end
+arch grassd_m13
+x 21
+y 13
+end
+arch floor_farm1n
+x 21
+y 14
+end
+arch floor_farm1n
+x 21
+y 15
+end
+arch floor_farm1n
+x 21
+y 16
+end
+arch floor_farm1n
+x 21
+y 17
+end
+arch floor_farm1n
+x 21
+y 18
+end
+arch floor_farm1n
+x 21
+y 19
+end
+arch floor_farm1n
+x 21
+y 20
+end
+arch floor_farm1m
+x 21
+y 21
+end
+arch floor_farm1m
+x 21
+y 22
+end
+arch floor_farm1m
+x 21
+y 23
+end
+arch floor_sand_d1
+x 22
+end
+arch grassd_m12
+x 22
+end
+arch floor_sand_d1
+x 22
+y 1
+end
+arch grassd_m14
+x 22
+y 1
+end
+arch floor_sand_d2
+x 22
+y 2
+end
+arch grassd_m3
+x 22
+y 2
+end
+arch grassd_3
+x 22
+y 3
+end
+arch fence_01.112
+x 22
+y 3
+end
+arch grassd_2
+x 22
+y 4
+end
+arch grassd_1
+x 22
+y 5
+end
+arch grassd_6
+x 22
+y 6
+end
+arch grassd_4
+x 22
+y 7
+end
+arch plant_mushroom1
+x 22
+y 7
+end
+arch grassd_3
+x 22
+y 8
+end
+arch grassd_8
+x 22
+y 9
+end
+arch grassd_5
+x 22
+y 10
+end
+arch grassd_5
+x 22
+y 11
+end
+arch floor_sand_d1
+x 22
+y 12
+end
+arch grassd_m10
+x 22
+y 12
+end
+arch floor_earth1b
+x 22
+y 13
+end
+arch sand_dm14
+x 22
+y 13
+end
+arch floor_farm1n
+x 22
+y 14
+end
+arch floor_farm1n
+x 22
+y 15
+end
+arch floor_farm1p
+x 22
+y 16
+end
+arch floor_farm1n
+x 22
+y 17
+end
+arch floor_farm1p
+x 22
+y 18
+end
+arch floor_farm1n
+x 22
+y 19
+end
+arch floor_farm1n
+x 22
+y 20
+end
+arch floor_farm1n
+x 22
+y 21
+end
+arch floor_farm1p
+x 22
+y 22
+end
+arch floor_farm1n
+x 22
+y 23
+end
+arch floor_sand_d3
+x 23
+end
+arch grassd_m6
+x 23
+end
+arch floor_sand_d3
+x 23
+y 1
+end
+arch grassd_m8
+x 23
+y 1
+end
+arch floor_sand_d3
+x 23
+y 2
+end
+arch grassd_m14
+x 23
+y 2
+end
+arch floor_sand_d1
+x 23
+y 3
+end
+arch grassd_m9
+x 23
+y 3
+end
+arch floor_sand_d4
+x 23
+y 4
+end
+arch grassd_m9
+x 23
+y 4
+end
+arch floor_sand_d4
+x 23
+y 5
+end
+arch grassd_m9
+x 23
+y 5
+end
+arch floor_sand_d2
+x 23
+y 6
+end
+arch grassd_m9
+x 23
+y 6
+end
+arch floor_sand_d4
+x 23
+y 7
+end
+arch grassd_m9
+x 23
+y 7
+end
+arch floor_sand_d2
+x 23
+y 8
+end
+arch grassd_m9
+x 23
+y 8
+end
+arch floor_sand_d4
+x 23
+y 9
+end
+arch grassd_m9
+x 23
+y 9
+end
+arch floor_sand_d1
+x 23
+y 10
+end
+arch grassd_m9
+x 23
+y 10
+end
+arch floor_sand_d2
+x 23
+y 11
+end
+arch grassd_m9
+x 23
+y 11
+end
+arch floor_sand_d1
+x 23
+y 12
+end
+arch grassd_m13
+x 23
+y 12
+end
+arch floor_earth1b
+x 23
+y 13
+end
+arch sand_dm10
+x 23
+y 13
+end
+arch floor_farm1n
+x 23
+y 14
+end
+arch floor_farm1n
+x 23
+y 15
+end
+arch floor_farm1n
+x 23
+y 16
+end
+arch floor_farm1n
+x 23
+y 17
+end
+arch floor_farm1n
+x 23
+y 18
+end
+arch floor_farm1n
+x 23
+y 19
+end
+arch floor_farm1p
+x 23
+y 20
+end
+arch floor_farm1n
+x 23
+y 21
+end
+arch floor_farm1n
+x 23
+y 22
+end
+arch floor_farm1n
+x 23
+y 23
+end

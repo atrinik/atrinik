@@ -1,0 +1,3000 @@
+arch map
+name World
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-11 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 13
+outdoor 1
+tile_path_1 world_0631
+tile_path_2 world_0730
+tile_path_3 world_0629
+tile_path_4 world_0530
+tile_path_5 world_0731
+tile_path_6 world_0729
+tile_path_7 world_0529
+tile_path_8 world_0531
+end
+arch grassd_7
+end
+arch grassd_7
+y 1
+end
+arch grassd_5
+y 2
+end
+arch tree_big4
+y 2
+end
+arch grassd_7
+y 3
+end
+arch grassd_4
+y 4
+end
+arch sand_dm7
+y 4
+end
+arch floor_sand_d3
+y 5
+end
+arch grassd_1
+y 6
+end
+arch sand_dm6
+y 6
+end
+arch grassd_5
+y 7
+end
+arch grassd_8
+y 8
+end
+arch grassd_4
+y 9
+end
+arch grassd_3
+y 10
+end
+arch grassd_8
+y 11
+end
+arch grassd_5
+y 12
+end
+arch grassd_2
+y 13
+end
+arch wall_cave1.151
+y 13
+end
+arch floor_sand_d2
+y 14
+end
+arch floor_sand_d1
+y 15
+end
+arch floor_sand_d4
+y 16
+end
+arch floor_sand_d3
+y 17
+end
+arch floor_sand_d4
+y 18
+end
+arch floor_sand_d4
+y 20
+end
+arch floor_sand_d2
+y 21
+end
+arch wall_cave1b.121
+y 21
+end
+arch floor_sand_d1
+y 22
+end
+arch wall_cave1.161
+y 22
+end
+arch swamp1
+y 23
+end
+arch grassd_7
+x 1
+end
+arch grassd_4
+x 1
+y 1
+end
+arch grassd_1
+x 1
+y 2
+end
+arch grassd_6
+x 1
+y 3
+end
+arch grassd_7
+x 1
+y 4
+end
+arch sand_dm7
+x 1
+y 4
+end
+arch floor_sand_d3
+x 1
+y 5
+end
+arch grassd_1
+x 1
+y 6
+end
+arch sand_dm6
+x 1
+y 6
+end
+arch grassd_6
+x 1
+y 7
+end
+arch grassd_8
+x 1
+y 8
+end
+arch grassd_3
+x 1
+y 9
+end
+arch grassd_8
+x 1
+y 10
+end
+arch grassd_4
+x 1
+y 11
+end
+arch grassd_1
+x 1
+y 12
+end
+arch grassd_4
+x 1
+y 13
+end
+arch wall_cave1.151
+x 1
+y 13
+end
+arch floor_sand_d2
+x 1
+y 14
+end
+arch floor_sand_d4
+x 1
+y 15
+end
+arch floor_sand_d4
+x 1
+y 16
+end
+arch floor_sand_d3
+x 1
+y 17
+end
+arch floor_sand_d4
+x 1
+y 19
+end
+arch floor_sand_d4
+x 1
+y 20
+end
+arch wall_cave1.181
+x 1
+y 20
+end
+arch floor_sand_d4
+x 1
+y 21
+end
+arch wall_cave1.171
+x 1
+y 21
+end
+arch floor_sand_d2
+x 1
+y 22
+end
+arch wall_cave1.141
+x 1
+y 22
+end
+arch swamp1
+x 1
+y 23
+end
+arch grassd_8
+x 2
+end
+arch grassd_5
+x 2
+y 1
+end
+arch grassd_5
+x 2
+y 2
+end
+arch grassd_2
+x 2
+y 3
+end
+arch grassd_4
+x 2
+y 4
+end
+arch sand_dm7
+x 2
+y 4
+end
+arch floor_sand_d1
+x 2
+y 5
+end
+arch grassd_6
+x 2
+y 6
+end
+arch sand_dm6
+x 2
+y 6
+end
+arch grassd_5
+x 2
+y 7
+end
+arch grassd_6
+x 2
+y 8
+end
+arch tree_big5b
+x 2
+y 8
+end
+arch grassd_2
+x 2
+y 9
+end
+arch grassd_4
+x 2
+y 10
+end
+arch grassd_2
+x 2
+y 11
+end
+arch wall_cave1.101
+x 2
+y 11
+end
+arch grassd_6
+x 2
+y 12
+end
+arch wall_cave1.131
+x 2
+y 12
+end
+arch grassd_5
+x 2
+y 13
+end
+arch wall_cave1b.141
+x 2
+y 13
+end
+arch floor_sand_d4
+x 2
+y 14
+end
+arch floor_sand_d3
+x 2
+y 15
+end
+arch floor_sand_d4
+x 2
+y 16
+end
+arch floor_sand_d2
+x 2
+y 17
+end
+arch floor_sand_d4
+x 2
+y 18
+end
+arch floor_sand_d1
+x 2
+y 19
+end
+arch wall_cave1.181
+x 2
+y 19
+end
+arch floor_sand_d4
+x 2
+y 20
+end
+arch wall_cave1.141
+x 2
+y 20
+end
+arch swamp1
+x 2
+y 21
+end
+arch swamp1
+x 2
+y 22
+end
+arch swamp1
+x 2
+y 23
+end
+arch grassd_4
+x 3
+end
+arch tree_big2
+x 3
+end
+arch grassd_8
+x 3
+y 1
+end
+arch grassd_5
+x 3
+y 2
+end
+arch grassd_4
+x 3
+y 3
+end
+arch sand_dm1
+x 3
+y 3
+end
+arch tree_big
+x 3
+y 3
+end
+arch grassd_5
+x 3
+y 4
+end
+arch sand_dm16
+x 3
+y 4
+end
+arch floor_sand_d1
+x 3
+y 5
+end
+arch grassd_7
+x 3
+y 6
+end
+arch sand_dm6
+x 3
+y 6
+end
+arch grassd_5
+x 3
+y 7
+end
+arch grassd_1
+x 3
+y 8
+end
+arch grassd_4
+x 3
+y 9
+end
+arch grassd_8
+x 3
+y 10
+end
+arch wall_cave1.101
+x 3
+y 10
+end
+arch grassd_5
+x 3
+y 11
+end
+arch wall_cave1b.141
+x 3
+y 11
+end
+arch floor_sand_d4
+x 3
+y 12
+end
+arch floor_sand_d2
+x 3
+y 13
+end
+arch floor_sand_d4
+x 3
+y 14
+end
+arch floor_sand_d1
+x 3
+y 15
+end
+arch floor_sand_d4
+x 3
+y 17
+end
+arch floor_sand_d4
+x 3
+y 18
+end
+arch wall_cave1.181
+x 3
+y 18
+end
+arch floor_sand_d1
+x 3
+y 19
+end
+arch wall_cave1.141
+x 3
+y 19
+end
+arch swamp1
+x 3
+y 20
+end
+arch swamp1
+x 3
+y 21
+end
+arch swamp1
+x 3
+y 22
+end
+arch swamp1
+x 3
+y 23
+end
+arch grassd_1
+x 4
+end
+arch grassd_7
+x 4
+y 1
+end
+arch sand_dm1
+x 4
+y 1
+end
+arch grassd_4
+x 4
+y 2
+end
+arch sand_dm9
+x 4
+y 2
+end
+arch grassd_6
+x 4
+y 3
+end
+arch sand_dm16
+x 4
+y 3
+end
+arch floor_sand_d1
+x 4
+y 4
+end
+arch floor_sand_d1
+x 4
+y 5
+end
+arch grassd_6
+x 4
+y 6
+end
+arch sand_dm6
+x 4
+y 6
+end
+arch grassd_6
+x 4
+y 7
+end
+arch grassd_3
+x 4
+y 8
+end
+arch tree_big4b
+x 4
+y 8
+end
+arch grassd_3
+x 4
+y 9
+end
+arch grassd_5
+x 4
+y 10
+end
+arch wall_cave1.151
+x 4
+y 10
+end
+arch floor_sand_d3
+x 4
+y 11
+end
+arch floor_sand_d3
+x 4
+y 12
+end
+arch floor_sand_d1
+x 4
+y 13
+end
+arch floor_sand_d3
+x 4
+y 15
+end
+arch floor_sand_d4
+x 4
+y 16
+end
+arch wall_cave1.181
+x 4
+y 16
+end
+arch floor_sand_d4
+x 4
+y 17
+end
+arch wall_cave1.171
+x 4
+y 17
+end
+arch floor_sand_d3
+x 4
+y 18
+end
+arch wall_cave1.141
+x 4
+y 18
+end
+arch grassd_8
+x 4
+y 19
+end
+arch swamp1m10
+x 4
+y 19
+end
+arch swamp1
+x 4
+y 20
+end
+arch swamp1
+x 4
+y 21
+end
+arch swamp1
+x 4
+y 22
+end
+arch water_lily
+x 4
+y 22
+end
+arch swamp1
+x 4
+y 23
+end
+arch grassd_5
+x 5
+end
+arch sand_dm1
+x 5
+end
+arch tree_big
+x 5
+end
+arch grassd_6
+x 5
+y 1
+end
+arch sand_dm16
+x 5
+y 1
+end
+arch floor_sand_d1
+x 5
+y 2
+end
+arch floor_sand_d1
+x 5
+y 3
+end
+arch floor_sand_d1
+x 5
+y 4
+end
+arch grassd_4
+x 5
+y 5
+end
+arch sand_dm14
+x 5
+y 5
+end
+arch grassd_7
+x 5
+y 6
+end
+arch sand_dm3
+x 5
+y 6
+end
+arch grassd_8
+x 5
+y 7
+end
+arch grassd_8
+x 5
+y 8
+end
+arch wall_cave1.101
+x 5
+y 8
+end
+arch grassd_3
+x 5
+y 9
+end
+arch wall_cave1.131
+x 5
+y 9
+end
+arch grassd_8
+x 5
+y 10
+end
+arch wall_cave1b.141
+x 5
+y 10
+end
+arch floor_sand_d1
+x 5
+y 11
+end
+arch floor_sand_d1
+x 5
+y 12
+end
+arch floor_sand_d3
+x 5
+y 13
+end
+arch floor_sand_d2
+x 5
+y 15
+end
+arch wall_cave1.181
+x 5
+y 15
+end
+arch floor_sand_d3
+x 5
+y 16
+end
+arch wall_cave1.141
+x 5
+y 16
+end
+arch grassd_5
+x 5
+y 17
+end
+arch swamp1m10
+x 5
+y 17
+end
+arch swamp1
+x 5
+y 18
+end
+arch grassd_5
+x 5
+y 19
+end
+arch swamp1m10
+x 5
+y 19
+end
+arch grassd_5
+x 5
+y 20
+end
+arch swamp1m10
+x 5
+y 20
+end
+arch swamp1
+x 5
+y 21
+end
+arch swamp1
+x 5
+y 22
+end
+arch swamp1
+x 5
+y 23
+end
+arch grassd_2
+x 6
+end
+arch sand_dm16
+x 6
+end
+arch tree_big5
+x 6
+end
+arch floor_sand_d1
+x 6
+y 1
+end
+arch floor_sand_d1
+x 6
+y 2
+end
+arch grassd_1
+x 6
+y 3
+end
+arch sand_dm14
+x 6
+y 3
+end
+arch tree_big4
+x 6
+y 3
+end
+arch grassd_1
+x 6
+y 4
+end
+arch sand_dm8
+x 6
+y 4
+end
+arch grassd_2
+x 6
+y 5
+end
+arch sand_dm3
+x 6
+y 5
+end
+arch grassd_8
+x 6
+y 6
+end
+arch grassd_3
+x 6
+y 7
+end
+arch grassd_5
+x 6
+y 8
+end
+arch wall_cave1.151
+x 6
+y 8
+end
+arch floor_sand_d3
+x 6
+y 9
+end
+arch rock2
+x 6
+y 9
+end
+arch floor_sand_d1
+x 6
+y 10
+end
+arch floor_sand_d1
+x 6
+y 11
+end
+arch rock2
+x 6
+y 11
+end
+arch floor_sand_d3
+x 6
+y 12
+end
+arch floor_sand_d4
+x 6
+y 14
+end
+arch wall_cave1.181
+x 6
+y 14
+end
+arch floor_sand_d1
+x 6
+y 15
+end
+arch wall_cave1.141
+x 6
+y 15
+end
+arch grassd_2
+x 6
+y 16
+end
+arch swamp1m10
+x 6
+y 16
+end
+arch grassd_2
+x 6
+y 17
+end
+arch swamp1m10
+x 6
+y 17
+end
+arch swamp1
+x 6
+y 18
+end
+arch stone1
+x 6
+y 18
+end
+arch swamp1
+x 6
+y 19
+end
+arch swamp1
+x 6
+y 20
+end
+arch swamp1
+x 6
+y 21
+end
+arch swamp1
+x 6
+y 22
+end
+arch swamp1
+x 6
+y 23
+end
+arch floor_sand_d1
+x 7
+end
+arch floor_sand_d1
+x 7
+y 1
+end
+arch grassd_5
+x 7
+y 2
+end
+arch sand_dm14
+x 7
+y 2
+end
+arch grassd_7
+x 7
+y 3
+end
+arch sand_dm3
+x 7
+y 3
+end
+arch grassd_7
+x 7
+y 4
+end
+arch grassd_3
+x 7
+y 5
+end
+arch grassd_3
+x 7
+y 6
+end
+arch grassd_6
+x 7
+y 7
+end
+arch wall_cave1.101
+x 7
+y 7
+end
+arch grassd_3
+x 7
+y 8
+end
+arch wall_cave1b.141
+x 7
+y 8
+end
+arch floor_sand_d4
+x 7
+y 9
+end
+arch rock2
+x 7
+y 9
+end
+arch floor_sand_d2
+x 7
+y 10
+end
+arch floor_sand_d1
+x 7
+y 11
+end
+arch floor_sand_d4
+x 7
+y 12
+end
+arch floor_sand_d2
+x 7
+y 13
+end
+arch floor_sand_d2
+x 7
+y 14
+end
+arch wall_cave1.111
+x 7
+y 14
+end
+arch swamp1
+x 7
+y 15
+end
+arch swamp1
+x 7
+y 16
+end
+arch swamp1
+x 7
+y 17
+end
+arch swamp1
+x 7
+y 18
+end
+arch swamp1
+x 7
+y 19
+end
+arch tree_big3
+x 7
+y 19
+end
+arch swamp1
+x 7
+y 20
+end
+arch swamp1
+x 7
+y 21
+end
+arch swamp1
+x 7
+y 22
+end
+arch swamp1
+x 7
+y 23
+end
+arch floor_sand_d1
+x 8
+end
+arch grassd_7
+x 8
+y 1
+end
+arch sand_dm14
+x 8
+y 1
+end
+arch grassd_4
+x 8
+y 2
+end
+arch sand_dm3
+x 8
+y 2
+end
+arch grassd_5
+x 8
+y 3
+end
+arch tree_big5
+x 8
+y 3
+end
+arch grassd_8
+x 8
+y 4
+end
+arch grassd_7
+x 8
+y 5
+end
+arch grassd_7
+x 8
+y 6
+end
+arch wall_cave1.101
+x 8
+y 6
+end
+arch grassd_5
+x 8
+y 7
+end
+arch wall_cave1b.141
+x 8
+y 7
+end
+arch floor_sand_d1
+x 8
+y 8
+end
+arch rock2
+x 8
+y 8
+end
+arch floor_sand_d4
+x 8
+y 9
+end
+arch rock2
+x 8
+y 9
+end
+arch floor_sand_d3
+x 8
+y 10
+end
+arch rock2
+x 8
+y 10
+end
+arch floor_sand_d2
+x 8
+y 11
+end
+arch rock2
+x 8
+y 11
+end
+arch floor_sand_d4
+x 8
+y 12
+end
+arch floor_sand_d3
+x 8
+y 13
+end
+arch wall_cave1.181
+x 8
+y 13
+end
+arch floor_sand_d4
+x 8
+y 14
+end
+arch wall_cave1.141
+x 8
+y 14
+end
+arch swamp1
+x 8
+y 15
+end
+arch swamp1
+x 8
+y 16
+end
+arch swamp1
+x 8
+y 17
+end
+arch swamp1
+x 8
+y 18
+end
+arch swamp1
+x 8
+y 19
+end
+arch swamp1
+x 8
+y 20
+end
+arch swamp1
+x 8
+y 21
+end
+arch tree_branch1
+x 8
+y 21
+end
+arch swamp1
+x 8
+y 22
+end
+arch swamp1
+x 8
+y 23
+end
+arch grassd_7
+x 9
+end
+arch sand_dm14
+x 9
+end
+arch grassd_7
+x 9
+y 1
+end
+arch sand_dm3
+x 9
+y 1
+end
+arch grassd_4
+x 9
+y 2
+end
+arch grassd_7
+x 9
+y 3
+end
+arch tree_big
+x 9
+y 3
+end
+arch grassd_5
+x 9
+y 4
+end
+arch grassd_7
+x 9
+y 5
+end
+arch wall_cave1.101
+x 9
+y 5
+end
+arch grassd_7
+x 9
+y 6
+end
+arch wall_cave1b.141
+x 9
+y 6
+end
+arch floor_sand_d4
+x 9
+y 7
+end
+arch rock2
+x 9
+y 7
+end
+arch floor_sand_d1
+x 9
+y 8
+end
+arch rock2
+x 9
+y 8
+end
+arch floor_sand_d3
+x 9
+y 9
+end
+arch rock2
+x 9
+y 9
+end
+arch floor_sand_d2
+x 9
+y 10
+end
+arch rock2
+x 9
+y 10
+end
+arch floor_sand_d2
+x 9
+y 11
+end
+arch floor_sand_d2
+x 9
+y 12
+end
+arch floor_sand_d4
+x 9
+y 13
+end
+arch wall_cave1.111
+x 9
+y 13
+end
+arch swamp1
+x 9
+y 14
+end
+arch swamp1
+x 9
+y 15
+end
+arch swamp1
+x 9
+y 16
+end
+arch swamp1
+x 9
+y 17
+end
+arch swamp1
+x 9
+y 18
+end
+arch water_plant1
+x 9
+y 18
+end
+arch swamp1
+x 9
+y 19
+end
+arch swamp1
+x 9
+y 20
+end
+arch swamp1
+x 9
+y 21
+end
+arch spawn_point
+x 9
+y 21
+arch jelly_ochre
+type 83
+level 15
+end
+end
+arch swamp1
+x 9
+y 22
+end
+arch swamp1
+x 9
+y 23
+end
+arch grassd_5
+x 10
+end
+arch sand_dm6
+x 10
+end
+arch grassd_2
+x 10
+y 1
+end
+arch grassd_2
+x 10
+y 2
+end
+arch grassd_8
+x 10
+y 3
+end
+arch grassd_3
+x 10
+y 4
+end
+arch grassd_1
+x 10
+y 5
+end
+arch wall_cave1.151
+x 10
+y 5
+end
+arch floor_sand_d2
+x 10
+y 6
+end
+arch rock2
+x 10
+y 6
+end
+arch floor_sand_d3
+x 10
+y 7
+end
+arch rock2
+x 10
+y 7
+end
+arch floor_sand_d2
+x 10
+y 8
+end
+arch floor_sand_d2
+x 10
+y 9
+end
+arch floor_sand_d4
+x 10
+y 10
+end
+arch rock2
+x 10
+y 10
+end
+arch floor_sand_d2
+x 10
+y 11
+end
+arch floor_sand_d2
+x 10
+y 12
+end
+arch floor_sand_d2
+x 10
+y 13
+end
+arch wall_cave1.111
+x 10
+y 13
+end
+arch swamp1
+x 10
+y 14
+end
+arch swamp1
+x 10
+y 15
+end
+arch swamp1
+x 10
+y 16
+end
+arch swamp1
+x 10
+y 17
+end
+arch swamp1
+x 10
+y 18
+end
+arch swamp1
+x 10
+y 19
+end
+arch swamp1
+x 10
+y 20
+end
+arch swamp1
+x 10
+y 21
+end
+arch swamp1
+x 10
+y 22
+end
+arch swamp1
+x 10
+y 23
+end
+arch grassd_4
+x 11
+end
+arch sand_dm3
+x 11
+end
+arch grassd_8
+x 11
+y 1
+end
+arch grassd_3
+x 11
+y 2
+end
+arch grassd_5
+x 11
+y 3
+end
+arch grassd_3
+x 11
+y 4
+end
+arch wall_cave1.101
+x 11
+y 4
+end
+arch grassd_7
+x 11
+y 5
+end
+arch wall_cave1b.141
+x 11
+y 5
+end
+arch floor_sand_d1
+x 11
+y 6
+end
+arch rock2
+x 11
+y 6
+end
+arch floor_sand_d2
+x 11
+y 7
+end
+arch floor_sand_d2
+x 11
+y 8
+end
+arch floor_sand_d2
+x 11
+y 9
+end
+arch floor_sand_d2
+x 11
+y 10
+end
+arch rock2
+x 11
+y 10
+end
+arch floor_sand_d2
+x 11
+y 11
+end
+arch grassd_2
+x 11
+y 12
+end
+arch fwall_grit1c
+x 11
+y 12
+end
+arch grassd_5
+x 11
+y 13
+end
+arch wall_cave1.141
+x 11
+y 13
+end
+arch swamp1
+x 11
+y 14
+end
+arch swamp1
+x 11
+y 15
+end
+arch swamp1
+x 11
+y 16
+end
+arch swamp1
+x 11
+y 17
+end
+arch swamp1
+x 11
+y 18
+end
+arch swamp1
+x 11
+y 19
+end
+arch swamp1
+x 11
+y 20
+end
+arch swamp1
+x 11
+y 21
+end
+arch swamp1
+x 11
+y 22
+end
+arch swamp1
+x 11
+y 23
+end
+arch grassd_7
+x 12
+end
+arch grassd_6
+x 12
+y 1
+end
+arch grassd_5
+x 12
+y 2
+end
+arch grassd_5
+x 12
+y 3
+end
+arch tree_big5
+x 12
+y 3
+end
+arch grassd_8
+x 12
+y 4
+end
+arch wall_cave1.151
+x 12
+y 4
+end
+arch floor_sand_d2
+x 12
+y 5
+end
+arch rock2
+x 12
+y 5
+end
+arch floor_sand_d3
+x 12
+y 6
+end
+arch rock2
+x 12
+y 6
+end
+arch floor_sand_d2
+x 12
+y 7
+end
+arch floor_sand_d2
+x 12
+y 8
+end
+arch floor_sand_d2
+x 12
+y 9
+end
+arch grassd_6
+x 12
+y 10
+end
+arch grassd_3
+x 12
+y 11
+end
+arch fwall_grit1c
+x 12
+y 11
+end
+arch grassd_7
+x 12
+y 12
+end
+arch fwall_grit1c
+x 12
+y 12
+end
+arch grassd_7
+x 12
+y 13
+end
+arch swamp1m10
+x 12
+y 13
+end
+arch swamp1
+x 12
+y 14
+end
+arch swamp1
+x 12
+y 15
+end
+arch swamp1
+x 12
+y 16
+end
+arch tree_burned4
+x 12
+y 16
+end
+arch swamp1
+x 12
+y 17
+end
+arch swamp1
+x 12
+y 18
+end
+arch swamp1
+x 12
+y 19
+end
+arch swamp1
+x 12
+y 20
+end
+arch mushroom_giant2
+x 12
+y 20
+end
+arch swamp1
+x 12
+y 21
+end
+arch swamp1
+x 12
+y 22
+end
+arch swamp1
+x 12
+y 23
+end
+arch grassd_4
+x 13
+end
+arch grassd_5
+x 13
+y 1
+end
+arch grassd_3
+x 13
+y 2
+end
+arch grassd_7
+x 13
+y 3
+end
+arch wall_cave1.101
+x 13
+y 3
+end
+arch grassd_5
+x 13
+y 4
+end
+arch wall_cave1b.141
+x 13
+y 4
+end
+arch floor_sand_d3
+x 13
+y 5
+end
+arch rock2
+x 13
+y 5
+end
+arch floor_sand_d3
+x 13
+y 6
+end
+arch floor_sand_d2
+x 13
+y 7
+end
+arch grassd_5
+x 13
+y 8
+end
+arch grassd_3
+x 13
+y 9
+end
+arch fwall_grit1c
+x 13
+y 9
+end
+arch grassd_6
+x 13
+y 10
+end
+arch fwall_grit1c
+x 13
+y 10
+end
+arch grassd_7
+x 13
+y 11
+end
+arch swamp1m10
+x 13
+y 11
+end
+arch fwall_grit1c
+x 13
+y 11
+end
+arch grassd_7
+x 13
+y 12
+end
+arch swamp1m10
+x 13
+y 12
+end
+arch swamp1
+x 13
+y 13
+end
+arch swamp1
+x 13
+y 14
+end
+arch rock2
+x 13
+y 14
+end
+arch swamp1
+x 13
+y 15
+end
+arch swamp1
+x 13
+y 16
+end
+arch swamp1
+x 13
+y 17
+end
+arch swamp1
+x 13
+y 18
+end
+arch swamp1
+x 13
+y 19
+end
+arch swamp1
+x 13
+y 20
+end
+arch swamp1
+x 13
+y 21
+end
+arch swamp1
+x 13
+y 22
+end
+arch swamp1
+x 13
+y 23
+end
+arch grassd_6
+x 14
+end
+arch grassd_1
+x 14
+y 1
+end
+arch grassd_2
+x 14
+y 2
+end
+arch grassd_6
+x 14
+y 3
+end
+arch wall_cave1.151
+x 14
+y 3
+end
+arch floor_sand_d2
+x 14
+y 4
+end
+arch rock2
+x 14
+y 4
+end
+arch floor_sand_d4
+x 14
+y 5
+end
+arch rock2
+x 14
+y 5
+end
+arch floor_sand_d4
+x 14
+y 6
+end
+arch floor_sand_d4
+x 14
+y 7
+end
+arch grassd_5
+x 14
+y 8
+end
+arch grassd_7
+x 14
+y 9
+end
+arch grassd_7
+x 14
+y 10
+end
+arch swamp1m10
+x 14
+y 10
+end
+arch swamp1
+x 14
+y 11
+end
+arch grassd_7
+x 14
+y 12
+end
+arch swamp1m10
+x 14
+y 12
+end
+arch swamp1
+x 14
+y 13
+end
+arch swamp1
+x 14
+y 14
+end
+arch swamp1
+x 14
+y 15
+end
+arch swamp1
+x 14
+y 16
+end
+arch spawn_point
+x 14
+y 16
+arch pudding_black
+type 83
+level 20
+end
+end
+arch swamp1
+x 14
+y 17
+end
+arch swamp1
+x 14
+y 18
+end
+arch swamp1
+x 14
+y 19
+end
+arch swamp1
+x 14
+y 20
+end
+arch swamp1
+x 14
+y 21
+end
+arch spawn_point
+x 14
+y 21
+arch ghoul
+name Swamp Ghoul
+type 83
+level 22
+last_eat -5
+end
+end
+arch swamp1
+x 14
+y 22
+end
+arch swamp1
+x 14
+y 23
+end
+arch grassd_2
+x 15
+end
+arch grassd_4
+x 15
+y 1
+end
+arch grassd_2
+x 15
+y 2
+end
+arch grassd_6
+x 15
+y 3
+end
+arch wall_cave1.151
+x 15
+y 3
+end
+arch floor_sand_d1
+x 15
+y 4
+end
+arch floor_sand_d4
+x 15
+y 5
+end
+arch rock2
+x 15
+y 5
+end
+arch floor_sand_d1
+x 15
+y 6
+end
+arch floor_sand_d4
+x 15
+y 7
+end
+arch grassd_3
+x 15
+y 8
+end
+arch grassd_2
+x 15
+y 9
+end
+arch fwall_grit1c
+x 15
+y 9
+end
+arch swamp1
+x 15
+y 10
+end
+arch swamp1
+x 15
+y 11
+end
+arch swamp1
+x 15
+y 12
+end
+arch swamp1
+x 15
+y 13
+end
+arch swamp1
+x 15
+y 14
+end
+arch swamp1
+x 15
+y 15
+end
+arch swamp1
+x 15
+y 16
+end
+arch swamp1
+x 15
+y 17
+end
+arch swamp1
+x 15
+y 18
+end
+arch swamp1
+x 15
+y 19
+end
+arch swamp1
+x 15
+y 20
+end
+arch swamp1
+x 15
+y 21
+end
+arch swamp1
+x 15
+y 22
+end
+arch swamp1
+x 15
+y 23
+end
+arch grassd_3
+x 16
+end
+arch grassd_3
+x 16
+y 1
+end
+arch grassd_6
+x 16
+y 2
+end
+arch grassd_6
+x 16
+y 3
+end
+arch wall_cave1.121
+x 16
+y 3
+end
+arch grassd_8
+x 16
+y 4
+end
+arch wall_cave1.171
+x 16
+y 4
+end
+arch grassd_7
+x 16
+y 5
+end
+arch wall_cave1b.161
+x 16
+y 5
+end
+arch floor_sand_d1
+x 16
+y 6
+end
+arch floor_sand_d4
+x 16
+y 7
+end
+arch floor_sand_d4
+x 16
+y 8
+end
+arch grassd_8
+x 16
+y 9
+end
+arch fwall_grit1c
+x 16
+y 9
+end
+arch grassd_8
+x 16
+y 10
+end
+arch swamp1m10
+x 16
+y 10
+end
+arch swamp1
+x 16
+y 11
+end
+arch rock2
+x 16
+y 11
+end
+arch swamp1
+x 16
+y 12
+end
+arch swamp1
+x 16
+y 13
+end
+arch swamp1
+x 16
+y 14
+end
+arch swamp1
+x 16
+y 15
+end
+arch swamp1
+x 16
+y 16
+end
+arch swamp1
+x 16
+y 17
+end
+arch swamp1
+x 16
+y 18
+end
+arch swamp1
+x 16
+y 19
+end
+arch swamp1
+x 16
+y 20
+end
+arch swamp1
+x 16
+y 21
+end
+arch swamp1
+x 16
+y 22
+end
+arch swamp1
+x 16
+y 23
+end
+arch grassd_6
+x 17
+end
+arch grassd_2
+x 17
+y 1
+end
+arch tree_big2
+x 17
+y 1
+end
+arch grassd_5
+x 17
+y 2
+end
+arch grassd_6
+x 17
+y 3
+end
+arch grassd_5
+x 17
+y 4
+end
+arch grassd_7
+x 17
+y 5
+end
+arch wall_cave1.151
+x 17
+y 5
+end
+arch floor_sand_d4
+x 17
+y 6
+end
+arch floor_sand_d3
+x 17
+y 7
+end
+arch grassd_1
+x 17
+y 8
+end
+arch fwall_grit1c
+x 17
+y 8
+end
+arch grassd_3
+x 17
+y 9
+end
+arch fwall_grit1c
+x 17
+y 9
+end
+arch grassd_7
+x 17
+y 10
+end
+arch swamp1m10
+x 17
+y 10
+end
+arch swamp1
+x 17
+y 11
+end
+arch swamp1
+x 17
+y 12
+end
+arch swamp1
+x 17
+y 13
+end
+arch swamp1
+x 17
+y 14
+end
+arch swamp1
+x 17
+y 15
+end
+arch swamp1
+x 17
+y 16
+end
+arch swamp1
+x 17
+y 17
+end
+arch swamp1
+x 17
+y 18
+end
+arch swamp1
+x 17
+y 19
+end
+arch swamp1
+x 17
+y 20
+end
+arch swamp1
+x 17
+y 21
+end
+arch swamp1
+x 17
+y 22
+end
+arch swamp1
+x 17
+y 23
+end
+arch grassd_4
+x 18
+end
+arch grassd_5
+x 18
+y 1
+end
+arch grassd_2
+x 18
+y 2
+end
+arch grassd_6
+x 18
+y 3
+end
+arch grassd_1
+x 18
+y 4
+end
+arch grassd_8
+x 18
+y 5
+end
+arch wall_cave1.151
+x 18
+y 5
+end
+arch floor_sand_d4
+x 18
+y 6
+end
+arch floor_sand_d2
+x 18
+y 7
+end
+arch fwall_grit1c
+x 18
+y 7
+end
+arch grassd_2
+x 18
+y 8
+end
+arch fwall_grit1c
+x 18
+y 8
+end
+arch grassd_6
+x 18
+y 9
+end
+arch grassd_6
+x 18
+y 10
+end
+arch swamp1m10
+x 18
+y 10
+end
+arch tree_big2
+x 18
+y 10
+end
+arch swamp1
+x 18
+y 11
+end
+arch swamp1
+x 18
+y 12
+end
+arch swamp1
+x 18
+y 13
+end
+arch swamp1
+x 18
+y 14
+end
+arch swamp1
+x 18
+y 15
+end
+arch swamp1
+x 18
+y 16
+end
+arch grass_n
+x 18
+y 16
+end
+arch swamp1
+x 18
+y 17
+end
+arch grass_nw
+x 18
+y 17
+end
+arch swamp1
+x 18
+y 18
+end
+arch grass_w
+x 18
+y 18
+end
+arch swamp1
+x 18
+y 19
+end
+arch swamp1
+x 18
+y 20
+end
+arch swamp1
+x 18
+y 21
+end
+arch swamp1
+x 18
+y 22
+end
+arch swamp1
+x 18
+y 23
+end
+arch spawn_point
+x 18
+y 23
+arch pudding_blue
+type 83
+level 14
+end
+end
+arch grassd_5
+x 19
+end
+arch grassd_5
+x 19
+y 1
+end
+arch grassd_8
+x 19
+y 2
+end
+arch grassd_4
+x 19
+y 3
+end
+arch grassd_6
+x 19
+y 4
+end
+arch grassd_7
+x 19
+y 5
+end
+arch wall_cave1.121
+x 19
+y 5
+end
+arch grassd_1
+x 19
+y 6
+end
+arch fwall_grit1c
+x 19
+y 6
+end
+arch grassd_3
+x 19
+y 7
+end
+arch fwall_grit1c
+x 19
+y 7
+end
+arch grassd_1
+x 19
+y 8
+end
+arch fwall_grit1c
+x 19
+y 8
+end
+arch grassd_1
+x 19
+y 9
+end
+arch swamp1m10
+x 19
+y 9
+end
+arch tree_big2
+x 19
+y 9
+end
+arch swamp1
+x 19
+y 10
+end
+arch swamp1
+x 19
+y 11
+end
+arch swamp1
+x 19
+y 12
+end
+arch swamp1
+x 19
+y 13
+end
+arch swamp1
+x 19
+y 14
+end
+arch swamp1
+x 19
+y 15
+end
+arch swamp1
+x 19
+y 16
+end
+arch grass_e
+x 19
+y 16
+end
+arch grass3
+x 19
+y 17
+end
+arch swamp1m10
+x 19
+y 17
+end
+arch swamp1
+x 19
+y 18
+end
+arch grass_sw
+x 19
+y 18
+end
+arch swamp1
+x 19
+y 19
+end
+arch swamp1
+x 19
+y 20
+end
+arch swamp1
+x 19
+y 21
+end
+arch swamp1
+x 19
+y 22
+end
+arch swamp1
+x 19
+y 23
+end
+arch tree_big3
+x 19
+y 23
+end
+arch grassd_8
+x 20
+end
+arch grassd_5
+x 20
+y 1
+end
+arch grassd_1
+x 20
+y 2
+end
+arch grassd_1
+x 20
+y 3
+end
+arch grassd_4
+x 20
+y 4
+end
+arch grassd_1
+x 20
+y 5
+end
+arch grassd_5
+x 20
+y 6
+end
+arch grassd_2
+x 20
+y 7
+end
+arch grassd_1
+x 20
+y 8
+end
+arch grassd_6
+x 20
+y 9
+end
+arch swamp1m10
+x 20
+y 9
+end
+arch rock2
+x 20
+y 9
+end
+arch swamp1
+x 20
+y 10
+end
+arch swamp1
+x 20
+y 11
+end
+arch swamp1
+x 20
+y 12
+end
+arch swamp1
+x 20
+y 13
+end
+arch swamp1
+x 20
+y 14
+end
+arch swamp1
+x 20
+y 15
+end
+arch swamp1
+x 20
+y 16
+end
+arch grass_e
+x 20
+y 16
+end
+arch swamp1
+x 20
+y 17
+end
+arch grass_se
+x 20
+y 17
+end
+arch swamp1
+x 20
+y 18
+end
+arch grass_s
+x 20
+y 18
+end
+arch swamp1
+x 20
+y 19
+end
+arch swamp1
+x 20
+y 20
+end
+arch swamp1
+x 20
+y 21
+end
+arch swamp1
+x 20
+y 22
+end
+arch swamp1
+x 20
+y 23
+end
+arch grassd_6
+x 21
+end
+arch grassd_8
+x 21
+y 1
+end
+arch grassd_2
+x 21
+y 2
+end
+arch grassd_3
+x 21
+y 3
+end
+arch tree_big3
+x 21
+y 3
+end
+arch grassd_1
+x 21
+y 4
+end
+arch grassd_4
+x 21
+y 5
+end
+arch grassd_2
+x 21
+y 6
+end
+arch grassd_1
+x 21
+y 7
+end
+arch grassd_3
+x 21
+y 8
+end
+arch swamp1m10
+x 21
+y 8
+end
+arch swamp1
+x 21
+y 9
+end
+arch swamp1
+x 21
+y 10
+end
+arch swamp1
+x 21
+y 11
+end
+arch swamp1
+x 21
+y 12
+end
+arch swamp1
+x 21
+y 13
+end
+arch swamp1
+x 21
+y 14
+end
+arch spawn_point
+x 21
+y 14
+arch jelly_blue
+type 83
+level 16
+end
+end
+arch swamp1
+x 21
+y 15
+end
+arch swamp1
+x 21
+y 16
+end
+arch swamp1
+x 21
+y 17
+end
+arch swamp1
+x 21
+y 18
+end
+arch swamp1
+x 21
+y 19
+end
+arch swamp1
+x 21
+y 20
+end
+arch swamp1
+x 21
+y 21
+end
+arch swamp1
+x 21
+y 22
+end
+arch swamp1
+x 21
+y 23
+end
+arch grassd_7
+x 22
+end
+arch grassd_5
+x 22
+y 1
+end
+arch tree_big
+x 22
+y 1
+end
+arch grassd_1
+x 22
+y 2
+end
+arch grassd_1
+x 22
+y 3
+end
+arch grassd_5
+x 22
+y 4
+end
+arch grassd_1
+x 22
+y 5
+end
+arch grassd_7
+x 22
+y 6
+end
+arch swamp1m10
+x 22
+y 6
+end
+arch rock2
+x 22
+y 6
+end
+arch grassd_8
+x 22
+y 7
+end
+arch swamp1m10
+x 22
+y 7
+end
+arch grassd_8
+x 22
+y 8
+end
+arch swamp1m10
+x 22
+y 8
+end
+arch swamp1
+x 22
+y 9
+end
+arch swamp1
+x 22
+y 10
+end
+arch swamp1
+x 22
+y 11
+end
+arch swamp1
+x 22
+y 12
+end
+arch swamp1
+x 22
+y 13
+end
+arch swamp1
+x 22
+y 14
+end
+arch swamp1
+x 22
+y 15
+end
+arch tree_burned2
+x 22
+y 15
+end
+arch swamp1
+x 22
+y 16
+end
+arch swamp1
+x 22
+y 17
+end
+arch swamp1
+x 22
+y 18
+end
+arch swamp1
+x 22
+y 19
+end
+arch swamp1
+x 22
+y 20
+end
+arch swamp1
+x 22
+y 21
+end
+arch swamp1
+x 22
+y 22
+end
+arch swamp1
+x 22
+y 23
+end
+arch grassd_2
+x 23
+end
+arch grassd_1
+x 23
+y 1
+end
+arch grassd_5
+x 23
+y 2
+end
+arch grassd_1
+x 23
+y 3
+end
+arch grassd_3
+x 23
+y 4
+end
+arch grassd_2
+x 23
+y 5
+end
+arch swamp1m10
+x 23
+y 5
+end
+arch swamp1
+x 23
+y 6
+end
+arch swamp1
+x 23
+y 7
+end
+arch tree_big2
+x 23
+y 7
+end
+arch swamp1
+x 23
+y 8
+end
+arch swamp1
+x 23
+y 9
+end
+arch swamp1
+x 23
+y 10
+end
+arch swamp1
+x 23
+y 11
+end
+arch swamp1
+x 23
+y 12
+end
+arch swamp1
+x 23
+y 13
+end
+arch swamp1
+x 23
+y 14
+end
+arch swamp1
+x 23
+y 15
+end
+arch swamp1
+x 23
+y 16
+end
+arch swamp1
+x 23
+y 17
+end
+arch swamp1
+x 23
+y 18
+end
+arch swamp1
+x 23
+y 19
+end
+arch swamp1
+x 23
+y 20
+end
+arch swamp1
+x 23
+y 21
+end
+arch swamp1
+x 23
+y 22
+end
+arch swamp1
+x 23
+y 23
+end

@@ -2,16 +2,18 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-06-20 Alex Tokar
+Modified: 2010-08-23 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
 no_harm 1
+tile_path_1 world_1419
 tile_path_2 world_1518
 tile_path_3 world_1417
 tile_path_4 world_1318
+tile_path_5 world_1519
 tile_path_6 world_1517
 tile_path_7 world_1317
 tile_path_8 world_1319

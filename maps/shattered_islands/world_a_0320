@@ -1,0 +1,646 @@
+arch map
+name Under Strakewood Island
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-17 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+tile_path_3 world_a_0319
+end
+arch floor_sand_d3
+x 6
+y 17
+end
+arch fwall_rock3
+x 6
+y 17
+end
+arch floor_sand_d4
+x 6
+y 18
+end
+arch fwall_rock1
+x 6
+y 18
+end
+arch floor_sand_d1
+x 6
+y 19
+end
+arch fwall_rock1
+x 6
+y 19
+end
+arch floor_sand_d4
+x 6
+y 20
+end
+arch fwall_rock1
+x 6
+y 20
+end
+arch floor_sand_d1
+x 6
+y 21
+end
+arch fwall_rock3
+x 6
+y 21
+end
+arch floor_sand_d3
+x 6
+y 22
+end
+arch fwall_rock2
+x 6
+y 22
+end
+arch floor_sand_d2
+x 6
+y 23
+end
+arch fwall_rock3
+x 6
+y 23
+end
+arch light1
+x 6
+y 23
+end
+arch floor_sand_d4
+x 7
+y 17
+end
+arch fwall_rock3
+x 7
+y 17
+end
+arch floor_sand_d4
+x 7
+y 18
+end
+arch spider_web
+x 7
+y 18
+end
+arch damager
+slow_move 1
+exp 5
+x 7
+y 18
+end
+arch floor_sand_d3
+x 7
+y 19
+end
+arch floor_sand_d2
+x 7
+y 20
+end
+arch floor_sand_d3
+x 7
+y 21
+end
+arch floor_sand_d4
+x 7
+y 22
+end
+arch ladder_up
+slaying world_0320
+hp 7
+sp 22
+x 7
+y 22
+end
+arch floor_sand_d1
+x 7
+y 23
+end
+arch fwall_rock1
+x 7
+y 23
+end
+arch floor_sand_d3
+x 8
+y 17
+end
+arch fwall_rock1
+x 8
+y 17
+end
+arch floor_sand_d4
+x 8
+y 18
+end
+arch floor_sand_d1
+x 8
+y 19
+end
+arch fwall_rock1
+x 8
+y 19
+end
+arch floor_sand_d4
+x 8
+y 20
+end
+arch floor_sand_d1
+x 8
+y 21
+end
+arch floor_sand_d4
+x 8
+y 22
+end
+arch spider_web
+x 8
+y 22
+end
+arch damager
+slow_move 1
+exp 5
+x 8
+y 22
+end
+arch floor_sand_d2
+x 8
+y 23
+end
+arch fwall_rock3
+x 8
+y 23
+end
+arch floor_sand_d3
+x 9
+y 17
+end
+arch fwall_rock1
+x 9
+y 17
+end
+arch floor_sand_d1
+x 9
+y 18
+end
+arch floor_sand_d4
+x 9
+y 19
+end
+arch fwall_rock2
+x 9
+y 19
+end
+arch floor_sand_d4
+x 9
+y 20
+end
+arch floor_sand_d4
+x 9
+y 21
+end
+arch fwall_rock2
+x 9
+y 21
+end
+arch floor_sand_d2
+x 9
+y 22
+end
+arch fwall_rock1
+x 9
+y 22
+end
+arch floor_sand_d4
+x 9
+y 23
+end
+arch fwall_rock1
+x 9
+y 23
+end
+arch floor_sand_d2
+x 10
+y 17
+end
+arch fwall_rock1
+x 10
+y 17
+end
+arch floor_sand_d2
+x 10
+y 18
+end
+arch spider_web
+x 10
+y 18
+end
+arch damager
+slow_move 1
+exp 3
+x 10
+y 18
+end
+arch floor_sand_d2
+x 10
+y 19
+end
+arch fwall_rock3
+x 10
+y 19
+end
+arch floor_sand_d4
+x 10
+y 20
+end
+arch spider_web
+x 10
+y 20
+end
+arch damager
+slow_move 1
+exp 5
+x 10
+y 20
+end
+arch floor_sand_d4
+x 10
+y 21
+end
+arch floor_sand_d2
+x 10
+y 22
+end
+arch floor_sand_d2
+x 10
+y 23
+end
+arch fwall_rock2
+x 10
+y 23
+end
+arch floor_sand_d1
+x 11
+y 17
+end
+arch fwall_rock2
+x 11
+y 17
+end
+arch floor_sand_d4
+x 11
+y 18
+end
+arch floor_sand_d1
+x 11
+y 19
+end
+arch fwall_rock2
+x 11
+y 19
+end
+arch floor_sand_d4
+x 11
+y 20
+end
+arch fwall_rock1
+x 11
+y 20
+end
+arch floor_sand_d2
+x 11
+y 21
+end
+arch fwall_rock3
+x 11
+y 21
+end
+arch floor_sand_d1
+x 11
+y 22
+end
+arch floor_sand_d1
+x 11
+y 23
+end
+arch spider_web
+x 11
+y 23
+end
+arch damager
+slow_move 1
+exp 3
+x 11
+y 23
+end
+arch floor_sand_d4
+x 12
+y 17
+end
+arch fwall_rock2
+x 12
+y 17
+end
+arch floor_sand_d3
+x 12
+y 18
+end
+arch floor_sand_d4
+x 12
+y 19
+end
+arch fwall_rock2
+x 12
+y 19
+end
+arch floor_sand_d1
+x 12
+y 21
+end
+arch fwall_rock2
+x 12
+y 21
+end
+arch floor_sand_d1
+x 12
+y 22
+end
+arch ladder_up
+slaying world_0320
+hp 12
+sp 22
+x 12
+y 22
+end
+arch light1
+x 12
+y 22
+end
+arch floor_sand_d4
+x 12
+y 23
+end
+arch fwall_rock3
+x 12
+y 23
+end
+arch floor_sand_d1
+x 13
+y 17
+end
+arch fwall_rock1
+x 13
+y 17
+end
+arch floor_sand_d2
+x 13
+y 18
+end
+arch floor_sand_d4
+x 13
+y 19
+end
+arch fwall_rock1
+x 13
+y 19
+end
+arch floor_sand_d4
+x 13
+y 21
+end
+arch fwall_rock1
+x 13
+y 21
+end
+arch floor_sand_d4
+x 13
+y 22
+end
+arch fwall_rock2
+x 13
+y 22
+end
+arch floor_sand_d3
+x 13
+y 23
+end
+arch fwall_rock2
+x 13
+y 23
+end
+arch floor_sand_d1
+x 14
+y 17
+end
+arch fwall_rock2
+x 14
+y 17
+end
+arch floor_sand_d3
+x 14
+y 18
+end
+arch spider_web
+x 14
+y 18
+end
+arch damager
+slow_move 1
+exp 1
+x 14
+y 18
+end
+arch floor_sand_d4
+x 14
+y 19
+end
+arch fwall_rock1
+x 14
+y 19
+end
+arch floor_sand_d2
+x 15
+y 17
+end
+arch fwall_rock1
+x 15
+y 17
+end
+arch floor_sand_d2
+x 15
+y 18
+end
+arch floor_sand_d3
+x 15
+y 19
+end
+arch fwall_rock3
+x 15
+y 19
+end
+arch floor_sand_d4
+x 16
+y 17
+end
+arch fwall_rock3
+x 16
+y 17
+end
+arch floor_sand_d4
+x 16
+y 18
+end
+arch floor_sand_d2
+x 16
+y 19
+end
+arch fwall_rock3
+x 16
+y 19
+end
+arch floor_sand_d4
+x 16
+y 20
+end
+arch fwall_rock1
+x 16
+y 20
+end
+arch floor_sand_d2
+x 16
+y 21
+end
+arch fwall_rock3
+x 16
+y 21
+end
+arch floor_sand_d2
+x 16
+y 22
+end
+arch fwall_rock1
+x 16
+y 22
+end
+arch floor_sand_d4
+x 16
+y 23
+end
+arch fwall_rock2
+x 16
+y 23
+end
+arch floor_sand_d2
+x 17
+y 17
+end
+arch fwall_rock1
+x 17
+y 17
+end
+arch floor_sand_d2
+x 17
+y 18
+end
+arch spider_web
+x 17
+y 18
+end
+arch damager
+slow_move 1
+exp 5
+x 17
+y 18
+end
+arch floor_sand_d1
+x 17
+y 19
+end
+arch floor_sand_d4
+x 17
+y 20
+end
+arch floor_sand_d4
+x 17
+y 21
+end
+arch floor_sand_d2
+x 17
+y 22
+end
+arch ladder_up
+slaying world_0320
+hp 17
+sp 22
+x 17
+y 22
+end
+arch light1
+x 17
+y 22
+end
+arch floor_sand_d2
+x 17
+y 23
+end
+arch fwall_rock3
+x 17
+y 23
+end
+arch floor_sand_d2
+x 18
+y 17
+end
+arch fwall_rock1
+x 18
+y 17
+end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch fwall_rock3
+x 18
+y 18
+end
+arch floor_sand_d3
+x 18
+y 19
+end
+arch fwall_rock2
+x 18
+y 19
+end
+arch floor_sand_d4
+x 18
+y 20
+end
+arch fwall_rock3
+x 18
+y 20
+end
+arch floor_sand_d2
+x 18
+y 21
+end
+arch fwall_rock1
+x 18
+y 21
+end
+arch floor_sand_d2
+x 18
+y 22
+end
+arch fwall_rock3
+x 18
+y 22
+end
+arch floor_sand_d1
+x 18
+y 23
+end
+arch fwall_rock2
+x 18
+y 23
+end

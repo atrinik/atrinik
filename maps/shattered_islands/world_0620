@@ -1,0 +1,3288 @@
+arch map
+name Aris
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-18 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0621
+tile_path_2 world_0720
+tile_path_3 world_0619
+tile_path_4 world_0520
+tile_path_5 world_0721
+tile_path_6 world_0719
+tile_path_7 world_0519
+tile_path_8 world_0521
+end
+arch grassd_8
+end
+arch grassd_8
+y 1
+end
+arch floor_sand_d3
+y 2
+end
+arch grassd_m6
+y 2
+end
+arch floor_sand_d1
+y 3
+end
+arch grassd_m8
+y 3
+end
+arch floor_sand_d3
+y 4
+end
+arch grassd_m8
+y 4
+end
+arch floor_sand_d4
+y 5
+end
+arch grassd_m8
+y 5
+end
+arch floor_sand_d1
+y 6
+end
+arch grassd_m8
+y 6
+end
+arch floor_sand_d3
+y 7
+end
+arch grassd_m8
+y 7
+end
+arch floor_sand_d3
+y 8
+end
+arch grassd_m8
+y 8
+end
+arch floor_sand_d4
+y 9
+end
+arch grassd_m8
+y 9
+end
+arch floor_sand_d1
+y 10
+end
+arch grassd_m8
+y 10
+end
+arch floor_sand_d2
+y 11
+end
+arch grassd_m8
+y 11
+end
+arch floor_sand_d4
+y 12
+end
+arch grassd_m8
+y 12
+end
+arch floor_earth1a
+y 13
+end
+arch sand_dm10
+y 13
+end
+arch floor_farm1n
+y 14
+end
+arch floor_farm1n
+y 15
+end
+arch floor_farm1n
+y 16
+end
+arch floor_farm1n
+y 17
+end
+arch floor_farm1p
+y 18
+end
+arch floor_farm1n
+y 19
+end
+arch floor_farm1n
+y 20
+end
+arch floor_farm1n
+y 21
+end
+arch floor_farm1n
+y 22
+end
+arch floor_farm1n
+y 23
+end
+arch grassd_5
+x 1
+end
+arch grassd_7
+x 1
+y 1
+end
+arch wall_wood_8
+x 1
+y 1
+end
+arch grassd_3
+x 1
+y 2
+end
+arch wall_wood3_3
+x 1
+y 2
+end
+arch floor_sand_d1
+x 1
+y 3
+end
+arch door_wood1
+direction 3
+x 1
+y 3
+end
+arch floor_sand_d3
+x 1
+y 4
+end
+arch wall_wood2_3
+x 1
+y 4
+end
+arch grassd_3
+x 1
+y 5
+end
+arch wall_wood_3
+x 1
+y 5
+end
+arch floor_sand_d2
+x 1
+y 6
+end
+arch wall_wood2_3
+x 1
+y 6
+end
+arch floor_sand_d2
+x 1
+y 7
+end
+arch gate1_locked
+direction 3
+x 1
+y 7
+end
+arch grassd_7
+x 1
+y 8
+end
+arch wall_wood2_3
+x 1
+y 8
+end
+arch grassd_1
+x 1
+y 9
+end
+arch wall_wood_3
+x 1
+y 9
+end
+arch grassd_6
+x 1
+y 10
+end
+arch wall_wood2_3
+x 1
+y 10
+end
+arch grassd_4
+x 1
+y 11
+end
+arch grassd_4
+x 1
+y 12
+end
+arch floor_earth1a
+x 1
+y 13
+end
+arch grassd_m10
+x 1
+y 13
+end
+arch floor_farm1n
+x 1
+y 14
+end
+arch floor_farm1n
+x 1
+y 15
+end
+arch floor_farm1n
+x 1
+y 16
+end
+arch floor_farm1n
+x 1
+y 17
+end
+arch floor_farm1n
+x 1
+y 18
+end
+arch floor_farm1n
+x 1
+y 19
+end
+arch floor_farm1n
+x 1
+y 20
+end
+arch floor_farm1p
+x 1
+y 21
+end
+arch floor_farm1n
+x 1
+y 22
+end
+arch floor_farm1n
+x 1
+y 23
+end
+arch grassd_2
+x 2
+end
+arch grassd_5
+x 2
+y 1
+end
+arch wall_wood_1
+x 2
+y 1
+end
+arch fstone1b
+x 2
+y 2
+end
+arch wood_pile.101
+x 2
+y 2
+end
+arch fstone1c
+x 2
+y 3
+end
+arch fstone1c
+x 2
+y 4
+end
+arch fstone1c
+x 2
+y 5
+end
+arch wall_wood2_1
+x 2
+y 5
+end
+arch earth_dark2
+x 2
+y 6
+end
+arch torch_wall_1
+x 2
+y 6
+end
+arch earth_dark3
+x 2
+y 7
+end
+arch earth_dark1
+x 2
+y 8
+end
+arch earth_dark1
+x 2
+y 9
+end
+arch bowl1_full.101
+x 2
+y 9
+end
+arch grassd_5
+x 2
+y 10
+end
+arch wall_wood_1
+x 2
+y 10
+end
+arch plant1_wall.151
+x 2
+y 10
+end
+arch grassd_8
+x 2
+y 11
+end
+arch grassd_5
+x 2
+y 12
+end
+arch tree_big4b
+x 2
+y 12
+end
+arch floor_earth1a
+x 2
+y 13
+end
+arch grassd_m10
+x 2
+y 13
+end
+arch floor_farm1n
+x 2
+y 14
+end
+arch floor_farm1n
+x 2
+y 15
+end
+arch floor_farm1n
+x 2
+y 16
+end
+arch floor_farm1n
+x 2
+y 17
+end
+arch floor_farm1n
+x 2
+y 18
+end
+arch floor_farm1n
+x 2
+y 19
+end
+arch floor_farm1n
+x 2
+y 20
+end
+arch floor_farm1n
+x 2
+y 21
+end
+arch floor_farm1n
+x 2
+y 22
+end
+arch floor_farm1n
+x 2
+y 23
+end
+arch grassd_1
+x 3
+end
+arch grassd_4
+x 3
+y 1
+end
+arch wall_wood_1
+x 3
+y 1
+end
+arch fstone1b
+x 3
+y 2
+end
+arch wood_pile.101
+x 3
+y 2
+end
+arch fstone1c
+x 3
+y 3
+end
+arch trash_wood1.101
+x 3
+y 3
+end
+arch fstone1c
+x 3
+y 4
+end
+arch fstone1a
+x 3
+y 5
+end
+arch wall_wood3_1
+x 3
+y 5
+end
+arch ring_wall.151
+x 3
+y 5
+end
+arch earth_dark1
+x 3
+y 6
+end
+arch pile_floor2
+x 3
+y 6
+end
+arch earth_dark2
+x 3
+y 7
+end
+arch earth_dark2
+x 3
+y 8
+end
+arch fence_01.173
+x 3
+y 8
+end
+arch spawn_point
+x 3
+y 8
+arch horse_white
+level 3
+friendly 1
+type 83
+end
+end
+arch earth_dark1
+x 3
+y 9
+end
+arch fence_01.171
+x 3
+y 9
+end
+arch grassd_5
+x 3
+y 10
+end
+arch wall_wood_1
+x 3
+y 10
+end
+arch grassd_4
+x 3
+y 11
+end
+arch grassd_8
+x 3
+y 12
+end
+arch floor_earth1b
+x 3
+y 13
+end
+arch grassd_m6
+x 3
+y 13
+end
+arch floor_earth1a
+x 3
+y 14
+end
+arch grassd_m8
+x 3
+y 14
+end
+arch floor_earth1b
+x 3
+y 15
+end
+arch grassd_m8
+x 3
+y 15
+end
+arch floor_earth1b
+x 3
+y 16
+end
+arch grassd_m8
+x 3
+y 16
+end
+arch floor_earth1a
+x 3
+y 17
+end
+arch grassd_m8
+x 3
+y 17
+end
+arch floor_earth1a
+x 3
+y 18
+end
+arch grassd_m8
+x 3
+y 18
+end
+arch floor_earth1b
+x 3
+y 19
+end
+arch grassd_m8
+x 3
+y 19
+end
+arch floor_earth1b
+x 3
+y 20
+end
+arch grassd_m8
+x 3
+y 20
+end
+arch floor_earth1a
+x 3
+y 21
+end
+arch grassd_m8
+x 3
+y 21
+end
+arch floor_earth1a
+x 3
+y 22
+end
+arch grassd_m8
+x 3
+y 22
+end
+arch floor_earth1a
+x 3
+y 23
+end
+arch grassd_m8
+x 3
+y 23
+end
+arch grassd_3
+x 4
+end
+arch grassd_m7
+x 4
+end
+arch grassd_7
+x 4
+y 1
+end
+arch wall_wood2_1
+x 4
+y 1
+end
+arch fstone1b
+x 4
+y 2
+end
+arch torch_wall_1
+x 4
+y 2
+end
+arch fstone1a
+x 4
+y 3
+end
+arch trash_wood2.101
+x 4
+y 3
+end
+arch fstone1a
+x 4
+y 4
+end
+arch fstone1a
+x 4
+y 5
+end
+arch wall_wood3_1
+x 4
+y 5
+end
+arch earth_dark1
+x 4
+y 6
+end
+arch earth_dark3
+x 4
+y 7
+end
+arch earth_dark2
+x 4
+y 8
+end
+arch earth_dark3
+x 4
+y 9
+end
+arch bowl1_full.101
+x 4
+y 9
+end
+arch grassd_8
+x 4
+y 10
+end
+arch wall_wood_1
+x 4
+y 10
+end
+arch plant2_wall.151
+x 4
+y 10
+end
+arch grassd_8
+x 4
+y 11
+end
+arch grassd_5
+x 4
+y 12
+end
+arch grassd_4
+x 4
+y 13
+end
+arch grassd_3
+x 4
+y 14
+end
+arch grassd_4
+x 4
+y 15
+end
+arch grassd_2
+x 4
+y 16
+end
+arch grassd_5
+x 4
+y 17
+end
+arch grassd_3
+x 4
+y 18
+end
+arch grassd_2
+x 4
+y 19
+end
+arch grassd_7
+x 4
+y 20
+end
+arch grassd_1
+x 4
+y 21
+end
+arch grassd_3
+x 4
+y 22
+end
+arch plant_flower14
+x 4
+y 22
+end
+arch grassd_4
+x 4
+y 23
+end
+arch grassd_5
+x 5
+end
+arch plant_mushroom4
+x 5
+end
+arch grassd_5
+x 5
+y 1
+end
+arch wall_wood3_1
+x 5
+y 1
+end
+arch fstone1b
+x 5
+y 2
+end
+arch straw1.101
+x 5
+y 2
+end
+arch fstone1a
+x 5
+y 3
+end
+arch straw2.111
+x 5
+y 3
+end
+arch fstone1c
+x 5
+y 4
+end
+arch fstone1b
+x 5
+y 5
+end
+arch wall_wood3_1
+x 5
+y 5
+end
+arch ring_wall.151
+x 5
+y 5
+end
+arch earth_dark1
+x 5
+y 6
+end
+arch earth_dark3
+x 5
+y 7
+end
+arch pile_floor1
+x 5
+y 7
+end
+arch earth_dark2
+x 5
+y 8
+end
+arch fence_01.173
+x 5
+y 8
+end
+arch earth_dark3
+x 5
+y 9
+end
+arch fence_01.171
+x 5
+y 9
+end
+arch grassd_4
+x 5
+y 10
+end
+arch wall_wood3_1
+x 5
+y 10
+end
+arch grassd_4
+x 5
+y 11
+end
+arch grassd_7
+x 5
+y 12
+end
+arch grassd_5
+x 5
+y 13
+end
+arch small_stones
+x 5
+y 13
+end
+arch grassd_2
+x 5
+y 14
+end
+arch plant15
+x 5
+y 14
+end
+arch grassd_2
+x 5
+y 15
+end
+arch grassd_5
+x 5
+y 16
+end
+arch tree_branch2
+x 5
+y 16
+end
+arch grassd_4
+x 5
+y 17
+end
+arch grassd_8
+x 5
+y 18
+end
+arch grassd_6
+x 5
+y 19
+end
+arch grassd_7
+x 5
+y 20
+end
+arch tree_big2
+x 5
+y 20
+end
+arch grassd_8
+x 5
+y 21
+end
+arch grassd_4
+x 5
+y 22
+end
+arch plant_flower6
+x 5
+y 22
+end
+arch grassd_4
+x 5
+y 23
+end
+arch grassd_2
+x 6
+end
+arch grassd_m7
+x 6
+end
+arch grassd_2
+x 6
+y 1
+end
+arch wall_wood3_1
+x 6
+y 1
+end
+arch fstone1b
+x 6
+y 2
+end
+arch straw1.101
+x 6
+y 2
+end
+arch fstone1c
+x 6
+y 3
+end
+arch straw1.101
+x 6
+y 3
+end
+arch fstone1a
+x 6
+y 4
+end
+arch straw2.111
+x 6
+y 4
+end
+arch fstone1a
+x 6
+y 5
+end
+arch wall_wood3_1
+x 6
+y 5
+end
+arch earth_dark1
+x 6
+y 6
+end
+arch torch_wall_1
+x 6
+y 6
+end
+arch earth_dark1
+x 6
+y 7
+end
+arch earth_dark3
+x 6
+y 8
+end
+arch spawn_point
+x 6
+y 8
+arch horse_white
+level 3
+friendly 1
+type 83
+end
+end
+arch earth_dark2
+x 6
+y 9
+end
+arch bowl1_full.101
+x 6
+y 9
+end
+arch grassd_3
+x 6
+y 10
+end
+arch wall_wood_1
+x 6
+y 10
+end
+arch plant1_wall.151
+x 6
+y 10
+end
+arch grassd_1
+x 6
+y 11
+end
+arch grassd_4
+x 6
+y 12
+end
+arch grassd_7
+x 6
+y 13
+end
+arch tree_big3
+x 6
+y 13
+end
+arch grassd_4
+x 6
+y 14
+end
+arch plant_mushroom4
+x 6
+y 14
+end
+arch grassd_2
+x 6
+y 15
+end
+arch grassd_3
+x 6
+y 16
+end
+arch tree_big
+x 6
+y 16
+end
+arch grassd_3
+x 6
+y 17
+end
+arch grassd_6
+x 6
+y 18
+end
+arch grassd_1
+x 6
+y 19
+end
+arch grassd_5
+x 6
+y 20
+end
+arch grassd_3
+x 6
+y 21
+end
+arch grassd_2
+x 6
+y 22
+end
+arch tree_big2
+x 6
+y 22
+end
+arch grassd_3
+x 6
+y 23
+end
+arch grassd_6
+x 7
+end
+arch grassd_5
+x 7
+y 1
+end
+arch wall_wood_1
+x 7
+y 1
+end
+arch fstone1c
+x 7
+y 2
+end
+arch fstone1c
+x 7
+y 3
+end
+arch straw2.111
+x 7
+y 3
+end
+arch fstone1c
+z 5
+x 7
+y 4
+end
+arch fstone1a
+x 7
+y 5
+end
+arch wall_wood2_1
+x 7
+y 5
+end
+arch ring_wall.151
+x 7
+y 5
+end
+arch earth_dark2
+x 7
+y 6
+end
+arch barrel_water.101
+x 7
+y 6
+end
+arch earth_dark3
+x 7
+y 7
+end
+arch straw1.101
+x 7
+y 7
+end
+arch earth_dark2
+x 7
+y 8
+end
+arch fence_01.173
+x 7
+y 8
+end
+arch earth_dark3
+x 7
+y 9
+end
+arch fence_01.171
+x 7
+y 9
+end
+arch grassd_7
+x 7
+y 10
+end
+arch wall_wood3_1
+x 7
+y 10
+end
+arch grassd_5
+x 7
+y 11
+end
+arch plant10
+x 7
+y 11
+end
+arch grassd_8
+x 7
+y 12
+end
+arch grassd_8
+x 7
+y 13
+end
+arch grassd_3
+x 7
+y 14
+end
+arch grassd_5
+x 7
+y 15
+end
+arch grassd_2
+x 7
+y 16
+end
+arch grassd_7
+x 7
+y 17
+end
+arch grassd_7
+x 7
+y 18
+end
+arch grassd_5
+x 7
+y 19
+end
+arch tree_big2
+x 7
+y 19
+end
+arch grassd_3
+x 7
+y 20
+end
+arch grassd_m7
+x 7
+y 20
+end
+arch grassd_7
+x 7
+y 21
+end
+arch grassd_6
+x 7
+y 22
+end
+arch grassd_4
+x 7
+y 23
+end
+arch grassd_4
+x 8
+end
+arch grassd_7
+x 8
+y 1
+end
+arch wall_wood_1
+x 8
+y 1
+end
+arch fstone1a
+x 8
+y 2
+end
+arch wall_wood3_3
+x 8
+y 2
+end
+arch fstone1a
+x 8
+y 3
+end
+arch wall_wood2_3
+x 8
+y 3
+end
+arch fstone1a
+x 8
+y 4
+end
+arch wall_wood_3
+x 8
+y 4
+end
+arch fstone1a
+x 8
+y 5
+end
+arch wall_wood_4
+x 8
+y 5
+end
+arch earth_dark3
+x 8
+y 6
+end
+arch wall_wood3_3
+x 8
+y 6
+end
+arch earth_dark2
+x 8
+y 7
+end
+arch wall_wood3_3
+x 8
+y 7
+end
+arch earth_dark3
+x 8
+y 8
+end
+arch wall_wood3_3
+x 8
+y 8
+end
+arch earth_dark2
+x 8
+y 9
+end
+arch wall_wood2_3
+x 8
+y 9
+end
+arch grassd_1
+x 8
+y 10
+end
+arch wall_wood_4
+x 8
+y 10
+end
+arch grassd_8
+x 8
+y 11
+end
+arch fence_01.133
+x 8
+y 11
+end
+arch grassd_4
+x 8
+y 12
+end
+arch fence_01.131
+x 8
+y 12
+end
+arch grassd_4
+x 8
+y 13
+end
+arch fence_01.132
+x 8
+y 13
+end
+arch grassd_4
+x 8
+y 14
+end
+arch fence_01.131
+x 8
+y 14
+end
+arch grassd_1
+x 8
+y 15
+end
+arch fence_01.131
+x 8
+y 15
+end
+arch grassd_6
+x 8
+y 16
+end
+arch fence_01.132
+x 8
+y 16
+end
+arch grassd_1
+x 8
+y 17
+end
+arch fence_01.131
+x 8
+y 17
+end
+arch grassd_7
+x 8
+y 18
+end
+arch fence_01.131
+x 8
+y 18
+end
+arch grassd_8
+x 8
+y 19
+end
+arch fence_01.132
+x 8
+y 19
+end
+arch grassd_2
+x 8
+y 20
+end
+arch fence_01.131
+x 8
+y 20
+end
+arch grassd_1
+x 8
+y 21
+end
+arch fence_01.131
+x 8
+y 21
+end
+arch grassd_6
+x 8
+y 22
+end
+arch fence_01.132
+x 8
+y 22
+end
+arch grassd_8
+x 8
+y 23
+end
+arch fence_01.131
+x 8
+y 23
+end
+arch grassd_7
+x 9
+end
+arch grassd_7
+x 9
+y 1
+end
+arch grassd_4
+x 9
+y 2
+end
+arch grassd_8
+x 9
+y 3
+end
+arch grassd_4
+x 9
+y 4
+end
+arch grassd_6
+x 9
+y 5
+end
+arch grassd_1
+x 9
+y 6
+end
+arch grassd_7
+x 9
+y 7
+end
+arch grassd_3
+x 9
+y 8
+end
+arch grassd_2
+x 9
+y 9
+end
+arch grassd_5
+x 9
+y 10
+end
+arch grassd_4
+x 9
+y 11
+end
+arch grassd_1
+x 9
+y 12
+end
+arch grassd_2
+x 9
+y 13
+end
+arch grassd_8
+x 9
+y 14
+end
+arch grassd_5
+x 9
+y 15
+end
+arch plant11
+x 9
+y 15
+end
+arch grassd_2
+x 9
+y 16
+end
+arch grassd_6
+x 9
+y 17
+end
+arch grassd_6
+x 9
+y 18
+end
+arch grassd_1
+x 9
+y 19
+end
+arch grassd_2
+x 9
+y 20
+end
+arch grassd_1
+x 9
+y 21
+end
+arch grassd_3
+x 9
+y 22
+end
+arch grassd_5
+x 9
+y 23
+end
+arch grassd_5
+x 10
+end
+arch grassd_4
+x 10
+y 1
+end
+arch grassd_3
+x 10
+y 2
+end
+arch tree_big2
+x 10
+y 2
+end
+arch grassd_4
+x 10
+y 3
+end
+arch grassd_1
+x 10
+y 4
+end
+arch grassd_7
+x 10
+y 5
+end
+arch grassd_5
+x 10
+y 6
+end
+arch grassd_2
+x 10
+y 7
+end
+arch grassd_3
+x 10
+y 8
+end
+arch plant15
+x 10
+y 8
+end
+arch grassd_7
+x 10
+y 9
+end
+arch grassd_2
+x 10
+y 10
+end
+arch grassd_4
+x 10
+y 11
+end
+arch grassd_m7
+x 10
+y 11
+end
+arch tree_big3
+x 10
+y 11
+end
+arch grassd_5
+x 10
+y 12
+end
+arch grassd_6
+x 10
+y 13
+end
+arch grassd_7
+x 10
+y 14
+end
+arch plant5
+x 10
+y 14
+end
+arch grassd_3
+x 10
+y 15
+end
+arch grassd_7
+x 10
+y 16
+end
+arch grassd_5
+x 10
+y 17
+end
+arch tree_big2
+x 10
+y 17
+end
+arch grassd_3
+x 10
+y 18
+end
+arch grassd_6
+x 10
+y 19
+end
+arch plant_flower11
+x 10
+y 19
+end
+arch grassd_6
+x 10
+y 20
+end
+arch grassd_7
+x 10
+y 21
+end
+arch tree_big2
+x 10
+y 21
+end
+arch grassd_2
+x 10
+y 22
+end
+arch grassd_8
+x 10
+y 23
+end
+arch grassd_1
+x 11
+end
+arch grassd_2
+x 11
+y 1
+end
+arch grassd_8
+x 11
+y 2
+end
+arch grassd_8
+x 11
+y 3
+end
+arch grassd_5
+x 11
+y 4
+end
+arch grassd_8
+x 11
+y 5
+end
+arch tree_big3
+x 11
+y 5
+end
+arch grassd_2
+x 11
+y 6
+end
+arch grassd_8
+x 11
+y 7
+end
+arch grassd_1
+x 11
+y 8
+end
+arch grassd_m7
+x 11
+y 8
+end
+arch grassd_2
+x 11
+y 9
+end
+arch grassd_6
+x 11
+y 10
+end
+arch tree_big
+x 11
+y 10
+end
+arch grassd_1
+x 11
+y 11
+end
+arch grassd_7
+x 11
+y 12
+end
+arch grassd_5
+x 11
+y 13
+end
+arch grassd_5
+x 11
+y 14
+end
+arch grassd_6
+x 11
+y 15
+end
+arch grassd_m7
+x 11
+y 15
+end
+arch grassd_8
+x 11
+y 16
+end
+arch grassd_1
+x 11
+y 17
+end
+arch grassd_m7
+x 11
+y 17
+end
+arch grassd_1
+x 11
+y 18
+end
+arch grassd_3
+x 11
+y 19
+end
+arch grassd_6
+x 11
+y 20
+end
+arch plant11
+x 11
+y 20
+end
+arch grassd_6
+x 11
+y 21
+end
+arch grassd_8
+x 11
+y 22
+end
+arch grassd_8
+x 11
+y 23
+end
+arch grassd_8
+x 12
+end
+arch grassd_5
+x 12
+y 1
+end
+arch plant_mushroom1
+x 12
+y 1
+end
+arch grassd_6
+x 12
+y 2
+end
+arch grassd_4
+x 12
+y 3
+end
+arch grassd_m7
+x 12
+y 3
+end
+arch grassd_2
+x 12
+y 4
+end
+arch grassd_4
+x 12
+y 5
+end
+arch grassd_1
+x 12
+y 6
+end
+arch grassd_3
+x 12
+y 7
+end
+arch grassd_4
+x 12
+y 8
+end
+arch grassd_8
+x 12
+y 9
+end
+arch tree_big4b
+x 12
+y 9
+end
+arch grassd_4
+x 12
+y 10
+end
+arch grassd_m7
+x 12
+y 10
+end
+arch grassd_5
+x 12
+y 11
+end
+arch grassd_8
+x 12
+y 12
+end
+arch grassd_5
+x 12
+y 13
+end
+arch tree_big3
+x 12
+y 13
+end
+arch grassd_6
+x 12
+y 14
+end
+arch grassd_6
+x 12
+y 15
+end
+arch grassd_m7
+x 12
+y 15
+end
+arch tree_big3
+x 12
+y 15
+end
+arch grassd_2
+x 12
+y 16
+end
+arch grassd_m7
+x 12
+y 16
+end
+arch grassd_7
+x 12
+y 17
+end
+arch grassd_2
+x 12
+y 18
+end
+arch plant_mushroom3
+x 12
+y 18
+end
+arch grassd_1
+x 12
+y 19
+end
+arch grassd_6
+x 12
+y 20
+end
+arch grassd_4
+x 12
+y 21
+end
+arch grassd_1
+x 12
+y 22
+end
+arch grassd_8
+x 12
+y 23
+end
+arch tree_big3
+x 12
+y 23
+end
+arch grassd_5
+x 13
+end
+arch grassd_3
+x 13
+y 1
+end
+arch grassd_3
+x 13
+y 2
+end
+arch tree_big2
+x 13
+y 2
+end
+arch grassd_7
+x 13
+y 3
+end
+arch tree_big2
+x 13
+y 3
+end
+arch grassd_3
+x 13
+y 4
+end
+arch grassd_6
+x 13
+y 5
+end
+arch tree_big3
+x 13
+y 5
+end
+arch grassd_5
+x 13
+y 6
+end
+arch grassd_6
+x 13
+y 7
+end
+arch grassd_1
+x 13
+y 8
+end
+arch grassd_1
+x 13
+y 9
+end
+arch grassd_5
+x 13
+y 10
+end
+arch grassd_3
+x 13
+y 11
+end
+arch stone1
+x 13
+y 11
+end
+arch grassd_1
+x 13
+y 12
+end
+arch plant15
+x 13
+y 12
+end
+arch grassd_2
+x 13
+y 13
+end
+arch tree_big
+x 13
+y 13
+end
+arch grassd_3
+x 13
+y 14
+end
+arch grassd_6
+x 13
+y 15
+end
+arch grassd_m7
+x 13
+y 15
+end
+arch grassd_8
+x 13
+y 16
+end
+arch grassd_m7
+x 13
+y 16
+end
+arch grassd_8
+x 13
+y 17
+end
+arch plant_flower2
+x 13
+y 17
+end
+arch grassd_5
+x 13
+y 18
+end
+arch grassd_5
+x 13
+y 19
+end
+arch grassd_2
+x 13
+y 20
+end
+arch tree_big3
+x 13
+y 20
+end
+arch grassd_2
+x 13
+y 21
+end
+arch grassd_2
+x 13
+y 22
+end
+arch grassd_m7
+x 13
+y 22
+end
+arch plant16
+x 13
+y 22
+end
+arch grassd_4
+x 13
+y 23
+end
+arch grassd_m7
+x 13
+y 23
+end
+arch grassd_6
+x 14
+end
+arch grassd_8
+x 14
+y 1
+end
+arch tree_big
+x 14
+y 1
+end
+arch grassd_8
+x 14
+y 2
+end
+arch grassd_2
+x 14
+y 3
+end
+arch grassd_6
+x 14
+y 4
+end
+arch grassd_m7
+x 14
+y 4
+end
+arch grassd_2
+x 14
+y 5
+end
+arch grassd_7
+x 14
+y 6
+end
+arch plant5
+x 14
+y 6
+end
+arch grassd_8
+x 14
+y 7
+end
+arch tree_big2
+x 14
+y 7
+end
+arch grassd_5
+x 14
+y 8
+end
+arch stone1
+x 14
+y 8
+end
+arch grassd_1
+x 14
+y 9
+end
+arch grassd_3
+x 14
+y 10
+end
+arch grassd_3
+x 14
+y 11
+end
+arch grassd_4
+x 14
+y 12
+end
+arch grassd_1
+x 14
+y 13
+end
+arch grassd_1
+x 14
+y 14
+end
+arch grassd_7
+x 14
+y 15
+end
+arch tree_big3
+x 14
+y 15
+end
+arch grassd_3
+x 14
+y 16
+end
+arch grassd_m7
+x 14
+y 16
+end
+arch grassd_1
+x 14
+y 17
+end
+arch grassd_m7
+x 14
+y 17
+end
+arch grassd_1
+x 14
+y 18
+end
+arch tree_big2
+x 14
+y 18
+end
+arch grassd_1
+x 14
+y 19
+end
+arch grassd_8
+x 14
+y 20
+end
+arch grassd_3
+x 14
+y 21
+end
+arch grassd_1
+x 14
+y 22
+end
+arch grassd_4
+x 14
+y 23
+end
+arch grassd_7
+x 15
+end
+arch grassd_2
+x 15
+y 1
+end
+arch grassd_6
+x 15
+y 2
+end
+arch grassd_m7
+x 15
+y 2
+end
+arch grassd_5
+x 15
+y 3
+end
+arch grassd_6
+x 15
+y 4
+end
+arch tree_big3
+x 15
+y 4
+end
+arch grassd_3
+x 15
+y 5
+end
+arch grassd_6
+x 15
+y 6
+end
+arch grassd_m7
+x 15
+y 6
+end
+arch plant_flower2
+x 15
+y 6
+end
+arch grassd_3
+x 15
+y 7
+end
+arch grassd_1
+x 15
+y 8
+end
+arch grassd_m7
+x 15
+y 8
+end
+arch grassd_2
+x 15
+y 9
+end
+arch grassd_6
+x 15
+y 10
+end
+arch tree_big3
+x 15
+y 10
+end
+arch grassd_7
+x 15
+y 11
+end
+arch grassd_3
+x 15
+y 12
+end
+arch grassd_4
+x 15
+y 13
+end
+arch grassd_1
+x 15
+y 14
+end
+arch grassd_3
+x 15
+y 15
+end
+arch grassd_m7
+x 15
+y 15
+end
+arch grassd_8
+x 15
+y 16
+end
+arch plant1
+x 15
+y 16
+end
+arch grassd_5
+x 15
+y 17
+end
+arch grassd_1
+x 15
+y 18
+end
+arch small_stones
+x 15
+y 18
+end
+arch grassd_2
+x 15
+y 19
+end
+arch grassd_1
+x 15
+y 20
+end
+arch grassd_7
+x 15
+y 21
+end
+arch tree_big
+x 15
+y 21
+end
+arch grassd_1
+x 15
+y 22
+end
+arch tree_big2
+x 15
+y 22
+end
+arch grassd_7
+x 15
+y 23
+end
+arch grassd_1
+x 16
+end
+arch grassd_7
+x 16
+y 1
+end
+arch grassd_7
+x 16
+y 2
+end
+arch plant_mushroom5
+x 16
+y 2
+end
+arch grassd_2
+x 16
+y 3
+end
+arch grassd_m7
+x 16
+y 3
+end
+arch grassd_1
+x 16
+y 4
+end
+arch grassd_4
+x 16
+y 5
+end
+arch grassd_7
+x 16
+y 6
+end
+arch grassd_5
+x 16
+y 7
+end
+arch grassd_1
+x 16
+y 8
+end
+arch grassd_4
+x 16
+y 9
+end
+arch grassd_4
+x 16
+y 10
+end
+arch grassd_4
+x 16
+y 11
+end
+arch grassd_1
+x 16
+y 12
+end
+arch tree_big2
+x 16
+y 12
+end
+arch grassd_6
+x 16
+y 13
+end
+arch grassd_1
+x 16
+y 14
+end
+arch grassd_m7
+x 16
+y 14
+end
+arch grassd_6
+x 16
+y 15
+end
+arch plant9
+x 16
+y 15
+end
+arch grassd_1
+x 16
+y 16
+end
+arch tree_big3
+x 16
+y 16
+end
+arch grassd_5
+x 16
+y 17
+end
+arch grassd_5
+x 16
+y 18
+end
+arch grassd_m7
+x 16
+y 18
+end
+arch grassd_2
+x 16
+y 19
+end
+arch grassd_m7
+x 16
+y 19
+end
+arch grassd_3
+x 16
+y 20
+end
+arch tree_big3
+x 16
+y 20
+end
+arch grassd_6
+x 16
+y 21
+end
+arch grassd_8
+x 16
+y 22
+end
+arch grassd_m7
+x 16
+y 22
+end
+arch grassd_5
+x 16
+y 23
+end
+arch grassd_m7
+x 16
+y 23
+end
+arch grassd_3
+x 17
+end
+arch grassd_8
+x 17
+y 1
+end
+arch grassd_2
+x 17
+y 2
+end
+arch grassd_6
+x 17
+y 3
+end
+arch grassd_m7
+x 17
+y 3
+end
+arch grassd_4
+x 17
+y 4
+end
+arch grassd_7
+x 17
+y 5
+end
+arch plant_flower7
+x 17
+y 5
+end
+arch grassd_6
+x 17
+y 6
+end
+arch grassd_m7
+x 17
+y 6
+end
+arch grassd_3
+x 17
+y 7
+end
+arch tree_burned1
+x 17
+y 7
+end
+arch grassd_6
+x 17
+y 8
+end
+arch tree_big2
+x 17
+y 8
+end
+arch grassd_7
+x 17
+y 9
+end
+arch grassd_8
+x 17
+y 10
+end
+arch grassd_4
+x 17
+y 11
+end
+arch plant_flower2
+x 17
+y 11
+end
+arch grassd_8
+x 17
+y 12
+end
+arch grassd_3
+x 17
+y 13
+end
+arch grassd_m7
+x 17
+y 13
+end
+arch grassd_1
+x 17
+y 14
+end
+arch grassd_1
+x 17
+y 15
+end
+arch plant_mushroom3
+x 17
+y 15
+end
+arch grassd_8
+x 17
+y 16
+end
+arch grassd_m7
+x 17
+y 16
+end
+arch grassd_5
+x 17
+y 17
+end
+arch grassd_3
+x 17
+y 18
+end
+arch grassd_5
+x 17
+y 19
+end
+arch grassd_8
+x 17
+y 20
+end
+arch grassd_7
+x 17
+y 21
+end
+arch tree_branch1
+x 17
+y 21
+end
+arch grassd_7
+x 17
+y 22
+end
+arch grassd_m7
+x 17
+y 22
+end
+arch grassd_3
+x 17
+y 23
+end
+arch tree_big3
+x 17
+y 23
+end
+arch grassd_1
+x 18
+end
+arch grassd_8
+x 18
+y 1
+end
+arch grassd_3
+x 18
+y 2
+end
+arch grassd_1
+x 18
+y 3
+end
+arch grassd_4
+x 18
+y 4
+end
+arch grassd_8
+x 18
+y 5
+end
+arch grassd_m7
+x 18
+y 5
+end
+arch grassd_7
+x 18
+y 6
+end
+arch grassd_1
+x 18
+y 7
+end
+arch grassd_4
+x 18
+y 8
+end
+arch grassd_m7
+x 18
+y 8
+end
+arch grassd_8
+x 18
+y 9
+end
+arch grassd_2
+x 18
+y 10
+end
+arch grassd_8
+x 18
+y 11
+end
+arch grassd_6
+x 18
+y 12
+end
+arch grassd_3
+x 18
+y 13
+end
+arch tree_big3
+x 18
+y 13
+end
+arch grassd_2
+x 18
+y 14
+end
+arch grassd_2
+x 18
+y 15
+end
+arch grassd_3
+x 18
+y 16
+end
+arch grassd_m7
+x 18
+y 16
+end
+arch tree_big4b
+x 18
+y 16
+end
+arch grassd_8
+x 18
+y 17
+end
+arch grassd_2
+x 18
+y 18
+end
+arch grassd_6
+x 18
+y 19
+end
+arch tree_big4b
+x 18
+y 19
+end
+arch grassd_6
+x 18
+y 20
+end
+arch grassd_3
+x 18
+y 21
+end
+arch plant_mushroom5
+x 18
+y 21
+end
+arch grassd_4
+x 18
+y 22
+end
+arch grassd_2
+x 18
+y 23
+end
+arch grassd_4
+x 19
+end
+arch grassd_8
+x 19
+y 1
+end
+arch grassd_3
+x 19
+y 2
+end
+arch tree_big2
+x 19
+y 2
+end
+arch grassd_3
+x 19
+y 3
+end
+arch tree_big4b
+x 19
+y 3
+end
+arch grassd_7
+x 19
+y 4
+end
+arch grassd_8
+x 19
+y 5
+end
+arch tree_big2
+x 19
+y 5
+end
+arch grassd_2
+x 19
+y 6
+end
+arch grassd_6
+x 19
+y 7
+end
+arch grassd_5
+x 19
+y 8
+end
+arch tree_branch3
+x 19
+y 8
+end
+arch tree_big2
+x 19
+y 8
+end
+arch grassd_7
+x 19
+y 9
+end
+arch grassd_2
+x 19
+y 10
+end
+arch grassd_2
+x 19
+y 11
+end
+arch grassd_7
+x 19
+y 12
+end
+arch stone1
+x 19
+y 12
+end
+arch grassd_3
+x 19
+y 13
+end
+arch grassd_m7
+x 19
+y 13
+end
+arch grassd_1
+x 19
+y 14
+end
+arch grassd_7
+x 19
+y 15
+end
+arch grassd_7
+x 19
+y 16
+end
+arch grassd_1
+x 19
+y 17
+end
+arch grassd_8
+x 19
+y 18
+end
+arch grassd_3
+x 19
+y 19
+end
+arch grassd_8
+x 19
+y 20
+end
+arch grassd_7
+x 19
+y 21
+end
+arch grassd_6
+x 19
+y 22
+end
+arch grassd_8
+x 19
+y 23
+end
+arch grassd_1
+x 20
+end
+arch grassd_1
+x 20
+y 1
+end
+arch grassd_m7
+x 20
+y 1
+end
+arch tree_big4b
+x 20
+y 1
+end
+arch grassd_4
+x 20
+y 2
+end
+arch grassd_m7
+x 20
+y 2
+end
+arch grassd_7
+x 20
+y 3
+end
+arch grassd_2
+x 20
+y 4
+end
+arch grassd_1
+x 20
+y 5
+end
+arch grassd_2
+x 20
+y 6
+end
+arch grassd_2
+x 20
+y 7
+end
+arch grassd_2
+x 20
+y 8
+end
+arch grassd_m7
+x 20
+y 8
+end
+arch grassd_3
+x 20
+y 9
+end
+arch grassd_3
+x 20
+y 10
+end
+arch grassd_1
+x 20
+y 11
+end
+arch grassd_1
+x 20
+y 12
+end
+arch grassd_m7
+x 20
+y 12
+end
+arch tree_big2
+x 20
+y 12
+end
+arch grassd_8
+x 20
+y 13
+end
+arch grassd_5
+x 20
+y 14
+end
+arch grassd_m7
+x 20
+y 14
+end
+arch grassd_1
+x 20
+y 15
+end
+arch grassd_m7
+x 20
+y 15
+end
+arch tree_big
+x 20
+y 15
+end
+arch grassd_3
+x 20
+y 16
+end
+arch grassd_5
+x 20
+y 17
+end
+arch grassd_1
+x 20
+y 18
+end
+arch grassd_3
+x 20
+y 19
+end
+arch grassd_4
+x 20
+y 20
+end
+arch grassd_3
+x 20
+y 21
+end
+arch grassd_2
+x 20
+y 22
+end
+arch grassd_6
+x 20
+y 23
+end
+arch tree_big4b
+x 20
+y 23
+end
+arch grassd_2
+x 21
+end
+arch grassd_7
+x 21
+y 1
+end
+arch grassd_6
+x 21
+y 2
+end
+arch grassd_6
+x 21
+y 3
+end
+arch grassd_8
+x 21
+y 4
+end
+arch plant17
+x 21
+y 4
+end
+arch grassd_4
+x 21
+y 5
+end
+arch grassd_3
+x 21
+y 6
+end
+arch tree_big3
+x 21
+y 6
+end
+arch grassd_1
+x 21
+y 7
+end
+arch grassd_8
+x 21
+y 8
+end
+arch stone1
+x 21
+y 8
+end
+arch grassd_8
+x 21
+y 9
+end
+arch grassd_6
+x 21
+y 10
+end
+arch grassd_3
+x 21
+y 11
+end
+arch grassd_8
+x 21
+y 12
+end
+arch grassd_6
+x 21
+y 13
+end
+arch plant9
+x 21
+y 13
+end
+arch grassd_2
+x 21
+y 14
+end
+arch grassd_6
+x 21
+y 15
+end
+arch grassd_5
+x 21
+y 16
+end
+arch grassd_8
+x 21
+y 17
+end
+arch plant9
+x 21
+y 17
+end
+arch grassd_7
+x 21
+y 18
+end
+arch grassd_4
+x 21
+y 19
+end
+arch tree_big3
+x 21
+y 19
+end
+arch grassd_5
+x 21
+y 20
+end
+arch grassd_1
+x 21
+y 21
+end
+arch grassd_2
+x 21
+y 22
+end
+arch tree_big2
+x 21
+y 22
+end
+arch grassd_6
+x 21
+y 23
+end
+arch grassd_4
+x 22
+end
+arch plant_flower2
+x 22
+end
+arch grassd_8
+x 22
+y 1
+end
+arch grassd_8
+x 22
+y 2
+end
+arch tree_big3
+x 22
+y 2
+end
+arch grassd_7
+x 22
+y 3
+end
+arch grassd_3
+x 22
+y 4
+end
+arch grassd_6
+x 22
+y 5
+end
+arch grassd_7
+x 22
+y 6
+end
+arch grassd_8
+x 22
+y 7
+end
+arch grassd_8
+x 22
+y 8
+end
+arch grassd_7
+x 22
+y 9
+end
+arch grassd_2
+x 22
+y 10
+end
+arch grassd_1
+x 22
+y 11
+end
+arch tree_big
+x 22
+y 11
+end
+arch grassd_7
+x 22
+y 12
+end
+arch grassd_2
+x 22
+y 13
+end
+arch grassd_1
+x 22
+y 14
+end
+arch grassd_3
+x 22
+y 15
+end
+arch grassd_8
+x 22
+y 16
+end
+arch tree_big
+x 22
+y 16
+end
+arch grassd_1
+x 22
+y 17
+end
+arch grassd_8
+x 22
+y 18
+end
+arch tree_big2
+x 22
+y 18
+end
+arch grassd_1
+x 22
+y 19
+end
+arch grassd_8
+x 22
+y 20
+end
+arch plant_mushroom1
+x 22
+y 20
+end
+arch grassd_1
+x 22
+y 21
+end
+arch grassd_6
+x 22
+y 22
+end
+arch grassd_1
+x 22
+y 23
+end
+arch grassd_8
+x 23
+end
+arch grassd_7
+x 23
+y 1
+end
+arch grassd_6
+x 23
+y 2
+end
+arch plant13
+x 23
+y 2
+end
+arch grassd_7
+x 23
+y 3
+end
+arch grassd_8
+x 23
+y 4
+end
+arch tree_big4b
+x 23
+y 4
+end
+arch grassd_2
+x 23
+y 5
+end
+arch grassd_4
+x 23
+y 6
+end
+arch plant_flower7
+x 23
+y 6
+end
+arch grassd_7
+x 23
+y 7
+end
+arch tree_branch2
+x 23
+y 7
+end
+arch grassd_5
+x 23
+y 8
+end
+arch grassd_8
+x 23
+y 9
+end
+arch tree_big3
+x 23
+y 9
+end
+arch grassd_3
+x 23
+y 10
+end
+arch grassd_6
+x 23
+y 11
+end
+arch grassd_4
+x 23
+y 12
+end
+arch tree_branch1
+x 23
+y 12
+end
+arch grassd_1
+x 23
+y 13
+end
+arch grassd_4
+x 23
+y 14
+end
+arch grassd_8
+x 23
+y 15
+end
+arch grassd_2
+x 23
+y 16
+end
+arch tree_big3
+x 23
+y 16
+end
+arch grassd_7
+x 23
+y 17
+end
+arch grassd_6
+x 23
+y 18
+end
+arch grassd_5
+x 23
+y 19
+end
+arch grassd_8
+x 23
+y 20
+end
+arch plant_mushroom4
+x 23
+y 20
+end
+arch grassd_4
+x 23
+y 21
+end
+arch grassd_5
+x 23
+y 22
+end
+arch tree_big4b
+x 23
+y 22
+end
+arch grassd_4
+x 23
+y 23
+end

@@ -1,0 +1,3367 @@
+arch map
+name World
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-14 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0834
+tile_path_2 world_0933
+tile_path_3 world_0832
+tile_path_4 world_0733
+tile_path_5 world_0934
+tile_path_6 world_0932
+tile_path_7 world_0732
+tile_path_8 world_0734
+end
+arch grassd_8
+z 50
+end
+arch grassd_6
+z 50
+y 1
+end
+arch grassd_4
+z 50
+y 2
+end
+arch grassd_6
+z 50
+y 3
+end
+arch grassd_2
+z 50
+y 4
+end
+arch grassd_4
+z 50
+y 5
+end
+arch grassd_1
+z 50
+y 6
+end
+arch grassd_6
+z 50
+y 7
+end
+arch fstone1b
+z 50
+y 8
+end
+arch fwall_fstone2
+y 8
+end
+arch fstone1c
+z 50
+y 9
+end
+arch fstone1c
+z 50
+y 10
+end
+arch fstone1b
+z 50
+y 11
+end
+arch fwall_fstone2
+y 11
+end
+arch grassd_4
+z 50
+y 12
+end
+arch grassd_2
+z 50
+y 13
+end
+arch grassd_8
+z 50
+y 14
+end
+arch floor_fs_grey1b
+z 50
+y 15
+end
+arch grassd_m10
+y 15
+end
+arch floor_fs_grey1b
+z 50
+y 16
+end
+arch grassd_m7
+y 16
+end
+arch grassd_6
+z 50
+y 17
+end
+arch grassd_6
+z 50
+y 18
+end
+arch grassd_1
+z 50
+y 19
+end
+arch grassd_1
+z 50
+y 20
+end
+arch grassd_6
+z 50
+y 21
+end
+arch grassd_3
+z 50
+y 22
+end
+arch grassd_3
+z 50
+y 23
+end
+arch grassd_4
+z 50
+x 1
+end
+arch grassd_3
+z 50
+x 1
+y 1
+end
+arch grassd_6
+z 50
+x 1
+y 2
+end
+arch grassd_7
+z 50
+x 1
+y 3
+end
+arch grassd_2
+z 50
+x 1
+y 4
+end
+arch plant17
+x 1
+y 4
+end
+arch grassd_8
+z 50
+x 1
+y 5
+end
+arch grassd_6
+z 50
+x 1
+y 6
+end
+arch grassd_6
+z 50
+x 1
+y 7
+end
+arch fstone1c
+z 50
+x 1
+y 8
+end
+arch fwall_fstone2
+x 1
+y 8
+end
+arch fstone1b
+z 50
+x 1
+y 9
+end
+arch fstone1c
+z 50
+x 1
+y 10
+end
+arch fstone1c
+z 50
+x 1
+y 11
+end
+arch fwall_fstone2
+x 1
+y 11
+end
+arch grassd_6
+z 50
+x 1
+y 12
+end
+arch grassd_7
+z 50
+x 1
+y 13
+end
+arch grassd_2
+z 50
+x 1
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 15
+end
+arch grassd_m10
+x 1
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 16
+end
+arch grassd_m7
+x 1
+y 16
+end
+arch grassd_4
+z 50
+x 1
+y 17
+end
+arch grassd_6
+z 50
+x 1
+y 18
+end
+arch grassd_6
+z 50
+x 1
+y 19
+end
+arch grassd_1
+z 50
+x 1
+y 20
+end
+arch grassd_4
+z 50
+x 1
+y 21
+end
+arch grassd_7
+z 50
+x 1
+y 22
+end
+arch sewer_hole2
+x 1
+y 22
+end
+arch light3
+x 1
+y 22
+end
+arch grassd_6
+z 50
+x 1
+y 23
+end
+arch grassd_3
+z 50
+x 2
+end
+arch grassd_7
+z 50
+x 2
+y 1
+end
+arch plant_flower7
+x 2
+y 1
+end
+arch grassd_6
+z 50
+x 2
+y 2
+end
+arch grassd_5
+z 50
+x 2
+y 3
+end
+arch grassd_7
+z 50
+x 2
+y 4
+end
+arch grassd_7
+z 50
+x 2
+y 5
+end
+arch grassd_6
+z 50
+x 2
+y 6
+end
+arch grassd_1
+z 50
+x 2
+y 7
+end
+arch fstone1a
+z 50
+x 2
+y 8
+end
+arch fwall_fstone2
+x 2
+y 8
+end
+arch fstone1c
+z 50
+x 2
+y 9
+end
+arch fstone1c
+z 50
+x 2
+y 10
+end
+arch fstone1c
+z 50
+x 2
+y 11
+end
+arch fwall_fstone2
+x 2
+y 11
+end
+arch grassd_2
+z 50
+x 2
+y 12
+end
+arch grassd_2
+z 50
+x 2
+y 13
+end
+arch grassd_4
+z 50
+x 2
+y 14
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 15
+end
+arch grassd_m10
+x 2
+y 15
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 16
+end
+arch grassd_m14
+x 2
+y 16
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 17
+end
+arch grassd_m9
+x 2
+y 17
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 18
+end
+arch grassd_m9
+x 2
+y 18
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 19
+end
+arch grassd_m9
+x 2
+y 19
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 20
+end
+arch grassd_m9
+x 2
+y 20
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 21
+end
+arch grassd_m9
+x 2
+y 21
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 22
+end
+arch grassd_m9
+x 2
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 2
+y 23
+end
+arch grassd_m3
+x 2
+y 23
+end
+arch grassd_4
+z 50
+x 3
+end
+arch grassd_6
+z 50
+x 3
+y 1
+end
+arch grassd_4
+z 50
+x 3
+y 2
+end
+arch grassd_1
+z 50
+x 3
+y 3
+end
+arch grassd_8
+z 50
+x 3
+y 4
+end
+arch grassd_5
+z 50
+x 3
+y 5
+end
+arch plant_flower5
+x 3
+y 5
+end
+arch grassd_4
+z 50
+x 3
+y 6
+end
+arch grassd_1
+z 50
+x 3
+y 7
+end
+arch fwall_fstone2c
+x 3
+y 7
+end
+arch fstone1c
+z 50
+x 3
+y 8
+end
+arch fwall_fstone2d
+x 3
+y 8
+end
+arch fstone1a
+z 50
+x 3
+y 9
+end
+arch fstone1c
+z 50
+x 3
+y 10
+end
+arch fstone1b
+z 50
+x 3
+y 11
+end
+arch fwall_fstone2a
+x 3
+y 11
+end
+arch grassd_4
+z 50
+x 3
+y 12
+end
+arch fwall_fstone2b
+x 3
+y 12
+end
+arch grassd_3
+z 50
+x 3
+y 13
+end
+arch grassd_4
+z 50
+x 3
+y 14
+end
+arch floor_fs_grey1b
+z 42
+x 3
+y 15
+end
+arch grassd_m6
+x 3
+y 15
+end
+arch floor_fs_grey1b
+z 42
+x 3
+y 16
+end
+arch grassd_m8
+x 3
+y 16
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 17
+end
+arch grassd_m8
+x 3
+y 17
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 18
+end
+arch grassd_m8
+x 3
+y 18
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 19
+end
+arch grassd_m8
+x 3
+y 19
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 20
+end
+arch grassd_m8
+x 3
+y 20
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 21
+end
+arch grassd_m8
+x 3
+y 21
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 22
+end
+arch grassd_m8
+x 3
+y 22
+end
+arch floor_fs_grey1b
+z 46
+x 3
+y 23
+end
+arch grassd_m5
+x 3
+y 23
+end
+arch spawn_point
+x 3
+y 23
+arch guard
+msg
+@match ^hi$|^hey$|^hello$
+Hello there! I'm guarding this sewer hole.
+endmsg
+name Asterian Guard
+type 83
+level 28
+end
+end
+arch light3
+x 3
+y 23
+end
+arch grassd_1
+z 50
+x 4
+end
+arch grassd_1
+z 50
+x 4
+y 1
+end
+arch grassd_6
+z 50
+x 4
+y 2
+end
+arch grassd_2
+z 50
+x 4
+y 3
+end
+arch grassd_2
+z 50
+x 4
+y 4
+end
+arch grassd_6
+z 50
+x 4
+y 5
+end
+arch grassd_1
+z 50
+x 4
+y 6
+end
+arch fwall_fstone2c
+x 4
+y 6
+end
+arch fstone1a
+z 50
+x 4
+y 7
+end
+arch fwall_fstone2d
+x 4
+y 7
+end
+arch fstone1b
+z 50
+x 4
+y 8
+end
+arch fstone1c
+z 50
+x 4
+y 9
+end
+arch fstone1c
+z 50
+x 4
+y 10
+end
+arch fstone1c
+z 50
+x 4
+y 11
+end
+arch fstone1c
+z 50
+x 4
+y 12
+end
+arch fwall_fstone2a
+x 4
+y 12
+end
+arch grassd_4
+z 50
+x 4
+y 13
+end
+arch fwall_fstone2b
+x 4
+y 13
+end
+arch grassd_5
+z 50
+x 4
+y 14
+end
+arch grassd_8
+z 42
+x 4
+y 15
+end
+arch grassd_8
+z 42
+x 4
+y 16
+end
+arch grassd_5
+z 42
+x 4
+y 17
+end
+arch grassd_8
+z 42
+x 4
+y 18
+end
+arch grassd_8
+z 42
+x 4
+y 19
+end
+arch grassd_8
+z 42
+x 4
+y 20
+end
+arch grassd_8
+z 42
+x 4
+y 21
+end
+arch grassd_8
+z 42
+x 4
+y 22
+end
+arch grassd_8
+z 42
+x 4
+y 23
+end
+arch grassd_7
+z 50
+x 5
+end
+arch plant17
+x 5
+end
+arch grassd_4
+z 50
+x 5
+y 1
+end
+arch grassd_7
+z 50
+x 5
+y 2
+end
+arch grassd_2
+z 50
+x 5
+y 3
+end
+arch grassd_5
+z 50
+x 5
+y 4
+end
+arch plant17
+x 5
+y 4
+end
+arch grassd_7
+z 50
+x 5
+y 5
+end
+arch fwall_fstone2c
+x 5
+y 5
+end
+arch fstone1b
+z 50
+x 5
+y 6
+end
+arch fwall_fstone2d
+x 5
+y 6
+end
+arch fstone1c
+z 50
+x 5
+y 7
+end
+arch fstone1b
+z 50
+x 5
+y 8
+end
+arch fstone1b
+z 50
+x 5
+y 9
+end
+arch fstone1c
+z 50
+x 5
+y 10
+end
+arch fstone1c
+z 50
+x 5
+y 11
+end
+arch fstone1c
+z 50
+x 5
+y 12
+end
+arch fstone1c
+z 50
+x 5
+y 13
+end
+arch fwall_fstone2a
+x 5
+y 13
+end
+arch grassd_2
+z 50
+x 5
+y 14
+end
+arch fwall_fstone2b
+x 5
+y 14
+end
+arch grassd_8
+z 42
+x 5
+y 15
+end
+arch grassd_8
+z 42
+x 5
+y 16
+end
+arch grassd_6
+z 37
+x 5
+y 17
+end
+arch grassd_6
+z 36
+x 5
+y 18
+end
+arch grassd_6
+z 36
+x 5
+y 19
+end
+arch grassd_6
+z 36
+x 5
+y 20
+end
+arch rock_big2
+x 5
+y 20
+end
+arch grassd_6
+z 36
+x 5
+y 21
+end
+arch rock_big2
+x 5
+y 21
+end
+arch grassd_6
+z 36
+x 5
+y 22
+end
+arch rock_big2
+x 5
+y 22
+end
+arch grassd_6
+z 36
+x 5
+y 23
+end
+arch grassd_6
+z 50
+x 6
+end
+arch grassd_2
+z 50
+x 6
+y 1
+end
+arch grassd_4
+z 50
+x 6
+y 2
+end
+arch grassd_4
+z 50
+x 6
+y 3
+end
+arch grassd_3
+z 50
+x 6
+y 4
+end
+arch fwall_fstone2c
+x 6
+y 4
+end
+arch fstone1c
+z 50
+x 6
+y 5
+end
+arch fwall_fstone2d
+x 6
+y 5
+end
+arch fstone1c
+z 50
+x 6
+y 6
+end
+arch fstone1a
+z 50
+x 6
+y 7
+end
+arch fstone1c
+z 50
+x 6
+y 8
+end
+arch fstone1c
+z 50
+x 6
+y 9
+end
+arch fstone1b
+z 50
+x 6
+y 10
+end
+arch fstone1b
+z 50
+x 6
+y 11
+end
+arch fstone1b
+z 50
+x 6
+y 12
+end
+arch fstone1b
+z 50
+x 6
+y 13
+end
+arch fstone1c
+z 50
+x 6
+y 14
+end
+arch fwall_fstone2
+x 6
+y 14
+end
+arch grassd_8
+z 42
+x 6
+y 15
+end
+arch grassd_8
+z 42
+x 6
+y 16
+end
+arch grassd_8
+z 30
+x 6
+y 17
+end
+arch grassd_8
+z 30
+x 6
+y 18
+end
+arch grassd_8
+z 30
+x 6
+y 19
+end
+arch rock_wall6
+x 6
+y 19
+end
+arch grassd_8
+z 30
+x 6
+y 20
+end
+arch grassd_8
+z 30
+x 6
+y 21
+end
+arch rock_big2
+x 6
+y 21
+end
+arch grassd_8
+z 30
+x 6
+y 22
+end
+arch rock_big2_waterfall
+x 6
+y 22
+end
+arch grassd_8
+z 30
+x 6
+y 23
+end
+arch rock_big2
+x 6
+y 23
+end
+arch grassd_6
+z 50
+x 7
+end
+arch grassd_4
+z 50
+x 7
+y 1
+end
+arch grassd_7
+z 50
+x 7
+y 2
+end
+arch grassd_1
+z 50
+x 7
+y 3
+end
+arch fstone1c
+z 50
+x 7
+y 4
+end
+arch fwall_fstone2
+x 7
+y 4
+end
+arch fstone1b
+z 50
+x 7
+y 5
+end
+arch fstone1b
+z 50
+x 7
+y 6
+end
+arch fstone1c
+z 50
+x 7
+y 7
+end
+arch fstone1b
+z 50
+x 7
+y 8
+end
+arch fstone1b
+z 50
+x 7
+y 9
+end
+arch fstone1c
+z 50
+x 7
+y 10
+end
+arch fstone1b
+z 50
+x 7
+y 11
+end
+arch fstone1a
+z 50
+x 7
+y 12
+end
+arch fstone1c
+z 50
+x 7
+y 13
+end
+arch fstone1c
+z 50
+x 7
+y 14
+end
+arch fwall_fstone2
+x 7
+y 14
+end
+arch grassd_8
+z 42
+x 7
+y 15
+end
+arch grassd_8
+z 42
+x 7
+y 16
+end
+arch grassd_2
+z 36
+x 7
+y 17
+end
+arch grassd_8
+z 30
+x 7
+y 18
+end
+arch rock_wall8
+x 7
+y 18
+end
+arch grassd_7
+z 24
+x 7
+y 19
+end
+arch grassd_8
+z 24
+x 7
+y 20
+end
+arch waterfall_huge
+x 7
+y 20
+end
+arch water_lt2
+z 24
+x 7
+y 21
+end
+arch grassd_m4
+x 7
+y 21
+end
+arch water_lt3
+z 24
+x 7
+y 22
+end
+arch water_lt2
+z 24
+x 7
+y 23
+end
+arch grassd_m3
+x 7
+y 23
+end
+arch grassd_5
+z 50
+x 8
+end
+arch grassd_7
+z 50
+x 8
+y 1
+end
+arch plant_flower5
+x 8
+y 1
+end
+arch grassd_4
+z 50
+x 8
+y 2
+end
+arch grassd_7
+z 50
+x 8
+y 3
+end
+arch fstone1b
+z 50
+x 8
+y 4
+end
+arch fwall_fstone2
+x 8
+y 4
+end
+arch fstone1a
+z 50
+x 8
+y 5
+end
+arch fstone1c
+z 50
+x 8
+y 6
+end
+arch fstone1c
+z 50
+x 8
+y 7
+end
+arch floor_fstone2a
+z 50
+x 8
+y 8
+end
+arch wall_fstone_round.108
+x 8
+y 8
+end
+arch floor_fstone2a
+z 50
+x 8
+y 9
+end
+arch wall_fstone_round.106
+x 8
+y 9
+end
+arch fstone1a
+z 50
+x 8
+y 10
+end
+arch fstone1c
+z 50
+x 8
+y 11
+end
+arch fstone1c
+z 50
+x 8
+y 12
+end
+arch fstone1a
+z 50
+x 8
+y 13
+end
+arch fstone1c
+z 50
+x 8
+y 14
+end
+arch fwall_fstone2
+x 8
+y 14
+end
+arch grassd_8
+z 42
+x 8
+y 15
+end
+arch grassd_8
+z 42
+x 8
+y 16
+end
+arch grassd_6
+z 36
+x 8
+y 17
+end
+arch grassd_4
+z 30
+x 8
+y 18
+end
+arch grassd_7
+z 24
+x 8
+y 19
+end
+arch grassd_6
+z 18
+x 8
+y 20
+end
+arch water_lt4
+z 18
+x 8
+y 21
+end
+arch grassd_m10
+x 8
+y 21
+end
+arch water_lt2
+z 18
+x 8
+y 22
+end
+arch light5
+x 8
+y 22
+end
+arch water_lt2
+z 18
+x 8
+y 23
+end
+arch grassd_m7
+x 8
+y 23
+end
+arch grassd_5
+z 50
+x 9
+end
+arch grassd_3
+z 50
+x 9
+y 1
+end
+arch grassd_6
+z 50
+x 9
+y 2
+end
+arch grassd_2
+z 50
+x 9
+y 3
+end
+arch fstone1b
+z 50
+x 9
+y 4
+end
+arch fwall_fstone2
+x 9
+y 4
+end
+arch fstone1b
+z 50
+x 9
+y 5
+end
+arch fstone1b
+z 50
+x 9
+y 6
+end
+arch fstone1c
+z 50
+x 9
+y 7
+end
+arch fstone1b
+z 50
+x 9
+y 8
+end
+arch wall_fstone_round.102
+x 9
+y 8
+end
+arch fstone1a
+z 50
+x 9
+y 9
+end
+arch wall_fstone_round.104
+x 9
+y 9
+end
+arch fstone1b
+z 50
+x 9
+y 10
+end
+arch fstone1a
+z 50
+x 9
+y 11
+end
+arch fstone1b
+z 50
+x 9
+y 12
+end
+arch fstone1c
+z 50
+x 9
+y 13
+end
+arch fstone1c
+z 50
+x 9
+y 14
+end
+arch fwall_fstone2
+x 9
+y 14
+end
+arch grassd_8
+z 42
+x 9
+y 15
+end
+arch grassd_8
+z 42
+x 9
+y 16
+end
+arch grassd_6
+z 36
+x 9
+y 17
+end
+arch grassd_7
+z 30
+x 9
+y 18
+end
+arch grassd_8
+z 24
+x 9
+y 19
+end
+arch rock_wall6
+x 9
+y 19
+end
+arch grassd_8
+z 18
+x 9
+y 20
+end
+arch water_lt4
+z 18
+x 9
+y 21
+end
+arch grassd_m6
+x 9
+y 21
+end
+arch water_lt
+z 18
+x 9
+y 22
+end
+arch water_lt
+z 18
+x 9
+y 23
+end
+arch grassd_6
+z 50
+x 10
+end
+arch grassd_3
+z 50
+x 10
+y 1
+end
+arch grassd_1
+z 50
+x 10
+y 2
+end
+arch grassd_1
+z 50
+x 10
+y 3
+end
+arch fstone1c
+z 50
+x 10
+y 4
+end
+arch fwall_fstone2
+x 10
+y 4
+end
+arch fstone1a
+z 50
+x 10
+y 5
+end
+arch fstone1a
+z 50
+x 10
+y 6
+end
+arch fstone1c
+z 50
+x 10
+y 7
+end
+arch fstone1a
+z 50
+x 10
+y 8
+end
+arch fstone1a
+z 50
+x 10
+y 9
+end
+arch fstone1a
+z 50
+x 10
+y 10
+end
+arch fstone1c
+z 50
+x 10
+y 11
+end
+arch fstone1a
+z 50
+x 10
+y 12
+end
+arch fstone1c
+z 50
+x 10
+y 13
+end
+arch fwall_fstone2c
+x 10
+y 13
+end
+arch grassd_2
+z 50
+x 10
+y 14
+end
+arch fwall_fstone2d
+x 10
+y 14
+end
+arch grassd_6
+z 46
+x 10
+y 15
+end
+arch grassd_7
+z 42
+x 10
+y 16
+end
+arch grassd_5
+z 36
+x 10
+y 17
+end
+arch grassd_8
+z 30
+x 10
+y 18
+end
+arch grassd_8
+z 24
+x 10
+y 19
+end
+arch grassd_3
+z 21
+x 10
+y 20
+end
+arch grassd_6
+z 17
+x 10
+y 21
+end
+arch water_lt3
+z 17
+x 10
+y 22
+end
+arch grassd_m6
+x 10
+y 22
+end
+arch water_lt3
+z 17
+x 10
+y 23
+end
+arch grassd_6
+z 50
+x 11
+end
+arch grassd_4
+z 50
+x 11
+y 1
+end
+arch plant17
+x 11
+y 1
+end
+arch grassd_8
+z 50
+x 11
+y 2
+end
+arch grassd_8
+z 50
+x 11
+y 3
+end
+arch grassd_2
+z 50
+x 11
+y 4
+end
+arch fwall_fstone2a
+x 11
+y 4
+end
+arch fstone1c
+z 50
+x 11
+y 5
+end
+arch fwall_fstone2b
+x 11
+y 5
+end
+arch fstone1c
+z 50
+x 11
+y 6
+end
+arch fstone1a
+z 50
+x 11
+y 7
+end
+arch fstone1b
+z 50
+x 11
+y 8
+end
+arch fstone1b
+z 50
+x 11
+y 9
+end
+arch fstone1b
+z 50
+x 11
+y 10
+end
+arch fstone1b
+z 50
+x 11
+y 11
+end
+arch fstone1c
+z 50
+x 11
+y 12
+end
+arch fwall_fstone2c
+x 11
+y 12
+end
+arch grassd_5
+z 50
+x 11
+y 13
+end
+arch fwall_fstone2d
+x 11
+y 13
+end
+arch grassd_3
+z 46
+x 11
+y 14
+end
+arch grassd_8
+z 42
+x 11
+y 15
+end
+arch grassd_4
+z 38
+x 11
+y 16
+end
+arch grassd_3
+z 35
+x 11
+y 17
+end
+arch grassd_8
+z 29
+x 11
+y 18
+end
+arch grassd_6
+z 24
+x 11
+y 19
+end
+arch rock_wall8
+x 11
+y 19
+end
+arch grassd_2
+z 21
+x 11
+y 20
+end
+arch grassd_6
+z 17
+x 11
+y 21
+end
+arch rock_wall7
+x 11
+y 21
+end
+arch grassd_6
+z 12
+x 11
+y 22
+end
+arch water_lt3
+z 12
+x 11
+y 23
+end
+arch grassd_m6
+x 11
+y 23
+end
+arch grassd_5
+z 50
+x 12
+end
+arch grassd_7
+z 50
+x 12
+y 1
+end
+arch grassd_5
+z 50
+x 12
+y 2
+end
+arch grassd_1
+z 50
+x 12
+y 3
+end
+arch grassd_5
+z 50
+x 12
+y 4
+end
+arch grassd_1
+z 50
+x 12
+y 5
+end
+arch fwall_fstone2a
+x 12
+y 5
+end
+arch fstone1a
+z 50
+x 12
+y 6
+end
+arch fwall_fstone2b
+x 12
+y 6
+end
+arch fstone1c
+z 50
+x 12
+y 7
+end
+arch fstone1b
+z 50
+x 12
+y 8
+end
+arch fstone1c
+z 50
+x 12
+y 9
+end
+arch fstone1c
+z 50
+x 12
+y 10
+end
+arch fstone1a
+z 50
+x 12
+y 11
+end
+arch fwall_fstone2c
+x 12
+y 11
+end
+arch grassd_8
+z 50
+x 12
+y 12
+end
+arch fwall_fstone2d
+x 12
+y 12
+end
+arch grassd_2
+z 46
+x 12
+y 13
+end
+arch grassd_5
+z 42
+x 12
+y 14
+end
+arch grassd_2
+z 38
+x 12
+y 15
+end
+arch grassd_8
+z 34
+x 12
+y 16
+end
+arch grassd_7
+z 29
+x 12
+y 17
+end
+arch grassd_6
+z 25
+x 12
+y 18
+end
+arch grassd_4
+z 23
+x 12
+y 19
+end
+arch grassd_3
+z 20
+x 12
+y 20
+end
+arch grassd_4
+z 16
+x 12
+y 21
+end
+arch grassd_5
+z 12
+x 12
+y 22
+end
+arch grassd_6
+z 6
+x 12
+y 23
+end
+arch grassd_6
+z 50
+x 13
+end
+arch plant_flower7
+x 13
+end
+arch grassd_7
+z 50
+x 13
+y 1
+end
+arch grassd_7
+z 50
+x 13
+y 2
+end
+arch grassd_7
+z 50
+x 13
+y 3
+end
+arch grassd_7
+z 50
+x 13
+y 4
+end
+arch grassd_6
+z 50
+x 13
+y 5
+end
+arch fstone1b
+z 50
+x 13
+y 6
+end
+arch fwall_fstone2
+x 13
+y 6
+end
+arch fstone1c
+z 50
+x 13
+y 7
+end
+arch fstone1b
+z 50
+x 13
+y 8
+end
+arch fstone1c
+z 50
+x 13
+y 9
+end
+arch fstone1c
+z 50
+x 13
+y 10
+end
+arch fwall_fstone2c
+x 13
+y 10
+end
+arch grassd_7
+z 50
+x 13
+y 11
+end
+arch fwall_fstone2d
+x 13
+y 11
+end
+arch grassd_4
+z 46
+x 13
+y 12
+end
+arch grassd_5
+z 42
+x 13
+y 13
+end
+arch grassd_4
+z 38
+x 13
+y 14
+end
+arch grassd_4
+z 34
+x 13
+y 15
+end
+arch grassd_6
+z 28
+x 13
+y 16
+end
+arch grassd_2
+z 28
+x 13
+y 17
+end
+arch grassd_3
+z 23
+x 13
+y 18
+end
+arch grassd_8
+z 21
+x 13
+y 19
+end
+arch grassd_6
+z 19
+x 13
+y 20
+end
+arch grassd_5
+z 16
+x 13
+y 21
+end
+arch grassd_1
+z 12
+x 13
+y 22
+end
+arch grassd_5
+z 6
+x 13
+y 23
+end
+arch grassd_8
+z 50
+x 14
+end
+arch grassd_3
+z 50
+x 14
+y 1
+end
+arch grassd_4
+z 50
+x 14
+y 2
+end
+arch grassd_2
+z 50
+x 14
+y 3
+end
+arch grassd_7
+z 50
+x 14
+y 4
+end
+arch grassd_4
+z 50
+x 14
+y 5
+end
+arch fstone1b
+z 50
+x 14
+y 6
+end
+arch fwall_fstone2
+x 14
+y 6
+end
+arch fstone1c
+z 50
+x 14
+y 7
+end
+arch fstone1c
+z 50
+x 14
+y 8
+end
+arch fstone1c
+z 50
+x 14
+y 9
+end
+arch fwall_fstone2c
+x 14
+y 9
+end
+arch grassd_7
+z 50
+x 14
+y 10
+end
+arch fwall_fstone2d
+x 14
+y 10
+end
+arch grassd_6
+z 46
+x 14
+y 11
+end
+arch grassd_8
+z 42
+x 14
+y 12
+end
+arch grassd_1
+z 38
+x 14
+y 13
+end
+arch grassd_6
+z 34
+x 14
+y 14
+end
+arch grassd_6
+z 28
+x 14
+y 15
+end
+arch grassd_5
+z 27
+x 14
+y 16
+end
+arch grassd_6
+z 22
+x 14
+y 17
+end
+arch grassd_4
+z 21
+x 14
+y 18
+end
+arch grassd_3
+z 19
+x 14
+y 19
+end
+arch grassd_1
+z 17
+x 14
+y 20
+end
+arch grassd_8
+z 15
+x 14
+y 21
+end
+arch grassd_1
+z 12
+x 14
+y 22
+end
+arch grassd_2
+z 6
+x 14
+y 23
+end
+arch grassd_7
+z 50
+x 15
+end
+arch grassd_7
+z 50
+x 15
+y 1
+end
+arch grassd_7
+z 50
+x 15
+y 2
+end
+arch grassd_8
+z 50
+x 15
+y 3
+end
+arch grassd_2
+z 50
+x 15
+y 4
+end
+arch grassd_5
+z 50
+x 15
+y 5
+end
+arch fwall_fstone2c
+x 15
+y 5
+end
+arch fstone1b
+z 50
+x 15
+y 6
+end
+arch fwall_fstone2d
+x 15
+y 6
+end
+arch fstone1b
+z 50
+x 15
+y 7
+end
+arch fstone1c
+z 50
+x 15
+y 8
+end
+arch fstone1b
+z 50
+x 15
+y 9
+end
+arch fwall_fstone2
+x 15
+y 9
+end
+arch grassd_6
+z 46
+x 15
+y 10
+end
+arch grassd_4
+z 42
+x 15
+y 11
+end
+arch grassd_8
+z 38
+x 15
+y 12
+end
+arch grassd_6
+z 34
+x 15
+y 13
+end
+arch grassd_1
+z 28
+x 15
+y 14
+end
+arch grassd_5
+z 28
+x 15
+y 15
+end
+arch grassd_4
+z 24
+x 15
+y 16
+end
+arch grassd_7
+z 20
+x 15
+y 17
+end
+arch grassd_3
+z 18
+x 15
+y 18
+end
+arch grassd_2
+z 17
+x 15
+y 19
+end
+arch grassd_3
+z 15
+x 15
+y 20
+end
+arch grassd_3
+z 13
+x 15
+y 21
+end
+arch grassd_7
+z 11
+x 15
+y 22
+end
+arch grassd_6
+z 6
+x 15
+y 23
+end
+arch grassd_6
+z 50
+x 16
+end
+arch grassd_3
+z 50
+x 16
+y 1
+end
+arch grassd_6
+z 50
+x 16
+y 2
+end
+arch grassd_1
+z 50
+x 16
+y 3
+end
+arch grassd_2
+z 50
+x 16
+y 4
+end
+arch fwall_fstone2c
+x 16
+y 4
+end
+arch fstone1b
+z 50
+x 16
+y 5
+end
+arch fwall_fstone2d
+x 16
+y 5
+end
+arch fstone1a
+z 50
+x 16
+y 6
+end
+arch fstone1c
+z 50
+x 16
+y 7
+end
+arch fstone1a
+z 50
+x 16
+y 8
+end
+arch fstone1b
+z 50
+x 16
+y 9
+end
+arch fwall_fstone2
+x 16
+y 9
+end
+arch grassd_4
+z 46
+x 16
+y 10
+end
+arch grassd_8
+z 42
+x 16
+y 11
+end
+arch grassd_8
+z 38
+x 16
+y 12
+end
+arch grassd_3
+z 34
+x 16
+y 13
+end
+arch grassd_8
+z 30
+x 16
+y 14
+end
+arch grassd_1
+z 26
+x 16
+y 15
+end
+arch grassd_1
+z 22
+x 16
+y 16
+end
+arch grassd_5
+z 20
+x 16
+y 17
+end
+arch grassd_4
+z 16
+x 16
+y 18
+end
+arch grassd_5
+z 14
+x 16
+y 19
+end
+arch grassd_5
+z 13
+x 16
+y 20
+end
+arch grassd_6
+z 11
+x 16
+y 21
+end
+arch grassd_5
+z 9
+x 16
+y 22
+end
+arch grassd_7
+z 4
+x 16
+y 23
+end
+arch grassd_5
+z 50
+x 17
+end
+arch grassd_3
+z 50
+x 17
+y 1
+end
+arch grassd_4
+z 50
+x 17
+y 2
+end
+arch grassd_3
+z 50
+x 17
+y 3
+end
+arch fwall_fstone2c
+x 17
+y 3
+end
+arch fstone1b
+z 50
+x 17
+y 4
+end
+arch fwall_fstone2d
+x 17
+y 4
+end
+arch fstone1c
+z 50
+x 17
+y 5
+end
+arch fstone1b
+z 50
+x 17
+y 6
+end
+arch fstone1b
+z 50
+x 17
+y 7
+end
+arch fstone1b
+z 50
+x 17
+y 8
+end
+arch fwall_fstone2c
+x 17
+y 8
+end
+arch grassd_7
+z 50
+x 17
+y 9
+end
+arch fwall_fstone2d
+x 17
+y 9
+end
+arch grassd_1
+z 46
+x 17
+y 10
+end
+arch grassd_5
+z 42
+x 17
+y 11
+end
+arch grassd_6
+z 38
+x 17
+y 12
+end
+arch grassd_8
+z 34
+x 17
+y 13
+end
+arch grassd_8
+z 30
+x 17
+y 14
+end
+arch grassd_6
+z 26
+x 17
+y 15
+end
+arch grassd_4
+z 22
+x 17
+y 16
+end
+arch grassd_2
+z 18
+x 17
+y 17
+end
+arch grassd_4
+z 16
+x 17
+y 18
+end
+arch grassd_1
+z 12
+x 17
+y 19
+end
+arch grassd_6
+z 10
+x 17
+y 20
+end
+arch grassd_2
+z 9
+x 17
+y 21
+end
+arch grassd_1
+z 7
+x 17
+y 22
+end
+arch grassd_4
+z 3
+x 17
+y 23
+end
+arch grassd_2
+z 50
+x 18
+end
+arch grassd_7
+z 50
+x 18
+y 1
+end
+arch grassd_6
+z 50
+x 18
+y 2
+end
+arch fwall_fstone2c
+x 18
+y 2
+end
+arch fstone1b
+z 50
+x 18
+y 3
+end
+arch fwall_fstone2d
+x 18
+y 3
+end
+arch fstone1c
+z 50
+x 18
+y 4
+end
+arch fstone1b
+z 50
+x 18
+y 5
+end
+arch fstone1b
+z 50
+x 18
+y 6
+end
+arch fstone1c
+z 50
+x 18
+y 7
+end
+arch fwall_fstone2c
+x 18
+y 7
+end
+arch grassd_6
+z 50
+x 18
+y 8
+end
+arch fwall_fstone2d
+x 18
+y 8
+end
+arch grassd_1
+z 46
+x 18
+y 9
+end
+arch grassd_4
+z 42
+x 18
+y 10
+end
+arch grassd_8
+z 38
+x 18
+y 11
+end
+arch grassd_7
+z 38
+x 18
+y 12
+end
+arch grassd_8
+z 30
+x 18
+y 13
+end
+arch grassd_1
+z 26
+x 18
+y 14
+end
+arch grassd_4
+z 22
+x 18
+y 15
+end
+arch grassd_3
+z 18
+x 18
+y 16
+end
+arch grassd_1
+z 14
+x 18
+y 17
+end
+arch grassd_3
+z 12
+x 18
+y 18
+end
+arch grassd_7
+z 9
+x 18
+y 19
+end
+arch grassd_1
+z 7
+x 18
+y 20
+end
+arch grassd_8
+z 5
+x 18
+y 21
+end
+arch grassd_1
+z 5
+x 18
+y 22
+end
+arch grassd_7
+x 18
+y 23
+end
+arch grassd_2
+z 50
+x 19
+end
+arch grassd_7
+z 50
+x 19
+y 1
+end
+arch fwall_fstone2c
+x 19
+y 1
+end
+arch fstone1b
+z 50
+x 19
+y 2
+end
+arch fwall_fstone2d
+x 19
+y 2
+end
+arch fstone1c
+z 50
+x 19
+y 3
+end
+arch fstone1a
+z 50
+x 19
+y 4
+end
+arch fstone1b
+z 50
+x 19
+y 5
+end
+arch fstone1a
+z 50
+x 19
+y 6
+end
+arch fwall_fstone2c
+x 19
+y 6
+end
+arch grassd_1
+z 50
+x 19
+y 7
+end
+arch fwall_fstone2d
+x 19
+y 7
+end
+arch grassd_1
+z 46
+x 19
+y 8
+end
+arch grassd_2
+z 42
+x 19
+y 9
+end
+arch grassd_4
+z 38
+x 19
+y 10
+end
+arch grassd_6
+z 37
+x 19
+y 11
+end
+arch grassd_3
+z 30
+x 19
+y 12
+end
+arch grassd_4
+z 29
+x 19
+y 13
+end
+arch grassd_4
+z 22
+x 19
+y 14
+end
+arch grassd_2
+z 18
+x 19
+y 15
+end
+arch grassd_5
+z 14
+x 19
+y 16
+end
+arch grassd_6
+z 10
+x 19
+y 17
+end
+arch grassd_3
+z 8
+x 19
+y 18
+end
+arch grassd_2
+z 6
+x 19
+y 19
+end
+arch grassd_8
+z 5
+x 19
+y 20
+end
+arch grassd_6
+z 3
+x 19
+y 21
+end
+arch grassd_3
+z 1
+x 19
+y 22
+end
+arch grassd_8
+x 19
+y 23
+end
+arch grassd_1
+z 50
+x 20
+end
+arch fwall_fstone2c
+x 20
+end
+arch fstone1b
+z 50
+x 20
+y 1
+end
+arch fwall_fstone2d
+x 20
+y 1
+end
+arch fstone1c
+z 50
+x 20
+y 2
+end
+arch fstone1c
+z 50
+x 20
+y 3
+end
+arch fstone1b
+z 50
+x 20
+y 4
+end
+arch fstone1a
+z 50
+x 20
+y 5
+end
+arch fwall_fstone2c
+x 20
+y 5
+end
+arch grassd_6
+z 50
+x 20
+y 6
+end
+arch fwall_fstone2d
+x 20
+y 6
+end
+arch grassd_1
+z 46
+x 20
+y 7
+end
+arch grassd_8
+z 42
+x 20
+y 8
+end
+arch grassd_8
+z 38
+x 20
+y 9
+end
+arch grassd_8
+z 37
+x 20
+y 10
+end
+arch grassd_5
+z 30
+x 20
+y 11
+end
+arch grassd_1
+z 28
+x 20
+y 12
+end
+arch grassd_2
+z 22
+x 20
+y 13
+end
+arch grassd_1
+z 20
+x 20
+y 14
+end
+arch grassd_8
+z 14
+x 20
+y 15
+end
+arch grassd_3
+z 10
+x 20
+y 16
+end
+arch grassd_5
+z 6
+x 20
+y 17
+end
+arch grassd_7
+z 4
+x 20
+y 18
+end
+arch grassd_6
+z 3
+x 20
+y 19
+end
+arch grassd_2
+z 2
+x 20
+y 20
+end
+arch grassd_1
+z 1
+x 20
+y 21
+end
+arch grassd_3
+x 20
+y 22
+end
+arch water_lt4
+x 20
+y 23
+end
+arch grassd_m4
+x 20
+y 23
+end
+arch fstone1c
+z 50
+x 21
+end
+arch fwall_fstone2d
+x 21
+end
+arch fstone1b
+z 50
+x 21
+y 1
+end
+arch fstone1b
+z 50
+x 21
+y 2
+end
+arch fstone1b
+z 50
+x 21
+y 3
+end
+arch fstone1c
+z 50
+x 21
+y 4
+end
+arch fwall_fstone2c
+x 21
+y 4
+end
+arch grassd_8
+z 50
+x 21
+y 5
+end
+arch fwall_fstone2d
+x 21
+y 5
+end
+arch grassd_1
+z 46
+x 21
+y 6
+end
+arch grassd_7
+z 42
+x 21
+y 7
+end
+arch grassd_8
+z 38
+x 21
+y 8
+end
+arch grassd_2
+z 37
+x 21
+y 9
+end
+arch grassd_7
+z 30
+x 21
+y 10
+end
+arch grassd_7
+z 28
+x 21
+y 11
+end
+arch grassd_5
+z 22
+x 21
+y 12
+end
+arch grassd_5
+z 19
+x 21
+y 13
+end
+arch grassd_8
+z 14
+x 21
+y 14
+end
+arch grassd_2
+z 11
+x 21
+y 15
+end
+arch grassd_3
+z 6
+x 21
+y 16
+end
+arch grassd_4
+z 2
+x 21
+y 17
+end
+arch grassd_3
+x 21
+y 18
+end
+arch grassd_4
+x 21
+y 19
+end
+arch grassd_5
+x 21
+y 20
+end
+arch grassd_5
+x 21
+y 21
+end
+arch grassd_1
+x 21
+y 22
+end
+arch water_lt3
+x 21
+y 23
+end
+arch grassd_m10
+x 21
+y 23
+end
+arch fstone1b
+z 50
+x 22
+end
+arch fstone1a
+z 50
+x 22
+y 1
+end
+arch fstone1b
+z 50
+x 22
+y 2
+end
+arch fstone1a
+z 50
+x 22
+y 3
+end
+arch fwall_fstone2c
+x 22
+y 3
+end
+arch grassd_3
+z 50
+x 22
+y 4
+end
+arch fwall_fstone2d
+x 22
+y 4
+end
+arch grassd_1
+z 46
+x 22
+y 5
+end
+arch grassd_5
+z 42
+x 22
+y 6
+end
+arch grassd_6
+z 38
+x 22
+y 7
+end
+arch grassd_7
+z 38
+x 22
+y 8
+end
+arch grassd_8
+z 30
+x 22
+y 9
+end
+arch grassd_3
+z 28
+x 22
+y 10
+end
+arch grassd_3
+z 22
+x 22
+y 11
+end
+arch grassd_6
+z 19
+x 22
+y 12
+end
+arch grassd_8
+z 14
+x 22
+y 13
+end
+arch grassd_1
+z 10
+x 22
+y 14
+end
+arch grassd_7
+z 6
+x 22
+y 15
+end
+arch grassd_1
+z 2
+x 22
+y 16
+end
+arch grassd_6
+x 22
+y 17
+end
+arch grassd_1
+x 22
+y 18
+end
+arch grassd_7
+x 22
+y 19
+end
+arch grassd_8
+x 22
+y 20
+end
+arch grassd_1
+x 22
+y 21
+end
+arch grassd_7
+x 22
+y 22
+end
+arch water_lt
+x 22
+y 23
+end
+arch grassd_m10
+x 22
+y 23
+end
+arch fstone1c
+z 50
+x 23
+end
+arch fstone1b
+z 50
+x 23
+y 1
+end
+arch fstone1a
+z 50
+x 23
+y 2
+end
+arch fwall_fstone2c
+x 23
+y 2
+end
+arch grassd_3
+z 50
+x 23
+y 3
+end
+arch fwall_fstone2d
+x 23
+y 3
+end
+arch grassd_1
+z 46
+x 23
+y 4
+end
+arch grassd_7
+z 42
+x 23
+y 5
+end
+arch grassd_5
+z 38
+x 23
+y 6
+end
+arch grassd_2
+z 37
+x 23
+y 7
+end
+arch grassd_7
+z 30
+x 23
+y 8
+end
+arch grassd_6
+z 29
+x 23
+y 9
+end
+arch grassd_4
+z 22
+x 23
+y 10
+end
+arch grassd_2
+z 18
+x 23
+y 11
+end
+arch grassd_5
+z 14
+x 23
+y 12
+end
+arch grassd_1
+z 10
+x 23
+y 13
+end
+arch grassd_7
+z 6
+x 23
+y 14
+end
+arch grassd_6
+z 2
+x 23
+y 15
+end
+arch grassd_3
+x 23
+y 16
+end
+arch grassd_2
+x 23
+y 17
+end
+arch grassd_5
+x 23
+y 18
+end
+arch grassd_5
+x 23
+y 19
+end
+arch grassd_3
+x 23
+y 20
+end
+arch grassd_6
+x 23
+y 21
+end
+arch grassd_5
+x 23
+y 22
+end
+arch water_lt3
+x 23
+y 23
+end
+arch grassd_m10
+x 23
+y 23
+end
