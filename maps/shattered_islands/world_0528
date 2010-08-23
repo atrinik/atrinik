@@ -760,19 +760,6 @@ arch floor_grey9
 x 6
 y 16
 end
-arch spawn_point
-x 6
-y 16
-arch baker1
-name Macavei
-type 83
-arch event_obj
-name Lua
-sub_type 13
-race /scripts/tavern.lua
-end
-end
-end
 arch floor_grey9
 x 6
 y 17
