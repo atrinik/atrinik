@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-17 Alex Tokar
+Modified: 2010-08-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -579,32 +579,13 @@ end
 arch grassd_3
 x 6
 end
-arch wall_cave1.171
-x 6
-end
 arch grassd_4
-x 6
-y 1
-end
-arch wall_cave1.171
 x 6
 y 1
 end
 arch grassd_4
 x 6
 y 2
-end
-arch wall_cave1.171
-x 6
-y 2
-end
-arch grassd_7
-x 6
-y 3
-end
-arch wall_cave1b.161
-x 6
-y 3
 end
 arch grassd_1
 x 6
@@ -745,15 +726,7 @@ arch grassd_7
 x 7
 y 3
 end
-arch wall_cave1.121
-x 7
-y 3
-end
 arch grassd_2
-x 7
-y 4
-end
-arch wall_cave1b.161
 x 7
 y 4
 end
@@ -792,15 +765,7 @@ arch grassd_4
 x 8
 y 4
 end
-arch wall_cave1.121
-x 8
-y 4
-end
 arch grassd_3
-x 8
-y 5
-end
-arch wall_cave1b.161
 x 8
 y 5
 end
@@ -835,23 +800,11 @@ arch grassd_6
 x 9
 y 5
 end
-arch wall_cave1.121
-x 9
-y 5
-end
 arch grassd_4
 x 9
 y 6
 end
-arch wall_cave1b.161
-x 9
-y 6
-end
 arch water_still
-x 9
-y 22
-end
-arch wall_cave1.181
 x 9
 y 22
 end
@@ -890,15 +843,7 @@ arch grassd_7
 x 10
 y 6
 end
-arch wall_cave1.121
-x 10
-y 6
-end
 arch grassd_2
-x 10
-y 7
-end
-arch wall_cave1b.161
 x 10
 y 7
 end
@@ -906,15 +851,7 @@ arch grassd_4
 x 10
 y 8
 end
-arch wall_cave1.171
-x 10
-y 8
-end
 arch grassd_6
-x 10
-y 9
-end
-arch wall_cave1.171
 x 10
 y 9
 end
@@ -922,23 +859,11 @@ arch grassd_1
 x 10
 y 10
 end
-arch wall_cave1.171
-x 10
-y 10
-end
 arch grassd_4
 x 10
 y 11
 end
-arch wall_cave1.171
-x 10
-y 11
-end
 arch grassd_6
-x 10
-y 12
-end
-arch wall_cave1.171
 x 10
 y 12
 end
@@ -946,15 +871,7 @@ arch grassd_7
 x 10
 y 13
 end
-arch wall_cave1.171
-x 10
-y 13
-end
 arch grassd_6
-x 10
-y 14
-end
-arch wall_cave1.171
 x 10
 y 14
 end
@@ -962,23 +879,11 @@ arch grassd_8
 x 10
 y 15
 end
-arch wall_cave1.171
-x 10
-y 15
-end
 arch grassd_5
 x 10
 y 16
 end
-arch wall_cave1.171
-x 10
-y 16
-end
 arch grassd_3
-x 10
-y 17
-end
-arch wall_cave1.171
 x 10
 y 17
 end
@@ -986,15 +891,7 @@ arch grassd_6
 x 10
 y 18
 end
-arch wall_cave1.171
-x 10
-y 18
-end
 arch grassd_3
-x 10
-y 19
-end
-arch wall_cave1.171
 x 10
 y 19
 end
@@ -1002,23 +899,11 @@ arch grassd_6
 x 10
 y 20
 end
-arch wall_cave1.171
-x 10
-y 20
-end
 arch water_still
 x 10
 y 21
 end
-arch wall_cave1.171
-x 10
-y 21
-end
 arch water_still
-x 10
-y 22
-end
-arch wall_cave1.141
 x 10
 y 22
 end
@@ -1677,10 +1562,6 @@ arch grassd_1
 x 15
 y 17
 end
-arch plant_flower7
-x 15
-y 17
-end
 arch grassd_1
 x 15
 y 18
@@ -1863,6 +1744,9 @@ end
 arch grassd_2
 x 17
 end
+arch wall_cave1b.161
+x 17
+end
 arch grassd_3
 x 17
 y 1
@@ -2033,7 +1917,14 @@ end
 arch grassd_5
 x 18
 end
+arch wall_cave1.121
+x 18
+end
 arch grassd_7
+x 18
+y 1
+end
+arch wall_cave1b.161
 x 18
 y 1
 end
@@ -2145,10 +2036,6 @@ arch grassd_1
 x 18
 y 17
 end
-arch plant5
-x 18
-y 17
-end
 arch grassd_4
 x 18
 y 18
@@ -2204,7 +2091,15 @@ arch grassd_4
 x 19
 y 1
 end
+arch wall_cave1.121
+x 19
+y 1
+end
 arch grassd_6
+x 19
+y 2
+end
+arch wall_cave1b.161
 x 19
 y 2
 end
@@ -2359,7 +2254,15 @@ arch grassd_3
 x 20
 y 2
 end
+arch wall_cave1.121
+x 20
+y 2
+end
 arch grassd_2
+x 20
+y 3
+end
+arch wall_cave1.171
 x 20
 y 3
 end
@@ -2367,11 +2270,23 @@ arch grassd_3
 x 20
 y 4
 end
+arch wall_cave1.171
+x 20
+y 4
+end
 arch grassd_2
 x 20
 y 5
 end
+arch wall_cave1.171
+x 20
+y 5
+end
 arch grassd_5
+x 20
+y 6
+end
+arch wall_cave1b.161
 x 20
 y 6
 end
@@ -2502,7 +2417,15 @@ arch grassd_4
 x 21
 y 6
 end
+arch wall_cave1.121
+x 21
+y 6
+end
 arch grassd_6
+x 21
+y 7
+end
+arch wall_cave1b.161
 x 21
 y 7
 end
@@ -2637,11 +2560,23 @@ arch grassd_4
 x 22
 y 7
 end
+arch wall_cave1.121
+x 22
+y 7
+end
 arch grassd_2
 x 22
 y 8
 end
+arch wall_cave1.171
+x 22
+y 8
+end
 arch grassd_1
+x 22
+y 9
+end
+arch wall_cave1b.161
 x 22
 y 9
 end
@@ -2776,7 +2711,15 @@ arch grassd_1
 x 23
 y 9
 end
+arch wall_cave1.121
+x 23
+y 9
+end
 arch grassd_5
+x 23
+y 10
+end
+arch wall_cave1b.161
 x 23
 y 10
 end

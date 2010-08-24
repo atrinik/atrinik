@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-18 Alex Tokar
+Modified: 2010-08-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,30 +18,15 @@ tile_path_7 world_0814
 tile_path_8 world_0816
 end
 arch grassd_2
-y 4
+y 10
 end
-arch wall_cave1.111
-y 4
-end
-arch grassd_3
-y 5
-end
-arch grassd_2
-y 6
-end
-arch grassd_8
-y 7
-end
-arch grassd_5
-y 8
-end
-arch grassd_2
-y 9
-end
-arch grassd_2
+arch wall_cave1b.121
 y 10
 end
 arch grassd_3
+y 11
+end
+arch wall_cave1.161
 y 11
 end
 arch grassd_6
@@ -80,635 +65,363 @@ end
 arch grassd_7
 y 23
 end
-arch grassd_8
+arch grassd_1
 x 1
-y 3
+y 11
+end
+arch wall_cave1b.121
+x 1
+y 11
+end
+arch grassd_4
+x 1
+y 12
+end
+arch wall_cave1.161
+x 1
+y 12
+end
+arch grassd_3
+x 1
+y 13
+end
+arch grassd_3
+x 1
+y 14
+end
+arch grassd_5
+x 1
+y 15
+end
+arch grassd_7
+x 1
+y 16
+end
+arch grassd_4
+x 1
+y 17
+end
+arch grassd_5
+x 1
+y 18
+end
+arch grassd_3
+x 1
+y 19
+end
+arch grassd_7
+x 1
+y 20
+end
+arch grassd_7
+x 1
+y 21
+end
+arch grassd_7
+x 1
+y 22
+end
+arch grassd_1
+x 1
+y 23
+end
+arch grassd_8
+x 2
+y 12
+end
+arch wall_cave1b.121
+x 2
+y 12
+end
+arch grassd_4
+x 2
+y 13
+end
+arch wall_cave1.161
+x 2
+y 13
+end
+arch grassd_6
+x 2
+y 14
+end
+arch grassd_5
+x 2
+y 15
+end
+arch grassd_4
+x 2
+y 16
+end
+arch grassd_3
+x 2
+y 17
+end
+arch grassd_7
+x 2
+y 18
+end
+arch grassd_3
+x 2
+y 19
+end
+arch grassd_6
+x 2
+y 20
+end
+arch grassd_7
+x 2
+y 21
+end
+arch grassd_5
+x 2
+y 22
+end
+arch grassd_7
+x 2
+y 23
+end
+arch grassd_6
+x 3
+y 13
+end
+arch wall_cave1b.121
+x 3
+y 13
+end
+arch grassd_7
+x 3
+y 14
+end
+arch wall_cave1.161
+x 3
+y 14
+end
+arch grassd_5
+x 3
+y 15
+end
+arch grassd_4
+x 3
+y 16
+end
+arch grassd_7
+x 3
+y 17
+end
+arch grassd_5
+x 3
+y 18
+end
+arch grassd_1
+x 3
+y 19
+end
+arch grassd_7
+x 3
+y 20
+end
+arch grassd_7
+x 3
+y 21
+end
+arch grassd_2
+x 3
+y 22
+end
+arch grassd_2
+x 3
+y 23
+end
+arch grassd_3
+x 4
+y 14
+end
+arch wall_cave1.111
+x 4
+y 14
+end
+arch grassd_3
+x 4
+y 15
+end
+arch grassd_4
+x 4
+y 16
+end
+arch grassd_6
+x 4
+y 17
+end
+arch grassd_8
+x 4
+y 18
+end
+arch grassd_7
+x 4
+y 19
+end
+arch grassd_8
+x 4
+y 20
+end
+arch grassd_3
+x 4
+y 21
+end
+arch grassd_2
+x 4
+y 22
+end
+arch grassd_5
+x 4
+y 23
+end
+arch grassd_7
+x 5
+y 14
+end
+arch wall_cave1.111
+x 5
+y 14
+end
+arch grassd_6
+x 5
+y 15
+end
+arch grassd_7
+x 5
+y 16
+end
+arch grassd_3
+x 5
+y 17
+end
+arch grassd_8
+x 5
+y 18
+end
+arch grassd_3
+x 5
+y 19
+end
+arch grassd_4
+x 5
+y 20
+end
+arch grassd_6
+x 5
+y 21
+end
+arch grassd_4
+x 5
+y 22
+end
+arch grassd_5
+x 5
+y 23
+end
+arch grassd_3
+x 6
+y 14
+end
+arch wall_cave1.111
+x 6
+y 14
+end
+arch grassd_7
+x 6
+y 15
+end
+arch grassd_6
+x 6
+y 16
+end
+arch grassd_7
+x 6
+y 17
+end
+arch grassd_3
+x 6
+y 18
+end
+arch grassd_8
+x 6
+y 19
+end
+arch grassd_3
+x 6
+y 20
+end
+arch grassd_7
+x 6
+y 21
+end
+arch grassd_7
+x 6
+y 22
+end
+arch grassd_3
+x 6
+y 23
+end
+arch grassd_2
+x 7
+y 14
+end
+arch wall_cave1.111
+x 7
+y 14
+end
+arch grassd_1
+x 7
+y 15
+end
+arch grassd_7
+x 7
+y 16
+end
+arch grassd_6
+x 7
+y 17
+end
+arch grassd_4
+x 7
+y 18
+end
+arch grassd_3
+x 7
+y 19
+end
+arch grassd_3
+x 7
+y 20
+end
+arch grassd_1
+x 7
+y 21
+end
+arch grassd_7
+x 7
+y 22
+end
+arch grassd_7
+x 7
+y 23
+end
+arch grassd_5
+x 8
+y 13
 end
 arch wall_cave1.181
-x 1
-y 3
+x 8
+y 13
 end
-arch grassd_1
-x 1
-y 4
+arch grassd_2
+x 8
+y 14
 end
 arch wall_cave1.141
-x 1
-y 4
-end
-arch grassd_6
-x 1
-y 5
-end
-arch grassd_4
-x 1
-y 6
-end
-arch grassd_7
-x 1
-y 7
-end
-arch grassd_3
-x 1
-y 8
-end
-arch grassd_2
-x 1
-y 9
-end
-arch grassd_8
-x 1
-y 10
-end
-arch grassd_1
-x 1
-y 11
-end
-arch grassd_4
-x 1
-y 12
-end
-arch grassd_3
-x 1
-y 13
-end
-arch grassd_3
-x 1
-y 14
-end
-arch grassd_5
-x 1
-y 15
-end
-arch grassd_7
-x 1
-y 16
-end
-arch grassd_4
-x 1
-y 17
-end
-arch grassd_5
-x 1
-y 18
-end
-arch grassd_3
-x 1
-y 19
-end
-arch grassd_7
-x 1
-y 20
-end
-arch grassd_7
-x 1
-y 21
-end
-arch grassd_7
-x 1
-y 22
-end
-arch grassd_1
-x 1
-y 23
-end
-arch grassd_3
-x 2
-y 3
-end
-arch wall_cave1.111
-x 2
-y 3
-end
-arch grassd_3
-x 2
-y 4
-end
-arch grassd_5
-x 2
-y 5
-end
-arch grassd_8
-x 2
-y 6
-end
-arch grassd_4
-x 2
-y 7
-end
-arch grassd_5
-x 2
-y 8
-end
-arch grassd_6
-x 2
-y 9
-end
-arch grassd_4
-x 2
-y 10
-end
-arch grassd_3
-x 2
-y 11
-end
-arch grassd_8
-x 2
-y 12
-end
-arch grassd_4
-x 2
-y 13
-end
-arch grassd_6
-x 2
-y 14
-end
-arch grassd_5
-x 2
-y 15
-end
-arch grassd_4
-x 2
-y 16
-end
-arch grassd_3
-x 2
-y 17
-end
-arch grassd_7
-x 2
-y 18
-end
-arch grassd_3
-x 2
-y 19
-end
-arch grassd_6
-x 2
-y 20
-end
-arch grassd_7
-x 2
-y 21
-end
-arch grassd_5
-x 2
-y 22
-end
-arch grassd_7
-x 2
-y 23
-end
-arch grassd_5
-x 3
-y 3
-end
-arch wall_cave1b.121
-x 3
-y 3
-end
-arch grassd_6
-x 3
-y 4
-end
-arch wall_cave1.161
-x 3
-y 4
-end
-arch grassd_2
-x 3
-y 5
-end
-arch grassd_3
-x 3
-y 6
-end
-arch grassd_7
-x 3
-y 7
-end
-arch grassd_4
-x 3
-y 8
-end
-arch grassd_2
-x 3
-y 9
-end
-arch grassd_6
-x 3
-y 10
-end
-arch grassd_7
-x 3
-y 11
-end
-arch grassd_4
-x 3
-y 12
-end
-arch grassd_6
-x 3
-y 13
-end
-arch grassd_7
-x 3
-y 14
-end
-arch grassd_5
-x 3
-y 15
-end
-arch grassd_4
-x 3
-y 16
-end
-arch grassd_7
-x 3
-y 17
-end
-arch grassd_5
-x 3
-y 18
-end
-arch grassd_1
-x 3
-y 19
-end
-arch grassd_7
-x 3
-y 20
-end
-arch grassd_7
-x 3
-y 21
-end
-arch grassd_2
-x 3
-y 22
-end
-arch grassd_2
-x 3
-y 23
-end
-arch grassd_3
-x 4
-y 4
-end
-arch wall_cave1b.121
-x 4
-y 4
-end
-arch grassd_2
-x 4
-y 5
-end
-arch wall_cave1.161
-x 4
-y 5
-end
-arch grassd_1
-x 4
-y 6
-end
-arch grassd_6
-x 4
-y 7
-end
-arch grassd_2
-x 4
-y 8
-end
-arch grassd_6
-x 4
-y 9
-end
-arch grassd_2
-x 4
-y 10
-end
-arch grassd_7
-x 4
-y 11
-end
-arch grassd_6
-x 4
-y 12
-end
-arch grassd_7
-x 4
-y 13
-end
-arch grassd_3
-x 4
-y 14
-end
-arch grassd_3
-x 4
-y 15
-end
-arch grassd_4
-x 4
-y 16
-end
-arch grassd_6
-x 4
-y 17
-end
-arch grassd_8
-x 4
-y 18
-end
-arch grassd_7
-x 4
-y 19
-end
-arch grassd_8
-x 4
-y 20
-end
-arch grassd_3
-x 4
-y 21
-end
-arch grassd_2
-x 4
-y 22
-end
-arch grassd_5
-x 4
-y 23
-end
-arch grassd_3
-x 5
-y 5
-end
-arch wall_cave1b.121
-x 5
-y 5
-end
-arch grassd_3
-x 5
-y 6
-end
-arch wall_cave1.161
-x 5
-y 6
-end
-arch grassd_5
-x 5
-y 7
-end
-arch grassd_4
-x 5
-y 8
-end
-arch grassd_6
-x 5
-y 9
-end
-arch grassd_2
-x 5
-y 10
-end
-arch grassd_5
-x 5
-y 11
-end
-arch grassd_4
-x 5
-y 12
-end
-arch grassd_1
-x 5
-y 13
-end
-arch grassd_7
-x 5
-y 14
-end
-arch grassd_6
-x 5
-y 15
-end
-arch grassd_7
-x 5
-y 16
-end
-arch grassd_3
-x 5
-y 17
-end
-arch grassd_8
-x 5
-y 18
-end
-arch grassd_3
-x 5
-y 19
-end
-arch grassd_4
-x 5
-y 20
-end
-arch grassd_6
-x 5
-y 21
-end
-arch grassd_4
-x 5
-y 22
-end
-arch grassd_5
-x 5
-y 23
-end
-arch grassd_3
-x 6
-y 6
-end
-arch wall_cave1b.121
-x 6
-y 6
-end
-arch grassd_8
-x 6
-y 7
-end
-arch wall_cave1.161
-x 6
-y 7
-end
-arch grassd_6
-x 6
-y 8
-end
-arch grassd_3
-x 6
-y 9
-end
-arch grassd_3
-x 6
-y 10
-end
-arch grassd_8
-x 6
-y 11
-end
-arch grassd_7
-x 6
-y 12
-end
-arch grassd_6
-x 6
-y 13
-end
-arch grassd_3
-x 6
-y 14
-end
-arch grassd_7
-x 6
-y 15
-end
-arch grassd_6
-x 6
-y 16
-end
-arch grassd_7
-x 6
-y 17
-end
-arch grassd_3
-x 6
-y 18
-end
-arch grassd_8
-x 6
-y 19
-end
-arch grassd_3
-x 6
-y 20
-end
-arch grassd_7
-x 6
-y 21
-end
-arch grassd_7
-x 6
-y 22
-end
-arch grassd_3
-x 6
-y 23
-end
-arch grassd_2
-x 7
-y 7
-end
-arch wall_cave1b.121
-x 7
-y 7
-end
-arch grassd_3
-x 7
-y 8
-end
-arch wall_cave1.161
-x 7
-y 8
-end
-arch grassd_5
-x 7
-y 9
-end
-arch grassd_4
-x 7
-y 10
-end
-arch grassd_7
-x 7
-y 11
-end
-arch grassd_8
-x 7
-y 12
-end
-arch grassd_4
-x 7
-y 13
-end
-arch grassd_2
-x 7
-y 14
-end
-arch grassd_1
-x 7
-y 15
-end
-arch grassd_7
-x 7
-y 16
-end
-arch grassd_6
-x 7
-y 17
-end
-arch grassd_4
-x 7
-y 18
-end
-arch grassd_3
-x 7
-y 19
-end
-arch grassd_3
-x 7
-y 20
-end
-arch grassd_1
-x 7
-y 21
-end
-arch grassd_7
-x 7
-y 22
-end
-arch grassd_7
-x 7
-y 23
-end
-arch grassd_7
-x 8
-y 8
-end
-arch wall_cave1.111
-x 8
-y 8
-end
-arch grassd_1
-x 8
-y 9
-end
-arch grassd_1
-x 8
-y 10
-end
-arch grassd_3
-x 8
-y 11
-end
-arch grassd_2
-x 8
-y 12
-end
-arch grassd_5
-x 8
-y 13
-end
-arch grassd_2
 x 8
 y 14
 end
@@ -752,31 +465,19 @@ arch grassd_m4
 x 8
 y 23
 end
-arch grassd_2
-x 9
-y 8
-end
-arch wall_cave1.111
-x 9
-y 8
-end
-arch grassd_5
-x 9
-y 9
-end
-arch grassd_6
-x 9
-y 10
-end
-arch grassd_2
-x 9
-y 11
-end
 arch grassd_6
 x 9
 y 12
 end
+arch wall_cave1.181
+x 9
+y 12
+end
 arch grassd_4
+x 9
+y 13
+end
+arch wall_cave1.141
 x 9
 y 13
 end
@@ -832,7 +533,7 @@ arch grassd_2
 x 10
 y 8
 end
-arch wall_cave1.111
+arch wall_cave1.181
 x 10
 y 8
 end
@@ -840,7 +541,7 @@ arch grassd_8
 x 10
 y 9
 end
-arch tree_big2
+arch wall_cave1.171
 x 10
 y 9
 end
@@ -848,11 +549,23 @@ arch grassd_2
 x 10
 y 10
 end
+arch wall_cave1.171
+x 10
+y 10
+end
 arch grassd_8
 x 10
 y 11
 end
+arch wall_cave1.171
+x 10
+y 11
+end
 arch grassd_3
+x 10
+y 12
+end
+arch wall_cave1.141
 x 10
 y 12
 end
