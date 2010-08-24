@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-24 Alex Tokar
+Modified: 2010-08-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -109,7 +109,15 @@ arch grassd_5
 x 1
 y 4
 end
+arch wall_stone4_8
+x 1
+y 4
+end
 arch grassd_7
+x 1
+y 5
+end
+arch wall_stone4_3
 x 1
 y 5
 end
@@ -117,7 +125,15 @@ arch grassd_1
 x 1
 y 6
 end
+arch wall_stone4_3
+x 1
+y 6
+end
 arch grassd_8
+x 1
+y 7
+end
+arch wall_stone4_3
 x 1
 y 7
 end
@@ -125,7 +141,15 @@ arch grassd_8
 x 1
 y 8
 end
+arch wall_stone4_3
+x 1
+y 8
+end
 arch grassd_7
+x 1
+y 9
+end
+arch wall_stone4_3
 x 1
 y 9
 end
@@ -133,7 +157,15 @@ arch grassd_2
 x 1
 y 10
 end
+arch wall_stone4_3
+x 1
+y 10
+end
 arch grassd_3
+x 1
+y 11
+end
+arch wall_stone4_3
 x 1
 y 11
 end
@@ -141,7 +173,20 @@ arch grassd_2
 x 1
 y 12
 end
+arch wall_stone4_3
+x 1
+y 12
+end
+arch picture13
+direction 7
+x 1
+y 12
+end
 arch grassd_8
+x 1
+y 13
+end
+arch wall_stone4_3
 x 1
 y 13
 end
@@ -149,7 +194,20 @@ arch grassd_4
 x 1
 y 14
 end
+arch wall_stone4_3
+x 1
+y 14
+end
 arch grassd_7
+x 1
+y 15
+end
+arch wall_stone4_3
+x 1
+y 15
+end
+arch wmask_fire_on_1
+direction 7
 x 1
 y 15
 end
@@ -157,11 +215,28 @@ arch grassd_8
 x 1
 y 16
 end
+arch wall_stone4_3
+x 1
+y 16
+end
+arch picture6.151
+direction 7
+x 1
+y 16
+end
 arch grassd_7
 x 1
 y 17
 end
+arch wall_stone4_3
+x 1
+y 17
+end
 arch grassd_8
+x 1
+y 18
+end
+arch wall_stone4_3
 x 1
 y 18
 end
@@ -204,59 +279,118 @@ arch grassd_3
 x 2
 y 4
 end
-arch grassd_8
+arch wall_stone4_1
+x 2
+y 4
+end
+arch floor_pattern_brown1
 x 2
 y 5
 end
-arch grassd_5
+arch throne.111
+name toilet
+x 2
+y 5
+end
+arch floor_pattern_brown1
 x 2
 y 6
 end
-arch grassd_7
+arch wall_well.131
+direction 7
+x 2
+y 6
+end
+arch floor_pattern_brown1
 x 2
 y 7
 end
-arch grassd_4
+arch basket2.101
+x 2
+y 7
+end
+arch floor_pattern_brown1
 x 2
 y 8
 end
-arch grassd_1
+arch wall_stone4_1
+x 2
+y 8
+end
+arch floor_pattern_brown1
 x 2
 y 9
 end
-arch grassd_1
+arch amphora1.101
+x 2
+y 9
+end
+arch floor_pattern_brown2
 x 2
 y 10
 end
-arch grassd_6
+arch light5
+x 2
+y 10
+end
+arch fireplace_left
+x 2
+y 10
+end
+arch floor_pattern_brown2
 x 2
 y 11
 end
-arch grassd_2
+arch light5
+x 2
+y 11
+end
+arch floor_pattern_brown1
 x 2
 y 12
 end
-arch grassd_2
+arch floor_pattern_brown1
 x 2
 y 13
 end
-arch grassd_2
+arch wall_stone4_1
+x 2
+y 13
+end
+arch floor_pattern_brown2
 x 2
 y 14
 end
-arch grassd_6
+arch kettle_table
+x 2
+y 14
+end
+arch floor_pattern_brown1
 x 2
 y 15
 end
-arch grassd_1
+arch floor_pattern_brown2
 x 2
 y 16
 end
-arch grassd_3
+arch floor_pattern_brown1
 x 2
 y 17
 end
-arch grassd_5
+arch shelf4_wall.111
+direction 7
+x 2
+y 17
+end
+arch floor_pattern_brown2
+x 2
+y 18
+end
+arch wall_stone4_1
+x 2
+y 18
+end
+arch plant1_wall.151
 x 2
 y 18
 end
@@ -299,59 +433,95 @@ arch grassd_3
 x 3
 y 4
 end
-arch grassd_4
+arch wall_stone4_1
+x 3
+y 4
+end
+arch floor_pattern_brown2
 x 3
 y 5
 end
-arch grassd_7
+arch mirror_big.111
+x 3
+y 5
+end
+arch floor_pattern_brown2
 x 3
 y 6
 end
-arch grassd_5
+arch floor_pattern_brown1
 x 3
 y 7
 end
-arch grassd_4
+arch floor_pattern_brown2
 x 3
 y 8
 end
-arch grassd_8
+arch door_wood1
+x 3
+y 8
+end
+arch floor_pattern_brown2
 x 3
 y 9
 end
-arch grassd_5
+arch floor_pattern_brown2
 x 3
 y 10
 end
-arch grassd_5
+arch floor_pattern_brown2
 x 3
 y 11
 end
-arch grassd_3
+arch floor_pattern_brown2
 x 3
 y 12
 end
-arch grassd_4
+arch floor_pattern_brown2
 x 3
 y 13
 end
-arch grassd_2
+arch wall_stone4_1
+x 3
+y 13
+end
+arch floor_pattern_brown1
 x 3
 y 14
 end
-arch grassd_4
+arch candlelight3.101
+x 3
+y 14
+end
+arch light5
+x 3
+y 14
+end
+arch floor_pattern_brown2
 x 3
 y 15
 end
-arch grassd_1
+arch floor_pattern_brown2
 x 3
 y 16
 end
-arch grassd_5
+arch floor_pattern_brown1
 x 3
 y 17
 end
-arch grassd_3
+arch candlelight3.101
+x 3
+y 17
+end
+arch light5
+x 3
+y 17
+end
+arch floor_pattern_brown1
+x 3
+y 18
+end
+arch wall_stone4_w.111
 x 3
 y 18
 end
@@ -394,59 +564,112 @@ arch grassd_8
 x 4
 y 4
 end
-arch grassd_6
+arch wall_stone4_1
+x 4
+y 4
+end
+arch floor_pattern_brown2
 x 4
 y 5
 end
-arch grassd_1
+arch bath_tub_big1
+x 4
+y 5
+end
+arch floor_pattern_brown2
 x 4
 y 6
 end
-arch grassd_3
+arch floor_pattern_brown2
 x 4
 y 7
 end
-arch grassd_3
+arch metal_bucket.101
+x 4
+y 7
+end
+arch floor_pattern_brown2
 x 4
 y 8
 end
-arch grassd_4
+arch wall_stone4_1
+x 4
+y 8
+end
+arch floor_pattern_brown2
 x 4
 y 9
 end
-arch grassd_7
+arch floor_pattern_brown1
 x 4
 y 10
 end
-arch grassd_8
+arch floor_pattern_brown2
 x 4
 y 11
 end
-arch grassd_5
+arch floor_pattern_brown2
 x 4
 y 12
 end
-arch grassd_6
+arch floor_pattern_brown1
 x 4
 y 13
 end
-arch grassd_4
+arch doorway_wood1_1
+x 4
+y 13
+end
+arch floor_pattern_brown2
 x 4
 y 14
 end
-arch grassd_1
+arch floor_pattern_brown2
 x 4
 y 15
 end
-arch grassd_7
+arch floor_pattern_brown2
 x 4
 y 16
 end
-arch grassd_8
+arch chair2_111
+x 4
+y 16
+end
+arch spawn_point
+x 4
+y 16
+arch mage_old
+msg
+@match ^hi$|^hey$|^hello$
+Hello. I'm Lothost the wizard. I'm currently studying the ^abandoned mine^ north of here.
+@match ^abandoned mine$
+It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Moroch Temple is located there, which is what I'm trying to find out about. It requires a ^password^ to enter, though.
+@match ^password$
+The glyphs on the gates say:
+~Speak '^friend^' and enter!~
+@match ^friend$
+You need to say the Elvish word for ~friend~ of course. Which is ~Mellon~.
+endmsg
+name Lothost the wizard
+direction 1
+level 103
+type 83
+end
+end
+arch floor_pattern_brown1
 x 4
 y 17
 end
-arch grassd_1
+arch table_lab3.111
+x 4
+y 17
+end
+arch floor_pattern_brown1
+x 4
+y 18
+end
+arch wall_stone4_1
 x 4
 y 18
 end
@@ -489,59 +712,117 @@ arch grassd_7
 x 5
 y 4
 end
-arch grassd_2
+arch wall_stone4_1
+x 5
+y 4
+end
+arch floor_pattern_brown2
 x 5
 y 5
 end
-arch grassd_2
+arch wall_stone4_3
+x 5
+y 5
+end
+arch floor_pattern_brown2
 x 5
 y 6
 end
-arch grassd_5
+arch candlelight3.101
+x 5
+y 6
+end
+arch wall_stone4_3
+x 5
+y 6
+end
+arch light5
+x 5
+y 6
+end
+arch floor_pattern_brown2
 x 5
 y 7
 end
-arch grassd_5
+arch wall_stone4_3
+x 5
+y 7
+end
+arch flag_03
+direction 7
+x 5
+y 7
+end
+arch floor_pattern_brown1
 x 5
 y 8
 end
-arch grassd_8
+arch wall_stone4_4
+x 5
+y 8
+end
+arch floor_pattern_brown2
 x 5
 y 9
 end
-arch grassd_1
+arch door_wood1
+direction 3
+x 5
+y 9
+end
+arch floor_pattern_brown2
 x 5
 y 10
 end
-arch grassd_7
+arch wall_stone4_3
+x 5
+y 10
+end
+arch floor_pattern_brown2
 x 5
 y 11
 end
-arch grassd_4
+arch floor_pattern_brown1
 x 5
 y 12
 end
-arch grassd_3
+arch floor_pattern_brown1
 x 5
 y 13
 end
-arch grassd_8
+arch wall_stone4_1
+x 5
+y 13
+end
+arch floor_pattern_brown1
 x 5
 y 14
 end
-arch grassd_7
+arch floor_pattern_brown1
 x 5
 y 15
 end
-arch grassd_2
+arch floor_pattern_brown1
 x 5
 y 16
 end
-arch grassd_8
+arch floor_pattern_brown2
 x 5
 y 17
 end
-arch grassd_6
+arch table_lab2.111
+x 5
+y 17
+end
+arch floor_pattern_brown2
+x 5
+y 18
+end
+arch wall_stone4_1
+x 5
+y 18
+end
+arch plant2_wall.151
 x 5
 y 18
 end
@@ -584,59 +865,106 @@ arch grassd_6
 x 6
 y 4
 end
-arch grassd_4
+arch wall_stone4_1
+x 6
+y 4
+end
+arch floor_pattern_brown1
 x 6
 y 5
 end
-arch grassd_6
+arch bed_2a.111
+direction 5
+x 6
+y 5
+end
+arch floor_pattern_brown1
 x 6
 y 6
 end
-arch grassd_6
+arch bed_2b.111
+direction 5
+x 6
+y 6
+end
+arch floor_pattern_brown1
 x 6
 y 7
 end
-arch grassd_3
+arch amphora2.101
+x 6
+y 7
+end
+arch floor_pattern_brown2
 x 6
 y 8
 end
-arch grassd_7
+arch shelf3_wall.111
+direction 7
+x 6
+y 8
+end
+arch floor_pattern_brown2
 x 6
 y 9
 end
-arch grassd_5
+arch floor_pattern_brown1
 x 6
 y 10
 end
-arch grassd_3
+arch wall_stone4_1
+x 6
+y 10
+end
+arch floor_pattern_brown2
 x 6
 y 11
 end
-arch grassd_2
+arch broom.111
+x 6
+y 11
+end
+arch floor_pattern_brown2
 x 6
 y 12
 end
-arch grassd_1
+arch floor_pattern_brown1
 x 6
 y 13
 end
-arch grassd_7
+arch wall_stone4_1
+x 6
+y 13
+end
+arch flag_04
+x 6
+y 13
+end
+arch floor_pattern_brown2
 x 6
 y 14
 end
-arch grassd_2
+arch floor_pattern_brown2
 x 6
 y 15
 end
-arch grassd_7
+arch floor_pattern_brown2
 x 6
 y 16
 end
-arch grassd_3
+arch floor_pattern_brown1
 x 6
 y 17
 end
-arch grassd_8
+arch table_lab1.111
+x 6
+y 17
+end
+arch floor_pattern_brown2
+x 6
+y 18
+end
+arch wall_stone4_1
 x 6
 y 18
 end
@@ -679,59 +1007,99 @@ arch grassd_6
 x 7
 y 4
 end
-arch grassd_4
+arch wall_stone4_1
+x 7
+y 4
+end
+arch floor_pattern_brown2
 x 7
 y 5
 end
-arch grassd_3
+arch shelf3a.111
+x 7
+y 5
+end
+arch floor_pattern_brown1
 x 7
 y 6
 end
-arch grassd_7
+arch floor_pattern_brown2
 x 7
 y 7
 end
-arch grassd_5
+arch floor_pattern_brown2
 x 7
 y 8
 end
-arch grassd_5
+arch floor_pattern_brown1
 x 7
 y 9
 end
-arch grassd_7
+arch floor_pattern_brown2
 x 7
 y 10
 end
-arch grassd_6
+arch candlelight3.101
+x 7
+y 10
+end
+arch wall_stone4_1
+x 7
+y 10
+end
+arch light5
+x 7
+y 10
+end
+arch floor_pattern_brown2
 x 7
 y 11
 end
-arch grassd_1
+arch shelf6_wall.111
+x 7
+y 11
+end
+arch floor_pattern_brown1
 x 7
 y 12
 end
-arch grassd_3
+arch floor_pattern_brown2
 x 7
 y 13
 end
-arch grassd_6
+arch wall_stone4_1
+x 7
+y 13
+end
+arch floor_pattern_brown2
 x 7
 y 14
 end
-arch grassd_6
+arch shelf1.111
+x 7
+y 14
+end
+arch floor_pattern_brown2
 x 7
 y 15
 end
-arch grassd_7
+arch floor_pattern_brown1
 x 7
 y 16
 end
-arch grassd_2
+arch floor_pattern_brown1
 x 7
 y 17
 end
-arch grassd_4
+arch table_lab2.111
+x 7
+y 17
+end
+arch floor_pattern_brown2
+x 7
+y 18
+end
+arch wall_stone4_w.111
 x 7
 y 18
 end
@@ -774,63 +1142,107 @@ arch grassd_4
 x 8
 y 4
 end
-arch grassd_8
+arch wall_stone4_1
+x 8
+y 4
+end
+arch wmask_fire_on_1
+x 8
+y 4
+end
+arch floor_pattern_brown2
 x 8
 y 5
 end
-arch grassd_6
+arch floor_pattern_brown1
 x 8
 y 6
 end
-arch grassd_8
+arch floor_pattern_brown2
 x 8
 y 7
 end
-arch grassd_2
+arch floor_pattern_brown1
 x 8
 y 8
 end
-arch grassd_4
+arch floor_pattern_brown1
 x 8
 y 9
 end
-arch grassd_3
+arch beer_barrel.101
+x 8
+y 9
+end
+arch floor_pattern_brown1
 x 8
 y 10
 end
-arch grassd_6
+arch wall_stone4_1
+x 8
+y 10
+end
+arch wmask_bflag_fire1_1
+x 8
+y 10
+end
+arch floor_pattern_brown2
 x 8
 y 11
 end
-arch grassd_6
+arch floor_pattern_brown1
 x 8
 y 12
 end
-arch grassd_1
+arch floor_pattern_brown2
 x 8
 y 13
 end
-arch grassd_4
+arch wall_stone4_1
+x 8
+y 13
+end
+arch floor_pattern_brown1
 x 8
 y 14
 end
-arch grassd_3
+arch shelf3c.111
+x 8
+y 14
+end
+arch floor_pattern_brown2
 x 8
 y 15
 end
-arch grassd_1
+arch floor_pattern_brown1
 x 8
 y 16
 end
-arch grassd_3
+arch light5
+x 8
+y 16
+end
+arch floor_pattern_brown1
 x 8
 y 17
 end
-arch grassd_6
+arch amphora2.101
+x 8
+y 17
+end
+arch floor_pattern_brown1
+x 8
+y 18
+end
+arch wall_stone4_1
 x 8
 y 18
 end
 arch grassd_7
+x 8
+y 19
+end
+arch bench1b.111
 x 8
 y 19
 end
@@ -869,63 +1281,161 @@ arch grassd_4
 x 9
 y 4
 end
-arch grassd_2
+arch wall_stone4_1
+x 9
+y 4
+end
+arch floor_pattern_brown1
 x 9
 y 5
 end
-arch grassd_2
+arch wall_stone4_3
+x 9
+y 5
+end
+arch floor_pattern_brown2
 x 9
 y 6
 end
-arch grassd_8
+arch candlelight3.101
+x 9
+y 6
+end
+arch wall_stone4_3
+x 9
+y 6
+end
+arch light5
+x 9
+y 6
+end
+arch floor_pattern_brown1
 x 9
 y 7
 end
-arch grassd_1
+arch wall_stone4_3
+x 9
+y 7
+end
+arch floor_pattern_brown2
 x 9
 y 8
 end
-arch grassd_2
+arch wall_stone4_3
+x 9
+y 8
+end
+arch plant2_wall.151
+direction 7
+x 9
+y 8
+end
+arch floor_pattern_brown1
 x 9
 y 9
 end
-arch grassd_1
+arch wall_stone4_3
+x 9
+y 9
+end
+arch floor_pattern_brown1
 x 9
 y 10
 end
-arch grassd_5
+arch wall_stone4_4
+x 9
+y 10
+end
+arch ring_wall.151
+direction 7
+x 9
+y 10
+end
+arch floor_pattern_brown2
 x 9
 y 11
 end
-arch grassd_7
+arch door1_locked
+direction 3
+x 9
+y 11
+end
+arch floor_pattern_brown1
 x 9
 y 12
 end
-arch grassd_4
+arch door1_locked
+direction 5
+x 9
+y 12
+end
+arch floor_pattern_brown2
 x 9
 y 13
 end
-arch grassd_3
+arch wall_stone4_4
+x 9
+y 13
+end
+arch ring_wall.151
+direction 7
+x 9
+y 13
+end
+arch floor_pattern_brown2
 x 9
 y 14
 end
-arch grassd_8
+arch wall_stone4_3
+x 9
+y 14
+end
+arch floor_pattern_brown1
 x 9
 y 15
 end
-arch grassd_7
+arch wall_stone4_w.131
+x 9
+y 15
+end
+arch floor_pattern_brown2
 x 9
 y 16
 end
-arch grassd_5
+arch candlelight3.101
+x 9
+y 16
+end
+arch wall_stone4_3
+x 9
+y 16
+end
+arch floor_pattern_brown1
 x 9
 y 17
 end
-arch grassd_7
+arch wall_stone4_3
+x 9
+y 17
+end
+arch plant2_wall.151
+direction 7
+x 9
+y 17
+end
+arch floor_pattern_brown2
+x 9
+y 18
+end
+arch wall_stone4_4
 x 9
 y 18
 end
 arch grassd_8
+x 9
+y 19
+end
+arch bench1a.111
 x 9
 y 19
 end
@@ -968,7 +1478,15 @@ arch grassd_1
 x 10
 y 5
 end
+arch straw2.111
+x 10
+y 5
+end
 arch grassd_3
+x 10
+y 6
+end
+arch straw2.111
 x 10
 y 6
 end
@@ -976,7 +1494,15 @@ arch grassd_7
 x 10
 y 7
 end
+arch barrel_water.101
+x 10
+y 7
+end
 arch grassd_8
+x 10
+y 8
+end
+arch barrel_water.101
 x 10
 y 8
 end
@@ -984,15 +1510,27 @@ arch grassd_5
 x 10
 y 9
 end
+arch barrel2.101
+x 10
+y 9
+end
 arch grassd_6
 x 10
 y 10
 end
-arch grassd_4
+arch floor_sand_d1
 x 10
 y 11
 end
-arch grassd_3
+arch grassd_m10
+x 10
+y 11
+end
+arch floor_sand_d3
+x 10
+y 12
+end
+arch grassd_m7
 x 10
 y 12
 end
@@ -1012,11 +1550,23 @@ arch grassd_1
 x 10
 y 16
 end
+arch barrel.101
+x 10
+y 16
+end
 arch grassd_8
 x 10
 y 17
 end
+arch barrel.101
+x 10
+y 17
+end
 arch grassd_5
+x 10
+y 18
+end
+arch straw1.101
 x 10
 y 18
 end
@@ -1083,11 +1633,19 @@ arch grassd_8
 x 11
 y 10
 end
-arch grassd_2
+arch floor_sand_d2
 x 11
 y 11
 end
-arch grassd_4
+arch grassd_m10
+x 11
+y 11
+end
+arch floor_sand_d4
+x 11
+y 12
+end
+arch grassd_m7
 x 11
 y 12
 end
@@ -1178,15 +1736,27 @@ arch grassd_5
 x 12
 y 10
 end
-arch grassd_1
+arch floor_sand_d3
 x 12
 y 11
 end
-arch grassd_3
+arch grassd_m10
+x 12
+y 11
+end
+arch floor_sand_d3
 x 12
 y 12
 end
-arch grassd_5
+arch grassd_m14
+x 12
+y 12
+end
+arch floor_sand_d3
+x 12
+y 13
+end
+arch grassd_m3
 x 12
 y 13
 end
@@ -1297,15 +1867,27 @@ arch grassd_3
 x 13
 y 10
 end
-arch grassd_4
+arch floor_sand_d2
 x 13
 y 11
 end
-arch grassd_8
+arch grassd_m6
+x 13
+y 11
+end
+arch floor_sand_d2
 x 13
 y 12
 end
-arch grassd_4
+arch grassd_m12
+x 13
+y 12
+end
+arch floor_sand_d4
+x 13
+y 13
+end
+arch grassd_m7
 x 13
 y 13
 end
@@ -1412,11 +1994,19 @@ arch grassd_3
 x 14
 y 11
 end
-arch grassd_4
+arch floor_sand_d4
 x 14
 y 12
 end
-arch grassd_8
+arch grassd_m10
+x 14
+y 12
+end
+arch floor_sand_d3
+x 14
+y 13
+end
+arch grassd_m7
 x 14
 y 13
 end
@@ -1539,15 +2129,19 @@ arch grassd_1
 x 15
 y 11
 end
-arch grassd_7
+arch floor_sand_d1
 x 15
 y 12
 end
-arch floor_sand_d4
+arch grassd_m10
+x 15
+y 12
+end
+arch floor_sand_d2
 x 15
 y 13
 end
-arch grassd_m4
+arch grassd_m14
 x 15
 y 13
 end
@@ -1658,19 +2252,15 @@ arch grassd_6
 x 16
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 16
 y 12
 end
-arch grassd_m4
+arch grassd_m10
 x 16
 y 12
 end
-arch floor_sand_d2
-x 16
-y 13
-end
-arch grassd_m13
+arch floor_sand_d4
 x 16
 y 13
 end

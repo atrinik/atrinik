@@ -55,15 +55,15 @@ The Old Outpost was once a great outpost of Moroch's giant and troll forces, con
 You wonder if King Rhun still lives in here.
 endmsg
 end
-region moroch_temple_outside
+region strakewood_abandoned_mine
 parent strakewood_island
-longname The Moroch Temple
+longname Abandoned Dwarven Mine
 msg
-You gape in wonder at the ancient temple of Moroch.
+An abandoned dwarven mine, connecting several places underground.
 endmsg
 end
 region moroch_temple
-parent strakewood_island
+parent world
 longname The Moroch Temple Dungeon
 msg
 You see many passages here, and wonder which you should take.
