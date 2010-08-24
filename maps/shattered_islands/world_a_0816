@@ -1,0 +1,1027 @@
+arch map
+name Abandoned Mine
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2010-08-24 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+darkness 2
+tile_path_1 world_a_0817
+tile_path_3 world_a_0815
+tile_path_4 world_a_0716
+tile_path_7 world_a_0715
+end
+arch floor_cave5
+end
+arch wall_cave1.171
+end
+arch floor_cave1
+y 1
+end
+arch wall_cave1.171
+y 1
+end
+arch floor_cave2
+y 2
+end
+arch wall_cave1.171
+y 2
+end
+arch floor_cave2
+y 3
+end
+arch wall_cave1.141
+y 3
+end
+arch floor_cave6
+y 4
+end
+arch floor_cave2
+y 5
+end
+arch floor_cave2
+y 6
+end
+arch wall_cave1.151
+y 6
+end
+arch floor_cave1
+x 1
+end
+arch plant7
+x 1
+end
+arch floor_cave2
+x 1
+y 1
+end
+arch plant7
+x 1
+y 1
+end
+arch floor_cave1
+x 1
+y 2
+end
+arch crystal_red_s
+x 1
+y 2
+end
+arch floor_cave6
+x 1
+y 3
+end
+arch floor_cave5
+x 1
+y 4
+end
+arch small_stones
+x 1
+y 4
+end
+arch floor_cave5
+x 1
+y 5
+end
+arch floor_cave5
+x 1
+y 6
+end
+arch wall_cave1.151
+x 1
+y 6
+end
+arch floor_cave1
+x 2
+end
+arch floor_cave5
+x 2
+y 1
+end
+arch floor_cave6
+x 2
+y 2
+end
+arch floor_cave6
+x 2
+y 3
+end
+arch floor_cave2
+x 2
+y 4
+end
+arch crystal14
+x 2
+y 4
+end
+arch floor_cave2
+x 2
+y 5
+end
+arch mushroom_giant1
+x 2
+y 5
+end
+arch floor_cave6
+x 2
+y 6
+end
+arch wall_cave1.151
+x 2
+y 6
+end
+arch floor_cave5
+x 3
+end
+arch wall_cave1.131
+x 3
+end
+arch floor_cave5
+x 3
+y 1
+end
+arch wall_cave1.131
+x 3
+y 1
+end
+arch floor_cave1
+x 3
+y 2
+end
+arch wall_cave1.131
+x 3
+y 2
+end
+arch floor_cave2
+x 3
+y 3
+end
+arch wall_cave1.131
+x 3
+y 3
+end
+arch floor_cave5
+x 3
+y 4
+end
+arch wall_cave1.131
+x 3
+y 4
+end
+arch floor_cave1
+x 3
+y 5
+end
+arch wall_cave1.131
+x 3
+y 5
+end
+arch floor_cave2
+x 3
+y 6
+end
+arch wall_cave1b.141
+x 3
+y 6
+end
+arch floor_cave5
+x 4
+y 15
+end
+arch wall_cave1.181
+x 4
+y 15
+end
+arch floor_cave1
+x 4
+y 16
+end
+arch wall_cave1.171
+x 4
+y 16
+end
+arch floor_cave6
+x 4
+y 17
+end
+arch wall_cave1.171
+x 4
+y 17
+end
+arch floor_cave2
+x 4
+y 18
+end
+arch wall_cave1.171
+x 4
+y 18
+end
+arch floor_cave2
+x 4
+y 19
+end
+arch wall_cave1.171
+x 4
+y 19
+end
+arch floor_cave2
+x 4
+y 20
+end
+arch wall_cave1.171
+x 4
+y 20
+end
+arch floor_cave5
+x 4
+y 21
+end
+arch wall_cave1b.161
+x 4
+y 21
+end
+arch floor_cave5
+x 5
+y 10
+end
+arch wall_cave1.181
+x 5
+y 10
+end
+arch floor_cave5
+x 5
+y 11
+end
+arch wall_cave1.171
+x 5
+y 11
+end
+arch floor_cave5
+x 5
+y 12
+end
+arch wall_cave1.171
+x 5
+y 12
+end
+arch floor_cave2
+x 5
+y 13
+end
+arch wall_cave1.171
+x 5
+y 13
+end
+arch floor_cave5
+x 5
+y 14
+end
+arch wall_cave1.171
+x 5
+y 14
+end
+arch floor_cave1
+x 5
+y 15
+end
+arch wall_cave1.141
+x 5
+y 15
+end
+arch floor_cave1
+x 5
+y 16
+end
+arch crystal_purple
+x 5
+y 16
+end
+arch floor_cave6
+x 5
+y 17
+end
+arch crystal10
+x 5
+y 17
+end
+arch floor_cave1
+x 5
+y 18
+end
+arch crystal12
+x 5
+y 18
+end
+arch floor_cave5
+x 5
+y 19
+end
+arch plant7
+x 5
+y 19
+end
+arch floor_cave5
+x 5
+y 20
+end
+arch mushroom_giant3
+x 5
+y 20
+end
+arch floor_cave6
+x 5
+y 21
+end
+arch wall_cave1.121
+x 5
+y 21
+end
+arch floor_cave1
+x 5
+y 22
+end
+arch wall_cave1.171
+x 5
+y 22
+end
+arch floor_cave6
+x 5
+y 23
+end
+arch wall_cave1.171
+x 5
+y 23
+end
+arch floor_cave1
+x 6
+y 9
+end
+arch wall_cave1.181
+x 6
+y 9
+end
+arch floor_cave1
+x 6
+y 10
+end
+arch wall_cave1.141
+x 6
+y 10
+end
+arch floor_cave2
+x 6
+y 11
+end
+arch mushroom_giant2
+x 6
+y 11
+end
+arch floor_cave5
+x 6
+y 12
+end
+arch plant8
+x 6
+y 12
+end
+arch floor_cave1
+x 6
+y 13
+end
+arch mushroom_spot1
+x 6
+y 13
+end
+arch floor_cave6
+x 6
+y 14
+end
+arch mushroom_spot1
+x 6
+y 14
+end
+arch floor_cave5
+x 6
+y 15
+end
+arch floor_cave1
+x 6
+y 16
+end
+arch floor_cave6
+x 6
+y 17
+end
+arch floor_cave5
+x 6
+y 18
+end
+arch floor_cave1
+x 6
+y 19
+end
+arch floor_cave6
+x 6
+y 20
+end
+arch floor_cave6
+x 6
+y 21
+end
+arch floor_cave6
+x 6
+y 22
+end
+arch small_stones
+x 6
+y 22
+end
+arch floor_cave5
+x 6
+y 23
+end
+arch floor_cave5
+x 7
+y 8
+end
+arch wall_cave1.181
+x 7
+y 8
+end
+arch floor_cave1
+x 7
+y 9
+end
+arch wall_cave1.141
+x 7
+y 9
+end
+arch floor_cave1
+x 7
+y 10
+end
+arch mushroom_spot2
+x 7
+y 10
+end
+arch floor_cave1
+x 7
+y 11
+end
+arch floor_cave2
+x 7
+y 12
+end
+arch floor_cave6
+x 7
+y 13
+end
+arch plant7
+x 7
+y 13
+end
+arch floor_cave6
+x 7
+y 14
+end
+arch small_stones
+x 7
+y 14
+end
+arch floor_cave1
+x 7
+y 15
+end
+arch spider_web
+x 7
+y 15
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
+x 7
+y 15
+end
+arch floor_cave5
+x 7
+y 16
+end
+arch wall_cave1.101
+x 7
+y 16
+end
+arch floor_cave6
+x 7
+y 17
+end
+arch wall_cave1.131
+x 7
+y 17
+end
+arch floor_cave1
+x 7
+y 18
+end
+arch wall_cave1.131
+x 7
+y 18
+end
+arch floor_cave6
+x 7
+y 19
+end
+arch wall_cave1.131
+x 7
+y 19
+end
+arch floor_cave5
+x 7
+y 20
+end
+arch wall_cave1.161
+x 7
+y 20
+end
+arch floor_cave1
+x 7
+y 21
+end
+arch mushroom_spot2
+x 7
+y 21
+end
+arch floor_cave1
+x 7
+y 22
+end
+arch plant7
+x 7
+y 22
+end
+arch floor_cave6
+x 7
+y 23
+end
+arch plant7
+x 7
+y 23
+end
+arch floor_cave6
+x 8
+y 7
+end
+arch wall_cave1.181
+x 8
+y 7
+end
+arch floor_cave2
+x 8
+y 8
+end
+arch wall_cave1.141
+x 8
+y 8
+end
+arch floor_cave2
+x 8
+y 9
+end
+arch mushroom_spot2
+x 8
+y 9
+end
+arch floor_cave6
+x 8
+y 10
+end
+arch floor_cave1
+x 8
+y 11
+end
+arch wall_cave1.101
+x 8
+y 11
+end
+arch floor_cave5
+x 8
+y 12
+end
+arch wall_cave1.131
+x 8
+y 12
+end
+arch floor_cave6
+x 8
+y 13
+end
+arch wall_cave1.131
+x 8
+y 13
+end
+arch floor_cave5
+x 8
+y 14
+end
+arch wall_cave1.131
+x 8
+y 14
+end
+arch floor_cave5
+x 8
+y 15
+end
+arch wall_cave1.131
+x 8
+y 15
+end
+arch floor_cave1
+x 8
+y 16
+end
+arch wall_cave1b.141
+x 8
+y 16
+end
+arch floor_cave6
+x 8
+y 20
+end
+arch wall_cave1b.121
+x 8
+y 20
+end
+arch floor_cave5
+x 8
+y 21
+end
+arch wall_cave1.131
+x 8
+y 21
+end
+arch floor_cave5
+x 8
+y 22
+end
+arch wall_cave1.131
+x 8
+y 22
+end
+arch floor_cave2
+x 8
+y 23
+end
+arch wall_cave1.131
+x 8
+y 23
+end
+arch floor_cave2
+x 9
+end
+arch wall_cave1.171
+x 9
+end
+arch floor_cave5
+x 9
+y 1
+end
+arch wall_cave1.171
+x 9
+y 1
+end
+arch floor_cave2
+x 9
+y 2
+end
+arch wall_cave1.171
+x 9
+y 2
+end
+arch floor_cave6
+x 9
+y 3
+end
+arch wall_cave1b.161
+x 9
+y 3
+end
+arch floor_cave2
+x 9
+y 6
+end
+arch wall_cave1.181
+x 9
+y 6
+end
+arch floor_cave2
+x 9
+y 7
+end
+arch wall_cave1.141
+x 9
+y 7
+end
+arch floor_cave1
+x 9
+y 8
+end
+arch spider_web
+x 9
+y 8
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
+x 9
+y 8
+end
+arch floor_cave6
+x 9
+y 9
+end
+arch floor_cave6
+x 9
+y 10
+end
+arch wall_cave1.101
+x 9
+y 10
+end
+arch floor_cave6
+x 9
+y 11
+end
+arch wall_cave1b.141
+x 9
+y 11
+end
+arch floor_cave5
+x 10
+end
+arch floor_cave5
+x 10
+y 1
+end
+arch mushroom_spot2
+x 10
+y 1
+end
+arch floor_cave6
+x 10
+y 2
+end
+arch mushroom_spot1
+x 10
+y 2
+end
+arch floor_cave5
+x 10
+y 3
+end
+arch wall_cave1.121
+x 10
+y 3
+end
+arch floor_cave1
+x 10
+y 4
+end
+arch wall_cave1.171
+x 10
+y 4
+end
+arch floor_cave2
+x 10
+y 5
+end
+arch wall_cave1.171
+x 10
+y 5
+end
+arch floor_cave2
+x 10
+y 6
+end
+arch wall_cave1.141
+x 10
+y 6
+end
+arch floor_cave6
+x 10
+y 7
+end
+arch mushroom_giant1
+x 10
+y 7
+end
+arch floor_cave5
+x 10
+y 8
+end
+arch floor_cave6
+x 10
+y 9
+end
+arch wall_cave1.101
+x 10
+y 9
+end
+arch floor_cave1
+x 10
+y 10
+end
+arch wall_cave1b.141
+x 10
+y 10
+end
+arch floor_cave6
+x 11
+end
+arch floor_cave5
+x 11
+y 1
+end
+arch floor_cave6
+x 11
+y 2
+end
+arch floor_cave5
+x 11
+y 3
+end
+arch plant8
+x 11
+y 3
+end
+arch floor_cave6
+x 11
+y 4
+end
+arch plant7
+x 11
+y 4
+end
+arch floor_cave6
+x 11
+y 5
+end
+arch plant8
+x 11
+y 5
+end
+arch floor_cave5
+x 11
+y 6
+end
+arch plant7
+x 11
+y 6
+end
+arch floor_cave6
+x 11
+y 7
+end
+arch floor_cave5
+x 11
+y 8
+end
+arch wall_cave1.101
+x 11
+y 8
+end
+arch floor_cave5
+x 11
+y 9
+end
+arch wall_cave1b.141
+x 11
+y 9
+end
+arch floor_cave1
+x 12
+end
+arch wall_cave1.131
+x 12
+end
+arch floor_cave2
+x 12
+y 1
+end
+arch wall_cave1.131
+x 12
+y 1
+end
+arch floor_cave1
+x 12
+y 2
+end
+arch wall_cave1.161
+x 12
+y 2
+end
+arch floor_cave1
+x 12
+y 3
+end
+arch crystal_purple_s
+x 12
+y 3
+end
+arch floor_cave2
+x 12
+y 4
+end
+arch spider_web
+x 12
+y 4
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
+x 12
+y 4
+end
+arch floor_cave5
+x 12
+y 5
+end
+arch small_stones
+x 12
+y 5
+end
+arch floor_cave6
+x 12
+y 6
+end
+arch crystal14
+x 12
+y 6
+end
+arch floor_cave5
+x 12
+y 7
+end
+arch wall_cave1.101
+x 12
+y 7
+end
+arch floor_cave1
+x 12
+y 8
+end
+arch wall_cave1b.141
+x 12
+y 8
+end
+arch floor_cave1
+x 13
+y 2
+end
+arch wall_cave1b.121
+x 13
+y 2
+end
+arch floor_cave2
+x 13
+y 3
+end
+arch wall_cave1.131
+x 13
+y 3
+end
+arch floor_cave5
+x 13
+y 4
+end
+arch wall_cave1.131
+x 13
+y 4
+end
+arch floor_cave1
+x 13
+y 5
+end
+arch wall_cave1.131
+x 13
+y 5
+end
+arch floor_cave6
+x 13
+y 6
+end
+arch wall_cave1.131
+x 13
+y 6
+end
+arch floor_cave5
+x 13
+y 7
+end
+arch wall_cave1b.141
+x 13
+y 7
+end

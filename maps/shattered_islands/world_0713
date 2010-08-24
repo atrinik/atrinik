@@ -107,28 +107,28 @@ end
 arch wall_black1.131
 y 14
 end
-arch grassd_1
+arch grassd_7
 y 15
 end
-arch wall_black1_d2.131
+arch wall_black1.131
 y 15
 end
-arch floor_sand_d3
-z 4
+arch grassd_2
 y 16
 end
-arch grassd_m10
+arch wall_black1.131
 y 16
 end
-arch floor_sand_d1
-z 4
+arch grassd_2
 y 17
 end
-arch floor_sand_d3
-z 4
+arch wall_black1.131
+y 17
+end
+arch grassd_2
 y 18
 end
-arch grassd_m7
+arch wall_black1.131
 y 18
 end
 arch grassd_3
@@ -228,31 +228,19 @@ arch small_stones
 x 1
 y 14
 end
-arch grassd_2
-z 2
+arch grassd_5
 x 1
 y 15
 end
-arch floor_sand_d2
-z 2
+arch grassd_4
 x 1
 y 16
 end
-arch grassd_m10
-x 1
-y 16
-end
-arch floor_sand_d4
-z 4
+arch grassd_3
 x 1
 y 17
 end
-arch floor_sand_d3
-z 4
-x 1
-y 18
-end
-arch grassd_m7
+arch grassd_7
 x 1
 y 18
 end
@@ -285,46 +273,81 @@ arch wall_black1.111
 x 1
 y 23
 end
-arch grassd_8
+arch floor_sand_d4
 x 2
 end
-arch grassd_1
+arch grassd_m2
+x 2
+end
+arch floor_sand_d4
 x 2
 y 1
 end
-arch grassd_7
+arch grassd_m2
+x 2
+y 1
+end
+arch floor_sand_d2
 x 2
 y 2
 end
-arch grassd_1
+arch grassd_m2
+x 2
+y 2
+end
+arch floor_sand_d4
 x 2
 y 3
 end
-arch grassd_5
+arch grassd_m2
+x 2
+y 3
+end
+arch floor_sand_d4
 x 2
 y 4
 end
-arch grassd_5
+arch grassd_m2
+x 2
+y 4
+end
+arch floor_sand_d4
 x 2
 y 5
 end
-arch small_stones
+arch grassd_m2
 x 2
 y 5
 end
-arch grassd_8
+arch floor_sand_d2
 x 2
 y 6
 end
-arch grassd_4
+arch grassd_m2
+x 2
+y 6
+end
+arch floor_sand_d1
 x 2
 y 7
 end
-arch grassd_7
+arch grassd_m2
+x 2
+y 7
+end
+arch floor_sand_d1
 x 2
 y 8
 end
-arch grassd_7
+arch grassd_m2
+x 2
+y 8
+end
+arch floor_sand_d2
+x 2
+y 9
+end
+arch grassd_m2
 x 2
 y 9
 end
@@ -356,30 +379,19 @@ arch grassd_7
 x 2
 y 14
 end
-arch grassd_3
+arch grassd_5
 x 2
 y 15
 end
-arch floor_sand_d1
-z 2
+arch grassd_4
 x 2
 y 16
 end
-arch grassd_m10
-x 2
-y 16
-end
-arch floor_sand_d2
-z 2
+arch grassd_4
 x 2
 y 17
 end
-arch floor_sand_d1
-z 2
-x 2
-y 18
-end
-arch grassd_m7
+arch grassd_2
 x 2
 y 18
 end
@@ -446,23 +458,43 @@ arch grassd_8
 x 3
 y 8
 end
-arch grassd_8
+arch floor_sand_d3
 x 3
 y 9
 end
-arch grassd_2
+arch grassd_m2
+x 3
+y 9
+end
+arch floor_sand_d1
 x 3
 y 10
 end
-arch grassd_8
+arch grassd_m2
+x 3
+y 10
+end
+arch floor_sand_d4
 x 3
 y 11
 end
-arch grassd_5
+arch grassd_m2
+x 3
+y 11
+end
+arch floor_sand_d4
 x 3
 y 12
 end
-arch grassd_7
+arch grassd_m2
+x 3
+y 12
+end
+arch floor_sand_d4
+x 3
+y 13
+end
+arch grassd_m2
 x 3
 y 13
 end
@@ -474,31 +506,19 @@ arch plant9
 x 3
 y 14
 end
-arch floor_sand_d1
+arch grassd_1
 x 3
 y 15
 end
-arch grassd_m4
-x 3
-y 15
-end
-arch floor_sand_d4
+arch grassd_8
 x 3
 y 16
 end
-arch grassd_m13
-x 3
-y 16
-end
-arch floor_sand_d4
+arch grassd_1
 x 3
 y 17
 end
-arch floor_sand_d2
-x 3
-y 18
-end
-arch grassd_m7
+arch grassd_2
 x 3
 y 18
 end
@@ -601,27 +621,28 @@ arch grassd_5
 x 4
 y 14
 end
-arch floor_sand_d4
+arch hole
+msg
+The hole seems too small to squeeze through...
+endmsg
+hp 4
+sp 14
+x 4
+y 14
+end
+arch grassd_3
 x 4
 y 15
 end
-arch grassd_m10
-x 4
-y 15
-end
-arch floor_sand_d1
+arch grassd_5
 x 4
 y 16
 end
-arch floor_sand_d2
+arch grassd_8
 x 4
 y 17
 end
-arch floor_sand_d4
-x 4
-y 18
-end
-arch grassd_m7
+arch grassd_4
 x 4
 y 18
 end

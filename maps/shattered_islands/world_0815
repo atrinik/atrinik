@@ -270,43 +270,23 @@ arch grassd_2
 x 3
 y 13
 end
-arch grassd_1
+arch grassd_5
 x 3
 y 14
 end
-arch wall_black1.181
-x 3
-y 14
-end
-arch grassd_6
-x 3
-y 15
-end
-arch wall_black1.131
-x 3
-y 15
-end
 arch grassd_1
 x 3
-y 16
-end
-arch wall_black1b.131
-x 3
-y 16
+y 15
 end
 arch grassd_2
 x 3
-y 17
+y 16
 end
-arch wall_black1.131
+arch grassd_1
 x 3
 y 17
 end
-arch grassd_4
-x 3
-y 18
-end
-arch wall_black1win.131
+arch grassd_1
 x 3
 y 18
 end
@@ -314,49 +294,19 @@ arch grassd_8
 x 3
 y 19
 end
-arch wall_black1b.131
-x 3
-y 19
-end
-arch picture14
-direction 7
-x 3
-y 19
-end
 arch grassd_7
 x 3
 y 20
 end
-arch wall_black1.131
-x 3
-y 20
-end
-arch plant1_wall.151
-direction 7
-x 3
-y 20
-end
-arch grassd_1
-x 3
-y 21
-end
-arch wall_black1b.131
-x 3
-y 21
-end
-arch grassd_1
-x 3
-y 22
-end
-arch wall_black1a.131
-x 3
-y 22
-end
 arch grassd_5
 x 3
-y 23
+y 21
 end
-arch wall_black1.131
+arch grassd_1
+x 3
+y 22
+end
+arch grassd_4
 x 3
 y 23
 end
@@ -398,78 +348,43 @@ arch wall_cave1.161
 x 4
 y 13
 end
+arch grassd_7
+x 4
+y 14
+end
 arch grassd_4
-x 4
-y 14
-end
-arch wall_black1b.111
-x 4
-y 14
-end
-arch floor_sblack2b
 x 4
 y 15
 end
-arch floor_sblack3b
+arch grassd_2
 x 4
 y 16
 end
-arch floor_sblack3b
+arch grassd_2
 x 4
 y 17
 end
-arch floor_sblack1b
+arch grassd_4
 x 4
 y 18
 end
-arch floor_sblack1b
+arch grassd_5
 x 4
 y 19
 end
-arch magic_mouth
-msg
-It is some kind of a painting that resembles Moroch.
-Perhaps some word or phrase is required to say here.
-endmsg
-x 4
-y 19
-end
-arch magic_ear
-msg
-@match moroch
-You enter the abandoned temple of Moroch underground. Beware of the dangers ahead...
-endmsg
-connected 101
-x 4
-y 19
-end
-arch teleporter
-layer 0
-sys_object 1
-slaying strakewood_island/moroch_temple/moroch_temple_0102
-hp 8
-sp 7
-connected 101
-x 4
-y 19
-end
-arch floor_sblack3b
+arch grassd_5
 x 4
 y 20
 end
-arch floor_sblack1b
+arch grassd_7
 x 4
 y 21
 end
-arch floor_sblack1b
+arch grassd_3
 x 4
 y 22
 end
-arch floor_sblack3b
-x 4
-y 23
-end
-arch wall_black1.111
+arch grassd_4
 x 4
 y 23
 end
@@ -502,67 +417,51 @@ arch grassd_3
 x 5
 y 13
 end
-arch wall_cave1.111
+arch wall_cave1b.121
 x 5
 y 13
 end
+arch grassd_7
+x 5
+y 14
+end
+arch wall_cave1.161
+x 5
+y 14
+end
 arch grassd_3
-x 5
-y 14
-end
-arch wall_black1.111
-x 5
-y 14
-end
-arch plant1_wall.151
-x 5
-y 14
-end
-arch floor_sblack1b
 x 5
 y 15
 end
-arch floor_sblack1b
+arch grassd_5
 x 5
 y 16
 end
-arch floor_sblack2b
+arch grassd_2
 x 5
 y 17
 end
-arch bones1
-x 5
-y 17
-end
-arch floor_sblack1b
+arch grassd_7
 x 5
 y 18
 end
-arch floor_sblack3b
+arch grassd_5
 x 5
 y 19
 end
-arch floor_sblack2b
+arch grassd_1
 x 5
 y 20
 end
-arch floor_sblack3b
+arch grassd_6
 x 5
 y 21
 end
-arch bone_skull
-x 5
-y 21
-end
-arch floor_sblack2b
+arch grassd_1
 x 5
 y 22
 end
-arch floor_sblack1b
-x 5
-y 23
-end
-arch wall_black1.111
+arch grassd_1
 x 5
 y 23
 end
@@ -593,57 +492,49 @@ y 2
 end
 arch grassd_2
 x 6
-y 13
+y 14
 end
-arch wall_cave1.111
-x 6
-y 13
-end
-arch grassd_8
+arch wall_cave1b.121
 x 6
 y 14
 end
-arch wall_black1win.111
-x 6
-y 14
-end
-arch floor_sblack3b
+arch grassd_3
 x 6
 y 15
 end
-arch floor_sblack3b
+arch wall_cave1.161
+x 6
+y 15
+end
+arch grassd_5
 x 6
 y 16
 end
-arch floor_sblack2b
+arch grassd_7
 x 6
 y 17
 end
-arch floor_sblack1b
+arch grassd_2
 x 6
 y 18
 end
-arch floor_sblack1b
+arch grassd_4
 x 6
 y 19
 end
-arch floor_sblack3b
+arch grassd_6
 x 6
 y 20
 end
-arch floor_sblack2b
+arch grassd_4
 x 6
 y 21
 end
-arch floor_sblack3b
+arch grassd_4
 x 6
 y 22
 end
-arch floor_sblack1b
-x 6
-y 23
-end
-arch wall_black1win.111
+arch grassd_2
 x 6
 y 23
 end
@@ -663,75 +554,75 @@ arch wall_cave1b.141
 x 7
 y 1
 end
+arch blocked
+x 7
+y 11
+end
+arch wall_cave1.171
+x 7
+y 11
+end
+arch grassd_8
+x 7
+y 12
+end
+arch wall_cave1.171
+x 7
+y 12
+end
 arch grassd_8
 x 7
 y 13
 end
-arch wall_cave1.111
+arch wall_cave1.171
 x 7
 y 13
 end
-arch grassd_7
+arch grassd_4
 x 7
 y 14
 end
-arch wall_black1a.111
+arch wall_cave1.171
 x 7
 y 14
 end
-arch floor_sblack1b
+arch grassd_4
 x 7
 y 15
 end
-arch floor_sblack2b
+arch wall_cave1.141
+x 7
+y 15
+end
+arch grassd_4
 x 7
 y 16
 end
-arch floor_sblack1b
+arch grassd_6
 x 7
 y 17
 end
-arch bones4
-x 7
-y 17
-end
-arch light7
-x 7
-y 17
-end
-arch floor_sblack2b
+arch grassd_5
 x 7
 y 18
 end
-arch floor_sblack3b
+arch grassd_1
 x 7
 y 19
 end
-arch floor_sblack2b
+arch grassd_5
 x 7
 y 20
 end
-arch bones4
-x 7
-y 20
-end
-arch light7
-x 7
-y 20
-end
-arch floor_sblack1b
+arch grassd_6
 x 7
 y 21
 end
-arch floor_sblack1b
+arch grassd_1
 x 7
 y 22
 end
-arch floor_sblack1b
-x 7
-y 23
-end
-arch wall_black1.111
+arch grassd_3
 x 7
 y 23
 end
@@ -742,259 +633,282 @@ end
 arch wall_cave1b.141
 x 8
 end
+arch blocked
+x 8
+y 11
+end
+arch grassd_4
+x 8
+y 12
+end
+arch invis_exit
+slaying world_a_0815
+hp 8
+sp 12
+x 8
+y 12
+end
+arch magic_ear
+msg
+@match ^mellon$
+Zing!
+endmsg
+connected 101
+x 8
+y 12
+end
 arch grassd_4
 x 8
 y 13
 end
-arch wall_cave1.111
+arch gateTrg1
+connected 101
 x 8
 y 13
 end
+arch grassd_7
+x 8
+y 14
+end
+arch magic_mouth
+msg
+*** You notice a strange writing on the gate ***
+
+Pedo mellon a minno!
+endmsg
+splitting 1
+direction 5
+x 8
+y 14
+end
 arch grassd_6
-x 8
-y 14
-end
-arch wall_black1.111
-x 8
-y 14
-end
-arch floor_sblack1b
 x 8
 y 15
 end
-arch floor_sblack2b
+arch grassd_1
 x 8
 y 16
 end
-arch floor_sblack1b
+arch grassd_1
 x 8
 y 17
 end
-arch floor_sblack3b
+arch grassd_8
 x 8
 y 18
 end
-arch floor_sblack3b
+arch grassd_7
 x 8
 y 19
 end
-arch floor_sblack3b
+arch grassd_4
 x 8
 y 20
 end
-arch floor_sblack1b
+arch grassd_4
 x 8
 y 21
 end
-arch floor_sblack2b
+arch grassd_5
 x 8
 y 22
 end
-arch floor_sblack1b
+arch grassd_4
 x 8
 y 23
 end
-arch wall_black1_d2.111
-x 8
-y 23
+arch blocked
+x 9
+y 11
+end
+arch grassd_3
+x 9
+y 12
+end
+arch invis_exit
+slaying world_a_0815
+hp 9
+sp 12
+x 9
+y 12
 end
 arch grassd_3
 x 9
 y 13
 end
-arch wall_cave1.111
+arch gateTrg1
+connected 101
 x 9
 y 13
+end
+arch grassd_3
+x 9
+y 14
+end
+arch magic_mouth
+msg
+*** You notice a strange writing on the gate ***
+
+Pedo mellon a minno!
+endmsg
+splitting 1
+direction 5
+x 9
+y 14
+end
+arch grassd_1
+x 9
+y 15
+end
+arch grassd_1
+x 9
+y 16
 end
 arch grassd_8
 x 9
-y 14
-end
-arch wall_black1b.111
-x 9
-y 14
-end
-arch floor_sblack1b
-x 9
-y 15
-end
-arch altar_moroch
-x 9
-y 15
-end
-arch light3
-x 9
-y 15
-end
-arch floor_sblack1b
-x 9
-y 16
-end
-arch floor_sblack2b
-x 9
 y 17
 end
-arch light3
-x 9
-y 17
-end
-arch floor_sblack2b
+arch grassd_6
 x 9
 y 18
 end
-arch floor_sblack3b
+arch grassd_3
 x 9
 y 19
 end
-arch floor_sblack1b
+arch grassd_3
 x 9
 y 20
 end
-arch light3
-x 9
-y 20
-end
-arch floor_sblack3b
+arch grassd_7
 x 9
 y 21
 end
-arch floor_sblack2b
+arch grassd_6
 x 9
 y 22
 end
-arch floor_sblack3b
+arch grassd_5
 x 9
 y 23
 end
-arch light3
-x 9
-y 23
+arch blocked
+x 10
+y 11
+end
+arch wall_cave1.131
+x 10
+y 11
+end
+arch grassd_5
+x 10
+y 12
+end
+arch wall_cave1.131
+x 10
+y 12
 end
 arch grassd_5
 x 10
 y 13
 end
-arch wall_cave1.111
+arch wall_cave1b.141
 x 10
 y 13
 end
-arch grassd_1
+arch grassd_6
 x 10
 y 14
 end
-arch wall_black1.111
+arch wall_cave1b.121
 x 10
 y 14
 end
-arch floor_sblack3b
+arch grassd_3
 x 10
 y 15
 end
-arch floor_sblack1b
+arch wall_cave1.161
+x 10
+y 15
+end
+arch grassd_6
 x 10
 y 16
 end
-arch floor_sblack1b
+arch grassd_1
 x 10
 y 17
 end
-arch floor_sblack2b
+arch grassd_2
 x 10
 y 18
 end
-arch floor_sblack2b
+arch grassd_6
 x 10
 y 19
 end
-arch floor_sblack2b
+arch grassd_3
 x 10
 y 20
 end
-arch floor_sblack2b
+arch grassd_3
 x 10
 y 21
 end
-arch floor_sblack1b
+arch grassd_4
 x 10
 y 22
 end
-arch floor_sblack1b
-x 10
-y 23
-end
-arch wall_black1_d1.111
+arch grassd_8
 x 10
 y 23
 end
 arch grassd_6
 x 11
-y 13
+y 14
 end
-arch wall_cave1.111
-x 11
-y 13
-end
-arch grassd_3
+arch wall_cave1.181
 x 11
 y 14
 end
-arch wall_black1.111
-x 11
-y 14
-end
-arch floor_sblack1b
+arch grassd_7
 x 11
 y 15
 end
-arch floor_sblack1b
+arch wall_cave1.141
+x 11
+y 15
+end
+arch grassd_2
 x 11
 y 16
 end
-arch floor_sblack2b
+arch grassd_2
 x 11
 y 17
 end
-arch bones4
-x 11
-y 17
-end
-arch light7
-x 11
-y 17
-end
-arch floor_sblack1b
+arch grassd_3
 x 11
 y 18
 end
-arch floor_sblack1b
+arch grassd_3
 x 11
 y 19
 end
-arch floor_sblack1b
+arch grassd_7
 x 11
 y 20
 end
-arch bones4
-x 11
-y 20
-end
-arch light7
-x 11
-y 20
-end
-arch floor_sblack3b
+arch grassd_2
 x 11
 y 21
 end
-arch floor_sblack2b
+arch grassd_1
 x 11
 y 22
 end
-arch floor_sblack1b
-x 11
-y 23
-end
-arch wall_black1.111
+arch grassd_6
 x 11
 y 23
 end
@@ -1002,187 +916,155 @@ arch grassd_5
 x 12
 y 13
 end
-arch wall_cave1.111
-x 12
-y 13
-end
-arch grassd_3
-x 12
-y 14
-end
-arch wall_black1win.111
-x 12
-y 14
-end
-arch floor_sblack2b
-x 12
-y 15
-end
-arch bones1
-x 12
-y 15
-end
-arch floor_sblack1b
-x 12
-y 16
-end
-arch floor_sblack1b
-x 12
-y 17
-end
-arch floor_sblack3b
-x 12
-y 18
-end
-arch floor_sblack1b
-x 12
-y 19
-end
-arch floor_sblack2b
-x 12
-y 20
-end
-arch floor_sblack1b
-x 12
-y 21
-end
-arch bone_broken
-x 12
-y 21
-end
-arch floor_sblack2b
-x 12
-y 22
-end
-arch floor_sblack1b
-x 12
-y 23
-end
-arch wall_black1win.111
-x 12
-y 23
-end
-arch grassd_2
-x 13
-y 13
-end
-arch wall_cave1.111
-x 13
-y 13
-end
-arch grassd_1
-x 13
-y 14
-end
-arch wall_black1.111
-x 13
-y 14
-end
-arch floor_sblack1b
-x 13
-y 15
-end
-arch floor_sblack2b
-x 13
-y 16
-end
-arch floor_sblack2b
-x 13
-y 17
-end
-arch floor_sblack1b
-x 13
-y 18
-end
-arch floor_sblack2b
-x 13
-y 19
-end
-arch bones1
-x 13
-y 19
-end
-arch floor_sblack2b
-x 13
-y 20
-end
-arch floor_sblack2b
-x 13
-y 21
-end
-arch floor_sblack3b
-x 13
-y 22
-end
-arch floor_sblack2b
-x 13
-y 23
-end
-arch wall_black1a.111
-x 13
-y 23
-end
-arch grassd_3
-x 14
-y 12
-end
 arch wall_cave1.181
-x 14
-y 12
-end
-arch grassd_2
-x 14
+x 12
 y 13
+end
+arch grassd_8
+x 12
+y 14
 end
 arch wall_cave1.141
-x 14
+x 12
+y 14
+end
+arch grassd_5
+x 12
+y 15
+end
+arch grassd_3
+x 12
+y 16
+end
+arch grassd_3
+x 12
+y 17
+end
+arch grassd_6
+x 12
+y 18
+end
+arch grassd_5
+x 12
+y 19
+end
+arch grassd_2
+x 12
+y 20
+end
+arch grassd_8
+x 12
+y 21
+end
+arch grassd_6
+x 12
+y 22
+end
+arch grassd_6
+x 12
+y 23
+end
+arch grassd_2
+x 13
+y 13
+end
+arch wall_cave1.111
+x 13
 y 13
 end
 arch grassd_4
+x 13
+y 14
+end
+arch grassd_6
+x 13
+y 15
+end
+arch grassd_6
+x 13
+y 16
+end
+arch grassd_4
+x 13
+y 17
+end
+arch grassd_2
+x 13
+y 18
+end
+arch grassd_4
+x 13
+y 19
+end
+arch grassd_8
+x 13
+y 20
+end
+arch grassd_4
+x 13
+y 21
+end
+arch grassd_5
+x 13
+y 22
+end
+arch grassd_1
+x 13
+y 23
+end
+arch grassd_3
+x 14
+y 12
+end
+arch wall_cave1.181
+x 14
+y 12
+end
+arch grassd_2
+x 14
+y 13
+end
+arch wall_cave1.141
+x 14
+y 13
+end
+arch grassd_3
 x 14
 y 14
 end
-arch wall_black1b.111
-x 14
-y 14
-end
-arch floor_sblack2b
+arch grassd_8
 x 14
 y 15
 end
-arch floor_sblack1b
+arch grassd_6
 x 14
 y 16
 end
-arch floor_sblack1b
+arch grassd_5
 x 14
 y 17
 end
-arch floor_sblack3b
+arch grassd_7
 x 14
 y 18
 end
-arch floor_sblack1b
+arch grassd_4
 x 14
 y 19
 end
-arch floor_sblack1b
+arch grassd_6
 x 14
 y 20
 end
-arch floor_sblack2b
+arch grassd_2
 x 14
 y 21
 end
-arch floor_sblack2b
+arch grassd_5
 x 14
 y 22
 end
-arch floor_sblack1b
-x 14
-y 23
-end
-arch wall_black1.111
+arch grassd_3
 x 14
 y 23
 end
@@ -1206,83 +1088,43 @@ arch grassd_6
 x 15
 y 13
 end
+arch grassd_2
+x 15
+y 14
+end
+arch grassd_5
+x 15
+y 15
+end
+arch grassd_8
+x 15
+y 16
+end
+arch grassd_5
+x 15
+y 17
+end
+arch grassd_3
+x 15
+y 18
+end
 arch grassd_7
 x 15
-y 14
-end
-arch wall_black1b.111
-x 15
-y 14
-end
-arch floor_sblack2b
-x 15
-y 15
-end
-arch wall_black1a.131
-x 15
-y 15
-end
-arch floor_sblack1b
-x 15
-y 16
-end
-arch wall_black1.131
-x 15
-y 16
-end
-arch floor_sblack1b
-x 15
-y 17
-end
-arch wall_black1a.131
-x 15
-y 17
-end
-arch floor_sblack3b
-x 15
-y 18
-end
-arch wall_black1win.131
-x 15
-y 18
-end
-arch floor_sblack1b
-x 15
 y 19
 end
-arch wall_black1.131
-x 15
-y 19
-end
-arch floor_sblack1b
+arch grassd_8
 x 15
 y 20
 end
-arch wall_black1.131
-x 15
-y 20
-end
-arch floor_sblack2b
+arch grassd_4
 x 15
 y 21
 end
-arch wall_black1a.131
-x 15
-y 21
-end
-arch floor_sblack2b
+arch grassd_7
 x 15
 y 22
 end
-arch wall_black1a.131
-x 15
-y 22
-end
-arch floor_sblack2b
-x 15
-y 23
-end
-arch wall_black1.141
+arch grassd_8
 x 15
 y 23
 end

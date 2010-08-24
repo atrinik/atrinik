@@ -90,7 +90,10 @@ end
 arch grassd_8
 y 21
 end
-arch grassd_2
+arch floor_sand_d1
+y 22
+end
+arch grassd_m2
 y 22
 end
 arch grassd_1
@@ -203,7 +206,11 @@ arch grassd_5
 x 1
 y 22
 end
-arch grassd_4
+arch floor_sand_d3
+x 1
+y 23
+end
+arch grassd_m2
 x 1
 y 23
 end
