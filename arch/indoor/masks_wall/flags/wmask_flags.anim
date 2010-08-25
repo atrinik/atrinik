@@ -62,3 +62,29 @@ flag_05.u.131
 flag_05.u.131
 flag_05.u.151
 mina
+
+anim flag_kobold
+facings 9
+dummy.111
+flag_kobold.u.151
+flag_kobold.u.151
+flag_kobold.u.151
+flag_kobold.u.131
+flag_kobold.u.131
+flag_kobold.u.131
+flag_kobold.u.131
+flag_kobold.u.151
+mina
+
+anim flag_eagle
+facings 9
+dummy.111
+flag_eagle.u.151
+flag_eagle.u.151
+flag_eagle.u.151
+flag_eagle.u.131
+flag_eagle.u.131
+flag_eagle.u.131
+flag_eagle.u.131
+flag_eagle.u.151
+mina
