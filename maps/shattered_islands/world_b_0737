@@ -1,0 +1,1008 @@
+arch map
+name Asteria Palace Dungeon
+msg
+-Enter Description Here-
+Modified: 2010-08-24 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 1
+tile_path_3 world_b_0736
+end
+arch wall_dungeon_8
+x 13
+y 21
+end
+arch wall_dungeon_3
+x 13
+y 22
+end
+arch wall_dungeon_3
+x 13
+y 23
+end
+arch wall_dungeon_3
+x 14
+end
+arch wall_dungeon_3
+x 14
+y 1
+end
+arch wall_dungeon_3
+x 14
+y 2
+end
+arch wall_dungeon_3
+x 14
+y 3
+end
+arch wall_dungeon_3
+x 14
+y 4
+end
+arch wall_dungeon_3
+x 14
+y 5
+end
+arch wall_dungeon_3
+x 14
+y 6
+end
+arch wall_dungeon_3
+x 14
+y 7
+end
+arch wall_dungeon_3
+x 14
+y 8
+end
+arch wall_dungeon_3
+x 14
+y 9
+end
+arch wall_dungeon_3
+x 14
+y 10
+end
+arch wall_dungeon_1
+x 14
+y 21
+end
+arch floor_dungeon1a
+x 14
+y 22
+end
+arch floor_dungeon1a
+x 14
+y 23
+end
+arch floor_dungeon1a
+x 15
+end
+arch floor_dungeon1a
+x 15
+y 1
+end
+arch torch_wall_1
+direction 7
+x 15
+y 1
+end
+arch floor_dungeon1a
+x 15
+y 2
+end
+arch floor_dungeon1a
+x 15
+y 3
+end
+arch floor_dungeon1a
+x 15
+y 4
+end
+arch floor_dungeon1a
+x 15
+y 5
+end
+arch floor_dungeon1a
+x 15
+y 6
+end
+arch wall_dungeon_1
+x 15
+y 6
+end
+arch floor_dungeon1a
+x 15
+y 7
+end
+arch floor_dungeon1a
+x 15
+y 8
+end
+arch torch_wall_1
+direction 7
+x 15
+y 8
+end
+arch floor_dungeon1a
+x 15
+y 9
+end
+arch floor_dungeon1a
+x 15
+y 10
+end
+arch wall_dungeon_1
+x 15
+y 10
+end
+arch wall_dungeon_1
+x 15
+y 21
+end
+arch floor_dungeon1a
+x 15
+y 22
+end
+arch torch_wall_1
+x 15
+y 22
+end
+arch floor_dungeon1a
+x 15
+y 23
+end
+arch floor_dungeon1a
+x 16
+end
+arch floor_dungeon1a
+x 16
+y 1
+end
+arch floor_dungeon1a
+x 16
+y 2
+end
+arch floor_dungeon1a
+x 16
+y 3
+end
+arch floor_dungeon1a
+x 16
+y 4
+end
+arch floor_dungeon1a
+x 16
+y 5
+end
+arch floor_dungeon1a
+x 16
+y 6
+end
+arch door1_locked
+face door_lock1.112
+grace 1
+speed 0.100000
+speed_left -0.900000
+state 1
+last_sp 1
+last_grace 1
+last_eat 1
+blocksview 0
+door_closed 0
+x 16
+y 6
+end
+arch floor_dungeon1a
+x 16
+y 7
+end
+arch floor_dungeon1a
+x 16
+y 8
+end
+arch spawn_point
+x 16
+y 8
+arch giant_hill
+name temporary key holder
+Wis 2
+level 35
+type 83
+carrying 5500
+weight 5000
+arch key_brown
+name Asteria Dungeon Key 3
+slaying asteria_dungeon_key3
+quest_item 1
+one_drop 1
+end
+end
+end
+arch floor_dungeon1a
+x 16
+y 9
+end
+arch floor_dungeon1a
+x 16
+y 10
+end
+arch wall_dungeon_1
+x 16
+y 10
+end
+arch wall_dungeon_1
+x 16
+y 21
+end
+arch floor_dungeon1a
+x 16
+y 22
+end
+arch floor_dungeon1a
+x 16
+y 23
+end
+arch floor_dungeon1a
+x 17
+end
+arch floor_dungeon1a
+x 17
+y 1
+end
+arch wall_dungeon_8
+x 17
+y 1
+end
+arch floor_dungeon1a
+x 17
+y 2
+end
+arch wall_dungeon_3
+x 17
+y 2
+end
+arch floor_dungeon1a
+x 17
+y 3
+end
+arch wall_dungeon_3
+x 17
+y 3
+end
+arch floor_dungeon1a
+x 17
+y 4
+end
+arch wall_dungeon_3
+x 17
+y 4
+end
+arch floor_dungeon1a
+x 17
+y 5
+end
+arch wall_dungeon_3
+x 17
+y 5
+end
+arch floor_dungeon1a
+x 17
+y 6
+end
+arch wall_dungeon_1
+x 17
+y 6
+end
+arch floor_dungeon1a
+x 17
+y 7
+end
+arch floor_dungeon1a
+x 17
+y 8
+end
+arch floor_dungeon1a
+x 17
+y 9
+end
+arch floor_dungeon1a
+x 17
+y 10
+end
+arch wall_dungeon_1
+x 17
+y 10
+end
+arch wall_dungeon_1
+x 17
+y 21
+end
+arch floor_dungeon1a
+x 17
+y 22
+end
+arch stairs_stone_up
+slaying world_a_0737
+hp 17
+sp 22
+x 17
+y 22
+end
+arch floor_dungeon1a
+x 17
+y 23
+end
+arch floor_dungeon1a
+x 18
+end
+arch floor_dungeon1a
+x 18
+y 1
+end
+arch wall_dungeon_1
+x 18
+y 1
+end
+arch floor_dungeon1a
+x 18
+y 2
+end
+arch floor_dungeon1a
+x 18
+y 3
+end
+arch torch_wall_1
+direction 7
+x 18
+y 3
+end
+arch floor_dungeon1a
+x 18
+y 4
+end
+arch floor_dungeon1a
+x 18
+y 5
+end
+arch floor_dungeon1a
+x 18
+y 6
+end
+arch wall_dungeon_1
+x 18
+y 6
+end
+arch floor_dungeon1a
+x 18
+y 7
+end
+arch wall_dungeon_3
+x 18
+y 7
+end
+arch floor_dungeon1a
+x 18
+y 8
+end
+arch wall_dungeon_3
+x 18
+y 8
+end
+arch floor_dungeon1a
+x 18
+y 9
+end
+arch wall_dungeon_3
+x 18
+y 9
+end
+arch floor_dungeon1a
+x 18
+y 10
+end
+arch wall_dungeon_4
+x 18
+y 10
+end
+arch wall_dungeon_1
+x 18
+y 21
+end
+arch floor_dungeon1a
+x 18
+y 22
+end
+arch floor_dungeon1a
+x 18
+y 23
+end
+arch floor_dungeon1a
+x 19
+end
+arch floor_dungeon1a
+x 19
+y 1
+end
+arch wall_dungeon_1
+x 19
+y 1
+end
+arch floor_dungeon1a
+x 19
+y 2
+end
+arch floor_dungeon1a
+x 19
+y 3
+end
+arch floor_dungeon1a
+x 19
+y 4
+end
+arch floor_dungeon1a
+x 19
+y 5
+end
+arch floor_dungeon1a
+x 19
+y 6
+end
+arch floor_dungeon1a
+x 19
+y 7
+end
+arch torch_wall_1
+direction 7
+x 19
+y 7
+end
+arch floor_dungeon1a
+x 19
+y 8
+end
+arch floor_dungeon1a
+x 19
+y 9
+end
+arch floor_dungeon1a
+x 19
+y 10
+end
+arch wall_dungeon_1
+x 19
+y 10
+end
+arch wall_dungeon_1
+x 19
+y 21
+end
+arch floor_dungeon1a
+x 19
+y 22
+end
+arch floor_dungeon1a
+x 19
+y 23
+end
+arch floor_dungeon1a
+x 20
+end
+arch floor_dungeon1a
+x 20
+y 1
+end
+arch wall_dungeon_1
+x 20
+y 1
+end
+arch floor_dungeon1a
+x 20
+y 2
+end
+arch torch_wall_1
+face torch_wall.114
+speed_left -0.810973
+state 3
+glow_radius 5
+is_animated 1
+x 20
+y 2
+end
+arch floor_dungeon1a
+x 20
+y 3
+end
+arch floor_dungeon1a
+x 20
+y 4
+end
+arch floor_dungeon1a
+x 20
+y 5
+end
+arch floor_dungeon1a
+x 20
+y 6
+end
+arch floor_dungeon1a
+x 20
+y 7
+end
+arch floor_dungeon1a
+x 20
+y 8
+end
+arch floor_dungeon1a
+x 20
+y 9
+end
+arch floor_dungeon1a
+x 20
+y 10
+end
+arch wall_dungeon_1
+x 20
+y 10
+end
+arch wall_dungeon_3
+x 20
+y 11
+end
+arch wall_dungeon_3
+x 20
+y 12
+end
+arch wall_dungeon_3
+x 20
+y 13
+end
+arch wall_dungeon_3
+x 20
+y 14
+end
+arch wall_dungeon_3
+x 20
+y 15
+end
+arch wall_dungeon_3
+x 20
+y 16
+end
+arch wall_dungeon_3
+x 20
+y 17
+end
+arch wall_dungeon_3
+x 20
+y 18
+end
+arch wall_dungeon_3
+x 20
+y 19
+end
+arch wall_dungeon_3
+x 20
+y 20
+end
+arch wall_dungeon_4
+x 20
+y 21
+end
+arch floor_dungeon1a
+x 20
+y 22
+end
+arch wall_dungeon_3
+x 20
+y 22
+end
+arch floor_dungeon1a
+x 20
+y 23
+end
+arch wall_dungeon_3
+x 20
+y 23
+end
+arch floor_dungeon1a
+x 21
+end
+arch floor_dungeon1a
+x 21
+y 1
+end
+arch wall_dungeon_1
+x 21
+y 1
+end
+arch floor_dungeon1a
+x 21
+y 2
+end
+arch floor_dungeon1a
+x 21
+y 3
+end
+arch floor_dungeon1a
+x 21
+y 4
+end
+arch floor_dungeon1a
+x 21
+y 5
+end
+arch floor_dungeon1a
+x 21
+y 6
+end
+arch floor_dungeon1a
+x 21
+y 7
+end
+arch floor_dungeon1a
+x 21
+y 8
+end
+arch floor_dungeon1a
+x 21
+y 9
+end
+arch sign
+name TODO: Knight's Chapel
+x 21
+y 9
+end
+arch floor_dungeon1a
+x 21
+y 10
+end
+arch wall_dungeon_1
+x 21
+y 10
+end
+arch floor_dungeon1a
+x 21
+y 11
+end
+arch torch_wall_1
+face torch_wall.113
+speed_left -0.930971
+state 2
+glow_radius 5
+is_animated 1
+x 21
+y 11
+end
+arch floor_dungeon1a
+x 21
+y 12
+end
+arch floor_dungeon1a
+x 21
+y 13
+end
+arch floor_dungeon1a
+x 21
+y 14
+end
+arch floor_dungeon1a
+x 21
+y 15
+end
+arch floor_dungeon1a
+x 21
+y 16
+end
+arch torch_wall_1
+direction 7
+x 21
+y 16
+end
+arch floor_dungeon1a
+x 21
+y 17
+end
+arch floor_dungeon1a
+x 21
+y 18
+end
+arch floor_dungeon1a
+x 21
+y 19
+end
+arch floor_dungeon1a
+x 21
+y 20
+end
+arch floor_dungeon1a
+x 21
+y 21
+end
+arch wall_dungeon_1
+x 21
+y 21
+end
+arch floor_dungeon1a
+x 21
+y 22
+end
+arch torch_wall_1
+x 21
+y 22
+end
+arch floor_dungeon1a
+x 21
+y 23
+end
+arch floor_dungeon1a
+x 22
+end
+arch floor_dungeon1a
+x 22
+y 1
+end
+arch door1_locked
+slaying asteria_dungeon_key3
+last_sp -1
+x 22
+y 1
+end
+arch floor_dungeon1a
+x 22
+y 2
+end
+arch floor_dungeon1a
+x 22
+y 3
+end
+arch altar_tabernacle
+x 22
+y 3
+end
+arch floor_dungeon1a
+x 22
+y 4
+end
+arch floor_dungeon1a
+x 22
+y 5
+end
+arch floor_dungeon1a
+x 22
+y 6
+end
+arch floor_dungeon1a
+x 22
+y 7
+end
+arch floor_dungeon1a
+x 22
+y 8
+end
+arch floor_dungeon1a
+x 22
+y 9
+end
+arch floor_dungeon1a
+x 22
+y 10
+end
+arch door1_locked
+last_sp -1
+x 22
+y 10
+end
+arch floor_dungeon1a
+x 22
+y 11
+end
+arch floor_dungeon1a
+x 22
+y 12
+end
+arch floor_dungeon1a
+x 22
+y 13
+end
+arch floor_dungeon1a
+x 22
+y 14
+end
+arch floor_dungeon1a
+x 22
+y 15
+end
+arch floor_dungeon1a
+x 22
+y 16
+end
+arch floor_dungeon1a
+x 22
+y 17
+end
+arch floor_dungeon1a
+x 22
+y 18
+end
+arch floor_dungeon1a
+x 22
+y 19
+end
+arch floor_dungeon1a
+x 22
+y 20
+end
+arch floor_dungeon1a
+x 22
+y 21
+end
+arch door1_locked
+msg
+You need Asteria Dungeon Key 3 to pass.
+endmsg
+slaying asteria_dungeon_key3
+last_sp -1
+x 22
+y 21
+end
+arch floor_dungeon1a
+x 22
+y 22
+end
+arch floor_dungeon1a
+x 22
+y 23
+end
+arch floor_dungeon1a
+x 23
+end
+arch floor_dungeon1a
+x 23
+y 1
+end
+arch wall_dungeon_1
+x 23
+y 1
+end
+arch floor_dungeon1a
+x 23
+y 2
+end
+arch floor_dungeon1a
+x 23
+y 3
+end
+arch floor_dungeon1a
+x 23
+y 4
+end
+arch floor_dungeon1a
+x 23
+y 5
+end
+arch floor_dungeon1a
+x 23
+y 6
+end
+arch floor_dungeon1a
+x 23
+y 7
+end
+arch floor_dungeon1a
+x 23
+y 8
+end
+arch floor_dungeon1a
+x 23
+y 9
+end
+arch floor_dungeon1a
+x 23
+y 10
+end
+arch wall_dungeon_1
+x 23
+y 10
+end
+arch floor_dungeon1a
+x 23
+y 11
+end
+arch wall_dungeon_3
+x 23
+y 11
+end
+arch floor_dungeon1a
+x 23
+y 12
+end
+arch wall_dungeon_3
+x 23
+y 12
+end
+arch floor_dungeon1a
+x 23
+y 13
+end
+arch wall_dungeon_3
+x 23
+y 13
+end
+arch floor_dungeon1a
+x 23
+y 14
+end
+arch wall_dungeon_3
+x 23
+y 14
+end
+arch floor_dungeon1a
+x 23
+y 15
+end
+arch wall_dungeon_3
+x 23
+y 15
+end
+arch floor_dungeon1a
+x 23
+y 16
+end
+arch wall_dungeon_3
+x 23
+y 16
+end
+arch floor_dungeon1a
+x 23
+y 17
+end
+arch wall_dungeon_3
+x 23
+y 17
+end
+arch floor_dungeon1a
+x 23
+y 18
+end
+arch wall_dungeon_3
+x 23
+y 18
+end
+arch floor_dungeon1a
+x 23
+y 19
+end
+arch wall_dungeon_3
+x 23
+y 19
+end
+arch floor_dungeon1a
+x 23
+y 20
+end
+arch wall_dungeon_3
+x 23
+y 20
+end
+arch floor_dungeon1a
+x 23
+y 21
+end
+arch wall_dungeon_4
+x 23
+y 21
+end
+arch floor_dungeon1a
+x 23
+y 22
+end
+arch floor_dungeon1a
+x 23
+y 23
+end

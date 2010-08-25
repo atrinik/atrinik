@@ -1,723 +1,595 @@
 arch map
-name World
+name Asteria Palace Dungeon
 msg
-Created:  2009-08-09 Alex Tokar
+Creator: Daimonin Map Editor
+Date:    6/9/2004
 Modified: 2010-08-24 emperorbma
 endmsg
 width 24
 height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
 difficulty 1
-outdoor 1
-tile_path_1 world_0737
-tile_path_2 world_0836
-tile_path_3 world_0735
-tile_path_4 world_0636
-tile_path_5 world_0837
-tile_path_6 world_0835
-tile_path_7 world_0635
-tile_path_8 world_0637
+darkness 1
+tile_path_1 world_a_0737
+tile_path_2 world_a_0836
+tile_path_4 world_a_0636
+tile_path_5 world_a_0837
+tile_path_8 world_a_0637
 end
-arch floor_red1
-z 50
-end
-arch floor_red1
-z 50
-y 1
-end
-arch floor_fs_grey1b
-z 50
-y 2
-end
-arch floor_fs_grey1b
-z 50
-y 3
-end
-arch floor_fs_grey1b
-z 50
-y 4
-end
-arch wall_dungeon_1
-y 4
-end
-arch floor_fs_grey1b
-z 50
-y 5
-end
-arch shelf3b.111
-y 5
-end
-arch floor_fs_grey1b
-z 50
-y 6
-end
-arch floor_fs_grey1b
-z 50
-y 7
-end
-arch floor_fs_grey1b
-z 50
-y 8
-end
-arch floor_fs_grey1b
-z 50
-y 9
-end
-arch floor_fs_grey1b
-z 50
-y 10
-end
-arch floor_fs_grey1b
-z 50
-y 11
-end
-arch floor_fs_grey1b
-z 50
-y 12
-end
-arch floor_fs_grey1b
-z 50
-y 13
-end
-arch floor_fs_grey1b
-z 50
-y 14
-end
-arch wall_dungeon_1
-y 14
-end
-arch floor_fs_grey1b
-z 50
-y 15
-end
-arch floor_fs_grey1b
-z 50
-y 16
-end
-arch floor_fs_grey1b
-z 50
-y 17
-end
-arch floor_fs_grey1b
-z 50
-y 18
-end
-arch floor_fs_grey1b
-z 50
-y 19
-end
-arch wall_dungeon_1
-y 19
-end
-arch grassd_3
-z 50
-y 20
-end
-arch grassd_2
-z 50
-y 21
-end
-arch tree_big3
-y 21
-end
-arch floor_fs_grey1b
-z 50
-y 22
-end
-arch grassd_m10
-y 22
-end
-arch floor_fs_grey1b
-z 50
-y 23
-end
-arch floor_red1
-z 50
-x 1
-end
-arch floor_red1
-z 50
-x 1
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 4
-end
-arch wall_dungeon_1
-x 1
-y 4
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 5
-end
-arch shelf3c.111
-x 1
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 7
-end
-arch chair2_111
-x 1
-y 7
-end
-arch spawn_point
-x 1
-y 7
-arch female1
-name Nanny
-type 83
-level 10
-end
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 14
-end
-arch wall_dungeon_1
-x 1
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 19
-end
-arch wall_dungeon_1
-x 1
-y 19
-end
-arch grassd_4
-z 50
-x 1
-y 20
-end
-arch grass_thick2
-z 50
-x 1
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 22
-end
-arch grassd_m10
-x 1
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 1
-y 23
-end
-arch floor_red1
-z 50
-x 2
-end
-arch floor_red1
-z 50
-x 2
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 4
-end
-arch wall_dungeon_1
-x 2
-y 4
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 5
-end
-arch shelf3a.111
-x 2
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 14
-end
-arch wall_dungeon_1
-x 2
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 19
-end
-arch wall_dungeon_1
-x 2
-y 19
-end
-arch grassd_2
-z 50
-x 2
-y 20
-end
-arch grassd_6
-z 50
-x 2
-y 21
-end
-arch lantern_magic.131
-glow_radius 7
-direction 3
-x 2
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 22
-end
-arch grassd_m10
-x 2
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 2
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 3
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 4
-end
-arch wall_dungeon_1
-x 3
-y 4
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 14
-end
-arch wall_dungeon_1
-x 3
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 19
-end
-arch wall_dungeon_1
-x 3
-y 19
-end
-arch grass_thick2
-z 50
-x 3
-y 20
-end
-arch grassd_2
-z 50
-x 3
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 22
-end
-arch grassd_m10
-x 3
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 3
-y 23
-end
 arch floor_fs_grey1b
-z 50
-x 4
 end
 arch wall_dungeon_3
-x 4
 end
 arch floor_fs_grey1b
-z 50
-x 4
 y 1
 end
 arch wall_dungeon_3
-x 4
 y 1
 end
 arch floor_fs_grey1b
-z 50
-x 4
 y 2
 end
 arch wall_dungeon_3
-x 4
 y 2
 end
 arch floor_fs_grey1b
-z 50
-x 4
 y 3
 end
 arch wall_dungeon_3
-x 4
 y 3
 end
 arch floor_fs_grey1b
-z 50
-x 4
 y 4
+end
+arch wall_dungeon_3
+y 4
+end
+arch floor_fs_grey1b
+y 5
+end
+arch wall_dungeon_3
+y 5
+end
+arch floor_fs_grey1b
+y 6
+end
+arch wall_dungeon_3
+y 6
+end
+arch floor_fs_grey1b
+y 7
+end
+arch wall_dungeon_3
+y 7
+end
+arch floor_fs_grey1b
+y 8
+end
+arch wall_dungeon_3
+y 8
+end
+arch floor_fs_grey1b
+y 9
+end
+arch wall_dungeon_3
+y 9
+end
+arch floor_fs_grey1b
+y 10
+end
+arch wall_dungeon_3
+y 10
+end
+arch floor_fs_grey1b
+y 11
 end
 arch wall_dungeon_4
-x 4
+y 11
+end
+arch floor_fs_grey1b
+y 12
+end
+arch floor_fs_grey1b
+y 13
+end
+arch floor_fs_grey1b
+y 14
+end
+arch floor_fs_grey1b
+y 15
+end
+arch floor_fs_grey1b
+y 16
+end
+arch floor_fs_grey1b
+y 17
+end
+arch floor_fs_grey1b
+y 18
+end
+arch floor_fs_grey1b
+y 19
+end
+arch wall_dungeon_1
+y 19
+end
+arch floor_fs_grey1b
+x 1
+end
+arch torch_wall_1
+face torch_wall.113
+speed_left -0.491763
+state 2
+glow_radius 5
+is_animated 1
+x 1
+end
+arch floor_fs_grey1b
+x 1
+y 1
+end
+arch floor_fs_grey1b
+x 1
+y 2
+end
+arch floor_fs_grey1b
+x 1
+y 3
+end
+arch torch_wall_1
+direction 7
+x 1
+y 3
+end
+arch floor_fs_grey1b
+x 1
 y 4
 end
 arch floor_fs_grey1b
-z 50
-x 4
+x 1
 y 5
+end
+arch floor_fs_grey1b
+x 1
+y 6
+end
+arch floor_fs_grey1b
+x 1
+y 7
+end
+arch floor_fs_grey1b
+x 1
+y 8
+end
+arch torch_wall_1
+direction 7
+x 1
+y 8
+end
+arch floor_fs_grey1b
+x 1
+y 9
+end
+arch floor_fs_grey1b
+x 1
+y 10
+end
+arch floor_fs_grey1b
+x 1
+y 11
+end
+arch wall_dungeon_1
+x 1
+y 11
+end
+arch floor_fs_grey1b
+x 1
+y 12
+end
+arch wall_dungeon_3
+x 1
+y 12
+end
+arch floor_fs_grey1b
+x 1
+y 13
+end
+arch wall_dungeon_3
+x 1
+y 13
+end
+arch floor_fs_grey1b
+x 1
+y 14
+end
+arch wall_dungeon_3
+x 1
+y 14
+end
+arch floor_fs_grey1b
+x 1
+y 15
 end
 arch door1_locked
+face door_lock1.131
 direction 3
-x 4
-y 5
+last_sp -1
+x 1
+y 15
 end
 arch floor_fs_grey1b
-z 50
-x 4
-y 6
+x 1
+y 16
 end
 arch wall_dungeon_3
-x 4
-y 6
+x 1
+y 16
 end
 arch floor_fs_grey1b
-z 50
-x 4
-y 7
+x 1
+y 17
 end
 arch wall_dungeon_3
-x 4
-y 7
+x 1
+y 17
 end
 arch floor_fs_grey1b
-z 50
-x 4
-y 8
+x 1
+y 18
 end
 arch wall_dungeon_3
-x 4
-y 8
+x 1
+y 18
 end
 arch floor_fs_grey1b
-z 50
-x 4
-y 9
-end
-arch wall_dungeon_3
-x 4
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 4
-y 10
-end
-arch wall_dungeon_3
-x 4
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 4
-y 11
-end
-arch wall_dungeon_3
-x 4
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 4
-y 12
-end
-arch wall_dungeon_3
-x 4
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 4
-y 13
-end
-arch wall_dungeon_3
-x 4
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 4
-y 14
+x 1
+y 19
 end
 arch wall_dungeon_4
+x 1
+y 19
+end
+arch floor_fs_grey1b
+x 2
+end
+arch floor_fs_grey1b
+x 2
+y 1
+end
+arch floor_fs_grey1b
+x 2
+y 2
+end
+arch floor_fs_grey1b
+x 2
+y 3
+end
+arch floor_fs_grey1b
+x 2
+y 4
+end
+arch floor_fs_grey1b
+x 2
+y 5
+end
+arch floor_fs_grey1b
+x 2
+y 6
+end
+arch floor_fs_grey1b
+x 2
+y 7
+end
+arch floor_fs_grey1b
+x 2
+y 8
+end
+arch floor_fs_grey1b
+x 2
+y 9
+end
+arch floor_fs_grey1b
+x 2
+y 10
+end
+arch floor_fs_grey1b
+x 2
+y 11
+end
+arch wall_dungeon_1
+x 2
+y 11
+end
+arch floor_fs_grey1b
+x 2
+y 12
+end
+arch bed_1a.111
+x 2
+y 12
+end
+arch floor_fs_grey1b
+x 2
+y 13
+end
+arch chest_4.111
+x 2
+y 13
+end
+arch floor_fs_grey1b
+x 2
+y 14
+end
+arch bed_1a.111
+x 2
+y 14
+end
+arch floor_fs_grey1b
+x 2
+y 15
+end
+arch floor_fs_grey1b
+x 2
+y 16
+end
+arch bed_1a.111
+x 2
+y 16
+end
+arch floor_fs_grey1b
+x 2
+y 17
+end
+arch chest_4.111
+x 2
+y 17
+end
+arch torch_wall_1
+direction 7
+x 2
+y 17
+end
+arch floor_fs_grey1b
+x 2
+y 18
+end
+arch bed_1a.111
+x 2
+y 18
+end
+arch floor_fs_grey1b
+x 2
+y 19
+end
+arch wall_dungeon_1
+x 2
+y 19
+end
+arch floor_fs_grey1b
+x 3
+end
+arch floor_fs_grey1b
+x 3
+y 1
+end
+arch floor_fs_grey1b
+x 3
+y 2
+end
+arch wall_dungeon_8
+x 3
+y 2
+end
+arch floor_fs_grey1b
+x 3
+y 3
+end
+arch wall_dungeon_3
+x 3
+y 3
+end
+arch floor_fs_grey1b
+x 3
+y 4
+end
+arch wall_dungeon_3
+x 3
+y 4
+end
+arch floor_fs_grey1b
+x 3
+y 5
+end
+arch wall_dungeon_3
+x 3
+y 5
+end
+arch floor_fs_grey1b
+x 3
+y 6
+end
+arch wall_dungeon_3
+x 3
+y 6
+end
+arch floor_fs_grey1b
+x 3
+y 7
+end
+arch wall_dungeon_3
+x 3
+y 7
+end
+arch floor_fs_grey1b
+x 3
+y 8
+end
+arch wall_dungeon_3
+x 3
+y 8
+end
+arch floor_fs_grey1b
+x 3
+y 9
+end
+arch floor_fs_grey1b
+x 3
+y 10
+end
+arch floor_fs_grey1b
+x 3
+y 11
+end
+arch wall_dungeon_1
+x 3
+y 11
+end
+arch floor_fs_grey1b
+x 3
+y 12
+end
+arch bed_1b.111
+x 3
+y 12
+end
+arch floor_fs_grey1b
+x 3
+y 13
+end
+arch floor_fs_grey1b
+x 3
+y 14
+end
+arch bed_1b.111
+x 3
+y 14
+end
+arch floor_fs_grey1b
+x 3
+y 15
+end
+arch floor_fs_grey1b
+x 3
+y 16
+end
+arch bed_1b.111
+x 3
+y 16
+end
+arch floor_fs_grey1b
+x 3
+y 17
+end
+arch floor_fs_grey1b
+x 3
+y 18
+end
+arch bed_1b.111
+x 3
+y 18
+end
+arch floor_fs_grey1b
+x 3
+y 19
+end
+arch wall_dungeon_1
+x 3
+y 19
+end
+arch floor_fs_grey1b
+x 4
+end
+arch floor_fs_grey1b
+x 4
+y 1
+end
+arch floor_fs_grey1b
+x 4
+y 2
+end
+arch wall_dungeon_1
+x 4
+y 2
+end
+arch floor_fs_grey1b
+x 4
+y 3
+end
+arch floor_fs_grey1b
+x 4
+y 4
+end
+arch floor_fs_grey1b
+x 4
+y 5
+end
+arch floor_fs_grey1b
+x 4
+y 6
+end
+arch floor_fs_grey1b
+x 4
+y 7
+end
+arch floor_fs_grey1b
+x 4
+y 8
+end
+arch wall_dungeon_1
+x 4
+y 8
+end
+arch floor_fs_grey1b
+x 4
+y 9
+end
+arch floor_fs_grey1b
+x 4
+y 10
+end
+arch floor_fs_grey1b
+x 4
+y 11
+end
+arch wall_dungeon_1
+x 4
+y 11
+end
+arch floor_fs_grey1b
+x 4
+y 12
+end
+arch torch_wall_1
+x 4
+y 12
+end
+arch floor_fs_grey1b
+x 4
+y 13
+end
+arch floor_fs_grey1b
 x 4
 y 14
 end
 arch floor_fs_grey1b
-z 50
 x 4
 y 15
 end
 arch floor_fs_grey1b
-z 50
 x 4
 y 16
 end
 arch floor_fs_grey1b
-z 50
 x 4
 y 17
 end
 arch floor_fs_grey1b
-z 50
 x 4
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 4
 y 19
 end
@@ -725,1509 +597,1203 @@ arch wall_dungeon_1
 x 4
 y 19
 end
-arch grassd_2
-z 50
-x 4
-y 20
-end
-arch grass_flowers1
-z 50
-x 4
-y 21
-end
 arch floor_fs_grey1b
-z 50
-x 4
-y 22
-end
-arch grassd_m10
-x 4
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 4
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 5
-end
-arch amphora2.101
 x 5
 end
 arch floor_fs_grey1b
-z 50
-x 5
-y 1
-end
-arch bench2.111
-direction 3
-x 5
-y 1
-end
-arch torch_wall_1
-direction 5
 x 5
 y 1
 end
 arch floor_fs_grey1b
-z 50
+x 5
+y 2
+end
+arch wall_dungeon_1
 x 5
 y 2
 end
 arch floor_fs_grey1b
-z 50
-x 5
-y 3
-end
-arch bench2.111
-direction 3
 x 5
 y 3
 end
 arch floor_fs_grey1b
-z 50
 x 5
 y 4
 end
-arch carpet1.151
-x 5
-y 4
-end
-arch floor_red1
-z 50
+arch floor_fs_grey1b
 x 5
 y 5
 end
 arch floor_fs_grey1b
-z 50
 x 5
 y 6
 end
-arch carpet1.111
+arch floor_fs_grey1b
 x 5
+y 7
+end
+arch floor_fs_grey1b
+x 5
+y 8
+end
+arch wall_dungeon_1
+x 5
+y 8
+end
+arch floor_fs_grey1b
+x 5
+y 9
+end
+arch torch_wall_1
+face torch_wall.111
+speed_left -0.011766
+glow_radius 5
+is_animated 1
+x 5
+y 9
+end
+arch floor_fs_grey1b
+x 5
+y 10
+end
+arch floor_fs_grey1b
+x 5
+y 11
+end
+arch wall_dungeon_1
+x 5
+y 11
+end
+arch floor_fs_grey1b
+x 5
+y 12
+end
+arch bed_1a.111
+x 5
+y 12
+end
+arch floor_fs_grey1b
+x 5
+y 13
+end
+arch chest_4.111
+x 5
+y 13
+end
+arch floor_fs_grey1b
+x 5
+y 14
+end
+arch bed_1a.111
+x 5
+y 14
+end
+arch floor_fs_grey1b
+x 5
+y 15
+end
+arch floor_fs_grey1b
+x 5
+y 16
+end
+arch bed_1a.111
+x 5
+y 16
+end
+arch floor_fs_grey1b
+x 5
+y 17
+end
+arch chest_4.111
+x 5
+y 17
+end
+arch floor_fs_grey1b
+x 5
+y 18
+end
+arch bed_1a.111
+x 5
+y 18
+end
+arch floor_fs_grey1b
+x 5
+y 19
+end
+arch wall_dungeon_1
+x 5
+y 19
+end
+arch floor_fs_grey1b
+x 6
+end
+arch floor_fs_grey1b
+x 6
+y 1
+end
+arch floor_fs_grey1b
+x 6
+y 2
+end
+arch wall_dungeon_1
+x 6
+y 2
+end
+arch floor_fs_grey1b
+x 6
+y 3
+end
+arch floor_fs_grey1b
+x 6
+y 4
+end
+arch floor_fs_grey1b
+x 6
+y 5
+end
+arch floor_fs_grey1b
+x 6
 y 6
+end
+arch floor_fs_grey1b
+x 6
+y 7
+end
+arch floor_fs_grey1b
+x 6
+y 8
+end
+arch wall_dungeon_1
+x 6
+y 8
+end
+arch floor_fs_grey1b
+x 6
+y 9
+end
+arch floor_fs_grey1b
+x 6
+y 10
+end
+arch floor_fs_grey1b
+x 6
+y 11
+end
+arch wall_dungeon_1
+x 6
+y 11
+end
+arch floor_fs_grey1b
+x 6
+y 12
+end
+arch bed_1b.111
+x 6
+y 12
+end
+arch floor_fs_grey1b
+x 6
+y 13
+end
+arch floor_fs_grey1b
+x 6
+y 14
+end
+arch bed_1b.111
+x 6
+y 14
+end
+arch floor_fs_grey1b
+x 6
+y 15
+end
+arch floor_fs_grey1b
+x 6
+y 16
+end
+arch bed_1b.111
+x 6
+y 16
+end
+arch floor_fs_grey1b
+x 6
+y 17
+end
+arch floor_fs_grey1b
+x 6
+y 18
+end
+arch bed_1b.111
+x 6
+y 18
+end
+arch floor_fs_grey1b
+x 6
+y 19
+end
+arch wall_dungeon_1
+x 6
+y 19
+end
+arch floor_fs_grey1b
+x 7
+end
+arch torch_wall_1
+face torch_wall.114
+speed_left -0.311764
+state 3
+glow_radius 5
+is_animated 1
+x 7
+end
+arch floor_fs_grey1b
+x 7
+y 1
+end
+arch floor_fs_grey1b
+x 7
+y 2
+end
+arch wall_dungeon_1
+x 7
+y 2
+end
+arch floor_fs_grey1b
+x 7
+y 3
+end
+arch floor_fs_grey1b
+x 7
+y 4
+end
+arch floor_fs_grey1b
+x 7
+y 5
+end
+arch floor_fs_grey1b
+x 7
+y 6
+end
+arch floor_fs_grey1b
+x 7
+y 7
+end
+arch floor_fs_grey1b
+x 7
+y 8
+end
+arch wall_dungeon_1
+x 7
+y 8
+end
+arch floor_fs_grey1b
+x 7
+y 9
+end
+arch floor_fs_grey1b
+x 7
+y 10
+end
+arch floor_fs_grey1b
+x 7
+y 11
+end
+arch wall_dungeon_1
+x 7
+y 11
+end
+arch floor_fs_grey1b
+x 7
+y 12
+end
+arch torch_wall_1
+x 7
+y 12
+end
+arch floor_fs_grey1b
+x 7
+y 13
+end
+arch floor_fs_grey1b
+x 7
+y 14
+end
+arch floor_fs_grey1b
+x 7
+y 15
+end
+arch floor_fs_grey1b
+x 7
+y 16
+end
+arch floor_fs_grey1b
+x 7
+y 17
+end
+arch floor_fs_grey1b
+x 7
+y 18
+end
+arch floor_fs_grey1b
+x 7
+y 19
+end
+arch wall_dungeon_1
+x 7
+y 19
+end
+arch floor_fs_grey1b
+x 8
+end
+arch floor_fs_grey1b
+x 8
+y 1
+end
+arch floor_fs_grey1b
+x 8
+y 2
+end
+arch wall_dungeon_1
+x 8
+y 2
+end
+arch floor_fs_grey1b
+x 8
+y 3
+end
+arch floor_fs_grey1b
+x 8
+y 4
+end
+arch floor_fs_grey1b
+x 8
+y 5
+end
+arch floor_fs_grey1b
+x 8
+y 6
+end
+arch floor_fs_grey1b
+x 8
+y 7
+end
+arch floor_fs_grey1b
+x 8
+y 8
+end
+arch wall_dungeon_1
+x 8
+y 8
+end
+arch floor_fs_grey1b
+x 8
+y 9
+end
+arch floor_fs_grey1b
+x 8
+y 10
+end
+arch floor_fs_grey1b
+x 8
+y 11
+end
+arch wall_dungeon_1
+x 8
+y 11
+end
+arch floor_fs_grey1b
+x 8
+y 12
+end
+arch bed_1a.111
+x 8
+y 12
+end
+arch floor_fs_grey1b
+x 8
+y 13
+end
+arch chest_4.111
+x 8
+y 13
+end
+arch floor_fs_grey1b
+x 8
+y 14
+end
+arch bed_1a.111
+x 8
+y 14
+end
+arch floor_fs_grey1b
+x 8
+y 15
+end
+arch floor_fs_grey1b
+x 8
+y 16
+end
+arch bed_1a.111
+x 8
+y 16
+end
+arch floor_fs_grey1b
+x 8
+y 17
+end
+arch chest_4.111
+x 8
+y 17
+end
+arch floor_fs_grey1b
+x 8
+y 18
+end
+arch bed_1a.111
+x 8
+y 18
+end
+arch floor_fs_grey1b
+x 8
+y 19
+end
+arch wall_dungeon_1
+x 8
+y 19
+end
+arch floor_fs_grey1b
+x 9
+end
+arch floor_fs_grey1b
+x 9
+y 1
+end
+arch floor_fs_grey1b
+x 9
+y 2
+end
+arch wall_dungeon_1
+x 9
+y 2
+end
+arch floor_fs_grey1b
+x 9
+y 3
+end
+arch floor_fs_grey1b
+x 9
+y 4
+end
+arch floor_fs_grey1b
+x 9
+y 5
+end
+arch floor_fs_grey1b
+x 9
+y 6
+end
+arch floor_fs_grey1b
+x 9
+y 7
+end
+arch floor_fs_grey1b
+x 9
+y 8
+end
+arch wall_dungeon_1
+x 9
+y 8
+end
+arch floor_fs_grey1b
+x 9
+y 9
+end
+arch floor_fs_grey1b
+x 9
+y 10
+end
+arch floor_fs_grey1b
+x 9
+y 11
+end
+arch wall_dungeon_1
+x 9
+y 11
+end
+arch floor_fs_grey1b
+x 9
+y 12
+end
+arch bed_1b.111
+x 9
+y 12
+end
+arch floor_fs_grey1b
+x 9
+y 13
+end
+arch floor_fs_grey1b
+x 9
+y 14
+end
+arch bed_1b.111
+x 9
+y 14
+end
+arch floor_fs_grey1b
+x 9
+y 15
+end
+arch floor_fs_grey1b
+x 9
+y 16
+end
+arch bed_1b.111
+x 9
+y 16
+end
+arch floor_fs_grey1b
+x 9
+y 17
+end
+arch floor_fs_grey1b
+x 9
+y 18
+end
+arch bed_1b.111
+x 9
+y 18
+end
+arch floor_fs_grey1b
+x 9
+y 19
+end
+arch wall_dungeon_1
+x 9
+y 19
+end
+arch floor_stone_b1
+x 9
+y 20
+end
+arch fwall_marble3b
+x 9
+y 20
+end
+arch floor_stone_b1
+x 9
+y 21
+end
+arch fwall_marble3b
+x 9
+y 21
+end
+arch floor_stone_b1
+x 9
+y 22
+end
+arch fwall_marble3b
+x 9
+y 22
+end
+arch floor_stone_b1
+x 9
+y 23
+end
+arch fwall_marble3b
+x 9
+y 23
+end
+arch floor_fs_grey1b
+x 10
+end
+arch floor_fs_grey1b
+x 10
+y 1
+end
+arch floor_fs_grey1b
+x 10
+y 2
+end
+arch wall_dungeon_1
+x 10
+y 2
+end
+arch floor_fs_grey1b
+x 10
+y 3
+end
+arch floor_fs_grey1b
+x 10
+y 4
+end
+arch floor_fs_grey1b
+x 10
+y 5
+end
+arch floor_fs_grey1b
+x 10
+y 6
+end
+arch floor_fs_grey1b
+x 10
+y 7
+end
+arch floor_fs_grey1b
+x 10
+y 8
+end
+arch wall_dungeon_1
+x 10
+y 8
+end
+arch floor_fs_grey1b
+x 10
+y 9
+end
+arch torch_wall_1
+face torch_wall.111
+speed_left -0.591764
+glow_radius 5
+is_animated 1
+x 10
+y 9
+end
+arch floor_fs_grey1b
+x 10
+y 10
+end
+arch floor_fs_grey1b
+x 10
+y 11
+end
+arch wall_dungeon_1
+x 10
+y 11
+end
+arch floor_fs_grey1b
+x 10
+y 12
+end
+arch wall_dungeon_3
+x 10
+y 12
+end
+arch floor_fs_grey1b
+x 10
+y 13
+end
+arch wall_dungeon_3
+x 10
+y 13
+end
+arch floor_fs_grey1b
+x 10
+y 14
+end
+arch wall_dungeon_3
+x 10
+y 14
+end
+arch floor_fs_grey1b
+x 10
+y 15
+end
+arch wall_dungeon_3
+x 10
+y 15
+end
+arch floor_fs_grey1b
+x 10
+y 16
+end
+arch wall_dungeon_3
+x 10
+y 16
+end
+arch floor_fs_grey1b
+x 10
+y 17
+end
+arch wall_dungeon_3
+x 10
+y 17
+end
+arch wall_dungeon_3
+x 10
+y 18
+end
+arch floor_fs_grey1b
+x 10
+y 18
+end
+arch floor_fs_grey1b
+x 10
+y 19
+end
+arch wall_dungeon_4
+x 10
+y 19
+end
+arch Flag-Asteria.111
+x 10
+y 19
+end
+arch floor_stone_b1
+x 10
+y 20
+end
+arch handle_lever
+path_attuned 101
+value 1
+connected 101
+x 10
+y 20
 end
 arch spawn_point
-x 5
-y 6
+x 10
+y 20
 arch guard
 name Asterian Guard
+level 100
 type 83
-level 45
+carrying 4600
+weight 5000
+friendly 1
+unaggressive 0
+arch key_blue
+name Asteria Dungeon Key 1
+slaying asteria_dungeon_key1
+startequip 1
+quest_item 1
+one_drop 1
+end
+arch event_obj
+race /SCRIPTS/asteria/AsteriaGuard.py
+sub_type 6
 end
 end
-arch floor_fs_grey1b
-z 50
-x 5
-y 7
 end
-arch torch_wall_1
-direction 5
-x 5
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 8
-end
-arch bench2.111
-direction 3
-x 5
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 10
-end
-arch bench2.111
-direction 3
-x 5
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 11
-end
-arch basin1_full.101
-x 5
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 12
-end
-arch torch_wall_1
-direction 5
-x 5
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 13
-end
-arch bench2.111
-direction 3
-x 5
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 14
-end
-arch wall_dungeon_1
-x 5
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 5
-y 19
-end
-arch wall_dungeon_1
-x 5
-y 19
-end
-arch grassd_7
-z 50
-x 5
-y 20
-end
-arch grassd_5
-z 50
-x 5
+arch floor_stone_b1
+x 10
 y 21
 end
-arch tree_big3
-x 5
+arch gate_closed
+face gate_door1.114
+wc 0
+speed_left -0.500000
+path_attuned 101
+value 1
+state 0
+connected 101
+no_pass 0
+blocksview 0
+x 10
 y 21
 end
-arch floor_fs_grey1b
-z 50
-x 5
+arch floor_stone_b1
+x 10
 y 22
 end
-arch grassd_m10
-x 5
+arch torch_wall_1
+direction 7
+x 10
 y 22
 end
-arch floor_fs_grey1b
-z 50
-x 5
+arch floor_stone_b1
+x 10
 y 23
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 1
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
+y 2
+end
+arch wall_dungeon_1
+x 11
 y 2
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 3
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 4
 end
-arch carpet1.151
-x 6
-y 4
-end
-arch floor_red1
-z 50
-x 6
+arch floor_fs_grey1b
+x 11
 y 5
 end
 arch floor_fs_grey1b
-z 50
-x 6
-y 6
-end
-arch carpet1.111
-x 6
+x 11
 y 6
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 7
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
+y 8
+end
+arch wall_dungeon_1
+x 11
 y 8
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 9
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 10
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 11
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 12
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 14
+end
+arch torch_wall_1
+direction 7
+x 11
+y 14
+end
+arch floor_fs_grey1b
+x 11
+y 15
+end
+arch floor_fs_grey1b
+x 11
+y 16
+end
+arch floor_fs_grey1b
+x 11
+y 17
+end
+arch floor_fs_grey1b
+x 11
+y 18
+end
+arch torch_wall_1
+direction 7
+x 11
+y 18
+end
+arch floor_fs_grey1b
+x 11
+y 19
 end
 arch door1_locked
 last_sp -1
-x 6
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 6
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 6
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 6
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 6
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 6
+x 11
 y 19
 end
-arch wall_dungeon_1
-x 6
-y 19
-end
-arch grassd_8
-z 50
-x 6
+arch floor_stone_b1
+x 11
 y 20
 end
-arch grassd_8
-z 50
-x 6
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 6
-y 22
-end
-arch grassd_m10
-x 6
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 6
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 7
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 4
-end
-arch carpet1.151
-x 7
-y 4
-end
-arch floor_red1
-z 50
-x 7
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 6
-end
-arch carpet1.111
-x 7
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 14
-end
-arch wall_dungeon_1
-x 7
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 19
-end
-arch wall_dungeon_1
-x 7
-y 19
-end
-arch grassd_5
-z 50
-x 7
-y 20
-end
-arch grassd_3
-z 50
-x 7
-y 21
-end
-arch lantern_magic.131
-glow_radius 7
-direction 3
-x 7
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 22
-end
-arch grassd_m10
-x 7
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 7
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 8
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 1
-end
-arch pillar_white1d
-x 8
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 3
-end
-arch crystal10
-weight 5000
-x 8
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 4
-end
-arch carpet1.151
-x 8
-y 4
-end
-arch floor_red1
-z 50
-x 8
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 6
-end
-arch carpet1.111
-x 8
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 7
-end
-arch pillar_white1d
-x 8
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 12
-end
-arch pillar_white1d
-x 8
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 14
-end
-arch wall_dungeon_1
-x 8
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 19
-end
-arch wall_dungeon_1
-x 8
-y 19
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 20
-end
-arch grassd_m4
-x 8
-y 20
-end
-arch lantern2_magic.131
-glow_radius 7
-x 8
-y 20
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 21
-end
-arch grassd_m9
-x 8
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 22
-end
-arch grassd_m13
-x 8
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 8
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 9
-end
-arch carpet1.131
-x 9
-end
-arch potted_plant4
-x 9
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 1
-end
-arch carpet1.131
-x 9
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 2
-end
-arch carpet1.131
-x 9
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 3
-end
-arch carpet1.131
-x 9
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 4
-end
-arch carpet1.131
-x 9
-y 4
-end
-arch floor_red1
-z 50
-x 9
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 6
-end
-arch carpet1.131
-x 9
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 7
-end
-arch carpet1.131
-x 9
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 8
-end
-arch carpet1.131
-x 9
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 9
-end
-arch carpet1.131
-x 9
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 10
-end
-arch carpet1.131
-x 9
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 11
-end
-arch carpet1.131
-x 9
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 12
-end
-arch carpet1.131
-x 9
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 13
-end
-arch potted_plant4
-x 9
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 14
-end
-arch wall_dungeon_1
-x 9
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 15
-end
-arch wall_dungeon_3
-x 9
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 16
-end
-arch wall_dungeon_3
-x 9
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 17
-end
-arch wall_dungeon_3
-x 9
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 18
-end
-arch wall_dungeon_3
-x 9
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 19
-end
-arch wall_dungeon_4
-x 9
-y 19
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 20
-end
-arch pillar_small_01
-x 9
-y 20
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 9
-y 23
-end
-arch floor_red1
-z 50
-x 10
-end
-arch spawn_point
-x 10
-arch guard
-name Asterian Guard
-type 83
-level 45
-end
-end
-arch floor_red1
-z 50
-x 10
-y 1
-end
-arch floor_red1
-z 50
-x 10
-y 2
-end
-arch floor_red1
-z 50
-x 10
-y 3
-end
-arch floor_red1
-z 50
-x 10
-y 4
-end
-arch floor_red1
-z 50
-x 10
-y 5
-end
-arch floor_red1
-z 50
-x 10
-y 6
-end
-arch floor_red1
-z 50
-x 10
-y 7
-end
-arch floor_red1
-z 50
-x 10
-y 8
-end
-arch floor_red1
-z 50
-x 10
-y 9
-end
-arch floor_red1
-z 50
-x 10
-y 10
-end
-arch floor_red1
-z 50
-x 10
-y 11
-end
-arch floor_red1
-z 50
-x 10
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 13
-end
-arch carpet1.111
-x 10
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 14
-end
-arch grate_open
+arch magic_ear
+msg
+@match eagle
+Correct, you may pass.
+endmsg
+path_attuned 101
+value 1
 connected 101
-x 10
-y 14
+x 11
+y 21
+end
+arch floor_stone_b1
+x 11
+y 21
+end
+arch gate_closed
+face gate_door1.114
+wc 0
+speed_left -0.500000
+path_attuned 101
+value 1
+state 0
+connected 101
+no_pass 0
+blocksview 0
+x 11
+y 21
+end
+arch floor_stone_b1
+x 11
+y 22
+end
+arch floor_stone_b1
+x 11
+y 23
 end
 arch floor_fs_grey1b
-z 50
-x 10
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 16
+x 12
 end
 arch torch_wall_1
-direction 5
-x 10
-y 16
+face torch_wall.111
+speed_left -0.031764
+glow_radius 5
+is_animated 1
+x 12
 end
 arch floor_fs_grey1b
-z 50
-x 10
-y 17
-end
-arch handle_lever
-layer 0
-sys_object 1
-connected 101
-x 10
-y 17
-end
-arch spawn_point
-x 10
-y 17
-arch guard
-name Asterian Guard
-type 83
-level 42
-end
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 18
-end
-arch grate_open
-connected 101
-x 10
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 19
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 20
-end
-arch spawn_point
-x 10
-y 20
-arch guard
-name Asterian Guard
-type 83
-level 42
-end
-end
-arch floor_fs_grey1b
-z 50
-x 10
-y 21
-end
-arch floor_white3a
-z 50
-x 10
-y 22
-end
-arch floor_white3b
-z 50
-x 10
-y 23
-end
-arch light9
-x 11
-end
-arch floor_red1
-z 50
-x 11
-end
-arch floor_red1
-z 50
-x 11
+x 12
 y 1
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 2
 end
-arch floor_red1
-z 50
-x 11
+arch wall_dungeon_1
+x 12
+y 2
+end
+arch floor_fs_grey1b
+x 12
 y 3
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 4
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 5
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 6
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 7
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 8
 end
-arch floor_red1
-z 50
-x 11
+arch wall_dungeon_1
+x 12
+y 8
+end
+arch floor_fs_grey1b
+x 12
 y 9
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 10
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 11
 end
-arch floor_red1
-z 50
-x 11
+arch floor_fs_grey1b
+x 12
 y 12
 end
 arch floor_fs_grey1b
-z 50
-x 11
+x 12
 y 13
 end
-arch carpet1.111
-x 11
-y 13
-end
-arch magic_ear
-msg
-@match eagle
-Correct, you may pass.
-endmsg
-path_attuned 101
-connected 101
-x 11
+arch floor_fs_grey1b
+x 12
 y 14
 end
 arch floor_fs_grey1b
-z 50
-x 11
-y 14
-end
-arch grate_open
-connected 101
-x 11
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 11
+x 12
 y 15
 end
 arch floor_fs_grey1b
-z 50
-x 11
+x 12
 y 16
 end
 arch floor_fs_grey1b
-z 50
-x 11
+x 12
 y 17
 end
-arch magic_ear
-msg
-@match eagle
-Correct, you may pass.
-endmsg
-path_attuned 101
-connected 101
-x 11
+arch floor_fs_grey1b
+x 12
 y 18
 end
 arch floor_fs_grey1b
-z 50
-x 11
-y 18
-end
-arch grate_open
-connected 101
-x 11
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 11
+x 12
 y 19
 end
-arch floor_fs_grey1b
-z 50
-x 11
+arch wall_dungeon_1
+x 12
+y 19
+end
+arch water_still
+face lake.102
+speed_left -0.581700
+state 1
+x 12
 y 20
 end
-arch floor_fs_grey1b
-z 50
-x 11
+arch torch_wall_1
+face torch_wall.112
+speed_left -0.191817
+state 1
+glow_radius 5
+is_animated 1
+x 12
+y 20
+end
+arch water_still
+face lake.102
+speed_left -0.581700
+state 1
+x 12
 y 21
 end
-arch floor_white3c
-z 50
-x 11
+arch grate_open
+maxsp 0
+speed_left -0.500000
+path_attuned 101
+value 1
+connected 101
+x 12
+y 21
+end
+arch water_still
+face lake.102
+speed_left -0.581700
+state 1
+x 12
 y 22
 end
 arch water_still
-glow_radius 4
-z 50
-x 11
-y 23
-end
-arch floor_red1
-z 50
-x 12
-end
-arch spawn_point
-x 12
-arch guard
-name Asterian Guard
-type 83
-level 45
-end
-end
-arch floor_red1
-z 50
-x 12
-y 1
-end
-arch floor_red1
-z 50
-x 12
-y 2
-end
-arch floor_red1
-z 50
-x 12
-y 3
-end
-arch floor_red1
-z 50
-x 12
-y 4
-end
-arch floor_red1
-z 50
-x 12
-y 5
-end
-arch floor_red1
-z 50
-x 12
-y 6
-end
-arch floor_red1
-z 50
-x 12
-y 7
-end
-arch floor_red1
-z 50
-x 12
-y 8
-end
-arch floor_red1
-z 50
-x 12
-y 9
-end
-arch floor_red1
-z 50
-x 12
-y 10
-end
-arch floor_red1
-z 50
-x 12
-y 11
-end
-arch floor_red1
-z 50
-x 12
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 13
-end
-arch carpet1.111
-x 12
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 14
-end
-arch grate_open
-connected 101
-x 12
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 15
-end
-arch light7
-x 12
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 17
-end
-arch spawn_point
-x 12
-y 17
-arch guard
-name Asterian Guard
-type 83
-level 42
-end
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 18
-end
-arch grate_open
-connected 101
-x 12
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 19
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 20
-end
-arch spawn_point
-x 12
-y 20
-arch guard
-name Asterian Guard
-type 83
-level 42
-end
-end
-arch floor_fs_grey1b
-z 50
-x 12
-y 21
-end
-arch floor_white3b
-z 50
-x 12
-y 22
-end
-arch floor_white3b
-z 50
+face lake.102
+speed_left -0.581700
+state 1
 x 12
 y 23
 end
 arch floor_fs_grey1b
-z 50
-x 13
-end
-arch carpet1.171
-x 13
-end
-arch potted_plant4
 x 13
 end
 arch floor_fs_grey1b
-z 50
-x 13
-y 1
-end
-arch carpet1.171
 x 13
 y 1
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 2
 end
-arch carpet1.171
+arch wall_dungeon1.111
 x 13
 y 2
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 3
 end
-arch carpet1.171
+arch wall_dungeon_3
 x 13
 y 3
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 4
 end
-arch carpet1.171
+arch wall_dungeon_3
 x 13
 y 4
 end
-arch floor_red1
-z 50
+arch floor_fs_grey1b
+x 13
+y 5
+end
+arch wall_dungeon_3
 x 13
 y 5
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 6
 end
-arch carpet1.171
+arch wall_dungeon_3
 x 13
 y 6
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 7
 end
-arch carpet1.171
+arch wall_dungeon_3
 x 13
 y 7
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 8
 end
-arch carpet1.171
+arch wall_dungeon_4
 x 13
 y 8
 end
 arch floor_fs_grey1b
-z 50
-x 13
-y 9
-end
-arch carpet1.171
 x 13
 y 9
 end
 arch floor_fs_grey1b
-z 50
-x 13
-y 10
-end
-arch carpet1.171
 x 13
 y 10
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 11
-end
-arch carpet1.171
-x 13
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 12
-end
-arch carpet1.171
-x 13
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 13
-end
-arch potted_plant4
-x 13
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 14
 end
 arch wall_dungeon_8
 x 13
+y 11
+end
+arch floor_fs_grey1b
+x 13
+y 12
+end
+arch wall_dungeon_3
+x 13
+y 12
+end
+arch floor_fs_grey1b
+x 13
+y 13
+end
+arch wall_dungeon_3
+x 13
+y 13
+end
+arch floor_fs_grey1b
+x 13
+y 14
+end
+arch wall_dungeon_3
+x 13
 y 14
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 15
 end
@@ -2236,7 +1802,6 @@ x 13
 y 15
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 16
 end
@@ -2245,7 +1810,6 @@ x 13
 y 16
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 17
 end
@@ -2254,7 +1818,6 @@ x 13
 y 17
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 18
 end
@@ -2263,701 +1826,625 @@ x 13
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 13
 y 19
-end
-arch wall_dungeon_3
-x 13
-y 19
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 20
-end
-arch pillar_small_01
-x 13
-y 20
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 13
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 14
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 1
-end
-arch pillar_white1d
-x 14
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 3
-end
-arch crystal10
-weight 5000
-x 14
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 4
-end
-arch carpet1.151
-x 14
-y 4
-end
-arch floor_red1
-z 50
-x 14
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 6
-end
-arch carpet1.111
-x 14
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 7
-end
-arch pillar_white1d
-x 14
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 12
-end
-arch pillar_white1d
-x 14
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 14
-end
-arch wall_dungeon_1
-x 14
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 19
-end
-arch wall_dungeon_1
-x 14
-y 19
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 20
-end
-arch grassd_m6
-x 14
-y 20
-end
-arch lantern2_magic.131
-glow_radius 7
-x 14
-y 20
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 21
-end
-arch grassd_m8
-x 14
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 22
-end
-arch grassd_m12
-x 14
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 14
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 15
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 4
-end
-arch carpet1.151
-x 15
-y 4
-end
-arch floor_red1
-z 50
-x 15
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 6
-end
-arch carpet1.111
-x 15
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 14
-end
-arch wall_dungeon_1
-x 15
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 19
-end
-arch wall_dungeon_1
-x 15
-y 19
-end
-arch grassd_1
-z 50
-x 15
-y 20
-end
-arch grass_flowers1
-z 50
-x 15
-y 21
-end
-arch lantern_magic.131
-glow_radius 7
-direction 3
-x 15
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 22
-end
-arch grassd_m10
-x 15
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 15
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 16
-end
-arch amphora1.101
-x 16
-end
-arch light4
-x 16
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 1
-end
-arch bench2.111
-direction 7
-x 16
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 3
-end
-arch bench2.111
-direction 7
-x 16
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 4
-end
-arch carpet1.151
-x 16
-y 4
-end
-arch floor_red1
-z 50
-x 16
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 6
-end
-arch carpet1.111
-x 16
-y 6
-end
-arch spawn_point
-x 16
-y 6
-arch guard
-name Asterian Guard
-type 83
-level 45
-end
-end
-arch light4
-x 16
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 7
-end
-arch bench2.111
-direction 7
-x 16
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 9
-end
-arch bench2.111
-direction 7
-x 16
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 10
-end
-arch basin1_full.101
-x 16
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 11
-end
-arch light4
-x 16
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 12
-end
-arch bench2.111
-direction 7
-x 16
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 14
-end
-arch door1_locked
-last_sp -1
-x 16
-y 14
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 15
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 19
-end
-arch wall_dungeon_1
-x 16
-y 19
-end
-arch grassd_2
-z 50
-x 16
-y 20
-end
-arch grassd_8
-z 50
-x 16
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 22
-end
-arch grassd_m10
-x 16
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 16
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 17
-end
-arch wall_dungeon_3
-x 17
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 1
-end
-arch wall_dungeon_3
-x 17
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 2
-end
-arch wall_dungeon_3
-x 17
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 3
-end
-arch wall_dungeon_3
-x 17
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 4
-end
-arch wall_dungeon_3
-x 17
-y 4
-end
-arch floor_red1
-z 50
-x 17
-y 5
-end
-arch door1_locked
-direction 3
-x 17
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 6
-end
-arch wall_dungeon_3
-x 17
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 7
-end
-arch wall_dungeon_3
-x 17
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 8
-end
-arch wall_dungeon_3
-x 17
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 9
-end
-arch wall_dungeon_3
-x 17
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 10
-end
-arch wall_dungeon_3
-x 17
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 11
-end
-arch wall_dungeon_3
-x 17
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 12
-end
-arch wall_dungeon_3
-x 17
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 13
-end
-arch wall_dungeon_3
-x 17
-y 13
-end
-arch floor_fs_grey1b
-z 50
-x 17
-y 14
 end
 arch wall_dungeon_4
+x 13
+y 19
+end
+arch floor_stone_b1
+x 13
+y 20
+end
+arch water_still
+face lake.103
+speed_left -0.881700
+state 2
+x 13
+y 21
+end
+arch grate_open
+maxsp 0
+speed_left -0.500000
+path_attuned 101
+value 1
+connected 101
+x 13
+y 21
+end
+arch water_still
+face lake.103
+speed_left -0.701700
+state 2
+x 13
+y 22
+end
+arch water_still
+face lake.102
+speed_left -0.621701
+state 1
+x 13
+y 23
+end
+arch floor_fs_grey1b
+x 14
+end
+arch wall_dungeon_3
+x 14
+end
+arch floor_fs_grey1b
+x 14
+y 1
+end
+arch door1_locked
+msg
+You need Asteria Dungeon Key 1 to enter here.
+endmsg
+slaying asteria_dungeon_key1
+face door_lock1.131
+direction 3
+last_sp -1
+x 14
+y 1
+end
+arch floor_fs_grey1b
+x 14
+y 2
+end
+arch wall_dungeon_4
+x 14
+y 2
+end
+arch floor_fs_grey1b
+x 14
+y 3
+end
+arch floor_fs_grey1b
+x 14
+y 4
+end
+arch floor_fs_grey1b
+x 14
+y 5
+end
+arch torch_wall_1
+direction 7
+x 14
+y 5
+end
+arch floor_fs_grey1b
+x 14
+y 6
+end
+arch floor_fs_grey1b
+x 14
+y 7
+end
+arch floor_fs_grey1b
+x 14
+y 8
+end
+arch wall_dungeon_1
+x 14
+y 8
+end
+arch floor_fs_grey1b
+x 14
+y 9
+end
+arch floor_fs_grey1b
+x 14
+y 10
+end
+arch floor_fs_grey1b
+x 14
+y 11
+end
+arch wall_dungeon_1
+x 14
+y 11
+end
+arch floor_fs_grey1b
+x 14
+y 12
+end
+arch amphora2.101
+x 14
+y 12
+end
+arch floor_fs_grey1b
+x 14
+y 13
+end
+arch amphora1.101
+x 14
+y 13
+end
+arch floor_fs_grey1b
+x 14
+y 14
+end
+arch pottery5.101
+x 14
+y 14
+end
+arch floor_fs_grey1b
+x 14
+y 15
+end
+arch pottery2.101
+x 14
+y 15
+end
+arch floor_fs_grey1b
+x 14
+y 16
+end
+arch amphora2.101
+x 14
+y 16
+end
+arch floor_fs_grey1b
+x 14
+y 17
+end
+arch amphora1.101
+x 14
+y 17
+end
+arch floor_fs_grey1b
+x 14
+y 18
+end
+arch pottery2.101
+x 14
+y 18
+end
+arch floor_fs_grey1b
+x 14
+y 19
+end
+arch wall_dungeon_1
+x 14
+y 19
+end
+arch floor_stone_b1
+x 14
+y 20
+end
+arch fwall_marble3b
+x 14
+y 20
+end
+arch floor_stone_b1
+x 14
+y 21
+end
+arch fwall_marble3b
+x 14
+y 21
+end
+arch floor_stone_b1
+x 14
+y 22
+end
+arch fwall_marble3b
+x 14
+y 22
+end
+arch floor_stone_b1
+x 14
+y 23
+end
+arch fwall_marble3b
+x 14
+y 23
+end
+arch floor_fs_grey1b
+x 15
+end
+arch spawn_point
+x 15
+arch lavagolem
+Wis 1
+level 30
+type 83
+carrying 4200
+weight 85000
+arch key2
+name Asteria Dungeon Key 2
+slaying asteria_dungeon_key2
+quest_item 1
+one_drop 1
+end
+end
+end
+arch floor_fs_grey1b
+x 15
+y 1
+end
+arch floor_fs_grey1b
+x 15
+y 2
+end
+arch wall_dungeon_1
+x 15
+y 2
+end
+arch floor_fs_grey1b
+x 15
+y 3
+end
+arch floor_fs_grey1b
+x 15
+y 4
+end
+arch floor_fs_grey1b
+x 15
+y 5
+end
+arch floor_fs_grey1b
+x 15
+y 6
+end
+arch floor_fs_grey1b
+x 15
+y 7
+end
+arch floor_fs_grey1b
+x 15
+y 8
+end
+arch wall_dungeon_1
+x 15
+y 8
+end
+arch floor_fs_grey1b
+x 15
+y 9
+end
+arch torch_wall_1
+face torch_wall.114
+speed_left -0.331762
+state 3
+glow_radius 5
+is_animated 1
+x 15
+y 9
+end
+arch floor_fs_grey1b
+x 15
+y 10
+end
+arch floor_fs_grey1b
+x 15
+y 11
+end
+arch wall_dungeon_1
+x 15
+y 11
+end
+arch floor_fs_grey1b
+x 15
+y 12
+end
+arch keg_big.101
+x 15
+y 12
+end
+arch floor_fs_grey1b
+x 15
+y 13
+end
+arch pottery6.101
+x 15
+y 13
+end
+arch floor_fs_grey1b
+x 15
+y 14
+end
+arch pottery4.101
+x 15
+y 14
+end
+arch floor_fs_grey1b
+x 15
+y 15
+end
+arch pottery3.101
+x 15
+y 15
+end
+arch floor_fs_grey1b
+x 15
+y 16
+end
+arch keg_big.101
+x 15
+y 16
+end
+arch floor_fs_grey1b
+x 15
+y 17
+end
+arch pottery3.101
+x 15
+y 17
+end
+arch floor_fs_grey1b
+x 15
+y 18
+end
+arch pottery5.101
+x 15
+y 18
+end
+arch floor_fs_grey1b
+x 15
+y 19
+end
+arch wall_dungeon_1
+x 15
+y 19
+end
+arch blocked
+x 15
+y 20
+end
+arch blocked
+x 15
+y 21
+end
+arch blocked
+x 15
+y 22
+end
+arch blocked
+x 15
+y 23
+end
+arch floor_fs_grey1b
+x 16
+end
+arch floor_fs_grey1b
+x 16
+y 1
+end
+arch floor_fs_grey1b
+x 16
+y 2
+end
+arch wall_dungeon_1
+x 16
+y 2
+end
+arch floor_fs_grey1b
+x 16
+y 3
+end
+arch floor_fs_grey1b
+x 16
+y 4
+end
+arch floor_fs_grey1b
+x 16
+y 5
+end
+arch floor_fs_grey1b
+x 16
+y 6
+end
+arch floor_fs_grey1b
+x 16
+y 7
+end
+arch floor_fs_grey1b
+x 16
+y 8
+end
+arch wall_dungeon_1
+x 16
+y 8
+end
+arch floor_fs_grey1b
+x 16
+y 9
+end
+arch floor_fs_grey1b
+x 16
+y 10
+end
+arch floor_fs_grey1b
+x 16
+y 11
+end
+arch wall_dungeon_1
+x 16
+y 11
+end
+arch floor_fs_grey1b
+x 16
+y 12
+end
+arch pottery1.101
+x 16
+y 12
+end
+arch floor_fs_grey1b
+x 16
+y 13
+end
+arch box_big.101
+x 16
+y 13
+end
+arch floor_fs_grey1b
+x 16
+y 14
+end
+arch floor_fs_grey1b
+x 16
+y 15
+end
+arch floor_fs_grey1b
+x 16
+y 16
+end
+arch floor_fs_grey1b
+x 16
+y 17
+end
+arch floor_fs_grey1b
+x 16
+y 18
+end
+arch floor_fs_grey1b
+x 16
+y 19
+end
+arch wall_dungeon_1
+x 16
+y 19
+end
+arch blocked
+x 16
+y 20
+end
+arch blocked
+x 16
+y 21
+end
+arch blocked
+x 16
+y 22
+end
+arch blocked
+x 16
+y 23
+end
+arch floor_fs_grey1b
+x 17
+end
+arch floor_fs_grey1b
+x 17
+y 1
+end
+arch floor_fs_grey1b
+x 17
+y 2
+end
+arch wall_dungeon_1
+x 17
+y 2
+end
+arch floor_fs_grey1b
+x 17
+y 3
+end
+arch torch_wall_1
+face torch_wall.112
+speed_left -0.451770
+state 1
+glow_radius 5
+is_animated 1
+x 17
+y 3
+end
+arch floor_fs_grey1b
+x 17
+y 4
+end
+arch floor_fs_grey1b
+x 17
+y 5
+end
+arch floor_fs_grey1b
+x 17
+y 6
+end
+arch floor_fs_grey1b
+x 17
+y 7
+end
+arch floor_fs_grey1b
+x 17
+y 8
+end
+arch wall_dungeon_1
+x 17
+y 8
+end
+arch floor_fs_grey1b
+x 17
+y 9
+end
+arch floor_fs_grey1b
+x 17
+y 10
+end
+arch floor_fs_grey1b
+x 17
+y 11
+end
+arch wall_dungeon_1
+x 17
+y 11
+end
+arch floor_fs_grey1b
+x 17
+y 12
+end
+arch wall_dungeon_3
+x 17
+y 12
+end
+arch floor_fs_grey1b
+x 17
+y 13
+end
+arch bath_tub1
+x 17
+y 13
+end
+arch floor_fs_grey1b
 x 17
 y 14
 end
 arch floor_fs_grey1b
-z 50
+x 17
+y 15
+end
+arch basket2.101
 x 17
 y 15
 end
 arch floor_fs_grey1b
-z 50
+x 17
+y 16
+end
+arch grain3.101
 x 17
 y 16
 end
 arch floor_fs_grey1b
-z 50
+x 17
+y 17
+end
+arch grain4.101
 x 17
 y 17
 end
 arch floor_fs_grey1b
-z 50
+x 17
+y 18
+end
+arch grain5.101
 x 17
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 17
 y 19
 end
@@ -2965,154 +2452,145 @@ arch wall_dungeon_1
 x 17
 y 19
 end
-arch grassd_6
-z 50
+arch blocked
 x 17
 y 20
 end
-arch grassd_5
-z 50
+arch blocked
 x 17
 y 21
 end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 17
 y 22
 end
-arch grassd_m10
-x 17
-y 22
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 17
 y 23
 end
 arch floor_fs_grey1b
-z 50
+x 18
+end
+arch wall_dungeon_3
 x 18
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 1
+end
+arch wall_dungeon_3
 x 18
 y 1
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 2
+end
+arch wall_dungeon_4
 x 18
 y 2
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 3
 end
 arch floor_fs_grey1b
-z 50
-x 18
-y 4
-end
-arch wall_dungeon_1
 x 18
 y 4
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 5
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 6
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 7
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 8
+end
+arch wall_dungeon_1
 x 18
 y 8
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 9
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 10
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 11
 end
-arch bar1
+arch wall_dungeon_1
 x 18
 y 11
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 12
 end
-arch spawn_point
+arch fwall_fstone2
 x 18
 y 12
-arch chef
-type 83
-level 14
-end
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 13
 end
-arch stairs_stone_down
+arch stairs_stone_up
 direction 7
-slaying world_a_0736
+slaying world_0736
 hp 18
 sp 13
 x 18
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 18
-y 14
-end
-arch wall_dungeon_1
 x 18
 y 14
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 15
+end
+arch basket1.101
 x 18
 y 15
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 16
+end
+arch grain3.101
 x 18
 y 16
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 17
+end
+arch grain4.101
 x 18
 y 17
 end
 arch floor_fs_grey1b
-z 50
+x 18
+y 18
+end
+arch grain5.101
 x 18
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 18
 y 19
 end
@@ -3120,153 +2598,130 @@ arch wall_dungeon_1
 x 18
 y 19
 end
-arch grassd_7
-z 50
+arch blocked
 x 18
 y 20
 end
-arch grassd_6
-z 50
+arch blocked
 x 18
 y 21
 end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 18
 y 22
 end
-arch grassd_m10
-x 18
-y 22
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 18
 y 23
 end
 arch floor_fs_grey1b
-z 50
 x 19
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 1
 end
 arch floor_fs_grey1b
-z 50
+x 19
+y 2
+end
+arch door_wood1
 x 19
 y 2
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 3
 end
 arch floor_fs_grey1b
-z 50
-x 19
-y 4
-end
-arch wall_dungeon_1
 x 19
 y 4
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 5
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 6
 end
 arch floor_fs_grey1b
-z 50
-x 19
-y 7
-end
-arch chair2_111
-direction 7
 x 19
 y 7
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 8
 end
-arch chair2_111
-direction 7
+arch wall_dungeon_1
 x 19
 y 8
 end
 arch floor_fs_grey1b
-z 50
-x 19
-y 9
-end
-arch chair2_111
-direction 7
 x 19
 y 9
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 10
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 11
 end
-arch bar1
+arch wall_dungeon_1
 x 19
 y 11
 end
 arch floor_fs_grey1b
-z 50
+x 19
+y 12
+end
+arch fwall_fstone2
 x 19
 y 12
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 19
-y 14
-end
-arch wall_dungeon_1
 x 19
 y 14
 end
 arch floor_fs_grey1b
-z 50
+x 19
+y 15
+end
+arch grain4.101
 x 19
 y 15
 end
 arch floor_fs_grey1b
-z 50
+x 19
+y 16
+end
+arch grain3.101
 x 19
 y 16
 end
 arch floor_fs_grey1b
-z 50
+x 19
+y 17
+end
+arch grain4.101
 x 19
 y 17
 end
 arch floor_fs_grey1b
-z 50
+x 19
+y 18
+end
+arch grain5.101
 x 19
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 19
 y 19
 end
@@ -3274,36 +2729,26 @@ arch wall_dungeon_1
 x 19
 y 19
 end
-arch grassd_7
-z 50
+arch blocked
 x 19
 y 20
 end
-arch grassd_4
-z 50
+arch blocked
 x 19
 y 21
 end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 19
 y 22
 end
-arch grassd_m10
-x 19
-y 22
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 19
 y 23
 end
 arch floor_fs_grey1b
-z 50
 x 20
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 1
 end
@@ -3312,7 +2757,6 @@ x 20
 y 1
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 2
 end
@@ -3321,7 +2765,6 @@ x 20
 y 2
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 3
 end
@@ -3330,64 +2773,62 @@ x 20
 y 3
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 4
 end
-arch wall_dungeon_4
+arch wall_dungeon_3
 x 20
 y 4
 end
 arch floor_fs_grey1b
-z 50
+x 20
+y 5
+end
+arch wall_dungeon_3
 x 20
 y 5
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 6
 end
-arch throne.111
+arch wall_dungeon_3
 x 20
 y 6
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 7
 end
-arch table_wood1.111
+arch wall_dungeon_3
 x 20
 y 7
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 8
 end
-arch table_wood1.111
-direction 5
+arch wall_dungeon_4
 x 20
 y 8
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 9
 end
-arch table_wood1.111
-direction 5
+arch torch_wall_1
+face torch_wall.111
+speed_left -0.751762
+glow_radius 5
+is_animated 1
 x 20
 y 9
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 10
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 11
 end
@@ -3396,50 +2837,54 @@ x 20
 y 11
 end
 arch floor_fs_grey1b
-z 50
+x 20
+y 12
+end
+arch wall_dungeon_4
 x 20
 y 12
 end
 arch floor_fs_grey1b
-z 50
-x 20
-y 13
-end
-arch table_wood1.111
 x 20
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 20
-y 14
-end
-arch wall_dungeon_1
 x 20
 y 14
 end
 arch floor_fs_grey1b
-z 50
+x 20
+y 15
+end
+arch grain5.101
 x 20
 y 15
 end
 arch floor_fs_grey1b
-z 50
+x 20
+y 16
+end
+arch grain3.101
 x 20
 y 16
 end
 arch floor_fs_grey1b
-z 50
+x 20
+y 17
+end
+arch grain4.101
 x 20
 y 17
 end
 arch floor_fs_grey1b
-z 50
+x 20
+y 18
+end
+arch grain5.101
 x 20
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 20
 y 19
 end
@@ -3447,42 +2892,26 @@ arch wall_dungeon_1
 x 20
 y 19
 end
-arch grassd_4
-z 50
+arch blocked
 x 20
 y 20
 end
-arch grassd_5
-z 50
+arch blocked
 x 20
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
-x 20
-y 21
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 20
 y 22
 end
-arch grassd_m10
-x 20
-y 22
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 20
 y 23
 end
 arch floor_fs_grey1b
-z 50
 x 21
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 1
 end
@@ -3491,302 +2920,262 @@ x 21
 y 1
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 2
 end
-arch stairs_stone_down
+arch stairs_stone_up
 direction 1
-slaying world_a_0736
+slaying world_0736
 hp 21
 sp 2
 x 21
 y 2
 end
-arch torch_wall_1
-direction 5
-x 21
-y 2
-end
 arch floor_fs_grey1b
-z 50
+x 21
+y 3
+end
+arch wall_dungeon_1
 x 21
 y 3
 end
 arch floor_fs_grey1b
-z 50
-x 21
-y 4
-end
-arch wall_dungeon_1
 x 21
 y 4
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 5
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 6
 end
-arch throne.111
+arch torch_wall_1
+direction 7
 x 21
 y 6
 end
 arch floor_fs_grey1b
-z 50
-x 21
-y 7
-end
-arch table_wood1.111
 x 21
 y 7
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 8
 end
-arch table_wood1.111
-direction 5
+arch wall_dungeon_1
 x 21
 y 8
 end
 arch floor_fs_grey1b
-z 50
-x 21
-y 9
-end
-arch table_wood1.111
-direction 5
 x 21
 y 9
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 10
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 11
 end
-arch door1_locked
+arch wall_dungeon_1
 x 21
 y 11
 end
 arch floor_fs_grey1b
-z 50
+x 21
+y 12
+end
+arch bath_tub1
 x 21
 y 12
 end
 arch floor_fs_grey1b
-z 50
+x 21
+y 13
+end
+arch bath_tub1
 x 21
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 21
-y 14
-end
-arch wall_dungeon_1
 x 21
 y 14
 end
 arch floor_fs_grey1b
-z 50
 x 21
 y 15
-end
-arch floor_fs_grey1b
-z 50
-x 21
-y 16
-end
-arch floor_fs_grey1b
-z 50
-x 21
-y 17
-end
-arch floor_fs_grey1b
-z 50
-x 21
-y 18
-end
-arch floor_fs_grey1b
-z 50
-x 21
-y 19
-end
-arch wall_dungeon_1
-x 21
-y 19
-end
-arch grassd_5
-z 50
-x 21
-y 20
-end
-arch grassd_1
-z 50
-x 21
-y 21
-end
-arch floor_fs_grey1b
-z 50
-x 21
-y 22
-end
-arch grassd_m10
-x 21
-y 22
-end
-arch floor_fs_grey1b
-z 50
-x 21
-y 23
-end
-arch floor_fs_grey1b
-z 50
-x 22
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 1
-end
-arch wall_dungeon_1
-x 22
-y 1
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 2
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 3
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 4
-end
-arch wall_dungeon_1
-x 22
-y 4
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 7
-end
-arch chair2_111
-direction 3
-x 22
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 8
-end
-arch chair2_111
-direction 3
-x 22
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 9
-end
-arch chair2_111
-direction 3
-x 22
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 11
-end
-arch wall_dungeon_1
-x 22
-y 11
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 12
-end
-arch forge_111
-name oven
-x 22
-y 12
-end
-arch floor_fs_grey1b
-z 50
-x 22
-y 13
 end
 arch grain3.101
+x 21
+y 15
+end
+arch floor_fs_grey1b
+x 21
+y 16
+end
+arch grain3.101
+x 21
+y 16
+end
+arch floor_fs_grey1b
+x 21
+y 17
+end
+arch grain4.101
+x 21
+y 17
+end
+arch floor_fs_grey1b
+x 21
+y 18
+end
+arch grain5.101
+x 21
+y 18
+end
+arch floor_fs_grey1b
+x 21
+y 19
+end
+arch wall_dungeon_1
+x 21
+y 19
+end
+arch blocked
+x 21
+y 20
+end
+arch blocked
+x 21
+y 21
+end
+arch blocked
+x 21
+y 22
+end
+arch blocked
+x 21
+y 23
+end
+arch floor_fs_grey1b
+x 22
+end
+arch floor_fs_grey1b
+x 22
+y 1
+end
+arch wall_dungeon_1
+x 22
+y 1
+end
+arch floor_fs_grey1b
+x 22
+y 2
+end
+arch floor_fs_grey1b
+x 22
+y 3
+end
+arch wall_dungeon_1
+x 22
+y 3
+end
+arch floor_fs_grey1b
+x 22
+y 4
+end
+arch floor_fs_grey1b
+x 22
+y 5
+end
+arch floor_fs_grey1b
+x 22
+y 6
+end
+arch floor_fs_grey1b
+x 22
+y 7
+end
+arch floor_fs_grey1b
+x 22
+y 8
+end
+arch wall_dungeon_1
+x 22
+y 8
+end
+arch floor_fs_grey1b
+x 22
+y 9
+end
+arch floor_fs_grey1b
+x 22
+y 10
+end
+arch floor_fs_grey1b
+x 22
+y 11
+end
+arch wall_dungeon_1
+x 22
+y 11
+end
+arch floor_fs_grey1b
+x 22
+y 12
+end
+arch bath_tub1
+x 22
+y 12
+end
+arch floor_fs_grey1b
+x 22
+y 13
+end
+arch bath_tub1
 x 22
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 22
-y 14
-end
-arch wall_dungeon_1
 x 22
 y 14
 end
 arch floor_fs_grey1b
-z 50
+x 22
+y 15
+end
+arch grain2.101
 x 22
 y 15
 end
 arch floor_fs_grey1b
-z 50
+x 22
+y 16
+end
+arch grain2.101
 x 22
 y 16
 end
 arch floor_fs_grey1b
-z 50
+x 22
+y 17
+end
+arch grain4.101
 x 22
 y 17
 end
 arch floor_fs_grey1b
-z 50
+x 22
+y 18
+end
+arch grain5.101
 x 22
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 22
 y 19
 end
@@ -3794,39 +3183,29 @@ arch wall_dungeon_1
 x 22
 y 19
 end
-arch grassd_5
-z 50
+arch blocked
 x 22
 y 20
 end
-arch grassd_1
-z 50
+arch blocked
 x 22
 y 21
 end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 22
 y 22
 end
-arch grassd_m10
-x 22
-y 22
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 22
 y 23
 end
 arch floor_fs_grey1b
-z 50
 x 23
 end
 arch wall_dungeon_3
 x 23
 end
 arch floor_fs_grey1b
-z 50
 x 23
 y 1
 end
@@ -3835,136 +3214,128 @@ x 23
 y 1
 end
 arch floor_fs_grey1b
-z 50
 x 23
 y 2
 end
 arch floor_fs_grey1b
-z 50
+x 23
+y 3
+end
+arch wall_dungeon_1
 x 23
 y 3
 end
 arch floor_fs_grey1b
-z 50
 x 23
 y 4
+end
+arch wall_dungeon_3
+x 23
+y 4
+end
+arch floor_fs_grey1b
+x 23
+y 5
+end
+arch wall_dungeon_3
+x 23
+y 5
+end
+arch floor_fs_grey1b
+x 23
+y 6
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 23
+y 6
+end
+arch floor_fs_grey1b
+x 23
+y 7
+end
+arch wall_dungeon_3
+x 23
+y 7
+end
+arch floor_fs_grey1b
+x 23
+y 8
+end
+arch wall_dungeon_4
+x 23
+y 8
+end
+arch floor_fs_grey1b
+x 23
+y 9
+end
+arch floor_fs_grey1b
+x 23
+y 10
+end
+arch floor_fs_grey1b
+x 23
+y 11
 end
 arch wall_dungeon_1
 x 23
-y 4
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 5
-end
-arch wall_dungeon_3
-x 23
-y 5
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 6
-end
-arch wall_dungeon_3
-x 23
-y 6
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 7
-end
-arch wall_dungeon_3
-x 23
-y 7
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 8
-end
-arch wall_dungeon_3
-x 23
-y 8
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 9
-end
-arch wall_dungeon_3
-x 23
-y 9
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 10
-end
-arch wall_dungeon_3
-x 23
-y 10
-end
-arch floor_fs_grey1b
-z 50
-x 23
-y 11
-end
-arch wall_dungeon_4
-x 23
 y 11
 end
 arch floor_fs_grey1b
-z 50
 x 23
 y 12
 end
-arch wall_dungeon_3
+arch bath_tub1
 x 23
 y 12
 end
 arch floor_fs_grey1b
-z 50
 x 23
 y 13
 end
-arch wall_dungeon_3
+arch bath_tub1
 x 23
 y 13
 end
 arch floor_fs_grey1b
-z 50
-x 23
-y 14
-end
-arch wall_dungeon_4
 x 23
 y 14
 end
 arch floor_fs_grey1b
-z 50
+x 23
+y 15
+end
+arch grain1.101
 x 23
 y 15
 end
 arch floor_fs_grey1b
-z 50
+x 23
+y 16
+end
+arch grain1.101
 x 23
 y 16
 end
 arch floor_fs_grey1b
-z 50
+x 23
+y 17
+end
+arch grain2.101
 x 23
 y 17
 end
 arch floor_fs_grey1b
-z 50
+x 23
+y 18
+end
+arch grain3.101
 x 23
 y 18
 end
 arch floor_fs_grey1b
-z 50
 x 23
 y 19
 end
@@ -3972,27 +3343,19 @@ arch wall_dungeon_1
 x 23
 y 19
 end
-arch grass_flowers1
-z 50
+arch blocked
 x 23
 y 20
 end
-arch grassd_8
-z 50
+arch blocked
 x 23
 y 21
 end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 23
 y 22
 end
-arch grassd_m10
-x 23
-y 22
-end
-arch floor_fs_grey1b
-z 50
+arch blocked
 x 23
 y 23
 end

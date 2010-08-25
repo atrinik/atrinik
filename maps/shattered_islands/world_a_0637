@@ -1,0 +1,346 @@
+arch map
+name Asteria Palace Dungeon
+msg
+-Enter Description Here-
+Modified: 2010-08-24 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 1
+tile_path_2 world_a_0737
+tile_path_3 world_a_0636
+tile_path_6 world_a_0736
+end
+arch wall_dungeon_8
+x 18
+y 14
+end
+arch floor_fs_grey1b
+x 18
+y 15
+end
+arch wall_dungeon_3
+x 18
+y 15
+end
+arch floor_fs_grey1b
+x 18
+y 16
+end
+arch wall_dungeon_3
+x 18
+y 16
+end
+arch floor_fs_grey1b
+x 18
+y 17
+end
+arch wall_dungeon_3
+x 18
+y 17
+end
+arch floor_fs_grey1b
+x 18
+y 18
+end
+arch wall_dungeon_3
+x 18
+y 18
+end
+arch floor_fs_grey1b
+x 18
+y 19
+end
+arch wall_dungeon_3
+x 18
+y 19
+end
+arch floor_fs_grey1b
+x 18
+y 20
+end
+arch wall_dungeon_3
+x 18
+y 20
+end
+arch floor_fs_grey1b
+x 18
+y 21
+end
+arch wall_dungeon_3
+x 18
+y 21
+end
+arch floor_fs_grey1b
+x 18
+y 22
+end
+arch wall_dungeon_3
+x 18
+y 22
+end
+arch floor_fs_grey1b
+x 18
+y 23
+end
+arch wall_dungeon_3
+x 18
+y 23
+end
+arch wall_dungeon_1
+x 19
+y 14
+end
+arch floor_fs_grey1b
+x 19
+y 15
+end
+arch floor_fs_grey1b
+x 19
+y 16
+end
+arch floor_fs_grey1b
+x 19
+y 17
+end
+arch floor_fs_grey1b
+x 19
+y 18
+end
+arch floor_fs_grey1b
+x 19
+y 19
+end
+arch floor_fs_grey1b
+x 19
+y 20
+end
+arch wall_dungeon_1
+x 19
+y 20
+end
+arch floor_fs_grey1b
+x 19
+y 21
+end
+arch floor_fs_grey1b
+x 19
+y 22
+end
+arch floor_fs_grey1b
+x 19
+y 23
+end
+arch wall_dungeon_1
+x 19
+y 23
+end
+arch wall_dungeon_1
+x 20
+y 14
+end
+arch floor_fs_grey1b
+x 20
+y 15
+end
+arch floor_fs_grey1b
+x 20
+y 16
+end
+arch floor_fs_grey1b
+x 20
+y 17
+end
+arch floor_fs_grey1b
+x 20
+y 18
+end
+arch floor_fs_grey1b
+x 20
+y 19
+end
+arch floor_fs_grey1b
+x 20
+y 20
+end
+arch wall_dungeon_1
+x 20
+y 20
+end
+arch floor_fs_grey1b
+x 20
+y 21
+end
+arch torch_wall_1
+face torch_wall.111
+x 20
+y 21
+end
+arch floor_fs_grey1b
+x 20
+y 22
+end
+arch floor_fs_grey1b
+x 20
+y 23
+end
+arch wall_dungeon_1
+x 20
+y 23
+end
+arch wall_dungeon_1
+x 21
+y 14
+end
+arch floor_fs_grey1b
+x 21
+y 15
+end
+arch floor_fs_grey1b
+x 21
+y 16
+end
+arch floor_fs_grey1b
+x 21
+y 17
+end
+arch floor_fs_grey1b
+x 21
+y 18
+end
+arch floor_fs_grey1b
+x 21
+y 19
+end
+arch floor_fs_grey1b
+x 21
+y 20
+end
+arch wall_dungeon_1
+x 21
+y 20
+end
+arch floor_fs_grey1b
+x 21
+y 21
+end
+arch floor_fs_grey1b
+x 21
+y 22
+end
+arch magic_mouth
+msg
+Prisons
+endmsg
+x 21
+y 23
+end
+arch floor_fs_grey1b
+x 21
+y 23
+end
+arch door1_locked
+last_sp -1
+x 21
+y 23
+end
+arch wall_dungeon_1
+x 22
+y 14
+end
+arch floor_fs_grey1b
+x 22
+y 15
+end
+arch floor_fs_grey1b
+x 22
+y 16
+end
+arch floor_fs_grey1b
+x 22
+y 17
+end
+arch floor_fs_grey1b
+x 22
+y 18
+end
+arch floor_fs_grey1b
+x 22
+y 19
+end
+arch floor_fs_grey1b
+x 22
+y 20
+end
+arch wall_dungeon_1
+x 22
+y 20
+end
+arch floor_fs_grey1b
+x 22
+y 21
+end
+arch floor_fs_grey1b
+x 22
+y 22
+end
+arch floor_fs_grey1b
+x 22
+y 23
+end
+arch wall_dungeon_1
+x 22
+y 23
+end
+arch wall_dungeon_1
+x 23
+y 14
+end
+arch floor_fs_grey1b
+x 23
+y 15
+end
+arch floor_fs_grey1b
+x 23
+y 16
+end
+arch floor_fs_grey1b
+x 23
+y 17
+end
+arch floor_fs_grey1b
+x 23
+y 18
+end
+arch floor_fs_grey1b
+x 23
+y 19
+end
+arch floor_fs_grey1b
+x 23
+y 20
+end
+arch wall_dungeon_1
+x 23
+y 20
+end
+arch floor_fs_grey1b
+x 23
+y 21
+end
+arch floor_fs_grey1b
+x 23
+y 22
+end
+arch floor_fs_grey1b
+x 23
+y 23
+end
+arch wall_dungeon_1
+x 23
+y 23
+end
