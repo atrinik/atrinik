@@ -19,7 +19,7 @@ class colors:
 
 # Collect archetypes (.arc files).
 def collect_archetypes():
-	archetypes = open(os.path.join(paths["arch"], "archetypes"), "w")
+	archetypes = open(os.path.join(paths["arch"], "archetypes"), "wb")
 
 	for file in find_files(paths["arch"], ".arc"):
 		file_copy(file, archetypes)
@@ -28,7 +28,7 @@ def collect_archetypes():
 
 # Collect images (.png files).
 def collect_images():
-	bmaps = open(os.path.join(paths["arch"], "bmaps"), "w")
+	bmaps = open(os.path.join(paths["arch"], "bmaps"), "wb")
 	images = open(os.path.join(paths["arch"], "atrinik.0"), "wb")
 	num_images = 0
 	dev_dir = os.path.join(paths["arch"], "dev")
@@ -72,7 +72,7 @@ def collect_animations():
 
 		fp.close()
 
-	animations = open(os.path.join(paths["arch"], "animations"), "w")
+	animations = open(os.path.join(paths["arch"], "animations"), "wb")
 
 	for anim in sorted(l, key = lambda anim: anim[0][5:]):
 		for line in anim:
@@ -84,7 +84,7 @@ def collect_animations():
 
 # Collect treasures (.trs files in either arch or maps).
 def collect_treasures():
-	treasures = open(os.path.join(paths["arch"], "treasures"), "w")
+	treasures = open(os.path.join(paths["arch"], "treasures"), "wb")
 
 	for file in find_files(paths["arch"], ".trs") + find_files(paths["maps"], ".trs"):
 		file_copy(file, treasures)
@@ -93,7 +93,7 @@ def collect_treasures():
 
 # Collect artifacts (.art files in either art or maps).
 def collect_artifacts():
-	artifacts = open(os.path.join(paths["arch"], "artifacts"), "w")
+	artifacts = open(os.path.join(paths["arch"], "artifacts"), "wb")
 
 	for file in find_files(paths["arch"], ".art") + find_files(paths["maps"], ".art"):
 		file_copy(file, artifacts)
