@@ -2,7 +2,7 @@ arch map
 name World
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-22 Alex Tokar
+Modified: 2010-08-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -329,10 +329,6 @@ x 2
 y 10
 end
 arch floor_grey1a2
-x 2
-y 11
-end
-arch grassd_7
 x 2
 y 11
 end
