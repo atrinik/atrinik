@@ -11,9 +11,13 @@ enter_y 1
 reset_timeout 7200
 difficulty 1
 darkness 1
+no_harm 1
 tile_path_3 world_a_0836
 tile_path_4 world_a_0737
 tile_path_7 world_a_0736
+end
+arch blocked
+y 14
 end
 arch wall_dungeon_1
 y 14
@@ -52,6 +56,10 @@ arch torch_wall_1
 direction 7
 y 23
 end
+arch blocked
+x 1
+y 14
+end
 arch wall_dungeon_1
 x 1
 y 14
@@ -91,6 +99,10 @@ end
 arch floor_fs_grey1b
 x 1
 y 23
+end
+arch blocked
+x 2
+y 14
 end
 arch wall_dungeon_1
 x 2

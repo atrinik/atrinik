@@ -3496,6 +3496,7 @@ x 21
 y 2
 end
 arch stairs_stone_down
+layer 4
 direction 1
 slaying world_a_0736
 hp 21
@@ -3504,7 +3505,7 @@ x 21
 y 2
 end
 arch torch_wall_1
-direction 5
+direction 7
 x 21
 y 2
 end

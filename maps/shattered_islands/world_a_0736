@@ -3,7 +3,7 @@ name Asteria Palace Dungeon
 msg
 Creator: Daimonin Map Editor
 Date:    6/9/2004
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
@@ -12,6 +12,7 @@ enter_y 1
 reset_timeout 7200
 difficulty 1
 darkness 1
+no_harm 1
 tile_path_1 world_a_0737
 tile_path_2 world_a_0836
 tile_path_4 world_a_0636
@@ -1378,16 +1379,8 @@ arch floor_stone_b1
 x 10
 y 21
 end
-arch gate_closed
-face gate_door1.114
-wc 0
-speed_left -0.500000
-path_attuned 101
-value 1
-state 0
+arch gate_open
 connected 101
-no_pass 0
-blocksview 0
 x 10
 y 21
 end
@@ -1525,16 +1518,8 @@ arch floor_stone_b1
 x 11
 y 21
 end
-arch gate_closed
-face gate_door1.114
-wc 0
-speed_left -0.500000
-path_attuned 101
-value 1
-state 0
+arch gate_open
 connected 101
-no_pass 0
-blocksview 0
 x 11
 y 21
 end
@@ -1668,10 +1653,6 @@ x 12
 y 21
 end
 arch grate_open
-maxsp 0
-speed_left -0.500000
-path_attuned 101
-value 1
 connected 101
 x 12
 y 21
@@ -1701,7 +1682,7 @@ arch floor_fs_grey1b
 x 13
 y 2
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 13
 y 2
 end
@@ -1845,10 +1826,6 @@ x 13
 y 21
 end
 arch grate_open
-maxsp 0
-speed_left -0.500000
-path_attuned 101
-value 1
 connected 101
 x 13
 y 21
@@ -2047,16 +2024,15 @@ end
 arch spawn_point
 x 15
 arch lavagolem
-Wis 1
+name Stair Guardian Golem
 level 30
+Wis 1
 type 83
-carrying 4200
-weight 85000
+arch quest_container
 arch key2
 name Asteria Dungeon Key 2
 slaying asteria_dungeon_key2
-quest_item 1
-one_drop 1
+end
 end
 end
 end
@@ -2189,22 +2165,6 @@ arch wall_dungeon_1
 x 15
 y 19
 end
-arch blocked
-x 15
-y 20
-end
-arch blocked
-x 15
-y 21
-end
-arch blocked
-x 15
-y 22
-end
-arch blocked
-x 15
-y 23
-end
 arch floor_fs_grey1b
 x 16
 end
@@ -2307,22 +2267,6 @@ end
 arch wall_dungeon_1
 x 16
 y 19
-end
-arch blocked
-x 16
-y 20
-end
-arch blocked
-x 16
-y 21
-end
-arch blocked
-x 16
-y 22
-end
-arch blocked
-x 16
-y 23
 end
 arch floor_fs_grey1b
 x 17
@@ -2451,22 +2395,6 @@ end
 arch wall_dungeon_1
 x 17
 y 19
-end
-arch blocked
-x 17
-y 20
-end
-arch blocked
-x 17
-y 21
-end
-arch blocked
-x 17
-y 22
-end
-arch blocked
-x 17
-y 23
 end
 arch floor_fs_grey1b
 x 18
@@ -2598,22 +2526,6 @@ arch wall_dungeon_1
 x 18
 y 19
 end
-arch blocked
-x 18
-y 20
-end
-arch blocked
-x 18
-y 21
-end
-arch blocked
-x 18
-y 22
-end
-arch blocked
-x 18
-y 23
-end
 arch floor_fs_grey1b
 x 19
 end
@@ -2681,6 +2593,11 @@ arch fwall_fstone2
 x 19
 y 12
 end
+arch picture4.151
+direction 3
+x 19
+y 12
+end
 arch floor_fs_grey1b
 x 19
 y 13
@@ -2728,22 +2645,6 @@ end
 arch wall_dungeon_1
 x 19
 y 19
-end
-arch blocked
-x 19
-y 20
-end
-arch blocked
-x 19
-y 21
-end
-arch blocked
-x 19
-y 22
-end
-arch blocked
-x 19
-y 23
 end
 arch floor_fs_grey1b
 x 20
@@ -2892,22 +2793,6 @@ arch wall_dungeon_1
 x 20
 y 19
 end
-arch blocked
-x 20
-y 20
-end
-arch blocked
-x 20
-y 21
-end
-arch blocked
-x 20
-y 22
-end
-arch blocked
-x 20
-y 23
-end
 arch floor_fs_grey1b
 x 21
 end
@@ -3044,22 +2929,6 @@ arch wall_dungeon_1
 x 21
 y 19
 end
-arch blocked
-x 21
-y 20
-end
-arch blocked
-x 21
-y 21
-end
-arch blocked
-x 21
-y 22
-end
-arch blocked
-x 21
-y 23
-end
 arch floor_fs_grey1b
 x 22
 end
@@ -3182,22 +3051,6 @@ end
 arch wall_dungeon_1
 x 22
 y 19
-end
-arch blocked
-x 22
-y 20
-end
-arch blocked
-x 22
-y 21
-end
-arch blocked
-x 22
-y 22
-end
-arch blocked
-x 22
-y 23
 end
 arch floor_fs_grey1b
 x 23
@@ -3342,20 +3195,4 @@ end
 arch wall_dungeon_1
 x 23
 y 19
-end
-arch blocked
-x 23
-y 20
-end
-arch blocked
-x 23
-y 21
-end
-arch blocked
-x 23
-y 22
-end
-arch blocked
-x 23
-y 23
 end

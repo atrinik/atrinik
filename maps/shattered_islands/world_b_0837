@@ -1,0 +1,2596 @@
+arch map
+name Asteria Palace Dungeon
+msg
+-Enter Description Here-
+Modified: 2010-08-25 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 1
+tile_path_1 world_b_0838
+tile_path_2 world_b_0937
+tile_path_3 world_b_0836
+tile_path_4 world_b_0737
+tile_path_7 world_b_0736
+tile_path_8 world_b_0738
+end
+arch floor_dungeon1a
+end
+arch floor_dungeon1a
+y 1
+end
+arch wall_dungeon_1
+y 1
+end
+arch floor_dungeon1a
+y 2
+end
+arch torch_wall_1
+face torch_wall.114
+speed_left -0.670937
+state 3
+glow_radius 5
+is_animated 1
+y 2
+end
+arch floor_dungeon1a
+y 3
+end
+arch floor_dungeon1a
+y 4
+end
+arch floor_dungeon1a
+y 5
+end
+arch floor_dungeon1a
+y 6
+end
+arch bench2.111
+direction 7
+y 6
+end
+arch floor_dungeon1a
+y 7
+end
+arch floor_dungeon1a
+y 8
+end
+arch bench2.111
+direction 7
+y 8
+end
+arch floor_dungeon1a
+y 9
+end
+arch floor_dungeon1a
+y 10
+end
+arch wall_dungeon_1
+y 10
+end
+arch blocked
+y 21
+end
+arch wall_dungeon_1
+y 21
+end
+arch floor_dungeon1a
+y 22
+end
+arch floor_dungeon1a
+y 23
+end
+arch floor_dungeon1a
+x 1
+end
+arch floor_dungeon1a
+x 1
+y 1
+end
+arch wall_dungeon_1
+x 1
+y 1
+end
+arch floor_dungeon1a
+x 1
+y 2
+end
+arch shrine1.111
+direction 3
+x 1
+y 2
+end
+arch floor_dungeon1a
+x 1
+y 3
+end
+arch floor_dungeon1a
+x 1
+y 4
+end
+arch floor_dungeon1a
+x 1
+y 5
+end
+arch floor_dungeon1a
+x 1
+y 6
+end
+arch wall_dungeon_8
+x 1
+y 6
+end
+arch floor_dungeon1a
+x 1
+y 7
+end
+arch wall_dungeon_3
+x 1
+y 7
+end
+arch floor_dungeon1a
+x 1
+y 8
+end
+arch wall_dungeon_3
+x 1
+y 8
+end
+arch floor_dungeon1a
+x 1
+y 9
+end
+arch wall_dungeon_3
+x 1
+y 9
+end
+arch floor_dungeon1a
+x 1
+y 10
+end
+arch wall_dungeon_4
+x 1
+y 10
+end
+arch blocked
+x 1
+y 21
+end
+arch wall_dungeon_1
+x 1
+y 21
+end
+arch floor_dungeon1a
+x 1
+y 22
+end
+arch floor_dungeon1a
+x 1
+y 23
+end
+arch floor_dungeon1a
+x 2
+end
+arch floor_dungeon1a
+x 2
+y 1
+end
+arch wall_dungeon_1
+x 2
+y 1
+end
+arch floor_dungeon1a
+x 2
+y 2
+end
+arch wall_dungeon_3
+x 2
+y 2
+end
+arch floor_dungeon1a
+x 2
+y 3
+end
+arch wall_dungeon_3
+x 2
+y 3
+end
+arch floor_dungeon1a
+x 2
+y 4
+end
+arch wall_dungeon_3
+x 2
+y 4
+end
+arch floor_dungeon1a
+x 2
+y 5
+end
+arch wall_dungeon_3
+x 2
+y 5
+end
+arch floor_dungeon1a
+x 2
+y 6
+end
+arch wall_dungeon_4
+x 2
+y 6
+end
+arch floor_dungeon1a
+x 2
+y 7
+end
+arch floor_dungeon1a
+x 2
+y 8
+end
+arch torch_wall_1
+direction 7
+x 2
+y 8
+end
+arch floor_dungeon1a
+x 2
+y 9
+end
+arch floor_dungeon1a
+x 2
+y 10
+end
+arch wall_dungeon_1
+x 2
+y 10
+end
+arch blocked
+x 2
+y 21
+end
+arch wall_dungeon_1
+x 2
+y 21
+end
+arch floor_dungeon1a
+x 2
+y 22
+end
+arch wall_dungeon_3
+x 2
+y 22
+end
+arch floor_dungeon1a
+x 2
+y 23
+end
+arch wall_dungeon_3
+x 2
+y 23
+end
+arch floor_dungeon1a
+x 3
+end
+arch floor_dungeon1a
+x 3
+y 1
+end
+arch floor_dungeon1a
+x 3
+y 2
+end
+arch floor_dungeon1a
+x 3
+y 3
+end
+arch torch_wall_1
+direction 7
+x 3
+y 3
+end
+arch floor_dungeon1a
+x 3
+y 4
+end
+arch floor_dungeon1a
+x 3
+y 5
+end
+arch floor_dungeon1a
+x 3
+y 6
+end
+arch wall_dungeon_1
+x 3
+y 6
+end
+arch floor_dungeon1a
+x 3
+y 7
+end
+arch floor_dungeon1a
+x 3
+y 8
+end
+arch floor_dungeon1a
+x 3
+y 9
+end
+arch floor_dungeon1a
+x 3
+y 10
+end
+arch wall_dungeon_1
+x 3
+y 10
+end
+arch blocked
+x 3
+y 21
+end
+arch wall_dungeon_1
+x 3
+y 21
+end
+arch floor_dungeon1a
+x 3
+y 22
+end
+arch floor_dungeon1a
+x 3
+y 23
+end
+arch floor_dungeon1a
+x 4
+end
+arch floor_dungeon1a
+x 4
+y 1
+end
+arch floor_dungeon1a
+x 4
+y 2
+end
+arch floor_dungeon1a
+x 4
+y 3
+end
+arch floor_dungeon1a
+x 4
+y 4
+end
+arch floor_dungeon1a
+x 4
+y 5
+end
+arch floor_dungeon1a
+x 4
+y 6
+end
+arch door1_locked
+last_sp -1
+x 4
+y 6
+end
+arch floor_dungeon1a
+x 4
+y 7
+end
+arch floor_dungeon1a
+x 4
+y 8
+end
+arch floor_dungeon1a
+x 4
+y 9
+end
+arch floor_dungeon1a
+x 4
+y 10
+end
+arch wall_dungeon_1
+x 4
+y 10
+end
+arch blocked
+x 4
+y 21
+end
+arch wall_dungeon_1
+x 4
+y 21
+end
+arch floor_dungeon1a
+x 4
+y 22
+end
+arch floor_dungeon1a
+x 4
+y 23
+end
+arch floor_dungeon1a
+x 5
+end
+arch wall_dungeon_3
+x 5
+end
+arch floor_dungeon1a
+x 5
+y 1
+end
+arch wall_dungeon_3
+x 5
+y 1
+end
+arch floor_dungeon1a
+x 5
+y 2
+end
+arch wall_dungeon_3
+x 5
+y 2
+end
+arch floor_dungeon1a
+x 5
+y 3
+end
+arch wall_dungeon_3
+x 5
+y 3
+end
+arch floor_dungeon1a
+x 5
+y 4
+end
+arch wall_dungeon_3
+x 5
+y 4
+end
+arch floor_dungeon1a
+x 5
+y 5
+end
+arch wall_dungeon_3
+x 5
+y 5
+end
+arch floor_dungeon1a
+x 5
+y 6
+end
+arch wall_dungeon_4
+x 5
+y 6
+end
+arch floor_dungeon1a
+x 5
+y 7
+end
+arch wall_dungeon_3
+x 5
+y 7
+end
+arch floor_dungeon1a
+x 5
+y 8
+end
+arch wall_dungeon_3
+x 5
+y 8
+end
+arch floor_dungeon1a
+x 5
+y 9
+end
+arch wall_dungeon_3
+x 5
+y 9
+end
+arch floor_dungeon1a
+x 5
+y 10
+end
+arch wall_dungeon_4
+x 5
+y 10
+end
+arch blocked
+x 5
+y 21
+end
+arch wall_dungeon_1
+x 5
+y 21
+end
+arch floor_dungeon1a
+x 5
+y 22
+end
+arch floor_dungeon1a
+x 5
+y 23
+end
+arch floor_dungeon1a
+x 6
+end
+arch wall_dungeon_1
+x 6
+end
+arch blocked
+x 6
+y 21
+end
+arch wall_dungeon_1
+x 6
+y 21
+end
+arch floor_dungeon1a
+x 6
+y 22
+end
+arch floor_dungeon1a
+x 6
+y 23
+end
+arch floor_dungeon1a
+x 7
+end
+arch wall_dungeon_1
+x 7
+end
+arch blocked
+x 7
+y 21
+end
+arch wall_dungeon_1
+x 7
+y 21
+end
+arch floor_dungeon1a
+x 7
+y 22
+end
+arch floor_dungeon1a
+x 7
+y 23
+end
+arch floor_dungeon1a
+x 8
+end
+arch wall_dungeon_1
+x 8
+end
+arch blocked
+x 8
+y 21
+end
+arch wall_dungeon_1
+x 8
+y 21
+end
+arch floor_dungeon1a
+x 8
+y 22
+end
+arch floor_dungeon1a
+x 8
+y 23
+end
+arch floor_dungeon1a
+x 9
+end
+arch wall_dungeon_1
+x 9
+end
+arch blocked
+x 9
+y 1
+end
+arch wall_dungeon_3
+x 9
+y 1
+end
+arch blocked
+x 9
+y 2
+end
+arch wall_dungeon_3
+x 9
+y 2
+end
+arch blocked
+x 9
+y 3
+end
+arch wall_dungeon_3
+x 9
+y 3
+end
+arch blocked
+x 9
+y 4
+end
+arch wall_dungeon_3
+x 9
+y 4
+end
+arch blocked
+x 9
+y 5
+end
+arch wall_dungeon_3
+x 9
+y 5
+end
+arch blocked
+x 9
+y 6
+end
+arch wall_dungeon_3
+x 9
+y 6
+end
+arch blocked
+x 9
+y 7
+end
+arch wall_dungeon_3
+x 9
+y 7
+end
+arch blocked
+x 9
+y 8
+end
+arch wall_dungeon_3
+x 9
+y 8
+end
+arch blocked
+x 9
+y 9
+end
+arch wall_dungeon_3
+x 9
+y 9
+end
+arch blocked
+x 9
+y 10
+end
+arch wall_dungeon_3
+x 9
+y 10
+end
+arch blocked
+x 9
+y 11
+end
+arch wall_dungeon_3
+x 9
+y 11
+end
+arch blocked
+x 9
+y 12
+end
+arch wall_dungeon_3
+x 9
+y 12
+end
+arch blocked
+x 9
+y 13
+end
+arch wall_dungeon_3
+x 9
+y 13
+end
+arch blocked
+x 9
+y 14
+end
+arch wall_dungeon_3
+x 9
+y 14
+end
+arch blocked
+x 9
+y 15
+end
+arch wall_dungeon_3
+x 9
+y 15
+end
+arch blocked
+x 9
+y 21
+end
+arch wall_dungeon_1
+x 9
+y 21
+end
+arch floor_dungeon1a
+x 9
+y 22
+end
+arch floor_dungeon1a
+x 9
+y 23
+end
+arch floor_dungeon1a
+x 10
+end
+arch curtain1
+x 10
+end
+arch floor_dungeon1a
+x 10
+y 1
+end
+arch floor_dungeon1a
+x 10
+y 2
+end
+arch floor_dungeon1a
+x 10
+y 3
+end
+arch couch1b
+direction 7
+x 10
+y 3
+end
+arch floor_dungeon1a
+x 10
+y 4
+end
+arch couch1a
+direction 7
+x 10
+y 4
+end
+arch floor_dungeon1a
+x 10
+y 5
+end
+arch floor_dungeon1a
+x 10
+y 6
+end
+arch floor_dungeon1a
+x 10
+y 7
+end
+arch wall_dungeon_8
+x 10
+y 7
+end
+arch floor_dungeon1a
+x 10
+y 8
+end
+arch wall_dungeon_4
+x 10
+y 8
+end
+arch floor_dungeon1a
+x 10
+y 9
+end
+arch shrine1.111
+direction 3
+x 10
+y 9
+end
+arch floor_dungeon1a
+x 10
+y 10
+end
+arch floor_dungeon1a
+x 10
+y 11
+end
+arch floor_dungeon1a
+x 10
+y 12
+end
+arch floor_dungeon1a
+x 10
+y 13
+end
+arch floor_dungeon1a
+x 10
+y 14
+end
+arch wall_dungeon_8
+x 10
+y 14
+end
+arch floor_dungeon1a
+x 10
+y 15
+end
+arch wall_dungeon_4
+x 10
+y 15
+end
+arch blocked
+x 10
+y 21
+end
+arch wall_dungeon_1
+x 10
+y 21
+end
+arch floor_dungeon1a
+x 10
+y 22
+end
+arch floor_dungeon1a
+x 10
+y 23
+end
+arch floor_dungeon1a
+x 11
+end
+arch wall_dungeon_4
+x 11
+end
+arch floor_dungeon1a
+x 11
+y 1
+end
+arch shrine1.111
+direction 3
+x 11
+y 1
+end
+arch floor_dungeon1a
+x 11
+y 2
+end
+arch floor_dungeon1a
+x 11
+y 3
+end
+arch floor_dungeon1a
+x 11
+y 4
+end
+arch floor_dungeon1a
+x 11
+y 5
+end
+arch floor_dungeon1a
+x 11
+y 6
+end
+arch wall_dungeon_8
+x 11
+y 6
+end
+arch floor_dungeon1a
+x 11
+y 7
+end
+arch wall_dungeon_4
+x 11
+y 7
+end
+arch floor_dungeon1a
+x 11
+y 8
+end
+arch wall_dungeon_1
+x 11
+y 8
+end
+arch floor_dungeon1a
+x 11
+y 9
+end
+arch bed_2a.111
+direction 3
+x 11
+y 9
+end
+arch floor_dungeon1a
+x 11
+y 10
+end
+arch floor_dungeon1a
+x 11
+y 11
+end
+arch floor_dungeon1a
+x 11
+y 12
+end
+arch floor_dungeon1a
+x 11
+y 13
+end
+arch wall_dungeon_8
+x 11
+y 13
+end
+arch floor_dungeon1a
+x 11
+y 14
+end
+arch wall_dungeon_4
+x 11
+y 14
+end
+arch floor_dungeon1a
+x 11
+y 15
+end
+arch wall_dungeon_1
+x 11
+y 15
+end
+arch blocked
+x 11
+y 21
+end
+arch wall_dungeon_1
+x 11
+y 21
+end
+arch floor_dungeon1a
+x 11
+y 22
+end
+arch floor_dungeon1a
+x 11
+y 23
+end
+arch blocked
+x 12
+end
+arch wall_dungeon_1
+x 12
+end
+arch floor_dungeon1a
+x 12
+y 1
+end
+arch floor_dungeon1a
+x 12
+y 2
+end
+arch floor_dungeon1a
+x 12
+y 3
+end
+arch floor_dungeon1a
+x 12
+y 4
+end
+arch floor_dungeon1a
+x 12
+y 5
+end
+arch wall_dungeon_8
+x 12
+y 5
+end
+arch floor_dungeon1a
+x 12
+y 6
+end
+arch wall_dungeon_4
+x 12
+y 6
+end
+arch floor_dungeon1a
+x 12
+y 7
+end
+arch bed_1a.111
+direction 3
+x 12
+y 7
+end
+arch floor_dungeon1a
+x 12
+y 8
+end
+arch wall_dungeon_1
+x 12
+y 8
+end
+arch floor_dungeon1a
+x 12
+y 9
+end
+arch bed_2b.111
+direction 3
+x 12
+y 9
+end
+arch floor_dungeon1a
+x 12
+y 10
+end
+arch floor_dungeon1a
+x 12
+y 11
+end
+arch floor_dungeon1a
+x 12
+y 12
+end
+arch wall_dungeon_8
+x 12
+y 12
+end
+arch floor_dungeon1a
+x 12
+y 13
+end
+arch wall_dungeon_4
+x 12
+y 13
+end
+arch floor_dungeon1a
+x 12
+y 14
+end
+arch floor_dungeon1a
+x 12
+y 15
+end
+arch wall_dungeon_1
+x 12
+y 15
+end
+arch blocked
+x 12
+y 16
+end
+arch wall_dungeon_3
+x 12
+y 16
+end
+arch blocked
+x 12
+y 17
+end
+arch wall_dungeon_3
+x 12
+y 17
+end
+arch blocked
+x 12
+y 18
+end
+arch wall_dungeon_3
+x 12
+y 18
+end
+arch blocked
+x 12
+y 19
+end
+arch wall_dungeon_3
+x 12
+y 19
+end
+arch blocked
+x 12
+y 20
+end
+arch wall_dungeon_3
+x 12
+y 20
+end
+arch blocked
+x 12
+y 21
+end
+arch wall_dungeon_4
+x 12
+y 21
+end
+arch floor_dungeon1a
+x 12
+y 22
+end
+arch floor_dungeon1a
+x 12
+y 23
+end
+arch blocked
+x 13
+end
+arch wall_dungeon_1
+x 13
+end
+arch floor_dungeon1a
+x 13
+y 1
+end
+arch floor_dungeon1a
+x 13
+y 2
+end
+arch floor_dungeon1a
+x 13
+y 3
+end
+arch floor_dungeon1a
+x 13
+y 4
+end
+arch wall_dungeon1.181
+x 13
+y 4
+end
+arch floor_dungeon1a
+x 13
+y 5
+end
+arch wall_dungeon_4
+x 13
+y 5
+end
+arch floor_dungeon1a
+x 13
+y 6
+end
+arch floor_dungeon1a
+x 13
+y 7
+end
+arch bed_1b.111
+direction 3
+x 13
+y 7
+end
+arch floor_dungeon1a
+x 13
+y 8
+end
+arch wall_dungeon_1
+x 13
+y 8
+end
+arch floor_dungeon1a
+x 13
+y 9
+end
+arch floor_dungeon1a
+x 13
+y 10
+end
+arch floor_dungeon1a
+x 13
+y 11
+end
+arch wall_dungeon_8
+x 13
+y 11
+end
+arch floor_dungeon1a
+x 13
+y 12
+end
+arch wall_dungeon_4
+x 13
+y 12
+end
+arch floor_dungeon1a
+x 13
+y 13
+end
+arch prison_deco1.131
+direction 7
+x 13
+y 13
+end
+arch floor_dungeon1a
+x 13
+y 14
+end
+arch floor_dungeon1a
+x 13
+y 15
+end
+arch wall_dungeon_1
+x 13
+y 15
+end
+arch floor_dungeon1a
+x 13
+y 16
+end
+arch beer_barrel.101
+x 13
+y 16
+end
+arch floor_dungeon1a
+x 13
+y 17
+end
+arch floor_dungeon1a
+x 13
+y 18
+end
+arch floor_dungeon1a
+x 13
+y 19
+end
+arch pottery6.101
+x 13
+y 19
+end
+arch floor_dungeon1a
+x 13
+y 20
+end
+arch barrel_water.101
+x 13
+y 20
+end
+arch floor_dungeon1a
+x 13
+y 21
+end
+arch wall_dungeon_1
+x 13
+y 21
+end
+arch floor_dungeon1a
+x 13
+y 22
+end
+arch floor_dungeon1a
+x 13
+y 23
+end
+arch blocked
+x 14
+end
+arch wall_dungeon_1
+x 14
+end
+arch floor_dungeon1a
+x 14
+y 1
+end
+arch floor_dungeon1a
+x 14
+y 2
+end
+arch floor_dungeon1a
+x 14
+y 3
+end
+arch wall_dungeon_8
+x 14
+y 3
+end
+arch floor_dungeon1a
+x 14
+y 4
+end
+arch wall_dungeon_4
+x 14
+y 4
+end
+arch floor_dungeon1a
+x 14
+y 5
+end
+arch floor_dungeon1a
+x 14
+y 6
+end
+arch floor_dungeon1a
+x 14
+y 7
+end
+arch floor_dungeon1a
+x 14
+y 8
+end
+arch wall_dungeon_1
+x 14
+y 8
+end
+arch floor_dungeon1a
+x 14
+y 9
+end
+arch floor_dungeon1a
+x 14
+y 10
+end
+arch wall_dungeon_8
+x 14
+y 10
+end
+arch floor_dungeon1a
+x 14
+y 11
+end
+arch wall_dungeon_4
+x 14
+y 11
+end
+arch floor_dungeon1a
+x 14
+y 12
+end
+arch floor_dungeon1a
+x 14
+y 13
+end
+arch floor_dungeon1a
+x 14
+y 14
+end
+arch floor_dungeon1a
+x 14
+y 15
+end
+arch wall_dungeon_1
+x 14
+y 15
+end
+arch floor_dungeon1a
+x 14
+y 16
+end
+arch floor_dungeon1a
+x 14
+y 17
+end
+arch floor_dungeon1a
+x 14
+y 18
+end
+arch table_small1
+x 14
+y 18
+end
+arch floor_dungeon1a
+x 14
+y 19
+end
+arch floor_dungeon1a
+x 14
+y 20
+end
+arch floor_dungeon1a
+x 14
+y 21
+end
+arch wall_dungeon_1
+x 14
+y 21
+end
+arch floor_dungeon1a
+x 14
+y 22
+end
+arch floor_dungeon1a
+x 14
+y 23
+end
+arch blocked
+x 15
+end
+arch wall_dungeon_1
+x 15
+end
+arch floor_dungeon1a
+x 15
+y 1
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 15
+y 1
+end
+arch floor_dungeon1a
+x 15
+y 2
+end
+arch wall_dungeon_3
+x 15
+y 2
+end
+arch floor_dungeon1a
+x 15
+y 3
+end
+arch wall_dungeon_4
+x 15
+y 3
+end
+arch floor_dungeon1a
+x 15
+y 4
+end
+arch wall_dungeon_3
+x 15
+y 4
+end
+arch floor_dungeon1a
+x 15
+y 5
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 15
+y 5
+end
+arch floor_dungeon1a
+x 15
+y 6
+end
+arch wall_dungeon_3
+x 15
+y 6
+end
+arch floor_dungeon1a
+x 15
+y 7
+end
+arch wall_dungeon_3
+x 15
+y 7
+end
+arch floor_dungeon1a
+x 15
+y 8
+end
+arch wall_dungeon_3
+x 15
+y 8
+end
+arch floor_dungeon1a
+x 15
+y 9
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 15
+y 9
+end
+arch floor_dungeon1a
+x 15
+y 10
+end
+arch wall_dungeon_4
+x 15
+y 10
+end
+arch floor_dungeon1a
+x 15
+y 11
+end
+arch wall_dungeon_3
+x 15
+y 11
+end
+arch floor_dungeon1a
+x 15
+y 12
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 15
+y 12
+end
+arch floor_dungeon1a
+x 15
+y 13
+end
+arch wall_dungeon_3
+x 15
+y 13
+end
+arch floor_dungeon1a
+x 15
+y 14
+end
+arch wall_dungeon_3
+x 15
+y 14
+end
+arch floor_dungeon1a
+x 15
+y 15
+end
+arch wall_dungeon_4
+x 15
+y 15
+end
+arch picture11
+direction 3
+x 15
+y 15
+end
+arch floor_dungeon1a
+x 15
+y 16
+end
+arch floor_dungeon1a
+x 15
+y 17
+end
+arch table_small1
+x 15
+y 17
+end
+arch floor_dungeon1a
+x 15
+y 18
+end
+arch table_wood1.111
+direction 3
+x 15
+y 18
+end
+arch floor_dungeon1a
+x 15
+y 19
+end
+arch table_small1
+x 15
+y 19
+end
+arch floor_dungeon1a
+x 15
+y 20
+end
+arch floor_dungeon1a
+x 15
+y 21
+end
+arch wall_dungeon_1
+x 15
+y 21
+end
+arch floor_dungeon1a
+x 15
+y 22
+end
+arch floor_dungeon1a
+x 15
+y 23
+end
+arch blocked
+x 16
+end
+arch wall_dungeon_1
+x 16
+end
+arch floor_dungeon1a
+x 16
+y 1
+end
+arch floor_dungeon1a
+x 16
+y 2
+end
+arch floor_dungeon1a
+x 16
+y 3
+end
+arch floor_dungeon1a
+x 16
+y 4
+end
+arch floor_dungeon1a
+x 16
+y 5
+end
+arch floor_dungeon1a
+x 16
+y 6
+end
+arch floor_dungeon1a
+x 16
+y 7
+end
+arch floor_dungeon1a
+x 16
+y 8
+end
+arch floor_dungeon1a
+x 16
+y 9
+end
+arch floor_dungeon1a
+x 16
+y 10
+end
+arch floor_dungeon1a
+x 16
+y 11
+end
+arch floor_dungeon1a
+x 16
+y 12
+end
+arch floor_dungeon1a
+x 16
+y 13
+end
+arch floor_dungeon1a
+x 16
+y 14
+end
+arch floor_dungeon1a
+x 16
+y 15
+end
+arch wall_dungeon_1
+x 16
+y 15
+end
+arch floor_dungeon1a
+x 16
+y 16
+end
+arch floor_dungeon1a
+x 16
+y 17
+end
+arch floor_dungeon1a
+x 16
+y 18
+end
+arch table_wood1.111
+direction 3
+x 16
+y 18
+end
+arch floor_dungeon1a
+x 16
+y 19
+end
+arch floor_dungeon1a
+x 16
+y 20
+end
+arch floor_dungeon1a
+x 16
+y 21
+end
+arch wall_dungeon_1
+x 16
+y 21
+end
+arch floor_dungeon1a
+x 16
+y 22
+end
+arch floor_dungeon1a
+x 16
+y 23
+end
+arch blocked
+x 17
+end
+arch wall_dungeon_1
+x 17
+end
+arch floor_dungeon1a
+x 17
+y 1
+end
+arch floor_dungeon1a
+x 17
+y 2
+end
+arch floor_dungeon1a
+x 17
+y 3
+end
+arch floor_dungeon1a
+x 17
+y 4
+end
+arch floor_dungeon1a
+x 17
+y 5
+end
+arch floor_dungeon1a
+x 17
+y 6
+end
+arch floor_dungeon1a
+x 17
+y 7
+end
+arch floor_dungeon1a
+x 17
+y 8
+end
+arch floor_dungeon1a
+x 17
+y 9
+end
+arch floor_dungeon1a
+x 17
+y 10
+end
+arch floor_dungeon1a
+x 17
+y 11
+end
+arch floor_dungeon1a
+x 17
+y 12
+end
+arch floor_dungeon1a
+x 17
+y 13
+end
+arch floor_dungeon1a
+x 17
+y 14
+end
+arch floor_dungeon1a
+x 17
+y 15
+end
+arch door1_locked
+last_sp -1
+x 17
+y 15
+end
+arch floor_dungeon1a
+x 17
+y 16
+end
+arch floor_dungeon1a
+x 17
+y 17
+end
+arch table_small1
+x 17
+y 17
+end
+arch floor_dungeon1a
+x 17
+y 18
+end
+arch table_wood1.111
+direction 3
+x 17
+y 18
+end
+arch floor_dungeon1a
+x 17
+y 19
+end
+arch table_small1
+x 17
+y 19
+end
+arch floor_dungeon1a
+x 17
+y 20
+end
+arch floor_dungeon1a
+x 17
+y 21
+end
+arch door1_locked
+last_sp -1
+x 17
+y 21
+end
+arch floor_dungeon1a
+x 17
+y 22
+end
+arch floor_dungeon1a
+x 17
+y 23
+end
+arch blocked
+x 18
+end
+arch wall_dungeon_1
+x 18
+end
+arch floor_dungeon1a
+x 18
+y 1
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 18
+y 1
+end
+arch floor_dungeon1a
+x 18
+y 2
+end
+arch wall_dungeon_3
+x 18
+y 2
+end
+arch floor_dungeon1a
+x 18
+y 3
+end
+arch wall_dungeon_3
+x 18
+y 3
+end
+arch floor_dungeon1a
+x 18
+y 4
+end
+arch wall_dungeon_3
+x 18
+y 4
+end
+arch floor_dungeon1a
+x 18
+y 5
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 18
+y 5
+end
+arch floor_dungeon1a
+x 18
+y 6
+end
+arch wall_dungeon_3
+x 18
+y 6
+end
+arch floor_dungeon1a
+x 18
+y 7
+end
+arch wall_dungeon_3
+x 18
+y 7
+end
+arch floor_dungeon1a
+x 18
+y 8
+end
+arch wall_dungeon_3
+x 18
+y 8
+end
+arch floor_dungeon1a
+x 18
+y 9
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 18
+y 9
+end
+arch floor_dungeon1a
+x 18
+y 10
+end
+arch wall_dungeon_3
+x 18
+y 10
+end
+arch floor_dungeon1a
+x 18
+y 11
+end
+arch wall_dungeon_3
+x 18
+y 11
+end
+arch floor_dungeon1a
+x 18
+y 12
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 18
+y 12
+end
+arch floor_dungeon1a
+x 18
+y 13
+end
+arch wall_dungeon_3
+x 18
+y 13
+end
+arch floor_dungeon1a
+x 18
+y 14
+end
+arch wall_dungeon_3
+x 18
+y 14
+end
+arch floor_dungeon1a
+x 18
+y 15
+end
+arch wall_dungeon_4
+x 18
+y 15
+end
+arch floor_dungeon1a
+x 18
+y 16
+end
+arch floor_dungeon1a
+x 18
+y 17
+end
+arch floor_dungeon1a
+x 18
+y 18
+end
+arch table_wood1.111
+direction 3
+x 18
+y 18
+end
+arch floor_dungeon1a
+x 18
+y 19
+end
+arch floor_dungeon1a
+x 18
+y 20
+end
+arch floor_dungeon1a
+x 18
+y 21
+end
+arch wall_dungeon_1
+x 18
+y 21
+end
+arch floor_dungeon1a
+x 18
+y 22
+end
+arch floor_dungeon1a
+x 18
+y 23
+end
+arch blocked
+x 19
+end
+arch wall_dungeon_1
+x 19
+end
+arch floor_dungeon1a
+x 19
+y 1
+end
+arch floor_dungeon1a
+x 19
+y 2
+end
+arch shrine1.111
+direction 7
+x 19
+y 2
+end
+arch floor_dungeon1a
+x 19
+y 3
+end
+arch wall_dungeon_1
+x 19
+y 3
+end
+arch floor_dungeon1a
+x 19
+y 4
+end
+arch wall_dungeon_3
+x 19
+y 4
+end
+arch floor_dungeon1a
+x 19
+y 5
+end
+arch floor_dungeon1a
+x 19
+y 6
+end
+arch floor_dungeon1a
+x 19
+y 7
+end
+arch bed_1a.111
+direction 3
+x 19
+y 7
+end
+arch floor_dungeon1a
+x 19
+y 8
+end
+arch wall_dungeon_1
+x 19
+y 8
+end
+arch floor_dungeon1a
+x 19
+y 9
+end
+arch floor_dungeon1a
+x 19
+y 10
+end
+arch wall_dungeon_1
+x 19
+y 10
+end
+arch floor_dungeon1a
+x 19
+y 11
+end
+arch wall_dungeon_3
+x 19
+y 11
+end
+arch floor_dungeon1a
+x 19
+y 12
+end
+arch floor_dungeon1a
+x 19
+y 13
+end
+arch floor_dungeon1a
+x 19
+y 14
+end
+arch floor_dungeon1a
+x 19
+y 15
+end
+arch wall_dungeon_1
+x 19
+y 15
+end
+arch floor_dungeon1a
+x 19
+y 16
+end
+arch fireplace_right_off
+x 19
+y 16
+end
+arch floor_dungeon1a
+x 19
+y 17
+end
+arch floor_dungeon1a
+x 19
+y 18
+end
+arch table_small1
+x 19
+y 18
+end
+arch floor_dungeon1a
+x 19
+y 19
+end
+arch floor_dungeon1a
+x 19
+y 20
+end
+arch floor_dungeon1a
+x 19
+y 21
+end
+arch wall_dungeon_1
+x 19
+y 21
+end
+arch floor_dungeon1a
+x 19
+y 22
+end
+arch wall_dungeon_3
+x 19
+y 22
+end
+arch floor_dungeon1a
+x 19
+y 23
+end
+arch wall_dungeon_3
+x 19
+y 23
+end
+arch blocked
+x 20
+end
+arch wall_dungeon_1
+x 20
+end
+arch floor_dungeon1a
+x 20
+y 1
+end
+arch floor_dungeon1a
+x 20
+y 2
+end
+arch floor_dungeon1a
+x 20
+y 3
+end
+arch floor_dungeon1a
+x 20
+y 4
+end
+arch wall_dungeon_1
+x 20
+y 4
+end
+arch floor_dungeon1a
+x 20
+y 5
+end
+arch wall_dungeon_3
+x 20
+y 5
+end
+arch floor_dungeon1a
+x 20
+y 6
+end
+arch floor_dungeon1a
+x 20
+y 7
+end
+arch bed_1b.111
+direction 3
+x 20
+y 7
+end
+arch floor_dungeon1a
+x 20
+y 8
+end
+arch wall_dungeon_1
+x 20
+y 8
+end
+arch floor_dungeon1a
+x 20
+y 9
+end
+arch floor_dungeon1a
+x 20
+y 10
+end
+arch floor_dungeon1a
+x 20
+y 11
+end
+arch wall_dungeon_1
+x 20
+y 11
+end
+arch floor_dungeon1a
+x 20
+y 12
+end
+arch wall_dungeon_3
+x 20
+y 12
+end
+arch floor_dungeon1a
+x 20
+y 13
+end
+arch prison_deco2.131
+direction 7
+x 20
+y 13
+end
+arch floor_dungeon1a
+x 20
+y 14
+end
+arch floor_dungeon1a
+x 20
+y 15
+end
+arch wall_dungeon_1
+x 20
+y 15
+end
+arch floor_dungeon1a
+x 20
+y 16
+end
+arch floor_dungeon1a
+x 20
+y 17
+end
+arch floor_dungeon1a
+x 20
+y 18
+end
+arch floor_dungeon1a
+x 20
+y 19
+end
+arch floor_dungeon1a
+x 20
+y 20
+end
+arch grain5.101
+x 20
+y 20
+end
+arch floor_dungeon1a
+x 20
+y 21
+end
+arch wall_dungeon_1
+x 20
+y 21
+end
+arch blocked
+x 21
+end
+arch wall_dungeon_1
+x 21
+end
+arch floor_dungeon1a
+x 21
+y 1
+end
+arch floor_dungeon1a
+x 21
+y 2
+end
+arch floor_dungeon1a
+x 21
+y 3
+end
+arch floor_dungeon1a
+x 21
+y 4
+end
+arch floor_dungeon1a
+x 21
+y 5
+end
+arch wall_dungeon_1
+x 21
+y 5
+end
+arch floor_dungeon1a
+x 21
+y 6
+end
+arch wall_dungeon_3
+x 21
+y 6
+end
+arch floor_dungeon1a
+x 21
+y 7
+end
+arch floor_dungeon1a
+x 21
+y 8
+end
+arch wall_dungeon_1
+x 21
+y 8
+end
+arch floor_dungeon1a
+x 21
+y 9
+end
+arch floor_dungeon1a
+x 21
+y 10
+end
+arch floor_dungeon1a
+x 21
+y 11
+end
+arch floor_dungeon1a
+x 21
+y 12
+end
+arch wall_dungeon_1
+x 21
+y 12
+end
+arch floor_dungeon1a
+x 21
+y 13
+end
+arch wall_dungeon_3
+x 21
+y 13
+end
+arch floor_dungeon1a
+x 21
+y 14
+end
+arch floor_dungeon1a
+x 21
+y 15
+end
+arch wall_dungeon_1
+x 21
+y 15
+end
+arch floor_dungeon1a
+x 21
+y 16
+end
+arch wall_dungeon_3
+x 21
+y 16
+end
+arch floor_dungeon1a
+x 21
+y 17
+end
+arch wall_dungeon_3
+x 21
+y 17
+end
+arch floor_dungeon1a
+x 21
+y 18
+end
+arch wall_dungeon_3
+x 21
+y 18
+end
+arch floor_dungeon1a
+x 21
+y 19
+end
+arch wall_dungeon_3
+x 21
+y 19
+end
+arch floor_dungeon1a
+x 21
+y 20
+end
+arch wall_dungeon_3
+x 21
+y 20
+end
+arch floor_dungeon1a
+x 21
+y 21
+end
+arch wall_dungeon_4
+x 21
+y 21
+end
+arch blocked
+x 22
+end
+arch wall_dungeon_1
+x 22
+end
+arch floor_dungeon1a
+x 22
+y 1
+end
+arch floor_dungeon1a
+x 22
+y 2
+end
+arch floor_dungeon1a
+x 22
+y 3
+end
+arch floor_dungeon1a
+x 22
+y 4
+end
+arch floor_dungeon1a
+x 22
+y 5
+end
+arch floor_dungeon1a
+x 22
+y 6
+end
+arch wall_dungeon_1
+x 22
+y 6
+end
+arch floor_dungeon1a
+x 22
+y 7
+end
+arch wall_dungeon_3
+x 22
+y 7
+end
+arch floor_dungeon1a
+x 22
+y 8
+end
+arch wall_dungeon_1
+x 22
+y 8
+end
+arch floor_dungeon1a
+x 22
+y 9
+end
+arch floor_dungeon1a
+x 22
+y 10
+end
+arch floor_dungeon1a
+x 22
+y 11
+end
+arch floor_dungeon1a
+x 22
+y 12
+end
+arch floor_dungeon1a
+x 22
+y 13
+end
+arch wall_dungeon_1
+x 22
+y 13
+end
+arch floor_dungeon1a
+x 22
+y 14
+end
+arch wall_dungeon_3
+x 22
+y 14
+end
+arch floor_dungeon1a
+x 22
+y 15
+end
+arch wall_dungeon_1
+x 22
+y 15
+end
+arch blocked
+x 23
+end
+arch wall_dungeon_1
+x 23
+end
+arch floor_dungeon1a
+x 23
+y 1
+end
+arch couch1b
+direction 7
+x 23
+y 1
+end
+arch floor_dungeon1a
+x 23
+y 2
+end
+arch couch1a
+direction 7
+x 23
+y 2
+end
+arch floor_dungeon1a
+x 23
+y 3
+end
+arch floor_dungeon1a
+x 23
+y 4
+end
+arch floor_dungeon1a
+x 23
+y 5
+end
+arch floor_dungeon1a
+x 23
+y 6
+end
+arch floor_dungeon1a
+x 23
+y 7
+end
+arch wall_dungeon_1
+x 23
+y 7
+end
+arch floor_dungeon1a
+x 23
+y 8
+end
+arch wall_dungeon_4
+x 23
+y 8
+end
+arch floor_dungeon1a
+x 23
+y 9
+end
+arch bed_2a.111
+direction 7
+x 23
+y 9
+end
+arch floor_dungeon1a
+x 23
+y 10
+end
+arch bed_2b.111
+direction 7
+x 23
+y 10
+end
+arch floor_dungeon1a
+x 23
+y 11
+end
+arch floor_dungeon1a
+x 23
+y 12
+end
+arch floor_dungeon1a
+x 23
+y 13
+end
+arch floor_dungeon1a
+x 23
+y 14
+end
+arch wall_dungeon_1
+x 23
+y 14
+end
+arch floor_dungeon1a
+x 23
+y 15
+end
+arch wall_dungeon_4
+x 23
+y 15
+end

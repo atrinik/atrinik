@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
@@ -11,62 +11,125 @@ enter_y 1
 reset_timeout 7200
 difficulty 1
 darkness 1
+tile_path_1 world_b_0738
+tile_path_2 world_b_0837
 tile_path_3 world_b_0736
+tile_path_5 world_b_0838
+tile_path_6 world_b_0836
+end
+arch blocked
+x 13
+y 21
 end
 arch wall_dungeon_8
 x 13
 y 21
 end
-arch wall_dungeon_3
+arch blocked
 x 13
 y 22
 end
 arch wall_dungeon_3
 x 13
+y 22
+end
+arch blocked
+x 13
 y 23
+end
+arch wall_dungeon_3
+x 13
+y 23
+end
+arch blocked
+x 14
 end
 arch wall_dungeon_3
 x 14
 end
-arch wall_dungeon_3
+arch blocked
 x 14
 y 1
 end
 arch wall_dungeon_3
 x 14
+y 1
+end
+arch blocked
+x 14
 y 2
 end
 arch wall_dungeon_3
+x 14
+y 2
+end
+arch blocked
 x 14
 y 3
 end
 arch wall_dungeon_3
 x 14
+y 3
+end
+arch blocked
+x 14
 y 4
 end
 arch wall_dungeon_3
+x 14
+y 4
+end
+arch blocked
 x 14
 y 5
 end
 arch wall_dungeon_3
 x 14
+y 5
+end
+arch blocked
+x 14
 y 6
 end
 arch wall_dungeon_3
+x 14
+y 6
+end
+arch blocked
 x 14
 y 7
 end
 arch wall_dungeon_3
 x 14
+y 7
+end
+arch blocked
+x 14
 y 8
 end
 arch wall_dungeon_3
+x 14
+y 8
+end
+arch blocked
 x 14
 y 9
 end
 arch wall_dungeon_3
 x 14
+y 9
+end
+arch blocked
+x 14
 y 10
+end
+arch wall_dungeon_3
+x 14
+y 10
+end
+arch blocked
+x 14
+y 21
 end
 arch wall_dungeon_1
 x 14
@@ -140,6 +203,10 @@ end
 arch wall_dungeon_1
 x 15
 y 10
+end
+arch blocked
+x 15
+y 21
 end
 arch wall_dungeon_1
 x 15
@@ -185,16 +252,7 @@ x 16
 y 6
 end
 arch door1_locked
-face door_lock1.112
-grace 1
-speed 0.100000
-speed_left -0.900000
-state 1
-last_sp 1
-last_grace 1
-last_eat 1
-blocksview 0
-door_closed 0
+direction 7
 x 16
 y 6
 end
@@ -210,17 +268,17 @@ arch spawn_point
 x 16
 y 8
 arch giant_hill
-name temporary key holder
-Wis 2
-level 35
-type 83
-carrying 5500
+name Orgloroth, the Key Guardian
 weight 5000
+level 35
+carrying 5500
+Wis 2
+type 83
+arch quest_container
 arch key_brown
 name Asteria Dungeon Key 3
 slaying asteria_dungeon_key3
-quest_item 1
-one_drop 1
+end
 end
 end
 end
@@ -235,6 +293,10 @@ end
 arch wall_dungeon_1
 x 16
 y 10
+end
+arch blocked
+x 16
+y 21
 end
 arch wall_dungeon_1
 x 16
@@ -319,6 +381,10 @@ arch wall_dungeon_1
 x 17
 y 10
 end
+arch blocked
+x 17
+y 21
+end
 arch wall_dungeon_1
 x 17
 y 21
@@ -350,6 +416,11 @@ x 18
 y 1
 end
 arch floor_dungeon1a
+x 18
+y 2
+end
+arch shrine1.111
+direction 3
 x 18
 y 2
 end
@@ -410,6 +481,10 @@ arch wall_dungeon_4
 x 18
 y 10
 end
+arch blocked
+x 18
+y 21
+end
 arch wall_dungeon_1
 x 18
 y 21
@@ -477,6 +552,10 @@ end
 arch wall_dungeon_1
 x 19
 y 10
+end
+arch blocked
+x 19
+y 21
 end
 arch wall_dungeon_1
 x 19
@@ -530,11 +609,21 @@ arch floor_dungeon1a
 x 20
 y 6
 end
+arch bench2.111
+direction 5
+x 20
+y 6
+end
 arch floor_dungeon1a
 x 20
 y 7
 end
 arch floor_dungeon1a
+x 20
+y 8
+end
+arch bench2.111
+direction 5
 x 20
 y 8
 end
@@ -550,45 +639,89 @@ arch wall_dungeon_1
 x 20
 y 10
 end
-arch wall_dungeon_3
+arch blocked
 x 20
 y 11
 end
 arch wall_dungeon_3
 x 20
+y 11
+end
+arch blocked
+x 20
 y 12
 end
 arch wall_dungeon_3
+x 20
+y 12
+end
+arch blocked
 x 20
 y 13
 end
 arch wall_dungeon_3
 x 20
+y 13
+end
+arch blocked
+x 20
 y 14
 end
 arch wall_dungeon_3
+x 20
+y 14
+end
+arch blocked
 x 20
 y 15
 end
 arch wall_dungeon_3
 x 20
+y 15
+end
+arch blocked
+x 20
 y 16
 end
 arch wall_dungeon_3
+x 20
+y 16
+end
+arch blocked
 x 20
 y 17
 end
 arch wall_dungeon_3
 x 20
+y 17
+end
+arch blocked
+x 20
 y 18
 end
 arch wall_dungeon_3
+x 20
+y 18
+end
+arch blocked
 x 20
 y 19
 end
 arch wall_dungeon_3
 x 20
+y 19
+end
+arch blocked
+x 20
 y 20
+end
+arch wall_dungeon_3
+x 20
+y 20
+end
+arch blocked
+x 20
+y 21
 end
 arch wall_dungeon_4
 x 20
@@ -629,6 +762,10 @@ arch floor_dungeon1a
 x 21
 y 3
 end
+arch candlelight3.101
+x 21
+y 3
+end
 arch floor_dungeon1a
 x 21
 y 4
@@ -641,6 +778,11 @@ arch floor_dungeon1a
 x 21
 y 6
 end
+arch bench2.111
+direction 5
+x 21
+y 6
+end
 arch floor_dungeon1a
 x 21
 y 7
@@ -648,6 +790,20 @@ end
 arch floor_dungeon1a
 x 21
 y 8
+end
+arch bench2.111
+direction 5
+x 21
+y 8
+end
+arch spawn_point
+x 21
+y 8
+arch guard
+name Targomik
+level 25
+type 83
+end
 end
 arch floor_dungeon1a
 x 21
@@ -748,8 +904,7 @@ x 22
 y 1
 end
 arch door1_locked
-slaying asteria_dungeon_key3
-last_sp -1
+direction 7
 x 22
 y 1
 end
@@ -761,13 +916,23 @@ arch floor_dungeon1a
 x 22
 y 3
 end
-arch altar_tabernacle
+arch altar_grunhilde
+direction 5
 x 22
 y 3
 end
 arch floor_dungeon1a
 x 22
 y 4
+end
+arch spawn_point
+x 22
+y 4
+arch guard_female
+name Priestess Olga
+level 35
+type 83
+end
 end
 arch floor_dungeon1a
 x 22
@@ -794,7 +959,7 @@ x 22
 y 10
 end
 arch door1_locked
-last_sp -1
+direction 7
 x 22
 y 10
 end
@@ -843,11 +1008,7 @@ x 22
 y 21
 end
 arch door1_locked
-msg
-You need Asteria Dungeon Key 3 to pass.
-endmsg
-slaying asteria_dungeon_key3
-last_sp -1
+direction 7
 x 22
 y 21
 end
@@ -878,6 +1039,10 @@ arch floor_dungeon1a
 x 23
 y 3
 end
+arch candlelight3.101
+x 23
+y 3
+end
 arch floor_dungeon1a
 x 23
 y 4
@@ -890,11 +1055,21 @@ arch floor_dungeon1a
 x 23
 y 6
 end
+arch bench2.111
+direction 5
+x 23
+y 6
+end
 arch floor_dungeon1a
 x 23
 y 7
 end
 arch floor_dungeon1a
+x 23
+y 8
+end
+arch bench2.111
+direction 5
 x 23
 y 8
 end

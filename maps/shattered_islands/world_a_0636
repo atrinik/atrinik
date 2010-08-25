@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
@@ -11,15 +11,17 @@ enter_y 1
 reset_timeout 7200
 difficulty 1
 darkness 1
+no_harm 1
+tile_path_1 world_a_0637
 tile_path_2 world_a_0736
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 end
 arch wall_dungeon_3
 x 18
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 1
 end
@@ -27,7 +29,7 @@ arch wall_dungeon_3
 x 18
 y 1
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 2
 end
@@ -35,7 +37,7 @@ arch wall_dungeon_3
 x 18
 y 2
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 3
 end
@@ -43,7 +45,7 @@ arch wall_dungeon_3
 x 18
 y 3
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 4
 end
@@ -51,7 +53,7 @@ arch wall_dungeon_3
 x 18
 y 4
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 5
 end
@@ -59,7 +61,7 @@ arch wall_dungeon_3
 x 18
 y 5
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 6
 end
@@ -67,7 +69,7 @@ arch wall_dungeon_3
 x 18
 y 6
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 7
 end
@@ -75,7 +77,7 @@ arch wall_dungeon_3
 x 18
 y 7
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 8
 end
@@ -83,7 +85,7 @@ arch wall_dungeon_3
 x 18
 y 8
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 9
 end
@@ -91,7 +93,7 @@ arch wall_dungeon_3
 x 18
 y 9
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 10
 end
@@ -99,7 +101,7 @@ arch wall_dungeon_3
 x 18
 y 10
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 11
 end
@@ -107,7 +109,7 @@ arch wall_dungeon_3
 x 18
 y 11
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 12
 end
@@ -115,7 +117,7 @@ arch wall_dungeon_3
 x 18
 y 12
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 13
 end
@@ -123,7 +125,7 @@ arch wall_dungeon_3
 x 18
 y 13
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 14
 end
@@ -131,7 +133,7 @@ arch wall_dungeon_3
 x 18
 y 14
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 15
 end
@@ -139,7 +141,7 @@ arch wall_dungeon_3
 x 18
 y 15
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 16
 end
@@ -147,7 +149,7 @@ arch wall_dungeon_3
 x 18
 y 16
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 17
 end
@@ -155,7 +157,7 @@ arch wall_dungeon_3
 x 18
 y 17
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 18
 end
@@ -163,7 +165,7 @@ arch wall_dungeon_3
 x 18
 y 18
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 19
 end
@@ -292,23 +294,20 @@ end
 arch spawn_point
 x 19
 y 17
-arch skel_fighter2
-name Warden
-race human
-face guard_pole.151
-animation guard_pole
+arch guard_pole
+name Warden Argoth
 level 20
 type 83
-carrying 2200
-is_neutral 1
-unaggressive 1
-is_evil 0
+arch quest_container
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
 startequip 1
-quest_item 1
-one_drop 1
+end
+end
+arch event_obj
+sub_type 6
+race scripts/asteria/WardenArgoth.py
 end
 end
 end

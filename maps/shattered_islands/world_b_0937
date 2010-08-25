@@ -1,0 +1,1111 @@
+arch map
+name Underground Tunnels
+msg
+-Enter Description Here-
+Modified: 2010-08-25 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 5
+tile_path_4 world_b_0837
+tile_path_7 world_b_0836
+tile_path_8 world_b_0838
+end
+arch blocked
+end
+arch wall_dungeon_1
+end
+arch floor_dungeon1a
+y 1
+end
+arch wall_dungeon_3
+y 1
+end
+arch floor_dungeon1a
+y 2
+end
+arch wall_dungeon_3
+y 2
+end
+arch floor_dungeon1a
+y 3
+end
+arch wall_dungeon_3
+y 3
+end
+arch floor_dungeon1a
+y 4
+end
+arch wall_dungeon_3
+y 4
+end
+arch floor_dungeon1a
+y 5
+end
+arch wall_dungeon_3
+y 5
+end
+arch floor_dungeon1a
+y 6
+end
+arch wall_dungeon_3
+y 6
+end
+arch floor_dungeon1a
+y 7
+end
+arch wall_dungeon_3
+y 7
+end
+arch floor_dungeon1a
+y 8
+end
+arch wall_dungeon_4
+y 8
+end
+arch floor_dungeon1a
+y 9
+end
+arch wall_dungeon_3
+y 9
+end
+arch floor_dungeon1a
+y 10
+end
+arch wall_dungeon_3
+y 10
+end
+arch floor_dungeon1a
+y 11
+end
+arch wall_dungeon_3
+y 11
+end
+arch floor_dungeon1a
+y 12
+end
+arch wall_dungeon_3
+name false dungeon wall
+no_pass 0
+y 12
+end
+arch floor_dungeon1a
+y 13
+end
+arch wall_dungeon_4
+y 13
+end
+arch floor_dungeon1a
+y 14
+end
+arch wall_dungeon1.131
+y 14
+end
+arch floor_dungeon1a
+y 15
+end
+arch wall_dungeon1.131
+y 15
+end
+arch earth_brown2
+y 16
+end
+arch fwall_grit1c
+y 16
+end
+arch earth_brown2
+y 17
+end
+arch fwall_grit1c
+y 17
+end
+arch earth_brown2
+y 18
+end
+arch fwall_grit1c
+y 18
+end
+arch earth_brown2
+x 1
+y 10
+end
+arch fwall_grit1c
+x 1
+y 10
+end
+arch earth_brown2
+x 1
+y 11
+end
+arch fwall_grit1c
+x 1
+y 11
+end
+arch earth_brown2
+x 1
+y 12
+end
+arch door1_locked
+msg
+You need Asteria Dungeon Key 2 to enter here.
+endmsg
+slaying asteria_dungeon_key2
+face door_lock1.131
+direction 3
+last_sp -1
+x 1
+y 12
+end
+arch earth_brown2
+x 1
+y 13
+end
+arch fwall_grit1c
+x 1
+y 13
+end
+arch earth_brown2
+x 1
+y 14
+end
+arch fwall_grit1c
+x 1
+y 14
+end
+arch earth_brown2
+x 1
+y 15
+end
+arch fwall_grit1c
+x 1
+y 15
+end
+arch earth_brown2
+x 1
+y 16
+end
+arch fwall_grit1c
+x 1
+y 16
+end
+arch earth_brown2
+x 1
+y 17
+end
+arch earth_brown2
+x 1
+y 18
+end
+arch fwall_grit1c
+x 1
+y 18
+end
+arch earth_brown2
+x 1
+y 19
+end
+arch fwall_grit1c
+x 1
+y 19
+end
+arch earth_brown2
+x 2
+y 10
+end
+arch fwall_grit1c
+x 2
+y 10
+end
+arch earth_brown2
+x 2
+y 11
+end
+arch earth_brown2
+x 2
+y 12
+end
+arch earth_brown2
+x 2
+y 13
+end
+arch earth_brown2
+x 2
+y 14
+end
+arch fwall_grit1c
+x 2
+y 14
+end
+arch earth_brown2
+x 2
+y 15
+end
+arch fwall_grit1c
+x 2
+y 15
+end
+arch earth_brown2
+x 2
+y 16
+end
+arch earth_brown2
+x 2
+y 17
+end
+arch earth_brown2
+x 2
+y 18
+end
+arch earth_brown2
+x 2
+y 19
+end
+arch fwall_grit1c
+x 2
+y 19
+end
+arch earth_brown2
+x 3
+y 10
+end
+arch fwall_grit1c
+x 3
+y 10
+end
+arch earth_brown2
+x 3
+y 11
+end
+arch fwall_grit1c
+x 3
+y 11
+end
+arch earth_brown2
+x 3
+y 12
+end
+arch earth_brown2
+x 3
+y 13
+end
+arch earth_brown2
+x 3
+y 14
+end
+arch earth_brown2
+x 3
+y 15
+end
+arch earth_brown2
+x 3
+y 16
+end
+arch earth_brown2
+x 3
+y 17
+end
+arch earth_brown2
+x 3
+y 18
+end
+arch earth_brown2
+x 3
+y 19
+end
+arch fwall_grit1c
+x 3
+y 19
+end
+arch earth_brown2
+x 3
+y 20
+end
+arch fwall_grit1c
+x 3
+y 20
+end
+arch earth_brown2
+x 3
+y 21
+end
+arch fwall_grit1c
+x 3
+y 21
+end
+arch earth_brown2
+x 4
+y 10
+end
+arch fwall_grit1c
+x 4
+y 10
+end
+arch earth_brown2
+x 4
+y 11
+end
+arch earth_brown2
+x 4
+y 12
+end
+arch earth_brown2
+x 4
+y 13
+end
+arch earth_brown2
+x 4
+y 14
+end
+arch earth_brown2
+x 4
+y 15
+end
+arch earth_brown2
+x 4
+y 16
+end
+arch earth_brown2
+x 4
+y 17
+end
+arch earth_brown2
+x 4
+y 18
+end
+arch earth_brown2
+x 4
+y 19
+end
+arch earth_brown2
+x 4
+y 20
+end
+arch earth_brown2
+x 4
+y 21
+end
+arch fwall_grit1c
+x 4
+y 21
+end
+arch earth_brown2
+x 5
+end
+arch fwall_grit1c
+x 5
+end
+arch earth_brown2
+x 5
+y 1
+end
+arch fwall_grit1c
+x 5
+y 1
+end
+arch earth_brown2
+x 5
+y 2
+end
+arch fwall_grit1c
+x 5
+y 2
+end
+arch earth_brown2
+x 5
+y 3
+end
+arch fwall_grit1c
+x 5
+y 3
+end
+arch earth_brown2
+x 5
+y 4
+end
+arch fwall_grit1c
+x 5
+y 4
+end
+arch earth_brown2
+x 5
+y 5
+end
+arch fwall_grit1c
+x 5
+y 5
+end
+arch earth_brown2
+x 5
+y 6
+end
+arch fwall_grit1c
+x 5
+y 6
+end
+arch earth_brown2
+x 5
+y 7
+end
+arch fwall_grit1c
+x 5
+y 7
+end
+arch earth_brown2
+x 5
+y 8
+end
+arch fwall_grit1c
+x 5
+y 8
+end
+arch earth_brown2
+x 5
+y 9
+end
+arch fwall_grit1c
+x 5
+y 9
+end
+arch earth_brown2
+x 5
+y 10
+end
+arch fwall_grit1c
+x 5
+y 10
+end
+arch earth_brown2
+x 5
+y 11
+end
+arch fwall_grit1c
+x 5
+y 11
+end
+arch earth_brown2
+x 5
+y 12
+end
+arch earth_brown2
+x 5
+y 13
+end
+arch fwall_grit1c
+x 5
+y 13
+end
+arch earth_brown2
+x 5
+y 14
+end
+arch fwall_grit1c
+x 5
+y 14
+end
+arch earth_brown2
+x 5
+y 15
+end
+arch earth_brown2
+x 5
+y 16
+end
+arch earth_brown2
+x 5
+y 17
+end
+arch earth_brown2
+x 5
+y 18
+end
+arch earth_brown2
+x 5
+y 19
+end
+arch earth_brown2
+x 5
+y 20
+end
+arch earth_brown2
+x 5
+y 21
+end
+arch fwall_grit1c
+x 5
+y 21
+end
+arch earth_brown2
+x 5
+y 22
+end
+arch fwall_grit1c
+x 5
+y 22
+end
+arch earth_brown2
+x 5
+y 23
+end
+arch fwall_grit1c
+x 5
+y 23
+end
+arch earth_brown2
+x 6
+end
+arch earth_brown2
+x 6
+y 1
+end
+arch fwall_grit1c
+x 6
+y 1
+end
+arch earth_brown2
+x 6
+y 2
+end
+arch fwall_grit1c
+x 6
+y 2
+end
+arch earth_brown2
+x 6
+y 3
+end
+arch earth_brown2
+x 6
+y 4
+end
+arch earth_brown2
+x 6
+y 5
+end
+arch earth_brown2
+x 6
+y 6
+end
+arch earth_brown2
+x 6
+y 7
+end
+arch fwall_grit1c
+x 6
+y 7
+end
+arch earth_brown2
+x 6
+y 8
+end
+arch fwall_grit1c
+x 6
+y 8
+end
+arch earth_brown2
+x 6
+y 9
+end
+arch earth_brown2
+x 6
+y 10
+end
+arch earth_brown2
+x 6
+y 11
+end
+arch fwall_grit1c
+x 6
+y 11
+end
+arch earth_brown2
+x 6
+y 12
+end
+arch earth_brown2
+x 6
+y 13
+end
+arch earth_brown2
+x 6
+y 14
+end
+arch fwall_grit1c
+x 6
+y 14
+end
+arch earth_brown2
+x 6
+y 15
+end
+arch fwall_grit1c
+x 6
+y 15
+end
+arch earth_brown2
+x 6
+y 16
+end
+arch fwall_grit1c
+x 6
+y 16
+end
+arch earth_brown2
+x 6
+y 17
+end
+arch fwall_grit1c
+x 6
+y 17
+end
+arch earth_brown2
+x 6
+y 18
+end
+arch fwall_grit1c
+x 6
+y 18
+end
+arch earth_brown2
+x 6
+y 19
+end
+arch fwall_grit1c
+x 6
+y 19
+end
+arch earth_brown2
+x 6
+y 20
+end
+arch fwall_grit1c
+x 6
+y 20
+end
+arch earth_brown2
+x 6
+y 21
+end
+arch fwall_grit1c
+x 6
+y 21
+end
+arch earth_brown2
+x 6
+y 22
+end
+arch earth_brown2
+x 6
+y 23
+end
+arch earth_brown2
+x 7
+end
+arch earth_brown2
+x 7
+y 1
+end
+arch earth_brown2
+x 7
+y 2
+end
+arch earth_brown2
+x 7
+y 3
+end
+arch earth_brown2
+x 7
+y 4
+end
+arch earth_brown2
+x 7
+y 5
+end
+arch earth_brown2
+x 7
+y 6
+end
+arch earth_brown2
+x 7
+y 7
+end
+arch earth_brown2
+x 7
+y 8
+end
+arch earth_brown2
+x 7
+y 9
+end
+arch earth_brown2
+x 7
+y 10
+end
+arch earth_brown2
+x 7
+y 11
+end
+arch earth_brown2
+x 7
+y 12
+end
+arch earth_brown2
+x 7
+y 13
+end
+arch earth_brown2
+x 7
+y 14
+end
+arch earth_brown2
+x 7
+y 15
+end
+arch earth_brown2
+x 7
+y 16
+end
+arch earth_brown2
+x 7
+y 17
+end
+arch earth_brown2
+x 7
+y 18
+end
+arch earth_brown2
+x 7
+y 19
+end
+arch earth_brown2
+x 7
+y 20
+end
+arch earth_brown2
+x 7
+y 21
+end
+arch earth_brown2
+x 7
+y 22
+end
+arch earth_brown2
+x 7
+y 23
+end
+arch earth_brown2
+x 8
+end
+arch earth_brown2
+x 8
+y 1
+end
+arch earth_brown2
+x 8
+y 2
+end
+arch earth_brown2
+x 8
+y 3
+end
+arch earth_brown2
+x 8
+y 4
+end
+arch earth_brown2
+x 8
+y 5
+end
+arch earth_brown2
+x 8
+y 6
+end
+arch earth_brown2
+x 8
+y 7
+end
+arch earth_brown2
+x 8
+y 8
+end
+arch earth_brown2
+x 8
+y 9
+end
+arch earth_brown2
+x 8
+y 10
+end
+arch fwall_grit1c
+x 8
+y 10
+end
+arch earth_brown2
+x 8
+y 11
+end
+arch fwall_grit1c
+x 8
+y 11
+end
+arch earth_brown2
+x 8
+y 12
+end
+arch fwall_grit1c
+x 8
+y 12
+end
+arch earth_brown2
+x 8
+y 13
+end
+arch earth_brown2
+x 8
+y 14
+end
+arch earth_brown2
+x 8
+y 15
+end
+arch earth_brown2
+x 8
+y 16
+end
+arch earth_brown2
+x 8
+y 17
+end
+arch fwall_grit1c
+x 8
+y 17
+end
+arch earth_brown2
+x 8
+y 18
+end
+arch fwall_grit1c
+x 8
+y 18
+end
+arch earth_brown2
+x 8
+y 19
+end
+arch fwall_grit1c
+x 8
+y 19
+end
+arch earth_brown2
+x 8
+y 20
+end
+arch earth_brown2
+x 8
+y 21
+end
+arch earth_brown2
+x 8
+y 22
+end
+arch earth_brown2
+x 8
+y 23
+end
+arch earth_brown2
+x 9
+end
+arch fwall_grit1c
+x 9
+end
+arch earth_brown2
+x 9
+y 1
+end
+arch fwall_grit1c
+x 9
+y 1
+end
+arch earth_brown2
+x 9
+y 2
+end
+arch fwall_grit1c
+x 9
+y 2
+end
+arch earth_brown2
+x 9
+y 3
+end
+arch earth_brown2
+x 9
+y 4
+end
+arch fwall_grit1c
+x 9
+y 4
+end
+arch earth_brown2
+x 9
+y 5
+end
+arch fwall_grit1c
+x 9
+y 5
+end
+arch earth_brown2
+x 9
+y 6
+end
+arch fwall_grit1c
+x 9
+y 6
+end
+arch earth_brown2
+x 9
+y 7
+end
+arch fwall_grit1c
+x 9
+y 7
+end
+arch earth_brown2
+x 9
+y 8
+end
+arch fwall_grit1c
+x 9
+y 8
+end
+arch earth_brown2
+x 9
+y 9
+end
+arch fwall_grit1c
+x 9
+y 9
+end
+arch earth_brown2
+x 9
+y 10
+end
+arch fwall_grit1c
+x 9
+y 10
+end
+arch earth_brown2
+x 9
+y 12
+end
+arch fwall_grit1c
+x 9
+y 12
+end
+arch earth_brown2
+x 9
+y 13
+end
+arch fwall_grit1c
+x 9
+y 13
+end
+arch earth_brown2
+x 9
+y 14
+end
+arch fwall_grit1c
+x 9
+y 14
+end
+arch earth_brown2
+x 9
+y 15
+end
+arch fwall_grit1c
+x 9
+y 15
+end
+arch earth_brown2
+x 9
+y 16
+end
+arch fwall_grit1c
+x 9
+y 16
+end
+arch earth_brown2
+x 9
+y 17
+end
+arch fwall_grit1c
+x 9
+y 17
+end
+arch earth_brown2
+x 9
+y 19
+end
+arch fwall_grit1c
+x 9
+y 19
+end
+arch earth_brown2
+x 9
+y 20
+end
+arch fwall_grit1c
+x 9
+y 20
+end
+arch earth_brown2
+x 9
+y 21
+end
+arch fwall_grit1c
+x 9
+y 21
+end
+arch earth_brown2
+x 9
+y 22
+end
+arch fwall_grit1c
+x 9
+y 22
+end
+arch earth_brown2
+x 9
+y 23
+end
+arch fwall_grit1c
+x 9
+y 23
+end
+arch earth_brown2
+x 10
+y 2
+end
+arch fwall_grit1c
+x 10
+y 2
+end
+arch earth_brown2
+x 10
+y 3
+end
+arch fwall_grit1c
+x 10
+y 3
+end
+arch earth_brown2
+x 10
+y 4
+end
+arch fwall_grit1c
+x 10
+y 4
+end

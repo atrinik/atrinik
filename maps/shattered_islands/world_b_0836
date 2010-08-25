@@ -1,0 +1,461 @@
+arch map
+name Asteria Palace Dungeon
+msg
+-Enter Description Here-
+Modified: 2010-08-25 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 1
+tile_path_1 world_b_0837
+tile_path_4 world_b_0736
+tile_path_5 world_b_0937
+tile_path_8 world_b_0737
+end
+arch floor_dungeon1a
+end
+arch torch_wall_1
+direction 7
+end
+arch floor_dungeon1a
+y 1
+end
+arch floor_dungeon1a
+y 2
+end
+arch floor_dungeon1a
+y 3
+end
+arch floor_dungeon1a
+y 4
+end
+arch floor_dungeon1a
+y 5
+end
+arch floor_dungeon1a
+y 6
+end
+arch torch_wall_1
+direction 7
+y 6
+end
+arch floor_dungeon1a
+y 7
+end
+arch floor_dungeon1a
+y 8
+end
+arch wall_dungeon_1
+y 8
+end
+arch floor_stone3d
+y 17
+end
+arch fwall_rock3
+y 17
+end
+arch water_lt4
+y 18
+end
+arch water_lt3
+y 19
+end
+arch floor_stone3d
+y 20
+end
+arch fwall_rock3
+y 20
+end
+arch floor_dungeon1a
+x 1
+end
+arch floor_dungeon1a
+x 1
+y 1
+end
+arch floor_dungeon1a
+x 1
+y 2
+end
+arch floor_dungeon1a
+x 1
+y 3
+end
+arch floor_dungeon1a
+x 1
+y 4
+end
+arch floor_dungeon1a
+x 1
+y 5
+end
+arch floor_dungeon1a
+x 1
+y 6
+end
+arch floor_dungeon1a
+x 1
+y 7
+end
+arch floor_dungeon1a
+x 1
+y 8
+end
+arch wall_dungeon_1
+x 1
+y 8
+end
+arch floor_stone3d
+x 1
+y 17
+end
+arch fwall_rock3
+x 1
+y 17
+end
+arch water_lt
+x 1
+y 18
+end
+arch water_lt2
+x 1
+y 19
+end
+arch floor_stone3d
+x 1
+y 20
+end
+arch fwall_rock3
+x 1
+y 20
+end
+arch floor_dungeon1a
+x 2
+end
+arch wall_dungeon_3
+x 2
+end
+arch floor_dungeon1a
+x 2
+y 1
+end
+arch wall_dungeon_3
+x 2
+y 1
+end
+arch floor_dungeon1a
+x 2
+y 2
+end
+arch wall_dungeon_3
+x 2
+y 2
+end
+arch floor_dungeon1a
+x 2
+y 3
+end
+arch wall_dungeon_3
+x 2
+y 3
+end
+arch floor_dungeon1a
+x 2
+y 4
+end
+arch wall_dungeon_3
+x 2
+y 4
+end
+arch floor_dungeon1a
+x 2
+y 5
+end
+arch wall_dungeon_3
+x 2
+y 5
+end
+arch floor_dungeon1a
+x 2
+y 6
+end
+arch floor_dungeon1a
+x 2
+y 7
+end
+arch floor_dungeon1a
+x 2
+y 8
+end
+arch wall_dungeon_1
+x 2
+y 8
+end
+arch floor_stone3d
+x 2
+y 17
+end
+arch fwall_rock3
+x 2
+y 17
+end
+arch floor_stone3d
+x 2
+y 18
+end
+arch fwall_rock3
+x 2
+y 18
+end
+arch floor_stone3d
+x 2
+y 19
+end
+arch fwall_rock3
+x 2
+y 19
+end
+arch floor_stone3d
+x 2
+y 20
+end
+arch fwall_rock3
+x 2
+y 20
+end
+arch floor_dungeon1a
+x 3
+end
+arch floor_dungeon1a
+x 3
+y 1
+end
+arch floor_dungeon1a
+x 3
+y 2
+end
+arch floor_dungeon1a
+x 3
+y 3
+end
+arch floor_dungeon1a
+x 3
+y 4
+end
+arch floor_dungeon1a
+x 3
+y 5
+end
+arch floor_dungeon1a
+x 3
+y 6
+end
+arch floor_dungeon1a
+x 3
+y 7
+end
+arch floor_dungeon1a
+x 3
+y 8
+end
+arch wall_dungeon_1
+x 3
+y 8
+end
+arch floor_dungeon1a
+x 4
+end
+arch floor_dungeon1a
+x 4
+y 1
+end
+arch floor_dungeon1a
+x 4
+y 2
+end
+arch floor_dungeon1a
+x 4
+y 3
+end
+arch floor_dungeon1a
+x 4
+y 4
+end
+arch floor_dungeon1a
+x 4
+y 5
+end
+arch floor_dungeon1a
+x 4
+y 6
+end
+arch floor_dungeon1a
+x 4
+y 7
+end
+arch floor_dungeon1a
+x 4
+y 8
+end
+arch wall_dungeon_1
+x 4
+y 8
+end
+arch floor_dungeon1a
+x 5
+end
+arch wall_dungeon_8
+x 5
+end
+arch floor_dungeon1a
+x 5
+y 1
+end
+arch wall_dungeon_3
+x 5
+y 1
+end
+arch floor_dungeon1a
+x 5
+y 2
+end
+arch wall_dungeon_3
+x 5
+y 2
+end
+arch floor_dungeon1a
+x 5
+y 3
+end
+arch wall_dungeon_3
+x 5
+y 3
+end
+arch floor_dungeon1a
+x 5
+y 4
+end
+arch wall_dungeon_3
+x 5
+y 4
+end
+arch floor_dungeon1a
+x 5
+y 5
+end
+arch wall_dungeon_3
+x 5
+y 5
+end
+arch floor_dungeon1a
+x 5
+y 6
+end
+arch wall_dungeon_3
+x 5
+y 6
+end
+arch floor_dungeon1a
+x 5
+y 7
+end
+arch wall_dungeon_3
+x 5
+y 7
+end
+arch floor_dungeon1a
+x 5
+y 8
+end
+arch wall_dungeon_4
+x 5
+y 8
+end
+arch floor_dungeon1a
+x 6
+end
+arch wall_dungeon_1
+x 6
+end
+arch floor_dungeon1a
+x 7
+end
+arch wall_dungeon_1
+x 7
+end
+arch floor_dungeon1a
+x 8
+end
+arch wall_dungeon_1
+x 8
+end
+arch floor_dungeon1a
+x 9
+end
+arch wall_dungeon_1
+x 9
+end
+arch floor_dungeon1a
+x 10
+end
+arch wall_dungeon_1
+x 10
+end
+arch floor_dungeon1a
+x 11
+end
+arch wall_dungeon_1
+x 11
+end
+arch floor_dungeon1a
+x 12
+end
+arch wall_dungeon_1
+x 12
+end
+arch floor_dungeon1a
+x 13
+end
+arch wall_dungeon_1
+x 13
+end
+arch floor_dungeon1a
+x 14
+end
+arch wall_dungeon_1
+x 14
+end
+arch floor_dungeon1a
+x 15
+end
+arch wall_dungeon_1
+x 15
+end
+arch floor_dungeon1a
+x 16
+end
+arch wall_dungeon_1
+x 16
+end
+arch floor_dungeon1a
+x 17
+end
+arch wall_dungeon_1
+x 17
+end
+arch floor_dungeon1a
+x 18
+end
+arch wall_dungeon_1
+x 18
+end
+arch floor_dungeon1a
+x 19
+end
+arch wall_dungeon_4
+x 19
+end

@@ -11,15 +11,20 @@ enter_y 1
 reset_timeout 7200
 difficulty 1
 darkness 1
+no_harm 1
 tile_path_2 world_a_0737
 tile_path_3 world_a_0636
 tile_path_6 world_a_0736
+end
+arch blocked
+x 18
+y 14
 end
 arch wall_dungeon_8
 x 18
 y 14
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 15
 end
@@ -27,7 +32,7 @@ arch wall_dungeon_3
 x 18
 y 15
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 16
 end
@@ -35,7 +40,7 @@ arch wall_dungeon_3
 x 18
 y 16
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 17
 end
@@ -43,7 +48,7 @@ arch wall_dungeon_3
 x 18
 y 17
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 18
 end
@@ -51,7 +56,7 @@ arch wall_dungeon_3
 x 18
 y 18
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 19
 end
@@ -59,7 +64,7 @@ arch wall_dungeon_3
 x 18
 y 19
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 20
 end
@@ -67,7 +72,7 @@ arch wall_dungeon_3
 x 18
 y 20
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 21
 end
@@ -75,7 +80,7 @@ arch wall_dungeon_3
 x 18
 y 21
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 22
 end
@@ -83,13 +88,17 @@ arch wall_dungeon_3
 x 18
 y 22
 end
-arch floor_fs_grey1b
+arch blocked
 x 18
 y 23
 end
 arch wall_dungeon_3
 x 18
 y 23
+end
+arch blocked
+x 19
+y 14
 end
 arch wall_dungeon_1
 x 19
@@ -138,6 +147,10 @@ end
 arch wall_dungeon_1
 x 19
 y 23
+end
+arch blocked
+x 20
+y 14
 end
 arch wall_dungeon_1
 x 20
@@ -191,6 +204,10 @@ end
 arch wall_dungeon_1
 x 20
 y 23
+end
+arch blocked
+x 21
+y 14
 end
 arch wall_dungeon_1
 x 21
@@ -248,6 +265,10 @@ last_sp -1
 x 21
 y 23
 end
+arch blocked
+x 22
+y 14
+end
 arch wall_dungeon_1
 x 22
 y 14
@@ -295,6 +316,10 @@ end
 arch wall_dungeon_1
 x 22
 y 23
+end
+arch blocked
+x 23
+y 14
 end
 arch wall_dungeon_1
 x 23

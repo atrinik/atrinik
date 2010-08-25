@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
@@ -12,62 +12,434 @@ reset_timeout 7200
 difficulty 1
 darkness 1
 tile_path_1 world_b_0737
+tile_path_2 world_b_0836
+tile_path_5 world_b_0837
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch floor_stone3d
+y 19
+end
+arch fwall_rock3
+y 19
+end
+arch water_lt
+y 20
+end
+arch water_lt2
+y 21
+end
+arch water_lt2
+y 22
+end
+arch water_lt3
+y 23
+end
+arch floor_stone3d
+x 1
+y 19
+end
+arch fwall_rock3
+x 1
+y 19
+end
+arch water_lt4
+x 1
+y 20
+end
+arch water_lt
+x 1
+y 21
+end
+arch water_lt2
+x 1
+y 22
+end
+arch water_lt4
+x 1
+y 23
+end
+arch floor_stone3d
+x 2
+y 18
+end
+arch fwall_rock3
+x 2
+y 18
+end
+arch floor_stone3d
+x 2
+y 19
+end
+arch fwall_rock3
+x 2
+y 19
+end
+arch water_lt3
+x 2
+y 20
+end
+arch water_lt
+x 2
+y 21
+end
+arch water_lt
+x 2
+y 22
+end
+arch water_lt2
+x 2
+y 23
+end
+arch floor_stone3d
+x 3
+y 18
+end
+arch fwall_rock3
+x 3
+y 18
+end
+arch water_lt3
+x 3
+y 19
+end
+arch water_lt4
+x 3
+y 20
+end
+arch water_lt4
+x 3
+y 21
+end
+arch water_lt
+x 3
+y 22
+end
+arch floor_stone3d
+x 3
+y 23
+end
+arch fwall_rock3
+x 3
+y 23
+end
+arch floor_stone3d
+x 4
+y 18
+end
+arch fwall_rock3
+x 4
+y 18
+end
+arch water_lt3
+x 4
+y 19
+end
+arch water_lt
+x 4
+y 20
+end
+arch water_lt
+x 4
+y 21
+end
+arch floor_stone3d
+x 4
+y 22
+end
+arch fwall_rock3
+x 4
+y 22
+end
+arch floor_stone3d
+x 4
+y 23
+end
+arch fwall_rock3
+x 4
+y 23
+end
+arch floor_stone3d
+x 5
+y 17
+end
+arch fwall_rock3
+x 5
+y 17
+end
+arch floor_stone3d
+x 5
+y 18
+end
+arch fwall_rock3
+x 5
+y 18
+end
+arch water_lt4
+x 5
+y 19
+end
+arch water_lt
+x 5
+y 20
+end
+arch floor_stone3d
+x 5
+y 21
+end
+arch fwall_rock3
+x 5
+y 21
+end
+arch floor_stone3d
+x 5
+y 22
+end
+arch fwall_rock3
+x 5
+y 22
+end
+arch floor_stone3d
+x 6
+y 16
+end
+arch fwall_rock3
+x 6
+y 16
+end
+arch floor_stone3d
+x 6
+y 17
+end
+arch fwall_rock3
+x 6
+y 17
+end
+arch water_lt2
+x 6
+y 18
+end
+arch water_lt
+x 6
+y 19
+end
+arch water_lt
+x 6
+y 20
+end
+arch floor_stone3d
+x 6
+y 21
+end
+arch fwall_rock3
+x 6
+y 21
+end
+arch floor_stone3d
+x 7
+y 16
+end
+arch fwall_rock3
+x 7
+y 16
+end
+arch water_lt4
+x 7
+y 17
+end
+arch water_lt
+x 7
+y 18
+end
+arch water_lt
+x 7
+y 19
+end
+arch water_lt4
+x 7
+y 20
+end
+arch floor_stone3d
+x 7
+y 21
+end
+arch fwall_rock3
+x 7
+y 21
+end
+arch floor_stone3d
+x 8
+y 15
+end
+arch fwall_rock3
+x 8
+y 15
+end
+arch floor_stone3d
+x 8
+y 16
+end
+arch fwall_rock3
+x 8
+y 16
+end
+arch water_lt
+x 8
+y 17
+end
+arch water_lt4
+x 8
+y 18
+end
+arch water_lt3
+x 8
+y 19
+end
+arch floor_stone3d
+x 8
+y 20
+end
+arch fwall_rock3
+x 8
+y 20
+end
+arch floor_stone3d
+x 8
+y 21
+end
+arch fwall_rock3
+x 8
+y 21
+end
+arch floor_stone3d
+x 9
+y 15
+end
+arch fwall_rock3
+x 9
+y 15
+end
+arch water_lt3
+x 9
+y 16
+end
+arch water_lt2
+x 9
+y 17
+end
+arch water_lt
+x 9
+y 18
+end
+arch water_lt3
+x 9
+y 19
+end
+arch floor_stone3d
+x 9
+y 20
+end
+arch fwall_rock3
+x 9
+y 20
+end
+arch floor_stone3d
+x 10
+y 15
+end
+arch fwall_rock3
+x 10
+y 15
+end
+arch water_lt3
 x 10
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt4
 x 10
 y 17
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
+x 10
+y 18
+end
+arch floor_stone3d
+x 10
+y 19
+end
+arch fwall_rock3
+x 10
+y 19
+end
+arch floor_stone3d
+x 10
+y 20
+end
+arch fwall_rock3
+x 10
+y 20
+end
+arch floor_stone3d
+x 11
+y 15
+end
+arch fwall_rock3
+x 11
+y 15
+end
+arch water_lt4
 x 11
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt4
 x 11
 y 17
 end
 arch floor_sand_d1
 x 11
 y 18
+end
+arch water_lt_m
+direction 8
+x 11
+y 18
+end
+arch floor_stone3d
+x 11
+y 19
+end
+arch fwall_rock3
+x 11
+y 19
+end
+arch blocked
+x 12
+y 14
 end
 arch fwall_rock3
 x 12
 y 14
 end
-arch fwall_rock2
+arch floor_stone3d
 x 12
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch fwall_rock3
+x 12
+y 15
+end
+arch water_lt3
 x 12
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
 x 12
 y 17
 end
 arch floor_sand_d1
+x 12
+y 18
+end
+arch water_lt_m
+direction 1
 x 12
 y 18
 end
@@ -79,83 +451,133 @@ arch fwall_rock2
 x 12
 y 19
 end
-arch wall_dungeon_3
+arch blocked
 x 13
 end
 arch wall_dungeon_3
+x 13
+end
+arch blocked
 x 13
 y 1
 end
 arch wall_dungeon_3
 x 13
+y 1
+end
+arch blocked
+x 13
 y 2
 end
 arch wall_dungeon_3
+x 13
+y 2
+end
+arch blocked
 x 13
 y 3
 end
 arch wall_dungeon_3
 x 13
+y 3
+end
+arch blocked
+x 13
 y 4
 end
 arch wall_dungeon_3
+x 13
+y 4
+end
+arch blocked
 x 13
 y 5
 end
 arch wall_dungeon_3
 x 13
+y 5
+end
+arch blocked
+x 13
 y 6
 end
 arch wall_dungeon_3
+x 13
+y 6
+end
+arch blocked
 x 13
 y 7
 end
 arch wall_dungeon_3
 x 13
+y 7
+end
+arch blocked
+x 13
 y 8
 end
 arch wall_dungeon_3
+x 13
+y 8
+end
+arch blocked
 x 13
 y 9
 end
 arch wall_dungeon_3
 x 13
+y 9
+end
+arch blocked
+x 13
 y 10
+end
+arch wall_dungeon_3
+x 13
+y 10
+end
+arch blocked
+x 13
+y 11
 end
 arch wall_dungeon_3
 x 13
 y 11
 end
+arch blocked
+x 13
+y 12
+end
 arch fwall_rock3
 x 13
 y 12
+end
+arch blocked
+x 13
+y 13
 end
 arch fwall_rock2
 x 13
 y 13
 end
+arch blocked
+x 13
+y 14
+end
 arch fwall_rock1
 x 13
 y 14
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt3
 x 13
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt2
 x 13
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt3
 x 13
 y 17
 end
@@ -163,6 +585,11 @@ arch floor_sand_d3
 x 13
 y 18
 end
+arch water_lt_m
+direction 1
+x 13
+y 18
+end
 arch floor_sand_d1
 x 13
 y 19
@@ -245,6 +672,11 @@ x 14
 y 13
 end
 arch floor_stone3d
+x 14
+y 14
+end
+arch water_lt_m
+direction 5
 x 14
 y 14
 end
@@ -257,21 +689,20 @@ direction 7
 x 14
 y 14
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
 x 14
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
 x 14
 y 16
 end
 arch floor_sand_d3
+x 14
+y 17
+end
+arch water_lt_m
+direction 8
 x 14
 y 17
 end
@@ -362,21 +793,25 @@ arch floor_stone3c
 x 15
 y 14
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt_m
+direction 5
+x 15
+y 14
+end
+arch water_lt
 x 15
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt2
 x 15
 y 16
 end
 arch floor_sand_d3
+x 15
+y 17
+end
+arch water_lt_m
+direction 1
 x 15
 y 17
 end
@@ -475,17 +910,16 @@ arch bowl1_full.101
 x 16
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt_m
+direction 5
+x 16
+y 15
+end
+arch water_lt3
 x 16
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
 x 16
 y 17
 end
@@ -533,7 +967,6 @@ msg
 You need Asteria Dungeon Key 2 to pass.
 endmsg
 slaying asteria_dungeon_key2
-last_sp -1
 x 17
 y 5
 end
@@ -585,17 +1018,16 @@ arch floor_stone3e
 x 17
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt_m
+direction 5
+x 17
+y 15
+end
+arch water_lt
 x 17
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt2
 x 17
 y 17
 end
@@ -678,7 +1110,6 @@ x 18
 y 11
 end
 arch door1_locked
-last_sp -1
 x 18
 y 11
 end
@@ -702,24 +1133,20 @@ arch metal_bucket.101
 x 18
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt_m
+direction 5
+x 18
+y 15
+end
+arch water_lt
 x 18
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt4
 x 18
 y 17
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
 x 18
 y 18
 end
@@ -818,24 +1245,20 @@ arch floor_stone3c
 x 19
 y 15
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt_m
+direction 5
+x 19
+y 15
+end
+arch water_lt4
 x 19
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt
 x 19
 y 17
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt3
 x 19
 y 18
 end
@@ -973,17 +1396,11 @@ arch fwall_rock3
 x 20
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt2
 x 20
 y 17
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt3
 x 20
 y 18
 end
@@ -1039,21 +1456,19 @@ arch wall_dungeon_1
 x 21
 y 8
 end
-arch fwall_rock1
+arch floor_stone3d
 x 21
 y 16
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch fwall_rock3
+x 21
+y 16
+end
+arch water_lt
 x 21
 y 17
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt3
 x 21
 y 18
 end
@@ -1064,6 +1479,14 @@ end
 arch fwall_rock1
 x 21
 y 19
+end
+arch floor_stone3d
+x 21
+y 20
+end
+arch fwall_rock3
+x 21
+y 20
 end
 arch floor_dungeon1a
 x 22
@@ -1104,26 +1527,33 @@ arch wall_dungeon_1
 x 22
 y 8
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch floor_stone3d
+x 22
+y 16
+end
+arch fwall_rock3
+x 22
+y 16
+end
+arch water_lt4
 x 22
 y 17
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt4
 x 22
 y 18
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt3
 x 22
 y 19
+end
+arch floor_stone3d
+x 22
+y 20
+end
+arch fwall_rock3
+x 22
+y 20
 end
 arch floor_dungeon1a
 x 23
@@ -1195,17 +1625,35 @@ arch wall_dungeon_4
 x 23
 y 8
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch floor_stone3d
+x 23
+y 16
+end
+arch fwall_rock3
+x 23
+y 16
+end
+arch floor_stone3d
+x 23
+y 17
+end
+arch fwall_rock3
+x 23
+y 17
+end
+arch water_lt
 x 23
 y 18
 end
-arch water_still
-face lake.104
-speed_left -0.300492
-state 3
+arch water_lt2
 x 23
 y 19
+end
+arch floor_stone3d
+x 23
+y 20
+end
+arch fwall_rock3
+x 23
+y 20
 end

@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
@@ -11,12 +11,16 @@ enter_y 1
 reset_timeout 7200
 difficulty 1
 darkness 1
+no_harm 1
 tile_path_2 world_a_0837
 tile_path_3 world_a_0736
 tile_path_4 world_a_0637
 tile_path_6 world_a_0836
 tile_path_7 world_a_0636
 end
+arch blocked
+y 14
+end
 arch wall_dungeon_1
 y 14
 end
@@ -52,6 +56,10 @@ y 23
 end
 arch wall_dungeon_1
 y 23
+end
+arch blocked
+x 1
+y 14
 end
 arch wall_dungeon_1
 x 1
@@ -105,6 +113,10 @@ arch wall_dungeon_1
 x 1
 y 23
 end
+arch blocked
+x 2
+y 14
+end
 arch wall_dungeon_1
 x 2
 y 14
@@ -153,6 +165,10 @@ arch wall_dungeon_1
 x 2
 y 23
 end
+arch blocked
+x 3
+y 14
+end
 arch wall_dungeon_1
 x 3
 y 14
@@ -201,6 +217,10 @@ arch wall_dungeon_1
 x 3
 y 23
 end
+arch blocked
+x 4
+y 14
+end
 arch wall_dungeon_1
 x 4
 y 14
@@ -249,6 +269,10 @@ arch wall_dungeon_1
 x 4
 y 23
 end
+arch blocked
+x 5
+y 14
+end
 arch wall_dungeon_1
 x 5
 y 14
@@ -296,6 +320,10 @@ end
 arch wall_dungeon_1
 x 5
 y 23
+end
+arch blocked
+x 6
+y 14
 end
 arch wall_dungeon_1
 x 6
@@ -349,6 +377,10 @@ arch wall_dungeon_1
 x 6
 y 23
 end
+arch blocked
+x 7
+y 14
+end
 arch wall_dungeon_1
 x 7
 y 14
@@ -397,6 +429,10 @@ arch wall_dungeon_1
 x 7
 y 23
 end
+arch blocked
+x 8
+y 14
+end
 arch wall_dungeon_1
 x 8
 y 14
@@ -445,6 +481,10 @@ arch wall_dungeon_1
 x 8
 y 23
 end
+arch blocked
+x 9
+y 14
+end
 arch wall_dungeon_1
 x 9
 y 14
@@ -493,6 +533,10 @@ arch wall_dungeon_1
 x 9
 y 23
 end
+arch blocked
+x 10
+y 14
+end
 arch wall_dungeon_1
 x 10
 y 14
@@ -540,6 +584,10 @@ end
 arch wall_dungeon_1
 x 10
 y 23
+end
+arch blocked
+x 11
+y 14
 end
 arch wall_dungeon_1
 x 11
@@ -592,6 +640,10 @@ end
 arch wall_dungeon_1
 x 11
 y 23
+end
+arch blocked
+x 12
+y 14
 end
 arch wall_dungeon_1
 x 12
@@ -649,6 +701,10 @@ arch wall_dungeon_1
 x 12
 y 23
 end
+arch blocked
+x 13
+y 14
+end
 arch wall_dungeon_1
 x 13
 y 14
@@ -696,6 +752,10 @@ end
 arch wall_dungeon_1
 x 13
 y 23
+end
+arch blocked
+x 14
+y 14
 end
 arch wall_dungeon_1
 x 14
@@ -748,6 +808,10 @@ end
 arch wall_dungeon_1
 x 14
 y 23
+end
+arch blocked
+x 15
+y 14
 end
 arch wall_dungeon_1
 x 15
@@ -804,6 +868,10 @@ end
 arch wall_dungeon_4
 x 15
 y 23
+end
+arch blocked
+x 16
+y 14
 end
 arch wall_dungeon_1
 x 16
@@ -857,6 +925,10 @@ end
 arch floor_fs_grey1b
 x 16
 y 23
+end
+arch blocked
+x 17
+y 14
 end
 arch wall_dungeon_1
 x 17
@@ -925,6 +997,10 @@ arch floor_fs_grey1b
 x 17
 y 23
 end
+arch blocked
+x 18
+y 14
+end
 arch wall_dungeon_1
 x 18
 y 14
@@ -985,6 +1061,10 @@ arch wall_dungeon_3
 x 18
 y 23
 end
+arch blocked
+x 19
+y 14
+end
 arch wall_dungeon_1
 x 19
 y 14
@@ -1032,6 +1112,10 @@ end
 arch floor_fs_grey1b
 x 19
 y 23
+end
+arch blocked
+x 20
+y 14
 end
 arch wall_dungeon_1
 x 20
@@ -1084,6 +1168,10 @@ end
 arch floor_fs_grey1b
 x 20
 y 23
+end
+arch blocked
+x 21
+y 14
 end
 arch wall_dungeon_1
 x 21
@@ -1133,6 +1221,10 @@ arch floor_fs_grey1b
 x 21
 y 23
 end
+arch blocked
+x 22
+y 14
+end
 arch wall_dungeon_1
 x 22
 y 14
@@ -1184,6 +1276,10 @@ end
 arch floor_fs_grey1b
 x 22
 y 23
+end
+arch blocked
+x 23
+y 14
 end
 arch wall_dungeon_1
 x 23
