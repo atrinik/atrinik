@@ -1,0 +1,1465 @@
+arch map
+name Inn In The Mountains
+msg
+Created:  2010-08-26 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+end
+arch blocked
+x 6
+y 6
+end
+arch wall_wood_8
+x 6
+y 6
+end
+arch blocked
+x 6
+y 7
+end
+arch wall_wood_3
+x 6
+y 7
+end
+arch blocked
+x 6
+y 8
+end
+arch wall_wood2_3
+x 6
+y 8
+end
+arch blocked
+x 6
+y 9
+end
+arch wall_wood2_3
+x 6
+y 9
+end
+arch blocked
+x 6
+y 10
+end
+arch wall_wood2_3
+x 6
+y 10
+end
+arch blocked
+x 6
+y 11
+end
+arch wall_wood_3
+x 6
+y 11
+end
+arch picture8
+direction 7
+x 6
+y 11
+end
+arch blocked
+x 6
+y 12
+end
+arch wall_wood_3
+x 6
+y 12
+end
+arch wmask_fire_on_1
+direction 7
+x 6
+y 12
+end
+arch blocked
+x 6
+y 13
+end
+arch wall_wood_3
+x 6
+y 13
+end
+arch blocked
+x 6
+y 14
+end
+arch wall_wood3_3
+x 6
+y 14
+end
+arch blocked
+x 6
+y 15
+end
+arch wall_wood_3
+x 6
+y 15
+end
+arch blocked
+x 6
+y 16
+end
+arch wall_wood_3
+x 6
+y 16
+end
+arch blocked
+x 7
+y 6
+end
+arch wall_wood_1
+x 7
+y 6
+end
+arch floor_wood2_l1
+x 7
+y 7
+end
+arch bath_tub1
+x 7
+y 7
+end
+arch floor_wood2_l2
+x 7
+y 8
+end
+arch wall_well.131
+direction 7
+x 7
+y 8
+end
+arch floor_wood2_l2
+x 7
+y 9
+end
+arch wall_wood_1
+x 7
+y 9
+end
+arch floor_wood2_l2
+x 7
+y 10
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 7
+y 10
+end
+arch floor_wood2_l2
+x 7
+y 11
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 7
+y 11
+end
+arch floor_wood2_l2
+x 7
+y 12
+end
+arch beer_barrel.101
+x 7
+y 12
+end
+arch floor_wood2_l1
+x 7
+y 13
+end
+arch wall_wood2_1
+x 7
+y 13
+end
+arch floor_wood2_l2
+x 7
+y 14
+end
+arch light5
+x 7
+y 14
+end
+arch fireplace_left
+x 7
+y 14
+end
+arch floor_wood2_l2
+x 7
+y 15
+end
+arch light5
+x 7
+y 15
+end
+arch floor_wood2_l1
+x 7
+y 16
+end
+arch wall_wood2_1
+x 7
+y 16
+end
+arch blocked
+x 8
+y 6
+end
+arch wall_wood3_1
+x 8
+y 6
+end
+arch picture2.151
+x 8
+y 6
+end
+arch floor_wood2_l1
+x 8
+y 7
+end
+arch floor_wood2_l2
+x 8
+y 8
+end
+arch floor_wood2_l1
+x 8
+y 9
+end
+arch curtain1
+x 8
+y 9
+end
+arch floor_wood2_l2
+x 8
+y 10
+end
+arch floor_wood2_l1
+x 8
+y 11
+end
+arch floor_wood2_l1
+x 8
+y 12
+end
+arch floor_wood2_l2
+x 8
+y 13
+end
+arch wall_wood3_1
+x 8
+y 13
+end
+arch floor_wood2_l1
+x 8
+y 14
+end
+arch shelf2_wall.111
+x 8
+y 14
+end
+arch floor_wood2_l1
+x 8
+y 15
+end
+arch floor_wood2_l1
+x 8
+y 16
+end
+arch wall_wood2_1
+x 8
+y 16
+end
+arch blocked
+x 9
+y 6
+end
+arch wall_wood_1
+x 9
+y 6
+end
+arch floor_wood2_l2
+x 9
+y 7
+end
+arch locker4
+x 9
+y 7
+end
+arch floor_wood2_l1
+x 9
+y 8
+end
+arch floor_wood2_l1
+x 9
+y 9
+end
+arch wall_wood_1
+x 9
+y 9
+end
+arch flag_01
+x 9
+y 9
+end
+arch floor_wood2_l1
+x 9
+y 10
+end
+arch floor_wood2_l1
+x 9
+y 11
+end
+arch floor_wood2_l2
+x 9
+y 12
+end
+arch floor_wood2_l1
+x 9
+y 13
+end
+arch door_wood2
+x 9
+y 13
+end
+arch floor_wood2_l2
+x 9
+y 14
+end
+arch floor_wood2_l2
+x 9
+y 15
+end
+arch floor_wood2_l1
+x 9
+y 16
+end
+arch wall_wood3_1
+x 9
+y 16
+end
+arch blocked
+x 10
+y 6
+end
+arch wall_wood2_1
+x 10
+y 6
+end
+arch flag_05
+x 10
+y 6
+end
+arch floor_wood2_l1
+x 10
+y 7
+end
+arch floor_wood2_l1
+x 10
+y 8
+end
+arch glower.101
+x 10
+y 8
+end
+arch light4
+x 10
+y 8
+end
+arch floor_wood2_l1
+x 10
+y 9
+end
+arch wall_wood3_1
+x 10
+y 9
+end
+arch floor_wood2_l1
+x 10
+y 10
+end
+arch candlelight3.101
+x 10
+y 10
+end
+arch light4
+x 10
+y 10
+end
+arch floor_wood2_l1
+x 10
+y 11
+end
+arch floor_wood2_l1
+x 10
+y 12
+end
+arch floor_wood2_l2
+x 10
+y 13
+end
+arch wall_wood3_1
+x 10
+y 13
+end
+arch floor_wood2_l2
+x 10
+y 14
+end
+arch floor_wood2_l1
+x 10
+y 15
+end
+arch floor_wood2_l1
+x 10
+y 16
+end
+arch wall_wood_1
+x 10
+y 16
+end
+arch blocked
+x 11
+y 6
+end
+arch wall_wood_1
+x 11
+y 6
+end
+arch floor_wood2_l1
+x 11
+y 7
+end
+arch wall_wood3_3
+x 11
+y 7
+end
+arch floor_wood2_l1
+x 11
+y 8
+end
+arch wall_wood_3
+x 11
+y 8
+end
+arch floor_wood2_l2
+x 11
+y 9
+end
+arch wall_wood_4
+x 11
+y 9
+end
+arch floor_wood2_l1
+x 11
+y 10
+end
+arch wall_wood3_3
+x 11
+y 10
+end
+arch floor_wood2_l1
+x 11
+y 11
+end
+arch wall_wood2_3
+x 11
+y 11
+end
+arch picture4.151
+direction 7
+x 11
+y 11
+end
+arch floor_wood2_l1
+x 11
+y 12
+end
+arch wall_wood2_3
+x 11
+y 12
+end
+arch floor_wood2_l2
+x 11
+y 13
+end
+arch wall_wood_4
+x 11
+y 13
+end
+arch flag_03
+x 11
+y 13
+end
+arch floor_wood2_l2
+x 11
+y 14
+end
+arch candlelight3.101
+x 11
+y 14
+end
+arch light4
+x 11
+y 14
+end
+arch floor_wood2_l1
+x 11
+y 15
+end
+arch floor_wood2_l1
+x 11
+y 16
+end
+arch wall_wood3_1
+x 11
+y 16
+end
+arch floor_wood2_l1
+x 12
+y 8
+end
+arch wall_wood_1
+x 12
+y 8
+end
+arch wmask_fire_on_1
+x 12
+y 8
+end
+arch floor_wood2_l2
+x 12
+y 9
+end
+arch floor_wood2_l2
+x 12
+y 10
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 12
+y 10
+end
+arch floor_wood2_l1
+x 12
+y 11
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 12
+y 11
+end
+arch floor_wood2_l1
+x 12
+y 12
+end
+arch locker2.111
+direction 7
+x 12
+y 12
+end
+arch floor_wood2_l2
+x 12
+y 13
+end
+arch wall_wood_1
+x 12
+y 13
+end
+arch floor_wood2_l2
+x 12
+y 14
+end
+arch broom.111
+x 12
+y 14
+end
+arch floor_wood2_l2
+x 12
+y 15
+end
+arch floor_wood2_l2
+x 12
+y 16
+end
+arch wall_wood_1
+x 12
+y 16
+end
+arch floor_wood2_l1
+x 13
+y 8
+end
+arch wall_wood3_1
+x 13
+y 8
+end
+arch picture7
+x 13
+y 8
+end
+arch floor_wood2_l2
+x 13
+y 9
+end
+arch floor_wood2_l1
+x 13
+y 10
+end
+arch floor_wood2_l2
+x 13
+y 11
+end
+arch floor_wood2_l2
+x 13
+y 12
+end
+arch floor_wood2_l2
+x 13
+y 13
+end
+arch door_wood2
+x 13
+y 13
+end
+arch floor_wood2_l1
+x 13
+y 14
+end
+arch floor_wood2_l1
+x 13
+y 15
+end
+arch floor_wood2_l1
+x 13
+y 16
+end
+arch wall_wood3_1
+x 13
+y 16
+end
+arch floor_wood2_l2
+x 14
+y 8
+end
+arch wall_wood_1
+x 14
+y 8
+end
+arch floor_wood2_l1
+x 14
+y 9
+end
+arch desk2
+x 14
+y 9
+end
+arch floor_wood2_l2
+x 14
+y 10
+end
+arch chair1_111
+direction 5
+x 14
+y 10
+end
+arch floor_wood2_l1
+x 14
+y 11
+end
+arch floor_wood2_l1
+x 14
+y 12
+end
+arch floor_wood2_l1
+x 14
+y 13
+end
+arch wall_wood_1
+x 14
+y 13
+end
+arch floor_wood2_l1
+x 14
+y 14
+end
+arch torch_wall_1
+x 14
+y 14
+end
+arch floor_wood2_l2
+x 14
+y 15
+end
+arch floor_wood2_l1
+x 14
+y 16
+end
+arch wall_wood_1
+x 14
+y 16
+end
+arch blocked
+x 15
+y 6
+end
+arch wall_wood_8
+x 15
+y 6
+end
+arch floor_wood2_l1
+x 15
+y 7
+end
+arch wall_wood_3
+x 15
+y 7
+end
+arch floor_wood2_l1
+x 15
+y 8
+end
+arch wall_wood_4
+x 15
+y 8
+end
+arch wmask_fire_on_1
+direction 7
+x 15
+y 8
+end
+arch floor_wood2_l2
+x 15
+y 9
+end
+arch wall_wood_3
+x 15
+y 9
+end
+arch floor_wood2_l1
+x 15
+y 10
+end
+arch wall_wood2_3
+x 15
+y 10
+end
+arch floor_wood2_l2
+x 15
+y 11
+end
+arch wall_wood_3
+x 15
+y 11
+end
+arch picture15
+direction 7
+x 15
+y 11
+end
+arch floor_wood2_l1
+x 15
+y 12
+end
+arch candlelight3.101
+x 15
+y 12
+end
+arch wall_wood2_3
+x 15
+y 12
+end
+arch light4
+x 15
+y 12
+end
+arch floor_wood2_l2
+x 15
+y 13
+end
+arch wall_wood_4
+x 15
+y 13
+end
+arch floor_wood2_l1
+x 15
+y 14
+end
+arch door_wood2
+direction 3
+x 15
+y 14
+end
+arch floor_wood2_l1
+x 15
+y 15
+end
+arch wall_wood2_3
+x 15
+y 15
+end
+arch flag_03
+direction 7
+x 15
+y 15
+end
+arch floor_wood2_l2
+x 15
+y 16
+end
+arch wall_wood_4
+x 15
+y 16
+end
+arch blocked
+x 16
+y 6
+end
+arch wall_wood_1
+x 16
+y 6
+end
+arch floor_wood2_l2
+x 16
+y 7
+end
+arch stairs_wood_up
+slaying world_2_0816
+hp 15
+sp 7
+x 16
+y 7
+end
+arch floor_wood2_l1
+x 16
+y 8
+end
+arch floor_wood2_l1
+x 16
+y 9
+end
+arch torch_wall_1
+direction 5
+x 16
+y 9
+end
+arch floor_wood2_l1
+x 16
+y 10
+end
+arch shelf1_wall.111
+direction 7
+x 16
+y 10
+end
+arch floor_wood2_l2
+x 16
+y 11
+end
+arch floor_wood2_l1
+x 16
+y 12
+end
+arch floor_wood2_l2
+x 16
+y 13
+end
+arch floor_wood2_l1
+x 16
+y 14
+end
+arch floor_wood2_l2
+x 16
+y 15
+end
+arch floor_wood2_l2
+x 16
+y 16
+end
+arch wall_wood_1
+x 16
+y 16
+end
+arch blocked
+x 17
+y 6
+end
+arch wall_wood_1
+x 17
+y 6
+end
+arch floor_wood2_l2
+x 17
+y 7
+end
+arch stairs_wood_down
+slaying world_0816
+hp 18
+sp 7
+x 17
+y 7
+end
+arch floor_wood2_l2
+x 17
+y 8
+end
+arch floor_wood2_l1
+x 17
+y 9
+end
+arch floor_wood2_l2
+x 17
+y 10
+end
+arch floor_wood2_l2
+x 17
+y 11
+end
+arch floor_wood2_l1
+x 17
+y 12
+end
+arch floor_wood2_l2
+x 17
+y 13
+end
+arch floor_wood2_l1
+x 17
+y 14
+end
+arch floor_wood2_l1
+x 17
+y 15
+end
+arch floor_wood2_l1
+x 17
+y 16
+end
+arch wall_wood_1
+x 17
+y 16
+end
+arch blocked
+x 18
+y 6
+end
+arch wall_wood_1
+x 18
+y 6
+end
+arch floor_wood2_l2
+x 18
+y 7
+end
+arch wall_wood2_3
+x 18
+y 7
+end
+arch floor_wood2_l2
+x 18
+y 8
+end
+arch wall_wood3_3
+x 18
+y 8
+end
+arch floor_wood2_l2
+x 18
+y 9
+end
+arch door_wood2
+direction 3
+x 18
+y 9
+end
+arch floor_wood2_l2
+x 18
+y 10
+end
+arch wall_wood_3
+x 18
+y 10
+end
+arch floor_wood2_l2
+x 18
+y 11
+end
+arch wall_wood3_3
+x 18
+y 11
+end
+arch floor_wood2_l1
+x 18
+y 12
+end
+arch wall_wood_3
+x 18
+y 12
+end
+arch floor_wood2_l2
+x 18
+y 13
+end
+arch wall_wood2_3
+x 18
+y 13
+end
+arch floor_wood2_l1
+x 18
+y 14
+end
+arch door_wood2
+direction 3
+x 18
+y 14
+end
+arch floor_wood2_l2
+x 18
+y 15
+end
+arch wall_wood2_3
+x 18
+y 15
+end
+arch floor_wood2_l1
+x 18
+y 16
+end
+arch wall_wood_4
+x 18
+y 16
+end
+arch blocked
+x 19
+y 6
+end
+arch wall_wood3_1
+x 19
+y 6
+end
+arch floor_wood2_l2
+x 19
+y 7
+end
+arch candlelight3.101
+x 19
+y 7
+end
+arch light4
+x 19
+y 7
+end
+arch floor_wood2_l2
+x 19
+y 8
+end
+arch floor_wood2_l2
+x 19
+y 9
+end
+arch floor_wood2_l1
+x 19
+y 10
+end
+arch locker2.111
+direction 7
+x 19
+y 10
+end
+arch floor_wood2_l2
+x 19
+y 11
+end
+arch wall_wood3_1
+x 19
+y 11
+end
+arch floor_wood2_l1
+x 19
+y 12
+end
+arch desk1.111
+direction 7
+x 19
+y 12
+end
+arch floor_wood2_l1
+x 19
+y 13
+end
+arch torch_wall_1
+direction 7
+x 19
+y 13
+end
+arch floor_wood2_l1
+x 19
+y 14
+end
+arch floor_wood2_l2
+x 19
+y 15
+end
+arch locker1.111
+direction 7
+x 19
+y 15
+end
+arch floor_wood2_l1
+x 19
+y 16
+end
+arch wall_wood_1
+x 19
+y 16
+end
+arch blocked
+x 20
+y 6
+end
+arch wall_wood3_1
+x 20
+y 6
+end
+arch floor_wood2_l2
+x 20
+y 7
+end
+arch shelf4_wall.111
+x 20
+y 7
+end
+arch floor_wood2_l2
+x 20
+y 8
+end
+arch floor_wood2_l2
+x 20
+y 9
+end
+arch floor_wood2_l2
+x 20
+y 10
+end
+arch floor_wood2_l2
+x 20
+y 11
+end
+arch wall_wood3_1
+x 20
+y 11
+end
+arch floor_wood2_l2
+x 20
+y 12
+end
+arch chair2_111
+direction 3
+x 20
+y 12
+end
+arch floor_wood2_l2
+x 20
+y 13
+end
+arch floor_wood2_l2
+x 20
+y 14
+end
+arch floor_wood2_l2
+x 20
+y 15
+end
+arch floor_wood2_l2
+x 20
+y 16
+end
+arch wall_wood2_1
+x 20
+y 16
+end
+arch blocked
+x 21
+y 6
+end
+arch wall_wood_1
+x 21
+y 6
+end
+arch picture5.151
+x 21
+y 6
+end
+arch floor_wood2_l2
+x 21
+y 7
+end
+arch floor_wood2_l1
+x 21
+y 8
+end
+arch floor_wood2_l2
+x 21
+y 9
+end
+arch floor_wood2_l2
+x 21
+y 10
+end
+arch floor_wood2_l2
+x 21
+y 11
+end
+arch wall_wood_1
+x 21
+y 11
+end
+arch picture2.151
+x 21
+y 11
+end
+arch floor_wood2_l2
+x 21
+y 12
+end
+arch floor_wood2_l1
+x 21
+y 13
+end
+arch floor_wood2_l1
+x 21
+y 14
+end
+arch floor_wood2_l2
+x 21
+y 15
+end
+arch floor_wood2_l1
+x 21
+y 16
+end
+arch wall_wood3_1
+x 21
+y 16
+end
+arch blocked
+x 22
+y 6
+end
+arch wall_wood_1
+x 22
+y 6
+end
+arch flag_04
+x 22
+y 6
+end
+arch floor_wood2_l2
+x 22
+y 7
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 22
+y 7
+end
+arch floor_wood2_l2
+x 22
+y 8
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 22
+y 8
+end
+arch floor_wood2_l2
+x 22
+y 9
+end
+arch desk2
+x 22
+y 9
+end
+arch floor_wood2_l2
+x 22
+y 10
+end
+arch chair2_111
+direction 5
+x 22
+y 10
+end
+arch floor_wood2_l1
+x 22
+y 11
+end
+arch wall_wood_1
+x 22
+y 11
+end
+arch wmask_fire_on_1
+x 22
+y 11
+end
+arch floor_wood2_l2
+x 22
+y 12
+end
+arch floor_wood2_l2
+x 22
+y 13
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 22
+y 13
+end
+arch floor_wood2_l2
+x 22
+y 14
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 5
+x 22
+y 14
+end
+arch floor_wood2_l2
+x 22
+y 15
+end
+arch floor_wood2_l2
+x 22
+y 16
+end
+arch wall_wood3_1
+x 22
+y 16
+end
+arch blocked
+x 23
+y 6
+end
+arch wall_wood3_1
+x 23
+y 6
+end
+arch floor_wood2_l1
+x 23
+y 7
+end
+arch wall_wood2_3
+x 23
+y 7
+end
+arch floor_wood2_l1
+x 23
+y 8
+end
+arch wall_wood3_3
+x 23
+y 8
+end
+arch floor_wood2_l1
+x 23
+y 9
+end
+arch wall_wood_3
+x 23
+y 9
+end
+arch floor_wood2_l2
+x 23
+y 10
+end
+arch wall_wood_3
+x 23
+y 10
+end
+arch floor_wood2_l1
+x 23
+y 11
+end
+arch wall_wood_4
+x 23
+y 11
+end
+arch floor_wood2_l1
+x 23
+y 12
+end
+arch wall_wood2_3
+x 23
+y 12
+end
+arch floor_wood2_l1
+x 23
+y 13
+end
+arch wall_wood2_3
+x 23
+y 13
+end
+arch floor_wood2_l2
+x 23
+y 14
+end
+arch wall_wood3_3
+x 23
+y 14
+end
+arch floor_wood2_l1
+x 23
+y 15
+end
+arch candlelight3.101
+x 23
+y 15
+end
+arch wall_wood3_3
+x 23
+y 15
+end
+arch light4
+x 23
+y 15
+end
+arch floor_wood2_l2
+x 23
+y 16
+end
+arch wall_wood_4
+x 23
+y 16
+end
