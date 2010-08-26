@@ -1824,6 +1824,11 @@ int is_friend_of(object *op, object *obj)
 		return 0;
 	}
 
+	if ((op->type == MONSTER && op->enemy && OBJECT_VALID(op->enemy, op->enemy_count) && obj == op->enemy) || (obj->type == MONSTER && obj->enemy && OBJECT_VALID(obj->enemy, obj->enemy_count) && op == obj->enemy))
+	{
+		return 0;
+	}
+
 	/* TODO: This needs to be sorted out better */
 	if (QUERY_FLAG(op, FLAG_FRIENDLY) || op->type == PLAYER)
 	{
