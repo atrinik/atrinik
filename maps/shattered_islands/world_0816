@@ -2867,9 +2867,12 @@ z 50
 x 19
 y 7
 end
-arch stairs_wood_down
-slaying world_a_0816
-hp 20
+arch stairs_stone_down
+msg
+You climb down the long stairs, and find yourself in a smelly storage.
+endmsg
+slaying world_b_0816
+hp 21
 sp 7
 x 19
 y 7
