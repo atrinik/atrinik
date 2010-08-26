@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-17 Alex Tokar
+Modified: 2010-08-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,13 +19,24 @@ tile_path_8 world_0814
 end
 arch grassd_8
 end
+arch plant12
+end
 arch grassd_2
+y 1
+end
+arch tree_big3
 y 1
 end
 arch grassd_2
 y 2
 end
+arch plant13
+y 2
+end
 arch grassd_5
+y 3
+end
+arch plant_mushroom1
 y 3
 end
 arch grassd_3
@@ -34,7 +45,13 @@ end
 arch grassd_1
 y 5
 end
+arch tree_big3
+y 5
+end
 arch grassd_2
+y 6
+end
+arch plant5
 y 6
 end
 arch grassd_7
@@ -79,10 +96,16 @@ end
 arch grassd_1
 y 15
 end
+arch tree_big
+y 15
+end
 arch grassd_4
 y 16
 end
 arch grassd_1
+y 17
+end
+arch plant_flower7
 y 17
 end
 arch grassd_1
@@ -91,10 +114,16 @@ end
 arch grassd_8
 y 19
 end
+arch plant_flower6
+y 19
+end
 arch grassd_3
 y 20
 end
 arch grassd_3
+y 21
+end
+arch plant_flower7
 y 21
 end
 arch grassd_6
@@ -221,6 +250,10 @@ arch grassd_1
 x 1
 y 15
 end
+arch plant_flower14
+x 1
+y 15
+end
 arch grassd_6
 x 1
 y 16
@@ -230,6 +263,10 @@ x 1
 y 17
 end
 arch grassd_1
+x 1
+y 18
+end
+arch tree_big
 x 1
 y 18
 end
@@ -396,6 +433,10 @@ x 2
 y 16
 end
 arch grassd_7
+x 2
+y 17
+end
+arch plant_flower2
 x 2
 y 17
 end

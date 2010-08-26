@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-24 Alex Tokar
+Modified: 2010-08-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,13 +24,22 @@ end
 arch grassd_6
 y 1
 end
+arch plant16
+y 1
+end
 arch grassd_7
 y 2
 end
 arch grassd_8
 y 3
 end
+arch plant1
+y 3
+end
 arch grassd_7
+y 4
+end
+arch tree_big4b
 y 4
 end
 arch grassd_6
@@ -46,6 +55,9 @@ arch grassd_2
 y 8
 end
 arch grassd_6
+y 9
+end
+arch plant8
 y 9
 end
 arch grassd_4
@@ -123,6 +135,10 @@ arch grassd_1
 x 1
 y 6
 end
+arch plant_mushroom1
+x 1
+y 6
+end
 arch grassd_8
 x 1
 y 7
@@ -131,7 +147,15 @@ arch grassd_5
 x 1
 y 8
 end
+arch tree_big2
+x 1
+y 8
+end
 arch grassd_8
+x 1
+y 9
+end
+arch plant8
 x 1
 y 9
 end
@@ -210,11 +234,19 @@ arch grassd_7
 x 2
 y 1
 end
+arch tree_big3
+x 2
+y 1
+end
 arch grassd_6
 x 2
 y 2
 end
 arch grassd_8
+x 2
+y 3
+end
+arch tree_big
 x 2
 y 3
 end
@@ -242,7 +274,15 @@ arch grassd_4
 x 2
 y 9
 end
+arch plant8
+x 2
+y 9
+end
 arch grassd_5
+x 2
+y 10
+end
+arch plant8
 x 2
 y 10
 end
@@ -337,11 +377,19 @@ arch grassd_7
 x 3
 y 6
 end
+arch tree_branch2
+x 3
+y 6
+end
 arch grassd_6
 x 3
 y 7
 end
 arch grassd_1
+x 3
+y 8
+end
+arch tree_big
 x 3
 y 8
 end
@@ -354,6 +402,10 @@ x 3
 y 10
 end
 arch grassd_7
+x 3
+y 11
+end
+arch plant7
 x 3
 y 11
 end
@@ -440,6 +492,9 @@ end
 arch grassd_2
 x 4
 end
+arch plant9
+x 4
+end
 arch grassd_2
 x 4
 y 1
@@ -449,6 +504,10 @@ x 4
 y 2
 end
 arch grassd_5
+x 4
+y 3
+end
+arch tree_big
 x 4
 y 3
 end
@@ -464,11 +523,19 @@ arch grassd_1
 x 4
 y 6
 end
+arch tree_big2
+x 4
+y 6
+end
 arch grassd_8
 x 4
 y 7
 end
 arch grassd_8
+x 4
+y 8
+end
+arch tree_branch2
 x 4
 y 8
 end
@@ -484,7 +551,15 @@ arch grassd_1
 x 4
 y 11
 end
+arch plant8
+x 4
+y 11
+end
 arch grassd_3
+x 4
+y 12
+end
+arch reed_sm1
 x 4
 y 12
 end
@@ -559,6 +634,10 @@ arch grassd_3
 x 5
 y 4
 end
+arch plant10
+x 5
+y 4
+end
 arch grassd_6
 x 5
 y 5
@@ -583,11 +662,23 @@ arch grassd_2
 x 5
 y 10
 end
+arch plant8
+x 5
+y 10
+end
 arch grassd_2
 x 5
 y 11
 end
+arch reed_sm1
+x 5
+y 11
+end
 arch grassd_6
+x 5
+y 12
+end
+arch reed_sm1
 x 5
 y 12
 end
@@ -650,6 +741,10 @@ arch grassd_4
 x 6
 y 2
 end
+arch tree_big3
+x 6
+y 2
+end
 arch grassd_8
 x 6
 y 3
@@ -666,6 +761,10 @@ arch grassd_8
 x 6
 y 6
 end
+arch plant10
+x 6
+y 6
+end
 arch grassd_7
 x 6
 y 7
@@ -678,11 +777,23 @@ arch grassd_4
 x 6
 y 9
 end
+arch plant8
+x 6
+y 9
+end
 arch grassd_6
 x 6
 y 10
 end
+arch plant8
+x 6
+y 10
+end
 arch grassd_4
+x 6
+y 11
+end
+arch reed_sm1
 x 6
 y 11
 end
@@ -756,16 +867,20 @@ end
 arch grassd_5
 x 7
 y 3
+end
+arch grassd_8
+x 7
+y 4
 end
 arch plant7
 x 7
-y 3
-end
-arch grassd_8
-x 7
 y 4
 end
 arch grassd_8
+x 7
+y 5
+end
+arch plant8
 x 7
 y 5
 end
@@ -773,7 +888,15 @@ arch grassd_5
 x 7
 y 6
 end
+arch plant7
+x 7
+y 6
+end
 arch grassd_7
+x 7
+y 7
+end
+arch plant8
 x 7
 y 7
 end
@@ -781,11 +904,23 @@ arch grassd_8
 x 7
 y 8
 end
+arch plant7
+x 7
+y 8
+end
 arch grassd_7
 x 7
 y 9
 end
+arch reed_sm1
+x 7
+y 9
+end
 arch grassd_1
+x 7
+y 10
+end
+arch reed_sm1
 x 7
 y 10
 end
@@ -883,7 +1018,15 @@ arch grassd_8
 x 8
 y 4
 end
+arch reed_sm1
+x 8
+y 4
+end
 arch grassd_3
+x 8
+y 5
+end
+arch reed_sm1
 x 8
 y 5
 end
@@ -891,11 +1034,23 @@ arch grassd_7
 x 8
 y 6
 end
+arch reed_sm1
+x 8
+y 6
+end
 arch grassd_5
 x 8
 y 7
 end
+arch reed_sm1
+x 8
+y 7
+end
 arch grassd_4
+x 8
+y 8
+end
+arch reed_sm1
 x 8
 y 8
 end
