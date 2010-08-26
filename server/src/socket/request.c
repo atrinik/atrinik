@@ -1139,6 +1139,7 @@ void draw_client_map2(object *pl)
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
 	int oldlen;
+	object *mirror = NULL;
 
 	/* Do we have dm_light? */
 	if (CONTR(pl)->dm_light)
@@ -1382,6 +1383,58 @@ void draw_client_map2(object *pl)
 					tmp = pl;
 				}
 
+				/* Still nothing, but there's a magic mirror on this tile? */
+				if (!tmp && GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)
+				{
+					/* No mirror found for this map space yet? */
+					if (!mirror)
+					{
+						object *mirror_tmp;
+
+						/* Try to find the magic mirror, but only search on layer 0. */
+						for (mirror_tmp = GET_MAP_OB(m, nx, ny); mirror_tmp && mirror_tmp->layer == LAYER_SYS; mirror_tmp = mirror_tmp->above)
+						{
+							if (mirror_tmp->type == MAGIC_MIRROR)
+							{
+								mirror = mirror_tmp;
+								break;
+							}
+						}
+					}
+
+					/* Due to the fact that we checked for P_MAGIC_MIRROR
+					 * above, 'mirror' should not be NULL, but check it for
+					 * safety anyway. */
+					if (mirror)
+					{
+						char tmp_path[HUGE_BUF];
+						mapstruct *mirror_map;
+						int mirror_x, mirror_y;
+
+						/* The default (-1) for X/Y will use the mirror's X/Y. */
+						mirror_x = (mirror->stats.hp == -1 ? mirror->x : mirror->stats.hp);
+						mirror_y = (mirror->stats.sp == -1 ? mirror->y : mirror->stats.sp);
+
+						/* No slaying? Same map then. */
+						if (!mirror->slaying)
+						{
+							FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
+							mirror_map = ready_map_name(mirror->slaying, 0);
+						}
+						else
+						{
+							mirror_map = ready_map_name(normalize_path(mirror->map->path, mirror->slaying, tmp_path), 0);
+						}
+
+						/* Check if we loaded the map and whether the X/Y positions
+						 * are valid, then try to get an object for the layer we are on. */
+						if (mirror_map && !OUT_OF_REAL_MAP(mirror_map, mirror_x, mirror_y))
+						{
+							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, mirror_x, mirror_y), layer);
+						}
+					}
+				}
+
 				/* Found something. */
 				if (tmp)
 				{
@@ -1550,6 +1603,9 @@ void draw_client_map2(object *pl)
 			{
 				sl.len = oldlen;
 			}
+
+			/* Set 'mirror' back to NULL, so we'll try to re-find it on another tile. */
+			mirror = NULL;
 		}
 	}
 
