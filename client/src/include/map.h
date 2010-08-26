@@ -133,7 +133,7 @@ struct MapCell
 	sint16 faces[MAX_LAYERS + 1];
 
 	/** Height of this maptile. */
-	sint16 height;
+	sint16 height[MAX_LAYERS + 1];
 
 	/** How we stretch this is really 8 char for N S E W. */
 	uint32 stretch;

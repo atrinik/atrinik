@@ -207,7 +207,7 @@ static int calc_map_cell_height(int x, int y)
 {
 	if (x >= 0 && x < MapStatusX && y >= 0 && y < MapStatusY)
 	{
-		return the_map.cells[x][y].height;
+		return the_map.cells[x][y].height[1];
 	}
 
 	return 0;
@@ -364,11 +364,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 
 	the_map.cells[x][y].pcolor[layer] = name_color;
 	strncpy(the_map.cells[x][y].pname[layer], name, sizeof(the_map.cells[x][y].pname[layer]));
-
-	if (layer == 1)
-	{
-		the_map.cells[x][y].height = height;
-	}
+	the_map.cells[x][y].height[layer] = height;
 }
 
 /**
@@ -383,6 +379,7 @@ void map_clear_cell(int x, int y)
 
 	for (i = 1; i <= MAX_LAYERS; i++)
 	{
+		the_map.cells[x][y].height[i] = 0;
 		the_map.cells[x][y].faces[i] = 0;
 		the_map.cells[x][y].flags[i] = 0;
 		the_map.cells[x][y].probe[i] = 0;
@@ -540,7 +537,12 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		stretch = map->stretch;
 	}
 
-	yl = (yl - map->height) + player_height_offset;
+	yl = (yl - map->height[1]) + player_height_offset;
+
+	if (layer > 1)
+	{
+		yl -= map->height[layer];
+	}
 
 	/* These faces are only shown when they are in a
 	 * position which would be visible to the player. */
@@ -751,7 +753,7 @@ void map_draw_map()
 	int player_height_offset;
 	int x, y, layer;
 
-	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height;
+	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height[1];
 
 	/* First draw floor and floor masks. */
 	for (x = 0; x < MAP_MAX_SIZE; x++)
