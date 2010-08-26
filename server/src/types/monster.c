@@ -225,33 +225,10 @@ object *check_enemy(object *npc, rv_vector *rv)
 		return NULL;
 	}
 
-	if (!OBJECT_VALID(npc->enemy, npc->enemy_count) || npc == npc->enemy)
+	if (!OBJECT_VALID(npc->enemy, npc->enemy_count) || npc == npc->enemy || !IS_LIVE(npc->enemy) || is_friend_of(npc, npc->enemy))
 	{
 		set_npc_enemy(npc, NULL, NULL);
 		return NULL;
-	}
-
-	/* Check flags for friendly npc and aggressive mobs (unaggressives
-	 * will not be handled here). */
-	if (QUERY_FLAG(npc, FLAG_FRIENDLY))
-	{
-		/* NPC should not attack players or other friendly units on purpose */
-		if (npc->enemy->type == PLAYER || QUERY_FLAG(npc->enemy, FLAG_FRIENDLY))
-		{
-			set_npc_enemy(npc, NULL, NULL);
-			return NULL;
-		}
-	}
-	else
-	{
-		/* This is an important check - without this, a single area spell
-		 * from a mob will aggravate all other mobs to him - they will
-		 * slaughter themselves and not the player. */
-		if (!QUERY_FLAG(npc->enemy, FLAG_FRIENDLY) && npc->enemy->type != PLAYER)
-		{
-			set_npc_enemy(npc, NULL, NULL);
-			return NULL;
-		}
 	}
 
 	return can_detect_enemy(npc, npc->enemy, rv) ? npc->enemy : NULL;
@@ -1843,6 +1820,11 @@ int is_friend_of(object *op, object *obj)
 
 	/* If on PVP area, they won't be friendly */
 	if (pvp_area(op, obj))
+	{
+		return 0;
+	}
+
+	if ((op->type == MONSTER && op->enemy && OBJECT_VALID(op->enemy, op->enemy_count) && obj == op->enemy) || (obj->type == MONSTER && obj->enemy && OBJECT_VALID(obj->enemy, obj->enemy_count) && op == obj->enemy))
 	{
 		return 0;
 	}

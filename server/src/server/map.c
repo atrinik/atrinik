@@ -2277,6 +2277,11 @@ void update_position(mapstruct *m, int x, int y)
 			{
 				flags |= P_NO_PVP;
 			}
+
+			if (tmp->type == MAGIC_MIRROR)
+			{
+				flags |= P_MAGIC_MIRROR;
+			}
 		}
 
 #ifdef DEBUG_OLDFLAGS

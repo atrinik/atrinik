@@ -59,7 +59,7 @@ static fields_struct fields[] =
 	{"value", FIELDTYPE_SINT64, offsetof(object, value), 0, 0},
 	{"nrof", FIELDTYPE_UINT32, offsetof(object, nrof), 0, 0},
 
-	{"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy), FIELDFLAG_READONLY, offsetof(object, enemy_count)},
+	{"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy), FIELDFLAG_PLAYER_READONLY, offsetof(object, enemy_count)},
 	{"attacked_by", FIELDTYPE_OBJECTREF, offsetof(object, attacked_by), FIELDFLAG_READONLY, offsetof(object, attacked_by_count)},
 	{"owner", FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY, offsetof(object, ownercount)},
 

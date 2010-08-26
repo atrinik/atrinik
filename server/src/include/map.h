@@ -314,8 +314,8 @@ int map_tiled_reverse[TILED_MAPS];
 #define P_FLY_OFF             0x4000
 /** For flying objects and what happens when they enter */
 #define P_FLY_ON              0x8000
-/** Unused. */
-#define P_UNUSED1 0x10000
+/** There is a @ref MAGIC_MIRROR object on this tile. */
+#define P_MAGIC_MIRROR 0x10000
 /** Unused. */
 #define P_UNUSED2 0x20000
 /**

@@ -1317,6 +1317,11 @@ void update_object(object *op, int action)
 			{
 				newflags |= P_NO_PVP;
 			}
+
+			if (op->type == MAGIC_MIRROR)
+			{
+				newflags |= P_MAGIC_MIRROR;
+			}
 		}
 	}
 	else if (action == UP_OBJ_REMOVE)

@@ -578,22 +578,9 @@ int hit_map(object *op, int dir, int reduce)
 
 			tmp_head = HEAD(tmp);
 
-			if (tmp_head->type == MONSTER)
+			if (is_friend_of(tmp_head, tmp_obj))
 			{
-				/* Monster vs. monster */
-				if (tmp_obj->type == MONSTER)
-				{
-					if (QUERY_FLAG(tmp_head, FLAG_FRIENDLY))
-					{
-						if (QUERY_FLAG(tmp_obj, FLAG_FRIENDLY))
-							continue;
-					}
-					else
-					{
-						if (!QUERY_FLAG(tmp_obj, FLAG_FRIENDLY))
-							continue;
-					}
-				}
+				continue;
 			}
 
 			if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp_head))

@@ -231,6 +231,9 @@
  * Trigger. */
 #define TRIGGER 27
 /**
+ * A magic mirror which allows you to see objects on a different coordinate. */
+#define MAGIC_MIRROR 28
+/**
  * Magic ear. */
 #define MAGIC_EAR 29
 /**
