@@ -362,6 +362,7 @@ int command_shutdown_now(object *op, char *params)
 	LOG(llevSystem, "Server shutdown started by %s\n", op->name);
 	command_kick(NULL, NULL);
 	cleanup();
+	exit(0);
 
 	/* Not reached */
 	return 1;
@@ -1539,6 +1540,7 @@ void shutdown_agent(int timer, char *reason)
 				LOG(llevSystem, "Server shutdown started.\n");
 				command_kick(NULL, NULL);
 				cleanup();
+				exit(0);
 			}
 		}
 

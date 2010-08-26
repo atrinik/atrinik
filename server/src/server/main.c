@@ -1108,7 +1108,6 @@ void cleanup()
 #endif
 	cache_remove_all();
 	remove_plugins();
-	exit(0);
 }
 
 /**
