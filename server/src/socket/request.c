@@ -1444,8 +1444,8 @@ void draw_client_map2(object *pl)
 						probe = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
 					}
 
-					/* Z position and we're on a floor layer? */
-					if (tmp->z && tmp->layer == LAYER_FLOOR)
+					/* Z position set? */
+					if (tmp->z)
 					{
 						flags |= MAP2_FLAG_HEIGHT;
 					}
