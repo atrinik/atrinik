@@ -1,13 +1,14 @@
 arch map
-name World
+name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-11 Alex Tokar
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_0837
 tile_path_2 world_0936
 tile_path_3 world_0835
@@ -16,6 +17,7 @@ tile_path_5 world_0937
 tile_path_6 world_0935
 tile_path_7 world_0735
 tile_path_8 world_0737
+region asteria
 end
 arch floor_fs_grey1b
 z 50
@@ -2211,6 +2213,7 @@ x 13
 y 22
 end
 arch bench2.111
+direction 5
 x 13
 y 22
 end
@@ -2364,6 +2367,7 @@ x 14
 y 22
 end
 arch bench2.111
+direction 5
 x 14
 y 22
 end
@@ -2538,7 +2542,7 @@ x 16
 y 1
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 1
 end
@@ -2548,7 +2552,7 @@ x 16
 y 2
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 2
 end
@@ -2563,7 +2567,7 @@ x 16
 y 4
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 4
 end
@@ -2573,7 +2577,7 @@ x 16
 y 5
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 5
 end
@@ -2675,6 +2679,7 @@ x 16
 y 22
 end
 arch bench2.111
+direction 5
 x 16
 y 22
 end
@@ -2813,6 +2818,7 @@ x 17
 y 22
 end
 arch bench2.111
+direction 5
 x 17
 y 22
 end

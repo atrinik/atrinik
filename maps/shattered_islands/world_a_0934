@@ -1,0 +1,296 @@
+arch map
+name Asteria Sewers
+msg
+-Enter Description Here-
+Modified: 2010-08-25 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 7
+outdoor 1
+tile_path_1 world_a_0935
+tile_path_4 world_a_0834
+tile_path_8 world_a_0835
+region asteria_sewers
+end
+arch floor_wood2
+end
+arch floor_wood2
+y 1
+end
+arch floor_wood2
+y 2
+end
+arch floor_wood2
+y 3
+end
+arch fwall_marble3b
+y 3
+end
+arch floor_wood2
+x 1
+end
+arch floor_wood2
+x 1
+y 1
+end
+arch floor_wood2
+x 1
+y 2
+end
+arch floor_wood2
+x 1
+y 3
+end
+arch fwall_marble3b
+x 1
+y 3
+end
+arch floor_wood2
+x 2
+end
+arch fwall_marble3b
+x 2
+end
+arch floor_wood2
+x 2
+y 1
+end
+arch door_wood1
+face door_wood1.131
+direction 3
+x 2
+y 1
+end
+arch floor_wood2
+x 2
+y 2
+end
+arch fwall_marble3b
+x 2
+y 2
+end
+arch floor_wood2
+x 2
+y 3
+end
+arch fwall_marble3b
+x 2
+y 3
+end
+arch floor_wood2
+x 3
+end
+arch floor_wood2
+x 3
+y 1
+end
+arch floor_wood2
+x 3
+y 2
+end
+arch floor_wood2
+x 3
+y 3
+end
+arch fwall_marble3b
+x 3
+y 3
+end
+arch floor_wood2
+x 4
+end
+arch floor_wood2
+x 4
+y 1
+end
+arch floor_wood2
+x 4
+y 2
+end
+arch floor_wood2
+x 4
+y 3
+end
+arch fwall_marble3b
+x 4
+y 3
+end
+arch floor_wood2
+x 5
+end
+arch fwall_marble3b
+x 5
+end
+arch floor_wood2
+x 5
+y 1
+end
+arch fwall_marble3b
+x 5
+y 1
+end
+arch floor_wood2
+x 5
+y 2
+end
+arch fwall_marble3b
+x 5
+y 2
+end
+arch floor_wood2
+x 5
+y 3
+end
+arch fwall_marble3b
+x 5
+y 3
+end
+arch floor_wood2
+x 6
+end
+arch floor_wood2
+x 6
+y 1
+end
+arch floor_wood2
+x 6
+y 2
+end
+arch floor_wood2
+x 6
+y 3
+end
+arch fwall_marble3b
+x 6
+y 3
+end
+arch floor_wood2
+x 7
+end
+arch floor_wood2
+x 7
+y 1
+end
+arch floor_wood2
+x 7
+y 2
+end
+arch floor_wood2
+x 7
+y 3
+end
+arch fwall_marble3b
+x 7
+y 3
+end
+arch floor_wood2
+x 8
+end
+arch floor_wood2
+x 8
+y 1
+end
+arch floor_wood2
+x 8
+y 2
+end
+arch floor_wood2
+x 8
+y 3
+end
+arch fwall_marble3b
+x 8
+y 3
+end
+arch floor_wood2
+x 9
+end
+arch floor_wood2
+x 9
+y 1
+end
+arch floor_wood2
+x 9
+y 2
+end
+arch floor_wood2
+x 9
+y 3
+end
+arch fwall_marble3b
+x 9
+y 3
+end
+arch floor_wood2
+x 10
+end
+arch floor_wood2
+x 10
+y 1
+end
+arch floor_wood2
+x 10
+y 2
+end
+arch floor_wood2
+x 10
+y 3
+end
+arch fwall_marble3b
+x 10
+y 3
+end
+arch floor_wood2
+x 11
+end
+arch floor_wood2
+x 11
+y 1
+end
+arch floor_wood2
+x 11
+y 2
+end
+arch floor_wood2
+x 11
+y 3
+end
+arch fwall_marble3b
+x 11
+y 3
+end
+arch floor_wood2
+x 12
+end
+arch fwall_marble3b
+x 12
+end
+arch floor_wood2
+x 12
+y 1
+end
+arch fwall_marble3b
+x 12
+y 1
+end
+arch floor_wood2
+x 12
+y 2
+end
+arch fwall_marble3b
+x 12
+y 2
+end
+arch floor_wood2
+x 12
+y 3
+end
+arch fwall_marble3b
+x 12
+y 3
+end

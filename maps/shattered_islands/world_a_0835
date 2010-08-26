@@ -1,0 +1,1271 @@
+arch map
+name Asteria Sewers
+msg
+-Enter Description Here-
+Modified: 2010-08-25 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 1
+darkness 1
+tile_path_1 world_a_0836
+tile_path_2 world_a_0935
+tile_path_3 world_a_0834
+tile_path_4 world_a_0735
+tile_path_6 world_a_0934
+tile_path_7 world_a_0734
+tile_path_8 world_a_0736
+region asteria_sewers
+end
+arch floor_stone_b1
+y 17
+end
+arch fwall_marble3b
+y 17
+end
+arch floor_stone_b1
+y 18
+end
+arch floor_stone_b1
+y 19
+end
+arch water_lt4
+y 20
+end
+arch floor_stone_b1
+y 21
+end
+arch fwall_marble3b
+y 21
+end
+arch floor_stone_b1
+x 1
+y 17
+end
+arch fwall_marble3b
+x 1
+y 17
+end
+arch floor_stone_b1
+x 1
+y 18
+end
+arch torch_wall_1
+x 1
+y 18
+end
+arch floor_stone_b1
+x 1
+y 19
+end
+arch water_lt2
+x 1
+y 20
+end
+arch floor_stone_b1
+x 1
+y 21
+end
+arch fwall_marble3b
+x 1
+y 21
+end
+arch floor_stone_b1
+x 2
+y 17
+end
+arch fwall_marble3b
+x 2
+y 17
+end
+arch floor_stone_b1
+x 2
+y 18
+end
+arch floor_stone_b1
+x 2
+y 19
+end
+arch water_lt2
+x 2
+y 20
+end
+arch floor_stone_b1
+x 2
+y 21
+end
+arch fwall_marble3b
+x 2
+y 21
+end
+arch floor_stone_b1
+x 3
+y 17
+end
+arch fwall_marble3b
+x 3
+y 17
+end
+arch floor_stone_b1
+x 3
+y 18
+end
+arch floor_stone_b1
+x 3
+y 19
+end
+arch water_lt4
+x 3
+y 20
+end
+arch floor_stone_b1
+x 3
+y 21
+end
+arch fwall_marble3b
+x 3
+y 21
+end
+arch floor_stone_b1
+x 4
+y 17
+end
+arch fwall_marble3b
+x 4
+y 17
+end
+arch floor_stone_b1
+x 4
+y 18
+end
+arch floor_stone_b1
+x 4
+y 19
+end
+arch water_lt3
+x 4
+y 20
+end
+arch floor_stone_b1
+x 4
+y 21
+end
+arch fwall_marble3b
+x 4
+y 21
+end
+arch floor_stone_b1
+x 5
+y 17
+end
+arch fwall_marble3b
+x 5
+y 17
+end
+arch floor_stone_b1
+x 5
+y 18
+end
+arch torch_wall_1
+x 5
+y 18
+end
+arch floor_stone_b1
+x 5
+y 19
+end
+arch water_lt4
+x 5
+y 20
+end
+arch floor_stone_b1
+x 5
+y 21
+end
+arch fwall_marble3b
+x 5
+y 21
+end
+arch floor_stone_b1
+x 6
+y 17
+end
+arch fwall_marble3b
+x 6
+y 17
+end
+arch floor_stone_b1
+x 6
+y 18
+end
+arch floor_stone_b1
+x 6
+y 19
+end
+arch water_lt3
+x 6
+y 20
+end
+arch floor_stone_b1
+x 6
+y 21
+end
+arch fwall_marble3b
+x 6
+y 21
+end
+arch floor_stone_b1
+x 7
+y 17
+end
+arch fwall_marble3b
+x 7
+y 17
+end
+arch floor_stone_b1
+x 7
+y 18
+end
+arch floor_stone_b1
+x 7
+y 19
+end
+arch water_lt
+x 7
+y 20
+end
+arch floor_stone_b1
+x 7
+y 21
+end
+arch fwall_marble3b
+x 7
+y 21
+end
+arch floor_stone_b1
+x 8
+y 17
+end
+arch fwall_marble3b
+x 8
+y 17
+end
+arch floor_stone_b1
+x 8
+y 18
+end
+arch floor_stone_b1
+x 8
+y 19
+end
+arch water_lt4
+x 8
+y 20
+end
+arch floor_stone_b1
+x 8
+y 21
+end
+arch fwall_marble3b
+x 8
+y 21
+end
+arch floor_stone_b1
+x 8
+y 22
+end
+arch fwall_marble3b
+x 8
+y 22
+end
+arch floor_stone_b1
+x 8
+y 23
+end
+arch fwall_marble3b
+x 8
+y 23
+end
+arch floor_stone_b1
+x 9
+y 17
+end
+arch fwall_marble3b
+x 9
+y 17
+end
+arch floor_stone_b1
+x 9
+y 18
+end
+arch torch_wall_1
+x 9
+y 18
+end
+arch floor_stone_b1
+x 9
+y 19
+end
+arch water_lt4
+x 9
+y 20
+end
+arch water_lt
+x 9
+y 21
+end
+arch water_lt3
+x 9
+y 22
+end
+arch water_lt3
+x 9
+y 23
+end
+arch floor_stone_b1
+x 10
+y 17
+end
+arch fwall_marble3b
+x 10
+y 17
+end
+arch floor_stone_b1
+x 10
+y 18
+end
+arch floor_stone_b1
+x 10
+y 19
+end
+arch floor_stone_b1
+x 10
+y 20
+end
+arch floor_stone_b1
+x 10
+y 21
+end
+arch floor_stone_b1
+x 10
+y 22
+end
+arch floor_stone_b1
+x 10
+y 23
+end
+arch floor_stone_b1
+x 11
+y 17
+end
+arch fwall_marble3b
+x 11
+y 17
+end
+arch floor_stone_b1
+x 11
+y 18
+end
+arch floor_stone_b1
+x 11
+y 19
+end
+arch floor_stone_b1
+x 11
+y 20
+end
+arch floor_stone_b1
+x 11
+y 21
+end
+arch floor_stone_b1
+x 11
+y 22
+end
+arch floor_stone_b1
+x 11
+y 23
+end
+arch floor_stone_b1
+x 12
+y 17
+end
+arch fwall_marble3b
+x 12
+y 17
+end
+arch floor_stone_b1
+x 12
+y 18
+end
+arch fwall_marble3b
+x 12
+y 18
+end
+arch floor_stone_b1
+x 12
+y 19
+end
+arch fwall_marble3b
+x 12
+y 19
+end
+arch floor_stone_b1
+x 12
+y 20
+end
+arch fwall_marble3b
+x 12
+y 20
+end
+arch floor_stone_b1
+x 12
+y 21
+end
+arch fwall_marble3b
+x 12
+y 21
+end
+arch floor_stone_b1
+x 12
+y 22
+end
+arch torch_wall_1
+face torch_wall.112
+speed_left -0.071869
+state 1
+glow_radius 5
+is_animated 1
+x 12
+y 22
+end
+arch floor_stone_b1
+x 12
+y 23
+end
+arch floor_stone_b1
+x 13
+y 21
+end
+arch fwall_marble3b
+x 13
+y 21
+end
+arch floor_stone_b1
+x 13
+y 22
+end
+arch floor_stone_b1
+x 13
+y 23
+end
+arch floor_stone_b1
+x 14
+y 21
+end
+arch fwall_marble3b
+x 14
+y 21
+end
+arch floor_stone_b1
+x 14
+y 22
+end
+arch floor_stone_b1
+x 14
+y 23
+end
+arch floor_stone_b1
+x 15
+y 9
+end
+arch fwall_marble3b
+x 15
+y 9
+end
+arch floor_stone_b1
+x 15
+y 10
+end
+arch fwall_marble3b
+x 15
+y 10
+end
+arch floor_stone_b1
+x 15
+y 11
+end
+arch fwall_marble3b
+x 15
+y 11
+end
+arch floor_stone_b1
+x 15
+y 12
+end
+arch fwall_marble3b
+x 15
+y 12
+end
+arch floor_stone_b1
+x 15
+y 13
+end
+arch fwall_marble3b
+x 15
+y 13
+end
+arch floor_stone_b1
+x 15
+y 14
+end
+arch fwall_marble3b
+x 15
+y 14
+end
+arch floor_stone_b1
+x 15
+y 15
+end
+arch fwall_marble3b
+x 15
+y 15
+end
+arch floor_stone_b1
+x 15
+y 16
+end
+arch fwall_marble3b
+x 15
+y 16
+end
+arch floor_stone_b1
+x 15
+y 17
+end
+arch fwall_marble3b
+x 15
+y 17
+end
+arch floor_stone_b1
+x 15
+y 18
+end
+arch fwall_marble3b
+x 15
+y 18
+end
+arch floor_stone_b1
+x 15
+y 19
+end
+arch fwall_marble3b
+x 15
+y 19
+end
+arch floor_stone_b1
+x 15
+y 20
+end
+arch fwall_marble3b
+x 15
+y 20
+end
+arch floor_stone_b1
+x 15
+y 21
+end
+arch fwall_marble3b
+x 15
+y 21
+end
+arch floor_stone_b1
+x 15
+y 22
+end
+arch floor_stone_b1
+x 15
+y 23
+end
+arch floor_stone_b1
+x 16
+y 9
+end
+arch fwall_marble3b
+x 16
+y 9
+end
+arch water_lt2
+x 16
+y 10
+end
+arch torch_wall_1
+direction 7
+x 16
+y 10
+end
+arch water_lt3
+x 16
+y 11
+end
+arch water_lt3
+x 16
+y 12
+end
+arch water_lt2
+x 16
+y 13
+end
+arch water_lt3
+x 16
+y 14
+end
+arch water_lt2
+x 16
+y 15
+end
+arch torch_wall_1
+direction 7
+x 16
+y 15
+end
+arch water_lt
+x 16
+y 16
+end
+arch water_lt4
+x 16
+y 17
+end
+arch water_lt
+x 16
+y 18
+end
+arch water_lt
+x 16
+y 19
+end
+arch water_lt4
+x 16
+y 20
+end
+arch water_lt4
+x 16
+y 21
+end
+arch torch_wall_1
+direction 7
+x 16
+y 21
+end
+arch water_lt3
+x 16
+y 22
+end
+arch bridge_wood_EW.101
+x 16
+y 23
+end
+arch floor_stone_b1
+x 17
+y 9
+end
+arch fwall_marble3b
+x 17
+y 9
+end
+arch floor_stone_b1
+x 17
+y 10
+end
+arch floor_stone_b1
+x 17
+y 11
+end
+arch floor_stone_b1
+x 17
+y 12
+end
+arch floor_stone_b1
+x 17
+y 13
+end
+arch floor_stone_b1
+x 17
+y 14
+end
+arch floor_stone_b1
+x 17
+y 15
+end
+arch floor_stone_b1
+x 17
+y 16
+end
+arch floor_stone_b1
+x 17
+y 17
+end
+arch floor_stone_b1
+x 17
+y 18
+end
+arch floor_stone_b1
+x 17
+y 19
+end
+arch floor_stone_b1
+x 17
+y 20
+end
+arch floor_stone_b1
+x 17
+y 21
+end
+arch floor_stone_b1
+x 17
+y 22
+end
+arch floor_stone_b1
+x 17
+y 23
+end
+arch floor_stone_b1
+x 18
+y 9
+end
+arch fwall_marble3b
+x 18
+y 9
+end
+arch floor_stone_b1
+x 18
+y 10
+end
+arch fwall_marble3b
+x 18
+y 10
+end
+arch floor_stone_b1
+x 18
+y 11
+end
+arch fwall_marble3b
+x 18
+y 11
+end
+arch floor_stone_b1
+x 18
+y 12
+end
+arch fwall_marble3b
+x 18
+y 12
+end
+arch floor_stone_b1
+x 18
+y 13
+end
+arch fwall_marble3b
+name false wall
+no_pass 0
+x 18
+y 13
+end
+arch floor_stone_b1
+x 18
+y 14
+end
+arch fwall_marble3b
+name false wall
+no_pass 0
+x 18
+y 14
+end
+arch floor_stone_b1
+x 18
+y 15
+end
+arch fwall_marble3b
+x 18
+y 15
+end
+arch floor_stone_b1
+x 18
+y 16
+end
+arch fwall_marble3b
+x 18
+y 16
+end
+arch floor_stone_b1
+x 18
+y 17
+end
+arch fwall_marble3b
+x 18
+y 17
+end
+arch floor_stone_b1
+x 18
+y 18
+end
+arch fwall_marble3b
+x 18
+y 18
+end
+arch floor_stone_b1
+x 18
+y 19
+end
+arch fwall_marble3b
+x 18
+y 19
+end
+arch floor_stone_b1
+x 18
+y 20
+end
+arch fwall_marble3b
+x 18
+y 20
+end
+arch floor_stone_b1
+x 18
+y 21
+end
+arch fwall_marble3b
+x 18
+y 21
+end
+arch floor_stone_b1
+x 18
+y 22
+end
+arch fwall_marble3b
+x 18
+y 22
+end
+arch floor_stone_b1
+x 18
+y 23
+end
+arch floor_wood2
+x 19
+y 12
+end
+arch fwall_marble3b
+x 19
+y 12
+end
+arch floor_stone_b1
+x 19
+y 13
+end
+arch grain1.101
+x 19
+y 13
+end
+arch floor_stone_b1
+x 19
+y 14
+end
+arch grain4.101
+x 19
+y 14
+end
+arch floor_wood2
+x 19
+y 15
+end
+arch fwall_marble3b
+x 19
+y 15
+end
+arch floor_wood2
+x 19
+y 16
+end
+arch torch_wall_1
+direction 7
+x 19
+y 16
+end
+arch floor_wood2
+x 19
+y 17
+end
+arch sign
+name Perfectly Legal Not-Thief Guild
+x 19
+y 17
+end
+arch spawn_point
+x 19
+y 18
+arch gangmember1
+name thief
+type 83
+friendly 1
+end
+end
+arch floor_wood2
+x 19
+y 18
+end
+arch floor_wood2
+x 19
+y 19
+end
+arch torch_wall_1
+direction 7
+x 19
+y 19
+end
+arch floor_wood2
+x 19
+y 20
+end
+arch floor_wood2
+x 19
+y 21
+end
+arch floor_wood2
+x 19
+y 22
+end
+arch fwall_marble3b
+x 19
+y 22
+end
+arch floor_wood2
+x 19
+y 23
+end
+arch fwall_marble3b
+x 19
+y 23
+end
+arch floor_wood2
+x 20
+y 12
+end
+arch fwall_marble3b
+x 20
+y 12
+end
+arch floor_stone_b1
+x 20
+y 13
+end
+arch barrel_water.101
+x 20
+y 13
+end
+arch floor_stone_b1
+x 20
+y 14
+end
+arch grain3.101
+x 20
+y 14
+end
+arch floor_wood2
+x 20
+y 15
+end
+arch fwall_marble3b
+x 20
+y 15
+end
+arch floor_wood2
+x 20
+y 16
+end
+arch hole
+slaying /MSMAP/51/48/50/MSMAP_514_488_500
+hp 23
+sp 13
+x 20
+y 16
+end
+arch floor_wood2
+x 20
+y 17
+end
+arch floor_wood2
+x 20
+y 18
+end
+arch floor_wood2
+x 20
+y 19
+end
+arch floor_wood2
+x 20
+y 20
+end
+arch floor_wood2
+x 20
+y 21
+end
+arch floor_wood2
+x 20
+y 22
+end
+arch fwall_marble3b
+x 20
+y 22
+end
+arch floor_wood2
+x 20
+y 23
+end
+arch floor_wood2
+x 21
+y 12
+end
+arch fwall_marble3b
+x 21
+y 12
+end
+arch floor_stone_b1
+x 21
+y 13
+end
+arch metal_bucket.101
+x 21
+y 13
+end
+arch floor_stone_b1
+x 21
+y 14
+end
+arch pottery4.101
+x 21
+y 14
+end
+arch floor_wood2
+x 21
+y 15
+end
+arch fwall_marble3b
+x 21
+y 15
+end
+arch floor_wood2
+x 21
+y 16
+end
+arch shop_mat
+x 21
+y 16
+end
+arch floor_wood2
+x 21
+y 17
+end
+arch floor_wood2
+x 21
+y 18
+end
+arch floor_wood2
+x 21
+y 19
+end
+arch floor_wood2
+x 21
+y 20
+end
+arch floor_wood2
+x 21
+y 21
+end
+arch floor_wood2
+x 21
+y 22
+end
+arch door_wood1
+x 21
+y 22
+end
+arch floor_wood2
+x 21
+y 23
+end
+arch floor_wood2
+x 22
+y 12
+end
+arch fwall_marble3b
+x 22
+y 12
+end
+arch floor_stone_b1
+x 22
+y 13
+end
+arch pottery5.101
+x 22
+y 13
+end
+arch torch_wall_1
+x 22
+y 13
+end
+arch floor_stone_b1
+x 22
+y 14
+end
+arch pottery6.101
+x 22
+y 14
+end
+arch floor_wood2
+x 22
+y 15
+end
+arch fwall_marble3b
+x 22
+y 15
+end
+arch floor_wood2
+x 22
+y 16
+end
+arch grate1_3
+x 22
+y 16
+end
+arch floor_wood2
+x 22
+y 17
+end
+arch grate1_3
+x 22
+y 17
+end
+arch floor_wood2
+x 22
+y 18
+end
+arch grate1_3
+x 22
+y 18
+end
+arch floor_wood2
+x 22
+y 19
+end
+arch grate1_3
+x 22
+y 19
+end
+arch floor_wood2
+x 22
+y 20
+end
+arch grate1_3
+x 22
+y 20
+end
+arch floor_wood2
+x 22
+y 21
+end
+arch grate1_3
+x 22
+y 21
+end
+arch floor_wood2
+x 22
+y 22
+end
+arch fwall_marble3b
+x 22
+y 22
+end
+arch floor_wood2
+x 22
+y 23
+end
+arch floor_wood2
+x 23
+y 12
+end
+arch fwall_marble3b
+x 23
+y 12
+end
+arch floor_stone_b1
+x 23
+y 13
+end
+arch hole
+x 23
+y 13
+end
+arch floor_stone_b1
+x 23
+y 14
+end
+arch grain5.101
+x 23
+y 14
+end
+arch floor_wood2
+x 23
+y 15
+end
+arch fwall_marble3b
+x 23
+y 15
+end
+arch shop_floor
+x 23
+y 16
+end
+arch shop_mat
+speed_left 0.500000
+x 23
+y 16
+end
+arch shop_floor
+x 23
+y 17
+end
+arch shop_floor
+x 23
+y 18
+end
+arch light7
+x 23
+y 19
+end
+arch shop_floor
+x 23
+y 19
+end
+arch shop_floor
+x 23
+y 20
+end
+arch shop_floor
+x 23
+y 21
+end
+arch floor_wood2
+x 23
+y 22
+end
+arch fwall_marble3b
+x 23
+y 22
+end
+arch floor_wood2
+x 23
+y 23
+end

@@ -1,13 +1,14 @@
 arch map
-name World
+name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-14 Alex Tokar
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_0834
 tile_path_2 world_0933
 tile_path_3 world_0832
@@ -16,6 +17,7 @@ tile_path_5 world_0934
 tile_path_6 world_0932
 tile_path_7 world_0732
 tile_path_8 world_0734
+region asteria
 end
 arch grassd_8
 z 50

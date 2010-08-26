@@ -1,5 +1,5 @@
 arch map
-name Asteria
+name Asteria Palace Dungeon
 msg
 -Enter Description Here-
 Modified: 2010-08-25 emperorbma
@@ -15,6 +15,7 @@ tile_path_3 world_b_0837
 tile_path_4 world_b_0738
 tile_path_6 world_b_0937
 tile_path_7 world_b_0737
+region asteria_palace_dungeon
 end
 arch blocked
 y 22

@@ -13,6 +13,7 @@ difficulty 1
 darkness 1
 tile_path_3 world_b_0737
 tile_path_6 world_b_0837
+region asteria_palace_dungeon
 end
 arch blocked
 x 14

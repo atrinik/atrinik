@@ -14,6 +14,9 @@ darkness 1
 no_harm 1
 tile_path_1 world_a_0637
 tile_path_2 world_a_0736
+tile_path_5 world_a_0737
+tile_path_6 world_a_0735
+region asteria_palace_dungeon
 end
 arch blocked
 x 18

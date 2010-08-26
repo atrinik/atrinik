@@ -14,6 +14,7 @@ darkness 1
 tile_path_1 world_b_0737
 tile_path_2 world_b_0836
 tile_path_5 world_b_0837
+region asteria_palace_dungeon
 end
 arch floor_stone3d
 y 19

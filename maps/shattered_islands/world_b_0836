@@ -15,6 +15,7 @@ tile_path_1 world_b_0837
 tile_path_4 world_b_0736
 tile_path_5 world_b_0937
 tile_path_8 world_b_0737
+region asteria_palace_dungeon
 end
 arch floor_dungeon1a
 end

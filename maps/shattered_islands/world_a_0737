@@ -17,6 +17,7 @@ tile_path_3 world_a_0736
 tile_path_4 world_a_0637
 tile_path_6 world_a_0836
 tile_path_7 world_a_0636
+region asteria_palace_dungeon
 end
 arch blocked
 y 14

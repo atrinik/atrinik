@@ -15,9 +15,12 @@ darkness 1
 no_harm 1
 tile_path_1 world_a_0737
 tile_path_2 world_a_0836
+tile_path_3 world_a_0735
 tile_path_4 world_a_0636
 tile_path_5 world_a_0837
+tile_path_6 world_a_0835
 tile_path_8 world_a_0637
+region asteria_palace_dungeon
 end
 arch floor_fs_grey1b
 end
@@ -1336,7 +1339,7 @@ arch wall_dungeon_4
 x 10
 y 19
 end
-arch Flag-Asteria.111
+arch flag_eagle
 x 10
 y 19
 end
@@ -1629,10 +1632,7 @@ arch wall_dungeon_1
 x 12
 y 19
 end
-arch water_still
-face lake.102
-speed_left -0.581700
-state 1
+arch water_lt4
 x 12
 y 20
 end
@@ -1645,10 +1645,7 @@ is_animated 1
 x 12
 y 20
 end
-arch water_still
-face lake.102
-speed_left -0.581700
-state 1
+arch water_lt2
 x 12
 y 21
 end
@@ -1657,17 +1654,11 @@ connected 101
 x 12
 y 21
 end
-arch water_still
-face lake.102
-speed_left -0.581700
-state 1
+arch water_lt3
 x 12
 y 22
 end
-arch water_still
-face lake.102
-speed_left -0.581700
-state 1
+arch water_lt3
 x 12
 y 23
 end
@@ -1814,14 +1805,11 @@ arch wall_dungeon_4
 x 13
 y 19
 end
-arch floor_stone_b1
+arch water_lt3
 x 13
 y 20
 end
-arch water_still
-face lake.103
-speed_left -0.881700
-state 2
+arch water_lt4
 x 13
 y 21
 end
@@ -1830,17 +1818,11 @@ connected 101
 x 13
 y 21
 end
-arch water_still
-face lake.103
-speed_left -0.701700
-state 2
+arch water_lt2
 x 13
 y 22
 end
-arch water_still
-face lake.102
-speed_left -0.621701
-state 1
+arch water_lt3
 x 13
 y 23
 end

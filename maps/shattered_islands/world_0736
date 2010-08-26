@@ -1,13 +1,14 @@
 arch map
-name World
+name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_0737
 tile_path_2 world_0836
 tile_path_3 world_0735
@@ -16,6 +17,7 @@ tile_path_5 world_0837
 tile_path_6 world_0835
 tile_path_7 world_0635
 tile_path_8 world_0637
+region asteria
 end
 arch floor_red1
 z 50
@@ -605,6 +607,11 @@ arch wall_dungeon_4
 x 4
 y 4
 end
+arch wmask_bflag_brown_1
+direction 7
+x 4
+y 4
+end
 arch floor_fs_grey1b
 z 50
 x 4
@@ -621,6 +628,11 @@ x 4
 y 6
 end
 arch wall_dungeon_3
+x 4
+y 6
+end
+arch wmask_bflag_brown_1
+direction 7
 x 4
 y 6
 end
@@ -762,17 +774,17 @@ x 5
 y 1
 end
 arch bench2.111
-direction 3
-x 5
-y 1
-end
-arch torch_wall_1
-direction 5
+direction 7
 x 5
 y 1
 end
 arch floor_fs_grey1b
 z 50
+x 5
+y 2
+end
+arch torch_wall_1
+direction 5
 x 5
 y 2
 end
@@ -782,7 +794,7 @@ x 5
 y 3
 end
 arch bench2.111
-direction 3
+direction 7
 x 5
 y 3
 end
@@ -834,7 +846,7 @@ x 5
 y 8
 end
 arch bench2.111
-direction 3
+direction 7
 x 5
 y 8
 end
@@ -849,7 +861,7 @@ x 5
 y 10
 end
 arch bench2.111
-direction 3
+direction 7
 x 5
 y 10
 end
@@ -878,7 +890,7 @@ x 5
 y 13
 end
 arch bench2.111
-direction 3
+direction 7
 x 5
 y 13
 end
@@ -1200,6 +1212,10 @@ x 7
 y 19
 end
 arch wall_dungeon_1
+x 7
+y 19
+end
+arch flag_eagle
 x 7
 y 19
 end
@@ -2579,6 +2595,10 @@ arch wall_dungeon_1
 x 15
 y 19
 end
+arch flag_eagle
+x 15
+y 19
+end
 arch grassd_1
 z 50
 x 15
@@ -2626,7 +2646,7 @@ x 16
 y 1
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 1
 end
@@ -2641,7 +2661,7 @@ x 16
 y 3
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 3
 end
@@ -2687,7 +2707,7 @@ x 16
 y 7
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 7
 end
@@ -2702,7 +2722,7 @@ x 16
 y 9
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 9
 end
@@ -2730,7 +2750,7 @@ x 16
 y 12
 end
 arch bench2.111
-direction 7
+direction 3
 x 16
 y 12
 end

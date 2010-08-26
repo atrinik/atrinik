@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-24 emperorbma
+Modified: 2010-08-25 emperorbma
 endmsg
 width 24
 height 24
@@ -15,6 +15,7 @@ no_harm 1
 tile_path_2 world_a_0737
 tile_path_3 world_a_0636
 tile_path_6 world_a_0736
+region asteria_palace_dungeon
 end
 arch blocked
 x 18
