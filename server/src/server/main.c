@@ -812,7 +812,7 @@ static void process_players1()
 
 		/* Use the target system to hit our target - don't hit friendly
 		 * objects, ourselves or when we are not in combat mode. */
-		if (pl->target_object && pl->combat_mode && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && ((pl->target_object->type == PLAYER && pvp_area(pl->ob, pl->target_object)) || (pl->target_object->type == MONSTER && !QUERY_FLAG(pl->target_object, FLAG_FRIENDLY))))
+		if (pl->target_object && pl->combat_mode && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && !is_friend_of(pl->ob, pl->target_object))
 		{
 			if (pl->ob->weapon_speed_left <= 0)
 			{

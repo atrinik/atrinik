@@ -145,6 +145,7 @@ void send_target_command(player *pl)
 
 	pl->ob->enemy = NULL;
 	pl->ob->enemy_count = 0;
+
 	/* Target still legal? */
 	/* thats we self */
 	if (!pl->target_object || !OBJECT_ACTIVE(pl->target_object) || pl->target_object == pl->ob)
@@ -166,7 +167,7 @@ void send_target_command(player *pl)
 		else
 		{
 			/* friend */
-			if ((pl->target_object->type == PLAYER && !pvp_area(pl->ob, pl->target_object)) || (QUERY_FLAG(pl->target_object, FLAG_FRIENDLY) && pl->target_object->type != PLAYER))
+			if (is_friend_of(pl->ob, pl->target_object))
 			{
 				tmp[3] = 2;
 			}
@@ -382,7 +383,7 @@ int command_target(object *op, char *params)
 		nt = -1;
 
 		/* lets search for enemy object! */
-		if (CONTR(op)->target_object && OBJECT_ACTIVE(CONTR(op)->target_object) && CONTR(op)->target_object_count == CONTR(op)->target_object->count && !QUERY_FLAG(CONTR(op)->target_object, FLAG_FRIENDLY))
+		if (CONTR(op)->target_object && OBJECT_ACTIVE(CONTR(op)->target_object) && CONTR(op)->target_object_count == CONTR(op)->target_object->count && !is_friend_of(op, CONTR(op)->target_object))
 		{
 			n = CONTR(op)->target_map_pos;
 		}
@@ -423,7 +424,7 @@ int command_target(object *op, char *params)
 				/* ensure we have head */
 				tmp->head != NULL ? (head = tmp->head) : (head = tmp);
 
-				if ((QUERY_FLAG(head, FLAG_MONSTER) && !QUERY_FLAG(head, FLAG_FRIENDLY)) || (head->type == PLAYER && pvp_area(op, head)))
+				if (IS_LIVE(head) && !is_friend_of(op, head))
 				{
 					/* this can happen when our old target has moved to next position */
 					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)))
@@ -449,7 +450,7 @@ int command_target(object *op, char *params)
 	else if (params[0] == '1')
 	{
 		/* if /target friend but old target was enemy - target self first */
-		if (CONTR(op)->target_object && OBJECT_ACTIVE(CONTR(op)->target_object) && CONTR(op)->target_object_count == CONTR(op)->target_object->count && !QUERY_FLAG(CONTR(op)->target_object, FLAG_FRIENDLY))
+		if (CONTR(op)->target_object && OBJECT_ACTIVE(CONTR(op)->target_object) && CONTR(op)->target_object_count == CONTR(op)->target_object->count && !is_friend_of(op, CONTR(op)->target_object))
 		{
 			CONTR(op)->target_object = op;
 			CONTR(op)->target_object_count = op->count;
@@ -471,7 +472,7 @@ int command_target(object *op, char *params)
 				jump_in_n = n;
 				tmp = op->above;
 			}
-			else if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && (QUERY_FLAG(CONTR(op)->target_object, FLAG_FRIENDLY ) || CONTR(op)->target_object->type == PLAYER))
+			else if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && is_friend_of(op, CONTR(op)->target_object))
 			{
 				get_ob_flag = 0;
 				jump_in = 1;
@@ -525,7 +526,7 @@ dirty_jump_in1:
 					/* ensure we have head */
 					tmp->head != NULL ? (head = tmp->head) : (head = tmp);
 
-					if ((QUERY_FLAG(head, FLAG_MONSTER) && QUERY_FLAG(head, FLAG_FRIENDLY)) || (head->type == PLAYER && !pvp_area(op, head)))
+					if (IS_LIVE(head) && is_friend_of(op, head))
 					{
 						/* this can happen when our old target has moved to next position
 						 * i have no tmp == op here to allow self targeting in the friendly chain */

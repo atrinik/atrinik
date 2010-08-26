@@ -1665,40 +1665,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 		/* We have a target and it's not self */
 		else
 		{
-			/* Player? */
-			if (tmp->type == PLAYER)
-			{
-				/* Now it will be tricky...
-				 * a.) Friendly spell - always allowed to cast
-				 * b.) Enemy spell - only allowed when op AND target are
-				 *     in a pvp area.
-				 * c.) If not a. and b. AND self - cast on self */
-				if ((flags & SPELL_DESC_FRIENDLY) && !pvp_area(op, tmp))
-				{
-					*target = tmp;
-					return 1;
-				}
-
-				if (flags & SPELL_DESC_ENEMY)
-				{
-					/* Ok... now op AND tmp must be in PvP - if one not,
-					 * this is not allowed. */
-					if (op->map && tmp->map && pvp_area(op->type == PLAYER ? op : get_owner(op), tmp->type == PLAYER ? tmp : get_owner(tmp)))
-					{
-						/* Here we go... PvP! */
-						*target = tmp;
-						return 1;
-					}
-				}
-
-				if (flags & SPELL_DESC_SELF)
-				{
-					*target = op;
-					return 1;
-				}
-			}
-			/* Friendly NPC? */
-			else if (QUERY_FLAG(tmp, FLAG_FRIENDLY))
+			if (is_friend_of(op, tmp))
 			{
 				if (flags & SPELL_DESC_FRIENDLY)
 				{
@@ -1712,7 +1679,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 					return 1;
 				}
 
-				/* Can't cast unfriendly spells on friendly NPCs, but we set target
+				/* Can't cast unfriendly spells on friendly creatures, but we set target
 				 * so the message player gets is accurate. */
 				if (flags & SPELL_DESC_ENEMY)
 				{
@@ -1720,7 +1687,6 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 					return 0;
 				}
 			}
-			/* Ok, it is a bad guy */
 			else
 			{
 				if (flags & SPELL_DESC_ENEMY)
