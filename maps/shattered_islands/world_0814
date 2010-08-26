@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-25 Alex Tokar
+Modified: 2010-08-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -644,12 +644,9 @@ msg
 @match ^hi$|^hey$|^hello$
 Hello. I'm Lothost the wizard. I'm currently studying the ^abandoned mine^ north of here.
 @match ^abandoned mine$
-It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Moroch Temple is located there, which is what I'm trying to find out about. It requires a ^password^ to enter, though.
-@match ^password$
-The glyphs on the gates say:
-~Speak '^friend^' and enter!~
-@match ^friend$
-You need to say the Elvish word for ~friend~ of course. Which is ~Mellon~.
+It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Moroch Temple is located there, which is what I'm trying to find out about.
+
+If you are also interested in the mine, you can read about it in my notes in the bookcase.
 endmsg
 name Lothost the wizard
 direction 1
@@ -1209,6 +1206,30 @@ end
 arch shelf3c.111
 x 8
 y 14
+arch book_red
+msg
+<b t="Abandoned Mine"><t t="Entrance">
+The entrance has an inscription written on the gate:
+
+|Pedo mellon a minno!|
+
+Which translates to:
+
+|Speak friend and enter!|
+
+The riddle, as I figured out, is that you need to say 'Mellon' for the gate to open.
+<p><t t="Moroch Temple">
+Not much is known about this temple, which is rumored to be hidden somewhere in the mine. It is said to be an entrance with an altar devoted to Moroch, with several portals leading to the same dimension in which Moroch Temple is, and as the rumor says, Moroch himself.
+
+<p><t t="One-way exits">
+The mine is supposed to have one-way exits to both Fort Ghzal and Giant Mountains.
+endmsg
+exp 0
+no_skill_ident 1
+name Lothost's Notes
+level 25
+no_pick 1
+end
 end
 arch floor_pattern_brown2
 x 8
