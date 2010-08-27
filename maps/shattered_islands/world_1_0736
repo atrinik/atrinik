@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-27 emperorbma
 endmsg
 width 24
 height 24
@@ -10,666 +10,577 @@ difficulty 1
 darkness -1
 region asteria
 end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 end
-arch wall_fortified_low_b.111
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 1
 end
-arch wall_fortified_low_b.111
-y 1
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 2
 end
-arch wall_fortified_low_b.111
-y 2
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 3
 end
-arch wall_fortified_low_b.111
-y 3
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 4
 end
-arch wall_fortified_low_b.111
-y 4
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 5
 end
-arch wall_fortified_low_b.111
-y 5
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 6
 end
-arch wall_fortified_low_b.111
-y 6
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 7
 end
-arch wall_fortified_low_b.111
-y 7
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 8
 end
-arch wall_fortified_low_b.111
-y 8
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 9
 end
-arch wall_fortified_low_b.111
-y 9
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 10
 end
-arch wall_fortified_low_b.111
-y 10
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 11
 end
-arch wall_fortified_low_b.111
-y 11
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 12
 end
-arch wall_fortified_low_b.111
-y 12
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 13
 end
-arch wall_fortified_low_b.111
-y 13
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 14
 end
-arch wall_fortified_low_b.111
-y 14
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 15
 end
-arch wall_fortified_low_b.111
-y 15
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 16
 end
-arch wall_fortified_low_b.111
+arch wall_dungeon_1
 y 16
 end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 17
 end
-arch wall_fortified_low_b.111
-y 17
-end
-arch blocked
-blocksview 0
-z 80
+arch floor_fs_grey1b
 y 18
 end
-arch wall_fortified_low_b.111
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 y 19
 end
+arch wall_dungeon_1
+y 19
+end
+arch magic_mirror
+slaying world_0736
+y 20
+end
+arch magic_mirror
+slaying world_0736
+y 21
+end
+arch magic_mirror
+slaying world_0736
+y 22
+end
+arch magic_mirror
+slaying world_0736
+y 23
+end
 arch floor_fs_grey1b
-z 80
 x 1
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 1
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 2
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 3
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 4
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 5
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 6
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 7
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 8
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 9
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 10
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 11
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 12
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 13
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 14
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 15
 end
 arch floor_fs_grey1b
-z 80
+x 1
+y 16
+end
+arch wall_dungeon_1
 x 1
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 1
 y 18
 end
-arch wall_fortified_low.131
-x 1
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 1
 y 19
 end
+arch wall_dungeon_1
+x 1
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 1
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 1
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 1
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 1
+y 23
+end
 arch floor_fs_grey1b
-z 80
 x 2
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 1
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 2
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 3
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 4
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 5
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 6
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 7
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 8
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 9
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 10
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 11
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 12
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 13
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 14
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 15
 end
 arch floor_fs_grey1b
-z 80
+x 2
+y 16
+end
+arch wall_dungeon_1
 x 2
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 2
 y 18
 end
-arch wall_fortified_low.131
-x 2
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 2
 y 19
 end
+arch wall_dungeon_1
+x 2
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 2
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 2
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 2
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 2
+y 23
+end
 arch floor_fs_grey1b
-z 80
 x 3
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 1
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 2
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 3
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 4
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 5
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 6
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 7
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 8
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 9
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 10
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 11
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 12
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 13
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 14
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 15
 end
 arch floor_fs_grey1b
-z 80
+x 3
+y 16
+end
+arch wall_dungeon_1
 x 3
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 3
 y 18
 end
-arch wall_fortified_low.131
-x 3
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 3
 y 19
 end
-arch blocked
-blocksview 0
-z 50
+arch wall_dungeon_1
+x 3
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 3
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 3
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 3
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 3
+y 23
+end
+arch floor_fs_grey1b
 x 4
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 1
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 1
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 2
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 2
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 3
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 3
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 4
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 4
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 5
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 5
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 6
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 6
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 7
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 7
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 8
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 8
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 9
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 9
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 10
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 10
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 11
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 11
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 12
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 12
 end
-arch blocked
-blocksview 0
-z 50
+arch floor_fs_grey1b
 x 4
 y 13
 end
-arch wall_fortified_high_4.111
-blocksview 0
+arch wall_dungeon_3
 x 4
 y 13
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
+x 4
+y 14
+end
+arch wall_dungeon_3
 x 4
 y 14
 end
 arch floor_fs_grey1b
-z 80
+x 4
+y 15
+end
+arch wall_dungeon_3
 x 4
 y 15
 end
 arch floor_fs_grey1b
-z 80
+x 4
+y 16
+end
+arch wall_dungeon_4
 x 4
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 4
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 4
 y 18
 end
-arch wall_fortified_low.131
-x 4
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 4
 y 19
+end
+arch wall_dungeon_1
+x 4
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 4
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 4
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 4
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 4
+y 23
 end
 arch magic_mirror
 slaying world_0736
@@ -725,61 +636,79 @@ slaying world_0736
 x 5
 y 10
 end
-arch magic_mirror
-slaying world_0736
+arch grate1_1
+x 5
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
 x 5
 y 11
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 5
 y 12
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 5
 y 13
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
+x 5
+y 14
+end
+arch wall_dungeon_1
 x 5
 y 14
 end
 arch floor_fs_grey1b
-z 80
 x 5
 y 15
 end
 arch floor_fs_grey1b
-z 80
 x 5
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 5
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 5
 y 18
 end
-arch wall_fortified_low.131
+arch floor_fs_grey1b
 x 5
-y 18
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch wall_dungeon_1
 x 5
 y 19
 end
 arch magic_mirror
 slaying world_0736
+x 5
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 5
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 5
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 5
+y 23
+end
+arch magic_mirror
+slaying world_0736
 x 6
 end
 arch magic_mirror
@@ -824,6 +753,7 @@ y 8
 end
 arch magic_mirror
 slaying world_0736
+no_pass 1
 x 6
 y 9
 end
@@ -832,63 +762,79 @@ slaying world_0736
 x 6
 y 10
 end
-arch magic_mirror
-slaying world_0736
+arch grate1_1e
+x 6
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
 x 6
 y 11
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 6
 y 12
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 6
 y 13
 end
 arch floor_fs_grey1b
-z 80
 x 6
 y 14
 end
-arch wall_fortified_low.131
+arch wall_dungeon_1
 x 6
 y 14
 end
 arch floor_fs_grey1b
-z 80
 x 6
 y 15
 end
 arch floor_fs_grey1b
-z 80
 x 6
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 6
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 6
 y 18
 end
-arch wall_fortified_low.131
+arch floor_fs_grey1b
 x 6
-y 18
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch wall_dungeon_1
 x 6
 y 19
 end
 arch magic_mirror
 slaying world_0736
+x 6
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 6
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 6
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 6
+y 23
+end
+arch magic_mirror
+slaying world_0736
 x 7
 end
 arch magic_mirror
@@ -936,68 +882,104 @@ slaying world_0736
 x 7
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch grate1_8
+x 7
+y 9
+end
+arch floor_fs_grey1b
+is_invisible 1
 x 7
 y 10
 end
-arch magic_mirror
+arch stairs_stone_down
+direction 7
 slaying world_0736
+hp 7
+sp 10
+x 7
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
 x 7
 y 11
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 7
 y 12
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 7
 y 13
 end
 arch floor_fs_grey1b
-z 80
 x 7
 y 14
 end
-arch wall_fortified_low.131
+arch wall_dungeon_1
 x 7
 y 14
 end
 arch floor_fs_grey1b
-z 80
+x 7
+y 15
+end
+arch stairs_stone_down
+direction 7
+slaying world_0736
+hp 7
+sp 15
 x 7
 y 15
 end
 arch floor_fs_grey1b
-z 80
 x 7
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 7
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 7
 y 18
 end
-arch wall_fortified_low.131
+arch floor_fs_grey1b
 x 7
-y 18
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch wall_dungeon_1
 x 7
 y 19
 end
 arch magic_mirror
 slaying world_0736
+x 7
+y 20
+end
+arch grate1_3e
+x 7
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 7
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 7
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 7
+y 23
+end
+arch magic_mirror
+slaying world_0736
 x 8
 end
 arch magic_mirror
@@ -1045,1624 +1027,2125 @@ slaying world_0736
 x 8
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch grate1_1e
+x 8
+y 9
+end
+arch floor_fs_grey1b
+is_invisible 1
 x 8
 y 10
 end
-arch magic_mirror
-slaying world_0736
+arch grate1_3e
+x 8
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
 x 8
 y 11
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 8
 y 12
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+is_invisible 1
 x 8
 y 13
 end
 arch floor_fs_grey1b
-z 80
 x 8
 y 14
 end
-arch wall_fortified_low.131
+arch wall_dungeon_1
 x 8
 y 14
 end
 arch floor_fs_grey1b
-z 80
 x 8
 y 15
 end
 arch floor_fs_grey1b
-z 80
 x 8
 y 16
 end
 arch floor_fs_grey1b
-z 80
 x 8
 y 17
 end
 arch floor_fs_grey1b
-z 80
 x 8
 y 18
 end
-arch wall_fortified_low.131
+arch floor_fs_grey1b
 x 8
+y 19
+end
+arch wall_dungeon_1
+x 8
+y 19
+end
+arch floor_wood2
+x 8
+y 20
+end
+arch grate1_1e
+x 8
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 8
+y 21
+end
+arch grate1_3e
+x 8
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 8
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 8
+y 23
+end
+arch magic_mirror
+slaying world_0736
+x 9
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 1
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 2
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 3
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 4
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 5
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 6
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 7
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 8
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 9
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 10
+end
+arch grate1_1
+x 9
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 9
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 9
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 9
+y 13
+end
+arch floor_fs_grey1b
+x 9
+y 14
+end
+arch wall_dungeon_1
+x 9
+y 14
+end
+arch floor_fs_grey1b
+x 9
+y 15
+end
+arch wall_dungeon_3
+x 9
+y 15
+end
+arch floor_fs_grey1b
+x 9
+y 16
+end
+arch floor_fs_grey1b
+x 9
+y 17
+end
+arch floor_fs_grey1b
+x 9
 y 18
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 8
+arch floor_fs_grey1b
+x 9
+y 19
+end
+arch wall_dungeon1.111
+x 9
+y 19
+end
+arch wall_dungeon_1
+x 9
+y 19
+end
+arch floor_wood2
+x 9
+y 20
+end
+arch floor_wood2
+x 9
+y 21
+end
+arch grate1_1e
+x 9
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 22
+end
+arch grate1_3e
+x 9
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 9
+y 23
+end
+arch magic_mirror
+slaying world_0736
+x 10
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 1
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 2
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 3
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 4
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 5
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 6
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 7
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 8
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 9
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 10
+end
+arch grate1_1e
+x 10
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 10
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 10
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 10
+y 13
+end
+arch floor_fs_grey1b
+x 10
+y 14
+end
+arch floor_fs_grey1b
+x 10
+y 14
+end
+arch wall_dungeon_1
+x 10
+y 14
+end
+arch floor_fs_grey1b
+x 10
+y 15
+end
+arch wall_dungeon_4
+x 10
+y 15
+end
+arch floor_fs_grey1b
+x 10
+y 16
+end
+arch floor_fs_grey1b
+x 10
+y 17
+end
+arch floor_fs_grey1b
+x 10
+y 18
+end
+arch floor_fs_grey1b
+x 10
+y 19
+end
+arch curtain1
+x 10
+y 19
+end
+arch floor_wood2
+x 10
+y 20
+end
+arch carpet1.131
+x 10
+y 20
+end
+arch spawn_point
+x 10
+y 20
+arch guard
+name Asterian Guard
+level 100
+type 83
+weight 5000
+friendly 1
+unaggressive 0
+arch event_obj
+race /SCRIPTS/asteria/AsteriaGuard.py
+sub_type 6
+end
+end
+end
+arch floor_wood2
+x 10
+y 21
+end
+arch carpet1.131
+x 10
+y 21
+end
+arch floor_wood2
+x 10
+y 22
+end
+arch grate1_1
+x 10
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 10
+y 23
+end
+arch magic_mirror
+slaying world_0736
+x 11
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 1
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 2
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 3
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 4
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 5
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 6
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 7
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 8
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 9
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 10
+end
+arch grate1_1
+x 11
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 11
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 11
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 11
+y 13
+end
+arch floor_fs_grey1b
+x 11
+y 14
+end
+arch wall_dungeon_1
+x 11
+y 14
+end
+arch floor_fs_grey1b
+x 11
+y 15
+end
+arch stairs_stone_up
+direction 5
+x 11
+y 15
+end
+arch floor_fs_grey1b
+x 11
+y 16
+end
+arch floor_fs_grey1b
+x 11
+y 17
+end
+arch floor_fs_grey1b
+x 11
+y 18
+end
+arch floor_fs_grey1b
+x 11
+y 19
+end
+arch carpet1.151
+x 11
+y 19
+end
+arch curtain1
+last_sp -1
+x 11
+y 19
+end
+arch floor_red1
+x 11
+y 20
+end
+arch floor_red1
+x 11
+y 21
+end
+arch throne.111
+x 11
+y 21
+end
+arch floor_wood2
+x 11
+y 22
+end
+arch carpet1.111
+x 11
+y 22
+end
+arch grate1_1
+x 11
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 11
+y 23
+end
+arch magic_mirror
+slaying world_0736
+x 12
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 1
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 2
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 3
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 4
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 5
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 6
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 7
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 8
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 9
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 10
+end
+arch grate1_1
+x 12
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 12
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 12
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 12
+y 13
+end
+arch floor_fs_grey1b
+x 12
+y 14
+end
+arch wall_dungeon_1
+x 12
+y 14
+end
+arch floor_fs_grey1b
+x 12
+y 15
+end
+arch wall_dungeon_3
+x 12
+y 15
+end
+arch floor_fs_grey1b
+x 12
+y 16
+end
+arch floor_fs_grey1b
+x 12
+y 17
+end
+arch floor_fs_grey1b
+x 12
+y 18
+end
+arch floor_fs_grey1b
+x 12
+y 19
+end
+arch carpet1.151
+x 12
+y 19
+end
+arch curtain1
+last_sp -1
+x 12
+y 19
+end
+arch floor_red1
+x 12
+y 20
+end
+arch floor_red1
+x 12
+y 21
+end
+arch floor_wood2
+x 12
+y 22
+end
+arch carpet1.111
+x 12
+y 22
+end
+arch grate1_1
+x 12
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 12
+y 23
+end
+arch magic_mirror
+slaying world_0736
+x 13
+end
+arch grate1_3
+x 13
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 1
+end
+arch grate1_3e
+x 13
+y 1
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 2
+end
+arch grate1_3
+x 13
+y 2
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 3
+end
+arch grate1_3
+x 13
+y 3
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 4
+end
+arch grate1_3e
+x 13
+y 4
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 5
+end
+arch grate1_3
+x 13
+y 5
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 6
+end
+arch grate1_3
+x 13
+y 6
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 7
+end
+arch grate1_3e
+x 13
+y 7
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 8
+end
+arch grate1_3
+x 13
+y 8
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 9
+end
+arch grate1_3
+x 13
+y 9
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 10
+end
+arch grate1_4
+x 13
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 13
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 13
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 13
+y 13
+end
+arch floor_fs_grey1b
+x 13
+y 14
+end
+arch wall_dungeon_1
+x 13
+y 14
+end
+arch floor_fs_grey1b
+x 13
+y 15
+end
+arch wall_dungeon_4
+x 13
+y 15
+end
+arch floor_fs_grey1b
+x 13
+y 16
+end
+arch floor_fs_grey1b
+x 13
+y 17
+end
+arch floor_fs_grey1b
+x 13
+y 18
+end
+arch floor_fs_grey1b
+x 13
+y 19
+end
+arch curtain1
+x 13
+y 19
+end
+arch floor_wood2
+x 13
+y 20
+end
+arch carpet1.171
+x 13
+y 20
+end
+arch spawn_point
+x 13
+y 20
+arch guard
+name Asterian Guard
+level 100
+type 83
+weight 5000
+friendly 1
+unaggressive 0
+arch event_obj
+race /SCRIPTS/asteria/AsteriaGuard.py
+sub_type 6
+end
+end
+end
+arch floor_wood2
+x 13
+y 21
+end
+arch carpet1.171
+x 13
+y 21
+end
+arch grate1_8
+x 13
+y 21
+end
+arch floor_wood2
+x 13
+y 22
+end
+arch grate1_4
+x 13
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 13
+y 23
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 1
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 2
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 3
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 4
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 5
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 6
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 7
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 8
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 9
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 14
+y 13
+end
+arch floor_fs_grey1b
+x 14
+y 14
+end
+arch wall_dungeon_1
+x 14
+y 14
+end
+arch floor_fs_grey1b
+x 14
+y 15
+end
+arch floor_fs_grey1b
+x 14
+y 16
+end
+arch floor_fs_grey1b
+x 14
+y 17
+end
+arch floor_fs_grey1b
+x 14
+y 18
+end
+arch floor_fs_grey1b
+x 14
+y 19
+end
+arch wall_dungeon_1
+x 14
+y 19
+end
+arch Flag-Asteria.111
+x 14
+y 19
+end
+arch floor_wood2
+x 14
+y 20
+end
+arch grate1_8
+x 14
+y 20
+end
+arch floor_wood2
+x 14
+y 21
+end
+arch grate1_4
+x 14
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 14
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 14
+y 23
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 1
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 2
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 3
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 4
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 5
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 6
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 7
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 8
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 9
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 15
+y 13
+end
+arch floor_fs_grey1b
+x 15
+y 14
+end
+arch wall_dungeon_1
+x 15
+y 14
+end
+arch floor_fs_grey1b
+x 15
+y 15
+end
+arch stairs_stone_down
+slaying world_0736
+hp 15
+sp 15
+x 15
+y 15
+end
+arch floor_fs_grey1b
+x 15
+y 16
+end
+arch floor_fs_grey1b
+x 15
+y 17
+end
+arch floor_fs_grey1b
+x 15
+y 18
+end
+arch floor_fs_grey1b
+x 15
+y 19
+end
+arch wall_dungeon_1
+x 15
+y 19
+end
+arch floor_wood2
+x 15
+y 20
+end
+arch grate1_4
+x 15
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 15
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 15
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 15
+y 23
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 1
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 2
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 3
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 4
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 5
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 6
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 7
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 8
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 9
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 10
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 11
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 12
+end
+arch floor_fs_grey1b
+is_invisible 1
+x 16
+y 13
+end
+arch floor_fs_grey1b
+x 16
+y 14
+end
+arch wall_dungeon_1
+x 16
+y 14
+end
+arch floor_fs_grey1b
+x 16
+y 15
+end
+arch floor_fs_grey1b
+x 16
+y 16
+end
+arch floor_fs_grey1b
+x 16
+y 17
+end
+arch floor_fs_grey1b
+x 16
+y 18
+end
+arch floor_fs_grey1b
+x 16
+y 19
+end
+arch wall_dungeon_1
+x 16
 y 19
 end
 arch magic_mirror
 slaying world_0736
-x 9
+x 16
+y 20
 end
 arch magic_mirror
 slaying world_0736
-x 9
+x 16
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 16
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 16
+y 23
+end
+arch floor_fs_grey1b
+x 17
+end
+arch wall_dungeon_3
+x 17
+end
+arch floor_fs_grey1b
+x 17
 y 1
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 1
+end
+arch floor_fs_grey1b
+x 17
 y 2
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 2
+end
+arch floor_fs_grey1b
+x 17
 y 3
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 3
+end
+arch floor_fs_grey1b
+x 17
 y 4
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 4
+end
+arch floor_fs_grey1b
+x 17
 y 5
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 5
+end
+arch floor_fs_grey1b
+x 17
 y 6
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 6
+end
+arch floor_fs_grey1b
+x 17
 y 7
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 7
+end
+arch floor_fs_grey1b
+x 17
 y 8
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 8
+end
+arch floor_fs_grey1b
+x 17
 y 9
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 9
+end
+arch floor_fs_grey1b
+x 17
 y 10
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 10
+end
+arch floor_fs_grey1b
+x 17
 y 11
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 11
+end
+arch floor_fs_grey1b
+x 17
 y 12
 end
-arch magic_mirror
-slaying world_0736
-x 9
+arch wall_dungeon_3
+x 17
+y 12
+end
+arch floor_fs_grey1b
+x 17
+y 13
+end
+arch wall_dungeon_3
+x 17
 y 13
 end
 arch floor_fs_grey1b
-z 80
-x 9
+x 17
 y 14
 end
-arch wall_fortified_low.131
-x 9
+arch wall_dungeon_4
+x 17
 y 14
 end
 arch floor_fs_grey1b
-z 80
-x 9
+x 17
+y 15
+end
+arch wall_dungeon_3
+x 17
 y 15
 end
 arch floor_fs_grey1b
-z 80
-x 9
+x 17
+y 16
+end
+arch wall_dungeon_3
+x 17
 y 16
 end
 arch floor_fs_grey1b
-z 80
-x 9
+x 17
 y 17
 end
 arch floor_fs_grey1b
-z 80
-x 9
+x 17
 y 18
 end
-arch wall_fortified_low.131
-x 9
-y 18
+arch floor_fs_grey1b
+x 17
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 9
+arch wall_dungeon_1
+x 17
 y 19
 end
 arch magic_mirror
 slaying world_0736
-x 10
+x 17
+y 20
 end
 arch magic_mirror
 slaying world_0736
-x 10
+x 17
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 17
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 17
+y 23
+end
+arch floor_fs_grey1b
+x 18
+end
+arch floor_fs_grey1b
+x 18
 y 1
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 2
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 3
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 4
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 5
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 6
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 7
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 8
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 9
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 10
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 11
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 12
 end
-arch magic_mirror
-slaying world_0736
-x 10
+arch floor_fs_grey1b
+x 18
 y 13
 end
 arch floor_fs_grey1b
-z 80
-x 10
-y 14
-end
-arch wall_fortified_low.131
-x 10
+x 18
 y 14
 end
 arch floor_fs_grey1b
-z 80
-x 10
+x 18
 y 15
 end
 arch floor_fs_grey1b
-z 80
-x 10
+x 18
+y 16
+end
+arch wall_dungeon_1
+x 18
 y 16
 end
 arch floor_fs_grey1b
-z 80
-x 10
+x 18
 y 17
 end
 arch floor_fs_grey1b
-z 80
-x 10
+x 18
 y 18
 end
-arch wall_fortified_low.131
-x 10
-y 18
+arch floor_fs_grey1b
+x 18
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 10
+arch wall_dungeon_1
+x 18
 y 19
 end
 arch magic_mirror
 slaying world_0736
-x 11
+x 18
+y 20
 end
 arch magic_mirror
 slaying world_0736
-x 11
+x 18
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 18
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 18
+y 23
+end
+arch floor_fs_grey1b
+x 19
+end
+arch floor_fs_grey1b
+x 19
 y 1
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 2
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 3
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 4
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 5
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 6
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 7
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 8
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 9
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 10
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 11
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 12
 end
-arch magic_mirror
-slaying world_0736
-x 11
+arch floor_fs_grey1b
+x 19
 y 13
 end
 arch floor_fs_grey1b
-z 80
-x 11
-y 14
-end
-arch wall_fortified_low.131
-x 11
+x 19
 y 14
 end
 arch floor_fs_grey1b
-z 80
-x 11
+x 19
 y 15
 end
 arch floor_fs_grey1b
-z 80
-x 11
+x 19
+y 16
+end
+arch wall_dungeon_1
+x 19
 y 16
 end
 arch floor_fs_grey1b
-z 80
-x 11
+x 19
 y 17
 end
 arch floor_fs_grey1b
-z 80
-x 11
+x 19
 y 18
 end
-arch wall_fortified_low.131
-x 11
-y 18
+arch floor_fs_grey1b
+x 19
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 11
+arch wall_dungeon_1
+x 19
 y 19
 end
 arch magic_mirror
 slaying world_0736
-x 12
+x 19
+y 20
 end
 arch magic_mirror
 slaying world_0736
-x 12
+x 19
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 19
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 19
+y 23
+end
+arch floor_fs_grey1b
+x 20
+end
+arch floor_fs_grey1b
+x 20
 y 1
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 2
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 3
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 4
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 5
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 6
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 7
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 8
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 9
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 10
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 11
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 12
 end
-arch magic_mirror
-slaying world_0736
-x 12
+arch floor_fs_grey1b
+x 20
 y 13
 end
 arch floor_fs_grey1b
-z 80
-x 12
-y 14
-end
-arch wall_fortified_low.131
-x 12
+x 20
 y 14
 end
 arch floor_fs_grey1b
-z 80
-x 12
+x 20
 y 15
 end
 arch floor_fs_grey1b
-z 80
-x 12
+x 20
+y 16
+end
+arch wall_dungeon_1
+x 20
 y 16
 end
 arch floor_fs_grey1b
-z 80
-x 12
+x 20
 y 17
 end
 arch floor_fs_grey1b
-z 80
-x 12
+x 20
 y 18
 end
-arch wall_fortified_low.131
-x 12
-y 18
+arch floor_fs_grey1b
+x 20
+y 19
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 12
+arch wall_dungeon_1
+x 20
 y 19
 end
 arch magic_mirror
 slaying world_0736
-x 13
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 1
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 2
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 3
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 4
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 5
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 6
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 7
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 8
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 9
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 10
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 11
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 12
-end
-arch magic_mirror
-slaying world_0736
-x 13
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 13
-y 14
-end
-arch wall_fortified_low.131
-x 13
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 13
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 13
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 13
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 13
-y 18
-end
-arch wall_fortified_low.131
-x 13
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 13
-y 19
-end
-arch magic_mirror
-slaying world_0736
-x 14
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 1
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 2
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 3
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 4
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 5
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 6
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 7
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 8
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 9
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 10
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 11
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 12
-end
-arch magic_mirror
-slaying world_0736
-x 14
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 14
-y 14
-end
-arch wall_fortified_low.131
-x 14
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 14
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 14
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 14
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 14
-y 18
-end
-arch wall_fortified_low.131
-x 14
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 14
-y 19
-end
-arch magic_mirror
-slaying world_0736
-x 15
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 1
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 2
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 3
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 4
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 5
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 6
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 7
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 8
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 9
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 10
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 11
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 12
-end
-arch magic_mirror
-slaying world_0736
-x 15
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 15
-y 14
-end
-arch wall_fortified_low.131
-x 15
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 15
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 15
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 15
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 15
-y 18
-end
-arch wall_fortified_low.131
-x 15
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 15
-y 19
-end
-arch magic_mirror
-slaying world_0736
-x 16
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 1
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 2
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 3
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 4
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 5
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 6
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 7
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 8
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 9
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 10
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 11
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 12
-end
-arch magic_mirror
-slaying world_0736
-x 16
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 16
-y 14
-end
-arch wall_fortified_low.131
-x 16
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 16
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 16
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 16
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 16
-y 18
-end
-arch wall_fortified_low.131
-x 16
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 16
-y 19
-end
-arch floor_fs_grey1b
-z 80
-x 17
-end
-arch wall_fortified_low.111
-x 17
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 1
-end
-arch wall_fortified_low.111
-x 17
-y 1
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 2
-end
-arch wall_fortified_low.111
-x 17
-y 2
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 3
-end
-arch wall_fortified_low.111
-x 17
-y 3
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 4
-end
-arch wall_fortified_low.111
-x 17
-y 4
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 5
-end
-arch wall_fortified_low.111
-x 17
-y 5
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 6
-end
-arch wall_fortified_low.111
-x 17
-y 6
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 7
-end
-arch wall_fortified_low.111
-x 17
-y 7
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 8
-end
-arch wall_fortified_low.111
-x 17
-y 8
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 9
-end
-arch wall_fortified_low.111
-x 17
-y 9
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 10
-end
-arch wall_fortified_low.111
-x 17
-y 10
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 11
-end
-arch wall_fortified_low.111
-x 17
-y 11
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 12
-end
-arch wall_fortified_low.111
-x 17
-y 12
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 13
-end
-arch wall_fortified_low.111
-x 17
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 14
-end
-arch wall_fortified_low.141
-x 17
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 17
-y 18
-end
-arch wall_fortified_low.131
-x 17
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 17
-y 19
-end
-arch floor_fs_grey1b
-z 80
-x 18
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 1
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 2
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 3
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 4
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 5
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 6
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 7
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 8
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 9
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 10
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 11
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 12
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 18
-y 18
-end
-arch wall_fortified_low.131
-x 18
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 18
-y 19
-end
-arch floor_fs_grey1b
-z 80
-x 19
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 1
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 2
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 3
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 4
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 5
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 6
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 7
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 8
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 9
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 10
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 11
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 12
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 19
-y 18
-end
-arch wall_fortified_low.131
-x 19
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 19
-y 19
-end
-arch floor_fs_grey1b
-z 80
 x 20
+y 20
 end
-arch wall_fortified_low.111
+arch magic_mirror
+slaying world_0736
 x 20
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 20
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 20
+y 23
 end
 arch floor_fs_grey1b
-z 80
-x 20
-y 1
-end
-arch wall_fortified_low.111
-x 20
-y 1
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 2
-end
-arch wall_fortified_low.111
-x 20
-y 2
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 3
-end
-arch wall_fortified_low.111
-x 20
-y 3
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 4
-end
-arch wall_fortified_low.111
-x 20
-y 4
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 5
-end
-arch wall_fortified_low.111
-x 20
-y 5
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 6
-end
-arch wall_fortified_low.111
-x 20
-y 6
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 7
-end
-arch wall_fortified_low.111
-x 20
-y 7
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 8
-end
-arch wall_fortified_low.111
-x 20
-y 8
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 9
-end
-arch wall_fortified_low.111
-x 20
-y 9
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 10
-end
-arch wall_fortified_low.111
-x 20
-y 10
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 11
-end
-arch wall_fortified_low.111
-x 20
-y 11
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 12
-end
-arch wall_fortified_low.111
-x 20
-y 12
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 13
-end
-arch wall_fortified_low.111
-x 20
-y 13
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 14
-end
-arch wall_fortified_low.111
-x 20
-y 14
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 15
-end
-arch wall_fortified_low.111
-x 20
-y 15
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 16
-end
-arch wall_fortified_low.111
-x 20
-y 16
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 17
-end
-arch wall_fortified_low.111
-x 20
-y 17
-end
-arch floor_fs_grey1b
-z 80
-x 20
-y 18
-end
-arch wall_fortified_low.141
-x 20
-y 18
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
-x 20
-y 19
-end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
 x 21
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 1
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 2
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 3
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 4
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 5
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 6
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 7
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 8
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 9
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 10
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 11
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 12
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 13
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 14
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 15
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 16
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch wall_dungeon_1
+x 21
+y 16
+end
+arch floor_fs_grey1b
 x 21
 y 17
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 18
 end
-arch blocked
-layer 0
-sys_object 1
-blocksview 0
+arch floor_fs_grey1b
 x 21
 y 19
+end
+arch wall_dungeon_1
+x 21
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 21
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 21
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 21
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 21
+y 23
+end
+arch floor_fs_grey1b
+x 22
+end
+arch floor_fs_grey1b
+x 22
+y 1
+end
+arch floor_fs_grey1b
+x 22
+y 2
+end
+arch floor_fs_grey1b
+x 22
+y 3
+end
+arch floor_fs_grey1b
+x 22
+y 4
+end
+arch floor_fs_grey1b
+x 22
+y 5
+end
+arch floor_fs_grey1b
+x 22
+y 6
+end
+arch floor_fs_grey1b
+x 22
+y 7
+end
+arch floor_fs_grey1b
+x 22
+y 8
+end
+arch floor_fs_grey1b
+x 22
+y 9
+end
+arch floor_fs_grey1b
+x 22
+y 10
+end
+arch floor_fs_grey1b
+x 22
+y 11
+end
+arch floor_fs_grey1b
+x 22
+y 12
+end
+arch floor_fs_grey1b
+x 22
+y 13
+end
+arch floor_fs_grey1b
+x 22
+y 14
+end
+arch floor_fs_grey1b
+x 22
+y 15
+end
+arch floor_fs_grey1b
+x 22
+y 16
+end
+arch wall_dungeon_1
+x 22
+y 16
+end
+arch floor_fs_grey1b
+x 22
+y 17
+end
+arch floor_fs_grey1b
+x 22
+y 18
+end
+arch floor_fs_grey1b
+x 22
+y 19
+end
+arch wall_dungeon_1
+x 22
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 22
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 22
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 22
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 22
+y 23
+end
+arch floor_fs_grey1b
+x 23
+end
+arch wall_dungeon_3
+x 23
+end
+arch floor_fs_grey1b
+x 23
+y 1
+end
+arch wall_dungeon_3
+x 23
+y 1
+end
+arch floor_fs_grey1b
+x 23
+y 2
+end
+arch wall_dungeon_3
+x 23
+y 2
+end
+arch floor_fs_grey1b
+x 23
+y 3
+end
+arch wall_dungeon_3
+x 23
+y 3
+end
+arch floor_fs_grey1b
+x 23
+y 4
+end
+arch wall_dungeon_3
+x 23
+y 4
+end
+arch floor_fs_grey1b
+x 23
+y 5
+end
+arch wall_dungeon_3
+x 23
+y 5
+end
+arch floor_fs_grey1b
+x 23
+y 6
+end
+arch wall_dungeon_3
+x 23
+y 6
+end
+arch floor_fs_grey1b
+x 23
+y 7
+end
+arch wall_dungeon_3
+x 23
+y 7
+end
+arch floor_fs_grey1b
+x 23
+y 8
+end
+arch wall_dungeon_3
+x 23
+y 8
+end
+arch floor_fs_grey1b
+x 23
+y 9
+end
+arch wall_dungeon_3
+x 23
+y 9
+end
+arch floor_fs_grey1b
+x 23
+y 10
+end
+arch wall_dungeon_3
+x 23
+y 10
+end
+arch floor_fs_grey1b
+x 23
+y 11
+end
+arch wall_dungeon_3
+x 23
+y 11
+end
+arch floor_fs_grey1b
+x 23
+y 12
+end
+arch wall_dungeon_3
+x 23
+y 12
+end
+arch floor_fs_grey1b
+x 23
+y 13
+end
+arch wall_dungeon_3
+x 23
+y 13
+end
+arch floor_fs_grey1b
+x 23
+y 14
+end
+arch wall_dungeon_3
+x 23
+y 14
+end
+arch floor_fs_grey1b
+x 23
+y 15
+end
+arch wall_dungeon_3
+x 23
+y 15
+end
+arch floor_fs_grey1b
+x 23
+y 16
+end
+arch wall_dungeon_4
+x 23
+y 16
+end
+arch floor_fs_grey1b
+x 23
+y 17
+end
+arch floor_fs_grey1b
+x 23
+y 18
+end
+arch floor_fs_grey1b
+x 23
+y 19
+end
+arch wall_dungeon_1
+x 23
+y 19
+end
+arch magic_mirror
+slaying world_0736
+x 23
+y 20
+end
+arch magic_mirror
+slaying world_0736
+x 23
+y 21
+end
+arch magic_mirror
+slaying world_0736
+x 23
+y 22
+end
+arch magic_mirror
+slaying world_0736
+x 23
+y 23
 end
