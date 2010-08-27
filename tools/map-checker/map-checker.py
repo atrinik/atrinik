@@ -60,6 +60,8 @@ class types:
 	beacon = 126
 	sign = 98
 	creator = 42
+	map_event_object = 127
+	wall = 77
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -84,6 +86,8 @@ class checker:
 	max_layers = 7
 	# Maximum level.
 	max_level = 115
+	## Known plugins.
+	plugins = ["Python", "Arena"]
 
 # Print usage.
 def usage():
@@ -148,6 +152,8 @@ archetypes = {}
 artifacts = {}
 # Regions.
 regions = {}
+# List of beacons.
+beacons = []
 
 # Default config.
 default_cfg = StringIO("""
@@ -157,6 +163,13 @@ high = off
 warning = off
 critical = off
 low = off
+[Errors]
+map_no_music = off
+map_no_region = on
+decor_wall_l2 = off
+decor_wall_l3 = off
+decor_wall_l4 = off
+sys_not_on_top = off
 """)
 
 config = ConfigParser()
@@ -284,9 +297,20 @@ def check_map(map):
 	if not "height" or not "width":
 		return
 
+	# Skip object checking for empty world maps.
+	if map["name"] == "World":
+		if "region" in map:
+			add_error(map["file"], "Empty world map has a region.", errors.warning)
+	else:
+		if config.getboolean("Errors", "map_no_region") and not "region" in map:
+			add_error(map["file"], "Map is missing region.", errors.medium)
+
+		if config.getboolean("Errors", "map_no_music") and not "bg_music" in map:
+			add_error(map["file"], "Map is missing background music.", errors.low)
+
 	# Go through all the spaces on the map.
-	for x in range(0, map["width"]):
-		for y in range(0, map["height"]):
+	for x in xrange(0, map["width"]):
+		for y in xrange(0, map["height"]):
 			if not x in map["tiles"] or not y in map["tiles"][x]:
 				continue
 
@@ -297,6 +321,9 @@ def check_map(map):
 			# Total number of objects, with layer 0 objects.
 			obj_count_all = 0
 			is_shop = False
+			sys_below_floor = False
+			have_sys = False
+			sys_not_on_top = False
 
 			# Go through the objects on this map space.
 			for obj in map["tiles"][x][y]:
@@ -315,8 +342,18 @@ def check_map(map):
 				# Now recursively check the object.
 				check_obj(obj, map)
 
-				if "type" in obj and obj["type"] == types.shop_floor:
-					is_shop = True
+				if "type" in obj:
+					if obj["type"] == types.shop_floor:
+						is_shop = True
+
+					if layer == 0:
+						have_sys = True
+
+					if have_sys:
+						if layer == 1:
+							sys_below_floor = True
+						else:
+							sys_not_on_top = True
 
 			# No layer 1 objects and there are other non-layer-0 objects? Missing floor.
 			if layers[1] == 0 and obj_count > 0:
@@ -324,9 +361,24 @@ def check_map(map):
 
 			# Go through the layers (ignoring layer 0), and check if we have more than one
 			# object of the same layer on this space.
-			for i in range(1, checker.max_layers):
+			for i in xrange(1, checker.max_layers):
 				if layers[i] > 1:
 					add_error(map["file"], "More than 1 object ({0}) with layer {1} on same tile.".format(layers[i], i), errors.warning, x, y)
+
+			if layers[5] and layers[2] and config.getboolean("Errors", "decor_wall_l2"):
+				add_error(map["file"], "Layer 5 object on tile with layer 2 object(s).", errors.warning, x, y)
+
+			if layers[5] and layers[3] and config.getboolean("Errors", "decor_wall_l3"):
+				add_error(map["file"], "Layer 5 object on tile with layer 3 object(s).", errors.warning, x, y)
+
+			if layers[5] and layers[4] and config.getboolean("Errors", "decor_wall_l4"):
+				add_error(map["file"], "Layer 5 object on tile with layer 4 object(s).", errors.warning, x, y)
+
+			if sys_below_floor:
+				add_error(map["file"], "System object is below floor.", errors.low, x, y)
+
+			if sys_not_on_top and config.getboolean("Errors", "sys_not_on_top"):
+				add_error(map["file"], "System object is not on top.", errors.low, x, y)
 
 			# Recheck all objects on this square if this is a shop...
 			if is_shop:
@@ -460,6 +512,20 @@ def check_obj(obj, map):
 	if "direction" in obj and obj["direction"] != 0 and (not "is_turnable" in obj or obj["is_turnable"] != 1) and (not "is_animated" in obj or obj["is_animated"] != 1):
 		add_error(map["file"], "Object '{0}' has direction but that type of object doesn't support directions.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
+	if obj["type"] in (types.event_object, types.map_event_object):
+		if not "name" in obj:
+			add_error(map["file"], "Event object '{0}' is missing plugin name.".format(obj["archname"]), errors.high, env["x"], env["y"])
+		elif not obj["name"] in checker.plugins:
+			add_error(map["file"], "Event object '{0}' has unknown plugin '{1}'.".format(obj["archname"], obj["name"]), errors.critical, env["x"], env["y"])
+
+	if obj["type"] == types.beacon:
+		if not "name" in obj:
+			add_error(map["file"], "Beacon '{0}' is missing name.".format(obj["archname"]), errors.critical, env["x"], env["y"])
+		elif obj["name"] in beacons:
+			add_error(map["file"], "Beacon '{0}' with the name '{0}' already exists.".format(obj["archname"], obj["name"]), errors.critical, env["x"], env["y"])
+		else:
+			beacons.append(obj["name"])
+
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
 # @param file Map to load.
@@ -490,6 +556,8 @@ def scan_dirs(dir):
 # Do the scan. If 'map' argument was specified, we will use that,
 # otherwise we will recursively scan 'path'.
 def do_scan():
+	beacons = []
+
 	if map:
 		check_file(map)
 	else:
@@ -817,9 +885,14 @@ if not cli:
 	class PreferencesDialog:
 		# Contents of the dialog window.
 		tabs = [
-#			["Errors", "Allow you to turn on/off specific types of error messages.", [
-#				[pref_types.checkbox, "Empty spawn point object", ("Errors", "spawn_point_empty")],
-#			], "\n<b>Note:</b> You need to do a new scan to see the results."],
+			["Errors", "Allow you to turn on/off specific types of error messages.", [
+				[pref_types.checkbox, "Map with no region", ("Errors", "map_no_region")],
+				[pref_types.checkbox, "Map with no music", ("Errors", "map_no_music")],
+				[pref_types.checkbox, "Layer 2 object on square with a wall", ("Errors", "decor_wall_l2")],
+				[pref_types.checkbox, "Layer 3 object on square with a wall", ("Errors", "decor_wall_l3")],
+				[pref_types.checkbox, "Layer 4 object on square with a wall", ("Errors", "decor_wall_l4")],
+				[pref_types.checkbox, "System object not on top of normal objects", ("Errors", "sys_not_on_top")],
+			], "\n<b>Note:</b> You need to do a new scan to see the results."],
 			["Suppress", "These allow you to suppress an entire category of error messages.", [
 				[pref_types.checkbox, "Warning", ("Suppress", "warning")],
 				[pref_types.checkbox, "Low", ("Suppress", "low")],
