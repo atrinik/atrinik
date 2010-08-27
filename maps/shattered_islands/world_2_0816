@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness 3
+region strakewood_island
 end
 arch magic_mirror
 slaying world_0816
@@ -1503,10 +1504,6 @@ arch carpet1.151
 x 16
 y 14
 end
-arch light5
-x 16
-y 14
-end
 arch fireplace_right
 x 16
 y 14
@@ -1517,6 +1514,10 @@ x 16
 y 15
 end
 arch carpet1
+x 16
+y 15
+end
+arch light5
 x 16
 y 15
 end
@@ -1631,16 +1632,16 @@ arch carpet1.151
 x 17
 y 14
 end
-arch light5
-x 17
-y 14
-end
 arch floor_wood2_l1
 z 50
 x 17
 y 15
 end
 arch carpet1
+x 17
+y 15
+end
+arch light5
 x 17
 y 15
 end

@@ -50,15 +50,15 @@ end
 arch floor_sand_d1
 y 2
 end
-arch magic_mouth
-msg
-You are down to your NECK in the dangerous quicksand.
-endmsg
-y 2
-end
 arch small_stones
 y 2
 end
+arch magic_mouth
+msg
+You are down to your NECK in the dangerous quicksand.
+endmsg
+y 2
+end
 arch damager
 name quicksand
 speed 0
@@ -85,13 +85,13 @@ end
 arch floor_sand_d2
 y 4
 end
+arch tree_branch2
+y 4
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-y 4
-end
-arch tree_branch2
 y 4
 end
 arch damager
@@ -240,13 +240,6 @@ x 1
 y 2
 end
 arch floor_sand_d3
-x 1
-y 3
-end
-arch magic_mouth
-msg
-You are down to your NECK in the dangerous quicksand.
-endmsg
 x 1
 y 3
 end
@@ -254,6 +247,13 @@ arch plant_mushroom2
 x 1
 y 3
 end
+arch magic_mouth
+msg
+You are down to your NECK in the dangerous quicksand.
+endmsg
+x 1
+y 3
+end
 arch damager
 name quicksand
 speed 0
@@ -944,17 +944,17 @@ x 5
 y 23
 end
 arch floor_sand_d3
-x 6
-end
-arch magic_mouth
-msg
-You are down to your NECK in the dangerous quicksand.
-endmsg
 x 6
 end
 arch tree_branch3
 x 6
 end
+arch magic_mouth
+msg
+You are down to your NECK in the dangerous quicksand.
+endmsg
+x 6
+end
 arch damager
 name quicksand
 speed 0
@@ -1144,14 +1144,14 @@ arch floor_sand_d1
 x 7
 y 2
 end
+arch plant_mushroom5
+x 7
+y 2
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-x 7
-y 2
-end
-arch plant_mushroom5
 x 7
 y 2
 end

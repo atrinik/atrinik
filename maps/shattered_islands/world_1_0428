@@ -1,13 +1,14 @@
 arch map
-name World
+name Strakewood Island
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-26 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
+region strakewood_island
 end
 arch magic_mirror
 slaying world_0428

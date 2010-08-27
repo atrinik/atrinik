@@ -2,12 +2,13 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-26 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
+region asteria
 end
 arch blocked
 blocksview 0

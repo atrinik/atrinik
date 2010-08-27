@@ -13,6 +13,7 @@ tile_path_2 world_0226
 tile_path_3 world_0125
 tile_path_5 world_0227
 tile_path_6 world_0225
+region strakewood_island
 end
 arch water_lt3
 end

@@ -105,13 +105,13 @@ end
 arch floor_sand_d1
 y 12
 end
+arch tree_branch2
+y 12
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-y 12
-end
-arch tree_branch2
 y 12
 end
 arch damager
@@ -154,17 +154,17 @@ exp 3
 y 14
 end
 arch floor_sand_d2
-y 15
-end
-arch magic_mouth
-msg
-You are down to your NECK in the dangerous quicksand.
-endmsg
 y 15
 end
 arch tree_branch3
 y 15
 end
+arch magic_mouth
+msg
+You are down to your NECK in the dangerous quicksand.
+endmsg
+y 15
+end
 arch damager
 name quicksand
 speed 0
@@ -207,13 +207,13 @@ end
 arch floor_sand_d4
 y 18
 end
+arch small_stones
+y 18
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-y 18
-end
-arch small_stones
 y 18
 end
 arch damager
@@ -274,13 +274,13 @@ end
 arch floor_sand_d2
 y 22
 end
+arch tree_branch2
+y 22
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-y 22
-end
-arch tree_branch2
 y 22
 end
 arch damager
@@ -794,6 +794,10 @@ arch floor_sand_d1
 x 2
 y 16
 end
+arch tree_branch2
+x 2
+y 16
+end
 arch magic_mouth
 msg
 You fall down through the quicksand. As you fall down, sand seeps into your eyes, blinding you.
@@ -805,10 +809,6 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 16
-x 2
-y 16
-end
-arch tree_branch2
 x 2
 y 16
 end
@@ -1014,6 +1014,10 @@ arch floor_sand_d2
 x 3
 y 10
 end
+arch tree_branch3
+x 3
+y 10
+end
 arch magic_mouth
 msg
 You fall down through the quicksand. As you fall down, sand seeps into your eyes, blinding you.
@@ -1025,10 +1029,6 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 10
-x 3
-y 10
-end
-arch tree_branch3
 x 3
 y 10
 end
@@ -1232,6 +1232,10 @@ arch floor_sand_d3
 x 3
 y 23
 end
+arch tree_branch2
+x 3
+y 23
+end
 arch magic_mouth
 msg
 You fall down through the quicksand. As you fall down, sand seeps into your eyes, blinding you.
@@ -1243,10 +1247,6 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 23
-x 3
-y 23
-end
-arch tree_branch2
 x 3
 y 23
 end
@@ -1376,6 +1376,10 @@ arch floor_sand_d2
 x 4
 y 13
 end
+arch small_stones
+x 4
+y 13
+end
 arch magic_mouth
 msg
 You fall down through the quicksand. As you fall down, sand seeps into your eyes, blinding you.
@@ -1387,10 +1391,6 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 13
-x 4
-y 13
-end
-arch small_stones
 x 4
 y 13
 end
@@ -1514,6 +1514,10 @@ arch floor_sand_d1
 x 4
 y 21
 end
+arch tree_branch3
+x 4
+y 21
+end
 arch magic_mouth
 msg
 You fall down through the quicksand. As you fall down, sand seeps into your eyes, blinding you.
@@ -1525,10 +1529,6 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 21
-x 4
-y 21
-end
-arch tree_branch3
 x 4
 y 21
 end
@@ -1594,14 +1594,14 @@ arch floor_sand_d3
 x 5
 y 3
 end
+arch plant_mushroom4
+x 5
+y 3
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 5
-y 3
-end
-arch plant_mushroom4
 x 5
 y 3
 end
@@ -1617,14 +1617,14 @@ arch floor_sand_d4
 x 5
 y 5
 end
+arch plant_mushroom1
+x 5
+y 5
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 5
-y 5
-end
-arch plant_mushroom1
 x 5
 y 5
 end
@@ -2142,14 +2142,14 @@ arch floor_sand_d1
 x 6
 y 13
 end
+arch small_stones
+x 6
+y 13
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-x 6
-y 13
-end
-arch small_stones
 x 6
 y 13
 end
@@ -2165,14 +2165,14 @@ arch floor_sand_d4
 x 6
 y 14
 end
+arch tree_branch2
+x 6
+y 14
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-x 6
-y 14
-end
-arch tree_branch2
 x 6
 y 14
 end
@@ -2283,14 +2283,14 @@ arch floor_sand_d3
 x 6
 y 20
 end
+arch small_stones
+x 6
+y 20
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-x 6
-y 20
-end
-arch small_stones
 x 6
 y 20
 end
@@ -2397,14 +2397,14 @@ arch floor_sand_d1
 x 7
 y 5
 end
+arch small_stones
+x 7
+y 5
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 7
-y 5
-end
-arch small_stones
 x 7
 y 5
 end
@@ -2434,14 +2434,14 @@ arch floor_sand_d2
 x 7
 y 8
 end
+arch tree_branch2
+x 7
+y 8
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-x 7
-y 8
-end
-arch tree_branch2
 x 7
 y 8
 end
@@ -2587,14 +2587,14 @@ arch floor_sand_d2
 x 7
 y 17
 end
+arch tree_branch3
+x 7
+y 17
+end
 arch magic_mouth
 msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
-x 7
-y 17
-end
-arch tree_branch3
 x 7
 y 17
 end
@@ -2866,14 +2866,14 @@ arch floor_sand_d4
 x 8
 y 14
 end
+arch tree_branch3
+x 8
+y 14
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 8
-y 14
-end
-arch tree_branch3
 x 8
 y 14
 end
@@ -2944,14 +2944,14 @@ arch floor_sand_d3
 x 8
 y 21
 end
+arch tree_branch2
+x 8
+y 21
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 8
-y 21
-end
-arch tree_branch2
 x 8
 y 21
 end
@@ -3075,14 +3075,14 @@ arch floor_sand_d1
 x 9
 y 10
 end
+arch plant_mushroom3
+x 9
+y 10
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 9
-y 10
-end
-arch plant_mushroom3
 x 9
 y 10
 end
@@ -3101,14 +3101,14 @@ arch floor_sand_d3
 x 9
 y 12
 end
+arch small_stones
+x 9
+y 12
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 9
-y 12
-end
-arch small_stones
 x 9
 y 12
 end
@@ -3160,14 +3160,14 @@ arch floor_sand_d3
 x 9
 y 17
 end
+arch tree_branch2
+x 9
+y 17
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 9
-y 17
-end
-arch tree_branch2
 x 9
 y 17
 end
@@ -3230,14 +3230,14 @@ arch floor_sand_d1
 x 9
 y 23
 end
+arch plant_mushroom3
+x 9
+y 23
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 9
-y 23
-end
-arch plant_mushroom3
 x 9
 y 23
 end
@@ -3397,14 +3397,14 @@ arch floor_sand_d3
 x 10
 y 16
 end
+arch tree_branch2
+x 10
+y 16
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 10
-y 16
-end
-arch tree_branch2
 x 10
 y 16
 end
@@ -3472,14 +3472,14 @@ arch floor_sand_d3
 x 10
 y 23
 end
+arch tree_branch3
+x 10
+y 23
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 10
-y 23
-end
-arch tree_branch3
 x 10
 y 23
 end
@@ -3679,14 +3679,14 @@ arch floor_sand_d2
 x 11
 y 21
 end
+arch tree_branch2
+x 11
+y 21
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 11
-y 21
-end
-arch tree_branch2
 x 11
 y 21
 end
@@ -3694,14 +3694,14 @@ arch floor_sand_d1
 x 11
 y 22
 end
+arch plant_mushroom3
+x 11
+y 22
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 11
-y 22
-end
-arch plant_mushroom3
 x 11
 y 22
 end

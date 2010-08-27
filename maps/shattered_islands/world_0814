@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-26 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -379,19 +379,11 @@ arch floor_pattern_brown2
 x 2
 y 10
 end
-arch light5
-x 2
-y 10
-end
 arch fireplace_left
 x 2
 y 10
 end
 arch floor_pattern_brown2
-x 2
-y 11
-end
-arch light5
 x 2
 y 11
 end
@@ -527,7 +519,15 @@ arch floor_pattern_brown2
 x 3
 y 10
 end
+arch light5
+x 3
+y 10
+end
 arch floor_pattern_brown2
+x 3
+y 11
+end
+arch light5
 x 3
 y 11
 end

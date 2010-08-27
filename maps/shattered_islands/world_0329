@@ -16,6 +16,7 @@ tile_path_5 world_0430
 tile_path_6 world_0428
 tile_path_7 world_0228
 tile_path_8 world_0230
+region strakewood_island
 end
 arch grassd_5
 end

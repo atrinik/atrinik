@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-08 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1765,10 +1765,6 @@ arch floor_flagm3
 x 10
 y 21
 end
-arch light7
-x 10
-y 21
-end
 arch ladder_down3
 msg
 You lift the plate and enter the sewers.
@@ -1781,6 +1777,10 @@ direction 0
 slaying strakewood_island/brynknot/sewers/sewers_0101
 hp 4
 sp 1
+x 10
+y 21
+end
+arch light7
 x 10
 y 21
 end

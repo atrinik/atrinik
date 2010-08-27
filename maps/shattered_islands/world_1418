@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-23 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1171,18 +1171,18 @@ arch floor_marble3f
 x 7
 y 17
 end
+arch door_bar1
+direction 5
+slaying portu_baserrian_bar_key
+x 7
+y 17
+end
 arch check_inv
 layer 0
 sys_object 1
 slaying portu_baserrian_bar_key
 sp 1
 last_grace 1
-x 7
-y 17
-end
-arch door_bar1
-direction 5
-slaying portu_baserrian_bar_key
 x 7
 y 17
 end
@@ -2003,16 +2003,16 @@ arch floor_marble3a
 x 12
 y 23
 end
+arch door_wood1
+x 12
+y 23
+end
 arch magic_mouth
 msg
 Whoa! You can't come in here smelling like that!
 endmsg
 slaying berri_lur_stench
 sp 1
-x 12
-y 23
-end
-arch door_wood1
 x 12
 y 23
 end

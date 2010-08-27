@@ -2,7 +2,7 @@ arch map
 name Under Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-22 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,6 +10,7 @@ difficulty 3
 darkness 3
 tile_path_3 world_a_0916
 tile_path_6 world_a_1016
+region strakewood_island
 end
 arch floor_sand_d3
 x 3
@@ -90,6 +91,10 @@ terrain_type 1
 x 4
 y 23
 end
+arch plant7
+x 4
+y 23
+end
 arch mover
 direction 2
 x 4
@@ -103,10 +108,6 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
-x 4
-y 23
-end
-arch plant8
 x 4
 y 23
 end
@@ -197,6 +198,10 @@ terrain_type 1
 x 5
 y 22
 end
+arch plant8
+x 5
+y 22
+end
 arch mover
 direction 2
 x 5
@@ -210,10 +215,6 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
-x 5
-y 22
-end
-arch plant8
 x 5
 y 22
 end
@@ -307,6 +308,10 @@ terrain_type 1
 x 6
 y 19
 end
+arch plant7
+x 6
+y 19
+end
 arch mover
 direction 2
 x 6
@@ -323,12 +328,12 @@ exp 3
 x 6
 y 19
 end
-arch plant8
-x 6
-y 19
-end
 arch water_lt4
 terrain_type 1
+x 6
+y 20
+end
+arch plant7
 x 6
 y 20
 end
@@ -348,12 +353,12 @@ exp 3
 x 6
 y 20
 end
-arch plant7
-x 6
-y 20
-end
 arch water_lt2
 terrain_type 1
+x 6
+y 21
+end
+arch plant7
 x 6
 y 21
 end
@@ -475,6 +480,10 @@ terrain_type 1
 x 7
 y 18
 end
+arch plant7
+x 7
+y 18
+end
 arch mover
 direction 2
 x 7
@@ -491,10 +500,6 @@ exp 3
 x 7
 y 18
 end
-arch plant8
-x 7
-y 18
-end
 arch water_lt4
 terrain_type 1
 x 7
@@ -502,10 +507,6 @@ y 19
 end
 arch mover
 direction 2
-x 7
-y 19
-end
-arch plant7
 x 7
 y 19
 end
@@ -555,6 +556,10 @@ terrain_type 1
 x 7
 y 23
 end
+arch plant7
+x 7
+y 23
+end
 arch mover
 x 7
 y 23
@@ -567,10 +572,6 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
-x 7
-y 23
-end
-arch plant7
 x 7
 y 23
 end
@@ -668,10 +669,6 @@ direction 2
 x 8
 y 17
 end
-arch plant8
-x 8
-y 17
-end
 arch spawn_point
 x 8
 y 17
@@ -724,6 +721,10 @@ y 20
 end
 arch water_lt3
 terrain_type 1
+x 8
+y 21
+end
+arch plant7
 x 8
 y 21
 end
@@ -829,6 +830,10 @@ terrain_type 1
 x 9
 y 16
 end
+arch plant8
+x 9
+y 16
+end
 arch mover
 direction 2
 x 9
@@ -870,6 +875,10 @@ terrain_type 1
 x 9
 y 19
 end
+arch plant7
+x 9
+y 19
+end
 arch mover
 direction 2
 x 9
@@ -888,6 +897,10 @@ y 19
 end
 arch water_lt
 terrain_type 1
+x 9
+y 20
+end
+arch plant8
 x 9
 y 20
 end
@@ -994,6 +1007,10 @@ y 14
 end
 arch water_lt3
 terrain_type 1
+x 10
+y 15
+end
+arch plant7
 x 10
 y 15
 end
@@ -1177,6 +1194,10 @@ terrain_type 1
 x 11
 y 14
 end
+arch plant7
+x 11
+y 14
+end
 arch mover
 direction 2
 x 11
@@ -1190,10 +1211,6 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
-x 11
-y 14
-end
-arch plant7
 x 11
 y 14
 end
@@ -1243,6 +1260,10 @@ terrain_type 1
 x 11
 y 18
 end
+arch plant7
+x 11
+y 18
+end
 arch mover
 direction 2
 x 11
@@ -1256,10 +1277,6 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
-x 11
-y 18
-end
-arch plant8
 x 11
 y 18
 end
@@ -1378,12 +1395,12 @@ speed 1.0
 x 12
 y 12
 end
-arch plant8
-x 12
-y 12
-end
 arch water_lt4
 terrain_type 1
+x 12
+y 13
+end
+arch plant7
 x 12
 y 13
 end
@@ -1391,12 +1408,12 @@ arch mover
 x 12
 y 13
 end
-arch plant8
-x 12
-y 13
-end
 arch water_lt4
 terrain_type 1
+x 12
+y 14
+end
+arch plant7
 x 12
 y 14
 end
@@ -1451,12 +1468,12 @@ terrain_type 1
 x 12
 y 17
 end
-arch mover
-direction 2
+arch plant8
 x 12
 y 17
 end
-arch plant7
+arch mover
+direction 2
 x 12
 y 17
 end
@@ -1617,12 +1634,12 @@ terrain_type 1
 x 13
 y 16
 end
-arch mover
-direction 2
+arch plant8
 x 13
 y 16
 end
-arch plant8
+arch mover
+direction 2
 x 13
 y 16
 end
@@ -1738,12 +1755,20 @@ terrain_type 1
 x 14
 y 14
 end
+arch plant8
+x 14
+y 14
+end
 arch mover
 x 14
 y 14
 end
 arch water_lt2
 terrain_type 1
+x 14
+y 15
+end
+arch plant7
 x 14
 y 15
 end
@@ -1759,10 +1784,6 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
-x 14
-y 15
-end
-arch plant7
 x 14
 y 15
 end

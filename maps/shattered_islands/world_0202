@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2452,11 +2452,11 @@ arch grassd_7
 x 21
 y 2
 end
-arch light2
+arch wall_flagstone1_w.131
 x 21
 y 2
 end
-arch wall_flagstone1_w.131
+arch light2
 x 21
 y 2
 end
@@ -2480,11 +2480,11 @@ arch grassd_3
 x 21
 y 5
 end
-arch light2
+arch wall_flagstone1_w.131
 x 21
 y 5
 end
-arch wall_flagstone1_w.131
+arch light2
 x 21
 y 5
 end

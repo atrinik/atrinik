@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1417,19 +1417,19 @@ end
 arch grassd_5
 x 12
 end
+arch gate1_locked
+msg
+In order to leave the Tutorial Island, you must complete all the quests, and talk to the nearby gate keeper to get a key for this gate.
+endmsg
+slaying tutorial_island_gate
+x 12
+end
 arch check_inv
 layer 0
 sys_object 1
 slaying tutorial_island_gate
 sp 1
 last_grace 1
-x 12
-end
-arch gate1_locked
-msg
-In order to leave the Tutorial Island, you must complete all the quests, and talk to the nearby gate keeper to get a key for this gate.
-endmsg
-slaying tutorial_island_gate
 x 12
 end
 arch floor_flagm3

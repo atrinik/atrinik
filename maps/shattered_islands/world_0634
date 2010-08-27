@@ -2468,10 +2468,6 @@ z 50
 x 16
 y 1
 end
-arch light9
-x 16
-y 1
-end
 arch mailbox
 container 0
 x 16
@@ -2480,6 +2476,10 @@ arch event_obj
 sub_type 1
 race /python/generic/postoffice_mailbox.py
 end
+end
+arch light9
+x 16
+y 1
 end
 arch floor_white1
 z 50

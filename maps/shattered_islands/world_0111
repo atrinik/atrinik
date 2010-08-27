@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-08 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -845,15 +845,15 @@ arch carpet7.151
 x 5
 y 1
 end
-arch light3
-x 5
-y 1
-end
 arch floor_ostone10
 x 5
 y 2
 end
 arch carpet7h
+x 5
+y 2
+end
+arch light3
 x 5
 y 2
 end
@@ -2185,11 +2185,11 @@ arch grassd_7
 x 14
 y 6
 end
-arch light3
+arch wall_stone_w.131
 x 14
 y 6
 end
-arch wall_stone_w.131
+arch light3
 x 14
 y 6
 end
@@ -2349,14 +2349,14 @@ arch shop_floor
 x 15
 y 4
 end
-arch light4
-x 15
-y 4
-end
 arch lamp
 unpaid 1
 no_pick 1
 identified 1
+x 15
+y 4
+end
+arch light4
 x 15
 y 4
 end
@@ -2532,15 +2532,15 @@ arch shop_floor
 x 16
 y 5
 end
-arch light8
-x 16
-y 5
-end
 arch arrow
 unpaid 1
 no_pick 1
 identified 1
 nrof 25
+x 16
+y 5
+end
+arch light8
 x 16
 y 5
 end
@@ -2559,16 +2559,16 @@ arch shop_floor
 x 16
 y 7
 end
-arch light9
-x 16
-y 7
-end
 arch potion_cure_sickness
 value 79
 no_pick 1
 identified 1
 unpaid 1
 level 15
+x 16
+y 7
+end
+arch light9
 x 16
 y 7
 end
@@ -2686,11 +2686,11 @@ arch grassd_3
 x 17
 y 3
 end
-arch light3
+arch wall_stone_w.111
 x 17
 y 3
 end
-arch wall_stone_w.111
+arch light3
 x 17
 y 3
 end
@@ -2735,14 +2735,14 @@ arch shop_floor
 x 17
 y 8
 end
-arch light8
-x 17
-y 8
-end
 arch sword2h
 unpaid 1
 no_pick 1
 identified 1
+x 17
+y 8
+end
+arch light8
 x 17
 y 8
 end
@@ -3024,14 +3024,14 @@ arch shop_floor
 x 19
 y 5
 end
-arch light9
-x 19
-y 5
-end
 arch crossbow_small
 unpaid 1
 no_pick 1
 identified 1
+x 19
+y 5
+end
+arch light9
 x 19
 y 5
 end
@@ -3196,14 +3196,14 @@ arch shop_floor
 x 20
 y 6
 end
-arch light8
-x 20
-y 6
-end
 arch cloak
 unpaid 1
 no_pick 1
 identified 1
+x 20
+y 6
+end
+arch light8
 x 20
 y 6
 end
@@ -3215,14 +3215,14 @@ arch shop_floor
 x 20
 y 8
 end
-arch light8
-x 20
-y 8
-end
 arch axe_small
 unpaid 1
 no_pick 1
 identified 1
+x 20
+y 8
+end
+arch light8
 x 20
 y 8
 end
@@ -3360,14 +3360,14 @@ arch shop_floor
 x 21
 y 4
 end
-arch light4
-x 21
-y 4
-end
 arch glaive
 unpaid 1
 no_pick 1
 identified 1
+x 21
+y 4
+end
+arch light4
 x 21
 y 4
 end
@@ -3503,11 +3503,11 @@ arch grassd_6
 x 22
 y 3
 end
-arch light3
+arch wall_stone_w.111
 x 22
 y 3
 end
-arch wall_stone_w.111
+arch light3
 x 22
 y 3
 end
@@ -3680,14 +3680,14 @@ arch shop_floor
 x 23
 y 4
 end
-arch light4
-x 23
-y 4
-end
 arch lucern_hammer
 unpaid 1
 no_pick 1
 identified 1
+x 23
+y 4
+end
+arch light4
 x 23
 y 4
 end

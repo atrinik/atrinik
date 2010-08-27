@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-08 Kiana
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -516,14 +516,14 @@ arch grassd_6
 x 3
 y 16
 end
-arch light2
-x 3
-y 16
-end
 arch marker1
 msg
 Altar of the Tabernacle
 endmsg
+x 3
+y 16
+end
+arch light2
 x 3
 y 16
 end

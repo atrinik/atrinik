@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-08 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -44,26 +44,26 @@ arch grass_thick2
 player_only 1
 y 6
 end
-arch light1
-y 6
-end
 arch exit_green
 slaying strakewood_island/underground_city/underground_city_0104
 hp 23
 sp 13
 y 6
 end
+arch light1
+y 6
+end
 arch grass_thick3
 player_only 1
-y 7
-end
-arch light1
 y 7
 end
 arch hole
 slaying strakewood_island/brynknot/sewers/sewers_0201
 hp 18
 sp 11
+y 7
+end
+arch light1
 y 7
 end
 arch water_still

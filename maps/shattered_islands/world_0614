@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-24 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2650,12 +2650,12 @@ arch grassd_5
 x 17
 y 20
 end
-arch light6
+arch fire_cauld.131
+direction 5
 x 17
 y 20
 end
-arch fire_cauld.131
-direction 5
+arch light6
 x 17
 y 20
 end

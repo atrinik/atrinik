@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-16 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1892,6 +1892,10 @@ arch floor_marble_grey
 x 12
 y 7
 end
+arch torch_wall_1
+x 12
+y 7
+end
 arch spawn_point
 x 12
 y 7
@@ -1901,10 +1905,6 @@ level 80
 friendly 1
 type 83
 end
-end
-arch torch_wall_1
-x 12
-y 7
 end
 arch floor_marble_grey
 x 12
@@ -1981,6 +1981,11 @@ arch floor_marble_grey
 x 12
 y 21
 end
+arch torch_wall_1
+direction 7
+x 12
+y 21
+end
 arch spawn_point
 x 12
 y 21
@@ -1990,11 +1995,6 @@ level 80
 friendly 1
 type 83
 end
-end
-arch torch_wall_1
-direction 7
-x 12
-y 21
 end
 arch floor_marble_grey
 x 12

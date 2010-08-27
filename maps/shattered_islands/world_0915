@@ -2505,14 +2505,14 @@ arch floor_sand_d1
 x 22
 y 13
 end
+arch tree_branch3
+x 22
+y 13
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 22
-y 13
-end
-arch tree_branch3
 x 22
 y 13
 end
@@ -2520,14 +2520,14 @@ arch floor_sand_d2
 x 22
 y 14
 end
+arch plant_mushroom3
+x 22
+y 14
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 22
-y 14
-end
-arch plant_mushroom3
 x 22
 y 14
 end
@@ -2617,14 +2617,14 @@ arch floor_sand_d1
 x 22
 y 23
 end
+arch plant_mushroom5
+x 22
+y 23
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 22
-y 23
-end
-arch plant_mushroom5
 x 22
 y 23
 end
@@ -2703,14 +2703,14 @@ arch floor_sand_d3
 x 23
 y 11
 end
+arch small_stones
+x 23
+y 11
+end
 arch magic_mouth
 msg
 You are down to your waist in the wet quicksand.
 endmsg
-x 23
-y 11
-end
-arch small_stones
 x 23
 y 11
 end
@@ -2781,17 +2781,17 @@ arch floor_sand_d4
 x 23
 y 18
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 18
-end
 arch tree_branch2
 x 23
 y 18
 end
+arch magic_mouth
+msg
+You are down to your waist in the wet quicksand.
+endmsg
+x 23
+y 18
+end
 arch floor_sand_d3
 x 23
 y 19
@@ -2804,17 +2804,17 @@ x 23
 y 19
 end
 arch floor_sand_d3
-x 23
-y 20
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
 x 23
 y 20
 end
 arch tree_branch3
+x 23
+y 20
+end
+arch magic_mouth
+msg
+You are down to your waist in the wet quicksand.
+endmsg
 x 23
 y 20
 end

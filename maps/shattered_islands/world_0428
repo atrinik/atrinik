@@ -16,6 +16,7 @@ tile_path_5 world_0529
 tile_path_6 world_0527
 tile_path_7 world_0327
 tile_path_8 world_0329
+region fort_sether
 end
 arch grassd_8
 end

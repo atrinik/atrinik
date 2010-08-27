@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness 3
+region strakewood_island
 end
 arch blocked
 x 6
@@ -186,19 +187,11 @@ arch floor_wood2_l2
 x 7
 y 14
 end
-arch light5
-x 7
-y 14
-end
 arch fireplace_left
 x 7
 y 14
 end
 arch floor_wood2_l2
-x 7
-y 15
-end
-arch light5
 x 7
 y 15
 end
@@ -266,7 +259,15 @@ arch shelf2_wall.111
 x 8
 y 14
 end
+arch light5
+x 8
+y 14
+end
 arch floor_wood2_l1
+x 8
+y 15
+end
+arch light5
 x 8
 y 15
 end

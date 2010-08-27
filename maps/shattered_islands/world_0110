@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2144,16 +2144,16 @@ arch bridge_wood_EW.111
 x 16
 y 9
 end
-arch light7
-x 16
-y 9
-end
 arch sign
 msg
 This ship will take you to the Eld Woods Island.
 The Eld Woods Island is a perfect alternative starting place for newbies, but some skills can only be learned on Strakewood Island, like the quest for Two Handed Weapons Mastery.
 endmsg
 name To Eld Woods Island
+x 16
+y 9
+end
+arch light7
 x 16
 y 9
 end
