@@ -2,7 +2,7 @@ arch map
 name Asteria Royal Catacombs
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -625,13 +625,6 @@ direction 7
 x 22
 y 21
 end
-arch magic_mouth
-msg
-Catacombs
-endmsg
-x 22
-y 22
-end
 arch floor_marble1
 x 22
 y 22
@@ -639,6 +632,13 @@ end
 arch door1_locked
 slaying no_entry
 last_sp -1
+x 22
+y 22
+end
+arch magic_mouth
+msg
+Catacombs
+endmsg
 x 22
 y 22
 end

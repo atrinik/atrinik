@@ -2,7 +2,7 @@ arch map
 name Underground Tunnels
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -96,20 +96,14 @@ end
 arch floor_dungeon1a
 y 13
 end
-arch wall_dungeon_4
+arch wall_dungeon_3
 y 13
 end
 arch floor_dungeon1a
 y 14
 end
-arch wall_dungeon1.131
+arch wall_dungeon_4
 y 14
-end
-arch floor_dungeon1a
-y 15
-end
-arch wall_dungeon1.131
-y 15
 end
 arch earth_brown2
 y 16

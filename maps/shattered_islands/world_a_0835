@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 -Enter Description Here-
-Modified: 2010-08-26 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -903,15 +903,6 @@ name Perfectly Legal Not-Thief Guild
 x 19
 y 17
 end
-arch spawn_point
-x 19
-y 18
-arch gangmember1
-name thief
-type 83
-friendly 1
-end
-end
 arch floor_wood2
 x 19
 y 18
@@ -1244,11 +1235,11 @@ arch shop_floor
 x 23
 y 18
 end
-arch light7
+arch shop_floor
 x 23
 y 19
 end
-arch shop_floor
+arch light7
 x 23
 y 19
 end

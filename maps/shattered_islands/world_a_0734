@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 -Enter Description Here-
-Modified: 2010-08-26 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -151,8 +151,6 @@ end
 arch ring_yordan
 no_pick 1
 identified 1
-known_magical 1
-known_cursed 1
 x 2
 y 5
 end
@@ -168,8 +166,6 @@ end
 arch amulet_shielding
 no_pick 1
 identified 1
-known_magical 1
-known_cursed 1
 x 2
 y 6
 end
@@ -231,21 +227,9 @@ arch floor_flagm2
 x 3
 y 5
 end
-arch nug_bronze_small
-no_pick 1
-identified 1
-known_magical 1
-known_cursed 1
-x 3
-y 5
-end
 arch ring_gold
-item_quality 95
-item_condition 95
 no_pick 1
 identified 1
-known_magical 1
-known_cursed 1
 x 3
 y 5
 end
@@ -253,7 +237,7 @@ arch floor_flagm2
 x 3
 y 6
 end
-arch rock22
+arch stone2
 name silver ore
 x 3
 y 6
@@ -364,6 +348,7 @@ arch coppercoin
 nrof 5652
 no_pick 1
 type 60
+can_stack 0
 x 4
 y 5
 end
@@ -371,7 +356,7 @@ arch floor_flagm2
 x 4
 y 6
 end
-arch rock22
+arch stone2
 name silver ore
 x 4
 y 6
@@ -478,6 +463,7 @@ arch silvercoin
 nrof 938
 no_pick 1
 type 60
+can_stack 0
 x 5
 y 5
 end
@@ -485,7 +471,7 @@ arch floor_flagm2
 x 5
 y 6
 end
-arch rock22
+arch stone2
 name silver ore
 x 5
 y 6
@@ -584,6 +570,7 @@ arch goldcoin
 nrof 348
 no_pick 1
 type 60
+can_stack 0
 x 6
 y 5
 end
@@ -690,10 +677,17 @@ arch mitcoin
 nrof 250
 no_pick 1
 type 60
+can_stack 0
 x 7
 y 5
 end
 arch floor_flagm2
+x 7
+y 6
+end
+arch nug_bronze_small
+no_pick 1
+identified 1
 x 7
 y 6
 end

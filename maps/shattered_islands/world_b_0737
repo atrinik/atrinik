@@ -2,14 +2,13 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
 enter_x 1
 enter_y 1
-reset_timeout 7200
-difficulty 1
+difficulty 30
 darkness 1
 tile_path_1 world_b_0738
 tile_path_2 world_b_0837
@@ -276,6 +275,7 @@ carrying 5500
 Wis 2
 type 83
 arch quest_container
+name Asteria Dungeon Key 3
 arch key_brown
 name Asteria Dungeon Key 3
 slaying asteria_dungeon_key3

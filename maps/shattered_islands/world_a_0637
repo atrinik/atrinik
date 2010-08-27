@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -250,19 +250,19 @@ arch floor_fs_grey1b
 x 21
 y 22
 end
-arch magic_mouth
-msg
-Prisons
-endmsg
-x 21
-y 23
-end
 arch floor_fs_grey1b
 x 21
 y 23
 end
 arch door1_locked
 last_sp -1
+x 21
+y 23
+end
+arch magic_mouth
+msg
+Prisons
+endmsg
 x 21
 y 23
 end

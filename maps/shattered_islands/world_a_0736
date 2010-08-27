@@ -3,14 +3,14 @@ name Asteria Palace Dungeon
 msg
 Creator: Daimonin Map Editor
 Date:    6/9/2004
-Modified: 2010-08-26 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
 enter_x 1
 enter_y 1
 reset_timeout 7200
-difficulty 1
+difficulty 25
 darkness 1
 no_harm 1
 tile_path_1 world_a_0737
@@ -1347,13 +1347,6 @@ arch floor_stone_b1
 x 10
 y 20
 end
-arch handle_lever
-path_attuned 101
-value 1
-connected 101
-x 10
-y 20
-end
 arch spawn_point
 x 10
 y 20
@@ -1506,6 +1499,15 @@ arch floor_stone_b1
 x 11
 y 20
 end
+arch floor_stone_b1
+x 11
+y 21
+end
+arch gate_open
+connected 101
+x 11
+y 21
+end
 arch magic_ear
 msg
 @match eagle
@@ -1513,15 +1515,6 @@ Correct, you may pass.
 endmsg
 path_attuned 101
 value 1
-connected 101
-x 11
-y 21
-end
-arch floor_stone_b1
-x 11
-y 21
-end
-arch gate_open
 connected 101
 x 11
 y 21
@@ -2020,6 +2013,7 @@ level 30
 Wis 1
 type 83
 arch quest_container
+name Asteria Dungeon Key 2
 arch key2
 name Asteria Dungeon Key 2
 slaying asteria_dungeon_key2

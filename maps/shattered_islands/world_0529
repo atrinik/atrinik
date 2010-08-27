@@ -2180,6 +2180,10 @@ arch swamp1
 x 21
 y 4
 end
+arch swamp1
+x 21
+y 5
+end
 arch spawn_point
 x 21
 y 5
@@ -2187,10 +2191,6 @@ arch mud_hand
 type 83
 level 8
 end
-end
-arch swamp1
-x 21
-y 5
 end
 arch swamp1
 x 21

@@ -2,14 +2,14 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
 enter_x 1
 enter_y 1
 reset_timeout 7200
-difficulty 1
+difficulty 20
 darkness 1
 no_harm 1
 tile_path_1 world_a_0637
@@ -302,6 +302,7 @@ name Warden Argoth
 level 20
 type 83
 arch quest_container
+name Asteria Dungeon Key 1
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1

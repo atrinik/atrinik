@@ -1528,10 +1528,6 @@ z 50
 x 10
 y 17
 end
-arch stone1
-x 10
-y 17
-end
 arch tree_big4b
 x 10
 y 17
