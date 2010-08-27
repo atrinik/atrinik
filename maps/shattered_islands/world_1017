@@ -33,25 +33,43 @@ end
 arch grassd_3
 y 3
 end
+arch plant7
+y 3
+end
 arch grassd_4
+y 4
+end
+arch plant8
 y 4
 end
 arch grassd_3
 y 5
 end
+arch plant8
+y 5
+end
 arch grassd_2
 y 6
 end
-arch tree_branch3
+arch plant8
 y 6
 end
 arch grassd_1
 y 7
 end
+arch plant7
+y 7
+end
 arch grassd_7
 y 8
 end
+arch plant7
+y 8
+end
 arch grassd_2
+y 9
+end
+arch plant7
 y 9
 end
 arch grassd_6
@@ -62,6 +80,9 @@ y 11
 end
 arch grassd_4
 z 2
+y 12
+end
+arch plant10
 y 12
 end
 arch grassd_2
@@ -171,7 +192,15 @@ arch grassd_4
 x 1
 y 9
 end
+arch plant8
+x 1
+y 9
+end
 arch grassd_8
+x 1
+y 10
+end
+arch plant7
 x 1
 y 10
 end
@@ -278,6 +307,10 @@ arch grassd_2
 x 2
 y 10
 end
+arch plant8
+x 2
+y 10
+end
 arch grassd_8
 x 2
 y 11
@@ -302,6 +335,10 @@ y 15
 end
 arch grassd_1
 z 10
+x 2
+y 16
+end
+arch tree_branch2
 x 2
 y 16
 end
@@ -378,11 +415,23 @@ arch grassd_7
 x 3
 y 11
 end
+arch plant8
+x 3
+y 11
+end
 arch grassd_2
 x 3
 y 12
 end
+arch plant8
+x 3
+y 12
+end
 arch grassd_1
+x 3
+y 13
+end
+arch plant8
 x 3
 y 13
 end
@@ -514,6 +563,10 @@ x 4
 y 13
 end
 arch grassd_2
+x 4
+y 14
+end
+arch plant8
 x 4
 y 14
 end
@@ -636,6 +689,10 @@ arch grassd_5
 x 5
 y 15
 end
+arch plant8
+x 5
+y 15
+end
 arch grassd_1
 x 5
 y 16
@@ -758,6 +815,10 @@ arch grassd_5
 x 6
 y 16
 end
+arch plant7
+x 6
+y 16
+end
 arch grassd_6
 x 6
 y 17
@@ -875,12 +936,24 @@ arch grassd_1
 x 7
 y 17
 end
+arch plant7
+x 7
+y 17
+end
 arch grassd_7
+x 7
+y 18
+end
+arch plant8
 x 7
 y 18
 end
 arch grassd_1
 z 2
+x 7
+y 19
+end
+arch plant8
 x 7
 y 19
 end
@@ -1016,6 +1089,10 @@ z 2
 x 8
 y 20
 end
+arch plant8
+x 8
+y 20
+end
 arch grassd_5
 z 6
 x 8
@@ -1028,6 +1105,10 @@ y 22
 end
 arch grassd_2
 z 14
+x 8
+y 23
+end
+arch plant17
 x 8
 y 23
 end
@@ -1124,6 +1205,10 @@ y 20
 end
 arch grassd_2
 z 2
+x 9
+y 21
+end
+arch plant7
 x 9
 y 21
 end
@@ -1233,8 +1318,16 @@ z 2
 x 10
 y 22
 end
+arch plant7
+x 10
+y 22
+end
 arch grassd_6
 z 6
+x 10
+y 23
+end
+arch plant8
 x 10
 y 23
 end
@@ -1327,6 +1420,10 @@ y 22
 end
 arch grassd_1
 z 2
+x 11
+y 23
+end
+arch plant8
 x 11
 y 23
 end

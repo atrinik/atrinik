@@ -3069,6 +3069,9 @@ end
 arch grassd_7
 x 21
 end
+arch plant8
+x 21
+end
 arch grassd_1
 x 21
 y 1
@@ -3209,6 +3212,10 @@ arch wall_cave1.161
 x 22
 end
 arch grassd_2
+x 22
+y 1
+end
+arch plant8
 x 22
 y 1
 end
@@ -3360,6 +3367,10 @@ x 23
 y 1
 end
 arch grassd_1
+x 23
+y 2
+end
+arch plant8
 x 23
 y 2
 end

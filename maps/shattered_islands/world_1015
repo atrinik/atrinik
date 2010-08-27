@@ -2980,6 +2980,9 @@ end
 arch grassd_2
 x 9
 end
+arch plant8
+x 9
+end
 arch grassd_8
 x 9
 y 1

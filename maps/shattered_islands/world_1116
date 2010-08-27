@@ -43,10 +43,16 @@ end
 arch grassd_5
 y 8
 end
+arch plant8
+y 8
+end
 arch grassd_6
 y 9
 end
 arch grassd_8
+y 10
+end
+arch plant16
 y 10
 end
 arch grassd_8
@@ -55,13 +61,22 @@ end
 arch grassd_6
 y 12
 end
+arch plant_flower7
+y 12
+end
 arch grassd_6
+y 13
+end
+arch plant5
 y 13
 end
 arch grassd_5
 y 14
 end
 arch grassd_8
+y 15
+end
+arch plant7
 y 15
 end
 arch grassd_2
@@ -120,7 +135,15 @@ arch grassd_6
 x 1
 y 9
 end
+arch plant8
+x 1
+y 9
+end
 arch grassd_8
+x 1
+y 10
+end
+arch plant7
 x 1
 y 10
 end
@@ -128,7 +151,15 @@ arch grassd_1
 x 1
 y 11
 end
+arch plant7
+x 1
+y 11
+end
 arch grassd_2
+x 1
+y 12
+end
+arch plant7
 x 1
 y 12
 end
@@ -136,7 +167,15 @@ arch grassd_8
 x 1
 y 13
 end
+arch plant7
+x 1
+y 13
+end
 arch grassd_6
+x 1
+y 14
+end
+arch plant7
 x 1
 y 14
 end

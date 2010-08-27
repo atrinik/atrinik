@@ -20,16 +20,24 @@ region strakewood_island
 end
 arch grassd_5
 end
+arch plant_mushroom1
+end
 arch grassd_3
 y 1
 end
 arch grassd_8
 y 2
 end
+arch plant9
+y 2
+end
 arch grassd_4
 y 3
 end
 arch grassd_6
+y 4
+end
+arch tree_big3
 y 4
 end
 arch grassd_4
@@ -41,10 +49,19 @@ end
 arch grassd_2
 y 7
 end
+arch plant8
+y 7
+end
 arch grassd_4
 y 8
 end
+arch reed_sm1
+y 8
+end
 arch water_lt2
+y 9
+end
+arch grassd_m10
 y 9
 end
 arch water_lt
@@ -105,6 +122,10 @@ arch grassd_5
 x 1
 y 1
 end
+arch tree_big4b
+x 1
+y 1
+end
 arch grassd_1
 x 1
 y 2
@@ -114,6 +135,10 @@ x 1
 y 3
 end
 arch grassd_4
+x 1
+y 4
+end
+arch tree_branch1
 x 1
 y 4
 end
@@ -129,11 +154,23 @@ arch grassd_6
 x 1
 y 7
 end
+arch plant8
+x 1
+y 7
+end
 arch grassd_6
 x 1
 y 8
 end
+arch reed_sm1
+x 1
+y 8
+end
 arch water_lt
+x 1
+y 9
+end
+arch grassd_m10
 x 1
 y 9
 end
@@ -216,6 +253,9 @@ end
 arch grassd_6
 x 2
 end
+arch tree_branch2
+x 2
+end
 arch grassd_6
 x 2
 y 1
@@ -224,11 +264,19 @@ arch grassd_3
 x 2
 y 2
 end
+arch tree_big2
+x 2
+y 2
+end
 arch grassd_1
 x 2
 y 3
 end
 arch grassd_6
+x 2
+y 4
+end
+arch tree_big2
 x 2
 y 4
 end
@@ -244,11 +292,23 @@ arch grassd_3
 x 2
 y 7
 end
+arch plant7
+x 2
+y 7
+end
 arch grassd_1
 x 2
 y 8
 end
+arch reed_sm1
+x 2
+y 8
+end
 arch water_lt2
+x 2
+y 9
+end
+arch grassd_m10
 x 2
 y 9
 end
@@ -327,6 +387,10 @@ arch grassd_2
 x 3
 y 1
 end
+arch stone1
+x 3
+y 1
+end
 arch grassd_1
 x 3
 y 2
@@ -343,6 +407,10 @@ arch grassd_3
 x 3
 y 5
 end
+arch plant16
+x 3
+y 5
+end
 arch grassd_6
 x 3
 y 6
@@ -351,11 +419,23 @@ arch grassd_6
 x 3
 y 7
 end
+arch plant8
+x 3
+y 7
+end
 arch grassd_3
 x 3
 y 8
 end
+arch reed_sm1
+x 3
+y 8
+end
 arch water_lt2
+x 3
+y 9
+end
+arch grassd_m10
 x 3
 y 9
 end
@@ -438,6 +518,9 @@ end
 arch grassd_6
 x 4
 end
+arch tree_big4b
+x 4
+end
 arch grassd_5
 x 4
 y 1
@@ -450,7 +533,15 @@ arch grassd_2
 x 4
 y 3
 end
+arch plant16
+x 4
+y 3
+end
 arch grassd_7
+x 4
+y 4
+end
+arch tree_big3
 x 4
 y 4
 end
@@ -466,11 +557,23 @@ arch grassd_2
 x 4
 y 7
 end
+arch plant8
+x 4
+y 7
+end
 arch grassd_7
 x 4
 y 8
 end
+arch reed_sm1
+x 4
+y 8
+end
 arch water_lt4
+x 4
+y 9
+end
+arch grassd_m10
 x 4
 y 9
 end
@@ -557,6 +660,10 @@ arch grassd_6
 x 5
 y 2
 end
+arch tree_big3
+x 5
+y 2
+end
 arch grassd_1
 x 5
 y 3
@@ -569,6 +676,10 @@ arch grassd_8
 x 5
 y 5
 end
+arch plant_flower6
+x 5
+y 5
+end
 arch grassd_2
 x 5
 y 6
@@ -577,11 +688,23 @@ arch grassd_4
 x 5
 y 7
 end
+arch plant8
+x 5
+y 7
+end
 arch grassd_2
 x 5
 y 8
 end
+arch reed_sm1
+x 5
+y 8
+end
 arch water_lt
+x 5
+y 9
+end
+arch grassd_m10
 x 5
 y 9
 end
@@ -660,7 +783,14 @@ end
 arch grassd_7
 x 6
 end
+arch plant_flower14
+x 6
+end
 arch grassd_1
+x 6
+y 1
+end
+arch plant_mushroom1
 x 6
 y 1
 end
@@ -676,6 +806,10 @@ arch grassd_8
 x 6
 y 4
 end
+arch plant_flower1
+x 6
+y 4
+end
 arch grassd_7
 x 6
 y 5
@@ -684,7 +818,15 @@ arch grassd_3
 x 6
 y 6
 end
+arch plant8
+x 6
+y 6
+end
 arch grassd_4
+x 6
+y 7
+end
+arch reed_sm1
 x 6
 y 7
 end
@@ -692,7 +834,15 @@ arch grassd_8
 x 6
 y 8
 end
+arch reed_sm1
+x 6
+y 8
+end
 arch water_lt4
+x 6
+y 9
+end
+arch grassd_m10
 x 6
 y 9
 end
@@ -787,6 +937,10 @@ arch grassd_1
 x 7
 y 2
 end
+arch tree_big
+x 7
+y 2
+end
 arch grassd_5
 x 7
 y 3
@@ -795,7 +949,15 @@ arch grassd_6
 x 7
 y 4
 end
+arch plant7
+x 7
+y 4
+end
 arch grassd_7
+x 7
+y 5
+end
+arch plant8
 x 7
 y 5
 end
@@ -803,7 +965,15 @@ arch grassd_2
 x 7
 y 6
 end
+arch plant7
+x 7
+y 6
+end
 arch grassd_5
+x 7
+y 7
+end
+arch reed_sm1
 x 7
 y 7
 end
@@ -811,7 +981,15 @@ arch water_lt2
 x 7
 y 8
 end
+arch grassd_m4
+x 7
+y 8
+end
 arch water_lt2
+x 7
+y 9
+end
+arch grassd_m13
 x 7
 y 9
 end
@@ -902,7 +1080,15 @@ arch grassd_4
 x 8
 y 3
 end
+arch plant_mushroom4
+x 8
+y 3
+end
 arch grassd_4
+x 8
+y 4
+end
+arch plant7
 x 8
 y 4
 end
@@ -910,7 +1096,15 @@ arch grassd_3
 x 8
 y 5
 end
+arch reed_sm1
+x 8
+y 5
+end
 arch grassd_6
+x 8
+y 6
+end
+arch reed_sm1
 x 8
 y 6
 end
@@ -918,7 +1112,15 @@ arch water_lt
 x 8
 y 7
 end
+arch grassd_m4
+x 8
+y 7
+end
 arch water_lt
+x 8
+y 8
+end
+arch grassd_m13
 x 8
 y 8
 end
@@ -1001,7 +1203,14 @@ end
 arch grassd_4
 x 9
 end
+arch plant_flower14
+x 9
+end
 arch grassd_3
+x 9
+y 1
+end
+arch plant_flower11
 x 9
 y 1
 end
@@ -1009,7 +1218,15 @@ arch grassd_4
 x 9
 y 2
 end
+arch plant7
+x 9
+y 2
+end
 arch grassd_4
+x 9
+y 3
+end
+arch plant7
 x 9
 y 3
 end
@@ -1017,7 +1234,15 @@ arch grassd_4
 x 9
 y 4
 end
+arch reed_sm1
+x 9
+y 4
+end
 arch grassd_5
+x 9
+y 5
+end
+arch reed_sm1
 x 9
 y 5
 end
@@ -1025,7 +1250,15 @@ arch water_lt3
 x 9
 y 6
 end
+arch grassd_m4
+x 9
+y 6
+end
 arch water_lt4
+x 9
+y 7
+end
+arch grassd_m13
 x 9
 y 7
 end
@@ -1116,7 +1349,15 @@ arch grassd_5
 x 10
 y 1
 end
+arch plant8
+x 10
+y 1
+end
 arch grassd_3
+x 10
+y 2
+end
+arch plant7
 x 10
 y 2
 end
@@ -1124,7 +1365,15 @@ arch grassd_3
 x 10
 y 3
 end
+arch reed_sm1
+x 10
+y 3
+end
 arch grassd_8
+x 10
+y 4
+end
+arch reed_sm1
 x 10
 y 4
 end
@@ -1132,7 +1381,15 @@ arch water_lt3
 x 10
 y 5
 end
+arch grassd_m4
+x 10
+y 5
+end
 arch water_lt4
+x 10
+y 6
+end
+arch grassd_m13
 x 10
 y 6
 end
@@ -1223,7 +1480,14 @@ end
 arch grassd_1
 x 11
 end
+arch plant7
+x 11
+end
 arch grassd_2
+x 11
+y 1
+end
+arch reed_sm1
 x 11
 y 1
 end
@@ -1231,7 +1495,15 @@ arch grassd_4
 x 11
 y 2
 end
+arch reed_sm1
+x 11
+y 2
+end
 arch grassd_2
+x 11
+y 3
+end
+arch reed_sm1
 x 11
 y 3
 end
@@ -1239,7 +1511,15 @@ arch water_lt4
 x 11
 y 4
 end
+arch grassd_m4
+x 11
+y 4
+end
 arch water_lt3
+x 11
+y 5
+end
+arch grassd_m13
 x 11
 y 5
 end
@@ -1323,6 +1603,10 @@ arch grassd_2
 x 11
 y 22
 end
+arch tree_big
+x 11
+y 22
+end
 arch grassd_8
 x 11
 y 23
@@ -1330,7 +1614,14 @@ end
 arch grassd_1
 x 12
 end
+arch reed_sm1
+x 12
+end
 arch grassd_5
+x 12
+y 1
+end
+arch reed_sm1
 x 12
 y 1
 end
@@ -1338,11 +1629,23 @@ arch water_lt2
 x 12
 y 2
 end
+arch grassd_m4
+x 12
+y 2
+end
 arch water_lt2
 x 12
 y 3
 end
+arch grassd_m9
+x 12
+y 3
+end
 arch water_lt4
+x 12
+y 4
+end
+arch grassd_m13
 x 12
 y 4
 end
@@ -1441,11 +1744,22 @@ end
 arch water_lt4
 x 13
 end
+arch grassd_m4
+x 13
+end
 arch water_lt2
 x 13
 y 1
 end
+arch grassd_m9
+x 13
+y 1
+end
 arch water_lt3
+x 13
+y 2
+end
+arch grassd_m13
 x 13
 y 2
 end
@@ -1537,11 +1851,18 @@ arch grassd_4
 x 13
 y 22
 end
+arch plant_mushroom3
+x 13
+y 22
+end
 arch grassd_6
 x 13
 y 23
 end
 arch water_lt
+x 14
+end
+arch grassd_m13
 x 14
 end
 arch water_lt4
@@ -2167,7 +2488,15 @@ arch water_lt3
 x 19
 y 18
 end
+arch grassd_m11
+x 19
+y 18
+end
 arch water_lt4
+x 19
+y 19
+end
+arch grassd_m8
 x 19
 y 19
 end
@@ -2175,7 +2504,7 @@ arch water_lt4
 x 19
 y 20
 end
-arch grassd_m7
+arch grassd_m5
 x 19
 y 20
 end
@@ -2188,6 +2517,10 @@ x 19
 y 21
 end
 arch grassd_3
+x 19
+y 22
+end
+arch plant7
 x 19
 y 22
 end
@@ -2266,7 +2599,15 @@ arch water_lt4
 x 20
 y 17
 end
+arch grassd_m11
+x 20
+y 17
+end
 arch water_lt
+x 20
+y 18
+end
+arch grassd_m5
 x 20
 y 18
 end
@@ -2274,7 +2615,15 @@ arch grassd_1
 x 20
 y 19
 end
+arch reed_sm1
+x 20
+y 19
+end
 arch grassd_1
+x 20
+y 20
+end
+arch reed_sm1
 x 20
 y 20
 end
@@ -2282,7 +2631,15 @@ arch grassd_5
 x 20
 y 21
 end
+arch reed_sm1
+x 20
+y 21
+end
 arch grassd_1
+x 20
+y 22
+end
+arch plant8
 x 20
 y 22
 end
@@ -2361,7 +2718,15 @@ arch water_lt
 x 21
 y 16
 end
+arch grassd_m11
+x 21
+y 16
+end
 arch water_lt2
+x 21
+y 17
+end
+arch grassd_m5
 x 21
 y 17
 end
@@ -2369,7 +2734,15 @@ arch grassd_1
 x 21
 y 18
 end
+arch reed_sm1
+x 21
+y 18
+end
 arch grassd_4
+x 21
+y 19
+end
+arch reed_sm1
 x 21
 y 19
 end
@@ -2377,11 +2750,23 @@ arch grassd_5
 x 21
 y 20
 end
+arch plant7
+x 21
+y 20
+end
 arch grassd_5
 x 21
 y 21
 end
+arch plant8
+x 21
+y 21
+end
 arch grassd_8
+x 21
+y 22
+end
+arch plant7
 x 21
 y 22
 end
@@ -2390,6 +2775,9 @@ x 21
 y 23
 end
 arch water_lt2
+x 22
+end
+arch grassd_m12
 x 22
 end
 arch water_lt
@@ -2452,7 +2840,15 @@ arch water_lt3
 x 22
 y 15
 end
+arch grassd_m11
+x 22
+y 15
+end
 arch water_lt2
+x 22
+y 16
+end
+arch grassd_m5
 x 22
 y 16
 end
@@ -2460,7 +2856,15 @@ arch grassd_6
 x 22
 y 17
 end
+arch reed_sm1
+x 22
+y 17
+end
 arch grassd_6
+x 22
+y 18
+end
+arch plant7
 x 22
 y 18
 end
@@ -2468,7 +2872,15 @@ arch grassd_1
 x 22
 y 19
 end
+arch plant7
+x 22
+y 19
+end
 arch grassd_4
+x 22
+y 20
+end
+arch plant12
 x 22
 y 20
 end
@@ -2480,6 +2892,10 @@ arch grassd_5
 x 22
 y 22
 end
+arch plant_flower2
+x 22
+y 22
+end
 arch grassd_4
 x 22
 y 23
@@ -2487,7 +2903,14 @@ end
 arch water_lt3
 x 23
 end
+arch grassd_m6
+x 23
+end
 arch water_lt3
+x 23
+y 1
+end
+arch grassd_m12
 x 23
 y 1
 end
@@ -2547,7 +2970,15 @@ arch water_lt2
 x 23
 y 15
 end
+arch grassd_m5
+x 23
+y 15
+end
 arch grassd_6
+x 23
+y 16
+end
+arch reed_sm1
 x 23
 y 16
 end
@@ -2555,7 +2986,15 @@ arch grassd_3
 x 23
 y 17
 end
+arch plant8
+x 23
+y 17
+end
 arch grassd_8
+x 23
+y 18
+end
+arch plant_mushroom2
 x 23
 y 18
 end
@@ -2568,6 +3007,10 @@ x 23
 y 20
 end
 arch grassd_8
+x 23
+y 21
+end
+arch tree_big2
 x 23
 y 21
 end
