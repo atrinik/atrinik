@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 -Enter Description Here-
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-26 emperorbma
 endmsg
 width 24
 height 24
@@ -13,7 +13,9 @@ difficulty 1
 darkness 1
 tile_path_1 world_a_0735
 tile_path_2 world_a_0834
+tile_path_3 world_a_0733
 tile_path_5 world_a_0835
+tile_path_6 world_a_0833
 region asteria_sewers
 end
 arch floor_flagm2
