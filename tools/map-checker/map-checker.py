@@ -348,8 +348,7 @@ def check_map(map):
 
 					if layer == 0:
 						have_sys = True
-
-					if have_sys:
+					elif have_sys:
 						if layer == 1:
 							sys_below_floor = True
 						else:
