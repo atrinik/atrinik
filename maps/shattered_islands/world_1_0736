@@ -8,71 +8,94 @@ width 24
 height 24
 difficulty 1
 darkness -1
+no_harm 1
 region asteria
 end
 arch floor_fs_grey1b
+z 30
 end
 arch floor_fs_grey1b
+z 30
 y 1
 end
 arch floor_fs_grey1b
+z 30
 y 2
 end
 arch floor_fs_grey1b
+z 30
 y 3
 end
 arch floor_fs_grey1b
+z 30
 y 4
 end
 arch floor_fs_grey1b
+z 30
 y 5
 end
 arch floor_fs_grey1b
+z 30
 y 6
 end
 arch floor_fs_grey1b
+z 30
 y 7
 end
 arch floor_fs_grey1b
+z 30
 y 8
 end
 arch floor_fs_grey1b
+z 30
 y 9
 end
 arch floor_fs_grey1b
+z 30
 y 10
 end
 arch floor_fs_grey1b
+z 30
 y 11
 end
 arch floor_fs_grey1b
+z 30
 y 12
 end
 arch floor_fs_grey1b
+z 30
 y 13
 end
 arch floor_fs_grey1b
+z 30
 y 14
 end
 arch floor_fs_grey1b
+z 30
 y 15
 end
 arch floor_fs_grey1b
+z 30
 y 16
 end
 arch wall_dungeon_1
 y 16
 end
 arch floor_fs_grey1b
+z 30
 y 17
 end
 arch floor_fs_grey1b
+z 30
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 y 19
 end
 arch wall_dungeon_1
+z 90
 y 19
 end
 arch magic_mirror
@@ -92,69 +115,86 @@ slaying world_0736
 y 23
 end
 arch floor_fs_grey1b
+z 30
 x 1
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 1
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 2
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 3
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 4
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 5
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 6
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 7
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 8
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 9
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 10
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 11
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 12
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 16
 end
@@ -163,18 +203,23 @@ x 1
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 1
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 1
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 1
 y 19
 end
@@ -199,69 +244,86 @@ x 1
 y 23
 end
 arch floor_fs_grey1b
+z 30
 x 2
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 1
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 2
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 3
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 4
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 5
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 6
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 7
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 8
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 9
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 10
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 11
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 12
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 16
 end
@@ -270,18 +332,23 @@ x 2
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 2
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 2
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 2
 y 19
 end
@@ -306,69 +373,86 @@ x 2
 y 23
 end
 arch floor_fs_grey1b
+z 30
 x 3
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 1
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 2
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 3
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 4
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 5
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 6
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 7
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 8
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 9
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 10
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 11
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 12
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 16
 end
@@ -377,18 +461,23 @@ x 3
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 3
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 3
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 3
 y 19
 end
@@ -412,85 +501,127 @@ slaying world_0736
 x 3
 y 23
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 1
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 1
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 2
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 2
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 3
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 3
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 4
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 4
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 5
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 5
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 6
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 6
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 7
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 7
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 8
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 8
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 9
 end
 arch wall_dungeon_3
+z 90
+layer 6
 x 4
 y 9
 end
 arch floor_fs_grey1b
+is_invisible 1
+z 30
 x 4
 y 10
 end
@@ -498,7 +629,14 @@ arch wall_dungeon_3
 x 4
 y 10
 end
+arch wall_dungeon_3
+z 10
+layer 6
+x 4
+y 10
+end
 arch floor_fs_grey1b
+z 30
 x 4
 y 11
 end
@@ -507,14 +645,17 @@ x 4
 y 11
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 12
 end
-arch wall_dungeon_3
+arch door1_locked
+direction 3
 x 4
 y 12
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 13
 end
@@ -523,6 +664,7 @@ x 4
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 14
 end
@@ -531,6 +673,7 @@ x 4
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 15
 end
@@ -539,6 +682,7 @@ x 4
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 16
 end
@@ -547,18 +691,23 @@ x 4
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 4
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 4
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 4
 y 19
 end
@@ -584,55 +733,66 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 5
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 5
 y 10
 end
@@ -641,21 +801,22 @@ x 5
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 5
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 5
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 5
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 5
 y 14
 end
@@ -664,26 +825,33 @@ x 5
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 5
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 5
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 5
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 5
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 5
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 5
 y 19
 end
@@ -709,56 +877,67 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 6
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 no_pass 1
 x 6
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 6
 y 10
 end
@@ -767,21 +946,22 @@ x 6
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 6
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 6
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 6
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 6
 y 14
 end
@@ -790,26 +970,33 @@ x 6
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 6
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 6
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 6
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 6
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 6
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 6
 y 19
 end
@@ -835,86 +1022,100 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 7
 y 9
 end
 arch grate1_8
+z 80
 x 7
 y 9
 end
 arch floor_fs_grey1b
 is_invisible 1
+z 30
 x 7
 y 10
 end
 arch stairs_stone_down
-direction 7
 slaying world_0736
+face stairs_stone_down.171
 hp 7
 sp 10
+direction 7
 x 7
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 7
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 7
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 7
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 7
 y 14
 end
@@ -923,6 +1124,7 @@ x 7
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 7
 y 15
 end
@@ -935,22 +1137,28 @@ x 7
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 7
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 7
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 7
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 7
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 7
 y 19
 end
@@ -980,59 +1188,71 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 8
 y 9
 end
-arch grate1_1e
+arch grate1_1
+z 80
 x 8
 y 9
 end
 arch floor_fs_grey1b
 is_invisible 1
+z 30
 x 8
 y 10
 end
@@ -1041,21 +1261,22 @@ x 8
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 8
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 8
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 8
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 8
 y 14
 end
@@ -1064,30 +1285,37 @@ x 8
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 8
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 8
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 8
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 8
 y 18
 end
 arch floor_fs_grey1b
+z 30
 x 8
 y 19
 end
 arch wall_dungeon_1
+z 30
 x 8
 y 19
 end
 arch floor_wood2
+z 30
 x 8
 y 20
 end
@@ -1116,55 +1344,66 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 9
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 9
 y 10
 end
@@ -1173,21 +1412,27 @@ x 9
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 9
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 9
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 9
 y 13
 end
 arch floor_fs_grey1b
+z 30
+x 9
+y 14
+end
+arch floor_fs_grey1b
+z 30
 x 9
 y 14
 end
@@ -1196,6 +1441,7 @@ x 9
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 9
 y 15
 end
@@ -1204,22 +1450,22 @@ x 9
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 9
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 9
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 9
 y 18
 end
 arch floor_fs_grey1b
-x 9
-y 19
-end
-arch wall_dungeon1.111
+z 30
 x 9
 y 19
 end
@@ -1227,11 +1473,17 @@ arch wall_dungeon_1
 x 9
 y 19
 end
+arch flag_eagle
+x 9
+y 19
+end
 arch floor_wood2
+z 30
 x 9
 y 20
 end
 arch floor_wood2
+z 30
 x 9
 y 21
 end
@@ -1255,90 +1507,95 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 10
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 10
 y 10
 end
-arch grate1_1e
+arch grate1_1
 x 10
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 10
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 10
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 10
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 10
 y 14
 end
 arch floor_fs_grey1b
-x 10
-y 14
-end
-arch wall_dungeon_1
-x 10
-y 14
-end
-arch floor_fs_grey1b
+z 30
 x 10
 y 15
 end
@@ -1347,26 +1604,32 @@ x 10
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 10
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 10
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 10
 y 18
 end
 arch floor_fs_grey1b
+z 30
 x 10
 y 19
 end
 arch curtain1
+z 30
 x 10
 y 19
 end
 arch floor_wood2
+z 30
 x 10
 y 20
 end
@@ -1384,13 +1647,10 @@ type 83
 weight 5000
 friendly 1
 unaggressive 0
-arch event_obj
-race /SCRIPTS/asteria/AsteriaGuard.py
-sub_type 6
-end
 end
 end
 arch floor_wood2
+z 30
 x 10
 y 21
 end
@@ -1399,6 +1659,7 @@ x 10
 y 21
 end
 arch floor_wood2
+z 30
 x 10
 y 22
 end
@@ -1413,55 +1674,66 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 11
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 11
 y 10
 end
@@ -1470,21 +1742,22 @@ x 11
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 11
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 11
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 11
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 11
 y 14
 end
@@ -1493,6 +1766,7 @@ x 11
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 11
 y 15
 end
@@ -1502,10 +1776,12 @@ x 11
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 11
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 11
 y 17
 end
@@ -1514,6 +1790,7 @@ x 11
 y 18
 end
 arch floor_fs_grey1b
+z 30
 x 11
 y 19
 end
@@ -1522,15 +1799,16 @@ x 11
 y 19
 end
 arch curtain1
-last_sp -1
 x 11
 y 19
 end
 arch floor_red1
+z 30
 x 11
 y 20
 end
 arch floor_red1
+z 30
 x 11
 y 21
 end
@@ -1539,6 +1817,7 @@ x 11
 y 21
 end
 arch floor_wood2
+z 30
 x 11
 y 22
 end
@@ -1557,55 +1836,66 @@ y 23
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 1
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 2
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 3
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 4
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 5
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 6
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 7
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 8
 end
 arch magic_mirror
 slaying world_0736
+last_eat -50
 x 12
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 12
 y 10
 end
@@ -1614,21 +1904,22 @@ x 12
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 12
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 12
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 12
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 12
 y 14
 end
@@ -1637,6 +1928,7 @@ x 12
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 12
 y 15
 end
@@ -1645,18 +1937,22 @@ x 12
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 12
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 12
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 12
 y 18
 end
 arch floor_fs_grey1b
+z 30
 x 12
 y 19
 end
@@ -1665,19 +1961,21 @@ x 12
 y 19
 end
 arch curtain1
-last_sp -1
 x 12
 y 19
 end
 arch floor_red1
+z 30
 x 12
 y 20
 end
 arch floor_red1
+z 30
 x 12
 y 21
 end
 arch floor_wood2
+z 30
 x 12
 y 22
 end
@@ -1694,24 +1992,27 @@ slaying world_0736
 x 12
 y 23
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 end
 arch grate1_3
 x 13
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 1
 end
-arch grate1_3e
+arch grate1_3
 x 13
 y 1
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 2
 end
@@ -1719,8 +2020,9 @@ arch grate1_3
 x 13
 y 2
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 3
 end
@@ -1728,17 +2030,19 @@ arch grate1_3
 x 13
 y 3
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 4
 end
-arch grate1_3e
+arch grate1_3
 x 13
 y 4
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 5
 end
@@ -1746,8 +2050,9 @@ arch grate1_3
 x 13
 y 5
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 6
 end
@@ -1755,17 +2060,19 @@ arch grate1_3
 x 13
 y 6
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 7
 end
-arch grate1_3e
+arch grate1_3
 x 13
 y 7
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 8
 end
@@ -1773,8 +2080,9 @@ arch grate1_3
 x 13
 y 8
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 9
 end
@@ -1782,8 +2090,9 @@ arch grate1_3
 x 13
 y 9
 end
-arch magic_mirror
-slaying world_0736
+arch floor_fs_grey1b
+face trans.101
+z 30
 x 13
 y 10
 end
@@ -1792,21 +2101,22 @@ x 13
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 13
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 13
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 13
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 13
 y 14
 end
@@ -1815,6 +2125,7 @@ x 13
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 13
 y 15
 end
@@ -1823,18 +2134,22 @@ x 13
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 13
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 13
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 13
 y 18
 end
 arch floor_fs_grey1b
+z 30
 x 13
 y 19
 end
@@ -1843,6 +2158,7 @@ x 13
 y 19
 end
 arch floor_wood2
+z 30
 x 13
 y 20
 end
@@ -1860,13 +2176,10 @@ type 83
 weight 5000
 friendly 1
 unaggressive 0
-arch event_obj
-race /SCRIPTS/asteria/AsteriaGuard.py
-sub_type 6
-end
 end
 end
 arch floor_wood2
+z 30
 x 13
 y 21
 end
@@ -1879,6 +2192,7 @@ x 13
 y 21
 end
 arch floor_wood2
+z 30
 x 13
 y 22
 end
@@ -1892,75 +2206,76 @@ x 13
 y 23
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 1
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 2
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 3
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 4
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 5
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 6
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 7
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 8
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 9
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 14
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 14
 y 14
 end
@@ -1969,10 +2284,12 @@ x 14
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 14
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 14
 y 16
 end
@@ -1981,10 +2298,12 @@ x 14
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 14
 y 18
 end
 arch floor_fs_grey1b
+z 30
 x 14
 y 19
 end
@@ -1992,11 +2311,12 @@ arch wall_dungeon_1
 x 14
 y 19
 end
-arch Flag-Asteria.111
+arch flag_eagle
 x 14
 y 19
 end
 arch floor_wood2
+z 30
 x 14
 y 20
 end
@@ -2005,6 +2325,7 @@ x 14
 y 20
 end
 arch floor_wood2
+z 30
 x 14
 y 21
 end
@@ -2023,75 +2344,76 @@ x 14
 y 23
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 1
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 2
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 3
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 4
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 5
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 6
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 7
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 8
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 9
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 15
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 15
 y 14
 end
@@ -2100,6 +2422,7 @@ x 15
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 15
 y 15
 end
@@ -2111,26 +2434,33 @@ x 15
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 15
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 15
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 15
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 15
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 15
 y 19
 end
 arch floor_wood2
+z 30
 x 15
 y 20
 end
@@ -2154,75 +2484,76 @@ x 15
 y 23
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 1
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 2
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 3
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 4
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 5
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 6
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 7
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 8
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 9
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 10
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 11
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 12
 end
 arch floor_fs_grey1b
-is_invisible 1
+z 30
 x 16
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 16
 y 14
 end
@@ -2231,26 +2562,33 @@ x 16
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 16
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 16
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 16
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 16
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 16
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 16
 y 19
 end
@@ -2275,12 +2613,14 @@ x 16
 y 23
 end
 arch floor_fs_grey1b
+z 30
 x 17
 end
 arch wall_dungeon_3
 x 17
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 1
 end
@@ -2289,6 +2629,7 @@ x 17
 y 1
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 2
 end
@@ -2297,6 +2638,7 @@ x 17
 y 2
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 3
 end
@@ -2305,6 +2647,7 @@ x 17
 y 3
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 4
 end
@@ -2313,6 +2656,7 @@ x 17
 y 4
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 5
 end
@@ -2321,6 +2665,7 @@ x 17
 y 5
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 6
 end
@@ -2329,6 +2674,7 @@ x 17
 y 6
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 7
 end
@@ -2337,6 +2683,7 @@ x 17
 y 7
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 8
 end
@@ -2345,6 +2692,7 @@ x 17
 y 8
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 9
 end
@@ -2353,6 +2701,7 @@ x 17
 y 9
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 10
 end
@@ -2361,6 +2710,7 @@ x 17
 y 10
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 11
 end
@@ -2369,6 +2719,7 @@ x 17
 y 11
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 12
 end
@@ -2377,6 +2728,7 @@ x 17
 y 12
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 13
 end
@@ -2385,6 +2737,7 @@ x 17
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 14
 end
@@ -2393,6 +2746,7 @@ x 17
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 15
 end
@@ -2401,6 +2755,7 @@ x 17
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 16
 end
@@ -2409,18 +2764,23 @@ x 17
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 17
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 17
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 17
 y 19
 end
@@ -2508,6 +2868,7 @@ x 18
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 18
 y 16
 end
@@ -2516,18 +2877,23 @@ x 18
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 18
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 18
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 18
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 18
 y 19
 end
@@ -2615,6 +2981,7 @@ x 19
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 19
 y 16
 end
@@ -2623,18 +2990,23 @@ x 19
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 19
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 19
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 19
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 19
 y 19
 end
@@ -2722,6 +3094,7 @@ x 20
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 20
 y 16
 end
@@ -2730,18 +3103,23 @@ x 20
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 20
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 20
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 20
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 20
 y 19
 end
@@ -2829,6 +3207,7 @@ x 21
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 21
 y 16
 end
@@ -2837,18 +3216,23 @@ x 21
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 21
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 21
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 21
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 21
 y 19
 end
@@ -2936,6 +3320,7 @@ x 22
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 22
 y 16
 end
@@ -2944,18 +3329,23 @@ x 22
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 22
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 22
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 22
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 22
 y 19
 end
@@ -2980,12 +3370,14 @@ x 22
 y 23
 end
 arch floor_fs_grey1b
+z 30
 x 23
 end
 arch wall_dungeon_3
 x 23
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 1
 end
@@ -2994,6 +3386,7 @@ x 23
 y 1
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 2
 end
@@ -3002,6 +3395,7 @@ x 23
 y 2
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 3
 end
@@ -3010,6 +3404,7 @@ x 23
 y 3
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 4
 end
@@ -3018,6 +3413,7 @@ x 23
 y 4
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 5
 end
@@ -3026,6 +3422,7 @@ x 23
 y 5
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 6
 end
@@ -3034,6 +3431,7 @@ x 23
 y 6
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 7
 end
@@ -3042,6 +3440,7 @@ x 23
 y 7
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 8
 end
@@ -3050,6 +3449,7 @@ x 23
 y 8
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 9
 end
@@ -3058,6 +3458,7 @@ x 23
 y 9
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 10
 end
@@ -3066,6 +3467,7 @@ x 23
 y 10
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 11
 end
@@ -3074,6 +3476,7 @@ x 23
 y 11
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 12
 end
@@ -3082,6 +3485,7 @@ x 23
 y 12
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 13
 end
@@ -3090,6 +3494,7 @@ x 23
 y 13
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 14
 end
@@ -3098,6 +3503,7 @@ x 23
 y 14
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 15
 end
@@ -3106,6 +3512,7 @@ x 23
 y 15
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 16
 end
@@ -3114,18 +3521,23 @@ x 23
 y 16
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 23
 y 18
 end
-arch floor_fs_grey1b
+arch magic_mirror
+last_eat -50
+slaying world_0736
 x 23
 y 19
 end
 arch wall_dungeon_1
+z 90
 x 23
 y 19
 end
