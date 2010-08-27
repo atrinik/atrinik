@@ -2,11 +2,11 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-26 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 outdoor 1
 no_harm 1
 tile_path_1 world_0736
@@ -1578,7 +1578,7 @@ z 50
 x 8
 y 23
 end
-arch tree_big3
+arch tree_big
 x 8
 y 23
 end
@@ -2001,13 +2001,6 @@ y 3
 end
 arch floor_fs_grey1b
 z 50
-x 11
-y 4
-end
-arch handle_lever
-layer 0
-sys_object 1
-connected 101
 x 11
 y 4
 end
@@ -2676,7 +2669,7 @@ z 50
 x 14
 y 18
 end
-arch tree_big3
+arch tree_big4b
 x 14
 y 18
 end
@@ -2713,7 +2706,7 @@ z 50
 x 14
 y 23
 end
-arch tree_big3
+arch tree_big2
 x 14
 y 23
 end
@@ -2802,8 +2795,9 @@ end
 arch shelf3a.111
 x 15
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch light9
@@ -2827,8 +2821,9 @@ end
 arch shelf3a.111
 x 15
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -2848,8 +2843,9 @@ end
 arch shelf3a.111
 x 15
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -2987,8 +2983,9 @@ end
 arch shelf3a.111
 x 16
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3008,8 +3005,9 @@ end
 arch shelf3a.111
 x 16
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3029,8 +3027,9 @@ end
 arch shelf3a.111
 x 16
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3166,8 +3165,9 @@ end
 arch shelf3a.111
 x 17
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3187,8 +3187,9 @@ end
 arch shelf3a.111
 x 17
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch light9
@@ -3212,8 +3213,9 @@ end
 arch shelf3a.111
 x 17
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3345,8 +3347,9 @@ end
 arch shelf3a.111
 x 18
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3366,8 +3369,9 @@ end
 arch shelf3a.111
 x 18
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3387,8 +3391,9 @@ end
 arch shelf3a.111
 x 18
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3538,8 +3543,9 @@ end
 arch shelf3a.111
 x 19
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3560,14 +3566,14 @@ arch shelf3a.111
 name Romance - F
 x 19
 y 11
-arch book
+arch book_green
 msg
 Gack!  This book is a mushy love novel.
 endmsg
 name Unbridled Ecstasy
 no_pick 1
 end
-arch book
+arch book_pink
 msg
 Gack!  This book is a mushy love novel.
 endmsg
@@ -3592,8 +3598,9 @@ end
 arch shelf3a.111
 x 19
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -3731,8 +3738,9 @@ end
 arch shelf3a.111
 x 20
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -4065,6 +4073,10 @@ arch shelf3a.111
 name History - F
 x 22
 y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch light7
 x 22
@@ -4230,20 +4242,21 @@ arch shelf3a.111
 name History - NF
 x 23
 y 9
-arch book
-msg
-This book seems to be a scholar's attempt at translating the tablet.  It doesn't seem to contain any helpful information.
-endmsg
-no_pick 1
-end
 arch fmask_ruin1a.111
 msg
-You can't seem to be able to read the tablet.
+This tablet seems to be written in some ancient dialect of an unknown language.  You can't read it.
 endmsg
 name tablet
 value 15000
 material 64
 identified 1
+end
+arch book
+msg
+This book seems to be a scholar's attempt at translating the tablet.  It doesn't seem to contain any helpful information.
+endmsg
+no_pick 1
+name Translator's notes
 end
 end
 arch floor_fs_grey1b

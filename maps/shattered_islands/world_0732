@@ -2,11 +2,11 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-26 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 outdoor 1
 no_harm 1
 tile_path_1 world_0733
@@ -1086,7 +1086,7 @@ end
 arch grassd_7
 x 8
 end
-arch tree_big3
+arch tree_big
 x 8
 end
 arch grassd_7
@@ -1109,7 +1109,7 @@ arch grassd_3
 x 8
 y 5
 end
-arch tree_big3
+arch tree_big4b
 x 8
 y 5
 end
@@ -1158,7 +1158,7 @@ arch grassd_8
 x 8
 y 12
 end
-arch tree_big3
+arch tree_big2
 x 8
 y 12
 end
@@ -1170,7 +1170,7 @@ arch grassd_8
 x 8
 y 14
 end
-arch tree_big3
+arch tree_big4b
 x 8
 y 14
 end
@@ -1210,7 +1210,7 @@ arch grassd_2
 x 8
 y 20
 end
-arch tree_big3
+arch tree_big2
 x 8
 y 20
 end
@@ -2059,7 +2059,7 @@ arch grassd_1
 x 14
 y 14
 end
-arch tree_big3
+arch tree_big
 x 14
 y 14
 end
@@ -2071,7 +2071,7 @@ arch grassd_5
 x 14
 y 16
 end
-arch tree_big3
+arch tree_big4b
 x 14
 y 16
 end
@@ -2091,7 +2091,7 @@ arch grassd_6
 x 14
 y 20
 end
-arch tree_big3
+arch tree_big
 x 14
 y 20
 end
@@ -2103,7 +2103,7 @@ arch grassd_3
 x 14
 y 22
 end
-arch tree_big3
+arch tree_big4b
 x 14
 y 22
 end

@@ -2,11 +2,11 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-26 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 outdoor 1
 no_harm 1
 tile_path_1 world_0836
@@ -74,17 +74,18 @@ name History - NF
 y 9
 arch fmask_ruin1a.111
 msg
-You can't seem to be able to read the tablet.
+This tablet seems to be written in some ancient dialect of Elvish.  You can't read it.
 endmsg
 name tablet
 value 15000
 material 64
 identified 1
 end
-arch book
+arch book_blue
 msg
 This book seems to be a scholarly translation of the tablet and contains nothing useful.
 endmsg
+name Translator's notes
 no_pick 1
 end
 end
@@ -235,17 +236,18 @@ x 1
 y 9
 arch fmask_ruin1a.111
 msg
-You can't seem to be able to read the tablet.
+This tablet seems to be written in some ancient dialect of Dwarvish.  You can't read it.
 endmsg
 name tablet
 value 15000
 material 64
 identified 1
 end
-arch book
+arch book_red
 msg
 This book contains a translation of the tablet.  It doesn't seem to be of much interest to anyone except historians.
 endmsg
+name Translator's notes
 no_pick 1
 end
 end
@@ -428,14 +430,14 @@ x 2
 y 9
 arch fmask_ruin1a.111
 msg
-You can't seem to be able to read the tablet.
+The tablet is written in an ancient form of Drow.  You cannot read it.
 endmsg
 name tablet: The Fall of the Drow
 value 15000
 material 64
 identified 1
 end
-arch book
+arch tome_black
 msg
 .... and so it came to pass that the Drow were thrown out of elven society and forced underground to pay for their treachery.  Still to this day they hate the light and with their Queen, vow to destroy the world of the elves and men.
 endmsg
@@ -559,6 +561,7 @@ arch grassd_m7
 x 3
 end
 arch grass_thick2
+z 50
 x 3
 y 1
 end
@@ -963,6 +966,10 @@ z 50
 x 5
 y 9
 end
+arch stairs_wood_up
+x 5
+y 9
+end
 arch floor_fs_grey1b
 z 50
 x 5
@@ -1323,7 +1330,7 @@ arch shelf3a.111
 name Howto - NF
 x 7
 y 11
-arch book
+arch book_green
 msg
 This book explains how to exterminate vermin in various situations.
 endmsg
@@ -1479,6 +1486,10 @@ arch shelf3a.111
 name Medicine - NF
 x 8
 y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_fs_grey1b
 z 50
@@ -1635,7 +1646,7 @@ arch shelf3a.111
 name Law - NF
 x 9
 y 9
-arch book
+arch book_red
 msg
 This book lists important case precedent for the last 250 years.  You fall asleep after 20 pages, still only having gone through a year's worth of cases.
 endmsg
@@ -1681,6 +1692,9 @@ name Magic - NF
 x 9
 y 13
 arch book
+msg
+A miscellaneous book of boring cantrips.
+endmsg
 name Prestidigitation for Dummies
 no_pick 1
 end
@@ -1842,8 +1856,9 @@ end
 arch shelf3a.111
 x 10
 y 9
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -1864,7 +1879,7 @@ arch shelf3a.111
 name Religion - F
 x 10
 y 11
-arch book
+arch tome_blue
 msg
 In the beginning, the Giver of Data
 (GOD) generated silicon and carbon, and
@@ -1894,6 +1909,10 @@ arch shelf3a.111
 name Magic Items - NF
 x 10
 y 13
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_fs_grey1b
 z 50
@@ -2030,7 +2049,7 @@ arch shelf3a.111
 name Alchemy - NF
 x 11
 y 9
-arch book
+arch tome_indigo
 msg
 This book covers a host of reagents from the common eye of newt and plies of sulfur to some extremely rare reagents such as uranium.
 endmsg
@@ -2055,8 +2074,9 @@ end
 arch shelf3a.111
 x 11
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch light9
@@ -2080,8 +2100,9 @@ end
 arch shelf3a.111
 x 11
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -2243,8 +2264,9 @@ end
 arch shelf3a.111
 x 12
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -2264,8 +2286,9 @@ end
 arch shelf3a.111
 x 12
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -2444,8 +2467,9 @@ end
 arch shelf3a.111
 x 13
 y 11
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b
@@ -2465,8 +2489,9 @@ end
 arch shelf3a.111
 x 13
 y 13
-arch book
+arch random_treasure
 no_pick 1
+randomitems random_read
 end
 end
 arch floor_fs_grey1b

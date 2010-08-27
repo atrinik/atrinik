@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2010-08-26 emperorbma
 endmsg
 width 24
 height 24
@@ -968,6 +968,15 @@ msg
 You need Asteria Dungeon Key 2 to pass.
 endmsg
 slaying asteria_dungeon_key2
+x 17
+y 5
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying asteria_dungeon_key2
+sp 1
+last_grace 1
 x 17
 y 5
 end
