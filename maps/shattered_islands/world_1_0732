@@ -1,0 +1,707 @@
+arch map
+name Asteria
+msg
+-Enter Description Here-
+Modified: 2010-08-26 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+difficulty 40
+darkness -1
+outdoor 1
+no_harm 1
+tile_path_4 world_1_0632
+region asteria
+end
+arch blocked
+y 11
+end
+arch wall_stone3_1
+y 11
+end
+arch floor_wood2_l1
+y 12
+end
+arch wall_stone3_3
+y 12
+end
+arch floor_wood2_l1
+y 13
+end
+arch wall_stone3_3
+y 13
+end
+arch floor_wood2_l1
+y 14
+end
+arch wall_stone3_3
+y 14
+end
+arch floor_wood2_l1
+y 15
+end
+arch wall_stone3_3
+y 15
+end
+arch floor_wood2_l1
+y 16
+end
+arch wall_stone3_4
+y 16
+end
+arch floor_wood2_l1
+y 17
+end
+arch floor_wood2_l1
+y 18
+end
+arch floor_wood2_l1
+y 19
+end
+arch door_wood2
+y 19
+end
+arch floor_wood2_l1
+y 20
+end
+arch floor_wood2_l1
+y 21
+end
+arch floor_wood2_l1
+y 22
+end
+arch potted_plant5
+y 22
+end
+arch floor_wood2_l1
+y 23
+end
+arch wall_stone3_1
+y 23
+end
+arch blocked
+x 1
+y 11
+end
+arch wall_stone3_1
+x 1
+y 11
+end
+arch picture2.151
+direction 3
+x 1
+y 11
+end
+arch floor_wood2_l1
+x 1
+y 12
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 1
+y 12
+end
+arch floor_wood2_l1
+x 1
+y 13
+end
+arch candlelight3.101
+x 1
+y 13
+end
+arch floor_wood2_l1
+x 1
+y 14
+end
+arch floor_wood2_l1
+x 1
+y 15
+end
+arch floor_wood2_l1
+x 1
+y 16
+end
+arch wall_stone3_1
+x 1
+y 16
+end
+arch floor_wood2_l1
+x 1
+y 17
+end
+arch floor_wood2_l1
+x 1
+y 18
+end
+arch floor_wood2_l1
+x 1
+y 19
+end
+arch wall_stone3_1
+x 1
+y 19
+end
+arch floor_wood2_l1
+x 1
+y 20
+end
+arch wall_stone3_3
+x 1
+y 20
+end
+arch floor_wood2_l1
+x 1
+y 21
+end
+arch wall_stone3_3
+x 1
+y 21
+end
+arch picture9
+direction 7
+x 1
+y 21
+end
+arch floor_wood2_l1
+x 1
+y 22
+end
+arch wall_stone3_3
+x 1
+y 22
+end
+arch floor_wood2_l1
+x 1
+y 23
+end
+arch wall_stone3_4
+x 1
+y 23
+end
+arch blocked
+x 2
+y 11
+end
+arch wall_stone2_1
+x 2
+y 11
+end
+arch floor_wood2_l1
+x 2
+y 12
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 2
+y 12
+end
+arch floor_wood2_l1
+x 2
+y 13
+end
+arch floor_wood2_l1
+x 2
+y 14
+end
+arch floor_wood2_l1
+x 2
+y 15
+end
+arch floor_wood2_l1
+x 2
+y 16
+end
+arch door_wood2
+x 2
+y 16
+end
+arch floor_wood2_l1
+x 2
+y 17
+end
+arch floor_wood2_l1
+x 2
+y 18
+end
+arch floor_wood2_l1
+x 2
+y 19
+end
+arch wall_stone3_1
+x 2
+y 19
+end
+arch floor_wood2_l1
+x 2
+y 20
+end
+arch bed_2a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 2
+y 20
+end
+arch floor_wood2_l1
+x 2
+y 21
+end
+arch table_small1
+x 2
+y 21
+end
+arch floor_wood2_l1
+x 2
+y 22
+end
+arch bed_2a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 2
+y 22
+end
+arch floor_wood2_l1
+x 2
+y 23
+end
+arch wall_stone2_1
+x 2
+y 23
+end
+arch blocked
+x 3
+y 11
+end
+arch wall_stone3_1
+x 3
+y 11
+end
+arch floor_wood2_l1
+x 3
+y 12
+end
+arch wall_stone3_3
+x 3
+y 12
+end
+arch floor_wood2_l1
+x 3
+y 13
+end
+arch wall_stone3_3
+x 3
+y 13
+end
+arch floor_wood2_l1
+x 3
+y 14
+end
+arch wall_stone3_3
+x 3
+y 14
+end
+arch floor_wood2_l1
+x 3
+y 15
+end
+arch wall_stone3_3
+x 3
+y 15
+end
+arch floor_wood2_l1
+x 3
+y 16
+end
+arch wall_stone3_4
+x 3
+y 16
+end
+arch picture5.151
+direction 3
+x 3
+y 16
+end
+arch floor_wood2_l1
+x 3
+y 17
+end
+arch floor_wood2_l1
+x 3
+y 18
+end
+arch floor_wood2_l1
+x 3
+y 19
+end
+arch wall_stone3_1
+x 3
+y 19
+end
+arch floor_wood2_l1
+x 3
+y 20
+end
+arch bed_2b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 3
+y 20
+end
+arch floor_wood2_l1
+x 3
+y 21
+end
+arch potted_plant2
+x 3
+y 21
+end
+arch floor_wood2_l1
+x 3
+y 22
+end
+arch bed_2b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 3
+y 22
+end
+arch floor_wood2_l1
+x 3
+y 23
+end
+arch wall_stone3_1
+x 3
+y 23
+end
+arch blocked
+x 4
+y 11
+end
+arch wall_stone3_1
+x 4
+y 11
+end
+arch floor_wood2_l1
+x 4
+y 12
+end
+arch floor_wood2_l1
+x 4
+y 13
+end
+arch floor_wood2_l1
+x 4
+y 14
+end
+arch floor_wood2_l1
+x 4
+y 15
+end
+arch floor_wood2_l1
+x 4
+y 16
+end
+arch floor_wood2_l1
+x 4
+y 17
+end
+arch floor_wood2_l1
+x 4
+y 18
+end
+arch floor_wood2_l1
+x 4
+y 19
+end
+arch door_wood2
+x 4
+y 19
+end
+arch floor_wood2_l1
+x 4
+y 20
+end
+arch floor_wood2_l1
+x 4
+y 21
+end
+arch floor_wood2_l1
+x 4
+y 22
+end
+arch floor_wood2_l1
+x 4
+y 23
+end
+arch wall_stone3_1
+x 4
+y 23
+end
+arch blocked
+x 5
+y 11
+end
+arch wall_stone2_1
+x 5
+y 11
+end
+arch floor_wood2_l1
+x 5
+y 12
+end
+arch stairs_wood_down
+slaying world_0732
+hp 5
+sp 12
+x 5
+y 12
+end
+arch floor_wood2_l1
+x 5
+y 13
+end
+arch floor_wood2_l1
+x 5
+y 14
+end
+arch floor_wood2_l1
+x 5
+y 15
+end
+arch floor_wood2_l1
+x 5
+y 16
+end
+arch floor_wood2_l1
+x 5
+y 17
+end
+arch floor_wood2_l1
+x 5
+y 18
+end
+arch floor_wood2_l1
+x 5
+y 19
+end
+arch wall_stone3_1
+x 5
+y 19
+end
+arch floor_wood2_l1
+x 5
+y 20
+end
+arch candlelight3.101
+x 5
+y 20
+end
+arch floor_wood2_l1
+x 5
+y 21
+end
+arch chair1_111
+direction 7
+x 5
+y 21
+end
+arch floor_wood2_l1
+x 5
+y 22
+end
+arch floor_wood2_l1
+x 5
+y 23
+end
+arch wall_stone2_1
+x 5
+y 23
+end
+arch blocked
+x 6
+y 11
+end
+arch wall_stone3_1
+x 6
+y 11
+end
+arch floor_wood2_l1
+x 6
+y 12
+end
+arch floor_wood2_l1
+x 6
+y 13
+end
+arch floor_wood2_l1
+x 6
+y 14
+end
+arch floor_wood2_l1
+x 6
+y 15
+end
+arch floor_wood2_l1
+x 6
+y 16
+end
+arch floor_wood2_l1
+x 6
+y 17
+end
+arch floor_wood2_l1
+x 6
+y 18
+end
+arch floor_wood2_l1
+x 6
+y 19
+end
+arch wall_stone3_1
+x 6
+y 19
+end
+arch floor_wood2_l1
+x 6
+y 20
+end
+arch floor_wood2_l1
+x 6
+y 21
+end
+arch table_round1
+pass_thru 1
+x 6
+y 21
+end
+arch floor_wood2_l1
+x 6
+y 22
+end
+arch floor_wood2_l1
+x 6
+y 23
+end
+arch wall_stone3_1
+x 6
+y 23
+end
+arch blocked
+x 7
+y 11
+end
+arch wall_stone3_1
+x 7
+y 11
+end
+arch floor_wood2_l1
+x 7
+y 12
+end
+arch wall_stone3_3
+x 7
+y 12
+end
+arch floor_wood2_l1
+x 7
+y 13
+end
+arch wall_stone2_3
+x 7
+y 13
+end
+arch floor_wood2_l1
+x 7
+y 14
+end
+arch wall_stone3_3
+x 7
+y 14
+end
+arch floor_wood2_l1
+x 7
+y 15
+end
+arch wall_stone3_3
+x 7
+y 15
+end
+arch floor_wood2_l1
+x 7
+y 16
+end
+arch wall_stone3_3
+x 7
+y 16
+end
+arch floor_wood2_l1
+x 7
+y 17
+end
+arch wall_stone2_3
+x 7
+y 17
+end
+arch floor_wood2_l1
+x 7
+y 18
+end
+arch wall_stone3_3
+x 7
+y 18
+end
+arch floor_wood2_l1
+x 7
+y 19
+end
+arch wall_stone3_4
+x 7
+y 19
+end
+arch floor_wood2_l1
+x 7
+y 20
+end
+arch wall_stone3_3
+x 7
+y 20
+end
+arch floor_wood2_l1
+x 7
+y 21
+end
+arch wall_stone2_3
+x 7
+y 21
+end
+arch floor_wood2_l1
+x 7
+y 22
+end
+arch wall_stone3_3
+x 7
+y 22
+end
+arch floor_wood2_l1
+x 7
+y 23
+end
+arch wall_stone3_4
+x 7
+y 23
+end

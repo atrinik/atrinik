@@ -727,6 +727,13 @@ arch floor_wood2_l1
 x 5
 y 12
 end
+arch stairs_wood_up
+slaying world_1_0732
+hp 5
+sp 12
+x 5
+y 12
+end
 arch floor_wood2_l1
 x 5
 y 13

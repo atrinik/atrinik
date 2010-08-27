@@ -8,7 +8,6 @@ width 24
 height 24
 enter_x 1
 enter_y 1
-reset_timeout 7200
 difficulty 40
 darkness -1
 outdoor 1

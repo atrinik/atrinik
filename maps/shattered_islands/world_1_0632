@@ -8,11 +8,11 @@ width 24
 height 24
 enter_x 1
 enter_y 1
-reset_timeout 7200
 difficulty 40
 darkness -1
 outdoor 1
 no_harm 1
+tile_path_2 world_1_0732
 tile_path_4 world_1_0532
 region asteria
 end
@@ -584,7 +584,7 @@ x 22
 y 12
 end
 arch bed_2a.111
-name save bed
+name bed to reality
 type 106
 no_magic 1
 damned 1
@@ -648,7 +648,7 @@ x 22
 y 20
 end
 arch bed_1a.111
-name save bed
+name bed to reality
 type 106
 no_magic 1
 damned 1
@@ -668,7 +668,7 @@ x 22
 y 22
 end
 arch bed_1a.111
-name save bed
+name bed to reality
 type 106
 no_magic 1
 damned 1
@@ -696,7 +696,7 @@ x 23
 y 12
 end
 arch bed_2b.111
-name save bed
+name bed to reality
 type 106
 no_magic 1
 damned 1
@@ -748,7 +748,7 @@ x 23
 y 20
 end
 arch bed_1b.111
-name save bed
+name bed to reality
 type 106
 no_magic 1
 damned 1
@@ -768,7 +768,7 @@ x 23
 y 22
 end
 arch bed_1b.111
-name save bed
+name bed to reality
 type 106
 no_magic 1
 damned 1
