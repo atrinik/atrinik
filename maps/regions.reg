@@ -21,6 +21,10 @@ msg
 This island is the starting place of all new players.
 endmsg
 end
+
+#########################
+### Strakewood island ###
+#########################
 region strakewood_island
 parent world
 longname The Strakewood Island
@@ -30,6 +34,30 @@ It has been found in the ancient records that the Strakewood Island was the firs
 The rumor is that in the ancient times the Strakewood Island was home to two opposing deities, Tabernacle and Moroch, both fighting an endless battle against each other.
 endmsg
 end
+
+# Giant Mountains.
+region strakewood_island_gm
+parent strakewood_island
+longname Giant Mountains on Strakewood Island
+msg
+
+endmsg
+end
+
+# Abandoned Mine (Moria) north of Greyton.
+region strakewood_abandoned_mine
+parent strakewood_island
+longname Abandoned Dwarven Mine
+msg
+An abandoned dwarven mine, connecting several places underground.
+endmsg
+end
+
+#######################
+# Towns on Strakewood #
+#######################
+
+# Brynknot.
 region brynknot
 parent strakewood_island
 longname Brynknot
@@ -37,6 +65,8 @@ msg
 Brynknot is a town on the Western side of Strakewood Island.
 endmsg
 end
+
+# Greyton.
 region greyton
 parent strakewood_island
 longname The City of Greyton
@@ -46,6 +76,48 @@ The City of Greyton is a town on the Eastern side of Strakewood Island.
 It really is a separate island, connected to Strakewood Island by a human-made bridge.
 endmsg
 end
+
+# Aris.
+region aris
+parent strakewood_island
+longname Aris
+msg
+Aris is located north of Brynknot.
+endmsg
+end
+
+# Asteria.
+region asteria
+parent strakewood_island
+longname Asteria
+msg
+
+endmsg
+end
+
+# Fort Sether.
+region fort_sether
+parent strakewood_island
+longname Fort Sether
+msg
+
+endmsg
+end
+
+# Fort Ghzal.
+region fort_ghzal
+parent strakewood_island
+longname Fort Ghzal
+msg
+
+endmsg
+end
+
+##########################
+# Dungeons on Strakewood #
+##########################
+
+# Old Outpost.
 region old_outpost
 parent strakewood_island
 longname The Old Outpost
@@ -55,13 +127,8 @@ The Old Outpost was once a great outpost of Moroch's giant and troll forces, con
 You wonder if King Rhun still lives in here.
 endmsg
 end
-region strakewood_abandoned_mine
-parent strakewood_island
-longname Abandoned Dwarven Mine
-msg
-An abandoned dwarven mine, connecting several places underground.
-endmsg
-end
+
+# Moroch Temple.
 region moroch_temple
 parent world
 longname The Moroch Temple Dungeon
@@ -71,18 +138,28 @@ You see many passages here, and wonder which you should take.
 It is said Moroch awaits any challenger at the end of the temple.
 endmsg
 end
+
+# Underground City.
 region underground_city
 parent strakewood_island
 longname The Underground City
 end
+
+# Dark Cave.
 region dark_cave
 parent strakewood_island
 longname The Dark Cave
 end
+
+# Giant Stronghold.
 region giant_stronghold
 parent strakewood_island
 longname The Giant Stronghold
 end
+
+##############
+# Eld Woods Island.
+
 region eld_woods_island
 parent world
 longname The Eld Woods Island
