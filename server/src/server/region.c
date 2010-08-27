@@ -187,8 +187,8 @@ void init_regions()
 			key++;
 		}
 
-		/* Empty line */
-		if (*key == '\0')
+		/* Empty line or a comment */
+		if (*key == '\0' || *key == '#')
 		{
 			continue;
 		}
