@@ -2129,11 +2129,19 @@ arch grassd_8
 x 13
 y 21
 end
-arch grassd_4
+arch floor_sand_d3
 x 13
 y 22
 end
-arch grassd_8
+arch grassd_m4
+x 13
+y 22
+end
+arch floor_sand_d2
+x 13
+y 23
+end
+arch grassd_m9
 x 13
 y 23
 end
@@ -2245,11 +2253,15 @@ arch grassd_1
 x 14
 y 21
 end
-arch grassd_5
+arch floor_sand_d1
 x 14
 y 22
 end
-arch grassd_4
+arch grassd_m10
+x 14
+y 22
+end
+arch floor_sand_d3
 x 14
 y 23
 end
@@ -2369,15 +2381,15 @@ arch plant9
 x 15
 y 21
 end
-arch grassd_4
+arch floor_sand_d1
 x 15
 y 22
 end
-arch grassd_8
+arch grassd_m10
 x 15
-y 23
+y 22
 end
-arch plant_mushroom1
+arch floor_sand_d2
 x 15
 y 23
 end
@@ -2497,11 +2509,19 @@ arch anvil_111
 x 16
 y 21
 end
-arch grassd_7
+arch floor_sand_d4
 x 16
 y 22
 end
-arch grassd_1
+arch grassd_m10
+x 16
+y 22
+end
+arch floor_sand_d1
+x 16
+y 23
+end
+arch grassd_m7
 x 16
 y 23
 end
@@ -2663,7 +2683,11 @@ arch grassd_4
 x 17
 y 21
 end
-arch grassd_4
+arch floor_sand_d3
+x 17
+y 22
+end
+arch grassd_m10
 x 17
 y 22
 end
@@ -2671,7 +2695,7 @@ arch floor_sand_d2
 x 17
 y 23
 end
-arch grassd_m2
+arch grassd_m7
 x 17
 y 23
 end
@@ -2808,15 +2832,19 @@ arch grain5.101
 x 18
 y 20
 end
-arch grassd_2
+arch floor_sand_d1
 x 18
 y 21
 end
-arch grassd_2
+arch grassd_m4
+x 18
+y 21
+end
+arch floor_sand_d4
 x 18
 y 22
 end
-arch pile_floor2
+arch grassd_m13
 x 18
 y 22
 end
@@ -2824,7 +2852,7 @@ arch floor_sand_d4
 x 18
 y 23
 end
-arch grassd_m2
+arch grassd_m7
 x 18
 y 23
 end
@@ -2960,15 +2988,19 @@ arch prison_deco2.131
 x 19
 y 20
 end
-arch grassd_7
+arch floor_sand_d3
 x 19
 y 21
 end
-arch grassd_6
+arch grassd_m10
+x 19
+y 21
+end
+arch floor_sand_d2
 x 19
 y 22
 end
-arch plant13
+arch grassd_m11
 x 19
 y 22
 end
@@ -2976,7 +3008,7 @@ arch floor_sand_d3
 x 19
 y 23
 end
-arch grassd_m2
+arch grassd_m5
 x 19
 y 23
 end
@@ -3107,7 +3139,11 @@ arch prison_deco2.131
 x 20
 y 20
 end
-arch grassd_2
+arch floor_sand_d3
+x 20
+y 21
+end
+arch grassd_m10
 x 20
 y 21
 end
@@ -3115,7 +3151,7 @@ arch floor_sand_d2
 x 20
 y 22
 end
-arch grassd_m2
+arch grassd_m7
 x 20
 y 22
 end
@@ -3250,7 +3286,11 @@ arch prison_deco2.131
 x 21
 y 20
 end
-arch grassd_8
+arch floor_sand_d2
+x 21
+y 21
+end
+arch grassd_m10
 x 21
 y 21
 end
@@ -3258,7 +3298,7 @@ arch floor_sand_d2
 x 21
 y 22
 end
-arch grassd_m2
+arch grassd_m7
 x 21
 y 22
 end
@@ -3377,7 +3417,11 @@ arch plant_mushroom2
 x 22
 y 20
 end
-arch grassd_7
+arch floor_sand_d3
+x 22
+y 21
+end
+arch grassd_m10
 x 22
 y 21
 end
@@ -3421,7 +3465,7 @@ arch floor_sand_d2
 x 22
 y 22
 end
-arch grassd_m2
+arch grassd_m7
 x 22
 y 22
 end
@@ -3429,10 +3473,17 @@ arch grassd_6
 x 22
 y 23
 end
-arch grassd_2
+arch floor_sand_d2
 x 23
 end
-arch grassd_5
+arch grassd_m9
+x 23
+end
+arch floor_sand_d2
+x 23
+y 1
+end
+arch grassd_m3
 x 23
 y 1
 end
@@ -3561,15 +3612,19 @@ arch plant15
 x 23
 y 19
 end
-arch grassd_1
+arch floor_sand_d4
 x 23
 y 20
 end
-arch grassd_2
+arch grassd_m4
+x 23
+y 20
+end
+arch floor_sand_d3
 x 23
 y 21
 end
-arch target.111
+arch grassd_m13
 x 23
 y 21
 end
@@ -3577,7 +3632,7 @@ arch floor_sand_d4
 x 23
 y 22
 end
-arch grassd_m2
+arch grassd_m7
 x 23
 y 22
 end

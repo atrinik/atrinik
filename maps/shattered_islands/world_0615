@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-17 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3070,23 +3070,15 @@ arch grassd_5
 x 20
 y 8
 end
-arch floor_sand_d4
+arch grassd_4
 x 20
 y 9
 end
-arch grassd_m4
-x 20
-y 9
-end
-arch floor_sand_d4
+arch grassd_6
 x 20
 y 10
 end
-arch floor_sand_d4
-x 20
-y 11
-end
-arch grassd_m7
+arch grassd_8
 x 20
 y 11
 end
@@ -3180,31 +3172,19 @@ arch grassd_4
 x 21
 y 7
 end
-arch floor_sand_d4
+arch grassd_2
 x 21
 y 8
 end
-arch grassd_m4
-x 21
-y 8
-end
-arch floor_sand_d3
+arch grassd_7
 x 21
 y 9
 end
-arch grassd_m13
-x 21
-y 9
-end
-arch floor_sand_d2
+arch grassd_2
 x 21
 y 10
 end
-arch floor_sand_d4
-x 21
-y 11
-end
-arch grassd_m7
+arch grassd_1
 x 21
 y 11
 end
@@ -3319,31 +3299,19 @@ arch grassd_3
 x 22
 y 7
 end
-arch floor_sand_d4
+arch grassd_8
 x 22
 y 8
 end
-arch grassd_m10
-x 22
-y 8
-end
-arch floor_sand_d4
+arch grassd_7
 x 22
 y 9
 end
-arch floor_sand_d1
+arch grassd_8
 x 22
 y 10
 end
-arch grassd_m11
-x 22
-y 10
-end
-arch floor_sand_d1
-x 22
-y 11
-end
-arch grassd_m5
+arch grassd_3
 x 22
 y 11
 end
@@ -3370,6 +3338,17 @@ end
 arch grassd_5
 x 22
 y 16
+end
+arch spawn_point
+x 22
+y 16
+arch orc_fighter
+type 83
+level 28
+random_move 1
+item_race 5
+item_level 2
+end
 end
 arch grassd_5
 x 22
@@ -3454,15 +3433,11 @@ arch grassd_8
 x 23
 y 7
 end
-arch floor_sand_d1
+arch grassd_4
 x 23
 y 8
 end
-arch grassd_m10
-x 23
-y 8
-end
-arch floor_sand_d2
+arch grassd_4
 x 23
 y 9
 end
@@ -3470,71 +3445,111 @@ arch floor_sand_d4
 x 23
 y 10
 end
-arch grassd_m7
+arch grassd_m4
 x 23
 y 10
 end
-arch grassd_7
+arch floor_sand_d2
 x 23
 y 11
 end
-arch grassd_2
+arch grassd_m9
+x 23
+y 11
+end
+arch floor_sand_d4
 x 23
 y 12
 end
-arch grassd_7
+arch grassd_m9
+x 23
+y 12
+end
+arch floor_sand_d3
 x 23
 y 13
 end
-arch grassd_2
+arch grassd_m9
+x 23
+y 13
+end
+arch floor_sand_d1
 x 23
 y 14
 end
-arch tree_branch3
+arch grassd_m9
 x 23
 y 14
 end
-arch grassd_7
+arch floor_sand_d2
 x 23
 y 15
 end
-arch grassd_8
+arch grassd_m9
+x 23
+y 15
+end
+arch floor_sand_d1
 x 23
 y 16
 end
-arch grassd_7
+arch grassd_m9
+x 23
+y 16
+end
+arch floor_sand_d4
 x 23
 y 17
 end
-arch grassd_6
+arch grassd_m9
+x 23
+y 17
+end
+arch floor_sand_d1
 x 23
 y 18
 end
-arch tree_big4b
+arch grassd_m9
 x 23
 y 18
 end
-arch grassd_7
+arch floor_sand_d4
 x 23
 y 19
 end
-arch grassd_7
+arch grassd_m9
+x 23
+y 19
+end
+arch floor_sand_d3
 x 23
 y 20
 end
-arch grassd_1
+arch grassd_m9
+x 23
+y 20
+end
+arch floor_sand_d1
 x 23
 y 21
 end
-arch grassd_4
+arch grassd_m9
+x 23
+y 21
+end
+arch floor_sand_d4
 x 23
 y 22
 end
-arch grassd_4
+arch grassd_m9
+x 23
+y 22
+end
+arch floor_sand_d2
 x 23
 y 23
 end
-arch plant_mushroom2
+arch grassd_m9
 x 23
 y 23
 end
