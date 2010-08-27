@@ -65,6 +65,16 @@
 		<TypeNrs numbers="68" />
 	</GameObjectMatcher>
 
+	<GameObjectMatcher id="blocking">
+		<title xml:lang="en">Blocking</title>
+		<Attrib name="no_pass" />
+	</GameObjectMatcher>
+
+	<GameObjectMatcher id="sys_object">
+		<title xml:lang="en">System Object</title>
+		<Attrib name="sys_object" />
+	</GameObjectMatcher>
+
 	<!-- Objects to be put below the floor in insertion tool -->
 	<GameObjectMatcher id="system_below_floor" system="true">
 		<title xml:lang="en">Below Floor</title>
