@@ -1267,12 +1267,8 @@ arch wall_fstone_round.108
 x 8
 y 8
 end
-arch floor_fstone2a
+arch fstone1b
 z 50
-x 8
-y 9
-end
-arch wall_fstone_round.106
 x 8
 y 9
 end
@@ -1419,7 +1415,10 @@ z 50
 x 9
 y 9
 end
-arch wall_fstone_round.104
+arch stairs_stone_down
+slaying world_a_0833
+hp 9
+sp 9
 x 9
 y 9
 end
