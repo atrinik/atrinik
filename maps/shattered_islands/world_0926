@@ -25,25 +25,34 @@ end
 arch water_lt4
 y 2
 end
-arch water_lt
+arch grassd_6
 y 3
 end
 arch water_lt3
 y 4
 end
-arch water_lt3
+arch water_lt2
 y 5
 end
-arch water_lt4
+arch water_lt
 y 6
 end
 arch water_lt3
 y 7
 end
-arch water_lt
-y 8
+arch ship_hull_prow_w_front_3_dark
+y 7
+end
+arch ship_prow_w_long
+y 7
 end
 arch water_lt2
+y 8
+end
+arch ship_hull_prow_w_front_2
+y 8
+end
+arch water_lt3
 y 9
 end
 arch water_lt2
@@ -99,7 +108,7 @@ arch water_lt4
 x 1
 y 2
 end
-arch water_lt2
+arch grassd_1
 x 1
 y 3
 end
@@ -111,15 +120,35 @@ arch water_lt
 x 1
 y 5
 end
-arch water_lt
+arch water_lt2
 x 1
 y 6
 end
-arch water_lt3
+arch ship_hull_prow_w_front_starboard_dark
+x 1
+y 6
+end
+arch ship_prow_w_starboard_b
+x 1
+y 6
+end
+arch ship_floor_we_dark_1
 x 1
 y 7
 end
-arch water_lt3
+arch ship_prow_w_midship
+x 1
+y 7
+end
+arch water_lt4
+x 1
+y 8
+end
+arch ship_hull_prow_w_front_1_dark
+x 1
+y 8
+end
+arch ship_prow_w_strokeside_b
 x 1
 y 8
 end
@@ -194,31 +223,54 @@ arch water_lt3
 x 2
 y 2
 end
-arch water_lt3
+arch grassd_6
 x 2
 y 3
 end
-arch water_lt3
+arch grassd_8
 x 2
 y 4
 end
-arch water_lt2
+arch water_lt4
 x 2
 y 5
 end
-arch water_lt3
+arch ship_floor_we_dark_1
 x 2
 y 6
 end
-arch water_lt
+arch ship_prow_w_starboard_a
+x 2
+y 6
+end
+arch ship_floor_we_dark_1
 x 2
 y 7
 end
-arch water_lt
+arch stairs_wood_down
+slaying ships/ship_1
+hp 6
+sp 18
+x 2
+y 7
+end
+arch ship_floor_we_dark_1
 x 2
 y 8
 end
-arch water_lt4
+arch ship_prow_w_strokeside_a
+x 2
+y 8
+end
+arch ship_hull_prow_w_rear_3
+x 2
+y 8
+end
+arch water_lt3
+x 2
+y 9
+end
+arch ship_hull_prow_w_rear_2
 x 2
 y 9
 end
@@ -293,27 +345,43 @@ arch water_lt3
 x 3
 y 3
 end
-arch water_lt4
+arch grassd_3
 x 3
 y 4
 end
-arch water_lt2
+arch grassd_6
 x 3
 y 5
 end
-arch water_lt
+arch ship_floor_we_dark_1
 x 3
 y 6
 end
-arch water_lt2
+arch bollard_tied_n_3
+x 3
+y 6
+end
+arch ship_floor_we_dark_1
 x 3
 y 7
 end
-arch water_lt
+arch sail_short_mast_w_1
+x 3
+y 7
+end
+arch ship_floor_we_dark_1
 x 3
 y 8
 end
-arch water_lt4
+arch ship_rail_s_hole
+x 3
+y 8
+end
+arch water_lt
+x 3
+y 9
+end
+arch ship_hull_prow_w_rear_1
 x 3
 y 9
 end
@@ -392,23 +460,35 @@ arch water_lt2
 x 4
 y 4
 end
-arch water_lt
+arch grassd_6
 x 4
 y 5
 end
-arch water_lt2
+arch ship_floor_we_dark_1
 x 4
 y 6
 end
-arch water_lt4
+arch ship_floor_we_dark_1
 x 4
 y 7
 end
-arch water_lt
+arch sail_short_mast_w_2
+x 4
+y 7
+end
+arch ship_floor_we_dark_1
 x 4
 y 8
 end
-arch water_lt3
+arch ship_rail_s_hole
+x 4
+y 8
+end
+arch water_lt4
+x 4
+y 9
+end
+arch ship_hull_s_high
 x 4
 y 9
 end
@@ -483,27 +563,43 @@ arch water_lt4
 x 5
 y 3
 end
-arch water_lt
+arch water_lt3
 x 5
 y 4
 end
-arch water_lt3
+arch water_lt
 x 5
 y 5
 end
-arch water_lt2
+arch ship_floor_we_dark_1
 x 5
 y 6
 end
-arch water_lt
+arch ship_rail_n_hole
+x 5
+y 6
+end
+arch ship_floor_we_dark_1
 x 5
 y 7
 end
-arch water_lt
+arch sail_short_mast_w_3
+x 5
+y 7
+end
+arch ship_floor_we_dark_1
 x 5
 y 8
 end
-arch water_lt3
+arch ship_rail_s_hole
+x 5
+y 8
+end
+arch water_lt2
+x 5
+y 9
+end
+arch ship_hull_s_high
 x 5
 y 9
 end
@@ -578,27 +674,39 @@ arch water_lt2
 x 6
 y 3
 end
-arch water_lt3
+arch water_lt4
 x 6
 y 4
 end
-arch water_lt4
+arch water_lt
 x 6
 y 5
 end
-arch water_lt2
+arch ship_floor_we_dark_1
 x 6
 y 6
 end
-arch water_lt3
+arch bollard_tied_n_3
+x 6
+y 6
+end
+arch ship_floor_we_dark_1
 x 6
 y 7
 end
-arch water_lt3
+arch ship_floor_we_dark_1
 x 6
 y 8
 end
-arch water_lt
+arch ship_rail_s_hole
+x 6
+y 8
+end
+arch water_lt3
+x 6
+y 9
+end
+arch ship_hull_s_high
 x 6
 y 9
 end
@@ -673,7 +781,7 @@ arch water_lt3
 x 7
 y 3
 end
-arch water_lt2
+arch water_lt
 x 7
 y 4
 end
@@ -681,19 +789,39 @@ arch water_lt2
 x 7
 y 5
 end
-arch water_lt3
+arch ship_floor_we_dark_1
 x 7
 y 6
 end
-arch water_lt
+arch ship_rail_ne
+x 7
+y 6
+end
+arch ship_floor_we_dark_1
 x 7
 y 7
 end
-arch water_lt
+arch ship_w_steering_wheel
+x 7
+y 7
+end
+arch ship_rail_e
+x 7
+y 7
+end
+arch ship_floor_we_dark_1
 x 7
 y 8
 end
-arch water_lt4
+arch ship_rail_se
+x 7
+y 8
+end
+arch water_lt3
+x 7
+y 9
+end
+arch ship_hull_s_high
 x 7
 y 9
 end
@@ -780,15 +908,31 @@ arch water_lt4
 x 8
 y 6
 end
-arch water_lt4
+arch ship_hull_e_low_corner_n
 x 8
-y 7
+y 6
 end
 arch water_lt3
 x 8
+y 7
+end
+arch ship_hull_e_low
+x 8
+y 7
+end
+arch water_lt2
+x 8
 y 8
 end
-arch water_lt
+arch ship_hull_e_low
+x 8
+y 8
+end
+arch water_lt4
+x 8
+y 9
+end
+arch ship_hull_se_low_astern_e
 x 8
 y 9
 end
@@ -863,27 +1007,31 @@ arch water_lt4
 x 9
 y 3
 end
-arch water_lt
+arch water_lt4
 x 9
 y 4
 end
-arch water_lt4
+arch water_lt
 x 9
 y 5
 end
-arch water_lt4
+arch water_lt2
 x 9
 y 6
 end
-arch water_lt4
+arch water_lt3
 x 9
 y 7
 end
-arch water_lt2
+arch water_lt
 x 9
 y 8
 end
-arch water_lt
+arch rudder_e
+x 9
+y 8
+end
+arch water_lt3
 x 9
 y 9
 end

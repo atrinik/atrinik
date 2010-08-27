@@ -84,19 +84,19 @@ end
 arch tree_big4b
 y 19
 end
-arch water_still
+arch water_lt4
 y 20
 end
 arch grassd_m10
 y 20
 end
-arch water_still
+arch water_lt3
 y 21
 end
-arch water_still
+arch water_lt3
 y 22
 end
-arch water_still
+arch water_lt4
 y 23
 end
 arch grassd_3
@@ -186,7 +186,7 @@ arch tree_big4b
 x 1
 y 19
 end
-arch water_still
+arch water_lt4
 x 1
 y 20
 end
@@ -194,15 +194,15 @@ arch grassd_m10
 x 1
 y 20
 end
-arch water_still
+arch water_lt3
 x 1
 y 21
 end
-arch water_still
+arch water_lt3
 x 1
 y 22
 end
-arch water_still
+arch water_lt
 x 1
 y 23
 end
@@ -316,7 +316,7 @@ arch tree_big5b
 x 2
 y 19
 end
-arch water_still
+arch water_lt
 x 2
 y 20
 end
@@ -324,15 +324,15 @@ arch grassd_m10
 x 2
 y 20
 end
-arch water_still
+arch water_lt
 x 2
 y 21
 end
-arch water_still
+arch water_lt2
 x 2
 y 22
 end
-arch water_still
+arch water_lt2
 x 2
 y 23
 end
@@ -404,19 +404,19 @@ arch grassd_3
 x 3
 y 19
 end
-arch water_still
+arch water_lt3
 x 3
 y 20
 end
-arch water_still
+arch water_lt3
 x 3
 y 21
 end
-arch water_still
+arch water_lt3
 x 3
 y 22
 end
-arch water_still
+arch water_lt3
 x 3
 y 23
 end
@@ -488,15 +488,15 @@ arch grassd_8
 x 4
 y 20
 end
-arch water_still
+arch water_lt3
 x 4
 y 21
 end
-arch water_still
+arch water_lt
 x 4
 y 22
 end
-arch water_still
+arch water_lt2
 x 4
 y 23
 end
@@ -564,28 +564,17 @@ arch grassd_1
 x 5
 y 20
 end
-arch water_still
+arch water_lt2
 x 5
 y 21
 end
-arch water_still
+arch water_lt3
 x 5
 y 22
 end
-arch water_still
+arch water_lt
 x 5
 y 23
-end
-arch grassd_3
-x 6
-end
-arch grassd_4
-x 6
-y 1
-end
-arch grassd_4
-x 6
-y 2
 end
 arch grassd_1
 x 6
@@ -691,7 +680,7 @@ arch wall_cave1.131
 x 6
 y 20
 end
-arch water_still
+arch water_lt4
 x 6
 y 21
 end
@@ -699,7 +688,7 @@ arch wall_cave1.131
 x 6
 y 21
 end
-arch water_still
+arch water_lt4
 x 6
 y 22
 end
@@ -707,30 +696,11 @@ arch wall_cave1.161
 x 6
 y 22
 end
-arch water_still
+arch water_lt4
 x 6
 y 23
 end
-arch grassd_5
-x 7
-end
-arch grassd_5
-x 7
-y 1
-end
-arch grassd_2
-x 7
-y 2
-end
-arch grassd_7
-x 7
-y 3
-end
-arch grassd_2
-x 7
-y 4
-end
-arch water_still
+arch water_lt2
 x 7
 y 22
 end
@@ -738,7 +708,7 @@ arch wall_cave1b.121
 x 7
 y 22
 end
-arch water_still
+arch water_lt3
 x 7
 y 23
 end
@@ -746,30 +716,7 @@ arch wall_cave1.161
 x 7
 y 23
 end
-arch grassd_7
-x 8
-end
-arch grassd_8
-x 8
-y 1
-end
-arch grassd_4
-x 8
-y 2
-end
-arch grassd_2
-x 8
-y 3
-end
-arch grassd_4
-x 8
-y 4
-end
-arch grassd_3
-x 8
-y 5
-end
-arch water_still
+arch water_lt3
 x 8
 y 23
 end
@@ -777,487 +724,67 @@ arch wall_cave1.111
 x 8
 y 23
 end
-arch grassd_2
-x 9
-end
-arch grassd_3
-x 9
-y 1
-end
-arch grassd_7
-x 9
-y 2
-end
-arch grassd_4
-x 9
-y 3
-end
-arch grassd_5
-x 9
-y 4
-end
-arch grassd_6
-x 9
-y 5
-end
-arch grassd_4
-x 9
-y 6
-end
-arch water_still
-x 9
-y 22
-end
-arch water_still
+arch water_lt2
 x 9
 y 23
 end
-arch wall_cave1.141
+arch wall_cave1.111
 x 9
 y 23
 end
-arch grassd_3
-x 10
-end
-arch grassd_8
-x 10
-y 1
-end
-arch grassd_4
-x 10
-y 2
-end
-arch grassd_7
-x 10
-y 3
-end
-arch grassd_3
-x 10
-y 4
-end
-arch grassd_7
-x 10
-y 5
-end
-arch grassd_7
-x 10
-y 6
-end
-arch grassd_2
-x 10
-y 7
-end
-arch grassd_4
-x 10
-y 8
-end
-arch grassd_6
-x 10
-y 9
-end
-arch grassd_1
-x 10
-y 10
-end
-arch grassd_4
-x 10
-y 11
-end
-arch grassd_6
-x 10
-y 12
-end
-arch grassd_7
-x 10
-y 13
-end
-arch grassd_6
-x 10
-y 14
-end
-arch grassd_8
-x 10
-y 15
-end
-arch grassd_5
-x 10
-y 16
-end
-arch grassd_3
-x 10
-y 17
-end
-arch grassd_6
-x 10
-y 18
-end
-arch grassd_3
-x 10
-y 19
-end
-arch grassd_6
-x 10
-y 20
-end
-arch water_still
-x 10
-y 21
-end
-arch water_still
-x 10
-y 22
-end
-arch water_still
+arch water_lt
 x 10
 y 23
 end
-arch grassd_3
-x 11
+arch wall_cave1.111
+x 10
+y 23
 end
-arch grassd_6
-x 11
-y 1
-end
-arch grassd_6
-x 11
-y 2
-end
-arch grassd_4
-x 11
-y 3
-end
-arch grassd_7
-x 11
-y 17
-end
-arch grassd_6
-x 11
-y 18
-end
-arch grassd_4
-x 11
-y 19
-end
-arch grassd_3
-x 11
-y 20
-end
-arch plant8
-x 11
-y 20
-end
-arch grassd_4
-x 11
-y 21
-end
-arch reed_sm10
-x 11
-y 21
-end
-arch water_still
-x 11
-y 22
-end
-arch grassd_m10
-x 11
-y 22
-end
-arch water_still
+arch water_lt4
 x 11
 y 23
 end
-arch grassd_5
-x 12
+arch wall_cave1.111
+x 11
+y 23
 end
-arch grassd_3
-x 12
-y 1
-end
-arch grassd_4
-x 12
-y 2
-end
-arch grassd_7
-x 12
-y 3
-end
-arch grassd_5
-x 12
-y 17
-end
-arch grassd_1
-x 12
-y 18
-end
-arch grassd_3
-x 12
-y 19
-end
-arch grassd_4
-x 12
-y 20
-end
-arch plant8
-x 12
-y 20
-end
-arch grassd_7
-x 12
-y 21
-end
-arch reed_sm10
-x 12
-y 21
-end
-arch water_still
-x 12
-y 22
-end
-arch grassd_m10
-x 12
-y 22
-end
-arch water_still
+arch water_lt4
 x 12
 y 23
 end
-arch grassd_1
-x 13
+arch wall_cave1.111
+x 12
+y 23
 end
-arch grassd_1
-x 13
-y 1
-end
-arch grassd_3
-x 13
-y 2
-end
-arch grassd_4
-x 13
-y 3
-end
-arch grassd_2
-x 13
-y 17
-end
-arch grassd_2
-x 13
-y 18
-end
-arch grassd_4
-x 13
-y 19
-end
-arch grassd_2
-x 13
-y 20
-end
-arch plant8
-x 13
-y 20
-end
-arch grassd_5
-x 13
-y 21
-end
-arch reed_sm10
-x 13
-y 21
-end
-arch water_still
-x 13
-y 22
-end
-arch grassd_m10
-x 13
-y 22
-end
-arch water_still
+arch water_lt
 x 13
 y 23
 end
-arch ship_hull_prow_w_front_starboard_dark
+arch wall_cave1.111
 x 13
 y 23
 end
-arch ship_prow_w_starboard_b
-x 13
-y 23
-end
-arch grassd_7
-x 14
-end
-arch grassd_2
-x 14
-y 1
-end
-arch grassd_2
-x 14
-y 2
-end
-arch grassd_3
-x 14
-y 3
-end
-arch grassd_2
-x 14
-y 17
-end
-arch grassd_2
-x 14
-y 18
-end
-arch grassd_3
-x 14
-y 19
-end
-arch grassd_5
-x 14
-y 20
-end
-arch plant8
-x 14
-y 20
-end
-arch grassd_1
-x 14
-y 21
-end
-arch reed_sm10
-x 14
-y 21
-end
-arch water_still
-x 14
-y 22
-end
-arch grassd_m10
-x 14
-y 22
-end
-arch ship_floor_we_dark_1
+arch water_lt
 x 14
 y 23
 end
-arch ship_prow_w_starboard_a
+arch wall_cave1.111
 x 14
 y 23
 end
-arch grassd_3
-x 15
-end
-arch grassd_2
-x 15
-y 1
-end
-arch grassd_1
-x 15
-y 2
-end
-arch grassd_3
-x 15
-y 3
-end
-arch grassd_1
-x 15
-y 17
-end
-arch grassd_1
-x 15
-y 18
-end
-arch grassd_2
-x 15
-y 19
-end
-arch grassd_3
-x 15
-y 20
-end
-arch plant7
-x 15
-y 20
-end
-arch grassd_2
-x 15
-y 21
-end
-arch reed_sm10
-x 15
-y 21
-end
-arch bollard_tied_n_1
-x 15
-y 21
-end
-arch water_still
-x 15
-y 22
-end
-arch grassd_m10
-x 15
-y 22
-end
-arch bollard_tied_n_2
-x 15
-y 22
-end
-arch ship_floor_we_dark_1
+arch water_lt
 x 15
 y 23
 end
-arch bollard_tied_n_3
+arch wall_cave1.111
 x 15
 y 23
 end
-arch grassd_7
+arch water_lt4
 x 16
+y 23
 end
-arch grassd_1
-x 16
-y 1
-end
-arch grassd_6
-x 16
-y 2
-end
-arch grassd_8
-x 16
-y 3
-end
-arch grassd_2
-x 16
-y 17
-end
-arch grassd_1
-x 16
-y 18
-end
-arch grassd_8
-x 16
-y 19
-end
-arch grassd_8
-x 16
-y 20
-end
-arch plant8
-x 16
-y 20
-end
-arch grassd_8
-x 16
-y 21
-end
-arch reed_sm10
-x 16
-y 21
-end
-arch bridge_wood_NS.101
-x 16
-y 22
-end
-arch ship_floor_we_dark_1
+arch wall_cave1.111
 x 16
 y 23
 end
@@ -1267,70 +794,11 @@ end
 arch wall_cave1b.161
 x 17
 end
-arch grassd_3
-x 17
-y 1
-end
-arch grassd_3
-x 17
-y 2
-end
-arch grassd_3
-x 17
-y 3
-end
-arch grassd_3
-x 17
-y 17
-end
-arch grassd_7
-x 17
-y 18
-end
-arch grassd_6
-x 17
-y 19
-end
-arch plant6
-x 17
-y 19
-end
-arch grassd_7
-x 17
-y 20
-end
-arch plant7
-x 17
-y 20
-end
-arch grassd_5
-x 17
-y 21
-end
-arch reed_sm10
-x 17
-y 21
-end
-arch sign
-msg
-To Promethia Island
-endmsg
-x 17
-y 21
-end
-arch water_still
-x 17
-y 22
-end
-arch grassd_m10
-x 17
-y 22
-end
-arch ship_floor_we_dark_1
+arch water_lt
 x 17
 y 23
 end
-arch ship_rail_n_hole
+arch wall_cave1.111
 x 17
 y 23
 end
@@ -1348,63 +816,11 @@ arch wall_cave1b.161
 x 18
 y 1
 end
-arch grassd_7
-x 18
-y 2
-end
-arch grassd_7
-x 18
-y 3
-end
-arch grassd_1
-x 18
-y 17
-end
-arch grassd_4
-x 18
-y 18
-end
-arch grassd_4
-x 18
-y 19
-end
-arch grassd_4
-x 18
-y 20
-end
-arch plant7
-x 18
-y 20
-end
-arch grassd_8
-x 18
-y 21
-end
-arch reed_sm10
-x 18
-y 21
-end
-arch bollard_tied_n_1
-x 18
-y 21
-end
-arch water_still
-x 18
-y 22
-end
-arch grassd_m10
-x 18
-y 22
-end
-arch bollard_tied_n_2
-x 18
-y 22
-end
-arch ship_floor_we_dark_1
+arch water_lt4
 x 18
 y 23
 end
-arch bollard_tied_n_3
+arch wall_cave1.111
 x 18
 y 23
 end
@@ -1430,51 +846,11 @@ arch wall_cave1b.161
 x 19
 y 2
 end
-arch grassd_2
-x 19
-y 3
-end
-arch grassd_4
-x 19
-y 17
-end
-arch grassd_7
-x 19
-y 18
-end
-arch grassd_6
-x 19
-y 19
-end
-arch grassd_8
-x 19
-y 20
-end
-arch plant8
-x 19
-y 20
-end
-arch grassd_8
-x 19
-y 21
-end
-arch reed_sm10
-x 19
-y 21
-end
-arch water_still
-x 19
-y 22
-end
-arch grassd_m10
-x 19
-y 22
-end
-arch ship_floor_we_dark_1
+arch water_lt3
 x 19
 y 23
 end
-arch ship_rail_ne
+arch wall_cave1.111
 x 19
 y 23
 end
@@ -1532,103 +908,19 @@ arch wall_cave1b.161
 x 20
 y 6
 end
-arch grassd_1
-x 20
-y 7
-end
-arch grassd_6
-x 20
-y 8
-end
-arch grassd_3
-x 20
-y 9
-end
-arch grassd_5
-x 20
-y 10
-end
-arch grassd_1
-x 20
-y 11
-end
-arch grassd_3
-x 20
-y 12
-end
-arch grassd_5
-x 20
-y 13
-end
-arch grassd_3
-x 20
-y 14
-end
-arch plant15
-x 20
-y 14
-end
-arch grassd_3
-x 20
-y 15
-end
-arch grassd_6
-x 20
-y 16
-end
-arch grassd_6
-x 20
-y 17
-end
-arch plant6
-x 20
-y 17
-end
-arch grassd_7
-x 20
-y 18
-end
-arch plant7
-x 20
-y 18
-end
-arch grassd_4
-x 20
-y 19
-end
-arch plant8
-x 20
-y 19
-end
-arch grassd_2
-x 20
-y 20
-end
-arch plant7
-x 20
-y 20
-end
-arch grassd_1
-x 20
-y 21
-end
-arch reed_sm3
-x 20
-y 21
-end
-arch water_still
+arch water_lt
 x 20
 y 22
 end
-arch grassd_m10
+arch wall_cave1.181
 x 20
 y 22
 end
-arch water_still
+arch water_lt2
 x 20
 y 23
 end
-arch ship_hull_e_low_corner_n
+arch wall_cave1.141
 x 20
 y 23
 end
@@ -1687,103 +979,23 @@ arch wall_cave1b.161
 x 21
 y 7
 end
-arch grassd_3
-x 21
-y 8
-end
-arch grassd_4
-x 21
-y 9
-end
-arch grassd_6
-x 21
-y 10
-end
-arch grassd_7
-x 21
-y 11
-end
-arch grassd_8
-x 21
-y 12
-end
-arch grassd_3
-x 21
-y 13
-end
-arch grassd_3
-x 21
-y 14
-end
-arch plant7
-x 21
-y 14
-end
-arch grassd_6
-x 21
-y 15
-end
-arch plant8
-x 21
-y 15
-end
-arch grassd_4
-x 21
-y 16
-end
-arch plant7
-x 21
-y 16
-end
-arch grassd_7
-x 21
-y 17
-end
-arch plant8
-x 21
-y 17
-end
-arch grassd_2
-x 21
-y 18
-end
-arch reed_sm11
-x 21
-y 18
-end
-arch grassd_3
-x 21
-y 19
-end
-arch reed_sm11
-x 21
-y 19
-end
-arch grassd_4
-x 21
-y 20
-end
-arch reed_sm3
-x 21
-y 20
-end
-arch water_still
+arch water_lt4
 x 21
 y 21
 end
-arch grassd_m4
+arch wall_cave1.181
 x 21
 y 21
 end
-arch water_still
+arch water_lt2
 x 21
 y 22
 end
-arch grassd_m13
+arch wall_cave1.141
 x 21
 y 22
 end
-arch water_still
+arch water_lt2
 x 21
 y 23
 end
@@ -1857,95 +1069,27 @@ arch wall_cave1b.161
 x 22
 y 9
 end
-arch grassd_3
-x 22
-y 10
-end
-arch grassd_1
-x 22
-y 11
-end
-arch grassd_3
-x 22
-y 12
-end
-arch grassd_5
-x 22
-y 13
-end
-arch plant8
-x 22
-y 13
-end
-arch grassd_6
-x 22
-y 14
-end
-arch plant7
-x 22
-y 14
-end
-arch grassd_3
-x 22
-y 15
-end
-arch reed_sm11
-x 22
-y 15
-end
-arch grassd_2
-x 22
-y 16
-end
-arch reed_sm11
-x 22
-y 16
-end
-arch grassd_3
-x 22
-y 17
-end
-arch reed_sm3
-x 22
-y 17
-end
-arch water_still
-x 22
-y 18
-end
-arch grassd_m4
-x 22
-y 18
-end
-arch water_still
-x 22
-y 19
-end
-arch grassd_m9
-x 22
-y 19
-end
-arch water_still
+arch water_lt3
 x 22
 y 20
 end
-arch grassd_m9
+arch wall_cave1.181
 x 22
 y 20
 end
-arch water_still
+arch water_lt3
 x 22
 y 21
 end
-arch grassd_m13
+arch wall_cave1.141
 x 22
 y 21
 end
-arch water_still
+arch water_lt2
 x 22
 y 22
 end
-arch water_still
+arch water_lt3
 x 22
 y 23
 end
@@ -2023,79 +1167,23 @@ arch wall_cave1b.161
 x 23
 y 10
 end
-arch grassd_5
-x 23
-y 11
-end
-arch grassd_7
-x 23
-y 12
-end
-arch grassd_1
-x 23
-y 13
-end
-arch plant7
-x 23
-y 13
-end
-arch grassd_8
-x 23
-y 14
-end
-arch reed_sm10
-x 23
-y 14
-end
-arch water_still
-x 23
-y 15
-end
-arch grassd_m4
-x 23
-y 15
-end
-arch water_still
-x 23
-y 16
-end
-arch grassd_m9
-x 23
-y 16
-end
-arch water_still
-x 23
-y 17
-end
-arch grassd_m9
-x 23
-y 17
-end
-arch water_still
-x 23
-y 18
-end
-arch grassd_m13
-x 23
-y 18
-end
-arch water_still
-x 23
-y 19
-end
-arch water_still
+arch water_lt4
 x 23
 y 20
 end
-arch water_still
+arch wall_cave1.111
+x 23
+y 20
+end
+arch water_lt3
 x 23
 y 21
 end
-arch water_still
+arch water_lt3
 x 23
 y 22
 end
-arch water_still
+arch water_lt
 x 23
 y 23
 end
