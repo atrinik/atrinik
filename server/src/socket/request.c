@@ -1415,6 +1415,16 @@ void draw_client_map2(object *pl)
 						mirror_x = (mirror->stats.hp == -1 ? mirror->x : mirror->stats.hp);
 						mirror_y = (mirror->stats.sp == -1 ? mirror->y : mirror->stats.sp);
 
+						if (mirror->stats.maxhp)
+						{
+							mirror_x += mirror->stats.maxhp;
+						}
+
+						if (mirror->stats.maxsp)
+						{
+							mirror_y += mirror->stats.maxsp;
+						}
+
 						/* No slaying? Same map then. */
 						if (!mirror->slaying)
 						{
@@ -1556,7 +1566,14 @@ void draw_client_map2(object *pl)
 					/* Z position. */
 					if (flags & MAP2_FLAG_HEIGHT)
 					{
-						SockList_AddShort(&sl_layer, tmp->z);
+						if (mirror && mirror->last_eat)
+						{
+							SockList_AddShort(&sl_layer, tmp->z + mirror->last_eat);
+						}
+						else
+						{
+							SockList_AddShort(&sl_layer, tmp->z);
+						}
 					}
 				}
 				/* Didn't find anything. Now, if we have previously seen a face
