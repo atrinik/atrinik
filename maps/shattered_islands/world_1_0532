@@ -1,0 +1,173 @@
+arch map
+name Asteria
+msg
+-Enter Description Here-
+Modified: 2010-08-26 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+reset_timeout 7200
+difficulty 40
+darkness -1
+outdoor 1
+no_harm 1
+tile_path_2 world_1_0632
+region asteria
+end
+arch blocked
+x 21
+y 10
+end
+arch wall_wood_8
+x 21
+y 10
+end
+arch blocked
+x 21
+y 11
+end
+arch wall_wood_3
+x 21
+y 11
+end
+arch blocked
+x 21
+y 12
+end
+arch wall_wood_3
+x 21
+y 12
+end
+arch blocked
+x 21
+y 13
+end
+arch wall_wood_3
+x 21
+y 13
+end
+arch blocked
+x 21
+y 14
+end
+arch wall_wood_3
+x 21
+y 14
+end
+arch blocked
+x 21
+y 15
+end
+arch wall_wood_3
+x 21
+y 15
+end
+arch blocked
+x 21
+y 16
+end
+arch wall_wood2_3
+x 21
+y 16
+end
+arch blocked
+x 22
+y 10
+end
+arch wall_wood3_1
+x 22
+y 10
+end
+arch floor_wood2
+x 22
+y 11
+end
+arch floor_wood2
+x 22
+y 12
+end
+arch stairs_wood_down
+direction 7
+slaying world_0532
+hp 22
+sp 12
+x 22
+y 12
+end
+arch floor_wood2
+x 22
+y 13
+end
+arch chair1_111
+direction 7
+x 22
+y 13
+end
+arch floor_wood2
+x 22
+y 14
+end
+arch torch_wall_1
+direction 7
+x 22
+y 14
+end
+arch floor_wood2
+x 22
+y 15
+end
+arch bank1.111
+direction 7
+x 22
+y 15
+end
+arch floor_wood2
+x 22
+y 16
+end
+arch wall_wood3_1
+x 22
+y 16
+end
+arch blocked
+x 23
+y 10
+end
+arch wall_wood3_1
+x 23
+y 10
+end
+arch floor_wood2
+x 23
+y 11
+end
+arch torch_wall_1
+x 23
+y 11
+end
+arch floor_wood2
+x 23
+y 12
+end
+arch floor_wood2
+x 23
+y 13
+end
+arch floor_wood2
+x 23
+y 14
+end
+arch floor_wood2
+x 23
+y 15
+end
+arch floor_wood2
+x 23
+y 16
+end
+arch wall_wood3_1
+x 23
+y 16
+end
