@@ -1,0 +1,811 @@
+arch map
+name World
+msg
+Created:  2010-08-26 Alex Tokar
+Modified: 2010-08-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 4
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 5
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 6
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 7
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 8
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 9
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 18
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 19
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 20
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 22
+end
+arch magic_mirror
+slaying world_0428
+x 10
+y 23
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 11
+y 17
+end
+arch grassd_8
+z 22
+x 11
+y 18
+end
+arch wall_flagstone1.181
+x 11
+y 18
+end
+arch grassd_8
+z 22
+x 11
+y 19
+end
+arch wall_flagstone1.131
+x 11
+y 19
+end
+arch grassd_8
+z 22
+x 11
+y 20
+end
+arch wall_flagstone1_w.131
+x 11
+y 20
+end
+arch grassd_8
+z 22
+x 11
+y 21
+end
+arch wall_flagstone1.131
+x 11
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 12
+y 17
+end
+arch grassd_8
+z 22
+x 12
+y 18
+end
+arch wall_flagstone1.111
+x 12
+y 18
+end
+arch floor_grey9
+z 22
+x 12
+y 19
+end
+arch stairs_stone_down
+slaying world_0428
+hp 12
+sp 19
+x 12
+y 19
+end
+arch floor_grey9
+z 22
+x 12
+y 20
+end
+arch floor_grey9
+z 22
+x 12
+y 21
+end
+arch wall_flagstone1.111
+x 12
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 13
+y 17
+end
+arch grassd_8
+z 22
+x 13
+y 18
+end
+arch wall_flagstone1_w.111
+x 13
+y 18
+end
+arch floor_grey9
+z 22
+x 13
+y 19
+end
+arch floor_grey9
+z 22
+x 13
+y 20
+end
+arch floor_grey9
+z 22
+x 13
+y 21
+end
+arch wall_flagstone1.111
+x 13
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 14
+y 17
+end
+arch grassd_8
+z 22
+x 14
+y 18
+end
+arch wall_flagstone1.111
+x 14
+y 18
+end
+arch floor_grey9
+z 22
+x 14
+y 19
+end
+arch wall_flagstone1.131
+x 14
+y 19
+end
+arch floor_grey9
+z 22
+x 14
+y 20
+end
+arch wall_flagstone1.131
+x 14
+y 20
+end
+arch floor_grey9
+z 22
+x 14
+y 21
+end
+arch wall_flagstone1.141
+x 14
+y 21
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 15
+y 17
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 11
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 12
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 13
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 14
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 15
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 16
+end
+arch magic_mirror
+slaying world_0428
+x 16
+y 17
+end
