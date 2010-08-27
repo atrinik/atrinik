@@ -95,6 +95,24 @@ msg
 endmsg
 end
 
+# Asteria Palace Dungeon.
+region asteria_palace_dungeon
+parent asteria
+longname Asteria Palace Dungeon
+msg
+
+endmsg
+end
+
+# Asteria Sewers.
+region asteria_sewers
+parent asteria
+longname Asteria Sewers
+msg
+
+endmsg
+end
+
 # Fort Sether.
 region fort_sether
 parent strakewood_island
