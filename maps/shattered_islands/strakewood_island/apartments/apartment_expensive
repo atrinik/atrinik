@@ -2,7 +2,7 @@ arch map
 name Expensive Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-05-16 Alex Tokar
+Modified: 2010-08-28 Alex Tokar
 endmsg
 width 9
 height 9
@@ -59,6 +59,10 @@ end
 arch wall_pattern1.131
 y 7
 end
+arch wmask_fire_on_1
+direction 7
+y 7
+end
 arch floor_grey1a1
 y 8
 end
@@ -112,15 +116,15 @@ arch wall_pattern1.111
 x 1
 y 5
 end
-arch wmask_fire_on_1
-x 1
-y 5
-end
 arch floor_grey1a1
 x 1
 y 6
 end
 arch carpet1
+x 1
+y 6
+end
+arch shelf3c.111
 x 1
 y 6
 end
@@ -178,6 +182,10 @@ arch floor_grey1a1
 x 2
 y 3
 end
+arch chest7_111
+x 2
+y 3
+end
 arch floor_grey1a1
 x 2
 y 4
@@ -195,6 +203,10 @@ x 2
 y 6
 end
 arch carpet1
+x 2
+y 6
+end
+arch shelf3a.111
 x 2
 y 6
 end
@@ -259,6 +271,10 @@ arch floor_grey1a1
 x 3
 y 3
 end
+arch rack.111
+x 3
+y 3
+end
 arch floor_grey1a1
 x 3
 y 4
@@ -280,6 +296,10 @@ x 3
 y 6
 end
 arch carpet1.171
+x 3
+y 6
+end
+arch chest_w1
 x 3
 y 6
 end
@@ -330,6 +350,11 @@ x 4
 y 3
 end
 arch floor_grey1a1
+x 4
+y 4
+end
+arch desk2
+direction 7
 x 4
 y 4
 end
@@ -385,6 +410,10 @@ arch floor_grey1a1
 x 5
 y 1
 end
+arch locker5
+x 5
+y 1
+end
 arch floor_grey1a1
 x 5
 y 2
@@ -406,6 +435,11 @@ x 5
 y 4
 end
 arch carpet1.131
+x 5
+y 4
+end
+arch chair2_111
+direction 3
 x 5
 y 4
 end
@@ -422,6 +456,11 @@ x 5
 y 6
 end
 arch carpet1.131
+x 5
+y 6
+end
+arch chest_sw_1
+direction 7
 x 5
 y 6
 end
@@ -448,6 +487,10 @@ x 6
 y 1
 end
 arch carpet1.151
+x 6
+y 1
+end
+arch rack2
 x 6
 y 1
 end
@@ -517,6 +560,10 @@ arch flag_03
 x 7
 end
 arch floor_grey1a1
+x 7
+y 1
+end
+arch chest_w1
 x 7
 y 1
 end

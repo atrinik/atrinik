@@ -2,7 +2,7 @@ arch map
 name Normal Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-05-16 Alex Tokar
+Modified: 2010-08-28 Alex Tokar
 endmsg
 width 7
 height 7
@@ -45,14 +45,14 @@ end
 arch wall_pattern2.131
 y 4
 end
+arch wmask_fire_on_1
+direction 7
+y 4
+end
 arch floor_ostone5
 y 5
 end
 arch wall_pattern2.131
-y 5
-end
-arch wmask_fire_on_1
-direction 7
 y 5
 end
 arch floor_ostone5
@@ -113,6 +113,11 @@ x 1
 y 4
 end
 arch floor_ostone5
+x 1
+y 5
+end
+arch chest_w1
+direction 7
 x 1
 y 5
 end
@@ -201,6 +206,11 @@ x 3
 y 1
 end
 arch floor_ostone5
+x 3
+y 2
+end
+arch shelf3c.111
+direction 7
 x 3
 y 2
 end
@@ -300,7 +310,16 @@ arch floor_ostone5
 x 5
 y 4
 end
+arch desk2
+x 5
+y 4
+end
 arch floor_ostone5
+x 5
+y 5
+end
+arch chair1_111
+direction 5
 x 5
 y 5
 end

@@ -2,7 +2,7 @@ arch map
 name Luxurious Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-05-16 Alex Tokar
+Modified: 2010-08-28 Alex Tokar
 endmsg
 width 14
 height 14
@@ -126,11 +126,21 @@ arch floor_ostone1
 x 1
 y 2
 end
+arch rack.111
+direction 7
+x 1
+y 2
+end
 arch floor_ostone1
 x 1
 y 3
 end
 arch carpet1.131
+x 1
+y 3
+end
+arch rack3
+direction 7
 x 1
 y 3
 end
@@ -162,11 +172,21 @@ arch carpet1.131
 x 1
 y 6
 end
+arch chest7_111
+direction 7
+x 1
+y 6
+end
 arch floor_ostone1
 x 1
 y 7
 end
 arch carpet1.131
+x 1
+y 7
+end
+arch chest7_111
+direction 7
 x 1
 y 7
 end
@@ -194,8 +214,8 @@ arch floor_ostone1
 x 1
 y 10
 end
-arch chest_sw_1
-direction 5
+arch chest_w1
+direction 7
 x 1
 y 10
 end
@@ -212,8 +232,8 @@ arch floor_ostone1
 x 1
 y 12
 end
-arch chest_sw_1
-direction 5
+arch chest_w1
+direction 7
 x 1
 y 12
 end
@@ -360,6 +380,10 @@ arch floor_ostone1
 x 3
 y 1
 end
+arch rack2
+x 3
+y 1
+end
 arch floor_ostone1
 x 3
 y 2
@@ -436,6 +460,10 @@ arch floor_ostone1
 x 3
 y 10
 end
+arch chest_sw_1
+x 3
+y 10
+end
 arch floor_ostone1
 x 3
 y 11
@@ -463,6 +491,10 @@ arch wall_marble1.131
 x 4
 end
 arch floor_ostone1
+x 4
+y 1
+end
+arch rack2
 x 4
 y 1
 end
@@ -725,7 +757,17 @@ arch floor_ostone1
 x 6
 y 3
 end
+arch shelf6_wall.111
+direction 7
+x 6
+y 3
+end
 arch floor_ostone1
+x 6
+y 4
+end
+arch locker3.111
+direction 7
 x 6
 y 4
 end
@@ -738,6 +780,11 @@ x 6
 y 6
 end
 arch floor_ostone1
+x 6
+y 7
+end
+arch shelf3c.111
+direction 7
 x 6
 y 7
 end
@@ -759,6 +806,10 @@ x 6
 y 9
 end
 arch floor_ostone1
+x 6
+y 10
+end
+arch chest_w1
 x 6
 y 10
 end
@@ -848,6 +899,11 @@ arch floor_ostone1
 x 7
 y 8
 end
+arch chair1_111
+direction 3
+x 7
+y 8
+end
 arch floor_ostone1
 x 7
 y 9
@@ -857,6 +913,10 @@ x 7
 y 9
 end
 arch floor_ostone1
+x 7
+y 10
+end
+arch chest_4.111
 x 7
 y 10
 end
@@ -960,6 +1020,10 @@ arch floor_ostone1
 x 8
 y 10
 end
+arch chest_w1
+x 8
+y 10
+end
 arch floor_ostone1
 x 8
 y 11
@@ -1006,6 +1070,11 @@ arch carpet2.131
 x 9
 y 2
 end
+arch locker5
+direction 7
+x 9
+y 2
+end
 arch floor_ostone1
 x 9
 y 3
@@ -1015,6 +1084,11 @@ x 9
 y 3
 end
 arch floor_ostone1
+x 9
+y 4
+end
+arch locker4
+direction 7
 x 9
 y 4
 end
@@ -1161,6 +1235,10 @@ arch floor_ostone1
 x 10
 y 6
 end
+arch locker3.111
+x 10
+y 6
+end
 arch floor_ostone1
 x 10
 y 7
@@ -1181,6 +1259,11 @@ arch floor_ostone1
 x 10
 y 10
 end
+arch shelf3c.111
+direction 7
+x 10
+y 10
+end
 arch floor_ostone1
 x 10
 y 11
@@ -1190,6 +1273,11 @@ x 10
 y 11
 end
 arch floor_ostone1
+x 10
+y 12
+end
+arch locker5
+direction 7
 x 10
 y 12
 end
@@ -1212,6 +1300,10 @@ x 11
 y 1
 end
 arch carpet2.151
+x 11
+y 1
+end
+arch locker2.111
 x 11
 y 1
 end
@@ -1248,6 +1340,10 @@ x 11
 y 5
 end
 arch floor_ostone1
+x 11
+y 6
+end
+arch shelf3a.111
 x 11
 y 6
 end
@@ -1313,7 +1409,7 @@ arch floor_ostone1
 x 12
 y 1
 end
-arch chest_w1
+arch locker1.111
 x 12
 y 1
 end
