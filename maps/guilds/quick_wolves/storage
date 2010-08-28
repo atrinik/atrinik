@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Storage
 msg
 Created:  2009-10-14 Alex Tokar
-Modified: 2010-08-07 Alex Tokar
+Modified: 2010-08-28 Alex Tokar
 endmsg
 width 25
 height 26
@@ -2063,6 +2063,13 @@ slaying Quick Wolves
 x 11
 y 2
 end
+arch map_event_obj
+sub_type 11
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 11
+y 3
+end
 arch blocked
 x 11
 y 7
@@ -2254,6 +2261,13 @@ race /python/guilds/storage.py
 slaying Quick Wolves
 x 12
 y 2
+end
+arch map_event_obj
+sub_type 12
+race /python/guilds/storage.py
+slaying Quick Wolves
+x 12
+y 3
 end
 arch blocked
 x 12
