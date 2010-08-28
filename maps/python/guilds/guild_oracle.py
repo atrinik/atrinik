@@ -186,42 +186,6 @@ def main():
 		else:
 			me.SayTo(activator, "No membership applications.", 1)
 
-	# Remove a member from the guild, or decline their membership application.
-	elif msg[:6] == "remove":
-		if not msg[7:]:
-			me.SayTo(activator, "\nThe remove command can be used to remove a member from the guild, or decline their membership application.\nExample: ~remove Atrinik~")
-		else:
-			name = msg[7:].capitalize()
-
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif not activator.f_wiz and name == activator.name:
-				me.SayTo(activator, "\nYou cannot remove yourself.")
-			elif not activator.f_wiz and guild.is_founder(name):
-				me.SayTo(activator, "\nYou cannot remove the guild founder.")
-			else:
-				if guild.member_remove(name):
-					me.SayTo(activator, "\nSuccessfully removed {} from the guild.".format(name))
-				else:
-					me.SayTo(activator, "\nCould not remove {} from the guild.".format(name))
-
-	# Approve a membership application.
-	elif msg[:7] == "approve":
-		if not msg[8:]:
-			me.SayTo(activator, "\nThe approve command is used to approve a member that applied for the guild membership.\nExample: ~approve Atrinik~")
-		else:
-			name = msg[8:].capitalize()
-
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif guild.member_approved(name):
-				me.SayTo(activator, "\nThis member has already been approved.")
-			else:
-				if guild.member_approve(name):
-					me.SayTo(activator, "\nSuccessfully approved {} for full guild membership.".format(name))
-				else:
-					me.SayTo(activator, "\nSomething went wrong and {} could not be approved.".format(name))
-
 	# Give administrator rights to a member.
 	elif msg[:10] == "give admin":
 		if not msg[11:]:
@@ -259,6 +223,42 @@ def main():
 					me.SayTo(activator, "\nSuccessfully removed administrator rights from {}.".format(name))
 				else:
 					me.SayTo(activator, "\n{} cannot have administrator rights taken away.".format(name))
+
+	# Remove a member from the guild, or decline their membership application.
+	elif msg[:6] == "remove":
+		if not msg[7:]:
+			me.SayTo(activator, "\nThe remove command can be used to remove a member from the guild, or decline their membership application.\nExample: ~remove Atrinik~")
+		else:
+			name = msg[7:].capitalize()
+
+			if not guild.member_exists(name):
+				me.SayTo(activator, "\nNo such member {}.".format(name))
+			elif not activator.f_wiz and name == activator.name:
+				me.SayTo(activator, "\nYou cannot remove yourself.")
+			elif not activator.f_wiz and guild.is_founder(name):
+				me.SayTo(activator, "\nYou cannot remove the guild founder.")
+			else:
+				if guild.member_remove(name):
+					me.SayTo(activator, "\nSuccessfully removed {} from the guild.".format(name))
+				else:
+					me.SayTo(activator, "\nCould not remove {} from the guild.".format(name))
+
+	# Approve a membership application.
+	elif msg[:7] == "approve":
+		if not msg[8:]:
+			me.SayTo(activator, "\nThe approve command is used to approve a member that applied for the guild membership.\nExample: ~approve Atrinik~")
+		else:
+			name = msg[8:].capitalize()
+
+			if not guild.member_exists(name):
+				me.SayTo(activator, "\nNo such member {}.".format(name))
+			elif guild.member_approved(name):
+				me.SayTo(activator, "\nThis member has already been approved.")
+			else:
+				if guild.member_approve(name):
+					me.SayTo(activator, "\nSuccessfully approved {} for full guild membership.".format(name))
+				else:
+					me.SayTo(activator, "\nSomething went wrong and {} could not be approved.".format(name))
 
 	# Check DM commands.
 	elif activator.f_wiz:
