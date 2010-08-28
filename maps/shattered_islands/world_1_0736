@@ -1934,6 +1934,7 @@ x 11
 y 17
 end
 arch floor_fs_grey1b
+z 30
 x 11
 y 18
 end
