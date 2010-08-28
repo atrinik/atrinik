@@ -63,7 +63,7 @@ def main():
 		if is_in_player(other):
 			return
 
-		if not activator.f_wiz and not guild.member_can_pick(activator.name, other):
+		if not activator.f_wiz and not guild.member_is_admin(activator.name) and not guild.member_can_pick(activator.name, other):
 			activator.Write("Your rank limits you from picking up the {}. Please see the Guild Storage Manager NPC for more details.".format(other.GetName()), COLOR_BLUE)
 			SetReturnValue(1)
 			return
@@ -83,6 +83,13 @@ def main():
 		elif other.type == TYPE_CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
 			activator.Write("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
 			SetReturnValue(2)
+	elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:
+		if not activator.f_wiz and not guild.member_is_admin(activator.name):
+			activator.Write("You cannot use that command here.", COLOR_RED)
+			SetReturnValue(1)
+			return
+
+		guild.log_add("{} used /{} {}.".format(activator.name, event_num == MEVENT_CMD_DROP and "drop" or "take", WhatIsMessage()))
 
 guild = Guild(GetOptions())
 main()

@@ -479,7 +479,7 @@ static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	hooks->pick_up(WHO, WHAT);
+	hooks->pick_up(WHO, WHAT, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -504,7 +504,7 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *whoptr, PyObject *args)
 
 	if (ob)
 	{
-		hooks->drop(WHO, ob->obj);
+		hooks->drop(WHO, ob->obj, 0);
 	}
 	else
 	{

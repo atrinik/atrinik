@@ -1286,7 +1286,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		}
 		else
 		{
-			drop_object(pl, op, nrof);
+			drop_object(pl, op, nrof, 0);
 		}
 
 		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
@@ -1304,7 +1304,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		CONTR(pl)->count = nrof;
 		/* Tt goes in player inv or readied container */
-		pick_up(pl, op);
+		pick_up(pl, op, 0);
 		return;
 	}
 
