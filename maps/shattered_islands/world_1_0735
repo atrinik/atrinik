@@ -2,14 +2,15 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-28 Alex Tokar
+Modified: 2010-08-28 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness -1
 no_harm 1
 tile_path_1 world_1_0736
+tile_path_2 world_1_0835
 region asteria
 end
 arch magic_mirror
@@ -373,18 +374,21 @@ last_eat -50
 x 9
 y 3
 end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+arch floor_grey5
+z 30
 x 9
 y 4
 end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+arch floor_grey5
+z 30
 x 9
 y 5
 end
+arch floor_grey5
+z 30
+x 9
+y 6
+end
 arch magic_mirror
 slaying world_0735
 last_eat -50
@@ -414,17 +418,20 @@ last_eat -50
 x 10
 y 3
 end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+arch floor_grey5
+z 34
 x 10
 y 4
 end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+arch floor_grey5
+z 34
 x 10
 y 5
+end
+arch floor_grey5
+z 34
+x 10
+y 6
 end
 arch magic_mirror
 slaying world_0735
@@ -449,17 +456,20 @@ last_eat -50
 x 11
 y 3
 end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+arch floor_grey5
+z 30
 x 11
 y 4
 end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+arch floor_grey5
+z 30
 x 11
 y 5
+end
+arch floor_grey5
+z 30
+x 11
+y 6
 end
 arch magic_mirror
 slaying world_0735
@@ -882,6 +892,86 @@ last_eat -50
 x 22
 y 5
 end
+arch blocked
+x 22
+y 8
+end
+arch wall_pattern1.181
+x 22
+y 8
+end
+arch blocked
+x 22
+y 9
+end
+arch wall_pattern1.131
+x 22
+y 9
+end
+arch blocked
+x 22
+y 10
+end
+arch wall_pattern1.131
+x 22
+y 10
+end
+arch blocked
+x 22
+y 11
+end
+arch wall_pattern1.131
+x 22
+y 11
+end
+arch blocked
+x 22
+y 12
+end
+arch wall_pattern1.131
+x 22
+y 12
+end
+arch blocked
+x 22
+y 13
+end
+arch wall_pattern1.131
+x 22
+y 13
+end
+arch blocked
+x 22
+y 14
+end
+arch wall_pattern1.131
+x 22
+y 14
+end
+arch blocked
+x 22
+y 15
+end
+arch wall_pattern1.131
+x 22
+y 15
+end
+arch blocked
+x 22
+y 16
+end
+arch wall_pattern1.131
+x 22
+y 16
+end
+arch blocked
+x 22
+y 17
+end
+arch wall_pattern1.131
+x 22
+y 17
+end
 arch magic_mirror
 slaying world_0735
 last_eat -50
@@ -916,4 +1006,96 @@ slaying world_0735
 last_eat -50
 x 23
 y 5
+end
+arch blocked
+x 23
+y 8
+end
+arch wall_pattern1.111
+x 23
+y 8
+end
+arch floor_wood2_l1
+x 23
+y 9
+end
+arch shelf3a.111
+x 23
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 23
+y 10
+end
+arch wall_pattern1.111
+x 23
+y 10
+end
+arch floor_wood2_l1
+x 23
+y 11
+end
+arch shelf3a.111
+x 23
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 23
+y 12
+end
+arch wall_pattern1.111
+x 23
+y 12
+end
+arch floor_wood2_l1
+x 23
+y 13
+end
+arch shelf3a.111
+x 23
+y 13
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 23
+y 14
+end
+arch wall_pattern1.111
+x 23
+y 14
+end
+arch floor_wood2_l1
+x 23
+y 15
+end
+arch shelf3a.111
+x 23
+y 15
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 23
+y 16
+end
+arch floor_wood2_l1
+x 23
+y 17
+end
+arch wall_pattern1.111
+x 23
+y 17
 end

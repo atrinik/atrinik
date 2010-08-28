@@ -2,14 +2,15 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-29 Alex Tokar
+Modified: 2010-08-28 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness -1
 no_harm 1
 tile_path_3 world_1_0735
+tile_path_6 world_1_0835
 region asteria
 end
 arch floor_fs_grey1b
