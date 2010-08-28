@@ -2593,6 +2593,6 @@ int command_dmtake(object *op, char *params)
 		return 1;
 	}
 
-	pick_up(op, tmp);
+	pick_up(op, tmp, 0);
 	return 1;
 }

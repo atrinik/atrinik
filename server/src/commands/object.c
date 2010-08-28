@@ -226,8 +226,9 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
  * @param pl Object that is picking up the object.
  * @param op Object to put tmp into.
  * @param tmp Object to pick up.
- * @param nrof Number to pick up (0 means all of them). */
-static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
+ * @param nrof Number to pick up (0 means all of them).
+ * @param no_mevent If 1, no map-wide pickup event will be triggered. */
+static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no_mevent)
 {
 	char buf[HUGE_BUF];
 	object *env = tmp->env;
@@ -289,7 +290,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	}
 
 	/* Trigger the map-wide pick up event. */
-	if (pl->map && pl->map->events && trigger_map_event(MEVENT_PICK, pl->map, pl, tmp, op, NULL, nrof))
+	if (!no_mevent && pl->map && pl->map->events && trigger_map_event(MEVENT_PICK, pl->map, pl, tmp, op, NULL, nrof))
 	{
 		return;
 	}
@@ -402,8 +403,9 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
  * Try to pick up an item.
  * @param op Object trying to pick up.
  * @param alt Optional object op is trying to pick. If NULL, try to pick
- * first item under op. */
-void pick_up(object *op, object *alt)
+ * first item under op.
+ * @param no_mevent If 1, no map-wide pickup event will be triggered. */
+void pick_up(object *op, object *alt, int no_mevent)
 {
 	int need_fix_tmp = 0, count;
 	object *tmp = NULL;
@@ -521,7 +523,7 @@ void pick_up(object *op, object *alt)
 	}
 
 	tag = tmp->count;
-	pick_up_object(op, alt, tmp, count);
+	pick_up_object(op, alt, tmp, count, no_mevent);
 
 	if (was_destroyed(tmp, tag) || tmp->env)
 	{
@@ -694,8 +696,9 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
  * Drop an object onto the floor.
  * @param op Player object.
  * @param tmp The object to drop.
- * @param nrof Number of items to drop (0 for all). */
-void drop_object(object *op, object *tmp, long nrof)
+ * @param nrof Number of items to drop (0 for all).
+ * @param no_mevent If 1, no map-wide event will be triggered. */
+void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 {
 	object *floor;
 
@@ -705,7 +708,7 @@ void drop_object(object *op, object *tmp, long nrof)
 	}
 
 	/* Trigger the map-wide drop event. */
-	if (op->map && op->map->events && trigger_map_event(MEVENT_DROP, op->map, op, tmp, NULL, NULL, nrof))
+	if (!no_mevent && op->map && op->map->events && trigger_map_event(MEVENT_DROP, op->map, op, tmp, NULL, NULL, nrof))
 	{
 		return;
 	}
@@ -869,8 +872,9 @@ void drop_object(object *op, object *tmp, long nrof)
 /**
  * Drop an item, either on the floor or in a container.
  * @param op Who is dropping an item.
- * @param tmp What object to drop. */
-void drop(object *op, object *tmp)
+ * @param tmp What object to drop.
+ * @param no_mevent If 1, no drop map-wide event will be triggered. */
+void drop(object *op, object *tmp, int no_mevent)
 {
 	if (tmp == NULL)
 	{
@@ -897,14 +901,14 @@ void drop(object *op, object *tmp)
 		}
 		else
 		{
-			drop_object(op, tmp, CONTR(op)->count);
+			drop_object(op, tmp, CONTR(op)->count, no_mevent);
 		}
 
 		CONTR(op)->count = 0;
 	}
 	else
 	{
-		drop_object(op, tmp, 0);
+		drop_object(op, tmp, 0, no_mevent);
 	}
 }
 
@@ -939,6 +943,11 @@ int command_take(object *op, char *params)
 		return 0;
 	}
 
+	if (op->map && op->map->events && trigger_map_event(MEVENT_CMD_TAKE, op->map, op, tmp, NULL, params, 0))
+	{
+		return 0;
+	}
+
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 
 	for ( ; tmp; tmp = next)
@@ -960,7 +969,7 @@ int command_take(object *op, char *params)
 			}
 			else
 			{
-				pick_up(op, tmp);
+				pick_up(op, tmp, 1);
 				did_one = 1;
 			}
 		}
@@ -1010,6 +1019,11 @@ int command_drop(object *op, char *params)
 		return 0;
 	}
 
+	if (op->map && op->map->events && trigger_map_event(MEVENT_CMD_DROP, op->map, op, NULL, NULL, params, 0))
+	{
+		return 0;
+	}
+
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 
 	for (tmp = op->inv; tmp; tmp = next)
@@ -1031,7 +1045,7 @@ int command_drop(object *op, char *params)
 			}
 			else
 			{
-				drop(op, tmp);
+				drop(op, tmp, 1);
 				did_one = 1;
 			}
 		}

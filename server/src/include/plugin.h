@@ -130,6 +130,10 @@
 #define MEVENT_APPLY 9
 /** Player has logged in. */
 #define MEVENT_LOGIN 10
+/** The /drop command was used. */
+#define MEVENT_CMD_DROP 11
+/** The /take command was used. */
+#define MEVENT_CMD_TAKE 12
 /*@}*/
 
 /**
@@ -187,7 +191,7 @@ struct plugin_hooklist
 	void (*update_ob_speed)(object *);
 	int (*command_rskill)(object *, char *);
 	void (*become_follower)(object *, object *);
-	void (*pick_up)(object *, object *);
+	void (*pick_up)(object *, object *, int);
 	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
 	void (*esrv_send_item)(object *, object *);
 	player *(*find_player)(char *);
@@ -235,7 +239,7 @@ struct plugin_hooklist
 	void (*get_tod)(timeofday_t *);
 	const char *(*object_get_value)(const object *, const char *const);
 	int (*object_set_value)(object *, const char *, const char *, int);
-	void (*drop)(object *, object *);
+	void (*drop)(object *, object *, int);
 	char *(*query_short_name)(object *, object *);
 	object *(*beacon_locate)(const char *);
 	char *(*strdup_local)(const char *);
