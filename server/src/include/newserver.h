@@ -55,6 +55,8 @@
 #define MAP2_FLAG_HEIGHT     8
 /** Zoom. */
 #define MAP2_FLAG_ZOOM 16
+/** X align. */
+#define MAP2_FLAG_ALIGN 32
 /*@}*/
 
 /**
