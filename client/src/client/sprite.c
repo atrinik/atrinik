@@ -51,7 +51,6 @@ static void red_scale(_Sprite *sprite);
 static void grey_scale(_Sprite *sprite);
 static void fow_scale(_Sprite *sprite);
 static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey);
-static void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 static void zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst);
 static void zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy, int smooth);
 
@@ -261,7 +260,7 @@ void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
  * @param box Box.
  * @param bltfx Bltfx.
  * @param stretch How much to stretch the sprite. */
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch)
+void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom)
 {
 	SDL_Rect dst;
 	SDL_Surface *surface, *blt_sprite, *tmp;
@@ -369,6 +368,16 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		return;
 	}
 
+	if (zoom && zoom != 100)
+	{
+		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, options.zoom_smooth);
+
+		if (!blt_sprite)
+		{
+			return;
+		}
+	}
+
 	SDL_BlitSurface(blt_sprite, box, surface, &dst);
 
 	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
@@ -376,7 +385,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}
 
-	if (stretch)
+	if (stretch || (zoom && zoom != 100))
 	{
 		SDL_FreeSurface(blt_sprite);
 	}
@@ -1307,7 +1316,7 @@ SDL_Surface *zoomSurface(SDL_Surface* src, double zoomx, double zoomy, int smoot
  * @param zoomy Zoom Y.
  * @param[out] dstwidth Will contain calculated width.
  * @param[out] dstheight  Will contain calculated height. */
-static void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight)
+void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight)
 {
 	if (zoomx < VALUE_LIMIT)
 	{

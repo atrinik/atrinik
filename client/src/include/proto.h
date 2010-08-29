@@ -206,7 +206,7 @@ _Sprite *sprite_load_file(char *fname, uint32 flags);
 _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop);
 void sprite_free_sprite(_Sprite *sprite);
 void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch);
+void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom);
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
@@ -220,6 +220,7 @@ void remove_anim(struct _anim *anim);
 void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
 SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
+void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 
 /* client/tilestretcher.c */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
@@ -338,7 +339,7 @@ void update_map_data(const char *name, char *bg_music);
 void init_map_data(int xl, int yl, int px, int py);
 void align_tile_stretch(int x, int y);
 void adjust_tile_stretch();
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe);
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom);
 void map_clear_cell(int x, int y);
 void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();

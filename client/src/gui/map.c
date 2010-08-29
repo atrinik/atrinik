@@ -125,7 +125,7 @@ void map_draw_map_clear()
 		{
 			xpos = options.mapstart_x + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 			ypos = options.mapstart_y + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0, 0);
 		}
 	}
 }
@@ -353,8 +353,9 @@ void adjust_tile_stretch()
  * @param name Player's name.
  * @param name_color Player's name color.
  * @param height Z position of the tile.
- * @param probe Target's HP bar. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe)
+ * @param probe Target's HP bar.
+ * @param zoom How much to zoom the face by. */
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -365,6 +366,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].pcolor[layer] = name_color;
 	strncpy(the_map.cells[x][y].pname[layer], name, sizeof(the_map.cells[x][y].pname[layer]));
 	the_map.cells[x][y].height[layer] = height;
+	the_map.cells[x][y].zoom[layer] = zoom;
 }
 
 /**
@@ -379,12 +381,13 @@ void map_clear_cell(int x, int y)
 
 	for (i = 1; i <= MAX_LAYERS; i++)
 	{
-		the_map.cells[x][y].height[i] = 0;
 		the_map.cells[x][y].faces[i] = 0;
 		the_map.cells[x][y].flags[i] = 0;
 		the_map.cells[x][y].probe[i] = 0;
 		the_map.cells[x][y].quick_pos[i] = 0;
 		the_map.cells[x][y].pname[i][0] = '\0';
+		the_map.cells[x][y].height[i] = 0;
+		the_map.cells[x][y].zoom[i] = 0;
 	}
 }
 
@@ -415,6 +418,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	int mid, mnr;
 	uint32 stretch = 0;
 	_BLTFX bltfx;
+	int bitmap_h, bitmap_w;
 
 	bltfx.surface = NULL;
 	xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
@@ -433,6 +437,14 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		return;
 	}
 
+	bitmap_h = face_sprite->bitmap->h;
+	bitmap_w = face_sprite->bitmap->w;
+
+	if (map->zoom[layer] && map->zoom[layer] != 100)
+	{
+		zoomSurfaceSize(bitmap_w, bitmap_h, map->zoom[layer] / 100.0, map->zoom[layer] / 100.0, &bitmap_w, &bitmap_h);
+	}
+
 	/* We have a set quick_pos = multi tile */
 	if (map->quick_pos[layer])
 	{
@@ -440,14 +452,14 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		mid = mnr >> 4;
 		mnr &= 0x0f;
 		xml = MultiArchs[mid].xlen;
-		yl = ypos - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - face_sprite->bitmap->h;
+		yl = ypos - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - bitmap_h;
 
 		/* we allow overlapping x borders - we simply center then */
 		xl = 0;
 
-		if (face_sprite->bitmap->w > MultiArchs[mid].xlen)
+		if (bitmap_w > MultiArchs[mid].xlen)
 		{
-			xl = (MultiArchs[mid].xlen - face_sprite->bitmap->w) >> 1;
+			xl = (MultiArchs[mid].xlen - bitmap_w) >> 1;
 		}
 
 		xmpos = xpos - MultiArchs[mid].part[mnr].xoff;
@@ -458,12 +470,12 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		/* First, we calc the shift positions */
 		xml = MAP_TILE_POS_XOFF;
-		yl = (ypos + MAP_TILE_POS_YOFF) - face_sprite->bitmap->h;
+		yl = (ypos + MAP_TILE_POS_YOFF) - bitmap_h;
 		xmpos = xl = xpos;
 
-		if (face_sprite->bitmap->w > MAP_TILE_POS_XOFF)
+		if (bitmap_w > MAP_TILE_POS_XOFF)
 		{
-			xl -= (face_sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
+			xl -= (bitmap_w - MAP_TILE_POS_XOFF) / 2;
 		}
 	}
 
@@ -555,7 +567,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		{
 			if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x > (MAP_MAX_SIZE - 1) / 2) && (y < (MAP_MAX_SIZE - 1) / 2)))
 			{
-				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
+				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0, map->zoom[layer]);
 			}
 		}
 
@@ -566,7 +578,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		{
 			if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x < (MAP_MAX_SIZE - 1) / 2) && (y > (MAP_MAX_SIZE - 1) / 2)))
 			{
-				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
+				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0, map->zoom[layer]);
 			}
 		}
 	}
@@ -577,19 +589,19 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	else if (FaceList[face].flags & FACE_FLAG_DOUBLE)
 	{
 		/* Blt face once in normal position. */
-		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
+		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0, map->zoom[layer]);
 
 		/* If it's not in the bottom quadrant of
 		 * the map, blt it again 'higher up' on
 		 * the same square. */
 		if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
 		{
-			sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, 0);
+			sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, 0, map->zoom[layer]);
 		}
 	}
 	else
 	{
-		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch);
+		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[layer]);
 	}
 
 	/* Do we have a playername? Then print it! */
@@ -606,28 +618,28 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		if (map->flags[layer] & FFLAG_SLEEP)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + face_sprite->bitmap->w / 2, yl - 5, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_CONFUSED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + face_sprite->bitmap->w / 2 - 1, yl - 4, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_SCARED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + face_sprite->bitmap->w / 2 + 10, yl - 4, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_BLINDED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + face_sprite->bitmap->w / 2 + 3, yl - 6, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_PARALYZED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 2, yl + 3, NULL, NULL, 0);
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 9, yl + 3, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 9, yl + 3, NULL, NULL, 0, map->zoom[layer]);
 		}
 	}
 

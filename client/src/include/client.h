@@ -554,6 +554,8 @@ extern Client_Player cpl;
 #define MAP2_FLAG_PROBE      4
 /** Tile's Z position. */
 #define MAP2_FLAG_HEIGHT     8
+/** Zoom. */
+#define MAP2_FLAG_ZOOM 16
 /*@}*/
 
 /**
