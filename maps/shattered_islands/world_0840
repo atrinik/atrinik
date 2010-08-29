@@ -208,7 +208,7 @@ x 1
 y 22
 end
 arch grassd_3
-z 36
+z 40
 x 1
 y 23
 end
@@ -319,12 +319,12 @@ x 2
 y 21
 end
 arch grassd_5
-z 30
+z 32
 x 2
 y 22
 end
 arch grassd_7
-z 36
+z 40
 x 2
 y 23
 end
@@ -429,12 +429,12 @@ x 3
 y 21
 end
 arch grassd_2
-z 24
+z 32
 x 3
 y 22
 end
 arch grassd_3
-z 30
+z 40
 x 3
 y 23
 end
@@ -539,12 +539,12 @@ x 4
 y 21
 end
 arch grassd_6
-z 30
+z 32
 x 4
 y 22
 end
 arch grassd_1
-z 24
+z 40
 x 4
 y 23
 end
@@ -655,12 +655,12 @@ x 5
 y 21
 end
 arch grassd_3
-z 30
+z 32
 x 5
 y 22
 end
 arch grassd_2
-z 30
+z 40
 x 5
 y 23
 end
@@ -770,7 +770,7 @@ x 6
 y 22
 end
 arch grassd_1
-z 36
+z 40
 x 6
 y 23
 end
@@ -1671,7 +1671,7 @@ x 14
 y 21
 end
 arch grassd_3
-z 12
+z 16
 x 14
 y 22
 end
