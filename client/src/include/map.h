@@ -138,6 +138,9 @@ struct MapCell
 	/** Zoom. */
 	sint16 zoom[MAX_LAYERS + 1];
 
+	/** Align. */
+	sint16 align[MAX_LAYERS + 1];
+
 	/** How we stretch this is really 8 char for N S E W. */
 	uint32 stretch;
 

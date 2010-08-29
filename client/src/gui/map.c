@@ -354,8 +354,9 @@ void adjust_tile_stretch()
  * @param name_color Player's name color.
  * @param height Z position of the tile.
  * @param probe Target's HP bar.
- * @param zoom How much to zoom the face by. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom)
+ * @param zoom How much to zoom the face by.
+ * @param align X align. */
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -367,6 +368,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	strncpy(the_map.cells[x][y].pname[layer], name, sizeof(the_map.cells[x][y].pname[layer]));
 	the_map.cells[x][y].height[layer] = height;
 	the_map.cells[x][y].zoom[layer] = zoom;
+	the_map.cells[x][y].align[layer] = align;
 }
 
 /**
@@ -388,6 +390,7 @@ void map_clear_cell(int x, int y)
 		the_map.cells[x][y].pname[i][0] = '\0';
 		the_map.cells[x][y].height[i] = 0;
 		the_map.cells[x][y].zoom[i] = 0;
+		the_map.cells[x][y].align[i] = 0;
 	}
 }
 
@@ -477,6 +480,11 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		{
 			xl -= (bitmap_w - MAP_TILE_POS_XOFF) / 2;
 		}
+	}
+
+	if (map->align[layer])
+	{
+		xl += map->align[layer];
 	}
 
 	/* Blit the face in the darkness level the tile pos has */
