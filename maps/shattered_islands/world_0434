@@ -1269,10 +1269,6 @@ arch grassd_5
 x 12
 y 16
 end
-arch tree_big3
-x 12
-y 16
-end
 arch water_lt2
 x 12
 y 17
@@ -1372,23 +1368,11 @@ arch grassd_4
 x 13
 y 15
 end
-arch tree_big2
-x 13
-y 15
-end
 arch grassd_7
 x 13
 y 16
 end
-arch tree_big4b
-x 13
-y 16
-end
 arch grassd_2
-x 13
-y 17
-end
-arch tree_big4b
 x 13
 y 17
 end
@@ -1492,15 +1476,7 @@ arch grassd_2
 x 14
 y 15
 end
-arch tree_big
-x 14
-y 15
-end
 arch grassd_3
-x 14
-y 16
-end
-arch tree_big
 x 14
 y 16
 end
@@ -1508,23 +1484,11 @@ arch grassd_5
 x 14
 y 17
 end
-arch tree_big
-x 14
-y 17
-end
 arch grassd_3
 x 14
 y 18
 end
-arch tree_big
-x 14
-y 18
-end
 arch grassd_1
-x 14
-y 19
-end
-arch tree_big3
 x 14
 y 19
 end
@@ -1620,39 +1584,19 @@ arch grassd_6
 x 15
 y 14
 end
-arch tree_big
-x 15
-y 14
-end
 arch grassd_3
 x 15
 y 15
 end
-arch tree_big2
-x 15
-y 15
-end
 arch grassd_1
 x 15
 y 16
 end
-arch tree_big3
-x 15
-y 16
-end
 arch grassd_1
-x 15
-y 17
-end
-arch tree_big3
 x 15
 y 17
 end
 arch grassd_7
-x 15
-y 18
-end
-arch tree_big2
 x 15
 y 18
 end
@@ -1739,15 +1683,7 @@ z 2
 x 16
 y 13
 end
-arch tree_big4b
-x 16
-y 13
-end
 arch grassd_3
-x 16
-y 14
-end
-arch tree_big3
 x 16
 y 14
 end
@@ -1755,23 +1691,11 @@ arch grassd_1
 x 16
 y 15
 end
-arch tree_big3
-x 16
-y 15
-end
 arch grassd_6
 x 16
 y 16
 end
-arch tree_big3
-x 16
-y 16
-end
 arch grassd_4
-x 16
-y 17
-end
-arch tree_big
 x 16
 y 17
 end
@@ -1868,16 +1792,8 @@ z 6
 x 17
 y 13
 end
-arch tree_big4b
-x 17
-y 13
-end
 arch grassd_6
 z 2
-x 17
-y 14
-end
-arch tree_big4b
 x 17
 y 14
 end
@@ -1885,23 +1801,11 @@ arch grassd_1
 x 17
 y 15
 end
-arch tree_big4b
-x 17
-y 15
-end
 arch grassd_2
 x 17
 y 16
 end
-arch tree_big
-x 17
-y 16
-end
 arch grassd_5
-x 17
-y 17
-end
-arch tree_big
 x 17
 y 17
 end
@@ -1993,16 +1897,8 @@ z 14
 x 18
 y 12
 end
-arch tree_big
-x 18
-y 12
-end
 arch grassd_8
 z 10
-x 18
-y 13
-end
-arch tree_big3
 x 18
 y 13
 end
@@ -2011,24 +1907,12 @@ z 6
 x 18
 y 14
 end
-arch tree_big4b
-x 18
-y 14
-end
 arch grassd_5
 z 2
 x 18
 y 15
 end
-arch tree_big2
-x 18
-y 15
-end
 arch grassd_3
-x 18
-y 16
-end
-arch tree_big
 x 18
 y 16
 end
@@ -2119,16 +2003,8 @@ z 22
 x 19
 y 11
 end
-arch tree_big4b
-x 19
-y 11
-end
 arch grassd_8
 z 18
-x 19
-y 12
-end
-arch tree_big3
 x 19
 y 12
 end
@@ -2137,25 +2013,13 @@ z 14
 x 19
 y 13
 end
-arch tree_big2
-x 19
-y 13
-end
 arch grassd_4
 z 10
 x 19
 y 14
 end
-arch tree_big3
-x 19
-y 14
-end
 arch grassd_8
 z 6
-x 19
-y 15
-end
-arch tree_big2
 x 19
 y 15
 end
@@ -2251,16 +2115,8 @@ z 26
 x 20
 y 11
 end
-arch tree_big4b
-x 20
-y 11
-end
 arch grassd_7
 z 22
-x 20
-y 12
-end
-arch tree_big
 x 20
 y 12
 end
@@ -2269,25 +2125,13 @@ z 18
 x 20
 y 13
 end
-arch tree_big2
-x 20
-y 13
-end
 arch grassd_4
 z 14
 x 20
 y 14
 end
-arch tree_big
-x 20
-y 14
-end
 arch grassd_2
 z 10
-x 20
-y 15
-end
-arch tree_big
 x 20
 y 15
 end
@@ -2384,16 +2228,8 @@ z 30
 x 21
 y 11
 end
-arch tree_big
-x 21
-y 11
-end
 arch grassd_7
 z 26
-x 21
-y 12
-end
-arch tree_big3
 x 21
 y 12
 end
@@ -2402,16 +2238,8 @@ z 22
 x 21
 y 13
 end
-arch tree_big4b
-x 21
-y 13
-end
 arch grassd_8
 z 18
-x 21
-y 14
-end
-arch tree_big4b
 x 21
 y 14
 end
@@ -2509,16 +2337,8 @@ z 34
 x 22
 y 10
 end
-arch tree_big4b
-x 22
-y 10
-end
 arch grassd_8
 z 34
-x 22
-y 11
-end
-arch tree_big
 x 22
 y 11
 end
@@ -2527,25 +2347,13 @@ z 30
 x 22
 y 12
 end
-arch tree_big4b
-x 22
-y 12
-end
 arch grassd_4
 z 26
 x 22
 y 13
 end
-arch tree_big
-x 22
-y 13
-end
 arch grassd_3
 z 22
-x 22
-y 14
-end
-arch tree_big3
 x 22
 y 14
 end
@@ -2644,16 +2452,8 @@ z 38
 x 23
 y 10
 end
-arch tree_big
-x 23
-y 10
-end
 arch grassd_8
 z 38
-x 23
-y 11
-end
-arch tree_big2
 x 23
 y 11
 end
@@ -2662,25 +2462,13 @@ z 34
 x 23
 y 12
 end
-arch tree_big2
-x 23
-y 12
-end
 arch grassd_3
 z 30
 x 23
 y 13
 end
-arch tree_big4b
-x 23
-y 13
-end
 arch grassd_4
 z 26
-x 23
-y 14
-end
-arch tree_big4b
 x 23
 y 14
 end

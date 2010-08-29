@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 emperorbma
+Modified: 2010-08-29 emperorbma
 endmsg
 width 24
 height 24
@@ -62,35 +62,20 @@ arch grassd_2
 z 46
 y 10
 end
-arch tree_big3
-y 10
-end
 arch grassd_8
 z 42
-y 11
-end
-arch tree_big3
 y 11
 end
 arch grassd_8
 z 38
 y 12
 end
-arch tree_big
-y 12
-end
 arch grassd_5
 z 34
 y 13
 end
-arch tree_big3
-y 13
-end
 arch grassd_6
 z 30
-y 14
-end
-arch tree_big2
 y 14
 end
 arch grassd_7
@@ -205,16 +190,8 @@ z 46
 x 1
 y 11
 end
-arch tree_big
-x 1
-y 11
-end
 arch grassd_2
 z 42
-x 1
-y 12
-end
-arch tree_big4b
 x 1
 y 12
 end
@@ -223,16 +200,8 @@ z 38
 x 1
 y 13
 end
-arch tree_big2
-x 1
-y 13
-end
 arch grassd_2
 z 34
-x 1
-y 14
-end
-arch tree_big
 x 1
 y 14
 end
@@ -359,16 +328,8 @@ z 46
 x 2
 y 12
 end
-arch tree_big2
-x 2
-y 12
-end
 arch grassd_7
 z 42
-x 2
-y 13
-end
-arch tree_big
 x 2
 y 13
 end
