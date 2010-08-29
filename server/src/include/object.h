@@ -410,6 +410,9 @@ typedef struct obj
 	/** Power rating of the object. */
 	sint8 item_power;
 
+	/** How much to zoom the object. */
+	uint8 zoom;
+
 	/** The overall speed of this object */
 	float speed;
 
