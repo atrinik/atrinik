@@ -1523,6 +1523,14 @@ void draw_client_map2(object *pl)
 						}
 					}
 
+					if (tmp->align || (mirror && mirror->align))
+					{
+						if (CONTR(pl)->socket.socket_version >= 1041)
+						{
+						flags |= MAP2_FLAG_ALIGN;
+						}
+					}
+
 					/* Damage animation? Store it for later. */
 					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
 					{
@@ -1596,6 +1604,18 @@ void draw_client_map2(object *pl)
 						else
 						{
 							SockList_AddShort(&sl_layer, tmp->zoom);
+						}
+					}
+
+					if (flags & MAP2_FLAG_ALIGN)
+					{
+						if (mirror && mirror->align)
+						{
+							SockList_AddShort(&sl_layer, tmp->align + mirror->align);
+						}
+						else
+						{
+							SockList_AddShort(&sl_layer, tmp->align);
 						}
 					}
 				}

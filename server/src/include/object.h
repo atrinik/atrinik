@@ -300,6 +300,9 @@ typedef struct obj
 	sint16 ox, oy;
 #endif
 
+	/** X align of the object on the actual map. */
+	sint16 align;
+
 	/** Object is a light source */
 	sint8 glow_radius;
 
