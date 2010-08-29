@@ -2,7 +2,7 @@ arch map
 name Inn In The Mountains
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,61 +12,85 @@ region strakewood_island
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 3
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 3
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 3
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 3
 y 21
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 4
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 4
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 4
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 4
 y 21
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 5
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 5
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 5
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 5
 y 21
 end
@@ -186,21 +210,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 6
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 6
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 6
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 6
 y 21
 end
@@ -316,21 +348,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 7
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 7
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 7
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 7
 y 21
 end
@@ -445,21 +485,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 8
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 8
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 8
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 8
 y 21
 end
@@ -580,21 +628,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 9
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 9
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 9
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 9
 y 21
 end
@@ -727,21 +783,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 10
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 10
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 10
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 10
 y 21
 end
@@ -870,21 +934,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 11
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 11
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 11
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 11
 y 21
 end
@@ -993,21 +1065,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 12
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 12
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 12
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 12
 y 21
 end
@@ -1131,21 +1211,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 13
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 13
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 13
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 13
 y 21
 end
@@ -1268,21 +1356,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 14
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 14
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 14
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 14
 y 21
 end
@@ -1399,21 +1495,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 15
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 15
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 15
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 15
 y 21
 end
@@ -1536,21 +1640,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 16
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 16
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 16
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 16
 y 21
 end
@@ -1660,21 +1772,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 17
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 17
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 17
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 17
 y 21
 end
@@ -1788,21 +1908,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 18
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 18
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 18
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 18
 y 21
 end
@@ -1919,21 +2047,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 19
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 19
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 19
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 19
 y 21
 end
@@ -2064,21 +2200,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 20
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 20
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 20
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 20
 y 21
 end
@@ -2199,21 +2343,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 21
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 21
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 21
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 21
 y 21
 end
@@ -2310,21 +2462,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 22
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 22
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 22
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 22
 y 21
 end
@@ -2445,21 +2605,29 @@ y 16
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 23
 y 18
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 23
 y 19
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 23
 y 20
 end
 arch magic_mirror
 slaying world_0816
+last_heal 70
+path_attuned 124
 x 23
 y 21
 end
