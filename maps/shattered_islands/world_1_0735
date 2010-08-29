@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-28 emperorbma
+Modified: 2010-08-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,30 +16,35 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 y 4
 end
 arch magic_mirror
@@ -50,29 +55,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 1
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 1
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 1
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 1
 y 4
 end
@@ -85,35 +100,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 2
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 2
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 2
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 2
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 2
 y 4
 end
@@ -126,29 +145,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 3
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 3
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 3
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 3
 y 4
 end
@@ -161,35 +190,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 4
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 4
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 4
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 4
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 4
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 4
 y 4
 end
@@ -202,29 +235,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 5
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 5
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 5
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 5
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 5
 y 4
 end
@@ -237,35 +280,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 6
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 6
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 6
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 6
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 6
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 6
 y 4
 end
@@ -278,23 +325,31 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 7
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 7
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 7
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 7
 y 3
 end
@@ -313,29 +368,31 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 8
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 8
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 8
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 8
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 8
 y 3
 end
@@ -354,184 +411,215 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 9
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 9
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 9
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 9
 y 3
-end
-arch floor_grey5
-z 30
-x 9
-y 4
-end
-arch floor_grey5
-z 30
-x 9
-y 5
-end
-arch floor_grey5
-z 30
-x 9
-y 6
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+x 9
+y 4
+end
+arch magic_mirror
+slaying world_0735
+last_eat -50
+x 9
+y 5
+end
+arch magic_mirror
+slaying world_0735
+last_eat -50
+last_heal 80
+path_attuned 124
 x 10
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 10
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 10
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 10
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 10
-y 3
-end
-arch floor_grey5
-z 34
+last_heal 80
+path_attuned 124
 x 10
 y 4
 end
-arch floor_grey5
-z 34
+arch magic_mirror
+slaying world_0735
+last_eat -50
+last_heal 80
+path_attuned 124
 x 10
 y 5
-end
-arch floor_grey5
-z 34
-x 10
-y 6
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 11
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 11
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 11
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 11
 y 3
-end
-arch floor_grey5
-z 30
-x 11
-y 4
-end
-arch floor_grey5
-z 30
-x 11
-y 5
-end
-arch floor_grey5
-z 30
-x 11
-y 6
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
+x 11
+y 4
+end
+arch magic_mirror
+slaying world_0735
+last_eat -50
+last_heal 80
+path_attuned 124
+x 11
+y 5
+end
+arch magic_mirror
+slaying world_0735
+last_eat -50
+last_heal 80
+path_attuned 124
 x 12
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 12
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 12
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 12
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 12
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 12
 y 4
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 12
 y 5
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 13
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 13
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 13
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 13
 y 3
 end
@@ -550,29 +638,31 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 14
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 14
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 14
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 14
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 14
 y 3
 end
@@ -591,23 +681,31 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 15
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 15
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 15
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 15
 y 3
 end
@@ -626,35 +724,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 16
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 16
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 16
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 16
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 16
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 16
 y 4
 end
@@ -667,29 +769,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 17
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 17
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 17
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 17
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 17
 y 4
 end
@@ -702,35 +814,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 18
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 18
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 18
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 18
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 18
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 18
 y 4
 end
@@ -743,29 +859,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 19
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 19
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 19
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 19
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 19
 y 4
 end
@@ -778,35 +904,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 20
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 20
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 20
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 20
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 20
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 20
 y 4
 end
@@ -819,29 +949,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 21
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 21
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 21
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 21
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 21
 y 4
 end
@@ -854,35 +994,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 22
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 22
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 22
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 22
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
-x 22
-y 3
-end
-arch magic_mirror
-slaying world_0735
-last_eat -50
+last_heal 80
+path_attuned 124
 x 22
 y 4
 end
@@ -975,29 +1119,39 @@ end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 23
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 23
 y 1
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 23
 y 2
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 23
 y 3
 end
 arch magic_mirror
 slaying world_0735
 last_eat -50
+last_heal 80
+path_attuned 124
 x 23
 y 4
 end
