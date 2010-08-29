@@ -1513,6 +1513,16 @@ void draw_client_map2(object *pl)
 						flags |= MAP2_FLAG_HEIGHT;
 					}
 
+					/* Check if the object has zoom, or check if the magic mirror
+					 * should affect the zoom value of this layer. */
+					if ((tmp->zoom && tmp->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << layer)))
+					{
+						if (CONTR(pl)->socket.socket_version >= 1040)
+						{
+						flags |= MAP2_FLAG_ZOOM;
+						}
+					}
+
 					/* Damage animation? Store it for later. */
 					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
 					{
@@ -1573,6 +1583,19 @@ void draw_client_map2(object *pl)
 						else
 						{
 							SockList_AddShort(&sl_layer, tmp->z);
+						}
+					}
+
+					if (flags & MAP2_FLAG_ZOOM)
+					{
+						/* First check mirror, even if the object *does* have custom zoom. */
+						if (mirror && mirror->last_heal)
+						{
+							SockList_AddShort(&sl_layer, mirror->last_heal);
+						}
+						else
+						{
+							SockList_AddShort(&sl_layer, tmp->zoom);
 						}
 					}
 				}

@@ -29,6 +29,8 @@
 	<listentry value="8" name="item is put into a container" />
 	<listentry value="9" name="item is applied" />
 	<listentry value="10" name="player logs in" />
+	<listentry value="11" name="/drop command used" />
+	<listentry value="12" name="/take command used" />
 </list>
 
 <list name="direction">

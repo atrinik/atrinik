@@ -64,4 +64,14 @@
 	<bmentry bit="4" name="Under Fire" />
 	<bmentry bit="5" name="Cloud Surface" />
 </bitmask>
+
+<bitmask name="mirror_layer_zoom">
+	<bmentry bit="0" name="Layer 1" />
+	<bmentry bit="1" name="Layer 2" />
+	<bmentry bit="2" name="Layer 3" />
+	<bmentry bit="3" name="Layer 4" />
+	<bmentry bit="4" name="Layer 5" />
+	<bmentry bit="5" name="Layer 6" />
+	<bmentry bit="6" name="Layer 7" />
+</bitmask>
 </bitmasks>
