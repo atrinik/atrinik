@@ -2,7 +2,7 @@ arch map
 name Abandoned Mine
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -478,16 +478,14 @@ arch floor_cave1
 x 11
 y 3
 end
-arch exit
-face portal_red.101
-animation portal_red
-slaying strakewood_island/moroch_temple/moroch_temple_0102
-hp 8
-sp 7
+arch spider_web
 x 11
 y 3
 end
-arch light5
+arch damager
+speed 0.0
+slow_move 1
+exp 3
 x 11
 y 3
 end
@@ -539,16 +537,14 @@ arch floor_cave1
 x 11
 y 10
 end
-arch exit
-face portal_red.101
-animation portal_red
-slaying strakewood_island/moroch_temple/moroch_temple_0102
-hp 8
-sp 7
+arch spider_web
 x 11
 y 10
 end
-arch light5
+arch damager
+speed 0.0
+slow_move 1
+exp 3
 x 11
 y 10
 end
@@ -656,17 +652,6 @@ x 12
 y 9
 end
 arch floor_cave5
-x 12
-y 10
-end
-arch spider_web
-x 12
-y 10
-end
-arch damager
-speed 0.0
-slow_move 1
-exp 3
 x 12
 y 10
 end
@@ -1065,7 +1050,12 @@ arch altar_moroch
 x 16
 y 3
 end
-arch light5
+arch pedestal
+layer 0
+sys_object 1
+connected 101
+connect_reset 1
+walk_off 0
 x 16
 y 3
 end
@@ -1084,6 +1074,26 @@ end
 arch floor_cave1
 x 16
 y 7
+end
+arch creator
+connected 101
+lifesave 1
+one_drop 1
+x 16
+y 7
+arch exit
+face portal_red.101
+animation portal_red
+zoom 100
+glow_radius 9
+slaying strakewood_island/moroch_temple/moroch_temple_0102
+hp 8
+sp 7
+arch event_obj
+sub_type 8
+race scripts/strakewood_island/abandoned_mine_portal.py
+end
+end
 end
 arch floor_cave2
 x 16
@@ -1167,6 +1177,17 @@ x 17
 y 2
 end
 arch floor_cave6
+x 17
+y 3
+end
+arch spider_web
+x 17
+y 3
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
 x 17
 y 3
 end
@@ -1548,16 +1569,18 @@ arch floor_cave1
 x 21
 y 3
 end
-arch exit
-face portal_red.101
-animation portal_red
-slaying strakewood_island/moroch_temple/moroch_temple_0102
-hp 8
-sp 7
+arch floor_cave1
 x 21
 y 3
 end
-arch light5
+arch spider_web
+x 21
+y 3
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
 x 21
 y 3
 end
@@ -1616,16 +1639,18 @@ arch floor_cave2
 x 21
 y 10
 end
-arch exit
-face portal_red.101
-animation portal_red
-slaying strakewood_island/moroch_temple/moroch_temple_0102
-hp 8
-sp 7
+arch floor_cave1
 x 21
 y 10
 end
-arch light5
+arch spider_web
+x 21
+y 10
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
 x 21
 y 10
 end
