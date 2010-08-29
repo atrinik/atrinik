@@ -10,7 +10,6 @@ enter_x 1
 enter_y 1
 difficulty 40
 darkness -1
-outdoor 1
 no_harm 1
 tile_path_4 world_1_0735
 tile_path_8 world_1_0736
@@ -303,10 +302,6 @@ end
 arch floor_wood2_l1
 x 3
 y 13
-end
-arch floor_wood2_l1
-x 3
-y 14
 end
 arch floor_wood2_l1
 x 3

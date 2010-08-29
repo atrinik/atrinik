@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-08-28 emperorbma
 endmsg
 width 24
 height 24
@@ -19,22 +19,44 @@ tile_path_7 world_0433
 tile_path_8 world_0435
 region asteria
 end
-arch water_lt3
+arch grassd_8
+z 46
 end
-arch water_lt4
+arch grassd_4
+z 46
 y 1
 end
-arch water_lt2
+arch grassd_1
+z 46
 y 2
 end
-arch water_lt4
+arch grassd_2
+z 46
 y 3
 end
-arch water_lt3
+arch grassd_4
+z 46
 y 4
 end
-arch water_lt4
+arch grassd_6
+z 46
 y 5
+end
+arch grassd_6
+z 46
+y 6
+end
+arch grassd_2
+z 46
+y 7
+end
+arch grassd_2
+z 46
+y 8
+end
+arch grassd_2
+z 46
+y 9
 end
 arch grassd_2
 z 46
@@ -104,30 +126,36 @@ end
 arch grassd_1
 y 23
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 1
 end
-arch water_lt
+arch grassd_3
+z 50
 x 1
 y 1
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 1
 y 2
 end
-arch water_lt2
+arch grassd_3
+z 50
 x 1
 y 3
 end
-arch water_lt3
+arch grassd_6
+z 50
 x 1
 y 4
 end
-arch water_lt
+arch grassd_1
+z 50
 x 1
 y 5
 end
-arch blocked
+arch grassd_2
 z 50
 x 1
 y 6
@@ -251,26 +279,31 @@ arch grassd_7
 x 1
 y 23
 end
-arch water_lt4
+arch grassd_3
+z 50
 x 2
 end
-arch water_lt4
+arch grassd_2
+z 50
 x 2
 y 1
 end
-arch water_lt
+arch grassd_3
+z 50
 x 2
 y 2
 end
-arch water_lt4
+arch grassd_2
+z 50
 x 2
 y 3
 end
-arch water_lt2
+arch grassd_8
+z 50
 x 2
 y 4
 end
-arch blocked
+arch grassd_2
 z 50
 x 2
 y 5
@@ -388,22 +421,26 @@ arch grassd_3
 x 2
 y 23
 end
-arch water_lt2
+arch grassd_8
+z 50
 x 3
 end
-arch water_lt3
+arch grassd_5
+z 50
 x 3
 y 1
 end
-arch water_lt4
+arch grassd_1
+z 50
 x 3
 y 2
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 3
 y 3
 end
-arch blocked
+arch grassd_2
 z 50
 x 3
 y 4

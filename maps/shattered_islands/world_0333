@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-08-28 emperorbma
 endmsg
 width 24
 height 24
@@ -66,19 +66,22 @@ end
 arch wall_cave1b.141
 y 12
 end
-arch grassd_3
+arch fstone1b
 y 13
 end
 arch grassd_7
 y 14
 end
 arch fstone1b
+y 14
+end
+arch fstone1b
 y 15
 end
-arch grassd_3
+arch fstone1b
 y 16
 end
-arch grassd_8
+arch fstone1b
 y 17
 end
 arch grassd_4
@@ -163,7 +166,7 @@ arch wall_cave1.151
 x 1
 y 11
 end
-arch grassd_6
+arch fstone1b
 x 1
 y 12
 end
@@ -278,7 +281,7 @@ arch wall_cave1.151
 x 2
 y 11
 end
-arch grassd_5
+arch fstone1b
 x 2
 y 12
 end
