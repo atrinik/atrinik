@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,7 +17,7 @@ tile_path_6 world_0711
 tile_path_7 world_0511
 tile_path_8 world_0513
 bg_music jungle1.ogg
-region strakewood_island
+region fort_ghzal
 end
 arch grassd_7
 end
@@ -696,7 +696,14 @@ end
 arch grassd_5
 x 5
 end
+arch wall_flagstone1b.131
+x 5
+end
 arch grassd_1
+x 5
+y 1
+end
+arch wall_flagstone1b.131
 x 5
 y 1
 end
@@ -704,11 +711,25 @@ arch grassd_5
 x 5
 y 2
 end
+arch wall_flagstone1b.131
+x 5
+y 2
+end
+arch wmask_fire_on_1
+direction 7
+x 5
+y 2
+end
 arch grassd_4
 x 5
 y 3
 end
-arch stone1
+arch wall_flagstone1b.131
+x 5
+y 3
+end
+arch wmask_fire_on_1
+direction 7
 x 5
 y 3
 end
@@ -716,7 +737,15 @@ arch grassd_1
 x 5
 y 4
 end
+arch wall_flagstone1b.131
+x 5
+y 4
+end
 arch grassd_4
+x 5
+y 5
+end
+arch wall_flagstone1b.131
 x 5
 y 5
 end
@@ -724,7 +753,15 @@ arch grassd_1
 x 5
 y 6
 end
+arch wall_flagstone1b.131
+x 5
+y 6
+end
 arch grassd_8
+x 5
+y 7
+end
+arch wall_flagstone1b.131
 x 5
 y 7
 end
@@ -732,7 +769,15 @@ arch grassd_3
 x 5
 y 8
 end
+arch wall_flagstone1b.131
+x 5
+y 8
+end
 arch grassd_1
+x 5
+y 9
+end
+arch wall_flagstone1b.131
 x 5
 y 9
 end
@@ -816,53 +861,88 @@ arch grassd_8
 x 5
 y 23
 end
-arch grassd_5
+arch floor_grey1b2
 x 6
 end
-arch plant15
+arch pottery5.101
 x 6
 end
-arch grassd_8
+arch floor_grey1b2
 x 6
 y 1
 end
-arch grassd_1
+arch wall_flagstone1b.111
+x 6
+y 1
+end
+arch floor_grey1b1
 x 6
 y 2
 end
-arch grassd_8
+arch wood_pile.101
+x 6
+y 2
+end
+arch floor_grey1a2
 x 6
 y 3
 end
-arch grassd_6
+arch floor_grey1b1
 x 6
 y 4
 end
-arch grassd_4
+arch wall_flagstone1b.111
+x 6
+y 4
+end
+arch wmask_bflag_brown_1
+x 6
+y 4
+end
+arch floor_grey1a1
 x 6
 y 5
 end
-arch grassd_2
+arch candlelight4.101
+x 6
+y 5
+end
+arch light4
+x 6
+y 5
+end
+arch floor_grey1b2
 x 6
 y 6
 end
-arch tree_big2
+arch desk1.111
+direction 7
 x 6
 y 6
 end
-arch grassd_6
+arch floor_grey1b2
 x 6
 y 7
 end
-arch grassd_1
+arch locker2.111
+direction 7
+x 6
+y 7
+end
+arch floor_grey1b2
 x 6
 y 8
 end
-arch grassd_4
+arch shelf3c.111
+direction 7
+x 6
+y 8
+end
+arch floor_grey1a1
 x 6
 y 9
 end
-arch plant_flower1
+arch wall_flagstone1b.111
 x 6
 y 9
 end
@@ -938,54 +1018,66 @@ arch grassd_4
 x 6
 y 23
 end
-arch grassd_3
+arch floor_grey1b1
 x 7
 end
-arch grassd_8
+arch water_floor
+x 7
+end
+arch floor_grey1a1
 x 7
 y 1
 end
-arch grassd_4
+arch gate1_locked
+slaying no_entry
+x 7
+y 1
+end
+arch floor_grey1b1
 x 7
 y 2
 end
-arch grassd_6
+arch floor_grey1a2
 x 7
 y 3
 end
-arch tree_big2
-x 7
-y 3
-end
-arch grassd_7
+arch floor_grey1a1
 x 7
 y 4
 end
-arch grassd_7
+arch doorway_wood1_1
+x 7
+y 4
+end
+arch floor_grey1b1
 x 7
 y 5
 end
-arch plant_flower14
-x 7
-y 5
-end
-arch grassd_4
+arch floor_grey1a2
 x 7
 y 6
 end
-arch grassd_1
+arch floor_grey1a1
 x 7
 y 7
 end
-arch tree_branch2
-x 7
-y 7
-end
-arch grassd_1
+arch floor_grey1b2
 x 7
 y 8
 end
-arch grassd_6
+arch floor_grey1b1
+x 7
+y 9
+end
+arch candlelight4.101
+x 7
+y 9
+end
+arch wall_flagstone1b.111
+x 7
+y 9
+end
+arch light4
 x 7
 y 9
 end
@@ -1065,42 +1157,65 @@ arch tree_big3
 x 7
 y 23
 end
-arch grassd_3
+arch floor_grey1b1
 x 8
 end
-arch grassd_1
+arch wall_flagstone1b.131
+x 8
+end
+arch floor_grey1b2
 x 8
 y 1
 end
-arch grassd_8
+arch wall_flagstone1b.141
+x 8
+y 1
+end
+arch picture1.151
+x 8
+y 1
+end
+arch floor_grey1a1
 x 8
 y 2
 end
-arch grassd_4
+arch floor_grey1a2
 x 8
 y 3
 end
-arch grassd_2
+arch floor_grey1b1
 x 8
 y 4
 end
-arch grassd_8
+arch wall_flagstone1b.111
+x 8
+y 4
+end
+arch floor_grey1b2
 x 8
 y 5
 end
-arch grassd_5
+arch shelf4_wall.111
+x 8
+y 5
+end
+arch floor_grey1b2
 x 8
 y 6
 end
-arch grassd_7
+arch floor_grey1a2
 x 8
 y 7
 end
-arch grassd_6
+arch floor_grey1b2
 x 8
 y 8
 end
-arch grassd_2
+arch floor_grey1a2
+x 8
+y 9
+end
+arch wall_flagstone1b.111
 x 8
 y 9
 end
@@ -1184,50 +1299,115 @@ arch grassd_1
 x 8
 y 23
 end
-arch grassd_7
+arch floor_grey1b1
 x 9
 end
-arch grassd_4
+arch blood_floor1
+x 9
+end
+arch floor_grey1b1
 x 9
 y 1
 end
-arch tree_big2
+arch wall_flagstone1b.111
 x 9
 y 1
 end
-arch grassd_8
+arch floor_grey1a1
 x 9
 y 2
 end
-arch grassd_1
+arch candlelight4.101
+x 9
+y 2
+end
+arch light4
+x 9
+y 2
+end
+arch floor_grey1b2
 x 9
 y 3
 end
-arch tree_big
-x 9
-y 3
-end
-arch grassd_3
+arch floor_grey1b1
 x 9
 y 4
 end
-arch grassd_8
+arch wall_flagstone1b.111
+x 9
+y 4
+end
+arch picture4.151
+x 9
+y 4
+end
+arch floor_grey1b1
 x 9
 y 5
 end
-arch grassd_1
+arch stairs_stone_down
+direction 1
+slaying world_a_0612
+hp 9
+sp 4
+x 9
+y 5
+end
+arch floor_grey1a1
 x 9
 y 6
 end
-arch grassd_5
+arch floor_grey1a1
 x 9
 y 7
 end
-arch grassd_6
+arch table_lab3.111
+x 9
+y 7
+end
+arch light4
+x 9
+y 7
+end
+arch floor_grey1b1
 x 9
 y 8
 end
-arch grassd_3
+arch chair2_111
+direction 5
+x 9
+y 8
+end
+arch spawn_point
+x 9
+y 8
+arch guard_pole
+name Tolowen, the guard captain
+reflect_missile 0
+direction 1
+level 52
+dam 50
+maxhp 90
+can_see_in_dark 1
+unaggressive 0
+stand_still 0
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
+type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/tolowen.py
+end
+end
+end
+arch floor_grey1a1
+x 9
+y 9
+end
+arch wall_flagstone1b.111
 x 9
 y 9
 end
@@ -1307,42 +1487,70 @@ arch grassd_8
 x 9
 y 23
 end
-arch grassd_4
+arch floor_grey1b1
 x 10
 end
-arch grassd_6
+arch trash_wood1.101
+x 10
+end
+arch floor_grey1b1
 x 10
 y 1
 end
-arch grassd_4
+arch gate1_locked
+slaying no_entry
+x 10
+y 1
+end
+arch floor_grey1a1
 x 10
 y 2
 end
-arch grassd_7
+arch floor_grey1b1
 x 10
 y 3
 end
-arch grassd_1
+arch floor_grey1a2
 x 10
 y 4
 end
-arch grassd_8
+arch wall_flagstone1b.111
+x 10
+y 4
+end
+arch floor_grey1b1
 x 10
 y 5
 end
-arch grassd_1
+arch stairs_stone_down
+direction 1
+slaying world_a_0612
+hp 10
+sp 4
+x 10
+y 5
+end
+arch floor_grey1a2
 x 10
 y 6
 end
-arch grassd_7
+arch floor_grey1b2
 x 10
 y 7
 end
-arch grassd_6
+arch floor_grey1b2
 x 10
 y 8
 end
-arch grassd_2
+arch beer_barrel.101
+x 10
+y 8
+end
+arch floor_grey1a1
+x 10
+y 9
+end
+arch wall_flagstone1b.111
 x 10
 y 9
 end
@@ -1430,58 +1638,100 @@ arch stone1
 x 10
 y 23
 end
-arch grassd_3
+arch floor_grey1a2
 x 11
 end
-arch grassd_7
+arch wall_flagstone1b.131
+x 11
+end
+arch floor_grey1a2
 x 11
 y 1
 end
-arch plant_mushroom4
+arch wall_flagstone1b.141
 x 11
 y 1
 end
-arch grassd_1
+arch floor_grey1b1
 x 11
 y 2
 end
-arch grassd_8
+arch wall_flagstone1b.131
+x 11
+y 2
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 11
+y 2
+end
+arch floor_grey1b2
 x 11
 y 3
 end
-arch grassd_1
+arch door1_locked
+direction 3
+x 11
+y 3
+end
+arch floor_grey1b1
 x 11
 y 4
 end
-arch plant15
+arch wall_flagstone1b.141
 x 11
 y 4
 end
-arch grassd_2
+arch wmask_bflag_fire1_1
+direction 7
+x 11
+y 4
+end
+arch floor_grey1a1
 x 11
 y 5
 end
-arch grassd_3
+arch wall_flagstone1b.131
+x 11
+y 5
+end
+arch floor_grey1b2
 x 11
 y 6
 end
-arch grassd_7
+arch wall_flagstone1b.131
+x 11
+y 6
+end
+arch floor_grey1b2
 x 11
 y 7
 end
-arch tree_big
+arch candlelight4.101
 x 11
 y 7
 end
-arch grassd_5
+arch wall_flagstone1b.131
+x 11
+y 7
+end
+arch light4
+x 11
+y 7
+end
+arch floor_grey1a2
 x 11
 y 8
 end
-arch grassd_1
+arch wall_flagstone1b.131
+x 11
+y 8
+end
+arch floor_grey1b1
 x 11
 y 9
 end
-arch small_stones
+arch wall_flagstone1b.141
 x 11
 y 9
 end
@@ -1572,6 +1822,11 @@ arch grassd_1
 x 12
 y 1
 end
+arch torch_wall_1
+direction 7
+x 12
+y 1
+end
 arch grassd_1
 x 12
 y 2
@@ -1588,11 +1843,24 @@ arch grassd_3
 x 12
 y 5
 end
+arch torch_wall_1
+direction 7
+x 12
+y 5
+end
 arch grassd_3
 x 12
 y 6
 end
+arch barrel2.101
+x 12
+y 6
+end
 arch grassd_1
+x 12
+y 7
+end
+arch barrel.101
 x 12
 y 7
 end
@@ -1601,6 +1869,11 @@ x 12
 y 8
 end
 arch grassd_4
+x 12
+y 9
+end
+arch torch_wall_1
+direction 7
 x 12
 y 9
 end

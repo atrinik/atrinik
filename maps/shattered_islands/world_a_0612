@@ -1,0 +1,981 @@
+arch map
+name Under Fort Ghzal
+msg
+Created:  2010-08-29 Alex Tokar
+Modified: 2010-08-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+tile_path_1 world_a_0613
+tile_path_2 world_a_0712
+tile_path_5 world_a_0713
+region fort_ghzal
+end
+arch blocked
+x 8
+y 1
+end
+arch wall_dungeon_8
+x 8
+y 1
+end
+arch blocked
+x 8
+y 2
+end
+arch wall_dungeon_3
+x 8
+y 2
+end
+arch blocked
+x 8
+y 3
+end
+arch wall_dungeon_3
+x 8
+y 3
+end
+arch blocked
+x 8
+y 4
+end
+arch wall_dungeon_3
+x 8
+y 4
+end
+arch blocked
+x 8
+y 5
+end
+arch wall_dungeon_3
+x 8
+y 5
+end
+arch blocked
+x 9
+y 1
+end
+arch wall_dungeon_1
+x 9
+y 1
+end
+arch ring_wall.151
+x 9
+y 1
+end
+arch floor_grey1a1
+x 9
+y 2
+end
+arch floor_grey1b1
+x 9
+y 3
+end
+arch torch_wall_1
+direction 7
+x 9
+y 3
+end
+arch floor_grey1b2
+x 9
+y 4
+end
+arch stairs_stone_up
+direction 1
+slaying world_0612
+hp 9
+sp 5
+x 9
+y 4
+end
+arch floor_grey1b2
+x 9
+y 5
+end
+arch wall_dungeon_1
+x 9
+y 5
+end
+arch blocked
+x 10
+y 1
+end
+arch wall_dungeon_1
+x 10
+y 1
+end
+arch floor_grey1a2
+x 10
+y 2
+end
+arch floor_grey1b1
+x 10
+y 3
+end
+arch floor_grey1a2
+x 10
+y 4
+end
+arch stairs_stone_up
+direction 1
+slaying world_0612
+hp 10
+sp 5
+x 10
+y 4
+end
+arch floor_grey1b2
+x 10
+y 5
+end
+arch wall_dungeon_1
+x 10
+y 5
+end
+arch blocked
+x 10
+y 6
+end
+arch wall_dungeon_3
+x 10
+y 6
+end
+arch blocked
+x 10
+y 7
+end
+arch wall_dungeon_3
+x 10
+y 7
+end
+arch blocked
+x 10
+y 8
+end
+arch wall_dungeon_3
+x 10
+y 8
+end
+arch ring_wall.151
+direction 7
+x 10
+y 8
+end
+arch blocked
+x 10
+y 9
+end
+arch wall_dungeon_3
+x 10
+y 9
+end
+arch blocked
+x 10
+y 10
+end
+arch wall_dungeon_3
+x 10
+y 10
+end
+arch blocked
+x 10
+y 11
+end
+arch wall_dungeon_3
+x 10
+y 11
+end
+arch blocked
+x 11
+y 1
+end
+arch wall_dungeon_1
+x 11
+y 1
+end
+arch flag_04
+x 11
+y 1
+end
+arch floor_grey1b2
+x 11
+y 2
+end
+arch floor_grey1b2
+x 11
+y 3
+end
+arch floor_grey1b2
+x 11
+y 4
+end
+arch floor_grey1a2
+x 11
+y 5
+end
+arch floor_grey1b1
+x 11
+y 6
+end
+arch keg_big.101
+x 11
+y 6
+end
+arch floor_grey1b1
+x 11
+y 7
+end
+arch basket2.101
+x 11
+y 7
+end
+arch torch_wall_1
+direction 7
+x 11
+y 7
+end
+arch floor_grey1b1
+x 11
+y 8
+end
+arch barrel.101
+x 11
+y 8
+end
+arch floor_grey1b1
+x 11
+y 9
+end
+arch barrel2.101
+x 11
+y 9
+end
+arch floor_grey1a1
+x 11
+y 10
+end
+arch barrel2.101
+x 11
+y 10
+end
+arch floor_grey1a1
+x 11
+y 11
+end
+arch wall_dungeon_1
+x 11
+y 11
+end
+arch blocked
+x 12
+y 1
+end
+arch wall_dungeon_1
+x 12
+y 1
+end
+arch floor_grey1a1
+x 12
+y 2
+end
+arch torch_wall_1
+x 12
+y 2
+end
+arch floor_grey1b1
+x 12
+y 3
+end
+arch floor_grey1b1
+x 12
+y 4
+end
+arch floor_grey1b2
+x 12
+y 5
+end
+arch floor_grey1a2
+x 12
+y 6
+end
+arch floor_grey1b2
+x 12
+y 7
+end
+arch basket1.101
+x 12
+y 7
+end
+arch floor_grey1b2
+x 12
+y 8
+end
+arch barrel.101
+x 12
+y 8
+end
+arch floor_grey1b2
+x 12
+y 9
+end
+arch barrel.101
+x 12
+y 9
+end
+arch floor_grey1b1
+x 12
+y 10
+end
+arch barrel2.101
+x 12
+y 10
+end
+arch floor_grey1b2
+x 12
+y 11
+end
+arch wall_dungeon_1
+x 12
+y 11
+end
+arch blocked
+x 13
+y 1
+end
+arch wall_dungeon_1
+x 13
+y 1
+end
+arch floor_grey1a2
+x 13
+y 2
+end
+arch pottery6.101
+x 13
+y 2
+end
+arch floor_grey1b1
+x 13
+y 3
+end
+arch floor_grey1b1
+x 13
+y 4
+end
+arch floor_grey1b1
+x 13
+y 5
+end
+arch floor_grey1a2
+x 13
+y 6
+end
+arch floor_grey1a2
+x 13
+y 7
+end
+arch floor_grey1b1
+x 13
+y 8
+end
+arch basket1.101
+x 13
+y 8
+end
+arch spawn_point
+x 13
+y 8
+arch rat_a
+name small rat
+zoom 70
+level 2
+type 83
+end
+end
+arch floor_grey1a2
+x 13
+y 9
+end
+arch barrel.101
+x 13
+y 9
+end
+arch floor_grey1a2
+x 13
+y 10
+end
+arch barrel.101
+x 13
+y 10
+end
+arch floor_grey1a2
+x 13
+y 11
+end
+arch wall_dungeon_1
+x 13
+y 11
+end
+arch blocked
+x 14
+y 1
+end
+arch wall_dungeon_1
+x 14
+y 1
+end
+arch floor_grey1a1
+x 14
+y 2
+end
+arch pottery1.101
+x 14
+y 2
+end
+arch floor_grey1b2
+x 14
+y 3
+end
+arch floor_grey1b2
+x 14
+y 4
+end
+arch dirt_floor4
+x 14
+y 4
+end
+arch floor_grey1b2
+x 14
+y 5
+end
+arch floor_grey1b1
+x 14
+y 6
+end
+arch floor_grey1b1
+x 14
+y 7
+end
+arch floor_grey1b1
+x 14
+y 8
+end
+arch keg_big.101
+x 14
+y 8
+end
+arch floor_grey1b1
+x 14
+y 9
+end
+arch barrel.101
+x 14
+y 9
+end
+arch floor_grey1b1
+x 14
+y 10
+end
+arch barrel.101
+x 14
+y 10
+end
+arch floor_grey1b2
+x 14
+y 11
+end
+arch wall_dungeon_1
+x 14
+y 11
+end
+arch blocked
+x 15
+y 1
+end
+arch wall_dungeon_1
+x 15
+y 1
+end
+arch floor_grey1b2
+x 15
+y 2
+end
+arch pottery1.101
+x 15
+y 2
+end
+arch floor_grey1b2
+x 15
+y 3
+end
+arch floor_grey1a1
+x 15
+y 4
+end
+arch floor_grey1b2
+x 15
+y 5
+end
+arch floor_grey1b2
+x 15
+y 6
+end
+arch floor_grey1a2
+x 15
+y 7
+end
+arch floor_grey1b1
+x 15
+y 8
+end
+arch pottery4.101
+x 15
+y 8
+end
+arch floor_grey1a1
+x 15
+y 9
+end
+arch basket2.101
+x 15
+y 9
+end
+arch floor_grey1b1
+x 15
+y 10
+end
+arch barrel_water.101
+x 15
+y 10
+end
+arch floor_grey1b1
+x 15
+y 11
+end
+arch wall_dungeon_1
+x 15
+y 11
+end
+arch blocked
+x 16
+end
+arch wall_dungeon_3
+x 16
+end
+arch flag_03
+direction 7
+x 16
+end
+arch blocked
+x 16
+y 1
+end
+arch wall_dungeon_4
+x 16
+y 1
+end
+arch floor_grey1a1
+x 16
+y 2
+end
+arch torch_wall_1
+x 16
+y 2
+end
+arch floor_grey1a1
+x 16
+y 3
+end
+arch floor_grey1b2
+x 16
+y 4
+end
+arch floor_grey1b1
+x 16
+y 5
+end
+arch floor_grey1b1
+x 16
+y 6
+end
+arch floor_grey1b2
+x 16
+y 7
+end
+arch floor_grey1b1
+x 16
+y 8
+end
+arch pottery2.101
+x 16
+y 8
+end
+arch floor_grey1b2
+x 16
+y 9
+end
+arch basket2.101
+x 16
+y 9
+end
+arch floor_grey1b2
+x 16
+y 10
+end
+arch barrel_water.101
+x 16
+y 10
+end
+arch floor_grey1b1
+x 16
+y 11
+end
+arch wall_dungeon_1
+x 16
+y 11
+end
+arch floor_grey1a1
+x 17
+end
+arch floor_grey1b1
+x 17
+y 1
+end
+arch floor_grey1b2
+x 17
+y 2
+end
+arch floor_grey1a1
+x 17
+y 3
+end
+arch floor_grey1a1
+x 17
+y 4
+end
+arch floor_grey1b1
+x 17
+y 5
+end
+arch floor_grey1a2
+x 17
+y 6
+end
+arch floor_grey1a2
+x 17
+y 7
+end
+arch floor_grey1b1
+x 17
+y 8
+end
+arch pottery6.101
+x 17
+y 8
+end
+arch floor_grey1a1
+x 17
+y 9
+end
+arch barrel_water.101
+x 17
+y 9
+end
+arch floor_grey1a1
+x 17
+y 10
+end
+arch barrel_water.101
+x 17
+y 10
+end
+arch floor_grey1a1
+x 17
+y 11
+end
+arch wall_dungeon_1
+x 17
+y 11
+end
+arch floor_grey1b1
+x 18
+end
+arch floor_grey1b2
+x 18
+y 1
+end
+arch floor_grey1b2
+x 18
+y 2
+end
+arch floor_grey1a2
+x 18
+y 3
+end
+arch floor_grey1b1
+x 18
+y 4
+end
+arch floor_grey1a1
+x 18
+y 5
+end
+arch floor_grey1a2
+x 18
+y 6
+end
+arch floor_grey1a2
+x 18
+y 7
+end
+arch floor_grey1b2
+x 18
+y 8
+end
+arch barrel_water.101
+x 18
+y 8
+end
+arch floor_grey1a2
+x 18
+y 9
+end
+arch barrel_water.101
+x 18
+y 9
+end
+arch floor_grey1b2
+x 18
+y 10
+end
+arch barrel_water.101
+x 18
+y 10
+end
+arch floor_grey1b1
+x 18
+y 11
+end
+arch wall_dungeon_1
+x 18
+y 11
+end
+arch floor_grey1b2
+x 19
+end
+arch floor_grey1a1
+x 19
+y 1
+end
+arch floor_grey1a2
+x 19
+y 2
+end
+arch floor_grey1a2
+x 19
+y 3
+end
+arch floor_grey1b2
+x 19
+y 4
+end
+arch floor_grey1a1
+x 19
+y 5
+end
+arch dirt_floor2
+x 19
+y 5
+end
+arch floor_grey1b1
+x 19
+y 6
+end
+arch floor_grey1a2
+x 19
+y 7
+end
+arch floor_grey1b1
+x 19
+y 8
+end
+arch wall_dungeon_8
+x 19
+y 8
+end
+arch floor_grey1a1
+x 19
+y 9
+end
+arch wall_dungeon_3
+x 19
+y 9
+end
+arch floor_grey1b1
+x 19
+y 10
+end
+arch wall_dungeon_3
+x 19
+y 10
+end
+arch floor_grey1a2
+x 19
+y 11
+end
+arch wall_dungeon_4
+x 19
+y 11
+end
+arch floor_grey1b2
+x 20
+end
+arch wall_dungeon_3
+x 20
+end
+arch floor_grey1a1
+x 20
+y 1
+end
+arch wall_dungeon_3
+x 20
+y 1
+end
+arch floor_grey1a2
+x 20
+y 2
+end
+arch wall_dungeon_3
+x 20
+y 2
+end
+arch floor_grey1b2
+x 20
+y 3
+end
+arch wall_dungeon_3
+x 20
+y 3
+end
+arch floor_grey1b2
+x 20
+y 4
+end
+arch wall_dungeon_3
+x 20
+y 4
+end
+arch floor_grey1b1
+x 20
+y 5
+end
+arch floor_grey1b1
+x 20
+y 6
+end
+arch floor_grey1a2
+x 20
+y 7
+end
+arch floor_grey1a2
+x 20
+y 8
+end
+arch wall_dungeon_1
+x 20
+y 8
+end
+arch blocked
+x 21
+y 4
+end
+arch wall_dungeon_1
+x 21
+y 4
+end
+arch ring_wall.151
+x 21
+y 4
+end
+arch floor_grey1a2
+x 21
+y 5
+end
+arch torch_wall_1
+x 21
+y 5
+end
+arch floor_grey1b1
+x 21
+y 6
+end
+arch floor_grey1a2
+x 21
+y 7
+end
+arch floor_grey1a1
+x 21
+y 8
+end
+arch wall_dungeon_1
+x 21
+y 8
+end
+arch blocked
+x 22
+y 4
+end
+arch wall_dungeon_1
+x 22
+y 4
+end
+arch floor_grey1a1
+x 22
+y 5
+end
+arch floor_grey1b2
+x 22
+y 6
+end
+arch floor_grey1b2
+x 22
+y 7
+end
+arch floor_grey1b2
+x 22
+y 8
+end
+arch wall_dungeon_1
+x 22
+y 8
+end
+arch blocked
+x 23
+y 4
+end
+arch wall_dungeon_1
+x 23
+y 4
+end
+arch floor_grey1b1
+x 23
+y 5
+end
+arch floor_grey1a2
+x 23
+y 6
+end
+arch floor_grey1a1
+x 23
+y 7
+end
+arch floor_grey1b1
+x 23
+y 8
+end
+arch wall_dungeon_1
+x 23
+y 8
+end

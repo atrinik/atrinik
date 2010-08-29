@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,7 +17,7 @@ tile_path_6 world_0712
 tile_path_7 world_0512
 tile_path_8 world_0514
 bg_music jungle1.ogg
-region strakewood_island
+region fort_ghzal
 end
 arch grassd_4
 end
@@ -962,11 +962,23 @@ arch grassd_6
 x 5
 y 21
 end
+arch wall_flagstone1.181
+x 5
+y 21
+end
 arch grassd_7
 x 5
 y 22
 end
+arch wall_flagstone1b.131
+x 5
+y 22
+end
 arch grassd_6
+x 5
+y 23
+end
+arch wall_flagstone1b.131
 x 5
 y 23
 end
@@ -1104,15 +1116,23 @@ arch grassd_3
 x 6
 y 21
 end
-arch grassd_6
+arch wall_flagstone1b.111
+x 6
+y 21
+end
+arch floor_grey1b2
 x 6
 y 22
 end
-arch tree_big3
+arch dirt_floor1
 x 6
 y 22
 end
-arch grassd_4
+arch floor_grey1a2
+x 6
+y 23
+end
+arch bowl1_full.101
 x 6
 y 23
 end
@@ -1274,17 +1294,35 @@ arch grassd_7
 x 7
 y 21
 end
-arch grassd_4
+arch wall_flagstone1b.111
+x 7
+y 21
+end
+arch floor_grey1a1
 x 7
 y 22
 end
-arch plant_mushroom5
+arch dirt_floor3
 x 7
 y 22
 end
-arch grassd_8
+arch floor_grey1b2
 x 7
 y 23
+end
+arch dirt_floor4
+x 7
+y 23
+end
+arch spawn_point
+x 7
+y 23
+arch ogre
+level 20
+invulnerable 1
+no_attack 1
+type 83
+end
 end
 arch grassd_5
 x 8
@@ -1443,11 +1481,23 @@ arch grassd_3
 x 8
 y 21
 end
-arch grassd_8
+arch wall_flagstone1b.111
+x 8
+y 21
+end
+arch floor_grey1b1
 x 8
 y 22
 end
-arch grassd_7
+arch wall_flagstone1b.131
+x 8
+y 22
+end
+arch floor_grey1a1
+x 8
+y 23
+end
+arch wall_flagstone1b.131
 x 8
 y 23
 end
@@ -1610,15 +1660,28 @@ arch grassd_8
 x 9
 y 21
 end
-arch grassd_2
+arch wall_flagstone1b.111
+x 9
+y 21
+end
+arch floor_grey1a1
 x 9
 y 22
 end
-arch grassd_4
+arch water_floor
+x 9
+y 22
+end
+arch floor_grey1a1
 x 9
 y 23
 end
-arch plant12
+arch dirt_floor4
+x 9
+y 23
+end
+arch torch_wall_1
+direction 7
 x 9
 y 23
 end
@@ -1765,17 +1828,35 @@ arch grassd_6
 x 10
 y 21
 end
-arch grassd_7
+arch wall_flagstone1b.111
+x 10
+y 21
+end
+arch floor_grey1b2
 x 10
 y 22
 end
-arch tree_big4b
+arch bowl2.101
 x 10
 y 22
 end
-arch grassd_1
+arch floor_grey1a2
 x 10
 y 23
+end
+arch dirt_floor2
+x 10
+y 23
+end
+arch spawn_point
+x 10
+y 23
+arch orc_warlord
+level 46
+invulnerable 1
+no_attack 1
+type 83
+end
 end
 arch grassd_6
 x 11
@@ -1970,11 +2051,23 @@ arch grassd_8
 x 11
 y 21
 end
-arch grassd_4
+arch wall_flagstone1b.111
+x 11
+y 21
+end
+arch floor_grey1b2
 x 11
 y 22
 end
-arch grassd_1
+arch wall_flagstone1b.131
+x 11
+y 22
+end
+arch floor_grey1a1
+x 11
+y 23
+end
+arch wall_flagstone1b.131
 x 11
 y 23
 end
@@ -2137,10 +2230,6 @@ x 12
 y 20
 end
 arch grassd_8
-x 12
-y 21
-end
-arch plant1
 x 12
 y 21
 end
@@ -2557,36 +2646,6 @@ x 15
 y 14
 end
 arch grassd_4
-x 15
-y 15
-end
-arch spawn_point
-x 15
-y 15
-arch guard_pole
-name Tolowen
-reflect_missile 0
-direction 7
-level 25
-dam 50
-maxhp 90
-can_see_in_dark 1
-unaggressive 0
-friendly 1
-stand_still 0
-protect_impact 15
-protect_slash 15
-protect_pierce 15
-protect_cleave 15
-protect_magic 50
-type 83
-arch event_obj
-sub_type 6
-race scripts/strakewood_island/tolowen.py
-end
-end
-end
-arch light7
 x 15
 y 15
 end
