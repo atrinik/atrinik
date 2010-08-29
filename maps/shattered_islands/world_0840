@@ -539,6 +539,7 @@ x 4
 y 21
 end
 arch grassd_6
+z 30
 x 4
 y 22
 end
@@ -955,7 +956,7 @@ x 8
 y 15
 end
 arch grassd_5
-z 6
+z 12
 x 8
 y 16
 end
@@ -1302,7 +1303,7 @@ x 11
 y 16
 end
 arch floor_ruin4
-z 24
+z 18
 x 11
 y 17
 end
@@ -1439,6 +1440,7 @@ x 12
 y 21
 end
 arch grassd_7
+z 24
 x 12
 y 22
 end
@@ -1664,7 +1666,7 @@ x 14
 y 20
 end
 arch grassd_4
-z 12
+z 18
 x 14
 y 21
 end
