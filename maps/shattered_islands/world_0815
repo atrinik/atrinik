@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-26 Alex Tokar
+Modified: 2010-08-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -135,6 +135,12 @@ arch plant8
 x 1
 y 13
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 1
+y 13
+end
 arch grassd_3
 x 1
 y 14
@@ -236,7 +242,19 @@ arch tree_big
 x 2
 y 13
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 2
+y 13
+end
 arch grassd_8
+x 2
+y 14
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 2
 y 14
 end
@@ -337,7 +355,19 @@ arch plant8
 x 3
 y 13
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 3
+y 13
+end
 arch grassd_5
+x 3
+y 14
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 3
 y 14
 end
@@ -346,6 +376,12 @@ x 3
 y 15
 end
 arch plant_mushroom2
+x 3
+y 15
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 3
 y 15
 end
@@ -427,11 +463,29 @@ arch plant7
 x 4
 y 14
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 4
+y 14
+end
 arch grassd_4
 x 4
 y 15
 end
+arch magic_mirror
+last_heal 95
+path_attuned 32
+x 4
+y 15
+end
 arch grassd_2
+x 4
+y 16
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 4
 y 16
 end
@@ -524,6 +578,12 @@ arch plant8
 x 5
 y 15
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 5
+y 15
+end
 arch grassd_5
 x 5
 y 16
@@ -532,11 +592,23 @@ arch tree_big
 x 5
 y 16
 end
+arch magic_mirror
+last_heal 95
+path_attuned 32
+x 5
+y 16
+end
 arch grassd_2
 x 5
 y 17
 end
 arch small_stones
+x 5
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 5
 y 17
 end
@@ -617,11 +689,23 @@ arch plant8
 x 6
 y 16
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 6
+y 16
+end
 arch grassd_7
 x 6
 y 17
 end
 arch plant9
+x 6
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 6
 y 17
 end
@@ -669,11 +753,23 @@ arch wall_cave1b.141
 x 7
 y 1
 end
-arch blocked
+arch magic_mirror
+slaying world_a_0815
 x 7
-y 11
+y 8
 end
-arch wall_cave1.171
+arch magic_mirror
+slaying world_a_0815
+x 7
+y 9
+end
+arch magic_mirror
+slaying world_a_0815
+x 7
+y 10
+end
+arch magic_mirror
+slaying world_a_0815
 x 7
 y 11
 end
@@ -717,7 +813,19 @@ arch plant8
 x 7
 y 16
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 7
+y 16
+end
 arch grassd_6
+x 7
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 7
 y 17
 end
@@ -760,18 +868,38 @@ end
 arch wall_cave1b.141
 x 8
 end
-arch blocked
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
+x 8
+y 8
+end
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
+x 8
+y 9
+end
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
+x 8
+y 10
+end
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
 x 8
 y 11
 end
-arch grassd_4
-x 8
-y 12
-end
-arch invis_exit
+arch magic_mirror
 slaying world_a_0815
-hp 8
-sp 12
+last_heal 75
+path_attuned 124
 x 8
 y 12
 end
@@ -784,12 +912,25 @@ connected 101
 x 8
 y 12
 end
+arch invis_exit
+slaying world_a_0815
+hp 8
+sp 12
+x 8
+y 12
+end
 arch grassd_4
 x 8
 y 13
 end
 arch gateTrg1
 connected 101
+x 8
+y 13
+end
+arch magic_mirror
+last_heal 80
+path_attuned 32
 x 8
 y 13
 end
@@ -808,6 +949,12 @@ direction 5
 x 8
 y 14
 end
+arch magic_mirror
+last_heal 80
+path_attuned 32
+x 8
+y 14
+end
 arch floor_sand_d1
 x 8
 y 15
@@ -820,11 +967,23 @@ arch plant7
 x 8
 y 15
 end
+arch magic_mirror
+last_heal 85
+path_attuned 32
+x 8
+y 15
+end
 arch floor_sand_d1
 x 8
 y 16
 end
 arch grassd_m9
+x 8
+y 16
+end
+arch magic_mirror
+last_heal 90
+path_attuned 32
 x 8
 y 16
 end
@@ -833,6 +992,12 @@ x 8
 y 17
 end
 arch grassd_m9
+x 8
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 8
 y 17
 end
@@ -872,11 +1037,38 @@ arch grassd_4
 x 8
 y 23
 end
-arch blocked
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
+x 9
+y 8
+end
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
+x 9
+y 9
+end
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
+x 9
+y 10
+end
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
 x 9
 y 11
 end
-arch grassd_3
+arch magic_mirror
+slaying world_a_0815
+last_heal 75
+path_attuned 124
 x 9
 y 12
 end
@@ -896,6 +1088,12 @@ connected 101
 x 9
 y 13
 end
+arch magic_mirror
+last_heal 80
+path_attuned 32
+x 9
+y 13
+end
 arch grassd_3
 x 9
 y 14
@@ -911,11 +1109,23 @@ direction 5
 x 9
 y 14
 end
+arch magic_mirror
+last_heal 80
+path_attuned 32
+x 9
+y 14
+end
 arch floor_sand_d1
 x 9
 y 15
 end
 arch grassd_m6
+x 9
+y 15
+end
+arch magic_mirror
+last_heal 85
+path_attuned 32
 x 9
 y 15
 end
@@ -927,11 +1137,23 @@ arch grassd_m8
 x 9
 y 16
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 9
+y 16
+end
 arch floor_sand_d4
 x 9
 y 17
 end
 arch grassd_m12
+x 9
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 9
 y 17
 end
@@ -971,11 +1193,23 @@ arch grassd_5
 x 9
 y 23
 end
-arch blocked
+arch magic_mirror
+slaying world_a_0815
 x 10
-y 11
+y 8
 end
-arch wall_cave1.131
+arch magic_mirror
+slaying world_a_0815
+x 10
+y 9
+end
+arch magic_mirror
+slaying world_a_0815
+x 10
+y 10
+end
+arch magic_mirror
+slaying world_a_0815
 x 10
 y 11
 end
@@ -1019,11 +1253,23 @@ arch plant8
 x 10
 y 16
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 10
+y 16
+end
 arch floor_sand_d4
 x 10
 y 17
 end
 arch grassd_m6
+x 10
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 10
 y 17
 end
@@ -1091,7 +1337,19 @@ arch plant8
 x 11
 y 16
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 11
+y 16
+end
 arch grassd_2
+x 11
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 11
 y 17
 end
@@ -1159,11 +1417,29 @@ arch plant8
 x 12
 y 15
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 12
+y 15
+end
 arch grassd_3
 x 12
 y 16
 end
+arch magic_mirror
+last_heal 95
+path_attuned 32
+x 12
+y 16
+end
 arch grassd_3
+x 12
+y 17
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 12
 y 17
 end
@@ -1223,7 +1499,19 @@ arch plant7
 x 13
 y 14
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 13
+y 14
+end
 arch grassd_6
+x 13
+y 15
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 13
 y 15
 end
@@ -1232,6 +1520,12 @@ x 13
 y 16
 end
 arch plant_mushroom4
+x 13
+y 16
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 13
 y 16
 end
@@ -1307,7 +1601,19 @@ arch plant8
 x 14
 y 14
 end
+arch magic_mirror
+last_heal 90
+path_attuned 32
+x 14
+y 14
+end
 arch grassd_8
+x 14
+y 15
+end
+arch magic_mirror
+last_heal 95
+path_attuned 32
 x 14
 y 15
 end
