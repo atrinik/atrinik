@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-08-24 Alex Tokar
+Modified: 2010-08-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -945,7 +945,7 @@ end
 arch exit_green
 slaying ../../world_a_0813
 hp 16
-sp 7
+sp 9
 x 7
 y 7
 end
