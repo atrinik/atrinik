@@ -2,7 +2,7 @@ arch map
 name Under Fort Ghzal
 msg
 Created:  2010-08-29 Alex Tokar
-Modified: 2010-08-29 Alex Tokar
+Modified: 2010-08-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2282,7 +2282,9 @@ arch spawn_point
 x 15
 y 3
 arch guard
-level 28
+is_good 0
+is_evil 1
+level 38
 type 83
 end
 end
@@ -2443,6 +2445,8 @@ x 16
 y 5
 end
 arch wall_dungeon_3
+name fake dungeon wall
+no_pass 0
 x 16
 y 5
 end
@@ -2588,6 +2592,26 @@ arch wall_dungeon_3
 x 16
 y 23
 end
+arch floor_cave5
+x 17
+y 4
+end
+arch fwall_fstone1a
+x 17
+y 4
+end
+arch floor_cave2
+x 17
+y 5
+end
+arch floor_cave6
+x 17
+y 6
+end
+arch fwall_fstone1a
+x 17
+y 6
+end
 arch blocked
 x 17
 y 7
@@ -2691,6 +2715,30 @@ direction 7
 x 17
 y 23
 end
+arch floor_cave5
+x 18
+y 4
+end
+arch fwall_fstone1a
+x 18
+y 4
+end
+arch floor_cave1
+x 18
+y 5
+end
+arch dirt_floor4
+x 18
+y 5
+end
+arch floor_cave1
+x 18
+y 6
+end
+arch fwall_fstone1c
+x 18
+y 6
+end
 arch blocked
 x 18
 y 7
@@ -2766,6 +2814,30 @@ end
 arch floor_grey1b1
 x 18
 y 23
+end
+arch floor_cave5
+x 19
+y 4
+end
+arch fwall_fstone1b
+x 19
+y 4
+end
+arch plant2_wall.151
+x 19
+y 4
+end
+arch floor_cave1
+x 19
+y 5
+end
+arch floor_cave2
+x 19
+y 6
+end
+arch fwall_fstone1b
+x 19
+y 6
 end
 arch blocked
 x 19
@@ -2843,6 +2915,26 @@ arch floor_grey1a2
 x 19
 y 23
 end
+arch floor_cave2
+x 20
+y 4
+end
+arch fwall_fstone1c
+x 20
+y 4
+end
+arch floor_cave2
+x 20
+y 5
+end
+arch floor_cave6
+x 20
+y 6
+end
+arch fwall_fstone1a
+x 20
+y 6
+end
 arch blocked
 x 20
 y 7
@@ -2978,4 +3070,96 @@ end
 arch wall_dungeon_3
 x 20
 y 23
+end
+arch floor_cave1
+x 21
+y 4
+end
+arch fwall_fstone1a
+x 21
+y 4
+end
+arch floor_cave6
+x 21
+y 5
+end
+arch floor_cave5
+x 21
+y 6
+end
+arch fwall_fstone1b
+x 21
+y 6
+end
+arch floor_cave6
+x 21
+y 7
+end
+arch fwall_fstone1c
+x 21
+y 7
+end
+arch floor_cave5
+x 22
+y 4
+end
+arch fwall_fstone1c
+x 22
+y 4
+end
+arch floor_cave2
+x 22
+y 5
+end
+arch torch_wall_1
+x 22
+y 5
+end
+arch floor_cave1
+x 22
+y 6
+end
+arch dirt_floor4
+x 22
+y 6
+end
+arch floor_cave2
+x 22
+y 7
+end
+arch fwall_fstone1a
+x 22
+y 7
+end
+arch floor_cave5
+x 23
+y 4
+end
+arch fwall_fstone1c
+x 23
+y 4
+end
+arch floor_cave6
+x 23
+y 5
+end
+arch fwall_fstone1c
+x 23
+y 5
+end
+arch plant2_wall.151
+x 23
+y 5
+end
+arch floor_cave5
+x 23
+y 6
+end
+arch floor_cave1
+x 23
+y 7
+end
+arch fwall_fstone1a
+x 23
+y 7
 end
