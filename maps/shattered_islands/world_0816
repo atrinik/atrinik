@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -431,11 +431,13 @@ arch wall_cave1.141
 x 5
 y 8
 end
-arch grassd_3
+arch grassd_5
+z 50
 x 5
 y 9
 end
-arch grassd_8
+arch grassd_5
+z 50
 x 5
 y 10
 end
@@ -2292,6 +2294,16 @@ y 16
 end
 arch grassd_8
 z 50
+x 15
+y 17
+end
+arch sign_pub
+msg
+Resting place for weary adventurers.
+
+Continue east to The City of Greyton.
+endmsg
+direction 5
 x 15
 y 17
 end
