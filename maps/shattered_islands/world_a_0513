@@ -2,12 +2,14 @@ arch map
 name Ogre Guard
 msg
 Created:  2010-03-16 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 darkness 2
+tile_path_2 world_a_0613
+tile_path_6 world_a_0612
 bg_music thonkdonk.ogg
 region strakewood_island
 end
@@ -1722,9 +1724,9 @@ x 12
 y 4
 end
 arch ladder_up
-slaying ../world_0513
-hp 11
-sp 7
+slaying world_0513
+hp 12
+sp 4
 x 12
 y 4
 end
@@ -1806,9 +1808,9 @@ x 12
 y 17
 end
 arch ladder_up
-slaying ../world_0513
-hp 11
-sp 20
+slaying world_0513
+hp 12
+sp 17
 x 12
 y 17
 end

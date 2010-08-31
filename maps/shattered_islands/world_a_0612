@@ -2,7 +2,7 @@ arch map
 name Under Fort Ghzal
 msg
 Created:  2010-08-29 Alex Tokar
-Modified: 2010-08-29 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness 2
 tile_path_1 world_a_0613
 tile_path_2 world_a_0712
 tile_path_5 world_a_0713
+tile_path_8 world_a_0513
 region fort_ghzal
 end
 arch blocked
