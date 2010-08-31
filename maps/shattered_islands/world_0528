@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -199,6 +199,10 @@ arch forge_111
 x 1
 y 12
 end
+arch light3
+x 1
+y 12
+end
 arch floor_grey9
 x 1
 y 13
@@ -337,6 +341,14 @@ arch floor_grey9
 x 2
 y 13
 end
+arch spawn_point
+x 2
+y 13
+arch chef
+level 17
+type 83
+end
+end
 arch floor_grey9
 x 2
 y 14
@@ -345,15 +357,15 @@ arch floor_grey9
 x 2
 y 15
 end
-arch light9
-x 2
-y 15
-end
 arch floor_grey9
 x 2
 y 16
 end
 arch wall_flagstone1.111
+x 2
+y 16
+end
+arch wmask_bflag_fire1_1
 x 2
 y 16
 end
@@ -387,6 +399,15 @@ direction 5
 x 2
 y 21
 end
+arch spawn_point
+x 2
+y 21
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
+end
 arch floor_grey9
 x 2
 y 22
@@ -396,6 +417,10 @@ x 2
 y 23
 end
 arch wall_flagstone1.111
+x 2
+y 23
+end
+arch flag_eagle
 x 2
 y 23
 end
@@ -466,6 +491,10 @@ arch forge_111
 x 3
 y 12
 end
+arch light3
+x 3
+y 12
+end
 arch floor_grey9
 x 3
 y 13
@@ -490,11 +519,23 @@ arch floor_grey9
 x 3
 y 17
 end
+arch torch_wall_1
+x 3
+y 17
+end
 arch floor_grey9
 x 3
 y 18
 end
 arch floor_grey9
+x 3
+y 19
+end
+arch candlelight4.101
+x 3
+y 19
+end
+arch light5
 x 3
 y 19
 end
@@ -595,6 +636,10 @@ arch floor_grey9
 x 4
 y 12
 end
+arch wall_well.131
+x 4
+y 12
+end
 arch floor_grey9
 x 4
 y 13
@@ -624,7 +669,7 @@ x 4
 y 17
 end
 arch bar1
-direction 5
+direction 6
 x 4
 y 17
 end
@@ -645,6 +690,15 @@ direction 5
 x 4
 y 20
 end
+arch spawn_point
+x 4
+y 20
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
+end
 arch floor_grey9
 x 4
 y 21
@@ -663,6 +717,10 @@ x 4
 y 23
 end
 arch wall_flagstone1.111
+x 4
+y 23
+end
+arch flag_eagle
 x 4
 y 23
 end
@@ -762,7 +820,6 @@ x 5
 y 17
 end
 arch bar1
-direction 5
 x 5
 y 17
 end
@@ -892,12 +949,19 @@ arch floor_grey9
 x 6
 y 16
 end
+arch spawn_point
+x 6
+y 16
+arch woman_old
+level 13
+type 83
+end
+end
 arch floor_grey9
 x 6
 y 17
 end
 arch bar1
-direction 5
 x 6
 y 17
 end
@@ -1035,7 +1099,6 @@ x 7
 y 17
 end
 arch bar1
-direction 5
 x 7
 y 17
 end
@@ -1044,6 +1107,14 @@ x 7
 y 18
 end
 arch floor_grey9
+x 7
+y 19
+end
+arch candlelight4.101
+x 7
+y 19
+end
+arch light5
 x 7
 y 19
 end
@@ -1069,11 +1140,23 @@ arch floor_grey9
 x 7
 y 22
 end
+arch candlelight4.101
+x 7
+y 22
+end
+arch light5
+x 7
+y 22
+end
 arch floor_grey9
 x 7
 y 23
 end
 arch wall_flagstone1.111
+x 7
+y 23
+end
+arch ring_wall.151
 x 7
 y 23
 end
@@ -1140,7 +1223,15 @@ arch wall_flagstone1.111
 x 8
 y 11
 end
+arch picture4.151
+x 8
+y 11
+end
 arch floor_grey9
+x 8
+y 12
+end
+arch stairs_stone_down
 x 8
 y 12
 end
@@ -1160,7 +1251,15 @@ arch floor_grey9
 x 8
 y 16
 end
+arch candlelight4.101
+x 8
+y 16
+end
 arch wall_flagstone1.181
+x 8
+y 16
+end
+arch light5
 x 8
 y 16
 end
@@ -1169,7 +1268,7 @@ x 8
 y 17
 end
 arch bar1
-direction 5
+direction 4
 x 8
 y 17
 end
@@ -1189,6 +1288,15 @@ arch bank1.111
 direction 5
 x 8
 y 20
+end
+arch spawn_point
+x 8
+y 20
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
 end
 arch floor_grey9
 x 8
@@ -1456,11 +1564,23 @@ arch grassd_7
 x 10
 y 12
 end
+arch tree_branch3
+x 10
+y 12
+end
 arch grassd_2
 x 10
 y 13
 end
+arch tree_big4b
+x 10
+y 13
+end
 arch grassd_8
+x 10
+y 14
+end
+arch tree_big2
 x 10
 y 14
 end
@@ -1472,7 +1592,15 @@ arch grassd_6
 x 10
 y 16
 end
+arch stairs_stone_up
+x 10
+y 16
+end
 arch grassd_6
+x 10
+y 17
+end
+arch stairs_stone_up
 x 10
 y 17
 end
@@ -1489,6 +1617,10 @@ x 10
 y 20
 end
 arch grassd_4
+x 10
+y 21
+end
+arch plant13
 x 10
 y 21
 end
@@ -1574,11 +1706,19 @@ arch grassd_7
 x 11
 y 14
 end
+arch plant_flower11
+x 11
+y 14
+end
 arch grassd_7
 x 11
 y 15
 end
 arch grassd_1
+x 11
+y 16
+end
+arch tree_branch1
 x 11
 y 16
 end
@@ -1598,11 +1738,19 @@ arch grassd_5
 x 11
 y 20
 end
+arch plant_flower2
+x 11
+y 20
+end
 arch grassd_7
 x 11
 y 21
 end
 arch grassd_2
+x 11
+y 22
+end
+arch plant_flower5
 x 11
 y 22
 end
@@ -1847,6 +1995,10 @@ arch floor_flagstone1d
 x 13
 y 12
 end
+arch torch_wall_1
+x 13
+y 12
+end
 arch floor_flagstone1d
 x 13
 y 13
@@ -1859,7 +2011,16 @@ arch floor_flagstone1d
 x 13
 y 15
 end
+arch dirt_floor4
+x 13
+y 15
+end
 arch floor_flagstone1d
+x 13
+y 16
+end
+arch torch_wall_1
+direction 7
 x 13
 y 16
 end
@@ -1875,6 +2036,11 @@ arch floor_flagstone1d
 x 13
 y 19
 end
+arch torch_wall_1
+direction 7
+x 13
+y 19
+end
 arch floor_flagstone1d
 x 13
 y 20
@@ -1884,6 +2050,11 @@ x 13
 y 21
 end
 arch floor_flagstone1d
+x 13
+y 22
+end
+arch torch_wall_1
+direction 7
 x 13
 y 22
 end
@@ -1970,11 +2141,19 @@ arch floor_flagstone1d
 x 14
 y 12
 end
+arch trash_wood1.101
+x 14
+y 12
+end
 arch floor_flagstone1d
 x 14
 y 13
 end
 arch floor_flagstone1d
+x 14
+y 14
+end
+arch dirt_floor3
 x 14
 y 14
 end
@@ -1987,6 +2166,10 @@ x 14
 y 16
 end
 arch floor_flagstone1d
+x 14
+y 17
+end
+arch trash_wood2.101
 x 14
 y 17
 end
@@ -2003,6 +2186,10 @@ x 14
 y 20
 end
 arch floor_flagstone1d
+x 14
+y 21
+end
+arch trash_wood1.101
 x 14
 y 21
 end
@@ -2104,6 +2291,15 @@ arch floor_flagstone1d
 x 15
 y 15
 end
+arch spawn_point
+x 15
+y 15
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
+end
 arch floor_flagstone1d
 x 15
 y 16
@@ -2117,6 +2313,10 @@ x 15
 y 18
 end
 arch floor_flagstone1d
+x 15
+y 19
+end
+arch dirt_floor3
 x 15
 y 19
 end
@@ -2206,6 +2406,10 @@ arch floor_flagstone1d
 x 16
 y 12
 end
+arch trash_wood1.101
+x 16
+y 12
+end
 arch floor_flagstone1d
 x 16
 y 13
@@ -2243,6 +2447,10 @@ x 16
 y 21
 end
 arch floor_flagstone1d
+x 16
+y 22
+end
+arch dirt_floor3
 x 16
 y 22
 end
@@ -2337,6 +2545,10 @@ arch floor_flagstone1d
 x 17
 y 14
 end
+arch dirt_floor3
+x 17
+y 14
+end
 arch floor_flagstone1d
 x 17
 y 15
@@ -2350,6 +2562,10 @@ x 17
 y 17
 end
 arch floor_flagstone1d
+x 17
+y 18
+end
+arch trash_wood1.101
 x 17
 y 18
 end
@@ -2443,6 +2659,10 @@ arch floor_flagstone1d
 x 18
 y 12
 end
+arch dirt_floor4
+x 18
+y 12
+end
 arch floor_flagstone1d
 x 18
 y 13
@@ -2460,6 +2680,10 @@ x 18
 y 16
 end
 arch floor_flagstone1d
+x 18
+y 17
+end
+arch trash_wood1.101
 x 18
 y 17
 end
@@ -2570,7 +2794,15 @@ arch floor_flagstone1d
 x 19
 y 12
 end
+arch torch_wall_1
+x 19
+y 12
+end
 arch floor_flagstone1d
+x 19
+y 13
+end
+arch trash_wood1.101
 x 19
 y 13
 end
@@ -2700,6 +2932,10 @@ arch floor_flagstone1d
 x 20
 y 14
 end
+arch dirt_floor3
+x 20
+y 14
+end
 arch floor_flagstone1d
 x 20
 y 15
@@ -2720,6 +2956,10 @@ arch floor_flagstone1d
 x 20
 y 19
 end
+arch dirt_floor3
+x 20
+y 19
+end
 arch floor_flagstone1d
 x 20
 y 20
@@ -2733,6 +2973,10 @@ x 20
 y 22
 end
 arch floor_flagstone1d
+x 20
+y 23
+end
+arch gate1_locked
 x 20
 y 23
 end
@@ -2882,6 +3126,11 @@ arch floor_flagstone1d
 x 21
 y 23
 end
+arch grate1_1
+layer 4
+x 21
+y 23
+end
 arch wall_flagstone1.131
 x 21
 y 23
@@ -2981,6 +3230,10 @@ x 22
 y 16
 end
 arch floor_flagstone1d
+x 22
+y 17
+end
+arch trash_wood1.101
 x 22
 y 17
 end

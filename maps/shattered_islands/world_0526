@@ -1068,7 +1068,16 @@ arch wall_flagstone1.141
 x 8
 y 1
 end
+arch flag_eagle
+x 8
+y 1
+end
 arch grassd_3
+x 8
+y 2
+end
+arch wagon_small.111
+direction 7
 x 8
 y 2
 end
@@ -1748,6 +1757,10 @@ x 13
 y 1
 end
 arch wall_flagstone1.111
+x 13
+y 1
+end
+arch flag_eagle
 x 13
 y 1
 end

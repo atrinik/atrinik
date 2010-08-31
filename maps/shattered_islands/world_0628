@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -238,6 +238,10 @@ arch floor_marble2b
 x 1
 y 23
 end
+arch grassd_m11
+x 1
+y 23
+end
 arch water_still
 x 2
 end
@@ -357,6 +361,10 @@ x 2
 y 22
 end
 arch floor_marble2a
+x 2
+y 23
+end
+arch grassd_m7
 x 2
 y 23
 end
@@ -482,6 +490,10 @@ arch floor_marble2b
 x 3
 y 23
 end
+arch grassd_m7
+x 3
+y 23
+end
 arch water_still
 x 4
 end
@@ -601,6 +613,14 @@ x 4
 y 22
 end
 arch floor_marble2c
+x 4
+y 23
+end
+arch grassd_m7
+x 4
+y 23
+end
+arch torch_wall_1
 x 4
 y 23
 end
@@ -731,6 +751,10 @@ x 5
 y 22
 end
 arch floor_marble2a
+x 5
+y 23
+end
+arch grassd_m7
 x 5
 y 23
 end

@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -23,6 +23,9 @@ end
 arch floor_fs_grey1d
 y 1
 end
+arch grassd_m10
+y 1
+end
 arch grassd_4
 y 2
 end
@@ -50,6 +53,9 @@ end
 arch wall_flagstone1.111
 y 6
 end
+arch picture6.151
+y 6
+end
 arch floor_grey5
 y 7
 end
@@ -92,6 +98,9 @@ end
 arch wall_flagstone1.111
 y 14
 end
+arch picture1.151
+y 14
+end
 arch floor_grey5
 y 15
 end
@@ -120,6 +129,9 @@ arch wall_flagstone1.111
 y 19
 end
 arch floor_fs_grey1c
+y 20
+end
+arch grassd_m7
 y 20
 end
 arch grassd_3
@@ -137,7 +149,14 @@ end
 arch grassd_2
 x 1
 end
+arch torch_wall_1
+x 1
+end
 arch floor_fs_grey1c
+x 1
+y 1
+end
+arch grassd_m10
 x 1
 y 1
 end
@@ -153,11 +172,20 @@ arch floor_grey5
 x 1
 y 3
 end
+arch chest_m
+x 1
+y 3
+end
 arch floor_grey5
 x 1
 y 4
 end
 arch floor_grey5
+x 1
+y 5
+end
+arch chest
+direction 7
 x 1
 y 5
 end
@@ -173,11 +201,20 @@ arch floor_grey5
 x 1
 y 7
 end
+arch chest_m
+x 1
+y 7
+end
 arch floor_grey5
 x 1
 y 8
 end
 arch floor_grey5
+x 1
+y 9
+end
+arch chest7_111
+direction 7
 x 1
 y 9
 end
@@ -193,11 +230,20 @@ arch floor_grey5
 x 1
 y 11
 end
+arch chest_w1
+x 1
+y 11
+end
 arch floor_grey5
 x 1
 y 12
 end
 arch floor_grey5
+x 1
+y 13
+end
+arch chest_sm_1
+direction 7
 x 1
 y 13
 end
@@ -213,6 +259,10 @@ arch floor_grey5
 x 1
 y 15
 end
+arch chest_w1
+x 1
+y 15
+end
 arch floor_grey5
 x 1
 y 16
@@ -221,7 +271,17 @@ arch floor_grey5
 x 1
 y 17
 end
+arch chest_sm_1
+direction 7
+x 1
+y 17
+end
 arch floor_grey5
+x 1
+y 18
+end
+arch chest_sw_1
+direction 7
 x 1
 y 18
 end
@@ -237,7 +297,15 @@ arch floor_fs_grey1c
 x 1
 y 20
 end
+arch grassd_m7
+x 1
+y 20
+end
 arch grassd_6
+x 1
+y 21
+end
+arch plant_flower11
 x 1
 y 21
 end
@@ -260,6 +328,10 @@ arch floor_fs_grey1a
 x 2
 y 1
 end
+arch grassd_m10
+x 2
+y 1
+end
 arch grassd_1
 x 2
 y 2
@@ -408,11 +480,19 @@ arch floor_fs_grey1c
 x 2
 y 20
 end
+arch grassd_m7
+x 2
+y 20
+end
 arch grassd_1
 x 2
 y 21
 end
 arch grassd_2
+x 2
+y 22
+end
+arch tree_big2
 x 2
 y 22
 end
@@ -427,6 +507,9 @@ end
 arch floor_fs_grey1b
 x 3
 end
+arch grassd_m9
+x 3
+end
 arch floor_fs_grey1d
 x 3
 y 1
@@ -436,6 +519,11 @@ x 3
 y 2
 end
 arch grassd_8
+x 3
+y 3
+end
+arch torch_wall_1
+direction 7
 x 3
 y 3
 end
@@ -451,11 +539,24 @@ arch grassd_1
 x 3
 y 6
 end
+arch plant17
+x 3
+y 6
+end
 arch grassd_7
 x 3
 y 7
 end
+arch torch_wall_1
+direction 7
+x 3
+y 7
+end
 arch grassd_6
+x 3
+y 8
+end
+arch stone1
 x 3
 y 8
 end
@@ -471,6 +572,11 @@ arch grassd_1
 x 3
 y 11
 end
+arch torch_wall_1
+direction 7
+x 3
+y 11
+end
 arch grassd_2
 x 3
 y 12
@@ -483,7 +589,16 @@ arch grassd_1
 x 3
 y 14
 end
+arch plant_mushroom2
+x 3
+y 14
+end
 arch grassd_5
+x 3
+y 15
+end
+arch torch_wall_1
+direction 7
 x 3
 y 15
 end
@@ -495,6 +610,10 @@ arch grassd_1
 x 3
 y 17
 end
+arch plant_flower2
+x 3
+y 17
+end
 arch grassd_8
 x 3
 y 18
@@ -503,7 +622,16 @@ arch grassd_6
 x 3
 y 19
 end
+arch torch_wall_1
+direction 7
+x 3
+y 19
+end
 arch floor_fs_grey1c
+x 3
+y 20
+end
+arch grassd_m7
 x 3
 y 20
 end
@@ -512,6 +640,10 @@ x 3
 y 21
 end
 arch grassd_6
+x 3
+y 22
+end
+arch plant_flower7
 x 3
 y 22
 end
@@ -526,7 +658,14 @@ end
 arch grassd_1
 x 4
 end
+arch plant15
+x 4
+end
 arch floor_fs_grey1c
+x 4
+y 1
+end
+arch grassd_m10
 x 4
 y 1
 end
@@ -534,7 +673,15 @@ arch floor_fs_grey1c
 x 4
 y 2
 end
+arch grassd_m9
+x 4
+y 2
+end
 arch floor_fs_grey1c
+x 4
+y 3
+end
+arch grassd_m9
 x 4
 y 3
 end
@@ -542,7 +689,15 @@ arch floor_fs_grey1c
 x 4
 y 4
 end
+arch grassd_m9
+x 4
+y 4
+end
 arch floor_fs_grey1c
+x 4
+y 5
+end
+arch grassd_m9
 x 4
 y 5
 end
@@ -550,7 +705,15 @@ arch floor_fs_grey1c
 x 4
 y 6
 end
+arch grassd_m9
+x 4
+y 6
+end
 arch floor_fs_grey1c
+x 4
+y 7
+end
+arch grassd_m9
 x 4
 y 7
 end
@@ -558,7 +721,15 @@ arch floor_fs_grey1c
 x 4
 y 8
 end
+arch grassd_m9
+x 4
+y 8
+end
 arch floor_fs_grey1c
+x 4
+y 9
+end
+arch grassd_m9
 x 4
 y 9
 end
@@ -566,7 +737,15 @@ arch floor_fs_grey1c
 x 4
 y 10
 end
+arch grassd_m9
+x 4
+y 10
+end
 arch floor_fs_grey1c
+x 4
+y 11
+end
+arch grassd_m9
 x 4
 y 11
 end
@@ -574,7 +753,15 @@ arch floor_fs_grey1c
 x 4
 y 12
 end
+arch grassd_m9
+x 4
+y 12
+end
 arch floor_fs_grey1c
+x 4
+y 13
+end
+arch grassd_m9
 x 4
 y 13
 end
@@ -582,7 +769,15 @@ arch floor_fs_grey1c
 x 4
 y 14
 end
+arch grassd_m9
+x 4
+y 14
+end
 arch floor_fs_grey1c
+x 4
+y 15
+end
+arch grassd_m9
 x 4
 y 15
 end
@@ -590,7 +785,15 @@ arch floor_fs_grey1c
 x 4
 y 16
 end
+arch grassd_m9
+x 4
+y 16
+end
 arch floor_fs_grey1c
+x 4
+y 17
+end
+arch grassd_m9
 x 4
 y 17
 end
@@ -598,11 +801,23 @@ arch floor_fs_grey1c
 x 4
 y 18
 end
+arch grassd_m9
+x 4
+y 18
+end
 arch floor_fs_grey1c
 x 4
 y 19
 end
+arch grassd_m9
+x 4
+y 19
+end
 arch floor_fs_grey1c
+x 4
+y 20
+end
+arch grassd_m7
 x 4
 y 20
 end
@@ -633,7 +848,14 @@ end
 arch grassd_8
 x 5
 end
+arch torch_wall_1
+x 5
+end
 arch floor_fs_grey1a
+x 5
+y 1
+end
+arch grassd_m10
 x 5
 y 1
 end
@@ -765,11 +987,19 @@ arch floor_fs_grey1c
 x 5
 y 18
 end
+arch grassd_m10
+x 5
+y 18
+end
 arch floor_fs_grey1c
 x 5
 y 19
 end
 arch floor_fs_grey1c
+x 5
+y 20
+end
+arch grassd_m7
 x 5
 y 20
 end
@@ -796,6 +1026,10 @@ arch floor_fs_grey1d
 x 6
 y 1
 end
+arch grassd_m10
+x 6
+y 1
+end
 arch grassd_1
 x 6
 y 2
@@ -808,7 +1042,17 @@ arch floor_grey9
 x 6
 y 3
 end
+arch shelf3b.111
+direction 7
+x 6
+y 3
+end
 arch floor_grey9
+x 6
+y 4
+end
+arch shelf3a.111
+direction 7
 x 6
 y 4
 end
@@ -816,7 +1060,17 @@ arch floor_grey9
 x 6
 y 5
 end
+arch shelf3b.111
+direction 7
+x 6
+y 5
+end
 arch floor_grey9
+x 6
+y 6
+end
+arch shelf3c.111
+direction 7
 x 6
 y 6
 end
@@ -824,7 +1078,17 @@ arch floor_grey9
 x 6
 y 7
 end
+arch shelf3a.111
+direction 7
+x 6
+y 7
+end
 arch floor_grey9
+x 6
+y 8
+end
+arch shelf3c.111
+direction 7
 x 6
 y 8
 end
@@ -836,12 +1100,19 @@ arch wall_flagstone1.111
 x 6
 y 9
 end
+arch picture3.151
+x 6
+y 9
+end
 arch floor_grey9
 x 6
 y 10
 end
-arch table_wood1.111
-direction 5
+arch candlelight4.101
+x 6
+y 10
+end
+arch light5
 x 6
 y 10
 end
@@ -859,7 +1130,6 @@ x 6
 y 12
 end
 arch bar1
-direction 5
 x 6
 y 12
 end
@@ -868,6 +1138,10 @@ x 6
 y 13
 end
 arch floor_grey9
+x 6
+y 14
+end
+arch fireplace_left
 x 6
 y 14
 end
@@ -887,7 +1161,15 @@ arch grassd_8
 x 6
 y 17
 end
+arch wagon_small.111
+x 6
+y 17
+end
 arch floor_fs_grey1c
+x 6
+y 18
+end
+arch grassd_m10
 x 6
 y 18
 end
@@ -896,6 +1178,10 @@ x 6
 y 19
 end
 arch floor_fs_grey1c
+x 6
+y 20
+end
+arch grassd_m7
 x 6
 y 20
 end
@@ -922,11 +1208,19 @@ arch floor_fs_grey1b
 x 7
 y 1
 end
+arch grassd_m10
+x 7
+y 1
+end
 arch grassd_4
 x 7
 y 2
 end
 arch wall_flagstone1.111
+x 7
+y 2
+end
+arch picture5.151
 x 7
 y 2
 end
@@ -966,6 +1260,10 @@ arch floor_grey9
 x 7
 y 10
 end
+arch rack3
+x 7
+y 10
+end
 arch floor_grey9
 x 7
 y 11
@@ -976,7 +1274,7 @@ y 11
 arch female2
 name Secretary
 type 83
-level 8
+level 14
 end
 end
 arch floor_grey9
@@ -984,7 +1282,6 @@ x 7
 y 12
 end
 arch bar1
-direction 5
 x 7
 y 12
 end
@@ -992,11 +1289,27 @@ arch floor_grey9
 x 7
 y 13
 end
+arch carpet1.131
+x 7
+y 13
+end
 arch floor_grey9
 x 7
 y 14
 end
+arch carpet1.131
+x 7
+y 14
+end
+arch light5
+x 7
+y 14
+end
 arch floor_grey9
+x 7
+y 15
+end
+arch light5
 x 7
 y 15
 end
@@ -1012,7 +1325,15 @@ arch grassd_3
 x 7
 y 17
 end
+arch torch_wall_1
+x 7
+y 17
+end
 arch floor_fs_grey1c
+x 7
+y 18
+end
+arch grassd_m10
 x 7
 y 18
 end
@@ -1021,6 +1342,10 @@ x 7
 y 19
 end
 arch floor_fs_grey1c
+x 7
+y 20
+end
+arch grassd_m7
 x 7
 y 20
 end
@@ -1057,7 +1382,14 @@ end
 arch grassd_5
 x 8
 end
+arch plant_flower11
+x 8
+end
 arch floor_fs_grey1a
+x 8
+y 1
+end
+arch grassd_m10
 x 8
 y 1
 end
@@ -1073,6 +1405,10 @@ arch floor_grey9
 x 8
 y 3
 end
+arch shelf5_wall.111
+x 8
+y 3
+end
 arch floor_grey9
 x 8
 y 4
@@ -1085,7 +1421,20 @@ arch floor_grey9
 x 8
 y 6
 end
+arch candlelight4.101
+x 8
+y 6
+end
+arch light5
+x 8
+y 6
+end
 arch floor_grey9
+x 8
+y 7
+end
+arch desk2
+direction 7
 x 8
 y 7
 end
@@ -1107,6 +1456,7 @@ y 10
 end
 arch door1_locked
 direction 3
+slaying no_entry
 x 8
 y 10
 end
@@ -1122,8 +1472,12 @@ arch floor_grey9
 x 8
 y 12
 end
+arch carpet1.151
+x 8
+y 12
+end
 arch bar1
-direction 5
+direction 4
 x 8
 y 12
 end
@@ -1131,11 +1485,23 @@ arch floor_grey9
 x 8
 y 13
 end
+arch carpet1
+x 8
+y 13
+end
 arch floor_grey9
 x 8
 y 14
 end
+arch carpet1
+x 8
+y 14
+end
 arch floor_grey9
+x 8
+y 15
+end
+arch carpet1.111
 x 8
 y 15
 end
@@ -1147,11 +1513,23 @@ arch wall_flagstone1.111
 x 8
 y 16
 end
+arch ring_wall.151
+x 8
+y 16
+end
 arch grassd_6
 x 8
 y 17
 end
+arch tree_branch2
+x 8
+y 17
+end
 arch floor_fs_grey1c
+x 8
+y 18
+end
+arch grassd_m10
 x 8
 y 18
 end
@@ -1160,6 +1538,10 @@ x 8
 y 19
 end
 arch floor_fs_grey1c
+x 8
+y 20
+end
+arch grassd_m7
 x 8
 y 20
 end
@@ -1190,7 +1572,14 @@ end
 arch grassd_7
 x 9
 end
+arch torch_wall_1
+x 9
+end
 arch floor_fs_grey1b
+x 9
+y 1
+end
+arch grassd_m10
 x 9
 y 1
 end
@@ -1206,6 +1595,10 @@ arch floor_grey9
 x 9
 y 3
 end
+arch shelf3_wall.111
+x 9
+y 3
+end
 arch floor_grey9
 x 9
 y 4
@@ -1214,7 +1607,15 @@ arch floor_grey9
 x 9
 y 5
 end
+arch carpet1.131
+x 9
+y 5
+end
 arch floor_grey9
+x 9
+y 6
+end
+arch carpet1.131
 x 9
 y 6
 end
@@ -1222,11 +1623,28 @@ arch floor_grey9
 x 9
 y 7
 end
+arch carpet1.131
+x 9
+y 7
+end
+arch chair1_111
+direction 3
+x 9
+y 7
+end
 arch floor_grey9
 x 9
 y 8
 end
+arch carpet1.131
+x 9
+y 8
+end
 arch floor_grey9
+x 9
+y 9
+end
+arch carpet1.131
 x 9
 y 9
 end
@@ -1242,7 +1660,15 @@ arch wall_flagstone1b.111
 x 9
 y 11
 end
+arch flag_eagle
+x 9
+y 11
+end
 arch floor_grey9
+x 9
+y 12
+end
+arch carpet1.151
 x 9
 y 12
 end
@@ -1259,11 +1685,23 @@ arch floor_grey9
 x 9
 y 13
 end
+arch carpet1
+x 9
+y 13
+end
 arch floor_grey9
 x 9
 y 14
 end
+arch carpet1
+x 9
+y 14
+end
 arch floor_grey9
+x 9
+y 15
+end
+arch carpet1.111
 x 9
 y 15
 end
@@ -1272,6 +1710,10 @@ x 9
 y 16
 end
 arch wall_flagstone1.111
+x 9
+y 16
+end
+arch flag_eagle
 x 9
 y 16
 end
@@ -1300,11 +1742,23 @@ arch floor_fs_grey1c
 x 9
 y 20
 end
+arch grassd_m14
+x 9
+y 20
+end
 arch floor_fs_grey1c
 x 9
 y 21
 end
+arch grassd_m9
+x 9
+y 21
+end
 arch floor_fs_grey1c
+x 9
+y 22
+end
+arch grassd_m9
 x 9
 y 22
 end
@@ -1321,8 +1775,11 @@ arch floor_fs_grey1d
 x 9
 y 23
 end
+arch grassd_m3
+x 9
+y 23
+end
 arch grate_open
-speed_left -0.5
 connected 101
 x 9
 y 23
@@ -1330,7 +1787,14 @@ end
 arch grassd_2
 x 10
 end
+arch plant_mushroom2
+x 10
+end
 arch floor_fs_grey1a
+x 10
+y 1
+end
+arch grassd_m10
 x 10
 y 1
 end
@@ -1346,7 +1810,16 @@ arch floor_grey9
 x 10
 y 3
 end
+arch stairs_stone_down
+direction 1
+x 10
+y 3
+end
 arch floor_grey9
+x 10
+y 4
+end
+arch carpet1.151
 x 10
 y 4
 end
@@ -1354,7 +1827,15 @@ arch floor_grey9
 x 10
 y 5
 end
+arch carpet1
+x 10
+y 5
+end
 arch floor_grey9
+x 10
+y 6
+end
+arch carpet1
 x 10
 y 6
 end
@@ -1362,7 +1843,15 @@ arch floor_grey9
 x 10
 y 7
 end
+arch carpet1
+x 10
+y 7
+end
 arch floor_grey9
+x 10
+y 8
+end
+arch carpet1
 x 10
 y 8
 end
@@ -1370,7 +1859,15 @@ arch floor_grey9
 x 10
 y 9
 end
+arch carpet1
+x 10
+y 9
+end
 arch floor_grey9
+x 10
+y 10
+end
+arch carpet1.111
 x 10
 y 10
 end
@@ -1386,7 +1883,15 @@ arch floor_grey9
 x 10
 y 12
 end
+arch carpet1.151
+x 10
+y 12
+end
 arch floor_grey9
+x 10
+y 13
+end
+arch carpet1
 x 10
 y 13
 end
@@ -1394,7 +1899,15 @@ arch floor_grey9
 x 10
 y 14
 end
+arch carpet1
+x 10
+y 14
+end
 arch floor_grey9
+x 10
+y 15
+end
+arch carpet1.111
 x 10
 y 15
 end
@@ -1434,8 +1947,11 @@ arch floor_fs_grey1b
 x 10
 y 23
 end
+arch grassd_m7
+x 10
+y 23
+end
 arch grate_open
-speed_left -0.5
 connected 101
 x 10
 y 23
@@ -1447,6 +1963,10 @@ arch floor_fs_grey1b
 x 11
 y 1
 end
+arch grassd_m10
+x 11
+y 1
+end
 arch grassd_4
 x 11
 y 2
@@ -1455,7 +1975,16 @@ arch wall_flagstone1.111
 x 11
 y 2
 end
+arch picture13
+x 11
+y 2
+end
 arch floor_grey9
+x 11
+y 3
+end
+arch stairs_stone_down
+direction 1
 x 11
 y 3
 end
@@ -1463,7 +1992,15 @@ arch floor_grey9
 x 11
 y 4
 end
+arch carpet1.151
+x 11
+y 4
+end
 arch floor_grey9
+x 11
+y 5
+end
+arch carpet1
 x 11
 y 5
 end
@@ -1471,7 +2008,15 @@ arch floor_grey9
 x 11
 y 6
 end
+arch carpet1
+x 11
+y 6
+end
 arch floor_grey9
+x 11
+y 7
+end
+arch carpet1
 x 11
 y 7
 end
@@ -1479,7 +2024,15 @@ arch floor_grey9
 x 11
 y 8
 end
+arch carpet1
+x 11
+y 8
+end
 arch floor_grey9
+x 11
+y 9
+end
+arch carpet1
 x 11
 y 9
 end
@@ -1487,7 +2040,15 @@ arch floor_grey9
 x 11
 y 10
 end
+arch carpet1.111
+x 11
+y 10
+end
 arch floor_grey9
+x 11
+y 11
+end
+arch candlelight4.101
 x 11
 y 11
 end
@@ -1495,7 +2056,19 @@ arch wall_flagstone1b.111
 x 11
 y 11
 end
+arch flag_eagle
+x 11
+y 11
+end
+arch light5
+x 11
+y 11
+end
 arch floor_grey9
+x 11
+y 12
+end
+arch carpet1.151
 x 11
 y 12
 end
@@ -1503,11 +2076,23 @@ arch floor_grey9
 x 11
 y 13
 end
+arch carpet1
+x 11
+y 13
+end
 arch floor_grey9
 x 11
 y 14
 end
+arch carpet1
+x 11
+y 14
+end
 arch floor_grey9
+x 11
+y 15
+end
+arch carpet1.111
 x 11
 y 15
 end
@@ -1516,6 +2101,10 @@ x 11
 y 16
 end
 arch wall_flagstone1.111
+x 11
+y 16
+end
+arch flag_eagle
 x 11
 y 16
 end
@@ -1544,11 +2133,23 @@ arch floor_fs_grey1c
 x 11
 y 20
 end
+arch grassd_m11
+x 11
+y 20
+end
 arch floor_fs_grey1c
 x 11
 y 21
 end
+arch grassd_m8
+x 11
+y 21
+end
 arch floor_fs_grey1c
+x 11
+y 22
+end
+arch grassd_m8
 x 11
 y 22
 end
@@ -1565,8 +2166,11 @@ arch floor_fs_grey1a
 x 11
 y 23
 end
+arch grassd_m5
+x 11
+y 23
+end
 arch grate_open
-speed_left -0.5
 connected 101
 x 11
 y 23
@@ -1574,7 +2178,14 @@ end
 arch grassd_2
 x 12
 end
+arch plant5
+x 12
+end
 arch floor_fs_grey1c
+x 12
+y 1
+end
+arch grassd_m10
 x 12
 y 1
 end
@@ -1590,7 +2201,16 @@ arch floor_grey9
 x 12
 y 3
 end
+arch stairs_stone_down
+direction 1
+x 12
+y 3
+end
 arch floor_grey9
+x 12
+y 4
+end
+arch carpet1.151
 x 12
 y 4
 end
@@ -1598,7 +2218,15 @@ arch floor_grey9
 x 12
 y 5
 end
+arch carpet1
+x 12
+y 5
+end
 arch floor_grey9
+x 12
+y 6
+end
+arch carpet1
 x 12
 y 6
 end
@@ -1606,7 +2234,15 @@ arch floor_grey9
 x 12
 y 7
 end
+arch carpet1
+x 12
+y 7
+end
 arch floor_grey9
+x 12
+y 8
+end
+arch carpet1
 x 12
 y 8
 end
@@ -1614,7 +2250,15 @@ arch floor_grey9
 x 12
 y 9
 end
+arch carpet1
+x 12
+y 9
+end
 arch floor_grey9
+x 12
+y 10
+end
+arch carpet1.111
 x 12
 y 10
 end
@@ -1630,7 +2274,19 @@ arch floor_grey9
 x 12
 y 12
 end
+arch carpet1.151
+x 12
+y 12
+end
+arch rack.111
+x 12
+y 12
+end
 arch floor_grey9
+x 12
+y 13
+end
+arch carpet1
 x 12
 y 13
 end
@@ -1638,7 +2294,15 @@ arch floor_grey9
 x 12
 y 14
 end
+arch carpet1
+x 12
+y 14
+end
 arch floor_grey9
+x 12
+y 15
+end
+arch carpet1.111
 x 12
 y 15
 end
@@ -1650,6 +2314,10 @@ arch wall_flagstone1.111
 x 12
 y 16
 end
+arch ring_wall.151
+x 12
+y 16
+end
 arch grassd_8
 x 12
 y 17
@@ -1658,11 +2326,19 @@ arch floor_fs_grey1c
 x 12
 y 18
 end
+arch grassd_m10
+x 12
+y 18
+end
 arch floor_fs_grey1c
 x 12
 y 19
 end
 arch floor_fs_grey1c
+x 12
+y 20
+end
+arch grassd_m7
 x 12
 y 20
 end
@@ -1693,7 +2369,14 @@ end
 arch grassd_8
 x 13
 end
+arch torch_wall_1
+x 13
+end
 arch floor_fs_grey1d
+x 13
+y 1
+end
+arch grassd_m10
 x 13
 y 1
 end
@@ -1709,6 +2392,10 @@ arch floor_grey9
 x 13
 y 3
 end
+arch shelf4_wall.111
+x 13
+y 3
+end
 arch floor_grey9
 x 13
 y 4
@@ -1717,7 +2404,15 @@ arch floor_grey9
 x 13
 y 5
 end
+arch carpet1.171
+x 13
+y 5
+end
 arch floor_grey9
+x 13
+y 6
+end
+arch carpet1.171
 x 13
 y 6
 end
@@ -1725,11 +2420,23 @@ arch floor_grey9
 x 13
 y 7
 end
+arch carpet1.171
+x 13
+y 7
+end
 arch floor_grey9
 x 13
 y 8
 end
+arch carpet1.171
+x 13
+y 8
+end
 arch floor_grey9
+x 13
+y 9
+end
+arch carpet1.171
 x 13
 y 9
 end
@@ -1749,7 +2456,15 @@ arch floor_grey9
 x 13
 y 12
 end
+arch shelf6_wall.111
+x 13
+y 12
+end
 arch floor_grey9
+x 13
+y 13
+end
+arch carpet1.171
 x 13
 y 13
 end
@@ -1757,7 +2472,15 @@ arch floor_grey9
 x 13
 y 14
 end
+arch carpet1.171
+x 13
+y 14
+end
 arch floor_grey9
+x 13
+y 15
+end
+arch kettle_table
 x 13
 y 15
 end
@@ -1773,7 +2496,15 @@ arch grassd_6
 x 13
 y 17
 end
+arch torch_wall_1
+x 13
+y 17
+end
 arch floor_fs_grey1c
+x 13
+y 18
+end
+arch grassd_m10
 x 13
 y 18
 end
@@ -1782,6 +2513,10 @@ x 13
 y 19
 end
 arch floor_fs_grey1c
+x 13
+y 20
+end
+arch grassd_m7
 x 13
 y 20
 end
@@ -1808,6 +2543,10 @@ arch floor_fs_grey1d
 x 14
 y 1
 end
+arch grassd_m10
+x 14
+y 1
+end
 arch grassd_4
 x 14
 y 2
@@ -1932,7 +2671,15 @@ arch grassd_6
 x 14
 y 17
 end
+arch plant_flower7
+x 14
+y 17
+end
 arch floor_fs_grey1c
+x 14
+y 18
+end
+arch grassd_m10
 x 14
 y 18
 end
@@ -1941,6 +2688,10 @@ x 14
 y 19
 end
 arch floor_fs_grey1c
+x 14
+y 20
+end
+arch grassd_m7
 x 14
 y 20
 end
@@ -1963,7 +2714,14 @@ end
 arch grassd_6
 x 15
 end
+arch plant12
+x 15
+end
 arch floor_fs_grey1c
+x 15
+y 1
+end
+arch grassd_m10
 x 15
 y 1
 end
@@ -1975,11 +2733,24 @@ arch grassd_6
 x 15
 y 3
 end
+arch torch_wall_1
+direction 7
+x 15
+y 3
+end
 arch grassd_6
 x 15
 y 4
 end
+arch plant_mushroom3
+x 15
+y 4
+end
 arch grassd_4
+x 15
+y 5
+end
+arch tree_big3
 x 15
 y 5
 end
@@ -1991,7 +2762,16 @@ arch grassd_3
 x 15
 y 7
 end
+arch torch_wall_1
+direction 7
+x 15
+y 7
+end
 arch grassd_6
+x 15
+y 8
+end
+arch plant9
 x 15
 y 8
 end
@@ -2007,6 +2787,11 @@ arch grassd_7
 x 15
 y 11
 end
+arch torch_wall_1
+direction 7
+x 15
+y 11
+end
 arch grassd_3
 x 15
 y 12
@@ -2015,7 +2800,15 @@ arch grassd_6
 x 15
 y 13
 end
+arch tree_big2
+x 15
+y 13
+end
 arch grassd_2
+x 15
+y 14
+end
+arch tree_branch1
 x 15
 y 14
 end
@@ -2023,7 +2816,16 @@ arch grassd_6
 x 15
 y 15
 end
+arch torch_wall_1
+direction 7
+x 15
+y 15
+end
 arch grassd_7
+x 15
+y 16
+end
+arch plant_flower1
 x 15
 y 16
 end
@@ -2035,11 +2837,19 @@ arch floor_fs_grey1c
 x 15
 y 18
 end
+arch grassd_m10
+x 15
+y 18
+end
 arch floor_fs_grey1c
 x 15
 y 19
 end
 arch floor_fs_grey1c
+x 15
+y 20
+end
+arch grassd_m7
 x 15
 y 20
 end
@@ -2071,7 +2881,14 @@ end
 arch grassd_1
 x 16
 end
+arch torch_wall_1
+x 16
+end
 arch floor_fs_grey1b
+x 16
+y 1
+end
+arch grassd_m10
 x 16
 y 1
 end
@@ -2079,7 +2896,15 @@ arch floor_fs_grey1c
 x 16
 y 2
 end
+arch grassd_m9
+x 16
+y 2
+end
 arch floor_fs_grey1c
+x 16
+y 3
+end
+arch grassd_m9
 x 16
 y 3
 end
@@ -2087,7 +2912,15 @@ arch floor_fs_grey1c
 x 16
 y 4
 end
+arch grassd_m9
+x 16
+y 4
+end
 arch floor_fs_grey1c
+x 16
+y 5
+end
+arch grassd_m9
 x 16
 y 5
 end
@@ -2095,7 +2928,15 @@ arch floor_fs_grey1c
 x 16
 y 6
 end
+arch grassd_m9
+x 16
+y 6
+end
 arch floor_fs_grey1c
+x 16
+y 7
+end
+arch grassd_m9
 x 16
 y 7
 end
@@ -2103,7 +2944,15 @@ arch floor_fs_grey1c
 x 16
 y 8
 end
+arch grassd_m9
+x 16
+y 8
+end
 arch floor_fs_grey1c
+x 16
+y 9
+end
+arch grassd_m9
 x 16
 y 9
 end
@@ -2111,7 +2960,15 @@ arch floor_fs_grey1c
 x 16
 y 10
 end
+arch grassd_m9
+x 16
+y 10
+end
 arch floor_fs_grey1c
+x 16
+y 11
+end
+arch grassd_m9
 x 16
 y 11
 end
@@ -2119,7 +2976,15 @@ arch floor_fs_grey1c
 x 16
 y 12
 end
+arch grassd_m9
+x 16
+y 12
+end
 arch floor_fs_grey1c
+x 16
+y 13
+end
+arch grassd_m9
 x 16
 y 13
 end
@@ -2127,7 +2992,15 @@ arch floor_fs_grey1c
 x 16
 y 14
 end
+arch grassd_m9
+x 16
+y 14
+end
 arch floor_fs_grey1c
+x 16
+y 15
+end
+arch grassd_m9
 x 16
 y 15
 end
@@ -2135,7 +3008,15 @@ arch floor_fs_grey1c
 x 16
 y 16
 end
+arch grassd_m9
+x 16
+y 16
+end
 arch floor_fs_grey1c
+x 16
+y 17
+end
+arch grassd_m9
 x 16
 y 17
 end
@@ -2143,11 +3024,23 @@ arch floor_fs_grey1c
 x 16
 y 18
 end
+arch grassd_m13
+x 16
+y 18
+end
 arch floor_fs_grey1c
 x 16
 y 19
 end
+arch grassd_m8
+x 16
+y 19
+end
 arch floor_fs_grey1c
+x 16
+y 20
+end
+arch grassd_m7
 x 16
 y 20
 end
@@ -2179,6 +3072,10 @@ arch grassd_7
 x 17
 end
 arch floor_fs_grey1a
+x 17
+y 1
+end
+arch grassd_m10
 x 17
 y 1
 end
@@ -2330,6 +3227,10 @@ arch floor_fs_grey1c
 x 17
 y 20
 end
+arch grassd_m7
+x 17
+y 20
+end
 arch grassd_2
 x 17
 y 21
@@ -2349,7 +3250,14 @@ end
 arch grassd_4
 x 18
 end
+arch plant_flower6
+x 18
+end
 arch floor_fs_grey1d
+x 18
+y 1
+end
+arch grassd_m10
 x 18
 y 1
 end
@@ -2365,11 +3273,26 @@ arch floor_grey1b1
 x 18
 y 3
 end
+arch chest_w1
+direction 7
+x 18
+y 3
+end
 arch floor_grey1b1
 x 18
 y 4
 end
+arch chest_m
+direction 7
+x 18
+y 4
+end
 arch floor_grey1b1
+x 18
+y 5
+end
+arch chest_m
+direction 7
 x 18
 y 5
 end
@@ -2390,6 +3313,11 @@ x 18
 y 7
 end
 arch floor_grey1b1
+x 18
+y 8
+end
+arch chest_w1
+direction 7
 x 18
 y 8
 end
@@ -2421,6 +3349,11 @@ arch floor_grey1b1
 x 18
 y 12
 end
+arch chest_m
+direction 7
+x 18
+y 12
+end
 arch floor_grey1b1
 x 18
 y 13
@@ -2437,6 +3370,10 @@ arch wall_flagstone1.111
 x 18
 y 14
 end
+arch wmask_bflag_fire1_1
+x 18
+y 14
+end
 arch floor_grey1b1
 x 18
 y 15
@@ -2449,7 +3386,17 @@ arch floor_grey1b1
 x 18
 y 16
 end
+arch chest_w1
+direction 7
+x 18
+y 16
+end
 arch floor_grey1b1
+x 18
+y 17
+end
+arch chest_w1
+direction 7
 x 18
 y 17
 end
@@ -2473,11 +3420,23 @@ arch floor_fs_grey1c
 x 18
 y 20
 end
+arch grassd_m7
+x 18
+y 20
+end
 arch grassd_4
 x 18
 y 21
 end
+arch plant_mushroom5
+x 18
+y 21
+end
 arch grassd_8
+x 18
+y 22
+end
+arch plant_flower1
 x 18
 y 22
 end
@@ -2492,7 +3451,14 @@ end
 arch grassd_8
 x 19
 end
+arch torch_wall_1
+x 19
+end
 arch floor_fs_grey1c
+x 19
+y 1
+end
+arch grassd_m10
 x 19
 y 1
 end
@@ -2515,6 +3481,15 @@ end
 arch floor_grey1b1
 x 19
 y 5
+end
+arch spawn_point
+x 19
+y 5
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
 end
 arch floor_grey1b1
 x 19
@@ -2549,6 +3524,10 @@ x 19
 y 10
 end
 arch wall_flagstone1.111
+x 19
+y 10
+end
+arch picture3.151
 x 19
 y 10
 end
@@ -2613,6 +3592,14 @@ x 19
 y 19
 end
 arch floor_fs_grey1c
+x 19
+y 20
+end
+arch grassd_m7
+x 19
+y 20
+end
+arch torch_wall_1
 x 19
 y 20
 end
@@ -2635,7 +3622,14 @@ end
 arch floor_fs_grey1b
 x 20
 end
+arch grassd_m9
+x 20
+end
 arch floor_fs_grey1d
+x 20
+y 1
+end
+arch grassd_m13
 x 20
 y 1
 end
@@ -2660,7 +3654,6 @@ x 20
 y 4
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 20
 y 4
@@ -2694,7 +3687,6 @@ x 20
 y 8
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 20
 y 8
@@ -2715,6 +3707,11 @@ arch wall_flagstone1.141
 x 20
 y 10
 end
+arch picture1.151
+direction 7
+x 20
+y 10
+end
 arch floor_grey1b1
 x 20
 y 11
@@ -2728,7 +3725,6 @@ x 20
 y 12
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 20
 y 12
@@ -2762,7 +3758,6 @@ x 20
 y 16
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 20
 y 16
@@ -2788,10 +3783,18 @@ x 20
 y 19
 end
 arch wall_flagstone1.141
+x 20
+y 19
+end
+arch flag_eagle
 x 20
 y 19
 end
 arch floor_fs_grey1c
+x 20
+y 20
+end
+arch grassd_m7
 x 20
 y 20
 end
@@ -2800,6 +3803,10 @@ x 20
 y 21
 end
 arch grassd_1
+x 20
+y 22
+end
+arch plant_mushroom4
 x 20
 y 22
 end
@@ -2814,7 +3821,14 @@ end
 arch floor_fs_grey1a
 x 21
 end
+arch grassd_m11
+x 21
+end
 arch floor_fs_grey1c
+x 21
+y 1
+end
+arch grassd_m8
 x 21
 y 1
 end
@@ -2830,11 +3844,21 @@ arch floor_grey1a2
 x 21
 y 3
 end
+arch torch_wall_1
+direction 7
+x 21
+y 3
+end
 arch floor_grey1a2
 x 21
 y 4
 end
 arch floor_grey1a2
+x 21
+y 5
+end
+arch torch_wall_1
+direction 7
 x 21
 y 5
 end
@@ -2846,11 +3870,21 @@ arch floor_grey1a2
 x 21
 y 7
 end
+arch torch_wall_1
+direction 7
+x 21
+y 7
+end
 arch floor_grey1a2
 x 21
 y 8
 end
 arch floor_grey1a2
+x 21
+y 9
+end
+arch torch_wall_1
+direction 7
 x 21
 y 9
 end
@@ -2862,11 +3896,21 @@ arch floor_grey1a2
 x 21
 y 11
 end
+arch torch_wall_1
+direction 7
+x 21
+y 11
+end
 arch floor_grey1a2
 x 21
 y 12
 end
 arch floor_grey1a2
+x 21
+y 13
+end
+arch torch_wall_1
+direction 7
 x 21
 y 13
 end
@@ -2878,11 +3922,21 @@ arch floor_grey1a2
 x 21
 y 15
 end
+arch torch_wall_1
+direction 7
+x 21
+y 15
+end
 arch floor_grey1a2
 x 21
 y 16
 end
 arch floor_grey1a2
+x 21
+y 17
+end
+arch torch_wall_1
+direction 7
 x 21
 y 17
 end
@@ -2902,11 +3956,19 @@ arch floor_fs_grey1c
 x 21
 y 20
 end
+arch grassd_m7
+x 21
+y 20
+end
 arch grassd_5
 x 21
 y 21
 end
 arch grassd_6
+x 21
+y 22
+end
+arch plant17
 x 21
 y 22
 end
@@ -2919,6 +3981,12 @@ x 21
 y 23
 end
 arch floor_marble2b
+x 22
+end
+arch grassd_m7
+x 22
+end
+arch torch_wall_1
 x 22
 end
 arch grassd_2
@@ -2954,7 +4022,6 @@ x 22
 y 5
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 22
 y 5
@@ -2988,7 +4055,6 @@ x 22
 y 9
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 22
 y 9
@@ -3022,7 +4088,6 @@ x 22
 y 13
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 22
 y 13
@@ -3056,7 +4121,6 @@ x 22
 y 17
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 22
 y 17
@@ -3077,7 +4141,15 @@ arch wall_flagstone1.141
 x 22
 y 19
 end
+arch flag_eagle
+x 22
+y 19
+end
 arch floor_marble2a
+x 22
+y 20
+end
+arch grassd_m7
 x 22
 y 20
 end
@@ -3085,7 +4157,15 @@ arch grassd_5
 x 22
 y 21
 end
+arch plant_flower6
+x 22
+y 21
+end
 arch grassd_4
+x 22
+y 22
+end
+arch tree_big2
 x 22
 y 22
 end
@@ -3100,7 +4180,14 @@ end
 arch floor_marble2b
 x 23
 end
+arch grassd_m7
+x 23
+end
 arch grassd_5
+x 23
+y 1
+end
+arch tree_branch2
 x 23
 y 1
 end
@@ -3109,6 +4196,10 @@ x 23
 y 2
 end
 arch wall_flagstone1.111
+x 23
+y 2
+end
+arch picture1.151
 x 23
 y 2
 end
@@ -3140,6 +4231,10 @@ arch wall_flagstone1.111
 x 23
 y 6
 end
+arch wmask_bflag_fire1_1
+x 23
+y 6
+end
 arch floor_grey1b1
 x 23
 y 7
@@ -3165,6 +4260,10 @@ x 23
 y 10
 end
 arch wall_flagstone1.111
+x 23
+y 10
+end
+arch picture4.151
 x 23
 y 10
 end
@@ -3208,11 +4307,25 @@ arch floor_grey1b1
 x 23
 y 16
 end
+arch spawn_point
+x 23
+y 16
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
+end
 arch floor_grey1b1
 x 23
 y 17
 end
 arch floor_grey1b1
+x 23
+y 18
+end
+arch chest_m
+direction 7
 x 23
 y 18
 end
@@ -3228,11 +4341,23 @@ arch floor_marble2b
 x 23
 y 20
 end
+arch grassd_m7
+x 23
+y 20
+end
+arch torch_wall_1
+x 23
+y 20
+end
 arch grassd_5
 x 23
 y 21
 end
 arch grassd_2
+x 23
+y 22
+end
+arch plant1
 x 23
 y 22
 end

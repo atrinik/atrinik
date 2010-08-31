@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,6 +19,10 @@ tile_path_8 world_0528
 region fort_sether
 end
 arch floor_marble2b
+end
+arch grassd_m7
+end
+arch torch_wall_1
 end
 arch grassd_5
 y 1
@@ -113,16 +117,28 @@ end
 arch floor_grey1b1
 y 19
 end
+arch candlelight4.101
+y 19
+end
 arch wall_flagstone1.111
 y 19
 end
+arch light5
+y 19
+end
 arch floor_marble2b
+y 20
+end
+arch grassd_m7
 y 20
 end
 arch grassd_1
 y 21
 end
 arch grassd_8
+y 22
+end
+arch plant11
 y 22
 end
 arch grassd_1
@@ -132,6 +148,9 @@ arch wall_flagstone1.111
 y 23
 end
 arch floor_marble2c
+x 1
+end
+arch grassd_m5
 x 1
 end
 arch grassd_1
@@ -150,7 +169,17 @@ arch floor_grey1b1
 x 1
 y 3
 end
+arch chest_w1
+direction 7
+x 1
+y 3
+end
 arch floor_grey1b1
+x 1
+y 4
+end
+arch chest_m
+direction 7
 x 1
 y 4
 end
@@ -170,13 +199,32 @@ arch floor_grey1b1
 x 1
 y 7
 end
+arch chest_m
+direction 7
+x 1
+y 7
+end
 arch floor_grey1b1
+x 1
+y 8
+end
+arch chest_w1
+direction 7
 x 1
 y 8
 end
 arch floor_grey1b1
 x 1
 y 9
+end
+arch spawn_point
+x 1
+y 9
+arch guard
+name Fortress Guard
+type 83
+level 20
+end
 end
 arch floor_grey1b1
 x 1
@@ -190,7 +238,17 @@ arch floor_grey1b1
 x 1
 y 11
 end
+arch chest_m
+direction 7
+x 1
+y 11
+end
 arch floor_grey1b1
+x 1
+y 12
+end
+arch chest_m
+direction 7
 x 1
 y 12
 end
@@ -210,6 +268,11 @@ arch floor_grey1b1
 x 1
 y 15
 end
+arch chest_w1
+direction 7
+x 1
+y 15
+end
 arch floor_grey1b1
 x 1
 y 16
@@ -222,6 +285,11 @@ arch floor_grey1b1
 x 1
 y 18
 end
+arch chest_w1
+direction 7
+x 1
+y 18
+end
 arch floor_grey1b1
 x 1
 y 19
@@ -231,6 +299,10 @@ x 1
 y 19
 end
 arch floor_marble2b
+x 1
+y 20
+end
+arch grassd_m7
 x 1
 y 20
 end
@@ -253,7 +325,14 @@ end
 arch grassd_4
 x 2
 end
+arch plant_flower6
+x 2
+end
 arch grassd_3
+x 2
+y 1
+end
+arch tree_branch3
 x 2
 y 1
 end
@@ -285,7 +364,15 @@ arch floor_grey1a2
 x 2
 y 5
 end
+arch candlelight4.101
+x 2
+y 5
+end
 arch wall_flagstone1.131
+x 2
+y 5
+end
+arch light5
 x 2
 y 5
 end
@@ -317,7 +404,15 @@ arch floor_grey1a2
 x 2
 y 9
 end
+arch candlelight4.101
+x 2
+y 9
+end
 arch wall_flagstone1.131
+x 2
+y 9
+end
+arch light5
 x 2
 y 9
 end
@@ -349,7 +444,15 @@ arch floor_grey1b1
 x 2
 y 13
 end
+arch candlelight4.101
+x 2
+y 13
+end
 arch wall_flagstone1.131
+x 2
+y 13
+end
+arch light5
 x 2
 y 13
 end
@@ -381,7 +484,15 @@ arch floor_grey1b1
 x 2
 y 17
 end
+arch candlelight4.101
+x 2
+y 17
+end
 arch wall_flagstone1.131
+x 2
+y 17
+end
+arch light5
 x 2
 y 17
 end
@@ -405,11 +516,19 @@ arch floor_marble2a
 x 2
 y 20
 end
+arch grassd_m7
+x 2
+y 20
+end
 arch grassd_6
 x 2
 y 21
 end
 arch grassd_2
+x 2
+y 22
+end
+arch plant_mushroom3
 x 2
 y 22
 end
@@ -425,6 +544,10 @@ arch grassd_5
 x 3
 end
 arch grassd_4
+x 3
+y 1
+end
+arch tree_big
 x 3
 y 1
 end
@@ -472,6 +595,10 @@ arch grassd_7
 x 3
 y 12
 end
+arch plant12
+x 3
+y 12
+end
 arch grassd_4
 x 3
 y 13
@@ -489,6 +616,10 @@ x 3
 y 16
 end
 arch grassd_2
+x 3
+y 17
+end
+arch plant_mushroom2
 x 3
 y 17
 end
@@ -504,11 +635,23 @@ arch floor_marble2b
 x 3
 y 20
 end
+arch grassd_m7
+x 3
+y 20
+end
 arch grassd_7
 x 3
 y 21
 end
+arch tree_branch1
+x 3
+y 21
+end
 arch grassd_3
+x 3
+y 22
+end
+arch tree_big2
 x 3
 y 22
 end
@@ -523,7 +666,14 @@ end
 arch grassd_6
 x 4
 end
+arch plant12
+x 4
+end
 arch grassd_8
+x 4
+y 1
+end
+arch plant_flower2
 x 4
 y 1
 end
@@ -539,11 +689,23 @@ arch grassd_3
 x 4
 y 4
 end
+arch plant13
+x 4
+y 4
+end
 arch grassd_1
 x 4
 y 5
 end
+arch tree_big4b
+x 4
+y 5
+end
 arch grassd_3
+x 4
+y 6
+end
+arch tree_branch3
 x 4
 y 6
 end
@@ -559,6 +721,10 @@ arch grassd_5
 x 4
 y 9
 end
+arch plant15
+x 4
+y 9
+end
 arch grassd_5
 x 4
 y 10
@@ -568,6 +734,10 @@ x 4
 y 11
 end
 arch grassd_3
+x 4
+y 12
+end
+arch plant_mushroom2
 x 4
 y 12
 end
@@ -587,7 +757,15 @@ arch grassd_2
 x 4
 y 16
 end
+arch plant_flower2
+x 4
+y 16
+end
 arch grassd_8
+x 4
+y 17
+end
+arch tree_big
 x 4
 y 17
 end
@@ -600,6 +778,10 @@ x 4
 y 19
 end
 arch floor_marble2c
+x 4
+y 20
+end
+arch grassd_m10
 x 4
 y 20
 end
@@ -645,6 +827,10 @@ arch grassd_1
 x 5
 y 3
 end
+arch tree_branch3
+x 5
+y 3
+end
 arch grassd_2
 x 5
 y 4
@@ -657,7 +843,15 @@ arch grassd_7
 x 5
 y 6
 end
+arch tree_branch1
+x 5
+y 6
+end
 arch grassd_6
+x 5
+y 7
+end
+arch plant_flower6
 x 5
 y 7
 end
@@ -677,6 +871,10 @@ arch grassd_6
 x 5
 y 11
 end
+arch plant12
+x 5
+y 11
+end
 arch grassd_5
 x 5
 y 12
@@ -685,7 +883,15 @@ arch grassd_4
 x 5
 y 13
 end
+arch tree_big3
+x 5
+y 13
+end
 arch grassd_6
+x 5
+y 14
+end
+arch plant_mushroom2
 x 5
 y 14
 end
@@ -705,11 +911,19 @@ arch grassd_6
 x 5
 y 18
 end
+arch plant_flower14
+x 5
+y 18
+end
 arch grassd_2
 x 5
 y 19
 end
 arch floor_marble2b
+x 5
+y 20
+end
+arch grassd_m10
 x 5
 y 20
 end
