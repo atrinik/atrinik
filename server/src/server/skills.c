@@ -383,14 +383,6 @@ void do_throw(object *op, object *toss_item, int dir)
 			}
 		}
 
-		throw_ob->x = op->x;
-		throw_ob->y = op->y;
-
-		if (!insert_ob_in_map(throw_ob, op->map, op, 0))
-		{
-			return;
-		}
-
 		if (op->type == PLAYER)
 		{
 			if (!dir)
@@ -401,6 +393,14 @@ void do_throw(object *op, object *toss_item, int dir)
 			{
 				new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
 			}
+		}
+
+		throw_ob->x = op->x;
+		throw_ob->y = op->y;
+
+		if (!insert_ob_in_map(throw_ob, op->map, op, 0))
+		{
+			return;
 		}
 
 		return;
