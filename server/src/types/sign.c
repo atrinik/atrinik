@@ -86,7 +86,7 @@ void apply_sign(object *op, object *sign)
 		}
 	}
 
-	if (sign->direction && (QUERY_FLAG(sign, FLAG_WALK_ON) || QUERY_FLAG(sign, FLAG_FLY_ON)))
+	if (sign->direction && QUERY_FLAG(sign, FLAG_SYS_OBJECT))
 	{
 		if (op->direction != absdir(sign->direction + 4) && !(QUERY_FLAG(sign, FLAG_SPLITTING) && (op->direction == absdir(sign->direction - 5) || op->direction == absdir(sign->direction + 5))))
 		{
@@ -94,5 +94,24 @@ void apply_sign(object *op, object *sign)
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE | NDI_NAVY, op, sign->msg);
+	/* Use book GUI? */
+	if (QUERY_FLAG(sign, FLAG_XRAYS))
+	{
+		SockList sl;
+		unsigned char sock_buf[MAXSOCKBUF];
+
+		sl.buf = sock_buf;
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
+		SockList_AddInt(&sl, 0);
+		strcpy((char *) sl.buf + sl.len, sign->msg);
+		sl.len += strlen(sign->msg) + 1;
+		Send_With_Handling(&CONTR(op)->socket, &sl);
+
+		/* Ensure player is not running, mostly for walk/fly on signs. */
+		CONTR(op)->run_on = CONTR(op)->fire_on = 0;
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, sign->msg);
+	}
 }
