@@ -417,11 +417,6 @@ typedef struct pl_player
 	/** Internal use by praying to send pray message to player. */
 	uint32 was_praying:1;
 
-	/**
-	 * If true, no message to other players about entering the game, and
-	 * no entry in /who list. */
-	uint32 dm_stealth:1;
-
 	/** If true, all maps are shown in daylight for the player. */
 	uint32 dm_light:1;
 
@@ -496,6 +491,11 @@ typedef struct pl_player
 
 	/** If 1, the player is not able to shout. */
 	uint8 no_shout;
+
+	/**
+	 * If true, no message to other players about entering the game, and
+	 * no entry in /who list. */
+	uint8 dm_stealth;
 
 	/** Which range attack is being used by player. */
 	rangetype shoottype;
