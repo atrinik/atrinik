@@ -902,7 +902,7 @@ static int basic_emote(object *op, char *params, int emotion)
 	{
 		/* If we are a player with legal target, use it as target for the
 		 * emote. */
-		if (op->type == PLAYER && CONTR(op)->target_object != op && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && CONTR(op)->target_object->name)
+		if (op->type == PLAYER && CONTR(op)->target_object != op && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && CONTR(op)->target_object->name && (CONTR(op)->target_object->type != PLAYER || !CONTR(CONTR(op)->target_object)->dm_stealth || QUERY_FLAG(op, FLAG_WIZ) || CONTR(op)->dm_stealth) && !IS_INVISIBLE(CONTR(op)->target_object, op))
 		{
 			rv_vector rv;
 
@@ -978,7 +978,7 @@ static int basic_emote(object *op, char *params, int emotion)
 
 			pl = find_player(params);
 
-			if (pl && pl->state == ST_PLAYING && !pl->dm_stealth)
+			if (pl && (!pl->dm_stealth || QUERY_FLAG(op, FLAG_WIZ) || CONTR(op)->dm_stealth) && !IS_INVISIBLE(pl->ob, op))
 			{
 				rv_vector rv;
 
