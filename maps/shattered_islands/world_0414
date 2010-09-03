@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-17 Alex Tokar
+Modified: 2010-09-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -84,13 +84,19 @@ end
 arch grassd_8
 y 19
 end
-arch grassd_6
+arch floor_sand_d4
 y 20
 end
-arch grassd_4
+arch grassd_m10
+y 20
+end
+arch floor_sand_d1
 y 21
 end
-arch grassd_1
+arch floor_sand_d3
+y 22
+end
+arch grassd_m7
 y 22
 end
 arch grassd_2
@@ -207,19 +213,23 @@ arch tree_big2
 x 1
 y 19
 end
-arch grassd_3
+arch floor_sand_d1
 x 1
 y 20
 end
-arch grassd_5
+arch grassd_m10
+x 1
+y 20
+end
+arch floor_sand_d1
 x 1
 y 21
 end
-arch plant9
+arch floor_sand_d3
 x 1
-y 21
+y 22
 end
-arch grassd_7
+arch grassd_m7
 x 1
 y 22
 end
@@ -334,23 +344,23 @@ arch grassd_2
 x 2
 y 19
 end
-arch grassd_3
+arch floor_sand_d1
 x 2
 y 20
 end
-arch plant_mushroom3
+arch grassd_m10
 x 2
 y 20
 end
-arch grassd_5
+arch floor_sand_d2
 x 2
 y 21
 end
-arch grassd_6
+arch floor_sand_d3
 x 2
 y 22
 end
-arch tree_big2
+arch grassd_m7
 x 2
 y 22
 end
@@ -469,23 +479,23 @@ arch tree_big4b
 x 3
 y 19
 end
-arch grassd_8
+arch floor_sand_d2
 x 3
 y 20
 end
-arch tree_big2
+arch grassd_m10
 x 3
 y 20
 end
-arch grassd_1
+arch floor_sand_d4
 x 3
 y 21
 end
-arch plant_flower1
+arch floor_sand_d1
 x 3
-y 21
+y 22
 end
-arch grassd_3
+arch grassd_m7
 x 3
 y 22
 end
@@ -599,15 +609,23 @@ arch grassd_8
 x 4
 y 19
 end
-arch grassd_1
+arch floor_sand_d3
 x 4
 y 20
 end
-arch grassd_5
+arch grassd_m10
+x 4
+y 20
+end
+arch floor_sand_d4
 x 4
 y 21
 end
-arch grassd_7
+arch floor_sand_d3
+x 4
+y 22
+end
+arch grassd_m7
 x 4
 y 22
 end
@@ -738,27 +756,23 @@ arch grassd_m9
 x 5
 y 19
 end
+arch floor_sand_d2
+x 5
+y 20
+end
+arch grassd_m13
+x 5
+y 20
+end
 arch floor_sand_d1
 x 5
-y 20
-end
-arch grassd_m9
-x 5
-y 20
-end
-arch floor_sand_d3
-x 5
 y 21
 end
-arch grassd_m9
-x 5
-y 21
-end
-arch floor_sand_d2
+arch floor_sand_d1
 x 5
 y 22
 end
-arch grassd_m9
+arch grassd_m14
 x 5
 y 22
 end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -136,9 +136,6 @@ arch grassd_8
 y 22
 end
 arch grassd_4
-y 23
-end
-arch rock_big2
 y 23
 end
 arch grassd_5
@@ -308,7 +305,7 @@ arch grassd_5
 x 1
 y 23
 end
-arch rock_big2
+arch stone1
 x 1
 y 23
 end
@@ -460,7 +457,7 @@ arch grassd_1
 x 2
 y 23
 end
-arch rock_big2
+arch tree_big
 x 2
 y 23
 end
@@ -626,10 +623,6 @@ arch grassd_6
 x 3
 y 23
 end
-arch rock_big2
-x 3
-y 23
-end
 arch floor_flagm4
 x 4
 end
@@ -738,7 +731,7 @@ arch grassd_3
 x 4
 y 23
 end
-arch rock_big2
+arch plant12
 x 4
 y 23
 end
@@ -860,10 +853,6 @@ arch grassd_5
 x 5
 y 23
 end
-arch rock_big2
-x 5
-y 23
-end
 arch floor_flagm4
 x 6
 end
@@ -964,10 +953,6 @@ x 6
 y 22
 end
 arch grassd_1
-x 6
-y 23
-end
-arch rock_big2
 x 6
 y 23
 end
@@ -1129,10 +1114,6 @@ arch grassd_1
 x 7
 y 23
 end
-arch rock_big2
-x 7
-y 23
-end
 arch grassd_5
 x 8
 end
@@ -1269,10 +1250,6 @@ x 8
 y 22
 end
 arch grassd_2
-x 8
-y 23
-end
-arch rock_big2
 x 8
 y 23
 end
@@ -1452,7 +1429,7 @@ arch grassd_5
 x 9
 y 23
 end
-arch rock_big2
+arch tree_big3
 x 9
 y 23
 end
@@ -1641,7 +1618,7 @@ arch grassd_6
 x 10
 y 23
 end
-arch rock_big2
+arch stone1
 x 10
 y 23
 end
@@ -1820,10 +1797,6 @@ arch grassd_1
 x 11
 y 23
 end
-arch rock_big2
-x 11
-y 23
-end
 arch grassd_3
 x 12
 end
@@ -1997,7 +1970,7 @@ arch grassd_4
 x 12
 y 23
 end
-arch rock_big2
+arch tree_branch1
 x 12
 y 23
 end
@@ -2154,10 +2127,6 @@ x 13
 y 22
 end
 arch grassd_5
-x 13
-y 23
-end
-arch rock_big2
 x 13
 y 23
 end
@@ -2346,10 +2315,6 @@ arch grassd_8
 x 14
 y 23
 end
-arch rock_big2
-x 14
-y 23
-end
 arch grassd_4
 x 15
 end
@@ -2535,7 +2500,7 @@ arch grassd_7
 x 15
 y 23
 end
-arch rock_big2
+arch tree_big3
 x 15
 y 23
 end
@@ -2723,10 +2688,6 @@ arch grassd_2
 x 16
 y 23
 end
-arch rock_big2
-x 16
-y 23
-end
 arch grassd_1
 x 17
 end
@@ -2834,11 +2795,10 @@ arch grassd_8
 x 17
 y 23
 end
-arch rock_big2
-x 17
-y 23
-end
 arch grassd_5
+x 18
+end
+arch plant_mushroom4
 x 18
 end
 arch grassd_8
@@ -2977,10 +2937,6 @@ arch grassd_6
 x 18
 y 23
 end
-arch rock_big2
-x 18
-y 23
-end
 arch grassd_4
 x 19
 end
@@ -3100,7 +3056,7 @@ arch grassd_7
 x 19
 y 23
 end
-arch rock_big2
+arch plant11
 x 19
 y 23
 end
@@ -3239,10 +3195,6 @@ arch grassd_6
 x 20
 y 23
 end
-arch rock_big2
-x 20
-y 23
-end
 arch grassd_7
 x 21
 end
@@ -3371,10 +3323,6 @@ x 21
 y 22
 end
 arch grassd_1
-x 21
-y 23
-end
-arch rock_big2
 x 21
 y 23
 end
@@ -3527,10 +3475,6 @@ arch grassd_4
 x 22
 y 23
 end
-arch rock_big2
-x 22
-y 23
-end
 arch grassd_3
 x 23
 end
@@ -3661,11 +3605,11 @@ arch grassd_7
 x 23
 y 22
 end
-arch grassd_7
+arch plant_flower14
 x 23
-y 23
+y 22
 end
-arch rock_big2
+arch grassd_7
 x 23
 y 23
 end

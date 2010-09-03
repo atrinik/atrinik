@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,221 +12,155 @@ no_harm 1
 tile_path_1 world_0112
 tile_path_2 world_0211
 tile_path_3 world_0110
+tile_path_4 world_aa11
 tile_path_5 world_0212
 tile_path_6 world_0210
+tile_path_7 world_aa10
+tile_path_8 world_aa12
 bg_music rainthunder.ogg
 region brynknot
 end
-arch grassd_4
+arch floor_flagm2
 end
-arch rock_big2
+arch grassd_m7
 end
 arch grassd_1
 y 1
 end
-arch rock_big2
-y 1
-end
 arch grassd_4
-y 2
-end
-arch rock_big2
 y 2
 end
 arch grassd_8
 y 3
 end
-arch rock_big2
-y 3
-end
 arch grassd_2
-y 4
-end
-arch rock_big2
 y 4
 end
 arch grassd_5
 y 5
 end
-arch rock_big2
+arch tree_branch1
 y 5
 end
 arch grassd_7
 y 6
 end
-arch rock_big2
-y 6
-end
 arch grassd_7
 y 7
 end
-arch rock_big2
-y 7
-end
 arch grassd_4
-y 8
-end
-arch rock_big2
 y 8
 end
 arch grassd_3
 y 9
 end
-arch rock_big2
+arch plant11
 y 9
 end
 arch grassd_6
 y 10
 end
-arch rock_big2
+arch plant_mushroom4
 y 10
 end
 arch grassd_1
 y 11
 end
-arch rock_big2
-y 11
-end
 arch grassd_7
 y 12
 end
-arch rock_big2
-y 12
-end
 arch grassd_5
-y 13
-end
-arch rock_big2
 y 13
 end
 arch grassd_2
 y 14
 end
-arch rock_big2
-y 14
-end
 arch grassd_5
 y 15
 end
-arch rock_big2
+arch tree_big
 y 15
 end
 arch grassd_4
 y 16
 end
-arch rock_big2
-y 16
-end
 arch grassd_1
 y 17
 end
-arch rock_big2
-y 17
-end
-arch grassd_4
+arch floor_flagm4
 y 18
 end
-arch rock_big2
+arch grassd_m10
 y 18
+end
+arch floor_flagm2
+y 19
+end
+arch floor_flagm1
+y 20
+end
+arch floor_flagm1
+y 21
+end
+arch grassd_m7
+y 21
 end
 arch grassd_1
-y 19
+y 22
 end
-arch rock_big2
-y 19
+arch grassd_5
+y 23
+end
+arch plant8
+y 23
+end
+arch floor_flagm3
+x 1
+end
+arch grassd_m7
+x 1
+end
+arch grassd_1
+x 1
+y 1
+end
+arch grassd_7
+x 1
+y 2
+end
+arch small_stones
+x 1
+y 2
+end
+arch grassd_7
+x 1
+y 3
+end
+arch tree_big
+x 1
+y 3
+end
+arch grassd_5
+x 1
+y 4
+end
+arch grassd_2
+x 1
+y 5
 end
 arch grassd_8
-y 20
-end
-arch rock_big2
-y 20
-end
-arch grassd_7
-y 21
-end
-arch rock_big2
-y 21
-end
-arch grassd_1
-y 22
-end
-arch rock_big2
-y 22
-end
-arch grassd_5
-y 23
-end
-arch rock_big2
-y 23
-end
-arch grassd_5
-x 1
-end
-arch wall_stone16_8
-x 1
-end
-arch grassd_4
-x 1
-y 1
-end
-arch wall_stone16_3
-x 1
-y 1
-end
-arch grassd_1
-x 1
-y 2
-end
-arch wall_stone16_3
-x 1
-y 2
-end
-arch grassd_2
-x 1
-y 3
-end
-arch wall_stone16_3
-x 1
-y 3
-end
-arch grassd_3
-x 1
-y 4
-end
-arch wall_stone16_3
-x 1
-y 4
-end
-arch wmask_fire_on_1
-direction 7
-x 1
-y 4
-end
-arch grassd_1
-x 1
-y 5
-end
-arch wall_stone16_3
-x 1
-y 5
-end
-arch grassd_6
 x 1
 y 6
 end
-arch wall_stone16_3
-x 1
-y 6
-end
-arch grassd_6
-x 1
-y 7
-end
-arch wall_stone16_3
+arch grassd_1
 x 1
 y 7
 end
 arch grassd_4
+x 1
+y 8
+end
+arch plant9
 x 1
 y 8
 end
@@ -247,6 +181,10 @@ x 1
 y 12
 end
 arch grassd_6
+x 1
+y 13
+end
+arch small_stones
 x 1
 y 13
 end
@@ -270,23 +208,27 @@ arch grassd_7
 x 1
 y 17
 end
-arch grassd_3
+arch floor_flagm4
 x 1
 y 18
 end
-arch grassd_5
+arch grassd_m10
+x 1
+y 18
+end
+arch floor_flagm1
 x 1
 y 19
 end
-arch grassd_4
+arch floor_flagm2
 x 1
 y 20
 end
-arch plant_flower2
+arch floor_flagm1
 x 1
-y 20
+y 21
 end
-arch grassd_8
+arch grassd_m7
 x 1
 y 21
 end
@@ -298,139 +240,45 @@ arch grassd_1
 x 1
 y 23
 end
-arch rock_big2
+arch plant8
 x 1
 y 23
 end
-arch grassd_3
+arch floor_flagm4
 x 2
 end
-arch wall_stone16_1
+arch grassd_m7
 x 2
 end
-arch floor_ostone10
-x 2
-y 1
-end
-arch chest_4.111
+arch grassd_1
 x 2
 y 1
 end
-arch floor_ostone10
+arch grassd_6
 x 2
 y 2
 end
-arch floor_ostone10
+arch grassd_3
 x 2
 y 3
 end
-arch spawn_point
-x 2
-y 3
-arch monk
-name Derowyn
-type 83
-level 20
-friendly 1
-direction 3
-arch event_obj
-sub_type 6
-race ../python/generic/quest_giver.py
-slaying /shattered_islands/scripts/strakewood_island/quests.py
-end
-arch sack
-name Ogres near Brynknot
-sys_object 1
-arch scroll_min_heal
-nrof 5
-level 5
-identified 1
-value 9
-end
-end
-arch sack
-name Evil Trees at Brynknot
-sys_object 1
-arch wand
-identified 1
-is_magical 1
-sp 0
-level 8
-food 19
-material_real 257
-item_quality 80
-item_condition 80
-end
-end
-arch sack
-name Forgotten Graveyard at Strakewood Island
-sys_object 1
-arch scroll_recharge
-nrof 7
-level 10
-identified 1
-value 7
-end
-end
-arch sack
-name Wyverns at Strakewood Island
-sys_object 1
-arch amulet_generic
-value 1725
-identified 1
-is_magical 1
-ac 1
-end
-end
-arch sack
-name Ice Golems in Old Outpost
-sys_object 1
-arch silvercoin
-nrof 10
-end
-end
-arch sack
-name Lava Golems in Old Outpost
-sys_object 1
-arch silvercoin
-nrof 15
-end
-end
-arch sack
-name Giant Wasps at Strakewood Island
-sys_object 1
-arch silvercoin
-nrof 7
-end
-end
-end
-end
-arch light5
-x 2
-y 3
-end
-arch floor_ostone10
+arch grassd_3
 x 2
 y 4
 end
-arch floor_ostone10
+arch grassd_7
 x 2
 y 5
 end
-arch floor_ostone10
+arch tree_branch1
+x 2
+y 5
+end
+arch grassd_8
 x 2
 y 6
 end
-arch chest_w1
-direction 7
-x 2
-y 6
-end
-arch floor_ostone10
-x 2
-y 7
-end
-arch wall_stone16_1
+arch grassd_4
 x 2
 y 7
 end
@@ -478,27 +326,27 @@ arch grassd_1
 x 2
 y 17
 end
-arch grassd_3
+arch floor_flagm1
 x 2
 y 18
 end
-arch grassd_4
+arch grassd_m10
+x 2
+y 18
+end
+arch floor_flagm3
 x 2
 y 19
 end
-arch grassd_3
+arch floor_flagm1
 x 2
 y 20
 end
-arch tree_big2
-x 2
-y 20
-end
-arch grassd_6
+arch floor_flagm2
 x 2
 y 21
 end
-arch plant16
+arch grassd_m7
 x 2
 y 21
 end
@@ -506,109 +354,57 @@ arch grassd_1
 x 2
 y 22
 end
+arch plant7
+x 2
+y 22
+end
 arch grassd_1
 x 2
 y 23
 end
-arch rock_big2
+arch reed_sm1
 x 2
 y 23
 end
+arch floor_flagm3
+x 3
+end
+arch grassd_m7
+x 3
+end
 arch grassd_8
 x 3
-end
-arch wall_stone16_1
-x 3
-end
-arch floor_ostone10
-x 3
 y 1
 end
-arch bank2c
-no_pass 1
-direction 5
-x 3
-y 1
-end
-arch floor_ostone10
+arch grassd_8
 x 3
 y 2
 end
-arch carpet7.131
-x 3
-y 2
-end
-arch bank2b
-no_pass 1
-direction 7
-x 3
-y 2
-end
-arch light4
-x 3
-y 2
-end
-arch floor_ostone10
+arch grassd_7
 x 3
 y 3
 end
-arch carpet7.131
+arch tree_branch3
 x 3
 y 3
 end
-arch bank2b
-no_pass 1
-direction 7
-x 3
-y 3
-end
-arch floor_ostone10
+arch grassd_2
 x 3
 y 4
 end
-arch carpet7.131
-x 3
-y 4
-end
-arch bank2b
-no_pass 1
-direction 7
-x 3
-y 4
-end
-arch floor_ostone10
+arch grassd_7
 x 3
 y 5
 end
-arch carpet7.131
-x 3
-y 5
-end
-arch bank2b
-no_pass 1
-direction 7
-x 3
-y 5
-end
-arch light4
-x 3
-y 5
-end
-arch floor_ostone10
+arch grassd_7
 x 3
 y 6
 end
-arch bank2a
-no_pass 1
-direction 5
+arch tree_big
 x 3
 y 6
 end
-arch floor_ostone10
-x 3
-y 7
-end
-arch wall_stone16_1
+arch grassd_2
 x 3
 y 7
 end
@@ -648,7 +444,15 @@ arch grassd_4
 x 3
 y 15
 end
+arch small_stones
+x 3
+y 15
+end
 arch grassd_8
+x 3
+y 16
+end
+arch tree_branch2
 x 3
 y 16
 end
@@ -656,23 +460,27 @@ arch grassd_3
 x 3
 y 17
 end
-arch tree_big5b
-x 3
-y 17
-end
-arch grassd_1
+arch floor_flagm2
 x 3
 y 18
 end
-arch grassd_1
+arch grassd_m10
+x 3
+y 18
+end
+arch floor_flagm2
 x 3
 y 19
 end
-arch grassd_5
+arch floor_flagm2
 x 3
 y 20
 end
-arch grassd_6
+arch floor_flagm3
+x 3
+y 21
+end
+arch grassd_m7
 x 3
 y 21
 end
@@ -680,82 +488,67 @@ arch grassd_1
 x 3
 y 22
 end
+arch spawn_point
+x 3
+y 22
+arch ranger
+type 83
+level 73
+Dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 0
+direction 3
+arch ability_stone_throw
+race arrows
+wc 200
+end
+arch arrow_woodlanders
+sys_object 1
+dam 100
+wc 300
+end
+end
+end
 arch grassd_7
 x 3
 y 23
 end
-arch rock_big2
+arch plant7
 x 3
 y 23
 end
-arch grassd_7
+arch floor_flagm2
 x 4
 end
-arch wall_stone16_1
+arch grassd_m7
 x 4
 end
-arch floor_ostone10
-x 4
-y 1
-end
-arch carpet7.151
+arch grassd_5
 x 4
 y 1
 end
-arch fireplace_right
-x 4
-y 1
-end
-arch floor_ostone10
+arch grassd_5
 x 4
 y 2
 end
-arch carpet7i
-x 4
-y 2
-end
-arch floor_ostone10
+arch grassd_2
 x 4
 y 3
 end
-arch carpet7e
-x 4
-y 3
-end
-arch floor_ostone10
+arch grassd_1
 x 4
 y 4
 end
-arch carpet7e
-x 4
-y 4
-end
-arch floor_ostone10
+arch grassd_3
 x 4
 y 5
 end
-arch carpet7j
-x 4
-y 5
-end
-arch floor_ostone10
+arch grassd_5
 x 4
 y 6
 end
-arch carpet7.111
-x 4
-y 6
-end
-arch chair1_111
-direction 7
-x 4
-y 6
-end
-arch floor_ostone10
-x 4
-y 7
-end
-arch wall_stone16_1
+arch grassd_6
 x 4
 y 7
 end
@@ -807,19 +600,27 @@ arch grassd_6
 x 4
 y 17
 end
-arch grassd_7
+arch floor_flagm4
 x 4
 y 18
 end
-arch grassd_2
+arch grassd_m10
+x 4
+y 18
+end
+arch floor_flagm3
 x 4
 y 19
 end
-arch grassd_4
+arch floor_flagm2
 x 4
 y 20
 end
-arch grassd_4
+arch floor_flagm3
+x 4
+y 21
+end
+arch grassd_m7
 x 4
 y 21
 end
@@ -831,85 +632,53 @@ arch grassd_6
 x 4
 y 23
 end
+arch plant_flower1
+x 4
+y 23
+end
+arch floor_flagm3
+x 5
+end
+arch grassd_m7
+x 5
+end
 arch grassd_7
 x 5
-end
-arch wall_stone16_1
-x 5
-end
-arch floor_ostone10
-x 5
 y 1
 end
-arch carpet7.151
-x 5
-y 1
-end
-arch floor_ostone10
+arch grassd_6
 x 5
 y 2
 end
-arch carpet7h
+arch stone1
 x 5
 y 2
 end
-arch light3
-x 5
-y 2
-end
-arch floor_ostone10
+arch grassd_1
 x 5
 y 3
 end
-arch carpet7c
+arch plant17
 x 5
 y 3
 end
-arch floor_ostone10
+arch grassd_2
 x 5
 y 4
 end
-arch carpet7c
+arch tree_big
 x 5
 y 4
 end
-arch light5
-x 5
-y 4
-end
-arch floor_ostone10
+arch grassd_7
 x 5
 y 5
 end
-arch carpet7k
-x 5
-y 5
-end
-arch chair1_111
-x 5
-y 5
-end
-arch floor_ostone10
+arch grassd_4
 x 5
 y 6
 end
-arch carpet7.111
-x 5
-y 6
-end
-arch table_round5
-x 5
-y 6
-end
-arch light3
-x 5
-y 6
-end
-arch floor_ostone10
-x 5
-y 7
-end
-arch wall_stone16_w.111
+arch grassd_7
 x 5
 y 7
 end
@@ -934,6 +703,10 @@ x 5
 y 11
 end
 arch grassd_2
+x 5
+y 12
+end
+arch plant13
 x 5
 y 12
 end
@@ -965,26 +738,9 @@ arch grassd_5
 x 5
 y 17
 end
-arch grassd_5
-x 5
-y 18
-end
-arch lantern_magic.131
-direction 5
-x 5
-y 18
-end
-arch light7
-x 5
-y 18
-end
-arch grassd_7
-x 5
-y 19
-end
 arch spawn_point
 x 5
-y 19
+y 17
 arch guard
 type 83
 level 60
@@ -994,11 +750,27 @@ stand_still 0
 direction 3
 end
 end
-arch grassd_6
+arch floor_flagm4
+x 5
+y 18
+end
+arch grassd_m10
+x 5
+y 18
+end
+arch floor_flagm2
+x 5
+y 19
+end
+arch floor_flagm4
 x 5
 y 20
 end
-arch grassd_1
+arch floor_flagm3
+x 5
+y 21
+end
+arch grassd_m7
 x 5
 y 21
 end
@@ -1014,70 +786,53 @@ arch bridge_wood_NS.181
 x 5
 y 23
 end
+arch floor_flagm3
+x 6
+end
+arch grassd_m7
+x 6
+end
+arch grassd_4
+x 6
+y 1
+end
+arch grassd_7
+x 6
+y 2
+end
+arch plant9
+x 6
+y 2
+end
+arch grassd_6
+x 6
+y 3
+end
 arch grassd_5
 x 6
-end
-arch wall_stone16_1
-x 6
-end
-arch floor_ostone10
-x 6
-y 1
-end
-arch wall_stone16_3
-x 6
-y 1
-end
-arch floor_ostone10
-x 6
-y 2
-end
-arch wall_stone16_3
-x 6
-y 2
-end
-arch floor_ostone10
-x 6
-y 3
-end
-arch wall_stone16_3
-x 6
-y 3
-end
-arch floor_ostone10
-x 6
 y 4
 end
-arch door1_locked
-direction 3
-x 6
-y 4
-end
-arch floor_ostone10
+arch grassd_8
 x 6
 y 5
 end
-arch wall_stone16_3
+arch plant12
 x 6
 y 5
 end
-arch floor_ostone10
+arch grassd_4
 x 6
 y 6
 end
-arch wall_stone16_3
-x 6
-y 6
-end
-arch floor_ostone10
-x 6
-y 7
-end
-arch wall_stone16_4
+arch grassd_6
 x 6
 y 7
 end
 arch grassd_1
+x 6
+y 8
+end
+arch tree_big2
 x 6
 y 8
 end
@@ -1098,6 +853,10 @@ x 6
 y 11
 end
 arch grassd_5
+x 6
+y 12
+end
+arch plant_flower2
 x 6
 y 12
 end
@@ -1146,23 +905,15 @@ arch floor_flagm3
 x 6
 y 18
 end
-arch grassd_m9
+arch grassd_m13
 x 6
 y 18
 end
-arch floor_flagm1
-x 6
-y 19
-end
-arch grassd_m9
-x 6
-y 19
-end
 arch floor_flagm3
 x 6
-y 20
+y 19
 end
-arch grassd_m9
+arch floor_flagm1
 x 6
 y 20
 end
@@ -1170,7 +921,7 @@ arch floor_flagm4
 x 6
 y 21
 end
-arch grassd_m3
+arch grassd_m7
 x 6
 y 21
 end
@@ -1186,68 +937,37 @@ arch bridge_wood_NS.111
 x 6
 y 23
 end
-arch grassd_6
+arch floor_flagm4
 x 7
 end
-arch grassd_6
+arch grassd_m7
 x 7
-y 1
-end
-arch lantern2_magic.131
-direction 7
-x 7
-y 1
-end
-arch light7
-x 7
-y 1
-end
-arch grassd_6
-x 7
-y 2
-end
-arch floor_flagm2
-x 7
-y 3
-end
-arch grassd_m4
-x 7
-y 3
-end
-arch floor_flagm1
-x 7
-y 4
-end
-arch floor_flagm1
-x 7
-y 5
-end
-arch grassd_m3
-x 7
-y 5
-end
-arch announcement
-msg
-Derowyn, the quest giver
-endmsg
-direction 7
-x 7
-y 5
-end
-arch grassd_7
-x 7
-y 6
 end
 arch grassd_5
 x 7
-y 7
+y 1
 end
-arch lantern2_magic.131
-direction 7
+arch grassd_5
 x 7
-y 7
+y 2
 end
-arch light7
+arch grassd_2
+x 7
+y 3
+end
+arch grassd_6
+x 7
+y 4
+end
+arch grassd_4
+x 7
+y 5
+end
+arch grassd_3
+x 7
+y 6
+end
+arch grassd_3
 x 7
 y 7
 end
@@ -1343,46 +1063,50 @@ end
 arch floor_flagm3
 x 8
 end
-arch grassd_m9
+arch grassd_m14
 x 8
-end
-arch floor_flagm2
-x 8
-y 1
-end
-arch grassd_m9
-x 8
-y 1
 end
 arch floor_flagm3
 x 8
+y 1
+end
+arch grassd_m9
+x 8
+y 1
+end
+arch floor_flagm1
+x 8
 y 2
 end
 arch grassd_m9
 x 8
 y 2
 end
-arch floor_flagm4
-x 8
-y 3
-end
-arch grassd_m13
-x 8
-y 3
-end
 arch floor_flagm2
+x 8
+y 3
+end
+arch grassd_m9
+x 8
+y 3
+end
+arch floor_flagm3
 x 8
 y 4
 end
-arch floor_flagm4
+arch grassd_m9
+x 8
+y 4
+end
+arch floor_flagm3
 x 8
 y 5
 end
-arch grassd_m14
+arch grassd_m9
 x 8
 y 5
 end
-arch floor_flagm2
+arch floor_flagm3
 x 8
 y 6
 end
@@ -1390,7 +1114,7 @@ arch grassd_m9
 x 8
 y 6
 end
-arch floor_flagm3
+arch floor_flagm2
 x 8
 y 7
 end
@@ -1708,6 +1432,14 @@ arch grassd_4
 x 10
 y 20
 end
+arch spawn_point
+x 10
+y 20
+arch guard
+level 28
+type 83
+end
+end
 arch grassd_3
 x 10
 y 21
@@ -1815,11 +1547,19 @@ arch grassd_8
 x 11
 y 21
 end
+arch plant9
+x 11
+y 21
+end
 arch grassd_3
 x 11
 y 22
 end
 arch grassd_8
+x 11
+y 23
+end
+arch plant7
 x 11
 y 23
 end
@@ -1985,7 +1725,7 @@ arch grassd_1
 x 12
 y 23
 end
-arch rock_big2
+arch plant8
 x 12
 y 23
 end
@@ -2031,6 +1771,10 @@ arch grassd_8
 x 13
 y 5
 end
+arch plant_flower7
+x 13
+y 5
+end
 arch grassd_4
 x 13
 y 6
@@ -2056,6 +1800,10 @@ x 13
 y 9
 end
 arch grassd_8
+x 13
+y 10
+end
+arch plant15
 x 13
 y 10
 end
@@ -2142,7 +1890,7 @@ arch grassd_7
 x 13
 y 23
 end
-arch rock_big2
+arch plant8
 x 13
 y 23
 end
@@ -2315,10 +2063,6 @@ arch grassd_6
 x 14
 y 23
 end
-arch rock_big2
-x 14
-y 23
-end
 arch grassd_6
 x 15
 end
@@ -2482,11 +2226,11 @@ arch grassd_3
 x 15
 y 22
 end
-arch grassd_6
+arch plant11
 x 15
-y 23
+y 22
 end
-arch rock_big2
+arch grassd_6
 x 15
 y 23
 end
@@ -2615,6 +2359,10 @@ arch grassd_3
 x 16
 y 14
 end
+arch plant_mushroom1
+x 16
+y 14
+end
 arch floor_flagm2
 x 16
 y 15
@@ -2660,10 +2408,6 @@ x 16
 y 22
 end
 arch grassd_6
-x 16
-y 23
-end
-arch rock_big2
 x 16
 y 23
 end
@@ -2822,11 +2566,11 @@ arch grassd_1
 x 17
 y 22
 end
-arch grassd_8
+arch plant_flower6
 x 17
-y 23
+y 22
 end
-arch rock_big2
+arch grassd_8
 x 17
 y 23
 end
@@ -2834,6 +2578,10 @@ arch grassd_7
 x 18
 end
 arch grassd_8
+x 18
+y 1
+end
+arch plant16
 x 18
 y 1
 end
@@ -2986,7 +2734,7 @@ arch grassd_2
 x 18
 y 23
 end
-arch rock_big2
+arch plant9
 x 18
 y 23
 end
@@ -3143,10 +2891,6 @@ x 19
 y 22
 end
 arch grassd_2
-x 19
-y 23
-end
-arch rock_big2
 x 19
 y 23
 end
@@ -3322,10 +3066,6 @@ arch grassd_6
 x 20
 y 23
 end
-arch rock_big2
-x 20
-y 23
-end
 arch grassd_1
 x 21
 end
@@ -3484,7 +3224,7 @@ arch grassd_7
 x 21
 y 23
 end
-arch rock_big2
+arch plant_flower14
 x 21
 y 23
 end
@@ -3609,6 +3349,10 @@ arch grassd_1
 x 22
 y 14
 end
+arch small_stones
+x 22
+y 14
+end
 arch floor_flagm1
 x 22
 y 15
@@ -3645,15 +3389,15 @@ arch grassd_1
 x 22
 y 21
 end
+arch stone1
+x 22
+y 21
+end
 arch grassd_1
 x 22
 y 22
 end
 arch grassd_8
-x 22
-y 23
-end
-arch rock_big2
 x 22
 y 23
 end
@@ -3816,10 +3560,6 @@ x 23
 y 22
 end
 arch grassd_4
-x 23
-y 23
-end
-arch rock_big2
 x 23
 y 23
 end
