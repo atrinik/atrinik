@@ -535,6 +535,7 @@ void process_object(object *op)
 
 		case THROWN_OBJ:
 		case ARROW:
+		case POTION:
 			move_arrow(op);
 			return;
 

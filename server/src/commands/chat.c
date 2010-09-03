@@ -135,7 +135,6 @@ int command_shout(object *op, char *params)
  * @return 1 on success, 0 on failure */
 int command_tell(object *op, char *params)
 {
-	const char *name_hash;
 	char *name = NULL, *msg = NULL;
 	player *pl;
 
@@ -177,10 +176,9 @@ int command_tell(object *op, char *params)
 		return 1;
 	}
 
-	adjust_player_name(name);
-	name_hash = find_string(name);
+	pl = find_player(name);
 
-	if (!name_hash)
+	if (!pl)
 	{
 		new_draw_info(NDI_UNIQUE, op, "No such player.");
 		return 1;
@@ -188,37 +186,28 @@ int command_tell(object *op, char *params)
 
 	if (!msg || *msg == '\0')
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Tell %s what?", name);
+		new_draw_info_format(NDI_UNIQUE, op, "Tell %s what?", pl->ob->name);
 		return 1;
 	}
 
 	/* Send to yourself? Intelligent... */
-	if (op->name == name_hash)
+	if (pl == CONTR(op))
 	{
 		new_draw_info(NDI_UNIQUE, op, "You tell yourself the news. Very smart.");
 		return 1;
 	}
 
-	for (pl = first_player; pl; pl = pl->next)
+	if (pl->dm_stealth && !(QUERY_FLAG(op, FLAG_WIZ) || CONTR(op)->dm_stealth))
 	{
-		if (pl->ob->name == name_hash)
-		{
-			if (pl->dm_stealth)
-			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you (dm_stealth): %s", op->name, msg);
-				/* We send it but we kick the "no such player" on. */
-				break;
-			}
-			else
-			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY, op, "You tell %s: %s", name, msg);
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you: %s", op->name, msg);
-				return 1;
-			}
-		}
+		new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you (dm_stealth): %s", op->name, msg);
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
+	}
+	else
+	{
+		new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY, op, "You tell %s: %s", name, msg);
+		new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you: %s", op->name, msg);
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "No such player.");
 	return 1;
 }
 
@@ -913,7 +902,7 @@ static int basic_emote(object *op, char *params, int emotion)
 	{
 		/* If we are a player with legal target, use it as target for the
 		 * emote. */
-		if (op->type == PLAYER && CONTR(op)->target_object != op && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && CONTR(op)->target_object->name)
+		if (op->type == PLAYER && CONTR(op)->target_object != op && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && CONTR(op)->target_object->name && (CONTR(op)->target_object->type != PLAYER || !CONTR(CONTR(op)->target_object)->dm_stealth || QUERY_FLAG(op, FLAG_WIZ) || CONTR(op)->dm_stealth) && !IS_INVISIBLE(CONTR(op)->target_object, op))
 		{
 			rv_vector rv;
 
@@ -989,7 +978,7 @@ static int basic_emote(object *op, char *params, int emotion)
 
 			pl = find_player(params);
 
-			if (pl && pl->state == ST_PLAYING && !pl->dm_stealth)
+			if (pl && (!pl->dm_stealth || QUERY_FLAG(op, FLAG_WIZ) || CONTR(op)->dm_stealth) && !IS_INVISIBLE(pl->ob, op))
 			{
 				rv_vector rv;
 

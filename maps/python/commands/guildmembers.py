@@ -41,6 +41,9 @@ def main():
 
 		player = FindPlayer(member)
 
+		if player and player.Controller().dm_stealth and not (activator.f_wiz or activator.Controller().dm_stealth):
+			player = None
+
 		# Do we only want online members, or all?
 		if not all_members and not player:
 			continue

@@ -37,11 +37,6 @@ object *fix_stopped_arrow(object *op)
 {
 	object *tmp;
 
-	if (op->type != ARROW)
-	{
-		return op;
-	}
-
 #if 0
 	/* Small chance of breaking */
 	if (rndm(0, 99) < op->stats.food)
@@ -113,15 +108,6 @@ void move_arrow(object *op)
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
-	}
-
-	/* We need to stop thrown objects and arrows at some point. Like here. */
-	if (op->type == THROWN_OBJ)
-	{
-		if (op->inv == NULL)
-		{
-			return;
-		}
 	}
 
 	if (op->last_sp-- < 0)
@@ -266,50 +252,10 @@ void stop_arrow(object *op)
 {
 	play_sound_map(op->map, CMD_SOUND_EFFECT, "drop.ogg", op->x, op->y, 0, 0);
 	CLEAR_FLAG(op, FLAG_IS_MISSILE);
+	op = fix_stopped_arrow(op);
 
-	if (op->inv)
+	if (op)
 	{
-		object *payload = op->inv;
-
-		remove_ob(payload);
-		check_walk_off(payload, NULL, MOVE_APPLY_VANISHED);
-
-		/* Trigger the STOP event */
-		trigger_event(EVENT_STOP, NULL, payload, op, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
-
-		/* we have a thrown potion here.
-		 * This potion has NOT hit a target.
-		 * it has hitten a wall or just dropped to the ground.
-		 * 1.) its a AE spell... detonate it.
-		 * 2.) its something else - shatter the potion. */
-		if (payload->type == POTION)
-		{
-			if (payload->stats.sp != SP_NO_SPELL && spells[payload->stats.sp].flags & SPELL_DESC_DIRECTION)
-			{
-				cast_spell(payload, payload, payload->direction, payload->stats.sp, 1, spellPotion, NULL);
-			}
-		}
-		else
-		{
-			clear_owner(payload);
-
-			/* Gecko: if the script didn't put the payload somewhere else */
-			if (!payload->env && !OBJECT_FREE(payload))
-			{
-				insert_ob_in_map(payload, op->map, payload, 0);
-			}
-		}
-
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-	}
-	else
-	{
-		op = fix_stopped_arrow(op);
-
-		if (op)
-		{
-			merge_ob(op, NULL);
-		}
+		merge_ob(op, NULL);
 	}
 }
