@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 emperorbma
+Modified: 2010-09-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1489,36 +1489,7 @@ arch shelf3c.111
 name Medicine - NF
 x 8
 y 9
-arch tome
-msg
-You find a lengthy treatise on disease
-and its cure.  Some diseases,
-apparently, are more difficult to cure
-than others, and require a higher
-level of skill.  Other diseases can be
-expected to run their course and go
-away without causing serious harm,
-unless  of course, one is in a
-situation in which temporary
-incapacity is fatal.  The cure
-disease spell is effective against
-disease, except as remarked above.
-Restoration also works well against
-disease.
-Cure wounds spells won't cure disease,
-but they will reduce symptoms.  Cure
-wounds spells therefore can be used to
-keep a person alive until the disease
-may be cured.  Also, they may keep him
-alive until the disease naturally goes
-away.
-There are also claims of herbal,
-alchemical, animal, or other magical
-cures for disease, but these belong in
-another treatise.
-endmsg
-name On the Cure of Disease
-no_pick 1
+arch book_cure_disease
 end
 end
 arch floor_fs_grey1b
@@ -1702,22 +1673,7 @@ arch shelf3c.111
 name NF - Religion
 x 9
 y 11
-arch tome_black
-msg
-<tt="Choosing a Deity">
-If you plan to utilise divine powers you must have the skill Divine Prayers and you must choose a cult of a higher being.
-To become a follower, find a holy altar of your cult, step onto the altar and apply it. The divine spirit inside this altar will touch your soul, attuning your mortal being to your new deity.
-Be warned: if you touch a altar of a enemy deity or of a deity of reverse alignment you will be punished very badly. You might lose Wisdom levels or worse.
-Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
-<tt="Prayers">
-Next you must learn prayers. Guilds, Priests and churches will teach you prayers. There are also rumours about Prayer books lost in ancient tombs ages ago...
-Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause wounds", "bless" or "minor healing".
-<tt="Grace">
-Casting prayers will drain your grace. This can only be replenished by resting. If your maximum grace is too low you should try to increase your Wisdom skill group,
-Never lose faith! Rumours abound of divine prayers of incredible power, and of old and wise priests who have almost reached immortality...
-endmsg
-no_pick 1
-name The Book of Deities
+arch book_deities
 end
 end
 arch floor_fs_grey1b
@@ -1926,16 +1882,7 @@ arch shelf3a.111
 name Religion - F
 x 10
 y 11
-arch tome_blue
-msg
-In the beginning, the Giver of Data
-(GOD) generated silicon and carbon, and
-the system without architecture, and
-un-initialized, randomness was apon
-the arrangement of the matrix.......
-endmsg
-name Binary Bible
-no_pick 1
+arch book_binary_bible
 end
 end
 arch floor_fs_grey1b

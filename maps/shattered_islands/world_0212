@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-03 Alex Tokar
+Modified: 2010-09-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3012,22 +3012,7 @@ arch floor_marble1a
 x 23
 y 5
 end
-arch book
-msg
-<tt="Choosing a Deity">
-If you plan to utilise divine powers you must have the skill Divine Prayers and you must choose a cult of a higher being.
-To become a follower, find a holy altar of your cult, step onto the altar and apply it. The divine spirit inside this altar will touch your soul, attuning your mortal being to your new deity.
-Be warned: if you touch a altar of a enemy deity or of a deity of reverse alignment you will be punished very badly. You might lose Wisdom levels or worse.
-Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
-<tt="Prayers">
-Next you must learn prayers. Guilds, Priests and churches will teach you prayers. There are also rumours about Prayer books lost in ancient tombs ages ago...
-Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause wounds", "bless" or "minor healing".
-<tt="Grace">
-Casting prayers will drain your grace. This can only be replenished by resting. If your maximum grace is too low you should try to increase your Wisdom skill group,
-Never lose faith! Rumours abound of divine prayers of incredible power, and of old and wise priests who have almost reached immortality...
-endmsg
-name The Book of Deities
-no_pick 1
+arch book_deities
 x 23
 y 5
 end
