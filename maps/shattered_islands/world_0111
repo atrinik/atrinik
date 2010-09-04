@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-03 Alex Tokar
+Modified: 2010-09-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -376,6 +376,15 @@ arch grassd_8
 x 3
 y 1
 end
+arch lantern_magic.131
+direction 7
+x 3
+y 1
+end
+arch light7
+x 3
+y 1
+end
 arch grassd_8
 x 3
 y 2
@@ -600,6 +609,15 @@ arch grassd_6
 x 4
 y 17
 end
+arch lantern_magic.131
+direction 3
+x 4
+y 17
+end
+arch light7
+x 4
+y 17
+end
 arch floor_flagm4
 x 4
 y 18
@@ -625,6 +643,15 @@ x 4
 y 21
 end
 arch grassd_5
+x 4
+y 22
+end
+arch lantern_magic.131
+direction 7
+x 4
+y 22
+end
+arch light7
 x 4
 y 22
 end
@@ -947,6 +974,15 @@ arch grassd_5
 x 7
 y 1
 end
+arch lantern_magic.131
+direction 5
+x 7
+y 1
+end
+arch light7
+x 7
+y 1
+end
 arch grassd_5
 x 7
 y 2
@@ -968,6 +1004,15 @@ x 7
 y 6
 end
 arch grassd_3
+x 7
+y 7
+end
+arch lantern_magic.131
+direction 5
+x 7
+y 7
+end
+arch light7
 x 7
 y 7
 end
@@ -1317,10 +1362,6 @@ arch grassd_m8
 x 9
 y 20
 end
-arch light7
-x 9
-y 20
-end
 arch floor_flagm3
 x 9
 y 21
@@ -1441,6 +1482,14 @@ type 83
 end
 end
 arch grassd_3
+x 10
+y 21
+end
+arch lantern_magic.131
+x 10
+y 21
+end
+arch light7
 x 10
 y 21
 end
