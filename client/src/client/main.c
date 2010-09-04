@@ -1795,7 +1795,8 @@ int main(int argc, char *argv[])
 			if ((LastTick - msg_anim.tick) < 3000)
 			{
 				_BLTFX bmbltfx;
-				int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f))));
+				int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f)))), y_offset = 0;
+				char *msg = strdup(msg_anim.message), *cp;
 
 				bmbltfx.alpha = 255;
 				bmbltfx.flags = BLTFX_FLAG_SRCALPHA;
@@ -1805,8 +1806,17 @@ int main(int argc, char *argv[])
 					bmbltfx.alpha -= (int) (255.0f * ((float) (LastTick - msg_anim.tick - 2000) / 1000.0f));
 				}
 
-				StringBlt(ScreenSurface, &BigFont, msg_anim.message, Screensize->x / 2 - (StringWidth(&BigFont, msg_anim.message) / 2), 300 - bmoff, COLOR_BLACK, NULL, &bmbltfx);
-				StringBlt(ScreenSurface, &BigFont, msg_anim.message, Screensize->x / 2 - (StringWidth(&BigFont, msg_anim.message) / 2) - 2 , 300 - 2 - bmoff, msg_anim.flags & 0xff, NULL, &bmbltfx);
+				cp = strtok(msg, "\n");
+
+				while (cp)
+				{
+					StringBlt(ScreenSurface, &BigFont, cp, Screensize->x / 2 - (StringWidth(&BigFont, cp) / 2), 300 - bmoff + y_offset, COLOR_BLACK, NULL, &bmbltfx);
+					StringBlt(ScreenSurface, &BigFont, cp, Screensize->x / 2 - (StringWidth(&BigFont, cp) / 2) - 2 , 300 - 2 - bmoff + y_offset, msg_anim.flags & 0xff, NULL, &bmbltfx);
+					y_offset += 16;
+					cp = strtok(NULL, "\n");
+				}
+
+				free(msg);
 			}
 			else
 			{

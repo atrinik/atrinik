@@ -530,7 +530,6 @@ void DrawInfoCmd2(unsigned char *data, int len)
 	if (flags & NDI_ANIM)
 	{
 		strncpy(msg_anim.message, buf, sizeof(msg_anim.message) - 1);
-		msg_anim.message[len - 1] = '\0';
 		msg_anim.flags = flags;
 		msg_anim.tick = LastTick;
 	}
