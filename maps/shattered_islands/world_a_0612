@@ -2,7 +2,7 @@ arch map
 name Under Fort Ghzal
 msg
 Created:  2010-08-29 Alex Tokar
-Modified: 2010-08-31 Alex Tokar
+Modified: 2010-09-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -390,7 +390,9 @@ x 13
 y 8
 arch rat_a
 name small rat
+z 3
 zoom 70
+align 4
 level 2
 type 83
 end
