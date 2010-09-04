@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-03 Alex Tokar
+Modified: 2010-09-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -374,11 +374,7 @@ arch floor_wood3a
 x 2
 y 13
 end
-arch candlelight4.101
-x 2
-y 13
-end
-arch light3
+arch basket2.101
 x 2
 y 13
 end
@@ -386,7 +382,15 @@ arch floor_wood3a
 x 2
 y 14
 end
+arch grain4.101
+x 2
+y 14
+end
 arch floor_wood3a
+x 2
+y 15
+end
+arch grain5.101
 x 2
 y 15
 end
@@ -394,7 +398,7 @@ arch floor_wood3a
 x 2
 y 16
 end
-arch curtain1
+arch wall_wood2_1
 x 2
 y 16
 end
@@ -402,7 +406,7 @@ arch floor_wood3a
 x 2
 y 17
 end
-arch light3
+arch torch_wall_1
 x 2
 y 17
 end
@@ -410,26 +414,25 @@ arch floor_wood3a
 x 2
 y 18
 end
+arch chair1_111
+x 2
+y 18
+end
+arch spawn_point
+x 2
+y 18
+arch ranger
+level 61
+type 83
+end
+end
 arch floor_wood3a
 x 2
 y 19
 end
-arch spawn_point
+arch table_poker2
 x 2
 y 19
-arch monk
-name Marble Toe
-direction 3
-level 12
-friendly 1
-stand_still 0
-movement_type 64
-type 83
-arch event_obj
-sub_type 6
-race scripts/strakewood_island/brynknot/marble_toe.py
-end
-end
 end
 arch floor_wood3a
 x 2
@@ -553,12 +556,7 @@ arch floor_wood3a
 x 3
 y 13
 end
-arch bed_1a.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
+arch barrel_water.101
 x 3
 y 13
 end
@@ -566,12 +564,7 @@ arch floor_wood3a
 x 3
 y 14
 end
-arch bed_1b.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
+arch grain2.101
 x 3
 y 14
 end
@@ -579,11 +572,15 @@ arch floor_wood3a
 x 3
 y 15
 end
+arch grain1.101
+x 3
+y 15
+end
 arch floor_wood3a
 x 3
 y 16
 end
-arch wall_wood1_1
+arch wall_wood_1
 x 3
 y 16
 end
@@ -596,6 +593,11 @@ x 3
 y 18
 end
 arch floor_wood3a
+x 3
+y 19
+end
+arch chair1_111
+direction 3
 x 3
 y 19
 end
@@ -710,7 +712,7 @@ arch floor_wood3a
 x 4
 y 13
 end
-arch wall_wood2_3
+arch barrel.101
 x 4
 y 13
 end
@@ -718,15 +720,11 @@ arch floor_wood3a
 x 4
 y 14
 end
-arch wall_wood1_3
-x 4
-y 14
-end
 arch floor_wood3a
 x 4
 y 15
 end
-arch wall_wood2_3
+arch barrel_water.101
 x 4
 y 15
 end
@@ -734,7 +732,7 @@ arch floor_wood3a
 x 4
 y 16
 end
-arch wall_wood_4
+arch wall_wood_1
 x 4
 y 16
 end
@@ -742,7 +740,7 @@ arch floor_wood3a
 x 4
 y 17
 end
-arch shelf3_wall.111
+arch shelf6_wall.111
 x 4
 y 17
 end
@@ -857,7 +855,7 @@ arch grassd_1
 x 5
 y 12
 end
-arch wall_wood_w_1
+arch wall_wood2_1
 x 5
 y 12
 end
@@ -865,11 +863,7 @@ arch floor_wood3a
 x 5
 y 13
 end
-arch candlelight4.101
-x 5
-y 13
-end
-arch light3
+arch wall_wood_3
 x 5
 y 13
 end
@@ -877,7 +871,16 @@ arch floor_wood3a
 x 5
 y 14
 end
+arch door_wood1
+direction 3
+x 5
+y 14
+end
 arch floor_wood3a
+x 5
+y 15
+end
+arch wall_wood_3
 x 5
 y 15
 end
@@ -885,7 +888,7 @@ arch floor_wood3a
 x 5
 y 16
 end
-arch curtain1
+arch wall_wood_4
 x 5
 y 16
 end
@@ -893,7 +896,7 @@ arch floor_wood3a
 x 5
 y 17
 end
-arch light7
+arch torch_wall_1
 x 5
 y 17
 end
@@ -1012,7 +1015,7 @@ arch grassd_7
 x 6
 y 12
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 6
 y 12
 end
@@ -1020,25 +1023,7 @@ arch floor_wood3a
 x 6
 y 13
 end
-arch bed_1a.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
-x 6
-y 13
-end
 arch floor_wood3a
-x 6
-y 14
-end
-arch bed_1b.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
 x 6
 y 14
 end
@@ -1046,11 +1031,12 @@ arch floor_wood3a
 x 6
 y 15
 end
-arch floor_wood3a
+arch torch_wall_1
+direction 7
 x 6
-y 16
+y 15
 end
-arch wall_wood1_1
+arch floor_wood3a
 x 6
 y 16
 end
@@ -1065,6 +1051,20 @@ end
 arch floor_wood3a
 x 6
 y 19
+end
+arch chair1_111
+direction 7
+x 6
+y 19
+end
+arch spawn_point
+x 6
+y 19
+arch woman_old
+direction 3
+level 18
+type 83
+end
 end
 arch floor_wood3a
 x 6
@@ -1181,7 +1181,7 @@ arch floor_wood3a
 x 7
 y 13
 end
-arch wall_wood1_3
+arch fireplace_right
 x 7
 y 13
 end
@@ -1189,7 +1189,7 @@ arch floor_wood3a
 x 7
 y 14
 end
-arch wall_wood2_3
+arch light5
 x 7
 y 14
 end
@@ -1197,7 +1197,8 @@ arch floor_wood3a
 x 7
 y 15
 end
-arch wall_wood2_3
+arch chair1_111
+direction 7
 x 7
 y 15
 end
@@ -1205,15 +1206,7 @@ arch floor_wood3a
 x 7
 y 16
 end
-arch wall_wood_4
-x 7
-y 16
-end
 arch floor_wood3a
-x 7
-y 17
-end
-arch shelf3c.111
 x 7
 y 17
 end
@@ -1221,7 +1214,23 @@ arch floor_wood3a
 x 7
 y 18
 end
+arch chair1_111
+x 7
+y 18
+end
+arch spawn_point
+x 7
+y 18
+arch monk
+level 17
+type 83
+end
+end
 arch floor_wood3a
+x 7
+y 19
+end
+arch table_round1
 x 7
 y 19
 end
@@ -1344,15 +1353,15 @@ arch floor_wood3a
 x 8
 y 13
 end
-arch candlelight4.101
-x 8
-y 13
-end
-arch light3
-x 8
-y 13
-end
 arch floor_wood3a
+x 8
+y 14
+end
+arch chair1_111
+x 8
+y 14
+end
+arch light5
 x 8
 y 14
 end
@@ -1360,11 +1369,16 @@ arch floor_wood3a
 x 8
 y 15
 end
+arch table_poker1
+x 8
+y 15
+end
 arch floor_wood3a
 x 8
 y 16
 end
-arch curtain1
+arch chair1_111
+direction 5
 x 8
 y 16
 end
@@ -1377,6 +1391,11 @@ x 8
 y 18
 end
 arch floor_wood3a
+x 8
+y 19
+end
+arch chair1_111
+direction 3
 x 8
 y 19
 end
@@ -1502,12 +1521,8 @@ arch floor_wood3a
 x 9
 y 13
 end
-arch bed_1a.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
+arch chair1_111
+direction 7
 x 9
 y 13
 end
@@ -1515,24 +1530,16 @@ arch floor_wood3a
 x 9
 y 14
 end
-arch bed_1b.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
-x 9
-y 14
-end
 arch floor_wood3a
 x 9
 y 15
 end
-arch floor_wood3a
+arch chair1_111
+direction 3
 x 9
-y 16
+y 15
 end
-arch wall_wood3_1
+arch floor_wood3a
 x 9
 y 16
 end
@@ -1675,7 +1682,8 @@ arch floor_wood3a
 x 10
 y 13
 end
-arch wall_wood1_3
+arch bar1
+direction 7
 x 10
 y 13
 end
@@ -1683,7 +1691,8 @@ arch floor_wood3a
 x 10
 y 14
 end
-arch wall_wood2_3
+arch bar1
+direction 7
 x 10
 y 14
 end
@@ -1691,7 +1700,8 @@ arch floor_wood3a
 x 10
 y 15
 end
-arch wall_wood3_3
+arch bar1
+direction 7
 x 10
 y 15
 end
@@ -1699,7 +1709,8 @@ arch floor_wood3a
 x 10
 y 16
 end
-arch wall_wood_4
+arch bar1
+direction 6
 x 10
 y 16
 end
@@ -1707,7 +1718,8 @@ arch floor_wood3a
 x 10
 y 17
 end
-arch shelf2.111
+arch chair1_111
+direction 5
 x 10
 y 17
 end
@@ -1829,11 +1841,7 @@ arch floor_wood3a
 x 11
 y 13
 end
-arch candlelight4.101
-x 11
-y 13
-end
-arch light3
+arch beer_barrel.101
 x 11
 y 13
 end
@@ -1845,11 +1853,26 @@ arch floor_wood3a
 x 11
 y 15
 end
+arch spawn_point
+x 11
+y 15
+arch bartender
+msg
+@match ^hi$|^hey$|^hello$
+Welcome to the Brynknot tavern!
+
+If you are looking for a place to rest, there are some free rooms upstairs.
+endmsg
+level 12
+type 83
+name Kestrei the bartender
+end
+end
 arch floor_wood3a
 x 11
 y 16
 end
-arch curtain1
+arch bar1
 x 11
 y 16
 end
@@ -1857,7 +1880,8 @@ arch floor_wood3a
 x 11
 y 17
 end
-arch light7
+arch chair1_111
+direction 5
 x 11
 y 17
 end
@@ -1980,25 +2004,11 @@ arch floor_wood3a
 x 12
 y 13
 end
-arch bed_1a.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
+arch beer_barrel.101
 x 12
 y 13
 end
 arch floor_wood3a
-x 12
-y 14
-end
-arch bed_1b.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
 x 12
 y 14
 end
@@ -2010,13 +2020,27 @@ arch floor_wood3a
 x 12
 y 16
 end
-arch wall_wood3_1
+arch bar1
 x 12
 y 16
 end
 arch floor_wood3a
 x 12
 y 17
+end
+arch chair1_111
+direction 5
+x 12
+y 17
+end
+arch spawn_point
+x 12
+y 17
+arch guard
+direction 1
+level 58
+type 83
+end
 end
 arch floor_wood3a
 x 12
@@ -2145,7 +2169,7 @@ arch floor_wood3a
 x 13
 y 13
 end
-arch wall_wood1_3
+arch wall_wood2_3
 x 13
 y 13
 end
@@ -2153,7 +2177,8 @@ arch floor_wood3a
 x 13
 y 14
 end
-arch wall_wood1_3
+arch doorway_wood1_1
+direction 7
 x 13
 y 14
 end
@@ -2161,7 +2186,12 @@ arch floor_wood3a
 x 13
 y 15
 end
-arch wall_wood2_3
+arch wall_wood3_3
+x 13
+y 15
+end
+arch pot_wall.131
+direction 7
 x 13
 y 15
 end
@@ -2169,15 +2199,26 @@ arch floor_wood3a
 x 13
 y 16
 end
-arch wall_wood_4
+arch candlelight4.101
+layer 3
+x 13
+y 16
+end
+arch bar1
+direction 4
+layer 4
+x 13
+y 16
+end
+arch wall_wood1_3
+x 13
+y 16
+end
+arch light5
 x 13
 y 16
 end
 arch floor_wood3a
-x 13
-y 17
-end
-arch shelf2_wall.111
 x 13
 y 17
 end
@@ -2300,11 +2341,7 @@ arch floor_wood3a
 x 14
 y 13
 end
-arch candlelight4.101
-x 14
-y 13
-end
-arch light3
+arch forge_111
 x 14
 y 13
 end
@@ -2320,11 +2357,19 @@ arch floor_wood3a
 x 14
 y 16
 end
-arch curtain1
+arch wall_wood2_1
 x 14
 y 16
 end
 arch floor_wood3a
+x 14
+y 17
+end
+arch stairs_wood_up
+direction 5
+slaying world_1_0213
+hp 14
+sp 16
 x 14
 y 17
 end
@@ -2454,12 +2499,7 @@ arch floor_wood3a
 x 15
 y 13
 end
-arch bed_1a.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
+arch forge_111
 x 15
 y 13
 end
@@ -2467,14 +2507,13 @@ arch floor_wood3a
 x 15
 y 14
 end
-arch bed_1b.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-direction 5
+arch spawn_point
 x 15
 y 14
+arch chef
+level 9
+type 83
+end
 end
 arch floor_wood3a
 x 15
@@ -2484,15 +2523,12 @@ arch floor_wood3a
 x 15
 y 16
 end
-arch wall_wood1_1
+arch door_wood1
+slaying no_entry
 x 15
 y 16
 end
 arch floor_wood3a
-x 15
-y 17
-end
-arch light3
 x 15
 y 17
 end
@@ -2504,19 +2540,10 @@ arch floor_wood3a
 x 15
 y 19
 end
-arch spawn_point
+arch chair1_111
+direction 7
 x 15
 y 19
-arch monk
-msg
-@match *
-Welcome to the Brynknot tavern!
-Here you can use some of our beds to reality if you don't have enough money to purchase an apartment yet.
-endmsg
-type 83
-level 25
-friendly 1
-end
 end
 arch floor_wood3a
 x 15
@@ -2633,7 +2660,7 @@ arch floor_wood3a
 x 16
 y 13
 end
-arch wall_wood3_3
+arch wall_well.131
 x 16
 y 13
 end
@@ -2641,7 +2668,8 @@ arch floor_wood3a
 x 16
 y 14
 end
-arch wall_wood2_3
+arch table_wood1.111
+direction 7
 x 16
 y 14
 end
@@ -2649,7 +2677,8 @@ arch floor_wood3a
 x 16
 y 15
 end
-arch wall_wood1_3
+arch table_wood6
+direction 7
 x 16
 y 15
 end
@@ -2657,7 +2686,7 @@ arch floor_wood3a
 x 16
 y 16
 end
-arch wall_wood_4
+arch wall_wood2_1
 x 16
 y 16
 end
@@ -2665,7 +2694,7 @@ arch floor_wood3a
 x 16
 y 17
 end
-arch wall_wood3_3
+arch torch_wall_1
 x 16
 y 17
 end
@@ -2673,7 +2702,7 @@ arch floor_wood3a
 x 16
 y 18
 end
-arch wall_wood3_3
+arch chair1_111
 x 16
 y 18
 end
@@ -2681,7 +2710,7 @@ arch floor_wood3a
 x 16
 y 19
 end
-arch wall_wood1_3
+arch table_round1
 x 16
 y 19
 end
@@ -2689,7 +2718,7 @@ arch floor_wood3a
 x 16
 y 20
 end
-arch wall_wood_4
+arch wall_wood2_1
 x 16
 y 20
 end
@@ -2793,47 +2822,91 @@ arch grassd_6
 x 17
 y 11
 end
-arch grassd_5
+arch grassd_3
 x 17
 y 12
 end
-arch grassd_8
+arch wall_wood3_1
+x 17
+y 12
+end
+arch floor_wood3a
 x 17
 y 13
 end
-arch plant11
+arch wall_wood3_3
 x 17
 y 13
 end
-arch grassd_4
+arch floor_wood3a
 x 17
 y 14
 end
-arch grassd_8
+arch candlelight4.101
+x 17
+y 14
+end
+arch wall_wood2_3
+x 17
+y 14
+end
+arch light5
+x 17
+y 14
+end
+arch floor_wood3a
 x 17
 y 15
 end
-arch grassd_7
+arch wall_wood1_3
+x 17
+y 15
+end
+arch floor_wood3a
 x 17
 y 16
 end
-arch grassd_3
+arch wall_wood_4
+x 17
+y 16
+end
+arch floor_wood3a
 x 17
 y 17
 end
-arch plant_flower14
+arch wall_wood3_3
 x 17
 y 17
 end
-arch grassd_6
+arch floor_wood3a
 x 17
 y 18
 end
-arch grassd_2
+arch wall_wood3_3
+x 17
+y 18
+end
+arch floor_wood3a
 x 17
 y 19
 end
-arch grassd_2
+arch candlelight4.101
+x 17
+y 19
+end
+arch wall_wood1_3
+x 17
+y 19
+end
+arch light5
+x 17
+y 19
+end
+arch floor_wood3a
+x 17
+y 20
+end
+arch wall_wood_4
 x 17
 y 20
 end
