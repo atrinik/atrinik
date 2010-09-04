@@ -34,7 +34,7 @@ def main():
 			pl.Write("You have been released early.", COLOR_GREEN)
 
 	elif msg[:4] == "jail":
-		if len(text) < 3:
+		if len(text) < 3 or not text[2].isdigit():
 			me.SayTo(activator, "\nUse, for example, ^jail troublemakerxyxyx 60^.")
 			return
 
