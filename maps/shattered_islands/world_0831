@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-09-04 emperorbma
 endmsg
 width 24
 height 24
@@ -210,11 +210,19 @@ arch floor_wood1
 x 1
 y 15
 end
+arch bed_1a.111
+x 1
+y 15
+end
 arch floor_wood1
 x 1
 y 16
 end
 arch floor_wood1
+x 1
+y 17
+end
+arch wall_wood_1
 x 1
 y 17
 end
@@ -341,11 +349,19 @@ arch floor_wood1
 x 2
 y 15
 end
+arch bed_1b.111
+x 2
+y 15
+end
 arch floor_wood1
 x 2
 y 16
 end
 arch floor_wood1
+x 2
+y 17
+end
+arch door_wood2
 x 2
 y 17
 end
@@ -472,11 +488,23 @@ arch floor_wood1
 x 3
 y 15
 end
+arch wall_wood_3
+x 3
+y 15
+end
 arch floor_wood1
 x 3
 y 16
 end
+arch wall_wood_3
+x 3
+y 16
+end
 arch floor_wood1
+x 3
+y 17
+end
+arch wall_wood_4
 x 3
 y 17
 end
@@ -603,7 +631,15 @@ arch floor_wood1
 x 4
 y 15
 end
+arch barrel2.101
+x 4
+y 15
+end
 arch floor_wood1
+x 4
+y 16
+end
+arch wood_pile.101
 x 4
 y 16
 end
@@ -619,8 +655,7 @@ arch floor_wood1
 x 4
 y 19
 end
-arch door1_locked
-slaying no_entry
+arch door_wood1
 x 4
 y 19
 end
@@ -732,6 +767,10 @@ x 5
 y 15
 end
 arch floor_wood1
+x 5
+y 16
+end
+arch table_small1
 x 5
 y 16
 end
@@ -861,6 +900,10 @@ arch wall_wood2_1
 x 6
 y 14
 end
+arch wmask_fire_on_1
+x 6
+y 14
+end
 arch floor_wood1
 x 6
 y 15
@@ -869,7 +912,16 @@ arch floor_wood1
 x 6
 y 16
 end
+arch table_round1
+x 6
+y 16
+end
 arch floor_wood1
+x 6
+y 17
+end
+arch chair1_111
+direction 5
 x 6
 y 17
 end
@@ -1000,11 +1052,19 @@ arch floor_wood1
 x 7
 y 16
 end
+arch table_small1
+x 7
+y 16
+end
 arch floor_wood1
 x 7
 y 17
 end
 arch floor_wood1
+x 7
+y 18
+end
+arch grain5.101
 x 7
 y 18
 end
