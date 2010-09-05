@@ -275,50 +275,31 @@ void set_attr_value(living *stats, int attr, sint8 value)
 
 /**
  * Like set_attr_value(), but instead the value (which can be negative)
- * is added to the specified stat.*
+ * is added to the specified stat.
+ *
+ * Checking is performed to make sure old value + new value doesn't overflow
+ * the stat integer.
  * @param stats Item to modify. Must not be NULL.
  * @param attr Attribute to change.
  * @param value Delta (can be positive). */
 void change_attr_value(living *stats, int attr, sint8 value)
 {
+	sint16 result;
+
 	if (value == 0)
 	{
 		return;
 	}
 
-	switch (attr)
+	result = get_attr_value(stats, attr) + value;
+
+	/* Prevent possible overflow of the stat. */
+	if (result > SINT8_MAX || result < SINT8_MIN)
 	{
-		case STR:
-			stats->Str += value;
-			break;
-
-		case DEX:
-			stats->Dex += value;
-			break;
-
-		case CON:
-			stats->Con += value;
-			break;
-
-		case WIS:
-			stats->Wis += value;
-			break;
-
-		case POW:
-			stats->Pow += value;
-			break;
-
-		case CHA:
-			stats->Cha += value;
-			break;
-
-		case INTELLIGENCE:
-			stats->Int += value;
-			break;
-
-		default:
-			LOG(llevBug, "BUG: Invalid attribute in change_attr_value: %d\n", attr);
+		return;
 	}
+
+	set_attr_value(stats, attr, result);
 }
 
 /**
@@ -362,67 +343,20 @@ sint8 get_attr_value(living *stats, int attr)
  * @param stats Attributes to check. */
 void check_stat_bounds(living *stats)
 {
-	if (stats->Str > MAX_STAT)
-	{
-		stats->Str = MAX_STAT;
-	}
-	else if (stats->Str < MIN_STAT)
-	{
-		stats->Str = MIN_STAT;
-	}
+	int i, v;
 
-	if (stats->Dex > MAX_STAT)
+	for (i = 0; i < NUM_STATS; i++)
 	{
-		stats->Dex = MAX_STAT;
-	}
-	else if (stats->Dex < MIN_STAT)
-	{
-		stats->Dex = MIN_STAT;
-	}
+		v = get_attr_value(stats, i);
 
-	if (stats->Con > MAX_STAT)
-	{
-		stats->Con = MAX_STAT;
-	}
-	else if (stats->Con < MIN_STAT)
-	{
-		stats->Con = MIN_STAT;
-	}
-
-	if (stats->Int > MAX_STAT)
-	{
-		stats->Int = MAX_STAT;
-	}
-	else if (stats->Int < MIN_STAT)
-	{
-		stats->Int = MIN_STAT;
-	}
-
-	if (stats->Wis > MAX_STAT)
-	{
-		stats->Wis = MAX_STAT;
-	}
-	else if (stats->Wis < MIN_STAT)
-	{
-		stats->Wis = MIN_STAT;
-	}
-
-	if (stats->Pow > MAX_STAT)
-	{
-		stats->Pow = MAX_STAT;
-	}
-	else if (stats->Pow < MIN_STAT)
-	{
-		stats->Pow = MIN_STAT;
-	}
-
-	if (stats->Cha > MAX_STAT)
-	{
-		stats->Cha = MAX_STAT;
-	}
-	else if (stats->Cha < MIN_STAT)
-	{
-		stats->Cha = MIN_STAT;
+		if (v > MAX_STAT)
+		{
+			set_attr_value(stats, i, MAX_STAT);
+		}
+		else if (v < MIN_STAT)
+		{
+			set_attr_value(stats, i, MIN_STAT);
+		}
 	}
 }
 
