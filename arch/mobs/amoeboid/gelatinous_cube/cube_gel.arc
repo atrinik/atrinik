@@ -1,5 +1,5 @@
 Object cube_gel
-name gelantinous cube
+name gelatinous cube
 race slime
 randomitems mob_slime
 is_neutral 1
