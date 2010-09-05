@@ -998,7 +998,7 @@ static void god_intervention(object *op, object *god)
 
 			new_draw_info(NDI_UNIQUE, op, "Shimmering light surrounds and restores you!");
 
-			for (i = 0; i < 7; i++)
+			for (i = 0; i < NUM_STATS; i++)
 			{
 				if (get_attr_value(&depl->stats, i))
 				{

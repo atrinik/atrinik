@@ -383,7 +383,7 @@ int change_abil(object *op, object *tmp)
 	{
 		if (tmp->type == POTION)
 		{
-			for (j = 0; j < 7; j++)
+			for (j = 0; j < NUM_STATS; j++)
 			{
 				i = get_attr_value(&(CONTR(op)->orig_stats), j);
 
@@ -405,7 +405,7 @@ int change_abil(object *op, object *tmp)
 			/* This section of code ups the characters normal stats also.  I am not
 			 * sure if this is strictly necessary, being that fix_player probably
 			 * recalculates this anyway. */
-			for (j = 0; j < 7; j++)
+			for (j = 0; j < NUM_STATS; j++)
 			{
 				change_attr_value(&(op->stats), j, (sint8) (flag * get_attr_value(&(tmp->stats), j)));
 			}
@@ -768,7 +768,7 @@ int change_abil(object *op, object *tmp)
 
 	if (tmp->type != EXPERIENCE && !potion_max)
 	{
-		for (j = 0; j < 7; j++)
+		for (j = 0; j < NUM_STATS; j++)
 		{
 			if ((i = get_attr_value(&(tmp->stats), j)) != 0)
 			{
@@ -1132,7 +1132,7 @@ void fix_player(object *op)
 					pl->gen_sp_armour += tmp->last_heal;
 					pl->item_power += tmp->item_power;
 
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}
@@ -1200,7 +1200,7 @@ fix_player_no_armour:
 					pl->gen_sp_armour += tmp->last_heal;
 					pl->item_power += tmp->item_power;
 
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}
@@ -1227,7 +1227,7 @@ fix_player_no_armour:
 
 					/* As a special bonus range weapons can be permanently applied and
 					 * will add stat bonus */
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}
@@ -1249,7 +1249,7 @@ fix_player_no_armour:
 
 				/* No protection from potion effect - resist only! */
 				case POTION_EFFECT:
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}
@@ -1349,7 +1349,7 @@ fix_player_no_armour:
 						max = ARMOUR_SPEED(tmp) / 10.0f;
 					}
 
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}

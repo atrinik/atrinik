@@ -1327,7 +1327,7 @@ char *describe_item(object *op)
 			}
 
 			/* These count for every "normal" item player deals with - mostly equipment */
-			for (attr = 0; attr < 7; attr++)
+			for (attr = 0; attr < NUM_STATS; attr++)
 			{
 				if ((val = get_attr_value(&(op->stats), attr)) != 0)
 				{

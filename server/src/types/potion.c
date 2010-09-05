@@ -212,7 +212,7 @@ int apply_potion(object *op, object *tmp)
 
 			if (depl != NULL)
 			{
-				for (i = 0; i < 7; i++)
+				for (i = 0; i < NUM_STATS; i++)
 				{
 					if (get_attr_value(&depl->stats, i))
 					{
