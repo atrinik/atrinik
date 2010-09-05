@@ -11,6 +11,8 @@ def main():
 	if me.enemy:
 		if me.enemy == activator:
 			me.SayTo(activator, "\nNow you die!")
+        elif msg == "drunk" or msg == "drunkard"
+            me.SayTo(activator, "\nKeep it up and you're next, buddy!")
 		else:
 			me.SayTo(activator, "\nCan't you see I'm busy here?!")
 

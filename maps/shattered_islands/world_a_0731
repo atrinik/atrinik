@@ -1,0 +1,364 @@
+arch map
+name Asteria
+msg
+-Enter Description Here-
+Modified: 2010-09-04 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+difficulty 40
+darkness 1
+no_harm 1
+tile_path_1 world_a_0732
+tile_path_4 world_a_0631
+tile_path_8 world_a_0632
+region asteria
+end
+arch floor_ostone13
+end
+arch floor_ostone13
+y 1
+end
+arch floor_ostone13
+y 2
+end
+arch floor_ostone13
+y 3
+end
+arch wall_stone15_1
+y 3
+end
+arch floor_ostone13
+y 4
+end
+arch floor_ostone13
+y 5
+end
+arch box_big.101
+y 5
+end
+arch floor_ostone13
+y 6
+end
+arch box_big.101
+y 6
+end
+arch fwall_pattern12
+y 7
+end
+arch floor_ostone13
+x 1
+end
+arch floor_ostone13
+x 1
+y 1
+end
+arch floor_ostone13
+x 1
+y 2
+end
+arch floor_ostone13
+x 1
+y 3
+end
+arch door_wood2
+x 1
+y 3
+end
+arch floor_ostone13
+x 1
+y 4
+end
+arch floor_ostone13
+x 1
+y 5
+end
+arch floor_ostone13
+x 1
+y 6
+end
+arch box_big.101
+x 1
+y 6
+end
+arch fwall_pattern12
+x 1
+y 7
+end
+arch floor_ostone13
+x 2
+end
+arch wall_stone15_3
+x 2
+end
+arch floor_ostone13
+x 2
+y 1
+end
+arch wall_stone15_3
+x 2
+y 1
+end
+arch floor_ostone13
+x 2
+y 2
+end
+arch wall_stone15_3
+x 2
+y 2
+end
+arch floor_ostone13
+x 2
+y 3
+end
+arch wall_stone15_4
+x 2
+y 3
+end
+arch floor_ostone13
+x 2
+y 4
+end
+arch floor_ostone13
+x 2
+y 5
+end
+arch box_big.101
+x 2
+y 5
+end
+arch floor_ostone13
+x 2
+y 6
+end
+arch fwall_pattern12
+x 2
+y 7
+end
+arch floor_ostone13
+x 3
+end
+arch floor_ostone13
+x 3
+y 1
+end
+arch wall_stone15_1
+x 3
+y 1
+end
+arch floor_ostone13
+x 3
+y 2
+end
+arch keg_big.101
+x 3
+y 2
+end
+arch floor_ostone13
+x 3
+y 3
+end
+arch floor_ostone13
+x 3
+y 4
+end
+arch floor_ostone13
+x 3
+y 5
+end
+arch box_big.101
+x 3
+y 5
+end
+arch floor_ostone13
+x 3
+y 6
+end
+arch box_big.101
+x 3
+y 6
+end
+arch fwall_pattern12
+x 3
+y 7
+end
+arch floor_ostone13
+x 4
+end
+arch chair1_drop_171
+x 4
+end
+arch floor_ostone13
+x 4
+y 1
+end
+arch wall_stone15_1
+x 4
+y 1
+end
+arch floor_ostone13
+x 4
+y 2
+end
+arch beer_barrel.101
+x 4
+y 2
+end
+arch floor_ostone13
+x 4
+y 3
+end
+arch floor_ostone13
+x 4
+y 4
+end
+arch floor_ostone13
+x 4
+y 5
+end
+arch floor_ostone13
+x 4
+y 6
+end
+arch fwall_pattern12
+x 4
+y 7
+end
+arch floor_ostone13
+x 5
+end
+arch chair1_111
+x 5
+end
+arch floor_ostone13
+x 5
+y 1
+end
+arch wall_stone15_1
+x 5
+y 1
+end
+arch floor_ostone13
+x 5
+y 2
+end
+arch beer_barrel.101
+x 5
+y 2
+end
+arch floor_ostone13
+x 5
+y 3
+end
+arch floor_ostone13
+x 5
+y 4
+end
+arch box_big.101
+x 5
+y 4
+end
+arch floor_ostone13
+x 5
+y 5
+end
+arch box_big.101
+x 5
+y 5
+end
+arch floor_ostone13
+x 5
+y 6
+end
+arch box_big.101
+x 5
+y 6
+end
+arch fwall_pattern12
+x 5
+y 7
+end
+arch floor_ostone13
+x 6
+end
+arch floor_ostone13
+x 6
+y 1
+end
+arch wall_stone15_1
+x 6
+y 1
+end
+arch floor_ostone13
+x 6
+y 2
+end
+arch amphora2.101
+x 6
+y 2
+end
+arch floor_ostone13
+x 6
+y 3
+end
+arch floor_ostone13
+x 6
+y 4
+end
+arch box_big.101
+x 6
+y 4
+end
+arch floor_ostone13
+x 6
+y 5
+end
+arch box_big.101
+x 6
+y 5
+end
+arch floor_ostone13
+x 6
+y 6
+end
+arch box_big.101
+x 6
+y 6
+end
+arch fwall_pattern12
+x 6
+y 7
+end
+arch fwall_pattern12
+x 7
+end
+arch fwall_pattern12
+x 7
+y 1
+end
+arch fwall_pattern12
+x 7
+y 2
+end
+arch fwall_pattern12
+x 7
+y 3
+end
+arch fwall_pattern12
+x 7
+y 4
+end
+arch fwall_pattern12
+x 7
+y 5
+end
+arch fwall_pattern12
+x 7
+y 6
+end
+arch fwall_pattern12
+x 7
+y 7
+end

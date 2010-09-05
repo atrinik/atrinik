@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-04 emperorbma
 endmsg
 width 24
 height 24
@@ -405,6 +405,14 @@ y 17
 end
 arch floor_wood2
 glow_radius 5
+x 2
+y 18
+end
+arch stairs_stone_down
+direction 5
+slaying world_a_0632
+hp 2
+sp 18
 x 2
 y 18
 end
@@ -1538,6 +1546,10 @@ arch smith
 name Steve Bruck
 type 83
 level 34
+arch event_obj
+sub_type 6
+race scripts/asteria/stevebruck.py
+end
 end
 end
 arch floor_grey5
@@ -3390,6 +3402,14 @@ x 22
 y 21
 end
 arch floor_wood2_l1
+x 22
+y 22
+end
+arch stairs_wood_down
+direction 5
+slaying world_a_0632
+hp 22
+sp 22
 x 22
 y 22
 end

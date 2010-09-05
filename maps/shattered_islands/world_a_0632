@@ -1,0 +1,912 @@
+arch map
+name Asteria
+msg
+-Enter Description Here-
+Modified: 2010-09-04 emperorbma
+endmsg
+width 24
+height 24
+enter_x 1
+enter_y 1
+difficulty 40
+darkness 1
+no_harm 1
+tile_path_2 world_a_0732
+tile_path_3 world_a_0631
+tile_path_5 world_a_0733
+tile_path_6 world_a_0731
+region asteria
+end
+arch blocked
+x 1
+y 11
+end
+arch wall_stone_8
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch wall_stone_3
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch wall_stone_3
+x 1
+y 13
+end
+arch blocked
+x 1
+y 14
+end
+arch wall_stone_3
+x 1
+y 14
+end
+arch blocked
+x 1
+y 15
+end
+arch wall_stone_3
+x 1
+y 15
+end
+arch blocked
+x 1
+y 16
+end
+arch wall_stone_3
+x 1
+y 16
+end
+arch blocked
+x 1
+y 17
+end
+arch wall_stone_3
+x 1
+y 17
+end
+arch blocked
+x 1
+y 18
+end
+arch wall_stone_3
+x 1
+y 18
+end
+arch blocked
+x 1
+y 19
+end
+arch wall_stone_3
+x 1
+y 19
+end
+arch blocked
+x 1
+y 20
+end
+arch wall_stone_3
+x 1
+y 20
+end
+arch blocked
+x 2
+y 11
+end
+arch wall_stone_1
+x 2
+y 11
+end
+arch floor_grey5
+x 2
+y 12
+end
+arch keg_big.101
+x 2
+y 12
+end
+arch floor_grey5
+x 2
+y 13
+end
+arch basin1.101
+x 2
+y 13
+end
+arch floor_grey5
+x 2
+y 14
+end
+arch floor_grey5
+x 2
+y 15
+end
+arch floor_grey5
+x 2
+y 16
+end
+arch table_lab2.111
+direction 5
+x 2
+y 16
+end
+arch floor_grey5
+x 2
+y 17
+end
+arch fwall_flagstone1a
+x 2
+y 17
+end
+arch floor_grey5
+x 2
+y 18
+end
+arch stairs_stone_up
+direction 5
+slaying world_a_0632
+hp 2
+sp 18
+x 2
+y 18
+end
+arch floor_grey5
+x 2
+y 19
+end
+arch floor_grey5
+x 2
+y 20
+end
+arch wall_stone_1
+x 2
+y 20
+end
+arch blocked
+x 3
+y 11
+end
+arch wall_stone_1
+x 3
+y 11
+end
+arch floor_grey5
+x 3
+y 12
+end
+arch torch_wall_1
+x 3
+y 12
+end
+arch floor_grey5
+x 3
+y 13
+end
+arch floor_grey5
+x 3
+y 14
+end
+arch floor_grey5
+x 3
+y 15
+end
+arch floor_grey5
+x 3
+y 16
+end
+arch floor_grey5
+x 3
+y 17
+end
+arch torch_wall_1
+face torch_wall.114
+speed_left -0.111761
+state 3
+glow_radius 5
+is_animated 1
+identified 1
+known_magical 1
+known_cursed 1
+direction 7
+x 3
+y 17
+end
+arch floor_grey5
+x 3
+y 18
+end
+arch floor_grey5
+x 3
+y 19
+end
+arch floor_grey5
+x 3
+y 20
+end
+arch wall_stone_1
+x 3
+y 20
+end
+arch blocked
+x 4
+y 11
+end
+arch wall_stone_1
+x 4
+y 11
+end
+arch floor_grey5
+x 4
+y 12
+end
+arch table_lab1.111
+x 4
+y 12
+end
+arch floor_grey5
+x 4
+y 13
+end
+arch spawn_point
+x 4
+y 13
+arch mage_old
+name Filbin Markor
+level 25
+type 83
+end
+end
+arch floor_grey5
+x 4
+y 14
+end
+arch floor_grey5
+x 4
+y 15
+end
+arch floor_grey5
+x 4
+y 16
+end
+arch floor_grey5
+x 4
+y 17
+end
+arch floor_grey5
+x 4
+y 18
+end
+arch floor_grey5
+x 4
+y 19
+end
+arch bath_tub1
+x 4
+y 19
+end
+arch floor_grey5
+x 4
+y 20
+end
+arch wall_stone_1
+x 4
+y 20
+end
+arch blocked
+x 5
+y 11
+end
+arch wall_stone_1
+x 5
+y 11
+end
+arch floor_grey5
+x 5
+y 12
+end
+arch floor_grey5
+x 5
+y 13
+end
+arch floor_grey5
+x 5
+y 14
+end
+arch floor_grey5
+x 5
+y 15
+end
+arch pool_poison
+name chemical vat
+x 5
+y 15
+end
+arch floor_grey5
+x 5
+y 16
+end
+arch floor_grey5
+x 5
+y 17
+end
+arch floor_grey5
+x 5
+y 18
+end
+arch floor_grey5
+x 5
+y 19
+end
+arch bowl1_full.101
+x 5
+y 19
+end
+arch floor_grey5
+x 5
+y 20
+end
+arch wall_stone_1
+x 5
+y 20
+end
+arch blocked
+x 6
+y 11
+end
+arch wall_stone_1
+x 6
+y 11
+end
+arch floor_grey5
+x 6
+y 12
+end
+arch floor_grey5
+x 6
+y 13
+end
+arch floor_grey5
+x 6
+y 14
+end
+arch floor_grey5
+x 6
+y 15
+end
+arch floor_grey5
+x 6
+y 16
+end
+arch floor_grey5
+x 6
+y 17
+end
+arch floor_grey5
+x 6
+y 18
+end
+arch floor_grey5
+x 6
+y 19
+end
+arch floor_grey5
+x 6
+y 20
+end
+arch wall_stone_1
+x 6
+y 20
+end
+arch blocked
+x 7
+y 11
+end
+arch wall_stone_1
+x 7
+y 11
+end
+arch floor_grey5
+x 7
+y 12
+end
+arch grain5.101
+x 7
+y 12
+end
+arch torch_wall_1
+x 7
+y 12
+end
+arch floor_grey5
+x 7
+y 13
+end
+arch floor_grey5
+x 7
+y 14
+end
+arch floor_grey5
+x 7
+y 15
+end
+arch pottery5.101
+x 7
+y 15
+end
+arch floor_grey5
+x 7
+y 16
+end
+arch pottery4.101
+x 7
+y 16
+end
+arch floor_grey5
+x 7
+y 17
+end
+arch floor_grey5
+x 7
+y 18
+end
+arch fire_cauld.131
+glow_radius 4
+x 7
+y 18
+end
+arch floor_grey5
+x 7
+y 19
+end
+arch floor_grey5
+x 7
+y 20
+end
+arch wall_stone_1
+x 7
+y 20
+end
+arch blocked
+x 8
+y 11
+end
+arch wall_stone_1
+x 8
+y 11
+end
+arch floor_grey5
+x 8
+y 12
+end
+arch grain3.101
+x 8
+y 12
+end
+arch floor_grey5
+x 8
+y 13
+end
+arch bath_tub_big1
+x 8
+y 13
+end
+arch floor_grey5
+x 8
+y 14
+end
+arch pottery3.101
+x 8
+y 14
+end
+arch floor_grey5
+x 8
+y 15
+end
+arch pottery6.101
+x 8
+y 15
+end
+arch floor_grey5
+x 8
+y 16
+end
+arch pottery2.101
+x 8
+y 16
+end
+arch floor_grey5
+x 8
+y 17
+end
+arch pottery1.101
+x 8
+y 17
+end
+arch floor_grey5
+x 8
+y 18
+end
+arch floor_grey5
+x 8
+y 19
+end
+arch floor_grey5
+x 8
+y 20
+end
+arch wall_stone_1
+x 8
+y 20
+end
+arch blocked
+x 9
+y 11
+end
+arch wall_stone_1
+x 9
+y 11
+end
+arch floor_grey5
+x 9
+y 12
+end
+arch wall_stone_3
+x 9
+y 12
+end
+arch floor_grey5
+x 9
+y 13
+end
+arch wall_stone_3
+x 9
+y 13
+end
+arch floor_grey5
+x 9
+y 14
+end
+arch wall_stone_3
+x 9
+y 14
+end
+arch floor_grey5
+x 9
+y 15
+end
+arch wall_stone_3
+x 9
+y 15
+end
+arch floor_grey5
+x 9
+y 16
+end
+arch wall_stone_3
+x 9
+y 16
+end
+arch floor_grey5
+x 9
+y 17
+end
+arch wall_stone_3
+x 9
+y 17
+end
+arch floor_grey5
+x 9
+y 18
+end
+arch wall_stone_3
+x 9
+y 18
+end
+arch floor_grey5
+x 9
+y 19
+end
+arch wall_stone_3
+x 9
+y 19
+end
+arch floor_grey5
+x 9
+y 20
+end
+arch wall_stone_4
+x 9
+y 20
+end
+arch fwall_pattern12
+x 17
+y 17
+end
+arch fwall_pattern12
+x 17
+y 18
+end
+arch fwall_pattern12
+x 17
+y 19
+end
+arch fwall_pattern12
+x 17
+y 20
+end
+arch fwall_pattern12
+x 17
+y 21
+end
+arch fwall_pattern12
+x 17
+y 22
+end
+arch fwall_pattern12
+x 17
+y 23
+end
+arch fwall_pattern12
+x 18
+y 17
+end
+arch floor_ostone13
+x 18
+y 18
+end
+arch barrel.101
+x 18
+y 18
+end
+arch floor_ostone13
+x 18
+y 19
+end
+arch barrel.101
+x 18
+y 19
+end
+arch floor_ostone13
+x 18
+y 20
+end
+arch barrel.101
+x 18
+y 20
+end
+arch floor_ostone13
+x 18
+y 21
+end
+arch beer_barrel.101
+x 18
+y 21
+end
+arch floor_ostone13
+x 18
+y 22
+end
+arch amphora2.101
+x 18
+y 22
+end
+arch floor_ostone13
+x 18
+y 23
+end
+arch amphora1.101
+x 18
+y 23
+end
+arch fwall_pattern12
+x 19
+y 17
+end
+arch floor_ostone13
+x 19
+y 18
+end
+arch barrel.101
+x 19
+y 18
+end
+arch floor_ostone13
+x 19
+y 19
+end
+arch barrel.101
+x 19
+y 19
+end
+arch floor_ostone13
+x 19
+y 20
+end
+arch barrel2.101
+x 19
+y 20
+end
+arch floor_ostone13
+x 19
+y 21
+end
+arch floor_ostone13
+x 19
+y 22
+end
+arch floor_ostone13
+x 19
+y 23
+end
+arch fwall_pattern12
+x 20
+y 17
+end
+arch floor_ostone13
+x 20
+y 18
+end
+arch barrel2.101
+x 20
+y 18
+end
+arch floor_ostone13
+x 20
+y 19
+end
+arch barrel2.101
+x 20
+y 19
+end
+arch floor_ostone13
+x 20
+y 20
+end
+arch floor_ostone13
+x 20
+y 21
+end
+arch floor_ostone13
+x 20
+y 22
+end
+arch floor_ostone13
+x 20
+y 23
+end
+arch fwall_pattern12
+x 21
+y 17
+end
+arch floor_ostone13
+x 21
+y 18
+end
+arch basket2.101
+x 21
+y 18
+end
+arch floor_ostone13
+x 21
+y 19
+end
+arch floor_ostone13
+x 21
+y 20
+end
+arch floor_ostone13
+x 21
+y 21
+end
+arch floor_ostone13
+x 21
+y 22
+end
+arch light1
+x 21
+y 22
+end
+arch floor_ostone13
+x 21
+y 23
+end
+arch fwall_pattern12
+x 22
+y 17
+end
+arch floor_ostone13
+x 22
+y 18
+end
+arch basket1.101
+x 22
+y 18
+end
+arch floor_ostone13
+x 22
+y 19
+end
+arch floor_ostone13
+x 22
+y 20
+end
+arch floor_ostone13
+x 22
+y 21
+end
+arch floor_ostone13
+x 22
+y 22
+end
+arch stairs_wood_up
+direction 5
+slaying world_0632
+hp 22
+sp 22
+x 22
+y 22
+end
+arch floor_ostone13
+x 22
+y 23
+end
+arch fwall_pattern12
+x 23
+y 17
+end
+arch floor_ostone13
+x 23
+y 18
+end
+arch wall_stone15_3
+x 23
+y 18
+end
+arch floor_ostone13
+x 23
+y 19
+end
+arch wall_stone15_3
+x 23
+y 19
+end
+arch floor_ostone13
+x 23
+y 20
+end
+arch wall_stone15_3
+x 23
+y 20
+end
+arch floor_ostone13
+x 23
+y 21
+end
+arch wall_stone15_3
+x 23
+y 21
+end
+arch floor_ostone13
+x 23
+y 22
+end
+arch wall_stone15_3
+x 23
+y 22
+end
+arch floor_ostone13
+x 23
+y 23
+end
+arch wall_stone15_3
+x 23
+y 23
+end

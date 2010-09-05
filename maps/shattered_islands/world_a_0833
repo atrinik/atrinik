@@ -3,7 +3,7 @@ name Asteria Sewers
 msg
 Creator: Daimonin Map Editor
 Date:    6/6/2004
-Modified: 2010-08-29 emperorbma
+Modified: 2010-09-04 emperorbma
 endmsg
 width 24
 height 24
@@ -15,6 +15,7 @@ outdoor 1
 tile_path_1 world_a_0834
 tile_path_4 world_a_0733
 tile_path_5 world_a_0934
+tile_path_7 world_a_0732
 tile_path_8 world_a_0734
 region asteria_sewers
 end
