@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-09-04 emperorbma
+Modified: 2010-09-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -152,7 +152,7 @@ y 18
 end
 arch stairs_stone_up
 direction 5
-slaying world_a_0632
+slaying world_0632
 hp 2
 sp 18
 x 2
