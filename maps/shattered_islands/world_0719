@@ -357,7 +357,7 @@ x 2
 y 12
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
 x 2
 y 13
 end
@@ -377,11 +377,12 @@ x 2
 y 13
 end
 arch mover
+fly_on 0
 x 2
 y 13
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 2
 y 14
 end
@@ -397,11 +398,12 @@ x 2
 y 14
 end
 arch mover
+fly_on 0
 x 2
 y 14
 end
-arch water_lt4
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 2
 y 15
 end
@@ -417,31 +419,33 @@ x 2
 y 15
 end
 arch mover
+fly_on 0
 x 2
 y 15
+end
+arch water_lt4
+terrain_type 0
+x 2
+y 16
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 2
+y 16
+end
+arch mover
+fly_on 0
+x 2
+y 16
 end
 arch water_lt2
-terrain_type 1
-x 2
-y 16
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 2
-y 16
-end
-arch mover
-x 2
-y 16
-end
-arch water_lt3
-terrain_type 1
+terrain_type 0
 x 2
 y 17
 end
@@ -458,11 +462,12 @@ y 17
 end
 arch mover
 direction 5
+fly_on 0
 x 2
 y 17
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
 x 2
 y 18
 end
@@ -479,11 +484,12 @@ y 18
 end
 arch mover
 direction 5
+fly_on 0
 x 2
 y 18
 end
 arch water_lt3
-terrain_type 1
+terrain_type 0
 x 2
 y 19
 end
@@ -500,11 +506,12 @@ y 19
 end
 arch mover
 direction 5
+fly_on 0
 x 2
 y 19
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
 x 2
 y 20
 end
@@ -521,11 +528,12 @@ y 20
 end
 arch mover
 direction 5
+fly_on 0
 x 2
 y 20
 end
-arch water_lt3
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 2
 y 21
 end
@@ -546,6 +554,7 @@ y 21
 end
 arch mover
 direction 5
+fly_on 0
 x 2
 y 21
 end
@@ -648,8 +657,8 @@ arch reed_sm1
 x 3
 y 12
 end
-arch water_lt
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 3
 y 13
 end
@@ -669,11 +678,12 @@ x 3
 y 13
 end
 arch mover
+fly_on 0
 x 3
 y 13
 end
-arch water_lt3
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 3
 y 14
 end
@@ -690,95 +700,100 @@ y 14
 end
 arch mover
 direction 8
+fly_on 0
 x 3
 y 14
+end
+arch water_lt3
+terrain_type 0
+x 3
+y 15
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 3
+y 15
+end
+arch mover
+direction 8
+fly_on 0
+x 3
+y 15
+end
+arch water_lt3
+terrain_type 0
+x 3
+y 16
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 3
+y 16
+end
+arch mover
+direction 8
+fly_on 0
+x 3
+y 16
+end
+arch water_lt2
+terrain_type 0
+x 3
+y 17
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 3
+y 17
+end
+arch mover
+direction 6
+fly_on 0
+x 3
+y 17
+end
+arch water_lt3
+terrain_type 0
+x 3
+y 18
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 3
+y 18
+end
+arch mover
+direction 6
+fly_on 0
+x 3
+y 18
 end
 arch water_lt
-terrain_type 1
-x 3
-y 15
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 3
-y 15
-end
-arch mover
-direction 8
-x 3
-y 15
-end
-arch water_lt3
-terrain_type 1
-x 3
-y 16
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 3
-y 16
-end
-arch mover
-direction 8
-x 3
-y 16
-end
-arch water_lt4
-terrain_type 1
-x 3
-y 17
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 3
-y 17
-end
-arch mover
-direction 6
-x 3
-y 17
-end
-arch water_lt4
-terrain_type 1
-x 3
-y 18
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 3
-y 18
-end
-arch mover
-direction 6
-x 3
-y 18
-end
-arch water_lt
-terrain_type 1
+terrain_type 0
 x 3
 y 19
 end
@@ -795,11 +810,12 @@ y 19
 end
 arch mover
 direction 6
+fly_on 0
 x 3
 y 19
 end
 arch water_lt3
-terrain_type 1
+terrain_type 0
 x 3
 y 20
 end
@@ -816,11 +832,12 @@ y 20
 end
 arch mover
 direction 6
+fly_on 0
 x 3
 y 20
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 3
 y 21
 end
@@ -841,6 +858,7 @@ y 21
 end
 arch mover
 direction 5
+fly_on 0
 x 3
 y 21
 end
@@ -935,7 +953,8 @@ arch grassd_m3
 x 4
 y 11
 end
-arch water_lt3
+arch water_lt2
+player_only 1
 terrain_type 1
 x 4
 y 12
@@ -963,7 +982,7 @@ x 4
 y 12
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
 x 4
 y 13
 end
@@ -984,11 +1003,12 @@ y 13
 end
 arch mover
 direction 8
+fly_on 0
 x 4
 y 13
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 4
 y 14
 end
@@ -1005,11 +1025,12 @@ y 14
 end
 arch mover
 direction 8
+fly_on 0
 x 4
 y 14
 end
-arch water_lt4
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 4
 y 15
 end
@@ -1026,11 +1047,12 @@ y 15
 end
 arch mover
 direction 8
+fly_on 0
 x 4
 y 15
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
 x 4
 y 16
 end
@@ -1047,11 +1069,12 @@ y 16
 end
 arch mover
 direction 8
+fly_on 0
 x 4
 y 16
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
 x 4
 y 17
 end
@@ -1068,11 +1091,12 @@ y 17
 end
 arch mover
 direction 6
+fly_on 0
 x 4
 y 17
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 4
 y 18
 end
@@ -1089,11 +1113,12 @@ y 18
 end
 arch mover
 direction 6
+fly_on 0
 x 4
 y 18
 end
-arch water_lt3
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 4
 y 19
 end
@@ -1110,11 +1135,12 @@ y 19
 end
 arch mover
 direction 6
+fly_on 0
 x 4
 y 19
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 4
 y 20
 end
@@ -1135,11 +1161,12 @@ y 20
 end
 arch mover
 direction 6
+fly_on 0
 x 4
 y 20
 end
-arch water_lt
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 4
 y 21
 end
@@ -1160,6 +1187,7 @@ y 21
 end
 arch mover
 direction 6
+fly_on 0
 x 4
 y 21
 end
@@ -1245,8 +1273,8 @@ arch grassd_m7
 x 5
 y 11
 end
-arch water_lt3
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 5
 y 12
 end
@@ -1267,10 +1295,12 @@ y 12
 end
 arch mover
 direction 6
+fly_on 0
 x 5
 y 12
 end
-arch water_lt
+arch water_lt2
+player_only 1
 terrain_type 1
 x 5
 y 13
@@ -1293,6 +1323,7 @@ x 5
 y 13
 end
 arch water_lt2
+player_only 1
 terrain_type 1
 x 5
 y 14
@@ -1313,52 +1344,54 @@ speed 0.01
 direction 6
 x 5
 y 14
-end
-arch water_lt2
-terrain_type 1
-x 5
-y 15
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 5
-y 15
-end
-arch mover
-direction 8
-x 5
-y 15
-end
-arch water_lt
-terrain_type 1
-x 5
-y 16
-end
-arch rock3
-no_pass 0
-x 5
-y 16
-end
-arch bone_skull
-face fog.111
-layer 2
-x 5
-y 16
-end
-arch mover
-speed 0.01
-direction 8
-x 5
-y 16
 end
 arch water_lt3
+terrain_type 0
+x 5
+y 15
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 5
+y 15
+end
+arch mover
+direction 8
+fly_on 0
+x 5
+y 15
+end
+arch water_lt2
+player_only 1
 terrain_type 1
+x 5
+y 16
+end
+arch rock3
+no_pass 0
+x 5
+y 16
+end
+arch bone_skull
+face fog.111
+layer 2
+x 5
+y 16
+end
+arch mover
+speed 0.01
+direction 8
+x 5
+y 16
+end
+arch water_lt4
+terrain_type 0
 x 5
 y 17
 end
@@ -1375,10 +1408,12 @@ y 17
 end
 arch mover
 direction 7
+fly_on 0
 x 5
 y 17
 end
-arch water_lt4
+arch water_lt2
+player_only 1
 terrain_type 1
 x 5
 y 18
@@ -1400,8 +1435,8 @@ direction 7
 x 5
 y 18
 end
-arch water_lt2
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 5
 y 19
 end
@@ -1418,11 +1453,12 @@ y 19
 end
 arch mover
 direction 7
+fly_on 0
 x 5
 y 19
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
 x 5
 y 20
 end
@@ -1443,6 +1479,7 @@ y 20
 end
 arch mover
 direction 7
+fly_on 0
 x 5
 y 20
 end
@@ -1545,7 +1582,8 @@ arch grassd_m5
 x 6
 y 11
 end
-arch water_lt
+arch water_lt2
+player_only 1
 terrain_type 1
 x 6
 y 12
@@ -1573,6 +1611,7 @@ x 6
 y 12
 end
 arch water_lt2
+player_only 1
 terrain_type 1
 x 6
 y 13
@@ -1594,8 +1633,8 @@ direction 6
 x 6
 y 13
 end
-arch water_lt
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 6
 y 14
 end
@@ -1612,10 +1651,12 @@ y 14
 end
 arch mover
 direction 7
+fly_on 0
 x 6
 y 14
 end
 arch water_lt2
+player_only 1
 terrain_type 1
 x 6
 y 15
@@ -1638,7 +1679,7 @@ x 6
 y 15
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
 x 6
 y 16
 end
@@ -1655,10 +1696,12 @@ y 16
 end
 arch mover
 direction 7
+fly_on 0
 x 6
 y 16
 end
-arch water_lt4
+arch water_lt2
+player_only 1
 terrain_type 1
 x 6
 y 17
@@ -1680,7 +1723,8 @@ direction 7
 x 6
 y 17
 end
-arch water_lt
+arch water_lt2
+player_only 1
 terrain_type 1
 x 6
 y 18
@@ -1702,8 +1746,8 @@ direction 8
 x 6
 y 18
 end
-arch water_lt
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 6
 y 19
 end
@@ -1720,10 +1764,12 @@ y 19
 end
 arch mover
 direction 7
+fly_on 0
 x 6
 y 19
 end
-arch water_lt
+arch water_lt2
+player_only 1
 terrain_type 1
 x 6
 y 20
@@ -1838,7 +1884,7 @@ x 7
 y 11
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
 x 7
 y 12
 end
@@ -1859,11 +1905,12 @@ y 12
 end
 arch mover
 direction 7
+fly_on 0
 x 7
 y 12
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 7
 y 13
 end
@@ -1880,10 +1927,12 @@ y 13
 end
 arch mover
 direction 7
+fly_on 0
 x 7
 y 13
 end
 arch water_lt2
+player_only 1
 terrain_type 1
 x 7
 y 14
@@ -1905,8 +1954,8 @@ direction 8
 x 7
 y 14
 end
-arch water_lt4
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 7
 y 15
 end
@@ -1923,10 +1972,12 @@ y 15
 end
 arch mover
 direction 7
+fly_on 0
 x 7
 y 15
 end
-arch water_lt3
+arch water_lt2
+player_only 1
 terrain_type 1
 x 7
 y 16
@@ -1942,7 +1993,8 @@ layer 2
 x 7
 y 16
 end
-arch water_lt3
+arch water_lt2
+player_only 1
 terrain_type 1
 x 7
 y 17
@@ -1964,8 +2016,8 @@ direction 8
 x 7
 y 17
 end
-arch water_lt
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 7
 y 18
 end
@@ -1982,10 +2034,12 @@ y 18
 end
 arch mover
 direction 7
+fly_on 0
 x 7
 y 18
 end
-arch water_lt3
+arch water_lt2
+player_only 1
 terrain_type 1
 x 7
 y 19
@@ -2007,8 +2061,8 @@ direction 7
 x 7
 y 19
 end
-arch water_lt
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 7
 y 20
 end
@@ -2029,6 +2083,7 @@ y 20
 end
 arch mover
 direction 7
+fly_on 0
 x 7
 y 20
 end
@@ -2111,8 +2166,8 @@ arch reed_sm1
 x 8
 y 10
 end
-arch water_lt3
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 8
 y 11
 end
@@ -2133,11 +2188,12 @@ y 11
 end
 arch mover
 direction 7
+fly_on 0
 x 8
 y 11
 end
-arch water_lt2
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 8
 y 12
 end
@@ -2158,11 +2214,12 @@ y 12
 end
 arch mover
 direction 7
+fly_on 0
 x 8
 y 12
 end
-arch water_lt2
-terrain_type 1
+arch water_lt
+terrain_type 0
 x 8
 y 13
 end
@@ -2179,11 +2236,12 @@ y 13
 end
 arch mover
 direction 7
+fly_on 0
 x 8
 y 13
 end
-arch water_lt2
-terrain_type 1
+arch water_lt
+terrain_type 0
 x 8
 y 14
 end
@@ -2200,73 +2258,78 @@ y 14
 end
 arch mover
 direction 7
+fly_on 0
 x 8
 y 14
-end
-arch water_lt2
-terrain_type 1
-x 8
-y 15
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 8
-y 15
-end
-arch mover
-direction 7
-x 8
-y 15
-end
-arch water_lt2
-terrain_type 1
-x 8
-y 16
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 8
-y 16
-end
-arch mover
-direction 7
-x 8
-y 16
-end
-arch water_lt3
-terrain_type 1
-x 8
-y 17
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 8
-y 17
-end
-arch mover
-direction 7
-x 8
-y 17
 end
 arch water_lt4
+terrain_type 0
+x 8
+y 15
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 8
+y 15
+end
+arch mover
+direction 7
+fly_on 0
+x 8
+y 15
+end
+arch water_lt
+terrain_type 0
+x 8
+y 16
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 8
+y 16
+end
+arch mover
+direction 7
+fly_on 0
+x 8
+y 16
+end
+arch water_lt4
+terrain_type 0
+x 8
+y 17
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 8
+y 17
+end
+arch mover
+direction 7
+fly_on 0
+x 8
+y 17
+end
+arch water_lt2
+player_only 1
 terrain_type 1
 x 8
 y 18
@@ -2289,7 +2352,7 @@ x 8
 y 18
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
 x 8
 y 19
 end
@@ -2306,10 +2369,12 @@ y 19
 end
 arch mover
 direction 7
+fly_on 0
 x 8
 y 19
 end
 arch water_lt2
+player_only 1
 terrain_type 1
 x 8
 y 20
@@ -2416,7 +2481,7 @@ x 9
 y 10
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
 x 9
 y 11
 end
@@ -2437,53 +2502,56 @@ y 11
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 11
 end
-arch water_lt4
-terrain_type 1
-x 9
-y 12
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 9
-y 12
-end
-arch mover
-direction 7
-x 9
-y 12
-end
-arch water_lt4
-terrain_type 1
-x 9
-y 13
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 9
-y 13
-end
-arch mover
-direction 7
-x 9
-y 13
-end
 arch water_lt
-terrain_type 1
+terrain_type 0
+x 9
+y 12
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 9
+y 12
+end
+arch mover
+direction 7
+fly_on 0
+x 9
+y 12
+end
+arch water_lt3
+terrain_type 0
+x 9
+y 13
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 9
+y 13
+end
+arch mover
+direction 7
+fly_on 0
+x 9
+y 13
+end
+arch water_lt3
+terrain_type 0
 x 9
 y 14
 end
@@ -2500,11 +2568,12 @@ y 14
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 14
 end
-arch water_lt
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 9
 y 15
 end
@@ -2521,11 +2590,12 @@ y 15
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 15
 end
 arch water_lt3
-terrain_type 1
+terrain_type 0
 x 9
 y 16
 end
@@ -2542,11 +2612,12 @@ y 16
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 16
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
 x 9
 y 17
 end
@@ -2563,32 +2634,34 @@ y 17
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 17
+end
+arch water_lt3
+terrain_type 0
+x 9
+y 18
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 9
+y 18
+end
+arch mover
+direction 7
+fly_on 0
+x 9
+y 18
 end
 arch water_lt
-terrain_type 1
-x 9
-y 18
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 9
-y 18
-end
-arch mover
-direction 7
-x 9
-y 18
-end
-arch water_lt2
-terrain_type 1
+terrain_type 0
 x 9
 y 19
 end
@@ -2609,11 +2682,12 @@ y 19
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 19
 end
 arch water_lt3
-terrain_type 1
+terrain_type 0
 x 9
 y 20
 end
@@ -2634,6 +2708,7 @@ y 20
 end
 arch mover
 direction 7
+fly_on 0
 x 9
 y 20
 end
@@ -2708,8 +2783,8 @@ arch reed_sm1
 x 10
 y 10
 end
-arch water_lt3
-terrain_type 1
+arch water_lt4
+terrain_type 0
 x 10
 y 11
 end
@@ -2730,11 +2805,12 @@ y 11
 end
 arch mover
 direction 7
+fly_on 0
 x 10
 y 11
 end
-arch water_lt4
-terrain_type 1
+arch water_lt2
+terrain_type 0
 x 10
 y 12
 end
@@ -2751,32 +2827,34 @@ y 12
 end
 arch mover
 direction 7
+fly_on 0
 x 10
 y 12
-end
-arch water_lt3
-terrain_type 1
-x 10
-y 13
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 10
-y 13
-end
-arch mover
-direction 7
-x 10
-y 13
 end
 arch water_lt
-terrain_type 1
+terrain_type 0
+x 10
+y 13
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 10
+y 13
+end
+arch mover
+direction 7
+fly_on 0
+x 10
+y 13
+end
+arch water_lt2
+terrain_type 0
 x 10
 y 14
 end
@@ -2793,53 +2871,56 @@ y 14
 end
 arch mover
 direction 7
+fly_on 0
 x 10
 y 14
-end
-arch water_lt3
-terrain_type 1
-x 10
-y 15
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 10
-y 15
-end
-arch mover
-direction 7
-x 10
-y 15
-end
-arch water_lt
-terrain_type 1
-x 10
-y 16
-end
-arch damager
-name drowning
-dam 11
-speed 0.1
-attack_confusion 30
-attack_internal 100
-slow_move 1
-exp 7
-x 10
-y 16
-end
-arch mover
-direction 7
-x 10
-y 16
 end
 arch water_lt4
-terrain_type 1
+terrain_type 0
+x 10
+y 15
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 10
+y 15
+end
+arch mover
+direction 7
+fly_on 0
+x 10
+y 15
+end
+arch water_lt4
+terrain_type 0
+x 10
+y 16
+end
+arch damager
+name drowning
+dam 11
+speed 0.1
+attack_confusion 30
+attack_internal 100
+slow_move 1
+exp 7
+x 10
+y 16
+end
+arch mover
+direction 7
+fly_on 0
+x 10
+y 16
+end
+arch water_lt
+terrain_type 0
 x 10
 y 17
 end
@@ -2856,11 +2937,12 @@ y 17
 end
 arch mover
 direction 7
+fly_on 0
 x 10
 y 17
 end
-arch water_lt2
-terrain_type 1
+arch water_lt3
+terrain_type 0
 x 10
 y 18
 end
@@ -2877,11 +2959,12 @@ y 18
 end
 arch mover
 direction 7
+fly_on 0
 x 10
 y 18
 end
-arch water_lt2
-terrain_type 1
+arch water_lt
+terrain_type 0
 x 10
 y 19
 end
@@ -2902,6 +2985,7 @@ y 19
 end
 arch mover
 direction 7
+fly_on 0
 x 10
 y 19
 end
@@ -3130,6 +3214,88 @@ arch grassd_m4
 x 12
 y 10
 end
+arch spawn_point
+speed -0.02317
+last_grace 4
+x 12
+y 10
+arch ant_red
+no_pass 1
+name removable
+face tree_branch3.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+cursed 1
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_lt2
 x 12
 y 11
@@ -3312,6 +3478,88 @@ end
 arch grassd_m5
 x 13
 y 19
+end
+arch spawn_point
+speed -0.02317
+last_grace 4
+x 13
+y 19
+arch ant_red
+no_pass 1
+name removable
+face tree_branch2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+cursed 1
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch grassd_4
 x 13
@@ -3927,6 +4175,88 @@ end
 arch grassd_m4
 x 18
 y 9
+end
+arch spawn_point
+speed -0.02317
+last_grace 4
+x 18
+y 9
+arch ant_red
+no_pass 1
+name removable
+face tree_branch2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+cursed 1
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt2
 x 18

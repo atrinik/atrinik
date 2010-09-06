@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -577,6 +577,96 @@ arch grassd_m10
 x 4
 y 9
 end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 4
+y 9
+arch ant_red
+no_pass 1
+name removable
+face tree_branch3.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_lt4
 x 4
 y 10
@@ -705,6 +795,10 @@ x 5
 y 9
 end
 arch grassd_m10
+x 5
+y 9
+end
+arch water_plant3
 x 5
 y 9
 end
@@ -846,11 +940,19 @@ arch grassd_m10
 x 6
 y 9
 end
+arch water_plant1
+x 6
+y 9
+end
 arch water_lt2
 x 6
 y 10
 end
 arch water_lt2
+x 6
+y 11
+end
+arch water_lily
 x 6
 y 11
 end
@@ -985,6 +1087,10 @@ arch grassd_m4
 x 7
 y 8
 end
+arch water_plant2
+x 7
+y 8
+end
 arch water_lt2
 x 7
 y 9
@@ -993,7 +1099,15 @@ arch grassd_m13
 x 7
 y 9
 end
+arch water_lily2
+x 7
+y 9
+end
 arch water_lt4
+x 7
+y 10
+end
+arch water_plant2
 x 7
 y 10
 end
@@ -1125,6 +1239,10 @@ x 8
 y 8
 end
 arch water_lt2
+x 8
+y 9
+end
+arch water_plant1
 x 8
 y 9
 end
@@ -1254,6 +1372,10 @@ arch grassd_m4
 x 9
 y 6
 end
+arch water_plant1
+x 9
+y 6
+end
 arch water_lt4
 x 9
 y 7
@@ -1262,7 +1384,15 @@ arch grassd_m13
 x 9
 y 7
 end
+arch water_plant1
+x 9
+y 7
+end
 arch water_lt
+x 9
+y 8
+end
+arch water_plant1
 x 9
 y 8
 end
@@ -1309,6 +1439,96 @@ end
 arch grassd_m7
 x 9
 y 18
+end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 9
+y 18
+arch ant_red
+no_pass 1
+name removable
+face tree_branch2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch grassd_4
 x 9
@@ -1385,6 +1605,96 @@ arch grassd_m4
 x 10
 y 5
 end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 10
+y 5
+arch ant_red
+no_pass 1
+name removable
+face tree_branch2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_lt4
 x 10
 y 6
@@ -1406,6 +1716,10 @@ x 10
 y 9
 end
 arch water_lt2
+x 10
+y 10
+end
+arch water_lily3
 x 10
 y 10
 end
@@ -1527,11 +1841,23 @@ arch water_lt3
 x 11
 y 6
 end
+arch water_lily2
+x 11
+y 6
+end
 arch water_lt4
 x 11
 y 7
 end
+arch water_plant1
+x 11
+y 7
+end
 arch water_lt4
+x 11
+y 8
+end
+arch water_plant1
 x 11
 y 8
 end
@@ -1649,11 +1975,23 @@ arch grassd_m13
 x 12
 y 4
 end
+arch water_plant2
+x 12
+y 4
+end
 arch water_lt2
 x 12
 y 5
 end
+arch water_plant2
+x 12
+y 5
+end
 arch water_lt3
+x 12
+y 6
+end
+arch water_plant1
 x 12
 y 6
 end
@@ -1662,6 +2000,10 @@ x 12
 y 7
 end
 arch water_lt4
+x 12
+y 8
+end
+arch water_lily
 x 12
 y 8
 end
@@ -1747,6 +2089,9 @@ end
 arch grassd_m4
 x 13
 end
+arch water_plant3
+x 13
+end
 arch water_lt2
 x 13
 y 1
@@ -1767,11 +2112,23 @@ arch water_lt4
 x 13
 y 3
 end
+arch water_plant2
+x 13
+y 3
+end
 arch water_lt2
 x 13
 y 4
 end
+arch water_lily
+x 13
+y 4
+end
 arch water_lt4
+x 13
+y 5
+end
+arch water_plant1
 x 13
 y 5
 end
@@ -1780,6 +2137,10 @@ x 13
 y 6
 end
 arch water_lt
+x 13
+y 7
+end
+arch water_plant2
 x 13
 y 7
 end
@@ -1806,6 +2167,95 @@ end
 arch water_lt
 x 13
 y 13
+end
+arch spawn_point
+last_grace 4
+x 13
+y 13
+arch ant_red
+no_pass 1
+name removable
+face water_lily2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt2
 x 13
@@ -1865,11 +2315,18 @@ end
 arch grassd_m13
 x 14
 end
+arch water_plant2
+x 14
+end
 arch water_lt4
 x 14
 y 1
 end
 arch water_lt3
+x 14
+y 2
+end
+arch water_lily3
 x 14
 y 2
 end
@@ -1882,6 +2339,10 @@ x 14
 y 4
 end
 arch water_lt
+x 14
+y 5
+end
+arch water_lily2
 x 14
 y 5
 end
@@ -1976,6 +2437,9 @@ end
 arch water_lt3
 x 15
 end
+arch water_plant1
+x 15
+end
 arch water_lt
 x 15
 y 1
@@ -1989,6 +2453,10 @@ x 15
 y 3
 end
 arch water_lt4
+x 15
+y 4
+end
+arch water_plant1
 x 15
 y 4
 end
@@ -2083,6 +2551,9 @@ end
 arch water_lt3
 x 16
 end
+arch water_lily
+x 16
+end
 arch water_lt
 x 16
 y 1
@@ -2091,7 +2562,15 @@ arch water_lt4
 x 16
 y 2
 end
+arch water_plant1
+x 16
+y 2
+end
 arch water_lt3
+x 16
+y 3
+end
+arch water_lily2
 x 16
 y 3
 end
@@ -2304,6 +2783,94 @@ y 23
 end
 arch water_lt4
 x 18
+end
+arch spawn_point
+last_grace 50
+x 18
+arch ant_red
+no_pass 1
+name removable
+face nugget_mit_l.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt2
 x 18
@@ -2531,6 +3098,95 @@ end
 arch water_lt2
 x 20
 end
+arch spawn_point
+speed -0.01317
+last_grace 3
+x 20
+arch ant_red
+no_pass 1
+name removable
+face stone3.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_lt2
 x 20
 y 1
@@ -2658,6 +3314,96 @@ arch water_lt3
 x 21
 y 1
 end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 21
+y 1
+arch ant_red
+no_pass 1
+name removable
+face stone4.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_lt4
 x 21
 y 2
@@ -2673,6 +3419,95 @@ end
 arch water_lt3
 x 21
 y 5
+end
+arch spawn_point
+speed -0.01317
+x 21
+y 5
+arch ant_red
+no_pass 1
+name removable
+face stone6.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt
 x 21
@@ -2729,6 +3564,96 @@ end
 arch grassd_m5
 x 21
 y 17
+end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 21
+y 17
+arch ant_red
+no_pass 1
+name removable
+face tree_branch3.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp1
+title wp2
+slaying world_0819
+hp 2
+sp 13
+grace 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+slaying world_0719
+hp 2
+sp 17
+grace 3
+end
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch grassd_1
 x 21

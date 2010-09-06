@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1831,6 +1831,10 @@ arch grassd_m4
 x 14
 y 23
 end
+arch water_plant2
+x 14
+y 23
+end
 arch grassd_4
 x 15
 end
@@ -1958,11 +1962,19 @@ arch grassd_m4
 x 15
 y 22
 end
+arch water_plant2
+x 15
+y 22
+end
 arch water_lt2
 x 15
 y 23
 end
 arch grassd_m13
+x 15
+y 23
+end
+arch water_plant2
 x 15
 y 23
 end

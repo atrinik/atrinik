@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -978,6 +978,80 @@ arch grassd_m7
 x 7
 y 20
 end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 7
+y 20
+arch ant_red
+no_pass 1
+name removable
+face tree_branch2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+cursed 1
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch grassd_1
 x 7
 y 21
@@ -1333,6 +1407,80 @@ end
 arch grassd_m10
 x 10
 y 10
+end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 10
+y 10
+arch ant_red
+no_pass 1
+name removable
+face tree_branch3.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+cursed 1
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt3
 x 10
@@ -2614,6 +2762,80 @@ end
 arch grassd_m6
 x 20
 y 12
+end
+arch spawn_point
+speed -0.01317
+last_grace 4
+x 20
+y 12
+arch ant_red
+no_pass 1
+name removable
+face tree_branch2.101
+animation NONE
+sys_object 1
+randomitems none
+race log
+speed -0.2053
+invulnerable 1
+no_attack 1
+flying 1
+is_female 0
+terrain_flag 2
+random_move 0
+movement_type 176
+protect_confusion 100
+protect_internal 100
+type 83
+layer 4
+arch waypoint
+name wp3
+title wp4
+slaying world_0619
+hp 3
+sp 14
+grace 3
+cursed 1
+end
+arch waypoint
+name wp4
+title wp5
+slaying world_0519
+hp 2
+sp 11
+grace 3
+end
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt2
 x 20
