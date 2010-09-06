@@ -8,7 +8,7 @@ wc_range 20
 corpse 1
 weapon_speed 0.035
 attack_cleave 80
-is_male 1
+is_female 1
 is_neutral 1
 direction 5
 terrain_flag 1

@@ -3,7 +3,7 @@ name drow sorcerer
 face drow_sorcerer.131
 behavior 2
 race drows
-is_female 1
+is_male 1
 wc_range 20
 corpse 1
 layer 6

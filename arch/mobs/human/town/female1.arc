@@ -6,7 +6,7 @@ layer 6
 behavior 2
 direction 5
 wc_range 20
-is_male 1
+is_female 1
 is_good 1
 terrain_flag 1
 weapon_speed 0.055

@@ -3,7 +3,7 @@ name vampire lord
 face vampire_lord.151
 race undead
 randomitems mob_vampire_lord
-is_female 1
+is_male 1
 corpse 1
 behavior 2
 layer 6

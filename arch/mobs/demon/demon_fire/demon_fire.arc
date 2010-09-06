@@ -4,6 +4,7 @@ face demon_fire.151
 race demon
 randomitems mob_fire
 is_female 1
+is_male 1
 corpse 1
 behavior 2
 layer 6

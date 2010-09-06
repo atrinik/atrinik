@@ -9,7 +9,6 @@ wc_range 20
 speed -0.0611
 corpse 1
 type 80
-is_male 1
 is_neutral 1
 Wis 4
 terrain_flag 1
