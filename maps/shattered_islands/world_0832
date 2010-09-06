@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -38,6 +38,9 @@ arch grassd_6
 z 19
 y 4
 end
+arch grate1_1
+y 4
+end
 arch grassd_3
 z 13
 y 5
@@ -46,15 +49,21 @@ arch grassd_6
 z 7
 y 6
 end
-arch grassd_8
+arch swamp1m6
+y 6
+end
+arch swamp1
 z 3
 y 7
 end
-arch grassd_1
+arch water_plant1
+y 7
+end
+arch swamp1
 z 7
 y 8
 end
-arch grassd_1
+arch swamp1
 z 7
 y 9
 end
@@ -62,8 +71,14 @@ arch grassd_5
 z 3
 y 10
 end
+arch swamp1m9
+y 10
+end
 arch grassd_4
 z 3
+y 11
+end
+arch grate1_1
 y 11
 end
 arch grassd_8
@@ -136,6 +151,10 @@ z 19
 x 1
 y 4
 end
+arch grate1_1
+x 1
+y 4
+end
 arch grassd_4
 z 13
 x 1
@@ -146,18 +165,26 @@ z 7
 x 1
 y 6
 end
-arch grassd_6
+arch swamp1m6
+x 1
+y 6
+end
+arch swamp1
 z 1
 x 1
 y 7
 end
-arch grassd_8
+arch swamp1
 z 3
 x 1
 y 8
 end
-arch grassd_5
+arch swamp1
 z 5
+x 1
+y 9
+end
+arch plant2
 x 1
 y 9
 end
@@ -166,7 +193,15 @@ z 1
 x 1
 y 10
 end
+arch swamp1m9
+x 1
+y 10
+end
 arch grassd_6
+x 1
+y 11
+end
+arch grate1_1
 x 1
 y 11
 end
@@ -255,6 +290,10 @@ z 19
 x 2
 y 4
 end
+arch grate1_1
+x 2
+y 4
+end
 arch grassd_7
 z 13
 x 2
@@ -270,12 +309,20 @@ z 3
 x 2
 y 7
 end
+arch swamp1m5
+x 2
+y 7
+end
 arch grassd_2
 z 3
 x 2
 y 8
 end
-arch grassd_5
+arch swamp1m5
+x 2
+y 8
+end
+arch swamp1
 z 4
 x 2
 y 9
@@ -284,7 +331,15 @@ arch grassd_7
 x 2
 y 10
 end
+arch swamp1m9
+x 2
+y 10
+end
 arch grassd_3
+x 2
+y 11
+end
+arch grate1_1
 x 2
 y 11
 end
@@ -365,6 +420,10 @@ z 18
 x 3
 y 4
 end
+arch grate1_1
+x 3
+y 4
+end
 arch grassd_2
 z 13
 x 3
@@ -379,7 +438,15 @@ arch grassd_8
 x 3
 y 7
 end
+arch tree_big
+x 3
+y 7
+end
 arch grassd_2
+x 3
+y 8
+end
+arch swamp1m6
 x 3
 y 8
 end
@@ -387,11 +454,31 @@ arch grassd_2
 x 3
 y 9
 end
+arch swamp1m5
+x 3
+y 9
+end
+arch sign
+msg
+Beware: Dangerous monsters have formed in this cavern from the hideous sewer muck.
+endmsg
+name WARNING!  Dangerous slime!
+x 3
+y 9
+end
 arch grassd_5
 x 3
 y 10
 end
+arch hole
+x 3
+y 10
+end
 arch grassd_6
+x 3
+y 11
+end
+arch grate1_1
 x 3
 y 11
 end
@@ -484,6 +571,10 @@ z 12
 x 4
 y 4
 end
+arch grate1_1
+x 4
+y 4
+end
 arch grassd_1
 z 12
 x 4
@@ -512,6 +603,10 @@ x 4
 y 10
 end
 arch grassd_1
+x 4
+y 11
+end
+arch grate1_1
 x 4
 y 11
 end
@@ -600,8 +695,16 @@ z 10
 x 5
 y 4
 end
+arch grate1_1e
+x 5
+y 4
+end
 arch grassd_4
 z 12
+x 5
+y 5
+end
+arch grate1_3
 x 5
 y 5
 end
@@ -610,8 +713,16 @@ z 7
 x 5
 y 6
 end
+arch grate1_3
+x 5
+y 6
+end
 arch grassd_5
 z 1
+x 5
+y 7
+end
+arch grate1_3
 x 5
 y 7
 end
@@ -619,7 +730,15 @@ arch grassd_1
 x 5
 y 8
 end
+arch grate1_3
+x 5
+y 8
+end
 arch grassd_8
+x 5
+y 9
+end
+arch grate1_3
 x 5
 y 9
 end
@@ -627,7 +746,15 @@ arch grassd_2
 x 5
 y 10
 end
+arch grate1_3
+x 5
+y 10
+end
 arch grassd_4
+x 5
+y 11
+end
+arch grate1_4
 x 5
 y 11
 end

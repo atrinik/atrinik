@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-05 Alex Tokar
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -106,9 +106,7 @@ arch floor_wood2_l1
 y 21
 end
 arch door1_locked
-face door_lock1.131
 direction 3
-last_sp -1
 y 21
 end
 arch floor_wood2_l1
@@ -260,26 +258,49 @@ arch wall_stone3_1
 x 1
 y 23
 end
-arch grassd_7
+arch grassd_2
 x 2
 end
-arch grassd_2
+arch wall_flagstone1.181
+x 2
+end
+arch grassd_7
 x 2
 y 1
 end
-arch grassd_7
+arch wall_flagstone1.131
+x 2
+y 1
+end
+arch grassd_8
 x 2
 y 2
 end
-arch grassd_1
+arch wall_flagstone1.131
+x 2
+y 2
+end
+arch grassd_4
 x 2
 y 3
 end
-arch grassd_2
+arch wall_flagstone1.131
+x 2
+y 3
+end
+arch grassd_7
 x 2
 y 4
 end
-arch grassd_1
+arch wall_flagstone1.131
+x 2
+y 4
+end
+arch grassd_2
+x 2
+y 5
+end
+arch wall_flagstone1.131
 x 2
 y 5
 end
@@ -395,26 +416,51 @@ arch wall_stone3_1
 x 2
 y 23
 end
-arch grassd_8
+arch grassd_6
 x 3
 end
-arch grassd_2
+arch wall_flagstone1.111
+x 3
+end
+arch floor_grey3
 x 3
 y 1
 end
-arch grassd_8
+arch ladder_down
+x 3
+y 1
+end
+arch floor_grey3
 x 3
 y 2
 end
-arch grassd_5
+arch prison_deco2.131
+direction 5
+x 3
+y 2
+end
+arch floor_grey3
 x 3
 y 3
 end
-arch grassd_3
+arch floor_grey3
 x 3
 y 4
 end
-arch grassd_5
+arch fire_cauld.131
+x 3
+y 4
+end
+arch torch_wall_1
+direction 5
+x 3
+y 4
+end
+arch floor_grey3
+x 3
+y 5
+end
+arch wall_flagstone1.111
 x 3
 y 5
 end
@@ -543,26 +589,33 @@ arch wall_stone3_1
 x 3
 y 23
 end
-arch grassd_7
+arch grassd_5
 x 4
 end
-arch grassd_2
+arch wall_flagstone1_w.111
+x 4
+end
+arch floor_grey3
 x 4
 y 1
 end
-arch grassd_4
+arch floor_grey3
 x 4
 y 2
 end
-arch grassd_4
+arch floor_grey3
 x 4
 y 3
 end
-arch grassd_4
+arch floor_grey3
 x 4
 y 4
 end
-arch grassd_3
+arch floor_grey3
+x 4
+y 5
+end
+arch wall_flagstone1.111
 x 4
 y 5
 end
@@ -673,26 +726,53 @@ arch wall_stone3_1
 x 4
 y 23
 end
-arch grassd_6
+arch grassd_1
 x 5
 end
-arch grassd_3
+arch wall_flagstone1.111
+x 5
+end
+arch floor_grey3
 x 5
 y 1
 end
-arch grassd_3
+arch prison_deco2.131
+x 5
+y 1
+end
+arch torch_wall_1
+face torch_wall.111
+speed_left -0.134848
+glow_radius 5
+is_animated 1
+identified 1
+known_magical 1
+known_cursed 1
+x 5
+y 1
+end
+arch floor_grey3
 x 5
 y 2
 end
-arch grassd_8
+arch floor_grey3
 x 5
 y 3
 end
-arch grassd_4
+arch chair1_111
+direction 7
+x 5
+y 3
+end
+arch floor_grey3
 x 5
 y 4
 end
-arch grassd_1
+arch floor_grey3
+x 5
+y 5
+end
+arch wall_flagstone1.111
 x 5
 y 5
 end
@@ -810,26 +890,38 @@ arch wall_stone3_1
 x 5
 y 23
 end
-arch grassd_8
+arch grassd_6
 x 6
 end
-arch grassd_8
+arch wall_flagstone1.111
+x 6
+end
+arch floor_grey3
 x 6
 y 1
 end
-arch grassd_4
+arch floor_grey3
 x 6
 y 2
 end
-arch grassd_3
+arch floor_grey3
 x 6
 y 3
 end
-arch grassd_3
+arch floor_grey3
 x 6
 y 4
 end
-arch grassd_2
+arch table_wood1.111
+direction 5
+x 6
+y 4
+end
+arch floor_grey3
+x 6
+y 5
+end
+arch wall_flagstone1.111
 x 6
 y 5
 end
@@ -941,26 +1033,50 @@ arch wall_stone3_1
 x 6
 y 23
 end
-arch grassd_3
+arch grassd_5
 x 7
 end
-arch grassd_5
+arch wall_flagstone1.111
+x 7
+end
+arch floor_grey3
 x 7
 y 1
 end
-arch grassd_3
+arch wall_flagstone1.131
+x 7
+y 1
+end
+arch floor_grey3
 x 7
 y 2
 end
-arch grassd_5
+arch door1_locked
+direction 3
+x 7
+y 2
+end
+arch floor_grey3
 x 7
 y 3
 end
-arch grassd_6
+arch wall_flagstone1.131
+x 7
+y 3
+end
+arch floor_grey3
 x 7
 y 4
 end
-arch grassd_4
+arch wall_flagstone1_w.131
+x 7
+y 4
+end
+arch floor_grey3
+x 7
+y 5
+end
+arch wall_flagstone1.141
 x 7
 y 5
 end
@@ -1053,9 +1169,7 @@ x 7
 y 18
 end
 arch door1_locked
-face door_lock1.131
 direction 3
-last_sp -1
 x 7
 y 18
 end
@@ -1109,11 +1223,19 @@ arch grassd_7
 x 8
 y 1
 end
-arch grassd_2
+arch sand_dm7
+x 8
+y 1
+end
+arch floor_sand_d3
 x 8
 y 2
 end
 arch grassd_3
+x 8
+y 3
+end
+arch sand_dm6
 x 8
 y 3
 end
@@ -1253,11 +1375,15 @@ arch grassd_2
 x 9
 y 1
 end
-arch grassd_6
+arch floor_sand_d4
 x 9
 y 2
 end
 arch grassd_5
+x 9
+y 3
+end
+arch sand_dm6
 x 9
 y 3
 end
@@ -1907,11 +2033,11 @@ z 2
 x 13
 y 5
 end
-arch grassd_4
+arch grassd_2
 x 13
 y 6
 end
-arch grassd_4
+arch floor_sand_d3
 x 13
 y 7
 end
@@ -2008,11 +2134,13 @@ arch grassd_3
 x 14
 y 1
 end
-arch grassd_5
+arch grassd_1
+z 5
 x 14
 y 2
 end
-arch grassd_2
+arch grassd_1
+z 5
 x 14
 y 3
 end
@@ -2035,13 +2163,17 @@ z 6
 x 14
 y 6
 end
-arch grassd_4
+arch floor_sand_d4
 z 6
 x 14
 y 7
 end
 arch grassd_8
 z 8
+x 14
+y 8
+end
+arch sand_dm6
 x 14
 y 8
 end
@@ -2136,16 +2268,17 @@ x 15
 y 1
 end
 arch grassd_1
+z 5
 x 15
 y 2
 end
 arch grassd_5
-z 5
+z 8
 x 15
 y 3
 end
 arch grassd_1
-z 5
+z 8
 x 15
 y 4
 end
@@ -2159,13 +2292,21 @@ z 14
 x 15
 y 6
 end
-arch grassd_4
+arch sand_dm7
+x 15
+y 6
+end
+arch floor_sand_d1
 z 6
 x 15
 y 7
 end
 arch grassd_4
 z 14
+x 15
+y 8
+end
+arch sand_dm6
 x 15
 y 8
 end
@@ -2256,42 +2397,79 @@ x 16
 y 2
 end
 arch grassd_1
-z 6
+z 10
 x 16
 y 3
 end
 arch grassd_8
-z 12
+z 14
+x 16
+y 4
+end
+arch wall_flagstone1.181
 x 16
 y 4
 end
 arch grassd_7
-z 12
+z 14
+x 16
+y 5
+end
+arch wall_flagstone1.131
 x 16
 y 5
 end
 arch grassd_5
-z 12
+z 14
 x 16
 y 6
 end
-arch grassd_2
-z 12
+arch sand_dm7
+x 16
+y 6
+end
+arch wall_flagstone1.131
+x 16
+y 6
+end
+arch floor_sand_d1
+z 14
+x 16
+y 7
+end
+arch door1_locked
+direction 3
 x 16
 y 7
 end
 arch grassd_4
-z 12
+z 14
+x 16
+y 8
+end
+arch sand_dm6
+x 16
+y 8
+end
+arch wall_flagstone1.131
 x 16
 y 8
 end
 arch grassd_4
-z 12
+z 14
+x 16
+y 9
+end
+arch wall_flagstone1_w.131
 x 16
 y 9
 end
 arch grassd_2
-z 12
+z 14
+x 16
+y 10
+end
+arch wall_flagstone1.131
 x 16
 y 10
 end
@@ -2376,37 +2554,57 @@ x 17
 y 3
 end
 arch grassd_4
-z 12
+z 14
 x 17
 y 4
 end
-arch grassd_3
-z 12
+arch wall_flagstone1.111
+x 17
+y 4
+end
+arch floor_fs_grey1b
+z 14
 x 17
 y 5
 end
-arch grassd_3
-z 12
+arch bed_1a.111
+x 17
+y 5
+end
+arch floor_fs_grey1b
+z 14
 x 17
 y 6
 end
-arch grassd_3
-z 12
+arch floor_fs_grey1b
+z 14
 x 17
 y 7
 end
-arch grassd_3
-z 12
+arch floor_fs_grey1b
+z 14
 x 17
 y 8
 end
-arch grassd_3
-z 12
+arch barrel_water.101
+x 17
+y 8
+end
+arch floor_fs_grey1b
+z 14
 x 17
 y 9
 end
-arch grassd_3
-z 12
+arch potted_plant1
+x 17
+y 9
+end
+arch floor_fs_grey1b
+z 14
+x 17
+y 10
+end
+arch wall_flagstone1.111
 x 17
 y 10
 end
@@ -2489,37 +2687,58 @@ x 18
 y 3
 end
 arch grassd_6
-z 12
+z 14
 x 18
 y 4
 end
-arch grassd_6
-z 12
+arch wall_flagstone1.111
+x 18
+y 4
+end
+arch floor_fs_grey1b
+z 14
 x 18
 y 5
 end
-arch grassd_6
-z 12
+arch bed_1b.111
+x 18
+y 5
+end
+arch floor_fs_grey1b
+z 14
 x 18
 y 6
 end
-arch grassd_3
-z 12
+arch spawn_point
+x 18
+y 6
+arch monk
+name Asa Brondyke
+type 83
+level 12
+end
+end
+arch floor_fs_grey1b
+z 14
 x 18
 y 7
 end
-arch grassd_6
-z 12
+arch floor_fs_grey1b
+z 14
 x 18
 y 8
 end
-arch grassd_3
-z 12
+arch floor_fs_grey1b
+z 14
 x 18
 y 9
 end
-arch grassd_6
-z 12
+arch floor_fs_grey1b
+z 14
+x 18
+y 10
+end
+arch wall_flagstone1_w.111
 x 18
 y 10
 end
@@ -2602,37 +2821,49 @@ x 19
 y 3
 end
 arch grassd_5
-z 12
+z 14
 x 19
 y 4
 end
-arch grassd_5
-z 12
+arch wall_flagstone1.111
+x 19
+y 4
+end
+arch wmask_fire_on_1
+x 19
+y 4
+end
+arch floor_fs_grey1b
+z 14
 x 19
 y 5
 end
-arch grassd_5
-z 12
+arch floor_fs_grey1b
+z 14
 x 19
 y 6
 end
-arch grassd_5
-z 12
+arch floor_fs_grey1b
+z 14
 x 19
 y 7
 end
-arch grassd_5
-z 12
+arch floor_fs_grey1b
+z 14
 x 19
 y 8
 end
-arch grassd_5
-z 12
+arch floor_fs_grey1b
+z 14
 x 19
 y 9
 end
-arch grassd_5
-z 12
+arch floor_fs_grey1b
+z 14
+x 19
+y 10
+end
+arch wall_flagstone1.111
 x 19
 y 10
 end
@@ -2720,37 +2951,53 @@ x 20
 y 3
 end
 arch grassd_4
-z 12
+z 14
 x 20
 y 4
 end
-arch grassd_8
-z 12
+arch wall_flagstone1_w.111
+x 20
+y 4
+end
+arch floor_fs_grey1b
+z 14
 x 20
 y 5
 end
-arch grassd_8
-z 12
+arch keg_big.101
+x 20
+y 5
+end
+arch floor_fs_grey1b
+z 14
 x 20
 y 6
 end
-arch grassd_8
-z 12
+arch floor_fs_grey1b
+z 14
 x 20
 y 7
 end
-arch grassd_8
-z 12
+arch floor_fs_grey1b
+z 14
 x 20
 y 8
 end
-arch grassd_3
-z 12
+arch floor_fs_grey1b
+z 14
 x 20
 y 9
 end
-arch grassd_8
-z 12
+arch potted_plant2
+x 20
+y 9
+end
+arch floor_fs_grey1b
+z 14
+x 20
+y 10
+end
+arch wall_flagstone1.111
 x 20
 y 10
 end
@@ -2831,42 +3078,75 @@ x 21
 y 3
 end
 arch grassd_7
-z 12
+z 14
 x 21
 y 4
 end
-arch grassd_2
-z 12
+arch wall_flagstone1.111
+x 21
+y 4
+end
+arch floor_fs_grey1b
+z 14
 x 21
 y 5
 end
-arch grassd_2
-z 12
+arch wall_flagstone1.131
+x 21
+y 5
+end
+arch floor_fs_grey1b
+z 14
 x 21
 y 6
 end
-arch grassd_2
-z 12
+arch wall_flagstone1.131
+x 21
+y 6
+end
+arch floor_fs_grey1b
+z 14
 x 21
 y 7
 end
-arch grassd_2
-z 12
+arch wall_flagstone1.131
+x 21
+y 7
+end
+arch floor_fs_grey1b
+z 14
 x 21
 y 8
 end
-arch grassd_2
-z 12
+arch door1_locked
+direction 3
+x 21
+y 8
+end
+arch floor_fs_grey1b
+z 14
 x 21
 y 9
 end
-arch grassd_2
-z 12
+arch wall_flagstone1.131
+x 21
+y 9
+end
+arch floor_fs_grey1b
+z 14
+x 21
+y 10
+end
+arch wall_flagstone1.141
 x 21
 y 10
 end
 arch grassd_8
 z 12
+x 21
+y 11
+end
+arch grate1_8
 x 21
 y 11
 end
@@ -2949,6 +3229,10 @@ z 18
 x 22
 y 4
 end
+arch grate1_1
+x 22
+y 4
+end
 arch grassd_1
 z 12
 x 22
@@ -2981,6 +3265,10 @@ y 10
 end
 arch grassd_2
 z 6
+x 22
+y 11
+end
+arch grate1_1
 x 22
 y 11
 end
@@ -3059,6 +3347,10 @@ z 18
 x 23
 y 4
 end
+arch grate1_1
+x 23
+y 4
+end
 arch grassd_3
 z 18
 x 23
@@ -3069,17 +3361,17 @@ z 12
 x 23
 y 6
 end
-arch grassd_2
+arch swamp1
 z 6
 x 23
 y 7
 end
-arch grassd_8
+arch swamp1
 z 9
 x 23
 y 8
 end
-arch grassd_4
+arch swamp1
 z 9
 x 23
 y 9
@@ -3091,6 +3383,10 @@ y 10
 end
 arch grassd_5
 z 5
+x 23
+y 11
+end
+arch grate1_1
 x 23
 y 11
 end

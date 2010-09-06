@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-29 emperorbma
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -88,12 +88,18 @@ glow_radius 7
 direction 5
 y 12
 end
-arch grassd_8
+arch floor_fs_grey1b
 z 50
 y 13
 end
-arch grassd_6
+arch grassd_m10
+y 13
+end
+arch floor_fs_grey1b
 z 50
+y 14
+end
+arch grassd_m7
 y 14
 end
 arch grassd_4
@@ -284,7 +290,7 @@ z 50
 x 1
 y 13
 end
-arch grassd_m9
+arch grassd_m13
 x 1
 y 13
 end
@@ -293,7 +299,7 @@ z 50
 x 1
 y 14
 end
-arch grassd_m9
+arch grassd_m14
 x 1
 y 14
 end

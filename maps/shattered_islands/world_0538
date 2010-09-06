@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 emperorbma
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2044,33 +2044,57 @@ z 50
 x 14
 y 17
 end
-arch grassd_5
+arch grassd_3
 z 50
 x 14
 y 18
 end
-arch grassd_7
-z 50
+arch wall_marble1.181
 x 14
-y 19
-end
-arch grassd_4
-z 50
-x 14
-y 20
-end
-arch grassd_7
-z 50
-x 14
-y 21
+y 18
 end
 arch grassd_6
 z 50
 x 14
-y 22
+y 19
+end
+arch wall_marble1.111a
+x 14
+y 19
+end
+arch grassd_5
+z 50
+x 14
+y 20
+end
+arch wall_marble1.111a
+x 14
+y 20
+end
+arch grassd_8
+z 50
+x 14
+y 21
+end
+arch wall_marble1w2.111
+x 14
+y 21
 end
 arch grassd_7
 z 50
+x 14
+y 22
+end
+arch wall_marble1.111a
+x 14
+y 22
+end
+arch grassd_8
+z 50
+x 14
+y 23
+end
+arch wall_marble1.111a
 x 14
 y 23
 end
@@ -2166,32 +2190,55 @@ z 50
 x 15
 y 17
 end
-arch grassd_1
+arch grassd_4
 z 50
 x 15
 y 18
 end
-arch grassd_1
+arch wall_marble1.131
+x 15
+y 18
+end
+arch floor_marble6b
 z 50
 x 15
 y 19
 end
-arch grassd_5
+arch shelf3_wall.111
+x 15
+y 19
+end
+arch floor_marble6b
 z 50
 x 15
 y 20
 end
-arch grassd_1
+arch shelf3_wall.111
+direction 5
+x 15
+y 20
+end
+arch floor_marble6a
 z 50
 x 15
 y 21
 end
-arch grassd_8
+arch table_lab1.111
+direction 5
+x 15
+y 21
+end
+arch floor_marble6b
 z 50
 x 15
 y 22
 end
-arch grassd_7
+arch shelf3_wall.111
+direction 5
+x 15
+y 22
+end
+arch floor_marble6b
 z 50
 x 15
 y 23
@@ -2285,32 +2332,49 @@ z 50
 x 16
 y 17
 end
-arch grassd_1
+arch grassd_3
 z 50
 x 16
 y 18
 end
-arch grassd_7
+arch wall_marble1w2.131
+x 16
+y 18
+end
+arch floor_marble6c
 z 50
 x 16
 y 19
 end
-arch grassd_8
+arch chair2_111
+x 16
+y 19
+end
+arch floor_marble6a
 z 50
 x 16
 y 20
 end
-arch grassd_6
+arch floor_marble6a
 z 50
 x 16
 y 21
 end
-arch grassd_4
+arch floor_marble6a
 z 50
 x 16
 y 22
 end
-arch grassd_1
+arch tome
+msg
+You are unable to figure out the weird symbols.
+endmsg
+name Tome of Recipies
+no_pick 1
+x 16
+y 22
+end
+arch floor_marble6d
 z 50
 x 16
 y 23
@@ -2404,32 +2468,44 @@ z 50
 x 17
 y 17
 end
-arch grassd_6
+arch grassd_2
 z 50
 x 17
 y 18
 end
-arch grassd_5
+arch wall_marble1.131
+x 17
+y 18
+end
+arch floor_marble6d
 z 50
 x 17
 y 19
 end
-arch grassd_5
+arch table_lab1.111
+x 17
+y 19
+end
+arch floor_marble6c
 z 50
 x 17
 y 20
 end
-arch grassd_3
+arch floor_marble6b
 z 50
 x 17
 y 21
 end
-arch grassd_4
+arch carpet1.131
+x 17
+y 21
+end
+arch floor_marble6d
 z 50
 x 17
 y 22
 end
-arch grassd_6
+arch floor_marble6d
 z 50
 x 17
 y 23
@@ -2528,32 +2604,58 @@ z 50
 x 18
 y 17
 end
-arch grassd_7
+arch grassd_8
 z 50
 x 18
 y 18
 end
-arch grassd_6
+arch wall_marble1.131
+x 18
+y 18
+end
+arch floor_marble6d
 z 50
 x 18
 y 19
 end
-arch grassd_5
+arch fire_cauld.131
+direction 5
+x 18
+y 19
+end
+arch light5
+x 18
+y 19
+end
+arch floor_marble6d
 z 50
 x 18
 y 20
 end
-arch grassd_8
+arch carpet1.151
+x 18
+y 20
+end
+arch floor_blue3
 z 50
 x 18
 y 21
 end
-arch grassd_8
+arch chair2_111
+direction 7
+x 18
+y 21
+end
+arch floor_marble6d
 z 50
 x 18
 y 22
 end
-arch grassd_5
+arch carpet1.111
+x 18
+y 22
+end
+arch floor_marble6d
 z 50
 x 18
 y 23
@@ -2647,32 +2749,60 @@ z 50
 x 19
 y 17
 end
-arch grassd_4
+arch grassd_6
 z 50
 x 19
 y 18
 end
-arch grassd_5
+arch wall_marble1.131
+x 19
+y 18
+end
+arch floor_marble6d
 z 50
 x 19
 y 19
 end
-arch grassd_6
+arch floor_marble6d
 z 50
 x 19
 y 20
 end
-arch grassd_4
+arch carpet1.151
+x 19
+y 20
+end
+arch floor_blue3
 z 50
 x 19
 y 21
 end
-arch grassd_6
+arch table_wood1.111
+x 19
+y 21
+end
+arch floor_marble6d
 z 50
 x 19
 y 22
 end
-arch grassd_2
+arch carpet1.111
+x 19
+y 22
+end
+arch spawn_point
+x 19
+y 22
+arch mage_old
+name Crimdon Crazymix
+type 83
+end
+end
+arch light5
+x 19
+y 22
+end
+arch floor_marble6d
 z 50
 x 19
 y 23
@@ -2766,32 +2896,53 @@ z 50
 x 20
 y 17
 end
-arch grassd_7
+arch grassd_3
 z 50
 x 20
 y 18
 end
-arch grassd_5
+arch wall_marble1w2.131
+x 20
+y 18
+end
+arch floor_marble6d
 z 50
 x 20
 y 19
 end
-arch grassd_1
+arch table_lab1.111
+x 20
+y 19
+end
+arch floor_marble6d
 z 50
 x 20
 y 20
 end
-arch grassd_5
+arch carpet1.151
+x 20
+y 20
+end
+arch floor_blue3
 z 50
 x 20
 y 21
 end
-arch grassd_8
+arch chair2_111
+direction 3
+x 20
+y 21
+end
+arch floor_marble6d
 z 50
 x 20
 y 22
 end
-arch grassd_6
+arch carpet1.111
+x 20
+y 22
+end
+arch floor_marble6d
 z 50
 x 20
 y 23
@@ -2894,32 +3045,45 @@ z 50
 x 21
 y 17
 end
-arch grassd_5
+arch grassd_7
 z 50
 x 21
 y 18
 end
-arch grassd_8
+arch wall_marble1.131
+x 21
+y 18
+end
+arch floor_marble6d
 z 50
 x 21
 y 19
 end
-arch grassd_3
+arch broom.111
+direction 5
+x 21
+y 19
+end
+arch floor_marble6d
 z 50
 x 21
 y 20
 end
-arch grassd_4
+arch floor_marble6b
 z 50
 x 21
 y 21
 end
-arch grassd_4
+arch carpet1.171
+x 21
+y 21
+end
+arch floor_marble6f
 z 50
 x 21
 y 22
 end
-arch grassd_2
+arch floor_marble6d
 z 50
 x 21
 y 23
@@ -3017,33 +3181,58 @@ z 50
 x 22
 y 17
 end
-arch grassd_4
+arch grassd_8
 z 50
 x 22
 y 18
 end
-arch grassd_8
+arch wall_marble1.131
+x 22
+y 18
+end
+arch floor_marble6b
 z 50
 x 22
 y 19
 end
-arch grassd_2
+arch wall_marble1.111a
+x 22
+y 19
+end
+arch floor_marble6a
 z 50
 x 22
 y 20
 end
-arch grassd_2
+arch wall_marble1.111a
+x 22
+y 20
+end
+arch floor_marble6a
 z 50
 x 22
 y 21
 end
-arch grassd_3
+arch wall_marble1w2.111
+x 22
+y 21
+end
+arch floor_marble6b
 z 50
 x 22
 y 22
 end
-arch grassd_2
+arch door_wood2
+direction 3
+x 22
+y 22
+end
+arch floor_marble6f
 z 50
+x 22
+y 23
+end
+arch wall_marble1.111a
 x 22
 y 23
 end
