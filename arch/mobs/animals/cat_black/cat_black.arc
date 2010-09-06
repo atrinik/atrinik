@@ -5,7 +5,6 @@ race cat
 randomitems mob_cat_black
 is_female 1
 corpse 1
-behavior 2
 layer 6
 direction 5
 terrain_flag 1
