@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -464,6 +464,10 @@ name Amber Shire
 type 83
 level 20
 direction 3
+arch event_obj
+sub_type 6
+race /python/generic/bank.py
+end
 end
 end
 arch floor_parquet2a
@@ -3116,6 +3120,10 @@ arch spawn_point
 x 17
 y 4
 arch smith
+msg
+@match ^hi$|^hey$|^hello$
+Hey there! I am proud to be working in the province capital, Asteria!
+endmsg
 name Dan
 type 83
 level 35
@@ -3189,6 +3197,10 @@ arch smith
 name General Smith Farah
 type 83
 level 40
+arch event_obj
+sub_type 6
+race /python/generic/smith.py
+end
 end
 end
 arch floor_bw1

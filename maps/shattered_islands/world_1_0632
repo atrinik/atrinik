@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-08-26 emperorbma
+Modified: 2010-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -82,7 +82,8 @@ arch floor_wood2
 x 1
 y 15
 end
-arch table_lab3.171
+arch table_lab3.111
+direction 7
 x 1
 y 15
 end
@@ -172,6 +173,10 @@ arch spawn_point
 x 2
 y 15
 arch priest_green
+msg
+@match ^hi$|^hey$|^hello$
+Papers, papers...  When will my job be done?
+endmsg
 name Nancy Erhart
 level 22
 type 83
@@ -250,18 +255,20 @@ glow_radius 5
 x 3
 y 15
 end
-arch magic_mouth
-msg
-President
-endmsg
-x 3
-y 16
-end
 arch floor_wood2
 x 3
 y 16
 end
 arch door_wood2
+x 3
+y 16
+end
+arch magic_mouth
+msg
+President
+endmsg
+splitting 1
+direction 1
 x 3
 y 16
 end
@@ -287,6 +294,18 @@ arch spawn_point
 x 3
 y 19
 arch ranger
+msg
+@match ^hi$|^hey$|^hello$
+Welcome to Charob Beer Inc.
+I'm Geoffrey Charob, the president and founder of Charob Beer Inc.!
+We produce the world famous ^Charob Beer^, although for some reason my shipments haven't been going out on time, and I have my suspicions about a certain ^lazy worker^...
+@match ^charob beer$
+We make it with my secret family recipe.
+@match ^lazy worker$
+I suspect that it's that no good Steve Bruck.
+@match ^your beer stinks$
+If you don't like it, go drink some slime!
+endmsg
 name Geoffrey Charob
 level 26
 type 83
