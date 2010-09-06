@@ -578,7 +578,7 @@ int hit_map(object *op, int dir, int reduce)
 
 			tmp_head = HEAD(tmp);
 
-			if (is_friend_of(tmp_head, tmp_obj))
+			if (is_friend_of(tmp_obj, tmp_head))
 			{
 				continue;
 			}
