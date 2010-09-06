@@ -3,7 +3,7 @@ name lich lord
 face lich_lord.151
 race undead
 randomitems mob_lich_lord
-is_female 1
+is_male 1
 corpse 1
 behavior 2
 layer 6

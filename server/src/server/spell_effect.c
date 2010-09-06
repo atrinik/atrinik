@@ -1223,7 +1223,7 @@ int remove_depletion(object *op, object *target)
 
 	if ((depl = present_arch_in_ob(at, target)) != NULL)
 	{
-		for (i = 0; i < 7; i++)
+		for (i = 0; i < NUM_STATS; i++)
 		{
 			if (get_attr_value(&depl->stats, i))
 			{

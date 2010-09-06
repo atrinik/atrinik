@@ -5,7 +5,6 @@ race chicken
 randomitems mob_chicken_large
 is_female 1
 corpse 1
-behavior 2
 layer 6
 direction 5
 terrain_flag 1
