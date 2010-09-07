@@ -1618,6 +1618,10 @@ void destroy_object(object *ob)
 				return_poolchunk(ob->custom_attrset, pool_player);
 				break;
 
+			case MAGIC_MIRROR:
+				magic_mirror_deinit(ob);
+				break;
+
 			default:
 				LOG(llevBug, "BUG: destroy_object() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
 		}
@@ -3644,6 +3648,7 @@ void init_object_initializers()
 {
 	object_initializers[BEACON] = beacon_add;
 	object_initializers[MAP_EVENT_OBJ] = map_event_obj_init;
+	object_initializers[MAGIC_MIRROR] = magic_mirror_init;
 }
 
 /**

@@ -1084,6 +1084,11 @@ void apply_player_light_refill(object *who, object *op);
 void apply_player_light(object *who, object *op);
 void apply_lighter(object *who, object *lighter);
 
+/* types/magic_mirror.c */
+void magic_mirror_init(object *mirror);
+void magic_mirror_deinit(object *mirror);
+mapstruct *magic_mirror_get_map(object *mirror);
+
 /* types/marker.c */
 void move_marker(object *op);
 

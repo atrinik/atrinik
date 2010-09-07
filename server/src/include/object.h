@@ -580,6 +580,26 @@ extern struct mempool_chunk *removed_objects;
  * @return The head object. */
 #define HEAD(op) ((op)->head ? (op)->head : (op))
 
+/**
+ * Structure used for object::custom_attrset of magic mirrors. */
+typedef struct magic_mirror_struct
+{
+	/** Map the magic mirror is pointing to. */
+	struct mapdef *map;
+
+	/** X position on magic_mirror_struct::map that should be mirrored. */
+	sint16 x;
+
+	/** Y position on magic_mirror_struct::map that should be mirrored. */
+	sint16 y;
+} magic_mirror_struct;
+
+/**
+ * Returns the ::magic_mirror_struct that holds the magic mirror's map, x
+ * and y. Can be NULL in case of a magic mirror that is only used for zooming
+ * or similar effect, and not mirroring. */
+#define MMIRROR(ob) ((magic_mirror_struct *) ((ob)->custom_attrset))
+
 extern const char *gender_noun[];
 extern const char *gender_subjective[];
 extern const char *gender_subjective_upper[];
