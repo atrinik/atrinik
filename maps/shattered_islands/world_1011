@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -144,16 +144,16 @@ end
 arch fwall_fstone2
 y 20
 end
-arch water_still
+arch water_lt
 y 21
 end
 arch fwall_fstone2b
 y 21
 end
-arch water_still
+arch water_lt3
 y 22
 end
-arch water_still
+arch water_lt
 y 23
 end
 arch floor_flagm4
@@ -247,7 +247,7 @@ arch fwall_fstone2a
 x 1
 y 21
 end
-arch water_still
+arch water_lt
 x 1
 y 22
 end
@@ -255,7 +255,7 @@ arch fwall_fstone2b
 x 1
 y 22
 end
-arch water_still
+arch water_lt2
 x 1
 y 23
 end
@@ -354,7 +354,7 @@ arch fwall_fstone2a
 x 2
 y 22
 end
-arch water_still
+arch water_lt3
 x 2
 y 23
 end
@@ -3008,13 +3008,13 @@ arch fwall_fstone2
 x 21
 y 23
 end
-arch water_still
+arch water_lt
 x 22
 end
 arch grassd_m9
 x 22
 end
-arch water_still
+arch water_lt2
 x 22
 y 1
 end
@@ -3163,14 +3163,13 @@ arch fwall_fstone2
 x 22
 y 23
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 end
 arch grassd_m12
 x 23
 end
-arch water_still
+arch water_lt3
 x 23
 y 1
 end

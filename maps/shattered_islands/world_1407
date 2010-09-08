@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,33 +19,33 @@ tile_path_8 world_1308
 bg_music jungle1.ogg
 region eld_woods_island
 end
-arch water_still
+arch water_lt4
 end
-arch water_still
+arch water_lt4
 y 1
 end
-arch water_still
+arch water_lt4
 y 2
 end
-arch water_still
+arch water_lt3
 y 3
 end
-arch water_still
+arch water_lt4
 y 4
 end
-arch water_still
+arch water_lt3
 y 5
 end
-arch water_still
+arch water_lt2
 y 6
 end
-arch water_still
+arch water_lt3
 y 7
 end
-arch water_still
+arch water_lt2
 y 8
 end
-arch water_still
+arch water_lt2
 y 9
 end
 arch grassd_4
@@ -135,42 +135,42 @@ end
 arch grassd_1
 y 23
 end
-arch water_still
+arch water_lt
 x 1
 end
-arch water_still
+arch water_lt2
 x 1
 y 1
 end
-arch water_still
+arch water_lt4
 x 1
 y 2
 end
-arch water_still
+arch water_lt
 x 1
 y 3
 end
-arch water_still
+arch water_lt4
 x 1
 y 4
 end
-arch water_still
+arch water_lt4
 x 1
 y 5
 end
-arch water_still
+arch water_lt
 x 1
 y 6
 end
-arch water_still
+arch water_lt4
 x 1
 y 7
 end
-arch water_still
+arch water_lt
 x 1
 y 8
 end
-arch water_still
+arch water_lt4
 x 1
 y 9
 end
@@ -250,42 +250,42 @@ arch tree_big4b
 x 1
 y 23
 end
-arch water_still
+arch water_lt4
 x 2
 end
-arch water_still
+arch water_lt
 x 2
 y 1
 end
-arch water_still
+arch water_lt3
 x 2
 y 2
 end
-arch water_still
+arch water_lt4
 x 2
 y 3
 end
-arch water_still
+arch water_lt
 x 2
 y 4
 end
-arch water_still
+arch water_lt3
 x 2
 y 5
 end
-arch water_still
+arch water_lt2
 x 2
 y 6
 end
-arch water_still
+arch water_lt3
 x 2
 y 7
 end
-arch water_still
+arch water_lt3
 x 2
 y 8
 end
-arch water_still
+arch water_lt4
 x 2
 y 9
 end
@@ -385,30 +385,30 @@ arch tree_big2
 x 2
 y 23
 end
-arch water_still
+arch water_lt
 x 3
 end
-arch water_still
+arch water_lt3
 x 3
 y 1
 end
-arch water_still
+arch water_lt4
 x 3
 y 2
 end
-arch water_still
+arch water_lt2
 x 3
 y 3
 end
-arch water_still
+arch water_lt3
 x 3
 y 4
 end
-arch water_still
+arch water_lt4
 x 3
 y 5
 end
-arch water_still
+arch water_lt2
 x 3
 y 6
 end
@@ -520,30 +520,30 @@ arch grassd_6
 x 3
 y 23
 end
-arch water_still
+arch water_lt3
 x 4
 end
-arch water_still
+arch water_lt3
 x 4
 y 1
 end
-arch water_still
+arch water_lt2
 x 4
 y 2
 end
-arch water_still
+arch water_lt3
 x 4
 y 3
 end
-arch water_still
+arch water_lt
 x 4
 y 4
 end
-arch water_still
+arch water_lt
 x 4
 y 5
 end
-arch water_still
+arch water_lt3
 x 4
 y 6
 end
@@ -667,30 +667,30 @@ arch tree_big3
 x 4
 y 23
 end
-arch water_still
+arch water_lt3
 x 5
 end
-arch water_still
+arch water_lt2
 x 5
 y 1
 end
-arch water_still
+arch water_lt3
 x 5
 y 2
 end
-arch water_still
+arch water_lt3
 x 5
 y 3
 end
-arch water_still
+arch water_lt
 x 5
 y 4
 end
-arch water_still
+arch water_lt2
 x 5
 y 5
 end
-arch water_still
+arch water_lt4
 x 5
 y 6
 end
@@ -790,30 +790,30 @@ arch tree_big5b
 x 5
 y 23
 end
-arch water_still
+arch water_lt4
 x 6
 end
-arch water_still
+arch water_lt2
 x 6
 y 1
 end
-arch water_still
+arch water_lt
 x 6
 y 2
 end
-arch water_still
+arch water_lt3
 x 6
 y 3
 end
-arch water_still
+arch water_lt2
 x 6
 y 4
 end
-arch water_still
+arch water_lt
 x 6
 y 5
 end
-arch water_still
+arch water_lt4
 x 6
 y 6
 end
@@ -929,14 +929,14 @@ arch tree_big
 x 6
 y 23
 end
-arch water_still
+arch water_lt2
 x 7
 end
-arch water_still
+arch water_lt2
 x 7
 y 1
 end
-arch water_still
+arch water_lt
 x 7
 y 2
 end
@@ -1084,14 +1084,14 @@ arch grassd_4
 x 7
 y 23
 end
-arch water_still
+arch water_lt2
 x 8
 end
-arch water_still
+arch water_lt2
 x 8
 y 1
 end
-arch water_still
+arch water_lt3
 x 8
 y 2
 end
@@ -1227,14 +1227,14 @@ arch tree_big4b
 x 8
 y 23
 end
-arch water_still
+arch water_lt3
 x 9
 end
-arch water_still
+arch water_lt4
 x 9
 y 1
 end
-arch water_still
+arch water_lt3
 x 9
 y 2
 end
@@ -1390,14 +1390,14 @@ arch tree_big
 x 9
 y 23
 end
-arch water_still
+arch water_lt4
 x 10
 end
-arch water_still
+arch water_lt3
 x 10
 y 1
 end
-arch water_still
+arch water_lt3
 x 10
 y 2
 end
@@ -1521,14 +1521,14 @@ arch tree_big2
 x 10
 y 23
 end
-arch water_still
+arch water_lt2
 x 11
 end
-arch water_still
+arch water_lt2
 x 11
 y 1
 end
-arch water_still
+arch water_lt3
 x 11
 y 2
 end
@@ -1668,7 +1668,7 @@ arch tree_big
 x 11
 y 23
 end
-arch water_still
+arch water_lt4
 x 12
 end
 arch grassd_6
@@ -1811,7 +1811,7 @@ arch tree_big5b
 x 12
 y 23
 end
-arch water_still
+arch water_lt2
 x 13
 end
 arch grassd_2
@@ -1954,7 +1954,7 @@ arch tree_big4b
 x 13
 y 23
 end
-arch water_still
+arch water_lt
 x 14
 end
 arch grassd_1
@@ -2077,7 +2077,7 @@ arch tree_big3
 x 14
 y 23
 end
-arch water_still
+arch water_lt3
 x 15
 end
 arch grassd_1
@@ -2204,7 +2204,7 @@ arch tree_big4b
 x 15
 y 23
 end
-arch water_still
+arch water_lt4
 x 16
 end
 arch grassd_6
@@ -2355,7 +2355,7 @@ arch tree_big
 x 16
 y 23
 end
-arch water_still
+arch water_lt3
 x 17
 end
 arch grassd_4

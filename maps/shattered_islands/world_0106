@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-12 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,369 +16,369 @@ tile_path_6 world_0205
 bg_music escape.mid
 region promethia_island
 end
-arch water_still
+arch water_lt
 end
-arch water_still
+arch water_lt
 y 1
 end
-arch water_still
+arch water_lt2
 y 2
 end
-arch water_still
+arch water_lt3
 y 3
 end
-arch water_still
+arch water_lt
 y 4
 end
-arch water_still
+arch water_lt
 y 5
 end
-arch water_still
+arch water_lt4
 y 6
 end
-arch water_still
+arch water_lt4
 y 7
 end
-arch water_still
+arch water_lt4
 y 8
 end
-arch water_still
+arch water_lt
 y 9
 end
-arch water_still
+arch water_lt4
 y 10
 end
-arch water_still
+arch water_lt2
 y 11
 end
-arch water_still
+arch water_lt2
 y 12
 end
-arch water_still
+arch water_lt2
 y 13
 end
-arch water_still
+arch water_lt
 y 14
 end
-arch water_still
+arch water_lt
 y 15
 end
-arch water_still
+arch water_lt4
 y 16
 end
-arch water_still
+arch water_lt3
 y 17
 end
-arch water_still
+arch water_lt
 y 18
 end
-arch water_still
+arch water_lt2
 y 19
 end
-arch water_still
+arch water_lt4
 y 20
 end
-arch water_still
+arch water_lt
 y 21
 end
-arch water_still
+arch water_lt3
 y 22
 end
-arch water_still
+arch water_lt
 y 23
 end
-arch water_still
+arch water_lt2
 x 1
 end
-arch water_still
+arch water_lt2
 x 1
 y 1
 end
-arch water_still
+arch water_lt
 x 1
 y 2
 end
-arch water_still
+arch water_lt2
 x 1
 y 3
 end
-arch water_still
+arch water_lt3
 x 1
 y 4
 end
-arch water_still
+arch water_lt
 x 1
 y 5
 end
-arch water_still
+arch water_lt4
 x 1
 y 6
 end
-arch water_still
+arch water_lt4
 x 1
 y 7
 end
-arch water_still
+arch water_lt3
 x 1
 y 8
 end
-arch water_still
+arch water_lt2
 x 1
 y 9
 end
-arch water_still
+arch water_lt4
 x 1
 y 10
 end
-arch water_still
+arch water_lt2
 x 1
 y 11
 end
-arch water_still
+arch water_lt3
 x 1
 y 12
 end
-arch water_still
+arch water_lt4
 x 1
 y 13
 end
-arch water_still
+arch water_lt
 x 1
 y 14
 end
-arch water_still
+arch water_lt4
 x 1
 y 15
 end
-arch water_still
+arch water_lt2
 x 1
 y 16
 end
-arch water_still
+arch water_lt4
 x 1
 y 17
 end
-arch water_still
+arch water_lt
 x 1
 y 18
 end
-arch water_still
+arch water_lt3
 x 1
 y 19
 end
-arch water_still
+arch water_lt
 x 1
 y 20
 end
-arch water_still
+arch water_lt2
 x 1
 y 21
 end
-arch water_still
+arch water_lt2
 x 1
 y 22
 end
-arch water_still
+arch water_lt2
 x 1
 y 23
 end
-arch water_still
+arch water_lt4
 x 2
 end
-arch water_still
+arch water_lt
 x 2
 y 1
 end
-arch water_still
+arch water_lt2
 x 2
 y 2
 end
-arch water_still
+arch water_lt
 x 2
 y 3
 end
-arch water_still
+arch water_lt4
 x 2
 y 4
 end
-arch water_still
+arch water_lt3
 x 2
 y 5
 end
-arch water_still
+arch water_lt2
 x 2
 y 6
 end
-arch water_still
+arch water_lt4
 x 2
 y 7
 end
-arch water_still
+arch water_lt
 x 2
 y 8
 end
-arch water_still
+arch water_lt
 x 2
 y 9
 end
-arch water_still
+arch water_lt3
 x 2
 y 10
 end
-arch water_still
+arch water_lt3
 x 2
 y 11
 end
-arch water_still
+arch water_lt2
 x 2
 y 12
 end
-arch water_still
+arch water_lt2
 x 2
 y 13
 end
-arch water_still
+arch water_lt
 x 2
 y 14
 end
-arch water_still
+arch water_lt2
 x 2
 y 15
 end
-arch water_still
+arch water_lt4
 x 2
 y 16
 end
-arch water_still
+arch water_lt4
 x 2
 y 17
 end
-arch water_still
+arch water_lt2
 x 2
 y 18
 end
-arch water_still
+arch water_lt2
 x 2
 y 19
 end
-arch water_still
+arch water_lt
 x 2
 y 20
 end
-arch water_still
+arch water_lt
 x 2
 y 21
 end
-arch water_still
+arch water_lt
 x 2
 y 22
 end
-arch water_still
+arch water_lt
 x 2
 y 23
 end
-arch water_still
+arch water_lt4
 x 3
 end
-arch water_still
+arch water_lt
 x 3
 y 1
 end
-arch water_still
+arch water_lt
 x 3
 y 2
 end
-arch water_still
+arch water_lt
 x 3
 y 3
 end
-arch water_still
+arch water_lt2
 x 3
 y 4
 end
-arch water_still
+arch water_lt4
 x 3
 y 5
 end
-arch water_still
+arch water_lt
 x 3
 y 6
 end
-arch water_still
+arch water_lt3
 x 3
 y 7
 end
-arch water_still
+arch water_lt
 x 3
 y 8
 end
-arch water_still
+arch water_lt4
 x 3
 y 9
 end
-arch water_still
+arch water_lt3
 x 3
 y 10
 end
-arch water_still
+arch water_lt
 x 3
 y 11
 end
-arch water_still
+arch water_lt2
 x 3
 y 12
 end
-arch water_still
+arch water_lt4
 x 3
 y 13
 end
-arch water_still
+arch water_lt4
 x 3
 y 14
 end
-arch water_still
+arch water_lt
 x 3
 y 15
 end
-arch water_still
+arch water_lt4
 x 3
 y 16
 end
-arch water_still
+arch water_lt
 x 3
 y 17
 end
-arch water_still
+arch water_lt4
 x 3
 y 18
 end
-arch water_still
+arch water_lt
 x 3
 y 19
 end
-arch water_still
+arch water_lt2
 x 3
 y 20
 end
-arch water_still
+arch water_lt2
 x 3
 y 21
 end
-arch water_still
+arch water_lt
 x 3
 y 22
 end
-arch water_still
+arch water_lt
 x 3
 y 23
 end
-arch water_still
+arch water_lt
 x 4
 end
 arch sand_dm9
 x 4
 end
-arch water_still
+arch water_lt3
 x 4
 y 1
 end
@@ -386,7 +386,7 @@ arch sand_dm9
 x 4
 y 1
 end
-arch water_still
+arch water_lt3
 x 4
 y 2
 end
@@ -394,7 +394,7 @@ arch sand_dm9
 x 4
 y 2
 end
-arch water_still
+arch water_lt
 x 4
 y 3
 end
@@ -402,7 +402,7 @@ arch sand_dm9
 x 4
 y 3
 end
-arch water_still
+arch water_lt3
 x 4
 y 4
 end
@@ -410,7 +410,7 @@ arch sand_dm9
 x 4
 y 4
 end
-arch water_still
+arch water_lt2
 x 4
 y 5
 end
@@ -418,7 +418,7 @@ arch sand_dm9
 x 4
 y 5
 end
-arch water_still
+arch water_lt4
 x 4
 y 6
 end
@@ -426,7 +426,7 @@ arch sand_dm9
 x 4
 y 6
 end
-arch water_still
+arch water_lt
 x 4
 y 7
 end
@@ -434,7 +434,7 @@ arch sand_dm9
 x 4
 y 7
 end
-arch water_still
+arch water_lt2
 x 4
 y 8
 end
@@ -442,7 +442,7 @@ arch sand_dm9
 x 4
 y 8
 end
-arch water_still
+arch water_lt2
 x 4
 y 9
 end
@@ -450,7 +450,7 @@ arch sand_dm9
 x 4
 y 9
 end
-arch water_still
+arch water_lt3
 x 4
 y 10
 end
@@ -458,7 +458,7 @@ arch sand_dm9
 x 4
 y 10
 end
-arch water_still
+arch water_lt2
 x 4
 y 11
 end
@@ -466,51 +466,51 @@ arch sand_dm9
 x 4
 y 11
 end
-arch water_still
+arch water_lt2
 x 4
 y 12
 end
-arch water_still
+arch water_lt4
 x 4
 y 13
 end
-arch water_still
+arch water_lt4
 x 4
 y 14
 end
-arch water_still
+arch water_lt
 x 4
 y 15
 end
-arch water_still
+arch water_lt
 x 4
 y 16
 end
-arch water_still
+arch water_lt2
 x 4
 y 17
 end
-arch water_still
+arch water_lt3
 x 4
 y 18
 end
-arch water_still
+arch water_lt3
 x 4
 y 19
 end
-arch water_still
+arch water_lt3
 x 4
 y 20
 end
-arch water_still
+arch water_lt2
 x 4
 y 21
 end
-arch water_still
+arch water_lt4
 x 4
 y 22
 end
-arch water_still
+arch water_lt2
 x 4
 y 23
 end
@@ -608,7 +608,7 @@ arch sand_dm13
 x 5
 y 11
 end
-arch water_still
+arch water_lt2
 x 5
 y 12
 end
@@ -616,7 +616,7 @@ arch sand_dm15
 x 5
 y 12
 end
-arch water_still
+arch water_lt3
 x 5
 y 13
 end
@@ -624,43 +624,43 @@ arch sand_dm9
 x 5
 y 13
 end
-arch water_still
+arch water_lt3
 x 5
 y 14
 end
-arch water_still
+arch water_lt3
 x 5
 y 15
 end
-arch water_still
+arch water_lt4
 x 5
 y 16
 end
-arch water_still
+arch water_lt4
 x 5
 y 17
 end
-arch water_still
+arch water_lt2
 x 5
 y 18
 end
-arch water_still
+arch water_lt3
 x 5
 y 19
 end
-arch water_still
+arch water_lt3
 x 5
 y 20
 end
-arch water_still
+arch water_lt4
 x 5
 y 21
 end
-arch water_still
+arch water_lt3
 x 5
 y 22
 end
-arch water_still
+arch water_lt4
 x 5
 y 23
 end
@@ -731,7 +731,7 @@ arch sand_dm13
 x 6
 y 13
 end
-arch water_still
+arch water_lt
 x 6
 y 14
 end
@@ -739,39 +739,39 @@ arch sand_dm15
 x 6
 y 14
 end
-arch water_still
+arch water_lt2
 x 6
 y 15
 end
-arch water_still
+arch water_lt4
 x 6
 y 16
 end
-arch water_still
+arch water_lt3
 x 6
 y 17
 end
-arch water_still
+arch water_lt3
 x 6
 y 18
 end
-arch water_still
+arch water_lt3
 x 6
 y 19
 end
-arch water_still
+arch water_lt3
 x 6
 y 20
 end
-arch water_still
+arch water_lt4
 x 6
 y 21
 end
-arch water_still
+arch water_lt3
 x 6
 y 22
 end
-arch water_still
+arch water_lt
 x 6
 y 23
 end
@@ -866,7 +866,7 @@ arch sand_dm13
 x 7
 y 14
 end
-arch water_still
+arch water_lt2
 x 7
 y 15
 end
@@ -874,35 +874,35 @@ arch sand_dm15
 x 7
 y 15
 end
-arch water_still
+arch water_lt
 x 7
 y 16
 end
-arch water_still
+arch water_lt
 x 7
 y 17
 end
-arch water_still
+arch water_lt4
 x 7
 y 18
 end
-arch water_still
+arch water_lt2
 x 7
 y 19
 end
-arch water_still
+arch water_lt3
 x 7
 y 20
 end
-arch water_still
+arch water_lt
 x 7
 y 21
 end
-arch water_still
+arch water_lt3
 x 7
 y 22
 end
-arch water_still
+arch water_lt4
 x 7
 y 23
 end
@@ -1004,7 +1004,7 @@ arch sand_dm13
 x 8
 y 15
 end
-arch water_still
+arch water_lt3
 x 8
 y 16
 end
@@ -1012,31 +1012,31 @@ arch sand_dm15
 x 8
 y 16
 end
-arch water_still
+arch water_lt
 x 8
 y 17
 end
-arch water_still
+arch water_lt
 x 8
 y 18
 end
-arch water_still
+arch water_lt4
 x 8
 y 19
 end
-arch water_still
+arch water_lt
 x 8
 y 20
 end
-arch water_still
+arch water_lt
 x 8
 y 21
 end
-arch water_still
+arch water_lt2
 x 8
 y 22
 end
-arch water_still
+arch water_lt4
 x 8
 y 23
 end
@@ -1131,7 +1131,7 @@ arch sand_dm13
 x 9
 y 16
 end
-arch water_still
+arch water_lt
 x 9
 y 17
 end
@@ -1139,27 +1139,27 @@ arch sand_dm15
 x 9
 y 17
 end
-arch water_still
+arch water_lt3
 x 9
 y 18
 end
-arch water_still
+arch water_lt
 x 9
 y 19
 end
-arch water_still
+arch water_lt4
 x 9
 y 20
 end
-arch water_still
+arch water_lt
 x 9
 y 21
 end
-arch water_still
+arch water_lt
 x 9
 y 22
 end
-arch water_still
+arch water_lt
 x 9
 y 23
 end
@@ -1262,7 +1262,7 @@ arch sand_dm13
 x 10
 y 17
 end
-arch water_still
+arch water_lt2
 x 10
 y 18
 end
@@ -1270,23 +1270,23 @@ arch sand_dm6
 x 10
 y 18
 end
-arch water_still
+arch water_lt4
 x 10
 y 19
 end
-arch water_still
+arch water_lt
 x 10
 y 20
 end
-arch water_still
+arch water_lt
 x 10
 y 21
 end
-arch water_still
+arch water_lt
 x 10
 y 22
 end
-arch water_still
+arch water_lt3
 x 10
 y 23
 end
@@ -1393,7 +1393,7 @@ arch sand_dm7
 x 11
 y 17
 end
-arch water_still
+arch water_lt4
 x 11
 y 18
 end
@@ -1401,23 +1401,23 @@ arch sand_dm15
 x 11
 y 18
 end
-arch water_still
+arch water_lt2
 x 11
 y 19
 end
-arch water_still
+arch water_lt4
 x 11
 y 20
 end
-arch water_still
+arch water_lt3
 x 11
 y 21
 end
-arch water_still
+arch water_lt3
 x 11
 y 22
 end
-arch water_still
+arch water_lt3
 x 11
 y 23
 end
@@ -1528,7 +1528,7 @@ arch sand_dm13
 x 12
 y 18
 end
-arch water_still
+arch water_lt4
 x 12
 y 19
 end
@@ -1536,19 +1536,19 @@ arch sand_dm6
 x 12
 y 19
 end
-arch water_still
+arch water_lt
 x 12
 y 20
 end
-arch water_still
+arch water_lt4
 x 12
 y 21
 end
-arch water_still
+arch water_lt4
 x 12
 y 22
 end
-arch water_still
+arch water_lt
 x 12
 y 23
 end
@@ -1640,7 +1640,7 @@ arch sand_dm7
 x 13
 y 18
 end
-arch water_still
+arch water_lt4
 x 13
 y 19
 end
@@ -1648,19 +1648,19 @@ arch sand_dm6
 x 13
 y 19
 end
-arch water_still
+arch water_lt4
 x 13
 y 20
 end
-arch water_still
+arch water_lt3
 x 13
 y 21
 end
-arch water_still
+arch water_lt2
 x 13
 y 22
 end
-arch water_still
+arch water_lt2
 x 13
 y 23
 end
@@ -1747,7 +1747,7 @@ arch sand_dm7
 x 14
 y 18
 end
-arch water_still
+arch water_lt
 x 14
 y 19
 end
@@ -1755,19 +1755,19 @@ arch sand_dm6
 x 14
 y 19
 end
-arch water_still
+arch water_lt2
 x 14
 y 20
 end
-arch water_still
+arch water_lt2
 x 14
 y 21
 end
-arch water_still
+arch water_lt4
 x 14
 y 22
 end
-arch water_still
+arch water_lt
 x 14
 y 23
 end
@@ -1850,7 +1850,7 @@ arch sand_dm7
 x 15
 y 18
 end
-arch water_still
+arch water_lt4
 x 15
 y 19
 end
@@ -1858,19 +1858,19 @@ arch sand_dm6
 x 15
 y 19
 end
-arch water_still
+arch water_lt2
 x 15
 y 20
 end
-arch water_still
+arch water_lt3
 x 15
 y 21
 end
-arch water_still
+arch water_lt2
 x 15
 y 22
 end
-arch water_still
+arch water_lt4
 x 15
 y 23
 end
@@ -1957,7 +1957,7 @@ arch sand_dm7
 x 16
 y 18
 end
-arch water_still
+arch water_lt2
 x 16
 y 19
 end
@@ -1965,19 +1965,19 @@ arch sand_dm6
 x 16
 y 19
 end
-arch water_still
+arch water_lt4
 x 16
 y 20
 end
-arch water_still
+arch water_lt4
 x 16
 y 21
 end
-arch water_still
+arch water_lt
 x 16
 y 22
 end
-arch water_still
+arch water_lt2
 x 16
 y 23
 end
@@ -2060,7 +2060,7 @@ arch sand_dm16
 x 17
 y 18
 end
-arch water_still
+arch water_lt
 x 17
 y 19
 end
@@ -2068,19 +2068,19 @@ arch sand_dm6
 x 17
 y 19
 end
-arch water_still
+arch water_lt
 x 17
 y 20
 end
-arch water_still
+arch water_lt2
 x 17
 y 21
 end
-arch water_still
+arch water_lt2
 x 17
 y 22
 end
-arch water_still
+arch water_lt3
 x 17
 y 23
 end
@@ -2163,7 +2163,7 @@ arch sand_dm16
 x 18
 y 17
 end
-arch water_still
+arch water_lt2
 x 18
 y 18
 end
@@ -2171,23 +2171,23 @@ arch sand_dm14
 x 18
 y 18
 end
-arch water_still
+arch water_lt
 x 18
 y 19
 end
-arch water_still
+arch water_lt2
 x 18
 y 20
 end
-arch water_still
+arch water_lt2
 x 18
 y 21
 end
-arch water_still
+arch water_lt
 x 18
 y 22
 end
-arch water_still
+arch water_lt4
 x 18
 y 23
 end
@@ -2262,7 +2262,7 @@ arch sand_dm16
 x 19
 y 16
 end
-arch water_still
+arch water_lt3
 x 19
 y 17
 end
@@ -2270,27 +2270,27 @@ arch sand_dm14
 x 19
 y 17
 end
-arch water_still
+arch water_lt
 x 19
 y 18
 end
-arch water_still
+arch water_lt
 x 19
 y 19
 end
-arch water_still
+arch water_lt
 x 19
 y 20
 end
-arch water_still
+arch water_lt
 x 19
 y 21
 end
-arch water_still
+arch water_lt2
 x 19
 y 22
 end
-arch water_still
+arch water_lt
 x 19
 y 23
 end
@@ -2377,7 +2377,7 @@ arch sand_dm7
 x 20
 y 15
 end
-arch water_still
+arch water_lt3
 x 20
 y 16
 end
@@ -2385,31 +2385,31 @@ arch sand_dm14
 x 20
 y 16
 end
-arch water_still
+arch water_lt
 x 20
 y 17
 end
-arch water_still
+arch water_lt
 x 20
 y 18
 end
-arch water_still
+arch water_lt4
 x 20
 y 19
 end
-arch water_still
+arch water_lt
 x 20
 y 20
 end
-arch water_still
+arch water_lt2
 x 20
 y 21
 end
-arch water_still
+arch water_lt3
 x 20
 y 22
 end
-arch water_still
+arch water_lt4
 x 20
 y 23
 end
@@ -2480,7 +2480,7 @@ arch sand_dm7
 x 21
 y 15
 end
-arch water_still
+arch water_lt
 x 21
 y 16
 end
@@ -2488,31 +2488,31 @@ arch sand_dm15
 x 21
 y 16
 end
-arch water_still
+arch water_lt3
 x 21
 y 17
 end
-arch water_still
+arch water_lt3
 x 21
 y 18
 end
-arch water_still
+arch water_lt4
 x 21
 y 19
 end
-arch water_still
+arch water_lt3
 x 21
 y 20
 end
-arch water_still
+arch water_lt4
 x 21
 y 21
 end
-arch water_still
+arch water_lt4
 x 21
 y 22
 end
-arch water_still
+arch water_lt3
 x 21
 y 23
 end
@@ -2591,7 +2591,7 @@ arch sand_dm13
 x 22
 y 16
 end
-arch water_still
+arch water_lt3
 x 22
 y 17
 end
@@ -2599,27 +2599,27 @@ arch sand_dm15
 x 22
 y 17
 end
-arch water_still
+arch water_lt3
 x 22
 y 18
 end
-arch water_still
+arch water_lt
 x 22
 y 19
 end
-arch water_still
+arch water_lt3
 x 22
 y 20
 end
-arch water_still
+arch water_lt3
 x 22
 y 21
 end
-arch water_still
+arch water_lt
 x 22
 y 22
 end
-arch water_still
+arch water_lt
 x 22
 y 23
 end
@@ -2702,7 +2702,7 @@ arch sand_dm13
 x 23
 y 17
 end
-arch water_still
+arch water_lt4
 x 23
 y 18
 end
@@ -2710,23 +2710,23 @@ arch sand_dm6
 x 23
 y 18
 end
-arch water_still
+arch water_lt2
 x 23
 y 19
 end
-arch water_still
+arch water_lt
 x 23
 y 20
 end
-arch water_still
+arch water_lt4
 x 23
 y 21
 end
-arch water_still
+arch water_lt2
 x 23
 y 22
 end
-arch water_still
+arch water_lt
 x 23
 y 23
 end

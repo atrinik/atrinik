@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-13 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -57,43 +57,43 @@ end
 arch desert.103
 y 11
 end
-arch water_still
+arch water_lt2
 y 12
 end
 arch desert_fmask.105
 y 12
 end
-arch water_still
+arch water_lt2
 y 13
 end
-arch water_still
+arch water_lt4
 y 14
 end
-arch water_still
+arch water_lt3
 y 15
 end
-arch water_still
+arch water_lt2
 y 16
 end
-arch water_still
+arch water_lt3
 y 17
 end
-arch water_still
+arch water_lt4
 y 18
 end
-arch water_still
+arch water_lt
 y 19
 end
-arch water_still
+arch water_lt3
 y 20
 end
-arch water_still
+arch water_lt
 y 21
 end
-arch water_still
+arch water_lt
 y 22
 end
-arch water_still
+arch water_lt2
 y 23
 end
 arch desert.104
@@ -167,7 +167,7 @@ arch light7
 x 1
 y 11
 end
-arch water_still
+arch water_lt4
 x 1
 y 12
 end
@@ -175,47 +175,47 @@ arch desert_fmask.105
 x 1
 y 12
 end
-arch water_still
+arch water_lt3
 x 1
 y 13
 end
-arch water_still
+arch water_lt2
 x 1
 y 14
 end
-arch water_still
+arch water_lt3
 x 1
 y 15
 end
-arch water_still
+arch water_lt3
 x 1
 y 16
 end
-arch water_still
+arch water_lt
 x 1
 y 17
 end
-arch water_still
+arch water_lt3
 x 1
 y 18
 end
-arch water_still
+arch water_lt2
 x 1
 y 19
 end
-arch water_still
+arch water_lt3
 x 1
 y 20
 end
-arch water_still
+arch water_lt2
 x 1
 y 21
 end
-arch water_still
+arch water_lt4
 x 1
 y 22
 end
-arch water_still
+arch water_lt
 x 1
 y 23
 end
@@ -274,7 +274,7 @@ arch desert.103
 x 2
 y 10
 end
-arch water_still
+arch water_lt2
 x 2
 y 11
 end
@@ -282,7 +282,7 @@ arch desert_fmask.104
 x 2
 y 11
 end
-arch water_still
+arch water_lt2
 x 2
 y 12
 end
@@ -290,47 +290,47 @@ arch desert_fmask.114
 x 2
 y 12
 end
-arch water_still
+arch water_lt3
 x 2
 y 13
 end
-arch water_still
+arch water_lt3
 x 2
 y 14
 end
-arch water_still
+arch water_lt4
 x 2
 y 15
 end
-arch water_still
+arch water_lt2
 x 2
 y 16
 end
-arch water_still
+arch water_lt4
 x 2
 y 17
 end
-arch water_still
+arch water_lt2
 x 2
 y 18
 end
-arch water_still
+arch water_lt2
 x 2
 y 19
 end
-arch water_still
+arch water_lt3
 x 2
 y 20
 end
-arch water_still
+arch water_lt4
 x 2
 y 21
 end
-arch water_still
+arch water_lt2
 x 2
 y 22
 end
-arch water_still
+arch water_lt2
 x 2
 y 23
 end
@@ -385,7 +385,7 @@ arch desert.103
 x 3
 y 10
 end
-arch water_still
+arch water_lt4
 x 3
 y 11
 end
@@ -393,51 +393,51 @@ arch desert_fmask.105
 x 3
 y 11
 end
-arch water_still
+arch water_lt
 x 3
 y 12
 end
-arch water_still
+arch water_lt4
 x 3
 y 13
 end
-arch water_still
+arch water_lt
 x 3
 y 14
 end
-arch water_still
+arch water_lt4
 x 3
 y 15
 end
-arch water_still
+arch water_lt3
 x 3
 y 16
 end
-arch water_still
+arch water_lt2
 x 3
 y 17
 end
-arch water_still
+arch water_lt2
 x 3
 y 18
 end
-arch water_still
+arch water_lt
 x 3
 y 19
 end
-arch water_still
+arch water_lt4
 x 3
 y 20
 end
-arch water_still
+arch water_lt3
 x 3
 y 21
 end
-arch water_still
+arch water_lt
 x 3
 y 22
 end
-arch water_still
+arch water_lt3
 x 3
 y 23
 end
@@ -523,7 +523,7 @@ arch light7
 x 4
 y 10
 end
-arch water_still
+arch water_lt3
 x 4
 y 11
 end
@@ -531,51 +531,51 @@ arch desert_fmask.105
 x 4
 y 11
 end
-arch water_still
+arch water_lt4
 x 4
 y 12
 end
-arch water_still
+arch water_lt3
 x 4
 y 13
 end
-arch water_still
+arch water_lt4
 x 4
 y 14
 end
-arch water_still
+arch water_lt2
 x 4
 y 15
 end
-arch water_still
+arch water_lt2
 x 4
 y 16
 end
-arch water_still
+arch water_lt2
 x 4
 y 17
 end
-arch water_still
+arch water_lt
 x 4
 y 18
 end
-arch water_still
+arch water_lt4
 x 4
 y 19
 end
-arch water_still
+arch water_lt3
 x 4
 y 20
 end
-arch water_still
+arch water_lt4
 x 4
 y 21
 end
-arch water_still
+arch water_lt3
 x 4
 y 22
 end
-arch water_still
+arch water_lt3
 x 4
 y 23
 end
@@ -630,7 +630,7 @@ arch desert.103
 x 5
 y 9
 end
-arch water_still
+arch water_lt
 x 5
 y 10
 end
@@ -638,7 +638,7 @@ arch desert_fmask.104
 x 5
 y 10
 end
-arch water_still
+arch water_lt
 x 5
 y 11
 end
@@ -646,51 +646,51 @@ arch desert_fmask.114
 x 5
 y 11
 end
-arch water_still
+arch water_lt
 x 5
 y 12
 end
-arch water_still
+arch water_lt3
 x 5
 y 13
 end
-arch water_still
+arch water_lt4
 x 5
 y 14
 end
-arch water_still
+arch water_lt3
 x 5
 y 15
 end
-arch water_still
+arch water_lt2
 x 5
 y 16
 end
-arch water_still
+arch water_lt2
 x 5
 y 17
 end
-arch water_still
+arch water_lt2
 x 5
 y 18
 end
-arch water_still
+arch water_lt2
 x 5
 y 19
 end
-arch water_still
+arch water_lt
 x 5
 y 20
 end
-arch water_still
+arch water_lt2
 x 5
 y 21
 end
-arch water_still
+arch water_lt2
 x 5
 y 22
 end
-arch water_still
+arch water_lt2
 x 5
 y 23
 end
@@ -740,7 +740,7 @@ arch desert.103
 x 6
 y 8
 end
-arch water_still
+arch water_lt2
 x 6
 y 9
 end
@@ -748,7 +748,7 @@ arch desert_fmask.104
 x 6
 y 9
 end
-arch water_still
+arch water_lt3
 x 6
 y 10
 end
@@ -756,55 +756,55 @@ arch desert_fmask.114
 x 6
 y 10
 end
-arch water_still
+arch water_lt3
 x 6
 y 11
 end
-arch water_still
+arch water_lt2
 x 6
 y 12
 end
-arch water_still
+arch water_lt3
 x 6
 y 13
 end
-arch water_still
+arch water_lt4
 x 6
 y 14
 end
-arch water_still
+arch water_lt3
 x 6
 y 15
 end
-arch water_still
+arch water_lt
 x 6
 y 16
 end
-arch water_still
+arch water_lt
 x 6
 y 17
 end
-arch water_still
+arch water_lt2
 x 6
 y 18
 end
-arch water_still
+arch water_lt4
 x 6
 y 19
 end
-arch water_still
+arch water_lt2
 x 6
 y 20
 end
-arch water_still
+arch water_lt4
 x 6
 y 21
 end
-arch water_still
+arch water_lt
 x 6
 y 22
 end
-arch water_still
+arch water_lt2
 x 6
 y 23
 end
@@ -871,7 +871,7 @@ arch light7
 x 7
 y 8
 end
-arch water_still
+arch water_lt
 x 7
 y 9
 end
@@ -879,59 +879,59 @@ arch desert_fmask.105
 x 7
 y 9
 end
-arch water_still
+arch water_lt3
 x 7
 y 10
 end
-arch water_still
+arch water_lt3
 x 7
 y 11
 end
-arch water_still
+arch water_lt4
 x 7
 y 12
 end
-arch water_still
+arch water_lt
 x 7
 y 13
 end
-arch water_still
+arch water_lt2
 x 7
 y 14
 end
-arch water_still
+arch water_lt2
 x 7
 y 15
 end
-arch water_still
+arch water_lt
 x 7
 y 16
 end
-arch water_still
+arch water_lt3
 x 7
 y 17
 end
-arch water_still
+arch water_lt3
 x 7
 y 18
 end
-arch water_still
+arch water_lt2
 x 7
 y 19
 end
-arch water_still
+arch water_lt4
 x 7
 y 20
 end
-arch water_still
+arch water_lt
 x 7
 y 21
 end
-arch water_still
+arch water_lt3
 x 7
 y 22
 end
-arch water_still
+arch water_lt4
 x 7
 y 23
 end
@@ -970,7 +970,7 @@ arch desert.103
 x 8
 y 7
 end
-arch water_still
+arch water_lt
 x 8
 y 8
 end
@@ -978,7 +978,7 @@ arch desert_fmask.104
 x 8
 y 8
 end
-arch water_still
+arch water_lt
 x 8
 y 9
 end
@@ -986,59 +986,59 @@ arch desert_fmask.114
 x 8
 y 9
 end
-arch water_still
+arch water_lt
 x 8
 y 10
 end
-arch water_still
+arch water_lt
 x 8
 y 11
 end
-arch water_still
+arch water_lt4
 x 8
 y 12
 end
-arch water_still
+arch water_lt
 x 8
 y 13
 end
-arch water_still
+arch water_lt
 x 8
 y 14
 end
-arch water_still
+arch water_lt4
 x 8
 y 15
 end
-arch water_still
+arch water_lt4
 x 8
 y 16
 end
-arch water_still
+arch water_lt
 x 8
 y 17
 end
-arch water_still
+arch water_lt4
 x 8
 y 18
 end
-arch water_still
+arch water_lt
 x 8
 y 19
 end
-arch water_still
+arch water_lt
 x 8
 y 20
 end
-arch water_still
+arch water_lt
 x 8
 y 21
 end
-arch water_still
+arch water_lt4
 x 8
 y 22
 end
-arch water_still
+arch water_lt3
 x 8
 y 23
 end
@@ -1091,7 +1091,7 @@ arch desert.103
 x 9
 y 7
 end
-arch water_still
+arch water_lt3
 x 9
 y 8
 end
@@ -1099,63 +1099,63 @@ arch desert_fmask.105
 x 9
 y 8
 end
-arch water_still
+arch water_lt3
 x 9
 y 9
 end
-arch water_still
+arch water_lt3
 x 9
 y 10
 end
-arch water_still
+arch water_lt4
 x 9
 y 11
 end
-arch water_still
+arch water_lt3
 x 9
 y 12
 end
-arch water_still
+arch water_lt2
 x 9
 y 13
 end
-arch water_still
+arch water_lt4
 x 9
 y 14
 end
-arch water_still
+arch water_lt2
 x 9
 y 15
 end
-arch water_still
+arch water_lt4
 x 9
 y 16
 end
-arch water_still
+arch water_lt4
 x 9
 y 17
 end
-arch water_still
+arch water_lt2
 x 9
 y 18
 end
-arch water_still
+arch water_lt3
 x 9
 y 19
 end
-arch water_still
+arch water_lt2
 x 9
 y 20
 end
-arch water_still
+arch water_lt4
 x 9
 y 21
 end
-arch water_still
+arch water_lt3
 x 9
 y 22
 end
-arch water_still
+arch water_lt4
 x 9
 y 23
 end
@@ -1221,7 +1221,7 @@ protect_poison 0
 type 83
 end
 end
-arch water_still
+arch water_lt2
 x 10
 y 8
 end
@@ -1229,73 +1229,73 @@ arch desert_fmask.105
 x 10
 y 8
 end
-arch water_still
+arch water_lt
 x 10
 y 9
 end
-arch water_still
+arch water_lt3
 x 10
 y 10
 end
-arch water_still
+arch water_lt4
 x 10
 y 11
 end
-arch water_still
+arch water_lt3
 x 10
 y 12
 end
-arch water_still
+arch water_lt4
 x 10
 y 13
 end
-arch water_still
+arch water_lt
 x 10
 y 14
 end
-arch water_still
+arch water_lt
 x 10
 y 15
 end
-arch water_still
+arch water_lt2
 x 10
 y 16
 end
-arch water_still
+arch water_lt
 x 10
 y 17
 end
-arch water_still
+arch water_lt3
 x 10
 y 18
 end
-arch water_still
+arch water_lt4
 x 10
 y 19
 end
-arch water_still
+arch water_lt
 x 10
 y 20
 end
-arch water_still
+arch water_lt3
 x 10
 y 21
 end
-arch water_still
+arch water_lt3
 x 10
 y 22
 end
-arch water_still
+arch water_lt3
 x 10
 y 23
 end
-arch water_still
+arch water_lt2
 x 11
 end
 arch desert_fmask.103
 x 11
 end
-arch water_still
+arch water_lt2
 x 11
 y 1
 end
@@ -1303,7 +1303,7 @@ arch desert_fmask.103
 x 11
 y 1
 end
-arch water_still
+arch water_lt3
 x 11
 y 2
 end
@@ -1347,7 +1347,7 @@ glow_radius 5
 x 11
 y 6
 end
-arch water_still
+arch water_lt2
 x 11
 y 7
 end
@@ -1355,7 +1355,7 @@ arch desert_fmask.104
 x 11
 y 7
 end
-arch water_still
+arch water_lt2
 x 11
 y 8
 end
@@ -1363,74 +1363,74 @@ arch desert_fmask.114
 x 11
 y 8
 end
-arch water_still
+arch water_lt2
 x 11
 y 9
 end
-arch water_still
+arch water_lt4
 x 11
 y 10
 end
-arch water_still
+arch water_lt
 x 11
 y 11
 end
-arch water_still
+arch water_lt2
 x 11
 y 12
 end
-arch water_still
+arch water_lt
 x 11
 y 13
 end
-arch water_still
+arch water_lt3
 x 11
 y 14
 end
-arch water_still
+arch water_lt
 x 11
 y 15
 end
-arch water_still
+arch water_lt
 x 11
 y 16
 end
-arch water_still
+arch water_lt4
 x 11
 y 17
 end
-arch water_still
+arch water_lt4
 x 11
 y 18
 end
-arch water_still
+arch water_lt3
 x 11
 y 19
 end
-arch water_still
+arch water_lt3
 x 11
 y 20
 end
-arch water_still
+arch water_lt3
 x 11
 y 21
 end
-arch water_still
+arch water_lt4
 x 11
 y 22
 end
-arch water_still
+arch water_lt4
 x 11
 y 23
 end
-arch water_still
+arch water_lt2
 x 12
 end
-arch water_still
+arch water_lt
 x 12
 y 1
 end
-arch water_still
+arch water_lt2
 x 12
 y 2
 end
@@ -1438,7 +1438,7 @@ arch desert_fmask.112
 x 12
 y 2
 end
-arch water_still
+arch water_lt3
 x 12
 y 3
 end
@@ -1454,7 +1454,7 @@ arch bridge_wood_EW.101
 x 12
 y 5
 end
-arch water_still
+arch water_lt
 x 12
 y 6
 end
@@ -1462,7 +1462,7 @@ arch desert_fmask.103
 x 12
 y 6
 end
-arch water_still
+arch water_lt3
 x 12
 y 7
 end
@@ -1470,82 +1470,82 @@ arch desert_fmask.114
 x 12
 y 7
 end
-arch water_still
+arch water_lt
 x 12
 y 8
 end
-arch water_still
+arch water_lt4
 x 12
 y 9
 end
-arch water_still
+arch water_lt4
 x 12
 y 10
 end
-arch water_still
+arch water_lt
 x 12
 y 11
 end
-arch water_still
+arch water_lt3
 x 12
 y 12
 end
-arch water_still
+arch water_lt4
 x 12
 y 13
 end
-arch water_still
+arch water_lt3
 x 12
 y 14
 end
-arch water_still
+arch water_lt3
 x 12
 y 15
 end
-arch water_still
+arch water_lt4
 x 12
 y 16
 end
-arch water_still
+arch water_lt3
 x 12
 y 17
 end
-arch water_still
+arch water_lt4
 x 12
 y 18
 end
-arch water_still
+arch water_lt
 x 12
 y 19
 end
-arch water_still
+arch water_lt
 x 12
 y 20
 end
-arch water_still
+arch water_lt2
 x 12
 y 21
 end
-arch water_still
+arch water_lt3
 x 12
 y 22
 end
-arch water_still
+arch water_lt
 x 12
 y 23
 end
-arch water_still
+arch water_lt4
 x 13
 end
-arch water_still
+arch water_lt4
 x 13
 y 1
 end
-arch water_still
+arch water_lt3
 x 13
 y 2
 end
-arch water_still
+arch water_lt2
 x 13
 y 3
 end
@@ -1557,86 +1557,86 @@ arch bridge_wood_EW.101
 x 13
 y 5
 end
-arch water_still
+arch water_lt
 x 13
 y 6
 end
-arch water_still
+arch water_lt3
 x 13
 y 7
 end
-arch water_still
+arch water_lt2
 x 13
 y 8
 end
-arch water_still
+arch water_lt3
 x 13
 y 9
 end
-arch water_still
+arch water_lt2
 x 13
 y 10
 end
-arch water_still
+arch water_lt2
 x 13
 y 11
 end
-arch water_still
+arch water_lt3
 x 13
 y 12
 end
-arch water_still
+arch water_lt2
 x 13
 y 13
 end
-arch water_still
+arch water_lt2
 x 13
 y 14
 end
-arch water_still
+arch water_lt4
 x 13
 y 15
 end
-arch water_still
+arch water_lt
 x 13
 y 16
 end
-arch water_still
+arch water_lt2
 x 13
 y 17
 end
-arch water_still
+arch water_lt2
 x 13
 y 18
 end
-arch water_still
+arch water_lt4
 x 13
 y 19
 end
-arch water_still
+arch water_lt3
 x 13
 y 20
 end
-arch water_still
+arch water_lt3
 x 13
 y 21
 end
-arch water_still
+arch water_lt2
 x 13
 y 22
 end
-arch water_still
+arch water_lt4
 x 13
 y 23
 end
-arch water_still
+arch water_lt4
 x 14
 end
-arch water_still
+arch water_lt2
 x 14
 y 1
 end
-arch water_still
+arch water_lt3
 x 14
 y 2
 end
@@ -1644,7 +1644,7 @@ arch desert_fmask.118
 x 14
 y 2
 end
-arch water_still
+arch water_lt2
 x 14
 y 3
 end
@@ -1660,7 +1660,7 @@ arch bridge_wood_EW.101
 x 14
 y 5
 end
-arch water_still
+arch water_lt2
 x 14
 y 6
 end
@@ -1668,7 +1668,7 @@ arch desert_fmask.107
 x 14
 y 6
 end
-arch water_still
+arch water_lt
 x 14
 y 7
 end
@@ -1676,77 +1676,77 @@ arch desert_fmask.116
 x 14
 y 7
 end
-arch water_still
+arch water_lt
 x 14
 y 8
 end
-arch water_still
+arch water_lt4
 x 14
 y 9
 end
-arch water_still
+arch water_lt3
 x 14
 y 10
 end
-arch water_still
+arch water_lt2
 x 14
 y 11
 end
-arch water_still
+arch water_lt4
 x 14
 y 12
 end
-arch water_still
+arch water_lt3
 x 14
 y 13
 end
-arch water_still
+arch water_lt4
 x 14
 y 14
 end
-arch water_still
+arch water_lt2
 x 14
 y 15
 end
-arch water_still
+arch water_lt4
 x 14
 y 16
 end
-arch water_still
+arch water_lt4
 x 14
 y 17
 end
-arch water_still
+arch water_lt2
 x 14
 y 18
 end
-arch water_still
+arch water_lt
 x 14
 y 19
 end
-arch water_still
+arch water_lt2
 x 14
 y 20
 end
-arch water_still
+arch water_lt3
 x 14
 y 21
 end
-arch water_still
+arch water_lt4
 x 14
 y 22
 end
-arch water_still
+arch water_lt4
 x 14
 y 23
 end
-arch water_still
+arch water_lt4
 x 15
 end
 arch desert_fmask.107
 x 15
 end
-arch water_still
+arch water_lt3
 x 15
 y 1
 end
@@ -1754,7 +1754,7 @@ arch desert_fmask.107
 x 15
 y 1
 end
-arch water_still
+arch water_lt3
 x 15
 y 2
 end
@@ -1798,7 +1798,7 @@ glow_radius 5
 x 15
 y 6
 end
-arch water_still
+arch water_lt2
 x 15
 y 7
 end
@@ -1806,67 +1806,67 @@ arch desert_fmask.105
 x 15
 y 7
 end
-arch water_still
+arch water_lt
 x 15
 y 8
 end
-arch water_still
+arch water_lt
 x 15
 y 9
 end
-arch water_still
+arch water_lt3
 x 15
 y 10
 end
-arch water_still
+arch water_lt3
 x 15
 y 11
 end
-arch water_still
+arch water_lt2
 x 15
 y 12
 end
-arch water_still
+arch water_lt4
 x 15
 y 13
 end
-arch water_still
+arch water_lt4
 x 15
 y 14
 end
-arch water_still
+arch water_lt2
 x 15
 y 15
 end
-arch water_still
+arch water_lt2
 x 15
 y 16
 end
-arch water_still
+arch water_lt4
 x 15
 y 17
 end
-arch water_still
+arch water_lt2
 x 15
 y 18
 end
-arch water_still
+arch water_lt3
 x 15
 y 19
 end
-arch water_still
+arch water_lt3
 x 15
 y 20
 end
-arch water_still
+arch water_lt2
 x 15
 y 21
 end
-arch water_still
+arch water_lt3
 x 15
 y 22
 end
-arch water_still
+arch water_lt
 x 15
 y 23
 end
@@ -1905,7 +1905,7 @@ arch plant18
 x 16
 y 6
 end
-arch water_still
+arch water_lt2
 x 16
 y 7
 end
@@ -1913,67 +1913,67 @@ arch desert_fmask.105
 x 16
 y 7
 end
-arch water_still
+arch water_lt3
 x 16
 y 8
 end
-arch water_still
+arch water_lt
 x 16
 y 9
 end
-arch water_still
+arch water_lt
 x 16
 y 10
 end
-arch water_still
+arch water_lt2
 x 16
 y 11
 end
-arch water_still
+arch water_lt
 x 16
 y 12
 end
-arch water_still
+arch water_lt4
 x 16
 y 13
 end
-arch water_still
+arch water_lt3
 x 16
 y 14
 end
-arch water_still
+arch water_lt2
 x 16
 y 15
 end
-arch water_still
+arch water_lt
 x 16
 y 16
 end
-arch water_still
+arch water_lt
 x 16
 y 17
 end
-arch water_still
+arch water_lt3
 x 16
 y 18
 end
-arch water_still
+arch water_lt3
 x 16
 y 19
 end
-arch water_still
+arch water_lt4
 x 16
 y 20
 end
-arch water_still
+arch water_lt4
 x 16
 y 21
 end
-arch water_still
+arch water_lt2
 x 16
 y 22
 end
-arch water_still
+arch water_lt
 x 16
 y 23
 end
@@ -2020,7 +2020,7 @@ arch desert.103
 x 17
 y 6
 end
-arch water_still
+arch water_lt4
 x 17
 y 7
 end
@@ -2028,67 +2028,67 @@ arch desert_fmask.105
 x 17
 y 7
 end
-arch water_still
+arch water_lt3
 x 17
 y 8
 end
-arch water_still
+arch water_lt
 x 17
 y 9
 end
-arch water_still
+arch water_lt
 x 17
 y 10
 end
-arch water_still
+arch water_lt
 x 17
 y 11
 end
-arch water_still
+arch water_lt4
 x 17
 y 12
 end
-arch water_still
+arch water_lt
 x 17
 y 13
 end
-arch water_still
+arch water_lt
 x 17
 y 14
 end
-arch water_still
+arch water_lt4
 x 17
 y 15
 end
-arch water_still
+arch water_lt3
 x 17
 y 16
 end
-arch water_still
+arch water_lt3
 x 17
 y 17
 end
-arch water_still
+arch water_lt4
 x 17
 y 18
 end
-arch water_still
+arch water_lt2
 x 17
 y 19
 end
-arch water_still
+arch water_lt4
 x 17
 y 20
 end
-arch water_still
+arch water_lt2
 x 17
 y 21
 end
-arch water_still
+arch water_lt3
 x 17
 y 22
 end
-arch water_still
+arch water_lt4
 x 17
 y 23
 end
@@ -2151,7 +2151,7 @@ protect_poison 0
 type 83
 end
 end
-arch water_still
+arch water_lt4
 x 18
 y 6
 end
@@ -2159,7 +2159,7 @@ arch desert_fmask.104
 x 18
 y 6
 end
-arch water_still
+arch water_lt4
 x 18
 y 7
 end
@@ -2167,67 +2167,67 @@ arch desert_fmask.114
 x 18
 y 7
 end
-arch water_still
+arch water_lt
 x 18
 y 8
 end
-arch water_still
+arch water_lt4
 x 18
 y 9
 end
-arch water_still
+arch water_lt3
 x 18
 y 10
 end
-arch water_still
+arch water_lt3
 x 18
 y 11
 end
-arch water_still
+arch water_lt2
 x 18
 y 12
 end
-arch water_still
+arch water_lt
 x 18
 y 13
 end
-arch water_still
+arch water_lt4
 x 18
 y 14
 end
-arch water_still
+arch water_lt4
 x 18
 y 15
 end
-arch water_still
+arch water_lt
 x 18
 y 16
 end
-arch water_still
+arch water_lt3
 x 18
 y 17
 end
-arch water_still
+arch water_lt2
 x 18
 y 18
 end
-arch water_still
+arch water_lt3
 x 18
 y 19
 end
-arch water_still
+arch water_lt2
 x 18
 y 20
 end
-arch water_still
+arch water_lt2
 x 18
 y 21
 end
-arch water_still
+arch water_lt3
 x 18
 y 22
 end
-arch water_still
+arch water_lt2
 x 18
 y 23
 end
@@ -2261,7 +2261,7 @@ arch desert.103
 x 19
 y 5
 end
-arch water_still
+arch water_lt4
 x 19
 y 6
 end
@@ -2269,7 +2269,7 @@ arch desert_fmask.106
 x 19
 y 6
 end
-arch water_still
+arch water_lt2
 x 19
 y 7
 end
@@ -2277,67 +2277,67 @@ arch desert_fmask.116
 x 19
 y 7
 end
-arch water_still
+arch water_lt4
 x 19
 y 8
 end
-arch water_still
+arch water_lt3
 x 19
 y 9
 end
-arch water_still
+arch water_lt
 x 19
 y 10
 end
-arch water_still
+arch water_lt3
 x 19
 y 11
 end
-arch water_still
+arch water_lt4
 x 19
 y 12
 end
-arch water_still
+arch water_lt3
 x 19
 y 13
 end
-arch water_still
+arch water_lt4
 x 19
 y 14
 end
-arch water_still
+arch water_lt2
 x 19
 y 15
 end
-arch water_still
+arch water_lt2
 x 19
 y 16
 end
-arch water_still
+arch water_lt4
 x 19
 y 17
 end
-arch water_still
+arch water_lt2
 x 19
 y 18
 end
-arch water_still
+arch water_lt
 x 19
 y 19
 end
-arch water_still
+arch water_lt2
 x 19
 y 20
 end
-arch water_still
+arch water_lt2
 x 19
 y 21
 end
-arch water_still
+arch water_lt4
 x 19
 y 22
 end
-arch water_still
+arch water_lt2
 x 19
 y 23
 end
@@ -2372,7 +2372,7 @@ arch desert.103
 x 20
 y 6
 end
-arch water_still
+arch water_lt3
 x 20
 y 7
 end
@@ -2380,7 +2380,7 @@ arch desert_fmask.106
 x 20
 y 7
 end
-arch water_still
+arch water_lt2
 x 20
 y 8
 end
@@ -2388,63 +2388,63 @@ arch desert_fmask.116
 x 20
 y 8
 end
-arch water_still
+arch water_lt4
 x 20
 y 9
 end
-arch water_still
+arch water_lt3
 x 20
 y 10
 end
-arch water_still
+arch water_lt2
 x 20
 y 11
 end
-arch water_still
+arch water_lt4
 x 20
 y 12
 end
-arch water_still
+arch water_lt3
 x 20
 y 13
 end
-arch water_still
+arch water_lt
 x 20
 y 14
 end
-arch water_still
+arch water_lt2
 x 20
 y 15
 end
-arch water_still
+arch water_lt4
 x 20
 y 16
 end
-arch water_still
+arch water_lt
 x 20
 y 17
 end
-arch water_still
+arch water_lt
 x 20
 y 18
 end
-arch water_still
+arch water_lt
 x 20
 y 19
 end
-arch water_still
+arch water_lt
 x 20
 y 20
 end
-arch water_still
+arch water_lt2
 x 20
 y 21
 end
-arch water_still
+arch water_lt2
 x 20
 y 22
 end
-arch water_still
+arch water_lt3
 x 20
 y 23
 end
@@ -2487,7 +2487,7 @@ arch desert.103
 x 21
 y 7
 end
-arch water_still
+arch water_lt3
 x 21
 y 8
 end
@@ -2495,7 +2495,7 @@ arch desert_fmask.106
 x 21
 y 8
 end
-arch water_still
+arch water_lt
 x 21
 y 9
 end
@@ -2503,59 +2503,59 @@ arch desert_fmask.116
 x 21
 y 9
 end
-arch water_still
+arch water_lt3
 x 21
 y 10
 end
-arch water_still
+arch water_lt3
 x 21
 y 11
 end
-arch water_still
+arch water_lt
 x 21
 y 12
 end
-arch water_still
+arch water_lt2
 x 21
 y 13
 end
-arch water_still
+arch water_lt4
 x 21
 y 14
 end
-arch water_still
+arch water_lt2
 x 21
 y 15
 end
-arch water_still
+arch water_lt
 x 21
 y 16
 end
-arch water_still
+arch water_lt2
 x 21
 y 17
 end
-arch water_still
+arch water_lt2
 x 21
 y 18
 end
-arch water_still
+arch water_lt2
 x 21
 y 19
 end
-arch water_still
+arch water_lt3
 x 21
 y 20
 end
-arch water_still
+arch water_lt3
 x 21
 y 21
 end
-arch water_still
+arch water_lt2
 x 21
 y 22
 end
-arch water_still
+arch water_lt2
 x 21
 y 23
 end
@@ -2614,7 +2614,7 @@ arch desert.103
 x 22
 y 8
 end
-arch water_still
+arch water_lt2
 x 22
 y 9
 end
@@ -2622,7 +2622,7 @@ arch desert_fmask.106
 x 22
 y 9
 end
-arch water_still
+arch water_lt3
 x 22
 y 10
 end
@@ -2630,55 +2630,55 @@ arch desert_fmask.116
 x 22
 y 10
 end
-arch water_still
+arch water_lt4
 x 22
 y 11
 end
-arch water_still
+arch water_lt3
 x 22
 y 12
 end
-arch water_still
+arch water_lt4
 x 22
 y 13
 end
-arch water_still
+arch water_lt3
 x 22
 y 14
 end
-arch water_still
+arch water_lt3
 x 22
 y 15
 end
-arch water_still
+arch water_lt4
 x 22
 y 16
 end
-arch water_still
+arch water_lt
 x 22
 y 17
 end
-arch water_still
+arch water_lt2
 x 22
 y 18
 end
-arch water_still
+arch water_lt2
 x 22
 y 19
 end
-arch water_still
+arch water_lt4
 x 22
 y 20
 end
-arch water_still
+arch water_lt4
 x 22
 y 21
 end
-arch water_still
+arch water_lt2
 x 22
 y 22
 end
-arch water_still
+arch water_lt2
 x 22
 y 23
 end
@@ -2764,7 +2764,7 @@ arch light7
 x 23
 y 9
 end
-arch water_still
+arch water_lt3
 x 23
 y 10
 end
@@ -2772,55 +2772,55 @@ arch desert_fmask.105
 x 23
 y 10
 end
-arch water_still
+arch water_lt2
 x 23
 y 11
 end
-arch water_still
+arch water_lt2
 x 23
 y 12
 end
-arch water_still
+arch water_lt3
 x 23
 y 13
 end
-arch water_still
+arch water_lt
 x 23
 y 14
 end
-arch water_still
+arch water_lt4
 x 23
 y 15
 end
-arch water_still
+arch water_lt2
 x 23
 y 16
 end
-arch water_still
+arch water_lt2
 x 23
 y 17
 end
-arch water_still
+arch water_lt4
 x 23
 y 18
 end
-arch water_still
+arch water_lt
 x 23
 y 19
 end
-arch water_still
+arch water_lt2
 x 23
 y 20
 end
-arch water_still
+arch water_lt2
 x 23
 y 21
 end
-arch water_still
+arch water_lt
 x 23
 y 22
 end
-arch water_still
+arch water_lt3
 x 23
 y 23
 end

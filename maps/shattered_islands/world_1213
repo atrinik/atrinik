@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -120,14 +120,13 @@ end
 arch grassd_2
 y 21
 end
-arch water_still
+arch water_lt
 y 22
 end
 arch grassd_m10
 y 22
 end
-arch water_still
-player_only 1
+arch water_lt2
 y 23
 end
 arch grassd_m14
@@ -268,7 +267,7 @@ arch grassd_3
 x 1
 y 21
 end
-arch water_still
+arch water_lt3
 x 1
 y 22
 end
@@ -276,7 +275,7 @@ arch grassd_m6
 x 1
 y 22
 end
-arch water_still
+arch water_lt4
 x 1
 y 23
 end
@@ -3115,7 +3114,7 @@ arch floor_flagm4
 x 19
 y 23
 end
-arch water_still
+arch water_lt2
 x 20
 end
 arch fwall_fstone2a
@@ -3217,10 +3216,10 @@ arch floor_flagm1
 x 20
 y 23
 end
-arch water_still
+arch water_lt
 x 21
 end
-arch water_still
+arch water_lt
 x 21
 y 1
 end
@@ -3320,14 +3319,14 @@ arch floor_flagm1
 x 21
 y 23
 end
-arch water_still
+arch water_lt2
 x 22
 end
-arch water_still
+arch water_lt3
 x 22
 y 1
 end
-arch water_still
+arch water_lt4
 x 22
 y 2
 end
@@ -3503,98 +3502,98 @@ arch fwall_fstone2
 x 22
 y 23
 end
-arch water_still
+arch water_lt4
 x 23
 end
-arch water_still
+arch water_lt4
 x 23
 y 1
 end
-arch water_still
+arch water_lt
 x 23
 y 2
 end
-arch water_still
+arch water_lt3
 x 23
 y 3
 end
-arch water_still
+arch water_lt
 x 23
 y 4
 end
-arch water_still
+arch water_lt2
 x 23
 y 5
 end
-arch water_still
+arch water_lt2
 x 23
 y 6
 end
-arch water_still
+arch water_lt2
 x 23
 y 7
 end
-arch water_still
+arch water_lt
 x 23
 y 8
 end
-arch water_still
+arch water_lt3
 x 23
 y 9
 end
-arch water_still
+arch water_lt2
 x 23
 y 10
 end
-arch water_still
+arch water_lt2
 x 23
 y 11
 end
-arch water_still
+arch water_lt4
 x 23
 y 12
 end
-arch water_still
+arch water_lt2
 x 23
 y 13
 end
-arch water_still
+arch water_lt2
 x 23
 y 14
 end
-arch water_still
+arch water_lt4
 x 23
 y 15
 end
-arch water_still
+arch water_lt2
 x 23
 y 16
 end
-arch water_still
+arch water_lt2
 x 23
 y 17
 end
-arch water_still
+arch water_lt
 x 23
 y 18
 end
-arch water_still
+arch water_lt
 x 23
 y 19
 end
-arch water_still
+arch water_lt2
 x 23
 y 20
 end
-arch water_still
+arch water_lt3
 x 23
 y 21
 end
-arch water_still
+arch water_lt3
 x 23
 y 22
 end
-arch water_still
+arch water_lt3
 x 23
 y 23
 end

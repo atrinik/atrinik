@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-16 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -20,179 +20,155 @@ tile_path_8 world_1113
 bg_music town_music.ogg
 region greyton
 end
-arch water_still
-player_only 1
+arch water_lt4
 end
 arch grassd_m9
 end
-arch water_still
-player_only 1
+arch water_lt2
 y 1
 end
 arch grassd_m9
 y 1
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 2
 end
 arch grassd_m9
 y 2
 end
-arch water_still
-player_only 1
+arch water_lt3
 y 3
 end
 arch grassd_m9
 y 3
 end
-arch water_still
-player_only 1
+arch water_lt3
 y 4
 end
 arch grassd_m9
 y 4
 end
-arch water_still
-player_only 1
+arch water_lt
 y 5
 end
 arch grassd_m9
 y 5
 end
-arch water_still
-player_only 1
+arch water_lt3
 y 6
 end
 arch grassd_m9
 y 6
 end
-arch water_still
-player_only 1
+arch water_lt3
 y 7
 end
 arch grassd_m9
 y 7
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 8
 end
 arch grassd_m9
 y 8
 end
-arch water_still
-player_only 1
+arch water_lt2
 y 9
 end
 arch grassd_m9
 y 9
 end
-arch water_still
-player_only 1
+arch water_lt2
 y 10
 end
 arch grassd_m9
 y 10
 end
-arch water_still
-player_only 1
+arch water_lt
 y 11
 end
 arch grassd_m9
 y 11
 end
-arch water_still
-player_only 1
+arch water_lt
 y 12
 end
 arch grassd_m9
 y 12
 end
-arch water_still
-player_only 1
+arch water_lt3
 y 13
 end
 arch grassd_m9
 y 13
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 14
 end
 arch grassd_m9
 y 14
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 15
 end
 arch grassd_m9
 y 15
 end
-arch water_still
-player_only 1
+arch water_lt2
 y 16
 end
 arch grassd_m9
 y 16
 end
-arch water_still
-player_only 1
+arch water_lt
 y 17
 end
 arch grassd_m9
 y 17
 end
-arch water_still
-player_only 1
+arch water_lt2
 y 18
 end
 arch grassd_m9
 y 18
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 19
 end
 arch grassd_m9
 y 19
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 20
 end
 arch grassd_m9
 y 20
 end
-arch water_still
-player_only 1
+arch water_lt
 y 21
 end
 arch grassd_m9
 y 21
 end
-arch water_still
-player_only 1
+arch water_lt4
 y 22
 end
 arch grassd_m9
 y 22
 end
-arch water_still
-player_only 1
+arch water_lt
 y 23
 end
 arch grassd_m9
 y 23
 end
-arch water_still
+arch water_lt2
 x 1
 end
 arch grassd_m8
 x 1
 end
-arch water_still
+arch water_lt3
 x 1
 y 1
 end
@@ -200,7 +176,7 @@ arch grassd_m8
 x 1
 y 1
 end
-arch water_still
+arch water_lt4
 x 1
 y 2
 end
@@ -208,7 +184,7 @@ arch grassd_m8
 x 1
 y 2
 end
-arch water_still
+arch water_lt3
 x 1
 y 3
 end
@@ -216,7 +192,7 @@ arch grassd_m8
 x 1
 y 3
 end
-arch water_still
+arch water_lt3
 x 1
 y 4
 end
@@ -224,7 +200,7 @@ arch grassd_m8
 x 1
 y 4
 end
-arch water_still
+arch water_lt4
 x 1
 y 5
 end
@@ -232,7 +208,7 @@ arch grassd_m8
 x 1
 y 5
 end
-arch water_still
+arch water_lt
 x 1
 y 6
 end
@@ -240,7 +216,7 @@ arch grassd_m8
 x 1
 y 6
 end
-arch water_still
+arch water_lt2
 x 1
 y 7
 end
@@ -248,7 +224,7 @@ arch grassd_m8
 x 1
 y 7
 end
-arch water_still
+arch water_lt3
 x 1
 y 8
 end
@@ -256,7 +232,7 @@ arch grassd_m8
 x 1
 y 8
 end
-arch water_still
+arch water_lt3
 x 1
 y 9
 end
@@ -264,7 +240,7 @@ arch grassd_m8
 x 1
 y 9
 end
-arch water_still
+arch water_lt3
 x 1
 y 10
 end
@@ -272,7 +248,7 @@ arch grassd_m8
 x 1
 y 10
 end
-arch water_still
+arch water_lt2
 x 1
 y 11
 end
@@ -280,7 +256,7 @@ arch grassd_m8
 x 1
 y 11
 end
-arch water_still
+arch water_lt4
 x 1
 y 12
 end
@@ -288,7 +264,7 @@ arch grassd_m8
 x 1
 y 12
 end
-arch water_still
+arch water_lt
 x 1
 y 13
 end
@@ -296,7 +272,7 @@ arch grassd_m8
 x 1
 y 13
 end
-arch water_still
+arch water_lt4
 x 1
 y 14
 end
@@ -304,7 +280,7 @@ arch grassd_m8
 x 1
 y 14
 end
-arch water_still
+arch water_lt3
 x 1
 y 15
 end
@@ -312,7 +288,7 @@ arch grassd_m8
 x 1
 y 15
 end
-arch water_still
+arch water_lt3
 x 1
 y 16
 end
@@ -320,7 +296,7 @@ arch grassd_m8
 x 1
 y 16
 end
-arch water_still
+arch water_lt3
 x 1
 y 17
 end
@@ -328,7 +304,7 @@ arch grassd_m8
 x 1
 y 17
 end
-arch water_still
+arch water_lt4
 x 1
 y 18
 end
@@ -336,7 +312,7 @@ arch grassd_m8
 x 1
 y 18
 end
-arch water_still
+arch water_lt2
 x 1
 y 19
 end
@@ -344,7 +320,7 @@ arch grassd_m8
 x 1
 y 19
 end
-arch water_still
+arch water_lt
 x 1
 y 20
 end
@@ -352,7 +328,7 @@ arch grassd_m8
 x 1
 y 20
 end
-arch water_still
+arch water_lt
 x 1
 y 21
 end
@@ -360,7 +336,7 @@ arch grassd_m8
 x 1
 y 21
 end
-arch water_still
+arch water_lt2
 x 1
 y 22
 end
@@ -368,7 +344,7 @@ arch grassd_m8
 x 1
 y 22
 end
-arch water_still
+arch water_lt4
 x 1
 y 23
 end
@@ -3118,34 +3094,34 @@ arch fwall_fstone2
 x 22
 y 23
 end
-arch water_still
+arch water_lt2
 x 23
 end
-arch water_still
+arch water_lt3
 x 23
 y 1
 end
-arch water_still
+arch water_lt2
 x 23
 y 2
 end
-arch water_still
+arch water_lt3
 x 23
 y 3
 end
-arch water_still
+arch water_lt3
 x 23
 y 4
 end
-arch water_still
+arch water_lt
 x 23
 y 5
 end
-arch water_still
+arch water_lt2
 x 23
 y 6
 end
-arch water_still
+arch water_lt3
 x 23
 y 7
 end
@@ -3153,7 +3129,7 @@ arch grassd_m14
 x 23
 y 7
 end
-arch water_still
+arch water_lt3
 x 23
 y 8
 end
@@ -3161,7 +3137,7 @@ arch grassd_m9
 x 23
 y 8
 end
-arch water_still
+arch water_lt4
 x 23
 y 9
 end
@@ -3189,7 +3165,7 @@ arch light5
 x 23
 y 12
 end
-arch water_still
+arch water_lt2
 x 23
 y 13
 end
@@ -3202,7 +3178,7 @@ layer 3
 x 23
 y 13
 end
-arch water_still
+arch water_lt
 x 23
 y 14
 end
@@ -3210,7 +3186,7 @@ arch grassd_m9
 x 23
 y 14
 end
-arch water_still
+arch water_lt2
 x 23
 y 15
 end
@@ -3218,35 +3194,35 @@ arch grassd_m13
 x 23
 y 15
 end
-arch water_still
+arch water_lt
 x 23
 y 16
 end
-arch water_still
+arch water_lt4
 x 23
 y 17
 end
-arch water_still
+arch water_lt3
 x 23
 y 18
 end
-arch water_still
+arch water_lt
 x 23
 y 19
 end
-arch water_still
+arch water_lt
 x 23
 y 20
 end
-arch water_still
+arch water_lt2
 x 23
 y 21
 end
-arch water_still
+arch water_lt3
 x 23
 y 22
 end
-arch water_still
+arch water_lt
 x 23
 y 23
 end

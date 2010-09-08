@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,18 +19,18 @@ tile_path_8 world_1207
 bg_music jungle1.ogg
 region eld_woods_island
 end
-arch water_still
+arch water_lt3
 end
-arch water_still
+arch water_lt2
 y 1
 end
-arch water_still
+arch water_lt4
 y 2
 end
-arch water_still
+arch water_lt4
 y 3
 end
-arch water_still
+arch water_lt4
 y 4
 end
 arch grassd_6
@@ -153,22 +153,22 @@ end
 arch tree_big4b
 y 23
 end
-arch water_still
+arch water_lt
 x 1
 end
-arch water_still
+arch water_lt3
 x 1
 y 1
 end
-arch water_still
+arch water_lt4
 x 1
 y 2
 end
-arch water_still
+arch water_lt
 x 1
 y 3
 end
-arch water_still
+arch water_lt2
 x 1
 y 4
 end
@@ -300,22 +300,22 @@ arch tree_big3
 x 1
 y 23
 end
-arch water_still
+arch water_lt4
 x 2
 end
-arch water_still
+arch water_lt4
 x 2
 y 1
 end
-arch water_still
+arch water_lt2
 x 2
 y 2
 end
-arch water_still
+arch water_lt3
 x 2
 y 3
 end
-arch water_still
+arch water_lt4
 x 2
 y 4
 end
@@ -456,22 +456,22 @@ arch tree_big4b
 x 2
 y 23
 end
-arch water_still
+arch water_lt2
 x 3
 end
-arch water_still
+arch water_lt2
 x 3
 y 1
 end
-arch water_still
+arch water_lt3
 x 3
 y 2
 end
-arch water_still
+arch water_lt
 x 3
 y 3
 end
-arch water_still
+arch water_lt
 x 3
 y 4
 end
@@ -607,10 +607,10 @@ arch tree_big
 x 3
 y 23
 end
-arch water_still
+arch water_lt4
 x 4
 end
-arch water_still
+arch water_lt3
 x 4
 y 1
 end
@@ -754,10 +754,10 @@ arch grassd_5
 x 4
 y 23
 end
-arch water_still
+arch water_lt3
 x 5
 end
-arch water_still
+arch water_lt3
 x 5
 y 1
 end
@@ -909,10 +909,10 @@ arch grassd_2
 x 5
 y 23
 end
-arch water_still
+arch water_lt3
 x 6
 end
-arch water_still
+arch water_lt
 x 6
 y 1
 end

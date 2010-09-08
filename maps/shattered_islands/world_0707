@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-08 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -845,7 +845,7 @@ end
 arch desert.102
 x 7
 end
-arch water_still
+arch water_lt2
 x 7
 y 1
 end
@@ -861,7 +861,7 @@ arch bridge_wood_EW.101
 x 7
 y 3
 end
-arch water_still
+arch water_lt2
 x 7
 y 4
 end
@@ -953,13 +953,13 @@ arch desert.102
 x 7
 y 23
 end
-arch water_still
+arch water_lt
 x 8
 end
 arch desert_fmask.103
 x 8
 end
-arch water_still
+arch water_lt3
 x 8
 y 1
 end
@@ -975,7 +975,7 @@ arch bridge_wood_EW.101
 x 8
 y 3
 end
-arch water_still
+arch water_lt4
 x 8
 y 4
 end
@@ -983,7 +983,7 @@ arch desert_fmask.112
 x 8
 y 4
 end
-arch water_still
+arch water_lt4
 x 8
 y 5
 end
@@ -991,7 +991,7 @@ arch desert_fmask.103
 x 8
 y 5
 end
-arch water_still
+arch water_lt2
 x 8
 y 6
 end
@@ -1087,10 +1087,10 @@ arch desert.103
 x 8
 y 23
 end
-arch water_still
+arch water_lt2
 x 9
 end
-arch water_still
+arch water_lt
 x 9
 y 1
 end
@@ -1102,15 +1102,15 @@ arch bridge_wood_EW.101
 x 9
 y 3
 end
-arch water_still
+arch water_lt4
 x 9
 y 4
 end
-arch water_still
+arch water_lt2
 x 9
 y 5
 end
-arch water_still
+arch water_lt
 x 9
 y 6
 end
@@ -1118,7 +1118,7 @@ arch desert_fmask.112
 x 9
 y 6
 end
-arch water_still
+arch water_lt4
 x 9
 y 7
 end
@@ -1126,7 +1126,7 @@ arch desert_fmask.103
 x 9
 y 7
 end
-arch water_still
+arch water_lt4
 x 9
 y 8
 end
@@ -1158,7 +1158,7 @@ arch desert.103
 x 9
 y 14
 end
-arch water_still
+arch water_lt4
 x 9
 y 15
 end
@@ -1166,7 +1166,7 @@ arch desert_fmask.104
 x 9
 y 15
 end
-arch water_still
+arch water_lt4
 x 9
 y 16
 end
@@ -1174,7 +1174,7 @@ arch desert_fmask.103
 x 9
 y 16
 end
-arch water_still
+arch water_lt2
 x 9
 y 17
 end
@@ -1182,7 +1182,7 @@ arch desert_fmask.103
 x 9
 y 17
 end
-arch water_still
+arch water_lt
 x 9
 y 18
 end
@@ -1210,10 +1210,10 @@ arch desert.103
 x 9
 y 23
 end
-arch water_still
+arch water_lt4
 x 10
 end
-arch water_still
+arch water_lt3
 x 10
 y 1
 end
@@ -1225,23 +1225,23 @@ arch bridge_wood_EW.101
 x 10
 y 3
 end
-arch water_still
+arch water_lt3
 x 10
 y 4
 end
-arch water_still
+arch water_lt
 x 10
 y 5
 end
-arch water_still
+arch water_lt4
 x 10
 y 6
 end
-arch water_still
+arch water_lt2
 x 10
 y 7
 end
-arch water_still
+arch water_lt
 x 10
 y 8
 end
@@ -1249,7 +1249,7 @@ arch desert_fmask.112
 x 10
 y 8
 end
-arch water_still
+arch water_lt
 x 10
 y 9
 end
@@ -1265,7 +1265,7 @@ arch desert.101
 x 10
 y 11
 end
-arch water_still
+arch water_lt4
 x 10
 y 12
 end
@@ -1273,7 +1273,7 @@ arch desert_fmask.104
 x 10
 y 12
 end
-arch water_still
+arch water_lt
 x 10
 y 13
 end
@@ -1281,7 +1281,7 @@ arch desert_fmask.103
 x 10
 y 13
 end
-arch water_still
+arch water_lt4
 x 10
 y 14
 end
@@ -1289,7 +1289,7 @@ arch desert_fmask.103
 x 10
 y 14
 end
-arch water_still
+arch water_lt2
 x 10
 y 15
 end
@@ -1297,15 +1297,15 @@ arch desert_fmask.114
 x 10
 y 15
 end
-arch water_still
+arch water_lt3
 x 10
 y 16
 end
-arch water_still
+arch water_lt3
 x 10
 y 17
 end
-arch water_still
+arch water_lt4
 x 10
 y 18
 end
@@ -1313,7 +1313,7 @@ arch desert_fmask.112
 x 10
 y 18
 end
-arch water_still
+arch water_lt3
 x 10
 y 19
 end
@@ -1321,7 +1321,7 @@ arch desert_fmask.103
 x 10
 y 19
 end
-arch water_still
+arch water_lt3
 x 10
 y 20
 end
@@ -1329,7 +1329,7 @@ arch desert_fmask.103
 x 10
 y 20
 end
-arch water_still
+arch water_lt2
 x 10
 y 21
 end
@@ -1345,13 +1345,13 @@ arch desert.104
 x 10
 y 23
 end
-arch water_still
+arch water_lt2
 x 11
 end
 arch desert_fmask.118
 x 11
 end
-arch water_still
+arch water_lt
 x 11
 y 1
 end
@@ -1367,7 +1367,7 @@ arch bridge_wood_EW.101
 x 11
 y 3
 end
-arch water_still
+arch water_lt4
 x 11
 y 4
 end
@@ -1375,15 +1375,15 @@ arch desert_fmask.116
 x 11
 y 4
 end
-arch water_still
+arch water_lt
 x 11
 y 5
 end
-arch water_still
+arch water_lt
 x 11
 y 6
 end
-arch water_still
+arch water_lt
 x 11
 y 7
 end
@@ -1391,11 +1391,11 @@ arch light9
 x 11
 y 7
 end
-arch water_still
+arch water_lt2
 x 11
 y 8
 end
-arch water_still
+arch water_lt
 x 11
 y 9
 end
@@ -1403,7 +1403,7 @@ arch desert_fmask.112
 x 11
 y 9
 end
-arch water_still
+arch water_lt
 x 11
 y 10
 end
@@ -1411,7 +1411,7 @@ arch desert_fmask.103
 x 11
 y 10
 end
-arch water_still
+arch water_lt2
 x 11
 y 11
 end
@@ -1419,7 +1419,7 @@ arch desert_fmask.103
 x 11
 y 11
 end
-arch water_still
+arch water_lt2
 x 11
 y 12
 end
@@ -1427,23 +1427,23 @@ arch desert_fmask.114
 x 11
 y 12
 end
-arch water_still
+arch water_lt
 x 11
 y 13
 end
-arch water_still
+arch water_lt
 x 11
 y 14
 end
-arch water_still
+arch water_lt4
 x 11
 y 15
 end
-arch water_still
+arch water_lt
 x 11
 y 16
 end
-arch water_still
+arch water_lt3
 x 11
 y 17
 end
@@ -1451,19 +1451,19 @@ arch light9
 x 11
 y 17
 end
-arch water_still
+arch water_lt4
 x 11
 y 18
 end
-arch water_still
+arch water_lt2
 x 11
 y 19
 end
-arch water_still
+arch water_lt
 x 11
 y 20
 end
-arch water_still
+arch water_lt
 x 11
 y 21
 end
@@ -1471,7 +1471,7 @@ arch desert_fmask.112
 x 11
 y 21
 end
-arch water_still
+arch water_lt
 x 11
 y 22
 end
@@ -1479,7 +1479,7 @@ arch desert_fmask.103
 x 11
 y 22
 end
-arch water_still
+arch water_lt3
 x 11
 y 23
 end
@@ -1487,7 +1487,7 @@ arch desert_fmask.103
 x 11
 y 23
 end
-arch water_still
+arch water_lt3
 x 12
 end
 arch desert_fmask.108
@@ -1513,7 +1513,7 @@ arch bridge_wood_EW.131
 x 12
 y 3
 end
-arch water_still
+arch water_lt4
 x 12
 y 4
 end
@@ -1521,7 +1521,7 @@ arch desert_fmask.106
 x 12
 y 4
 end
-arch water_still
+arch water_lt3
 x 12
 y 5
 end
@@ -1529,7 +1529,7 @@ arch desert_fmask.107
 x 12
 y 5
 end
-arch water_still
+arch water_lt
 x 12
 y 6
 end
@@ -1537,31 +1537,31 @@ arch desert_fmask.116
 x 12
 y 6
 end
-arch water_still
+arch water_lt2
 x 12
 y 7
 end
-arch water_still
+arch water_lt
 x 12
 y 8
 end
-arch water_still
+arch water_lt4
 x 12
 y 9
 end
-arch water_still
+arch water_lt4
 x 12
 y 10
 end
-arch water_still
+arch water_lt3
 x 12
 y 11
 end
-arch water_still
+arch water_lt4
 x 12
 y 12
 end
-arch water_still
+arch water_lt4
 x 12
 y 13
 end
@@ -1569,43 +1569,43 @@ arch light9
 x 12
 y 13
 end
-arch water_still
+arch water_lt4
 x 12
 y 14
 end
-arch water_still
+arch water_lt3
 x 12
 y 15
 end
-arch water_still
+arch water_lt4
 x 12
 y 16
 end
-arch water_still
+arch water_lt3
 x 12
 y 17
 end
-arch water_still
+arch water_lt2
 x 12
 y 18
 end
-arch water_still
+arch water_lt2
 x 12
 y 19
 end
-arch water_still
+arch water_lt
 x 12
 y 20
 end
-arch water_still
+arch water_lt2
 x 12
 y 21
 end
-arch water_still
+arch water_lt2
 x 12
 y 22
 end
-arch water_still
+arch water_lt2
 x 12
 y 23
 end
@@ -1644,7 +1644,7 @@ arch desert.102
 x 13
 y 5
 end
-arch water_still
+arch water_lt3
 x 13
 y 6
 end
@@ -1652,7 +1652,7 @@ arch desert_fmask.106
 x 13
 y 6
 end
-arch water_still
+arch water_lt
 x 13
 y 7
 end
@@ -1660,7 +1660,7 @@ arch desert_fmask.107
 x 13
 y 7
 end
-arch water_still
+arch water_lt2
 x 13
 y 8
 end
@@ -1668,7 +1668,7 @@ arch desert_fmask.107
 x 13
 y 8
 end
-arch water_still
+arch water_lt3
 x 13
 y 9
 end
@@ -1676,27 +1676,27 @@ arch desert_fmask.116
 x 13
 y 9
 end
-arch water_still
+arch water_lt
 x 13
 y 10
 end
-arch water_still
+arch water_lt4
 x 13
 y 11
 end
-arch water_still
+arch water_lt4
 x 13
 y 12
 end
-arch water_still
+arch water_lt3
 x 13
 y 13
 end
-arch water_still
+arch water_lt
 x 13
 y 14
 end
-arch water_still
+arch water_lt
 x 13
 y 15
 end
@@ -1704,7 +1704,7 @@ arch desert_fmask.118
 x 13
 y 15
 end
-arch water_still
+arch water_lt2
 x 13
 y 16
 end
@@ -1712,7 +1712,7 @@ arch desert_fmask.107
 x 13
 y 16
 end
-arch water_still
+arch water_lt3
 x 13
 y 17
 end
@@ -1720,7 +1720,7 @@ arch desert_fmask.107
 x 13
 y 17
 end
-arch water_still
+arch water_lt4
 x 13
 y 18
 end
@@ -1728,19 +1728,19 @@ arch desert_fmask.116
 x 13
 y 18
 end
-arch water_still
+arch water_lt4
 x 13
 y 19
 end
-arch water_still
+arch water_lt3
 x 13
 y 20
 end
-arch water_still
+arch water_lt4
 x 13
 y 21
 end
-arch water_still
+arch water_lt4
 x 13
 y 22
 end
@@ -1748,7 +1748,7 @@ arch light9
 x 13
 y 22
 end
-arch water_still
+arch water_lt3
 x 13
 y 23
 end
@@ -1816,7 +1816,7 @@ arch light5
 x 14
 y 8
 end
-arch water_still
+arch water_lt4
 x 14
 y 9
 end
@@ -1824,15 +1824,15 @@ arch desert_fmask.105
 x 14
 y 9
 end
-arch water_still
+arch water_lt
 x 14
 y 10
 end
-arch water_still
+arch water_lt4
 x 14
 y 11
 end
-arch water_still
+arch water_lt2
 x 14
 y 12
 end
@@ -1840,7 +1840,7 @@ arch desert_fmask.118
 x 14
 y 12
 end
-arch water_still
+arch water_lt3
 x 14
 y 13
 end
@@ -1848,7 +1848,7 @@ arch desert_fmask.107
 x 14
 y 13
 end
-arch water_still
+arch water_lt2
 x 14
 y 14
 end
@@ -1856,7 +1856,7 @@ arch desert_fmask.107
 x 14
 y 14
 end
-arch water_still
+arch water_lt2
 x 14
 y 15
 end
@@ -1872,7 +1872,7 @@ arch desert.101
 x 14
 y 17
 end
-arch water_still
+arch water_lt3
 x 14
 y 18
 end
@@ -1880,7 +1880,7 @@ arch desert_fmask.106
 x 14
 y 18
 end
-arch water_still
+arch water_lt3
 x 14
 y 19
 end
@@ -1888,7 +1888,7 @@ arch desert_fmask.107
 x 14
 y 19
 end
-arch water_still
+arch water_lt3
 x 14
 y 20
 end
@@ -1896,15 +1896,15 @@ arch desert_fmask.116
 x 14
 y 20
 end
-arch water_still
+arch water_lt4
 x 14
 y 21
 end
-arch water_still
+arch water_lt4
 x 14
 y 22
 end
-arch water_still
+arch water_lt2
 x 14
 y 23
 end
@@ -1943,7 +1943,7 @@ arch desert.102
 x 15
 y 8
 end
-arch water_still
+arch water_lt3
 x 15
 y 9
 end
@@ -1951,7 +1951,7 @@ arch desert_fmask.106
 x 15
 y 9
 end
-arch water_still
+arch water_lt2
 x 15
 y 10
 end
@@ -1959,7 +1959,7 @@ arch desert_fmask.107
 x 15
 y 10
 end
-arch water_still
+arch water_lt4
 x 15
 y 11
 end
@@ -1967,7 +1967,7 @@ arch desert_fmask.107
 x 15
 y 11
 end
-arch water_still
+arch water_lt2
 x 15
 y 12
 end
@@ -2003,7 +2003,7 @@ arch desert.101
 x 15
 y 19
 end
-arch water_still
+arch water_lt2
 x 15
 y 20
 end
@@ -2011,7 +2011,7 @@ arch desert_fmask.106
 x 15
 y 20
 end
-arch water_still
+arch water_lt2
 x 15
 y 21
 end
@@ -2019,7 +2019,7 @@ arch desert_fmask.107
 x 15
 y 21
 end
-arch water_still
+arch water_lt2
 x 15
 y 22
 end
@@ -2027,7 +2027,7 @@ arch desert_fmask.107
 x 15
 y 22
 end
-arch water_still
+arch water_lt
 x 15
 y 23
 end
