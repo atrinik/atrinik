@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-04 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3374,7 +3374,7 @@ level 60
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/generic/smith.py
+race /python/generic/smith.py
 end
 end
 end
