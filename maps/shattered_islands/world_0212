@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-04 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2881,9 +2881,12 @@ arch floor_marble1
 x 22
 y 7
 end
-arch portal_big
-type 79
-no_pass 1
+arch exit
+face portal_big.101
+animation portal_big
+slaying /hall_of_dms
+hp 5
+sp 19
 x 22
 y 7
 end
