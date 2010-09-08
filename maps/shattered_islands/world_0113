@@ -1233,7 +1233,15 @@ arch grassd_4
 x 7
 y 14
 end
+arch wall_stone_8
+x 7
+y 14
+end
 arch grassd_4
+x 7
+y 15
+end
+arch wall_stone_3
 x 7
 y 15
 end
@@ -1241,7 +1249,7 @@ arch grassd_3
 x 7
 y 16
 end
-arch plant_mushroom2
+arch wall_stone_3
 x 7
 y 16
 end
@@ -1249,11 +1257,28 @@ arch grassd_8
 x 7
 y 17
 end
-arch grassd_4
+arch wall_stone_3
+x 7
+y 17
+end
+arch grassd_8
+x 7
+y 18
+end
+arch wall_stone_3
+x 7
+y 18
+end
+arch picture1.151
+direction 7
 x 7
 y 18
 end
 arch grassd_4
+x 7
+y 19
+end
+arch wall_stone_3
 x 7
 y 19
 end
@@ -1364,27 +1389,52 @@ arch grassd_2
 x 8
 y 14
 end
-arch grassd_7
+arch wall_stone_1
+x 8
+y 14
+end
+arch floor_ostone13
 x 8
 y 15
 end
-arch grassd_1
+arch fwall_flagstone1a
+x 8
+y 15
+end
+arch floor_ostone13
 x 8
 y 16
 end
-arch grassd_2
+arch fwall_flagstone1a
+x 8
+y 16
+end
+arch flag_04
+direction 7
+x 8
+y 16
+end
+arch floor_ostone13
 x 8
 y 17
 end
-arch grassd_1
+arch stairs_wood_up
+direction 5
+slaying world_1_0113
+hp 8
+sp 16
+x 8
+y 17
+end
+arch floor_ostone13
 x 8
 y 18
 end
-arch tree_big
+arch floor_ostone13
 x 8
-y 18
+y 19
 end
-arch grassd_6
+arch wall_stone_1
 x 8
 y 19
 end
@@ -1512,23 +1562,31 @@ arch grassd_7
 x 9
 y 14
 end
-arch grassd_6
+arch wall_stone_w.111
+x 9
+y 14
+end
+arch floor_ostone13
 x 9
 y 15
 end
-arch grassd_2
+arch floor_ostone13
 x 9
 y 16
 end
-arch grassd_7
+arch floor_ostone13
 x 9
 y 17
 end
-arch grassd_6
+arch floor_ostone13
 x 9
 y 18
 end
-arch grassd_3
+arch floor_ostone13
+x 9
+y 19
+end
+arch wall_stone_w.111
 x 9
 y 19
 end
@@ -1657,27 +1715,28 @@ arch grassd_1
 x 10
 y 14
 end
-arch wall_stone_3
+arch wall_stone_4
 x 10
 y 14
 end
-arch grassd_2
+arch floor_ostone13
 x 10
 y 15
-end
-arch wall_stone_w.131
-x 10
-y 15
-end
-arch grassd_4
-x 10
-y 16
 end
 arch wall_stone_3
 x 10
+y 15
+end
+arch floor_ostone13
+x 10
 y 16
 end
-arch grassd_3
+arch door_wood2
+direction 3
+x 10
+y 16
+end
+arch floor_ostone13
 x 10
 y 17
 end
@@ -1685,19 +1744,24 @@ arch wall_stone_3
 x 10
 y 17
 end
-arch grassd_2
+arch picture2.151
+direction 7
+x 10
+y 17
+end
+arch floor_ostone13
 x 10
 y 18
 end
-arch wall_stone_w.131
+arch wall_stone_3
 x 10
 y 18
 end
-arch grassd_7
+arch floor_ostone13
 x 10
 y 19
 end
-arch wall_stone_3
+arch wall_stone_4
 x 10
 y 19
 end
@@ -1835,11 +1899,6 @@ x 11
 y 15
 end
 arch floor_ostone13
-x 11
-y 16
-end
-arch bank1.111
-direction 5
 x 11
 y 16
 end

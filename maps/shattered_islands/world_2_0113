@@ -1,0 +1,794 @@
+arch map
+name Brynknot
+msg
+Created:  2010-09-08 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 80
+darkness 3
+no_harm 1
+region brynknot
+end
+arch blocked
+x 12
+y 13
+end
+arch wall_stone_8
+x 12
+y 13
+end
+arch blocked
+x 12
+y 14
+end
+arch wall_stone_3
+x 12
+y 14
+end
+arch blocked
+x 12
+y 15
+end
+arch wall_stone_3
+x 12
+y 15
+end
+arch picture5.151
+direction 7
+x 12
+y 15
+end
+arch blocked
+x 12
+y 16
+end
+arch wall_stone_3
+x 12
+y 16
+end
+arch blocked
+x 12
+y 17
+end
+arch wall_stone_3
+x 12
+y 17
+end
+arch blocked
+x 12
+y 18
+end
+arch wall_stone_3
+x 12
+y 18
+end
+arch blocked
+x 12
+y 19
+end
+arch wall_stone_3
+x 12
+y 19
+end
+arch blocked
+x 12
+y 20
+end
+arch wall_stone_3
+x 12
+y 20
+end
+arch blocked
+x 13
+y 13
+end
+arch wall_stone_1
+x 13
+y 13
+end
+arch floor_ostone13
+x 13
+y 14
+end
+arch table_round1
+x 13
+y 14
+end
+arch floor_ostone13
+x 13
+y 15
+end
+arch table_lab3.111
+direction 7
+x 13
+y 15
+end
+arch light5
+x 13
+y 15
+end
+arch floor_ostone13
+x 13
+y 16
+end
+arch desk2
+direction 7
+x 13
+y 16
+end
+arch floor_ostone13
+x 13
+y 17
+end
+arch shelf3a.111
+direction 7
+x 13
+y 17
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 13
+y 18
+end
+arch shelf3c.111
+direction 7
+x 13
+y 18
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 13
+y 19
+end
+arch shelf3b.111
+direction 7
+x 13
+y 19
+end
+arch floor_ostone13
+x 13
+y 20
+end
+arch candlelight3.101
+x 13
+y 20
+end
+arch wall_stone_1
+x 13
+y 20
+end
+arch light5
+x 13
+y 20
+end
+arch blocked
+x 14
+y 13
+end
+arch wall_stone_1
+x 14
+y 13
+end
+arch picture6.151
+x 14
+y 13
+end
+arch floor_ostone13
+x 14
+y 14
+end
+arch table_lab3.111
+x 14
+y 14
+end
+arch light5
+x 14
+y 14
+end
+arch floor_ostone13
+x 14
+y 15
+end
+arch spawn_point
+x 14
+y 15
+arch priest_green
+msg
+@match ^hi$|^hey$|^hello$
+Very impressive, adventurer! You found out about the illusionary wall, did you? Very well then.
+I'm Orlney, the president for ^Banks Inc^.
+@match ^banks inc$
+Our job is to provide citizens of this world a way to access their funds from anywhere, including when paying from shops or when paying for various services.
+endmsg
+name Orlney the Banks Inc. President
+type 83
+end
+end
+arch floor_ostone13
+x 14
+y 16
+end
+arch floor_ostone13
+x 14
+y 17
+end
+arch floor_ostone13
+x 14
+y 18
+end
+arch floor_ostone13
+x 14
+y 19
+end
+arch floor_ostone13
+x 14
+y 20
+end
+arch wall_stone_1
+x 14
+y 20
+end
+arch blocked
+x 15
+y 13
+end
+arch wall_stone_1
+x 15
+y 13
+end
+arch floor_ostone13
+x 15
+y 14
+end
+arch desk2
+x 15
+y 14
+end
+arch floor_ostone13
+x 15
+y 15
+end
+arch floor_ostone13
+x 15
+y 16
+end
+arch floor_ostone13
+x 15
+y 17
+end
+arch wall_stone_8
+x 15
+y 17
+end
+arch floor_ostone13
+x 15
+y 18
+end
+arch candlelight3.101
+x 15
+y 18
+end
+arch wall_stone_3
+x 15
+y 18
+end
+arch light5
+x 15
+y 18
+end
+arch floor_ostone13
+x 15
+y 19
+end
+arch wall_stone_3
+x 15
+y 19
+end
+arch floor_ostone13
+x 15
+y 20
+end
+arch wall_stone_4
+x 15
+y 20
+end
+arch blocked
+x 16
+y 13
+end
+arch wall_stone_1
+x 16
+y 13
+end
+arch floor_ostone13
+x 16
+y 14
+end
+arch shelf6_wall.111
+x 16
+y 14
+end
+arch floor_ostone13
+x 16
+y 15
+end
+arch floor_ostone13
+x 16
+y 16
+end
+arch floor_ostone13
+x 16
+y 17
+end
+arch floor_ostone13
+x 16
+y 18
+end
+arch shelf3b.111
+direction 7
+x 16
+y 18
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 16
+y 19
+end
+arch shelf3c.111
+direction 7
+x 16
+y 19
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 16
+y 20
+end
+arch wall_stone_1
+x 16
+y 20
+end
+arch blocked
+x 17
+y 13
+end
+arch wall_stone_1
+x 17
+y 13
+end
+arch floor_ostone13
+x 17
+y 14
+end
+arch shelf3c.111
+x 17
+y 14
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 17
+y 15
+end
+arch floor_ostone13
+x 17
+y 16
+end
+arch floor_ostone13
+x 17
+y 17
+end
+arch wall_stone_8
+x 17
+y 17
+end
+arch floor_ostone13
+x 17
+y 18
+end
+arch candlelight3.101
+x 17
+y 18
+end
+arch wall_stone_3
+x 17
+y 18
+end
+arch light5
+x 17
+y 18
+end
+arch floor_ostone13
+x 17
+y 19
+end
+arch wall_stone_3
+x 17
+y 19
+end
+arch floor_ostone13
+x 17
+y 20
+end
+arch wall_stone_4
+x 17
+y 20
+end
+arch blocked
+x 18
+y 13
+end
+arch wall_stone_1
+x 18
+y 13
+end
+arch floor_ostone13
+x 18
+y 14
+end
+arch shelf3b.111
+x 18
+y 14
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch light5
+x 18
+y 14
+end
+arch floor_ostone13
+x 18
+y 15
+end
+arch floor_ostone13
+x 18
+y 16
+end
+arch floor_ostone13
+x 18
+y 17
+end
+arch floor_ostone13
+x 18
+y 18
+end
+arch shelf3a.111
+direction 7
+x 18
+y 18
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 18
+y 19
+end
+arch shelf3c.111
+direction 7
+x 18
+y 19
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 18
+y 20
+end
+arch wall_stone_1
+x 18
+y 20
+end
+arch blocked
+x 19
+y 13
+end
+arch wall_stone_1
+x 19
+y 13
+end
+arch floor_ostone13
+x 19
+y 14
+end
+arch shelf3a.111
+x 19
+y 14
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 19
+y 15
+end
+arch floor_ostone13
+x 19
+y 16
+end
+arch floor_ostone13
+x 19
+y 17
+end
+arch floor_ostone13
+x 19
+y 18
+end
+arch floor_ostone13
+x 19
+y 19
+end
+arch floor_ostone13
+x 19
+y 20
+end
+arch wall_stone_1
+x 19
+y 20
+end
+arch blocked
+x 20
+y 13
+end
+arch wall_stone_1
+x 20
+y 13
+end
+arch floor_ostone13
+x 20
+y 14
+end
+arch shelf3c.111
+x 20
+y 14
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 20
+y 15
+end
+arch floor_ostone13
+x 20
+y 16
+end
+arch floor_ostone13
+x 20
+y 17
+end
+arch ladder_down2
+slaying world_1_0113
+hp 20
+sp 17
+x 20
+y 17
+end
+arch floor_ostone13
+x 20
+y 18
+end
+arch candlelight3.101
+x 20
+y 18
+end
+arch wall_stone_1
+x 20
+y 18
+end
+arch light5
+x 20
+y 18
+end
+arch floor_ostone13
+x 20
+y 19
+end
+arch shelf2_wall.111
+x 20
+y 19
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 20
+y 20
+end
+arch candlelight3.101
+x 20
+y 20
+end
+arch wall_stone_1
+x 20
+y 20
+end
+arch light5
+x 20
+y 20
+end
+arch blocked
+x 21
+y 13
+end
+arch wall_stone_1
+x 21
+y 13
+end
+arch floor_ostone13
+x 21
+y 14
+end
+arch shelf3a.111
+x 21
+y 14
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 21
+y 15
+end
+arch floor_ostone13
+x 21
+y 16
+end
+arch floor_ostone13
+x 21
+y 17
+end
+arch floor_ostone13
+x 21
+y 18
+end
+arch wall_stone_1
+x 21
+y 18
+end
+arch floor_ostone13
+x 21
+y 19
+end
+arch chest_m
+slaying no_entry
+x 21
+y 19
+arch random_treasure
+identified 1
+randomitems random_coin
+end
+end
+arch floor_ostone13
+x 21
+y 20
+end
+arch wall_stone_1
+x 21
+y 20
+end
+arch blocked
+x 22
+y 13
+end
+arch wall_stone_1
+x 22
+y 13
+end
+arch floor_ostone13
+x 22
+y 14
+end
+arch wall_stone_3
+x 22
+y 14
+end
+arch floor_ostone13
+x 22
+y 15
+end
+arch candlelight3.101
+x 22
+y 15
+end
+arch wall_stone_3
+x 22
+y 15
+end
+arch light5
+x 22
+y 15
+end
+arch floor_ostone13
+x 22
+y 16
+end
+arch wall_stone_3
+x 22
+y 16
+end
+arch floor_ostone13
+x 22
+y 17
+end
+arch wall_stone_3
+x 22
+y 17
+end
+arch floor_ostone13
+x 22
+y 18
+end
+arch wall_stone_4
+x 22
+y 18
+end
+arch picture4.151
+x 22
+y 18
+end
+arch floor_ostone13
+x 22
+y 19
+end
+arch wall_stone_3
+x 22
+y 19
+end
+arch floor_ostone13
+x 22
+y 20
+end
+arch wall_stone_4
+x 22
+y 20
+end
