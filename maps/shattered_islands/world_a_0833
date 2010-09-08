@@ -3,7 +3,7 @@ name Asteria Sewers
 msg
 Creator: Daimonin Map Editor
 Date:    6/6/2004
-Modified: 2010-09-04 emperorbma
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -320,6 +320,10 @@ arch floor_stone_b1
 x 2
 y 4
 end
+arch torch_wall_1
+x 2
+y 4
+end
 arch spawn_point
 x 2
 y 4
@@ -339,10 +343,6 @@ quest_item 1
 one_drop 1
 end
 end
-end
-arch torch_wall_1
-x 2
-y 4
 end
 arch floor_stone_b1
 x 2
@@ -490,6 +490,10 @@ arch rock_big2
 x 2
 y 21
 end
+arch blocked
+x 2
+y 22
+end
 arch fwall_marble3b
 x 2
 y 22
@@ -516,7 +520,7 @@ arch fwall_marble3b
 x 3
 y 3
 end
-arch Flag-Asteria.111
+arch flag_eagle
 x 3
 y 3
 end
@@ -583,9 +587,17 @@ arch fwall_marble3b
 x 3
 y 11
 end
+arch blocked
+x 3
+y 22
+end
 arch fwall_marble3b
 x 3
 y 22
+end
+arch blocked
+x 3
+y 23
 end
 arch fwall_marble3b
 x 3
@@ -659,7 +671,7 @@ arch fwall_marble3b
 x 5
 y 5
 end
-arch Flag-Asteria.111
+arch flag_eagle
 x 5
 y 5
 end
@@ -779,7 +791,8 @@ arch fwall_fstone2
 x 7
 y 5
 end
-arch Flag-Asteria.131
+arch flag_eagle
+direction 7
 x 7
 y 5
 end

@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-09-04 emperorbma
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,32 +16,63 @@ tile_path_2 world_a_0731
 tile_path_5 world_a_0732
 region asteria
 end
-arch fwall_pattern12
+arch blocked
 x 17
 end
 arch fwall_pattern12
+x 17
+end
+arch blocked
 x 17
 y 1
 end
 arch fwall_pattern12
 x 17
+y 1
+end
+arch blocked
+x 17
 y 2
 end
 arch fwall_pattern12
+x 17
+y 2
+end
+arch blocked
 x 17
 y 3
 end
 arch fwall_pattern12
 x 17
+y 3
+end
+arch blocked
+x 17
 y 4
 end
 arch fwall_pattern12
+x 17
+y 4
+end
+arch blocked
 x 17
 y 5
 end
 arch fwall_pattern12
 x 17
+y 5
+end
+arch blocked
+x 17
 y 6
+end
+arch fwall_pattern12
+x 17
+y 6
+end
+arch blocked
+x 17
+y 7
 end
 arch fwall_pattern12
 x 17
@@ -88,6 +119,10 @@ end
 arch barrel.101
 x 18
 y 6
+end
+arch blocked
+x 18
+y 7
 end
 arch fwall_pattern12
 x 18
@@ -135,6 +170,10 @@ arch barrel.101
 x 19
 y 6
 end
+arch blocked
+x 19
+y 7
+end
 arch fwall_pattern12
 x 19
 y 7
@@ -181,6 +220,10 @@ arch basket2.101
 x 20
 y 6
 end
+arch blocked
+x 20
+y 7
+end
 arch fwall_pattern12
 x 20
 y 7
@@ -227,6 +270,10 @@ arch basket2.101
 x 21
 y 6
 end
+arch blocked
+x 21
+y 7
+end
 arch fwall_pattern12
 x 21
 y 7
@@ -277,6 +324,10 @@ arch wall_stone15_3
 x 22
 y 6
 end
+arch blocked
+x 22
+y 7
+end
 arch fwall_pattern12
 x 22
 y 7
@@ -322,6 +373,10 @@ end
 arch box_big.101
 x 23
 y 6
+end
+arch blocked
+x 23
+y 7
 end
 arch fwall_pattern12
 x 23

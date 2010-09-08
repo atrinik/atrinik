@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-09-04 emperorbma
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -45,6 +45,9 @@ end
 arch box_big.101
 y 6
 end
+arch blocked
+y 7
+end
 arch fwall_pattern12
 y 7
 end
@@ -82,6 +85,10 @@ end
 arch box_big.101
 x 1
 y 6
+end
+arch blocked
+x 1
+y 7
 end
 arch fwall_pattern12
 x 1
@@ -133,6 +140,10 @@ arch floor_ostone13
 x 2
 y 6
 end
+arch blocked
+x 2
+y 7
+end
 arch fwall_pattern12
 x 2
 y 7
@@ -180,6 +191,10 @@ arch box_big.101
 x 3
 y 6
 end
+arch blocked
+x 3
+y 7
+end
 arch fwall_pattern12
 x 3
 y 7
@@ -221,6 +236,10 @@ end
 arch floor_ostone13
 x 4
 y 6
+end
+arch blocked
+x 4
+y 7
 end
 arch fwall_pattern12
 x 4
@@ -276,6 +295,10 @@ arch box_big.101
 x 5
 y 6
 end
+arch blocked
+x 5
+y 7
+end
 arch fwall_pattern12
 x 5
 y 7
@@ -327,36 +350,71 @@ arch box_big.101
 x 6
 y 6
 end
-arch fwall_pattern12
+arch blocked
 x 6
 y 7
 end
 arch fwall_pattern12
+x 6
+y 7
+end
+arch blocked
 x 7
 end
 arch fwall_pattern12
+x 7
+end
+arch blocked
 x 7
 y 1
 end
 arch fwall_pattern12
 x 7
+y 1
+end
+arch blocked
+x 7
 y 2
 end
 arch fwall_pattern12
+x 7
+y 2
+end
+arch blocked
 x 7
 y 3
 end
 arch fwall_pattern12
 x 7
+y 3
+end
+arch blocked
+x 7
 y 4
 end
 arch fwall_pattern12
+x 7
+y 4
+end
+arch blocked
 x 7
 y 5
 end
 arch fwall_pattern12
 x 7
+y 5
+end
+arch blocked
+x 7
 y 6
+end
+arch fwall_pattern12
+x 7
+y 6
+end
+arch blocked
+x 7
+y 7
 end
 arch fwall_pattern12
 x 7
