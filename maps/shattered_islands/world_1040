@@ -2,7 +2,7 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1089,15 +1089,15 @@ arch water_lt
 x 10
 y 15
 end
-arch water_lt3
+arch water_lt
 x 10
 y 16
 end
-arch water_lt3
+arch water_lt4
 x 10
 y 17
 end
-arch water_lt3
+arch water_lt4
 x 10
 y 18
 end
@@ -1105,19 +1105,39 @@ arch water_lt2
 x 10
 y 19
 end
-arch water_lt2
+arch ship_rail_s
+x 10
+y 19
+end
+arch ship_floor_we_dark_4
 x 10
 y 20
 end
-arch water_lt3
+arch ship_rail_w
+x 10
+y 20
+end
+arch ship_floor_we_dark_2
 x 10
 y 21
 end
-arch water_lt4
+arch ship_rail_w
+x 10
+y 21
+end
+arch ship_floor_we_dark_1
 x 10
 y 22
 end
-arch water_lt3
+arch ship_rail_w
+x 10
+y 22
+end
+arch ship_floor_we_dark_2
+x 10
+y 23
+end
+arch ship_rail_w
 x 10
 y 23
 end
@@ -1184,11 +1204,11 @@ arch water_lt3
 x 11
 y 15
 end
-arch water_lt
+arch water_lt4
 x 11
 y 16
 end
-arch water_lt4
+arch water_lt
 x 11
 y 17
 end
@@ -1196,23 +1216,43 @@ arch water_lt3
 x 11
 y 18
 end
-arch water_lt2
+arch water_lt4
 x 11
 y 19
 end
-arch water_lt3
+arch ship_rail_s
+x 11
+y 19
+end
+arch ship_floor_we_dark_3
 x 11
 y 20
 end
-arch water_lt
+arch light7
+x 11
+y 20
+end
+arch ship_floor_we_dark_1
 x 11
 y 21
 end
-arch water_lt3
+arch barrel.101
+x 11
+y 21
+end
+arch ship_floor_we_dark_4
 x 11
 y 22
 end
-arch water_lt3
+arch ship_floor_we_dark_2
+x 11
+y 23
+end
+arch ship_rail_e_hole
+x 11
+y 23
+end
+arch light7
 x 11
 y 23
 end
@@ -1287,27 +1327,69 @@ arch water_lt3
 x 12
 y 17
 end
-arch water_lt4
+arch water_lt
 x 12
 y 18
 end
-arch water_lt2
+arch water_lt3
 x 12
 y 19
 end
-arch water_lt2
+arch ship_rail_s
+x 12
+y 19
+end
+arch sail_short_mast_s_3
+x 12
+y 19
+end
+arch ship_floor_we_dark_2
 x 12
 y 20
 end
-arch water_lt
+arch sail_short_mast_s_2
+layer 7
+x 12
+y 20
+end
+arch box1.101
+x 12
+y 20
+end
+arch ship_floor_we_dark_4
 x 12
 y 21
 end
-arch water_lt3
+arch sail_short_mast_s_1
+x 12
+y 21
+end
+arch ship_floor_we_dark_2
 x 12
 y 22
 end
-arch water_lt2
+arch spawn_point
+x 12
+y 22
+arch peasant
+msg
+@match ^hi$|^hey$|^hello$
+Hello there! I can take you to the City of Greyton.
+endmsg
+name Ship Captain
+level 15
+type 83
+end
+end
+arch ship_floor_we_dark_2
+x 12
+y 23
+end
+arch ship_n_steering_wheel_double
+x 12
+y 23
+end
+arch ship_rail_s_hole
 x 12
 y 23
 end
@@ -1374,11 +1456,11 @@ arch water_lt4
 x 13
 y 15
 end
-arch water_lt3
+arch water_lt4
 x 13
 y 16
 end
-arch water_lt3
+arch water_lt4
 x 13
 y 17
 end
@@ -1386,23 +1468,43 @@ arch water_lt4
 x 13
 y 18
 end
-arch water_lt4
+arch water_lt
 x 13
 y 19
 end
-arch water_lt
+arch ship_rail_s
+x 13
+y 19
+end
+arch ship_floor_we_dark_1
 x 13
 y 20
 end
-arch water_lt4
+arch box2.101
+x 13
+y 20
+end
+arch light7
+x 13
+y 20
+end
+arch ship_floor_we_dark_4
 x 13
 y 21
 end
-arch water_lt4
+arch ship_floor_we_dark_3
 x 13
 y 22
 end
-arch water_lt2
+arch ship_floor_we_dark_3
+x 13
+y 23
+end
+arch ship_rail_w_hole
+x 13
+y 23
+end
+arch light7
 x 13
 y 23
 end
@@ -1469,15 +1571,15 @@ arch water_lt3
 x 14
 y 15
 end
-arch water_lt3
+arch water_lt
 x 14
 y 16
 end
-arch water_lt
+arch water_lt4
 x 14
 y 17
 end
-arch water_lt3
+arch water_lt2
 x 14
 y 18
 end
@@ -1485,19 +1587,39 @@ arch water_lt3
 x 14
 y 19
 end
-arch water_lt2
+arch ship_rail_s
+x 14
+y 19
+end
+arch ship_floor_we_dark_2
 x 14
 y 20
 end
-arch water_lt2
+arch ship_rail_e
+x 14
+y 20
+end
+arch ship_floor_we_dark_3
 x 14
 y 21
 end
-arch water_lt
+arch ship_rail_e
+x 14
+y 21
+end
+arch ship_floor_we_dark_1
 x 14
 y 22
 end
-arch water_lt4
+arch ship_rail_e
+x 14
+y 22
+end
+arch ship_floor_we_dark_1
+x 14
+y 23
+end
+arch ship_rail_e
 x 14
 y 23
 end
@@ -1564,19 +1686,19 @@ arch water_lt2
 x 15
 y 15
 end
-arch water_lt
+arch water_lt4
 x 15
 y 16
 end
-arch water_lt
+arch water_lt2
 x 15
 y 17
 end
-arch water_lt2
+arch water_lt3
 x 15
 y 18
 end
-arch water_lt
+arch water_lt3
 x 15
 y 19
 end
@@ -1584,15 +1706,31 @@ arch water_lt3
 x 15
 y 20
 end
-arch water_lt
+arch ship_hull_e_high_corner_n
+x 15
+y 20
+end
+arch water_lt4
 x 15
 y 21
 end
-arch water_lt2
+arch ship_hull_e_high
+x 15
+y 21
+end
+arch water_lt4
+x 15
+y 22
+end
+arch ship_hull_e_high
 x 15
 y 22
 end
 arch water_lt
+x 15
+y 23
+end
+arch ship_hull_e_high
 x 15
 y 23
 end
@@ -1659,23 +1797,23 @@ arch water_lt3
 x 16
 y 15
 end
-arch water_lt3
+arch water_lt2
 x 16
 y 16
 end
-arch water_lt
+arch water_lt3
 x 16
 y 17
 end
-arch water_lt2
+arch water_lt4
 x 16
 y 18
 end
-arch water_lt
+arch water_lt4
 x 16
 y 19
 end
-arch water_lt2
+arch water_lt3
 x 16
 y 20
 end
@@ -1687,7 +1825,7 @@ arch water_lt2
 x 16
 y 22
 end
-arch water_lt3
+arch water_lt2
 x 16
 y 23
 end
@@ -1758,7 +1896,7 @@ arch water_lt2
 x 17
 y 16
 end
-arch water_lt3
+arch water_lt4
 x 17
 y 17
 end
@@ -1766,15 +1904,15 @@ arch water_lt3
 x 17
 y 18
 end
-arch water_lt4
+arch water_lt3
 x 17
 y 19
 end
-arch water_lt3
+arch water_lt
 x 17
 y 20
 end
-arch water_lt2
+arch water_lt3
 x 17
 y 21
 end
@@ -1782,7 +1920,7 @@ arch water_lt4
 x 17
 y 22
 end
-arch water_lt4
+arch water_lt2
 x 17
 y 23
 end
@@ -1849,19 +1987,19 @@ arch water_lt4
 x 18
 y 15
 end
-arch water_lt4
+arch water_lt2
 x 18
 y 16
 end
-arch water_lt2
+arch water_lt3
 x 18
 y 17
 end
-arch water_lt3
+arch water_lt4
 x 18
 y 18
 end
-arch water_lt3
+arch water_lt
 x 18
 y 19
 end
@@ -1873,11 +2011,11 @@ arch water_lt3
 x 18
 y 21
 end
-arch water_lt3
+arch water_lt2
 x 18
 y 22
 end
-arch water_lt4
+arch water_lt
 x 18
 y 23
 end

@@ -2,7 +2,7 @@ arch map
 name Ship
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-06-20 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -163,7 +163,7 @@ end
 arch stairs_wood_up
 slaying ../world_0110
 hp 20
-sp 11
+sp 16
 x 1
 y 10
 end
@@ -932,6 +932,46 @@ x 11
 y 12
 end
 arch blocked
+x 11
+y 16
+end
+arch wall_wood_8
+x 11
+y 16
+end
+arch blocked
+x 11
+y 17
+end
+arch wall_wood2_3
+x 11
+y 17
+end
+arch blocked
+x 11
+y 18
+end
+arch wall_wood3_3
+x 11
+y 18
+end
+arch blocked
+x 11
+y 19
+end
+arch wall_wood1_3
+x 11
+y 19
+end
+arch blocked
+x 11
+y 20
+end
+arch wall_wood2_3
+x 11
+y 20
+end
+arch blocked
 x 12
 end
 arch wall_wood1_1
@@ -950,9 +990,9 @@ x 12
 y 2
 end
 arch stairs_wood_up
-slaying ../world_1312
-hp 4
-sp 16
+slaying ../world_1038
+hp 12
+sp 2
 x 12
 y 2
 end
@@ -1016,6 +1056,49 @@ x 12
 y 12
 end
 arch blocked
+x 12
+y 16
+end
+arch wall_wood1_1
+x 12
+y 16
+end
+arch floor_wood2_l2
+x 12
+y 17
+end
+arch barrel_water.101
+x 12
+y 17
+end
+arch floor_wood2_l1
+x 12
+y 18
+end
+arch stairs_wood_up
+slaying ../world_1039
+hp 12
+sp 3
+x 12
+y 18
+end
+arch floor_wood2_l2
+x 12
+y 19
+end
+arch grain5.101
+x 12
+y 19
+end
+arch floor_wood2_l2
+x 12
+y 20
+end
+arch wall_wood1_1
+x 12
+y 20
+end
+arch blocked
 x 13
 end
 arch wall_wood2_1
@@ -1086,6 +1169,42 @@ x 13
 y 12
 end
 arch blocked
+x 13
+y 16
+end
+arch wall_wood2_1
+x 13
+y 16
+end
+arch floor_wood2_l2
+x 13
+y 17
+end
+arch wood_pile.101
+x 13
+y 17
+end
+arch floor_wood2_l1
+x 13
+y 18
+end
+arch light5
+x 13
+y 18
+end
+arch floor_wood2_l1
+x 13
+y 19
+end
+arch floor_wood2_l2
+x 13
+y 20
+end
+arch wall_wood1_1
+x 13
+y 20
+end
+arch blocked
 x 14
 end
 arch wall_wood3_1
@@ -1147,6 +1266,38 @@ x 14
 y 12
 end
 arch blocked
+x 14
+y 16
+end
+arch wall_wood3_1
+x 14
+y 16
+end
+arch flag_04
+x 14
+y 16
+end
+arch floor_wood2_l2
+x 14
+y 17
+end
+arch floor_wood2_l1
+x 14
+y 18
+end
+arch floor_wood2_l2
+x 14
+y 19
+end
+arch floor_wood2_l1
+x 14
+y 20
+end
+arch wall_wood1_1
+x 14
+y 20
+end
+arch blocked
 x 15
 end
 arch wall_wood2_1
@@ -1199,6 +1350,34 @@ end
 arch wall_wood1_1
 x 15
 y 12
+end
+arch blocked
+x 15
+y 16
+end
+arch wall_wood2_1
+x 15
+y 16
+end
+arch floor_wood2_l2
+x 15
+y 17
+end
+arch floor_wood2_l1
+x 15
+y 18
+end
+arch floor_wood2_l1
+x 15
+y 19
+end
+arch floor_wood2_l1
+x 15
+y 20
+end
+arch wall_wood1_1
+x 15
+y 20
 end
 arch blocked
 x 16
@@ -1261,6 +1440,38 @@ end
 arch wall_wood3_1
 x 16
 y 12
+end
+arch blocked
+x 16
+y 16
+end
+arch wall_wood3_1
+x 16
+y 16
+end
+arch floor_wood2_l2
+x 16
+y 17
+end
+arch floor_wood2_l2
+x 16
+y 18
+end
+arch light5
+x 16
+y 18
+end
+arch floor_wood2_l1
+x 16
+y 19
+end
+arch floor_wood2_l1
+x 16
+y 20
+end
+arch wall_wood3_1
+x 16
+y 20
 end
 arch blocked
 x 17
@@ -1281,10 +1492,10 @@ x 17
 y 2
 end
 arch stairs_wood_up
-slaying ../world_0920
+direction 7
+slaying ../world_1878
 hp 11
 sp 18
-direction 7
 x 17
 y 2
 end
@@ -1349,6 +1560,50 @@ x 17
 y 12
 end
 arch blocked
+x 17
+y 16
+end
+arch wall_wood2_1
+x 17
+y 16
+end
+arch floor_wood2_l2
+x 17
+y 17
+end
+arch pottery5.101
+x 17
+y 17
+end
+arch floor_wood2_l2
+x 17
+y 18
+end
+arch stairs_wood_up
+direction 7
+slaying ../world_1312
+hp 10
+sp 22
+x 17
+y 18
+end
+arch floor_wood2_l1
+x 17
+y 19
+end
+arch straw2.111
+x 17
+y 19
+end
+arch floor_wood2_l2
+x 17
+y 20
+end
+arch wall_wood2_1
+x 17
+y 20
+end
+arch blocked
 x 18
 end
 arch wall_wood3_1
@@ -1425,4 +1680,44 @@ end
 arch wall_wood_4
 x 18
 y 12
+end
+arch blocked
+x 18
+y 16
+end
+arch wall_wood3_1
+x 18
+y 16
+end
+arch floor_wood2_l2
+x 18
+y 17
+end
+arch wall_wood3_3
+x 18
+y 17
+end
+arch floor_wood2_l1
+x 18
+y 18
+end
+arch wall_wood3_3
+x 18
+y 18
+end
+arch floor_wood2_l2
+x 18
+y 19
+end
+arch wall_wood1_3
+x 18
+y 19
+end
+arch floor_wood2_l2
+x 18
+y 20
+end
+arch wall_wood_4
+x 18
+y 20
 end
