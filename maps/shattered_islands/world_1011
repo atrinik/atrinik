@@ -1033,7 +1033,7 @@ friendly 1
 type 83
 arch event_obj
 sub_type 6
-race ../python/generic/church.py
+race /python/generic/church.py
 end
 end
 end
@@ -2939,7 +2939,7 @@ level 34
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/generic/apartment_seller.py
+race /python/generic/apartment_seller.py
 slaying strakewood_island
 end
 end

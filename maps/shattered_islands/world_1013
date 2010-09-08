@@ -1129,7 +1129,7 @@ friendly 1
 direction 3
 arch event_obj
 sub_type 6
-race ../python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end
@@ -1172,7 +1172,7 @@ friendly 1
 direction 3
 arch event_obj
 sub_type 6
-race ../python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end
@@ -2262,7 +2262,7 @@ friendly 1
 type 83
 arch event_obj
 sub_type 6
-race ../python/generic/smith.py
+race /python/generic/smith.py
 end
 end
 end
