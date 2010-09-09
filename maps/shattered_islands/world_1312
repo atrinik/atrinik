@@ -2,7 +2,7 @@ arch map
 name Greyton Docks
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2010-09-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -573,6 +573,10 @@ arch bridge_wood_NS.101
 x 5
 y 16
 end
+arch light5
+x 5
+y 16
+end
 arch bridge_wood_NS.101
 x 5
 y 17
@@ -585,6 +589,10 @@ arch bridge_wood_NS.101
 x 5
 y 19
 end
+arch light5
+x 5
+y 19
+end
 arch bridge_wood_NS.101
 x 5
 y 20
@@ -594,6 +602,10 @@ x 5
 y 21
 end
 arch bridge_wood_NS.101
+x 5
+y 22
+end
+arch light5
 x 5
 y 22
 end
