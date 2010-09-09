@@ -1,0 +1,21 @@
+arch map
+name earth
+msg
+Created:  2010-09-09 Alex Tokar
+endmsg
+width 4
+height 1
+difficulty 1
+darkness -1
+end
+arch earth_brown1
+end
+arch earth_brown2
+x 1
+end
+arch earth_brown3
+x 2
+end
+arch earth_brown4
+x 3
+end

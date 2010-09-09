@@ -1,0 +1,19 @@
+arch map
+name rock
+msg
+Created:  2010-09-09 Alex Tokar
+Modified: 2010-09-09 Alex Tokar
+endmsg
+width 3
+height 1
+difficulty 1
+darkness -1
+end
+arch fwall_rock1
+end
+arch fwall_rock2
+x 1
+end
+arch fwall_rock3
+x 2
+end

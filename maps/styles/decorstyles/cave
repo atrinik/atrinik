@@ -1,0 +1,57 @@
+arch map
+name cave
+msg
+Created:  2010-09-09 Alex Tokar
+endmsg
+width 7
+height 2
+difficulty 1
+darkness -1
+end
+arch dirt_floor1
+end
+arch pile_floor2
+y 1
+end
+arch dirt_floor2
+x 1
+end
+arch pile_floor3
+x 1
+y 1
+end
+arch dirt_floor3
+x 2
+end
+arch water_floor
+x 2
+y 1
+end
+arch dirt_floor4
+x 3
+end
+arch blood_floor2
+x 3
+y 1
+end
+arch pile_floor1
+x 4
+end
+arch blood_floor1
+x 4
+y 1
+end
+arch plant1_wall.151
+x 5
+end
+arch wall_blood3
+x 5
+y 1
+end
+arch plant2_wall.151
+x 6
+end
+arch wall_blood1
+x 6
+y 1
+end
