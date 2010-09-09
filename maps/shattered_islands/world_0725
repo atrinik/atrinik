@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -435,18 +435,18 @@ arch rock_big3
 x 3
 y 23
 end
-arch grassd_1
+arch grassd_5
 x 4
 end
-arch grassd_4
+arch grassd_3
 x 4
 y 1
 end
-arch grassd_4
+arch grassd_8
 x 4
 y 2
 end
-arch grassd_8
+arch grassd_3
 x 4
 y 3
 end
@@ -458,7 +458,7 @@ arch grassd_1
 x 4
 y 5
 end
-arch grassd_7
+arch grassd_8
 x 4
 y 6
 end
@@ -466,39 +466,39 @@ arch grassd_2
 x 4
 y 7
 end
-arch grassd_7
+arch grassd_2
 x 4
 y 8
 end
-arch grassd_2
+arch grassd_7
 x 4
 y 9
 end
-arch grassd_7
+arch grassd_8
 x 4
 y 10
 end
-arch grassd_1
+arch grassd_8
 x 4
 y 11
 end
-arch grassd_2
+arch grassd_4
 x 4
 y 12
 end
-arch grassd_6
+arch grassd_7
 x 4
 y 13
 end
-arch grassd_7
+arch grassd_4
 x 4
 y 14
 end
-arch grassd_8
+arch grassd_1
 x 4
 y 15
 end
-arch grassd_1
+arch grassd_7
 x 4
 y 16
 end
@@ -550,22 +550,22 @@ arch rock_big1
 x 4
 y 23
 end
-arch grassd_1
+arch grassd_3
 x 5
 end
-arch grassd_4
+arch grassd_7
 x 5
 y 1
 end
-arch grassd_5
+arch grassd_6
 x 5
 y 2
 end
-arch grassd_6
+arch grassd_2
 x 5
 y 3
 end
-arch grassd_4
+arch grassd_8
 x 5
 y 4
 end
@@ -573,11 +573,11 @@ arch grassd_5
 x 5
 y 5
 end
-arch grassd_2
+arch grassd_3
 x 5
 y 6
 end
-arch grassd_6
+arch grassd_4
 x 5
 y 7
 end
@@ -585,35 +585,35 @@ arch grassd_8
 x 5
 y 8
 end
-arch grassd_3
+arch grassd_1
 x 5
 y 9
 end
-arch grassd_1
+arch grassd_6
 x 5
 y 10
 end
-arch grassd_5
+arch grassd_2
 x 5
 y 11
 end
-arch grassd_1
+arch grassd_5
 x 5
 y 12
 end
-arch grassd_7
+arch grassd_3
 x 5
 y 13
 end
-arch grassd_7
+arch grassd_4
 x 5
 y 14
 end
-arch grassd_8
+arch grassd_1
 x 5
 y 15
 end
-arch grassd_1
+arch grassd_2
 x 5
 y 16
 end
@@ -661,30 +661,30 @@ arch rock_big3
 x 5
 y 23
 end
-arch grassd_5
+arch grassd_8
 x 6
-end
-arch grassd_6
-x 6
-y 1
 end
 arch grassd_3
 x 6
+y 1
+end
+arch grassd_6
+x 6
 y 2
 end
-arch grassd_8
+arch grassd_1
 x 6
 y 3
 end
-arch grassd_2
+arch grassd_1
 x 6
 y 4
 end
-arch grassd_8
+arch grassd_6
 x 6
 y 5
 end
-arch grassd_2
+arch grassd_4
 x 6
 y 6
 end
@@ -692,41 +692,27 @@ arch grassd_2
 x 6
 y 7
 end
-arch sign
-msg
-Quest to get finger of death.
-
-Ideas:
-
-Kill the ants - plaguing an old woman or something. But we already have so many ants.
-Import the graveyard from Asteria - you have to banish undead or something. Would also be a chance to explain that FoD doesn't work on undead.
-Undead/demon infestation in old woman's basement?
-endmsg
-name TODO
-x 6
-y 7
-end
 arch grassd_3
 x 6
 y 8
 end
-arch grassd_7
+arch grassd_3
 x 6
 y 9
 end
-arch grassd_4
+arch grassd_3
 x 6
 y 10
 end
-arch grassd_2
+arch grassd_3
 x 6
 y 11
 end
-arch grassd_3
+arch grassd_1
 x 6
 y 12
 end
-arch grassd_2
+arch grassd_1
 x 6
 y 13
 end
@@ -734,11 +720,11 @@ arch grassd_3
 x 6
 y 14
 end
-arch grassd_4
+arch grassd_1
 x 6
 y 15
 end
-arch grassd_7
+arch grassd_2
 x 6
 y 16
 end
@@ -790,38 +776,38 @@ arch rock_big1
 x 6
 y 23
 end
-arch grassd_6
+arch grassd_3
 x 7
 end
-arch grassd_3
+arch grassd_4
 x 7
 y 1
 end
-arch grassd_1
+arch grassd_2
 x 7
 y 2
 end
-arch grassd_7
+arch grassd_2
 x 7
 y 3
 end
-arch grassd_5
+arch grassd_1
 x 7
 y 4
 end
-arch grassd_7
+arch grassd_5
 x 7
 y 5
 end
-arch grassd_3
+arch grassd_5
 x 7
 y 6
 end
-arch grassd_2
+arch grassd_3
 x 7
 y 7
 end
-arch grassd_5
+arch grassd_7
 x 7
 y 8
 end
@@ -829,19 +815,19 @@ arch grassd_6
 x 7
 y 9
 end
-arch grassd_7
+arch grassd_5
 x 7
 y 10
 end
-arch grassd_6
+arch grassd_3
 x 7
 y 11
 end
-arch grassd_1
+arch grassd_4
 x 7
 y 12
 end
-arch grassd_3
+arch grassd_7
 x 7
 y 13
 end
@@ -853,7 +839,7 @@ arch grassd_1
 x 7
 y 15
 end
-arch grassd_7
+arch grassd_5
 x 7
 y 16
 end
@@ -901,14 +887,14 @@ arch rock_big3
 x 7
 y 23
 end
-arch grassd_7
+arch grassd_1
 x 8
 end
 arch grassd_8
 x 8
 y 1
 end
-arch grassd_3
+arch grassd_1
 x 8
 y 2
 end
@@ -920,15 +906,15 @@ arch grassd_6
 x 8
 y 4
 end
-arch grassd_8
+arch grassd_3
 x 8
 y 5
 end
-arch grassd_1
+arch grassd_5
 x 8
 y 6
 end
-arch grassd_1
+arch grassd_8
 x 8
 y 7
 end
@@ -936,35 +922,35 @@ arch grassd_1
 x 8
 y 8
 end
-arch grassd_8
+arch grassd_6
 x 8
 y 9
 end
-arch grassd_3
+arch grassd_1
 x 8
 y 10
 end
-arch grassd_4
+arch grassd_1
 x 8
 y 11
 end
-arch grassd_2
+arch grassd_6
 x 8
 y 12
 end
-arch grassd_6
+arch grassd_5
 x 8
 y 13
 end
-arch grassd_2
+arch grassd_7
 x 8
 y 14
 end
-arch grassd_1
+arch grassd_2
 x 8
 y 15
 end
-arch grassd_5
+arch grassd_8
 x 8
 y 16
 end
@@ -1016,10 +1002,10 @@ arch rock_big3
 x 8
 y 23
 end
-arch grassd_1
+arch grassd_2
 x 9
 end
-arch grassd_7
+arch grassd_5
 x 9
 y 1
 end
@@ -1027,11 +1013,11 @@ arch grassd_2
 x 9
 y 2
 end
-arch grassd_3
+arch grassd_2
 x 9
 y 3
 end
-arch grassd_8
+arch grassd_3
 x 9
 y 4
 end
@@ -1039,27 +1025,27 @@ arch grassd_1
 x 9
 y 5
 end
-arch grassd_3
+arch grassd_4
 x 9
 y 6
 end
-arch grassd_8
+arch grassd_2
 x 9
 y 7
 end
-arch grassd_7
+arch grassd_4
 x 9
 y 8
 end
-arch grassd_5
+arch grassd_6
 x 9
 y 9
 end
-arch grassd_5
+arch grassd_8
 x 9
 y 10
 end
-arch grassd_5
+arch grassd_8
 x 9
 y 11
 end
@@ -1067,19 +1053,19 @@ arch grassd_6
 x 9
 y 12
 end
-arch grassd_2
+arch grassd_3
 x 9
 y 13
 end
-arch grassd_6
+arch grassd_1
 x 9
 y 14
 end
-arch grassd_8
+arch grassd_3
 x 9
 y 15
 end
-arch grassd_5
+arch grassd_2
 x 9
 y 16
 end
@@ -1131,22 +1117,22 @@ arch rock_big1
 x 9
 y 23
 end
-arch grassd_5
+arch grassd_4
 x 10
 end
-arch grassd_4
+arch grassd_7
 x 10
 y 1
 end
-arch grassd_3
+arch grassd_2
 x 10
 y 2
 end
-arch grassd_3
+arch grassd_1
 x 10
 y 3
 end
-arch grassd_6
+arch grassd_3
 x 10
 y 4
 end
@@ -1154,39 +1140,19 @@ arch grassd_1
 x 10
 y 5
 end
-arch spawn_point
-x 10
-y 5
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
 arch grassd_6
 x 10
 y 6
 end
-arch grassd_4
+arch grassd_1
 x 10
 y 7
 end
-arch grassd_1
+arch grassd_5
 x 10
 y 8
 end
-arch grassd_8
+arch grassd_6
 x 10
 y 9
 end
@@ -1194,7 +1160,7 @@ arch grassd_7
 x 10
 y 10
 end
-arch grassd_1
+arch grassd_6
 x 10
 y 11
 end
@@ -1202,19 +1168,19 @@ arch grassd_3
 x 10
 y 12
 end
-arch grassd_7
+arch grassd_6
 x 10
 y 13
 end
-arch grassd_5
+arch grassd_7
 x 10
 y 14
 end
-arch grassd_4
+arch grassd_7
 x 10
 y 15
 end
-arch grassd_2
+arch grassd_3
 x 10
 y 16
 end
@@ -1266,42 +1232,22 @@ arch rock_big1
 x 10
 y 23
 end
-arch grassd_8
+arch grassd_3
 x 11
 end
-arch grassd_8
+arch grassd_7
 x 11
 y 1
 end
-arch grassd_4
+arch grassd_1
 x 11
 y 2
 end
-arch spawn_point
-x 11
-y 2
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_4
+arch grassd_7
 x 11
 y 3
 end
-arch grassd_3
+arch grassd_1
 x 11
 y 4
 end
@@ -1309,35 +1255,35 @@ arch grassd_5
 x 11
 y 5
 end
-arch grassd_4
+arch grassd_1
 x 11
 y 6
 end
-arch grassd_8
+arch grassd_1
 x 11
 y 7
 end
-arch grassd_6
+arch grassd_7
 x 11
 y 8
 end
-arch grassd_8
+arch grassd_5
 x 11
 y 9
 end
-arch grassd_8
+arch grassd_6
 x 11
 y 10
 end
-arch grassd_5
+arch grassd_3
 x 11
 y 11
 end
-arch grassd_5
+arch grassd_3
 x 11
 y 12
 end
-arch grassd_7
+arch grassd_8
 x 11
 y 13
 end
@@ -1345,11 +1291,11 @@ arch grassd_6
 x 11
 y 14
 end
-arch grassd_4
+arch grassd_6
 x 11
 y 15
 end
-arch grassd_1
+arch grassd_7
 x 11
 y 16
 end
@@ -1393,45 +1339,26 @@ arch rock_big1
 x 11
 y 23
 end
-arch grassd_6
+arch grassd_8
 x 12
-end
-arch spawn_point
-x 12
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
 end
 arch grassd_5
 x 12
 y 1
 end
-arch grassd_8
+arch grassd_7
 x 12
 y 2
 end
-arch grassd_4
+arch grassd_1
 x 12
 y 3
 end
-arch grassd_5
+arch grassd_8
 x 12
 y 4
 end
-arch grassd_1
+arch grassd_2
 x 12
 y 5
 end
@@ -1439,83 +1366,43 @@ arch grassd_3
 x 12
 y 6
 end
-arch grassd_1
+arch grassd_2
 x 12
 y 7
 end
-arch grassd_5
+arch grassd_3
 x 12
 y 8
 end
-arch spawn_point
-x 12
-y 8
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_7
+arch grassd_1
 x 12
 y 9
 end
-arch grassd_1
+arch grassd_6
 x 12
 y 10
 end
-arch grassd_7
+arch grassd_1
 x 12
 y 11
 end
-arch grassd_3
+arch grassd_6
 x 12
 y 12
 end
-arch spawn_point
-x 12
-y 12
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_7
+arch grassd_4
 x 12
 y 13
 end
-arch grassd_1
+arch grassd_6
 x 12
 y 14
 end
-arch grassd_7
+arch grassd_6
 x 12
 y 15
 end
-arch grassd_6
+arch grassd_4
 x 12
 y 16
 end
@@ -1567,78 +1454,38 @@ arch rock_big3
 x 12
 y 23
 end
-arch grassd_2
+arch grassd_1
 x 13
 end
-arch grassd_5
+arch grassd_8
 x 13
 y 1
 end
-arch grassd_4
+arch grassd_6
 x 13
 y 2
 end
-arch grassd_6
+arch grassd_7
 x 13
 y 3
 end
-arch grassd_4
+arch grassd_5
 x 13
 y 4
-end
-arch spawn_point
-x 13
-y 4
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
 end
 arch grassd_7
 x 13
 y 5
 end
-arch grassd_1
+arch grassd_7
 x 13
 y 6
 end
-arch grassd_2
+arch grassd_7
 x 13
 y 7
 end
-arch spawn_point
-x 13
-y 7
-arch ant_red
-level 19
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_4
+arch grassd_7
 x 13
 y 8
 end
@@ -1654,23 +1501,23 @@ arch grassd_8
 x 13
 y 11
 end
-arch grassd_1
+arch grassd_4
 x 13
 y 12
 end
-arch grassd_2
+arch grassd_8
 x 13
 y 13
 end
-arch grassd_3
+arch grassd_8
 x 13
 y 14
 end
-arch grassd_2
+arch grassd_5
 x 13
 y 15
 end
-arch grassd_5
+arch grassd_4
 x 13
 y 16
 end
@@ -1718,62 +1565,42 @@ arch rock_big1
 x 13
 y 23
 end
+arch grassd_1
+x 14
+end
 arch grassd_8
 x 14
+y 1
 end
 arch grassd_5
 x 14
-y 1
-end
-arch spawn_point
-x 14
-y 1
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_6
-x 14
 y 2
 end
-arch grassd_7
+arch grassd_8
 x 14
 y 3
 end
-arch grassd_7
+arch grassd_3
 x 14
 y 4
 end
-arch grassd_7
+arch grassd_2
 x 14
 y 5
 end
-arch grassd_4
+arch grassd_3
 x 14
 y 6
 end
-arch grassd_1
+arch grassd_8
 x 14
 y 7
 end
-arch grassd_4
+arch grassd_1
 x 14
 y 8
 end
-arch grassd_8
+arch grassd_3
 x 14
 y 9
 end
@@ -1785,23 +1612,23 @@ arch grassd_8
 x 14
 y 11
 end
-arch grassd_7
+arch grassd_2
 x 14
 y 12
 end
-arch grassd_3
+arch grassd_6
 x 14
 y 13
 end
-arch grassd_1
+arch grassd_6
 x 14
 y 14
 end
-arch grassd_8
+arch grassd_5
 x 14
 y 15
 end
-arch grassd_2
+arch grassd_6
 x 14
 y 16
 end
@@ -1853,26 +1680,26 @@ arch rock_big3
 x 14
 y 23
 end
-arch grassd_5
+arch grassd_2
 x 15
 end
-arch grassd_1
+arch grassd_6
 x 15
 y 1
 end
-arch grassd_1
+arch grassd_6
 x 15
 y 2
 end
-arch grassd_7
+arch grassd_8
 x 15
 y 3
 end
-arch grassd_4
+arch grassd_1
 x 15
 y 4
 end
-arch grassd_4
+arch grassd_2
 x 15
 y 5
 end
@@ -1880,87 +1707,43 @@ arch grassd_7
 x 15
 y 6
 end
-arch grassd_4
+arch grassd_5
 x 15
 y 7
 end
-arch grassd_1
-x 15
-y 8
-end
-arch tree_burned4
-x 15
-y 8
-end
-arch grassd_5
-x 15
-y 9
-end
 arch grassd_3
 x 15
-y 10
-end
-arch spawn_point
-x 15
-y 10
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_8
-x 15
-y 11
+y 8
 end
 arch grassd_4
 x 15
-y 12
+y 9
 end
-arch spawn_point
+arch grassd_2
+x 15
+y 10
+end
+arch grassd_5
+x 15
+y 11
+end
+arch grassd_5
 x 15
 y 12
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
 end
-end
-end
-arch grassd_7
+arch grassd_4
 x 15
 y 13
 end
-arch grassd_3
+arch grassd_5
 x 15
 y 14
 end
-arch grassd_7
+arch grassd_2
 x 15
 y 15
 end
-arch grassd_5
+arch grassd_3
 x 15
 y 16
 end
@@ -2015,39 +1798,19 @@ end
 arch grassd_8
 x 16
 end
-arch grassd_1
+arch grassd_5
 x 16
 y 1
 end
-arch grassd_7
+arch grassd_6
 x 16
 y 2
 end
-arch grassd_8
+arch grassd_7
 x 16
 y 3
 end
-arch spawn_point
-x 16
-y 3
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_4
+arch grassd_3
 x 16
 y 4
 end
@@ -2055,67 +1818,47 @@ arch grassd_4
 x 16
 y 5
 end
-arch grassd_7
-x 16
-y 6
-end
-arch spawn_point
-x 16
-y 6
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_1
-x 16
-y 7
-end
-arch grassd_5
-x 16
-y 8
-end
-arch grassd_7
-x 16
-y 9
-end
-arch grassd_8
-x 16
-y 10
-end
-arch grassd_1
-x 16
-y 11
-end
 arch grassd_3
 x 16
-y 12
+y 6
 end
 arch grassd_2
 x 16
-y 13
-end
-arch grassd_5
-x 16
-y 14
+y 7
 end
 arch grassd_8
 x 16
-y 15
+y 8
+end
+arch grassd_6
+x 16
+y 9
+end
+arch grassd_2
+x 16
+y 10
+end
+arch grassd_4
+x 16
+y 11
 end
 arch grassd_5
+x 16
+y 12
+end
+arch grassd_7
+x 16
+y 13
+end
+arch grassd_2
+x 16
+y 14
+end
+arch grassd_2
+x 16
+y 15
+end
+arch grassd_4
 x 16
 y 16
 end
@@ -2167,18 +1910,18 @@ arch rock_big3
 x 16
 y 23
 end
-arch grassd_3
+arch grassd_5
 x 17
 end
-arch grassd_4
+arch grassd_5
 x 17
 y 1
 end
-arch grassd_1
+arch grassd_5
 x 17
 y 2
 end
-arch grassd_2
+arch grassd_8
 x 17
 y 3
 end
@@ -2186,83 +1929,43 @@ arch grassd_4
 x 17
 y 4
 end
-arch grassd_8
+arch grassd_3
 x 17
 y 5
 end
-arch grassd_1
+arch grassd_4
 x 17
 y 6
 end
-arch grassd_8
+arch grassd_6
 x 17
 y 7
 end
-arch grassd_3
+arch grassd_2
 x 17
 y 8
 end
-arch spawn_point
-x 17
-y 8
-arch ant_red
-level 19
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_1
+arch grassd_4
 x 17
 y 9
 end
-arch grassd_3
+arch grassd_5
 x 17
 y 10
 end
-arch grassd_5
+arch grassd_1
 x 17
 y 11
-end
-arch spawn_point
-x 17
-y 11
-arch ant_red
-level 18
-exp 90
-last_eat 5
-dam 61
-wc 4
-maxhp 71
-ac 10
-item_race 4
-item_level 4
-type 83
-arch quest_container
-name Finger of Death
-sub_type 1
-end
-end
-end
-arch grassd_3
-x 17
-y 12
 end
 arch grassd_7
 x 17
+y 12
+end
+arch grassd_3
+x 17
 y 13
 end
-arch grassd_8
+arch grassd_2
 x 17
 y 14
 end
@@ -2270,7 +1973,7 @@ arch grassd_4
 x 17
 y 15
 end
-arch grassd_3
+arch grassd_7
 x 17
 y 16
 end
@@ -2318,38 +2021,38 @@ arch rock_big1
 x 17
 y 23
 end
-arch grassd_1
+arch grassd_4
 x 18
-end
-arch grassd_5
-x 18
-y 1
 end
 arch grassd_6
 x 18
-y 2
-end
-arch grassd_7
-x 18
-y 3
-end
-arch grassd_8
-x 18
-y 4
+y 1
 end
 arch grassd_2
 x 18
+y 2
+end
+arch grassd_4
+x 18
+y 3
+end
+arch grassd_4
+x 18
+y 4
+end
+arch grassd_1
+x 18
 y 5
 end
-arch grassd_8
+arch grassd_7
 x 18
 y 6
 end
-arch grassd_3
+arch grassd_6
 x 18
 y 7
 end
-arch grassd_7
+arch grassd_6
 x 18
 y 8
 end
@@ -2357,19 +2060,19 @@ arch grassd_8
 x 18
 y 9
 end
-arch grassd_8
+arch grassd_3
 x 18
 y 10
 end
-arch grassd_3
+arch grassd_4
 x 18
 y 11
 end
-arch grassd_8
+arch grassd_4
 x 18
 y 12
 end
-arch grassd_6
+arch grassd_1
 x 18
 y 13
 end
@@ -2381,7 +2084,7 @@ arch grassd_8
 x 18
 y 15
 end
-arch grassd_2
+arch grassd_7
 x 18
 y 16
 end
@@ -2433,30 +2136,30 @@ arch rock_big1
 x 18
 y 23
 end
-arch grassd_1
-x 19
-end
 arch grassd_5
 x 19
-y 1
-end
-arch grassd_2
-x 19
-y 2
 end
 arch grassd_7
 x 19
-y 3
-end
-arch grassd_3
-x 19
-y 4
+y 1
 end
 arch grassd_8
 x 19
-y 5
+y 2
+end
+arch grassd_5
+x 19
+y 3
 end
 arch grassd_1
+x 19
+y 4
+end
+arch grassd_3
+x 19
+y 5
+end
+arch grassd_4
 x 19
 y 6
 end
@@ -2464,39 +2167,39 @@ arch grassd_3
 x 19
 y 7
 end
-arch grassd_2
+arch grassd_1
 x 19
 y 8
 end
-arch grassd_7
+arch grassd_2
 x 19
 y 9
 end
-arch grassd_5
+arch grassd_3
 x 19
 y 10
 end
-arch grassd_8
+arch grassd_6
 x 19
 y 11
 end
-arch grassd_4
+arch grassd_2
 x 19
 y 12
 end
-arch grassd_6
+arch grassd_1
 x 19
 y 13
 end
-arch grassd_6
+arch grassd_3
 x 19
 y 14
 end
-arch grassd_5
+arch grassd_2
 x 19
 y 15
 end
-arch grassd_6
+arch grassd_7
 x 19
 y 16
 end
@@ -2544,70 +2247,70 @@ arch rock_big1
 x 19
 y 23
 end
-arch grassd_3
+arch grassd_7
 x 20
 end
-arch grassd_8
+arch grassd_2
 x 20
 y 1
 end
-arch grassd_4
+arch grassd_3
 x 20
 y 2
 end
-arch grassd_1
+arch grassd_4
 x 20
 y 3
 end
-arch grassd_3
+arch grassd_8
 x 20
 y 4
 end
-arch grassd_5
+arch grassd_7
 x 20
 y 5
 end
-arch grassd_2
+arch grassd_8
 x 20
 y 6
 end
-arch grassd_4
+arch grassd_3
 x 20
 y 7
 end
-arch grassd_4
+arch grassd_5
 x 20
 y 8
 end
-arch grassd_8
+arch grassd_5
 x 20
 y 9
 end
-arch grassd_7
+arch grassd_8
 x 20
 y 10
 end
-arch grassd_8
+arch grassd_1
 x 20
 y 11
 end
-arch grassd_4
+arch grassd_8
 x 20
 y 12
 end
-arch grassd_2
+arch grassd_1
 x 20
 y 13
 end
-arch grassd_2
+arch grassd_6
 x 20
 y 14
 end
-arch grassd_3
+arch grassd_4
 x 20
 y 15
 end
-arch grassd_7
+arch grassd_5
 x 20
 y 16
 end
@@ -2659,18 +2362,18 @@ arch rock_big1
 x 20
 y 23
 end
-arch grassd_5
+arch grassd_7
 x 21
 end
-arch grassd_8
+arch grassd_2
 x 21
 y 1
 end
-arch grassd_3
+arch grassd_4
 x 21
 y 2
 end
-arch grassd_5
+arch grassd_6
 x 21
 y 3
 end
@@ -2678,51 +2381,51 @@ arch grassd_1
 x 21
 y 4
 end
-arch grassd_7
+arch grassd_1
 x 21
 y 5
 end
-arch grassd_2
+arch grassd_5
 x 21
 y 6
 end
-arch grassd_8
+arch grassd_3
 x 21
 y 7
 end
-arch grassd_2
+arch grassd_4
 x 21
 y 8
 end
-arch grassd_3
+arch grassd_1
 x 21
 y 9
 end
-arch grassd_3
+arch grassd_5
 x 21
 y 10
 end
-arch grassd_5
+arch grassd_8
 x 21
 y 11
 end
-arch grassd_2
+arch grassd_5
 x 21
 y 12
 end
-arch grassd_4
+arch grassd_1
 x 21
 y 13
 end
-arch grassd_4
+arch grassd_5
 x 21
 y 14
 end
-arch grassd_3
+arch grassd_2
 x 21
 y 15
 end
-arch grassd_8
+arch grassd_5
 x 21
 y 16
 end
