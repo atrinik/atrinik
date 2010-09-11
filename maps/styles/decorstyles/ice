@@ -1,0 +1,131 @@
+arch map
+name ice
+msg
+Created:  2010-09-10 Alex Tokar
+Modified: 2010-09-10 Alex Tokar
+endmsg
+width 6
+height 4
+difficulty 1
+darkness -1
+end
+arch damager
+no_pick 1
+layer 5
+face pillar_blue10.101
+glow_radius 4
+name crystal chill
+dam 11
+attack_cold 100
+slow_move 1
+exp 1
+sys_object 0
+end
+arch small_stones
+y 1
+end
+arch stone4
+y 2
+end
+arch damager
+no_pick 1
+layer 5
+face pillar_blue9.101
+glow_radius 4
+name crystal chill
+dam 11
+attack_cold 100
+slow_move 1
+exp 1
+sys_object 0
+x 1
+end
+arch mushroom_giant3
+name giant ice mushroom
+x 1
+y 1
+end
+arch stone6
+x 1
+y 2
+end
+arch damager
+no_pick 1
+layer 5
+face crystal13.101
+glow_radius 4
+name crystal chill
+dam 11
+attack_cold 100
+slow_move 1
+exp 1
+sys_object 0
+x 2
+end
+arch damager
+no_pick 1
+layer 5
+face crystal_purple_s.101
+glow_radius 4
+name crystal chill
+dam 11
+attack_cold 100
+slow_move 1
+exp 1
+sys_object 0
+x 2
+y 1
+end
+arch wall_blood4
+x 2
+y 2
+end
+arch dirt_floor4
+x 2
+y 3
+end
+arch blood_floor1
+x 3
+end
+arch bone_skull
+x 3
+y 1
+end
+arch tree_branch1_winter
+x 3
+y 2
+end
+arch ring_wall.151
+x 3
+y 3
+end
+arch blood_floor2
+x 4
+end
+arch bone_broken
+x 4
+y 1
+end
+arch tree_branch2_winter
+x 4
+y 2
+end
+arch wall_blood2
+x 4
+y 3
+end
+arch dirt_floor3
+x 5
+end
+arch bones3
+x 5
+y 1
+end
+arch tree_branch3_winter
+x 5
+y 2
+end
+arch wall_blood1
+x 5
+y 3
+end

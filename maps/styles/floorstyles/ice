@@ -1,0 +1,22 @@
+arch map
+name ice
+msg
+Created:  2010-09-10 Alex Tokar
+Modified: 2010-09-10 Alex Tokar
+endmsg
+width 4
+height 1
+difficulty 1
+darkness -1
+end
+arch icefloor_cave1
+end
+arch icefloor_cave2
+x 1
+end
+arch icefloor_cave5
+x 2
+end
+arch icefloor_cave6
+x 3
+end

@@ -1,8 +1,8 @@
 arch map
-name World
+name Lyondale Archipelago
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-23 Alex Tokar
+Modified: 2010-09-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,7 @@ tile_path_3 world_2076
 tile_path_4 world_1977
 tile_path_7 world_1976
 tile_path_8 world_1978
+region lyondale_archipelago
 end
 arch water_lt2
 end
@@ -55,34 +56,46 @@ end
 arch water_lt
 y 13
 end
-arch water_lt4
+arch snow_fmask.101
+y 13
+end
+arch snow2
 y 14
 end
-arch water_lt
+arch snow4
 y 15
 end
-arch water_lt2
+arch snowy_autree2
+y 15
+end
+arch snow1
 y 16
 end
-arch water_lt
+arch snow2
 y 17
 end
-arch water_lt2
+arch snow3
 y 18
 end
-arch water_lt4
+arch pillar_blue5
+y 18
+end
+arch snow1
 y 19
 end
-arch water_lt3
+arch snow2
 y 20
 end
-arch water_lt4
+arch light5
+y 20
+end
+arch snow3
 y 21
 end
-arch water_lt3
+arch snow3
 y 22
 end
-arch water_lt3
+arch snow2
 y 23
 end
 arch water_lt
@@ -140,43 +153,71 @@ arch water_lt4
 x 1
 y 13
 end
-arch water_lt4
+arch snow_fmask.101
+x 1
+y 13
+end
+arch snow1
 x 1
 y 14
 end
-arch water_lt3
+arch pillar_blue9
+x 1
+y 14
+end
+arch snow2
 x 1
 y 15
 end
-arch water_lt4
+arch snow1
 x 1
 y 16
 end
-arch water_lt2
+arch tree_branch2_winter
+x 1
+y 16
+end
+arch light5
+x 1
+y 16
+end
+arch snow1
 x 1
 y 17
 end
-arch water_lt
+arch small_stones
+x 1
+y 17
+end
+arch snow2
 x 1
 y 18
 end
-arch water_lt
+arch snow1
 x 1
 y 19
 end
-arch water_lt3
+arch snow4
 x 1
 y 20
 end
-arch water_lt3
+arch snow4
 x 1
 y 21
 end
-arch water_lt
+arch stone2
+x 1
+y 21
+end
+arch snow3
 x 1
 y 22
 end
-arch water_lt
+arch snow4
+x 1
+y 23
+end
+arch stone3
 x 1
 y 23
 end
@@ -235,43 +276,55 @@ arch water_lt4
 x 2
 y 13
 end
-arch water_lt4
+arch snow_fmask.101
+x 2
+y 13
+end
+arch snow4
 x 2
 y 14
 end
-arch water_lt3
+arch snow4
 x 2
 y 15
 end
-arch water_lt
+arch snow2
 x 2
 y 16
 end
-arch water_lt
+arch snow1
 x 2
 y 17
 end
-arch water_lt4
+arch snow2
 x 2
 y 18
 end
-arch water_lt2
+arch snow2
 x 2
 y 19
 end
-arch water_lt3
+arch snowy_tree_bigb1
+x 2
+y 19
+end
+arch snow4
 x 2
 y 20
 end
-arch water_lt3
+arch snow4
 x 2
 y 21
 end
-arch water_lt
+arch stone4
+x 2
+y 21
+end
+arch snow1
 x 2
 y 22
 end
-arch water_lt
+arch snow3
 x 2
 y 23
 end
@@ -330,43 +383,63 @@ arch water_lt2
 x 3
 y 13
 end
+arch snow_fmask.112
+x 3
+y 13
+end
 arch water_lt4
 x 3
 y 14
 end
-arch water_lt
+arch snow_fmask.102
+x 3
+y 14
+end
+arch snow2
 x 3
 y 15
 end
-arch water_lt3
+arch light5
+x 3
+y 15
+end
+arch snow3
 x 3
 y 16
 end
-arch water_lt2
+arch snow1
 x 3
 y 17
 end
-arch water_lt3
+arch pillar_blue2
+x 3
+y 17
+end
+arch snow3
 x 3
 y 18
 end
-arch water_lt
+arch snow3
 x 3
 y 19
 end
-arch water_lt
+arch light5
+x 3
+y 19
+end
+arch snow1
 x 3
 y 20
 end
-arch water_lt4
+arch snow4
 x 3
 y 21
 end
-arch water_lt
+arch snow3
 x 3
 y 22
 end
-arch water_lt4
+arch snow4
 x 3
 y 23
 end
@@ -429,39 +502,51 @@ arch water_lt2
 x 4
 y 14
 end
-arch water_lt4
+arch snow_fmask.101
+x 4
+y 14
+end
+arch snow1
 x 4
 y 15
 end
-arch water_lt4
+arch snow3
 x 4
 y 16
 end
-arch water_lt
+arch pillar_blue8
+x 4
+y 16
+end
+arch snow2
 x 4
 y 17
 end
-arch water_lt2
+arch snow4
 x 4
 y 18
 end
-arch water_lt
+arch snow3
 x 4
 y 19
 end
-arch water_lt4
+arch stone6
+x 4
+y 19
+end
+arch snow3
 x 4
 y 20
 end
-arch water_lt
+arch snow1
 x 4
 y 21
 end
-arch water_lt
+arch snow1
 x 4
 y 22
 end
-arch water_lt4
+arch snow2
 x 4
 y 23
 end
@@ -524,39 +609,51 @@ arch water_lt3
 x 5
 y 14
 end
-arch water_lt
+arch snow_fmask.101
+x 5
+y 14
+end
+arch snow2
 x 5
 y 15
 end
-arch water_lt4
+arch stone6
+x 5
+y 15
+end
+arch snow1
 x 5
 y 16
 end
-arch water_lt2
+arch snow4
 x 5
 y 17
 end
-arch water_lt3
+arch snow1
 x 5
 y 18
 end
-arch water_lt2
+arch snow4
 x 5
 y 19
 end
-arch water_lt
+arch snow2
 x 5
 y 20
 end
-arch water_lt
+arch snowy_tree_big1
+x 5
+y 20
+end
+arch snow2
 x 5
 y 21
 end
-arch water_lt3
+arch snow4
 x 5
 y 22
 end
-arch water_lt2
+arch snow3
 x 5
 y 23
 end
@@ -619,39 +716,70 @@ arch water_lt3
 x 6
 y 14
 end
+arch snow_fmask.112
+x 6
+y 14
+end
 arch water_lt
 x 6
 y 15
 end
-arch water_lt2
+arch snow_fmask.102
+x 6
+y 15
+end
+arch snow4
 x 6
 y 16
 end
-arch water_lt
+arch snowy_burnedtree1
+x 6
+y 16
+end
+arch snow2
 x 6
 y 17
 end
-arch water_lt
+arch tree_branch1_winter
+x 6
+y 17
+end
+arch snow2
 x 6
 y 18
 end
-arch water_lt2
+arch light5
+x 6
+y 18
+end
+arch snow4
 x 6
 y 19
 end
-arch water_lt4
+arch pillar_blue
+x 6
+y 19
+end
+arch snow2
 x 6
 y 20
 end
-arch water_lt
+arch snow3
 x 6
 y 21
 end
-arch water_lt4
+arch snow1
 x 6
 y 22
 end
-arch water_lt
+arch exit_green
+slaying lyondale_archipelago/wizard/wizards_tower_4
+hp 14
+sp 6
+x 6
+y 22
+end
+arch snow2
 x 6
 y 23
 end
@@ -718,35 +846,43 @@ arch water_lt3
 x 7
 y 15
 end
-arch water_lt
+arch snow_fmask.101
+x 7
+y 15
+end
+arch snow3
 x 7
 y 16
 end
-arch water_lt3
+arch snow4
 x 7
 y 17
 end
-arch water_lt4
+arch snow4
 x 7
 y 18
 end
-arch water_lt
+arch snow2
 x 7
 y 19
 end
-arch water_lt4
+arch snow4
 x 7
 y 20
 end
-arch water_lt
+arch snow4
 x 7
 y 21
 end
-arch water_lt
+arch light5
+x 7
+y 21
+end
+arch snow3
 x 7
 y 22
 end
-arch water_lt4
+arch snow3
 x 7
 y 23
 end
@@ -813,35 +949,51 @@ arch water_lt4
 x 8
 y 15
 end
-arch water_lt4
+arch snow_fmask.101
+x 8
+y 15
+end
+arch snow2
 x 8
 y 16
 end
-arch water_lt4
+arch snow3
 x 8
 y 17
 end
-arch water_lt2
+arch small_stones
+x 8
+y 17
+end
+arch snow3
 x 8
 y 18
 end
-arch water_lt
+arch pillar_blue10
+x 8
+y 18
+end
+arch snow2
 x 8
 y 19
 end
-arch water_lt
+arch snow2
 x 8
 y 20
 end
-arch water_lt3
+arch snow3
 x 8
 y 21
 end
-arch water_lt4
+arch snow1
 x 8
 y 22
 end
-arch water_lt4
+arch snow4
+x 8
+y 23
+end
+arch stone4
 x 8
 y 23
 end
@@ -908,35 +1060,51 @@ arch water_lt4
 x 9
 y 15
 end
+arch snow_fmask.112
+x 9
+y 15
+end
 arch water_lt2
 x 9
 y 16
 end
-arch water_lt
+arch snow_fmask.102
+x 9
+y 16
+end
+arch snow2
 x 9
 y 17
 end
-arch water_lt2
+arch snow1
 x 9
 y 18
 end
-arch water_lt4
+arch snow2
 x 9
 y 19
 end
-arch water_lt4
+arch snow4
 x 9
 y 20
 end
-arch water_lt2
+arch pillar_blue4
+x 9
+y 20
+end
+arch snow2
 x 9
 y 21
 end
-arch water_lt
+arch snow2
 x 9
 y 22
 end
-arch water_lt2
+arch small_stones
+x 9
+y 22
+end
+arch snow4
 x 9
 y 23
 end
@@ -1007,31 +1175,39 @@ arch water_lt
 x 10
 y 16
 end
+arch snow_fmask.112
+x 10
+y 16
+end
 arch water_lt3
 x 10
 y 17
 end
-arch water_lt4
+arch snow_fmask.102
+x 10
+y 17
+end
+arch snow2
 x 10
 y 18
 end
-arch water_lt2
+arch snow4
 x 10
 y 19
 end
-arch water_lt3
+arch snow2
 x 10
 y 20
 end
-arch water_lt2
+arch snow1
 x 10
 y 21
 end
-arch water_lt4
+arch snow4
 x 10
 y 22
 end
-arch water_lt
+arch snow3
 x 10
 y 23
 end
@@ -1106,27 +1282,43 @@ arch water_lt4
 x 11
 y 17
 end
+arch snow_fmask.112
+x 11
+y 17
+end
 arch water_lt
 x 11
 y 18
 end
-arch water_lt4
+arch snow_fmask.102
+x 11
+y 18
+end
+arch snow2
 x 11
 y 19
 end
-arch water_lt4
+arch snow3
 x 11
 y 20
 end
-arch water_lt2
+arch snowy_burnedtree2
+x 11
+y 20
+end
+arch snow3
 x 11
 y 21
 end
-arch water_lt
+arch snow4
 x 11
 y 22
 end
-arch water_lt4
+arch tree_branch1_winter
+x 11
+y 22
+end
+arch snow3
 x 11
 y 23
 end
@@ -1205,23 +1397,35 @@ arch water_lt4
 x 12
 y 18
 end
+arch snow_fmask.112
+x 12
+y 18
+end
 arch water_lt
 x 12
 y 19
 end
-arch water_lt4
+arch snow_fmask.102
+x 12
+y 19
+end
+arch snow4
 x 12
 y 20
 end
-arch water_lt
+arch snow1
 x 12
 y 21
 end
-arch water_lt4
+arch snow1
 x 12
 y 22
 end
-arch water_lt
+arch snow2
+x 12
+y 23
+end
+arch snowy_autree2
 x 12
 y 23
 end
@@ -1304,7 +1508,15 @@ arch water_lt4
 x 13
 y 19
 end
+arch snow_fmask.112
+x 13
+y 19
+end
 arch water_lt2
+x 13
+y 20
+end
+arch snow_fmask.103
 x 13
 y 20
 end
@@ -1312,11 +1524,15 @@ arch water_lt4
 x 13
 y 21
 end
-arch water_lt4
+arch snow_fmask.102
+x 13
+y 21
+end
+arch snow4
 x 13
 y 22
 end
-arch water_lt4
+arch snow3
 x 13
 y 23
 end
@@ -1407,11 +1623,23 @@ arch water_lt4
 x 14
 y 21
 end
+arch snow_fmask.112
+x 14
+y 21
+end
 arch water_lt4
 x 14
 y 22
 end
+arch snow_fmask.103
+x 14
+y 22
+end
 arch water_lt3
+x 14
+y 23
+end
+arch snow_fmask.103
 x 14
 y 23
 end

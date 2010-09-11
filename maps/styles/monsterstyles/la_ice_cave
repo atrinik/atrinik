@@ -1,0 +1,404 @@
+arch map
+name ice
+msg
+Created:  2010-09-10 Alex Tokar
+Modified: 2010-09-11 Alex Tokar
+endmsg
+width 8
+height 2
+difficulty 1
+darkness -1
+end
+arch spawn_point
+arch snowman_evil2
+randomitems mob_ice
+item_condition 4
+exp 107
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+protect_fire -25
+protect_cold 100
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+dam 7
+end
+arch ability_stone_throw
+end
+end
+end
+arch spawn_point
+y 1
+arch snowman_evil2
+randomitems mob_ice
+item_condition 4
+exp 107
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+movement_type 112
+protect_fire -25
+protect_cold 100
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+dam 7
+end
+arch ability_stone_throw
+end
+end
+end
+arch spawn_point
+x 1
+arch snowman_evil
+randomitems mob_ice
+item_condition 4
+exp 107
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+protect_fire -25
+protect_cold 100
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+dam 7
+end
+arch ability_stone_throw
+end
+end
+end
+arch spawn_point
+x 1
+y 1
+arch giant_ice
+item_condition 4
+exp 112
+Con 15
+Dex 2
+protect_fire -25
+protect_cold 100
+type 83
+arch quest_container
+name Improved Asteroid
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 2
+arch icegolem
+item_condition 4
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end
+arch spawn_point
+x 2
+y 1
+arch icegolem
+item_condition 4
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end
+arch spawn_point
+x 3
+arch giant_ice
+randomitems mob_lom_lobon
+item_condition 4
+exp 128
+can_cast_spell 1
+sp -1
+maxsp 20
+Pow 6
+path_attuned 4
+Dex 2
+behavior 3
+protect_fire -25
+protect_cold 100
+type 83
+arch ability_icestorm
+end
+arch ability_icestorm
+sp 21
+hp 21
+last_grace 0
+end
+arch quest_container
+name Improved Asteroid
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 3
+y 1
+arch giant_ice
+randomitems mob_lom_lobon
+item_condition 4
+exp 132
+can_cast_spell 1
+sp -1
+maxsp 20
+Pow 6
+path_attuned 4
+Dex 2
+random_move 1
+item_race 3
+item_level 3
+attack_move_type 1
+protect_fire -25
+protect_cold 100
+type 83
+arch ability_icestorm
+sp 7
+hp 8
+end
+arch ability_icestorm
+end
+arch quest_container
+name Improved Asteroid
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 4
+arch giant_ice
+randomitems mob_lom_lobon
+item_condition 4
+exp 152
+dam 64
+wc 6
+maxhp 90
+Con 10
+can_cast_spell 1
+sp -1
+maxsp 20
+Pow 6
+path_attuned 4
+Dex 2
+attack_move_type 7
+protect_fire -20
+protect_cold 100
+type 83
+arch ability_icestorm
+sp 7
+hp 8
+end
+arch ability_icestorm
+end
+arch quest_container
+name Improved Asteroid
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 4
+y 1
+arch giant_ice
+randomitems mob_lom_lobon
+item_condition 4
+exp 132
+can_cast_spell 1
+sp -1
+maxsp 20
+Pow 6
+path_attuned 4
+Dex 2
+protect_fire -25
+protect_cold 100
+type 83
+arch ability_icestorm
+sp 24
+hp 24
+last_grace 2
+end
+arch ability_icestorm
+end
+arch quest_container
+name Improved Asteroid
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 5
+arch icegolem
+item_condition 4
+exp 111
+attack_cold 100
+attack_move_type 5
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end
+arch spawn_point
+x 5
+y 1
+arch giant_ice
+randomitems mob_lom_lobon
+item_condition 4
+exp 120
+dam 62
+wc 7
+maxhp 90
+ac 14
+Con 15
+Dex 2
+protect_fire -25
+protect_cold 100
+type 83
+arch quest_container
+name Improved Asteroid
+sub_type 1
+end
+end
+end
+arch spawn_point
+x 6
+arch icegolem
+item_condition 4
+exp 116
+attack_cold 100
+movement_type 128
+attack_move_type 4
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end
+arch spawn_point
+x 6
+y 1
+arch icegolem
+item_condition 4
+exp 116
+attack_cold 100
+random_move 1
+item_race 3
+item_level 3
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end
+arch spawn_point
+x 7
+arch icegolem
+item_condition 4
+exp 111
+attack_cold 100
+attack_move_type 5
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end
+arch spawn_point
+x 7
+y 1
+arch icegolem
+item_condition 4
+exp 116
+attack_cold 100
+random_move 1
+item_race 3
+item_level 3
+protect_fire -25
+type 83
+arch rand_drop
+container 80
+arch quest_container
+name Quidton's Mana Crystal
+sub_type 2
+arch power_crystal
+identified 1
+type 79
+name Quidton's Mana Crystal
+end
+end
+end
+end
+end

@@ -1,0 +1,1612 @@
+arch map
+name Wizards' Tower
+msg
+Created:  2010-09-11 Alex Tokar
+Modified: 2010-09-11 Alex Tokar
+endmsg
+width 17
+height 15
+difficulty 90
+darkness -1
+no_harm 1
+bg_music solemn.mid
+region lyondale_archipelago_wizard
+end
+arch blocked
+x 1
+end
+arch wall_stone14_8
+x 1
+end
+arch blocked
+x 1
+y 1
+end
+arch wall_stone14_3
+x 1
+y 1
+end
+arch blocked
+x 1
+y 2
+end
+arch wall_stone14_3
+x 1
+y 2
+end
+arch blocked
+x 1
+y 3
+end
+arch wall_stone14_3
+x 1
+y 3
+end
+arch blocked
+x 1
+y 4
+end
+arch wall_stone14_3
+x 1
+y 4
+end
+arch blocked
+x 1
+y 5
+end
+arch wall_stone14_3
+x 1
+y 5
+end
+arch blocked
+x 1
+y 6
+end
+arch wall_stone14_3
+x 1
+y 6
+end
+arch blocked
+x 1
+y 7
+end
+arch wall_stone14_3
+x 1
+y 7
+end
+arch blocked
+x 1
+y 8
+end
+arch wall_stone14_3
+x 1
+y 8
+end
+arch blocked
+x 1
+y 9
+end
+arch wall_stone14_3
+x 1
+y 9
+end
+arch blocked
+x 1
+y 10
+end
+arch wall_stone14_3
+x 1
+y 10
+end
+arch blocked
+x 1
+y 11
+end
+arch wall_stone14_3
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch wall_stone14_3
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch wall_stone14_3
+x 1
+y 13
+end
+arch blocked
+x 2
+end
+arch wall_stone14_1
+x 2
+end
+arch floor_bw1
+x 2
+y 1
+end
+arch shelf3c.111
+x 2
+y 1
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 2
+end
+arch shelf4_wall.111
+direction 7
+x 2
+y 2
+end
+arch floor_bw1
+x 2
+y 3
+end
+arch shelf2_wall.111
+direction 7
+x 2
+y 3
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 4
+end
+arch shelf1_wall.111
+direction 7
+x 2
+y 4
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 5
+end
+arch shelf2_wall.111
+direction 7
+x 2
+y 5
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 6
+end
+arch shelf6_wall.111
+direction 7
+x 2
+y 6
+end
+arch floor_bw1
+x 2
+y 7
+end
+arch shelf3a.111
+direction 7
+x 2
+y 7
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 8
+end
+arch shelf3c.111
+direction 7
+x 2
+y 8
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 9
+end
+arch shelf3a.111
+direction 7
+x 2
+y 9
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 10
+end
+arch shelf3b.111
+direction 7
+x 2
+y 10
+end
+arch floor_bw1
+x 2
+y 11
+end
+arch shelf3c.111
+direction 7
+x 2
+y 11
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 12
+end
+arch shelf3c.111
+direction 7
+x 2
+y 12
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 2
+y 13
+end
+arch wall_stone14_1
+x 2
+y 13
+end
+arch blocked
+x 3
+end
+arch wall_stone14_1
+x 3
+end
+arch floor_bw1
+x 3
+y 1
+end
+arch shelf3a.111
+x 3
+y 1
+end
+arch floor_bw1
+x 3
+y 2
+end
+arch carpet1.131
+x 3
+y 2
+end
+arch floor_bw1
+x 3
+y 3
+end
+arch carpet1.131
+x 3
+y 3
+end
+arch floor_bw1
+x 3
+y 4
+end
+arch carpet1.131
+x 3
+y 4
+end
+arch floor_bw1
+x 3
+y 5
+end
+arch carpet1.131
+x 3
+y 5
+end
+arch floor_bw1
+x 3
+y 6
+end
+arch carpet1.131
+x 3
+y 6
+end
+arch floor_bw1
+x 3
+y 7
+end
+arch carpet1.131
+x 3
+y 7
+end
+arch floor_bw1
+x 3
+y 8
+end
+arch carpet1.131
+x 3
+y 8
+end
+arch floor_bw1
+x 3
+y 9
+end
+arch carpet1.131
+x 3
+y 9
+end
+arch floor_bw1
+x 3
+y 10
+end
+arch carpet1.131
+x 3
+y 10
+end
+arch floor_bw1
+x 3
+y 11
+end
+arch carpet1.131
+x 3
+y 11
+end
+arch floor_bw1
+x 3
+y 12
+end
+arch floor_bw1
+x 3
+y 13
+end
+arch candlelight3.101
+x 3
+y 13
+end
+arch wall_stone14_1
+x 3
+y 13
+end
+arch blocked
+x 4
+end
+arch wall_stone14_1
+x 4
+end
+arch floor_bw1
+x 4
+y 1
+end
+arch carpet1.151
+x 4
+y 1
+end
+arch shelf3a.111
+x 4
+y 1
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 4
+y 2
+end
+arch carpet1
+x 4
+y 2
+end
+arch floor_bw1
+x 4
+y 3
+end
+arch carpet1
+x 4
+y 3
+end
+arch floor_bw1
+x 4
+y 4
+end
+arch carpet1
+x 4
+y 4
+end
+arch floor_bw1
+x 4
+y 5
+end
+arch carpet1
+x 4
+y 5
+end
+arch floor_bw1
+x 4
+y 6
+end
+arch carpet1
+x 4
+y 6
+end
+arch floor_bw1
+x 4
+y 7
+end
+arch carpet1
+x 4
+y 7
+end
+arch floor_bw1
+x 4
+y 8
+end
+arch carpet1
+x 4
+y 8
+end
+arch floor_bw1
+x 4
+y 9
+end
+arch carpet1
+x 4
+y 9
+end
+arch floor_bw1
+x 4
+y 10
+end
+arch carpet1
+x 4
+y 10
+end
+arch floor_bw1
+x 4
+y 11
+end
+arch carpet1
+x 4
+y 11
+end
+arch floor_bw1
+x 4
+y 12
+end
+arch carpet1.111
+x 4
+y 12
+end
+arch floor_bw1
+x 4
+y 13
+end
+arch wall_stone14_1
+x 4
+y 13
+end
+arch blocked
+x 5
+end
+arch wall_stone14_1
+x 5
+end
+arch floor_bw1
+x 5
+y 1
+end
+arch carpet1.151
+x 5
+y 1
+end
+arch shelf3b.111
+x 5
+y 1
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 5
+y 2
+end
+arch carpet1
+x 5
+y 2
+end
+arch floor_bw1
+x 5
+y 3
+end
+arch carpet1
+x 5
+y 3
+end
+arch floor_bw1
+x 5
+y 4
+end
+arch carpet1
+x 5
+y 4
+end
+arch floor_bw1
+x 5
+y 5
+end
+arch carpet1
+x 5
+y 5
+end
+arch floor_bw1
+x 5
+y 6
+end
+arch carpet1
+x 5
+y 6
+end
+arch floor_bw1
+x 5
+y 7
+end
+arch carpet1
+x 5
+y 7
+end
+arch floor_bw1
+x 5
+y 8
+end
+arch carpet1
+x 5
+y 8
+end
+arch floor_bw1
+x 5
+y 9
+end
+arch carpet1
+x 5
+y 9
+end
+arch floor_bw1
+x 5
+y 10
+end
+arch carpet1
+x 5
+y 10
+end
+arch floor_bw1
+x 5
+y 11
+end
+arch carpet1
+x 5
+y 11
+end
+arch floor_bw1
+x 5
+y 12
+end
+arch carpet1.111
+x 5
+y 12
+end
+arch floor_bw1
+x 5
+y 13
+end
+arch wall_stone14_1
+x 5
+y 13
+end
+arch blocked
+x 6
+end
+arch wall_stone14_1
+x 6
+end
+arch flag_04
+x 6
+end
+arch floor_bw1
+x 6
+y 1
+end
+arch carpet1.151
+x 6
+y 1
+end
+arch floor_bw1
+x 6
+y 2
+end
+arch carpet1
+x 6
+y 2
+end
+arch floor_bw1
+x 6
+y 3
+end
+arch carpet1
+x 6
+y 3
+end
+arch floor_bw1
+x 6
+y 4
+end
+arch carpet1.171
+x 6
+y 4
+end
+arch carpet1.111
+layer 3
+x 6
+y 4
+end
+arch floor_bw1
+x 6
+y 5
+end
+arch carpet1.171
+x 6
+y 5
+end
+arch floor_bw1
+x 6
+y 6
+end
+arch carpet1.171
+x 6
+y 6
+end
+arch floor_bw1
+x 6
+y 7
+end
+arch carpet1.171
+x 6
+y 7
+end
+arch floor_bw1
+x 6
+y 8
+end
+arch carpet1.171
+x 6
+y 8
+end
+arch candlelight4.101
+x 6
+y 8
+end
+arch wall_stone14_8
+x 6
+y 8
+end
+arch floor_bw1
+x 6
+y 9
+end
+arch carpet1.171
+x 6
+y 9
+end
+arch wall_stone14_3
+x 6
+y 9
+end
+arch floor_bw1
+x 6
+y 10
+end
+arch carpet1.171
+x 6
+y 10
+end
+arch wall_stone14_3
+x 6
+y 10
+end
+arch floor_bw1
+x 6
+y 11
+end
+arch carpet1.171
+x 6
+y 11
+end
+arch doorway_wood1_1
+direction 7
+x 6
+y 11
+end
+arch floor_bw1
+x 6
+y 12
+end
+arch candlelight3.101
+x 6
+y 12
+end
+arch wall_stone14_3
+x 6
+y 12
+end
+arch floor_bw1
+x 6
+y 13
+end
+arch wall_stone14_4
+x 6
+y 13
+end
+arch blocked
+x 7
+end
+arch wall_stone14_1
+x 7
+end
+arch floor_bw1
+x 7
+y 1
+end
+arch carpet1.151
+x 7
+y 1
+end
+arch fireplace_right
+x 7
+y 1
+end
+arch floor_bw1
+x 7
+y 2
+end
+arch carpet1
+x 7
+y 2
+end
+arch floor_bw1
+x 7
+y 3
+end
+arch carpet1
+x 7
+y 3
+end
+arch floor_bw1
+x 7
+y 4
+end
+arch carpet1.111
+x 7
+y 4
+end
+arch table_round5
+x 7
+y 4
+end
+arch floor_bw1
+x 7
+y 5
+end
+arch table_lab2.111
+direction 7
+x 7
+y 5
+end
+arch floor_bw1
+x 7
+y 6
+end
+arch table_lab1.111
+direction 7
+x 7
+y 6
+end
+arch floor_bw1
+x 7
+y 7
+end
+arch table_lab3.111
+direction 7
+x 7
+y 7
+end
+arch floor_bw1
+x 7
+y 8
+end
+arch wall_stone14_1
+x 7
+y 8
+end
+arch blocked
+x 7
+y 10
+end
+arch wall_stone14_1
+x 7
+y 10
+end
+arch wmask_bflag_fire1_1
+x 7
+y 10
+end
+arch floor_bw1
+x 7
+y 11
+end
+arch stairs_stone_down
+slaying wizards_tower_3
+hp 8
+sp 11
+x 7
+y 11
+end
+arch floor_bw1
+x 7
+y 12
+end
+arch wall_stone14_1
+x 7
+y 12
+end
+arch blocked
+x 8
+end
+arch wall_stone14_1
+x 8
+end
+arch floor_bw1
+x 8
+y 1
+end
+arch carpet1.151
+x 8
+y 1
+end
+arch floor_bw1
+x 8
+y 2
+end
+arch carpet1
+x 8
+y 2
+end
+arch floor_bw1
+x 8
+y 3
+end
+arch carpet1
+x 8
+y 3
+end
+arch floor_bw1
+x 8
+y 4
+end
+arch carpet1.111
+x 8
+y 4
+end
+arch table_lab2.111
+x 8
+y 4
+end
+arch floor_bw1
+x 8
+y 5
+end
+arch floor_bw1
+x 8
+y 6
+end
+arch chair2_111
+direction 3
+x 8
+y 6
+end
+arch floor_bw1
+x 8
+y 7
+end
+arch chair2_111
+direction 3
+x 8
+y 7
+end
+arch spawn_point
+x 8
+y 7
+arch mage_old
+name Quidton
+level 114
+type 83
+arch event_obj
+sub_type 6
+race ../../scripts/lyondale_archipelago/wizard/quidton.py
+end
+end
+end
+arch floor_bw1
+x 8
+y 8
+end
+arch wall_stone14_1
+x 8
+y 8
+end
+arch blocked
+x 8
+y 10
+end
+arch wall_stone14_1
+x 8
+y 10
+end
+arch floor_bw1
+x 8
+y 11
+end
+arch wall_stone14_3
+x 8
+y 11
+end
+arch floor_bw1
+x 8
+y 12
+end
+arch wall_stone14_4
+x 8
+y 12
+end
+arch blocked
+x 9
+end
+arch wall_stone14_1
+x 9
+end
+arch flag_04
+x 9
+end
+arch floor_bw1
+x 9
+y 1
+end
+arch carpet1.151
+x 9
+y 1
+end
+arch floor_bw1
+x 9
+y 2
+end
+arch carpet1
+x 9
+y 2
+end
+arch floor_bw1
+x 9
+y 3
+end
+arch carpet1
+x 9
+y 3
+end
+arch floor_bw1
+x 9
+y 4
+end
+arch carpet1.111
+x 9
+y 4
+end
+arch table_lab1.111
+x 9
+y 4
+end
+arch floor_bw1
+x 9
+y 5
+end
+arch floor_bw1
+x 9
+y 6
+end
+arch floor_bw1
+x 9
+y 7
+end
+arch floor_bw1
+x 9
+y 8
+end
+arch wall_stone14_1
+x 9
+y 8
+end
+arch blocked
+x 10
+end
+arch wall_stone14_1
+x 10
+end
+arch floor_bw1
+x 10
+y 1
+end
+arch carpet1.151
+x 10
+y 1
+end
+arch shelf3c.111
+x 10
+y 1
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 10
+y 2
+end
+arch carpet1
+x 10
+y 2
+end
+arch floor_bw1
+x 10
+y 3
+end
+arch carpet1
+x 10
+y 3
+end
+arch floor_bw1
+x 10
+y 4
+end
+arch carpet1.111
+x 10
+y 4
+end
+arch table_lab3.111
+x 10
+y 4
+end
+arch floor_bw1
+x 10
+y 5
+end
+arch chair2_111
+direction 5
+x 10
+y 5
+end
+arch floor_bw1
+x 10
+y 6
+end
+arch floor_bw1
+x 10
+y 7
+end
+arch floor_bw1
+x 10
+y 8
+end
+arch wall_stone14_1
+x 10
+y 8
+end
+arch blocked
+x 11
+end
+arch wall_stone14_1
+x 11
+end
+arch floor_bw1
+x 11
+y 1
+end
+arch carpet1.151
+x 11
+y 1
+end
+arch shelf3a.111
+x 11
+y 1
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 11
+y 2
+end
+arch carpet1
+x 11
+y 2
+end
+arch floor_bw1
+x 11
+y 3
+end
+arch carpet1
+x 11
+y 3
+end
+arch floor_bw1
+x 11
+y 4
+end
+arch carpet1.111
+x 11
+y 4
+end
+arch table_lab1.111
+x 11
+y 4
+end
+arch floor_bw1
+x 11
+y 5
+end
+arch chair2_111
+direction 5
+x 11
+y 5
+end
+arch floor_bw1
+x 11
+y 6
+end
+arch floor_bw1
+x 11
+y 7
+end
+arch floor_bw1
+x 11
+y 8
+end
+arch candlelight4.101
+x 11
+y 8
+end
+arch wall_stone14_1
+x 11
+y 8
+end
+arch blocked
+x 12
+end
+arch wall_stone14_1
+x 12
+end
+arch floor_bw1
+x 12
+y 1
+end
+arch carpet1.151
+x 12
+y 1
+end
+arch shelf3b.111
+x 12
+y 1
+end
+arch floor_bw1
+x 12
+y 2
+end
+arch carpet1
+x 12
+y 2
+end
+arch floor_bw1
+x 12
+y 3
+end
+arch carpet1
+x 12
+y 3
+end
+arch floor_bw1
+x 12
+y 4
+end
+arch carpet1.111
+x 12
+y 4
+end
+arch table_lab2.111
+x 12
+y 4
+end
+arch floor_bw1
+x 12
+y 5
+end
+arch floor_bw1
+x 12
+y 6
+end
+arch floor_bw1
+x 12
+y 7
+end
+arch floor_bw1
+x 12
+y 8
+end
+arch wall_stone14_1
+x 12
+y 8
+end
+arch blocked
+x 13
+end
+arch wall_stone14_1
+x 13
+end
+arch floor_bw1
+x 13
+y 1
+end
+arch carpet1.151
+x 13
+y 1
+end
+arch shelf3c.111
+x 13
+y 1
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 13
+y 2
+end
+arch carpet1
+x 13
+y 2
+end
+arch floor_bw1
+x 13
+y 3
+end
+arch carpet1
+x 13
+y 3
+end
+arch floor_bw1
+x 13
+y 4
+end
+arch carpet1.111
+x 13
+y 4
+end
+arch floor_bw1
+x 13
+y 5
+end
+arch floor_bw1
+x 13
+y 6
+end
+arch carpet4.131
+x 13
+y 6
+end
+arch floor_bw1
+x 13
+y 7
+end
+arch carpet4.131
+x 13
+y 7
+end
+arch floor_bw1
+x 13
+y 8
+end
+arch wall_stone14_1
+x 13
+y 8
+end
+arch blocked
+x 14
+end
+arch wall_stone14_1
+x 14
+end
+arch floor_bw1
+x 14
+y 1
+end
+arch carpet1.151
+x 14
+y 1
+end
+arch shelf3a.111
+x 14
+y 1
+arch random_treasure
+randomitems random_read
+end
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 14
+y 2
+end
+arch carpet1
+x 14
+y 2
+end
+arch floor_bw1
+x 14
+y 3
+end
+arch carpet1
+x 14
+y 3
+end
+arch floor_bw1
+x 14
+y 4
+end
+arch carpet1.111
+x 14
+y 4
+end
+arch floor_bw1
+x 14
+y 5
+end
+arch carpet4.151
+x 14
+y 5
+end
+arch floor_bw1
+x 14
+y 6
+end
+arch carpet4c
+x 14
+y 6
+end
+arch floor_bw1
+x 14
+y 7
+end
+arch carpet4c
+x 14
+y 7
+end
+arch floor_bw1
+x 14
+y 8
+end
+arch carpet4.111
+x 14
+y 8
+end
+arch wall_stone14_1
+x 14
+y 8
+end
+arch blocked
+x 15
+end
+arch wall_stone14_1
+x 15
+end
+arch floor_bw1
+x 15
+y 1
+end
+arch shelf3a.111
+x 15
+y 1
+arch random_treasure
+randomitems random_read
+end
+end
+arch floor_bw1
+x 15
+y 2
+end
+arch carpet1.171
+x 15
+y 2
+end
+arch floor_bw1
+x 15
+y 3
+end
+arch carpet1.171
+x 15
+y 3
+end
+arch floor_bw1
+x 15
+y 4
+end
+arch floor_bw1
+x 15
+y 5
+end
+arch carpet4.151
+x 15
+y 5
+end
+arch floor_bw1
+x 15
+y 6
+end
+arch carpet4c
+x 15
+y 6
+end
+arch floor_bw1
+x 15
+y 7
+end
+arch carpet4c
+x 15
+y 7
+end
+arch exit
+face effect1_purble.104
+animation meffect_purple
+slaying ../../world_2077
+hp 5
+sp 22
+x 15
+y 7
+end
+arch floor_bw1
+x 15
+y 8
+end
+arch carpet4.111
+x 15
+y 8
+end
+arch wall_stone14_1
+x 15
+y 8
+end
+arch blocked
+x 16
+end
+arch wall_stone14_1
+x 16
+end
+arch floor_bw1
+x 16
+y 1
+end
+arch wall_stone14_3
+x 16
+y 1
+end
+arch floor_bw1
+x 16
+y 2
+end
+arch wall_stone14_3
+x 16
+y 2
+end
+arch floor_bw1
+x 16
+y 3
+end
+arch candlelight4.101
+x 16
+y 3
+end
+arch wall_stone14_3
+x 16
+y 3
+end
+arch floor_bw1
+x 16
+y 4
+end
+arch wall_stone14_3
+x 16
+y 4
+end
+arch floor_bw1
+x 16
+y 5
+end
+arch wall_stone14_3
+x 16
+y 5
+end
+arch floor_bw1
+x 16
+y 6
+end
+arch carpet4.171
+x 16
+y 6
+end
+arch wall_stone14_3
+x 16
+y 6
+end
+arch floor_bw1
+x 16
+y 7
+end
+arch carpet4.171
+x 16
+y 7
+end
+arch wall_stone14_3
+x 16
+y 7
+end
+arch floor_bw1
+x 16
+y 8
+end
+arch candlelight4.101
+x 16
+y 8
+end
+arch wall_stone14_4
+x 16
+y 8
+end

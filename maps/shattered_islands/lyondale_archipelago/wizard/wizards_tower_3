@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-05-19 Alex Tokar
-Modified: 2010-06-13 Alex Tokar
+Modified: 2010-09-11 Alex Tokar
 endmsg
 width 17
 height 15
@@ -12,19 +12,19 @@ no_harm 1
 bg_music solemn.mid
 region lyondale_archipelago_wizard
 end
-arch floor_bw1
+arch blocked
 y 2
 end
 arch wall_stone14_8
 y 2
 end
-arch floor_bw1
+arch blocked
 y 3
 end
 arch wall_stone14_3
 y 3
 end
-arch floor_bw1
+arch blocked
 y 4
 end
 arch wall_stone14_3
@@ -34,19 +34,19 @@ arch flag_02
 direction 7
 y 4
 end
-arch floor_bw1
+arch blocked
 y 5
 end
 arch wall_stone14_3
 y 5
 end
-arch floor_bw1
+arch blocked
 y 6
 end
 arch wall_stone14_3
 y 6
 end
-arch floor_bw1
+arch blocked
 y 7
 end
 arch wall_stone14_3
@@ -56,25 +56,25 @@ arch picture2.151
 direction 7
 y 7
 end
-arch floor_bw1
+arch blocked
 y 8
 end
 arch wall_stone14_3
 y 8
 end
-arch floor_bw1
+arch blocked
 y 9
 end
 arch wall_stone14_3
 y 9
 end
-arch floor_bw1
+arch blocked
 y 10
 end
 arch wall_stone14_3
 y 10
 end
-arch floor_bw1
+arch blocked
 y 11
 end
 arch wall_stone14_3
@@ -84,25 +84,25 @@ arch picture4.151
 direction 7
 y 11
 end
-arch floor_bw1
+arch blocked
 y 12
 end
 arch wall_stone14_3
 y 12
 end
-arch floor_bw1
+arch blocked
 y 13
 end
 arch wall_stone14_3
 y 13
 end
-arch floor_bw1
+arch blocked
 y 14
 end
 arch wall_stone14_3
 y 14
 end
-arch floor_bw1
+arch blocked
 x 1
 y 2
 end
@@ -231,7 +231,7 @@ arch wall_stone14_1
 x 1
 y 14
 end
-arch floor_bw1
+arch blocked
 x 2
 y 2
 end
@@ -359,7 +359,7 @@ arch wall_stone14_1
 x 2
 y 14
 end
-arch floor_bw1
+arch blocked
 x 3
 y 2
 end
@@ -495,7 +495,7 @@ arch wall_stone14_4
 x 3
 y 14
 end
-arch floor_bw1
+arch blocked
 x 4
 y 2
 end
@@ -636,7 +636,7 @@ arch wall_stone14_1
 x 4
 y 14
 end
-arch floor_bw1
+arch blocked
 x 5
 y 2
 end
@@ -742,13 +742,13 @@ arch wall_stone14_1
 x 5
 y 14
 end
-arch floor_bw1
+arch blocked
 x 6
 end
 arch wall_stone14_8
 x 6
 end
-arch floor_bw1
+arch blocked
 x 6
 y 1
 end
@@ -756,7 +756,7 @@ arch wall_stone14_3
 x 6
 y 1
 end
-arch floor_bw1
+arch blocked
 x 6
 y 2
 end
@@ -883,7 +883,7 @@ arch wall_stone14_4
 x 6
 y 14
 end
-arch floor_bw1
+arch blocked
 x 7
 end
 arch wall_stone14_1
@@ -983,7 +983,23 @@ arch wall_stone14_1
 x 7
 y 10
 end
-arch floor_bw1
+arch blocked
+x 7
+y 11
+end
+arch wall_stone14_3
+x 7
+y 11
+end
+arch blocked
+x 7
+y 12
+end
+arch wall_stone14_3
+x 7
+y 12
+end
+arch blocked
 x 8
 end
 arch wall_stone14_1
@@ -1080,7 +1096,30 @@ arch wall_stone14_1
 x 8
 y 10
 end
+arch picture4.151
+x 8
+y 10
+end
 arch floor_bw1
+x 8
+y 11
+end
+arch stairs_stone_up
+slaying wizards_tower_4
+hp 7
+sp 11
+x 8
+y 11
+end
+arch floor_bw1
+x 8
+y 12
+end
+arch wall_stone14_1
+x 8
+y 12
+end
+arch blocked
 x 9
 end
 arch wall_stone14_1
@@ -1171,11 +1210,23 @@ arch carpet1.111
 x 9
 y 10
 end
-arch wall_stone14_1
+arch doorway_wood1_1
 x 9
 y 10
 end
 arch floor_bw1
+x 9
+y 11
+end
+arch floor_bw1
+x 9
+y 12
+end
+arch wall_stone14_1
+x 9
+y 12
+end
+arch blocked
 x 10
 end
 arch wall_stone14_1
@@ -1290,11 +1341,11 @@ arch floor_bw1
 x 10
 y 12
 end
-arch wall_stone14_3
+arch wall_stone14_4
 x 10
 y 12
 end
-arch floor_bw1
+arch blocked
 x 10
 y 13
 end
@@ -1307,7 +1358,7 @@ direction 7
 x 10
 y 13
 end
-arch floor_bw1
+arch blocked
 x 10
 y 14
 end
@@ -1315,7 +1366,7 @@ arch wall_stone14_3
 x 10
 y 14
 end
-arch floor_bw1
+arch blocked
 x 11
 y 4
 end
@@ -1429,7 +1480,7 @@ arch wall_stone14_1
 x 11
 y 14
 end
-arch floor_bw1
+arch blocked
 x 12
 y 4
 end
@@ -1525,7 +1576,7 @@ arch wall_stone14_1
 x 12
 y 14
 end
-arch floor_bw1
+arch blocked
 x 13
 y 4
 end
@@ -1647,7 +1698,7 @@ arch wall_stone14_1
 x 13
 y 14
 end
-arch floor_bw1
+arch blocked
 x 14
 y 4
 end
@@ -1743,7 +1794,7 @@ arch wall_stone14_1
 x 14
 y 14
 end
-arch floor_bw1
+arch blocked
 x 15
 y 4
 end
@@ -1823,7 +1874,7 @@ arch wall_stone14_1
 x 15
 y 14
 end
-arch floor_bw1
+arch blocked
 x 16
 y 4
 end

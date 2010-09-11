@@ -1,0 +1,16 @@
+arch map
+name ice
+msg
+Created:  2010-09-10 Alex Tokar
+Modified: 2010-09-10 Alex Tokar
+endmsg
+width 2
+height 1
+difficulty 1
+darkness -1
+end
+arch fwall_ice
+end
+arch fwall_ice_d
+x 1
+end

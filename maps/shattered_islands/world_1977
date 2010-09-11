@@ -1,8 +1,8 @@
 arch map
-name World
+name Lyondale Archipelago
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-23 Alex Tokar
+Modified: 2010-09-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,6 +16,7 @@ tile_path_5 world_2078
 tile_path_6 world_2076
 tile_path_7 world_1876
 tile_path_8 world_1878
+region lyondale_archipelago
 end
 arch water_lt2
 end
@@ -1489,7 +1490,15 @@ arch water_lt2
 x 15
 y 17
 end
+arch snow_fmask.118
+x 15
+y 17
+end
 arch water_lt2
+x 15
+y 18
+end
+arch snow_fmask.107
 x 15
 y 18
 end
@@ -1497,7 +1506,15 @@ arch water_lt3
 x 15
 y 19
 end
+arch snow_fmask.107
+x 15
+y 19
+end
 arch water_lt2
+x 15
+y 20
+end
+arch snow_fmask.116
 x 15
 y 20
 end
@@ -1580,15 +1597,23 @@ arch water_lt3
 x 16
 y 16
 end
+arch snow_fmask.118
+x 16
+y 16
+end
 arch water_lt3
 x 16
 y 17
 end
-arch water_lt3
+arch snow_fmask.108
+x 16
+y 17
+end
+arch snow3
 x 16
 y 18
 end
-arch water_lt
+arch snow1
 x 16
 y 19
 end
@@ -1596,7 +1621,15 @@ arch water_lt
 x 16
 y 20
 end
+arch snow_fmask.106
+x 16
+y 20
+end
 arch water_lt3
+x 16
+y 21
+end
+arch snow_fmask.116
 x 16
 y 21
 end
@@ -1675,19 +1708,31 @@ arch water_lt2
 x 17
 y 16
 end
-arch water_lt2
+arch snow_fmask.101
+x 17
+y 16
+end
+arch snow2
 x 17
 y 17
 end
-arch water_lt3
+arch snow3
 x 17
 y 18
 end
-arch water_lt2
+arch rock_wall3
+x 17
+y 18
+end
+arch snow4
 x 17
 y 19
 end
-arch water_lt4
+arch snow1
+x 17
+y 20
+end
+arch rock_wall3
 x 17
 y 20
 end
@@ -1695,7 +1740,15 @@ arch water_lt2
 x 17
 y 21
 end
+arch snow_fmask.106
+x 17
+y 21
+end
 arch water_lt4
+x 17
+y 22
+end
+arch snow_fmask.116
 x 17
 y 22
 end
@@ -1766,27 +1819,43 @@ arch water_lt2
 x 18
 y 15
 end
+arch snow_fmask.118
+x 18
+y 15
+end
 arch water_lt2
 x 18
 y 16
 end
-arch water_lt2
+arch snow_fmask.108
+x 18
+y 16
+end
+arch snow3
 x 18
 y 17
 end
-arch water_lt2
+arch rock_wall5
+x 18
+y 17
+end
+arch snow1
 x 18
 y 18
 end
-arch water_lt2
+arch snow4
 x 18
 y 19
 end
-arch water_lt3
+arch snow4
 x 18
 y 20
 end
-arch water_lt3
+arch snow2
+x 18
+y 21
+end
+arch rock_wall2
 x 18
 y 21
 end
@@ -1794,7 +1863,15 @@ arch water_lt
 x 18
 y 22
 end
+arch snow_fmask.106
+x 18
+y 22
+end
 arch water_lt
+x 18
+y 23
+end
+arch snow_fmask.116
 x 18
 y 23
 end
@@ -1861,35 +1938,71 @@ arch water_lt3
 x 19
 y 15
 end
-arch water_lt3
+arch snow_fmask.101
+x 19
+y 15
+end
+arch snow2
 x 19
 y 16
 end
-arch water_lt4
+arch snow1
 x 19
 y 17
 end
-arch water_lt
+arch snow1
 x 19
 y 18
 end
-arch water_lt3
+arch snow3
 x 19
 y 19
 end
-arch water_lt
+arch stairs_stone_down
+msg
+layoutstyle rogue
+monsterstyle la_ice_cave
+exitstyle stairs_stone
+doorstyle none
+dungeon_depth 114
+dungeon_level 48
+xsize 40
+ysize 40
+floorstyle ice
+wallstyle ice
+num_monsters 15
+darkness 3
+level_increment 2
+orientation 1
+dungeon_name Ice Cave
+bg_music crystal_cave.ogg
+decorstyle ice
+decorchance 3
+endmsg
+direction 7
+slaying /random/
+hp 0
+sp 0
+x 19
+y 19
+end
+arch snow3
 x 19
 y 20
 end
-arch water_lt2
+arch snow2
 x 19
 y 21
 end
-arch water_lt2
+arch snow4
 x 19
 y 22
 end
 arch water_lt2
+x 19
+y 23
+end
+arch snow_fmask.105
 x 19
 y 23
 end
@@ -1952,39 +2065,63 @@ arch water_lt2
 x 20
 y 14
 end
+arch snow_fmask.118
+x 20
+y 14
+end
 arch water_lt4
 x 20
 y 15
 end
-arch water_lt2
+arch snow_fmask.108
+x 20
+y 15
+end
+arch snow2
 x 20
 y 16
 end
-arch water_lt
+arch snow4
 x 20
 y 17
 end
-arch water_lt
+arch pillar_blue2
+x 20
+y 17
+end
+arch snow4
 x 20
 y 18
 end
-arch water_lt4
+arch snow4
 x 20
 y 19
 end
-arch water_lt2
+arch snow2
 x 20
 y 20
 end
-arch water_lt
+arch stone5
+x 20
+y 20
+end
+arch snow3
 x 20
 y 21
 end
-arch water_lt
+arch snow2
+x 20
+y 22
+end
+arch rock_wall2
 x 20
 y 22
 end
 arch water_lt4
+x 20
+y 23
+end
+arch snow_fmask.106
 x 20
 y 23
 end
@@ -2043,43 +2180,71 @@ arch water_lt
 x 21
 y 13
 end
+arch snow_fmask.118
+x 21
+y 13
+end
 arch water_lt
 x 21
 y 14
 end
-arch water_lt4
+arch snow_fmask.108
+x 21
+y 14
+end
+arch snow3
 x 21
 y 15
 end
-arch water_lt4
+arch snow2
 x 21
 y 16
 end
-arch water_lt3
+arch tree_branch2_winter
+x 21
+y 16
+end
+arch snow4
 x 21
 y 17
 end
-arch water_lt2
+arch snow4
 x 21
 y 18
 end
-arch water_lt2
+arch snow4
 x 21
 y 19
 end
-arch water_lt4
+arch light5
+x 21
+y 19
+end
+arch snow3
 x 21
 y 20
 end
-arch water_lt4
+arch stone6
+x 21
+y 20
+end
+arch snow1
 x 21
 y 21
 end
-arch water_lt2
+arch tree_branch1_winter
+x 21
+y 21
+end
+arch light5
+x 21
+y 21
+end
+arch snow2
 x 21
 y 22
 end
-arch water_lt3
+arch snow4
 x 21
 y 23
 end
@@ -2138,43 +2303,67 @@ arch water_lt4
 x 22
 y 13
 end
-arch water_lt
+arch snow_fmask.101
+x 22
+y 13
+end
+arch snow1
 x 22
 y 14
 end
-arch water_lt2
+arch snowy_burnedtree1
+x 22
+y 14
+end
+arch snow3
 x 22
 y 15
 end
-arch water_lt2
+arch pillar_blue9
+x 22
+y 15
+end
+arch snow4
 x 22
 y 16
 end
-arch water_lt2
+arch snow1
 x 22
 y 17
 end
-arch water_lt3
+arch pillar_blue1
+x 22
+y 17
+end
+arch snow2
 x 22
 y 18
 end
-arch water_lt3
+arch snow3
 x 22
 y 19
 end
-arch water_lt2
+arch snow3
 x 22
 y 20
 end
-arch water_lt
+arch tree_branch1_winter
+x 22
+y 20
+end
+arch snow2
 x 22
 y 21
 end
-arch water_lt3
+arch snow2
 x 22
 y 22
 end
-arch water_lt4
+arch pillar_blue3
+x 22
+y 22
+end
+arch snow3
 x 22
 y 23
 end
@@ -2233,43 +2422,63 @@ arch water_lt2
 x 23
 y 13
 end
-arch water_lt3
+arch snow_fmask.101
+x 23
+y 13
+end
+arch snow2
 x 23
 y 14
 end
-arch water_lt
+arch snow2
 x 23
 y 15
 end
-arch water_lt2
+arch small_stones
+x 23
+y 15
+end
+arch snow2
 x 23
 y 16
 end
-arch water_lt4
+arch light5
+x 23
+y 16
+end
+arch snow2
 x 23
 y 17
 end
-arch water_lt
+arch snow3
 x 23
 y 18
 end
-arch water_lt4
+arch snow2
 x 23
 y 19
 end
-arch water_lt3
+arch stone5
+x 23
+y 19
+end
+arch snow3
 x 23
 y 20
 end
-arch water_lt3
+arch snow4
 x 23
 y 21
 end
-arch water_lt3
+arch light5
+x 23
+y 21
+end
+arch snow2
 x 23
 y 22
 end
-arch water_lt3
+arch snow2
 x 23
 y 23
 end
