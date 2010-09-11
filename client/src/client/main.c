@@ -1299,7 +1299,7 @@ static void display_layer1()
 	{
 		if (options.warning_hp && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= options.warning_hp)
 		{
-			sprite_blt(Bitmaps[BITMAP_WARN_HP], options.mapstart_x + 393, options.mapstart_y + 298, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_WARN_HP], options.mapstart_x + 393 * (options.zoom / 100.0), options.mapstart_y + 298 * (options.zoom / 100.0), NULL, NULL);
 		}
 	}
 	else
@@ -1307,7 +1307,7 @@ static void display_layer1()
 		/* Low food */
 		if (options.warning_food && ((float) cpl.stats.food / 1000.0f) * 100 <= options.warning_food)
 		{
-			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], options.mapstart_x + 390, options.mapstart_y + 294, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], options.mapstart_x + 390 * (options.zoom / 100.0), options.mapstart_y + 294 * (options.zoom / 100.0), NULL, NULL);
 		}
 	}
 }
