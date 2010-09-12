@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -74,6 +74,9 @@ end
 arch grassd_1
 y 18
 end
+arch plant8
+y 18
+end
 arch grassd_2
 y 19
 end
@@ -294,6 +297,10 @@ arch grassd_6
 x 2
 y 18
 end
+arch plant8
+x 2
+y 18
+end
 arch grassd_2
 x 2
 y 19
@@ -413,6 +420,10 @@ arch grassd_8
 x 3
 y 19
 end
+arch plant8
+x 3
+y 19
+end
 arch grassd_5
 x 3
 y 20
@@ -520,6 +531,10 @@ arch grassd_1
 x 4
 y 18
 end
+arch plant7
+x 4
+y 18
+end
 arch grassd_8
 x 4
 y 19
@@ -631,6 +646,10 @@ arch grassd_3
 x 5
 y 18
 end
+arch plant8
+x 5
+y 18
+end
 arch grassd_7
 x 5
 y 19
@@ -861,6 +880,10 @@ arch grassd_7
 x 7
 y 18
 end
+arch plant7
+x 7
+y 18
+end
 arch grassd_7
 x 7
 y 19
@@ -976,6 +999,10 @@ arch grassd_8
 x 8
 y 18
 end
+arch plant7
+x 8
+y 18
+end
 arch grassd_8
 x 8
 y 19
@@ -1083,6 +1110,10 @@ arch grassd_3
 x 9
 y 17
 end
+arch plant7
+x 9
+y 17
+end
 arch grassd_8
 x 9
 y 18
@@ -1317,6 +1348,10 @@ arch grassd_1
 x 11
 y 17
 end
+arch plant8
+x 11
+y 17
+end
 arch grassd_7
 x 11
 y 18
@@ -1429,6 +1464,10 @@ x 12
 y 16
 end
 arch grassd_4
+x 12
+y 17
+end
+arch plant8
 x 12
 y 17
 end
@@ -1547,6 +1586,10 @@ arch grassd_3
 x 13
 y 17
 end
+arch plant7
+x 13
+y 17
+end
 arch grassd_4
 x 13
 y 18
@@ -1670,6 +1713,10 @@ arch grassd_5
 x 14
 y 18
 end
+arch plant8
+x 14
+y 18
+end
 arch grassd_6
 x 14
 y 19
@@ -1781,6 +1828,10 @@ arch grassd_4
 x 15
 y 18
 end
+arch plant8
+x 15
+y 18
+end
 arch grassd_6
 x 15
 y 19
@@ -1790,6 +1841,10 @@ x 15
 y 19
 end
 arch grassd_4
+x 15
+y 20
+end
+arch plant8
 x 15
 y 20
 end
@@ -1896,6 +1951,10 @@ arch grassd_2
 x 16
 y 19
 end
+arch plant7
+x 16
+y 19
+end
 arch grassd_3
 x 16
 y 20
@@ -1996,6 +2055,10 @@ x 17
 y 17
 end
 arch grassd_4
+x 17
+y 18
+end
+arch plant8
 x 17
 y 18
 end
@@ -2111,6 +2174,10 @@ x 18
 y 17
 end
 arch grassd_2
+x 18
+y 18
+end
+arch plant8
 x 18
 y 18
 end
@@ -2226,6 +2293,10 @@ x 19
 y 17
 end
 arch grassd_7
+x 19
+y 18
+end
+arch plant7
 x 19
 y 18
 end
@@ -2345,6 +2416,10 @@ x 20
 y 18
 end
 arch grassd_3
+x 20
+y 19
+end
+arch plant8
 x 20
 y 19
 end
@@ -2459,7 +2534,15 @@ arch grassd_3
 x 21
 y 19
 end
+arch plant8
+x 21
+y 19
+end
 arch grassd_3
+x 21
+y 20
+end
+arch plant8
 x 21
 y 20
 end
@@ -2674,6 +2757,10 @@ x 23
 y 17
 end
 arch grassd_7
+x 23
+y 18
+end
+arch plant8
 x 23
 y 18
 end
