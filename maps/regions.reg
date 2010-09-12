@@ -175,6 +175,30 @@ parent strakewood_island
 longname The Giant Stronghold
 end
 
+############################
+### Lyondale Archipelago ###
+############################
+
+# LA.
+region lyondale_archipelago
+parent world
+longname Lyondale Archipelago
+msg
+Lyondale Archipelago is a set of small islands grouped close together.
+endmsg
+end
+
+# Wizards' Tower.
+region lyondale_archipelago_wizard
+parent lyondale_archipelago
+longname Lyondale Archipelago: Wizards' Tower
+msg
+Lyondale Archipelago is a set of small islands grouped close together.
+
+The one you're currently located on has the famous Wizards' Tower with the Thelra wizards in the middle.
+endmsg
+end
+
 ##############
 # Eld Woods Island.
 
@@ -206,15 +230,6 @@ parent world
 longname The Promethia Island
 msg
 
-endmsg
-end
-region lyondale_archipelago_wizard
-parent world
-longname Lyondale Archipelago: Wizards' Tower
-msg
-Lyondale Archipelago is a set of small islands grouped close together.
-
-The one you're currently located on has the famous Wizards' Tower with the Thelra wizards in the middle.
 endmsg
 end
 region dragons_island
