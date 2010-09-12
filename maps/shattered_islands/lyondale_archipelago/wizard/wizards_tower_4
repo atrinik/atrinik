@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-09-11 Alex Tokar
-Modified: 2010-09-11 Alex Tokar
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 17
 height 15
@@ -957,6 +957,7 @@ y 7
 arch mage_old
 name Quidton
 level 114
+race thelra
 type 83
 arch event_obj
 sub_type 6
