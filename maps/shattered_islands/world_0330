@@ -1627,7 +1627,11 @@ type 83
 is_good 0
 is_evil 1
 arch ability_mbullet
+name ability lightning
+sp 48
 hp 48
+end
+arch ability_mbullet
 end
 end
 end
@@ -1779,8 +1783,9 @@ protect_weaponmagic 5
 type 83
 is_good 0
 is_evil 1
+arch ability_cause_lig_wound
+end
 arch ability_firestorm
-sp 11
 end
 end
 end
