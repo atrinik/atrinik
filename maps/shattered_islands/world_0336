@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-29 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1818,7 +1818,14 @@ end
 arch grassd_6
 x 19
 end
+arch reed_sm1
+x 19
+end
 arch grassd_4
+x 19
+y 1
+end
+arch reed_sm1
 x 19
 y 1
 end
@@ -1826,7 +1833,15 @@ arch grassd_5
 x 19
 y 2
 end
+arch reed_sm1
+x 19
+y 2
+end
 arch grassd_6
+x 19
+y 3
+end
+arch reed_sm1
 x 19
 y 3
 end
@@ -1917,7 +1932,14 @@ end
 arch grassd_7
 x 20
 end
+arch plant7
+x 20
+end
 arch grassd_7
+x 20
+y 1
+end
+arch plant7
 x 20
 y 1
 end
@@ -1925,11 +1947,23 @@ arch grassd_5
 x 20
 y 2
 end
+arch plant8
+x 20
+y 2
+end
 arch grassd_5
 x 20
 y 3
 end
+arch plant7
+x 20
+y 3
+end
 arch grassd_8
+x 20
+y 4
+end
+arch reed_sm1
 x 20
 y 4
 end
@@ -2020,6 +2054,10 @@ arch grassd_2
 x 21
 y 1
 end
+arch tree_branch2
+x 21
+y 1
+end
 arch grassd_2
 x 21
 y 2
@@ -2032,7 +2070,15 @@ arch grassd_6
 x 21
 y 4
 end
+arch plant7
+x 21
+y 4
+end
 arch grassd_3
+x 21
+y 5
+end
+arch reed_sm1
 x 21
 y 5
 end
@@ -2123,6 +2169,9 @@ end
 arch grassd_6
 x 22
 end
+arch tree_big2
+x 22
+end
 arch grassd_4
 x 22
 y 1
@@ -2135,6 +2184,10 @@ arch grassd_7
 x 22
 y 3
 end
+arch tree_big4b
+x 22
+y 3
+end
 arch grassd_3
 x 22
 y 4
@@ -2143,7 +2196,15 @@ arch grassd_4
 x 22
 y 5
 end
+arch plant7
+x 22
+y 5
+end
 arch grassd_5
+x 22
+y 6
+end
+arch reed_sm1
 x 22
 y 6
 end
@@ -2151,7 +2212,15 @@ arch grassd_3
 x 22
 y 7
 end
+arch reed_sm1
+x 22
+y 7
+end
 arch grassd_7
+x 22
+y 8
+end
+arch reed_sm1
 x 22
 y 8
 end
@@ -2230,6 +2299,9 @@ end
 arch grassd_7
 x 23
 end
+arch plant10
+x 23
+end
 arch grassd_4
 x 23
 y 1
@@ -2239,6 +2311,10 @@ x 23
 y 2
 end
 arch grassd_3
+x 23
+y 3
+end
+arch plant11
 x 23
 y 3
 end
@@ -2254,7 +2330,15 @@ arch grassd_6
 x 23
 y 6
 end
+arch plant7
+x 23
+y 6
+end
 arch grassd_1
+x 23
+y 7
+end
+arch plant8
 x 23
 y 7
 end
@@ -2262,7 +2346,15 @@ arch grassd_6
 x 23
 y 8
 end
+arch plant7
+x 23
+y 8
+end
 arch grassd_8
+x 23
+y 9
+end
+arch reed_sm1
 x 23
 y 9
 end
@@ -2270,7 +2362,15 @@ arch grassd_5
 x 23
 y 10
 end
+arch reed_sm1
+x 23
+y 10
+end
 arch grassd_4
+x 23
+y 11
+end
+arch reed_sm1
 x 23
 y 11
 end

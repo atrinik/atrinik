@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -21,10 +21,15 @@ region asteria
 end
 arch grassd_6
 end
+arch plant10
+end
 arch grassd_8
 y 1
 end
 arch grassd_2
+y 2
+end
+arch plant_mushroom3
 y 2
 end
 arch grassd_3
@@ -90,6 +95,9 @@ end
 arch grassd_4
 y 19
 end
+arch stone1
+y 19
+end
 arch grassd_2
 y 20
 end
@@ -120,6 +128,10 @@ arch grassd_7
 x 1
 y 3
 end
+arch tree_big2
+x 1
+y 3
+end
 arch grassd_8
 x 1
 y 4
@@ -129,6 +141,10 @@ x 1
 y 5
 end
 arch grassd_2
+x 1
+y 6
+end
+arch plant_flower14
 x 1
 y 6
 end
@@ -185,6 +201,10 @@ x 1
 y 15
 end
 arch grassd_7
+x 1
+y 16
+end
+arch plant_flower7
 x 1
 y 16
 end
@@ -255,6 +275,10 @@ x 2
 y 3
 end
 arch grassd_4
+x 2
+y 4
+end
+arch plant_mushroom5
 x 2
 y 4
 end
@@ -343,6 +367,10 @@ x 2
 y 21
 end
 arch grassd_7
+x 2
+y 22
+end
+arch plant10
 x 2
 y 22
 end
@@ -438,6 +466,10 @@ arch grassd_5
 x 3
 y 14
 end
+arch plant16
+x 3
+y 14
+end
 arch grassd_7
 x 3
 y 15
@@ -446,7 +478,15 @@ arch grassd_4
 x 3
 y 16
 end
+arch plant_mushroom4
+x 3
+y 16
+end
 arch grassd_3
+x 3
+y 17
+end
+arch small_stones
 x 3
 y 17
 end
@@ -556,6 +596,10 @@ arch grassd_1
 x 4
 y 13
 end
+arch plant_mushroom2
+x 4
+y 13
+end
 arch grassd_5
 x 4
 y 14
@@ -592,6 +636,10 @@ arch grassd_8
 x 4
 y 19
 end
+arch plant_flower5
+x 4
+y 19
+end
 arch grassd_7
 x 4
 y 20
@@ -612,7 +660,14 @@ arch grassd_5
 x 4
 y 23
 end
+arch plant12
+x 4
+y 23
+end
 arch grassd_6
+x 5
+end
+arch plant_mushroom1
 x 5
 end
 arch floor_fs_grey1b
@@ -640,6 +695,10 @@ x 5
 y 4
 end
 arch grassd_8
+x 5
+y 5
+end
+arch tree_branch1
 x 5
 y 5
 end
@@ -715,6 +774,10 @@ arch grassd_2
 x 5
 y 21
 end
+arch plant13
+x 5
+y 21
+end
 arch grassd_8
 x 5
 y 22
@@ -762,7 +825,15 @@ arch grassd_8
 x 6
 y 6
 end
+arch tree_big2
+x 6
+y 6
+end
 arch grassd_1
+x 6
+y 7
+end
+arch tree_branch1
 x 6
 y 7
 end
@@ -802,6 +873,10 @@ arch grassd_5
 x 6
 y 14
 end
+arch small_stones
+x 6
+y 14
+end
 arch grassd_1
 x 6
 y 15
@@ -819,6 +894,10 @@ x 6
 y 17
 end
 arch grassd_8
+x 6
+y 18
+end
+arch plant17
 x 6
 y 18
 end
@@ -949,6 +1028,10 @@ arch grassd_5
 x 7
 y 19
 end
+arch plant9
+x 7
+y 19
+end
 arch grassd_8
 x 7
 y 20
@@ -973,19 +1056,11 @@ arch sand_dm1
 x 7
 y 22
 end
-arch tree_big4b
-x 7
-y 22
-end
 arch grassd_8
 x 7
 y 23
 end
 arch sand_dm16
-x 7
-y 23
-end
-arch tree_big3
 x 7
 y 23
 end
@@ -1078,6 +1153,10 @@ arch grassd_8
 x 8
 y 14
 end
+arch plant_flower6
+x 8
+y 14
+end
 arch grassd_7
 x 8
 y 15
@@ -1157,6 +1236,10 @@ arch grassd_5
 x 9
 y 6
 end
+arch tree_branch1
+x 9
+y 6
+end
 arch grassd_5
 x 9
 y 7
@@ -1206,6 +1289,10 @@ x 9
 y 16
 end
 arch grassd_2
+x 9
+y 17
+end
+arch plant_mushroom3
 x 9
 y 17
 end
@@ -1320,7 +1407,15 @@ arch grassd_2
 x 10
 y 15
 end
+arch plant_flower6
+x 10
+y 15
+end
 arch grassd_1
+x 10
+y 16
+end
+arch plant_flower11
 x 10
 y 16
 end
@@ -1394,6 +1489,10 @@ arch grassd_4
 x 11
 y 6
 end
+arch plant_mushroom3
+x 11
+y 6
+end
 arch grassd_3
 x 11
 y 7
@@ -1434,6 +1533,10 @@ arch grassd_7
 x 11
 y 14
 end
+arch plant_mushroom3
+x 11
+y 14
+end
 arch grassd_2
 x 11
 y 15
@@ -1455,6 +1558,10 @@ x 11
 y 18
 end
 arch grassd_8
+x 11
+y 19
+end
+arch plant_mushroom4
 x 11
 y 19
 end
@@ -1489,6 +1596,9 @@ end
 arch grassd_4
 x 12
 end
+arch plant13
+x 12
+end
 arch floor_fs_grey1b
 x 12
 y 1
@@ -1514,6 +1624,10 @@ x 12
 y 4
 end
 arch grassd_3
+x 12
+y 5
+end
+arch plant_flower7
 x 12
 y 5
 end
@@ -1644,7 +1758,7 @@ arch grassd_3
 x 13
 y 5
 end
-arch tree_big4
+arch tree_big
 x 13
 y 5
 end
@@ -1653,6 +1767,10 @@ x 13
 y 6
 end
 arch grassd_7
+x 13
+y 7
+end
+arch plant_mushroom5
 x 13
 y 7
 end
@@ -1688,6 +1806,10 @@ arch grassd_7
 x 13
 y 13
 end
+arch tree_branch2
+x 13
+y 13
+end
 arch grassd_3
 x 13
 y 14
@@ -1717,6 +1839,10 @@ x 13
 y 19
 end
 arch grassd_5
+x 13
+y 20
+end
+arch small_stones
 x 13
 y 20
 end
@@ -1785,6 +1911,10 @@ arch grassd_2
 x 14
 y 7
 end
+arch plant12
+x 14
+y 7
+end
 arch grassd_2
 x 14
 y 8
@@ -1842,6 +1972,10 @@ x 14
 y 18
 end
 arch grassd_6
+x 14
+y 19
+end
+arch plant_flower11
 x 14
 y 19
 end
@@ -1947,6 +2081,10 @@ arch grassd_4
 x 15
 y 14
 end
+arch plant13
+x 15
+y 14
+end
 arch grassd_5
 x 15
 y 15
@@ -2026,6 +2164,10 @@ arch grassd_8
 x 16
 y 6
 end
+arch plant_flower2
+x 16
+y 6
+end
 arch grassd_5
 x 16
 y 7
@@ -2071,6 +2213,10 @@ x 16
 y 15
 end
 arch grassd_2
+x 16
+y 16
+end
+arch tree_branch3
 x 16
 y 16
 end
@@ -2185,6 +2331,10 @@ arch grassd_5
 x 17
 y 13
 end
+arch plant11
+x 17
+y 13
+end
 arch grassd_3
 x 17
 y 14
@@ -2198,6 +2348,10 @@ x 17
 y 16
 end
 arch grassd_1
+x 17
+y 17
+end
+arch plant_mushroom2
 x 17
 y 17
 end
@@ -2268,7 +2422,7 @@ arch grassd_6
 x 18
 y 5
 end
-arch tree_big5
+arch tree_big
 x 18
 y 5
 end
@@ -2435,6 +2589,10 @@ arch grassd_4
 x 19
 y 8
 end
+arch tree_branch2
+x 19
+y 8
+end
 arch grassd_3
 x 19
 y 9
@@ -2464,6 +2622,10 @@ x 19
 y 13
 end
 arch grassd_8
+x 19
+y 14
+end
+arch plant11
 x 19
 y 14
 end
@@ -2550,7 +2712,15 @@ arch grassd_4
 x 20
 y 6
 end
+arch tree_big
+x 20
+y 6
+end
 arch grassd_1
+x 20
+y 7
+end
+arch plant_mushroom1
 x 20
 y 7
 end
@@ -2634,7 +2804,14 @@ arch grassd_4
 x 20
 y 23
 end
+arch plant_flower1
+x 20
+y 23
+end
 arch grassd_4
+x 21
+end
+arch tree_branch1
 x 21
 end
 arch floor_fs_grey1b
@@ -2725,6 +2902,10 @@ arch grassd_6
 x 21
 y 17
 end
+arch plant_flower5
+x 21
+y 17
+end
 arch grassd_8
 x 21
 y 18
@@ -2796,11 +2977,19 @@ arch grassd_2
 x 22
 y 5
 end
+arch small_stones
+x 22
+y 5
+end
 arch grassd_4
 x 22
 y 6
 end
 arch grassd_6
+x 22
+y 7
+end
+arch plant_mushroom1
 x 22
 y 7
 end
@@ -2840,11 +3029,19 @@ arch grassd_6
 x 22
 y 14
 end
+arch tree_branch3
+x 22
+y 14
+end
 arch grassd_7
 x 22
 y 15
 end
 arch grassd_8
+x 22
+y 16
+end
+arch tree_branch3
 x 22
 y 16
 end
@@ -2881,6 +3078,10 @@ x 22
 y 22
 end
 arch grassd_5
+x 22
+y 23
+end
+arch plant11
 x 22
 y 23
 end
@@ -2996,6 +3197,10 @@ x 23
 y 21
 end
 arch grassd_2
+x 23
+y 22
+end
+arch small_stones
 x 23
 y 22
 end

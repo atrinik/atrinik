@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-29 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1094,7 +1094,14 @@ end
 arch grassd_5
 x 11
 end
+arch reed_sm1
+x 11
+end
 arch grassd_4
+x 11
+y 1
+end
+arch reed_sm1
 x 11
 y 1
 end
@@ -1102,7 +1109,15 @@ arch grassd_6
 x 11
 y 2
 end
+arch reed_sm1
+x 11
+y 2
+end
 arch grassd_7
+x 11
+y 3
+end
+arch reed_sm1
 x 11
 y 3
 end
@@ -1110,7 +1125,15 @@ arch grassd_6
 x 11
 y 4
 end
+arch reed_sm1
+x 11
+y 4
+end
 arch grassd_5
+x 11
+y 5
+end
+arch reed_sm1
 x 11
 y 5
 end
@@ -1118,7 +1141,15 @@ arch grassd_6
 x 11
 y 6
 end
+arch reed_sm1
+x 11
+y 6
+end
 arch grassd_1
+x 11
+y 7
+end
+arch reed_sm1
 x 11
 y 7
 end
@@ -1126,7 +1157,15 @@ arch grassd_4
 x 11
 y 8
 end
+arch reed_sm1
+x 11
+y 8
+end
 arch grassd_7
+x 11
+y 9
+end
+arch reed_sm1
 x 11
 y 9
 end
@@ -1134,11 +1173,23 @@ arch grassd_2
 x 11
 y 10
 end
+arch reed_sm1
+x 11
+y 10
+end
 arch grassd_4
 x 11
 y 11
 end
+arch reed_sm1
+x 11
+y 11
+end
 arch grassd_3
+x 11
+y 12
+end
+arch reed_sm1
 x 11
 y 12
 end
@@ -1205,7 +1256,14 @@ end
 arch grassd_3
 x 12
 end
+arch plant7
+x 12
+end
 arch grassd_2
+x 12
+y 1
+end
+arch plant7
 x 12
 y 1
 end
@@ -1213,7 +1271,15 @@ arch grassd_7
 x 12
 y 2
 end
+arch plant7
+x 12
+y 2
+end
 arch grassd_8
+x 12
+y 3
+end
+arch plant8
 x 12
 y 3
 end
@@ -1221,7 +1287,15 @@ arch grassd_3
 x 12
 y 4
 end
+arch plant8
+x 12
+y 4
+end
 arch grassd_3
+x 12
+y 5
+end
+arch plant8
 x 12
 y 5
 end
@@ -1229,7 +1303,15 @@ arch grassd_7
 x 12
 y 6
 end
+arch plant7
+x 12
+y 6
+end
 arch grassd_4
+x 12
+y 7
+end
+arch plant7
 x 12
 y 7
 end
@@ -1237,7 +1319,15 @@ arch grassd_2
 x 12
 y 8
 end
+arch plant8
+x 12
+y 8
+end
 arch grassd_2
+x 12
+y 9
+end
+arch plant7
 x 12
 y 9
 end
@@ -1245,7 +1335,15 @@ arch grassd_4
 x 12
 y 10
 end
+arch plant7
+x 12
+y 10
+end
 arch grassd_6
+x 12
+y 11
+end
+arch plant7
 x 12
 y 11
 end
@@ -1253,7 +1351,15 @@ arch grassd_1
 x 12
 y 12
 end
+arch plant7
+x 12
+y 12
+end
 arch grassd_6
+x 12
+y 13
+end
+arch reed_sm1
 x 12
 y 13
 end
@@ -1261,11 +1367,23 @@ arch grassd_6
 x 12
 y 14
 end
+arch reed_sm1
+x 12
+y 14
+end
 arch grassd_4
 x 12
 y 15
 end
+arch reed_sm1
+x 12
+y 15
+end
 arch grassd_5
+x 12
+y 16
+end
+arch reed_sm1
 x 12
 y 16
 end
@@ -1316,6 +1434,10 @@ arch grassd_1
 x 13
 y 2
 end
+arch tree_big3
+x 13
+y 2
+end
 arch grassd_5
 x 13
 y 3
@@ -1329,6 +1451,10 @@ x 13
 y 5
 end
 arch grassd_4
+x 13
+y 6
+end
+arch tree_big
 x 13
 y 6
 end
@@ -1356,7 +1482,15 @@ arch grassd_6
 x 13
 y 12
 end
+arch plant7
+x 13
+y 12
+end
 arch grassd_4
+x 13
+y 13
+end
+arch plant7
 x 13
 y 13
 end
@@ -1364,7 +1498,15 @@ arch grassd_1
 x 13
 y 14
 end
+arch plant7
+x 13
+y 14
+end
 arch grassd_4
+x 13
+y 15
+end
+arch plant8
 x 13
 y 15
 end
@@ -1372,7 +1514,15 @@ arch grassd_7
 x 13
 y 16
 end
+arch plant8
+x 13
+y 16
+end
 arch grassd_2
+x 13
+y 17
+end
+arch reed_sm1
 x 13
 y 17
 end
@@ -1419,11 +1569,19 @@ arch grassd_7
 x 14
 y 1
 end
+arch plant_mushroom1
+x 14
+y 1
+end
 arch grassd_2
 x 14
 y 2
 end
 arch grassd_1
+x 14
+y 3
+end
+arch small_stones
 x 14
 y 3
 end
@@ -1472,6 +1630,10 @@ arch grassd_3
 x 14
 y 14
 end
+arch tree_big4b
+x 14
+y 14
+end
 arch grassd_2
 x 14
 y 15
@@ -1484,11 +1646,23 @@ arch grassd_5
 x 14
 y 17
 end
+arch plant7
+x 14
+y 17
+end
 arch grassd_3
 x 14
 y 18
 end
+arch reed_sm1
+x 14
+y 18
+end
 arch grassd_1
+x 14
+y 19
+end
+arch reed_sm1
 x 14
 y 19
 end
@@ -1555,6 +1729,10 @@ arch grassd_4
 x 15
 y 7
 end
+arch tree_branch3
+x 15
+y 7
+end
 arch grassd_6
 x 15
 y 8
@@ -1568,7 +1746,15 @@ z 6
 x 15
 y 10
 end
+arch plant16
+x 15
+y 10
+end
 arch grassd_2
+x 15
+y 11
+end
+arch tree_big
 x 15
 y 11
 end
@@ -1600,7 +1786,15 @@ arch grassd_7
 x 15
 y 18
 end
+arch plant7
+x 15
+y 18
+end
 arch grassd_3
+x 15
+y 19
+end
+arch plant7
 x 15
 y 19
 end
@@ -1608,11 +1802,23 @@ arch grassd_8
 x 15
 y 20
 end
+arch reed_sm1
+x 15
+y 20
+end
 arch grassd_2
 x 15
 y 21
 end
+arch reed_sm1
+x 15
+y 21
+end
 arch grassd_5
+x 15
+y 22
+end
+arch reed_sm1
 x 15
 y 22
 end
@@ -1625,6 +1831,9 @@ x 15
 y 23
 end
 arch grassd_2
+x 16
+end
+arch plant9
 x 16
 end
 arch grassd_8
@@ -1640,6 +1849,10 @@ x 16
 y 3
 end
 arch grassd_8
+x 16
+y 4
+end
+arch plant15
 x 16
 y 4
 end
@@ -1678,12 +1891,20 @@ z 2
 x 16
 y 12
 end
+arch plant1
+x 16
+y 12
+end
 arch grassd_6
 z 2
 x 16
 y 13
 end
 arch grassd_3
+x 16
+y 14
+end
+arch tree_branch1
 x 16
 y 14
 end
@@ -1703,6 +1924,10 @@ arch grassd_5
 x 16
 y 18
 end
+arch tree_big
+x 16
+y 18
+end
 arch grassd_5
 x 16
 y 19
@@ -1711,7 +1936,15 @@ arch grassd_3
 x 16
 y 20
 end
+arch plant7
+x 16
+y 20
+end
 arch grassd_5
+x 16
+y 21
+end
+arch plant8
 x 16
 y 21
 end
@@ -1719,7 +1952,15 @@ arch grassd_3
 x 16
 y 22
 end
+arch plant8
+x 16
+y 22
+end
 arch grassd_8
+x 16
+y 23
+end
+arch plant7
 x 16
 y 23
 end
@@ -1729,6 +1970,10 @@ x 17
 end
 arch grassd_3
 z 6
+x 17
+y 1
+end
+arch tree_big4b
 x 17
 y 1
 end
@@ -1767,6 +2012,10 @@ z 6
 x 17
 y 8
 end
+arch tree_big
+x 17
+y 8
+end
 arch grassd_1
 z 6
 x 17
@@ -1774,6 +2023,10 @@ y 9
 end
 arch grassd_1
 z 14
+x 17
+y 10
+end
+arch small_stones
 x 17
 y 10
 end
@@ -1809,6 +2062,10 @@ arch grassd_5
 x 17
 y 17
 end
+arch plant5
+x 17
+y 17
+end
 arch grassd_1
 x 17
 y 18
@@ -1835,6 +2092,9 @@ y 23
 end
 arch grassd_8
 z 12
+x 18
+end
+arch plant_flower11
 x 18
 end
 arch grassd_2
@@ -1912,6 +2172,10 @@ z 2
 x 18
 y 15
 end
+arch tree_big
+x 18
+y 15
+end
 arch grassd_3
 x 18
 y 16
@@ -1928,6 +2192,10 @@ arch grassd_6
 x 18
 y 19
 end
+arch tree_branch3
+x 18
+y 19
+end
 arch grassd_1
 x 18
 y 20
@@ -1937,6 +2205,10 @@ x 18
 y 21
 end
 arch grassd_2
+x 18
+y 22
+end
+arch plant_mushroom2
 x 18
 y 22
 end
@@ -1973,6 +2245,10 @@ z 18
 x 19
 y 5
 end
+arch plant5
+x 19
+y 5
+end
 arch grassd_6
 z 18
 x 19
@@ -1980,6 +2256,10 @@ y 6
 end
 arch grassd_4
 z 18
+x 19
+y 7
+end
+arch plant1
 x 19
 y 7
 end
@@ -2013,6 +2293,10 @@ z 14
 x 19
 y 13
 end
+arch plant_flower11
+x 19
+y 13
+end
 arch grassd_4
 z 10
 x 19
@@ -2036,6 +2320,10 @@ arch grassd_1
 x 19
 y 18
 end
+arch tree_branch2
+x 19
+y 18
+end
 arch grassd_3
 x 19
 y 19
@@ -2052,12 +2340,19 @@ arch grassd_2
 x 19
 y 22
 end
+arch tree_big4b
+x 19
+y 22
+end
 arch grassd_2
 x 19
 y 23
 end
 arch grassd_2
 z 24
+x 20
+end
+arch plant12
 x 20
 end
 arch grassd_6
@@ -2072,6 +2367,10 @@ y 2
 end
 arch grassd_2
 z 24
+x 20
+y 3
+end
+arch plant17
 x 20
 y 3
 end
@@ -2135,6 +2434,10 @@ z 10
 x 20
 y 15
 end
+arch plant_mushroom1
+x 20
+y 15
+end
 arch grassd_4
 z 6
 x 20
@@ -2183,6 +2486,10 @@ z 30
 x 21
 y 2
 end
+arch small_stones
+x 21
+y 2
+end
 arch grassd_5
 z 30
 x 21
@@ -2208,6 +2515,10 @@ z 30
 x 21
 y 7
 end
+arch tree_big4b
+x 21
+y 7
+end
 arch grassd_6
 z 30
 x 21
@@ -2215,6 +2526,10 @@ y 8
 end
 arch grassd_8
 z 30
+x 21
+y 9
+end
+arch plant17
 x 21
 y 9
 end
@@ -2228,6 +2543,10 @@ z 30
 x 21
 y 11
 end
+arch tree_big4b
+x 21
+y 11
+end
 arch grassd_7
 z 26
 x 21
@@ -2235,6 +2554,10 @@ y 12
 end
 arch grassd_4
 z 22
+x 21
+y 13
+end
+arch stone1
 x 21
 y 13
 end
@@ -2263,6 +2586,10 @@ z 2
 x 21
 y 18
 end
+arch stone1
+x 21
+y 18
+end
 arch grassd_4
 x 21
 y 19
@@ -2272,6 +2599,10 @@ x 21
 y 20
 end
 arch grassd_5
+x 21
+y 21
+end
+arch plant10
 x 21
 y 21
 end
@@ -2289,6 +2620,10 @@ x 22
 end
 arch grassd_4
 z 36
+x 22
+y 1
+end
+arch tree_big4b
 x 22
 y 1
 end
@@ -2312,6 +2647,10 @@ z 36
 x 22
 y 5
 end
+arch plant_flower6
+x 22
+y 5
+end
 arch grassd_1
 z 36
 x 22
@@ -2324,6 +2663,10 @@ y 7
 end
 arch grassd_2
 z 36
+x 22
+y 8
+end
+arch plant_mushroom5
 x 22
 y 8
 end
@@ -2342,6 +2685,10 @@ z 34
 x 22
 y 11
 end
+arch plant_flower1
+x 22
+y 11
+end
 arch grassd_8
 z 30
 x 22
@@ -2364,6 +2711,10 @@ y 15
 end
 arch grassd_7
 z 14
+x 22
+y 16
+end
+arch plant_mushroom4
 x 22
 y 16
 end
@@ -2390,11 +2741,19 @@ arch grassd_4
 x 22
 y 21
 end
+arch tree_big2
+x 22
+y 21
+end
 arch grassd_3
 x 22
 y 22
 end
 arch grassd_6
+x 22
+y 23
+end
+arch tree_branch3
 x 22
 y 23
 end
@@ -2467,6 +2826,10 @@ z 30
 x 23
 y 13
 end
+arch plant_flower6
+x 23
+y 13
+end
 arch grassd_4
 z 26
 x 23
@@ -2479,6 +2842,10 @@ y 15
 end
 arch grassd_3
 z 18
+x 23
+y 16
+end
+arch tree_big4b
 x 23
 y 16
 end
@@ -2501,11 +2868,19 @@ arch grassd_6
 x 23
 y 20
 end
+arch plant_flower6
+x 23
+y 20
+end
 arch grassd_1
 x 23
 y 21
 end
 arch grassd_4
+x 23
+y 22
+end
+arch plant_mushroom4
 x 23
 y 22
 end

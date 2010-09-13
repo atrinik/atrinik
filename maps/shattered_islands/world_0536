@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -22,6 +22,8 @@ end
 arch grassd_2
 z 46
 end
+arch tree_big2
+end
 arch grassd_4
 z 46
 y 1
@@ -32,6 +34,9 @@ y 2
 end
 arch grassd_8
 z 46
+y 3
+end
+arch plant_mushroom2
 y 3
 end
 arch grassd_6
@@ -58,6 +63,9 @@ arch grassd_7
 z 46
 y 9
 end
+arch plant_flower11
+y 9
+end
 arch grassd_4
 z 46
 y 10
@@ -74,6 +82,9 @@ arch grassd_5
 z 46
 y 13
 end
+arch tree_big2
+y 13
+end
 arch grassd_6
 z 46
 y 14
@@ -86,6 +97,9 @@ arch grassd_2
 z 46
 y 16
 end
+arch plant15
+y 16
+end
 arch grassd_7
 z 46
 y 17
@@ -96,6 +110,9 @@ y 18
 end
 arch grassd_7
 z 46
+y 19
+end
+arch plant15
 y 19
 end
 arch grassd_6
@@ -123,8 +140,16 @@ z 50
 x 1
 y 1
 end
+arch plant_flower1
+x 1
+y 1
+end
 arch grassd_3
 z 50
+x 1
+y 2
+end
+arch tree_big
 x 1
 y 2
 end
@@ -145,6 +170,10 @@ y 5
 end
 arch grassd_7
 z 50
+x 1
+y 6
+end
+arch tree_big3
 x 1
 y 6
 end
@@ -213,6 +242,10 @@ z 50
 x 1
 y 19
 end
+arch tree_big2
+x 1
+y 19
+end
 arch grassd_5
 z 50
 x 1
@@ -220,6 +253,10 @@ y 20
 end
 arch grassd_7
 z 50
+x 1
+y 21
+end
+arch plant5
 x 1
 y 21
 end
@@ -270,6 +307,10 @@ z 50
 x 2
 y 6
 end
+arch plant_flower1
+x 2
+y 6
+end
 arch grassd_7
 z 50
 x 2
@@ -282,6 +323,10 @@ y 8
 end
 arch grassd_5
 z 50
+x 2
+y 9
+end
+arch tree_big3
 x 2
 y 9
 end
@@ -300,8 +345,16 @@ z 50
 x 2
 y 12
 end
+arch stone1
+x 2
+y 12
+end
 arch grassd_2
 z 50
+x 2
+y 13
+end
+arch plant_flower14
 x 2
 y 13
 end
@@ -317,6 +370,10 @@ y 15
 end
 arch grassd_7
 z 50
+x 2
+y 16
+end
+arch tree_branch3
 x 2
 y 16
 end
@@ -473,6 +530,10 @@ y 21
 end
 arch grassd_8
 z 50
+x 3
+y 22
+end
+arch plant_flower5
 x 3
 y 22
 end

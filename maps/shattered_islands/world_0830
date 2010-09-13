@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-26 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -60,6 +60,9 @@ arch grassd_1
 y 12
 end
 arch grassd_6
+y 13
+end
+arch plant_flower7
 y 13
 end
 arch grassd_8
@@ -143,6 +146,10 @@ arch grassd_2
 x 1
 y 9
 end
+arch plant_flower2
+x 1
+y 9
+end
 arch grassd_3
 x 1
 y 10
@@ -168,6 +175,10 @@ x 1
 y 14
 end
 arch grassd_3
+x 1
+y 15
+end
+arch plant16
 x 1
 y 15
 end
@@ -250,6 +261,10 @@ x 2
 y 8
 end
 arch grassd_8
+x 2
+y 9
+end
+arch plant1
 x 2
 y 9
 end
@@ -396,6 +411,10 @@ arch grassd_5
 x 3
 y 17
 end
+arch plant5
+x 3
+y 17
+end
 arch water_lt4
 x 3
 y 18
@@ -490,11 +509,19 @@ arch grassd_7
 x 4
 y 14
 end
+arch plant10
+x 4
+y 14
+end
 arch grassd_2
 x 4
 y 15
 end
 arch grassd_1
+x 4
+y 16
+end
+arch tree_big4b
 x 4
 y 16
 end
@@ -702,6 +729,10 @@ arch grassd_6
 x 6
 y 15
 end
+arch tree_branch1
+x 6
+y 15
+end
 arch grassd_3
 x 6
 y 16
@@ -812,6 +843,10 @@ arch grassd_3
 x 7
 y 11
 end
+arch tree_big4b
+x 7
+y 11
+end
 arch grassd_3
 x 7
 y 12
@@ -821,6 +856,10 @@ x 7
 y 13
 end
 arch grassd_5
+x 7
+y 14
+end
+arch tree_big4b
 x 7
 y 14
 end
@@ -907,6 +946,10 @@ arch grassd_5
 x 8
 y 9
 end
+arch plant12
+x 8
+y 9
+end
 arch grassd_3
 x 8
 y 10
@@ -916,6 +959,10 @@ x 8
 y 11
 end
 arch grassd_2
+x 8
+y 12
+end
+arch plant_flower5
 x 8
 y 12
 end
@@ -1163,6 +1210,10 @@ arch grassd_7
 x 10
 y 14
 end
+arch plant_flower14
+x 10
+y 14
+end
 arch grassd_5
 x 10
 y 15
@@ -1238,6 +1289,10 @@ x 11
 y 4
 end
 arch grassd_2
+x 11
+y 5
+end
+arch plant16
 x 11
 y 5
 end
@@ -1803,6 +1858,10 @@ arch grassd_6
 x 15
 y 12
 end
+arch plant10
+x 15
+y 12
+end
 arch grassd_5
 x 15
 y 13
@@ -2032,6 +2091,10 @@ arch grassd_4
 x 17
 y 11
 end
+arch tree_big3
+x 17
+y 11
+end
 arch grassd_8
 x 17
 y 12
@@ -2158,6 +2221,10 @@ arch grassd_8
 x 18
 y 10
 end
+arch plant12
+x 18
+y 10
+end
 arch grassd_8
 x 18
 y 11
@@ -2256,6 +2323,10 @@ arch grassd_8
 x 19
 y 9
 end
+arch tree_big3
+x 19
+y 9
+end
 arch grassd_1
 x 19
 y 10
@@ -2265,6 +2336,10 @@ x 19
 y 11
 end
 arch grassd_3
+x 19
+y 12
+end
+arch plant_mushroom4
 x 19
 y 12
 end
@@ -2567,7 +2642,15 @@ arch grassd_4
 x 22
 y 9
 end
+arch plant_flower2
+x 22
+y 9
+end
 arch grassd_5
+x 22
+y 10
+end
+arch tree_big4b
 x 22
 y 10
 end
