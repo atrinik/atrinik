@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-12 emperorbma
 endmsg
 width 24
 height 24
@@ -15,1289 +15,1440 @@ tile_path_5 world_0230
 tile_path_6 world_0228
 region strakewood_island
 end
-arch grassd_5
+arch water_lt
 end
-arch grassd_7
+arch water_lt4
 y 1
 end
-arch grassd_7
+arch water_lt3
 y 2
 end
-arch grassd_2
+arch water_lt4
 y 3
 end
-arch grassd_4
+arch water_lt
 y 4
 end
-arch grassd_6
+arch water_lt
 y 5
 end
-arch grassd_6
+arch water_lt3
 y 6
 end
-arch grassd_3
+arch water_lt3
 y 7
 end
-arch grassd_5
+arch water_lt2
 y 8
 end
-arch grassd_1
+arch water_lt2
 y 9
 end
-arch grassd_5
+arch water_lt3
 y 10
 end
-arch grassd_7
+arch water_lt3
 y 11
 end
-arch grassd_1
+arch water_lt2
 y 12
 end
-arch grassd_5
+arch water_lt3
 y 13
 end
-arch grassd_8
+arch water_lt
 y 14
 end
-arch grassd_2
+arch water_lt3
 y 15
 end
-arch grassd_8
+arch water_lt2
 y 16
 end
-arch grassd_4
+arch water_lt
 y 17
 end
-arch grassd_3
+arch water_lt4
 y 18
 end
-arch grassd_8
+arch water_lt
 y 19
 end
-arch grassd_4
+arch water_lt3
 y 20
 end
-arch grassd_8
+arch water_lt4
 y 21
 end
-arch grassd_2
+arch water_lt2
 y 22
 end
-arch grassd_1
+arch water_lt3
 y 23
 end
-arch grassd_1
+arch water_lt2
 x 1
 end
-arch grassd_8
+arch water_lt4
 x 1
 y 1
 end
-arch grassd_7
+arch water_lt3
 x 1
 y 2
 end
-arch grassd_6
+arch water_lt3
 x 1
 y 3
 end
-arch grassd_4
+arch water_lt4
 x 1
 y 4
 end
-arch grassd_3
+arch water_lt4
 x 1
 y 5
 end
-arch grassd_1
+arch water_lt2
 x 1
 y 6
 end
-arch grassd_2
+arch water_lt4
 x 1
 y 7
 end
-arch grassd_8
+arch water_lt4
 x 1
 y 8
 end
-arch grassd_1
+arch water_lt2
 x 1
 y 9
 end
-arch grassd_4
+arch water_lt3
 x 1
 y 10
 end
-arch grassd_7
+arch water_lt4
 x 1
 y 11
 end
-arch grassd_4
+arch water_lt4
 x 1
 y 12
 end
-arch grassd_5
+arch water_lt3
 x 1
 y 13
 end
-arch grassd_3
+arch water_lt
 x 1
 y 14
 end
-arch grassd_2
+arch water_lt4
 x 1
 y 15
 end
-arch grassd_8
+arch water_lt3
 x 1
 y 16
 end
-arch grassd_5
+arch water_lt4
 x 1
 y 17
 end
-arch grassd_1
+arch water_lt3
 x 1
 y 18
 end
-arch grassd_6
+arch water_lt3
 x 1
 y 19
 end
-arch grassd_6
+arch water_lt4
 x 1
 y 20
 end
-arch grassd_2
+arch water_lt3
 x 1
 y 21
 end
-arch grassd_8
+arch water_lt3
 x 1
 y 22
 end
-arch grassd_4
+arch water_lt4
 x 1
 y 23
 end
-arch grassd_1
+arch water_lt4
 x 2
 end
-arch grassd_7
+arch swamp1m10
+x 2
+end
+arch water_lt
 x 2
 y 1
 end
-arch grassd_4
+arch swamp1m10
+x 2
+y 1
+end
+arch water_lt4
 x 2
 y 2
 end
-arch grassd_8
+arch swamp1m10
+x 2
+y 2
+end
+arch water_lt2
 x 2
 y 3
 end
-arch grassd_1
+arch swamp1m10
+x 2
+y 3
+end
+arch water_lt
 x 2
 y 4
 end
-arch grassd_4
+arch swamp1m10
+x 2
+y 4
+end
+arch water_lt3
 x 2
 y 5
 end
-arch grassd_7
+arch swamp1m10
+x 2
+y 5
+end
+arch water_lt2
 x 2
 y 6
 end
-arch grassd_4
+arch water_lt2
 x 2
 y 7
 end
-arch grassd_1
+arch water_lt
 x 2
 y 8
 end
-arch grassd_6
+arch water_lt
 x 2
 y 9
 end
-arch grassd_5
+arch water_lt
 x 2
 y 10
 end
-arch grassd_4
+arch water_lt
 x 2
 y 11
 end
-arch grassd_3
+arch water_lt4
 x 2
 y 12
 end
-arch grassd_5
+arch water_lt2
 x 2
 y 13
 end
-arch grassd_5
+arch water_lt
 x 2
 y 14
 end
-arch grassd_2
+arch water_lt4
 x 2
 y 15
 end
-arch grassd_8
+arch water_lt3
 x 2
 y 16
 end
-arch grassd_7
+arch water_lt2
 x 2
 y 17
 end
-arch grassd_4
+arch water_lt4
 x 2
 y 18
 end
-arch grassd_7
+arch water_lt3
 x 2
 y 19
 end
-arch grassd_4
+arch water_lt
 x 2
 y 20
 end
-arch grassd_7
+arch water_lt
 x 2
 y 21
 end
-arch grassd_3
+arch water_lt4
 x 2
 y 22
 end
-arch grassd_2
+arch water_lt
 x 2
 y 23
 end
-arch grassd_8
+arch swamp1
 x 3
 end
-arch grassd_5
+arch swamp1
 x 3
 y 1
 end
-arch grassd_7
+arch swamp1
 x 3
 y 2
 end
-arch grassd_4
+arch swamp1
 x 3
 y 3
 end
-arch grassd_2
+arch swamp1
 x 3
 y 4
 end
-arch grassd_5
+arch water_lt
 x 3
 y 5
 end
-arch grassd_1
+arch swamp1m10
+x 3
+y 5
+end
+arch water_lt4
 x 3
 y 6
 end
-arch grassd_1
+arch swamp1m10
+x 3
+y 6
+end
+arch water_lt3
 x 3
 y 7
 end
-arch grassd_7
+arch swamp1m10
+x 3
+y 7
+end
+arch water_lt4
 x 3
 y 8
 end
-arch grassd_1
+arch swamp1m10
+x 3
+y 8
+end
+arch water_lt4
 x 3
 y 9
 end
-arch grassd_8
+arch water_lt4
 x 3
 y 10
 end
-arch grassd_7
+arch water_lt
 x 3
 y 11
 end
-arch grassd_7
+arch water_lt2
 x 3
 y 12
 end
-arch grassd_1
+arch water_lt
 x 3
 y 13
 end
-arch grassd_5
+arch water_lt3
 x 3
 y 14
 end
-arch grassd_1
+arch water_lt4
 x 3
 y 15
 end
-arch grassd_5
+arch water_lt
 x 3
 y 16
 end
-arch grassd_6
+arch water_lt
 x 3
 y 17
 end
-arch grassd_6
+arch water_lt
 x 3
 y 18
 end
-arch grassd_5
+arch water_lt4
 x 3
 y 19
 end
-arch grassd_1
+arch water_lt3
 x 3
 y 20
 end
-arch grassd_4
+arch water_lt2
 x 3
 y 21
 end
-arch grassd_8
+arch water_lt4
 x 3
 y 22
 end
-arch grassd_5
+arch water_lt
 x 3
 y 23
 end
-arch grassd_4
+arch swamp1
 x 4
 end
-arch grassd_5
+arch swamp1
 x 4
 y 1
 end
-arch grassd_7
+arch swamp1
 x 4
 y 2
 end
-arch grassd_7
+arch swamp1
 x 4
 y 3
 end
-arch grassd_8
+arch swamp1
 x 4
 y 4
 end
-arch grassd_8
+arch swamp1
 x 4
 y 5
 end
-arch grassd_1
+arch swamp1
 x 4
 y 6
 end
-arch grassd_2
+arch swamp1
 x 4
 y 7
 end
-arch grassd_5
+arch water_lt4
 x 4
 y 8
 end
-arch grassd_4
+arch swamp1m10
+x 4
+y 8
+end
+arch water_lt4
 x 4
 y 9
 end
-arch grassd_8
+arch swamp1m10
+x 4
+y 9
+end
+arch water_lt2
 x 4
 y 10
 end
-arch grassd_7
+arch water_lt2
 x 4
 y 11
 end
-arch grassd_5
+arch water_lt2
 x 4
 y 12
 end
-arch grassd_2
+arch water_lt3
 x 4
 y 13
 end
-arch grassd_1
+arch water_lt3
 x 4
 y 14
 end
-arch grassd_6
+arch water_lt2
 x 4
 y 15
 end
-arch grassd_1
+arch water_lt
 x 4
 y 16
 end
-arch grassd_3
+arch water_lt2
 x 4
 y 17
 end
-arch grassd_1
+arch water_lt4
 x 4
 y 18
 end
-arch grassd_4
+arch water_lt2
 x 4
 y 19
 end
-arch grassd_7
+arch water_lt4
 x 4
 y 20
 end
-arch grassd_4
+arch water_lt3
 x 4
 y 21
 end
-arch grassd_5
+arch water_lt3
 x 4
 y 22
 end
-arch grassd_7
+arch water_lt
 x 4
 y 23
 end
-arch grassd_3
+arch swamp1
 x 5
 end
-arch grassd_6
+arch swamp1
 x 5
 y 1
 end
-arch grassd_6
+arch swamp1
 x 5
 y 2
 end
-arch grassd_1
+arch swamp1
 x 5
 y 3
 end
-arch grassd_6
+arch swamp1
 x 5
 y 4
 end
-arch grassd_5
+arch swamp1
 x 5
 y 5
 end
-arch grassd_8
+arch swamp1
 x 5
 y 6
 end
-arch grassd_7
+arch tree_big2
+x 5
+y 6
+end
+arch swamp1
 x 5
 y 7
 end
-arch grassd_8
+arch swamp1
 x 5
 y 8
 end
-arch grassd_4
+arch water_lt
 x 5
 y 9
 end
-arch grassd_1
+arch swamp1m10
+x 5
+y 9
+end
+arch water_lt2
 x 5
 y 10
 end
-arch grassd_1
+arch swamp1m10
+x 5
+y 10
+end
+arch water_lt3
 x 5
 y 11
 end
-arch grassd_2
+arch swamp1m10
+x 5
+y 11
+end
+arch water_lt4
 x 5
 y 12
 end
-arch grassd_8
+arch water_lt
 x 5
 y 13
 end
-arch grassd_6
+arch water_lt
 x 5
 y 14
 end
-arch grassd_8
+arch water_lt
 x 5
 y 15
 end
-arch grassd_2
+arch water_lt2
 x 5
 y 16
 end
-arch grassd_1
+arch water_lt
 x 5
 y 17
 end
-arch grassd_5
+arch water_lt3
 x 5
 y 18
 end
-arch grassd_7
+arch water_lt2
 x 5
 y 19
 end
-arch grassd_8
+arch water_lt3
 x 5
 y 20
 end
-arch grassd_7
+arch water_lt2
 x 5
 y 21
 end
-arch grassd_5
+arch water_lt2
 x 5
 y 22
 end
-arch grassd_5
+arch water_lt3
 x 5
 y 23
 end
-arch grassd_7
+arch swamp1
 x 6
 end
-arch grassd_3
+arch swamp1
 x 6
 y 1
 end
-arch grassd_3
+arch swamp1
 x 6
 y 2
 end
-arch grassd_3
+arch swamp1
 x 6
 y 3
 end
-arch grassd_8
+arch spawn_point
+x 6
+y 3
+arch frog
+level 20
+type 83
+end
+end
+arch swamp1
 x 6
 y 4
 end
-arch grassd_3
+arch swamp1
 x 6
 y 5
 end
-arch grassd_1
+arch swamp1
 x 6
 y 6
 end
-arch grassd_3
+arch swamp1
 x 6
 y 7
 end
-arch grassd_2
+arch swamp1
 x 6
 y 8
 end
-arch grassd_7
+arch swamp1
 x 6
 y 9
 end
-arch grassd_2
+arch swamp1
 x 6
 y 10
 end
-arch grassd_5
+arch water_lt3
 x 6
 y 11
 end
-arch grassd_2
+arch swamp1m10
 x 6
-y 12
-end
-arch grassd_4
-x 6
-y 13
-end
-arch grassd_7
-x 6
-y 14
-end
-arch grassd_3
-x 6
-y 15
-end
-arch grassd_8
-x 6
-y 16
-end
-arch grassd_6
-x 6
-y 17
-end
-arch grassd_6
-x 6
-y 18
-end
-arch grassd_6
-x 6
-y 19
-end
-arch grassd_4
-x 6
-y 20
-end
-arch grassd_4
-x 6
-y 21
-end
-arch grassd_4
-x 6
-y 22
-end
-arch grassd_4
-x 6
-y 23
-end
-arch grassd_3
-x 7
-end
-arch grassd_8
-x 7
-y 1
-end
-arch grassd_3
-x 7
-y 2
-end
-arch grassd_7
-x 7
-y 3
-end
-arch grassd_4
-x 7
-y 4
-end
-arch grassd_1
-x 7
-y 5
-end
-arch grassd_1
-x 7
-y 6
-end
-arch grassd_6
-x 7
-y 7
-end
-arch grassd_8
-x 7
-y 8
-end
-arch grassd_8
-x 7
-y 9
-end
-arch grassd_7
-x 7
-y 10
-end
-arch grassd_7
-x 7
 y 11
 end
-arch grassd_8
-x 7
+arch water_lt3
+x 6
 y 12
 end
-arch grassd_7
-x 7
-y 13
-end
-arch grassd_8
-x 7
-y 14
-end
-arch grassd_2
-x 7
-y 15
-end
-arch grassd_3
-x 7
-y 16
-end
-arch grassd_1
-x 7
-y 17
-end
-arch grassd_6
-x 7
-y 18
-end
-arch grassd_2
-x 7
-y 19
-end
-arch grassd_1
-x 7
-y 20
-end
-arch grassd_7
-x 7
-y 21
-end
-arch grassd_8
-x 7
-y 22
-end
-arch grassd_5
-x 7
-y 23
-end
-arch grassd_6
-x 8
-end
-arch grassd_7
-x 8
-y 1
-end
-arch grassd_7
-x 8
-y 2
-end
-arch grassd_1
-x 8
-y 3
-end
-arch grassd_8
-x 8
-y 4
-end
-arch grassd_8
-x 8
-y 5
-end
-arch grassd_4
-x 8
-y 6
-end
-arch grassd_2
-x 8
-y 7
-end
-arch grassd_8
-x 8
-y 8
-end
-arch grassd_6
-x 8
-y 9
-end
-arch grassd_1
-x 8
-y 10
-end
-arch grassd_8
-x 8
-y 11
-end
-arch grassd_5
-x 8
+arch grassd_m8
+x 6
 y 12
 end
-arch grassd_7
-x 8
+arch water_lt4
+x 6
 y 13
 end
-arch grassd_1
-x 8
-y 14
-end
-arch grassd_1
-x 8
-y 15
-end
-arch grassd_5
-x 8
-y 16
-end
-arch grassd_6
-x 8
-y 17
-end
-arch grassd_5
-x 8
-y 18
-end
-arch grassd_3
-x 8
-y 19
-end
-arch grassd_4
-x 8
-y 20
-end
-arch grassd_8
-x 8
-y 21
-end
-arch grassd_7
-x 8
-y 22
-end
-arch grassd_1
-x 8
-y 23
-end
-arch grassd_4
-x 9
-end
-arch grassd_3
-x 9
-y 1
-end
-arch grassd_4
-x 9
-y 2
-end
-arch grassd_7
-x 9
-y 3
-end
-arch grassd_1
-x 9
-y 4
-end
-arch grassd_4
-x 9
-y 5
-end
-arch grassd_2
-x 9
-y 6
-end
-arch grassd_6
-x 9
-y 7
-end
-arch grassd_8
-x 9
-y 8
-end
-arch grassd_8
-x 9
-y 9
-end
-arch grassd_4
-x 9
-y 10
-end
-arch grassd_5
-x 9
-y 11
-end
-arch grassd_4
-x 9
-y 12
-end
-arch grassd_1
-x 9
+arch grassd_m8
+x 6
 y 13
 end
-arch grassd_3
-x 9
+arch water_lt2
+x 6
 y 14
 end
-arch grassd_5
-x 9
-y 15
-end
-arch grassd_8
-x 9
-y 16
-end
-arch grassd_8
-x 9
-y 17
-end
-arch grassd_1
-x 9
-y 18
-end
-arch grassd_1
-x 9
-y 19
-end
-arch grassd_6
-x 9
-y 20
-end
-arch grassd_8
-x 9
-y 21
-end
-arch grassd_1
-x 9
-y 22
-end
-arch grassd_5
-x 9
-y 23
-end
-arch grassd_1
-x 10
-end
-arch grassd_8
-x 10
-y 1
-end
-arch grassd_8
-x 10
-y 2
-end
-arch grassd_8
-x 10
-y 3
-end
-arch grassd_4
-x 10
-y 4
-end
-arch grassd_7
-x 10
-y 5
-end
-arch grassd_5
-x 10
-y 6
-end
-arch grassd_1
-x 10
-y 7
-end
-arch grassd_4
-x 10
-y 8
-end
-arch grassd_6
-x 10
-y 9
-end
-arch grassd_7
-x 10
-y 10
-end
-arch grassd_4
-x 10
-y 11
-end
-arch grassd_3
-x 10
-y 12
-end
-arch grassd_4
-x 10
-y 13
-end
-arch grassd_3
-x 10
+arch grassd_m8
+x 6
 y 14
 end
-arch grassd_8
-x 10
+arch water_lt4
+x 6
 y 15
 end
-arch grassd_5
-x 10
-y 16
-end
-arch grassd_6
-x 10
-y 17
-end
-arch grassd_1
-x 10
-y 18
-end
-arch grassd_7
-x 10
-y 19
-end
-arch grassd_4
-x 10
-y 20
-end
-arch grassd_5
-x 10
-y 21
-end
-arch grassd_1
-x 10
-y 22
-end
-arch grassd_8
-x 10
-y 23
-end
-arch grassd_3
-x 11
-end
-arch grassd_1
-x 11
-y 1
-end
-arch grassd_3
-x 11
-y 2
-end
-arch grassd_3
-x 11
-y 3
-end
-arch grassd_3
-x 11
-y 4
-end
-arch grassd_4
-x 11
-y 5
-end
-arch grassd_7
-x 11
-y 6
-end
-arch grassd_2
-x 11
-y 7
-end
-arch grassd_5
-x 11
-y 8
-end
-arch grassd_8
-x 11
-y 9
-end
-arch grassd_3
-x 11
-y 10
-end
-arch grassd_7
-x 11
-y 11
-end
-arch grassd_1
-x 11
-y 12
-end
-arch grassd_6
-x 11
-y 13
-end
-arch grassd_3
-x 11
-y 14
-end
-arch grassd_1
-x 11
+arch grassd_m8
+x 6
 y 15
 end
-arch grassd_7
-x 11
+arch water_lt2
+x 6
 y 16
 end
-arch grassd_3
-x 11
-y 17
-end
-arch grassd_1
-x 11
-y 18
-end
-arch grassd_6
-x 11
-y 19
-end
-arch grassd_6
-x 11
-y 20
-end
-arch grassd_6
-x 11
-y 21
-end
-arch grassd_4
-x 11
-y 22
-end
-arch grassd_7
-x 11
-y 23
-end
-arch grassd_3
-x 12
-end
-arch grassd_5
-x 12
-y 1
-end
-arch grassd_2
-x 12
-y 2
-end
-arch grassd_2
-x 12
-y 3
-end
-arch grassd_7
-x 12
-y 4
-end
-arch grassd_3
-x 12
-y 5
-end
-arch grassd_4
-x 12
-y 6
-end
-arch grassd_8
-x 12
-y 7
-end
-arch grassd_7
-x 12
-y 8
-end
-arch grassd_5
-x 12
-y 9
-end
-arch grassd_4
-x 12
-y 10
-end
-arch grassd_8
-x 12
-y 11
-end
-arch grassd_4
-x 12
-y 12
-end
-arch grassd_2
-x 12
-y 13
-end
-arch grassd_2
-x 12
-y 14
-end
-arch grassd_2
-x 12
-y 15
-end
-arch grassd_4
-x 12
+arch grassd_m8
+x 6
 y 16
 end
-arch grassd_8
-x 12
+arch water_lt4
+x 6
 y 17
 end
-arch grassd_7
-x 12
+arch grassd_m8
+x 6
+y 17
+end
+arch water_lt4
+x 6
 y 18
 end
-arch grassd_2
-x 12
+arch grassd_m8
+x 6
+y 18
+end
+arch water_lt
+x 6
 y 19
 end
-arch grassd_5
-x 12
+arch grassd_m8
+x 6
+y 19
+end
+arch water_lt
+x 6
 y 20
 end
-arch grassd_7
-x 12
+arch grassd_m8
+x 6
+y 20
+end
+arch water_lt
+x 6
 y 21
 end
-arch grassd_2
-x 12
+arch grassd_m8
+x 6
+y 21
+end
+arch water_lt4
+x 6
 y 22
 end
-arch grassd_5
-x 12
+arch water_lt3
+x 6
 y 23
 end
-arch grassd_6
-x 13
+arch swamp1
+x 7
 end
-arch grassd_3
-x 13
+arch swamp1
+x 7
 y 1
 end
-arch grassd_8
-x 13
+arch swamp1
+x 7
 y 2
 end
-arch grassd_8
-x 13
+arch swamp1
+x 7
 y 3
 end
-arch grassd_6
-x 13
+arch swamp1
+x 7
 y 4
 end
-arch grassd_3
-x 13
+arch swamp1
+x 7
 y 5
 end
-arch grassd_6
-x 13
+arch swamp1
+x 7
 y 6
 end
-arch grassd_6
-x 13
+arch swamp1
+x 7
 y 7
 end
-arch grassd_8
-x 13
+arch swamp1
+x 7
 y 8
 end
-arch grassd_1
-x 13
+arch swamp1
+x 7
 y 9
 end
-arch grassd_7
-x 13
+arch swamp1
+x 7
 y 10
 end
-arch grassd_4
-x 13
+arch swamp1
+x 7
 y 11
 end
 arch grassd_8
-x 13
+x 7
 y 12
 end
-arch grassd_6
-x 13
+arch grassd_7
+x 7
 y 13
 end
-arch grassd_4
-x 13
+arch grassd_8
+x 7
 y 14
 end
 arch grassd_2
-x 13
+x 7
 y 15
 end
-arch grassd_4
-x 13
+arch grassd_3
+x 7
 y 16
 end
 arch grassd_1
+x 7
+y 17
+end
+arch grassd_6
+x 7
+y 18
+end
+arch grassd_2
+x 7
+y 19
+end
+arch grassd_1
+x 7
+y 20
+end
+arch grassd_7
+x 7
+y 21
+end
+arch water_lt
+x 7
+y 22
+end
+arch grassd_m6
+x 7
+y 22
+end
+arch water_lt2
+x 7
+y 23
+end
+arch swamp1
+x 8
+end
+arch swamp1
+x 8
+y 1
+end
+arch swamp1
+x 8
+y 2
+end
+arch swamp1
+x 8
+y 3
+end
+arch swamp1
+x 8
+y 4
+end
+arch swamp1
+x 8
+y 5
+end
+arch swamp1
+x 8
+y 6
+end
+arch swamp1
+x 8
+y 7
+end
+arch swamp1
+x 8
+y 8
+end
+arch swamp1
+x 8
+y 9
+end
+arch swamp1
+x 8
+y 10
+end
+arch swamp1
+x 8
+y 11
+end
+arch swamp1
+x 8
+y 12
+end
+arch swamp1
+x 8
+y 13
+end
+arch grassd_1
+x 8
+y 14
+end
+arch grassd_1
+x 8
+y 15
+end
+arch grassd_5
+x 8
+y 16
+end
+arch grassd_6
+x 8
+y 17
+end
+arch grassd_5
+x 8
+y 18
+end
+arch grassd_3
+x 8
+y 19
+end
+arch grassd_4
+x 8
+y 20
+end
+arch grassd_8
+x 8
+y 21
+end
+arch grassd_7
+x 8
+y 22
+end
+arch water_lt4
+x 8
+y 23
+end
+arch grassd_m10
+x 8
+y 23
+end
+arch swamp1
+x 9
+end
+arch swamp1
+x 9
+y 1
+end
+arch swamp1
+x 9
+y 2
+end
+arch swamp1
+x 9
+y 3
+end
+arch swamp1
+x 9
+y 4
+end
+arch swamp1
+x 9
+y 5
+end
+arch swamp1
+x 9
+y 6
+end
+arch swamp1
+x 9
+y 7
+end
+arch swamp1
+x 9
+y 8
+end
+arch swamp1
+x 9
+y 9
+end
+arch swamp1
+x 9
+y 10
+end
+arch swamp1
+x 9
+y 11
+end
+arch swamp1
+x 9
+y 12
+end
+arch swamp1
+x 9
+y 13
+end
+arch swamp1
+x 9
+y 14
+end
+arch swamp1
+x 9
+y 15
+end
+arch grassd_8
+x 9
+y 16
+end
+arch grassd_8
+x 9
+y 17
+end
+arch grassd_1
+x 9
+y 18
+end
+arch grassd_1
+x 9
+y 19
+end
+arch grassd_6
+x 9
+y 20
+end
+arch grassd_8
+x 9
+y 21
+end
+arch grassd_1
+x 9
+y 22
+end
+arch water_lt
+x 9
+y 23
+end
+arch grassd_m6
+x 9
+y 23
+end
+arch swamp1
+x 10
+end
+arch swamp1
+x 10
+y 1
+end
+arch swamp1
+x 10
+y 2
+end
+arch swamp1
+x 10
+y 3
+end
+arch swamp1
+x 10
+y 4
+end
+arch swamp1
+x 10
+y 5
+end
+arch swamp1
+x 10
+y 6
+end
+arch swamp1
+x 10
+y 7
+end
+arch swamp1
+x 10
+y 8
+end
+arch swamp1
+x 10
+y 9
+end
+arch swamp1
+x 10
+y 10
+end
+arch swamp1
+x 10
+y 11
+end
+arch swamp1
+x 10
+y 12
+end
+arch swamp1
+x 10
+y 13
+end
+arch swamp1
+x 10
+y 14
+end
+arch swamp1
+x 10
+y 15
+end
+arch swamp1
+x 10
+y 16
+end
+arch grassd_6
+x 10
+y 17
+end
+arch grassd_1
+x 10
+y 18
+end
+arch grassd_7
+x 10
+y 19
+end
+arch grassd_4
+x 10
+y 20
+end
+arch grassd_5
+x 10
+y 21
+end
+arch grassd_1
+x 10
+y 22
+end
+arch grassd_8
+x 10
+y 23
+end
+arch swamp1
+x 11
+end
+arch swamp1
+x 11
+y 1
+end
+arch swamp1
+x 11
+y 2
+end
+arch swamp1
+x 11
+y 3
+end
+arch spawn_point
+x 11
+y 3
+arch crocodile
+level 30
+type 83
+end
+end
+arch swamp1
+x 11
+y 4
+end
+arch swamp1
+x 11
+y 5
+end
+arch swamp1
+x 11
+y 6
+end
+arch swamp1
+x 11
+y 7
+end
+arch swamp1
+x 11
+y 8
+end
+arch swamp1
+x 11
+y 9
+end
+arch swamp1
+x 11
+y 10
+end
+arch swamp1
+x 11
+y 11
+end
+arch swamp1
+x 11
+y 12
+end
+arch swamp1
+x 11
+y 13
+end
+arch swamp1
+x 11
+y 14
+end
+arch swamp1
+x 11
+y 15
+end
+arch woods_2
+x 11
+y 15
+end
+arch swamp1
+x 11
+y 16
+end
+arch swamp1
+x 11
+y 17
+end
+arch grassd_1
+x 11
+y 18
+end
+arch grassd_6
+x 11
+y 19
+end
+arch grassd_6
+x 11
+y 20
+end
+arch grassd_6
+x 11
+y 21
+end
+arch grassd_4
+x 11
+y 22
+end
+arch grassd_7
+x 11
+y 23
+end
+arch swamp1
+x 12
+end
+arch swamp1
+x 12
+y 1
+end
+arch swamp1
+x 12
+y 2
+end
+arch swamp1
+x 12
+y 3
+end
+arch swamp1
+x 12
+y 4
+end
+arch swamp1
+x 12
+y 5
+end
+arch swamp1
+x 12
+y 6
+end
+arch swamp1
+x 12
+y 7
+end
+arch swamp1
+x 12
+y 8
+end
+arch swamp1
+x 12
+y 9
+end
+arch swamp1
+x 12
+y 10
+end
+arch swamp1
+x 12
+y 11
+end
+arch swamp1
+x 12
+y 12
+end
+arch water_lily3
+x 12
+y 12
+end
+arch swamp1
+x 12
+y 13
+end
+arch swamp1
+x 12
+y 14
+end
+arch swamp1
+x 12
+y 15
+end
+arch swamp1
+x 12
+y 16
+end
+arch swamp1
+x 12
+y 17
+end
+arch grassd_7
+x 12
+y 18
+end
+arch grassd_2
+x 12
+y 19
+end
+arch grassd_5
+x 12
+y 20
+end
+arch grassd_7
+x 12
+y 21
+end
+arch grassd_2
+x 12
+y 22
+end
+arch grassd_5
+x 12
+y 23
+end
+arch swamp1
+x 13
+end
+arch swamp1
+x 13
+y 1
+end
+arch stone2
+x 13
+y 1
+end
+arch swamp1
+x 13
+y 2
+end
+arch swamp1
+x 13
+y 3
+end
+arch swamp1
+x 13
+y 4
+end
+arch swamp1
+x 13
+y 5
+end
+arch swamp1
+x 13
+y 6
+end
+arch swamp1
+x 13
+y 7
+end
+arch tree_big4b
+x 13
+y 7
+end
+arch swamp1
+x 13
+y 8
+end
+arch swamp1
+x 13
+y 9
+end
+arch swamp1
+x 13
+y 10
+end
+arch swamp1
+x 13
+y 11
+end
+arch swamp1
+x 13
+y 12
+end
+arch swamp1
+x 13
+y 13
+end
+arch swamp1
+x 13
+y 14
+end
+arch swamp1
+x 13
+y 15
+end
+arch swamp1
+x 13
+y 16
+end
+arch swamp1
 x 13
 y 17
 end
-arch grassd_2
+arch swamp1
 x 13
 y 18
 end
@@ -1321,78 +1472,78 @@ arch grassd_8
 x 13
 y 23
 end
-arch grassd_3
+arch swamp1
 x 14
 end
-arch grassd_3
+arch swamp1
 x 14
 y 1
 end
-arch grassd_7
+arch swamp1
 x 14
 y 2
 end
-arch grassd_8
+arch swamp1
 x 14
 y 3
 end
-arch grassd_8
+arch swamp1
 x 14
 y 4
 end
-arch grassd_2
+arch swamp1
 x 14
 y 5
 end
-arch grassd_8
+arch swamp1
 x 14
 y 6
 end
-arch grassd_8
+arch swamp1
 x 14
 y 7
 end
-arch grassd_4
+arch swamp1
 x 14
 y 8
 end
-arch grassd_8
+arch swamp1
 x 14
 y 9
 end
-arch grassd_2
+arch swamp1
 x 14
 y 10
 end
-arch grassd_1
+arch swamp1
 x 14
 y 11
 end
-arch grassd_6
+arch swamp1
 x 14
 y 12
 end
-arch grassd_4
+arch swamp1
 x 14
 y 13
 end
-arch grassd_3
+arch swamp1
 x 14
 y 14
 end
-arch grassd_3
+arch swamp1
 x 14
 y 15
 end
-arch grassd_1
+arch swamp1
 x 14
 y 16
 end
-arch grassd_2
+arch swamp1
 x 14
 y 17
 end
-arch grassd_6
+arch swamp1
 x 14
 y 18
 end
@@ -1416,82 +1567,82 @@ arch grassd_2
 x 14
 y 23
 end
-arch grassd_5
+arch swamp1
 x 15
 end
-arch grassd_6
+arch swamp1
 x 15
 y 1
 end
-arch grassd_4
+arch swamp1
 x 15
 y 2
 end
-arch grassd_7
+arch swamp1
 x 15
 y 3
 end
-arch grassd_2
+arch swamp1
 x 15
 y 4
 end
-arch grassd_5
+arch swamp1
 x 15
 y 5
 end
-arch grassd_7
+arch swamp1
 x 15
 y 6
 end
-arch grassd_1
+arch swamp1
 x 15
 y 7
 end
-arch grassd_4
+arch swamp1
 x 15
 y 8
 end
-arch grassd_4
+arch swamp1
 x 15
 y 9
 end
-arch grassd_6
+arch swamp1
 x 15
 y 10
 end
-arch grassd_3
+arch swamp1
 x 15
 y 11
 end
-arch grassd_1
+arch swamp1
 x 15
 y 12
 end
-arch grassd_8
+arch swamp1
 x 15
 y 13
 end
-arch grassd_6
+arch swamp1
 x 15
 y 14
 end
-arch grassd_4
+arch swamp1
 x 15
 y 15
 end
-arch grassd_8
+arch swamp1
 x 15
 y 16
 end
-arch grassd_5
+arch swamp1
 x 15
 y 17
 end
-arch grassd_3
+arch swamp1
 x 15
 y 18
 end
-arch grassd_1
+arch swamp1
 x 15
 y 19
 end
@@ -1511,82 +1662,82 @@ arch grassd_4
 x 15
 y 23
 end
-arch grassd_3
+arch swamp1
 x 16
 end
-arch grassd_2
+arch swamp1
 x 16
 y 1
 end
-arch grassd_3
+arch swamp1
 x 16
 y 2
 end
-arch grassd_3
+arch swamp1
 x 16
 y 3
 end
-arch grassd_6
+arch swamp1
 x 16
 y 4
 end
-arch grassd_7
+arch swamp1
 x 16
 y 5
 end
-arch grassd_5
+arch swamp1
 x 16
 y 6
 end
-arch grassd_4
+arch swamp1
 x 16
 y 7
 end
-arch grassd_8
+arch swamp1
 x 16
 y 8
 end
-arch grassd_6
+arch swamp1
 x 16
 y 9
 end
-arch grassd_5
+arch swamp1
 x 16
 y 10
 end
-arch grassd_7
+arch swamp1
 x 16
 y 11
 end
-arch grassd_7
+arch swamp1
 x 16
 y 12
 end
-arch grassd_7
+arch swamp1
 x 16
 y 13
 end
-arch grassd_4
+arch swamp1
 x 16
 y 14
 end
-arch grassd_3
+arch swamp1
 x 16
 y 15
 end
-arch grassd_3
+arch swamp1
 x 16
 y 16
 end
-arch grassd_7
+arch swamp1
 x 16
 y 17
 end
-arch grassd_2
+arch swamp1
 x 16
 y 18
 end
-arch grassd_2
+arch swamp1
 x 16
 y 19
 end
@@ -1606,86 +1757,106 @@ arch grassd_1
 x 16
 y 23
 end
-arch grassd_8
+arch swamp1
 x 17
 end
-arch grassd_6
+arch swamp1
 x 17
 y 1
 end
-arch grassd_2
+arch swamp1
 x 17
 y 2
 end
-arch grassd_3
+arch swamp1
 x 17
 y 3
 end
-arch grassd_7
+arch swamp1
 x 17
 y 4
 end
-arch grassd_1
+arch swamp1
 x 17
 y 5
 end
-arch grassd_1
+arch spawn_point
+x 17
+y 5
+arch mud_hand
+level 25
+type 83
+end
+end
+arch swamp1
 x 17
 y 6
 end
-arch grassd_6
+arch swamp1
 x 17
 y 7
 end
-arch grassd_4
+arch swamp1
 x 17
 y 8
 end
-arch grassd_1
+arch stone4
+x 17
+y 8
+end
+arch swamp1
 x 17
 y 9
 end
-arch grassd_8
+arch swamp1
 x 17
 y 10
 end
-arch grassd_7
+arch swamp1
 x 17
 y 11
 end
-arch grassd_8
+arch swamp1
 x 17
 y 12
 end
-arch grassd_8
+arch swamp1
 x 17
 y 13
 end
-arch grassd_4
+arch swamp1
 x 17
 y 14
 end
-arch grassd_7
+arch swamp1
 x 17
 y 15
 end
-arch grassd_1
+arch water_plant2
+x 17
+y 15
+end
+arch swamp1
 x 17
 y 16
 end
-arch grassd_5
+arch water_plant2
+x 17
+y 16
+end
+arch swamp1
 x 17
 y 17
 end
-arch grassd_8
+arch swamp1
 x 17
 y 18
 end
-arch grassd_1
+arch swamp1
 x 17
 y 19
 end
-arch grassd_8
+arch swamp1
 x 17
 y 20
 end
@@ -1701,86 +1872,98 @@ arch grassd_7
 x 17
 y 23
 end
-arch grassd_4
+arch swamp1
 x 18
 end
-arch grassd_6
+arch swamp1
 x 18
 y 1
 end
-arch grassd_1
+arch swamp1
 x 18
 y 2
 end
-arch grassd_3
+arch swamp1
 x 18
 y 3
 end
-arch grassd_2
+arch swamp1
 x 18
 y 4
 end
-arch grassd_6
+arch swamp1
 x 18
 y 5
 end
-arch grassd_7
+arch swamp1
 x 18
 y 6
 end
-arch grassd_6
+arch swamp1
 x 18
 y 7
 end
-arch grassd_2
+arch swamp1
 x 18
 y 8
 end
-arch grassd_1
+arch swamp1
 x 18
 y 9
 end
-arch grassd_1
+arch swamp1
 x 18
 y 10
 end
-arch grassd_2
+arch swamp1
 x 18
 y 11
 end
-arch grassd_7
+arch swamp1
 x 18
 y 12
 end
-arch grassd_7
+arch swamp1
 x 18
 y 13
 end
-arch grassd_1
+arch swamp1
 x 18
 y 14
 end
-arch grassd_2
+arch spawn_point
+x 18
+y 14
+arch frog
+level 20
+type 83
+end
+end
+arch swamp1
 x 18
 y 15
 end
-arch grassd_8
+arch water_plant3
+x 18
+y 15
+end
+arch swamp1
 x 18
 y 16
 end
-arch grassd_1
+arch swamp1
 x 18
 y 17
 end
-arch grassd_1
+arch swamp1
 x 18
 y 18
 end
-arch grassd_8
+arch swamp1
 x 18
 y 19
 end
-arch grassd_4
+arch swamp1
 x 18
 y 20
 end
@@ -1796,90 +1979,93 @@ arch grassd_2
 x 18
 y 23
 end
-arch grassd_3
+arch swamp1
 x 19
 end
-arch grassd_2
+arch water_plant5
+x 19
+end
+arch swamp1
 x 19
 y 1
 end
-arch grassd_8
+arch swamp1
 x 19
 y 2
 end
-arch grassd_3
+arch swamp1
 x 19
 y 3
 end
-arch grassd_1
+arch swamp1
 x 19
 y 4
 end
-arch grassd_3
+arch swamp1
 x 19
 y 5
 end
-arch grassd_1
+arch swamp1
 x 19
 y 6
 end
-arch grassd_8
+arch swamp1
 x 19
 y 7
 end
-arch grassd_7
+arch swamp1
 x 19
 y 8
 end
-arch grassd_7
+arch swamp1
 x 19
 y 9
 end
-arch grassd_2
+arch swamp1
 x 19
 y 10
 end
-arch grassd_6
+arch swamp1
 x 19
 y 11
 end
-arch grassd_4
+arch swamp1
 x 19
 y 12
 end
-arch grassd_3
+arch swamp1
 x 19
 y 13
 end
-arch grassd_8
+arch swamp1
 x 19
 y 14
 end
-arch grassd_3
+arch swamp1
 x 19
 y 15
 end
-arch grassd_8
+arch swamp1
 x 19
 y 16
 end
-arch grassd_6
+arch swamp1
 x 19
 y 17
 end
-arch grassd_2
+arch swamp1
 x 19
 y 18
 end
-arch grassd_4
+arch swamp1
 x 19
 y 19
 end
-arch grassd_2
+arch swamp1
 x 19
 y 20
 end
-arch grassd_7
+arch swamp1
 x 19
 y 21
 end
@@ -1891,90 +2077,90 @@ arch grassd_7
 x 19
 y 23
 end
-arch grassd_6
+arch swamp1
 x 20
 end
-arch grassd_8
+arch swamp1
 x 20
 y 1
 end
-arch grassd_7
+arch swamp1
 x 20
 y 2
 end
-arch grassd_8
+arch swamp1
 x 20
 y 3
 end
-arch grassd_1
+arch swamp1
 x 20
 y 4
 end
-arch grassd_3
+arch swamp1
 x 20
 y 5
 end
-arch grassd_3
+arch swamp1
 x 20
 y 6
 end
-arch grassd_5
+arch swamp1
 x 20
 y 7
 end
-arch grassd_4
+arch swamp1
 x 20
 y 8
 end
-arch grassd_5
+arch swamp1
 x 20
 y 9
 end
-arch grassd_4
+arch swamp1
 x 20
 y 10
 end
-arch grassd_2
+arch swamp1
 x 20
 y 11
 end
-arch grassd_3
+arch swamp1
 x 20
 y 12
 end
-arch grassd_5
+arch swamp1
 x 20
 y 13
 end
-arch grassd_1
+arch swamp1
 x 20
 y 14
 end
-arch grassd_5
+arch swamp1
 x 20
 y 15
 end
-arch grassd_2
+arch swamp1
 x 20
 y 16
 end
-arch grassd_1
+arch swamp1
 x 20
 y 17
 end
-arch grassd_1
+arch swamp1
 x 20
 y 18
 end
-arch grassd_2
+arch swamp1
 x 20
 y 19
 end
-arch grassd_7
+arch swamp1
 x 20
 y 20
 end
-arch grassd_3
+arch swamp1
 x 20
 y 21
 end
@@ -1986,90 +2172,98 @@ arch grassd_2
 x 20
 y 23
 end
-arch grassd_1
+arch swamp1
 x 21
 end
-arch grassd_3
+arch swamp1
 x 21
 y 1
 end
-arch grassd_1
+arch swamp1
 x 21
 y 2
 end
-arch grassd_7
+arch swamp1
 x 21
 y 3
 end
-arch grassd_7
+arch swamp1
 x 21
 y 4
 end
-arch grassd_5
+arch swamp1
 x 21
 y 5
 end
-arch grassd_1
+arch swamp1
 x 21
 y 6
 end
-arch grassd_6
+arch swamp1
 x 21
 y 7
 end
-arch grassd_6
+arch swamp1
 x 21
 y 8
 end
-arch grassd_2
+arch swamp1
 x 21
 y 9
 end
-arch grassd_6
+arch swamp1
 x 21
 y 10
 end
-arch grassd_3
+arch spawn_point
+x 21
+y 10
+arch crocodile
+level 30
+type 83
+end
+end
+arch swamp1
 x 21
 y 11
 end
-arch grassd_1
+arch swamp1
 x 21
 y 12
 end
-arch grassd_5
+arch swamp1
 x 21
 y 13
 end
-arch grassd_8
+arch swamp1
 x 21
 y 14
 end
-arch grassd_6
+arch swamp1
 x 21
 y 15
 end
-arch grassd_8
+arch swamp1
 x 21
 y 16
 end
-arch grassd_3
+arch swamp1
 x 21
 y 17
 end
-arch grassd_6
+arch swamp1
 x 21
 y 18
 end
-arch grassd_1
+arch swamp1
 x 21
 y 19
 end
-arch grassd_6
+arch swamp1
 x 21
 y 20
 end
-arch grassd_7
+arch swamp1
 x 21
 y 21
 end
@@ -2081,94 +2275,102 @@ arch grassd_5
 x 21
 y 23
 end
-arch grassd_7
+arch swamp1
 x 22
 end
-arch grassd_6
+arch swamp1
 x 22
 y 1
 end
-arch grassd_5
+arch swamp1
 x 22
 y 2
 end
-arch grassd_3
+arch swamp1
 x 22
 y 3
 end
-arch grassd_3
+arch swamp1
 x 22
 y 4
 end
-arch grassd_8
+arch swamp1
 x 22
 y 5
 end
-arch grassd_1
+arch swamp1
 x 22
 y 6
 end
-arch grassd_3
+arch tree43
+x 22
+y 6
+end
+arch swamp1
 x 22
 y 7
 end
-arch grassd_3
+arch swamp1
 x 22
 y 8
 end
-arch grassd_1
+arch swamp1
 x 22
 y 9
 end
-arch grassd_8
+arch swamp1
 x 22
 y 10
 end
-arch grassd_7
+arch swamp1
 x 22
 y 11
 end
-arch grassd_7
+arch swamp1
 x 22
 y 12
 end
-arch grassd_7
+arch swamp1
 x 22
 y 13
 end
-arch grassd_1
+arch swamp1
 x 22
 y 14
 end
-arch grassd_8
+arch swamp1
 x 22
 y 15
 end
-arch grassd_5
+arch swamp1
 x 22
 y 16
 end
-arch grassd_1
+arch swamp1
 x 22
 y 17
 end
-arch grassd_6
+arch swamp1
 x 22
 y 18
 end
-arch grassd_6
+arch swamp1
 x 22
 y 19
 end
-arch grassd_6
+arch lo_tree6
+x 22
+y 19
+end
+arch swamp1
 x 22
 y 20
 end
-arch grassd_2
+arch swamp1
 x 22
 y 21
 end
-arch grassd_2
+arch swamp1
 x 22
 y 22
 end
@@ -2176,94 +2378,94 @@ arch grassd_5
 x 22
 y 23
 end
-arch grassd_5
+arch swamp1
 x 23
 end
-arch grassd_4
+arch swamp1
 x 23
 y 1
 end
-arch grassd_8
+arch swamp1
 x 23
 y 2
 end
-arch grassd_8
+arch swamp1
 x 23
 y 3
 end
-arch grassd_7
+arch swamp1
 x 23
 y 4
 end
-arch grassd_6
+arch swamp1
 x 23
 y 5
 end
-arch grassd_3
+arch swamp1
 x 23
 y 6
 end
-arch grassd_3
+arch swamp1
 x 23
 y 7
 end
-arch grassd_3
+arch swamp1
 x 23
 y 8
 end
-arch grassd_3
+arch swamp1
 x 23
 y 9
 end
-arch grassd_4
+arch swamp1
 x 23
 y 10
 end
-arch grassd_2
+arch swamp1
 x 23
 y 11
 end
-arch grassd_1
+arch swamp1
 x 23
 y 12
 end
-arch grassd_5
+arch swamp1
 x 23
 y 13
 end
-arch grassd_8
+arch swamp1
 x 23
 y 14
 end
-arch grassd_1
+arch swamp1
 x 23
 y 15
 end
-arch grassd_3
+arch swamp1
 x 23
 y 16
 end
-arch grassd_6
+arch swamp1
 x 23
 y 17
 end
-arch grassd_3
+arch swamp1
 x 23
 y 18
 end
-arch grassd_3
+arch swamp1
 x 23
 y 19
 end
-arch grassd_4
+arch swamp1
 x 23
 y 20
 end
-arch grassd_1
+arch swamp1
 x 23
 y 21
 end
-arch grassd_5
+arch swamp1
 x 23
 y 22
 end

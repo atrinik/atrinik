@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-12 emperorbma
 endmsg
 width 24
 height 24
@@ -36,6 +36,9 @@ arch swamp1
 y 5
 end
 arch grassd_2
+y 6
+end
+arch swamp1m5
 y 6
 end
 arch grassd_4
@@ -77,19 +80,19 @@ end
 arch grassd_1
 y 19
 end
-arch water_still
+arch water_lt4
 y 20
 end
 arch grassd_m10
 y 20
 end
-arch water_still
+arch water_lt4
 y 21
 end
-arch water_still
+arch water_lt
 y 22
 end
-arch water_still
+arch water_lt3
 y 23
 end
 arch swamp1
@@ -116,6 +119,10 @@ x 1
 y 5
 end
 arch grassd_8
+x 1
+y 6
+end
+arch swamp1m9
 x 1
 y 6
 end
@@ -183,7 +190,7 @@ arch grassd_7
 x 1
 y 19
 end
-arch water_still
+arch water_lt3
 x 1
 y 20
 end
@@ -191,15 +198,15 @@ arch grassd_m10
 x 1
 y 20
 end
-arch water_still
+arch water_lt2
 x 1
 y 21
 end
-arch water_still
+arch water_lt2
 x 1
 y 22
 end
-arch water_still
+arch water_lt3
 x 1
 y 23
 end
@@ -231,6 +238,10 @@ x 2
 y 5
 end
 arch grassd_1
+x 2
+y 6
+end
+arch swamp1m5
 x 2
 y 6
 end
@@ -302,7 +313,7 @@ arch grassd_6
 x 2
 y 19
 end
-arch water_still
+arch water_lt3
 x 2
 y 20
 end
@@ -310,15 +321,15 @@ arch grassd_m10
 x 2
 y 20
 end
-arch water_still
+arch water_lt
 x 2
 y 21
 end
-arch water_still
+arch water_lt4
 x 2
 y 22
 end
-arch water_still
+arch water_lt3
 x 2
 y 23
 end
@@ -340,9 +351,9 @@ end
 arch spawn_point
 x 3
 y 3
-arch jelly_red
+arch crocodile
+level 20
 type 83
-level 11
 end
 end
 arch swamp1
@@ -354,6 +365,10 @@ x 3
 y 5
 end
 arch grassd_6
+x 3
+y 6
+end
+arch swamp1m9
 x 3
 y 6
 end
@@ -413,7 +428,7 @@ arch grassd_2
 x 3
 y 19
 end
-arch water_still
+arch water_lt2
 x 3
 y 20
 end
@@ -421,15 +436,15 @@ arch grassd_m10
 x 3
 y 20
 end
-arch water_still
+arch water_lt4
 x 3
 y 21
 end
-arch water_still
+arch water_lt
 x 3
 y 22
 end
-arch water_still
+arch water_lt2
 x 3
 y 23
 end
@@ -453,6 +468,10 @@ x 4
 y 4
 end
 arch swamp1m10
+x 4
+y 4
+end
+arch swamp1m7
 x 4
 y 4
 end
@@ -532,7 +551,7 @@ arch grassd_7
 x 4
 y 19
 end
-arch water_still
+arch water_lt
 x 4
 y 20
 end
@@ -540,15 +559,15 @@ arch grassd_m10
 x 4
 y 20
 end
-arch water_still
+arch water_lt
 x 4
 y 21
 end
-arch water_still
+arch water_lt3
 x 4
 y 22
 end
-arch water_still
+arch water_lt2
 x 4
 y 23
 end
@@ -572,6 +591,10 @@ x 5
 y 4
 end
 arch swamp1m10
+x 5
+y 4
+end
+arch swamp1m5
 x 5
 y 4
 end
@@ -659,7 +682,7 @@ arch grassd_8
 x 5
 y 19
 end
-arch water_still
+arch water_lt
 x 5
 y 20
 end
@@ -667,15 +690,15 @@ arch grassd_m10
 x 5
 y 20
 end
-arch water_still
+arch water_lt
 x 5
 y 21
 end
-arch water_still
+arch water_lt2
 x 5
 y 22
 end
-arch water_still
+arch water_lt
 x 5
 y 23
 end
@@ -703,6 +726,10 @@ x 6
 y 5
 end
 arch grassd_1
+x 6
+y 6
+end
+arch swamp1m7
 x 6
 y 6
 end
@@ -770,7 +797,7 @@ arch grassd_6
 x 6
 y 19
 end
-arch water_still
+arch water_lt4
 x 6
 y 20
 end
@@ -778,19 +805,15 @@ arch grassd_m10
 x 6
 y 20
 end
-arch water_still
+arch water_lt3
 x 6
 y 21
 end
-arch water_still
+arch water_lt3
 x 6
 y 22
 end
-arch water_lily2
-x 6
-y 22
-end
-arch water_still
+arch water_lt3
 x 6
 y 23
 end
@@ -818,6 +841,10 @@ x 7
 y 5
 end
 arch grassd_5
+x 7
+y 6
+end
+arch swamp1m5
 x 7
 y 6
 end
@@ -885,7 +912,7 @@ arch grassd_2
 x 7
 y 19
 end
-arch water_still
+arch water_lt
 x 7
 y 20
 end
@@ -893,15 +920,15 @@ arch grassd_m10
 x 7
 y 20
 end
-arch water_still
+arch water_lt4
 x 7
 y 21
 end
-arch water_still
+arch water_lt3
 x 7
 y 22
 end
-arch water_still
+arch water_lt3
 x 7
 y 23
 end
@@ -929,6 +956,10 @@ x 8
 y 5
 end
 arch grassd_5
+x 8
+y 6
+end
+arch swamp1m9
 x 8
 y 6
 end
@@ -996,7 +1027,7 @@ arch grassd_4
 x 8
 y 19
 end
-arch water_still
+arch water_lt
 x 8
 y 20
 end
@@ -1004,23 +1035,15 @@ arch grassd_m10
 x 8
 y 20
 end
-arch water_lily
-x 8
-y 20
-end
-arch water_still
+arch water_lt
 x 8
 y 21
 end
-arch water_still
+arch water_lt3
 x 8
 y 22
 end
-arch water_still
-x 8
-y 23
-end
-arch water_plant2
+arch water_lt2
 x 8
 y 23
 end
@@ -1052,6 +1075,10 @@ x 9
 y 5
 end
 arch grassd_5
+x 9
+y 6
+end
+arch swamp1m5
 x 9
 y 6
 end
@@ -1115,7 +1142,7 @@ arch grassd_5
 x 9
 y 19
 end
-arch water_still
+arch water_lt2
 x 9
 y 20
 end
@@ -1123,19 +1150,15 @@ arch grassd_m10
 x 9
 y 20
 end
-arch water_still
+arch water_lt3
 x 9
 y 21
 end
-arch water_still
+arch water_lt2
 x 9
 y 22
 end
-arch water_still
-x 9
-y 23
-end
-arch water_lily
+arch water_lt
 x 9
 y 23
 end
@@ -1165,12 +1188,16 @@ end
 arch spawn_point
 x 10
 y 5
-arch pudding_red
+arch frog
+level 20
 type 83
-level 12
 end
 end
 arch grassd_7
+x 10
+y 6
+end
+arch swamp1m9
 x 10
 y 6
 end
@@ -1238,7 +1265,7 @@ arch plant3
 x 10
 y 19
 end
-arch water_still
+arch water_lt4
 x 10
 y 20
 end
@@ -1246,19 +1273,15 @@ arch grassd_m10
 x 10
 y 20
 end
-arch water_plant2
-x 10
-y 20
-end
-arch water_still
+arch water_lt2
 x 10
 y 21
 end
-arch water_still
+arch water_lt4
 x 10
 y 22
 end
-arch water_still
+arch water_lt2
 x 10
 y 23
 end
@@ -1286,6 +1309,10 @@ x 11
 y 5
 end
 arch grassd_1
+x 11
+y 6
+end
+arch swamp1m5
 x 11
 y 6
 end
@@ -1357,7 +1384,7 @@ arch plant16
 x 11
 y 19
 end
-arch water_still
+arch water_lt4
 x 11
 y 20
 end
@@ -1365,32 +1392,15 @@ arch grassd_m10
 x 11
 y 20
 end
-arch water_plant4
-x 11
-y 20
-end
-arch water_still
+arch water_lt2
 x 11
 y 21
 end
-arch water_lily
-x 11
-y 21
-end
-arch water_still
+arch water_lt2
 x 11
 y 22
 end
-arch water_still
-x 11
-y 23
-end
-arch water_lily2
-layer 4
-x 11
-y 23
-end
-arch water_plant2
+arch water_lt2
 x 11
 y 23
 end
@@ -1418,6 +1428,10 @@ x 12
 y 5
 end
 arch grassd_5
+x 12
+y 6
+end
+arch swamp1m7
 x 12
 y 6
 end
@@ -1485,7 +1499,7 @@ arch grassd_7
 x 12
 y 19
 end
-arch water_still
+arch water_lt4
 x 12
 y 20
 end
@@ -1493,34 +1507,37 @@ arch grassd_m10
 x 12
 y 20
 end
-arch water_plant4
-x 12
-y 20
-end
-arch water_still
+arch water_lt4
 x 12
 y 21
 end
-arch water_still
+arch water_lt2
 x 12
 y 22
 end
-arch water_still
-x 12
-y 23
-end
-arch water_lily2
+arch water_lt
 x 12
 y 23
 end
 arch swamp1
+x 13
+end
+arch sand_dm9
 x 13
 end
 arch swamp1
 x 13
 y 1
 end
+arch sand_dm9
+x 13
+y 1
+end
 arch swamp1
+x 13
+y 2
+end
+arch sand_dm9
 x 13
 y 2
 end
@@ -1532,7 +1549,15 @@ arch swamp1
 x 13
 y 3
 end
+arch sand_dm9
+x 13
+y 3
+end
 arch swamp1
+x 13
+y 4
+end
+arch sand_dm9
 x 13
 y 4
 end
@@ -1540,7 +1565,15 @@ arch swamp1
 x 13
 y 5
 end
+arch sand_dm9
+x 13
+y 5
+end
 arch grassd_5
+x 13
+y 6
+end
+arch sand_dm9
 x 13
 y 6
 end
@@ -1548,7 +1581,15 @@ arch grassd_6
 x 13
 y 7
 end
+arch sand_dm9
+x 13
+y 7
+end
 arch grassd_5
+x 13
+y 8
+end
+arch sand_dm9
 x 13
 y 8
 end
@@ -1660,7 +1701,7 @@ arch grassd_8
 x 13
 y 19
 end
-arch water_still
+arch water_lt3
 x 13
 y 20
 end
@@ -1668,54 +1709,50 @@ arch grassd_m10
 x 13
 y 20
 end
-arch water_plant2
-x 13
-y 20
-end
-arch water_still
+arch water_lt2
 x 13
 y 21
 end
-arch water_still
+arch water_lt2
 x 13
 y 22
 end
-arch water_still
+arch water_lt3
 x 13
 y 23
 end
-arch swamp1
+arch floor_sand_d1
 x 14
 end
-arch swamp1
+arch floor_sand_d3
 x 14
 y 1
 end
-arch swamp1
+arch floor_sand_d1
 x 14
 y 2
 end
-arch swamp1
+arch floor_sand_d2
 x 14
 y 3
 end
-arch swamp1
+arch floor_sand_d3
 x 14
 y 4
 end
-arch swamp1
+arch floor_sand_d3
 x 14
 y 5
 end
-arch grassd_7
+arch floor_sand_d2
 x 14
 y 6
 end
-arch grassd_2
+arch floor_sand_d1
 x 14
 y 7
 end
-arch grassd_8
+arch floor_sand_d3
 x 14
 y 8
 end
@@ -1783,38 +1820,38 @@ arch bridge_wood_NS.171
 x 14
 y 23
 end
-arch swamp1
+arch floor_sand_d2
 x 15
 end
-arch swamp1
+arch floor_sand_d2
 x 15
 y 1
 end
-arch swamp1
+arch floor_sand_d4
 x 15
 y 2
 end
-arch swamp1
+arch floor_sand_d2
 x 15
 y 3
 end
-arch swamp1
+arch floor_sand_d1
 x 15
 y 4
 end
-arch swamp1
+arch floor_sand_d3
 x 15
 y 5
 end
-arch grassd_8
+arch floor_sand_d1
 x 15
 y 6
 end
-arch grassd_7
+arch floor_sand_d4
 x 15
 y 7
 end
-arch grassd_3
+arch floor_sand_d4
 x 15
 y 8
 end
@@ -1889,7 +1926,14 @@ end
 arch swamp1
 x 16
 end
+arch sand_dm8
+x 16
+end
 arch swamp1
+x 16
+y 1
+end
+arch sand_dm8
 x 16
 y 1
 end
@@ -1897,7 +1941,15 @@ arch swamp1
 x 16
 y 2
 end
+arch sand_dm8
+x 16
+y 2
+end
 arch swamp1
+x 16
+y 3
+end
+arch sand_dm8
 x 16
 y 3
 end
@@ -1905,23 +1957,39 @@ arch swamp1
 x 16
 y 4
 end
+arch sand_dm8
+x 16
+y 4
+end
 arch swamp1
 x 16
 y 5
 end
-arch grassd_7
+arch sand_dm22
+x 16
+y 5
+end
+arch floor_sand_d1
 x 16
 y 6
 end
-arch grassd_4
+arch swamp1
 x 16
 y 7
 end
-arch grassd_8
+arch sand_dm21
+x 16
+y 7
+end
+arch swamp1
 x 16
 y 8
 end
-arch grassd_4
+arch sand_dm8
+x 16
+y 8
+end
+arch swamp1
 x 16
 y 9
 end
@@ -2021,7 +2089,7 @@ arch bridge_wood_NS.121
 x 16
 y 19
 end
-arch water_still
+arch water_lt
 x 16
 y 20
 end
@@ -2029,7 +2097,7 @@ arch bridge_wood_NS.131
 x 16
 y 20
 end
-arch water_still
+arch water_lt4
 x 16
 y 21
 end
@@ -2037,7 +2105,7 @@ arch bridge_wood_NS.131
 x 16
 y 21
 end
-arch water_still
+arch water_lt3
 x 16
 y 22
 end
@@ -2045,7 +2113,7 @@ arch bridge_wood_NS.131
 x 16
 y 22
 end
-arch water_still
+arch water_lt
 x 16
 y 23
 end
@@ -2076,19 +2144,27 @@ arch swamp1
 x 17
 y 5
 end
-arch grassd_2
+arch sand_dm7
+x 17
+y 5
+end
+arch floor_sand_d4
 x 17
 y 6
 end
-arch grassd_8
+arch swamp1
 x 17
 y 7
 end
-arch grassd_7
+arch sand_dm6
+x 17
+y 7
+end
+arch swamp1
 x 17
 y 8
 end
-arch grassd_1
+arch swamp1
 x 17
 y 9
 end
@@ -2144,7 +2220,7 @@ arch plant17
 x 17
 y 19
 end
-arch water_still
+arch water_lt3
 x 17
 y 20
 end
@@ -2152,27 +2228,15 @@ arch grassd_m10
 x 17
 y 20
 end
-arch water_plant1
-x 17
-y 20
-end
-arch water_still
+arch water_lt
 x 17
 y 21
 end
-arch water_plant1
-x 17
-y 21
-end
-arch water_still
+arch water_lt4
 x 17
 y 22
 end
-arch water_lily
-x 17
-y 22
-end
-arch water_still
+arch water_lt3
 x 17
 y 23
 end
@@ -2191,6 +2255,10 @@ arch swamp1
 x 18
 y 3
 end
+arch water_lily2
+x 18
+y 3
+end
 arch swamp1
 x 18
 y 4
@@ -2199,19 +2267,27 @@ arch swamp1
 x 18
 y 5
 end
-arch grassd_4
+arch sand_dm7
+x 18
+y 5
+end
+arch floor_sand_d2
 x 18
 y 6
 end
-arch grassd_3
+arch swamp1
 x 18
 y 7
 end
-arch grassd_2
+arch sand_dm6
+x 18
+y 7
+end
+arch swamp1
 x 18
 y 8
 end
-arch grassd_3
+arch swamp1
 x 18
 y 9
 end
@@ -2267,7 +2343,7 @@ arch plant16
 x 18
 y 19
 end
-arch water_still
+arch water_lt
 x 18
 y 20
 end
@@ -2275,23 +2351,15 @@ arch grassd_m10
 x 18
 y 20
 end
-arch water_still
+arch water_lt2
 x 18
 y 21
 end
-arch water_plant2
-x 18
-y 21
-end
-arch water_still
+arch water_lt
 x 18
 y 22
 end
-arch water_plant4
-x 18
-y 22
-end
-arch water_still
+arch water_lt4
 x 18
 y 23
 end
@@ -2318,19 +2386,27 @@ arch swamp1
 x 19
 y 5
 end
-arch grassd_5
+arch sand_dm7
+x 19
+y 5
+end
+arch floor_sand_d3
 x 19
 y 6
 end
-arch grassd_3
+arch swamp1
 x 19
 y 7
 end
-arch grassd_6
+arch sand_dm6
+x 19
+y 7
+end
+arch swamp1
 x 19
 y 8
 end
-arch grassd_6
+arch swamp1
 x 19
 y 9
 end
@@ -2339,6 +2415,10 @@ x 19
 y 10
 end
 arch tree_big3
+x 19
+y 10
+end
+arch swamp1m3
 x 19
 y 10
 end
@@ -2382,7 +2462,7 @@ arch grassd_6
 x 19
 y 18
 end
-arch water_still
+arch water_lt2
 x 19
 y 19
 end
@@ -2390,27 +2470,19 @@ arch grassd_m4
 x 19
 y 19
 end
-arch water_still
+arch water_lt4
 x 19
 y 20
 end
-arch water_still
+arch water_lt3
 x 19
 y 21
 end
-arch water_still
+arch water_lt2
 x 19
 y 22
 end
-arch water_plant2
-x 19
-y 22
-end
-arch water_still
-x 19
-y 23
-end
-arch water_lily2
+arch water_lt2
 x 19
 y 23
 end
@@ -2421,39 +2493,47 @@ arch swamp1
 x 20
 y 1
 end
-arch grassd_8
+arch swamp1
 x 20
 y 2
 end
-arch grassd_3
+arch swamp1
 x 20
 y 3
 end
-arch grassd_2
+arch swamp1
 x 20
 y 4
 end
-arch grassd_3
+arch swamp1
 x 20
 y 5
 end
-arch grassd_3
+arch sand_dm7
+x 20
+y 5
+end
+arch floor_sand_d4
 x 20
 y 6
 end
-arch grassd_3
+arch swamp1
 x 20
 y 7
 end
-arch grassd_5
+arch sand_dm19
+x 20
+y 7
+end
+arch swamp1
 x 20
 y 8
 end
-arch grassd_8
+arch swamp1
 x 20
 y 9
 end
-arch grassd_8
+arch swamp1
 x 20
 y 10
 end
@@ -2493,7 +2573,7 @@ arch grassd_7
 x 20
 y 18
 end
-arch water_still
+arch water_lt3
 x 20
 y 19
 end
@@ -2501,82 +2581,93 @@ arch grassd_m10
 x 20
 y 19
 end
-arch water_plant2
-x 20
-y 19
-end
-arch water_still
+arch water_lt3
 x 20
 y 20
 end
-arch water_plant2
-x 20
-y 20
-end
-arch water_still
+arch water_lt
 x 20
 y 21
 end
-arch water_plant1
-x 20
-y 21
-end
-arch water_still
+arch water_lt3
 x 20
 y 22
 end
-arch water_still
+arch water_lt3
 x 20
 y 23
 end
 arch swamp1
 x 21
 end
+arch woods_2
+x 21
+end
 arch swamp1
 x 21
 y 1
 end
-arch grassd_2
+arch swamp1
 x 21
 y 2
 end
-arch grassd_2
+arch swamp1
 x 21
 y 3
 end
-arch grassd_8
+arch swamp1
 x 21
 y 4
 end
-arch grassd_7
+arch swamp1
 x 21
 y 5
 end
-arch grassd_4
+arch sand_dm7
+x 21
+y 5
+end
+arch floor_sand_d3
 x 21
 y 6
 end
-arch grassd_3
+arch floor_sand_d3
 x 21
 y 7
 end
-arch grassd_1
+arch swamp1
 x 21
 y 8
 end
-arch grassd_7
+arch sand_dm19
+x 21
+y 8
+end
+arch swamp1
 x 21
 y 9
 end
-arch grassd_5
+arch swamp1
 x 21
 y 10
 end
-arch grassd_3
+arch spawn_point
+x 21
+y 10
+arch frog
+level 20
+type 83
+end
+end
+arch swamp1
 x 21
 y 11
 end
 arch grassd_1
+x 21
+y 12
+end
+arch swamp1m3
 x 21
 y 12
 end
@@ -2604,7 +2695,7 @@ arch grassd_3
 x 21
 y 18
 end
-arch water_still
+arch water_lt
 x 21
 y 19
 end
@@ -2612,31 +2703,19 @@ arch grassd_m10
 x 21
 y 19
 end
-arch water_plant2
-x 21
-y 19
-end
-arch water_still
+arch water_lt4
 x 21
 y 20
 end
-arch water_plant4
-x 21
-y 20
-end
-arch water_still
+arch water_lt3
 x 21
 y 21
 end
-arch water_still
+arch water_lt
 x 21
 y 22
 end
-arch water_lily
-x 21
-y 22
-end
-arch water_still
+arch water_lt2
 x 21
 y 23
 end
@@ -2647,51 +2726,59 @@ arch swamp1
 x 22
 y 1
 end
-arch grassd_2
+arch swamp1
 x 22
 y 2
 end
-arch grassd_8
+arch swamp1
 x 22
 y 3
 end
-arch grassd_1
+arch swamp1
 x 22
 y 4
 end
-arch grassd_5
+arch swamp1
 x 22
 y 5
 end
-arch grassd_8
+arch swamp1
 x 22
 y 6
 end
-arch grassd_4
+arch sand_dm22
+x 22
+y 6
+end
+arch floor_sand_d4
 x 22
 y 7
 end
-arch grassd_3
+arch floor_sand_d4
 x 22
 y 8
 end
-arch grass_leaf1
+arch swamp1
 x 22
 y 9
 end
-arch grassd_8
+arch sand_dm6
+x 22
+y 9
+end
+arch swamp1
 x 22
 y 10
 end
-arch grassd_6
+arch swamp1
 x 22
 y 11
 end
-arch grass_leaf2
+arch swamp1
 x 22
 y 12
 end
-arch grass_leaf2
+arch grass_leaf1
 x 22
 y 13
 end
@@ -2699,7 +2786,15 @@ arch grassd_3
 x 22
 y 14
 end
+arch grass_leafm6
+x 22
+y 14
+end
 arch grassd_5
+x 22
+y 15
+end
+arch swamp1m4
 x 22
 y 15
 end
@@ -2708,6 +2803,10 @@ x 22
 y 16
 end
 arch tree_big2
+x 22
+y 16
+end
+arch swamp1m3
 x 22
 y 16
 end
@@ -2723,7 +2822,7 @@ arch grassd_3
 x 22
 y 18
 end
-arch water_still
+arch water_lt4
 x 22
 y 19
 end
@@ -2731,19 +2830,19 @@ arch grassd_m10
 x 22
 y 19
 end
-arch water_still
+arch water_lt2
 x 22
 y 20
 end
-arch water_still
+arch water_lt4
 x 22
 y 21
 end
-arch water_still
+arch water_lt
 x 22
 y 22
 end
-arch water_still
+arch water_lt3
 x 22
 y 23
 end
@@ -2754,47 +2853,55 @@ arch swamp1
 x 23
 y 1
 end
-arch grassd_8
+arch swamp1
 x 23
 y 2
 end
-arch grassd_4
+arch swamp1
 x 23
 y 3
 end
-arch grassd_4
+arch swamp1
 x 23
 y 4
 end
-arch grassd_1
+arch swamp1
 x 23
 y 5
 end
-arch grassd_6
+arch swamp1
 x 23
 y 6
 end
-arch grassd_4
+arch swamp1
 x 23
 y 7
 end
-arch grassd_5
+arch sand_dm22
+x 23
+y 7
+end
+arch floor_sand_d3
 x 23
 y 8
 end
-arch grassd_5
+arch swamp1
 x 23
 y 9
 end
-arch grass_leaf1
+arch sand_dm6
+x 23
+y 9
+end
+arch swamp1
 x 23
 y 10
 end
-arch grass_leaf1
+arch swamp1
 x 23
 y 11
 end
-arch grass_leaf2
+arch swamp1
 x 23
 y 12
 end
@@ -2802,23 +2909,19 @@ arch grass_leaf1
 x 23
 y 13
 end
-arch grass_leaf1
+arch grass_leaf2
 x 23
 y 14
 end
-arch grassd_4
+arch swamp1
 x 23
 y 15
 end
-arch tree_big2
-x 23
-y 15
-end
-arch grassd_1
+arch swamp1
 x 23
 y 16
 end
-arch grassd_1
+arch swamp1
 x 23
 y 17
 end
@@ -2826,7 +2929,11 @@ arch grassd_2
 x 23
 y 18
 end
-arch water_still
+arch swamp1m9
+x 23
+y 18
+end
+arch water_lt
 x 23
 y 19
 end
@@ -2834,19 +2941,19 @@ arch grassd_m10
 x 23
 y 19
 end
-arch water_still
+arch water_lt3
 x 23
 y 20
 end
-arch water_still
+arch water_lt3
 x 23
 y 21
 end
-arch water_still
+arch water_lt
 x 23
 y 22
 end
-arch water_still
+arch water_lt2
 x 23
 y 23
 end

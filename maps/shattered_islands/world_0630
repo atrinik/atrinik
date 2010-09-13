@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-12 emperorbma
 endmsg
 width 24
 height 24
@@ -68,37 +68,37 @@ end
 arch grassd_2
 y 13
 end
-arch wall_cave1.151
-y 13
-end
-arch floor_sand_d2
+arch grassd_4
 y 14
 end
-arch floor_sand_d1
+arch grassd_6
 y 15
 end
-arch floor_sand_d4
+arch grassd_1
 y 16
 end
-arch floor_sand_d3
+arch tree_big2
+y 16
+end
+arch grassd_8
 y 17
 end
-arch floor_sand_d4
+arch grassd_6
 y 18
 end
-arch floor_sand_d4
+arch grassd_1
+y 19
+end
+arch tree_big3
+y 19
+end
+arch grassd_3
 y 20
 end
-arch floor_sand_d2
+arch grassd_2
 y 21
 end
-arch wall_cave1b.121
-y 21
-end
-arch floor_sand_d1
-y 22
-end
-arch wall_cave1.161
+arch grassd_6
 y 22
 end
 arch swamp1
@@ -155,6 +155,10 @@ arch grassd_8
 x 1
 y 10
 end
+arch tree_big
+x 1
+y 10
+end
 arch grassd_4
 x 1
 y 11
@@ -167,51 +171,43 @@ arch grassd_4
 x 1
 y 13
 end
-arch wall_cave1.151
-x 1
-y 13
-end
-arch floor_sand_d2
+arch grassd_8
 x 1
 y 14
 end
-arch floor_sand_d4
+arch tree_big4b
+x 1
+y 14
+end
+arch grassd_6
 x 1
 y 15
 end
-arch floor_sand_d4
+arch grassd_8
 x 1
 y 16
 end
-arch floor_sand_d3
+arch grassd_7
 x 1
 y 17
 end
-arch floor_sand_d4
+arch grassd_1
+x 1
+y 18
+end
+arch grassd_5
 x 1
 y 19
 end
-arch floor_sand_d4
+arch grassd_6
 x 1
 y 20
 end
-arch wall_cave1.181
-x 1
-y 20
-end
-arch floor_sand_d4
+arch grassd_4
 x 1
 y 21
 end
-arch wall_cave1.171
-x 1
-y 21
-end
-arch floor_sand_d2
-x 1
-y 22
-end
-arch wall_cave1.141
+arch grassd_2
 x 1
 y 22
 end
@@ -250,7 +246,7 @@ arch grassd_6
 x 2
 y 6
 end
-arch sand_dm6
+arch sand_dm15
 x 2
 y 6
 end
@@ -258,7 +254,15 @@ arch grassd_5
 x 2
 y 7
 end
+arch sand_dm9
+x 2
+y 7
+end
 arch grassd_6
+x 2
+y 8
+end
+arch sand_dm9
 x 2
 y 8
 end
@@ -270,6 +274,10 @@ arch grassd_2
 x 2
 y 9
 end
+arch sand_dm9
+x 2
+y 9
+end
 arch grassd_4
 x 2
 y 10
@@ -278,7 +286,7 @@ arch grassd_2
 x 2
 y 11
 end
-arch wall_cave1.101
+arch tree_big
 x 2
 y 11
 end
@@ -286,51 +294,43 @@ arch grassd_6
 x 2
 y 12
 end
-arch wall_cave1.131
-x 2
-y 12
-end
 arch grassd_5
 x 2
 y 13
 end
-arch wall_cave1b.141
+arch tree_big2
 x 2
 y 13
 end
-arch floor_sand_d4
+arch grassd_5
 x 2
 y 14
 end
-arch floor_sand_d3
+arch grassd_3
 x 2
 y 15
 end
-arch floor_sand_d4
+arch grassd_3
 x 2
 y 16
 end
-arch floor_sand_d2
+arch grassd_4
 x 2
 y 17
 end
-arch floor_sand_d4
+arch grassd_3
 x 2
 y 18
 end
-arch floor_sand_d1
+arch tree_big3
+x 2
+y 18
+end
+arch grassd_2
 x 2
 y 19
 end
-arch wall_cave1.181
-x 2
-y 19
-end
-arch floor_sand_d4
-x 2
-y 20
-end
-arch wall_cave1.141
+arch grassd_2
 x 2
 y 20
 end
@@ -384,23 +384,19 @@ arch floor_sand_d1
 x 3
 y 5
 end
-arch grassd_7
+arch floor_sand_d2
 x 3
 y 6
 end
-arch sand_dm6
-x 3
-y 6
-end
-arch grassd_5
+arch floor_sand_d3
 x 3
 y 7
 end
-arch grassd_1
+arch floor_sand_d1
 x 3
 y 8
 end
-arch grassd_4
+arch floor_sand_d2
 x 3
 y 9
 end
@@ -408,7 +404,7 @@ arch grassd_8
 x 3
 y 10
 end
-arch wall_cave1.101
+arch sand_dm19
 x 3
 y 10
 end
@@ -416,43 +412,35 @@ arch grassd_5
 x 3
 y 11
 end
-arch wall_cave1b.141
-x 3
-y 11
-end
-arch floor_sand_d4
+arch grassd_2
 x 3
 y 12
 end
-arch floor_sand_d2
+arch grassd_3
 x 3
 y 13
 end
-arch floor_sand_d4
+arch grassd_8
 x 3
 y 14
 end
-arch floor_sand_d1
+arch grassd_5
 x 3
 y 15
 end
-arch floor_sand_d4
+arch grassd_4
+x 3
+y 16
+end
+arch grassd_1
 x 3
 y 17
 end
-arch floor_sand_d4
+arch grassd_8
 x 3
 y 18
 end
-arch wall_cave1.181
-x 3
-y 18
-end
-arch floor_sand_d1
-x 3
-y 19
-end
-arch wall_cave1.141
+arch grassd_2
 x 3
 y 19
 end
@@ -507,75 +495,63 @@ arch floor_sand_d1
 x 4
 y 5
 end
-arch grassd_6
+arch floor_sand_d1
 x 4
 y 6
-end
-arch sand_dm6
-x 4
-y 6
-end
-arch grassd_6
-x 4
-y 7
-end
-arch grassd_3
-x 4
-y 8
-end
-arch tree_big4b
-x 4
-y 8
-end
-arch grassd_3
-x 4
-y 9
-end
-arch grassd_5
-x 4
-y 10
-end
-arch wall_cave1.151
-x 4
-y 10
-end
-arch floor_sand_d3
-x 4
-y 11
-end
-arch floor_sand_d3
-x 4
-y 12
 end
 arch floor_sand_d1
 x 4
-y 13
+y 7
 end
 arch floor_sand_d3
+x 4
+y 8
+end
+arch floor_sand_d3
+x 4
+y 9
+end
+arch floor_sand_d3
+x 4
+y 10
+end
+arch grassd_4
+x 4
+y 11
+end
+arch sand_dm19
+x 4
+y 11
+end
+arch grassd_6
+x 4
+y 12
+end
+arch grassd_3
+x 4
+y 13
+end
+arch grassd_6
+x 4
+y 14
+end
+arch grassd_7
 x 4
 y 15
 end
-arch floor_sand_d4
+arch tree_big4b
+x 4
+y 15
+end
+arch grassd_4
 x 4
 y 16
 end
-arch wall_cave1.181
-x 4
-y 16
-end
-arch floor_sand_d4
+arch grassd_2
 x 4
 y 17
 end
-arch wall_cave1.171
-x 4
-y 17
-end
-arch floor_sand_d3
-x 4
-y 18
-end
-arch wall_cave1.141
+arch grassd_8
 x 4
 y 18
 end
@@ -656,55 +632,51 @@ arch grassd_8
 x 5
 y 7
 end
+arch sand_dm8
+x 5
+y 7
+end
 arch grassd_8
 x 5
 y 8
 end
-arch wall_cave1.101
+arch sand_dm22
 x 5
 y 8
-end
-arch grassd_3
-x 5
-y 9
-end
-arch wall_cave1.131
-x 5
-y 9
-end
-arch grassd_8
-x 5
-y 10
-end
-arch wall_cave1b.141
-x 5
-y 10
-end
-arch floor_sand_d1
-x 5
-y 11
-end
-arch floor_sand_d1
-x 5
-y 12
-end
-arch floor_sand_d3
-x 5
-y 13
 end
 arch floor_sand_d2
 x 5
-y 15
+y 9
 end
-arch wall_cave1.181
+arch floor_sand_d4
 x 5
-y 15
+y 10
 end
 arch floor_sand_d3
 x 5
-y 16
+y 11
 end
-arch wall_cave1.141
+arch grassd_1
+x 5
+y 12
+end
+arch sand_dm19
+x 5
+y 12
+end
+arch grassd_4
+x 5
+y 13
+end
+arch grassd_8
+x 5
+y 14
+end
+arch grassd_3
+x 5
+y 15
+end
+arch grassd_6
 x 5
 y 16
 end
@@ -724,7 +696,7 @@ arch grassd_5
 x 5
 y 19
 end
-arch swamp1m10
+arch swamp1m7
 x 5
 y 19
 end
@@ -732,7 +704,7 @@ arch grassd_5
 x 5
 y 20
 end
-arch swamp1m10
+arch swamp1m8
 x 5
 y 20
 end
@@ -805,27 +777,19 @@ arch grassd_5
 x 6
 y 8
 end
-arch wall_cave1.151
-x 6
-y 8
-end
-arch floor_sand_d3
+arch grassd_5
 x 6
 y 9
 end
-arch rock2
+arch sand_dm22
 x 6
 y 9
 end
-arch floor_sand_d1
+arch floor_sand_d2
 x 6
 y 10
 end
-arch floor_sand_d1
-x 6
-y 11
-end
-arch rock2
+arch floor_sand_d4
 x 6
 y 11
 end
@@ -833,19 +797,23 @@ arch floor_sand_d3
 x 6
 y 12
 end
-arch floor_sand_d4
+arch grassd_8
+x 6
+y 13
+end
+arch sand_dm19
+x 6
+y 13
+end
+arch grassd_7
 x 6
 y 14
 end
-arch wall_cave1.181
+arch tree_big3
 x 6
 y 14
 end
-arch floor_sand_d1
-x 6
-y 15
-end
-arch wall_cave1.141
+arch grassd_8
 x 6
 y 15
 end
@@ -932,51 +900,47 @@ arch grassd_6
 x 7
 y 7
 end
-arch wall_cave1.101
-x 7
-y 7
-end
 arch grassd_3
 x 7
 y 8
 end
-arch wall_cave1b.141
-x 7
-y 8
-end
-arch floor_sand_d4
+arch grassd_5
 x 7
 y 9
 end
-arch rock2
-x 7
-y 9
-end
-arch floor_sand_d2
+arch grassd_3
 x 7
 y 10
 end
-arch floor_sand_d1
+arch sand_dm22
+x 7
+y 10
+end
+arch floor_sand_d3
 x 7
 y 11
 end
-arch floor_sand_d4
+arch floor_sand_d1
 x 7
 y 12
 end
-arch floor_sand_d2
+arch floor_sand_d1
 x 7
 y 13
 end
-arch floor_sand_d2
+arch grassd_2
 x 7
 y 14
 end
-arch wall_cave1.111
+arch sand_dm19
 x 7
 y 14
 end
 arch swamp1
+x 7
+y 15
+end
+arch sand_dm9
 x 7
 y 15
 end
@@ -1047,7 +1011,7 @@ arch grassd_8
 x 8
 y 4
 end
-arch grassd_7
+arch grassd_2
 x 8
 y 5
 end
@@ -1055,51 +1019,35 @@ arch grassd_7
 x 8
 y 6
 end
-arch wall_cave1.101
-x 8
-y 6
-end
 arch grassd_5
 x 8
 y 7
 end
-arch wall_cave1b.141
-x 8
-y 7
-end
-arch floor_sand_d1
+arch grassd_2
 x 8
 y 8
 end
-arch rock2
+arch tree_big4b
 x 8
 y 8
 end
-arch floor_sand_d4
+arch grassd_6
 x 8
 y 9
 end
-arch rock2
-x 8
-y 9
-end
-arch floor_sand_d3
+arch grassd_8
 x 8
 y 10
 end
-arch rock2
+arch grassd_5
 x 8
-y 10
+y 11
+end
+arch sand_dm22
+x 8
+y 11
 end
 arch floor_sand_d2
-x 8
-y 11
-end
-arch rock2
-x 8
-y 11
-end
-arch floor_sand_d4
 x 8
 y 12
 end
@@ -1107,23 +1055,19 @@ arch floor_sand_d3
 x 8
 y 13
 end
-arch wall_cave1.181
-x 8
-y 13
-end
-arch floor_sand_d4
+arch floor_sand_d3
 x 8
 y 14
 end
-arch wall_cave1.141
-x 8
-y 14
-end
-arch swamp1
+arch floor_sand_d1
 x 8
 y 15
 end
 arch swamp1
+x 8
+y 16
+end
+arch sand_dm19
 x 8
 y 16
 end
@@ -1193,79 +1137,63 @@ arch grassd_7
 x 9
 y 5
 end
-arch wall_cave1.101
-x 9
-y 5
-end
-arch grassd_7
+arch grassd_4
 x 9
 y 6
 end
-arch wall_cave1b.141
-x 9
-y 6
-end
-arch floor_sand_d4
+arch grassd_1
 x 9
 y 7
 end
-arch rock2
-x 9
-y 7
-end
-arch floor_sand_d1
+arch grassd_3
 x 9
 y 8
 end
-arch rock2
-x 9
-y 8
-end
-arch floor_sand_d3
+arch grassd_2
 x 9
 y 9
 end
-arch rock2
-x 9
-y 9
-end
-arch floor_sand_d2
+arch grassd_5
 x 9
 y 10
 end
-arch rock2
-x 9
-y 10
-end
-arch floor_sand_d2
+arch grassd_5
 x 9
 y 11
 end
-arch floor_sand_d2
+arch tree_big3
+x 9
+y 11
+end
+arch grassd_3
 x 9
 y 12
 end
-arch floor_sand_d4
+arch sand_dm22
+x 9
+y 12
+end
+arch floor_sand_d3
 x 9
 y 13
 end
-arch wall_cave1.111
-x 9
-y 13
-end
-arch swamp1
+arch floor_sand_d2
 x 9
 y 14
 end
-arch swamp1
+arch floor_sand_d2
 x 9
 y 15
 end
-arch swamp1
+arch floor_sand_d3
 x 9
 y 16
 end
 arch swamp1
+x 9
+y 17
+end
+arch sand_dm19
 x 9
 y 17
 end
@@ -1292,9 +1220,9 @@ end
 arch spawn_point
 x 9
 y 21
-arch jelly_ochre
+arch crocodile
+level 20
 type 83
-level 15
 end
 end
 arch swamp1
@@ -1331,55 +1259,39 @@ arch grassd_1
 x 10
 y 5
 end
-arch wall_cave1.151
-x 10
-y 5
-end
-arch floor_sand_d2
+arch grassd_2
 x 10
 y 6
 end
-arch rock2
-x 10
-y 6
-end
-arch floor_sand_d3
+arch grassd_2
 x 10
 y 7
 end
-arch rock2
-x 10
-y 7
-end
-arch floor_sand_d2
+arch grassd_7
 x 10
 y 8
 end
-arch floor_sand_d2
+arch grassd_1
 x 10
 y 9
 end
-arch floor_sand_d4
+arch grassd_6
 x 10
 y 10
 end
-arch rock2
-x 10
-y 10
-end
-arch floor_sand_d2
+arch grassd_6
 x 10
 y 11
 end
-arch floor_sand_d2
+arch grassd_6
 x 10
 y 12
 end
-arch floor_sand_d2
+arch grassd_4
 x 10
 y 13
 end
-arch wall_cave1.111
+arch sand_dm8
 x 10
 y 13
 end
@@ -1387,19 +1299,27 @@ arch swamp1
 x 10
 y 14
 end
-arch swamp1
+arch sand_dm22
+x 10
+y 14
+end
+arch floor_sand_d3
 x 10
 y 15
 end
-arch swamp1
+arch floor_sand_d4
 x 10
 y 16
 end
-arch swamp1
+arch floor_sand_d2
 x 10
 y 17
 end
 arch swamp1
+x 10
+y 18
+end
+arch sand_dm19
 x 10
 y 18
 end
@@ -1445,47 +1365,31 @@ arch grassd_3
 x 11
 y 4
 end
-arch wall_cave1.101
-x 11
-y 4
-end
 arch grassd_7
 x 11
 y 5
 end
-arch wall_cave1b.141
-x 11
-y 5
-end
-arch floor_sand_d1
+arch grassd_8
 x 11
 y 6
 end
-arch rock2
-x 11
-y 6
-end
-arch floor_sand_d2
+arch grassd_5
 x 11
 y 7
 end
-arch floor_sand_d2
+arch grassd_6
 x 11
 y 8
 end
-arch floor_sand_d2
+arch grassd_7
 x 11
 y 9
 end
-arch floor_sand_d2
+arch grassd_5
 x 11
 y 10
 end
-arch rock2
-x 11
-y 10
-end
-arch floor_sand_d2
+arch grassd_7
 x 11
 y 11
 end
@@ -1493,15 +1397,7 @@ arch grassd_2
 x 11
 y 12
 end
-arch fwall_grit1c
-x 11
-y 12
-end
 arch grassd_5
-x 11
-y 13
-end
-arch wall_cave1.141
 x 11
 y 13
 end
@@ -1513,15 +1409,19 @@ arch swamp1
 x 11
 y 15
 end
-arch swamp1
+arch sand_dm22
+x 11
+y 15
+end
+arch floor_sand_d1
 x 11
 y 16
 end
-arch swamp1
+arch floor_sand_d4
 x 11
 y 17
 end
-arch swamp1
+arch floor_sand_d3
 x 11
 y 18
 end
@@ -1568,35 +1468,27 @@ arch grassd_8
 x 12
 y 4
 end
-arch wall_cave1.151
-x 12
-y 4
-end
-arch floor_sand_d2
+arch grassd_3
 x 12
 y 5
 end
-arch rock2
-x 12
-y 5
-end
-arch floor_sand_d3
+arch grassd_5
 x 12
 y 6
 end
-arch rock2
-x 12
-y 6
-end
-arch floor_sand_d2
+arch grassd_4
 x 12
 y 7
 end
-arch floor_sand_d2
+arch tree_big3
+x 12
+y 7
+end
+arch grassd_5
 x 12
 y 8
 end
-arch floor_sand_d2
+arch grassd_3
 x 12
 y 9
 end
@@ -1604,19 +1496,15 @@ arch grassd_6
 x 12
 y 10
 end
+arch tree_big4b
+x 12
+y 10
+end
 arch grassd_3
 x 12
 y 11
 end
-arch fwall_grit1c
-x 12
-y 11
-end
 arch grassd_7
-x 12
-y 12
-end
-arch fwall_grit1c
 x 12
 y 12
 end
@@ -1640,19 +1528,27 @@ arch swamp1
 x 12
 y 16
 end
+arch sand_dm22
+x 12
+y 16
+end
 arch tree_burned4
 x 12
 y 16
 end
-arch swamp1
+arch floor_sand_d4
 x 12
 y 17
 end
-arch swamp1
+arch floor_sand_d4
 x 12
 y 18
 end
 arch swamp1
+x 12
+y 19
+end
+arch sand_dm19
 x 12
 y 19
 end
@@ -1691,31 +1587,23 @@ arch grassd_7
 x 13
 y 3
 end
-arch wall_cave1.101
-x 13
-y 3
-end
 arch grassd_5
 x 13
 y 4
 end
-arch wall_cave1b.141
-x 13
-y 4
-end
-arch floor_sand_d3
+arch grassd_8
 x 13
 y 5
 end
-arch rock2
+arch tree_big3
 x 13
 y 5
 end
-arch floor_sand_d3
+arch grassd_8
 x 13
 y 6
 end
-arch floor_sand_d2
+arch grassd_5
 x 13
 y 7
 end
@@ -1727,15 +1615,7 @@ arch grassd_3
 x 13
 y 9
 end
-arch fwall_grit1c
-x 13
-y 9
-end
 arch grassd_6
-x 13
-y 10
-end
-arch fwall_grit1c
 x 13
 y 10
 end
@@ -1744,10 +1624,6 @@ x 13
 y 11
 end
 arch swamp1m10
-x 13
-y 11
-end
-arch fwall_grit1c
 x 13
 y 11
 end
@@ -1779,15 +1655,15 @@ arch swamp1
 x 13
 y 16
 end
-arch swamp1
+arch floor_sand_d2
 x 13
 y 17
 end
-arch swamp1
+arch floor_sand_d3
 x 13
 y 18
 end
-arch swamp1
+arch floor_sand_d3
 x 13
 y 19
 end
@@ -1795,7 +1671,15 @@ arch swamp1
 x 13
 y 20
 end
+arch sand_dm19
+x 13
+y 20
+end
 arch swamp1
+x 13
+y 21
+end
+arch sand_dm9
 x 13
 y 21
 end
@@ -1803,7 +1687,15 @@ arch swamp1
 x 13
 y 22
 end
+arch sand_dm9
+x 13
+y 22
+end
 arch swamp1
+x 13
+y 23
+end
+arch sand_dm9
 x 13
 y 23
 end
@@ -1822,35 +1714,27 @@ arch grassd_6
 x 14
 y 3
 end
-arch wall_cave1.151
-x 14
-y 3
-end
-arch floor_sand_d2
+arch grassd_7
 x 14
 y 4
 end
-arch rock2
-x 14
-y 4
-end
-arch floor_sand_d4
+arch grassd_6
 x 14
 y 5
 end
-arch rock2
-x 14
-y 5
-end
-arch floor_sand_d4
+arch grassd_4
 x 14
 y 6
 end
-arch floor_sand_d4
+arch grassd_4
 x 14
 y 7
 end
 arch grassd_5
+x 14
+y 8
+end
+arch tree_big4b
 x 14
 y 8
 end
@@ -1897,46 +1781,40 @@ end
 arch spawn_point
 x 14
 y 16
-arch pudding_black
-type 83
+arch crocodile
 level 20
+type 83
 end
 end
 arch swamp1
 x 14
 y 17
 end
-arch swamp1
+arch sand_dm22
+x 14
+y 17
+end
+arch floor_sand_d4
 x 14
 y 18
 end
-arch swamp1
+arch floor_sand_d1
 x 14
 y 19
 end
-arch swamp1
+arch floor_sand_d3
 x 14
 y 20
 end
-arch swamp1
+arch floor_sand_d3
 x 14
 y 21
 end
-arch spawn_point
-x 14
-y 21
-arch ghoul
-name Swamp Ghoul
-type 83
-level 22
-last_eat -5
-end
-end
-arch swamp1
+arch floor_sand_d3
 x 14
 y 22
 end
-arch swamp1
+arch floor_sand_d1
 x 14
 y 23
 end
@@ -1955,27 +1833,23 @@ arch grassd_6
 x 15
 y 3
 end
-arch wall_cave1.151
-x 15
-y 3
-end
-arch floor_sand_d1
+arch grassd_7
 x 15
 y 4
 end
-arch floor_sand_d4
+arch grassd_8
 x 15
 y 5
 end
-arch rock2
-x 15
-y 5
-end
-arch floor_sand_d1
+arch grassd_5
 x 15
 y 6
 end
-arch floor_sand_d4
+arch tree_big3
+x 15
+y 6
+end
+arch grassd_2
 x 15
 y 7
 end
@@ -1984,10 +1858,6 @@ x 15
 y 8
 end
 arch grassd_2
-x 15
-y 9
-end
-arch fwall_grit1c
 x 15
 y 9
 end
@@ -2027,23 +1897,27 @@ arch swamp1
 x 15
 y 18
 end
-arch swamp1
+arch sand_dm22
+x 15
+y 18
+end
+arch floor_sand_d1
 x 15
 y 19
 end
-arch swamp1
+arch floor_sand_d4
 x 15
 y 20
 end
-arch swamp1
+arch floor_sand_d3
 x 15
 y 21
 end
-arch swamp1
+arch floor_sand_d3
 x 15
 y 22
 end
-arch swamp1
+arch floor_sand_d2
 x 15
 y 23
 end
@@ -2062,15 +1936,7 @@ arch grassd_6
 x 16
 y 3
 end
-arch wall_cave1.121
-x 16
-y 3
-end
 arch grassd_8
-x 16
-y 4
-end
-arch wall_cave1.171
 x 16
 y 4
 end
@@ -2078,27 +1944,19 @@ arch grassd_7
 x 16
 y 5
 end
-arch wall_cave1b.161
-x 16
-y 5
-end
-arch floor_sand_d1
+arch grassd_8
 x 16
 y 6
 end
-arch floor_sand_d4
+arch grassd_2
 x 16
 y 7
 end
-arch floor_sand_d4
+arch grassd_8
 x 16
 y 8
 end
 arch grassd_8
-x 16
-y 9
-end
-arch fwall_grit1c
 x 16
 y 9
 end
@@ -2150,7 +2008,15 @@ arch swamp1
 x 16
 y 19
 end
+arch sand_dm8
+x 16
+y 19
+end
 arch swamp1
+x 16
+y 20
+end
+arch sand_dm8
 x 16
 y 20
 end
@@ -2158,11 +2024,23 @@ arch swamp1
 x 16
 y 21
 end
+arch sand_dm8
+x 16
+y 21
+end
 arch swamp1
 x 16
 y 22
 end
+arch sand_dm8
+x 16
+y 22
+end
 arch swamp1
+x 16
+y 23
+end
+arch sand_dm8
 x 16
 y 23
 end
@@ -2193,15 +2071,11 @@ arch grassd_7
 x 17
 y 5
 end
-arch wall_cave1.151
-x 17
-y 5
-end
-arch floor_sand_d4
+arch grassd_6
 x 17
 y 6
 end
-arch floor_sand_d3
+arch grassd_6
 x 17
 y 7
 end
@@ -2209,15 +2083,7 @@ arch grassd_1
 x 17
 y 8
 end
-arch fwall_grit1c
-x 17
-y 8
-end
 arch grassd_3
-x 17
-y 9
-end
-arch fwall_grit1c
 x 17
 y 9
 end
@@ -2304,27 +2170,15 @@ arch grassd_8
 x 18
 y 5
 end
-arch wall_cave1.151
-x 18
-y 5
-end
-arch floor_sand_d4
+arch grassd_1
 x 18
 y 6
 end
-arch floor_sand_d2
-x 18
-y 7
-end
-arch fwall_grit1c
+arch grassd_5
 x 18
 y 7
 end
 arch grassd_2
-x 18
-y 8
-end
-arch fwall_grit1c
 x 18
 y 8
 end
@@ -2411,9 +2265,9 @@ end
 arch spawn_point
 x 18
 y 23
-arch pudding_blue
+arch crocodile
+level 20
 type 83
-level 14
 end
 end
 arch grassd_5
@@ -2439,15 +2293,7 @@ arch grassd_7
 x 19
 y 5
 end
-arch wall_cave1.121
-x 19
-y 5
-end
 arch grassd_1
-x 19
-y 6
-end
-arch fwall_grit1c
 x 19
 y 6
 end
@@ -2455,15 +2301,7 @@ arch grassd_3
 x 19
 y 7
 end
-arch fwall_grit1c
-x 19
-y 7
-end
 arch grassd_1
-x 19
-y 8
-end
-arch fwall_grit1c
 x 19
 y 8
 end
@@ -2736,9 +2574,9 @@ end
 arch spawn_point
 x 21
 y 14
-arch jelly_blue
+arch crocodile
+level 20
 type 83
-level 16
 end
 end
 arch swamp1
