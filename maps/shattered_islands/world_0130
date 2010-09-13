@@ -310,7 +310,14 @@ end
 arch grassd_3
 x 3
 end
+arch reed_sm1
+x 3
+end
 arch grassd_4
+x 3
+y 1
+end
+arch reed_sm1
 x 3
 y 1
 end
@@ -318,11 +325,23 @@ arch grassd_8
 x 3
 y 2
 end
+arch reed_sm1
+x 3
+y 2
+end
 arch grassd_4
 x 3
 y 3
 end
+arch reed_sm1
+x 3
+y 3
+end
 arch grassd_8
+x 3
+y 4
+end
+arch reed_sm1
 x 3
 y 4
 end
@@ -493,7 +512,15 @@ arch grassd_7
 x 4
 y 5
 end
+arch reed_sm1
+x 4
+y 5
+end
 arch grassd_7
+x 4
+y 6
+end
+arch reed_sm1
 x 4
 y 6
 end
@@ -501,7 +528,15 @@ arch grassd_2
 x 4
 y 7
 end
+arch reed_sm1
+x 4
+y 7
+end
 arch grassd_7
+x 4
+y 8
+end
+arch reed_sm1
 x 4
 y 8
 end
@@ -509,7 +544,15 @@ arch grassd_8
 x 4
 y 9
 end
+arch reed_sm1
+x 4
+y 9
+end
 arch grassd_4
+x 4
+y 10
+end
+arch reed_sm1
 x 4
 y 10
 end
@@ -517,7 +560,15 @@ arch grassd_6
 x 4
 y 11
 end
+arch reed_sm1
+x 4
+y 11
+end
 arch grassd_3
+x 4
+y 12
+end
+arch reed_sm1
 x 4
 y 12
 end
@@ -525,7 +576,15 @@ arch grassd_4
 x 4
 y 13
 end
+arch reed_sm1
+x 4
+y 13
+end
 arch grassd_7
+x 4
+y 14
+end
+arch reed_sm1
 x 4
 y 14
 end
@@ -537,11 +596,23 @@ arch grassd_3
 x 4
 y 15
 end
+arch reed_sm1
+x 4
+y 15
+end
 arch grassd_5
 x 4
 y 16
 end
+arch reed_sm1
+x 4
+y 16
+end
 arch grassd_3
+x 4
+y 17
+end
+arch reed_sm1
 x 4
 y 17
 end

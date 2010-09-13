@@ -80,6 +80,9 @@ end
 arch grassd_1
 y 19
 end
+arch reed_sm1
+y 19
+end
 arch water_lt4
 y 20
 end
@@ -187,6 +190,10 @@ x 1
 y 18
 end
 arch grassd_7
+x 1
+y 19
+end
+arch reed_sm1
 x 1
 y 19
 end
@@ -313,6 +320,10 @@ arch grassd_6
 x 2
 y 19
 end
+arch reed_sm1
+x 2
+y 19
+end
 arch water_lt3
 x 2
 y 20
@@ -425,6 +436,10 @@ x 3
 y 18
 end
 arch grassd_2
+x 3
+y 19
+end
+arch reed_sm1
 x 3
 y 19
 end
@@ -551,6 +566,10 @@ arch grassd_7
 x 4
 y 19
 end
+arch reed_sm1
+x 4
+y 19
+end
 arch water_lt
 x 4
 y 20
@@ -682,6 +701,10 @@ arch grassd_8
 x 5
 y 19
 end
+arch reed_sm1
+x 5
+y 19
+end
 arch water_lt
 x 5
 y 20
@@ -794,6 +817,10 @@ x 6
 y 18
 end
 arch grassd_6
+x 6
+y 19
+end
+arch reed_sm1
 x 6
 y 19
 end
@@ -912,6 +939,10 @@ arch grassd_2
 x 7
 y 19
 end
+arch reed_sm1
+x 7
+y 19
+end
 arch water_lt
 x 7
 y 20
@@ -1027,6 +1058,10 @@ arch grassd_4
 x 8
 y 19
 end
+arch reed_sm1
+x 8
+y 19
+end
 arch water_lt
 x 8
 y 20
@@ -1139,6 +1174,10 @@ x 9
 y 18
 end
 arch grassd_5
+x 9
+y 19
+end
+arch reed_sm1
 x 9
 y 19
 end
@@ -1261,7 +1300,7 @@ arch grassd_3
 x 10
 y 19
 end
-arch plant3
+arch reed_sm1
 x 10
 y 19
 end
@@ -1380,7 +1419,7 @@ arch grassd_8
 x 11
 y 19
 end
-arch plant16
+arch reed_sm1
 x 11
 y 19
 end
@@ -1496,6 +1535,10 @@ x 12
 y 18
 end
 arch grassd_7
+x 12
+y 19
+end
+arch reed_sm1
 x 12
 y 19
 end
@@ -1698,6 +1741,10 @@ x 13
 y 18
 end
 arch grassd_8
+x 13
+y 19
+end
+arch reed_sm1
 x 13
 y 19
 end
@@ -2085,6 +2132,10 @@ arch grassd_3
 x 16
 y 19
 end
+arch reed_sm1
+x 16
+y 19
+end
 arch bridge_wood_NS.121
 x 16
 y 19
@@ -2216,7 +2267,7 @@ arch grassd_5
 x 17
 y 19
 end
-arch plant17
+arch reed_sm1
 x 17
 y 19
 end
@@ -2339,7 +2390,7 @@ arch grassd_7
 x 18
 y 19
 end
-arch plant16
+arch reed_sm1
 x 18
 y 19
 end
@@ -2462,6 +2513,10 @@ arch grassd_6
 x 19
 y 18
 end
+arch reed_sm1
+x 19
+y 18
+end
 arch water_lt2
 x 19
 y 19
@@ -2570,6 +2625,10 @@ x 20
 y 17
 end
 arch grassd_7
+x 20
+y 18
+end
+arch reed_sm1
 x 20
 y 18
 end
@@ -2692,6 +2751,10 @@ x 21
 y 17
 end
 arch grassd_3
+x 21
+y 18
+end
+arch reed_sm1
 x 21
 y 18
 end
@@ -2819,6 +2882,10 @@ x 22
 y 17
 end
 arch grassd_3
+x 22
+y 18
+end
+arch reed_sm1
 x 22
 y 18
 end
