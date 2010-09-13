@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1109,7 +1109,7 @@ y 21
 end
 arch stairs_wood_down
 slaying ships/ship_1
-hp 1
+hp 6
 sp 18
 x 9
 y 21
