@@ -1615,17 +1615,17 @@ arch spawn_point
 x 14
 y 12
 arch cat_black
-is_good 0
-is_evil 1
 name witch's black cat
 randomitems mob_skeleton_mage
 level 25
 can_cast_spell 1
-sp 8
-maxsp 8
+sp -1
+maxsp 15
 Dex 2
 unaggressive 1
 type 83
+is_good 0
+is_evil 1
 arch ability_mbullet
 hp 48
 end
@@ -1765,9 +1765,10 @@ arch female2
 name witch
 randomitems mob_skeleton_mage
 level 40
+dam 50
 can_cast_spell 1
-sp 50
-maxsp 50
+sp -1
+maxsp 15
 Pow 4
 path_attuned 131072
 Dex 2
