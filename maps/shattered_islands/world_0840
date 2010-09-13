@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-29 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -61,6 +61,9 @@ end
 arch floor_ruin4
 y 12
 end
+arch fmask_ruin1_s1.101
+y 12
+end
 arch floor_ruin4
 y 13
 end
@@ -71,11 +74,17 @@ arch floor_ruin4
 z 6
 y 15
 end
+arch grassd_m7
+y 15
+end
 arch grassd_5
 y 16
 end
 arch grassd_5
 z 6
+y 17
+end
+arch plant13
 y 17
 end
 arch grassd_6
@@ -84,6 +93,9 @@ y 18
 end
 arch grassd_1
 z 18
+y 19
+end
+arch plant11
 y 19
 end
 arch grassd_7
@@ -172,6 +184,10 @@ z 12
 x 1
 y 15
 end
+arch grassd_m7
+x 1
+y 15
+end
 arch grassd_7
 z 6
 x 1
@@ -184,6 +200,10 @@ y 17
 end
 arch grassd_5
 z 12
+x 1
+y 18
+end
+arch tree_big3
 x 1
 y 18
 end
@@ -202,6 +222,10 @@ z 30
 x 1
 y 21
 end
+arch plant_mushroom4
+x 1
+y 21
+end
 arch grassd_2
 z 36
 x 1
@@ -209,6 +233,10 @@ y 22
 end
 arch grassd_3
 z 40
+x 1
+y 23
+end
+arch tree_big3
 x 1
 y 23
 end
@@ -251,14 +279,8 @@ arch floor_ruin4
 x 2
 y 9
 end
-arch water_lt2_m
-direction 3
-x 2
-y 9
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 2
 y 9
 end
@@ -285,6 +307,10 @@ y 14
 end
 arch floor_ruin4
 z 12
+x 2
+y 15
+end
+arch grassd_m7
 x 2
 y 15
 end
@@ -315,6 +341,10 @@ y 20
 end
 arch grassd_7
 z 30
+x 2
+y 21
+end
+arch tree_big4b
 x 2
 y 21
 end
@@ -380,6 +410,10 @@ arch floor_ruin4
 x 3
 y 11
 end
+arch fmask_ruin1_s3.101
+x 3
+y 11
+end
 arch floor_ruin4
 x 3
 y 12
@@ -398,6 +432,10 @@ z 12
 x 3
 y 15
 end
+arch grassd_m7
+x 3
+y 15
+end
 arch grassd_8
 z 6
 x 3
@@ -405,6 +443,10 @@ y 16
 end
 arch grassd_8
 z 12
+x 3
+y 17
+end
+arch plant17
 x 3
 y 17
 end
@@ -438,6 +480,10 @@ z 40
 x 3
 y 23
 end
+arch plant11
+x 3
+y 23
+end
 arch water_lt
 x 4
 end
@@ -508,6 +554,10 @@ z 12
 x 4
 y 15
 end
+arch grassd_m7
+x 4
+y 15
+end
 arch grassd_4
 z 6
 x 4
@@ -530,6 +580,10 @@ y 19
 end
 arch grassd_4
 z 24
+x 4
+y 20
+end
+arch tree_big3
 x 4
 y 20
 end
@@ -591,14 +645,8 @@ arch floor_ruin4
 x 5
 y 10
 end
-arch water_lt2_m
-direction 3
-x 5
-y 10
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 5
 y 10
 end
@@ -621,6 +669,10 @@ y 14
 end
 arch floor_ruin4
 z 12
+x 5
+y 15
+end
+arch grassd_m7
 x 5
 y 15
 end
@@ -639,6 +691,10 @@ z 18
 x 5
 y 18
 end
+arch tree_branch1
+x 5
+y 18
+end
 arch grassd_8
 z 24
 x 5
@@ -651,6 +707,10 @@ y 20
 end
 arch grassd_3
 z 30
+x 5
+y 21
+end
+arch plant_flower5
 x 5
 y 21
 end
@@ -664,6 +724,10 @@ z 40
 x 5
 y 23
 end
+arch tree_big3
+x 5
+y 23
+end
 arch water_lt
 x 6
 end
@@ -724,6 +788,10 @@ arch floor_ruin4
 x 6
 y 13
 end
+arch fmask_ruin1_s2.101
+x 6
+y 13
+end
 arch floor_ruin4
 z 6
 x 6
@@ -734,6 +802,10 @@ z 12
 x 6
 y 15
 end
+arch grassd_m7
+x 6
+y 15
+end
 arch grassd_3
 z 6
 x 6
@@ -741,6 +813,10 @@ y 16
 end
 arch grassd_5
 z 12
+x 6
+y 17
+end
+arch tree_big
 x 6
 y 17
 end
@@ -844,6 +920,10 @@ z 12
 x 7
 y 15
 end
+arch grassd_m7
+x 7
+y 15
+end
 arch grassd_8
 z 6
 x 7
@@ -871,6 +951,10 @@ y 20
 end
 arch grassd_8
 z 36
+x 7
+y 21
+end
+arch plant1
 x 7
 y 21
 end
@@ -955,6 +1039,10 @@ z 18
 x 8
 y 15
 end
+arch grassd_m7
+x 8
+y 15
+end
 arch grassd_5
 z 12
 x 8
@@ -965,6 +1053,10 @@ z 12
 x 8
 y 17
 end
+arch plant_flower6
+x 8
+y 17
+end
 arch grassd_2
 z 18
 x 8
@@ -972,6 +1064,10 @@ y 18
 end
 arch grassd_8
 z 24
+x 8
+y 19
+end
+arch tree_big3
 x 8
 y 19
 end
@@ -995,6 +1091,10 @@ z 48
 x 8
 y 23
 end
+arch tree_big
+x 8
+y 23
+end
 arch water_lt2
 x 9
 end
@@ -1060,8 +1160,16 @@ z 6
 x 9
 y 14
 end
+arch fmask_ruin1_s4.101
+x 9
+y 14
+end
 arch floor_ruin4
 z 12
+x 9
+y 15
+end
+arch grassd_m14
 x 9
 y 15
 end
@@ -1099,8 +1207,16 @@ z 36
 x 9
 y 21
 end
+arch plant_flower14
+x 9
+y 21
+end
 arch grassd_3
 z 36
+x 9
+y 22
+end
+arch plant15
 x 9
 y 22
 end
@@ -1183,6 +1299,10 @@ z 12
 x 10
 y 16
 end
+arch grassd_m14
+x 10
+y 16
+end
 arch floor_ruin4
 z 18
 x 10
@@ -1194,6 +1314,10 @@ y 17
 end
 arch grassd_6
 z 18
+x 10
+y 18
+end
+arch plant13
 x 10
 y 18
 end
@@ -1269,14 +1393,8 @@ arch floor_ruin4
 x 11
 y 11
 end
-arch water_lt2_m
-direction 3
-x 11
-y 11
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 11
 y 11
 end
@@ -1307,6 +1425,10 @@ z 18
 x 11
 y 17
 end
+arch grassd_m7
+x 11
+y 17
+end
 arch grassd_6
 z 18
 x 11
@@ -1319,6 +1441,10 @@ y 19
 end
 arch grassd_5
 z 30
+x 11
+y 20
+end
+arch tree_big4b
 x 11
 y 20
 end
@@ -1415,6 +1541,10 @@ z 18
 x 12
 y 17
 end
+arch grassd_m14
+x 12
+y 17
+end
 arch floor_ruin4
 z 24
 x 12
@@ -1441,6 +1571,10 @@ y 21
 end
 arch grassd_7
 z 24
+x 12
+y 22
+end
+arch tree_big2
 x 12
 y 22
 end
@@ -1500,14 +1634,8 @@ arch floor_ruin4
 x 13
 y 12
 end
-arch water_lt2_m
-direction 3
-x 13
-y 12
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 13
 y 12
 end
@@ -1524,6 +1652,10 @@ height 6
 x 13
 y 15
 end
+arch fmask_ruin1_s1.101
+x 13
+y 15
+end
 arch floor_ruin4
 z 12
 x 13
@@ -1536,6 +1668,10 @@ y 17
 end
 arch floor_ruin4
 z 18
+x 13
+y 18
+end
+arch grassd_m14
 x 13
 y 18
 end
@@ -1558,6 +1694,10 @@ z 18
 x 13
 y 21
 end
+arch plant5
+x 13
+y 21
+end
 arch grassd_3
 z 18
 x 13
@@ -1565,6 +1705,10 @@ y 22
 end
 arch grassd_7
 z 24
+x 13
+y 23
+end
+arch plant9
 x 13
 y 23
 end
@@ -1653,6 +1797,10 @@ y 18
 end
 arch floor_ruin4
 z 18
+x 14
+y 19
+end
+arch grassd_m14
 x 14
 y 19
 end
@@ -1761,6 +1909,10 @@ z 6
 x 15
 y 18
 end
+arch fmask_ruin1_s2.101
+x 15
+y 18
+end
 arch floor_ruin4
 z 12
 x 15
@@ -1771,8 +1923,16 @@ z 18
 x 15
 y 20
 end
+arch grassd_m14
+x 15
+y 20
+end
 arch floor_ruin4
 z 18
+x 15
+y 21
+end
+arch grassd_m9
 x 15
 y 21
 end
@@ -1845,14 +2005,8 @@ arch floor_ruin4
 x 16
 y 13
 end
-arch water_lt2_m
-direction 3
-x 16
-y 13
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 16
 y 13
 end
@@ -1893,6 +2047,10 @@ y 21
 end
 arch floor_ruin4
 z 18
+x 16
+y 22
+end
+arch grassd_m7
 x 16
 y 22
 end
@@ -2000,12 +2158,16 @@ z 12
 x 17
 y 22
 end
+arch grassd_m14
+x 17
+y 22
+end
 arch floor_ruin4
 z 12
 x 17
 y 23
 end
-arch grassd_m3
+arch grassd_m9
 x 17
 y 23
 end
@@ -2170,14 +2332,8 @@ arch floor_ruin4
 x 19
 y 14
 end
-arch water_lt2_m
-direction 3
-x 19
-y 14
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 19
 y 14
 end
@@ -2190,6 +2346,10 @@ x 19
 y 16
 end
 arch floor_ruin4
+x 19
+y 17
+end
+arch fmask_ruin1_s4.101
 x 19
 y 17
 end
@@ -2314,6 +2474,10 @@ arch floor_ruin4
 x 20
 y 22
 end
+arch fmask_ruin1_s2.101
+x 20
+y 22
+end
 arch floor_ruin4
 x 20
 y 23
@@ -2381,14 +2545,8 @@ arch floor_ruin4
 x 21
 y 15
 end
-arch water_lt2_m
-direction 3
-x 21
-y 15
-end
-arch water_lt2_m
-layer 3
-direction 1
+arch water_lt_m
+direction 2
 x 21
 y 15
 end
@@ -2409,6 +2567,10 @@ x 21
 y 19
 end
 arch floor_ruin4
+x 21
+y 20
+end
+arch fmask_ruin1_s1.101
 x 21
 y 20
 end

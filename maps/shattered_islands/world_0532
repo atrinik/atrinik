@@ -93,6 +93,9 @@ end
 arch grassd_5
 y 18
 end
+arch plant10
+y 18
+end
 arch grassd_5
 y 19
 end
@@ -100,6 +103,9 @@ arch tree_big4
 y 19
 end
 arch grassd_5
+y 20
+end
+arch plant15
 y 20
 end
 arch grassd_3
@@ -112,6 +118,9 @@ arch tree_big5
 y 22
 end
 arch grassd_8
+y 23
+end
+arch plant12
 y 23
 end
 arch floor_fs_grey1b
@@ -354,11 +363,19 @@ arch grassd_3
 x 2
 y 21
 end
+arch plant11
+x 2
+y 21
+end
 arch grassd_2
 x 2
 y 22
 end
 arch grassd_1
+x 2
+y 23
+end
+arch plant_flower14
 x 2
 y 23
 end
@@ -611,6 +628,10 @@ x 4
 y 21
 end
 arch grassd_3
+x 4
+y 22
+end
+arch plant9
 x 4
 y 22
 end

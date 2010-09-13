@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-29 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -292,6 +292,10 @@ z 50
 x 1
 y 20
 end
+arch plant11
+x 1
+y 20
+end
 arch floor_fs_grey1b
 z 50
 x 1
@@ -427,6 +431,10 @@ y 18
 end
 arch grassd_5
 z 50
+x 2
+y 19
+end
+arch plant_flower5
 x 2
 y 19
 end
@@ -730,6 +738,10 @@ z 50
 x 4
 y 12
 end
+arch plant_flower11
+x 4
+y 12
+end
 arch grassd_7
 z 50
 x 4
@@ -855,6 +867,10 @@ z 50
 x 5
 y 7
 end
+arch stone1
+x 5
+y 7
+end
 arch grassd_3
 z 50
 x 5
@@ -872,6 +888,10 @@ y 10
 end
 arch grassd_3
 z 50
+x 5
+y 11
+end
+arch tree_big
 x 5
 y 11
 end
@@ -900,6 +920,10 @@ z 50
 x 5
 y 16
 end
+arch plant10
+x 5
+y 16
+end
 arch grassd_7
 z 50
 x 5
@@ -907,6 +931,10 @@ y 17
 end
 arch grassd_3
 z 50
+x 5
+y 18
+end
+arch tree_big
 x 5
 y 18
 end
@@ -999,6 +1027,10 @@ z 50
 x 6
 y 8
 end
+arch tree_big3
+x 6
+y 8
+end
 arch grassd_1
 z 50
 x 6
@@ -1011,6 +1043,10 @@ y 10
 end
 arch grassd_2
 z 50
+x 6
+y 11
+end
+arch plant_flower14
 x 6
 y 11
 end
@@ -1029,8 +1065,16 @@ z 50
 x 6
 y 14
 end
+arch plant_flower1
+x 6
+y 14
+end
 arch grassd_3
 z 50
+x 6
+y 15
+end
+arch tree_big3
 x 6
 y 15
 end
@@ -1046,6 +1090,10 @@ y 17
 end
 arch grassd_2
 z 50
+x 6
+y 18
+end
+arch plant_mushroom5
 x 6
 y 18
 end
@@ -1084,6 +1132,9 @@ y 23
 end
 arch grassd_2
 z 50
+x 7
+end
+arch plant13
 x 7
 end
 arch floor_fs_grey1b
@@ -2388,6 +2439,10 @@ z 50
 x 14
 y 7
 end
+arch plant_mushroom1
+x 14
+y 7
+end
 arch grassd_3
 z 50
 x 14
@@ -2551,6 +2606,10 @@ z 50
 x 15
 y 6
 end
+arch plant13
+x 15
+y 6
+end
 arch grassd_3
 z 50
 x 15
@@ -2635,6 +2694,10 @@ y 17
 end
 arch grassd_7
 z 50
+x 15
+y 18
+end
+arch tree_big4b
 x 15
 y 18
 end
@@ -2793,6 +2856,10 @@ z 50
 x 16
 y 18
 end
+arch plant16
+x 16
+y 18
+end
 arch grassd_4
 z 50
 x 16
@@ -2889,6 +2956,10 @@ y 9
 end
 arch grassd_2
 z 50
+x 17
+y 10
+end
+arch tree_big
 x 17
 y 10
 end
@@ -3119,6 +3190,10 @@ y 10
 end
 arch grassd_2
 z 50
+x 18
+y 11
+end
+arch plant_mushroom3
 x 18
 y 11
 end
@@ -3535,6 +3610,10 @@ z 50
 x 20
 y 13
 end
+arch tree_big3
+x 20
+y 13
+end
 arch grassd_2
 z 50
 x 20
@@ -3715,6 +3794,10 @@ z 50
 x 21
 y 14
 end
+arch tree_branch1
+x 21
+y 14
+end
 arch grassd_4
 z 50
 x 21
@@ -3774,6 +3857,9 @@ y 23
 end
 arch grassd_1
 z 50
+x 22
+end
+arch tree_branch1
 x 22
 end
 arch floor_fs_grey1b
@@ -3999,6 +4085,10 @@ z 50
 x 23
 y 7
 end
+arch plant_mushroom5
+x 23
+y 7
+end
 arch grassd_7
 z 50
 x 23
@@ -4057,6 +4147,10 @@ y 15
 end
 arch grassd_3
 z 50
+x 23
+y 16
+end
+arch plant10
 x 23
 y 16
 end

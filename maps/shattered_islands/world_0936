@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -133,12 +133,18 @@ arch grassd_4
 z 50
 y 16
 end
+arch plant_mushroom3
+y 16
+end
 arch grassd_4
 z 50
 y 17
 end
 arch grassd_4
 z 50
+y 18
+end
+arch plant9
 y 18
 end
 arch grassd_5
@@ -300,6 +306,10 @@ z 50
 x 1
 y 17
 end
+arch tree_big4b
+x 1
+y 17
+end
 arch grassd_7
 z 50
 x 1
@@ -330,6 +340,10 @@ y 21
 end
 arch grassd_3
 z 50
+x 1
+y 22
+end
+arch tree_big
 x 1
 y 22
 end
@@ -454,6 +468,10 @@ z 50
 x 2
 y 16
 end
+arch plant_flower2
+x 2
+y 16
+end
 arch grassd_1
 z 50
 x 2
@@ -519,6 +537,10 @@ y 1
 end
 arch grassd_4
 z 50
+x 3
+y 2
+end
+arch tree_branch2
 x 3
 y 2
 end
@@ -600,6 +622,10 @@ y 14
 end
 arch grassd_3
 z 50
+x 3
+y 15
+end
+arch plant_mushroom5
 x 3
 y 15
 end
@@ -838,6 +864,10 @@ z 50
 x 5
 y 2
 end
+arch plant15
+x 5
+y 2
+end
 arch grassd_7
 z 50
 x 5
@@ -932,6 +962,10 @@ y 14
 end
 arch grassd_7
 z 50
+x 5
+y 15
+end
+arch plant12
 x 5
 y 15
 end
@@ -1165,6 +1199,10 @@ z 50
 x 7
 y 2
 end
+arch tree_big
+x 7
+y 2
+end
 arch grassd_5
 z 50
 x 7
@@ -1320,6 +1358,10 @@ y 1
 end
 arch grassd_1
 z 50
+x 8
+y 2
+end
+arch tree_branch3
 x 8
 y 2
 end
@@ -1869,6 +1911,10 @@ z 50
 x 11
 y 8
 end
+arch plant_flower14
+x 11
+y 8
+end
 arch grassd_5
 z 50
 x 11
@@ -1973,8 +2019,16 @@ z 50
 x 12
 y 2
 end
+arch tree_branch3
+x 12
+y 2
+end
 arch grassd_6
 z 50
+x 12
+y 3
+end
+arch plant_mushroom1
 x 12
 y 3
 end
@@ -1985,6 +2039,10 @@ y 4
 end
 arch grassd_6
 z 50
+x 12
+y 5
+end
+arch plant_flower1
 x 12
 y 5
 end
@@ -2020,6 +2078,10 @@ y 11
 end
 arch grassd_4
 z 50
+x 12
+y 12
+end
+arch plant16
 x 12
 y 12
 end
@@ -2114,6 +2176,9 @@ arch grassd_5
 z 50
 x 13
 end
+arch tree_big3
+x 13
+end
 arch grassd_4
 z 50
 x 13
@@ -2131,6 +2196,10 @@ y 3
 end
 arch grassd_6
 z 50
+x 13
+y 4
+end
+arch tree_big2
 x 13
 y 4
 end
@@ -2203,6 +2272,10 @@ z 50
 x 13
 y 13
 end
+arch tree_big4b
+x 13
+y 13
+end
 arch grassd_2
 z 50
 x 13
@@ -2210,6 +2283,10 @@ y 14
 end
 arch grassd_1
 z 50
+x 13
+y 15
+end
+arch plant_flower2
 x 13
 y 15
 end
@@ -2230,6 +2307,10 @@ y 18
 end
 arch grassd_6
 z 50
+x 13
+y 19
+end
+arch plant17
 x 13
 y 19
 end

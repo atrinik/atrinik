@@ -181,6 +181,10 @@ arch water_lt2
 x 1
 y 22
 end
+arch grassd_m11
+x 1
+y 22
+end
 arch water_lt
 x 1
 y 23
@@ -688,6 +692,10 @@ arch water_lt2
 x 6
 y 21
 end
+arch grassd_m11
+x 6
+y 21
+end
 arch water_lt3
 x 6
 y 22
@@ -784,6 +792,10 @@ x 7
 y 19
 end
 arch water_lt4
+x 7
+y 20
+end
+arch grassd_m11
 x 7
 y 20
 end
@@ -890,6 +902,10 @@ arch water_lt3
 x 8
 y 19
 end
+arch grassd_m11
+x 8
+y 19
+end
 arch water_lt3
 x 8
 y 20
@@ -954,6 +970,10 @@ x 9
 y 8
 end
 arch water_lt2
+x 9
+y 9
+end
+arch grassd_m11
 x 9
 y 9
 end
@@ -1100,6 +1120,10 @@ arch water_lt3
 x 10
 y 8
 end
+arch grassd_m11
+x 10
+y 8
+end
 arch water_lt4
 x 10
 y 9
@@ -1240,6 +1264,10 @@ x 11
 y 6
 end
 arch water_lt
+x 11
+y 7
+end
+arch grassd_m11
 x 11
 y 7
 end
@@ -1387,6 +1415,10 @@ x 12
 y 5
 end
 arch water_lt
+x 12
+y 6
+end
+arch grassd_m11
 x 12
 y 6
 end
@@ -2443,7 +2475,7 @@ x 19
 y 23
 end
 arch grassd_3
-z 24
+z 20
 x 20
 end
 arch grassd_3
@@ -2570,7 +2602,7 @@ x 20
 y 23
 end
 arch grassd_5
-z 30
+z 28
 x 21
 end
 arch plant1

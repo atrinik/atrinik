@@ -1739,6 +1739,10 @@ arch water_lt
 x 18
 y 4
 end
+arch grassd_m12
+x 18
+y 4
+end
 arch water_lt3
 x 18
 y 5
@@ -1854,6 +1858,10 @@ x 19
 y 4
 end
 arch water_lt2
+x 19
+y 5
+end
+arch grassd_m12
 x 19
 y 5
 end
@@ -1976,6 +1984,10 @@ x 20
 y 5
 end
 arch water_lt
+x 20
+y 6
+end
+arch grassd_m12
 x 20
 y 6
 end
@@ -2107,6 +2119,10 @@ x 21
 y 8
 end
 arch water_lt2
+x 21
+y 9
+end
+arch grassd_m12
 x 21
 y 9
 end
@@ -2249,6 +2265,10 @@ x 22
 y 11
 end
 arch water_lt4
+x 22
+y 12
+end
+arch grassd_m12
 x 22
 y 12
 end
@@ -2407,6 +2427,10 @@ x 23
 y 15
 end
 arch water_lt2
+x 23
+y 16
+end
+arch grassd_m12
 x 23
 y 16
 end

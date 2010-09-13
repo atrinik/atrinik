@@ -1309,6 +1309,10 @@ arch water_lt4
 x 13
 y 19
 end
+arch grassd_m11
+x 13
+y 19
+end
 arch water_lt4
 x 13
 y 20
@@ -1413,6 +1417,10 @@ x 14
 y 17
 end
 arch water_lt4
+x 14
+y 18
+end
+arch grassd_m11
 x 14
 y 18
 end
@@ -1749,14 +1757,8 @@ arch floor_ruin4
 x 17
 y 16
 end
-arch water_lt2_m
-direction 1
-x 17
-y 16
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 17
 y 16
 end
@@ -1770,6 +1772,10 @@ x 17
 y 17
 end
 arch floor_ruin4
+x 17
+y 18
+end
+arch grassd_m3
 x 17
 y 18
 end
@@ -1790,8 +1796,16 @@ z 2
 x 17
 y 22
 end
+arch plant_mushroom4
+x 17
+y 22
+end
 arch grassd_6
 z 6
+x 17
+y 23
+end
+arch tree_big4b
 x 17
 y 23
 end
@@ -1854,14 +1868,8 @@ arch floor_ruin4
 x 18
 y 14
 end
-arch water_lt2_m
-direction 1
-x 18
-y 14
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 18
 y 14
 end
@@ -1886,6 +1894,10 @@ arch floor_ruin4
 x 18
 y 18
 end
+arch grassd_m7
+x 18
+y 18
+end
 arch grassd_2
 x 18
 y 19
@@ -1894,17 +1906,25 @@ arch grassd_4
 x 18
 y 20
 end
+arch plant_flower1
+x 18
+y 20
+end
 arch grassd_1
 x 18
 y 21
 end
 arch grassd_5
-z 2
+z 6
 x 18
 y 22
 end
 arch grassd_4
 z 8
+x 18
+y 23
+end
+arch plant5
 x 18
 y 23
 end
@@ -1963,14 +1983,8 @@ arch floor_ruin4
 x 19
 y 13
 end
-arch water_lt2_m
-direction 1
-x 19
-y 13
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 19
 y 13
 end
@@ -1991,6 +2005,10 @@ x 19
 y 17
 end
 arch floor_ruin4
+x 19
+y 18
+end
+arch grassd_m7
 x 19
 y 18
 end
@@ -2009,13 +2027,17 @@ z 2
 x 19
 y 21
 end
+arch tree_big4b
+x 19
+y 21
+end
 arch grassd_7
-z 2
+z 6
 x 19
 y 22
 end
-arch grassd_6
-z 8
+arch grassd_4
+z 12
 x 19
 y 23
 end
@@ -2070,14 +2092,8 @@ arch floor_ruin4
 x 20
 y 12
 end
-arch water_lt2_m
-direction 1
-x 20
-y 12
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 20
 y 12
 end
@@ -2097,11 +2113,19 @@ arch floor_ruin4
 x 20
 y 16
 end
+arch fmask_ruin1_s4.101
+x 20
+y 16
+end
 arch floor_ruin4
 x 20
 y 17
 end
 arch floor_ruin4
+x 20
+y 18
+end
+arch grassd_m7
 x 20
 y 18
 end
@@ -2125,8 +2149,12 @@ z 8
 x 20
 y 22
 end
+arch plant5
+x 20
+y 22
+end
 arch grassd_2
-z 8
+z 12
 x 20
 y 23
 end
@@ -2177,14 +2205,8 @@ arch floor_ruin4
 x 21
 y 11
 end
-arch water_lt2_m
-direction 1
-x 21
-y 11
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 21
 y 11
 end
@@ -2213,6 +2235,10 @@ x 21
 y 17
 end
 arch floor_ruin4
+x 21
+y 18
+end
+arch grassd_m14
 x 21
 y 18
 end
@@ -2224,12 +2250,12 @@ arch grassd_m3
 x 21
 y 19
 end
-arch rock2
-x 21
-y 19
-end
 arch grassd_8
 z 8
+x 21
+y 20
+end
+arch plant_flower6
 x 21
 y 20
 end
@@ -2244,7 +2270,11 @@ x 21
 y 22
 end
 arch grassd_6
-z 14
+z 18
+x 21
+y 23
+end
+arch tree_big2
 x 21
 y 23
 end
@@ -2291,14 +2321,8 @@ arch floor_ruin4
 x 22
 y 10
 end
-arch water_lt2_m
-direction 1
-x 22
-y 10
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 22
 y 10
 end
@@ -2314,6 +2338,10 @@ arch floor_ruin4
 x 22
 y 13
 end
+arch fmask_ruin1_s4.101
+x 22
+y 13
+end
 arch floor_ruin4
 x 22
 y 14
@@ -2323,6 +2351,10 @@ x 22
 y 15
 end
 arch floor_ruin4
+x 22
+y 16
+end
+arch fmask_ruin1_s2.101
 x 22
 y 16
 end
@@ -2338,7 +2370,7 @@ arch floor_ruin4
 x 22
 y 19
 end
-arch rock2
+arch grassd_m7
 x 22
 y 19
 end
@@ -2352,8 +2384,16 @@ z 15
 x 22
 y 21
 end
+arch plant_mushroom3
+x 22
+y 21
+end
 arch grassd_4
 z 20
+x 22
+y 22
+end
+arch plant5
 x 22
 y 22
 end
@@ -2401,14 +2441,8 @@ arch floor_ruin4
 x 23
 y 9
 end
-arch water_lt2_m
-direction 1
-x 23
-y 9
-end
-arch water_lt2_m
-layer 3
-direction 7
+arch water_lt_m
+direction 8
 x 23
 y 9
 end
@@ -2452,15 +2486,16 @@ arch floor_ruin4
 x 23
 y 19
 end
+arch grassd_m14
+x 23
+y 19
+end
 arch floor_ruin4
+z 8
 x 23
 y 20
 end
 arch grassd_m3
-x 23
-y 20
-end
-arch rock2
 x 23
 y 20
 end

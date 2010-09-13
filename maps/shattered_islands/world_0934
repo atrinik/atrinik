@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-28 emperorbma
+Modified: 2010-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -93,6 +93,9 @@ arch grassd_4
 z 50
 y 17
 end
+arch tree_big2
+y 17
+end
 arch grassd_7
 z 50
 y 18
@@ -144,6 +147,10 @@ y 3
 end
 arch grassd_5
 z 50
+x 1
+y 4
+end
+arch tree_big4b
 x 1
 y 4
 end
@@ -205,6 +212,10 @@ z 50
 x 1
 y 14
 end
+arch tree_big
+x 1
+y 14
+end
 arch grassd_1
 z 50
 x 1
@@ -264,6 +275,10 @@ x 2
 end
 arch grassd_4
 z 50
+x 2
+y 1
+end
+arch tree_big4b
 x 2
 y 1
 end
@@ -332,6 +347,10 @@ z 50
 x 2
 y 14
 end
+arch plant1
+x 2
+y 14
+end
 arch grassd_3
 z 50
 x 2
@@ -391,6 +410,9 @@ y 23
 end
 arch grassd_4
 z 50
+x 3
+end
+arch tree_branch2
 x 3
 end
 arch grassd_6
@@ -423,6 +445,10 @@ z 50
 x 3
 y 6
 end
+arch tree_big
+x 3
+y 6
+end
 arch grassd_3
 z 50
 x 3
@@ -450,6 +476,10 @@ y 11
 end
 arch grassd_6
 z 50
+x 3
+y 12
+end
+arch tree_big4b
 x 3
 y 12
 end
@@ -538,6 +568,10 @@ z 50
 x 4
 y 2
 end
+arch small_stones
+x 4
+y 2
+end
 arch grassd_2
 z 50
 x 4
@@ -570,6 +604,10 @@ y 8
 end
 arch grassd_4
 z 50
+x 4
+y 9
+end
+arch tree_branch3
 x 4
 y 9
 end
@@ -725,6 +763,10 @@ y 12
 end
 arch grassd_2
 z 50
+x 5
+y 13
+end
+arch plant15
 x 5
 y 13
 end
@@ -794,6 +836,10 @@ z 42
 x 5
 y 23
 end
+arch stone1
+x 5
+y 23
+end
 arch grassd_5
 z 50
 x 6
@@ -805,6 +851,10 @@ y 1
 end
 arch grassd_2
 z 50
+x 6
+y 2
+end
+arch tree_big
 x 6
 y 2
 end
@@ -828,6 +878,10 @@ z 50
 x 6
 y 6
 end
+arch plant10
+x 6
+y 6
+end
 arch grassd_8
 z 50
 x 6
@@ -840,6 +894,10 @@ y 8
 end
 arch grassd_3
 z 50
+x 6
+y 9
+end
+arch tree_big4b
 x 6
 y 9
 end
@@ -924,6 +982,10 @@ z 42
 x 6
 y 22
 end
+arch tree_big3
+x 6
+y 22
+end
 arch grassd_1
 z 42
 x 6
@@ -980,6 +1042,10 @@ y 9
 end
 arch grassd_1
 z 50
+x 7
+y 10
+end
+arch plant_flower14
 x 7
 y 10
 end
@@ -1046,6 +1112,10 @@ y 19
 end
 arch grassd_1
 z 46
+x 7
+y 20
+end
+arch small_stones
 x 7
 y 20
 end
@@ -1100,6 +1170,10 @@ y 6
 end
 arch grassd_2
 z 50
+x 8
+y 7
+end
+arch tree_big4b
 x 8
 y 7
 end
@@ -1208,6 +1282,10 @@ z 50
 x 9
 y 1
 end
+arch plant_flower11
+x 9
+y 1
+end
 arch grassd_4
 z 50
 x 9
@@ -1225,6 +1303,10 @@ y 4
 end
 arch grassd_5
 z 50
+x 9
+y 5
+end
+arch plant13
 x 9
 y 5
 end
@@ -1319,13 +1401,25 @@ z 42
 x 9
 y 20
 end
+arch plant_mushroom2
+x 9
+y 20
+end
 arch grassd_4
 z 38
 x 9
 y 21
 end
+arch tree_big
+x 9
+y 21
+end
 arch grassd_6
 z 34
+x 9
+y 22
+end
+arch plant9
 x 9
 y 22
 end
@@ -1338,6 +1432,9 @@ arch grassd_7
 z 50
 x 10
 end
+arch tree_big2
+x 10
+end
 arch grassd_5
 z 50
 x 10
@@ -1370,6 +1467,10 @@ y 6
 end
 arch grassd_5
 z 50
+x 10
+y 7
+end
+arch plant11
 x 10
 y 7
 end
@@ -1444,8 +1545,16 @@ z 42
 x 10
 y 18
 end
+arch plant16
+x 10
+y 18
+end
 arch grassd_4
 z 42
+x 10
+y 19
+end
+arch tree_big4b
 x 10
 y 19
 end
@@ -1485,6 +1594,10 @@ y 2
 end
 arch grassd_1
 z 50
+x 11
+y 3
+end
+arch tree_big2
 x 11
 y 3
 end
@@ -1605,6 +1718,10 @@ y 22
 end
 arch grassd_7
 z 22
+x 11
+y 23
+end
+arch tree_branch1
 x 11
 y 23
 end
@@ -1749,6 +1866,10 @@ y 19
 end
 arch grassd_2
 z 30
+x 12
+y 20
+end
+arch plant17
 x 12
 y 20
 end
@@ -1909,6 +2030,10 @@ y 20
 end
 arch grassd_5
 z 22
+x 13
+y 21
+end
+arch tree_big2
 x 13
 y 21
 end
@@ -2073,6 +2198,10 @@ z 10
 x 14
 y 23
 end
+arch tree_big2
+x 14
+y 23
+end
 arch fstone1b
 z 50
 x 15
@@ -2223,6 +2352,10 @@ y 21
 end
 arch grassd_6
 z 10
+x 15
+y 22
+end
+arch plant_flower14
 x 15
 y 22
 end

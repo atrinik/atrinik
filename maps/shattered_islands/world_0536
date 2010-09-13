@@ -1258,6 +1258,10 @@ z 50
 x 8
 y 9
 end
+arch plant_mushroom2
+x 8
+y 9
+end
 arch grassd_2
 z 50
 x 8
@@ -1370,6 +1374,10 @@ z 50
 x 9
 y 7
 end
+arch tree_big
+x 9
+y 7
+end
 arch grassd_7
 z 50
 x 9
@@ -1400,6 +1408,10 @@ z 50
 x 9
 y 13
 end
+arch tree_big4b
+x 9
+y 13
+end
 arch grassd_7
 z 50
 x 9
@@ -1407,6 +1419,10 @@ y 14
 end
 arch grassd_4
 z 50
+x 9
+y 15
+end
+arch plant_flower14
 x 9
 y 15
 end
@@ -1454,6 +1470,9 @@ arch grassd_5
 z 50
 x 10
 end
+arch plant_flower1
+x 10
+end
 arch grassd_3
 z 50
 x 10
@@ -1476,6 +1495,10 @@ y 4
 end
 arch grassd_7
 z 50
+x 10
+y 5
+end
+arch plant13
 x 10
 y 5
 end
@@ -1549,6 +1572,10 @@ z 50
 x 10
 y 19
 end
+arch tree_big
+x 10
+y 19
+end
 arch grassd_8
 z 50
 x 10
@@ -1559,6 +1586,10 @@ z 50
 x 10
 y 21
 end
+arch plant9
+x 10
+y 21
+end
 arch grassd_1
 z 50
 x 10
@@ -1598,6 +1629,10 @@ z 50
 x 11
 y 5
 end
+arch tree_big
+x 11
+y 5
+end
 arch grassd_6
 z 50
 x 11
@@ -1620,6 +1655,10 @@ y 9
 end
 arch grassd_7
 z 50
+x 11
+y 10
+end
+arch plant_flower7
 x 11
 y 10
 end
@@ -1673,6 +1712,10 @@ z 50
 x 11
 y 20
 end
+arch plant13
+x 11
+y 20
+end
 arch grassd_7
 z 50
 x 11
@@ -1680,6 +1723,10 @@ y 21
 end
 arch grassd_5
 z 50
+x 11
+y 22
+end
+arch tree_big2
 x 11
 y 22
 end
@@ -1702,8 +1749,16 @@ z 50
 x 12
 y 2
 end
+arch tree_big
+x 12
+y 2
+end
 arch grassd_6
 z 50
+x 12
+y 3
+end
+arch plant_flower2
 x 12
 y 3
 end
@@ -1727,6 +1782,10 @@ z 50
 x 12
 y 7
 end
+arch plant_flower1
+x 12
+y 7
+end
 arch grassd_8
 z 50
 x 12
@@ -1747,6 +1806,10 @@ z 50
 x 12
 y 11
 end
+arch tree_big3
+x 12
+y 11
+end
 arch grassd_3
 z 50
 x 12
@@ -1754,6 +1817,10 @@ y 12
 end
 arch grassd_8
 z 50
+x 12
+y 13
+end
+arch plant15
 x 12
 y 13
 end
@@ -1769,6 +1836,10 @@ y 15
 end
 arch grassd_3
 z 50
+x 12
+y 16
+end
+arch plant12
 x 12
 y 16
 end
@@ -1833,6 +1904,10 @@ y 4
 end
 arch grassd_8
 z 50
+x 13
+y 5
+end
+arch plant_mushroom5
 x 13
 y 5
 end
@@ -1911,6 +1986,10 @@ z 50
 x 13
 y 20
 end
+arch plant_flower6
+x 13
+y 20
+end
 arch grassd_2
 z 50
 x 13
@@ -1923,6 +2002,10 @@ y 22
 end
 arch grassd_6
 z 50
+x 13
+y 23
+end
+arch plant_flower5
 x 13
 y 23
 end
@@ -1940,6 +2023,10 @@ z 50
 x 14
 y 2
 end
+arch plant_flower1
+x 14
+y 2
+end
 arch grassd_2
 z 50
 x 14
@@ -1947,6 +2034,10 @@ y 3
 end
 arch grassd_7
 z 50
+x 14
+y 4
+end
+arch tree_big4b
 x 14
 y 4
 end
@@ -2015,6 +2106,10 @@ z 50
 x 14
 y 17
 end
+arch tree_big
+x 14
+y 17
+end
 arch grassd_1
 z 50
 x 14
@@ -2027,6 +2122,10 @@ y 19
 end
 arch grassd_5
 z 50
+x 14
+y 20
+end
+arch tree_big3
 x 14
 y 20
 end
@@ -2086,6 +2185,10 @@ y 7
 end
 arch grassd_7
 z 50
+x 15
+y 8
+end
+arch tree_big
 x 15
 y 8
 end
@@ -2161,6 +2264,10 @@ y 22
 end
 arch grassd_5
 z 50
+x 15
+y 23
+end
+arch tree_big3
 x 15
 y 23
 end
@@ -2385,6 +2492,10 @@ z 50
 x 17
 y 12
 end
+arch tree_big3
+x 17
+y 12
+end
 arch grassd_1
 z 50
 x 17
@@ -2412,6 +2523,10 @@ y 17
 end
 arch grassd_2
 z 50
+x 17
+y 18
+end
+arch tree_big
 x 17
 y 18
 end
@@ -2499,8 +2614,16 @@ z 50
 x 18
 y 11
 end
+arch plant_mushroom5
+x 18
+y 11
+end
 arch grassd_6
 z 50
+x 18
+y 12
+end
+arch plant_mushroom1
 x 18
 y 12
 end
@@ -2519,6 +2642,10 @@ z 50
 x 18
 y 15
 end
+arch tree_big4b
+x 18
+y 15
+end
 arch grassd_2
 z 50
 x 18
@@ -2531,6 +2658,10 @@ y 17
 end
 arch grassd_4
 z 50
+x 18
+y 18
+end
+arch small_stones
 x 18
 y 18
 end
@@ -2584,6 +2715,10 @@ y 3
 end
 arch grassd_3
 z 50
+x 19
+y 4
+end
+arch tree_branch1
 x 19
 y 4
 end
@@ -2722,6 +2857,10 @@ z 50
 x 20
 y 5
 end
+arch plant_mushroom2
+x 20
+y 5
+end
 arch grassd_5
 z 50
 x 20
@@ -2734,6 +2873,10 @@ y 7
 end
 arch grassd_5
 z 50
+x 20
+y 8
+end
+arch plant_flower6
 x 20
 y 8
 end
@@ -2754,6 +2897,10 @@ y 11
 end
 arch grassd_7
 z 50
+x 20
+y 12
+end
+arch tree_big3
 x 20
 y 12
 end
@@ -2830,6 +2977,10 @@ z 50
 x 21
 y 2
 end
+arch tree_big
+x 21
+y 2
+end
 arch grassd_2
 z 50
 x 21
@@ -2847,6 +2998,10 @@ y 5
 end
 arch grassd_7
 z 50
+x 21
+y 6
+end
+arch tree_big
 x 21
 y 6
 end
@@ -2892,6 +3047,10 @@ y 14
 end
 arch grassd_5
 z 50
+x 21
+y 15
+end
+arch plant11
 x 21
 y 15
 end
@@ -3002,6 +3161,10 @@ z 50
 x 22
 y 11
 end
+arch plant16
+x 22
+y 11
+end
 arch grassd_5
 z 50
 x 22
@@ -3076,6 +3239,10 @@ z 50
 x 23
 y 2
 end
+arch plant_flower7
+x 23
+y 2
+end
 arch grassd_7
 z 50
 x 23
@@ -3146,6 +3313,10 @@ z 50
 x 23
 y 16
 end
+arch tree_big3
+x 23
+y 16
+end
 arch grassd_7
 z 50
 x 23
@@ -3158,6 +3329,10 @@ y 18
 end
 arch grassd_4
 z 50
+x 23
+y 19
+end
+arch small_stones
 x 23
 y 19
 end
