@@ -2891,6 +2891,8 @@ level 15
 unaggressive 1
 friendly 1
 random_move 1
+item_race 10
+item_level 10
 type 83
 end
 end
@@ -3382,6 +3384,8 @@ level 15
 unaggressive 1
 friendly 1
 random_move 1
+item_race 10
+item_level 10
 type 83
 end
 end

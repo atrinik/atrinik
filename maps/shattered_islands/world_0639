@@ -1478,15 +1478,17 @@ level 15
 unaggressive 1
 friendly 1
 random_move 1
+item_race 10
+item_level 10
 type 83
 end
 end
 arch floor_marble4a
+z 50
 x 9
 y 17
 end
 arch bed_2a.111
-z 50
 x 9
 y 17
 end
@@ -1699,6 +1701,8 @@ level 15
 unaggressive 1
 friendly 1
 random_move 1
+item_race 10
+item_level 10
 type 83
 end
 end
