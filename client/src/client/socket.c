@@ -289,6 +289,7 @@ static int reader_thread_loop(void *dummy)
 				SDL_Delay(1);
 				continue;
 			}
+
 			/* IO error */
 #ifdef WIN32
 			LOG(llevInfo, "Reader thread got error %d\n", WSAGetLastError());
@@ -368,6 +369,16 @@ static int writer_thread_loop(void *dummy)
 			}
 			else if (ret == -1)
 			{
+#ifdef WIN32
+				if (WSAGetLastError() == EAGAIN || WSAGetLastError() == WSAEWOULDBLOCK)
+#else
+				if (errno == EAGAIN || errno == EWOULDBLOCK)
+#endif
+				{
+					SDL_Delay(1);
+					continue;
+				}
+
 				/* IO error */
 #ifdef WIN32
 				LOG(llevInfo, "Writer thread got error %d\n", WSAGetLastError());
