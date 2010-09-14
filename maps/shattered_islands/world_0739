@@ -1764,6 +1764,7 @@ x 10
 y 21
 end
 arch floor_flagstone1d
+z 50
 x 10
 y 22
 end

@@ -2304,6 +2304,7 @@ x 14
 y 16
 end
 arch grassd_7
+z 50
 x 14
 y 17
 end
@@ -2349,6 +2350,7 @@ x 14
 y 22
 end
 arch grassd_7
+z 50
 x 14
 y 23
 end
@@ -2636,6 +2638,7 @@ x 16
 y 19
 end
 arch grassd_1
+z 50
 x 16
 y 20
 end
@@ -2780,7 +2783,6 @@ x 17
 y 14
 end
 arch bed_2a.111
-z 50
 x 17
 y 14
 end
@@ -2822,7 +2824,6 @@ x 17
 y 19
 end
 arch wall_white2_3
-z 50
 x 17
 y 19
 end
