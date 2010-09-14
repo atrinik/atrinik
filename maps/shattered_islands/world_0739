@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-13 Alex Tokar
+Modified: 2010-09-13 emperorbma
 endmsg
 width 24
 height 24
@@ -56,43 +56,59 @@ end
 arch fwall_fstone2
 y 7
 end
-arch grassd_1
-z 50
+arch grassd_3
 y 8
 end
-arch grassd_5
-z 50
+arch wall_blue1.181
+y 8
+end
+arch grassd_1
 y 9
 end
-arch grassd_8
-z 50
+arch wall_blue1.131
+y 9
+end
+arch grassd_4
 y 10
 end
-arch grassd_3
-z 50
+arch wall_blue1.131
+y 10
+end
+arch grassd_1
 y 11
 end
-arch grassd_8
-z 50
-y 12
+arch wall_blue1.131
+y 11
 end
 arch grassd_5
-z 50
-y 13
+y 12
 end
-arch grassd_6
-z 50
-y 14
+arch wall_blue1.131
+y 12
 end
-arch grassd_8
-z 50
-y 15
+arch picture4.151
+direction 7
+y 12
 end
 arch grassd_7
-z 50
-y 16
+y 13
 end
-arch tree_big4b
+arch wall_blue1_w.131
+y 13
+end
+arch grassd_7
+y 14
+end
+arch wall_blue1.131
+y 14
+end
+arch grassd_1
+y 15
+end
+arch wall_blue1.131
+y 15
+end
+arch floor_flagstone1d
 y 16
 end
 arch grassd_2
@@ -107,8 +123,10 @@ arch grassd_7
 z 50
 y 19
 end
-arch grassd_4
-z 50
+arch grassd_5
+y 20
+end
+arch plant17
 y 20
 end
 arch grassd_3
@@ -120,7 +138,9 @@ z 50
 y 22
 end
 arch grassd_4
-z 50
+y 23
+end
+arch plant_flower7
 y 23
 end
 arch grassd_8
@@ -178,60 +198,71 @@ arch fwall_fstone2
 x 1
 y 7
 end
-arch grassd_1
-z 50
+arch grassd_2
 x 1
 y 8
 end
-arch grassd_8
-z 50
+arch wall_blue1.111
+x 1
+y 8
+end
+arch floor_ostone13
 x 1
 y 9
 end
-arch plant10
+arch bed_2a.111
 x 1
 y 9
 end
-arch grassd_7
-z 50
+arch floor_ostone13
 x 1
 y 10
 end
-arch grassd_4
-z 50
+arch shelf1_wall.111
+direction 7
+x 1
+y 10
+end
+arch floor_ostone13
 x 1
 y 11
 end
-arch grassd_3
-z 50
+arch table_lab2.111
+direction 7
+x 1
+y 11
+end
+arch floor_ostone13
 x 1
 y 12
 end
-arch tree_big2
+arch table_lab1.111
+direction 7
 x 1
 y 12
 end
-arch grassd_5
-z 50
+arch floor_ostone13
 x 1
 y 13
 end
-arch grassd_7
-z 50
+arch floor_ostone13
 x 1
 y 14
 end
-arch grassd_4
-z 50
+arch drawers1.111
+direction 7
+x 1
+y 14
+end
+arch floor_ostone13
 x 1
 y 15
 end
-arch plant9
+arch wall_blue1.111
 x 1
 y 15
 end
-arch grassd_2
-z 50
+arch floor_flagstone1d
 x 1
 y 16
 end
@@ -240,318 +271,372 @@ z 50
 x 1
 y 17
 end
-arch grassd_4
-z 50
+arch grassd_3
 x 1
 y 18
+end
+arch plant_flower3
+x 1
+y 18
+end
+arch wall_wood_8
+x 1
+y 18
+end
+arch grassd_2
+x 1
+y 19
+end
+arch wall_wood3_3
+x 1
+y 19
+end
+arch grassd_4
+x 1
+y 20
+end
+arch wall_wood_w_3
+x 1
+y 20
+end
+arch grassd_7
+x 1
+y 21
+end
+arch wall_wood3_3
+x 1
+y 21
+end
+arch grassd_1
+x 1
+y 22
+end
+arch wall_wood3_3
+x 1
+y 22
 end
 arch grassd_7
 z 50
 x 1
-y 19
-end
-arch grassd_1
-z 50
-x 1
-y 20
+y 23
 end
 arch grassd_3
 z 50
-x 1
+x 2
+end
+arch grassd_7
+z 50
+x 2
+y 1
+end
+arch grassd_2
+z 50
+x 2
+y 2
+end
+arch grassd_7
+z 50
+x 2
+y 3
+end
+arch fstone1c
+z 50
+x 2
+y 4
+end
+arch fwall_fstone2
+x 2
+y 4
+end
+arch fstone1b
+z 50
+x 2
+y 5
+end
+arch fstone1b
+z 50
+x 2
+y 6
+end
+arch fstone1b
+z 50
+x 2
+y 7
+end
+arch fwall_fstone2
+x 2
+y 7
+end
+arch grassd_3
+x 2
+y 8
+end
+arch wall_blue1.111
+x 2
+y 8
+end
+arch floor_ostone13
+x 2
+y 9
+end
+arch bed_2b.111
+x 2
+y 9
+end
+arch floor_ostone13
+x 2
+y 10
+end
+arch floor_ostone13
+x 2
+y 11
+end
+arch chair1_111
+direction 3
+x 2
+y 11
+end
+arch floor_ostone13
+x 2
+y 12
+end
+arch chair1_111
+direction 3
+x 2
+y 12
+end
+arch floor_ostone13
+x 2
+y 13
+end
+arch light9
+x 2
+y 14
+end
+arch floor_ostone13
+x 2
+y 14
+end
+arch floor_ostone13
+x 2
+y 15
+end
+arch wall_blue1_w.111
+x 2
+y 15
+end
+arch floor_flagstone1d
+x 2
+y 16
+end
+arch grassd_1
+z 50
+x 2
+y 17
+end
+arch grassd_7
+x 2
+y 18
+end
+arch wall_wood_w_1
+x 2
+y 18
+end
+arch floor_parquet2d
+x 2
+y 19
+end
+arch floor_parquet2d
+x 2
+y 20
+end
+arch chair1_111
+direction 7
+x 2
+y 20
+end
+arch floor_parquet2d
+x 2
 y 21
+end
+arch floor_parquet2d
+x 2
+y 22
+end
+arch wall_wood_1
+x 2
+y 22
+end
+arch grassd_6
+z 50
+x 2
+y 23
+end
+arch grassd_5
+z 50
+x 3
+end
+arch tree_big4b
+x 3
+end
+arch grassd_3
+z 50
+x 3
+y 1
+end
+arch grassd_8
+z 50
+x 3
+y 2
+end
+arch grassd_8
+z 50
+x 3
+y 3
+end
+arch fstone1b
+z 50
+x 3
+y 4
+end
+arch fwall_fstone2
+x 3
+y 4
+end
+arch fstone1a
+z 50
+x 3
+y 5
+end
+arch fstone1c
+z 50
+x 3
+y 6
+end
+arch fstone1a
+z 50
+x 3
+y 7
+end
+arch fwall_fstone2
+x 3
+y 7
+end
+arch grassd_8
+x 3
+y 8
+end
+arch wall_blue1.111
+x 3
+y 8
+end
+arch floor_ostone13
+x 3
+y 9
+end
+arch mirror_big.111
+x 3
+y 9
+end
+arch light9
+x 3
+y 10
+end
+arch floor_ostone13
+x 3
+y 10
+end
+arch floor_ostone13
+x 3
+y 11
+end
+arch floor_ostone13
+x 3
+y 12
+end
+arch floor_ostone13
+x 3
+y 13
+end
+arch floor_ostone13
+x 3
+y 14
+end
+arch floor_ostone13
+x 3
+y 15
+end
+arch wall_blue1.111
+x 3
+y 15
+end
+arch floor_flagstone1d
+x 3
+y 16
+end
+arch grassd_2
+z 50
+x 3
+y 17
+end
+arch plant9
+x 3
+y 17
+end
+arch grassd_2
+x 3
+y 18
+end
+arch wall_wood_1
+x 3
+y 18
+end
+arch light9
+x 3
+y 19
+end
+arch floor_parquet2d
+x 3
+y 19
+end
+arch chair1_111
+x 3
+y 19
+end
+arch floor_parquet2d
+x 3
+y 20
+end
+arch table_round1
+x 3
+y 20
+end
+arch light9
+x 3
+y 21
+end
+arch floor_parquet2d
+x 3
+y 21
+end
+arch chair1_111
+direction 5
+x 3
+y 21
+end
+arch floor_parquet2d
+x 3
+y 22
+end
+arch wall_wood_w_1
+x 3
+y 22
+end
+arch grassd_5
+x 3
+y 23
 end
 arch plant_flower5
-x 1
-y 21
-end
-arch grassd_8
-z 50
-x 1
-y 22
-end
-arch grassd_7
-z 50
-x 1
-y 23
-end
-arch grassd_3
-z 50
-x 2
-end
-arch grassd_7
-z 50
-x 2
-y 1
-end
-arch grassd_2
-z 50
-x 2
-y 2
-end
-arch grassd_7
-z 50
-x 2
-y 3
-end
-arch fstone1c
-z 50
-x 2
-y 4
-end
-arch fwall_fstone2
-x 2
-y 4
-end
-arch fstone1b
-z 50
-x 2
-y 5
-end
-arch fstone1b
-z 50
-x 2
-y 6
-end
-arch fstone1b
-z 50
-x 2
-y 7
-end
-arch fwall_fstone2
-x 2
-y 7
-end
-arch grassd_2
-z 50
-x 2
-y 8
-end
-arch grassd_2
-z 50
-x 2
-y 9
-end
-arch grassd_8
-z 50
-x 2
-y 10
-end
-arch tree_big4b
-x 2
-y 10
-end
-arch grassd_7
-z 50
-x 2
-y 11
-end
-arch grassd_4
-z 50
-x 2
-y 12
-end
-arch grassd_2
-z 50
-x 2
-y 13
-end
-arch grassd_5
-z 50
-x 2
-y 14
-end
-arch grassd_1
-z 50
-x 2
-y 15
-end
-arch tree_big2
-x 2
-y 15
-end
-arch grassd_4
-z 50
-x 2
-y 16
-end
-arch grassd_1
-z 50
-x 2
-y 17
-end
-arch grassd_4
-z 50
-x 2
-y 18
-end
-arch grassd_3
-z 50
-x 2
-y 19
-end
-arch grassd_7
-z 50
-x 2
-y 20
-end
-arch grassd_8
-z 50
-x 2
-y 21
-end
-arch grassd_6
-z 50
-x 2
-y 22
-end
-arch grassd_6
-z 50
-x 2
-y 23
-end
-arch grassd_5
-z 50
-x 3
-end
-arch tree_big4b
-x 3
-end
-arch grassd_3
-z 50
-x 3
-y 1
-end
-arch grassd_8
-z 50
-x 3
-y 2
-end
-arch grassd_8
-z 50
-x 3
-y 3
-end
-arch fstone1b
-z 50
-x 3
-y 4
-end
-arch fwall_fstone2
-x 3
-y 4
-end
-arch fstone1a
-z 50
-x 3
-y 5
-end
-arch fstone1c
-z 50
-x 3
-y 6
-end
-arch fstone1a
-z 50
-x 3
-y 7
-end
-arch fwall_fstone2
-x 3
-y 7
-end
-arch grassd_1
-z 50
-x 3
-y 8
-end
-arch grassd_6
-z 50
-x 3
-y 9
-end
-arch grassd_1
-z 50
-x 3
-y 10
-end
-arch grassd_7
-z 50
-x 3
-y 11
-end
-arch grassd_2
-z 50
-x 3
-y 12
-end
-arch grassd_2
-z 50
-x 3
-y 13
-end
-arch small_stones
-x 3
-y 13
-end
-arch grassd_3
-z 50
-x 3
-y 14
-end
-arch grassd_1
-z 50
-x 3
-y 15
-end
-arch grassd_4
-z 50
-x 3
-y 16
-end
-arch grassd_2
-z 50
-x 3
-y 17
-end
-arch plant9
-x 3
-y 17
-end
-arch grassd_1
-z 50
-x 3
-y 18
-end
-arch grassd_5
-z 50
-x 3
-y 19
-end
-arch tree_big
-x 3
-y 19
-end
-arch grassd_6
-z 50
-x 3
-y 20
-end
-arch grassd_1
-z 50
-x 3
-y 21
-end
-arch grassd_7
-z 50
-x 3
-y 22
-end
-arch tree_big3
-x 3
-y 22
-end
-arch grassd_4
-z 50
 x 3
 y 23
 end
@@ -603,47 +688,58 @@ x 4
 y 7
 end
 arch grassd_3
-z 50
 x 4
 y 8
 end
-arch grassd_3
-z 50
+arch wall_blue1_w.111
+x 4
+y 8
+end
+arch floor_ostone13
 x 4
 y 9
 end
-arch grassd_7
-z 50
+arch floor_ostone13
 x 4
 y 10
 end
-arch grassd_2
-z 50
+arch potted_plant4
+x 4
+y 10
+end
+arch floor_ostone13
 x 4
 y 11
 end
-arch grassd_5
-z 50
+arch floor_ostone13
 x 4
 y 12
 end
-arch grassd_4
-z 50
+arch floor_ostone13
 x 4
 y 13
 end
-arch grassd_1
-z 50
+arch light9
 x 4
 y 14
 end
-arch grassd_1
-z 50
+arch floor_ostone13
+x 4
+y 14
+end
+arch potted_plant4
+x 4
+y 14
+end
+arch floor_ostone13
 x 4
 y 15
 end
-arch grassd_1
-z 50
+arch wall_blue1.111
+x 4
+y 15
+end
+arch floor_flagstone1d
 x 4
 y 16
 end
@@ -652,37 +748,49 @@ z 50
 x 4
 y 17
 end
-arch grassd_5
-z 50
+arch grassd_3
 x 4
 y 18
 end
-arch grassd_2
-z 50
+arch wall_wood_1
+x 4
+y 18
+end
+arch picture7
+x 4
+y 18
+end
+arch floor_parquet2d
 x 4
 y 19
 end
-arch grassd_5
-z 50
+arch light9
 x 4
 y 20
 end
-arch grassd_8
-z 50
+arch floor_parquet2d
+x 4
+y 20
+end
+arch chair1_111
+direction 3
+x 4
+y 20
+end
+arch floor_parquet2d
 x 4
 y 21
 end
-arch grassd_2
-z 50
+arch floor_parquet2d
 x 4
 y 22
 end
-arch plant_flower6
+arch door_wood2
+last_sp -1
 x 4
 y 22
 end
-arch grassd_6
-z 50
+arch floor_flagstone1d
 x 4
 y 23
 end
@@ -740,48 +848,73 @@ arch fwall_fstone2
 x 5
 y 7
 end
-arch grassd_6
-z 50
+arch grassd_4
 x 5
 y 8
 end
-arch grassd_3
-z 50
+arch wall_blue1.111
+x 5
+y 8
+end
+arch floor_ostone13
 x 5
 y 9
 end
-arch grassd_6
-z 50
+arch wall_blue1.131
+x 5
+y 9
+end
+arch floor_ostone13
 x 5
 y 10
 end
-arch grassd_2
-z 50
+arch wall_blue1.131
+x 5
+y 10
+end
+arch floor_ostone13
 x 5
 y 11
 end
-arch grassd_4
-z 50
+arch wall_blue1_w.131
+x 5
+y 11
+end
+arch floor_ostone13
 x 5
 y 12
 end
-arch grassd_8
-z 50
+arch door_wood2
+face door_wood2.131
+direction 3
+x 5
+y 12
+end
+arch floor_ostone13
 x 5
 y 13
 end
-arch grassd_4
-z 50
+arch wall_blue1.131
+x 5
+y 13
+end
+arch floor_ostone13
 x 5
 y 14
 end
-arch grassd_6
-z 50
+arch wall_blue1.131
+x 5
+y 14
+end
+arch floor_ostone13
 x 5
 y 15
 end
-arch grassd_2
-z 50
+arch wall_blue1.141
+x 5
+y 15
+end
+arch floor_flagstone1d
 x 5
 y 16
 end
@@ -790,28 +923,43 @@ z 50
 x 5
 y 17
 end
-arch grassd_1
-z 50
+arch grassd_2
 x 5
 y 18
 end
-arch grassd_4
-z 50
+arch wall_wood_w_1
+x 5
+y 18
+end
+arch light9
 x 5
 y 19
 end
-arch grassd_6
-z 50
+arch floor_parquet2d
+x 5
+y 19
+end
+arch bed_2a.111
+x 5
+y 19
+end
+arch floor_parquet2d
 x 5
 y 20
 end
-arch grassd_3
-z 50
+arch light9
 x 5
 y 21
 end
-arch grassd_1
-z 50
+arch floor_parquet2d
+x 5
+y 21
+end
+arch floor_parquet2d
+x 5
+y 22
+end
+arch wall_wood_w_1
 x 5
 y 22
 end
@@ -899,32 +1047,23 @@ arch plant_flower14
 x 6
 y 11
 end
-arch grassd_7
-z 50
+arch floor_flagstone1d
 x 6
 y 12
 end
-arch grassd_7
-z 50
+arch floor_flagstone1d
 x 6
 y 13
 end
-arch tree_big3
-x 6
-y 13
-end
-arch grassd_3
-z 50
+arch floor_flagstone1d
 x 6
 y 14
 end
-arch grassd_8
-z 50
+arch floor_flagstone1d
 x 6
 y 15
 end
-arch grassd_7
-z 50
+arch floor_flagstone1d
 x 6
 y 16
 end
@@ -933,32 +1072,43 @@ z 50
 x 6
 y 17
 end
-arch grassd_6
-z 50
+arch grassd_2
 x 6
 y 18
 end
-arch plant11
+arch wall_wood_1
 x 6
 y 18
 end
-arch grassd_3
-z 50
+arch floor_parquet2d
 x 6
 y 19
 end
-arch grassd_3
-z 50
+arch bed_2b.111
+x 6
+y 19
+end
+arch light9
 x 6
 y 20
 end
-arch grassd_5
-z 50
+arch floor_parquet2d
+x 6
+y 20
+end
+arch floor_parquet2d
 x 6
 y 21
 end
-arch grassd_8
-z 50
+arch potted_plant5
+x 6
+y 21
+end
+arch floor_parquet2d
+x 6
+y 22
+end
+arch wall_wood_1
 x 6
 y 22
 end
@@ -1062,8 +1212,7 @@ arch small_stones
 x 7
 y 15
 end
-arch grassd_4
-z 50
+arch floor_flagstone1d
 x 7
 y 16
 end
@@ -1076,32 +1225,43 @@ arch plant_mushroom1
 x 7
 y 17
 end
-arch grassd_8
-z 50
+arch grassd_2
 x 7
 y 18
 end
-arch grassd_2
-z 50
+arch wall_wood_1
+x 7
+y 18
+end
+arch floor_parquet2d
 x 7
 y 19
 end
-arch grassd_4
-z 50
+arch wall_wood_3
+x 7
+y 19
+end
+arch floor_parquet2d
 x 7
 y 20
 end
-arch grassd_5
-z 50
+arch wall_wood_3
+x 7
+y 20
+end
+arch floor_parquet2d
 x 7
 y 21
 end
-arch tree_big2
+arch wall_wood_3
 x 7
 y 21
 end
-arch grassd_1
-z 50
+arch floor_parquet2d
+x 7
+y 22
+end
+arch wall_wood_4
 x 7
 y 22
 end
@@ -1204,13 +1364,11 @@ z 50
 x 8
 y 15
 end
-arch grassd_3
-z 50
+arch floor_flagstone1d
 x 8
 y 16
 end
-arch grassd_5
-z 50
+arch grassd_7
 x 8
 y 17
 end
@@ -1339,51 +1497,39 @@ z 50
 x 9
 y 15
 end
-arch grassd_3
-z 50
+arch floor_flagstone1d
 x 9
 y 16
 end
-arch grassd_2
-z 50
+arch floor_flagstone1d
 x 9
 y 17
 end
-arch grassd_2
-z 50
+arch grassd_6
 x 9
 y 18
 end
-arch grassd_5
-z 50
+arch grassd_2
 x 9
 y 19
 end
 arch grassd_2
-z 50
 x 9
 y 20
 end
-arch grassd_1
-z 50
+arch grassd_2
 x 9
 y 21
 end
-arch tree_branch1
-x 9
-y 21
-end
-arch grassd_7
-z 50
+arch grassd_3
 x 9
 y 22
 end
-arch grassd_4
-z 50
+arch plant17
 x 9
-y 23
+y 22
 end
-arch tree_big3
+arch grassd_8
 x 9
 y 23
 end
@@ -1483,42 +1629,31 @@ z 50
 x 10
 y 16
 end
-arch grassd_2
-z 50
+arch floor_flagstone1d
 x 10
 y 17
 end
-arch grassd_8
-z 50
+arch floor_flagstone1d
 x 10
 y 18
 end
-arch grassd_8
-z 50
+arch floor_flagstone1d
 x 10
 y 19
 end
-arch plant5
-x 10
-y 19
-end
-arch grassd_6
-z 50
+arch floor_flagstone1d
 x 10
 y 20
 end
-arch grassd_4
-z 50
+arch floor_flagstone1d
 x 10
 y 21
 end
-arch grassd_2
-z 50
+arch floor_flagstone1d
 x 10
 y 22
 end
-arch grassd_4
-z 50
+arch floor_flagstone1d
 x 10
 y 23
 end
@@ -1636,10 +1771,6 @@ z 50
 x 11
 y 18
 end
-arch tree_big4b
-x 11
-y 18
-end
 arch grassd_5
 z 50
 x 11
@@ -1657,10 +1788,6 @@ y 21
 end
 arch grassd_4
 z 50
-x 11
-y 22
-end
-arch tree_big4b
 x 11
 y 22
 end

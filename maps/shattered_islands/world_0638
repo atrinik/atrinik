@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-13 Alex Tokar
+Modified: 2010-09-13 emperorbma
 endmsg
 width 24
 height 24
@@ -2363,29 +2363,19 @@ arch grassd_m7
 x 14
 y 23
 end
-arch grassd_1
-z 50
+arch floor_flagstone1d
 x 15
 end
-arch plant_flower7
-x 15
-end
-arch grassd_4
-z 50
+arch floor_flagstone1d
 x 15
 y 1
 end
-arch grassd_8
-z 50
+arch floor_flagstone1d
 x 15
 y 2
 end
 arch floor_fs_grey1b
 z 50
-x 15
-y 3
-end
-arch grassd_m4
 x 15
 y 3
 end
@@ -2541,10 +2531,6 @@ y 1
 end
 arch floor_fs_grey1b
 z 50
-x 16
-y 2
-end
-arch grassd_m4
 x 16
 y 2
 end
@@ -2893,6 +2879,18 @@ arch grassd_m10
 x 18
 y 1
 end
+arch spawn_point
+x 18
+y 1
+arch lost_soul
+name Dave Faght
+level 15
+unaggressive 1
+friendly 1
+random_move 1
+type 83
+end
+end
 arch floor_fs_grey1b
 z 50
 x 18
@@ -3199,8 +3197,10 @@ arch grassd_m7
 x 19
 y 23
 end
-arch grassd_8
-z 50
+arch floor_flagstone1d
+x 20
+end
+arch grassd_m4
 x 20
 end
 arch floor_fs_grey1b
@@ -3366,9 +3366,19 @@ arch grassd_m7
 x 20
 y 23
 end
-arch grassd_1
-z 50
+arch floor_flagstone1d
 x 21
+end
+arch spawn_point
+x 21
+arch lost_soul
+name Greg Yuth
+level 15
+unaggressive 1
+friendly 1
+random_move 1
+type 83
+end
 end
 arch floor_fs_grey1b
 z 50
