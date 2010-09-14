@@ -484,6 +484,7 @@ x 2
 y 23
 end
 arch floor_flagstone1d
+z 50
 x 3
 end
 arch grassd_m4
@@ -656,6 +657,7 @@ z 50
 x 4
 end
 arch floor_flagstone1d
+z 50
 x 4
 end
 arch floor_fs_grey1b
@@ -1575,6 +1577,7 @@ x 9
 y 23
 end
 arch floor_flagstone1d
+z 50
 x 10
 end
 arch floor_fs_grey1b

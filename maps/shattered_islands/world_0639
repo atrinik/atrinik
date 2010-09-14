@@ -1257,6 +1257,7 @@ x 8
 y 14
 end
 arch grassd_4
+z 50
 x 8
 y 15
 end
@@ -1265,6 +1266,7 @@ x 8
 y 15
 end
 arch grassd_7
+z 50
 x 8
 y 16
 end
@@ -1278,6 +1280,7 @@ x 8
 y 16
 end
 arch grassd_5
+z 50
 x 8
 y 17
 end
@@ -1291,6 +1294,7 @@ x 8
 y 17
 end
 arch grassd_3
+z 50
 x 8
 y 18
 end
@@ -1304,6 +1308,7 @@ x 8
 y 18
 end
 arch grassd_6
+z 50
 x 8
 y 19
 end
@@ -1311,15 +1316,22 @@ arch wall_blue1.131
 x 8
 y 19
 end
-arch wall_blue1.131
+arch wmask_bflag_brown_1
+direction 7
+x 8
+y 19
+end
+arch grassd_4
+z 50
 x 8
 y 20
 end
-arch wmask_bflag_brown_3
+arch wall_blue1_w.131
 x 8
 y 20
 end
 arch grassd_2
+z 50
 x 8
 y 21
 end
@@ -1333,6 +1345,7 @@ x 8
 y 21
 end
 arch grassd_2
+z 50
 x 8
 y 22
 end
@@ -1443,6 +1456,7 @@ x 9
 y 14
 end
 arch grassd_5
+z 50
 x 9
 y 15
 end
@@ -1451,6 +1465,7 @@ x 9
 y 15
 end
 arch floor_marble4a
+z 50
 x 9
 y 16
 end
@@ -1471,10 +1486,12 @@ x 9
 y 17
 end
 arch bed_2a.111
+z 50
 x 9
 y 17
 end
 arch floor_marble4a
+z 50
 x 9
 y 18
 end
@@ -1483,6 +1500,7 @@ x 9
 y 18
 end
 arch floor_marble4a
+z 50
 x 9
 y 19
 end
@@ -1492,6 +1510,7 @@ x 9
 y 19
 end
 arch floor_marble4a
+z 50
 x 9
 y 20
 end
@@ -1500,6 +1519,7 @@ x 9
 y 20
 end
 arch floor_marble4a
+z 50
 x 9
 y 21
 end
@@ -1509,6 +1529,7 @@ x 9
 y 21
 end
 arch floor_marble4a
+z 50
 x 9
 y 22
 end
@@ -1615,6 +1636,7 @@ x 10
 y 14
 end
 arch grassd_8
+z 50
 x 10
 y 15
 end
@@ -1627,10 +1649,12 @@ x 10
 y 15
 end
 arch floor_marble4a
+z 50
 x 10
 y 16
 end
 arch floor_marble4a
+z 50
 x 10
 y 17
 end
@@ -1639,6 +1663,7 @@ x 10
 y 17
 end
 arch floor_marble4a
+z 50
 x 10
 y 18
 end
@@ -1647,6 +1672,7 @@ x 10
 y 18
 end
 arch floor_marble4a
+z 50
 x 10
 y 19
 end
@@ -1660,6 +1686,7 @@ type 83
 end
 end
 arch floor_marble4a
+z 50
 x 10
 y 20
 end
@@ -1676,6 +1703,7 @@ type 83
 end
 end
 arch floor_marble4a
+z 50
 x 10
 y 21
 end
@@ -1685,6 +1713,7 @@ x 10
 y 21
 end
 arch floor_marble4a
+z 50
 x 10
 y 22
 end
@@ -1788,6 +1817,7 @@ x 11
 y 14
 end
 arch grassd_1
+z 50
 x 11
 y 15
 end
@@ -1804,30 +1834,37 @@ x 11
 y 16
 end
 arch floor_marble4a
+z 50
 x 11
 y 16
 end
 arch floor_marble4a
+z 50
 x 11
 y 17
 end
 arch floor_marble4a
+z 50
 x 11
 y 18
 end
 arch floor_marble4a
+z 50
 x 11
 y 19
 end
 arch floor_marble4a
+z 50
 x 11
 y 20
 end
 arch floor_marble4a
+z 50
 x 11
 y 21
 end
 arch floor_marble4a
+z 50
 x 11
 y 22
 end
@@ -1943,6 +1980,7 @@ x 12
 y 14
 end
 arch grassd_1
+z 50
 x 12
 y 15
 end
@@ -1951,30 +1989,37 @@ x 12
 y 15
 end
 arch floor_marble4a
+z 50
 x 12
 y 16
 end
 arch floor_marble4a
+z 50
 x 12
 y 17
 end
 arch floor_marble4a
+z 50
 x 12
 y 18
 end
 arch floor_marble4a
+z 50
 x 12
 y 19
 end
 arch floor_marble4a
+z 50
 x 12
 y 20
 end
 arch floor_marble4a
+z 50
 x 12
 y 21
 end
 arch floor_marble4a
+z 50
 x 12
 y 22
 end
@@ -2077,6 +2122,7 @@ x 13
 y 14
 end
 arch grassd_1
+z 50
 x 13
 y 15
 end
@@ -2085,6 +2131,7 @@ x 13
 y 15
 end
 arch floor_marble4a
+z 50
 x 13
 y 16
 end
@@ -2093,6 +2140,7 @@ x 13
 y 16
 end
 arch floor_marble4a
+z 50
 x 13
 y 17
 end
@@ -2101,17 +2149,17 @@ x 13
 y 17
 end
 arch floor_marble4a
+z 50
 x 13
 y 18
 end
 arch door_wood1
-face door_wood1.131
 direction 3
-last_sp -1
 x 13
 y 18
 end
 arch floor_marble4a
+z 50
 x 13
 y 19
 end
@@ -2120,6 +2168,7 @@ x 13
 y 19
 end
 arch floor_marble4a
+z 50
 x 13
 y 20
 end
@@ -2128,6 +2177,7 @@ x 13
 y 20
 end
 arch floor_marble4a
+z 50
 x 13
 y 21
 end
@@ -2136,6 +2186,7 @@ x 13
 y 21
 end
 arch floor_marble4a
+z 50
 x 13
 y 22
 end
@@ -2263,10 +2314,12 @@ x 14
 y 17
 end
 arch floor_flagstone1d
+z 50
 x 14
 y 18
 end
 arch floor_flagstone1d
+z 50
 x 14
 y 19
 end
@@ -2399,34 +2452,42 @@ x 15
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 16
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 17
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 18
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 19
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 20
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 21
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 22
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 23
 end
@@ -2478,6 +2539,7 @@ x 16
 y 7
 end
 arch grassd_2
+z 50
 x 16
 y 8
 end
@@ -2486,6 +2548,7 @@ x 16
 y 8
 end
 arch grassd_5
+z 50
 x 16
 y 9
 end
@@ -2494,6 +2557,7 @@ x 16
 y 9
 end
 arch grassd_8
+z 50
 x 16
 y 10
 end
@@ -2502,6 +2566,7 @@ x 16
 y 10
 end
 arch grassd_3
+z 50
 x 16
 y 11
 end
@@ -2515,6 +2580,7 @@ x 16
 y 11
 end
 arch grassd_8
+z 50
 x 16
 y 12
 end
@@ -2523,6 +2589,7 @@ x 16
 y 12
 end
 arch grassd_4
+z 50
 x 16
 y 13
 end
@@ -2531,6 +2598,7 @@ x 16
 y 13
 end
 arch grassd_4
+z 50
 x 16
 y 14
 end
@@ -2539,6 +2607,7 @@ x 16
 y 14
 end
 arch grassd_2
+z 50
 x 16
 y 15
 end
@@ -2547,6 +2616,7 @@ x 16
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 16
 y 16
 end
@@ -2640,6 +2710,7 @@ x 17
 y 7
 end
 arch grassd_2
+z 50
 x 17
 y 8
 end
@@ -2648,6 +2719,7 @@ x 17
 y 8
 end
 arch floor_parquet1c
+z 50
 x 17
 y 9
 end
@@ -2657,6 +2729,7 @@ x 17
 y 9
 end
 arch floor_parquet1c
+z 50
 x 17
 y 10
 end
@@ -2669,6 +2742,7 @@ x 17
 y 10
 end
 arch floor_parquet1c
+z 50
 x 17
 y 11
 end
@@ -2677,6 +2751,7 @@ x 17
 y 11
 end
 arch floor_parquet1c
+z 50
 x 17
 y 12
 end
@@ -2690,6 +2765,7 @@ x 17
 y 12
 end
 arch floor_parquet1c
+z 50
 x 17
 y 13
 end
@@ -2699,14 +2775,17 @@ x 17
 y 13
 end
 arch floor_parquet1c
+z 50
 x 17
 y 14
 end
 arch bed_2a.111
+z 50
 x 17
 y 14
 end
 arch floor_parquet1c
+z 50
 x 17
 y 15
 end
@@ -2719,6 +2798,7 @@ x 17
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 17
 y 16
 end
@@ -2728,6 +2808,7 @@ x 17
 y 17
 end
 arch grassd_1
+z 50
 x 17
 y 18
 end
@@ -2736,14 +2817,17 @@ x 17
 y 18
 end
 arch grassd_7
+z 50
 x 17
 y 19
 end
 arch wall_white2_3
+z 50
 x 17
 y 19
 end
 arch grassd_3
+z 50
 x 17
 y 20
 end
@@ -2752,6 +2836,7 @@ x 17
 y 20
 end
 arch grassd_7
+z 50
 x 17
 y 21
 end
@@ -2760,6 +2845,7 @@ x 17
 y 21
 end
 arch grassd_2
+z 50
 x 17
 y 22
 end
@@ -2823,6 +2909,7 @@ x 18
 y 7
 end
 arch grassd_8
+z 50
 x 18
 y 8
 end
@@ -2835,6 +2922,7 @@ x 18
 y 8
 end
 arch floor_parquet1c
+z 50
 x 18
 y 9
 end
@@ -2847,6 +2935,7 @@ x 18
 y 10
 end
 arch floor_parquet1c
+z 50
 x 18
 y 10
 end
@@ -2855,6 +2944,7 @@ x 18
 y 10
 end
 arch floor_parquet1c
+z 50
 x 18
 y 11
 end
@@ -2868,6 +2958,7 @@ x 18
 y 11
 end
 arch floor_parquet1c
+z 50
 x 18
 y 12
 end
@@ -2880,6 +2971,7 @@ x 18
 y 13
 end
 arch floor_parquet1c
+z 50
 x 18
 y 13
 end
@@ -2888,6 +2980,7 @@ x 18
 y 13
 end
 arch floor_parquet1c
+z 50
 x 18
 y 14
 end
@@ -2896,6 +2989,7 @@ x 18
 y 14
 end
 arch floor_parquet1c
+z 50
 x 18
 y 15
 end
@@ -2908,6 +3002,7 @@ x 18
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 18
 y 16
 end
@@ -2917,6 +3012,7 @@ x 18
 y 17
 end
 arch grassd_7
+z 50
 x 18
 y 18
 end
@@ -2925,6 +3021,7 @@ x 18
 y 18
 end
 arch floor_ostone4
+z 50
 x 18
 y 19
 end
@@ -2933,6 +3030,7 @@ x 18
 y 19
 end
 arch floor_ostone4
+z 50
 x 18
 y 20
 end
@@ -2945,6 +3043,7 @@ x 18
 y 21
 end
 arch floor_ostone4
+z 50
 x 18
 y 21
 end
@@ -2953,6 +3052,7 @@ x 18
 y 21
 end
 arch floor_ostone4
+z 50
 x 18
 y 22
 end
@@ -3018,6 +3118,7 @@ x 19
 y 7
 end
 arch grassd_3
+z 50
 x 19
 y 8
 end
@@ -3026,6 +3127,7 @@ x 19
 y 8
 end
 arch floor_parquet1c
+z 50
 x 19
 y 9
 end
@@ -3034,6 +3136,7 @@ x 19
 y 9
 end
 arch floor_parquet1c
+z 50
 x 19
 y 10
 end
@@ -3046,6 +3149,7 @@ x 19
 y 10
 end
 arch floor_parquet1c
+z 50
 x 19
 y 11
 end
@@ -3058,6 +3162,7 @@ x 19
 y 11
 end
 arch floor_parquet1c
+z 50
 x 19
 y 12
 end
@@ -3071,6 +3176,7 @@ x 19
 y 12
 end
 arch floor_parquet1c
+z 50
 x 19
 y 13
 end
@@ -3079,10 +3185,12 @@ x 19
 y 13
 end
 arch floor_parquet1c
+z 50
 x 19
 y 14
 end
 arch floor_parquet1c
+z 50
 x 19
 y 15
 end
@@ -3091,6 +3199,7 @@ x 19
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 19
 y 16
 end
@@ -3100,6 +3209,7 @@ x 19
 y 17
 end
 arch grassd_5
+z 50
 x 19
 y 18
 end
@@ -3116,6 +3226,7 @@ x 19
 y 19
 end
 arch floor_ostone4
+z 50
 x 19
 y 19
 end
@@ -3128,6 +3239,7 @@ x 19
 y 19
 end
 arch floor_ostone4
+z 50
 x 19
 y 20
 end
@@ -3136,6 +3248,7 @@ x 19
 y 20
 end
 arch floor_ostone4
+z 50
 x 19
 y 21
 end
@@ -3144,6 +3257,7 @@ x 19
 y 21
 end
 arch floor_ostone4
+z 50
 x 19
 y 22
 end
@@ -3208,6 +3322,7 @@ x 20
 y 7
 end
 arch grassd_5
+z 50
 x 20
 y 8
 end
@@ -3216,6 +3331,7 @@ x 20
 y 8
 end
 arch floor_parquet1c
+z 50
 x 20
 y 9
 end
@@ -3224,6 +3340,7 @@ x 20
 y 9
 end
 arch floor_parquet1c
+z 50
 x 20
 y 10
 end
@@ -3232,6 +3349,7 @@ x 20
 y 10
 end
 arch floor_parquet1c
+z 50
 x 20
 y 11
 end
@@ -3245,6 +3363,7 @@ x 20
 y 11
 end
 arch floor_parquet1c
+z 50
 x 20
 y 12
 end
@@ -3253,10 +3372,12 @@ x 20
 y 12
 end
 arch floor_parquet1c
+z 50
 x 20
 y 13
 end
 arch floor_parquet1c
+z 50
 x 20
 y 14
 end
@@ -3265,6 +3386,7 @@ x 20
 y 14
 end
 arch floor_parquet1c
+z 50
 x 20
 y 15
 end
@@ -3277,6 +3399,7 @@ x 20
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 20
 y 16
 end
@@ -3286,6 +3409,7 @@ x 20
 y 17
 end
 arch grassd_5
+z 50
 x 20
 y 18
 end
@@ -3298,6 +3422,7 @@ x 20
 y 18
 end
 arch floor_ostone4
+z 50
 x 20
 y 19
 end
@@ -3310,6 +3435,7 @@ x 20
 y 20
 end
 arch floor_ostone4
+z 50
 x 20
 y 20
 end
@@ -3318,6 +3444,7 @@ x 20
 y 20
 end
 arch floor_ostone4
+z 50
 x 20
 y 21
 end
@@ -3326,6 +3453,7 @@ x 20
 y 21
 end
 arch floor_ostone4
+z 50
 x 20
 y 22
 end
@@ -3397,6 +3525,7 @@ x 21
 y 7
 end
 arch grassd_1
+z 50
 x 21
 y 8
 end
@@ -3405,6 +3534,7 @@ x 21
 y 8
 end
 arch floor_parquet1c
+z 50
 x 21
 y 9
 end
@@ -3418,6 +3548,7 @@ x 21
 y 9
 end
 arch floor_parquet1c
+z 50
 x 21
 y 10
 end
@@ -3426,6 +3557,7 @@ x 21
 y 10
 end
 arch floor_parquet1c
+z 50
 x 21
 y 11
 end
@@ -3439,6 +3571,7 @@ x 21
 y 11
 end
 arch floor_parquet1c
+z 50
 x 21
 y 12
 end
@@ -3449,6 +3582,7 @@ x 21
 y 12
 end
 arch floor_parquet1c
+z 50
 x 21
 y 13
 end
@@ -3462,6 +3596,7 @@ x 21
 y 13
 end
 arch floor_parquet1c
+z 50
 x 21
 y 14
 end
@@ -3475,6 +3610,7 @@ x 21
 y 14
 end
 arch floor_parquet1c
+z 50
 x 21
 y 15
 end
@@ -3487,6 +3623,7 @@ x 21
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 21
 y 16
 end
@@ -3496,6 +3633,7 @@ x 21
 y 17
 end
 arch grassd_4
+z 50
 x 21
 y 18
 end
@@ -3508,6 +3646,7 @@ x 21
 y 19
 end
 arch floor_ostone4
+z 50
 x 21
 y 19
 end
@@ -3520,6 +3659,7 @@ x 21
 y 19
 end
 arch floor_ostone4
+z 50
 x 21
 y 20
 end
@@ -3528,6 +3668,7 @@ x 21
 y 20
 end
 arch floor_ostone4
+z 50
 x 21
 y 21
 end
@@ -3536,6 +3677,7 @@ x 21
 y 21
 end
 arch floor_ostone4
+z 50
 x 21
 y 22
 end
@@ -3544,11 +3686,11 @@ x 21
 y 22
 end
 arch door_wood2
-last_sp -1
 x 21
 y 22
 end
 arch floor_flagstone1d
+z 50
 x 21
 y 23
 end
@@ -3628,22 +3770,27 @@ x 22
 y 11
 end
 arch floor_flagstone1d
+z 50
 x 22
 y 12
 end
 arch floor_flagstone1d
+z 50
 x 22
 y 13
 end
 arch floor_flagstone1d
+z 50
 x 22
 y 14
 end
 arch floor_flagstone1d
+z 50
 x 22
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 22
 y 16
 end
@@ -3653,6 +3800,7 @@ x 22
 y 17
 end
 arch grassd_5
+z 50
 x 22
 y 18
 end
@@ -3665,6 +3813,7 @@ x 22
 y 18
 end
 arch floor_ostone4
+z 50
 x 22
 y 19
 end
@@ -3673,6 +3822,7 @@ x 22
 y 19
 end
 arch floor_ostone4
+z 50
 x 22
 y 20
 end
@@ -3685,6 +3835,7 @@ x 22
 y 21
 end
 arch floor_ostone4
+z 50
 x 22
 y 21
 end
@@ -3693,6 +3844,7 @@ x 22
 y 21
 end
 arch floor_ostone4
+z 50
 x 22
 y 22
 end
@@ -3805,6 +3957,7 @@ x 23
 y 15
 end
 arch floor_flagstone1d
+z 50
 x 23
 y 16
 end
@@ -3814,6 +3967,7 @@ x 23
 y 17
 end
 arch grassd_7
+z 50
 x 23
 y 18
 end
@@ -3822,6 +3976,7 @@ x 23
 y 18
 end
 arch floor_ostone4
+z 50
 x 23
 y 19
 end
@@ -3830,6 +3985,7 @@ x 23
 y 19
 end
 arch floor_ostone4
+z 50
 x 23
 y 20
 end
@@ -3838,6 +3994,7 @@ x 23
 y 20
 end
 arch floor_ostone4
+z 50
 x 23
 y 21
 end
@@ -3846,6 +4003,7 @@ x 23
 y 21
 end
 arch floor_ostone4
+z 50
 x 23
 y 22
 end

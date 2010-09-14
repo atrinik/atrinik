@@ -2364,13 +2364,16 @@ x 14
 y 23
 end
 arch floor_flagstone1d
+z 50
 x 15
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 1
 end
 arch floor_flagstone1d
+z 50
 x 15
 y 2
 end
@@ -3198,6 +3201,7 @@ x 19
 y 23
 end
 arch floor_flagstone1d
+z 50
 x 20
 end
 arch grassd_m4
@@ -3367,6 +3371,7 @@ x 20
 y 23
 end
 arch floor_flagstone1d
+z 50
 x 21
 end
 arch spawn_point
