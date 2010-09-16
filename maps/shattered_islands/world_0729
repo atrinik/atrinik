@@ -6,7 +6,7 @@ Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 15
 outdoor 1
 tile_path_1 world_0730
 tile_path_2 world_0829
@@ -88,7 +88,7 @@ end
 arch spawn_point
 y 15
 arch crocodile
-level 20
+level 21
 type 83
 end
 end
@@ -363,7 +363,7 @@ arch spawn_point
 x 3
 y 3
 arch crocodile
-level 20
+level 21
 type 83
 end
 end

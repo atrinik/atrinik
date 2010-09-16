@@ -6,7 +6,7 @@ Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 30
 outdoor 1
 tile_path_1 world_0230
 tile_path_2 world_0329
@@ -86,7 +86,7 @@ end
 arch spawn_point
 y 20
 arch frog
-level 20
+level 33
 type 83
 end
 end
@@ -363,7 +363,7 @@ arch spawn_point
 x 3
 y 12
 arch crocodile
-level 30
+level 33
 type 83
 end
 end
@@ -874,7 +874,7 @@ arch spawn_point
 x 8
 y 5
 arch crocodile
-level 30
+level 34
 type 83
 end
 end
@@ -930,7 +930,7 @@ arch spawn_point
 x 8
 y 17
 arch frog
-level 20
+level 34
 type 83
 end
 end
@@ -1658,7 +1658,7 @@ arch spawn_point
 x 15
 y 13
 arch frog
-level 20
+level 34
 type 83
 end
 end
@@ -2089,7 +2089,7 @@ arch spawn_point
 x 19
 y 8
 arch crocodile
-level 25
+level 35
 type 83
 end
 end

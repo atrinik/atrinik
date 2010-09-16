@@ -6,7 +6,7 @@ Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 15
 outdoor 1
 tile_path_1 world_0431
 tile_path_2 world_0530
@@ -91,7 +91,7 @@ end
 arch spawn_point
 y 17
 arch frog
-level 20
+level 24
 type 83
 end
 end
@@ -1245,7 +1245,7 @@ arch spawn_point
 x 10
 y 20
 arch frog
-level 20
+level 24
 type 83
 end
 end
@@ -2384,7 +2384,7 @@ arch spawn_point
 x 20
 y 21
 arch frog
-level 20
+level 23
 type 83
 end
 end

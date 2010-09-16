@@ -6,7 +6,7 @@ Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 12
+difficulty 16
 outdoor 1
 tile_path_1 world_0330
 tile_path_2 world_0429
@@ -190,7 +190,7 @@ arch spawn_point
 x 1
 y 12
 arch mud_hand
-level 30
+level 35
 type 83
 end
 end
@@ -850,7 +850,7 @@ arch spawn_point
 x 7
 y 1
 arch mud_hand
-level 30
+level 25
 type 83
 end
 end

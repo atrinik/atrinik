@@ -6,7 +6,7 @@ Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 24
 outdoor 1
 tile_path_1 world_0231
 tile_path_2 world_0330
@@ -62,7 +62,7 @@ end
 arch spawn_point
 y 12
 arch ghoul
-name Swamp Ghoul
+name swamp ghoul
 level 35
 last_eat -5
 type 83
@@ -139,7 +139,7 @@ arch spawn_point
 x 1
 y 6
 arch frog
-level 20
+level 29
 type 83
 end
 end
@@ -650,7 +650,7 @@ arch spawn_point
 x 5
 y 22
 arch ghoul
-name Swamp Ghoul
+name swamp ghoul
 level 35
 last_eat -5
 type 83
@@ -707,7 +707,7 @@ arch spawn_point
 x 6
 y 9
 arch ghoul
-name Swamp Ghoul
+name swamp ghoul
 level 35
 last_eat -5
 type 83
@@ -1251,7 +1251,7 @@ arch spawn_point
 x 11
 y 4
 arch frog
-level 20
+level 29
 type 83
 end
 end
@@ -1283,7 +1283,7 @@ arch spawn_point
 x 11
 y 10
 arch crocodile
-level 30
+level 29
 type 83
 end
 end
@@ -1762,7 +1762,7 @@ arch spawn_point
 x 15
 y 13
 arch mud_hand
-level 25
+level 28
 type 83
 end
 end
@@ -2090,7 +2090,7 @@ arch spawn_point
 x 18
 y 9
 arch crocodile
-level 30
+level 28
 type 83
 end
 end
@@ -2390,7 +2390,7 @@ arch spawn_point
 x 21
 y 2
 arch frog
-level 20
+level 28
 type 83
 end
 end
@@ -2450,7 +2450,7 @@ arch spawn_point
 x 21
 y 14
 arch crocodile
-level 30
+level 27
 type 83
 end
 end
