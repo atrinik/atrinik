@@ -1541,7 +1541,12 @@ arch floor_sand_d3
 x 12
 y 11
 end
+arch grassd_m10
+x 12
+y 11
+end
 arch bridge_wood_EW.121
+layer 3
 x 12
 y 11
 end
@@ -1680,15 +1685,15 @@ arch grassd_2
 x 13
 y 10
 end
-arch sand_dm7
-x 13
-y 10
-end
 arch tree_big2
 x 13
 y 10
 end
 arch floor_sand_d3
+x 13
+y 11
+end
+arch grassd_m10
 x 13
 y 11
 end
@@ -1831,15 +1836,15 @@ arch grassd_2
 x 14
 y 10
 end
-arch sand_dm7
-x 14
-y 10
-end
 arch plant7
 x 14
 y 10
 end
 arch floor_sand_d4
+x 14
+y 11
+end
+arch grassd_m10
 x 14
 y 11
 end
@@ -1978,15 +1983,15 @@ arch grassd_7
 x 15
 y 10
 end
-arch sand_dm7
-x 15
-y 10
-end
 arch plant8
 x 15
 y 10
 end
 arch floor_sand_d3
+x 15
+y 11
+end
+arch grassd_m10
 x 15
 y 11
 end
@@ -2150,10 +2155,6 @@ arch grassd_7
 x 16
 y 10
 end
-arch sand_dm7
-x 16
-y 10
-end
 arch plant13
 x 16
 y 10
@@ -2162,11 +2163,23 @@ arch floor_sand_d1
 x 16
 y 11
 end
+arch grassd_m6
+x 16
+y 11
+end
 arch floor_sand_d1
 x 16
 y 12
 end
+arch grassd_m12
+x 16
+y 12
+end
 arch grassd_3
+x 16
+y 13
+end
+arch sand_dm6
 x 16
 y 13
 end
@@ -2297,11 +2310,11 @@ arch grassd_6
 x 17
 y 11
 end
-arch sand_dm22
-x 17
-y 11
-end
 arch floor_sand_d3
+x 17
+y 12
+end
+arch grassd_m10
 x 17
 y 12
 end
@@ -2309,7 +2322,7 @@ arch grassd_1
 x 17
 y 13
 end
-arch sand_dm19
+arch sand_dm6
 x 17
 y 13
 end
@@ -2449,10 +2462,6 @@ arch grassd_7
 x 18
 y 11
 end
-arch sand_dm7
-x 18
-y 11
-end
 arch plant8
 x 18
 y 11
@@ -2461,7 +2470,15 @@ arch floor_sand_d4
 x 18
 y 12
 end
+arch grassd_m6
+x 18
+y 12
+end
 arch floor_sand_d3
+x 18
+y 13
+end
+arch grassd_m8
 x 18
 y 13
 end
@@ -2469,15 +2486,19 @@ arch floor_sand_d3
 x 18
 y 14
 end
+arch grassd_m8
+x 18
+y 14
+end
 arch floor_sand_d1
 x 18
 y 15
 end
-arch grassd_3
+arch grassd_m5
 x 18
-y 16
+y 15
 end
-arch sand_dm6
+arch grassd_3
 x 18
 y 16
 end
@@ -2592,19 +2613,11 @@ arch grassd_3
 x 19
 y 12
 end
-arch sand_dm8
-x 19
-y 12
-end
 arch reed_sm1
 x 19
 y 12
 end
 arch grassd_5
-x 19
-y 13
-end
-arch sand_dm8
 x 19
 y 13
 end
@@ -2616,19 +2629,11 @@ arch grassd_7
 x 19
 y 14
 end
-arch sand_dm8
-x 19
-y 14
-end
 arch reed_sm1
 x 19
 y 14
 end
 arch grassd_3
-x 19
-y 15
-end
-arch sand_dm8
 x 19
 y 15
 end

@@ -2351,10 +2351,6 @@ arch grassd_7
 x 17
 y 5
 end
-arch plant_flower6
-x 17
-y 5
-end
 arch plant4
 x 17
 y 5

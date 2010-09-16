@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-13 emperorbma
+Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -440,12 +440,12 @@ z 50
 x 2
 y 13
 end
-arch light9
+arch floor_ostone13
+z 50
 x 2
 y 14
 end
-arch floor_ostone13
-z 50
+arch light9
 x 2
 y 14
 end
@@ -579,12 +579,12 @@ arch mirror_big.111
 x 3
 y 9
 end
-arch light9
+arch floor_ostone13
+z 50
 x 3
 y 10
 end
-arch floor_ostone13
-z 50
+arch light9
 x 3
 y 10
 end
@@ -640,16 +640,16 @@ arch wall_wood_1
 x 3
 y 18
 end
-arch light9
-x 3
-y 19
-end
 arch floor_parquet2d
 z 50
 x 3
 y 19
 end
 arch chair1_111
+x 3
+y 19
+end
+arch light9
 x 3
 y 19
 end
@@ -662,10 +662,6 @@ arch table_round1
 x 3
 y 20
 end
-arch light9
-x 3
-y 21
-end
 arch floor_parquet2d
 z 50
 x 3
@@ -673,6 +669,10 @@ y 21
 end
 arch chair1_111
 direction 5
+x 3
+y 21
+end
+arch light9
 x 3
 y 21
 end
@@ -779,16 +779,16 @@ z 50
 x 4
 y 13
 end
-arch light9
-x 4
-y 14
-end
 arch floor_ostone13
 z 50
 x 4
 y 14
 end
 arch potted_plant4
+x 4
+y 14
+end
+arch light9
 x 4
 y 14
 end
@@ -829,10 +829,6 @@ z 50
 x 4
 y 19
 end
-arch light9
-x 4
-y 20
-end
 arch floor_parquet2d
 z 50
 x 4
@@ -840,6 +836,10 @@ y 20
 end
 arch chair1_111
 direction 3
+x 4
+y 20
+end
+arch light9
 x 4
 y 20
 end
@@ -1010,10 +1010,6 @@ arch wall_wood_w_1
 x 5
 y 18
 end
-arch light9
-x 5
-y 19
-end
 arch floor_parquet2d
 z 50
 x 5
@@ -1023,17 +1019,21 @@ arch bed_2a.111
 x 5
 y 19
 end
+arch light9
+x 5
+y 19
+end
 arch floor_parquet2d
 z 50
 x 5
 y 20
 end
-arch light9
+arch floor_parquet2d
+z 50
 x 5
 y 21
 end
-arch floor_parquet2d
-z 50
+arch light9
 x 5
 y 21
 end
@@ -1178,12 +1178,12 @@ arch bed_2b.111
 x 6
 y 19
 end
-arch light9
+arch floor_parquet2d
+z 50
 x 6
 y 20
 end
-arch floor_parquet2d
-z 50
+arch light9
 x 6
 y 20
 end
