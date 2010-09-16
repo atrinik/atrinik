@@ -805,6 +805,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="../../../src/types/magic_mirror.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../../src/types/marker.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

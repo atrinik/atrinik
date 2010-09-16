@@ -543,7 +543,7 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
 	}
 	else
 	{
-		if (!get_rangevector_from_mapcoords(goal->map, goal->x, goal->y, current->map, current->x, current->y, &v1, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE))
+		if (!get_rangevector_from_mapcoords(current->map, current->x, current->y, goal->map, goal->x, goal->y, &v1, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE))
 		{
 			return HEURISTIC_ERROR;
 		}
@@ -561,7 +561,7 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
 	}
 	else
 	{
-		if (!get_rangevector_from_mapcoords(goal->map, goal->x, goal->y, start->map, start->x, start->y, &v2, RV_RECURSIVE_SEARCH | RV_NO_DISTANCE))
+		if (!get_rangevector_from_mapcoords(start->map, start->x, start->y, goal->map, goal->x, goal->y, &v2, RV_RECURSIVE_SEARCH | RV_NO_DISTANCE))
 		{
 			return HEURISTIC_ERROR;
 		}

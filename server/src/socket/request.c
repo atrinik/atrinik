@@ -1407,40 +1407,12 @@ void draw_client_map2(object *pl)
 					 * safety anyway. */
 					if (mirror)
 					{
-						char tmp_path[HUGE_BUF];
+						magic_mirror_struct *m_data = MMIRROR(mirror);
 						mapstruct *mirror_map;
-						int mirror_x, mirror_y;
 
-						/* The default (-1) for X/Y will use the mirror's X/Y. */
-						mirror_x = (mirror->stats.hp == -1 ? mirror->x : mirror->stats.hp);
-						mirror_y = (mirror->stats.sp == -1 ? mirror->y : mirror->stats.sp);
-
-						if (mirror->stats.maxhp)
+						if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
 						{
-							mirror_x += mirror->stats.maxhp;
-						}
-
-						if (mirror->stats.maxsp)
-						{
-							mirror_y += mirror->stats.maxsp;
-						}
-
-						/* No slaying? Same map then. */
-						if (!mirror->slaying)
-						{
-							FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
-							mirror_map = ready_map_name(mirror->slaying, 0);
-						}
-						else
-						{
-							mirror_map = ready_map_name(normalize_path(mirror->map->path, mirror->slaying, tmp_path), 0);
-						}
-
-						/* Check if we loaded the map and whether the X/Y positions
-						 * are valid, then try to get an object for the layer we are on. */
-						if (mirror_map && !OUT_OF_REAL_MAP(mirror_map, mirror_x, mirror_y))
-						{
-							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, mirror_x, mirror_y), layer);
+							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer);
 						}
 					}
 				}

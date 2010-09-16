@@ -28,6 +28,18 @@ w a 3 si_024.png
 "This spell gains power with level, so it remains useful"
 "even at high level."
 " "
+"asteroid"
+w b 3 si_005.png
+"Fires an asteroid in front of you, which explodes into a cone of ice if"
+"it hits an object."
+" "
+" "
+"frost nova"
+w c 3 si_142.png
+"Similar to the spell of asteroid, but this spell fires a bunch of asteroids"
+"in front of you, which then explode into cones of ice if they hit"
+"something."
+" "
 "magic bullet"
 w a 5 si_017.png
 "This spell fires a magical bullet which does not track but instead "
