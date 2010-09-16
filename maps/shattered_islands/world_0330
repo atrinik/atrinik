@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-14 Alex Tokar
+Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -20,15 +20,16 @@ region strakewood_island
 end
 arch grassd_1
 end
-arch swamp1m10
-end
 arch grassd_4
 y 1
 end
-arch swamp1m10
+arch plant_flower14
 y 1
 end
 arch swamp1
+y 2
+end
+arch grassd_m10
 y 2
 end
 arch swamp1
@@ -107,11 +108,11 @@ arch grassd_3
 x 1
 y 1
 end
-arch swamp1m10
-x 1
-y 1
-end
 arch swamp1
+x 1
+y 2
+end
+arch grassd_m10
 x 1
 y 2
 end
@@ -214,11 +215,11 @@ arch grassd_1
 x 2
 y 1
 end
-arch swamp1m10
-x 2
-y 1
-end
 arch swamp1
+x 2
+y 2
+end
+arch grassd_m10
 x 2
 y 2
 end
@@ -325,15 +326,18 @@ end
 arch grassd_8
 x 3
 end
+arch plant10
+x 3
+end
 arch grassd_4
 x 3
 y 1
 end
-arch swamp1m10
-x 3
-y 1
-end
 arch swamp1
+x 3
+y 2
+end
+arch grassd_m10
 x 3
 y 2
 end
@@ -436,11 +440,11 @@ arch grassd_6
 x 4
 y 1
 end
-arch swamp1m10
-x 4
-y 1
-end
 arch swamp1
+x 4
+y 2
+end
+arch grassd_m10
 x 4
 y 2
 end
@@ -555,18 +559,15 @@ end
 arch grassd_2
 x 5
 end
-arch swamp1m10
-x 5
-end
 arch grassd_8
 x 5
 y 1
 end
-arch swamp1m10
-x 5
-y 1
-end
 arch swamp1
+x 5
+y 2
+end
+arch grassd_m10
 x 5
 y 2
 end
@@ -657,14 +658,22 @@ end
 arch grassd_8
 x 6
 end
-arch swamp1m10
+arch plant10
 x 6
 end
 arch swamp1
 x 6
 y 1
 end
+arch grassd_m4
+x 6
+y 1
+end
 arch swamp1
+x 6
+y 2
+end
+arch grassd_m13
 x 6
 y 2
 end
@@ -763,10 +772,11 @@ end
 arch grassd_8
 x 7
 end
-arch swamp1m10
-x 7
-end
 arch swamp1
+x 7
+y 1
+end
+arch grassd_m10
 x 7
 y 1
 end
@@ -865,10 +875,11 @@ end
 arch grassd_5
 x 8
 end
-arch swamp1m10
-x 8
-end
 arch swamp1
+x 8
+y 1
+end
+arch grassd_m10
 x 8
 y 1
 end
@@ -963,10 +974,11 @@ end
 arch grassd_4
 x 9
 end
-arch swamp1m10
-x 9
-end
 arch swamp1
+x 9
+y 1
+end
+arch grassd_m10
 x 9
 y 1
 end
@@ -1061,10 +1073,11 @@ end
 arch grassd_5
 x 10
 end
-arch swamp1m10
-x 10
-end
 arch swamp1
+x 10
+y 1
+end
+arch grassd_m10
 x 10
 y 1
 end
@@ -1175,14 +1188,19 @@ end
 arch grassd_4
 x 11
 end
-arch swamp1m10
-x 11
-end
 arch swamp1
 x 11
 y 1
 end
+arch grassd_m6
+x 11
+y 1
+end
 arch swamp1
+x 11
+y 2
+end
+arch grassd_m12
 x 11
 y 2
 end
@@ -1273,18 +1291,18 @@ end
 arch grassd_6
 x 12
 end
-arch swamp1m10
+arch plant_mushroom3
 x 12
 end
 arch grassd_2
 x 12
 y 1
 end
-arch swamp1m10
-x 12
-y 1
-end
 arch swamp1
+x 12
+y 2
+end
+arch grassd_m10
 x 12
 y 2
 end
@@ -1411,11 +1429,11 @@ arch grassd_7
 x 13
 y 1
 end
-arch swamp1m10
-x 13
-y 1
-end
 arch swamp1
+x 13
+y 2
+end
+arch grassd_m10
 x 13
 y 2
 end
@@ -1540,18 +1558,15 @@ end
 arch grassd_3
 x 14
 end
-arch swamp1m10
-x 14
-end
 arch grassd_3
 x 14
 y 1
 end
-arch swamp1m10
-x 14
-y 1
-end
 arch swamp1
+x 14
+y 2
+end
+arch grassd_m10
 x 14
 y 2
 end
@@ -1691,14 +1706,19 @@ end
 arch grassd_8
 x 15
 end
-arch swamp1m10
-x 15
-end
 arch swamp1
 x 15
 y 1
 end
+arch grassd_m4
+x 15
+y 1
+end
 arch swamp1
+x 15
+y 2
+end
+arch grassd_m13
 x 15
 y 2
 end
@@ -1845,10 +1865,11 @@ end
 arch grassd_2
 x 16
 end
-arch swamp1m10
-x 16
-end
 arch swamp1
+x 16
+y 1
+end
+arch grassd_m10
 x 16
 y 1
 end
@@ -1959,10 +1980,11 @@ end
 arch grassd_3
 x 17
 end
-arch swamp1m10
-x 17
-end
 arch swamp1
+x 17
+y 1
+end
+arch grassd_m10
 x 17
 y 1
 end
@@ -2094,14 +2116,19 @@ end
 arch grassd_8
 x 18
 end
-arch swamp1m10
-x 18
-end
 arch swamp1
 x 18
 y 1
 end
+arch grassd_m6
+x 18
+y 1
+end
 arch swamp1
+x 18
+y 2
+end
+arch grassd_m12
 x 18
 y 2
 end
@@ -2220,18 +2247,15 @@ end
 arch grassd_2
 x 19
 end
-arch swamp1m10
-x 19
-end
 arch grassd_6
 x 19
 y 1
 end
-arch swamp1m10
-x 19
-y 1
-end
 arch swamp1
+x 19
+y 2
+end
+arch grassd_m10
 x 19
 y 2
 end
@@ -2334,11 +2358,11 @@ arch grassd_6
 x 20
 y 1
 end
-arch swamp1m10
-x 20
-y 1
-end
 arch swamp1
+x 20
+y 2
+end
+arch grassd_m10
 x 20
 y 2
 end
@@ -2445,15 +2469,18 @@ end
 arch grassd_2
 x 21
 end
+arch plant13
+x 21
+end
 arch grassd_6
 x 21
 y 1
 end
-arch swamp1m10
-x 21
-y 1
-end
 arch swamp1
+x 21
+y 2
+end
+arch grassd_m10
 x 21
 y 2
 end
@@ -2552,11 +2579,11 @@ arch grassd_4
 x 22
 y 1
 end
-arch swamp1m10
-x 22
-y 1
-end
 arch swamp1
+x 22
+y 2
+end
+arch grassd_m6
 x 22
 y 2
 end
@@ -2564,7 +2591,15 @@ arch swamp1
 x 22
 y 3
 end
+arch grassd_m8
+x 22
+y 3
+end
 arch swamp1
+x 22
+y 4
+end
+arch grassd_m8
 x 22
 y 4
 end
@@ -2572,7 +2607,15 @@ arch swamp1
 x 22
 y 5
 end
+arch grassd_m8
+x 22
+y 5
+end
 arch swamp1
+x 22
+y 6
+end
+arch grassd_m8
 x 22
 y 6
 end
@@ -2580,11 +2623,23 @@ arch swamp1
 x 22
 y 7
 end
+arch grassd_m8
+x 22
+y 7
+end
 arch swamp1
 x 22
 y 8
 end
+arch grassd_m8
+x 22
+y 8
+end
 arch swamp1
+x 22
+y 9
+end
+arch grassd_m12
 x 22
 y 9
 end
@@ -2651,15 +2706,7 @@ arch grassd_6
 x 23
 y 1
 end
-arch swamp1m10
-x 23
-y 1
-end
 arch grassd_7
-x 23
-y 2
-end
-arch swamp1m10
 x 23
 y 2
 end
@@ -2667,7 +2714,7 @@ arch grassd_3
 x 23
 y 3
 end
-arch swamp1m10
+arch small_stones
 x 23
 y 3
 end
@@ -2675,15 +2722,7 @@ arch grassd_4
 x 23
 y 4
 end
-arch swamp1m10
-x 23
-y 4
-end
 arch grassd_5
-x 23
-y 5
-end
-arch swamp1m10
 x 23
 y 5
 end
@@ -2691,15 +2730,11 @@ arch grassd_1
 x 23
 y 6
 end
-arch swamp1m10
-x 23
-y 6
-end
 arch grassd_6
 x 23
 y 7
 end
-arch swamp1m10
+arch plant_flower11
 x 23
 y 7
 end
@@ -2707,11 +2742,11 @@ arch grassd_7
 x 23
 y 8
 end
-arch swamp1m10
-x 23
-y 8
-end
 arch swamp1
+x 23
+y 9
+end
+arch grassd_m6
 x 23
 y 9
 end
@@ -2719,7 +2754,15 @@ arch swamp1
 x 23
 y 10
 end
+arch grassd_m8
+x 23
+y 10
+end
 arch swamp1
+x 23
+y 11
+end
+arch grassd_m8
 x 23
 y 11
 end
@@ -2727,7 +2770,15 @@ arch swamp1
 x 23
 y 12
 end
+arch grassd_m8
+x 23
+y 12
+end
 arch swamp1
+x 23
+y 13
+end
+arch grassd_m12
 x 23
 y 13
 end

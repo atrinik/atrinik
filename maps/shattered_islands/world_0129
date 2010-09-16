@@ -184,14 +184,7 @@ end
 arch water_lt4
 x 2
 end
-arch swamp1m10
-x 2
-end
 arch water_lt
-x 2
-y 1
-end
-arch swamp1m10
 x 2
 y 1
 end
@@ -199,15 +192,7 @@ arch water_lt4
 x 2
 y 2
 end
-arch swamp1m10
-x 2
-y 2
-end
 arch water_lt2
-x 2
-y 3
-end
-arch swamp1m10
 x 2
 y 3
 end
@@ -215,15 +200,7 @@ arch water_lt
 x 2
 y 4
 end
-arch swamp1m10
-x 2
-y 4
-end
 arch water_lt3
-x 2
-y 5
-end
-arch swamp1m10
 x 2
 y 5
 end
@@ -302,7 +279,16 @@ end
 arch swamp1
 x 3
 end
+arch water_lt2_m
+direction 7
+x 3
+end
 arch swamp1
+x 3
+y 1
+end
+arch water_lt2_m
+direction 7
 x 3
 y 1
 end
@@ -310,7 +296,17 @@ arch swamp1
 x 3
 y 2
 end
+arch water_lt_m
+direction 7
+x 3
+y 2
+end
 arch swamp1
+x 3
+y 3
+end
+arch water_lt2_m
+direction 7
 x 3
 y 3
 end
@@ -318,19 +314,16 @@ arch swamp1
 x 3
 y 4
 end
+arch water_lt_m
+direction 6
+x 3
+y 4
+end
 arch water_lt
 x 3
 y 5
 end
-arch swamp1m10
-x 3
-y 5
-end
 arch water_lt4
-x 3
-y 6
-end
-arch swamp1m10
 x 3
 y 6
 end
@@ -338,15 +331,7 @@ arch water_lt3
 x 3
 y 7
 end
-arch swamp1m10
-x 3
-y 7
-end
 arch water_lt4
-x 3
-y 8
-end
-arch swamp1m10
 x 3
 y 8
 end
@@ -433,7 +418,17 @@ arch swamp1
 x 4
 y 5
 end
+arch water_lt_m
+direction 7
+x 4
+y 5
+end
 arch swamp1
+x 4
+y 6
+end
+arch water_lt_m
+direction 7
 x 4
 y 6
 end
@@ -441,19 +436,16 @@ arch swamp1
 x 4
 y 7
 end
+arch water_lt_m
+direction 6
+x 4
+y 7
+end
 arch water_lt4
 x 4
 y 8
 end
-arch swamp1m10
-x 4
-y 8
-end
 arch water_lt4
-x 4
-y 9
-end
-arch swamp1m10
 x 4
 y 9
 end
@@ -552,11 +544,12 @@ arch swamp1
 x 5
 y 8
 end
-arch water_lt
+arch water_lt_m
+direction 6
 x 5
-y 9
+y 8
 end
-arch swamp1m10
+arch water_lt
 x 5
 y 9
 end
@@ -564,15 +557,7 @@ arch water_lt2
 x 5
 y 10
 end
-arch swamp1m10
-x 5
-y 10
-end
 arch water_lt3
-x 5
-y 11
-end
-arch swamp1m10
 x 5
 y 11
 end
@@ -671,15 +656,21 @@ arch swamp1
 x 6
 y 9
 end
+arch water_lt_m
+direction 7
+x 6
+y 9
+end
 arch swamp1
 x 6
 y 10
 end
-arch water_lt3
+arch water_lt_m
+direction 6
 x 6
-y 11
+y 10
 end
-arch swamp1m10
+arch water_lt3
 x 6
 y 11
 end
@@ -815,6 +806,11 @@ x 7
 y 10
 end
 arch swamp1
+x 7
+y 11
+end
+arch water_lt_m
+direction 7
 x 7
 y 11
 end
@@ -957,11 +953,23 @@ arch swamp1
 x 8
 y 11
 end
+arch grassd_m14
+x 8
+y 11
+end
 arch swamp1
 x 8
 y 12
 end
+arch grassd_m9
+x 8
+y 12
+end
 arch swamp1
+x 8
+y 13
+end
+arch grassd_m3
 x 8
 y 13
 end
@@ -1100,6 +1108,10 @@ arch swamp1
 x 9
 y 13
 end
+arch grassd_m14
+x 9
+y 13
+end
 arch swamp1
 x 9
 y 14
@@ -1108,7 +1120,15 @@ arch swamp1
 x 9
 y 15
 end
+arch grassd_m3
+x 9
+y 15
+end
 arch grassd_8
+x 9
+y 16
+end
+arch plant9
 x 9
 y 16
 end
@@ -1215,7 +1235,15 @@ arch swamp1
 x 10
 y 15
 end
+arch grassd_m14
+x 10
+y 15
+end
 arch swamp1
+x 10
+y 16
+end
+arch grassd_m3
 x 10
 y 16
 end
@@ -1223,7 +1251,15 @@ arch grassd_6
 x 10
 y 17
 end
+arch tree_big2
+x 10
+y 17
+end
 arch grassd_1
+x 10
+y 18
+end
+arch plant_mushroom5
 x 10
 y 18
 end
@@ -1232,6 +1268,10 @@ x 10
 y 19
 end
 arch grassd_4
+x 10
+y 20
+end
+arch plant17
 x 10
 y 20
 end
@@ -1334,7 +1374,15 @@ arch swamp1
 x 11
 y 16
 end
+arch grassd_m14
+x 11
+y 16
+end
 arch swamp1
+x 11
+y 17
+end
+arch grassd_m3
 x 11
 y 17
 end
@@ -1441,6 +1489,10 @@ arch swamp1
 x 12
 y 17
 end
+arch grassd_m7
+x 12
+y 17
+end
 arch grassd_7
 x 12
 y 18
@@ -1449,11 +1501,19 @@ arch grassd_2
 x 12
 y 19
 end
+arch tree_big4b
+x 12
+y 19
+end
 arch grassd_5
 x 12
 y 20
 end
 arch grassd_7
+x 12
+y 21
+end
+arch small_stones
 x 12
 y 21
 end
@@ -1544,7 +1604,15 @@ arch swamp1
 x 13
 y 17
 end
+arch grassd_m14
+x 13
+y 17
+end
 arch swamp1
+x 13
+y 18
+end
+arch grassd_m3
 x 13
 y 18
 end
@@ -1557,6 +1625,10 @@ x 13
 y 20
 end
 arch grassd_6
+x 13
+y 21
+end
+arch plant12
 x 13
 y 21
 end
@@ -1640,6 +1712,10 @@ x 14
 y 17
 end
 arch swamp1
+x 14
+y 18
+end
+arch grassd_m7
 x 14
 y 18
 end
@@ -1663,6 +1739,10 @@ arch grassd_2
 x 14
 y 23
 end
+arch plant_mushroom2
+x 14
+y 23
+end
 arch swamp1
 x 15
 end
@@ -1738,7 +1818,15 @@ arch swamp1
 x 15
 y 18
 end
+arch grassd_m14
+x 15
+y 18
+end
 arch swamp1
+x 15
+y 19
+end
+arch grassd_m3
 x 15
 y 19
 end
@@ -1747,6 +1835,10 @@ x 15
 y 20
 end
 arch grassd_2
+x 15
+y 21
+end
+arch plant_flower11
 x 15
 y 21
 end
@@ -1837,6 +1929,10 @@ arch swamp1
 x 16
 y 19
 end
+arch grassd_m7
+x 16
+y 19
+end
 arch grassd_6
 x 16
 y 20
@@ -1846,6 +1942,10 @@ x 16
 y 21
 end
 arch grassd_7
+x 16
+y 22
+end
+arch plant_flower2
 x 16
 y 22
 end
@@ -1952,7 +2052,15 @@ arch swamp1
 x 17
 y 19
 end
+arch grassd_m14
+x 17
+y 19
+end
 arch swamp1
+x 17
+y 20
+end
+arch grassd_m3
 x 17
 y 20
 end
@@ -1965,6 +2073,10 @@ x 17
 y 22
 end
 arch grassd_7
+x 17
+y 23
+end
+arch tree_big
 x 17
 y 23
 end
@@ -2060,6 +2172,10 @@ x 18
 y 19
 end
 arch swamp1
+x 18
+y 20
+end
+arch grassd_m7
 x 18
 y 20
 end
@@ -2161,7 +2277,15 @@ arch swamp1
 x 19
 y 20
 end
+arch grassd_m14
+x 19
+y 20
+end
 arch swamp1
+x 19
+y 21
+end
+arch grassd_m3
 x 19
 y 21
 end
@@ -2170,6 +2294,10 @@ x 19
 y 22
 end
 arch grassd_7
+x 19
+y 23
+end
+arch plant_mushroom2
 x 19
 y 23
 end
@@ -2257,6 +2385,10 @@ x 20
 y 20
 end
 arch swamp1
+x 20
+y 21
+end
+arch grassd_m7
 x 20
 y 21
 end
@@ -2363,11 +2495,19 @@ arch swamp1
 x 21
 y 21
 end
+arch grassd_m7
+x 21
+y 21
+end
 arch grassd_8
 x 21
 y 22
 end
 arch grassd_5
+x 21
+y 23
+end
+arch plant_mushroom5
 x 21
 y 23
 end
@@ -2466,11 +2606,23 @@ arch swamp1
 x 22
 y 21
 end
+arch grassd_m14
+x 22
+y 21
+end
 arch swamp1
 x 22
 y 22
 end
+arch grassd_m3
+x 22
+y 22
+end
 arch grassd_5
+x 22
+y 23
+end
+arch tree_branch1
 x 22
 y 23
 end
@@ -2562,6 +2714,10 @@ x 23
 y 21
 end
 arch swamp1
+x 23
+y 22
+end
+arch grassd_m7
 x 23
 y 22
 end
