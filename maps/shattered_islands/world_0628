@@ -6,7 +6,7 @@ Modified: 2010-09-16 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 14
 outdoor 1
 tile_path_1 world_0629
 tile_path_2 world_0728
@@ -748,6 +748,10 @@ arch grassd_7
 x 5
 y 13
 end
+arch tree_big4b
+x 5
+y 13
+end
 arch grassd_6
 x 5
 y 14
@@ -849,6 +853,10 @@ x 6
 y 5
 end
 arch grassd_4
+x 6
+y 6
+end
+arch tree_big2
 x 6
 y 6
 end
@@ -994,6 +1002,10 @@ arch grass1
 x 7
 y 9
 end
+arch lo_tree1
+x 7
+y 9
+end
 arch grass1
 x 7
 y 10
@@ -1132,6 +1144,10 @@ arch grassd_8
 x 8
 y 14
 end
+arch tree_big2
+x 8
+y 14
+end
 arch grassd_3
 x 8
 y 15
@@ -1234,6 +1250,10 @@ arch grassd_3
 x 9
 y 6
 end
+arch tree_big2
+x 9
+y 6
+end
 arch grassd_7
 x 9
 y 7
@@ -1245,6 +1265,15 @@ end
 arch grass2
 x 9
 y 9
+end
+arch spawn_point
+x 9
+y 9
+arch treant_evil
+level 18
+unaggressive 1
+type 83
+end
 end
 arch grass3
 x 9
@@ -1380,10 +1409,6 @@ arch grassd_7
 x 10
 y 10
 end
-arch tree_big4b
-x 10
-y 10
-end
 arch grass3
 x 10
 y 11
@@ -1391,6 +1416,15 @@ end
 arch grass3
 x 10
 y 12
+end
+arch spawn_point
+x 10
+y 12
+arch treant_evil
+level 19
+unaggressive 1
+type 83
+end
 end
 arch grassd_5
 x 10
@@ -1509,10 +1543,6 @@ arch grassd_2
 x 11
 y 10
 end
-arch tree_big2
-x 11
-y 10
-end
 arch grassd_2
 x 11
 y 11
@@ -1538,6 +1568,10 @@ x 11
 y 16
 end
 arch grassd_6
+x 11
+y 17
+end
+arch tree_big2
 x 11
 y 17
 end
@@ -1746,6 +1780,10 @@ x 13
 y 7
 end
 arch grassd_6
+x 13
+y 8
+end
+arch tree_big4b
 x 13
 y 8
 end
@@ -2386,6 +2424,10 @@ arch grassd_4
 x 17
 y 8
 end
+arch tree_big3
+x 17
+y 8
+end
 arch grass_thick1
 x 17
 y 9
@@ -2393,6 +2435,15 @@ end
 arch grass3
 x 17
 y 10
+end
+arch spawn_point
+x 17
+y 10
+arch quickwood
+level 19
+unaggressive 1
+type 83
+end
 end
 arch grass_thick1
 x 17
@@ -2402,7 +2453,15 @@ arch grassd_2
 x 17
 y 12
 end
+arch tree_big4b
+x 17
+y 12
+end
 arch grassd_7
+x 17
+y 13
+end
+arch tree_big2
 x 17
 y 13
 end
@@ -2419,6 +2478,10 @@ x 17
 y 16
 end
 arch grassd_1
+x 17
+y 17
+end
+arch tree_big2
 x 17
 y 17
 end
@@ -2545,11 +2608,19 @@ arch grassd_1
 x 18
 y 11
 end
+arch tree_big2
+x 18
+y 11
+end
 arch grass_thick1
 x 18
 y 12
 end
 arch grassd_1
+x 18
+y 13
+end
+arch tree_big4b
 x 18
 y 13
 end
@@ -2892,6 +2963,10 @@ x 20
 y 18
 end
 arch grassd_5
+x 20
+y 19
+end
+arch tree_big2
 x 20
 y 19
 end
