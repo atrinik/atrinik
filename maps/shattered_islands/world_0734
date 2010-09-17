@@ -94,63 +94,56 @@ y 10
 end
 arch shop_floor
 z 50
-y 11
-end
-arch buckler
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 30
 y 11
 end
 arch shop_floor
 z 50
-y 12
-end
-arch low_boots
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 y 12
 end
 arch shop_floor
 z 50
-y 13
-end
-arch gloves
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 y 13
 end
 arch shop_floor
 z 50
-y 14
-end
-arch girdle
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 25
 y 14
 end
 arch shop_floor
 z 50
-y 15
-end
-arch cape
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 y 15
 end
 arch shop_floor
 z 50
-y 16
-end
-arch helm_leather
-name cap
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 y 16
 end
 arch torch_wall_1
@@ -159,12 +152,10 @@ y 16
 end
 arch shop_floor
 z 50
-y 17
-end
-arch leather_armour
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_armour_l9
+exp 15
 y 17
 end
 arch shop_floor_normal
@@ -298,13 +289,11 @@ y 10
 end
 arch shop_floor
 z 50
-x 1
-y 11
-end
-arch shield_kite
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 1
 y 11
 end
@@ -314,73 +303,61 @@ y 11
 end
 arch shop_floor
 z 50
-x 1
-y 12
-end
-arch fighting_boots
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 1
 y 12
 end
 arch shop_floor
 z 50
-x 1
-y 13
-end
-arch gauntlets_leather
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 1
 y 13
 end
 arch shop_floor
 z 50
-x 1
-y 14
-end
-arch belt
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 30
 x 1
 y 14
 end
 arch shop_floor
 z 50
-x 1
-y 15
-end
-arch cloak
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 1
 y 15
 end
 arch shop_floor
 z 50
-x 1
-y 16
-end
-arch helm_iron
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 1
 y 16
 end
 arch shop_floor
 z 50
-x 1
-y 17
-end
-arch ring_mail
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 30
 x 1
 y 17
 end
@@ -528,31 +505,60 @@ y 11
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 2
 y 12
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+randomitems random_armour_l9
+exp 20
 x 2
 y 13
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 25
 x 2
 y 14
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 2
 y 15
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 2
 y 16
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_armour_l9
+exp 20
 x 2
 y 17
 end
@@ -3238,9 +3244,9 @@ arch spawn_point
 x 17
 y 12
 arch smith
-name General Smith Farah
+name Farah
 type 83
-level 40
+level 80
 arch event_obj
 sub_type 6
 race /python/generic/smith.py
@@ -3863,42 +3869,41 @@ y 1
 end
 arch shop_floor
 z 50
-x 21
-y 2
-end
-arch lucern_hammer
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 21
 y 2
 end
 arch shop_floor
 z 50
-x 21
-y 3
-end
-arch hammer_giant
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 21
 y 3
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 21
 y 4
 end
 arch shop_floor
 z 50
-x 21
-y 5
-end
-arch club_giant_spiked
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 21
 y 5
 end
@@ -3908,25 +3913,21 @@ y 5
 end
 arch shop_floor
 z 50
-x 21
-y 6
-end
-arch club_giant
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 24
 x 21
 y 6
 end
 arch shop_floor
 z 50
-x 21
-y 7
-end
-arch club
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 21
 y 7
 end
@@ -3964,13 +3965,10 @@ y 11
 end
 arch shop_floor
 z 50
-x 21
-y 12
-end
-arch pouch
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 30
 x 21
 y 12
 end
@@ -3980,37 +3978,30 @@ y 12
 end
 arch shop_floor
 z 50
-x 21
-y 13
-end
-arch sack
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 15
 x 21
 y 13
 end
 arch shop_floor
 z 50
-x 21
-y 14
-end
-arch torch
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 10
 x 21
 y 14
 end
 arch shop_floor
 z 50
-x 21
-y 15
-end
-arch lamp
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 30
 x 21
 y 15
 end
@@ -4020,14 +4011,10 @@ y 15
 end
 arch shop_floor
 z 50
-x 21
-y 16
-end
-arch oil_lamp
-nrof 5
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 40
 x 21
 y 16
 end
@@ -4087,78 +4074,71 @@ x 22
 end
 arch shop_floor
 z 50
-x 22
-y 1
-end
-arch bardiche
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 22
 y 1
 end
 arch shop_floor
 z 50
-x 22
-y 2
-end
-arch whip
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 22
 y 2
 end
 arch shop_floor
 z 50
-x 22
-y 3
-end
-arch shootingstar
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 25
 x 22
 y 3
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 23
 x 22
 y 4
 end
 arch shop_floor
 z 50
-x 22
-y 5
-end
-arch mace_spiked
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 22
 y 5
 end
 arch shop_floor
 z 50
-x 22
-y 6
-end
-arch hammer_battle
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 22
 y 6
 end
 arch shop_floor
 z 50
-x 22
-y 7
-end
-arch club_spiked
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 22
 y 7
 end
@@ -4187,58 +4167,58 @@ y 10
 end
 arch shop_floor
 z 50
-x 22
-y 11
-end
-arch scroll_min_heal
-no_pick 1
-level 10
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 20
 x 22
 y 11
 end
 arch shop_floor
 z 50
-x 22
-y 12
-end
-arch potion_generic
-value 10
-no_pick 1
-level 10
-sp 2
-identified 1
-is_magical 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
 x 22
 y 12
 end
 arch shop_floor
 z 50
-x 22
-y 13
-end
-arch potion_cure_sickness
-no_pick 1
-level 15
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_equipment
+exp 3
 x 22
 y 13
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 30
 x 22
 y 14
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_read
+exp 30
 x 22
 y 15
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_read
+exp 30
 x 22
 y 16
 end
@@ -4302,85 +4282,69 @@ x 23
 end
 arch shop_floor
 z 50
-x 23
-y 1
-end
-arch axe_2h_war
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 23
 y 1
 end
 arch shop_floor
 z 50
-x 23
-y 2
-end
-arch mattock
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_weapon_l9
+exp 14
 x 23
 y 2
 end
 arch shop_floor
 z 50
-x 23
-y 3
-end
-arch axe
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 23
 y 3
 end
 arch shop_floor
 z 50
-x 23
-y 4
-end
-arch axe_broad
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 23
 y 4
 end
 arch shop_floor
 z 50
-x 23
-y 5
-end
-arch axe_small
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 23
 y 5
 end
 arch shop_floor
 z 50
-x 23
-y 6
-end
-arch sword_curved
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_weapon_l9
+exp 20
 x 23
 y 6
 end
 arch shop_floor
 z 50
-x 23
-y 7
-end
-arch tsurugi
-no_pick 1
-identified 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_weapon_l9
+exp 19
 x 23
 y 7
 end
@@ -4409,61 +4373,59 @@ y 10
 end
 arch shop_floor
 z 50
-x 23
-y 11
-end
-arch t_dagger
-nrof 25
-no_pick 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_potion
+exp 75
 x 23
 y 11
 end
 arch shop_floor
 z 50
-x 23
-y 12
-end
-arch t_star
-nrof 25
-identified 1
-known_magical 1
-known_cursed 1
-unpaid 1
+auto_apply 1
+cursed 1
+randomitems random_potion
+exp 75
 x 23
 y 12
 end
 arch shop_floor
 z 50
-x 23
-y 13
-end
-arch t_axe
-nrof 25
-no_pick 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 25
 x 23
 y 13
 end
 arch shop_floor
 z 50
-x 23
-y 14
-end
-arch t_hammer
-nrof 25
-no_pick 1
-unpaid 1
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 30
 x 23
 y 14
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_read
+exp 30
 x 23
 y 15
 end
 arch shop_floor
 z 50
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_read
+exp 30
 x 23
 y 16
 end

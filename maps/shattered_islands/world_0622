@@ -408,7 +408,7 @@ y 18
 arch smith
 name John Markor
 type 83
-level 16
+level 40
 arch event_obj
 sub_type 6
 race /python/generic/smith.py
@@ -854,8 +854,8 @@ x 5
 y 21
 end
 arch leather_armour
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 5
 y 21
@@ -979,8 +979,8 @@ x 6
 y 18
 end
 arch sack
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 6
 y 18
@@ -1001,8 +1001,8 @@ x 6
 y 20
 end
 arch shortsword
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 6
 y 20
@@ -1012,8 +1012,8 @@ x 6
 y 21
 end
 arch cape
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 6
 y 21
@@ -1153,8 +1153,8 @@ x 7
 y 18
 end
 arch pouch
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 7
 y 18
@@ -1164,8 +1164,8 @@ x 7
 y 19
 end
 arch buckler
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 7
 y 19
@@ -1186,8 +1186,8 @@ x 7
 y 21
 end
 arch girdle
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 7
 y 21
@@ -1311,10 +1311,10 @@ x 8
 y 17
 end
 arch potion_cure_sickness
-identified 1
 no_pick 1
-level 15
+identified 1
 unpaid 1
+level 15
 x 8
 y 17
 end
@@ -1323,10 +1323,10 @@ x 8
 y 18
 end
 arch scroll_min_heal
-identified 1
 no_pick 1
-level 10
+identified 1
 unpaid 1
+level 10
 x 8
 y 18
 end
@@ -1345,8 +1345,8 @@ x 8
 y 20
 end
 arch axe_small
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 8
 y 20
@@ -1485,10 +1485,10 @@ x 9
 y 17
 end
 arch potion_cure_illness
-identified 1
 no_pick 1
-level 15
+identified 1
 unpaid 1
+level 15
 x 9
 y 17
 end
@@ -1497,8 +1497,8 @@ x 9
 y 18
 end
 arch oil_lamp
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 9
 y 18
@@ -1508,8 +1508,8 @@ x 9
 y 19
 end
 arch lamp
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 9
 y 19
@@ -1530,9 +1530,8 @@ x 9
 y 21
 end
 arch helm_leather
-name cap
-identified 1
 no_pick 1
+identified 1
 unpaid 1
 x 9
 y 21

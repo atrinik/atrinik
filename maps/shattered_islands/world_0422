@@ -2016,7 +2016,7 @@ arch priest_church
 name Saruthar, the Priest of Tabernacle
 type 83
 glow_radius 9
-level 22
+level 35
 arch event_obj
 sub_type 6
 race /python/generic/church.py

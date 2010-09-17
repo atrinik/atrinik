@@ -3409,7 +3409,7 @@ y 9
 arch priest_church
 name Archbishop Theodorus
 type 83
-level 30
+level 65
 arch event_obj
 sub_type 6
 race /python/generic/church.py
