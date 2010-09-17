@@ -17,6 +17,7 @@ tile_path_5 world_0832
 tile_path_6 world_0830
 tile_path_7 world_0630
 tile_path_8 world_0632
+bg_music jungle1.ogg
 region asteria
 end
 arch grassd_4

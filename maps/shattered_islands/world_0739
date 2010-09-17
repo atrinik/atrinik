@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-16 Alex Tokar
+Modified: 2010-09-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,6 +17,7 @@ tile_path_5 world_0840
 tile_path_6 world_0838
 tile_path_7 world_0638
 tile_path_8 world_0640
+bg_music rainthunder.ogg
 region asteria
 end
 arch grassd_3

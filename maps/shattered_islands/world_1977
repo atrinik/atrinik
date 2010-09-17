@@ -2,7 +2,7 @@ arch map
 name Lyondale Archipelago
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-11 Alex Tokar
+Modified: 2010-09-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,6 +16,7 @@ tile_path_5 world_2078
 tile_path_6 world_2076
 tile_path_7 world_1876
 tile_path_8 world_1878
+bg_music campfire_tales.mid
 region lyondale_archipelago
 end
 arch water_lt2

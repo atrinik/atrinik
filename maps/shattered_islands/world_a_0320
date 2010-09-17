@@ -2,12 +2,13 @@ arch map
 name Under Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-17 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 tile_path_3 world_a_0319
+bg_music thonkdonk.ogg
 region strakewood_island
 end
 arch floor_sand_d3

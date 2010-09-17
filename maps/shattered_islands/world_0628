@@ -16,6 +16,7 @@ tile_path_5 world_0729
 tile_path_6 world_0727
 tile_path_7 world_0527
 tile_path_8 world_0529
+bg_music solemn.mid
 region fort_sether
 end
 arch water_lt3

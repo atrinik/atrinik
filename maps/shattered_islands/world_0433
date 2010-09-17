@@ -17,6 +17,7 @@ tile_path_5 world_0534
 tile_path_6 world_0532
 tile_path_7 world_0332
 tile_path_8 world_0334
+bg_music rainthunder.ogg
 region asteria
 end
 arch water_lt3

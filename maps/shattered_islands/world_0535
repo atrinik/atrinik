@@ -17,6 +17,7 @@ tile_path_5 world_0636
 tile_path_6 world_0634
 tile_path_7 world_0434
 tile_path_8 world_0436
+bg_music rainthunder.ogg
 region asteria
 end
 arch grassd_1
