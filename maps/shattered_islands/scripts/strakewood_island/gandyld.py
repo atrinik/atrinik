@@ -1,6 +1,5 @@
 ## @file
-## Quest for power crystal, given by Gandyld northwest
-## of Quick Wolves guild.
+## Quest for power crystal, given by Gandyld.
 
 from Atrinik import *
 from QuestManager import QuestManager
@@ -23,13 +22,13 @@ def load_quests():
 		"quest_name": "Gandyld's Quest",
 		"type": QUEST_TYPE_KILL,
 		"kills": 1,
-		"message": "Find and kill a purple worm in Old Outpost and then return to Gandyld, northwest of Quick Wolves guild.",
+		"message": "Find and kill a purple worm in Old Outpost and then return to Gandyld, east of Aris.",
 	},
 	{
 		"quest_name": "Gandyld's Quest II",
 		"type": QUEST_TYPE_KILL,
 		"kills": 1,
-		"message": "Find and kill King Rhun at the end of Old Outpost and then return to Gandyld, northwest of Quick Wolves guild.",
+		"message": "Find and kill King Rhun at the end of Old Outpost and then return to Gandyld, east of Aris.",
 	}]
 
 	qm = QuestManager(activator, quests[0])
@@ -82,7 +81,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 					upgrade_crystal(crystal, 100)
 					qm.complete()
 				else:
-					me.SayTo(activator, "Find and kill a purple worm in Old Outpost west of here.", 1)
+					me.SayTo(activator, "Find and kill a purple worm in Old Outpost north of here in the Giant Mountains..", 1)
 			# Second quest
 			elif not qm2.completed():
 				if not qm2.started():
@@ -91,7 +90,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 					upgrade_crystal(crystal, 200)
 					qm2.complete()
 				else:
-					me.SayTo(activator, "Find and kill King Rhun at the end of Old Outpost, located west of here.", 1)
+					me.SayTo(activator, "Find and kill King Rhun at the end of Old Outpost, located north of here in the Giant Mountains.", 1)
 			else:
 				me.SayTo(activator, "Sorry, I cannot upgrade your mana crystal any further.", 1)
 
@@ -101,11 +100,11 @@ elif msg == "boosting":
 
 	if not qm.completed():
 		if not qm.started():
-			me.SayTo(activator, "\nFind and kill a purple worm in Old Outpost west of here.")
+			me.SayTo(activator, "\nFind and kill a purple worm in Old Outpost north of here in the Giant Mountains.")
 			qm.start()
 	elif not qm2.completed():
 		if not qm2.started():
-			me.SayTo(activator, "\nFind and kill King Rhun at the end of Old Outpost, located west of here.")
+			me.SayTo(activator, "\nFind and kill King Rhun at the end of Old Outpost, located north of here in the Giant Mountains.")
 			qm2.start()
 
 elif not player_info:
