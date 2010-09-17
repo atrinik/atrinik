@@ -2778,12 +2778,11 @@ y 10
 end
 arch stairs_stone_down
 direction 1
+slaying strakewood_island/brynknot/sewers/sewers_0102
+hp 11
+sp 14
 x 19
 y 10
-arch event_obj
-sub_type 1
-race scripts/strakewood_island/brynknot/mercenary_stairs.py
-end
 end
 arch floor_stone_b4
 x 19
