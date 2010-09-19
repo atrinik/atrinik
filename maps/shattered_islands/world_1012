@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-14 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1223,22 +1223,7 @@ arch floor_flagm3
 x 7
 y 22
 end
-arch book
-msg
-<tt="Choosing a Deity">
-If you plan to utilise divine powers you must have the skill Divine Prayers and you must choose a cult of a higher being.
-To become a follower, find a holy altar of your cult, step onto the altar and apply it. The divine spirit inside this altar will touch your soul, attuning your mortal being to your new deity.
-Be warned: if you touch a altar of a enemy deity or of a deity of reverse alignment you will be punished very badly. You might lose Wisdom levels or worse.
-Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
-<tt="Prayers">
-Next you must learn prayers. Guilds, Priests and churches will teach you prayers. There are also rumours about Prayer books lost in ancient tombs ages ago...
-Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause wounds", "bless" or "minor healing".
-<tt="Grace">
-Casting prayers will drain your grace. This can only be replenished by resting. If your maximum grace is too low you should try to increase your Wisdom skill group,
-Never lose faith! Rumours abound of divine prayers of incredible power, and of old and wise priests who have almost reached immortality...
-endmsg
-name The Book of Deities
-no_pick 1
+arch book_deities
 x 7
 y 22
 end
@@ -3050,13 +3035,13 @@ arch grassd_1
 x 21
 y 23
 end
-arch water_still
+arch water_lt2
 x 22
 end
 arch grassd_m9
 x 22
 end
-arch water_still
+arch water_lt2
 x 22
 y 1
 end
@@ -3064,7 +3049,7 @@ arch grassd_m9
 x 22
 y 1
 end
-arch water_still
+arch water_lt4
 x 22
 y 2
 end
@@ -3072,7 +3057,7 @@ arch grassd_m9
 x 22
 y 2
 end
-arch water_still
+arch water_lt2
 x 22
 y 3
 end
@@ -3080,7 +3065,7 @@ arch grassd_m9
 x 22
 y 3
 end
-arch water_still
+arch water_lt3
 x 22
 y 4
 end
@@ -3088,7 +3073,7 @@ arch grassd_m9
 x 22
 y 4
 end
-arch water_still
+arch water_lt3
 x 22
 y 5
 end
@@ -3096,7 +3081,7 @@ arch grassd_m9
 x 22
 y 5
 end
-arch water_still
+arch water_lt
 x 22
 y 6
 end
@@ -3104,7 +3089,7 @@ arch grassd_m9
 x 22
 y 6
 end
-arch water_still
+arch water_lt4
 x 22
 y 7
 end
@@ -3112,7 +3097,7 @@ arch grassd_m9
 x 22
 y 7
 end
-arch water_still
+arch water_lt
 x 22
 y 8
 end
@@ -3120,7 +3105,7 @@ arch grassd_m9
 x 22
 y 8
 end
-arch water_still
+arch water_lt
 x 22
 y 9
 end
@@ -3128,7 +3113,7 @@ arch grassd_m9
 x 22
 y 9
 end
-arch water_still
+arch water_lt2
 x 22
 y 10
 end
@@ -3136,7 +3121,7 @@ arch grassd_m9
 x 22
 y 10
 end
-arch water_still
+arch water_lt3
 x 22
 y 11
 end
@@ -3144,7 +3129,7 @@ arch grassd_m9
 x 22
 y 11
 end
-arch water_still
+arch water_lt2
 x 22
 y 12
 end
@@ -3152,7 +3137,7 @@ arch grassd_m9
 x 22
 y 12
 end
-arch water_still
+arch water_lt
 x 22
 y 13
 end
@@ -3160,7 +3145,7 @@ arch grassd_m9
 x 22
 y 13
 end
-arch water_still
+arch water_lt2
 x 22
 y 14
 end
@@ -3168,7 +3153,7 @@ arch grassd_m9
 x 22
 y 14
 end
-arch water_still
+arch water_lt3
 x 22
 y 15
 end
@@ -3176,7 +3161,7 @@ arch grassd_m9
 x 22
 y 15
 end
-arch water_still
+arch water_lt3
 x 22
 y 16
 end
@@ -3184,7 +3169,7 @@ arch grassd_m9
 x 22
 y 16
 end
-arch water_still
+arch water_lt3
 x 22
 y 17
 end
@@ -3192,7 +3177,7 @@ arch grassd_m9
 x 22
 y 17
 end
-arch water_still
+arch water_lt
 x 22
 y 18
 end
@@ -3200,7 +3185,7 @@ arch grassd_m9
 x 22
 y 18
 end
-arch water_still
+arch water_lt
 x 22
 y 19
 end
@@ -3208,7 +3193,7 @@ arch grassd_m9
 x 22
 y 19
 end
-arch water_still
+arch water_lt3
 x 22
 y 20
 end
@@ -3216,7 +3201,7 @@ arch grassd_m9
 x 22
 y 20
 end
-arch water_still
+arch water_lt
 x 22
 y 21
 end
@@ -3224,7 +3209,7 @@ arch grassd_m9
 x 22
 y 21
 end
-arch water_still
+arch water_lt3
 x 22
 y 22
 end
@@ -3232,7 +3217,7 @@ arch grassd_m9
 x 22
 y 22
 end
-arch water_still
+arch water_lt3
 x 22
 y 23
 end
@@ -3240,8 +3225,7 @@ arch grassd_m9
 x 22
 y 23
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 end
 arch grassd_m8
@@ -3250,8 +3234,7 @@ end
 arch wall_flagstone1.131
 x 23
 end
-arch water_still
-player_only 1
+arch water_lt4
 x 23
 y 1
 end
@@ -3263,8 +3246,7 @@ arch wall_flagstone1.131
 x 23
 y 1
 end
-arch water_still
-player_only 1
+arch water_lt2
 x 23
 y 2
 end
@@ -3272,8 +3254,7 @@ arch grassd_m8
 x 23
 y 2
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 3
 end
@@ -3281,8 +3262,7 @@ arch grassd_m8
 x 23
 y 3
 end
-arch water_still
-player_only 1
+arch water_lt4
 x 23
 y 4
 end
@@ -3290,8 +3270,7 @@ arch grassd_m8
 x 23
 y 4
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 5
 end
@@ -3299,8 +3278,7 @@ arch grassd_m8
 x 23
 y 5
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 y 6
 end
@@ -3308,8 +3286,7 @@ arch grassd_m8
 x 23
 y 6
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 7
 end
@@ -3317,8 +3294,7 @@ arch grassd_m8
 x 23
 y 7
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 8
 end
@@ -3326,8 +3302,7 @@ arch grassd_m8
 x 23
 y 8
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 9
 end
@@ -3335,8 +3310,7 @@ arch grassd_m8
 x 23
 y 9
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 y 10
 end
@@ -3344,8 +3318,7 @@ arch grassd_m8
 x 23
 y 10
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 y 11
 end
@@ -3353,8 +3326,7 @@ arch grassd_m8
 x 23
 y 11
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 y 12
 end
@@ -3362,8 +3334,7 @@ arch grassd_m8
 x 23
 y 12
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 y 13
 end
@@ -3371,8 +3342,7 @@ arch grassd_m8
 x 23
 y 13
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 14
 end
@@ -3380,8 +3350,7 @@ arch grassd_m8
 x 23
 y 14
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 15
 end
@@ -3389,8 +3358,7 @@ arch grassd_m8
 x 23
 y 15
 end
-arch water_still
-player_only 1
+arch water_lt4
 x 23
 y 16
 end
@@ -3398,8 +3366,7 @@ arch grassd_m8
 x 23
 y 16
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 17
 end
@@ -3407,8 +3374,7 @@ arch grassd_m8
 x 23
 y 17
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 18
 end
@@ -3416,8 +3382,7 @@ arch grassd_m8
 x 23
 y 18
 end
-arch water_still
-player_only 1
+arch water_lt4
 x 23
 y 19
 end
@@ -3425,8 +3390,7 @@ arch grassd_m8
 x 23
 y 19
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 20
 end
@@ -3434,8 +3398,7 @@ arch grassd_m8
 x 23
 y 20
 end
-arch water_still
-player_only 1
+arch water_lt4
 x 23
 y 21
 end
@@ -3443,8 +3406,7 @@ arch grassd_m8
 x 23
 y 21
 end
-arch water_still
-player_only 1
+arch water_lt3
 x 23
 y 22
 end
@@ -3452,8 +3414,7 @@ arch grassd_m8
 x 23
 y 22
 end
-arch water_still
-player_only 1
+arch water_lt2
 x 23
 y 23
 end

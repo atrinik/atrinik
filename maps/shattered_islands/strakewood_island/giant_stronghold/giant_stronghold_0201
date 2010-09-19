@@ -2,7 +2,7 @@ arch map
 name Giant Stronghold
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-08-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3041,9 +3041,9 @@ x 21
 y 23
 end
 arch invis_exit
-slaying ../../world_0114
-hp 9
-sp 20
+slaying ../../world_0115
+hp 17
+sp 10
 x 21
 y 23
 end
@@ -3154,9 +3154,9 @@ x 22
 y 23
 end
 arch invis_exit
-slaying ../../world_0114
-hp 10
-sp 20
+slaying ../../world_0115
+hp 18
+sp 10
 x 22
 y 23
 end

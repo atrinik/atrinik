@@ -51,19 +51,19 @@ quest_items = {
 		"level": 6,
 		"messages":
 		{
-			"not_started": "Recently, there have been sightings of skeletons coming back to life near the Forgotten Graveyard, located North of here. I think you should go check it out.",
+			"not_started": "Recently, there have been sightings of skeletons coming back to life near the Forgotten Graveyard, located west of Aris. I think you should go check it out.",
 			"reward": "You receive seven scrolls of recharge (level 10).",
 			"not_finished": "You still need to kill {0} skeleton{1} from the Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least {0} skeletons at Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
+			"accepted": "\nKill at least {0} skeletons at Forgotten Graveyard west of Aris.\nRemember, they only appear at nighttime.",
 		},
 		"info":
 		{
 			"quest_name": "Forgotten Graveyard at Strakewood Island",
 			"type": 1,
 			"kills": 10,
-			"message": "Kill 10 skeletons at Forgotten Graveyard North of Brynknot and return to Derowyn in Brynknot. Remember, skeletons there only appear at nighttime.",
+			"message": "Kill 10 skeletons at Forgotten Graveyard west of Aris and return to Derowyn in Brynknot. Remember, skeletons there only appear at nighttime.",
 		}
 	},
 	"quest_4":
@@ -111,19 +111,19 @@ quest_items = {
 		"level": 12,
 		"messages":
 		{
-			"not_started": "There have been rumors of ice golems living in an old outpost North of here. I think you know what to do.",
+			"not_started": "There have been rumors of ice golems living in an old outpost North of Aris in the Giant Mountains. I think you know what to do.",
 			"reward": "You receive 10 silver coins.",
 			"not_finished": "You still need to kill {0} ice golem{1} in the old outpost.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least {0} ice golems in old outpost North of Brynknot.",
+			"accepted": "\nKill at least {0} ice golems in old outpost north of Aris in the Giant Mountains.",
 		},
 		"info":
 		{
 			"quest_name": "Ice Golems in Old Outpost",
 			"type": 1,
 			"kills": 10,
-			"message": "Kill 10 ice golems in old outpost North of Brynknot and return to Derowyn in Brynknot.",
+			"message": "Kill 10 ice golems in old outpost north of Aris in the Giant Mountains and return to Derowyn in Brynknot.",
 		}
 	},
 	"quest_7":
@@ -131,19 +131,19 @@ quest_items = {
 		"level": 13,
 		"messages":
 		{
-			"not_started": "There have been rumors of lava golems living in an old outpost North of here. I think you know what to do.",
+			"not_started": "There have been rumors of lava golems living in an old outpost north of Aris in the Giant Mountains. I think you know what to do.",
 			"reward": "You receive 15 silver coins.",
 			"not_finished": "You still need to kill {0} lava golem{1} in the old outpost.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least {0} lava golems in old outpost North of Brynknot.",
+			"accepted": "\nKill at least {0} lava golems in old outpost north of Aris in the Giant Mountains.",
 		},
 		"info":
 		{
 			"quest_name": "Lava Golems in Old Outpost",
 			"type": 1,
 			"kills": 10,
-			"message": "Kill 10 lava golems in old outpost North of Brynknot and return to Derowyn in Brynknot.",
+			"message": "Kill 10 lava golems in old outpost north of Aris in the Giant Mountains and return to Derowyn in Brynknot.",
 		}
 	},
 }

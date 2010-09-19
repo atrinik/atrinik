@@ -12,7 +12,7 @@ quest = {
 	"quest_name": "Galann's Revenge",
 	"type": QUEST_TYPE_KILL,
 	"kills": 1,
-	"message": "Go to the Old Outpost north of Brynknot, find and kill Torathog the stone giant, and return to Galann in Brynknot.",
+	"message": "Go to the Old Outpost north of Aris in the Giant Mountains, find and kill Torathog the stone giant, and return to Galann in Brynknot.",
 }
 
 ## Initialize QuestManager.
@@ -49,15 +49,15 @@ def main():
 
 	elif not qm.started():
 		if msg == "fight":
-			me.SayTo(activator, "\nA while ago I was hurt badly in a fight with one of the ^stone giants^ from Old Outpost. I can no longer do the job of a smith. If you need a smith, there is one near the Brynknot docks. Failing that, there's a superb smith in Greyton.")
+			me.SayTo(activator, "\nA while ago I was hurt badly in a fight with one of the ^stone giants^ from Old Outpost. I can no longer do the job of a smith. If you need a smith, there is one near the Brynknot docks. Failing that, there's superb smiths in Greyton and Asteria.")
 		elif msg == "stone giants":
-			me.SayTo(activator, "\nWell, I think it was a stone giant from Old Outpost at any rate. I was near the entrance to Old Outpost - north of here - taking a walk, when one of them saw me, and hurt me badly in the fight that followed.\nHis name was ^Torathog^, since he kept yelling at me, saying things like 'Torathog will eat ya!'.")
+			me.SayTo(activator, "\nWell, I think it was a stone giant from Old Outpost at any rate. I was near the entrance to Old Outpost - north of Aris in the Giant Mountains - taking a walk, when one of them saw me, and hurt me badly in the fight that followed.\nHis name was ^Torathog^, since he kept yelling at me, saying things like 'Torathog will eat ya!'.")
 		elif msg == "torathog":
 			me.SayTo(activator, "\nI'm still feeling bitter about my loss. Aren't you an adventurer? Would you go find Torathog and kill him for me?\n\n^Sure^\n^No thanks^")
 		elif msg == "no thanks":
 			me.SayTo(activator, "\nWell suit yourself then. There is, of course, a nice reward involved...\n\n^Okay then^")
 		elif msg == "sure" or msg == "okay then":
-			me.SayTo(activator, "\nFind and kill Torathog the stone giant in Old Outpost North of here, and then return to me with the news of your victory.")
+			me.SayTo(activator, "\nFind and kill Torathog the stone giant in Old Outpost north of Aris in the Giant Mountains, and then return to me with the news of your victory.")
 			qm.start()
 
 main()

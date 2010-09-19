@@ -14,7 +14,7 @@ quest = {
 	"quest_name": "Battle of Fort Ghzal",
 	"type": QUEST_TYPE_KILL,
 	"kills": 1,
-	"message": "Help Fort Ghzal by fighting against orcs north of Fort Ghzal, and then return to Tolowen in middle of Fort Ghzal for a reward.",
+	"message": "Help Fort Ghzal by fighting against orcs north of Fort Ghzal, and then return to Tolowen the guard captain in Fort Ghzal for a reward.",
 }
 
 qm = QuestManager(activator, quest)

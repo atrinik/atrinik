@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-06-12 Alex Tokar
+Modified: 2010-09-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -20,12 +20,12 @@ tile_path_8 world_0914
 bg_music town_music.ogg
 region greyton
 end
-arch water_still
+arch water_lt2
 end
-arch water_still
+arch water_lt2
 y 1
 end
-arch water_still
+arch water_lt3
 y 2
 end
 arch fwall_fstone2c
@@ -157,10 +157,10 @@ end
 arch fwall_fstone2
 y 23
 end
-arch water_still
+arch water_lt
 x 1
 end
-arch water_still
+arch water_lt2
 x 1
 y 1
 end
@@ -260,7 +260,7 @@ arch floor_flagm1
 x 1
 y 23
 end
-arch water_still
+arch water_lt
 x 2
 end
 arch fwall_fstone2c
@@ -1129,7 +1129,7 @@ friendly 1
 direction 3
 arch event_obj
 sub_type 6
-race ../python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end
@@ -1172,7 +1172,7 @@ friendly 1
 direction 3
 arch event_obj
 sub_type 6
-race ../python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end
@@ -2049,17 +2049,17 @@ end
 arch shop_floor
 auto_apply 1
 cursed 1
-damned 1
 randomitems random_armour_l9
-exp 20
+exp 25
 x 14
 y 7
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_container
-exp 3
+damned 1
+randomitems random_talisman
+exp 50
 x 14
 y 8
 end
@@ -2262,7 +2262,7 @@ friendly 1
 type 83
 arch event_obj
 sub_type 6
-race ../python/generic/smith.py
+race /python/generic/smith.py
 end
 end
 end
@@ -2669,7 +2669,7 @@ auto_apply 1
 cursed 1
 damned 1
 randomitems random_armour
-exp 22
+exp 25
 x 18
 y 7
 end
@@ -2678,7 +2678,7 @@ auto_apply 1
 cursed 1
 damned 1
 randomitems random_food
-exp 7
+exp 17
 x 18
 y 8
 end
@@ -2686,7 +2686,7 @@ arch shop_floor
 auto_apply 1
 cursed 1
 randomitems random_weapon_l9
-exp 5
+exp 15
 x 18
 y 9
 end
@@ -3148,7 +3148,7 @@ auto_apply 1
 cursed 1
 damned 1
 randomitems random_weapon
-exp 5
+exp 10
 x 21
 y 9
 end
@@ -3372,7 +3372,7 @@ arch plant_flower6
 x 22
 y 21
 end
-arch water_still
+arch water_lt3
 x 22
 y 22
 end
@@ -3380,7 +3380,7 @@ arch grassd_m4
 x 22
 y 22
 end
-arch water_still
+arch water_lt2
 x 22
 y 23
 end
@@ -3535,7 +3535,7 @@ arch grassd_7
 x 23
 y 21
 end
-arch water_still
+arch water_lt2
 x 23
 y 22
 end
@@ -3543,8 +3543,7 @@ arch grassd_m10
 x 23
 y 22
 end
-arch water_still
-player_only 1
+arch water_lt
 x 23
 y 23
 end

@@ -1,0 +1,1495 @@
+arch map
+name Inn In The Mountains
+msg
+Created:  2010-08-27 Alex Tokar
+Modified: 2010-08-27 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+darkness 1
+region strakewood_island
+end
+arch blocked
+x 6
+y 6
+end
+arch wall_dungeon_8
+x 6
+y 6
+end
+arch blocked
+x 6
+y 7
+end
+arch wall_dungeon_3
+x 6
+y 7
+end
+arch blocked
+x 6
+y 8
+end
+arch wall_dungeon_3
+x 6
+y 8
+end
+arch blocked
+x 6
+y 9
+end
+arch wall_dungeon_3
+x 6
+y 9
+end
+arch blocked
+x 6
+y 10
+end
+arch wall_dungeon_3
+x 6
+y 10
+end
+arch blocked
+x 6
+y 11
+end
+arch wall_dungeon_3
+x 6
+y 11
+end
+arch blocked
+x 6
+y 12
+end
+arch wall_dungeon_3
+x 6
+y 12
+end
+arch blocked
+x 6
+y 13
+end
+arch wall_dungeon_3
+x 6
+y 13
+end
+arch blocked
+x 6
+y 14
+end
+arch wall_dungeon_3
+x 6
+y 14
+end
+arch blocked
+x 6
+y 15
+end
+arch wall_dungeon_3
+x 6
+y 15
+end
+arch blocked
+x 6
+y 16
+end
+arch wall_dungeon_3
+x 6
+y 16
+end
+arch blocked
+x 7
+y 6
+end
+arch wall_dungeon_1
+x 7
+y 6
+end
+arch floor_fs_grey1b
+x 7
+y 7
+end
+arch wood_pile.101
+x 7
+y 7
+end
+arch floor_fs_grey1d
+x 7
+y 8
+end
+arch wood_pile.101
+x 7
+y 8
+end
+arch floor_fs_grey1b
+x 7
+y 9
+end
+arch wood_pile.101
+x 7
+y 9
+end
+arch floor_fs_grey1b
+x 7
+y 10
+end
+arch wood_pile.101
+x 7
+y 10
+end
+arch floor_fs_grey1a
+x 7
+y 11
+end
+arch wall_dungeon_1
+x 7
+y 11
+end
+arch floor_fs_grey1b
+x 7
+y 12
+end
+arch straw1.101
+x 7
+y 12
+end
+arch floor_fs_grey1b
+x 7
+y 13
+end
+arch straw2.111
+x 7
+y 13
+end
+arch floor_fs_grey1b
+x 7
+y 14
+end
+arch torch_wall_1
+direction 7
+x 7
+y 14
+end
+arch spawn_point
+x 7
+y 14
+arch rat_c
+level 5
+type 83
+end
+end
+arch floor_fs_grey1d
+x 7
+y 15
+end
+arch straw1.101
+x 7
+y 15
+end
+arch floor_fs_grey1b
+x 7
+y 16
+end
+arch wall_dungeon_1
+x 7
+y 16
+end
+arch blocked
+x 8
+y 6
+end
+arch wall_dungeon_1
+x 8
+y 6
+end
+arch floor_fs_grey1b
+x 8
+y 7
+end
+arch wood_pile.101
+x 8
+y 7
+end
+arch floor_fs_grey1a
+x 8
+y 8
+end
+arch wood_pile.101
+x 8
+y 8
+end
+arch floor_fs_grey1b
+x 8
+y 9
+end
+arch wood_pile.101
+x 8
+y 9
+end
+arch spawn_point
+x 8
+y 9
+arch rat_c
+level 5
+type 83
+end
+end
+arch floor_fs_grey1a
+x 8
+y 10
+end
+arch wood_pile.101
+x 8
+y 10
+end
+arch floor_fs_grey1b
+x 8
+y 11
+end
+arch wall_dungeon_1
+x 8
+y 11
+end
+arch floor_fs_grey1b
+x 8
+y 12
+end
+arch straw1.101
+x 8
+y 12
+end
+arch floor_fs_grey1a
+x 8
+y 13
+end
+arch floor_fs_grey1b
+x 8
+y 14
+end
+arch straw2.111
+direction 5
+x 8
+y 14
+end
+arch floor_fs_grey1d
+x 8
+y 15
+end
+arch straw2.111
+direction 3
+x 8
+y 15
+end
+arch floor_fs_grey1d
+x 8
+y 16
+end
+arch wall_dungeon_1
+x 8
+y 16
+end
+arch blocked
+x 9
+y 6
+end
+arch wall_dungeon_1
+x 9
+y 6
+end
+arch floor_fs_grey1b
+x 9
+y 7
+end
+arch torch_wall_1
+x 9
+y 7
+end
+arch floor_fs_grey1b
+x 9
+y 8
+end
+arch wood_pile.101
+x 9
+y 8
+end
+arch floor_fs_grey1a
+x 9
+y 9
+end
+arch wood_pile.101
+x 9
+y 9
+end
+arch floor_fs_grey1a
+x 9
+y 10
+end
+arch wood_pile.101
+x 9
+y 10
+end
+arch floor_fs_grey1b
+x 9
+y 11
+end
+arch wall_dungeon_1
+x 9
+y 11
+end
+arch floor_fs_grey1d
+x 9
+y 12
+end
+arch shelf_wall_dem1.111
+x 9
+y 12
+end
+arch floor_fs_grey1b
+x 9
+y 13
+end
+arch floor_fs_grey1b
+x 9
+y 14
+end
+arch water_floor
+x 9
+y 14
+end
+arch floor_fs_grey1a
+x 9
+y 15
+end
+arch straw2.111
+direction 3
+x 9
+y 15
+end
+arch floor_fs_grey1b
+x 9
+y 16
+end
+arch wall_dungeon_1
+x 9
+y 16
+end
+arch blocked
+x 10
+y 6
+end
+arch wall_dungeon_1
+x 10
+y 6
+end
+arch floor_fs_grey1b
+x 10
+y 7
+end
+arch barrel.101
+x 10
+y 7
+end
+arch floor_fs_grey1b
+x 10
+y 8
+end
+arch floor_fs_grey1b
+x 10
+y 9
+end
+arch trash_wood2.101
+x 10
+y 9
+end
+arch floor_fs_grey1b
+x 10
+y 10
+end
+arch wood_pile.101
+x 10
+y 10
+end
+arch floor_fs_grey1d
+x 10
+y 11
+end
+arch wall_dungeon_1
+x 10
+y 11
+end
+arch floor_fs_grey1b
+x 10
+y 12
+end
+arch straw1.101
+x 10
+y 12
+end
+arch floor_fs_grey1b
+x 10
+y 13
+end
+arch trash_wood2.101
+x 10
+y 13
+end
+arch floor_fs_grey1b
+x 10
+y 14
+end
+arch floor_fs_grey1a
+x 10
+y 15
+end
+arch straw2.111
+direction 3
+x 10
+y 15
+end
+arch floor_fs_grey1b
+x 10
+y 16
+end
+arch wall_dungeon_1
+x 10
+y 16
+end
+arch blocked
+x 11
+y 6
+end
+arch wall_dungeon_1
+x 11
+y 6
+end
+arch floor_fs_grey1b
+x 11
+y 7
+end
+arch barrel_water.101
+x 11
+y 7
+end
+arch floor_fs_grey1a
+x 11
+y 8
+end
+arch floor_fs_grey1b
+x 11
+y 9
+end
+arch barrel_water.101
+x 11
+y 9
+end
+arch floor_fs_grey1b
+x 11
+y 10
+end
+arch barrel_water.101
+x 11
+y 10
+end
+arch floor_fs_grey1b
+x 11
+y 11
+end
+arch wall_dungeon_1
+x 11
+y 11
+end
+arch floor_fs_grey1b
+x 11
+y 12
+end
+arch straw1.101
+x 11
+y 12
+end
+arch floor_fs_grey1b
+x 11
+y 13
+end
+arch spawn_point
+x 11
+y 13
+arch rat_c
+level 5
+type 83
+end
+end
+arch floor_fs_grey1a
+x 11
+y 14
+end
+arch floor_fs_grey1d
+x 11
+y 15
+end
+arch straw2.111
+direction 5
+x 11
+y 15
+end
+arch floor_fs_grey1b
+x 11
+y 16
+end
+arch wall_dungeon_1
+x 11
+y 16
+end
+arch blocked
+x 12
+y 6
+end
+arch wall_dungeon_1
+x 12
+y 6
+end
+arch floor_fs_grey1b
+x 12
+y 7
+end
+arch wall_dungeon_3
+x 12
+y 7
+end
+arch floor_fs_grey1b
+x 12
+y 8
+end
+arch floor_fs_grey1a
+x 12
+y 9
+end
+arch wall_dungeon_3
+x 12
+y 9
+end
+arch floor_fs_grey1d
+x 12
+y 10
+end
+arch wall_dungeon_3
+x 12
+y 10
+end
+arch floor_fs_grey1a
+x 12
+y 11
+end
+arch wall_dungeon_4
+x 12
+y 11
+end
+arch floor_fs_grey1d
+x 12
+y 12
+end
+arch wall_dungeon_3
+x 12
+y 12
+end
+arch floor_fs_grey1d
+x 12
+y 13
+end
+arch wall_dungeon_3
+x 12
+y 13
+end
+arch floor_fs_grey1b
+x 12
+y 14
+end
+arch floor_fs_grey1b
+x 12
+y 15
+end
+arch wall_dungeon_3
+x 12
+y 15
+end
+arch floor_fs_grey1b
+x 12
+y 16
+end
+arch wall_dungeon_4
+x 12
+y 16
+end
+arch blocked
+x 13
+y 6
+end
+arch wall_dungeon_1
+x 13
+y 6
+end
+arch floor_fs_grey1b
+x 13
+y 7
+end
+arch shelf3_dem2.111
+x 13
+y 7
+end
+arch floor_fs_grey1d
+x 13
+y 8
+end
+arch floor_fs_grey1d
+x 13
+y 9
+end
+arch pottery3.101
+x 13
+y 9
+end
+arch floor_fs_grey1b
+x 13
+y 10
+end
+arch pottery4.101
+x 13
+y 10
+end
+arch floor_fs_grey1d
+x 13
+y 11
+end
+arch pottery5.101
+x 13
+y 11
+end
+arch floor_fs_grey1a
+x 13
+y 12
+end
+arch torch_wall_1
+direction 7
+x 13
+y 12
+end
+arch floor_fs_grey1b
+x 13
+y 13
+end
+arch floor_fs_grey1d
+x 13
+y 14
+end
+arch floor_fs_grey1b
+x 13
+y 15
+end
+arch shelf_wall_dem3.111
+direction 7
+x 13
+y 15
+end
+arch floor_fs_grey1b
+x 13
+y 16
+end
+arch wall_dungeon_1
+x 13
+y 16
+end
+arch blocked
+x 14
+y 6
+end
+arch wall_dungeon_1
+x 14
+y 6
+end
+arch floor_fs_grey1a
+x 14
+y 7
+end
+arch shelf3_dem3.111
+x 14
+y 7
+end
+arch spawn_point
+x 14
+y 7
+arch rat_a
+level 4
+type 83
+end
+end
+arch floor_fs_grey1a
+x 14
+y 8
+end
+arch floor_fs_grey1b
+x 14
+y 9
+end
+arch floor_fs_grey1b
+x 14
+y 10
+end
+arch barrel_water.101
+x 14
+y 10
+end
+arch floor_fs_grey1a
+x 14
+y 11
+end
+arch barrel_water.101
+x 14
+y 11
+end
+arch floor_fs_grey1a
+x 14
+y 12
+end
+arch floor_fs_grey1d
+x 14
+y 13
+end
+arch floor_fs_grey1b
+x 14
+y 14
+end
+arch floor_fs_grey1b
+x 14
+y 15
+end
+arch straw2.111
+x 14
+y 15
+end
+arch floor_fs_grey1b
+x 14
+y 16
+end
+arch wall_dungeon_1
+x 14
+y 16
+end
+arch blocked
+x 15
+y 6
+end
+arch wall_dungeon_1
+x 15
+y 6
+end
+arch floor_fs_grey1a
+x 15
+y 7
+end
+arch torch_wall_1
+x 15
+y 7
+end
+arch floor_fs_grey1d
+x 15
+y 8
+end
+arch floor_fs_grey1a
+x 15
+y 9
+end
+arch floor_fs_grey1b
+x 15
+y 10
+end
+arch floor_fs_grey1a
+x 15
+y 11
+end
+arch floor_fs_grey1b
+x 15
+y 12
+end
+arch water_floor
+x 15
+y 12
+end
+arch floor_fs_grey1d
+x 15
+y 13
+end
+arch floor_fs_grey1b
+x 15
+y 14
+end
+arch trash_wood1.101
+x 15
+y 14
+end
+arch floor_fs_grey1a
+x 15
+y 15
+end
+arch floor_fs_grey1b
+x 15
+y 16
+end
+arch wall_dungeon_1
+x 15
+y 16
+end
+arch blocked
+x 16
+y 6
+end
+arch wall_dungeon_1
+x 16
+y 6
+end
+arch floor_fs_grey1b
+x 16
+y 7
+end
+arch straw2.111
+x 16
+y 7
+end
+arch floor_fs_grey1a
+x 16
+y 8
+end
+arch water_floor
+x 16
+y 8
+end
+arch floor_fs_grey1b
+x 16
+y 9
+end
+arch floor_fs_grey1a
+x 16
+y 10
+end
+arch trash_wood1.101
+x 16
+y 10
+end
+arch floor_fs_grey1b
+x 16
+y 11
+end
+arch grain5.101
+x 16
+y 11
+end
+arch floor_fs_grey1b
+x 16
+y 12
+end
+arch grain1.101
+x 16
+y 12
+end
+arch floor_fs_grey1d
+x 16
+y 13
+end
+arch keg_big.101
+x 16
+y 13
+end
+arch floor_fs_grey1b
+x 16
+y 14
+end
+arch floor_fs_grey1b
+x 16
+y 15
+end
+arch grain4.101
+x 16
+y 15
+end
+arch spawn_point
+x 16
+y 15
+arch rat_c
+level 5
+type 83
+end
+end
+arch floor_fs_grey1d
+x 16
+y 16
+end
+arch wall_dungeon_1
+x 16
+y 16
+end
+arch blocked
+x 17
+y 6
+end
+arch wall_dungeon_1
+x 17
+y 6
+end
+arch floor_fs_grey1a
+x 17
+y 7
+end
+arch straw2.111
+x 17
+y 7
+end
+arch floor_fs_grey1b
+x 17
+y 8
+end
+arch floor_fs_grey1b
+x 17
+y 9
+end
+arch floor_fs_grey1a
+x 17
+y 10
+end
+arch floor_fs_grey1a
+x 17
+y 11
+end
+arch floor_fs_grey1b
+x 17
+y 12
+end
+arch grain3.101
+x 17
+y 12
+end
+arch floor_fs_grey1b
+x 17
+y 13
+end
+arch grain5.101
+x 17
+y 13
+end
+arch floor_fs_grey1a
+x 17
+y 14
+end
+arch grain5.101
+x 17
+y 14
+end
+arch floor_fs_grey1b
+x 17
+y 15
+end
+arch grain5.101
+x 17
+y 15
+end
+arch floor_fs_grey1b
+x 17
+y 16
+end
+arch wall_dungeon_1
+x 17
+y 16
+end
+arch blocked
+x 18
+y 6
+end
+arch wall_dungeon_1
+x 18
+y 6
+end
+arch floor_fs_grey1b
+x 18
+y 7
+end
+arch wall_dungeon_3
+x 18
+y 7
+end
+arch floor_fs_grey1a
+x 18
+y 8
+end
+arch broom.111
+x 18
+y 8
+end
+arch floor_fs_grey1b
+x 18
+y 9
+end
+arch floor_fs_grey1a
+x 18
+y 10
+end
+arch floor_fs_grey1b
+x 18
+y 11
+end
+arch grain1.101
+x 18
+y 11
+end
+arch floor_fs_grey1b
+x 18
+y 12
+end
+arch grain2.101
+x 18
+y 12
+end
+arch spawn_point
+x 18
+y 12
+arch rat_a
+level 4
+type 83
+end
+end
+arch floor_fs_grey1b
+x 18
+y 13
+end
+arch barrel2.101
+x 18
+y 13
+end
+arch floor_fs_grey1a
+x 18
+y 14
+end
+arch grain2.101
+x 18
+y 14
+end
+arch floor_fs_grey1b
+x 18
+y 15
+end
+arch grain2.101
+x 18
+y 15
+end
+arch floor_fs_grey1b
+x 18
+y 16
+end
+arch wall_dungeon_1
+x 18
+y 16
+end
+arch blocked
+x 19
+y 6
+end
+arch wall_dungeon_1
+x 19
+y 6
+end
+arch floor_fs_grey1a
+x 19
+y 7
+end
+arch wall_dungeon_1
+x 19
+y 7
+end
+arch floor_fs_grey1d
+x 19
+y 8
+end
+arch torch_wall_1
+x 19
+y 8
+end
+arch floor_fs_grey1d
+x 19
+y 9
+end
+arch floor_fs_grey1b
+x 19
+y 10
+end
+arch floor_fs_grey1b
+x 19
+y 11
+end
+arch grain5.101
+x 19
+y 11
+end
+arch floor_fs_grey1b
+x 19
+y 12
+end
+arch floor_fs_grey1b
+x 19
+y 13
+end
+arch grain4.101
+x 19
+y 13
+end
+arch floor_fs_grey1b
+x 19
+y 14
+end
+arch grain2.101
+x 19
+y 14
+end
+arch floor_fs_grey1b
+x 19
+y 15
+end
+arch grain2.101
+x 19
+y 15
+end
+arch floor_fs_grey1b
+x 19
+y 16
+end
+arch wall_dungeon_1
+x 19
+y 16
+end
+arch blocked
+x 20
+y 6
+end
+arch wall_dungeon_1
+x 20
+y 6
+end
+arch floor_fs_grey1d
+x 20
+y 7
+end
+arch wall_dungeon_4
+x 20
+y 7
+end
+arch floor_fs_grey1a
+x 20
+y 8
+end
+arch floor_fs_grey1b
+x 20
+y 9
+end
+arch floor_fs_grey1d
+x 20
+y 10
+end
+arch water_floor
+x 20
+y 10
+end
+arch floor_fs_grey1a
+x 20
+y 11
+end
+arch floor_fs_grey1a
+x 20
+y 12
+end
+arch grain4.101
+x 20
+y 12
+end
+arch floor_fs_grey1d
+x 20
+y 13
+end
+arch basket2.101
+x 20
+y 13
+end
+arch floor_fs_grey1a
+x 20
+y 14
+end
+arch grain4.101
+x 20
+y 14
+end
+arch floor_fs_grey1a
+x 20
+y 15
+end
+arch barrel_water.101
+x 20
+y 15
+end
+arch floor_fs_grey1a
+x 20
+y 16
+end
+arch wall_dungeon_1
+x 20
+y 16
+end
+arch blocked
+x 21
+y 6
+end
+arch wall_dungeon_1
+x 21
+y 6
+end
+arch floor_fs_grey1a
+x 21
+y 7
+end
+arch stairs_stone_up
+slaying world_0816
+hp 19
+sp 7
+x 21
+y 7
+end
+arch floor_fs_grey1b
+x 21
+y 8
+end
+arch floor_fs_grey1d
+x 21
+y 9
+end
+arch floor_fs_grey1a
+x 21
+y 10
+end
+arch floor_fs_grey1d
+x 21
+y 11
+end
+arch grain2.101
+x 21
+y 11
+end
+arch floor_fs_grey1d
+x 21
+y 12
+end
+arch barrel_water.101
+x 21
+y 12
+end
+arch floor_fs_grey1a
+x 21
+y 13
+end
+arch grain4.101
+x 21
+y 13
+end
+arch floor_fs_grey1a
+x 21
+y 14
+end
+arch barrel_water.101
+x 21
+y 14
+end
+arch floor_fs_grey1b
+x 21
+y 15
+end
+arch barrel_water.101
+x 21
+y 15
+end
+arch floor_fs_grey1b
+x 21
+y 16
+end
+arch wall_dungeon_1
+x 21
+y 16
+end
+arch blocked
+x 22
+y 6
+end
+arch wall_dungeon_1
+x 22
+y 6
+end
+arch floor_fs_grey1b
+x 22
+y 7
+end
+arch floor_fs_grey1a
+x 22
+y 8
+end
+arch floor_fs_grey1a
+x 22
+y 9
+end
+arch barrel_water.101
+x 22
+y 9
+end
+arch floor_fs_grey1b
+x 22
+y 10
+end
+arch barrel_water.101
+x 22
+y 10
+end
+arch floor_fs_grey1a
+x 22
+y 11
+end
+arch grain2.101
+x 22
+y 11
+end
+arch spawn_point
+x 22
+y 11
+arch rat_a
+level 4
+type 83
+end
+end
+arch floor_fs_grey1a
+x 22
+y 12
+end
+arch keg_big.101
+x 22
+y 12
+end
+arch floor_fs_grey1d
+x 22
+y 13
+end
+arch barrel_water.101
+x 22
+y 13
+end
+arch floor_fs_grey1b
+x 22
+y 14
+end
+arch barrel_water.101
+x 22
+y 14
+end
+arch floor_fs_grey1b
+x 22
+y 15
+end
+arch barrel_water.101
+x 22
+y 15
+end
+arch floor_fs_grey1b
+x 22
+y 16
+end
+arch wall_dungeon_1
+x 22
+y 16
+end
+arch blocked
+x 23
+y 6
+end
+arch wall_dungeon_1
+x 23
+y 6
+end
+arch floor_fs_grey1d
+x 23
+y 7
+end
+arch wall_dungeon_3
+x 23
+y 7
+end
+arch floor_fs_grey1b
+x 23
+y 8
+end
+arch wall_dungeon_3
+x 23
+y 8
+end
+arch floor_fs_grey1b
+x 23
+y 9
+end
+arch wall_dungeon_3
+x 23
+y 9
+end
+arch floor_fs_grey1a
+x 23
+y 10
+end
+arch wall_dungeon_3
+x 23
+y 10
+end
+arch floor_fs_grey1d
+x 23
+y 11
+end
+arch wall_dungeon_3
+x 23
+y 11
+end
+arch floor_fs_grey1b
+x 23
+y 12
+end
+arch wall_dungeon_3
+x 23
+y 12
+end
+arch floor_fs_grey1a
+x 23
+y 13
+end
+arch wall_dungeon_3
+x 23
+y 13
+end
+arch floor_fs_grey1d
+x 23
+y 14
+end
+arch wall_dungeon_3
+x 23
+y 14
+end
+arch floor_fs_grey1b
+x 23
+y 15
+end
+arch wall_dungeon_3
+x 23
+y 15
+end
+arch floor_fs_grey1b
+x 23
+y 16
+end
+arch wall_dungeon_4
+x 23
+y 16
+end

@@ -1,0 +1,960 @@
+arch map
+name Brynknot
+msg
+Created:  2010-09-08 Alex Tokar
+Modified: 2010-09-08 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+no_harm 1
+region brynknot
+end
+arch blocked
+x 7
+y 14
+end
+arch wall_stone_8
+x 7
+y 14
+end
+arch blocked
+x 7
+y 15
+end
+arch wall_stone_3
+x 7
+y 15
+end
+arch blocked
+x 7
+y 16
+end
+arch wall_stone_3
+x 7
+y 16
+end
+arch picture2.151
+direction 7
+x 7
+y 16
+end
+arch blocked
+x 7
+y 17
+end
+arch wall_stone_3
+x 7
+y 17
+end
+arch blocked
+x 8
+y 14
+end
+arch wall_stone_1
+x 8
+y 14
+end
+arch wmask_bflag_fire1_1
+x 8
+y 14
+end
+arch floor_ostone13
+x 8
+y 15
+end
+arch floor_ostone13
+x 8
+y 16
+end
+arch stairs_wood_down
+direction 5
+slaying world_0113
+hp 8
+sp 17
+x 8
+y 16
+end
+arch floor_ostone13
+x 8
+y 17
+end
+arch wall_stone_1
+x 8
+y 17
+end
+arch blocked
+x 9
+y 14
+end
+arch wall_stone_1
+x 9
+y 14
+end
+arch floor_ostone13
+x 9
+y 15
+end
+arch candlelight3.101
+x 9
+y 15
+end
+arch light5
+x 9
+y 15
+end
+arch floor_ostone13
+x 9
+y 16
+end
+arch floor_ostone13
+x 9
+y 17
+end
+arch wall_stone_1
+x 9
+y 17
+end
+arch blocked
+x 10
+y 13
+end
+arch wall_stone_8
+x 10
+y 13
+end
+arch blocked
+x 10
+y 14
+end
+arch wall_stone_4
+x 10
+y 14
+end
+arch floor_ostone13
+x 10
+y 15
+end
+arch wall_stone_3
+x 10
+y 15
+end
+arch floor_ostone13
+x 10
+y 16
+end
+arch door_wood2
+direction 3
+x 10
+y 16
+end
+arch floor_ostone13
+x 10
+y 17
+end
+arch wall_stone_4
+x 10
+y 17
+end
+arch picture3.151
+direction 7
+x 10
+y 17
+end
+arch blocked
+x 10
+y 18
+end
+arch wall_stone_3
+x 10
+y 18
+end
+arch blocked
+x 10
+y 19
+end
+arch wall_stone_3
+x 10
+y 19
+end
+arch wmask_fire_on_1
+direction 7
+x 10
+y 19
+end
+arch blocked
+x 10
+y 20
+end
+arch wall_stone_3
+x 10
+y 20
+end
+arch blocked
+x 11
+y 13
+end
+arch wall_stone_1
+x 11
+y 13
+end
+arch floor_ostone13
+x 11
+y 14
+end
+arch amphora2.101
+x 11
+y 14
+end
+arch floor_ostone13
+x 11
+y 15
+end
+arch floor_ostone13
+x 11
+y 16
+end
+arch floor_ostone13
+x 11
+y 17
+end
+arch floor_ostone13
+x 11
+y 18
+end
+arch floor_ostone13
+x 11
+y 19
+end
+arch wood_pile.101
+x 11
+y 19
+end
+arch floor_ostone13
+x 11
+y 20
+end
+arch wall_stone_1
+x 11
+y 20
+end
+arch blocked
+x 12
+y 13
+end
+arch wall_stone_1
+x 12
+y 13
+end
+arch floor_ostone13
+x 12
+y 14
+end
+arch kettle_table
+x 12
+y 14
+end
+arch floor_ostone13
+x 12
+y 15
+end
+arch floor_ostone13
+x 12
+y 16
+end
+arch floor_ostone13
+x 12
+y 17
+end
+arch floor_ostone13
+x 12
+y 18
+end
+arch table_lab3.111
+x 12
+y 18
+end
+arch light3
+x 12
+y 18
+end
+arch floor_ostone13
+x 12
+y 19
+end
+arch spawn_point
+x 12
+y 19
+arch monk
+direction 1
+level 13
+type 83
+end
+end
+arch floor_ostone13
+x 12
+y 20
+end
+arch wall_stone_1
+x 12
+y 20
+end
+arch blocked
+x 13
+y 13
+end
+arch wall_stone_1
+x 13
+y 13
+end
+arch picture1.151
+x 13
+y 13
+end
+arch floor_ostone13
+x 13
+y 14
+end
+arch candlelight3.101
+x 13
+y 14
+end
+arch light5
+x 13
+y 14
+end
+arch floor_ostone13
+x 13
+y 15
+end
+arch floor_ostone13
+x 13
+y 16
+end
+arch floor_ostone13
+x 13
+y 17
+end
+arch floor_ostone13
+x 13
+y 18
+end
+arch floor_ostone13
+x 13
+y 19
+end
+arch floor_ostone13
+x 13
+y 20
+end
+arch wall_stone_1
+x 13
+y 20
+end
+arch blocked
+x 14
+y 13
+end
+arch wall_stone_1
+x 14
+y 13
+end
+arch floor_ostone13
+x 14
+y 14
+end
+arch metal_bucket.101
+x 14
+y 14
+end
+arch floor_ostone13
+x 14
+y 15
+end
+arch floor_ostone13
+x 14
+y 16
+end
+arch floor_ostone13
+x 14
+y 17
+end
+arch floor_ostone13
+x 14
+y 18
+end
+arch table_lab3.111
+x 14
+y 18
+end
+arch light3
+x 14
+y 18
+end
+arch floor_ostone13
+x 14
+y 19
+end
+arch spawn_point
+x 14
+y 19
+arch monk
+direction 1
+level 9
+type 83
+end
+end
+arch floor_ostone13
+x 14
+y 20
+end
+arch wall_stone_1
+x 14
+y 20
+end
+arch blocked
+x 15
+y 13
+end
+arch wall_stone_1
+x 15
+y 13
+end
+arch floor_ostone13
+x 15
+y 14
+end
+arch fireplace_right
+x 15
+y 14
+end
+arch floor_ostone13
+x 15
+y 15
+end
+arch light5
+x 15
+y 15
+end
+arch floor_ostone13
+x 15
+y 16
+end
+arch floor_ostone13
+x 15
+y 17
+end
+arch floor_ostone13
+x 15
+y 18
+end
+arch floor_ostone13
+x 15
+y 19
+end
+arch floor_ostone13
+x 15
+y 20
+end
+arch wall_stone_1
+x 15
+y 20
+end
+arch blocked
+x 16
+y 13
+end
+arch wall_stone_1
+x 16
+y 13
+end
+arch floor_ostone13
+x 16
+y 14
+end
+arch floor_ostone13
+x 16
+y 15
+end
+arch spawn_point
+x 16
+y 15
+arch guard
+name bank guard
+level 45
+type 83
+end
+end
+arch light5
+x 16
+y 15
+end
+arch floor_ostone13
+x 16
+y 16
+end
+arch floor_ostone13
+x 16
+y 17
+end
+arch floor_ostone13
+x 16
+y 18
+end
+arch table_lab3.111
+x 16
+y 18
+end
+arch light3
+x 16
+y 18
+end
+arch floor_ostone13
+x 16
+y 19
+end
+arch spawn_point
+x 16
+y 19
+arch mage_old
+direction 1
+level 17
+type 83
+end
+end
+arch floor_ostone13
+x 16
+y 20
+end
+arch wall_stone_1
+x 16
+y 20
+end
+arch blocked
+x 17
+y 13
+end
+arch wall_stone_1
+x 17
+y 13
+end
+arch floor_ostone13
+x 17
+y 14
+end
+arch wall_stone_3
+x 17
+y 14
+end
+arch picture7
+direction 7
+x 17
+y 14
+end
+arch floor_ostone13
+x 17
+y 15
+end
+arch wall_stone_3
+name illusionary wall
+no_pass 0
+x 17
+y 15
+end
+arch floor_ostone13
+x 17
+y 16
+end
+arch wall_stone_3
+x 17
+y 16
+end
+arch flag_04
+direction 7
+x 17
+y 16
+end
+arch floor_ostone13
+x 17
+y 17
+end
+arch wall_stone_3
+x 17
+y 17
+end
+arch floor_ostone13
+x 17
+y 18
+end
+arch wall_stone_3
+x 17
+y 18
+end
+arch floor_ostone13
+x 17
+y 19
+end
+arch wall_stone_3
+x 17
+y 19
+end
+arch floor_ostone13
+x 17
+y 20
+end
+arch wall_stone_4
+x 17
+y 20
+end
+arch blocked
+x 18
+y 13
+end
+arch wall_stone_1
+x 18
+y 13
+end
+arch picture4.151
+x 18
+y 13
+end
+arch floor_ostone13
+x 18
+y 14
+end
+arch chest7_111
+slaying no_entry
+x 18
+y 14
+end
+arch floor_ostone13
+x 18
+y 15
+end
+arch floor_ostone13
+x 18
+y 16
+end
+arch beer_barrel.101
+x 18
+y 16
+end
+arch floor_ostone13
+x 18
+y 17
+end
+arch shelf1.111
+direction 7
+slaying no_entry
+x 18
+y 17
+end
+arch floor_ostone13
+x 18
+y 18
+end
+arch shelf1.111
+direction 7
+slaying no_entry
+x 18
+y 18
+end
+arch floor_ostone13
+x 18
+y 19
+end
+arch shelf2.111
+direction 7
+slaying no_entry
+x 18
+y 19
+end
+arch floor_ostone13
+x 18
+y 20
+end
+arch candlelight3.101
+x 18
+y 20
+end
+arch wall_stone_1
+x 18
+y 20
+end
+arch light5
+x 18
+y 20
+end
+arch blocked
+x 19
+y 13
+end
+arch wall_stone_1
+x 19
+y 13
+end
+arch picture5.151
+x 19
+y 13
+end
+arch floor_ostone13
+x 19
+y 14
+end
+arch chest7_111
+slaying no_entry
+x 19
+y 14
+end
+arch floor_ostone13
+x 19
+y 15
+end
+arch floor_ostone13
+x 19
+y 16
+end
+arch floor_ostone13
+x 19
+y 17
+end
+arch floor_ostone13
+x 19
+y 18
+end
+arch floor_ostone13
+x 19
+y 19
+end
+arch urn.101
+x 19
+y 19
+end
+arch floor_ostone13
+x 19
+y 20
+end
+arch wall_stone_1
+x 19
+y 20
+end
+arch blocked
+x 20
+y 13
+end
+arch wall_stone_1
+x 20
+y 13
+end
+arch picture6.151
+x 20
+y 13
+end
+arch floor_ostone13
+x 20
+y 14
+end
+arch chest7_111
+slaying no_entry
+x 20
+y 14
+end
+arch floor_ostone13
+x 20
+y 15
+end
+arch floor_ostone13
+x 20
+y 16
+end
+arch floor_ostone13
+x 20
+y 17
+end
+arch ladder_up
+slaying world_2_0113
+hp 20
+sp 17
+x 20
+y 17
+end
+arch light3
+x 20
+y 17
+end
+arch floor_ostone13
+x 20
+y 18
+end
+arch floor_ostone13
+x 20
+y 19
+end
+arch depositbox
+slaying no_entry
+x 20
+y 19
+end
+arch floor_ostone13
+x 20
+y 20
+end
+arch wall_stone_1
+x 20
+y 20
+end
+arch blocked
+x 21
+y 13
+end
+arch wall_stone_1
+x 21
+y 13
+end
+arch picture13
+x 21
+y 13
+end
+arch floor_ostone13
+x 21
+y 14
+end
+arch chest7_111
+slaying no_entry
+x 21
+y 14
+end
+arch floor_ostone13
+x 21
+y 15
+end
+arch luggage
+slaying no_entry
+x 21
+y 15
+end
+arch floor_ostone13
+x 21
+y 16
+end
+arch luggage
+slaying no_entry
+x 21
+y 16
+end
+arch floor_ostone13
+x 21
+y 17
+end
+arch depositbox
+slaying no_entry
+x 21
+y 17
+end
+arch floor_ostone13
+x 21
+y 18
+end
+arch depositbox
+slaying no_entry
+x 21
+y 18
+end
+arch floor_ostone13
+x 21
+y 19
+end
+arch depositbox
+slaying no_entry
+x 21
+y 19
+end
+arch floor_ostone13
+x 21
+y 20
+end
+arch wall_stone_1
+x 21
+y 20
+end
+arch blocked
+x 22
+y 13
+end
+arch wall_stone_1
+x 22
+y 13
+end
+arch floor_ostone13
+x 22
+y 14
+end
+arch wall_stone_3
+x 22
+y 14
+end
+arch floor_ostone13
+x 22
+y 15
+end
+arch candlelight3.101
+x 22
+y 15
+end
+arch wall_stone_3
+x 22
+y 15
+end
+arch light5
+x 22
+y 15
+end
+arch floor_ostone13
+x 22
+y 16
+end
+arch wall_stone_3
+x 22
+y 16
+end
+arch floor_ostone13
+x 22
+y 17
+end
+arch wall_stone_3
+x 22
+y 17
+end
+arch floor_ostone13
+x 22
+y 18
+end
+arch candlelight3.101
+x 22
+y 18
+end
+arch wall_stone_3
+x 22
+y 18
+end
+arch light5
+x 22
+y 18
+end
+arch floor_ostone13
+x 22
+y 19
+end
+arch wall_stone_3
+x 22
+y 19
+end
+arch floor_ostone13
+x 22
+y 20
+end
+arch wall_stone_4
+x 22
+y 20
+end

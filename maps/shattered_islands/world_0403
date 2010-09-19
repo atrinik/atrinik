@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-12 Kiana
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1934,12 +1934,12 @@ arch shop_floor_normal
 x 12
 y 11
 end
-arch light4
+arch anvil_111
+direction 5
 x 12
 y 11
 end
-arch anvil_111
-direction 5
+arch light4
 x 12
 y 11
 end
@@ -2404,14 +2404,14 @@ arch shop_floor
 x 15
 y 4
 end
-arch light8
-x 15
-y 4
-end
 arch sword2h
 unpaid 1
 no_pick 1
 identified 1
+x 15
+y 4
+end
+arch light8
 x 15
 y 4
 end
@@ -2441,14 +2441,14 @@ arch shop_floor
 x 15
 y 7
 end
-arch light8
-x 15
-y 7
-end
 arch axe_small
 unpaid 1
 no_pick 1
 identified 1
+x 15
+y 7
+end
+arch light8
 x 15
 y 7
 end
@@ -2840,14 +2840,14 @@ arch shop_floor
 x 17
 y 7
 end
-arch light8
-x 17
-y 7
-end
 arch cloak
 unpaid 1
 no_pick 1
 identified 1
+x 17
+y 7
+end
+arch light8
 x 17
 y 7
 end
@@ -3019,15 +3019,15 @@ arch shop_floor
 x 18
 y 3
 end
-arch light8
-x 18
-y 3
-end
 arch arrow
 unpaid 1
 no_pick 1
 identified 1
 nrof 25
+x 18
+y 3
+end
+arch light8
 x 18
 y 3
 end
@@ -3058,14 +3058,14 @@ arch shop_floor
 x 18
 y 6
 end
-arch light9
-x 18
-y 6
-end
 arch crossbow_small
 unpaid 1
 no_pick 1
 identified 1
+x 18
+y 6
+end
+arch light9
 x 18
 y 6
 end
@@ -3191,14 +3191,14 @@ arch shop_floor
 x 19
 y 2
 end
-arch light4
-x 19
-y 2
-end
 arch lamp
 unpaid 1
 no_pick 1
 identified 1
+x 19
+y 2
+end
+arch light4
 x 19
 y 2
 end
@@ -3262,14 +3262,14 @@ arch shop_floor
 x 19
 y 8
 end
-arch light4
-x 19
-y 8
-end
 arch glaive
 unpaid 1
 no_pick 1
 identified 1
+x 19
+y 8
+end
+arch light4
 x 19
 y 8
 end
@@ -3288,14 +3288,14 @@ arch shop_floor
 x 19
 y 10
 end
-arch light4
-x 19
-y 10
-end
 arch lucern_hammer
 unpaid 1
 no_pick 1
 identified 1
+x 19
+y 10
+end
+arch light4
 x 19
 y 10
 end

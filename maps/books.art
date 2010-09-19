@@ -1,0 +1,83 @@
+# Various common books.
+#
+# The idea is to put (lengthy) books that do not belong to just one
+# mapset here, so they can be reused across different maps.
+
+# The book of Deities.
+Allowed none
+chance 1
+artifact book_deities
+def_arch tome_black
+Object
+name The Book of Deities
+msg
+<t t="Choosing a Deity">
+If you plan to utilize divine powers you must have the skill Divine Prayers and you must choose a cult of a higher being.
+
+To become a follower, find a holy altar of your cult, step onto the altar and apply it. The divine spirit inside this altar will touch your soul, attuning your mortal being to your new deity.
+
+Beware though, if you already have a deity and you touch an altar of a different deity, you will be punished most severely.
+
+Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
+<p><t t="Prayers">
+Next you must learn prayers. Priests, churches and various others will teach you prayers. There are also rumors about Prayer books lost in ancient tombs ages ago...
+
+Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause light wounds" and "minor healing".
+<p><t t="Grace">
+Casting prayers will drain your grace, which can only be replenished by praying. If your maximum grace is too low you should try to increase your Divine Prayers skill or your Wisdom stat.
+
+
+Never lose faith! Rumors abound of divine prayers of incredible power, and of old and wise priests who have nearly reached immortality...
+endmsg
+no_pick 1
+end
+
+# Curing diseases
+Allowed none
+chance 1
+artifact book_cure_disease
+def_arch tome
+Object
+name On the Cure of Disease
+msg
+You find a lengthy treatise on disease and its cure. Some diseases, apparently, are more difficult to cure than others, and require a higher level of skill.
+Other diseases can be expected to run their course and go away without causing serious harm, unless of course, one is in a
+situation in which temporary incapacity is fatal.
+The cure disease spell is effective against disease, except as remarked above. Restoration also works well against disease.
+
+Cure wounds spells won't cure disease, but they will reduce symptoms. Cure wounds spells therefore can be used to keep a person alive until the disease may be cured.
+Also, they may keep him alive until the disease naturally goes away.
+
+There are also claims of herbal, alchemical, animal, or other magical cures for disease, but these belong in another treatise.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_binary_bible
+def_arch tome_blue
+Object
+name Binary Bible
+msg
+In the beginning, the Giver of Data (GOD) generated silicon and carbon, and the system without architecture, and un-initialized, randomness was apon the arrangement of the matrix.......
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_history_crossfire
+def_arch tome
+Object
+name History of Crossfire
+msg
+Frank Tore Johansen started writing Crossfire in March 1992. Since then several people throughout the world have contributed with source, maps and graphics.
+
+The earlier versions looked a lot like the game Gauntlet. Then it started adopting the features of Nethack and Moria.
+
+Now it is moving in the direction of more complex games like Ultima. But during all those years, Crossfire has developed it's very own unique style.
+endmsg
+no_pick 1
+no_skill_ident 1
+end

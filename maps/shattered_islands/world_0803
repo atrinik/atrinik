@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-07 Kiana
+Modified: 2010-08-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2258,14 +2258,14 @@ arch floor_sand_d3
 x 18
 y 21
 end
-arch light4
-x 18
-y 21
-end
 arch ladder_up
 slaying eld_woods_island/clearhaven/treehome_1
 hp 4
 sp 4
+x 18
+y 21
+end
+arch light4
 x 18
 y 21
 end

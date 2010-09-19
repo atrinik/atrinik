@@ -1,0 +1,98 @@
+arch map
+name aris
+msg
+Created:  2010-09-09 Alex Tokar
+Modified: 2010-09-09 Alex Tokar
+endmsg
+width 4
+height 2
+difficulty 1
+darkness -1
+end
+arch spawn_point
+arch ghoul
+item_condition 4
+random_move 1
+item_race 3
+item_level 2
+type 83
+arch rand_drop
+container 2
+arch quest_container
+name Aris Undead Infestation
+sub_type 1
+end
+end
+end
+end
+arch spawn_point
+y 1
+arch skel_fighter1
+item_condition 4
+random_move 1
+item_race 2
+item_level 2
+type 83
+arch rand_drop
+container 2
+arch quest_container
+name Aris Undead Infestation
+sub_type 1
+end
+end
+end
+end
+arch spawn_point
+x 1
+arch skel_fighter2
+item_condition 4
+random_move 1
+item_race 1
+item_level 3
+type 83
+arch rand_drop
+container 2
+arch quest_container
+name Aris Undead Infestation
+sub_type 1
+end
+end
+end
+end
+arch spawn_point
+x 2
+arch skel_fighter3
+item_condition 4
+movement_type 112
+type 83
+arch rand_drop
+container 2
+arch quest_container
+name Aris Undead Infestation
+sub_type 1
+end
+end
+end
+end
+arch spawn_point
+x 3
+arch skel_mage
+randomitems mob_mage_l9
+item_condition 4
+exp 121
+maxsp 16
+magic 0
+Dex 2
+movement_type 48
+type 83
+arch ability_mbullet
+end
+arch rand_drop
+container 2
+arch quest_container
+name Aris Undead Infestation
+sub_type 1
+end
+end
+end
+end

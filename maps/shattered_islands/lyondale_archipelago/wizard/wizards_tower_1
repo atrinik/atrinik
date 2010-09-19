@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-05-19 Alex Tokar
-Modified: 2010-05-20 Alex Tokar
+Modified: 2010-09-09 Alex Tokar
 endmsg
 width 17
 height 15
@@ -191,7 +191,7 @@ y 6
 end
 arch stairs_stone_down
 direction 7
-slaying ../../world_0920
+slaying ../../world_1878
 hp 4
 sp 1
 x 1
@@ -203,7 +203,7 @@ y 7
 end
 arch stairs_stone_down
 direction 7
-slaying ../../world_0920
+slaying ../../world_1878
 hp 4
 sp 2
 x 1
@@ -215,7 +215,7 @@ y 8
 end
 arch stairs_stone_down
 direction 7
-slaying ../../world_0920
+slaying ../../world_1878
 hp 4
 sp 3
 x 1
