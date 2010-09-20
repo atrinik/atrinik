@@ -141,15 +141,15 @@
  * Global event IDs.
  *@{*/
 /** A new character has been created. */
-#define GEVENT_BORN 1
+#define GEVENT_BORN 0
 /** Player login. */
-#define GEVENT_LOGIN 2
+#define GEVENT_LOGIN 1
 /** Player logout. */
-#define GEVENT_LOGOUT 3
+#define GEVENT_LOGOUT 2
 /** Player was killed. */
-#define GEVENT_PLAYER_DEATH 4
+#define GEVENT_PLAYER_DEATH 3
 /** Cache entry was removed. */
-#define GEVENT_CACHE_REMOVED 5
+#define GEVENT_CACHE_REMOVED 4
 /** Number of global events. */
 #define GEVENT_NUM 5
 /*@}*/

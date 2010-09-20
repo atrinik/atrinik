@@ -661,34 +661,50 @@ MODULEAPI void *triggerEvent(int *type, ...)
 
 	activator = va_arg(args, object *);
 
-	switch (eventcode)
+	if (event_type == PLUGIN_EVENT_NORMAL)
 	{
-		case EVENT_APPLY:
-		case EVENT_TRIGGER:
+		switch (eventcode)
 		{
-			char *text, *script, *options;
-			int parm1, parm2, parm3, parm4;
+			case EVENT_APPLY:
+			case EVENT_TRIGGER:
+			{
+				char *text, *script, *options;
+				int parm1, parm2, parm3, parm4;
 
-			who = va_arg(args, object *);
-			other = va_arg(args, object *);
-			event = va_arg(args, object *);
-			text = va_arg(args, char *);
-			parm1 = va_arg(args, int);
-			parm2 = va_arg(args, int);
-			parm3 = va_arg(args, int);
-			parm4 = va_arg(args, int);
-			script = va_arg(args, char *);
-			options = va_arg(args, char *);
+				who = va_arg(args, object *);
+				other = va_arg(args, object *);
+				event = va_arg(args, object *);
+				text = va_arg(args, char *);
+				parm1 = va_arg(args, int);
+				parm2 = va_arg(args, int);
+				parm3 = va_arg(args, int);
+				parm4 = va_arg(args, int);
+				script = va_arg(args, char *);
+				options = va_arg(args, char *);
 
-			result = arena_event(activator, who, options, script);
-			break;
+				result = arena_event(activator, who, options, script);
+				break;
+			}
 		}
-
-		case GEVENT_PLAYER_DEATH:
-		case MEVENT_LEAVE:
-		case GEVENT_LOGOUT:
-			result = arena_leave(activator);
-			break;
+	}
+	else if (event_type == PLUGIN_EVENT_MAP)
+	{
+		switch (eventcode)
+		{
+			case MEVENT_LEAVE:
+				result = arena_leave(activator);
+				break;
+		}
+	}
+	else if (event_type == PLUGIN_EVENT_GLOBAL)
+	{
+		switch (eventcode)
+		{
+			case GEVENT_PLAYER_DEATH:
+			case GEVENT_LOGOUT:
+				result = arena_leave(activator);
+				break;
+		}
 	}
 
 	va_end(args);

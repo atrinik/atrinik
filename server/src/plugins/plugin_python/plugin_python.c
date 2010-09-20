@@ -1925,6 +1925,7 @@ MODULEAPI void postinitPlugin()
 	char path[HUGE_BUF];
 
 	LOG(llevDebug, "PYTHON:: Start postinitPlugin.\n");
+	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
 	strncpy(path, hooks->create_pathname("/python/events/python_init.py"), sizeof(path) - 1);
