@@ -13,6 +13,9 @@ define('MAP_CACHE_DIR', 'map_cache');
 /** File to use for the arch cache. */
 define('ARCH_CACHE_FILE', 'arch_cache.php');
 
+/** File used to hold cache about created map_cache images. */
+define('MAPS_CACHE_FILE', 'maps_cache.php');
+
 /** Map index. */
 define('MAP_INDEX_FILE', 'map_index.php');
 

@@ -15,6 +15,11 @@ $commands = array(
 				'default' => 0,
 				'doc' => 'Do automatic cropping of empty borders on every image. Slow.',
 			),
+			'start-dir' => array(
+				'type' => 'string',
+				'default' => '',
+				'doc' => 'Starting point in maps directory. Useful for testing.',
+			),
 		),
 		'doc' => 'Regenerate the cached map images that are used for the world viewer.',
 	),
@@ -78,7 +83,7 @@ $commands = array(
  * used for the world viewer. */
 function command_maps_cache()
 {
-	global $maps_path, $arguments;
+	global $maps_path, $arguments, $maps_info;
 
 	// If the map cache dir doesn't exist, create it.
 	if (!file_exists(MAP_CACHE_DIR))
@@ -88,12 +93,25 @@ function command_maps_cache()
 	// If it exists but is not a directory, complain.
 	elseif (!is_dir(MAP_CACHE_DIR))
 	{
-		die('ERROR: \'' . MAP_CACHE_DIR . '\' exists, but is not a directory.');
+		die('ERROR: \'' . MAP_CACHE_DIR . '\' exists, but is not a directory.' . "\n");
+	}
+
+	$path = $maps_path;
+
+	if (!empty($arguments['start-dir']))
+	{
+		$path .= '/' . $arguments['start-dir'];
+
+		if (!file_exists($path) || !is_dir($path))
+		{
+			die('ERROR: Invalid start-dir argument: \'' . $path . '\' doesn\'t exist or is not a directory.' . "\n");
+		}
 	}
 
 	// Maps to scan.
-	$to_scan = array($maps_path);
+	$to_scan = array($path);
 	$maps = array();
+	$maps_info = array();
 
 	// Get the length of the maps path.
 	$maps_path_len = strlen($maps_path);
@@ -129,19 +147,17 @@ function command_maps_cache()
 		// Otherwise a file.
 		else
 		{
-			// Open the file in read only mode.
 			$fp = fopen($file, 'r');
 
-			// Get the first line.
-			$line = fgets($fp);
-
-			// If it is a legitimate map, add it to the maps array.
-			if ($line == 'arch map' . "\n")
+			// Try to parse the file as map
+			if (($map_info = parse_map_header($fp)) !== false)
 			{
+				// The substr will remove maps_path, so instead of /home/xxx/atrinik/shattered_islands/world_xxxx
+				// we will have shattered_islands/world_xxxx.
+				$maps_info[substr($file, strlen($maps_path) + 1)] = $map_info;
 				$maps[] = $file;
 			}
 
-			// Close the file.
 			fclose($fp);
 		}
 	}
@@ -186,6 +202,8 @@ function command_maps_cache()
 		// Sleep for a bit.
 		usleep(5000);
 	}
+
+	make_cache(array($maps_info), MAPS_CACHE_FILE);
 }
 
 /**

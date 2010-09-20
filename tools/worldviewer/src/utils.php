@@ -58,7 +58,7 @@ function array_to_file($array, $fp)
 		// Write out the values, depending on their type.
 		if (is_string($value))
 		{
-			fwrite($fp, '\'' . $value . '\',');
+			fwrite($fp, '\'' . addslashes($value) . '\',');
 		}
 		elseif (is_int($value) || is_float($value))
 		{
@@ -106,6 +106,7 @@ function make_cache($cache, $cache_file)
 		// If it's empty at this point, something is very wrong.
 		if (empty($array_name))
 		{
+			echo 'ERROR: Could not find array\'s name in $GLOBALS.', "\n";
 			continue;
 		}
 

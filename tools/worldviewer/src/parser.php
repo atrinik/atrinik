@@ -12,22 +12,17 @@ function parse_facetree($file)
 {
 	global $faces, $arch_path;
 
-	// Open the file.
-	$fp = fopen($file, 'r');
-
 	$files = getfiles($arch_path);
 
-	// Loop through the lines.
-	while ($line = fgets($fp))
+	foreach ($files as $file => $path)
 	{
-		// Get the face name and the directory location where it is.
-		$face_name = substr(strrchr($line, '/'), 1, -1);
-		// Add it to the array.
-		$faces[$face_name] = $files[$face_name . '.png'];
-	}
+		if (substr($file, -4) != '.png')
+		{
+			continue;
+		}
 
-	// Close the file.
-	fclose($fp);
+		$faces[substr($file, 0, -4)] = $path;
+	}
 }
 
 /**
@@ -314,6 +309,61 @@ function parse_map_file($file)
 
 	// Return the objects.
 	return $map;
+}
+
+/**
+ * Attempt to parse file as map and load its header.
+ * @param $fp File pointer to read from.
+ * @return False if we failed to load the map header, the map header as
+ * an array otherwise. */
+function parse_map_header($fp)
+{
+	$got_map = false;
+	$map_info = array();
+	$msg_buf = '';
+	$in_msg = false;
+
+	while ($line = fgets($fp))
+	{
+		if ($line == 'arch map' . "\n")
+		{
+			$got_map = true;
+			continue;
+		}
+		elseif ($line == 'end' . "\n")
+		{
+			return $map_info;
+		}
+
+		if (!$got_map)
+		{
+			return false;
+		}
+
+		if ($line == 'msg' . "\n")
+		{
+			$in_msg = true;
+		}
+		elseif ($line == 'endmsg' . "\n")
+		{
+			$map_info['msg'] = substr($msg_buf, 0, -1);
+			$in_msg = false;
+		}
+		elseif ($in_msg)
+		{
+			$msg_buf .= $line;
+		}
+		else
+		{
+			$space_pos = strpos($line, ' ');
+			$attribute = substr($line, 0, $space_pos);
+			$value = substr($line, $space_pos + 1, -1);
+
+			$map_info[$attribute] = $value;
+		}
+	}
+
+	return false;
 }
 
 ?>

@@ -19,37 +19,27 @@ function world_viewer()
 		die;
 	}
 
-	// Get the XX and YY positions from the map name, and the map name
-	// without the positions.
-	$positions_xx = (int) substr($map, -4, 2);
-	$positions_yy = (int) substr($map, -2, 2);
-	$map_without_pos = substr($map, 0, -4);
+	if (!file_exists(MAP_CACHE_DIR) || !is_dir(MAP_CACHE_DIR))
+	{
+		die('ERROR: Map cache directory doesn\'t exist or is not a directory.');
+	}
+
+	if (!file_exists(MAPS_CACHE_FILE) || !is_file(MAPS_CACHE_FILE))
+	{
+		die('ERROR: Maps cache file doesn\'t exist or is not a file.');
+	}
+
+	require_once(MAPS_CACHE_FILE);
+
+	if (!isset($maps_info[$map]))
+	{
+		die('ERROR: Could not find the provided map in $maps_info.');
+	}
+
+	$map_info = $maps_info[$map];
 
 	// Maps array of tiled maps.
 	$maps = array();
-
-	// Check for every single possibility of tiled map.
-	for ($x = -1; $x <= 1; $x++)
-	{
-		for ($y = -1; $y <= 1; $y++)
-		{
-			// $x and $y both being zero means it's the map we're
-			// displaying, so skip it.
-			if ($x == 0 && $y == 0)
-			{
-				continue;
-			}
-
-			// Get the map file name.
-			$map_file = $map_without_pos . ($positions_xx + $x < 10 ? '0' . ($positions_xx + $x) : $positions_xx + $x) . ($positions_yy + $y < 10 ? '0' . ($positions_yy + $y) : $positions_yy + $y);
-
-			// If it exists, add it to the array.
-			if (file_exists(MAP_CACHE_DIR . '/' . $map_file . '.png'))
-			{
-				$maps[$x][$y] = $map_file;
-			}
-		}
-	}
 
 	// Output the HTML.
 	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -63,49 +53,37 @@ function world_viewer()
 		<table id="world" width="100%">
 			<tr>
 				<td align="left" valign="top">
-					<table id="compass" border="1">';
+					<table id="compass" border="1">
+						<tr>';
 
 	// Ouput the compass.
 	for ($i = 0; $i < 9; $i++)
 	{
-		$x = $y = 0;
-		$classname = '';
-
-		if (!($i % 3))
+		if ($i && !($i % 3))
 		{
-			if ($i == 0)
-			{
-				echo '
-						<tr>';
-			}
-			else
-			{
-				echo '
+			echo '
 						</tr><tr>';
-			}
 		}
 
 		switch ($i)
 		{
 			case 0:
-				$x = -1;
+				$tile_id = 4;
 				$classname = 'topleft';
 				break;
 
 			case 1:
-				$x = -1;
-				$y = 1;
+				$tile_id = 8;
 				$classname = 'top';
 				break;
 
 			case 2:
-				$y = 1;
+				$tile_id = 1;
 				$classname = 'topright';
 				break;
 
 			case 3:
-				$x = -1;
-				$y = -1;
+				$tile_id = 7;
 				$classname = 'left';
 				break;
 
@@ -114,33 +92,31 @@ function world_viewer()
 				break;
 
 			case 5:
-				$x = 1;
-				$y = 1;
+				$tile_id = 5;
 				$classname = 'right';
 				break;
 
 			case 6:
-				$y = -1;
+				$tile_id = 3;
 				$classname = 'bottomleft';
 				break;
 
 			case 7:
-				$x = 1;
-				$y = -1;
+				$tile_id = 6;
 				$classname = 'bottom';
 				break;
 
 			case 8:
-				$x = 1;
+				$tile_id = 2;
 				$classname = 'bottomright';
 				break;
 		}
 
 		if (!empty($classname))
 		{
-			$map_exists = !empty($maps[$x][$y]);
+			$map_exists = isset($map_info['tile_path_' . $tile_id]) && file_exists(MAP_CACHE_DIR . '/' . dirname($map) . '/' . $map_info['tile_path_' . $tile_id] . '.png');
 
-			echo '<td class="', $classname, ' ', !$map_exists ? 'disabled' : 'enabled', '">', $map_exists ? '<a href="?map=' . $maps[$x][$y] . '"></a>' : '', '</td>';
+			echo '<td class="', $classname, ' ', !$map_exists ? 'disabled' : 'enabled', '">', $map_exists ? '<a href="?map=' . dirname($map) . '/' . $map_info['tile_path_' . $tile_id] . '"></a>' : '', '</td>';
 		}
 		else
 		{
