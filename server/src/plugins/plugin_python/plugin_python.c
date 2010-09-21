@@ -517,29 +517,6 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.MatchString(<i>\<string\></i> firststr, <i>\<string\></i>
- * secondstr)</h1>
- *
- * Case insensitive string comparison.
- *
- * @param firststr The first string
- * @param secondstr The second string, can contain regular expressions
- * @return 1 if the two strings are the same, or 0 if they differ */
-static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args)
-{
-	char *premiere, *seconde;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "ss", &premiere, &seconde))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", (hooks->re_cmp(premiere, seconde) != NULL) ? 1 : 0);
-}
-
-/**
  * <h1>Atrinik.ReadyMap(<i>\<string\></i> name, <i>\<int\></i> unique)
  * </h1>
  *
@@ -1948,7 +1925,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"LoadObject",          Atrinik_LoadObject,            METH_VARARGS, 0},
 	{"ReadyMap",            Atrinik_ReadyMap,              METH_VARARGS, 0},
 	{"CheckMap",            Atrinik_CheckMap,              METH_VARARGS, 0},
-	{"MatchString",         Atrinik_MatchString,           METH_VARARGS, 0},
 	{"FindPlayer",          Atrinik_FindPlayer,            METH_VARARGS, 0},
 	{"PlayerExists",        Atrinik_PlayerExists,          METH_VARARGS, 0},
 	{"GetOptions",          Atrinik_GetOptions,            METH_VARARGS, 0},
