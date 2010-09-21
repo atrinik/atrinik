@@ -267,7 +267,7 @@ void set_attr_value(living *stats, int attr, sint8 value)
 			stats->Cha = value;
 			break;
 
-		case INTELLIGENCE:
+		case INT:
 			stats->Int = value;
 			break;
 	}
@@ -327,7 +327,7 @@ sint8 get_attr_value(living *stats, int attr)
 		case CHA:
 			return stats->Cha;
 
-		case INTELLIGENCE:
+		case INT:
 			return stats->Int;
 
 		case POW:

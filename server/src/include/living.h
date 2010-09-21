@@ -45,7 +45,7 @@
 /** Charisma. */
 #define CHA             4
 /** Intelligence. */
-#define INTELLIGENCE    5
+#define INT 5
 /** Power. */
 #define POW             6
 /** Number of stats. */
