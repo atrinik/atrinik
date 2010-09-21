@@ -152,11 +152,10 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>object.GetSkill(<i>\<int\></i> type, <i>\<int\></i> id)</h1>
- *
+ * <h1>object.GetSkill(int type, int id)</h1>
  * Fetch a skill or exp_skill object from the specified object.
  * @param type Type of the object to look for. Unused.
- * @param id ID of the skill or experience
+ * @param id ID of the skill or experience object.
  * @return The object if found.
  * @todo Remove the type parameter?
  * @todo Could speed this up for players by using their skill pointer and
@@ -195,10 +194,9 @@ static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SetSkill(<i>\<int\></i> type, <i>\<int\></i> skillid,
- * <i>\<long\></i> level, <i>\<long\></i> value)</h1>
- *
+ * <h1>object.SetSkill(int type, int skillid, long level, long value)</h1>
  * Set object's experience in the skill to a new value.
+ *
  * Also can change the level of a skill.
  * @param type Type of the skill, should be TYPE_SKILL
  * @param skillid ID of the skill
@@ -269,8 +267,7 @@ static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.ActivateRune(<i>\<object\></i> who)</h1>
- *
+ * <h1>object.ActivateRune(object who)</h1>
  * Activate a rune.
  * @param who Who should be affected by the effects of the rune.
  * @warning Untested. */
@@ -291,8 +288,7 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject *a
 
 /**
  * <h1>object.GetGod()</h1>
- *
- * Determine who is the object follower of (who the god is).
+ * Determine the object's god.
  * @return Returns a string of the god's name. */
 static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -302,22 +298,23 @@ static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SetGod(<i>\<string\></i> godname)</h1>
- *
+ * <h1>object.SetGod(string name)</h1>
  * Make an object become follower of a different god.
- * @param godname Name of the god. */
+ *
+ * The object must have the 'divine prayers' skill.
+ * @param name Name of the god. */
 static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *txt;
+	const char *name;
 
-	if (!PyArg_ParseTuple(args, "s", &txt))
+	if (!PyArg_ParseTuple(args, "s", &name))
 	{
 		return NULL;
 	}
 
 	if (hooks->command_rskill(WHO, "divine prayers"))
 	{
-		object *god = hooks->find_god(txt);
+		object *god = hooks->find_god(name);
 
 		hooks->become_follower(WHO, god);
 	}
@@ -327,36 +324,35 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.TeleportTo(<i>\<string\></i> map, <i>\<int\></i> x,
- * <i>\<int\></i> y, <i>\<int\></i> unique)</h1>
- *
+ * <h1>object.TeleportTo(string map, int x, int y, int [unique = False])</h1>
  * Teleport object to the given position of map.
- * @param map Map name to teleport the object to
- * @param x X position on the map
- * @param y Y position on the map
- * @param unique If non-zero, the destination will be unique map for the
- * player. Optional, defaults to 0. */
+ * @param path Map path to teleport the object to.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @param unique If True, the destination will be unique map for the player.
+ * @todo Make the sound effect optional? */
 static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *mapname;
-	object *current = hooks->get_object();
-	int x, y, u = 0;
+	const char *path;
+	object *tmp;
+	int x, y, unique = 0;
 
-	if (!PyArg_ParseTuple(args, "sii|i", &mapname, &x, &y, &u))
+	if (!PyArg_ParseTuple(args, "sii|i", &path, &x, &y, &unique))
 	{
 		return NULL;
 	}
 
-	FREE_AND_COPY_HASH(EXIT_PATH(current), mapname);
-	EXIT_X(current) = x;
-	EXIT_Y(current) = y;
+	tmp = hooks->get_object();
+	FREE_AND_COPY_HASH(EXIT_PATH(tmp), path);
+	EXIT_X(tmp) = x;
+	EXIT_Y(tmp) = y;
 
-	if (u)
+	if (unique)
 	{
-		current->last_eat = MAP_PLAYER_MAP;
+		tmp->last_eat = MAP_PLAYER_MAP;
 	}
 
-	hooks->enter_exit(WHO, current);
+	hooks->enter_exit(WHO, tmp);
 
 	if (WHO->map)
 	{
@@ -368,8 +364,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 }
 
 /**
- * <h1>object.InsertInside(<i>\<object\></i> where)</h1>
- *
+ * <h1>object.InsertInside(object where)</h1>
  * Insert object into where.
  * @param where Where to insert the object. */
 static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *args)
@@ -417,8 +412,7 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
 }
 
 /**
- * <h1>object.Apply(<i>\<object\></i> what, <i>\<int\></i> flags)</h1>
- *
+ * <h1>object.Apply(object what, int flags)</h1>
  * Forces object to apply what.
  * @param what What object to apply.
  * @param flags Reasonable combination of the following:
@@ -430,7 +424,7 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
  * @return Return values:
  * - <b>0</b>: Object cannot apply objects of that type.
  * - <b>1</b>: Object was applied, or not...
- * - <b>2</b>: Object must be in inventory to be applied */
+ * - <b>2</b>: Object must be in inventory to be applied. */
 static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
@@ -445,10 +439,9 @@ static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.PickUp(<i>\<object\></i> what)</h1>
- *
+ * <h1>object.PickUp(object what)</h1>
  * Force the object to pick up what.
- * @param what The object to pick up */
+ * @param what The object to pick up. */
 static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
@@ -465,12 +458,13 @@ static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Drop(<i>\<object\></i> what, <i>[string]</i> name)</h1>
- *
+ * <h1>object.Drop(object what, string [name = None])</h1>
  * Drop an object.
  * @param what Object to drop.
  * @param name If what is None, this is used for the equivalent of /drop
- * command. */
+ * command.
+ * @todo Merge the two parameters into one, doing checking to figure out
+ * what the passed Python object is (a game object or a string). */
 static PyObject *Atrinik_Object_Drop(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *name;
@@ -495,16 +489,13 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Deposit(<i>\<object\></i> deposit_object, <i>\<string\></i>
- * string)</h1>
- *
+ * <h1>object.Deposit(object deposit_object, string text)</h1>
  * Deposit value or string money from object in deposit_object.
  *
  * Control first object has that amount of money, then remove it
  * from object and add it in ->value of deposit_object.
- *
- * @param deposit_object The deposit object
- * @param string How much money to deposit, in string representation.
+ * @param deposit_object The deposit object.
+ * @param text How much money to deposit, in string representation.
  * @return The value deposited. */
 static PyObject *Atrinik_Object_Deposit(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -520,13 +511,10 @@ static PyObject *Atrinik_Object_Deposit(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Withdraw(<i>\<object\></i> deposit_object, <i>\<string\>
- * </i> string)</h1>
- *
+ * <h1>object.Withdraw(object deposit_object, string text)</h1>
  * Withdraw value or string money from object in deposit_object.
- *
- * @param deposit_object The withdraw object
- * @param string How much money to withdraw, in string representation.
+ * @param deposit_object The withdraw object.
+ * @param text How much money to withdraw, in string representation.
  * @return The value withdrawn. */
 static PyObject *Atrinik_Object_Withdraw(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -542,10 +530,8 @@ static PyObject *Atrinik_Object_Withdraw(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Communicate(<i>\<string\></i> message)</h1>
- *
- * Object says message to everybody on its map.
- *
+ * <h1>object.Communicate(string message)</h1>
+ * Object says message to everybody on its map. Emote commands may be used.
  * @param message The message to say. */
 static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -563,13 +549,11 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.Say(<i>\<string\></i> message, <i>\<int\></i> mode)</h1>
- *
+ * <h1>object.Say(string message, int [mode = 0])</h1>
  * Object says message to everybody on its map.
- *
  * @param message The message to say.
  * @param mode If set to non-zero, message is not prefixed with
- * "object.name says: ". Optional, defaults to 0. */
+ * "object.name says: ". */
 static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *message, buf[HUGE_BUF];
@@ -595,16 +579,12 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SayTo(<i>\<object\></i> target, <i>\<string\></i> message,
- * <i>\<int\></i> mode)</h1>
- *
+ * <h1>object.SayTo(object target, string message, int [mode = 0])</h1>
  * NPC talks only to player but map gets "xxx talks to yyy" msg too.
- *
  * @param target Target object the NPC is talking to.
  * @param message The message to say.
  * @param mode If set to non-zero, there is no "xxx talks to yyy" map
- * message. The message is not prefixed with "xxx says: " either.
- * Optional, defaults to 0. */
+ * message. The message is not prefixed with "xxx says: " either. */
 static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *target;
@@ -639,11 +619,9 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Write(<i>\<string\></i> message, <i>\<int\></i> color)</h1>
- *
- * Writes a message to a specific player.
- *
- * @param message The message to write
+ * <h1>object.Write(string message, int color)</h1>
+ * Writes a message to a specific player object.
+ * @param message The message to write.
  * @param color Color to write the message in. Defaults to orange. */
 static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -663,7 +641,6 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 
 /**
  * <h1>object.GetGender()</h1>
- *
  * Get an object's gender.
  * @retval NEUTER No gender.
  * @retval MALE Male.
@@ -677,8 +654,7 @@ static PyObject *Atrinik_Object_GetGender(Atrinik_Object *whoptr, PyObject *args
 }
 
 /**
- * <h1>object.SetGender(<i>\<int\></i> gender)</h1>
- *
+ * <h1>object.SetGender(int gender)</h1>
  * Changes the gender of object.
  * @param gender The new gender to set. One of:
  * - <b>Atrinik.NEUTER</b>: No gender.
@@ -720,10 +696,8 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *whoptr, PyObject *args
 }
 
 /**
- * <h1>object.SetRank(<i>\<string\></i> rank_string)</h1>
- *
+ * <h1>object.SetRank(string rank_string)</h1>
  * Set the rank of an object to rank_string.
- *
  * @param rank_string The new rank string to set. If "Mr", then clear the
  * rank.
  * @return If successfully set the rank, return the rank force object. */
@@ -773,7 +747,6 @@ static PyObject *Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject *args)
 
 /**
  * <h1>object.GetRank()</h1>
- *
  * Get the rank of a player.
  * @return Player's rank. */
 static PyObject *Atrinik_Object_GetRank(Atrinik_Object *whoptr, PyObject *args)
@@ -799,10 +772,8 @@ static PyObject *Atrinik_Object_GetRank(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SetAlignment(<i>\<string\></i> alignment_string)</h1>
- *
+ * <h1>object.SetAlignment(string alignment_string)</h1>
  * Set the alignment of an object to alignment_string.
- *
  * @param alignment_string The new alignment string to set.
  * @return If successfully set the alignment, return the alignment force
  * object. */
@@ -849,18 +820,13 @@ static PyObject *Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject *a
 
 /**
  * <h1>object.GetAlignmentForce()</h1>
- *
  * Get the alignment_force from object's inventory.
- *
  * @return The alignment force if found. */
 static PyObject *Atrinik_Object_GetAlignmentForce(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *walk;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
+	(void) args;
 
 	if (WHO->type != PLAYER)
 	{
@@ -883,7 +849,7 @@ static PyObject *Atrinik_Object_GetAlignmentForce(Atrinik_Object *whoptr, PyObje
 }
 
 /**
- * <h1>object.SetGuildForce(<i>\<string\></i> rank_string)</h1>
+ * <h1>object.SetGuildForce(string rank_string)</h1>
  *
  * Set the current rank of object to rank_string.
  *
@@ -944,18 +910,13 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 
 /**
  * <h1>object.GetGuildForce()</h1>
- *
  * Get the guild force from player's inventory.
- *
  * @return The guild force object if found. */
 static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *walk;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
+	(void) args;
 
 	if (WHO->type != PLAYER)
 	{
@@ -979,18 +940,11 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 
 /**
  * <h1>object.Fix()</h1>
- *
  * Recalculate player's or monster's stats depending on equipment, forces
- * skills, etc.
- *
- * @warning Untested. */
+ * skills, etc. */
 static PyObject *Atrinik_Object_Fix(Atrinik_Object *whoptr, PyObject *args)
 {
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	hooks->fix_player(WHO);
 
 	Py_INCREF(Py_None);
@@ -998,13 +952,10 @@ static PyObject *Atrinik_Object_Fix(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Kill(<i>\<object\></i> what, <i>\<int\></i> how)</h1>
- *
+ * <h1>object.Kill(object what, int how)</h1>
  * Kill an object.
- *
  * @param what The object to kill
  * @param how How to kill the object.
- *
  * @warning Untested. */
 static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -1045,16 +996,13 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.CastAbility(<i>\<object\></i> target, <i>\<int\></i>
- * spellno, <i>\<int\></i> mode, <i>\<int\></i> direction, <i>\<string\>
- * </i> option)</h1>
- *
+ * <h1>object.CastAbility(object target, int spellno, int mode, int direction, string option)</h1>
  * Object casts the ability numbered spellno on target.
- * @param target The target object
- * @param spellno ID of the spell to cast
- * @param mode Atrinik.CAST_NORMAL or Atrinik.CAST_POTION
- * @param direction The direction to cast the ability in
- * @param option Additional string option(s) */
+ * @param target The target object.
+ * @param spellno ID of the spell to cast.
+ * @param mode Atrinik.CAST_NORMAL or Atrinik.CAST_POTION.
+ * @param direction The direction to cast the ability in.
+ * @param option Additional string option(s). */
 static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *target;
@@ -1090,11 +1038,10 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.DoKnowSpell(<i>\<int\></i> spell)</h1>
- *
+ * <h1>object.DoKnowSpell(int spell)</h1>
  * Check if object knowns a given spell.
- * @param spell ID of the spell to check for
- * @return 1 if the object knows the spell, 0 otherwise */
+ * @param spell ID of the spell to check for.
+ * @return 1 if the object knows the spell, 0 otherwise. */
 static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *args)
 {
 	int spell;
@@ -1108,15 +1055,12 @@ static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.AcquireSpell(<i>\<int\></i> spell, <i>\<int\></i> mode)
- * </h1>
- *
- * Object will learn or unlearn spell.
- * @param spell ID of the spell to learn/unlearn for
+ * <h1>object.AcquireSpell(int spell, int mode)</h1>
+ * Object will learn or unlearn spell, depending on the mode.
+ * @param spell ID of the spell to learn/unlearn.
  * @param mode Possible modes:
- * - <b>Atrinik.LEARN</b>: Learn the spell
- * - <b>Atrinik.UNLEARN</b>: Unlearn the spell
- * @return 1 if the object knows the spell, 0 otherwise */
+ * - <b>Atrinik.LEARN</b>: Learn the spell.
+ * - <b>Atrinik.UNLEARN</b>: Unlearn the spell. */
 static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *args)
 {
 	int spell, mode;
@@ -1140,11 +1084,10 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
 }
 
 /**
- * <h1>object.DoKnowSkill(<i>\<int\></i> skill)</h1>
- *
+ * <h1>object.DoKnowSkill(int skill)</h1>
  * Check if object knowns a given skill.
- * @param skill ID of the skill to check for
- * @return 1 if the object knows the skill, 0 otherwise */
+ * @param skill ID of the skill to check for.
+ * @return 1 if the object knows the skill, 0 otherwise. */
 static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *args)
 {
 	int skill;
@@ -1158,11 +1101,9 @@ static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.AcquireSkill(<i>\<int\></i> skillno)</h1>
- *
+ * <h1>object.AcquireSkill(int skillno)</h1>
  * Object will learn or unlearn skill.
- * @param skillno ID of the skill to learn/unlearn for
- * @return 1 if the object knows the skill, 0 otherwise */
+ * @param skillno ID of the skill to learn/unlearn. */
 static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *args)
 {
 	int skill;
@@ -1180,7 +1121,6 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
 
 /**
  * <h1>object.FindMarkedObject()</h1>
- *
  * Find marked object in object's inventory.
  * @return The marked object, or None if no object is marked. */
 static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObject *args)
@@ -1191,10 +1131,8 @@ static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObjec
 }
 
 /**
- * <h1>object.CheckInvisibleInside(<i>\<string\></i> id)</h1>
- *
+ * <h1>object.CheckInvisibleInside(string id)</h1>
  * Find a force inside object's inventory.
- *
  * @param id Slaying field of the force must match this ID.
  * @return The force object is found with matching ID.
  * @warning Untested. */
@@ -1208,7 +1146,7 @@ static PyObject *Atrinik_Object_CheckInvisibleInside(Atrinik_Object *whoptr, PyO
 		return NULL;
 	}
 
-	for (tmp2 = WHO->inv; tmp2 !=NULL; tmp2 = tmp2->below)
+	for (tmp2 = WHO->inv; tmp2 != NULL; tmp2 = tmp2->below)
 	{
 		if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, id))
 		{
@@ -1220,14 +1158,11 @@ static PyObject *Atrinik_Object_CheckInvisibleInside(Atrinik_Object *whoptr, PyO
 }
 
 /**
- * <h1>object.CreatePlayerForce(<i>\<string\></i> force_name, <i>\<int\>
- * </i> time)</h1>
- *
+ * <h1>object.CreatePlayerForce(string force_name, int time)</h1>
  * Creates and inserts an invisible player force in object.
  *
  * The values of the force will affect the object it is in, which should
  * usually be player.
- *
  * @param force_name Name of the player force
  * @param time If non-zero, the force will be removed again after
  * time / 0.02 ticks. Optional, defaults to 0.
@@ -1275,8 +1210,7 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 }
 
 /**
- * <h1>object.GetQuestObject(<i>\<string\></i> quest_name)</h1>
- *
+ * <h1>object.GetQuestObject(string quest_name)</h1>
  * Get a quest object for specified quest.
  * @param quest_name Name of the quest to look for.
  * @return The quest object if found. */
@@ -1309,8 +1243,7 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 }
 
 /**
- * <h1>object.StartQuest(<i>\<string\></i> quest_name)</h1>
- *
+ * <h1>object.StartQuest(string quest_name)</h1>
  * Create a quest object inside the specified object, starting a new
  * quest.
  * @param quest_name Name of the quest.
@@ -1340,13 +1273,11 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 }
 
 /**
- * <h1>object.CreatePlayerInfo(<i>\<string\></i> name)</h1>
- *
+ * <h1>object.CreatePlayerInfo(string name)</h1>
  * Creates a player info object of specified name in object's inventory.
  *
- * The values of a player info  object will NOT affect the object it is
+ * The values of a player info object will NOT affect the object it is
  * in.
- *
  * @param name Name of the player info
  * @return The new player info object */
 static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObject *args)
@@ -1382,11 +1313,9 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
 }
 
 /**
- * <h1>object.GetPlayerInfo(<i>\<string\></i> name)</h1>
- *
+ * <h1>object.GetPlayerInfo(string name)</h1>
  * Get the first player info object with the specified name in object's
  * inventory.
- *
  * @param name Name of the player info
  * @return The player info object if found, None otherwise. */
 static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *args)
@@ -1413,13 +1342,12 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *
 }
 
 /**
- * <h1>object.GetNextPlayerInfo(<i>\<object\></i> player_info)</h1>
- *
+ * <h1>object.GetNextPlayerInfo(object player_info)</h1>
  * Get next player info object in object's inventory with same name as
  * player_info.
- *
  * @param player_info Previously found player info object.
- * @return The next player info object if found, None otherwise. */
+ * @return The next player info object if found, None otherwise.
+ * @todo Remove? */
 static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *myob;
@@ -1451,12 +1379,12 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
 }
 
 /**
- * <h1>object.CreateInvisibleInside(<i>\<string\></i> id)</h1>
- *
+ * <h1>object.CreateInvisibleInside(string id)</h1>
  * Create an invisible force object in object's inventory.
- *
  * @param id String ID of the force object.
- * @return The created invisible force object. */
+ * @return The created invisible force object.
+ * @todo Rename to something like "object.CreateForce()".
+ * @todo The esrv_send_item() is unnecessary, as forces are invisible. */
 static PyObject *Atrinik_Object_CreateInvisibleInside(Atrinik_Object *whereptr, PyObject *args)
 {
 	char *txt;
@@ -1492,17 +1420,14 @@ static PyObject *Atrinik_Object_CreateInvisibleInside(Atrinik_Object *whereptr, 
 }
 
 /**
- * <h1>object.CreateObjectInside(<i>\<string\></i> archname, <i>\<long\>
- * </i> identified, <i>\<long\></i> number, <i>\<long\></i> value)</h1>
- *
+ * <h1>object.CreateObjectInside(string archname, long identified, long number, long [value = -1])</h1>
  * Creates an object from archname and inserts into object.
- *
  * @param archname Name of the arch
  * @param identifed Either Atrinik.IDENTIFIED or Atrinik.UNIDENTIFIED
  * @param number Number of objects to create
  * @param value If higher than -1, will be used as the new object's value
- * instead of the arch's default. Optional, defaults to -1.
- * @return The created invisible force object. */
+ * instead of the arch's default.
+ * @return The created object. */
 static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyObject *args)
 {
 	object *myob, *tmp;
@@ -1552,7 +1477,6 @@ static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyO
 	return wrap_object(myob);
 }
 
-
 /**
  * Helper function for Atrinik_Object_CheckInventory() to recursively
  * check inventories. */
@@ -1582,12 +1506,8 @@ static object *object_check_inventory_rec(object *tmp, int mode, char *arch_name
 }
 
 /**
- * <h1>object.CheckInventory(<i>\<int\></i> mode, <i>\<string|None\></i>
- * arch, <i>\<string|None\></i> name, <i>\<string|None\></i> title, <i>
- * \<int\></i> type)</h1>
- *
+ * <h1>object.CheckInventory(int mode, string|None arch, string|None name, string|None title, int type)</h1>
  * Looks for a certain arch object in object's inventory.
- *
  * @param mode How to search the inventory. Possible modes:
  * - <b>0</b>: Only inventory
  * - <b>1</b>: Inventory and containers
@@ -1596,7 +1516,8 @@ static object *object_check_inventory_rec(object *tmp, int mode, char *arch_name
  * @param name Name of the object. Optional, defaults to ignore name.
  * @param title Title of the object. Optional, defaults to ignore title.
  * @param type Type of the object. Optional, defaults to ignore type.
- * @return The object we wanted if found, None otherwise. */
+ * @return The object we wanted if found, None otherwise.
+ * @todo Use keywords. */
 static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *whoptr, PyObject *args)
 {
 	int type = -1, mode = 0;
@@ -1612,7 +1533,7 @@ static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *whoptr, PyObject 
 
 	while (tmp)
 	{
-		if ( (!name || (tmp->name && !strcmp(tmp->name, name))) && (!title || (tmp->title && !strcmp(tmp->title, title))) && (!arch_name || (tmp->arch && tmp->arch->name && !strcmp(tmp->arch->name, arch_name))) && (type == -1 || tmp->type == type))
+		if ((!name || (tmp->name && !strcmp(tmp->name, name))) && (!title || (tmp->title && !strcmp(tmp->title, title))) && (!arch_name || (tmp->arch && tmp->arch->name && !strcmp(tmp->arch->name, arch_name))) && (type == -1 || tmp->type == type))
 		{
 			return wrap_object(tmp);
 		}
@@ -1634,19 +1555,14 @@ static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *whoptr, PyObject 
 
 /**
  * <h1>object.Remove()</h1>
- *
  * Takes the object out of whatever map or inventory it is in. The object
  * can then be inserted or teleported somewhere else, or just left alone
  * for the garbage collection to take care of. */
 static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
 {
-	object *myob;
-	object *obenv;
+	object *myob, *obenv;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
+	(void) args;
 
 	myob = WHO;
 	obenv = myob->env;
@@ -1670,8 +1586,7 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SetPosition(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
- *
+ * <h1>object.SetPosition(int x, int y)</h1>
  * Sets new position coordinates for the object.
  *
  * Cannot be used to move objects out of containers, use Drop() or
@@ -1694,7 +1609,7 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.IdentifyItem(\<object\> target, \<int\> mode, [object] marked)</h1>
+ * <h1>object.IdentifyItem(object target, int mode, object [marked = None])</h1>
  * Identify item(s) in target's inventory.
  * @param target The target object.
  * @param mode Possible modes:
@@ -1702,7 +1617,8 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *ar
  * - <b>Atrinik.IDENTIFY_ALL</b>: Identify all items, if 'marked' is set,
  *   all items inside that.
  * - <b>Atrinik.IDENTIFY_MARKED</b>: Identify only marked item.
- * @param marked Marked item. */
+ * @param marked Marked item.
+ * @todo Simplify 'marked' object parsing. */
 static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *target;
@@ -1743,7 +1659,6 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 
 /**
  * <h1>object.Save()</h1>
- *
  * Dump an object, as if it was being saved to map or player file. Useful
  * for saving the object somewhere for loading later with
  * @ref Atrinik_LoadObject "LoadObject()".
@@ -1759,7 +1674,6 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 	sb = hooks->stringbuffer_new();
 	hooks->dump_object(WHO, sb);
 	result = hooks->stringbuffer_finish(sb);
-
 	ret = Py_BuildValue("s", result);
 	free(result);
 
@@ -1767,18 +1681,14 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.GetItemCost(<i>\<object\></i> object, <i>\<int\></i> type)
- * </h1>
- *
+ * <h1>object.GetItemCost(object what, int type)</h1>
  * Get cost of an object in integer value.
- *
- * @param object The object to query cost for
+ * @param what The object to query cost for.
  * @param type Possible types:
  * - <b>Atrinik.COST_TRUE</b>
  * - <b>Atrinik.COST_BUY</b>
  * - <b>Atrinik.COST_SELL</b>
- * @return The cost of the item as integer.
- * @warning Untested. */
+ * @return The cost of the item as integer. */
 static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
@@ -1794,9 +1704,7 @@ static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *ar
 
 /**
  * <h1>object.GetMoney()</h1>
- *
  * Get all the money the object is carrying as integer.
- *
  * @return The amount of money the object is carrying in copper (as
  * integer). */
 static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *whoptr, PyObject *args)
@@ -1807,9 +1715,9 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.PayForItem(<i>\<object\></i> object)</h1>
- *
- * @warning Untested. */
+ * <h1>object.PayForItem(object what)</h1>
+ * @warning Untested.
+ * @todo Test, document. */
 static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
@@ -1823,11 +1731,9 @@ static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *arg
 }
 
 /**
- * <h1>object.PayAmount(<i>\<int\></i> value)</h1>
- *
+ * <h1>object.PayAmount(int value)</h1>
  * Get the object to pay a specified amount of money in copper.
- *
- * @param value The amount of money in copper to pay for
+ * @param value The amount of money in copper to pay for.
  * @return 1 if the object paid the money (the object had enough money in
  * inventory), 0 otherwise. */
 static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args)
@@ -1843,11 +1749,10 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 }
 
 /**
- * <h1>player.SendCustomCommand(<i>\<int\></i> command_id,
- * <i>\<string\></i> command_data)</h1>
- *
+ * <h1>player.SendCustomCommand(int command_id, string command_data)</h1>
  * Send a fake command to player's client. This can be used to fake a
- * book GUI, for example. */
+ * book GUI, for example.
+ * @todo Rename to, for example, "WriteToSocket" and move to player API. */
 static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *customcmd;
@@ -1870,15 +1775,13 @@ static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObje
 }
 
 /**
- * <h1>object.Clone(<i>\<int\></i> mode)</h1>
- *
+ * <h1>object.Clone(int [mode = Atrinik.CLONE_WITH_INVENTORY])</h1>
  * Clone an object.
  *
  * You should do something with the clone.
  * @ref Atrinik_Object_TeleportTo "TeleportTo()" or
  * @ref Atrinik_Object_InsertInside "InsertInside()" are useful functions
  * for that.
- *
  * @param mode Optional mode, one of:
  * - <b>Atrinik.CLONE_WITH_INVENTORY</b> (default)
  * - <b>Atrinik.CLONE_WITHOUT_INVENTORY</b>
@@ -1913,16 +1816,14 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SwapApartments(<i>\<string\></i> oldmap, <i>\<string\></i>
- * newmap, <i>\<int\></i> x, <i>\<int\></i> y)</h1>
- *
+ * <h1>object.SwapApartments(string oldmap, string newmap, int x, int y)</h1>
  * Swaps oldmap apartment with newmap one.
- * Copies old items from oldmap to newmap at x, y and saves the map.
  *
- * @param oldmap The old apartment map
- * @param oldmap The new apartment map
- * @param x X position to copy the items to
- * @param y Y position to copy the items to */
+ * Copies old items from oldmap to newmap at x, y and saves the map.
+ * @param oldmap The old apartment map.
+ * @param oldmap The new apartment map.
+ * @param x X position to copy the items to.
+ * @param y Y position to copy the items to. */
 static PyObject *Atrinik_Object_SwapApartments(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *mapold, *mapnew;
@@ -1937,7 +1838,7 @@ static PyObject *Atrinik_Object_SwapApartments(Atrinik_Object *whoptr, PyObject 
 }
 
 /**
- * <h1>object.ReadKey(\<string\> key)</h1>
+ * <h1>object.ReadKey(string key)</h1>
  * Get key value of an object.
  * @param key Key to look for.
  * @return Value for the key if found, None otherwise. */
@@ -1954,13 +1855,12 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.WriteKey(\<string\> key, [string] value, [int] add_key)</h1>
+ * <h1>object.WriteKey(string key, string [value = None], int [add_key = True])</h1>
  * Set the key value of an object.
  * @param key Key to look for.
  * @param value Value to set for the key. If not passed, will clear the
  * key's value if the key is found.
  * @param add_key Whether to add the key if it's not found in the object.
- * Defaults to 1.
  * @return 1 on success, 0 on failure. */
 static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 {
@@ -1976,7 +1876,7 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.GetName(<i>[object]</i> caller)</h1>
+ * <h1>object.GetName(object [caller = None])</h1>
  * An equivalent of query_base_name().
  * @param caller Object calling this.
  * @return Full name of the object, including material, name, title,
@@ -1994,7 +1894,7 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
 }
 
 /**
- * <h1>object.CreateTimer(<i>\<long\></i> delay, <i>\<int\></i> mode)</h1>
+ * <h1>object.CreateTimer(long delay, int mode)</h1>
  * Create a timer for an object.
  * @param delay How long until the timer event gets executed for the object
  * @param mode If 1, delay is in seconds, if 2, delay is in ticks (8 ticks = 1 second)
@@ -2026,11 +1926,10 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 }
 
 /**
- * <h1>player.Sound(\<string\> filename, [int] type, [int] x, [int] y, [int] loop, [int] volume)</h1>
+ * <h1>player.Sound(string filename, int [type = @ref CMD_SOUND_EFFECT], int [x = 0], int [y = 0], int [loop = 0], int [volume = 0])</h1>
  * Play a sound to the specified player.
  * @param filename Sound file to play.
- * @param type Sound type being played, one of @ref CMD_SOUND_xxx. By
- * default, @ref CMD_SOUND_EFFECT is used.
+ * @param type Sound type being played, one of @ref CMD_SOUND_xxx.
  * @param x X position where the sound is playing from. Can be 0.
  * @param y Y position where the sound is playing from. Can be 0.
  * @param loop How many times to loop the sound, -1 for infinite number.
@@ -2079,12 +1978,11 @@ static PyObject *Atrinik_Object_Controller(Atrinik_Object *whatptr, PyObject *ar
  * @param nr Protection ID. One of ::_attacks.
  * @throws IndexError if the protection ID is invalid.
  * @return The protection value. */
-static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *args)
 {
 	int nr;
-	static char *kwlist[] = {"nr", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist, &nr))
+	if (!PyArg_ParseTuple(args, "i", &nr))
 	{
 		return NULL;
 	}
@@ -2106,13 +2004,12 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *ar
  * @throws IndexError if the protection ID is invalid.
  * @throws OverflowError if the value to set is not in valid range.
  * @return The new protection value. */
-static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject *args)
 {
 	int nr;
 	sint8 val;
-	static char *kwlist[] = {"nr", "val", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ib", kwlist, &nr, &val))
+	if (!PyArg_ParseTuple(args, "ib", &nr, &val))
 	{
 		return NULL;
 	}
@@ -2133,12 +2030,11 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject 
  * @param nr Attack ID. One of ::_attacks.
  * @throws IndexError if the attack ID is invalid.
  * @return The attack value. */
-static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args)
 {
 	int nr;
-	static char *kwlist[] = {"nr", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist, &nr))
+	if (!PyArg_ParseTuple(args, "i", &nr))
 	{
 		return NULL;
 	}
@@ -2160,13 +2056,12 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args, 
  * @throws IndexError if the attack ID is invalid.
  * @throws OverflowError if the value to set is not in valid range.
  * @return The new attack value. */
-static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *args)
 {
 	int nr;
 	uint8 val;
-	static char *kwlist[] = {"nr", "val", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iB", kwlist, &nr, &val))
+	if (!PyArg_ParseTuple(args, "iB", &nr, &val))
 	{
 		return NULL;
 	}
@@ -2186,12 +2081,11 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
  * Permanently alters an object's stats/flags based on another what.
  * @param what Object that is giving bonuses/penalties to 'object'.
  * @return 1 if we sucessfully changed a stat, 0 if nothing was changed. */
-static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
-	static char *kwlist[] = {"what", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!", kwlist, &Atrinik_ObjectType, &whatptr))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
 	{
 		return NULL;
 	}
@@ -2204,12 +2098,11 @@ static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *arg
  * Decreases an object, removing it if there's nothing left to decrease.
  * @param num How much to decrease the object by.
  * @return 'object' if something is left, None if the amount reached 0. */
-static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args)
 {
 	uint32 num = 1;
-	static char *kwlist[] = {"num", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|I", kwlist, &num))
+	if (!PyArg_ParseTuple(args, "|I", &num))
 	{
 		return NULL;
 	}
@@ -2218,7 +2111,7 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args
 }
 
 /**
- * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL ], int [beyond = False], function [callable = None])</h1>
+ * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL], int [beyond = False], function [callable = None])</h1>
  * Looks around the specified object and returns a list of tuples
  * containing the squares around it in a specified range. The tuples
  * have a format of <b>(map, x, y)</b>.
@@ -2372,15 +2265,14 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
  *  - X distance.
  *  - Y distance.
  *  - Part of the object that is closest. */
-static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *args)
 {
-	static char *kwlist[] = {"to", "flags", NULL};
 	Atrinik_Object *to;
 	int flags = 0;
 	rv_vector rv;
 	PyObject *tuple;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!|i", kwlist, &Atrinik_ObjectType, &to, &flags))
+	if (!PyArg_ParseTuple(args, "O!|i", &Atrinik_ObjectType, &to, &flags))
 	{
 		return NULL;
 	}
@@ -2406,73 +2298,73 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] =
 {
-	{"SwapApartments", (PyCFunction) Atrinik_Object_SwapApartments, METH_VARARGS, 0},
 	{"GetSkill", (PyCFunction) Atrinik_Object_GetSkill, METH_VARARGS, 0},
 	{"SetSkill", (PyCFunction) Atrinik_Object_SetSkill, METH_VARARGS, 0},
 	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
-	{"CastAbility", (PyCFunction) Atrinik_Object_CastAbility, METH_VARARGS, 0},
-	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
-	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_VARARGS, 0},
+	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_NOARGS, 0},
 	{"SetGod", (PyCFunction) Atrinik_Object_SetGod, METH_VARARGS, 0},
 	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS, 0},
+	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
 	{"PickUp", (PyCFunction) Atrinik_Object_PickUp, METH_VARARGS, 0},
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_VARARGS, 0},
-	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_VARARGS, 0},
-	{"Kill", (PyCFunction) Atrinik_Object_Kill, METH_VARARGS, 0},
-	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
-	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
-	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
-	{"AcquireSkill", (PyCFunction) Atrinik_Object_AcquireSkill, METH_VARARGS, 0},
-	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_VARARGS, 0},
-	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
-	{"StartQuest", (PyCFunction) Atrinik_Object_StartQuest, METH_VARARGS, 0},
-	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
-	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
-	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
-	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
-	{"CheckInvisibleObjectInside", (PyCFunction) Atrinik_Object_CheckInvisibleInside, METH_VARARGS, 0},
-	{"CreateInvisibleObjectInside", (PyCFunction) Atrinik_Object_CreateInvisibleInside, METH_VARARGS, 0},
-	{"CreateObjectInside", (PyCFunction) Atrinik_Object_CreateObjectInside, METH_VARARGS, 0},
-	{"CheckInventory", (PyCFunction) Atrinik_Object_CheckInventory, METH_VARARGS, 0},
-	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_VARARGS, 0},
-	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
-	{"IdentifyItem", (PyCFunction) Atrinik_Object_IdentifyItem, METH_VARARGS, 0},
 	{"Deposit", (PyCFunction) Atrinik_Object_Deposit, METH_VARARGS, 0},
 	{"Withdraw", (PyCFunction) Atrinik_Object_Withdraw, METH_VARARGS, 0},
 	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
 	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
 	{"SayTo", (PyCFunction) Atrinik_Object_SayTo, METH_VARARGS, 0},
 	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS, 0},
+	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
 	{"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
-	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_VARARGS, 0},
 	{"SetRank", (PyCFunction) Atrinik_Object_SetRank, METH_VARARGS, 0},
-	{"GetRank", (PyCFunction) Atrinik_Object_GetRank, METH_VARARGS, 0},
+	{"GetRank", (PyCFunction) Atrinik_Object_GetRank, METH_NOARGS, 0},
 	{"SetAlignment", (PyCFunction) Atrinik_Object_SetAlignment, METH_VARARGS, 0},
-	{"GetAlignmentForce", (PyCFunction) Atrinik_Object_GetAlignmentForce, METH_VARARGS, 0},
+	{"GetAlignmentForce", (PyCFunction) Atrinik_Object_GetAlignmentForce, METH_NOARGS, 0},
 	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},
-	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_VARARGS, 0},
-	{"Save", (PyCFunction) Atrinik_Object_Save, METH_VARARGS, 0},
+	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_NOARGS, 0},
+	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
+	{"Kill", (PyCFunction) Atrinik_Object_Kill, METH_VARARGS, 0},
+	{"CastAbility", (PyCFunction) Atrinik_Object_CastAbility, METH_VARARGS, 0},
+	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
+	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
+	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
+	{"AcquireSkill", (PyCFunction) Atrinik_Object_AcquireSkill, METH_VARARGS, 0},
+	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_NOARGS, 0},
+	{"CheckInvisibleObjectInside", (PyCFunction) Atrinik_Object_CheckInvisibleInside, METH_VARARGS, 0},
+	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
+	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
+	{"StartQuest", (PyCFunction) Atrinik_Object_StartQuest, METH_VARARGS, 0},
+	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
+	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
+	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
+	{"CreateInvisibleObjectInside", (PyCFunction) Atrinik_Object_CreateInvisibleInside, METH_VARARGS, 0},
+	{"CreateObjectInside", (PyCFunction) Atrinik_Object_CreateObjectInside, METH_VARARGS, 0},
+	{"CheckInventory", (PyCFunction) Atrinik_Object_CheckInventory, METH_VARARGS, 0},
+	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
+	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
+	{"IdentifyItem", (PyCFunction) Atrinik_Object_IdentifyItem, METH_VARARGS, 0},
+	{"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS, 0},
 	{"GetItemCost", (PyCFunction) Atrinik_Object_GetItemCost, METH_VARARGS, 0},
-	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_VARARGS, 0},
+	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
 	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
 	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
 	{"SendCustomCommand", (PyCFunction) Atrinik_Object_SendCustomCommand, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
+	{"SwapApartments", (PyCFunction) Atrinik_Object_SwapApartments, METH_VARARGS, 0},
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
 	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
 	{"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},
 	{"CreateTimer", (PyCFunction) Atrinik_Object_CreateTimer, METH_VARARGS, 0},
 	{"Sound", (PyCFunction) Atrinik_Object_Sound, METH_VARARGS, 0},
-	{"Controller", (PyCFunction) Atrinik_Object_Controller, METH_VARARGS, 0},
-	{"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS | METH_KEYWORDS, 0},
-	{"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS | METH_KEYWORDS, 0},
-	{"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS | METH_KEYWORDS, 0},
-	{"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS | METH_KEYWORDS, 0},
-	{"ChangeAbil", (PyCFunction) Atrinik_Object_ChangeAbil, METH_VARARGS | METH_KEYWORDS, 0},
-	{"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Controller", (PyCFunction) Atrinik_Object_Controller, METH_NOARGS, 0},
+	{"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS, 0},
+	{"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS, 0},
+	{"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS, 0},
+	{"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS, 0},
+	{"ChangeAbil", (PyCFunction) Atrinik_Object_ChangeAbil, METH_VARARGS, 0},
+	{"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS, 0},
 	{"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
-	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS | METH_KEYWORDS, 0},
+	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
