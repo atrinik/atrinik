@@ -2,7 +2,7 @@ arch map
 name Ogre Guard
 msg
 Created:  2010-03-16 Alex Tokar
-Modified: 2010-08-31 Alex Tokar
+Modified: 2010-09-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1090,7 +1090,7 @@ msg
 You climb down the very long stairs...
 endmsg
 direction 7
-slaying underground_city/underground_city_a_0603
+slaying strakewood_island/underground_city/underground_city_a_0603
 hp 2
 sp 3
 x 7
