@@ -83,12 +83,11 @@ static fields_struct fields[] =
  * @param slot One of @ref PLAYER_EQUIP_xxx constants.
  * @throws ValueError if 'slot' is lower than 0 or higher than @ref PLAYER_EQUIP_MAX.
  * @return The equipment for the given slot, can be None. */
-static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
 {
-	static char *kwlist[] = {"slot", NULL};
 	int slot;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist, &slot))
+	if (!PyArg_ParseTuple(args, "i", &slot))
 	{
 		return NULL;
 	}
@@ -110,16 +109,9 @@ static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args,
  * to check instead of calculating the object's weight.
  * @throws ValueError if 'what' is neither an object nor an integer.
  * @return True if the player can carry the object, False otherwise. */
-static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 {
-	static char *kwlist[] = {"what", NULL};
-	PyObject *what;
 	uint32 weight;
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist, &what))
-	{
-		return NULL;
-	}
 
 	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
 	{
@@ -143,8 +135,8 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *args, PyO
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] =
 {
-	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_VARARGS | METH_KEYWORDS, 0},
+	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
+	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
 	{NULL, NULL, 0, 0}
 };
 

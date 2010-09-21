@@ -78,10 +78,8 @@ static char *mapflag_names[] =
  *@{*/
 
 /**
- * <h1>map.GetFirstObject(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
- *
- * Gets the first object on the tile. Use object::below to browse
- * objects.
+ * <h1>map.GetFirstObject(int x, int y)</h1>
+ * Get the first object on the tile. Use object::below to browse objects.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @return The object if found. */
@@ -107,10 +105,8 @@ static PyObject *Atrinik_Map_GetFirstObject(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.GetLastObject(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
- *
- * Gets the last object on the tile. Use object::above to browse
- * objects.
+ * <h1>map.GetLastObject(int x, int y)</h1>
+ * Get the last object on the tile. Use object::above to browse objects.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @return The object if found. */
@@ -149,17 +145,19 @@ for ob in WhoIsActivator().map.GetFirstObject(WhoIsActivator().x, WhoIsActivator
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
  * @param layer Layer we are looking for, should be one of @ref LAYER_xxx.
+ * @throws ValueError if 'layer' is invalid.
+ * @throws AtrinikError if there was an error trying to get the objects (invalid
+ * x/y or not on nearby tiled map, for example).
  * @return A list containing objects on the square with the specified layer. */
-static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
 	uint8 layer;
 	mapstruct *m;
-	static char *kwlist[] = {"x", "y", "layer", NULL};
 	PyObject *list;
 	object *tmp;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiB", kwlist, &x, &y, &layer))
+	if (!PyArg_ParseTuple(args, "iiB", &x, &y, &layer))
 	{
 		return NULL;
 	}
@@ -167,12 +165,13 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args, PyObject
 	/* Validate the layer ID. */
 	if (layer > NUM_LAYERS)
 	{
-		RAISE("Invalid layer ID.")
+		PyErr_SetString(PyExc_ValueError, "map.GetLayer(): Invalid layer ID.");
+		return NULL;
 	}
 
 	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
 	{
-		RAISE("Unable to get map using get_map_from_coord().");
+		RAISE("map.GetLayer(): Unable to get map using get_map_from_coord().");
 	}
 
 	list = PyList_New(0);
@@ -197,20 +196,19 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args, PyObject
 }
 
 /**
- * <h1>map.GetMapFromCoord(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ * <h1>map.GetMapFromCoord(int x, int y)</h1>
  * Get real coordinates from map, taking tiling into consideration.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @return A tuple containing new map, new X, and new Y to use. The new
  * map can be None. */
-static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
-	static char *kwlist[] = {"x", "y", NULL};
 	mapstruct *m;
 	PyObject *tuple;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii", kwlist, &x, &y))
+	if (!PyArg_ParseTuple(args, "ii", &x, &y))
 	{
 		return NULL;
 	}
@@ -225,19 +223,18 @@ static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args, P
 }
 
 /**
- * <h1>map.PlaySound(\<int\> x, \<int\> y, \<string\> filename, [int] type, [int] loop, [int] volume)</h1>
+ * <h1>map.PlaySound(int x, int y, string filename, int [type = @ref CMD_SOUND_EFFECT], int [loop = 0], int [volume = 0])</h1>
  * Play a sound on map.
  * @param x X position where the sound is playing from.
  * @param y Y position where the sound is playing from.
  * @param filename Sound file to play.
- * @param type Sound type being played, one of @ref CMD_SOUND_xxx. By
- * default, @ref CMD_SOUND_EFFECT is used.
+ * @param type Sound type being played, one of @ref CMD_SOUND_xxx.
  * @param loop How many times to loop the sound, -1 for infinite number.
  * @param volume Volume adjustment. */
 static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 {
 	int x, y, type = CMD_SOUND_EFFECT, loop = 0, volume = 0;
-	char *filename;
+	const char *filename;
 
 	if (!PyArg_ParseTuple(args, "iis|iii", &x, &y, &filename, &type, &loop, &volume))
 	{
@@ -251,15 +248,13 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 }
 
 /**
- * <h1>map.Message(<i>\<string\></i> message, <i>\<int\></i> x,
- * <i>\<int\></i> y, <i>\<int\></i> distance, <i>\<int\></i> color)</h1>
- *
+ * <h1>map.Message(string message, int x, int y, int distance, int [color = @ref NDI_BLUE])</h1>
  * Write a message to all players on a map.
- * @param x X position on the map
- * @param y Y position on the map
+ * @param x X position on the map.
+ * @param y Y position on the map.
  * @param distance Maximum distance for players to be away from x, y to
  * hear the message.
- * @param color Color of the message, default is @ref NDI_BLUE. */
+ * @param color Color of the message. */
 static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 {
 	int color = NDI_BLUE | NDI_UNIQUE, x, y, d;
@@ -277,34 +272,33 @@ static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.CreateObject(<i>\<string\></i> arch_name, <i>\<int\></i> x,
- * <i>\<int\></i> y)</h1>
- *
+ * <h1>map.CreateObject(string archname, int x, int y)</h1>
  * Create an object on map.
- * @param arch_name Arch name of the object to create
- * @param x X position on the map
- * @param y Y position on the map
- * @warning Not tested. */
+ * @param archname Arch name of the object to create.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @throws AtrinikError if 'archname' is not a valid archetype.
+ * @return The created object. */
 static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 {
-	char *txt;
+	const char *archname;
 	int x, y;
 	archetype *arch;
 	object *newobj;
 
-	if (!PyArg_ParseTuple(args, "sii", &txt, &x, &y))
+	if (!PyArg_ParseTuple(args, "sii", &archname, &x, &y))
 	{
 		return NULL;
 	}
 
-	if (!(arch = hooks->find_archetype(txt)) || !(newobj = hooks->arch_to_object(arch)))
+	if (!(arch = hooks->find_archetype(archname)) || !(newobj = hooks->arch_to_object(arch)))
 	{
+		RAISE("map.CreateObject(): Invalid archetype.");
 		return NULL;
 	}
 
 	newobj->x = x;
 	newobj->y = y;
-
 	newobj = hooks->insert_ob_in_map(newobj, map->map, NULL, 0);
 
 	return wrap_object(newobj);
@@ -312,9 +306,8 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 
 /**
  * <h1>map.CountPlayers()</h1>
- *
- * Count number of players on map, using players_on_map().
- * @return The count of players on the map. */
+ * Count number of players on map.
+ * @return The number of players on the map. */
 static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args)
 {
 	(void) args;
@@ -324,10 +317,8 @@ static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args)
 
 /**
  * <h1>map.GetPlayers()</h1>
- *
  * Get all the players on a specified map.
- * @return Python list containing pointers to player objects on the
- * map. */
+ * @return List containing pointers to player objects on the map. */
 static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
 {
 	PyObject *list = PyList_New(0);
@@ -349,13 +340,12 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
  * @param ob Object to insert.
  * @param x X coordinate where to insert 'ob'.
  * @param y Y coordinate where to insert 'ob'. */
-static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
 {
 	Atrinik_Object *ob;
 	sint16 x, y;
-	static char *kwlist[] = {"ob", "x", "y", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!hh", kwlist, &Atrinik_ObjectType, &ob, &x, &y))
+	if (!PyArg_ParseTuple(args, "O!hh", &Atrinik_ObjectType, &ob, &x, &y))
 	{
 		return NULL;
 	}
@@ -380,12 +370,11 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args, PyObject *
  * @param x X coordinate.
  * @param y Y coordinate.
  * @return A combination of @ref map_look_flags. */
-static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args)
 {
 	sint16 x, y;
-	static char *kwlist[] = {"x", "y", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "hh", kwlist, &x, &y))
+	if (!PyArg_ParseTuple(args, "hh", &x, &y))
 	{
 		return NULL;
 	}
@@ -404,15 +393,16 @@ static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args, PyObject *ke
  * @param y Y coordinate.
  * @param terrain Terrain object is allowed to go to. One (or combination) of
  * @ref terrain_type_flags, or <code>ob.terrain_flag</code>
+ * @throws AtrinikError if there was a problem getting the map (as a
+ * result of modified x/y to consider tiling, for example).
  * @return A combination of @ref map_look_flags. */
-static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args)
 {
 	Atrinik_Object *ob;
 	int x, y, terrain;
 	mapstruct *m;
-	static char *kwlist[] = {"ob", "x", "y", "terrain", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!iii", kwlist, &Atrinik_ObjectType, &ob, &x, &y, &terrain))
+	if (!PyArg_ParseTuple(args, "O!iii", &Atrinik_ObjectType, &ob, &x, &y, &terrain))
 	{
 		return NULL;
 	}
@@ -523,16 +513,16 @@ static PyMethodDef MapMethods[] =
 {
 	{"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
 	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
-	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS | METH_KEYWORDS, 0},
+	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
+	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
 	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS, 0},
 	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS, 0},
-	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
-	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_VARARGS, 0},
-	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_VARARGS, 0},
-	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS | METH_KEYWORDS, 0},
-	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS | METH_KEYWORDS, 0},
-	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
+	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_NOARGS, 0},
+	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS, 0},
+	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
+	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

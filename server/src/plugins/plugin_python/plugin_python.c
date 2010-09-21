@@ -497,11 +497,10 @@ static void freeContext(PythonContext *context)
  *@{*/
 
 /**
- * <h1>Atrinik.LoadObject(<i>\<string\></i> string)</h1>
- *
- * Load an object from string, for example, one stored using
+ * <h1>Atrinik.LoadObject(string dump)</h1>
+ * Load an object from a string dump, for example, one stored using
  * @ref Atrinik_Object_Save "Save()".
- * @param string The string from which to load the actual object. */
+ * @param dump The string dump from which to load the actual object. */
 static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 {
 	char *dumpob;
@@ -517,85 +516,79 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.ReadyMap(<i>\<string\></i> name, <i>\<int\></i> unique)
- * </h1>
- *
- * Make sure the named map is loaded into memory.
- *
- * @param name Path to the map
- * @param unique Must be 1 if the map is unique. Optional, defaults to 0.
- * @return The loaded Atrinik map
- * @todo Don't crash if unique is wrong */
+ * <h1>Atrinik.ReadyMap(string path, int [unique = False])</h1>
+ * Make sure the named map is loaded into memory, loading it if necessary.
+ * @param path Path to the map.
+ * @param unique Whether the destination should be loaded as unique map,
+ * for example, apartments.
+ * @return The loaded map. */
 static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 {
-	char *mapname;
+	const char *path;
 	int flags = 0, unique = 0;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "s|i", &mapname, &unique))
+	if (!PyArg_ParseTuple(args, "s|i", &path, &unique))
 	{
 		return NULL;
 	}
 
 	if (unique)
 	{
-		flags = MAP_PLAYER_UNIQUE;
+		flags |= MAP_PLAYER_UNIQUE;
 	}
 
-	return wrap_map(hooks->ready_map_name(mapname, flags));
+	return wrap_map(hooks->ready_map_name(path, flags));
 }
 
 /**
- * <h1>Atrinik.FindPlayer(<i>\<string\></i> name)</h1>
- * Find a player.
- *
- * @param name The player name
- * @return The player's object if found, None otherwise */
+ * <h1>Atrinik.FindPlayer(string name)</h1>
+ * Find a player by name.
+ * @param name The player name to find.
+ * @return The player's object if found, None otherwise. */
 static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 {
-	player *foundpl;
-	object *foundob = NULL;
-	char *txt;
+	char *name;
+	player *pl;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "s", &txt))
+	if (!PyArg_ParseTuple(args, "s", &name))
 	{
 		return NULL;
 	}
 
-	hooks->adjust_player_name(txt);
-	foundpl = hooks->find_player(txt);
+	pl = hooks->find_player(name);
 
-	if (foundpl != NULL)
+	if (pl)
 	{
-		foundob = foundpl->ob;
+		return wrap_object(pl->ob);
 	}
 
-	return wrap_object(foundob);
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 /**
- * <h1>Atrinik.PlayerExists(<i>\<string\></i> name)</h1>
+ * <h1>Atrinik.PlayerExists(string name)</h1>
  * Check if player exists.
- *
- * @param name The player name
- * @return 1 if the player exists, 0 otherwise */
+ * @param name The player name to check.
+ * @return True if the player exists, False otherwise */
 static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 {
-	char *player_name;
+	char *name;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "s", &player_name))
+	if (!PyArg_ParseTuple(args, "s", &name))
 	{
 		return NULL;
 	}
 
-	hooks->adjust_player_name(player_name);
+	hooks->adjust_player_name(name);
 
-	return Py_BuildValue("i", hooks->player_exists(player_name));
+	return Py_BuildValue("i", hooks->player_exists(name));
 }
 
 /**
@@ -623,7 +616,9 @@ static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 
 /**
  * <h1>Atrinik.WhoIsOther()</h1>
- * @warning Untested. */
+ * Get another object related to the event. What this object is depends
+ * on the event.
+ * @return The other object. */
 static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 {
 	(void) self;
@@ -678,7 +673,7 @@ static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 /**
  * <h1>Atrinik.GetReturnValue()</h1>
  * Gets the script's return value.
- * @return The return value */
+ * @return The return value. */
 static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 {
 	(void) self;
@@ -687,9 +682,9 @@ static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.SetReturnValue(<i>\<int\></i> value)</h1>
+ * <h1>Atrinik.SetReturnValue(int value)</h1>
  * Sets the script's return value.
- * @param value The new return value */
+ * @param value The new return value. */
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 {
 	int value;
@@ -716,7 +711,7 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
  * used to determine whom to call fix_player() on after executing the script. */
 static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
 {
-	unsigned int i;
+	size_t i;
 	PyObject *list = PyList_New(0);
 
 	(void) self;
@@ -731,13 +726,13 @@ static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetSpellNr(<i>\<string\></i> name)</h1>
- * Gets the number of the named spell.
- * @param name The spell name
- * @return Number of the spell, -1 if no such spell exists. */
+ * <h1>Atrinik.GetSpellNr(string name)</h1>
+ * Get the ID of the passed spell name.
+ * @param name The spell name.
+ * @return ID of the spell, -1 if no such spell exists. */
 static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 {
-	char *spell;
+	const char *spell;
 
 	(void) self;
 
@@ -750,10 +745,18 @@ static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetSpell(<i>\<int\></i> spell)</h1>
+ * <h1>Atrinik.GetSpell(int spell)</h1>
  * Get various information about a spell, including things like its
  * level, type, etc.
- * @param spell ID of the spell. */
+ * @param spell ID of the spell, can be acquired using @ref Atrinik_GetSpellNr "GetSpellNr()".
+ * @throws ValueError if the spell ID being looked up is invalid.
+ * @return Dictionary containing information about the spell, with the
+ * following entries:
+ * - <b>name</b>: Name of the spell.
+ * - <b>level</b>: Level required to cast the spell.
+ * - <b>type</b>: 'wizard' if the spell is a wizard spell, 'priest' otherwise.
+ * - <b>sp</b>: Base mana/grace required to cast the spell; modified by various factors.
+ * - <b>time</b>: Delay in ticks needed to cast another spell. */
 static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 {
 	int spell;
@@ -768,7 +771,8 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 
 	if (spell < 0 || spell >= NROFREALSPELLS)
 	{
-		RAISE("Invalid ID of a spell.");
+		PyErr_SetString(PyExc_ValueError, "Invalid ID of a spell.");
+		return NULL;
 	}
 
 	dict = PyDict_New();
@@ -783,10 +787,10 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetSkillNr(<i>\<string\></i> name)</h1>
- * Gets the number of the named skill.
- * @param name The skill name
- * @return Number of the skill, -1 if no such skill exists. */
+ * <h1>Atrinik.GetSkillNr(string name)</h1>
+ * Get the ID of the skill.
+ * @param name The skill name.
+ * @return ID of the skill, -1 if no such skill exists. */
 static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 {
 	char *skill;
@@ -802,18 +806,22 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.RegisterCommand(<i>\<string\></i> cmdname,
- * <i>\<string\></i> scriptname, <i>\<double\></i> speed)</h1>
- * Register a custom command. */
+ * <h1>Atrinik.RegisterCommand(string name, string path, float speed)</h1>
+ * Register a custom command ran using Python script.
+ * @param name Name of the command. For example, "roll" in order to create /roll
+ * command. Note the lack forward slash in the name.
+ * @param path Path to the Python script to be executed when the command is used.
+ * @param speed How long it takes to execute the command; 1.0 is usually fine.
+ * @throws ValueError if the command is already registered. */
 static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
-	char *cmdname, *scriptname;
-	double cmdspeed;
-	int i;
+	const char *name, *path;
+	double speed;
+	size_t i;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "ssd", &cmdname, &scriptname, &cmdspeed))
+	if (!PyArg_ParseTuple(args, "ssd", &name, &path, &speed))
 	{
 		return NULL;
 	}
@@ -822,20 +830,21 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 	{
 		if (CustomCommand[i].name)
 		{
-			if (!strcmp(CustomCommand[i].name, cmdname))
+			if (!strcmp(CustomCommand[i].name, name))
 			{
-				RAISE("This command is already registered");
+				PyErr_SetString(PyExc_ValueError, "RegisterCommand(): Command is already registered.");
+				return NULL;
 			}
 		}
 	}
 
 	for (i = 0; i < NR_CUSTOM_CMD; i++)
 	{
-		if (CustomCommand[i].name == NULL)
+		if (!CustomCommand[i].name)
 		{
-			CustomCommand[i].name = hooks->strdup_local(cmdname);
-			CustomCommand[i].script = hooks->strdup_local(scriptname);
-			CustomCommand[i].speed = cmdspeed;
+			CustomCommand[i].name = hooks->strdup_local(name);
+			CustomCommand[i].script = hooks->strdup_local(path);
+			CustomCommand[i].speed = speed;
 			break;
 		}
 	}
@@ -845,14 +854,14 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.CreatePathname(<i>\<string\></i> path)</h1>
+ * <h1>Atrinik.CreatePathname(string path)</h1>
  * Creates path to file in the maps directory using the create_pathname()
  * function.
  * @param path Path to file to create.
  * @return The path to file in the maps directory. */
 static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 {
-	char *path;
+	const char *path;
 
 	(void) self;
 
@@ -866,7 +875,7 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 
 /**
  * <h1>Atrinik.GetTime()</h1>
- * Get game time using a hook for get_tod().
+ * Get the game time.
  * @return A dictionary containing all the information about the in-game
  * time:
  * - <b>year</b>: Current year.
@@ -908,54 +917,54 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.LocateBeacon(<i>\<string\></i> beacon_name)</h1>
+ * <h1>Atrinik.LocateBeacon(string name)</h1>
  * Locate a beacon.
- * @param beacon_name The beacon name to find.
+ * @param name The beacon name to find.
  * @return The beacon if found, None otherwise. */
 static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
 {
-	char *beacon_name;
-	const char *name = NULL;
+	const char *name;
+	shstr *beacon_name = NULL;
 	object *myob;
 
-	if (!PyArg_ParseTuple(args, "s", &beacon_name))
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &name))
 	{
 		return NULL;
 	}
 
-	(void) self;
-
-	FREE_AND_COPY_HASH(name, beacon_name);
-	myob = hooks->beacon_locate(name);
-	FREE_AND_CLEAR_HASH(name);
+	FREE_AND_COPY_HASH(beacon_name, name);
+	myob = hooks->beacon_locate(beacon_name);
+	FREE_AND_CLEAR_HASH(beacon_name);
 
 	return wrap_object(myob);
 }
 
 /**
- * <h1>Atrinik.FindParty(<i>\<string\></i> partyname)</h1>
+ * <h1>Atrinik.FindParty(string name)</h1>
  * Find a party by name.
- * @param partyname The party name to find.
+ * @param name The party name to find.
  * @return The party if found, None otherwise. */
 static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 {
-	char *partyname;
+	const char *name;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "s", &partyname))
+	if (!PyArg_ParseTuple(args, "s", &name))
 	{
 		return NULL;
 	}
 
-	return wrap_party(hooks->find_party(partyname));
+	return wrap_party(hooks->find_party(name));
 }
 
 /**
- * <h1>Atrinik.CleanupChatString(<i>\<string\></i> string)</h1>
- * Cleans up a chat string, using cleanup_chat_string().
- * @param string The string to cleanup.
- * @return Cleaned up string - can be None. */
+ * <h1>Atrinik.CleanupChatString(string text)</h1>
+ * Cleans up a chat text removing special characters and extra whitespace.
+ * @param text The text to cleanup.
+ * @return Cleaned up text; can be None. */
 static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 {
 	char *string;
@@ -971,22 +980,22 @@ static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.LOG(<i>\<int\></i> mode, <i>\<string\></i> string)</h1>
+ * <h1>Atrinik.LOG(int mode, string message)</h1>
  * Logs a message.
  * @param mode Logging mode to use, one of:
  * - llevError: An irrecoverable error. Will shut down the server.
- * - llevBug: A bug.
+ * - llevBug: A bug; too many in the same tick will shut down the server.
  * - llevInfo: Info.
  * - llevDebug: Debug information.
- * @param string The message to log. */
+ * @param message The message to log. */
 static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
 {
-	char *string;
-	int mode;
+	const char *string;
+	uint8 mode;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "is", &mode, &string))
+	if (!PyArg_ParseTuple(args, "Bs", &mode, &string))
 	{
 		return NULL;
 	}
@@ -998,7 +1007,7 @@ static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.DestroyTimer(<i>\<int\></i> timer)</h1>
+ * <h1>Atrinik.DestroyTimer(int timer)</h1>
  * Destroy an existing timer.
  * @param timer ID of the timer.
  * @return 0 on success, anything lower on failure. */
@@ -1017,7 +1026,7 @@ static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindFace(<i>\<string\></i> face)</h1>
+ * <h1>Atrinik.FindFace(string face)</h1>
  * Find a face ID by its name.
  * @param face Name of the face to find.
  * @return ID of the face. */
@@ -1036,7 +1045,7 @@ static PyObject *Atrinik_FindFace(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindAnimation(<i>\<string\></i> animation)</h1>
+ * <h1>Atrinik.FindAnimation(string animation)</h1>
  * Find an animation ID by its name.
  * @param animation Name of the animation to find.
  * @return ID of the animation. */
@@ -1055,7 +1064,7 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetGenderStr(<i>\<int\></i> gender, <i>\<string\></i> type)</h1>
+ * <h1>Atrinik.GetGenderStr(int gender, string type)</h1>
  * Get string representation of a gender ID depending on 'type'.
  * @param gender Gender ID. One of @ref GENDER_xxx, or -1 to get a list of
  * possible genders.
@@ -1066,13 +1075,14 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
  * - <b>objective</b>: 'him', 'her', 'it', ...
  * - <b>possessive</b>: 'his', 'her', ...
  * - <b>reflexive</b>: 'himself', 'herself', ...
+ * @throws ValueError if 'gender' is invalid.
+ * @throws ValueError if 'type' has unknown value.
  * @return String representation of the gender, or a list of possible genders
  * if 'gender' was -1. */
 static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
 {
 	int gender;
-	char *type;
-	const char **arr;
+	const char *type, **arr;
 
 	(void) self;
 
@@ -1083,7 +1093,8 @@ static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
 
 	if (gender < -1 || gender >= GENDER_MAX)
 	{
-		RAISE("GetGenderStr(): Invalid value for gender parameter.");
+		PyErr_SetString(PyExc_ValueError, "GetGenderStr(): Invalid value for gender parameter.");
+		return NULL;
 	}
 
 	if (!strcmp(type, "noun"))
@@ -1112,7 +1123,8 @@ static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
 	}
 	else
 	{
-		RAISE("GetGenderStr(): Invalid value for type parameter.");
+		PyErr_SetString(PyExc_ValueError, "GetGenderStr(): Invalid value for type parameter.");
+		return NULL;
 	}
 
 	if (gender == -1)
@@ -1183,14 +1195,13 @@ static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *a
  * example, a value of 134 would become "1 silver coin and 34 copper coins".
  * @param value Value to build the string from.
  * @return The built string. */
-static PyObject *Atrinik_CostString(PyObject *self, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_CostString(PyObject *self, PyObject *args)
 {
-	static char *kwlist[] = {"value", NULL};
 	sint64 value;
 
 	(void) self;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "L", kwlist, &value))
+	if (!PyArg_ParseTuple(args, "L", &value))
 	{
 		return NULL;
 	}
@@ -1211,19 +1222,16 @@ static PyObject *Atrinik_CostString(PyObject *self, PyObject *args, PyObject *ke
  * @param what Any Python object (string, integer, database, etc) to store in
  * memory.
  * @return True if the object was cached successfully, False otherwise (cache
- * entry with same key name already exists).
- * @param value Value to build the string from.
- * @return The built string. */
-static PyObject *Atrinik_CacheAdd(PyObject *self, PyObject *args, PyObject *keywds)
+ * entry with same key name already exists). */
+static PyObject *Atrinik_CacheAdd(PyObject *self, PyObject *args)
 {
-	static char *kwlist[] = {"key", "what", NULL};
-	char *key;
+	const char *key;
 	PyObject *what;
 	int ret;
 
 	(void) self;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO", kwlist, &key, &what))
+	if (!PyArg_ParseTuple(args, "sO", &key, &what))
 	{
 		return NULL;
 	}
@@ -1247,16 +1255,15 @@ static PyObject *Atrinik_CacheAdd(PyObject *self, PyObject *args, PyObject *keyw
  * @throws ValueError if the cache entry could not be found.
  * @return The cache entry. An exception is raised if the cache entry was
  * not found. */
-static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args)
 {
-	static char *kwlist[] = {"key", NULL};
-	char *key;
+	const char *key;
 	shstr *sh_key;
 	cache_struct *result;
 
 	(void) self;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s", kwlist, &key))
+	if (!PyArg_ParseTuple(args, "s", &key))
 	{
 		return NULL;
 	}
@@ -1286,15 +1293,14 @@ static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args, PyObject *keyw
  * exist).
  * @return True if the cache entry was removed. An exception is raised if
  * the cache entry was not found. */
-static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args)
 {
-	static char *kwlist[] = {"key", NULL};
-	char *key;
+	const char *key;
 	shstr *sh_key;
 
 	(void) self;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s", kwlist, &key))
+	if (!PyArg_ParseTuple(args, "s", &key))
 	{
 		return NULL;
 	}
@@ -1895,39 +1901,39 @@ MODULEAPI void postinitPlugin()
  * an interface with the C code. */
 static PyMethodDef AtrinikMethods[] =
 {
-	{"LoadObject",          Atrinik_LoadObject,            METH_VARARGS, 0},
-	{"ReadyMap",            Atrinik_ReadyMap,              METH_VARARGS, 0},
-	{"FindPlayer",          Atrinik_FindPlayer,            METH_VARARGS, 0},
-	{"PlayerExists",        Atrinik_PlayerExists,          METH_VARARGS, 0},
-	{"GetOptions",          Atrinik_GetOptions,            METH_VARARGS, 0},
-	{"GetReturnValue",      Atrinik_GetReturnValue,        METH_VARARGS, 0},
-	{"SetReturnValue",      Atrinik_SetReturnValue,        METH_VARARGS, 0},
-	{"GetSpellNr",          Atrinik_GetSpellNr,            METH_VARARGS, 0},
-	{"GetSpell",            Atrinik_GetSpell,              METH_VARARGS, 0},
-	{"GetSkillNr",          Atrinik_GetSkillNr,            METH_VARARGS, 0},
-	{"WhoAmI",              Atrinik_WhoAmI,                METH_VARARGS, 0},
-	{"WhoIsActivator",      Atrinik_WhoIsActivator,        METH_VARARGS, 0},
-	{"WhoIsOther",          Atrinik_WhoIsOther,            METH_VARARGS, 0},
-	{"WhatIsEvent",         Atrinik_WhatIsEvent,           METH_VARARGS, 0},
-	{"GetEventNumber",      Atrinik_GetEventNumber,        METH_VARARGS, 0},
-	{"WhatIsMessage",       Atrinik_WhatIsMessage,         METH_VARARGS, 0},
-	{"RegisterCommand",     Atrinik_RegisterCommand,       METH_VARARGS, 0},
-	{"CreatePathname",      Atrinik_CreatePathname,        METH_VARARGS, 0},
-	{"GetTime",             Atrinik_GetTime,               METH_VARARGS, 0},
-	{"LocateBeacon",        Atrinik_LocateBeacon,          METH_VARARGS, 0},
-	{"FindParty",           Atrinik_FindParty,             METH_VARARGS, 0},
-	{"CleanupChatString",   Atrinik_CleanupChatString,     METH_VARARGS, 0},
-	{"LOG",                 Atrinik_LOG,                   METH_VARARGS, 0},
-	{"DestroyTimer",        Atrinik_DestroyTimer,          METH_VARARGS, 0},
-	{"FindFace",            Atrinik_FindFace,              METH_VARARGS, 0},
-	{"FindAnimation",       Atrinik_FindAnimation,         METH_VARARGS, 0},
-	{"GetEventParameters",  Atrinik_GetEventParameters,    METH_VARARGS, 0},
-	{"GetGenderStr",        Atrinik_GetGenderStr,          METH_VARARGS, 0},
+	{"LoadObject", Atrinik_LoadObject, METH_VARARGS, 0},
+	{"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, 0},
+	{"FindPlayer", Atrinik_FindPlayer, METH_VARARGS, 0},
+	{"PlayerExists", Atrinik_PlayerExists, METH_VARARGS, 0},
+	{"WhoAmI", Atrinik_WhoAmI, METH_NOARGS, 0},
+	{"WhoIsActivator", Atrinik_WhoIsActivator, METH_NOARGS, 0},
+	{"WhoIsOther", Atrinik_WhoIsOther, METH_NOARGS, 0},
+	{"WhatIsEvent", Atrinik_WhatIsEvent, METH_NOARGS, 0},
+	{"GetEventNumber", Atrinik_GetEventNumber, METH_NOARGS, 0},
+	{"WhatIsMessage", Atrinik_WhatIsMessage, METH_NOARGS, 0},
+	{"GetOptions", Atrinik_GetOptions, METH_NOARGS, 0},
+	{"GetReturnValue", Atrinik_GetReturnValue, METH_NOARGS, 0},
+	{"SetReturnValue", Atrinik_SetReturnValue, METH_VARARGS, 0},
+	{"GetEventParameters", Atrinik_GetEventParameters, METH_NOARGS, 0},
+	{"GetSpellNr", Atrinik_GetSpellNr, METH_VARARGS, 0},
+	{"GetSpell", Atrinik_GetSpell, METH_VARARGS, 0},
+	{"GetSkillNr", Atrinik_GetSkillNr, METH_VARARGS, 0},
+	{"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
+	{"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
+	{"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
+	{"LocateBeacon", Atrinik_LocateBeacon, METH_VARARGS, 0},
+	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
+	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
+	{"LOG", Atrinik_LOG, METH_VARARGS, 0},
+	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
+	{"FindFace", Atrinik_FindFace, METH_VARARGS, 0},
+	{"FindAnimation", Atrinik_FindAnimation, METH_VARARGS, 0},
+	{"GetGenderStr", Atrinik_GetGenderStr, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CostString", (PyCFunction) Atrinik_CostString, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CacheAdd", (PyCFunction) Atrinik_CacheAdd, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CacheGet", (PyCFunction) Atrinik_CacheGet, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CacheRemove", (PyCFunction) Atrinik_CacheRemove, METH_VARARGS | METH_KEYWORDS, 0},
+	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
+	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
+	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
+	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

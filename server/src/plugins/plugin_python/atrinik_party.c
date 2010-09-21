@@ -49,31 +49,34 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>party.AddMember(<i>\<object\></i> player)</h1>
+ * <h1>party.AddMember(object player)</h1>
  * Add a player to the specified party.
- * @param player Player object to add to the party. */
+ * @param player Player object to add to the party.
+ * @throws ValueError if 'player' is not a player object.
+ * @throws AtrinikError if the player is already in the same or another party. */
 static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob;
 
-	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &ob))
 	{
 		return NULL;
 	}
 
 	if (ob->obj->type != PLAYER || !CONTR(ob->obj))
 	{
-		RAISE("First parameter must be a player object.");
+		PyErr_SetString(PyExc_ValueError, "party.AddMember(): 'player' must be a player object.");
+		return NULL;
 	}
 	else if (CONTR(ob->obj)->party)
 	{
 		if (CONTR(ob->obj)->party == party->party)
 		{
-			RAISE("The specified player object is already in the specified party.");
+			RAISE("party.AddMember(): The specified player object is already in the specified party.");
 		}
 		else
 		{
-			RAISE("The specified player object is already in another party.");
+			RAISE("party.AddMember(): The specified player object is already in another party.");
 		}
 	}
 
@@ -84,25 +87,28 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 }
 
 /**
- * <h1>party.RemoveMember(<i>\<object\></i> player)</h1>
+ * <h1>party.RemoveMember(object player)</h1>
  * Remove a player from the specified party.
- * @param player Player object to remove from the party. */
+ * @param player Player object to remove from the party.
+ * @throws ValueError if 'player' is not a player object.
+ * @throws AtrinikError if the player is not in a party. */
 static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob;
 
-	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &ob))
 	{
 		return NULL;
 	}
 
 	if (ob->obj->type != PLAYER || !CONTR(ob->obj))
 	{
-		RAISE("First parameter must be a player object.");
+		PyErr_SetString(PyExc_ValueError, "party.RemoveMember(): 'player' must be a player object.");
+		return NULL;
 	}
 	else if (!CONTR(ob->obj)->party)
 	{
-		RAISE("The specified player is not in a party.");
+		RAISE("party.RemoveMember(): The specified player is not in a party.");
 	}
 
 	hooks->remove_party_member(party->party, ob->obj);
@@ -131,8 +137,7 @@ static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *party, PyObject *args)
 }
 
 /**
- * <h1>party.SendMessage(<i>\<string\></i> message, <i>\<int\></i> flags,
- * <i>[object]</i> player)</h1>
+ * <h1>party.SendMessage(string message, int flags, object [player = None])</h1>
  * Send a message to members of a party.
  * @param message Message to send.
  * @param flags Flags. See @ref PARTY_MESSAGE_xxx.
@@ -230,10 +235,10 @@ static PyObject *Atrinik_Party_str(Atrinik_Party *self)
 /** Available Python methods for the AtrinikParty object */
 static PyMethodDef PartyMethods[] =
 {
-	{"AddMember",               (PyCFunction) Atrinik_Party_AddMember,               METH_VARARGS, 0},
-	{"RemoveMember",            (PyCFunction) Atrinik_Party_RemoveMember,            METH_VARARGS, 0},
-	{"GetMembers",              (PyCFunction) Atrinik_Party_GetMembers,              METH_VARARGS, 0},
-	{"SendMessage",             (PyCFunction) Atrinik_Party_SendMessage,             METH_VARARGS, 0},
+	{"AddMember", (PyCFunction) Atrinik_Party_AddMember, METH_VARARGS, 0},
+	{"RemoveMember", (PyCFunction) Atrinik_Party_RemoveMember, METH_VARARGS, 0},
+	{"GetMembers", (PyCFunction) Atrinik_Party_GetMembers, METH_NOARGS, 0},
+	{"SendMessage", (PyCFunction) Atrinik_Party_SendMessage, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
