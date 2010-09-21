@@ -547,33 +547,6 @@ static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.CheckMap(<i>\<string\></i> arch, <i>\<string\></i>
- * map_path, <i>\<int\></i> x, <i>\<int\></i> y)</h1>
- *
- * @warning Unfinished, do not use.
- * @todo Finish. */
-static PyObject *Atrinik_CheckMap(PyObject *self, PyObject *args)
-{
-	char *what;
-	char *mapstr;
-	int x, y;
-	/*  object* foundob; */
-
-	(void) self;
-
-	/* Gecko: replaced coordinate tuple with separate x and y coordinates */
-	if (!PyArg_ParseTuple(args, "ssii", &what, &mapstr, &x, &y))
-	{
-		return NULL;
-	}
-
-	RAISE("CheckMap() is not finished!");
-
-	/*  foundob = present_arch(find_archetype(what), has_been_loaded(mapstr), x, y);
-	    return wrap_object(foundob);*/
-}
-
-/**
  * <h1>Atrinik.FindPlayer(<i>\<string\></i> name)</h1>
  * Find a player.
  *
@@ -1924,7 +1897,6 @@ static PyMethodDef AtrinikMethods[] =
 {
 	{"LoadObject",          Atrinik_LoadObject,            METH_VARARGS, 0},
 	{"ReadyMap",            Atrinik_ReadyMap,              METH_VARARGS, 0},
-	{"CheckMap",            Atrinik_CheckMap,              METH_VARARGS, 0},
 	{"FindPlayer",          Atrinik_FindPlayer,            METH_VARARGS, 0},
 	{"PlayerExists",        Atrinik_PlayerExists,          METH_VARARGS, 0},
 	{"GetOptions",          Atrinik_GetOptions,            METH_VARARGS, 0},
