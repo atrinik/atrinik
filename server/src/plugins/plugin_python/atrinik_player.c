@@ -130,6 +130,76 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 	Py_ReturnBoolean(hooks->player_can_carry(pl->pl->ob, weight));
 }
 
+/**
+ * <h1>player.GetSkill(int type, int id)</h1>
+ * Get skill or experience object.
+ * @param type One of:
+ * - <b>TYPE_SKILL</b>: get skill object.
+ * - <b>TYPE_EXPERIENCE</b>: get experience category object.
+ * @param id ID of the skill/experience.
+ * @throws ValueError if 'type' or 'id' parameters are not valid.
+ * @return Skill/experience object, can be None if the player doesn't
+ * have the skill or the experience category (the latter should not happen). */
+static PyObject *Atrinik_Player_GetSkill(Atrinik_Player *pl, PyObject *args)
+{
+	sint32 type;
+	uint32 id;
+
+	if (!PyArg_ParseTuple(args, "iI", &type, &id))
+	{
+		return NULL;
+	}
+
+	if (type == SKILL)
+	{
+		if (id >= NROFSKILLS)
+		{
+			PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'id' is not valid for TYPE_SKILL.");
+			return NULL;
+		}
+
+		return wrap_object(pl->pl->skill_ptr[id]);
+	}
+	else if (type == EXPERIENCE)
+	{
+		if (id >= MAX_EXP_CAT)
+		{
+			PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'id' is not valid for TYPE_EXPERIENCE.");
+			return NULL;
+		}
+
+		return wrap_object(pl->pl->exp_ptr[id]);
+	}
+	else
+	{
+		PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'type' is not valid.");
+		return NULL;
+	}
+}
+
+/**
+ * <h1>player.AddExp(int skill, int exp, int [exact = False])</h1>
+ * Add (or subtract) experience.
+ * @param skill ID of the skill to receive/lose exp in.
+ * @param exp How much exp to gain/lose.
+ * @param exact If True, the given exp will not be capped. */
+static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
+{
+	uint32 skill;
+	sint64 exp;
+	int exact = 0;
+
+	if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp, &exact))
+	{
+		return NULL;
+	}
+
+	hooks->add_exp(pl->pl->ob, exp, skill, exact);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -137,6 +207,8 @@ static PyMethodDef methods[] =
 {
 	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
 	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
+	{"GetSkill", (PyCFunction) Atrinik_Player_GetSkill, METH_VARARGS, 0},
+	{"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

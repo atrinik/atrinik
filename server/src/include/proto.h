@@ -408,7 +408,7 @@ void become_daemon(char *filename);
 
 /* server/exp.c */
 uint64 level_exp(int level, double expmul);
-sint64 add_exp(object *op, sint64 exp, int skill_nr);
+sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact);
 void player_lvl_adj(object *who, object *op);
 sint64 adjust_exp(object *pl, object *op, sint64 exp);
 void apply_death_exp_penalty(object *op);

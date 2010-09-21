@@ -213,7 +213,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 					{
 						/* More exp is given for higher ingred number recipes */
 						sint64 amount = numb * numb * calc_skill_exp(caster, item, -1);
-						add_exp(caster, amount, SK_ALCHEMY);
+						add_exp(caster, amount, SK_ALCHEMY, 0);
 						/* So when skill id this item, less xp is awarded */
 						item->stats.exp = 0;
 #ifdef EXTREME_ALCHEMY_DEBUG

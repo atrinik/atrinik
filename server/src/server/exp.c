@@ -293,11 +293,11 @@ uint64 level_exp(int level, double expmul)
  * @param exp How much experience to add (or, in case the value being
  * negative, subtract).
  * @param skill_nr Skill ID.
+ * @param exact If 1, experience gained will not be capped.
  * @return 0 on failure, experience gained on success. */
-sint64 add_exp(object *op, sint64 exp, int skill_nr)
+sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 {
 	object *exp_ob = NULL, *exp_skill = NULL;
-	sint64 limit = 0;
 
 	/* Sanity check */
 	if (!op)
@@ -346,11 +346,14 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr)
 	}
 
 	/* General adjustments for playbalance */
-	limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
-
-	if (exp > limit)
+	if (!exact)
 	{
-		exp = limit;
+		sint64 limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
+
+		if (exp > limit)
+		{
+			exp = limit;
+		}
 	}
 
 	/* First we see what we can add to our skill */

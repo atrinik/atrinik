@@ -846,7 +846,7 @@ static void share_kill_exp_one(object *op, sint64 exp, object *skill)
 {
 	if (exp)
 	{
-		add_exp(op, exp, skill->stats.sp);
+		add_exp(op, exp, skill->stats.sp, 0);
 	}
 	else
 	{
@@ -911,7 +911,7 @@ static void share_kill_exp(object *op, sint64 exp, object *skill)
 				}
 
 				nexp = (CONTR(ol->objlink.ob)->skill_ptr[skill_id]->level + 4) * share;
-				add_exp(ol->objlink.ob, nexp, skill_id);
+				add_exp(ol->objlink.ob, nexp, skill_id, 0);
 				given += nexp;
 			}
 		}

@@ -247,7 +247,7 @@ static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
 				currentxp = tmp->stats.exp;
 				value = value - currentxp;
 
-				hooks->add_exp(WHO, value, skill);
+				hooks->add_exp(WHO, value, skill, 0);
 			}
 
 			/*LOG(-1,"LEVEL2 %d (->%d) :: %s (exp %d)\n",tmp->level,level,hooks->query_name(tmp), tmp->stats.exp);*/

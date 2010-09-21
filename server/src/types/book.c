@@ -138,7 +138,7 @@ void apply_book(object *op, object *tmp)
 			}
 		}
 
-		add_exp(op, exp_gain, op->chosen_skill->stats.sp);
+		add_exp(op, exp_gain, op->chosen_skill->stats.sp, 0);
 
 		/* so no more xp gained from this book */
 		SET_FLAG(tmp, FLAG_NO_SKILL_IDENT);

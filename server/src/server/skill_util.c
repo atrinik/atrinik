@@ -267,7 +267,7 @@ sint64 do_skill(object *op, int dir)
 	 * gain problems. */
 	if (success && skills[skill].category != EXP_NONE)
 	{
-		add_exp(op, success, op->chosen_skill->stats.sp);
+		add_exp(op, success, op->chosen_skill->stats.sp, 0);
 	}
 
 	return success;

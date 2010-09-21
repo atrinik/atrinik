@@ -206,7 +206,7 @@ struct plugin_hooklist
 	void (*esrv_send_inventory)(object *, object *);
 	object *(*get_archetype)(const char *);
 	mapstruct *(*ready_map_name)(const char *, int);
-	sint64 (*add_exp)(object *, sint64, int);
+	sint64 (*add_exp)(object *, sint64, int, int);
 	const char *(*determine_god)(object *);
 	object *(*find_god)(const char *);
 	void (*register_global_event)(const char *, int);
