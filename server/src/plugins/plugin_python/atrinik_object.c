@@ -290,30 +290,6 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject *a
 }
 
 /**
- * <h1>object.CheckTrigger(<i>\<object\></i> who)</h1>
- *
- * Check trigger of an object.
- * @param who Who is triggering the trigger object.
- * @warning Unfinished, do not use.
- * @todo Create a hook for check_trigger() to make this work. */
-static PyObject *Atrinik_Object_CheckTrigger(Atrinik_Object *whoptr, PyObject *args)
-{
-	Atrinik_Object *whatptr;
-
-	(void) whoptr;
-
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
-	{
-		return NULL;
-	}
-
-	/* check_trigger(WHAT,WHO); should be hook too! */
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.GetGod()</h1>
  *
  * Determine who is the object follower of (who the god is).
@@ -2482,7 +2458,6 @@ static PyMethodDef methods[] =
 	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
 	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
 	{"SendCustomCommand", (PyCFunction) Atrinik_Object_SendCustomCommand, METH_VARARGS, 0},
-	{"CheckTrigger", (PyCFunction) Atrinik_Object_CheckTrigger, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
 	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
