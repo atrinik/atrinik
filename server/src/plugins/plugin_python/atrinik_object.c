@@ -157,13 +157,13 @@ static fields_struct fields[] =
  * @param type Type of the object to look for. Unused.
  * @param id ID of the skill or experience object.
  * @return The object if found.
- * @todo Remove the type parameter?
- * @todo Could speed this up for players by using their skill pointer and
- * experience arrays. That would make the type parameter used again as well. */
+ * @deprecated Use @ref Atrinik_Player_GetSkill "player.GetSkill()" instead. */
 static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *tmp;
 	int type, id;
+
+	PyErr_WarnEx(PyExc_DeprecationWarning, "object.GetSkill() is deprecated; use player.GetSkill() instead.", 1);
 
 	if (!PyArg_ParseTuple(args, "ii", &type, &id))
 	{
@@ -204,15 +204,14 @@ static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
  * otherwise experience is set instead.
  * @param value Experience to set for the skill. Only set if level is
  * lower than 1.
- * @todo Overall experience is not changed (should it be?)
- * @todo Could speed this up for players by using their skill pointer array.
- * That way we wouldn't need the type parameter either.
- * @todo Only allow to be ran on players? Monsters can't get exp. */
+ * @deprecated Use @ref Atrinik_Player_AddExp "player.AddExp()" instead. */
 static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *tmp;
 	int type, skill, currentxp;
 	long level, value;
+
+	PyErr_WarnEx(PyExc_DeprecationWarning, "object.SetSkill() is deprecated; use player.AddExp() instead.", 1);
 
 	if (!PyArg_ParseTuple(args, "iill", &type, &skill, &level, &value))
 	{
