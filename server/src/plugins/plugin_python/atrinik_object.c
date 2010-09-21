@@ -324,20 +324,21 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.TeleportTo(string map, int x, int y, int [unique = False])</h1>
+ * <h1>object.TeleportTo(string map, int x, int y, int [unique = False], int [sound = True])</h1>
  * Teleport object to the given position of map.
  * @param path Map path to teleport the object to.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @param unique If True, the destination will be unique map for the player.
- * @todo Make the sound effect optional? */
-static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *args)
+ * @param sound If False, will not play a sound effect. */
+static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *args, PyObject *keywds)
 {
+	static char *kwlist[] = {"path", "x", "y", "unique", "sound", NULL};
 	const char *path;
 	object *tmp;
-	int x, y, unique = 0;
+	int x, y, unique = 0, sound = 1;
 
-	if (!PyArg_ParseTuple(args, "sii|i", &path, &x, &y, &unique))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|ii", kwlist, &path, &x, &y, &unique, &sound))
 	{
 		return NULL;
 	}
@@ -354,7 +355,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 
 	hooks->enter_exit(WHO, tmp);
 
-	if (WHO->map)
+	if (WHO->map && sound)
 	{
 		hooks->play_sound_map(WHO->map, CMD_SOUND_EFFECT, "teleport.ogg", WHO->x, WHO->y, 0, 0);
 	}
@@ -2303,7 +2304,7 @@ static PyMethodDef methods[] =
 	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
 	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_NOARGS, 0},
 	{"SetGod", (PyCFunction) Atrinik_Object_SetGod, METH_VARARGS, 0},
-	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS, 0},
+	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
 	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
 	{"PickUp", (PyCFunction) Atrinik_Object_PickUp, METH_VARARGS, 0},
