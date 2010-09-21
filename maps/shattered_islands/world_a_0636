@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-09-09 Alex Tokar
+Modified: 2010-09-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -273,6 +273,14 @@ x 19
 y 14
 end
 arch floor_fs_grey1b
+x 19
+y 15
+end
+arch beer_barrel.101
+msg
+The Warden Argoth's beer barrel seems to have been used a lot recently.
+endmsg
+name Warden Argoth's beer barrel
 x 19
 y 15
 end
