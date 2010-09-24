@@ -32,7 +32,7 @@
 /**
  * Trigger a duplicator.
  *
- * Will duplicate a specified object placed on top of it.
+ * Will duplicate a specified object on the tile.
  *
  * - connected: What will trigger it.
  * - level: Multiplier. 0 to destroy.
@@ -48,12 +48,7 @@ void move_duplicator(object *op)
 		return;
 	}
 
-	if (!op->above)
-	{
-		return;
-	}
-
-	for (tmp = op->above; tmp; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
 		if (tmp->arch->name == op->slaying)
 		{
