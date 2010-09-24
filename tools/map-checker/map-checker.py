@@ -555,8 +555,6 @@ def scan_dirs(dir):
 # Do the scan. If 'map' argument was specified, we will use that,
 # otherwise we will recursively scan 'path'.
 def do_scan():
-	beacons = []
-
 	if map:
 		check_file(map)
 	else:
@@ -1223,6 +1221,7 @@ if not cli:
 		def scan_button(self, b):
 			# Clear out old errors.
 			del errors_l[:]
+			del beacons[:]
 			# Re-scan.
 			do_scan()
 			# Draw the errors.
@@ -1240,6 +1239,7 @@ if not cli:
 			if response == gtk.RESPONSE_OK:
 				# Clear out old errors.
 				del errors_l[:]
+				del beacons[:]
 				# Scan the directory.
 				scan_dirs(fc.get_filename())
 				# Draw the errors.
@@ -1259,6 +1259,7 @@ if not cli:
 			if response == gtk.RESPONSE_OK:
 				# Clear out old errors.
 				del errors_l[:]
+				del beacons[:]
 				# Check the map.
 				check_file(fc.get_filename())
 				# Draw errors.
