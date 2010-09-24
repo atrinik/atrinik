@@ -1131,33 +1131,6 @@ static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObjec
 }
 
 /**
- * <h1>object.CheckInvisibleInside(string id)</h1>
- * Find a force inside object's inventory.
- * @param id Slaying field of the force must match this ID.
- * @return The force object is found with matching ID.
- * @warning Untested. */
-static PyObject *Atrinik_Object_CheckInvisibleInside(Atrinik_Object *whoptr, PyObject *args)
-{
-	char *id;
-	object *tmp2;
-
-	if (!PyArg_ParseTuple(args, "s", &id))
-	{
-		return NULL;
-	}
-
-	for (tmp2 = WHO->inv; tmp2 != NULL; tmp2 = tmp2->below)
-	{
-		if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, id))
-		{
-			break;
-		}
-	}
-
-	return wrap_object(tmp2);
-}
-
-/**
  * <h1>object.CreatePlayerForce(string force_name, int time)</h1>
  * Creates and inserts an invisible player force in object.
  *
@@ -2330,7 +2303,6 @@ static PyMethodDef methods[] =
 	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
 	{"AcquireSkill", (PyCFunction) Atrinik_Object_AcquireSkill, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_NOARGS, 0},
-	{"CheckInvisibleObjectInside", (PyCFunction) Atrinik_Object_CheckInvisibleInside, METH_VARARGS, 0},
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
 	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
 	{"StartQuest", (PyCFunction) Atrinik_Object_StartQuest, METH_VARARGS, 0},
