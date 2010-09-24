@@ -11,7 +11,7 @@ msg = WhatIsMessage().strip().lower()
 text = msg.split()
 
 # Get information for the current user.
-info = me.CheckInventory(0, "note", activator.name)
+info = me.FindObject(0, "note", activator.name)
 
 # If the information doesn't exist, create new object.
 if not info:

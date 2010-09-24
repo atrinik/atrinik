@@ -33,7 +33,7 @@ def main():
 		elif qm.finished():
 			me.SayTo(activator, "Amazing! Thank you for killing Torathog the stone giant.\nAs a reward, I'll give you my ring of the prayers. I don't really need it that much these days, and I'm sure you could make better use of it on your adventures.", 1)
 
-			ring = me.CheckInventory(0, "ring_prayers")
+			ring = me.FindObject(0, "ring_prayers")
 
 			if not ring:
 				raise error("Could not find ring inside {0}".format(me.name))

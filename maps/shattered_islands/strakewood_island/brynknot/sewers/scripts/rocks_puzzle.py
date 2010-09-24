@@ -23,14 +23,14 @@ else:
 	for rock in rocks:
 		ReadyMap(os.path.dirname(me.map.path) + "/" + rock[0])
 
-	key = me.CheckInventory(0, "key2")
+	key = me.FindObject(0, "key2")
 
 	if not key:
 		raise Error("Could not find key inside myself.")
 
 	activator = WhoIsActivator()
 
-	if not activator.CheckInventory(2, "key2", key.name):
+	if not activator.FindObject(2, "key2", key.name):
 		key.Clone().InsertInside(activator)
 
 	if not me.f_splitting:

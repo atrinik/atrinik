@@ -43,7 +43,7 @@ def main():
 		elif qm.finished():
 			me.SayTo(activator, "You have done an excellent job! Please take this.", 1)
 			# Give out the reward.
-			quest_sack = me.CheckInventory(0, "sack", quest["info"]["quest_name"])
+			quest_sack = me.FindObject(0, "sack", quest["info"]["quest_name"])
 
 			if not quest_sack or not quest_sack.inv:
 				raise StandardError("Quest sack is missing or is empty for quest {0}.".format(quest["info"]["quest_name"]))

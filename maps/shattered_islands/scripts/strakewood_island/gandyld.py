@@ -64,7 +64,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 		activator.Write("\nThe old mage {0} mumbles something and slowly turns his attention to you.".format(me.name))
 		me.SayTo(activator, "\nWhat is it? Can't you see I'm ^busy^ here?")
 	else:
-		crystal = activator.CheckInventory(2, crystal_arch, crystal_name)
+		crystal = activator.FindObject(2, crystal_arch, crystal_name)
 		load_quests()
 
 		if not crystal:

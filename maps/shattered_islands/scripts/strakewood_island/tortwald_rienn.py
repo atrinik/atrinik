@@ -29,7 +29,7 @@ quest_rienn = {
 
 ## Create a letter.
 def create_letter():
-	letter = me.CheckInventory(0, "letter")
+	letter = me.FindObject(0, "letter")
 
 	if not letter:
 		raise error("Could not find letter inside {0}".format(me.name))
@@ -39,7 +39,7 @@ def create_letter():
 
 ## Give key as a reward.
 def create_key():
-	key = me.CheckInventory(0, "key_skull")
+	key = me.FindObject(0, "key_skull")
 
 	if not key:
 		raise error("Could not find key inside {0}".format(me.name))
@@ -60,7 +60,7 @@ def npc_tortwald():
 			# We haven't completed Tortwald's quest?
 			if not qm_t.completed():
 				# Check for Tortwald's letter.
-				letter_t = activator.CheckInventory(2, "letter", "Tortwald's Letter")
+				letter_t = activator.FindObject(2, "letter", "Tortwald's Letter")
 
 				# Lost the letter? Create another one.
 				if not letter_t:
@@ -71,7 +71,7 @@ def npc_tortwald():
 			# We have completed it (by talking to Rienn).
 			else:
 				# Check if we have Rienn's letter.
-				letter_r = activator.CheckInventory(2, "letter", "Rienn's Letter")
+				letter_r = activator.FindObject(2, "letter", "Rienn's Letter")
 				# Rienn's quest.
 				qm_r = QuestManager(activator, quest_rienn)
 
@@ -91,7 +91,7 @@ def npc_tortwald():
 				# We completed Rienn's quest.
 				else:
 					# Player lost the key? Create a new one then.
-					if not activator.CheckInventory(2, "key_skull", "Underground City Skull Key"):
+					if not activator.FindObject(2, "key_skull", "Underground City Skull Key"):
 						me.SayTo(activator, "\nYou lost the key I gave you... Take this one then, and be more careful with it...")
 						create_key()
 					else:
@@ -122,7 +122,7 @@ def npc_rienn():
 	# Quest manager for Rienn's quest.
 	qm_r = QuestManager(activator, quest_rienn)
 	# Check if we have Tortwald's letter.
-	letter_t = activator.CheckInventory(2, "letter", "Tortwald's Letter")
+	letter_t = activator.FindObject(2, "letter", "Tortwald's Letter")
 
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		# Have we completed it? Nothing else to do then.
@@ -131,7 +131,7 @@ def npc_rienn():
 		# Started, but not completed?
 		elif qm_r.started() and not qm_r.completed():
 			# We lost the letter? Give them another one.
-			if not activator.CheckInventory(2, "letter", "Rienn's Letter"):
+			if not activator.FindObject(2, "letter", "Rienn's Letter"):
 				me.SayTo(activator, "\nYou lost the letter? I'll write another one then.")
 				create_letter()
 			else:

@@ -55,7 +55,7 @@ if GetEventNumber() == EVENT_TIMER:
 		# If we found the spawn point and the spawn point has something spawned...
 		if skelly_beacon.env and skelly_beacon.env.enemy:
 			# Find the monster's starting waypoint
-			wp = skelly_beacon.env.enemy.CheckInventory(0, "waypoint", "wp1")
+			wp = skelly_beacon.env.enemy.FindObject(0, "waypoint", "wp1")
 
 			if not wp:
 				raise error("Gate closer monster is missing waypoint.")

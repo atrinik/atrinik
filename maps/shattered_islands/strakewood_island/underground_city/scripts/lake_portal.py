@@ -7,7 +7,7 @@ import random
 
 activator = WhoIsActivator()
 
-if not activator.CheckInventory(2, "key2", "Maplevale's amulet", "of Llwyfen"):
+if not activator.FindObject(2, "key2", "Maplevale's amulet", "of Llwyfen"):
 	quest_container = activator.Controller().quest_container
 
 	if not quest_container.ReadKey("underground_city_lake_portal"):

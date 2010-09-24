@@ -107,8 +107,8 @@ extern struct plugin_hooklist *hooks;
 /*@}*/
 
 /**
- * @defgroup INVENTORY_xxx Modes for object.CheckInventory()
- * Different modes for object.CheckInventory().
+ * @defgroup INVENTORY_xxx Modes for object.FindObject()
+ * Different modes for object.FindObject().
  *@{*/
 /** Search only inside the inventory of the object. */
 #define INVENTORY_ONLY 0

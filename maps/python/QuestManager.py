@@ -55,7 +55,7 @@ class QuestManager:
 				return 1
 		# For the kill item quest type check for the quest item.
 		elif self.quest["type"] == QUEST_TYPE_KILL_ITEM:
-			quest_item = self.activator.CheckInventory(1, self.quest["arch_name"], self.quest["item_name"])
+			quest_item = self.activator.FindObject(1, self.quest["arch_name"], self.quest["item_name"])
 
 			if quest_item and quest_item.f_quest_item:
 				return 1
@@ -72,7 +72,7 @@ class QuestManager:
 		# Do anything extra for the kill item quest type.
 		if self.quest["type"] == QUEST_TYPE_KILL_ITEM:
 			# Find the quest item that is being looked for.
-			quest_item = self.activator.CheckInventory(1, self.quest["arch_name"], self.quest["item_name"])
+			quest_item = self.activator.FindObject(1, self.quest["arch_name"], self.quest["item_name"])
 
 			# If we're keeping the item, we will want to adjust some
 			# flags.

@@ -33,12 +33,12 @@ def main():
 		key_name = "Tutorial Island key"
 
 		## Check if the player already has the key.
-		key_activator = activator.CheckInventory(2, key_arch, key_name)
+		key_activator = activator.FindObject(2, key_arch, key_name)
 
 		if key_activator == None:
 			## The activator does not have the key, so find the one in the
 			## guard's inventory.
-			key_me = me.CheckInventory(0, key_arch, key_name)
+			key_me = me.FindObject(0, key_arch, key_name)
 
 			if key_me == None:
 				me.SayTo(activator, "\nSomething is wrong, missing the key... Call a DM!")

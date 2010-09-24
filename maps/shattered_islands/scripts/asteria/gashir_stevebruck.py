@@ -58,7 +58,7 @@ def npc_gashir():
 			me.SayTo(activator, "\nAh, sorry. We are fresh out! Maybe you could check down at the brewery to see what is holding my shipment up?")
 		elif activator.PayAmount(8):
 			me.SayTo(activator, "\nHere you go! It is quite good quality!")
-			me.CheckInventory(0, "beer").Clone().InsertInside(activator)
+			me.FindObject(0, "beer").Clone().InsertInside(activator)
 			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")

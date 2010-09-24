@@ -25,7 +25,7 @@ class Jail:
 	## @param player Player to look inside.
 	## @return The jail force.
 	def get_jail_force(self, player):
-		return player.CheckInventory(0, "player_force", "jail_force")
+		return player.FindObject(0, "player_force", "jail_force")
 
 	## Jail a specified player for the specified amount of seconds.
 	## @param player Player to jail.

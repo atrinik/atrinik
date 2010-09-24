@@ -23,7 +23,7 @@ def main():
 		return
 
 	# Have we smoked lately?
-	if activator.CheckInventory(0, "force", "pipeweed_force"):
+	if activator.FindObject(0, "force", "pipeweed_force"):
 		activator.Write("That was a nice smoke, but you'll have to wait for its effects to lessen before taking another...", COLOR_BLUE)
 		return
 
