@@ -2,7 +2,7 @@ arch map
 name Testmaps - Maps 1 (connected to 2)
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 17
 height 17
@@ -11,6 +11,7 @@ enter_y 1
 difficulty 1
 darkness -1
 tile_path_2 testmap_maps2
+region creation
 end
 arch floor_ostone1
 end
@@ -542,6 +543,25 @@ arch floor_ostone1
 x 6
 y 2
 end
+arch teleporter
+slaying testmap_maps2
+hp 16
+sp 5
+connected 101
+x 6
+y 2
+end
+arch trident
+msg
+This is a item, teleported with the same
+teleporter as the wyvern. It was not dropped
+from the wyvern as the spawn was warped
+back.
+endmsg
+name this is NOT part of the wyvern!
+x 6
+y 2
+end
 arch spawn_point
 last_grace 1
 x 6
@@ -566,25 +586,6 @@ object_int1 5000
 dam 1
 maxhp 1
 end
-end
-arch teleporter
-slaying testmap_maps2
-hp 16
-sp 5
-connected 101
-x 6
-y 2
-end
-arch trident
-name this is NOT part of the wyvern!
-msg
-This is a item, teleported with the same
-teleporter as the wyvern. It was not dropped
-from the wyvern as the spawn was warped
-back.
-endmsg
-x 6
-y 2
 end
 arch floor_ostone1
 x 6

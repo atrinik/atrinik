@@ -2,12 +2,13 @@ arch map
 name Testmap: Connections
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-10-15 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 17
 height 17
 difficulty 1
 darkness -1
+region creation
 end
 arch floor_ostone2
 end
@@ -849,11 +850,11 @@ x 7
 y 7
 end
 arch magic_ear
-name magic ear - keyword 'magic'
 msg
 @match magic
 Click.
 endmsg
+name magic ear - keyword 'magic'
 layer 4
 sys_object 0
 connected 104

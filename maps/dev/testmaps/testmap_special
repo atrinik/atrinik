@@ -2,14 +2,16 @@ arch map
 name Testmaps - Special Objects
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 17
 height 17
 enter_x 1
 enter_y 1
 difficulty 1
-tile_path_2 testmap_special2
 darkness -1
+tile_path_2 testmap_special2
+region creation
 end
 arch floor_ostone1
 end
@@ -149,7 +151,6 @@ x 1
 y 4
 end
 arch sign
-name magic mouth object
 msg
 If a player moves over a magic mouth,
 a message is given to him or the whole map.
@@ -158,6 +159,7 @@ with useful information or ambient info.
 ( "you feel a cold wind on this spot".. "
 "you see some blinking in the shadows")
 endmsg
+name magic mouth object
 x 1
 y 4
 end
@@ -194,10 +196,10 @@ x 1
 y 12
 end
 arch detector
-name convert gold to mithril
 msg
 Convert mithril to gold
 endmsg
+name convert gold to mithril
 type 103
 slaying goldcoin
 food 1000
@@ -212,10 +214,10 @@ x 1
 y 13
 end
 arch detector
-name convert mithril to gold
 msg
 Convert mithril to gold
 endmsg
+name convert mithril to gold
 type 103
 slaying mitcoin
 food 1
@@ -274,11 +276,11 @@ x 2
 y 4
 end
 arch magic_mouth
-name magic mouth
 msg
 I am the talking object...
 a magic mouth! Nice, isn't it?
 endmsg
+name magic mouth
 sys_object 0
 layer 4
 x 2
@@ -331,13 +333,13 @@ x 2
 y 10
 end
 arch sign
-name player mover objects
 msg
 MOVERS can push players and mobs
 in a specific direction. They can used to
 block entries or push monster in a specific
 direction.
 endmsg
+name player mover objects
 x 2
 y 10
 end
@@ -545,7 +547,6 @@ x 5
 y 3
 end
 arch sign
-name CREATOR objects
 msg
 A CREATOR creates objects every time
 it is triggered. This CREATOR creates
@@ -553,6 +554,7 @@ food.
 CREATORs are very useful objects. Look
 at the different object features.
 endmsg
+name CREATOR objects
 x 5
 y 3
 end
@@ -602,7 +604,6 @@ x 5
 y 12
 end
 arch sign
-name director objects
 msg
 Director Test.
 A director reflects incoming missiles
@@ -620,6 +621,7 @@ loop. Now cast many spells in it. Then cast
 in the middle a director pointing in the direction
 the enemy is...
 endmsg
+name director objects
 x 5
 y 12
 end
@@ -991,7 +993,6 @@ x 10
 y 2
 end
 arch sign
-name spinner objects
 msg
 SPINNER works like DIRECTORS but
 not in a fixed direction. They don't reflect,
@@ -1006,6 +1007,7 @@ they are really evil inside a maze or bigger
 maps where the map maker want hide
 secret areas.
 endmsg
+name spinner objects
 x 10
 y 2
 end
@@ -1311,7 +1313,6 @@ x 13
 y 7
 end
 arch sign
-name magic wall objects
 msg
 MAGIC WALLs are kind of automized
 spell casting devices. They can be marked
@@ -1324,6 +1325,7 @@ Setting the fire direction or using
 connection flag1 and turning the magi
 wall on and off.
 endmsg
+name magic wall objects
 x 13
 y 7
 end

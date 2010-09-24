@@ -2,7 +2,7 @@ arch map
 name Temple of Loki
 msg
 Created:  2010-05-11 Asa
-Modified: 2010-06-20 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2953,6 +2953,10 @@ direction 5
 x 19
 y 16
 end
+arch blood_floor1
+x 19
+y 16
+end
 arch invis_exit
 msg
 Your surroundings suddenly change!
@@ -2964,10 +2968,6 @@ x 19
 y 16
 end
 arch light5
-x 19
-y 16
-end
-arch blood_floor1
 x 19
 y 16
 end
@@ -3545,6 +3545,10 @@ direction 5
 x 23
 y 5
 end
+arch blood_floor1
+x 23
+y 5
+end
 arch invis_exit
 msg
 Your surroundings suddenly change!
@@ -3556,10 +3560,6 @@ x 23
 y 5
 end
 arch light5
-x 23
-y 5
-end
-arch blood_floor1
 x 23
 y 5
 end

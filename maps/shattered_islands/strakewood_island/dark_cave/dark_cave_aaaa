@@ -2,7 +2,7 @@ arch map
 name Dark Cave
 msg
 Created:  2010-01-19 Alex Tokar
-Modified: 2010-01-20 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness 2
 tile_path_1 dark_cave_aa01
 tile_path_2 dark_cave_01aa
 tile_path_5 dark_cave_0101
+region dark_cave
 end
 arch sign
 name geyser

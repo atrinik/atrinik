@@ -2,7 +2,7 @@ arch map
 name Bog of Eternal Stench
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-23 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -318,6 +318,10 @@ arch swamp1
 x 1
 y 9
 end
+arch reed_sm8
+x 1
+y 9
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -325,10 +329,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 1
-y 9
-end
-arch reed_sm8
 x 1
 y 9
 end
@@ -348,16 +348,6 @@ arch earth_dark1
 x 1
 y 11
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 1
-y 11
-end
 arch reed_sm6
 x 1
 y 11
@@ -366,7 +356,21 @@ arch plant_mushroom3
 x 1
 y 11
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 1
+y 11
+end
 arch earth_dark1
+x 1
+y 12
+end
+arch reed_sm6
 x 1
 y 12
 end
@@ -377,10 +381,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 1
-y 12
-end
-arch reed_sm6
 x 1
 y 12
 end
@@ -424,6 +424,10 @@ arch swamp1
 x 1
 y 17
 end
+arch reed_sm6
+x 1
+y 17
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -431,10 +435,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 1
-y 17
-end
-arch reed_sm6
 x 1
 y 17
 end
@@ -579,6 +579,10 @@ arch earth_dark1
 x 2
 y 9
 end
+arch reed_sm1
+x 2
+y 9
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -586,10 +590,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 2
-y 9
-end
-arch reed_sm1
 x 2
 y 9
 end
@@ -621,6 +621,10 @@ arch earth_dark1
 x 2
 y 13
 end
+arch reed_sm4
+x 2
+y 13
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -628,10 +632,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 2
-y 13
-end
-arch reed_sm4
 x 2
 y 13
 end
@@ -639,6 +639,10 @@ arch swamp1
 x 2
 y 14
 end
+arch reed_sm2
+x 2
+y 14
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -646,10 +650,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 2
-y 14
-end
-arch reed_sm2
 x 2
 y 14
 end
@@ -677,6 +677,10 @@ arch earth_dark3
 x 2
 y 17
 end
+arch reed_sm9
+x 2
+y 17
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -684,10 +688,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 2
-y 17
-end
-arch reed_sm9
 x 2
 y 17
 end
@@ -695,6 +695,10 @@ arch earth_dark1
 x 2
 y 18
 end
+arch reed_sm11
+x 2
+y 18
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -702,10 +706,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 2
-y 18
-end
-arch reed_sm11
 x 2
 y 18
 end
@@ -783,6 +783,10 @@ arch earth_dark3
 x 3
 y 2
 end
+arch reed_sm10
+x 3
+y 2
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -790,10 +794,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 2
-end
-arch reed_sm10
 x 3
 y 2
 end
@@ -813,6 +813,10 @@ arch earth_dark3
 x 3
 y 4
 end
+arch reed_sm4
+x 3
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -820,10 +824,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 4
-end
-arch reed_sm4
 x 3
 y 4
 end
@@ -831,6 +831,10 @@ arch earth_dark1
 x 3
 y 5
 end
+arch reed_sm1
+x 3
+y 5
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -838,10 +842,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 5
-end
-arch reed_sm1
 x 3
 y 5
 end
@@ -849,6 +849,10 @@ arch earth_dark3
 x 3
 y 6
 end
+arch reed_sm6
+x 3
+y 6
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -856,10 +860,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 6
-end
-arch reed_sm6
 x 3
 y 6
 end
@@ -883,6 +883,10 @@ arch earth_dark1
 x 3
 y 9
 end
+arch reed_sm7
+x 3
+y 9
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -890,10 +894,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 9
-end
-arch reed_sm7
 x 3
 y 9
 end
@@ -941,6 +941,10 @@ arch earth_dark2
 x 3
 y 14
 end
+arch reed_sm4
+x 3
+y 14
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -948,10 +952,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 14
-end
-arch reed_sm4
 x 3
 y 14
 end
@@ -959,6 +959,10 @@ arch earth_dark3
 x 3
 y 15
 end
+arch reed_sm7
+x 3
+y 15
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -966,10 +970,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 3
-y 15
-end
-arch reed_sm7
 x 3
 y 15
 end
@@ -1055,6 +1055,10 @@ arch earth_dark2
 x 4
 y 1
 end
+arch reed_sm11
+x 4
+y 1
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1062,10 +1066,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 1
-end
-arch reed_sm11
 x 4
 y 1
 end
@@ -1073,6 +1073,10 @@ arch swamp1
 x 4
 y 2
 end
+arch reed_sm10
+x 4
+y 2
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1080,10 +1084,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 2
-end
-arch reed_sm10
 x 4
 y 2
 end
@@ -1119,24 +1119,10 @@ arch earth_dark1
 x 4
 y 6
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 4
-y 6
-end
 arch reed_sm2
 x 4
 y 6
 end
-arch earth_dark2
-x 4
-y 7
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1144,6 +1130,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 4
+y 6
+end
+arch earth_dark2
 x 4
 y 7
 end
@@ -1151,7 +1141,21 @@ arch reed_sm4
 x 4
 y 7
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 4
+y 7
+end
 arch earth_dark2
+x 4
+y 8
+end
+arch reed_sm7
 x 4
 y 8
 end
@@ -1162,10 +1166,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 8
-end
-arch reed_sm7
 x 4
 y 8
 end
@@ -1201,6 +1201,10 @@ arch earth_dark2
 x 4
 y 12
 end
+arch reed_sm7
+x 4
+y 12
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1208,10 +1212,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 12
-end
-arch reed_sm7
 x 4
 y 12
 end
@@ -1235,6 +1235,10 @@ arch swamp1
 x 4
 y 15
 end
+arch reed_sm5
+x 4
+y 15
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1242,10 +1246,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 15
-end
-arch reed_sm5
 x 4
 y 15
 end
@@ -1253,6 +1253,10 @@ arch earth_dark3
 x 4
 y 16
 end
+arch reed_sm8
+x 4
+y 16
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1260,10 +1264,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 16
-end
-arch reed_sm8
 x 4
 y 16
 end
@@ -1283,6 +1283,10 @@ arch earth_dark1
 x 4
 y 18
 end
+arch reed_sm8
+x 4
+y 18
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1290,10 +1294,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 18
-end
-arch reed_sm8
 x 4
 y 18
 end
@@ -1301,6 +1301,10 @@ arch earth_dark3
 x 4
 y 19
 end
+arch reed_sm10
+x 4
+y 19
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1308,10 +1312,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 4
-y 19
-end
-arch reed_sm10
 x 4
 y 19
 end
@@ -1350,6 +1350,9 @@ end
 arch earth_dark2
 x 5
 end
+arch reed_sm11
+x 5
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1357,9 +1360,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 5
-end
-arch reed_sm11
 x 5
 end
 arch earth_dark3
@@ -1422,6 +1422,10 @@ arch earth_dark1
 x 5
 y 7
 end
+arch reed_sm2
+x 5
+y 7
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1429,10 +1433,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 5
-y 7
-end
-arch reed_sm2
 x 5
 y 7
 end
@@ -1440,6 +1440,10 @@ arch earth_dark1
 x 5
 y 8
 end
+arch reed_sm8
+x 5
+y 8
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1447,10 +1451,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 5
-y 8
-end
-arch reed_sm8
 x 5
 y 8
 end
@@ -1530,6 +1530,10 @@ arch swamp1
 x 5
 y 17
 end
+arch reed_sm3
+x 5
+y 17
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1537,10 +1541,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 5
-y 17
-end
-arch reed_sm3
 x 5
 y 17
 end
@@ -1556,6 +1556,10 @@ arch swamp1
 x 5
 y 19
 end
+arch reed_sm2
+x 5
+y 19
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1563,10 +1567,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 5
-y 19
-end
-arch reed_sm2
 x 5
 y 19
 end
@@ -1605,6 +1605,9 @@ end
 arch earth_dark3
 x 6
 end
+arch reed_sm9
+x 6
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1612,9 +1615,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 6
-end
-arch reed_sm9
 x 6
 end
 arch grass_leaf2
@@ -1649,6 +1649,10 @@ arch earth_dark1
 x 6
 y 4
 end
+arch reed_sm11
+x 6
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1656,10 +1660,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 6
-y 4
-end
-arch reed_sm11
 x 6
 y 4
 end
@@ -1715,6 +1715,14 @@ arch earth_dark2
 x 6
 y 11
 end
+arch reed_sm10
+x 6
+y 11
+end
+arch thorns
+x 6
+y 11
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1722,14 +1730,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 6
-y 11
-end
-arch reed_sm10
-x 6
-y 11
-end
-arch thorns
 x 6
 y 11
 end
@@ -1781,24 +1781,10 @@ arch earth_dark1
 x 6
 y 17
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 6
-y 17
-end
 arch reed_sm11
 x 6
 y 17
 end
-arch earth_dark1
-x 6
-y 18
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1806,6 +1792,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 6
+y 17
+end
+arch earth_dark1
 x 6
 y 18
 end
@@ -1813,7 +1803,21 @@ arch reed_sm1
 x 6
 y 18
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 6
+y 18
+end
 arch earth_dark1
+x 6
+y 19
+end
+arch reed_sm4
 x 6
 y 19
 end
@@ -1824,10 +1828,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 6
-y 19
-end
-arch reed_sm4
 x 6
 y 19
 end
@@ -1904,6 +1904,10 @@ arch earth_dark3
 x 7
 y 4
 end
+arch reed_sm8
+x 7
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1911,10 +1915,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 7
-y 4
-end
-arch reed_sm8
 x 7
 y 4
 end
@@ -1942,6 +1942,10 @@ arch earth_dark1
 x 7
 y 7
 end
+arch reed_sm4
+x 7
+y 7
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1949,10 +1953,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 7
-y 7
-end
-arch reed_sm4
 x 7
 y 7
 end
@@ -1980,6 +1980,10 @@ arch earth_dark1
 x 7
 y 10
 end
+arch reed_sm7
+x 7
+y 10
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -1987,10 +1991,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 7
-y 10
-end
-arch reed_sm7
 x 7
 y 10
 end
@@ -2022,6 +2022,10 @@ arch earth_dark2
 x 7
 y 14
 end
+arch reed_sm6
+x 7
+y 14
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2029,10 +2033,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 7
-y 14
-end
-arch reed_sm6
 x 7
 y 14
 end
@@ -2068,6 +2068,10 @@ arch earth_dark1
 x 7
 y 18
 end
+arch reed_sm8
+x 7
+y 18
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2075,10 +2079,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 7
-y 18
-end
-arch reed_sm8
 x 7
 y 18
 end
@@ -2086,6 +2086,10 @@ arch earth_dark3
 x 7
 y 19
 end
+arch reed_sm1
+x 7
+y 19
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2093,10 +2097,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 7
-y 19
-end
-arch reed_sm1
 x 7
 y 19
 end
@@ -2135,6 +2135,9 @@ end
 arch earth_dark1
 x 8
 end
+arch reed_sm11
+x 8
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2142,9 +2145,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 8
-end
-arch reed_sm11
 x 8
 end
 arch grassd_4
@@ -2167,6 +2167,10 @@ arch earth_dark2
 x 8
 y 3
 end
+arch reed_sm5
+x 8
+y 3
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2174,10 +2178,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 8
-y 3
-end
-arch reed_sm5
 x 8
 y 3
 end
@@ -2185,6 +2185,10 @@ arch earth_dark1
 x 8
 y 4
 end
+arch reed_sm6
+x 8
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2192,10 +2196,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 8
-y 4
-end
-arch reed_sm6
 x 8
 y 4
 end
@@ -2271,6 +2271,10 @@ arch earth_dark3
 x 8
 y 13
 end
+arch reed_sm4
+x 8
+y 13
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2278,10 +2282,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 8
-y 13
-end
-arch reed_sm4
 x 8
 y 13
 end
@@ -2289,6 +2289,10 @@ arch earth_dark2
 x 8
 y 14
 end
+arch reed_sm1
+x 8
+y 14
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2296,10 +2300,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 8
-y 14
-end
-arch reed_sm1
 x 8
 y 14
 end
@@ -2307,6 +2307,10 @@ arch earth_dark3
 x 8
 y 15
 end
+arch reed_sm4
+x 8
+y 15
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2314,10 +2318,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 8
-y 15
-end
-arch reed_sm4
 x 8
 y 15
 end
@@ -2396,6 +2396,9 @@ end
 arch earth_dark3
 x 9
 end
+arch reed_sm10
+x 9
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2403,9 +2406,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-end
-arch reed_sm10
 x 9
 end
 arch grassd_8
@@ -2432,6 +2432,10 @@ arch earth_dark1
 x 9
 y 3
 end
+arch reed_sm6
+x 9
+y 3
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2439,10 +2443,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-y 3
-end
-arch reed_sm6
 x 9
 y 3
 end
@@ -2450,6 +2450,10 @@ arch earth_dark1
 x 9
 y 4
 end
+arch reed_sm8
+x 9
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2457,10 +2461,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-y 4
-end
-arch reed_sm8
 x 9
 y 4
 end
@@ -2468,6 +2468,10 @@ arch earth_dark2
 x 9
 y 5
 end
+arch reed_sm8
+x 9
+y 5
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2475,10 +2479,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-y 5
-end
-arch reed_sm8
 x 9
 y 5
 end
@@ -2486,24 +2486,10 @@ arch swamp1
 x 9
 y 6
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 9
-y 6
-end
 arch reed_sm4
 x 9
 y 6
 end
-arch earth_dark1
-x 9
-y 7
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2511,6 +2497,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 9
+y 6
+end
+arch earth_dark1
 x 9
 y 7
 end
@@ -2518,10 +2508,6 @@ arch reed_sm9
 x 9
 y 7
 end
-arch earth_dark2
-x 9
-y 8
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2529,6 +2515,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 9
+y 7
+end
+arch earth_dark2
 x 9
 y 8
 end
@@ -2536,10 +2526,6 @@ arch reed_sm4
 x 9
 y 8
 end
-arch earth_dark1
-x 9
-y 9
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2547,6 +2533,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 9
+y 8
+end
+arch earth_dark1
 x 9
 y 9
 end
@@ -2554,7 +2544,21 @@ arch reed_sm5
 x 9
 y 9
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 9
+y 9
+end
 arch earth_dark2
+x 9
+y 10
+end
+arch reed_sm9
 x 9
 y 10
 end
@@ -2565,10 +2569,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-y 10
-end
-arch reed_sm9
 x 9
 y 10
 end
@@ -2596,6 +2596,10 @@ arch earth_dark2
 x 9
 y 13
 end
+arch reed_sm7
+x 9
+y 13
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2603,10 +2607,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-y 13
-end
-arch reed_sm7
 x 9
 y 13
 end
@@ -2614,6 +2614,10 @@ arch earth_dark1
 x 9
 y 14
 end
+arch reed_sm8
+x 9
+y 14
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2621,10 +2625,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 9
-y 14
-end
-arch reed_sm8
 x 9
 y 14
 end
@@ -2711,6 +2711,9 @@ end
 arch earth_dark1
 x 10
 end
+arch reed_sm7
+x 10
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2718,9 +2721,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 10
-end
-arch reed_sm7
 x 10
 end
 arch grass_leaf2
@@ -2755,6 +2755,10 @@ arch earth_dark3
 x 10
 y 4
 end
+arch reed_sm7
+x 10
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2762,10 +2766,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 10
-y 4
-end
-arch reed_sm7
 x 10
 y 4
 end
@@ -2801,24 +2801,10 @@ arch swamp1
 x 10
 y 8
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 10
-y 8
-end
 arch reed_sm10
 x 10
 y 8
 end
-arch earth_dark2
-x 10
-y 9
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2826,6 +2812,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 10
+y 8
+end
+arch earth_dark2
 x 10
 y 9
 end
@@ -2834,6 +2824,16 @@ x 10
 y 9
 end
 arch plant_mushroom1
+x 10
+y 9
+end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
 x 10
 y 9
 end
@@ -2865,24 +2865,10 @@ arch earth_dark1
 x 10
 y 13
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 10
-y 13
-end
 arch reed_sm4
 x 10
 y 13
 end
-arch earth_dark2
-x 10
-y 14
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2890,6 +2876,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 10
+y 13
+end
+arch earth_dark2
 x 10
 y 14
 end
@@ -2897,7 +2887,21 @@ arch reed_sm11
 x 10
 y 14
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 10
+y 14
+end
 arch earth_dark2
+x 10
+y 15
+end
+arch reed_sm8
 x 10
 y 15
 end
@@ -2908,10 +2912,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 10
-y 15
-end
-arch reed_sm8
 x 10
 y 15
 end
@@ -2943,6 +2943,10 @@ arch earth_dark2
 x 10
 y 19
 end
+arch reed_sm9
+x 10
+y 19
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -2950,10 +2954,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 10
-y 19
-end
-arch reed_sm9
 x 10
 y 19
 end
@@ -3027,6 +3027,14 @@ arch earth_dark2
 x 11
 y 4
 end
+arch reed_sm6
+x 11
+y 4
+end
+arch tree_small_dead
+x 11
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3034,14 +3042,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 4
-end
-arch reed_sm6
-x 11
-y 4
-end
-arch tree_small_dead
 x 11
 y 4
 end
@@ -3069,6 +3069,10 @@ arch earth_dark1
 x 11
 y 7
 end
+arch reed_sm2
+x 11
+y 7
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3076,10 +3080,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 7
-end
-arch reed_sm2
 x 11
 y 7
 end
@@ -3087,6 +3087,10 @@ arch earth_dark3
 x 11
 y 8
 end
+arch reed_sm11
+x 11
+y 8
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3094,10 +3098,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 8
-end
-arch reed_sm11
 x 11
 y 8
 end
@@ -3137,6 +3137,10 @@ arch earth_dark3
 x 11
 y 13
 end
+arch reed_sm11
+x 11
+y 13
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3144,10 +3148,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 13
-end
-arch reed_sm11
 x 11
 y 13
 end
@@ -3163,6 +3163,10 @@ arch earth_dark1
 x 11
 y 15
 end
+arch reed_sm11
+x 11
+y 15
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3170,10 +3174,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 15
-end
-arch reed_sm11
 x 11
 y 15
 end
@@ -3181,6 +3181,10 @@ arch earth_dark1
 x 11
 y 16
 end
+arch reed_sm8
+x 11
+y 16
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3188,10 +3192,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 16
-end
-arch reed_sm8
 x 11
 y 16
 end
@@ -3199,6 +3199,10 @@ arch earth_dark2
 x 11
 y 17
 end
+arch reed_sm3
+x 11
+y 17
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3206,10 +3210,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 11
-y 17
-end
-arch reed_sm3
 x 11
 y 17
 end
@@ -3307,6 +3307,10 @@ arch earth_dark1
 x 12
 y 4
 end
+arch reed_sm9
+x 12
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3314,10 +3318,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 4
-end
-arch reed_sm9
 x 12
 y 4
 end
@@ -3325,6 +3325,10 @@ arch earth_dark1
 x 12
 y 5
 end
+arch reed_sm4
+x 12
+y 5
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3332,10 +3336,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 5
-end
-arch reed_sm4
 x 12
 y 5
 end
@@ -3343,6 +3343,10 @@ arch earth_dark2
 x 12
 y 6
 end
+arch reed_sm10
+x 12
+y 6
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3350,10 +3354,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 6
-end
-arch reed_sm10
 x 12
 y 6
 end
@@ -3401,6 +3401,10 @@ arch earth_dark1
 x 12
 y 12
 end
+arch reed_sm5
+x 12
+y 12
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3408,10 +3412,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 12
-end
-arch reed_sm5
 x 12
 y 12
 end
@@ -3419,6 +3419,10 @@ arch earth_dark2
 x 12
 y 13
 end
+arch reed_sm9
+x 12
+y 13
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3426,10 +3430,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 13
-end
-arch reed_sm9
 x 12
 y 13
 end
@@ -3465,6 +3465,10 @@ arch earth_dark1
 x 12
 y 17
 end
+arch reed_sm5
+x 12
+y 17
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3472,10 +3476,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 17
-end
-arch reed_sm5
 x 12
 y 17
 end
@@ -3483,6 +3483,10 @@ arch earth_dark2
 x 12
 y 18
 end
+arch reed_sm1
+x 12
+y 18
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3490,10 +3494,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 12
-y 18
-end
-arch reed_sm1
 x 12
 y 18
 end
@@ -3551,16 +3551,6 @@ arch earth_dark3
 x 13
 y 1
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 13
-y 1
-end
 arch reed_sm8
 x 13
 y 1
@@ -3569,10 +3559,6 @@ arch tree_small_dead
 x 13
 y 1
 end
-arch earth_dark3
-x 13
-y 2
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3580,6 +3566,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 13
+y 1
+end
+arch earth_dark3
 x 13
 y 2
 end
@@ -3587,10 +3577,6 @@ arch reed_sm10
 x 13
 y 2
 end
-arch earth_dark2
-x 13
-y 3
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3598,6 +3584,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 13
+y 2
+end
+arch earth_dark2
 x 13
 y 3
 end
@@ -3605,10 +3595,6 @@ arch reed_sm9
 x 13
 y 3
 end
-arch earth_dark3
-x 13
-y 4
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3616,6 +3602,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 13
+y 3
+end
+arch earth_dark3
 x 13
 y 4
 end
@@ -3623,10 +3613,6 @@ arch reed_sm2
 x 13
 y 4
 end
-arch earth_dark2
-x 13
-y 5
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3634,6 +3620,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 13
+y 4
+end
+arch earth_dark2
 x 13
 y 5
 end
@@ -3642,6 +3632,16 @@ x 13
 y 5
 end
 arch plant_mushroom4
+x 13
+y 5
+end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
 x 13
 y 5
 end
@@ -3693,6 +3693,10 @@ arch earth_dark1
 x 13
 y 11
 end
+arch reed_sm10
+x 13
+y 11
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3700,10 +3704,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 13
-y 11
-end
-arch reed_sm10
 x 13
 y 11
 end
@@ -3711,6 +3711,10 @@ arch earth_dark3
 x 13
 y 12
 end
+arch reed_sm3
+x 13
+y 12
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3718,10 +3722,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 13
-y 12
-end
-arch reed_sm3
 x 13
 y 12
 end
@@ -3777,6 +3777,14 @@ arch earth_dark1
 x 13
 y 18
 end
+arch reed_sm4
+x 13
+y 18
+end
+arch thorns
+x 13
+y 18
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3784,14 +3792,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 13
-y 18
-end
-arch reed_sm4
-x 13
-y 18
-end
-arch thorns
 x 13
 y 18
 end
@@ -3846,6 +3846,9 @@ end
 arch earth_dark2
 x 14
 end
+arch reed_sm4
+x 14
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3853,15 +3856,16 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 14
-end
-arch reed_sm4
 x 14
 end
 arch earth_dark1
 x 14
 y 1
 end
+arch reed_sm1
+x 14
+y 1
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3869,10 +3873,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 14
-y 1
-end
-arch reed_sm1
 x 14
 y 1
 end
@@ -3896,6 +3896,10 @@ arch swamp1
 x 14
 y 4
 end
+arch reed_sm5
+x 14
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -3903,10 +3907,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 14
-y 4
-end
-arch reed_sm5
 x 14
 y 4
 end
@@ -4006,24 +4006,10 @@ arch earth_dark2
 x 14
 y 16
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 14
-y 16
-end
 arch reed_sm8
 x 14
 y 16
 end
-arch earth_dark3
-x 14
-y 17
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4031,6 +4017,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 14
+y 16
+end
+arch earth_dark3
 x 14
 y 17
 end
@@ -4042,7 +4032,21 @@ arch plant_mushroom2
 x 14
 y 17
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 14
+y 17
+end
 arch swamp1
+x 14
+y 18
+end
+arch reed_sm2
 x 14
 y 18
 end
@@ -4053,10 +4057,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 14
-y 18
-end
-arch reed_sm2
 x 14
 y 18
 end
@@ -4142,6 +4142,10 @@ arch earth_dark3
 x 15
 y 4
 end
+arch reed_sm5
+x 15
+y 4
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4149,10 +4153,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 15
-y 4
-end
-arch reed_sm5
 x 15
 y 4
 end
@@ -4188,6 +4188,10 @@ arch earth_dark2
 x 15
 y 8
 end
+arch reed_sm1
+x 15
+y 8
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4195,10 +4199,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 15
-y 8
-end
-arch reed_sm1
 x 15
 y 8
 end
@@ -4226,6 +4226,10 @@ arch swamp1
 x 15
 y 11
 end
+arch reed_sm3
+x 15
+y 11
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4233,10 +4237,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 15
-y 11
-end
-arch reed_sm3
 x 15
 y 11
 end
@@ -4244,6 +4244,10 @@ arch swamp1
 x 15
 y 12
 end
+arch reed_sm11
+x 15
+y 12
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4251,10 +4255,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 15
-y 12
-end
-arch reed_sm11
 x 15
 y 12
 end
@@ -4282,6 +4282,10 @@ arch earth_dark2
 x 15
 y 15
 end
+arch reed_sm2
+x 15
+y 15
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4289,10 +4293,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 15
-y 15
-end
-arch reed_sm2
 x 15
 y 15
 end
@@ -4406,16 +4406,6 @@ arch earth_dark2
 x 16
 y 4
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 16
-y 4
-end
 arch reed_sm7
 x 16
 y 4
@@ -4424,7 +4414,21 @@ arch plant_mushroom3
 x 16
 y 4
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 16
+y 4
+end
 arch earth_dark2
+x 16
+y 5
+end
+arch reed_sm10
 x 16
 y 5
 end
@@ -4435,10 +4439,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 16
-y 5
-end
-arch reed_sm10
 x 16
 y 5
 end
@@ -4474,6 +4474,10 @@ arch earth_dark1
 x 16
 y 9
 end
+arch reed_sm10
+x 16
+y 9
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4481,10 +4485,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 16
-y 9
-end
-arch reed_sm10
 x 16
 y 9
 end
@@ -4508,6 +4508,10 @@ arch earth_dark1
 x 16
 y 12
 end
+arch reed_sm8
+x 16
+y 12
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4515,10 +4519,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 16
-y 12
-end
-arch reed_sm8
 x 16
 y 12
 end
@@ -4526,24 +4526,10 @@ arch earth_dark2
 x 16
 y 13
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 16
-y 13
-end
 arch reed_sm5
 x 16
 y 13
 end
-arch earth_dark1
-x 16
-y 14
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4551,6 +4537,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 16
+y 13
+end
+arch earth_dark1
 x 16
 y 14
 end
@@ -4562,7 +4552,21 @@ arch plant_mushroom2
 x 16
 y 14
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 16
+y 14
+end
 arch earth_dark2
+x 16
+y 15
+end
+arch reed_sm9
 x 16
 y 15
 end
@@ -4573,10 +4577,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 16
-y 15
-end
-arch reed_sm9
 x 16
 y 15
 end
@@ -4706,6 +4706,10 @@ arch earth_dark3
 x 17
 y 5
 end
+arch reed_sm11
+x 17
+y 5
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4713,10 +4717,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 17
-y 5
-end
-arch reed_sm11
 x 17
 y 5
 end
@@ -4836,6 +4836,10 @@ arch earth_dark1
 x 17
 y 18
 end
+arch reed_sm9
+x 17
+y 18
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4843,10 +4847,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 17
-y 18
-end
-arch reed_sm9
 x 17
 y 18
 end
@@ -4964,6 +4964,10 @@ arch earth_dark2
 x 18
 y 6
 end
+arch reed_sm6
+x 18
+y 6
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4971,10 +4975,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 18
-y 6
-end
-arch reed_sm6
 x 18
 y 6
 end
@@ -4982,6 +4982,10 @@ arch earth_dark3
 x 18
 y 7
 end
+arch reed_sm10
+x 18
+y 7
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -4989,10 +4993,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 18
-y 7
-end
-arch reed_sm10
 x 18
 y 7
 end
@@ -5000,6 +5000,10 @@ arch earth_dark2
 x 18
 y 8
 end
+arch reed_sm3
+x 18
+y 8
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5007,10 +5011,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 18
-y 8
-end
-arch reed_sm3
 x 18
 y 8
 end
@@ -5026,6 +5026,10 @@ arch swamp1
 x 18
 y 10
 end
+arch reed_sm1
+x 18
+y 10
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5033,10 +5037,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 18
-y 10
-end
-arch reed_sm1
 x 18
 y 10
 end
@@ -5112,6 +5112,10 @@ arch swamp1
 x 18
 y 19
 end
+arch reed_sm9
+x 18
+y 19
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5119,10 +5123,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 18
-y 19
-end
-arch reed_sm9
 x 18
 y 19
 end
@@ -5236,6 +5236,10 @@ arch earth_dark1
 x 19
 y 8
 end
+arch reed_sm8
+x 19
+y 8
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5246,21 +5250,7 @@ food 0
 x 19
 y 8
 end
-arch reed_sm8
-x 19
-y 8
-end
 arch earth_dark1
-x 19
-y 9
-end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
 x 19
 y 9
 end
@@ -5268,10 +5258,6 @@ arch reed_sm8
 x 19
 y 9
 end
-arch earth_dark1
-x 19
-y 10
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5279,6 +5265,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 19
+y 9
+end
+arch earth_dark1
 x 19
 y 10
 end
@@ -5286,10 +5276,6 @@ arch reed_sm9
 x 19
 y 10
 end
-arch earth_dark1
-x 19
-y 11
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5297,6 +5283,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 19
+y 10
+end
+arch earth_dark1
 x 19
 y 11
 end
@@ -5304,10 +5294,6 @@ arch reed_sm9
 x 19
 y 11
 end
-arch earth_dark1
-x 19
-y 12
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5315,10 +5301,24 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 19
+y 11
+end
+arch earth_dark1
 x 19
 y 12
 end
 arch reed_sm4
+x 19
+y 12
+end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
 x 19
 y 12
 end
@@ -5326,24 +5326,10 @@ arch earth_dark2
 x 19
 y 13
 end
-arch marker
-msg
-Ach! You're in the swamp!
-endmsg
-slaying berri_lur_stench
-speed 1.0
-food 0
-x 19
-y 13
-end
 arch reed_sm4
 x 19
 y 13
 end
-arch swamp1
-x 19
-y 14
-end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5351,6 +5337,10 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
+x 19
+y 13
+end
+arch swamp1
 x 19
 y 14
 end
@@ -5362,7 +5352,21 @@ arch plant_mushroom1
 x 19
 y 14
 end
+arch marker
+msg
+Ach! You're in the swamp!
+endmsg
+slaying berri_lur_stench
+speed 1.0
+food 0
+x 19
+y 14
+end
 arch earth_dark1
+x 19
+y 15
+end
+arch reed_sm11
 x 19
 y 15
 end
@@ -5373,10 +5377,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 19
-y 15
-end
-arch reed_sm11
 x 19
 y 15
 end
@@ -5384,6 +5384,10 @@ arch swamp1
 x 19
 y 16
 end
+arch reed_sm6
+x 19
+y 16
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5391,10 +5395,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 19
-y 16
-end
-arch reed_sm6
 x 19
 y 16
 end
@@ -5402,6 +5402,10 @@ arch earth_dark1
 x 19
 y 17
 end
+arch reed_sm11
+x 19
+y 17
+end
 arch marker
 msg
 Ach! You're in the swamp!
@@ -5409,10 +5413,6 @@ endmsg
 slaying berri_lur_stench
 speed 1.0
 food 0
-x 19
-y 17
-end
-arch reed_sm11
 x 19
 y 17
 end

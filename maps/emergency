@@ -2,13 +2,14 @@ arch map
 name Emergency Map
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-22 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 1
 height 1
 difficulty 1
 darkness -1
 no_save 1
+region creation
 end
 arch floor_ostone1
 end

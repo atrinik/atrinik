@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-07 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2611,6 +2611,10 @@ arch floor_stone_b1
 x 18
 y 1
 end
+arch torch_wall_1
+x 18
+y 1
+end
 arch spawn_point
 x 18
 y 1
@@ -2619,10 +2623,6 @@ type 83
 level 31
 Wis 3
 end
-end
-arch torch_wall_1
-x 18
-y 1
 end
 arch floor_stone_b4
 x 18

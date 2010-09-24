@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - The Ant Hive
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-11-14 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1717,6 +1717,11 @@ arch floor_sand_d1
 x 12
 y 1
 end
+arch plant_mushroom1
+name glowing mushroom
+x 12
+y 1
+end
 arch spawn_point
 x 12
 y 1
@@ -1729,11 +1734,6 @@ wc_range 12
 ac 7
 Wis 3
 end
-end
-arch plant_mushroom1
-name glowing mushroom
-x 12
-y 1
 end
 arch light3
 x 12

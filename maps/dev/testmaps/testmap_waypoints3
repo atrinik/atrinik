@@ -2,7 +2,7 @@ arch map
 name Testmap - Waypoints (part 3)
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 10
 height 24
@@ -10,6 +10,7 @@ difficulty 1
 darkness -1
 tile_path_3 testmap_waypoints4
 tile_path_4 testmap_waypoints2
+region creation
 end
 arch floor_ostone1
 end

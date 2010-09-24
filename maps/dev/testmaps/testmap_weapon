@@ -2,12 +2,13 @@ arch map
 name Testmap - Weapons
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-06-14 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 darkness -1
+region creation
 end
 arch floor_ostone1
 end

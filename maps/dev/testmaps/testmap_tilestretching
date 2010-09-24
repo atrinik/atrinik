@@ -2,12 +2,13 @@ arch map
 name Testmap: Tilestretching
 msg
 Created:  2010-02-05 Alex Tokar
-Modified: 2010-02-06 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
+region creation
 end
 arch grassd_6
 end
@@ -1544,14 +1545,14 @@ arch grassd_4
 x 13
 y 5
 end
+arch woods_tree
+x 13
+y 5
+end
 arch mover
 direction 5
 sp 1
 speed 1.0
-x 13
-y 5
-end
-arch woods_tree
 x 13
 y 5
 end
@@ -1848,14 +1849,14 @@ arch grassd_4
 x 15
 y 5
 end
+arch plant5
+x 15
+y 5
+end
 arch mover
 direction 5
 sp 1
 speed 1.0
-x 15
-y 5
-end
-arch plant5
 x 15
 y 5
 end
@@ -2398,13 +2399,13 @@ arch grassd_5
 x 19
 y 1
 end
-arch mover
-sp 1
-speed 1.0
+arch lo_tree4
 x 19
 y 1
 end
-arch lo_tree4
+arch mover
+sp 1
+speed 1.0
 x 19
 y 1
 end

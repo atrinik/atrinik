@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-07-12 Kiana
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2372,15 +2372,6 @@ arch floor_earth1c
 x 18
 y 11
 end
-arch check_inv
-layer 0
-sys_object 1
-slaying brynknot_maze_key
-sp 1
-last_grace 1
-x 18
-y 11
-end
 arch door1_locked
 msg
 The lock bears the symbol of Brynknot. Only the guard captain has the key, he probably wouldn't give it to you without a reason though.
@@ -2388,6 +2379,15 @@ endmsg
 slaying brynknot_maze_key
 no_magic 1
 damned 1
+x 18
+y 11
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying brynknot_maze_key
+sp 1
+last_grace 1
 x 18
 y 11
 end

@@ -2,7 +2,7 @@ arch map
 name Greyton Luxury House
 msg
 Created:  2010-07-13 Alex Tokar
-Modified: 2010-07-21 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 48
 height 34
@@ -12,6 +12,7 @@ outdoor 1
 no_summon 1
 no_harm 1
 bg_music harmony2.mid
+region greyton
 end
 arch water_lt
 end
@@ -1596,10 +1597,6 @@ arch floor_wood3a
 x 8
 y 18
 end
-arch light7
-x 8
-y 18
-end
 arch fireplace_left
 x 8
 y 18
@@ -1609,10 +1606,6 @@ x 8
 y 19
 end
 arch carpet1.131
-x 8
-y 19
-end
-arch light7
 x 8
 y 19
 end
@@ -1850,11 +1843,19 @@ arch carpet1.151
 x 9
 y 18
 end
+arch light7
+x 9
+y 18
+end
 arch floor_wood3h
 x 9
 y 19
 end
 arch carpet1
+x 9
+y 19
+end
+arch light7
 x 9
 y 19
 end

@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-06-25 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3418,14 +3418,14 @@ sp 1
 x 22
 y 8
 end
+arch floor_orange1
+x 22
+y 9
+end
 arch torch_wall_1
 direction 5
 glow_radius 5
 is_animated 1
-x 22
-y 9
-end
-arch floor_orange1
 x 22
 y 9
 end

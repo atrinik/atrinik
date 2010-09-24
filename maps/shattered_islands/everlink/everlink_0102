@@ -2,7 +2,7 @@ arch map
 name Everlink
 msg
 Created:  2010-07-21 Alex Tokar
-Modified: 2010-07-21 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2787,10 +2787,6 @@ arch floor_wood3a
 x 20
 y 23
 end
-arch light9
-x 20
-y 23
-end
 arch fireplace_right
 x 20
 y 23
@@ -2932,10 +2928,6 @@ x 21
 y 22
 end
 arch floor_wood3a
-x 21
-y 23
-end
-arch light9
 x 21
 y 23
 end

@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-08 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -397,6 +397,14 @@ arch floor_cave1
 x 4
 y 12
 end
+arch gate1_locked
+msg
+The door just won't budge!
+endmsg
+slaying underground_city_force1
+x 4
+y 12
+end
 arch check_inv
 layer 0
 sys_object 1
@@ -419,14 +427,6 @@ arch pedestal
 layer 0
 sys_object 1
 connected 101
-x 4
-y 12
-end
-arch gate1_locked
-msg
-The door just won't budge!
-endmsg
-slaying underground_city_force1
 x 4
 y 12
 end

@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-26 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -246,18 +246,18 @@ arch floor_black2a
 x 5
 y 4
 end
+arch door1_locked
+slaying underground_city_key2
+cursed 1
+x 5
+y 4
+end
 arch check_inv
 layer 0
 sys_object 1
 slaying underground_city_key2
 sp 1
 last_grace 1
-x 5
-y 4
-end
-arch door1_locked
-slaying underground_city_key2
-cursed 1
 x 5
 y 4
 end
@@ -338,19 +338,19 @@ arch floor_black1d
 x 6
 y 4
 end
+arch door1_locked
+direction 7
+slaying underground_city_key2
+cursed 1
+x 6
+y 4
+end
 arch check_inv
 layer 0
 sys_object 1
 slaying underground_city_key2
 sp 1
 last_grace 1
-x 6
-y 4
-end
-arch door1_locked
-direction 7
-slaying underground_city_key2
-cursed 1
 x 6
 y 4
 end
@@ -1635,15 +1635,6 @@ arch floor_black2b
 x 22
 y 6
 end
-arch check_inv
-layer 0
-sys_object 1
-slaying underground_city_key2
-sp 1
-last_grace 1
-x 22
-y 6
-end
 arch wall_dungeon_1
 no_pass 0
 x 22
@@ -1659,6 +1650,15 @@ As you squeeze through the sewer hole, you notice that bloodstains and deep scra
 endmsg
 splitting 1
 direction 5
+x 22
+y 6
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying underground_city_key2
+sp 1
+last_grace 1
 x 22
 y 6
 end

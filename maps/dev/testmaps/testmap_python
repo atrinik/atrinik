@@ -2,12 +2,13 @@ arch map
 name Testmap: Python
 msg
 Created:  2009-12-11 Alex Tokar
-Modified: 2010-06-14 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
+region creation
 end
 arch floor_ostone1
 end

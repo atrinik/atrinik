@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Kiana
-Modified: 2010-06-25 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3267,6 +3267,14 @@ arch floor_cave1
 x 21
 y 22
 end
+arch gate1_locked
+glow_radius 1
+direction 7
+slaying brynknot_sewers1
+sp 2
+x 21
+y 22
+end
 arch check_inv
 layer 0
 sys_object 1
@@ -3274,14 +3282,6 @@ direction 7
 slaying brynknot_sewers1
 sp 1
 last_grace 1
-x 21
-y 22
-end
-arch gate1_locked
-glow_radius 1
-direction 7
-slaying brynknot_sewers1
-sp 2
 x 21
 y 22
 end

@@ -2,15 +2,17 @@ arch map
 name Testmaps - Maps 2 (connected to 1 and 3)
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 17
 height 17
 enter_x 1
 enter_y 1
 difficulty 1
+darkness -1
 tile_path_2 testmap_maps3
 tile_path_4 testmap_maps1
-darkness -1
+region creation
 end
 arch floor_ostone1
 end

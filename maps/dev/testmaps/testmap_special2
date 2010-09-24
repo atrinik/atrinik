@@ -2,7 +2,7 @@ arch map
 name Testmaps - Special Objects
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-06-14 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 17
 height 17
@@ -11,6 +11,7 @@ enter_y 1
 difficulty 1
 darkness -1
 tile_path_4 testmap_special
+region creation
 end
 arch floor_ostone1
 end
