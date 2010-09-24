@@ -24,7 +24,7 @@ def learn_weapon_skill(skill, weapon):
 			me.SayTo(activator, "\nYou already know this skill.")
 		else:
 			activator.AcquireSkill(skill_nr)
-			obj = activator.CreateObjectInside(weapon, 1, 1, 1)
+			obj = activator.CreateObject(weapon, value = 1)
 			activator.Write("{0} gives you a {1}.".format(me.name, obj.name), 0)
 			activator.Apply(obj, 0)
 

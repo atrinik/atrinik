@@ -89,7 +89,7 @@ def main():
 			return
 
 		# Create the class object.
-		activator.CreateObjectInside("class_" + l[0]["name"], IDENTIFIED, 1)
+		activator.CreateObject("class_" + l[0]["name"])
 		# fix_player() will be called eventually, so we just need to mark
 		# the ext title for update.
 		activator.Controller().s_ext_title_flag = 1

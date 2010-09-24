@@ -14,7 +14,7 @@ info = me.FindObject(0, "note", activator.name)
 
 # If the information doesn't exist, create new object.
 if not info:
-	info = me.CreateObjectInside("note", IDENTIFIED, 1)
+	info = me.CreateObject("note")
 	info.name = activator.name
 
 def main():

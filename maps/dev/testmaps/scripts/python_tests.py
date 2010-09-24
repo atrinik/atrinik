@@ -61,9 +61,9 @@ def main_say():
 
 		me.SayTo(activator, "\nYou are now a follower of {0}.".format(activator.GetGod()))
 
-	# An example of CreateObjectInside().
+	# An example of CreateObject().
 	elif msg == "create object inside":
-		activator.Write("You receive {0}.".format(activator.CreateObjectInside("shortsword", 1, 1).GetName()))
+		activator.Write("You receive {0}.".format(activator.CreateObject("shortsword").GetName()))
 
 	# Example of using Apply().
 	elif msg == "apply object":

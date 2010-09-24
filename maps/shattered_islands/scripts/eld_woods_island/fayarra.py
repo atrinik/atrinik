@@ -31,8 +31,8 @@ def main():
 		elif qm.finished():
 			me.SayTo(activator, "You have done an excellent job! Please take this.", 1)
 			# Give out the reward.
-			activator.CreateObjectInside("silvercoin", IDENTIFIED, 2)
-			activator.CreateObjectInside("chicken_leg", IDENTIFIED, 5)
+			activator.CreateObject("silvercoin", 2)
+			activator.CreateObject("chicken_leg", 5)
 			activator.Write("You receive two silver coins and five chicken legs.", COLOR_ORANGE)
 			qm.complete()
 		else:

@@ -40,7 +40,7 @@ def npc_gashir():
 	elif msg == "booze":
 		if activator.PayAmount(5):
 			me.SayTo(activator, "\nHere you go! Enjoy!")
-			activator.CreateObjectInside("booze_generic", 1, 1, 1)
+			activator.CreateObject("booze_generic", value = 1)
 			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
@@ -48,7 +48,7 @@ def npc_gashir():
 	elif msg == "strong booze":
 		if activator.PayAmount(10):
 			me.SayTo(activator, "\nHere you go! But be careful, it is really strong!")
-			activator.CreateObjectInside("booze2", 1, 1, 1)
+			activator.CreateObject("booze2", value = 1)
 			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
@@ -58,7 +58,7 @@ def npc_gashir():
 			me.SayTo(activator, "\nAh, sorry. We are fresh out! Maybe you could check down at the brewery to see what is holding my shipment up?")
 		elif activator.PayAmount(8):
 			me.SayTo(activator, "\nHere you go! It is quite good quality!")
-			me.FindObject(0, "beer").Clone().InsertInside(activator)
+			me.FindObject("beer").Clone().InsertInside(activator)
 			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
@@ -66,7 +66,7 @@ def npc_gashir():
 	elif msg == "water":
 		if activator.PayAmount(2):
 			me.SayTo(activator, "\nThirsty? Nothing like fresh water!")
-			activator.CreateObjectInside("drink_generic", 1, 1, 1)
+			activator.CreateObject("drink_generic", value = 1)
 			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
@@ -74,7 +74,7 @@ def npc_gashir():
 	elif msg == "food":
 		if activator.PayAmount(10):
 			me.SayTo(activator, "\nHere you go! It's really tasty, I tell you.")
-			activator.CreateObjectInside("food_generic", 1, 1, 1)
+			activator.CreateObject("food_generic", value = 1)
 			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
@@ -91,7 +91,7 @@ def npc_steve():
 			else:
 				me.SayTo(activator, "|{0} smiles at you appreciatively.|\nThank you! I hope he wasn't too upset about the late delivery!".format(me.name), 1)
 				me.SayTo(activator, "Here is your payment...", 1)
-				activator.CreateObjectInside("silvercoin", 1, 5)
+				activator.CreateObject("silvercoin", 5)
 				activator.Write("You received 5 silver coins.", COLOR_WHITE)
 				# Mark that we have received the reward.
 				qm.quest_object.hp = 1

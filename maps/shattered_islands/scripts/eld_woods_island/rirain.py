@@ -35,7 +35,7 @@ def main():
 		elif qm.finished():
 			me.SayTo(activator, "Amazing! You killed the lost souls. Thank you, and please, take this as a token of my gratitude.", 1)
 			# Give out the reward.
-			activator.CreateObjectInside("silvercoin", IDENTIFIED, 1)
+			activator.CreateObject("silvercoin")
 			activator.Write("You receive one silver coin.", COLOR_ORANGE)
 			qm.complete()
 		else:

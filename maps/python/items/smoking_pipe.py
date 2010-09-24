@@ -27,7 +27,7 @@ def main():
 		activator.Write("That was a nice smoke, but you'll have to wait for its effects to lessen before taking another...", COLOR_BLUE)
 		return
 
-	force = activator.CreateObjectInside("force", 1, 1)
+	force = activator.CreateObject("force")
 	force.name = "pipeweed_force"
 	force.type = TYPE_POTION_EFFECT
 	force.f_is_used_up = True

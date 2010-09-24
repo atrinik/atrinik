@@ -36,7 +36,7 @@ def load_quests():
 
 ## Create the crystal.
 def create_crystal():
-	crystal = activator.CreateObjectInside(crystal_arch, 1, 1)
+	crystal = activator.CreateObject(crystal_arch)
 	crystal.name = crystal_name
 	# 1 gold
 	crystal.value = 10000

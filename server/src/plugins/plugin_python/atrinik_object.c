@@ -1377,61 +1377,66 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.CreateObjectInside(string archname, long identified, long number, long [value = -1])</h1>
- * Creates an object from archname and inserts into object.
- * @param archname Name of the arch
- * @param identifed Either Atrinik.IDENTIFIED or Atrinik.UNIDENTIFIED
- * @param number Number of objects to create
- * @param value If higher than -1, will be used as the new object's value
- * instead of the arch's default.
+ * <h1>object.CreateObject(string archname, int [nrof = 1], int [value = -1], bool [identified = True])</h1>
+ * Creates an object from archname and inserts it into 'object'.
+ * @param archname Name of the arch to create.
+ * @param nrof Number of objects to create.
+ * @param value If not -1, will be used as value for the new object.
+ * @param identified If False the object will not be identified.
+ * @throws AtrinikError if 'archname' references an invalid archetype.
  * @return The created object. */
-static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyObject *args)
+static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	object *myob, *tmp;
-	long value = -1, id, nrof = 1;
-	char *txt;
+	static char *kwlist[] = {"archname", "nrof", "value", "identified", NULL};
+	const char *archname;
+	uint32 nrof = 1;
+	sint64 value = -1;
+	int identified = 1;
+	archetype *at;
+	object *tmp, *env;
 
-	if (!PyArg_ParseTuple(args, "sll|l", &txt, &id, &nrof, &value))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|Ili", kwlist, &archname, &nrof, &value, &identified))
 	{
 		return NULL;
 	}
 
-	myob = hooks->get_archetype(txt);
+	at = hooks->find_archetype(archname);
 
-	if (!myob)
+	if (!at)
 	{
-		LOG(llevDebug, "BUG python_CFCreateObjectInside(): ob:>%s< = NULL!\n", hooks->query_name(myob, NULL));
-		RAISE("Failed to create the object. Did you use an existing arch?");
+		PyErr_Format(AtrinikError, "object.CreateObject(): The archetype '%s' doesn't exist.", archname);
+		return NULL;
 	}
 
-	/* -1 means, we use original value */
+	tmp = hooks->arch_to_object(at);
+
 	if (value != -1)
 	{
-		myob->value = (sint32) value;
-	}
-
-	if (id)
-	{
-		SET_FLAG(myob, FLAG_IDENTIFIED);
+		tmp->value = value;
 	}
 
 	if (nrof > 1)
 	{
-		myob->nrof = nrof;
+		tmp->nrof = nrof;
 	}
 
-	myob = hooks->insert_ob_in_ob(myob, WHERE);
+	if (identified)
+	{
+		SET_FLAG(tmp, FLAG_IDENTIFIED);
+	}
+
+	tmp = hooks->insert_ob_in_ob(tmp, obj->obj);
 
 	/* Make sure inventory image/text is updated */
-	for (tmp = WHERE; tmp != NULL; tmp = tmp->env)
+	for (env = obj->obj; env; env = env->env)
 	{
-		if (tmp->type == PLAYER)
+		if (env->type == PLAYER)
 		{
-			hooks->esrv_send_item(tmp, myob);
+			hooks->esrv_send_item(env, tmp);
 		}
 	}
 
-	return wrap_object(myob);
+	return wrap_object(tmp);
 }
 
 /** @cond */
@@ -2326,7 +2331,7 @@ static PyMethodDef methods[] =
 	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
 	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
 	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
-	{"CreateObjectInside", (PyCFunction) Atrinik_Object_CreateObjectInside, METH_VARARGS, 0},
+	{"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
 	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},

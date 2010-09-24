@@ -58,11 +58,11 @@ def main():
 			activator.AcquireSkill(GetSkillNr("bow archery"))
 
 			# Create the player's first bow
-			activator.CreateObjectInside("bow_short", 1, 1)
+			activator.CreateObject("bow_short")
 			activator.Write("Chereth gives you a short bow.", COLOR_WHITE)
 
 			# Create some arrows for the player's bow
-			activator.CreateObjectInside("arrow", 1, 12)
+			activator.CreateObject("arrow", 12)
 			activator.Write("Chereth gives you 12 arrows.", COLOR_WHITE)
 
 	# Teach sling archery
@@ -76,11 +76,11 @@ def main():
 			activator.AcquireSkill(GetSkillNr("sling archery"))
 
 			# Create the player's first sling
-			activator.CreateObjectInside("sling_small", 1, 1)
+			activator.CreateObject("sling_small")
 			activator.Write("Chereth gives you a small sling.", COLOR_WHITE)
 
 			# Create some sling stones for the player's sling
-			activator.CreateObjectInside("sstone", 1, 12)
+			activator.CreateObject("sstone", 12)
 			activator.Write("Chereth gives you 12 sling stones.", COLOR_WHITE)
 
 	# Teach crossbow archery
@@ -94,11 +94,11 @@ def main():
 			activator.AcquireSkill(GetSkillNr("crossbow archery"))
 
 			# Create the player's first crossbow
-			activator.CreateObjectInside("crossbow_small", 1, 1)
+			activator.CreateObject("crossbow_small")
 			activator.Write("Chereth gives you a small crossbow.", COLOR_WHITE)
 
 			# Create some bolts for the player's crossbow
-			activator.CreateObjectInside("bolt", 1, 12)
+			activator.CreateObject("bolt", 12)
 			activator.Write("Chereth gives you 12 bolts.", COLOR_WHITE)
 
 	# Give out links to the various archery skills
