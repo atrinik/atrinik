@@ -1,0 +1,272 @@
+# Ammunition artifacts.
+
+Allowed all
+chance 100
+difficulty 10
+artifact missile_inaccuracy
+def_arch arrow
+Object
+title of inaccuracy
+type 13
+is_magical 1
+wc -7
+cursed_perm 1
+cursed 1
+end
+
+Allowed all
+chance 100
+difficulty 10
+artifact missile_accuracy
+def_arch arrow
+Object
+title of accuracy
+type 13
+is_magical 1
+value 50
+wc_add 7
+dam_add 1
+msg
+  These missiles have been enchanted to rarely miss
+  their mark.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 30
+artifact missile_bouncing
+def_arch arrow
+Object
+title of bouncing
+type 13
+is_magical 1
+value 100
+wc_add 1
+reflecting 1
+last_sp 10
+msg
+  These missiles have been enchanted to bounce away
+  from solid objects, insteaf of falling to the ground.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 35
+artifact missile_fire
+def_arch arrow
+Object
+title of fire
+type 13
+is_magical 1
+value 280
+attack_fire 5
+msg
+  These missiles have been enchanted to burst into
+  flames when they hit an opponent.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 35
+artifact missile_cold
+def_arch arrow
+Object
+title of cold
+type 13
+is_magical 1
+value 280
+attack_cold 5
+msg
+  These missiles are commonly manufactured in the cold
+  North, but the secret to their making is not known.
+
+  They cause the opponent to shiver, as if the
+  temperature suddenly changed to that of the cold
+  North.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 35
+artifact missile_electricity
+def_arch arrow
+Object
+title of electricity
+type 13
+is_magical 1
+value 280
+attack_electricity 5
+msg
+  These missiles are enchanted to zap the opponent with
+  a small jolt of electricity.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 35
+artifact missile_acid
+def_arch arrow
+Object
+title of acid
+type 13
+is_magical 1
+value 280
+attack_acid 5
+msg
+  These missiles have been imbued with toxic acid.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 45
+artifact missile_greater_fire
+def_arch arrow
+Object
+title of greater fire
+type 13
+is_magical 1
+value 485
+attack_fire 10
+msg
+  These missiles have been enchanted to burst into
+  great flames when they hit an opponent.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 45
+artifact missile_greater_cold
+def_arch arrow
+Object
+title of greater cold
+type 13
+is_magical 1
+value 485
+attack_cold 10
+msg
+  These missiles are commonly manufactured in the cold
+  North, but the secret to their making is not known.
+
+  They cause the opponent to shiver madly, as if the
+  temperature suddenly changed to that of the cold
+  North.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 45
+artifact missile_greater_electricity
+def_arch arrow
+Object
+title of greater electricity
+type 13
+is_magical 1
+value 485
+attack_electricity 10
+msg
+  These missiles are enchanted to zap the opponent with
+  a large jolt of electricity.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 45
+artifact missile_greater_acid
+def_arch arrow
+Object
+title of greater acid
+type 13
+is_magical 1
+value 485
+attack_acid 10
+msg
+  These missiles have been imbued with highly toxic acid.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 40
+artifact missile_returning
+def_arch arrow
+Object
+title of returning
+type 13
+is_magical 1
+value 335
+last_eat 50
+stand_still 1
+last_sp 3
+msg
+  These missiles are attuned to their owner's aura and
+  will return to their owner when they hit something.
+
+  They are, however, very brittle and likely to shatter
+  after heavy use.
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 70
+artifact missile_greater_returning
+def_arch arrow
+Object
+title of greater returning
+type 13
+is_magical 1
+value 725
+last_eat 100
+stand_still 1
+last_sp 3
+msg
+  These missiles are attuned to their owner's aura and
+  will return to their owner when they hit something.
+
+  They are, however, brittle and likely to shatter after
+  heavy use.
+endmsg
+end
+
+Allowed all
+chance 80
+difficulty 25
+artifact missile_slaying
+def_arch arrow
+Object
+title of slay
+value 450
+type 13
+is_magical 1
+slaying none
+dam_add 1
+end
+
+Allowed all
+chance 70
+difficulty 35
+artifact missile_assassin
+def_arch arrow
+Object
+title of assassinating
+slaying none
+msg
+  These missiles are inscribed with powerful runes for
+  the bane of their victims.
+endmsg
+value 850
+type 13
+wc_add 7
+is_assassin 1
+is_magical 1
+dam_add 1
+end

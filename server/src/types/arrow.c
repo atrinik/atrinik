@@ -35,16 +35,14 @@
  * @return The arrow object. */
 object *fix_stopped_arrow(object *op)
 {
-	object *tmp;
+	object *owner;
 
-#if 0
 	/* Small chance of breaking */
-	if (rndm(0, 99) < op->stats.food)
+	if (op->last_eat && rndm_chance(op->last_eat))
 	{
 		remove_ob(op);
 		return NULL;
 	}
-#endif
 
 	/* Used as temp. vars to control reflection/move speed */
 	op->stats.grace = 0;
@@ -54,9 +52,10 @@ object *fix_stopped_arrow(object *op)
 	CLEAR_FLAG(op, FLAG_WALK_ON);
 	CLEAR_FLAG(op, FLAG_FLY_ON);
 	CLEAR_MULTI_FLAG(op, FLAG_FLYING);
+	owner = get_owner(op);
 
 	/* Food is a self destruct marker - that long the item will need to be destruct! */
-	if ((!(tmp = get_owner(op)) || tmp->type != PLAYER) && op->stats.food && op->type == ARROW)
+	if ((!owner || owner->type != PLAYER) && op->stats.food && op->type == ARROW)
 	{
 		SET_FLAG(op, FLAG_IS_USED_UP);
 		SET_FLAG(op, FLAG_NO_PICK);
@@ -87,6 +86,12 @@ object *fix_stopped_arrow(object *op)
 	/* So that stopped arrows will be saved */
 	clear_owner(op);
 	update_object(op, UP_OBJ_FACE);
+
+	if (owner && owner->type == PLAYER && QUERY_FLAG(op, FLAG_STAND_STILL))
+	{
+		pick_up(owner, op, 0);
+		return NULL;
+	}
 
 	return op;
 }
