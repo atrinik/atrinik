@@ -1434,23 +1434,26 @@ static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyO
 	return wrap_object(myob);
 }
 
+/** @cond */
 /**
  * Helper function for Atrinik_Object_CheckInventory() to recursively
  * check inventories. */
-static object *object_check_inventory_rec(object *tmp, int mode, char *arch_name, char *name, char *title, int type)
+static object *object_check_inventory(object *tmp, int mode, shstr *archname, shstr *name, shstr *title, int type)
 {
 	object *tmp2;
 
 	while (tmp)
 	{
-		if ((!name || (tmp->name && !strcmp(tmp->name, name))) && (!title || (tmp->title && !strcmp(tmp->title, title))) && (!arch_name || (tmp->arch && tmp->arch->name && !strcmp(tmp->arch->name, arch_name))) && (type == -1 || tmp->type == type))
+		if ((!archname || tmp->arch->name == archname) && (!name || tmp->name == name) && (!title || tmp->title == title) && (type == -1 || tmp->type == type))
 		{
 			return tmp;
 		}
 
-		if (mode == 2 || (mode && tmp->type == CONTAINER))
+		if (tmp->inv && (mode == INVENTORY_ALL || (mode == INVENTORY_CONTAINERS && tmp->type == CONTAINER)))
 		{
-			if ((tmp2 = object_check_inventory_rec(tmp->inv, mode, arch_name, name, title, type)))
+			tmp2 = object_check_inventory(tmp->inv, mode, archname, name, title, type);
+
+			if (tmp2)
 			{
 				return tmp2;
 			}
@@ -1461,49 +1464,78 @@ static object *object_check_inventory_rec(object *tmp, int mode, char *arch_name
 
 	return NULL;
 }
+/** @endcond */
 
 /**
- * <h1>object.CheckInventory(int mode, string|None arch, string|None name, string|None title, int type)</h1>
- * Looks for a certain arch object in object's inventory.
- * @param mode How to search the inventory. Possible modes:
- * - <b>0</b>: Only inventory
- * - <b>1</b>: Inventory and containers
- * - <b>2</b>: All inventory
- * @param arch Arch name of the object to search for
- * @param name Name of the object. Optional, defaults to ignore name.
- * @param title Title of the object. Optional, defaults to ignore title.
- * @param type Type of the object. Optional, defaults to ignore type.
- * @return The object we wanted if found, None otherwise.
- * @todo Use keywords. */
-static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *whoptr, PyObject *args)
+ * <h1>object.CheckInventory(int [mode = INVENTORY_ONLY], string [archname = None], string [name = None], string [title = None], int [type = -1])</h1>
+ * Looks for a certain object in object's inventory.
+ * @param mode How to search the inventory. One of @ref INVENTORY_xxx.
+ * @param archname Arch name of the object to search for. If None, can be any.
+ * @param name Name of the object. If None, can be any.
+ * @param title Title of the object. If None, can be any.
+ * @param type Type of the object. If -1, can be any.
+ * @throws ValueError if there were no conditions to search for.
+ * @return The object we wanted if found, None otherwise. */
+static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	int type = -1, mode = 0;
-	char *name = NULL, *title = NULL, *arch_name = NULL;
-	object *tmp, *tmp2;
+	static char *kwlist[] = {"mode", "archname", "name", "title", "type", NULL};
+	uint8 mode = INVENTORY_ONLY;
+	int type = -1;
+	shstr *archname = NULL, *name = NULL, *title = NULL;
+	object *match;
 
-	if (!PyArg_ParseTuple(args, "iz|zzi", &mode, &arch_name, &name, &title, &type))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|Bzzzi", kwlist, &mode, &archname, &name, &title, &type))
 	{
 		return NULL;
 	}
 
-	tmp = WHO->inv;
-
-	while (tmp)
+	if (!archname && !name && !title && type == -1)
 	{
-		if ((!name || (tmp->name && !strcmp(tmp->name, name))) && (!title || (tmp->title && !strcmp(tmp->title, title))) && (!arch_name || (tmp->arch && tmp->arch->name && !strcmp(tmp->arch->name, arch_name))) && (type == -1 || tmp->type == type))
-		{
-			return wrap_object(tmp);
-		}
+		PyErr_SetString(PyExc_ValueError, "object.CheckInventory(): No conditions to search for given.");
+		return NULL;
+	}
 
-		if (mode == 2 || (mode == 1 && tmp->type == CONTAINER))
-		{
-			if ((tmp2 = object_check_inventory_rec(tmp->inv, mode, arch_name, name, title, type)))
-			{
-				return wrap_object(tmp2);
-			}
-		}
+	/* Try to find the strings we got from Python in the shared strings
+	 * library. If they are not found, it is impossible that the inventory
+	 * lookups succeed. */
+	if (archname)
+	{
+		archname = hooks->find_string(archname);
 
-		tmp = tmp->below;
+		if (!archname)
+		{
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	if (name)
+	{
+		name = hooks->find_string(name);
+
+		if (!name)
+		{
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	if (title)
+	{
+		title = hooks->find_string(title);
+
+		if (!title)
+		{
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	match = object_check_inventory(obj->obj->inv, mode, archname, name, title, type);
+
+	if (match)
+	{
+		return wrap_object(match);
 	}
 
 	Py_INCREF(Py_None);
@@ -2295,7 +2327,7 @@ static PyMethodDef methods[] =
 	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
 	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
 	{"CreateObjectInside", (PyCFunction) Atrinik_Object_CreateObjectInside, METH_VARARGS, 0},
-	{"CheckInventory", (PyCFunction) Atrinik_Object_CheckInventory, METH_VARARGS, 0},
+	{"CheckInventory", (PyCFunction) Atrinik_Object_CheckInventory, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
 	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
 	{"IdentifyItem", (PyCFunction) Atrinik_Object_IdentifyItem, METH_VARARGS, 0},

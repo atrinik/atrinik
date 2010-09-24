@@ -106,6 +106,22 @@ extern struct plugin_hooklist *hooks;
 #define AROUND_PLAYER_ONLY 4
 /*@}*/
 
+/**
+ * @defgroup INVENTORY_xxx Modes for object.CheckInventory()
+ * Different modes for object.CheckInventory().
+ *@{*/
+/** Search only inside the inventory of the object. */
+#define INVENTORY_ONLY 0
+/**
+ * Search inside the inventory of the object and inventories of
+ * containers. */
+#define INVENTORY_CONTAINERS 1
+/**
+ * Search inside the inventory of the object, inventories of
+ * containers and inventories of other objects. */
+#define INVENTORY_ALL 2
+/*@}*/
+
 #undef LOG
 /** @copydoc LOG */
 #define LOG hooks->LOG
