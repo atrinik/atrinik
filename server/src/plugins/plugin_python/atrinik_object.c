@@ -1352,44 +1352,28 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
 }
 
 /**
- * <h1>object.CreateInvisibleInside(string id)</h1>
- * Create an invisible force object in object's inventory.
+ * <h1>object.CreateForce(string id)</h1>
+ * Create a force object in object's inventory.
  * @param id String ID of the force object.
- * @return The created invisible force object.
- * @todo Rename to something like "object.CreateForce()".
- * @todo The esrv_send_item() is unnecessary, as forces are invisible. */
-static PyObject *Atrinik_Object_CreateInvisibleInside(Atrinik_Object *whereptr, PyObject *args)
+ * @return The created invisible force object. */
+static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 {
-	char *txt;
-	object *myob;
+	const char *id;
+	object *force;
 
-	if (!PyArg_ParseTuple(args, "s", &txt))
+	if (!PyArg_ParseTuple(args, "s", &id))
 	{
 		return NULL;
 	}
 
-	myob = hooks->get_archetype("force");
+	force = hooks->get_archetype("force");
+	force->speed = 0.0;
+	hooks->update_ob_speed(force);
+	FREE_AND_COPY_HASH(force->slaying, id);
+	FREE_AND_COPY_HASH(force->name, id);
+	force = hooks->insert_ob_in_ob(force, obj->obj);
 
-	if (!myob)
-	{
-		LOG(llevDebug, "Python WARNING:: CFCreateInvisibleInside: Can't find archtype 'force'\n");
-		RAISE("Cant't find archtype 'force'");
-	}
-
-	myob->speed = 0.0;
-	hooks->update_ob_speed(myob);
-
-	if (myob->slaying)
-	{
-		FREE_AND_CLEAR_HASH(myob->slaying);
-	}
-
-	FREE_AND_COPY_HASH(myob->slaying, txt);
-	myob = hooks->insert_ob_in_ob(myob, WHERE);
-
-	hooks->esrv_send_item(WHERE, myob);
-
-	return wrap_object(myob);
+	return wrap_object(force);
 }
 
 /**
@@ -2309,7 +2293,7 @@ static PyMethodDef methods[] =
 	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
 	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
 	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
-	{"CreateInvisibleObjectInside", (PyCFunction) Atrinik_Object_CreateInvisibleInside, METH_VARARGS, 0},
+	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
 	{"CreateObjectInside", (PyCFunction) Atrinik_Object_CreateObjectInside, METH_VARARGS, 0},
 	{"CheckInventory", (PyCFunction) Atrinik_Object_CheckInventory, METH_VARARGS, 0},
 	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
