@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2010-09-09 Alex Tokar
+Modified: 2010-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -127,6 +127,7 @@ direction 7
 x 13
 y 17
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -139,9 +140,11 @@ direction 7
 x 13
 y 18
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -339,6 +342,7 @@ direction 7
 x 16
 y 18
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -351,12 +355,15 @@ direction 7
 x 16
 y 19
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -384,9 +391,11 @@ arch shelf3c.111
 x 17
 y 14
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -454,9 +463,11 @@ arch shelf3b.111
 x 18
 y 14
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -485,12 +496,15 @@ direction 7
 x 18
 y 18
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -503,9 +517,11 @@ direction 7
 x 18
 y 19
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -533,15 +549,19 @@ arch shelf3a.111
 x 19
 y 14
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -589,9 +609,11 @@ arch shelf3c.111
 x 20
 y 14
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -638,6 +660,7 @@ arch shelf2_wall.111
 x 20
 y 19
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -673,6 +696,7 @@ arch shelf3a.111
 x 21
 y 14
 arch random_treasure
+no_pick 1
 randomitems random_read
 end
 end
@@ -701,7 +725,6 @@ x 21
 y 19
 end
 arch chest_m
-slaying no_entry
 x 21
 y 19
 arch random_treasure
