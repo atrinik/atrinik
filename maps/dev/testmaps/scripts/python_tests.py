@@ -72,7 +72,7 @@ def main_say():
 		else:
 			activator.Apply(marked, APPLY_TOGGLE)
 
-	# Example of both Drop() and PickUp().
+	# Example of both Drop() and Take().
 	elif msg == "drop and pickup":
 		if not marked:
 			me.SayTo(activator, "\nYou need to mark an object.")
@@ -80,7 +80,7 @@ def main_say():
 			activator.Write("Dropping {0}.".format(marked.GetName()))
 			activator.Drop(marked)
 			activator.Write("Picking up {0}.".format(marked.GetName()))
-			activator.PickUp(marked)
+			activator.Take(marked)
 
 	# An example of GetName().
 	elif msg == "get object name":

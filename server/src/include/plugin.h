@@ -275,6 +275,7 @@ struct plugin_hooklist
 	int (*cache_remove)(shstr *);
 	void (*cache_remove_by_flags)(uint32);
 	shstr *(*find_string)(const char *);
+	int (*command_take)(object *, char *);
 
 	const char **season_name;
 	const char **weekdays;

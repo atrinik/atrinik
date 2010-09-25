@@ -439,19 +439,26 @@ static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.PickUp(object what)</h1>
- * Force the object to pick up what.
- * @param what The object to pick up. */
-static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
+ * <h1>object.Take(object what)</h1>
+ * Force 'object' to pick up 'what'.
+ * @param what The object to pick up. If a string, this is equivalent of
+ * /take command.
+ * @throws TypeError if 'what' is neither an Atrinik object nor a string. */
+static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
 {
-	Atrinik_Object *whatptr;
-
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
+	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
 	{
+		hooks->pick_up(obj->obj, ((Atrinik_Object *) what)->obj, 0);
+	}
+	else if (PyString_Check(what))
+	{
+		hooks->command_take(obj->obj, PyString_AsString(what));
+	}
+	else
+	{
+		PyErr_SetString(PyExc_TypeError, "object.Take(): Argument 'what' must be either Atrinik object or string.");
 		return NULL;
 	}
-
-	hooks->pick_up(WHO, WHAT, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2260,7 +2267,7 @@ static PyMethodDef methods[] =
 	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
 	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
-	{"PickUp", (PyCFunction) Atrinik_Object_PickUp, METH_VARARGS, 0},
+	{"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
 	{"Deposit", (PyCFunction) Atrinik_Object_Deposit, METH_VARARGS, 0},
 	{"Withdraw", (PyCFunction) Atrinik_Object_Withdraw, METH_VARARGS, 0},

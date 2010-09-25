@@ -145,6 +145,7 @@ struct plugin_hooklist hooklist =
 	cache_remove,
 	cache_remove_by_flags,
 	find_string,
+	command_take,
 
 	season_name,
 	weekdays,
