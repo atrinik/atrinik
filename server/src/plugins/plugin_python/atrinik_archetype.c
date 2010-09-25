@@ -187,7 +187,7 @@ int Atrinik_Archetype_init(PyObject *module)
 		return 0;
 	}
 
-	Py_INCREF_TYPE(&Atrinik_ArchetypeType);
+	Py_INCREF(&Atrinik_ArchetypeType);
 	PyModule_AddObject(module, "Archetype", (PyObject *) &Atrinik_ArchetypeType);
 
 	return 1;

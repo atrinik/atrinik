@@ -2451,15 +2451,6 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 }
 
 /**
- * This function exists to workaround a warning under GCC 4.4.1 (i686):
- * dereferencing type-punned pointer will break strict-aliasing rules
- * @param ob Python object to increase reference of. */
-void Py_INCREF_TYPE(PyTypeObject *ob)
-{
-	Py_INCREF(ob);
-}
-
-/**
  * Generic rich comparison function.
  * @param op
  * @param result

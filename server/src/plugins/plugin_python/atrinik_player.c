@@ -393,7 +393,7 @@ int Atrinik_Player_init(PyObject *module)
 		return 0;
 	}
 
-	Py_INCREF_TYPE(&Atrinik_PlayerType);
+	Py_INCREF(&Atrinik_PlayerType);
 	PyModule_AddObject(module, "Player", (PyObject *) &Atrinik_PlayerType);
 
 	return 1;

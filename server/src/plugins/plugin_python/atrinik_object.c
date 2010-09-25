@@ -2702,7 +2702,7 @@ int Atrinik_Object_init(PyObject *module)
 		return 0;
 	}
 
-	Py_INCREF_TYPE(&Atrinik_ObjectType);
+	Py_INCREF(&Atrinik_ObjectType);
 	PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
 
 	return 1;

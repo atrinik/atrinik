@@ -41,7 +41,7 @@ SRCS = \
 OBJECTS = $(SRCS:.c=.o)
 INCLUDE = -I./include -I../../include -I../../random_maps @PY_INCLUDES@
 
-CFLAGS = -g -O3 -fPIC $(EXTRA_CFLAGS) -Wno-missing-field-initializers
+CFLAGS = -g -O3 -fPIC $(EXTRA_CFLAGS) -Wno-missing-field-initializers -fno-strict-aliasing
 DEPEND = @DEPEND@
 
 LDFLAGS = -export-dynamic -rdynamic -Xlinker -Bsymbolic

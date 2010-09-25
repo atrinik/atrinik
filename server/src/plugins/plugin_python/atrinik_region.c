@@ -190,7 +190,7 @@ int Atrinik_Region_init(PyObject *module)
 		return 0;
 	}
 
-	Py_INCREF_TYPE(&Atrinik_RegionType);
+	Py_INCREF(&Atrinik_RegionType);
 	PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
 
 	return 1;
