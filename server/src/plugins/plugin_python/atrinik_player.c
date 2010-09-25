@@ -200,6 +200,28 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>player.WriteToSocket(int command_id, string command_data)</h1>
+ * Send a socket command to player's client. This can be used to fake a
+ * book GUI, for example.
+ * @param command_id The command's ID to send.
+ * @param command_data Data to send. */
+static PyObject *Atrinik_Player_WriteToSocket(Atrinik_Player *pl, PyObject *args)
+{
+	char command_id, *command_data;
+	int command_data_len;
+
+	if (!PyArg_ParseTuple(args, "bs#", &command_id, &command_data, &command_data_len))
+	{
+		return NULL;
+	}
+
+	hooks->Write_String_To_Socket(&pl->pl->socket, command_id, command_data, command_data_len);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -209,6 +231,7 @@ static PyMethodDef methods[] =
 	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
 	{"GetSkill", (PyCFunction) Atrinik_Player_GetSkill, METH_VARARGS, 0},
 	{"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
+	{"WriteToSocket", (PyCFunction) Atrinik_Player_WriteToSocket, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

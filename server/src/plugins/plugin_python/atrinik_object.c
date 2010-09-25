@@ -1729,32 +1729,6 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 }
 
 /**
- * <h1>player.SendCustomCommand(int command_id, string command_data)</h1>
- * Send a fake command to player's client. This can be used to fake a
- * book GUI, for example.
- * @todo Rename to, for example, "WriteToSocket" and move to player API. */
-static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObject *args)
-{
-	char *customcmd;
-	char cmd;
-
-	if (!PyArg_ParseTuple(args, "bs", &cmd, &customcmd))
-	{
-		return NULL;
-	}
-
-	if (WHO->type != PLAYER || !CONTR(WHO))
-	{
-		RAISE("SendCustomCommand(): Can only be used on players.");
-	}
-
-	hooks->Write_String_To_Socket(&CONTR(WHO)->socket, cmd, customcmd, strlen(customcmd));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.Clone(int [mode = Atrinik.CLONE_WITH_INVENTORY])</h1>
  * Clone an object.
  *
@@ -2327,7 +2301,6 @@ static PyMethodDef methods[] =
 	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
 	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
 	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
-	{"SendCustomCommand", (PyCFunction) Atrinik_Object_SendCustomCommand, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
 	{"SwapApartments", (PyCFunction) Atrinik_Object_SwapApartments, METH_VARARGS, 0},
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
