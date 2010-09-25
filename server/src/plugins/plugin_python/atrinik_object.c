@@ -458,30 +458,25 @@ static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Drop(object what, string [name = None])</h1>
- * Drop an object.
- * @param what Object to drop.
- * @param name If what is None, this is used for the equivalent of /drop
+ * <h1>object.Drop(object what)</h1>
+ * Make 'object' drop 'what'.
+ * @param what Object to drop. If a string, this is equivalent of /drop
  * command.
- * @todo Merge the two parameters into one, doing checking to figure out
- * what the passed Python object is (a game object or a string). */
-static PyObject *Atrinik_Object_Drop(Atrinik_Object *whoptr, PyObject *args)
+ * @throws TypeError if 'what' is neither an Atrinik object nor a string. */
+static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
 {
-	char *name;
-	Atrinik_Object *ob;
-
-	if (!PyArg_ParseTuple(args, "O!|s", &Atrinik_ObjectType, &ob, &name))
+	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
 	{
-		return NULL;
+		hooks->drop(obj->obj, ((Atrinik_Object *) what)->obj, 0);
 	}
-
-	if (ob)
+	else if (PyString_Check(what))
 	{
-		hooks->drop(WHO, ob->obj, 0);
+		hooks->command_drop(obj->obj, PyString_AsString(what));
 	}
 	else
 	{
-		hooks->command_drop(WHO, name);
+		PyErr_SetString(PyExc_TypeError, "object.Drop(): Argument 'what' must be either Atrinik object or string.");
+		return NULL;
 	}
 
 	Py_INCREF(Py_None);
@@ -2301,7 +2296,7 @@ static PyMethodDef methods[] =
 	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
 	{"PickUp", (PyCFunction) Atrinik_Object_PickUp, METH_VARARGS, 0},
-	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_VARARGS, 0},
+	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
 	{"Deposit", (PyCFunction) Atrinik_Object_Deposit, METH_VARARGS, 0},
 	{"Withdraw", (PyCFunction) Atrinik_Object_Withdraw, METH_VARARGS, 0},
 	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
