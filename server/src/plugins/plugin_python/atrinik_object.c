@@ -1606,9 +1606,8 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *ar
  * - <b>Atrinik.IDENTIFY_ALL</b>: Identify all items, if 'marked' is set,
  *   all items inside that.
  * - <b>Atrinik.IDENTIFY_MARKED</b>: Identify only marked item.
- * @param marked Marked item.
- * @todo Simplify 'marked' object parsing. */
-static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *args)
+ * @param marked Marked item. */
+static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *target;
 	PyObject *marked = NULL;
@@ -1631,16 +1630,8 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 		ob = ((Atrinik_Object *) marked)->obj;
 	}
 
-	hooks->cast_identify(target->obj, WHO->level, ob, mode);
-
-	if (WHO)
-	{
-		hooks->play_sound_map(WHO->map, CMD_SOUND_EFFECT, hooks->spells[SP_IDENTIFY].sound, WHO->x, WHO->y, 0, 0);
-	}
-	else if (target->obj)
-	{
-		hooks->play_sound_map(target->obj->map, CMD_SOUND_EFFECT, hooks->spells[SP_IDENTIFY].sound, target->obj->x, target->obj->y, 0, 0);
-	}
+	hooks->cast_identify(target->obj, obj->obj->level, ob, mode);
+	hooks->play_sound_map(obj->obj->map, CMD_SOUND_EFFECT, hooks->spells[SP_IDENTIFY].sound, obj->obj->x, obj->obj->y, 0, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
