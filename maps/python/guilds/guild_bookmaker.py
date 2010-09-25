@@ -60,7 +60,7 @@ def main():
 			marked.msg = info.msg
 			info.msg = ""
 			# No experience for reading it, level 1, 0 experience book.
-			marked.f_no_skill_ident = 1
+			marked.f_no_skill_ident = True
 			marked.level = 1
 			marked.exp = 0
 			me.SayTo(activator, "\nDone! I have saved your message.")

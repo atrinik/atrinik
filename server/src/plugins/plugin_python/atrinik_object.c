@@ -2403,76 +2403,65 @@ static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, void *co
 
 /**
  * Get object's flag.
- * @param whoptr Python object wrapper.
+ * @param obj Python object wrapper.
  * @param context Void pointer to the flag ID.
- * @return 1 if the object has the flag set, 0 otherwise. */
-static PyObject *Object_GetFlag(Atrinik_Object *whoptr, void *context)
+ * @retval Py_True The object has the flag set.
+ * @retval Py_False The object doesn't have the flag set.
+ * @retval NULL An error occurred. */
+static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
 {
 	size_t flagno = (size_t) context;
 
+	/* Should not happen. */
 	if (flagno >= NUM_FLAGS)
 	{
-		RAISE("Unknown flag");
+		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
+		return NULL;
 	}
 
-	return Py_BuildValue("i", QUERY_FLAG(WHO, flagno) ? 1 : 0);
+	Py_ReturnBoolean(QUERY_FLAG(obj->obj, flagno));
 }
 
 /**
  * Set flag for an object.
- * @param whoptr Python object wrapper.
- * @param val Value to set.
+ * @param obj Python object wrapper.
+ * @param val Value to set. Should be either Py_True or Py_False.
  * @param context Void pointer to the flag ID.
- * @return 0 on success, -1 on failure.
- * @todo If gender of player has changed, demand update to client. */
-static int Object_SetFlag(Atrinik_Object *whoptr, PyObject *val, void *context)
+ * @return 0 on success, -1 on failure. */
+static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 {
-	int value;
-	object *tmp;
+	object *env;
 	size_t flagno = (size_t) context;
 
+	/* Should not happen. */
 	if (flagno >= NUM_FLAGS)
 	{
-		INTRAISE("Unknown flag.");
+		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
+		return -1;
 	}
 
-	if (!PyInt_Check(val))
+	if (val == Py_True)
 	{
-		INTRAISE("Value must be 0 or 1.");
+		SET_FLAG(obj->obj, flagno);
 	}
-
-	value = PyInt_AsLong(val);
-
-	if (value < 0 || value > 1)
+	else if (val == Py_False)
 	{
-		INTRAISE("Value must be 0 or 1.");
-	}
-
-	if (value)
-	{
-		SET_FLAG(WHO, flagno);
+		CLEAR_FLAG(obj->obj, flagno);
 	}
 	else
 	{
-		CLEAR_FLAG(WHO, flagno);
+		PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
+		return -1;
 	}
 
-	/* Make sure the inventory image/text is updated */
-	for (tmp = WHO->env; tmp; tmp = tmp->env)
+	/* Make sure the inventory image/text/etc is updated */
+	for (env = obj->obj->env; env; env = env->env)
 	{
-		if (tmp->type == PLAYER)
+		if (env->type == PLAYER)
 		{
-			hooks->esrv_send_item(tmp, WHO);
+			hooks->esrv_send_item(env, obj->obj);
 		}
 	}
-
-	/* If gender has changed, demand update to client. */
-#if 0
-	if ()
-	{
-		CONTR(WHO)->socket.ext_title_flag = 1;
-	}
-#endif
 
 	return 0;
 }

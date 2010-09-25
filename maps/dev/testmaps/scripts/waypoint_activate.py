@@ -15,7 +15,7 @@ def main():
 			me.SayTo(activator, "Oops... I seem to be lost.")
 		else:
 			# This activates the waypoint
-			tmp.f_cursed = 1
+			tmp.f_cursed = True
 	else:
 		me.SayTo(activator, "Tell me to ^go^ to activate my waypoint.")
 

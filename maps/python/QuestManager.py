@@ -77,8 +77,8 @@ class QuestManager:
 			# If we're keeping the item, we will want to adjust some
 			# flags.
 			if "quest_item_keep" in self.quest and self.quest["quest_item_keep"]:
-				quest_item.f_quest_item = 0
-				quest_item.f_startequip = 0
+				quest_item.f_quest_item = False
+				quest_item.f_startequip = False
 			# Otherwise remove it.
 			else:
 				quest_item.Remove()

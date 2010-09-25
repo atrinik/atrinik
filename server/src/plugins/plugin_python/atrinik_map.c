@@ -447,17 +447,21 @@ static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
  * Get map's flag.
  * @param map Python map wrapper.
  * @param context Void pointer to the flag ID.
- * @return 1 if the map has the flag set, 0 otherwise. */
+ * @retval Py_True The map has the flag set.
+ * @retval Py_False The map doesn't have the flag set.
+ * @retval NULL An error occurred. */
 static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
 {
 	size_t flagno = (size_t) context;
 
+	/* Should not happen. */
 	if (flagno >= NUM_MAPFLAGS)
 	{
-		RAISE("Unknown flag.");
+		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
+		return NULL;
 	}
 
-	return Py_BuildValue("i", (map->map->map_flags & (1 << flagno)) ? 1 : 0);
+	Py_ReturnBoolean(map->map->map_flags & (1 << flagno));
 }
 
 /**

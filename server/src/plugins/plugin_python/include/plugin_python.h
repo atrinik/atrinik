@@ -428,7 +428,7 @@ typedef struct
  * returns Py_False. */
 #define Py_ReturnBoolean(val) \
 { \
-	if (val) \
+	if ((val)) \
 	{ \
 		Py_INCREF(Py_True); \
 		return Py_True; \
