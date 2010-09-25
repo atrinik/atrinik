@@ -607,6 +607,7 @@ int move_monster(object *op)
 
 				case RUSH:
 				case ALLRUN:
+					special_dir = dir;
 					break;
 
 				case DISTHIT:
