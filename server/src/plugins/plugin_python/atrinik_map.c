@@ -465,6 +465,40 @@ static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
 }
 
 /**
+ * Set map's flag.
+ * @param map Python map wrapper.
+ * @param val Value to set. Should be either Py_True or Py_False.
+ * @param context Void pointer to the flag ID.
+ * @return 0 on success, -1 on failure. */
+static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
+{
+	size_t flagno = (size_t) context;
+
+	/* Should not happen. */
+	if (flagno >= NUM_MAPFLAGS)
+	{
+		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
+		return -1;
+	}
+
+	if (val == Py_True)
+	{
+		map->map->map_flags |= (1U << flagno);
+	}
+	else if (val == Py_False)
+	{
+		map->map->map_flags &= ~(1U << flagno);
+	}
+	else
+	{
+		PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
  * Create a new map wrapper.
  * @param type Type object.
  * @param args Unused.
@@ -614,7 +648,7 @@ int Atrinik_Map_init(PyObject *module)
 
 		def->name = mapflag_names[flagno];
 		def->get = (getter) Map_GetFlag;
-		def->set = NULL;
+		def->set = (setter) Map_SetFlag;
 		def->doc = NULL;
 		def->closure = (void *) flagno;
 	}
