@@ -57,7 +57,7 @@
 	extern PyTypeObject PyIOBase_Type;
 #	define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
 #else
-#define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
+#	define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
 #endif
 
 #undef MODULEAPI
@@ -288,10 +288,13 @@ int Atrinik_Object_init(PyObject *module);
 typedef struct Atrinik_Object
 {
 	PyObject_HEAD
+
 	/** Pointer to the Atrinik object we wrap. */
 	object *obj;
+
 	/** Pointer for iteration. */
 	struct Atrinik_Object *iter;
+
 	/** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
 	uint8 iter_type;
 } Atrinik_Object;
