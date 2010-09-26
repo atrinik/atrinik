@@ -383,7 +383,7 @@ typedef struct
 
 	/**
 	 * Offset in player structure. */
-	uint32 offset;
+	size_t offset;
 
 	/**
 	 * Flags for special handling. */
