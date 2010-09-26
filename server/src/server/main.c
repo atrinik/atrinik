@@ -1166,7 +1166,7 @@ static void dequeue_path_requests()
  * @param y Y position where player's items from old map will go to.
  * @param op Player we're doing the switching for.
  * @return 1 on success, 0 on failure. */
-int swap_apartments(char *mapold, char *mapnew, int x, int y, object *op)
+int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
 {
 	char oldmappath[HUGE_BUF], newmappath[HUGE_BUF];
 	int i, j;

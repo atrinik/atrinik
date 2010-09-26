@@ -516,7 +516,7 @@ void enter_exit(object *op, object *exit_ob);
 void process_events(mapstruct *map);
 void clean_tmp_files();
 void cleanup();
-int swap_apartments(char *mapold, char *mapnew, int x, int y, object *op);
+int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
 int main(int argc, char **argv);
 
 /* server/map.c */

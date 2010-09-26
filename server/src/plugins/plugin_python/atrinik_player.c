@@ -279,7 +279,7 @@ static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *pl, PyObject *args)
  * @return True on success, False on failure. */
 static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *pl, PyObject *args)
 {
-	char *mapold, *mapnew;
+	const char *mapold, *mapnew;
 	int x, y;
 
 	if (!PyArg_ParseTuple(args, "ssii", &mapold, &mapnew, &x, &y))

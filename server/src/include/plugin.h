@@ -235,7 +235,7 @@ struct plugin_hooklist
 	int (*bank_deposit)(object *, const char *);
 	int (*bank_withdraw)(object *, const char *);
 	sint64 (*bank_get_balance)(object *);
-	int (*swap_apartments)(char *, char *, int, int, object *);
+	int (*swap_apartments)(const char *, const char *, int, int, object *);
 	int (*player_exists)(char *);
 	void (*get_tod)(timeofday_t *);
 	const char *(*object_get_value)(const object *, const char *const);
