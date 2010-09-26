@@ -104,6 +104,7 @@ struct plugin_hooklist hooklist =
 	cost_string_from_value,
 	bank_deposit,
 	bank_withdraw,
+	bank_get_balance,
 	swap_apartments,
 	player_exists,
 	get_tod,

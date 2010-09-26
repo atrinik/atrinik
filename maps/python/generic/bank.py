@@ -5,12 +5,8 @@ from Atrinik import *
 
 activator = WhoIsActivator()
 me = WhoAmI()
-
 msg = WhatIsMessage().strip().lower()
 text = msg.split()
-
-## Player info tag of the bank object.
-pinfo_tag = "BANK_GENERAL"
 
 def main():
 	if msg == "bank" or msg == "hello" or msg == "hi" or msg == "hey":
@@ -21,12 +17,12 @@ def main():
 		me.SayTo(activator, "\nStoring your money in a bank account is a wise idea indeed. Just ask for the ^balance^ to see what's in your account. You can also ^deposit^ money to your account or ^withdraw^ money from it.")
 
 	elif msg == "balance":
-		pinfo = activator.GetPlayerInfo(pinfo_tag)
+		balance = activator.Controller().BankBalance()
 
-		if pinfo == None or pinfo.value == 0:
+		if balance == 0:
 			me.SayTo(activator, "\nYou have no money stored in your bank account.\nWould you like to ^deposit all^ your money?")
 		else:
-			me.SayTo(activator, "\nYour balance is {0}.".format(CostString(pinfo.value)))
+			me.SayTo(activator, "\nYour balance is {0}.".format(CostString(balance)))
 
 	# Deposit money
 	elif text[0] == "deposit":
@@ -34,12 +30,7 @@ def main():
 			me.SayTo(activator, "\nYou can store money in your account by saying ~deposit~ followed by the amount.\nFor example ~deposit 1 mithril, 99 silver~\nYou can also ^deposit all^.")
 			return
 
-		pinfo = activator.GetPlayerInfo(pinfo_tag)
-
-		if not pinfo:
-			pinfo = activator.CreatePlayerInfo(pinfo_tag)
-
-		ret = activator.Deposit(pinfo, msg)
+		ret = activator.Controller().BankDeposit(msg)
 
 		if ret == BANK_SYNTAX_ERROR:
 			me.SayTo(activator, "\nDeposit what?\nUse 'deposit all' or 'deposit 40 gold, 20 silver...'")
@@ -52,8 +43,10 @@ def main():
 		elif ret == BANK_DEPOSIT_MITHRIL:
 			me.SayTo(activator, "\nYou don't have that many mithril coins.")
 		elif ret == BANK_SUCCESS:
-			if pinfo.value != 0:
-				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(pinfo.value)))
+			balance = activator.Controller().BankBalance()
+
+			if balance:
+				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(balance)))
 			else:
 				me.SayTo(activator, "\nYou don't have any money on hand.")
 
@@ -63,13 +56,7 @@ def main():
 			me.SayTo(activator, "\nYou can get money from your account saying by ~withdraw~ followed by the amount.\nFor example ~withdraw 2 gold, 40 copper~\nYou can also ^withdraw all^.")
 			return
 
-		pinfo = activator.GetPlayerInfo(pinfo_tag)
-
-		if not pinfo or pinfo.value == 0:
-			me.SayTo(activator, "\nYou have no money stored.")
-			return
-
-		ret = activator.Withdraw(pinfo, msg)
+		ret = activator.Controller().BankWithdraw(msg)
 
 		if ret == BANK_SYNTAX_ERROR:
 			me.SayTo(activator, "\nWithdraw what?\nUse 'withdraw all' or 'withdraw 30 gold, 20 silver...'")
@@ -80,9 +67,11 @@ def main():
 		elif ret == BANK_WITHDRAW_OVERWEIGHT:
 			me.SayTo(activator, "\nYou can't carry that much money.")
 		elif ret == BANK_SUCCESS:
-			if pinfo.value == 0:
+			balance = activator.Controller().BankBalance()
+
+			if balance == 0:
 				me.SayTo(activator, "\nYou removed all your money.")
 			else:
-				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(pinfo.value)))
+				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(balance)))
 
 main()

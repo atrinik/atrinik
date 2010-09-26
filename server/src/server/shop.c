@@ -725,10 +725,10 @@ void sell_item(object *op, object *pl, sint64 value)
  * @param text Text to get money from.
  * @param money Money block structure.
  * @return One of @ref MONEYSTRING_xxx. */
-int get_money_from_string(char *text, struct _money_block *money)
+int get_money_from_string(const char *text, struct _money_block *money)
 {
 	int pos = 0;
-	char *word;
+	const char *word;
 
 	memset(money, 0, sizeof(struct _money_block));
 
@@ -919,18 +919,84 @@ void insert_money_in_player(object *pl, object *money, uint32 nrof)
 }
 
 /**
+ * Find bank player info object in player's inventory.
+ * @param op Where to look for the player info object.
+ * @return The player info object if found, NULL otherwise. */
+object *bank_get_info(object *op)
+{
+	object *tmp;
+
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL)
+		{
+			return tmp;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Create a new bank player info object and insert it to 'op'.
+ * @param op Player.
+ * @return The created player info object. */
+object *bank_create_info(object *op)
+{
+	object *bank = get_archetype(shstr_cons.player_info);
+
+	FREE_AND_COPY_HASH(bank->name, shstr_cons.BANK_GENERAL);
+	insert_ob_in_ob(bank, op);
+
+	return bank;
+}
+
+/**
+ * Convenience function to either find a bank player info object and if
+ * not found, create a new one.
+ * @param op Player object.
+ * @return The bank player info object. Never NULL. */
+object *bank_get_create_info(object *op)
+{
+	object *bank = bank_get_info(op);
+
+	if (!bank)
+	{
+		bank = bank_create_info(op);
+	}
+
+	return bank;
+}
+
+/**
+ * Query how much money player has stored in bank.
+ * @param op Player to query for.
+ * @return The money stored. */
+sint64 bank_get_balance(object *op)
+{
+	object *bank = bank_get_info(op);
+
+	if (!bank)
+	{
+		return 0;
+	}
+
+	return bank->value;
+}
+
+/**
  * Deposit money to player's bank object.
  * @param op Player.
- * @param bank Bank object in player's inventory.
  * @param text What was said to trigger this.
  * @return One of @ref BANK_xxx. */
-int bank_deposit(object *op, object *bank, char *text)
+int bank_deposit(object *op, const char *text)
 {
 	int pos = 0;
 	_money_block money;
+	object *bank;
 
 	get_word_from_string(text, &pos);
-	get_money_from_string(text + pos , &money);
+	get_money_from_string(text + pos, &money);
 
 	if (!money.mode)
 	{
@@ -938,6 +1004,7 @@ int bank_deposit(object *op, object *bank, char *text)
 	}
 	else if (money.mode == MONEYSTRING_ALL)
 	{
+		bank = bank_get_create_info(op);
 		bank->value += remove_money_type(op, op, -1, 0);
 		fix_player(op);
 	}
@@ -995,6 +1062,7 @@ int bank_deposit(object *op, object *bank, char *text)
 			remove_money_type(op, op, coins_arch[3]->clone.value, money.copper);
 		}
 
+		bank = bank_get_create_info(op);
 		bank->value += money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
 		fix_player(op);
 	}
@@ -1008,14 +1076,22 @@ int bank_deposit(object *op, object *bank, char *text)
  * @param bank Bank object in player's inventory.
  * @param text What was said to trigger this.
  * @return One of @ref BANK_xxx. */
-int bank_withdraw(object *op, object *bank, char *text)
+int bank_withdraw(object *op, const char *text)
 {
 	int pos = 0;
 	sint64 big_value;
 	_money_block money;
+	object *bank;
 
 	get_word_from_string(text, &pos);
-	get_money_from_string(text + pos , &money);
+	get_money_from_string(text + pos, &money);
+
+	bank = bank_get_info(op);
+
+	if (!bank || !bank->value)
+	{
+		return BANK_WITHDRAW_MISSING;
+	}
 
 	if (!money.mode)
 	{

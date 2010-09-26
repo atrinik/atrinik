@@ -745,12 +745,16 @@ int pay_for_amount(sint64 to_pay, object *pl);
 int pay_for_item(object *op, object *pl);
 int get_payment(object *pl, object *op);
 void sell_item(object *op, object *pl, sint64 value);
-int get_money_from_string(char *text, struct _money_block *money);
+int get_money_from_string(const char *text, struct _money_block *money);
 int query_money_type(object *op, int value);
 sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount);
 void insert_money_in_player(object *pl, object *money, uint32 nrof);
-int bank_deposit(object *op, object *bank, char *text);
-int bank_withdraw(object *op, object *bank, char *text);
+object *bank_get_info(object *op);
+object *bank_create_info(object *op);
+object *bank_get_create_info(object *op);
+sint64 bank_get_balance(object *op);
+int bank_deposit(object *op, const char *text);
+int bank_withdraw(object *op, const char *text);
 sint64 insert_coins(object *pl, sint64 value);
 
 /* server/shstr.c */
@@ -898,7 +902,7 @@ int rndm_chance(uint32 n);
 int look_up_spell_name(const char *spname);
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 char *cleanup_string(char *ustring);
-char *get_word_from_string(char *str, int *pos);
+const char *get_word_from_string(const char *str, int *pos);
 void adjust_player_name(char *name);
 void replace_unprintable_chars(char *buf);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);

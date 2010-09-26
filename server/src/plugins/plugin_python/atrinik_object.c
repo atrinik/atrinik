@@ -491,47 +491,6 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
 }
 
 /**
- * <h1>object.Deposit(object deposit_object, string text)</h1>
- * Deposit value or string money from object in deposit_object.
- *
- * Control first object has that amount of money, then remove it
- * from object and add it in ->value of deposit_object.
- * @param deposit_object The deposit object.
- * @param text How much money to deposit, in string representation.
- * @return The value deposited. */
-static PyObject *Atrinik_Object_Deposit(Atrinik_Object *whoptr, PyObject *args)
-{
-	Atrinik_Object *obptr;
-	char *text;
-
-	if (!PyArg_ParseTuple(args, "O!s", &Atrinik_ObjectType, &obptr, &text))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->bank_deposit(WHO, obptr->obj, text));
-}
-
-/**
- * <h1>object.Withdraw(object deposit_object, string text)</h1>
- * Withdraw value or string money from object in deposit_object.
- * @param deposit_object The withdraw object.
- * @param text How much money to withdraw, in string representation.
- * @return The value withdrawn. */
-static PyObject *Atrinik_Object_Withdraw(Atrinik_Object *whoptr, PyObject *args)
-{
-	Atrinik_Object *obptr;
-	char *text;
-
-	if (!PyArg_ParseTuple(args, "O!s", &Atrinik_ObjectType, &obptr, &text))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->bank_withdraw(WHO, obptr->obj, text));
-}
-
-/**
  * <h1>object.Communicate(string message)</h1>
  * Object says message to everybody on its map. Emote commands may be used.
  * @param message The message to say. */
@@ -2269,8 +2228,6 @@ static PyMethodDef methods[] =
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
 	{"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
-	{"Deposit", (PyCFunction) Atrinik_Object_Deposit, METH_VARARGS, 0},
-	{"Withdraw", (PyCFunction) Atrinik_Object_Withdraw, METH_VARARGS, 0},
 	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
 	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
 	{"SayTo", (PyCFunction) Atrinik_Object_SayTo, METH_VARARGS, 0},

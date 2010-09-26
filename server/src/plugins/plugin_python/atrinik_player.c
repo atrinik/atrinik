@@ -222,6 +222,51 @@ static PyObject *Atrinik_Player_WriteToSocket(Atrinik_Player *pl, PyObject *args
 	return Py_None;
 }
 
+/**
+ * <h1>player.BankDeposit(string text)</h1>
+ * Deposit money to bank.
+ * @param text How much money to deposit, in string representation.
+ * @return One of @ref BANK_xxx. */
+static PyObject *Atrinik_Player_BankDeposit(Atrinik_Player *pl, PyObject *args)
+{
+	const char *text;
+
+	if (!PyArg_ParseTuple(args, "s", &text))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->bank_deposit(pl->pl->ob, text));
+}
+
+/**
+ * <h1>player.BankWithdraw(string text)</h1>
+ * Withdraw money from bank.
+ * @param text How much money to withdraw, in string representation.
+ * @return One of @ref BANK_xxx. */
+static PyObject *Atrinik_Player_BankWithdraw(Atrinik_Player *pl, PyObject *args)
+{
+	const char *text;
+
+	if (!PyArg_ParseTuple(args, "s", &text))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->bank_withdraw(pl->pl->ob, text));
+}
+
+/**
+ * <h1>player.BankBalance()</h1>
+ * Figure out how much money player has in bank.
+ * @return Integer value of the money in bank. */
+static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *pl, PyObject *args)
+{
+	(void) args;
+
+	return Py_BuildValue("L", hooks->bank_get_balance(pl->pl->ob));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -232,6 +277,9 @@ static PyMethodDef methods[] =
 	{"GetSkill", (PyCFunction) Atrinik_Player_GetSkill, METH_VARARGS, 0},
 	{"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
 	{"WriteToSocket", (PyCFunction) Atrinik_Player_WriteToSocket, METH_VARARGS, 0},
+	{"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
+	{"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},
+	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

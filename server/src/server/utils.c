@@ -151,7 +151,7 @@ char *cleanup_string(char *ustring)
  * @param str The string.
  * @param pos Position in string.
  * @return The word, NULL if there is no word left in str. */
-char *get_word_from_string(char *str, int *pos)
+const char *get_word_from_string(const char *str, int *pos)
 {
 	/* this is used for controled input which never should bigger than this */
 	static char buf[HUGE_BUF];
