@@ -56,6 +56,7 @@
 #	define PyInt_AsLong PyLong_AsLong
 	extern PyTypeObject PyIOBase_Type;
 #	define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
+#	define PyString_FromFormat PyUnicode_FromFormat
 #else
 #	define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
 #endif

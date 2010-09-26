@@ -2449,10 +2449,7 @@ static void Atrinik_Object_dealloc(Atrinik_Object *self)
  * @return Python object containing the arch name and name of the object. */
 static PyObject *Atrinik_Object_str(Atrinik_Object *self)
 {
-	char buf[HUGE_BUF];
-
-	snprintf(buf, sizeof(buf), "[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
-	return Py_BuildValue("s", buf);
+	return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
 }
 
 static int Atrinik_Object_InternalCompare(Atrinik_Object *left, Atrinik_Object *right)
