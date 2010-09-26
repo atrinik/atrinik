@@ -2667,7 +2667,7 @@ PyObject *wrap_object(object *what)
 
 	if (wrapper)
 	{
-		wrapper->obj = what;
+		wrapper->obj = HEAD(what);
 	}
 
 	return (PyObject *) wrapper;
