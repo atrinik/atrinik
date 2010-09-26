@@ -279,6 +279,9 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(whatptr);
+
 	hooks->spring_trap(WHAT, WHO);
 
 	Py_INCREF(Py_None);
@@ -292,6 +295,7 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject *a
 static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
 {
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	return Py_BuildValue("s", hooks->determine_god(WHO));
 }
@@ -310,6 +314,8 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	if (hooks->command_rskill(WHO, "divine prayers"))
 	{
@@ -341,6 +347,8 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	tmp = hooks->get_object();
 	FREE_AND_COPY_HASH(EXIT_PATH(tmp), path);
@@ -376,6 +384,9 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(whereptr);
 
 	myob = WHAT;
 	obenv = myob->env;
@@ -435,6 +446,9 @@ static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(whatptr);
+
 	return Py_BuildValue("i", hooks->manual_apply(WHO, WHAT, flags));
 }
 
@@ -446,8 +460,11 @@ static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
  * @throws TypeError if 'what' is neither an Atrinik object nor a string. */
 static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
 {
+	OBJEXISTCHECK(obj);
+
 	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
 	{
+		OBJEXISTCHECK((Atrinik_Object *) what);
 		hooks->pick_up(obj->obj, ((Atrinik_Object *) what)->obj, 0);
 	}
 	else if (PyString_Check(what))
@@ -472,8 +489,11 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
  * @throws TypeError if 'what' is neither an Atrinik object nor a string. */
 static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
 {
+	OBJEXISTCHECK(obj);
+
 	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
 	{
+		OBJEXISTCHECK((Atrinik_Object *) what);
 		hooks->drop(obj->obj, ((Atrinik_Object *) what)->obj, 0);
 	}
 	else if (PyString_Check(what))
@@ -503,6 +523,8 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	hooks->communicate(WHO, message);
 
 	Py_INCREF(Py_None);
@@ -524,6 +546,8 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	if (mode)
 	{
@@ -557,6 +581,9 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obptr2);
 
 	target = obptr2->obj;
 
@@ -594,6 +621,8 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	hooks->new_draw_info(color, WHO, message);
 
 	Py_INCREF(Py_None);
@@ -610,6 +639,7 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_GetGender(Atrinik_Object *whoptr, PyObject *args)
 {
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	return Py_BuildValue("i", hooks->object_get_gender(WHO));
 }
@@ -630,6 +660,8 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *whoptr, PyObject *args
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	/* Set object to neuter */
 	CLEAR_FLAG(WHO, FLAG_IS_MALE);
@@ -671,6 +703,8 @@ static PyObject *Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	if (WHO->type != PLAYER)
 	{
@@ -715,6 +749,7 @@ static PyObject *Atrinik_Object_GetRank(Atrinik_Object *whoptr, PyObject *args)
 	object *walk;
 
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	if (WHO->type != PLAYER)
 	{
@@ -747,6 +782,8 @@ static PyObject *Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject *a
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	if (WHO->type != PLAYER)
 	{
@@ -788,6 +825,7 @@ static PyObject *Atrinik_Object_GetAlignmentForce(Atrinik_Object *whoptr, PyObje
 	object *walk;
 
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	if (WHO->type != PLAYER)
 	{
@@ -835,6 +873,8 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	if (WHO->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
@@ -878,6 +918,7 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 	object *walk;
 
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	if (WHO->type != PLAYER)
 	{
@@ -906,6 +947,8 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 static PyObject *Atrinik_Object_Fix(Atrinik_Object *whoptr, PyObject *args)
 {
 	(void) args;
+	OBJEXISTCHECK(whoptr);
+
 	hooks->fix_player(WHO);
 
 	Py_INCREF(Py_None);
@@ -927,6 +970,9 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(whatptr);
 
 	WHAT->speed = 0;
 	WHAT->speed_left = 0.0;
@@ -976,6 +1022,9 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(target);
+
 	if (WHO->type != PLAYER)
 	{
 		item = spellNPC;
@@ -1012,6 +1061,8 @@ static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	return Py_BuildValue("i", hooks->check_spell_known(WHO, spell));
 }
 
@@ -1030,6 +1081,8 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	if (mode)
 	{
@@ -1058,6 +1111,8 @@ static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	return Py_BuildValue("i", hooks->check_skill_known(WHO, skill));
 }
 
@@ -1074,6 +1129,8 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	hooks->learn_skill(WHO, NULL, NULL, skill, 0);
 
 	Py_INCREF(Py_None);
@@ -1087,6 +1144,7 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
 static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObject *args)
 {
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	return wrap_object(hooks->find_marked_object(WHO));
 }
@@ -1111,6 +1169,8 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whereptr);
 
 	myob = hooks->get_archetype("player_force");
 
@@ -1158,6 +1218,8 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	if (WHO->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
@@ -1192,6 +1254,8 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	if (WHO->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
@@ -1223,6 +1287,8 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whereptr);
 
 	myob = hooks->get_archetype("player_info");
 
@@ -1262,6 +1328,8 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	/* Get the first linked player info arch in this inventory */
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
@@ -1295,6 +1363,8 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
 		return NULL;
 	}
 
+	OBJEXISTCHECK(myob);
+
 	/* Our check paramters: arch "force_info", name of this arch */
 	strncpy(name, STRING_OBJ_NAME(myob->obj), 127);
 	name[63] = '\0';
@@ -1326,6 +1396,8 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(obj);
 
 	force = hooks->get_archetype("force");
 	force->speed = 0.0;
@@ -1360,6 +1432,8 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(obj);
 
 	at = hooks->find_archetype(archname);
 
@@ -1455,6 +1529,8 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
 		return NULL;
 	}
 
+	OBJEXISTCHECK(obj);
+
 	if (!archname && !name && !title && type == -1)
 	{
 		PyErr_SetString(PyExc_ValueError, "object.FindObject(): No conditions to search for given.");
@@ -1518,6 +1594,7 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
 	object *myob, *obenv;
 
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	myob = WHO;
 	obenv = myob->env;
@@ -1557,6 +1634,8 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	hooks->transfer_ob(WHO, x, y, 0, NULL, NULL);
 
 	Py_INCREF(Py_None);
@@ -1585,6 +1664,9 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *obj, PyObject *args
 		return NULL;
 	}
 
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(target);
+
 	if (marked && marked != Py_None)
 	{
 		if (!PyObject_TypeCheck(marked, &Atrinik_ObjectType))
@@ -1593,6 +1675,7 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *obj, PyObject *args
 			return NULL;
 		}
 
+		OBJEXISTCHECK((Atrinik_Object *) marked);
 		ob = ((Atrinik_Object *) marked)->obj;
 	}
 
@@ -1616,6 +1699,7 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 	char *result;
 
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	sb = hooks->stringbuffer_new();
 	hooks->dump_object(WHO, sb);
@@ -1645,6 +1729,9 @@ static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(whatptr);
+
 	return Py_BuildValue("i", hooks->query_cost(WHAT, WHO, flag));
 }
 
@@ -1656,6 +1743,7 @@ static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *ar
 static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *whoptr, PyObject *args)
 {
 	(void) args;
+	OBJEXISTCHECK(whoptr);
 
 	return Py_BuildValue("i", hooks->query_money(WHO));
 }
@@ -1672,6 +1760,9 @@ static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *arg
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(whatptr);
 
 	return Py_BuildValue("i", hooks->pay_for_item(WHAT, WHO));
 }
@@ -1690,6 +1781,8 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	return Py_BuildValue("i", hooks->pay_for_amount(to_pay, WHO));
 }
@@ -1715,6 +1808,8 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whoptr);
 
 	if (!mode)
 	{
@@ -1749,6 +1844,8 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	return Py_BuildValue("s", hooks->object_get_value(WHO, key));
 }
 
@@ -1770,6 +1867,8 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	return Py_BuildValue("i", hooks->object_set_value(WHO, key, value, add_key));
 }
 
@@ -1786,6 +1885,13 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
 	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
 	{
 		return NULL;
+	}
+
+	OBJEXISTCHECK(whatptr);
+
+	if (ob)
+	{
+		OBJEXISTCHECK(ob);
 	}
 
 	return Py_BuildValue("s", hooks->query_short_name(WHAT, ob ? ob->obj : WHAT));
@@ -1807,6 +1913,8 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whatptr);
 
 	timer = hooks->cftimer_find_free_id();
 
@@ -1842,6 +1950,8 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+
 	if (WHO->type != PLAYER)
 	{
 		RAISE("Sound(): Can only be used on players.");
@@ -1861,6 +1971,8 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_Controller(Atrinik_Object *whatptr, PyObject *args)
 {
 	(void) args;
+
+	OBJEXISTCHECK(whatptr);
 
 	if (WHAT->type != PLAYER)
 	{
@@ -1884,6 +1996,8 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *ar
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whatptr);
 
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
@@ -1912,6 +2026,8 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject 
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whatptr);
+
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
 		PyErr_SetString(PyExc_IndexError, "Protection ID is invalid.");
@@ -1936,6 +2052,8 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whatptr);
 
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
@@ -1964,6 +2082,8 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whatptr);
+
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
 		PyErr_SetString(PyExc_IndexError, "Attack ID is invalid.");
@@ -1988,6 +2108,9 @@ static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *arg
 		return NULL;
 	}
 
+	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(whatptr);
+
 	return Py_BuildValue("i", hooks->change_abil(WHO, WHAT));
 }
 
@@ -2004,6 +2127,8 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whatptr);
 
 	return wrap_object(hooks->decrease_ob_nr(WHAT, num));
 }
@@ -2057,6 +2182,8 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(whatptr);
 
 	if (range == 0)
 	{
@@ -2175,6 +2302,9 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
 		return NULL;
 	}
 
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(to);
+
 	if (!hooks->get_rangevector(obj->obj, to->obj, &rv, flags))
 	{
 		Py_INCREF(Py_None);
@@ -2268,6 +2398,8 @@ static PyMethodDef methods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, void *context)
 {
+	OBJEXISTCHECK(whoptr);
+
 	return generic_field_getter((fields_struct *) context, WHO);
 }
 
@@ -2281,6 +2413,8 @@ static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, void *co
 {
 	object *tmp;
 	fields_struct *field = (fields_struct *) context;
+
+	OBJEXISTCHECK_INT(whoptr);
 
 	if ((field->flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER)
 	{
@@ -2362,6 +2496,8 @@ static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(obj);
+
 	Py_ReturnBoolean(QUERY_FLAG(obj->obj, flagno));
 }
 
@@ -2382,6 +2518,8 @@ static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
 		return -1;
 	}
+
+	OBJEXISTCHECK_INT(obj);
 
 	if (val == Py_True)
 	{
@@ -2425,6 +2563,7 @@ static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject
 	if (self)
 	{
 		self->obj = NULL;
+		self->count = 0;
 	}
 
 	return (PyObject *) self;
@@ -2433,13 +2572,14 @@ static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject
 /**
  * Free an object wrapper.
  * @param self The wrapper to free. */
-static void Atrinik_Object_dealloc(Atrinik_Object *self)
+static void Atrinik_Object_dealloc(PyObject *self)
 {
-	self->obj = NULL;
+	((Atrinik_Object *) self)->obj = NULL;
+	((Atrinik_Object *) self)->count = 0;
 #ifndef IS_PY_LEGACY
-	Py_TYPE(self)->tp_free((PyObject *) self);
+	Py_TYPE(self)->tp_free(self);
 #else
-	self->ob_type->tp_free((PyObject *) self);
+	self->ob_type->tp_free(self);
 #endif
 }
 
@@ -2449,6 +2589,7 @@ static void Atrinik_Object_dealloc(Atrinik_Object *self)
  * @return Python object containing the arch name and name of the object. */
 static PyObject *Atrinik_Object_str(Atrinik_Object *self)
 {
+	OBJEXISTCHECK(self);
 	return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
 }
 
@@ -2489,10 +2630,7 @@ static PyObject *object_iter(PyObject *seq)
 {
 	Atrinik_Object *obj, *orig_obj = (Atrinik_Object *) seq;
 
-	if (!orig_obj->obj)
-	{
-		return NULL;
-	}
+	OBJEXISTCHECK(orig_obj);
 
 	obj = PyObject_NEW(Atrinik_Object, &Atrinik_ObjectType);
 	Py_INCREF(seq);
@@ -2523,7 +2661,10 @@ static PyObject *object_iternext(Atrinik_Object *obj)
 	/* Do we need to iterate? */
 	if (obj->iter_type != OBJ_ITER_TYPE_NONE)
 	{
-		object *tmp = obj->iter->obj;
+		object *tmp;
+
+		OBJEXISTCHECK(obj->iter);
+		tmp = obj->iter->obj;
 
 		/* Check which way we're iterating. */
 		if (obj->iter_type == OBJ_ITER_TYPE_BELOW)
@@ -2538,6 +2679,8 @@ static PyObject *object_iternext(Atrinik_Object *obj)
 		{
 			obj->iter->obj = NULL;
 		}
+
+		obj->iter->count = obj->iter->obj ? obj->iter->obj->count : 0;
 
 		/* Nothing left, so mark iter_type to show that. */
 		if (!obj->iter->obj)
@@ -2657,7 +2800,7 @@ PyObject *wrap_object(object *what)
 	Atrinik_Object *wrapper;
 
 	/* Return None if no object was to be wrapped. */
-	if (!what)
+	if (!what || OBJECT_FREE(what))
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -2668,6 +2811,7 @@ PyObject *wrap_object(object *what)
 	if (wrapper)
 	{
 		wrapper->obj = HEAD(what);
+		wrapper->count = wrapper->obj->count;
 	}
 
 	return (PyObject *) wrapper;

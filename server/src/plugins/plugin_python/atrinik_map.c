@@ -350,6 +350,8 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(ob);
+
 	if (!QUERY_FLAG(ob->obj, FLAG_REMOVED))
 	{
 		hooks->remove_ob(ob->obj);
@@ -406,6 +408,8 @@ static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args)
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(ob);
 
 	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
 	{

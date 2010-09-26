@@ -63,6 +63,8 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 		return NULL;
 	}
 
+	OBJEXISTCHECK(ob);
+
 	if (ob->obj->type != PLAYER || !CONTR(ob->obj))
 	{
 		PyErr_SetString(PyExc_ValueError, "party.AddMember(): 'player' must be a player object.");
@@ -100,6 +102,8 @@ static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args
 	{
 		return NULL;
 	}
+
+	OBJEXISTCHECK(ob);
 
 	if (ob->obj->type != PLAYER || !CONTR(ob->obj))
 	{
@@ -151,6 +155,11 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 	if (!PyArg_ParseTuple(args, "si|O!", &msg, &flags, &Atrinik_ObjectType, &ob))
 	{
 		return NULL;
+	}
+
+	if (ob)
+	{
+		OBJEXISTCHECK(ob);
 	}
 
 	hooks->send_party_message(party->party, msg, flags, ob ? ob->obj : NULL);

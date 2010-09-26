@@ -298,6 +298,9 @@ typedef struct Atrinik_Object
 
 	/** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
 	uint8 iter_type;
+
+	/** ID of the object. */
+	tag_t count;
 } Atrinik_Object;
 
 PyTypeObject Atrinik_MapType;
@@ -408,10 +411,19 @@ typedef struct
 
 #define OBJEXISTCHECK_INT(ob) \
 { \
-	if (!ob || !ob->obj || hooks->was_destroyed(ob->obj, ob->obj->count)) \
+	if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
 	{ \
 		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
 		return -1; \
+	} \
+}
+
+#define OBJEXISTCHECK(ob) \
+{ \
+	if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
+	{ \
+		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
+		return NULL; \
 	} \
 }
 

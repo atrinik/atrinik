@@ -2272,6 +2272,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 			else if (PyObject_TypeCheck(value, &Atrinik_ObjectType))
 			{
+				OBJEXISTCHECK_INT((Atrinik_Object *) value);
 				*(object **) field_ptr = (object *) ((Atrinik_Object *) value)->obj;
 			}
 			else
@@ -2300,7 +2301,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 		case FIELDTYPE_OBJECTREF:
 		{
 			void *field_ptr2 = (void *) ((char *) ptr + field->extra_data);
-			object *tmp = (object *) ((Atrinik_Object *) value)->obj;
 
 			if (value == Py_None)
 			{
@@ -2309,6 +2309,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 			else if (PyObject_TypeCheck(value, &Atrinik_ObjectType))
 			{
+				object *tmp;
+
+				OBJEXISTCHECK_INT((Atrinik_Object *) value);
+
+				tmp = (object *) ((Atrinik_Object *) value)->obj;
 				*(object **) field_ptr = tmp;
 				*(tag_t *) field_ptr2 = tmp->count;
 			}
@@ -2432,7 +2437,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 		case FIELDTYPE_OBJECTREF:
 		{
 			object *obj = *(object **) field_ptr;
-			tag_t tag = *(tag_t *) (void *) ((char *) ptr + field->extra_data);;
+			tag_t tag = *(tag_t *) (void *) ((char *) ptr + field->extra_data);
 
 			return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
 		}

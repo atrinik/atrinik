@@ -115,6 +115,7 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 
 	if (PyObject_TypeCheck(what, &Atrinik_ObjectType))
 	{
+		OBJEXISTCHECK((Atrinik_Object *) what);
 		weight = WEIGHT_NROF(((Atrinik_Object *) what)->obj, ((Atrinik_Object *) what)->obj->nrof);
 	}
 	else if (PyInt_Check(what))
