@@ -1736,28 +1736,6 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SwapApartments(string oldmap, string newmap, int x, int y)</h1>
- * Swaps oldmap apartment with newmap one.
- *
- * Copies old items from oldmap to newmap at x, y and saves the map.
- * @param oldmap The old apartment map.
- * @param oldmap The new apartment map.
- * @param x X position to copy the items to.
- * @param y Y position to copy the items to. */
-static PyObject *Atrinik_Object_SwapApartments(Atrinik_Object *whoptr, PyObject *args)
-{
-	char *mapold, *mapnew;
-	int x, y;
-
-	if (!PyArg_ParseTuple(args, "ssii", &mapold, &mapnew, &x, &y))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->swap_apartments(mapold, mapnew, x, y, WHO));
-}
-
-/**
  * <h1>object.ReadKey(string key)</h1>
  * Get key value of an object.
  * @param key Key to look for.
@@ -2266,7 +2244,6 @@ static PyMethodDef methods[] =
 	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
 	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
-	{"SwapApartments", (PyCFunction) Atrinik_Object_SwapApartments, METH_VARARGS, 0},
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
 	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
 	{"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},

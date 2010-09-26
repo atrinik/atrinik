@@ -267,6 +267,29 @@ static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *pl, PyObject *args)
 	return Py_BuildValue("L", hooks->bank_get_balance(pl->pl->ob));
 }
 
+/**
+ * <h1>player.SwapApartments(string oldmap, string newmap, int x, int y)</h1>
+ * Swaps oldmap apartment with newmap one.
+ *
+ * Copies old items from oldmap to newmap at x, y and saves the map.
+ * @param oldmap The old apartment map.
+ * @param oldmap The new apartment map.
+ * @param x X position to copy the items to.
+ * @param y Y position to copy the items to.
+ * @return True on success, False on failure. */
+static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *pl, PyObject *args)
+{
+	char *mapold, *mapnew;
+	int x, y;
+
+	if (!PyArg_ParseTuple(args, "ssii", &mapold, &mapnew, &x, &y))
+	{
+		return NULL;
+	}
+
+	Py_ReturnBoolean(hooks->swap_apartments(mapold, mapnew, x, y, pl->pl->ob));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -280,6 +303,7 @@ static PyMethodDef methods[] =
 	{"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
 	{"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},
 	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
+	{"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

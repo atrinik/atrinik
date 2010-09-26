@@ -30,7 +30,7 @@ def upgrade_apartment(ap_old, ap_new, pid, x, y):
 	activator.Write("You pay the money.", 0)
 	activator.Write("{0} is casting some strange magic.".format(me.name), 0)
 
-	if activator.SwapApartments(ap_old, ap_new, x, y) != 1:
+	if not activator.Controller().SwapApartments(ap_old, ap_new, x, y):
 		me.SayTo(activator, "\nSomething is very wrong... Call a DM!")
 	else:
 		pinfo.slaying = pid
