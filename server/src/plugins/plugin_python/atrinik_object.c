@@ -2304,33 +2304,35 @@ static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, void *co
 	/* Special handling for some player stuff. */
 	if (WHO->type == PLAYER)
 	{
-		if (field->offset == offsetof(object, stats.Int))
+		switch (field->offset)
 		{
-			CONTR(WHO)->orig_stats.Int = (sint8) PyInt_AsLong(value);
-		}
-		else if (field->offset == offsetof(object, stats.Str))
-		{
-			CONTR(WHO)->orig_stats.Str = (sint8) PyInt_AsLong(value);
-		}
-		else if (field->offset == offsetof(object, stats.Cha))
-		{
-			CONTR(WHO)->orig_stats.Cha = (sint8) PyInt_AsLong(value);
-		}
-		else if (field->offset == offsetof(object, stats.Wis))
-		{
-			CONTR(WHO)->orig_stats.Wis = (sint8) PyInt_AsLong(value);
-		}
-		else if (field->offset == offsetof(object, stats.Dex))
-		{
-			CONTR(WHO)->orig_stats.Dex = (sint8) PyInt_AsLong(value);
-		}
-		else if (field->offset == offsetof(object, stats.Con))
-		{
-			CONTR(WHO)->orig_stats.Con = (sint8) PyInt_AsLong(value);
-		}
-		else if (field->offset == offsetof(object, stats.Pow))
-		{
-			CONTR(WHO)->orig_stats.Pow = (sint8) PyInt_AsLong(value);
+			case offsetof(object, stats.Str):
+				CONTR(WHO)->orig_stats.Str = (sint8) PyInt_AsLong(value);
+				break;
+
+			case offsetof(object, stats.Dex):
+				CONTR(WHO)->orig_stats.Dex = (sint8) PyInt_AsLong(value);
+				break;
+
+			case offsetof(object, stats.Con):
+				CONTR(WHO)->orig_stats.Con = (sint8) PyInt_AsLong(value);
+				break;
+
+			case offsetof(object, stats.Wis):
+				CONTR(WHO)->orig_stats.Wis = (sint8) PyInt_AsLong(value);
+				break;
+
+			case offsetof(object, stats.Pow):
+				CONTR(WHO)->orig_stats.Pow = (sint8) PyInt_AsLong(value);
+				break;
+
+			case offsetof(object, stats.Cha):
+				CONTR(WHO)->orig_stats.Cha = (sint8) PyInt_AsLong(value);
+				break;
+
+			case offsetof(object, stats.Int):
+				CONTR(WHO)->orig_stats.Int = (sint8) PyInt_AsLong(value);
+				break;
 		}
 
 		if (field->flags & FIELDFLAG_PLAYER_FIX)
