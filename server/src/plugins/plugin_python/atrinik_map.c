@@ -342,25 +342,24 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
  * @param y Y coordinate where to insert 'ob'. */
 static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
 {
-	Atrinik_Object *ob;
+	Atrinik_Object *obj;
 	sint16 x, y;
 
-	if (!PyArg_ParseTuple(args, "O!hh", &Atrinik_ObjectType, &ob, &x, &y))
+	if (!PyArg_ParseTuple(args, "O!hh", &Atrinik_ObjectType, &obj, &x, &y))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(ob);
+	OBJEXISTCHECK(obj);
 
-	if (!QUERY_FLAG(ob->obj, FLAG_REMOVED))
+	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
 	{
-		hooks->remove_ob(ob->obj);
-		hooks->check_walk_off(ob->obj, NULL, MOVE_APPLY_VANISHED);
+		hooks->object_remove_esrv_update(obj->obj);
 	}
 
-	ob->obj->x = x;
-	ob->obj->y = y;
-	hooks->insert_ob_in_map(ob->obj, map->map, NULL, 0);
+	obj->obj->x = x;
+	obj->obj->y = y;
+	hooks->insert_ob_in_map(obj->obj, map->map, NULL, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
