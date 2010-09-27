@@ -375,46 +375,33 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
  * <h1>object.InsertInto(object where)</h1>
  * Insert 'object' into 'where'.
  * @param where Where to insert 'object'. */
-static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whereptr;
-	object *myob, *obenv, *tmp;
+	Atrinik_Object *where;
+	object *tmp;
 
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whereptr))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &where))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
-	OBJEXISTCHECK(whereptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(where);
 
-	myob = WHAT;
-	obenv = myob->env;
-
-	if (!QUERY_FLAG(myob, FLAG_REMOVED))
+	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
 	{
-		hooks->remove_ob(myob);
+		hooks->object_remove_esrv_update(obj->obj);
 	}
 
-	myob = hooks->insert_ob_in_ob(myob, WHERE);
+	tmp = hooks->insert_ob_in_ob(obj->obj, where->obj);
 
-	/* Make sure the inventory image/text is updated */
-	for (tmp = WHERE; tmp != NULL; tmp = tmp->env)
+	if (tmp)
 	{
-		if (tmp->type == PLAYER)
-		{
-			hooks->esrv_send_item(tmp, myob);
-			break;
-		}
-	}
+		object *pl = hooks->object_need_esrv_update(tmp);
 
-	/* If we're taking from player. */
-	for (tmp = obenv; tmp != NULL; tmp = tmp->env)
-	{
-		if (tmp->type == PLAYER)
+		if (pl)
 		{
-			hooks->esrv_send_inventory(tmp, tmp);
-			break;
+			hooks->esrv_send_item(pl, tmp);
 		}
 	}
 
