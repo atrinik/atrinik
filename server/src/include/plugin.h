@@ -277,6 +277,9 @@ struct plugin_hooklist
 	void (*cache_remove_by_flags)(uint32);
 	shstr *(*find_string)(const char *);
 	int (*command_take)(object *, char *);
+	object *(*object_need_esrv_update)(object *);
+	void (*object_remove_esrv_update)(object *);
+	void (*esrv_update_item)(int, object *, object *);
 
 	const char **season_name;
 	const char **weekdays;

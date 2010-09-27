@@ -147,6 +147,9 @@ struct plugin_hooklist hooklist =
 	cache_remove_by_flags,
 	find_string,
 	command_take,
+	object_need_esrv_update,
+	object_remove_esrv_update,
+	esrv_update_item,
 
 	season_name,
 	weekdays,

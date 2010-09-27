@@ -1588,30 +1588,21 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
  * <h1>object.Remove()</h1>
  * Takes the object out of whatever map or inventory it is in. The object
  * can then be inserted or teleported somewhere else, or just left alone
- * for the garbage collection to take care of. */
-static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
+ * for the garbage collection to take care of.
+ * @throws AtrinikError if one of the involved objects is attempted to be
+ * removed (activator, who or other). */
+static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
 {
-	object *myob, *obenv;
-
 	(void) args;
-	OBJEXISTCHECK(whoptr);
-
-	myob = WHO;
-	obenv = myob->env;
+	OBJEXISTCHECK(obj);
 
 	/* Don't allow removing any of the involved objects. Messes things up... */
-	if (current_context->activator == myob || current_context->who == myob || current_context->other == myob)
+	if (current_context->activator == obj->obj || current_context->who == obj->obj || current_context->other == obj->obj)
 	{
-		RAISE("You are not allowed to remove one of the active objects. Workaround using CFTeleport or some other solution.");
+		RAISE("You are not allowed to remove one of the active objects.");
 	}
 
-	hooks->remove_ob(myob);
-
-	/* Player inventory can be removed even if the activator is not a player */
-	if (obenv != NULL && obenv->type == PLAYER)
-	{
-		hooks->esrv_send_inventory(obenv, obenv);
-	}
+	hooks->object_remove_esrv_update(obj->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
