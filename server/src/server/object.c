@@ -2403,20 +2403,18 @@ object *decrease_ob_nr(object *op, uint32 i)
 			if (tmp)
 			{
 				esrv_send_item(tmp, op);
-				esrv_update_item(UPD_WEIGHT, tmp, tmp);
 			}
 		}
 		else
 		{
-			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-			op->nrof = 0;
-
 			if (tmp)
 			{
 				esrv_del_item(CONTR(tmp), op->count, op->env);
-				esrv_update_item(UPD_WEIGHT, tmp, tmp);
 			}
+
+			remove_ob(op);
+			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+			op->nrof = 0;
 		}
 	}
 	else
