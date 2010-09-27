@@ -2379,17 +2379,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 	}
 	else if (op->env)
 	{
-		/* Is this object in the players inventory, or sub container
-		 * therein? */
-		tmp = is_player_inv(op->env);
-
-		if (!tmp)
-		{
-			if (op->env->type == CONTAINER && op->env->attacked_by && CONTR(op->env->attacked_by) && CONTR(op->env->attacked_by)->container == op->env)
-			{
-				tmp = op->env->attacked_by;
-			}
-		}
+		tmp = object_need_esrv_update(op);
 
 		if (i < op->nrof)
 		{
@@ -3859,4 +3849,52 @@ int object_get_gender(object *op)
 	}
 
 	return GENDER_NEUTER;
+}
+
+/**
+ * Figure out whether an object needs to be updated for the player (because
+ * it's getting removed, modified, etc).
+ * @param op Object about to be removed/modified/etc.
+ * @return If NULL, the object doesn't need an update. Otherwise this is
+ * the player object to update for. */
+object *object_need_esrv_update(object *op)
+{
+	object *tmp;
+
+	if (!op->env)
+	{
+		return NULL;
+	}
+
+	/* Is this object in the player's inventory, or sub container
+	 * therein? */
+	tmp = is_player_inv(op->env);
+
+	if (!tmp)
+	{
+		if (op->env->type == CONTAINER && op->env->attacked_by && CONTR(op->env->attacked_by) && CONTR(op->env->attacked_by)->container == op->env)
+		{
+			tmp = op->env->attacked_by;
+		}
+	}
+
+	return tmp;
+}
+
+/**
+ * Remove an object and figure out whether a socket update is necessary.
+ * @param op What to remove. */
+void object_remove_esrv_update(object *op)
+{
+	object *tmp = object_need_esrv_update(op);
+
+	if (tmp)
+	{
+		/* Tell the client(s) that the object has been removed. */
+		esrv_del_item(CONTR(tmp), op->count, op->env);
+	}
+
+	/* Remove the object. */
+	remove_ob(op);
+	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }

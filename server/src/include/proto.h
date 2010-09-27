@@ -631,6 +631,8 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 void init_object_initializers();
 int item_matched_string(object *pl, object *op, const char *name);
 int object_get_gender(object *op);
+object *object_need_esrv_update(object *op);
+void object_remove_esrv_update(object *op);
 
 /* server/object_process.c */
 object *stop_item(object *op);
