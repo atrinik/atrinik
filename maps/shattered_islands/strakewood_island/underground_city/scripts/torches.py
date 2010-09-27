@@ -34,7 +34,7 @@ def locate_torches(ignore = False):
 
 		# If we couldn't find the beacon, raise an error.
 		if not torch_beacon:
-			raise error("Could not find beacon named '" + beacon_name + "'.")
+			raise AtrinikError("Could not find beacon named '" + beacon_name + "'.")
 
 		torches.append(torch_beacon.env)
 
@@ -50,7 +50,7 @@ if GetEventNumber() == EVENT_TIMER:
 
 		# No beacon?
 		if not skelly_beacon:
-			raise error("Could not find beacon named '" + beacon_name + "'.")
+			raise AtrinikError("Could not find beacon named '" + beacon_name + "'.")
 
 		# If we found the spawn point and the spawn point has something spawned...
 		if skelly_beacon.env and skelly_beacon.env.enemy:
@@ -58,7 +58,7 @@ if GetEventNumber() == EVENT_TIMER:
 			wp = skelly_beacon.env.enemy.FindObject(0, "waypoint", "wp1")
 
 			if not wp:
-				raise error("Gate closer monster is missing waypoint.")
+				raise AtrinikError("Gate closer monster is missing waypoint.")
 
 			# This activates the waypoint.
 			wp.f_cursed = True
@@ -112,7 +112,7 @@ else:
 
 		# Raise an error if the beacon was not found.
 		if not switch_beacon:
-			raise error("Could not find beacon named '" + beacon_name + "'.")
+			raise AtrinikError("Could not find beacon named '" + beacon_name + "'.")
 
 		# Apply the switch.
 		switch_beacon.env.Apply(switch_beacon.env, APPLY_TOGGLE)

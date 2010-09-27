@@ -1989,7 +1989,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	d = PyModule_GetDict(m);
 	AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
-	PyDict_SetItemString(d, "error", AtrinikError);
+	PyDict_SetItemString(d, "AtrinikError", AtrinikError);
 
 	for (i = 0; i < NR_CUSTOM_CMD; i++)
 	{

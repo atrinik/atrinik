@@ -20,7 +20,7 @@ areas = {
 try:
 	area = areas[GetOptions()]
 except:
-	raise error("Invalid area: '{0}'".format(GetOptions()))
+	raise ValueError("Invalid area: '{0}'".format(GetOptions()))
 
 # Remove songs that 1.1 client doesn't have.
 if activator.Controller().s_socket_version < 1038:

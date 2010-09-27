@@ -179,7 +179,7 @@ def main_say():
 
 	elif msg == "exception":
 		me.SayTo(activator, "\nI will now raise an exception...")
-		raise error("Error Message")
+		raise AtrinikError("Error Message")
 
 	elif words[0] == "player" and words[1] == "exists" and len(words) > 2:
 		if PlayerExists(words[2]):

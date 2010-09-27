@@ -36,7 +36,7 @@ def main():
 			ring = me.FindObject(0, "ring_prayers")
 
 			if not ring:
-				raise error("Could not find ring inside {0}".format(me.name))
+				raise AtrinikError("Could not find ring inside {0}".format(me.name))
 
 			qm.complete()
 			ring.Clone().InsertInto(activator)

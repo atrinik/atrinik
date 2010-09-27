@@ -9,7 +9,7 @@ beacon = LocateBeacon(beacon_name)
 
 # No beacon?
 if not beacon:
-	raise error("Could not find beacon named '" + beacon_name + "'.")
+	raise AtrinikError("Could not find beacon named '" + beacon_name + "'.")
 
 # Make the waypoint apply the switch, so the click sound is not heard.
 WhoAmI().Apply(beacon.env, APPLY_TOGGLE)

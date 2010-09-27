@@ -32,7 +32,7 @@ def create_letter():
 	letter = me.FindObject(0, "letter")
 
 	if not letter:
-		raise error("Could not find letter inside {0}".format(me.name))
+		raise AtrinikError("Could not find letter inside {0}".format(me.name))
 
 	letter.Clone().InsertInto(activator)
 	activator.Write("{0} hands you a letter.".format(me.name), COLOR_ORANGE)
@@ -42,7 +42,7 @@ def create_key():
 	key = me.FindObject(0, "key_skull")
 
 	if not key:
-		raise error("Could not find key inside {0}".format(me.name))
+		raise AtrinikError("Could not find key inside {0}".format(me.name))
 
 	key.Clone().InsertInto(activator)
 	activator.Write("{0} hands you a key.".format(me.name), COLOR_GREEN)

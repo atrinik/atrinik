@@ -11,7 +11,7 @@ location = GetOptions()
 
 # Raise an error if there is no location
 if not location:
-	raise error("Bogus news sign: no event options to indicate location set.")
+	raise AtrinikError("Bogus news sign: no event options to indicate location set.")
 
 news = News(location)
 
