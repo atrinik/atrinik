@@ -34,7 +34,7 @@ def create_letter():
 	if not letter:
 		raise error("Could not find letter inside {0}".format(me.name))
 
-	letter.Clone().InsertInside(activator)
+	letter.Clone().InsertInto(activator)
 	activator.Write("{0} hands you a letter.".format(me.name), COLOR_ORANGE)
 
 ## Give key as a reward.
@@ -44,7 +44,7 @@ def create_key():
 	if not key:
 		raise error("Could not find key inside {0}".format(me.name))
 
-	key.Clone().InsertInside(activator)
+	key.Clone().InsertInto(activator)
 	activator.Write("{0} hands you a key.".format(me.name), COLOR_GREEN)
 
 ## Handle Tortwald.

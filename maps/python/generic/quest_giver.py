@@ -51,7 +51,7 @@ def main():
 			object = quest_sack.inv
 
 			while object:
-				object.Clone().InsertInside(activator)
+				object.Clone().InsertInto(activator)
 				object = object.below
 
 			activator.Write(quest["messages"]["reward"], COLOR_ORANGE)

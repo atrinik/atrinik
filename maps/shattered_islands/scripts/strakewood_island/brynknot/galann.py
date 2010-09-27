@@ -39,7 +39,7 @@ def main():
 				raise error("Could not find ring inside {0}".format(me.name))
 
 			qm.complete()
-			ring.Clone().InsertInside(activator)
+			ring.Clone().InsertInto(activator)
 			activator.Write("{0} hands you {1}.".format(me.name, ring.GetName()), COLOR_GREEN)
 		else:
 			me.SayTo(activator, "Have you had any luck killing Torathog the stone giant from the Old Outpost? Or are you here to use my ^unique^ shop?", 1)

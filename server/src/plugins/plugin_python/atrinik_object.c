@@ -372,10 +372,10 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 }
 
 /**
- * <h1>object.InsertInside(object where)</h1>
- * Insert object into where.
- * @param where Where to insert the object. */
-static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *args)
+ * <h1>object.InsertInto(object where)</h1>
+ * Insert 'object' into 'where'.
+ * @param where Where to insert 'object'. */
+static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *whatptr, PyObject *args)
 {
 	Atrinik_Object *whereptr;
 	object *myob, *obenv, *tmp;
@@ -2323,7 +2323,7 @@ static PyMethodDef methods[] =
 	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_NOARGS, 0},
 	{"SetGod", (PyCFunction) Atrinik_Object_SetGod, METH_VARARGS, 0},
 	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
-	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
+	{"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
 	{"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},

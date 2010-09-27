@@ -22,7 +22,7 @@ def main():
 					activator.Write("The '{0}' from {1} is too heavy for you to carry.".format(item["name"], item["from"]), COLOR_RED)
 					continue
 
-				tmp.InsertInside(activator)
+				tmp.InsertInto(activator)
 				activator.Write("You receive '{0}' from {1}.".format(item["name"], item["from"]))
 				post.remove_item(i - removed)
 				removed += 1

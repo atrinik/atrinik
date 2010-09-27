@@ -35,12 +35,12 @@ qm_t = QuestManager(activator, quest_talthor)
 ## @return The amulet given.
 def give_amulet():
 	clone = me.FindObject(0, "key2", "Maplevale's amulet", "of Llwyfen").Clone()
-	clone.InsertInside(activator)
+	clone.InsertInto(activator)
 	return clone
 
 ## Give a key for Brynknot Maze to the player.
 def give_key():
-	me.FindObject(0, "key2", "Brynknot Maze Key").Clone().InsertInside(activator)
+	me.FindObject(0, "key2", "Brynknot Maze Key").Clone().InsertInto(activator)
 
 ## Handle Maplevale.
 def npc_maplevale():

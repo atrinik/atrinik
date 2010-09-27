@@ -31,7 +31,7 @@ else:
 	activator = WhoIsActivator()
 
 	if not activator.FindObject(2, "key2", key.name):
-		key.Clone().InsertInside(activator)
+		key.Clone().InsertInto(activator)
 
 	if not me.f_splitting:
 		me.CreateTimer(1, 2)

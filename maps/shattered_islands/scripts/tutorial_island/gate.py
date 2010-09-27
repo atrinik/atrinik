@@ -49,7 +49,7 @@ def main():
 				if new_key:
 					me.SayTo(activator, "\nWell done, {0}! You have completed all the quests on the Tutorial Island, and you may leave now.\nHere is your key.".format(activator.name))
 
-					new_key.InsertInside(activator)
+					new_key.InsertInto(activator)
 				else:
 					me.SayTo(activator, "\nSomething is wrong... Call a DM!")
 		else:
