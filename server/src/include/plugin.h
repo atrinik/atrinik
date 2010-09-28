@@ -194,7 +194,7 @@ struct plugin_hooklist
 	void (*pick_up)(object *, object *, int);
 	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
 	void (*esrv_send_item)(object *, object *);
-	player *(*find_player)(char *);
+	player *(*find_player)(const char *);
 	int (*manual_apply)(object *, object *, int);
 	int (*command_drop)(object *, char *);
 	int (*transfer_ob)(object *, int, int, int, object *, object *);
@@ -226,7 +226,7 @@ struct plugin_hooklist
 	int (*learn_skill)(object *, object *, char *, int, int);
 	object *(*find_marked_object)(object *);
 	int (*cast_identify)(object *, int, object *, int);
-	int (*lookup_skill_by_name)(char *);
+	int (*lookup_skill_by_name)(const char *);
 	int (*check_skill_known)(object *, int);
 	archetype *(*find_archetype)(const char *);
 	object *(*arch_to_object)(archetype *);
@@ -248,7 +248,7 @@ struct plugin_hooklist
 	party_struct *(*find_party)(const char *);
 	void (*add_party_member)(party_struct *, object *);
 	void (*remove_party_member)(party_struct *, object *);
-	void (*send_party_message)(party_struct *, char *, int, object *);
+	void (*send_party_message)(party_struct *, const char *, int, object *);
 	void (*Write_String_To_Socket)(socket_struct *, char, char *, int);
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)();

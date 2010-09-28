@@ -361,7 +361,7 @@ void party_handle_corpse(object *pl, object *corpse)
  * @param flag One of @ref PARTY_MESSAGE_xxx "party message flags".
  * @param op Player sending the message. If not NULL, this player will
  * not receive the message. */
-void send_party_message(party_struct *party, char *msg, int flag, object *op)
+void send_party_message(party_struct *party, const char *msg, int flag, object *op)
 {
 	objectlink *ol;
 

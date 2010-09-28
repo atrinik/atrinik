@@ -553,7 +553,7 @@ static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
  * @return The player's object if found, None otherwise. */
 static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 {
-	char *name;
+	const char *name;
 	player *pl;
 
 	(void) self;
@@ -797,7 +797,7 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
  * @return ID of the skill, -1 if no such skill exists. */
 static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 {
-	char *skill;
+	const char *skill;
 
 	(void) self;
 

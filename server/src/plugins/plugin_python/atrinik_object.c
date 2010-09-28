@@ -532,7 +532,8 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
  * "object.name says: ". */
 static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *message, buf[HUGE_BUF];
+	const char *message;
+	char buf[HUGE_BUF];
 	int mode = 0;
 
 	if (!PyArg_ParseTuple(args, "s|i", &message, &mode))
@@ -567,7 +568,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *target;
 	Atrinik_Object *obptr2;
-	char *message;
+	const char *message;
 	int mode = 0;
 
 	if (!PyArg_ParseTuple(args, "O!s|i", &Atrinik_ObjectType, &obptr2, &message, &mode))
@@ -607,7 +608,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 {
 	int color = NDI_UNIQUE | NDI_ORANGE;
-	char *message;
+	const char *message;
 
 	if (!PyArg_ParseTuple(args, "s|i", &message, &color))
 	{
@@ -699,7 +700,7 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *walk;
-	char *guild;
+	const char *guild;
 
 	if (!PyArg_ParseTuple(args, "s", &guild))
 	{
@@ -994,7 +995,7 @@ static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObjec
  * @return The new player force object. */
 static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyObject *args)
 {
-	char *txt;
+	const char *txt;
 	object *myob;
 	int time = 0;
 
@@ -1043,7 +1044,7 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
  * @return The quest object if found. */
 static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *quest_name;
+	const char *quest_name;
 	object *walk;
 
 	if (!PyArg_ParseTuple(args, "s", &quest_name))
@@ -1080,7 +1081,7 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *quest_object;
-	char *quest_name;
+	const char *quest_name;
 
 	if (!PyArg_ParseTuple(args, "s", &quest_name))
 	{
@@ -1113,7 +1114,7 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
  * @return The new player info object */
 static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObject *args)
 {
-	char *txt;
+	const char *txt;
 	object *myob;
 
 	if (!PyArg_ParseTuple(args, "s", &txt))
@@ -1153,7 +1154,7 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
  * @return The player info object if found, None otherwise. */
 static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *name;
+	const char *name;
 	object *walk;
 
 	if (!PyArg_ParseTuple(args, "s", &name))
@@ -1661,7 +1662,7 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
  * @return Value for the key if found, None otherwise. */
 static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *key;
+	const char *key;
 
 	if (!PyArg_ParseTuple(args, "s", &key))
 	{
@@ -1683,7 +1684,7 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
  * @return 1 on success, 0 on failure. */
 static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *key, *value = NULL;
+	const char *key, *value = NULL;
 	int add_key = 1;
 
 	if (!PyArg_ParseTuple(args, "s|si", &key, &value, &add_key))
@@ -1767,7 +1768,7 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 {
 	int type = CMD_SOUND_EFFECT, x = 0, y = 0, loop = 0, volume = 0;
-	char *filename;
+	const char *filename;
 
 	if (!PyArg_ParseTuple(args, "s|iiiii", &filename, &type, &x, &y, &loop, &volume))
 	{

@@ -150,7 +150,7 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob = NULL;
 	int flags;
-	char *msg;
+	const char *msg;
 
 	if (!PyArg_ParseTuple(args, "si|O!", &msg, &flags, &Atrinik_ObjectType, &ob))
 	{

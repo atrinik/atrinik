@@ -258,7 +258,7 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 {
 	int color = NDI_BLUE | NDI_UNIQUE, x, y, d;
-	char *message;
+	const char *message;
 
 	if (!PyArg_ParseTuple(args, "iiis|i", &x, &y, &d, &message, &color))
 	{

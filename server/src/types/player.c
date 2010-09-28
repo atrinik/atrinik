@@ -43,7 +43,7 @@ static object *find_arrow_ext(object *op, const char *type, int tag);
  * Loop through the player list and find player specified by plname.
  * @param plname The player name to find.
  * @return Player structure if found, NULL otherwise. */
-player *find_player(char *plname)
+player *find_player(const char *plname)
 {
 	player *pl;
 

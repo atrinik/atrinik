@@ -491,7 +491,7 @@ int check_skill_known(object *op, int skillnr)
  * Look up a skill by name.
  * @param string Name of the skill to look for.
  * @return ID of the skill if found, -1 otherwise. */
-int lookup_skill_by_name(char *string)
+int lookup_skill_by_name(const char *string)
 {
 	int skillnr = 0;
 	size_t nmlen;

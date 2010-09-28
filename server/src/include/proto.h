@@ -649,7 +649,7 @@ party_struct *find_party(const char *name);
 sint16 party_member_get_skill(object *op, object *skill);
 int party_can_open_corpse(object *pl, object *corpse);
 void party_handle_corpse(object *pl, object *corpse);
-void send_party_message(party_struct *party, char *msg, int flag, object *op);
+void send_party_message(party_struct *party, const char *msg, int flag, object *op);
 void remove_party(party_struct *party);
 void PartyCmd(char *buf, int len, player *pl);
 
@@ -784,7 +784,7 @@ void init_new_exp_system();
 void free_exp_objects();
 void dump_skills();
 int check_skill_known(object *op, int skillnr);
-int lookup_skill_by_name(char *string);
+int lookup_skill_by_name(const char *string);
 int check_skill_to_fire(object *who);
 int check_skill_to_apply(object *who, object *item);
 int init_player_exp(object *pl);
@@ -1113,7 +1113,7 @@ int check_good_armour(object *who, object *item);
 void move_pit(object *op);
 
 /* types/player.c */
-player *find_player(char *plname);
+player *find_player(const char *plname);
 void display_motd(object *op);
 int playername_ok(char *cp);
 void free_player(player *pl);
