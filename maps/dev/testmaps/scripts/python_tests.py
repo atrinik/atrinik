@@ -25,7 +25,7 @@ def main_say():
 	marked = activator.FindMarkedObject()
 
 	if msg == "hello" or msg == "hey" or msg == "hi":
-		me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^, ^vector^")
+		me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^, ^vector^")
 
 	# GetEquipment is much more efficient than looping player's inventory for
 	# applied equipment.
@@ -121,23 +121,6 @@ def main_say():
 			me.SayTo(activator, "\nYour gender is now hermaphrodite.")
 		else:
 			me.SayTo(activator, "\nUnknown gender. Try one of:\n^set gender male^, ^set gender female^, ^set gender neuter^ or ^set gender hermaphrodite^.")
-
-	# An example of GetRank() and SetRank().
-	elif msg == "rank":
-		if not activator.GetRank():
-			activator.SetRank("President")
-		else:
-			# "Mr" effectively clears the player's rank.
-			activator.SetRank("Mr")
-
-	# Example of using GetAlignmentForce() and GetAlignment().
-	elif msg == "alignment":
-		if activator.GetAlignmentForce().title == "true neutral":
-			activator.SetAlignment("chaotic evil")
-			me.SayTo(activator, "\nChanged your alignment to chaotic evil.")
-		else:
-			activator.SetAlignment("true neutral")
-			me.SayTo(activator, "\nChanged your alignment to true neutral.")
 
 	# Example usage of key values.
 	elif (words[0] == "get" or words[0] == "add" or words[0] == "delete") and words[1] == "key":
