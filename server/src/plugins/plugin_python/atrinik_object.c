@@ -269,20 +269,26 @@ static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
  * <h1>object.ActivateRune(object who)</h1>
  * Activate a rune.
  * @param who Who should be affected by the effects of the rune.
- * @warning Untested. */
-static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject *args)
+ * @throws TypeError if 'object' is not of type @ref RUNE "TYPE_RUNE". */
+static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whatptr;
+	Atrinik_Object *who;
 
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &who))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(who);
 
-	hooks->spring_trap(WHAT, WHO);
+	if (obj->obj->type != RUNE)
+	{
+		PyErr_SetString(PyExc_TypeError, "object.ActivateRune(): 'object' is not a rune.");
+		return NULL;
+	}
+
+	hooks->spring_trap(obj->obj, who->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
