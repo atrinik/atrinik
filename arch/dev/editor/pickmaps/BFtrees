@@ -1,0 +1,89 @@
+arch map
+name BFtrees
+msg
+Created:  2010-08-20 Kiana
+Modified: 2010-08-20 Kiana
+endmsg
+width 14
+height 14
+difficulty 1
+darkness -1
+end
+arch tree_big4b
+y 13
+end
+arch tree_big3
+x 1
+y 12
+end
+arch tree_big
+x 1
+y 13
+end
+arch tree43
+x 2
+y 1
+end
+arch tree_big2
+x 2
+y 11
+end
+arch tree_big5b
+x 2
+y 12
+end
+arch tree46
+x 4
+y 1
+end
+arch tree44
+x 4
+y 5
+end
+arch au_tree1
+x 6
+y 1
+end
+arch tree48
+x 6
+y 5
+end
+arch tree39
+x 6
+y 9
+end
+arch tree_burned3
+x 6
+y 13
+end
+arch tree_burned1
+direction 8
+x 7
+y 13
+end
+arch tree31
+x 8
+y 5
+end
+arch tree40
+x 8
+y 9
+end
+arch tree_burned2
+direction 8
+x 8
+y 13
+end
+arch tree_burned4
+direction 8
+x 9
+y 13
+end
+arch tree41
+x 10
+y 9
+end
+arch tree27
+x 10
+y 13
+end

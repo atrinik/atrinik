@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2010-08-19 Kiana
 endmsg
 width 24
 height 24
@@ -1881,14 +1881,14 @@ arch tree_big
 x 13
 y 23
 end
-arch water_lt4
+arch water_lt
 x 14
 end
-arch water_lt3
+arch water_lt2
 x 14
 y 1
 end
-arch water_lt2
+arch water_lt4
 x 14
 y 2
 end
@@ -2016,11 +2016,11 @@ end
 arch water_lt2
 x 15
 end
-arch water_lt4
+arch water_lt
 x 15
 y 1
 end
-arch water_lt4
+arch water_lt3
 x 15
 y 2
 end
@@ -2124,14 +2124,14 @@ arch grassd_5
 x 15
 y 23
 end
-arch water_lt3
+arch water_lt
 x 16
 end
-arch water_lt2
+arch water_lt4
 x 16
 y 1
 end
-arch water_lt3
+arch water_lt2
 x 16
 y 2
 end
@@ -2230,11 +2230,11 @@ end
 arch water_lt
 x 17
 end
-arch water_lt4
+arch water_lt
 x 17
 y 1
 end
-arch water_lt4
+arch water_lt
 x 17
 y 2
 end
@@ -2338,14 +2338,14 @@ arch grassd_5
 x 17
 y 23
 end
-arch water_lt4
+arch water_lt2
 x 18
 end
-arch water_lt2
+arch water_lt4
 x 18
 y 1
 end
-arch water_lt4
+arch water_lt
 x 18
 y 2
 end
@@ -2465,14 +2465,14 @@ arch grassd_8
 x 18
 y 23
 end
-arch water_lt3
+arch water_lt4
 x 19
 end
-arch water_lt3
+arch water_lt2
 x 19
 y 1
 end
-arch water_lt4
+arch water_lt3
 x 19
 y 2
 end
@@ -2480,15 +2480,15 @@ arch water_lt2
 x 19
 y 3
 end
-arch water_lt4
+arch water_lt3
 x 19
 y 4
 end
-arch water_lt3
+arch water_lt4
 x 19
 y 5
 end
-arch water_lt
+arch water_lt4
 x 19
 y 6
 end
@@ -2564,14 +2564,14 @@ arch grassd_1
 x 19
 y 23
 end
-arch water_lt4
+arch water_lt2
 x 20
 end
-arch water_lt
+arch water_lt3
 x 20
 y 1
 end
-arch water_lt
+arch water_lt4
 x 20
 y 2
 end
@@ -2579,11 +2579,11 @@ arch water_lt
 x 20
 y 3
 end
-arch water_lt4
+arch water_lt
 x 20
 y 4
 end
-arch water_lt4
+arch water_lt3
 x 20
 y 5
 end
@@ -2679,18 +2679,18 @@ arch grassd_8
 x 20
 y 23
 end
-arch water_lt
+arch water_lt4
 x 21
 end
 arch water_lt2
 x 21
 y 1
 end
-arch water_lt4
+arch water_lt2
 x 21
 y 2
 end
-arch water_lt2
+arch water_lt3
 x 21
 y 3
 end
@@ -2698,11 +2698,11 @@ arch water_lt2
 x 21
 y 4
 end
-arch water_lt
+arch water_lt2
 x 21
 y 5
 end
-arch water_lt3
+arch water_lt4
 x 21
 y 6
 end
@@ -2810,14 +2810,14 @@ arch grassd_2
 x 21
 y 23
 end
-arch water_lt4
+arch water_lt
 x 22
 end
-arch water_lt4
+arch water_lt
 x 22
 y 1
 end
-arch water_lt3
+arch water_lt4
 x 22
 y 2
 end
@@ -2825,15 +2825,15 @@ arch water_lt4
 x 22
 y 3
 end
-arch water_lt3
+arch water_lt2
 x 22
 y 4
 end
-arch water_lt3
+arch water_lt4
 x 22
 y 5
 end
-arch water_lt4
+arch water_lt3
 x 22
 y 6
 end
@@ -2960,7 +2960,7 @@ end
 arch water_lt3
 x 23
 end
-arch water_lt3
+arch water_lt
 x 23
 y 1
 end
@@ -2968,19 +2968,19 @@ arch water_lt4
 x 23
 y 2
 end
-arch water_lt
+arch water_lt4
 x 23
 y 3
 end
-arch water_lt
+arch water_lt3
 x 23
 y 4
 end
-arch water_lt3
+arch water_lt
 x 23
 y 5
 end
-arch water_lt3
+arch water_lt4
 x 23
 y 6
 end

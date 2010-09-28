@@ -1,0 +1,3299 @@
+arch map
+name Vielumin Ruins
+msg
+Created:  2010-08-18 Idicus
+Modified: 2010-09-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 55
+darkness 1
+tile_path_1 ruins_0203
+tile_path_2 ruins_0302
+tile_path_3 ruins_0201
+tile_path_4 ruins_0102
+tile_path_5 ruins_0303
+tile_path_6 ruins_0301
+tile_path_7 ruins_0101
+tile_path_8 ruins_0103
+region eld_woods_island
+end
+arch floor_ruin3
+end
+arch fwall_ruin1c
+end
+arch floor_ruin1
+y 1
+end
+arch fwall_ruin1c
+y 1
+end
+arch floor_ruin1
+y 2
+end
+arch fwall_ruin1c
+y 2
+end
+arch floor_ruin4
+y 3
+end
+arch fwall_ruin1c
+y 3
+end
+arch floor_ruin4
+y 4
+end
+arch fwall_ruin1c
+y 4
+end
+arch floor_ruin4
+y 5
+end
+arch fwall_ruin1c
+y 5
+end
+arch floor_ruin1
+y 6
+end
+arch fwall_ruin1c
+y 6
+end
+arch floor_ruin1
+y 7
+end
+arch fwall_ruin1c
+y 7
+end
+arch floor_ruin3
+y 8
+end
+arch fwall_ruin1c
+y 8
+end
+arch floor_ruin1
+y 9
+end
+arch fwall_ruin1c
+y 9
+end
+arch floor_ruin1
+y 10
+end
+arch fwall_ruin1c
+y 10
+end
+arch floor_ruin1
+y 11
+end
+arch fwall_ruin1c
+y 11
+end
+arch floor_ruin1
+y 12
+end
+arch fwall_ruin1c
+y 12
+end
+arch floor_ruin3
+y 13
+end
+arch fwall_ruin1c
+y 13
+end
+arch floor_ruin2
+y 14
+end
+arch fwall_ruin1c
+y 14
+end
+arch floor_ruin1
+y 15
+end
+arch fwall_ruin1c
+y 15
+end
+arch floor_ruin3
+y 16
+end
+arch fwall_ruin1c
+y 16
+end
+arch floor_ruin1
+y 17
+end
+arch fwall_ruin1c
+y 17
+end
+arch floor_ruin4
+y 18
+end
+arch fwall_ruin1c
+y 18
+end
+arch floor_ruin3
+y 19
+end
+arch fwall_ruin1c
+y 19
+end
+arch floor_ruin2
+y 20
+end
+arch fwall_ruin1c
+y 20
+end
+arch floor_ruin2
+y 21
+end
+arch fwall_ruin1c
+y 21
+end
+arch floor_ruin1
+y 22
+end
+arch fwall_ruin1c
+y 22
+end
+arch floor_ruin3
+y 23
+end
+arch fwall_ruin1c
+y 23
+end
+arch floor_ruin4
+x 1
+end
+arch fwall_ruin1c
+x 1
+end
+arch floor_ruin3
+x 1
+y 1
+end
+arch floor_ruin3
+x 1
+y 2
+end
+arch floor_ruin1
+x 1
+y 3
+end
+arch shelf3_dem3.111
+direction 6
+x 1
+y 3
+end
+arch floor_ruin2
+x 1
+y 4
+end
+arch shelf3_dem2.111
+direction 6
+x 1
+y 4
+end
+arch floor_ruin3
+x 1
+y 5
+end
+arch shelf3_dem1.111
+direction 6
+x 1
+y 5
+end
+arch floor_ruin2
+x 1
+y 6
+end
+arch shelf3.111
+direction 4
+x 1
+y 6
+end
+arch floor_ruin1
+x 1
+y 7
+end
+arch shelf3b.111
+direction 4
+x 1
+y 7
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin1
+x 1
+y 8
+end
+arch shelf3c.111
+direction 4
+x 1
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin3
+x 1
+y 9
+end
+arch shelf3b.111
+direction 4
+x 1
+y 9
+end
+arch floor_ruin2
+x 1
+y 10
+end
+arch shelf3_dem3.111
+direction 6
+x 1
+y 10
+end
+arch floor_ruin2
+x 1
+y 11
+end
+arch floor_ruin2
+x 1
+y 12
+end
+arch shelf_wall.111
+direction 4
+x 1
+y 12
+end
+arch floor_ruin3
+x 1
+y 13
+end
+arch shelf_wall.111
+direction 4
+x 1
+y 13
+end
+arch floor_ruin1
+x 1
+y 14
+end
+arch shelf3_wall.111
+direction 4
+x 1
+y 14
+end
+arch floor_ruin2
+x 1
+y 15
+end
+arch shelf1_wall.111
+direction 4
+x 1
+y 15
+end
+arch floor_ruin3
+x 1
+y 16
+end
+arch shelf3_wall.111
+direction 4
+x 1
+y 16
+end
+arch floor_ruin1
+x 1
+y 17
+end
+arch shelf5_wall.111
+direction 4
+x 1
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin3
+x 1
+y 18
+end
+arch shelf3_wall.111
+direction 4
+x 1
+y 18
+end
+arch floor_ruin1
+x 1
+y 19
+end
+arch shelf_wall.111
+direction 4
+x 1
+y 19
+end
+arch floor_ruin3
+x 1
+y 20
+end
+arch floor_ruin3
+x 1
+y 21
+end
+arch floor_ruin3
+x 1
+y 22
+end
+arch floor_ruin3
+x 1
+y 23
+end
+arch fwall_ruin1c
+x 1
+y 23
+end
+arch floor_ruin2
+x 2
+end
+arch fwall_ruin1c
+x 2
+end
+arch floor_ruin4
+x 2
+y 1
+end
+arch floor_ruin3
+x 2
+y 2
+end
+arch floor_ruin3
+x 2
+y 3
+end
+arch floor_ruin3
+x 2
+y 4
+end
+arch spawn_point
+x 2
+y 4
+arch drow_captain
+name rebel drow commander
+level 57
+Wis 6
+type 83
+end
+end
+arch floor_ruin1
+x 2
+y 5
+end
+arch floor_ruin3
+x 2
+y 6
+end
+arch floor_ruin1
+x 2
+y 7
+end
+arch floor_ruin3
+x 2
+y 8
+end
+arch floor_ruin4
+x 2
+y 9
+end
+arch floor_ruin2
+x 2
+y 10
+end
+arch floor_ruin3
+x 2
+y 11
+end
+arch floor_ruin1
+x 2
+y 12
+end
+arch floor_ruin2
+x 2
+y 13
+end
+arch spawn_point
+x 2
+y 13
+arch drow_sorcerer
+name rebel drow researcher
+level 59
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_icestorm
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_ruin3
+x 2
+y 14
+end
+arch floor_ruin3
+x 2
+y 15
+end
+arch floor_ruin3
+x 2
+y 16
+end
+arch floor_ruin3
+x 2
+y 17
+end
+arch floor_ruin4
+x 2
+y 18
+end
+arch floor_ruin4
+x 2
+y 19
+end
+arch floor_ruin3
+x 2
+y 20
+end
+arch floor_ruin2
+x 2
+y 21
+end
+arch floor_ruin1
+x 2
+y 22
+end
+arch floor_ruin1
+x 2
+y 23
+end
+arch fwall_ruin1c
+x 2
+y 23
+end
+arch floor_ruin1
+x 3
+end
+arch fwall_ruin1c
+x 3
+end
+arch floor_ruin3
+x 3
+y 1
+end
+arch floor_ruin3
+x 3
+y 2
+end
+arch floor_ruin3
+x 3
+y 3
+end
+arch floor_ruin4
+x 3
+y 4
+end
+arch floor_ruin2
+x 3
+y 5
+end
+arch floor_ruin4
+x 3
+y 6
+end
+arch floor_ruin1
+x 3
+y 7
+end
+arch floor_ruin4
+x 3
+y 8
+end
+arch floor_ruin3
+x 3
+y 9
+end
+arch floor_ruin2
+x 3
+y 10
+end
+arch floor_ruin3
+x 3
+y 11
+end
+arch floor_ruin3
+x 3
+y 12
+end
+arch floor_ruin1
+x 3
+y 13
+end
+arch floor_ruin1
+x 3
+y 14
+end
+arch floor_ruin2
+x 3
+y 15
+end
+arch floor_ruin1
+x 3
+y 16
+end
+arch floor_ruin3
+x 3
+y 17
+end
+arch floor_ruin4
+x 3
+y 18
+end
+arch floor_ruin3
+x 3
+y 19
+end
+arch spawn_point
+x 3
+y 19
+arch drow_sorcerer
+name rebel drow alchemist
+level 59
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_icestorm
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_ruin3
+x 3
+y 20
+end
+arch floor_ruin1
+x 3
+y 21
+end
+arch table_wood6
+x 3
+y 21
+end
+arch floor_ruin2
+x 3
+y 22
+end
+arch floor_ruin2
+x 3
+y 23
+end
+arch fwall_ruin1c
+x 3
+y 23
+end
+arch floor_ruin1
+x 4
+end
+arch fwall_ruin1c
+x 4
+end
+arch wmask_bflag_fire1_1
+direction 8
+x 4
+end
+arch floor_ruin2
+x 4
+y 1
+end
+arch floor_ruin4
+x 4
+y 2
+end
+arch floor_ruin4
+x 4
+y 3
+end
+arch floor_ruin1
+x 4
+y 4
+end
+arch floor_ruin1
+x 4
+y 5
+end
+arch floor_ruin2
+x 4
+y 6
+end
+arch candlelight4.101
+x 4
+y 6
+end
+arch light7
+x 4
+y 6
+end
+arch floor_ruin3
+x 4
+y 7
+end
+arch floor_ruin2
+x 4
+y 8
+end
+arch floor_ruin6
+x 4
+y 9
+end
+arch floor_ruin2
+x 4
+y 10
+end
+arch floor_ruin3
+x 4
+y 11
+end
+arch floor_ruin3
+x 4
+y 12
+end
+arch floor_ruin3
+x 4
+y 13
+end
+arch candlelight4.101
+x 4
+y 13
+end
+arch light7
+x 4
+y 13
+end
+arch floor_ruin3
+x 4
+y 14
+end
+arch floor_ruin1
+x 4
+y 15
+end
+arch floor_ruin2
+x 4
+y 16
+end
+arch table_lab2.111
+x 4
+y 16
+end
+arch light2
+x 4
+y 16
+end
+arch floor_ruin2
+x 4
+y 17
+end
+arch floor_ruin3
+x 4
+y 18
+end
+arch floor_ruin2
+x 4
+y 19
+end
+arch floor_ruin3
+x 4
+y 20
+end
+arch floor_ruin4
+x 4
+y 21
+end
+arch floor_ruin2
+x 4
+y 22
+end
+arch floor_ruin3
+x 4
+y 23
+end
+arch fwall_ruin1c
+x 4
+y 23
+end
+arch floor_ruin1
+x 5
+end
+arch fwall_ruin1c
+x 5
+end
+arch floor_ruin2
+x 5
+y 1
+end
+arch floor_ruin1
+x 5
+y 2
+end
+arch floor_ruin2
+x 5
+y 3
+end
+arch floor_ruin4
+x 5
+y 4
+end
+arch floor_ruin1
+x 5
+y 5
+end
+arch floor_ruin4
+x 5
+y 6
+end
+arch shelf3.111
+direction 2
+x 5
+y 6
+end
+arch floor_ruin2
+x 5
+y 7
+end
+arch floor_ruin3
+x 5
+y 8
+end
+arch floor_ruin2
+x 5
+y 9
+end
+arch shelf3.111
+x 5
+y 9
+end
+arch floor_ruin1
+x 5
+y 10
+end
+arch floor_ruin3
+x 5
+y 11
+end
+arch floor_ruin3
+x 5
+y 12
+end
+arch shelf3_dem1.111
+x 5
+y 12
+end
+arch floor_ruin4
+x 5
+y 13
+end
+arch floor_ruin4
+x 5
+y 14
+end
+arch floor_ruin2
+x 5
+y 15
+end
+arch floor_ruin3
+x 5
+y 16
+end
+arch table_lab1.111
+x 5
+y 16
+end
+arch floor_ruin4
+x 5
+y 17
+end
+arch floor_ruin4
+x 5
+y 18
+end
+arch floor_ruin2
+x 5
+y 19
+end
+arch floor_ruin3
+x 5
+y 20
+end
+arch floor_ruin1
+x 5
+y 21
+end
+arch table_wood5
+x 5
+y 21
+end
+arch floor_ruin3
+x 5
+y 22
+end
+arch floor_ruin1
+x 5
+y 23
+end
+arch fwall_ruin1c
+x 5
+y 23
+end
+arch floor_ruin3
+x 6
+end
+arch fwall_ruin1c
+x 6
+end
+arch floor_ruin1
+x 6
+y 1
+end
+arch spawn_point
+x 6
+y 1
+arch drow_captain
+name rebel drow commander
+level 57
+Wis 6
+type 83
+end
+end
+arch floor_ruin3
+x 6
+y 2
+end
+arch floor_ruin1
+x 6
+y 3
+end
+arch floor_ruin1
+x 6
+y 4
+end
+arch floor_ruin3
+x 6
+y 5
+end
+arch floor_ruin3
+x 6
+y 6
+end
+arch shelf3a.111
+direction 2
+x 6
+y 6
+end
+arch floor_ruin1
+x 6
+y 7
+end
+arch spawn_point
+x 6
+y 7
+arch drow_sorcerer
+name rebel drow warlock
+level 58
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_firestorm
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_ruin3
+x 6
+y 8
+end
+arch floor_ruin4
+x 6
+y 9
+end
+arch shelf3_dem1.111
+x 6
+y 9
+end
+arch floor_ruin1
+x 6
+y 10
+end
+arch floor_ruin1
+x 6
+y 11
+end
+arch floor_ruin1
+x 6
+y 12
+end
+arch shelf3a.111
+x 6
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin1
+x 6
+y 13
+end
+arch floor_ruin2
+x 6
+y 14
+end
+arch floor_ruin3
+x 6
+y 15
+end
+arch floor_ruin1
+x 6
+y 16
+end
+arch table_lab3.111
+x 6
+y 16
+end
+arch floor_ruin3
+x 6
+y 17
+end
+arch floor_ruin3
+x 6
+y 18
+end
+arch floor_ruin4
+x 6
+y 19
+end
+arch floor_ruin3
+x 6
+y 20
+end
+arch floor_ruin2
+x 6
+y 21
+end
+arch floor_ruin1
+x 6
+y 22
+end
+arch floor_ruin1
+x 6
+y 23
+end
+arch fwall_ruin1c
+x 6
+y 23
+end
+arch floor_ruin2
+x 7
+end
+arch fwall_ruin1c
+x 7
+end
+arch wmask_bflag_fire1_1
+direction 8
+x 7
+end
+arch floor_ruin2
+x 7
+y 1
+end
+arch floor_ruin3
+x 7
+y 2
+end
+arch floor_ruin3
+x 7
+y 3
+end
+arch floor_ruin3
+x 7
+y 4
+end
+arch floor_ruin2
+x 7
+y 5
+end
+arch floor_ruin3
+x 7
+y 6
+end
+arch shelf3_dem1.111
+x 7
+y 6
+end
+arch floor_ruin2
+x 7
+y 7
+end
+arch floor_ruin2
+x 7
+y 8
+end
+arch floor_ruin1
+x 7
+y 9
+end
+arch shelf3a.111
+x 7
+y 9
+end
+arch floor_ruin2
+x 7
+y 10
+end
+arch floor_ruin6
+x 7
+y 11
+end
+arch floor_ruin4
+x 7
+y 12
+end
+arch shelf3_dem2.111
+x 7
+y 12
+end
+arch floor_ruin3
+x 7
+y 13
+end
+arch floor_ruin3
+x 7
+y 14
+end
+arch floor_ruin1
+x 7
+y 15
+end
+arch floor_ruin3
+x 7
+y 16
+end
+arch table_lab3.111
+x 7
+y 16
+end
+arch floor_ruin3
+x 7
+y 17
+end
+arch floor_ruin1
+x 7
+y 18
+end
+arch floor_ruin3
+x 7
+y 19
+end
+arch floor_ruin1
+x 7
+y 20
+end
+arch floor_ruin3
+x 7
+y 21
+end
+arch table_wood6
+x 7
+y 21
+end
+arch light1
+x 7
+y 21
+end
+arch floor_ruin3
+x 7
+y 22
+end
+arch floor_ruin1
+x 7
+y 23
+end
+arch fwall_ruin1c
+x 7
+y 23
+end
+arch floor_ruin3
+x 8
+end
+arch fwall_ruin1c
+no_pass 0
+x 8
+end
+arch floor_ruin1
+x 8
+y 1
+end
+arch fmask_ruin1_s4.101
+x 8
+y 1
+end
+arch floor_ruin3
+x 8
+y 2
+end
+arch floor_ruin3
+x 8
+y 3
+end
+arch floor_ruin3
+x 8
+y 4
+end
+arch floor_ruin2
+x 8
+y 5
+end
+arch floor_ruin4
+x 8
+y 6
+end
+arch shelf3c.111
+direction 2
+x 8
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin1
+x 8
+y 7
+end
+arch floor_ruin1
+x 8
+y 8
+end
+arch floor_ruin4
+x 8
+y 9
+end
+arch shelf3b.111
+x 8
+y 9
+end
+arch floor_ruin1
+x 8
+y 10
+end
+arch floor_ruin1
+x 8
+y 11
+end
+arch floor_ruin4
+x 8
+y 12
+end
+arch shelf3b.111
+x 8
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin4
+x 8
+y 13
+end
+arch floor_ruin1
+x 8
+y 14
+end
+arch floor_ruin2
+x 8
+y 15
+end
+arch floor_ruin4
+x 8
+y 16
+end
+arch table_lab1.111
+x 8
+y 16
+end
+arch floor_ruin2
+x 8
+y 17
+end
+arch floor_ruin1
+x 8
+y 18
+end
+arch candlelight4.101
+x 8
+y 18
+end
+arch light7
+x 8
+y 18
+end
+arch floor_ruin1
+x 8
+y 19
+end
+arch floor_ruin2
+x 8
+y 20
+end
+arch floor_ruin4
+x 8
+y 21
+end
+arch floor_ruin1
+x 8
+y 22
+end
+arch floor_ruin4
+x 8
+y 23
+end
+arch fwall_ruin1c
+x 8
+y 23
+end
+arch floor_ruin1
+x 9
+end
+arch fwall_ruin1c
+x 9
+end
+arch floor_ruin3
+x 9
+y 1
+end
+arch floor_ruin4
+x 9
+y 2
+end
+arch floor_ruin1
+x 9
+y 3
+end
+arch floor_ruin3
+x 9
+y 4
+end
+arch floor_ruin2
+x 9
+y 5
+end
+arch floor_ruin2
+x 9
+y 6
+end
+arch shelf3b.111
+direction 2
+x 9
+y 6
+end
+arch floor_ruin2
+x 9
+y 7
+end
+arch floor_ruin1
+x 9
+y 8
+end
+arch floor_ruin1
+x 9
+y 9
+end
+arch shelf3_dem2.111
+x 9
+y 9
+end
+arch floor_ruin3
+x 9
+y 10
+end
+arch floor_ruin1
+x 9
+y 11
+end
+arch floor_ruin2
+x 9
+y 12
+end
+arch shelf3_dem3.111
+x 9
+y 12
+end
+arch floor_ruin2
+x 9
+y 13
+end
+arch floor_ruin2
+x 9
+y 14
+end
+arch floor_ruin1
+x 9
+y 15
+end
+arch floor_ruin2
+x 9
+y 16
+end
+arch table_lab2.111
+x 9
+y 16
+end
+arch light1
+x 9
+y 16
+end
+arch floor_ruin3
+x 9
+y 17
+end
+arch floor_ruin3
+x 9
+y 18
+end
+arch floor_ruin3
+x 9
+y 19
+end
+arch floor_ruin1
+x 9
+y 20
+end
+arch floor_ruin2
+x 9
+y 21
+end
+arch floor_ruin3
+x 9
+y 22
+end
+arch floor_ruin1
+x 9
+y 23
+end
+arch fwall_ruin1c
+x 9
+y 23
+end
+arch floor_ruin1
+x 10
+end
+arch fwall_ruin1c
+x 10
+end
+arch floor_ruin3
+x 10
+y 1
+end
+arch floor_ruin3
+x 10
+y 2
+end
+arch floor_ruin2
+x 10
+y 3
+end
+arch floor_ruin3
+x 10
+y 4
+end
+arch floor_ruin3
+x 10
+y 5
+end
+arch floor_ruin3
+x 10
+y 6
+end
+arch shelf3_dem2.111
+x 10
+y 6
+end
+arch floor_ruin3
+x 10
+y 7
+end
+arch floor_ruin3
+x 10
+y 8
+end
+arch floor_ruin3
+x 10
+y 9
+end
+arch shelf3c.111
+x 10
+y 9
+end
+arch floor_ruin1
+x 10
+y 10
+end
+arch floor_ruin2
+x 10
+y 11
+end
+arch floor_ruin1
+x 10
+y 12
+end
+arch shelf3c.111
+x 10
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin2
+x 10
+y 13
+end
+arch floor_ruin2
+x 10
+y 14
+end
+arch floor_ruin2
+x 10
+y 15
+end
+arch floor_ruin2
+x 10
+y 16
+end
+arch floor_ruin3
+x 10
+y 17
+end
+arch floor_ruin1
+x 10
+y 18
+end
+arch floor_ruin3
+x 10
+y 19
+end
+arch floor_ruin1
+x 10
+y 20
+end
+arch floor_ruin2
+x 10
+y 21
+end
+arch floor_ruin1
+x 10
+y 22
+end
+arch floor_ruin2
+x 10
+y 23
+end
+arch fwall_ruin1c
+x 10
+y 23
+end
+arch floor_ruin3
+x 11
+end
+arch fwall_ruin1c
+x 11
+end
+arch floor_ruin1
+x 11
+y 1
+end
+arch floor_ruin3
+x 11
+y 2
+end
+arch floor_ruin1
+x 11
+y 3
+end
+arch candlelight4.101
+x 11
+y 3
+end
+arch light7
+x 11
+y 3
+end
+arch floor_ruin2
+x 11
+y 4
+end
+arch floor_ruin1
+x 11
+y 5
+end
+arch floor_ruin1
+x 11
+y 6
+end
+arch floor_ruin1
+x 11
+y 7
+end
+arch candlelight4.101
+x 11
+y 7
+end
+arch light8
+x 11
+y 7
+end
+arch floor_ruin4
+x 11
+y 8
+end
+arch floor_ruin3
+x 11
+y 9
+end
+arch floor_ruin1
+x 11
+y 10
+end
+arch spawn_point
+x 11
+y 10
+arch drow_sorcerer
+name rebel drow researcher
+level 58
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_mbullet
+end
+arch ability_icestorm
+end
+end
+end
+arch floor_ruin4
+x 11
+y 11
+end
+arch floor_ruin4
+x 11
+y 12
+end
+arch floor_ruin3
+x 11
+y 13
+end
+arch candlelight4.101
+x 11
+y 13
+end
+arch light8
+x 11
+y 13
+end
+arch floor_ruin1
+x 11
+y 14
+end
+arch floor_ruin3
+x 11
+y 15
+end
+arch floor_ruin4
+x 11
+y 16
+end
+arch floor_ruin3
+x 11
+y 17
+end
+arch floor_ruin4
+x 11
+y 18
+end
+arch floor_ruin3
+x 11
+y 19
+end
+arch floor_ruin1
+x 11
+y 20
+end
+arch spawn_point
+x 11
+y 20
+arch drow_annihilator
+name porlit the alchemist
+level 60
+exp 135
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 8
+attack_move_type 1
+type 83
+arch ability_icestorm
+hp 7
+end
+arch ability_firestorm
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_ruin3
+x 11
+y 21
+end
+arch floor_ruin1
+x 11
+y 22
+end
+arch floor_ruin3
+x 11
+y 23
+end
+arch fwall_ruin1c
+x 11
+y 23
+end
+arch floor_ruin4
+x 12
+end
+arch fwall_ruin1c
+no_pass 0
+x 12
+end
+arch floor_ruin3
+x 12
+y 1
+end
+arch fmask_ruin1_s4.101
+x 12
+y 1
+end
+arch floor_ruin1
+x 12
+y 2
+end
+arch floor_ruin3
+x 12
+y 3
+end
+arch floor_ruin1
+x 12
+y 4
+end
+arch floor_ruin2
+x 12
+y 5
+end
+arch floor_ruin4
+x 12
+y 6
+end
+arch floor_ruin3
+x 12
+y 7
+end
+arch floor_ruin1
+x 12
+y 8
+end
+arch floor_ruin4
+x 12
+y 9
+end
+arch floor_ruin2
+x 12
+y 10
+end
+arch floor_ruin1
+x 12
+y 11
+end
+arch floor_ruin2
+x 12
+y 12
+end
+arch floor_ruin2
+x 12
+y 13
+end
+arch floor_ruin3
+x 12
+y 14
+end
+arch floor_ruin4
+x 12
+y 15
+end
+arch floor_ruin1
+x 12
+y 16
+end
+arch floor_ruin3
+x 12
+y 17
+end
+arch floor_ruin4
+x 12
+y 18
+end
+arch floor_ruin1
+x 12
+y 19
+end
+arch floor_ruin3
+x 12
+y 20
+end
+arch floor_ruin4
+x 12
+y 21
+end
+arch floor_ruin3
+x 12
+y 22
+end
+arch floor_ruin4
+x 12
+y 23
+end
+arch fwall_ruin1c
+x 12
+y 23
+end
+arch floor_ruin2
+x 13
+end
+arch fwall_ruin1c
+x 13
+end
+arch wmask_bflag_fire1_1
+direction 8
+x 13
+end
+arch floor_ruin4
+x 13
+y 1
+end
+arch floor_ruin3
+x 13
+y 2
+end
+arch floor_ruin3
+x 13
+y 3
+end
+arch floor_ruin2
+x 13
+y 4
+end
+arch floor_ruin4
+x 13
+y 5
+end
+arch floor_ruin2
+x 13
+y 6
+end
+arch shelf3.111
+x 13
+y 6
+end
+arch floor_ruin2
+x 13
+y 7
+end
+arch floor_ruin2
+x 13
+y 8
+end
+arch floor_ruin3
+x 13
+y 9
+end
+arch shelf3_dem2.111
+x 13
+y 9
+end
+arch floor_ruin3
+x 13
+y 10
+end
+arch floor_ruin1
+x 13
+y 11
+end
+arch floor_ruin3
+x 13
+y 12
+end
+arch shelf3_dem1.111
+x 13
+y 12
+end
+arch floor_ruin2
+x 13
+y 13
+end
+arch floor_ruin3
+x 13
+y 14
+end
+arch floor_ruin1
+x 13
+y 15
+end
+arch floor_ruin4
+x 13
+y 16
+end
+arch table_lab2.111
+x 13
+y 16
+end
+arch floor_ruin1
+x 13
+y 17
+end
+arch floor_ruin2
+x 13
+y 18
+end
+arch floor_ruin3
+x 13
+y 19
+end
+arch floor_ruin2
+x 13
+y 20
+end
+arch floor_ruin3
+x 13
+y 21
+end
+arch floor_ruin3
+x 13
+y 22
+end
+arch floor_ruin3
+x 13
+y 23
+end
+arch fwall_ruin1c
+x 13
+y 23
+end
+arch floor_ruin1
+x 14
+end
+arch fwall_ruin1c
+x 14
+end
+arch floor_ruin1
+x 14
+y 1
+end
+arch floor_ruin1
+x 14
+y 2
+end
+arch floor_ruin3
+x 14
+y 3
+end
+arch floor_ruin2
+x 14
+y 4
+end
+arch floor_ruin2
+x 14
+y 5
+end
+arch floor_ruin1
+x 14
+y 6
+end
+arch shelf3b.111
+x 14
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin1
+x 14
+y 7
+end
+arch floor_ruin2
+x 14
+y 8
+end
+arch floor_ruin1
+x 14
+y 9
+end
+arch shelf3.111
+x 14
+y 9
+end
+arch floor_ruin4
+x 14
+y 10
+end
+arch floor_ruin1
+x 14
+y 11
+end
+arch floor_ruin3
+x 14
+y 12
+end
+arch shelf3a.111
+x 14
+y 12
+end
+arch floor_ruin2
+x 14
+y 13
+end
+arch floor_ruin3
+x 14
+y 14
+end
+arch floor_ruin1
+x 14
+y 15
+end
+arch floor_ruin1
+x 14
+y 16
+end
+arch table_lab3.111
+x 14
+y 16
+end
+arch light2
+x 14
+y 16
+end
+arch floor_ruin4
+x 14
+y 17
+end
+arch floor_ruin1
+x 14
+y 18
+end
+arch candlelight4.101
+x 14
+y 18
+end
+arch light7
+x 14
+y 18
+end
+arch floor_ruin2
+x 14
+y 19
+end
+arch floor_ruin3
+x 14
+y 20
+end
+arch floor_ruin3
+x 14
+y 21
+end
+arch table_wood1.111
+x 14
+y 21
+end
+arch floor_ruin1
+x 14
+y 22
+end
+arch floor_ruin3
+x 14
+y 23
+end
+arch fwall_ruin1c
+x 14
+y 23
+end
+arch floor_ruin1
+x 15
+end
+arch fwall_ruin1c
+x 15
+end
+arch floor_ruin1
+x 15
+y 1
+end
+arch spawn_point
+x 15
+y 1
+arch drow_captain
+name rebel drow commander
+level 57
+Wis 6
+type 83
+end
+end
+arch floor_ruin3
+x 15
+y 2
+end
+arch floor_ruin2
+x 15
+y 3
+end
+arch floor_ruin1
+x 15
+y 4
+end
+arch floor_ruin1
+x 15
+y 5
+end
+arch floor_ruin1
+x 15
+y 6
+end
+arch shelf3a.111
+x 15
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin2
+x 15
+y 7
+end
+arch floor_ruin3
+x 15
+y 8
+end
+arch floor_ruin4
+x 15
+y 9
+end
+arch shelf3b.111
+x 15
+y 9
+end
+arch floor_ruin3
+x 15
+y 10
+end
+arch floor_ruin3
+x 15
+y 11
+end
+arch floor_ruin3
+x 15
+y 12
+end
+arch shelf3_dem2.111
+x 15
+y 12
+end
+arch floor_ruin1
+x 15
+y 13
+end
+arch floor_ruin2
+x 15
+y 14
+end
+arch floor_ruin2
+x 15
+y 15
+end
+arch floor_ruin3
+x 15
+y 16
+end
+arch table_lab3.111
+x 15
+y 16
+end
+arch floor_ruin2
+x 15
+y 17
+end
+arch floor_ruin4
+x 15
+y 18
+end
+arch floor_ruin2
+x 15
+y 19
+end
+arch floor_ruin3
+x 15
+y 20
+end
+arch floor_ruin3
+x 15
+y 21
+end
+arch floor_ruin1
+x 15
+y 22
+end
+arch floor_ruin3
+x 15
+y 23
+end
+arch fwall_ruin1c
+x 15
+y 23
+end
+arch floor_ruin3
+x 16
+end
+arch fwall_ruin1c
+x 16
+end
+arch floor_ruin4
+x 16
+y 1
+end
+arch floor_ruin1
+x 16
+y 2
+end
+arch floor_ruin4
+x 16
+y 3
+end
+arch floor_ruin2
+x 16
+y 4
+end
+arch floor_ruin3
+x 16
+y 5
+end
+arch floor_ruin1
+x 16
+y 6
+end
+arch shelf3_dem3.111
+x 16
+y 6
+end
+arch floor_ruin1
+x 16
+y 7
+end
+arch spawn_point
+x 16
+y 7
+arch drow_sorcerer
+name rebel drow warlock
+level 58
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_mbullet
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_ruin2
+x 16
+y 8
+end
+arch floor_ruin1
+x 16
+y 9
+end
+arch shelf3a.111
+x 16
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin4
+x 16
+y 10
+end
+arch floor_ruin1
+x 16
+y 11
+end
+arch floor_ruin3
+x 16
+y 12
+end
+arch shelf3c.111
+x 16
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin1
+x 16
+y 13
+end
+arch floor_ruin3
+x 16
+y 14
+end
+arch floor_ruin1
+x 16
+y 15
+end
+arch floor_ruin3
+x 16
+y 16
+end
+arch table_lab3.111
+x 16
+y 16
+end
+arch floor_ruin1
+x 16
+y 17
+end
+arch floor_ruin1
+x 16
+y 18
+end
+arch floor_ruin3
+x 16
+y 19
+end
+arch floor_ruin3
+x 16
+y 20
+end
+arch floor_ruin1
+x 16
+y 21
+end
+arch table_wood5
+x 16
+y 21
+end
+arch floor_ruin3
+x 16
+y 22
+end
+arch floor_ruin3
+x 16
+y 23
+end
+arch fwall_ruin1c
+x 16
+y 23
+end
+arch floor_ruin2
+x 17
+end
+arch fwall_ruin1c
+x 17
+end
+arch wmask_bflag_fire1_1
+direction 8
+x 17
+end
+arch floor_ruin3
+x 17
+y 1
+end
+arch floor_ruin1
+x 17
+y 2
+end
+arch floor_ruin1
+x 17
+y 3
+end
+arch floor_ruin1
+x 17
+y 4
+end
+arch floor_ruin4
+x 17
+y 5
+end
+arch floor_ruin3
+x 17
+y 6
+end
+arch shelf3_dem2.111
+x 17
+y 6
+end
+arch floor_ruin2
+x 17
+y 7
+end
+arch floor_ruin4
+x 17
+y 8
+end
+arch floor_ruin3
+x 17
+y 9
+end
+arch shelf3_dem3.111
+x 17
+y 9
+end
+arch floor_ruin4
+x 17
+y 10
+end
+arch floor_ruin3
+x 17
+y 11
+end
+arch floor_ruin1
+x 17
+y 12
+end
+arch shelf3_dem2.111
+x 17
+y 12
+end
+arch floor_ruin4
+x 17
+y 13
+end
+arch floor_ruin4
+x 17
+y 14
+end
+arch floor_ruin3
+x 17
+y 15
+end
+arch floor_ruin2
+x 17
+y 16
+end
+arch table_lab2.111
+x 17
+y 16
+end
+arch floor_ruin3
+x 17
+y 17
+end
+arch floor_ruin4
+x 17
+y 18
+end
+arch floor_ruin3
+x 17
+y 19
+end
+arch floor_ruin1
+x 17
+y 20
+end
+arch floor_ruin1
+x 17
+y 21
+end
+arch floor_ruin3
+x 17
+y 22
+end
+arch floor_ruin3
+x 17
+y 23
+end
+arch fwall_ruin1c
+x 17
+y 23
+end
+arch floor_ruin3
+x 18
+end
+arch fwall_ruin1c
+x 18
+end
+arch floor_ruin2
+x 18
+y 1
+end
+arch floor_ruin1
+x 18
+y 2
+end
+arch floor_ruin2
+x 18
+y 3
+end
+arch floor_ruin3
+x 18
+y 4
+end
+arch floor_ruin3
+x 18
+y 5
+end
+arch floor_ruin3
+x 18
+y 6
+end
+arch shelf3_dem1.111
+x 18
+y 6
+end
+arch floor_ruin2
+x 18
+y 7
+end
+arch floor_ruin2
+x 18
+y 8
+end
+arch floor_ruin1
+x 18
+y 9
+end
+arch shelf3_dem1.111
+x 18
+y 9
+end
+arch floor_ruin3
+x 18
+y 10
+end
+arch floor_ruin2
+x 18
+y 11
+end
+arch floor_ruin1
+x 18
+y 12
+end
+arch shelf3c.111
+x 18
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ruin2
+x 18
+y 13
+end
+arch floor_ruin2
+x 18
+y 14
+end
+arch floor_ruin1
+x 18
+y 15
+end
+arch floor_ruin3
+x 18
+y 16
+end
+arch table_lab1.111
+x 18
+y 16
+end
+arch light1
+x 18
+y 16
+end
+arch floor_ruin3
+x 18
+y 17
+end
+arch floor_ruin1
+x 18
+y 18
+end
+arch floor_ruin3
+x 18
+y 19
+end
+arch floor_ruin2
+x 18
+y 20
+end
+arch floor_ruin1
+x 18
+y 21
+end
+arch table_wood6
+x 18
+y 21
+end
+arch light1
+x 18
+y 21
+end
+arch floor_ruin2
+x 18
+y 22
+end
+arch floor_ruin2
+x 18
+y 23
+end
+arch fwall_ruin1c
+x 18
+y 23
+end
+arch floor_ruin2
+x 19
+end
+arch fwall_ruin1c
+x 19
+end
+arch floor_ruin1
+x 19
+y 1
+end
+arch floor_ruin3
+x 19
+y 2
+end
+arch floor_ruin3
+x 19
+y 3
+end
+arch floor_ruin2
+x 19
+y 4
+end
+arch floor_ruin4
+x 19
+y 5
+end
+arch floor_ruin2
+x 19
+y 6
+end
+arch candlelight4.101
+x 19
+y 6
+end
+arch light7
+x 19
+y 6
+end
+arch floor_ruin3
+x 19
+y 7
+end
+arch floor_ruin2
+x 19
+y 8
+end
+arch floor_ruin1
+x 19
+y 9
+end
+arch floor_ruin3
+x 19
+y 10
+end
+arch floor_ruin1
+x 19
+y 11
+end
+arch floor_ruin4
+x 19
+y 12
+end
+arch floor_ruin3
+x 19
+y 13
+end
+arch candlelight4.101
+x 19
+y 13
+end
+arch light7
+x 19
+y 13
+end
+arch floor_ruin2
+x 19
+y 14
+end
+arch floor_ruin4
+x 19
+y 15
+end
+arch floor_ruin3
+x 19
+y 16
+end
+arch floor_ruin2
+x 19
+y 17
+end
+arch floor_ruin4
+x 19
+y 18
+end
+arch floor_ruin1
+x 19
+y 19
+end
+arch floor_ruin4
+x 19
+y 20
+end
+arch floor_ruin4
+x 19
+y 21
+end
+arch floor_ruin4
+x 19
+y 22
+end
+arch floor_ruin3
+x 19
+y 23
+end
+arch fwall_ruin1c
+x 19
+y 23
+end
+arch floor_ruin3
+x 20
+end
+arch fwall_ruin1c
+x 20
+end
+arch floor_ruin3
+x 20
+y 1
+end
+arch floor_ruin3
+x 20
+y 2
+end
+arch floor_ruin2
+x 20
+y 3
+end
+arch spawn_point
+x 20
+y 3
+arch drow_captain
+name rebel drow commander
+level 58
+Wis 6
+type 83
+end
+end
+arch floor_ruin3
+x 20
+y 4
+end
+arch floor_ruin3
+x 20
+y 5
+end
+arch floor_ruin4
+x 20
+y 6
+end
+arch floor_ruin3
+x 20
+y 7
+end
+arch floor_ruin1
+x 20
+y 8
+end
+arch floor_ruin1
+x 20
+y 9
+end
+arch floor_ruin4
+x 20
+y 10
+end
+arch floor_ruin2
+x 20
+y 11
+end
+arch floor_ruin3
+x 20
+y 12
+end
+arch spawn_point
+x 20
+y 12
+arch drow_sorcerer
+name rebel drow researcher
+level 59
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_icestorm
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_ruin3
+x 20
+y 13
+end
+arch floor_ruin3
+x 20
+y 14
+end
+arch floor_ruin2
+x 20
+y 15
+end
+arch floor_ruin2
+x 20
+y 16
+end
+arch floor_ruin1
+x 20
+y 17
+end
+arch floor_ruin4
+x 20
+y 18
+end
+arch floor_ruin2
+x 20
+y 19
+end
+arch floor_ruin3
+x 20
+y 20
+end
+arch spawn_point
+x 20
+y 20
+arch drow_sorcerer
+name rebel drow alchemist
+level 60
+maxsp 16
+Pow 20
+magic 3
+Dex 3
+Wis 6
+type 83
+arch ability_icestorm
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_ruin3
+x 20
+y 21
+end
+arch floor_ruin1
+x 20
+y 22
+end
+arch floor_ruin4
+x 20
+y 23
+end
+arch fwall_ruin1c
+x 20
+y 23
+end
+arch floor_ruin3
+x 21
+end
+arch fwall_ruin1c
+x 21
+end
+arch floor_ruin3
+x 21
+y 1
+end
+arch floor_ruin3
+x 21
+y 2
+end
+arch floor_ruin3
+x 21
+y 3
+end
+arch floor_ruin1
+x 21
+y 4
+end
+arch floor_ruin3
+x 21
+y 5
+end
+arch floor_ruin4
+x 21
+y 6
+end
+arch floor_ruin3
+x 21
+y 7
+end
+arch floor_ruin3
+x 21
+y 8
+end
+arch floor_ruin1
+x 21
+y 9
+end
+arch floor_ruin4
+x 21
+y 10
+end
+arch floor_ruin4
+x 21
+y 11
+end
+arch floor_ruin2
+x 21
+y 12
+end
+arch floor_ruin4
+x 21
+y 13
+end
+arch floor_ruin1
+x 21
+y 14
+end
+arch floor_ruin1
+x 21
+y 15
+end
+arch floor_ruin2
+x 21
+y 16
+end
+arch floor_ruin3
+x 21
+y 17
+end
+arch floor_ruin1
+x 21
+y 18
+end
+arch floor_ruin4
+x 21
+y 19
+end
+arch floor_ruin1
+x 21
+y 20
+end
+arch floor_ruin2
+x 21
+y 21
+end
+arch floor_ruin3
+x 21
+y 22
+end
+arch floor_ruin1
+x 21
+y 23
+end
+arch fwall_ruin1c
+x 21
+y 23
+end
+arch floor_ruin2
+x 22
+end
+arch fwall_ruin1c
+x 22
+end
+arch floor_ruin3
+x 22
+y 1
+end
+arch floor_ruin1
+x 22
+y 2
+end
+arch floor_ruin2
+x 22
+y 3
+end
+arch floor_ruin1
+x 22
+y 4
+end
+arch floor_ruin2
+x 22
+y 5
+end
+arch floor_ruin4
+x 22
+y 6
+end
+arch floor_ruin3
+x 22
+y 7
+end
+arch floor_ruin4
+x 22
+y 8
+end
+arch floor_ruin1
+x 22
+y 9
+end
+arch floor_ruin3
+x 22
+y 10
+end
+arch floor_ruin2
+x 22
+y 11
+end
+arch floor_ruin3
+x 22
+y 12
+end
+arch floor_ruin3
+x 22
+y 13
+end
+arch floor_ruin2
+x 22
+y 14
+end
+arch floor_ruin2
+x 22
+y 15
+end
+arch floor_ruin4
+x 22
+y 16
+end
+arch floor_ruin3
+x 22
+y 17
+end
+arch floor_ruin3
+x 22
+y 18
+end
+arch floor_ruin4
+x 22
+y 19
+end
+arch floor_ruin2
+x 22
+y 20
+end
+arch floor_ruin3
+x 22
+y 21
+end
+arch floor_ruin4
+x 22
+y 22
+end
+arch floor_ruin2
+x 22
+y 23
+end
+arch fwall_ruin1c
+x 22
+y 23
+end
+arch floor_ruin3
+x 23
+end
+arch fwall_ruin1c
+x 23
+end
+arch floor_ruin3
+x 23
+y 1
+end
+arch fwall_ruin1c
+x 23
+y 1
+end
+arch floor_ruin2
+x 23
+y 2
+end
+arch fwall_ruin1c
+x 23
+y 2
+end
+arch floor_ruin1
+x 23
+y 3
+end
+arch fwall_ruin1c
+x 23
+y 3
+end
+arch floor_ruin2
+x 23
+y 4
+end
+arch fwall_ruin1c
+x 23
+y 4
+end
+arch floor_ruin2
+x 23
+y 5
+end
+arch fwall_ruin1c
+x 23
+y 5
+end
+arch floor_ruin3
+x 23
+y 6
+end
+arch fwall_ruin1c
+x 23
+y 6
+end
+arch floor_ruin4
+x 23
+y 7
+end
+arch fwall_ruin1c
+x 23
+y 7
+end
+arch floor_ruin1
+x 23
+y 8
+end
+arch fwall_ruin1c
+x 23
+y 8
+end
+arch floor_ruin2
+x 23
+y 9
+end
+arch fwall_ruin1c
+x 23
+y 9
+end
+arch floor_ruin2
+x 23
+y 10
+end
+arch fwall_ruin1c
+x 23
+y 10
+end
+arch floor_ruin2
+x 23
+y 11
+end
+arch fwall_ruin1c
+x 23
+y 11
+end
+arch floor_ruin4
+x 23
+y 12
+end
+arch fwall_ruin1c
+x 23
+y 12
+end
+arch floor_ruin3
+x 23
+y 13
+end
+arch fwall_ruin1c
+x 23
+y 13
+end
+arch floor_ruin1
+x 23
+y 14
+end
+arch fwall_ruin1c
+x 23
+y 14
+end
+arch floor_ruin3
+x 23
+y 15
+end
+arch fwall_ruin1c
+x 23
+y 15
+end
+arch floor_ruin1
+x 23
+y 16
+end
+arch fwall_ruin1c
+x 23
+y 16
+end
+arch floor_ruin4
+x 23
+y 17
+end
+arch fwall_ruin1c
+x 23
+y 17
+end
+arch floor_ruin1
+x 23
+y 18
+end
+arch fwall_ruin1c
+x 23
+y 18
+end
+arch floor_ruin3
+x 23
+y 19
+end
+arch fwall_ruin1c
+x 23
+y 19
+end
+arch floor_ruin4
+x 23
+y 20
+end
+arch fwall_ruin1c
+x 23
+y 20
+end
+arch floor_ruin2
+x 23
+y 21
+end
+arch fwall_ruin1c
+x 23
+y 21
+end
+arch floor_ruin4
+x 23
+y 22
+end
+arch fwall_ruin1c
+x 23
+y 22
+end
+arch floor_ruin2
+x 23
+y 23
+end
+arch fwall_ruin1c
+x 23
+y 23
+end

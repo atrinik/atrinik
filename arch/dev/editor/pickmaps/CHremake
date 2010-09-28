@@ -1,0 +1,537 @@
+arch map
+name CHremake
+msg
+Created:  2010-07-08 Kiana
+Modified: 2010-08-20 Kiana
+endmsg
+width 14
+height 14
+difficulty 1
+darkness -1
+end
+arch water_lt2_m
+direction 4
+end
+arch water_lt2_m
+direction 3
+y 1
+end
+arch water_lt_m
+direction 3
+y 2
+end
+arch water_lt2_m
+direction 2
+y 3
+end
+arch water_lt4_m
+direction 4
+y 4
+end
+arch water_lt4_m
+direction 3
+y 5
+end
+arch water_lt4_m
+direction 2
+y 6
+end
+arch water_lt3_m
+direction 4
+y 7
+end
+arch reed_sm3
+y 8
+end
+arch reed_sm11
+y 9
+end
+arch reed_sm4
+y 10
+end
+arch water_lt2_m
+direction 5
+x 1
+end
+arch water_lt5_m
+direction 4
+x 1
+y 1
+end
+arch water_lt5_m
+direction 2
+x 1
+y 2
+end
+arch water_lt2_m
+direction 1
+x 1
+y 3
+end
+arch water_lt4_m
+direction 5
+x 1
+y 4
+end
+arch water_lt4_m
+x 1
+y 5
+end
+arch water_lt4_m
+direction 1
+x 1
+y 6
+end
+arch water_lt3_m
+direction 8
+x 1
+y 7
+end
+arch reed_sm10
+x 1
+y 8
+end
+arch reed_sm1
+x 1
+y 9
+end
+arch reed_sm8
+x 1
+y 10
+end
+arch water_lt_m
+direction 5
+x 2
+end
+arch water_lt5_m
+direction 6
+x 2
+y 1
+end
+arch water_lt5_m
+direction 8
+x 2
+y 2
+end
+arch water_lt_m
+direction 1
+x 2
+y 3
+end
+arch water_lt4_m
+direction 6
+x 2
+y 4
+end
+arch water_lt4_m
+direction 7
+x 2
+y 5
+end
+arch water_lt4_m
+direction 8
+x 2
+y 6
+end
+arch water_lt5_m
+direction 3
+x 2
+y 7
+end
+arch reed_sm2
+x 2
+y 8
+end
+arch reed_sm9
+x 2
+y 9
+end
+arch reed_sm5
+x 2
+y 10
+end
+arch water_lt2_m
+direction 6
+x 3
+end
+arch water_lt2_m
+direction 7
+x 3
+y 1
+end
+arch water_lt_m
+direction 7
+x 3
+y 2
+end
+arch water_lt2_m
+direction 8
+x 3
+y 3
+end
+arch water_lt3_m
+direction 2
+x 3
+y 4
+end
+arch water_lt3_m
+direction 6
+x 3
+y 5
+end
+arch water_lt5_m
+direction 5
+x 3
+y 6
+end
+arch water_lt5_m
+direction 0
+x 3
+y 7
+end
+arch water_lt5_m
+direction 1
+x 3
+y 8
+end
+arch reed_sm6
+x 3
+y 9
+end
+arch reed_sm7
+x 3
+y 10
+end
+arch water_lt_m
+direction 4
+x 4
+end
+arch water_lt3_m
+direction 3
+x 4
+y 1
+end
+arch water_lt_m
+direction 2
+x 4
+y 2
+end
+arch water_lt2_m
+x 4
+y 3
+end
+arch water_lt5_m
+direction 7
+x 4
+y 7
+end
+arch water_lt3_m
+direction 5
+x 5
+end
+arch water_lt3_m
+x 5
+y 1
+end
+arch water_lt3_m
+direction 1
+x 5
+y 2
+end
+arch water_lt_m
+x 5
+y 3
+end
+arch water_lt
+x 5
+y 5
+end
+arch water_lt3
+x 5
+y 6
+end
+arch water_lt_m
+direction 6
+x 6
+end
+arch water_lt3_m
+direction 7
+x 6
+y 1
+end
+arch water_lt_m
+direction 8
+x 6
+y 2
+end
+arch water_lt2
+x 6
+y 5
+end
+arch water_lt4
+x 6
+y 6
+end
+arch grassd_m1
+x 6
+y 11
+end
+arch grassd_m5
+x 6
+y 12
+end
+arch grassd_m6
+x 6
+y 13
+end
+arch floor_ruin1
+x 7
+y 8
+end
+arch floor_ruin4
+x 7
+y 9
+end
+arch floor_sand_d4
+x 7
+y 10
+end
+arch grassd_m2
+x 7
+y 11
+end
+arch grassd_m3
+x 7
+y 12
+end
+arch grassd_m4
+x 7
+y 13
+end
+arch grass_thick1
+x 8
+y 6
+end
+arch grass_flowers1
+x 8
+y 7
+end
+arch floor_sand_d3
+x 8
+y 10
+end
+arch grassd_m11
+x 8
+y 11
+end
+arch grassd_m8
+x 8
+y 12
+end
+arch grassd_m12
+x 8
+y 13
+end
+arch tree_big3
+x 9
+end
+arch grass_thick2
+x 9
+y 6
+end
+arch grass_flowers2
+x 9
+y 7
+end
+arch floor_ruin2
+x 9
+y 8
+end
+arch floor_ruin5
+x 9
+y 9
+end
+arch floor_sand_d2
+x 9
+y 10
+end
+arch grassd_m7
+x 9
+y 11
+end
+arch water_still
+x 9
+y 12
+end
+arch grassd_m10
+x 9
+y 13
+end
+arch tree_big4b
+x 10
+end
+arch grass_thick3
+x 10
+y 6
+end
+arch grass_flowers3
+x 10
+y 7
+end
+arch floor_ruin3
+x 10
+y 8
+end
+arch floor_ruin6
+x 10
+y 9
+end
+arch floor_sand_d1
+x 10
+y 10
+end
+arch grassd_m14
+x 10
+y 11
+end
+arch grassd_m9
+x 10
+y 12
+end
+arch grassd_m13
+x 10
+y 13
+end
+arch tree_big5b
+x 11
+end
+arch plant5
+x 11
+y 4
+end
+arch plant10
+x 11
+y 5
+end
+arch plant12
+x 11
+y 6
+end
+arch plant3
+x 11
+y 7
+end
+arch plant11
+x 11
+y 8
+end
+arch plant16
+x 11
+y 9
+end
+arch plant15
+x 11
+y 10
+end
+arch grassd_8
+x 11
+y 12
+end
+arch grassd_7
+x 11
+y 13
+end
+arch tree_big2
+x 12
+end
+arch rock5
+x 12
+y 3
+end
+arch rock2
+x 12
+y 4
+end
+arch stone1
+x 12
+y 5
+end
+arch plant_flower11
+x 12
+y 6
+end
+arch plant_flower14
+x 12
+y 7
+end
+arch plant_flower5
+x 12
+y 8
+end
+arch plant_flower1
+x 12
+y 9
+end
+arch plant_flower2
+x 12
+y 10
+end
+arch grassd_6
+x 12
+y 11
+end
+arch grassd_3
+x 12
+y 12
+end
+arch grassd_2
+x 12
+y 13
+end
+arch tree_big
+x 13
+end
+arch rock6
+x 13
+y 3
+end
+arch rock1
+x 13
+y 4
+end
+arch small_stones
+x 13
+y 5
+end
+arch plant_mushroom3
+x 13
+y 6
+end
+arch plant_mushroom1
+x 13
+y 7
+end
+arch plant_mushroom5
+x 13
+y 8
+end
+arch plant1
+x 13
+y 9
+end
+arch plant13
+x 13
+y 10
+end
+arch grassd_5
+x 13
+y 11
+end
+arch grassd_4
+x 13
+y 12
+end
+arch grassd_1
+x 13
+y 13
+end
