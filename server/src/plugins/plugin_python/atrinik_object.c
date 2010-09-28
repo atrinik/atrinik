@@ -635,11 +635,11 @@ static PyObject *Atrinik_Object_GetGender(Atrinik_Object *whoptr, PyObject *args
  * <h1>object.SetGender(int gender)</h1>
  * Changes the gender of object.
  * @param gender The new gender to set. One of:
- * - <b>Atrinik.NEUTER</b>: No gender.
- * - <b>Atrinik.MALE</b>: Male.
- * - <b>Atrinik.FEMALE</b>: Female.
- * - <b>Atrinik.HERMAPHRODITE</b>: Both male and female. */
-static PyObject *Atrinik_Object_SetGender(Atrinik_Object *whoptr, PyObject *args)
+ * - <b>NEUTER</b>: No gender.
+ * - <b>MALE</b>: Male.
+ * - <b>FEMALE</b>: Female.
+ * - <b>HERMAPHRODITE</b>: Both male and female. */
+static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 {
 	int gender;
 
@@ -648,27 +648,26 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *whoptr, PyObject *args
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	/* Set object to neuter */
-	CLEAR_FLAG(WHO, FLAG_IS_MALE);
-	CLEAR_FLAG(WHO, FLAG_IS_FEMALE);
+	CLEAR_FLAG(obj->obj, FLAG_IS_MALE);
+	CLEAR_FLAG(obj->obj, FLAG_IS_FEMALE);
 
-	/* Reset to male or female */
-	if (gender & 1)
+	if (gender == GENDER_MALE || gender == GENDER_HERMAPHRODITE)
 	{
-		SET_FLAG(WHO, FLAG_IS_MALE);
+		SET_FLAG(obj->obj, FLAG_IS_MALE);
 	}
 
-	if (gender & 2)
+	if (gender == GENDER_FEMALE || gender == GENDER_HERMAPHRODITE)
 	{
-		SET_FLAG(WHO, FLAG_IS_FEMALE);
+		SET_FLAG(obj->obj, FLAG_IS_FEMALE);
 	}
 
 	/* Update the players client if object was a player */
-	if (WHO->type == PLAYER)
+	if (obj->obj->type == PLAYER)
 	{
-		CONTR(WHO)->socket.ext_title_flag = 1;
+		CONTR(obj->obj)->socket.ext_title_flag = 1;
 	}
 
 	Py_INCREF(Py_None);
