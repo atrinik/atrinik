@@ -1,13 +1,14 @@
 arch map
-name World
+name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-03 Alex Tokar
+Modified: 2010-09-28 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_0211
 tile_path_2 world_0310
 tile_path_3 world_0209
@@ -16,6 +17,8 @@ tile_path_5 world_0311
 tile_path_6 world_0309
 tile_path_7 world_0109
 tile_path_8 world_0111
+bg_music rainthunder.ogg
+region brynknot
 end
 arch grassd_5
 end
