@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-09-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1212,7 +1212,7 @@ level 115
 type 83
 arch event_obj
 sub_type 6
-race /python/generic/church.py
+race /python/temples/tabernacle.py
 end
 end
 end

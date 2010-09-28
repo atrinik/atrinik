@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-04 Alex Tokar
+Modified: 2010-09-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -495,7 +495,7 @@ level 30
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/generic/church.py
+race /python/temples/tabernacle.py
 end
 end
 end
