@@ -2409,8 +2409,6 @@ object *decrease_ob_nr(object *op, uint32 i)
 	}
 	else
 	{
-		object *above = op->above;
-
 		if (i < op->nrof)
 		{
 			op->nrof -= i;
@@ -2420,22 +2418,6 @@ object *decrease_ob_nr(object *op, uint32 i)
 			remove_ob(op);
 			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 			op->nrof = 0;
-		}
-
-		/* Since we just removed op, op->above is null */
-		for (tmp = above; tmp; tmp = tmp->above)
-		{
-			if (tmp->type == PLAYER)
-			{
-				if (op->nrof)
-				{
-					esrv_send_item(tmp, op);
-				}
-				else
-				{
-					esrv_del_item(CONTR(tmp), op->count, op->env);
-				}
-			}
 		}
 	}
 
