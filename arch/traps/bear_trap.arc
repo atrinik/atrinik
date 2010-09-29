@@ -17,4 +17,5 @@ walk_on 1
 attack_cleave 100
 dam 8
 Cha 20
+sp -1
 end

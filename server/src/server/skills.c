@@ -72,12 +72,6 @@ sint64 find_traps(object *pl, int level)
 					{
 						trap_show(tmp2, tmp);
 
-						if (tmp2->stats.Cha > 1)
-						{
-							/* Unhide the trap */
-							tmp2->stats.Cha = 1;
-						}
-
 						if (!suc)
 						{
 							suc = 1;
@@ -100,12 +94,6 @@ sint64 find_traps(object *pl, int level)
 				if (trap_see(pl, tmp, level))
 				{
 					trap_show(tmp, tmp);
-
-					if (tmp->stats.Cha > 1)
-					{
-						/* Unhide the trap */
-						tmp->stats.Cha = 1;
-					}
 
 					if (!suc)
 					{

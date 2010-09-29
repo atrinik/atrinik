@@ -17,4 +17,5 @@ walk_on 1
 attack_impact 100
 dam 10
 Cha 20
+sp -1
 end

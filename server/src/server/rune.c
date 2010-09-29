@@ -60,6 +60,7 @@ static void rune_attack(object *op, object *victim)
 		if (op->inv && op->inv->type == DISEASE)
 		{
 			object *disease = op->inv;
+
 			infect_object(victim, disease, 1);
 			remove_ob(disease);
 			check_walk_off(disease, NULL, MOVE_APPLY_VANISHED);
@@ -81,62 +82,36 @@ static void rune_attack(object *op, object *victim)
  * @param victim Victim of the trap. */
 void spring_trap(object *trap, object *victim)
 {
-	int spell_in_rune;
 	object *env;
-	tag_t trap_tag = trap->count;
 
-	/* Prevent recursion */
-	if (trap->stats.hp <= 0)
+	/* Prevent recursion. */
+	if (trap->stats.hp == 0)
 	{
 		return;
-	}
-
-	/* get the spell number from the name in the slaying field, and set
-	 * that as the spell to be cast. */
-	if (trap->slaying && (spell_in_rune = look_up_spell_name(trap->slaying)) != -1)
-	{
-		trap->stats.sp = spell_in_rune;
 	}
 
 	/* Only living objects can trigger runes that don't cast spells, as
 	 * doing direct damage to a non-living object doesn't work anyway.
 	 * Typical example is an arrow attacking a door. */
-	if (!IS_LIVE(victim) && ! trap->stats.sp)
+	if (!IS_LIVE(victim) && trap->stats.sp == -1)
 	{
 		return;
 	}
 
-	/* decrement detcount */
-	trap->stats.hp--;
-
-	if (victim && victim->type == PLAYER)
+	if (victim && victim->type == PLAYER && trap->msg)
 	{
 		new_draw_info(NDI_UNIQUE, victim, trap->msg);
 	}
 
-	/* Flash an image of the trap on the map so the poor sod
-	 * knows what hit him. */
-	for (env = trap; env->env != NULL; env = env->env)
-	{
-	}
-
+	env = get_env_recursive(trap);
 	trap_show(trap, env);
-	/* Make the trap impotent */
-	trap->type = MISC_OBJECT;
-	CLEAR_FLAG(trap, FLAG_FLY_ON);
-	CLEAR_FLAG(trap, FLAG_WALK_ON);
-	FREE_AND_CLEAR_HASH2(trap->msg);
-	/* Make it stick around until its spells are gone */
-	trap->stats.food = 20;
-	/* Ok, let the trap wear off */
-	SET_FLAG(trap, FLAG_IS_USED_UP);
-	trap->speed = trap->speed_left = 1.0f;
-	update_ob_speed(trap);
 
-	if (!trap->stats.sp)
+	/* No spell, simple attack. */
+	if (trap->stats.sp == -1)
 	{
+		tag_t trap_tag = trap->count;
+
 		rune_attack(trap, victim);
-		set_trapped_flag(env);
 
 		if (was_destroyed(trap, trap_tag))
 		{
@@ -145,22 +120,37 @@ void spring_trap(object *trap, object *victim)
 	}
 	else
 	{
-		/* This is necessary if the trap is inside something else */
-		remove_ob(trap);
-		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
-		set_trapped_flag(env);
-		trap->x = victim->x;
-		trap->y = victim->y;
+		object *old_env = trap->env;
 
-		if (!insert_ob_in_map(trap, victim->map, trap, 0))
+		/* This is necessary if the trap is inside something else, otherwise
+		 * the rune couldn't cast its spell. */
+		if (!trap->map)
 		{
-			return;
+			remove_ob(trap);
+			trap->x = env->x;
+			trap->y = env->y;
+
+			if (!insert_ob_in_map(trap, victim->map, trap, 0))
+			{
+				return;
+			}
 		}
 
-		cast_spell(trap, trap, trap->direction, trap->stats.sp - 1, 1, spellNormal, NULL);
+		cast_spell(trap, trap, trap->stats.maxsp, trap->stats.sp, 1, spellNormal, NULL);
+
+		/* Add the trap back to the object it was in, unless it was on
+		 * map to begin with. */
+		if (old_env)
+		{
+			remove_ob(trap);
+			check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
+			insert_ob_in_ob(trap, old_env);
+		}
 	}
 
-	if (trap->stats.hp <= 0)
+	/* Decrement detonation count and see if it's the last one, but only
+	 * if the count is not -1 already (infinite). */
+	if (trap->stats.hp != -1 && --trap->stats.hp == 0)
 	{
 		/* Make the trap impotent */
 		trap->type = MISC_OBJECT;
@@ -172,6 +162,9 @@ void spring_trap(object *trap, object *victim)
 		SET_FLAG(trap, FLAG_IS_USED_UP);
 		trap->speed = trap->speed_left = 1.0f;
 		update_ob_speed(trap);
+		/* Clear trapped flag. */
+		set_trapped_flag(env);
+		return;
 	}
 }
 
@@ -211,36 +204,22 @@ int trap_show(object *trap, object *where)
 	}
 
 	env = trap->env;
-	/* We must remove and reinsert it.. */
+	/* We must remove and reinsert it so the layer is updated correctly. */
 	remove_ob(trap);
 	CLEAR_FLAG(trap, FLAG_SYS_OBJECT);
 	CLEAR_MULTI_FLAG(trap, FLAG_IS_INVISIBLE);
 	trap->layer = LAYER_EFFECT;
 
+	/* The trap is not hidden anymore. */
+	if (trap->stats.Cha > 1)
+	{
+		trap->stats.Cha = 1;
+	}
+
 	if (env && env->type != PLAYER && env->type != MONSTER && env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS))
 	{
-		SET_FLAG(env, FLAG_IS_TRAPPED);
-
-		/* Env object is on map */
-		if (!env->env)
-		{
-			update_object(env, UP_OBJ_FACE);
-		}
-		/* Somewhere else - if visible, update */
-		else
-		{
-			if (env->env->type == PLAYER || env->env->type == CONTAINER)
-			{
-				esrv_update_item(UPD_FLAGS, env->env, env);
-			}
-		}
-
 		insert_ob_in_ob(trap, env);
-
-		if (env->type == PLAYER || env->type == CONTAINER)
-		{
-			esrv_update_item(UPD_LOCATION, env, trap);
-		}
+		set_trapped_flag(env);
 	}
 	else
 	{
