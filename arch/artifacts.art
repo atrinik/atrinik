@@ -3838,7 +3838,7 @@ def_arch horn
 Object
 title of fools
 type 35
-sp -81
+sp -1
 hp -10
 maxhp -10
 is_magical 1
