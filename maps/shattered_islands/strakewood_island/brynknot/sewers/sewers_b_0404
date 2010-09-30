@@ -2,7 +2,7 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Kiana
-Modified: 2010-07-06 Kiana
+Modified: 2010-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2065,7 +2065,6 @@ arch gate1_locked
 slaying locked
 no_magic 1
 damned 1
-direction 5
 x 11
 y 10
 end
