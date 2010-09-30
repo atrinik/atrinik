@@ -77,7 +77,8 @@ void magic_mirror_init(object *mirror)
 	{
 		char tmp_path[HUGE_BUF];
 
-		FREE_AND_COPY_HASH(mirror->slaying, normalize_path(mirror->map->path, mirror->slaying, tmp_path));
+		normalize_path(mirror->map->path, mirror->slaying, tmp_path);
+		FREE_AND_COPY_HASH(mirror->slaying, tmp_path);
 	}
 
 	/* Initialize custom_attrset. */
