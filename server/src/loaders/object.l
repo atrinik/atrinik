@@ -425,6 +425,7 @@ lex_error = 0;
 ^last_heal{S}       op->last_heal = IVAL;
 ^last_sp{S}         op->last_sp = IVAL;
 ^last_grace{S}      op->last_grace = IVAL;
+^last_grace_add{S}  op->last_grace += IVAL;
 ^last_eat{S}        op->last_eat = IVAL;
 ^speed{S}           op->speed = FVAL;
 
