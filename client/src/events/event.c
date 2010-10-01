@@ -282,7 +282,7 @@ int Event_PollInputDevice()
 					/* Running */
 					else if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
 					{
-						if (cpl.fire_on)
+						if (cpl.fire_on || cpl.run_on)
 						{
 							move_keys(dir_from_tile_coords(tx, ty));
 						}
