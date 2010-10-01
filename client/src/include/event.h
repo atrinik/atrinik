@@ -125,26 +125,7 @@ enum
 
 extern int KeyScanFlag;
 extern int cursor_type;
-
-/* Whether there is an event (removed at end of main loop) */
-extern int MouseEvent;
 extern int itemExamined;
-
-/* State of the buttons */
-extern uint32 MouseState;
-
-/** Use these constants to determine the state of mouse and its events. */
-enum
-{
-	/* Don't change this to 0 */
-	IDLE = 1,
-	LB_DN,
-	LB_UP,
-	RB_DN,
-	RB_UP,
-	MB_UP,
-	MB_DN
-};
 
 int get_action_keycode, drop_action_keycode;
 

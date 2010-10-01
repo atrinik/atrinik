@@ -1139,7 +1139,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
-	if (MouseEvent == RB_DN)
+	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT))
 	{
 		/* For some reason, checking for the ctrl key won't work here. */
 		if (cpl.fire_on)
@@ -1168,7 +1168,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		}
 	}
 	/* create a new widget of the same type, quick hack until we have something better such as buttons */
-	else if (MouseEvent == MB_DN)
+	else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_MIDDLE))
 	{
 		if (cpl.fire_on) /* for some reason, checking for the ctrl key won't work here */
 		{

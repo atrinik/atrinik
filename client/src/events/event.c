@@ -30,13 +30,10 @@
 
 #include "include.h"
 
-int  old_mouse_y = 0;
+int old_mouse_y = 0;
 
 int KeyScanFlag;
 int cursor_type = 0;
-
-uint32 MouseState = IDLE;
-int MouseEvent = 0; /* do not set to IDLE, EVER */
 int itemExamined = 0;
 
 /* src:  (if != DRAG_GET_STATUS) set actual dragging source.
@@ -52,6 +49,12 @@ int draggingInvItem(int src)
 	return drag_src;
 }
 
+/**
+ * Sets new width/height of the screen, storing the size in options.
+ *
+ * Does not actually do the resizing.
+ * @param width Width to set.
+ * @param height Height to set. */
 void resize_window(int width, int height)
 {
 	options.resolution_x = width;
@@ -69,8 +72,7 @@ int Event_PollInputDevice()
 	SDL_Event event;
 	int x, y, done = 0;
 	static int active_scrollbar = 0;
-	/* only print text once per dnd */
-	static int itemExamined  = 0;
+	static int itemExamined = 0;
 	static Uint32 Ticks= 0;
 	Uint32 videoflags = get_video_flags();
 	int tx, ty;
@@ -105,30 +107,21 @@ int Event_PollInputDevice()
 
 		switch (event.type)
 		{
+			/* Screen has been resized, update screen size. */
 			case SDL_VIDEORESIZE:
-				if ((ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags)) == NULL)
+				ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags);
+
+				if (!ScreenSurface)
 				{
 					LOG(llevError, "Unable to grab surface after resize event: %s\n", SDL_GetError());
 				}
 
 				resize_window(event.resize.w, event.resize.h);
+				/* Custom resolution */
 				options.resolution = 0;
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				/* Get the mouse state and set an event (event removed at end of main loop) */
-				if (event.button.button == SDL_BUTTON_LEFT)
-					MouseEvent = LB_UP;
-				else if (event.button.button == SDL_BUTTON_MIDDLE)
-					MouseEvent = MB_UP;
-				else if (event.button.button == SDL_BUTTON_RIGHT)
-					MouseEvent = RB_UP;
-				else
-					MouseEvent = IDLE;
-
-				/* No button is down */
-				MouseState = IDLE;
-
 				cursor_type = 0;
 
 				if (GameStatus < GAME_STATUS_PLAY)
@@ -230,16 +223,6 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				/* get the mouse state and set an event (event removed at end of main loop) */
-				if (event.button.button == SDL_BUTTON_LEFT)
-					MouseEvent = MouseState = LB_DN;
-				else if (event.button.button == SDL_BUTTON_MIDDLE)
-					MouseEvent = MouseState = MB_DN;
-				else if (event.button.button == SDL_BUTTON_RIGHT)
-					MouseEvent = MouseState = RB_DN;
-				else
-					MouseEvent = MouseState = IDLE;
-
 				mb_clicked = 1;
 
 				if (GameStatus == GAME_STATUS_WAITLOOP)
