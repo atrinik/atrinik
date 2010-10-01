@@ -281,10 +281,10 @@ int Event_PollInputDevice()
 					/* Targeting */
 					if (state == SDL_BUTTON(SDL_BUTTON_RIGHT))
 					{
-						char tbuf[32];
+						char buf[MAX_BUF];
 
-						snprintf(tbuf, sizeof(tbuf), "/target !%d %d", tx - MAP_MAX_SIZE / 2, ty - MAP_MAX_SIZE / 2);
-						send_command(tbuf);
+						snprintf(buf, sizeof(buf), "/target !%d %d", tx, ty);
+						send_command(buf);
 					}
 					/* Running */
 					else if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
