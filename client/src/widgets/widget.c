@@ -1167,18 +1167,6 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			widget = menu;
 		}
 	}
-	/* create a new widget of the same type, quick hack until we have something better such as buttons */
-	else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_MIDDLE))
-	{
-		if (cpl.fire_on) /* for some reason, checking for the ctrl key won't work here */
-		{
-			remove_widget_object(widget);
-		}
-		else
-		{
-			create_widget_object(widget->WidgetSubtypeID);
-		}
-	}
 	/* Normal condition - respond to mouse down event */
 	else
 	{
