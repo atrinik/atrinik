@@ -73,14 +73,26 @@ int Event_PollInputDevice()
 	static int itemExamined  = 0;
 	static Uint32 Ticks= 0;
 	Uint32 videoflags = get_video_flags();
+	int tx, ty;
 
-	if ((SDL_GetTicks() - Ticks > 10) || !Ticks)
+	/* Execute mouse actions, even if mouse button is being held. */
+	if ((SDL_GetTicks() - Ticks > 125) || !Ticks)
 	{
 		Ticks = SDL_GetTicks();
+
 		if (GameStatus >= GAME_STATUS_PLAY)
 		{
 			if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
+			{
 				mouse_InputNumber();
+			}
+			/* Mouse gesture: hold right and left button to fire. */
+			else if (!cpl.action_timer && SDL_GetMouseState(&x, &y) == (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) && mouse_to_tile_coords(x, y, &tx, &ty))
+			{
+				cpl.fire_on = 1;
+				move_keys(dir_from_tile_coords(tx, ty));
+				cpl.fire_on = 0;
+			}
 		}
 	}
 
@@ -218,8 +230,6 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				int tx, ty;
-
 				/* get the mouse state and set an event (event removed at end of main loop) */
 				if (event.button.button == SDL_BUTTON_LEFT)
 					MouseEvent = MouseState = LB_DN;
@@ -289,15 +299,22 @@ int Event_PollInputDevice()
 					/* Running */
 					else if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
 					{
-						SockList sl;
-						uint8 buf[HUGE_BUF];
+						if (cpl.fire_on)
+						{
+							move_keys(dir_from_tile_coords(tx, ty));
+						}
+						else
+						{
+							SockList sl;
+							uint8 buf[HUGE_BUF];
 
-						sl.buf = buf;
-						sl.len = 0;
-						SockList_AddString(&sl, "mp ");
-						SockList_AddChar(&sl, tx);
-						SockList_AddChar(&sl, ty);
-						send_socklist(sl);
+							sl.buf = buf;
+							sl.len = 0;
+							SockList_AddString(&sl, "mp ");
+							SockList_AddChar(&sl, tx);
+							SockList_AddChar(&sl, ty);
+							send_socklist(sl);
+						}
 					}
 
 					break;

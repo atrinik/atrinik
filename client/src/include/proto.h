@@ -279,6 +279,7 @@ void save_keybind_file(char *fname);
 
 /* events/move.c */
 void move_keys(int num);
+int dir_from_tile_coords(int tx, int ty);
 
 /* gui/book.c */
 _gui_book_struct *book_gui_load(char *data, int len);

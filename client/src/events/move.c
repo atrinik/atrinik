@@ -142,3 +142,90 @@ void move_keys(int num)
 		}
 	}
 }
+
+/**
+ * Transform tile coordinates into direction, which can be used as a
+ * result for functions like move_keys() or ::directions_move (return
+ * value - 1).
+ * @param tx Tile X.
+ * @param ty Tile Y.
+ * @return The direction, 1-9. */
+int dir_from_tile_coords(int tx, int ty)
+{
+	int player_tile_x = MapStatusX / 2, player_tile_y = MapStatusY / 2;
+	int q, x, y;
+
+	if (tx == player_tile_x && ty == player_tile_y)
+	{
+		return 5;
+	}
+
+	x = -(tx - player_tile_x);
+	y = -(ty - player_tile_y);
+
+	if (!y)
+	{
+		q = -300 * x;
+	}
+	else
+	{
+		q = x * 100 / y;
+	}
+
+	if (y > 0)
+	{
+		/* East */
+		if (q < -242)
+		{
+			return 6;
+		}
+
+		/* Northeast */
+		if (q < -41)
+		{
+			return 9;
+		}
+
+		/* North */
+		if (q < 41)
+		{
+			return 8;
+		}
+
+		/* Northwest */
+		if (q < 242)
+		{
+			return 7;
+		}
+
+		/* West */
+		return 4;
+	}
+
+	/* West */
+	if (q < -242)
+	{
+		return 4;
+	}
+
+	/* Southwest */
+	if (q < -41)
+	{
+		return 1;
+	}
+
+	/* South */
+	if (q < 41)
+	{
+		return 2;
+	}
+
+	/* Southeast */
+	if (q < 242)
+	{
+		return 3;
+	}
+
+	/* East */
+	return 6;
+}
