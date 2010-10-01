@@ -278,8 +278,6 @@ void read_keybind_file(char *fname);
 void save_keybind_file(char *fname);
 
 /* events/move.c */
-int mouseInPlayfield(int x, int y);
-void mouse_moveHero();
 void move_keys(int num);
 
 /* gui/book.c */
@@ -343,7 +341,8 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 void map_clear_cell(int x, int y);
 void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
-int get_tile_position(int x, int y, int *tx, int *ty);
+void map_draw_one(int x, int y, _Sprite *sprite);
+int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 
 /* gui/party.c */
 void switch_tabs();

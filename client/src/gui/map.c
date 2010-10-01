@@ -772,6 +772,7 @@ void map_draw_map()
 {
 	int player_height_offset;
 	int x, y, layer;
+	int mouse_x, mouse_y;
 
 	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height[1];
 
@@ -798,63 +799,109 @@ void map_draw_map()
 			}
 		}
 	}
+
+	if (mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &mouse_x, &mouse_y))
+	{
+		map_draw_one(mouse_x, mouse_y, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
+	}
 }
 
-#define TILE_ISO_XLEN 48
-/* This +1 is the trick to catch the one pixel line between
- * 2 y rows - the tiles don't touch there! */
-#define TILE_ISO_YLEN (23 + 1)
-
-/* calc the tile - pos(tx, ty) from mouse pos(x, y).
- * ret: 0 ok;  < 0 not a valid position. */
-int get_tile_position(int x, int y, int *tx, int *ty)
+/**
+ * Draw one sprite on map.
+ * @param x X position.
+ * @param y Y position.
+ * @param sprite What to draw. */
+void map_draw_one(int x, int y, _Sprite *sprite)
 {
-	if (x < (int) ((options.mapstart_x + MAP_START_XOFF) * (options.zoom / 100.0)))
+	int xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
+	int ypos = (MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) + MAP_TILE_POS_YOFF - sprite->bitmap->h;
+
+	if (sprite->bitmap->w > MAP_TILE_POS_XOFF)
 	{
-		x -= (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0));
+		xpos -= (sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
 	}
 
-	x -= (int) ((options.mapstart_x + MAP_START_XOFF) * (options.zoom / 100.0));
-	y -= (int) ((options.mapstart_y + MAP_START_YOFF) * (options.zoom / 100.0));
-	*tx = x / (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) + y / (int) (MAP_TILE_YOFF * (options.zoom / 100.0));
-	*ty = y / (int) (MAP_TILE_YOFF * (options.zoom / 100.0)) - x / (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0));
+	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0);
+}
 
-	if (x < 0)
+/** Tile offsets used in mouse_to_tile_coords(). */
+const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] =
+{
+	"000000000000000000000022221111111111111111111111",
+	"000000000000000000002222222211111111111111111111",
+	"000000000000000000222222222222111111111111111111",
+	"000000000000000022222222222222221111111111111111",
+	"000000000000002222222222222222222211111111111111",
+	"000000000000222222222222222222222222111111111111",
+	"000000000022222222222222222222222222221111111111",
+	"000000002222222222222222222222222222222211111111",
+	"000000222222222222222222222222222222222222111111",
+	"000022222222222222222222222222222222222222221111",
+	"002222222222222222222222222222222222222222222211",
+	"222222222222222222222222222222222222222222222222",
+	"332222222222222222222222222222222222222222222244",
+	"333322222222222222222222222222222222222222224444",
+	"333333222222222222222222222222222222222222444444",
+	"333333332222222222222222222222222222222244444444",
+	"333333333322222222222222222222222222224444444444",
+	"333333333333222222222222222222222222444444444444",
+	"333333333333332222222222222222222244444444444444",
+	"333333333333333322222222222222224444444444444444",
+	"333333333333333333222222222222444444444444444444",
+	"333333333333333333332222222244444444444444444444",
+	"333333333333333333333322224444444444444444444444"
+};
+
+/**
+ * Transform mouse coordinates to tile coordinates on map.
+ *
+ * Both 'tx' and 'ty' can be NULL, which is useful if you only want to
+ * check if the mouse is over a valid map tile.
+ * @param mx Mouse X.
+ * @param my Mouse Y.
+ * @param[out] tx Will contain tile X, unless function returns 0.
+ * @param[out] ty Will contain tile Y, unless function returns 0.
+ * @retval 1 Successfully transformed mouse coordinates into tile ones.
+ * @retval 0 Failed to transform the coordinates; 'tx' and 'ty' are
+ * left untouched. */
+int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
+{
+	int x, y, xpos, ypos;
+
+	/* Adjust mouse x/y, making it look as if the map was drawn from
+	 * top left corner, in order to simplify comparisons below. */
+	mx -= (MAP_START_XOFF * (options.zoom / 100.0)) + options.mapstart_x;
+	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + options.mapstart_y;
+
+	/* Go through all the map squares. */
+	for (x = 0; x < MAP_MAX_SIZE; x++)
 	{
-		x += ((int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) << 3) - 1;
-	}
-
-	x %= (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0));
-	y %= (int) (MAP_TILE_YOFF * (options.zoom / 100.0));
-
-	if (x < (int) (MAP_TILE_POS_XOFF2 * (options.zoom / 100.0)))
-	{
-		if (x + y + y < (int) (MAP_TILE_POS_XOFF2 * (options.zoom / 100.0)))
+		for (y = 0; y < MAP_MAX_SIZE; y++)
 		{
-			(*tx)--;
-		}
-		else if (y - x > 0)
-		{
-			(*ty)++;
-		}
-	}
-	else
-	{
-		x -= (int) (MAP_TILE_POS_XOFF2 * (options.zoom / 100.0));
+			/* X/Y position of the map square. */
+			xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * (options.zoom / 100.0);
+			ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * (options.zoom / 100.0);
 
-		if (x - y - y > 0)
-		{
-			(*ty)--;
-		}
-		else if (x + y + y > (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0)))
-		{
-			(*tx)++;
-		}
-	}
+			/* See if this square matches our 48x24 box shape. */
+			if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) && my >= ypos && my < ypos + (MAP_TILE_YOFF * (options.zoom / 100.0)))
+			{
+				/* See if the square matches isometric 48x24 tile. */
+				if (tile_off[(int) ((my - ypos) / (options.zoom / 100.0))][(int) ((mx - xpos) / (options.zoom / 100.0))] == '2')
+				{
+					if (tx)
+					{
+						*tx = x;
+					}
 
-	if (*tx < 0 || *tx > MAP_MAX_SIZE || *ty < 0 || *ty > MAP_MAX_SIZE)
-	{
-		return -1;
+					if (ty)
+					{
+						*ty = y;
+					}
+
+					return 1;
+				}
+			}
+		}
 	}
 
 	return 0;

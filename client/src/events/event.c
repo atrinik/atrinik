@@ -81,14 +81,13 @@ int Event_PollInputDevice()
 		{
 			if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
 				mouse_InputNumber();
-			else if (!active_scrollbar && !cursor_type)
-				mouse_moveHero();
 		}
 	}
 
 	while (SDL_PollEvent(&event))
 	{
-		static int old_mouse_y = 0;
+		static int old_mouse_y = 0, old_map_mouse_x = 0, old_map_mouse_y = 0;
+
 		x = event.motion.x;
 		y = event.motion.y;
 
@@ -162,10 +161,12 @@ int Event_PollInputDevice()
 					cpl.inventory_win = IWIN_INV;
 
 					/* Drop to ground */
-					if (mouseInPlayfield(x, y))
+					if (mouse_to_tile_coords(x, y, NULL, NULL))
 					{
 						if (draggingInvItem(DRAG_GET_STATUS) != DRAG_QUICKSLOT_SPELL)
+						{
 							process_macro_keys(KEYFUNC_DROP, 0);
+						}
 					}
 
 					cpl.inventory_win = old_inv_win;
@@ -179,19 +180,33 @@ int Event_PollInputDevice()
 				break;
 
 			case SDL_MOUSEMOTION:
+			{
+				int map_mouse_x, map_mouse_y;
+
 				mb_clicked = 0;
 
 				if (GameStatus < GAME_STATUS_PLAY)
+				{
 					break;
+				}
 
 				x_custom_cursor = x;
 				y_custom_cursor = y;
 
 				/* We have to break now when menu is active - menu is higher priority than any widget! */
 				if (cpl.menustatus != MENU_NO)
+				{
 					break;
+				}
 
-				if (widget_event_mousemv(x,y, &event))
+				if (mouse_to_tile_coords(x, y, &map_mouse_x, &map_mouse_y) && (map_mouse_x != old_map_mouse_x || map_mouse_y != old_map_mouse_y))
+				{
+					map_redraw_flag = 1;
+					old_map_mouse_x = map_mouse_x;
+					old_map_mouse_y = map_mouse_y;
+				}
+
+				if (widget_event_mousemv(x, y, &event))
 				{
 					/* NOTE: place here special handlings that have to be done, even if a widget owns it */
 
@@ -199,8 +214,12 @@ int Event_PollInputDevice()
 				}
 
 				break;
+			}
 
 			case SDL_MOUSEBUTTONDOWN:
+			{
+				int tx, ty;
+
 				/* get the mouse state and set an event (event removed at end of main loop) */
 				if (event.button.button == SDL_BUTTON_LEFT)
 					MouseEvent = MouseState = LB_DN;
@@ -245,7 +264,7 @@ int Event_PollInputDevice()
 				}
 
 				/* Widget System */
-				if (widget_event_mousedn(x,y, &event))
+				if (widget_event_mousedn(x, y, &event))
 				{
 					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
 
@@ -253,24 +272,39 @@ int Event_PollInputDevice()
 				}
 
 				/* Mouse in play field */
-				if (mouseInPlayfield(event.motion.x, event.motion.y))
+				if (mouse_to_tile_coords(x, y, &tx, &ty))
 				{
-					/* Targetting */
-					if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)))
+					uint8 state = SDL_GetMouseState(NULL, NULL);
+
+					cpl.inventory_win = IWIN_BELOW;
+
+					/* Targeting */
+					if (state == SDL_BUTTON(SDL_BUTTON_RIGHT))
 					{
-						int tx, ty;
 						char tbuf[32];
 
-						cpl.inventory_win = IWIN_BELOW;
-						get_tile_position(x, y, &tx, &ty);
 						snprintf(tbuf, sizeof(tbuf), "/target !%d %d", tx - MAP_MAX_SIZE / 2, ty - MAP_MAX_SIZE / 2);
 						send_command(tbuf);
+					}
+					/* Running */
+					else if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
+					{
+						SockList sl;
+						uint8 buf[HUGE_BUF];
+
+						sl.buf = buf;
+						sl.len = 0;
+						SockList_AddString(&sl, "mp ");
+						SockList_AddChar(&sl, tx);
+						SockList_AddChar(&sl, ty);
+						send_socklist(sl);
 					}
 
 					break;
 				}
 
 				break;
+			}
 
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
