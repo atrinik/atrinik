@@ -2,7 +2,7 @@ arch map
 name Vielumin Ruins
 msg
 Created:  2010-08-18 Idicus
-Modified: 2010-09-29 Alex Tokar
+Modified: 2010-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -398,7 +398,7 @@ y 4
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 6
+Wis 4
 type 83
 end
 end
@@ -448,7 +448,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_icestorm
 end
@@ -592,7 +592,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_icestorm
 end
@@ -893,7 +893,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 6
+Wis 4
 type 83
 end
 end
@@ -936,7 +936,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_firestorm
 end
@@ -1623,7 +1623,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_mbullet
 end
@@ -1690,7 +1690,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 8
+Wis 4
 attack_move_type 1
 type 83
 arch ability_icestorm
@@ -2101,7 +2101,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 6
+Wis 4
 type 83
 end
 end
@@ -2269,7 +2269,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_mbullet
 end
@@ -2779,7 +2779,7 @@ y 3
 arch drow_captain
 name rebel drow commander
 level 58
-Wis 6
+Wis 4
 type 83
 end
 end
@@ -2829,7 +2829,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_icestorm
 end
@@ -2879,7 +2879,7 @@ maxsp 16
 Pow 20
 magic 3
 Dex 3
-Wis 6
+Wis 4
 type 83
 arch ability_icestorm
 end
