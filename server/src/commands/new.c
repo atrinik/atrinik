@@ -312,6 +312,8 @@ int command_target(object *op, char *params)
 	/* !x y = mouse map target */
 	if (params[0] == '!')
 	{
+		if (CONTR(op)->socket.socket_version < 1042)
+		{
 		int xstart, ystart;
 		char *ctmp;
 
@@ -373,6 +375,65 @@ int command_target(object *op, char *params)
 					goto found_target;
 				}
 			}
+		}
+		}
+		else
+		{
+			int x, y, i;
+
+			/* Try to get the x/y for the target. */
+			if (sscanf(params + 1, "%d %d", &x, &y) != 2)
+			{
+				return 0;
+			}
+
+			/* Validate the passed x/y. */
+			if (x < 0 || x >= CONTR(op)->socket.mapx || y < 0 || y >= CONTR(op)->socket.mapy)
+			{
+				return 0;
+			}
+
+			for (i = 0; i <= SIZEOFFREE1; i++)
+			{
+				/* The x/y we got above is from the client's map, so 0,0 is
+				 * actually topmost (northwest) corner of the map in the client,
+				 * and not 0,0 of the actual map, so we need to transform it to
+				 * actual map coordinates. */
+				xt = op->x + (x - CONTR(op)->socket.mapx_2) + freearr_x[i];
+				yt = op->y + (y - CONTR(op)->socket.mapy_2) + freearr_y[i];
+				m = get_map_from_coord(op->map, &xt, &yt);
+
+				/* Invalid x/y. */
+				if (!m)
+				{
+					continue;
+				}
+
+				/* Nothing alive on this spot. */
+				if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+				{
+					continue;
+				}
+
+				/* Try to find an alive object here. */
+				for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+				{
+					head = HEAD(tmp);
+
+					if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op))
+					{
+						continue;
+					}
+
+					CONTR(op)->target_object = head;
+					CONTR(op)->target_object_count = head->count;
+					CONTR(op)->target_map_pos = i;
+					send_target_command(CONTR(op));
+					return 1;
+				}
+			}
+
+			return 0;
 		}
 	}
 	else if (params[0] == '0')
