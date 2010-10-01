@@ -78,9 +78,10 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
  * @param x
  * @param y
  * @param id
+ * @param level Recursion level.
  * @return
  * @todo A bidirectional breadth-first search would be more efficient. */
-static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, uint32 id)
+static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, uint32 id, int level)
 {
 	int i;
 
@@ -89,6 +90,12 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 		return 1;
 	}
 
+	if (level <= 0)
+	{
+		return 0;
+	}
+
+	level--;
 	map1->traversed = id;
 
 	/* Depth-first search for the destination map */
@@ -104,7 +111,7 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 				}
 			}
 
-			if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id)))
+			if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id, level)))
 			{
 				switch (i)
 				{
@@ -275,7 +282,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 	}
 
 	/* Recursive search */
-	return relative_tile_position_rec(map1, map2, x, y, ++traversal_id);
+	return relative_tile_position_rec(map1, map2, x, y, ++traversal_id, 2);
 }
 
 /**
