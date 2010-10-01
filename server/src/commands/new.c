@@ -395,6 +395,13 @@ int command_target(object *op, char *params)
 
 			for (i = 0; i <= SIZEOFFREE1; i++)
 			{
+				/* Check whether we are still in range of the player's
+				 * viewport, and whether the player can see the square. */
+				if (x + freearr_x[i] < 0 || x + freearr_x[i] >= CONTR(op)->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= CONTR(op)->socket.mapy || CONTR(op)->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW)
+				{
+					continue;
+				}
+
 				/* The x/y we got above is from the client's map, so 0,0 is
 				 * actually topmost (northwest) corner of the map in the client,
 				 * and not 0,0 of the actual map, so we need to transform it to
