@@ -371,38 +371,46 @@ void key_string_event(SDL_KeyboardEvent *key)
 	}
 }
 
-/* Wait for user to input a number. */
+/**
+ * Handle mouse hold events in number input widget. */
 void mouse_InputNumber()
 {
-	static int delta = 0;
 	static int timeVal = 1;
 	int x, y;
 
 	if (!(SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 	{
 		timeVal = 1;
-		delta = 0;
 		return;
 	}
 
-	if (x < 330 || x > 337 || y < 510 || delta++ & 15)
+	x = x - cur_widget[IN_NUMBER_ID]->x1;
+	y = y - cur_widget[IN_NUMBER_ID]->y1;
+
+	if (x < 230 || x > 237 || y < 5)
+	{
 		return;
+	}
 
 	/* Plus */
-	if (y > 518)
+	if (y > 13)
 	{
 		x = atoi(InputString) + timeVal;
 
 		if (x > cpl.nrof)
+		{
 			x = cpl.nrof;
+		}
 	}
 	/* Minus */
 	else
 	{
-		x = atoi(InputString)- timeVal;
+		x = atoi(InputString) - timeVal;
 
 		if (x < 1)
+		{
 			x = 1;
+		}
 	}
 
 	snprintf(InputString, sizeof(InputString), "%d", x);
