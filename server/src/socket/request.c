@@ -1784,3 +1784,77 @@ void SetSound(char *buf, int len, socket_struct *ns)
 
 	ns->sound = atoi(buf);
 }
+
+/**
+ * Player wants to move to a specified x,y (of the map view).
+ * @param buf Data.
+ * @param len Length of 'buf'.
+ * @param pl Player. */
+void command_move_path(char *buf, int len, player *pl)
+{
+	sint8 x, y;
+	mapstruct *m;
+	int xt, yt;
+	path_node *node, *tmp;
+
+	if (!buf || len < 2)
+	{
+		return;
+	}
+
+	x = buf[0];
+	y = buf[1];
+
+	/* Validate the passed x/y. */
+	if (x < 0 || x >= pl->socket.mapx || y < 0 || y >= pl->socket.mapy)
+	{
+		return;
+	}
+
+	/* If this is the middle of the screen where the player is already,
+	 * there isn't much to do. */
+	if (x == pl->socket.mapx_2 && y == pl->socket.mapy_2)
+	{
+		return;
+	}
+
+	/* The x/y we got above is from the client's map, so 0,0 is
+	 * actually topmost (northwest) corner of the map in the client,
+	 * and not 0,0 of the actual map, so we need to transform it to
+	 * actual map coordinates. */
+	xt = pl->ob->x + (x - pl->socket.mapx / 2);
+	yt = pl->ob->y + (y - pl->socket.mapy / 2);
+	m = get_map_from_coord(pl->ob->map, &xt, &yt);
+
+	/* Invalid x/y. */
+	if (!m)
+	{
+		return;
+	}
+
+	/* Find and compress the path to the destination. */
+	node = compress_path(find_path(pl->ob, pl->ob->map, pl->ob->x, pl->ob->y, m, xt, yt));
+
+	/* No path available. */
+	if (!node)
+	{
+		return;
+	}
+
+	/* Clear any previously queued paths. */
+	player_path_clear(pl);
+
+	/* 'node' now actually points to where the player is standing, so
+	 * skip that. */
+	if (node->next)
+	{
+		for (tmp = node->next; tmp; tmp = tmp->next)
+		{
+			player_path_add(pl, tmp->map, tmp->x, tmp->y);
+		}
+	}
+
+	/* The last x,y where we wanted to move is not included in the
+	 * above paths finding, so we have to add it manually. */
+	player_path_add(pl, m, xt, yt);
+}

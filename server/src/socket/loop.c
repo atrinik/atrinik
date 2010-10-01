@@ -95,6 +95,7 @@ static const struct player_cmd_mapping player_commands[] =
 	{"qs",          (func_uint8_int_pl) QuickSlotCmd, CMD_FLAG_NO_PLAYER_SHOP},
 	{"shop",        ShopCmd, 0},
 	{"qlist",       QuestListCmd, 0},
+	{"mp", (func_uint8_int_pl) command_move_path, CMD_FLAG_NO_PLAYER_SHOP},
 	{NULL, NULL, 0}
 };
 

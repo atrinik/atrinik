@@ -852,6 +852,11 @@ static void process_players1()
 			}
 		}
 
+		if (pl->move_path)
+		{
+			player_path_handle(pl);
+		}
+
 		do_some_living(pl->ob);
 
 #ifdef AUTOSAVE
@@ -1139,7 +1144,7 @@ static void dequeue_path_requests()
 		while (leftover_usec > 1000000)
 		{
 			leftover_usec -= 1000000;
-			leftover_sec +=1;
+			leftover_sec += 1;
 		}
 
 		/* Try to save about 10 ms */

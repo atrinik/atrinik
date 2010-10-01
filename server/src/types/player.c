@@ -252,6 +252,8 @@ void free_player(player *pl)
 		free(pl->cmd_permissions);
 	}
 
+	player_path_clear(pl);
+
 	/* Now remove from list of players. */
 	if (pl->prev)
 	{
@@ -1826,4 +1828,131 @@ char *player_get_race_class(object *op, char *buf, size_t size)
 	}
 
 	return buf;
+}
+
+/**
+ * Add a new path to player's paths queue.
+ * @param pl Player to add the path for.
+ * @param map Map we want to reach.
+ * @param x X we want to reach.
+ * @param y Y we want to reach. */
+void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y)
+{
+	player_path *path = malloc(sizeof(player_path));
+
+	/* Initialize the values. */
+	path->map = map;
+	path->x = x;
+	path->y = y;
+	path->next = NULL;
+	path->fails = 0;
+
+	if (!pl->move_path)
+	{
+		pl->move_path = pl->move_path_end = path;
+	}
+	else
+	{
+		pl->move_path_end->next = path;
+		pl->move_path_end = path;
+	}
+}
+
+/**
+ * Clear all queued paths.
+ * @param pl Player to clear paths for. */
+void player_path_clear(player *pl)
+{
+	player_path *path, *next;
+
+	if (!pl->move_path)
+	{
+		return;
+	}
+
+	for (path = pl->move_path; path; path = next)
+	{
+		next = path->next;
+		free(path);
+	}
+
+	pl->move_path = NULL;
+	pl->move_path_end = NULL;
+}
+
+/**
+ * Handle player moving along pre-calculated path.
+ * @param pl Player. */
+void player_path_handle(player *pl)
+{
+	while (pl->ob->speed_left >= 0.0f && pl->move_path)
+	{
+		player_path *tmp = pl->move_path;
+		rv_vector rv;
+
+		/* Make sure the map exists and is loaded, then get the range vector. */
+		if (!tmp->map || tmp->map->in_memory != MAP_IN_MEMORY || !get_rangevector_from_mapcoords(pl->ob->map, pl->ob->x, pl->ob->y, tmp->map, tmp->x, tmp->y, &rv, 0))
+		{
+			/* Something went wrong (map not loaded or we got teleported
+			 * somewhere), clear all queued paths. */
+			player_path_clear(pl);
+			return;
+		}
+		else
+		{
+			int success = 0, dir = rv.direction;
+
+			if (QUERY_FLAG(pl->ob, FLAG_CONFUSED))
+			{
+				dir = get_randomized_dir(dir);
+			}
+
+			/* Can the player move there directly? */
+			if (move_object(pl->ob, dir))
+			{
+				success = 1;
+			}
+			else
+			{
+				int diff;
+
+				/* Try to move around corners otherwise. */
+				for (diff = 1; diff <= 2; diff++)
+				{
+					/* Try left or right first? */
+					int m = 1 - (RANDOM() & 2);
+
+					if (move_object(pl->ob, absdir(dir + diff * m)) || move_object(pl->ob, absdir(dir - diff * m)))
+					{
+						success = 1;
+						break;
+					}
+				}
+			}
+
+			/* See if we succeeded in moving where we wanted. */
+			if (pl->ob->map == tmp->map && pl->ob->x == tmp->x && pl->ob->y == tmp->y)
+			{
+				pl->move_path = tmp->next;
+				free(tmp);
+			}
+			/* Clear all paths if we above check failed: this can happen
+			 * if we got teleported somewhere else by a teleporter or a
+			 * shop mat, in which case the player most likely doesn't want
+			 * to move to the original destination. Also see if we failed
+			 * to move to destination too many times already. */
+			else if ((rv.distance <= 1 && success) || tmp->fails > PLAYER_PATH_MAX_FAILS)
+			{
+				player_path_clear(pl);
+				return;
+			}
+			/* Not any of the above; we failed to move where we wanted. */
+			else
+			{
+				tmp->fails++;
+			}
+
+			pl->ob->speed_left--;
+		}
+	}
 }

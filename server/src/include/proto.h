@@ -1003,6 +1003,7 @@ void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
 void command_clear_cmds(char *buf, int len, socket_struct *ns);
 void SetSound(char *buf, int len, socket_struct *ns);
+void command_move_path(char *buf, int len, player *pl);
 
 /* socket/sounds.c */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
@@ -1134,6 +1135,9 @@ int player_exists(char *player_name);
 object *find_skill(object *op, int skillnr);
 int player_can_carry(object *pl, uint32 weight);
 char *player_get_race_class(object *op, char *buf, size_t size);
+void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y);
+void player_path_clear(player *pl);
+void player_path_handle(player *pl);
 
 /* types/player_mover.c */
 void move_player_mover(object *op);

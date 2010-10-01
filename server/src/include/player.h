@@ -146,6 +146,31 @@ enum
 /** Maximum quickslots allowed. */
 #define MAX_QUICKSLOT 32
 
+/** Maximum failures allowed when trying to reach destination path. */
+#define PLAYER_PATH_MAX_FAILS 15
+
+/** One path player is attempting to reach. */
+typedef struct player_path
+{
+	/** Next path in linked list. */
+	struct player_path *next;
+
+	/** Destination map. */
+	mapstruct *map;
+
+	/** Destination X. */
+	sint16 x;
+
+	/** Destination Y. */
+	sint16 y;
+
+	/**
+	 * How many times we failed trying to reach this destination. If more
+	 * than @ref PLAYER_PATH_MAX_FAILS, will abort trying to reach the
+	 * destination. */
+	uint8 fails;
+} player_path;
+
 #ifdef WIN32
 #pragma pack(push,1)
 #endif
@@ -513,6 +538,12 @@ typedef struct pl_player
 
 	/** Pointer to the party this player is member of. */
 	party_struct *party;
+
+	/** Start of the movement path queue. */
+	player_path *move_path;
+
+	/** End of the movement path queue. */
+	player_path *move_path_end;
 } player;
 
 #ifdef WIN32
