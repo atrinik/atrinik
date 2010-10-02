@@ -17,3 +17,4 @@ def main():
 	Temple.handle_temple(TempleRogroth, me, activator, msg)
 
 main()
+
