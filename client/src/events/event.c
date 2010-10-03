@@ -190,6 +190,11 @@ int Event_PollInputDevice()
 
 				mb_clicked = 0;
 
+				if (lists_handle_mouse(x, y, &event))
+				{
+					break;
+				}
+
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;
@@ -224,6 +229,11 @@ int Event_PollInputDevice()
 			case SDL_MOUSEBUTTONDOWN:
 			{
 				mb_clicked = 1;
+
+				if (lists_handle_mouse(x, y, &event))
+				{
+					break;
+				}
 
 				if (GameStatus == GAME_STATUS_WAITLOOP)
 				{

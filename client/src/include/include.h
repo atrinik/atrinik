@@ -180,6 +180,7 @@ typedef enum LogLevel
 #include <inventory.h>
 #include <menu.h>
 #include <dialog.h>
+#include <list.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>

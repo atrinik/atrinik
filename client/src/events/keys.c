@@ -332,6 +332,11 @@ int event_poll_key(SDL_Event *event)
 			cpl.fire_on = 0;
 	}
 
+	if (lists_handle_keyboard(&event->key))
+	{
+		return 0;
+	}
+
 	if (InputStringFlag)
 	{
 		if (cpl.input_mode != INPUT_MODE_NUMBER)
