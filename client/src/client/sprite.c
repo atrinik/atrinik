@@ -791,6 +791,23 @@ void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, i
 }
 
 /**
+ * Blit a string with a shadow.
+ * @param surface Surface.
+ * @param font Font to use.
+ * @param str The string.
+ * @param x X position.
+ * @param y Y position.
+ * @param color Color of the string.
+ * @param color_shadow Color of the shadow.
+ * @param area Area.
+ * @param bltfx Bltfx. */
+void string_blt_shadow(SDL_Surface *surface, _Font *font, const char *str, int x, int y, int color, int color_shadow, SDL_Rect *area, _BLTFX *bltfx)
+{
+	StringBlt(surface, font, str, x + 1, y - 1, color_shadow, area, bltfx);
+	StringBlt(surface, font, str, x, y - 2, color, area, bltfx);
+}
+
+/**
  * Initialize a new font.
  * @param sprite Sprite we're initializing the font from.
  * @param font The font.

@@ -210,6 +210,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
+void string_blt_shadow(SDL_Surface *surface, _Font *font, const char *str, int x, int y, int color, int color_shadow, SDL_Rect *area, _BLTFX *bltfx);
 void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len);
 void show_tooltip(int mx, int my, char *text);
 int get_string_pixel_length(const char *text, struct _Font *font);
@@ -324,9 +325,8 @@ void examine_range_marks(int tag);
 void show_keybind();
 
 /* gui/main.c */
+void list_handle_enter(list_struct *list);
 void show_meta_server();
-void metaserver_mouse(SDL_Event *e);
-int key_meta_menu(SDL_KeyboardEvent *key);
 
 /* gui/map.c */
 void load_mapdef_dat();
@@ -414,6 +414,19 @@ void textwin_addhistory(char *text);
 void textwin_clearhistory();
 void textwin_putstring(char *text);
 void change_textwin_font(int font);
+
+/* widgets/list.c */
+list_struct *list_get_focused();
+void list_set_focus(list_struct *list);
+list_struct *list_create(uint32 id, int x, int y, int height, uint32 cols, int spacing);
+void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
+void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
+void list_show(list_struct *list);
+void list_remove(list_struct *list);
+void list_remove_all();
+int lists_handle_keyboard(SDL_KeyboardEvent *event);
+int lists_handle_mouse(int mx, int my, SDL_Event *event);
+list_struct *list_exists(uint32 id);
 
 /* widgets/widget.c */
 void init_widgets_fromCurrent();
