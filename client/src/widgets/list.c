@@ -125,7 +125,7 @@ void list_set_focus(list_struct *list)
 		return;
 	}
 
-	/* Remove focus from previously focused widget. */
+	/* Remove focus from previously focused list. */
 	for (tmp = list_head; tmp; tmp = tmp->next)
 	{
 		if (tmp != list)
