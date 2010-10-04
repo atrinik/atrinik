@@ -168,6 +168,8 @@ typedef struct list_struct
  *@{*/
 /** The list showing servers. */
 #define LIST_SERVERS 1
+/** List of game news, right of the servers list. */
+#define LIST_NEWS 2
 /*@}*/
 
 /** Figure out Y position where rows should actually start. */

@@ -313,7 +313,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"square_highlight.png", PIC_TYPE_DEFAULT},
 	{"servers_bg.png", PIC_TYPE_DEFAULT},
-	{"servers_bg_over.png", PIC_TYPE_TRANS}
+	{"servers_bg_over.png", PIC_TYPE_TRANS},
+	{"news_bg.png", PIC_TYPE_DEFAULT}
 };
 
 /** Number of bitmaps. */

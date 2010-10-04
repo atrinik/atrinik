@@ -35,6 +35,9 @@
  * we need to do it like this. */
 static size_t last_server_count = 0;
 
+/** Data buffer used when downloading news from the site. */
+static curl_data *news_data = NULL;
+
 /**
  * Handle enter key being pressed in the servers list.
  * @param list The servers list. */
@@ -94,9 +97,6 @@ void show_meta_server()
 			list_remove(list);
 		}
 
-		/* Store the new count. */
-		last_server_count = server_count;
-
 		/* Create the servers list. */
 		list = list_create(LIST_SERVERS, x + 13, y + 8, 132, 3, 8);
  		list->handle_enter_func = list_handle_enter;
@@ -124,6 +124,16 @@ void show_meta_server()
 
 			list_add(list, i, 2, buf);
 		}
+
+		/* Update the focus if we re-created the list, since it's no
+		 * longer the first one in the list. */
+		if (last_server_count != server_count)
+		{
+			list_set_focus(list);
+		}
+
+		/* Store the new count. */
+		last_server_count = server_count;
 	}
 
 	/* Actually draw the list. */
@@ -155,4 +165,56 @@ void show_meta_server()
 	}
 
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
+
+	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 10;
+	sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
+
+	list = list_exists(LIST_NEWS);
+
+	/* No list yet, make one and start downloading the data. */
+	if (!list)
+	{
+		/* Start downloading. */
+		news_data = curl_download_start("http://www.atrinik.org/client_news.php");
+
+		list = list_create(LIST_NEWS, x + 13, y + 10, 216, 1, 8);
+//		list->handle_enter_func = list_handle_enter;
+		list_set_column(list, 0, 150, 7, NULL, -1);
+	}
+
+	/* Download in progress? */
+	if (news_data)
+	{
+		/* Get the status. */
+		int ret = curl_download_finished(news_data);
+
+		/* Finished downloading, parse the data. */
+		if (ret == 1)
+		{
+			char *mem = strdup(news_data->memory), *cp;
+			size_t i = 0;
+
+			cp = strtok(mem, "\n");
+
+			while (cp)
+			{
+				list_add(list, i, 0, cp);
+				i++;
+				cp = strtok(NULL, "\n");
+			}
+
+			free(mem);
+		}
+
+		/* Finished downloading or there was an error: clean up in either
+		 * case. */
+		if (ret != 0)
+		{
+			curl_data_free(news_data);
+			news_data = NULL;
+		}
+	}
+
+	/* Show the news list. */
+	list_show(list);
 }
