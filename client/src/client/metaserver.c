@@ -226,6 +226,7 @@ int metaserver_thread(void *dummy)
 			}
 
 			free(buf);
+			curl_data_free(data);
 			break;
 		}
 
