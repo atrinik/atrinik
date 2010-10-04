@@ -57,6 +57,8 @@ int draggingInvItem(int src)
  * @param height Height to set. */
 void resize_window(int width, int height)
 {
+	lists_handle_resize(height - Screensize->y);
+
 	options.resolution_x = width;
 	options.resolution_y = height;
 

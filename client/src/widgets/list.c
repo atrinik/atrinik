@@ -725,6 +725,19 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event)
 }
 
 /**
+ * Updated Y position of lists after a resize event.
+ * @param y_offset Y offset to add to (or subtract from) list's Y. */
+void lists_handle_resize(int y_offset)
+{
+	list_struct *tmp;
+
+	for (tmp = list_head; tmp; tmp = tmp->next)
+	{
+		tmp->y += y_offset;
+	}
+}
+
+/**
  * Utility function: checks if list with the specified ID already exists.
  * @param id List ID. One of @ref LIST_xxx.
  * @return Pointer to the list if it exists, NULL otherwise. */

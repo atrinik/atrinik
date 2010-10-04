@@ -192,93 +192,29 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
 }
 
 /**
- * Function to call when receiving data from the metaserver.
- * @param ptr Pointer to data to process.
- * @param size The size of each piece of data.
- * @param nmemb Number of data elements.
- * @param data User supplied data pointer - points to @ref metaserver_struct "metaserver structure"
- * that holds the data returned from the metaserver.
- * @return Number of bytes processed. */
-static size_t metaserver_callback(void *ptr, size_t size, size_t nmemb, void *data)
+ * Threaded function to connect to metaserver.
+ *
+ * Goes through the list of metaservers and calls metaserver_connect()
+ * until it gets a return value of 1. If if goes through all the
+ * metaservers and still fails, show an info to the user.
+ * @param dummy Unused.
+ * @return Always returns 0. */
+int metaserver_thread(void *dummy)
 {
-	size_t realsize = size * nmemb;
-	metaserver_struct *mem = (metaserver_struct *) data;
+	size_t metaserver_id;
+	curl_data *data;
 
-	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+	(void) dummy;
 
-	if (mem->memory)
+	/* Go through all the metaservers in the list */
+	for (metaserver_id = 0; metaserver_id < NUM_METASERVERS; metaserver_id++)
 	{
-		memcpy(&(mem->memory[mem->size]), ptr, realsize);
-		mem->size += realsize;
-		mem->memory[mem->size] = '\0';
-	}
+		data = curl_data_new(metaservers[metaserver_id]);
 
-	return realsize;
-}
-
-/**
- * Connect to a metaserver using cURL and get data about metaservers.
- * @param metaserver_url URL of the metaserver to connect to.
- * @return 1 on success, 0 on failure. */
-static int metaserver_connect(const char *metaserver_url)
-{
-	CURL *handle;
-	CURLcode res;
-	metaserver_struct *chunk = (metaserver_struct *) malloc(sizeof(metaserver_struct));
-	char user_agent[MAX_BUF];
-	int success = 0;
-
-	/* Store user agent for cURL, including if this is GNU/Linux build of client
-	 * or Windows one. Could be used for statistics or something. */
-#if defined(__LINUX)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#elif defined(WIN32)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#else
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#endif
-
-	chunk->memory = NULL;
-	chunk->size = 0;
-
-	/* Init "easy" cURL */
-	handle = curl_easy_init();
-
-	if (handle)
-	{
-		/* Set connection timeout value in case metaserver is down or something */
-		curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, METASERVER_TIMEOUT);
-
-		/* URL */
-		curl_easy_setopt(handle, CURLOPT_URL, metaserver_url);
-
-		/* Send all data to this function */
-		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, metaserver_callback);
-
-		/* We pass our 'chunk' struct to the callback function */
-		curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *) chunk);
-
-		/* Specify user agent for the metaserver. */
-		curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
-
-		/* Get the data */
-		res = curl_easy_perform(handle);
-
-		if (res)
+		/* If the connection succeeded, break out */
+		if (curl_connect(data) && data->memory)
 		{
-			LOG(llevBug, "metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
-		}
-
-		/* Always cleanup */
-		curl_easy_cleanup(handle);
-
-		/* If we go the data, might as well do something with it. */
-		if (chunk->memory)
-		{
-			char *buf = strdup(chunk->memory), *cp, *saveptr = NULL;
-
-			/* No need to connect to other mirror metaservers */
-			success = 1;
+			char *buf = strdup(data->memory), *cp, *saveptr = NULL;
 
 			cp = strtok_r(buf, "\n", &saveptr);
 
@@ -290,52 +226,14 @@ static int metaserver_connect(const char *metaserver_url)
 			}
 
 			free(buf);
-			free(chunk->memory);
-		}
-
-		if (chunk)
-		{
-			free(chunk);
-		}
-	}
-
-	return success;
-}
-
-/**
- * Threaded function to connect to metaserver.
- *
- * Goes through the list of metaservers and calls metaserver_connect()
- * until it gets a return value of 1. If if goes through all the
- * metaservers and still fails, show an info to the user.
- * @param dummy Unused.
- * @return Always returns 0. */
-int metaserver_thread(void *dummy)
-{
-	size_t metaserver_id;
-	int metaserver_failed = 1;
-
-	(void) dummy;
-
-	/* Go through all the metaservers in the list */
-	for (metaserver_id = 0; metaserver_id < NUM_METASERVERS; metaserver_id++)
-	{
-		/* If the connection succeeded, break out */
-		if (metaserver_connect(metaservers[metaserver_id]))
-		{
-			metaserver_failed = 0;
 			break;
 		}
-	}
 
-	/* If we couldn't get data out of any of the metaservers */
-	if (metaserver_failed)
-	{
-		draw_info("Metaserver failed! Using default list.", COLOR_RED);
+		curl_data_free(data);
 	}
 
 	SDL_LockMutex(metaserver_connecting_mutex);
-	/* We're not connecting anymore */
+	/* We're not connecting anymore. */
 	metaserver_connecting = 0;
 	SDL_UnlockMutex(metaserver_connecting_mutex);
 	return 0;

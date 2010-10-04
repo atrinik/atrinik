@@ -56,6 +56,13 @@ void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
 void QuestListCmd(unsigned char *data, int len);
 
+/* client/curl.c */
+int curl_connect(void *c_data);
+curl_data *curl_data_new(const char *url);
+curl_data *curl_download_start(const char *url);
+sint8 curl_download_finished(curl_data *data);
+void curl_data_free(curl_data *data);
+
 /* client/dialog.c */
 void draw_frame(int x, int y, int w, int h);
 void add_close_button(int x, int y, int menu);
@@ -424,6 +431,7 @@ void list_remove(list_struct *list);
 void list_remove_all();
 int lists_handle_keyboard(SDL_KeyboardEvent *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
+void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
 
 /* widgets/text.c */
