@@ -320,7 +320,11 @@ void list_show(list_struct *list)
 		}
 
 		/* Actually draw the column name. */
-		string_blt_shadow(ScreenSurface, &SystemFont, list->col_names[col], list->x + w + extra_width, list->y, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		if (list->col_names[col])
+		{
+			string_blt_shadow(ScreenSurface, &SystemFont, list->col_names[col], list->x + w + extra_width, list->y, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		}
+
 		w += list->col_widths[col] + list->col_spacings[col];
 	}
 
