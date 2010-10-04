@@ -376,6 +376,8 @@ void list_show(list_struct *list)
 			/* Is there any text to show? */
 			if (list->text[row][col])
 			{
+				SDL_Rect box;
+
 				extra_width = 0;
 
 				/* Center it. */
@@ -384,8 +386,11 @@ void list_show(list_struct *list)
  					extra_width = list->col_widths[col] / 2 - get_string_pixel_length(list->text[row][col], &SystemFont) / 2;
 				}
 
+				/* Add width limit on the string. */
+				box.w = list->col_widths[col] + list->col_spacings[col];
+				box.h = 12;
 				/* Output the text. */
-				string_blt_shadow(ScreenSurface, &SystemFont, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), COLOR_WHITE, COLOR_BLACK, 0, NULL);
+				string_blt_shadow(ScreenSurface, &SystemFont, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP, &box);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
