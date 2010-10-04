@@ -63,8 +63,8 @@ void show_meta_server()
 	server_struct *node;
 	char buf[MAX_BUF];
 
-	x = 25;
-	y = Screensize->y - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h;
+	x = 5;
+	y = Screensize->y - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
 
 	/* Background */
 	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
@@ -98,10 +98,10 @@ void show_meta_server()
 		last_server_count = server_count;
 
 		/* Create the servers list. */
-		list = list_create(LIST_SERVERS, x + 130, y + 8, 132, 3, 8);
+		list = list_create(LIST_SERVERS, x + 13, y + 8, 132, 3, 8);
  		list->handle_enter_func = list_handle_enter;
-		list_set_column(list, 0, 295, 5, "Server", -1);
-		list_set_column(list, 1, 50, 12, "Port", 1);
+		list_set_column(list, 0, 295, 7, "Server", -1);
+		list_set_column(list, 1, 50, 9, "Port", 1);
 		list_set_column(list, 2, 50, 7, "Players", 1);
 
 		/* Add the servers to the list. */
@@ -137,21 +137,21 @@ void show_meta_server()
 		SDL_Rect box;
 
 		snprintf(buf, sizeof(buf), "Version: %s", node->version);
-		string_blt_shadow(ScreenSurface, &SystemFont, buf, x + 130, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+		string_blt_shadow(ScreenSurface, &SystemFont, buf, x + 13, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
 
 		box.w = 410;
 		box.h = 48;
-		string_blt(ScreenSurface, &SystemFont, node->desc, x + 130, y + 197, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, &SystemFont, node->desc, x + 13, y + 197, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	/* Show whether we are connecting to the metaserver or not. */
 	if (ms_connecting(-1))
 	{
-		string_blt_shadow(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + 245, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+		string_blt_shadow(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + 128, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
 	}
 	else
 	{
-		string_blt_shadow(ScreenSurface, &SystemFont, "Select a server.", x + 347, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
+		string_blt_shadow(ScreenSurface, &SystemFont, "Select a server.", x + 230, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
 	}
 
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
