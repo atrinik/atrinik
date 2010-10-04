@@ -795,6 +795,8 @@ typedef enum _bitmap_index
 	BITMAP_SHOP_INPUT,
 
 	BITMAP_SQUARE_HIGHLIGHT,
+	BITMAP_SERVERS_BG,
+	BITMAP_SERVERS_BG_OVER,
 
 	BITMAP_INIT
 }_bitmap_index;

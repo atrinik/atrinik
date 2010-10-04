@@ -324,7 +324,6 @@ void examine_range_marks(int tag);
 void show_keybind();
 
 /* gui/main.c */
-void list_handle_enter(list_struct *list);
 void show_meta_server();
 
 /* gui/map.c */

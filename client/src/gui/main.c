@@ -25,292 +25,134 @@
 
 /**
  * @file
- *  */
+ * Servers list, logging to a server, creating new character, etc. */
 
 #include <include.h>
 
 /**
- * Show metaserver window. */
-void show_meta_server()
+ * Last server count to see when to re-create the servers list. Since the
+ * metaserver code uses threading so the whole program doesn't lock up,
+ * we need to do it like this. */
+static size_t last_server_count = 0;
+
+/**
+ * Handle enter key being pressed in the servers list.
+ * @param list The servers list. */
+static void list_handle_enter(list_struct *list)
 {
-	int x, y;
-	char buf[1024];
-	SDL_Rect rec_name, rec_desc, box;
-	int mx, my, mb;
-	int i, count = server_get_count();
-	server_struct *node;
+	/* Get selected server. */
+	selected_server = server_get_id(list->row_selected - 1);
 
-	mb = SDL_GetMouseState(&mx, &my);
-
-	/* Background */
-	x = 25;
-	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
-
-	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SERVER], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SERVER]->bitmap->w / 2, y + 15, NULL, NULL);
-
-	rec_name.w = 272;
-	rec_desc.w = 325;
-
-	box.x = x + 133;
-	box.y = y + TXT_Y_START + 1;
-	box.w = 329;
-	box.h = 12;
-
-	/* Frame for selection field */
-	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
-
-	/* Frame for scrollbar */
-	draw_frame(box.x + box.w + 4, box.y + 11, 10, 313);
-
-	/* Show scrollbar, and adjust its position by yoff */
-	blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], count - 18, 8, dialog_yoff, -1, box.x + box.w + 5, box.y + 12);
-
-	if (ms_connecting(-1))
+	/* Valid server, start connecting. */
+	if (selected_server)
 	{
-		StringBlt(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + TXT_START_NAME + 81, y + TXT_Y_START - 13, COLOR_BLACK, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + TXT_START_NAME + 80, y + TXT_Y_START - 14, COLOR_HGOLD, NULL, NULL);
-	}
-	else
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Select a server.", x + TXT_START_NAME + 126, y + TXT_Y_START - 13, COLOR_BLACK, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, "Select a server.", x + TXT_START_NAME + 125, y + TXT_Y_START - 14, COLOR_GREEN, NULL, NULL);
-	}
-
-	/* we should prepare for this the SystemFontOut */
-	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME + 1, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Port", x + 380, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Port", x + 379, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Players", x + 416, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Players", x + 415, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
-
-	sprintf(buf, "Use cursors ~%c%c~ to select server                                  press ~RETURN~ to connect", ASCII_UP, ASCII_DOWN);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 140, y + 410, COLOR_WHITE, NULL, NULL);
-
-	for (i = 0; i < OPTWIN_MAX_OPT; i++)
-	{
-		box.y += 12;
-
-		if (i & 1)
-		{
-			SDL_FillRect(ScreenSurface, &box, sdl_gray2);
-		}
-		else
-		{
-			SDL_FillRect(ScreenSurface, &box, sdl_gray1);
-		}
-	}
-
-	for (i = 0; i < count; i++)
-	{
-		if (i < dialog_yoff)
-		{
-			continue;
-		}
-		/* Never more than maximum */
-		else if (i - dialog_yoff >= DIALOG_LIST_ENTRY)
-		{
-			break;
-		}
-
-		node = server_get_id(i);
-
-		if (i == server_sel)
-		{
-			int tmp_y = 0, width = 0;
-			char tmpbuf[MAX_BUF], *cp;
-
-			snprintf(buf, sizeof(buf), "version %s", node->version);
-
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
-
-			strncpy(tmpbuf, node->desc, sizeof(tmpbuf));
-			cp = strtok(tmpbuf, " ");
-
-			/* Loop through spaces */
-			while (cp)
-			{
-				int len = get_string_pixel_length(cp, &SystemFont) + SystemFont.c[' '].w + SystemFont.char_offset;
-
-				/* Do we need to adjust for the next line? */
-				if (width + len > MAX_MS_DESC_LINE)
-				{
-					width = 0;
-					tmp_y += 12;
-
-					/* We hit the max */
-					if (tmp_y >= MAX_MS_DESC_Y)
-					{
-						break;
-					}
-				}
-
-				StringBlt(ScreenSurface, &SystemFont, cp, x + 160 + width, y + 446 + tmp_y, COLOR_BLACK, &rec_desc, NULL);
-				StringBlt(ScreenSurface, &SystemFont, cp, x + 159 + width, y + 445 + tmp_y, COLOR_HGOLD, &rec_desc, NULL);
-				width += len;
-
-				cp = strtok(NULL, " ");
-			}
-
-			box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;
-			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
-		}
-
-		StringBlt(ScreenSurface, &SystemFont, node->name, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
-
-		sprintf(buf, "%d", node->port);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
-
-		if (node->player >= 0)
-		{
-			sprintf(buf, "%d", node->player);
-		}
-		else
-		{
-			strcpy(buf, "-");
-		}
-
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 416, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
+		GameStatus = GAME_STATUS_STARTCONNECT;
 	}
 }
 
 /**
- * Called on mouse event in metaserver dialog.
- * @param e SDL event. */
-void metaserver_mouse(SDL_Event *e)
+ * Show the main GUI after starting the client -- servers list, chat box,
+ * connecting to server, etc.
+ * @todo Game news right of the servers list acquired by connecting to
+ * the site with cURL. */
+void show_meta_server()
 {
-	/* Mousewheel up/down */
-	if (e->button.button == 4 || e->button.button == 5)
+	int x, y;
+	list_struct *list;
+	size_t server_count;
+	server_struct *node;
+	char buf[MAX_BUF];
+
+	x = 25;
+	y = Screensize->y - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h;
+
+	/* Background */
+	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
+
+	/* Remove the servers list after successfully connecting to the
+	 * server.
+	 * TODO: use popups instead, that gray out the screen behind. */
+	if (GameStatus > GAME_STATUS_STARTCONNECT)
 	{
-		int count = server_get_count();
-
-		/* Scroll down... */
-		if (e->button.button == 5)
-		{
-			if (server_sel < count - 1)
-			{
-				server_sel++;
-			}
-
-			if (server_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
-			{
-				dialog_yoff++;
-			}
-		}
-		/* .. or up */
-		else
-		{
-			if (server_sel)
-			{
-				server_sel--;
-			}
-
-			if (dialog_yoff > server_sel)
-			{
-				dialog_yoff--;
-			}
-		}
-
-		/* Sanity checks for going out of bounds. */
-		if (dialog_yoff < 0 || count < DIALOG_LIST_ENTRY)
-		{
-			dialog_yoff = 0;
-		}
-		else if (dialog_yoff >= count - DIALOG_LIST_ENTRY)
-		{
-			dialog_yoff = count - DIALOG_LIST_ENTRY;
-		}
-
-		if (server_sel < 0)
-		{
-			server_sel = 0;
-		}
-		else if (server_sel >= count)
-		{
-			server_sel = count;
-		}
-	}
-}
-
-/* Metaserver menu key */
-int key_meta_menu(SDL_KeyboardEvent *key)
-{
-	if (key->type == SDL_KEYDOWN)
-	{
-		int count = server_get_count();
-
-		switch (key->keysym.sym)
-		{
-			case SDLK_UP:
-				if (server_sel)
-				{
-					server_sel--;
-
-					if (dialog_yoff > server_sel)
-						dialog_yoff--;
-				}
-
-				break;
-
-			case SDLK_DOWN:
-				if (server_sel < count - 1)
-				{
-					server_sel++;
-
-					if (server_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
-						dialog_yoff++;
-				}
-
-				break;
-
-			case SDLK_RETURN:
-			case SDLK_KP_ENTER:
-				selected_server = server_get_id(server_sel);
-
-				if (selected_server)
-				{
-					GameStatus = GAME_STATUS_STARTCONNECT;
-				}
-
-				break;
-
-			case SDLK_ESCAPE:
-				return 1;
-
-			case SDLK_PAGEUP:
-				if (server_sel)
-					server_sel -= DIALOG_LIST_ENTRY;
-
-				dialog_yoff -= DIALOG_LIST_ENTRY;
-
-				break;
-
-			case SDLK_PAGEDOWN:
-				if (server_sel < count - DIALOG_LIST_ENTRY)
-					server_sel += DIALOG_LIST_ENTRY;
-
-				dialog_yoff += DIALOG_LIST_ENTRY;
-
-				break;
-
-			default:
-				break;
-		}
-
-		/* Sanity checks for going out of bounds */
-		if (dialog_yoff < 0 || count < DIALOG_LIST_ENTRY)
-			dialog_yoff = 0;
-		else if (dialog_yoff >= count - DIALOG_LIST_ENTRY)
-			dialog_yoff = count - DIALOG_LIST_ENTRY;
-
-		if (server_sel < 0)
-			server_sel = 0;
-		else if (server_sel >= count)
-			server_sel = count;
+		list_remove_all();
+		return;
 	}
 
-	return 0;
+	sprite_blt(Bitmaps[BITMAP_SERVERS_BG], x, y, NULL, NULL);
+
+	list = list_exists(LIST_SERVERS);
+	server_count = server_get_count();
+
+	/* List doesn't exist or the count changed? Create new list. */
+	if (!list || last_server_count != server_count)
+	{
+		size_t i;
+
+		/* Remove it if it exists already. */
+		if (list)
+		{
+			list_remove(list);
+		}
+
+		/* Store the new count. */
+		last_server_count = server_count;
+
+		/* Create the servers list. */
+		list = list_create(LIST_SERVERS, x + 130, y + 8, 132, 3, 8);
+ 		list->handle_enter_func = list_handle_enter;
+		list_set_column(list, 0, 295, 5, "Server", -1);
+		list_set_column(list, 1, 50, 12, "Port", 1);
+		list_set_column(list, 2, 50, 7, "Players", 1);
+
+		/* Add the servers to the list. */
+		for (i = 0; i < server_count; i++)
+		{
+			node = server_get_id(i);
+
+			list_add(list, i, 0, node->name);
+			snprintf(buf, sizeof(buf), "%d", node->port);
+			list_add(list, i, 1, buf);
+
+			if (node->player >= 0)
+			{
+				snprintf(buf, sizeof(buf), "%d", node->player);
+			}
+			else
+			{
+				strcpy(buf, "-");
+			}
+
+			list_add(list, i, 2, buf);
+		}
+	}
+
+	/* Actually draw the list. */
+	list_show(list);
+	node = server_get_id(list->row_selected - 1);
+
+	/* Do we have any selected server? If so, show its version and
+	 * description. */
+	if (node)
+	{
+		SDL_Rect box;
+
+		snprintf(buf, sizeof(buf), "Version: %s", node->version);
+		string_blt_shadow(ScreenSurface, &SystemFont, buf, x + 130, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+
+		box.w = 410;
+		box.h = 48;
+		string_blt(ScreenSurface, &SystemFont, node->desc, x + 130, y + 197, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+	}
+
+	/* Show whether we are connecting to the metaserver or not. */
+	if (ms_connecting(-1))
+	{
+		string_blt_shadow(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + 245, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+	}
+	else
+	{
+		string_blt_shadow(ScreenSurface, &SystemFont, "Select a server.", x + 347, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
+	}
+
+	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
 }

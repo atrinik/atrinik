@@ -237,7 +237,6 @@ int Event_PollInputDevice()
 
 				if (GameStatus == GAME_STATUS_WAITLOOP)
 				{
-					metaserver_mouse(&event);
 					break;
 				}
 
