@@ -609,6 +609,40 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
 
 	if (event->type == SDL_KEYDOWN)
 	{
+		/* Rotate between lists using tab. */
+		if (event->keysym.sym == SDLK_TAB)
+		{
+			/* Go backwards? */
+			if (event->keysym.mod & KMOD_SHIFT)
+			{
+				/* Previous list. */
+				if (list->prev)
+				{
+					list_set_focus(list->prev);
+				}
+				/* Last one. */
+				else
+				{
+					list_set_focus(list_tail);
+				}
+			}
+			else
+			{
+				/* Next list exists? */
+				if (list->next)
+				{
+					list_set_focus(list->next);
+				}
+				/* First one otherwise. */
+				else
+				{
+					list_set_focus(list_head);
+				}
+			}
+
+			return 1;
+		}
+
 		/* Handle the key. */
 		if (list_handle_key(list, event->keysym.sym))
 		{
