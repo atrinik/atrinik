@@ -322,7 +322,7 @@ void list_show(list_struct *list)
 		/* Actually draw the column name. */
 		if (list->col_names[col])
 		{
-			string_blt_shadow(ScreenSurface, &SystemFont, list->col_names[col], list->x + w + extra_width, list->y, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+			string_blt_shadow(ScreenSurface, &SystemFont, list->col_names[col], list->x + w + extra_width, list->y, list->focus ? COLOR_WHITE : COLOR_GREY, COLOR_BLACK, 0, NULL);
 		}
 
 		w += list->col_widths[col] + list->col_spacings[col];
@@ -390,7 +390,7 @@ void list_show(list_struct *list)
 				box.w = list->col_widths[col] + list->col_spacings[col];
 				box.h = 12;
 				/* Output the text. */
-				string_blt_shadow(ScreenSurface, &SystemFont, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP, &box);
+				string_blt_shadow(ScreenSurface, &SystemFont, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), list->focus ? COLOR_WHITE : COLOR_GREY, COLOR_BLACK, TEXT_WORD_WRAP, &box);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
