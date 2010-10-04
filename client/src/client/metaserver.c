@@ -212,7 +212,7 @@ int metaserver_thread(void *dummy)
 		data = curl_data_new(metaservers[metaserver_id]);
 
 		/* If the connection succeeded, break out */
-		if (curl_connect(data) && data->memory)
+		if (curl_connect(data) == 1 && data->memory)
 		{
 			char *buf = strdup(data->memory), *cp, *saveptr = NULL;
 
