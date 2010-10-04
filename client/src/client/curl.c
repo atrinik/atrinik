@@ -29,29 +29,6 @@
 
 #include <include.h>
 
-/** User agent. Initialized in init(). */
-static char user_agent[MAX_BUF];
-
-/** Whether we have called init() or not. */
-static int did_init = 0;
-
-/**
- * Initialize the module. */
-static void init()
-{
-	did_init = 1;
-
-	/* Store user agent for cURL, including if this is GNU/Linux build of client
-	 * or Windows one. */
-#if defined(__LINUX)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#elif defined(WIN32)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#else
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#endif
-}
-
 /**
  * Function to call when receiving data from cURL.
  * @param ptr Pointer to data to process.
@@ -89,8 +66,19 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 int curl_connect(void *c_data)
 {
 	curl_data *data = (curl_data *) c_data;
+	char user_agent[MAX_BUF];
 	CURL *handle;
 	CURLcode res;
+
+	/* Store user agent for cURL, including if this is GNU/Linux build of client
+	 * or Windows one. */
+#if defined(__LINUX)
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+#elif defined(WIN32)
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+#else
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+#endif
 
 	/* Init "easy" cURL */
 	handle = curl_easy_init();
@@ -154,12 +142,6 @@ curl_data *curl_data_new(const char *url)
 	data->status = 0;
 	/* Create a mutex to protect the structure. */
 	data->mutex = SDL_CreateMutex();
-
-	/* Do we need to initialize because we haven't done so yet? */
-	if (!did_init)
-	{
-		init();
-	}
 
 	return data;
 }
