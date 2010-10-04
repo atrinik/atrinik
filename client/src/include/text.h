@@ -37,8 +37,8 @@
  * @defgroup TEXT_xxx Text flags
  * Various text flags for controlling behavior of string_blt().
  *@{*/
-/** Do not parse markup and render it as normal text. */
-#define TEXT_NO_MARKUP 1
+/** Parse markup, otherwise it will be rendered as normal text. */
+#define TEXT_MARKUP 1
 /** Wrap words, otherwise only newlines. */
 #define TEXT_WORD_WRAP 2
 /*@}*/

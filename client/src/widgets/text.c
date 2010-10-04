@@ -69,7 +69,7 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 	char c = *cp;
 
 	/* Doing markup? */
-	if (!(flags & TEXT_NO_MARKUP))
+	if (flags & TEXT_MARKUP)
 	{
 		/* Color tag: <c=r,g,b> */
 		if (!strncmp(cp, "<c=", 3))
