@@ -108,10 +108,6 @@ int curl_connect(void *c_data)
 	/* Get the data. */
 	res = curl_easy_perform(handle);
 
-	SDL_LockMutex(data->mutex);
-	data->status = 1;
-	SDL_UnlockMutex(data->mutex);
-
 	if (res)
 	{
 		LOG(llevBug, "curl_thread(): curl_easy_perform() got error %d (%s).\n", res, curl_easy_strerror(res));
@@ -123,6 +119,10 @@ int curl_connect(void *c_data)
 	}
 
 	curl_easy_cleanup(handle);
+
+	SDL_LockMutex(data->mutex);
+	data->status = 1;
+	SDL_UnlockMutex(data->mutex);
 
 	return 1;
 }
