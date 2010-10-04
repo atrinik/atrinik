@@ -210,7 +210,6 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
-void string_blt_shadow(SDL_Surface *surface, _Font *font, const char *str, int x, int y, int color, int color_shadow, SDL_Rect *area, _BLTFX *bltfx);
 void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len);
 void show_tooltip(int mx, int my, char *text);
 int get_string_pixel_length(const char *text, struct _Font *font);
@@ -427,6 +426,10 @@ void list_remove_all();
 int lists_handle_keyboard(SDL_KeyboardEvent *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
 list_struct *list_exists(uint32 id);
+
+/* widgets/text.c */
+void string_blt(SDL_Surface *surface, _Font *font, const char *text, int x, int y, int color, int flags, SDL_Rect *box);
+void string_blt_shadow(SDL_Surface *surface, _Font *font, const char *text, int x, int y, int color, int color_shadow, int flags, SDL_Rect *box);
 
 /* widgets/widget.c */
 void init_widgets_fromCurrent();

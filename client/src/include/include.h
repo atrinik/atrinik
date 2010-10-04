@@ -159,6 +159,7 @@ typedef enum LogLevel
 #include <zlib.h>
 #include <item.h>
 
+#include <text.h>
 #include <book.h>
 #include <client.h>
 #include <sdlsocket.h>
