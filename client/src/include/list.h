@@ -81,8 +81,8 @@ typedef struct list_struct
 	 * row -> col -> text. */
 	char ***text;
 
-	/** Height of one row. */
-	uint16 row_height;
+	/** How many pixels to adjust the height of a row by. */
+	sint16 row_height_adjust;
 
 	/**
 	 * Frame offset (used when drawing the frame around the rows and when
@@ -175,10 +175,12 @@ typedef struct list_struct
 #define LIST_NEWS 2
 /*@}*/
 
+/** Calculate list's row height. */
+#define LIST_ROW_HEIGHT(list) (FONT_HEIGHT((list)->font) + (list)->row_height_adjust)
 /** Figure out Y position where rows should actually start. */
 #define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing)
 /** Figure out maximum visible rows. */
-#define LIST_ROWS_MAX(list) ((uint32) ((list)->height + (list)->spacing) / (list)->row_height)
+#define LIST_ROWS_MAX(list) ((uint32) ((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
 /**
  * Adjust row ID by the row offset, thus transforming row ID to
  * 0-[max visible rows]. */

@@ -161,7 +161,6 @@ list_struct *list_create(uint32 id, int x, int y, int height, uint32 cols, int s
 
 	/* Initialize defaults. */
 	list->frame_offset = -2;
-	list->row_height = 12;
 	list->header_height = 12;
 	list->row_selected = 1;
 	list->repeat_key = -1;
@@ -344,14 +343,14 @@ void list_show(list_struct *list)
 	/* Initialize default values for coloring rows. */
 	box.x = list->x + list->frame_offset;
 	box.w = list->width;
-	box.h = list->row_height;
+	box.h = LIST_ROW_HEIGHT(list);
 
 	/* Doing coloring of each row? */
 	if (list->row_color_func)
 	{
 		for (row = 0; row < max_rows; row++)
 		{
-			box.y = LIST_ROWS_START(list) + (row * list->row_height) + list->frame_offset;
+			box.y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
 			list->row_color_func(list, row, box);
 		}
 	}
@@ -368,13 +367,13 @@ void list_show(list_struct *list)
 		/* Color selected row. */
 		if (list->row_selected_func && (row + 1) == list->row_selected)
 		{
-			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height) + list->frame_offset;
+			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset;
 			list->row_selected_func(list, box);
 		}
 		/* Color highlighted row. */
 		else if (list->row_highlight_func && (row + 1) == list->row_highlighted)
 		{
-			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height) + list->frame_offset;
+			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset;
 			list->row_highlight_func(list, box);
 		}
 
@@ -398,9 +397,9 @@ void list_show(list_struct *list)
 
 				/* Add width limit on the string. */
 				box.w = list->col_widths[col] + list->col_spacings[col];
-				box.h = 12;
+				box.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(ScreenSurface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
+				string_blt_shadow(ScreenSurface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
@@ -711,7 +710,7 @@ static void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *even
 		}
 
 		/* Is the mouse over this row? */
-		if ((uint32) my > (LIST_ROWS_START(list) + LIST_ROW_OFFSET(row, list) * list->row_height) + list->frame_offset && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) + 1) * list->row_height)
+		if ((uint32) my > (LIST_ROWS_START(list) + LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) + 1) * LIST_ROW_HEIGHT(list))
 		{
 			/* Mouse click? */
 			if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
