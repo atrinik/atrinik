@@ -420,6 +420,9 @@ void textwin_clearhistory();
 void textwin_putstring(char *text);
 void change_textwin_font(int font);
 
+/* widgets/button.c */
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, _Font *font, int color, int color_shadow, int color_over, int color_over_shadow);
+
 /* widgets/list.c */
 list_struct *list_get_focused();
 void list_set_focus(list_struct *list);
