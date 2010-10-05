@@ -420,15 +420,16 @@ void textwin_clearhistory();
 void textwin_putstring(char *text);
 void change_textwin_font(int font);
 
-/* widgets/button.c */
+/* toolkit/button.c */
 int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow);
 
-/* widgets/list.c */
+/* toolkit/list.c */
 list_struct *list_get_focused();
 void list_set_focus(list_struct *list);
 list_struct *list_create(uint32 id, int x, int y, int height, uint32 cols, int spacing);
 void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
 void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
+void list_set_font(list_struct *list, int font);
 void list_show(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
@@ -437,14 +438,14 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
 
-/* widgets/text.c */
+/* toolkit/text.c */
 void text_init();
 void text_deinit();
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, int flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box);
 int string_get_width(int font, const char *text, int flags);
 
-/* widgets/widget.c */
+/* toolkit/widget.c */
 void init_widgets_fromCurrent();
 widgetdata *create_widget_object(int widget_subtype_id);
 void remove_widget_object(widgetdata *widget);

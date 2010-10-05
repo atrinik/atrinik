@@ -125,6 +125,9 @@ typedef struct list_struct
 	/** If 1, this list has the active focus. */
 	uint8 focus;
 
+	/** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
+	int font;
+
 	/**
 	 * Function that will draw frame (and/or other effects) right before
 	 * the column names and the actual rows.
