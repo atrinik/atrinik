@@ -692,8 +692,14 @@ static void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *even
 	}
 
 	/* See which row the mouse is over. */
-	for (row = list->row_offset; row < rows_max + list->row_offset; row++)
+	for (row = list->row_offset; row < list->rows; row++)
 	{
+		/* Stop if we reached maximum number of visible rows. */
+		if (LIST_ROW_OFFSET(row, list) == rows_max)
+		{
+			break;
+		}
+
 		/* Is the mouse over this row? */
 		if ((uint32) my > (LIST_ROWS_START(list) + LIST_ROW_OFFSET(row, list) * list->row_height) + list->frame_offset && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) + 1) * list->row_height)
 		{
