@@ -93,6 +93,10 @@ int curl_connect(void *c_data)
 
 	/* Set connection timeout. */
 	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, CURL_TIMEOUT);
+	/* Disable signals since we are in a thread. See
+	 * http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTNOSIGNAL
+	 * for details. */
+	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
 
 	SDL_LockMutex(data->mutex);
 	curl_easy_setopt(handle, CURLOPT_URL, data->url);
