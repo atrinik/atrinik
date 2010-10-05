@@ -136,6 +136,7 @@ typedef signed char sint8;
 #	include <SDL.h>
 #	include <SDL_main.h>
 #	include <SDL_image.h>
+#	include <SDL_ttf.h>
 
 	typedef int SOCKET;
 #endif

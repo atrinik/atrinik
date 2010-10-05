@@ -30,8 +30,36 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-/** Calculate character's width. */
-#define CHAR_WIDTH(character, font) ((font)->c[(int) (character)].w + (font)->char_offset)
+/** One font. */
+typedef struct font_struct
+{
+	/** The font's path. */
+	const char *path;
+
+	/** Size of the font. */
+	size_t size;
+
+	/** The actual font used by SDL_ttf. */
+	TTF_Font *font;
+
+	/** Maximum line height. */
+	int height;
+} font_struct;
+
+/**
+ * @anchor FONT_xxx
+ * The font IDs. */
+enum
+{
+	/** Sans, 10px, good for general drawing. */
+	FONT_SANS10,
+
+	/** Serif, 10px. */
+	FONT_SERIF10,
+
+	/** Number of the fonts. */
+	FONTS_MAX
+};
 
 /**
  * @defgroup TEXT_xxx Text flags
@@ -41,6 +69,19 @@
 #define TEXT_MARKUP 1
 /** Wrap words, otherwise only newlines. */
 #define TEXT_WORD_WRAP 2
+/** Render the text in solid mode (faster, but worse looking). */
+#define TEXT_SOLID 4
 /*@}*/
+
+/**
+ * Convenience macro to construct SDL_Color array from one of the
+ * COLOR_xxx constants.
+ * @param color Color.
+ * @return SDL_Color array containing the rgb values. */
+#define COLOR_SIMPLE(color) ((SDL_Color) {Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].b, 0})
+/** Get font's maximum height. */
+#define FONT_HEIGHT(font) (fonts[font].height)
+
+font_struct fonts[FONTS_MAX];
 
 #endif

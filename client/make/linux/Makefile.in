@@ -81,6 +81,7 @@ install:: all
 	$(MKDIR) -p $(prefix)/gfx_user
 	$(MKDIR) -p $(prefix)/srv_files
 	$(MKDIR) -p $(prefix)/icons
+	$(MKDIR) -p $(prefix)/fonts
 	$(CP) ../../sfx/*.* $(prefix)/sfx
 	$(CP) ../../media/*.* $(prefix)/media
 	$(CP) ../../cache/*.* $(prefix)/cache
@@ -89,6 +90,7 @@ install:: all
 	$(CP) ../../gfx_user/*.* $(prefix)/gfx_user
 	$(CP) ../../bitmaps/*.* $(prefix)/bitmaps
 	$(CP) ../../scripts_autoload $(prefix)
+	$(CP) -R ../../icons/* $(prefix)/fonts
 	$(CP) ../../keys.dat $(prefix)
 	$(CP) ../../atrinik.p0 $(prefix)
 	$(CP) ../../License $(prefix)

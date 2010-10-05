@@ -1524,6 +1524,8 @@ int main(int argc, char *argv[])
 
 	SDL_EnableUNICODE(1);
 
+	text_init();
+
 	load_bitmaps();
 	show_intro("Load bitmaps");
 
@@ -1847,6 +1849,7 @@ int main(int argc, char *argv[])
 	socket_deinitialize();
 	sound_deinit();
 	free_bitmaps();
+	text_deinit();
 	SYSTEM_End();
 
 	return 0;
