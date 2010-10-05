@@ -174,6 +174,12 @@ void show_meta_server()
 		string_blt_shadow(ScreenSurface, &SystemFont, "Select a server.", x + 230, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
 	}
 
+	/* Show the play button. */
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 474, y + 10, "Play", &SystemFont, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK))
+	{
+		list_handle_enter(list);
+	}
+
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
 
 	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 10;
