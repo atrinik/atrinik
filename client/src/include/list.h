@@ -51,8 +51,8 @@ typedef struct list_struct
 	/** List's maximum width. */
 	int width;
 
-	/** Maximum height of the list's rows. */
-	int height;
+	/** Maximum number of visible rows. */
+	uint32 max_rows;
 
 	/** Number of rows. */
 	uint32 rows;
@@ -181,12 +181,14 @@ typedef struct list_struct
 #define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing)
 /** Figure out maximum visible rows. */
 #define LIST_ROWS_MAX(list) ((uint32) ((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
+/** Calculate the height of the rows. */
+#define LIST_ROWS_HEIGHT(list) (LIST_ROW_HEIGHT((list)) * (list)->max_rows)
 /**
  * Adjust row ID by the row offset, thus transforming row ID to
  * 0-[max visible rows]. */
 #define LIST_ROW_OFFSET(row, list) ((row) - (list)->row_offset)
 /** Figure out full height of the list, including its header. */
-#define LIST_HEIGHT_FULL(list) ((list)->height + (list)->spacing + (list)->header_height)
+#define LIST_HEIGHT_FULL(list) ((int) LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
 
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300

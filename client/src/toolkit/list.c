@@ -41,7 +41,7 @@ static int list_handle_key(list_struct *list, SDLKey key);
  * @param list List to draw the frame for. */
 static void list_draw_frame(list_struct *list)
 {
-	draw_frame(list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, list->height);
+	draw_frame(list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
 }
 
 /**
@@ -142,19 +142,25 @@ void list_set_focus(list_struct *list)
  * @param id ID of the list, one of @ref LIST_xxx.
  * @param x X position of the list.
  * @param y Y position of the list.
- * @param height Maximum height of the list rows.
+ * @param max_rows Maximum number of visible rows to show.
  * @param cols How many columns per row.
  * @param spacing Spacing between column names and the actual rows start.
  * @return The created list. */
-list_struct *list_create(uint32 id, int x, int y, int height, uint32 cols, int spacing)
+list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, int spacing)
 {
 	list_struct *list = calloc(1, sizeof(list_struct));
+
+	if (max_rows == 0)
+	{
+		LOG(llevBug, "list_create(): Attempted to create a list with 0 max rows, changing to 1.\n");
+		max_rows = 1;
+	}
 
 	/* Store the values. */
 	list->id = id;
 	list->x = x;
 	list->y = y;
-	list->height = height;
+	list->max_rows = max_rows;
 	list->cols = cols;
 	list->spacing = spacing;
 	list->font = FONT_SANS10;
@@ -295,7 +301,7 @@ void list_set_font(list_struct *list, int font)
  * @param list List to show. */
 void list_show(list_struct *list)
 {
-	uint32 row, col, max_rows;
+	uint32 row, col;
 	int w = 0, extra_width = 0;
 	SDL_Rect box;
 
@@ -337,9 +343,6 @@ void list_show(list_struct *list)
 		w += list->col_widths[col] + list->col_spacings[col];
 	}
 
-	/* Maximum visible rows. */
-	max_rows = LIST_ROWS_MAX(list);
-
 	/* Initialize default values for coloring rows. */
 	box.x = list->x + list->frame_offset;
 	box.w = list->width;
@@ -348,7 +351,7 @@ void list_show(list_struct *list)
 	/* Doing coloring of each row? */
 	if (list->row_color_func)
 	{
-		for (row = 0; row < max_rows; row++)
+		for (row = 0; row < list->max_rows; row++)
 		{
 			box.y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
 			list->row_color_func(list, row, box);
@@ -359,7 +362,7 @@ void list_show(list_struct *list)
 	for (row = list->row_offset; row < list->rows; row++)
 	{
 		/* Stop if we reached maximum number of visible rows. */
-		if (LIST_ROW_OFFSET(row, list) == max_rows)
+		if (LIST_ROW_OFFSET(row, list) == list->max_rows)
 		{
 			break;
 		}
@@ -496,7 +499,7 @@ static void list_scroll(list_struct *list, int up, int scroll)
 	/* Number of rows. */
 	rows = list->rows;
 	/* Number of visible rows. */
-	max_rows = LIST_ROWS_MAX(list);
+	max_rows = list->max_rows;
 
 	/* Scrolling upward. */
 	if (up)
@@ -567,12 +570,12 @@ static int list_handle_key(list_struct *list, SDLKey key)
 
 		/* Page up. */
 		case SDLK_PAGEUP:
-			list_scroll(list, 1, LIST_ROWS_MAX(list));
+			list_scroll(list, 1, list->max_rows);
 			break;
 
 		/* Page down. */
 		case SDLK_PAGEDOWN:
-			list_scroll(list, 0, LIST_ROWS_MAX(list));
+			list_scroll(list, 0, list->max_rows);
 			break;
 
 		/* Esc, let the list creator handle this if they want to. */
@@ -684,15 +687,13 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
  * @param event Event. */
 static void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 {
-	uint32 row, rows_max;
+	uint32 row;
 
 	(void) mx;
 
 	/* No row is highlighted now. Will be switched back on as needed
 	 * below. */
 	list->row_highlighted = 0;
-	/* Get the maximum number of rows displayed. */
-	rows_max = LIST_ROWS_MAX(list);
 
 	/* Handle mouse wheel for scrolling. */
 	if (event->button.button == SDL_BUTTON_WHEELUP || event->button.button == SDL_BUTTON_WHEELDOWN)
@@ -704,7 +705,7 @@ static void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *even
 	for (row = list->row_offset; row < list->rows; row++)
 	{
 		/* Stop if we reached maximum number of visible rows. */
-		if (LIST_ROW_OFFSET(row, list) == rows_max)
+		if (LIST_ROW_OFFSET(row, list) == list->max_rows)
 		{
 			break;
 		}

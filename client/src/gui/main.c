@@ -108,7 +108,7 @@ void show_meta_server()
 		}
 
 		/* Create the servers list. */
-		list = list_create(LIST_SERVERS, x + 13, y + 8, 132, 3, 8);
+		list = list_create(LIST_SERVERS, x + 13, y + 8, 11, 3, 8);
  		list->handle_enter_func = list_handle_enter;
 		list_set_column(list, 0, 295, 7, "Server", -1);
 		list_set_column(list, 1, 50, 9, "Port", 1);
@@ -193,7 +193,7 @@ void show_meta_server()
 		/* Start downloading. */
 		news_data = curl_download_start("http://www.atrinik.org/client_news.php");
 
-		list = list_create(LIST_NEWS, x + 13, y + 10, 216, 1, 8);
+		list = list_create(LIST_NEWS, x + 13, y + 10, 18, 1, 8);
 //		list->handle_enter_func = list_handle_enter;
 		list_set_column(list, 0, 150, 7, NULL, -1);
 		list_set_font(list, FONT_ARIAL10);
