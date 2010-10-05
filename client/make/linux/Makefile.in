@@ -90,7 +90,7 @@ install:: all
 	$(CP) ../../gfx_user/*.* $(prefix)/gfx_user
 	$(CP) ../../bitmaps/*.* $(prefix)/bitmaps
 	$(CP) ../../scripts_autoload $(prefix)
-	$(CP) -R ../../icons/* $(prefix)/fonts
+	$(CP) -R ../../fonts/* $(prefix)/fonts
 	$(CP) ../../keys.dat $(prefix)
 	$(CP) ../../atrinik.p0 $(prefix)
 	$(CP) ../../License $(prefix)
