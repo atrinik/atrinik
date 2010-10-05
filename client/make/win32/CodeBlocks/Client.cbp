@@ -50,6 +50,7 @@
 			<Add library="sdl_lib\libSDLmain.a" />
 			<Add library="sdl_lib\libSDL_image.a" />
 			<Add library="sdl_lib\libSDL_mixer.a" />
+			<Add library="sdl_lib\SDL_ttf.lib" />
 			<Add library="sdl_lib\libSDL.dll.a" />
 			<Add library="sdl_lib\static\libcurl.a" />
 			<Add directory="sdl_lib" />
@@ -65,6 +66,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\client\metaserver.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\client\curl.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\client\main.c">
@@ -118,7 +122,16 @@
 		<Unit filename="..\..\..\src\client\tilestretcher.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\widgets\widget.c">
+		<Unit filename="..\..\..\src\toolkit\text.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\toolkit\list.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\toolkit\button.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\toolkit\widget.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\client.h">
@@ -127,10 +140,16 @@
 		<Unit filename="..\..\..\src\include\player.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\list.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\inventory.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\widget.h">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\include\text.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\party.h">
@@ -170,6 +189,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\player_shop.h">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\include\curl.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\sound.h">

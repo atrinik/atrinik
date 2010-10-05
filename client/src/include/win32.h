@@ -56,6 +56,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_main.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 
 #define snprintf _snprintf
 #define strcasecmp _stricmp
