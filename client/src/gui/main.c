@@ -157,25 +157,25 @@ void show_meta_server()
 		SDL_Rect box;
 
 		snprintf(buf, sizeof(buf), "Version: %s", node->version);
-		string_blt_shadow(ScreenSurface, FONT_SANS10, buf, x + 13, y + 185, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 
 		box.w = 410;
 		box.h = 48;
-		string_blt(ScreenSurface, FONT_SANS10, node->desc, x + 13, y + 197, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_ARIAL10, node->desc, x + 13, y + 197, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	/* Show whether we are connecting to the metaserver or not. */
 	if (ms_connecting(-1))
 	{
-		string_blt_shadow(ScreenSurface, FONT_SANS10, "Connecting to metaserver, please wait...", x + 128, y + 8, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 	}
 	else
 	{
-		string_blt_shadow(ScreenSurface, FONT_SANS10, "Select a server.", x + 230, y + 8, COLOR_SIMPLE(COLOR_GREEN), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_SIMPLE(COLOR_GREEN), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 	}
 
 	/* Show the play button. */
-	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 474, y + 10, "Play", FONT_SANS10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 474, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
 	{
 		list_handle_enter(list);
 	}
@@ -196,6 +196,7 @@ void show_meta_server()
 		list = list_create(LIST_NEWS, x + 13, y + 10, 216, 1, 8);
 //		list->handle_enter_func = list_handle_enter;
 		list_set_column(list, 0, 150, 7, NULL, -1);
+		list_set_font(list, FONT_ARIAL10);
 	}
 
 	/* Download in progress? */
