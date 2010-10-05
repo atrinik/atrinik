@@ -25,66 +25,103 @@
 
 /**
  * @file
- * Text drawing API. */
+ * Text drawing API. Used SDL_ttf for rendering. */
 
 #include <include.h>
 
-/**
- * Switch font's color.
- * @param surface Surface. If NULL, will not do anything.
- * @param font Font to switch color for.
- * @param color The new color. */
-static void bitmap_set_color(SDL_Surface *surface, _Font *font, int color)
+/** All the usable fonts. */
+font_struct fonts[FONTS_MAX] =
 {
-	SDL_Color col;
+	{"fonts/vera/sans.ttf", 10, NULL, 0},
+	{"fonts/vera/serif.ttf", 10, NULL, 0}
+};
 
+/**
+ * Initialize the text API. Should only be done once. */
+void text_init()
+{
+	size_t i;
+	TTF_Font *font;
+
+	TTF_Init();
+
+	for (i = 0; i < FONTS_MAX; i++)
+	{
+		font = TTF_OpenFont(fonts[i].path, fonts[i].size);
+
+		if (!font)
+		{
+			LOG(llevError, "Unable to load font (%s): %s\n", fonts[i].path, TTF_GetError());
+		}
+
+		fonts[i].font = font;
+		fonts[i].height = TTF_FontLineSkip(font);
+	}
+}
+
+/**
+ * Deinitializes the text API. */
+void text_deinit()
+{
+	size_t i;
+
+	for (i = 0; i < FONTS_MAX; i++)
+	{
+		TTF_CloseFont(fonts[i].font);
+	}
+
+	TTF_Quit();
+}
+
+/**
+ * Reset r, g, b values of 'color' to that of 'orig_color'.
+ * @param surface If NULL, will not do anything.
+ * @param color Values to copy to.
+ * @param orig_color Values to copy from. */
+static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_color)
+{
 	if (!surface)
 	{
 		return;
 	}
 
-	col.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].r;
-	col.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].g;
-	col.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].b;
-	SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &col, 1, 1);
+	color->r = orig_color.r;
+	color->g = orig_color.g;
+	color->b = orig_color.b;
 }
 
 /**
  * Draw one character on the screen or parse markup (if applicable).
- * @param font Font to use.
+ * @param font Font to use. One of @ref FONT_xxx.
  * @param surface Surface to draw on. If NULL, there is no drawing done,
  * but the return value is still calculated along with dest->w.
  * @param dest Destination, will have width (and x, if surface wasn't
  * NULL) updated.
  * @param cp String we are working on, cp[0] is the character to draw.
  * @param color Color to use.
+ * @param orig_color Original color.
  * @param flags Flags as passed to string_blt().
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, int color, int flags)
+static int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags)
 {
-	SDL_Rect src;
 	int width;
 	char c = *cp;
 
 	/* Doing markup? */
-	if (flags & TEXT_MARKUP)
+	if (flags & TEXT_MARKUP && c == '<')
 	{
 		/* Color tag: <c=r,g,b> */
 		if (!strncmp(cp, "<c=", 3))
 		{
 			if (surface)
 			{
-				SDL_Color col;
-
 				/* Parse the r,g,b colors. */
-				if (sscanf(cp, "<c=%d,%d,%d>", (int *) &col.r, (int *) &col.g, (int *) &col.b) != 3)
+				if (sscanf(cp, "<c=%d,%d,%d>", (int *) &color->r, (int *) &color->g, (int *) &color->b) != 3)
 				{
 					return 3;
 				}
-
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &col, 1, 1);
 			}
 
 			/* Get the position of the ending '>'. */
@@ -93,7 +130,7 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 		/* End of color tag. */
 		else if (!strncmp(cp, "</c>", 4))
 		{
-			bitmap_set_color(surface, font, color);
+			reset_color(surface, color, orig_color);
 			return 4;
 		}
 		/* Convenience tag to make string green. */
@@ -101,14 +138,16 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 		{
 			if (surface)
 			{
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &(SDL_Color) {0, 255, 0, 0}, 1, 1);
+				color->r = 0;
+				color->g = 255;
+				color->b = 0;
 			}
 
 			return 7;
 		}
 		else if (!strncmp(cp, "</green>", 8))
 		{
-			bitmap_set_color(surface, font, color);
+			reset_color(surface, color, orig_color);
 			return 8;
 		}
 		/* Convenience tag to make string yellow. */
@@ -116,14 +155,16 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 		{
 			if (surface)
 			{
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &(SDL_Color) {255, 255, 0, 0}, 1, 1);
+				color->r = 255;
+				color->g = 255;
+				color->b = 0;
 			}
 
 			return 8;
 		}
 		else if (!strncmp(cp, "</yellow>", 9))
 		{
-			bitmap_set_color(surface, font, color);
+			reset_color(surface, color, orig_color);
 			return 9;
 		}
 		/* Convenience tag to make string red. */
@@ -131,14 +172,16 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 		{
 			if (surface)
 			{
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &(SDL_Color) {255, 0, 0, 0}, 1, 1);
+				color->r = 255;
+				color->g = 0;
+				color->b = 0;
 			}
 
 			return 5;
 		}
 		else if (!strncmp(cp, "</red>", 6))
 		{
-			bitmap_set_color(surface, font, color);
+			reset_color(surface, color, orig_color);
 			return 6;
 		}
 		/* Convenience tag to make string blue. */
@@ -146,15 +189,74 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 		{
 			if (surface)
 			{
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &(SDL_Color) {0, 0, 255, 0}, 1, 1);
+				color->r = 0;
+				color->g = 0;
+				color->b = 255;
 			}
 
 			return 6;
 		}
 		else if (!strncmp(cp, "</blue>", 7))
 		{
-			bitmap_set_color(surface, font, color);
+			reset_color(surface, color, orig_color);
 			return 7;
+		}
+		/* Bold. */
+		else if (!strncmp(cp, "<b>", 3))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) | TTF_STYLE_BOLD);
+			}
+
+			return 3;
+		}
+		else if (!strncmp(cp, "</b>", 4))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) & ~TTF_STYLE_BOLD);
+			}
+
+			return 4;
+		}
+		/* Italic. */
+		else if (!strncmp(cp, "<i>", 3))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) | TTF_STYLE_ITALIC);
+			}
+
+			return 3;
+		}
+		else if (!strncmp(cp, "</i>", 4))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) & ~TTF_STYLE_ITALIC);
+			}
+
+			return 4;
+		}
+		/* Underscore. */
+		else if (!strncmp(cp, "<u>", 3))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) | TTF_STYLE_UNDERLINE);
+			}
+
+			return 3;
+		}
+		else if (!strncmp(cp, "</u>", 4))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) & ~TTF_STYLE_UNDERLINE);
+			}
+
+			return 4;
 		}
 	}
 
@@ -162,30 +264,47 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
 	 * drawing whitespace). */
 	if (surface && c != ' ')
 	{
-		src.x = font->c[(int) c].x;
-		src.y = font->c[(int) c].y;
-		src.w = font->c[(int) c].w;
-		src.h = font->c[(int) c].h;
-		SDL_BlitSurface(font->sprite->bitmap, &src, surface, dest);
+		SDL_Surface *ttf_surface;
+		char buf[2];
+
+		buf[0] = c;
+		buf[1] = '\0';
+
+		/* Render the character. */
+		if (flags & TEXT_SOLID)
+		{
+			ttf_surface = TTF_RenderText_Solid(fonts[font].font, buf, *color);
+		}
+		else
+		{
+			ttf_surface = TTF_RenderText_Blended(fonts[font].font, buf, *color);
+		}
+
+		/* Output the rendered character to the screen and free the
+		 * used surface. */
+		SDL_BlitSurface(ttf_surface, NULL, surface, dest);
+		SDL_FreeSurface(ttf_surface);
 	}
 
-	/* Get the character's width. */
-	width = CHAR_WIDTH(c, font);
-
-	/* Update the x/w of the destination with the character's width. */
-	if (surface)
+	/* Get the glyph's metrics. */
+	if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, NULL, NULL, &width) != -1)
 	{
-		dest->x += width;
+		/* Update the x/w of the destination with the character's width. */
+		if (surface)
+		{
+			dest->x += width;
+		}
+
+		dest->w += width;
 	}
 
-	dest->w += width;
 	return 1;
 }
 
 /**
  * Draw a string on the specified surface.
  * @param surface Surface to draw on.
- * @param font Font to use.
+ * @param font Font to use. One of @ref FONT_xxx.
  * @param text The string to draw.
  * @param x X position.
  * @param y Y position.
@@ -195,19 +314,17 @@ static int blt_character(_Font *font, SDL_Surface *surface, SDL_Rect *dest, cons
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt(SDL_Surface *surface, _Font *font, const char *text, int x, int y, int color, int flags, SDL_Rect *box)
+void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, int flags, SDL_Rect *box)
 {
 	const char *cp = text;
 	SDL_Rect dest;
 	int pos = 0, last_space = 0, is_lf, ret;
+	SDL_Color orig_color = color;
 
 	/* Store the x/y. */
 	dest.x = x;
 	dest.y = y;
 	dest.w = 0;
-
-	/* Set the font's color. */
-	bitmap_set_color(surface, font, color);
 
 	while (cp[pos] != '\0')
 	{
@@ -232,7 +349,7 @@ void string_blt(SDL_Surface *surface, _Font *font, const char *text, int x, int 
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
-				ret = blt_character(font, surface, &dest, cp, color, flags);
+				ret = blt_character(font, surface, &dest, cp, &color, orig_color, flags);
 				cp += ret;
 				last_space -= ret;
 			}
@@ -267,21 +384,21 @@ void string_blt(SDL_Surface *surface, _Font *font, const char *text, int x, int 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(font, NULL, &dest, cp + pos, color, flags);
+			pos += blt_character(font, NULL, &dest, cp + pos, &color, orig_color, flags);
 		}
 	}
 
 	/* Draw leftover characters. */
 	while (*cp != '\0')
 	{
-		cp += blt_character(font, surface, &dest, cp, color, flags);
+		cp += blt_character(font, surface, &dest, cp, &color, orig_color, flags);
 	}
 }
 
 /**
  * Draw a string with a shadow.
  * @param surface Surface to draw on.
- * @param font Font to use.
+ * @param font Font to use. One of @ref FONT_xxx.
  * @param text The string to draw.
  * @param x X position.
  * @param y Y position.
@@ -292,8 +409,30 @@ void string_blt(SDL_Surface *surface, _Font *font, const char *text, int x, int 
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt_shadow(SDL_Surface *surface, _Font *font, const char *text, int x, int y, int color, int color_shadow, int flags, SDL_Rect *box)
+void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box)
 {
 	string_blt(surface, font, text, x + 1, y - 1, color_shadow, flags, box);
 	string_blt(surface, font, text, x, y - 2, color, flags, box);
+}
+
+/**
+ * Calculate string's pixel width, taking into account markup, if
+ * applicable.
+ * @param font Font. One of @ref FONT_xxx.
+ * @param text String to get width of.
+ * @param flags One or a combination of @ref TEXT_xxx.
+ * @return The string's width. */
+int string_get_width(int font, const char *text, int flags)
+{
+	SDL_Rect dest;
+	const char *cp = text;
+
+	dest.w = 0;
+
+	while (*cp != '\0')
+	{
+		cp += blt_character(font, NULL, &dest, cp, NULL, (SDL_Color) {0, 0, 0, 0}, flags);
+	}
+
+	return dest.w;
 }

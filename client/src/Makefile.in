@@ -35,7 +35,7 @@ SRCS := \
 	$(wildcard client/*.c) \
 	$(wildcard events/*.c) \
 	$(wildcard gui/*.c) \
-	$(wildcard widgets/*.c)
+	$(wildcard toolkit/*.c)
 
 # Object files
 OBJS = $(SRCS:.c=.o)

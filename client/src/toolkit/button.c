@@ -40,19 +40,20 @@
  * @param y Y position of the button.
  * @param text Text to display in the middle of the button. Can be NULL
  * for no text.
- * @param font Font to use for the text.
+ * @param font Font to use for the text. One of @ref FONT_xxx.
  * @param color Color to use for the text.
- * @param colow_shadow Shadow color of the text.
+ * @param color_shadow Shadow color of the text.
  * @param color_over Color to use when the mouse is over the button. -1
  * to use 'color'.
  * @param color_over_shadow Shadow color to use when the mouse is over
  * the button. -1 to use 'color_shadow'.
  * @return 1 if left mouse button is being held over the button, 0
  * otherwise. */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, _Font *font, int color, int color_shadow, int color_over, int color_over_shadow)
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow)
 {
 	_Sprite *sprite = Bitmaps[bitmap_id];
-	int mx, my, use_color = color, use_color_shadow = color_shadow, ret = 0, state;
+	int mx, my, ret = 0, state;
+	SDL_Color use_color = color, use_color_shadow = color_shadow;
 
 	/* Get state of the mouse and the x/y. */
 	state = SDL_GetMouseState(&mx, &my);
@@ -62,15 +63,8 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 	if (mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h && getpixel(sprite->bitmap, mx - x, my - y))
 	{
 		/* Change color. */
-		if (color_over != -1)
-		{
-			use_color = color_over;
-		}
-
-		if (color_over_shadow != -1)
-		{
-			use_color_shadow = color_over_shadow;
-		}
+		use_color = color_over;
+		use_color_shadow = color_over_shadow;
 
 		/* Left button clicked? */
 		if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
@@ -96,9 +90,9 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 	sprite_blt(sprite, x, y, NULL, NULL);
 
 	/* If text was passed, draw it as well. */
-	if (text && font)
+	if (text)
 	{
-		string_blt_shadow(ScreenSurface, font, text, x + sprite->bitmap->w / 2 - get_string_pixel_length(text, font) / 2, y + sprite->bitmap->h / 2 - 12 / 2, use_color, use_color_shadow, 0, NULL);
+		string_blt_shadow(ScreenSurface, font, text, x + sprite->bitmap->w / 2 - string_get_width(font, text, 0) / 2, y + sprite->bitmap->h / 2 - FONT_HEIGHT(font) / 2, use_color, use_color_shadow, 0, NULL);
 	}
 
 	return ret;

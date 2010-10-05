@@ -316,13 +316,13 @@ void list_show(list_struct *list)
 		/* Center it? */
 		if (list->col_centered[col])
 		{
- 			extra_width = list->col_widths[col] / 2 - get_string_pixel_length(list->col_names[col], &SystemFont) / 2;
+ 			extra_width = list->col_widths[col] / 2 - string_get_width(FONT_SANS10, list->col_names[col], 0) / 2;
 		}
 
 		/* Actually draw the column name. */
 		if (list->col_names[col])
 		{
-			string_blt_shadow(ScreenSurface, &SystemFont, list->col_names[col], list->x + w + extra_width, list->y, list->focus ? COLOR_WHITE : COLOR_GREY, COLOR_BLACK, 0, NULL);
+			string_blt_shadow(ScreenSurface, FONT_SANS10, list->col_names[col], list->x + w + extra_width, list->y, COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 		}
 
 		w += list->col_widths[col] + list->col_spacings[col];
@@ -383,14 +383,14 @@ void list_show(list_struct *list)
 				/* Center it. */
 				if (list->col_centered[col])
 				{
- 					extra_width = list->col_widths[col] / 2 - get_string_pixel_length(list->text[row][col], &SystemFont) / 2;
+ 					extra_width = list->col_widths[col] / 2 - string_get_width(FONT_SANS10, list->text[row][col], TEXT_WORD_WRAP) / 2;
 				}
 
 				/* Add width limit on the string. */
 				box.w = list->col_widths[col] + list->col_spacings[col];
 				box.h = 12;
 				/* Output the text. */
-				string_blt_shadow(ScreenSurface, &SystemFont, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), list->focus ? COLOR_WHITE : COLOR_GREY, COLOR_BLACK, TEXT_WORD_WRAP, &box);
+				string_blt_shadow(ScreenSurface, FONT_SANS10, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * list->row_height), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
