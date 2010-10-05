@@ -53,9 +53,10 @@ enum
 {
 	/** Sans, 10px, good for general drawing. */
 	FONT_SANS10,
-
 	/** Serif, 10px. */
 	FONT_SERIF10,
+	/** Arial, 10px. */
+	FONT_ARIAL10,
 
 	/** Number of the fonts. */
 	FONTS_MAX

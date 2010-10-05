@@ -33,7 +33,8 @@
 font_struct fonts[FONTS_MAX] =
 {
 	{"fonts/vera/sans.ttf", 10, NULL, 0},
-	{"fonts/vera/serif.ttf", 10, NULL, 0}
+	{"fonts/vera/serif.ttf", 10, NULL, 0},
+	{"fonts/arial.ttf", 10, NULL, 0}
 };
 
 /**
