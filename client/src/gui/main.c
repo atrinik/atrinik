@@ -29,6 +29,11 @@
 
 #include <include.h>
 
+/** How often to blink the eyes in ticks. */
+#define EYES_BLINK_TIME (10 * 1000)
+/** How long the eyes remain 'closed' (not drawn). */
+#define EYES_BLINK_DELAY (200)
+
 /**
  * Last server count to see when to re-create the servers list. Since the
  * metaserver code uses threading so the whole program doesn't lock up,
@@ -37,6 +42,11 @@ static size_t last_server_count = 0;
 
 /** Data buffer used when downloading news from the site. */
 static curl_data *news_data = NULL;
+
+/** Last time the eyes blinked. */
+static uint32 eyes_blink_ticks = 0;
+/** Whether to draw the eyes. */
+static uint8 eyes_draw = 1;
 
 /**
  * Handle enter key being pressed in the servers list.
@@ -217,4 +227,18 @@ void show_meta_server()
 
 	/* Show the news list. */
 	list_show(list);
+
+	/* Calculate whether to show the eyes or not. Blinks every
+	 * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until
+	 * showing the eyes again. */
+	if (SDL_GetTicks() - eyes_blink_ticks >= (eyes_draw ? EYES_BLINK_TIME : EYES_BLINK_DELAY))
+	{
+		eyes_blink_ticks = SDL_GetTicks();
+		eyes_draw = !eyes_draw;
+	}
+
+	if (eyes_draw)
+	{
+		sprite_blt(Bitmaps[BITMAP_EYES], Bitmaps[BITMAP_INTRO]->bitmap->w - 90, 310, NULL, NULL);
+	}
 }
