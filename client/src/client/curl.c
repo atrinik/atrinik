@@ -160,13 +160,12 @@ curl_data *curl_data_new(const char *url)
  * error occurred). */
 curl_data *curl_download_start(const char *url)
 {
-	SDL_Thread *thread;
 	curl_data *data = curl_data_new(url);
 
 	/* Create a new thread. */
-	thread = SDL_CreateThread(curl_connect, data);
+	data->thread = SDL_CreateThread(curl_connect, data);
 
-	if (!thread)
+	if (!data->thread)
 	{
 		LOG(llevError, "curl_download_start(): Thread creation failed.\n");
 	}
@@ -195,6 +194,12 @@ sint8 curl_download_finished(curl_data *data)
  * @param data What to free. */
 void curl_data_free(curl_data *data)
 {
+	/* Still downloading? Kill the thread. */
+	if (curl_download_finished(data) == 0)
+	{
+		SDL_KillThread(data->thread);
+	}
+
 	if (data->memory)
 	{
 		free(data->memory);

@@ -47,6 +47,9 @@ typedef struct curl_data
 	 * threads. */
 	SDL_mutex *mutex;
 
+	/** The thread. */
+	SDL_Thread *thread;
+
 	/**
 	 * State of the data:
 	 * - 0: still trying to get data (connecting to server, getting data,
