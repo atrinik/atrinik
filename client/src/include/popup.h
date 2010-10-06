@@ -64,7 +64,7 @@ typedef struct popup_struct
 	 * @retval 0 Did not handle the event, but allow other keyboard
 	 * events.
 	 * @retval 1 Handled the event. */
-	int (*event_func)(SDL_Event *event);
+	int (*event_func)(struct popup_struct *popup, SDL_Event *event);
 } popup_struct;
 
 #endif
