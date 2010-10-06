@@ -130,8 +130,119 @@ static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
 	return -1;
 }
 
+/**
+ * Draw the server connection/character creation popup.
+ * @param popup Popup. */
+static void popup_draw_func(popup_struct *popup)
+{
+	_BLTFX bltfx;
+	int progress;
+	SDL_Rect box;
+	char buf[MAX_BUF];
+	int x, y;
+
+	/* Waiting to log in. */
+	if (GameStatus == GAME_STATUS_WAITFORPLAY)
+	{
+		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+		return;
+	}
+	/* Playing now, so destroy this popup and remove any lists. */
+	else if (GameStatus == GAME_STATUS_PLAY)
+	{
+		popup_destroy_visible();
+		list_remove_all();
+		return;
+	}
+
+	bltfx.surface = popup->surface;
+	bltfx.flags = 0;
+	bltfx.alpha = 0;
+
+	/* Update progress bar of requested files */
+	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], Bitmaps[popup->bitmap_id]->bitmap->w / 2 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->w / 2, 30, NULL, &bltfx);
+
+	progress = MIN(100, request_file_chain * 8);
+	box.x = 0;
+	box.y = 0;
+	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
+	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
+	sprite_blt(Bitmaps[BITMAP_PROGRESS], Bitmaps[popup->bitmap_id]->bitmap->w / 2 - Bitmaps[BITMAP_PROGRESS]->bitmap->w / 2, 30, &box, &bltfx);
+
+	/* Show that we are connecting to the server. */
+	box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
+	string_blt_shadow(popup->surface, FONT_SERIF12, "Connecting to server, please wait...", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+
+	/* Downloading the files, or updates haven't finished yet? */
+	if (GameStatus <= GAME_STATUS_REQUEST_FILES || !file_updates_finished())
+	{
+		return;
+	}
+
+	/* Middle of the screen for the text inputs. */
+	x = Bitmaps[popup->bitmap_id]->bitmap->w / 2 - text_input_center_offset();
+	y = 75;
+
+	/* Player name. */
+	if (GameStatus == GAME_STATUS_NAME)
+	{
+		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 55, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		InputString[0] = toupper(InputString[0]);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, InputString, COLOR_SIMPLE(COLOR_WHITE), 0);
+	}
+	else
+	{
+		cpl.name[0] = toupper(cpl.name[0]);
+		text_input_draw_background(popup->surface, x, y);
+		text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, cpl.name, COLOR_SIMPLE(COLOR_WHITE), 0);
+	}
+
+	y += 35;
+
+	/* Player password. */
+	if (GameStatus == GAME_STATUS_PSWD || cpl.password[0])
+	{
+		char *cp;
+
+		strncpy(buf, GameStatus == GAME_STATUS_PSWD ? InputString : cpl.password, sizeof(buf) - 1);
+
+		for (cp = buf; *cp; cp++)
+		{
+			*cp = '*';
+		}
+
+		if (GameStatus == GAME_STATUS_PSWD)
+		{
+			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 95, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+		}
+		else
+		{
+			text_input_draw_background(popup->surface, x, y);
+			text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+		}
+	}
+
+	y += 35;
+
+	/* Verify password for character creation. */
+	if (GameStatus == GAME_STATUS_VERIFYPSWD)
+	{
+		char *cp;
+
+		strncpy(buf, InputString, sizeof(buf) - 1);
+
+		for (cp = buf; *cp; cp++)
+		{
+			*cp = '*';
+		}
+
+		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+	}
+}
+
 /** @copydoc popup_struct::event_func */
-/** @todo finish */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
 	(void) popup;
@@ -140,14 +251,23 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	{
 		switch (event->key.keysym.sym)
 		{
-			case SDLK_RETURN:
-			case SDLK_KP_ENTER:
-				GameStatus = GAME_STATUS_STARTCONNECT;
+			/* ESC, go back to the servers list part and destroy the
+			 * popup. */
+			case SDLK_ESCAPE:
+				GameStatus = GAME_STATUS_START;
 				popup_destroy_visible();
 				return 1;
 
+			/* Anything else. */
 			default:
-				break;
+				/* Try to handle text input. */
+				if (key_string_event(&event->key))
+				{
+					return 1;
+				}
+
+				/* Ignore. */
+				return 0;
 		}
 	}
 
@@ -168,17 +288,18 @@ static void list_handle_enter(list_struct *list)
 		/* Valid server, start connecting. */
 		if (selected_server)
 		{
-			popup_struct *popup = popup_create(BITMAP_DIALOG_BG);
+			popup_struct *popup = popup_create(BITMAP_POPUP);
 
-// 			popup->draw_func = popup_draw_func;
+ 			popup->draw_func = popup_draw_func;
  			popup->event_func = popup_event_func;
+			GameStatus = GAME_STATUS_STARTCONNECT;
 		}
 	}
 	else if (list->id == LIST_NEWS)
 	{
 		if (list->text && list->text[list->row_selected - 1])
 		{
-			popup_struct *popup = popup_create(BITMAP_DIALOG_BG);
+			popup_struct *popup = popup_create(BITMAP_POPUP);
 
 			popup->draw_func = news_popup_draw_func;
 			popup->event_func = news_popup_event_func;
@@ -197,19 +318,18 @@ void show_meta_server()
 	server_struct *node;
 	char buf[MAX_BUF];
 
+	/* Started connecting, no need to do anything here as the popup is
+	 * active now. */
+	if (GameStatus > GAME_STATUS_STARTCONNECT)
+	{
+		return;
+	}
+
 	x = 5;
 	y = Screensize->y - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
 
 	/* Background */
 	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
-
-	/* Remove the servers list after successfully connecting to the
-	 * server. */
-	if (GameStatus > GAME_STATUS_STARTCONNECT)
-	{
-		list_remove_all();
-		return;
-	}
 
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG], x, y, NULL, NULL);
 
