@@ -178,9 +178,11 @@ int popup_handle_event(SDL_Event *event)
 	/* Handle custom events? */
 	if (popup_visible->event_func)
 	{
-		if (popup_visible->event_func(event))
+		int ret = popup_visible->event_func(event);
+
+		if (ret != -1)
 		{
-			return 1;
+			return ret;
 		}
 	}
 

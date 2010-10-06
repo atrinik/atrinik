@@ -60,7 +60,10 @@ typedef struct popup_struct
 	/**
 	 * Function used for handling mouse/key events when popup is visible.
 	 * @param event SDL event.
-	 * @return 1 if the function handled the event, 0 otherwise. */
+	 * @retval -1 Did not handle the event.
+	 * @retval 0 Did not handle the event, but allow other keyboard
+	 * events.
+	 * @retval 1 Handled the event. */
 	int (*event_func)(SDL_Event *event);
 } popup_struct;
 
