@@ -157,6 +157,11 @@ void popup_draw()
 		popup_visible->draw_func(popup_visible);
 	}
 
+	if (!popup_visible)
+	{
+		return;
+	}
+
 	/* Show the popup in the middle of the screen. */
 	box.x = Screensize->x / 2 - popup_visible->surface->w / 2;
 	box.y = Screensize->y / 2 - popup_visible->surface->h / 2;
