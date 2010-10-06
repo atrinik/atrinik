@@ -107,6 +107,11 @@ int Event_PollInputDevice()
 		x = event.motion.x;
 		y = event.motion.y;
 
+		if ((event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) && popup_handle_event(&event))
+		{
+			continue;
+		}
+
 		switch (event.type)
 		{
 			/* Screen has been resized, update screen size. */

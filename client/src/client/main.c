@@ -1832,6 +1832,8 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		popup_draw();
+
 		flip_screen();
 
 		/* Force the thread to sleep */

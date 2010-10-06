@@ -438,6 +438,12 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
 
+/* toolkit/popup.c */
+popup_struct *popup_create(int bitmap_id);
+void popup_destroy_visible();
+void popup_draw();
+int popup_handle_event(SDL_Event *event);
+
 /* toolkit/text.c */
 void text_init();
 void text_deinit();
