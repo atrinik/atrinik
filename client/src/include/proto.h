@@ -258,7 +258,7 @@ FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
 
 /* events/console.c */
-void key_string_event(SDL_KeyboardEvent *key);
+int key_string_event(SDL_KeyboardEvent *key);
 void mouse_InputNumber();
 
 /* events/event.c */
@@ -447,9 +447,16 @@ int popup_handle_event(SDL_Event *event);
 /* toolkit/text.c */
 void text_init();
 void text_deinit();
+int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags);
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, int flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box);
 int string_get_width(int font, const char *text, int flags);
+
+/* toolkit/text_input.c */
+int text_input_center_offset();
+void text_input_draw_background(SDL_Surface *surface, int x, int y);
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags);
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags);
 
 /* toolkit/widget.c */
 void init_widgets_fromCurrent();
