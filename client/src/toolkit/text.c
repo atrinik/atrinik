@@ -116,17 +116,34 @@ static int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const c
 		/* Color tag: <c=r,g,b> */
 		if (!strncmp(cp, "<c=", 3))
 		{
+			char *pos;
+
 			if (surface)
 			{
+				int r, g, b;
+
 				/* Parse the r,g,b colors. */
-				if (sscanf(cp, "<c=%d,%d,%d>", (int *) &color->r, (int *) &color->g, (int *) &color->b) != 3)
+				if (sscanf(cp, "<c=%d,%d,%d>", &r, &g, &b) == 3)
+				{
+					color->r = r;
+					color->g = g;
+					color->b = b;
+				}
+				else
 				{
 					return 3;
 				}
 			}
 
 			/* Get the position of the ending '>'. */
-			return strcspn(cp, ">") + 1;
+			pos = strchr(cp, '>');
+
+			if (!pos)
+			{
+				return 3;
+			}
+
+			return pos - cp + 1;
 		}
 		/* End of color tag. */
 		else if (!strncmp(cp, "</c>", 4))
