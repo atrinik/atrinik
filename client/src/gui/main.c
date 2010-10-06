@@ -49,25 +49,146 @@ static uint32 eyes_blink_ticks = 0;
 static uint8 eyes_draw = 1;
 
 /**
+ * Draw the news popup.
+ * @param popup Popup. */
+static void news_popup_draw_func(popup_struct *popup)
+{
+	/* Got the news yet? */
+	if (popup->buf)
+	{
+		SDL_Rect box;
+
+		/* Show the news. */
+		box.h = 350;
+		box.w = 320;
+ 		string_blt(popup->surface, FONT_SERIF12, popup->buf, 120, 70, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		return;
+	}
+	/* Haven't started downloading yet. */
+	else if (!popup->custom_data)
+	{
+		list_struct *list = list_exists(LIST_NEWS);
+		char url[MAX_BUF], *id;
+		CURL *curl;
+
+		/* Shouldn't happen... */
+		if (!list)
+		{
+			popup_destroy_visible();
+			return;
+		}
+
+		/* Initialize cURL, escape the selected row's text and construct
+		 * the url to use for downloading. */
+		curl = curl_easy_init();
+		id = curl_easy_escape(curl, list->text[list->row_selected - 1][0], 0);
+		snprintf(url, sizeof(url), "http://www.atrinik.org/client_news.php?news=%s", id);
+		curl_free(id);
+		curl_easy_cleanup(curl);
+
+		/* Start downloading. */
+		popup->custom_data = curl_download_start(url);
+	}
+	/* Downloading. */
+	else
+	{
+		/* Check if we finished yet. */
+		int ret = curl_download_finished(popup->custom_data);
+
+		/* Yes, we finished, store the string we got. */
+		if (ret == 1)
+		{
+			popup->buf = strdup(((curl_data *) popup->custom_data)->memory);
+		}
+
+		/* Free the cURL data if we finished. */
+		if (ret != 0)
+		{
+			curl_data_free(popup->custom_data);
+			popup->custom_data = NULL;
+		}
+	}
+
+	/* Haven't downloaded the text yet, inform the user. */
+	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 120, 70, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
+}
+
+/** @copydoc popup_struct::event_func */
+static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
+{
+	/* Escape was pressed? */
+	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
+	{
+		/* Free the cURL data, if any. */
+		if (popup->custom_data)
+		{
+			curl_data_free(popup->custom_data);
+			popup->custom_data = NULL;
+		}
+	}
+
+	return -1;
+}
+
+/** @copydoc popup_struct::event_func */
+/** @todo finish */
+static int popup_event_func(popup_struct *popup, SDL_Event *event)
+{
+	(void) popup;
+
+	if (event->type == SDL_KEYDOWN)
+	{
+		switch (event->key.keysym.sym)
+		{
+			case SDLK_RETURN:
+			case SDLK_KP_ENTER:
+				GameStatus = GAME_STATUS_STARTCONNECT;
+				popup_destroy_visible();
+				return 1;
+
+			default:
+				break;
+		}
+	}
+
+	return -1;
+}
+
+/**
  * Handle enter key being pressed in the servers list.
  * @param list The servers list. */
 static void list_handle_enter(list_struct *list)
 {
-	/* Get selected server. */
-	selected_server = server_get_id(list->row_selected - 1);
-
-	/* Valid server, start connecting. */
-	if (selected_server)
+	/* Servers list? */
+	if (list->id == LIST_SERVERS)
 	{
-		GameStatus = GAME_STATUS_STARTCONNECT;
+		/* Get selected server. */
+		selected_server = server_get_id(list->row_selected - 1);
+
+		/* Valid server, start connecting. */
+		if (selected_server)
+		{
+			popup_struct *popup = popup_create(BITMAP_DIALOG_BG);
+
+// 			popup->draw_func = popup_draw_func;
+ 			popup->event_func = popup_event_func;
+		}
+	}
+	else if (list->id == LIST_NEWS)
+	{
+		if (list->text && list->text[list->row_selected - 1])
+		{
+			popup_struct *popup = popup_create(BITMAP_DIALOG_BG);
+
+			popup->draw_func = news_popup_draw_func;
+			popup->event_func = news_popup_event_func;
+		}
 	}
 }
 
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
- * connecting to server, etc.
- * @todo Game news right of the servers list acquired by connecting to
- * the site with cURL. */
+ * connecting to server, etc. */
 void show_meta_server()
 {
 	int x, y;
@@ -83,8 +204,7 @@ void show_meta_server()
 	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
 
 	/* Remove the servers list after successfully connecting to the
-	 * server.
-	 * TODO: use popups instead, that gray out the screen behind. */
+	 * server. */
 	if (GameStatus > GAME_STATUS_STARTCONNECT)
 	{
 		list_remove_all();
@@ -174,12 +294,6 @@ void show_meta_server()
 		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_SIMPLE(COLOR_GREEN), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 	}
 
-	/* Show the play button. */
-	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 474, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
-	{
-		list_handle_enter(list);
-	}
-
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
 
 	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 10;
@@ -194,7 +308,7 @@ void show_meta_server()
 		news_data = curl_download_start("http://www.atrinik.org/client_news.php");
 
 		list = list_create(LIST_NEWS, x + 13, y + 10, 18, 1, 8);
-//		list->handle_enter_func = list_handle_enter;
+		list->handle_enter_func = list_handle_enter;
 		list_set_column(list, 0, 150, 7, NULL, -1);
 		list_set_font(list, FONT_ARIAL10);
 	}
@@ -247,5 +361,11 @@ void show_meta_server()
 	if (eyes_draw)
 	{
 		sprite_blt(Bitmaps[BITMAP_EYES], Bitmaps[BITMAP_INTRO]->bitmap->w - 90, 310, NULL, NULL);
+	}
+
+	/* Show the play button. */
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 479, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	{
+		list_handle_enter(list);
 	}
 }

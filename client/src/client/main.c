@@ -1754,7 +1754,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if (GameStatus < GAME_STATUS_REQUEST_FILES)
+		if (GameStatus < GAME_STATUS_NEW_CHAR)
 		{
 			show_meta_server();
 		}
