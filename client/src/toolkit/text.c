@@ -106,7 +106,7 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_c
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-static int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags)
+int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags)
 {
 	int width;
 	char c = *cp;
