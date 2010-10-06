@@ -441,8 +441,10 @@ list_struct *list_exists(uint32 id);
 /* toolkit/popup.c */
 popup_struct *popup_create(int bitmap_id);
 void popup_destroy_visible();
+int popup_overlay_need_update(popup_struct *popup);
 void popup_draw();
 int popup_handle_event(SDL_Event *event);
+popup_struct *popup_get_visible();
 
 /* toolkit/text.c */
 void text_init();

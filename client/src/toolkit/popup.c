@@ -122,6 +122,15 @@ void popup_destroy_visible()
 }
 
 /**
+ * See if popup needs an overlay update due to screen resize.
+ * @param popup Popup.
+ * @return Whether the overlay needs to be updated or not. */
+int popup_overlay_need_update(popup_struct *popup)
+{
+	return popup->overlay->w != ScreenSurface->w || popup->overlay->h != ScreenSurface->h;
+}
+
+/**
  * Draw popup, if there is a visible one. */
 void popup_draw()
 {
@@ -135,7 +144,7 @@ void popup_draw()
 	}
 
 	/* Update the overlay if surface size was changed. */
-	if (popup_visible->overlay->w != ScreenSurface->w || popup_visible->overlay->h != ScreenSurface->h)
+	if (popup_overlay_need_update(popup_visible))
 	{
 		popup_create_overlay(popup_visible);
 	}
@@ -202,4 +211,12 @@ int popup_handle_event(SDL_Event *event)
 	}
 
 	return 1;
+}
+
+/**
+ * Get the currently visible popup.
+ * @return The visible popup, or NULL if there isn't any. */
+popup_struct *popup_get_visible()
+{
+	return popup_visible;
 }

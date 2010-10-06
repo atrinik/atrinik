@@ -318,9 +318,8 @@ void show_meta_server()
 	server_struct *node;
 	char buf[MAX_BUF];
 
-	/* Started connecting, no need to do anything here as the popup is
-	 * active now. */
-	if (GameStatus > GAME_STATUS_STARTCONNECT)
+	/* Active popup, no need to do anything. */
+	if (popup_get_visible() && !popup_overlay_need_update(popup_get_visible()))
 	{
 		return;
 	}
