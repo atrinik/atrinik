@@ -315,7 +315,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"servers_bg.png", PIC_TYPE_DEFAULT},
 	{"servers_bg_over.png", PIC_TYPE_TRANS},
 	{"news_bg.png", PIC_TYPE_DEFAULT},
-	{"eyes.png", PIC_TYPE_DEFAULT}
+	{"eyes.png", PIC_TYPE_DEFAULT},
+	{"popup.png", PIC_TYPE_DEFAULT}
 };
 
 /** Number of bitmaps. */

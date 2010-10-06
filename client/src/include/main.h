@@ -799,6 +799,7 @@ typedef enum _bitmap_index
 	BITMAP_SERVERS_BG_OVER,
 	BITMAP_NEWS_BG,
 	BITMAP_EYES,
+	BITMAP_POPUP,
 
 	BITMAP_INIT
 }_bitmap_index;
