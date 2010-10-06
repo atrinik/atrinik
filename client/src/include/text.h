@@ -74,6 +74,8 @@ enum
 #define TEXT_WORD_WRAP 2
 /** Render the text in solid mode (faster, but worse looking). */
 #define TEXT_SOLID 4
+/** Align the text to center of box's width. */
+#define TEXT_ALIGN_CENTER 8
 /*@}*/
 
 /**

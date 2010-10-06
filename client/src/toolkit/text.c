@@ -340,6 +340,12 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	int pos = 0, last_space = 0, is_lf, ret;
 	SDL_Color orig_color = color;
 
+	/* Align to the center. */
+	if (box && flags & TEXT_ALIGN_CENTER)
+	{
+		x += box->w / 2 - string_get_width(font, text, flags) / 2;
+	}
+
 	/* Store the x/y. */
 	dest.x = x;
 	dest.y = y;
