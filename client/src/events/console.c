@@ -30,7 +30,7 @@
 #include <include.h>
 
 /* We get TEXT from keyboard. This is for console input */
-void key_string_event(SDL_KeyboardEvent *key)
+int key_string_event(SDL_KeyboardEvent *key)
 {
 	char c;
 	int i;
@@ -42,7 +42,7 @@ void key_string_event(SDL_KeyboardEvent *key)
 			case SDLK_ESCAPE:
 				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 				InputStringEscFlag = 1;
-				return;
+				return 1;
 
 			case SDLK_KP_ENTER:
 			case SDLK_RETURN:
@@ -57,6 +57,8 @@ void key_string_event(SDL_KeyboardEvent *key)
 					/* record this line in input history only if we are in console mode */
 					if (cpl.input_mode == INPUT_MODE_CONSOLE)
 						textwin_addhistory(InputString);
+
+					return 1;
 				}
 				else if (key->keysym.sym == SDLK_TAB)
 				{
@@ -106,6 +108,8 @@ void key_string_event(SDL_KeyboardEvent *key)
 						snprintf(InputString, sizeof(InputString), "/%s ", cmd_buf);
 						InputCount = CurrentCursorPos = (int) strlen(InputString);
 					}
+
+					return 1;
 				}
 
 				break;
@@ -142,7 +146,8 @@ void key_string_event(SDL_KeyboardEvent *key)
 					CurrentCursorPos -= (ii - i);
 					InputCount -= (ii - i);
 				}
-				break;
+
+				return 1;
 
 				/* Shifts a character or a word if CTRL is pressed */
 			case SDLK_LEFT:
@@ -164,7 +169,7 @@ void key_string_event(SDL_KeyboardEvent *key)
 				else if (CurrentCursorPos > 0)
 					CurrentCursorPos--;
 
-				break;
+				return 1;
 
 				/* Shifts a character or a word if CTRL is pressed */
 			case SDLK_RIGHT:
@@ -186,7 +191,7 @@ void key_string_event(SDL_KeyboardEvent *key)
 				else if (CurrentCursorPos < InputCount)
 					CurrentCursorPos++;
 
-				break;
+				return 1;
 
 				/* If we are in CONSOLE mode, let player scroll back the lines in history */
 			case SDLK_UP:
@@ -202,7 +207,7 @@ void key_string_event(SDL_KeyboardEvent *key)
 					textwin_putstring(InputHistory[HistoryPos]);
 				}
 
-				break;
+				return 1;
 
 				/* If we are in CONSOLE mode, let player scroll forward the lines in history */
 			case SDLK_DOWN:
@@ -212,7 +217,7 @@ void key_string_event(SDL_KeyboardEvent *key)
 					textwin_putstring(InputHistory[HistoryPos]);
 				}
 
-				break;
+				return 1;
 
 			case SDLK_DELETE:
 			{
@@ -244,16 +249,16 @@ void key_string_event(SDL_KeyboardEvent *key)
 
 				InputCount -= (i - ii);
 
-				break;
+				return 1;
 			}
 
 			case SDLK_HOME:
 				CurrentCursorPos = 0;
-				break;
+				return 1;
 
 			case SDLK_END:
 				CurrentCursorPos = InputCount;
-				break;
+				return 1;
 
 			default:
 				/* If we are in number console mode, use GET as quick enter
@@ -363,12 +368,16 @@ void key_string_event(SDL_KeyboardEvent *key)
 							CurrentCursorPos++;
 							InputCount++;
 							InputString[InputCount] = 0;
+							return 1;
 						}
 					}
 				}
+
 				break;
 		}
 	}
+
+	return 0;
 }
 
 /**
