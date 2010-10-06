@@ -60,7 +60,7 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 
 	/* Is the mouse inside the button, and also not on top of button's
 	 * transparent pixel? */
-	if (mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h && getpixel(sprite->bitmap, mx - x, my - y))
+	if (mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
 	{
 		/* Change color. */
 		use_color = color_over;
