@@ -46,10 +46,16 @@ typedef struct popup_struct
 	 * ::ScreenSurface. */
 	SDL_Surface *overlay;
 
+	/** Custom data. */
+	void *custom_data;
+
+	/** Optional character pointer. */
+	char *buf;
+
 	/**
 	 * Function used for drawing on the popup's surface.
-	 * @param surface The popup's surface. */
-	void (*draw_func)(SDL_Surface *surface);
+	 * @param popup The popup. */
+	void (*draw_func)(struct popup_struct *popup);
 
 	/**
 	 * Function used for handling mouse/key events when popup is visible.

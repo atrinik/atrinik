@@ -80,6 +80,12 @@ static void popup_free(popup_struct *popup)
 {
 	SDL_FreeSurface(popup->surface);
 	SDL_FreeSurface(popup->overlay);
+
+	if (popup->buf)
+	{
+		free(popup->buf);
+	}
+
 	free(popup);
 }
 
@@ -148,7 +154,7 @@ void popup_draw()
 	/* Handle drawing inside the popup. */
 	if (popup_visible->draw_func)
 	{
-		popup_visible->draw_func(popup_visible->surface);
+		popup_visible->draw_func(popup_visible);
 	}
 
 	/* Show the popup in the middle of the screen. */
