@@ -55,6 +55,8 @@ enum
 	FONT_SANS10,
 	/** Serif, 10px. */
 	FONT_SERIF10,
+	/** Serif, 12px. */
+	FONT_SERIF12,
 	/** Arial, 10px. */
 	FONT_ARIAL10,
 
