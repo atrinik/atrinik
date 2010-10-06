@@ -553,7 +553,7 @@ static void list_scroll(list_struct *list, int up, int scroll)
  * Handle one key press.
  * @param list List to do the keypress for.
  * @param key The key.
- * @return 1 if we handled the key, 0 otherwise. */
+ * @return 1 to allow key repeating, 0 otherwise. */
 static int list_handle_key(list_struct *list, SDLKey key)
 {
 	switch (key)
@@ -585,7 +585,7 @@ static int list_handle_key(list_struct *list, SDLKey key)
 				list->handle_esc_func(list);
 			}
 
-			break;
+			return 0;
 
 		/* Enter. */
 		case SDLK_RETURN:
@@ -595,7 +595,7 @@ static int list_handle_key(list_struct *list, SDLKey key)
 				list->handle_enter_func(list);
 			}
 
-			break;
+			return 0;
 
 		/* Unhandled key. */
 		default:
