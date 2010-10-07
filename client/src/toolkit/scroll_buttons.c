@@ -65,7 +65,7 @@ static void scroll_buttons_show_one(SDL_Surface *surface, int x, int y, int *pos
 	/* Visual feedback so the user knows whether there is anything more
 	 * further up/down so they don't have to bother clicking the buttons
 	 * to find out. */
-	if (*pos + MAX(-1, MIN(1, advance)) < 1 || *pos + MAX(-1, MIN(1, advance)) > max_pos)
+	if (*pos + MAX(-1, MIN(1, advance)) < 0 || *pos + MAX(-1, MIN(1, advance)) > max_pos)
 	{
 		SDL_FillRect(surface, box, SDL_MapRGB(surface->format, 123, 115, 115));
 	}
