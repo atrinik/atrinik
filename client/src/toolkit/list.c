@@ -41,7 +41,7 @@ static int list_handle_key(list_struct *list, SDLKey key);
  * @param list List to draw the frame for. */
 static void list_draw_frame(list_struct *list)
 {
-	draw_frame(list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
+	draw_frame(ScreenSurface, list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
 }
 
 /**

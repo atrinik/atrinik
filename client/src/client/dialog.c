@@ -36,11 +36,12 @@ int dialog_yoff = 0;
 
 /**
  * Draw a single frame.
+ * @param surface Surface to draw on.
  * @param x X position.
  * @param y Y position.
  * @param w Width of the frame.
  * @param h Height of the frame. */
-void draw_frame(int x, int y, int w, int h)
+void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
 {
 	SDL_Rect box;
 
@@ -48,18 +49,18 @@ void draw_frame(int x, int y, int w, int h)
 	box.y = y;
 	box.h = h;
 	box.w = 1;
-	SDL_FillRect(ScreenSurface, &box, sdl_gray4);
+	SDL_FillRect(surface, &box, sdl_gray4);
 	box.x = x + w;
 	box.h++;
-	SDL_FillRect(ScreenSurface, &box, sdl_gray3);
+	SDL_FillRect(surface, &box, sdl_gray3);
 	box.x = x;
 	box.y+= h;
 	box.w = w;
 	box.h = 1;
-	SDL_FillRect(ScreenSurface, &box, sdl_gray4);
+	SDL_FillRect(surface, &box, sdl_gray4);
 	box.x++;
 	box.y = y;
-	SDL_FillRect(ScreenSurface, &box, sdl_gray3);
+	SDL_FillRect(surface, &box, sdl_gray3);
 }
 
 /**

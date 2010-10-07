@@ -123,7 +123,7 @@ void show_keybind()
 	box.h = 12;
 
 	/* Frame for selection field */
-	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
+	draw_frame(ScreenSurface, box.x - 1, box.y + 11, box.w + 1, 313);
 	y2 = y;
 
 	/* Print keybind entries */

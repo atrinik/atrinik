@@ -64,7 +64,7 @@ sint8 curl_download_finished(curl_data *data);
 void curl_data_free(curl_data *data);
 
 /* client/dialog.c */
-void draw_frame(int x, int y, int w, int h);
+void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 void add_close_button(int x, int y, int menu);
 int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h);
 int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char *text_h);

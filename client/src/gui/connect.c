@@ -50,7 +50,7 @@ void show_login_server()
 	t = x + 275;
 	x += 170;
 	y += 100;
-	draw_frame(x - 3, y - 3, 211, 168);
+	draw_frame(ScreenSurface, x - 3, y - 3, 211, 168);
 	box.x = x - 2;
 	box.y = y - 2;
 	box.w = 210;

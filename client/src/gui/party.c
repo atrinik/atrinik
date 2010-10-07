@@ -176,10 +176,10 @@ void show_party()
 		box.h = 12;
 
 		/* Frame for selection field */
-		draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
+		draw_frame(ScreenSurface, box.x - 1, box.y + 11, box.w + 1, 313);
 
 		/* Frame for scrollbar */
-		draw_frame(box.x + box.w + 4, box.y + 11, 10, 313);
+		draw_frame(ScreenSurface, box.x + box.w + 4, box.y + 11, 10, 313);
 
 		/* Show scrollbar, and adjust its position by yoff */
 		blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], gui_interface_party->lines - 18, 8, gui_interface_party->yoff, -1, box.x + box.w + 5, box.y + 12);
@@ -339,10 +339,10 @@ void show_party()
 		box.h = 12;
 
 		/* Frame for selection field */
-		draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
+		draw_frame(ScreenSurface, box.x - 1, box.y + 11, box.w + 1, 313);
 
 		/* Frame for scrollbar */
-		draw_frame(box.x + box.w + 4, box.y + 11, 10, 313);
+		draw_frame(ScreenSurface, box.x + box.w + 4, box.y + 11, 10, 313);
 
 		/* Show scrollbar, and adjust its position by yoff */
 		blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], gui_interface_party->lines - 18, 8, gui_interface_party->yoff, -1, box.x + box.w + 5, box.y + 12);
