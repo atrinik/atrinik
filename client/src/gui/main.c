@@ -57,11 +57,28 @@ static void news_popup_draw_func(popup_struct *popup)
 	if (popup->buf)
 	{
 		SDL_Rect box;
+		list_struct *list = list_exists(LIST_NEWS);
+		uint32 visible_lines, lines;
 
+		box.w = popup->surface->w;
+		/* Show the news title. */
+ 		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+
+		box.h = 240;
+		box.w = 315;
+		/* Skip rows we scrolled past. */
+		box.y = popup->i;
+		/* Calculate number of visible rows. */
+		visible_lines = box.h / FONT_HEIGHT(FONT_SERIF12);
 		/* Show the news. */
-		box.h = 350;
-		box.w = 320;
- 		string_blt(popup->surface, FONT_SERIF12, popup->buf, 120, 70, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+ 		string_blt(popup->surface, FONT_SERIF12, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_HEIGHT, &box);
+		/* NUmber of lines in the string. */
+		lines = box.h / FONT_HEIGHT(FONT_SERIF12);
+
+		box.x = 325;
+		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
+		/* Show scroll buttons. */
+		scroll_buttons_show(popup->surface, Screensize->x / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, Screensize->y / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i, lines - visible_lines + 1, visible_lines, &box);
 		return;
 	}
 	/* Haven't started downloading yet. */
@@ -110,7 +127,7 @@ static void news_popup_draw_func(popup_struct *popup)
 	}
 
 	/* Haven't downloaded the text yet, inform the user. */
-	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 120, 70, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
+	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 10, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER, NULL);
 }
 
 /** @copydoc popup_struct::event_func */
