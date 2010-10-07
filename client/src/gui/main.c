@@ -334,6 +334,7 @@ void show_meta_server()
 	size_t server_count;
 	server_struct *node;
 	char buf[MAX_BUF];
+	SDL_Rect box;
 
 	/* Active popup, no need to do anything. */
 	if (popup_get_visible() && !popup_overlay_need_update(popup_get_visible()))
@@ -410,8 +411,6 @@ void show_meta_server()
 	 * description. */
 	if (node)
 	{
-		SDL_Rect box;
-
 		snprintf(buf, sizeof(buf), "Version: %s", node->version);
 		string_blt_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 
@@ -434,6 +433,9 @@ void show_meta_server()
 
 	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 10;
 	sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
+
+	box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w;
+	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
 
 	list = list_exists(LIST_NEWS);
 
