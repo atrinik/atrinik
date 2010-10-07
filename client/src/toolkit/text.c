@@ -93,6 +93,39 @@ void text_deinit()
 }
 
 /**
+ * Get font's ID from its xxx.ttf name (not including path) and the pixel
+ * size.
+ * @param name The font name.
+ * @param size The size.
+ * @return The font ID, -1 if there is no such font. */
+static int get_font_id(const char *name, size_t size)
+{
+	size_t i;
+	const char *cp;
+
+	for (i = 0; i < FONTS_MAX; i++)
+	{
+		cp = strrchr(fonts[i].path, '/');
+
+		if (!cp)
+		{
+			cp = fonts[i].path;
+		}
+		else
+		{
+			cp++;
+		}
+
+		if (!strcmp(cp, name) && fonts[i].size == size)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+/**
  * Reset r, g, b values of 'color' to that of 'orig_color'.
  * @param surface If NULL, will not do anything.
  * @param color Values to copy to.
@@ -111,7 +144,8 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_c
 
 /**
  * Draw one character on the screen or parse markup (if applicable).
- * @param font Font to use. One of @ref FONT_xxx.
+ * @param[out] font Font to use. One of @ref FONT_xxx.
+ * @param orig_font Original font, used for the font tag.
  * @param surface Surface to draw on. If NULL, there is no drawing done,
  * but the return value is still calculated along with dest->w.
  * @param dest Destination, will have width (and x, if surface wasn't
@@ -123,7 +157,7 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_c
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags)
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags)
 {
 	int width;
 	char c = *cp;
@@ -242,7 +276,7 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) | TTF_STYLE_BOLD);
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
 			}
 
 			return 3;
@@ -251,7 +285,7 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) & ~TTF_STYLE_BOLD);
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
 			}
 
 			return 4;
@@ -261,7 +295,7 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) | TTF_STYLE_ITALIC);
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_ITALIC);
 			}
 
 			return 3;
@@ -270,7 +304,7 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) & ~TTF_STYLE_ITALIC);
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_ITALIC);
 			}
 
 			return 4;
@@ -280,7 +314,7 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) | TTF_STYLE_UNDERLINE);
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
 			}
 
 			return 3;
@@ -289,10 +323,58 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[font].font, TTF_GetFontStyle(fonts[font].font) & ~TTF_STYLE_UNDERLINE);
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
 			}
 
 			return 4;
+		}
+		/* Font change. */
+		else if (!strncmp(cp, "<font=", 6))
+		{
+			char *pos;
+
+			if (surface)
+			{
+				int font_size = 10;
+				char font_name[MAX_BUF];
+
+				if (sscanf(cp, "<font=%64[^ >] %d>", font_name, &font_size) >= 1)
+				{
+					int font_id = get_font_id(font_name, font_size);
+
+					if (font_id == -1)
+					{
+						LOG(llevBug, "blt_character(): Invalid font in string (%s, %d): %.80s.\n", font_name, font_size, cp);
+					}
+					else
+					{
+						*font = font_id;
+					}
+				}
+				else
+				{
+					return 6;
+				}
+			}
+
+			/* Get the position of the ending '>'. */
+			pos = strchr(cp, '>');
+
+			if (!pos)
+			{
+				return 6;
+			}
+
+			return pos - cp + 1;
+		}
+		else if (!strncmp(cp, "</font>", 7))
+		{
+			if (surface)
+			{
+				*font = orig_font;
+			}
+
+			return 7;
 		}
 	}
 
@@ -309,11 +391,11 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 		/* Render the character. */
 		if (flags & TEXT_SOLID)
 		{
-			ttf_surface = TTF_RenderText_Solid(fonts[font].font, buf, *color);
+			ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *color);
 		}
 		else
 		{
-			ttf_surface = TTF_RenderText_Blended(fonts[font].font, buf, *color);
+			ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *color);
 		}
 
 		/* Output the rendered character to the screen and free the
@@ -323,7 +405,7 @@ int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp
 	}
 
 	/* Get the glyph's metrics. */
-	if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, NULL, NULL, &width) != -1)
+	if (TTF_GlyphMetrics(fonts[*font].font, c, NULL, NULL, NULL, NULL, &width) != -1)
 	{
 		/* Update the x/w of the destination with the character's width. */
 		if (surface)
@@ -354,8 +436,9 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 {
 	const char *cp = text;
 	SDL_Rect dest;
-	int pos = 0, last_space = 0, is_lf, ret, skip, height = 0;
+	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
 	SDL_Color orig_color = color;
+	int orig_font = font;
 
 	/* Align to the center. */
 	if (box && flags & TEXT_ALIGN_CENTER)
@@ -368,6 +451,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	dest.y = y;
 	dest.w = 0;
 	height = 0;
+	max_height = 0;
 
 	while (cp[pos] != '\0')
 	{
@@ -401,21 +485,29 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			/* See if we should skip drawing. */
 			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(font) < box->y;
 
+			max_height = FONT_HEIGHT(font);
+
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
-				ret = blt_character(font, skip ? NULL : surface, &dest, cp, &color, orig_color, flags);
+				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, orig_color, flags);
 				cp += ret;
 				last_space -= ret;
+
+				/* If we changed font, there might be a larger one... */
+				if (font != orig_font && FONT_HEIGHT(font) > max_height)
+				{
+					max_height = FONT_HEIGHT(font);
+				}
 			}
 
 			/* Update the Y position. */
 			if (!skip)
 			{
-				dest.y += FONT_HEIGHT(font);
+				dest.y += max_height;
 			}
 
-			height += FONT_HEIGHT(font);
+			height += max_height;
 
 			/* Jump over the newline, if any. */
 			if (is_lf)
@@ -433,6 +525,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			last_space = pos = 0;
 			dest.w = 0;
 			dest.x = x;
+			max_height = 0;
 		}
 		else
 		{
@@ -444,14 +537,14 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(font, NULL, &dest, cp + pos, &color, orig_color, flags);
+			pos += blt_character(&font, font, NULL, &dest, cp + pos, &color, orig_color, flags);
 		}
 	}
 
 	/* Draw leftover characters. */
 	while (*cp != '\0')
 	{
-		cp += blt_character(font, surface, &dest, cp, &color, orig_color, flags);
+		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, orig_color, flags);
 	}
 
 	/* Give caller access to the calculated height. */
@@ -497,7 +590,7 @@ int string_get_width(int font, const char *text, int flags)
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(font, NULL, &dest, cp, NULL, (SDL_Color) {0, 0, 0, 0}, flags);
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, (SDL_Color) {0, 0, 0, 0}, flags);
 	}
 
 	return dest.w;

@@ -452,7 +452,7 @@ void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_p
 /* toolkit/text.c */
 void text_init();
 void text_deinit();
-int blt_character(int font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags);
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags);
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, int flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box);
 int string_get_width(int font, const char *text, int flags);

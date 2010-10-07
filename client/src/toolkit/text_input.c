@@ -95,7 +95,7 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 		/* Figure out the width by going backwards. */
 		while (pos > 0)
 		{
-			blt_character(font, NULL, &box, cp + pos, NULL, (SDL_Color) {0, 0, 0, 0}, 0);
+			blt_character(&font, font, NULL, &box, cp + pos, NULL, (SDL_Color) {0, 0, 0, 0}, 0);
 			pos--;
 
 			/* Reach the maximum yet? */
