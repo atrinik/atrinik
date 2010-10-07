@@ -64,8 +64,8 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Show the news title. */
  		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
-		box.h = 240;
-		box.w = 315;
+		box.h = 260;
+		box.w = 455;
 		/* Skip rows we scrolled past. */
 		box.y = popup->i;
 		/* Calculate number of visible rows. */
@@ -75,7 +75,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* NUmber of lines in the string. */
 		lines = box.h / FONT_HEIGHT(FONT_SERIF12);
 
-		box.x = 325;
+		box.x = Bitmaps[popup->bitmap_id]->bitmap->w - 30;
 		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
 		/* Show scroll buttons. */
 		scroll_buttons_show(popup->surface, Screensize->x / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, Screensize->y / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i, lines - visible_lines + 1, visible_lines, &box);
