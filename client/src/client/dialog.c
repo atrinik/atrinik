@@ -49,18 +49,18 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
 	box.y = y;
 	box.h = h;
 	box.w = 1;
-	SDL_FillRect(surface, &box, sdl_gray4);
+	SDL_FillRect(surface, &box, ScreenSurface ? sdl_gray4 : SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
 	box.x = x + w;
 	box.h++;
-	SDL_FillRect(surface, &box, sdl_gray3);
+	SDL_FillRect(surface, &box, ScreenSurface ? sdl_gray3 : SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
 	box.x = x;
 	box.y+= h;
 	box.w = w;
 	box.h = 1;
-	SDL_FillRect(surface, &box, sdl_gray4);
+	SDL_FillRect(surface, &box, ScreenSurface ? sdl_gray4 : SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
 	box.x++;
 	box.y = y;
-	SDL_FillRect(surface, &box, sdl_gray3);
+	SDL_FillRect(surface, &box, ScreenSurface ? sdl_gray3 : SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
 }
 
 /**
