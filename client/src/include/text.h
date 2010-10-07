@@ -76,6 +76,14 @@ enum
 #define TEXT_SOLID 4
 /** Align the text to center of box's width. */
 #define TEXT_ALIGN_CENTER 8
+/**
+ * Instead of quitting drawing when maximum height passed was reached,
+ * continue going on, but without doing any more drawing, and store the
+ * final height in box->h (where the initial height limit came from).
+ *
+ * If this flag is passed, you can also specify skipping # of rows in
+ * the box's 'y'. */
+#define TEXT_HEIGHT 16
 /*@}*/
 
 /**

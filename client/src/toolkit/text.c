@@ -337,7 +337,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 {
 	const char *cp = text;
 	SDL_Rect dest;
-	int pos = 0, last_space = 0, is_lf, ret;
+	int pos = 0, last_space = 0, is_lf, ret, skip, height = 0;
 	SDL_Color orig_color = color;
 
 	/* Align to the center. */
@@ -350,13 +350,23 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	dest.x = x;
 	dest.y = y;
 	dest.w = 0;
+	height = 0;
 
 	while (cp[pos] != '\0')
 	{
 		/* Have we gone over the height limit yet? */
-		if (box && box->h && dest.y + 12 - y > box->h)
+		if (box && box->h && dest.y + FONT_HEIGHT(font) - y > box->h)
 		{
-			return;
+			/* We are calculating height, keep going on but without any
+			 * more drawing. */
+			if (flags & TEXT_HEIGHT)
+			{
+				surface = NULL;
+			}
+			else
+			{
+				return;
+			}
 		}
 
 		is_lf = cp[pos] == '\n';
@@ -371,16 +381,24 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				last_space = pos;
 			}
 
+			/* See if we should skip drawing. */
+			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(font) < box->y;
+
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
-				ret = blt_character(font, surface, &dest, cp, &color, orig_color, flags);
+				ret = blt_character(font, skip ? NULL : surface, &dest, cp, &color, orig_color, flags);
 				cp += ret;
 				last_space -= ret;
 			}
 
 			/* Update the Y position. */
-			dest.y += 12;
+			if (!skip)
+			{
+				dest.y += FONT_HEIGHT(font);
+			}
+
+			height += FONT_HEIGHT(font);
 
 			/* Jump over the newline, if any. */
 			if (is_lf)
@@ -417,6 +435,12 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	while (*cp != '\0')
 	{
 		cp += blt_character(font, surface, &dest, cp, &color, orig_color, flags);
+	}
+
+	/* Give caller access to the calculated height. */
+	if (box && flags & TEXT_HEIGHT)
+	{
+		box->h = height;
 	}
 }
 
