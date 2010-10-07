@@ -51,14 +51,48 @@ typedef struct font_struct
  * The font IDs. */
 enum
 {
-	/** Sans, 10px, good for general drawing. */
+	/** Sans, 8px. */
+	FONT_SANS8,
+	/** Sans, 10px. */
 	FONT_SANS10,
+	/** Sans, 12px. */
+	FONT_SANS12,
+	/** Sans, 14px. */
+	FONT_SANS14,
+	/** Sans, 16px. */
+	FONT_SANS16,
+	/** Sans, 18px. */
+	FONT_SANS18,
+	/** Sans, 20px. */
+	FONT_SANS20,
+	/** Serif, 8px. */
+	FONT_SERIF8,
 	/** Serif, 10px. */
 	FONT_SERIF10,
 	/** Serif, 12px. */
 	FONT_SERIF12,
-	/** Arial, 10px. */
+	/** Serif, 14px. */
+	FONT_SERIF14,
+	/** Serif, 16px. */
+	FONT_SERIF16,
+	/** Serif, 18px. */
+	FONT_SERIF18,
+	/** Serif, 20px. */
+	FONT_SERIF20,
+	/** Arial, 8px. */
+	FONT_ARIAL8,
+	/** Arial, 10px, good for general drawing (looks the same across systems). */
 	FONT_ARIAL10,
+	/** Arial, 12px. */
+	FONT_ARIAL12,
+	/** Arial, 14px. */
+	FONT_ARIAL14,
+	/** Arial, 16px. */
+	FONT_ARIAL16,
+	/** Arial, 18px. */
+	FONT_ARIAL18,
+	/** Arial, 20px. */
+	FONT_ARIAL20,
 
 	/** Number of the fonts. */
 	FONTS_MAX

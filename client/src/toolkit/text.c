@@ -32,10 +32,27 @@
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
+	{"fonts/vera/sans.ttf", 8, NULL, 0},
 	{"fonts/vera/sans.ttf", 10, NULL, 0},
+	{"fonts/vera/sans.ttf", 12, NULL, 0},
+	{"fonts/vera/sans.ttf", 14, NULL, 0},
+	{"fonts/vera/sans.ttf", 16, NULL, 0},
+	{"fonts/vera/sans.ttf", 18, NULL, 0},
+	{"fonts/vera/sans.ttf", 20, NULL, 0},
+	{"fonts/vera/serif.ttf", 8, NULL, 0},
 	{"fonts/vera/serif.ttf", 10, NULL, 0},
 	{"fonts/vera/serif.ttf", 12, NULL, 0},
-	{"fonts/arial.ttf", 10, NULL, 0}
+	{"fonts/vera/serif.ttf", 14, NULL, 0},
+	{"fonts/vera/serif.ttf", 16, NULL, 0},
+	{"fonts/vera/serif.ttf", 18, NULL, 0},
+	{"fonts/vera/serif.ttf", 20, NULL, 0},
+	{"fonts/arial.ttf", 8, NULL, 0},
+	{"fonts/arial.ttf", 10, NULL, 0},
+	{"fonts/arial.ttf", 12, NULL, 0},
+	{"fonts/arial.ttf", 14, NULL, 0},
+	{"fonts/arial.ttf", 16, NULL, 0},
+	{"fonts/arial.ttf", 18, NULL, 0},
+	{"fonts/arial.ttf", 20, NULL, 0}
 };
 
 /**
