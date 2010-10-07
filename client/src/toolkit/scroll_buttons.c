@@ -49,10 +49,11 @@
  * @param x X position.
  * @param y Y position.
  * @param pos Pointer to integer storing the current position.
+ * @param max_pos Maximum possible value for 'pos'.
  * @param advance How many rows to advance when using the custom-scroll
  * buttons.
  * @param box Positions for the box. */
-static void scroll_buttons_show_one(SDL_Surface *surface, int x, int y, int *pos, int advance, SDL_Rect *box)
+static void scroll_buttons_show_one(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box)
 {
 	int state, mx, my;
 
@@ -61,8 +62,15 @@ static void scroll_buttons_show_one(SDL_Surface *surface, int x, int y, int *pos
 
 	state = SDL_GetMouseState(&mx, &my);
 
+	/* Visual feedback so the user knows whether there is anything more
+	 * further up/down so they don't have to bother clicking the buttons
+	 * to find out. */
+	if (*pos + MAX(-1, MIN(1, advance)) < 1 || *pos + MAX(-1, MIN(1, advance)) > max_pos)
+	{
+		SDL_FillRect(surface, box, SDL_MapRGB(surface->format, 123, 115, 115));
+	}
 	/* Mouse over the button? */
-	if (mx > x && mx < x + box->w && my > y && my < y + box->h)
+	else if (mx > x && mx < x + box->w && my > y && my < y + box->h)
 	{
 		/* Clicked? */
 		if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
@@ -105,19 +113,19 @@ void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_p
 
 	/* Show each of the buttons, color them depending on the mouse's
 	 * status, and show the arrow's bitmap. */
-	scroll_buttons_show_one(surface, x, y, pos, -advance, box);
+	scroll_buttons_show_one(surface, x, y, pos, max_pos, -advance, box);
 	sprite_blt(Bitmaps[BITMAP_ARROW_UP2], box->x + box->w / 2 - Bitmaps[BITMAP_ARROW_UP2]->bitmap->w / 2, box->y + box->h / 2 - Bitmaps[BITMAP_ARROW_UP2]->bitmap->h / 2, NULL, &bltfx);
 	y += 30;
 	box->y += 30;
-	scroll_buttons_show_one(surface, x, y, pos, -1, box);
+	scroll_buttons_show_one(surface, x, y, pos, max_pos, -1, box);
 	sprite_blt(Bitmaps[BITMAP_ARROW_UP], box->x + box->w / 2 - Bitmaps[BITMAP_ARROW_UP]->bitmap->w / 2, box->y + box->h / 2 - Bitmaps[BITMAP_ARROW_UP]->bitmap->h / 2, NULL, &bltfx);
 	y += 30;
 	box->y += 30;
-	scroll_buttons_show_one(surface, x, y, pos, 1, box);
+	scroll_buttons_show_one(surface, x, y, pos, max_pos, 1, box);
 	sprite_blt(Bitmaps[BITMAP_ARROW_DOWN], box->x + box->w / 2 - Bitmaps[BITMAP_ARROW_DOWN]->bitmap->w / 2, box->y + box->h / 2 - Bitmaps[BITMAP_ARROW_DOWN]->bitmap->h / 2, NULL, &bltfx);
 	y += 30;
 	box->y += 30;
-	scroll_buttons_show_one(surface, x, y, pos, advance, box);
+	scroll_buttons_show_one(surface, x, y, pos, max_pos, advance, box);
 	sprite_blt(Bitmaps[BITMAP_ARROW_DOWN2], box->x + box->w / 2 - Bitmaps[BITMAP_ARROW_DOWN2]->bitmap->w / 2, box->y + box->h / 2 - Bitmaps[BITMAP_ARROW_DOWN2]->bitmap->h / 2, NULL, &bltfx);
 
 	/* Check out of bounds values. */
