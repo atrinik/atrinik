@@ -52,6 +52,9 @@ typedef struct popup_struct
 	/** Optional character pointer. */
 	char *buf;
 
+	/** Optional integer. */
+	sint64 i;
+
 	/**
 	 * Function used for drawing on the popup's surface.
 	 * @param popup The popup. */
