@@ -447,6 +447,9 @@ void popup_draw();
 int popup_handle_event(SDL_Event *event);
 popup_struct *popup_get_visible();
 
+/* toolkit/range_buttons.c */
+int range_buttons_show(int x, int y, int *val, int advance);
+
 /* toolkit/scroll_buttons.c */
 void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 
