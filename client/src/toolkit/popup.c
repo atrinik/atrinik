@@ -175,6 +175,11 @@ void popup_draw()
 	box.x = Screensize->x / 2 - popup_visible->surface->w / 2;
 	box.y = Screensize->y / 2 - popup_visible->surface->h / 2;
 	SDL_BlitSurface(popup_visible->surface, NULL, ScreenSurface, &box);
+
+	if (popup_visible->draw_func_post)
+	{
+		popup_visible->draw_func_post(popup_visible, box.x, box.y);
+	}
 }
 
 /**
