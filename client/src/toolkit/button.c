@@ -47,9 +47,11 @@
  * to use 'color'.
  * @param color_over_shadow Shadow color to use when the mouse is over
  * the button. -1 to use 'color_shadow'.
+ * @param ticks Optional pointer to buffer for ticks count to prevent a
+ * single click triggering more than one button action.
  * @return 1 if left mouse button is being held over the button, 0
  * otherwise. */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow)
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint32 *ticks)
 {
 	_Sprite *sprite = Bitmaps[bitmap_id];
 	int mx, my, ret = 0, state;
@@ -67,12 +69,17 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 		use_color_shadow = color_over_shadow;
 
 		/* Left button clicked? */
-		if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
+		if (state == SDL_BUTTON(SDL_BUTTON_LEFT) && (!ticks || SDL_GetTicks() - *ticks > 125))
 		{
 			/* Change bitmap. */
 			if (bitmap_id_clicked != -1)
 			{
 				sprite = Bitmaps[bitmap_id_clicked];
+			}
+
+			if (ticks)
+			{
+				*ticks = SDL_GetTicks();
 			}
 
 			ret = 1;
