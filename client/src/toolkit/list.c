@@ -766,7 +766,7 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event)
 	for (tmp = list_head; tmp; tmp = tmp->next)
 	{
 		/* Check whether the mouse is inside the list. */
-		if (mx > tmp->x && mx < tmp->x + tmp->width && my > tmp->y && my < tmp->y + LIST_HEIGHT_FULL(tmp))
+		if (LIST_MOUSE_OVER(tmp, mx, my))
 		{
 			/* Left mouse button was pressed, update focused list. */
 			if (event->type == SDL_MOUSEBUTTONDOWN)
