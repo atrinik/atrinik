@@ -98,7 +98,7 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 			blt_character(&font, font, NULL, &box, cp + pos, NULL, (SDL_Color) {0, 0, 0, 0}, 0);
 			pos--;
 
-			/* Reach the maximum yet? */
+			/* Reached the maximum yet? */
 			if (box.w > Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 26)
 			{
 				break;
