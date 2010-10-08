@@ -685,7 +685,7 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
  * @param mx Mouse X.
  * @param my Mouse Y.
  * @param event Event. */
-static void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
+void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 {
 	uint32 row;
 

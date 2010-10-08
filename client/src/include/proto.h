@@ -434,6 +434,7 @@ void list_show(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
 int lists_handle_keyboard(SDL_KeyboardEvent *event);
+void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
