@@ -30,7 +30,7 @@
 #include <include.h>
 
 /**
- * Ticks button to prevent single button click from triggering many
+ * Last clicked ticks to prevent single button click from triggering many
  * actions at once. */
 static uint32 ticks = 0;
 
