@@ -79,6 +79,20 @@ enum
 	FONT_SERIF18,
 	/** Serif, 20px. */
 	FONT_SERIF20,
+	/** Mono, 8px. */
+	FONT_MONO8,
+	/** Mono, 10px. */
+	FONT_MONO10,
+	/** Mono, 12px. */
+	FONT_MONO12,
+	/** Mono, 14px. */
+	FONT_MONO14,
+	/** Mono, 16px. */
+	FONT_MONO16,
+	/** Mono, 18px. */
+	FONT_MONO18,
+	/** Mono, 20px. */
+	FONT_MONO20,
 	/** Arial, 8px. */
 	FONT_ARIAL8,
 	/** Arial, 10px, good for general drawing (looks the same across systems). */
