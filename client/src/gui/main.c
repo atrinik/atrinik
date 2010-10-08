@@ -161,7 +161,9 @@ static void popup_draw_func(popup_struct *popup)
 	/* Waiting to log in. */
 	if (GameStatus == GAME_STATUS_WAITFORPLAY)
 	{
-		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
+		box.h = Bitmaps[popup->bitmap_id]->bitmap->h;
+		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		return;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
