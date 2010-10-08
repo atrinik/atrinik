@@ -132,6 +132,10 @@ enum
  * If this flag is passed, you can also specify skipping # of rows in
  * the box's 'y'. */
 #define TEXT_HEIGHT 16
+/**
+ * Vertically center the text to that of the passed box's height. Note
+ * that this will NOT take font tag changing into account. */
+#define TEXT_VALIGN_CENTER 32
 /*@}*/
 
 /**

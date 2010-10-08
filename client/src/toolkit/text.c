@@ -468,6 +468,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		x += box->w / 2 - string_get_width(font, text, flags) / 2;
 	}
 
+	if (box && flags & TEXT_VALIGN_CENTER)
+	{
+		y += box->h / 2 - FONT_HEIGHT(font) / 2;
+	}
+
 	/* Store the x/y. */
 	dest.x = x;
 	dest.y = y;
