@@ -691,6 +691,12 @@ static void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *even
 
 	(void) mx;
 
+	/* Left mouse button was pressed, update focused list. */
+	if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		list_set_focus(list);
+	}
+
 	/* No row is highlighted now. Will be switched back on as needed
 	 * below. */
 	list->row_highlighted = 0;
@@ -768,12 +774,6 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event)
 		/* Check whether the mouse is inside the list. */
 		if (LIST_MOUSE_OVER(tmp, mx, my))
 		{
-			/* Left mouse button was pressed, update focused list. */
-			if (event->type == SDL_MOUSEBUTTONDOWN)
-			{
-				list_set_focus(tmp);
-			}
-
 			/* Handle the actual mouse for this list. */
 			list_handle_mouse(tmp, mx, my, event);
 			return 1;
