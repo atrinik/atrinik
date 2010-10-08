@@ -166,7 +166,7 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_c
  * actually drawn. */
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags)
 {
-	int width;
+	int width, ret = 1;
 	char c = *cp;
 
 	/* Doing markup? */
@@ -385,6 +385,21 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
+	/* Parse entities. */
+	if (flags & TEXT_MARKUP && c == '&')
+	{
+		if (!strncmp(cp, "&lt;", 4))
+		{
+			c = '<';
+			ret = 4;
+		}
+		else if (!strncmp(cp, "&gt;", 4))
+		{
+			c = '>';
+			ret = 4;
+		}
+	}
+
 	/* Draw the character (unless it's a space, since there's no point in
 	 * drawing whitespace). */
 	if (surface && c != ' ')
@@ -423,7 +438,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		dest->w += width;
 	}
 
-	return 1;
+	return ret;
 }
 
 /**
