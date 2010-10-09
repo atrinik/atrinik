@@ -137,6 +137,7 @@ int isqrt(int n);
 char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
+void srv_file_init(int srv, const char *file);
 
 /* client/player.c */
 void clear_player();
@@ -181,9 +182,8 @@ void script_unload(const char *params);
 
 /* client/server_settings.c */
 int get_bmap_id(char *name);
-void load_settings();
-void read_settings();
-void delete_server_chars();
+void server_settings_init();
+void server_settings_deinit();
 
 /* client/socket.c */
 void command_buffer_free(command_buffer *buf);

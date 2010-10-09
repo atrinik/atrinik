@@ -790,7 +790,7 @@ static int game_status_chain()
 	{
 		map_transfer_flag = 0;
 
-		srv_client_files[SRV_CLIENT_SETTINGS].status = SRV_CLIENT_STATUS_OK;
+		srv_client_files[SRV_SERVER_SETTINGS].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_CLIENT_BMAPS].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_CLIENT_ANIMS].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_CLIENT_HFILES].status = SRV_CLIENT_STATUS_OK;
@@ -798,7 +798,7 @@ static int game_status_chain()
 		srv_client_files[SRV_FILE_SPELLS_V2].status = SRV_CLIENT_STATUS_OK;
 		srv_client_files[SRV_FILE_UPDATES].status = SRV_CLIENT_STATUS_OK;
 
-		snprintf(buf, sizeof(buf), "setup sound %d map2cmd 1 mapsize %dx%d darkness 1 facecache 1 skf %d|%x spfv2 %d|%x bpf %d|%x stf %d|%x amf %d|%x hpf %d|%x upf %d|%x", SoundStatus, MapStatusX, MapStatusY, srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc, srv_client_files[SRV_FILE_SPELLS_V2].len, srv_client_files[SRV_FILE_SPELLS_V2].crc, srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc, srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc, srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc, srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc, srv_client_files[SRV_FILE_UPDATES].len, srv_client_files[SRV_FILE_UPDATES].crc);
+		snprintf(buf, sizeof(buf), "setup sound %d map2cmd 1 mapsize %dx%d darkness 1 facecache 1 skf %d|%x spfv2 %d|%x bpf %d|%x ssf %d|%x amf %d|%x hpf %d|%x upf %d|%x", SoundStatus, MapStatusX, MapStatusY, srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc, srv_client_files[SRV_FILE_SPELLS_V2].len, srv_client_files[SRV_FILE_SPELLS_V2].crc, srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc, srv_client_files[SRV_SERVER_SETTINGS].len, srv_client_files[SRV_SERVER_SETTINGS].crc, srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc, srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc, srv_client_files[SRV_FILE_UPDATES].len, srv_client_files[SRV_FILE_UPDATES].crc);
 
 		cs_write_string(buf, strlen(buf));
 		request_file_chain = 0;
@@ -809,10 +809,10 @@ static int game_status_chain()
 	{
 		if (request_file_chain == 0)
 		{
-			if (srv_client_files[SRV_CLIENT_SETTINGS].status == SRV_CLIENT_STATUS_UPDATE)
+			if (srv_client_files[SRV_SERVER_SETTINGS].status == SRV_CLIENT_STATUS_UPDATE)
 			{
 				request_file_chain = 1;
-				RequestFile(SRV_CLIENT_SETTINGS);
+				RequestFile(SRV_SERVER_SETTINGS);
 			}
 			else
 			{
@@ -894,12 +894,12 @@ static int game_status_chain()
 		else if (request_file_chain == 14)
 		{
 			read_skills();
-			read_settings();
+			srv_file_init(SRV_SERVER_SETTINGS, FILE_SERVER_SETTINGS);
 			read_bmaps();
 			read_bmap_tmp();
 			read_anims();
 			read_anim_tmp();
-			load_settings();
+			server_settings_init();
 			read_help_files();
 			file_updates_init();
 			file_updates_parse();
@@ -1551,7 +1551,7 @@ int main(int argc, char *argv[])
 	read_bmaps_p0();
 	show_intro("Load picture data");
 
-	read_settings();
+	srv_file_init(SRV_SERVER_SETTINGS, FILE_SERVER_SETTINGS);
 	show_intro("Load settings");
 
 	read_skills();

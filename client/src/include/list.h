@@ -173,6 +173,8 @@ typedef struct list_struct
 #define LIST_SERVERS 1
 /** List of game news, right of the servers list. */
 #define LIST_NEWS 2
+/** List for use of displaying data in character creation screen. */
+#define LIST_CREATION 3
 /*@}*/
 
 /** Calculate list's row height. */

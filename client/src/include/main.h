@@ -171,7 +171,7 @@ extern int bmaptype_table_size;
 
 #define FILE_CLIENT_SPELLS "srv_files/client_spells"
 #define FILE_CLIENT_SKILLS "srv_files/client_skills"
-#define FILE_CLIENT_SETTINGS "srv_files/client_settings"
+#define FILE_SERVER_SETTINGS "srv_files/server_settings"
 #define FILE_CLIENT_BMAPS "srv_files/client_bmap"
 #define FILE_CLIENT_ANIMS "srv_files/client_anims"
 #define FILE_CLIENT_HFILES "srv_files/help_files"
@@ -187,6 +187,7 @@ enum
 	SRV_CLIENT_HFILES,
 	SRV_FILE_UPDATES,
 	SRV_FILE_SPELLS_V2,
+	SRV_SERVER_SETTINGS,
 	/* last index */
 	SRV_CLIENT_FILES
 };
@@ -339,6 +340,8 @@ typedef struct _face_struct
 
 	int flags;
 }_face_struct;
+
+#define NUM_STATS 7
 
 #define GOLEM_CTR_RELEASE  	0
 #define GOLEM_CTR_ADD	   	1
@@ -862,5 +865,6 @@ extern SDL_Surface *ScreenSurfaceMap;
 
 /* Server's attributes */
 extern struct sockaddr_in insock;
+
 
 #endif

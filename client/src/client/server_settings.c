@@ -25,9 +25,12 @@
 
 /**
  * @file
- *  */
+ * Server settings. */
 
 #include <include.h>
+
+/** Server settings. */
+server_settings *s_settings = NULL;
 
 /**
  * Find a face ID by name. Request the face by finding it, loading it or requesting it.
@@ -61,216 +64,165 @@ int get_bmap_id(char *name)
 }
 
 /**
- * Load settings file. */
-void load_settings()
+ * Initialize the server settings from the srv file. */
+void server_settings_init()
 {
-	FILE *stream;
-	char buf[HUGE_BUF], buf1[HUGE_BUF], buf2[HUGE_BUF];
-	char cmd[HUGE_BUF];
-	char para[HUGE_BUF];
-	int para_count = 0, last_cmd = 0;
-	int tmp_level = 0;
+	FILE *fp;
+	char buf[HUGE_BUF], *cp;
+	int line = 0;
+	char_struct *cur_char;
 
-	delete_server_chars();
-	LOG(llevInfo, "Loading %s...\n", FILE_CLIENT_SETTINGS);
+	fp = fopen_wrapper(FILE_SERVER_SETTINGS, "rb");
 
-	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
+	if (!fp)
 	{
-		while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
-		{
-			if (buf[0] == '#' || buf[0] == '\0')
-				continue;
-
-			if (last_cmd == 0)
-			{
-				sscanf(adjust_string(buf), "%s %s", cmd, para);
-
-				if (!strcmp(cmd, "char"))
-				{
-					_server_char *serv_char = malloc( sizeof(_server_char));
-
-					memset(serv_char, 0, sizeof(_server_char));
-					/* Copy name */
-					serv_char->name = malloc(strlen(para) + 1);
-					strcpy(serv_char->name, para);
-
-					/* Get next legal line */
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					sscanf(adjust_string(buf), "%s %d %d %d %d %d %d", buf1, &serv_char->bar[0], &serv_char->bar[1], &serv_char->bar[2], &serv_char->bar_add[0], &serv_char->bar_add[1], &serv_char->bar_add[2]);
-
-					serv_char->pic_id = get_bmap_id(buf1);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					sscanf(adjust_string(buf), "%d %s %s", &serv_char->gender[0], buf1, buf2);
-					serv_char->char_arch[0] = malloc(strlen(buf1) + 1);
-					strcpy(serv_char->char_arch[0], buf1);
-					serv_char->face_id[0] = get_bmap_id(buf2);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					sscanf(adjust_string(buf), "%d %s %s", &serv_char->gender[1], buf1, buf2);
-					serv_char->char_arch[1] = malloc(strlen(buf1) + 1);
-					strcpy(serv_char->char_arch[1], buf1);
-					serv_char->face_id[1] = get_bmap_id(buf2);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					sscanf(adjust_string(buf), "%d %s %s", &serv_char->gender[2], buf1, buf2);
-					serv_char->char_arch[2] = malloc(strlen(buf1) + 1);
-					strcpy(serv_char->char_arch[2], buf1);
-					serv_char->face_id[2] = get_bmap_id(buf2);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					sscanf(adjust_string(buf),"%d %s %s", &serv_char->gender[3], buf1, buf2);
-					serv_char->char_arch[3] = malloc(strlen(buf1) + 1);
-					strcpy(serv_char->char_arch[3], buf1);
-					serv_char->face_id[3] = get_bmap_id(buf2);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					sscanf(adjust_string(buf), "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &serv_char->stat_points, &serv_char->stats[0], &serv_char->stats_min[0], &serv_char->stats_max[0], &serv_char->stats[1], &serv_char->stats_min[1], &serv_char->stats_max[1], &serv_char->stats[2], &serv_char->stats_min[2], &serv_char->stats_max[2], &serv_char->stats[3], &serv_char->stats_min[3], &serv_char->stats_max[3], &serv_char->stats[4], &serv_char->stats_min[4], &serv_char->stats_max[4], &serv_char->stats[5], &serv_char->stats_min[5], &serv_char->stats_max[5], &serv_char->stats[6], &serv_char->stats_min[6], &serv_char->stats_max[6]);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					serv_char->desc[0] = malloc(strlen(adjust_string(buf)) + 1);
-					strcpy(serv_char->desc[0], buf);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					serv_char->desc[1] = malloc(strlen(adjust_string(buf)) + 1);
-					strcpy(serv_char->desc[1], buf);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					serv_char->desc[2] = malloc(strlen(adjust_string(buf)) + 1);
-					strcpy(serv_char->desc[2], buf);
-
-					while (fgets(buf, HUGE_BUF - 1, stream) != NULL && (buf[0] == '#' || buf[0] == '\0'));
-
-					serv_char->desc[3] = malloc(strlen(adjust_string(buf)) + 1);
-					strcpy(serv_char->desc[3], buf);
-
-					/* Add this char template to list */
-					if (!first_server_char)
-						first_server_char = serv_char;
-					else
-					{
-						_server_char *tmpc;
-
-						for (tmpc = first_server_char; tmpc->next; tmpc = tmpc->next);
-
-						tmpc->next = serv_char;
-						serv_char->prev = tmpc;
-					}
-				}
-				else if (!strcmp(cmd, "level"))
-				{
-					tmp_level = atoi(para);
-
-					if (tmp_level < 0 || tmp_level > 450)
-					{
-						fclose(stream);
-						LOG(llevBug, "load_settings(): Level command out of bounds! >%s<\n", buf);
-						return;
-					}
-
-					server_level.level = tmp_level;
-					/* Command 'level' */
-					last_cmd = 1;
-					para_count = 0;
-				}
-				/* We close here... better we include later a fallback to login */
-				else
-				{
-					fclose(stream);
-					LOG(llevBug, "Unknown command in client_settings! >%s<\n", buf);
-					return;
-				}
-			}
-			else if (last_cmd == 1)
-			{
-				server_level.exp[para_count++] = strtoull(buf, NULL, 16);
-
-				if (para_count >tmp_level)
-					last_cmd = 0;
-			}
-		}
-
-		fclose(stream);
+		return;
 	}
 
-	if (first_server_char)
+	server_settings_deinit();
+	s_settings = calloc(1, sizeof(server_settings));
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
-		int g;
+		line++;
 
-		memcpy(&new_character, first_server_char, sizeof(_server_char));
-
-		/* Adjust gender */
-		for (g = 0; g < 4; g++)
+		if (*buf == '#')
 		{
-			if (new_character.gender[g])
+			continue;
+		}
+
+		cp = strrchr(buf, '\n');
+
+		/* Eliminate newline. */
+		if (cp)
+		{
+			*cp = '\0';
+		}
+
+		if (*buf == '\0')
+		{
+			continue;
+		}
+
+		/* Parse the command. Unknown commands will be silently ignored. */
+		if (!strncmp(buf, "char ", 5))
+		{
+			s_settings->characters = reallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
+			cur_char = &s_settings->characters[s_settings->num_characters];
+			cur_char->name = strdup(buf + 5);
+		}
+		else if (!strncmp(buf, "base_hp ", 8))
+		{
+			cur_char->base_hp = atoi(buf + 8);
+		}
+		else if (!strncmp(buf, "base_sp ", 8))
+		{
+			cur_char->base_sp = atoi(buf + 8);
+		}
+		else if (!strncmp(buf, "base_grace ", 11))
+		{
+			cur_char->base_grace = atoi(buf + 11);
+		}
+		else if (!strncmp(buf, "gender ", 7))
+		{
+			char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
+			int gender_id;
+
+			if (sscanf(buf + 7, "%s %s %s", gender, arch, face) == 3)
 			{
-				new_character.gender_selected = g;
-				break;
+				gender_id = gender_to_id(gender);
+				cur_char->gender_archetypes[gender_id] = strdup(arch);
+				cur_char->gender_faces[gender_id] = strdup(face);
+			}
+		}
+		else if (!strncmp(buf, "points_max ", 11))
+		{
+			cur_char->points_max = atoi(buf + 11);
+		}
+		else if (!strncmp(buf, "stats_base ", 11))
+		{
+			if (sscanf(buf + 11, "%d %d %d %d %d %d %d", &cur_char->stats_base[0], &cur_char->stats_base[1], &cur_char->stats_base[2], &cur_char->stats_base[3], &cur_char->stats_base[4], &cur_char->stats_base[5], &cur_char->stats_base[6]) != 7)
+			{
+				LOG(llevBug, "Error in %s, line %d: not enough stats provided.\n", FILE_SERVER_SETTINGS, line);
+			}
+		}
+		else if (!strncmp(buf, "stats_min ", 10))
+		{
+			if (sscanf(buf + 10, "%d %d %d %d %d %d %d", &cur_char->stats_min[0], &cur_char->stats_min[1], &cur_char->stats_min[2], &cur_char->stats_min[3], &cur_char->stats_min[4], &cur_char->stats_min[5], &cur_char->stats_min[6]) != 7)
+			{
+				LOG(llevBug, "Error in %s, line %d: not enough stats provided.\n", FILE_SERVER_SETTINGS, line);
+			}
+		}
+		else if (!strncmp(buf, "stats_max ", 10))
+		{
+			if (sscanf(buf + 10, "%d %d %d %d %d %d %d", &cur_char->stats_max[0], &cur_char->stats_max[1], &cur_char->stats_max[2], &cur_char->stats_max[3], &cur_char->stats_max[4], &cur_char->stats_max[5], &cur_char->stats_max[6]) != 7)
+			{
+				LOG(llevBug, "Error in %s, line %d: not enough stats provided.\n", FILE_SERVER_SETTINGS, line);
+			}
+		}
+		else if (!strncmp(buf, "desc ", 5))
+		{
+			cur_char->desc = strdup(buf + 5);
+		}
+		else if (!strcmp(buf, "end"))
+		{
+			s_settings->num_characters++;
+		}
+		else if (!strncmp(buf, "level ", 6))
+		{
+			uint32 i;
+
+			s_settings->max_level = atoi(buf + 6);
+			s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 1));
+
+			for (i = 0; i <= s_settings->max_level; i++)
+			{
+				if (!fgets(buf, sizeof(buf) - 1, fp))
+				{
+					break;
+				}
+
+				s_settings->level_exp[i] = strtoull(buf, NULL, 16);
 			}
 		}
 	}
-}
 
-
-/**
- * Read settings file. */
-void read_settings()
-{
-	FILE *stream;
-	char *temp_buf;
-	struct stat statbuf;
-	int i;
-
-	srv_client_files[SRV_CLIENT_SETTINGS].len = 0;
-	srv_client_files[SRV_CLIENT_SETTINGS].crc = 0;
-	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_SETTINGS);
-
-	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
-	{
-		/* Temporary load the file and get the data we need for compare with server */
-		fstat(fileno(stream), &statbuf);
-		i = (int) statbuf.st_size;
-		srv_client_files[SRV_CLIENT_SETTINGS].len = i;
-		temp_buf = malloc(i);
-
-		if (fread(temp_buf, 1, i, stream))
-			srv_client_files[SRV_CLIENT_SETTINGS].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
-
-		free(temp_buf);
-		fclose(stream);
-	}
+	fclose(fp);
 }
 
 /**
- * In the settings file we have a list of character templates
- * for character building. This function deletes this list. */
-void delete_server_chars()
+ * Deinitialize the server settings. */
+void server_settings_deinit()
 {
-	_server_char *tmp, *tmp1;
+	size_t i, gender;
 
-	for (tmp1 = tmp = first_server_char; tmp1; tmp = tmp1)
+	if (!s_settings)
 	{
-		tmp1 = tmp->next;
-		free(tmp->name);
-		free(tmp->desc[0]);
-		free(tmp->desc[1]);
-		free(tmp->desc[2]);
-		free(tmp->desc[3]);
-		free(tmp->char_arch[0]);
-		free(tmp->char_arch[1]);
-		free(tmp->char_arch[2]);
-		free(tmp->char_arch[3]);
-		free(tmp);
+		return;
 	}
 
-	first_server_char = NULL;
+	free(s_settings->level_exp);
+
+	for (i = 0; i < s_settings->num_characters; i++)
+	{
+		free(s_settings->characters[i].name);
+		free(s_settings->characters[i].desc);
+
+		for (gender = 0; gender < GENDER_MAX; gender++)
+		{
+			if (s_settings->characters[i].gender_archetypes[gender])
+			{
+				free(s_settings->characters[i].gender_archetypes[gender]);
+			}
+
+			if (s_settings->characters[i].gender_faces[gender])
+			{
+				free(s_settings->characters[i].gender_faces[gender]);
+			}
+		}
+	}
+
+	free(s_settings->characters);
+	free(s_settings);
+	s_settings = NULL;
 }

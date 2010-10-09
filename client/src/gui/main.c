@@ -48,6 +48,19 @@ static uint32 eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8 eyes_draw = 1;
 
+/** Character creation step. */
+static int char_step = 0;
+/** Selected race. */
+static int char_race_selected;
+/** Selected @ref GENDER_xxx "gender". */
+static int char_gender_selected;
+/** Number of stat points left to assign. */
+static int char_points_left;
+/** Assigned stats points. */
+static int char_points_assigned[7];
+/** Maximum number of character creation steps. */
+const int char_step_max = 2;
+
 /**
  * Draw the news popup.
  * @param popup Popup. */
@@ -148,6 +161,210 @@ static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
 }
 
 /**
+ * (Re-)initialize character creation. Used when first showing the popup,
+ * or when using the 'Previous' buttons to reset the current data.
+ * @param list If not NULL, will be removed. */
+static void char_creation_reset(list_struct *list)
+{
+	/* Reset race. */
+	if (char_step == 0)
+	{
+		char_race_selected = 0;
+	}
+
+	/* Reset gender. */
+	if (char_step == 0 || char_step == 1)
+	{
+		char_gender_selected = 0;
+	}
+
+	/* Reset assigned points. */
+	if (char_step == 0 || char_step == 2)
+	{
+		memset(char_points_assigned, 0, sizeof(char_points_assigned));
+	}
+
+	/* Can we actually go back? */
+	if (char_step)
+	{
+		char_step--;
+	}
+
+	if (list)
+	{
+		list_remove(list);
+	}
+}
+
+/**
+ * Handle enter, double-clicking etc in character creation popup.
+ * @param list Associated list; holds the selected entry etc. Will be
+ * removed. */
+static void char_creation_enter(list_struct *list)
+{
+	char buf[MAX_BUF];
+
+	/* Picked race. */
+	if (char_step == 0)
+	{
+		char_race_selected = list->row_selected - 1;
+	}
+	/* Picked gender. */
+	else if (char_step == 1)
+	{
+		/* This is more complicated than the above, because we have to
+		 * change the gender's first letter back to lowercase, and find
+		 * its ID. */
+		strncpy(buf, list->text[list->row_selected - 1][0], sizeof(buf) - 1);
+		buf[0] = tolower(buf[0]);
+		buf[sizeof(buf) - 1] = '\0';
+		char_gender_selected = gender_to_id(buf);
+		/* Initialize maximum stat points that can be assigned. */
+		char_points_left = s_settings->characters[char_race_selected].points_max;
+	}
+	/* Selected stats, create the character. */
+	else if (char_step == 2)
+	{
+		snprintf(buf, sizeof(buf), "nc %s %d %d %d %d %d %d %d", s_settings->characters[char_race_selected].gender_archetypes[char_gender_selected], s_settings->characters[char_race_selected].stats_base[0] + char_points_assigned[0], s_settings->characters[char_race_selected].stats_base[1] + char_points_assigned[1], s_settings->characters[char_race_selected].stats_base[2] + char_points_assigned[2], s_settings->characters[char_race_selected].stats_base[3] + char_points_assigned[3], s_settings->characters[char_race_selected].stats_base[4] + char_points_assigned[4], s_settings->characters[char_race_selected].stats_base[5] + char_points_assigned[5], s_settings->characters[char_race_selected].stats_base[6] + char_points_assigned[6]);
+		cs_write_string(buf, strlen(buf));
+		return;
+	}
+
+	char_step++;
+
+	if (list)
+	{
+		list_remove(list);
+	}
+}
+
+/** @copydoc popup_struct::draw_func_post */
+static void popup_draw_func_post(popup_struct *popup, int x, int y)
+{
+	list_struct *list = NULL;
+
+	/* Not creating character, nothing to do. */
+	if (GameStatus != GAME_STATUS_NEW_CHAR)
+	{
+		return;
+	}
+
+	list = list_exists(LIST_CREATION);
+
+	if (!list)
+	{
+		size_t i;
+
+		/* Create a new list. */
+		list = list_create(LIST_CREATION, x + 20, y + 50, 7, 1, 0);
+		list_set_focus(list);
+		list->handle_enter_func = char_creation_enter;
+
+		/* Show list of races. */
+		if (char_step == 0)
+		{
+			list_set_column(list, 0, 250, 7, NULL, -1);
+
+			for (i = 0; i < s_settings->num_characters; i++)
+			{
+				list_add(list, i, 0, s_settings->characters[i].name);
+			}
+		}
+		/* List of genders. */
+		else if (char_step == 1)
+		{
+			char buf[30];
+			size_t row = 0;
+
+			list_set_column(list, 0, 250, 7, NULL, -1);
+
+			for (i = 0; i < GENDER_MAX; i++)
+			{
+				/* Does the selected race have this gender? */
+				if (s_settings->characters[char_race_selected].gender_archetypes[i])
+				{
+					/* Uppercase the first letter of the gender's name
+					 * and add it to the list. */
+					strncpy(buf, gender_noun[i], sizeof(buf) - 1);
+					buf[0] = toupper(buf[0]);
+					buf[sizeof(buf) - 1] = '\0';
+					list_add(list, row, 0, buf);
+					row++;
+				}
+			}
+		}
+		/* The stats. */
+		else if (char_step == 2)
+		{
+			list_set_column(list, 0, 30, 7, NULL, -1);
+			list->y += 2;
+			list->row_height_adjust = 6;
+			list->row_color_func = NULL;
+			list->row_highlight_func = NULL;
+			list->row_selected_func = NULL;
+			list->draw_frame_func = NULL;
+			list_add(list, 0, 0, "STR:");
+			list_add(list, 1, 0, "DEX:");
+			list_add(list, 2, 0, "CON:");
+			list_add(list, 3, 0, "INT:");
+			list_add(list, 4, 0, "WIS:");
+			list_add(list, 5, 0, "POW:");
+			list_add(list, 6, 0, "CHA:");
+		}
+	}
+
+	list_show(list);
+
+	/* Show the stat values and the range buttons. */
+	if (char_step == 2)
+	{
+		int adjust = 0, points;
+		size_t i;
+		char buf[MAX_BUF];
+
+		for (i = 0; i < NUM_STATS; i++)
+		{
+			/* Calculate the current stat value and show it. */
+			points = s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i];
+			snprintf(buf, sizeof(buf), "%.2d", points);
+			string_blt(ScreenSurface, FONT_ARIAL12, buf, x + 60, y + 60 + i * 18 + 2, i == list->row_selected - 1 ? COLOR_SIMPLE(COLOR_GREEN) : COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+
+			/* One of the range buttons clicked? */
+			if (range_buttons_show(x + 80, y + 60 + i * 18, &adjust, 1))
+			{
+				/* Add to stat, if possible. */
+				if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[i])
+				{
+					char_points_assigned[i]++;
+					char_points_left--;
+				}
+				/* Subtract from stat, if possible. */
+				else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[i])
+				{
+					char_points_assigned[i]--;
+					char_points_left++;
+				}
+			}
+		}
+	}
+
+	/* Show previous button if we're not in the first step. */
+	if (char_step > 0)
+	{
+		if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 20, y + Bitmaps[popup->bitmap_id]->bitmap->h - 40, "Previous", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+		{
+			char_creation_reset(list);
+		}
+	}
+
+	/* Show the next button, or the play button if we're in the last step. */
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 100, y + Bitmaps[popup->bitmap_id]->bitmap->h - 40, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	{
+		char_creation_enter(list);
+	}
+}
+
+/**
  * Draw the server connection/character creation popup.
  * @param popup Popup. */
 static void popup_draw_func(popup_struct *popup)
@@ -164,6 +381,14 @@ static void popup_draw_func(popup_struct *popup)
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = Bitmaps[popup->bitmap_id]->bitmap->h;
 		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		return;
+	}
+	else if (GameStatus == GAME_STATUS_NEW_CHAR)
+	{
+		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
+		string_blt_shadow(popup->surface, FONT_SERIF14, "Welcome!", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+
+		string_blt_shadow(popup->surface, FONT_ARIAL10, "Select your race and then press Enter or click the Next button to select gender.", 10, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 		return;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
@@ -258,6 +483,7 @@ static void popup_draw_func(popup_struct *popup)
 
 		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+		char_creation_reset(NULL);
 	}
 }
 
@@ -265,6 +491,32 @@ static void popup_draw_func(popup_struct *popup)
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
 	(void) popup;
+
+	/* Handle events in character creation. */
+	if (GameStatus == GAME_STATUS_NEW_CHAR)
+	{
+		list_struct *list = list_exists(LIST_CREATION);
+
+		/* Handle list events. */
+		if (list)
+		{
+			if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+			{
+				if (lists_handle_keyboard(&event->key))
+				{
+					return 1;
+				}
+			}
+			else
+			{
+				if (LIST_MOUSE_OVER(list, event->motion.x, event->motion.y))
+				{
+					list_handle_mouse(list, event->motion.x, event->motion.y, event);
+					return 1;
+				}
+			}
+		}
+	}
 
 	if (event->type == SDL_KEYDOWN)
 	{
@@ -310,6 +562,7 @@ static void list_handle_enter(list_struct *list)
 			popup_struct *popup = popup_create(BITMAP_POPUP);
 
  			popup->draw_func = popup_draw_func;
+ 			popup->draw_func_post = popup_draw_func_post;
  			popup->event_func = popup_event_func;
 			GameStatus = GAME_STATUS_STARTCONNECT;
 		}
