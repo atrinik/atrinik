@@ -1537,3 +1537,23 @@ void widget_show_bitmap(widgetdata *widget)
 
 	sprite_blt(Bitmaps[bitmap->bitmap_id], widget->x1, widget->y1, NULL, NULL);
 }
+
+/**
+ * Transform gender-string into its @ref GENDER_xxx "ID".
+ * @param gender The gender string.
+ * @return The gender's ID as one of @ref GENDER_xxx, or -1 if 'gender'
+ * didn't match any of the existing genders. */
+int gender_to_id(const char *gender)
+{
+	size_t i;
+
+	for (i = 0; i < GENDER_MAX; i++)
+	{
+		if (!strcmp(gender_noun[i], gender))
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}

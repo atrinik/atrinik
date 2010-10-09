@@ -167,6 +167,7 @@ void widget_menu_event(widgetdata *widget, int x, int y);
 void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_ptr)(widgetdata *, int, int));
 void widget_show_label(widgetdata *widget);
 void widget_show_bitmap(widgetdata *widget);
+int gender_to_id(const char *gender);
 
 /* client/scripts.c */
 void script_load(const char *cparams);
