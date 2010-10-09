@@ -310,3 +310,22 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep)
 
 	return pos;
 }
+
+/**
+ * Like realloc(), but if more bytes are being allocated, they get set to
+ * 0 using memset().
+ * @param ptr Original pointer.
+ * @param old_size Size of the pointer.
+ * @param new_size New size the pointer should have.
+ * @return Resized pointer, NULL on failure. */
+void *reallocz(void *ptr, size_t old_size, size_t new_size)
+{
+	void *new_ptr = realloc(ptr, new_size);
+
+	if (new_ptr && new_size > old_size)
+	{
+		memset(((char *) new_ptr) + old_size, 0, new_size - old_size);
+	}
+
+	return new_ptr;
+}
