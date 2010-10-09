@@ -363,3 +363,34 @@ void srv_file_init(int srv, const char *file)
 	srv_client_files[srv].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
 	free(contents);
 }
+
+/**
+ * Find a face ID by name. Request the face by finding it, loading it or requesting it.
+ * @param name Face name to find
+ * @return Face ID if found, -1 otherwise */
+int get_bmap_id(char *name)
+{
+	int l = 0, r = bmaptype_table_size - 1, x;
+
+	while (r >= l)
+	{
+		x = (l + r) / 2;
+
+		if (strcmp(name, bmaptype_table[x].name) < 0)
+		{
+			r = x - 1;
+		}
+		else
+		{
+			l = x + 1;
+		}
+
+		if (!strcmp(name, bmaptype_table[x].name))
+		{
+			request_face(x, 0);
+			return x;
+		}
+	}
+
+	return -1;
+}
