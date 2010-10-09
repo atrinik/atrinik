@@ -346,7 +346,7 @@ int event_poll_key(SDL_Event *event)
 	}
 	else if (!InputStringEndFlag)
 	{
-		if (GameStatus == GAME_STATUS_PLAY || GameStatus == GAME_STATUS_NEW_CHAR)
+		if (GameStatus == GAME_STATUS_PLAY)
 			return key_event(&event->key);
 	}
 
