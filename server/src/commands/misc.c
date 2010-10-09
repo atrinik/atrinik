@@ -437,7 +437,11 @@ void receive_player_password(object *op)
 			return;
 		}
 
-		esrv_new_player(CONTR(op), 0);
+		if (CONTR(op)->socket.socket_version < 1042)
+		{
+			esrv_new_player(CONTR(op), 0);
+		}
+
 		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_NEW_CHAR, cmd_buf, 1);
 		LOG(llevInfo, "NewChar send for %s\n", op->name);
 		CONTR(op)->state = ST_ROLL_STAT;
