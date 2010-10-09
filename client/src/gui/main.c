@@ -437,6 +437,7 @@ void show_meta_server()
 	sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
 
 	box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w;
+	box.h = 0;
 	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
 
 	list = list_exists(LIST_NEWS);
