@@ -78,6 +78,13 @@ static float weapon_speed_table[19] =
 };
 
 /**
+ * Gender nouns. */
+const char *gender_noun[GENDER_MAX] =
+{
+	"neuter", "male", "female", "hermaphrodite"
+};
+
+/**
  * Clear the player data like quickslots, inventory items, etc. */
 void clear_player()
 {

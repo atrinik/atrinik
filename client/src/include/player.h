@@ -31,6 +31,22 @@
 #define PLAYER_H
 
 /**
+ * @defgroup GENDER_xxx Gender IDs.
+ * IDs of the various genders.
+ *@{*/
+/** Neuter: no gender. */
+#define GENDER_NEUTER 0
+/** Male. */
+#define GENDER_MALE 1
+/** Female. */
+#define GENDER_FEMALE 2
+/** Hermaphrodite: both genders. */
+#define GENDER_HERMAPHRODITE 3
+/** Total number of genders. */
+#define GENDER_MAX 4
+/*@}*/
+
+/**
  * Contains information about the maximum level the server supports, and
  * the experience needed to reach every single level. */
 typedef struct _server_level
@@ -74,5 +90,6 @@ typedef struct _player_doll_pos
 } _player_doll_pos;
 
 extern _server_level server_level;
+const char *gender_noun[GENDER_MAX];
 
 #endif
