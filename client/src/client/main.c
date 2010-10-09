@@ -1759,17 +1759,9 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if (GameStatus < GAME_STATUS_NEW_CHAR)
+		if (GameStatus <= GAME_STATUS_WAITFORPLAY)
 		{
 			show_meta_server();
-		}
-		else if (GameStatus >= GAME_STATUS_REQUEST_FILES && GameStatus < GAME_STATUS_NEW_CHAR)
-		{
-			show_login_server();
-		}
-		else if (GameStatus == GAME_STATUS_NEW_CHAR)
-		{
-			cpl.menustatus = MENU_CREATE;
 		}
 
 		/* Show all kind of the big dialog windows */
