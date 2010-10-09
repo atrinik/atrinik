@@ -396,7 +396,7 @@ char *format_number_comma(uint64 num)
 void copy_file(const char *filename, FILE *fpout)
 {
 	FILE *fp;
-	char buf[MAX_BUF];
+	char buf[HUGE_BUF];
 
 	fp = fopen(filename, "r");
 

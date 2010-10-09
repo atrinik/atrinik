@@ -251,6 +251,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_FILE_UPDATES);
 		}
+		else if (!strcmp(cmd, "ssf"))
+		{
+			parse_srv_setup(param, cmdback, SRV_SERVER_SETTINGS);
+		}
 		else if (!strcmp(cmd, "bot"))
 		{
 			int is_bot = atoi(param);
@@ -450,6 +454,7 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 			break;
 
 		case SRV_CLIENT_SPELLS:
+		case SRV_FILE_SPELLS_V2:
 			if (ns->rf_spells)
 			{
 				LOG(llevInfo, "RF: received bad rf command - double call spells \n");
@@ -464,6 +469,7 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 			break;
 
 		case SRV_CLIENT_SETTINGS:
+		case SRV_SERVER_SETTINGS:
 			if (ns->rf_settings)
 			{
 				LOG(llevInfo, "RF: received bad rf command - double call settings \n");

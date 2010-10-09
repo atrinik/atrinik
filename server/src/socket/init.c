@@ -462,6 +462,42 @@ static void create_client_settings()
 }
 
 /**
+ * Get the lib/server_settings default file and create the
+ * data/server_settings file from it. */
+static void create_server_settings()
+{
+	char buf[MAX_BUF];
+	size_t i;
+	FILE *fp;
+
+	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
+	LOG(llevInfo, "Creating %s...\n", buf);
+
+	fp = fopen(buf, "wb");
+
+	if (!fp)
+	{
+		LOG(llevError, "Couldn't create %s.\n", buf);
+	}
+
+	/* Copy the default. */
+	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datadir);
+	copy_file(buf, fp);
+
+	/* Add the level information. */
+	snprintf(buf, sizeof(buf), "level %d\n", MAXLEVEL);
+	fputs(buf, fp);
+
+	for (i = 0; i <= MAXLEVEL; i++)
+	{
+		snprintf(buf, sizeof(buf), "%"FMT64HEX"\n", new_levels[i]);
+		fputs(buf, fp);
+	}
+
+	fclose(fp);
+}
+
+/**
  * Load all the server files we can send to client.
  *
  * client_bmaps is generated from the server at startup out of the
@@ -497,6 +533,10 @@ void init_srv_files()
 
 	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SRV_FILE_SPELLS_FILENAME);
 	load_srv_file(buf, SRV_FILE_SPELLS_V2);
+
+	create_server_settings();
+	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
+	load_srv_file(buf, SRV_SERVER_SETTINGS);
 }
 
 /**
