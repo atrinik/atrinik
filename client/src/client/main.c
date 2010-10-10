@@ -780,6 +780,8 @@ static int game_status_chain()
 		socket_thread_start();
 		GameStatus = GAME_STATUS_VERSION;
 		draw_info("Connected. Exchange version.", COLOR_GREEN);
+		cpl.name[0] = '\0';
+		cpl.password[0] = '\0';
 	}
 	else if (GameStatus == GAME_STATUS_VERSION)
 	{
@@ -912,8 +914,6 @@ static int game_status_chain()
 		cpl.mark_count = -1;
 		map_transfer_flag = 0;
 		SendAddMe();
-		cpl.name[0] = '\0';
-		cpl.password[0] = '\0';
 		GameStatus = GAME_STATUS_LOGIN;
 		/* Now wait for login request of the server */
 	}
