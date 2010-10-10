@@ -1620,6 +1620,8 @@ int main(int argc, char *argv[])
 		if (handle_socket_shutdown())
 		{
 			GameStatus = GAME_STATUS_INIT;
+			/* Make sure no popup is visible. */
+			popup_destroy_visible();
 			continue;
 		}
 
