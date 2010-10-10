@@ -262,6 +262,22 @@ static void char_stat_change(int stat, int adjust)
 	}
 }
 
+/** @copydoc list_struct::key_event_func */
+static int char_creation_key(list_struct *list, SDLKey key)
+{
+	switch (key)
+	{
+		/* Change selected stats using left/right arrow keys. */
+		case SDLK_RIGHT:
+		case SDLK_LEFT:
+			char_stat_change(list->row_selected - 1, key == SDLK_LEFT ? -1 : 1);
+			return 1;
+
+		default:
+			return -1;
+	}
+}
+
 /** @copydoc popup_struct::draw_func_post */
 static void popup_draw_func_post(popup_struct *popup, int x, int y)
 {
@@ -327,6 +343,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 			list->row_highlight_func = NULL;
 			list->row_selected_func = NULL;
 			list->draw_frame_func = NULL;
+			list->key_event_func = char_creation_key;
 			list_add(list, 0, 0, "STR:");
 			list_add(list, 1, 0, "DEX:");
 			list_add(list, 2, 0, "CON:");
@@ -517,16 +534,6 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 				/* Make sure the focus is back on the list of servers. */
 				list_set_focus(list_exists(LIST_SERVERS));
 				return 1;
-
-			/* Change selected stats using left/right arrow keys. */
-			case SDLK_RIGHT:
-			case SDLK_LEFT:
-				if (GameStatus == GAME_STATUS_NEW_CHAR && char_step == 2)
-				{
-					char_stat_change(list_exists(LIST_CREATION)->row_selected - 1, event->key.keysym.sym == SDLK_LEFT ? -1 : 1);
-				}
-
-				break;
 
 			default:
 				break;
