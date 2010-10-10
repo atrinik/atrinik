@@ -66,7 +66,7 @@ extern _server_char *first_server_char;
 /* If we login as new char, thats the values of it we set */
 extern _server_char new_character;
 
-#define HUGE_BUF 1024
+#define HUGE_BUF 4096
 
 #define SDL_DEFAULT_REPEAT_DELAY 500
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
