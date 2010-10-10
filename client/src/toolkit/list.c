@@ -556,6 +556,16 @@ static void list_scroll(list_struct *list, int up, int scroll)
  * @return 1 to allow key repeating, 0 otherwise. */
 static int list_handle_key(list_struct *list, SDLKey key)
 {
+	if (list->key_event_func)
+	{
+		int ret = list->key_event_func(list, key);
+
+		if (ret != -1)
+		{
+			return ret;
+		}
+	}
+
 	switch (key)
 	{
 		/* Up arrow. */

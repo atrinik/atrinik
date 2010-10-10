@@ -163,6 +163,15 @@ typedef struct list_struct
 	 * a row being double clicked.
 	 * @param list List. */
 	void (*handle_enter_func)(struct list_struct *list);
+
+	/**
+	 * Custom function to call for handling keyboard events.
+	 * @param list List.
+	 * @param key Key ID.
+	 * @retval -1 Did not handle the event.
+	 * @retval 0 Handled the event.
+	 * @retval 1 Handled the event, and allow keyboard repeating. */
+	int (*key_event_func)(struct list_struct *list, SDLKey key);
 } list_struct;
 
 /**
