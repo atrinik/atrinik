@@ -518,6 +518,7 @@ static void popup_draw_func(popup_struct *popup)
 
 		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+		char_step = 0;
 		char_creation_reset(NULL);
 	}
 }
