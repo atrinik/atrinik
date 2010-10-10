@@ -238,6 +238,30 @@ static void char_creation_enter(list_struct *list)
 	}
 }
 
+/**
+ * Adjust specified stat, taking into account the character's min/max
+ * stats.
+ * @param stat Stat ID.
+ * @param adjust If higher than 0 the stat will be increased, if lower
+ * than 0 it will be decreased. */
+static void char_stat_change(int stat, int adjust)
+{
+	int points = s_settings->characters[char_race_selected].stats_base[stat] + char_points_assigned[stat];
+
+	/* Add to stat, if possible. */
+	if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[stat])
+	{
+		char_points_assigned[stat]++;
+		char_points_left--;
+	}
+	/* Subtract from stat, if possible. */
+	else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[stat])
+	{
+		char_points_assigned[stat]--;
+		char_points_left++;
+	}
+}
+
 /** @copydoc popup_struct::draw_func_post */
 static void popup_draw_func_post(popup_struct *popup, int x, int y)
 {
@@ -318,34 +342,23 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	/* Show the stat values and the range buttons. */
 	if (char_step == 2)
 	{
-		int adjust = 0, points;
+		int adjust = 0;
 		size_t i;
-		char buf[MAX_BUF];
 
 		for (i = 0; i < NUM_STATS; i++)
 		{
 			/* Calculate the current stat value and show it. */
-			points = s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i];
-			snprintf(buf, sizeof(buf), "%.2d", points);
-			string_blt(ScreenSurface, FONT_ARIAL12, buf, x + 60, y + 60 + i * 18 + 2, i == list->row_selected - 1 ? COLOR_SIMPLE(COLOR_GREEN) : COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 60 + i * 18 + 4, i == list->row_selected - 1 ? COLOR_SIMPLE(COLOR_GREEN) : COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
 
 			/* One of the range buttons clicked? */
 			if (range_buttons_show(x + 80, y + 60 + i * 18, &adjust, 1))
 			{
-				/* Add to stat, if possible. */
-				if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[i])
-				{
-					char_points_assigned[i]++;
-					char_points_left--;
-				}
-				/* Subtract from stat, if possible. */
-				else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[i])
-				{
-					char_points_assigned[i]--;
-					char_points_left++;
-				}
+				char_stat_change(i, adjust);
 			}
 		}
+
+		string_blt_shadow(ScreenSurface, FONT_ARIAL12, "Stat points left:", x + 20, y + 200, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 105, y + 200, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%d", char_points_left);
 	}
 
 	/* Show previous button if we're not in the first step. */
@@ -492,6 +505,34 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
 	(void) popup;
 
+	if (event->type == SDL_KEYDOWN)
+	{
+		switch (event->key.keysym.sym)
+		{
+			/* ESC, go back to the servers list part and destroy the
+			 * popup. */
+			case SDLK_ESCAPE:
+				GameStatus = GAME_STATUS_START;
+				popup_destroy_visible();
+				/* Make sure the focus is back on the list of servers. */
+				list_set_focus(list_exists(LIST_SERVERS));
+				return 1;
+
+			/* Change selected stats using left/right arrow keys. */
+			case SDLK_RIGHT:
+			case SDLK_LEFT:
+				if (GameStatus == GAME_STATUS_NEW_CHAR && char_step == 2)
+				{
+					char_stat_change(list_exists(LIST_CREATION)->row_selected - 1, event->key.keysym.sym == SDLK_LEFT ? -1 : 1);
+				}
+
+				break;
+
+			default:
+				break;
+		}
+	}
+
 	/* Handle events in character creation. */
 	if (GameStatus == GAME_STATUS_NEW_CHAR)
 	{
@@ -520,28 +561,14 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 	if (event->type == SDL_KEYDOWN)
 	{
-		switch (event->key.keysym.sym)
+		/* Try to handle text input. */
+		if (key_string_event(&event->key))
 		{
-			/* ESC, go back to the servers list part and destroy the
-			 * popup. */
-			case SDLK_ESCAPE:
-				GameStatus = GAME_STATUS_START;
-				popup_destroy_visible();
-				/* Make sure the focus is back on the list of servers. */
-				list_set_focus(list_exists(LIST_SERVERS));
-				return 1;
-
-			/* Anything else. */
-			default:
-				/* Try to handle text input. */
-				if (key_string_event(&event->key))
-				{
-					return 1;
-				}
-
-				/* Ignore. */
-				return 0;
+			return 1;
 		}
+
+		/* Ignore. */
+		return 0;
 	}
 
 	return -1;
