@@ -527,6 +527,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			case SDLK_ESCAPE:
 				GameStatus = GAME_STATUS_START;
 				popup_destroy_visible();
+				/* Make sure the focus is back on the list of servers. */
+				list_set_focus(list_exists(LIST_SERVERS));
 				return 1;
 
 			/* Anything else. */
