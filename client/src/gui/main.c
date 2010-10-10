@@ -181,7 +181,7 @@ static void char_creation_reset(list_struct *list)
 	/* Reset assigned points. */
 	if (char_step == 0 || char_step == 2)
 	{
-		memset(char_points_assigned, 0, sizeof(char_points_assigned));
+		memset(&char_points_assigned, 0, sizeof(char_points_assigned));
 	}
 
 	/* Can we actually go back? */
