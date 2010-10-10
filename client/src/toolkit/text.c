@@ -634,6 +634,36 @@ void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, 
 }
 
 /**
+ * Like string_blt(), but allows using printf-like format specifiers.
+ *
+ * @copydoc string_blt() */
+void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, int flags, SDL_Rect *box, const char *text, ...)
+{
+	char buf[HUGE_BUF * 4];
+	va_list ap;
+
+	va_start(ap, text);
+	vsnprintf(buf, sizeof(buf), text, ap);
+	string_blt(surface, font, buf, x, y, color, flags, box);
+	va_end(ap);
+}
+
+/**
+ * Like string_blt_shadow(), but allows using printf-like format specifiers.
+ *
+ * @copydoc string_blt_shadow() */
+void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box, const char *text, ...)
+{
+	char buf[HUGE_BUF * 4];
+	va_list ap;
+
+	va_start(ap, text);
+	vsnprintf(buf, sizeof(buf), text, ap);
+	string_blt_shadow(surface, font, buf, x, y, color, color_shadow, flags, box);
+	va_end(ap);
+}
+
+/**
  * Calculate string's pixel width, taking into account markup, if
  * applicable.
  * @param font Font. One of @ref FONT_xxx.
