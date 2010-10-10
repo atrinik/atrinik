@@ -104,7 +104,7 @@ def usage():
 
 # Try to parse our command line options.
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "hcd:m:a:r:", ["help", "cli", "directory=", "map=", "arch=", "regions=", "non-rec"])
+	opts, args = getopt.getopt(sys.argv[1:], "hcd:m:a:r:", ["help", "cli", "directory=", "map=", "arch=", "regions=", "non-rec", "text-only"])
 except getopt.GetoptError as err:
 	# Invalid option, show the error, print usage, and exit.
 	print(err)
@@ -115,9 +115,10 @@ except getopt.GetoptError as err:
 path = "../../maps"
 arch_dir = "../../arch"
 regions_file = "../../maps/regions.reg"
-map = None
+one_map = None
 cli = False
 rec = True
+text_only = False
 
 # Parse options.
 for o, a in opts:
@@ -129,13 +130,21 @@ for o, a in opts:
 	elif o in ("-d", "--directory"):
 		path = a
 	elif o in ("-m", "--map"):
-		map = a
+		one_map = a
 	elif o in ("-a", "--arch"):
 		arch_dir = a
 	elif o in ("-r", "--regions"):
 		regions_file = a
 	elif o == "--non-rec":
 		rec = False
+	elif o == "--text-only":
+		text_only = True
+
+if text_only:
+	colors.bold = ""
+	colors.underscore = ""
+	colors.end = ""
+	errors.colors = [""] * len(errors.colors)
 
 # Errors we found in maps/objects.
 errors_l = []
@@ -556,11 +565,11 @@ def scan_dirs(dir):
 		else:
 			check_file(dir + "/" + file)
 
-# Do the scan. If 'map' argument was specified, we will use that,
+# Do the scan. If 'one_map' argument was specified, we will use that,
 # otherwise we will recursively scan 'path'.
 def do_scan():
-	if map:
-		check_file(map)
+	if one_map:
+		check_file(one_map)
 	else:
 		scan_dirs(path)
 
@@ -1357,17 +1366,26 @@ else:
 
 		# We are on map, so add X/Y coordinates before the error description.
 		if map and error[2] != -1 and error[3] != -1:
-			pos = "(" + str(error[2]) + ", " + str(error[3]) + "): "
+			if text_only:
+				pos = str(error[2]) + " " + str(error[3]) + " "
+			else:
+				pos = "(" + str(error[2]) + ", " + str(error[3]) + "): "
 
-		print("  " + errors.colors[error[1]] + errors.text[error[1]] + colors.end + ": " + pos + error[0])
+		if text_only:
+			print(pos + "" + errors.text[error[1]] + " " + error[0])
+		else:
+			print("  " + errors.colors[error[1]] + errors.text[error[1]] + colors.end + ": " + pos + error[0])
 
 	# Start the scan.
 	do_scan()
-	print(colors.bold + colors.underscore + "Scan complete. Results:\n" + colors.end + colors.end)
+
+	if not one_map:
+		print(colors.bold + colors.underscore + "Scan complete. Results:\n" + colors.end + colors.end)
 
 	# Print map errors.
 	for (map, map_errors) in sorted(errors_l):
-		print(colors.bold + map + ":" + colors.end)
+		if not one_map:
+			print(colors.bold + map + ":" + colors.end)
 
 		for error in map_errors:
 			print_one_error(error, map)
