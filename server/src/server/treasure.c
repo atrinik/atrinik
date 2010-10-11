@@ -495,6 +495,12 @@ void init_artifacts()
 			{
 				nrofallowedstr++;
 
+				/* Trim left whitespace. */
+				while (isspace(*cp))
+				{
+					cp++;
+				}
+
 				if ((next = strchr(cp, ',')) != NULL)
 				{
 					*(next++) = '\0';
