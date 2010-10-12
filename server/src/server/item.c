@@ -929,7 +929,7 @@ char *query_base_name(object *op, object *caller)
 				safe_strcat(buf, op->title, &len, sizeof(buf));
 			}
 
-			if ((op->type == ARROW || op->type == WEAPON) && op->slaying)
+			if ((op->type == ARROW || op->type == WEAPON) && op->slaying && QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->slaying, &len, sizeof(buf));
