@@ -327,7 +327,6 @@ _Sprite *Bitmaps[BITMAP_MAX];
 
 static void init_game_data();
 static void flip_screen();
-static void show_intro(char *text);
 static void delete_player_lists();
 static void reset_input_mode();
 static int load_bitmap(int index);
@@ -1426,55 +1425,18 @@ int main(int argc, char *argv[])
 	text_init();
 
 	load_bitmaps();
-	show_intro("Load bitmaps");
 
 	/* TODO: add later better error handling here */
 	for (i = BITMAP_DOLL; i < (int) BITMAP_MAX; i++)
 		load_bitmap(i);
 
 	sound_init();
-	show_intro("Start sound system");
-	show_intro("Load sounds");
-
 	read_keybind_file(KEYBIND_FILE);
-	show_intro("Load keys");
-
 	load_mapdef_dat();
-	show_intro("Load mapdefs");
-
 	read_bmaps_p0();
-	show_intro("Load picture data");
-
 	server_files_init();
 
 	sound_start_bg_music("orchestral.ogg", options.music_volume, -1);
-	show_intro(NULL);
-
-	while (1)
-	{
-		SDL_Event event;
-
-		SDL_PollEvent(&event);
-
-		if (event.type == SDL_QUIT)
-		{
-			sound_deinit();
-			free_bitmaps();
-			SYSTEM_End();
-			return 0;
-		}
-
-		if (event.type == SDL_KEYUP || event.type == SDL_KEYDOWN || event.type == SDL_MOUSEBUTTONDOWN)
-		{
-			reset_keys();
-			break;
-		}
-
-		/* force the thread to sleep */
-		SDL_Delay(15);
-
-		/* wait for keypress */
-	}
 
 	script_autoload();
 
@@ -1731,49 +1693,6 @@ int main(int argc, char *argv[])
 	SYSTEM_End();
 
 	return 0;
-}
-
-/**
- * Draws the intro bitmap and updates progress bar.
- * @param text Text to show. */
-static void show_intro(char *text)
-{
-	char buf[256];
-	int x, y, progress, progress_x, progress_y;
-	SDL_Rect box;
-
-	current_intro++;
-
-	x = Screensize->x / 2 - Bitmaps[BITMAP_INTRO]->bitmap->w / 2;
-	y = Screensize->y / 2 - Bitmaps[BITMAP_INTRO]->bitmap->h / 2;
-
-	progress_x = Screensize->x / 2 - Bitmaps[BITMAP_PROGRESS]->bitmap->w / 2;
-	progress_y = Bitmaps[BITMAP_INTRO]->bitmap->h + y - Bitmaps[BITMAP_PROGRESS]->bitmap->h;
-
-	sprite_blt(Bitmaps[BITMAP_INTRO], x, y, NULL, NULL);
-
-	/* Update progress bar */
-	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], progress_x, progress_y, NULL, NULL);
-
-	progress = MIN(100, current_intro * 8);
-	box.x = 0;
-	box.y = 0;
-	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
-	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
-	sprite_blt(Bitmaps[BITMAP_PROGRESS], progress_x, progress_y, &box, NULL);
-
-	if (text)
-	{
-		StringBlt(ScreenSurface, &SystemFont, text, progress_x + Bitmaps[BITMAP_PROGRESS]->bitmap->w / 3, progress_y + 5, COLOR_DEFAULT, NULL, NULL);
-	}
-	else
-	{
-		StringBlt(ScreenSurface, &SystemFont, "** Press Key **", progress_x + Bitmaps[BITMAP_PROGRESS]->bitmap->w / 3, progress_y + 5, COLOR_DEFAULT, NULL, NULL);
-	}
-
-	snprintf(buf, sizeof(buf), "v. %s", PACKAGE_VERSION);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 10, progress_y + 5, COLOR_DEFAULT, NULL, NULL);
-	flip_screen();
 }
 
 /**
