@@ -265,9 +265,7 @@ void read_spells()
 {
 	size_t i, ii, iii;
 	FILE *fp;
-	struct stat sb;
-	size_t st_size, numread;
-	char *contents, line[HUGE_BUF];
+	char line[HUGE_BUF];
 
 	for (i = 0; i < SPELL_LIST_MAX; i++)
 	{
@@ -285,26 +283,12 @@ void read_spells()
 	spell_list_set.entry_nr = 0;
 	spell_list_set.group_nr = 0;
 
-	srv_client_files[SRV_FILE_SPELLS_V2].len = 0;
-	srv_client_files[SRV_FILE_SPELLS_V2].crc = 0;
-
-	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_SPELLS);
-	fp = fopen_wrapper(FILE_CLIENT_SPELLS, "r");
+	fp = server_file_open(SERVER_FILE_SPELLS);
 
 	if (!fp)
 	{
 		return;
 	}
-
-	fstat(fileno(fp), &sb);
-	st_size = sb.st_size;
-	srv_client_files[SRV_FILE_SPELLS_V2].len = st_size;
-
-	contents = malloc(st_size);
-	numread = fread(contents, 1, st_size, fp);
-	srv_client_files[SRV_FILE_SPELLS_V2].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-	free(contents);
-	rewind(fp);
 
 	while (fgets(line, sizeof(line) - 1, fp))
 	{

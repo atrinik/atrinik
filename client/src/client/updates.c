@@ -36,38 +36,6 @@
 static size_t file_updates_requested = 0;
 
 /**
- * Initialize the file updates, reading len/CRC32 from the srv file. */
-void file_updates_init()
-{
-	FILE *fp;
-	struct stat sb;
-	size_t st_size, numread;
-	char *contents;
-
-	srv_client_files[SRV_FILE_UPDATES].len = 0;
-	srv_client_files[SRV_FILE_UPDATES].crc = 0;
-
-	LOG(llevInfo, "Reading %s...\n", FILE_UPDATES);
-	fp = fopen_wrapper(FILE_UPDATES, "rb");
-
-	if (!fp)
-	{
-		return;
-	}
-
-	fstat(fileno(fp), &sb);
-	st_size = sb.st_size;
-	srv_client_files[SRV_FILE_UPDATES].len = st_size;
-
-	contents = malloc(st_size);
-	numread = fread(contents, 1, st_size, fp);
-	fclose(fp);
-
-	srv_client_files[SRV_FILE_UPDATES].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-	free(contents);
-}
-
-/**
  * Request the server to send us an updated copy of a file.
  * @param filename What to request. */
 static void file_updates_request(char *filename)
@@ -154,7 +122,7 @@ void file_updates_parse()
 		return;
 	}
 
-	fp = fopen_wrapper(FILE_UPDATES, "rb");
+	fp = server_file_open(SERVER_FILE_UPDATES);
 
 	if (!fp)
 	{

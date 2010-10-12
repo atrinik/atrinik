@@ -331,40 +331,6 @@ void *reallocz(void *ptr, size_t old_size, size_t new_size)
 }
 
 /**
- * Initialize srv file.
- * @param srv The srv file ID.
- * @param file Path to the actual file. */
-void srv_file_init(int srv, const char *file)
-{
-	FILE *fp;
-	struct stat sb;
-	size_t st_size, numread;
-	char *contents;
-
-	srv_client_files[srv].len = 0;
-	srv_client_files[srv].crc = 0;
-
-	LOG(llevInfo, "Reading %s...\n", file);
-	fp = fopen_wrapper(file, "rb");
-
-	if (!fp)
-	{
-		return;
-	}
-
-	fstat(fileno(fp), &sb);
-	st_size = sb.st_size;
-	srv_client_files[srv].len = st_size;
-
-	contents = malloc(st_size);
-	numread = fread(contents, 1, st_size, fp);
-	fclose(fp);
-
-	srv_client_files[srv].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-	free(contents);
-}
-
-/**
  * Find a face ID by name. Request the face by finding it, loading it or requesting it.
  * @param name Face name to find
  * @return Face ID if found, -1 otherwise */

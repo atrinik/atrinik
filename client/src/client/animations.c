@@ -156,7 +156,7 @@ int read_anim_tmp()
 	fstat(fileno(stream), &stat_bmap);
 	fclose(stream);
 
-	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rb" )) == NULL )
+	if ( (stream = server_file_open(SERVER_FILE_ANIMS)) == NULL )
 	{
 		LOG(llevError,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!\n");
 	}
@@ -183,7 +183,7 @@ int read_anim_tmp()
 		LOG(llevError,"read_anim_tmp:Error opening anims.tmp!\n");
 	}
 
-	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rt" )) == NULL )
+	if ( (stream = server_file_open(SERVER_FILE_ANIMS)) == NULL )
 	{
 		LOG(llevError, "read_anim_tmp:Error reading client_anims for anims.tmp!\n");
 	}
@@ -244,33 +244,4 @@ int read_anim_tmp()
 	fclose( stream );
 	fclose( ftmp );
 	return load_anim_tmp(); /* all fine - load file */
-}
-
-/**
- * Read animations from file. */
-void read_anims()
-{
-	FILE *stream;
-	char *temp_buf;
-	struct stat statbuf;
-	int i;
-
-	LOG(llevInfo, "Loading %s...\n", FILE_CLIENT_ANIMS);
-	srv_client_files[SRV_CLIENT_ANIMS].len = 0;
-	srv_client_files[SRV_CLIENT_ANIMS].crc = 0;
-
-	if ((stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rb")) != NULL)
-	{
-		/* Temporary load the file and get the data we need for compare with server */
-		fstat(fileno(stream), &statbuf);
-		i = (int) statbuf.st_size;
-		srv_client_files[SRV_CLIENT_ANIMS].len = i;
-		temp_buf = malloc(i);
-
-		if (fread(temp_buf, 1, i, stream))
-			srv_client_files[SRV_CLIENT_ANIMS].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
-
-		free(temp_buf);
-		fclose(stream);
-	}
 }

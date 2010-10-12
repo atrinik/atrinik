@@ -53,97 +53,76 @@ void free_help_files()
  * loop through that list. */
 void read_help_files()
 {
-	FILE *stream;
-	char *temp_buf, buf[HUGE_BUF];
-	struct stat statbuf;
-	int i;
+	FILE *fp = server_file_open(SERVER_FILE_HFILES);
+	char buf[HUGE_BUF], helpname[MAX_BUF], title[MAX_BUF], message[HUGE_BUF * 12];
+	int end_marker = 0, dm_only = 0, autocomplete = 1;
+
+	if (!fp)
+	{
+		return;
+	}
 
 	if (help_files)
 	{
 		free_help_files();
 	}
 
-	srv_client_files[SRV_CLIENT_HFILES].len = 0;
-	srv_client_files[SRV_CLIENT_HFILES].crc = 0;
+	helpname[0] = title[0] = message[0] = '\0';
 
-	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_HFILES);
-
-	if ((stream = fopen_wrapper(FILE_CLIENT_HFILES, "rb")) != NULL)
+	/* Loop through the lines */
+	while (fgets(buf, sizeof(buf), fp))
 	{
-		char helpname[MAX_BUF], title[MAX_BUF], message[HUGE_BUF * 12];
-		int end_marker = 0, dm_only = 0, autocomplete = 1;
+		char *end = strchr(buf, '\n');
 
-		/* Temporary load the file and get the data we need for compare with server */
-		fstat(fileno(stream), &statbuf);
-		i = (int) statbuf.st_size;
-		srv_client_files[SRV_CLIENT_HFILES].len = i;
-		temp_buf = malloc(i);
-
-		if (fread(temp_buf, 1, i, stream))
+		if (!strncmp(buf, "Name: ", 6))
 		{
-			srv_client_files[SRV_CLIENT_HFILES].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
+			*end = '\0';
+			strncpy(helpname, buf + 6, sizeof(helpname) - 1);
+		}
+		else if (!strncmp(buf, "Title: ", 7))
+		{
+			*end = '\0';
+			strncpy(title, buf + 7, sizeof(title) - 1);
+		}
+		else if (!strcmp(buf, "DM: 1\n"))
+		{
+			dm_only = 1;
+		}
+		else if (!strcmp(buf, "Autocomplete: 0\n"))
+		{
+			autocomplete = 0;
+		}
+		else if (!strcmp(buf, "==========\n"))
+		{
+			end_marker = 1;
+		}
+		else
+		{
+			strncat(message, buf, sizeof(message) - strlen(message) - 1);
 		}
 
-		free(temp_buf);
-		rewind(stream);
-
-		helpname[0] = title[0] = message[0] = '\0';
-
-		/* Loop through the lines */
-		while (fgets(buf, sizeof(buf), stream))
+		if (end_marker)
 		{
-			char *end = strchr(buf, '\n');
+			help_files_struct *help_files_tmp = (help_files_struct *) malloc(sizeof(help_files_struct));
 
-			if (!strncmp(buf, "Name: ", 6))
-			{
-				*end = '\0';
-				strncpy(helpname, buf + 6, sizeof(helpname) - 1);
-			}
-			else if (!strncmp(buf, "Title: ", 7))
-			{
-				*end = '\0';
-				strncpy(title, buf + 7, sizeof(title) - 1);
-			}
-			else if (!strcmp(buf, "DM: 1\n"))
-			{
-				dm_only = 1;
-			}
-			else if (!strcmp(buf, "Autocomplete: 0\n"))
-			{
-				autocomplete = 0;
-			}
-			else if (!strcmp(buf, "==========\n"))
-			{
-				end_marker = 1;
-			}
-			else
-			{
-				strncat(message, buf, sizeof(message) - strlen(message) - 1);
-			}
+			help_files_tmp->next = help_files;
+			help_files = help_files_tmp;
 
-			if (end_marker)
-			{
-				help_files_struct *help_files_tmp = (help_files_struct *) malloc(sizeof(help_files_struct));
+			strncpy(help_files_tmp->helpname, helpname, sizeof(help_files_tmp->helpname) - 1);
+			strncpy(help_files_tmp->title, title, sizeof(help_files_tmp->title) - 1);
+			strncpy(help_files_tmp->message, message, sizeof(help_files_tmp->message) - 1);
+			help_files_tmp->dm_only = dm_only;
+			help_files_tmp->autocomplete = autocomplete;
 
-				help_files_tmp->next = help_files;
-				help_files = help_files_tmp;
+			helpname[0] = title[0] = message[0] = '\0';
+			dm_only = 0;
+			autocomplete = 1;
 
-				strncpy(help_files_tmp->helpname, helpname, sizeof(help_files_tmp->helpname) - 1);
-				strncpy(help_files_tmp->title, title, sizeof(help_files_tmp->title) - 1);
-				strncpy(help_files_tmp->message, message, sizeof(help_files_tmp->message) - 1);
-				help_files_tmp->dm_only = dm_only;
-				help_files_tmp->autocomplete = autocomplete;
-
-				helpname[0] = title[0] = message[0] = '\0';
-				dm_only = 0;
-				autocomplete = 1;
-
-				end_marker = 0;
-			}
+			end_marker = 0;
 		}
-
-		fclose(stream);
 	}
+
+	fclose(fp);
 }
 
 /**

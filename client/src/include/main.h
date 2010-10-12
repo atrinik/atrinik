@@ -169,55 +169,7 @@ extern int bmaptype_table_size;
 #define FILE_BMAPS_TMP "srv_files/bmaps.tmp"
 #define FILE_ANIMS_TMP "srv_files/anims.tmp"
 
-#define FILE_CLIENT_SPELLS "srv_files/client_spells"
-#define FILE_CLIENT_SKILLS "srv_files/client_skills"
-#define FILE_SERVER_SETTINGS "srv_files/server_settings"
-#define FILE_CLIENT_BMAPS "srv_files/client_bmap"
-#define FILE_CLIENT_ANIMS "srv_files/client_anims"
-#define FILE_CLIENT_HFILES "srv_files/help_files"
-#define FILE_UPDATES "srv_files/updates"
-
-enum
-{
-	SRV_CLIENT_SKILLS,
-	SRV_CLIENT_SPELLS,
-	SRV_CLIENT_SETTINGS,
-	SRV_CLIENT_ANIMS,
-	SRV_CLIENT_BMAPS,
-	SRV_CLIENT_HFILES,
-	SRV_FILE_UPDATES,
-	SRV_FILE_SPELLS_V2,
-	SRV_SERVER_SETTINGS,
-	/* last index */
-	SRV_CLIENT_FILES
-};
-
-enum
-{
-	SRV_CLIENT_STATUS_OK,
-	SRV_CLIENT_STATUS_UPDATE
-};
-
-#define	SRV_CLIENT_FLAG_BMAP 	1
-#define SRV_CLIENT_FLAG_ANIM 	2
-#define SRV_CLIENT_FLAG_SETTING 4
-#define	SRV_CLIENT_FLAG_SKILL 	8
-#define	SRV_CLIENT_FLAG_SPELL 	16
-#define SRV_CLIENT_FLAG_HFILES 	32
-
-typedef struct _srv_client_files
-{
-	/* Set from setup exchange */
-	int status;
-
-	int len;
-	uint32 crc;
-	int server_len;
-	uint32 server_crc;
-}_srv_client_files;
-
-extern _srv_client_files srv_client_files[SRV_CLIENT_FILES];
-extern 	Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
+extern Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 extern int mb_clicked;
 
 /* IMPORTANT: datatype must also be changed in dialog.c */
@@ -593,7 +545,6 @@ extern uint32 tmpGameTick;
 extern uint32 FrameCount;
 extern server_struct *selected_server;
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
-extern int request_file_chain;
 extern int esc_menu_flag;
 extern int esc_menu_index;
 

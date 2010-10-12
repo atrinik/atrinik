@@ -71,50 +71,10 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "- UPDATING FILES- ", x + 58, y + 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "- UPDATING FILES -", x + 57, y, COLOR_WHITE, NULL, NULL);
 
-	if (request_file_chain >= 0)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating settings file from server...", x + 2, y + 20, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 1)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating spells file from server...", x + 2, y + 32, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 3)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating skills file from server...", x + 2, y + 44, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 5)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating bmaps file from server...", x + 2, y + 56, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 7)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating anims file from server...", x + 2, y + 68, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 9)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating help files from server...", x + 2, y + 80, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 11)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Updating client files from server...", x + 2, y + 92, COLOR_WHITE, NULL, NULL);
-	}
-
-	if (request_file_chain > 13)
-	{
-		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 104, COLOR_WHITE, NULL, NULL);
-	}
-
 	/* Update progress bar of requested files */
 	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], x, y + (168 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->h - 5), NULL, NULL);
 
-	progress = MIN(100, request_file_chain * 8);
+	progress = MIN(100, 8);
 	box.x = 0;
 	box.y = 0;
 	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;

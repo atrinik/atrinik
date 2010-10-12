@@ -215,7 +215,6 @@ static int load_bmap_tmp()
 	return 0;
 }
 
-
 /**
  * Read temporary bitmaps file. */
 int read_bmap_tmp()
@@ -227,7 +226,7 @@ int read_bmap_tmp()
 	unsigned int crc;
 	_bmaptype *at;
 
-	if ( (stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb" )) == NULL )
+	if ( (stream = server_file_open(SERVER_FILE_BMAPS)) == NULL )
 	{
 		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
@@ -267,7 +266,7 @@ create_bmap_tmp:
 	unlink(FILE_BMAPS_TMP);
 
 	/* NOW we are sure... we must create us a new bmaps.tmp */
-	if ( (stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb" )) != NULL )
+	if ( (stream = server_file_open(SERVER_FILE_BMAPS)) != NULL )
 	{
 		/* we can use text mode here, its local */
 		if ( (fbmap0 = fopen_wrapper(FILE_BMAPS_TMP, "wt" )) != NULL )
@@ -308,31 +307,15 @@ create_bmap_tmp:
  * Read bitmaps file. */
 void read_bmaps()
 {
-	FILE *stream;
-	char *temp_buf;
-	struct stat statbuf;
-	int i;
+	FILE *fp = server_file_open(SERVER_FILE_BMAPS);
 
-	srv_client_files[SRV_CLIENT_BMAPS].len = 0;
-	srv_client_files[SRV_CLIENT_BMAPS].crc = 0;
-	LOG(llevInfo, "Reading %s...\n", FILE_CLIENT_BMAPS);
-
-	if ((stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb")) != NULL)
-	{
-		/* Temporary load the file and get the data we need for compare with server */
-		fstat (fileno (stream), &statbuf);
-		i = (int) statbuf.st_size;
-		srv_client_files[SRV_CLIENT_BMAPS].len = i;
-		temp_buf = malloc(i);
-
-		if (fread(temp_buf, 1, i, stream))
-			srv_client_files[SRV_CLIENT_BMAPS].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
-
-		free(temp_buf);
-		fclose(stream);
-	}
-	else
+	if (!fp)
 	{
 		unlink(FILE_BMAPS_TMP);
+		return;
 	}
+
+	fclose(fp);
+	read_bmap_tmp();
+	read_anim_tmp();
 }

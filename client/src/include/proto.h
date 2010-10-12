@@ -1,7 +1,6 @@
 #ifndef __CPROTO__
 /* client/animations.c */
 int read_anim_tmp();
-void read_anims();
 
 /* client/client.c */
 void DoClient();
@@ -137,7 +136,6 @@ int isqrt(int n);
 char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
-void srv_file_init(int srv, const char *file);
 int get_bmap_id(char *name);
 
 /* client/player.c */
@@ -180,6 +178,15 @@ void script_send(char *params);
 void script_killall();
 void script_autoload();
 void script_unload(const char *params);
+
+/* client/server_files.c */
+void server_files_init();
+void server_files_load();
+FILE *server_file_open(size_t id);
+void server_file_mark_update(size_t id);
+void server_file_save(size_t id, unsigned char *data, size_t len);
+int server_files_updating();
+void server_files_setup_add(char *buf, size_t buf_size);
 
 /* client/server_settings.c */
 void server_settings_init();
@@ -238,7 +245,6 @@ int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_s
 SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 
 /* client/updates.c */
-void file_updates_init();
 void cmd_request_update(unsigned char *data, int len);
 int file_updates_finished();
 void file_updates_parse();

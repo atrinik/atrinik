@@ -441,7 +441,7 @@ static void popup_draw_func(popup_struct *popup)
 	/* Update progress bar of requested files */
 	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], Bitmaps[popup->bitmap_id]->bitmap->w / 2 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->w / 2, 30, NULL, &bltfx);
 
-	progress = MIN(100, request_file_chain * 8);
+	progress = MIN(100, 8);
 	box.x = 0;
 	box.y = 0;
 	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;

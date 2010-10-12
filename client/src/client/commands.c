@@ -108,20 +108,7 @@ static void parse_srv_setup(char *param, const char *command, int type)
 	}
 	else if (strcmp(param, "OK"))
 	{
-		char *cp;
-
-		srv_client_files[type].status = SRV_CLIENT_STATUS_UPDATE;
-
-		for (cp = param; *cp != '\0'; cp++)
-		{
-			if (*cp == '|')
-			{
-				*cp = '\0';
-				srv_client_files[type].server_len = atoi(param);
-				srv_client_files[type].server_crc = strtoul(cp + 1, NULL, 16);
-				break;
-			}
-		}
+		server_file_mark_update(type);
 	}
 }
 
@@ -201,31 +188,31 @@ void SetupCmd(char *buf, int len)
 		}
 		else if (!strcmp(cmd, "skf"))
 		{
-			parse_srv_setup(param, cmd, SRV_CLIENT_SKILLS);
+			parse_srv_setup(param, cmd, SERVER_FILE_SKILLS);
 		}
 		else if (!strcmp(cmd, "spfv2"))
 		{
-			parse_srv_setup(param, cmd, SRV_FILE_SPELLS_V2);
+			parse_srv_setup(param, cmd, SERVER_FILE_SPELLS);
 		}
 		else if (!strcmp(cmd, "ssf"))
 		{
-			parse_srv_setup(param, cmd, SRV_SERVER_SETTINGS);
+			parse_srv_setup(param, cmd, SERVER_FILE_SETTINGS);
 		}
 		else if (!strcmp(cmd, "bpf"))
 		{
-			parse_srv_setup(param, cmd, SRV_CLIENT_BMAPS);
+			parse_srv_setup(param, cmd, SERVER_FILE_BMAPS);
 		}
 		else if (!strcmp(cmd, "amf"))
 		{
-			parse_srv_setup(param, cmd, SRV_CLIENT_ANIMS);
+			parse_srv_setup(param, cmd, SERVER_FILE_ANIMS);
 		}
 		else if (!strcmp(cmd, "hpf"))
 		{
-			parse_srv_setup(param, cmd, SRV_CLIENT_HFILES);
+			parse_srv_setup(param, cmd, SERVER_FILE_HFILES);
 		}
 		else if (!strcmp(cmd, "upf"))
 		{
-			parse_srv_setup(param, cmd, SRV_FILE_UPDATES);
+			parse_srv_setup(param, cmd, SERVER_FILE_UPDATES);
 		}
 		else if (!strcmp(cmd, "mapsize"))
 		{
@@ -1793,26 +1780,6 @@ void GolemCmd(unsigned char *data)
 }
 
 /**
- * Save srv file.
- * @param path Path of the file
- * @param data Data to save
- * @param len Length of the data */
-static void save_data_cmd_file(char *path, unsigned char *data, int len)
-{
-	FILE *stream;
-
-	if ((stream = fopen_wrapper(path, "wb")) != NULL)
-	{
-		if (fwrite(data, 1, len, stream) != (size_t) len)
-			LOG(llevBug, "save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
-
-		fclose(stream);
-	}
-	else
-		LOG(llevBug, "save_data_cmd_file(): Can't open %s for writing. (len: %d)\n", path, len);
-}
-
-/**
  * New char command.
  * Used when server tells us to go to the new character creation. */
 void NewCharCmd()
@@ -1843,42 +1810,7 @@ void DataCmd(unsigned char *data, int len)
 	uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data, (uLong) len);
 	data = dest;
 	len = len_ucomp;
-	request_file_chain++;
-
-	switch (data_type)
-	{
-		case SRV_CLIENT_SKILLS:
-			save_data_cmd_file(FILE_CLIENT_SKILLS, data, len);
-			break;
-
-		case SRV_FILE_SPELLS_V2:
-			save_data_cmd_file(FILE_CLIENT_SPELLS, data, len);
-			break;
-
-		case SRV_SERVER_SETTINGS:
-			save_data_cmd_file(FILE_SERVER_SETTINGS, data, len);
-			break;
-
-		case SRV_CLIENT_ANIMS:
-			save_data_cmd_file(FILE_CLIENT_ANIMS, data, len);
-			break;
-
-		case SRV_CLIENT_BMAPS:
-			save_data_cmd_file(FILE_CLIENT_BMAPS, data, len);
-			break;
-
-		case SRV_CLIENT_HFILES:
-			save_data_cmd_file(FILE_CLIENT_HFILES, data, len);
-			break;
-
-		case SRV_FILE_UPDATES:
-			save_data_cmd_file(FILE_UPDATES, data, len);
-			break;
-
-		default:
-			LOG(llevBug, "DataCmd(): Unknown data type %d\n", data_type);
-	}
-
+	server_file_save(data_type, data, len);
 	free(dest);
 }
 

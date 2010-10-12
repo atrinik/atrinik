@@ -186,6 +186,7 @@ typedef enum LogLevel
 #include <list.h>
 #include <popup.h>
 #include <server_settings.h>
+#include <server_files.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>
