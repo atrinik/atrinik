@@ -73,9 +73,8 @@ void read_bmaps_p0()
 		/* Adjust the buffer if necessary. */
 		if (len > tmp_buf_size)
 		{
-			free(tmp_buf);
 			tmp_buf_size = len;
-			tmp_buf = malloc(tmp_buf_size);
+			tmp_buf = realloc(tmp_buf, tmp_buf_size);
 		}
 
 		pos = ftell(fp);
