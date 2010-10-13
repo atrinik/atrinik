@@ -30,141 +30,71 @@
 #include <include.h>
 
 /**
- * After we tested and/or created bmaps.p0, load the data from it. */
-static void load_bmaps_p0()
+ * Read bmaps from atrinik.p0, calculate checksums, etc. */
+void read_bmaps_p0()
 {
-	char buf[HUGE_BUF];
-	char name[HUGE_BUF];
-	int len, pos;
-	unsigned int crc;
+	FILE *fp;
+	size_t tmp_buf_size, pos;
+	char *tmp_buf, buf[MAX_BUF], *cp;
+	size_t len;
 	_bmaptype *at;
-	FILE *fbmap;
 
-	/* Clear bmap hash table */
-	memset((void *) bmap_table, 0, BMAPTABLE * sizeof(_bmaptype *));
+	fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
 
-	/* Try to open bmaps_p0 file */
-	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "rb")) == NULL)
+	if (!fp)
 	{
-		unlink(FILE_BMAPS_P0);
-		LOG(llevError, "Error loading bmaps.p0!\n");
+		LOG(llevError, "%s doesn't exist.\n", FILE_ATRINIK_P0);
 	}
 
-	while (fgets(buf, HUGE_BUF - 1, fbmap) != NULL)
+	memset((void *) bmap_table, 0, BMAPTABLE * sizeof(_bmaptype *));
+
+	tmp_buf_size = 24 * 1024;
+	tmp_buf = malloc(tmp_buf_size);
+
+	while (fgets(buf, sizeof(buf) - 1, fp) != NULL)
 	{
-		sscanf(buf, "%d %x %d %s", &pos, &crc, &len, name);
+		if (strncmp(buf, "IMAGE ", 6))
+		{
+			LOG(llevError, "The file %s is corrupted.\n", FILE_ATRINIK_P0);
+		}
+
+		/* Skip accross the image ID data. */
+		for (cp = buf + 6; *cp != ' '; cp++)
+		{
+		}
+
+		len = atoi(cp);
+
+		/* Skip accross the length data. */
+		for (cp = cp + 1; *cp != ' '; cp++)
+		{
+		}
+
+		/* Adjust the buffer if necessary. */
+		if (len > tmp_buf_size)
+		{
+			free(tmp_buf);
+			tmp_buf_size = len;
+			tmp_buf = malloc(tmp_buf_size);
+		}
+
+		pos = ftell(fp);
+
+		if (!fread(tmp_buf, 1, len, fp))
+		{
+			break;
+		}
 
 		at = (_bmaptype *) malloc(sizeof(_bmaptype));
-		at->name = (char *) malloc(strlen(name) + 1);
-		strcpy(at->name, name);
-		at->crc = crc;
+		at->name = strdup(cp);
+		at->crc = crc32(1L, (const unsigned char FAR *) tmp_buf, len);
 		at->len = len;
 		at->pos = pos;
 		add_bmap(at);
 	}
 
-	fclose(fbmap);
-}
-
-/**
- * Read and/or create the bmaps.p0 file out of the
- * atrinik.p0 file. */
-void read_bmaps_p0()
-{
-	FILE *fbmap, *fpic;
-	char *temp_buf, *cp;
-	int bufsize, len, num,  pos;
-	unsigned int crc;
-	char buf[HUGE_BUF];
-	struct stat	bmap_stat, pic_stat;
-
-	if ((fpic = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL)
-	{
-		unlink(FILE_BMAPS_P0);
-		LOG(llevError, "Can't find atrinik.p0 file!\n");
-	}
-
-	/* Get time stamp of the file atrinik.p0 */
-	fstat(fileno(fpic), &pic_stat);
-
-	/* Try to open bmaps_p0 file */
-	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "r" )) == NULL)
-		goto create_bmaps;
-
-	/* Get time stamp of the file */
-	fstat(fileno(fbmap), &bmap_stat);
-	fclose(fbmap);
-
-	if (difftime(pic_stat.st_mtime, bmap_stat.st_mtime) > 0.0f)
-		goto create_bmaps;
-
-	fclose(fpic);
-	load_bmaps_p0();
-	return;
-
-	/* If we are here, then we have to (re)create the bmaps.p0 file */
-create_bmaps:
-	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "w")) == NULL)
-	{
-		fclose(fbmap);
-		unlink(FILE_BMAPS_P0);
-		LOG(llevError, " Can't create bmaps.p0 file!\n");
-	}
-
-	temp_buf = malloc((bufsize = 24 * 1024));
-
-	while (fgets(buf, HUGE_BUF - 1, fpic) != NULL)
-	{
-		if (strncmp(buf, "IMAGE ", 6) != 0)
-		{
-			fclose(fbmap);
-			fclose(fpic);
-			unlink(FILE_BMAPS_P0);
-			LOG(llevError, "read_client_images(): Bad image line - not IMAGE, instead\n%s\n", buf);
-		}
-
-		num = atoi(buf + 6);
-
-		/* Skip accross the number data */
-		for (cp = buf + 6; *cp != ' '; cp++);
-
-		len = atoi(cp);
-
-		strcpy(buf, cp);
-		pos = (int) ftell(fpic);
-
-		/* Dynamic buffer adjustment */
-		if (len > bufsize)
-		{
-			free(temp_buf);
-
-			/* We assume that this is nonsense */
-			if (len > 128 * 1024)
-			{
-				fclose(fbmap);
-				fclose(fpic);
-				unlink(FILE_BMAPS_P0);
-				LOG(llevError, "read_client_images(): Size of picture out of bounds!(len:%d)(pos:%d)\n", len, pos);
-			}
-
-			bufsize = len;
-			temp_buf = malloc(bufsize);
-		}
-
-		if (!fread(temp_buf, 1, len, fpic))
-			return;
-
-		crc = crc32(1L, (const unsigned char FAR *) temp_buf,len);
-
-		/* Now we got all we needed */
-		sprintf(temp_buf, "%d %x %s", pos, crc, buf);
-		fputs(temp_buf, fbmap);
-	}
-
-	free(temp_buf);
-	fclose(fbmap);
-	fclose(fpic);
-	load_bmaps_p0();
+	free(tmp_buf);
+	fclose(fp);
 }
 
 /**
