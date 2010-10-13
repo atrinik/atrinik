@@ -25,54 +25,28 @@
 
 /**
  * @file
- * Header file for servers files declaractions. */
+ * Image related structures. */
 
-#ifndef SERVER_FILES_H
-#define SERVER_FILES_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
-/**
- * @anchor SERVER_FILE_xxx
- * Server file IDs. */
-enum
+/** Maximum number of default bmaps hashtable. */
+#define BMAPS_MAX 32767
+
+/** Structure for bmap data. */
+typedef struct bmap_struct
 {
-	SERVER_FILE_SKILLS,
-	/** @deprecated */
-	SERVER_FILE_UNUSED1,
-	/** @deprecated */
-	SERVER_FILE_UNUSED2,
-	/** @deprecated */
-	SERVER_FILE_UNUSED3,
-	SERVER_FILE_BMAPS,
-	SERVER_FILE_HFILES,
-	SERVER_FILE_UPDATES,
-	SERVER_FILE_SPELLS,
-	SERVER_FILE_SETTINGS,
-	SERVER_FILE_ANIMS,
+	/** The name. */
+	char *name;
 
-	/** Last index. */
-	SERVER_FILES_MAX
-};
+	/** Size in bytes. */
+	size_t len;
 
-/** One server file. */
-typedef struct server_files_struct
-{
-	/** If 0, will be (re-)loaded. */
-	uint8 loaded;
+	/** Position in atrinik.p0 file, if -1, it doesn't exist in the file. */
+	int pos;
 
-	/**
-	 * Update status of this file:
-	 *
-	 * - 0: Not being updated, or just finished updating.
-	 * - 1: Start updating the file the next time server_files_updating()
-	 *      is called.
-	 * - -1: The file is being updated. */
-	sint8 update;
-
-	/** Size of the file. */
-	size_t size;
-
-	/** Calculate checksum. */
+	/** Checksum. */
 	unsigned long crc32;
-} server_files_struct;
+} bmap_struct;
 
 #endif

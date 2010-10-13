@@ -30,12 +30,12 @@
 #include <include.h>
 
 /**
- * Load temporary animations. */
-static int load_anim_tmp()
+ * Load animations. */
+void read_anims()
 {
 	int anim_len = 0, new_anim = 1;
 	uint8 faces = 0;
-	FILE *stream;
+	FILE *fp;
 	char buf[HUGE_BUF];
 	unsigned char anim_cmd[2048];
 	size_t count = 0;
@@ -80,12 +80,14 @@ static int load_anim_tmp()
 	anim_table[count].len = 6;
 	count++;
 
-	if ((stream = fopen_wrapper(FILE_ANIMS_TMP, "rt")) == NULL)
+	fp = server_file_open(SERVER_FILE_ANIMS);
+
+	if (!fp)
 	{
-		LOG(llevError, "load_anim_tmp: Error reading anim.tmp!\n");
+		LOG(llevError, "read_anims(): Could not open anims server file.\n");
 	}
 
-	while (fgets(buf, sizeof(buf) - 1, stream) != NULL)
+	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
 		/* Are we outside an anim body? */
 		if (new_anim == 1)
@@ -135,113 +137,5 @@ static int load_anim_tmp()
 
 	animations_num = count;
 	animations = calloc(animations_num, sizeof(Animations));
-	fclose(stream);
-	return 1;
-}
-
-/**
- * Read temporary animations. */
-int read_anim_tmp()
-{
-	FILE *stream, *ftmp;
-	int i, new_anim = 1, count = 1;
-	char buf[HUGE_BUF], cmd[HUGE_BUF];
-	struct stat	stat_bmap, stat_anim, stat_tmp;
-
-	/* if this fails, we have a urgent problem somewhere before */
-	if ((stream = fopen_wrapper(FILE_BMAPS_TMP, "rb" )) == NULL)
-	{
-		LOG(llevError, "read_anim_tmp:Error reading bmap.tmp for anim.tmp!\n");
-	}
-	fstat(fileno(stream), &stat_bmap);
-	fclose(stream);
-
-	if ( (stream = server_file_open(SERVER_FILE_ANIMS)) == NULL )
-	{
-		LOG(llevError,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!\n");
-	}
-	fstat(fileno(stream), &stat_anim);
-	fclose( stream );
-
-	if ( (stream = fopen_wrapper(FILE_ANIMS_TMP, "rb" )) != NULL )
-	{
-		fstat(fileno(stream), &stat_tmp);
-		fclose( stream );
-
-		/* our anim file must be newer as our default anim file */
-		if (difftime(stat_tmp.st_mtime, stat_anim.st_mtime) > 0.0f)
-		{
-			/* our anim file must be newer as our bmaps.tmp */
-			if (difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
-				return load_anim_tmp(); /* all fine - load file */
-		}
-	}
-
-	unlink(FILE_ANIMS_TMP); /* for some reason - recreate this file */
-	if ( (ftmp = fopen_wrapper(FILE_ANIMS_TMP, "wt" )) == NULL )
-	{
-		LOG(llevError,"read_anim_tmp:Error opening anims.tmp!\n");
-	}
-
-	if ( (stream = server_file_open(SERVER_FILE_ANIMS)) == NULL )
-	{
-		LOG(llevError, "read_anim_tmp:Error reading client_anims for anims.tmp!\n");
-	}
-
-	while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
-	{
-		sscanf(buf,"%s",cmd);
-		if (new_anim == 1) /* we are outside a anim body ? */
-		{
-			if (!strncmp(buf, "anim ",5))
-			{
-				sprintf(cmd, "anim %d -> %s",count++, buf);
-				fputs(cmd,ftmp); /* safe this key string! */
-				new_anim = 0;
-			}
-			else /* we should never hit this point */
-			{
-				LOG(llevBug,"read_anim_tmp:Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
-			}
-		}
-		else /* no, we are inside! */
-		{
-			if (!strncmp(buf, "facings ",8))
-			{
-				fputs(buf, ftmp); /* safe this key word! */
-			}
-			else if (!strncmp(cmd, "mina",4))
-			{
-				fputs(buf, ftmp); /* safe this key word! */
-				new_anim = 1;
-			}
-			else
-			{
-				/* this is really slow when we have more pictures - we
-				 * browsing #anim * #bmaps times the same table -
-				 * pretty bad - when we stay to long here, we must create
-				 * for bmaps.tmp entries a hash table too. */
-				for (i=0;i<bmaptype_table_size;i++)
-				{
-					if (!strcmp(bmaptype_table[i].name,cmd))
-						break;
-				}
-
-				if (i>=bmaptype_table_size)
-				{
-					/* if we are here then we have a picture name in the anims file
-					 * which we don't have in our bmaps file! Pretty bad. But because
-					 * face #0 is ALWAYS bug.101 - we simply use it here! */
-					i=0;
-					LOG(llevBug,"read_anim_tmp: Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
-				}
-				sprintf(cmd, "%d\n",i);
-				fputs(cmd, ftmp);
-			}
-		}
-	}
-
-	fclose( stream );
-	fclose( ftmp );
-	return load_anim_tmp(); /* all fine - load file */
+	fclose(fp);
 }

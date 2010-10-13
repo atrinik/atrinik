@@ -1,6 +1,6 @@
 #ifndef __CPROTO__
 /* client/animations.c */
-int read_anim_tmp();
+void read_anims();
 
 /* client/client.c */
 void DoClient();
@@ -14,8 +14,6 @@ int GetInt_String(const unsigned char *data);
 sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
 int cs_write_string(char *buf, size_t len);
-void finish_face_cmd(int pnum, uint32 checksum, char *face);
-int request_face(int pnum, int mode);
 void check_animation_status(int anum);
 char *adjust_string(char *buf);
 
@@ -78,10 +76,13 @@ int ignore_check(char *name, char *type);
 void ignore_command(char *cmd);
 
 /* client/image.c */
+bmap_struct *bmap_find(const char *name);
+void bmap_add(bmap_struct *bmap);
 void read_bmaps_p0();
-void delete_bmap_tmp();
-int read_bmap_tmp();
 void read_bmaps();
+void finish_face_cmd(int pnum, uint32 checksum, char *face);
+int request_face(int pnum, int mode);
+int get_bmap_id(char *name);
 
 /* client/item.c */
 void init_item_types();
@@ -128,15 +129,12 @@ int metaserver_thread(void *dummy);
 void metaserver_get_servers();
 
 /* client/misc.c */
-_bmaptype *find_bmap(char *name);
-void add_bmap(_bmaptype *at);
 void FreeMemory(void **p);
 const char *show_input_string(const char *text, struct _Font *font, int wlen);
 int isqrt(int n);
 char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
-int get_bmap_id(char *name);
 
 /* client/player.c */
 void clear_player();

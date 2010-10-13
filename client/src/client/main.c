@@ -60,8 +60,6 @@ int music_global_fade = 0;
 /** Whether the mouse button was clicked. */
 int mb_clicked = 0;
 
-/** Bitmaps table size. */
-int bmaptype_table_size;
 /** Settings. */
 struct _options options;
 Uint32 videoflags_full, videoflags_win;
@@ -104,9 +102,6 @@ int esc_menu_index;
 int f_custom_cursor = 0;
 int x_custom_cursor = 0;
 int y_custom_cursor = 0;
-
-/** The bitmap table. */
-_bmaptype *bmap_table[BMAPTABLE];
 
 /* update map area */
 int map_udate_flag, map_transfer_flag, map_redraw_flag;
@@ -389,8 +384,6 @@ static void init_game_data()
 
 	esc_menu_flag = 0;
 	srand(time(NULL));
-
-	memset(bmaptype_table, 0, sizeof(bmaptype_table));
 
 	ToggleScreenFlag = 0;
 	KeyScanFlag = 0;

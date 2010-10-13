@@ -32,22 +32,25 @@
 /** File names of the server files inside srv_files directory. */
 static const char *const server_file_names[SERVER_FILES_MAX] =
 {
-	"skills", NULL, NULL, "anims", "bmaps",
-	"hfiles", "updates", "spells", "settings"
+	"skills", NULL, NULL, NULL, "bmaps",
+	"hfiles", "updates", "spells", "settings",
+	"anims"
 };
 
 /** Identifiers of the server files used in the setup command. */
 static const char *const server_file_setup_names[SERVER_FILES_MAX] =
 {
-	"skf", NULL, NULL, "amf", "bpf",
-	"hpf", "upf", "spfv2", "ssf"
+	"skf", NULL, NULL, NULL, "bpf",
+	"hpf", "upf", "spfv2", "ssf",
+	"amfv2"
 };
 
 /** Post-loading functions to call. */
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
 	read_skills, NULL, NULL, NULL, read_bmaps,
-	read_help_files, file_updates_parse, read_spells, server_settings_init
+	read_help_files, file_updates_parse, read_spells, server_settings_init,
+	read_anims
 };
 
 /** The server files. */

@@ -202,7 +202,7 @@ void SetupCmd(char *buf, int len)
 		{
 			parse_srv_setup(param, cmd, SERVER_FILE_BMAPS);
 		}
-		else if (!strcmp(cmd, "amf"))
+		else if (!strcmp(cmd, "amfv2"))
 		{
 			parse_srv_setup(param, cmd, SERVER_FILE_ANIMS);
 		}

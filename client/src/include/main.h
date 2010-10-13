@@ -72,21 +72,7 @@ extern _server_char new_character;
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
 /* For hash table (bmap, ...) */
-#define MAXHASHSTRING 20
-
-/* Prime nubmer for hash table */
-#define BMAPTABLE 32767
-
-/** Structure for bitmap data */
-typedef struct _bmaptype
-{
-	char *name;
-	int len;
-	int pos;
-	unsigned int crc;
-}_bmaptype;
-
-extern _bmaptype *bmap_table[BMAPTABLE];
+#define MAXSTRING 20
 
 /** Keymap structure */
 typedef struct _keymap
@@ -145,20 +131,6 @@ typedef struct msg_anim_struct
 } msg_anim_struct;
 
 extern struct msg_anim_struct msg_anim;
-
-#define MAX_BMAPTYPE_TABLE 32767
-
-typedef struct _bmaptype_table
-{
-	char *name;
-	int pos;
-	int len;
-	unsigned int crc;
-}_bmaptype_table;
-
-_bmaptype_table bmaptype_table[MAX_BMAPTYPE_TABLE];
-
-extern int bmaptype_table_size;
 
 #ifndef SYSPATH
 #define SYSPATH "./"
