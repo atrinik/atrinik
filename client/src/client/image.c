@@ -504,29 +504,11 @@ static int load_gfx_user_face(uint16 num)
  * We got a face - test if we have it loaded. If not, ask the server to
  * send us face command.
  * @param pnum Face ID.
- * @param mode Mode.
  * @return 0 if face is not there, 1 if face was requested or loaded. */
-int request_face(int pnum, int mode)
+int request_face(int pnum)
 {
 	char buf[MAX_BUF];
-	static int count = 0;
-	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
 	uint16 num = (uint16) (pnum &~ 0x8000);
-
-	/* Forced flush buffer and command */
-	if (mode)
-	{
-		if (count)
-		{
-			fr_buf[0] = 'f';
-			fr_buf[1] = 'r';
-			fr_buf[2] = ' ';
-			cs_write_string(fr_buf, 4 + count * sizeof(uint16));
-			count = 0;
-		}
-
-		return 1;
-	}
 
 	if (options.reload_gfx_user && load_gfx_user_face(num))
 	{
@@ -592,7 +574,7 @@ int get_bmap_id(char *name)
 
 		if (!strcmp(name, bmaps[x].name))
 		{
-			request_face(x, 0);
+			request_face(x);
 			return x;
 		}
 	}

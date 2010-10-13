@@ -81,7 +81,7 @@ void bmap_add(bmap_struct *bmap);
 void read_bmaps_p0();
 void read_bmaps();
 void finish_face_cmd(int pnum, uint32 checksum, char *face);
-int request_face(int pnum, int mode);
+int request_face(int pnum);
 int get_bmap_id(char *name);
 
 /* client/item.c */

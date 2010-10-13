@@ -1462,8 +1462,6 @@ int main(int argc, char *argv[])
 		if (GameStatus > GAME_STATUS_CONNECT)
 		{
 			DoClient();
-			/* Flush face request buffer. */
-			request_face(0, 1);
 		}
 
 		if (GameStatus == GAME_STATUS_PLAY)

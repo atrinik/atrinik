@@ -300,7 +300,7 @@ void AnimCmd(unsigned char *data, int len)
 	for (i = 4, j = 0; i < len; i += 2, j++)
 	{
 		animations[anum].faces[j] = GetShort_String(data + i);
-		request_face(animations[anum].faces[j], 0);
+		request_face(animations[anum].faces[j]);
 	}
 
 	if (j != animations[anum].num_animations)
@@ -970,7 +970,7 @@ void PlayerCmd(unsigned char *data, int len)
 	weight = GetInt_String(data + i);
 	i += 4;
 	face = GetInt_String(data + i);
-	request_face(face, 0);
+	request_face(face);
 	i += 4;
 	nlen = data[i++];
 	memcpy(name, (const char*)data + i, nlen);
@@ -1055,7 +1055,7 @@ void ItemXCmd(unsigned char *data, int len)
 			pos += 4;
 			face = GetInt_String(data + pos);
 			pos += 4;
-			request_face(face, 0);
+			request_face(face);
 			direction = data[pos++];
 
 			if (loc)
@@ -1153,7 +1153,7 @@ void ItemYCmd(unsigned char *data, int len)
 			pos += 4;
 			face = GetInt_String(data + pos);
 			pos += 4;
-			request_face(face, 0);
+			request_face(face);
 			direction = data[pos++];
 
 			if (loc)
@@ -1213,7 +1213,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 	loc = ip->env ? ip->env->tag : 0;
 	weight = (int)(ip->weight * 1000);
 	face = ip->face;
-	request_face(face, 0);
+	request_face(face);
 	flags = ip->flagsval;
 	anim = ip->animation_id;
 	animspeed = (uint8) ip->anim_speed;
@@ -1246,7 +1246,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 	if (sendflags & UPD_FACE)
 	{
 		face = GetInt_String(data + pos);
-		request_face(face, 0);
+		request_face(face);
 		pos += 4;
 	}
 
@@ -1476,7 +1476,7 @@ void Map2Cmd(unsigned char *data, int len)
 
 				pos += 2;
 				/* Request the face. */
-				request_face(face, 0);
+				request_face(face);
 				/* Object flags. */
 				obj_flags = data[pos++];
 				/* Flags of this layer. */
@@ -1755,7 +1755,7 @@ void GolemCmd(unsigned char *data)
 		/* Find start of a name */
 		tmp = strchr((char *)data, ' ');
 		face = atoi(tmp + 1);
-		request_face(face, 0);
+		request_face(face);
 		/* Find start of a name */
 		tmp = strchr(tmp + 1, ' ');
 		sprintf(buf, "You lose control of %s.", tmp + 1);
@@ -1768,7 +1768,7 @@ void GolemCmd(unsigned char *data)
 		/* Find start of a name */
 		tmp = strchr((char *)data, ' ');
 		face = atoi(tmp + 1);
-		request_face(face, 0);
+		request_face(face);
 		/* Find start of a name */
 		tmp = strchr(tmp + 1, ' ');
 		sprintf(buf, "You get control of %s.", tmp + 1);
@@ -1917,7 +1917,7 @@ void ShopCmd(unsigned char *data, int len)
 			pos += 4;
 
 			/* Request the face now */
-			request_face(face, 0);
+			request_face(face);
 
 			/* Get the direction the item is facing */
 			direction = data[pos++];
