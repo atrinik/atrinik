@@ -243,6 +243,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_ANIMS);
 		}
+		else if (!strcmp(cmd, "amfv2"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_ANIMS_V2);
+		}
 		else if (!strcmp(cmd, "hpf"))
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
@@ -498,6 +502,7 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 			break;
 
 		case SRV_CLIENT_ANIMS:
+		case SRV_CLIENT_ANIMS_V2:
 			if (ns->rf_anims)
 			{
 				LOG(llevInfo, "RF: received bad rf command - double call anims \n");

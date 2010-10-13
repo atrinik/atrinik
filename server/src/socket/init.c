@@ -498,6 +498,52 @@ static void create_server_settings()
 }
 
 /**
+ * Initialize animations file for the client. */
+static void create_server_animations()
+{
+	char buf[MAX_BUF];
+	FILE *fp, *fp2;
+
+	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
+	LOG(llevInfo, "Creating %s...\n", buf);
+
+	fp = fopen(buf, "wb");
+
+	if (!fp)
+	{
+		LOG(llevError, "Couldn't create %s.\n", buf);
+	}
+
+	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
+	fp2 = fopen(buf, "rb");
+
+	if (!fp2)
+	{
+		LOG(llevError, "Couldn't open %s.\n", buf);
+	}
+
+	while (fgets(buf, sizeof(buf), fp2))
+	{
+		/* Copy anything but face names. */
+		if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8))
+		{
+			fputs(buf, fp);
+		}
+		/* Transform face names into IDs. */
+		else
+		{
+			char *end = strchr(buf, '\n');
+
+			*end = '\0';
+			fprintf(fp, "%d\n", find_face(buf, 0));
+		}
+	}
+
+	fclose(fp2);
+	fclose(fp);
+}
+
+/**
  * Load all the server files we can send to client.
  *
  * client_bmaps is generated from the server at startup out of the
@@ -537,6 +583,10 @@ void init_srv_files()
 	create_server_settings();
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
 	load_srv_file(buf, SRV_SERVER_SETTINGS);
+
+	create_server_animations();
+	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
+	load_srv_file(buf, SRV_CLIENT_ANIMS_V2);
 }
 
 /**
