@@ -122,7 +122,19 @@
 		<Unit filename="..\..\..\src\client\tilestretcher.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\client\server_files.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\toolkit\popup.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\toolkit\text.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\toolkit\scroll_buttons.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\toolkit\text_input.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\toolkit\list.c">
@@ -131,7 +143,13 @@
 		<Unit filename="..\..\..\src\toolkit\button.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\toolkit\range_buttons.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\toolkit\widget.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\include\popup.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\client.h">
@@ -188,6 +206,9 @@
 		<Unit filename="..\..\..\src\include\config.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\image.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\player_shop.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -206,6 +227,9 @@
 		<Unit filename="..\..\..\src\include\scripts.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\server_files.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\textwin.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -219,6 +243,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\item.h">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\include\server_settings.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\zlib\adler32.c">
