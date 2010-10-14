@@ -39,7 +39,7 @@ void server_settings_init()
 	FILE *fp;
 	char buf[HUGE_BUF], *cp;
 	int line = 0;
-	char_struct *cur_char;
+	char_struct *cur_char = NULL;
 
 	fp = server_file_open(SERVER_FILE_SETTINGS);
 
