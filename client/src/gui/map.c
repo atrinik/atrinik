@@ -356,7 +356,7 @@ void adjust_tile_stretch()
  * @param probe Target's HP bar.
  * @param zoom How much to zoom the face by.
  * @param align X align. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align)
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -369,6 +369,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].height[layer] = height;
 	the_map.cells[x][y].zoom[layer] = zoom;
 	the_map.cells[x][y].align[layer] = align;
+	the_map.cells[x][y].draw_double[layer] = draw_double;
 }
 
 /**
@@ -564,52 +565,14 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		yl -= map->height[layer];
 	}
 
-	/* These faces are only shown when they are in a
-	 * position which would be visible to the player. */
-	if (FaceList[face].flags & FACE_FLAG_UP)
-	{
-		/* If the face is dir [0124568] and in
-		 * the top or right quadrant or on the
-		 * central square, blt it. */
-		if (FaceList[face].flags & FACE_FLAG_D1)
-		{
-			if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x > (MAP_MAX_SIZE - 1) / 2) && (y < (MAP_MAX_SIZE - 1) / 2)))
-			{
-				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0, map->zoom[layer]);
-			}
-		}
+	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[layer]);
 
-		/* If the face is dir [0234768] and in
-		 * the top or left quadrant or on the
-		 * central square, blt it. */
-		if (FaceList[face].flags & FACE_FLAG_D3)
-		{
-			if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x < (MAP_MAX_SIZE - 1) / 2) && (y > (MAP_MAX_SIZE - 1) / 2)))
-			{
-				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0, map->zoom[layer]);
-			}
-		}
-	}
-	/* Double faces are shown twice, one above
-	 * the other, when not lower on the screen
-	 * than the player. This simulates high walls
-	 * without obscuring the user's view. */
-	else if (FaceList[face].flags & FACE_FLAG_DOUBLE)
+	/* Double faces are shown twice, one above the other, when not lower
+	 * on the screen than the player. This simulates high walls without
+	 * obscuring the user's view. */
+	if (map->draw_double[layer])
 	{
-		/* Blt face once in normal position. */
-		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0, map->zoom[layer]);
-
-		/* If it's not in the bottom quadrant of
-		 * the map, blt it again 'higher up' on
-		 * the same square. */
-		if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
-		{
-			sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, 0, map->zoom[layer]);
-		}
-	}
-	else
-	{
-		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[layer]);
+		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom[layer]);
 	}
 
 	/* Do we have a playername? Then print it! */

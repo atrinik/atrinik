@@ -129,6 +129,9 @@ struct MapCell
 	/** Object flags. */
 	uint8 flags[MAX_LAYERS + 1];
 
+	/** Double drawing. */
+	uint8 draw_double[MAX_LAYERS + 1];
+
 	/** Faces. */
 	sint16 faces[MAX_LAYERS + 1];
 

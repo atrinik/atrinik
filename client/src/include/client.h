@@ -558,6 +558,8 @@ extern Client_Player cpl;
 #define MAP2_FLAG_ZOOM 16
 /** X align. */
 #define MAP2_FLAG_ALIGN 32
+/** Draw the object twice. */
+#define MAP2_FLAG_DOUBLE 64
 /*@}*/
 
 /**
