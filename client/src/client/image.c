@@ -439,9 +439,6 @@ static int load_gfx_user_face(uint16 num)
 	return 0;
 }
 
-/** Maximum face request */
-#define REQUEST_FACE_MAX 250
-
 /**
  * We got a face - test if we have it loaded. If not, ask the server to
  * send us face command.
