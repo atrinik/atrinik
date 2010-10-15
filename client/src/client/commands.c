@@ -65,7 +65,6 @@
  *   The unpacking routines basically perform the opposite operations. */
 
 #include <include.h>
-static int scrolldx = 0, scrolldy = 0;
 
 /**
  * Book command, used to initialize the book interface.
@@ -122,7 +121,6 @@ void SetupCmd(char *buf, int len)
 	int s;
 	char *cmd, *param;
 
-	scrolldy = scrolldx = 0;
 	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
 
 	for (s = 0; ;)
