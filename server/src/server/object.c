@@ -315,7 +315,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
 	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
 	"cursed_perm", "damned_perm", "door_closed", NULL, "is_missile",
-	NULL, NULL, "is_assassin", NULL, "no_save",
+	"draw_direction", "draw_double", "is_assassin", NULL, "no_save",
 	NULL
 };
 /* @endcparser */

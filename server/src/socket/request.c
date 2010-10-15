@@ -1428,6 +1428,26 @@ void draw_client_map2(object *pl)
 					}
 				}
 
+				/* Handle objects that are shown based on their direction
+				 * and the player's position. */
+				if (tmp && QUERY_FLAG(tmp, FLAG_DRAW_DIRECTION))
+				{
+					/* If the object is dir [0124568] and not in the top
+					 * or right quadrant or on the central square, do not
+					 * show it. */
+					if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2)))
+					{
+						tmp = NULL;
+					}
+					/* If the object is dir [0234768] and not in the top
+					 * or left quadrant or on the central square, do not
+					 * show it. */
+					else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2)))
+					{
+						tmp = NULL;
+					}
+				}
+
 				/* Found something. */
 				if (tmp)
 				{
@@ -1514,6 +1534,16 @@ void draw_client_map2(object *pl)
 						}
 					}
 
+					/* Draw the object twice if set, but only if it's not
+					 * in the bottom quadrant of the map. */
+					if (QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2))
+					{
+						if (CONTR(pl)->socket.socket_version >= 1043)
+						{
+						flags |= MAP2_FLAG_DOUBLE;
+						}
+					}
+
 					/* Damage animation? Store it for later. */
 					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
 					{
@@ -1543,7 +1573,7 @@ void draw_client_map2(object *pl)
 					 * sleeping, etc). */
 					SockList_AddChar(&sl_layer, (char) GET_CLIENT_FLAGS(head));
 					/* Flags we figured out above. */
-					SockList_AddChar(&sl_layer, (char) flags);
+					SockList_AddChar(&sl_layer, flags);
 
 					/* Multi-arch? Add it's quick pos. */
 					if (flags & MAP2_FLAG_MULTI)

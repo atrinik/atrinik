@@ -884,7 +884,7 @@
  * @defgroup flag_defines Flag defines
  * The object flags.
  *
- * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108,
+ * Unused: 77, 78, 113, 128, 98, 81, 82, 104, 105, 106, 107, 108,
  * 109, 96, 87, 88, 54, 53, 89, 79, 44, 23, 48.
  *
  * @note
@@ -1242,6 +1242,12 @@
 /**
  * Object is a missile (arrow, potion, magic bullet, etc). */
 #define FLAG_IS_MISSILE 129
+/**
+ * The object is shown based on its direction and the player's position. */
+#define FLAG_DRAW_DIRECTION 130
+/**
+ * The object is drawn twice. */
+#define FLAG_DRAW_DOUBLE 131
 /**
  * If this and slaying field is set, the object does 2.25 times more damage
  * to race that of the 'slaying' field. */
