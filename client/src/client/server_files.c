@@ -53,6 +53,14 @@ static void (*server_file_funcs[SERVER_FILES_MAX])() =
 	read_anims
 };
 
+/** Functions to call if the server file was already loaded. */
+static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
+{
+	NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
+	anims_reset
+};
+
 /** The server files. */
 static server_files_struct server_files[SERVER_FILES_MAX];
 
@@ -76,9 +84,20 @@ void server_files_load()
 
 	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
-		/* Invalid server file or it was previously loaded. */
-		if (!server_file_names[i] || server_files[i].loaded)
+		/* Invalid server file. */
+		if (!server_file_names[i])
 		{
+			continue;
+		}
+
+		/* Server file was loaded previously. */
+		if (server_files[i].loaded)
+		{
+			if (server_file_funcs_reload[i])
+			{
+				server_file_funcs_reload[i]();
+			}
+
 			continue;
 		}
 

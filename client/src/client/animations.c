@@ -139,3 +139,16 @@ void read_anims()
 	animations = calloc(animations_num, sizeof(Animations));
 	fclose(fp);
 }
+
+/**
+ * Reset the necessary values in animations table instead of reloading
+ * them from file. */
+void anims_reset()
+{
+	size_t i;
+
+	for (i = 0; i < animations_num; i++)
+	{
+		animations[i].loaded = 0;
+	}
+}

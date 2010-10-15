@@ -1,6 +1,7 @@
 #ifndef __CPROTO__
 /* client/animations.c */
 void read_anims();
+void anims_reset();
 
 /* client/client.c */
 void DoClient();
