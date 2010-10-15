@@ -9,6 +9,7 @@ direction 1
 no_pick 1
 type 77
 layer 7
+draw_direction 1
 end
 
 Object wmask_fire_off_1
@@ -22,4 +23,5 @@ direction 1
 no_pick 1
 layer 7
 type 77
+draw_direction 1
 end

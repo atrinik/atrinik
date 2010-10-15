@@ -6,6 +6,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object fwall_fire1b
 name wall
@@ -15,6 +16,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object fwall_fire1c
 name wall
@@ -24,4 +26,5 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end

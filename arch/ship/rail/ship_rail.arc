@@ -50,6 +50,7 @@ layer 5
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_s
@@ -104,6 +105,7 @@ layer 7
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_w
@@ -158,6 +160,7 @@ layer 5
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_e
@@ -212,6 +215,7 @@ layer 7
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_ne
@@ -239,6 +243,7 @@ layer 5
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_nw
@@ -266,6 +271,7 @@ layer 5
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_se
@@ -293,6 +299,7 @@ layer 7
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end
 
 Object ship_rail_sw
@@ -320,4 +327,5 @@ layer 5
 terrain_type 1
 type 77
 no_pick 1
+draw_double 1
 end

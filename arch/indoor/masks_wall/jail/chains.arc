@@ -9,7 +9,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object chains2.151
 name chains
 face chains2.u.151
@@ -21,7 +23,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object chains3.151
 name chains
 face chains3.u.151
@@ -33,4 +37,5 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end

@@ -6,6 +6,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 
 Object wall_dungeon2_3
@@ -16,6 +17,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 
 Object wall_dungeon2_4
@@ -26,6 +28,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 
 Object wall_dungeon2_8
@@ -36,6 +39,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 
 Object wall_dungeon2b_1
@@ -46,6 +50,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 
 Object wall_dungeon2b_3
@@ -56,6 +61,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 
 Object wall_dungeon2b_4
@@ -66,4 +72,5 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end

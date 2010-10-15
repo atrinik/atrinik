@@ -6,6 +6,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 3
 end
 
@@ -17,6 +18,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 3
 end
 
@@ -28,6 +30,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 3
 end
 
@@ -39,6 +42,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 4
 end
 
@@ -50,6 +54,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 4
 end
 
@@ -61,6 +66,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 4
 end
 
@@ -72,6 +78,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 5
 end
 
@@ -83,5 +90,6 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 glow_radius 5   
 end

@@ -16,4 +16,5 @@ layer 5
 blocksview 1
 no_pass 1
 no_pick 1
+draw_double 1
 end

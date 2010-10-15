@@ -6,6 +6,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object wall_pattern4.131
 name stone wall
@@ -15,6 +16,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object wall_pattern4.141
 name stone wall
@@ -24,6 +26,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object wall_pattern4.181
 name stone wall
@@ -33,6 +36,7 @@ type 77
 layer 5
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object wall_pattern4_w.111
 name stone wall

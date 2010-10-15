@@ -9,7 +9,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object wall_blood2
 name blood
 face wall_blood2.u.151
@@ -21,7 +23,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object wall_blood3
 name blood
 face wall_blood3.u.151
@@ -33,7 +37,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object wall_blood4
 name blood
 face wall_blood4.u.151
@@ -45,4 +51,5 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end

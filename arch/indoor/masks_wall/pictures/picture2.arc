@@ -9,7 +9,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture8
 name picture
 face picture8.u.151
@@ -21,7 +23,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture9
 name picture
 face picture9.u.151
@@ -33,7 +37,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture10
 name picture
 face picture10.u.151
@@ -45,7 +51,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture11
 name picture
 face picture11.u.151
@@ -57,7 +65,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture12
 name picture
 face picture12.u.151
@@ -69,7 +79,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture13
 name picture
 face picture13.u.151
@@ -81,7 +93,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture14
 name picture
 face picture14.u.151
@@ -93,7 +107,9 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
+
 Object picture15
 name picture
 face picture15.u.151
@@ -105,4 +121,5 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end

@@ -6,6 +6,7 @@ layer 3
 type 79
 no_pick 1
 end
+
 Object cave_deco_full
 name cave
 face cave_deco_full.u.111
@@ -18,7 +19,9 @@ no_teleport 1
 layer 3
 type 79
 no_pick 1
+draw_direction 1
 end
+
 Object cave_deco1
 name cave
 face cave_deco1.111
@@ -32,6 +35,7 @@ layer 3
 type 79
 no_pick 1
 end
+
 Object cave_deco2
 name cave
 face cave_deco2.111
@@ -45,6 +49,7 @@ layer 3
 type 79
 no_pick 1
 end
+
 Object cave_deco3
 name cave
 face cave_deco3.111

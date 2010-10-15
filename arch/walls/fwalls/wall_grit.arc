@@ -6,6 +6,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object fwall_grit1b
 name wall
@@ -15,6 +16,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object fwall_grit1c
 name wall
@@ -24,6 +26,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object fwall_grit2a
 name wall
@@ -33,6 +36,7 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end
 Object fwall_grit2b
 name wall
@@ -42,4 +46,5 @@ layer 5
 type 77
 no_pick 1
 no_pass 1
+draw_double 1
 end

@@ -9,6 +9,7 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
 
 Object flag_02
@@ -22,6 +23,7 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
 
 Object flag_03
@@ -35,6 +37,7 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
 
 Object flag_04
@@ -48,6 +51,7 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
 
 Object flag_05
@@ -61,6 +65,7 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
 
 Object flag_kobold
@@ -74,6 +79,7 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
 
 Object flag_eagle
@@ -87,4 +93,5 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end

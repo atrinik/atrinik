@@ -9,4 +9,5 @@ direction 1
 type 77
 no_pick 1
 layer 7
+draw_direction 1
 end
