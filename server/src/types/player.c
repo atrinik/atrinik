@@ -992,36 +992,34 @@ int move_player(object *op, int dir)
  * @retval 1 There are more actions we can do. */
 int handle_newcs_player(player *pl)
 {
-	object *op = pl->ob;
-
-	if (!op || !OBJECT_ACTIVE(op))
+	if (!pl->ob || !OBJECT_ACTIVE(pl->ob))
 	{
 		return -1;
 	}
 
 	handle_client(&pl->socket, pl);
 
-	if (!op || !OBJECT_ACTIVE(op) || pl->socket.status == Ns_Dead)
+	if (!pl->ob || !OBJECT_ACTIVE(pl->ob) || pl->socket.status == Ns_Dead)
 	{
 		return -1;
 	}
 
 	/* Check speed. */
-	if (op->speed_left < 0.0f)
+	if (pl->ob->speed_left < 0.0f)
 	{
 		return 0;
 	}
 
 	/* If we are here, we're never paralyzed anymore. */
-	CLEAR_FLAG(op, FLAG_PARALYZED);
+	CLEAR_FLAG(pl->ob, FLAG_PARALYZED);
 
-	if (op->direction && (CONTR(op)->run_on || CONTR(op)->fire_on))
+	if (pl->ob->direction && (CONTR(pl->ob)->run_on || CONTR(pl->ob)->fire_on))
 	{
 		/* All move commands take 1 tick, at least for now. */
-		op->speed_left--;
-		move_player(op, op->direction);
+		pl->ob->speed_left--;
+		move_player(pl->ob, pl->ob->direction);
 
-		if (op->speed_left > 0)
+		if (pl->ob->speed_left > 0)
 		{
 			return 1;
 		}

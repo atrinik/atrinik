@@ -780,6 +780,11 @@ static void process_players1()
 			continue;
 		}
 
+		/* Update the next pointer, in case the above handle_newcs_player()
+		 * call(s) caused the previous next pointer to be freed (double
+		 * login kicked the playing character, for example). */
+		plnext = pl->next;
+
 		if (pl->followed_player[0])
 		{
 			player *followed = find_player(pl->followed_player);
