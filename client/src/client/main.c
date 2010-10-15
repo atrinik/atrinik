@@ -377,7 +377,7 @@ static void delete_player_lists()
 static void init_game_data()
 {
 	_textwin *textwin;
-	int i;
+	size_t i;
 
 	textwin_flags = 0;
 	first_server_char = NULL;
@@ -395,7 +395,7 @@ static void init_game_data()
 	memset(&options, 0, sizeof(struct _options));
 	init_map_data(0, 0, 0, 0);
 
-	for (i = 0; i < (int) BITMAP_MAX; i++)
+	for (i = 0; i < BITMAP_MAX; i++)
 	{
 		Bitmaps[i] = NULL;
 	}
