@@ -279,55 +279,6 @@ void read_bmaps()
 }
 
 /**
- * Check face's flag extension.
- * @param pnum Face number.
- * @param buf Name of the face. */
-static void face_flag_extension(int pnum, char *buf)
-{
-	char *stemp;
-
-	FaceList[pnum].flags = FACE_FLAG_NO;
-
-	/* Check for the "double" / "up" tag in the picture name. */
-	if ((stemp = strstr(buf, ".d")))
-	{
-		FaceList[pnum].flags |= FACE_FLAG_DOUBLE;
-	}
-	else if ((stemp = strstr(buf, ".u")))
-	{
-		FaceList[pnum].flags |= FACE_FLAG_UP;
-	}
-
-	/* If a tag was there, grab the facing info */
-	if (FaceList[pnum].flags && stemp)
-	{
-		int tc;
-
-		for (tc = 0; tc < 4; tc++)
-		{
-			if (!*(stemp + tc))
-			{
-				return;
-			}
-		}
-
-		/* Set the right flags for the tags */
-		if (((FaceList[pnum].flags & FACE_FLAG_UP) && *(stemp + tc) == '5') || *(stemp + tc) == '1')
-		{
-			FaceList[pnum].flags |= FACE_FLAG_D1;
-		}
-		else if (*(stemp + tc) == '3')
-		{
-			FaceList[pnum].flags |= FACE_FLAG_D3;
-		}
-		else if (*(stemp + tc) == '4'|| *(stemp + tc) == '8' || *(stemp + tc) == '0')
-		{
-			FaceList[pnum].flags |= (FACE_FLAG_D3 | FACE_FLAG_D1);
-		}
-	}
-}
-
-/**
  * Finish face command.
  * @param pnum ID of the face.
  * @param checksum Face checksum.
@@ -349,7 +300,6 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 		 * we stay with it */
 		if (!strcmp(face, FaceList[pnum].name) && checksum == FaceList[pnum].checksum && FaceList[pnum].sprite)
 		{
-			face_flag_extension(pnum, FaceList[pnum].name);
 			return;
 		}
 
@@ -397,13 +347,11 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 
 			if (FaceList[pnum].sprite)
 			{
-				face_flag_extension(pnum, buf);
 				return;
 			}
 		}
 	}
 
-	face_flag_extension(pnum, buf);
 	snprintf(buf, sizeof(buf), "askface %d", pnum);
 	cs_write_string(buf, strlen(buf));
 }
@@ -438,11 +386,6 @@ static int load_picture_from_pack(int num)
 	rwop = SDL_RWFromMem(pbuf, bmaps[num].len);
 
 	FaceList[num].sprite = sprite_tryload_file(NULL, 0, rwop);
-
-	if (FaceList[num].sprite)
-	{
-		face_flag_extension(num, FaceList[num].name);
-	}
 
 	SDL_FreeRW(rwop);
 	free(pbuf);
@@ -480,7 +423,6 @@ static int load_gfx_user_face(uint16 num)
 
 			if (FaceList[num].sprite)
 			{
-				face_flag_extension(num, buf);
 				snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaps[num].name);
 				FaceList[num].name = (char *) malloc(strlen(buf) + 1);
 				strcpy(FaceList[num].name, buf);

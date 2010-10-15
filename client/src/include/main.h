@@ -239,15 +239,6 @@ typedef struct _options
 
 extern struct _options options;
 
-#define FACE_FLAG_NO		0
-/* This is a double wall type */
-#define FACE_FLAG_DOUBLE	1
-/* This is a upper part of something */
-#define FACE_FLAG_UP		2
-/* This is a x1x object (animation or direction) */
-#define FACE_FLAG_D1		4
-/* This is a x3x object (animation or direction) */
-#define FACE_FLAG_D3		8
 /* Face requested from server - do it only one time */
 #define FACE_REQUESTED		16
 
@@ -268,7 +259,6 @@ typedef struct _face_struct
 #define NUM_STATS 7
 
 #define GOLEM_CTR_RELEASE  	0
-#define GOLEM_CTR_ADD	   	1
 
 /* This entry is unused */
 #define LIST_ENTRY_UNUSED 	-1
