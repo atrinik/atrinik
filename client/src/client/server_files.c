@@ -165,14 +165,6 @@ FILE *server_file_open(size_t id)
 }
 
 /**
- * Mark a server file for update.
- * @param id ID of the server file, one of @ref SERVER_FILE_xxx. */
-void server_file_mark_update(size_t id)
-{
-	server_files[id].update = 1;
-}
-
-/**
  * We have received the server file we asked for, so save it to disk.
  * @param id ID of the server file, one of @ref SERVER_FILE_xxx.
  * @param data The data to save.
@@ -264,4 +256,38 @@ void server_files_setup_add(char *buf, size_t buf_size)
 		snprintf(tmp, sizeof(tmp), " %s %"FMT64U"|%lx", server_file_setup_names[i], (uint64) server_files[i].size, server_files[i].crc32);
 		strncat(buf, tmp, buf_size - strlen(buf) - 1);
 	}
+}
+
+/**
+ * Try to parse setup command as server file status response.
+ * @param cmd Command.
+ * @param param Command parameter.
+ * @return 1 if we parsed it, 0 otherwise. */
+int server_files_parse_setup(const char *cmd, const char *param)
+{
+	size_t i;
+
+	for (i = 0; i < SERVER_FILES_MAX; i++)
+	{
+		/* Invalid file. */
+		if (!server_file_setup_names[i])
+		{
+			continue;
+		}
+
+		/* Check if the command matches one of the names. */
+		if (!strcmp(server_file_setup_names[i], cmd))
+		{
+			/* If the response is not 'OK', it's different, so mark for
+			 * update. */
+			if (strcmp(param, "OK"))
+			{
+				server_files[i].update = 1;
+			}
+
+			return 1;
+		}
+	}
+
+	return 0;
 }

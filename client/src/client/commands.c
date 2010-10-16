@@ -95,23 +95,6 @@ void PartyCmd(unsigned char *data, int len)
 }
 
 /**
- * Parse server file information from the setup command.
- * @param param Parameter for the command.
- * @param command The setup command (amf, hpf, etc).
- * @param type ID of the server file. */
-static void parse_srv_setup(char *param, const char *command, int type)
-{
-	if (!strcmp(param, "FALSE"))
-	{
-		LOG(llevInfo, "Get %s:: %s\n", command, param);
-	}
-	else if (strcmp(param, "OK"))
-	{
-		server_file_mark_update(type);
-	}
-}
-
-/**
  * Setup command. Used to set up a new server connection, initialize
  * necessary data, etc.
  * @param buf The incoming data.
@@ -184,34 +167,6 @@ void SetupCmd(char *buf, int len)
 			{
 			}
 		}
-		else if (!strcmp(cmd, "skf"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_SKILLS);
-		}
-		else if (!strcmp(cmd, "spfv2"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_SPELLS);
-		}
-		else if (!strcmp(cmd, "ssf"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_SETTINGS);
-		}
-		else if (!strcmp(cmd, "bpf"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_BMAPS);
-		}
-		else if (!strcmp(cmd, "amfv2"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_ANIMS);
-		}
-		else if (!strcmp(cmd, "hpf"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_HFILES);
-		}
-		else if (!strcmp(cmd, "upf"))
-		{
-			parse_srv_setup(param, cmd, SERVER_FILE_UPDATES);
-		}
 		else if (!strcmp(cmd, "mapsize"))
 		{
 		}
@@ -222,6 +177,9 @@ void SetupCmd(char *buf, int len)
 		{
 		}
 		else if (!strcmp(cmd, "facecache"))
+		{
+		}
+		else if (server_files_parse_setup(cmd, param))
 		{
 		}
 		else

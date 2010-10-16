@@ -182,10 +182,10 @@ void script_unload(const char *params);
 void server_files_init();
 void server_files_load();
 FILE *server_file_open(size_t id);
-void server_file_mark_update(size_t id);
 void server_file_save(size_t id, unsigned char *data, size_t len);
 int server_files_updating();
 void server_files_setup_add(char *buf, size_t buf_size);
+int server_files_parse_setup(const char *cmd, const char *param);
 
 /* client/server_settings.c */
 void server_settings_init();
