@@ -41,13 +41,6 @@ static const char *const directions_move[DIRECTIONS_NUM] =
 };
 
 /**
- * Text representations of the directions. */
-static const char *const directions_name[DIRECTIONS_NUM] =
-{
-	"southwest", "south", "southeast", "west", "stay", "east", "northwest", "north", "northeast"
-};
-
-/**
  * Directions to run into. */
 static const char *const directions_run[DIRECTIONS_NUM] =
 {
