@@ -48,7 +48,6 @@ void RequestFile(int index);
 void SendAddMe();
 void SkilllistCmd(char *data);
 void SpelllistCmd(char *data);
-void GolemCmd(unsigned char *data);
 void NewCharCmd();
 void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
@@ -84,6 +83,7 @@ void read_bmaps();
 void finish_face_cmd(int pnum, uint32 checksum, char *face);
 int request_face(int pnum);
 int get_bmap_id(char *name);
+void blit_face(int id, int x, int y);
 
 /* client/item.c */
 void init_item_types();
@@ -298,13 +298,6 @@ int dir_from_tile_coords(int tx, int ty);
 _gui_book_struct *book_gui_load(char *data, int len);
 void book_gui_show();
 void book_gui_handle_mouse(int x, int y);
-
-/* gui/connect.c */
-void show_login_server();
-
-/* gui/create_character.c */
-void blit_face(int id, int x, int y);
-void show_newplayer_server();
 
 /* gui/fps.c */
 void widget_show_fps(widgetdata *widget);
