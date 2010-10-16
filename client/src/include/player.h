@@ -46,15 +46,6 @@
 #define GENDER_MAX 4
 /*@}*/
 
-/**
- * Contains information about the maximum level the server supports, and
- * the experience needed to reach every single level. */
-typedef struct _server_level
-{
-	int level;
-	sint64 exp[500];
-} _server_level;
-
 /** IDs of the player doll items. */
 typedef enum _player_doll_enum
 {
@@ -89,7 +80,6 @@ typedef struct _player_doll_pos
 	int ypos;
 } _player_doll_pos;
 
-extern _server_level server_level;
 const char *gender_noun[GENDER_MAX];
 
 #endif

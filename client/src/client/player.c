@@ -41,9 +41,6 @@
 SDL_Surface     *containerbg = NULL;
 int             old_container_alpha = -1;
 
-/** Server level structure. */
-_server_level server_level;
-
 /**
  * Player doll item positions.
  *
@@ -867,7 +864,7 @@ void widget_show_main_lvl(widgetdata *widget)
 		StringBlt(widget->widgetSF, &Font6x3Out, "Level / Exp", 4, 1, COLOR_HGOLD, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%d", cpl.stats.level);
 
-		if (cpl.stats.level == server_level.level)
+		if ((uint32) cpl.stats.level == s_settings->max_level)
 		{
 			StringBlt(widget->widgetSF, &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_HGOLD, NULL, NULL);
 		}
@@ -880,8 +877,8 @@ void widget_show_main_lvl(widgetdata *widget)
 		StringBlt(widget->widgetSF, &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
 
 		/* Calculate the exp bubbles */
-		level_exp = cpl.stats.exp - server_level.exp[cpl.stats.level];
-		multi = modf(((double) level_exp / (double) (server_level.exp[cpl.stats.level + 1] - server_level.exp[cpl.stats.level]) * 10.0), &line);
+		level_exp = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
+		multi = modf(((double) level_exp / (double) (s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level]) * 10.0), &line);
 
 		sprite_blt(Bitmaps[BITMAP_EXP_BORDER], 9, 49, NULL, &bltfx);
 
@@ -1009,14 +1006,14 @@ void widget_show_skill_exp(widgetdata *widget)
 
 			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 			{
-				level_exp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-				multi = modf(((double) level_exp / (double) (server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1] - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level]) * 10.0), &line);
+				level_exp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
+				multi = modf(((double) level_exp / (double) (s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1] - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level]) * 10.0), &line);
 
 				liTExp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp;
-				liTExpTNL = server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1];
+				liTExpTNL = s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1];
 
-				liLExp = liTExp - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-				liLExpTNL = liTExpTNL - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
+				liLExp = liTExp - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
+				liLExpTNL = liTExpTNL - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
 
 				fLExpPercent = ((float) liLExp / (float) (liLExpTNL)) * 100.0f;
 			}
@@ -1094,7 +1091,7 @@ void widget_show_skill_exp(widgetdata *widget)
 					break;
 			}
 
-			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == server_level.level)
+			if ((uint32) skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == s_settings->max_level)
 			{
 				strncpy(buf, "Maximum level reached", sizeof(buf) - 1);
 			}
