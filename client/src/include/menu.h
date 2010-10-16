@@ -52,9 +52,6 @@
 #define MENU_PARTY 128
 /*@}*/
 
-/** All the @ref MENU_xxx. */
-#define MENU_ALL (MENU_NO & MENU_KEYBIND & MENU_SPELL & MENU_OPTION & MENU_BOOK & MENU_PARTY)
-
 /** Sound volume for menus. */
 #define MENU_SOUND_VOL 40
 
