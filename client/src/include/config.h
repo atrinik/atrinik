@@ -59,9 +59,6 @@
 /** Max input history lines. */
 #define MAX_HISTORY_LINES 20
 
-/** Should be the same as server's MAX_TIME. */
-#define MAX_TIME 125000
-
 /**
  * The number of our dark levels.
  *
