@@ -520,3 +520,23 @@ int get_bmap_id(char *name)
 
 	return -1;
 }
+
+/**
+ * Blit a face.
+ * @param id ID of the face.
+ * @param x X position.
+ * @param y Y position. */
+void blit_face(int id, int x, int y)
+{
+	if (id == -1 || !FaceList[id].sprite)
+	{
+		return;
+	}
+
+	if (FaceList[id].sprite->status != SPRITE_STATUS_LOADED)
+	{
+		return;
+	}
+
+	sprite_blt(FaceList[id].sprite, x, y, NULL, NULL);
+}

@@ -29,11 +29,6 @@
 
 #include <include.h>
 
-/* list of possible chars/race with setup when we want create a char */
-_server_char *first_server_char = NULL;
-/* if we login as new char, thats the values of it we set */
-_server_char new_character;
-
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
 /** Map surface. */
@@ -380,7 +375,6 @@ static void init_game_data()
 	size_t i;
 
 	textwin_flags = 0;
-	first_server_char = NULL;
 
 	esc_menu_flag = 0;
 	srand(time(NULL));

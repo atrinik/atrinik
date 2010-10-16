@@ -140,7 +140,6 @@ void *reallocz(void *ptr, size_t old_size, size_t new_size);
 /* client/player.c */
 void clear_player();
 void new_player(long tag, char *name, long weight, short face);
-void new_char(_server_char *nc);
 void client_send_apply(int tag);
 void client_send_examine(int tag);
 void client_send_move(int loc, int tag, int nrof);

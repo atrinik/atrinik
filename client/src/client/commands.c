@@ -1746,7 +1746,6 @@ void GolemCmd(unsigned char *data)
  * Used when server tells us to go to the new character creation. */
 void NewCharCmd()
 {
-	dialog_new_char_warn = 0;
 	GameStatus = GAME_STATUS_NEW_CHAR;
 }
 

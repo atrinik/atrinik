@@ -99,6 +99,5 @@ extern int active_button;
 extern int dialog_yoff;
 
 extern const char *opt_tab[];
-extern int dialog_new_char_warn;
 
 #endif

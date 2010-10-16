@@ -110,17 +110,6 @@ void new_player(long tag, char *name, long weight, short face)
 }
 
 /**
- * Request to set up a new character with the selected statistics.
- * @param nc The server char. */
-void new_char(_server_char *nc)
-{
-	char buf[MAX_BUF];
-
-	snprintf(buf, sizeof(buf), "nc %s %d %d %d %d %d %d %d", nc->char_arch[nc->gender_selected], nc->stats[0], nc->stats[1], nc->stats[2], nc->stats[3], nc->stats[4], nc->stats[5], nc->stats[6]);
-	cs_write_string(buf, strlen(buf));
-}
-
-/**
  * Send apply command to server.
  * @param tag Item tag. */
 void client_send_apply(int tag)

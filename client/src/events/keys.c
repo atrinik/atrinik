@@ -481,12 +481,6 @@ void check_menu_keys(int menu, int key)
 		if (cpl.menustatus == MENU_KEYBIND)
 			save_keybind_file(KEYBIND_FILE);
 
-		if (cpl.menustatus == MENU_CREATE)
-		{
-			socket_close(&csocket);
-			GameStatus = GAME_STATUS_INIT;
-		}
-
 		cpl.menustatus = MENU_NO;
 		map_udate_flag = 2;
 		reset_keys();
@@ -1056,57 +1050,6 @@ void check_menu_keys(int menu, int key)
 					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
 					bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag = bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag ? 0 : 1;
 					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					break;
-			}
-
-			break;
-
-		case MENU_CREATE:
-			switch (key)
-			{
-				case SDLK_RETURN:
-					break;
-
-				case SDLK_c:
-					if (new_character.stat_points)
-					{
-						dialog_new_char_warn = 1;
-						sound_play_effect("click_fail.ogg", 100);
-						break;
-					}
-
-					dialog_new_char_warn = 0;
-					new_char(&new_character);
-					GameStatus = GAME_STATUS_WAITFORPLAY;
-					cpl.menustatus = MENU_NO;
-					reset_keys();
-
-					break;
-
-				case SDLK_LEFT:
-					create_list_set.key_change = -1;
-					menuRepeatKey = SDLK_LEFT;
-
-					break;
-
-				case SDLK_RIGHT:
-					create_list_set.key_change = 1;
-					menuRepeatKey = SDLK_RIGHT;
-
-					break;
-
-				case SDLK_UP:
-					if (create_list_set.entry_nr > 0)
-						create_list_set.entry_nr--;
-
-					menuRepeatKey = SDLK_UP;
-
-					break;
-
-				case SDLK_DOWN:
-					create_list_set.entry_nr++;
-					menuRepeatKey = SDLK_DOWN;
-
 					break;
 			}
 

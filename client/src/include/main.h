@@ -30,42 +30,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-typedef struct _server_char
-{
-	struct _server_char *next;
-
-	struct _server_char *prev;
-
-	int pic_id;
-
-	/* Race name: human, elf */
-	char *name;
-
-	/* 4 description strings */
-	char *desc[4];
-	int bar[3];
-	int bar_add[3];
-
-	/* Male, female, neuter, hermaphrodite */
-	int gender[4];
-	int gender_selected;
-
-	/* 4 description strings */
-	char *char_arch[4];
-	int face_id[4];
-
-	/* Points which can be added to char stats */
-	int stat_points;
-	int stats[7];
-	int stats_min[7];
-	int stats_max[7];
-}_server_char;
-
-extern _server_char *first_server_char;
-
-/* If we login as new char, thats the values of it we set */
-extern _server_char new_character;
-
 #define HUGE_BUF 4096
 
 #define SDL_DEFAULT_REPEAT_DELAY 500
@@ -137,9 +101,6 @@ extern struct msg_anim_struct msg_anim;
 #endif
 
 #define FILE_ATRINIK_P0 "atrinik.p0"
-#define FILE_BMAPS_P0 "bmaps.p0"
-#define FILE_BMAPS_TMP "srv_files/bmaps.tmp"
-#define FILE_ANIMS_TMP "srv_files/anims.tmp"
 
 extern Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 extern int mb_clicked;

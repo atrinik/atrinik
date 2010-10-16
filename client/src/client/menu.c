@@ -299,8 +299,6 @@ void show_menu()
 		show_skilllist();
 	else if (cpl.menustatus == MENU_OPTION)
 		show_optwin();
-	else if (cpl.menustatus == MENU_CREATE)
-		show_newplayer_server();
 }
 
 /**
