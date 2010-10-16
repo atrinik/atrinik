@@ -52,7 +52,8 @@ enum CmdFormat
 };
 
 /** Script structure. */
-struct script {
+struct script
+{
 	/** The script name. */
 	char *name;
 
