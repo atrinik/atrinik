@@ -44,8 +44,6 @@ static server_struct *start_server;
 static size_t server_count;
 /** Mutex to protect ::start_server and ::server_count. */
 static SDL_mutex *start_server_mutex;
-/** Selected server. */
-int server_sel;
 
 /**
  * Initialize the metaserver data. */
@@ -53,7 +51,6 @@ void metaserver_init()
 {
 	/* Initialize the data. */
 	start_server = NULL;
-	server_sel = 0;
 	server_count = 0;
 	metaserver_connecting = 1;
 
@@ -158,7 +155,6 @@ void metaserver_clear_data()
 	}
 
 	start_server = NULL;
-	server_sel = 0;
 	server_count = 0;
 	SDL_UnlockMutex(start_server_mutex);
 }
