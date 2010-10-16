@@ -456,7 +456,6 @@ extern int f_custom_cursor;
 extern int x_custom_cursor;
 extern int y_custom_cursor;
 
-extern int music_global_fade;
 extern _game_status GameStatus;
 extern int MapStatusX;
 extern int MapStatusY;

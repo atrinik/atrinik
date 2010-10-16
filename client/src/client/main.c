@@ -51,7 +51,6 @@ ClientSocket csocket;
 
 Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 
-int music_global_fade = 0;
 /** Whether the mouse button was clicked. */
 int mb_clicked = 0;
 
@@ -62,12 +61,6 @@ Uint32 videoflags_full, videoflags_win;
 struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 int RangeFireMode;
 
-int current_intro = 0;
-
-/* cache status... set this in hardware depend */
-int CacheStatus;
-/* SoundStatus 0=no 1= yes */
-int SoundStatus;
 /* map x,y len */
 int MapStatusX;
 int MapStatusY;
@@ -411,8 +404,6 @@ static void init_game_data()
 	argServerPort = 13327;
 
 	GameStatus = GAME_STATUS_INIT;
-	CacheStatus = CF_FACE_CACHE;
-	SoundStatus = 1;
 	MapStatusX = MAP_MAX_SIZE;
 	MapStatusY = MAP_MAX_SIZE;
 	map_udate_flag = 2;
@@ -775,7 +766,7 @@ static int game_status_chain()
 	{
 		map_transfer_flag = 0;
 
-		snprintf(buf, sizeof(buf), "setup sound %d map2cmd 1 mapsize %dx%d darkness 1 facecache 1", SoundStatus, MapStatusX, MapStatusY);
+		snprintf(buf, sizeof(buf), "setup sound 1 map2cmd 1 mapsize %dx%d darkness 1 facecache 1", MapStatusX, MapStatusY);
 		server_files_setup_add(buf, sizeof(buf));
 		cs_write_string(buf, strlen(buf));
 

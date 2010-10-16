@@ -25,9 +25,7 @@
 
 #include "include.h"
 
-#define STRINGCOMMAND 0
 #define MAX_BUF 256
-#define BIG_BUF 1024
 
 /* How many skill types server supports/client will get sent to it.
  * If more skills are added to server, this needs to get increased. */
@@ -62,8 +60,6 @@
 
 /* Values for send_command option */
 #define SC_NORMAL 0
-#define SC_FIRERUN 1
-#define SC_ALWAYS 2
 
 /** Screensize structure */
 typedef struct screensize
@@ -488,22 +484,6 @@ extern Client_Player cpl;
 #define F_NOPICK		0x4000
 #define F_LOCKED		0x8000
 #define F_TRAPPED       0x10000
-
-#define CF_FACE_NONE	0
-#define CF_FACE_BITMAP	1
-#define CF_FACE_XPM		2
-#define CF_FACE_PNG		3
-#define CF_FACE_CACHE	0x10
-
-/* Used in the new_face structure on the magicmap field.  Low bits
- * are color informatin.  For now, only high bit information we need
- * is floor information. */
-#define FACE_FLOOR		0x80
-/* Or'd into the color value by the server
- * right before sending. */
-#define FACE_WALL		0x40
-#define FACE_COLOR_MASK	0xf
-
 
 #define UPD_LOCATION	0x01
 #define UPD_FLAGS		0x02
