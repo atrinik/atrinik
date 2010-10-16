@@ -175,23 +175,6 @@ void widget_show_range(widgetdata *widget)
 			StringBlt(ScreenSurface, &SystemFont, "use range tool", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 			break;
 
-			/* The summon range ctrl will come from server only after the player cast a summon spell */
-		case FIRE_MODE_SUMMON:
-			if (fire_mode_tab[FIRE_MODE_SUMMON].item != FIRE_ITEM_NO)
-			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SUMMON].name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, NULL, NULL);
-				sprite_blt(FaceList[fire_mode_tab[FIRE_MODE_SUMMON].item].sprite, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
-			}
-			else
-			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no golem summoned", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
-			}
-
-			StringBlt(ScreenSurface, &SystemFont, "mind control", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_item, NULL);
-			break;
-
 			/* These are client only, no server signal needed */
 		case FIRE_MODE_SKILL:
 			if (fire_mode_tab[FIRE_MODE_SKILL].skill)

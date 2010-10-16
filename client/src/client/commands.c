@@ -1702,46 +1702,6 @@ void SpelllistCmd(char *data)
 }
 
 /**
- * Golem command. Used when casting golem like spells to grab the control of the golem.
- * @param data The incoming data. */
-void GolemCmd(unsigned char *data)
-{
-	int mode, face;
-	char *tmp, buf[256];
-
-	/* We grab our mode */
-	mode = atoi((char *)data);
-
-	if (mode == GOLEM_CTR_RELEASE)
-	{
-		/* Find start of a name */
-		tmp = strchr((char *)data, ' ');
-		face = atoi(tmp + 1);
-		request_face(face);
-		/* Find start of a name */
-		tmp = strchr(tmp + 1, ' ');
-		sprintf(buf, "You lose control of %s.", tmp + 1);
-		draw_info(buf, COLOR_WHITE);
-		fire_mode_tab[FIRE_MODE_SUMMON].item = FIRE_ITEM_NO;
-		fire_mode_tab[FIRE_MODE_SUMMON].name[0] = 0;
-	}
-	else
-	{
-		/* Find start of a name */
-		tmp = strchr((char *)data, ' ');
-		face = atoi(tmp + 1);
-		request_face(face);
-		/* Find start of a name */
-		tmp = strchr(tmp + 1, ' ');
-		sprintf(buf, "You get control of %s.", tmp + 1);
-		draw_info(buf, COLOR_WHITE);
-		fire_mode_tab[FIRE_MODE_SUMMON].item = face;
-		strncpy(fire_mode_tab[FIRE_MODE_SUMMON].name, tmp + 1, 100);
-		RangeFireMode = FIRE_MODE_SUMMON;
-	}
-}
-
-/**
  * New char command.
  * Used when server tells us to go to the new character creation. */
 void NewCharCmd()

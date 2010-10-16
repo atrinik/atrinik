@@ -123,7 +123,7 @@ struct CmdMapping commands[] =
 	{"mapstats", NULL, ASCII},
 	{"splist", (CmdProc) SpelllistCmd, ASCII},
 	{"sklist", (CmdProc) SkilllistCmd, ASCII},
-	{"gc", (CmdProc) GolemCmd, ASCII},
+	{"clr", NULL, ASCII},
 	{"addme_success", AddMeSuccess, NODATA},
 	{"addme_failed", AddMeFail, NODATA},
 	{"version", (CmdProc) VersionCmd, NODATA},

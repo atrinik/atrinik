@@ -219,8 +219,6 @@ typedef struct _face_struct
 
 #define NUM_STATS 7
 
-#define GOLEM_CTR_RELEASE  	0
-
 /* This entry is unused */
 #define LIST_ENTRY_UNUSED 	-1
 /* Entry is used but player doesn't have it */
@@ -386,7 +384,6 @@ typedef enum _fire_mode_id
 	FIRE_MODE_WAND,
 	FIRE_MODE_SKILL,
 	FIRE_MODE_THROW,
-	FIRE_MODE_SUMMON,
 	FIRE_MODE_INIT
 }_fire_mode_id;
 
