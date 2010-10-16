@@ -38,8 +38,8 @@
 #include <math.h>
 
 /** Widget container alpha background. */
-SDL_Surface     *containerbg = NULL;
-int             old_container_alpha = -1;
+SDL_Surface *containerbg = NULL;
+int old_container_alpha = -1;
 
 /**
  * Player doll item positions.
