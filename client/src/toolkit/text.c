@@ -168,6 +168,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 {
 	int width, ret = 1;
 	char c = *cp;
+	static char *anchor_tag = NULL, anchor_action[MAX_BUF];
 
 	/* Doing markup? */
 	if (flags & TEXT_MARKUP && c == '<')
@@ -415,6 +416,44 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			return 9;
 		}
+		/* Anchor tag. */
+		else if (!strncmp(cp, "<a>", 3) || !strncmp(cp, "<a=", 3))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
+
+				/* Change to light blue only if no custom color was specified. */
+				if (color->r == orig_color.r && color->g == orig_color.g && color->b == orig_color.b)
+				{
+					color->r = 96;
+					color->g = 160;
+					color->b = 255;
+				}
+
+				anchor_tag = strchr(cp, '>') + 1;
+				anchor_action[0] = '\0';
+			}
+
+			/* Scan for action other than the default. */
+			if (sscanf(cp, "<a=%64[^>]>", anchor_action) == 1)
+			{
+				return strchr(cp + 3, '>') - cp + 1;
+			}
+
+			return 3;
+		}
+		else if (!strncmp(cp, "</a>", 4))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+				reset_color(surface, color, orig_color);
+				anchor_tag = NULL;
+			}
+
+			return 4;
+		}
 	}
 
 	/* Parse entities. */
@@ -432,6 +471,12 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
+	/* Get the glyph's metrics. */
+	if (TTF_GlyphMetrics(fonts[*font].font, c, NULL, NULL, NULL, NULL, &width) == -1)
+	{
+		return ret;
+	}
+
 	/* Draw the character (unless it's a space, since there's no point in
 	 * drawing whitespace [but only if underline style is not active,
 	 * since we do want the underline below the space]). */
@@ -439,9 +484,53 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	{
 		SDL_Surface *ttf_surface;
 		char buf[2];
+		int mx, my;
+		static uint32 ticks = 0;
 
 		buf[0] = c;
 		buf[1] = '\0';
+
+		/* Are we inside an anchor tag and we clicked the text? */
+		if (anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT) && mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
+		{
+			size_t len;
+			char *buf;
+
+			ticks = SDL_GetTicks();
+
+			/* Get the length of the text until the ending </a>. */
+			len = strstr(anchor_tag, "</a>") - anchor_tag;
+			/* Allocate a temporary buffer and copy the text until the
+			 * ending </a>, so we have the text between the anchor tags. */
+			buf = malloc(len + 1);
+			memcpy(buf, anchor_tag, len);
+			buf[len] = '\0';
+
+			/* Default to executing player commands such as /say. */
+			if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
+			{
+				/* It's not a command, so prepend "/say " to it. */
+				if (buf[0] != '/')
+				{
+					/* Resize the buffer so it can hold 5 more bytes. */
+					buf = realloc(buf, len + 5 + 1);
+					/* Copy the existing bytes to the end, so we have 5
+					 * we can use in the front. */
+					memmove(buf + 5, buf, len + 1);
+					/* Prepend "/say ". */
+					memcpy(buf, "/say ", 5);
+				}
+
+				send_command(buf);
+			}
+			/* Help GUI. */
+			else if (GameStatus == GAME_STATUS_PLAY && !strcmp(anchor_action, "help"))
+			{
+				show_help(buf);
+			}
+
+			free(buf);
+		}
 
 		/* Render the character. */
 		if (flags & TEXT_SOLID)
@@ -459,17 +548,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		SDL_FreeSurface(ttf_surface);
 	}
 
-	/* Get the glyph's metrics. */
-	if (TTF_GlyphMetrics(fonts[*font].font, c, NULL, NULL, NULL, NULL, &width) != -1)
+	/* Update the x/w of the destination with the character's width. */
+	if (surface)
 	{
-		/* Update the x/w of the destination with the character's width. */
-		if (surface)
-		{
-			dest->x += width;
-		}
-
-		dest->w += width;
+		dest->x += width;
 	}
+
+	dest->w += width;
 
 	return ret;
 }
