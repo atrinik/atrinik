@@ -530,28 +530,31 @@ static void popup_draw_func(popup_struct *popup)
 	}
 }
 
+/** @copydoc popup_struct::destroy_callback_func */
+static int popup_destroy_callback_func(popup_struct *popup)
+{
+	list_struct *list = list_exists(LIST_CREATION);
+
+	(void) popup;
+
+	if (list)
+	{
+		list_remove(list);
+		list_set_focus(list_exists(LIST_SERVERS));
+	}
+
+	if (GameStatus != GAME_STATUS_PLAY)
+	{
+		GameStatus = GAME_STATUS_START;
+	}
+
+	return 1;
+}
+
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
 	(void) popup;
-
-	if (event->type == SDL_KEYDOWN)
-	{
-		switch (event->key.keysym.sym)
-		{
-			/* ESC, go back to the servers list part and destroy the
-			 * popup. */
-			case SDLK_ESCAPE:
-				GameStatus = GAME_STATUS_START;
-				popup_destroy_visible();
-				/* Make sure the focus is back on the list of servers. */
-				list_set_focus(list_exists(LIST_SERVERS));
-				return 1;
-
-			default:
-				break;
-		}
-	}
 
 	/* Handle events in character creation. */
 	if (GameStatus == GAME_STATUS_NEW_CHAR)
@@ -613,6 +616,7 @@ static void list_handle_enter(list_struct *list)
  			popup->draw_func = popup_draw_func;
  			popup->draw_func_post = popup_draw_func_post;
  			popup->event_func = popup_event_func;
+			popup->destroy_callback_func = popup_destroy_callback_func;
 			GameStatus = GAME_STATUS_STARTCONNECT;
 		}
 	}
