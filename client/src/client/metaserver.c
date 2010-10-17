@@ -242,7 +242,13 @@ int metaserver_thread(void *dummy)
  * Works in a thread using SDL_CreateThread(). */
 void metaserver_get_servers()
 {
-	SDL_Thread *thread = SDL_CreateThread(metaserver_thread, NULL);
+	SDL_Thread *thread;
+
+	SDL_LockMutex(metaserver_connecting_mutex);
+	metaserver_connecting = 1;
+	SDL_UnlockMutex(metaserver_connecting_mutex);
+
+	thread = SDL_CreateThread(metaserver_thread, NULL);
 
 	if (!thread)
 	{
