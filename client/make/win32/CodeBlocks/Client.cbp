@@ -233,9 +233,6 @@
 		<Unit filename="..\..\..\src\include\textwin.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\metaserver.h">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\..\..\src\include\ignore.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -327,12 +324,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\quickslots.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\..\..\src\gui\create_character.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\..\..\src\gui\connect.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\textwin.c">
