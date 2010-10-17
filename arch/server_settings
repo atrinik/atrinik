@@ -20,7 +20,7 @@ base_sp 6
 base_grace 6
 
 gender male half_elf_male human_m.isw.111
-gender female human_female halfelf_f.isw.111
+gender female half_elf_female halfelf_f.isw.111
 
 points_max 5
 stats_base 12 13 11 12 11 13 12
