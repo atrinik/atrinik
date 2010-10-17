@@ -434,6 +434,12 @@ static void popup_draw_func(popup_struct *popup)
 		list_remove_all();
 		return;
 	}
+	/* Connection terminated while we were trying to login. */
+	else if (GameStatus <= GAME_STATUS_WAITLOOP)
+	{
+		popup_destroy_visible();
+		return;
+	}
 
 	bltfx.surface = popup->surface;
 	bltfx.flags = 0;
