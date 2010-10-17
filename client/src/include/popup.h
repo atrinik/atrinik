@@ -76,6 +76,14 @@ typedef struct popup_struct
 	 * events.
 	 * @retval 1 Handled the event. */
 	int (*event_func)(struct popup_struct *popup, SDL_Event *event);
+
+	/**
+	 * Function used right before the visible popup is destroyed using
+	 * popup_destroy_visible().
+	 * @param popup The popup.
+	 * @return 1 to proceed with the destruction of the popup, 0
+	 * otherwise. */
+	int (*destroy_callback_func)(struct popup_struct *popup);
 } popup_struct;
 
 #endif

@@ -116,6 +116,11 @@ void popup_destroy_visible()
 {
 	if (popup_visible)
 	{
+		if (popup_visible->destroy_callback_func && !popup_visible->destroy_callback_func(popup_visible))
+		{
+			return;
+		}
+
 		popup_free(popup_visible);
 		popup_visible = NULL;
 	}
