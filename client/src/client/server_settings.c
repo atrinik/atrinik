@@ -142,7 +142,7 @@ void server_settings_init()
 			uint32 i;
 
 			s_settings->max_level = atoi(buf + 6);
-			s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 1));
+			s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
 
 			for (i = 0; i <= s_settings->max_level; i++)
 			{
@@ -153,6 +153,8 @@ void server_settings_init()
 
 				s_settings->level_exp[i] = strtoull(buf, NULL, 16);
 			}
+
+			s_settings->level_exp[i] = 0;
 		}
 	}
 

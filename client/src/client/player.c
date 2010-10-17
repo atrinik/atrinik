@@ -867,7 +867,7 @@ void widget_show_main_lvl(widgetdata *widget)
 
 		/* Calculate the exp bubbles */
 		level_exp = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
-		multi = modf(((double) level_exp / (double) ((cpl.stats.level == (int) s_settings->max_level ? 0 : s_settings->level_exp[cpl.stats.level + 1]) - s_settings->level_exp[cpl.stats.level]) * 10.0), &line);
+		multi = modf(((double) level_exp / (double) (s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level]) * 10.0), &line);
 
 		sprite_blt(Bitmaps[BITMAP_EXP_BORDER], 9, 49, NULL, &bltfx);
 
