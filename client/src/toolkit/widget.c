@@ -253,7 +253,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 		case CHATWIN_ID:
 		case MSGWIN_ID:
 		case MIXWIN_ID:
-			textwin = malloc(sizeof (_textwin));
+			textwin = calloc(1, sizeof (_textwin));
 			if (!textwin)
 			{
 				exit(0);
