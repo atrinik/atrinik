@@ -433,8 +433,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	}
 
 	/* Draw the character (unless it's a space, since there's no point in
-	 * drawing whitespace). */
-	if (surface && c != ' ')
+	 * drawing whitespace [but only if underline style is not active,
+	 * since we do want the underline below the space]). */
+	if (surface && (c != ' ' || TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_UNDERLINE))
 	{
 		SDL_Surface *ttf_surface;
 		char buf[2];
