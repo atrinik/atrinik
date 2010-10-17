@@ -525,6 +525,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	}
 
 	bltfx.flags = 0;
+	bltfx.alpha = 0;
 
 	if (map->fog_of_war)
 	{
