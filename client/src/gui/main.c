@@ -51,7 +51,7 @@ static uint8 eyes_draw = 1;
 /** Character creation step. */
 static int char_step = 0;
 /** Selected race. */
-static int char_race_selected;
+static uint32 char_race_selected;
 /** Selected @ref GENDER_xxx "gender". */
 static int char_gender_selected;
 /** Number of stat points left to assign. */
