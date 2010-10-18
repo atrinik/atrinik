@@ -289,6 +289,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	list_struct *list = NULL;
 	size_t i;
 	int face = 0;
+	SDL_Rect box;
 
 	/* Not creating character, nothing to do. */
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
@@ -364,6 +365,10 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	/* Race picking, pick first possible gender. */
 	if (char_step == 0)
 	{
+		box.w = 460;
+		box.h = 96;
+		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected -1].desc, x + 20, y + 175, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+
 		for (i = 0; i < GENDER_MAX; i++)
 		{
 			/* Does the selected race have this gender? */
