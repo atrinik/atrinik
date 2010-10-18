@@ -101,7 +101,7 @@ void server_settings_init()
 			{
 				gender_id = gender_to_id(gender);
 				cur_char->gender_archetypes[gender_id] = strdup(arch);
-				cur_char->gender_faces[gender_id] = strdup(face);
+				cur_char->gender_faces[gender_id] = get_bmap_id(face);
 			}
 		}
 		else if (!strncmp(buf, "points_max ", 11))
@@ -184,11 +184,6 @@ void server_settings_deinit()
 			if (s_settings->characters[i].gender_archetypes[gender])
 			{
 				free(s_settings->characters[i].gender_archetypes[gender]);
-			}
-
-			if (s_settings->characters[i].gender_faces[gender])
-			{
-				free(s_settings->characters[i].gender_faces[gender]);
 			}
 		}
 	}

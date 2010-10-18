@@ -49,7 +49,7 @@ typedef struct char_struct
 	char *gender_archetypes[GENDER_MAX];
 
 	/** Face names of the race's genders. */
-	char *gender_faces[GENDER_MAX];
+	int gender_faces[GENDER_MAX];
 
 	/** Maximum number of points to assign to stats. */
 	uint16 points_max;
