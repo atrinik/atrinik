@@ -422,7 +422,7 @@ static void popup_draw_func(popup_struct *popup)
 	{
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = 0;
-		string_blt_shadow(popup->surface, FONT_SERIF14, "Welcome!", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+		string_blt_shadow_format(popup->surface, FONT_SERIF14, 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
 
 		string_blt_shadow(popup->surface, FONT_ARIAL10, "Select your race and then press Enter or click the Next button to select gender.", 10, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 		return;
