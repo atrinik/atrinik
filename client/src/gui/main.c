@@ -287,6 +287,8 @@ static int char_creation_key(list_struct *list, SDLKey key)
 static void popup_draw_func_post(popup_struct *popup, int x, int y)
 {
 	list_struct *list = NULL;
+	size_t i;
+	int face = 0;
 
 	/* Not creating character, nothing to do. */
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
@@ -298,8 +300,6 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 
 	if (!list)
 	{
-		size_t i;
-
 		/* Create a new list. */
 		list = list_create(LIST_CREATION, x + 20, y + 50, 7, 1, 0);
 		list_set_focus(list);
@@ -360,6 +360,35 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	}
 
 	list_show(list);
+
+	/* Race picking, pick first possible gender. */
+	if (char_step == 0)
+	{
+		for (i = 0; i < GENDER_MAX; i++)
+		{
+			/* Does the selected race have this gender? */
+			if (s_settings->characters[list->row_selected - 1].gender_archetypes[i])
+			{
+				face = s_settings->characters[list->row_selected - 1].gender_faces[i];
+				break;
+			}
+		}
+	}
+	else if (char_step == 1)
+	{
+		char buf[MAX_BUF];
+
+		strncpy(buf, list->text[list->row_selected - 1][0], sizeof(buf) - 1);
+		buf[0] = tolower(buf[0]);
+		buf[sizeof(buf) - 1] = '\0';
+		face = s_settings->characters[char_race_selected].gender_faces[gender_to_id(buf)];
+	}
+	else if (char_step == 2)
+	{
+		face = s_settings->characters[char_race_selected].gender_faces[char_gender_selected];
+	}
+
+	blit_face(face, x + Bitmaps[popup->bitmap_id]->bitmap->w - 70, y + 20);
 
 	/* Show the stat values and the range buttons. */
 	if (char_step == 2)
