@@ -29,6 +29,11 @@
 
 #include <include.h>
 
+/**
+ * If 1, all text shown using 'box' parameter of string_blt() for max
+ * width/height will have a frame around it. */
+#define TEXT_SIZE_DEBUG 0
+
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
@@ -579,6 +584,13 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
 	SDL_Color orig_color = color;
 	int orig_font = font;
+
+#if TEXT_SIZE_DEBUG
+	if (box)
+	{
+		draw_frame(surface, x, y, box->w, box->h);
+	}
+#endif
 
 	/* Align to the center. */
 	if (box && flags & TEXT_ALIGN_CENTER)
