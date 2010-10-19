@@ -392,6 +392,10 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	else if (char_step == 2)
 	{
 		face = s_settings->characters[char_race_selected].gender_faces[char_gender_selected];
+
+		box.w = 310;
+		box.h = 150;
+		string_blt(ScreenSurface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STATS], x + 116, y + 60, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	blit_face(face, x + Bitmaps[popup->bitmap_id]->bitmap->w - 70, y + 20);
@@ -465,8 +469,9 @@ static void popup_draw_func(popup_struct *popup)
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = 0;
 		string_blt_shadow_format(popup->surface, FONT_SERIF14, 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
-
-		string_blt_shadow(popup->surface, FONT_ARIAL10, "Select your race and then press Enter or click the Next button to select gender.", 10, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 100;
+		box.h = 24;
+		string_blt_shadow(popup->surface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 		return;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
