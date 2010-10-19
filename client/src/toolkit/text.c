@@ -183,7 +183,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			char *pos;
 
-			if (surface)
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				int r, g, b;
 
@@ -219,7 +219,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Convenience tag to make string green. */
 		else if (!strncmp(cp, "<green>", 7))
 		{
-			if (surface)
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 0;
 				color->g = 255;
@@ -236,7 +236,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Convenience tag to make string yellow. */
 		else if (!strncmp(cp, "<yellow>", 8))
 		{
-			if (surface)
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 255;
 				color->g = 255;
@@ -253,7 +253,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Convenience tag to make string red. */
 		else if (!strncmp(cp, "<red>", 5))
 		{
-			if (surface)
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 255;
 				color->g = 0;
@@ -270,7 +270,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Convenience tag to make string blue. */
 		else if (!strncmp(cp, "<blue>", 6))
 		{
-			if (surface)
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 0;
 				color->g = 0;
@@ -727,7 +727,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
  * set (both box->w and box->h can be 0 to indicate unlimited). */
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box)
 {
-	string_blt(surface, font, text, x + 1, y - 1, color_shadow, flags, box);
+	string_blt(surface, font, text, x + 1, y - 1, color_shadow, flags | TEXT_NO_COLOR_CHANGE, box);
 	string_blt(surface, font, text, x, y - 2, color, flags, box);
 }
 

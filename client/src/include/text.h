@@ -136,6 +136,9 @@ enum
  * Vertically center the text to that of the passed box's height. Note
  * that this will NOT take font tag changing into account. */
 #define TEXT_VALIGN_CENTER 32
+/**
+ * Do not allow color changing using markup. */
+#define TEXT_NO_COLOR_CHANGE 64
 /*@}*/
 
 /**
