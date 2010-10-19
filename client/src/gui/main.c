@@ -367,7 +367,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	{
 		box.w = 460;
 		box.h = 96;
-		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected -1].desc, x + 20, y + 175, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected - 1].desc, x + 20, y + 175, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		for (i = 0; i < GENDER_MAX; i++)
 		{
