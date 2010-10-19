@@ -298,12 +298,21 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 		return;
 	}
 
+	(void) popup;
+
 	list = list_exists(LIST_CREATION);
+
+	y += 50;
+
+	if (char_step == 2)
+	{
+		y += 40;
+	}
 
 	if (!list)
 	{
 		/* Create a new list. */
-		list = list_create(LIST_CREATION, x + 20, y + 50, 7, 1, 0);
+		list = list_create(LIST_CREATION, x + 20, y, 7, 1, 0);
 		list_set_focus(list);
 		list->handle_enter_func = char_creation_enter;
 
@@ -368,7 +377,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	{
 		box.w = 460;
 		box.h = 96;
-		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected - 1].desc, x + 20, y + 175, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected - 1].desc, x + 20, y + 125, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		for (i = 0; i < GENDER_MAX; i++)
 		{
@@ -389,16 +398,17 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 		buf[sizeof(buf) - 1] = '\0';
 		face = s_settings->characters[char_race_selected].gender_faces[gender_to_id(buf)];
 	}
-	else if (char_step == 2)
+
+	if (char_step == 2)
 	{
-		face = s_settings->characters[char_race_selected].gender_faces[char_gender_selected];
-
-		box.w = 310;
+		box.w = 370;
 		box.h = 150;
-		string_blt(ScreenSurface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STATS], x + 116, y + 60, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STATS], x + 116, y + 10, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
-
-	blit_face(face, x + Bitmaps[popup->bitmap_id]->bitmap->w - 70, y + 20);
+	else
+	{
+		blit_face(face, x + 300, y + 35);
+	}
 
 	/* Show the stat values and the range buttons. */
 	if (char_step == 2)
@@ -409,20 +419,20 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 		for (i = 0; i < NUM_STATS; i++)
 		{
 			/* Calculate the current stat value and show it. */
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 60 + i * 18 + 4, i == list->row_selected - 1 ? COLOR_SIMPLE(COLOR_GREEN) : COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 10 + i * 18 + 4, i == list->row_selected - 1 ? COLOR_SIMPLE(COLOR_GREEN) : COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
 
 			/* One of the range buttons clicked? */
-			if (range_buttons_show(x + 80, y + 60 + i * 18, &adjust, 1))
+			if (range_buttons_show(x + 80, y + 10 + i * 18, &adjust, 1))
 			{
 				char_stat_change(i, adjust);
 			}
 		}
 
-		string_blt_shadow(ScreenSurface, FONT_ARIAL12, "Stat points left:", x + 20, y + 200, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
-		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 105, y + 200, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%d", char_points_left);
+		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 150, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 150, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%d", char_points_left);
 	}
 
-	y += 150;
+	y += 100;
 
 	if (char_step == 2)
 	{
@@ -439,7 +449,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	}
 
 	/* Show the next button, or the play button if we're in the last step. */
-	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + 220, y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
 	{
 		char_creation_enter(list);
 	}
@@ -469,9 +479,9 @@ static void popup_draw_func(popup_struct *popup)
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = 0;
 		string_blt_shadow_format(popup->surface, FONT_SERIF14, 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
-		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 100;
-		box.h = 24;
-		string_blt_shadow(popup->surface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 40;
+		box.h = char_step == 2 ? 70 : 30;
+		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 		return;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
