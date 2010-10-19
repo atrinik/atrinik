@@ -30,6 +30,18 @@
 #ifndef SERVER_SETTINGS_H
 #define SERVER_SETTINGS_H
 
+/** Text IDs from server_settings file. */
+enum
+{
+	SERVER_TEXT_STEP0,
+	SERVER_TEXT_STEP1,
+	SERVER_TEXT_STEP2,
+
+	SERVER_TEXT_STATS,
+
+	SERVER_TEXT_MAX
+};
+
 /** One character. */
 typedef struct char_struct
 {
@@ -83,6 +95,9 @@ typedef struct server_settings
 
 	/** Number of server_settings::characters. */
 	size_t num_characters;
+
+	/** Server-configured strings. */
+	char *text[SERVER_TEXT_MAX];
 } server_settings;
 
 server_settings *s_settings;

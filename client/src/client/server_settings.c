@@ -37,9 +37,10 @@ server_settings *s_settings = NULL;
 void server_settings_init()
 {
 	FILE *fp;
-	char buf[HUGE_BUF], *cp;
+	char buf[HUGE_BUF * 4], *cp;
 	int line = 0;
 	char_struct *cur_char = NULL;
+	size_t text_id = 0, i;
 
 	fp = server_file_open(SERVER_FILE_SETTINGS);
 
@@ -156,6 +157,23 @@ void server_settings_init()
 
 			s_settings->level_exp[i] = 0;
 		}
+		else if (!strncmp(buf, "text ", 5))
+		{
+			if (text_id < SERVER_TEXT_MAX)
+			{
+				s_settings->text[text_id] = strdup(buf + 5);
+				text_id++;
+			}
+			else
+			{
+				LOG(llevBug, "Error in settings file, more text entries than allowed on line %d.\n", line);
+			}
+		}
+	}
+
+	for (i = text_id; i < SERVER_TEXT_MAX; i++)
+	{
+		s_settings->text[i] = strdup("???");
 	}
 
 	fclose(fp);
@@ -186,6 +204,11 @@ void server_settings_deinit()
 				free(s_settings->characters[i].gender_archetypes[gender]);
 			}
 		}
+	}
+
+	for (i = 0; i < SERVER_TEXT_MAX; i++)
+	{
+		free(s_settings->text[i]);
 	}
 
 	free(s_settings->characters);
