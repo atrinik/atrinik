@@ -232,3 +232,21 @@ void *reallocz(void *ptr, size_t old_size, size_t new_size)
 
 	return new_ptr;
 }
+
+/**
+ * Replaces "\n" by a newline char.
+ *
+ * Since we are replacing 2 chars by 1, no overflow should happen.
+ * @param line Text to replace into. */
+void convert_newline(char *str)
+{
+	char *next, buf[HUGE_BUF * 10];
+
+	while ((next = strstr(str, "\\n")))
+	{
+		*next = '\n';
+		*(next + 1) = '\0';
+		snprintf(buf, sizeof(buf), "%s%s", str, next + 2);
+		strcpy(str, buf);
+	}
+}
