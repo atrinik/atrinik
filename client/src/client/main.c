@@ -300,7 +300,9 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"arrow_up.png", PIC_TYPE_DEFAULT},
 	{"arrow_up2.png", PIC_TYPE_DEFAULT},
 	{"arrow_down.png", PIC_TYPE_DEFAULT},
-	{"arrow_down2.png", PIC_TYPE_DEFAULT}
+	{"arrow_down2.png", PIC_TYPE_DEFAULT},
+	{"button_round.png", PIC_TYPE_DEFAULT},
+	{"button_round_down.png", PIC_TYPE_DEFAULT}
 };
 
 /** Number of bitmaps. */
