@@ -315,7 +315,6 @@ static void flip_screen();
 static void delete_player_lists();
 static void reset_input_mode();
 static int load_bitmap(int index);
-static void free_faces();
 static void free_bitmaps();
 static void load_options_dat();
 
@@ -729,16 +728,10 @@ static int game_status_chain()
 		map_redraw_flag = 1;
 		clear_player();
 		reset_keys();
-		free_faces();
 		GameStatus = GAME_STATUS_WAITLOOP;
 	}
 	else if (GameStatus == GAME_STATUS_STARTCONNECT)
 	{
-		char sbuf[256];
-
-		snprintf(sbuf, sizeof(sbuf), "%s%s", GetBitmapDirectory(), bitmap_name[BITMAP_LOADING].name);
-		FaceList[MAX_FACE_TILES - 1].sprite = sprite_tryload_file(sbuf, 0, NULL);
-
 		map_udate_flag = 2;
 		snprintf(buf, sizeof(buf), "Trying server %s (%d)...", selected_server->name, selected_server->port);
 		draw_info(buf, COLOR_GREEN);
@@ -951,30 +944,6 @@ static void free_bitmaps()
 				sprite_free_sprite(skill_list[i].entry[ii].icon);
 			}
 		}
-	}
-}
-
-/**
- * Free all loaded faces. */
-static void free_faces()
-{
-	int i;
-
-	for (i = 0; i < MAX_FACE_TILES; i++)
-	{
-		if (FaceList[i].sprite)
-		{
-			sprite_free_sprite(FaceList[i].sprite);
-			FaceList[i].sprite = NULL;
-		}
-
-		if (FaceList[i].name)
-		{
-			void *tmp_free = &FaceList[i].name;
-			FreeMemory(tmp_free);
-		}
-
-		FaceList[i].flags =0;
 	}
 }
 
