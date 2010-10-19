@@ -74,6 +74,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		uint32 visible_lines, lines;
 
 		box.w = popup->surface->w;
+		box.h = 0;
 		/* Show the news title. */
  		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
@@ -498,6 +499,7 @@ static void popup_draw_func(popup_struct *popup)
 
 	/* Show that we are connecting to the server. */
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
+	box.h = 0;
 	string_blt_shadow(popup->surface, FONT_SERIF12, "Connecting to server, please wait...", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
 
 	/* Downloading the files, or updates haven't finished yet? */
