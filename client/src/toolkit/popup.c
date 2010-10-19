@@ -185,6 +185,12 @@ void popup_draw()
 	{
 		popup_visible->draw_func_post(popup_visible, box.x, box.y);
 	}
+
+	/* Show close button. */
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	{
+		popup_destroy_visible();
+	}
 }
 
 /**
