@@ -162,6 +162,7 @@ void server_settings_init()
 			if (text_id < SERVER_TEXT_MAX)
 			{
 				s_settings->text[text_id] = strdup(buf + 5);
+				convert_newline(s_settings->text[text_id]);
 				text_id++;
 			}
 			else
