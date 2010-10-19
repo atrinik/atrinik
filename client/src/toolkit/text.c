@@ -459,6 +459,34 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return 4;
 		}
+		else if (!strncmp(cp, "<br>", 4))
+		{
+			if (box)
+			{
+				dest->w = box->w + 1;
+			}
+
+			return 4;
+		}
+		else if (!strncmp(cp, "<br=", 4))
+		{
+			if (box)
+			{
+				int height;
+
+				if (sscanf(cp, "<br=%d>", &height) == 1)
+				{
+					dest->w = box->w + 1;
+
+					if (surface)
+					{
+						dest->y += height;
+					}
+				}
+			}
+
+			return strchr(cp + 4, '>') - cp + 1;
+		}
 	}
 
 	/* Parse entities. */
