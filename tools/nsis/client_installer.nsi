@@ -34,6 +34,7 @@ Section "Client (required)"
   File "*.dat"
   File "README.txt"
   File "scripts_autoload"
+  FILE "timidity.cfg"
 
   CreateDirectory $INSTDIR\bitmaps
   SetOutPath $INSTDIR\bitmaps
@@ -66,6 +67,10 @@ Section "Client (required)"
   CreateDirectory $INSTDIR\srv_files
   SetOutPath $INSTDIR\srv_files
   File "srv_files\*.*"
+
+  CreateDirectory $INSTDIR\timidity
+  SetOutPath $INSTDIR\timidity
+  File "timidity\*.*"
 
   SetOutPath $INSTDIR
 
