@@ -61,3 +61,8 @@ stats_max 13 14 14 15 14 15 14
 
 desc The race of Thelra is a powerful and fierce race from the cold North. They decided to help fight alongside the chronomancers of Thraal in the war against Moroch. They excel as wizards, but can take on most other skills quite well.
 end
+
+text Select your race and then press <b>Enter</b> or click the <b>Next</b> button to continue.
+text Select the gender of your character and then press <b>Enter</b> or click the <b>Next</b> button to continue.
+text You're nearly done! Pick the stats for your new character by clicking the buttons or using the arrow keys. You must use up <u>all</u> available points before you can start playing. After you're done, press <b>Enter</b> or click the <b>Play</b> button to start playing.\n\n<y=-3><font=sans.ttf 14><c=177,168,65>Stats Selection</c></font>
+text <b>Strength</b>: Affects damage done with melee and ranged weapons, and increases maximum carry limit.\n<b>Dexterity</b>: Improves chance to hit enemies with melee and ranged weapons, and increases movement speed.\n<b>Constitution</b>: Increases maximum hitpoints.\n<b>Intelligence</b>: Increases effectiveness of various spells.\n<b>Wisdom</b>: Increases maximum grace and decreases the chance to fumble casting a prayer.\n<b>Power</b>: Increases maximum mana.\n<b>Charisma</b>: Slightly increases the money received for selling items to shops.
