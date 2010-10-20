@@ -690,6 +690,15 @@ static void list_handle_enter(list_struct *list)
 	}
 }
 
+/** @copydoc list_struct::esc_handle_func */
+static void list_handle_esc(list_struct *list)
+{
+	(void) list;
+
+	SYSTEM_End();
+	exit(0);
+}
+
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc. */
@@ -733,6 +742,7 @@ void show_meta_server()
 		/* Create the servers list. */
 		list = list_create(LIST_SERVERS, x + 13, y + 8, 11, 3, 8);
  		list->handle_enter_func = list_handle_enter;
+ 		list->handle_esc_func = list_handle_esc;
 		list_set_column(list, 0, 295, 7, "Server", -1);
 		list_set_column(list, 1, 50, 9, "Port", 1);
 		list_set_column(list, 2, 50, 7, "Players", 1);
@@ -814,6 +824,7 @@ void show_meta_server()
 
 		list = list_create(LIST_NEWS, x + 13, y + 10, 18, 1, 8);
 		list->handle_enter_func = list_handle_enter;
+ 		list->handle_esc_func = list_handle_esc;
 		list_set_column(list, 0, 150, 7, NULL, -1);
 		list_set_font(list, FONT_ARIAL10);
 	}
