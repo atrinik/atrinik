@@ -873,4 +873,10 @@ void show_meta_server()
 	{
 		list_handle_enter(list_exists(LIST_SERVERS));
 	}
+
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 479, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	{
+		SYSTEM_End();
+		exit(0);
+	}
 }

@@ -109,6 +109,7 @@ void animate_objects();
 
 /* client/main.c */
 void save_options_dat();
+void free_bitmaps();
 void open_input_mode(int maxchar);
 void list_vid_modes();
 int main(int argc, char *argv[]);

@@ -315,7 +315,6 @@ static void flip_screen();
 static void delete_player_lists();
 static void reset_input_mode();
 static int load_bitmap(int index);
-static void free_bitmaps();
 static void load_options_dat();
 
 /**
@@ -926,7 +925,7 @@ static int load_bitmap(int index)
 
 /**
  * Free the bitmaps. */
-static void free_bitmaps()
+void free_bitmaps()
 {
 	int i, ii;
 
@@ -1628,15 +1627,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	script_killall();
-	save_interface_file();
-	save_options_dat();
-	kill_widgets();
-	curl_global_cleanup();
-	socket_deinitialize();
-	sound_deinit();
-	free_bitmaps();
-	text_deinit();
 	SYSTEM_End();
 
 	return 0;

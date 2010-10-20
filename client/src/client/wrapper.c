@@ -105,6 +105,15 @@ void SYSTEM_Start()
  * @return Always returns 1. */
 int SYSTEM_End()
 {
+	script_killall();
+	save_interface_file();
+	save_options_dat();
+	kill_widgets();
+	curl_global_cleanup();
+	socket_deinitialize();
+	sound_deinit();
+	free_bitmaps();
+	text_deinit();
 	free_help_files();
 	SDL_Quit();
 	return 1;
