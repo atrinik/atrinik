@@ -83,11 +83,11 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Skip rows we scrolled past. */
 		box.y = popup->i;
 		/* Calculate number of visible rows. */
-		visible_lines = box.h / FONT_HEIGHT(FONT_SERIF12);
+		visible_lines = box.h / FONT_HEIGHT(FONT_SANS12);
 		/* Show the news. */
- 		string_blt(popup->surface, FONT_SERIF12, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_HEIGHT, &box);
+ 		string_blt(popup->surface, FONT_SANS12, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_HEIGHT, &box);
 		/* NUmber of lines in the string. */
-		lines = box.h / FONT_HEIGHT(FONT_SERIF12);
+		lines = box.h / FONT_HEIGHT(FONT_SANS12);
 
 		box.x = Bitmaps[popup->bitmap_id]->bitmap->w - 30;
 		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
