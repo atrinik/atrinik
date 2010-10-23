@@ -292,13 +292,12 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	int face = 0;
 	SDL_Rect box;
 
-	/* Not creating character, nothing to do. */
+	/* Not creating character, only show the message text window. */
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
 	{
+		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 30, 220, 130);
 		return;
 	}
-
-	(void) popup;
 
 	list = list_exists(LIST_CREATION);
 
@@ -503,14 +502,14 @@ static void popup_draw_func(popup_struct *popup)
 	bltfx.alpha = 0;
 
 	/* Update progress bar of requested files */
-	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], Bitmaps[popup->bitmap_id]->bitmap->w / 2 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->w / 2, 30, NULL, &bltfx);
+	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], Bitmaps[popup->bitmap_id]->bitmap->w / 4 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->w / 2, 30, NULL, &bltfx);
 
 	progress = MIN(100, 8);
 	box.x = 0;
 	box.y = 0;
 	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
 	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
-	sprite_blt(Bitmaps[BITMAP_PROGRESS], Bitmaps[popup->bitmap_id]->bitmap->w / 2 - Bitmaps[BITMAP_PROGRESS]->bitmap->w / 2, 30, &box, &bltfx);
+	sprite_blt(Bitmaps[BITMAP_PROGRESS], Bitmaps[popup->bitmap_id]->bitmap->w / 4 - Bitmaps[BITMAP_PROGRESS]->bitmap->w / 2, 30, &box, &bltfx);
 
 	/* Show that we are connecting to the server. */
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
@@ -523,8 +522,8 @@ static void popup_draw_func(popup_struct *popup)
 		return;
 	}
 
-	/* Middle of the screen for the text inputs. */
-	x = Bitmaps[popup->bitmap_id]->bitmap->w / 2 - text_input_center_offset();
+	box.w = Bitmaps[popup->bitmap_id]->bitmap->w / 2;
+	x = Bitmaps[popup->bitmap_id]->bitmap->w / 4 - text_input_center_offset();
 	y = 75;
 
 	/* Player name. */
