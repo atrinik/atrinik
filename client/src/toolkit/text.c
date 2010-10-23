@@ -145,16 +145,16 @@ static int get_font_id(const char *name, size_t size)
  * @param surface If NULL, will not do anything.
  * @param color Values to copy to.
  * @param orig_color Values to copy from. */
-static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_color)
+static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_color)
 {
 	if (!surface)
 	{
 		return;
 	}
 
-	color->r = orig_color.r;
-	color->g = orig_color.g;
-	color->b = orig_color.b;
+	color->r = orig_color->r;
+	color->g = orig_color->g;
+	color->b = orig_color->b;
 }
 
 /**
@@ -172,11 +172,22 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color orig_c
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color orig_color, int flags, SDL_Rect *box)
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, int flags, SDL_Rect *box)
 {
 	int width, ret = 1;
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[MAX_BUF];
+
+	if (c == '\r')
+	{
+		SDL_Color new_color = COLOR_SIMPLE((uint8) cp[1] - 1);
+
+		color->r = orig_color->r = new_color.r;
+		color->g = orig_color->g = new_color.g;
+		color->b = orig_color->b = new_color.b;
+
+		return 2;
+	}
 
 	/* Doing markup? */
 	if (flags & TEXT_MARKUP && c == '<')
@@ -432,7 +443,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
 
 				/* Change to light blue only if no custom color was specified. */
-				if (color->r == orig_color.r && color->g == orig_color.g && color->b == orig_color.b)
+				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b)
 				{
 					color->r = 96;
 					color->g = 160;
@@ -664,7 +675,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
-				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, orig_color, flags, box);
+				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box);
 				cp += ret;
 				last_space -= ret;
 
@@ -711,14 +722,14 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(&font, font, NULL, &dest, cp + pos, &color, orig_color, flags, box);
+			pos += blt_character(&font, font, NULL, &dest, cp + pos, &color, &orig_color, flags, box);
 		}
 	}
 
 	/* Draw leftover characters. */
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, orig_color, flags, box);
+		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box);
 	}
 
 	/* Give caller access to the calculated height. */
@@ -794,7 +805,7 @@ int string_get_width(int font, const char *text, int flags)
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, (SDL_Color) {0, 0, 0, 0}, flags, NULL);
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL);
 	}
 
 	return dest.w;
