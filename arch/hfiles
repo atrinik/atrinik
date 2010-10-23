@@ -281,6 +281,9 @@ Take all unread books:
 Take all unread level 20 books:
 /take unread level 20 books
 
+Take all unread books level 20 to 50:
+/take unread level 20-50 books
+
 Drop all rings from inventory:
 /drop ring
 
@@ -295,6 +298,24 @@ Take all unpaid items:
 
 Take all rings and amulets:
 /take ring, amulet
+
+Take unidentified items:
+/take unidentified
+
+Drop identified items:
+/drop identified
+
+Take all food and drinks:
+/take food
+
+Take various valuables (gems, nuggets, pearls, etc):
+/take valuables
+
+Take 1-handed, 2-handed and polearm slash weapons:
+/take slash weapons
+
+Drop 1-handed, 2-handed and polearm pierce weapons:
+/drop pierce weapons
 
 The syntax in the above examples always applies to both commands.
 ==========

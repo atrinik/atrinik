@@ -3646,7 +3646,7 @@ void init_object_initializers()
 int item_matched_string(object *pl, object *op, const char *name)
 {
 	char *cp, local_name[MAX_BUF];
-	int count, retval = 0, book_level;
+	int count, retval = 0, book_level, book_level2, weapon_type;
 
 	/* strtok is destructive to name */
 	strcpy(local_name, name);
@@ -3681,7 +3681,60 @@ int item_matched_string(object *pl, object *op, const char *name)
 			return 2;
 		}
 
-		if (op->type == BOOK)
+		if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcmp(cp, "identified"))
+		{
+			return 2;
+		}
+
+		if (!QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcmp(cp, "unidentified"))
+		{
+			return 2;
+		}
+
+		if ((op->type == FOOD || op->type == DRINK) && !strcmp(cp, "food"))
+		{
+			return 2;
+		}
+
+		if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) && !strcmp(cp, "valuables"))
+		{
+			return 2;
+		}
+
+		if (op->type == WEAPON)
+		{
+			weapon_type = op->sub_type % 4;
+
+			if (weapon_type == WEAP_1H_IMPACT)
+			{
+				if (!strcmp(cp, "impact weapons"))
+				{
+					return 2;
+				}
+			}
+			else if (weapon_type == WEAP_1H_SLASH)
+			{
+				if (!strcmp(cp, "slash weapons"))
+				{
+					return 2;
+				}
+			}
+			else if (weapon_type == WEAP_1H_CLEAVE)
+			{
+				if (!strcmp(cp, "cleave weapons"))
+				{
+					return 2;
+				}
+			}
+			else if (weapon_type == WEAP_1H_PIERCE)
+			{
+				if (!strcmp(cp, "pierce weapons"))
+				{
+					return 2;
+				}
+			}
+		}
+		else if (op->type == BOOK)
 		{
 			if (!strcmp(cp, "books"))
 			{
@@ -3704,6 +3757,11 @@ int item_matched_string(object *pl, object *op, const char *name)
 				{
 					return 2;
 				}
+
+				if (sscanf(cp, "unread level %d-%d books", &book_level, &book_level2) == 2 && op->level >= book_level && op->level <= book_level2)
+				{
+					return 2;
+				}
 			}
 			else
 			{
@@ -3713,6 +3771,11 @@ int item_matched_string(object *pl, object *op, const char *name)
 				}
 
 				if (sscanf(cp, "read level %d books", &book_level) == 1 && op->level == book_level)
+				{
+					return 2;
+				}
+
+				if (sscanf(cp, "read level %d-%d books", &book_level, &book_level2) == 2 && op->level >= book_level && op->level <= book_level2)
 				{
 					return 2;
 				}
