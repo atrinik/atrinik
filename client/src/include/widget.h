@@ -335,7 +335,7 @@ extern int old_alpha_option;
 #define WIDGET_REDRAW_ALL(__id) widget_redraw_all(__id);
 
 /** Macros to grab extended widget attributes. This works similar to inheritance. */
-#define TEXTWIN(__textwin) (_textwin *) (__textwin->subwidget)
+#define TEXTWIN(__textwin) ((_textwin *) ((__textwin)->subwidget))
 #define CONTAINER(__widget_container) (_widget_container *) (__widget_container->subwidget)
 #define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
 #define BITMAP(__widget_bitmap) (_widget_bitmap *) (__widget_bitmap->subwidget)
