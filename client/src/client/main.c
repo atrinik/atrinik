@@ -1470,11 +1470,6 @@ int main(int argc, char *argv[])
 			GameTicksSec = 0;
 		}
 
-		if (GameStatus != GAME_STATUS_PLAY)
-		{
-			textwin_show(539, 485);
-		}
-
 		if (GameStatus == GAME_STATUS_PLAY)
 		{
 			SDL_Rect tmp_rect;
