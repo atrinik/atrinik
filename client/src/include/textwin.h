@@ -30,9 +30,6 @@
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
 
-#define TEXT_WIN_MAX 		250
-#define MAX_KEYWORD_LEN 	256
-
 /* Events */
 enum
 {
@@ -59,25 +56,6 @@ enum
 	TW_RESIZE = 0x02
 };
 
-/** Text buf structure */
-typedef struct _text_buf
-{
-	/** Text */
-	char buf[128];
-
-	/** Which channel */
-	int channel;
-
-	/** Some flags */
-	int flags;
-
-	/** Color of text */
-	int color;
-
-	/** 1 = key begin in row before 2 = no key end */
-	int key_clipped;
-}_text_buf;
-
 /** Custom attributes for text window widgets. */
 struct _textwin
 {
@@ -90,15 +68,6 @@ struct _textwin
 	/** scroll offset */
 	int scroll;
 
-	/** first printed textline */
-	int top_drawLine;
-
-	/** last printed textline */
-	int bot_drawLine;
-
-	/** 0 ... TEXTWIN_MAX */
-	int act_bufsize;
-
 	/** height of the scrollbar-slider  */
 	int slider_h;
 
@@ -108,10 +77,24 @@ struct _textwin
 	/** which part to highlight */
 	int highlight;
 
-	/** buffer for text */
-	_text_buf text[TEXT_WIN_MAX];
+	/** The text in the text window. */
+	char *entries;
+
+	/** Number of lines. */
+	size_t num_entries;
+
+	/** Length of the entries. */
+	size_t entries_size;
+
+	/** Font used. */
+	int font;
 };
 
-extern int textwin_flags;
+/** Get the maximum number of visible rows. */
+#define TEXTWIN_ROWS_VISIBLE(widget) ((widget)->ht / FONT_HEIGHT(TEXTWIN((widget))->font))
+/** Get the base flags depending on the text window. */
+#define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP : TEXT_WORD_WRAP)
+
+int textwin_flags;
 
 #endif

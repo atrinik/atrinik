@@ -214,7 +214,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	_menuitem *menuitem;
     _widget_label *label;
 	_widget_bitmap *bitmap;
-    int widget_type_id = widget_subtype_id, i;
+    int widget_type_id = widget_subtype_id;
 
 	/* map the widget subtype to widget type */
 	if (widget_subtype_id >= TOTAL_WIDGETS)
@@ -260,17 +260,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			}
 			/* begin initialising the members that need it, I basically here just used copypasta from the old textwin_init() function */
 			textwin->size = 22;
-			textwin->scroll = 0;
-			textwin->bot_drawLine = 0;
-			textwin->act_bufsize = 0;
-			for (i = 0; i < TEXT_WIN_MAX; ++i)
-			{
-				textwin->text[i].channel = 0;
-				textwin->text[i].flags = 0;
-				textwin->text[i].color = 0;
-				/* you won't believe how much quality time I've spent preventing this variable from playing chase with my memory */
-				textwin->text[i].key_clipped = 0;
-			}
+			textwin->font = FONT_SANS10;
 			/* that's right, a void * cast to _textwin *.
 			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
 			widget->subwidget = (_textwin *) textwin;

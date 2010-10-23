@@ -717,12 +717,12 @@ void show_meta_server()
 		return;
 	}
 
-	x = 5;
+	x = 15;
 	y = Screensize->y - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
 
 	/* Background */
 	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
-
+	textwin_show(Bitmaps[BITMAP_INTRO]->bitmap->w, 1, Screensize->x - Bitmaps[BITMAP_INTRO]->bitmap->w - 2, Screensize->y - 3);
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG], x, y, NULL, NULL);
 
 	list = list_exists(LIST_SERVERS);
@@ -807,7 +807,7 @@ void show_meta_server()
 
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
 
-	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 10;
+	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 20;
 	sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
 
 	box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w;
@@ -880,12 +880,12 @@ void show_meta_server()
 	}
 
 	/* Show the play button. */
-	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 479, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 489, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
 	{
 		list_handle_enter(list_exists(LIST_SERVERS));
 	}
 
-	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 479, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
 	{
 		SYSTEM_End();
 		exit(0);

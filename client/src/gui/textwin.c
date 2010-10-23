@@ -35,191 +35,20 @@ static int old_slider_pos = 0;
 SDL_Surface *txtwinbg = NULL;
 int old_txtwin_alpha = -1;
 
-static struct _Font *textwin_font = &SystemFont;
-
-/* Definition of keyword:
- *  A keyword is the text between two '^' characters.
- *  The size can vary between a single word and a complete sentence.
- *  The max length of a keyword is 1 row (inclusive '^') because only
- *  one LF within is allowed. */
-
 /**
- * Figure out the start position of a keyword.
- * @param actWin The text window.
- * @param mouseX Mouse X.
- * @param row Row to check.
- * @param wID Widget ID.
- * @return NULL if no keyword, otherwise the keyword is returned. */
-static char *get_keyword_start(widgetdata *widget, int mouseX, int *row)
+ * Makes sure textwin's scroll value is a sane number.
+ * @param widget Text window's widget. */
+static void textwin_scroll_adjust(widgetdata *widget)
 {
 	_textwin *textwin = TEXTWIN(widget);
-	int pos, pos2 = widget->x1, key_start;
-	char *text;
 
-	if (!textwin)
+	if (textwin->scroll < TEXTWIN_ROWS_VISIBLE(widget))
 	{
-		return 0;
+		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget);
 	}
-
-	pos = (textwin->top_drawLine + (*row)) % TEXT_WIN_MAX - textwin->scroll;
-
-	if (pos < 0)
+	else if (textwin->scroll > (int) textwin->num_entries)
 	{
-		pos += TEXT_WIN_MAX;
-	}
-
-	if (mouseX > 0)
-	{
-		/* Check if keyword starts in the row before */
-		if (textwin->scroll + 1 != textwin->act_bufsize - textwin->size && textwin->text[pos].key_clipped)
-		{
-			/* Was a clipped keyword clicked? */
-			int index = -1;
-			text = textwin->text[pos].buf;
-
-			while (text[++index] && pos2 <= mouseX && text[index] != '^' && text[index] != '~' && text[index] != '|')
-			{
-				pos2 += textwin_font->c[(int) text[index]].w + textwin_font->char_offset;
-			}
-
-			/* Clipped keyword was clicked, so we must start one row before */
-			if (text[index] != '^' && text[index] != '~' && text[index] != '|')
-			{
-				(*row)--;
-				pos = (textwin->top_drawLine + (*row)) % TEXT_WIN_MAX - textwin->scroll;
-
-				if (pos < 0)
-				{
-					pos += TEXT_WIN_MAX;
-				}
-
-				mouseX = Screensize->x;
-			}
-		}
-	}
-
-	text = textwin->text[pos].buf;
-
-	/* Find the first character of the keyword */
-	if (textwin->text[pos].key_clipped)
-	{
-		key_start = 0;
-	}
-	else
-	{
-		key_start = -1;
-	}
-
-	pos = 0;
-	pos2 = widget->x1;
-
-	while (text[pos] && pos2 <= mouseX)
-	{
-		if (text[pos] == '^')
-		{
-			/* Start of a keyword */
-			if (key_start < 0)
-			{
-				key_start = pos;
-			}
-			/* End of a keyword */
-			else
-			{
-				key_start = -1;
-			}
-		}
-		else if (text[pos] != '~' && text[pos] != '|')
-		{
-			pos2 += textwin_font->c[(int) (text[pos])].w + textwin_font->char_offset;
-		}
-
-		pos++;
-	}
-
-	/* No keyword here */
-	if (key_start < 0)
-	{
-		return NULL;
-	}
-
-	(*row)++;
-
-	return &text[key_start];
-}
-
-/**
- * Check for keyword and send it to server.
- * @param actWin The text window.
- * @param mouseX Mouse X.
- * @param mouseY Mouse Y. */
-void say_clickedKeyword(widgetdata *widget, int mouseX, int mouseY)
-{
-	_textwin *textwin = TEXTWIN(widget);
-	char cmdBuf[MAX_KEYWORD_LEN + 1] = {"/say "};
-	char cmdBuf2[MAX_KEYWORD_LEN + 1] = {""};
-	char *text;
-	int clicked_row, pos = 5;
-
-	/* sanity check */
-	if (!textwin)
-		return;
-
-	clicked_row = (mouseY - widget->y1 - 2.5f) / 10;
-
-	text = get_keyword_start(widget, mouseX, &clicked_row);
-
-	if (text == NULL)
-	{
-		return;
-	}
-
-	if (*text == '^')
-	{
-		text++;
-	}
-
-	while (*text && *text != '^')
-	{
-		cmdBuf[pos++] = *text++;
-	}
-
-	if (*text != '^')
-	{
-		text = get_keyword_start(widget, -1, &clicked_row);
-
-		if (text != NULL)
-		{
-			while (*text && *text != '^')
-			{
-				cmdBuf[pos++] = *text++;
-			}
-		}
-	}
-
-	cmdBuf[pos++] = '\0';
-
-	/* Clickable keywords can be commands too.
-	 * Commands will get executed instead of said. */
-
-	/* Get rid of /say */
-	if (cmdBuf[5] == '/')
-	{
-		pos = 5;
-
-		while (cmdBuf[pos] != '\0')
-		{
-			cmdBuf2[pos - 5] = cmdBuf[pos];
-			pos++;
-		}
-
-		if (!client_command_check(cmdBuf2))
-		{
-			send_command(cmdBuf2);
-		}
-	}
-	else
-	{
-		send_command(cmdBuf);
+		textwin->scroll = textwin->num_entries;
 	}
 }
 
@@ -240,145 +69,84 @@ void draw_info_format(int flags, char *format, ...)
 }
 
 /**
- * Add string to the text window (perform auto clipping).
+ * Add string to the text window.
  * @param str The string.
  * @param flags Various flags, like color. */
-void draw_info(char *str, int flags)
+void draw_info(const char *str, int flags)
 {
-	static int key_start = 0;
-	static int key_count = 0;
-	int i, len,a, color, mode;
-	int winlen = 239;
-	char buf[4096];
-	char *text;
-	int z;
 	widgetdata *widget;
 	_textwin *textwin;
+	size_t len, scroll;
+	SDL_Rect box;
 
-	color = flags & 0xff;
-	mode = flags;
-
-	/* Remove special characters. */
-	for (i = 0; str[i] != 0; i++)
+	if (flags & NDI_PLAYER)
 	{
-		if (str[i] < ' ' && str[i] != '\n')
+		widget = cur_widget[CHATWIN_ID];
+	}
+	else
+	{
+		widget = cur_widget[MSGWIN_ID];
+	}
+
+	textwin = TEXTWIN(widget);
+	WIDGET_REDRAW(widget);
+
+	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 10 - 1;
+	box.h = 0;
+
+	/* Have the entries gone over maximum allowed lines? */
+	if (textwin->entries && textwin->num_entries >= (size_t) options.chat_max_lines)
+	{
+		char *cp = strchr(textwin->entries, '\n');
+
+		/* Found the first newline. */
+		if (cp)
 		{
-			str[i] = ' ';
+			size_t pos = cp - textwin->entries + 1;
+			char *buf = malloc(pos + 1);
+
+			/* Copy the string together with the newline to a temporary
+			 * buffer. */
+			memcpy(buf, textwin->entries, pos);
+			buf[pos] = '\0';
+			/* Get the string's height. */
+			string_blt(NULL, textwin->font, buf, 0, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+			scroll = box.h / FONT_HEIGHT(textwin->font);
+			box.h = 0;
+			free(buf);
+
+			/* Move the string after the found newline to the beginning,
+			 * effectively erasing the previous line. */
+			textwin->entries_size -= pos;
+			memcpy(textwin->entries, textwin->entries + pos, textwin->entries_size);
+			textwin->entries[textwin->entries_size] = '\0';
+
+			/* Adjust the counts. */
+			textwin->scroll -= scroll;
+			textwin->num_entries -= scroll;
 		}
 	}
 
-	len = 0;
+	len = strlen(str);
+	/* Resize the characters array as needed. */
+	textwin->entries = realloc(textwin->entries, textwin->entries_size + len + 4);
+	/* Tells the text module what color to use. */
+	textwin->entries[textwin->entries_size] = '\r';
+	textwin->entries[textwin->entries_size + 1] = (flags & 0xff) + 1;
+	textwin->entries_size += 2;
+	/* Add the string, newline and terminating \0. */
+	strcpy(textwin->entries + textwin->entries_size, str);
+	textwin->entries[textwin->entries_size + len] = '\n';
+	textwin->entries[textwin->entries_size + len + 1] = '\0';
+	textwin->entries_size += len + 1;
 
-	for (a = i = 0; ; i++)
-	{
-		widget = cur_widget[MIXWIN_ID];
-		textwin = TEXTWIN(widget);
+	/* Get the string's height. */
+	string_blt(NULL, textwin->font, str, 0, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	scroll = box.h / FONT_HEIGHT(textwin->font) + 1;
 
-		if (str[i] != '^' && str[i] != '~' && str[i] != '|')
-		{
-			len += textwin_font->c[(int) (str[i])].w + textwin_font->char_offset;
-		}
-
-		if (len >= winlen || str[i] == '\n' || str[i] == '\0')
-		{
-			/* Now the special part - let's look for a good point to cut */
-			if (len >= winlen && a > 10)
-			{
-				int ii = a, it = i, ix = a, tx = i;
-
-				while (ii >= a / 2)
-				{
-					if (str[it] == ' ' || str[it] == ':' || str[it] == '.' || str[it] == ',' || str[it] == '(' || str[it] == ';' || str[it] == '-' || str[it] == '+' || str[it] == '*' || str[it] == '?' || str[it] == '/' || str[it] == '=' || str[it] == '.' || str[it] == '\0' || str[it] == '\n')
-					{
-						tx = it;
-						ix = ii;
-						break;
-					}
-
-					it--;
-					ii--;
-				}
-
-				i = tx;
-				a = ix;
-			}
-
-			buf[a] = 0;
-
-			/* TODO: remind me to give this bit of code a nice mashing up later */
-			for (z = 0; z < 2; z++)
-			{
-				/* Add messages to mixed textwin and either to msg OR chat textwin */
-				strcpy(textwin->text[textwin->bot_drawLine % TEXT_WIN_MAX].buf, buf);
-				textwin->text[textwin->bot_drawLine % TEXT_WIN_MAX].color = color;
-				textwin->text[textwin->bot_drawLine % TEXT_WIN_MAX].flags = mode;
-				textwin->text[textwin->bot_drawLine % TEXT_WIN_MAX].key_clipped = key_start;
-
-				if (textwin->scroll)
-				{
-					textwin->scroll++;
-				}
-
-				if (textwin->act_bufsize < TEXT_WIN_MAX)
-				{
-					textwin->act_bufsize++;
-				}
-
-				textwin->bot_drawLine++;
-				textwin->bot_drawLine %= TEXT_WIN_MAX;
-
-				if (mode & NDI_PLAYER)
-				{
-					widget = cur_widget[CHATWIN_ID];
-					/* Next window => MSG_CHAT */
-                    /* just a little debug until we have proper text window filters in place */
-					if (widget->type_next)
-					{
-						widget = widget->type_next;
-					}
-					textwin = TEXTWIN(widget);
-					WIDGET_REDRAW(widget);
-				}
-				else
-				{
-					widget = cur_widget[MSGWIN_ID];
-					/* Next window => MSG_WIN */
-					textwin = TEXTWIN(widget);
-					WIDGET_REDRAW(widget);
-				}
-			}
-
-			/* Because of autoclip we must scan every line again */
-			for (text = buf; *text; text++)
-			{
-				if (*text == '^')
-				{
-					key_count = (key_count + 1) & 1;
-				}
-			}
-
-			if (key_count)
-			{
-				key_start = 0x1000;
-			}
-			else
-			{
-				key_start = 0;
-			}
-
-			a = len = 0;
-
-			if (str[i] == 0)
-			{
-				break;
-			}
-		}
-
-		if (str[i] != '\n')
-		{
-			buf[a++] = str[i];
-		}
-	}
+	/* Adjust the counts. */
+	textwin->scroll += scroll;
+	textwin->num_entries += scroll;
 }
 
 /**
@@ -390,64 +158,24 @@ void draw_info(char *str, int flags)
 static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 {
 	_textwin *textwin = TEXTWIN(widget);
-	int i, temp;
+	SDL_Rect box;
+	int temp;
 
 	textwin->x = x;
 	textwin->y = y;
+	x = y = 0;
 
-    /* this probably won't be needed soon, since I plan to merge the different types of textwin widgets into one */
-    if (widget->WidgetTypeID != MIXWIN_ID)
+	/* Show the text entries, if any. */
+	if (textwin->entries)
 	{
-		x = y = 0;
-	}
-
-	textwin->top_drawLine = textwin->bot_drawLine - (textwin->size + 1);
-
-	if (textwin->top_drawLine < 0 && textwin->act_bufsize == TEXT_WIN_MAX)
-	{
-		textwin->top_drawLine += TEXT_WIN_MAX;
-	}
-	else if (textwin->top_drawLine < 0)
-	{
-		textwin->top_drawLine = 0;
-	}
-
-	if (textwin->scroll > textwin->act_bufsize - (textwin->size + 1))
-	{
-		textwin->scroll = textwin->act_bufsize - (textwin->size + 1);
-	}
-
-	if (textwin->scroll < 0)
-	{
-		textwin->scroll = 0;
-	}
-
-	for (i = 0; i <= textwin->size && i < textwin->act_bufsize; i++)
-	{
-		temp = (textwin->top_drawLine + i) % TEXT_WIN_MAX;
-
-		if (textwin->act_bufsize > textwin->size)
-		{
-			temp -= textwin->scroll;
-
-			if (temp < 0)
-			{
-				temp = TEXT_WIN_MAX + temp;
-			}
-		}
-
-		if (textwin->text[temp].key_clipped)
-		{
-			StringBlt(bltfx->surface, textwin_font, &textwin->text[temp].buf[0], x + 2, (y + 1 + i * 10), textwin->text[temp].color | COLOR_FLAG_CLIPPED, NULL, NULL);
-		}
-		else
-		{
-			StringBlt(bltfx->surface, textwin_font, &textwin->text[temp].buf[0], x + 2, (y + 1 + i * 10), textwin->text[temp].color, NULL, NULL);
-		}
+		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 10 - 1;
+		box.h = widget->ht - 1;
+		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
+		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 1, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	}
 
 	/* Only draw scrollbar if needed */
-	if (textwin->act_bufsize > textwin->size)
+	if (textwin->num_entries > (size_t) TEXTWIN_ROWS_VISIBLE(widget))
 	{
 		SDL_Rect box;
 
@@ -463,16 +191,16 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		box.h += temp - 2;
 		box.w -= 2;
 
-		textwin->slider_y = ((textwin->act_bufsize - (textwin->size + 1) - textwin->scroll) * box.h) / textwin->act_bufsize;
-		/* between 0.0 <-> 1.0 */
-		textwin->slider_h = (box.h * (textwin->size + 1)) / textwin->act_bufsize;
+		/* Between 0.0 <-> 1.0 */
+		textwin->slider_h = box.h * TEXTWIN_ROWS_VISIBLE(widget) / textwin->num_entries;
+		textwin->slider_y = ((textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget)) * box.h) / textwin->num_entries;
 
 		if (textwin->slider_h < 1)
 		{
 			textwin->slider_h = 1;
 		}
 
-		if (!textwin->scroll && textwin->slider_y + textwin->slider_h < box.h)
+		if (textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget) > 0 && textwin->slider_y + textwin->slider_h < box.h)
 		{
 			textwin->slider_y++;
 		}
@@ -551,48 +279,30 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 }
 
 /**
- * Display one text window with text from both.
- *
- * Used only at startup.
- * @param x X position of the text window.
- * @param y Y position of the text window. */
-void textwin_show(int x, int y)
+ * Display the message text window, without handling scrollbar/mouse
+ * actions.
+ * @param x X position.
+ * @param y Y position.
+ * @param w Maximum width.
+ * @param h Maximum height. */
+void textwin_show(int x, int y, int w, int h)
 {
-	int len;
-	SDL_Rect box;
-	_BLTFX bltfx;
-	widgetdata *widget = cur_widget[MIXWIN_ID];
+	widgetdata *widget = cur_widget[MSGWIN_ID];
 	_textwin *textwin = TEXTWIN(widget);
+	SDL_Rect box;
 
-	/* sanity check */
-	if (!textwin)
-		return;
+	box.x = x;
+	box.y = y;
+	box.w = w;
+	box.h = h;
+	SDL_FillRect(ScreenSurface, &box, 0);
+	draw_frame(ScreenSurface, x, y, box.w, box.h);
 
-	bltfx.alpha = options.textwin_alpha;
-	bltfx.flags = BLTFX_FLAG_SRCALPHA;
-	bltfx.surface = NULL;
-	box.x = box.y = 0;
-	box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
-	y = Screensize->y - (Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2) + 25;
+	box.w = w - 1;
+	box.h = h - 1;
+	box.y = MAX(0, (int) textwin->num_entries - (h / FONT_HEIGHT(textwin->font)));
 
-	box.h = len = textwin->size * 10 + 23;
-	y -= len;
-
-	if (options.use_TextwinAlpha)
-	{
-		sprite_blt(Bitmaps[BITMAP_TEXTWIN_MASK], x, y, &box, &bltfx);
-	}
-	else
-	{
-		sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
-	}
-
-	bltfx.alpha = 255;
-	bltfx.surface = ScreenSurface;
-	bltfx.flags = 0;
-
-	/* show the first textwin widget, probably need to tweak this later when the textwins get merged */
-	show_window(widget, x, y - 1, &bltfx);
+	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 1, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 }
 
 /**
@@ -729,24 +439,24 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 	/* Mousewheel up */
 	if (event.button.button == 4)
 	{
-		textwin->scroll++;
+		textwin->scroll--;
 	}
 	/* Mousewheel down */
 	else if (event.button.button == 5)
 	{
-		textwin->scroll--;
+		textwin->scroll++;
 	}
 	else if (event.button.button == SDL_BUTTON_LEFT)
 	{
 		/* Clicked scroller button up */
 		if (textwin->highlight == TW_HL_UP)
 		{
-			textwin->scroll++;
+			textwin->scroll--;
 		}
 		/* Clicked above the slider */
 		else if (textwin->highlight == TW_ABOVE)
 		{
-			textwin->scroll += textwin->size;
+			textwin->scroll -= textwin->size;
 		}
 		else if (textwin->highlight == TW_HL_SLIDER)
 		{
@@ -758,23 +468,21 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 		/* Clicked under the slider */
 		else if (textwin->highlight == TW_UNDER)
 		{
-			textwin->scroll -= textwin->size;
+			textwin->scroll += textwin->size;
 		}
 		/* Clicked scroller button down */
 		else if (textwin->highlight == TW_HL_DOWN)
 		{
-			textwin->scroll--;
+			textwin->scroll++;
 		}
 		/* Size change */
 		else if (event.motion.x < widget->x1 + 246 && event.motion.y > widget->y1 + 2 && event.motion.y < widget->y1 + 7 && cursor_type == 1)
 		{
 			textwin_flags |= TW_RESIZE;
 		}
-		else if (event.motion.x < widget->x1 + 250)
-		{
-			say_clickedKeyword(widget, event.motion.x, event.motion.y);
-		}
 	}
+
+	textwin_scroll_adjust(widget);
 }
 
 /**
@@ -854,7 +562,10 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 	if (textwin_flags & TW_SCROLL)
 	{
 		textwin->slider_y = event.motion.y - old_slider_pos;
-		textwin->scroll = textwin->act_bufsize - (textwin->size + 1) - (textwin->act_bufsize * textwin->slider_y) / (textwin->size * 10 - 1);
+
+		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / widget->ht;
+		textwin_scroll_adjust(widget);
+
 		WIDGET_REDRAW(widget);
 
 		return 0;
@@ -875,6 +586,8 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 		resize_widget(widget, RESIZE_TOP, newsize * 10 + 13);
 
 		textwin->size = newsize;
+		textwin_scroll_adjust(widget);
+		WIDGET_REDRAW(widget);
 	}
 
 	return 0;
@@ -957,15 +670,8 @@ void textwin_putstring(char *text)
  * @param font ID of the font to change to. */
 void change_textwin_font(int font)
 {
-	switch (font)
-	{
-		case 0:
-		default:
-			textwin_font = &SystemFont;
-			break;
+	font = FONT_SANS10 + font;
 
-		case 1:
-			textwin_font = &MediumFont;
-			break;
-	}
+	TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
+	TEXTWIN(cur_widget[CHATWIN_ID])->font = font;
 }

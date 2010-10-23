@@ -65,7 +65,8 @@ _option opt[] =
 	{"Collect All Items:", "Don't ask for number of items to get, just get all of them.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.collectAll, VAL_BOOL},
 	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;\n~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
 	{"Chat Timestamps:", "Show a timestamp before each chat message.", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
-	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "Normal#Bigger", SEL_RANGE, 0, 1, 1, 0, &options.chat_font_size, VAL_INT},
+	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "10px#11px#12px#13px#14px#15px#16px", SEL_RANGE, 0, 6, 1, 0, &options.chat_font_size, VAL_INT},
+	{"Maximum chat lines:", "Maximum number of lines in the chat boxes.", "", SEL_RANGE, 20, 1000, 10, 200, &options.chat_max_lines, VAL_INT},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */

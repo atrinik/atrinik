@@ -137,6 +137,7 @@ typedef struct _options
 	int show_tooltips;
 	int chat_timestamp;
 	int chat_font_size;
+	int chat_max_lines;
 
 	/* key-infos in dialog-wins. */
 	int show_d_key_infos;
