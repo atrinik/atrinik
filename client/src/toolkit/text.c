@@ -39,8 +39,11 @@ font_struct fonts[FONTS_MAX] =
 {
 	{"fonts/vera/sans.ttf", 8, NULL, 0},
 	{"fonts/vera/sans.ttf", 10, NULL, 0},
+	{"fonts/vera/sans.ttf", 11, NULL, 0},
 	{"fonts/vera/sans.ttf", 12, NULL, 0},
+	{"fonts/vera/sans.ttf", 13, NULL, 0},
 	{"fonts/vera/sans.ttf", 14, NULL, 0},
+	{"fonts/vera/sans.ttf", 15, NULL, 0},
 	{"fonts/vera/sans.ttf", 16, NULL, 0},
 	{"fonts/vera/sans.ttf", 18, NULL, 0},
 	{"fonts/vera/sans.ttf", 20, NULL, 0},

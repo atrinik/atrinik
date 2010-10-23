@@ -55,10 +55,16 @@ enum
 	FONT_SANS8,
 	/** Sans, 10px. */
 	FONT_SANS10,
+	/** Sans, 11px. */
+	FONT_SANS11,
 	/** Sans, 12px. */
 	FONT_SANS12,
+	/** Sans, 13px. */
+	FONT_SANS13,
 	/** Sans, 14px. */
 	FONT_SANS14,
+	/** Sans, 15px. */
+	FONT_SANS15,
 	/** Sans, 16px. */
 	FONT_SANS16,
 	/** Sans, 18px. */
@@ -148,7 +154,7 @@ enum
  * @return SDL_Color array containing the rgb values. */
 #define COLOR_SIMPLE(color) ((SDL_Color) {Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].b, 0})
 /** Get font's maximum height. */
-#define FONT_HEIGHT(font) (fonts[font].height)
+#define FONT_HEIGHT(font) (fonts[(font)].height)
 
 font_struct fonts[FONTS_MAX];
 
