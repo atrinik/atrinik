@@ -250,3 +250,24 @@ void convert_newline(char *str)
 		strcpy(str, buf);
 	}
 }
+
+/**
+ * Opens an url in the system's default browser.
+ * @param url URL to open. */
+void browser_open(const char *url)
+{
+	char buf[HUGE_BUF];
+
+#if defined(__LINUX)
+	snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);
+#elif defined(WIN32)
+	snprintf(buf, sizeof(buf), "cmd /c start \"%s\"", url);
+#else
+	snprintf(buf, sizeof(buf), "firefox \"%s\"", url);
+#endif
+
+	if (system(buf) != 0)
+	{
+		LOG(llevBug, "browser_open(): Executing '%s' did not return 0.\n", buf);
+	}
+}

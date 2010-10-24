@@ -138,6 +138,7 @@ char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
 void convert_newline(char *str);
+void browser_open(const char *url);
 
 /* client/player.c */
 void clear_player();
