@@ -524,45 +524,63 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		buf[1] = '\0';
 
 		/* Are we inside an anchor tag and we clicked the text? */
-		if (anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT) && mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
+		if (anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT))
 		{
-			size_t len;
-			char *buf;
-
-			ticks = SDL_GetTicks();
-
-			/* Get the length of the text until the ending </a>. */
-			len = strstr(anchor_tag, "</a>") - anchor_tag;
-			/* Allocate a temporary buffer and copy the text until the
-			 * ending </a>, so we have the text between the anchor tags. */
-			buf = malloc(len + 1);
-			memcpy(buf, anchor_tag, len);
-			buf[len] = '\0';
-
-			/* Default to executing player commands such as /say. */
-			if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
+			if (surface != ScreenSurface)
 			{
-				/* It's not a command, so prepend "/say " to it. */
-				if (buf[0] != '/')
+				widgetdata *widget = widget_find_by_surface(surface);
+
+				if (widget)
 				{
-					/* Resize the buffer so it can hold 5 more bytes. */
-					buf = realloc(buf, len + 5 + 1);
-					/* Copy the existing bytes to the end, so we have 5
-					 * we can use in the front. */
-					memmove(buf + 5, buf, len + 1);
-					/* Prepend "/say ". */
-					memcpy(buf, "/say ", 5);
+					mx -= widget->x1;
+					my -= widget->y1;
+				}
+			}
+
+			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
+			{
+				size_t len;
+				char *buf;
+
+				ticks = SDL_GetTicks();
+
+				/* Get the length of the text until the ending </a>. */
+				len = strstr(anchor_tag, "</a>") - anchor_tag;
+				/* Allocate a temporary buffer and copy the text until the
+				 * ending </a>, so we have the text between the anchor tags. */
+				buf = malloc(len + 1);
+				memcpy(buf, anchor_tag, len);
+				buf[len] = '\0';
+
+				/* Default to executing player commands such as /say. */
+				if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
+				{
+					/* It's not a command, so prepend "/say " to it. */
+					if (buf[0] != '/')
+					{
+						/* Resize the buffer so it can hold 5 more bytes. */
+						buf = realloc(buf, len + 5 + 1);
+						/* Copy the existing bytes to the end, so we have 5
+						 * we can use in the front. */
+						memmove(buf + 5, buf, len + 1);
+						/* Prepend "/say ". */
+						memcpy(buf, "/say ", 5);
+					}
+
+					send_command(buf);
+				}
+				/* Help GUI. */
+				else if (GameStatus == GAME_STATUS_PLAY && !strcmp(anchor_action, "help"))
+				{
+					show_help(buf);
+				}
+				else if (!strcmp(anchor_action, "url"))
+				{
+					browser_open(buf);
 				}
 
-				send_command(buf);
+				free(buf);
 			}
-			/* Help GUI. */
-			else if (GameStatus == GAME_STATUS_PLAY && !strcmp(anchor_action, "help"))
-			{
-				show_help(buf);
-			}
-
-			free(buf);
 		}
 
 		/* Render the character. */
