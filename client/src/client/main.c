@@ -1293,6 +1293,10 @@ int main(int argc, char *argv[])
 		{
 			KeyScanFlag = 1;
 		}
+		else if (!strcmp(argv[argc], "-text-debug"))
+		{
+			text_enable_debug();
+		}
 		else
 		{
 			LOG(llevInfo, "Usage: %s [-server <name>] [-port <num>]\n", argv[0]);

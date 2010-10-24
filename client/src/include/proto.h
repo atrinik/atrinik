@@ -462,6 +462,7 @@ void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, 
 void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, int flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
 void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
 int string_get_width(int font, const char *text, int flags);
+void text_enable_debug();
 
 /* toolkit/text_input.c */
 int text_input_center_offset();
