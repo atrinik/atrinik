@@ -540,6 +540,17 @@ extern Client_Player cpl;
 #define MAP2_FLAG_ALIGN 32
 /** Draw the object twice. */
 #define MAP2_FLAG_DOUBLE 64
+/** More flags from @ref MAP2_FLAG2_xxx. */
+#define MAP2_FLAG_MORE 128
+/*@}*/
+
+/**
+ * @defgroup MAP2_FLAG2_xxx Extended map2 layer flags
+ * Extended flags used to mark what kind of data there is on layers
+ * in map2 protocol.
+ *@{*/
+/** Custom alpha value. */
+#define MAP2_FLAG2_ALPHA 1
 /*@}*/
 
 /**

@@ -132,6 +132,9 @@ struct MapCell
 	/** Double drawing. */
 	uint8 draw_double[MAX_LAYERS + 1];
 
+	/** Alpha value. */
+	uint8 alpha[MAX_LAYERS + 1];
+
 	/** Faces. */
 	sint16 faces[MAX_LAYERS + 1];
 

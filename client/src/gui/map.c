@@ -356,7 +356,7 @@ void adjust_tile_stretch()
  * @param probe Target's HP bar.
  * @param zoom How much to zoom the face by.
  * @param align X align. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double)
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -370,6 +370,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].zoom[layer] = zoom;
 	the_map.cells[x][y].align[layer] = align;
 	the_map.cells[x][y].draw_double[layer] = draw_double;
+	the_map.cells[x][y].alpha[layer] = alpha;
 }
 
 /**
@@ -527,11 +528,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
 
-	if (map->fog_of_war)
-	{
-		bltfx.flags |= BLTFX_FLAG_FOW;
-	}
-	else if (cpl.stats.flags & SF_INFRAVISION && layer == 6 && map->darkness < 150)
+	if (cpl.stats.flags & SF_INFRAVISION && layer == 6 && map->darkness < 150)
 	{
 		bltfx.flags |= BLTFX_FLAG_RED;
 	}
@@ -540,15 +537,17 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		bltfx.flags |= BLTFX_FLAG_DARK;
 	}
 
-	if (map->flags[layer] & FFLAG_INVISIBLE && !(bltfx.flags & BLTFX_FLAG_FOW))
+	if (map->flags[layer] & FFLAG_INVISIBLE)
 	{
 		bltfx.flags &= ~BLTFX_FLAG_DARK;
-		bltfx.flags |= BLTFX_FLAG_SRCALPHA | BLTFX_FLAG_GREY;
+		bltfx.flags |= BLTFX_FLAG_GREY;
 	}
-	else if (map->flags[layer] & FFLAG_ETHEREAL && !(bltfx.flags & BLTFX_FLAG_FOW))
+
+	if (map->alpha[layer])
 	{
 		bltfx.flags &= ~BLTFX_FLAG_DARK;
 		bltfx.flags |= BLTFX_FLAG_SRCALPHA;
+		bltfx.alpha = map->alpha[layer];
 	}
 
 	stretch = 0;
