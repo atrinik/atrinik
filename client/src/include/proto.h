@@ -498,6 +498,7 @@ void process_widgets_rec(widgetdata *widget);
 void SetPriorityWidget(widgetdata *node);
 void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
 widgetdata *get_outermost_container(widgetdata *widget);
+widgetdata *widget_find_by_surface(SDL_Surface *surface);
 void move_widget(widgetdata *widget, int x, int y);
 void move_widget_rec(widgetdata *widget, int x, int y);
 void resize_widget(widgetdata *widget, int side, int offset);

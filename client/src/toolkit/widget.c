@@ -2028,6 +2028,26 @@ widgetdata *get_outermost_container(widgetdata *widget)
 	return widget;
 }
 
+/**
+ * Find a widget by its surface.
+ * @param surface The surface to look for.
+ * @return First widget with the passed surface, NULL if there isn't any
+ * such widget. */
+widgetdata *widget_find_by_surface(SDL_Surface *surface)
+{
+	widgetdata *tmp;
+
+	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	{
+		if (tmp->widgetSF == surface)
+		{
+			return tmp;
+		}
+	}
+
+	return NULL;
+}
+
 /* wrapper function to get the outermost container the widget is inside before moving it */
 void move_widget(widgetdata *widget, int x, int y)
 {
