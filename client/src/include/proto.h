@@ -466,9 +466,9 @@ void text_enable_debug();
 
 /* toolkit/text_input.c */
 int text_input_center_offset();
-void text_input_draw_background(SDL_Surface *surface, int x, int y);
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags);
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags);
+void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box);
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box);
 
 /* toolkit/widget.c */
 void init_widgets_fromCurrent();

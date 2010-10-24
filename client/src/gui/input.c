@@ -57,8 +57,13 @@ void widget_number_event(widgetdata *widget, int x, int y)
  * @param y Y position of the console */
 void widget_show_console(widgetdata *widget)
 {
-	sprite_blt(Bitmaps[BITMAP_TEXTINPUT], widget->x1, widget->y1, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, 239), widget->x1 + 9, widget->y1 + 7, COLOR_WHITE, NULL, NULL);
+	SDL_Rect box;
+
+	box.x = 3;
+	box.y = 0;
+	box.w = Bitmaps[BITMAP_TEXTINPUT]->bitmap->w;
+	box.h = Bitmaps[BITMAP_TEXTINPUT]->bitmap->h;
+	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL10, InputString, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_TEXTINPUT, &box);
 }
 
 /**

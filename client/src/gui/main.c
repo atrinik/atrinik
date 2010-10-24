@@ -531,13 +531,13 @@ static void popup_draw_func(popup_struct *popup)
 	{
 		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 55, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 		InputString[0] = toupper(InputString[0]);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, InputString, COLOR_SIMPLE(COLOR_WHITE), 0);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, InputString, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
 	}
 	else
 	{
 		cpl.name[0] = toupper(cpl.name[0]);
-		text_input_draw_background(popup->surface, x, y);
-		text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, cpl.name, COLOR_SIMPLE(COLOR_WHITE), 0);
+		text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
+		text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, cpl.name, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
 	}
 
 	y += 35;
@@ -557,12 +557,12 @@ static void popup_draw_func(popup_struct *popup)
 		if (GameStatus == GAME_STATUS_PSWD)
 		{
 			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 95, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
 		}
 		else
 		{
-			text_input_draw_background(popup->surface, x, y);
-			text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+			text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
+			text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
 		}
 	}
 
@@ -581,7 +581,7 @@ static void popup_draw_func(popup_struct *popup)
 		}
 
 		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
 		char_step = 0;
 		char_creation_reset(NULL);
 	}

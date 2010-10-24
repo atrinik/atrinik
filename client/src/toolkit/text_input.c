@@ -41,15 +41,16 @@ int text_input_center_offset()
  * Draw text input's background (the bitmap).
  * @param surface Surface to draw on.
  * @param x X position.
- * @param y Y position. */
-void text_input_draw_background(SDL_Surface *surface, int x, int y)
+ * @param y Y position.
+ * @param bitmap Bitmap to use. */
+void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap)
 {
 	_BLTFX bltfx;
 
 	bltfx.surface = surface;
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
-	sprite_blt(Bitmaps[BITMAP_LOGIN_INP], x, y, NULL, &bltfx);
+	sprite_blt(Bitmaps[bitmap], x, y, NULL, &bltfx);
 }
 
 /**
@@ -60,14 +61,28 @@ void text_input_draw_background(SDL_Surface *surface, int x, int y)
  * @param font Font to use.
  * @param text Text to draw.
  * @param color Color to use.
- * @param flags Text @ref TEXT_xxx "flags". */
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags)
+ * @param flags Text @ref TEXT_xxx "flags".
+ * @param bitmap Bitmap to use.
+ * @param box Contains coordinates to use and maximum string width. */
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box)
 {
-	SDL_Rect box;
+	if (!box)
+	{
+		SDL_Rect box2;
 
-	box.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
-	box.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
-	string_blt(surface, font, text, x + 6, y + 1, color, flags, &box);
+		box2.x = 0;
+		box2.y = 0;
+		box2.w = Bitmaps[bitmap]->bitmap->w;
+		box2.h = Bitmaps[bitmap]->bitmap->h;
+		box = &box2;
+	}
+
+	x += 6 + box->x;
+	y += box->h / 2 - FONT_HEIGHT(font) / 2 + box->y;
+	box->x = 0;
+	box->y = 0;
+
+	string_blt(surface, font, text, x, y, color, flags, box);
 }
 
 /**
@@ -78,28 +93,30 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
  * @param font Font to use.
  * @param text Text to draw.
  * @param color Color to use.
- * @param flags Text @ref TEXT_xxx "flags". */
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags)
+ * @param flags Text @ref TEXT_xxx "flags".
+ * @param bitmap Bitmap to use.
+ * @param box Contains coordinates to use and maximum string width. */
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box)
 {
 	char buf[MAX_BUF];
 
 	/* Need to adjust the text by the cursor's position? */
 	if (CurrentCursorPos)
 	{
-		SDL_Rect box;
+		SDL_Rect box2;
 		size_t pos = CurrentCursorPos;
 		const char *cp = text;
 
-		box.w = 0;
+		box2.w = 0;
 
 		/* Figure out the width by going backwards. */
 		while (pos > 0)
 		{
-			blt_character(&font, font, NULL, &box, cp + pos, NULL, NULL, 0, NULL);
+			blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL);
 			pos--;
 
 			/* Reached the maximum yet? */
-			if (box.w > Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 26)
+			if (box2.w > Bitmaps[bitmap]->bitmap->w - 26 - (box ? box->x * 2 : 0))
 			{
 				break;
 			}
@@ -113,8 +130,8 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 	}
 
 	/* Draw the background. */
-	text_input_draw_background(surface, x, y);
+	text_input_draw_background(surface, x, y, bitmap);
 	snprintf(buf, sizeof(buf), "%s_", text);
 	/* Draw the text. */
-	text_input_draw_text(surface, x, y, font, buf, color, flags);
+	text_input_draw_text(surface, x, y, font, buf, color, flags, bitmap, box);
 }
