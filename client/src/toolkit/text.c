@@ -487,6 +487,31 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return strchr(cp + 3, '>') - cp + 1;
 		}
+		else if (!strncmp(cp, "<img=", 5))
+		{
+			if (surface)
+			{
+				char face[MAX_BUF];
+				int x = 0, y = 0, alpha = 255;
+
+				if (sscanf(cp, "<img=%128[^ >] %d %d %d>", face, &x, &y, &alpha) >= 1)
+				{
+					_BLTFX bltfx;
+					int id = get_bmap_id(face);
+
+					bltfx.surface = surface;
+					bltfx.alpha = alpha;
+					bltfx.flags = alpha != 255 ? BLTFX_FLAG_SRCALPHA : 0;
+
+					if (id != -1 && FaceList[id].sprite && FaceList[id].sprite->status == SPRITE_STATUS_LOADED)
+					{
+						sprite_blt(FaceList[id].sprite, dest->x + x, dest->y + y, NULL, &bltfx);
+					}
+				}
+			}
+
+			return strchr(cp + 5, '>') - cp + 1;
+		}
 	}
 
 	/* Parse entities. */
