@@ -492,9 +492,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (surface)
 			{
 				char face[MAX_BUF];
-				int x = 0, y = 0, alpha = 255;
+				int x = 0, y = 0, alpha = 255, align = 0;
 
-				if (sscanf(cp, "<img=%128[^ >] %d %d %d>", face, &x, &y, &alpha) >= 1)
+				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d>", face, &x, &y, &align, &alpha) >= 1)
 				{
 					_BLTFX bltfx;
 					int id = get_bmap_id(face);
@@ -505,6 +505,16 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 					if (id != -1 && FaceList[id].sprite && FaceList[id].sprite->status == SPRITE_STATUS_LOADED)
 					{
+						if (align & 1)
+						{
+							x += box->w - FaceList[id].sprite->bitmap->w - dest->x;
+						}
+
+						if (align & 2)
+						{
+							y += -dest->y;
+						}
+
 						sprite_blt(FaceList[id].sprite, dest->x + x, dest->y + y, NULL, &bltfx);
 					}
 				}
