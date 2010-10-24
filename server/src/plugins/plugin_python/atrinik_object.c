@@ -142,7 +142,8 @@ static fields_struct fields[] =
 	{"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0},
 	{"z", FIELDTYPE_SINT16, offsetof(object, z), 0, 0},
 	{"zoom", FIELDTYPE_UINT8, offsetof(object, zoom), 0, 0},
-	{"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0}
+	{"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0},
+	{"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0}
 };
 /* @endcparser */
 

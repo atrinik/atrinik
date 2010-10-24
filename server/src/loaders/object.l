@@ -488,6 +488,7 @@ lex_error = 0;
 ^z{S}               op->z = IVAL;
 ^zoom{S}            op->zoom = IVAL;
 ^align{S}           op->align = IVAL;
+^alpha{S}           op->alpha = IVAL;
 ^nrof{S}            op->nrof = atol(yval());
 ^level{S}           op->level = IVAL;
 ^direction{S}       op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
@@ -1400,6 +1401,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->align != op2->align)
 	{
 		FAST_SAVE_LONG(sb, "align ", op->align);
+	}
+
+	if (op->alpha != op2->alpha)
+	{
+		FAST_SAVE_LONG(sb, "alpha ", op->alpha);
 	}
 
 	if (op->speed != op2->speed)

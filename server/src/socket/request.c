@@ -1454,6 +1454,7 @@ void draw_client_map2(object *pl)
 					sint16 face;
 					uint8 quick_pos = tmp->quick_pos;
 					uint8 flags = 0, probe = 0;
+					uint32 flags2 = 0;
 					object *head = tmp->head ? tmp->head : tmp;
 
 					/* If we have a multi-arch object. */
@@ -1544,6 +1545,19 @@ void draw_client_map2(object *pl)
 						}
 					}
 
+					if (tmp->alpha)
+					{
+						flags2 |= MAP2_FLAG2_ALPHA;
+					}
+
+					if (flags2)
+					{
+						if (CONTR(pl)->socket.socket_version >= 1043)
+						{
+						flags |= MAP2_FLAG_MORE;
+						}
+					}
+
 					/* Damage animation? Store it for later. */
 					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
 					{
@@ -1629,6 +1643,16 @@ void draw_client_map2(object *pl)
 						else
 						{
 							SockList_AddShort(&sl_layer, tmp->align);
+						}
+					}
+
+					if (flags & MAP2_FLAG_MORE)
+					{
+						SockList_AddInt(&sl_layer, flags2);
+
+						if (flags2 & MAP2_FLAG2_ALPHA)
+						{
+							SockList_AddChar(&sl_layer, tmp->alpha);
 						}
 					}
 				}

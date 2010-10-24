@@ -416,6 +416,9 @@ typedef struct obj
 	/** How much to zoom the object. */
 	uint8 zoom;
 
+	/** Object's alpha value. */
+	uint8 alpha;
+
 	/** The overall speed of this object */
 	float speed;
 
