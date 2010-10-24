@@ -585,6 +585,12 @@ static void popup_draw_func(popup_struct *popup)
 		char_step = 0;
 		char_creation_reset(NULL);
 	}
+
+	y += 20;
+
+	box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 45;
+	box.h = 120;
+	string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_LOGIN], x, y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
