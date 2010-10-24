@@ -46,7 +46,8 @@ static void textwin_scroll_adjust(widgetdata *widget)
 	{
 		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget);
 	}
-	else if (textwin->scroll > (int) textwin->num_entries)
+
+	if (textwin->scroll > (int) textwin->num_entries)
 	{
 		textwin->scroll = textwin->num_entries;
 	}
