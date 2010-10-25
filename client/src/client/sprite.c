@@ -1111,12 +1111,12 @@ void play_anims()
 						if (anim->value < 0)
 						{
 							snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - ((int) strlen(buf) * 4), ypos + tmp_y, COLOR_GREEN, NULL, NULL);
+							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_SIMPLE(COLOR_GREEN), TEXT_OUTLINE, NULL);
 						}
 						else
 						{
 							snprintf(buf, sizeof(buf), "%d", anim->value);
-							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4, ypos + tmp_y, COLOR_ORANGE, NULL, NULL);
+							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_SIMPLE(COLOR_ORANGE), TEXT_OUTLINE, NULL);
 						}
 					}
 
@@ -1145,7 +1145,7 @@ void play_anims()
 						else if (anim->value < 10000)
 							tmp_off = -12;
 
-						StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, NULL, NULL);
+						string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_SIMPLE(COLOR_ORANGE), TEXT_OUTLINE, NULL);
 					}
 
 					break;
