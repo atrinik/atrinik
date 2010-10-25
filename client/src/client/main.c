@@ -364,7 +364,6 @@ static void delete_player_lists()
  * Initialize game data. */
 static void init_game_data()
 {
-	_textwin *textwin;
 	size_t i;
 
 	textwin_flags = 0;
@@ -422,9 +421,6 @@ static void init_game_data()
 #ifdef WIDGET_SNAP
 	options.widget_snap = 0;
 #endif
-
-	textwin = TEXTWIN(cur_widget[MIXWIN_ID]);
-	textwin->size = 50;
 
 	options.zoom = 100;
 	options.mapstart_x = 0;

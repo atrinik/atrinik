@@ -93,7 +93,6 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"QUICKSLOTS",      509, 107, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CHATWIN",           0, 426, 261, 233, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MSGWIN",          539, 426, 261, 233, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MIXWIN",          539, 420, 261, 233, 1, 0, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"PLAYERDOLL",        0,  41, 221, 224, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BELOWINV",        262, 545, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -247,7 +246,6 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	{
 		case CHATWIN_ID:
 		case MSGWIN_ID:
-		case MIXWIN_ID:
 			textwin = calloc(1, sizeof (_textwin));
 			if (!textwin)
 			{
@@ -986,7 +984,6 @@ static int load_interface_file(char *filename)
                     {
                         case CHATWIN_ID:
                         case MSGWIN_ID:
-                        case MIXWIN_ID:
                             if (strncmp(keyword, "....TextwinSize:", 16) == 0)
                             {
                                 textwin->size = atoi(parameter);
@@ -1081,7 +1078,6 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		{
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-			case MIXWIN_ID:
 				textwin = TEXTWIN(widget);
 				fprintf(stream, "....TextwinSize: %d\n", textwin->size);
 				break;
@@ -1177,7 +1173,6 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-			case MIXWIN_ID:
 				textwin_event(TW_CHECK_BUT_DOWN, event, widget);
 				break;
 
@@ -1293,7 +1288,6 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-			case MIXWIN_ID:
 				textwin_event(TW_CHECK_BUT_UP, event, widget);
 				break;
 
@@ -1451,7 +1445,6 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		{
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-			case MIXWIN_ID:
 				textwin = TEXTWIN(widget);
 				/* textwin special handling */
 				if (textwin)
@@ -1677,7 +1670,6 @@ static void process_widget(widgetdata *widget)
 
 		case CHATWIN_ID:
 		case MSGWIN_ID:
-		case MIXWIN_ID:
 			widget_textwin_show(widget);
 			break;
 
