@@ -91,7 +91,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->mapx_2 = 8;
 	ns->mapy_2 = 8;
 	ns->version = 0;
-	ns->setup = 0;
 	ns->rf_settings = 0;
 	ns->rf_skills = 0;
 	ns->rf_spells = 0;

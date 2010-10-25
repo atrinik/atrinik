@@ -115,15 +115,6 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		return;
 	}
 
-	if (ns->setup)
-	{
-		LOG(llevInfo, "Double call of setup cmd from socket %s\n", ns->host);
-		ns->status = Ns_Dead;
-		return;
-	}
-
-	ns->setup = 1;
-
 	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
 	cmdback[0] = BINARY_CMD_SETUP;
 	cmdback[1] = 0;

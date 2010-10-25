@@ -218,9 +218,6 @@ typedef struct socket_struct
 	/** Has the client sent version command? */
 	uint32 version:1;
 
-	/** Has the client requested setup command? */
-	uint32 setup:1;
-
 	/** Has the client requested settings file? */
 	uint32 rf_settings:1;
 
