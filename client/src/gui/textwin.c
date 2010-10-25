@@ -223,9 +223,9 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		textwin->slider_h = box.h * TEXTWIN_ROWS_VISIBLE(widget) / textwin->num_entries;
 		textwin->slider_y = ((textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget)) * box.h) / textwin->num_entries;
 
-		if (textwin->slider_h < 1)
+		if (textwin->slider_h < 20)
 		{
-			textwin->slider_h = 1;
+			textwin->slider_h = 20;
 		}
 
 		if (textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget) > 0 && textwin->slider_y + textwin->slider_h < box.h)
@@ -583,7 +583,7 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 	{
 		textwin->slider_y = event.motion.y - old_slider_pos;
 
-		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / widget->ht;
+		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / (widget->ht - 20);
 		textwin_scroll_adjust(widget);
 
 		WIDGET_REDRAW(widget);
