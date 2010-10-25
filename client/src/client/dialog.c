@@ -282,7 +282,7 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text,
  * @param max Maximum value. */
 void add_value(void *value, int type, int offset, int min, int max)
 {
-	int old_value;
+	int old_value = 0;
 
 	switch (type)
 	{
