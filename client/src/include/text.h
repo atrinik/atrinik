@@ -103,10 +103,16 @@ enum
 	FONT_ARIAL8,
 	/** Arial, 10px, good for general drawing (looks the same across systems). */
 	FONT_ARIAL10,
+	/** Arial, 11px. */
+	FONT_ARIAL11,
 	/** Arial, 12px. */
 	FONT_ARIAL12,
+	/** Arial, 13px. */
+	FONT_ARIAL13,
 	/** Arial, 14px. */
 	FONT_ARIAL14,
+	/** Arial, 15px. */
+	FONT_ARIAL15,
 	/** Arial, 16px. */
 	FONT_ARIAL16,
 	/** Arial, 18px. */

@@ -63,8 +63,11 @@ font_struct fonts[FONTS_MAX] =
 	{"fonts/vera/mono.ttf", 20, NULL, 0},
 	{"fonts/arial.ttf", 8, NULL, 0},
 	{"fonts/arial.ttf", 10, NULL, 0},
+	{"fonts/arial.ttf", 11, NULL, 0},
 	{"fonts/arial.ttf", 12, NULL, 0},
+	{"fonts/arial.ttf", 13, NULL, 0},
 	{"fonts/arial.ttf", 14, NULL, 0},
+	{"fonts/arial.ttf", 15, NULL, 0},
 	{"fonts/arial.ttf", 16, NULL, 0},
 	{"fonts/arial.ttf", 18, NULL, 0},
 	{"fonts/arial.ttf", 20, NULL, 0}

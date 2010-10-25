@@ -699,7 +699,7 @@ void textwin_putstring(char *text)
  * @param font ID of the font to change to. */
 void change_textwin_font(int font)
 {
-	font = FONT_SANS10 + font;
+	font = FONT_ARIAL10 + font;
 
 	TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
 	textwin_readjust(cur_widget[MSGWIN_ID]);

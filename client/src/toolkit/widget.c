@@ -255,7 +255,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			}
 			/* begin initialising the members that need it, I basically here just used copypasta from the old textwin_init() function */
 			textwin->size = 22;
-			textwin->font = FONT_SANS10;
+			textwin->font = FONT_ARIAL10;
 			/* that's right, a void * cast to _textwin *.
 			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
 			widget->subwidget = (_textwin *) textwin;
