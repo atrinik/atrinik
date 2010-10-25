@@ -871,7 +871,7 @@ void PreParseInfoStat(char *cmd)
 	}
 
 	if (GameStatus >= GAME_STATUS_NAME && GameStatus <= GAME_STATUS_VERIFYPSWD)
-		open_input_mode(12);
+		text_input_open(12);
 }
 
 /**
@@ -920,7 +920,7 @@ void PlayerCmd(unsigned char *data, int len)
 	int tag, weight, face, i = 0, nlen;
 
 	GameStatus = GAME_STATUS_PLAY;
-	InputStringEndFlag = 0;
+	text_input_string_end_flag = 0;
 	tag = GetInt_String(data);
 	i += 4;
 	weight = GetInt_String(data + i);

@@ -110,7 +110,6 @@ void animate_objects();
 /* client/main.c */
 void save_options_dat();
 void free_bitmaps();
-void open_input_mode(int maxchar);
 void list_vid_modes();
 int main(int argc, char *argv[]);
 
@@ -132,7 +131,6 @@ void metaserver_get_servers();
 
 /* client/misc.c */
 void FreeMemory(void **p);
-const char *show_input_string(const char *text, struct _Font *font, int wlen);
 int isqrt(int n);
 char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
@@ -267,7 +265,6 @@ FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
 
 /* events/console.c */
-int key_string_event(SDL_KeyboardEvent *key);
 void mouse_InputNumber();
 
 /* events/event.c */
@@ -416,9 +413,6 @@ void widget_textwin_show(widgetdata *widget);
 void textwin_button_event(widgetdata *widget, SDL_Event event);
 int textwin_move_event(widgetdata *widget, SDL_Event event);
 void textwin_event(int e, SDL_Event *event, widgetdata *widget);
-void textwin_addhistory(char *text);
-void textwin_clearhistory();
-void textwin_putstring(char *text);
 void change_textwin_font(int font);
 
 /* toolkit/button.c */
@@ -470,6 +464,12 @@ int text_input_center_offset();
 void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
 void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box);
 void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box);
+void text_input_clear();
+void text_input_open(int maxchar);
+void text_input_history_clear();
+void text_input_add_string(const char *text);
+int text_input_handle(SDL_KeyboardEvent *key);
+const char *show_input_string(const char *text, struct _Font *font, int wlen);
 
 /* toolkit/widget.c */
 void init_widgets_fromCurrent();

@@ -29,7 +29,7 @@
 
 #include <include.h>
 
-int get_action_keycode, drop_action_keycode; /* thats the key for G'et command from keybind */
+SDLKey get_action_keycode, drop_action_keycode;
 
 _keys keys[MAX_KEYS];
 
@@ -100,9 +100,9 @@ void reset_keys()
 
 	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 
-	InputStringFlag = 0;
-	InputStringEndFlag = 0;
-	InputStringEscFlag = 0;
+	text_input_string_flag = 0;
+	text_input_string_end_flag = 0;
+	text_input_string_esc_flag = 0;
 
 	for (i = 0; i < MAX_KEYS; i++)
 		keys[i].pressed = 0;
@@ -198,7 +198,7 @@ static int check_macro_keys(char *text)
 	if (!strncmp(macro_magic_console, text, magic_len) && strlen(text) > magic_len)
 	{
 		process_macro_keys(KEYFUNC_CONSOLE, 0);
-		textwin_putstring(&text[magic_len]);
+		text_input_add_string(&text[magic_len]);
 		return 0;
 	}
 
@@ -400,7 +400,7 @@ int process_macro_keys(int id, int value)
 			if (cpl.input_mode == INPUT_MODE_NO)
 			{
 				cpl.input_mode = INPUT_MODE_CONSOLE;
-				open_input_mode(253);
+				text_input_open(253);
 			}
 			else if (cpl.input_mode == INPUT_MODE_CONSOLE)
 				cpl.input_mode = INPUT_MODE_NO;
@@ -580,13 +580,13 @@ int process_macro_keys(int id, int value)
 				{
 					reset_keys();
 					cpl.input_mode = INPUT_MODE_NUMBER;
-					open_input_mode(22);
+					text_input_open(22);
 					cpl.loc = loc;
 					cpl.tag = tag;
 					cpl.nrof = nrof;
 					cpl.nummode = NUM_MODE_GET;
 					snprintf(buf, sizeof(buf), "%d", nrof);
-					textwin_putstring(buf);
+					text_input_add_string(buf);
 					strncpy(cpl.num_text,it->s_name, 250);
 					cpl.num_text[250] = 0;
 					return 0;
@@ -653,13 +653,13 @@ int process_macro_keys(int id, int value)
 			{
 				reset_keys();
 				cpl.input_mode = INPUT_MODE_NUMBER;
-				open_input_mode(22);
+				text_input_open(22);
 				cpl.loc = loc;
 				cpl.tag = tag;
 				cpl.nrof = nrof;
 				cpl.nummode = NUM_MODE_DROP;
 				snprintf(buf, sizeof(buf), "%d", nrof);
-				textwin_putstring(buf);
+				text_input_add_string(buf);
 				strncpy(cpl.num_text, it->s_name, 250);
 				cpl.num_text[250] = 0;
 				return 0;

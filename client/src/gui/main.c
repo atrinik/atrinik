@@ -530,8 +530,8 @@ static void popup_draw_func(popup_struct *popup)
 	if (GameStatus == GAME_STATUS_NAME)
 	{
 		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 55, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-		InputString[0] = toupper(InputString[0]);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, InputString, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
+		text_input_string[0] = toupper(text_input_string[0]);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, text_input_string, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
 	}
 	else
 	{
@@ -547,7 +547,7 @@ static void popup_draw_func(popup_struct *popup)
 	{
 		char *cp;
 
-		strncpy(buf, GameStatus == GAME_STATUS_PSWD ? InputString : cpl.password, sizeof(buf) - 1);
+		strncpy(buf, GameStatus == GAME_STATUS_PSWD ? text_input_string : cpl.password, sizeof(buf) - 1);
 
 		for (cp = buf; *cp; cp++)
 		{
@@ -573,7 +573,7 @@ static void popup_draw_func(popup_struct *popup)
 	{
 		char *cp;
 
-		strncpy(buf, InputString, sizeof(buf) - 1);
+		strncpy(buf, text_input_string, sizeof(buf) - 1);
 
 		for (cp = buf; *cp; cp++)
 		{
@@ -648,7 +648,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	if (event->type == SDL_KEYDOWN)
 	{
 		/* Try to handle text input. */
-		if (key_string_event(&event->key))
+		if (text_input_handle(&event->key))
 		{
 			return 1;
 		}

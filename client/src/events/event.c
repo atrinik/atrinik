@@ -86,7 +86,7 @@ int Event_PollInputDevice()
 
 		if (GameStatus >= GAME_STATUS_PLAY)
 		{
-			if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
+			if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
 			{
 				mouse_InputNumber();
 			}
@@ -160,7 +160,7 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
+				if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
 					break;
 
 				/* Only drop to ground has to be handled, the rest do the widget handlers */

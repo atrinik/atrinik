@@ -94,19 +94,6 @@ int y_custom_cursor = 0;
 /* update map area */
 int map_udate_flag, map_transfer_flag, map_redraw_flag;
 
-int ToggleScreenFlag;
-char InputString[MAX_INPUT_STRING];
-char InputHistory[MAX_HISTORY_LINES][MAX_INPUT_STRING];
-int HistoryPos;
-int CurrentCursorPos;
-
-int InputCount, InputMax;
-/** If 1, we have an open console. */
-int InputStringFlag;
-/** If 1, we submitted some text using the console. */
-int InputStringEndFlag;
-/** If 1, ESC was pressed while entering some text to console. */
-int InputStringEscFlag;
 /** The book GUI. */
 struct gui_book_struct *gui_interface_book;
 /** The party GUI. */
@@ -313,7 +300,6 @@ _Sprite *Bitmaps[BITMAP_MAX];
 static void init_game_data();
 static void flip_screen();
 static void delete_player_lists();
-static void reset_input_mode();
 static int load_bitmap(int index);
 static void load_options_dat();
 
@@ -371,7 +357,6 @@ static void init_game_data()
 	esc_menu_flag = 0;
 	srand(time(NULL));
 
-	ToggleScreenFlag = 0;
 	KeyScanFlag = 0;
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
@@ -392,7 +377,7 @@ static void init_game_data()
 
 	init_keys();
 	init_player_data();
-	reset_input_mode();
+	text_input_clear();
 
 	msg_anim.message[0] = '\0';
 
@@ -407,9 +392,9 @@ static void init_game_data()
 	MapStatusY = MAP_MAX_SIZE;
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
-	InputStringFlag = 0;
-	InputStringEndFlag = 0;
-	InputStringEscFlag = 0;
+	text_input_string_flag = 0;
+	text_input_string_end_flag = 0;
+	text_input_string_esc_flag = 0;
 	csocket.fd = SOCKET_NO;
 	RangeFireMode = 0;
 	gui_interface_book = NULL;
@@ -434,7 +419,7 @@ static void init_game_data()
 
 	change_textwin_font(options.chat_font_size);
 
-	textwin_clearhistory();
+	text_input_history_clear();
 	delete_player_lists();
 	metaserver_init();
 }
@@ -782,28 +767,28 @@ static int game_status_chain()
 	{
 		map_transfer_flag = 0;
 
-		if (InputStringEscFlag)
+		if (text_input_string_esc_flag)
 		{
 			draw_info("Break login.", COLOR_RED);
 			GameStatus = GAME_STATUS_START;
 		}
 
-		reset_input_mode();
+		text_input_clear();
 	}
 	else if (GameStatus == GAME_STATUS_NAME)
 	{
 		map_transfer_flag = 0;
 
 		/* We have a finished console input */
-		if (InputStringEscFlag)
+		if (text_input_string_esc_flag)
 		{
 			GameStatus = GAME_STATUS_LOGIN;
 		}
-		else if (InputStringFlag == 0 && InputStringEndFlag)
+		else if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
-			strcpy(cpl.name, InputString);
-			LOG(llevInfo, "Login: send name %s\n", InputString);
-			send_reply(InputString);
+			strcpy(cpl.name, text_input_string);
+			LOG(llevInfo, "Login: send name %s\n", text_input_string);
+			send_reply(text_input_string);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
 	}
@@ -811,16 +796,14 @@ static int game_status_chain()
 	{
 		map_transfer_flag = 0;
 
-		textwin_clearhistory();
-
 		/* We have a finished console input */
-		if (InputStringEscFlag)
+		if (text_input_string_esc_flag)
 		{
 			GameStatus = GAME_STATUS_LOGIN;
 		}
-		else if (InputStringFlag == 0 && InputStringEndFlag)
+		else if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
-			strncpy(cpl.password, InputString, 39);
+			strncpy(cpl.password, text_input_string, 39);
 			cpl.password[39] = '\0';
 
 			LOG(llevInfo, "Login: send password <*****>\n");
@@ -833,14 +816,14 @@ static int game_status_chain()
 		map_transfer_flag = 0;
 
 		/* We have a finished console input */
-		if (InputStringEscFlag)
+		if (text_input_string_esc_flag)
 		{
 			GameStatus = GAME_STATUS_LOGIN;
 		}
-		else if (InputStringFlag == 0 && InputStringEndFlag)
+		else if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
 			LOG(llevInfo, "Login: send verify password <*****>\n");
-			send_reply(InputString);
+			send_reply(text_input_string);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
 	}
@@ -940,40 +923,6 @@ void free_bitmaps()
 			}
 		}
 	}
-}
-
-/**
- * Reset input mode. */
-static void reset_input_mode()
-{
-	InputString[0] = '\0';
-	InputCount = 0;
-	HistoryPos = 0;
-	InputHistory[0][0] = '\0';
-	CurrentCursorPos = 0;
-	InputStringFlag = 0;
-	InputStringEndFlag = 0;
-	InputStringEscFlag = 0;
-}
-
-/**
- * Open input mode.
- * @param maxchar Maximum number of allowed characters. */
-void open_input_mode(int maxchar)
-{
-	int interval = (options.key_repeat > 0) ? 70 / options.key_repeat : 0;
-	int delay = (options.key_repeat > 0) ? interval + 280 / options.key_repeat : 0;
-
-	reset_input_mode();
-	InputMax = maxchar;
-	SDL_EnableKeyRepeat(delay, interval);
-
-	if (cpl.input_mode != INPUT_MODE_NUMBER)
-	{
-		cpl.inventory_win = IWIN_BELOW;
-	}
-
-	InputStringFlag = 1;
 }
 
 /**

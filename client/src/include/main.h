@@ -694,29 +694,15 @@ extern struct gui_party_struct *gui_interface_party;
 
 extern struct _Font MediumFont;
 
-/* Our text char string */
-extern char InputString[MAX_INPUT_STRING];
-
-/* Input lines history buffer */
-extern char InputHistory[MAX_HISTORY_LINES][MAX_INPUT_STRING];
-extern int HistoryPos;
-extern int CurrentCursorPos;
-
-/* Nr. of char in string and max chars. */
-extern int InputCount, InputMax;
-
-/* If true keyboard and game is in input string mode */
-extern int InputStringFlag;
-
-/* If true, we had entered some in text mode and it's ready */
-extern int InputStringEndFlag;
-extern int InputStringEscFlag;
+extern char text_input_string[MAX_INPUT_STRING];
+extern int text_input_count;
+extern int text_input_string_flag;
+extern int text_input_string_end_flag;
+extern int text_input_string_esc_flag;
 
 /* Range table */
 extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 extern int RangeFireMode;
-
-extern int ToggleScreenFlag;
 
 extern struct _Sprite *Bitmaps[];
 

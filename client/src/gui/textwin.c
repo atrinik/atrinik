@@ -640,61 +640,6 @@ void textwin_event(int e, SDL_Event *event, widgetdata *widget)
 }
 
 /**
- * Add history to the text window.
- * @param text The text to add to the history. */
-void textwin_addhistory(char *text)
-{
-	int i;
-
-	/* If new line is empty or identical to last inserted one, skip it */
-	if (!text[0] || strcmp(InputHistory[1], text) == 0)
-	{
-		return;
-	}
-
-	/* Shift history lines */
-	for (i = MAX_HISTORY_LINES - 1; i > 1; i--)
-	{
-		strncpy(InputHistory[i], InputHistory[i - 1], MAX_INPUT_STRING);
-	}
-
-	/* Insert new one */
-	strncpy(InputHistory[1], text, MAX_INPUT_STRING);
-	/* Clear temporary editing line */
-	*InputHistory[0] = '\0';
-	HistoryPos = 0;
-}
-
-/**
- * Clear all the text window history. */
-void textwin_clearhistory()
-{
-	int i;
-
-	for (i = 0; i < MAX_HISTORY_LINES; i++)
-	{
-		/* It's enough to clear only the first byte of each history line */
-		InputHistory[i][0] = '\0';
-	}
-
-	HistoryPos = 0;
-}
-
-/**
- * Put string to the text window.
- * @param text The string. */
-void textwin_putstring(char *text)
-{
-	int len = (int) strlen(text);
-
-	/* Copy buf to input buffer */
-	strncpy(InputString, text, MAX_INPUT_STRING);
-
-	/* Set cursor after inserted text */
-	CurrentCursorPos = InputCount = len;
-}
-
-/**
  * Change the font used for drawing text in text windows.
  * @param font ID of the font to change to. */
 void change_textwin_font(int font)

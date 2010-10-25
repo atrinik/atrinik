@@ -44,63 +44,6 @@ void FreeMemory(void **p)
 }
 
 /**
- * Show string that is being inputted.
- * @param text String to show.
- * @param font Font to use.
- * @param wlen Maximum length of the string.
- * @return String to show, based on the cursor position. */
-const char *show_input_string(const char *text, struct _Font *font, int wlen)
-{
-	int i, len;
-	size_t j;
-	static char buf[MAX_INPUT_STR];
-
-	strcpy(buf, text);
-
-	len = (int) strlen(buf);
-
-	while (len >= CurrentCursorPos)
-	{
-		buf[len + 1] = buf[len];
-		len--;
-	}
-
-	buf[CurrentCursorPos] = '_';
-
-	for (len = 25, i = CurrentCursorPos; i >= 0; i--)
-	{
-		if (!buf[i])
-		{
-			continue;
-		}
-
-		if (len + font->c[(int) (buf[i])].w + font->char_offset >= wlen)
-		{
-			i--;
-			break;
-		}
-
-		len += font->c[(int) (buf[i])].w + font->char_offset;
-	}
-
-	len -= 25;
-
-	for (j = CurrentCursorPos; j <= strlen(buf); j++)
-	{
-		if (len + font->c[(int) (buf[j])].w + font->char_offset >= wlen)
-		{
-			break;
-		}
-
-		len += font->c[(int) (buf[j])].w + font->char_offset;
-	}
-
-	buf[j] = '\0';
-
-	return &buf[++i];
-}
-
-/**
  * Computes the square root.
  * Based on (n+1)^2 = n^2 + 2n + 1
  * given that   1^2 = 1, then

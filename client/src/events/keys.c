@@ -319,7 +319,7 @@ int event_poll_key(SDL_Event *event)
 		menuRepeatTime = KEY_REPEAT_TIME_INIT;
 	}
 
-	if (cpl.menustatus == MENU_NO && (!InputStringFlag || cpl.input_mode != INPUT_MODE_NUMBER))
+	if (cpl.menustatus == MENU_NO && (!text_input_string_flag || cpl.input_mode != INPUT_MODE_NUMBER))
 	{
 		if (event->key.keysym.mod & KMOD_SHIFT)
 			cpl.inventory_win = IWIN_INV;
@@ -337,14 +337,14 @@ int event_poll_key(SDL_Event *event)
 		return 0;
 	}
 
-	if (InputStringFlag)
+	if (text_input_string_flag)
 	{
 		if (cpl.input_mode != INPUT_MODE_NUMBER)
 			cpl.inventory_win = IWIN_BELOW;
 
-		key_string_event(&event->key);
+		text_input_handle(&event->key);
 	}
-	else if (!InputStringEndFlag)
+	else if (!text_input_string_end_flag)
 	{
 		if (GameStatus == GAME_STATUS_PLAY)
 			return key_event(&event->key);
@@ -769,7 +769,7 @@ void check_menu_keys(int menu, int key)
 						cpl.input_mode = INPUT_MODE_CONSOLE;
 
 						/* Open the console, with a maximum of 8 chars. */
-						open_input_mode(8);
+						text_input_open(8);
 
 						/* Output some info as to why the console magically opened. */
 						draw_info("Type the new party password, or press ESC to cancel.", 10);
@@ -799,7 +799,7 @@ void check_menu_keys(int menu, int key)
 						cpl.input_mode = INPUT_MODE_CONSOLE;
 
 						/* Open the console with a 60 chars limit */
-						open_input_mode(60);
+						text_input_open(60);
 
 						/* Output some info as to why the console magically opened */
 						draw_info("Type the party name to form, or press ESC to cancel.", 10);
@@ -1040,8 +1040,8 @@ void check_menu_keys(int menu, int key)
 					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
 					keybind_status = KEYBIND_STATUS_EDIT;
 					reset_keys();
-					open_input_mode(240);
-					textwin_putstring(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text);
+					text_input_open(240);
+					text_input_add_string(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text);
 					cpl.input_mode = INPUT_MODE_GETKEY;
 					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
 					break;

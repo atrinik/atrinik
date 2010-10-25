@@ -137,7 +137,7 @@ void show_keybind()
 			/* Cancel edit */
 			if (mb & SDL_BUTTON(SDL_BUTTON_LEFT))
 			{
-				InputStringEscFlag = 1;
+				text_input_string_esc_flag = 1;
 				keybind_status = KEYBIND_STATUS_NO;
 			}
 
@@ -199,7 +199,7 @@ void show_keybind()
 	{
 		box.w = X_COL2 - X_COL1;
 		SDL_FillRect(ScreenSurface, &box, 0);
-		StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, box.w), x + X_COL1, y2, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, show_input_string(text_input_string, &SystemFont, box.w), x + X_COL1, y2, COLOR_WHITE, NULL, NULL);
 	}
 	else if (keybind_status == KEYBIND_STATUS_EDITKEY)
 	{

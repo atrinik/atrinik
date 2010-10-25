@@ -127,7 +127,7 @@ extern int KeyScanFlag;
 extern int cursor_type;
 extern int itemExamined;
 
-int get_action_keycode, drop_action_keycode;
+SDLKey get_action_keycode, drop_action_keycode;
 
 typedef struct _keys
 {

@@ -454,7 +454,7 @@ void show_party()
 	else if (strcmp(gui_interface_party->command, "password") == 0)
 	{
 		cpl.input_mode = INPUT_MODE_CONSOLE;
-		open_input_mode(8);
+		text_input_open(8);
 		cpl.menustatus = MENU_NO;
 	}
 	/* Screen to show a confirmation to leave party from the GUI */
@@ -674,7 +674,7 @@ _gui_party_struct *load_party_interface(char *data, int len)
 int console_party()
 {
 	/* No GUI or ESC was pressed */
-	if (!gui_interface_party || InputStringEscFlag)
+	if (!gui_interface_party || text_input_string_esc_flag)
 	{
 		return 0;
 	}
@@ -682,11 +682,11 @@ int console_party()
 	/* Password command - used when server asks us for a password when joining party. */
 	if (strcmp(gui_interface_party->command, "password") == 0)
 	{
-		if (gui_interface_party->start && InputStringFlag == 0 && InputStringEndFlag)
+		if (gui_interface_party->start && text_input_string_flag == 0 && text_input_string_end_flag)
 		{
 			char buf[HUGE_BUF];
 
-			snprintf(buf, sizeof(buf), "/party join %s\t%s", gui_interface_party->start->line, InputString);
+			snprintf(buf, sizeof(buf), "/party join %s\t%s", gui_interface_party->start->line, text_input_string);
 			send_command(buf);
 			clear_party_interface();
 
@@ -697,11 +697,11 @@ int console_party()
 	else if (strcmp(gui_interface_party->command, "form") == 0)
 	{
 		/* If we found a selected line, and we got a finished string... */
-		if (InputStringFlag == 0 && InputStringEndFlag)
+		if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
 			char buf[HUGE_BUF];
 
-			snprintf(buf, sizeof(buf), "/party form %s", InputString);
+			snprintf(buf, sizeof(buf), "/party form %s", text_input_string);
 			send_command(buf);
 			clear_party_interface();
 
@@ -712,11 +712,11 @@ int console_party()
 	else if (strcmp(gui_interface_party->command, "passwordset") == 0)
 	{
 		/* If we found a selected line, and we got a finished string... */
-		if (InputStringFlag == 0 && InputStringEndFlag)
+		if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
 			char buf[HUGE_BUF];
 
-			snprintf(buf, sizeof(buf), "/party password %s", InputString);
+			snprintf(buf, sizeof(buf), "/party password %s", text_input_string);
 			send_command(buf);
 			clear_party_interface();
 
