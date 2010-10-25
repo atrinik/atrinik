@@ -326,7 +326,6 @@ typedef struct widgetmove
 
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
-extern int old_alpha_option;
 
 /** Macro to redraw widget using the array. */
 #define WIDGET_REDRAW(__tmp) __tmp->redraw = 1;

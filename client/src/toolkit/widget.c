@@ -151,11 +151,6 @@ static widgetmove widget_event_move =
 static int IsMouseExclusive = 0;
 
 /**
- * The alpha setting in the last frame. If it differs from the current frame,
- * certain widgets need to be redrawn. */
-int old_alpha_option = 0;
-
-/**
  * Load the defaults and initialize the priority list.
  * Create the interface file, if it doesn't exist */
 static void init_widgets_fromDefault()
@@ -1541,7 +1536,7 @@ int widget_event_respond(int x, int y)
 /** Priority overide function, we have to have that here for resizing... */
 int widget_event_override()
 {
-    if (textwin_flags & TW_RESIZE)
+    if (textwin_flags & (TW_RESIZE | TW_RESIZE2))
 	{
         return 1;
 	}
@@ -1756,9 +1751,6 @@ void process_widgets()
 	}
 
 	process_widgets_rec(widget_list_foot);
-
-	/* update the alpha option for use in the next frame */
-    old_alpha_option = options.use_TextwinAlpha;
 }
 
 /**

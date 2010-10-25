@@ -39,10 +39,6 @@ int keybind_status;
  * @return 0 to send command to server, 1 to not send it */
 int client_command_check(char *cmd)
 {
-	char tmp[256];
-	char cpar1[256];
-	int par2;
-
 	if (!strncasecmp(cmd, "/ready_spell", 12))
 	{
 		cmd = strchr(cmd, ' ');
@@ -101,39 +97,6 @@ int client_command_check(char *cmd)
 		 * server will not send us anything when this happens */
 		if (cpl.stats.grace == cpl.stats.maxgrace)
 			draw_info("You are at full grace. You stop praying.", COLOR_WHITE);
-	}
-	else if (!strncasecmp(cmd, "/setwinalpha", 12))
-	{
-		int wrong = 0;
-		par2 = -1;
-		sscanf(cmd, "%s %s %d", tmp, cpar1, &par2);
-
-		if (!strncasecmp(cpar1, "ON", 2))
-		{
-			if (par2 != -1)
-			{
-				if (par2 < 0 || par2 > 255)
-					par2 = 128;
-
-				options.textwin_alpha = par2;
-			}
-
-			options.use_TextwinAlpha = 1;
-			sprintf(tmp, ">>set textwin alpha ON (alpha=%d).", options.textwin_alpha);
-			draw_info(tmp, COLOR_GREEN);
-		}
-		else if (!strncasecmp(cpar1, "OFF", 3))
-		{
-			draw_info(">>set textwin alpha mode OFF.", COLOR_GREEN);
-			options.use_TextwinAlpha = 0;
-		}
-		else
-			wrong = 1;
-
-		if (wrong)
-			draw_info("Usage: '/setwinalpha on|off |<alpha>|'\nExample:\n/setwinalpha ON 172\n/setwinalpha OFF",COLOR_WHITE);
-
-		return 1;
 	}
 	else if (!strncasecmp(cmd, "/keybind", 8))
 	{

@@ -1559,13 +1559,27 @@ int main(int argc, char *argv[])
 			SDL_Rect rec;
 
 			SDL_GetMouseState(&x, &y);
-			rec.w = 14;
-			rec.h = 1;
-			rec.x = x - 7;
-			rec.y = y - 2;
-			SDL_FillRect(ScreenSurface, &rec, -1);
-			rec.y = y - 5;
-			SDL_FillRect(ScreenSurface, &rec, -1);
+
+			if (cursor_type == 1)
+			{
+				rec.w = 14;
+				rec.h = 1;
+				rec.x = x - 7;
+				rec.y = y - 2;
+				SDL_FillRect(ScreenSurface, &rec, -1);
+				rec.y = y - 5;
+				SDL_FillRect(ScreenSurface, &rec, -1);
+			}
+			else if (cursor_type == 2)
+			{
+				rec.w = 1;
+				rec.h = 14;
+				rec.x = x - 2;
+				rec.y = y - 7;
+				SDL_FillRect(ScreenSurface, &rec, -1);
+				rec.x = x - 5;
+				SDL_FillRect(ScreenSurface, &rec, -1);
+			}
 		}
 
 		if (f_custom_cursor)

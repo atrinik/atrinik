@@ -1251,7 +1251,7 @@ void widget_show_container(widgetdata *widget)
 	box.h = widget->ht;
 
 	/* if we don't have a backbuffer, create it */
-	if (!widget->widgetSF || old_alpha_option != options.use_TextwinAlpha)
+	if (!widget->widgetSF)
 	{
 		/* need to do this, or the foreground could be semi-transparent too */
 		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
@@ -1261,36 +1261,25 @@ void widget_show_container(widgetdata *widget)
 
 	/* backbuffering is a bit trickier
 	 * we always blit the background extra because of the alpha */
-	if (options.use_TextwinAlpha)
+	if (old_container_alpha != options.textwin_alpha)
 	{
-		if (old_container_alpha != options.textwin_alpha || old_alpha_option != options.use_TextwinAlpha)
+		if (containerbg)
 		{
-			if (containerbg)
-			{
-				SDL_FreeSurface(containerbg);
-			}
-
-			SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, options.textwin_alpha);
-			containerbg = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
-			SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
-
-			old_container_alpha = options.textwin_alpha;
-
-			WIDGET_REDRAW(widget);
-		}
-		box2.x = x;
-		box2.y = y;
-		SDL_BlitSurface(containerbg, &box, ScreenSurface, &box2);
-	}
-	else
-	{
-		if (old_alpha_option != options.use_TextwinAlpha)
-		{
-			WIDGET_REDRAW(widget);
+			SDL_FreeSurface(containerbg);
 		}
 
-		sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
+		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, options.textwin_alpha);
+		containerbg = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
+		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
+
+		old_container_alpha = options.textwin_alpha;
+
+		WIDGET_REDRAW(widget);
 	}
+
+	box2.x = x;
+	box2.y = y;
+	SDL_BlitSurface(containerbg, &box, ScreenSurface, &box2);
 
 	/* lets draw the widgets in the backbuffer */
 	if (widget->redraw)
@@ -1302,31 +1291,30 @@ void widget_show_container(widgetdata *widget)
 		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
-		if (options.use_TextwinAlpha)
-		{
-			box.x = 0;
-			box.y = 0;
-			box.h = 1;
-			box.w = widget->wd;
-			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-			box.y = widget->ht;
-			box.h = 1;
-			box.x = 0;
-			box.w = widget->wd;
-			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-			box.w = widget->wd;
-			box.x = box.w - 1;
-			box.w = 1;
-			box.y = 0;
-			box.h = widget->ht;
-			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-			box.x = 0;
-			box.y = 0;
-			box.h = widget->ht;
-			box.w = 1;
-			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		}
+
+		box.x = 0;
+		box.y = 0;
+		box.h = 1;
+		box.w = widget->wd;
+		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+		box.y = widget->ht;
+		box.h = 1;
+		box.x = 0;
+		box.w = widget->wd;
+		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+		box.w = widget->wd;
+		box.x = box.w - 1;
+		box.w = 1;
+		box.y = 0;
+		box.h = widget->ht;
+		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+		box.x = 0;
+		box.y = 0;
+		box.h = widget->ht;
+		box.w = 1;
+		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
 	}
+
 	box.x = x;
 	box.y = y;
 	box2.x = 0;

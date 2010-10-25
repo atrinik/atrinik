@@ -118,7 +118,6 @@ typedef struct _options
 	int resolution_x;
 	int resolution_y;
 	int resolution;
-	int use_TextwinAlpha;
 	int textwin_alpha;
 #ifdef WIDGET_SNAP
 	int widget_snap;

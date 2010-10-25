@@ -52,8 +52,9 @@ enum
 /* Flags */
 enum
 {
-	TW_SCROLL = 0x01,
-	TW_RESIZE = 0x02
+	TW_SCROLL = 1,
+	TW_RESIZE = 2,
+	TW_RESIZE2 = 4
 };
 
 /** Custom attributes for text window widgets. */
