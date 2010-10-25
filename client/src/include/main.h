@@ -124,6 +124,8 @@ typedef struct _options
 #endif
 	int mapstart_x;
 	int mapstart_y;
+	int map_size_x;
+	int map_size_y;
 
 	/* Look & Feel */
 	int player_names;
@@ -457,8 +459,6 @@ extern int x_custom_cursor;
 extern int y_custom_cursor;
 
 extern _game_status GameStatus;
-extern int MapStatusX;
-extern int MapStatusY;
 extern uint32 LastTick;
 extern uint32 tmpGameTick;
 extern uint32 FrameCount;

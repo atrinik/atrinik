@@ -282,9 +282,12 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text,
  * @param max Maximum value. */
 void add_value(void *value, int type, int offset, int min, int max)
 {
+	int old_value;
+
 	switch (type)
 	{
 		case VAL_INT:
+			old_value = *((int *) value);
 			*((int *) value) += offset;
 
 			if (*((int *) value) > max)
@@ -300,6 +303,7 @@ void add_value(void *value, int type, int offset, int min, int max)
 			break;
 
 		case VAL_U32:
+			old_value = *((uint32 *) value);
 			*((uint32 *) value) += offset;
 
 			if (*((uint32 *) value) > (uint32) max)
@@ -316,6 +320,16 @@ void add_value(void *value, int type, int offset, int min, int max)
 
 		default:
 			break;
+	}
+
+	/* Changed map X/Y, send a setup command to tell the server about the
+	 * change. */
+	if ((&options.map_size_x == value && options.map_size_x != old_value) || (&options.map_size_y == value && options.map_size_y != old_value))
+	{
+		char buf[MAX_BUF];
+
+		snprintf(buf, sizeof(buf), "setup mapsize %dx%d", options.map_size_x, options.map_size_y);
+		cs_write_string(buf, strlen(buf));
 	}
 }
 

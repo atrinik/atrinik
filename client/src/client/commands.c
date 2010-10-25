@@ -188,7 +188,10 @@ void SetupCmd(char *buf, int len)
 		}
 	}
 
-	GameStatus = GAME_STATUS_REQUEST_FILES;
+	if (GameStatus != GAME_STATUS_PLAY)
+	{
+		GameStatus = GAME_STATUS_REQUEST_FILES;
+	}
 }
 
 /**

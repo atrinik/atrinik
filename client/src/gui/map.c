@@ -95,11 +95,11 @@ void display_mapscroll(int dx, int dy)
 	int x, y;
 	struct Map newmap;
 
-	for (x = 0; x < MapStatusX; x++)
+	for (x = 0; x < options.map_size_x; x++)
 	{
-		for (y = 0; y < MapStatusY; y++)
+		for (y = 0; y < options.map_size_y; y++)
 		{
-			if (x + dx < 0 || x + dx >= MapStatusX || y + dy < 0 || y + dy >= MapStatusY)
+			if (x + dx < 0 || x + dx >= options.map_size_x || y + dy < 0 || y + dy >= options.map_size_y)
 			{
 				memset((char *) &(newmap.cells[x][y]), 0, sizeof(struct MapCell));
 			}
@@ -119,9 +119,9 @@ void map_draw_map_clear()
 {
 	int ypos, xpos, x, y;
 
-	for (x = 0; x < MapStatusX; x++)
+	for (x = 0; x < options.map_size_x; x++)
 	{
-		for (y = 0; y < MapStatusY; y++)
+		for (y = 0; y < options.map_size_y; y++)
 		{
 			xpos = options.mapstart_x + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 			ypos = options.mapstart_y + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
@@ -205,7 +205,7 @@ void init_map_data(int xl, int yl, int px, int py)
  * @return The height. */
 static int calc_map_cell_height(int x, int y)
 {
-	if (x >= 0 && x < MapStatusX && y >= 0 && y < MapStatusY)
+	if (x >= 0 && x < options.map_size_x && y >= 0 && y < options.map_size_y)
 	{
 		return the_map.cells[x][y].height[1];
 	}
@@ -226,7 +226,7 @@ void align_tile_stretch(int x, int y)
 	uint32 h;
 	int nw_height, n_height, ne_height, sw_height, s_height, se_height, w_height, e_height, my_height;
 
-	if (x < 0 || y < 0 || x >= MapStatusX || y >= MapStatusY)
+	if (x < 0 || y < 0 || x >= options.map_size_x || y >= options.map_size_y)
 	{
 		return;
 	}
@@ -323,9 +323,9 @@ void adjust_tile_stretch()
 {
 	int x, y;
 
-	for (x = 0; x < MapStatusX; x++)
+	for (x = 0; x < options.map_size_x; x++)
 	{
-		for (y = 0; y < MapStatusY; y++)
+		for (y = 0; y < options.map_size_y; y++)
 		{
 			align_tile_stretch(x - 1, y - 1);
 			align_tile_stretch(x , y - 1);
@@ -737,12 +737,12 @@ void map_draw_map()
 	int x, y, layer;
 	int mouse_x, mouse_y;
 
-	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height[1];
+	player_height_offset = the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1];
 
 	/* First draw floor and floor masks. */
-	for (x = 0; x < MAP_MAX_SIZE; x++)
+	for (x = 0; x < options.map_size_x; x++)
 	{
-		for (y = 0; y < MAP_MAX_SIZE; y++)
+		for (y = 0; y < options.map_size_y; y++)
 		{
 			for (layer = 1; layer <= 2; layer++)
 			{
@@ -752,9 +752,9 @@ void map_draw_map()
 	}
 
 	/* Now draw everything else. */
-	for (x = 0; x < MAP_MAX_SIZE; x++)
+	for (x = 0; x < options.map_size_x; x++)
 	{
-		for (y = 0; y < MAP_MAX_SIZE; y++)
+		for (y = 0; y < options.map_size_y; y++)
 		{
 			for (layer = 3; layer <= MAX_LAYERS; layer++)
 			{
@@ -837,9 +837,9 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + options.mapstart_y;
 
 	/* Go through all the map squares. */
-	for (x = 0; x < MAP_MAX_SIZE; x++)
+	for (x = 0; x < options.map_size_x; x++)
 	{
-		for (y = 0; y < MAP_MAX_SIZE; y++)
+		for (y = 0; y < options.map_size_y; y++)
 		{
 			/* X/Y position of the map square. */
 			xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * (options.zoom / 100.0);

@@ -145,7 +145,7 @@ void move_keys(int num)
  * @return The direction, 1-9. */
 int dir_from_tile_coords(int tx, int ty)
 {
-	int player_tile_x = MapStatusX / 2, player_tile_y = MapStatusY / 2;
+	int player_tile_x = options.map_size_x / 2, player_tile_y = options.map_size_y / 2;
 	int q, x, y;
 
 	if (tx == player_tile_x && ty == player_tile_y)

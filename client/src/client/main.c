@@ -59,10 +59,6 @@ Uint32 videoflags_full, videoflags_win;
 struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 int RangeFireMode;
 
-/* map x,y len */
-int MapStatusX;
-int MapStatusY;
-
 /** Our selected server that we want to connect to. */
 server_struct *selected_server = NULL;
 
@@ -385,8 +381,6 @@ static void init_game_data()
 	argServerPort = 13327;
 
 	GameStatus = GAME_STATUS_INIT;
-	MapStatusX = MAP_MAX_SIZE;
-	MapStatusY = MAP_MAX_SIZE;
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
 	text_input_string_flag = 0;
@@ -738,7 +732,7 @@ static int game_status_chain()
 	{
 		map_transfer_flag = 0;
 
-		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %dx%d", MapStatusX, MapStatusY);
+		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %dx%d", options.map_size_x, options.map_size_y);
 		server_files_setup_add(buf, sizeof(buf));
 		cs_write_string(buf, strlen(buf));
 

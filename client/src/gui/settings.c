@@ -89,6 +89,8 @@ _option opt[] =
 	{"Smooth zoom:", "Whether to use smooth zoom on the playfield.\nWarning: Very CPU intensive.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.zoom_smooth, VAL_BOOL},
 	{"Low health warning:", "Shows a low health warning above your head.\nActivated if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
 	{"Low food warning:", "Shows a low food warning above your head.\nActivated if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
+	{"Map X size:", "The X size of the map. If you have very low bandwidth, you may\nwant to consider lowering this somewhat.", "", SEL_RANGE, 9, MAP_MAX_SIZE, 1, MAP_MAX_SIZE, &options.map_size_x, VAL_INT},
+	{"Map Y size:", "The Y size of the map. If you have very low bandwidth, you may\nwant to consider lowering this somewhat.", "", SEL_RANGE, 9, MAP_MAX_SIZE, 1, MAP_MAX_SIZE, &options.map_size_y, VAL_INT},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Sound */

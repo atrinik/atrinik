@@ -646,8 +646,17 @@ void change_textwin_font(int font)
 {
 	font = FONT_ARIAL10 + font;
 
-	TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
-	textwin_readjust(cur_widget[MSGWIN_ID]);
-	TEXTWIN(cur_widget[CHATWIN_ID])->font = font;
-	textwin_readjust(cur_widget[CHATWIN_ID]);
+	if (TEXTWIN(cur_widget[MSGWIN_ID])->font != font)
+	{
+		TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
+		textwin_readjust(cur_widget[MSGWIN_ID]);
+		WIDGET_REDRAW(cur_widget[MSGWIN_ID]);
+	}
+
+	if (TEXTWIN(cur_widget[CHATWIN_ID])->font != font)
+	{
+		TEXTWIN(cur_widget[CHATWIN_ID])->font = font;
+		textwin_readjust(cur_widget[CHATWIN_ID]);
+		WIDGET_REDRAW(cur_widget[CHATWIN_ID]);
+	}
 }
