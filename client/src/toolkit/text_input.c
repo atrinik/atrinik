@@ -79,10 +79,13 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
 
 	x += 6 + box->x;
 	y += box->h / 2 - FONT_HEIGHT(font) / 2 + box->y;
+
+	box->w = box->w - 20 - box->x;
+	box->h = FONT_HEIGHT(font);
 	box->x = 0;
 	box->y = 0;
 
-	string_blt(surface, font, text, x, y, color, flags, box);
+	string_blt(surface, font, text, x, y, color, flags | TEXT_WORD_WRAP, box);
 }
 
 /**
@@ -98,40 +101,43 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
  * @param box Contains coordinates to use and maximum string width. */
 void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box)
 {
-	char buf[MAX_BUF];
+	char buf[HUGE_BUF];
+	SDL_Rect box2;
+	size_t pos = CurrentCursorPos;
+	const char *cp = text;
 
-	/* Need to adjust the text by the cursor's position? */
-	if (CurrentCursorPos)
+	box2.w = 0;
+
+	/* Figure out the width by going backwards. */
+	while (pos > 0)
 	{
-		SDL_Rect box2;
-		size_t pos = CurrentCursorPos;
-		const char *cp = text;
+		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL);
+		pos--;
 
-		box2.w = 0;
-
-		/* Figure out the width by going backwards. */
-		while (pos > 0)
+		/* Reached the maximum yet? */
+		if (box2.w > Bitmaps[bitmap]->bitmap->w - 26 - (box ? box->x * 2 : 0))
 		{
-			blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL);
-			pos--;
-
-			/* Reached the maximum yet? */
-			if (box2.w > Bitmaps[bitmap]->bitmap->w - 26 - (box ? box->x * 2 : 0))
-			{
-				break;
-			}
+			break;
 		}
+	}
 
-		/* Adjust the text position if necessary. */
-		if (pos)
-		{
-			text += pos;
-		}
+	/* Adjust the text position if necessary. */
+	if (pos)
+	{
+		text += pos;
 	}
 
 	/* Draw the background. */
 	text_input_draw_background(surface, x, y, bitmap);
-	snprintf(buf, sizeof(buf), "%s_", text);
+	strncpy(buf, text, CurrentCursorPos - pos);
+	buf[CurrentCursorPos - pos] = '_';
+	buf[CurrentCursorPos - pos + 1] = '\0';
+
+	if (text + (CurrentCursorPos - pos))
+	{
+		strcpy(buf + (CurrentCursorPos - pos + 1), text + (CurrentCursorPos - pos));
+	}
+
 	/* Draw the text. */
 	text_input_draw_text(surface, x, y, font, buf, color, flags, bitmap, box);
 }
