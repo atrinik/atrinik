@@ -738,7 +738,7 @@ static int game_status_chain()
 	{
 		map_transfer_flag = 0;
 
-		snprintf(buf, sizeof(buf), "setup sound 1 map2cmd 1 mapsize %dx%d darkness 1 facecache 1", MapStatusX, MapStatusY);
+		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %dx%d", MapStatusX, MapStatusY);
 		server_files_setup_add(buf, sizeof(buf));
 		cs_write_string(buf, strlen(buf));
 
