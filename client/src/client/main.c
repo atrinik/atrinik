@@ -38,8 +38,6 @@ SDL_Surface *zoomed;
 _Font MediumFont;
 /* our main font */
 _Font SystemFont;
-/* our main font - black outlined */
-_Font SystemFontOut;
 /* bigger special font */
 _Font BigFont;
 /* our main font with shadow */
@@ -124,7 +122,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"font7x4.png", PIC_TYPE_PALETTE},
 	{"font6x3out.png", PIC_TYPE_PALETTE},
 	{"font_big.png", PIC_TYPE_PALETTE},
-	{"font7x4out.png", PIC_TYPE_PALETTE},
 	{"font11x15.png", PIC_TYPE_PALETTE},
 	{"intro.png", PIC_TYPE_DEFAULT},
 
@@ -860,7 +857,6 @@ static void load_bitmaps()
 
 	CreateNewFont(Bitmaps[BITMAP_FONT1], &SystemFont, 16, 16, 1);
 	CreateNewFont(Bitmaps[BITMAP_FONTMEDIUM], &MediumFont, 16, 16, 1);
-	CreateNewFont(Bitmaps[BITMAP_FONT1OUT], &SystemFontOut, 16, 16, 1);
 	CreateNewFont(Bitmaps[BITMAP_FONT6x3OUT], &Font6x3Out, 16, 16, -1);
 	CreateNewFont(Bitmaps[BITMAP_BIGFONT], &BigFont, 11, 16, 3);
 }
