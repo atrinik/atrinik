@@ -1187,7 +1187,6 @@ static void display_layer3()
 	}
 }
 
-/* dialogs, highest-priority layer */
 /**
  * Dialogs, highest priority layer. */
 static void display_layer4()
