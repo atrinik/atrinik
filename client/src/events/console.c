@@ -204,7 +204,6 @@ int key_string_event(SDL_KeyboardEvent *key)
 						strncpy(InputHistory[0], InputString, InputCount);
 
 					HistoryPos++;
-					LOG(llevInfo, "%d\n", HistoryPos);
 					textwin_putstring(InputHistory[HistoryPos]);
 				}
 
