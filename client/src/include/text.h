@@ -151,6 +151,10 @@ enum
 /**
  * Do not allow color changing using markup. */
 #define TEXT_NO_COLOR_CHANGE 64
+/**
+ * Show a black outline around the text (can be changed to different
+ * color using \<o\> markup. */
+#define TEXT_OUTLINE 128
 /*@}*/
 
 /**

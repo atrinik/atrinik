@@ -180,6 +180,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	int width, ret = 1;
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[MAX_BUF];
+	static SDL_Color outline_color = {0, 0, 0, 0};
+	static uint8 outline_show = 0;
 
 	if (c == '\r')
 	{
@@ -525,6 +527,34 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return strchr(cp + 5, '>') - cp + 1;
 		}
+		else if (!strncmp(cp, "<o=", 3))
+		{
+			if (surface)
+			{
+				int r, g, b;
+
+				/* Parse the r,g,b colors. */
+				if (sscanf(cp, "<o=%d,%d,%d>", &r, &g, &b) == 3)
+				{
+					outline_color.r = r;
+					outline_color.g = g;
+					outline_color.b = b;
+					outline_show = 1;
+				}
+			}
+
+			return strchr(cp + 3, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</o>", 4))
+		{
+			if (surface)
+			{
+				outline_color.r = outline_color.g = outline_color.b = 0;
+				outline_show = 0;
+			}
+
+			return 4;
+		}
 	}
 
 	/* Parse entities. */
@@ -618,6 +648,33 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				}
 
 				free(buf);
+			}
+		}
+
+		if (outline_show || flags & TEXT_OUTLINE)
+		{
+			int outline_x, outline_y;
+			SDL_Rect outline_box;
+
+			for (outline_x = -1; outline_x < 2; outline_x++)
+			{
+				for (outline_y = -1; outline_y < 2; outline_y++)
+				{
+					outline_box.x = dest->x + outline_x;
+					outline_box.y = dest->y + outline_y;
+
+					if (flags & TEXT_SOLID)
+					{
+						ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, outline_color);
+					}
+					else
+					{
+						ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, outline_color);
+					}
+
+					SDL_BlitSurface(ttf_surface, NULL, surface, &outline_box);
+					SDL_FreeSurface(ttf_surface);
+				}
 			}
 		}
 
