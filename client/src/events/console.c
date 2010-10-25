@@ -195,7 +195,7 @@ int key_string_event(SDL_KeyboardEvent *key)
 
 				/* If we are in CONSOLE mode, let player scroll back the lines in history */
 			case SDLK_UP:
-				if (cpl.input_mode == INPUT_MODE_CONSOLE && HistoryPos < MAX_HISTORY_LINES && InputHistory[HistoryPos + 1][0])
+				if (cpl.input_mode == INPUT_MODE_CONSOLE && HistoryPos < MAX_HISTORY_LINES - 1 && InputHistory[HistoryPos + 1][0])
 				{
 					/* First history line is special, it records what we were writing before
 					 * scrolling back the history; so, by returning back to zero, we can continue
@@ -204,6 +204,7 @@ int key_string_event(SDL_KeyboardEvent *key)
 						strncpy(InputHistory[0], InputString, InputCount);
 
 					HistoryPos++;
+					LOG(llevInfo, "%d\n", HistoryPos);
 					textwin_putstring(InputHistory[HistoryPos]);
 				}
 
