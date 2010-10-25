@@ -37,6 +37,9 @@
  * List of the player fields and their meaning. */
 static fields_struct fields[] =
 {
+	{"next", FIELDTYPE_PLAYER, offsetof(player, next), FIELDFLAG_READONLY, 0},
+	{"prev", FIELDTYPE_PLAYER, offsetof(player, prev), FIELDFLAG_READONLY, 0},
+
 	{"party", FIELDTYPE_PARTY, offsetof(player, party), 0, 0},
 	/* Shall not be modified in any way. Instead, one should use @ref Atrinik_Player_Fix "player.Fix()",
 	 * which will set class_ob to the last @ref CLASS object it finds in

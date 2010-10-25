@@ -252,7 +252,9 @@ typedef enum
 	/** Pointer to a party. */
 	FIELDTYPE_PARTY,
 	/** Pointer to an archetype. */
-	FIELDTYPE_ARCH
+	FIELDTYPE_ARCH,
+	/** Pointer to a player. */
+	FIELDTYPE_PLAYER
 } field_type;
 
 /**

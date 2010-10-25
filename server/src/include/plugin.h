@@ -296,6 +296,7 @@ struct plugin_hooklist
 	const char **object_flag_names;
 	int *freearr_x;
 	int *freearr_y;
+	player **first_player;
 };
 
 /** General API function. */

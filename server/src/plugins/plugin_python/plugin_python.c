@@ -1323,6 +1323,17 @@ static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args)
 	}
 }
 
+/**
+ * <h1>GetFirstPlayer()</h1>
+ * Get the first player in the list of players.
+ * @return The first player. */
+static PyObject *Atrinik_GetFirstPlayer(PyObject *self, PyObject *args)
+{
+	(void) self;
+	(void) args;
+	return wrap_player(*hooks->first_player);
+}
+
 /*@}*/
 
 /**
@@ -1938,6 +1949,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
 	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
 	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
+	{"GetFirstPlayer", Atrinik_GetFirstPlayer, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2372,6 +2384,22 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 
 			break;
+
+		case FIELDTYPE_PLAYER:
+			if (value == Py_None)
+			{
+				*(player **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_PlayerType))
+			{
+				*(player **) field_ptr = (player *) ((Atrinik_Player *) value)->pl;
+			}
+			else
+			{
+				INTRAISE("Illegal value for player field.");
+			}
+
+			break;
 	}
 
 	return 0;
@@ -2450,6 +2478,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_ARCH:
 			return wrap_archetype(*(archetype **) field_ptr);
+
+		case FIELDTYPE_PLAYER:
+			return wrap_player(*(player **) field_ptr);
 	}
 
 	RAISE("BUG: Unknown field type.");
