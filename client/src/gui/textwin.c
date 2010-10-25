@@ -667,6 +667,33 @@ void textwin_putstring(char *text)
 }
 
 /**
+ * Readjust text window's scroll/entries counts due to a font size
+ * change.
+ * @param widget Text window's widget. */
+static void textwin_readjust(widgetdata *widget)
+{
+	_textwin *textwin = TEXTWIN(widget);
+	SDL_Rect box;
+	int scroll;
+
+	if (!textwin->entries)
+	{
+		return;
+	}
+
+	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 10 - 1;
+	box.h = 0;
+	box.x = 0;
+	box.y = 0;
+	string_blt(NULL, textwin->font, textwin->entries, 0, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	scroll = box.h / FONT_HEIGHT(textwin->font);
+
+	/* Adjust the counts. */
+	textwin->scroll = scroll;
+	textwin->num_entries = scroll;
+}
+
+/**
  * Change the font used for drawing text in text windows.
  * @param font ID of the font to change to. */
 void change_textwin_font(int font)
@@ -674,5 +701,7 @@ void change_textwin_font(int font)
 	font = FONT_SANS10 + font;
 
 	TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
+	textwin_readjust(cur_widget[MSGWIN_ID]);
 	TEXTWIN(cur_widget[CHATWIN_ID])->font = font;
+	textwin_readjust(cur_widget[CHATWIN_ID]);
 }
