@@ -608,7 +608,6 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 	{
 		if (cursor_type == 1)
 		{
-			/* we need to calc the new x for the widget, and set the new size */
 			resize_widget(widget, RESIZE_TOP, MAX(50, (widget->y1 + widget->ht) - event.motion.y));
 			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
