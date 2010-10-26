@@ -356,11 +356,6 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			blt_sprite = tmp;
 			dst.y = dst.y - ht_diff;
 		}
-
-		if (bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
-		{
-			SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
-		}
 	}
 
 	if (!blt_sprite)
@@ -376,6 +371,11 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		{
 			return;
 		}
+	}
+
+	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
+	{
+		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
 	}
 
 	SDL_BlitSurface(blt_sprite, box, surface, &dst);
