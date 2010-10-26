@@ -32,8 +32,8 @@
 int textwin_flags;
 
 static int old_slider_pos = 0;
-SDL_Surface *txtwinbg = NULL;
-int old_txtwin_alpha = -1;
+static SDL_Surface *txtwinbg = NULL;
+static int old_txtwin_alpha = -1;
 
 /**
  * Makes sure textwin's scroll value is a sane number.
@@ -345,9 +345,11 @@ void widget_textwin_show(widgetdata *widget)
 	int x = widget->x1;
 	int y = widget->y1;
 
-	/* sanity check */
+	/* Sanity check. */
 	if (!textwin)
+	{
 		return;
+	}
 
 	box.x = box.y = 0;
 	box.w = widget->wd;
@@ -434,7 +436,7 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 {
 	_textwin *textwin = TEXTWIN(widget);
 
-	/* sanity check */
+	/* Sanity check. */
 	if (!textwin)
 	{
 		return;
