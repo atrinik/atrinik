@@ -302,10 +302,11 @@ void widget_show_inventory_window(widgetdata *widget)
 			}
 		}
 
-        if (widget->ht != 32)
+		if (widget->ht != 32)
 		{
-            resize_widget(widget, RESIZE_BOTTOM, 32);
+			resize_widget(widget, RESIZE_BOTTOM, 32);
 		}
+
 		sprite_blt(Bitmaps[BITMAP_INV_BG], widget->x1, widget->y1, NULL, NULL);
 
 		StringBlt(ScreenSurface, &SystemFont, "Carry", widget->x1 + 140, widget->y1 + 4, COLOR_HGOLD, NULL, NULL);
@@ -327,11 +328,14 @@ void widget_show_inventory_window(widgetdata *widget)
 	{
 		/* do this for all player doll widgets, even though there shouldn't be more than one */
 		for (tmp_widget = cur_widget[PDOLL_ID]; tmp_widget; tmp_widget = tmp_widget->type_next)
+		{
 			tmp_widget->show = 1;
+		}
 	}
-    if (widget->ht != 129)
+
+	if (widget->ht != 129)
 	{
-        resize_widget(widget, RESIZE_BOTTOM, 129);
+		resize_widget(widget, RESIZE_BOTTOM, 129);
 	}
 
 	invxlen = INVITEMXLEN;

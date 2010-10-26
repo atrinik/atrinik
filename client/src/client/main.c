@@ -1133,7 +1133,7 @@ static void display_layer4()
 	if (GameStatus == GAME_STATUS_PLAY)
 	{
 		/* We have to make sure that these two get hidden right */
-        /* sanity checks in case they don't exist */
+		/* sanity checks in case they don't exist */
 		if (cur_widget[IN_CONSOLE_ID])
 		{
 			cur_widget[IN_CONSOLE_ID]->show = 0;

@@ -163,7 +163,7 @@ void popup_draw()
 	bltfx.surface = popup_visible->surface;
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
- 	sprite_blt(Bitmaps[popup_visible->bitmap_id], 0, 0, NULL, &bltfx);
+	sprite_blt(Bitmaps[popup_visible->bitmap_id], 0, 0, NULL, &bltfx);
 
 	/* Handle drawing inside the popup. */
 	if (popup_visible->draw_func)

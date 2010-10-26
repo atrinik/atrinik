@@ -76,7 +76,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		box.w = popup->surface->w;
 		box.h = 0;
 		/* Show the news title. */
- 		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
 		box.h = 260;
 		box.w = 455;
@@ -85,7 +85,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Calculate number of visible rows. */
 		visible_lines = box.h / FONT_HEIGHT(FONT_SANS12);
 		/* Show the news. */
- 		string_blt(popup->surface, FONT_SANS12, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_HEIGHT, &box);
+		string_blt(popup->surface, FONT_SANS12, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_HEIGHT, &box);
 		/* NUmber of lines in the string. */
 		lines = box.h / FONT_HEIGHT(FONT_SANS12);
 
@@ -676,9 +676,9 @@ static void list_handle_enter(list_struct *list)
 		{
 			popup_struct *popup = popup_create(BITMAP_POPUP);
 
- 			popup->draw_func = popup_draw_func;
- 			popup->draw_func_post = popup_draw_func_post;
- 			popup->event_func = popup_event_func;
+			popup->draw_func = popup_draw_func;
+			popup->draw_func_post = popup_draw_func_post;
+			popup->event_func = popup_event_func;
 			popup->destroy_callback_func = popup_destroy_callback_func;
 			GameStatus = GAME_STATUS_STARTCONNECT;
 		}
@@ -746,8 +746,8 @@ void show_meta_server()
 
 		/* Create the servers list. */
 		list = list_create(LIST_SERVERS, x + 13, y + 8, 11, 3, 8);
- 		list->handle_enter_func = list_handle_enter;
- 		list->handle_esc_func = list_handle_esc;
+		list->handle_enter_func = list_handle_enter;
+		list->handle_esc_func = list_handle_esc;
 		list_set_column(list, 0, 295, 7, "Server", -1);
 		list_set_column(list, 1, 50, 9, "Port", 1);
 		list_set_column(list, 2, 50, 7, "Players", 1);
@@ -829,7 +829,7 @@ void show_meta_server()
 
 		list = list_create(LIST_NEWS, x + 13, y + 10, 18, 1, 8);
 		list->handle_enter_func = list_handle_enter;
- 		list->handle_esc_func = list_handle_esc;
+		list->handle_esc_func = list_handle_esc;
 		list_set_column(list, 0, 150, 7, NULL, -1);
 		list_set_font(list, FONT_ARIAL10);
 	}

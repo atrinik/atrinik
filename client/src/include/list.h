@@ -138,11 +138,11 @@ typedef struct list_struct
 	 * Function that will color the specified row.
 	 * @param list List.
 	 * @param row Row number, 0-[max visible rows].
-     * @param box Contains base x/y/width/height information to use. */
+	 * @param box Contains base x/y/width/height information to use. */
 	void (*row_color_func)(struct list_struct *list, int row, SDL_Rect box);
 
 	/**
- 	 * Function to highlight a row (due to mouse being over it).
+	 * Function to highlight a row (due to mouse being over it).
 	 * @param list List.
 	 * @param box Contains base x/y/width/height information to use. */
 	void (*row_highlight_func)(struct list_struct *list, SDL_Rect box);

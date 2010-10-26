@@ -1235,10 +1235,10 @@ void widget_show_regeneration(widgetdata *widget)
  * @param widget The widget object. */
 void widget_show_container(widgetdata *widget)
 {
-	SDL_Rect   box, box2;
-	_BLTFX     bltfx;
-	int        x = widget->x1;
-	int        y = widget->y1;
+	SDL_Rect box, box2;
+	_BLTFX bltfx;
+	int x = widget->x1;
+	int y = widget->y1;
 
 	/* special case, menuitem is highlighted when mouse is moved over it */
 	if (widget->WidgetSubtypeID == MENU_ID)
@@ -1330,7 +1330,7 @@ void widget_highlight_menu(widgetdata *widget)
 {
 	widgetdata *tmp, *tmp2, *tmp3;
 	_menu *menu = NULL, *tmp_menu = NULL;
-    _menuitem *menuitem = NULL;
+	_menuitem *menuitem = NULL;
 	int visible, create_submenu = 0, x = 0, y = 0;
 
 	/* Sanity check. Make sure widget is a menu. */
@@ -1406,19 +1406,20 @@ void widget_highlight_menu(widgetdata *widget)
 					/* Loop through the submenus to see if we find a match for the menu the cursor is hovering over. */
 					for (tmp_menu = menu; tmp_menu->submenu && tmp_menu->submenu != tmp2; tmp_menu = MENU(tmp_menu->submenu))
 					{
-						;
 					}
 
 					/* Remove any submenus related to menu if the menu underneath the cursor is not a submenu of menu. */
 					if (!tmp_menu->submenu)
 					{
 						tmp2 = menu->submenu;
+
 						while (tmp2)
 						{
 							tmp3 = (MENU(tmp2))->submenu;
 							remove_widget_object(tmp2);
 							tmp2 = tmp3;
 						}
+
 						menu->submenu = NULL;
 					}
 					else
@@ -1479,6 +1480,7 @@ void widget_menu_event(widgetdata *widget, int x, int y)
 		 * (this is what the user would have right clicked on).
 		 * Make it the mouse owner as this is what the user is interacting with. */
 		widget_mouse_event.owner = (MENU(tmp->env))->owner;
+
 		if (widget_mouse_event.owner)
 		{
 			widget_menuitem_event(widget_mouse_event.owner, x, y, menuitem->menu_func_ptr);

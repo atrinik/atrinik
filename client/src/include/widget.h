@@ -87,13 +87,13 @@ typedef struct widgetdata
 	struct widgetdata *prev;
 
 	/** The first widget inside this widget. */
-    struct widgetdata *inv;
+	struct widgetdata *inv;
 
 	/** The last widget inside this widget, used for traversing in reverse. */
-    struct widgetdata *inv_rev;
+	struct widgetdata *inv_rev;
 
 	/** The widget that contains this widget. */
-    struct widgetdata *env;
+	struct widgetdata *env;
 
 	/** Next widget of the same type. */
 	struct widgetdata *type_next;
@@ -111,11 +111,10 @@ typedef struct widgetdata
 	int WidgetTypeID;
 
 	/** The ID for the subtype of widget, used as a way of creating specific widgets. */
-    int WidgetSubtypeID;
+	int WidgetSubtypeID;
 
 	/** A unique ID for the widget object. */
 	int WidgetObjID;
-
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
@@ -153,7 +152,6 @@ typedef struct _widget_container
 
 	/* Used for custom attributes of a container. */
 	void *subcontainer;
-
 } _widget_container;
 
 typedef struct _widget_label
@@ -166,14 +164,12 @@ typedef struct _widget_label
 
 	/** The colour of the text. */
 	int color;
-
 } _widget_label;
 
 typedef struct _widget_bitmap
 {
 	/** The ID of the bitmap. */
 	int bitmap_id;
-
 } _widget_bitmap;
 
 /** A more specialised kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
@@ -189,8 +185,7 @@ typedef struct _widget_container_strip
 	int size;
 
 	/** Used for custom attributes of a strip container. */
-    void *subcontainer_strip;
-
+	void *subcontainer_strip;
 } _widget_container_strip;
 
 /** A menu. This is a special strip container that contains the menuitems inside. */
@@ -201,7 +196,6 @@ typedef struct _menu
 
 	/** The widget that was right clicked on in order to open the menu. */
 	widgetdata *owner;
-
 } _menu;
 
 /**
@@ -214,8 +208,7 @@ typedef struct _menuitem
 	void (*menu_func_ptr)(widgetdata *, int, int);
 
 	/** The type of menuitem. */
-    int menu_type;
-
+	int menu_type;
 } _menuitem;
 
 /** A mouse event. */
@@ -262,34 +255,34 @@ typedef enum WidgetID
 enum
 {
 	/** First element must be equal to TOTAL_WIDGETS. */
-    CONTAINER_STRIP_ID = TOTAL_WIDGETS,
-    MENU_ID,
-    MENUITEM_ID,
+	CONTAINER_STRIP_ID = TOTAL_WIDGETS,
+	MENU_ID,
+	MENUITEM_ID,
 
 	/** The total number of subwidgets. */
-    TOTAL_SUBWIDGETS
+	TOTAL_SUBWIDGETS
 };
 
 /** Widget resize flags. */
 enum
 {
-    RESIZE_LEFT        = 0x01,
-    RESIZE_TOP         = 0x02,
-    RESIZE_RIGHT       = 0x04,
-    RESIZE_BOTTOM      = 0x08,
-	RESIZE_TOPLEFT     = RESIZE_TOP | RESIZE_LEFT,
-	RESIZE_TOPRIGHT    = RESIZE_TOP | RESIZE_RIGHT,
+	RESIZE_LEFT = 1,
+	RESIZE_TOP = 2,
+	RESIZE_RIGHT = 4,
+	RESIZE_BOTTOM = 8,
+	RESIZE_TOPLEFT = RESIZE_TOP | RESIZE_LEFT,
+	RESIZE_TOPRIGHT = RESIZE_TOP | RESIZE_RIGHT,
 	RESIZE_BOTTOMRIGHT = RESIZE_BOTTOM | RESIZE_RIGHT,
-	RESIZE_BOTTOMLEFT  = RESIZE_BOTTOM | RESIZE_LEFT
+	RESIZE_BOTTOMLEFT = RESIZE_BOTTOM | RESIZE_LEFT
 };
 
 /** Menu types. */
 enum
 {
-    MENU_NORMAL,
-    MENU_SUBMENU,
-    MENU_CHECKBOX,
-    MENU_RADIO
+	MENU_NORMAL,
+	MENU_SUBMENU,
+	MENU_CHECKBOX,
+	MENU_RADIO
 };
 
 /** Used for mouse button/move events */
@@ -303,7 +296,6 @@ typedef struct widgetevent
 
 	/** Widget Y */
 	int y;
-
 } widgetevent;
 
 /** This is used when moving a widget with the mouse. */
@@ -320,7 +312,6 @@ typedef struct widgetmove
 
 	/** Y offset. */
 	int yOffset;
-
 } widgetmove;
 
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
@@ -338,11 +329,11 @@ extern widgetevent widget_mouse_event;
 #define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
 #define BITMAP(__widget_bitmap) (_widget_bitmap *) (__widget_bitmap->subwidget)
 #define CONTAINER_STRIP(__widget_container_strip) \
-    (_widget_container_strip *) ( ((_widget_container *) (__widget_container_strip->subwidget)) ->subcontainer)
+	(_widget_container_strip *) ( ((_widget_container *) (__widget_container_strip->subwidget)) ->subcontainer)
 #define MENU(__menu) \
-    (_menu *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menu->subwidget)) ->subcontainer)) ->subcontainer_strip))
+	(_menu *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menu->subwidget)) ->subcontainer)) ->subcontainer_strip))
 #define MENUITEM(__menuitem) \
-    (_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget)) ->subcontainer)) ->subcontainer_strip))
+	(_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget)) ->subcontainer)) ->subcontainer_strip))
 
 #ifdef WIDGET_SNAP
 /** Left position. */
