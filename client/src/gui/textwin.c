@@ -436,7 +436,9 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 
 	/* sanity check */
 	if (!textwin)
+	{
 		return;
+	}
 
 	/* Scrolling or resizing */
 	if (event.motion.x < widget->x1 || (textwin_flags & (TW_SCROLL | TW_RESIZE | TW_RESIZE2)))
@@ -444,20 +446,22 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 		return;
 	}
 
-    WIDGET_REDRAW(widget);
-
 	/* Mousewheel up */
 	if (event.button.button == 4)
 	{
 		textwin->scroll--;
+		WIDGET_REDRAW(widget);
 	}
 	/* Mousewheel down */
 	else if (event.button.button == 5)
 	{
 		textwin->scroll++;
+		WIDGET_REDRAW(widget);
 	}
 	else if (event.button.button == SDL_BUTTON_LEFT)
 	{
+		WIDGET_REDRAW(widget);
+
 		/* Clicked scroller button up */
 		if (textwin->highlight == TW_HL_UP)
 		{
@@ -509,11 +513,15 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 	_textwin *textwin = TEXTWIN(widget);
 
 	if (!textwin)
+	{
 		return 1;
+	}
 
-	textwin->highlight = TW_HL_NONE;
-
-	WIDGET_REDRAW(widget);
+	if (textwin->highlight != TW_HL_NONE)
+	{
+		textwin->highlight = TW_HL_NONE;
+		WIDGET_REDRAW(widget);
+	}
 
 	/* Show resize cursor */
 	if ((event.motion.x > widget->x1 + 2 && event.motion.x < widget->x1 + 7 && event.motion.y > widget->y1 && event.motion.y < widget->y1 + widget->ht) || (event.button.button == SDL_BUTTON_LEFT && (textwin_flags & TW_RESIZE2)))
@@ -571,6 +579,8 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 			textwin->highlight = TW_HL_DOWN;
 		}
 #undef OFFSET
+
+		WIDGET_REDRAW(widget);
 
 		if (event.button.button != SDL_BUTTON_LEFT)
 		{
