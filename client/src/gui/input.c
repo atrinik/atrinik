@@ -63,7 +63,7 @@ void widget_show_console(widgetdata *widget)
 	box.y = 0;
 	box.w = Bitmaps[BITMAP_TEXTINPUT]->bitmap->w;
 	box.h = Bitmaps[BITMAP_TEXTINPUT]->bitmap->h;
-	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL10, text_input_string, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_TEXTINPUT, &box);
+	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL11, text_input_string, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_TEXTINPUT, &box);
 }
 
 /**
