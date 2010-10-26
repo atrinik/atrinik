@@ -177,7 +177,7 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_
  * actually drawn. */
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, int flags, SDL_Rect *box)
 {
-	int width, ret = 1;
+	int width, minx, ret = 1;
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[MAX_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
@@ -565,9 +565,14 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	}
 
 	/* Get the glyph's metrics. */
-	if (TTF_GlyphMetrics(fonts[*font].font, c, NULL, NULL, NULL, NULL, &width) == -1)
+	if (TTF_GlyphMetrics(fonts[*font].font, c, &minx, NULL, NULL, NULL, &width) == -1)
 	{
 		return ret;
+	}
+
+	if (minx < 0)
+	{
+		width -= minx;
 	}
 
 	/* Draw the character (unless it's a space, since there's no point in
