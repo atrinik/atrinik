@@ -608,13 +608,13 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 	{
 		if (cursor_type == 1)
 		{
-			resize_widget(widget, RESIZE_TOP, MAX(50, (widget->y1 + widget->ht) - event.motion.y));
+			resize_widget(widget, RESIZE_TOP, MAX(80, (widget->y1 + widget->ht) - event.motion.y));
 			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
 		}
 		else if (cursor_type == 2)
 		{
-			resize_widget(widget, RESIZE_LEFT, MIN(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->w, MAX(30, widget->x1 - event.motion.x + widget->wd)));
+			resize_widget(widget, RESIZE_LEFT, MIN(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->w, MAX(80, widget->x1 - event.motion.x + widget->wd)));
 			textwin_readjust(widget);
 			WIDGET_REDRAW(widget);
 		}
