@@ -63,9 +63,6 @@ struct _textwin
 	/** startpos of the window */
 	int x, y;
 
-	/** number or printed textlines */
-	int size;
-
 	/** scroll offset */
 	int scroll;
 

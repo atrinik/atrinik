@@ -209,12 +209,12 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 
 		box.x = box.y = 0;
 		box.w = Bitmaps[BITMAP_SLIDER]->bitmap->w;
-		box.h = textwin->size * 10 + 1;
+		box.h = widget->ht - 12;
 
 		/* No textinput-line */
 		temp = -9;
 		sprite_blt(Bitmaps[BITMAP_SLIDER_UP], x + widget->wd - 11, y + 2, NULL, bltfx);
-		sprite_blt(Bitmaps[BITMAP_SLIDER_DOWN], x + widget->wd - 11, y + 13 + temp + textwin->size * 10, NULL, bltfx);
+		sprite_blt(Bitmaps[BITMAP_SLIDER_DOWN], x + widget->wd - 11, y + temp + widget->ht, NULL, bltfx);
 		sprite_blt(Bitmaps[BITMAP_SLIDER], x + widget->wd - 11, y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2 + temp, &box, bltfx);
 		box.h += temp - 2;
 		box.w -= 2;
@@ -279,14 +279,14 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		{
 			box.x = x + widget->wd - 9;
 			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y + box.h;
-			box.h = textwin->size * 10 - textwin->slider_y - textwin->slider_h - 10;
+			box.h = widget->ht - 13 - textwin->slider_y - textwin->slider_h - 10;
 			box.w = 5;
 			SDL_FillRect(bltfx->surface, &box, 0);
 		}
 		else if (textwin->highlight == TW_HL_DOWN)
 		{
 			box.x = x + widget->wd - 11;
-			box.y = y + textwin->size * 10 + 4;
+			box.y = y + widget->ht - 13 + 4;
 			box.h = Bitmaps[BITMAP_SLIDER_UP]->bitmap->h;
 			box.w = 1;
 			SDL_FillRect(bltfx->surface, &box, -1);
@@ -353,7 +353,7 @@ void widget_textwin_show(widgetdata *widget)
 
 	box.x = box.y = 0;
 	box.w = widget->wd;
-	box.h = len = textwin->size * 10 + 13;
+	box.h = len = widget->ht;
 
 	/* If we don't have a backbuffer, create it */
 	if (!widget->widgetSF)
@@ -423,7 +423,7 @@ void widget_textwin_show(widgetdata *widget)
 	box2.x = 0;
 	box2.y = 0;
 	box2.w = widget->wd;
-	box2.h = len = textwin->size * 10 + 14;
+	box2.h = widget->ht + 1;
 
 	SDL_BlitSurface(widget->widgetSF, &box2, ScreenSurface, &box);
 }
@@ -472,7 +472,7 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 		/* Clicked above the slider */
 		else if (textwin->highlight == TW_ABOVE)
 		{
-			textwin->scroll -= textwin->size;
+			textwin->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
 		}
 		else if (textwin->highlight == TW_HL_SLIDER)
 		{
@@ -484,7 +484,7 @@ void textwin_button_event(widgetdata *widget, SDL_Event event)
 		/* Clicked under the slider */
 		else if (textwin->highlight == TW_UNDER)
 		{
-			textwin->scroll += textwin->size;
+			textwin->scroll += TEXTWIN_ROWS_VISIBLE(widget);
 		}
 		/* Clicked scroller button down */
 		else if (textwin->highlight == TW_HL_DOWN)
@@ -548,7 +548,7 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 
 	/* Mouse out of window */
 	/* We have to leave this here! For sanity, also the widget stuff does some area checking */
-	if (event.motion.y < widget->y1 || event.motion.x > widget->x1 + widget->wd || event.motion.y > widget->y1 + textwin->size * 10 + 13 + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h)
+	if (event.motion.y < widget->y1 || event.motion.x > widget->x1 + widget->wd || event.motion.y > widget->y1 + widget->ht)
 	{
 		if (!(textwin_flags & (TW_RESIZE | TW_RESIZE2)))
 		{
@@ -572,11 +572,11 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 		{
 			textwin->highlight = TW_HL_SLIDER;
 		}
-		else if (event.motion.y < widget->y1 + textwin->size * 10 + 4)
+		else if (event.motion.y < widget->y1 + widget->ht - 12)
 		{
 			textwin->highlight = TW_UNDER;
 		}
-		else if (event.motion.y < widget->y1 + textwin->size * 10 + 13)
+		else if (event.motion.y < widget->y1 + widget->ht)
 		{
 			textwin->highlight = TW_HL_DOWN;
 		}
@@ -608,18 +608,8 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
 	{
 		if (cursor_type == 1)
 		{
-			int newsize = ((widget->y1 + widget->ht) - event.motion.y) / 10;
-
-			/* set minimum bounds */
-			if (newsize < 3)
-			{
-				newsize = 3;
-			}
-
 			/* we need to calc the new x for the widget, and set the new size */
-			resize_widget(widget, RESIZE_TOP, newsize * 10 + 13);
-
-			textwin->size = newsize;
+			resize_widget(widget, RESIZE_TOP, MAX(50, (widget->y1 + widget->ht) - event.motion.y));
 			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
 		}

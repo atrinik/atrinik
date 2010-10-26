@@ -223,14 +223,10 @@ widgetdata *create_widget_object(int widget_subtype_id)
 				exit(0);
 			}
 
-			/* begin initialising the members that need it, I basically here just used copypasta from the old textwin_init() function */
-			textwin->size = 22;
 			textwin->font = FONT_ARIAL10;
 			/* that's right, a void * cast to _textwin *.
 			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
 			widget->subwidget = (_textwin *) textwin;
-			/* this should take care of the initialisation problem */
-			widget->ht = textwin->size * 10 + 13;
 			break;
 
 		case MAPNAME_ID:
@@ -986,22 +982,6 @@ static int load_interface_file(char *filename)
 						widget->ht = atoi(parameter);
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->ht);
 					}
-
-					/* handle loading of extended attributes here */
-					switch (widget->WidgetTypeID)
-					{
-						case CHATWIN_ID:
-						case MSGWIN_ID:
-							if (strncmp(keyword, "....TextwinSize:", 16) == 0)
-							{
-								textwin->size = atoi(parameter);
-								/* update the widget to the loaded textwin size */
-								widget->ht = textwin->size * 10 + 13;
-						        LOG(llevDebug, "..Loading: (%s %d)\n", keyword, textwin->size);
-						    }
-
-						    break;
-				    }
 				}
 			}
 		}
@@ -1053,8 +1033,6 @@ void save_interface_file()
  * NEVER call this explicitly, use save_interface_file() in order to use this safely. */
 void save_interface_file_rec(widgetdata *widget, FILE *stream)
 {
-	_textwin *textwin;
-
 	do
 	{
 		/* skip the widget if it shouldn't be saved */
@@ -1080,16 +1058,6 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		{
 			fprintf(stream, "width: %d\n", widget->wd);
 			fprintf(stream, "height: %d\n", widget->ht);
-		}
-
-		/* Handle saving of extended attributes here */
-		switch (widget->WidgetTypeID)
-		{
-			case CHATWIN_ID:
-			case MSGWIN_ID:
-				textwin = TEXTWIN(widget);
-				fprintf(stream, "....TextwinSize: %d\n", textwin->size);
-				break;
 		}
 
 		/* End of block */
