@@ -364,29 +364,25 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		else if (!strncmp(cp, "<font=", 6))
 		{
 			char *pos;
+			int font_size = 10;
+			char font_name[MAX_BUF];
 
-			if (surface)
+			if (sscanf(cp, "<font=%64[^ >] %d>", font_name, &font_size) >= 1)
 			{
-				int font_size = 10;
-				char font_name[MAX_BUF];
+				int font_id = get_font_id(font_name, font_size);
 
-				if (sscanf(cp, "<font=%64[^ >] %d>", font_name, &font_size) >= 1)
+				if (font_id == -1)
 				{
-					int font_id = get_font_id(font_name, font_size);
-
-					if (font_id == -1)
-					{
-						LOG(llevBug, "blt_character(): Invalid font in string (%s, %d): %.80s.\n", font_name, font_size, cp);
-					}
-					else
-					{
-						*font = font_id;
-					}
+					LOG(llevBug, "blt_character(): Invalid font in string (%s, %d): %.80s.\n", font_name, font_size, cp);
 				}
 				else
 				{
-					return 6;
+					*font = font_id;
 				}
+			}
+			else
+			{
+				return 6;
 			}
 
 			/* Get the position of the ending '>'. */
@@ -401,11 +397,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</font>", 7))
 		{
-			if (surface)
-			{
-				*font = orig_font;
-			}
-
+			*font = orig_font;
 			return 7;
 		}
 		/* Make text centered. */
