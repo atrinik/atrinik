@@ -52,6 +52,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <direct.h>
+#include <shellapi.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_main.h>

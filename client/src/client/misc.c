@@ -199,18 +199,23 @@ void convert_newline(char *str)
  * @param url URL to open. */
 void browser_open(const char *url)
 {
+#if defined(__LINUX)
 	char buf[HUGE_BUF];
 
-#if defined(__LINUX)
 	snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);
-#elif defined(WIN32)
-	snprintf(buf, sizeof(buf), "cmd /c start \"%s\"", url);
-#else
-	snprintf(buf, sizeof(buf), "firefox \"%s\"", url);
-#endif
 
 	if (system(buf) != 0)
 	{
-		LOG(llevBug, "browser_open(): Executing '%s' did not return 0.\n", buf);
+		snprintf(buf, sizeof(buf), "x-www-browser \"%s\"", url);
+
+		if (system(buf) != 0)
+		{
+			LOG(llevBug, "browser_open(): Could not open '%s'.\n", url);
+		}
 	}
+#elif defined(WIN32)
+	ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
+#else
+	LOG(llevDebug, "browser_open(): Unknown platform, cannot open '%s'.\n", url);
+#endif
 }
