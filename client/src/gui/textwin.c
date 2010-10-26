@@ -68,7 +68,7 @@ static void textwin_readjust(widgetdata *widget)
 		return;
 	}
 
-	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 10 - 1;
+	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 12 - 1;
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
@@ -119,7 +119,7 @@ void draw_info(const char *str, int flags)
 	textwin = TEXTWIN(widget);
 	WIDGET_REDRAW(widget);
 
-	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 10 - 1;
+	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 12 - 1;
 	box.h = 0;
 
 	/* Have the entries gone over maximum allowed lines? */
@@ -196,7 +196,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 	/* Show the text entries, if any. */
 	if (textwin->entries)
 	{
-		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 10 - 1;
+		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 12 - 1;
 		box.h = widget->ht - 1;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
 		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 1, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
