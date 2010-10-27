@@ -155,6 +155,12 @@ enum
  * Show a black outline around the text (can be changed to different
  * color using \<o\> markup. */
 #define TEXT_OUTLINE 128
+/**
+ * Store number of lines in box->h. */
+#define TEXT_LINES_CALC 256
+/**
+ * Skip first box->y lines. */
+#define TEXT_LINES_SKIP 512
 /*@}*/
 
 /**

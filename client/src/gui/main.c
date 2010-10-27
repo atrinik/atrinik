@@ -34,6 +34,13 @@
 /** How long the eyes remain 'closed' (not drawn). */
 #define EYES_BLINK_DELAY (200)
 
+/** Maximum width of the news text. */
+#define NEWS_MAX_WIDTH 455
+/** Maximum height of the news text. */
+#define NEWS_MAX_HEIGHT 260
+/** Font of the news text. */
+#define NEWS_FONT FONT_SANS12
+
 /**
  * Last server count to see when to re-create the servers list. Since the
  * metaserver code uses threading so the whole program doesn't lock up,
@@ -61,9 +68,7 @@ static int char_points_assigned[7];
 /** Maximum number of character creation steps. */
 const int char_step_max = 2;
 
-/**
- * Draw the news popup.
- * @param popup Popup. */
+/** @copydoc popup_struct::draw_func */
 static void news_popup_draw_func(popup_struct *popup)
 {
 	/* Got the news yet? */
@@ -71,28 +76,33 @@ static void news_popup_draw_func(popup_struct *popup)
 	{
 		SDL_Rect box;
 		list_struct *list = list_exists(LIST_NEWS);
-		uint32 visible_lines, lines;
 
 		box.w = popup->surface->w;
 		box.h = 0;
 		/* Show the news title. */
 		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
-		box.h = 260;
-		box.w = 455;
+		box.w = NEWS_MAX_WIDTH;
+		box.h = NEWS_MAX_HEIGHT;
+
+		/* Calculate number of last displayed lines. */
+		if (!popup->i[1])
+		{
+			string_blt(NULL, NEWS_FONT, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+			popup->i[1] = box.y;
+			popup->i[2] = box.h;
+			box.h = NEWS_MAX_HEIGHT;
+		}
+
 		/* Skip rows we scrolled past. */
-		box.y = popup->i;
-		/* Calculate number of visible rows. */
-		visible_lines = box.h / FONT_HEIGHT(FONT_SANS12);
+		box.y = popup->i[0];
 		/* Show the news. */
-		string_blt(popup->surface, FONT_SANS12, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_HEIGHT, &box);
-		/* NUmber of lines in the string. */
-		lines = box.h / FONT_HEIGHT(FONT_SANS12);
+		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 
 		box.x = Bitmaps[popup->bitmap_id]->bitmap->w - 30;
 		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
 		/* Show scroll buttons. */
-		scroll_buttons_show(popup->surface, Screensize->x / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, Screensize->y / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i, lines - visible_lines + 1, visible_lines, &box);
+		scroll_buttons_show(popup->surface, Screensize->x / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, Screensize->y / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i[0], popup->i[2] - popup->i[1], popup->i[1], &box);
 		return;
 	}
 	/* Haven't started downloading yet. */
@@ -147,14 +157,65 @@ static void news_popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::event_func */
 static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	/* Escape was pressed? */
-	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
+	int old_i = popup->i[0];
+
+	if (event->type == SDL_KEYDOWN)
 	{
-		/* Free the cURL data, if any. */
-		if (popup->custom_data)
+		/* Escape was pressed? */
+		if (event->key.keysym.sym == SDLK_ESCAPE)
 		{
-			curl_data_free(popup->custom_data);
-			popup->custom_data = NULL;
+			/* Free the cURL data, if any. */
+			if (popup->custom_data)
+			{
+				curl_data_free(popup->custom_data);
+				popup->custom_data = NULL;
+			}
+		}
+		/* Scroll the text. */
+		else if (event->key.keysym.sym == SDLK_DOWN)
+		{
+			popup->i[0]++;
+		}
+		else if (event->key.keysym.sym == SDLK_UP)
+		{
+			popup->i[0]--;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEUP)
+		{
+			popup->i[0] -= NEWS_MAX_HEIGHT / FONT_HEIGHT(NEWS_FONT);
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
+		{
+			popup->i[0] += NEWS_MAX_HEIGHT / FONT_HEIGHT(NEWS_FONT);
+		}
+	}
+	/* Mouse wheel? */
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			popup->i[0]++;
+		}
+		else if (event->button.button == SDL_BUTTON_WHEELUP)
+		{
+			popup->i[0]--;
+		}
+	}
+
+	/* Scroll value was changed, verify it's in range. */
+	if (old_i != popup->i[0])
+	{
+		if (!popup->buf)
+		{
+			popup->i[0] = old_i;
+		}
+		else if (popup->i[0] < 0)
+		{
+			popup->i[0] = 0;
+		}
+		else if (popup->i[0] > popup->i[2] - popup->i[1])
+		{
+			popup->i[0] = popup->i[2] - popup->i[1];
 		}
 	}
 

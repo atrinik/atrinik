@@ -721,7 +721,9 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	SDL_Rect dest;
 	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
 	SDL_Color orig_color = color;
-	int orig_font = font;
+	int orig_font = font, lines = 1;
+	uint16 *heights = NULL;
+	size_t num_heights = 0;
 
 	if (text_debug && box && surface)
 	{
@@ -751,9 +753,9 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		/* Have we gone over the height limit yet? */
 		if (box && box->h && dest.y + FONT_HEIGHT(font) - y > box->h)
 		{
-			/* We are calculating height, keep going on but without any
-			 * more drawing. */
-			if (flags & TEXT_HEIGHT)
+			/* We are calculating height/lines, keep going on but without
+			 * any more drawing. */
+			if (flags & (TEXT_HEIGHT | TEXT_LINES_CALC))
 			{
 				surface = NULL;
 			}
@@ -780,6 +782,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			max_height = FONT_HEIGHT(font);
 
+			if (flags & TEXT_LINES_SKIP)
+			{
+				skip = box->y && lines - 1 < box->y;
+			}
+
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
@@ -801,6 +808,15 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			}
 
 			height += max_height;
+			lines++;
+
+			/* Calculating lines, store the height of this line. */
+			if (flags & TEXT_LINES_CALC)
+			{
+				heights = realloc(heights, sizeof(*heights) * (num_heights + 1));
+				heights[num_heights] = max_height;
+				num_heights++;
+			}
 
 			/* Jump over the newline, if any. */
 			if (is_lf)
@@ -834,16 +850,51 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		}
 	}
 
+	max_height = FONT_HEIGHT(font);
+
 	/* Draw leftover characters. */
 	while (*cp != '\0')
 	{
 		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box);
+
+		/* If we changed font, there might be a larger one... */
+		if (font != orig_font && FONT_HEIGHT(font) > max_height)
+		{
+			max_height = FONT_HEIGHT(font);
+		}
 	}
 
 	/* Give caller access to the calculated height. */
 	if (box && flags & TEXT_HEIGHT)
 	{
 		box->h = height;
+	}
+
+	/* Calculating lines? */
+	if (box && flags & TEXT_LINES_CALC)
+	{
+		int total_height = 0, i, last_lines = 0;
+
+		heights = realloc(heights, sizeof(*heights) * (num_heights + 1));
+		heights[num_heights] = max_height;
+		num_heights++;
+
+		/* Go backwards to figure out the maximum number of lines shown
+		 * at the end of the string. */
+		for (i = num_heights - 1; i >= 0; i--)
+		{
+			if (total_height + heights[i] > box->h)
+			{
+				break;
+			}
+
+			total_height += heights[i];
+			last_lines++;
+		}
+
+		free(heights);
+		box->y = last_lines;
+		box->h = lines;
 	}
 }
 
