@@ -196,7 +196,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 	/* Show the text entries, if any. */
 	if (textwin->entries)
 	{
-		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 12 - 2;
+		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 6;
 		box.h = widget->ht - 1;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
 		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 2, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);

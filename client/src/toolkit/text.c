@@ -703,6 +703,23 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 }
 
 /**
+ * Get glyph's width.
+ * @param font Font of the glyph.
+ * @param c The glyph.
+ * @return The width. */
+int glyph_get_width(int font, char c)
+{
+	int width;
+
+	if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, NULL, NULL, &width) != -1)
+	{
+		return width;
+	}
+
+	return 0;
+}
+
+/**
  * Draw a string on the specified surface.
  * @param surface Surface to draw on.
  * @param font Font to use. One of @ref FONT_xxx.
@@ -769,7 +786,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 		/* Is this a newline, or word wrap was set and we are over
 		 * maximum width? */
-		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w > box->w))
+		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + glyph_get_width(font, cp[pos]) > box->w))
 		{
 			/* Store the last space. */
 			if (is_lf || last_space == 0)

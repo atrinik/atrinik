@@ -103,7 +103,7 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
 	x += 6 + box->x;
 	y += box->h / 2 - FONT_HEIGHT(font) / 2 + box->y;
 
-	box->w = box->w - 18 - box->x;
+	box->w = box->w - 13 - box->x;
 	box->h = FONT_HEIGHT(font);
 	box->x = 0;
 	box->y = 0;
