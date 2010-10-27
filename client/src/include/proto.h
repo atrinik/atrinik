@@ -451,19 +451,19 @@ void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_p
 /* toolkit/text.c */
 void text_init();
 void text_deinit();
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, int flags, SDL_Rect *box);
-void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, int flags, SDL_Rect *box);
-void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box);
-void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, int flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
-void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
-int string_get_width(int font, const char *text, int flags);
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box);
+void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box);
+void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box);
+void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
+void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
+int string_get_width(int font, const char *text, uint64 flags);
 void text_enable_debug();
 
 /* toolkit/text_input.c */
 int text_input_center_offset();
 void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box);
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box);
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box);
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box);
 void text_input_clear();
 void text_input_open(int maxchar);
 void text_input_history_clear();

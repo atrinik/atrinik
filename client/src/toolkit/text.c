@@ -175,7 +175,7 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, int flags, SDL_Rect *box)
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box)
 {
 	int width, minx, ret = 1;
 	char c = *cp;
@@ -715,7 +715,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, int flags, SDL_Rect *box)
+void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box)
 {
 	const char *cp = text;
 	SDL_Rect dest;
@@ -912,7 +912,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box)
+void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box)
 {
 	string_blt(surface, font, text, x + 1, y - 1, color_shadow, flags | TEXT_NO_COLOR_CHANGE, box);
 	string_blt(surface, font, text, x, y - 2, color, flags, box);
@@ -922,7 +922,7 @@ void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, 
  * Like string_blt(), but allows using printf-like format specifiers.
  *
  * @copydoc string_blt() */
-void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, int flags, SDL_Rect *box, const char *text, ...)
+void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
@@ -937,7 +937,7 @@ void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color c
  * Like string_blt_shadow(), but allows using printf-like format specifiers.
  *
  * @copydoc string_blt_shadow() */
-void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, int flags, SDL_Rect *box, const char *text, ...)
+void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box, const char *text, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
@@ -955,7 +955,7 @@ void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_
  * @param text String to get width of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's width. */
-int string_get_width(int font, const char *text, int flags)
+int string_get_width(int font, const char *text, uint64 flags)
 {
 	SDL_Rect dest;
 	const char *cp = text;

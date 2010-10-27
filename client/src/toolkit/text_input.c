@@ -87,7 +87,7 @@ void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap)
  * @param flags Text @ref TEXT_xxx "flags".
  * @param bitmap Bitmap to use.
  * @param box Contains coordinates to use and maximum string width. */
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box)
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box)
 {
 	if (!box)
 	{
@@ -122,7 +122,7 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
  * @param flags Text @ref TEXT_xxx "flags".
  * @param bitmap Bitmap to use.
  * @param box Contains coordinates to use and maximum string width. */
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, int flags, int bitmap, SDL_Rect *box)
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box)
 {
 	char buf[HUGE_BUF];
 	SDL_Rect box2;
