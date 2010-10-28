@@ -68,11 +68,11 @@ static void textwin_readjust(widgetdata *widget)
 		return;
 	}
 
-	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 12 - 1;
+	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 0, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font);
 
 	/* Adjust the counts. */
@@ -119,7 +119,7 @@ void draw_info(const char *str, int flags)
 	textwin = TEXTWIN(widget);
 	WIDGET_REDRAW(widget);
 
-	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 12 - 1;
+	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 	box.h = 0;
 
 	/* Have the entries gone over maximum allowed lines? */
@@ -169,7 +169,7 @@ void draw_info(const char *str, int flags)
 	textwin->entries_size += len + 1;
 
 	/* Get the string's height. */
-	string_blt(NULL, textwin->font, str, 0, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, str, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font) + 1;
 
 	/* Adjust the counts. */
@@ -196,10 +196,10 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 	/* Show the text entries, if any. */
 	if (textwin->entries)
 	{
-		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 6;
+		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 		box.h = widget->ht - 1;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
-		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 2, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	}
 
 	/* Only draw scrollbar if needed */
