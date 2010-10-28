@@ -126,7 +126,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"player_doll_bg.png", PIC_TYPE_TRANS},
 	{"black_tile.png", PIC_TYPE_DEFAULT},
-	{"textwin.png", PIC_TYPE_DEFAULT},
 	{"login_inp.png", PIC_TYPE_DEFAULT},
 	{"invslot.png", PIC_TYPE_TRANS},
 
@@ -148,8 +147,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"range.png", PIC_TYPE_TRANS},
 	{"range_marker.png", PIC_TYPE_TRANS},
-	{"range_ctrl.png", PIC_TYPE_TRANS},
-	{"range_ctrl_no.png", PIC_TYPE_TRANS},
 	{"range_skill.png", PIC_TYPE_TRANS},
 	{"range_skill_no.png", PIC_TYPE_TRANS},
 	{"range_throw.png", PIC_TYPE_TRANS},
@@ -158,8 +155,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"range_tool_no.png", PIC_TYPE_TRANS},
 	{"range_wizard.png", PIC_TYPE_TRANS},
 	{"range_wizard_no.png", PIC_TYPE_TRANS},
-	{"range_priest.png", PIC_TYPE_TRANS},
-	{"range_priest_no.png", PIC_TYPE_TRANS},
 
 	{"cmark_start.png", PIC_TYPE_TRANS},
 	{"cmark_end.png", PIC_TYPE_TRANS},
@@ -179,10 +174,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"scared.png", PIC_TYPE_TRANS},
 	{"blind.png", PIC_TYPE_TRANS},
 
-	{"enemy1.png", PIC_TYPE_TRANS},
-	{"enemy2.png", PIC_TYPE_TRANS},
-	{"probe.png", PIC_TYPE_TRANS},
-
 	{"quickslots.png", PIC_TYPE_DEFAULT},
 	{"quickslotsv.png", PIC_TYPE_DEFAULT},
 	{"inventory.png", PIC_TYPE_DEFAULT},
@@ -195,25 +186,19 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"main_stats.png", PIC_TYPE_DEFAULT},
 	{"below.png", PIC_TYPE_DEFAULT},
-	{"frame_line.png", PIC_TYPE_DEFAULT},
 
 	{"target_attack.png", PIC_TYPE_TRANS},
 	{"target_talk.png", PIC_TYPE_TRANS},
 	{"target_normal.png", PIC_TYPE_TRANS},
 
-	{"loading.png", PIC_TYPE_TRANS},
 	{"warn_hp.png", PIC_TYPE_DEFAULT},
 	{"warn_food.png", PIC_TYPE_DEFAULT},
-	{"logo270.png", PIC_TYPE_DEFAULT},
 
 	{"dialog_bg.png", PIC_TYPE_DEFAULT},
 	{"dialog_title_options.png", PIC_TYPE_DEFAULT},
 	{"dialog_title_keybind.png", PIC_TYPE_DEFAULT},
 	{"dialog_title_skill.png", PIC_TYPE_DEFAULT},
 	{"dialog_title_spell.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_creation.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_login.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_server.png", PIC_TYPE_DEFAULT},
 	{"dialog_title_party.png", PIC_TYPE_DEFAULT},
 	{"dialog_button_up.png", PIC_TYPE_DEFAULT},
 	{"dialog_button_down.png", PIC_TYPE_DEFAULT},
@@ -247,14 +232,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"options_mark_right.png", PIC_TYPE_TRANS},
 	{"options_alpha.png", PIC_TYPE_DEFAULT},
 
-	{"pentagram.png", PIC_TYPE_DEFAULT},
-	{"quad_button_up.png", PIC_TYPE_DEFAULT},
-	{"quad_button_down.png", PIC_TYPE_DEFAULT},
-	{"nchar_marker.png", PIC_TYPE_TRANS},
-
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
-	{"wand.png", PIC_TYPE_TRANS},
 	{"journal.png", PIC_TYPE_TRANS},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
