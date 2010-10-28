@@ -29,8 +29,7 @@
 
 #include <include.h>
 
-int textwin_flags;
-
+int textwin_flags = 0;
 static int old_slider_pos = 0;
 static SDL_Surface *txtwinbg = NULL;
 static int old_txtwin_alpha = -1;
@@ -38,7 +37,7 @@ static int old_txtwin_alpha = -1;
 /**
  * Makes sure textwin's scroll value is a sane number.
  * @param widget Text window's widget. */
-static void textwin_scroll_adjust(widgetdata *widget)
+void textwin_scroll_adjust(widgetdata *widget)
 {
 	_textwin *textwin = TEXTWIN(widget);
 

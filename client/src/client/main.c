@@ -69,8 +69,6 @@ static int argServerPort;
 
 /** System time counter in ms since program start. */
 uint32 LastTick;
-/** Ticks since this second frame in ms. */
-static uint32 GameTicksSec;
 /** Used from several functions, just to store real ticks. */
 uint32 tmpGameTick;
 /** Number of frames drawn. */
@@ -86,7 +84,7 @@ int x_custom_cursor = 0;
 int y_custom_cursor = 0;
 
 /* update map area */
-int map_udate_flag, map_transfer_flag, map_redraw_flag;
+int map_udate_flag, map_redraw_flag;
 
 /** The book GUI. */
 struct gui_book_struct *gui_interface_book;
@@ -270,7 +268,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 _Sprite *Bitmaps[BITMAP_MAX];
 
 static void init_game_data();
-static void flip_screen();
 static void delete_player_lists();
 static int load_bitmap(int index);
 static void load_options_dat();
@@ -279,7 +276,7 @@ static void load_options_dat();
  * Clear player lists like skill list, spell list, etc. */
 static void delete_player_lists()
 {
-	int i, ii;
+	size_t i, ii;
 
 	for (i = 0; i < FIRE_MODE_INIT; i++)
 	{
@@ -324,12 +321,7 @@ static void init_game_data()
 {
 	size_t i;
 
-	textwin_flags = 0;
-
 	esc_menu_flag = 0;
-	srand(time(NULL));
-
-	KeyScanFlag = 0;
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
@@ -355,7 +347,6 @@ static void init_game_data()
 
 	start_anim = NULL;
 
-	map_transfer_flag = 0;
 	argServerName[0] = '\0';
 	argServerPort = 13327;
 
@@ -709,8 +700,6 @@ static int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_SETUP)
 	{
-		map_transfer_flag = 0;
-
 		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %dx%d", options.map_size_x, options.map_size_y);
 		server_files_setup_add(buf, sizeof(buf));
 		cs_write_string(buf, strlen(buf));
@@ -728,15 +717,12 @@ static int game_status_chain()
 	else if (GameStatus == GAME_STATUS_ADDME)
 	{
 		cpl.mark_count = -1;
-		map_transfer_flag = 0;
 		SendAddMe();
 		GameStatus = GAME_STATUS_LOGIN;
 		/* Now wait for login request of the server */
 	}
 	else if (GameStatus == GAME_STATUS_LOGIN)
 	{
-		map_transfer_flag = 0;
-
 		if (text_input_string_esc_flag)
 		{
 			draw_info("Break login.", COLOR_RED);
@@ -747,8 +733,6 @@ static int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_NAME)
 	{
-		map_transfer_flag = 0;
-
 		/* We have a finished console input */
 		if (text_input_string_esc_flag)
 		{
@@ -764,8 +748,6 @@ static int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_PSWD)
 	{
-		map_transfer_flag = 0;
-
 		/* We have a finished console input */
 		if (text_input_string_esc_flag)
 		{
@@ -783,8 +765,6 @@ static int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_VERIFYPSWD)
 	{
-		map_transfer_flag = 0;
-
 		/* We have a finished console input */
 		if (text_input_string_esc_flag)
 		{
@@ -802,15 +782,6 @@ static int game_status_chain()
 		clear_map();
 		map_draw_map_clear();
 		map_udate_flag = 2;
-		map_transfer_flag = 1;
-	}
-	else if (GameStatus == GAME_STATUS_NEW_CHAR)
-	{
-		map_transfer_flag = 0;
-	}
-	else if (GameStatus == GAME_STATUS_QUIT)
-	{
-		map_transfer_flag = 0;
 	}
 
 	return 1;
@@ -875,9 +846,9 @@ static int load_bitmap(int index)
  * Free the bitmaps. */
 void free_bitmaps()
 {
-	int i, ii;
+	size_t i, ii;
 
-	for (i = 0; i < (int) BITMAP_MAX; i++)
+	for (i = 0; i < BITMAP_MAX; i++)
 	{
 		sprite_free_sprite(Bitmaps[i]);
 	}
@@ -1168,10 +1139,10 @@ static void DisplayCustomCursor()
  * @return 0 */
 int main(int argc, char *argv[])
 {
-	int x, y, drag;
+	int x, y, drag, done = 0;
 	uint32 anim_tick;
 	Uint32 videoflags;
-	int i, done = 0;
+	size_t i;
 
 	init_signals();
 	init_game_data();
@@ -1201,10 +1172,6 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[argc], "-nometa") == 0)
 		{
 			options.no_meta = 1;
-		}
-		else if (strcmp(argv[argc], "-key") == 0)
-		{
-			KeyScanFlag = 1;
 		}
 		else if (!strcmp(argv[argc], "-text-debug"))
 		{
@@ -1292,8 +1259,10 @@ int main(int argc, char *argv[])
 	load_bitmaps();
 
 	/* TODO: add later better error handling here */
-	for (i = BITMAP_DOLL; i < (int) BITMAP_MAX; i++)
+	for (i = BITMAP_DOLL; i < BITMAP_MAX; i++)
+	{
 		load_bitmap(i);
+	}
 
 	sound_init();
 	read_keybind_file(KEYBIND_FILE);
@@ -1314,7 +1283,6 @@ int main(int argc, char *argv[])
 	}
 
 	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
-	GameTicksSec = 0;
 
 	while (!done)
 	{
@@ -1328,8 +1296,6 @@ int main(int argc, char *argv[])
 			popup_destroy_visible();
 			continue;
 		}
-
-		GameTicksSec = LastTick - tmpGameTick;
 
 		if (GameStatus > GAME_STATUS_CONNECT)
 		{
@@ -1384,24 +1350,22 @@ int main(int argc, char *argv[])
 		{
 			tmpGameTick = LastTick;
 			FrameCount = 0;
-			GameTicksSec = 0;
 		}
 
 		if (GameStatus == GAME_STATUS_PLAY)
 		{
-			SDL_Rect tmp_rect;
-			tmp_rect.w = 275;
-
 			if (cpl.input_mode == INPUT_MODE_CONSOLE)
+			{
 				do_console();
+			}
 			else if (cpl.input_mode == INPUT_MODE_NUMBER)
+			{
 				do_number();
+			}
 			else if (cpl.input_mode == INPUT_MODE_GETKEY)
+			{
 				do_keybind_input();
-		}
-		else if (GameStatus == GAME_STATUS_WAITFORPLAY)
-		{
-			StringBlt(ScreenSurface, &SystemFont, "Transfer Character to Map...", 300, 300, COLOR_DEFAULT, NULL, NULL);
+			}
 		}
 
 		/* If not connected, walk through connection chain and/or wait for action */
@@ -1416,12 +1380,7 @@ int main(int argc, char *argv[])
 		/* Show main option menu */
 		if (esc_menu_flag)
 		{
-			show_option(Screensize->x / 2, (Screensize->y / 2) - (Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2));
-		}
-
-		if (map_transfer_flag)
-		{
-			StringBlt(ScreenSurface, &SystemFont, "Transfer Character to Map...", 300, 300, COLOR_DEFAULT, NULL, NULL);
+			show_option(Screensize->x / 2, Screensize->y / 2 - Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2);
 		}
 
 		/* Show the current dragged item */
@@ -1544,7 +1503,14 @@ int main(int argc, char *argv[])
 
 		popup_draw();
 
-		flip_screen();
+		if (options.use_rect)
+		{
+			SDL_UpdateRect(ScreenSurface, 0, 0, Screensize->x, Screensize->y);
+		}
+		else
+		{
+			SDL_Flip(ScreenSurface);
+		}
 
 		/* Force the thread to sleep */
 		if (options.max_speed)
@@ -1556,18 +1522,4 @@ int main(int argc, char *argv[])
 	SYSTEM_End();
 
 	return 0;
-}
-
-/**
- * Flip the screen. */
-static void flip_screen()
-{
-	if (options.use_rect)
-	{
-		SDL_UpdateRect(ScreenSurface, 0, 0, Screensize->x, Screensize->y);
-	}
-	else
-	{
-		SDL_Flip(ScreenSurface);
-	}
 }

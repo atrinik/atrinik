@@ -31,9 +31,6 @@
 
 int active_button = -1;
 
-/** Dialog Y offset. */
-int dialog_yoff = 0;
-
 /**
  * Draw a single frame.
  * @param surface Surface to draw on.

@@ -32,7 +32,6 @@
 
 #define HUGE_BUF 4096
 
-#define SDL_DEFAULT_REPEAT_DELAY 500
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
 /* For hash table (bmap, ...) */
@@ -140,8 +139,6 @@ typedef struct _options
 	int chat_font_size;
 	int chat_max_lines;
 
-	/* key-infos in dialog-wins. */
-	int show_d_key_infos;
 	int collectAll;
 	int key_repeat;
 
@@ -154,7 +151,6 @@ typedef struct _options
 	/* True: show frame rate */
 	int show_frame;
 	int sleep;
-	int speedup;
 	int max_speed;
 	int auto_bpp_flag;
 	int use_rect;
@@ -463,7 +459,7 @@ extern uint32 LastTick;
 extern uint32 tmpGameTick;
 extern uint32 FrameCount;
 extern server_struct *selected_server;
-extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
+extern int map_udate_flag, map_redraw_flag;
 extern int esc_menu_flag;
 extern int esc_menu_index;
 

@@ -290,16 +290,12 @@ typedef struct Player_Struct
 
 	int warn_statdown;
 	int warn_statup;
-	int warn_drain;
 
 	/* Player stats */
 	Stats stats;
 
 	/* HP of our target in % */
 	char target_hp;
-
-	/* Last command entered */
-	char last_command[MAX_BUF];
 
 	/* Name and password.  Only used while logging in. */
 	char name[40];
@@ -514,8 +510,6 @@ extern Client_Player cpl;
 #define COLOR_DBROWN  	44
 
 #define COLOR_BLACK 	255
-
-#define COLOR_FLAG_CLIPPED 0x0100
 
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1

@@ -123,7 +123,6 @@ enum
 	DRAG_PDOLL
 };
 
-extern int KeyScanFlag;
 extern int cursor_type;
 extern int itemExamined;
 

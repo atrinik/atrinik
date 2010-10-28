@@ -231,7 +231,6 @@ void init_player_data()
 	cpl.stats.speed = 0;
 	cpl.stats.weapon_sp = 0;
 	cpl.action_timer = 0.0f;
-	cpl.last_command[0] = '\0';
 
 	cpl.container_tag = -997;
 	cpl.container = NULL;

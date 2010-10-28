@@ -406,6 +406,7 @@ void widget_event_target(widgetdata *widget, int x, int y);
 void widget_show_target(widgetdata *widget);
 
 /* gui/textwin.c */
+void textwin_scroll_adjust(widgetdata *widget);
 void draw_info_format(int flags, char *format, ...) __attribute__((format(printf, 2, 3)));
 void draw_info(const char *str, int flags);
 void textwin_show(int x, int y, int w, int h);
@@ -452,6 +453,7 @@ void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_p
 void text_init();
 void text_deinit();
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box);
+int glyph_get_width(int font, char c);
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box);
 void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));

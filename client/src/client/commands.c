@@ -942,7 +942,6 @@ void PlayerCmd(unsigned char *data, int len)
 
 	new_player(tag, name, weight, (short)face);
 	map_draw_map_clear();
-	map_transfer_flag = 1;
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
@@ -1327,7 +1326,6 @@ void Map2Cmd(unsigned char *data, int len)
 	uint8 num_layers;
 
 	mapstat = (uint8) (data[pos++]);
-	map_transfer_flag = 0;
 
 	if (mapstat != MAP_UPDATE_CMD_SAME)
 	{

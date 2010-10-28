@@ -684,12 +684,6 @@ void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, i
 
 	gflag = 0;
 
-	if (mode & COLOR_FLAG_CLIPPED)
-	{
-		SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color_g, 1, 1);
-		gflag = 1;
-	}
-
 	for (i = 0; text[i] != '\0'; i++)
 	{
 		/* Change text color */

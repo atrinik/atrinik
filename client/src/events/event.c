@@ -32,7 +32,6 @@
 
 int old_mouse_y = 0;
 
-int KeyScanFlag;
 int cursor_type = 0;
 int itemExamined = 0;
 

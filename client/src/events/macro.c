@@ -175,7 +175,7 @@ int check_keys_menu_status(int key)
 	int i, j;
 
 	/* Groups */
-	for (j = 0; j< BINDKEY_LIST_MAX; j++)
+	for (j = 0; j < BINDKEY_LIST_MAX; j++)
 	{
 		for (i = 0; i < OPTWIN_MAX_OPT; i++)
 		{
@@ -279,7 +279,6 @@ int process_macro_keys(int id, int value)
 	char buf[256];
 	item *it, *tmp;
 	widgetdata *widget;
-	_textwin *textwin; /* TODO: make this only affect the focused widget */
 
 	switch (id)
 	{
@@ -294,38 +293,30 @@ int process_macro_keys(int id, int value)
 
 		case KEYFUNC_PAGEUP:
 			widget = cur_widget[CHATWIN_ID];
-			textwin = TEXTWIN(widget);
-
-			textwin->scroll++;
+			TEXTWIN(widget)->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
+			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
-
 			break;
 
 		case KEYFUNC_PAGEDOWN:
 			widget = cur_widget[CHATWIN_ID];
-			textwin = TEXTWIN(widget);
-
-			textwin->scroll--;
+			TEXTWIN(widget)->scroll += TEXTWIN_ROWS_VISIBLE(widget);
+			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
-
 			break;
 
 		case KEYFUNC_PAGEUP_TOP:
 			widget = cur_widget[MSGWIN_ID];
-			textwin = TEXTWIN(widget);
-
-			textwin->scroll++;
+			TEXTWIN(widget)->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
+			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
-
 			break;
 
 		case KEYFUNC_PAGEDOWN_TOP:
 			widget = cur_widget[MSGWIN_ID];
-			textwin = TEXTWIN(widget);
-
-			textwin->scroll--;
+			TEXTWIN(widget)->scroll += TEXTWIN_ROWS_VISIBLE(widget);
+			textwin_scroll_adjust(widget);
 			WIDGET_REDRAW(widget);
-
 			break;
 
 		case KEYFUNC_TARGET_ENEMY:
