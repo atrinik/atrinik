@@ -245,7 +245,7 @@ void show_menu()
 	if (cpl.menustatus == MENU_KEYBIND)
 		show_keybind();
 	else if (cpl.menustatus == MENU_BOOK)
-		book_gui_show();
+		book_show();
 	else if (cpl.menustatus == MENU_PARTY)
 		show_party();
 	else if (cpl.menustatus == MENU_SPELL)

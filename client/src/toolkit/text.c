@@ -34,6 +34,17 @@
  * width/height will have a frame around it. */
 static uint8 text_debug = 0;
 
+/**
+ * If not 0, ::text_anchor_help is used to open the help GUI after
+ * finishing drawing.
+ *
+ * This is used so the text being drawn is not changed in the middle of
+ * the drawing by clicking on a link. */
+static uint8 text_anchor_help_clicked = 0;
+
+/** Help GUI to open if ::text_anchor_help_clicked is 1. */
+static char text_anchor_help[HUGE_BUF];
+
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
@@ -181,7 +192,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[MAX_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
-	static uint8 outline_show = 0;
+	static uint8 outline_show = 0, in_book_title = 0;
 
 	if (c == '\r')
 	{
@@ -546,6 +557,125 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return 4;
 		}
+		else if (!strncmp(cp, "<book=", 6))
+		{
+			char *pos = strchr(cp + 6, '>');
+
+			if (!pos)
+			{
+				return 6;
+			}
+
+			if (flags & TEXT_LINES_CALC)
+			{
+				book_name_change(cp + 6, pos - cp - 6);
+			}
+
+			return pos - cp + 1;
+		}
+		else if (!strncmp(cp, "<b t=\"", 6))
+		{
+			char *pos = strchr(cp + 6, '>');
+
+			if (!pos)
+			{
+				return 6;
+			}
+
+			if (flags & TEXT_LINES_CALC)
+			{
+				book_name_change(cp + 6, pos - cp - 7);
+			}
+
+			return pos - cp + 1;
+		}
+		else if (!strncmp(cp, "<book>", 6))
+		{
+			char *pos = strstr(cp, "</book");
+
+			if (!pos)
+			{
+				return 6;
+			}
+
+			if (flags & TEXT_LINES_CALC)
+			{
+				book_name_change(cp + 6, pos - cp - 6);
+			}
+
+			return pos - cp + 7;
+		}
+		else if (!strncmp(cp, "<p>", 3))
+		{
+			if (surface && box && box->w)
+			{
+				SDL_Rect rect;
+
+				rect.y = dest->y + FONT_HEIGHT(*font) / 2;
+				rect.w = 1;
+				rect.h = 3;
+				rect.x = dest->x;
+				SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+				rect.x += box->w;
+				SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+
+				rect.x = dest->x + 1;
+				rect.w = box->w - 1;
+				rect.h = 1;
+				SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+				rect.y++;
+				SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 110, 110, 110));
+				rect.y++;
+				SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+			}
+
+			return 3;
+		}
+		else if (!strncmp(cp, "<title>", 7))
+		{
+			*font = FONT_SERIF14;
+
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
+			}
+
+			return 7;
+		}
+		else if (!strncmp(cp, "</title>", 8))
+		{
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+			}
+
+			*font = orig_font;
+			return 8;
+		}
+		else if (!strncmp(cp, "<t t=\"", 6) || !strncmp(cp, "<tt=\"", 5))
+		{
+			in_book_title = 1;
+			*font = FONT_SERIF14;
+
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
+			}
+
+			return strchr(cp + 5, '"') - cp + 1;
+		}
+	}
+
+	if (in_book_title && !strncmp(cp, "\">", 2))
+	{
+		if (surface)
+		{
+			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+		}
+
+		*font = orig_font;
+		in_book_title = 0;
+		return 2;
 	}
 
 	/* Parse entities. */
@@ -636,7 +766,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				/* Help GUI. */
 				else if (GameStatus == GAME_STATUS_PLAY && !strcmp(anchor_action, "help"))
 				{
-					show_help(buf);
+					strncpy(text_anchor_help, buf, sizeof(text_anchor_help) - 1);
+					text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
+					text_anchor_help_clicked = 1;
 				}
 				else if (!strcmp(anchor_action, "url"))
 				{
@@ -911,6 +1043,12 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		free(heights);
 		box->y = last_lines;
 		box->h = lines;
+	}
+
+	if (text_anchor_help_clicked)
+	{
+		text_anchor_help_clicked = 0;
+		show_help(text_anchor_help);
 	}
 }
 

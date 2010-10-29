@@ -86,8 +86,6 @@ int y_custom_cursor = 0;
 /* update map area */
 int map_udate_flag, map_redraw_flag;
 
-/** The book GUI. */
-struct gui_book_struct *gui_interface_book;
 /** The party GUI. */
 struct gui_party_struct *gui_interface_party;
 /** All the loaded help files. */
@@ -232,7 +230,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
-	{"journal.png", PIC_TYPE_TRANS},
+	{"book.png", PIC_TYPE_TRANS},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
 	{"mouse_cursor_move.png", PIC_TYPE_TRANS},
@@ -358,7 +356,6 @@ static void init_game_data()
 	text_input_string_esc_flag = 0;
 	csocket.fd = SOCKET_NO;
 	RangeFireMode = 0;
-	gui_interface_book = NULL;
 	gui_interface_party = NULL;
 	help_files = NULL;
 	options.resolution_x = 800;

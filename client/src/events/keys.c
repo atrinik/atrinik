@@ -493,42 +493,8 @@ void check_menu_keys(int menu, int key)
 	switch (menu)
 	{
 		case MENU_BOOK:
-			if (!gui_interface_book || gui_interface_book->pages == 0)
-				return;
-
-			switch (key)
-			{
-				case SDLK_LEFT:
-					gui_interface_book->page_show -= 2;
-
-					if (gui_interface_book->page_show < 0)
-					{
-						gui_interface_book->page_show = 0;
-						sound_play_effect("click_fail.ogg", MENU_SOUND_VOL);
-					}
-					else
-					{
-						sound_play_effect("page.ogg", MENU_SOUND_VOL);
-					}
-
-					break;
-
-				case SDLK_RIGHT:
-					gui_interface_book->page_show += 2;
-
-					if (gui_interface_book->page_show > (gui_interface_book->pages - 1))
-					{
-						gui_interface_book->page_show = (gui_interface_book->pages - 1) &~ 1;
-						sound_play_effect("click_fail.ogg", MENU_SOUND_VOL);
-					}
-					else
-					{
-						sound_play_effect("page.ogg", MENU_SOUND_VOL);
-					}
-
-					break;
-			}
-
+			book_handle_key(key);
+			menuRepeatKey = key;
 			break;
 
 		case MENU_OPTION:

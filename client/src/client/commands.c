@@ -73,11 +73,10 @@
 void BookCmd(unsigned char *data, int len)
 {
 	sound_play_effect("book.ogg", 100);
-	cpl.menustatus = MENU_BOOK;
 
 	data += 4;
 
-	gui_interface_book = book_gui_load((char *)data, len - 4);
+	book_load((char *) data, len - 4);
 }
 
 /**
@@ -1893,8 +1892,7 @@ void ShopCmd(unsigned char *data, int len)
 void QuestListCmd(unsigned char *data, int len)
 {
 	sound_play_effect("book.ogg", 100);
-	cpl.menustatus = MENU_BOOK;
 
 	data += 4;
-	gui_interface_book = book_gui_load((char *) data, len - 4);
+	book_load((char *) data, len - 4);
 }

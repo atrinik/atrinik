@@ -137,7 +137,7 @@ void show_help(char *helpname)
 	help_files_struct *help_files_tmp;
 
 	/* This will be the default message if we don't find the help we want */
-	snprintf(message, sizeof(message), "<b t=\"Help not found\"><t t=\"The specified help file could not be found.\">\n");
+	snprintf(message, sizeof(message), "<book=Help not found><t t=\"The specified help file could not be found.\">\n");
 
 	/* Loop through the linked list of help files */
 	for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
@@ -149,7 +149,7 @@ void show_help(char *helpname)
 		}
 
 		/* Got what we wanted, replace it with the default message */
-		snprintf(message, sizeof(message), "<b t=\"%s\"><t t=\"%s\">%s", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
+		snprintf(message, sizeof(message), "<book>%s</book><title>%s</title>\n%s", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
 		break;
 	}
 
@@ -157,7 +157,5 @@ void show_help(char *helpname)
 
 	len = (int) strlen((char *) data);
 
-	cpl.menustatus = MENU_BOOK;
-
-	gui_interface_book = book_gui_load((char *) data, len);
+	book_load((char *) data, len);
 }

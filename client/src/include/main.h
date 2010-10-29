@@ -625,7 +625,7 @@ typedef enum _bitmap_index
 
 	BITMAP_TRAPPED,
 	BITMAP_PRAY,
-	BITMAP_JOURNAL,
+	BITMAP_BOOK,
 	BITMAP_SLIDER_LONG,
 	BITMAP_INVSLOT_MARKED,
 	BITMAP_MSCURSOR_MOVE,
@@ -663,7 +663,6 @@ enum
 	MSCURSOR_MOVE = 1
 };
 
-extern struct gui_book_struct *gui_interface_book;
 extern struct gui_party_struct *gui_interface_party;
 
 extern struct _Font MediumFont;

@@ -260,9 +260,9 @@ int Event_PollInputDevice()
 				}
 
 				/* If this is book GUI, handle the click */
-				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
+				if (cpl.menustatus == MENU_BOOK)
 				{
-					book_gui_handle_mouse(x, y);
+					book_handle_event(&event);
 				}
 
 				/* Beyond here only when no menu is active. */

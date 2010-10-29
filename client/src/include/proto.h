@@ -295,9 +295,11 @@ void move_keys(int num);
 int dir_from_tile_coords(int tx, int ty);
 
 /* gui/book.c */
-_gui_book_struct *book_gui_load(char *data, int len);
-void book_gui_show();
-void book_gui_handle_mouse(int x, int y);
+void book_name_change(const char *name, size_t len);
+void book_load(const char *data, int len);
+void book_show();
+void book_handle_key(SDLKey key);
+void book_handle_event(SDL_Event *event);
 
 /* gui/fps.c */
 void widget_show_fps(widgetdata *widget);
