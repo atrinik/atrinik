@@ -363,10 +363,22 @@ lex_error = 0;
 						else
 						{
 							FREE_AND_COPY_HASH(op->custom_name, yv);
+
+							if (op->custom_name == shstr_cons.NONE)
+							{
+								FREE_AND_CLEAR_HASH(op->custom_name);
+							}
 						}
                     }
 ^race{S}            FREE_AND_COPY_HASH(op->race, yval());
-^slaying{S}         FREE_AND_COPY_HASH(op->slaying, yval());
+^slaying{S}         {
+						FREE_AND_COPY_HASH(op->slaying, yval());
+
+						if (op->slaying == shstr_cons.NONE)
+						{
+							FREE_AND_CLEAR_HASH(op->slaying);
+						}
+					}
 ^artifact{S}        FREE_AND_COPY_HASH(op->artifact, yval());
 ^quickslot{S}       op->quickslot = IVAL;
 
@@ -382,7 +394,7 @@ lex_error = 0;
 						}
                     }
 ^inv_animation{S}   {
-						if (strcmp (yval(), "NONE") == 0)
+						if (strcmp(yval(), "NONE") == 0)
 						{
 							op->inv_animation_id = 0;
 						}
@@ -778,6 +790,11 @@ lex_error = 0;
 						else
 						{
 							FREE_AND_COPY_HASH(op->title, y);
+
+							if (op->title == shstr_cons.NONE)
+							{
+								FREE_AND_CLEAR_HASH(op->title);
+							}
 						}
                     }
 ^unique{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
