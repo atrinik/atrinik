@@ -64,7 +64,7 @@ void apply_book(object *op, object *tmp)
 		return;
 	}
 
-	lev_diff = tmp->level - (SK_level(op) + 5);
+	lev_diff = tmp->level - (SK_level(op) + 15);
 
 	if (!QUERY_FLAG(op, FLAG_WIZ) && lev_diff > 0)
 	{
