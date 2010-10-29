@@ -52,6 +52,7 @@ static fields_struct fields[] =
 	{"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
 	{"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
 	{"dm_stealth", FIELDTYPE_UINT8, offsetof(player, dm_stealth), 0, 0},
+	{"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), FIELDFLAG_READONLY, offsetof(player, target_object_count)},
 
 	{"s_ext_title_flag", FIELDTYPE_UINT8, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},
