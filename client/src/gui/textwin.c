@@ -317,6 +317,14 @@ void textwin_show(int x, int y, int w, int h)
 	widgetdata *widget = cur_widget[MSGWIN_ID];
 	_textwin *textwin = TEXTWIN(widget);
 	SDL_Rect box;
+	int scroll;
+
+	box.w = w - 3;
+	box.h = 0;
+	box.x = 0;
+	box.y = 0;
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	scroll = box.h / FONT_HEIGHT(textwin->font);
 
 	box.x = x;
 	box.y = y;
@@ -325,11 +333,12 @@ void textwin_show(int x, int y, int w, int h)
 	SDL_FillRect(ScreenSurface, &box, 0);
 	draw_frame(ScreenSurface, x, y, box.w, box.h);
 
-	box.w = w - 1;
+	box.w = w - 3;
 	box.h = h - 1;
-	box.y = MAX(0, (int) textwin->num_entries - (h / FONT_HEIGHT(textwin->font)));
 
-	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 1, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
+
+	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 }
 
 /**
