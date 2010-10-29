@@ -161,6 +161,9 @@ enum
 /**
  * Skip first box->y lines. */
 #define TEXT_LINES_SKIP 512
+/**
+ * Do not allow font changing using markup. */
+#define TEXT_NO_FONT_CHANGE 1024
 /*@}*/
 
 /**

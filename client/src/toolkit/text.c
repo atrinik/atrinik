@@ -378,7 +378,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			int font_size = 10;
 			char font_name[MAX_BUF];
 
-			if (sscanf(cp, "<font=%64[^ >] %d>", font_name, &font_size) >= 1)
+			if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(cp, "<font=%64[^ >] %d>", font_name, &font_size) >= 1)
 			{
 				int font_id = get_font_id(font_name, font_size);
 
@@ -390,10 +390,6 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				{
 					*font = font_id;
 				}
-			}
-			else
-			{
-				return 6;
 			}
 
 			/* Get the position of the ending '>'. */
@@ -633,7 +629,10 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "<title>", 7))
 		{
-			*font = FONT_SERIF14;
+			if (!(flags & TEXT_NO_FONT_CHANGE))
+			{
+				*font = FONT_SERIF14;
+			}
 
 			if (surface)
 			{
@@ -655,7 +654,11 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		else if (!strncmp(cp, "<t t=\"", 6) || !strncmp(cp, "<tt=\"", 5))
 		{
 			in_book_title = 1;
-			*font = FONT_SERIF14;
+
+			if (!(flags & TEXT_NO_FONT_CHANGE))
+			{
+				*font = FONT_SERIF14;
+			}
 
 			if (surface)
 			{

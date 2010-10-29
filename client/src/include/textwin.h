@@ -91,7 +91,7 @@ struct _textwin
 /** Get the maximum number of visible rows. */
 #define TEXTWIN_ROWS_VISIBLE(widget) ((widget)->ht / FONT_HEIGHT(TEXTWIN((widget))->font))
 /** Get the base flags depending on the text window. */
-#define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP : TEXT_WORD_WRAP)
+#define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE : TEXT_WORD_WRAP)
 
 int textwin_flags;
 
