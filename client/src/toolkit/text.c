@@ -863,7 +863,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(&font, font, NULL, &dest, cp + pos, &color, &orig_color, flags, box);
+			pos += blt_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box);
 		}
 	}
 
