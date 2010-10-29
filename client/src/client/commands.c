@@ -73,10 +73,7 @@
 void BookCmd(unsigned char *data, int len)
 {
 	sound_play_effect("book.ogg", 100);
-
-	data += 4;
-
-	book_load((char *) data, len - 4);
+	book_load((char *) data, len);
 }
 
 /**
