@@ -915,6 +915,7 @@ char *cleanup_chat_string(char *ustring);
 char *format_number_comma(uint64 num);
 void copy_file(const char *filename, FILE *fpout);
 void convert_newline(char *str);
+void string_remove_markup(char *str);
 
 /* server/weather.c */
 void init_world_darkness();

@@ -1774,7 +1774,8 @@ int command_rename_item(object *op, char *params)
 			return 1;
 		}
 
-		/* Set custom name */
+		string_remove_markup(params);
+		/* Set custom name. */
 		FREE_AND_COPY_HASH(tmp->custom_name, params);
 		new_draw_info_format(NDI_UNIQUE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
 	}

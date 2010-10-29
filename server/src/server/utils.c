@@ -431,3 +431,22 @@ void convert_newline(char *str)
 		strcpy(str, buf);
 	}
 }
+
+/**
+ * Strips markup from a string.
+ *
+ * Replaces '<' characters with a space, effectively disabling any markup
+ * (note that entities such as &lt; are still allowed).
+ * @param str The string. */
+void string_remove_markup(char *str)
+{
+	char *cp;
+
+	for (cp = str; *cp != '\0'; cp++)
+	{
+		if (*cp == '<')
+		{
+			*cp = ' ';
+		}
+	}
+}
