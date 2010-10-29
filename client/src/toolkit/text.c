@@ -190,7 +190,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 {
 	int width, minx, ret = 1;
 	char c = *cp;
-	static char *anchor_tag = NULL, anchor_action[MAX_BUF];
+	static char *anchor_tag = NULL, anchor_action[HUGE_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
 	static uint8 outline_show = 0, in_book_title = 0;
 
@@ -458,7 +458,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			}
 
 			/* Scan for action other than the default. */
-			if (sscanf(cp, "<a=%64[^>]>", anchor_action) == 1)
+			if (sscanf(cp, "<a=%1024[^>]>", anchor_action) == 1)
 			{
 				return strchr(cp + 3, '>') - cp + 1;
 			}
@@ -737,17 +737,28 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
 			{
 				size_t len;
-				char *buf;
+				char *buf, *pos;
 
 				ticks = SDL_GetTicks();
 
-				/* Get the length of the text until the ending </a>. */
-				len = strstr(anchor_tag, "</a>") - anchor_tag;
-				/* Allocate a temporary buffer and copy the text until the
-				 * ending </a>, so we have the text between the anchor tags. */
-				buf = malloc(len + 1);
-				memcpy(buf, anchor_tag, len);
-				buf[len] = '\0';
+				pos = strchr(anchor_action, ':');
+
+				if (pos && pos + 1)
+				{
+					buf = strdup(pos + 1);
+					len = strlen(buf);
+					anchor_action[pos - anchor_action] = '\0';
+				}
+				else
+				{
+					/* Get the length of the text until the ending </a>. */
+					len = strstr(anchor_tag, "</a>") - anchor_tag;
+					/* Allocate a temporary buffer and copy the text until the
+					 * ending </a>, so we have the text between the anchor tags. */
+					buf = malloc(len + 1);
+					memcpy(buf, anchor_tag, len);
+					buf[len] = '\0';
+				}
 
 				/* Default to executing player commands such as /say. */
 				if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
