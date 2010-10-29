@@ -81,10 +81,90 @@ void new_draw_info(int flags, object *pl, const char *buf)
 	sl.buf = info_string;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
 	SockList_AddShort(&sl, flags & NDI_FLAG_MASK);
+
+	/* The following code handles changing the 'control' characters like
+	 * '~' to the new markup newer clients support. */
+	if (CONTR(pl)->socket.socket_version >= 1043 && !(flags & NDI_PLAYER))
+	{
+	char tmp[sizeof(info_string) - 10];
+	const char *cp = buf;
+	size_t pos = 0, len = 0;
+	uint8 in_link = 0, in_yellow = 0, in_green = 0;
+
+	while (cp[pos] != '\0')
+	{
+		if (cp[pos] == '^')
+		{
+			if (!in_link)
+			{
+				in_link = 1;
+				strncpy(tmp + len, "<a>", sizeof(tmp) - len - 1);
+				len += 3;
+			}
+			else
+			{
+				in_link = 0;
+				strncpy(tmp + len, "</a>", sizeof(tmp) - len - 1);
+				len += 4;
+			}
+		}
+		else if (cp[pos] == '|')
+		{
+			if (!in_yellow)
+			{
+				in_yellow = 1;
+				strncpy(tmp + len, "<yellow>", sizeof(tmp) - len - 1);
+				len += 8;
+			}
+			else
+			{
+				in_yellow = 0;
+				strncpy(tmp + len, "</yellow>", sizeof(tmp) - len - 1);
+				len += 9;
+			}
+		}
+		else if (cp[pos] == '~')
+		{
+			if (!in_green)
+			{
+				in_green = 1;
+				strncpy(tmp + len, "<green>", sizeof(tmp) - len - 1);
+				len += 7;
+			}
+			else
+			{
+				in_green = 0;
+				strncpy(tmp + len, "</green>", sizeof(tmp) - len - 1);
+				len += 8;
+			}
+		}
+		else
+		{
+			tmp[len] = cp[pos];
+			len++;
+		}
+
+		pos++;
+
+		if (len > sizeof(tmp) - 1)
+		{
+			break;
+		}
+	}
+
+	tmp[len] = '\0';
+	len = MIN(strlen(tmp), sizeof(info_string) - sl.len - 1);
+	memcpy((char *) sl.buf + sl.len, tmp, len);
+	sl.len += len;
+	}
+	else
+	{
 	/* Make sure we don't copy more bytes than available space in the buffer. */
 	len = MIN(strlen(buf), sizeof(info_string) - sl.len - 1);
 	memcpy((char *) sl.buf + sl.len, buf, len);
 	sl.len += len;
+	}
+
 	/* Terminate the string. */
 	SockList_AddChar(&sl, '\0');
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
