@@ -356,7 +356,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	/* Not creating character, only show the message text window. */
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
 	{
-		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 30, 220, 130);
+		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 30, 220, 132);
 		return;
 	}
 
