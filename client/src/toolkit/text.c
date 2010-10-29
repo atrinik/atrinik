@@ -207,7 +207,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				int r, g, b;
 
 				/* Parse the r,g,b colors. */
-				if (sscanf(cp, "<c=%d,%d,%d>", &r, &g, &b) == 3)
+				if ((cp[3] == '#' && sscanf(cp, "<c=#%2X%2X%2X>", &r, &g, &b) == 3) || sscanf(cp, "<c=%d,%d,%d>", &r, &g, &b) == 3)
 				{
 					color->r = r;
 					color->g = g;
