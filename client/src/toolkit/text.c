@@ -662,7 +662,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
 			}
 
-			return strchr(cp + 5, '"') - cp + 1;
+			return strchr(cp + 4, '"') - cp + 1;
 		}
 	}
 
