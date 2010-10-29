@@ -437,8 +437,6 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
-
 				/* Change to light blue only if no custom color was specified. */
 				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b)
 				{
@@ -449,6 +447,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				anchor_tag = strchr(cp, '>') + 1;
 				anchor_action[0] = '\0';
+				outline_show = 1;
 			}
 
 			/* Scan for action other than the default. */
@@ -463,9 +462,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (surface)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
 				reset_color(surface, color, orig_color);
 				anchor_tag = NULL;
+				outline_show = 0;
 			}
 
 			return 4;
