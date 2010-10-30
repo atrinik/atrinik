@@ -230,7 +230,7 @@
 #define MAP_DEFAULTTIMEOUT 500
 /**
  * Maximum map timeout value. */
-#define MAP_MAXTIMEOUT 1000
+#define MAP_MAXTIMEOUT 10000
 
 /**
  * MAP_MAXRESET is the maximum time a map can have before being reset. It
