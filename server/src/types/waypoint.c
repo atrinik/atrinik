@@ -121,9 +121,10 @@ static object *find_waypoint(object *op, shstr *name)
 static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 {
 	mapstruct *destmap;
+	int unique = !strncmp(op->map->path, settings.localdir, strlen(settings.localdir));
 
 	/* If path is not normalized, normalize it */
-	if (*waypoint->slaying != '/')
+	if (!unique && *waypoint->slaying != '/')
 	{
 		char temp_path[HUGE_BUF];
 
@@ -142,7 +143,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 	}
 	else
 	{
-		destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED);
+		destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED | (unique ? MAP_PLAYER_UNIQUE : 0));
 	}
 
 	return destmap;
