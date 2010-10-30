@@ -1,6 +1,6 @@
 Object lamp
 name lamp
-race lamp_light
+race lamp_oil
 layer 3
 face lamp_unlit.101
 type 74

@@ -46,19 +46,15 @@ void apply_player_light_refill(object *who, object *op)
 
 	if (!item)
 	{
-		new_draw_info_format(NDI_UNIQUE, who, "Mark a light source first you want refill.");
+		new_draw_info_format(NDI_UNIQUE, who, "You need to mark a light source you want refill.");
 		return;
 	}
 
-	if (item->type != LIGHT_APPLY || !item->race || strstr(item->race, op->race))
+	if (item->type != LIGHT_APPLY || !item->race || !strstr(item->race, op->race))
 	{
 		new_draw_info_format(NDI_UNIQUE, who, "You can't refill the %s with the %s.", query_name(item, NULL), query_name(op, NULL));
 		return;
 	}
-
-	/* ok, all is legal - now we refill the light source = settings item->food
-	 * = op-food. Then delete op or if its a stack, decrease nrof.
-	 * no idea about unidentified or cursed/damned effects for both items. */
 
 	tmp = (int) item->stats.maxhp - item->stats.food;
 
@@ -71,15 +67,36 @@ void apply_player_light_refill(object *who, object *op)
 	if (op->stats.food <= tmp)
 	{
 		item->stats.food += op->stats.food;
-		new_draw_info_format(NDI_UNIQUE, who, "You refill the %s with %d units %s.", query_name(item, NULL), op->stats.food, query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "You refill the %s with %d units of %s.", query_name(item, NULL), op->stats.food, query_name(op, NULL));
 		decrease_ob(op);
 	}
 	else
 	{
+		object *filler = op;
+
+		if (filler->nrof > 1)
+		{
+			filler = get_split_ob(filler, 1, NULL, 0);
+			filler->stats.food -= tmp;
+			insert_ob_in_ob(filler, who);
+
+			if (QUERY_FLAG(op, FLAG_REMOVED))
+			{
+				esrv_del_item(CONTR(who), op->count, op->env);
+			}
+			else
+			{
+				esrv_send_item(who, op);
+			}
+		}
+		else
+		{
+			filler->stats.food -= tmp;
+		}
+
 		item->stats.food += tmp;
-		op->stats.food -= tmp;
-		new_draw_info_format(NDI_UNIQUE, who, "You refill the %s with %d units %s.", query_name(item, NULL), tmp, query_name(op, NULL));
-		esrv_send_item(who, op);
+		new_draw_info_format(NDI_UNIQUE, who, "You refill the %s with %d units of %s.", query_name(item, NULL), tmp, query_name(filler, NULL));
+		esrv_send_item(who, filler);
 	}
 
 	esrv_send_item(who, item);
