@@ -139,7 +139,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Yes, we finished, store the string we got. */
 		if (ret == 1)
 		{
-			popup->buf = strdup(((curl_data *) popup->custom_data)->memory);
+			popup->buf = strdup(((curl_data *) popup->custom_data)->memory ? ((curl_data *) popup->custom_data)->memory : "???");
 		}
 
 		/* Free the cURL data if we finished. */
@@ -904,7 +904,7 @@ void show_meta_server()
 		/* Finished downloading, parse the data. */
 		if (ret == 1)
 		{
-			char *mem = strdup(news_data->memory), *cp;
+			char *mem = strdup(news_data->memory ? news_data->memory : "???"), *cp;
 			size_t i = 0;
 
 			cp = strtok(mem, "\n");
