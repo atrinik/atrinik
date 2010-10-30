@@ -189,11 +189,11 @@ void book_handle_event(SDL_Event *event)
 		/* Scroll the book. */
 		if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
-			book_handle_key(SDLK_PAGEDOWN);
+			book_handle_key(SDLK_DOWN);
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
-			book_handle_key(SDLK_PAGEUP);
+			book_handle_key(SDLK_UP);
 		}
 	}
 }
