@@ -221,6 +221,7 @@ void read_bmaps()
 	char buf[HUGE_BUF], name[MAX_BUF];
 	uint32 len, crc32;
 	bmap_struct *bmap;
+	size_t i;
 
 	fp = server_file_open(SERVER_FILE_BMAPS);
 
@@ -242,6 +243,19 @@ void read_bmaps()
 		free(bmaps);
 		bmaps_size = 0;
 		bmaps = NULL;
+	}
+
+	for (i = 0; i < MAX_FACE_TILES; i++)
+	{
+		if (FaceList[i].name)
+		{
+			free(FaceList[i].name);
+			FaceList[i].name = NULL;
+			sprite_free_sprite(FaceList[i].sprite);
+			FaceList[i].sprite = NULL;
+			FaceList[i].checksum = 0;
+			FaceList[i].flags = 0;
+		}
 	}
 
 	while (fgets(buf, sizeof(buf) - 1, fp))
