@@ -207,4 +207,5 @@ void curl_data_free(curl_data *data)
 
 	SDL_DestroyMutex(data->mutex);
 	free(data->url);
+	free(data);
 }
