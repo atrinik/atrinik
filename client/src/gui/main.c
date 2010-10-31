@@ -761,7 +761,7 @@ static void list_handle_esc(list_struct *list)
 {
 	(void) list;
 
-	SYSTEM_End();
+	system_end();
 	exit(0);
 }
 
@@ -953,7 +953,7 @@ void show_meta_server()
 
 	if (button_show(BITMAP_DIALOG_BUTTON_UP, -1, BITMAP_DIALOG_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
 	{
-		SYSTEM_End();
+		system_end();
 		exit(0);
 	}
 }

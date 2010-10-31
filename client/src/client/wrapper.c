@@ -73,7 +73,7 @@ void LOG(LogLevel logLevel, char *format, ...)
 	if (logLevel == llevError)
 	{
 		LOG(llevInfo, "\nFatal error encountered. Exiting...\n");
-		SYSTEM_End();
+		system_end();
 		abort();
 		exit(-1);
 	}
@@ -81,7 +81,7 @@ void LOG(LogLevel logLevel, char *format, ...)
 
 /**
  * Start the base system, setting caption name and window icon. */
-void SYSTEM_Start()
+void system_start()
 {
 	SDL_Surface *icon;
 
@@ -99,9 +99,8 @@ void SYSTEM_Start()
 }
 
 /**
- * End the system.
- * @return Always returns 1. */
-void SYSTEM_End()
+ * End the system. */
+void system_end()
 {
 	list_remove_all();
 	script_killall();

@@ -250,8 +250,8 @@ void file_updates_parse();
 
 /* client/wrapper.c */
 void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
-void SYSTEM_Start();
-void SYSTEM_End();
+void system_start();
+void system_end();
 char *get_word_from_string(char *str, int *pos);
 uint32 get_video_flags();
 char *file_path(const char *fname, const char *mode);

@@ -1188,7 +1188,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Start the system after starting SDL */
-	SYSTEM_Start();
+	system_start();
 	list_vid_modes();
 
 	videoflags = get_video_flags();
@@ -1516,7 +1516,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	SYSTEM_End();
+	system_end();
 
 	return 0;
 }
