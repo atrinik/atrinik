@@ -108,7 +108,7 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
 	box->x = 0;
 	box->y = 0;
 
-	string_blt(surface, font, text, x, y, color, flags | TEXT_WORD_WRAP, box);
+	string_blt(surface, font, text, x, y, color, flags | TEXT_WIDTH, box);
 }
 
 /**
@@ -128,20 +128,21 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 	SDL_Rect box2;
 	size_t pos = text_input_cursor_pos;
 	const char *cp = text;
+	int underscore_width = glyph_get_width(font, '_');
 
 	box2.w = 0;
 
 	/* Figure out the width by going backwards. */
 	while (pos > 0)
 	{
-		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL);
-		pos--;
-
 		/* Reached the maximum yet? */
-		if (box2.w > Bitmaps[bitmap]->bitmap->w - 26 - (box ? box->x * 2 : 0))
+		if (box2.w + glyph_get_width(font, *(cp + pos)) + underscore_width > Bitmaps[bitmap]->bitmap->w - 13 - (box ? box->x * 2 : 0))
 		{
 			break;
 		}
+
+		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL);
+		pos--;
 	}
 
 	/* Adjust the text position if necessary. */

@@ -164,6 +164,10 @@ enum
 /**
  * Do not allow font changing using markup. */
 #define TEXT_NO_FONT_CHANGE 1024
+/**
+ * Like @ref TEXT_WORD_WRAP, but will stop drawing when the characters
+ * width would be more than box->w. */
+#define TEXT_WIDTH 2048
 /*@}*/
 
 /**

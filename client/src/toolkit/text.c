@@ -854,10 +854,15 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
  * @return The width. */
 int glyph_get_width(int font, char c)
 {
-	int width;
+	int minx, width;
 
-	if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, NULL, NULL, &width) != -1)
+	if (TTF_GlyphMetrics(fonts[font].font, c, &minx, NULL, NULL, NULL, &width) != -1)
 	{
+		if (minx < 0)
+		{
+			width -= minx;
+		}
+
 		return width;
 	}
 
@@ -883,7 +888,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	SDL_Rect dest;
 	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
 	SDL_Color orig_color = color;
-	int orig_font = font, lines = 1;
+	int orig_font = font, lines = 1, width = 0;
 	uint16 *heights = NULL;
 	size_t num_heights = 0;
 
@@ -1017,6 +1022,18 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	/* Draw leftover characters. */
 	while (*cp != '\0')
 	{
+		if (flags & TEXT_WIDTH && box)
+		{
+			int w = glyph_get_width(font, *cp);
+
+			if (box->w && width + w > box->w)
+			{
+				break;
+			}
+
+			width += w;
+		}
+
 		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box);
 
 		/* If we changed font, there might be a larger one... */
