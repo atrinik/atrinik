@@ -62,39 +62,6 @@ unsigned long isqrt(unsigned long n)
 }
 
 /**
- * Looks for <b>"xxxx"</b> string (including the quotes) in data, and
- * returns the string without the quotes. Updates pos appropriately.
- * @param data The data to look for in.
- * @param[out] pos Position.
- * @return The string without the quotes. */
-char *get_parameter_string(const char *data, int *pos)
-{
-	char *start_ptr, *end_ptr;
-	static char buf[4024];
-
-	start_ptr = strchr(data + *pos, '"');
-
-	if (!start_ptr)
-	{
-		return NULL;
-	}
-
-	end_ptr = strchr(++start_ptr, '"');
-
-	if (!end_ptr)
-	{
-		return NULL;
-	}
-
-	strncpy(buf, start_ptr, end_ptr - start_ptr);
-	buf[end_ptr - start_ptr] = '\0';
-
-	*pos += ++end_ptr - (data + *pos);
-
-	return buf;
-}
-
-/**
  * Splits a string delimited by passed in sep value into characters into an array of strings.
  * @param str The string to be split; will be modified.
  * @param array The string array; will be filled with pointers into str.
