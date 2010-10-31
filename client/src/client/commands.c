@@ -242,9 +242,13 @@ void AnimCmd(unsigned char *data, int len)
 	}
 
 	if (animations[anum].facings > 1)
+	{
 		animations[anum].frame = animations[anum].num_animations / animations[anum].facings;
+	}
 	else
+	{
 		animations[anum].frame = animations[anum].num_animations;
+	}
 
 	animations[anum].faces = malloc(sizeof(uint16) * animations[anum].num_animations);
 
@@ -255,7 +259,9 @@ void AnimCmd(unsigned char *data, int len)
 	}
 
 	if (j != animations[anum].num_animations)
+	{
 		LOG(llevDebug, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
+	}
 }
 
 /**
@@ -484,21 +490,19 @@ void TargetObject(unsigned char *data, int len)
 	cpl.target_mode = *data++;
 
 	if (cpl.target_mode)
+	{
 		sound_play_effect("weapon_attack.ogg", 100);
+	}
 	else
+	{
 		sound_play_effect("weapon_hold.ogg", 100);
+	}
 
 	cpl.target_color = *data++;
 	cpl.target_code = *data++;
 	strncpy(cpl.target_name, (char *)data, len);
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
-
-#if 0
-	char buf[MAX_BUF];
-	sprintf(buf, "TO: %d %d >%s< (len: %d)\n", cpl.target_mode, cpl.target_code, cpl.target_name, len);
-	draw_info(buf, COLOR_GREEN);
-#endif
 }
 
 /**
@@ -552,9 +556,13 @@ void StatsCmd(unsigned char *data, int len)
 					if (temp < cpl.stats.hp && cpl.stats.food)
 					{
 						cpl.warn_hp = 1;
-						if (cpl.stats.maxhp / 12 <= cpl.stats.hp-temp)
+
+						if (cpl.stats.maxhp / 12 <= cpl.stats.hp - temp)
+						{
 							cpl.warn_hp = 2;
+						}
 					}
+
 					cpl.stats.hp = temp;
 					i += 4;
 					WIDGET_REDRAW_ALL(STATS_ID);
@@ -591,84 +599,112 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_STR:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Str)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Str = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_INT:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Int)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Int = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_POW:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Pow)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Pow = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_WIS:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Wis)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Wis = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_DEX:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Dex)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Dex = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_CON:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Con)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Con = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_CHA:
-					temp = (int)*(data + i++);
+					temp = (int) *(data + i++);
 
 					if (temp > cpl.stats.Cha)
+					{
 						cpl.warn_statup = 1;
+					}
 					else
+					{
 						cpl.warn_statdown = 1;
+					}
 
 					cpl.stats.Cha = temp;
 					WIDGET_REDRAW_ALL(STATS_ID);
@@ -681,7 +717,7 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_LEVEL:
-					cpl.stats.level = (char)*(data + i++);
+					cpl.stats.level = (char) *(data + i++);
 					WIDGET_REDRAW_ALL(MAIN_LVL_ID);
 					break;
 
@@ -712,7 +748,7 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_WEAP_SP:
-					cpl.stats.weapon_sp = (int)*(data + i++);
+					cpl.stats.weapon_sp = (int) *(data + i++);
 					break;
 
 				case CS_STAT_FLAGS:
@@ -726,7 +762,7 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_ACTION_TIME:
-					cpl.action_timer = ((float)abs(GetInt_String(data + i))) / 1000.0f;
+					cpl.action_timer = ((float) abs(GetInt_String(data + i))) / 1000.0f;
 					i += 4;
 					WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 					break;
@@ -755,7 +791,8 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_RANGE:
 				{
 					int rlen = data[i++];
-					strncpy(cpl.range, (const char*)data + i, rlen);
+
+					strncpy(cpl.range, (const char *) data + i, rlen);
 					cpl.range[rlen] = '\0';
 					i += rlen;
 					break;
@@ -765,35 +802,43 @@ void StatsCmd(unsigned char *data, int len)
 				{
 					int rlen = data[i++];
 
-					tmp = strchr((char *)data + i,'\n');
-					*tmp = 0;
-					strcpy(cpl.rank, (char *)data + i);
+					tmp = strchr((char *) data + i,'\n');
+					*tmp = '\0';
+					strcpy(cpl.rank, (char *) data + i);
 					tmp2 = strchr(tmp + 1, '\n');
-					*tmp2 = 0;
+					*tmp2 = '\0';
 					strcpy(cpl.pname, tmp + 1);
 					tmp = strchr(tmp2 + 1, '\n');
-					*tmp = 0;
+					*tmp = '\0';
 					strcpy(cpl.race, tmp2 + 1);
 					tmp2 = strchr(tmp + 1, '\n');
-					*tmp2 = 0;
+					*tmp2 = '\0';
 					/* Profession title */
 					strcpy(cpl.title, tmp + 1);
 					tmp = strchr(tmp2 + 1, '\n');
-					*tmp = 0;
+					*tmp = '\0';
 					strcpy(cpl.alignment, tmp2 + 1);
 					tmp2 = strchr(tmp + 1, '\n');
-					*tmp2 = 0;
+					*tmp2 = '\0';
 					strcpy(cpl.godname, tmp + 1);
 					strcpy(cpl.gender, tmp2 + 1);
 
 					if (cpl.gender[0] == 'm')
+					{
 						strcpy(cpl.gender, "male");
+					}
 					else if (cpl.gender[0] == 'f')
+					{
 						strcpy(cpl.gender, "female");
+					}
 					else if (cpl.gender[0] == 'h')
+					{
 						strcpy(cpl.gender, "hermaphrodite");
+					}
 					else
+					{
 						strcpy(cpl.gender, "neuter");
+					}
 
 					i += rlen;
 
@@ -806,7 +851,9 @@ void StatsCmd(unsigned char *data, int len)
 					strcat(cpl.rankandname, cpl.pname);
 
 					if (strlen(cpl.rankandname) > 0)
-						cpl.rankandname[strlen(cpl.rankandname) - 1] = 0;
+					{
+						cpl.rankandname[strlen(cpl.rankandname) - 1] = '\0';
+					}
 
 					adjust_string(cpl.rank);
 					adjust_string(cpl.rankandname);
@@ -836,7 +883,9 @@ void StatsCmd(unsigned char *data, int len)
 	}
 
 	if (i > len)
+	{
 		fprintf(stderr, "Got stats overflow, processed %d bytes out of %d\n", i, len);
+	}
 }
 
 /**
@@ -848,8 +897,8 @@ void PreParseInfoStat(char *cmd)
 	if (strstr(cmd, "What is your name?"))
 	{
 		LOG(llevInfo, "Login: Enter name\n");
-		cpl.name[0] = 0;
-		cpl.password[0] = 0;
+		cpl.name[0] = '\0';
+		cpl.password[0] = '\0';
 		GameStatus = GAME_STATUS_NAME;
 	}
 
@@ -866,7 +915,9 @@ void PreParseInfoStat(char *cmd)
 	}
 
 	if (GameStatus >= GAME_STATUS_NAME && GameStatus <= GAME_STATUS_VERIFYPSWD)
+	{
 		text_input_open(12);
+	}
 }
 
 /**
@@ -877,12 +928,16 @@ void handle_query(char *data)
 	char *buf, *cp;
 
 	buf = strchr(data, ' ');
+
 	if (buf)
+	{
 		buf++;
+	}
 
 	if (buf)
 	{
 		cp = buf;
+
 		while ((buf = strchr(buf, '\n')) != NULL)
 		{
 			*buf++ = '\0';
@@ -924,15 +979,17 @@ void PlayerCmd(unsigned char *data, int len)
 	request_face(face);
 	i += 4;
 	nlen = data[i++];
-	memcpy(name, (const char*)data + i, nlen);
+	memcpy(name, (const char *) data + i, nlen);
 
 	name[nlen] = '\0';
 	i += nlen;
 
 	if (i != len)
+	{
 		fprintf(stderr, "PlayerCmd: lengths do not match (%d!=%d)\n", len, i);
+	}
 
-	new_player(tag, name, weight, (short)face);
+	new_player(tag, name, weight, (short) face);
 	map_draw_map_clear();
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
@@ -960,14 +1017,18 @@ void ItemXCmd(unsigned char *data, int len)
 	loc = GetInt_String(data+pos);
 
 	if (dmode >= 0)
+	{
 		remove_item_inventory(locate_item(loc));
+	}
 
 	/* send item flag */
 	if (dmode == -4)
 	{
 		/* and redirect it to our invisible sack */
 		if (loc == cpl.container_tag)
+		{
 			loc = -1;
+		}
 	}
 	/* container flag! */
 	else if (dmode == -1)
@@ -1019,7 +1080,7 @@ void ItemXCmd(unsigned char *data, int len)
 			}
 
 			nlen = data[pos++];
-			memcpy(name, (char*)data + pos, nlen);
+			memcpy(name, (char *) data + pos, nlen);
 			pos += nlen;
 			name[nlen] = '\0';
 			anim = GetShort_String(data + pos);
@@ -1031,7 +1092,9 @@ void ItemXCmd(unsigned char *data, int len)
 		}
 
 		if (pos > len)
+		{
 			LOG(llevBug, "ItemXCmd(): Overread buffer: %d > %d\n", pos, len);
+		}
 	}
 
 	map_udate_flag = 2;
@@ -1057,14 +1120,18 @@ void ItemYCmd(unsigned char *data, int len)
 	loc = GetInt_String(data + pos);
 
 	if (dmode >= 0)
+	{
 		remove_item_inventory(locate_item(loc));
+	}
 
 	/* send item flag */
 	if (dmode == -4)
 	{
 		/* and redirect it to our invisible sack */
 		if (loc == cpl.container_tag)
+		{
 			loc = -1;
+		}
 	}
 	/* container flag! */
 	else if (dmode == -1)
@@ -1117,7 +1184,7 @@ void ItemYCmd(unsigned char *data, int len)
 			}
 
 			nlen = data[pos++];
-			memcpy(name, (char*)data + pos, nlen);
+			memcpy(name, (char *) data + pos, nlen);
 			pos += nlen;
 			name[nlen] = '\0';
 			anim = GetShort_String(data + pos);
@@ -1129,7 +1196,9 @@ void ItemYCmd(unsigned char *data, int len)
 		}
 
 		if (pos > len)
+		{
 			LOG(llevBug, "ItemYCmd(): Overread buffer: %d > %d\n", pos, len);
+		}
 	}
 
 	map_udate_flag = 2;
@@ -1161,7 +1230,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 
 	*name = '\0';
 	loc = ip->env ? ip->env->tag : 0;
-	weight = (int)(ip->weight * 1000);
+	weight = (int) (ip->weight * 1000);
 	face = ip->face;
 	request_face(face);
 	flags = ip->flagsval;
@@ -1176,7 +1245,9 @@ void UpdateItemCmd(unsigned char *data, int len)
 		env = locate_item(loc);
 
 		if (!env)
+		{
 			fprintf(stderr, "UpdateItemCmd: unknown object tag (%d) for new location\n", loc);
+		}
 
 		pos += 4;
 	}
@@ -1201,13 +1272,14 @@ void UpdateItemCmd(unsigned char *data, int len)
 	}
 
 	if (sendflags & UPD_DIRECTION)
+	{
 		direction = data[pos++];
+	}
 
 	if (sendflags & UPD_NAME)
 	{
-
 		nlen = data[pos++];
-		memcpy(name, (char*)data + pos, nlen);
+		memcpy(name, (char *) data + pos, nlen);
 		pos += nlen;
 		name[nlen] = '\0';
 	}
@@ -1255,7 +1327,9 @@ void DeleteItem(unsigned char *data, int len)
 	}
 
 	if (pos > len)
+	{
 		fprintf(stderr, "ItemCmd: Overread buffer: %d > %d\n", pos, len);
+	}
 
 	map_udate_flag = 2;
 }
@@ -1591,7 +1665,9 @@ void SkilllistCmd(char *data)
 		tmp = strchr(data, '/');
 
 		if (!tmp)
+		{
 			return;
+		}
 
 		data = tmp + 1;
 
@@ -1600,14 +1676,16 @@ void SkilllistCmd(char *data)
 		if (tmp2)
 		{
 			strncpy(name, data, tmp2 - data);
-			name[tmp2 - data] = 0;
+			name[tmp2 - data] = '\0';
 			data = tmp2;
 		}
 		else
+		{
 			strcpy(name, data);
+		}
 
 		tmp3 = strchr(name, '|');
-		*tmp3 = 0;
+		*tmp3 = '\0';
 		tmp4 = strchr(tmp3 + 1, '|');
 
 		l = atoi(tmp3 + 1);
@@ -1626,7 +1704,9 @@ void SkilllistCmd(char *data)
 					{
 						/* Remove? */
 						if (mode == SPLIST_MODE_REMOVE)
+						{
 							skill_list[ii].entry[i].flag = LIST_ENTRY_USED;
+						}
 						else
 						{
 							skill_list[ii].entry[i].flag = LIST_ENTRY_KNOWN;
