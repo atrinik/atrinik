@@ -459,6 +459,7 @@ void list_remove(list_struct *list)
 	free(list->text);
 	free(list->col_widths);
 	free(list->col_spacings);
+	free(list->col_centered);
 
 	/* Free column names. */
 	for (col = 0; col < list->cols; col++)
