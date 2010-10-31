@@ -186,91 +186,6 @@ int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char 
 }
 
 /**
- * Add a range box.
- * @param x X position.
- * @param y Y position.
- * @param id Button ID.
- * @param text_w Size of text field.
- * @param text_x If 0 text field will be left of rangebox, if 1 text field
- * will be right of rangebox.
- * @param text Text.
- * @param color Color.
- * @return  */
-int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text, int color)
-{
-	static int active = -1;
-	SDL_Rect box;
-	int mx, my, mb;
-	int width = Bitmaps[BITMAP_DIALOG_RANGE_OFF]->bitmap->w;
-
-	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-
-	/* Box right of text */
-	if (text_x)
-	{
-		text_x = x + width + 2;
-	}
-	else
-	{
-		text_x = x;
-		x += text_w;
-	}
-
-	sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_OFF], x, y, NULL, NULL);
-	box.x = text_x - 2;
-	box.y = y + 1;
-	box.w = text_w + 2;
-	box.h = 16;
-	SDL_FillRect(ScreenSurface, &box, sdl_gray1);
-	StringBlt(ScreenSurface, &SystemFont, text, text_x + 1, y + 3, COLOR_BLACK, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, text, text_x, y + 2, color, NULL, NULL);
-
-	/* Check for action */
-	if (mx >x && my > y && my < y + 18)
-	{
-		if (mx < x + width / 2)
-		{
-			if (mb && active < 0)
-			{
-				active = id;
-			}
-
-			if (active == id)
-			{
-				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_L], x, y, NULL, NULL);
-
-				if (!mb)
-				{
-					active = -1;
-					return -1;
-				}
-			}
-		}
-		else if (mx < x + width)
-		{
-			/* A rangebox has 2 buttons */
-			if (mb && active < 0)
-			{
-				active = id + 1;
-			}
-
-			if (active == id + 1)
-			{
-				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_R], x + width / 2, y, NULL, NULL);
-
-				if (!mb)
-				{
-					active = -1;
-					return 1;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-
-/**
  * Add offset to an integer value.
  * @param value Value to add to.
  * @param type @ref value_type "Type" of the value.
@@ -332,7 +247,7 @@ void add_value(void *value, int type, int offset, int min, int max)
 
 /**
  * Draw tabs on the left side of a window.
- * @param tabs[] The tabs to draw.
+ * @param tabs The tabs to draw.
  * @param[out] act_tab Currently active tab.
  * @param head_text Header text, above the tabs.
  * @param x X position.

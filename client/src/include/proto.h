@@ -65,7 +65,6 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 void add_close_button(int x, int y, int menu);
 int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h);
 int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char *text_h);
-int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text, int color);
 void add_value(void *value, int type, int offset, int min, int max);
 void draw_tabs(const char *tabs[], int *act_tab, const char *head_text, int x, int y);
 
@@ -131,7 +130,6 @@ void metaserver_get_servers();
 
 /* client/misc.c */
 unsigned long isqrt(unsigned long n);
-char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
 void convert_newline(char *str);
