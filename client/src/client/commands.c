@@ -282,7 +282,7 @@ void ImageCmd(unsigned char *data, int len)
 	}
 
 	/* Save picture to cache and load it to FaceList */
-	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
+	sprintf(buf, DIRECTORY_CACHE"/%s", FaceList[pnum].name);
 	LOG(llevInfo, "ImageFromServer: %s\n", FaceList[pnum].name);
 
 	if ((stream = fopen_wrapper(buf, "wb+")) != NULL)

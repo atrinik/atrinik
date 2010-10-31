@@ -188,7 +188,7 @@ void sound_play_effect(const char *filename, int volume)
 {
 	char path[HUGE_BUF];
 
-	snprintf(path, sizeof(path), "%s%s", GetSfxDirectory(), filename);
+	snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
 	sound_add_effect(path, volume, 0);
 }
 
@@ -209,7 +209,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 		return;
 	}
 
-	snprintf(path, sizeof(path), "%s%s", GetMediaDirectory(), filename);
+	snprintf(path, sizeof(path), DIRECTORY_MEDIA"/%s", filename);
 
 	/* Same background music, nothing to do. */
 	if (sound_background && !strcmp(sound_background, path))
@@ -323,7 +323,7 @@ void SoundCmd(uint8 *data, int len)
 		}
 
 		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
-		snprintf(path, sizeof(path), "%s%s", GetSfxDirectory(), filename);
+		snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
 		sound_add_effect(path, dist_volume + volume, loop);
 	}
 	else if (type == CMD_SOUND_BACKGROUND)

@@ -80,16 +80,14 @@ void LOG(LogLevel logLevel, char *format, ...)
 }
 
 /**
- * Start the base system, setting caption name and window icon.
- * @return Always returns 1. */
+ * Start the base system, setting caption name and window icon. */
 void SYSTEM_Start()
 {
 	SDL_Surface *icon;
-	char buf[256];
 
-	snprintf(buf, sizeof(buf), "%s%s", GetBitmapDirectory(), CLIENT_ICON_NAME);
+	icon = IMG_Load_wrapper(DIRECTORY_BITMAPS"/"CLIENT_ICON_NAME);
 
-	if ((icon = IMG_Load_wrapper(buf)) != NULL)
+	if (icon)
 	{
 		SDL_WM_SetIcon(icon, 0);
 		SDL_FreeSurface(icon);
@@ -118,54 +116,6 @@ int SYSTEM_End()
 	free_help_files();
 	SDL_Quit();
 	return 1;
-}
-
-/**
- * Get bitmap directory.
- * @return The bitmap directory */
-char *GetBitmapDirectory()
-{
-	return "bitmaps/";
-}
-
-/**
- * Get the icon directory.
- * @return The icon directory */
-char *GetIconDirectory()
-{
-	return "icons/";
-}
-
-/**
- * Get the sfx directory.
- * @return The sfx directory */
-char *GetSfxDirectory()
-{
-	return "sfx/";
-}
-
-/**
- * Get the cache directory.
- * @return The cache directory */
-char *GetCacheDirectory()
-{
-	return "cache/";
-}
-
-/**
- * Get the user defined GFX directory.
- * @return The user defined GFX directory */
-char *GetGfxUserDirectory()
-{
-	return "gfx_user/";
-}
-
-/**
- * Get the media directory
- * @return The media directory */
-char *GetMediaDirectory()
-{
-	return "media/";
 }
 
 /**
@@ -412,7 +362,7 @@ char *file_path(const char *fname, const char *mode)
 		if ((stmp = strrchr(tmp, '/')))
 		{
 			ctmp = stmp[0];
-			stmp[0] = 0;
+			stmp[0] = '\0';
 			mkdir_recurse(tmp);
 			stmp[0] = ctmp;
 		}
@@ -428,7 +378,7 @@ char *file_path(const char *fname, const char *mode)
 			if ((stmp = strrchr(tmp, '/')))
 			{
 				ctmp = stmp[0];
-				stmp[0] = 0;
+				stmp[0] = '\0';
 				mkdir_recurse(tmp);
 				stmp[0] = ctmp;
 			}
@@ -440,7 +390,7 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, R_OK))
 		{
-			sprintf(tmp, "%s%s", SYSPATH, fname);
+			snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
 		}
 	}
 

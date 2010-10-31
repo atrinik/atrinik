@@ -330,7 +330,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	FaceList[pnum].checksum = checksum;
 
 	/* Check private cache first */
-	snprintf(buf, sizeof(buf), "%s%s", GetCacheDirectory(), FaceList[pnum].name);
+	snprintf(buf, sizeof(buf), DIRECTORY_CACHE"/%s", FaceList[pnum].name);
 
 	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
@@ -420,7 +420,7 @@ static int load_gfx_user_face(uint16 num)
 	unsigned char *data;
 
 	/* First check for this image in gfx_user directory. */
-	snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaps[num].name);
+	snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER"/%s.png", bmaps[num].name);
 
 	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
@@ -437,7 +437,7 @@ static int load_gfx_user_face(uint16 num)
 
 			if (FaceList[num].sprite)
 			{
-				snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaps[num].name);
+				snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER"/%s.png", bmaps[num].name);
 				FaceList[num].name = (char *) malloc(strlen(buf) + 1);
 				strcpy(FaceList[num].name, buf);
 				FaceList[num].checksum = crc32(1L, data, len);

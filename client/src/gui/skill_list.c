@@ -318,7 +318,7 @@ void read_skills()
 		skill_list[panel].entry[nchar - 'a'].exp_level = 0;
 
 		strcpy(skill_list[panel].entry[nchar - 'a'].icon_name, icon);
-		snprintf(line, sizeof(line), "%s%s", GetIconDirectory(), icon);
+		snprintf(line, sizeof(line), DIRECTORY_ICONS"/%s", icon);
 		skill_list[panel].entry[nchar - 'a'].icon = sprite_load_file(line, SURFACE_FLAG_DISPLAYFORMAT);
 
 		strcpy(skill_list[panel].entry[nchar - 'a'].name, name);

@@ -811,7 +811,7 @@ static int load_bitmap(int index)
 	char buf[2048];
 	uint32 flags = 0;
 
-	snprintf(buf, sizeof(buf), "%s%s", GetBitmapDirectory(), bitmap_name[index].name);
+	snprintf(buf, sizeof(buf), DIRECTORY_BITMAPS"/%s", bitmap_name[index].name);
 
 	if (bitmap_name[index].type == PIC_TYPE_PALETTE)
 	{
