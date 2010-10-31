@@ -251,13 +251,7 @@ void file_updates_parse();
 /* client/wrapper.c */
 void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
 void SYSTEM_Start();
-int SYSTEM_End();
-char *GetBitmapDirectory();
-char *GetIconDirectory();
-char *GetSfxDirectory();
-char *GetCacheDirectory();
-char *GetGfxUserDirectory();
-char *GetMediaDirectory();
+void SYSTEM_End();
 char *get_word_from_string(char *str, int *pos);
 uint32 get_video_flags();
 char *file_path(const char *fname, const char *mode);

@@ -101,7 +101,7 @@ void SYSTEM_Start()
 /**
  * End the system.
  * @return Always returns 1. */
-int SYSTEM_End()
+void SYSTEM_End()
 {
 	list_remove_all();
 	script_killall();
@@ -115,7 +115,6 @@ int SYSTEM_End()
 	text_deinit();
 	free_help_files();
 	SDL_Quit();
-	return 1;
 }
 
 /**
