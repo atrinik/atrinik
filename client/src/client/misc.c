@@ -30,20 +30,6 @@
 #include <include.h>
 
 /**
- * Free memory pointed to by p.
- * @param p The memory to free. */
-void FreeMemory(void **p)
-{
-	if (p == NULL)
-		return;
-
-	if (*p != NULL)
-		free(*p);
-
-	*p = NULL;
-}
-
-/**
  * Computes the square root.
  * Based on (n+1)^2 = n^2 + 2n + 1
  * given that   1^2 = 1, then

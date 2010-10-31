@@ -188,7 +188,6 @@ static item *alloc_items(int nrof)
 void free_all_items(item *op)
 {
 	item *tmp;
-	void *tmp_free;
 
 	while (op)
 	{
@@ -196,8 +195,7 @@ void free_all_items(item *op)
 			free_all_items(op->inv);
 
 		tmp = op->next;
-		tmp_free = &op;
-		FreeMemory(tmp_free);
+		free(op);
 		op = tmp;
 	}
 }

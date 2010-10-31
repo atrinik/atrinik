@@ -305,7 +305,6 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	size_t len;
 	static uint32 newsum = 0;
 	unsigned char *data;
-	void *tmp_free;
 
 	/* Loaded or requested. */
 	if (FaceList[pnum].name)
@@ -318,8 +317,8 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 		}
 
 		/* Something is different. */
-		tmp_free = &FaceList[pnum].name;
-		FreeMemory(tmp_free);
+		free(FaceList[pnum].name);
+		FaceList[pnum].name = NULL;
 		sprite_free_sprite(FaceList[pnum].sprite);
 	}
 

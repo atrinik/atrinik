@@ -150,7 +150,6 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
  * @param sprite Sprite to free. */
 void sprite_free_sprite(_Sprite *sprite)
 {
-	void *tmp_free;
 	int i;
 
 	if (!sprite)
@@ -189,8 +188,7 @@ void sprite_free_sprite(_Sprite *sprite)
 		}
 	}
 
-	tmp_free = sprite;
-	FreeMemory(&tmp_free);
+	free(sprite);
 }
 
 /**
@@ -1043,7 +1041,6 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
 void remove_anim(struct _anim *anim)
 {
 	struct _anim *tmp, *tmp_next;
-	void *tmp_free;
 
 	if (!anim)
 	{
@@ -1052,9 +1049,7 @@ void remove_anim(struct _anim *anim)
 
 	tmp = anim->before;
 	tmp_next = anim->next;
-	tmp_free = &anim;
-	/* free node memory */
-	FreeMemory(tmp_free);
+	free(anim);
 
 	if (tmp)
 	{
