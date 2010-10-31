@@ -101,12 +101,11 @@ void clear_player()
  * @param name Name of the player.
  * @param weight Weight of the player.
  * @param face Face ID. */
-void new_player(long tag, char *name, long weight, short face)
+void new_player(long tag, long weight, short face)
 {
 	cpl.ob->tag = tag;
 	cpl.ob->weight = (float) weight / 1000;
 	cpl.ob->face = face;
-	copy_name(cpl.ob->d_name, name);
 }
 
 /**
@@ -185,7 +184,7 @@ void set_weight_limit(uint32 wlim)
  * Initialize player data. */
 void init_player_data()
 {
-	new_player(0, "", 0,0);
+	new_player(0, 0,0);
 
 	cpl.dm = 0;
 	cpl.fire_on = cpl.firekey_on = 0;

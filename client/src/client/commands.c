@@ -930,7 +930,7 @@ void PlayerCmd(unsigned char *data, int len)
 		fprintf(stderr, "PlayerCmd: lengths do not match (%d!=%d)\n", len, i);
 	}
 
-	new_player(tag, name, weight, (short) face);
+	new_player(tag, weight, (short) face);
 	map_draw_map_clear();
 	map_udate_flag = 2;
 	map_redraw_flag = 1;

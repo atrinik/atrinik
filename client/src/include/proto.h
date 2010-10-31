@@ -84,9 +84,6 @@ int get_bmap_id(char *name);
 void blit_face(int id, int x, int y);
 
 /* client/item.c */
-void init_item_types();
-void update_item_sort(item *it);
-char *get_number(int i);
 void free_all_items(item *op);
 int locate_item_tag_from_nr(item *op, int nr);
 item *locate_item_from_inv(item *op, sint32 tag);
@@ -97,12 +94,10 @@ void remove_item_inventory(item *op);
 item *create_new_item(item *env, sint32 tag, int bflag);
 void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
 void fire_command(char *buf);
-void combat_command(char *buf);
 void toggle_locked(item *op);
 void send_mark_obj(item *op);
 item *player_item();
 void update_item(int tag, int loc, char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
-void print_inventory(item *op);
 void animate_objects();
 
 /* client/main.c */
@@ -136,7 +131,7 @@ void browser_open(const char *url);
 
 /* client/player.c */
 void clear_player();
-void new_player(long tag, char *name, long weight, short face);
+void new_player(long tag, long weight, short face);
 void client_send_apply(int tag);
 void client_send_examine(int tag);
 void client_send_move(int loc, int tag, int nrof);

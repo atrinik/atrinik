@@ -32,8 +32,6 @@
 
 /** Maximum length of a name. */
 #define NAME_LEN 128
-/** Copy one name to another. */
-#define copy_name(t, f) strncpy(t, f, NAME_LEN - 1)
 
 /**
  * Item structure keeps all information what player (= client) knows
@@ -52,14 +50,8 @@ typedef struct item_struct
 	/** Item's inventory. */
 	struct item_struct *inv;
 
-	/** Item's full name without status information */
-	char d_name[NAME_LEN];
-
 	/** Item's singular name as sent to us. */
 	char s_name[NAME_LEN];
-
-	/** Item's status information. */
-	char flags[NAME_LEN];
 
 	/** Item identifier (0 = free). */
 	sint32 tag;
@@ -115,8 +107,7 @@ typedef struct item_struct
 	/** Unmodified flags value as sent from the server. */
 	uint32 flagsval;
 
-	/** Item type for ordering */
-	uint8 type;
+	/** Item type. */
 	uint8 itype;
 	uint8 stype;
 
