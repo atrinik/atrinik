@@ -111,9 +111,6 @@ typedef struct _mapdata
 /** Map cell structure. */
 struct MapCell
 {
-	/** Fog of war. */
-	int fog_of_war;
-
 	/** Position. */
 	uint8 quick_pos[MAX_LAYERS + 1];
 
