@@ -105,6 +105,7 @@ void SYSTEM_Start()
  * @return Always returns 1. */
 int SYSTEM_End()
 {
+	list_remove_all();
 	script_killall();
 	save_interface_file();
 	save_options_dat();
