@@ -532,7 +532,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				int r, g, b;
 
 				/* Parse the r,g,b colors. */
-				if (sscanf(cp, "<o=%d,%d,%d>", &r, &g, &b) == 3)
+				if ((cp[3] == '#' && sscanf(cp, "<o=#%2X%2X%2X>", &r, &g, &b) == 3) || sscanf(cp, "<o=%d,%d,%d>", &r, &g, &b) == 3)
 				{
 					outline_color.r = r;
 					outline_color.g = g;
