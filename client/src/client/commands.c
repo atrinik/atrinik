@@ -201,9 +201,6 @@ void AddMeFail(unsigned char *data, int len)
 
 	LOG(llevInfo, "addme_failed received.\n");
 	GameStatus = GAME_STATUS_START;
-
-	/* Add here error handling */
-	return;
 }
 
 /**
@@ -215,7 +212,6 @@ void AddMeSuccess(unsigned char *data, int len)
 	(void) len;
 
 	LOG(llevInfo, "addme_success received.\n");
-	return;
 }
 
 /**
