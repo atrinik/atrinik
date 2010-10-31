@@ -391,10 +391,12 @@ void remove_widget_object_intern(widgetdata *widget)
 	{
 		widget_mouse_event.owner = NULL;
 	}
+
 	if (widget_event_move.owner == widget)
 	{
 		widget_event_move.owner = NULL;
 	}
+
 	/* If any menu is open and this widget is the owner, bad things could happen here too. Clear the pointers. */
 	if (cur_widget[MENU_ID] && (MENU(cur_widget[MENU_ID]))->owner == widget)
 	{
@@ -435,11 +437,25 @@ void remove_widget_object_intern(widgetdata *widget)
 				}
 
 				break;
+
+			case CHATWIN_ID:
+			case MSGWIN_ID:
+			{
+				_textwin *textwin = TEXTWIN(widget);
+
+				if (textwin->entries)
+				{
+					free(textwin->entries);
+				}
+
+				break;
+			}
 		}
 
 		free(widget->subwidget);
 		widget->subwidget = NULL;
 	}
+
 	/* finally de-allocate the widget node, this should always be the last node removed in here */
 	remove_widget(widget);
 
