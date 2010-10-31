@@ -30,32 +30,35 @@
 #include <include.h>
 
 /**
- * Computes the square root.
- * Based on (n+1)^2 = n^2 + 2n + 1
- * given that   1^2 = 1, then
- *              2^2 = 1 + (2 + 1) = 1 + 3 = 4
- *              3^2 = 4 + (4 + 1) = 4 + 5 = 1 + 3 + 5 = 9
- *              4^2 = 9 + (6 + 1) = 9 + 7 = 1 + 3 + 5 + 7 = 16
- *              ...
- * In other words, a square number can be express as the sum of the
- * series n^2 = 1 + 3 + ... + (2n-1)
+ * Computes the integer square root.
  * @param n Number of which to compute the root.
- * @return Square root. */
-int isqrt(int n)
+ * @return Integer quare root. */
+unsigned long isqrt(unsigned long n)
 {
-	int result, sum, prev;
+	unsigned long op = n, res = 0, one;
 
-	result = 0;
-	prev = sum = 1;
+	/* "one" starts at the highest power of four <= than the argument. */
+	one = 1 << 30;
 
-	while (sum <= n)
+	while (one > op)
 	{
-		prev += 2;
-		sum += prev;
-		++result;
+		one >>= 2;
 	}
 
-	return result;
+	while (one != 0)
+	{
+		if (op >= res + one)
+		{
+			op -= res + one;
+			/* Faster than 2 * one. */
+			res += one << 1;
+		}
+
+		res >>= 1;
+		one >>= 2;
+	}
+
+	return res;
 }
 
 /**
