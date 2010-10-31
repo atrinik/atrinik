@@ -307,26 +307,7 @@ typedef struct Player_Struct
 	char skill_name[128];
 
 	/* Rank and name of char */
-	char rankandname[MAX_BUF];
-
-	/* Name of char */
-	char pname[MAX_BUF];
-
-	/* Race and profession of character */
-	char race[MAX_BUF];
-	char title[MAX_BUF];
-
-	/* Rank */
-	char rank[MAX_BUF];
-
-	/* God */
-	char godname[MAX_BUF];
-
-	/* Alignment */
-	char alignment[MAX_BUF];
-
-	/* Gender */
-	char gender[MAX_BUF];
+	char ext_title[MAX_BUF];
 
 	/* Range attack chosen */
 	char range[MAX_BUF];

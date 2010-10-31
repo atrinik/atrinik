@@ -338,24 +338,3 @@ void check_animation_status(int anum)
 	/* Same as server sends it */
 	AnimCmd((unsigned char *) anim_table[anum].anim_cmd, anim_table[anum].len);
 }
-
-/**
- * Remove whitespace from right side.
- * @param buf The string to adjust.
- * @return The adjusted string. */
-char *adjust_string(char *buf)
-{
-	int i, len = (int) strlen(buf);
-
-	for (i = len - 1; i >= 0; i--)
-	{
-		if (!isspace(buf[i]))
-		{
-			return buf;
-		}
-
-		buf[i] = '\0';
-	}
-
-	return buf;
-}

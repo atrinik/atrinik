@@ -207,16 +207,9 @@ void init_player_data()
 	cpl.stats.maxgrace = 1;
 	cpl.stats.speed = 1;
 
-	cpl.title[0] = '\0';
-	cpl.alignment[0] = '\0';
-	cpl.gender[0] = '\0';
 	cpl.range[0] = '\0';
 
 	cpl.ob->nrof = 1;
-
-	/* This is set from title in stat cmd */
-	strcpy(cpl.pname, "");
-	strcpy(cpl.title, "");
 	cpl.partyname[0] = '\0';
 
 	cpl.menustatus = MENU_NO;
@@ -264,34 +257,13 @@ void widget_player_data_event(widgetdata *widget, int x, int y)
  * @param widget The widget object. */
 void widget_show_player_data(widgetdata *widget)
 {
-	char buf[256];
+	SDL_Rect box;
 
 	sprite_blt(Bitmaps[BITMAP_PLAYER_INFO], widget->x1, widget->y1, NULL, NULL);
 
-	if (cpl.rank[0] != '\0')
-	{
-		snprintf(buf, sizeof(buf), "%s %s", cpl.rank, cpl.pname);
-	}
-	else
-	{
-		strncpy(buf, cpl.pname, sizeof(buf) - 1);
-	}
-
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 2, COLOR_HGOLD, NULL, NULL);
-
-	snprintf(buf, sizeof(buf), "%s %s %s", cpl.gender, cpl.race, cpl.title);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 14, COLOR_HGOLD, NULL, NULL);
-
-	if (strcmp(cpl.godname, "none"))
-	{
-		snprintf(buf, sizeof(buf), "%s follower of %s", cpl.alignment, cpl.godname);
-	}
-	else
-	{
-		strncpy(buf, cpl.alignment, sizeof(buf) - 1);
-	}
-
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 26, COLOR_HGOLD, NULL, NULL);
+	box.w = widget->wd - 12;
+	box.h = 36;
+	string_blt(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x1 + 6, widget->y1 + 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 	/* Prayer button */
 	sprite_blt(Bitmaps[BITMAP_PRAY], widget->x1 + 184, widget->y1 + 5, NULL, NULL);

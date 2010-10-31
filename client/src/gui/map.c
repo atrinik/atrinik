@@ -578,7 +578,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	/* Do we have a playername? Then print it! */
 	if (options.player_names && map->pname[layer][0])
 	{
-		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.rankandname, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.rankandname, strlen(map->pname[layer]))))
+		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
 		{
 			StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[layer], xpos - (strlen(map->pname[layer]) * 2) + 22, yl - 26, map->pcolor[layer], NULL, NULL);
 		}

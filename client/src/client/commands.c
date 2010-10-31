@@ -513,7 +513,6 @@ void StatsCmd(unsigned char *data, int len)
 {
 	int i = 0;
 	int c, temp;
-	char *tmp, *tmp2;
 
 	while (i < len)
 	{
@@ -802,69 +801,11 @@ void StatsCmd(unsigned char *data, int len)
 				{
 					int rlen = data[i++];
 
-					tmp = strchr((char *) data + i,'\n');
-					*tmp = '\0';
-					strcpy(cpl.rank, (char *) data + i);
-					tmp2 = strchr(tmp + 1, '\n');
-					*tmp2 = '\0';
-					strcpy(cpl.pname, tmp + 1);
-					tmp = strchr(tmp2 + 1, '\n');
-					*tmp = '\0';
-					strcpy(cpl.race, tmp2 + 1);
-					tmp2 = strchr(tmp + 1, '\n');
-					*tmp2 = '\0';
-					/* Profession title */
-					strcpy(cpl.title, tmp + 1);
-					tmp = strchr(tmp2 + 1, '\n');
-					*tmp = '\0';
-					strcpy(cpl.alignment, tmp2 + 1);
-					tmp2 = strchr(tmp + 1, '\n');
-					*tmp2 = '\0';
-					strcpy(cpl.godname, tmp + 1);
-					strcpy(cpl.gender, tmp2 + 1);
-
-					if (cpl.gender[0] == 'm')
-					{
-						strcpy(cpl.gender, "male");
-					}
-					else if (cpl.gender[0] == 'f')
-					{
-						strcpy(cpl.gender, "female");
-					}
-					else if (cpl.gender[0] == 'h')
-					{
-						strcpy(cpl.gender, "hermaphrodite");
-					}
-					else
-					{
-						strcpy(cpl.gender, "neuter");
-					}
-
+					strncpy(cpl.ext_title, (const char *) data + i, rlen);
+					cpl.ext_title[rlen] = '\0';
 					i += rlen;
 
-					/* prepare rank + name for fast access
-					 * the pname is <name> <title>.
-					 * is there no title, there is still
-					 * always a ' ' at the end - we skip this
-					 * here! */
-					strcpy(cpl.rankandname, cpl.rank);
-					strcat(cpl.rankandname, cpl.pname);
-
-					if (strlen(cpl.rankandname) > 0)
-					{
-						cpl.rankandname[strlen(cpl.rankandname) - 1] = '\0';
-					}
-
-					adjust_string(cpl.rank);
-					adjust_string(cpl.rankandname);
-					adjust_string(cpl.pname);
-					adjust_string(cpl.race);
-					adjust_string(cpl.title);
-					adjust_string(cpl.alignment);
-					adjust_string(cpl.gender);
-					adjust_string(cpl.godname);
-
-					if (strstr(cpl.pname, "[WIZ]"))
+					if (strstr(cpl.ext_title, "[WIZ]"))
 					{
 						cpl.dm = 1;
 					}

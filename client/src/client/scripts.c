@@ -563,7 +563,7 @@ static void script_process_cmd(int i)
 
 		if (!strncmp(c, "player", 6))
 		{
-			snprintf(buf, sizeof(buf), "request player %d %s:%s:%s:%s:%s:%s:%s:%s\n", cpl.ob->tag, cpl.rank, cpl.rankandname, cpl.pname, cpl.race, cpl.title, cpl.alignment, cpl.gender, cpl.godname);
+			snprintf(buf, sizeof(buf), "request player %d %s:%s\n", cpl.ob->tag, cpl.name, cpl.ext_title);
 			w = write(scripts[i].out_fd, buf, strlen(buf));
 		}
 		else if (!strncmp(c, "weight", 5))
@@ -1008,7 +1008,7 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 								{
 									int rlen = data[i++];
 
-									be += snprintf(buf + be, sizeof(buf) - be, " ext_title %s:%s:%s:%s:%s:%s:%s:%s\n", cpl.rank, cpl.rankandname, cpl.pname, cpl.race, cpl.title, cpl.alignment, cpl.gender, cpl.godname);
+									be += snprintf(buf + be, sizeof(buf) - be, " ext_title %s\n", cpl.ext_title);
 									i += rlen;
 									break;
 								}

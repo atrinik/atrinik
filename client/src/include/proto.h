@@ -16,7 +16,6 @@ sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
 int cs_write_string(char *buf, size_t len);
 void check_animation_status(int anum);
-char *adjust_string(char *buf);
 
 /* client/commands.c */
 void BookCmd(unsigned char *data, int len);
