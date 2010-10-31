@@ -1905,6 +1905,8 @@ void player_path_handle(player *pl)
 				dir = get_randomized_dir(dir);
 			}
 
+			pl->praying = 0;
+
 			/* Can the player move there directly? */
 			if (move_object(pl->ob, dir))
 			{
