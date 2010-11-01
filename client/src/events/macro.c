@@ -277,7 +277,7 @@ int process_macro_keys(int id, int value)
 {
 	int nrof, tag = 0, loc = 0;
 	char buf[256];
-	item *it, *tmp;
+	object *it, *tmp;
 	widgetdata *widget;
 
 	switch (id)
@@ -434,10 +434,10 @@ int process_macro_keys(int id, int value)
 			else
 				tag = cpl.win_inv_tag;
 
-			if (tag == -1 || !locate_item(tag))
+			if (tag == -1 || !object_find(tag))
 				return 0;
 
-			snprintf(buf, sizeof(buf), "apply %s", locate_item(tag)->s_name);
+			snprintf(buf, sizeof(buf), "apply %s", object_find(tag)->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_apply(tag);
 			return 0;
@@ -448,11 +448,11 @@ int process_macro_keys(int id, int value)
 			else
 				tag = cpl.win_inv_tag;
 
-			if (tag == -1 || !locate_item(tag))
+			if (tag == -1 || !object_find(tag))
 				return 0;
 
 			client_send_examine(tag);
-			snprintf(buf, sizeof(buf), "examine %s", locate_item(tag)->s_name);
+			snprintf(buf, sizeof(buf), "examine %s", object_find(tag)->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			return 0;
 
@@ -462,12 +462,12 @@ int process_macro_keys(int id, int value)
 			else
 				tag = cpl.win_inv_tag;
 
-			if (tag == -1 || !locate_item(tag))
+			if (tag == -1 || !object_find(tag))
 				return 0;
 
-			it = locate_item(tag);
+			it = object_find(tag);
 			draw_info_format(COLOR_DGOLD, "%smark %s", it->tag == cpl.mark_count ? "un" : "", it->s_name);
-			send_mark_obj(it);
+			object_send_mark(it);
 			return 0;
 
 		case KEYFUNC_LOCK:
@@ -476,15 +476,15 @@ int process_macro_keys(int id, int value)
 			else
 				tag = cpl.win_inv_tag;
 
-			if (tag == -1  || !locate_item(tag))
+			if (tag == -1  || !object_find(tag))
 				return 0;
 
-			toggle_locked((it = locate_item(tag)));
+			toggle_locked((it = object_find(tag)));
 
 			if (!it)
 				return 0;
 
-			if (it->locked)
+			if (it->flags & F_LOCKED)
 				snprintf(buf, sizeof(buf), "unlock %s", it->s_name);
 			else
 				snprintf(buf, sizeof(buf), "lock %s", it->s_name);
@@ -555,10 +555,10 @@ int process_macro_keys(int id, int value)
 				}
 			}
 
-			if (tag == -1 || !locate_item(tag))
+			if (tag == -1 || !object_find(tag))
 				return 0;
 
-			if ((it = locate_item(tag)))
+			if ((it = object_find(tag)))
 				nrof = it->nrof;
 			else
 				return 0;
@@ -623,15 +623,15 @@ int process_macro_keys(int id, int value)
 				return 0;
 			}
 
-			if (tag == -1 || !locate_item(tag))
+			if (tag == -1 || !object_find(tag))
 				return 0;
 
-			if ((it = locate_item(tag)))
+			if ((it = object_find(tag)))
 				nrof = it->nrof;
 			else
 				return 0;
 
-			if (it->locked)
+			if (it->flags & F_LOCKED)
 			{
 				sound_play_effect("click_fail.ogg", 100);
 				draw_info("Unlock item first!", COLOR_DGOLD);

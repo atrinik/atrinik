@@ -120,7 +120,7 @@ void move_keys(int num)
 			}
 		}
 
-		fire_command(buf);
+		cs_write_string(buf, strlen(buf));
 		return;
 	}
 	else

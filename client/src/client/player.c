@@ -86,12 +86,7 @@ const char *gender_noun[GENDER_MAX] =
 void clear_player()
 {
 	memset(quick_slots, -1, sizeof(quick_slots));
-
-	free_all_items(cpl.sack);
-	free_all_items(cpl.below);
-	free_all_items(cpl.ob);
-	free_all_items(cpl.shop);
-	cpl.ob = player_item();
+	objects_init();
 	init_player_data();
 }
 
@@ -602,7 +597,7 @@ void widget_show_player_doll_event()
 		cpl.win_inv_tag = cpl.win_quick_tag;
 
 		/* Drop to player doll */
-		if (!(locate_item(cpl.win_inv_tag))->applied)
+		if (!(object_find(cpl.win_inv_tag)->flags & F_APPLIED))
 		{
 			process_macro_keys(KEYFUNC_APPLY, 0);
 		}
@@ -610,7 +605,7 @@ void widget_show_player_doll_event()
 
 	if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
 	{
-		if ((locate_item(cpl.win_inv_tag))->applied)
+		if (object_find(cpl.win_inv_tag)->flags & F_APPLIED)
 		{
 			draw_info("This is applied already!", COLOR_WHITE);
 		}
@@ -633,7 +628,7 @@ void widget_show_player_doll_event()
  * @param widget The widget object. */
 void widget_show_player_doll(widgetdata *widget)
 {
-	item *tmp;
+	object *tmp;
 	char *tooltip_text = NULL;
 	char buf[128];
 	int index, tooltip_index = -1, ring_flag = 0;
@@ -687,7 +682,7 @@ void widget_show_player_doll(widgetdata *widget)
 	/* Show items applied */
 	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 	{
-		if (tmp->applied)
+		if (tmp->flags & F_APPLIED)
 		{
 			index = -1;
 

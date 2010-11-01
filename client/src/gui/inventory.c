@@ -41,9 +41,9 @@ char *skill_level_name[] =
 };
 
 /* This function returns number of items and adjusst the inventory window data */
-int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen)
+int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen)
 {
-	item *tmp, *tmpc;
+	object *tmp, *tmpc;
 	int i = 0, ret = -1;
 
 	cpl.window_weight = 0.0f;
@@ -122,7 +122,7 @@ int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, i
 	return ret;
 }
 
-static void show_inventory_item_stats(item *tmp, widgetdata *widget)
+static void show_inventory_item_stats(object *tmp, widgetdata *widget)
 {
 	char buf[MAX_BUF];
 	SDL_Rect tmp_rect;
@@ -286,8 +286,8 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 void widget_show_inventory_window(widgetdata *widget)
 {
 	int i, invxlen, invylen;
-	item *op, *tmp, *tmpx = NULL;
-	item *tmpc;
+	object *op, *tmp, *tmpx = NULL;
+	object *tmpc;
 	char buf[256];
 	widgetdata *tmp_widget;
 
@@ -435,7 +435,7 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 	/* ground ( IWIN_BELOW )  */
 	if (y >= widget->y1 + 19 && y <= widget->y1 + widget->ht - 4 && x > widget->x1 + 4 && x < widget->x1 + widget->wd - 12)
 	{
-		item *Item;
+		object *Item;
 
 		if (cpl.inventory_win == IWIN_INV)
 		{
@@ -446,7 +446,7 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 
 		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
 
-		Item = locate_item(cpl.win_below_tag);
+		Item = object_find(cpl.win_below_tag);
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 		{
@@ -494,7 +494,7 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 void widget_show_below_window(widgetdata *widget)
 {
 	int i, slot,at;
-	item *tmp, *tmpc, *tmpx = NULL;
+	object *tmp, *tmpc, *tmpx = NULL;
 	char buf[256];
 	SDL_Rect tmp_rect;
 	tmp_rect.w = 265;
@@ -536,13 +536,17 @@ void widget_show_below_window(widgetdata *widget)
 
 	for (; tmp && i < INVITEMBELOWXLEN * INVITEMBELOWYLEN; tmp = tmp->next)
 	{
-		at = tmp->applied;
+		at = tmp->flags & F_APPLIED;
 
 		if (tmp->tag != cpl.container_tag)
-			tmp->applied = 0;
+			tmp->flags &= ~F_APPLIED;
 
 		blt_inv_item(tmp, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
-		tmp->applied = at;
+
+		if (at)
+		{
+			tmp->flags |= F_APPLIED;
+		}
 
 		if (i + cpl.win_below_start == cpl.win_below_slot)
 		{
@@ -602,7 +606,7 @@ jump_in_container2:
 }
 
 #define ICONDEFLEN 32
-int blt_inv_item_centered(item *tmp, int x, int y)
+int blt_inv_item_centered(object *tmp, int x, int y)
 {
 	int temp, xstart, xlen, ystart, ylen;
 	sint16 anim1;
@@ -730,10 +734,10 @@ int blt_inv_item_centered(item *tmp, int x, int y)
 		}
 	}
 
-	if (tmp->flagsval & F_INVISIBLE)
+	if (tmp->flags & F_INVISIBLE)
 		bltfx.flags = BLTFX_FLAG_SRCALPHA | BLTFX_FLAG_GREY;
 
-	if (tmp->flagsval & F_ETHEREAL)
+	if (tmp->flags & F_ETHEREAL)
 		bltfx.flags = BLTFX_FLAG_SRCALPHA;
 
 	sprite_blt(FaceList[tmp->face].sprite, x + xstart, y + ystart, &box, &bltfx);
@@ -752,7 +756,7 @@ int blt_inv_item_centered(item *tmp, int x, int y)
  * @param y Y position of the item
  * @param nrof If non-zero, will use the value instead of the item's own
  * nrof. */
-void blt_inv_item(item *tmp, int x, int y, int nrof)
+void blt_inv_item(object *tmp, int x, int y, int nrof)
 {
 	int tmp_nrof = tmp->nrof;
 
@@ -779,32 +783,32 @@ void blt_inv_item(item *tmp, int x, int y, int nrof)
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 18, COLOR_WHITE, NULL, NULL);
 	}
 
-	if (tmp->locked)
+	if (tmp->flags & F_LOCKED)
 		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + ICONDEFLEN - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
 
 	/* Applied and unpaid same spot - can't apply unpaid items */
-	if (tmp->applied)
+	if (tmp->flags & F_APPLIED)
 		sprite_blt(Bitmaps[BITMAP_APPLY], x, y, NULL, NULL);
 
-	if (tmp->unpaid)
+	if (tmp->flags & F_UNPAID)
 		sprite_blt(Bitmaps[BITMAP_UNPAID], x, y, NULL, NULL);
 
-	if (tmp->magical)
+	if (tmp->flags & F_MAGIC)
 		sprite_blt(Bitmaps[BITMAP_MAGIC], x + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + ICONDEFLEN-Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
 
-	if (tmp->cursed)
+	if (tmp->flags & F_CURSED)
 		sprite_blt(Bitmaps[BITMAP_CURSED], x + ICONDEFLEN-Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
 
-	if (tmp->damned)
+	if (tmp->flags & F_DAMNED)
 		sprite_blt(Bitmaps[BITMAP_DAMNED], x + ICONDEFLEN - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
 
-	if (tmp->trapped)
+	if (tmp->flags & F_TRAPPED)
 		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + 8, y + 7, NULL, NULL);
 }
 
 void examine_range_inv()
 {
-	item *op, *tmp;
+	object *op, *tmp;
 
 	op = cpl.ob;
 
@@ -816,11 +820,11 @@ void examine_range_inv()
 
 	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
-		if (tmp->applied && tmp->itype == TYPE_BOW)
+		if (tmp->flags & F_APPLIED && tmp->itype == TYPE_BOW)
 		{
 			fire_mode_tab[FIRE_MODE_BOW].item = tmp->tag;
 		}
-		else if (tmp->applied && (tmp->itype == TYPE_WAND || tmp->itype == TYPE_ROD || tmp->itype == TYPE_HORN))
+		else if (tmp->flags & F_APPLIED && (tmp->itype == TYPE_WAND || tmp->itype == TYPE_ROD || tmp->itype == TYPE_HORN))
 		{
 			fire_mode_tab[FIRE_MODE_WAND].item = tmp->tag;
 		}
@@ -841,7 +845,7 @@ void examine_range_inv()
  * is not, we will have no bad game play effects. MT. */
 void examine_range_marks(int tag)
 {
-	item *op, *tmp;
+	object *op, *tmp;
 	char buf[256];
 
 	op = cpl.ob;
@@ -883,7 +887,7 @@ void examine_range_marks(int tag)
 
 				return;
 			}
-			else if ((tmp->itype == TYPE_POTION && tmp->stype & 128) || (tmp->stype & 128 && tmp->itype != TYPE_WEAPON) || (tmp->itype == TYPE_WEAPON && tmp->applied))
+			else if ((tmp->itype == TYPE_POTION && tmp->stype & 128) || (tmp->stype & 128 && tmp->itype != TYPE_WEAPON) || (tmp->itype == TYPE_WEAPON && tmp->flags & F_APPLIED))
 			{
 #if 0
 				snprintf(buf, sizeof(buf), "GO2 ready %s. (%d)", tmp->s_name, tmp->stype & 128);
@@ -907,7 +911,7 @@ void examine_range_marks(int tag)
 				return;
 			}
 
-			if (tmp->itype == TYPE_WEAPON && !(tmp->applied))
+			if (tmp->itype == TYPE_WEAPON && !(tmp->flags & F_APPLIED))
 				snprintf(buf, sizeof(buf), "Can't ready unapplied weapon %s", tmp->s_name);
 			else
 				snprintf(buf, sizeof(buf), "Can't throw %s.", tmp->s_name);

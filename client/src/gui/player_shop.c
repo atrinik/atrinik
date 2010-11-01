@@ -165,7 +165,7 @@ void widget_show_shop(widgetdata *widget)
 		/* Loop through the items */
 		for (shop_item_tmp = shop_gui->shop_items; shop_item_tmp; shop_item_tmp = shop_item_tmp->next)
 		{
-			item *shop_item;
+			object *shop_item;
 
 			/* Item is gone */
 			if (shop_item_tmp->tag == -1)
@@ -173,7 +173,7 @@ void widget_show_shop(widgetdata *widget)
 				continue;
 			}
 
-			shop_item = locate_item(shop_item_tmp->tag);
+			shop_item = object_find(shop_item_tmp->tag);
 
 			if (!shop_item)
 			{
@@ -290,7 +290,7 @@ void shop_open()
 	for (shop_item_tmp = shop_gui->shop_items; shop_item_tmp; shop_item_tmp = shop_item_tmp->next)
 	{
 		char tmp_buf[MAX_BUF];
-		item *shop_item = locate_item(shop_item_tmp->tag);
+		object *shop_item = object_find(shop_item_tmp->tag);
 
 		/* If the item could not be found, something is wrong */
 		if (!shop_item)
@@ -331,7 +331,7 @@ void shop_open()
 void shop_buy_item()
 {
 	char buf[MAX_BUF];
-	item *shop_item = locate_item(shop_gui->selected_tag);
+	object *shop_item = object_find(shop_gui->selected_tag);
 	_shop_struct *shop_item_tmp;
 
 	/* Loop through the shop items */
@@ -343,7 +343,7 @@ void shop_buy_item()
 			/* If the nrof is the same, we will want to remove the item from the list */
 			if (shop_item_tmp->nrof == shop_item->nrof)
 			{
-				shop_remove_item(shop_item->tag);
+				shop_object_remove(shop_item->tag);
 			}
 
 			break;
@@ -553,7 +553,7 @@ static void shop_add_button(int x, int y, const char *text)
 				}
 				else if (strcmp(text, "Remove") == 0)
 				{
-					shop_remove_item(shop_gui->selected_tag);
+					shop_object_remove(shop_gui->selected_tag);
 				}
 			}
 		}
@@ -576,7 +576,7 @@ int shop_put_item(int x, int y)
 	if (x > cur_widget[SHOP_ID]->x1 && x < cur_widget[SHOP_ID]->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w && y > cur_widget[SHOP_ID]->y1 && y < cur_widget[SHOP_ID]->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h)
 	{
 		_shop_struct *shop_item_tmp;
-		item *item_object;
+		object *item_object;
 		int i;
 
 		/* If we're not opening or the item limit was reached, return */
@@ -600,7 +600,7 @@ int shop_put_item(int x, int y)
 		}
 
 		/* Locate the item */
-		item_object = locate_item(cpl.win_inv_tag);
+		item_object = object_find(cpl.win_inv_tag);
 
 		/* Sanity check, shouldn't happen */
 		if (!item_object)
@@ -616,7 +616,7 @@ int shop_put_item(int x, int y)
 			itemExamined = 0;
 			return 1;
 		}
-		else if (item_object->locked)
+		else if (item_object->flags & F_LOCKED)
 		{
 			draw_info_format(COLOR_WHITE, "You must unlock the %s before attempting to sell it.", item_object->s_name);
 			draggingInvItem(DRAG_NONE);
@@ -685,7 +685,7 @@ int shop_put_item(int x, int y)
 /**
  * Remove an item from the linked list of shop items.
  * @param tag Tag of the item to remove. */
-void shop_remove_item(sint32 tag)
+void shop_object_remove(sint32 tag)
 {
 	_shop_struct *currP, *prevP = NULL;
 

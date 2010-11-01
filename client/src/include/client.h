@@ -194,19 +194,19 @@ typedef enum _inventory_win
 typedef struct Player_Struct
 {
 	/* Player object */
-	item *ob;
+	object *ob;
 
 	/* Items below the player (pl.below->inv) */
-	item *below;
+	object *below;
 
 	/* inventory of a open container */
-	item *sack;
+	object *sack;
 
 	/* Pointer to open container */
-	item *container;
+	object *container;
 
 	/** Inventory of items in shop */
-	item *shop;
+	object *shop;
 
 	/* Tag of the container */
 	sint32 container_tag;

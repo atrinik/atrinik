@@ -959,7 +959,7 @@ void ItemXCmd(unsigned char *data, int len)
 
 	if (dmode >= 0)
 	{
-		remove_item_inventory(locate_item(loc));
+		object_remove_inventory(object_find(loc));
 	}
 
 	/* send item flag */
@@ -976,7 +976,7 @@ void ItemXCmd(unsigned char *data, int len)
 	{
 		/* we catch the REAL container tag */
 		cpl.container_tag = loc;
-		remove_item_inventory(locate_item(-1));
+		object_remove_inventory(object_find(-1));
 
 		/* if this happens, we want to close the container */
 		if (loc == -1)
@@ -1027,9 +1027,9 @@ void ItemXCmd(unsigned char *data, int len)
 			anim = GetShort_String(data + pos);
 			pos += 2;
 			animspeed = data[pos++];
-			nrof = GetInt_String(data+pos);
+			nrof = GetInt_String(data + pos);
 			pos += 4;
-			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 0);
+			update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 0);
 		}
 
 		if (pos > len)
@@ -1062,7 +1062,7 @@ void ItemYCmd(unsigned char *data, int len)
 
 	if (dmode >= 0)
 	{
-		remove_item_inventory(locate_item(loc));
+		object_remove_inventory(object_find(loc));
 	}
 
 	/* send item flag */
@@ -1079,7 +1079,7 @@ void ItemYCmd(unsigned char *data, int len)
 	{
 		/* we catch the REAL container tag */
 		cpl.container_tag = loc;
-		remove_item_inventory(locate_item(-1));
+		object_remove_inventory(object_find(-1));
 
 		/* if this happens, we want to close the container */
 		if (loc == -1)
@@ -1133,7 +1133,7 @@ void ItemYCmd(unsigned char *data, int len)
 			animspeed = data[pos++];
 			nrof = GetInt_String(data + pos);
 			pos += 4;
-			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 1);
+			update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 1);
 		}
 
 		if (pos > len)
@@ -1154,7 +1154,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 	int weight, loc, tag, face, sendflags, flags, pos = 0, nlen, anim, nrof;
 	uint8 direction;
 	char name[MAX_BUF];
-	item *ip, *env = NULL;
+	object *ip, *env = NULL;
 	uint8 animspeed;
 
 	map_udate_flag = 2;
@@ -1162,7 +1162,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 	pos += 2;
 	tag = GetInt_String(data + pos);
 	pos += 4;
-	ip = locate_item(tag);
+	ip = object_find(tag);
 
 	if (!ip)
 	{
@@ -1174,7 +1174,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 	weight = (int) (ip->weight * 1000);
 	face = ip->face;
 	request_face(face);
-	flags = ip->flagsval;
+	flags = ip->flags;
 	anim = ip->animation_id;
 	animspeed = (uint8) ip->anim_speed;
 	nrof = ip->nrof;
@@ -1183,7 +1183,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 	if (sendflags & UPD_LOCATION)
 	{
 		loc = GetInt_String(data + pos);
-		env = locate_item(loc);
+		env = object_find(loc);
 
 		if (!env)
 		{
@@ -1248,7 +1248,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 		pos += 4;
 	}
 
-	update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, 0);
+	update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, 0);
 	map_udate_flag = 2;
 }
 
@@ -1264,7 +1264,7 @@ void DeleteItem(unsigned char *data, int len)
 	{
 		tag = GetInt_String(data);
 		pos += 4;
-		delete_item(tag);
+		delete_object(tag);
 	}
 
 	if (pos > len)
@@ -1290,7 +1290,7 @@ void DeleteInventory(unsigned char *data)
 		return;
 	}
 
-	remove_item_inventory(locate_item(tag));
+	object_remove_inventory(object_find(tag));
 	map_udate_flag = 2;
 }
 
@@ -1353,7 +1353,7 @@ void Map2Cmd(unsigned char *data, int len)
 			ypos = (uint8) (data[pos++]);
 			mx = xpos;
 			my = ypos;
-			remove_item_inventory(locate_item(0));
+			object_remove_inventory(object_find(0));
 			init_map_data(map_w, map_h, xpos, ypos);
 		}
 		else
@@ -1367,7 +1367,7 @@ void Map2Cmd(unsigned char *data, int len)
 			ypos = (uint8) (data[pos++]);
 			mx = xpos;
 			my = ypos;
-			remove_item_inventory(locate_item(0));
+			object_remove_inventory(object_find(0));
 			display_mapscroll(xoff, yoff);
 
 			map_play_footstep();
@@ -1383,7 +1383,7 @@ void Map2Cmd(unsigned char *data, int len)
 		/* we have moved */
 		if ((xpos - mx || ypos - my))
 		{
-			remove_item_inventory(locate_item(0));
+			object_remove_inventory(object_find(0));
 			cpl.win_below_slot = 0;
 
 			display_mapscroll(xpos - mx, ypos - my);
@@ -1887,7 +1887,7 @@ void ShopCmd(unsigned char *data, int len)
 			pos += 4;
 
 			/* Update the item */
-			update_item(tag, -2, name, -1, face, flags, anim, animspeed, nrof, 0, 0, 0, 0, 0, 0, direction, 1);
+			update_object(tag, -2, name, -1, face, flags, anim, animspeed, nrof, 0, 0, 0, 0, 0, 0, direction, 1);
 		}
 
 		if (pos > len)

@@ -38,11 +38,11 @@
  * @return "Nothing" if no range item, the range item name otherwise */
 static char *get_range_item_name(int tag)
 {
-	item *tmp;
+	object *tmp;
 
 	if (tag != FIRE_ITEM_NO)
 	{
-		tmp = locate_item(tag);
+		tmp = object_find(tag);
 
 		if (tmp)
 			return tmp->s_name;
@@ -104,8 +104,8 @@ void widget_show_range(widgetdata *widget)
 	char buf[256];
 	SDL_Rect rec_range;
 	SDL_Rect rec_item;
-	item *op;
-	item *tmp;
+	object *op;
+	object *tmp;
 
 	rec_range.w = 160;
 	rec_item.w = 185;
@@ -125,7 +125,7 @@ void widget_show_range(widgetdata *widget)
 
 				if (fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO)
 				{
-					tmp = locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun);
+					tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun);
 
 					if (tmp)
 					{
@@ -156,7 +156,7 @@ void widget_show_range(widgetdata *widget)
 
 			/* Wands, staves, rods and horns */
 		case FIRE_MODE_WAND:
-			if (!locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item))
+			if (!object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item))
 				fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
 
 			if (fire_mode_tab[FIRE_MODE_WAND].item != FIRE_ITEM_NO)
@@ -224,7 +224,7 @@ void widget_show_range(widgetdata *widget)
 			break;
 
 		case FIRE_MODE_THROW:
-			if (!(op = locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
+			if (!(op = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
 				fire_mode_tab[FIRE_MODE_THROW].item = FIRE_ITEM_NO;
 
 			if (fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO)

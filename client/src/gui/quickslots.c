@@ -146,7 +146,7 @@ void quickslot_key(SDL_KeyboardEvent *key, int slot)
 	{
 		tag = cpl.win_inv_tag;
 
-		if (tag == -1 || !locate_item(tag))
+		if (tag == -1 || !object_find(tag))
 			return;
 
 		quick_slots[slot].spell = 0;
@@ -163,7 +163,7 @@ void quickslot_key(SDL_KeyboardEvent *key, int slot)
 			quick_slots[slot].tag = tag;
 			quickslot_set_item(slot + 1, tag);
 
-			snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, locate_item(tag)->s_name);
+			snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, object_find(tag)->s_name);
 			draw_info(buf, COLOR_DGOLD);
 		}
 	}
@@ -182,9 +182,9 @@ void quickslot_key(SDL_KeyboardEvent *key, int slot)
 				return;
 			}
 
-			if (locate_item(quick_slots[slot].tag))
+			if (object_find(quick_slots[slot].tag))
 			{
-				snprintf(buf, sizeof(buf), "F%d of group %d quick apply %s", real_slot + 1, quickslot_group, locate_item(quick_slots[slot].tag)->s_name);
+				snprintf(buf, sizeof(buf), "F%d of group %d quick apply %s", real_slot + 1, quickslot_group, object_find(quick_slots[slot].tag)->s_name);
 				draw_info(buf, COLOR_DGOLD);
 				client_send_apply(quick_slots[slot].tag);
 				return;
@@ -283,7 +283,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			/* Item in quickslot */
 			else
 			{
-				item *tmp = locate_item_from_item(cpl.ob, quick_slots[j].tag);
+				object *tmp = object_find_object(cpl.ob, quick_slots[j].tag);
 
 				/* If we located the item */
 				if (tmp)
@@ -370,7 +370,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 					/* Now: if this is null, item is *not* in the main inventory
 					 * of the player - then we can't put it in quickbar!
 					 * Server will not allow apply of items in containers! */
-					if (!locate_item_from_inv(cpl.ob->inv, cpl.win_quick_tag))
+					if (!object_find_object_inv(cpl.ob, cpl.win_quick_tag))
 					{
 						sound_play_effect("click_fail.ogg", 100);
 						draw_info("Only items from main inventory are allowed in quickslots!", COLOR_RED);
@@ -381,7 +381,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 						sound_play_effect("get.ogg", 100);
 						quickslot_set_item(ind + 1, cpl.win_quick_tag);
 
-						snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", ind + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, locate_item(cpl.win_quick_tag)->s_name);
+						snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", ind + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, object_find(cpl.win_quick_tag)->s_name);
 						draw_info(buf, COLOR_DGOLD);
 					}
 				}
@@ -464,7 +464,7 @@ void update_quickslots(int del_item)
 		/* Only items in the *main* inventory can be used with quickslots */
 		if (quick_slots[i].spell == 0)
 		{
-			if (!locate_item_from_inv(cpl.ob->inv, quick_slots[i].tag))
+			if (!object_find_object_inv(cpl.ob, quick_slots[i].tag))
 				quick_slots[i].tag = -1;
 		}
 	}

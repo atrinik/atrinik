@@ -39,7 +39,7 @@
 static void script_dead(int i);
 static void script_process_cmd(int i);
 static int script_by_name(const char *name);
-static void script_send_item(int i, const char *head, const item *it);
+static void script_send_item(int i, const char *head, const object *it);
 
 /** List of scripts.*/
 static struct script *scripts = NULL;
@@ -627,7 +627,7 @@ static void script_process_cmd(int i)
 
 			if (!strncmp(c, "inv", 3))
 			{
-				item *it = cpl.ob->inv;
+				object *it = cpl.ob->inv;
 
 				while (it)
 				{
@@ -640,11 +640,11 @@ static void script_process_cmd(int i)
 			}
 			else if (!strncmp(c, "applied", 7))
 			{
-				item *it = cpl.ob->inv;
+				object *it = cpl.ob->inv;
 
 				while (it)
 				{
-					if (it->applied)
+					if (it->flags & F_APPLIED)
 					{
 						script_send_item(i, "request items applied ", it);
 					}
@@ -657,7 +657,7 @@ static void script_process_cmd(int i)
 			}
 			else if (!strncmp(c, "below", 5))
 			{
-				item *it = cpl.below->inv;
+				object *it = cpl.below->inv;
 
 				while (it)
 				{
@@ -743,22 +743,12 @@ static void script_process_cmd(int i)
  * @param i ID of the script.
  * @param head What to prefix the information with.
  * @param it The item. */
-static void script_send_item(int i, const char *head, const item *it)
+static void script_send_item(int i, const char *head, const object *it)
 {
 	char buf[HUGE_BUF];
-	int flags, w;
+	int w;
 
-	flags = it->open;
-	flags = (flags << 1) | it->damned;
-	flags = (flags << 1) | it->cursed;
-	flags = (flags << 1) | it->magical;
-	flags = (flags << 1) | it->unpaid;
-	flags = (flags << 1) | it->applied;
-	flags = (flags << 1) | it->open;
-	flags = (flags << 1) | it->locked;
-	flags = (flags << 1) | it->trapped;
-
-	snprintf(buf, sizeof(buf), "%s%d %d %f %d %d %s\n", head, it->tag, it->nrof, it->weight, flags, it->itype, it->s_name);
+	snprintf(buf, sizeof(buf), "%s%d %d %f %d %d %s\n", head, it->tag, it->nrof, it->weight, it->flags, it->itype, it->s_name);
 	w = write(scripts[i].out_fd, buf, strlen(buf));
 }
 

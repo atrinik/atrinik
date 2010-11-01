@@ -222,10 +222,10 @@ int client_command_check(char *cmd)
  * @param y Y position to blit the item */
 void blt_inventory_face_from_tag(int tag, int x, int y)
 {
-	item *tmp;
+	object *tmp;
 
 	/* Check item is in inventory and faces are loaded, etc */
-	tmp = locate_item(tag);
+	tmp = object_find(tag);
 
 	if (!tmp)
 		return;

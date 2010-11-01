@@ -29,39 +29,38 @@
 
 #include <include.h>
 
-/* The list of free (unused) items */
-static item *free_items;
-static item *player;
+/** The list of free (unused) objects */
+static object *free_objects = NULL;
 
-/* How many items are reserved initially
- * for the item spool */
-#define NROF_ITEMS 50
-
-/*  new_item() returns pointer to new item which
- *  is allocated and initialized correctly */
-static item *new_item()
+/**
+ * Allocates a new object.
+ * @return The object. */
+static object *object_new()
 {
-	item *op = calloc(1, sizeof(item));
+	object *op = calloc(1, sizeof(object));
 
 	if (!op)
 	{
-		LOG(llevError, "new_item(): Out of memory.\n");
+		LOG(llevError, "object_new(): Out of memory.\n");
 	}
 
 	return op;
 }
 
-/* alloc_items() returns pointer to list of allocated objects */
-static item *alloc_items(int nrof)
+/**
+ * Allocates a list of objects.
+ * @param nrof How many objects to allocate.
+ * @return The allocated objects in a list. */
+static object *objects_alloc(int nrof)
 {
-	item *op, *list;
+	object *op, *list;
 	int i;
 
-	list = op = new_item();
+	list = op = object_new();
 
 	for (i = 1; i < nrof; i++)
 	{
-		op->next = new_item();
+		op->next = object_new();
 		op->next->prev = op;
 		op = op->next;
 	}
@@ -69,46 +68,37 @@ static item *alloc_items(int nrof)
 	return list;
 }
 
-/* free_items() frees all allocated items from list */
-void free_all_items(item *op)
+/**
+ * Frees all objects in a list.
+ * @param op Start of the list. */
+void objects_free(object *op)
 {
-	item *tmp;
+	object *next;
 
 	while (op)
 	{
 		if (op->inv)
 		{
-			free_all_items(op->inv);
+			objects_free(op->inv);
 		}
 
-		tmp = op->next;
+		next = op->next;
 		free(op);
-		op = tmp;
+		op = next;
 	}
 }
-
-int locate_item_tag_from_nr(item *op, int nr)
+/**
+ * Find an object inside another object, but not inside inventories.
+ * @param op Object to search in.
+ * @param tag ID of the object we're looking for.
+ * @return Matching object if found, NULL otherwise. */
+object *object_find_object_inv(object *op, sint32 tag)
 {
-	int count = 0;
+	object *tmp;
 
-	for (; op != NULL; op = op->next, count++)
+	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
-		if (count == nr)
-		{
-			return op->tag;
-		}
-	}
-
-	return -1;
-}
-
-/* Recursive function, only check inventory of op
- * *not* items inside other containers. */
-item *locate_item_from_inv(item *op, sint32 tag)
-{
-	for (; op != NULL; op = op->next)
-	{
-		if (op->tag == tag)
+		if (tmp->tag == tag)
 		{
 			return op;
 		}
@@ -117,12 +107,14 @@ item *locate_item_from_inv(item *op, sint32 tag)
 	return NULL;
 }
 
-/* Recursive function, used by locate_item() */
-item *locate_item_from_item(item *op, sint32 tag)
+/**
+ * Find an object inside another object by its tag.
+ * @param op Object to search in.
+ * @param tag ID of the object we're looking for.
+ * @return Matching object if found, NULL otherwise. */
+object *object_find_object(object *op, sint32 tag)
 {
-	item *tmp;
-
-	for (; op != NULL; op = op->next)
+	for (; op; op = op->next)
 	{
 		if (op->tag == tag)
 		{
@@ -130,7 +122,9 @@ item *locate_item_from_item(item *op, sint32 tag)
 		}
 		else if (op->inv)
 		{
-			if ((tmp = locate_item_from_item(op->inv, tag)))
+			object *tmp = object_find_object(op->inv, tag);
+
+			if (tmp)
 			{
 				return tmp;
 			}
@@ -140,11 +134,13 @@ item *locate_item_from_item(item *op, sint32 tag)
 	return NULL;
 }
 
-/* locate_item() returns pointer to the item which tag is given
- * as parameter or if item is not found returns NULL */
-item *locate_item(sint32 tag)
+/**
+ * Attempts to find an object by its tag, wherever it may be.
+ * @param tag Tag to look for.
+ * @return Matching object if found, NULL otherwise. */
+object *object_find(sint32 tag)
 {
-	item *op;
+	object *op;
 
 	if (tag == 0)
 	{
@@ -161,43 +157,56 @@ item *locate_item(sint32 tag)
 		return cpl.shop;
 	}
 
-	if (cpl.below && (op = locate_item_from_item(cpl.below->inv, tag)) != NULL)
+	/* Below the player. */
+	if (cpl.below)
 	{
-		return op;
+		op = object_find_object(cpl.below->inv, tag);
+
+		if (op)
+		{
+			return op;
+		}
 	}
 
-	if (cpl.shop && (op = locate_item_from_item(cpl.shop->inv, tag)) != NULL)
+	/* In shop. */
+	if (cpl.shop)
 	{
-		return op;
+		op = object_find_object(cpl.shop->inv, tag);
+
+		if (op)
+		{
+			return op;
+		}
 	}
 
-	if (cpl.sack && (op = locate_item_from_item(cpl.sack->inv, tag)) != NULL)
+	/* Open container. */
+	if (cpl.sack)
 	{
-		return op;
+		op = object_find_object(cpl.sack->inv, tag);
+
+		if (op)
+		{
+			return op;
+		}
 	}
 
-	if ((op = locate_item_from_item(player, tag)) != NULL)
-	{
-		return op;
-	}
-
-	return NULL;
+	/* Last attempt, inside the player. */
+	return object_find_object(cpl.ob, tag);
 }
 
-/* remove_item() inserts op the the list of free items
- * Note that it don't clear all fields in item */
-void remove_item(item *op)
+/**
+ * Remove an object.
+ * @param op What to remove. */
+void object_remove(object *op)
 {
-	/* IF no op, or it is the player */
-	if (!op || op == player || op == cpl.below || op == cpl.sack)
+	if (!op || op == cpl.ob || op == cpl.below || op == cpl.sack)
 	{
 		return;
 	}
 
-	/* Do we really want to do this? */
 	if (op->inv)
 	{
-		remove_item_inventory(op);
+		object_remove_inventory(op);
 	}
 
 	if (op->prev)
@@ -214,21 +223,24 @@ void remove_item(item *op)
 		op->next->prev = op->prev;
 	}
 
-	/* Add object to a list of free objects */
-	op->next = free_items;
+	/* Add object to the list of free objects. */
+	op->next = free_objects;
 
 	if (op->next)
 	{
 		op->next->prev = op;
 	}
 
-	free_items = op;
+	free_objects = op;
 
-	memset(op, 0, sizeof(item));
+	/* Clear the object so it can be reused. */
+	memset(op, 0, sizeof(object));
 }
 
-/* remove_item_inventory() recursive frees items inventory */
-void remove_item_inventory(item *op)
+/**
+ * Remove all items in object's inventory.
+ * @param op The object to remove inventory of. */
+void object_remove_inventory(object *op)
 {
 	if (!op)
 	{
@@ -237,22 +249,26 @@ void remove_item_inventory(item *op)
 
 	while (op->inv)
 	{
-		remove_item(op->inv);
+		object_remove(op->inv);
 	}
 }
 
-/* We adding it now to the start inv.
- *  OLD: add_item() adds item op to end of the inventory of item env */
-static void add_item(item *env, item *op, int bflag)
+/**
+ * Adds an object to inventory of 'env'.
+ * @param env Which object to add to.
+ * @param op Object to add.
+ * @param bflag If 1, the object will be added to the end of the
+ * inventory instead of the start. */
+static void object_add(object *env, object *op, int bflag)
 {
-	item *tmp;
+	object *tmp;
 
 	if (!op)
 	{
 		return;
 	}
 
-	if (bflag == 0)
+	if (!bflag)
 	{
 		op->next = env->inv;
 
@@ -265,7 +281,6 @@ static void add_item(item *env, item *op, int bflag)
 		env->inv = op;
 		op->env = env;
 	}
-	/* Sort reverse - for inventory lists */
 	else
 	{
 		for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next)
@@ -292,56 +307,50 @@ static void add_item(item *env, item *op, int bflag)
 	}
 }
 
-/* create_new_item() returns pointer to a new item, inserts it to env
- * and sets its tag field and clears locked flag (all other fields
- * are unitialized and may contain random values) */
-item *create_new_item(item *env, sint32 tag, int bflag)
+/**
+ * Creates a new object and inserts it into 'env'.
+ * @param env Which object to insert the created object into. Can be NULL
+ * not to insert the created object anywhere.
+ * @param tag The object's ID.
+ * @param bflag If 1, the object will be added to the end of the
+ * inventory instead of the start.
+ * @return The created object. */
+object *object_create(object *env, sint32 tag, int bflag)
 {
-	item *op;
+	object *op;
 
-	if (!free_items)
+	/* Allocate more objects if needed. */
+	if (!free_objects)
 	{
-		free_items = alloc_items(NROF_ITEMS);
+		free_objects = objects_alloc(NROF_ITEMS);
 	}
 
-	op = free_items;
-	free_items = free_items->next;
+	op = free_objects;
+	free_objects = free_objects->next;
 
-	if (free_items)
+	if (free_objects)
 	{
-		free_items->prev = NULL;
+		free_objects->prev = NULL;
 	}
 
 	op->tag = tag;
-	op->locked = 0;
 
 	if (env)
 	{
-		add_item(env, op, bflag);
+		object_add(env, op, bflag);
 	}
 
 	return op;
 }
 
-static void get_flags(item *op, int flags)
-{
-	op->open = flags & F_OPEN ? 1 : 0;
-	op->damned = flags & F_DAMNED ? 1 : 0;
-	op->cursed = flags & F_CURSED ? 1 : 0;
-	op->magical = flags & F_MAGIC ? 1 : 0;
-	op->unpaid = flags & F_UNPAID ? 1 : 0;
-	op->applied = flags & F_APPLIED ? 1 : 0;
-	op->locked = flags & F_LOCKED ? 1 : 0;
-	op->trapped = flags & F_TRAPPED ? 1 : 0;
-	op->flagsval = flags;
-	op->apply_type = flags & F_APPLIED;
-}
-
-void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir)
+/**
+ * Set object's values.
+ * @param op Object. */
+void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir)
 {
 	if (!op)
 	{
-		LOG (-1, "Error in set_item_values(): item pointer is NULL.\n");
+		LOG (-1, "Error in object_set_values(): object pointer is NULL.\n");
 		return;
 	}
 
@@ -351,7 +360,7 @@ void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags
 		strncpy(op->s_name, "Warning: Old name cmd! This is a bug.", sizeof(op->s_name) - 1);
 		op->s_name[sizeof(op->s_name) - 1] = '\0';
 	}
-	/* we have a nrof - item1 command */
+	/* we have a nrof - object1 command */
 	else
 	{
 		/* Program always expect at least 1 object internal */
@@ -405,24 +414,18 @@ void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags
 	op->animation_id = anim;
 	op->anim_speed = animspeed;
 	op->direction = dir;
-	get_flags(op, flags);
+	op->flags = flags;
 }
 
-void fire_command(char *buf)
-{
-	SockList sl;
-
-	sl.buf = (unsigned char *) buf;
-	sl.len = (int) strlen(buf);
-	send_socklist(sl);
-}
-
-void toggle_locked(item *op)
+/**
+ * Toggle the locked status of an object.
+ * @param op Object. */
+void toggle_locked(object *op)
 {
 	SockList sl;
 	char buf[MAX_BUF];
 
-	/* if item is on the ground, don't lock it */
+	/* If object is on the ground, don't lock it. */
 	if (!op || !op->env || op->env->tag == 0)
 	{
 		return;
@@ -431,17 +434,20 @@ void toggle_locked(item *op)
 	sl.buf = (unsigned char *) buf;
 	strcpy((char *) sl.buf, "lock ");
 	sl.len = 5;
-	sl.buf[sl.len++] = op->locked ? 0 : 1;
+	sl.buf[sl.len++] = !(op->flags & F_LOCKED);
 	SockList_AddInt(&sl, op->tag);
 	send_socklist(sl);
 }
 
-void send_mark_obj(item *op)
+/**
+ * Update the marked object.
+ * @param op The object. */
+void object_send_mark(object *op)
 {
 	SockList sl;
 	char buf[MAX_BUF];
 
-	/* if item is on the ground, don't mark it */
+	/* If object is on the ground, don't mark it. */
 	if (!op || !op->env || op->env->tag == 0)
 	{
 		return;
@@ -463,58 +469,67 @@ void send_mark_obj(item *op)
 	send_socklist(sl);
 }
 
-item *player_item()
+/**
+ * Initializes the various objects of ::cpl structure, freeing them first
+ * if necessary. */
+void objects_init()
 {
-	player = new_item();
-	cpl.below = new_item();
-	cpl.sack = new_item();
-	cpl.shop = new_item();
+	objects_free(cpl.sack);
+	objects_free(cpl.below);
+	objects_free(cpl.ob);
+	objects_free(cpl.shop);
+
+	cpl.ob = object_new();
+	cpl.below = object_new();
+	cpl.sack = object_new();
+	cpl.shop = object_new();
 
 	cpl.below->weight = -111;
 	cpl.sack->weight = -111;
 	cpl.shop->weight = -111;
-
-	return player;
 }
 
-/* Upates an item with new attributes. */
-void update_item(int tag, int loc, char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag)
+/**
+ * Update an object with new attributes.
+ * @param tag The object ID to update.
+ * @param loc Location of the object. */
+void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag)
 {
-	item *ip, *env;
+	object *ip, *env;
 
-	ip = locate_item(tag);
-	env = locate_item(loc);
+	ip = object_find(tag);
+	env = object_find(loc);
 
 	/* Need to do some special handling if this is the player that is
 	 * being updated. */
-	if (player->tag == tag)
+	if (cpl.ob->tag == tag)
 	{
-		player->nrof = 1;
-		player->weight = (float) weight / 1000;
-		player->face = face;
-		get_flags(player, flags);
+		cpl.ob->nrof = 1;
+		cpl.ob->weight = (float) weight / 1000;
+		cpl.ob->face = face;
+		cpl.ob->flags = flags;
 
-		player->animation_id = anim;
-		player->anim_speed = animspeed;
-		player->nrof = nrof;
-		player->direction = direction;
+		cpl.ob->animation_id = anim;
+		cpl.ob->anim_speed = animspeed;
+		cpl.ob->nrof = nrof;
+		cpl.ob->direction = direction;
 	}
 	else
 	{
 		if (ip && ip->env != env)
 		{
-			remove_item(ip);
+			object_remove(ip);
 			ip = NULL;
 		}
 
-		set_item_values(ip ? ip : create_new_item(env, tag, bflag), name, weight, (uint16) face, flags, (uint16) anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
+		object_set_values(ip ? ip : object_create(env, tag, bflag), name, weight, (uint16) face, flags, (uint16) anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
 	}
 }
 
 /**
  * Animate one object.
  * @param ob The object to animate. */
-static void animate_object(item *ob)
+static void animate_object(object *ob)
 {
 	if (ob->animation_id > 0)
 	{
@@ -550,12 +565,12 @@ static void animate_object(item *ob)
  * Animate all possible objects. */
 void animate_objects()
 {
-	item *ob;
+	object *ob;
 
-	if (player)
+	if (cpl.ob)
 	{
 		/* For now, only the players inventory needs to be animated */
-		for (ob = player->inv; ob; ob = ob->next)
+		for (ob = cpl.ob->inv; ob; ob = ob->next)
 		{
 			animate_object(ob);
 		}

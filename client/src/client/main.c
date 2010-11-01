@@ -335,7 +335,7 @@ static void init_game_data()
 
 	memset(FaceList, 0, sizeof(struct _face_struct) * MAX_FACE_TILES);
 	memset(&cpl, 0, sizeof(cpl));
-	cpl.ob = player_item();
+	objects_init();
 
 	init_keys();
 	init_player_data();
@@ -1383,23 +1383,23 @@ int main(int argc, char *argv[])
 		/* Show the current dragged item */
 		if ((drag = draggingInvItem(DRAG_GET_STATUS)))
 		{
-			item *Item = NULL;
+			object *Item = NULL;
 
 			if (drag == DRAG_IWIN_INV)
 			{
-				Item = locate_item(cpl.win_inv_tag);
+				Item = object_find(cpl.win_inv_tag);
 			}
 			else if (drag == DRAG_IWIN_BELOW)
 			{
-				Item = locate_item(cpl.win_below_tag);
+				Item = object_find(cpl.win_below_tag);
 			}
 			else if (drag == DRAG_QUICKSLOT)
 			{
-				Item = locate_item(cpl.win_quick_tag);
+				Item = object_find(cpl.win_quick_tag);
 			}
 			else if (drag == DRAG_PDOLL)
 			{
-				Item = locate_item(cpl.win_pdoll_tag);
+				Item = object_find(cpl.win_pdoll_tag);
 			}
 
 			SDL_GetMouseState(&x, &y);

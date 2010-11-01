@@ -84,20 +84,18 @@ int get_bmap_id(char *name);
 void blit_face(int id, int x, int y);
 
 /* client/item.c */
-void free_all_items(item *op);
-int locate_item_tag_from_nr(item *op, int nr);
-item *locate_item_from_inv(item *op, sint32 tag);
-item *locate_item_from_item(item *op, sint32 tag);
-item *locate_item(sint32 tag);
-void remove_item(item *op);
-void remove_item_inventory(item *op);
-item *create_new_item(item *env, sint32 tag, int bflag);
-void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
-void fire_command(char *buf);
-void toggle_locked(item *op);
-void send_mark_obj(item *op);
-item *player_item();
-void update_item(int tag, int loc, char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
+void objects_free(object *op);
+object *object_find_object_inv(object *op, sint32 tag);
+object *object_find_object(object *op, sint32 tag);
+object *object_find(sint32 tag);
+void object_remove(object *op);
+void object_remove_inventory(object *op);
+object *object_create(object *env, sint32 tag, int bflag);
+void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
+void toggle_locked(object *op);
+void object_send_mark(object *op);
+void objects_init();
+void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
 void animate_objects();
 
 /* client/main.c */
@@ -303,13 +301,13 @@ void do_keybind_input();
 void do_console();
 
 /* gui/inventory.c */
-int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
+int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
 void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
 void widget_show_inventory_window(widgetdata *widget);
 void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
 void widget_show_below_window(widgetdata *widget);
-int blt_inv_item_centered(item *tmp, int x, int y);
-void blt_inv_item(item *tmp, int x, int y, int nrof);
+int blt_inv_item_centered(object *tmp, int x, int y);
+void blt_inv_item(object *tmp, int x, int y, int nrof);
 void examine_range_inv();
 void examine_range_marks(int tag);
 
@@ -353,7 +351,7 @@ void initialize_shop(int shop_state);
 void clear_shop(int send_to_server);
 void shop_add_close_button(int x, int y);
 int shop_put_item(int x, int y);
-void shop_remove_item(sint32 tag);
+void shop_object_remove(sint32 tag);
 int check_shop_keys(SDL_KeyboardEvent *key);
 char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore);
 int shop_price2int(char *text);
