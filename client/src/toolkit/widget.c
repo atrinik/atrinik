@@ -1136,7 +1136,15 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			add_menuitem(menu, "Remove Widget", &menu_remove_widget, MENU_NORMAL);
 			add_menuitem(menu, "Detach Widget", &menu_detach_widget, MENU_NORMAL);
 			add_separator(menu);
-			add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU);
+
+			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			{
+				add_menuitem(menu, "Inventory Filters", &menu_detach_widget, MENU_SUBMENU);
+			}
+			else
+			{
+				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU);
+			}
 
 			/* Bit hack-ish, but this is to fix the menu from disappearing. */
 			widget = menu;
@@ -2442,4 +2450,44 @@ void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
 	add_menuitem(widget, "Group", &menu_set_gsay_filter, MENU_CHECKBOX);
 	add_menuitem(widget, "Tells", &menu_set_tell_filter, MENU_CHECKBOX);
 	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX);
+}
+
+void menu_inv_filter_all()
+{
+	inventory_filter_set(INVENTORY_FILTER_ALL);
+}
+
+void menu_inv_filter_applied()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
+}
+
+void menu_inv_filter_containers()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
+}
+
+void menu_inv_filter_magical()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
+}
+
+void menu_inv_filter_cursed()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_CURSED);
+}
+
+void menu_inv_filter_unidentified()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
+}
+
+void menu_inv_filter_locked()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
+}
+
+void menu_inv_filter_unapplied()
+{
+	inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
 }

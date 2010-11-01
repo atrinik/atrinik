@@ -301,6 +301,8 @@ void do_keybind_input();
 void do_console();
 
 /* gui/inventory.c */
+void inventory_filter_set(uint64 filter);
+void inventory_filter_toggle(uint64 filter);
 int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
 void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
 void widget_show_inventory_window(widgetdata *widget);
@@ -506,4 +508,12 @@ void menu_set_gsay_filter(widgetdata *widget, int x, int y);
 void menu_set_tell_filter(widgetdata *widget, int x, int y);
 void menu_set_channel_filter(widgetdata *widget, int x, int y);
 void submenu_chatwindow_filters(widgetdata *widget, int x, int y);
+void menu_inv_filter_all();
+void menu_inv_filter_applied();
+void menu_inv_filter_containers();
+void menu_inv_filter_magical();
+void menu_inv_filter_cursed();
+void menu_inv_filter_unidentified();
+void menu_inv_filter_locked();
+void menu_inv_filter_unapplied();
 #endif

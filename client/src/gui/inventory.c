@@ -40,6 +40,86 @@ char *skill_level_name[] =
 	"Wi"
 };
 
+/** Active inventory filter, one of @ref INVENTORY_FILTER_xxx. */
+static uint64 inventory_filter = INVENTORY_FILTER_ALL;
+
+/**
+ * Check if an object matches one of the active inventory filters.
+ * @param op Object to check.
+ * @return 1 if there is a match, 0 otherwise. */
+static int inventory_matches_filter(object *op)
+{
+	if (inventory_filter == INVENTORY_FILTER_ALL)
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_APPLIED && op->flags & F_APPLIED)
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_CONTAINER && op->itype == TYPE_CONTAINER)
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_MAGICAL && op->flags & F_MAGIC)
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_CURSED && op->flags & (F_CURSED | F_DAMNED))
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_UNIDENTIFIED && op->item_qua == 255)
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_UNAPPLIED && !(op->flags & F_APPLIED))
+	{
+		return 1;
+	}
+
+	if (inventory_filter & INVENTORY_FILTER_LOCKED && op->flags & F_LOCKED)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Set an inventory filter to the passed value.
+ * @param filter The value to set. */
+void inventory_filter_set(uint64 filter)
+{
+	inventory_filter = filter;
+	cpl.win_inv_slot = 0;
+	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
+}
+
+/**
+ * Toggle one inventory filter.
+ * @param filter Filter to toggle. */
+void inventory_filter_toggle(uint64 filter)
+{
+	if (inventory_filter & filter)
+	{
+		inventory_filter &= ~filter;
+	}
+	else
+	{
+		inventory_filter |= filter;
+	}
+
+	cpl.win_inv_slot = 0;
+	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
+}
+
 /* This function returns number of items and adjusst the inventory window data */
 int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen)
 {
@@ -68,8 +148,11 @@ int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count,
 	/* Pre count items, and adjust slot cursor */
 	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
-		(*count)++;
-		cpl.window_weight += tmp->weight * (float)tmp->nrof;
+		if (inventory_matches_filter(tmp) || (cpl.container && cpl.container->tag == tmp->tag))
+		{
+			(*count)++;
+			cpl.window_weight += tmp->weight * (float)tmp->nrof;
+		}
 
 		if (tmp->tag == cpl.container_tag)
 			cpl.container = tmp;
@@ -91,10 +174,13 @@ int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count,
 	/* Now find tag */
 	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
-		if (*slot == i)
-			ret = tmp->tag;
+		if (inventory_matches_filter(tmp) || (cpl.container && cpl.container->tag == tmp->tag))
+		{
+			if (*slot == i)
+				ret = tmp->tag;
 
-		i++;
+			i++;
+		}
 
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
@@ -380,20 +466,23 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	for (; tmp && i < invxlen * invylen; tmp = tmp->next)
 	{
-		if (tmp->tag == cpl.mark_count)
+		if (inventory_matches_filter(tmp) || (cpl.container && cpl.container->tag == tmp->tag))
 		{
-			sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+			if (tmp->tag == cpl.mark_count)
+			{
+				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+			}
+
+			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
+
+			if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
+			{
+				sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+				show_inventory_item_stats(tmp, widget);
+			}
+
+			i++;
 		}
-
-		blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
-
-		if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
-		{
-			sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
-			show_inventory_item_stats(tmp, widget);
-		}
-
-		i++;
 
 		/* We have an open container - 'insert' the items inside in the panel */
 		if (cpl.container && cpl.container->tag == tmp->tag)

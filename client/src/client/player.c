@@ -1409,10 +1409,25 @@ void widget_highlight_menu(widgetdata *widget)
 		tmp_menu = MENU(widget);
 
 		tmp_menu->submenu = create_menu(x, y, tmp_menu->owner);
-		/* TODO: Remove this later. It's hardcoded here for testing. */
-		submenu_chatwindow_filters(tmp_menu->submenu, 0, 0);
-		add_menuitem(tmp_menu->submenu, "Test", &menu_detach_widget, MENU_SUBMENU);
-		add_menuitem(tmp_menu->submenu, "Test2", &menu_detach_widget, MENU_SUBMENU);
+
+		if (tmp_menu->owner->WidgetTypeID == MAIN_INV_ID)
+		{
+			add_menuitem(tmp_menu->submenu, "All", &menu_inv_filter_all, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Applied", &menu_inv_filter_applied, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Unapplied", &menu_inv_filter_unapplied, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Containers", &menu_inv_filter_containers, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Magical", &menu_inv_filter_magical, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Cursed", &menu_inv_filter_cursed, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Unidentified", &menu_inv_filter_unidentified, MENU_CHECKBOX);
+			add_menuitem(tmp_menu->submenu, "Locked", &menu_inv_filter_locked, MENU_CHECKBOX);
+		}
+		else
+		{
+			/* TODO: Remove this later. It's hardcoded here for testing. */
+			submenu_chatwindow_filters(tmp_menu->submenu, 0, 0);
+			add_menuitem(tmp_menu->submenu, "Test", &menu_detach_widget, MENU_SUBMENU);
+			add_menuitem(tmp_menu->submenu, "Test2", &menu_detach_widget, MENU_SUBMENU);
+		}
 	}
 }
 
