@@ -1,0 +1,14 @@
+Allowed none
+chance 1
+artifact halloween_abyss_jackolantern
+def_arch jackolantern
+Object
+name Abyss Jack-o'-lantern
+is_magical 1
+msg
+Jack-o'-lantern recovered from the depths of an Abyss north of Brynknot.
+endmsg
+one_drop 1
+value 7500
+end
+
