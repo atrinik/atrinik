@@ -161,8 +161,37 @@ void server_settings_init()
 		{
 			if (text_id < SERVER_TEXT_MAX)
 			{
+				char *cp;
+				size_t j = 0;
+
 				s_settings->text[text_id] = strdup(buf + 5);
 				convert_newline(s_settings->text[text_id]);
+
+				if (text_id == SERVER_TEXT_PROTECTION_LETTERS)
+				{
+					cp = strtok(s_settings->text[text_id], " ");
+
+					while (cp)
+					{
+						strncpy(s_settings->protection_letters[j], cp, sizeof(*s_settings->protection_letters) - 1);
+						s_settings->protection_letters[j][sizeof(*s_settings->protection_letters) - 1] = '\0';
+						j++;
+						cp = strtok(NULL, " ");
+					}
+				}
+				else if (text_id == SERVER_TEXT_PROTECTION_FULL)
+				{
+					cp = strtok(s_settings->text[text_id], " ");
+
+					while (cp)
+					{
+						strncpy(s_settings->protection_full[j], cp, sizeof(*s_settings->protection_full) - 1);
+						s_settings->protection_full[j][sizeof(*s_settings->protection_full) - 1] = '\0';
+						j++;
+						cp = strtok(NULL, " ");
+					}
+				}
+
 				text_id++;
 			}
 			else

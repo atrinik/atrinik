@@ -51,8 +51,12 @@ typedef struct font_struct
  * The font IDs. */
 enum
 {
+	/** Sans, 7px. */
+	FONT_SANS7,
 	/** Sans, 8px. */
 	FONT_SANS8,
+	/** Sans, 9px. */
+	FONT_SANS9,
 	/** Sans, 10px. */
 	FONT_SANS10,
 	/** Sans, 11px. */
@@ -87,6 +91,8 @@ enum
 	FONT_SERIF20,
 	/** Mono, 8px. */
 	FONT_MONO8,
+	/** Mono, 9px. */
+	FONT_MONO9,
 	/** Mono, 10px. */
 	FONT_MONO10,
 	/** Mono, 12px. */

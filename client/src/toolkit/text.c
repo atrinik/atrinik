@@ -48,7 +48,9 @@ static char text_anchor_help[HUGE_BUF];
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
+	{"fonts/vera/sans.ttf", 7, NULL, 0},
 	{"fonts/vera/sans.ttf", 8, NULL, 0},
+	{"fonts/vera/sans.ttf", 9, NULL, 0},
 	{"fonts/vera/sans.ttf", 10, NULL, 0},
 	{"fonts/vera/sans.ttf", 11, NULL, 0},
 	{"fonts/vera/sans.ttf", 12, NULL, 0},
@@ -66,6 +68,7 @@ font_struct fonts[FONTS_MAX] =
 	{"fonts/vera/serif.ttf", 18, NULL, 0},
 	{"fonts/vera/serif.ttf", 20, NULL, 0},
 	{"fonts/vera/mono.ttf", 8, NULL, 0},
+	{"fonts/vera/mono.ttf", 9, NULL, 0},
 	{"fonts/vera/mono.ttf", 10, NULL, 0},
 	{"fonts/vera/mono.ttf", 12, NULL, 0},
 	{"fonts/vera/mono.ttf", 14, NULL, 0},

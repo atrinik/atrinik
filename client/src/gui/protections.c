@@ -25,95 +25,62 @@
 
 /**
  * @file
- *  */
+ * Implements the protections table widget. */
 
 #include <include.h>
 
-/** Few letters representation of a protection ID */
-static char *protections[20] =
-{
-	"I", 	"S", 	"C", 	"P", 	"W",
-	"F",	"C",	"E",	"P",	"A",
-	"M",	"Mi",	"B",	"P",	"F",
-	"N",	"Ch",	"D",	"Sp",	"Co"
-};
-
 /**
  * Show the protection table widget.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * @param widget The widget. */
 void widget_show_resist(widgetdata *widget)
 {
-	char buf[12];
 	SDL_Rect box;
-	_BLTFX bltfx;
-	int protectionID, protection_x = 0, protection_y = 2;
+	size_t i;
+	int x = 0, y = 2, mx, my;
 
 	if (!widget->widgetSF)
+	{
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_RESIST_BG]->bitmap, Bitmaps[BITMAP_RESIST_BG]->bitmap->format, Bitmaps[BITMAP_RESIST_BG]->bitmap->flags);
+	}
 
 	if (widget->redraw)
 	{
-		widget->redraw = 0;
+		_BLTFX bltfx;
 
 		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
-
-		StringBlt(widget->widgetSF, &Font6x3Out, "Protection Table", 5, 1, COLOR_HGOLD, NULL, NULL);
-
-		/* This is a dynamic protection table, unlike the old one.
-		 * It reduces the code by a considerable amount. */
-		for (protectionID = 0; protectionID < (int) sizeof(cpl.stats.protection) / 2; protectionID++)
-		{
-			/* We have 4 groups of protections. That means we
-			 * will need 4 lines to output them all. Adjust
-			 * the x and y for it. */
-			if (protectionID == 0 || protectionID == 5 || protectionID == 10 || protectionID == 15)
-			{
-				protection_y += 15;
-				protection_x = 43;
-			}
-
-			/* Switch the protection ID, so we can output the groups. */
-			switch (protectionID)
-			{
-					/* Physical */
-				case 0:
-					StringBlt(widget->widgetSF, &Font6x3Out, "Physical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
-					break;
-
-					/* Elemental */
-				case 5:
-					StringBlt(widget->widgetSF, &Font6x3Out, "Elemental", 5, protection_y, COLOR_HGOLD, NULL, NULL);
-					break;
-
-					/* Magical */
-				case 10:
-					StringBlt(widget->widgetSF, &Font6x3Out, "Magical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
-					break;
-
-					/* Spherical */
-				case 15:
-					StringBlt(widget->widgetSF, &Font6x3Out, "Spherical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
-					break;
-			}
-
-			/* Output the protection few letters name from the table 'protections'. */
-			StringBlt(widget->widgetSF, &SystemFont, protections[protectionID], protection_x + 2 - (int) strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
-
-			/* Now output the protection value. No protection will be drawn gray,
-			 * some protection will be white, immunity (100%) will be orange, and
-			 * negative will be red. */
-			snprintf(buf, sizeof(buf), "%02d", cpl.stats.protection[protectionID]);
-			StringBlt(widget->widgetSF, &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] < 0 ? COLOR_RED : (cpl.stats.protection[protectionID] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY, NULL, NULL);
-
-			protection_x += 30;
-		}
+		string_blt(widget->widgetSF, FONT_SANS7, s_settings->text[SERVER_TEXT_PROTECTION_GROUPS], 5, 1, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
 	}
 
+	SDL_GetMouseState(&mx, &my);
+
+	for (i = 0; i < sizeof(cpl.stats.protection) / sizeof(*cpl.stats.protection); i++)
+	{
+		if (!(i % 5))
+		{
+			y += 15;
+			x = 43;
+		}
+
+		if (widget->redraw)
+		{
+			string_blt(widget->widgetSF, FONT_SANS8, s_settings->protection_letters[i], x + 2 - string_get_width(FONT_SANS8, s_settings->protection_letters[i], 0) / 2, y + 2, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+			string_blt_format(widget->widgetSF, FONT_MONO8, x + 10, y + 2, COLOR_SIMPLE(cpl.stats.protection[i] ? (cpl.stats.protection[i] < 0 ? COLOR_RED : (cpl.stats.protection[i] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY), 0, NULL, "%02d", cpl.stats.protection[i]);
+		}
+
+		/* Show a tooltip with the protection's full name. */
+		if (mx > widget->x1 + x && mx < widget->x1 + x + 25 && my > widget->y1 + y && my < widget->y1 + y + 15)
+		{
+			tooltip_create(mx, my, FONT_ARIAL10, s_settings->protection_full[i]);
+		}
+
+		x += 30;
+	}
+
+	widget->redraw = 0;
 	box.x = widget->x1;
 	box.y = widget->y1;
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
