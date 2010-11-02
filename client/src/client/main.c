@@ -1422,6 +1422,8 @@ int main(int argc, char *argv[])
 		/* Show all kind of the big dialog windows */
 		show_menu();
 
+		tooltip_show();
+
 		/* We have a non-standard mouse-pointer (win-size changer, etc.) */
 		if (cursor_type)
 		{

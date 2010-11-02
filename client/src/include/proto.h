@@ -460,6 +460,10 @@ void text_input_add_string(const char *text);
 int text_input_handle(SDL_KeyboardEvent *key);
 const char *show_input_string(const char *text, struct _Font *font, int wlen);
 
+/* toolkit/tooltip.c */
+void tooltip_create(int mx, int my, int font, const char *text);
+void tooltip_show();
+
 /* toolkit/widget.c */
 void init_widgets_fromCurrent();
 widgetdata *create_widget_object(int widget_subtype_id);
