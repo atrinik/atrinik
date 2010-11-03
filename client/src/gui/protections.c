@@ -52,7 +52,7 @@ void widget_show_resist(widgetdata *widget)
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
-		string_blt(widget->widgetSF, FONT_SANS7, s_settings->text[SERVER_TEXT_PROTECTION_GROUPS], 5, 1, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
+		string_blt(widget->widgetSF, FONT_SERIF8, s_settings->text[SERVER_TEXT_PROTECTION_GROUPS], 5, 1, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
 	}
 
 	SDL_GetMouseState(&mx, &my);
@@ -62,13 +62,13 @@ void widget_show_resist(widgetdata *widget)
 		if (!(i % 5))
 		{
 			y += 15;
-			x = 43;
+			x = 50;
 		}
 
 		if (widget->redraw)
 		{
-			string_blt(widget->widgetSF, FONT_SANS8, s_settings->protection_letters[i], x + 2 - string_get_width(FONT_SANS8, s_settings->protection_letters[i], 0) / 2, y + 2, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
-			string_blt_format(widget->widgetSF, FONT_MONO8, x + 10, y + 2, COLOR_SIMPLE(cpl.stats.protection[i] ? (cpl.stats.protection[i] < 0 ? COLOR_RED : (cpl.stats.protection[i] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY), 0, NULL, "%02d", cpl.stats.protection[i]);
+			string_blt(widget->widgetSF, FONT_SANS9, s_settings->protection_letters[i], x + 2 - string_get_width(FONT_SANS8, s_settings->protection_letters[i], 0) / 2, y + 1, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+			string_blt_format(widget->widgetSF, FONT_MONO9, x + 10, y + 1, COLOR_SIMPLE(cpl.stats.protection[i] ? (cpl.stats.protection[i] < 0 ? COLOR_RED : (cpl.stats.protection[i] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY), 0, NULL, "%02d", cpl.stats.protection[i]);
 		}
 
 		/* Show a tooltip with the protection's full name. */
