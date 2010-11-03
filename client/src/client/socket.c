@@ -280,16 +280,6 @@ static int reader_thread_loop(void *dummy)
 		}
 		else if (ret == -1)
 		{
-#ifdef WIN32
-			if (WSAGetLastError() == EAGAIN || WSAGetLastError() == WSAEWOULDBLOCK)
-#else
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-#endif
-			{
-				SDL_Delay(1);
-				continue;
-			}
-
 			/* IO error */
 #ifdef WIN32
 			LOG(llevInfo, "Reader thread got error %d\n", WSAGetLastError());
@@ -369,16 +359,6 @@ static int writer_thread_loop(void *dummy)
 			}
 			else if (ret == -1)
 			{
-#ifdef WIN32
-				if (WSAGetLastError() == EAGAIN || WSAGetLastError() == WSAEWOULDBLOCK)
-#else
-				if (errno == EAGAIN || errno == EWOULDBLOCK)
-#endif
-				{
-					SDL_Delay(1);
-					continue;
-				}
-
 				/* IO error */
 #ifdef WIN32
 				LOG(llevInfo, "Writer thread got error %d\n", WSAGetLastError());
@@ -607,6 +587,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	struct sockaddr_in insock;
 #ifndef WIN32
 	struct protoent *protox;
+	int flags;
 
 	protox = getprotobyname("tcp");
 
@@ -617,17 +598,18 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	}
 
 	*fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+#else
+	int error = 0, SocketStatusErrorNr;
+	u_long temp;
+
+	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
 
 	if (*fd == -1)
 	{
 		LOG(llevBug, "socket_create(): Could not create socket.\n");
 		return 0;
 	}
-#else
-	int error = 0, SocketStatusErrorNr;
-
-	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#endif
 
 	insock.sin_family = AF_INET;
 	insock.sin_port = htons((unsigned short) port);
@@ -648,6 +630,28 @@ static int socket_create(SOCKET *fd, char *host, int port)
 
 		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
 	}
+
+#ifndef WIN32
+	/* Set non-blocking. */
+	flags = fcntl(*fd, F_GETFL);
+
+	if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+		*fd = -1;
+		return 0;
+	}
+#else
+	temp = 1;
+
+	/* Set non-blocking. */
+	if (ioctlsocket(*fd, FIONBIO, &temp) == -1)
+	{
+		LOG(llevBug, "socket_create(): Error on switching to non-blocking.\n");
+		*fd = -1;
+		return 0;
+	}
+#endif
 
 	/* Try to connect. */
 	start_timer = SDL_GetTicks();
@@ -682,6 +686,26 @@ static int socket_create(SOCKET *fd, char *host, int port)
 		return 0;
 #endif
 	}
+
+#ifndef WIN32
+	/* Set back to blocking. */
+	if (fcntl(*fd, F_SETFL, flags) == -1)
+	{
+		LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+		*fd = -1;
+		return 0;
+	}
+#else
+	temp = 0;
+
+	/* Set back to blocking. */
+	if (ioctlsocket(*fd, FIONBIO, &temp) == -1)
+	{
+		LOG(llevBug, "socket_create(): Error on switching to blocking.\n");
+		*fd = -1;
+		return 0;
+	}
+#endif
 #else
 	struct addrinfo hints;
 	struct addrinfo *res = NULL, *ai;
@@ -709,6 +733,16 @@ static int socket_create(SOCKET *fd, char *host, int port)
 			continue;
 		}
 
+		/* Set non-blocking. */
+		flags = fcntl(*fd, F_GETFL);
+
+		if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
+		{
+			LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+			*fd = SOCKET_NO;
+			return 0;
+		}
+
 		/* Try to connect. */
 		start_timer = SDL_GetTicks();
 
@@ -722,6 +756,14 @@ static int socket_create(SOCKET *fd, char *host, int port)
 				*fd = -1;
 				break;
 			}
+		}
+
+		/* Set back to blocking. */
+		if (*fd != SOCKET_NO && fcntl(*fd, F_SETFL, flags) == -1)
+		{
+			LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
+			*fd = SOCKET_NO;
+			return 0;
 		}
 
 		if (*fd != -1)
@@ -768,22 +810,6 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 	{
 		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
-
-#ifndef WIN32
-	if (fcntl(csock->fd, F_SETFL, O_NDELAY) == -1)
-	{
-		LOG(llevBug, "socket_open(): Error on fcntl.");
-	}
-#else
-	{
-		u_long tmp = 1;
-
-		if (ioctlsocket(csock->fd, FIONBIO, &tmp) < 0)
-		{
-			LOG(llevBug, "socket_open(): Error on ioctlsocket.");
-		}
-	}
-#endif
 
 	if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1)
 	{
