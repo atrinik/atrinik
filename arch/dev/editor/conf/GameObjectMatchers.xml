@@ -156,29 +156,19 @@
 		<title xml:lang="en">Paid items</title>
 		<And>
 			<Or>
-				<Attrib name="is_floor" value="" />
-				<Attrib name="is_floor" value="0" />
-			</Or>
-			<Or>
-				<Attrib name="player_only" value="" />
-				<Attrib name="player_only" value="0" />
+				<Attrib name="unpaid" value="" />
+				<Attrib name="unpaid" value="0" />
 			</Or>
 			<Or>
 				<Attrib name="no_teleport" value="" />
 				<Attrib name="no_teleport" value="0" />
 			</Or>
 			<Or>
-				<Attrib name="unpaid" value="" />
-				<Attrib name="unpaid" value="0" />
-			</Or>
-			<Or>
 				<Attrib name="monster" value="" />
 				<Attrib name="monster" value="0" />
 			</Or>
-			<Or>
-				<Attrib name="sys_object" value="" />
-				<Attrib name="sys_object" value="0" />
-			</Or>
+			<Attrib name="weight" op="ne" value="" />
+			<Attrib name="weight" op="ne" value="0" />
 		</And>
 	</GameObjectMatcher>
 </GameObjectMatchers>
