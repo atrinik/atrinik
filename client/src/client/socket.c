@@ -598,18 +598,18 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	}
 
 	*fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
-#else
-	int error = 0, SocketStatusErrorNr;
-	u_long temp;
-
-	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#endif
 
 	if (*fd == -1)
 	{
 		LOG(llevBug, "socket_create(): Could not create socket.\n");
 		return 0;
 	}
+#else
+	int error = 0, SocketStatusErrorNr;
+	u_long temp;
+
+	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
 
 	insock.sin_family = AF_INET;
 	insock.sin_port = htons((unsigned short) port);
