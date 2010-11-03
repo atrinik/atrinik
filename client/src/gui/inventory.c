@@ -49,6 +49,11 @@ static uint64 inventory_filter = INVENTORY_FILTER_ALL;
  * @return 1 if there is a match, 0 otherwise. */
 static int inventory_matches_filter(object *op)
 {
+	if (op->env == cpl.below)
+	{
+		return 1;
+	}
+
 	if (inventory_filter == INVENTORY_FILTER_ALL)
 	{
 		return 1;
