@@ -49,7 +49,14 @@ static uint64 inventory_filter = INVENTORY_FILTER_ALL;
  * @return 1 if there is a match, 0 otherwise. */
 static int inventory_matches_filter(object *op)
 {
+	/* No filtering of objects in the below inventory. */
 	if (op->env == cpl.below)
+	{
+		return 1;
+	}
+
+	/* Always show open container. */
+	if (cpl.container && cpl.container->tag == op->tag)
 	{
 		return 1;
 	}
@@ -104,6 +111,7 @@ void inventory_filter_set(uint64 filter)
 {
 	inventory_filter = filter;
 	cpl.win_inv_slot = 0;
+	cpl.win_inv_start = 0;
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 }
 
@@ -122,6 +130,7 @@ void inventory_filter_toggle(uint64 filter)
 	}
 
 	cpl.win_inv_slot = 0;
+	cpl.win_inv_start = 0;
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 }
 
@@ -153,7 +162,7 @@ int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count,
 	/* Pre count items, and adjust slot cursor */
 	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
-		if (inventory_matches_filter(tmp) || (cpl.container && cpl.container->tag == tmp->tag))
+		if (inventory_matches_filter(tmp))
 		{
 			(*count)++;
 			cpl.window_weight += tmp->weight * (float)tmp->nrof;
@@ -179,7 +188,7 @@ int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count,
 	/* Now find tag */
 	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
-		if (inventory_matches_filter(tmp) || (cpl.container && cpl.container->tag == tmp->tag))
+		if (inventory_matches_filter(tmp))
 		{
 			if (*slot == i)
 				ret = tmp->tag;
@@ -445,7 +454,10 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	for (tmpc = NULL, i = 0, tmp = op->inv; tmp && i < cpl.win_inv_start; tmp = tmp->next)
 	{
-		i++;
+		if (inventory_matches_filter(tmp))
+		{
+			i++;
+		}
 
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
@@ -471,7 +483,7 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	for (; tmp && i < invxlen * invylen; tmp = tmp->next)
 	{
-		if (inventory_matches_filter(tmp) || (cpl.container && cpl.container->tag == tmp->tag))
+		if (inventory_matches_filter(tmp))
 		{
 			if (tmp->tag == cpl.mark_count)
 			{
