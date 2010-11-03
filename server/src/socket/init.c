@@ -66,6 +66,10 @@ socket_struct *init_sockets;
  * point. */
 void init_connection(socket_struct *ns, const char *from_ip)
 {
+	int bufsize = 65535;
+	int oldbufsize;
+	socklen_t buflen = sizeof(int);
+
 #ifdef WIN32
 	u_long temp = 1;
 
@@ -79,6 +83,19 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
 #endif
+
+	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
+	{
+		oldbufsize = 0;
+	}
+
+	if (oldbufsize < bufsize)
+	{
+		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
+		{
+			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
+		}
+	}
 
 	ns->login_count = 0;
 	ns->addme = 0;
@@ -149,7 +166,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
  * memory. */
 void init_ericserver()
 {
-	int tmp = 1;
 	struct sockaddr_in insock;
 	struct linger linger_opt;
 #ifndef WIN32
@@ -213,33 +229,12 @@ void init_ericserver()
 	insock.sin_port = htons(settings.csport);
 	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
-#ifdef WIN32
-	{
-		u_long tmp2 = 1;
-
-		if (ioctlsocket(init_sockets[0].fd, FIONBIO, &tmp2) == -1)
-		{
-			LOG(llevError, "ERROR: init_ericserver(): Error on ioctlsocket.\n");
-		}
-	}
-#else
-	if (fcntl(init_sockets[0].fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1)
-	{
-		LOG(llevError, "ERROR: init_ericserver(): Error on fcntl.\n");
-	}
-#endif
-
 	linger_opt.l_onoff = 0;
 	linger_opt.l_linger = 0;
 
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
 		LOG(llevError, "ERROR: init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
-	}
-
-	if (setsockopt(init_sockets[0].fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
-	{
-		LOG(llevError, "ERROR: init_ericserver(): Cannot setsockopt(TCP_NODELAY): %s\n", strerror_local(errno));
 	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that

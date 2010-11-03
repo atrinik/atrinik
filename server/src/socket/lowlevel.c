@@ -37,9 +37,13 @@ extern int errno;
 #endif
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#	include <arpa/inet.h>
 #endif
 #include <zlib.h>
+
+#ifndef WIN32
+#	include <netinet/tcp.h>
+#endif
 
 /**
  * Add a NULL terminated string.
@@ -159,6 +163,32 @@ int SockList_ReadCommand(SockList *sl, SockList *sl2)
 }
 
 /**
+ * Enable TCP_NODELAY on the specified file descriptor (socket).
+ * @param fd Socket's file descriptor. */
+void socket_enable_no_delay(int fd)
+{
+	int tmp = 1;
+
+	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
+	{
+		LOG(llevDebug, "DEBUG: socket_enable_no_delay(): Cannot enable TCP_NODELAY: %s\n", strerror_local(errno));
+	}
+}
+
+/**
+ * Disable TCP_NODELAY on the specified file descriptor (socket).
+ * @param fd Socket's file descriptor. */
+void socket_disable_no_delay(int fd)
+{
+	int tmp = 0;
+
+	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
+	{
+		LOG(llevDebug, "DEBUG: socket_disable_no_delay(): Cannot disable TCP_NODELAY: %s\n", strerror_local(errno));
+	}
+}
+
+/**
  * Enqueue data to the socket buffer queue.
  * @param ns The socket we are adding the data to.
  * @param buf The data.
@@ -235,8 +265,19 @@ void socket_buffer_write(socket_struct *ns)
 
 	while (ns->buffer_back)
 	{
+		/* Send map updates as quickly as possible. */
+		if (ns->buffer_back->buf[0] == BINARY_CMD_MAP2)
+		{
+			socket_enable_no_delay(ns->fd);
+		}
+
 		max = ns->buffer_back->len - ns->buffer_back->pos;
 		amt = send(ns->fd, ns->buffer_back->buf + ns->buffer_back->pos, max, MSG_DONTWAIT);
+
+		if (ns->buffer_back->buf[0] == BINARY_CMD_MAP2)
+		{
+			socket_disable_no_delay(ns->fd);
+		}
 
 #ifndef WIN32
 		if (!amt)
