@@ -430,7 +430,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
 	face = map->faces[layer];
 
-	if (face <= 0)
+	if (face <= 0 || face >= MAX_FACE_TILES)
 	{
 		return;
 	}
