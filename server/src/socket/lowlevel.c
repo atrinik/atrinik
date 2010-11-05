@@ -192,8 +192,9 @@ void socket_disable_no_delay(int fd)
  * Enqueue data to the socket buffer queue.
  * @param ns The socket we are adding the data to.
  * @param buf The data.
- * @param len Number of bytes to add. */
-static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t len)
+ * @param len Number of bytes to add.
+ * @param ndelay If 1, will send this packet instantly without delay. */
+static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t len, uint8 ndelay)
 {
 	socket_buffer *buffer = (socket_buffer *) malloc(sizeof(socket_buffer));
 
@@ -202,6 +203,7 @@ static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t 
 	buffer->len = len;
 	buffer->next = NULL;
 	buffer->pos = 0;
+	buffer->ndelay = ndelay;
 
 	if (ns->buffer_front)
 	{
@@ -265,8 +267,7 @@ void socket_buffer_write(socket_struct *ns)
 
 	while (ns->buffer_back)
 	{
-		/* Send map updates as quickly as possible. */
-		if (ns->buffer_back->buf[0] == BINARY_CMD_MAP2)
+		if (ns->buffer_back->ndelay)
 		{
 			socket_enable_no_delay(ns->fd);
 		}
@@ -274,7 +275,7 @@ void socket_buffer_write(socket_struct *ns)
 		max = ns->buffer_back->len - ns->buffer_back->pos;
 		amt = send(ns->fd, ns->buffer_back->buf + ns->buffer_back->pos, max, MSG_DONTWAIT);
 
-		if (ns->buffer_back->buf[0] == BINARY_CMD_MAP2)
+		if (ns->buffer_back->ndelay)
 		{
 			socket_disable_no_delay(ns->fd);
 		}
@@ -374,17 +375,17 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 		sbuf[1] = ((uint32) (len) >> 8) & 0xFF;
 		sbuf[2] = ((uint32) (len)) & 0xFF;
 
-		socket_buffer_enqueue(ns, sbuf, 3);
+		socket_buffer_enqueue(ns, sbuf, 3, 0);
 	}
 	else
 	{
 		sbuf[0] = ((uint32) (len) >> 8) & 0xFF;
 		sbuf[1] = ((uint32) (len)) & 0xFF;
 
-		socket_buffer_enqueue(ns, sbuf, 2);
+		socket_buffer_enqueue(ns, sbuf, 2, 0);
 	}
 
-	socket_buffer_enqueue(ns, buf, len);
+	socket_buffer_enqueue(ns, buf, len, msg->buf[0] == BINARY_CMD_MAP2);
 
 #if COMPRESS_DATA_PACKETS
 	/* Free the buffer that was used for compression, if it was allocated. */

@@ -168,6 +168,9 @@ typedef struct socket_buffer
 
 	/** Position in ::buf. */
 	size_t pos;
+
+	/** If 1, will send this packet without delay. */
+	uint8 ndelay;
 } socket_buffer;
 
 #ifdef WIN32
