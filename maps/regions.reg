@@ -212,7 +212,7 @@ Things are still and quiet in here.
 endmsg
 end
 region clearhaven
-parent world
+parent eld_woods_island
 longname Clearhaven
 msg
 The town of Clearhaven is located on the West side of Eld Woods Island.
