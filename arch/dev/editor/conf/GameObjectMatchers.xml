@@ -4,8 +4,8 @@
 	<GameObjectMatcher id="floor">
 		<title xml:lang="en">Floor</title>
 		<And>
-			<Attrib name="is_floor" />
-			<Attrib name="no_pick" />
+			<Attrib name="is_floor" type="int" op="ne" value="0" />
+			<Attrib name="no_pick" type="int" op="ne" value="0" />
 		</And>
 	</GameObjectMatcher>
 
@@ -13,8 +13,8 @@
 		<title xml:lang="en">Trees</title>
 		<And>
 			<TypeNrs numbers="79" />
-			<Attrib name="no_pick" />
-			<Attrib name="no_pass" />
+			<Attrib name="no_pick" type="int" op="ne" value="0" />
+			<Attrib name="no_pass" type="int" op="ne" value="0" />
 		</And>
 	</GameObjectMatcher>
 
@@ -22,7 +22,7 @@
 		<title xml:lang="en">Wall</title>
 		<And>
 			<TypeNrs numbers="77" />
-			<Attrib name="no_pass" />
+			<Attrib name="no_pass" type="int" op="ne" value="0" />
 		</And>
 	</GameObjectMatcher>
 
@@ -40,19 +40,13 @@
 		<title xml:lang="en">Equipment</title>
 		<And>
 			<TypeNrs numbers="3 13 14 15 16 33 34 35 39 70 87 99 100 104 109 113 122" />
-			<Or>
-				<Attrib name="no_pick" value="" />
-				<Attrib name="no_pick" value="0" />
-			</Or>
+			<Attrib name="no_pick" type="int" value="0" />
 		</And>
 	</GameObjectMatcher>
 
 	<GameObjectMatcher id="connected">
 		<title xml:lang="en">Connected</title>
-		<Or>
-			<Attrib name="connected" op="ne" value="" />
-			<Attrib name="connected" op="ne" value="0" />
-		</Or>
+		<Attrib name="connected" type="int" op="ne" value="0" />
 	</GameObjectMatcher>
 
 	<GameObjectMatcher id="exit">
@@ -73,12 +67,12 @@
 
 	<GameObjectMatcher id="blocking">
 		<title xml:lang="en">Blocking</title>
-		<Attrib name="no_pass" />
+		<Attrib name="no_pass" type="int" op="ne" value="0" />
 	</GameObjectMatcher>
 
 	<GameObjectMatcher id="sys_object">
 		<title xml:lang="en">System Object</title>
-		<Attrib name="sys_object" />
+		<Attrib name="sys_object" type="int" op="ne" value="0" />
 	</GameObjectMatcher>
 
 	<!-- Objects to be put below the floor in insertion tool -->
@@ -92,7 +86,7 @@
 		<title xml:lang="en">Wall</title>
 		<And>
 			<TypeNrs numbers="77 79" />
-			<Attrib name="no_pass" />
+			<Attrib name="no_pass" type="int" op="ne" value="0" />
 		</And>
 	</GameObjectMatcher>
 
@@ -155,20 +149,10 @@
 	<GameObjectMatcher id="system_paid_item" system="true">
 		<title xml:lang="en">Paid items</title>
 		<And>
-			<Or>
-				<Attrib name="unpaid" value="" />
-				<Attrib name="unpaid" value="0" />
-			</Or>
-			<Or>
-				<Attrib name="no_teleport" value="" />
-				<Attrib name="no_teleport" value="0" />
-			</Or>
-			<Or>
-				<Attrib name="monster" value="" />
-				<Attrib name="monster" value="0" />
-			</Or>
-			<Attrib name="weight" op="ne" value="" />
-			<Attrib name="weight" op="ne" value="0" />
+			<Attrib name="unpaid" type="int" value="0" />
+			<Attrib name="no_teleport" type="int" value="0" />
+			<Attrib name="monster" type="int" value="0" />
+			<Attrib name="weight" type="int" op="ne" value="0" />
 		</And>
 	</GameObjectMatcher>
 </GameObjectMatchers>
