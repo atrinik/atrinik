@@ -69,6 +69,7 @@ int curl_connect(void *c_data)
 	char user_agent[MAX_BUF];
 	CURL *handle;
 	CURLcode res;
+	long http_code;
 
 	/* Store user agent for cURL, including if this is GNU/Linux build of client
 	 * or Windows one. */
@@ -117,6 +118,16 @@ int curl_connect(void *c_data)
 	{
 		LOG(llevBug, "curl_thread(): curl_easy_perform() got error %d (%s).\n", res, curl_easy_strerror(res));
 		curl_easy_cleanup(handle);
+		SDL_LockMutex(data->mutex);
+		data->status = -1;
+		SDL_UnlockMutex(data->mutex);
+		return -1;
+	}
+
+	curl_easy_getinfo(handle, CURLINFO_HTTP_CODE, &http_code);
+
+	if (http_code != 200)
+	{
 		SDL_LockMutex(data->mutex);
 		data->status = -1;
 		SDL_UnlockMutex(data->mutex);
