@@ -100,6 +100,7 @@ int curl_connect(void *c_data)
 
 	SDL_LockMutex(data->mutex);
 	curl_easy_setopt(handle, CURLOPT_URL, data->url);
+	curl_easy_setopt(handle, CURLOPT_REFERER, data->url);
 	SDL_UnlockMutex(data->mutex);
 
 	/* The callback function. */
