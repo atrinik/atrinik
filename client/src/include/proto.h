@@ -377,6 +377,12 @@ void QuickSlotCmd(unsigned char *data, int len);
 void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent);
 void widget_show_range(widgetdata *widget);
 
+/* gui/region_map.c */
+void RegionMapCmd(uint8 *data, int len);
+void region_map_handle_key(SDLKey key);
+void region_map_handle_event(SDL_Event *event);
+void region_map_show();
+
 /* gui/settings.c */
 void optwin_draw_options(int x, int y);
 void show_optwin();

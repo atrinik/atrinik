@@ -95,6 +95,7 @@ enum
 	BINARY_CMD_QUICKSLOT,
 	BINARY_CMD_SHOP,
 	BINARY_CMD_QLIST,
+	BINARY_CMD_REGION_MAP,
 	/* last entry */
 	BINAR_CMD
 };
@@ -138,6 +139,7 @@ struct CmdMapping commands[] =
 	{"qs", QuickSlotCmd, ASCII},
 	{"shop", ShopCmd, ASCII},
 	{"qlist", QuestListCmd, ASCII},
+	{"region_map", RegionMapCmd, ASCII},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd, NODATA},

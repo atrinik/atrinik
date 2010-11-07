@@ -246,6 +246,10 @@ void show_menu()
 		show_keybind();
 	else if (cpl.menustatus == MENU_BOOK)
 		book_show();
+	else if (cpl.menustatus == MENU_REGION_MAP)
+	{
+		region_map_show();
+	}
 	else if (cpl.menustatus == MENU_PARTY)
 		show_party();
 	else if (cpl.menustatus == MENU_SPELL)

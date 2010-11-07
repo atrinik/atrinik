@@ -25,72 +25,76 @@
 
 /**
  * @file
- * Menus header file. */
+ * Header file for the region map code. */
 
-#ifndef MENU_H
-#define MENU_H
+#ifndef REGION_MAP_H
+#define REGION_MAP_H
 
-/**
- * @defgroup MENU_xxx Menu types
- * The menu types.
- *@{*/
-/** No menu. */
-#define MENU_NO 1
-/** The keybinding menu. */
-#define MENU_KEYBIND 2
-/** The spell list. */
-#define MENU_SPELL 4
-/** The skill list. */
-#define MENU_SKILL 8
-/** Settings menu. */
-#define MENU_OPTION 16
-/** Character creation. */
-#define MENU_CREATE 32
-/** Book GUI. */
-#define MENU_BOOK 64
-/** Party GUI. */
-#define MENU_PARTY 128
-#define MENU_REGION_MAP 256
-/*@}*/
+/** Size of the book GUI borders. */
+#define RM_BORDER_SIZE 25
 
-/** Sound volume for menus. */
-#define MENU_SOUND_VOL 40
+/** Default zoom level. */
+#define RM_ZOOM_DEFAULT 100
+/** Minimum zoom level. */
+#define RM_ZOOM_MIN 50
+/** Maximum zoom level. */
+#define RM_ZOOM_MAX 200
+/** How much to progress the zoom level with a single mouse wheel event. */
+#define RM_ZOOM_PROGRESS 10
 
-struct _skill_list skill_list[SKILL_LIST_MAX];
-extern _dialog_list_set skill_list_set;
-struct _spell_list spell_list[SPELL_LIST_MAX];
-extern _dialog_list_set spell_list_set;
-extern _dialog_list_set option_list_set;
-struct _bindkey_list bindkey_list[BINDKEY_LIST_MAX];
-extern _dialog_list_set bindkey_list_set;
-extern _dialog_list_set create_list_set;
-extern int keybind_status;
+/** Number of pixels to scroll using the keyboard arrows. */
+#define RM_SCROLL 10
+/** Number of pixels to scroll using the keyboard arrows when shift is held. */
+#define RM_SCROLL_SHIFT 50
 
-/** Maximum quickslots in a single group. */
-#define MAX_QUICK_SLOTS 8
-/** Maximum quickslot groups. */
-#define MAX_QUICKSLOT_GROUPS 4
-
-/** One quickslot. */
-typedef struct _quickslot
+/** Single map label. */
+typedef struct region_label_struct
 {
-	/** Do we have an item or a spell in this quickslot? */
-	int spell;
+	/** Unique name of the label. */
+	char *name;
 
-	/** If this is item, what tag ID. */
-	int tag;
+	/** Text of the label (markup allowed). */
+	char *text;
 
-	/** Spell's number. */
-	int spellNr;
+	/**
+	 * The 'hidden' status of this label:
+	 *
+	 * <b>-1</b>: Shown by default.
+	 * <b>0</b>: Was hidden using label_hide but server told us to show it.
+	 * <b>1</b>: Hidden by label_hide command. */
+	int hidden;
+} region_label_struct;
 
-	/** Spell group's number. */
-	int groupNr;
+/** Single map. */
+typedef struct region_map_struct
+{
+	/** The map path. */
+	char *path;
 
-	/** Spell's class. */
-	int classNr;
-} _quickslot;
+	/** X position. */
+	int xpos;
 
-extern int quickslot_group;
-extern _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
+	/** Y position. */
+	int ypos;
+
+	/** The map labels. */
+	region_label_struct *labels;
+
+	/** Number of labels. */
+	size_t num_labels;
+} region_map_struct;
+
+/** Map region definitions. */
+typedef struct region_map_def
+{
+	/** The maps. */
+	region_map_struct *maps;
+
+	/** Number of maps. */
+	size_t num_maps;
+
+	/** Pixel size of one map tile. */
+	int pixel_size;
+} region_map_def;
 
 #endif

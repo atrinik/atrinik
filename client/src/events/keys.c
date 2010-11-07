@@ -497,6 +497,11 @@ void check_menu_keys(int menu, int key)
 			menuRepeatKey = key;
 			break;
 
+		case MENU_REGION_MAP:
+			region_map_handle_key(key);
+			menuRepeatKey = key;
+			break;
+
 		case MENU_OPTION:
 			switch (key)
 			{
