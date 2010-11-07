@@ -653,6 +653,7 @@ typedef enum _bitmap_index
 	BITMAP_ARROW_DOWN2,
 	BITMAP_BUTTON_ROUND,
 	BITMAP_BUTTON_ROUND_DOWN,
+	BITMAP_MAP_MARKER,
 
 	BITMAP_INIT
 }_bitmap_index;
