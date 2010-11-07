@@ -53,10 +53,15 @@ static sint16 current_y;
 static char **cmd_labels = NULL;
 /** Number of entries in ::cmd_labels. */
 static size_t num_cmd_labels = 0;
+/** Array of tooltip names parsed from the socket command. */
+static char **cmd_tooltips = NULL;
+/** Number of entries in ::cmd_tooltips. */
+static size_t num_cmd_tooltips = 0;
 /** Currently applied zoom. */
 static int region_map_zoom;
 /** Contains coordinates for the region map surface. */
 static SDL_Rect region_map_pos;
+/** Count for mouse clicks. */
 static uint32 region_mouse_ticks = 0;
 
 /**
@@ -94,6 +99,25 @@ static region_label_struct *rm_find_label(const char *name)
 			{
 				return &rm_def->maps[i].labels[j];
 			}
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Find unique tooltip name in ::rm_def.
+ * @param name Tooltip name to find.
+ * @return Pointer to the tooltip if found, NULL otherwise. */
+static region_map_tooltip *rm_find_tooltip(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < rm_def->num_tooltips; i++)
+	{
+		if (!strcmp(rm_def->tooltips[i].tooltip_name, name))
+		{
+			return &rm_def->tooltips[i];
 		}
 	}
 
@@ -164,6 +188,33 @@ static void rm_def_create(char *str)
 		else if (!strncmp(cp, "label_text ", 11))
 		{
 			rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels - 1].text = strdup(cp + 11);
+			convert_newline(rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels - 1].text);
+		}
+		/* Add tooltip. */
+		else if (!strncmp(cp, "tooltip ", 8))
+		{
+			int x, y, w, h;
+			char tooltip_name[MAX_BUF], tooltip[HUGE_BUF * 2];
+
+			if (sscanf(cp + 8, "%d %d %d %d %s %8191[^\n]", &x, &y, &w, &h, tooltip_name, tooltip) == 6)
+			{
+				rm_def->tooltips = realloc(rm_def->tooltips, sizeof(*rm_def->tooltips) * (rm_def->num_tooltips + 1));
+				rm_def->tooltips[rm_def->num_tooltips].hidden = -1;
+				rm_def->tooltips[rm_def->num_tooltips].x = x;
+				rm_def->tooltips[rm_def->num_tooltips].y = y;
+				rm_def->tooltips[rm_def->num_tooltips].w = w;
+				rm_def->tooltips[rm_def->num_tooltips].h = h;
+				convert_newline(tooltip);
+				strncpy(rm_def->tooltips[rm_def->num_tooltips].tooltip, tooltip, sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip) - 1);
+				rm_def->tooltips[rm_def->num_tooltips].tooltip[sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip) - 1] = '\0';
+				strncpy(rm_def->tooltips[rm_def->num_tooltips].tooltip_name, tooltip_name, sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip_name) - 1);
+				rm_def->tooltips[rm_def->num_tooltips].tooltip_name[sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip_name) - 1] = '\0';
+				rm_def->num_tooltips++;
+			}
+		}
+		else if (!strncmp(cp, "tooltip_hide", 12))
+		{
+			rm_def->tooltips[rm_def->num_tooltips - 1].hidden = 1;
 		}
 
 		cp = strtok(NULL, "\n");
@@ -191,6 +242,29 @@ static void rm_def_create(char *str)
 	}
 
 	num_cmd_labels = 0;
+
+	/* Parse the tooltips from the server command. */
+	for (i = 0; i < num_cmd_tooltips; i++)
+	{
+		region_map_tooltip *tooltip = rm_find_tooltip(cmd_tooltips[i]);
+
+		/* Unhide the tooltip if we found it. */
+		if (tooltip)
+		{
+			tooltip->hidden = 0;
+		}
+
+		free(cmd_tooltips[i]);
+	}
+
+	/* Don't need the tooltip from the command anymore, free them. */
+	if (cmd_tooltips)
+	{
+		free(cmd_tooltips);
+		cmd_tooltips = NULL;
+	}
+
+	num_cmd_tooltips = 0;
 }
 
 /**
@@ -209,7 +283,15 @@ static void rm_def_free()
 			free(rm_def->maps[i].labels[j].text);
 		}
 
-		free(rm_def->maps[i].labels);
+		if (rm_def->maps[i].labels)
+		{
+			free(rm_def->maps[i].labels);
+		}
+	}
+
+	if (rm_def->tooltips)
+	{
+		free(rm_def->tooltips);
 	}
 
 	free(rm_def->maps);
@@ -228,6 +310,25 @@ static int rm_label_in_cmd(const char *name)
 	for (i = 0; i < num_cmd_labels; i++)
 	{
 		if (!strcmp(cmd_labels[i], name))
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Check if the specified tooltip name exists in ::cmd_tooltips.
+ * @param name Tooltip name to check for.
+ * @return 1 if the tooltip name exists in ::cmd_tooltips, 0 otherwise. */
+static int rm_tooltip_in_cmd(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < num_cmd_tooltips; i++)
+	{
+		if (!strcmp(cmd_tooltips[i], name))
 		{
 			return 1;
 		}
@@ -263,6 +364,18 @@ static int region_map_is_same(const char *url)
 				}
 			}
 		}
+
+		for (i = 0; i < rm_def->num_tooltips; i++)
+		{
+			in_cmd = rm_tooltip_in_cmd(rm_def->tooltips[i].tooltip_name);
+
+			/* Not the same if the tooltip should be shown or
+			 * re-hidden. */
+			if ((rm_def->tooltips[i].hidden == 1 && in_cmd) || (rm_def->tooltips[i].hidden == 0 && !in_cmd))
+			{
+				return 0;
+			}
+		}
 	}
 
 	/* Is the image URL the same? */
@@ -280,7 +393,7 @@ static int region_map_is_same(const char *url)
  * @param len Length of 'data'. */
 void RegionMapCmd(uint8 *data, int len)
 {
-	char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], label[HUGE_BUF];
+	char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], text[HUGE_BUF];
 	int pos = 0;
 
 	/* Get the player's map, X and Y. */
@@ -293,14 +406,25 @@ void RegionMapCmd(uint8 *data, int len)
 	GetString_String(data, &pos, region, sizeof(region));
 	GetString_String(data, &pos, url_base, sizeof(url_base));
 
-	/* Rest of the data packet may be labels. */
+	/* Rest of the data packet may be labels/tooltips/etc. */
 	while (pos < len)
 	{
-		GetString_String(data, &pos, label, sizeof(label));
+		uint8 type = data[pos++];
 
-		cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
-		cmd_labels[num_cmd_labels] = strdup(label);
-		num_cmd_labels++;
+		GetString_String(data, &pos, text, sizeof(text));
+
+		if (type == RM_TYPE_LABEL)
+		{
+			cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
+			cmd_labels[num_cmd_labels] = strdup(text);
+			num_cmd_labels++;
+		}
+		else if (type == RM_TYPE_TOOLTIP)
+		{
+			cmd_tooltips = realloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
+			cmd_tooltips[num_cmd_tooltips] = strdup(text);
+			num_cmd_tooltips++;
+		}
 	}
 
 	cpl.menustatus = MENU_REGION_MAP;
@@ -450,6 +574,7 @@ void region_map_show()
 	int x, y, ret_png, ret_def;
 	SDL_Rect box, dest;
 	int state, mx, my;
+	size_t i;
 
 	/* Show the background. */
 	x = BOOK_BACKGROUND_X;
@@ -497,7 +622,7 @@ void region_map_show()
 	if (!region_map_png)
 	{
 		SDL_Rect marker;
-		size_t i, j;
+		size_t j;
 		region_map_struct *map;
 
 		/* Create the surface from downloaded data. */
@@ -586,4 +711,17 @@ void region_map_show()
 
 	/* Actually blit the map. */
 	SDL_BlitSurface(region_map_png, &region_map_pos, ScreenSurface, &dest);
+
+	for (i = 0; i < rm_def->num_tooltips; i++)
+	{
+		if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x && region_map_pos.x + mx - box.x <= rm_def->tooltips[i].x + rm_def->tooltips[i].w && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y && region_map_pos.y + my - box.y <= rm_def->tooltips[i].y + rm_def->tooltips[i].h)
+		{
+			x = box.x + box.w + RM_BORDER_SIZE;
+			sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
+			box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
+			box.h = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
+			string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].tooltip, x + 8, y + 8, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &box);
+			break;
+		}
+	}
 }

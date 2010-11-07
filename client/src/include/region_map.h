@@ -84,6 +84,31 @@ typedef struct region_map_struct
 	size_t num_labels;
 } region_map_struct;
 
+/** Map tooltips. */
+typedef struct region_map_tooltip
+{
+	/** X position. */
+	int x;
+
+	/** Y position. */
+	int y;
+
+	/** Width. */
+	int w;
+
+	/** Height. */
+	int h;
+
+	/** Unique name of this tooltip. */
+	char tooltip_name[MAX_BUF];
+
+	/** Tooltip text. */
+	char tooltip[HUGE_BUF * 2];
+
+	/** Same as region_label_struct::hidden. */
+	int hidden;
+} region_map_tooltip;
+
 /** Map region definitions. */
 typedef struct region_map_def
 {
@@ -92,6 +117,12 @@ typedef struct region_map_def
 
 	/** Number of maps. */
 	size_t num_maps;
+
+	/** The tooltips. */
+	region_map_tooltip *tooltips;
+
+	/** Number of tooltips. */
+	size_t num_tooltips;
 
 	/** Pixel size of one map tile. */
 	int pixel_size;
@@ -102,5 +133,15 @@ typedef struct region_map_def
 	/** Y Size of the map. */
 	int map_size_y;
 } region_map_def;
+
+/**
+ * @defgroup RM_TYPE_xxx Region map command types
+ * Leftover text data types in region map command.
+ *@{*/
+/** Show previously hidden label. */
+#define RM_TYPE_LABEL 1
+/** Show previously hidden tooltip. */
+#define RM_TYPE_TOOLTIP 2
+/*@}*/
 
 #endif
