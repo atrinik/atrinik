@@ -89,6 +89,26 @@ enum
 	FONT_SERIF18,
 	/** Serif, 20px. */
 	FONT_SERIF20,
+	/** Serif, 22px. */
+	FONT_SERIF22,
+	/** Serif, 24px. */
+	FONT_SERIF24,
+	/** Serif, 26px. */
+	FONT_SERIF26,
+	/** Serif, 28px. */
+	FONT_SERIF28,
+	/** Serif, 30px. */
+	FONT_SERIF30,
+	/** Serif, 32px. */
+	FONT_SERIF32,
+	/** Serif, 34px. */
+	FONT_SERIF34,
+	/** Serif, 36px. */
+	FONT_SERIF36,
+	/** Serif, 38px. */
+	FONT_SERIF38,
+	/** Serif, 40px. */
+	FONT_SERIF40,
 	/** Mono, 8px. */
 	FONT_MONO8,
 	/** Mono, 9px. */
