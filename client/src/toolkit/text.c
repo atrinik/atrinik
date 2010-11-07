@@ -503,6 +503,20 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return strchr(cp + 3, '>') - cp + 1;
 		}
+		else if (!strncmp(cp, "<x=", 3))
+		{
+			if (surface)
+			{
+				int w;
+
+				if (sscanf(cp, "<x=%d>", &w) == 1)
+				{
+					dest->x += w;
+				}
+			}
+
+			return strchr(cp + 3, '>') - cp + 1;
+		}
 		else if (!strncmp(cp, "<img=", 5))
 		{
 			if (surface)
