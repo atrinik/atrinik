@@ -103,7 +103,6 @@ int curl_connect(void *c_data)
 	 * http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTNOSIGNAL
 	 * for details. */
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
 
 	SDL_LockMutex(data->mutex);
 	curl_easy_setopt(handle, CURLOPT_URL, data->url);
