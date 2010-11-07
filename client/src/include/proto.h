@@ -14,6 +14,7 @@ void SockList_AddStringTerminated(SockList *sl, char *data);
 int GetInt_String(const unsigned char *data);
 sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
+char *GetString_String(uint8 *data, int *pos, char *dest, size_t dest_size);
 int cs_write_string(char *buf, size_t len);
 void check_animation_status(int anum);
 

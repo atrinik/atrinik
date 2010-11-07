@@ -307,6 +307,30 @@ short GetShort_String(const unsigned char *data)
 }
 
 /**
+ * Construct a string from data packet.
+ * @param data Data packet.
+ * @param[out] pos Position in the data packet.
+ * @param dest Will contain the string from data packet.
+ * @param dest_size Size of 'dest'.
+ * @return 'dest'. */
+char *GetString_String(uint8 *data, int *pos, char *dest, size_t dest_size)
+{
+	size_t i = 0;
+	char c;
+
+	while ((c = (char) (data[(*pos)++])))
+	{
+		if (i < dest_size - 1)
+		{
+			dest[i++] = c;
+		}
+	}
+
+	dest[i] = '\0';
+	return dest;
+}
+
+/**
  * Takes a string of data, and writes it out to the socket.
  * @param fd File descriptor to send the string to.
  * @param buf The string.
