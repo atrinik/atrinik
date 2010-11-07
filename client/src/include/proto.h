@@ -226,6 +226,7 @@ void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
 SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 
 /* client/tilestretcher.c */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);

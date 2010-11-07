@@ -1604,3 +1604,30 @@ static void zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int
 	free(sax);
 	free(say);
 }
+
+/**
+ * Pans the surface.
+ * @param surface Surface.
+ * @param box Coordinates. */
+void surface_pan(SDL_Surface *surface, SDL_Rect *box)
+{
+	if (box->x >= surface->w - box->w)
+	{
+		box->x = (Sint16) (surface->w - box->w);
+	}
+
+	if (box->x < 0)
+	{
+		box->x = 0;
+	}
+
+	if (box->y >= surface->h - box->h)
+	{
+		box->y = (Sint16) (surface->h - box->h);
+	}
+
+	if (box->y < 0)
+	{
+		box->y = 0;
+	}
+}
