@@ -111,6 +111,8 @@ static void rm_def_create(char *str)
 
 	rm_def = calloc(1, sizeof(region_map_def));
 	rm_def->pixel_size = 1;
+	rm_def->map_size_x = 24;
+	rm_def->map_size_y = 24;
 
 	cp = strtok(str, "\n");
 
@@ -119,6 +121,14 @@ static void rm_def_create(char *str)
 		if (!strncmp(cp, "pixel_size ", 11))
 		{
 			rm_def->pixel_size = atoi(cp + 11);
+		}
+		else if (!strncmp(cp, "map_size_x ", 11))
+		{
+			rm_def->map_size_x = atoi(cp + 11);
+		}
+		else if (!strncmp(cp, "map_size_y ", 11))
+		{
+			rm_def->map_size_y = atoi(cp + 11);
 		}
 		/* Map command, add it to the list of maps. */
 		else if (!strncmp(cp, "map ", 4))
@@ -439,7 +449,7 @@ void region_map_show()
 {
 	int x, y, ret_png, ret_def;
 	SDL_Rect box, dest;
-	int mx, my;
+	int state, mx, my;
 
 	/* Show the background. */
 	x = BOOK_BACKGROUND_X;
@@ -528,16 +538,47 @@ void region_map_show()
 		}
 	}
 
+	state = SDL_GetMouseState(&mx, &my);
+
 	/* Move the map around with the mouse. */
-	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON_LEFT && mx > box.x && my < box.x + box.w && my > box.y && my < box.y + box.h && (!region_mouse_ticks || SDL_GetTicks() - region_mouse_ticks > 125))
+	if ((state == SDL_BUTTON(SDL_BUTTON_LEFT) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mx > box.x && my < box.x + box.w && my > box.y && my < box.y + box.h && (!region_mouse_ticks || state == SDL_BUTTON(SDL_BUTTON_MIDDLE) || SDL_GetTicks() - region_mouse_ticks > 125))
 	{
 		region_mouse_ticks = SDL_GetTicks();
 
-		/* The clicked position will become centered, unless it's too
-		 * close to an edge of the map, of course. */
-		region_map_pos.x += mx - box.x - region_map_pos.w / 2;
-		region_map_pos.y += my - box.y - region_map_pos.h / 2;
-		surface_pan(region_map_png, &region_map_pos);
+		if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
+		{
+			/* The clicked position will become centered, unless it's too
+			 * close to an edge of the map, of course. */
+			region_map_pos.x += mx - box.x - region_map_pos.w / 2;
+			region_map_pos.y += my - box.y - region_map_pos.h / 2;
+			surface_pan(region_map_png, &region_map_pos);
+		}
+		else if (state == SDL_BUTTON(SDL_BUTTON_MIDDLE))
+		{
+			size_t i;
+			int xpos, ypos;
+
+			xpos = region_map_pos.x + mx - box.x;
+			ypos = region_map_pos.y + my - box.y;
+
+			for (i = 0; i < rm_def->num_maps; i++)
+			{
+				if (xpos >= rm_def->maps[i].xpos && xpos <= rm_def->maps[i].xpos + (rm_def->map_size_x * rm_def->pixel_size) && ypos >= rm_def->maps[i].ypos && ypos <= rm_def->maps[i].ypos + (rm_def->map_size_y * rm_def->pixel_size))
+				{
+					char buf[HUGE_BUF];
+
+					xpos = (xpos - rm_def->maps[i].xpos) / rm_def->pixel_size;
+					ypos = (ypos - rm_def->maps[i].ypos) / rm_def->pixel_size;
+					snprintf(buf, sizeof(buf), "/goto %s %d %d", rm_def->maps[i].path, xpos, ypos);
+					send_command(buf);
+
+					cpl.menustatus = MENU_NO;
+					map_udate_flag = 2;
+					reset_keys();
+					break;
+				}
+			}
+		}
 	}
 
 	dest.x = box.x;

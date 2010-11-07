@@ -95,6 +95,12 @@ typedef struct region_map_def
 
 	/** Pixel size of one map tile. */
 	int pixel_size;
+
+	/** X Size of the map. */
+	int map_size_x;
+
+	/** Y Size of the map. */
+	int map_size_y;
 } region_map_def;
 
 #endif
