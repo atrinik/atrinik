@@ -59,6 +59,8 @@ curl_data *curl_data_new(const char *url);
 curl_data *curl_download_start(const char *url);
 sint8 curl_download_finished(curl_data *data);
 void curl_data_free(curl_data *data);
+void curl_init();
+void curl_deinit();
 
 /* client/dialog.c */
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);

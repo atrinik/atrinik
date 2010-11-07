@@ -1144,7 +1144,7 @@ int main(int argc, char *argv[])
 
 	init_signals();
 	init_game_data();
-	curl_global_init(CURL_GLOBAL_ALL);
+	curl_init();
 
 	while (argc > 1)
 	{

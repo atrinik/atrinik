@@ -107,7 +107,7 @@ void system_end()
 	save_interface_file();
 	save_options_dat();
 	kill_widgets();
-	curl_global_cleanup();
+	curl_deinit();
 	socket_deinitialize();
 	sound_deinit();
 	free_bitmaps();

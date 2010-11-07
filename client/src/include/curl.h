@@ -61,6 +61,6 @@ typedef struct curl_data
 	sint8 status;
 } curl_data;
 
-#define CURL_TIMEOUT 5
+#define CURL_TIMEOUT 8
 
 #endif

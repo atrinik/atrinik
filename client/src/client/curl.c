@@ -29,6 +29,11 @@
 
 #include <include.h>
 
+/** Shared handle. */
+static CURLSH *handle_share = NULL;
+/** Mutex to protect the shared handle. */
+static SDL_mutex *handle_share_mutex = NULL;
+
 /**
  * Function to call when receiving data from cURL.
  * @param ptr Pointer to data to process.
@@ -98,10 +103,12 @@ int curl_connect(void *c_data)
 	 * http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTNOSIGNAL
 	 * for details. */
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
+	curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
 
 	SDL_LockMutex(data->mutex);
 	curl_easy_setopt(handle, CURLOPT_URL, data->url);
 	curl_easy_setopt(handle, CURLOPT_REFERER, data->url);
+	curl_easy_setopt(handle, CURLOPT_SHARE, handle_share);
 	SDL_UnlockMutex(data->mutex);
 
 	/* The callback function. */
@@ -220,4 +227,46 @@ void curl_data_free(curl_data *data)
 	SDL_DestroyMutex(data->mutex);
 	free(data->url);
 	free(data);
+}
+
+/**
+ * Lock the share handle. */
+static void curl_share_lock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr)
+{
+	(void) handle;
+	(void) data;
+	(void) access;
+	SDL_LockMutex(userptr);
+}
+
+/**
+ * Unlock the share handle. */
+static void curl_share_unlock(CURL *handle, curl_lock_data data, void *userptr)
+{
+	(void) handle;
+	(void) data;
+	SDL_UnlockMutex(userptr);
+}
+
+/**
+ * Initialize cURL module. */
+void curl_init()
+{
+	curl_global_init(CURL_GLOBAL_ALL);
+	handle_share_mutex = SDL_CreateMutex();
+
+	handle_share = curl_share_init();
+	curl_share_setopt(handle_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
+	curl_share_setopt(handle_share, CURLSHOPT_USERDATA, handle_share_mutex);
+	curl_share_setopt(handle_share, CURLSHOPT_LOCKFUNC, curl_share_lock);
+	curl_share_setopt(handle_share, CURLSHOPT_UNLOCKFUNC, curl_share_unlock);
+}
+
+/**
+ * Deinitialize cURL module. */
+void curl_deinit()
+{
+	curl_share_cleanup(handle_share);
+	SDL_DestroyMutex(handle_share_mutex);
+	curl_global_cleanup();
 }
