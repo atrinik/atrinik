@@ -688,12 +688,12 @@ void region_map_show()
 
 			for (i = 0; i < rm_def->num_maps; i++)
 			{
-				if (xpos >= rm_def->maps[i].xpos && xpos <= rm_def->maps[i].xpos + (rm_def->map_size_x * rm_def->pixel_size) && ypos >= rm_def->maps[i].ypos && ypos <= rm_def->maps[i].ypos + (rm_def->map_size_y * rm_def->pixel_size))
+				if (xpos >= rm_def->maps[i].xpos * (region_map_zoom / 100.0) && xpos <= (rm_def->maps[i].xpos + (rm_def->map_size_x * rm_def->pixel_size)) * (region_map_zoom / 100.0) && ypos >= rm_def->maps[i].ypos * (region_map_zoom / 100.0) && ypos <= (rm_def->maps[i].ypos + (rm_def->map_size_y * rm_def->pixel_size)) * (region_map_zoom / 100.0))
 				{
 					char buf[HUGE_BUF];
 
-					xpos = (xpos - rm_def->maps[i].xpos) / rm_def->pixel_size;
-					ypos = (ypos - rm_def->maps[i].ypos) / rm_def->pixel_size;
+					xpos = (xpos - rm_def->maps[i].xpos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
+					ypos = (ypos - rm_def->maps[i].ypos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
 					snprintf(buf, sizeof(buf), "/goto %s %d %d", rm_def->maps[i].path, xpos, ypos);
 					send_command(buf);
 
