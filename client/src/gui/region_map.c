@@ -714,7 +714,7 @@ void region_map_show()
 
 	for (i = 0; i < rm_def->num_tooltips; i++)
 	{
-		if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x && region_map_pos.x + mx - box.x <= rm_def->tooltips[i].x + rm_def->tooltips[i].w && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y && region_map_pos.y + my - box.y <= rm_def->tooltips[i].y + rm_def->tooltips[i].h)
+		if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && region_map_pos.x + mx - box.x <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
 		{
 			x = box.x + box.w + RM_BORDER_SIZE;
 			sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
