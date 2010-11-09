@@ -640,8 +640,8 @@ void region_map_show()
 		if (map)
 		{
 			/* Calculate the player's marker position. */
-			marker.x = map->xpos + current_x * rm_def->pixel_size - Bitmaps[BITMAP_MAP_MARKER]->bitmap->w / 2;
-			marker.y = map->ypos + current_y * rm_def->pixel_size - Bitmaps[BITMAP_MAP_MARKER]->bitmap->h / 2;
+			marker.x = map->xpos + current_x * rm_def->pixel_size - Bitmaps[BITMAP_MAP_MARKER]->bitmap->w / 2 + rm_def->pixel_size / 2;
+			marker.y = map->ypos + current_y * rm_def->pixel_size - Bitmaps[BITMAP_MAP_MARKER]->bitmap->h + rm_def->pixel_size;
 			SDL_BlitSurface(Bitmaps[BITMAP_MAP_MARKER]->bitmap, NULL, region_map_png, &marker);
 
 			/* Center the map on the player. */
