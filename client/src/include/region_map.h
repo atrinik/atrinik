@@ -47,9 +47,28 @@
 /** Number of pixels to scroll using the keyboard arrows when shift is held. */
 #define RM_SCROLL_SHIFT 50
 
+/** Single map. */
+typedef struct region_map_struct
+{
+	/** The map path. */
+	char *path;
+
+	/** X position. */
+	int xpos;
+
+	/** Y position. */
+	int ypos;
+} region_map_struct;
+
 /** Single map label. */
 typedef struct region_label_struct
 {
+	/** X position. */
+	int x;
+
+	/** Y position. */
+	int y;
+
 	/** Unique name of the label. */
 	char *name;
 
@@ -64,25 +83,6 @@ typedef struct region_label_struct
 	 * <b>1</b>: Hidden by label_hide command. */
 	int hidden;
 } region_label_struct;
-
-/** Single map. */
-typedef struct region_map_struct
-{
-	/** The map path. */
-	char *path;
-
-	/** X position. */
-	int xpos;
-
-	/** Y position. */
-	int ypos;
-
-	/** The map labels. */
-	region_label_struct *labels;
-
-	/** Number of labels. */
-	size_t num_labels;
-} region_map_struct;
 
 /** Map tooltips. */
 typedef struct region_map_tooltip
@@ -100,10 +100,10 @@ typedef struct region_map_tooltip
 	int h;
 
 	/** Unique name of this tooltip. */
-	char tooltip_name[MAX_BUF];
+	char *name;
 
 	/** Tooltip text. */
-	char tooltip[HUGE_BUF * 2];
+	char *text;
 
 	/** Same as region_label_struct::hidden. */
 	int hidden;
@@ -123,6 +123,12 @@ typedef struct region_map_def
 
 	/** Number of tooltips. */
 	size_t num_tooltips;
+
+	/** The map labels. */
+	region_label_struct *labels;
+
+	/** Number of labels. */
+	size_t num_labels;
 
 	/** Pixel size of one map tile. */
 	int pixel_size;

@@ -89,16 +89,13 @@ static region_map_struct *rm_def_get_map(const char *path)
  * @return Pointer to the label if found, NULL otherwise. */
 static region_label_struct *rm_find_label(const char *name)
 {
-	size_t i, j;
+	size_t i;
 
-	for (i = 0; i < rm_def->num_maps; i++)
+	for (i = 0; i < rm_def->num_labels; i++)
 	{
-		for (j = 0; j < rm_def->maps[i].num_labels; j++)
+		if (!strcmp(rm_def->labels[i].name, name))
 		{
-			if (!strcmp(rm_def->maps[i].labels[j].name, name))
-			{
-				return &rm_def->maps[i].labels[j];
-			}
+			return &rm_def->labels[i];
 		}
 	}
 
@@ -115,7 +112,7 @@ static region_map_tooltip *rm_find_tooltip(const char *name)
 
 	for (i = 0; i < rm_def->num_tooltips; i++)
 	{
-		if (!strcmp(rm_def->tooltips[i].tooltip_name, name))
+		if (!strcmp(rm_def->tooltips[i].name, name))
 		{
 			return &rm_def->tooltips[i];
 		}
@@ -161,9 +158,6 @@ static void rm_def_create(char *str)
 
 			rm_def->maps = realloc(rm_def->maps, sizeof(*rm_def->maps) * (rm_def->num_maps + 1));
 
-			rm_def->maps[rm_def->num_maps].labels = NULL;
-			rm_def->maps[rm_def->num_maps].num_labels = 0;
-
 			if (sscanf(cp + 4, "%x %x %s", &rm_def->maps[rm_def->num_maps].xpos, &rm_def->maps[rm_def->num_maps].ypos, path) == 3)
 			{
 				rm_def->maps[rm_def->num_maps].path = strdup(path);
@@ -171,24 +165,27 @@ static void rm_def_create(char *str)
 
 			rm_def->num_maps++;
 		}
-		/* Add label to the previously added map. */
+		/* Add label. */
 		else if (!strncmp(cp, "label ", 6))
 		{
-			rm_def->maps[rm_def->num_maps - 1].labels = realloc(rm_def->maps[rm_def->num_maps - 1].labels, sizeof(*rm_def->maps[rm_def->num_maps - 1].labels) * (rm_def->maps[rm_def->num_maps - 1].num_labels + 1));
-			rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels].hidden = -1;
-			rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels].name = strdup(cp + 6);
-			rm_def->maps[rm_def->num_maps - 1].num_labels++;
+			int x, y;
+			char label_name[MAX_BUF], label_text[HUGE_BUF * 2];
+
+			if (sscanf(cp + 6, "%x %x %s %8191[^\n]", &x, &y, label_name, label_text) == 4)
+			{
+				rm_def->labels = realloc(rm_def->labels, sizeof(*rm_def->labels) * (rm_def->num_labels + 1));
+				rm_def->labels[rm_def->num_labels].hidden = -1;
+				rm_def->labels[rm_def->num_labels].x = x;
+				rm_def->labels[rm_def->num_labels].y = y;
+				rm_def->labels[rm_def->num_labels].name = strdup(label_name);
+				rm_def->labels[rm_def->num_labels].text = strdup(label_text);
+				rm_def->num_labels++;
+			}
 		}
 		/* Hide the previously added label. */
 		else if (!strncmp(cp, "label_hide", 10))
 		{
-			rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels - 1].hidden = 1;
-		}
-		/* Set text of the previous label. */
-		else if (!strncmp(cp, "label_text ", 11))
-		{
-			rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels - 1].text = strdup(cp + 11);
-			convert_newline(rm_def->maps[rm_def->num_maps - 1].labels[rm_def->maps[rm_def->num_maps - 1].num_labels - 1].text);
+			rm_def->labels[rm_def->num_labels - 1].hidden = 1;
 		}
 		/* Add tooltip. */
 		else if (!strncmp(cp, "tooltip ", 8))
@@ -196,7 +193,7 @@ static void rm_def_create(char *str)
 			int x, y, w, h;
 			char tooltip_name[MAX_BUF], tooltip[HUGE_BUF * 2];
 
-			if (sscanf(cp + 8, "%d %d %d %d %s %8191[^\n]", &x, &y, &w, &h, tooltip_name, tooltip) == 6)
+			if (sscanf(cp + 8, "%x %x %x %x %s %8191[^\n]", &x, &y, &w, &h, tooltip_name, tooltip) == 6)
 			{
 				rm_def->tooltips = realloc(rm_def->tooltips, sizeof(*rm_def->tooltips) * (rm_def->num_tooltips + 1));
 				rm_def->tooltips[rm_def->num_tooltips].hidden = -1;
@@ -205,10 +202,9 @@ static void rm_def_create(char *str)
 				rm_def->tooltips[rm_def->num_tooltips].w = w;
 				rm_def->tooltips[rm_def->num_tooltips].h = h;
 				convert_newline(tooltip);
-				strncpy(rm_def->tooltips[rm_def->num_tooltips].tooltip, tooltip, sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip) - 1);
-				rm_def->tooltips[rm_def->num_tooltips].tooltip[sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip) - 1] = '\0';
-				strncpy(rm_def->tooltips[rm_def->num_tooltips].tooltip_name, tooltip_name, sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip_name) - 1);
-				rm_def->tooltips[rm_def->num_tooltips].tooltip_name[sizeof(rm_def->tooltips[rm_def->num_tooltips].tooltip_name) - 1] = '\0';
+
+				rm_def->tooltips[rm_def->num_tooltips].text = strdup(tooltip);
+				rm_def->tooltips[rm_def->num_tooltips].name = strdup(tooltip_name);
 				rm_def->num_tooltips++;
 			}
 		}
@@ -271,22 +267,33 @@ static void rm_def_create(char *str)
  * Free ::rm_def. */
 static void rm_def_free()
 {
-	size_t i, j;
+	size_t i;
 
 	/* Free all maps. */
 	for (i = 0; i < rm_def->num_maps; i++)
 	{
-		/* And their labels. */
-		for (j = 0; j < rm_def->maps[i].num_labels; j++)
-		{
-			free(rm_def->maps[i].labels[j].name);
-			free(rm_def->maps[i].labels[j].text);
-		}
+		free(rm_def->maps[i].path);
+	}
 
-		if (rm_def->maps[i].labels)
-		{
-			free(rm_def->maps[i].labels);
-		}
+	free(rm_def->maps);
+
+	/* Free labels. */
+	for (i = 0; i < rm_def->num_labels; i++)
+	{
+		free(rm_def->labels[i].name);
+		free(rm_def->labels[i].text);
+	}
+
+	if (rm_def->labels)
+	{
+		free(rm_def->labels);
+	}
+
+	/* Free tooltips. */
+	for (i = 0; i < rm_def->num_tooltips; i++)
+	{
+		free(rm_def->tooltips[i].name);
+		free(rm_def->tooltips[i].text);
 	}
 
 	if (rm_def->tooltips)
@@ -294,7 +301,6 @@ static void rm_def_free()
 		free(rm_def->tooltips);
 	}
 
-	free(rm_def->maps);
 	free(rm_def);
 	rm_def = NULL;
 }
@@ -344,30 +350,32 @@ static int rm_tooltip_in_cmd(const char *name)
  * @return 1 if it's same, 0 otherwise. */
 static int region_map_is_same(const char *url)
 {
+	if (options.disable_rm_cache)
+	{
+		return 0;
+	}
+
 	/* Try to check labels from definitions. */
 	if (rm_def)
 	{
-		size_t i, j;
+		size_t i;
 		uint8 in_cmd;
 
-		for (i = 0; i < rm_def->num_maps; i++)
+		for (i = 0; i < rm_def->num_labels; i++)
 		{
-			for (j = 0; j < rm_def->maps[i].num_labels; j++)
-			{
-				in_cmd = rm_label_in_cmd(rm_def->maps[i].labels[j].name);
+			in_cmd = rm_label_in_cmd(rm_def->labels[i].name);
 
-				/* Not the same if the label should be shown or
-				 * re-hidden. */
-				if ((rm_def->maps[i].labels[j].hidden == 1 && in_cmd) || (rm_def->maps[i].labels[j].hidden == 0 && !in_cmd))
-				{
-					return 0;
-				}
+			/* Not the same if the label should be shown or
+			 * re-hidden. */
+			if ((rm_def->labels[i].hidden == 1 && in_cmd) || (rm_def->labels[i].hidden == 0 && !in_cmd))
+			{
+				return 0;
 			}
 		}
 
 		for (i = 0; i < rm_def->num_tooltips; i++)
 		{
-			in_cmd = rm_tooltip_in_cmd(rm_def->tooltips[i].tooltip_name);
+			in_cmd = rm_tooltip_in_cmd(rm_def->tooltips[i].name);
 
 			/* Not the same if the tooltip should be shown or
 			 * re-hidden. */
@@ -622,7 +630,6 @@ void region_map_show()
 	if (!region_map_png)
 	{
 		SDL_Rect marker;
-		size_t j;
 		region_map_struct *map;
 
 		/* Create the surface from downloaded data. */
@@ -651,14 +658,11 @@ void region_map_show()
 		surface_pan(region_map_png, &region_map_pos);
 
 		/* Blit the labels. */
-		for (i = 0; i < rm_def->num_maps; i++)
+		for (i = 0; i < rm_def->num_labels; i++)
 		{
-			for (j = 0; j < rm_def->maps[i].num_labels; j++)
+			if (rm_def->labels[i].hidden < 1)
 			{
-				if (rm_def->maps[i].labels[j].hidden < 1)
-				{
-					string_blt(region_map_png, FONT_SERIF20, rm_def->maps[i].labels[j].text, rm_def->maps[i].xpos, rm_def->maps[i].ypos, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
-				}
+				string_blt(region_map_png, FONT_SERIF20, rm_def->labels[i].text, rm_def->labels[i].x, rm_def->labels[i].y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
 			}
 		}
 	}
@@ -720,7 +724,7 @@ void region_map_show()
 			sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
 			box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
 			box.h = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
-			string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].tooltip, x + 8, y + 8, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &box);
+			string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].text, x + 8, y + 8, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &box);
 			break;
 		}
 	}
