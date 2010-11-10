@@ -275,4 +275,11 @@
 	<listentry value="6" name="Purple" />
 </list>
 
+<list name="client_map">
+	<listentry value="0" name="&lt;none&gt;" />
+	<listentry value="1" name="Label" />
+	<listentry value="2" name="Tooltip" />
+	<listentry value="3" name="Hide" />
+</list>
+
 </lists>
