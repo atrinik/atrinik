@@ -528,8 +528,8 @@ static void region_map_resize()
 	}
 	else
 	{
-		region_map_pos.x = region_map_png->w / 2;
-		region_map_pos.y = region_map_png->h / 2;
+		region_map_pos.x = region_map_png->w / 2 - region_map_pos.w / 2;
+		region_map_pos.y = region_map_png->h / 2 - region_map_pos.h / 2;
 	}
 
 	surface_pan(region_map_png, &region_map_pos);
