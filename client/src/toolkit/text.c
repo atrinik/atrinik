@@ -416,7 +416,48 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return pos - cp + 1;
 		}
-		else if (!strncmp(cp, "</font>", 7))
+		else if (!strncmp(cp, "<size=", 6))
+		{
+			int font_size;
+			char *pos;
+
+			if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(cp, "<size=%d>", &font_size) == 1)
+			{
+				const char *tmp = strrchr(fonts[*font].path, '/');
+				int font_id;
+
+				if (!tmp)
+				{
+					tmp = fonts[*font].path;
+				}
+				else
+				{
+					tmp++;
+				}
+
+				font_id = get_font_id(tmp, font_size);
+
+				if (font_id == -1)
+				{
+					LOG(llevBug, "blt_character(): Invalid font in string (%d): %.80s.\n", font_size, cp);
+				}
+				else
+				{
+					*font = font_id;
+				}
+			}
+
+			/* Get the position of the ending '>'. */
+			pos = strchr(cp, '>');
+
+			if (!pos)
+			{
+				return 6;
+			}
+
+			return pos - cp + 1;
+		}
+		else if (!strncmp(cp, "</font>", 7) || !strncmp(cp, "</size>", 7))
 		{
 			*font = orig_font;
 			return 7;
