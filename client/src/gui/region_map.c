@@ -177,6 +177,7 @@ static void rm_def_create(char *str)
 				rm_def->labels[rm_def->num_labels].hidden = -1;
 				rm_def->labels[rm_def->num_labels].x = x;
 				rm_def->labels[rm_def->num_labels].y = y;
+				convert_newline(label_text);
 				rm_def->labels[rm_def->num_labels].name = strdup(label_name);
 				rm_def->labels[rm_def->num_labels].text = strdup(label_text);
 				rm_def->num_labels++;
