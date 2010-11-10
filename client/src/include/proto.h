@@ -64,6 +64,7 @@ void curl_deinit();
 
 /* client/dialog.c */
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
+void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 void add_close_button(int x, int y, int menu);
 int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h);
 int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char *text_h);

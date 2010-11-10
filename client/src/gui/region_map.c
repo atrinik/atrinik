@@ -198,6 +198,7 @@ static void rm_def_create(char *str)
 			{
 				rm_def->tooltips = realloc(rm_def->tooltips, sizeof(*rm_def->tooltips) * (rm_def->num_tooltips + 1));
 				rm_def->tooltips[rm_def->num_tooltips].hidden = -1;
+				rm_def->tooltips[rm_def->num_tooltips].outline = 0;
 				rm_def->tooltips[rm_def->num_tooltips].x = x;
 				rm_def->tooltips[rm_def->num_tooltips].y = y;
 				rm_def->tooltips[rm_def->num_tooltips].w = w;
@@ -212,6 +213,27 @@ static void rm_def_create(char *str)
 		else if (!strncmp(cp, "tooltip_hide", 12))
 		{
 			rm_def->tooltips[rm_def->num_tooltips - 1].hidden = 1;
+		}
+		else if (!strncmp(cp, "t_outline ", 10))
+		{
+			int r, g, b, outline_size = 1;
+
+			if (sscanf(cp + 10, "#%2X%2X%2X %d", &r, &g, &b, &outline_size) >= 3)
+			{
+				rm_def->tooltips[rm_def->num_tooltips - 1].outline = 1;
+				rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.r = r;
+				rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.g = g;
+				rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.b = b;
+				rm_def->tooltips[rm_def->num_tooltips - 1].outline_size = outline_size;
+			}
+		}
+		else if (!strncmp(cp, "t_outline", 9))
+		{
+			rm_def->tooltips[rm_def->num_tooltips - 1].outline = 1;
+			rm_def->tooltips[rm_def->num_tooltips - 1].outline_size = 1;
+			rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.r = 255;
+			rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.g = 0;
+			rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.b = 0;
 		}
 
 		cp = strtok(NULL, "\n");
@@ -664,6 +686,14 @@ void region_map_show()
 			if (rm_def->labels[i].hidden < 1)
 			{
 				string_blt(region_map_png, FONT_SERIF20, rm_def->labels[i].text, rm_def->labels[i].x, rm_def->labels[i].y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
+			}
+		}
+
+		for (i = 0; i < rm_def->num_tooltips; i++)
+		{
+			if (rm_def->tooltips[i].hidden < 1 && rm_def->tooltips[i].outline)
+			{
+				border_create(region_map_png, rm_def->tooltips[i].x, rm_def->tooltips[i].y, rm_def->tooltips[i].w, rm_def->tooltips[i].h, SDL_MapRGB(region_map_png->format, rm_def->tooltips[i].outline_color.r, rm_def->tooltips[i].outline_color.g, rm_def->tooltips[i].outline_color.b), rm_def->tooltips[i].outline_size);
 			}
 		}
 	}

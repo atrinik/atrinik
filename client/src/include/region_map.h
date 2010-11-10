@@ -107,6 +107,15 @@ typedef struct region_map_tooltip
 
 	/** Same as region_label_struct::hidden. */
 	int hidden;
+
+	/** Show an outline? */
+	uint8 outline;
+
+	/** Outline's color. */
+	SDL_Color outline_color;
+
+	/** Size of the outline. */
+	uint8 outline_size;
 } region_map_tooltip;
 
 /** Map region definitions. */
