@@ -27,11 +27,11 @@
 LOADERS := $(wildcard loaders/*.l)
 
 # Compilation flags
-CFLAGS = @CFLAGS@ @CHECK_CFLAGS@ $(EXTRA_CFLAGS)
+CFLAGS = @CFLAGS@ @CHECK_CFLAGS@ @GD_CFLAGS@ $(EXTRA_CFLAGS)
 # Include directories
 INCLUDES = -Iinclude -Irandom_maps -Ilibs/zlib/include -Itests $(EXTRA_INCLUDES)
 # Libraries needed
-LIBS = @LIBS@ @CHECK_LIBS@ $(EXTRA_LIBS)
+LIBS = @LIBS@ @CHECK_LIBS@ @GD_LIBS@ $(EXTRA_LIBS)
 
 # Now the source files
 SRCS := \
@@ -41,7 +41,8 @@ SRCS := \
 	$(wildcard server/*.c) \
 	$(wildcard skills/*.c) \
 	$(wildcard socket/*.c) \
-	$(wildcard types/*.c)
+	$(wildcard types/*.c) \
+	$(wildcard world_maker/*.c)
 
 ifneq (@CHECK_LIBS@,)
 	SRCS += \
@@ -49,6 +50,11 @@ ifneq (@CHECK_LIBS@,)
 		$(wildcard tests/unit/commands/*.c) \
 		$(wildcard tests/unit/server/*.c) \
 		$(wildcard tests/bugs/*.c)
+endif
+
+ifneq (@GD_LIBS@,)
+	SRCS += \
+		modules/world_maker.c
 endif
 
 # Object files

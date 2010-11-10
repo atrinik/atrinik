@@ -234,6 +234,28 @@ if test x"$disable_check" = "xno" ; then
 	fi
 fi
 
+########################
+# World maker
+
+disable_world_maker="no"
+
+AC_ARG_ENABLE(world-maker, [  --disable-world-maker   disable compiling the world maker module],
+	disable_world_maker="yes", )
+
+if test x"$disable_world_maker" = "xno" ; then
+	with_gd=yes
+else
+	with_gd=no
+fi
+
+AX_CHECK_GD(,[with_gd],
+		AC_MSG_WARN([GD not found, will not be able to run world maker.])
+		[with_gd="no"])
+
+if test x"$with_gd" != "xno" ; then
+	AC_DEFINE(HAVE_GD)
+fi
+
 datadir=${ndatadir}
 localstatedir=${nlocaldir}
 
@@ -260,4 +282,10 @@ else
 AC_MSG_NOTICE([    Will build unit tests?               no])
 AC_MSG_NOTICE([      If you are a developer, you MUST install the check framework])
 AC_MSG_NOTICE([      and write automated tests for all your add-ons!])
+fi
+
+if test "x$disable_world_maker" = "xyes" ; then
+AC_MSG_NOTICE([    Will build world maker?              no])
+else
+AC_MSG_NOTICE([    Will build world maker?              yes])
 fi

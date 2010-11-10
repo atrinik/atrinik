@@ -930,6 +930,7 @@ void free_socket_images();
 void read_client_images();
 void SendFaceCmd(char *buf, int len, socket_struct *ns);
 int esrv_send_face(socket_struct *ns, short face_num);
+void face_get_data(int face, uint8 **ptr, uint16 *len);
 
 /* socket/info.c */
 void new_draw_info(int flags, object *pl, const char *buf);
@@ -975,6 +976,8 @@ void doeric_server_write();
 void SockList_AddString(SockList *sl, char *data);
 int SockList_ReadPacket(socket_struct *ns, int len);
 int SockList_ReadCommand(SockList *sl, SockList *sl2);
+void socket_enable_no_delay(int fd);
+void socket_disable_no_delay(int fd);
 void socket_buffer_clear(socket_struct *ns);
 void socket_buffer_write(socket_struct *ns);
 void Send_With_Handling(socket_struct *ns, SockList *msg);
@@ -1195,4 +1198,7 @@ void waypoint_move(object *op, object *waypoint);
 /* types/weapon_improver.c */
 void apply_weapon_improver(object *op, object *tmp);
 int check_weapon_power(object *who, int improvs);
+
+/* world_maker/world_maker.c */
+void world_maker();
 #endif

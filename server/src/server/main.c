@@ -1546,6 +1546,15 @@ int main(int argc, char **argv)
 	}
 #endif
 
+#if defined(HAVE_GD)
+	if (settings.world_maker)
+	{
+		LOG(llevInfo, "\nRunning the world maker...\n");
+		world_maker();
+		exit(0);
+	}
+#endif
+
 	memset(&marker, 0, sizeof(struct obj));
 
 	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");

@@ -159,7 +159,7 @@ void init_regions()
 	char filename[MAX_BUF];
 	int comp;
 	region *new = NULL, *reg;
-	char buf[HUGE_BUF], msgbuf[HUGE_BUF], *key = NULL, *value, *end;
+	char buf[HUGE_BUF * 4], msgbuf[HUGE_BUF], *key = NULL, *value, *end;
 	int msgpos = 0;
 
 	/* Only do this once */
@@ -228,6 +228,16 @@ void init_regions()
 		{
 			*end = '\0';
 			new->longname = strdup_local(value);
+		}
+		else if (!strcmp(key, "map_first"))
+		{
+			*end = '\0';
+			new->map_first = strdup_local(value);
+		}
+		else if (!strcmp(key, "map_bg"))
+		{
+			*end = '\0';
+			new->map_bg = strdup_local(value);
 		}
 		/* Jail entries are of the form: /path/to/map x y */
 		else if (!strcmp(key, "jail"))

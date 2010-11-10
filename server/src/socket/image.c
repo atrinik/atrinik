@@ -395,3 +395,22 @@ int esrv_send_face(socket_struct *ns, short face_num)
 
 	return SEND_FACE_OK;
 }
+
+/**
+ * Get face's data.
+ * @param face The face.
+ * @param[out] ptr Pointer that will contain the image data, can be NULL.
+ * @param[out] len Pointer that will contain the image data length, can
+ * be NULL. */
+void face_get_data(int face, uint8 **ptr, uint16 *len)
+{
+	if (ptr)
+	{
+		*ptr = facesets[0].faces[face].data;
+	}
+
+	if (len)
+	{
+		*len = facesets[0].faces[face].datalen;
+	}
+}

@@ -527,6 +527,9 @@
  * Rune. */
 #define RUNE 154
 /**
+ * Client map information. */
+#define CLIENT_MAP_INFO 155
+/**
  * Power crystal. */
 #define POWER_CRYSTAL 156
 /**
@@ -732,6 +735,19 @@
 /** Window material. */
 #define ST_MAT_WIN 4
 /*@}*/
+
+/**
+ * @defgroup CLIENT_MAP_xxx Client map info types.
+ * Sub types used for @ref CLIENT_MAP_INFO.
+ *@{*/
+/** Map label. */
+#define CLIENT_MAP_LABEL 1
+/** Tooltip. */
+#define CLIENT_MAP_TOOLTIP 2
+/** Hides part of a map. */
+#define CLIENT_MAP_HIDE 3
+/*@}*/
+
 /*@}*/
 
 /**

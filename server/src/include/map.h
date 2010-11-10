@@ -484,6 +484,12 @@ typedef struct regiondef
 	/** Where a player that is arrested in this region should be imprisoned. */
 	char *jailmap;
 
+	/** One of the maps in the region. */
+	char *map_first;
+
+	/** Client map background to use: if not set, will use transparency. */
+	char *map_bg;
+
 	/** X coodinate in jailmap to which the player should be sent. */
 	sint16 jailx;
 
@@ -694,5 +700,7 @@ typedef struct rv_vector_s
 /** Northwest. */
 #define NORTHWEST 8
 /*@}*/
+
+region *first_region;
 
 #endif

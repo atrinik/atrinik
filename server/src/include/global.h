@@ -569,6 +569,9 @@ typedef struct Settings
 	/** Comment about the server we send to the metaserver. */
 	char meta_comment[MAX_BUF];
 
+	/** Where to store the images. */
+	char world_maker_dir[MAX_BUF];
+
 	/** Use watchdog? */
 	uint8 watchdog;
 
@@ -577,6 +580,9 @@ typedef struct Settings
 
 	/** Are we going to run unit tests? */
 	uint8 unit_tests;
+
+	/** Executing the world maker? */
+	uint8 world_maker;
 
 	/** See note in setings file. */
 	float item_power_factor;

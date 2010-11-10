@@ -57,6 +57,8 @@ struct Settings settings =
 	"",
 	"",
 	"",
+	".",
+	0,
 	0,
 	0,
 	0,
@@ -560,6 +562,23 @@ static void set_unit_tests()
 #endif
 }
 
+static void set_world_maker(const char *data)
+{
+#if defined(HAVE_GD)
+	settings.world_maker = 1;
+
+	if (data)
+	{
+		strncpy(settings.world_maker_dir, data, sizeof(settings.world_maker_dir) - 1);
+		settings.world_maker_dir[sizeof(settings.world_maker_dir) - 1] = '\0';
+	}
+#else
+	(void) data;
+	LOG(llevInfo, "\nThe server was built without the world maker module.\n");
+	exit(0);
+#endif
+}
+
 /** @endcond */
 
 /** One command line option definition. */
@@ -636,6 +655,7 @@ struct Command_Line_Options options[] =
 	{"-spell", 1, 3, set_spell_dump},
 
 	{"-tests", 0, 3, set_unit_tests},
+	{"-world_maker", 1, 3, set_world_maker},
 
 	{"-s", 0, 3, showscores},
 	{"-score", 1, 3, showscoresparm},

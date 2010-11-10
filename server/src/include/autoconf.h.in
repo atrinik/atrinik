@@ -126,6 +126,9 @@
 /* Define if you have the check library (-lcheck).  */
 #undef HAVE_CHECK
 
+/* Define if you have the gd library (-lgd).  */
+#undef HAVE_GD
+
 /* Just a phoney so that we will recompile if the user changes the
  * prefix or libdir
  */
