@@ -87,6 +87,7 @@ int command_party(object *op, char *params);
 int command_whereami(object *op, char *params);
 int command_ms_privacy(object *op, char *params);
 int command_statistics(object *op, char *params);
+int command_region_map(object *op, char *params);
 
 /* commands/move.c */
 int command_east(object *op, char *params);

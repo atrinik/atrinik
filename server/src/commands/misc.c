@@ -908,3 +908,56 @@ int command_statistics(object *op, char *params)
 
 	return 1;
 }
+
+/**
+ * The /region_map command.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_region_map(object *op, char *params)
+{
+	region *r;
+	SockList sl;
+	uint8 sock_buf[HUGE_BUF];
+
+	(void) params;
+
+	if (!op->map)
+	{
+		return 1;
+	}
+
+	/* Server has not configured client maps URL. */
+	if (settings.client_maps_url[0] == '\0')
+	{
+		new_draw_info(NDI_UNIQUE, op, "This server does not support that command.");
+		return 1;
+	}
+
+	/* Try to find a region that should have had a client map
+	 * generated. */
+	for (r = op->map->region; r; r = r->parent)
+	{
+		if (r->map_first)
+		{
+			break;
+		}
+	}
+
+	if (!r)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You cannot use that command here.");
+		return 1;
+	}
+
+	sl.buf = sock_buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_REGION_MAP);
+	SockList_AddString(&sl, (char *) op->map->path);
+	SockList_AddShort(&sl, op->x);
+	SockList_AddShort(&sl, op->y);
+	SockList_AddString(&sl, r->name);
+	SockList_AddString(&sl, settings.client_maps_url);
+	Send_With_Handling(&CONTR(op)->socket, &sl);
+
+	return 1;
+}

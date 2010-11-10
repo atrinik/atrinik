@@ -58,6 +58,7 @@ struct Settings settings =
 	"",
 	"",
 	".",
+	"",
 	0,
 	0,
 	0,
@@ -856,6 +857,17 @@ static void load_settings()
 			else
 			{
 				settings.item_power_factor = tmp;
+			}
+		}
+		else if (!strcasecmp(buf, "client_maps"))
+		{
+			if (has_val)
+			{
+				strcpy(settings.client_maps_url, cp);
+			}
+			else
+			{
+				LOG(llevBug, "BUG: load_settings(): client_maps must have a value.\n");
 			}
 		}
 		else

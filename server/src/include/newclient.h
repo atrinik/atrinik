@@ -437,6 +437,7 @@ enum
 	BINARY_CMD_QUICKSLOT,
 	BINARY_CMD_SHOP,
 	BINARY_CMD_QLIST,
+	BINARY_CMD_REGION_MAP,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

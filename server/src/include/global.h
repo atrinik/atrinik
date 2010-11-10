@@ -572,6 +572,9 @@ typedef struct Settings
 	/** Where to store the images. */
 	char world_maker_dir[MAX_BUF];
 
+	/** Location of the client maps. */
+	char client_maps_url[MAX_BUF];
+
 	/** Use watchdog? */
 	uint8 watchdog;
 
