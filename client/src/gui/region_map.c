@@ -504,6 +504,8 @@ void RegionMapCmd(uint8 *data, int len)
 	data_def = curl_download_start(url);
 }
 
+/**
+ * Resize the region map surface. */
 static void region_map_resize()
 {
 	region_map_struct *map;
