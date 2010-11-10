@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-09-28 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -612,6 +612,16 @@ arch wall_stone9_8
 x 4
 y 13
 end
+arch client_map_info
+msg
+Temple of Tabernacle.
+endmsg
+name portu_baserrian_temple
+sub_type 2
+stand_still 1
+x 4
+y 13
+end
 arch grassd_1
 x 4
 y 14
@@ -689,6 +699,12 @@ x 4
 y 23
 end
 arch wall_stone9_3
+x 4
+y 23
+end
+arch client_map_info
+name portu_baserrian_temple
+sub_type 2
 x 4
 y 23
 end
@@ -2669,6 +2685,12 @@ x 19
 y 13
 end
 arch wall_stone9_1
+x 19
+y 13
+end
+arch client_map_info
+name portu_baserrian_temple
+sub_type 2
 x 19
 y 13
 end

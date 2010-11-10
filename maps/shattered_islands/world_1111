@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-12 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -247,6 +247,15 @@ x 2
 y 1
 end
 arch grassd_m7
+x 2
+y 1
+end
+arch client_map_info
+msg
+Greyton
+endmsg
+name greyton
+sub_type 1
 x 2
 y 1
 end
@@ -1310,6 +1319,16 @@ arch wall_pattern1.181
 x 10
 y 10
 end
+arch client_map_info
+msg
+Greyton House Agency.
+endmsg
+name greyton_house_agency
+sub_type 2
+stand_still 1
+x 10
+y 10
+end
 arch grassd_4
 x 10
 y 11
@@ -1376,6 +1395,12 @@ x 10
 y 18
 end
 arch wall_pattern1.131
+x 10
+y 18
+end
+arch client_map_info
+name greyton_house_agency
+sub_type 2
 x 10
 y 18
 end
@@ -3302,6 +3327,12 @@ x 22
 y 10
 end
 arch wall_pattern1.111
+x 22
+y 10
+end
+arch client_map_info
+name greyton_house_agency
+sub_type 2
 x 22
 y 10
 end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-28 Alex Tokar
+Modified: 2010-11-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1006,6 +1006,12 @@ x 8
 y 4
 end
 arch wall_marble1.131a
+x 8
+y 4
+end
+arch client_map_info
+name brynknot_church
+sub_type 2
 x 8
 y 4
 end

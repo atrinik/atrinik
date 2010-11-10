@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -163,6 +163,16 @@ arch wall_stone9_8
 x 1
 y 9
 end
+arch client_map_info
+msg
+Portu Baserrian Tavern.
+endmsg
+name portu_baserrian_tavern
+sub_type 2
+stand_still 1
+x 1
+y 9
+end
 arch floor_flagm3
 x 1
 y 10
@@ -276,6 +286,12 @@ x 1
 y 23
 end
 arch wall_stone9_3
+x 1
+y 23
+end
+arch client_map_info
+name portu_baserrian_tavern
+sub_type 2
 x 1
 y 23
 end
@@ -1623,6 +1639,15 @@ arch water_still
 x 10
 y 7
 end
+arch client_map_info
+msg
+<size=14>Portu Baserrian</size>
+endmsg
+name portu_baserrian
+sub_type 1
+x 10
+y 7
+end
 arch water_still
 x 10
 y 8
@@ -2437,6 +2462,12 @@ x 16
 y 8
 end
 arch water_still
+x 16
+y 9
+end
+arch client_map_info
+name portu_baserrian_tavern
+sub_type 2
 x 16
 y 9
 end

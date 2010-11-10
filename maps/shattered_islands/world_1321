@@ -2,7 +2,7 @@ arch map
 name Bog of Eternal Stench
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-23 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1827,6 +1827,16 @@ x 8
 y 3
 end
 arch reed_sm3
+x 8
+y 3
+end
+arch client_map_info
+msg
+<size=18>Berri Lur</size>
+endmsg
+name berri_lur
+sub_type 1
+last_heal 24
 x 8
 y 3
 end

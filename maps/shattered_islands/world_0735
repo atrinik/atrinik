@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2632,6 +2632,16 @@ arch wall_pattern1.181
 x 14
 y 8
 end
+arch client_map_info
+msg
+Asteria Library.
+endmsg
+name asteria_library
+sub_type 2
+stand_still 1
+x 14
+y 8
+end
 arch grassd_8
 z 50
 x 14
@@ -2706,6 +2716,12 @@ y 16
 end
 arch grassd_3
 z 50
+x 14
+y 17
+end
+arch client_map_info
+name asteria_library
+sub_type 2
 x 14
 y 17
 end

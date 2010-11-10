@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-30 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -404,6 +404,15 @@ x 2
 y 12
 end
 arch grassd_1
+x 2
+y 13
+end
+arch client_map_info
+msg
+<font=serif.ttf 12>Fort Ghzal</font>
+endmsg
+name fort_ghzal
+sub_type 1
 x 2
 y 13
 end
@@ -2747,6 +2756,16 @@ arch wall_wood_8
 x 16
 y 4
 end
+arch client_map_info
+msg
+Temple of Tabernacle.
+endmsg
+name fort_ghzal_temple
+sub_type 2
+stand_still 1
+x 16
+y 4
+end
 arch grassd_4
 x 16
 y 5
@@ -2797,6 +2816,12 @@ x 16
 y 10
 end
 arch wall_wood3_3
+x 16
+y 10
+end
+arch client_map_info
+name fort_ghzal_temple
+sub_type 2
 x 16
 y 10
 end
@@ -3623,6 +3648,12 @@ x 22
 y 4
 end
 arch wall_wood1_1
+x 22
+y 4
+end
+arch client_map_info
+name fort_ghzal_temple
+sub_type 2
 x 22
 y 4
 end

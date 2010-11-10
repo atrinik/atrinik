@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-28 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -146,6 +146,16 @@ arch wall_white2_8
 x 1
 y 7
 end
+arch client_map_info
+msg
+Temple of Tabernacle.
+endmsg
+name tutorial_temple
+sub_type 2
+stand_still 1
+x 1
+y 7
+end
 arch grassd_5
 x 1
 y 8
@@ -207,6 +217,12 @@ x 1
 y 15
 end
 arch wall_white2_3
+x 1
+y 15
+end
+arch client_map_info
+name tutorial_temple
+sub_type 2
 x 1
 y 15
 end
@@ -2018,6 +2034,12 @@ x 15
 y 7
 end
 arch wall_white2_1
+x 15
+y 7
+end
+arch client_map_info
+name tutorial_temple
+sub_type 2
 x 15
 y 7
 end

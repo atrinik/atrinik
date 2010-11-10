@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-10-02 emperorbma
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -514,6 +514,12 @@ x 3
 y 6
 end
 arch wall_marble1.131
+x 3
+y 6
+end
+arch client_map_info
+name asteria_temple_tabernacle
+sub_type 2
 x 3
 y 6
 end
@@ -1374,6 +1380,16 @@ arch wall_dungeon_8
 x 8
 y 11
 end
+arch client_map_info
+msg
+Temple of Grumthar.
+endmsg
+name asteria_temple_grumthar
+sub_type 2
+stand_still 1
+x 8
+y 11
+end
 arch grassd_6
 z 50
 x 8
@@ -1443,6 +1459,12 @@ x 8
 y 19
 end
 arch wall_dungeon_3
+x 8
+y 19
+end
+arch client_map_info
+name asteria_temple_grumthar
+sub_type 2
 x 8
 y 19
 end
@@ -2302,6 +2324,12 @@ x 13
 y 11
 end
 arch grassd_m14
+x 13
+y 11
+end
+arch client_map_info
+name asteria_temple_grumthar
+sub_type 2
 x 13
 y 11
 end

@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-07 Kiana
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1651,6 +1651,12 @@ x 17
 y 5
 end
 arch water_lt2
+x 17
+y 6
+end
+arch client_map_info
+name clearhaven_ship_brynknot
+sub_type 2
 x 17
 y 6
 end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-28 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -207,6 +207,16 @@ arch ship_rail_nw
 x 1
 y 11
 end
+arch client_map_info
+msg
+Morg'eean's Ship to Asteria.
+endmsg
+name morgeean_ship_brynknot
+sub_type 2
+stand_still 1
+x 1
+y 11
+end
 arch ship_floor_we_dark_2
 x 1
 y 12
@@ -228,6 +238,12 @@ x 1
 y 14
 end
 arch ship_hull_s_high_corner_w
+x 1
+y 14
+end
+arch client_map_info
+name morgeean_ship_brynknot
+sub_type 2
 x 1
 y 14
 end
@@ -1171,6 +1187,12 @@ x 8
 y 10
 end
 arch water_lt2
+x 8
+y 11
+end
+arch client_map_info
+name morgeean_ship_brynknot
+sub_type 2
 x 8
 y 11
 end

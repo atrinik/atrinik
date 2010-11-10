@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -21,6 +21,15 @@ bg_music harmony2.mid
 region clearhaven
 end
 arch water_lt2
+end
+arch client_map_info
+msg
+<font=serif.ttf 24>Eld Woods Island</font>
+endmsg
+name eld_woods_island
+sub_type 1
+last_heal -20
+last_sp -20
 end
 arch water_lt3
 y 1
@@ -2113,6 +2122,18 @@ arch grassd_m4
 x 17
 y 20
 end
+arch client_map_info
+msg
+Clearhaven Treehome.
+endmsg
+name clearhaven_treehome
+sub_type 2
+stand_still 1
+item_skill 1
+slaying #00ff00
+x 17
+y 20
+end
 arch floor_sand_d2
 x 17
 y 21
@@ -2131,6 +2152,12 @@ x 17
 y 22
 end
 arch grassd_m9
+x 17
+y 22
+end
+arch client_map_info
+name clearhaven_treehome
+sub_type 2
 x 17
 y 22
 end
@@ -2391,6 +2418,12 @@ x 19
 y 20
 end
 arch grassd_m6
+x 19
+y 20
+end
+arch client_map_info
+name clearhaven_treehome
+sub_type 2
 x 19
 y 20
 end

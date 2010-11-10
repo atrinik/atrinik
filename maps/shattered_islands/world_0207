@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -22,6 +22,16 @@ end
 arch floor_volcano_2
 end
 arch rock_wall6
+end
+arch client_map_info
+msg
+The Promethia Island Volcano.
+
+This volcano is said to be the home to many demons, mostly those attuned to fire.
+endmsg
+name promethia_volcano
+sub_type 2
+stand_still 1
 end
 arch floor_volcano_1
 y 1
@@ -123,6 +133,11 @@ arch rock_wall7
 y 22
 end
 arch floor_volcano_2
+y 23
+end
+arch client_map_info
+name promethia_volcano
+sub_type 2
 y 23
 end
 arch floor_volcano_2
@@ -2922,6 +2937,11 @@ x 22
 y 23
 end
 arch floor_volcano_2
+x 23
+end
+arch client_map_info
+name promethia_volcano
+sub_type 2
 x 23
 end
 arch floor_volcano_1

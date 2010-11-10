@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1586,6 +1586,16 @@ arch wall_stone_8
 x 10
 y 14
 end
+arch client_map_info
+msg
+Tutorial Island Bank.
+endmsg
+name tutorial_bank
+sub_type 2
+stand_still 1
+x 10
+y 14
+end
 arch grassd_6
 x 10
 y 15
@@ -2918,6 +2928,12 @@ x 17
 y 14
 end
 arch wall_stone_1
+x 17
+y 14
+end
+arch client_map_info
+name tutorial_bank
+sub_type 2
 x 17
 y 14
 end

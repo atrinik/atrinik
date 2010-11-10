@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-23 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2161,6 +2161,16 @@ arch wall_stone9_8
 x 18
 y 4
 end
+arch client_map_info
+msg
+Portu Baserrian Bank.
+endmsg
+name portu_baserrian_bank
+sub_type 2
+stand_still 1
+x 18
+y 4
+end
 arch floor_flagm3
 x 18
 y 5
@@ -2225,6 +2235,12 @@ arch wall_stone9_3
 x 18
 y 12
 end
+arch client_map_info
+name portu_baserrian_bank
+sub_type 2
+x 18
+y 12
+end
 arch floor_flagm3
 x 18
 y 13
@@ -2242,6 +2258,16 @@ x 18
 y 16
 end
 arch wall_stone9_8
+x 18
+y 16
+end
+arch client_map_info
+msg
+Portu Baserrian Post Office.
+endmsg
+name portu_baserrian_post_office
+sub_type 2
+stand_still 1
 x 18
 y 16
 end

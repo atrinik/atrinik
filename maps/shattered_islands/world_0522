@@ -2,7 +2,7 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -819,6 +819,16 @@ arch wall_stone5_8
 x 6
 y 5
 end
+arch client_map_info
+msg
+Aris Tavern and Apartments.
+endmsg
+name aris_tavern
+sub_type 2
+stand_still 1
+x 6
+y 5
+end
 arch grassd_4
 x 6
 y 6
@@ -944,6 +954,12 @@ x 6
 y 21
 end
 arch grassd_6
+x 6
+y 22
+end
+arch client_map_info
+name aris_tavern
+sub_type 2
 x 6
 y 22
 end
@@ -3410,6 +3426,12 @@ x 22
 y 5
 end
 arch wall_stone5_1
+x 22
+y 5
+end
+arch client_map_info
+name aris_tavern
+sub_type 2
 x 22
 y 5
 end

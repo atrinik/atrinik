@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-10-11 Alex Tokar
+Modified: 2010-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1514,6 +1514,16 @@ arch ship_rail_nw
 x 12
 y 5
 end
+arch client_map_info
+msg
+Morg'eean's Ship to Brynknot.
+endmsg
+name morgeean_ship_asteria
+sub_type 2
+stand_still 1
+x 12
+y 5
+end
 arch ship_floor_we_dark_2
 x 12
 y 6
@@ -1535,6 +1545,12 @@ x 12
 y 8
 end
 arch ship_hull_s_high_corner_w
+x 12
+y 8
+end
+arch client_map_info
+name morgeean_ship_asteria
+sub_type 2
 x 12
 y 8
 end
@@ -2918,6 +2934,12 @@ x 19
 y 4
 end
 arch water_lt2
+x 19
+y 5
+end
+arch client_map_info
+name morgeean_ship_asteria
+sub_type 2
 x 19
 y 5
 end
