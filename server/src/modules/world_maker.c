@@ -604,6 +604,31 @@ void world_maker()
 				/* Write out information about this tooltip. */
 				fprintf(def_fp, "tooltip %x %x %x %x %s %s\n", MAX(0, xpos - ((tmp->item_level) * MAX_PIXELS)), MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)), MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS + MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS), (uint32) wm_r->w) - xpos, MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS + MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS), (uint32) wm_r->h) - ypos, tmp->name, tmp->msg);
 
+				/* Outline set? */
+				if (tmp->item_skill)
+				{
+					fprintf(def_fp, "t_outline");
+
+					/* Store outline's color, if any. */
+					if (tmp->slaying)
+					{
+						fprintf(def_fp, " %s", tmp->slaying);
+					}
+					/* No outline color, but there is non-standard size,
+					 * so we must include the default color as well. */
+					else if (tmp->item_skill != 1)
+					{
+						fprintf(def_fp, " #ff0000");
+					}
+
+					if (tmp->item_skill != 1)
+					{
+						fprintf(def_fp, " %d", tmp->item_skill);
+					}
+
+					fprintf(def_fp, "\n");
+				}
+
 				if (QUERY_FLAG(tmp, FLAG_CURSED))
 				{
 					fprintf(def_fp, "tooltip_hide\n");
