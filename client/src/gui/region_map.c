@@ -292,6 +292,11 @@ static void rm_def_free()
 {
 	size_t i;
 
+	if (!rm_def)
+	{
+		return;
+	}
+
 	/* Free all maps. */
 	for (i = 0; i < rm_def->num_maps; i++)
 	{
