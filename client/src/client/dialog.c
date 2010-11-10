@@ -61,6 +61,42 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
 }
 
 /**
+ * Create a border around the specified coordinates.
+ * @param surface Surface to use.
+ * @param x X start of the border.
+ * @param y Y start of the border.
+ * @param w Maximum border width.
+ * @param h Maximum border height.
+ * @param color Color to use for the border.
+ * @param size Border's size. */
+void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size)
+{
+	SDL_Rect box;
+
+	/* Left border. */
+	box.x = x;
+	box.y = y;
+	box.h = h;
+	box.w = size;
+	SDL_FillRect(surface, &box, color);
+
+	/* Right border. */
+	box.x = x + w - size;
+	SDL_FillRect(surface, &box, color);
+
+	/* Top border. */
+	box.x = x + size;
+	box.y = y;
+	box.w = w - size * 2;
+	box.h = size;
+	SDL_FillRect(surface, &box, color);
+
+	/* Bottom border. */
+	box.y = y + h - size;
+	SDL_FillRect(surface, &box, color);
+}
+
+/**
  * Add a close button and handle mouse events over it.
  * @param x X position.
  * @param y Y position.
