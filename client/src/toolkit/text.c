@@ -144,6 +144,7 @@ static int get_font_id(const char *name, size_t size)
 {
 	size_t i;
 	const char *cp;
+	uint8 ext = strstr(name, ".ttf") ? 1 : 0;
 
 	for (i = 0; i < FONTS_MAX; i++)
 	{
@@ -158,7 +159,7 @@ static int get_font_id(const char *name, size_t size)
 			cp++;
 		}
 
-		if (!strcmp(cp, name) && fonts[i].size == size)
+		if ((!strcmp(cp, name) || (!ext && strncmp(cp, name, strlen(cp) - 4))) && fonts[i].size == size)
 		{
 			return i;
 		}
