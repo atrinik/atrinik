@@ -569,6 +569,22 @@ void region_map_handle_key(SDLKey key)
 	{
 		region_map_pos.x += pos;
 	}
+	else if (key == SDLK_PAGEUP)
+	{
+		if (region_map_zoom < RM_ZOOM_MAX)
+		{
+			region_map_zoom += RM_ZOOM_PROGRESS;
+			region_map_resize();
+		}
+	}
+	else if (key == SDLK_PAGEDOWN)
+	{
+		if (region_map_zoom > RM_ZOOM_MIN)
+		{
+			region_map_zoom -= RM_ZOOM_PROGRESS;
+			region_map_resize();
+		}
+	}
 	else
 	{
 		return;
