@@ -1114,7 +1114,7 @@ void move_cone(object *op)
 		return;
 	}
 
-	/* Lava saves it's life, but not yours :) */
+	/* Lava saves its life, but not yours :) */
 	if (QUERY_FLAG(op, FLAG_LIFESAVE))
 	{
 		hit_map(op, 0, 0);
