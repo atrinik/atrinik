@@ -1141,10 +1141,12 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			{
 				add_menuitem(menu, "Inventory Filters", &menu_detach_widget, MENU_SUBMENU);
 			}
+#if 0
 			else
 			{
 				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU);
 			}
+#endif
 
 			/* Bit hack-ish, but this is to fix the menu from disappearing. */
 			widget = menu;
