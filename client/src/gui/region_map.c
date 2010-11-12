@@ -770,16 +770,19 @@ void region_map_show()
 	/* Actually blit the map. */
 	SDL_BlitSurface(region_map_png, &region_map_pos, ScreenSurface, &dest);
 
-	for (i = 0; i < rm_def->num_tooltips; i++)
+	if (mx >= box.x && mx <= box.x + box.w && my >= box.y && my <= box.y + box.h)
 	{
-		if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && region_map_pos.x + mx - box.x <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
+		for (i = 0; i < rm_def->num_tooltips; i++)
 		{
-			x = box.x + box.w + RM_BORDER_SIZE;
-			sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
-			box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
-			box.h = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
-			string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].text, x + 8, y + 8, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &box);
-			break;
+			if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && region_map_pos.x + mx - box.x <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
+			{
+				x = box.x + box.w + RM_BORDER_SIZE;
+				sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
+				box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
+				box.h = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
+				string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].text, x + 8, y + 8, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &box);
+				break;
+			}
 		}
 	}
 }
