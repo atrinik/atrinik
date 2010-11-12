@@ -211,6 +211,26 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
+	else if (!strncmp(cmd, "/resetwidgets", 13))
+	{
+		reset_widget(NULL);
+		return 1;
+	}
+	else if (!strncmp(cmd, "/resetwidget", 12))
+	{
+		cmd = strchr(cmd, ' ');
+
+		if (!cmd || *++cmd == '\0')
+		{
+			draw_info("Usage: /resetwidget <name>", COLOR_RED);
+		}
+		else
+		{
+			reset_widget(cmd);
+		}
+
+		return 1;
+	}
 
 	return 0;
 }

@@ -537,6 +537,32 @@ void kill_widgets()
 	}
 }
 
+/**
+ * Resets widget's coordinates from default.
+ * @param name Widget name to reset. If NULL, will reset all. */
+void reset_widget(const char *name)
+{
+	widgetdata *tmp;
+
+	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	{
+		if (!tmp->moveable)
+		{
+			continue;
+		}
+
+		if (!name || !strcasecmp(tmp->name, name))
+		{
+			tmp->x1 = con_widget[tmp->WidgetTypeID].x1;
+			tmp->y1 = con_widget[tmp->WidgetTypeID].y1;
+			tmp->wd = con_widget[tmp->WidgetTypeID].wd;
+			tmp->ht = con_widget[tmp->WidgetTypeID].ht;
+			tmp->show = con_widget[tmp->WidgetTypeID].show;
+			WIDGET_REDRAW(tmp);
+		}
+	}
+}
+
 /** Recursive function to nuke the entire widget tree. */
 void kill_widget_tree(widgetdata *widget)
 {
