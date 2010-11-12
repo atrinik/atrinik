@@ -510,10 +510,13 @@ void RegionMapCmd(uint8 *data, int len)
 }
 
 /**
- * Resize the region map surface. */
-static void region_map_resize()
+ * Resize the region map surface.
+ * @param adjust How much to zoom by. */
+static void region_map_resize(int adjust)
 {
-	region_map_struct *map;
+	float delta;
+
+	region_map_zoom += adjust;
 
 	/* Free old zoomed surface if applicable. */
 	if (region_map_png != region_map_png_orig)
@@ -523,19 +526,18 @@ static void region_map_resize()
 
 	/* Zoom the surface. */
 	region_map_png = zoomSurface(region_map_png_orig, region_map_zoom / 100.0, region_map_zoom / 100.0, options.zoom_smooth);
-	map = rm_def_get_map(current_map);
 
-	/* Adjust the positions, so the map is centered on the player. */
-	if (map)
+	if (adjust > 0)
 	{
-		region_map_pos.x = ((map->xpos + current_x * rm_def->pixel_size) * (region_map_zoom / 100.0) - region_map_pos.w / 2);
-		region_map_pos.y = ((map->ypos + current_y * rm_def->pixel_size) * (region_map_zoom / 100.0) - region_map_pos.h / 2);
+		delta = (region_map_zoom / 100.0 - 0.1f);
 	}
 	else
 	{
-		region_map_pos.x = region_map_png->w / 2 - region_map_pos.w / 2;
-		region_map_pos.y = region_map_png->h / 2 - region_map_pos.h / 2;
+		delta = (region_map_zoom / 100.0 + 0.1f);
 	}
+
+	region_map_pos.x += region_map_pos.x / delta * (adjust / 100.0) + region_map_pos.w / delta * (adjust / 100.0) / 2;
+	region_map_pos.y += region_map_pos.y / delta * (adjust / 100.0) + region_map_pos.h / delta * (adjust / 100.0) / 2;
 
 	surface_pan(region_map_png, &region_map_pos);
 }
@@ -573,16 +575,14 @@ void region_map_handle_key(SDLKey key)
 	{
 		if (region_map_zoom < RM_ZOOM_MAX)
 		{
-			region_map_zoom += RM_ZOOM_PROGRESS;
-			region_map_resize();
+			region_map_resize(RM_ZOOM_PROGRESS);
 		}
 	}
 	else if (key == SDLK_PAGEDOWN)
 	{
 		if (region_map_zoom > RM_ZOOM_MIN)
 		{
-			region_map_zoom -= RM_ZOOM_PROGRESS;
-			region_map_resize();
+			region_map_resize(-RM_ZOOM_PROGRESS);
 		}
 	}
 	else
@@ -605,8 +605,7 @@ void region_map_handle_event(SDL_Event *event)
 		{
 			if (region_map_zoom < RM_ZOOM_MAX)
 			{
-				region_map_zoom += RM_ZOOM_PROGRESS;
-				region_map_resize();
+				region_map_resize(RM_ZOOM_PROGRESS);
 			}
 		}
 		/* Zoom out. */
@@ -614,8 +613,7 @@ void region_map_handle_event(SDL_Event *event)
 		{
 			if (region_map_zoom > RM_ZOOM_MIN)
 			{
-				region_map_zoom -= RM_ZOOM_PROGRESS;
-				region_map_resize();
+				region_map_resize(-RM_ZOOM_PROGRESS);
 			}
 		}
 	}
