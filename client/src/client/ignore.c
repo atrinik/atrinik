@@ -57,7 +57,7 @@ static void ignore_entry_remove(const char *name, const char *type)
 
 	for (tmp = ignore_list; tmp; prev = tmp, tmp = tmp->next)
 	{
-		if (!strcmp(name, tmp->name) && !strcmp(type, tmp->type))
+		if (!strcasecmp(name, tmp->name) && !strcasecmp(type, tmp->type))
 		{
 			if (prev)
 			{
@@ -149,7 +149,7 @@ int ignore_check(const char *name, const char *type)
 
 	for (tmp = ignore_list; tmp; tmp = tmp->next)
 	{
-		if ((tmp->name[0] == '*' || !strcmp(name, tmp->name)) && (tmp->type[0] == '*' || !strcmp(type, tmp->type)))
+		if ((tmp->name[0] == '*' || !strcasecmp(name, tmp->name)) && (tmp->type[0] == '*' || !strcasecmp(type, tmp->type)))
 		{
 			return 1;
 		}
