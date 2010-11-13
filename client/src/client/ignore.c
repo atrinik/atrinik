@@ -40,8 +40,10 @@ static void ignore_entry_add(const char *name, const char *type)
 {
 	ignore_list_struct *tmp = (ignore_list_struct *) malloc(sizeof(ignore_list_struct));
 
-	strncpy(tmp->name, name, sizeof(tmp->name));
-	strncpy(tmp->type, type, sizeof(tmp->type));
+	strncpy(tmp->name, name, sizeof(tmp->name) - 1);
+	tmp->name[sizeof(tmp->name) - 1] = '\0';
+	strncpy(tmp->type, type, sizeof(tmp->type) - 1);
+	tmp->type[sizeof(tmp->type) - 1] = '\0';
 
 	tmp->next = ignore_list;
 	ignore_list = tmp;
