@@ -623,6 +623,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		/* Spells after this use direction and not a target */
 		case SP_ICESTORM:
 		case SP_FIRESTORM:
+		case SP_HOLYWORD:
 			success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
 			break;
 

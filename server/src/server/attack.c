@@ -557,6 +557,12 @@ int hit_map(object *op, int dir, int reduce)
 			continue;
 		}
 
+		/* Cones with race set can only damage members of that race. */
+		if (op->type == CONE && op->race && tmp->race != op->race)
+		{
+			continue;
+		}
+
 		/* First, we check player... */
 		if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
 		{

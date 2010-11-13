@@ -439,6 +439,14 @@ spell spells[NROFREALSPELLS] =
 	 4, 5, 4, 8, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_DEATH, "negabolt"
+	},
+
+	{"holy word", SPELL_TYPE_PRIEST,
+	 "icon_default.101", "Cone of holy power that will damage all undead creatures it hits.",
+	 1, 6, 14, 0, 0, 0, 1.0,
+	 4, 6, 4, 4, 9, "magic_hword.ogg",
+	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
+	 PATH_TURNING, "holyword"
 	}
 };
 
