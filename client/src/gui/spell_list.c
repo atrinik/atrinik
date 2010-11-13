@@ -392,3 +392,21 @@ int find_spell(const char *name, int *spell_group, int *spell_class, int *spell_
 
 	return 0;
 }
+
+/**
+ * Reload the icon IDs, as they may have changed due to an update. */
+void spells_reload()
+{
+	int group, class, nr;
+
+	for (group = 0; group < SPELL_LIST_MAX; group++)
+	{
+		for (class = 0; class < SPELL_LIST_CLASS; class++)
+		{
+			for (nr = 0; nr < DIALOG_LIST_ENTRY; nr++)
+			{
+				spell_list[group].entry[class][nr].icon = get_bmap_id(spell_list[group].entry[class][nr].icon_name);
+			}
+		}
+	}
+}

@@ -398,6 +398,7 @@ void read_skills();
 void show_spelllist();
 void read_spells();
 int find_spell(const char *name, int *spell_group, int *spell_class, int *spell_nr);
+void spells_reload();
 
 /* gui/target.c */
 void widget_event_target(widgetdata *widget, int x, int y);

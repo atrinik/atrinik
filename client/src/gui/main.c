@@ -444,7 +444,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 			/* Does the selected race have this gender? */
 			if (s_settings->characters[list->row_selected - 1].gender_archetypes[i])
 			{
-				face = s_settings->characters[list->row_selected - 1].gender_faces[i];
+				face = get_bmap_id(s_settings->characters[list->row_selected - 1].gender_faces[i]);
 				break;
 			}
 		}
@@ -456,7 +456,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 		strncpy(buf, list->text[list->row_selected - 1][0], sizeof(buf) - 1);
 		buf[0] = tolower(buf[0]);
 		buf[sizeof(buf) - 1] = '\0';
-		face = s_settings->characters[char_race_selected].gender_faces[gender_to_id(buf)];
+		face = get_bmap_id(s_settings->characters[char_race_selected].gender_faces[gender_to_id(buf)]);
 	}
 
 	if (char_step == 2)
