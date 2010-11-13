@@ -30,7 +30,7 @@
 #include <include.h>
 
 /** The ignore list. */
-ignore_list_struct *ignore_list = NULL;
+static ignore_list_struct *ignore_list = NULL;
 
 /**
  * Add an entry to the ignore list.
