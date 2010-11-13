@@ -52,8 +52,9 @@ static void ignore_entry_add(const char *name, const char *type)
 /**
  * Remove an entry from the ignore list.
  * @param name Name to remove.
- * @param type Type of the ignore. */
-static void ignore_entry_remove(const char *name, const char *type)
+ * @param type Type of the ignore.
+ * @return 1 if the entry was removed, 0 otherwise. */
+static int ignore_entry_remove(const char *name, const char *type)
 {
 	ignore_list_struct *tmp, *prev = NULL;
 
@@ -71,9 +72,11 @@ static void ignore_entry_remove(const char *name, const char *type)
 			}
 
 			free(tmp);
-			return;
+			return 1;
 		}
 	}
+
+	return 0;
 }
 
 /**
@@ -189,9 +192,8 @@ void ignore_command(char *cmd)
 		}
 		else
 		{
-			if (ignore_check(name, type))
+			if (ignore_entry_remove(name, type))
 			{
-				ignore_entry_remove(name, type);
 				draw_info_format(COLOR_WHITE, "Removed %s (%s) from ignore list.", name, type);
 			}
 			else
