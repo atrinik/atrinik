@@ -74,7 +74,7 @@ void draw_tabs(const char *tabs[], int *act_tab, const char *head_text, int x, i
 /* client/ignore.c */
 void ignore_list_clear();
 void ignore_list_load();
-int ignore_check(char *name, char *type);
+int ignore_check(const char *name, const char *type);
 void ignore_command(char *cmd);
 
 /* client/image.c */

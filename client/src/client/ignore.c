@@ -36,7 +36,7 @@ static ignore_list_struct *ignore_list = NULL;
  * Add an entry to the ignore list.
  * @param name Name to ignore.
  * @param type Type of the ignore. */
-static void ignore_entry_add(char *name, char *type)
+static void ignore_entry_add(const char *name, const char *type)
 {
 	ignore_list_struct *tmp = (ignore_list_struct *) malloc(sizeof(ignore_list_struct));
 
@@ -51,7 +51,7 @@ static void ignore_entry_add(char *name, char *type)
  * Remove an entry from the ignore list.
  * @param name Name to remove.
  * @param type Type of the ignore. */
-static void ignore_entry_remove(char *name, char *type)
+static void ignore_entry_remove(const char *name, const char *type)
 {
 	ignore_list_struct *tmp, *prev = NULL;
 
@@ -143,7 +143,7 @@ static void ignore_list_save()
  * @param name Name to check for.
  * @param type Type of the ignore to check for.
  * @return 1 if the player name is ignored, 0 otherwise. */
-int ignore_check(char *name, char *type)
+int ignore_check(const char *name, const char *type)
 {
 	ignore_list_struct *tmp;
 
@@ -174,7 +174,7 @@ void ignore_command(char *cmd)
 
 		for (tmp = ignore_list; tmp; tmp = tmp->next)
 		{
-			draw_info_format(COLOR_WHITE, "Name: %s Channel: %s", tmp->name, tmp->type);
+			draw_info_format(COLOR_WHITE, "Name: %s Type: %s", tmp->name, tmp->type);
 		}
 	}
 	else
