@@ -53,15 +53,15 @@ static void ignore_entry_add(char *name, char *type)
  * @param type Type of the ignore. */
 static void ignore_entry_remove(char *name, char *type)
 {
-	ignore_list_struct *tmp, *tmp2 = NULL;
+	ignore_list_struct *tmp, *prev = NULL;
 
-	for (tmp = ignore_list; tmp; tmp = tmp->next)
+	for (tmp = ignore_list; tmp; prev = tmp, tmp = tmp->next)
 	{
 		if (!strcmp(name, tmp->name) && !strcmp(type, tmp->type))
 		{
-			if (tmp2)
+			if (prev)
 			{
-				tmp->next = tmp->next;
+				prev->next = tmp->next;
 			}
 			else
 			{
@@ -71,8 +71,6 @@ static void ignore_entry_remove(char *name, char *type)
 			free(tmp);
 			return;
 		}
-
-		tmp2 = tmp;
 	}
 }
 
