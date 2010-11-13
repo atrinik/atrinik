@@ -348,7 +348,7 @@ spell spells[NROFREALSPELLS] =
 	{"destruction", SPELL_TYPE_WIZARD,
 	 "icon_destruction.101", "Creatures around you get struck by a magical power.",
 	 18, 20, 20, 0, 3, 3, 1.0,
-	 2, 1, 3, 20, 20, "magic_destruction.ogg",
+	 4, 1, 3, 20, 24, "magic_destruction.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_WOUNDING, "spellobject_destruction"
 	},
