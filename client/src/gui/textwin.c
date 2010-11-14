@@ -137,7 +137,7 @@ void draw_info(const char *str, int flags)
 			memcpy(buf, textwin->entries, pos);
 			buf[pos] = '\0';
 			/* Get the string's height. */
-			string_blt(NULL, textwin->font, buf, 0, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 			scroll = box.h / FONT_HEIGHT(textwin->font);
 			box.h = 0;
 			free(buf);
