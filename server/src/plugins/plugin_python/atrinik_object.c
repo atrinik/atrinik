@@ -1263,7 +1263,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 	archetype *at;
 	object *tmp, *env;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|Ili", kwlist, &archname, &nrof, &value, &identified))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ILi", kwlist, &archname, &nrof, &value, &identified))
 	{
 		return NULL;
 	}
