@@ -442,7 +442,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"holy word", SPELL_TYPE_PRIEST,
-	 "icon_default.101", "Cone of holy power that will damage all undead creatures it hits.",
+	 "icon_holy_word.101", "Cone of holy power that will damage all undead creatures it hits.",
 	 1, 6, 14, 0, 0, 0, 1.0,
 	 4, 6, 4, 4, 9, "magic_hword.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
