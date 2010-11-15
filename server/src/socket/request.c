@@ -1567,7 +1567,32 @@ void draw_client_map2(object *pl)
 					mp->faces[layer] = face;
 					mp->quick_pos[layer] = quick_pos;
 					mp->flags[layer] = flags;
-					mp->probe = probe;
+
+					if (layer == LAYER_LIVING - 1)
+					{
+						mp->probe = probe;
+					}
+
+					if (OBJECT_IS_HIDDEN(pl, tmp))
+					{
+						/* Update target if applicable. */
+						if (flags & MAP2_FLAG_PROBE)
+						{
+							CONTR(pl)->target_object = NULL;
+							CONTR(pl)->target_object_count = 0;
+							send_target_command(CONTR(pl));
+						}
+
+						if (mp->faces[layer])
+						{
+							SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
+							SockList_AddChar(&sl_layer, (char) layer + 1);
+							num_layers++;
+						}
+
+						continue;
+					}
+
 					num_layers++;
 
 					/* Add its layer. */

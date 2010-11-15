@@ -364,7 +364,7 @@ int command_target(object *op, char *params)
 				if ((QUERY_FLAG(head, FLAG_MONSTER) || QUERY_FLAG(head, FLAG_FRIENDLY)) || (head->type == PLAYER && pvp_area(op, head)))
 				{
 					/* this can happen when our old target has moved to next position */
-					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)))
+					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) || OBJECT_IS_HIDDEN(op, head))
 					{
 						continue;
 					}
@@ -427,7 +427,7 @@ int command_target(object *op, char *params)
 				{
 					head = HEAD(tmp);
 
-					if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op))
+					if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op) || OBJECT_IS_HIDDEN(op, head))
 					{
 						continue;
 					}
@@ -495,7 +495,7 @@ int command_target(object *op, char *params)
 				if (IS_LIVE(head) && !is_friend_of(op, head))
 				{
 					/* this can happen when our old target has moved to next position */
-					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)))
+					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) || OBJECT_IS_HIDDEN(op, head))
 					{
 						continue;
 					}
@@ -598,7 +598,7 @@ dirty_jump_in1:
 					{
 						/* this can happen when our old target has moved to next position
 						 * i have no tmp == op here to allow self targeting in the friendly chain */
-						if (head == CONTR(op)->target_object || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)))
+						if (head == CONTR(op)->target_object || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) || OBJECT_IS_HIDDEN(op, head))
 						{
 							continue;
 						}
@@ -652,6 +652,7 @@ dirty_jump_in1:
 	}
 
 found_target:
+
 	send_target_command(CONTR(op));
 	return 1;
 }

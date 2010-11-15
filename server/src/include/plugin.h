@@ -104,6 +104,8 @@
 #define EVENT_TIMER 12
 /** Marks that we should process quests in this object. */
 #define EVENT_QUEST 13
+/** Ask script whether to show this object on map. */
+#define EVENT_ASK_SHOW 14
 /*@}*/
 
 /**

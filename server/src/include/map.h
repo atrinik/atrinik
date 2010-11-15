@@ -701,6 +701,9 @@ typedef struct rv_vector_s
 #define NORTHWEST 8
 /*@}*/
 
+/** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */
+#define OBJECT_IS_HIDDEN(pl, ob) (HAS_EVENT((ob), EVENT_ASK_SHOW) && trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
+
 region *first_region;
 
 #endif
