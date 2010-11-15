@@ -954,11 +954,15 @@ static int basic_emote(object *op, char *params, int emotion)
 		if (emotion == EMOTE_ME)
 		{
 			snprintf(buf, sizeof(buf), "%s %s", op->name, params);
-			new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 			if (op->type == PLAYER)
 			{
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 				new_draw_info(NDI_YELLOW | NDI_PLAYER, op, buf);
+			}
+			else
+			{
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 			}
 
 			return 0;
