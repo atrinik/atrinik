@@ -66,6 +66,10 @@ socket_struct *init_sockets;
  * point. */
 void init_connection(socket_struct *ns, const char *from_ip)
 {
+	int bufsize = 65535;
+	int oldbufsize;
+	socklen_t buflen = sizeof(int);
+
 #ifdef WIN32
 	u_long temp = 1;
 
@@ -79,6 +83,19 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
 #endif
+
+	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
+	{
+		oldbufsize = 0;
+	}
+
+	if (oldbufsize < bufsize)
+	{
+		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
+		{
+			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
+		}
+	}
 
 	ns->login_count = 0;
 	ns->addme = 0;
