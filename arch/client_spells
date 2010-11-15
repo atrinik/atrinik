@@ -166,6 +166,12 @@ p b 17 si_083.png
 "items of your character."
 "Unapplied items in your inventory are NOT affected."
 " "
+"holy word"
+p c 17 si_128.png
+"Cone of holy power that will damage all undead creatures it hits."
+" "
+" "
+" "
 "cause light wounds"
 p a 18 si_148.png
 "This prayer creates a missile which inflicts damage to your enemies."
