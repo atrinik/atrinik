@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2010-11-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2053,8 +2053,26 @@ z 50
 x 12
 y 8
 end
+arch wall_stone16_8
+x 12
+y 8
+end
+arch client_map_info
+msg
+Lynren's Home.
+endmsg
+name asteria_lynren_home
+sub_type 2
+stand_still 1
+x 12
+y 8
+end
 arch grassd_4
 z 50
+x 12
+y 9
+end
+arch wall_stone16_3
 x 12
 y 9
 end
@@ -2063,7 +2081,7 @@ z 50
 x 12
 y 10
 end
-arch plant13
+arch wall_stone16_3
 x 12
 y 10
 end
@@ -2072,8 +2090,16 @@ z 50
 x 12
 y 11
 end
+arch wall_stone16_3
+x 12
+y 11
+end
 arch grassd_1
 z 50
+x 12
+y 12
+end
+arch wall_stone16_3
 x 12
 y 12
 end
@@ -2082,12 +2108,21 @@ z 50
 x 12
 y 13
 end
+arch wall_stone16_3
+x 12
+y 13
+end
+arch picture6.151
+direction 7
+x 12
+y 13
+end
 arch grassd_5
 z 50
 x 12
 y 14
 end
-arch tree_big2
+arch wall_stone16_3
 x 12
 y 14
 end
@@ -2096,12 +2131,27 @@ z 50
 x 12
 y 15
 end
+arch wall_stone16_3
+x 12
+y 15
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 12
+y 15
+end
 arch grassd_7
 z 50
 x 12
 y 16
 end
-arch plant17
+arch wall_stone16_3
+x 12
+y 16
+end
+arch client_map_info
+name asteria_lynren_home
+sub_type 2
 x 12
 y 16
 end
@@ -2241,51 +2291,98 @@ z 50
 x 13
 y 8
 end
-arch plant_flower2
+arch wall_stone16_1
 x 13
 y 8
 end
-arch grassd_4
+arch floor_ostone2
 z 50
 x 13
 y 9
 end
-arch grassd_7
+arch kettle_table
+x 13
+y 9
+end
+arch light3
+x 13
+y 9
+end
+arch floor_ostone2
 z 50
 x 13
 y 10
 end
-arch grassd_8
+arch desk2
+direction 7
+x 13
+y 10
+arch quest_container
+name Rescuing Lynren
+sub_type 2
+arch book
+name Lynren's book of holy word
+face tome_gold.101
+type 79
+end
+end
+end
+arch floor_ostone2
 z 50
 x 13
 y 11
 end
-arch grassd_5
+arch shelf4_wall.111
+direction 7
+x 13
+y 11
+end
+arch floor_ostone2
 z 50
 x 13
 y 12
 end
-arch grassd_5
+arch candlelight4.101
+x 13
+y 12
+end
+arch wall_stone16_1
+x 13
+y 12
+end
+arch light5
+x 13
+y 12
+end
+arch floor_ostone2
 z 50
 x 13
 y 13
 end
-arch grassd_6
+arch stairs_stone_up
+direction 5
+slaying world_1_0836
+hp 13
+sp 12
+x 13
+y 13
+end
+arch floor_ostone2
 z 50
 x 13
 y 14
 end
-arch grassd_1
+arch floor_ostone2
 z 50
 x 13
 y 15
 end
-arch plant_mushroom2
-x 13
-y 15
-end
-arch grassd_1
+arch floor_ostone2
 z 50
+x 13
+y 16
+end
+arch wall_stone16_1
 x 13
 y 16
 end
@@ -2403,51 +2500,107 @@ z 50
 x 14
 y 8
 end
-arch tree_big3
+arch wall_stone16_1
 x 14
 y 8
 end
-arch grassd_5
+arch floor_ostone2
 z 50
 x 14
 y 9
 end
-arch grassd_3
+arch shelf3a.111
+x 14
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone2
 z 50
 x 14
 y 10
 end
-arch grassd_6
+arch chair1_111
+direction 3
+x 14
+y 10
+end
+arch spawn_point
+x 14
+y 10
+arch guard_royal
+msg
+@match ^hi$|^hey$|^hello$
+Oh, hello there.
+
+^Where is Lynren?^
+@match ^where is lynren\?$
+Hmm, well, that is a good question... We don't know. You see, she left without a word, except the explanation on the ^sign^ outside. She has been gone for a long time now, and we don't know whether she is okay or not...
+@match ^sign$
+She left a message on the sign outside that she left on a mission to destroy all evil, starting with Moroch Temple.
+endmsg
+level 75
+type 83
+name Brelgrim the guard
+end
+end
+arch floor_ostone2
 z 50
 x 14
 y 11
 end
-arch grassd_3
+arch floor_ostone2
 z 50
 x 14
 y 12
 end
-arch tree_big4b
+arch wall_stone16_1
 x 14
 y 12
 end
-arch grassd_8
+arch wmask_fire_on_1
+x 14
+y 12
+end
+arch floor_ostone2
 z 50
 x 14
 y 13
 end
-arch grassd_7
+arch floor_ostone2
 z 50
 x 14
 y 14
 end
-arch grassd_3
+arch floor_ostone2
 z 50
 x 14
 y 15
 end
-arch grassd_6
+arch light3
+x 14
+y 15
+end
+arch floor_ostone2
 z 50
+x 14
+y 16
+end
+arch candlelight4.101
+x 14
+y 16
+end
+arch wall_stone16_1
 x 14
 y 16
 end
@@ -2562,51 +2715,67 @@ z 50
 x 15
 y 8
 end
-arch plant13
+arch wall_stone16_1
 x 15
 y 8
 end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 15
 y 9
 end
-arch grassd_8
+arch shelf3b.111
+x 15
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone2
 z 50
 x 15
 y 10
 end
-arch grassd_4
+arch floor_ostone2
 z 50
 x 15
 y 11
 end
-arch grassd_7
+arch floor_ostone2
 z 50
 x 15
 y 12
 end
-arch grassd_6
+arch wall_stone16_1
+x 15
+y 12
+end
+arch floor_ostone2
 z 50
 x 15
 y 13
 end
-arch grassd_1
+arch torch_wall_1
+x 15
+y 13
+end
+arch floor_ostone2
 z 50
 x 15
 y 14
 end
-arch plant_mushroom2
-x 15
-y 14
-end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 15
 y 15
 end
-arch grassd_4
+arch floor_ostone2
 z 50
+x 15
+y 16
+end
+arch wall_stone16_w.111
 x 15
 y 16
 end
@@ -2740,59 +2909,67 @@ z 50
 x 16
 y 8
 end
-arch grassd_2
+arch wall_stone16_1
+x 16
+y 8
+end
+arch floor_ostone2
 z 50
 x 16
 y 9
 end
-arch tree_big4b
+arch shelf3c.111
 x 16
 y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
 end
-arch grassd_3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone2
 z 50
 x 16
 y 10
 end
-arch plant_mushroom1
-x 16
-y 10
-end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 16
 y 11
 end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 16
 y 12
 end
-arch plant16
+arch doorway_wood1_1
 x 16
 y 12
 end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 16
 y 13
 end
-arch grassd_6
+arch floor_ostone2
 z 50
 x 16
 y 14
 end
-arch grassd_6
+arch floor_ostone2
 z 50
 x 16
 y 15
 end
-arch tree_big4b
-x 16
-y 15
-end
-arch grassd_4
+arch floor_ostone2
 z 50
+x 16
+y 16
+end
+arch wall_stone16_1
 x 16
 y 16
 end
@@ -2899,43 +3076,75 @@ z 50
 x 17
 y 8
 end
-arch grassd_2
+arch wall_stone16_1
+x 17
+y 8
+end
+arch floor_ostone2
 z 50
 x 17
 y 9
 end
-arch grassd_6
+arch shelf3a.111
+x 17
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch light3
+x 17
+y 9
+end
+arch floor_ostone2
 z 50
 x 17
 y 10
 end
-arch grassd_8
+arch floor_ostone2
 z 50
 x 17
 y 11
 end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 17
 y 12
 end
-arch grassd_7
+arch wall_stone16_1
+x 17
+y 12
+end
+arch wmask_bflag_brown_1
+x 17
+y 12
+end
+arch floor_ostone2
 z 50
 x 17
 y 13
 end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 17
 y 14
 end
-arch grassd_7
+arch floor_ostone2
 z 50
 x 17
 y 15
 end
-arch grassd_4
+arch amphora2.101
+x 17
+y 15
+end
+arch floor_ostone2
 z 50
+x 17
+y 16
+end
+arch wall_stone16_1
 x 17
 y 16
 end
@@ -3078,51 +3287,90 @@ z 50
 x 18
 y 8
 end
-arch grassd_3
+arch wall_stone16_1
+x 18
+y 8
+end
+arch client_map_info
+name asteria_lynren_home
+sub_type 2
+x 18
+y 8
+end
+arch floor_ostone2
 z 50
 x 18
 y 9
 end
-arch grassd_3
+arch candlelight4.101
+x 18
+y 9
+end
+arch wall_stone16_3
+x 18
+y 9
+end
+arch floor_ostone2
 z 50
 x 18
 y 10
 end
-arch plant_mushroom1
+arch wall_stone16_w.131
 x 18
 y 10
 end
-arch grassd_5
+arch floor_ostone2
 z 50
 x 18
 y 11
 end
-arch grassd_5
+arch wall_stone16_3
+x 18
+y 11
+end
+arch floor_ostone2
 z 50
 x 18
 y 12
 end
-arch grassd_7
+arch wall_stone16_4
+x 18
+y 12
+end
+arch floor_ostone2
 z 50
 x 18
 y 13
 end
-arch grassd_1
+arch wall_stone16_3
+x 18
+y 13
+end
+arch floor_ostone2
 z 50
 x 18
 y 14
 end
-arch tree_branch2
+arch door_wood2
+direction 3
 x 18
 y 14
 end
-arch grassd_2
+arch floor_ostone2
 z 50
 x 18
 y 15
 end
-arch grassd_1
+arch wall_stone16_w.131
+x 18
+y 15
+end
+arch floor_ostone2
 z 50
+x 18
+y 16
+end
+arch wall_stone16_4
 x 18
 y 16
 end
@@ -3287,18 +3535,42 @@ direction 5
 x 19
 y 12
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 19
 y 13
 end
-arch grassd_5
+arch grassd_m4
+x 19
+y 13
+end
+arch sign_generic
+msg
+Here lives Lynren the paladin.
+
+-----------
+To Whom It May Concern:
+
+I have left my home in order to complete my mission of destroying all evil in this realm. I have set Moroch Temple as my current target, and I will not stop until all evil is eradicated from this world.
+
+-- Lynren the paladin
+endmsg
+name Lynren's Home
+direction 3
+x 19
+y 13
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 14
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
+x 19
+y 15
+end
+arch grassd_m3
 x 19
 y 15
 end
@@ -3470,7 +3742,7 @@ z 50
 x 20
 y 13
 end
-arch grassd_m9
+arch grassd_m13
 x 20
 y 13
 end
@@ -3479,16 +3751,12 @@ z 50
 x 20
 y 14
 end
-arch grassd_m9
-x 20
-y 14
-end
 arch floor_fs_grey1b
 z 50
 x 20
 y 15
 end
-arch grassd_m9
+arch grassd_m14
 x 20
 y 15
 end

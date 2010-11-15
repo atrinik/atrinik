@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2010-11-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1038,6 +1038,101 @@ arch fwall_fstone1b
 x 8
 y 10
 end
+arch floor_sblack3b
+x 8
+y 14
+end
+arch fwall_fstone1a
+x 8
+y 14
+end
+arch floor_sblack2b
+x 8
+y 15
+end
+arch fwall_fstone1b
+x 8
+y 15
+end
+arch floor_sblack1b
+x 8
+y 16
+end
+arch fwall_fstone1a
+x 8
+y 16
+end
+arch floor_sblack3b
+x 8
+y 17
+end
+arch fwall_fstone1c
+x 8
+y 17
+end
+arch floor_sblack2b
+x 8
+y 18
+end
+arch fwall_fstone1a
+x 8
+y 18
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 18
+end
+arch floor_sblack3b
+x 8
+y 19
+end
+arch fwall_fstone1c
+x 8
+y 19
+end
+arch floor_sblack1b
+x 8
+y 20
+end
+arch fwall_fstone1a
+x 8
+y 20
+end
+arch floor_sblack3b
+x 8
+y 21
+end
+arch fwall_fstone1c
+x 8
+y 21
+end
+arch plant1_wall.151
+direction 7
+x 8
+y 21
+end
+arch floor_sblack1b
+x 8
+y 22
+end
+arch fwall_fstone1b
+x 8
+y 22
+end
+arch floor_sblack3b
+x 8
+y 23
+end
+arch fwall_fstone1a
+x 8
+y 23
+end
+arch wall_blood2
+direction 7
+x 8
+y 23
+end
 arch floor_sblack1b
 x 9
 end
@@ -1104,6 +1199,129 @@ arch fwall_fstone1a
 x 9
 y 10
 end
+arch trigger_lever
+layer 0
+sys_object 1
+connected 101
+last_eat 1
+x 9
+y 11
+arch beacon
+name lynren_lever
+end
+end
+arch floor_sblack2b
+x 9
+y 14
+end
+arch fwall_fstone1b
+x 9
+y 14
+end
+arch wall_blood4
+x 9
+y 14
+end
+arch floor_sblack2b
+x 9
+y 15
+end
+arch prison_deco3.131
+x 9
+y 15
+end
+arch magic_wall
+friendly 1
+dam 51
+layer 0
+sys_object 1
+blocksview 0
+direction 4
+last_eat 0
+level 115
+connected 101
+alive 0
+speed -0.5
+x 9
+y 15
+end
+arch floor_sblack1b
+x 9
+y 16
+end
+arch torch_wall_1
+direction 7
+x 9
+y 16
+end
+arch floor_sblack2b
+x 9
+y 17
+end
+arch floor_sblack1b
+x 9
+y 18
+end
+arch prison_deco2.131
+x 9
+y 18
+end
+arch floor_sblack3b
+x 9
+y 19
+end
+arch dirt_floor1
+x 9
+y 19
+end
+arch floor_sblack2b
+x 9
+y 20
+end
+arch fwall_fstone1b
+x 9
+y 20
+end
+arch plant2_wall.151
+x 9
+y 20
+end
+arch floor_sblack2b
+x 9
+y 21
+end
+arch prison_deco3.131
+direction 7
+x 9
+y 21
+end
+arch magic_wall
+friendly 1
+dam 51
+layer 0
+sys_object 1
+blocksview 0
+direction 4
+last_eat 0
+level 115
+connected 101
+alive 0
+speed -0.5
+x 9
+y 21
+end
+arch floor_sblack2b
+x 9
+y 22
+end
+arch pottery2.101
+x 9
+y 22
+end
+arch floor_sblack3b
+x 9
+y 23
+end
 arch floor_sblack1b
 x 10
 end
@@ -1157,6 +1375,91 @@ end
 arch fwall_fstone1a
 x 10
 y 10
+end
+arch floor_sblack3b
+x 10
+y 14
+end
+arch fwall_fstone1b
+x 10
+y 14
+end
+arch floor_sblack1b
+x 10
+y 15
+end
+arch lab_cauld_brk
+x 10
+y 15
+end
+arch floor_sblack2b
+x 10
+y 16
+end
+arch floor_sblack3b
+x 10
+y 17
+end
+arch floor_sblack2b
+x 10
+y 18
+end
+arch pile_floor3
+x 10
+y 18
+end
+arch spawn_point
+x 10
+y 18
+arch guard_female
+name Lynren the paladin
+direction 3
+level 115
+invulnerable 1
+no_attack 1
+type 83
+anim_speed 16
+arch event_obj
+sub_type 14
+race scripts/lynren_show.py
+end
+arch event_obj
+sub_type 6
+race scripts/lynren.py
+end
+end
+end
+arch floor_sblack2b
+x 10
+y 19
+end
+arch floor_sblack1b
+x 10
+y 20
+end
+arch fwall_fstone1a
+x 10
+y 20
+end
+arch floor_sblack3b
+x 10
+y 21
+end
+arch prison_deco1.131
+x 10
+y 21
+end
+arch floor_sblack1b
+x 10
+y 22
+end
+arch floor_sblack3b
+x 10
+y 23
+end
+arch pile_floor3
+x 10
+y 23
 end
 arch floor_sblack3b
 x 11
@@ -1215,6 +1518,86 @@ end
 arch fwall_fstone1a
 x 11
 y 10
+end
+arch floor_sblack1b
+x 11
+y 14
+end
+arch fwall_fstone1b
+x 11
+y 14
+end
+arch floor_sblack1b
+x 11
+y 15
+end
+arch grate1_3
+x 11
+y 15
+end
+arch floor_sblack1b
+x 11
+y 16
+end
+arch grate1_3
+x 11
+y 16
+end
+arch floor_sblack1b
+x 11
+y 17
+end
+arch grate1_3
+x 11
+y 17
+end
+arch floor_sblack2b
+x 11
+y 18
+end
+arch grate1_3
+x 11
+y 18
+end
+arch floor_sblack1b
+x 11
+y 19
+end
+arch grate1_3
+x 11
+y 19
+end
+arch floor_sblack1b
+x 11
+y 20
+end
+arch fwall_fstone1c
+x 11
+y 20
+end
+arch floor_sblack1b
+x 11
+y 21
+end
+arch grate1_3
+x 11
+y 21
+end
+arch floor_sblack1b
+x 11
+y 22
+end
+arch grate1_3
+x 11
+y 22
+end
+arch floor_sblack3b
+x 11
+y 23
+end
+arch grate1_3
+x 11
+y 23
 end
 arch floor_sblack3b
 x 12
@@ -1294,6 +1677,102 @@ arch fwall_fstone1a
 x 12
 y 10
 end
+arch floor_sblack2b
+x 12
+y 14
+end
+arch fwall_fstone1a
+x 12
+y 14
+end
+arch floor_sblack2b
+x 12
+y 15
+end
+arch magic_wall
+friendly 1
+dam 51
+layer 0
+sys_object 1
+blocksview 0
+direction 4
+last_eat 0
+level 115
+connected 101
+alive 0
+speed -0.5
+x 12
+y 15
+end
+arch floor_sblack2b
+x 12
+y 16
+end
+arch spawn_point
+x 12
+y 16
+arch skel_mage
+direction 3
+level 57
+type 83
+arch ability_icestorm
+end
+arch ability_mbullet
+end
+end
+end
+arch floor_sblack3b
+x 12
+y 17
+end
+arch floor_sblack1b
+x 12
+y 18
+end
+arch floor_sblack2b
+x 12
+y 19
+end
+arch floor_sblack3b
+x 12
+y 20
+end
+arch torch_wall_1
+direction 7
+x 12
+y 20
+end
+arch magic_wall
+friendly 1
+dam 51
+layer 0
+sys_object 1
+blocksview 0
+direction 4
+last_eat 0
+level 115
+connected 101
+alive 0
+speed -0.5
+x 12
+y 20
+end
+arch floor_sblack1b
+x 12
+y 21
+end
+arch floor_sblack1b
+x 12
+y 22
+end
+arch water_floor
+x 12
+y 22
+end
+arch floor_sblack3b
+x 12
+y 23
+end
 arch floor_sblack1b
 x 13
 end
@@ -1371,6 +1850,71 @@ arch fwall_fstone1a
 x 13
 y 10
 end
+arch floor_sblack1b
+x 13
+y 14
+end
+arch fwall_fstone1a
+x 13
+y 14
+end
+arch floor_sblack2b
+x 13
+y 15
+end
+arch torch_wall_1
+x 13
+y 15
+end
+arch floor_sblack2b
+x 13
+y 16
+end
+arch floor_sblack3b
+x 13
+y 17
+end
+arch floor_sblack1b
+x 13
+y 18
+end
+arch pile_floor1
+x 13
+y 18
+end
+arch floor_sblack2b
+x 13
+y 19
+end
+arch floor_sblack1b
+x 13
+y 20
+end
+arch dirt_floor1
+x 13
+y 20
+end
+arch floor_sblack3b
+x 13
+y 21
+end
+arch spawn_point
+x 13
+y 21
+arch ghoul
+direction 7
+level 56
+type 83
+end
+end
+arch floor_sblack3b
+x 13
+y 22
+end
+arch floor_sblack1b
+x 13
+y 23
+end
 arch floor_sblack2b
 x 14
 end
@@ -1428,6 +1972,62 @@ end
 arch fwall_fstone1a
 x 14
 y 10
+end
+arch floor_sblack1b
+x 14
+y 14
+end
+arch fwall_fstone1a
+x 14
+y 14
+end
+arch plant2_wall.151
+x 14
+y 14
+end
+arch floor_sblack2b
+x 14
+y 15
+end
+arch trash_wood2.101
+x 14
+y 15
+end
+arch floor_sblack2b
+x 14
+y 16
+end
+arch floor_sblack3b
+x 14
+y 17
+end
+arch floor_sblack1b
+x 14
+y 18
+end
+arch water_floor
+x 14
+y 18
+end
+arch floor_sblack2b
+x 14
+y 19
+end
+arch floor_sblack3b
+x 14
+y 20
+end
+arch floor_sblack1b
+x 14
+y 21
+end
+arch floor_sblack1b
+x 14
+y 22
+end
+arch floor_sblack3b
+x 14
+y 23
 end
 arch floor_sblack2b
 x 15
@@ -1499,6 +2099,86 @@ end
 arch fwall_fstone1c
 x 15
 y 10
+end
+arch floor_sblack2b
+x 15
+y 14
+end
+arch fwall_fstone1c
+x 15
+y 14
+end
+arch floor_sblack2b
+x 15
+y 15
+end
+arch fwall_fstone1c
+x 15
+y 15
+end
+arch floor_sblack2b
+x 15
+y 16
+end
+arch fwall_fstone1c
+x 15
+y 16
+end
+arch floor_sblack2b
+x 15
+y 17
+end
+arch fwall_fstone1b
+x 15
+y 17
+end
+arch floor_sblack2b
+x 15
+y 18
+end
+arch fwall_fstone1b
+x 15
+y 18
+end
+arch floor_sblack3b
+x 15
+y 19
+end
+arch fwall_fstone1c
+x 15
+y 19
+end
+arch floor_sblack2b
+x 15
+y 20
+end
+arch fwall_fstone1a
+x 15
+y 20
+end
+arch floor_sblack2b
+x 15
+y 21
+end
+arch fwall_fstone1c
+x 15
+y 21
+end
+arch floor_sblack1b
+x 15
+y 22
+end
+arch fwall_fstone1c
+x 15
+y 22
+end
+arch floor_sblack1b
+x 15
+y 23
+end
+arch fwall_fstone1a
+x 15
+y 23
 end
 arch floor_sblack1b
 x 16
@@ -1697,7 +2377,7 @@ arch floor_sblack2b
 x 17
 y 20
 end
-arch fwall_fstone1b
+arch fwall_fstone1c
 x 17
 y 20
 end
@@ -1823,6 +2503,11 @@ arch floor_sblack3b
 x 18
 y 16
 end
+arch torch_wall_1
+direction 7
+x 18
+y 16
+end
 arch floor_sblack2b
 x 18
 y 17
@@ -1836,6 +2521,11 @@ x 18
 y 19
 end
 arch floor_sblack2b
+x 18
+y 20
+end
+arch torch_wall_1
+direction 7
 x 18
 y 20
 end
