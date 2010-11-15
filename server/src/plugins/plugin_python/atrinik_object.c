@@ -510,7 +510,8 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
  * @param message The message to say. */
 static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *message;
+	const char *message;
+	char *str;
 
 	if (!PyArg_ParseTuple(args, "s", &message))
 	{
@@ -519,7 +520,9 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
 
 	OBJEXISTCHECK(whoptr);
 
-	hooks->communicate(WHO, message);
+	str = hooks->strdup_local(message);
+	hooks->communicate(WHO, str);
+	free(str);
 
 	Py_INCREF(Py_None);
 	return Py_None;
