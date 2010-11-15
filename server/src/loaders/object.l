@@ -1300,6 +1300,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		}
 	}
 
+	if (op->anim_speed != op2->anim_speed)
+	{
+		FAST_SAVE_LONG(sb, "anim_speed ", op->anim_speed);
+	}
+
 	if (op->stats.wc_range != op2->stats.wc_range)
 	{
 		FAST_SAVE_LONG(sb, "wc_range ", op->stats.wc_range);
