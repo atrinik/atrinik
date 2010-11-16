@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2010-11-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3056,13 +3056,15 @@ arch grassd_1
 x 21
 y 23
 end
-arch water_lt2
+arch water_lt
+no_pass 1
 x 22
 end
 arch grassd_m9
 x 22
 end
 arch water_lt2
+no_pass 1
 x 22
 y 1
 end
@@ -3070,7 +3072,8 @@ arch grassd_m9
 x 22
 y 1
 end
-arch water_lt4
+arch water_lt
+no_pass 1
 x 22
 y 2
 end
@@ -3079,38 +3082,43 @@ x 22
 y 2
 end
 arch water_lt2
+no_pass 1
 x 22
 y 3
 end
 arch grassd_m9
 x 22
 y 3
-end
-arch water_lt3
-x 22
-y 4
-end
-arch grassd_m9
-x 22
-y 4
-end
-arch water_lt3
-x 22
-y 5
-end
-arch grassd_m9
-x 22
-y 5
 end
 arch water_lt
+no_pass 1
 x 22
-y 6
+y 4
 end
 arch grassd_m9
 x 22
-y 6
+y 4
 end
 arch water_lt4
+no_pass 1
+x 22
+y 5
+end
+arch grassd_m9
+x 22
+y 5
+end
+arch water_lt
+no_pass 1
+x 22
+y 6
+end
+arch grassd_m9
+x 22
+y 6
+end
+arch water_lt2
+no_pass 1
 x 22
 y 7
 end
@@ -3119,22 +3127,25 @@ x 22
 y 7
 end
 arch water_lt
+no_pass 1
 x 22
 y 8
 end
 arch grassd_m9
 x 22
 y 8
-end
-arch water_lt
-x 22
-y 9
-end
-arch grassd_m9
-x 22
-y 9
 end
 arch water_lt2
+no_pass 1
+x 22
+y 9
+end
+arch grassd_m9
+x 22
+y 9
+end
+arch water_lt4
+no_pass 1
 x 22
 y 10
 end
@@ -3142,7 +3153,8 @@ arch grassd_m9
 x 22
 y 10
 end
-arch water_lt3
+arch water_lt
+no_pass 1
 x 22
 y 11
 end
@@ -3151,22 +3163,25 @@ x 22
 y 11
 end
 arch water_lt2
+no_pass 1
 x 22
 y 12
 end
 arch grassd_m9
 x 22
 y 12
-end
-arch water_lt
-x 22
-y 13
-end
-arch grassd_m9
-x 22
-y 13
 end
 arch water_lt2
+no_pass 1
+x 22
+y 13
+end
+arch grassd_m9
+x 22
+y 13
+end
+arch water_lt3
+no_pass 1
 x 22
 y 14
 end
@@ -3174,7 +3189,8 @@ arch grassd_m9
 x 22
 y 14
 end
-arch water_lt3
+arch water_lt4
+no_pass 1
 x 22
 y 15
 end
@@ -3182,7 +3198,8 @@ arch grassd_m9
 x 22
 y 15
 end
-arch water_lt3
+arch water_lt4
+no_pass 1
 x 22
 y 16
 end
@@ -3190,7 +3207,8 @@ arch grassd_m9
 x 22
 y 16
 end
-arch water_lt3
+arch water_lt
+no_pass 1
 x 22
 y 17
 end
@@ -3199,6 +3217,7 @@ x 22
 y 17
 end
 arch water_lt
+no_pass 1
 x 22
 y 18
 end
@@ -3206,7 +3225,8 @@ arch grassd_m9
 x 22
 y 18
 end
-arch water_lt
+arch water_lt3
+no_pass 1
 x 22
 y 19
 end
@@ -3214,23 +3234,26 @@ arch grassd_m9
 x 22
 y 19
 end
-arch water_lt3
+arch water_lt2
+no_pass 1
 x 22
 y 20
 end
 arch grassd_m9
 x 22
 y 20
+end
+arch water_lt2
+no_pass 1
+x 22
+y 21
+end
+arch grassd_m9
+x 22
+y 21
 end
 arch water_lt
-x 22
-y 21
-end
-arch grassd_m9
-x 22
-y 21
-end
-arch water_lt3
+no_pass 1
 x 22
 y 22
 end
@@ -3239,6 +3262,7 @@ x 22
 y 22
 end
 arch water_lt3
+no_pass 1
 x 22
 y 23
 end
@@ -3246,7 +3270,8 @@ arch grassd_m9
 x 22
 y 23
 end
-arch water_lt
+arch water_lt2
+no_pass 1
 x 23
 end
 arch grassd_m8
@@ -3255,7 +3280,8 @@ end
 arch wall_flagstone1.131
 x 23
 end
-arch water_lt4
+arch water_lt2
+no_pass 1
 x 23
 y 1
 end
@@ -3268,6 +3294,7 @@ x 23
 y 1
 end
 arch water_lt2
+no_pass 1
 x 23
 y 2
 end
@@ -3276,6 +3303,7 @@ x 23
 y 2
 end
 arch water_lt3
+no_pass 1
 x 23
 y 3
 end
@@ -3283,7 +3311,8 @@ arch grassd_m8
 x 23
 y 3
 end
-arch water_lt4
+arch water_lt
+no_pass 1
 x 23
 y 4
 end
@@ -3292,6 +3321,7 @@ x 23
 y 4
 end
 arch water_lt3
+no_pass 1
 x 23
 y 5
 end
@@ -3299,7 +3329,8 @@ arch grassd_m8
 x 23
 y 5
 end
-arch water_lt
+arch water_lt3
+no_pass 1
 x 23
 y 6
 end
@@ -3308,6 +3339,7 @@ x 23
 y 6
 end
 arch water_lt3
+no_pass 1
 x 23
 y 7
 end
@@ -3316,126 +3348,142 @@ x 23
 y 7
 end
 arch water_lt3
+no_pass 1
 x 23
 y 8
 end
 arch grassd_m8
 x 23
 y 8
-end
-arch water_lt3
-x 23
-y 9
-end
-arch grassd_m8
-x 23
-y 9
-end
-arch water_lt
-x 23
-y 10
-end
-arch grassd_m8
-x 23
-y 10
-end
-arch water_lt
-x 23
-y 11
-end
-arch grassd_m8
-x 23
-y 11
-end
-arch water_lt
-x 23
-y 12
-end
-arch grassd_m8
-x 23
-y 12
-end
-arch water_lt
-x 23
-y 13
-end
-arch grassd_m8
-x 23
-y 13
-end
-arch water_lt3
-x 23
-y 14
-end
-arch grassd_m8
-x 23
-y 14
-end
-arch water_lt3
-x 23
-y 15
-end
-arch grassd_m8
-x 23
-y 15
-end
-arch water_lt4
-x 23
-y 16
-end
-arch grassd_m8
-x 23
-y 16
-end
-arch water_lt3
-x 23
-y 17
-end
-arch grassd_m8
-x 23
-y 17
-end
-arch water_lt3
-x 23
-y 18
-end
-arch grassd_m8
-x 23
-y 18
-end
-arch water_lt4
-x 23
-y 19
-end
-arch grassd_m8
-x 23
-y 19
-end
-arch water_lt3
-x 23
-y 20
-end
-arch grassd_m8
-x 23
-y 20
-end
-arch water_lt4
-x 23
-y 21
-end
-arch grassd_m8
-x 23
-y 21
-end
-arch water_lt3
-x 23
-y 22
-end
-arch grassd_m8
-x 23
-y 22
 end
 arch water_lt2
+no_pass 1
+x 23
+y 9
+end
+arch grassd_m8
+x 23
+y 9
+end
+arch water_lt4
+no_pass 1
+x 23
+y 10
+end
+arch grassd_m8
+x 23
+y 10
+end
+arch water_lt
+no_pass 1
+x 23
+y 11
+end
+arch grassd_m8
+x 23
+y 11
+end
+arch water_lt4
+no_pass 1
+x 23
+y 12
+end
+arch grassd_m8
+x 23
+y 12
+end
+arch water_lt4
+no_pass 1
+x 23
+y 13
+end
+arch grassd_m8
+x 23
+y 13
+end
+arch water_lt3
+no_pass 1
+x 23
+y 14
+end
+arch grassd_m8
+x 23
+y 14
+end
+arch water_lt3
+no_pass 1
+x 23
+y 15
+end
+arch grassd_m8
+x 23
+y 15
+end
+arch water_lt4
+no_pass 1
+x 23
+y 16
+end
+arch grassd_m8
+x 23
+y 16
+end
+arch water_lt2
+no_pass 1
+x 23
+y 17
+end
+arch grassd_m8
+x 23
+y 17
+end
+arch water_lt3
+no_pass 1
+x 23
+y 18
+end
+arch grassd_m8
+x 23
+y 18
+end
+arch water_lt3
+no_pass 1
+x 23
+y 19
+end
+arch grassd_m8
+x 23
+y 19
+end
+arch water_lt2
+no_pass 1
+x 23
+y 20
+end
+arch grassd_m8
+x 23
+y 20
+end
+arch water_lt2
+no_pass 1
+x 23
+y 21
+end
+arch grassd_m8
+x 23
+y 21
+end
+arch water_lt
+no_pass 1
+x 23
+y 22
+end
+arch grassd_m8
+x 23
+y 22
+end
+arch water_lt4
+no_pass 1
 x 23
 y 23
 end
