@@ -81,20 +81,26 @@ int Event_PollInputDevice()
 	/* Execute mouse actions, even if mouse button is being held. */
 	if ((SDL_GetTicks() - Ticks > 125) || !Ticks)
 	{
-		Ticks = SDL_GetTicks();
-
 		if (GameStatus >= GAME_STATUS_PLAY)
 		{
 			if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
 			{
+				Ticks = SDL_GetTicks();
 				mouse_InputNumber();
 			}
-			/* Mouse gesture: hold right and left button to fire. */
-			else if (!cpl.action_timer && SDL_GetMouseState(&x, &y) == (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) && mouse_to_tile_coords(x, y, &tx, &ty))
+			/* Mouse gesture: hold right+left buttons or middle button
+			 * to fire. */
+			else if (!cpl.action_timer)
 			{
-				cpl.fire_on = 1;
-				move_keys(dir_from_tile_coords(tx, ty));
-				cpl.fire_on = 0;
+				int state = SDL_GetMouseState(&x, &y);
+
+				if ((state == (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mouse_to_tile_coords(x, y, &tx, &ty))
+				{
+					Ticks = SDL_GetTicks();
+					cpl.fire_on = 1;
+					move_keys(dir_from_tile_coords(tx, ty));
+					cpl.fire_on = 0;
+				}
 			}
 		}
 	}
