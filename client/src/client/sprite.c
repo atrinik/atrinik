@@ -111,9 +111,6 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 
 	memset(sprite, 0, sizeof(_Sprite));
 
-	sprite->status = SPRITE_STATUS_LOADED;
-	sprite->type = SPRITE_TYPE_NORMAL;
-
 	ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT;
 
 	if (options.rleaccel_flag)

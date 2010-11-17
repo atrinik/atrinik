@@ -546,10 +546,5 @@ void blit_face(int id, int x, int y)
 		return;
 	}
 
-	if (FaceList[id].sprite->status != SPRITE_STATUS_LOADED)
-	{
-		return;
-	}
-
 	sprite_blt(FaceList[id].sprite, x, y, NULL, NULL);
 }

@@ -731,9 +731,6 @@ int blt_inv_item_centered(object *tmp, int x, int y)
 	if (!FaceList[tmp->face].sprite)
 		return 0;
 
-	if (FaceList[tmp->face].sprite->status != SPRITE_STATUS_LOADED)
-		return 0;
-
 	anim1 = tmp->face;
 
 	/* This is part of animation... Because ISO items have different offsets and sizes,
@@ -750,10 +747,6 @@ int blt_inv_item_centered(object *tmp, int x, int y)
 
 	/* Fallback: first animation bitmap not loaded */
 	if (!FaceList[anim1].sprite)
-		anim1 = tmp->face;
-
-	/* Also fallback here */
-	if (FaceList[anim1].sprite->status != SPRITE_STATUS_LOADED)
 		anim1 = tmp->face;
 
 	xstart = FaceList[anim1].sprite->border_left;

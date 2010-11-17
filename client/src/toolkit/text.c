@@ -575,7 +575,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 					bltfx.alpha = alpha;
 					bltfx.flags = alpha != 255 ? BLTFX_FLAG_SRCALPHA : 0;
 
-					if (id != -1 && FaceList[id].sprite && FaceList[id].sprite->status == SPRITE_STATUS_LOADED)
+					if (id != -1 && FaceList[id].sprite)
 					{
 						if (align & 1)
 						{
