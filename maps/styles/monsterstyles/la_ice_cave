@@ -146,7 +146,6 @@ can_cast_spell 1
 sp -1
 maxsp 20
 Pow 6
-path_attuned 4
 Dex 2
 behavior 3
 protect_fire -25
@@ -176,7 +175,6 @@ can_cast_spell 1
 sp -1
 maxsp 20
 Pow 6
-path_attuned 4
 Dex 2
 random_move 1
 item_race 3
@@ -187,7 +185,7 @@ protect_cold 100
 type 83
 arch ability_icestorm
 sp 7
-hp 8
+hp 7
 end
 arch ability_icestorm
 end
@@ -211,7 +209,6 @@ can_cast_spell 1
 sp -1
 maxsp 20
 Pow 6
-path_attuned 4
 Dex 2
 attack_move_type 7
 protect_fire -20
@@ -219,7 +216,7 @@ protect_cold 100
 type 83
 arch ability_icestorm
 sp 7
-hp 8
+hp 7
 end
 arch ability_icestorm
 end
@@ -240,7 +237,6 @@ can_cast_spell 1
 sp -1
 maxsp 20
 Pow 6
-path_attuned 4
 Dex 2
 protect_fire -25
 protect_cold 100
@@ -264,7 +260,6 @@ arch icegolem
 item_condition 4
 exp 111
 attack_cold 100
-attack_move_type 5
 protect_fire -25
 type 83
 arch rand_drop
@@ -310,7 +305,6 @@ item_condition 4
 exp 116
 attack_cold 100
 movement_type 128
-attack_move_type 4
 protect_fire -25
 type 83
 arch rand_drop
@@ -359,7 +353,6 @@ arch icegolem
 item_condition 4
 exp 111
 attack_cold 100
-attack_move_type 5
 protect_fire -25
 type 83
 arch rand_drop
