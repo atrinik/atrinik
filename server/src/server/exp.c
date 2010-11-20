@@ -598,7 +598,7 @@ sint64 adjust_exp(object *pl, object *op, sint64 exp)
 
 	for (tmp = pl->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->type == SKILL && skills[tmp->stats.sp].category == sk_nr)
+		if (tmp->type == SKILL && skills[tmp->stats.sp].category == sk_nr && !QUERY_FLAG(tmp, FLAG_STAND_STILL))
 		{
 			if (tmp->stats.exp > sk_exp)
 			{
@@ -615,7 +615,7 @@ sint64 adjust_exp(object *pl, object *op, sint64 exp)
 
 	for (i = 0; i < MAX_EXP_CAT - 1; i++)
 	{
-		if (CONTR(pl)->last_skill_ob[i]->stats.exp > pl_exp)
+		if (CONTR(pl)->last_skill_ob[i]->stats.exp > pl_exp && !QUERY_FLAG(CONTR(pl)->last_skill_ob[i], FLAG_STAND_STILL))
 		{
 			pl_exp = CONTR(pl)->last_skill_ob[i]->stats.exp;
 		}
