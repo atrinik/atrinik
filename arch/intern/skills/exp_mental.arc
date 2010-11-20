@@ -8,4 +8,5 @@ no_drop 1
 level 1
 exp 0
 Int 1
+stand_still 1
 end
