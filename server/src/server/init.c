@@ -63,6 +63,7 @@ struct Settings settings =
 	0,
 	0,
 	0,
+	10,
 	1.0f
 };
 
@@ -858,6 +859,10 @@ static void load_settings()
 			{
 				settings.item_power_factor = tmp;
 			}
+		}
+		else if (!strcasecmp(buf, "magic_devices_level"))
+		{
+			settings.magic_devices_level = atoi(cp);
 		}
 		else if (!strcasecmp(buf, "client_maps"))
 		{

@@ -587,6 +587,9 @@ typedef struct Settings
 	/** Executing the world maker? */
 	uint8 world_maker;
 
+	/** Adjustment to maximum magical device level the player may use. */
+	sint8 magic_devices_level;
+
 	/** See note in setings file. */
 	float item_power_factor;
 } Settings;
