@@ -251,6 +251,8 @@ void show_spelllist()
 
 			cp = strtok(NULL, " ");
 		}
+
+		free(tmpbuf);
 	}
 
 	if (!mb)
