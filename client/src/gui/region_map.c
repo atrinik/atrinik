@@ -479,6 +479,7 @@ void RegionMapCmd(uint8 *data, int len)
 
 		SDL_FreeSurface(region_map_png_orig);
 		region_map_png = NULL;
+		region_map_png_orig = NULL;
 	}
 
 	/* Default zoom. */
