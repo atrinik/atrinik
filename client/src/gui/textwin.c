@@ -121,38 +121,6 @@ void draw_info(const char *str, int flags)
 	box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 	box.h = 0;
 
-	/* Have the entries gone over maximum allowed lines? */
-	if (textwin->entries && textwin->num_entries >= (size_t) options.chat_max_lines)
-	{
-		char *cp;
-
-		while (textwin->num_entries >= (size_t) options.chat_max_lines && (cp = strchr(textwin->entries, '\n')))
-		{
-			size_t pos = cp - textwin->entries + 1;
-			char *buf = malloc(pos + 1);
-
-			/* Copy the string together with the newline to a temporary
-			 * buffer. */
-			memcpy(buf, textwin->entries, pos);
-			buf[pos] = '\0';
-			/* Get the string's height. */
-			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
-			scroll = box.h / FONT_HEIGHT(textwin->font);
-			box.h = 0;
-			free(buf);
-
-			/* Move the string after the found newline to the beginning,
-			 * effectively erasing the previous line. */
-			textwin->entries_size -= pos;
-			memcpy(textwin->entries, textwin->entries + pos, textwin->entries_size);
-			textwin->entries[textwin->entries_size] = '\0';
-
-			/* Adjust the counts. */
-			textwin->scroll -= scroll;
-			textwin->num_entries -= scroll;
-		}
-	}
-
 	len = strlen(str);
 	/* Resize the characters array as needed. */
 	textwin->entries = realloc(textwin->entries, textwin->entries_size + len + 4);
@@ -173,6 +141,40 @@ void draw_info(const char *str, int flags)
 	/* Adjust the counts. */
 	textwin->scroll += scroll;
 	textwin->num_entries += scroll;
+
+	/* Have the entries gone over maximum allowed lines? */
+	if (textwin->entries && textwin->num_entries >= (size_t) options.chat_max_lines)
+	{
+		char *cp;
+
+		while (textwin->num_entries >= (size_t) options.chat_max_lines && (cp = strchr(textwin->entries, '\n')))
+		{
+			size_t pos = cp - textwin->entries + 1;
+			char *buf = malloc(pos + 1);
+
+			/* Copy the string together with the newline to a temporary
+			 * buffer. */
+			memcpy(buf, textwin->entries, pos);
+			buf[pos] = '\0';
+
+			/* Get the string's height. */
+			box.h = 0;
+			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+			scroll = box.h / FONT_HEIGHT(textwin->font);
+
+			free(buf);
+
+			/* Move the string after the found newline to the beginning,
+			 * effectively erasing the previous line. */
+			textwin->entries_size -= pos;
+			memcpy(textwin->entries, textwin->entries + pos, textwin->entries_size);
+			textwin->entries[textwin->entries_size] = '\0';
+
+			/* Adjust the counts. */
+			textwin->scroll -= scroll;
+			textwin->num_entries -= scroll;
+		}
+	}
 }
 
 /**
