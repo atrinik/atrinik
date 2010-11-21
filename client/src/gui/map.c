@@ -735,7 +735,7 @@ void map_draw_map()
 {
 	int player_height_offset;
 	int x, y, layer;
-	int mouse_x, mouse_y;
+	int tx, ty;
 
 	player_height_offset = the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1];
 
@@ -763,9 +763,9 @@ void map_draw_map()
 		}
 	}
 
-	if (mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &mouse_x, &mouse_y))
+	if (cpl.menustatus == MENU_NO && !widget_mouse_event.owner && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
 	{
-		map_draw_one(mouse_x, mouse_y, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
+		map_draw_one(tx, ty, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
 	}
 }
 
