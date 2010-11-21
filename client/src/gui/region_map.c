@@ -735,7 +735,7 @@ void region_map_show()
 			region_map_pos.y += my - box.y - region_map_pos.h / 2;
 			surface_pan(region_map_png, &region_map_pos);
 		}
-		else if (state == SDL_BUTTON(SDL_BUTTON_MIDDLE))
+		else if (state == SDL_BUTTON(SDL_BUTTON_MIDDLE) && options.fastport)
 		{
 			size_t i;
 			int xpos, ypos;

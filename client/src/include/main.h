@@ -195,6 +195,7 @@ typedef struct _options
 	int reload_gfx_user;
 	int disable_updates;
 	int disable_rm_cache;
+	int fastport;
 }_options;
 
 extern struct _options options;

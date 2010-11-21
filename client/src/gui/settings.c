@@ -129,6 +129,7 @@ _option opt[] =
 	{"Use Update Rect:", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
 	{"Reload user's graphics", "If on, always try to reload faces from user's graphics (gfx_user)\ndirectory, even if they have been reloaded previously.\nThis is especially useful when creating new images and testing out how\nthey look in the game.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.reload_gfx_user, VAL_BOOL},
 	{"Disable region map cache:", "Disables the region maps cache.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_rm_cache, VAL_BOOL},
+	{"Enable quickport:", "Enables using middle-click on the region map for instant teleportation.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fastport, VAL_BOOL},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	{0, "", "", 0, 0, 0, 0, 0, 0, 0},
