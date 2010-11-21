@@ -124,10 +124,9 @@ void draw_info(const char *str, int flags)
 	/* Have the entries gone over maximum allowed lines? */
 	if (textwin->entries && textwin->num_entries >= (size_t) options.chat_max_lines)
 	{
-		char *cp = strchr(textwin->entries, '\n');
+		char *cp;
 
-		/* Found the first newline. */
-		if (cp)
+		while (textwin->num_entries >= (size_t) options.chat_max_lines && (cp = strchr(textwin->entries, '\n')))
 		{
 			size_t pos = cp - textwin->entries + 1;
 			char *buf = malloc(pos + 1);
