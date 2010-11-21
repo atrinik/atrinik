@@ -676,9 +676,13 @@ void region_map_show()
 	{
 		SDL_Rect marker;
 		region_map_struct *map;
+		SDL_Surface *img;
 
 		/* Create the surface from downloaded data. */
-		region_map_png = region_map_png_orig = IMG_Load_RW(SDL_RWFromMem(data_png->memory, data_png->size), 1);
+		img = IMG_Load_RW(SDL_RWFromMem(data_png->memory, data_png->size), 1);
+		region_map_png = region_map_png_orig = SDL_DisplayFormat(img);
+		SDL_FreeSurface(img);
+
 		map = rm_def_get_map(current_map);
 
 		/* Valid map? */
