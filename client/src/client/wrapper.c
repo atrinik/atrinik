@@ -274,7 +274,6 @@ static int mkdir_recurse(const char *path)
 		{
 			if (mkdir(copy, 0755) == -1)
 			{
-				free(p);
 				free(copy);
 				return -1;
 			}
@@ -287,7 +286,6 @@ static int mkdir_recurse(const char *path)
 	}
 	while (p);
 
-	free(p);
 	free(copy);
 
 	return 0;
