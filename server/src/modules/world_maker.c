@@ -136,7 +136,7 @@ static void wm_images_init()
 			g /= total;
 			b /= total;
 			wm_face_colors[i][0] = gdImageColorResolve(im2, r, g, b);
-			wm_face_colors[i][1] = gdImageColorResolve(im2, r + 10, g + 10, b + 10);
+			wm_face_colors[i][1] = gdImageColorResolve(im2, MIN(r + 10, 255), MIN(g + 10, 255), MIN(b + 10, 255));
 			wm_face_colors[i][2] = r;
 			wm_face_colors[i][3] = g;
 			wm_face_colors[i][4] = b;
