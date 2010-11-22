@@ -1316,7 +1316,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 /**
  * Helper function for Atrinik_Object_FindObject() to recursively
  * check inventories. */
-static object *object_find_object(object *tmp, int mode, shstr *archname, shstr *name, shstr *title, int type)
+static object *object_find_object(object *tmp, int mode, shstr *archname, shstr *name, shstr *title, int type, PyObject *list)
 {
 	object *tmp2;
 
@@ -1324,14 +1324,21 @@ static object *object_find_object(object *tmp, int mode, shstr *archname, shstr 
 	{
 		if ((!archname || tmp->arch->name == archname) && (!name || tmp->name == name) && (!title || tmp->title == title) && (type == -1 || tmp->type == type))
 		{
-			return tmp;
+			if (list)
+			{
+				PyList_Append(list, wrap_object(tmp));
+			}
+			else
+			{
+				return tmp;
+			}
 		}
 
 		if (tmp->inv && (mode == INVENTORY_ALL || (mode == INVENTORY_CONTAINERS && tmp->type == CONTAINER)))
 		{
-			tmp2 = object_find_object(tmp->inv, mode, archname, name, title, type);
+			tmp2 = object_find_object(tmp->inv, mode, archname, name, title, type, list);
 
-			if (tmp2)
+			if (tmp2 && !list)
 			{
 				return tmp2;
 			}
@@ -1345,24 +1352,27 @@ static object *object_find_object(object *tmp, int mode, shstr *archname, shstr 
 /** @endcond */
 
 /**
- * <h1>object.FindObject(int [mode = INVENTORY_ONLY], string [archname = None], string [name = None], string [title = None], int [type = -1])</h1>
+ * <h1>object.FindObject(int [mode = INVENTORY_ONLY], string [archname = None], string [name = None], string [title = None], int [type = -1], bool [multiple = False])</h1>
  * Looks for a certain object in object's inventory.
  * @param mode How to search the inventory. One of @ref INVENTORY_xxx.
  * @param archname Arch name of the object to search for. If None, can be any.
  * @param name Name of the object. If None, can be any.
  * @param title Title of the object. If None, can be any.
  * @param type Type of the object. If -1, can be any.
+ * @param multiple If True, the return value will be a list of all
+ * matching objects, instead of just the first one found.
  * @throws ValueError if there were no conditions to search for.
  * @return The object we wanted if found, None otherwise. */
 static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"mode", "archname", "name", "title", "type", NULL};
+	static char *kwlist[] = {"mode", "archname", "name", "title", "type", "multiple", NULL};
 	uint8 mode = INVENTORY_ONLY;
-	int type = -1;
+	int type = -1, multiple = 0;
 	shstr *archname = NULL, *name = NULL, *title = NULL;
 	object *match;
+	PyObject *list = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|Bzzzi", kwlist, &mode, &archname, &name, &title, &type))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|Bzzzii", kwlist, &mode, &archname, &name, &title, &type, &multiple))
 	{
 		return NULL;
 	}
@@ -1373,6 +1383,11 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
 	{
 		PyErr_SetString(PyExc_ValueError, "object.FindObject(): No conditions to search for given.");
 		return NULL;
+	}
+
+	if (multiple)
+	{
+		list = PyList_New(0);
 	}
 
 	/* Try to find the strings we got from Python in the shared strings
@@ -1411,7 +1426,12 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
 		}
 	}
 
-	match = object_find_object(obj->obj->inv, mode, archname, name, title, type);
+	match = object_find_object(obj->obj->inv, mode, archname, name, title, type, list);
+
+	if (multiple)
+	{
+		return list;
+	}
 
 	if (match)
 	{
