@@ -97,6 +97,86 @@ class BaseTemple:
 
 		return self._activator.GetGod() == self.enemy_name
 
+## Grunhilde.
+class TempleGrunhilde(BaseTemple):
+	name = "Grunhilde"
+	desc = "I am a servant of the Valkyrie Queen and the Goddess of Victory, Grunhilde.\nIf you would like to join our Temple and fight for our cause, please touch the altar and Grunhilde will smile upon you."
+
+## Dalosha.
+class TempleDalosha(BaseTemple):
+	name = "Dalosha"
+	desc = "I am a servant of the first Queen of the Drow and Spider Goddess, Dalosha.\nIf you would like to join our Temple, please touch the altar and Dalosha will smile upon you."
+	enemy_name = "Tylowyn"
+	enemy_desc = "The high elves and their oppressive queen!  Do not be swayed by her traps, she started the war with her attempt to enforce proper elven conduct in war.  Tylowyn was too cowardly and weak to realize that it was our destiny to rule the world, so now she and her elves shall also perish!"
+
+## Drolaxi.
+class TempleDrolaxi(BaseTemple):
+	name = "Drolaxi"
+	desc = "I am a servant of Queen of the Chaotic Seas and the Goddess of Water, Drolaxi.\nIf you would like to join our Temple, please touch the altar and Drolaxi will smile upon you."
+	enemy_name = "Shaligar"
+	enemy_desc = "Flames and terror does he seek to spread.  Do not be deceived, although the flame be kin to the Lady, he is complerely mad.  Avoid the scorching flames or they will consume you.  We shall rule the world and all shall be seas!"
+
+## Grumthar.
+class TempleGrumthar(BaseTemple):
+	name = "Grumthar"
+	desc = "I am a servant of the First Dwarven Lord and the God of Smithery, Grumthar.\nIf you would like to join our Temple, please touch the altar and Grumthar will smile upon you."
+	enemy_name = "Jotarl"
+	enemy_desc = "Do not be speaking of that Giant tyrant amongst us.  Him and his giants have long sought to crush the little folk.  He has those goblin vermin under his wing also."
+
+## Jotarl.
+class TempleJotarl(BaseTemple):
+	name = "Jotarl"
+	desc = "I am a servant of the Titan King and the God of the Giants, Jotarl.\nIf you would like to join our Temple, please touch the altar and Jotarl will smile upon you."
+	enemy_name = "Grumthar"
+	enemy_desc = "Puny dwarves do not scare Jotarl with their technology and mithril weapons, we shall rule the caves!  The Dwarves shall fall and we shall claim their gold for ourselves."
+
+## Moroch.
+class TempleMoroch(BaseTemple):
+	name = "Moroch"
+	desc = "I am a servant of the Lord of the Grave and King of Undeath, Moroch.\nIf you would like to join our Temple, please touch the altar and Moroch will smile upon you."
+	enemy_name = "Terria"
+	enemy_desc = "Do you honestly believe the lies of those naturists?  The powers of undeath will rule the universe and the servants of Nature will fail.  The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."
+
+## Rashindel.
+class TempleRashindel(BaseTemple):
+	name = "Rashindel"
+	desc = "I am a servant of the Demonic King and the Overlord of Hell, Rashindel.\nIf you would like to join our Circle, please touch the altar and Rashindel will smile upon you."
+	enemy_name = "Tabernacle"
+	enemy_desc = "Accursed fool, do not mention that name in our presence!  In the days before this world, the Tyrant sought to oppress us with the his oppressive ideals of truth and justice.  After our master freed us from the simpleton lots who follow him, he was bound into the darkness which is now our glorious kingdom."
+
+## Rogroth.
+class TempleRogroth(BaseTemple):
+	name = "Rogroth"
+	desc = "I am a servant of the King of the Stormy Skies and the God of Lightning, Rogroth.\nIf you would like to join our Temple, please touch the altar and Rogroth will smile upon you."
+
+## TempleShaligar.
+class TempleShaligar(BaseTemple):
+	name = "Shaligar"
+	desc = "I am a servant of King of the Lava and the God of Flame, Shaligar.\nIf you would like to join our Temple, please touch the altar and Shaligar will smile upon you."
+	enemy_name = "Drolaxi"
+	enemy_desc = "Ah, the weak and cowardly sister of the Flame Lord.  One day, she shall no longer be able to keep our flames from consuming all things and our flames shall make all subjects to our will."
+
+## Tabernacle.
+class TempleTabernacle(BaseTemple):
+	name = "Tabernacle"
+	desc = "I am a servant of the God of Light and King of the Angels, Tabernacle.\nIf you would like to join our Church, please touch the altar and Tabernacle will smile upon you."
+	enemy_name = "Rashindel"
+	enemy_desc = "Caution child, for you speak of the Fallen One.  In the days before the worlds were created by our Lord Tabernacle, the archangel Rashindel stood at his right hand.  In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Tabernacle.  The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
+
+## Terria.
+class TempleTerria(BaseTemple):
+	name = "Terria"
+	desc = "I am a servant of Mother Earth and the Goddess of Life, Terria.\nIf you would like to join our Temple, please touch the altar and Terria will smile upon you."
+	enemy_name = "Moroch"
+	enemy_desc = "Speak not of the Dark Lord here!  The King of Death with his awful necromantic minions that rise from the sleep of death are not to be trifled with, for they are dangerous.  Our Lady has long sought to remove the plague of death from the lands after that foul Lich ascended."
+
+## Tylowyn.
+class TempleTylowyn(BaseTemple):
+	name = "Tylowyn"
+	desc = "I am a servant of the first Queen of Elven Kind and Elven Goddess of Luck, Tylowyn.\nIf you would like to join our Temple, please touch the altar and Tylowyn will smile upon you."
+	enemy_name = "Dalosha"
+	enemy_desc = "That rebellious heretic!  In the days of the First Elven Kings, the first daughter of our gracious Tylowyn sought to overthrow the Elven Kingdoms with her lies and treachery.  After she was routed from the Elven lands, she took her band of rebel dark elves and hid in the caves, but unfortunately managed to survive there.  Avoid those drow if you know what is best for you."
+
 ## Handle generic temple dialog.
 ## @param temple One of the TempleXxx classes.
 ## @param me Event owner.
