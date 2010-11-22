@@ -1721,6 +1721,8 @@ enum apply_flag
  * The quest is not handled by the server quest module; instead, it
  * is handled specially by scripts. */
 #define QUEST_TYPE_SPECIAL 3
+/** Multi-part quest. */
+#define QUEST_TYPE_MULTI 4
 /*@}*/
 
 /**

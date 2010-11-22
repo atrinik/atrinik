@@ -1835,11 +1835,46 @@ void QuestListCmd(char *data, int len, player *pl)
 		stringbuffer_append_printf(sb, "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
 		}
 
-		switch (tmp->sub_type)
+		if (tmp->sub_type == QUEST_TYPE_MULTI)
 		{
-			case QUEST_TYPE_KILL:
-				stringbuffer_append_printf(sb, "Status: %d/%d\n", MIN(tmp->last_sp, tmp->last_grace), tmp->last_grace);
-				break;
+			object *tmp2, *last;
+
+			/* Find the last entry. */
+			for (last = tmp->inv; last && last->below; last = last->below)
+			{
+			}
+
+			/* Show the quest parts. */
+			for (tmp2 = last; tmp2; tmp2 = tmp2->above)
+			{
+				if (tmp2->msg)
+				{
+					stringbuffer_append_printf(sb, "\n- %s", tmp2->msg);
+
+					if (tmp2->magic == QUEST_STATUS_COMPLETED)
+					{
+						stringbuffer_append_string(sb, " [done]");
+					}
+				}
+
+				switch (tmp2->sub_type)
+				{
+					case QUEST_TYPE_KILL:
+						stringbuffer_append_printf(sb, "\n<x=10>Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
+						break;
+				}
+			}
+
+			stringbuffer_append_string(sb, "\n");
+		}
+		else
+		{
+			switch (tmp->sub_type)
+			{
+				case QUEST_TYPE_KILL:
+					stringbuffer_append_printf(sb, "Status: %d/%d\n", MIN(tmp->last_sp, tmp->last_grace), tmp->last_grace);
+					break;
+			}
 		}
 	}
 

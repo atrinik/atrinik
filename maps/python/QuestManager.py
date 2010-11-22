@@ -4,8 +4,23 @@
 
 from Atrinik import *
 
-## The Quest Manager class.
-class QuestManager:
+## Create a new quest container object.
+## @param where Where to insert the object.
+## @param q_type Type of the quest.
+## @param name Name of the quest.
+## @param msg Description of the quest.
+## @param num Number of objects/monsters to collect/kill.
+def _create_quest_object(where, q_type, name, msg = None, num = 0):
+	obj = where.CreateObject("quest_container")
+	obj.magic = 0
+	obj.name = name
+	obj.sub_type = q_type
+	obj.msg = msg
+	obj.last_grace = num
+	return obj
+
+## Base quest manager class, from which the actual quest managers inherit.
+class QuestManagerBase:
 	## The quest object inside player's quest container.
 	quest_object = None
 	## Information about the quest.
@@ -21,67 +36,9 @@ class QuestManager:
 		self.quest = quest
 		self.activator = activator
 
-	## Start a quest, calling the relevant function in Atrinik Python
-	## plugin, and setting any initial values for different quest types.
-	def start(self, sound = "learnspell.ogg"):
-		self.quest_object = self.activator.StartQuest(self.quest["quest_name"])
-		self.quest_object.sub_type = self.quest["type"]
-
-		if "message" in self.quest:
-			self.quest_object.msg = self.quest["message"]
-
-		# For the kill type quest, set the last_grace field to the value
-		# of monsters we have to kill.
-		if self.quest["type"] == QUEST_TYPE_KILL:
-			self.quest_object.last_grace = self.quest["kills"]
-
-		if sound:
-			self.activator.Sound(sound)
-
 	## Check if the quest has been started.
 	def started(self):
 		return self.quest_object != None
-
-	## Check if the quest has been finished by checking the relevant
-	## values for different quest types.
-	def finished(self):
-		if not self.started():
-			return 0
-
-		# For the kill type quest check if we have killed enough
-		# monsters.
-		if self.quest["type"] == QUEST_TYPE_KILL:
-			if self.quest_object.last_sp >= self.quest_object.last_grace:
-				return 1
-		# For the kill item quest type check for the quest item.
-		elif self.quest["type"] == QUEST_TYPE_KILL_ITEM:
-			quest_item = self.activator.FindObject(1, self.quest["arch_name"], self.quest["item_name"])
-
-			if quest_item and quest_item.f_quest_item:
-				return 1
-
-		return 0
-
-	## Complete a quest.
-	def complete(self, sound = "learnspell.ogg"):
-		self.quest_object.magic = QUEST_STATUS_COMPLETED
-
-		if sound:
-			self.activator.Sound(sound)
-
-		# Do anything extra for the kill item quest type.
-		if self.quest["type"] == QUEST_TYPE_KILL_ITEM:
-			# Find the quest item that is being looked for.
-			quest_item = self.activator.FindObject(1, self.quest["arch_name"], self.quest["item_name"])
-
-			# If we're keeping the item, we will want to adjust some
-			# flags.
-			if "quest_item_keep" in self.quest and self.quest["quest_item_keep"]:
-				quest_item.f_quest_item = False
-				quest_item.f_startequip = False
-			# Otherwise remove it.
-			else:
-				quest_item.Remove()
 
 	## Check if a quest has been completed before.
 	def completed(self):
@@ -95,10 +52,210 @@ class QuestManager:
 
 		return 0
 
+	## Check if (part of a) quest has been finished.
+	## @param obj Quest container object.
+	## @param quest Information about the quest.
+	def _finished(self, obj, quest):
+		# For the kill type quest check if we have killed enough
+		# monsters.
+		if quest["type"] == QUEST_TYPE_KILL:
+			if obj.last_sp >= obj.last_grace:
+				return True
+		# For the kill item quest type check for the quest item.
+		elif quest["type"] == QUEST_TYPE_KILL_ITEM:
+			# Just one item, easy.
+			if not obj.last_grace:
+				quest_item = self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"])
+
+				if quest_item and quest_item.f_quest_item:
+					return True
+			# Got to count the objects otherwise.
+			else:
+				num = 0
+
+				# Find all matching objects, and count them.
+				for obj in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
+					if obj.f_quest_item:
+						num += max(1, obj.nrof)
+
+				# Have we found enough yet?
+				if num >= obj.last_grace:
+					return True
+
+		return False
+
+	## Complete a quest object.
+	## @param obj The quest object.
+	## @param quest Information about the quest.
+	def _complete(self, obj, quest):
+		# Special handling for kill item quests.
+		if quest["type"] == QUEST_TYPE_KILL_ITEM:
+			# Are we going to keep the quest item(s)?
+			keep = "quest_item_keep" in self.quest and self.quest["quest_item_keep"]
+
+			# Find all matching objects.
+			for obj in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
+				if obj.f_quest_item:
+					# Keeping the quest item(s), so adjust some flags.
+					if keep:
+						obj.f_quest_item = False
+						obj.f_startequip = False
+					else:
+						obj.Remove()
+
+## The Quest Manager class.
+class QuestManager(QuestManagerBase):
+	## Start a quest.
+	## @param sound If not None, will play this sound effect.
+	def start(self, sound = "learnspell.ogg"):
+		self.quest_object = _create_quest_object(self.activator.Controller().quest_container, self.quest["type"], self.quest["quest_name"], "message" in self.quest and self.quest["message"] or None, self.quest["type"] == QUEST_TYPE_KILL and self.quest["kills"] or 0)
+
+		if sound:
+			self.activator.Sound(sound)
+
+	## Check if the quest has been finished.
+	## @return True if the quest has been finished, False otherwise.
+	def finished(self):
+		if not self.started():
+			return False
+
+		return self._finished(self.quest_object, self.quest)
+
+	## Complete a quest.
+	## @param sound If not None, will play this sound effect.
+	def complete(self, sound = "learnspell.ogg"):
+		# Mark the quest as completed.
+		self.quest_object.magic = QUEST_STATUS_COMPLETED
+
+		if sound:
+			self.activator.Sound(sound)
+
+		# Do special handling for different quest types.
+		self._complete(self.quest_object, self.quest)
+
 	## Get number of monsters the player needs to kill to complete the
 	## quest.
+	## @return Number of monsters needed to kill, -1 if the quest does not
+	## require killing monsters.
 	def num_to_kill(self):
 		if not self.quest_object or self.quest["type"] != QUEST_TYPE_KILL:
 			return -1
 
 		return self.quest_object.last_grace - self.quest_object.last_sp
+
+## More complex quest manager interface, which allows multi-part quests.
+class QuestManagerMulti(QuestManagerBase):
+	## Internal function to start part of a quest.
+	## @param part Information about this quest part.
+	## @param num ID of the part.
+	def _start_part(self, part, num):
+		_create_quest_object(self.quest_object, part["type"], "part " + str(num), "message" in part and part["message"] or None, "num" in part and part["num"] or 0)
+
+	## Start (part of) the quest.
+	## @param part If None, will start all parts of the quest, otherwise
+	## only the specified part ID.
+	## @warning No checking whether part was already started or not is
+	## performed.
+	def start(self, part = None, sound = "learnspell.ogg"):
+		# Create the quest object holding the parts.
+		if not self.quest_object:
+			self.quest_object = _create_quest_object(self.activator.Controller().quest_container, QUEST_TYPE_MULTI, self.quest["quest_name"], "message" in self.quest and self.quest["message"] or None)
+
+		# Start specified part?
+		if part:
+			self._start_part(self.quest["parts"][part - 1], part)
+		# Start all parts.
+		else:
+			num = 1
+
+			for part in self.quest["parts"]:
+				self._start_part(part, num)
+				num += 1
+
+		if sound:
+			self.activator.Sound(sound)
+
+	## Check if the specified quest part has already been started.
+	## @param part ID of the part to check.
+	## @return True if the quest part has been started, False otherwise.
+	def started_part(self, part):
+		if not self.quest_object.FindObject(name = "part " + str(part)):
+			return False
+
+		return True
+
+	## Check if the specified (part of) quest has been finished.
+	## @param part If None, will check all parts, otherwise only the
+	## specified part ID.
+	## @return True if (part of) the quest has been finished, False
+	## otherwise.
+	def finished(self, part = None):
+		if not self.started():
+			return False
+
+		# Check part of the quest.
+		if part:
+			obj = self.quest_object.FindObject(name = "part " + str(part))
+
+			if not obj:
+				return False
+
+			return self._finished(obj, self.quest["parts"][part - 1])
+		# Otherwise all.
+		else:
+			for i in xrange(len(self.quest["parts"])):
+				obj = self.quest_object.FindObject(name = "part " + str(i + 1))
+
+				if not obj or not self._finished(obj, self.quest["parts"][i]):
+					return False
+
+			return True
+
+		return False
+
+	## Complete (part of) the quest.
+	## @param part If None, complete all parts of the quest, otherwise
+	## only the specified part.
+	def complete(self, part = None, sound = "learnspell.ogg"):
+		if sound:
+			self.activator.Sound(sound)
+
+		# Complete specified part of the quest.
+		if part:
+			# Find the quest part object.
+			obj = self.quest_object.FindObject(name = "part " + str(part))
+
+			# Mark the quest part as completed.
+			if obj:
+				obj.magic = QUEST_STATUS_COMPLETED
+				self._complete(obj, self.quest["parts"][part - 1])
+
+			# Check all quest parts. If all are completed, complete the
+			# entire quest.
+			for obj in self.quest_object.FindObject(archname = "quest_container", multiple = True):
+				if obj.magic != QUEST_STATUS_COMPLETED:
+					return
+		# Complete all parts of the quest.
+		else:
+			i = 0
+
+			for obj in self.quest_object.FindObject(archname = "quest_container", multiple = True):
+				obj.magic = QUEST_STATUS_COMPLETED
+				self._complete(obj, self.quest["parts"][i])
+				i += 1
+
+		# Complete the quest itself now.
+		self.quest_object.magic = QUEST_STATUS_COMPLETED
+
+	## Check if part of the quest has been completed.
+	## @param part ID of the part to check.
+	def completed_part(self, part):
+		obj = self.quest_object.FindObject(name = "part " + str(part))
+
+		if not obj:
+			return False
+
+		if obj.magic != QUEST_STATUS_COMPLETED:
+			return False
+
+		return True

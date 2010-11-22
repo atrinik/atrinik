@@ -264,6 +264,7 @@
 	<listentry value="0" name="One drop quest" />
 	<listentry value="1" name="Kill quest" />
 	<listentry value="2" name="Kill item quest" />
+	<listentry value="4" name="Multi-part quest" />
 </list>
 
 <list name="relative_level">

@@ -52,12 +52,12 @@ static void add_one_drop_quest_item(object *op, const char *quest_name)
  * @param quest_name Name of the quest.
  * @return The object that is used to represent the quest in the quest
  * container, NULL if no matching quest found. */
-static object *find_quest(object *op, const char *quest_name)
+static object *find_quest(object *where, const char *quest_name)
 {
 	object *tmp;
 
 	/* Go through the objects in the quest container */
-	for (tmp = CONTR(op)->quest_container->inv; tmp; tmp = tmp->below)
+	for (tmp = where->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->name == quest_name)
 		{
@@ -76,8 +76,10 @@ static object *find_quest(object *op, const char *quest_name)
  * @param op The player object.
  * @param quest_item The quest item we'll be comparing values from.
  * @param flag Flag to compare the quest item against, 0 for no flag comparison.
+ * @param[out] num If not NULL, will contain number of matching objects
+ * found and the return value will always be 0.
  * @return 1 if the player has the quest item, 0 otherwise. */
-static int has_quest_item(object *op, object *quest_item, sint32 flag)
+static int has_quest_item(object *op, object *quest_item, sint32 flag, sint64 *num)
 {
 	object *tmp;
 
@@ -87,15 +89,22 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag)
 		/* Compare the values. */
 		if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag)))
 		{
-			return 1;
+			if (num)
+			{
+				*num += MAX(1, tmp->nrof);
+			}
+			else
+			{
+				return 1;
+			}
 		}
 
 		/* If it has inventory and is not a system object, go on recursively. */
 		if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 		{
-			int ret = has_quest_item(tmp, quest_item, flag);
+			int ret = has_quest_item(tmp, quest_item, flag, num);
 
-			if (ret)
+			if (ret && !num)
 			{
 				return 1;
 			}
@@ -106,17 +115,14 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag)
 }
 
 /**
- * When a monster drops inventory and there is quest container object in
- * it, this function is called to parse the quest container and its
- * contents for any possible quests player may be running.
- * @warning <b>ONLY</b> call on player objects.
- * @todo Add support for multiple objects in quest_container's inventory?
- * @param op The player object.
- * @param quest_container The quest container. */
-void check_quest(object *op, object *quest_container)
+ * Check quest trigger in a single quest container.
+ * @param op Player.
+ * @param quest_container Quest container (inside monster/chest/etc).
+ * @param quest_object Quest container (inside player), can be NULL. */
+static void check_quest_container(object *op, object *quest_container, object *quest_object)
 {
 	char buf[HUGE_BUF];
-	object *quest_object = find_quest(op, quest_container->name), *tmp;
+	object *tmp;
 
 	/* If this is not a one-drop item quest, it must first be accepted. */
 	if (quest_container->sub_type != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED))
@@ -158,7 +164,7 @@ void check_quest(object *op, object *quest_container)
 
 			/* Not one-drop, but we already have the quest object (keys,
 			 * for example). */
-			if (!one_drop && has_quest_item(op, tmp, 0))
+			if (!one_drop && has_quest_item(op, tmp, 0, NULL))
 			{
 				return;
 			}
@@ -205,12 +211,27 @@ void check_quest(object *op, object *quest_container)
 			{
 				if (quest_object->last_sp == quest_object->last_grace)
 				{
-					snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
+					if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
+					{
+						snprintf(buf, sizeof(buf), "Quest '%s: %s' completed!\n", quest_object->env->name, quest_container->name);
+					}
+					else
+					{
+						snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
+					}
+
 					play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 				}
 				else
 				{
-					snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", quest_container->name, quest_object->last_sp, quest_object->last_grace);
+					if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
+					{
+						snprintf(buf, sizeof(buf), "Quest %s (%s): %d/%d.\n", quest_object->env->name, quest_container->name, quest_object->last_sp, quest_object->last_grace);
+					}
+					else
+					{
+						snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", quest_container->name, quest_object->last_sp, quest_object->last_grace);
+					}
 				}
 
 				new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
@@ -223,9 +244,21 @@ void check_quest(object *op, object *quest_container)
 			object *clone;
 
 			/* Have we found this item already? */
-			if (!tmp || has_quest_item(op, tmp, FLAG_QUEST_ITEM))
+			if (!tmp || (!quest_object->last_grace && has_quest_item(op, tmp, FLAG_QUEST_ITEM, NULL)))
 			{
 				return;
+			}
+
+			if (quest_object->last_grace)
+			{
+				sint64 num = 0;
+
+				has_quest_item(op, tmp, FLAG_QUEST_ITEM, &num);
+
+				if (num >= quest_object->last_grace)
+				{
+					return;
+				}
 			}
 
 			clone = get_object();
@@ -234,15 +267,57 @@ void check_quest(object *op, object *quest_container)
 			SET_FLAG(clone, FLAG_STARTEQUIP);
 			CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
 			/* Insert the quest item inside the player. */
-			insert_ob_in_ob(clone, op);
+			clone = insert_ob_in_ob(clone, op);
 			esrv_send_item(op, clone);
 
-			new_draw_info_format(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone, NULL));
+			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
+			{
+				new_draw_info_format(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, "Quest %s (%s): You found the quest item %s!\n", quest_object->env->name, quest_container->name, query_base_name(clone, NULL));
+			}
+			else
+			{
+				new_draw_info_format(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone, NULL));
+			}
+
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 			break;
 		}
 
 		default:
 			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type);
+	}
+}
+
+/**
+ * When a monster drops inventory and there is quest container object in
+ * it, this function is called to parse the quest container and its
+ * contents for any possible quests player may be running.
+ * @warning <b>ONLY</b> call on player objects.
+ * @todo Add support for multiple objects in quest_container's inventory?
+ * @param op The player object.
+ * @param quest_container The quest container. */
+void check_quest(object *op, object *quest_container)
+{
+	object *quest_object = find_quest(CONTR(op)->quest_container, quest_container->name);
+
+	/* Handle multi-part quests. */
+	if (quest_container->sub_type == QUEST_TYPE_MULTI)
+	{
+		object *tmp;
+
+		/* No quest object, can't go on. */
+		if (!quest_object)
+		{
+			return;
+		}
+
+		for (tmp = quest_container->inv; tmp; tmp = tmp->below)
+		{
+			check_quest_container(op, tmp, find_quest(quest_object, tmp->name));
+		}
+	}
+	else
+	{
+		check_quest_container(op, quest_container, quest_object);
 	}
 }
