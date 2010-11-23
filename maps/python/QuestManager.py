@@ -74,9 +74,9 @@ class QuestManagerBase:
 				num = 0
 
 				# Find all matching objects, and count them.
-				for obj in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
-					if obj.f_quest_item:
-						num += max(1, obj.nrof)
+				for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
+					if tmp.f_quest_item:
+						num += max(1, tmp.nrof)
 
 				# Have we found enough yet?
 				if num >= obj.last_grace:
@@ -94,14 +94,14 @@ class QuestManagerBase:
 			keep = "quest_item_keep" in self.quest and self.quest["quest_item_keep"]
 
 			# Find all matching objects.
-			for obj in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
-				if obj.f_quest_item:
+			for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
+				if tmp.f_quest_item:
 					# Keeping the quest item(s), so adjust some flags.
 					if keep:
-						obj.f_quest_item = False
-						obj.f_startequip = False
+						tmp.f_quest_item = False
+						tmp.f_startequip = False
 					else:
-						obj.Remove()
+						tmp.Remove()
 
 ## The Quest Manager class.
 class QuestManager(QuestManagerBase):
@@ -235,8 +235,8 @@ class QuestManagerMulti(QuestManagerBase):
 
 			# Check all quest parts. If all are completed, complete the
 			# entire quest.
-			for obj in self.quest_object.FindObject(archname = "quest_container", multiple = True):
-				if obj.magic != QUEST_STATUS_COMPLETED:
+			for tmp in self.quest_object.FindObject(archname = "quest_container", multiple = True):
+				if tmp.magic != QUEST_STATUS_COMPLETED:
 					return
 		# Complete all parts of the quest.
 		else:
