@@ -456,7 +456,7 @@ end
 
 material_real 321
 name animal
-quality 80
+quality 100
 type 32
 end
 
