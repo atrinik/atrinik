@@ -179,6 +179,9 @@ class QuestManagerMulti(QuestManagerBase):
 	## @param part ID of the part to check.
 	## @return True if the quest part has been started, False otherwise.
 	def started_part(self, part):
+		if not self.quest_object:
+			return False
+
 		if not self.quest_object.FindObject(name = "part " + str(part)):
 			return False
 
@@ -250,6 +253,9 @@ class QuestManagerMulti(QuestManagerBase):
 	## Check if part of the quest has been completed.
 	## @param part ID of the part to check.
 	def completed_part(self, part):
+		if not self.quest_object:
+			return False
+
 		obj = self.quest_object.FindObject(name = "part " + str(part))
 
 		if not obj:
