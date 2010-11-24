@@ -200,7 +200,7 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box)
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust)
 {
 	int width, minx, ret = 1;
 	char c = *cp;
@@ -736,6 +736,32 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return strchr(cp + 4, '"') - cp + 1;
 		}
+		else if (!strncmp(cp, "<padding=", 9))
+		{
+			int val;
+
+			if (x_adjust && sscanf(cp + 9, "%d>", &val) == 1)
+			{
+				if (surface)
+				{
+					dest->x += val;
+				}
+
+				dest->w += val;
+				*x_adjust = val;
+			}
+
+			return strchr(cp + 3, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</padding>", 10))
+		{
+			if (x_adjust)
+			{
+				*x_adjust = 0;
+			}
+
+			return 10;
+		}
 	}
 
 	if (in_book_title && !strncmp(cp, "\">", 2))
@@ -960,6 +986,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	int orig_font = font, lines = 1, width = 0;
 	uint16 *heights = NULL;
 	size_t num_heights = 0;
+	int x_adjust = 0;
 
 	if (text_debug && box && surface)
 	{
@@ -1026,7 +1053,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
-				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box);
+				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust);
 				cp += ret;
 				last_space -= ret;
 
@@ -1070,8 +1097,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Update the coordinates. */
 			last_space = pos = 0;
-			dest.w = 0;
-			dest.x = x;
+			dest.w = x_adjust;
+			dest.x = x + x_adjust;
 			max_height = 0;
 		}
 		else
@@ -1084,7 +1111,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box);
+			pos += blt_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box, &x_adjust);
 		}
 	}
 
@@ -1105,7 +1132,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			width += w;
 		}
 
-		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box);
+		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust);
 
 		/* If we changed font, there might be a larger one... */
 		if (font != orig_font && FONT_HEIGHT(font) > max_height)
@@ -1220,7 +1247,7 @@ int string_get_width(int font, const char *text, uint64 flags)
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL);
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL);
 	}
 
 	return dest.w;
