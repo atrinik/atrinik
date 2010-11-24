@@ -1035,15 +1035,16 @@ void fix_player(object *op)
 			}
 		}
 
-		/* All skills, not only the applied ones */
-		if (tmp->type == SKILL)
+		if (tmp->type == EXPERIENCE)
 		{
-			/* Get highest single skill - that's our "main" skill */
-			if (tmp->level > skill_level_max)
+			if (tmp->level > skill_level_max && !QUERY_FLAG(tmp, FLAG_STAND_STILL))
 			{
 				skill_level_max = tmp->level;
 			}
-
+		}
+		/* All skills, not only the applied ones */
+		else if (tmp->type == SKILL)
+		{
 			/* Let's remember the best bare hand skill */
 			if (tmp->stats.dam > 0)
 			{

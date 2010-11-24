@@ -800,7 +800,7 @@ int init_player_exp(object *pl)
 			SET_FLAG(exp_ob[i], FLAG_APPLIED);
 		}
 
-		if (pl->stats.exp < exp_ob[i]->stats.exp)
+		if (pl->stats.exp < exp_ob[i]->stats.exp && !QUERY_FLAG(exp_ob[i], FLAG_STAND_STILL))
 		{
 			pl->stats.exp = exp_ob[i]->stats.exp;
 			pl->level = exp_ob[i]->level;
