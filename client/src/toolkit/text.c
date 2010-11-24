@@ -1059,11 +1059,13 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			{
 				cp++;
 			}
-
-			/* Strip leading spaces. */
-			while (*cp != '\0' && *cp == ' ')
+			else
 			{
-				cp++;
+				/* Strip leading spaces. */
+				while (*cp != '\0' && *cp == ' ')
+				{
+					cp++;
+				}
 			}
 
 			/* Update the coordinates. */
