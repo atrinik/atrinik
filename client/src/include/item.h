@@ -44,6 +44,9 @@ typedef struct obj
 	/** Next item in inventory. */
 	struct obj *next;
 
+	/* Everything below will be cleared by memset() in
+	 * object_remove(). */
+
 	/** Previous item in inventory. */
 	struct obj *prev;
 
