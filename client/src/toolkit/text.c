@@ -206,7 +206,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[HUGE_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
-	static uint8 outline_show = 0, in_book_title = 0;
+	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255;
 
 	if (c == '\r')
 	{
@@ -622,6 +622,25 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return 4;
 		}
+		else if (!strncmp(cp, "<alpha=", 7))
+		{
+			if (surface)
+			{
+				int alpha;
+
+				if (sscanf(cp + 7, "%d>", &alpha) == 1)
+				{
+					used_alpha = alpha;
+				}
+			}
+
+			return strchr(cp + 3, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</alpha>", 8))
+		{
+			used_alpha = 255;
+			return 8;
+		}
 		else if (!strncmp(cp, "<book=", 6))
 		{
 			char *pos = strchr(cp + 6, '>');
@@ -916,9 +935,25 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 
 		/* Render the character. */
-		if (flags & TEXT_SOLID)
+		if (flags & TEXT_SOLID || used_alpha != 255)
 		{
 			ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *color);
+
+			/* Opacity. */
+			if (used_alpha != 255)
+			{
+				SDL_Surface *new_ttf_surface;
+
+				/* Remove black border. */
+				SDL_SetColorKey(ttf_surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+				/* Set the opacity. */
+				SDL_SetAlpha(ttf_surface, SDL_SRCALPHA | SDL_RLEACCEL, used_alpha);
+				/* Create new surface to blit. */
+				new_ttf_surface = SDL_DisplayFormatAlpha(ttf_surface);
+				/* Free the old one. */
+				SDL_FreeSurface(ttf_surface);
+				ttf_surface = new_ttf_surface;
+			}
 		}
 		else
 		{
