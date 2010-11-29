@@ -242,6 +242,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 		case QUEST_TYPE_KILL_ITEM:
 		{
 			object *clone;
+			sint64 num = 0;
 
 			/* Have we found this item already? */
 			if (!tmp || (!quest_object->last_grace && has_quest_item(op, tmp, FLAG_QUEST_ITEM, NULL)))
@@ -251,8 +252,6 @@ static void check_quest_container(object *op, object *quest_container, object *q
 
 			if (quest_object->last_grace)
 			{
-				sint64 num = 0;
-
 				has_quest_item(op, tmp, FLAG_QUEST_ITEM, &num);
 
 				if (num >= quest_object->last_grace)
@@ -272,7 +271,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 
 			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, "Quest %s (%s): You found the quest item %s!\n", quest_object->env->name, quest_container->name, query_base_name(clone, NULL));
+				new_draw_info_format(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone, NULL), num + 1, quest_object->last_grace);
 			}
 			else
 			{
