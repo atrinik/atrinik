@@ -510,10 +510,6 @@ typedef enum _bitmap_index
 	BITMAP_FONTMEDIUM,
 	BITMAP_INTRO,
 
-	/* Progres bar */
-	BITMAP_PROGRESS,
-	BITMAP_PROGRESS_BACK,
-
 	BITMAP_DOLL,
 
 	/* blacktile for map */
@@ -656,6 +652,8 @@ typedef enum _bitmap_index
 	BITMAP_BUTTON_ROUND,
 	BITMAP_BUTTON_ROUND_DOWN,
 	BITMAP_MAP_MARKER,
+	BITMAP_LOADING_OFF,
+	BITMAP_LOADING_ON,
 
 	BITMAP_INIT
 }_bitmap_index;

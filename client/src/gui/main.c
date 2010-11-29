@@ -41,6 +41,13 @@
 /** Font of the news text. */
 #define NEWS_FONT FONT_SANS12
 
+/** X position where the dots start. */
+#define LOGIN_PROGRESS_X 75
+/** Number of dots shown. */
+#define LOGIN_PROGRESS_DOTS 5
+/** How often to advance the dots, in ticks. */
+#define LOGIN_PROGRESS_TICKS 275
+
 /**
  * Last server count to see when to re-create the servers list. Since the
  * metaserver code uses threading so the whole program doesn't lock up,
@@ -67,6 +74,13 @@ static int char_points_left;
 static int char_points_assigned[7];
 /** Maximum number of character creation steps. */
 const int char_step_max = 2;
+
+/**
+ * Stores ticks in order to update ::progress_dot every
+ * @ref LOGIN_PROGRESS_TICKS ticks. */
+static uint32 progress_ticks = 0;
+/** Currently shown dot in the login progress. */
+static uint8 progress_dot = 0;
 
 /** @copydoc popup_struct::draw_func */
 static void news_popup_draw_func(popup_struct *popup)
@@ -521,10 +535,10 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 static void popup_draw_func(popup_struct *popup)
 {
 	_BLTFX bltfx;
-	int progress;
+	uint8 downloading;
 	SDL_Rect box;
 	char buf[MAX_BUF];
-	int x, y;
+	int x, y, i;
 
 	/* Waiting to log in. */
 	if (GameStatus == GAME_STATUS_WAITFORPLAY)
@@ -562,23 +576,34 @@ static void popup_draw_func(popup_struct *popup)
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
 
-	/* Update progress bar of requested files */
-	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], Bitmaps[popup->bitmap_id]->bitmap->w / 4 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->w / 2, 30, NULL, &bltfx);
+	/* Downloading the files, or updates haven't finished yet? */
+	downloading = GameStatus <= GAME_STATUS_REQUEST_FILES || !file_updates_finished();
 
-	progress = MIN(100, 8);
-	box.x = 0;
-	box.y = 0;
-	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
-	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
-	sprite_blt(Bitmaps[BITMAP_PROGRESS], Bitmaps[popup->bitmap_id]->bitmap->w / 4 - Bitmaps[BITMAP_PROGRESS]->bitmap->w / 2, 30, &box, &bltfx);
+	/* Show the progress dots. */
+	for (i = 0; i < LOGIN_PROGRESS_DOTS; i++)
+	{
+		sprite_blt(Bitmaps[progress_dot == i || !downloading ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], LOGIN_PROGRESS_X + Bitmaps[BITMAP_LOADING_ON]->bitmap->w * i, 30, NULL, &bltfx);
+	}
+
+	/* Progress the lit dot. */
+	if (downloading && SDL_GetTicks() - progress_ticks > LOGIN_PROGRESS_TICKS)
+	{
+		progress_ticks = SDL_GetTicks();
+		progress_dot++;
+
+		/* More than maximum, back to the first one. */
+		if (progress_dot >= LOGIN_PROGRESS_DOTS)
+		{
+			progress_dot = 0;
+		}
+	}
 
 	/* Show that we are connecting to the server. */
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 	box.h = 0;
 	string_blt_shadow(popup->surface, FONT_SERIF12, "Connecting to server, please wait...", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
 
-	/* Downloading the files, or updates haven't finished yet? */
-	if (GameStatus <= GAME_STATUS_REQUEST_FILES || !file_updates_finished())
+	if (downloading)
 	{
 		return;
 	}
@@ -742,6 +767,8 @@ static void list_handle_enter(list_struct *list)
 			popup->event_func = popup_event_func;
 			popup->destroy_callback_func = popup_destroy_callback_func;
 			GameStatus = GAME_STATUS_STARTCONNECT;
+			progress_dot = 0;
+			progress_ticks = SDL_GetTicks();
 		}
 	}
 	else if (list->id == LIST_NEWS)

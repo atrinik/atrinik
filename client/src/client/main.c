@@ -117,9 +117,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"font11x15.png", PIC_TYPE_PALETTE},
 	{"intro.png", PIC_TYPE_DEFAULT},
 
-	{"progress.png", PIC_TYPE_DEFAULT},
-	{"progress_back.png", PIC_TYPE_DEFAULT},
-
 	{"player_doll_bg.png", PIC_TYPE_TRANS},
 	{"black_tile.png", PIC_TYPE_DEFAULT},
 	{"login_inp.png", PIC_TYPE_DEFAULT},
@@ -258,7 +255,9 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"arrow_down2.png", PIC_TYPE_DEFAULT},
 	{"button_round.png", PIC_TYPE_DEFAULT},
 	{"button_round_down.png", PIC_TYPE_DEFAULT},
-	{"map_marker.png", PIC_TYPE_DEFAULT}
+	{"map_marker.png", PIC_TYPE_DEFAULT},
+	{"loading_off.png", PIC_TYPE_DEFAULT},
+	{"loading_on.png", PIC_TYPE_DEFAULT}
 };
 
 /** Number of bitmaps. */
@@ -792,7 +791,7 @@ static void load_bitmaps()
 	int i;
 
 	/* add later better error handling here */
-	for (i = 0; i <= BITMAP_PROGRESS_BACK; i++)
+	for (i = 0; i <= BITMAP_INTRO; i++)
 	{
 		load_bitmap(i);
 	}
