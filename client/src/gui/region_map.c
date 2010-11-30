@@ -761,6 +761,9 @@ void region_map_show()
 					cpl.menustatus = MENU_NO;
 					map_udate_flag = 2;
 					reset_keys();
+					/* Workaround so the middle click doesn't also trigger a
+					 * fire action. */
+					cpl.action_timer = 0.0001f;
 					break;
 				}
 			}
