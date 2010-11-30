@@ -564,10 +564,12 @@ int process_macro_keys(int id, int value)
 				return 0;
 
 			if (nrof == 1)
+			{
 				nrof = 0;
+			}
 			else
 			{
-				if (!options.collectAll)
+				if (!(options.collect_mode & 1))
 				{
 					reset_keys();
 					cpl.input_mode = INPUT_MODE_NUMBER;
@@ -639,21 +641,26 @@ int process_macro_keys(int id, int value)
 			}
 
 			if (nrof == 1)
+			{
 				nrof = 0;
+			}
 			else
 			{
-				reset_keys();
-				cpl.input_mode = INPUT_MODE_NUMBER;
-				text_input_open(22);
-				cpl.loc = loc;
-				cpl.tag = tag;
-				cpl.nrof = nrof;
-				cpl.nummode = NUM_MODE_DROP;
-				snprintf(buf, sizeof(buf), "%d", nrof);
-				text_input_add_string(buf);
-				strncpy(cpl.num_text, it->s_name, 250);
-				cpl.num_text[250] = 0;
-				return 0;
+				if (!(options.collect_mode & 2))
+				{
+					reset_keys();
+					cpl.input_mode = INPUT_MODE_NUMBER;
+					text_input_open(22);
+					cpl.loc = loc;
+					cpl.tag = tag;
+					cpl.nrof = nrof;
+					cpl.nummode = NUM_MODE_DROP;
+					snprintf(buf, sizeof(buf), "%d", nrof);
+					text_input_add_string(buf);
+					strncpy(cpl.num_text, it->s_name, 250);
+					cpl.num_text[250] = 0;
+					return 0;
+				}
 			}
 
 			sound_play_effect("drop.ogg", 100);

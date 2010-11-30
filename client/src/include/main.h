@@ -139,7 +139,7 @@ typedef struct _options
 	int chat_font_size;
 	int chat_max_lines;
 
-	int collectAll;
+	int collect_mode;
 	int key_repeat;
 
 	/* Exp display */
