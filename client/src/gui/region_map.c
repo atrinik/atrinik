@@ -496,18 +496,32 @@ void RegionMapCmd(uint8 *data, int len)
 		return;
 	}
 
-	/* Free old cURL data and the parsed definitions. */
-	if (data_png)
-	{
-		curl_data_free(data_png);
-		curl_data_free(data_def);
-		rm_def_free();
-	}
+	region_map_clear();
 
 	/* Start the downloads. */
 	data_png = curl_download_start(url);
 	snprintf(url, sizeof(url), "%s/%s.def", url_base, region);
 	data_def = curl_download_start(url);
+}
+
+/**
+ * Clears the cached png and definitions. */
+void region_map_clear()
+{
+	/* Free old cURL data and the parsed definitions. */
+	if (data_png)
+	{
+		curl_data_free(data_png);
+		data_png = NULL;
+	}
+
+	if (data_def)
+	{
+		curl_data_free(data_def);
+		data_def = NULL;
+	}
+
+	rm_def_free();
 }
 
 /**

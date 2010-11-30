@@ -692,6 +692,7 @@ static int game_status_chain()
 		draw_info("Connected. Exchange version.", COLOR_GREEN);
 		cpl.name[0] = '\0';
 		cpl.password[0] = '\0';
+		region_map_clear();
 	}
 	else if (GameStatus == GAME_STATUS_VERSION)
 	{
