@@ -91,25 +91,6 @@ enum
 	KEYBIND_STATUS_EDITKEY
 };
 
-/** Keybind structure */
-typedef struct _keybind_key
-{
-	/** The macro */
-	char macro[256];
-
-	/** The text */
-	char keyname[256];
-
-	/** -1: new macro - 0-xx edit entry */
-	int entry;
-
-	/** Key ID. */
-	int key;
-
-	/** Repeat? */
-	int repeat_flag;
-}_keybind_key;
-
 extern int old_mouse_y;
 
 enum
