@@ -272,7 +272,6 @@ _Sprite *Bitmaps[BITMAP_MAX];
 static void init_game_data();
 static void delete_player_lists();
 static int load_bitmap(int index);
-static void load_options_dat();
 
 /**
  * Clear player lists like skill list, spell list, etc. */
@@ -445,7 +444,7 @@ void save_options_dat()
 
 /**
  * Load the options file. */
-static void load_options_dat()
+void load_options_dat()
 {
 	int i = -1, pos;
 	FILE *stream;

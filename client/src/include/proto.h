@@ -104,6 +104,7 @@ void animate_objects();
 
 /* client/main.c */
 void save_options_dat();
+void load_options_dat();
 void free_bitmaps();
 void list_vid_modes();
 int main(int argc, char *argv[]);

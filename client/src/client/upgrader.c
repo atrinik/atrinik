@@ -122,6 +122,21 @@ void upgrade_do(const char *source_dir)
 	{
 		copy_rec(source_dir, files_copy[i], dest_dir);
 	}
+
+	load_options_dat();
+
+	/* Change resolution X/Y if needed. */
+	if (options.resolution_x < 1024)
+	{
+		options.resolution_x = 1024;
+	}
+
+	if (options.resolution_y < 768)
+	{
+		options.resolution_y = 768;
+	}
+
+	save_options_dat();
 }
 
 /**
