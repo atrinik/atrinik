@@ -300,9 +300,7 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
 	{
 		/* Basically, the add_player copies the socket structure into
 		 * the player structure, so this one (which is from init_sockets)
-		 * is not needed anymore.  The write below should still work, as the
-		 * stuff in ns is still relevant. */
-		Write_String_To_Socket(ns, BINARY_CMD_ADDME_SUC, cmd_buf, 1);
+		 * is not needed anymore. */
 		ns->addme = 1;
 		/* Reset idle counter */
 		ns->login_count = 0;
