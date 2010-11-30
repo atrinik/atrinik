@@ -512,7 +512,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height);
 widgetdata *add_label(char *text, _Font *font, int color);
 widgetdata *add_bitmap(int bitmap_id);
 widgetdata *create_menu(int x, int y, widgetdata *owner);
-void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type);
+void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type, int val);
 void add_separator(widgetdata *widget);
 void widget_redraw_all(int widget_type_id);
 void menu_move_widget(widgetdata *widget, int x, int y);

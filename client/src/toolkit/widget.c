@@ -1157,20 +1157,20 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			/* Create a context menu for the widget clicked on. */
 			menu = create_menu(x, y, widget);
 			/* This bit probably shouldn't be hard coded in future. */
-			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL);
-			add_menuitem(menu, "Create Widget", &menu_create_widget, MENU_NORMAL);
-			add_menuitem(menu, "Remove Widget", &menu_remove_widget, MENU_NORMAL);
-			add_menuitem(menu, "Detach Widget", &menu_detach_widget, MENU_NORMAL);
+			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+			add_menuitem(menu, "Create Widget", &menu_create_widget, MENU_NORMAL, 0);
+			add_menuitem(menu, "Remove Widget", &menu_remove_widget, MENU_NORMAL, 0);
+			add_menuitem(menu, "Detach Widget", &menu_detach_widget, MENU_NORMAL, 0);
 			add_separator(menu);
 
 			if (widget->WidgetSubtypeID == MAIN_INV_ID)
 			{
-				add_menuitem(menu, "Inventory Filters", &menu_detach_widget, MENU_SUBMENU);
+				add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
 			}
 #if 0
 			else
 			{
-				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU);
+				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU, 0);
 			}
 #endif
 
@@ -2338,7 +2338,7 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 }
 
 /** Adds a menuitem to a menu. */
-void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type)
+void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type, int val)
 {
 	widgetdata *widget_menuitem, *widget_label, *widget_bitmap, *tmp;
 	_widget_container *container_menuitem, *container_menu;
@@ -2359,12 +2359,16 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 	container_strip_menuitem->horizontal = 1;
 
 	widget_label = add_label(text, &SystemFont, COLOR_WHITE);
-	/* This is really just test code to see if bitmaps work.
-	 * Menuitems will later contain checkboxes later anyway,
-	 * so this will probably evolve into proper code later. */
-	widget_bitmap = add_bitmap(BITMAP_LOCK);
 
-	insert_widget_in_container(widget_menuitem, widget_bitmap);
+	if (menu_type == MENU_CHECKBOX)
+	{
+		/* This is really just test code to see if bitmaps work.
+		 * Menuitems will later contain checkboxes later anyway,
+		 * so this will probably evolve into proper code later. */
+		widget_bitmap = add_bitmap(val ? BITMAP_CHECKBOX_ON : BITMAP_CHECKBOX);
+		insert_widget_in_container(widget_menuitem, widget_bitmap);
+	}
+
 	insert_widget_in_container(widget_menuitem, widget_label);
 	insert_widget_in_container(menu, widget_menuitem);
 
@@ -2385,7 +2389,14 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 			{
 				container_menuitem = CONTAINER(tmp);
 
-				resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - tmp->inv_rev->wd - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
+				if (menu_type == MENU_CHECKBOX)
+				{
+					resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - tmp->inv_rev->wd - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
+				}
+				else
+				{
+					resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
+				}
 			}
 		}
 	}
@@ -2473,11 +2484,11 @@ void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
 {
 	(void) x;
 	(void) y;
-	add_menuitem(widget, "Say", &menu_set_say_filter, MENU_CHECKBOX);
-	add_menuitem(widget, "Shout", &menu_set_shout_filter, MENU_CHECKBOX);
-	add_menuitem(widget, "Group", &menu_set_gsay_filter, MENU_CHECKBOX);
-	add_menuitem(widget, "Tells", &menu_set_tell_filter, MENU_CHECKBOX);
-	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX);
+	add_menuitem(widget, "Say", &menu_set_say_filter, MENU_CHECKBOX, 0);
+	add_menuitem(widget, "Shout", &menu_set_shout_filter, MENU_CHECKBOX, 0);
+	add_menuitem(widget, "Group", &menu_set_gsay_filter, MENU_CHECKBOX, 0);
+	add_menuitem(widget, "Tells", &menu_set_tell_filter, MENU_CHECKBOX, 0);
+	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX, 0);
 }
 
 void menu_inv_filter_all()

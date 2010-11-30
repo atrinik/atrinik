@@ -41,7 +41,7 @@ char *skill_level_name[] =
 };
 
 /** Active inventory filter, one of @ref INVENTORY_FILTER_xxx. */
-static uint64 inventory_filter = INVENTORY_FILTER_ALL;
+uint64 inventory_filter = INVENTORY_FILTER_ALL;
 
 /**
  * Check if an object matches one of the active inventory filters.

@@ -58,4 +58,6 @@
 #define INVENTORY_FILTER_LOCKED 64
 /*@}*/
 
+uint64 inventory_filter;
+
 #endif
