@@ -140,6 +140,30 @@ void upgrade_do(const char *source_dir)
 	options.textwin_alpha = 255;
 
 	save_options_dat();
+
+	read_keybind_file(KEYBIND_FILE);
+
+	bindkey_list[0].entry[9].key = 91;
+	bindkey_list[0].entry[9].repeatflag = 1;
+	strcpy(bindkey_list[0].entry[9].text, "/left");
+	strcpy(bindkey_list[0].entry[9].keyname, "[");
+
+	bindkey_list[0].entry[10].key = 93;
+	bindkey_list[0].entry[10].repeatflag = 1;
+	strcpy(bindkey_list[0].entry[10].text, "/right");
+	strcpy(bindkey_list[0].entry[10].keyname, "]");
+
+	bindkey_list[0].entry[11].key = 107;
+	bindkey_list[0].entry[11].repeatflag = 1;
+	strcpy(bindkey_list[0].entry[11].text, "/push");
+	strcpy(bindkey_list[0].entry[11].keyname, "k");
+
+	bindkey_list[3].entry[9].key = 114;
+	bindkey_list[3].entry[9].repeatflag = 0;
+	strcpy(bindkey_list[3].entry[9].text, "/region_map");
+	strcpy(bindkey_list[3].entry[9].keyname, "r");
+
+	save_keybind_file(KEYBIND_FILE);
 }
 
 /**
@@ -159,7 +183,7 @@ void upgrader_init()
 		return;
 	}
 
-	snprintf(tmp, sizeof(tmp), "%s/"PACKAGE_VERSION, tmp);
+	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION, get_config_dir());
 
 	/* If the settings directory for the current version already exists,
 	 * leave. */
