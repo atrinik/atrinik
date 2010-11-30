@@ -319,7 +319,7 @@ int event_poll_key(SDL_Event *event)
 		menuRepeatTime = KEY_REPEAT_TIME_INIT;
 	}
 
-	if (cpl.menustatus == MENU_NO && (!text_input_string_flag || cpl.input_mode != INPUT_MODE_NUMBER))
+	if (cpl.menustatus == MENU_NO && !text_input_string_flag)
 	{
 		if (event->key.keysym.mod & KMOD_SHIFT)
 		{
