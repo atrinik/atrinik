@@ -493,6 +493,20 @@ void RegionMapCmd(uint8 *data, int len)
 	/* The map is the same, no downloading needed. */
 	if (region_map_is_same(url))
 	{
+		if (cmd_labels)
+		{
+			free(cmd_labels);
+			cmd_labels = NULL;
+		}
+
+		if (cmd_tooltips)
+		{
+			free(cmd_tooltips);
+			cmd_tooltips = NULL;
+		}
+
+		num_cmd_labels = 0;
+		num_cmd_tooltips = 0;
 		return;
 	}
 
