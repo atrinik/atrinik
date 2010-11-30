@@ -136,6 +136,9 @@ void upgrade_do(const char *source_dir)
 		options.resolution_y = 768;
 	}
 
+	options.chat_font_size = 1;
+	options.textwin_alpha = 255;
+
 	save_options_dat();
 }
 
