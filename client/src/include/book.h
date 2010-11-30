@@ -25,74 +25,19 @@
 
 /**
  * @file
- * Book GUI related structures. */
+ * Book GUI header. */
 
 #ifndef BOOK_H
 #define BOOK_H
 
-/** Maximum lines on a page of book. */
-#define BOOK_PAGE_LINES 18
-/** Maximum characters on a line. */
-#define BOOK_LINES_CHAR 256
+/** Maximum width of the book content. */
+#define BOOK_CONTENT_WIDTH (Bitmaps[BITMAP_BOOK]->bitmap->w - 90)
+/** Maximum height of the book content. */
+#define BOOK_CONTENT_HEIGHT (Bitmaps[BITMAP_BOOK]->bitmap->h - 80)
 
-/** Book data structure */
-typedef struct __global_book_data
-{
-	/** X position */
-	int x;
-
-	/** Y position */
-	int y;
-
-	/** X length */
-	int xlen;
-
-	/** Y length */
-	int ylen;
-}_global_book_data;
-
-/** Single line in the book GUI */
-typedef struct gui_book_line
-{
-	/** Line mode */
-	int mode;
-
-	/** Line color */
-	int color;
-
-	/** Line */
-	char line[BOOK_LINES_CHAR + 1];
-} _gui_book_line;
-
-/** Book GUI structure */
-typedef struct gui_book_struct
-{
-	/** Mode */
-	int mode;
-
-	/** Number of pages */
-	int pages;
-
-	/** Current page */
-	int page_show;
-
-	/** First page structure */
-	struct gui_book_page *start;
-
-	/** Name of the book */
-	char name[256];
-} _gui_book_struct;
-
-/** Single page in the book GUI */
-typedef struct gui_book_page
-{
-	/** Next page in the structure */
-	struct gui_book_page *next;
-
-	/** Line in this page */
-	_gui_book_line *line[BOOK_PAGE_LINES];
-} _gui_book_page;
-
-extern _global_book_data global_book_data;
+/** X position of the book. */
+#define BOOK_BACKGROUND_X (Screensize->x / 2 - Bitmaps[BITMAP_BOOK]->bitmap->w / 2)
+/** Y position of the book. */
+#define BOOK_BACKGROUND_Y (Screensize->y / 2 - Bitmaps[BITMAP_BOOK]->bitmap->h / 2)
 
 #endif

@@ -30,19 +30,6 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-/** Status of this bitmap/sprite */
-typedef enum _sprite_status
-{
-	SPRITE_STATUS_UNLOADED,
-	SPRITE_STATUS_LOADED
-} _sprite_status;
-
-/** Some other information */
-typedef enum _sprite_type
-{
-	SPRITE_TYPE_NORMAL
-} _sprite_type;
-
 /**
  * @defgroup BLTFX_FLAG_xxx BLTFX flags
  * BLTFX flags.
@@ -80,12 +67,6 @@ typedef struct _BLTFX
 /** Sprite structure. */
 typedef struct _Sprite
 {
-	/** Sprite status. */
-	_sprite_status status;
-
-	/** Sprite type. */
-	_sprite_type type;
-
 	/** Rows of blank pixels before first color information. */
 	int border_up;
 

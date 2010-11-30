@@ -61,7 +61,7 @@ typedef enum key_funcs
 	KEYFUNC_TARGET_SELF,
 	KEYFUNC_FIREREADY,
 	KEYFUNC_COMBAT,
-	KEYFUNC_QLIST
+	KEYFUNC_QLIST,
 } key_funcs;
 
 /** One key macro. */
@@ -91,25 +91,6 @@ enum
 	KEYBIND_STATUS_EDITKEY
 };
 
-/** Keybind structure */
-typedef struct _keybind_key
-{
-	/** The macro */
-	char macro[256];
-
-	/** The text */
-	char keyname[256];
-
-	/** -1: new macro - 0-xx edit entry */
-	int entry;
-
-	/** Key ID. */
-	int key;
-
-	/** Repeat? */
-	int repeat_flag;
-}_keybind_key;
-
 extern int old_mouse_y;
 
 enum
@@ -123,37 +104,17 @@ enum
 	DRAG_PDOLL
 };
 
-extern int KeyScanFlag;
 extern int cursor_type;
-
-/* Whether there is an event (removed at end of main loop) */
-extern int MouseEvent;
 extern int itemExamined;
 
-/* State of the buttons */
-extern uint32 MouseState;
+SDLKey get_action_keycode, drop_action_keycode;
 
-/** Use these constants to determine the state of mouse and its events. */
-enum
+typedef struct _keys
 {
-	/* Don't change this to 0 */
-	IDLE = 1,
-	LB_DN,
-	LB_UP,
-	RB_DN,
-	RB_UP,
-	MB_UP,
-	MB_DN
-};
+	int pressed; /*true: key is pressed*/
+	uint32 time; /*tick time last repeat is initiated*/
+} _keys;
 
-/** Movement queue. */
-typedef struct movement
-{
-	/** Direction to move to. */
-	int num;
-
-	/** Next entry. */
-	struct movement *next;
-} movement;
+_keys keys[MAX_KEYS];
 
 #endif

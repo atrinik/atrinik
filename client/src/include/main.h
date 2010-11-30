@@ -30,64 +30,12 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-typedef struct _server_char
-{
-	struct _server_char *next;
+#define HUGE_BUF 4096
 
-	struct _server_char *prev;
-
-	int pic_id;
-
-	/* Race name: human, elf */
-	char *name;
-
-	/* 4 description strings */
-	char *desc[4];
-	int bar[3];
-	int bar_add[3];
-
-	/* Male, female, neuter, hermaphrodite */
-	int gender[4];
-	int gender_selected;
-
-	/* 4 description strings */
-	char *char_arch[4];
-	int face_id[4];
-
-	/* Points which can be added to char stats */
-	int stat_points;
-	int stats[7];
-	int stats_min[7];
-	int stats_max[7];
-}_server_char;
-
-extern _server_char *first_server_char;
-
-/* If we login as new char, thats the values of it we set */
-extern _server_char new_character;
-
-#define HUGE_BUF 1024
-
-#define SDL_DEFAULT_REPEAT_DELAY 500
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
 /* For hash table (bmap, ...) */
-#define MAXHASHSTRING 20
-
-/* Prime nubmer for hash table */
-#define BMAPTABLE 32767
-
-/** Structure for bitmap data */
-typedef struct _bmaptype
-{
-	char *name;
-	int num;
-	int len;
-	int pos;
-	unsigned int crc;
-}_bmaptype;
-
-extern _bmaptype *bmap_table[BMAPTABLE];
+#define MAXSTRING 20
 
 /** Keymap structure */
 typedef struct _keymap
@@ -147,74 +95,13 @@ typedef struct msg_anim_struct
 
 extern struct msg_anim_struct msg_anim;
 
-#define MAX_BMAPTYPE_TABLE 32767
-
-typedef struct _bmaptype_table
-{
-	char *name;
-	int pos;
-	int len;
-	unsigned int crc;
-}_bmaptype_table;
-
-_bmaptype_table bmaptype_table[MAX_BMAPTYPE_TABLE];
-
-extern int bmaptype_table_size;
-
 #ifndef SYSPATH
 #define SYSPATH "./"
 #endif
 
 #define FILE_ATRINIK_P0 "atrinik.p0"
-#define FILE_BMAPS_P0 "bmaps.p0"
-#define FILE_BMAPS_TMP "srv_files/bmaps.tmp"
-#define FILE_ANIMS_TMP "srv_files/anims.tmp"
 
-#define FILE_CLIENT_SPELLS "srv_files/client_spells"
-#define FILE_CLIENT_SKILLS "srv_files/client_skills"
-#define FILE_CLIENT_SETTINGS "srv_files/client_settings"
-#define FILE_CLIENT_BMAPS "srv_files/client_bmap"
-#define FILE_CLIENT_ANIMS "srv_files/client_anims"
-#define FILE_CLIENT_HFILES "srv_files/help_files"
-
-enum
-{
-	SRV_CLIENT_SKILLS,
-	SRV_CLIENT_SPELLS,
-	SRV_CLIENT_SETTINGS,
-	SRV_CLIENT_ANIMS,
-	SRV_CLIENT_BMAPS,
-	SRV_CLIENT_HFILES,
-	/* last index */
-	SRV_CLIENT_FILES
-};
-
-enum
-{
-	SRV_CLIENT_STATUS_OK,
-	SRV_CLIENT_STATUS_UPDATE
-};
-
-#define	SRV_CLIENT_FLAG_BMAP 	1
-#define SRV_CLIENT_FLAG_ANIM 	2
-#define SRV_CLIENT_FLAG_SETTING 4
-#define	SRV_CLIENT_FLAG_SKILL 	8
-#define	SRV_CLIENT_FLAG_SPELL 	16
-#define SRV_CLIENT_FLAG_HFILES 	32
-
-typedef struct _srv_client_files
-{
-	/* Set from setup exchange */
-	int status;
-
-	int len;
-	uint32 crc;
-	int server_len;
-	uint32 server_crc;
-}_srv_client_files;
-
-extern _srv_client_files srv_client_files[SRV_CLIENT_FILES];
-extern 	Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
+extern Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 extern int mb_clicked;
 
 /* IMPORTANT: datatype must also be changed in dialog.c */
@@ -230,13 +117,14 @@ typedef struct _options
 	int resolution_x;
 	int resolution_y;
 	int resolution;
-	int use_TextwinAlpha;
 	int textwin_alpha;
 #ifdef WIDGET_SNAP
 	int widget_snap;
 #endif
 	int mapstart_x;
 	int mapstart_y;
+	int map_size_x;
+	int map_size_y;
 
 	/* Look & Feel */
 	int player_names;
@@ -249,10 +137,9 @@ typedef struct _options
 	int show_tooltips;
 	int chat_timestamp;
 	int chat_font_size;
+	int chat_max_lines;
 
-	/* key-infos in dialog-wins. */
-	int show_d_key_infos;
-	int collectAll;
+	int collect_mode;
 	int key_repeat;
 
 	/* Exp display */
@@ -264,7 +151,6 @@ typedef struct _options
 	/* True: show frame rate */
 	int show_frame;
 	int sleep;
-	int speedup;
 	int max_speed;
 	int auto_bpp_flag;
 	int use_rect;
@@ -307,19 +193,13 @@ typedef struct _options
 	uint32 videoflags_full;
 	uint32 videoflags_win;
 	int reload_gfx_user;
+	int disable_updates;
+	int disable_rm_cache;
+	int fastport;
 }_options;
 
 extern struct _options options;
 
-#define FACE_FLAG_NO		0
-/* This is a double wall type */
-#define FACE_FLAG_DOUBLE	1
-/* This is a upper part of something */
-#define FACE_FLAG_UP		2
-/* This is a x1x object (animation or direction) */
-#define FACE_FLAG_D1		4
-/* This is a x3x object (animation or direction) */
-#define FACE_FLAG_D3		8
 /* Face requested from server - do it only one time */
 #define FACE_REQUESTED		16
 
@@ -337,8 +217,7 @@ typedef struct _face_struct
 	int flags;
 }_face_struct;
 
-#define GOLEM_CTR_RELEASE  	0
-#define GOLEM_CTR_ADD	   	1
+#define NUM_STATS 7
 
 /* This entry is unused */
 #define LIST_ENTRY_UNUSED 	-1
@@ -430,13 +309,13 @@ typedef struct _spell_list_entry
 	char name[LIST_NAME_MAX];
 
 	/** Icon name */
-	char icon_name[32];
+	char icon_name[128];
 
-	/** Spell's icon. */
-	struct _Sprite *icon;
+	/** Description. */
+	char desc[HUGE_BUF];
 
-	/** Description (in 4 rows) */
-	char desc[4][96];
+	/** Spell's icon ID. */
+	int icon;
 
 	/** Cost of spell. */
 	int cost;
@@ -505,7 +384,6 @@ typedef enum _fire_mode_id
 	FIRE_MODE_WAND,
 	FIRE_MODE_SKILL,
 	FIRE_MODE_THROW,
-	FIRE_MODE_SUMMON,
 	FIRE_MODE_INIT
 }_fire_mode_id;
 
@@ -578,18 +456,12 @@ extern int f_custom_cursor;
 extern int x_custom_cursor;
 extern int y_custom_cursor;
 
-extern int music_global_fade;
 extern _game_status GameStatus;
-extern int MapStatusX;
-extern int MapStatusY;
 extern uint32 LastTick;
 extern uint32 tmpGameTick;
 extern uint32 FrameCount;
 extern server_struct *selected_server;
-extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
-extern server_struct *start_server;
-extern int metaserver_sel, metaserver_count;
-extern int request_file_chain;
+extern int map_udate_flag, map_redraw_flag;
 extern int esc_menu_flag;
 extern int esc_menu_index;
 
@@ -635,19 +507,13 @@ typedef enum _bitmap_index
 	BITMAP_FONT1,
 	BITMAP_FONT6x3OUT,
 	BITMAP_BIGFONT,
-	BITMAP_FONT1OUT,
 	BITMAP_FONTMEDIUM,
 	BITMAP_INTRO,
-
-	/* Progres bar */
-	BITMAP_PROGRESS,
-	BITMAP_PROGRESS_BACK,
 
 	BITMAP_DOLL,
 
 	/* blacktile for map */
 	BITMAP_BLACKTILE,
-	BITMAP_TEXTWIN,
 	BITMAP_LOGIN_INP,
 	BITMAP_INVSLOT,
 
@@ -670,8 +536,6 @@ typedef enum _bitmap_index
 
 	BITMAP_RANGE,
 	BITMAP_RANGE_MARKER,
-	BITMAP_RANGE_CTRL,
-	BITMAP_RANGE_CTRL_NO,
 	BITMAP_RANGE_SKILL,
 	BITMAP_RANGE_SKILL_NO,
 	BITMAP_RANGE_THROW,
@@ -680,8 +544,6 @@ typedef enum _bitmap_index
 	BITMAP_RANGE_TOOL_NO,
 	BITMAP_RANGE_WIZARD,
 	BITMAP_RANGE_WIZARD_NO,
-	BITMAP_RANGE_PRIEST,
-	BITMAP_RANGE_PRIEST_NO,
 
 	BITMAP_CMARK_START,
 	BITMAP_CMARK_END,
@@ -701,10 +563,6 @@ typedef enum _bitmap_index
 	BITMAP_SCARED,
 	BITMAP_BLIND,
 
-	BITMAP_ENEMY1,
-	BITMAP_ENEMY2,
-	BITMAP_PROBE,
-
 	BITMAP_QUICKSLOTS,
 	BITMAP_QUICKSLOTSV,
 	BITMAP_INVENTORY,
@@ -717,25 +575,19 @@ typedef enum _bitmap_index
 
 	BITMAP_STATS_BG,
 	BITMAP_BELOW,
-	BITMAP_FLINE,
 
 	BITMAP_TARGET_ATTACK,
 	BITMAP_TARGET_TALK,
 	BITMAP_TARGET_NORMAL,
 
-	BITMAP_LOADING,
 	BITMAP_WARN_HP,
 	BITMAP_WARN_FOOD,
-	BITMAP_LOGO270,
 
 	BITMAP_DIALOG_BG,
 	BITMAP_DIALOG_TITLE_OPTIONS,
 	BITMAP_DIALOG_TITLE_KEYBIND,
 	BITMAP_DIALOG_TITLE_SKILL,
 	BITMAP_DIALOG_TITLE_SPELL,
-	BITMAP_DIALOG_TITLE_CREATION,
-	BITMAP_DIALOG_TITLE_LOGIN,
-	BITMAP_DIALOG_TITLE_SERVER,
 	BITMAP_DIALOG_TITLE_PARTY,
 	BITMAP_DIALOG_BUTTON_UP,
 	BITMAP_DIALOG_BUTTON_DOWN,
@@ -769,15 +621,9 @@ typedef enum _bitmap_index
 	BITMAP_OPTIONS_MARK_RIGHT,
 	BITMAP_OPTIONS_ALPHA,
 
-	BITMAP_PENTAGRAM,
-	BITMAP_BUTTONQ_UP,
-	BITMAP_BUTTONQ_DOWN,
-	BITMAP_NCHAR_MARKER,
-
 	BITMAP_TRAPPED,
 	BITMAP_PRAY,
-	BITMAP_WAND,
-	BITMAP_JOURNAL,
+	BITMAP_BOOK,
 	BITMAP_SLIDER_LONG,
 	BITMAP_INVSLOT_MARKED,
 	BITMAP_MSCURSOR_MOVE,
@@ -793,6 +639,26 @@ typedef enum _bitmap_index
 	BITMAP_SHOP,
 	BITMAP_SHOP_INPUT,
 
+	BITMAP_SQUARE_HIGHLIGHT,
+	BITMAP_SERVERS_BG,
+	BITMAP_SERVERS_BG_OVER,
+	BITMAP_NEWS_BG,
+	BITMAP_EYES,
+	BITMAP_POPUP,
+	BITMAP_ARROW_UP,
+	BITMAP_ARROW_UP2,
+	BITMAP_ARROW_DOWN,
+	BITMAP_ARROW_DOWN2,
+	BITMAP_BUTTON_ROUND,
+	BITMAP_BUTTON_ROUND_DOWN,
+	BITMAP_MAP_MARKER,
+	BITMAP_LOADING_OFF,
+	BITMAP_LOADING_ON,
+	BITMAP_BUTTON,
+	BITMAP_BUTTON_DOWN,
+	BITMAP_CHECKBOX,
+	BITMAP_CHECKBOX_ON,
+
 	BITMAP_INIT
 }_bitmap_index;
 
@@ -802,34 +668,19 @@ enum
 	MSCURSOR_MOVE = 1
 };
 
-extern struct gui_book_struct *gui_interface_book;
 extern struct gui_party_struct *gui_interface_party;
 
 extern struct _Font MediumFont;
 
-/* Our text char string */
-extern char InputString[MAX_INPUT_STRING];
-
-/* Input lines history buffer */
-extern char InputHistory[MAX_HISTORY_LINES][MAX_INPUT_STRING];
-extern int HistoryPos;
-extern int CurrentCursorPos;
-
-/* Nr. of char in string and max chars. */
-extern int InputCount, InputMax;
-
-/* If true keyboard and game is in input string mode */
-extern int InputStringFlag;
-
-/* If true, we had entered some in text mode and it's ready */
-extern int InputStringEndFlag;
-extern int InputStringEscFlag;
+extern char text_input_string[MAX_INPUT_STRING];
+extern int text_input_count;
+extern int text_input_string_flag;
+extern int text_input_string_end_flag;
+extern int text_input_string_esc_flag;
 
 /* Range table */
 extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 extern int RangeFireMode;
-
-extern int ToggleScreenFlag;
 
 extern struct _Sprite *Bitmaps[];
 
@@ -840,7 +691,6 @@ extern _face_struct FaceList[MAX_FACE_TILES];
 extern struct _Font BigFont;
 /* Our main font */
 extern struct _Font SystemFont;
-extern struct _Font SystemFontOut;
 /* 6x3 mini font */
 extern struct _Font Font6x3Out;
 
@@ -850,5 +700,6 @@ extern SDL_Surface *ScreenSurfaceMap;
 
 /* Server's attributes */
 extern struct sockaddr_in insock;
+
 
 #endif

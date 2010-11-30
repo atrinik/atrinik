@@ -111,9 +111,6 @@ typedef struct _mapdata
 /** Map cell structure. */
 struct MapCell
 {
-	/** Fog of war. */
-	int fog_of_war;
-
 	/** Position. */
 	uint8 quick_pos[MAX_LAYERS + 1];
 
@@ -129,11 +126,23 @@ struct MapCell
 	/** Object flags. */
 	uint8 flags[MAX_LAYERS + 1];
 
+	/** Double drawing. */
+	uint8 draw_double[MAX_LAYERS + 1];
+
+	/** Alpha value. */
+	uint8 alpha[MAX_LAYERS + 1];
+
 	/** Faces. */
 	sint16 faces[MAX_LAYERS + 1];
 
 	/** Height of this maptile. */
-	sint16 height;
+	sint16 height[MAX_LAYERS + 1];
+
+	/** Zoom. */
+	sint16 zoom[MAX_LAYERS + 1];
+
+	/** Align. */
+	sint16 align[MAX_LAYERS + 1];
 
 	/** How we stretch this is really 8 char for N S E W. */
 	uint32 stretch;

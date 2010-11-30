@@ -30,6 +30,11 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
+/* If we're not using GNU C, ignore __attribute__ */
+#ifndef __GNUC__
+#	define  __attribute__(x)
+#endif
+
 #ifndef WIN32
 #	include "define.h"
 #else
@@ -87,15 +92,7 @@ typedef signed char sint8;
 
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 
-/* Just so that the entries in proto.h don't error on this... */
-#ifndef INSTALL_SOUND
-#define Mix_Chunk int
-#define Mix_Music int
-#endif
-
-#ifdef INSTALL_SOUND
-#	include <SDL_mixer.h>
-#endif
+#include <SDL_mixer.h>
 
 #ifdef WIN32
 #	include "win32.h"
@@ -139,28 +136,27 @@ typedef signed char sint8;
 #	include <SDL.h>
 #	include <SDL_main.h>
 #	include <SDL_image.h>
+#	include <SDL_ttf.h>
 
 	typedef int SOCKET;
+#endif
+
+#if !defined(WIN32) || defined(MINGW)
+#	include <dirent.h>
 #endif
 
 /** The log levels. */
 typedef enum LogLevel
 {
-	/** A message. */
-	llevMsg,
-	/** An error. */
+	/** An irrecoverable error. */
 	llevError,
+	/** Bug report. */
+	llevBug,
 	/** Debugging message. */
-	llevDebug
+	llevDebug,
+	/** Information. */
+	llevInfo
 } LogLevel;
-
-/** Default log level. */
-#define LOGLEVEL llevDebug
-
-#ifdef INSTALL_SOUND
-Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
-Mix_Music *Mix_LoadMUS_wrapper(const char *file);
-#endif
 
 #include <signal.h>
 #include <curl/curl.h>
@@ -168,12 +164,16 @@ Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 #include <zlib.h>
 #include <item.h>
 
+#include <text.h>
+#include <curl.h>
 #include <book.h>
 #include <client.h>
 #include <sdlsocket.h>
 #include <commands.h>
 #include <main.h>
-#include <metaserver.h>
+#include <sprite.h>
+#include <widget.h>
+#include <textwin.h>
 #include <player.h>
 #include <party.h>
 #include <misc.h>
@@ -181,14 +181,16 @@ Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 #include <ignore.h>
 #include <sound.h>
 #include <map.h>
-#include <sprite.h>
 #include <player_shop.h>
 #include <scripts.h>
-#include <textwin.h>
 #include <inventory.h>
 #include <menu.h>
 #include <dialog.h>
-#include <widget.h>
+#include <list.h>
+#include <popup.h>
+#include <server_settings.h>
+#include <server_files.h>
+#include <image.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>

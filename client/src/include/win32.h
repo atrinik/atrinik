@@ -52,10 +52,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <direct.h>
+#include <shellapi.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_main.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 
 #define snprintf _snprintf
 #define strcasecmp _stricmp
@@ -69,6 +71,7 @@
 #	define lseek _lseek
 #	define access _access
 #	define strtoull _strtoui64
+#	define strtok_r strtok_s
 #	define F_OK 6
 #	define R_OK 6
 #	define W_OK 2
@@ -78,6 +81,13 @@
 #	pragma warning(disable: 4267)
 	/* Initializing float f = 0.05; instead of f = 0.05f; */
 #	pragma warning(disable: 4305)
+#else
+#   define strtok_r(_s, _sep, _lasts) (*(_lasts) = strtok((_s), (_sep)))
+#endif
+
+/* Doesn't exist, just a plain int */
+#ifndef socklen_t
+#	define socklen_t int
 #endif
 
 #define mkdir(__a, __b) _mkdir(__a)
@@ -92,16 +102,16 @@
 #define PACKAGE_NAME "Atrinik Client"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Atrinik Client 1.1.1"
+#define PACKAGE_STRING "Atrinik Client 2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "atrinik-client"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.1.1"
+#define PACKAGE_VERSION "2.0"
 
 /* Installation prefix */
-#define PREFIX "../../../client-1.1.1"
+#define PREFIX "../../../client-2.0"
 
 /* Use the SDL_mixer sound system. Remove when you have no sound card or slow
  * computer */

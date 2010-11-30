@@ -28,7 +28,7 @@
  * This is the config file for the client. */
 
 /** Socket version. */
-#define SOCKET_VERSION 1036
+#define SOCKET_VERSION 1044
 
 /** File with all the key bindings. */
 #define KEYBIND_FILE "keys.dat"
@@ -59,11 +59,15 @@
 /** Max input history lines. */
 #define MAX_HISTORY_LINES 20
 
-/** Should be the same as server's MAX_TIME. */
-#define MAX_TIME 125000
-
 /**
  * The number of our dark levels.
  *
  * For each level we store an own bitmap copy. */
 #define DARK_LEVELS 7
+
+#define DIRECTORY_BITMAPS "bitmaps"
+#define DIRECTORY_ICONS "icons"
+#define DIRECTORY_SFX "sfx"
+#define DIRECTORY_CACHE "cache"
+#define DIRECTORY_GFX_USER "gfx_user"
+#define DIRECTORY_MEDIA "media"

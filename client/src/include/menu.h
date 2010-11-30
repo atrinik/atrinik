@@ -50,10 +50,8 @@
 #define MENU_BOOK 64
 /** Party GUI. */
 #define MENU_PARTY 128
+#define MENU_REGION_MAP 256
 /*@}*/
-
-/** All the @ref MENU_xxx. */
-#define MENU_ALL (MENU_NO & MENU_KEYBIND & MENU_SPELL & MENU_OPTION & MENU_BOOK & MENU_PARTY)
 
 /** Sound volume for menus. */
 #define MENU_SOUND_VOL 40

@@ -25,9 +25,7 @@
 
 #include "include.h"
 
-#define STRINGCOMMAND 0
 #define MAX_BUF 256
-#define BIG_BUF 1024
 
 /* How many skill types server supports/client will get sent to it.
  * If more skills are added to server, this needs to get increased. */
@@ -62,8 +60,6 @@
 
 /* Values for send_command option */
 #define SC_NORMAL 0
-#define SC_FIRERUN 1
-#define SC_ALWAYS 2
 
 /** Screensize structure */
 typedef struct screensize
@@ -198,19 +194,19 @@ typedef enum _inventory_win
 typedef struct Player_Struct
 {
 	/* Player object */
-	item *ob;
+	object *ob;
 
 	/* Items below the player (pl.below->inv) */
-	item *below;
+	object *below;
 
 	/* inventory of a open container */
-	item *sack;
+	object *sack;
 
 	/* Pointer to open container */
-	item *container;
+	object *container;
 
 	/** Inventory of items in shop */
-	item *shop;
+	object *shop;
 
 	/* Tag of the container */
 	sint32 container_tag;
@@ -294,16 +290,12 @@ typedef struct Player_Struct
 
 	int warn_statdown;
 	int warn_statup;
-	int warn_drain;
 
 	/* Player stats */
 	Stats stats;
 
 	/* HP of our target in % */
 	char target_hp;
-
-	/* Last command entered */
-	char last_command[MAX_BUF];
 
 	/* Name and password.  Only used while logging in. */
 	char name[40];
@@ -315,26 +307,7 @@ typedef struct Player_Struct
 	char skill_name[128];
 
 	/* Rank and name of char */
-	char rankandname[MAX_BUF];
-
-	/* Name of char */
-	char pname[MAX_BUF];
-
-	/* Race and profession of character */
-	char race[MAX_BUF];
-	char title[MAX_BUF];
-
-	/* Rank */
-	char rank[MAX_BUF];
-
-	/* God */
-	char godname[MAX_BUF];
-
-	/* Alignment */
-	char alignment[MAX_BUF];
-
-	/* Gender */
-	char gender[MAX_BUF];
+	char ext_title[MAX_BUF];
 
 	/* Range attack chosen */
 	char range[MAX_BUF];
@@ -489,22 +462,6 @@ extern Client_Player cpl;
 #define F_LOCKED		0x8000
 #define F_TRAPPED       0x10000
 
-#define CF_FACE_NONE	0
-#define CF_FACE_BITMAP	1
-#define CF_FACE_XPM		2
-#define CF_FACE_PNG		3
-#define CF_FACE_CACHE	0x10
-
-/* Used in the new_face structure on the magicmap field.  Low bits
- * are color informatin.  For now, only high bit information we need
- * is floor information. */
-#define FACE_FLOOR		0x80
-/* Or'd into the color value by the server
- * right before sending. */
-#define FACE_WALL		0x40
-#define FACE_COLOR_MASK	0xf
-
-
 #define UPD_LOCATION	0x01
 #define UPD_FLAGS		0x02
 #define UPD_WEIGHT		0x04
@@ -514,9 +471,6 @@ extern Client_Player cpl;
 #define UPD_ANIMSPEED	0x40
 #define UPD_NROF		0x80
 #define UPD_DIRECTION	0x100
-
-#define SOUND_NORMAL	0
-#define SOUND_SPELL		1
 
 /* White */
 #define COLOR_DEFAULT 	0
@@ -538,8 +492,6 @@ extern Client_Player cpl;
 
 #define COLOR_BLACK 	255
 
-#define COLOR_FLAG_CLIPPED 0x0100
-
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
@@ -557,6 +509,23 @@ extern Client_Player cpl;
 #define MAP2_FLAG_PROBE      4
 /** Tile's Z position. */
 #define MAP2_FLAG_HEIGHT     8
+/** Zoom. */
+#define MAP2_FLAG_ZOOM 16
+/** X align. */
+#define MAP2_FLAG_ALIGN 32
+/** Draw the object twice. */
+#define MAP2_FLAG_DOUBLE 64
+/** More flags from @ref MAP2_FLAG2_xxx. */
+#define MAP2_FLAG_MORE 128
+/*@}*/
+
+/**
+ * @defgroup MAP2_FLAG2_xxx Extended map2 layer flags
+ * Extended flags used to mark what kind of data there is on layers
+ * in map2 protocol.
+ *@{*/
+/** Custom alpha value. */
+#define MAP2_FLAG2_ALPHA 1
 /*@}*/
 
 /**
@@ -583,4 +552,38 @@ extern Client_Player cpl;
  *@{*/
 /** Clear this layer. */
 #define MAP2_LAYER_CLEAR 255
+/*@}*/
+
+/**
+ * @defgroup CMD_QUICKSLOT_xxx Quickslot commands
+ * The various quickslot commands.
+ *@{*/
+/** Set an item as a quickslot. Uses object::quickslot. */
+#define CMD_QUICKSLOT_SET 1
+/** Set a spell as a quickslot. Uses player::spell_quickslots. */
+#define CMD_QUICKSLOT_SETSPELL 2
+/** Unset a quickslot, be it spell or item. */
+#define CMD_QUICKSLOT_UNSET 3
+/*@}*/
+
+/**
+ * @defgroup QUICKSLOT_TYPE_xxx Quickslot data types
+ * Quickslot data types.
+ *@{*/
+/** Item quickslot. */
+#define QUICKSLOT_TYPE_ITEM 1
+/** Spell quickslot. */
+#define QUICKSLOT_TYPE_SPELL 2
+/*@}*/
+
+/**
+ * @defgroup CMD_SOUND_xxx Sound command types
+ * The sound command types.
+ *@{*/
+/** A sound effect, like poison, melee/range hit, spell sound, etc. */
+#define CMD_SOUND_EFFECT 1
+/** Background music. */
+#define CMD_SOUND_BACKGROUND 2
+/** Path to sound effect with an absolute filename. MIDI is not supported. */
+#define CMD_SOUND_ABSOLUTE 3
 /*@}*/

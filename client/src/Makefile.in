@@ -28,11 +28,14 @@ CFLAGS = @CFLAGS@ @SDL_CFLAGS@ $(EXTRA_CFLAGS)
 # Include directories
 INCLUDES= $(EXTRA_INCLUDES) -Iinclude
 # Libraries needed
-LIBS = @LIBS@ @SDL_LIBS@ -lSDL_image -lSDL_mixer $(EXTRA_LIBS)
+LIBS = @LIBS@ @SDL_LIBS@ -lSDL_image -lSDL_mixer -lSDL_ttf $(EXTRA_LIBS)
 
 # Now the source files
 SRCS := \
-	$(wildcard client/*.c)
+	$(wildcard client/*.c) \
+	$(wildcard events/*.c) \
+	$(wildcard gui/*.c) \
+	$(wildcard toolkit/*.c)
 
 # Object files
 OBJS = $(SRCS:.c=.o)
@@ -54,6 +57,7 @@ proto:
 	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < include/proto.h.bak >> include/proto.h
 	echo "#endif" >> include/proto.h
 	$(RM) -f include/proto.h.bak
+	python adjust_proto.py include/proto.h || exit 5
 
 clean::
 	$(RM) -f atrinik-client $(OBJS)
@@ -63,6 +67,6 @@ distclean:: clean
 
 # Compile the C files.
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 all: atrinik-client

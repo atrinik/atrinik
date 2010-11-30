@@ -29,131 +29,91 @@
 
 #include <include.h>
 
-FILE *logstream;
+static FILE *logstream = NULL;
+
+/**
+ * Human-readable names of log levels. */
+static const char *const loglevel_names[] =
+{
+	"[Error] ",
+	"[Bug]   ",
+	"[Debug] ",
+	"[Info]  "
+};
 
 /**
  * Logs an error, debug output, etc.
- * @param logLevel Level of the log message (llevMsg, llevDebug, ...)
+ * @param logLevel Level of the log message (llevInfo, llevDebug, ...)
  * @param format Formatting of the message, like sprintf
  * @param ... Additional arguments for format */
-void LOG(int logLevel, char *format, ...)
+void LOG(LogLevel logLevel, char *format, ...)
 {
-	int flag = 0;
 	va_list ap;
+	char buf[HUGE_BUF * 4];
 
-	/* we want log exactly ONE logLevel */
-	if (LOGLEVEL < 0)
-	{
-		if (LOGLEVEL * (-1) == logLevel)
-			flag = 1;
-	}
-	/* we log all logLevel < LOGLEVEL */
-	else
-	{
-		if (logLevel <= LOGLEVEL)
-			flag = 1;
-	}
-
-	/* secure: we have no open stream */
 	if (!logstream)
 	{
 		logstream = fopen_wrapper(LOG_FILE, "w");
-
-		if (!logstream)
-			flag = 0;
 	}
 
-	if (flag)
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
+	va_end(ap);
+
+	fputs(loglevel_names[logLevel], stdout);
+	fputs(buf, stdout);
+
+	if (logstream)
 	{
-		va_start(ap, format);
-		vfprintf(stdout, format, ap);
-		va_end(ap);
-		va_start(ap, format);
-		vfprintf(logstream, format, ap);
-		va_end(ap);
+		fputs(loglevel_names[logLevel], logstream);
+		fputs(buf, logstream);
+		fflush(logstream);
 	}
 
-	fflush(logstream);
+	if (logLevel == llevError)
+	{
+		LOG(llevInfo, "\nFatal error encountered. Exiting...\n");
+		system_end();
+		abort();
+		exit(-1);
+	}
 }
 
 /**
- * Start the base system, setting caption name and window icon.
- * @return Always returns 1. */
-void SYSTEM_Start()
+ * Start the base system, setting caption name and window icon. */
+void system_start()
 {
 	SDL_Surface *icon;
-	char buf[256];
 
-	snprintf(buf, sizeof(buf), "%s%s", GetBitmapDirectory(), CLIENT_ICON_NAME);
+	icon = IMG_Load_wrapper(DIRECTORY_BITMAPS"/"CLIENT_ICON_NAME);
 
-	if ((icon = IMG_Load_wrapper(buf)) != NULL)
+	if (icon)
 	{
 		SDL_WM_SetIcon(icon, 0);
+		SDL_FreeSurface(icon);
 	}
 
 	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
-
-	SDL_FreeSurface(icon);
 
 	logstream = fopen_wrapper(LOG_FILE, "w");
 }
 
 /**
- * End the system.
- * @return Always returns 1. */
-int SYSTEM_End()
+ * End the system. */
+void system_end()
 {
+	list_remove_all();
+	script_killall();
+	save_interface_file();
+	save_options_dat();
+	kill_widgets();
+	curl_deinit();
+	socket_deinitialize();
+	sound_deinit();
+	free_bitmaps();
+	text_deinit();
 	free_help_files();
 	SDL_Quit();
-	return 1;
-}
-
-/**
- * Get bitmap directory.
- * @return The bitmap directory */
-char *GetBitmapDirectory()
-{
-	return "bitmaps/";
-}
-
-/**
- * Get the icon directory.
- * @return The icon directory */
-char *GetIconDirectory()
-{
-	return "icons/";
-}
-
-/**
- * Get the sfx directory.
- * @return The sfx directory */
-char *GetSfxDirectory()
-{
-	return "sfx/";
-}
-
-/**
- * Get the cache directory.
- * @return The cache directory */
-char *GetCacheDirectory()
-{
-	return "cache/";
-}
-
-/**
- * Get the user defined GFX directory.
- * @return The user defined GFX directory */
-char *GetGfxUserDirectory()
-{
-	return "gfx_user/";
-}
-
-/**
- * Get the media directory
- * @return The media directory */
-char *GetMediaDirectory()
-{
-	return "media/";
 }
 
 /**
@@ -314,7 +274,6 @@ static int mkdir_recurse(const char *path)
 		{
 			if (mkdir(copy, 0755) == -1)
 			{
-				free(p);
 				free(copy);
 				return -1;
 			}
@@ -327,7 +286,6 @@ static int mkdir_recurse(const char *path)
 	}
 	while (p);
 
-	free(p);
 	free(copy);
 
 	return 0;
@@ -337,7 +295,7 @@ static int mkdir_recurse(const char *path)
  * Copy a file.
  * @param filename Source file.
  * @param filename_out Destination file. */
-static void copy_file(const char *filename, const char *filename_out)
+void copy_file(const char *filename, const char *filename_out)
 {
 	FILE *fp, *fp_out;
 	char buf[MAX_BUF];
@@ -346,7 +304,7 @@ static void copy_file(const char *filename, const char *filename_out)
 
 	if (!fp)
 	{
-		LOG(llevError, "ERROR: copy_file(): Failed to open '%s' for reading.\n", filename);
+		LOG(llevBug, "copy_file(): Failed to open '%s' for reading.\n", filename);
 		return;
 	}
 
@@ -354,7 +312,7 @@ static void copy_file(const char *filename, const char *filename_out)
 
 	if (!fp_out)
 	{
-		LOG(llevError, "ERROR: copy_file(): Failed to open '%s' for writing.\n", filename_out);
+		LOG(llevBug, "copy_file(): Failed to open '%s' for writing.\n", filename_out);
 		fclose(fp);
 		return;
 	}
@@ -369,16 +327,11 @@ static void copy_file(const char *filename, const char *filename_out)
 }
 
 /**
- * Get path to file, to implement saving settings related data to user's
- * home directory.
- * @param fname The file path.
- * @param mode File mode.
- * @return The path to the file. */
-char *file_path(const char *fname, const char *mode)
+ * Get configuration directory.
+ * @return The configuration directory. */
+const char *get_config_dir()
 {
-	static char tmp[256];
-	char *stmp, ctmp;
-	char *desc;
+	const char *desc;
 
 #ifdef __LINUX
 	desc = getenv("HOME");
@@ -393,14 +346,28 @@ char *file_path(const char *fname, const char *mode)
 		desc = ".";
 	}
 
-	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", desc, fname);
+	return desc;
+}
+
+/**
+ * Get path to file, to implement saving settings related data to user's
+ * home directory.
+ * @param fname The file path.
+ * @param mode File mode.
+ * @return The path to the file. */
+char *file_path(const char *fname, const char *mode)
+{
+	static char tmp[256];
+	char *stmp, ctmp;
+
+	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", get_config_dir(), fname);
 
 	if (strchr(mode, 'w'))
 	{
 		if ((stmp = strrchr(tmp, '/')))
 		{
 			ctmp = stmp[0];
-			stmp[0] = 0;
+			stmp[0] = '\0';
 			mkdir_recurse(tmp);
 			stmp[0] = ctmp;
 		}
@@ -416,7 +383,7 @@ char *file_path(const char *fname, const char *mode)
 			if ((stmp = strrchr(tmp, '/')))
 			{
 				ctmp = stmp[0];
-				stmp[0] = 0;
+				stmp[0] = '\0';
 				mkdir_recurse(tmp);
 				stmp[0] = ctmp;
 			}
@@ -428,7 +395,7 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, R_OK))
 		{
-			sprintf(tmp, "%s%s", SYSPATH, fname);
+			snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
 		}
 	}
 
@@ -463,25 +430,4 @@ SDL_Surface *IMG_Load_wrapper(const char *file)
 {
 	return IMG_Load(file_path(file, "r"));
 }
-
-#ifdef INSTALL_SOUND
-
-/**
- * Mix_LoadWAV wrapper.
- * @param fname The file name
- * @return Return value of Mix_LoadWAV().  */
-Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname)
-{
-	return Mix_LoadWAV(file_path(fname, "r"));
-}
-
-/**
- * Mix_LoadMUS wrapper.
- * @param file The file name
- * @return Return value of Mix_LoadMUS().  */
-Mix_Music *Mix_LoadMUS_wrapper(const char *file)
-{
-	return Mix_LoadMUS(file_path(file, "r"));
-}
-#endif
 /*@}*/

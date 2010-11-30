@@ -8,6 +8,9 @@
 263 1 "[7]" "?M_WEST"
 264 1 "[8]" "?M_NORTHWEST"
 261 1 "[5]" "?M_STAY"
+091 1 "[" "/left"
+093 1 "]" "/right"
+107 1 "k" "/push"
 
 +"Textwindows"
 280 1 "page up" "?M_PAGEUP"
@@ -36,6 +39,7 @@
 276 1 "left" "?M_LEFT"
 275 1 "right" "?M_RIGHT"
 113 0 "q" "?M_QLIST"
+114 0 "r" "/region_map"
 
 +"Targetting"
 009 0 "tab" "?M_RANGE"

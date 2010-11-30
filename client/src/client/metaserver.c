@@ -35,7 +35,29 @@ static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://at
 #define NUM_METASERVERS (sizeof(metaservers) / sizeof(metaservers[0]))
 
 /** Are we connecting to the metaserver? */
-int metaserver_connecting = 1;
+static int metaserver_connecting;
+/** Mutex to protect ::metaserver_connecting. */
+static SDL_mutex *metaserver_connecting_mutex;
+/** The list of the servers. */
+static server_struct *start_server;
+/** Number of the servers. */
+static size_t server_count;
+/** Mutex to protect ::start_server and ::server_count. */
+static SDL_mutex *start_server_mutex;
+
+/**
+ * Initialize the metaserver data. */
+void metaserver_init()
+{
+	/* Initialize the data. */
+	start_server = NULL;
+	server_count = 0;
+	metaserver_connecting = 1;
+
+	/* Initialize mutexes. */
+	metaserver_connecting_mutex = SDL_CreateMutex();
+	start_server_mutex = SDL_CreateMutex();
+}
 
 /**
  * Parse data returned from HTTP metaserver and add it to the list of servers.
@@ -56,22 +78,58 @@ static void parse_metaserver_data(char *info)
  * Get server from the servers list by its ID.
  * @param num ID of the server to find.
  * @return The server if found, NULL otherwise. */
-server_struct *metaserver_get_selected(int num)
+server_struct *server_get_id(size_t num)
 {
-	server_struct *node = start_server;
-	int i;
+	server_struct *node;
+	size_t i = 0;
 
-	for (i = 0; node; i++)
+	SDL_LockMutex(start_server_mutex);
+	node = start_server;
+
+	for (i = 0; node; i++, node = node->next)
 	{
 		if (i == num)
 		{
-			return node;
+			break;
 		}
-
-		node = node->next;
 	}
 
-	return NULL;
+	SDL_UnlockMutex(start_server_mutex);
+	return node;
+}
+
+/**
+ * Get number of the servers in the list.
+ * @return The number. */
+size_t server_get_count()
+{
+	size_t count;
+
+	SDL_LockMutex(start_server_mutex);
+	count = server_count;
+	SDL_UnlockMutex(start_server_mutex);
+	return count;
+}
+
+/**
+ * Check if we're connecting to the metaserver.
+ * @param val If not -1, set the metaserver connecting value to this.
+ * @return 1 if we're connecting to the metaserver, 0 otherwise. */
+int ms_connecting(int val)
+{
+	int connecting;
+
+	SDL_LockMutex(metaserver_connecting_mutex);
+	connecting = metaserver_connecting;
+
+	/* More useful to return the old value than the one we're setting. */
+	if (val != -1)
+	{
+		metaserver_connecting = val;
+	}
+
+	SDL_UnlockMutex(metaserver_connecting_mutex);
+	return connecting;
 }
 
 /**
@@ -80,6 +138,7 @@ void metaserver_clear_data()
 {
 	server_struct *node, *tmp;
 
+	SDL_LockMutex(start_server_mutex);
 	node = start_server;
 
 	while (node)
@@ -96,8 +155,8 @@ void metaserver_clear_data()
 	}
 
 	start_server = NULL;
-	metaserver_sel = 0;
-	metaserver_count = 0;
+	server_count = 0;
+	SDL_UnlockMutex(start_server_mutex);
 }
 
 /**
@@ -114,10 +173,6 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
 	server_struct *node = (server_struct *) malloc(sizeof(server_struct));
 
 	memset(node, 0, sizeof(server_struct));
-
-	node->next = start_server;
-	start_server = node;
-
 	node->player = player;
 	node->port = port;
 	node->ip = strdup(ip);
@@ -125,126 +180,15 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
 	node->version = strdup(version);
 	node->desc = strdup(desc);
 
-	metaserver_count++;
+	SDL_LockMutex(start_server_mutex);
+	node->next = start_server;
+	start_server = node;
+	server_count++;
+	SDL_UnlockMutex(start_server_mutex);
 }
 
 /**
- * Function to call when receiving data from the metaserver.
- * @param ptr Pointer to data to process.
- * @param size The size of each piece of data.
- * @param nmemb Number of data elements.
- * @param data User supplied data pointer - points to @ref metaserver_struct "metaserver structure"
- * that holds the data returned from the metaserver.
- * @return Number of bytes processed. */
-static size_t metaserver_callback(void *ptr, size_t size, size_t nmemb, void *data)
-{
-	size_t realsize = size * nmemb;
-	metaserver_struct *mem = (metaserver_struct *) data;
-
-	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-
-	if (mem->memory)
-	{
-		memcpy(&(mem->memory[mem->size]), ptr, realsize);
-		mem->size += realsize;
-		mem->memory[mem->size] = '\0';
-	}
-
-	return realsize;
-}
-
-/**
- * Connect to a metaserver using cURL and get data about metaservers.
- * @param metaserver_url URL of the metaserver to connect to.
- * @return 1 on success, 0 on failure. */
-static int metaserver_connect(const char *metaserver_url)
-{
-	CURL *handle;
-	CURLcode res;
-	metaserver_struct *chunk = (metaserver_struct *) malloc(sizeof(metaserver_struct));
-	char user_agent[MAX_BUF];
-	int success = 0;
-
-	/* Store user agent for cURL, including if this is GNU/Linux build of client
-	 * or Windows one. Could be used for statistics or something. */
-#if defined(__LINUX)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#elif defined(WIN32)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#else
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
-#endif
-
-	/* We expect realloc(NULL, size) to work */
-	chunk->memory = NULL;
-
-	/* No data at this point */
-	chunk->size = 0;
-
-	/* Init "easy" cURL */
-	handle = curl_easy_init();
-
-	if (handle)
-	{
-		/* Set connection timeout value in case metaserver is down or something */
-		curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, METASERVER_TIMEOUT);
-
-		/* URL */
-		curl_easy_setopt(handle, CURLOPT_URL, metaserver_url);
-
-		/* Send all data to this function */
-		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, metaserver_callback);
-
-		/* We pass our 'chunk' struct to the callback function */
-		curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *) chunk);
-
-		/* Specify user agent for the metaserver. */
-		curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
-
-		/* Get the data */
-		res = curl_easy_perform(handle);
-
-		if (res)
-		{
-			LOG(llevDebug, "DEBUG: metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
-		}
-
-		/* Always cleanup */
-		curl_easy_cleanup(handle);
-
-		/* If we go the data, might as well do something with it. */
-		if (chunk->memory)
-		{
-			char *buf = (char *) malloc(chunk->size + 1), *cp;
-
-			/* No need to connect to other mirror metaservers */
-			success = 1;
-
-			snprintf(buf, chunk->size, "%s", chunk->memory);
-			cp = strtok(buf, "\n");
-
-			/* Loop through all the lines returned */
-			while (cp)
-			{
-				parse_metaserver_data(cp);
-				cp = strtok(NULL, "\n");
-			}
-
-			free(buf);
-			free(chunk->memory);
-		}
-
-		if (chunk)
-		{
-			free(chunk);
-		}
-	}
-
-	return success;
-}
-
-/**
- * Threaded functionto connect to metaserver.
+ * Threaded function to connect to metaserver.
  *
  * Goes through the list of metaservers and calls metaserver_connect()
  * until it gets a return value of 1. If if goes through all the
@@ -254,29 +198,41 @@ static int metaserver_connect(const char *metaserver_url)
 int metaserver_thread(void *dummy)
 {
 	size_t metaserver_id;
-	int metaserver_failed = 1;
+	curl_data *data;
 
 	(void) dummy;
 
 	/* Go through all the metaservers in the list */
 	for (metaserver_id = 0; metaserver_id < NUM_METASERVERS; metaserver_id++)
 	{
+		data = curl_data_new(metaservers[metaserver_id]);
+
 		/* If the connection succeeded, break out */
-		if (metaserver_connect(metaservers[metaserver_id]))
+		if (curl_connect(data) == 1 && data->memory)
 		{
-			metaserver_failed = 0;
+			char *buf = strdup(data->memory), *cp, *saveptr = NULL;
+
+			cp = strtok_r(buf, "\n", &saveptr);
+
+			/* Loop through all the lines returned */
+			while (cp)
+			{
+				parse_metaserver_data(cp);
+				cp = strtok_r(NULL, "\n", &saveptr);
+			}
+
+			free(buf);
+			curl_data_free(data);
 			break;
 		}
+
+		curl_data_free(data);
 	}
 
-	/* If we couldn't get data out of any of the metaservers */
-	if (metaserver_failed)
-	{
-		draw_info("Metaserver failed! Using default list.", COLOR_RED);
-	}
-
-	/* We're not connecting anymore */
+	SDL_LockMutex(metaserver_connecting_mutex);
+	/* We're not connecting anymore. */
 	metaserver_connecting = 0;
+	SDL_UnlockMutex(metaserver_connecting_mutex);
 	return 0;
 }
 
@@ -288,10 +244,14 @@ void metaserver_get_servers()
 {
 	SDL_Thread *thread;
 
+	SDL_LockMutex(metaserver_connecting_mutex);
+	metaserver_connecting = 1;
+	SDL_UnlockMutex(metaserver_connecting_mutex);
+
 	thread = SDL_CreateThread(metaserver_thread, NULL);
 
 	if (!thread)
 	{
-		LOG(llevError, "ERROR: Thread creation failed.\n");
+		LOG(llevError, "metaserver_get_servers(): Thread creation failed.\n");
 	}
 }

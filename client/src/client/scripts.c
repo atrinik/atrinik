@@ -39,7 +39,7 @@
 static void script_dead(int i);
 static void script_process_cmd(int i);
 static int script_by_name(const char *name);
-static void script_send_item(int i, const char *head, const item *it);
+static void script_send_item(int i, const char *head, const object *it);
 
 /** List of scripts.*/
 static struct script *scripts = NULL;
@@ -221,7 +221,7 @@ void script_load(const char *cparams)
 
 	if (fcntl(pipe[1], F_SETFL, O_NDELAY) == -1)
 	{
-		LOG(llevDebug, "DEBUG: Error on fcntl.");
+		LOG(llevDebug, "Error on fcntl.\n");
 	}
 #else
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -386,7 +386,7 @@ void script_process()
 
 		if ((pollret = select(scripts[i].in_fd + 1, &tmp_read, NULL, NULL, &timeout)) == -1)
 		{
-			LOG(llevMsg, "Got errno %d on select call: %s.\n", errno, strerror(errno));
+			LOG(llevDebug, "Got errno %d on select call: %s.\n", errno, strerror(errno));
 		}
 
 		if (FD_ISSET(scripts[i].in_fd, &tmp_read))
@@ -490,7 +490,7 @@ static void script_process_cmd(int i)
 		/* No color specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Draw command did not have color specified.\n");
+			LOG(llevBug, "script_process_cmd(): Draw command did not have color specified.\n");
 			return;
 		}
 
@@ -504,7 +504,7 @@ static void script_process_cmd(int i)
 		/* No message specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Draw command did not have message set.\n");
+			LOG(llevBug, "script_process_cmd(): Draw command did not have message set.\n");
 			return;
 		}
 
@@ -529,7 +529,7 @@ static void script_process_cmd(int i)
 		/* No log level specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Log command did not have log level set.\n");
+			LOG(llevBug, "script_process_cmd(): Log command did not have log level set.\n");
 			return;
 		}
 
@@ -543,7 +543,7 @@ static void script_process_cmd(int i)
 		/* No log message specified */
 		if (!*c)
 		{
-			LOG(llevMsg, "BUG: script_process_cmd(): Log command did not have log message set.\n");
+			LOG(llevBug, "script_process_cmd(): Log command did not have log message set.\n");
 			return;
 		}
 
@@ -563,7 +563,7 @@ static void script_process_cmd(int i)
 
 		if (!strncmp(c, "player", 6))
 		{
-			snprintf(buf, sizeof(buf), "request player %d %s:%s:%s:%s:%s:%s:%s:%s\n", cpl.ob->tag, cpl.rank, cpl.rankandname, cpl.pname, cpl.race, cpl.title, cpl.alignment, cpl.gender, cpl.godname);
+			snprintf(buf, sizeof(buf), "request player %d %s:%s\n", cpl.ob->tag, cpl.name, cpl.ext_title);
 			w = write(scripts[i].out_fd, buf, strlen(buf));
 		}
 		else if (!strncmp(c, "weight", 5))
@@ -627,7 +627,7 @@ static void script_process_cmd(int i)
 
 			if (!strncmp(c, "inv", 3))
 			{
-				item *it = cpl.ob->inv;
+				object *it = cpl.ob->inv;
 
 				while (it)
 				{
@@ -640,11 +640,11 @@ static void script_process_cmd(int i)
 			}
 			else if (!strncmp(c, "applied", 7))
 			{
-				item *it = cpl.ob->inv;
+				object *it = cpl.ob->inv;
 
 				while (it)
 				{
-					if (it->applied)
+					if (it->flags & F_APPLIED)
 					{
 						script_send_item(i, "request items applied ", it);
 					}
@@ -657,7 +657,7 @@ static void script_process_cmd(int i)
 			}
 			else if (!strncmp(c, "below", 5))
 			{
-				item *it = cpl.below->inv;
+				object *it = cpl.below->inv;
 
 				while (it)
 				{
@@ -743,22 +743,12 @@ static void script_process_cmd(int i)
  * @param i ID of the script.
  * @param head What to prefix the information with.
  * @param it The item. */
-static void script_send_item(int i, const char *head, const item *it)
+static void script_send_item(int i, const char *head, const object *it)
 {
 	char buf[HUGE_BUF];
-	int flags, w;
+	int w;
 
-	flags = it->open;
-	flags = (flags << 1) | it->damned;
-	flags = (flags << 1) | it->cursed;
-	flags = (flags << 1) | it->magical;
-	flags = (flags << 1) | it->unpaid;
-	flags = (flags << 1) | it->applied;
-	flags = (flags << 1) | it->open;
-	flags = (flags << 1) | it->locked;
-	flags = (flags << 1) | it->trapped;
-
-	snprintf(buf, sizeof(buf), "%s%d %d %f %d %d %s\n", head, it->tag, it->nrof, it->weight, flags, it->itype, it->s_name);
+	snprintf(buf, sizeof(buf), "%s%d %d %f %d %d %s\n", head, it->tag, it->nrof, it->weight, it->flags, it->itype, it->s_name);
 	w = write(scripts[i].out_fd, buf, strlen(buf));
 }
 
@@ -1008,7 +998,7 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 								{
 									int rlen = data[i++];
 
-									be += snprintf(buf + be, sizeof(buf) - be, " ext_title %s:%s:%s:%s:%s:%s:%s:%s\n", cpl.rank, cpl.rankandname, cpl.pname, cpl.race, cpl.title, cpl.alignment, cpl.gender, cpl.godname);
+									be += snprintf(buf + be, sizeof(buf) - be, " ext_title %s\n", cpl.ext_title);
 									i += rlen;
 									break;
 								}
@@ -1188,7 +1178,7 @@ void script_autoload()
 
 	if (!(fp = fopen_wrapper(SCRIPTS_AUTOLOAD, "r+")))
 	{
-		LOG(llevMsg, "Can't find file %s. Will not load any scripts.\n", SCRIPTS_AUTOLOAD);
+		LOG(llevInfo, "Can't find file %s. Will not load any scripts.\n", SCRIPTS_AUTOLOAD);
 		return;
 	}
 

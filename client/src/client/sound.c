@@ -27,540 +27,316 @@
  * @file
  * Sound related functions. */
 
-#include "include.h"
+#include <include.h>
 
-/** The SoundSystem status */
-_sound_system SoundSystem;
-
-#ifdef INSTALL_SOUND
-
-/** The music we're playing - if NULL, no music */
-music_data music;
-
-/** When we get a new piece of music, we store it here and
- * give the current music the command to fade out or
- * to break (if new music parameter force it).
- * Then we copy new_music to music and start it. */
-music_data music_new;
-
-/** Special sounds */
-static int special_sounds[SPECIAL_SOUND_INIT];
-#endif
-
-#define POW2(x) ((x) * (x))
-
-#ifdef INSTALL_SOUND
-/** Sounds */
-_wave Sounds[SOUND_MAX + SPELL_SOUND_MAX];
-
-/** The sound files */
-static char *sound_files[SOUND_MAX] =
-{
-	"event01.wav",
-	"bow1.wav",
-	"learnspell.wav",
-	"missspell.wav",
-	"rod.wav",
-	"door.wav",
-	"push.wav",
-
-	"hit_impact.wav",
-	"hit_cleave.wav",
-	"hit_slash.wav",
-	"hit_pierce.wav",
-	"hit_block.wav",
-	"hit_hand.wav",
-	"miss_mob1.wav",
-	"miss_player1.wav",
-
-	"petdead.wav",
-	"playerdead.wav",
-	"explosion.wav",
-	"explosion.wav",
-	"kill.wav",
-	"pull.wav",
-	"fallhole.wav",
-	"poison.wav",
-
-	"drop.wav",
-	"lose_some.wav",
-	"throw.wav",
-	"gate_open.wav",
-	"gate_close.wav",
-	"open_container.wav",
-	"growl.wav",
-	"arrow_hit.wav",
-	"door_close.wav",
-	"teleport.wav",
-	"scroll.wav",
-
-	/* Here start the client side sounds */
-	"step1.wav",
-	"step2.wav",
-	"pray.wav",
-	"console.wav",
-	"click_fail.wav",
-	"change1.wav",
-	"warning_food.wav",
-	"warning_drain.wav",
-	"warning_statup.wav",
-	"warning_statdown.wav",
-	"warning_hp.wav",
-	"warning_hp2.wav",
-	"weapon_attack.wav",
-	"weapon_hold.wav",
-	"get.wav",
-	"book.wav",
-	"page.wav"
-};
-
-/** Spell sound files */
-static char *spell_sound_files[SPELL_SOUND_MAX] =
-{
-	"magic_default.wav",
-	"magic_acid.wav",
-	"magic_animate.wav",
-	"magic_avatar.wav",
-	"magic_bomb.wav",
-	"magic_bullet1.wav",
-	"magic_bullet2.wav",
-	"magic_cancel.wav",
-	"magic_comet.wav",
-	"magic_confusion.wav",
-	"magic_create.wav",
-	"magic_dark.wav",
-	"magic_death.wav",
-	"magic_destruction.wav",
-	"magic_elec.wav",
-	"magic_fear.wav",
-	"magic_fire.wav",
-	"magic_fireball1.wav",
-	"magic_fireball2.wav",
-	"magic_hword.wav",
-	"magic_ice.wav",
-	"magic_invisible.wav",
-	"magic_invoke.wav",
-	"magic_invoke2.wav",
-	"magic_magic.wav",
-	"magic_manaball.wav",
-	"magic_missile.wav",
-	"magic_mmap.wav",
-	"magic_orb.wav",
-	"magic_paralyze.wav",
-	"magic_poison.wav",
-	"magic_protection.wav",
-	"magic_rstrike.wav",
-	"magic_rune.wav",
-	"magic_sball.wav",
-	"magic_slow.wav",
-	"magic_snowstorm.wav",
-	"magic_stat.wav",
-	"magic_steambolt.wav",
-	"magic_summon1.wav",
-	"magic_summon2.wav",
-	"magic_summon3.wav",
-	"magic_teleport.wav",
-	"magic_turn.wav",
-	"magic_wall.wav",
-	"magic_walls.wav",
-	"magic_wound.wav"
-};
-#endif
-
-/** This value is defined in server too - change only both at once */
-#define MAX_SOUND_DISTANCE 12
-
-#ifdef INSTALL_SOUND
-static void musicDone(void);
-static void sound_start_music(char *fname, int vol, int fade, int loop);
-#endif
+/** Path to the background music file being played. */
+static char *sound_background;
+/** Loaded sounds. */
+static sound_data_struct *sound_data;
+/** Number of ::sound_data. */
+static size_t sound_data_num;
 
 /**
- * Initialize the sound system */
+ * Compare two sound data structure filenames.
+ * @param a First sound data.
+ * @param b Second sound data.
+ * @return Return value of strcmp(). */
+static int sound_compare(const void *a, const void *b)
+{
+	return strcmp(((sound_data_struct *) a)->filename, ((sound_data_struct *) b)->filename);
+}
+
+/**
+ * (Re-)Sort the ::sound_data array using Quicksort. */
+static void sound_sort()
+{
+	qsort((void *) sound_data, sound_data_num, sizeof(sound_data_struct), (void *) (int (*)()) sound_compare);
+}
+
+/**
+ * Try to find the specified sound file name in ::sound_data.
+ * @param filename What to look for.
+ * @return The ::sound_data entry if found, NULL otherwise. */
+static sound_data_struct *sound_find(const char *filename)
+{
+	sound_data_struct key;
+
+	key.filename = (char *) filename;
+	return (sound_data_struct *) bsearch((void *) &key, (void *) sound_data, sound_data_num, sizeof(sound_data_struct), sound_compare);
+}
+
+/**
+ * Add a sound entry to the ::sound_data array.
+ * @param type Type of the sound, one of @ref SOUND_TYPE_xxx.
+ * @param filename Sound's file name.
+ * @param data Loaded sound data to store.
+ * @return Pointer to the entry in ::sound_data. */
+static sound_data_struct *sound_new(int type, const char *filename, void *data)
+{
+	sound_data_num++;
+	sound_data = realloc(sound_data, sizeof(sound_data_struct) * sound_data_num);
+	sound_data[sound_data_num - 1].type = type;
+	sound_data[sound_data_num - 1].filename = strdup(filename);
+	sound_data[sound_data_num - 1].data = data;
+
+	return &sound_data[sound_data_num - 1];
+}
+
+/**
+ * Free one sound data entry.
+ * @param tmp What to free. */
+static void sound_free(sound_data_struct *tmp)
+{
+	switch (tmp->type)
+	{
+		case SOUND_TYPE_CHUNK:
+			Mix_FreeChunk((Mix_Chunk *) tmp->data);
+			break;
+
+		case SOUND_TYPE_MUSIC:
+			Mix_FreeMusic((Mix_Music *) tmp->data);
+			break;
+
+		default:
+			LOG(llevBug, "sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
+			return;
+	}
+
+	free(tmp->filename);
+}
+
+/**
+ * Initialize the sound system. */
 void sound_init()
 {
-#ifdef INSTALL_SOUND
-	/* We want no sound */
-	if (SoundSystem == SOUND_SYSTEM_NONE)
-		return;
+	sound_background = NULL;
+	sound_data = NULL;
+	sound_data_num = 0;
 
-	music.flag = 0;
-	music.data = NULL;
-	music_new.flag = 0;
-	music_new.data = NULL;
-
-	SoundSystem = SOUND_SYSTEM_OFF;
-
-	/* Open the audio device */
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
-		LOG(llevMsg, "Warning: Couldn't set sound device. Reason: %s\n", SDL_GetError());
-		return;
+		LOG(llevError, "sound_init(): Couldn't set sound device. Reason: %s\n", SDL_GetError());
 	}
-
-#endif
-	SoundSystem = SOUND_SYSTEM_ON;
 }
 
 /**
- * Deinitialize the sound system  */
+ * Deinitialize the sound system. */
 void sound_deinit()
 {
-#ifdef INSTALL_SOUND
-	if (SoundSystem == SOUND_SYSTEM_ON)
-		Mix_CloseAudio();
-#endif
-}
+	size_t i;
 
-/**
- * Load all different sound groups to one array. */
-void sound_loadall()
-{
-#ifdef INSTALL_SOUND
-	int i, ii;
-	char buf[2048];
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	for (i = 0; i < SOUND_MAX; i++)
+	for (i = 0; i < sound_data_num; i++)
 	{
-		snprintf(buf, sizeof(buf), "%s%s", GetSfxDirectory(), sound_files[i]);
-		Sounds[i].sound = NULL;
-		Sounds[i].sound = Mix_LoadWAV_wrapper(buf);
-
-		if (!Sounds[i].sound)
-			LOG(llevError, "sound_loadall: missing sound file %s\n", buf);
+		sound_free(&sound_data[i]);
 	}
 
-	for (ii = 0; ii < SPELL_SOUND_MAX; ii++)
-	{
-		snprintf(buf, sizeof(buf), "%s%s", GetSfxDirectory(), spell_sound_files[ii]);
-		Sounds[i + ii].sound = NULL;
-		Sounds[i + ii].sound = Mix_LoadWAV_wrapper(buf);
-
-		if (!Sounds[i + ii].sound)
-			LOG(llevError, "sound_loadall: missing sound file %s\n", buf);
-	}
-#endif
+	free(sound_data);
+	sound_data = NULL;
+	sound_data_num = 0;
+	Mix_CloseAudio();
 }
 
 /**
- * Free all loaded sounds */
-void sound_freeall()
+ * Add sound effect to the playing queue.
+ * @param filename Sound file name to play. Will be loaded as needed.
+ * @param volume Volume to play at.
+ * @param loop How many times to loop, -1 for infinite number. */
+static void sound_add_effect(const char *filename, int volume, int loop)
 {
-#ifdef INSTALL_SOUND
-	int i;
+	int channel;
+	sound_data_struct *tmp;
+	Mix_Chunk *chunk = NULL;
 
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
+	/* Try to find the sound first. */
+	tmp = sound_find(filename);
 
-	for (i = 0; i < SOUND_MAX + SPELL_SOUND_MAX; i++)
+	if (!tmp)
 	{
-		Mix_FreeChunk(Sounds[i].sound);
-	}
-#endif
-}
+		chunk = Mix_LoadWAV(filename);
 
-/**
- * Calculate map sound effect and play it
- * @param soundnr Sound ID
- * @param xoff X offset
- * @param yoff Y offset */
-void calculate_map_sound(int soundnr, int xoff, int yoff)
-{
-	/* We got xoff/yoff relative to 0, when this will change, exchange 0
-	 * with the right default position */
-#ifdef INSTALL_SOUND
-	int pane, distance = isqrt(POW2(0 - xoff) + POW2(0 - yoff)) - 1;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (distance < 0)
-		distance = 0;
-
-	/* That's our real volume in % */
-	distance = 100 - distance * (100 / MAX_SOUND_DISTANCE);
-
-	/* Now we set the panning.
-	 * Because reducing volume from one to another reduce volume too,
-	 * we used only yoff real volume. */
-	pane = isqrt(POW2(0 - xoff)) - 1;
-
-	if (pane < 0)
-		pane = 0;
-
-	/* That's "% use of left or right speaker" */
-	/* Note that as higher is the xoff distance, so more we use one direction
-	 * only */
-	pane = pane * (100 / MAX_SOUND_DISTANCE);
-
-	pane = (int) ((double) pane * ((double) 255 / (double) 100));
-
-	/* Now mark this is left or right pane. Left is *(-1) */
-	if (xoff < 0)
-		pane *= -1;
-
-	sound_play_effect(soundnr, pane, distance);
-#else
-	(void) soundnr;
-	(void) xoff;
-	(void) yoff;
-#endif
-}
-
-/**
- * Play a sound.
- * @param soundid Sound ID
- * @param pan Panning value, -255 (total left) to +255 (total right)
- * @param vol Volume
- * @return Channel ID of the sound, or -1 if error */
-int sound_play_effect(int soundid, int pan, int vol)
-{
-#ifdef INSTALL_SOUND
-	int tmp;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return -1;
-
-	tmp = Mix_PlayChannel(-1, Sounds[soundid].sound, 0);
-
-	if (tmp != -1)
-	{
-		int l = 255, r = 255;
-
-		Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * ((double) vol * ((double) MIX_MAX_VOLUME / (double) 100))));
-
-		if (pan < 0)
+		if (!chunk)
 		{
-			l = 255;
-			r = 255 + pan;
-		}
-		else if (pan > 0)
-		{
-			l = 255 - pan;
-			r = 255;
-		}
-
-		Mix_SetPanning(tmp, (Uint8) l, (Uint8) r);
-	}
-
-	return tmp;
-#else
-	(void) soundid;
-	(void) pan;
-	(void) vol;
-	return -1;
-#endif
-}
-
-/**
- * Play a repeat sound.
- * @param soundid Sound ID
- * @param special_id Special sound ID */
-void sound_play_one_repeat(int soundid, int special_id)
-{
-#ifdef INSTALL_SOUND
-	int tmp,s;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (special_sounds[special_id] != -1)
-	{
-		if (Mix_Playing(special_sounds[special_id]))
-			return;
-	}
-
-	tmp = Mix_PlayChannel(-1, Sounds[soundid].sound, 0);
-
-	if (tmp == -1)
-	{
-		/* We failed... */
-		special_sounds[special_id] = -1;
-		return;
-	}
-
-	Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * (double) MIX_MAX_VOLUME));
-
-	/* That's the wild part: when we got a channel, we must delete every same old entry */
-	for (s = 0; s < SPECIAL_SOUND_INIT; s++)
-	{
-		if (special_sounds[s] == tmp)
-			special_sounds[s] = -1;
-	}
-
-	special_sounds[special_id] = tmp;
-#else
-	(void) soundid;
-	(void) special_id;
-#endif
-}
-
-/**
- * Play music.
- * @param fname File name in the media directory
- * @param vol Volume
- * @param fade Should the music fade?
- * @param loop Should the music loop?
- * @param mode Mode */
-void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
-{
-#ifdef INSTALL_SOUND
-	int vol2 = vol;
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (mode & MUSIC_MODE_DIRECT)
-		fade = 0;
-	else if (mode & MUSIC_MODE_FORCED)
-		vol2 = 100;
-
-	/* Same sound? */
-	if (music.data && !strcmp(fname, music.name))
-	{
-		music.fade = fade;
-		music.loop = loop;
-
-		if (vol != music.vol)
-		{
-			music.vol = vol;
-			Mix_VolumeMusic(vol);
-		}
-
-		return;
-	}
-
-	/* Only when set, we still play something */
-	if (music.flag && !(mode & MUSIC_MODE_DIRECT))
-	{
-		music_new.flag = 1;
-		music_new.loop = loop;
-		music_new.fade = fade;
-		music_new.vol = vol;
-		strcpy(music_new.name, fname);
-		/* Lets fade out old music */
-		sound_fadeout_music(music.flag);
-		/* The music_new will be fired in the music hook function after fadeout */
-	}
-	/* No playing music, we fire our new music up */
-	else
-	{
-		/* We don't care about the old buffer data - when we overwrite is always right */
-		music_new.flag = 0;
-		sound_start_music(fname, vol2, fade, loop);
-	}
-#else
-	(void) fname;
-	(void) vol;
-	(void) fade;
-	(void) loop;
-	(void) mode;
-#endif
-}
-
-#ifdef INSTALL_SOUND
-/**
- * Start music.
- * @param fname File name in the media directory
- * @param vol Volume
- * @param fade Should the music fade?
- * @param loop Should the music loop? */
-static void sound_start_music(char *fname, int vol, int fade, int loop)
-{
-	char buf[4096];
-
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (music.data)
-	{
-		Mix_HaltMusic();
-		Mix_FreeMusic(music.data);
-		music.data = NULL;
-		music.flag = 0;
-	}
-
-	/* Try to load the ogg */
-	snprintf(buf, sizeof(buf), "%s%s", GetMediaDirectory(), fname);
-	music.data = Mix_LoadMUS_wrapper(buf);
-
-	if (!music.data)
-	{
-		return;
-	}
-
-	music.fade = fade;
-	music.loop = loop;
-	music.vol = vol;
-	music.flag = 1;
-	strcpy(music.name, fname);
-
-	Mix_VolumeMusic(vol);
-
-	if (fade)
-		Mix_FadeInMusic(music.data, loop, fade);
-	else
-		Mix_PlayMusic(music.data, loop);
-
-	Mix_HookMusicFinished(musicDone);
-}
-#endif
-
-/**
- * Fade out music.
- * @param i Value */
-void sound_fadeout_music(int i)
-{
-#ifdef INSTALL_SOUND
-	if (SoundSystem != SOUND_SYSTEM_ON)
-		return;
-
-	if (music.flag)
-	{
-		/* Give a fadeout cmd to the music buffer */
-		if (!Mix_FadeOutMusic(4000))
-		{
-			/* Fadeout has failed - buffer is busy or a different fade is still on the way */
-			music_new.flag = i;
-
-			/* Now set the global main loop marker - we poll it for the hard way */
-			music_global_fade = 1;
-
+			LOG(llevBug, "sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
 			return;
 		}
 
-		/* All ok, we fade out and the callback will do the rest */
-		music_new.flag = i;
+		/* We loaded it now, so add it to the array of loaded sounds. */
+		tmp = sound_new(SOUND_TYPE_CHUNK, filename, chunk);
 	}
 
-	music_global_fade = 0;
-#else
-	(void) i;
-#endif
+	channel = Mix_PlayChannel(-1, (Mix_Chunk *) tmp->data, loop);
+
+	if (channel == -1)
+	{
+		return;
+	}
+
+	Mix_Volume(channel, (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
+
+	/* Re-sort the array as needed. */
+	if (chunk)
+	{
+		sound_sort();
+	}
 }
 
-#ifdef INSTALL_SOUND
 /**
- * Callback function from current played music sound */
-static void musicDone(void)
+ * Play a sound effect.
+ * @param filename Sound file name to play.
+ * @param volume Volume to play at. */
+void sound_play_effect(const char *filename, int volume)
 {
-	if (music.data)
+	char path[HUGE_BUF];
+
+	snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
+	sound_add_effect(path, volume, 0);
+}
+
+/**
+ * Start background music.
+ * @param filename Filename of the music to start.
+ * @param volume Volume to use.
+ * @param loop How many times to loop, -1 for infinite number. */
+void sound_start_bg_music(const char *filename, int volume, int loop)
+{
+	char path[HUGE_BUF];
+	sound_data_struct *tmp;
+	Mix_Music *music = NULL;
+
+	if (!strcmp(filename, "no_music"))
+	{
+		sound_stop_bg_music();
+		return;
+	}
+
+	snprintf(path, sizeof(path), DIRECTORY_MEDIA"/%s", filename);
+
+	/* Same background music, nothing to do. */
+	if (sound_background && !strcmp(sound_background, path))
+	{
+		return;
+	}
+
+	/* Try to find the music. */
+	tmp = sound_find(path);
+
+	if (!tmp)
+	{
+		music = Mix_LoadMUS(path);
+
+		if (!music)
+		{
+			LOG(llevBug, "sound_start_bg_music(): Could not load '%s'. Reason: %s.\n", path, Mix_GetError());
+			return;
+		}
+
+		/* Add the loaded music to the array. */
+		tmp = sound_new(SOUND_TYPE_MUSIC, path, music);
+	}
+
+	sound_stop_bg_music();
+
+	sound_background = strdup(path);
+	Mix_VolumeMusic(volume);
+	Mix_PlayMusic((Mix_Music *) tmp->data, loop);
+
+	/* Re-sort the array as needed. */
+	if (music)
+	{
+		sound_sort();
+	}
+}
+
+/**
+ * Stop the background music, if there is any. */
+void sound_stop_bg_music()
+{
+	if (sound_background)
 	{
 		Mix_HaltMusic();
-		Mix_FreeMusic(music.data);
-		music.data = NULL;
-		music.flag = 0;
+		free(sound_background);
+		sound_background = NULL;
 	}
-
-	if (music_new.flag)
-	{
-		sound_start_music(music_new.name, options.music_volume, music_new.fade, music_new.loop);
-		music_new.flag = 0;
-	}
-
-	music_global_fade = 0;
 }
-#endif
+
+/**
+ * Parse map's background music information.
+ * @param bg_music What to parse. */
+void parse_map_bg_music(const char *bg_music)
+{
+	int loop = -1, vol = 0;
+	char filename[MAX_BUF];
+
+	if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
+	{
+		LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+		return;
+	}
+
+	sound_start_bg_music(filename, options.music_volume + vol, loop);
+}
+
+/**
+ * Update volume of the background sound being played. */
+void sound_update_volume()
+{
+	Mix_VolumeMusic(options.music_volume);
+}
+
+/**
+ * Sound command, used to play a sound.
+ * @param data Data to initialize the sound data from.
+ * @param len Length of 'data'. */
+void SoundCmd(uint8 *data, int len)
+{
+	size_t pos = 0, i = 0;
+	uint8 type;
+	int loop, volume;
+	char filename[MAX_BUF], c;
+
+	(void) len;
+	filename[0] = '\0';
+	type = data[pos++];
+
+	while ((c = (char) (data[pos++])))
+	{
+		filename[i++] = c;
+	}
+
+	filename[i] = '\0';
+	loop = data[pos++];
+	volume = data[pos++];
+
+	if (type == CMD_SOUND_EFFECT)
+	{
+		sint8 x, y;
+		int dist_volume;
+		char path[HUGE_BUF];
+
+		x = data[pos++];
+		y = data[pos++];
+		dist_volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
+
+		if (dist_volume < 0)
+		{
+			dist_volume = 0;
+		}
+
+		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
+		snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
+		sound_add_effect(path, dist_volume + volume, loop);
+	}
+	else if (type == CMD_SOUND_BACKGROUND)
+	{
+		sound_start_bg_music(filename, options.music_volume + volume, loop);
+	}
+	else if (type == CMD_SOUND_ABSOLUTE)
+	{
+		sound_add_effect(filename, volume, loop);
+	}
+	else
+	{
+		LOG(llevBug, "SoundCmd(): Invalid sound type: %d\n", type);
+		return;
+	}
+}

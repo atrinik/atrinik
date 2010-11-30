@@ -30,18 +30,20 @@
 #include <include.h>
 
 /** The ignore list. */
-ignore_list_struct *ignore_list = NULL;
+static ignore_list_struct *ignore_list = NULL;
 
 /**
  * Add an entry to the ignore list.
  * @param name Name to ignore.
  * @param type Type of the ignore. */
-static void ignore_entry_add(char *name, char *type)
+static void ignore_entry_add(const char *name, const char *type)
 {
 	ignore_list_struct *tmp = (ignore_list_struct *) malloc(sizeof(ignore_list_struct));
 
-	strncpy(tmp->name, name, sizeof(tmp->name));
-	strncpy(tmp->type, type, sizeof(tmp->type));
+	strncpy(tmp->name, name, sizeof(tmp->name) - 1);
+	tmp->name[sizeof(tmp->name) - 1] = '\0';
+	strncpy(tmp->type, type, sizeof(tmp->type) - 1);
+	tmp->type[sizeof(tmp->type) - 1] = '\0';
 
 	tmp->next = ignore_list;
 	ignore_list = tmp;
@@ -50,18 +52,19 @@ static void ignore_entry_add(char *name, char *type)
 /**
  * Remove an entry from the ignore list.
  * @param name Name to remove.
- * @param type Type of the ignore. */
-static void ignore_entry_remove(char *name, char *type)
+ * @param type Type of the ignore.
+ * @return 1 if the entry was removed, 0 otherwise. */
+static int ignore_entry_remove(const char *name, const char *type)
 {
-	ignore_list_struct *tmp, *tmp2 = NULL;
+	ignore_list_struct *tmp, *prev = NULL;
 
-	for (tmp = ignore_list; tmp; tmp = tmp->next)
+	for (tmp = ignore_list; tmp; prev = tmp, tmp = tmp->next)
 	{
-		if (!strcmp(name, tmp->name) && !strcmp(type, tmp->type))
+		if (!strcasecmp(name, tmp->name) && !strcasecmp(type, tmp->type))
 		{
-			if (tmp2)
+			if (prev)
 			{
-				tmp->next = tmp->next;
+				prev->next = tmp->next;
 			}
 			else
 			{
@@ -69,11 +72,11 @@ static void ignore_entry_remove(char *name, char *type)
 			}
 
 			free(tmp);
-			return;
+			return 1;
 		}
-
-		tmp2 = tmp;
 	}
+
+	return 0;
 }
 
 /**
@@ -145,13 +148,13 @@ static void ignore_list_save()
  * @param name Name to check for.
  * @param type Type of the ignore to check for.
  * @return 1 if the player name is ignored, 0 otherwise. */
-int ignore_check(char *name, char *type)
+int ignore_check(const char *name, const char *type)
 {
 	ignore_list_struct *tmp;
 
 	for (tmp = ignore_list; tmp; tmp = tmp->next)
 	{
-		if ((tmp->name[0] == '*' || !strcmp(name, tmp->name)) && (tmp->type[0] == '*' || !strcmp(type, tmp->type)))
+		if ((tmp->name[0] == '*' || !strcasecmp(name, tmp->name)) && (tmp->type[0] == '*' || !strcasecmp(type, tmp->type)))
 		{
 			return 1;
 		}
@@ -176,7 +179,7 @@ void ignore_command(char *cmd)
 
 		for (tmp = ignore_list; tmp; tmp = tmp->next)
 		{
-			draw_info_format(COLOR_WHITE, "Name: %s Channel: %s", tmp->name, tmp->type);
+			draw_info_format(COLOR_WHITE, "Name: %s Type: %s", tmp->name, tmp->type);
 		}
 	}
 	else
@@ -189,9 +192,8 @@ void ignore_command(char *cmd)
 		}
 		else
 		{
-			if (ignore_check(name, type))
+			if (ignore_entry_remove(name, type))
 			{
-				ignore_entry_remove(name, type);
 				draw_info_format(COLOR_WHITE, "Removed %s (%s) from ignore list.", name, type);
 			}
 			else

@@ -51,7 +51,6 @@ static void red_scale(_Sprite *sprite);
 static void grey_scale(_Sprite *sprite);
 static void fow_scale(_Sprite *sprite);
 static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey);
-static void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 static void zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst);
 static void zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy, int smooth);
 
@@ -74,7 +73,7 @@ _Sprite *sprite_load_file(char *fname, uint32 flags)
 
 	if (sprite == NULL)
 	{
-		LOG(llevError, "ERROR: sprite_load_file(): Can't load sprite %s\n", fname);
+		LOG(llevBug, "sprite_load_file(): Can't load sprite %s\n", fname);
 		return NULL;
 	}
 
@@ -112,9 +111,6 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 
 	memset(sprite, 0, sizeof(_Sprite));
 
-	sprite->status = SPRITE_STATUS_LOADED;
-	sprite->type = SPRITE_TYPE_NORMAL;
-
 	ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT;
 
 	if (options.rleaccel_flag)
@@ -151,7 +147,6 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
  * @param sprite Sprite to free. */
 void sprite_free_sprite(_Sprite *sprite)
 {
-	void *tmp_free;
 	int i;
 
 	if (!sprite)
@@ -190,8 +185,7 @@ void sprite_free_sprite(_Sprite *sprite)
 		}
 	}
 
-	tmp_free = sprite;
-	FreeMemory(&tmp_free);
+	free(sprite);
 }
 
 /**
@@ -261,7 +255,7 @@ void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
  * @param box Box.
  * @param bltfx Bltfx.
  * @param stretch How much to stretch the sprite. */
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch)
+void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom)
 {
 	SDL_Rect dst;
 	SDL_Surface *surface, *blt_sprite, *tmp;
@@ -357,16 +351,26 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			blt_sprite = tmp;
 			dst.y = dst.y - ht_diff;
 		}
-
-		if (bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
-		{
-			SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
-		}
 	}
 
 	if (!blt_sprite)
 	{
 		return;
+	}
+
+	if (zoom && zoom != 100)
+	{
+		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, options.zoom_smooth);
+
+		if (!blt_sprite)
+		{
+			return;
+		}
+	}
+
+	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
+	{
+		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
 	}
 
 	SDL_BlitSurface(blt_sprite, box, surface, &dst);
@@ -376,7 +380,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}
 
-	if (stretch)
+	if (stretch || (zoom && zoom != 100))
 	{
 		SDL_FreeSurface(blt_sprite);
 	}
@@ -622,7 +626,8 @@ down_border:
  * @param y Y position.
  * @param col Color.
  * @param area Area.
- * @param bltfx Bltfx. */
+ * @param bltfx Bltfx.
+ * @deprecated Use the new text API -- string_blt() and family. */
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
 {
 	int i, tmp, line_clip = -1, line_count = 0;
@@ -673,12 +678,6 @@ void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, i
 	}
 
 	gflag = 0;
-
-	if (mode & COLOR_FLAG_CLIPPED)
-	{
-		SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color_g, 1, 1);
-		gflag = 1;
-	}
 
 	for (i = 0; text[i] != '\0'; i++)
 	{
@@ -872,6 +871,11 @@ int get_string_pixel_length(const char *text, struct _Font *font)
 
 	for (i = 0; text[i] != '\0'; i++)
 	{
+		if (text[i] == '^' || text[i] == '~' || text[i] == '|')
+		{
+			continue;
+		}
+
 		len += font->c[(int) text[i]].w + font->char_offset;
 	}
 
@@ -1034,7 +1038,6 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
 void remove_anim(struct _anim *anim)
 {
 	struct _anim *tmp, *tmp_next;
-	void *tmp_free;
 
 	if (!anim)
 	{
@@ -1043,9 +1046,7 @@ void remove_anim(struct _anim *anim)
 
 	tmp = anim->before;
 	tmp_next = anim->next;
-	tmp_free = &anim;
-	/* free node memory */
-	FreeMemory(tmp_free);
+	free(anim);
 
 	if (tmp)
 	{
@@ -1088,7 +1089,7 @@ void play_anims()
 				case ANIM_DAMAGE:
 					tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
 
-					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + MapStatusX && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + MapStatusY)
+					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + options.map_size_x && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + options.map_size_y)
 					{
 						xpos = options.mapstart_x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
 						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
@@ -1096,12 +1097,12 @@ void play_anims()
 						if (anim->value < 0)
 						{
 							snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - ((int) strlen(buf) * 4), ypos + tmp_y, COLOR_GREEN, NULL, NULL);
+							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_SIMPLE(COLOR_GREEN), TEXT_OUTLINE, NULL);
 						}
 						else
 						{
 							snprintf(buf, sizeof(buf), "%d", anim->value);
-							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4, ypos + tmp_y, COLOR_ORANGE, NULL, NULL);
+							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_SIMPLE(COLOR_ORANGE), TEXT_OUTLINE, NULL);
 						}
 					}
 
@@ -1110,7 +1111,7 @@ void play_anims()
 				case ANIM_KILL:
 					tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
 
-					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + MapStatusX && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + MapStatusY)
+					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + options.map_size_x && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + options.map_size_y)
 					{
 						xpos = options.mapstart_x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
 						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
@@ -1130,13 +1131,13 @@ void play_anims()
 						else if (anim->value < 10000)
 							tmp_off = -12;
 
-						StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, NULL, NULL);
+						string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_SIMPLE(COLOR_ORANGE), TEXT_OUTLINE, NULL);
 					}
 
 					break;
 
 				default:
-					LOG(llevError, "WARNING: Unknown animation type\n");
+					LOG(llevBug, "Unknown animation type\n");
 					break;
 			}
 		}
@@ -1302,7 +1303,7 @@ SDL_Surface *zoomSurface(SDL_Surface* src, double zoomx, double zoomy, int smoot
  * @param zoomy Zoom Y.
  * @param[out] dstwidth Will contain calculated width.
  * @param[out] dstheight  Will contain calculated height. */
-static void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight)
+void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight)
 {
 	if (zoomx < VALUE_LIMIT)
 	{
@@ -1344,14 +1345,12 @@ static void zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst)
 	/* Allocate memory for row increments. */
 	if (!(sax = (Uint32 *) malloc(dst->w * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceY(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceY(): Out of memory.\n");
 	}
 
 	if (!(say = (Uint32 *) malloc(dst->h * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceY(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceY(): Out of memory.\n");
 	}
 
 	/* Precalculate row increments */
@@ -1457,14 +1456,12 @@ static void zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int
 
 	if (!(sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceRGBA(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceRGBA(): Out of memory.\n");
 	}
 
 	if (!(say = (int *) malloc((dst->h + 1) * sizeof(Uint32))))
 	{
-		LOG(llevError, "ERROR: zoomSurfaceRGBA(): Out of memory.\n");
-		exit(0);
+		LOG(llevError, "zoomSurfaceRGBA(): Out of memory.\n");
 	}
 
 	/* Precalculate row increments */
@@ -1603,4 +1600,31 @@ static void zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int
 	/* Remove temp arrays */
 	free(sax);
 	free(say);
+}
+
+/**
+ * Pans the surface.
+ * @param surface Surface.
+ * @param box Coordinates. */
+void surface_pan(SDL_Surface *surface, SDL_Rect *box)
+{
+	if (box->x >= surface->w - box->w)
+	{
+		box->x = (Sint16) (surface->w - box->w);
+	}
+
+	if (box->x < 0)
+	{
+		box->x = 0;
+	}
+
+	if (box->y >= surface->h - box->h)
+	{
+		box->y = (Sint16) (surface->h - box->h);
+	}
+
+	if (box->y < 0)
+	{
+		box->y = 0;
+	}
 }

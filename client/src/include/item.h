@@ -30,36 +30,34 @@
 #ifndef ITEM_H
 #define ITEM_H
 
+/** How many objects are initially reserved for the objects pool. */
+#define NROF_ITEMS 50
+
 /** Maximum length of a name. */
 #define NAME_LEN 128
-/** Copy one name to another. */
-#define copy_name(t, f) strncpy(t, f, NAME_LEN - 1)
 
 /**
  * Item structure keeps all information what player (= client) knows
  * about items in its inventory. */
-typedef struct item_struct
+typedef struct obj
 {
 	/** Next item in inventory. */
-	struct item_struct *next;
+	struct obj *next;
+
+	/* Everything below will be cleared by memset() in
+	 * object_remove(). */
 
 	/** Previous item in inventory. */
-	struct item_struct *prev;
+	struct obj *prev;
 
 	/** Which item's inventory is this item. */
-	struct item_struct *env;
+	struct obj *env;
 
 	/** Item's inventory. */
-	struct item_struct *inv;
-
-	/** Item's full name without status information */
-	char d_name[NAME_LEN];
+	struct obj *inv;
 
 	/** Item's singular name as sent to us. */
 	char s_name[NAME_LEN];
-
-	/** Item's status information. */
-	char flags[NAME_LEN];
 
 	/** Item identifier (0 = free). */
 	sint32 tag;
@@ -85,38 +83,10 @@ typedef struct item_struct
 	/** How many ticks have passed since we last animated. */
 	uint16 last_anim;
 
-	/** Item is magical. */
-	uint16 magical;
-
-	/** Item is cursed. */
-	uint16 cursed;
-
-	/** Item is damned. */
-	uint16 damned;
-
-	/** Item is unpaid. */
-	uint16 unpaid;
-
-	/** Item is locked. */
-	uint16 locked;
-
-	/** Item is trapped. */
-	uint16 trapped;
-
-	/** Item is applied. */
-	uint16 applied;
-
-	/** Container is open. */
-	uint16 open;
-
-	/** How item is applied (worn/wield/etc) */
-	uint8 apply_type;
-
 	/** Unmodified flags value as sent from the server. */
-	uint32 flagsval;
+	uint32 flags;
 
-	/** Item type for ordering */
-	uint8 type;
+	/** Item type. */
 	uint8 itype;
 	uint8 stype;
 
@@ -134,8 +104,7 @@ typedef struct item_struct
 
 	/** The item's direction. */
 	uint8 direction;
-} item;
-
+} object;
 
 #define TYPE_PLAYER		            1
 #define TYPE_BULLET		            2
@@ -267,6 +236,6 @@ typedef struct item_struct
 #define F_INVISIBLE 0x0100
 
 /** Delete item by tag. */
-#define delete_item(tag) remove_item(locate_item(tag))
+#define delete_object(tag) object_remove(object_find(tag))
 
 #endif

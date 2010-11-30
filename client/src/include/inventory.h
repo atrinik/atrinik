@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Inventory header file. */
+
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
@@ -31,5 +35,29 @@
 
 #define INVITEMXLEN 7
 #define INVITEMYLEN 3
+
+/**
+ * @defgroup INVENTORY_FILTER_xxx Inventory filters
+ * Various inventory filters.
+ *@{*/
+/** All objects. */
+#define INVENTORY_FILTER_ALL 0
+/** Applied objects. */
+#define INVENTORY_FILTER_APPLIED 1
+/** Containers. */
+#define INVENTORY_FILTER_CONTAINER 2
+/** Magical objects. */
+#define INVENTORY_FILTER_MAGICAL 4
+/** Cursed objects. */
+#define INVENTORY_FILTER_CURSED 8
+/** Unidentified objects. */
+#define INVENTORY_FILTER_UNIDENTIFIED 16
+/** Unapplied objects. */
+#define INVENTORY_FILTER_UNAPPLIED 32
+/** Locked objects. */
+#define INVENTORY_FILTER_LOCKED 64
+/*@}*/
+
+uint64 inventory_filter;
 
 #endif
