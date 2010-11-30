@@ -322,9 +322,34 @@ int event_poll_key(SDL_Event *event)
 	if (cpl.menustatus == MENU_NO && (!text_input_string_flag || cpl.input_mode != INPUT_MODE_NUMBER))
 	{
 		if (event->key.keysym.mod & KMOD_SHIFT)
+		{
 			cpl.inventory_win = IWIN_INV;
+
+			if (event->key.keysym.sym == SDLK_1)
+			{
+				inventory_filter_set(INVENTORY_FILTER_ALL);
+				return 0;
+			}
+			else if (event->key.keysym.sym == SDLK_2)
+			{
+				inventory_filter_set(INVENTORY_FILTER_APPLIED);
+				return 0;
+			}
+			else if (event->key.keysym.sym == SDLK_3)
+			{
+				inventory_filter_set(INVENTORY_FILTER_LOCKED);
+				return 0;
+			}
+			else if (event->key.keysym.sym == SDLK_4)
+			{
+				inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
+				return 0;
+			}
+		}
 		else
+		{
 			cpl.inventory_win = IWIN_BELOW;
+		}
 
 		if (event->key.keysym.mod & KMOD_RCTRL || event->key.keysym.mod & KMOD_LCTRL || event->key.keysym.mod & KMOD_CTRL)
 			cpl.fire_on = 1;
