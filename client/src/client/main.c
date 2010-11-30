@@ -1146,6 +1146,7 @@ int main(int argc, char *argv[])
 	size_t i;
 
 	init_signals();
+	upgrader_init();
 	init_game_data();
 	curl_init();
 

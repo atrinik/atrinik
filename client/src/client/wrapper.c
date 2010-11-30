@@ -295,7 +295,7 @@ static int mkdir_recurse(const char *path)
  * Copy a file.
  * @param filename Source file.
  * @param filename_out Destination file. */
-static void copy_file(const char *filename, const char *filename_out)
+void copy_file(const char *filename, const char *filename_out)
 {
 	FILE *fp, *fp_out;
 	char buf[MAX_BUF];
@@ -327,16 +327,11 @@ static void copy_file(const char *filename, const char *filename_out)
 }
 
 /**
- * Get path to file, to implement saving settings related data to user's
- * home directory.
- * @param fname The file path.
- * @param mode File mode.
- * @return The path to the file. */
-char *file_path(const char *fname, const char *mode)
+ * Get configuration directory.
+ * @return The configuration directory. */
+const char *get_config_dir()
 {
-	static char tmp[256];
-	char *stmp, ctmp;
-	char *desc;
+	const char *desc;
 
 #ifdef __LINUX
 	desc = getenv("HOME");
@@ -351,7 +346,21 @@ char *file_path(const char *fname, const char *mode)
 		desc = ".";
 	}
 
-	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", desc, fname);
+	return desc;
+}
+
+/**
+ * Get path to file, to implement saving settings related data to user's
+ * home directory.
+ * @param fname The file path.
+ * @param mode File mode.
+ * @return The path to the file. */
+char *file_path(const char *fname, const char *mode)
+{
+	static char tmp[256];
+	char *stmp, ctmp;
+
+	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", get_config_dir(), fname);
 
 	if (strchr(mode, 'w'))
 	{
