@@ -259,7 +259,9 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
 	{"button.png", PIC_TYPE_DEFAULT},
-	{"button_down.png", PIC_TYPE_DEFAULT}
+	{"button_down.png", PIC_TYPE_DEFAULT},
+	{"checkbox.png", PIC_TYPE_TRANS},
+	{"checkbox_on.png", PIC_TYPE_TRANS}
 };
 
 /** Number of bitmaps. */
