@@ -39,6 +39,7 @@
 276 1 "left" "?M_LEFT"
 275 1 "right" "?M_RIGHT"
 113 0 "q" "?M_QLIST"
+114 0 "r" "/region_map"
 
 +"Targetting"
 009 0 "tab" "?M_RANGE"
