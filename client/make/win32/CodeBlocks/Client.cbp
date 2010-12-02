@@ -104,6 +104,9 @@
 		<Unit filename="..\..\..\src\client\client.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\client\video.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\client\upgrader.c">
 			<Option compilerVar="CC" />
 		</Unit>
