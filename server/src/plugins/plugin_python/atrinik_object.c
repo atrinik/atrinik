@@ -1541,17 +1541,17 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *obj, PyObject *args
  * for saving the object somewhere for loading later with
  * @ref Atrinik_LoadObject "LoadObject()".
  * @return String containing the saved object. */
-static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
 {
 	PyObject *ret;
 	StringBuffer *sb;
 	char *result;
 
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	sb = hooks->stringbuffer_new();
-	hooks->dump_object(WHO, sb);
+	hooks->dump_object_rec(obj->obj, sb);
 	result = hooks->stringbuffer_finish(sb);
 	ret = Py_BuildValue("s", result);
 	free(result);
