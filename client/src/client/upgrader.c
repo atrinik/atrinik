@@ -126,14 +126,14 @@ void upgrade_do(const char *source_dir)
 	load_options_dat();
 
 	/* Change resolution X/Y if needed. */
-	if (options.resolution_x < 1024)
+	if (options.resolution_x < WINDOW_DEFAULT_WIDTH)
 	{
-		options.resolution_x = 1024;
+		options.resolution_x = WINDOW_DEFAULT_WIDTH;
 	}
 
-	if (options.resolution_y < 768)
+	if (options.resolution_y < WINDOW_DEFAULT_HEIGHT)
 	{
-		options.resolution_y = 768;
+		options.resolution_y = WINDOW_DEFAULT_HEIGHT;
 	}
 
 	options.chat_font_size = 1;

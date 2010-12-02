@@ -23,9 +23,18 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Various defines. */
+
 #include "include.h"
 
 #define MAX_BUF 256
+
+/** Default width. */
+#define WINDOW_DEFAULT_WIDTH 1024
+/** Default height. */
+#define WINDOW_DEFAULT_HEIGHT 768
 
 /* How many skill types server supports/client will get sent to it.
  * If more skills are added to server, this needs to get increased. */

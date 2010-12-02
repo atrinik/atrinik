@@ -361,8 +361,8 @@ static void init_game_data()
 	RangeFireMode = 0;
 	gui_interface_party = NULL;
 	help_files = NULL;
-	options.resolution_x = 1024;
-	options.resolution_y = 768;
+	options.resolution_x = WINDOW_DEFAULT_WIDTH;
+	options.resolution_y = WINDOW_DEFAULT_HEIGHT;
 	options.playerdoll = 0;
 #ifdef WIDGET_SNAP
 	options.widget_snap = 0;
