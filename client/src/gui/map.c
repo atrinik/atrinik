@@ -27,7 +27,10 @@
  * @file
  * Map drawing. */
 
-#include "include.h"
+#include <include.h>
+
+/** Font used for the map name. */
+#define MAP_NAME_FONT FONT_SERIF14
 
 static struct Map the_map;
 
@@ -76,7 +79,11 @@ void load_mapdef_dat()
  * @param y Y position of the map name */
 void widget_show_mapname(widgetdata *widget)
 {
-	StringBlt(ScreenSurface, &BigFont, MapData.name, widget->x1, widget->y1, COLOR_HGOLD, NULL, NULL);
+	SDL_Rect box;
+
+	box.w = widget->wd;
+	box.h = 0;
+	string_blt(ScreenSurface, MAP_NAME_FONT, MapData.name, widget->x1, widget->y1, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
 }
 
 /**
@@ -150,14 +157,15 @@ void update_map_data(const char *name, char *bg_music)
 
 	if (name)
 	{
-		strncpy(MapData.name, name, sizeof(MapData.name));
+		strncpy(MapData.name, name, sizeof(MapData.name) - 1);
+		MapData.name[sizeof(MapData.name) - 1] = '\0';
 
 		/* We need to update all mapname widgets on the screen now.
 		 * Not that there should be more than one at a time, but just in case. */
 		for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
 		{
-			resize_widget(widget, RESIZE_RIGHT, get_string_pixel_length(name, &BigFont));
-			resize_widget(widget, RESIZE_BOTTOM, BigFont.c[0].h);
+			resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
+			resize_widget(widget, RESIZE_BOTTOM, FONT_HEIGHT(MAP_NAME_FONT));
 		}
 	}
 }

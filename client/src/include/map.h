@@ -90,7 +90,7 @@ typedef struct _multi_part_obj
 typedef struct _mapdata
 {
 	/** Map name. */
-	char name[256];
+	char name[1024];
 
 	/** Map background music. */
 	char music[256];

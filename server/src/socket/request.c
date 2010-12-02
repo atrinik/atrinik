@@ -1159,7 +1159,20 @@ void draw_client_map2(object *pl)
 
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
-		SockList_AddString(&sl, pl->map->name);
+		if (CONTR(pl)->socket.socket_version >= 1045)
+		{
+			SockList_AddString(&sl, "<b><o=0,0,0>");
+			/* Ignore the terminating NUL. */
+			sl.len--;
+			SockList_AddString(&sl, pl->map->name);
+			/* Ignore the terminating NUL. */
+			sl.len--;
+			SockList_AddString(&sl, "</o></b>");
+		}
+		else
+		{
+			SockList_AddString(&sl, pl->map->name);
+		}
 
 		if (CONTR(pl)->socket.socket_version < 1038)
 		{
