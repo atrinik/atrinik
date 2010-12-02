@@ -40,23 +40,25 @@ extern char *coins[NUM_COINS + 1];
 extern archetype *coins_arch[NUM_COINS];
 
 /**
- * Flags to generate_treasures():
- * @anchor GT_xxx */
-enum
-{
-	GT_ENVIRONMENT = 0x0001,
-	GT_INVISIBLE = 0x0002,
-	/** Generated items have ::FLAG_STARTEQUIP set */
-	GT_STARTEQUIP = 0x0004,
-	/** Monster should apply generated item */
-	GT_APPLY = 0x0008,
-	/** Don't generate bad/cursed items. Used for new player's equipment. */
-	GT_ONLY_GOOD = 0x0010,
-	/** When object has been generated, send its information to player. */
-	GT_UPDATE_INV = 0x0020,
-	/** Set value of all created treasures to 0. */
-	GT_NO_VALUE = 0x0040
-};
+ * @defgroup GT_xxx Treasure generation flags
+ * Treasure generation flags.
+ *@{*/
+/**
+ * Put generated treasure below the object instead of inside the object's
+ * inventory. */
+#define GT_ENVIRONMENT 0x0001
+#define GT_INVISIBLE 0x0002
+/** Generated items have ::FLAG_STARTEQUIP set */
+#define GT_STARTEQUIP 0x0004
+/** Unused. */
+#define GT_APPLY 0x0008
+/** Don't generate bad/cursed items. Used for new player's equipment. */
+#define GT_ONLY_GOOD 0x0010
+/** When object has been generated, send its information to player. */
+#define GT_UPDATE_INV 0x0020
+/** Set value of all created treasures to 0. */
+#define GT_NO_VALUE 0x0040
+/*@}*/
 
 /**
  * When a treasure got cloned from archlist, we want to perhaps change
