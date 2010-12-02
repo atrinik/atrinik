@@ -3,7 +3,7 @@
 ## a specific monster.
 
 from Atrinik import *
-from QuestManager import *
+from QuestManager import QuestManager
 
 activator = WhoIsActivator()
 me = WhoAmI()
