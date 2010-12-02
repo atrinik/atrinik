@@ -249,13 +249,13 @@ void upgrader_init();
 
 /* client/video.c */
 int video_set_size();
+uint32 get_video_flags();
 
 /* client/wrapper.c */
 void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
 void system_start();
 void system_end();
 char *get_word_from_string(char *str, int *pos);
-uint32 get_video_flags();
 void copy_file(const char *filename, const char *filename_out);
 const char *get_config_dir();
 char *file_path(const char *fname, const char *mode);
