@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Header file for servers files declaractions. */
+ * Header file for servers files declarations. */
 
 #ifndef SERVER_FILES_H
 #define SERVER_FILES_H

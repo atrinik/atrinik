@@ -33,7 +33,7 @@
  * then polls for x events. This should be fixed since you can just block
  * on both filedescriptors.
  *
- * The DoClient function recieves a message (an ArgList), unpacks it, and
+ * The DoClient function receives a message (an ArgList), unpacks it, and
  * in a slow for loop dispatches the command to the right function
  * through the commands table. ArgLists are essentially like RPC things,
  * only they don't require going through RPCgen, and it's easy to get

@@ -172,7 +172,7 @@ typedef struct _widget_bitmap
 	int bitmap_id;
 } _widget_bitmap;
 
-/** A more specialised kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
+/** A more specialized kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
 typedef struct _widget_container_strip
 {
 	/** The space between the widgets inside in relation to each other. */

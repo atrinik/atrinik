@@ -69,12 +69,12 @@ _option opt[] =
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */
-	{"Fullscreen:", "Toogle fullscreen to windowed mode.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
+	{"Fullscreen:", "Toggle fullscreen to windowed mode.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
 	{"Resolution:", "The resolution of the screen/window.\nIf you change to lower resolutions your GUI-windows may be hidden.", "Custom#800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
 	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
 	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.\nNOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
 	{"Textwindows alpha value:", "Transparent value of text windows. Higher = darker", "", SEL_RANGE, 0, 255, 5, 255, &options.textwin_alpha, VAL_INT},
-	{"Save CPU time with sleep():", "Client eats less cput time when set.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
+	{"Save CPU time with sleep():", "Client eats less CPU time when set.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
 	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
 	{"Key repeat speed:", "How fast to repeat a held down key.", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
 	{"Disable file updates:", "If on, will not update sound effects/background music/etc on server\nconnect. This may be useful for users with low bandwidth.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_updates, VAL_BOOL},

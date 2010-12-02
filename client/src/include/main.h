@@ -340,7 +340,7 @@ typedef struct _fire_mode
 	/** Item */
 	int item;
 
-	/** Amunnition */
+	/** Ammunition */
 	int amun;
 
 	/** Spell */
@@ -694,7 +694,6 @@ extern struct _Font SystemFont;
 /* 6x3 mini font */
 extern struct _Font Font6x3Out;
 
-/* Our main bla and so on surface */
 extern SDL_Surface *ScreenSurface;
 extern SDL_Surface *ScreenSurfaceMap;
 

@@ -143,7 +143,7 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 }
 
 /**
- * Free a spriate.
+ * Free a sprite.
  * @param sprite Sprite to free. */
 void sprite_free_sprite(_Sprite *sprite)
 {
@@ -1000,7 +1000,7 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
 	/* This looks like it makes it move up the screen -- was 0 */
 	anim->yoff = 1;
 
-	/* Map cordinates */
+	/* Map coordinates */
 	anim->mapx = mapx;
 	anim->mapy = mapy;
 
@@ -1430,7 +1430,7 @@ static void zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst)
 }
 
 /**
- * 32bit zoom with optional anti-aliasing by bilinear interpolation.
+ * 32bit zoom with optional anti-aliasing by bi-linear interpolation.
  * @param src Source surface.
  * @param dst Destination surface.
  * @param flipx Flip X?

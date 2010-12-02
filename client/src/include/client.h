@@ -124,7 +124,7 @@ typedef struct SockList
 	 * Start of data in buf. */
 	int pos;
 	/**
-	 * Daa. */
+	 * Data. */
 	unsigned char *buf;
 } SockList;
 
@@ -332,7 +332,7 @@ typedef struct Player_Struct
 extern Client_Player cpl;
 
 /* These are multiplication values that should be used when changing
- * floats to ints, and vice version.  MULTI is integer representatin
+ * floats to ints, and vice version.  MULTI is integer representation
  * (float to int), MULTF is float, for going from int to float. */
 #define FLOAT_MULTI	100000
 #define FLOAT_MULTF	100000.0

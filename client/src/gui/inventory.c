@@ -134,7 +134,7 @@ void inventory_filter_toggle(uint64 filter)
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 }
 
-/* This function returns number of items and adjusst the inventory window data */
+/* This function returns number of items and adjusts the inventory window data */
 int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen)
 {
 	object *tmp, *tmpc;
@@ -285,7 +285,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 				if (draggingInvItem(DRAG_GET_STATUS) == DRAG_PDOLL)
 				{
 					cpl.win_inv_tag = cpl.win_pdoll_tag;
-					/* We dont have to check for the coordinates, if we are here we are in the widget */
+					/* We don't have to check for the coordinates, if we are here we are in the widget */
 
 					/* Drop to inventory */
 					process_macro_keys(KEYFUNC_APPLY, 0);
@@ -334,10 +334,10 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			{
 				/* Stuff */
 
-				/* Mouseweel */
+				/* Mousewheel */
 				if (event.button.button == 4 && cpl.win_inv_slot >= INVITEMXLEN)
 					cpl.win_inv_slot -= INVITEMXLEN;
-				/* Mouseweel */
+				/* Mousewheel */
 				else if (event.button.button == 5)
 				{
 					cpl.win_inv_slot += INVITEMXLEN;
@@ -930,7 +930,7 @@ void examine_range_inv()
 	}
 }
 
-/* For throwing and amunnition, we need a "ready/apply/use" mechanism.
+/* For throwing and ammunition, we need a "ready/apply/use" mechanism.
  * I used the mark cmd, because we can include this selection mechanism
  * inside the old cmd structure. Also, the mark cmd is extended with it.
  * Notice, that the range part of the mark cmd is client side only...
@@ -938,7 +938,7 @@ void examine_range_inv()
  * but we don't care about it. That's because we have to mark always in only very
  * special cases (like ignite something or mark an item for enchanting).
  * Here are the only double effects, that we want server side mark something
- * but we set the item then too as throw/amunnition on client side.
+ * but we set the item then too as throw/ammunition on client side.
  * Here the player must take care and remark the right range item
  * because range selection is a fight action and marking items server side
  * is not, we will have no bad game play effects. MT. */

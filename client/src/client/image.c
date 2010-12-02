@@ -161,14 +161,14 @@ void read_bmaps_p0()
 			LOG(llevError, "The file %s is corrupted.\n", FILE_ATRINIK_P0);
 		}
 
-		/* Skip accross the image ID data. */
+		/* Skip across the image ID data. */
 		for (cp = buf + 6; *cp != ' '; cp++)
 		{
 		}
 
 		len = atoi(cp);
 
-		/* Skip accross the length data. */
+		/* Skip across the length data. */
 		for (cp = cp + 1; *cp != ' '; cp++)
 		{
 		}

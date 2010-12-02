@@ -699,7 +699,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		rect.y = yl - 9;
 		rect.h = 1;
 		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-		/* Horizontal lines of left bracked */
+		/* Horizontal lines of left bracket */
 		rect.h = 1;
 		rect.w = 3;
 		rect.x = xmpos + xtemp - 3;
@@ -707,7 +707,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
 		rect.y = yl - 7;
 		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-		/* Horizontal lines of right bracked */
+		/* Horizontal lines of right bracket */
 		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 3;
 		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
 		rect.y = yl - 11;

@@ -503,7 +503,6 @@ int process_macro_keys(int id, int value)
 
 				if (cpl.container)
 				{
-					/* container, aber nicht der gleiche */
 					if (cpl.container->tag != cpl.win_below_ctag)
 						loc = cpl.container->tag;
 					else

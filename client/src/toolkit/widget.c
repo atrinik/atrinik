@@ -30,7 +30,7 @@
  *
  * To add a new widget:
  * -# Add an entry (same index in both cases) to ::con_widget and ::WidgetID.
- * -# If applicable, add extended attributes in its own struct, and add handler code for its initialisation in create_widget_object().
+ * -# If applicable, add extended attributes in its own struct, and add handler code for its initialization in create_widget_object().
  * -# If applicable, add handler code for widget movement in widget_event_mousedn().
  * -# If applicable, add handler code to get_widget_owner().
  * -# Add handler function to process_widget(). */
@@ -247,7 +247,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 				exit(0);
 			}
 
-			/* begin initialising the members */
+			/* begin initializing the members */
 			container->widget_type = -1;
 			container->outer_padding_top = 10;
 			container->outer_padding_bottom = 10;
@@ -277,7 +277,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 						exit(0);
 					}
 
-					/* Begin initialising the members. */
+					/* Begin initializing the members. */
 					container_strip->inner_padding = 10;
 					container_strip->horizontal = 0;
 					container_strip->size = 0;
@@ -295,7 +295,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 								exit(0);
 							}
 
-							/* Begin initialising the members. */
+							/* Begin initializing the members. */
 							menu->submenu = NULL;
 							menu->owner = NULL;
 							/* Have the sub strip container point to it. */
@@ -310,7 +310,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 								exit(0);
 							}
 
-							/* Begin initialising the members. */
+							/* Begin initializing the members. */
 							menuitem->menu_func_ptr = NULL;
 							menuitem->menu_type = MENU_NORMAL;
 							/* Have the sub strip container point to it. */
@@ -331,7 +331,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 				exit(0);
 			}
 
-			/* begin initialising the members */
+			/* begin initializing the members */
 			label->text = "";
 			label->font = &SystemFont;
 			label->color = COLOR_DEFAULT;
@@ -347,7 +347,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 				exit(0);
 			}
 
-			/* begin initialising the members */
+			/* begin initializing the members */
 			bitmap->bitmap_id = 0;
 			/* have the subwidget point to it */
 			widget->subwidget = (_widget_bitmap *) bitmap;
@@ -576,7 +576,7 @@ void kill_widget_tree(widgetdata *widget)
 			kill_widget_tree(widget->inv);
 		}
 
-		/* store the next sibling in a tmp variable, as widget is about to be zapped from existance */
+		/* store the next sibling in a tmp variable, as widget is about to be zapped from existence */
 		tmp = widget->next;
 
 		/* here we call our widget kill function, and force removal by using the internal one */
@@ -958,7 +958,7 @@ static int load_interface_file(char *filename)
 					found_widget[pos] = 1;
 				}
 
-				/* create the widget with that ID, it is already fully initialised to the defaults */
+				/* create the widget with that ID, it is already fully initialized to the defaults */
 				widget = create_widget_object(pos);
 
 				/* in case something went wrong */
@@ -1181,7 +1181,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	/* Normal condition - respond to mouse down event */
 	else
 	{
-		/* Handler(s) for miscellanous mouse movement(s) go here. */
+		/* Handler(s) for miscellaneous mouse movement(s) go here. */
 
 		/* Special case for menuitems, if menuitem or a widget inside is clicked on, calls the function tied to the menuitem. */
 		widget_menu_event(widget, x, y);
@@ -1473,7 +1473,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 			return 0;
 		}
 
-		/* Handlers for miscellanous mouse movements go here */
+		/* Handlers for miscellaneous mouse movements go here */
 
 		/* Handlers for the widgets mouse move */
 		switch (widget->WidgetTypeID)
@@ -1531,7 +1531,7 @@ int widget_event_start_move(widgetdata *widget, int x, int y)
 
 #ifdef WIN32
 	/* Workaround another bug with SDL 1.2.x on Windows. Make sure the cursor
-	 * is in the centre of the screen if we are in fullscreen mode. */
+	 * is in the center of the screen if we are in fullscreen mode. */
 	if (ScreenSurface->flags & SDL_FULLSCREEN)
 	{
 		SDL_WarpMouse(Screensize->x / 2, Screensize->y / 2);
@@ -1563,7 +1563,7 @@ int widget_event_respond(int x, int y)
 	return 1;
 }
 
-/** Priority overide function, we have to have that here for resizing... */
+/** Priority override function, we have to have that here for resizing... */
 int widget_event_override()
 {
 	if (textwin_flags & (TW_RESIZE | TW_RESIZE2))
@@ -2315,7 +2315,7 @@ widgetdata *add_bitmap(int bitmap_id)
 	return widget;
 }
 
-/** Initialises a menu widget. */
+/** Initializes a menu widget. */
 widgetdata *create_menu(int x, int y, widgetdata *owner)
 {
 	widgetdata *widget_menu = create_widget_object(MENU_ID);
@@ -2327,7 +2327,7 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 	widget_menu->y1 = y;
 	/* Point the menu to the owner. */
 	(MENU(widget_menu))->owner = owner;
-	/* Magic numbers for now, maybe it will be possible in future to customise this in files. */
+	/* Magic numbers for now, maybe it will be possible in future to customize this in files. */
 	container_menu->outer_padding_left = 4;
 	container_menu->outer_padding_right = 4;
 	container_menu->outer_padding_top = 4;
@@ -2350,7 +2350,7 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 	container_menuitem = CONTAINER(widget_menuitem);
 	container_strip_menuitem = CONTAINER_STRIP(widget_menuitem);
 
-	/* Initialise attributes. */
+	/* Initialize attributes. */
 	container_menuitem->outer_padding_left = 2;
 	container_menuitem->outer_padding_right = 2;
 	container_menuitem->outer_padding_top = 0;

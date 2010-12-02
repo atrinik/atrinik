@@ -68,7 +68,7 @@ typedef struct _multi_part_tile
 } _multi_part_tile;
 
 /** Table of predefined multi arch objects.
- * mpart_id and mpart_nr in the arches are commited from server
+ * mpart_id and mpart_nr in the arches are committed from server
  * to analyze the exact tile position inside a mpart object.
  *
  * The way of determinate the starting and shift points is explained

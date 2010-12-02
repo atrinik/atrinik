@@ -1445,7 +1445,7 @@ void widget_menu_event(widgetdata *widget, int x, int y)
 
 	tmp = widget;
 
-	/* If the widget isnt a menuitem, the user probably clicked on a widget it contains.
+	/* If the widget isn't a menuitem, the user probably clicked on a widget it contains.
 	 * In that case, the parent is probably the menuitem, so grab that instead. */
 	if (tmp->WidgetSubtypeID != MENUITEM_ID && tmp->env && tmp->env->WidgetSubtypeID == MENUITEM_ID)
 	{

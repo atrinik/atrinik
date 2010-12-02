@@ -150,7 +150,7 @@ int Event_PollInputDevice()
 					}
 				}
 
-				/* Widget has higher priority than anything below, exept menus
+				/* Widget has higher priority than anything below, except menus
 				 * so break if we had a widget event */
 				if (widget_event_mouseup(x,y, &event))
 				{
@@ -354,7 +354,7 @@ int Event_PollInputDevice()
 	 * we assume a repeat flag is true.
 	 * Sadly, SDL doesn't have a tick count inside the event messages, which
 	 * means the tick value when the event really was triggered. So, the
-	 * client can't simulate the buffered "rythm" of the key pressings when
+	 * client can't simulate the buffered "rhythm" of the key pressings when
 	 * the client lags. */
 	key_repeat();
 

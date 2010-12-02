@@ -41,7 +41,7 @@ static const char *spell_tab[] =
 	"Protection", "Fire", "Frost", "Electricity", "Missiles",
 	"Self", "Summoning", "Abjuration", "Restoration", "Detonation",
 	"Mind", "Creation", "Teleportation", "Information", "Transmutation",
-	"Transferrence", "Turning", "Wounding", "Death", "Light",
+	"Transference", "Turning", "Wounding", "Death", "Light",
 	NULL
 };
 

@@ -32,7 +32,7 @@
 /**
  * Computes the integer square root.
  * @param n Number of which to compute the root.
- * @return Integer quare root. */
+ * @return Integer square root. */
 unsigned long isqrt(unsigned long n)
 {
 	unsigned long op = n, res = 0, one;
@@ -67,7 +67,7 @@ unsigned long isqrt(unsigned long n)
  * @param array The string array; will be filled with pointers into str.
  * @param array_size The number of elements in array; if <code>str</code> contains more fields
  * excess fields are not split but included into the last element.
- * @param sep Seperator to use.
+ * @param sep Separator to use.
  * @return The number of elements found; always less or equal to <code>array_size</code>. */
 size_t split_string(char *str, char *array[], size_t array_size, char sep)
 {

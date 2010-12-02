@@ -32,7 +32,7 @@
  * for client->server commands.
  *
  * this file contains most of the commands for the dispatch loop most of
- * the functions are self-explanatory, the pixmap/bitmap commands recieve
+ * the functions are self-explanatory, the pixmap/bitmap commands receive
  * the picture, and display it.  The drawinfo command draws a string
  * in the info window, the stats command updates the local copy of the stats
  * and displays it. handle_query prompts the user for input.
@@ -1599,7 +1599,7 @@ void SkilllistCmd(char *data)
 	/* We grab our mode */
 	mode = atoi(data);
 
-	/* Now look for the members fo the list we have */
+	/* Now look for the members of the list we have */
 	for (; ;)
 	{
 		/* Find start of a name */
