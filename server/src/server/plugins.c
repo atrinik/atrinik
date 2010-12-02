@@ -153,6 +153,7 @@ struct plugin_hooklist hooklist =
 	execute_newserver_command,
 	find_treasurelist,
 	create_treasure,
+	dump_object_rec,
 
 	season_name,
 	weekdays,
