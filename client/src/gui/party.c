@@ -504,10 +504,10 @@ void gui_party_interface_mouse(SDL_Event *e)
 		return;
 
 	/* Mousewheel up/down */
-	if (e->button.button == 4 || e->button.button == 5)
+	if (e->button.button == SDL_BUTTON_WHEELUP || e->button.button == SDL_BUTTON_WHEELDOWN)
 	{
 		/* Scroll down... */
-		if (e->button.button == 5)
+		if (e->button.button == SDL_BUTTON_WHEELDOWN)
 			gui_interface_party->yoff++;
 		/* .. or up */
 		else
