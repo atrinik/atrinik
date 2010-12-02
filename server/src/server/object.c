@@ -3260,6 +3260,8 @@ object *load_object_str(char *obstr)
 		return NULL;
 	}
 
+	sum_weight(ob);
+
 	return ob;
 }
 
