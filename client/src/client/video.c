@@ -70,60 +70,96 @@ uint32 get_video_flags()
 	videoflags_full = SDL_FULLSCREEN;
 
 	if (options.Full_DOUBLEBUF)
+	{
 		videoflags_full |= SDL_DOUBLEBUF;
+	}
 
 	if (options.Full_HWSURFACE)
+	{
 		videoflags_full |= SDL_HWSURFACE;
+	}
 
 	if (options.Full_SWSURFACE)
+	{
 		videoflags_full |= SDL_SWSURFACE;
+	}
 
 	if (options.Full_HWACCEL)
+	{
 		videoflags_full |= SDL_HWACCEL;
+	}
 
 	if (options.Full_ANYFORMAT)
+	{
 		videoflags_full |= SDL_ANYFORMAT;
+	}
 
 	if (options.Full_ASYNCBLIT)
+	{
 		videoflags_full |= SDL_ASYNCBLIT;
+	}
 
 	if (options.Full_HWPALETTE)
+	{
 		videoflags_full |= SDL_HWPALETTE;
+	}
 
 	if (options.Full_RESIZABLE)
+	{
 		videoflags_full |= SDL_RESIZABLE;
+	}
 
 	if (options.Full_NOFRAME)
+	{
 		videoflags_full |= SDL_NOFRAME;
+	}
 
 	videoflags_win = 0;
 
 	if (options.Win_DOUBLEBUF)
+	{
 		videoflags_win |= SDL_DOUBLEBUF;
+	}
 
 	if (options.Win_HWSURFACE)
+	{
 		videoflags_win |= SDL_HWSURFACE;
+	}
 
 	if (options.Win_SWSURFACE)
+	{
 		videoflags_win |= SDL_SWSURFACE;
+	}
 
 	if (options.Win_HWACCEL)
+	{
 		videoflags_win |= SDL_HWACCEL;
+	}
 
 	if (options.Win_ANYFORMAT)
+	{
 		videoflags_win |= SDL_ANYFORMAT;
+	}
 
 	if (options.Win_ASYNCBLIT)
+	{
 		videoflags_win |= SDL_ASYNCBLIT;
+	}
 
 	if (options.Win_HWPALETTE)
+	{
 		videoflags_win |= SDL_HWPALETTE;
+	}
 
 	if (options.Win_RESIZABLE)
+	{
 		videoflags_win |= SDL_RESIZABLE;
+	}
 
 	if (options.Win_NOFRAME)
+	{
 		videoflags_win |= SDL_NOFRAME;
+	}
 
 	options.videoflags_win = videoflags_win;
 	options.videoflags_full = videoflags_full;
@@ -135,10 +171,14 @@ uint32 get_video_flags()
 		options.rleaccel_flag = 0;
 
 		if (options.Full_RLEACCEL)
+		{
 			options.rleaccel_flag = 1;
+		}
 
 		if (options.videoflags_full & SDL_DOUBLEBUF)
+		{
 			options.doublebuf_flag = 1;
+		}
 
 		return videoflags_full;
 	}
@@ -149,10 +189,14 @@ uint32 get_video_flags()
 		options.rleaccel_flag = 0;
 
 		if (options.Win_RLEACCEL)
+		{
 			options.rleaccel_flag = 1;
+		}
 
 		if (options.videoflags_win & SDL_DOUBLEBUF)
+		{
 			options.doublebuf_flag = 1;
+		}
 
 		return videoflags_win;
 	}
