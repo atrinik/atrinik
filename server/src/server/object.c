@@ -792,6 +792,41 @@ void dump_object(object *op, StringBuffer *sb)
 }
 
 /**
+ * Dump an object, complete with its inventory.
+ * @param op Object to dump.
+ * @param sb Buffer that will contain object information. */
+void dump_object_rec(object *op, StringBuffer *sb)
+{
+	archetype *at;
+	object *tmp;
+
+	if (!op)
+	{
+		return;
+	}
+
+	/* Get the difference from the object's archetype. */
+	at = op->arch;
+
+	/* No archetype, use empty archetype. */
+	if (!at)
+	{
+		at = empty_archetype;
+	}
+
+	stringbuffer_append_printf(sb, "arch %s\n", at->name);
+	get_ob_diff(sb, op, &at->clone);
+
+	/* Recursively dump the inventory. */
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		dump_object_rec(tmp, sb);
+	}
+
+	stringbuffer_append_string(sb, "end\n");
+}
+
+/**
  * Returns the object which this object marks as being the owner.
  *
  * An ID scheme is used to avoid pointing to objects which have been

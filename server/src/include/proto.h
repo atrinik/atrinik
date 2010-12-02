@@ -585,6 +585,7 @@ void sub_weight(object *op, sint32 weight);
 object *get_env_recursive(object *op);
 object *is_player_inv(object *op);
 void dump_object(object *op, StringBuffer *sb);
+void dump_object_rec(object *op, StringBuffer *sb);
 object *get_owner(object *op);
 void clear_owner(object *op);
 void set_owner(object *op, object *owner);
@@ -1200,6 +1201,6 @@ void waypoint_move(object *op, object *waypoint);
 void apply_weapon_improver(object *op, object *tmp);
 int check_weapon_power(object *who, int improvs);
 
-/* world_maker/world_maker.c */
+/* modules/world_maker.c */
 void world_maker();
 #endif
