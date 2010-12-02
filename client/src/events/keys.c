@@ -598,41 +598,8 @@ void check_menu_keys(int menu, int key)
 
 						if (options.resolution && (screen_definitions[options.resolution - 1][0] != Screensize->x || screen_definitions[options.resolution - 1][1] != Screensize->y))
 						{
-							uint32 videoflags = get_video_flags();
-
 							resize_window(screen_definitions[options.resolution - 1][0], screen_definitions[options.resolution - 1][1]);
-
-							if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
-							{
-								/* We have a problem, not supported screensize */
-								/* If we have higher resolution we try the default 800x600 */
-								if (Screensize->x > 800 && Screensize->y > 600)
-								{
-									LOG(llevInfo, "Try to set to default 800x600...\n");
-
-									if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
-									{
-										/* Now we have a really really big problem */
-										LOG(llevError, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
-									}
-									else
-									{
-										const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-										options.real_video_bpp = info->vfmt->BitsPerPixel;
-									}
-								}
-								else
-								{
-									exit(2);
-								}
-							}
-							else
-							{
-								const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-								options.used_video_bpp = info->vfmt->BitsPerPixel;
-							}
+							video_set_size();
 						}
 					}
 

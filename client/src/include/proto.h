@@ -247,6 +247,9 @@ void file_updates_parse();
 void upgrade_do(const char *source_dir);
 void upgrader_init();
 
+/* client/video.c */
+int video_set_size();
+
 /* client/wrapper.c */
 void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
 void system_start();

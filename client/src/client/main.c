@@ -1203,42 +1203,15 @@ int main(int argc, char *argv[])
 	{
 		if (options.auto_bpp_flag)
 		{
-			const SDL_VideoInfo* info = NULL;
-			info = SDL_GetVideoInfo();
+			const SDL_VideoInfo *info = SDL_GetVideoInfo();
+
 			options.used_video_bpp = info->vfmt->BitsPerPixel;
 		}
 	}
 
-	if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
+	if (!video_set_size())
 	{
-		/* We have a problem, not supportet screensize */
-		/* If we have higher resolution we try the default 800x600 */
-		if (Screensize->x > 800 && Screensize->y > 600)
-		{
-			LOG(llevInfo, "Try to set to default 800x600...\n");
-
-			if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
-			{
-				/* Now we have a really really big problem */
-				LOG(llevError, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
-			}
-			else
-			{
-				const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-				options.real_video_bpp = info->vfmt->BitsPerPixel;
-			}
-		}
-		else
-		{
-			exit(2);
-		}
-	}
-	else
-	{
-		const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-		options.used_video_bpp = info->vfmt->BitsPerPixel;
+		LOG(llevError, "Couldn't set video size: %s\n", SDL_GetError());
 	}
 
 	sprite_init_system();
