@@ -295,6 +295,38 @@ static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *pl, PyObject *arg
 	Py_ReturnBoolean(hooks->swap_apartments(mapold, mapnew, x, y, pl->pl->ob));
 }
 
+/**
+ * <h1>player.ExecuteCommand(string command)</h1>
+ * Make player execute a command.
+ * @param command Command to execute.
+ * @throws AtrinikError if player is not in a state to execute commands.
+ * @return Return value of the command. */
+static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *args)
+{
+	const char *command;
+	char *cp;
+	int ret;
+
+	if (!PyArg_ParseTuple(args, "s", &command))
+	{
+		return NULL;
+	}
+
+	if (pl->pl->state != ST_PLAYING)
+	{
+		PyErr_SetString(AtrinikError, "ExecuteCommand(): Player is not in a state to execute commands.");
+		return NULL;
+	}
+
+	/* Make a copy of the command, since execute_newserver_command
+	 * modifies the string. */
+	cp = hooks->strdup_local(command);
+	ret = hooks->execute_newserver_command(pl->pl->ob, cp);
+	free(cp);
+
+	return Py_BuildValue("i", ret);
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -309,6 +341,7 @@ static PyMethodDef methods[] =
 	{"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},
 	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
 	{"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments, METH_VARARGS, 0},
+	{"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

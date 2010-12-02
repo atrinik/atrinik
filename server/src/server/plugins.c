@@ -150,6 +150,7 @@ struct plugin_hooklist hooklist =
 	object_need_esrv_update,
 	object_remove_esrv_update,
 	esrv_update_item,
+	execute_newserver_command,
 
 	season_name,
 	weekdays,

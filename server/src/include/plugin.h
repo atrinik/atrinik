@@ -282,6 +282,7 @@ struct plugin_hooklist
 	object *(*object_need_esrv_update)(object *);
 	void (*object_remove_esrv_update)(object *);
 	void (*esrv_update_item)(int, object *, object *);
+	int (*execute_newserver_command)(object *, char *);
 
 	const char **season_name;
 	const char **weekdays;
