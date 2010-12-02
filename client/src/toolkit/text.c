@@ -331,20 +331,12 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Bold. */
 		else if (!strncmp(cp, "<b>", 3))
 		{
-			if (surface)
-			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
-			}
-
+			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
 			return 3;
 		}
 		else if (!strncmp(cp, "</b>", 4))
 		{
-			if (surface)
-			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
-			}
-
+			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
 			return 4;
 		}
 		/* Italic. */
