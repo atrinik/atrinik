@@ -356,7 +356,6 @@ void PlayerCmd(char *buf, int len, player *pl)
 		return;
 	}
 
-	/* In c_new.c */
 	execute_newserver_command(pl->ob, command);
 }
 
