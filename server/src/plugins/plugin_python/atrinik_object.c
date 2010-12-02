@@ -2170,6 +2170,82 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
 	return tuple;
 }
 
+/**
+ * <h1>object.CreateTreasure(string [treasure = None], int [level = -1], int [flags = 0])</h1>
+ * Create treasure inside (or below, if GT_ENVIRONMENT flag was set) the object.
+ * @param treasure Treasure list name to generate. If None, will try to
+ * generate treasure based on the object's randomitems.
+ * @param level Level of the generated items. If 0, will try to guess the
+ * level to use based on the object's level or the difficulty value of
+ * the map the object is on. If neither is applicable, will use MAXLEVEL.
+ * @param flags A combination of @ref GT_xxx.
+ * @throws ValueError if treasure is not valid. */
+static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"treasure", "level", "flags", NULL};
+	const char *treasure = NULL;
+	int level = 0, flags = 0;
+	treasurelist *t;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|zii", kwlist, &treasure, &level, &flags))
+	{
+		return NULL;
+	}
+
+	OBJEXISTCHECK(obj);
+
+	/* Figure out the treasure list. */
+	if (treasure)
+	{
+		t = hooks->find_treasurelist(treasure);
+	}
+	else
+	{
+		t = obj->obj->randomitems;
+	}
+
+	/* Invalid treasure list. */
+	if (!t)
+	{
+		if (treasure)
+		{
+			PyErr_Format(PyExc_ValueError, "CreateTreasure(): '%s' is not a valid treasure list.", treasure);
+		}
+		else
+		{
+			PyErr_SetString(PyExc_ValueError, "CreateTreasure(): Object has no treasure list.");
+		}
+
+		return NULL;
+	}
+
+	/* Figure out the level if none was given. */
+	if (!level)
+	{
+		/* Try the object's level first. */
+		if (obj->obj->level)
+		{
+			level = obj->obj->level;
+		}
+		/* Otherwise the map's difficulty. */
+		else if (obj->obj->map)
+		{
+			level = obj->obj->map->difficulty;
+		}
+		/* Default to MAXLEVEL. */
+		else
+		{
+			level = MAXLEVEL;
+		}
+	}
+
+	/* Create the treasure. */
+	hooks->create_treasure(t, obj->obj, flags, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2233,6 +2309,7 @@ static PyMethodDef methods[] =
 	{"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS, 0},
 	{"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
+	{"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

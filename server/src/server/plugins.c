@@ -151,6 +151,8 @@ struct plugin_hooklist hooklist =
 	object_remove_esrv_update,
 	esrv_update_item,
 	execute_newserver_command,
+	find_treasurelist,
+	create_treasure,
 
 	season_name,
 	weekdays,
