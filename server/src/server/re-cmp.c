@@ -34,7 +34,7 @@
  *    - These tokens are not supported: | ( )
  *    - You will get the longest expansion of the _first_ string which
  *	matches the RE, not the longest string which would be the proper
- *	behaviour for a RE-matcher.
+ *	behavior for a RE-matcher.
  *
  * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993 */
 
@@ -445,7 +445,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 
 			case '[':
 				/* The fun stuff... perhaps a little obfuscated since I
-				 * don't trust the compiler to analyse liveness. */
+				 * don't trust the compiler to analyze liveness. */
 				if (quoted)
 				{
 					quoted = 0;

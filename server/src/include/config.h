@@ -96,7 +96,7 @@
  * levels. Basically, the more stats you have lost, the less likely that
  * you will lose more. Additionally, lower level characters are shown
  * a lot more mercy (there are caps on how much of a stat you can lose too).
- * On the nasty side, if you are higher level, you can lose mutiple stats
+ * On the nasty side, if you are higher level, you can lose multiple stats
  * _at_once_ and are shown less mercy when you die. But when you're higher
  * level, it is much easier to buy back your stats with potions.
  * Turn this on if you want death-based stat loss to be more merciful
@@ -104,7 +104,7 @@
  * Only works when stats are depleted rather than lost. This option has
  * no effect if you are using genuine stat loss.
  *
- * The BALSL_.. values control this behaviour.
+ * The BALSL_.. values control this behavior.
  * BALSL_NUMBER_LOSSES_RATIO determines the number of stats to lose.
  * the character level is divided by that value, and that is how many
  * stats are lost.
@@ -128,7 +128,7 @@
  * CS_LOGSTATS will cause the server to log various usage stats
  * (number of connections, amount of data sent, amount of data received,
  * and so on). This can be very useful if you are trying to measure
- * server/bandwidth usage. It will periodially dump out information
+ * server/bandwidth usage. It will periodically dump out information
  * which contains usage stats for the last X amount of time.
  * CS_LOGTIME is how often it will print out stats. */
 #define CS_LOGSTATS 0
@@ -153,9 +153,9 @@
  * Client can still request a smaller map size (for bandwidth reasons
  * or display size of whatever else).
  *
- * The larger this number, the more cpu time and memory the server will
+ * The larger this number, the more CPU time and memory the server will
  * need to spend to figure this out in addition to bandwidth needs.
- * The server cpu time should be pretty trivial. */
+ * The server CPU time should be pretty trivial. */
 #define MAP_CLIENT_X 17
 #define MAP_CLIENT_Y 17
 
@@ -193,7 +193,7 @@
  * Set this to 0 if you don't want characters to loose a random stat when
  * they die - instead, they just get deplete.
  *
- * Setting it to 1 keeps the old behaviour. This can be
+ * Setting it to 1 keeps the old behavior. This can be
  * changed at run time via -stat_loss_on_death or +stat_loss_on_death.
  * In theory, this can be changed on a running server, but so glue code
  * in the wiz stuff would need to be added for that to happen. */
@@ -258,7 +258,7 @@
  * is set to 0, at the expense of speed.
  *
  * Rupert Goldie has run Purify against the code, and if this is disabled,
- * apparantly there are a lot of uninitialized memory reads - I haven't
+ * apparently there are a lot of uninitialized memory reads - I haven't
  * seen any problem (maybe the memory reads are copies, and the destination
  * doesn't actually use the garbage values either?), but the impact on speed
  * of using this probably isn't great, and should make things more stable.
@@ -275,7 +275,7 @@
 
 /**
  * These defines tells where, relative to LIBDIR, the archetypes, highscore and
- * treaures files and directories can be found. */
+ * treasures files and directories can be found. */
 #define ARCHETYPES "archetypes"
 #define TREASURES "treasures"
 #define SETTINGS "settings"
@@ -337,7 +337,7 @@
 /**
  * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE
  * will be compressed by zlib using the best compression available before
- * being sent. The client will then uncompress the previously compressed
+ * being sent. The client will then decompress the previously compressed
  * data and treat it normally.
  *
  * This option is useful for bandwidth-limited servers, as it has nearly

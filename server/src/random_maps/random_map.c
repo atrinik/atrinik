@@ -382,7 +382,7 @@ char **layoutgen(RMParms *RP)
  * Takes a map and makes it symmetric: adjusts Xsize and Ysize to produce
  * a symmetric map.
  * @param maze Layout to symmetrize. Will be freed by this function.
- * @param sym how to make symetric, a @ref SYM_xxx value.
+ * @param sym how to make symmetric, a @ref SYM_xxx value.
  * @param RP Random map parameters.
  * @return New layout, must be freed by caller. */
 char **symmetrize_layout(char **maze, int sym, RMParms *RP)
@@ -465,7 +465,7 @@ char **symmetrize_layout(char **maze, int sym, RMParms *RP)
 		connect_spirals(RP->Xsize, RP->Ysize, sym, sym_maze);
 	}
 
-	/* reconnect disjointed nethackmazes:  the routine for
+	/* reconnect disjointed nethack mazes:  the routine for
 	 spirals will do the trick?*/
 	if (RP->map_layout_style == ROGUELIKE_LAYOUT)
 	{
@@ -650,7 +650,7 @@ int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP)
 {
 	int i1, length = 0;
 
-	/* dont make walls if we're on the edge. */
+	/* don't make walls if we're on the edge. */
 	if (dx == 0 || dx == (RP->Xsize - 1) || dy == 0 || dy == (RP->Ysize - 1))
 	{
 		return -1;

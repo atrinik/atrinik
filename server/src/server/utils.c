@@ -153,7 +153,7 @@ char *cleanup_string(char *ustring)
  * @return The word, NULL if there is no word left in str. */
 const char *get_word_from_string(const char *str, int *pos)
 {
-	/* this is used for controled input which never should bigger than this */
+	/* this is used for controlled input which never should bigger than this */
 	static char buf[HUGE_BUF];
 	int i = 0;
 
@@ -228,7 +228,7 @@ void replace_unprintable_chars(char *buf)
  * @param array The string array; will be filled with pointers into str.
  * @param array_size The number of elements in array; if <code>str</code> contains more fields
  * excess fields are not split but included into the last element.
- * @param sep Seperator to use.
+ * @param sep Separator to use.
  * @return The number of elements found; always less or equal to <code>array_size</code>. */
 size_t split_string(char *str, char *array[], size_t array_size, char sep)
 {
@@ -295,7 +295,7 @@ int get_randomized_dir(int dir)
  * We don't want to exceed the buffer size of buf1 by adding on buf2!
  * @param buf1
  * @param buf2
- * Buffers we plan on concatening. Can be NULL.
+ * Buffers we plan on concatenating. Can be NULL.
  * @param bufsize Size of buf1. Can be 0.
  * @return 1 if overflow will occur, 0 otherwise. */
 int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)

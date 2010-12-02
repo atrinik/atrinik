@@ -139,7 +139,7 @@ shstr *add_string(const char *str)
 
 			if (strcmp(ss->string, str))
 			{
-				/* Apparantly, a string with the same hash value has this
+				/* Apparently, a string with the same hash value has this
 				 * slot. We must see in the list if "str" has been
 				 * registered earlier. */
 				while (ss->next)
@@ -166,7 +166,7 @@ shstr *add_string(const char *str)
 					return ss->string;
 				}
 
-				/* There are no occurences of this string in the hash table. */
+				/* There are no occurrences of this string in the hash table. */
 				{
 					shared_string *new_ss;
 

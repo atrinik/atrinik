@@ -42,7 +42,7 @@
 extern void check_use_object_list();
 #endif
 
-/** Object used in proccess_events(). */
+/** Object used in process_events(). */
 static object marker;
 
 static char *unclean_path(const char *src);

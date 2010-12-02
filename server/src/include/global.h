@@ -51,7 +51,7 @@
  * it is just a waste of space.
  *
  * Note2:  When using something that is normally stored in a character
- * (ie strings), don't use the uint8/sint8 typdefs, use 'char' instead.
+ * (ie strings), don't use the uint8/sint8 typedefs, use 'char' instead.
  * The signedness for char is probably not universal, and using char
  * will probably be more portable than sint8/unit8 */
 
@@ -363,7 +363,7 @@ typedef struct linked_char
 #include "stringbuffer.h"
 
 /**
- * Special potions are identifed by the last_eat value.
+ * Special potions are identified by the last_eat value.
  * last_eat == 0 is no special potion - means they are used
  * as spell effect carrier. */
 #define special_potion(__op_sp) (__op_sp)->last_eat

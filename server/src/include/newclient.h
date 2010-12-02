@@ -75,9 +75,9 @@
  * These are multiplication values that should be used when changing
  * floats to ints, and vice versa.
  *@{*/
-/** Integer representatin (float to int) */
+/** Integer representation (float to int) */
 #define FLOAT_MULTI	100000
-/** Float representatin (int to float) */
+/** Float representation (int to float) */
 #define FLOAT_MULTF	100000.0
 /*@}*/
 
@@ -162,7 +162,7 @@
 /**
  * @defgroup cs_state_flags Client/server state flags
  * These are used with @ref CS_STAT_FLAGS to determine the
- * server thinks the fireon and runon states are.
+ * server thinks the fire-on and run-on states are.
  *@{*/
 #define SF_FIREON           1
 #define SF_RUNON            2
@@ -320,7 +320,7 @@ typedef struct SockList
 	unsigned char *buf;
 } SockList;
 
-/** Statistics fn server. */
+/** Statistics of server. */
 typedef struct CS_Stats
 {
 	/** Bytes in */

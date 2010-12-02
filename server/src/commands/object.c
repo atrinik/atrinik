@@ -31,7 +31,7 @@
 
 /**
  * Search the inventory of 'pl' for what matches best with params.
- * We use item_matched_string above - this gives us consistent behaviour
+ * We use item_matched_string above - this gives us consistent behavior
  * between many commands.
  * @param pl Player object.
  * @param params Parameters string.
@@ -1299,7 +1299,7 @@ char *long_desc(object *tmp, object *caller)
 
 				if (len < VERY_BIG_BUF - 5 && ((tmp->type != AMULET && tmp->type != RING) || tmp->title))
 				{
-					/* Since we know the length, we save a few cpu cycles by using
+					/* Since we know the length, we save a few CPU cycles by using
 					 * it instead of calling strcat */
 					strcpy(buf + len, " ");
 					len++;

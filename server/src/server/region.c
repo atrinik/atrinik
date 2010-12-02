@@ -247,7 +247,7 @@ void init_regions()
 
 			if (sscanf(value, "%[^ ] %d %d\n", path, &x, &y) != 3)
 			{
-				LOG(llevError, "init_regions(): Malformated regions entry: jail %s\n", value);
+				LOG(llevError, "init_regions(): Malformed regions entry: jail %s\n", value);
 				continue;
 			}
 

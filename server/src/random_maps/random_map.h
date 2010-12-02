@@ -171,7 +171,7 @@ typedef struct
 /*@}*/
 
 /**
- * @defgroup SYM_xxx Random map symetry
+ * @defgroup SYM_xxx Random map symmetry
  * Symmetry definitions -- used in this file AND in @ref treasure.c, the
  * numerical values matter so don't change them.
  *@{*/

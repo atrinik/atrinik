@@ -474,7 +474,7 @@ static void emote_other(object *op, object *target, char *str, char *buf, size_t
 		default:
 			snprintf(buf, size, "You are still nuts.");
 			snprintf(buf2, size2, "You get the distinct feeling that %s is nuts.", op->name);
-			snprintf(buf3, size3, "%s is eyeing %s quizzically.", name, op->name);
+			snprintf(buf3, size3, "%s is eying %s quizzically.", name, op->name);
 			break;
 	}
 }

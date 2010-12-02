@@ -39,7 +39,7 @@
 
 static char *yval();
 
-/* thats needed to track the used buffers for recursive calling */
+/* that's needed to track the used buffers for recursive calling */
 static void *cur_buffer;
 static int object_load_flag;
 static int lex_error;
@@ -277,7 +277,7 @@ lex_error = 0;
 								 * generator will clone objects with same treasures over and over. */
 								else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT))
 								{
-									create_treasure(tmp->randomitems, tmp, 0, get_enviroment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+									create_treasure(tmp->randomitems, tmp, 0, get_environment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 								}
 
 								if (object_initializers[tmp->type])
@@ -992,7 +992,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	 *
 	 * In the first case, the next two values are undefined - in the last
 	 * case, these values are the arch pre sets. We need to track this
-	 * down to adjust for the "real ingame" object the right speed and
+	 * down to adjust for the "real in-game" object the right speed and
 	 * speed_left. */
 	old_speed = op->speed;
 	old_sleft = op->speed_left;

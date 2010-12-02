@@ -266,7 +266,7 @@ int command_setgod(object *op, char *params)
 	}
 
 	/* Perhaps this is overly restrictive? Should we perhaps be able to
-	 * rebless altars and the like? */
+	 * re-bless altars and the like? */
 	if (ob->type != PLAYER)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "%s is not a player - can not change its god", ob->name);
@@ -773,7 +773,7 @@ int command_create(object *op, char *params)
 
 		if (tmp->randomitems)
 		{
-			create_treasure(tmp->randomitems, tmp, GT_APPLY, tmp->type == MONSTER ? tmp->level : get_enviroment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+			create_treasure(tmp->randomitems, tmp, GT_APPLY, tmp->type == MONSTER ? tmp->level : get_environment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 		}
 
 		/* If the created object is alive or is multi arch, insert it on
@@ -829,7 +829,7 @@ int command_create(object *op, char *params)
 
 		if (head->randomitems)
 		{
-			create_treasure(head->randomitems, head, GT_APPLY, head->type == MONSTER ? head->level : get_enviroment_level(head), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+			create_treasure(head->randomitems, head, GT_APPLY, head->type == MONSTER ? head->level : get_environment_level(head), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 		}
 
 		/* If the created object is alive or is multi arch, insert it on

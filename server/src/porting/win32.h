@@ -79,7 +79,7 @@
 #define SIZEOF_LONG 8
 #endif
 
-/* Many defines to redirect unix functions or fake standard unix values */
+/* Many defines to redirect UNIX functions or fake standard UNIX values */
 #define inline __inline
 #define unlink(__a) _unlink(__a)
 #define mkdir(__a, __b) _mkdir(__a)

@@ -96,7 +96,7 @@ int surround_check(char **layout, int i, int j, int Xsize, int Ysize)
  * first we make everything a wall, then we remove areas to make rooms.
  * @param xsize X size of the wanted layout size.
  * @param ysize Y size of the wanted layout size.
- * @param options 2 to have circular rooms, 1 for rectanglar ones,
+ * @param options 2 to have circular rooms, 1 for rectangular ones,
  * another value for random choice.
  * @return Generated layout. */
 char **roguelike_layout_gen(int xsize, int ysize, int options)
@@ -319,7 +319,7 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
  * Write all the rooms into the maze.
  * @param Rooms List of rooms to write.
  * @param maze Where to write to.
- * @param options 2 to have circular rooms, 1 for rectanglar ones,
+ * @param options 2 to have circular rooms, 1 for rectangular ones,
  * another value for random choice. */
 static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
 {

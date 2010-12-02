@@ -127,7 +127,7 @@ lex_error = 0;
 								FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
 							}
 
-							/* If path not absoulute, try to normalize it */
+							/* If path is not absolute, try to normalize it */
 							if (check_path(value, 1) == -1)
 							{
 								normalize_path(m->path, value, path);
@@ -143,24 +143,24 @@ lex_error = 0;
 								}
 							}
 
-							/* We have a correct path to a neighbour tile */
+							/* We have a correct path to a neighbor tile */
 							if (value)
 							{
-								mapstruct *neighbour;
+								mapstruct *neighbor;
 								shstr *path_sh = add_string(value);
 
 								m->tile_path[tile - 1] = path_sh;
 
-								/* If the neighbouring map tile has been loaded, set up the map pointers */
-								if ((neighbour = has_been_loaded_sh(path_sh)) && (neighbour->in_memory == MAP_IN_MEMORY || neighbour->in_memory == MAP_LOADING))
+								/* If the neighboring map tile has been loaded, set up the map pointers */
+								if ((neighbor = has_been_loaded_sh(path_sh)) && (neighbor->in_memory == MAP_IN_MEMORY || neighbor->in_memory == MAP_LOADING))
 								{
 									int dest_tile = map_tiled_reverse[tile - 1];
 
-									m->tile_map[tile - 1] = neighbour;
+									m->tile_map[tile - 1] = neighbor;
 
-									if (neighbour->tile_path[dest_tile] == NULL || neighbour->tile_path[dest_tile] == m->path)
+									if (neighbor->tile_path[dest_tile] == NULL || neighbor->tile_path[dest_tile] == m->path)
 									{
-										neighbour->tile_map[dest_tile] = m;
+										neighbor->tile_map[dest_tile] = m;
 									}
 								}
 							}

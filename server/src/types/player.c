@@ -1622,7 +1622,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 	{
 		cast_cone(op, throw_ob, dir, 1, 0, arch);
 	}
-	/* Problem occured! */
+	/* Problem occurred! */
 	else
 	{
 		LOG(llevBug, "BUG: cast_dust() can't find an archetype to use!\n");

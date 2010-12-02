@@ -50,7 +50,7 @@
 #endif
 
 /**
- * In the unlikely occurence that 16383 references to a string are too
+ * In the unlikely occurrence that 16383 references to a string are too
  * few, you can modify the below type to something bigger.
  * (The top bit of "refcount" is used to signify that "u.array" points
  * at the array entry.) */

@@ -47,7 +47,7 @@ int apply_potion(object *op, object *tmp)
 
 	if (op->type == PLAYER)
 	{
-		/* set chosen_skill to "magic device" - thats used when we "use" a potion */
+		/* set chosen_skill to "magic device" - that's used when we "use" a potion */
 		if (!change_skill(op, SK_USE_MAGIC_ITEM))
 		{
 			/* no skill, no potion use (dust & balm too!) */
@@ -413,7 +413,7 @@ improve_done:
 	 * potion) and heroism all fit into this category. */
 	if (tmp->stats.sp != SP_NO_SPELL)
 	{
-		/* apply potion fires in player's facing direction, unless the spell is SELF one, ie, healing or cure ilness. */
+		/* apply potion fires in player's facing direction, unless the spell is SELF one, ie, healing or cure illness. */
 		cast_spell(op, tmp, spells[tmp->stats.sp].flags & SPELL_DESC_SELF ? 0 : op->facing, tmp->stats.sp, 1, spellPotion, NULL);
 		decrease_ob(tmp);
 

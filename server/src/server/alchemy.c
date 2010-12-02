@@ -29,10 +29,10 @@
 
 #include <global.h>
 
-/** Define this for some helpful debuging information. */
+/** Define this for some helpful debugging information. */
 #define ALCHEMY_DEBUG
 
-/** Define this for loads of (marginal) debuging information. */
+/** Define this for loads of (marginal) debugging information. */
 #define EXTREME_ALCHEMY_DEBUG
 
 /** Random cauldron effects. */
@@ -163,7 +163,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 			}
 			else
 			{
-				LOG(llevDebug, "DEBUG: WIZ couldnt find formula for ingredients.\n");
+				LOG(llevDebug, "DEBUG: WIZ couldn't find formula for ingredients.\n");
 			}
 
 			return;
@@ -310,7 +310,7 @@ static int numb_ob_inside(object *op)
 static object *attempt_recipe(object *caster, object *cauldron, int ability, recipe *rp, int nbatches)
 {
 	object *item = NULL;
-	/* This should be passed to this function, not too effiecent cpu use this way */
+	/* This should be passed to this function, not too efficient CPU use this way */
 	int batches = abs(nbatches);
 
 	/* Code required for this recipe, search the caster */
@@ -501,7 +501,7 @@ static object *find_transmution_ob(object *first_ingred, recipe *rp)
  * playbalance.
  * @param op Who tried to do alchemy.
  * @param cauldron Container that was used.
- * @param rp Rrecipe that failed.
+ * @param rp Recipe that failed.
  * @param danger Danger value, the higher the more evil the effect. */
 static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger)
 {
@@ -741,7 +741,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 	{
 		object *tmp;
 
-		/* this is meant to be better than prior possiblity,
+		/* this is meant to be better than prior possibility,
 		 * in this one, we allow *any* valid alchemy artifact
 		 * to be made (rather than only those on the given
 		 * formulalist) */
@@ -775,7 +775,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 
 /**
  * All but object "save_item" are removed from the container list. Note
- * we have to becareful to remove the inventories of objects in the
+ * we have to be careful to remove the inventories of objects in the
  * cauldron inventory (ex icecube has stuff in it).
  * @param first_ob Container from which to remove.
  * @param save_item What item not to remove. Can be NULL. */

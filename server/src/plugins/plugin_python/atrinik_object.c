@@ -887,7 +887,7 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
 
 /**
  * <h1>object.DoKnowSpell(int spell)</h1>
- * Check if object knowns a given spell.
+ * Check if object knows a given spell.
  * @param spell ID of the spell to check for.
  * @return 1 if the object knows the spell, 0 otherwise. */
 static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *args)
@@ -937,7 +937,7 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
 
 /**
  * <h1>object.DoKnowSkill(int skill)</h1>
- * Check if object knowns a given skill.
+ * Check if object knows a given skill.
  * @param skill ID of the skill to check for.
  * @return 1 if the object knows the skill, 0 otherwise. */
 static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *args)
@@ -1132,8 +1132,8 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
 
 	if (!myob)
 	{
-		LOG(llevDebug, "Python WARNING:: CreatePlayerInfo: Cant't find archtype 'player_info'\n");
-		RAISE("Cant't find archtype 'player_info'");
+		LOG(llevDebug, "Python WARNING:: CreatePlayerInfo: Can't find archetype 'player_info'\n");
+		RAISE("Can't find archtype 'player_info'");
 	}
 
 	/* Setup the info and put it in activator */
@@ -1203,7 +1203,7 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
 
 	OBJEXISTCHECK(myob);
 
-	/* Our check paramters: arch "force_info", name of this arch */
+	/* Our check parameters: arch "force_info", name of this arch */
 	strncpy(name, STRING_OBJ_NAME(myob->obj), 127);
 	name[63] = '\0';
 
@@ -1947,7 +1947,7 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
  * <h1>object.ChangeAbil(object what)</h1>
  * Permanently alters an object's stats/flags based on another what.
  * @param what Object that is giving bonuses/penalties to 'object'.
- * @return 1 if we sucessfully changed a stat, 0 if nothing was changed. */
+ * @return 1 if we successfully changed a stat, 0 if nothing was changed. */
 static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
@@ -2133,7 +2133,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
  * @param to Object to which the distance is calculated.
  * @param flags One or a combination of @ref range_vector_flags.
  * @return None if the distance couldn't be calculated, otherwise a tuple
- * containining:
+ * containing:
  *  - Direction 'object' should head to reach 'to', one of @ref direction_constants.
  *  - Distance between 'object' and 'to'.
  *  - X distance.

@@ -301,7 +301,7 @@ void read_client_images()
 				LOG(llevError, "ERROR: read_client_images(): Image num %d not in 0..%d\n%s", num, nrofpixmaps, buf);
 			}
 
-			/* Skip accross the number data */
+			/* Skip across the number data */
 			for (cp = buf + 6; *cp != ' '; cp++)
 			{
 			}
@@ -313,7 +313,7 @@ void read_client_images()
 				LOG(llevError, "ERROR: read_client_images(): Length not valid: %d > %d \n%s", len, MAX_IMAGE_SIZE, buf);
 			}
 
-			/* We don't actualy care about the name if the image that
+			/* We don't actually care about the name if the image that
 			 * is embedded in the image file, so just ignore it. */
 			facesets[fileno].faces[num].datalen = len;
 			facesets[fileno].faces[num].data = malloc(len);

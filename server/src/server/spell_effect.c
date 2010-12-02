@@ -32,7 +32,7 @@
 /**
  * This is really used mostly for spell fumbles at the like.
  * @param op What is casting this.
- * @param tmp Object to propogate.
+ * @param tmp Object to propagate.
  * @param lvl How nasty should the propagation be. */
 void cast_magic_storm(object *op, object *tmp, int lvl)
 {
@@ -141,7 +141,7 @@ int cast_create_food(object *op, object *caster, int dir, char *stringarg)
 		archetype *at_tmp;
 
 		/* We try to find the archetype with the maximum food value.
-		 * This removes the dependancy of hard coded food values in this
+		 * This removes the dependency of hard coded food values in this
 		 * function, and addition of new food types is automatically added.
 		 * We don't use flesh types because the weight values of those need
 		 * to be altered from the donor. */
@@ -203,7 +203,7 @@ int probe(object *op)
 		{
 			if (op->owner && op->owner->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, op->owner, "Your probe analyses %s.", tmp->name);
+				new_draw_info_format(NDI_UNIQUE, op->owner, "Your probe analyzes %s.", tmp->name);
 
 				if (tmp->head != NULL)
 				{
@@ -281,7 +281,7 @@ int cast_wor(object *op, object *caster)
  * inserted in the player to destruct the portal next time player creates
  * a new portal pair.
  * @param op Who is casting.
- * @retval 0 Spell was insuccessful for some reason.
+ * @retval 0 Spell was unsuccessful for some reason.
  * @retval 1 Spell worked. */
 int cast_create_town_portal(object *op)
 {
@@ -354,7 +354,7 @@ int cast_create_town_portal(object *op)
 		return 0;
 	}
 
-	/* Useful for string comparaison later */
+	/* Useful for string comparison later */
 	FREE_AND_COPY_HASH(dummy->name, portal_name);
 	FREE_AND_ADD_REF_HASH(dummy->slaying, shstr_cons.portal_active_name);
 	dummy->stats.sp = 1;
@@ -1248,7 +1248,7 @@ int remove_depletion(object *op, object *target)
 		}
 	}
 
-	/* If success, target got infos before */
+	/* If success, target got info before */
 	if (op != target && target->type == PLAYER && !success)
 	{
 		new_draw_info(NDI_UNIQUE, target, "There is no depletion.");
@@ -1351,7 +1351,7 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, target, "You hear manical laughter in the distance.");
+				new_draw_info(NDI_UNIQUE, target, "You hear maniacal laughter in the distance.");
 			}
 		}
 	}

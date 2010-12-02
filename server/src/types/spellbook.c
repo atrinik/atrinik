@@ -98,7 +98,7 @@ void apply_spellbook(object *op, object *tmp)
 	 *
 	 *  1- MU spells use Int to learn, Cleric spells use Wisdom
 	 *
-	 *  2- The learner's level (in skills sytem level==literacy level; if no
+	 *  2- The learner's level (in skills system level==literacy level; if no
 	 *     skills level == overall level) impacts the chances of spell learning.
 	 *
 	 *  3 -Automatically fail to learn if you read while confused

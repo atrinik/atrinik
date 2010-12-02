@@ -25,7 +25,7 @@
 
 /**
  * @file
- * This file contains code relevant to allow randomly occuring
+ * This file contains code relevant to allow randomly occurring
  * messages in non-magical texts.
  *
  * @author b.t. thomas@astro.psu.edu
@@ -34,7 +34,7 @@
 #include <global.h>
 #include <book.h>
 
-/* This flag is useful for debuging archiving action */
+/* This flag is useful for debugging archiving action */
 /* #define ARCHIVE_DEBUG */
 
 /** special structure, used only by art_name_array[] */
@@ -151,7 +151,7 @@ static arttypename art_name_array[] =
 	{"Boots", BOOTS},
 	{"Cloak", CLOAK},
 	{"Gloves", GLOVES},
-	{"Gridle", GIRDLE},
+	{"Girdle", GIRDLE},
 	{"Ring", RING},
 	{"Horn", HORN},
 	{"Missile Weapon", BOW},
@@ -193,7 +193,7 @@ static char *art_author[] =
 /** Monster book information */
 static char *mon_book_name[] =
 {
-	"beastuary",
+	"bestiary",
 	"catalog",
 	"compilation",
 	"collection",
@@ -208,7 +208,7 @@ static char *mon_book_name[] =
 	"volume"
 };
 
-/** Used by monster beastuary texts */
+/** Used by monster bestiary texts */
 static char *mon_author[] =
 {
 	"beasts",
@@ -637,7 +637,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 		return buf;
 	}
 
-	/* There is no reason to start on the artifact list at the begining. Lets
+	/* There is no reason to start on the artifact list at the beginning. Lets
 	 * take our starting position randomly... */
 	art = al->items;
 
@@ -656,7 +656,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 	snprintf(buf, booksize, "<t t=\"Magical %s\">Herein %s detailed %s...\n", art_name_array[index].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
 
 	/* Artifact msg attributes loop. Let's keep adding entries to the 'book'
-	 * as long as we have space up to the allowed max # (book_entires) */
+	 * as long as we have space up to the allowed max # (book_entries) */
 	while (book_entries > 0)
 	{
 		if (art == NULL)

@@ -284,8 +284,8 @@ void init_formulae()
 /**
  * Check if formula doesn't have the same index.
  *
- * Since we are doing a squential search on the formulae lists now, we
- * have to be careful that we dont have 2 formula with the exact same
+ * Since we are doing a sequential search on the formulae lists now, we
+ * have to be careful that we don't have 2 formula with the exact same
  * index value. Under the new nbatches code, it is possible to have
  * multiples of ingredients in a cauldron which could result in an index
  * formula mismatch. We *don't* check for that possibility here. */

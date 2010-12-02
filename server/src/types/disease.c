@@ -28,7 +28,7 @@
  * This file contains all the code implementing @ref DISEASE "diseases",
  * except for odds and ends in @ref attack.c and in @ref living.c.
  *
- * Diseases may be contageous. They are objects which exist in a player's
+ * Diseases may be contagious. They are objects which exist in a player's
  * inventory. They themselves do nothing, except modify
  * @ref SYMPTOM "symptoms", or spread to other live objects.
  * @ref SYMPTOM "symptoms" are what actually damage the player. */
@@ -147,7 +147,7 @@ static void remove_symptoms(object *disease)
 /**
  * Find a symptom for a disease in disease's env.
  * @param disease The disease.
- * @return Matching sympton object, NULL if not found. */
+ * @return Matching symptom object, NULL if not found. */
 static object *find_symptom(object *disease)
 {
 	object *walk;
@@ -619,7 +619,7 @@ void move_symptom(object *symptom)
  * Possibly infect due to direct physical contact.
  *
  * Called from doing physical attack in hit_player_attacktype().
- * @param victim The vitim.
+ * @param victim The victim.
  * @param hitter The hitter. */
 void check_physically_infect(object *victim, object *hitter)
 {

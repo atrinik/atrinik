@@ -799,7 +799,7 @@ object *check_inv_recursive(object *op, const object *trig)
  *
  * Monsters can't trigger this square (for now)
  * Values are:   last_sp = 1/0 obj/no obj triggers
- *               last_heal = 1/0  remove/dont remove obj if triggered
+ *               last_heal = 1/0  remove/don't remove obj if triggered
  * @param op Object to check. Must be a player.
  * @param trig Trigger object that may be activated. */
 void check_inv(object *op, object *trig)

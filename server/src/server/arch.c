@@ -245,7 +245,7 @@ static void first_arch_pass(FILE *fp)
 
 		/* Now we have the right speed_left value for out object.
 		 * copy_object() now will track down negative speed values, to
-		 * alter speed_left to garantie a random & senseful start value. */
+		 * alter speed_left to guarantee a random & sensible start value. */
 		if (!op->layer && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
 		{
 			LOG(llevDebug, "WARNING: Archetype %s has layer 0 without being sys_object!\n", STRING_OBJ_ARCH_NAME(op));
@@ -390,7 +390,7 @@ static void second_arch_pass(FILE *fp_start)
 		}
 	}
 
-	/* Now reparse the artifacts file too! */
+	/* Now re-parse the artifacts file too! */
 	snprintf(filename, sizeof(filename), "%s/artifacts", settings.datadir);
 
 	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
@@ -472,10 +472,10 @@ static void second_arch_pass(FILE *fp_start)
 /**
  * Loads all archetypes and treasures.
  *
- * First initialises the archtype hash-table (init_archetable()).
+ * First initializes the archtype hash-table (init_archetable()).
  * Reads and parses the archetype file (with the first and second-pass
  * functions).
- * Then initialises treasures by calling load_treasures(). */
+ * Then initializes treasures by calling load_treasures(). */
 static void load_archetypes()
 {
 	FILE *fp;

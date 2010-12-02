@@ -835,9 +835,9 @@ void esrv_update_stats(player *pl)
 	}
 
 	/* we add additional player status flags - in old style, you got a msg
-	 * in the text windows when you get xray of get blineded - we will skip
+	 * in the text windows when you get xray of get blinded - we will skip
 	 * this and add the info here, so the client can track it down and make
-	 * it the user visible in it own, server indepentend way. */
+	 * it the user visible in it own, server independent way. */
 
 	/* player is blind */
 	if (QUERY_FLAG(pl->ob, FLAG_BLIND))

@@ -648,7 +648,7 @@ void apply_death_exp_penalty(object *op)
 		 * negative exp has special meaning. */
 		if (tmp->type == SKILL && tmp->level && tmp->last_eat == 1)
 		{
-			/* Ceck there is experience we can drain. */
+			/* Check there is experience we can drain. */
 			level_exp = tmp->stats.exp - new_levels[tmp->level];
 
 			/* Sanity check */

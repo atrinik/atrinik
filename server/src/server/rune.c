@@ -241,7 +241,7 @@ int trap_disarm(object *disarmer, object *trap)
 
 	if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{
-		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
+		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
 		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 		set_trapped_flag(env);

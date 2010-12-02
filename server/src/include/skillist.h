@@ -36,10 +36,10 @@
  *  short stat3;     - tertiary stat ...
  *
  * About time - this  number is the base for the use of the skill. Level
- * and associated stats can modify the amound of time to use the skill.
+ * and associated stats can modify the amount of time to use the skill.
  * Time to use the skill is only used when 1) op is a player and
  * 2) the skill is called through do_skill().
- * It is strongly recogmended that many skills *not* have a time value.
+ * It is strongly recommended that many skills *not* have a time value.
  *
  * About 'stats' and skill.category - a primary use for stats is determining
  * the associated experience category (see link_skills_to_exp () ).

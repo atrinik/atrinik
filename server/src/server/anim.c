@@ -66,7 +66,7 @@ void init_anim()
 	 * thinks it is animated but hasn't set the animation_id properly,
 	 * it will have a default value that should be pretty obvious. */
 	animations = malloc(10 * sizeof(Animations));
-	/* set the name so we don't try to dereferance null.
+	/* set the name so we don't try to dereference null.
 	 * Put # at start so it will be first in alphabetical
 	 * order. */
 	animations[0].name = NULL;
@@ -271,8 +271,8 @@ void animate_object(object *op, int count)
 		}
 	}
 
-	/* thats the new extended animation: base_state is */
-	/* 0:     thats the dying anim - "non direction" facing */
+	/* that's the new extended animation: base_state is */
+	/* 0:     that's the dying anim - "non direction" facing */
 	/* 1-8:   guard/stand_still anim frames */
 	/* 9-16:  move anim frames */
 	/* 17-24: close fight anim frames */

@@ -1168,7 +1168,7 @@ static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
  * @param y2 Y on 'map2'.
  * @param flags One or a combination of @ref range_vector_flags.
  * @return None if the distance couldn't be calculated, otherwise a tuple
- * containining:
+ * containing:
  *  - Direction from the first coordinate to the second, one of @ref direction_constants.
  *  - Distance between the two coordinates.
  *  - X distance.
@@ -1436,7 +1436,7 @@ static PyCodeObject *compilePython(char *filename)
 			}
 			else
 			{
-				/* cache uptodate, use cached*/
+				/* cache up-to-date, use cached*/
 				replace = NULL;
 				run = &python_cache[i];
 			}
@@ -1705,7 +1705,7 @@ static int handle_global_event(int event_type, va_list args)
 
 			if (flags & CACHE_FLAG_PYOBJ)
 			{
-				/* Attemp to close file/database/etc objects. */
+				/* Attempt to close file/database/etc objects. */
 				if (PyObject_GetAttrString((PyObject *) ptr, "close"))
 				{
 					PyObject_CallMethod((PyObject *) ptr, "close", "");

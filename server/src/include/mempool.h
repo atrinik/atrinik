@@ -67,7 +67,7 @@ struct mempool_chunk
 	/** Mempool flags */
 	uint32 flags;
 
-	/** To what mpool is this memory part related? */
+	/** To what mempool is this memory part related? */
 	uint32 pool_id;
 
 	/** The REAL unique ID number */

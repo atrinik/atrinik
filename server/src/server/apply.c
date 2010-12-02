@@ -59,7 +59,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 	/* move_apply() is the most likely candidate for causing unwanted and
 	 * possibly unlimited recursion. */
-	/* The following was changed because it was causing perfeclty correct
+	/* The following was changed because it was causing perfectly correct
 	 * maps to fail.  1)  it's not an error to recurse:
 	 * rune detonates, summoning monster.  monster lands on nearby rune.
 	 * nearby rune detonates.  This sort of recursion is expected and
@@ -545,7 +545,7 @@ static int is_legal_2ways_exit(object* op, object *exit)
 
 			/* From here we have found the exit is valid. However we do
 			 * here the check of the exit owner. It is important for the
-			 * town portals to prevent strangers from visiting your appartments */
+			 * town portals to prevent strangers from visiting your apartments */
 			/* No owner, free for all! */
 			if (!exit->race)
 			{
@@ -658,7 +658,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 	aflag &= ~AP_NO_EVENT;
 
-	/* Control apply by controling a set exp object level or player exp level */
+	/* Control apply by controlling a set exp object level or player exp level */
 	if (tmp->item_level)
 	{
 		int tmp_lev;

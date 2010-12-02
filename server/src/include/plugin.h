@@ -368,7 +368,7 @@ typedef struct _atrinik_plugin
 extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
 
 /**
- * Called to ask various informations about the plugin.
+ * Called to ask various information about the plugin.
  * @param type Integer pointer for va_start().
  * @return Return value depends on the type of information requested.
  * Can be NULL. */

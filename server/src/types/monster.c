@@ -57,7 +57,7 @@ static int talk_to_wall(object *op, object *npc, char *txt);
 
 /**
  * Update (or clear) an NPC's enemy. Perform most of the housekeeping
- * related to switchign enemies
+ * related to switching enemies
  *
  * You should always use this method to set (or clear) an NPC's enemy.
  *
@@ -270,7 +270,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 			/* We don't want a fight evil vs evil or good against non evil. */
 			if (is_friend_of(npc, npc->attacked_by))
 			{
-				/* Skip it, but let's wakeup */
+				/* Skip it, but let's wake up */
 				CLEAR_FLAG(npc, FLAG_SLEEP);
 			}
 			/* The only thing we must know... */
@@ -543,7 +543,7 @@ int move_monster(object *op)
 
 	/* Move the check for scared up here - if the monster was scared,
 	 * we were not doing any of the logic below, so might as well save
-	 * a few cpu cycles. */
+	 * a few CPU cycles. */
 	if (!QUERY_FLAG(op, FLAG_SCARED))
 	{
 		if (op->last_grace)
@@ -629,7 +629,7 @@ int move_monster(object *op)
 		}
 	}
 
-	/* Try to move closer to enemy, or follow whatever special attack behaviour is */
+	/* Try to move closer to enemy, or follow whatever special attack behavior is */
 	if (!QUERY_FLAG(op, FLAG_STAND_STILL) && (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY) || !can_hit(part, &rv) || ((op->attack_move_type & LO4) && special_dir != dir)))
 	{
 		object *aggro_wp = get_aggro_waypoint(op);
@@ -1641,7 +1641,7 @@ static char *find_matching_message(const char *msg, const char *match)
 			{
 				char *pipe, *pnext = NULL;
 
-				/* Need to parse all the | seperators.  Our re_cmp isn't
+				/* Need to parse all the | separators.  Our re_cmp isn't
 				 * really a fully blown regex parser. */
 				for (pipe = regex; pipe; pipe = pnext)
 				{

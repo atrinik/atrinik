@@ -129,7 +129,7 @@ void apply_player_light(object *who, object *op)
 			SET_FLAG(op, FLAG_DAMNED);
 		}
 
-		new_draw_info_format(NDI_UNIQUE, who, "You unlight the %s.", query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "You extinguish the %s.", query_name(op, NULL));
 
 		if (!op->env && op->glow_radius)
 		{
@@ -157,7 +157,7 @@ void apply_player_light(object *who, object *op)
 	else
 	{
 		/* now the tricky thing: with the first apply cmd, we enlight the light source.
-		 * with the second, we apply it. if we unapply a light source, we always unlight
+		 * with the second, we apply it. if we unapply a light source, we always extinguish
 		 * them implicit. */
 
 		/* LIGHT_APPLY light sources with last_sp (aka glow_radius) 0 are useless -
@@ -170,13 +170,13 @@ void apply_player_light(object *who, object *op)
 			return;
 		}
 
-		/* if glow_radius == 0, we have a unlight light source.
+		/* if glow_radius == 0, we have a extinguish light source.
 		 * before we can put it in the hand to use it, we have to turn
 		 * the light on. */
 		if (!op->glow_radius)
 		{
 			object *op_old;
-			/* to delay insertion of object - or it simple remerge! */
+			/* to delay insertion of object - or it simple re-merge! */
 			int tricky_flag = 0;
 
 			/* we have a non permanent source */
@@ -187,13 +187,13 @@ void apply_player_light(object *who, object *op)
 				{
 					/* no food charges, we can't light it up.
 					 * Note that light sources with other_arch set are
-					 * non rechargable lights - like torches. */
+					 * non rechargeable lights - like torches. */
 					new_draw_info_format(NDI_UNIQUE, who, "You must first refill or recharge the %s.", query_name(op, NULL));
 					return;
 				}
 			}
 
-			/* now we have a filled or permanent, unlight light source
+			/* now we have a filled or permanent, extinguish light source
 			 * lets light it - BUT we still have light_radius not active
 			 * when we not drop or apply the source. */
 
@@ -326,7 +326,7 @@ void apply_player_light(object *who, object *op)
 							SET_FLAG(tmp, FLAG_DAMNED);
 						}
 
-						new_draw_info_format(NDI_UNIQUE, who, "You unlight the %s.", query_name(tmp, NULL));
+						new_draw_info_format(NDI_UNIQUE, who, "You extinguish the %s.", query_name(tmp, NULL));
 
 						/* on map */
 						if (!tmp->env && tmp->glow_radius)
@@ -372,7 +372,7 @@ void apply_player_light(object *who, object *op)
 					SET_FLAG(op, FLAG_DAMNED);
 				}
 
-				new_draw_info_format(NDI_UNIQUE, who, "You unlight the %s.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You extinguish the %s.", query_name(op, NULL));
 
 				/* on map */
 				if (!op->env && op->glow_radius)

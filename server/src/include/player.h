@@ -51,7 +51,7 @@ typedef struct _level_color
 
 extern _level_color level_color[201];
 
-/** Fire modes submited from client. */
+/** Fire modes submitted from client. */
 enum
 {
 	/** No fire mode. */

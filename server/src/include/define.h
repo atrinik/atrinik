@@ -294,7 +294,7 @@
  * God. */
 #define GOD 50
 /**
- * Detector is an object which notices the presense of another object and
+ * Detector is an object which notices the presence of another object and
  * is triggered like buttons. */
 #define DETECTOR 51
 /**
@@ -487,7 +487,7 @@
  * Waypoint object. */
 #define WAYPOINT_OBJECT 119
 /**
- * Used to store quest informations in players. */
+ * Used to store quest information in players. */
 #define QUEST_CONTAINER 120
 /**
  * Id for close_container archetype. */
@@ -502,8 +502,8 @@
  * Weapon improver scroll. */
 #define WEAPON_IMPROVER 124
 /**
- * This is a raw wealth object. When generated it's tranformed into real
- * money depending on the enviroment where it's generated. */
+ * This is a raw wealth object. When generated it's transformed into real
+ * money depending on the environment where it's generated. */
 #define WEALTH 125
 /**
  * A beacon. */
@@ -754,7 +754,7 @@
  * @defgroup size_of_free_defines Size of free defines
  * Instead of using arbitrary constants for indexing the
  * freearr, add these values.  <= SIZEOFFREE1 will get you
- * within 1 space.  <= SIZEOFFREE2 wll get you withing
+ * within 1 space.  <= SIZEOFFREE2 will get you within
  * 2 spaces, and the entire array (<= SIZEOFFREE) is
  * three spaces.
  *@{*/
@@ -771,9 +771,9 @@
 /**
  * @defgroup terrain_type_flags Terrain type flags
  * Terrain type flags
- * These values are used from terrain_typ and terrain_flag
+ * These values are used from terrain_type and terrain_flag
  * Arches without terrain flags become AIRBREATH as default.
- * These values also define the enviroment of the map tile position
+ * These values also define the environment of the map tile position
  *@{*/
 /** No terrain. */
 #define TERRAIN_NOTHING         0
@@ -1324,7 +1324,7 @@
  * set to zero
  * the standard mode of movement from previous versions of crossfire will be
  * used. the upper four bits of movement data are not in effect when the monst
- * er has an enemy. these should only be used for non agressive monsters.
+ * er has an enemy. these should only be used for non aggressive monsters.
  * to program a monsters movement add the attack movement numbers to the movem
  * ment numbers example a monster that moves in a circle until attacked and
  * then attacks from a distance:
@@ -1335,16 +1335,16 @@
  * @author kholland@sunlab.cit.cornell.edu
  *@{*/
 /**
- * Move toward a player if far, but mantain some space,
+ * Move toward a player if far, but maintain some space,
  * attack from a distance - good for missile users only */
 #define DISTATT  1
 /** Run but attack if player catches up to object */
 #define RUNATT   2
-/** Run to then hit player then run away cyclicly */
+/** Run to then hit player then run away cyclically */
 #define HITRUN   3
 /** Wait for player to approach then hit, move if hit */
 #define WAITATT  4
-/** Rush toward player blindly, similiar to dumb monster */
+/** Rush toward player blindly, similar to dumb monster */
 #define RUSH     5
 /** Always run never attack good for sim. of weak player */
 #define ALLRUN   6

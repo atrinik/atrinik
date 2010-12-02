@@ -30,8 +30,8 @@
 #include <global.h>
 
 /**
- * Serch for doors or walls around a spot.
- * @param layout Naze.
+ * Search for doors or walls around a spot.
+ * @param layout Maze.
  * @param x X coordinate to check
  * @param y Y coordinate to check
  * @param Xsize X map size
@@ -75,7 +75,7 @@ int surround_check2(char **layout, int x, int y, int Xsize, int Ysize)
 /**
  * Add doors to a map.
  * @param the_map Map we're adding the doors to.
- * @param maze Naze layout.
+ * @param maze Maze layout.
  * @param doorstyle Door style to use. If NULL, will choose one randomly.
  * @param RP Random map parameters. */
 void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)

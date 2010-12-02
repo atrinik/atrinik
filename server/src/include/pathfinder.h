@@ -59,7 +59,7 @@ typedef struct astar_node
 } path_node;
 
 /**
- * Psuedo-flag used to mark waypoints as "has requested path".
+ * Pseudo-flag used to mark waypoints as "has requested path".
  *
  * Reuses a non-saved flag. */
 #define FLAG_WP_PATH_REQUESTED FLAG_PARALYZED

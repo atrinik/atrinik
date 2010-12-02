@@ -38,7 +38,7 @@ static int container_trap(object *op, object *container);
  * (appled flag set, and op->container points to the open container).
  * @param op The player.
  * @param sack The container the player is opening or closing.
- * @return 1 if an object is apllied somehow or another, 0 if error/no
+ * @return 1 if an object is applied somehow or another, 0 if error/no
  * apply. */
 int esrv_apply_container(object *op, object *sack)
 {
@@ -356,7 +356,7 @@ int container_unlink(player *pl, object *sack)
 			return 0;
 		}
 
-		/* we are somehwere in the middle or last one - it don't matter */
+		/* we are somewhere in the middle or last one - it don't matter */
 		CONTR(pl->container_below)->container_above = pl->container_above;
 
 		if (pl->container_above)

@@ -34,7 +34,7 @@
 #include <global.h>
 
 /**
- * You unforunately need to looking in include/global.h to see what these
+ * You unfortunately need to looking in include/global.h to see what these
  * correspond to. */
 struct Settings settings =
 {
@@ -241,7 +241,7 @@ static void init_environ()
 }
 
 /**
- * Initialises all global variables.
+ * Initializes all global variables.
  * Might use environment variables as default for some of them. */
 void init_globals()
 {
@@ -979,7 +979,7 @@ static void help()
 	LOG(llevInfo, " -tmpdir     Sets the directory for temporary files (mostly maps.)\n");
 	LOG(llevInfo, " -m1         Dumps out object settings for all monsters.\n");
 	LOG(llevInfo, " -m2         Dumps out abilities for all monsters.\n");
-	LOG(llevInfo, " -m3         Dumps out artificat information.\n");
+	LOG(llevInfo, " -m3         Dumps out artifact information.\n");
 	LOG(llevInfo, " -m4         Dumps out spell information.\n");
 	LOG(llevInfo, " -m5         Dumps out skill information.\n");
 	LOG(llevInfo, " -m6         Dumps out race information.\n");

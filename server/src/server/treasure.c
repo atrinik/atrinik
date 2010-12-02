@@ -3046,7 +3046,7 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
 				/* That's now our best match! */
 				op->material_real = q_tmp;
 			}
-			/* Exluded material table! */
+			/* Excluded material table! */
 			else
 			{
 				op->item_quality = m_range;
@@ -3129,13 +3129,13 @@ void dump_monster_treasure(const char *name)
  * object.
  * @param op Object to get environment level of.
  * @return The environment level, always at least 1. */
-int get_enviroment_level(object *op)
+int get_environment_level(object *op)
 {
 	object *env;
 
 	if (!op)
 	{
-		LOG(llevBug, "get_enviroment_level() called for NULL object!\n");
+		LOG(llevBug, "get_environment_level() called for NULL object!\n");
 		return 1;
 	}
 

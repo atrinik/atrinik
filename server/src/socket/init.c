@@ -239,7 +239,7 @@ void init_ericserver()
 
 	/* Would be nice to have an autoconf check for this.  It appears that
 	 * these functions are both using the same calling syntax, just one
-	 * of them needs extra valus passed. */
+	 * of them needs extra values passed. */
 #if !defined(_WEIRD_OS_)
 	{
 		int tmp = 1;

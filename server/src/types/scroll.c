@@ -64,7 +64,7 @@ void apply_scroll(object *op, object *tmp)
 			return;
 		}
 
-		/* thats new: literacy for reading but a player need also the
+		/* that's new: literacy for reading but a player need also the
 		 * right spellcasting spell. Reason: the exp goes then in that
 		 * skill. This makes scroll different from wands or potions. */
 		if (!change_skill(op, (spells[scroll_spell].type == SPELL_TYPE_PRIEST ? SK_PRAYING : SK_SPELL_CASTING)))
@@ -74,7 +74,7 @@ void apply_scroll(object *op, object *tmp)
 		}
 
 		/* Now, call here so the right skill is readied -- literacy
-		 * isnt necesarily connected to the exp obj to which the xp
+		 * isn't necessarily connected to the exp obj to which the xp
 		 * will go (for kills made by the magic of the scroll)  */
 		old_shoot = CONTR(op)->shoottype;
 		old_spell = CONTR(op)->chosen_spell;

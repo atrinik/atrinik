@@ -55,7 +55,7 @@
  * When a player logs out, the player char not "move" out of a tile
  * but it "turns to nothing on the spot". This sounds senseless but for
  * example a move out can trigger a teleporter action. This flag prevents
- * a loging out/exploding object is teleported after removing it from the spot. */
+ * a logging out/exploding object is teleported after removing it from the spot. */
 #define MOVE_APPLY_VANISHED 32
 /** move_apply() called from saving function */
 #define MOVE_APPLY_SAVING   64
@@ -146,7 +146,7 @@ typedef struct obj
 	sint32 carrying;
 
 	/* These get an extra add_refcount(), after having been copied by memcpy().
-	 * All fields beow this point are automatically copied by memcpy. If
+	 * All fields below this point are automatically copied by memcpy. If
 	 * adding something that needs a refcount updated, make sure you modify
 	 * copy_object to do so. */
 
@@ -264,7 +264,7 @@ typedef struct obj
 	uint16 last_damage;
 
 	/**
-	 * type flags for different enviroment (tile is under water, firewalk,...)
+	 * type flags for different environment (tile is under water, firewalk,...)
 	 * A object which can be applied GIVES this terrain flags to his owner */
 	uint16 terrain_type;
 
@@ -396,11 +396,11 @@ typedef struct obj
 	/**
 	 * our attack values - range from 0%-125%. (negative values makes no sense).
 	 * Note: we can in theory allow 300% damage for a attacktype.
-	 * all we need is to increase sint8 to sint16. Thats true for
+	 * all we need is to increase sint8 to sint16. That's true for
 	 * resist & protection too. But it will be counter the damage
 	 * calculation. Think about a way a player deals only 10 damage
 	 * at base but can grab so many items that he does 3000% damage.
-	 * thats not how this should work. More damage should come from
+	 * that's not how this should work. More damage should come from
 	 * the stats.dmg value - NOT from this source.
 	 * The "125% max border" should work nice and the 25% over 100%
 	 * should give a little boost. I think about to give player crafters
@@ -440,7 +440,7 @@ typedef struct obj
 	/** Type-dependant extra data. */
 	void *custom_attrset;
 
-	/** Fields not explictly known by the loader. */
+	/** Fields not explicitly known by the loader. */
 	key_value *key_values;
 } object;
 
@@ -486,7 +486,7 @@ extern struct mempool_chunk *removed_objects;
 
 #define CONTR(ob) ((player *) ((ob)->custom_attrset))
 
-/* This returns TRUE if the object is somethign that
+/* This returns TRUE if the object is something that
  * should be displayed in the look window */
 #define LOOK_OBJ(_ob) (!IS_SYS_INVISIBLE(_ob) && _ob->type != PLAYER)
 
@@ -534,10 +534,10 @@ extern struct mempool_chunk *removed_objects;
  * insert_ob_in_ob(). Note that all flags may not be meaningful
  * for both functions. */
 /*@{*/
-/** Don't try to merge inserted object with ones alrady on space. */
+/** Don't try to merge inserted object with ones already on space. */
 #define INS_NO_MERGE        0x0001
 /**
- * Don't call check_walk_on against the originator - saves cpu
+ * Don't call check_walk_on against the originator - saves CPU
  * time if you know the inserted object is not meaningful in
  * terms of having an effect. */
 #define INS_NO_WALK_ON      0x0002

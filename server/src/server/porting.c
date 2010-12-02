@@ -51,7 +51,7 @@ static uint32 curtmp = 0;
 
 /**
  * A replacement for the tempnam() function since it's not defined
- * at some unix variants.
+ * at some UNIX variants.
  * @param dir Directory where to create the file. Can be NULL, in which
  * case NULL is returned.
  * @param pfx prefix to create unique name. Can be NULL.
@@ -93,7 +93,7 @@ char *tempnam_local(const char *dir, const char *pfx)
 
 /**
  * A replacement of strdup(), since it's not defined at some
- * unix variants.
+ * UNIX variants.
  * @param str String to duplicate.
  * @return Copy, needs to be freed by caller. NULL on memory allocation
  * error. */
@@ -127,7 +127,7 @@ char *strerror_local(int errnum)
 /**
  * Computes the integer square root.
  * @param n Number of which to compute the root.
- * @return Integer quare root. */
+ * @return Integer square root. */
 unsigned long isqrt(unsigned long n)
 {
 	unsigned long op = n, res = 0, one;

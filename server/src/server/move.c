@@ -33,7 +33,7 @@
  * Try to move object in specified direction.
  * @param op What to move.
  * @param dir Direction to move the object to.
- * @param originator Typically the same as op, but can be dfferent if
+ * @param originator Typically the same as op, but can be different if
  * originator is causing op to move (originator is pushing op).
  * @return 0 if the object is not able to move to the desired space, 1
  * otherwise (in which case we also move the object accordingly). -1 if

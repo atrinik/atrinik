@@ -660,7 +660,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 		dam = dam * ((double) hitter->attack[ATNR_INTERNAL] / 100.0);
 
 		/* handle special object attacks */
-		/* we have a poison force object (thats the poison we had inserted) */
+		/* we have a poison force object (that's the poison we had inserted) */
 		if (hitter->type == POISONING)
 		{
 			/* Map to poison... */

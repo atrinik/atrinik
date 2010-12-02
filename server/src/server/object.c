@@ -462,13 +462,13 @@ int CAN_MERGE(object *ob1, object *ob2)
 		return 1;
 	}
 
-	/* Gecko: Moved out special handling of event obejct nrof */
+	/* Gecko: Moved out special handling of event object nrof */
 	/* important: don't merge objects with glow_radius set - or we come
 	 * in heavy side effect situations. Because we really not know what
 	 * our calling function will do after this merge (and the calling function
 	 * then must first find out a merge has happen or not). The sense of stacks
 	 * are to store inactive items. Because glow_radius items can be active even
-	 * when not apllied, merging is simply wrong here. MT. */
+	 * when not applied, merging is simply wrong here. MT. */
 	if (((!ob1->nrof || !ob2->nrof) && ob1->type != EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius)
 	{
 		return 0;
@@ -586,7 +586,7 @@ int CAN_MERGE(object *ob1, object *ob2)
  * If top is NULL, it is calculated.
  * @param op The object
  * @param top The top object
- * @return Pointer to object if it succeded in the merge, NULL otherwise */
+ * @return Pointer to object if it succeeded in the merge, NULL otherwise */
 object *merge_ob(object *op, object *top)
 {
 	if (!op->nrof)
@@ -612,7 +612,7 @@ object *merge_ob(object *op, object *top)
 		{
 			top->nrof += op->nrof;
 
-			/* Don't want any adjustements now */
+			/* Don't want any adjustments now */
 			op->weight = 0;
 
 			/* this is right: no check off */
@@ -1746,7 +1746,7 @@ void remove_ob(object *op)
 		}
 
 		/* NO_FIX_PLAYER is set when a great many changes are being
-		 * made to players inventory. If set, avoid the call to save cpu time. */
+		 * made to players inventory. If set, avoid the call to save CPU time. */
 		if ((otmp = is_player_inv(op->env)) != NULL && CONTR(otmp) && !QUERY_FLAG(otmp, FLAG_NO_FIX_PLAYER))
 		{
 			fix_player(otmp);
@@ -1844,7 +1844,7 @@ void remove_ob(object *op)
 	op->above = NULL;
 	op->below = NULL;
 
-	/* This is triggered when a map is swaped out and the objects on it get removed too */
+	/* This is triggered when a map is swapped out and the objects on it get removed too */
 	if (op->map->in_memory == MAP_SAVING)
 	{
 		return;
@@ -1924,7 +1924,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	MapSpace *mc;
 	int x, y, lt, layer, layer_inv;
 
-	/* some tests to check all is ok... some cpu ticks
+	/* some tests to check all is ok... some CPU ticks
 	 * which tracks we have problems or not */
 	if (OBJECT_FREE(op))
 	{
@@ -2634,7 +2634,7 @@ int check_walk_on(object *op, object *originator, int flags)
 
 	/* This flags ensures we notice when a moving event has appeared!
 	 * Because the functions who set/clear the flag can be called recursive
-	 * from this function and walk_off() we need a static, global semaphor
+	 * from this function and walk_off() we need a static, global semaphore
 	 * like flag to ensure we don't clear the flag except in the mother call. */
 	if (!static_walk_semaphore)
 	{
@@ -2745,7 +2745,7 @@ int check_walk_off(object *op, object *originator, int flags)
 
 		/* This flags ensures we notice when a moving event has appeared!
 		 * Because the functions who set/clear the flag can be called recursive
-		 * from this function and walk_off() we need a static, global semaphor
+		 * from this function and walk_off() we need a static, global semaphore
 		 * like flag to ensure we don't clear the flag except in the mother call. */
 		if (!static_walk_semaphore)
 		{
@@ -3342,7 +3342,7 @@ int auto_apply(object *op)
 			{
 				/* Let's give it 10 tries */
 				i = 10;
-				level = op->stats.exp ? (int) op->stats.exp : get_enviroment_level(op);
+				level = op->stats.exp ? (int) op->stats.exp : get_environment_level(op);
 
 				while ((tmp = generate_treasure(op->randomitems, level, a_chance)) == NULL && --i)
 				{
@@ -3376,7 +3376,7 @@ int auto_apply(object *op)
 			break;
 
 		case TREASURE:
-			level = op->stats.exp ? (int) op->stats.exp : get_enviroment_level(op);
+			level = op->stats.exp ? (int) op->stats.exp : get_environment_level(op);
 			create_treasure(op->randomitems, op, op->map ? GT_ENVIRONMENT : 0, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 
 			/* If we generated on object and put it in this object inventory,
@@ -3660,7 +3660,7 @@ void init_object_initializers()
 
 /**
  * This is a subset of the parse_id command. Basically, name can be a
- * string seperated lists of things to match, with certain keywords.
+ * string separated lists of things to match, with certain keywords.
  *
  * Calling function takes care of what action might need to be done and
  * if it is valid (pickup, drop, etc).
@@ -3885,7 +3885,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 		}
 		/* Do substring checks, so things like 'Str+1' will match.
 		 * retval of these should perhaps be lower - they are lower
-		 * then the specific strcasecmp aboves, but still higher than
+		 * than the specific strcasecmps above, but still higher than
 		 * some other match criteria. */
 		else if (strstr(query_base_name(op, pl), cp))
 		{

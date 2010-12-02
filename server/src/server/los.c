@@ -273,7 +273,7 @@ void init_block()
 				{
 					float d1, r, s, l;
 
-					/* We use the algorihm that found out how close the point
+					/* We use the algorithm that found out how close the point
 					 * (x, y) is to the line from dx, dy to the center of the viewable
 					 * area.  l is the distance from x, y to the line.
 					 * r is more a curiosity - it lets us know what direction (left/right)
@@ -380,7 +380,7 @@ static void set_wall(object *op, int x, int y)
 }
 
 /**
- * Used to initialise the array used by the LOS routines.
+ * Used to initialize the array used by the LOS routines.
  * Instead of light values, blocked_los[][] now tells the client
  * update function what kind of tile we have: visible, sight
  * blocked, blocksview trigger or out of map.
@@ -469,7 +469,7 @@ static void check_wall(object *op, int x, int y)
 }
 
 /**
- * Sets all veiwable squares to blocked except for the central one that
+ * Sets all viewable squares to blocked except for the central one that
  * the player occupies. A little odd that you can see yourself (and what
  * you're standing on), but really need for any reasonable game play.
  * @param op Player's object for which to reset los. */

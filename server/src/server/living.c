@@ -237,7 +237,7 @@ const char *const short_stat_name[NUM_STATS] =
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
  * attr is (STR to POW).
  * @param stats Item to modify. Must not be NULL.
- * @param attr Atribute to change.
+ * @param attr Attribute to change.
  * @param value New value. */
 void set_attr_value(living *stats, int attr, sint8 value)
 {
@@ -362,11 +362,11 @@ void check_stat_bounds(living *stats)
 
 /**
  * Permanently alters an object's stats/flags based on another object.
- * @return 1 if we sucessfully changed a stat, 0 if nothing was changed.
+ * @return 1 if we successfully changed a stat, 0 if nothing was changed.
  * @note Flag is set to 1 if we are applying the object, -1 if we are
  * removing the object.
  * @note
- * It is the calling functions responsibilty to check to see if the object
+ * It is the calling functions responsibility to check to see if the object
  * can be applied or not. */
 int change_abil(object *op, object *tmp)
 {
@@ -1742,7 +1742,7 @@ fix_player_jump_resi:
 	op->stats.maxsp += (int) ((float) op->stats.maxsp * pow_bonus[op->stats.Pow]) + max_boni_sp;
 	op->stats.maxgrace += (int) ((float) op->stats.maxgrace * wis_bonus[op->stats.Wis]) + max_boni_grace;
 
-	/* HP/SP/Grace adjustements coming from class-defining object. */
+	/* HP/SP/Grace adjustments coming from class-defining object. */
 	if (CONTR(op)->class_ob)
 	{
 		if (CONTR(op)->class_ob->stats.hp)

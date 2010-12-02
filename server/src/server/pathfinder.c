@@ -314,7 +314,7 @@ static void insert_priority_node(path_node *node, path_node **list)
  * - a) Store path as real waypoint objects (might be a lot of objects...)
  * - b) Store path as field in waypoints
  *   - b1) Linked list in i.e. ob->enemy (needs special free() call when removing object).
- *   - b2) In ascii in waypoint->msg (will even be saved out).
+ *   - b2) In ASCII in waypoint->msg (will even be saved out).
  *     - b2.1) Direction list (e.g. 1234155532, compact but fragile)
  *     - b2.2) Map / coordinate list: (/dev/testmaps:13,12 14,12 ...) (human-readable (and editable), complex parsing)
  *             Approx: 600 steps in one 4096 bytes msg field
@@ -533,7 +533,7 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
 	rv_vector v1, v2;
 	float h;
 
-	/* Diagonal distance (not manhattan distance or euclidian distance!) */
+	/* Diagonal distance (not manhattan distance or euclidean distance!) */
 	if (goal->map == current->map)
 	{
 		/* Avoid a function call in simple case */
@@ -573,7 +573,7 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
 }
 
 /**
- * Find untraversed neighbours of the node and add to the open_list.
+ * Find untraversed neighbors of the node and add to the open_list.
  * @param node Node.
  * @param open_list Open list.
  * @param start Starting position.
@@ -611,7 +611,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 			else
 			{
 				block = blocked(op, map, x2, y2, op->terrain_flag);
-				/* Check for possible door openening */
+				/* Check for possible door opening */
 				/* TODO: increase path cost if we have to open doors? */
 				if (block == P_DOOR_CLOSED && open_door(op, map, x2, y2, 0))
 				{
@@ -640,7 +640,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 				}
 			}
 
-			/* TODO: might need to reopen neighbour nodes if their cost can be lowered from the new node.
+			/* TODO: might need to reopen neighbor nodes if their cost can be lowered from the new node.
 			 * (This requires us to store pointers to the tiles instead of bitmap.)
 			 * (Probably only required if we add different path costs to different terrains,
 			 * or support for doors/teleporters) */

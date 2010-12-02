@@ -69,7 +69,7 @@ static char numbers_10[10][20] =
 	"ten",
 	"twenty",
 	"thirty",
-	"fourty",
+	"forty",
 	"fifty",
 	"sixty",
 	"seventy",
@@ -1177,7 +1177,7 @@ char *describe_item(object *op)
 					}
 
 					/* Do this in all cases - otherwise it gets confusing - does that
-					 * item have no penality, or is it not fully identified for example. */
+					 * item have no penalty, or is it not fully identified for example. */
 					if (ARMOUR_SPELLS(op))
 					{
 						sprintf(buf, "(mana reg %d)", -1 * ARMOUR_SPELLS(op));

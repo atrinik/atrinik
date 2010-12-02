@@ -969,7 +969,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 		}
 
 		/* If the archetype for the object is null, means that we
-		 * got an invalid object. Don't do anythign with it - the game
+		 * got an invalid object. Don't do anything with it - the game
 		 * will not be able to do anything with it either. */
 		if (op->arch == NULL)
 		{
@@ -1398,7 +1398,7 @@ void set_map_darkness(mapstruct *m, int value)
 }
 
 /**
- * Allocates, initialises, and returns a pointer to a mapstruct.
+ * Allocates, initializes, and returns a pointer to a mapstruct.
  * @return The new map structure. */
 mapstruct *get_linked_map()
 {
@@ -1420,7 +1420,7 @@ mapstruct *get_linked_map()
 	map->in_memory = MAP_SWAPPED;
 
 	/* The maps used to pick up default x and y values from the
-	 * map archetype. Mimic that behaviour. */
+	 * map archetype. Mimic that behavior. */
 	MAP_WIDTH(map) = 16;
 	MAP_HEIGHT(map) = 16;
 	MAP_RESET_TIMEOUT(map) = 0;
@@ -1734,7 +1734,7 @@ static void load_unique_objects(mapstruct *m)
 /**
  * Saves a map to file.  If flag is set, it is saved into the same
  * file it was (originally) loaded from.  Otherwise a temporary
- * filename will be genarated, and the file will be stored there.
+ * filename will be generated, and the file will be stored there.
  * The temporary filename will be stored in the mapstructure.
  * If the map is unique, we also save to the filename in the map
  * (this should have been updated when first loaded).
@@ -1773,7 +1773,7 @@ int new_save_map(mapstruct *m, int flag)
 		/* If the compression suffix already exists on the filename, don't
 		 * put it on again.  This nasty looking strcmp checks to see if the
 		 * compression suffix is at the end of the filename already.
-		 * i don't checked them - perhaps weneed compression in the future
+		 * i don't checked them - perhaps we need compression in the future
 		 * even i can't see it - the if is harmless because self terminating
 		 * after the m->compressed fails. */
 		if (m->compressed && strcmp((filename + strlen(filename) - strlen(uncomp[m->compressed][0])), uncomp[m->compressed][0]))
@@ -2172,7 +2172,7 @@ void update_position(mapstruct *m, int x, int y)
 
 	if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE)))
 	{
-		LOG(llevDebug, "DBUG: update_position called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)\n", m->path, x, y);
+		LOG(llevDebug, "DEBUG: update_position called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)\n", m->path, x, y);
 	}
 #endif
 
@@ -2297,7 +2297,7 @@ void update_position(mapstruct *m, int x, int y)
 		 * if they don't match, logic is broken someplace. */
 		if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR)))
 		{
-			LOG(llevDebug,"DBUG: update_position: updated flags do not match old flags: %s (%d,%d) old:%x != %x\n", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
+			LOG(llevDebug,"DEBUG: update_position: updated flags do not match old flags: %s (%d,%d) old:%x != %x\n", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
 		}
 #endif
 
@@ -2726,7 +2726,7 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
  * creature is.  get_rangevector takes into account map tiling,
  * so you just can not look the the map coordinates and get the
  * right value.  distance_x/y are distance away, which
- * can be negativbe.  direction is the crossfire direction scheme
+ * can be negative.  direction is the crossfire direction scheme
  * that the creature should head.  part is the part of the
  * monster that is closest.
  *
@@ -2759,10 +2759,10 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 		object *tmp, *best = NULL;
 		int best_distance = retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y, tmpi;
 
-		/* we just tkae the offset of the piece to head to figure
+		/* we just take the offset of the piece to head to figure
 		 * distance instead of doing all that work above again
 		 * since the distance fields we set above are positive in the
-		 * same axis as is used for multipart objects, the simply arithemetic
+		 * same axis as is used for multipart objects, the simply arithmetic
 		 * below works. */
 		for (tmp = op1->more; tmp; tmp = tmp->more)
 		{
@@ -2801,7 +2801,7 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
  *
  * Calculates manhattan distance (dx+dy) per default. (fast)
  * - Flags:
- *   0x4 - calculate euclidian (straight line) distance (slow)
+ *   0x4 - calculate euclidean (straight line) distance (slow)
  *   0x8 - calculate diagonal  (max(dx + dy)) distance   (fast)
  *   0x8|0x04 - don't calculate distance (or direction) (fastest)
  * @todo Document. */

@@ -258,7 +258,7 @@ void close_locked_door(object *op)
 	 * If it is blocked - then restart a new "is open" phase. */
 	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
 	{
-		/* Let it open one more round. Reinit "open" counter. */
+		/* Let it open one more round. Re-init "open" counter. */
 		op->last_sp = op->stats.sp;
 	}
 	else

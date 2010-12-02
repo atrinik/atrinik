@@ -72,7 +72,7 @@ void apply_food(object *op, object *tmp)
 
 			if (tmp->type == DRINK)
 			{
-				snprintf(buf, sizeof(buf), "Ahhh...that %s tasted good.", tmp->name);
+				snprintf(buf, sizeof(buf), "Ahhh... that %s tasted good.", tmp->name);
 			}
 			else
 			{

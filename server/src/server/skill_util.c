@@ -27,7 +27,7 @@
  * @file
  * Various skill related functions. */
 
-/* define the following for skills utility debuging */
+/* define the following for skills utility debugging */
 /* #define SKILL_UTIL_DEBUG */
 
 #include <global.h>
@@ -995,7 +995,7 @@ int use_skill(object *op, char *string)
 {
 	int sknum = -1;
 
-	/* The skill name appears at the begining of the string,
+	/* The skill name appears at the beginning of the string,
 	 * need to reset the string to next word, if it exists. */
 	if (string && (sknum = lookup_skill_by_name(string)) >= 0)
 	{

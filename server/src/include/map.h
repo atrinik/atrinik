@@ -247,7 +247,7 @@ int map_tiled_reverse[TILED_MAPS];
 #define FFLAG_BLINDED   0x10
 /** Object is invisible (can be seen with "see invisible" on) */
 #define FFLAG_INVISIBLE 0x20
-/** Object is etheral */
+/** Object is ethereal */
 #define FFLAG_ETHEREAL  0x40
 /** Object is probed */
 #define FFLAG_PROBE     0x80
@@ -397,7 +397,7 @@ typedef struct MapSpace_s
  * If true, reset time is not affected by players entering / exiting
  * map */
 #define MAP_FLAG_FIXED_RTIME 4
-/** No wizardy based spells */
+/** No wizardry based spells */
 #define MAP_FLAG_NOMAGIC 8
 /** No prayer based spells */
 #define MAP_FLAG_NOPRIEST 16
@@ -450,7 +450,7 @@ typedef struct MapSpace_s
  * This is a game region.
  *
  * Each map is in a given region of the game world and links to a region
- * definiton. */
+ * definition. */
 typedef struct regiondef
 {
 	/** Pointer to next region, NULL for the last one */

@@ -214,7 +214,7 @@ static void player_shop_free_structure(player *pl, int send_close)
 }
 
 /**
- * Check if player that wants to buy from someone's player shop is in
+ * Check if player that wants to buy from someones player shop is in
  * range to actually initiate the shop interface.
  *
  * Uses get_rangevector() to calculate the distance.

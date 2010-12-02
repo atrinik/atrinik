@@ -153,7 +153,7 @@ static void wm_images_init()
  * @param x X position.
  * @param y Y position.
  * @param ob Object to render.
- * @return 1 if we renderer the object, 0 otherwise. */
+ * @return 1 if we rendered the object, 0 otherwise. */
 static int render_object(gdImagePtr im, int x, int y, object *ob)
 {
 	/* Sanity check. */
@@ -422,7 +422,7 @@ void world_maker()
 		{
 			int im_r, im_g, im_b;
 
-			/* Parse HTML collor and fill the image with it. */
+			/* Parse HTML color and fill the image with it. */
 			if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3)
 			{
 				gdImageFill(im, 0, 0, gdImageColorAllocate(im, im_r, im_g, im_b));

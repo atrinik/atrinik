@@ -25,7 +25,7 @@
 
 /**
  * @file
- * This containes item logic for client/server. It doesn't contain the
+ * This contains item logic for client/server. It doesn't contain the
  * actual commands that send the data, but does contain the logic for
  * what items should be sent. */
 
@@ -601,7 +601,7 @@ static void esrv_send_item_send(object *pl, object *op)
 	/* If this is not the player object, do some more checks. */
 	if (op != pl)
 	{
-		/* We only send 'visibile' objects to the client. */
+		/* We only send 'visible' objects to the client. */
 		if (!LOOK_OBJ(op))
 		{
 			return;

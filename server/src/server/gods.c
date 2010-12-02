@@ -397,7 +397,7 @@ void become_follower(object *op, object *new_god)
 
 #ifdef MORE_PRIEST_GIFTS
 	/* Weapon/armour use are special...handle flag toggles here as this can
-	 * only happen when gods are worshipped and if the new priest could
+	 * only happen when gods are worshiped and if the new priest could
 	 * have used armour/weapons in the first place */
 	update_priest_flag(new_god,exp_obj, FLAG_USE_WEAPON);
 	update_priest_flag(new_god,exp_obj, FLAG_USE_ARMOUR);
@@ -1100,7 +1100,7 @@ static void god_intervention(object *op, object *god)
  * praying.
  * @param op Player the god examines.
  * @param god God examining the player.
- * @return Begative value is god is not pleased, otherwise positive
+ * @return Negative value if god is not pleased, otherwise positive
  * value, the higher the better. */
 static int god_examines_priest(object *op, object *god)
 {

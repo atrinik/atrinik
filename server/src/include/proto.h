@@ -897,7 +897,7 @@ void give_artifact_abilities(object *op, artifact *art);
 int generate_artifact(object *op, int difficulty, int t_style, int a_chance);
 void free_all_treasures();
 void dump_monster_treasure(const char *name);
-int get_enviroment_level(object *op);
+int get_environment_level(object *op);
 object *create_artifact(object *op, char *artifactname);
 
 /* server/utils.c */

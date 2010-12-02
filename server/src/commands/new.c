@@ -147,17 +147,17 @@ void send_target_command(player *pl)
 	pl->ob->enemy_count = 0;
 
 	/* Target still legal? */
-	/* thats we self */
+	/* that's we self */
 	if (!pl->target_object || !OBJECT_ACTIVE(pl->target_object) || pl->target_object == pl->ob)
 	{
 		aim_self_flag = 1;
 	}
 	else if (pl->target_object_count == pl->target_object->count)
 	{
-		/* ok, a last check... i put it here to have clear code:
+		/* OK, a last check... i put it here to have clear code:
 		 * perhaps we have legal issues why we can't aim or attack
 		 * our target anymore... invisible & stuff are handled here.
-		 * stuff like a out of pvp area moved player are handled different.
+		 * stuff like a out of PvP area moved player are handled different.
 		 * we HOLD the target - perhaps the guy moved back.
 		 * this special stuff is handled deeper in attack() functions. */
 		if (QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE)))
@@ -194,7 +194,7 @@ void send_target_command(player *pl)
 		aim_self_flag = 1;
 	}
 
-	/* ok... at last, target self */
+	/* OK... at last, target self */
 	if (aim_self_flag)
 	{
 		/* self */
@@ -207,12 +207,12 @@ void send_target_command(player *pl)
 
 	/* now we have a target - lets calculate the color code.
 	 * we can do it easy and send the real level to client and
-	 * let calc it there but this will allow to spoil that
+	 * let Calculate it there but this will allow to spoil that
 	 * data on client side. */
 	/* target is lower */
 	if (pl->target_object->level < level_color[pl->ob->level].yellow)
 	{
-		/* if < the green border value, the mob is grey */
+		/* if < the green border value, the mob is gray */
 		if (pl->target_object->level < level_color[pl->ob->level].green)
 		{
 			tmp[2] = NDI_GREY;
@@ -333,7 +333,7 @@ int command_target(object *op, char *params)
 		{
 			int xx, yy;
 
-			/* thats the trick: we get  op map pos, but we have 2 offsets:
+			/* that's the trick: we get  op map pos, but we have 2 offsets:
 			 * the offset from the client mouse click - can be
 			 * +- CONTR(op)->socket.mapx/2 - and the freearr_x/y offset for
 			 * the search. */
@@ -524,7 +524,7 @@ int command_target(object *op, char *params)
 			CONTR(op)->target_object_count = op->count;
 			CONTR(op)->target_map_pos = 0;
 		}
-		/* ok - search for a friendly object now! */
+		/* OK - search for a friendly object now! */
 		else
 		{
 			/* if our target before was a non enemy, start new search
@@ -643,7 +643,7 @@ dirty_jump_in1:
 		CONTR(op)->target_object_count = op->count;
 		CONTR(op)->target_map_pos = 0;
 	}
-	/* TODO: ok... try to use params as a name */
+	/* TODO: OK... try to use params as a name */
 	else
 	{
 		/* still not sure we need this.. perhaps for groups? */
