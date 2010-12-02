@@ -462,7 +462,7 @@ typedef struct regiondef
 	 * we traverse this series of pointers until it is. */
 	struct regiondef *parent;
 
-	/** Shortend name of the region as maps refer to it */
+	/** Shortened name of the region as maps refer to it */
 	char *name;
 
 	/**
