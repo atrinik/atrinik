@@ -62,6 +62,7 @@ class types:
 	creator = 42
 	map_event_object = 127
 	wall = 77
+	magic_mirror = 28
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -655,6 +656,8 @@ class ObjectParser:
 					# Is the archetype (shop) floor with 'is_floor 1' not set?
 					if self.dict[self.last_obj]["type"] in (types.floor, types.shop_floor) and get_entry(self.dict[self.last_obj], "is_floor") != 1:
 						errors_archetypes.append(["Archetype '{0}' is of type floor but doesn't have 'is_floor 1' set.".format(self.last_obj), errors.low])
+					elif self.dict[self.last_obj]["type"] == types.magic_mirror and get_entry(self.dict[self.last_obj], "sys_object") != 1:
+						errors_archetypes.append(["Archetype '{0}' is a magic mirror but is not 'sys_object 1'.".format(self.last_obj), errors.medium])
 
 				self.last_obj = None
 				continue
