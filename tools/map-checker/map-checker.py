@@ -2,7 +2,7 @@
 #
 # Application to check Atrinik maps for common errors.
 
-import sys, os, getopt, re
+import sys, os, getopt, re, webbrowser
 try:
 	from ConfigParser import ConfigParser
 	from StringIO import StringIO
@@ -879,6 +879,73 @@ def config_save():
 	with open("config.cfg", "wb") as configfile:
 		config.write(configfile)
 
+# Find files in the specified path.
+# @param where Where to look for the files.
+# @param ext What the file must end with.
+# @param rec Whether to go on recursively.
+# @param ignore_dirs Whether to ignore directories.
+# @param ignore_files Whether to ignore files.
+# @param ignore_paths What paths to ignore.
+# @return A list containing files/directories found based on the set criteria.
+def find_files(where, ext = None, rec = True, ignore_dirs = True, ignore_files = False, ignore_paths = None):
+	nodes = os.listdir(where)
+	files = []
+
+	for node in nodes:
+		path = os.path.join(where, node)
+
+		# Do we want to ignore this path?
+		if ignore_paths and path in ignore_paths:
+			continue
+
+		# A directory.
+		if os.path.isdir(path):
+			# Do we want to go on recursively?
+			if rec:
+				files += find_files(path, ext)
+
+			# Are we ignoring directories? If not, add it to the list.
+			if not ignore_dirs:
+				files.append(path)
+		else:
+			# Only add the file if we're not ignoring files and ext was not set or it matches.
+			if not ignore_files and (not ext or path.endswith(ext)):
+				files.append(path)
+
+	return files
+
+# Find .arc file of archetype definition.
+# @param arch Archetype to find.
+# @return Path to the .arc file, None if the archetype could not be found.
+def find_archetype_file(arch):
+	for file in find_files(arch_dir, ".arc"):
+		fp = open(file, "r")
+
+		for line in fp:
+			if line == "Object " + arch + "\n":
+				fp.close()
+				return file
+
+		fp.close()
+
+	return None
+
+# Find .art file of artifact definition.
+# @param art Artifact to find.
+# @return Path to the .art file, None if the artifact could not be found.
+def find_artifact_file(art):
+	for file in find_files(arch_dir, ".art"):
+		fp = open(file, "r")
+
+		for line in fp:
+			if line == "artifact " + art + "\n":
+				fp.close()
+				return file
+
+		fp.close()
+
+	return None
+
 archetypes = parse_archetypes()
 artifacts = parse_artifacts()
 regions = parse_regions()
@@ -1130,6 +1197,7 @@ if not cli:
 			self.window.sm.set_sort_column_id(0, gtk.SORT_ASCENDING)
 			# Tree view.
 			self.window.tv = gtk.TreeView(self.window.sm)
+			self.window.tv.connect("row-activated", self.row_click_event)
 			self.window.vbox.pack_start(self.window.sw)
 
 			self.window.sw.add(self.window.tv)
@@ -1170,6 +1238,26 @@ if not cli:
 		def quit_event(self, widget, event, data = None):
 			gtk.main_quit()
 			return False
+
+		# Event activated when row is clicked.
+		def row_click_event(self, treeview, i, view_column):
+			map_name = self.window.sm.get_model()[i][0]
+			msg = self.window.sm.get_model()[i][2]
+
+			if map_name == "Archetypes":
+				arch = re.sub(r"[Aa]rchetype '([^']*)'(.*)", r"\1", msg)
+				file = find_archetype_file(arch)
+
+				if file:
+					webbrowser.open(file)
+			elif map_name == "Regions":
+				webbrowser.open(regions_file)
+			elif map_name == "Artifacts":
+				arch = re.sub(r"[Aa]rtifact '([^']*)'(.*)", r"\1", msg)
+				file = find_artifact_file(arch)
+
+				if file:
+					webbrowser.open(file)
 
 		# Preferences dialog.
 		def preferences_button(self, b):
