@@ -1162,7 +1162,7 @@ if not cli:
 				("File", None, "_File"),
 				("Scan", gtk.STOCK_EXECUTE, "_Scan", "<control>s", "Scan maps", self.scan_button),
 				("Save", gtk.STOCK_SAVE, "_Save", "<control><shift>s", "Save", self.save_button),
-				("Open Maps", gtk.STOCK_SAVE, "_Open Maps", "<control>o", "Open maps", self.open_maps_button),
+				("Open Maps", gtk.STOCK_OPEN, "_Open Maps", "<control>o", "Open maps", self.open_maps_button),
 				("Check File", gtk.STOCK_OPEN, "_Check File", "<control>f", "Check File", self.check_file_button),
 				("Check Directory", gtk.STOCK_DIRECTORY, "_Check Directory", "<control>d", "Check Directory", self.check_directory_button),
 				("Preferences", gtk.STOCK_PREFERENCES, "_Preferences", "<control>p", "Preferences", self.preferences_button),
