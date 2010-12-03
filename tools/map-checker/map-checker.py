@@ -2,7 +2,7 @@
 #
 # Application to check Atrinik maps for common errors.
 
-import sys, os, getopt, re, webbrowser
+import sys, os, getopt, re, webbrowser, subprocess
 try:
 	from ConfigParser import ConfigParser
 	from StringIO import StringIO
@@ -1098,6 +1098,7 @@ if not cli:
 	<menu action="File">
 		<menuitem action="Scan" />
 		<menuitem action="Save" />
+		<menuitem action="Open Maps" />
 		<separator />
 		<menuitem action="Check File" />
 		<menuitem action="Check Directory" />
@@ -1161,9 +1162,10 @@ if not cli:
 				("File", None, "_File"),
 				("Scan", gtk.STOCK_EXECUTE, "_Scan", "<control>s", "Scan maps", self.scan_button),
 				("Save", gtk.STOCK_SAVE, "_Save", "<control><shift>s", "Save", self.save_button),
+				("Open Maps", gtk.STOCK_SAVE, "_Open Maps", "<control>o", "Open maps", self.open_maps_button),
 				("Check File", gtk.STOCK_OPEN, "_Check File", "<control>f", "Check File", self.check_file_button),
 				("Check Directory", gtk.STOCK_DIRECTORY, "_Check Directory", "<control>d", "Check Directory", self.check_directory_button),
-				("Preferences", gtk.STOCK_PREFERENCES, "_Preferences", None, "Preferences", self.preferences_button),
+				("Preferences", gtk.STOCK_PREFERENCES, "_Preferences", "<control>p", "Preferences", self.preferences_button),
 				("Quit", gtk.STOCK_QUIT, "_Quit", "<control>q", "Quit the program", self.quit_button),
 				("Reload", None, "_Reload"),
 				("Reload Archetypes", None, "_Reload Archetypes", None, "Reload archetypes from file", self.reload_archetypes_button),
@@ -1293,6 +1295,27 @@ if not cli:
 
 			about.connect("response", lambda d, r: d.destroy())
 			about.show()
+
+		# Open maps button.
+		def open_maps_button(self, b):
+			maps = []
+
+			for row in self.window.sm.get_model():
+				# Ignore non-map errors.
+				if row[0] == "Artifacts" or row[0] == "Archetypes" or row[0] == "Regions":
+					continue
+
+				m_path = os.path.realpath(os.path.join(path, row[0]))
+
+				if not m_path in maps:
+					maps.append(m_path)
+
+			# Get default environment variables.
+			envs = os.environ
+			# Extend the PATH environment variable with the script's dir.
+			envs["PATH"] += ":" + sys.path[0]
+			# Execute Gridarta.
+			subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs)
 
 		# The save button. Will save output in the tree view to file.
 		def save_button(self, b):
