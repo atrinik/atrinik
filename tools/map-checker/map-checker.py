@@ -650,6 +650,12 @@ class ObjectParser:
 			elif not self.last_obj:
 				continue
 			elif line == "end\n":
+				# Do some checks.
+				if "type" in self.dict[self.last_obj]:
+					# Is the archetype (shop) floor with 'is_floor 1' not set?
+					if self.dict[self.last_obj]["type"] in (types.floor, types.shop_floor) and get_entry(self.dict[self.last_obj], "is_floor") != 1:
+						errors_archetypes.append(["Archetype '{0}' is of type floor but doesn't have 'is_floor 1' set.".format(self.last_obj), errors.low])
+
 				self.last_obj = None
 				continue
 
