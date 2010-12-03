@@ -69,7 +69,7 @@ void cftimer_process_timers()
  * @param ob Object to trigger the event for. */
 static void cftimer_process_event(object *ob)
 {
-	if (ob)
+	if (ob && !OBJECT_FREE(ob))
 	{
 		trigger_event(EVENT_TIMER, NULL, ob, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL);
 	}
