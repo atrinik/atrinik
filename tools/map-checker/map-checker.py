@@ -684,7 +684,7 @@ class ObjectParser:
 					found = dict(self.dict[archetype])
 
 				if not found:
-					errors_artifacts.append(["Could not find archetype '{0}' for def_arch command (line: {1}).".format(archetype, self.line_num), errors.critical])
+					errors_artifacts.append(["Artifact '{0}': Could not find archetype '{1}' for def_arch command (line: {2}).".format(self.last_obj, archetype, self.line_num), errors.critical])
 				else:
 					self.dict[self.last_obj] = dict(found)
 
