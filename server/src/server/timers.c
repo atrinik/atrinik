@@ -43,7 +43,7 @@ void cftimer_process_timers()
 	{
 		if (timers_table[i].mode == TIMER_MODE_CYCLES)
 		{
-			timers_table[i].delay --;
+			timers_table[i].delay--;
 
 			if (timers_table[i].delay == 0)
 			{
