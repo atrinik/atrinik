@@ -1285,6 +1285,47 @@ int string_get_width(int font, const char *text, uint64 flags)
 }
 
 /**
+ * Calculate string's pixel height, taking into account markup, if
+ * applicable.
+ *
+ * It is usually enough to use FONT_HEIGHT() to get the string's
+ * font height, unless markup is allowed, in which case the maximum used
+ * height might be different.
+ * @param font Font. One of @ref FONT_xxx.
+ * @param text String to get height of.
+ * @param flags One or a combination of @ref TEXT_xxx.
+ * @return The string's height. */
+int string_get_height(int font, const char *text, uint64 flags)
+{
+	SDL_Rect dest;
+	const char *cp;
+	int max_height;
+
+	max_height = FONT_HEIGHT(font);
+
+	/* No markup, the text cannot become different size. */
+	if (!(flags & TEXT_MARKUP))
+	{
+		return max_height;
+	}
+
+	cp = text;
+	dest.w = 0;
+
+	while (*cp != '\0')
+	{
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL);
+
+		if (FONT_HEIGHT(font) > max_height)
+		{
+			max_height = FONT_HEIGHT(font);
+		}
+	}
+
+	return max_height;
+}
+
+/**
  * Enable text debugging. */
 void text_enable_debug()
 {

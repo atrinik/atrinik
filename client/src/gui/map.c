@@ -165,7 +165,7 @@ void update_map_data(const char *name, char *bg_music)
 		for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
 		{
 			resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
-			resize_widget(widget, RESIZE_BOTTOM, FONT_HEIGHT(MAP_NAME_FONT));
+			resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, name, TEXT_MARKUP));
 		}
 	}
 }
