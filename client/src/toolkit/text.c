@@ -630,7 +630,11 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</alpha>", 8))
 		{
-			used_alpha = 255;
+			if (surface)
+			{
+				used_alpha = 255;
+			}
+
 			return 8;
 		}
 		else if (!strncmp(cp, "<book=", 6))
