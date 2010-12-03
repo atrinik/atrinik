@@ -3,19 +3,19 @@
 ; run `makensis client_installer.nsi`
 
 ; Installer name.
-Name "Atrinik Client 1.1.1"
+Name "Atrinik Client 2.0"
 
 ; Installer filename.
-OutFile "atrinik-client-1.1.1.exe"
+OutFile "atrinik-client-2.0.exe"
 
 ; Installer icon.
 Icon "bitmaps\icon.ico"
 
 ; Default installation directory.
-InstallDir "$PROGRAMFILES\Atrinik Client 1.1.1"
+InstallDir "$PROGRAMFILES\Atrinik Client 2.0"
 
 ; Registry key.
-InstallDirRegKey HKLM "Software\Atrinik-Client-1.1.1" "Install_Dir"
+InstallDirRegKey HKLM "Software\Atrinik-Client-2.0" "Install_Dir"
 
 ; Pages.
 Page components
@@ -76,15 +76,15 @@ Section "Client (required)"
 
   SetOutPath $INSTDIR
 
-  WriteRegStr HKLM SOFTWARE\Atrinik-Client-1.1.1 "Install_Dir" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayName" "Atrinik Client"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayVersion" "1.1.1"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "DisplayIcon" "$INSTDIR\bitmaps\icon.ico"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "Publisher" "Atrinik Team"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "HelpLink" "http://www.atrinik.org"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1" "NoRepair" 1
+  WriteRegStr HKLM SOFTWARE\Atrinik-Client-2.0 "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "DisplayName" "Atrinik Client"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "DisplayVersion" "2.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "DisplayIcon" "$INSTDIR\bitmaps\icon.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "Publisher" "Atrinik Team"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "HelpLink" "http://www.atrinik.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
 SectionEnd
 
@@ -92,9 +92,9 @@ SectionEnd
 Section "Start Menu Shortcuts"
   SetShellVarContext all
 
-  CreateDirectory "$SMPROGRAMS\Atrinik Client 1.1.1"
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 1.1.1\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateDirectory "$SMPROGRAMS\Atrinik Client 2.0"
+  CreateShortCut "$SMPROGRAMS\Atrinik Client 2.0\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\Atrinik Client 2.0\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Optional desktop shortcut.
@@ -109,10 +109,10 @@ Section "Uninstall"
   SetShellVarContext all
 
   ; Remove registry keys.
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-1.1.1"
-  DeleteRegKey HKLM SOFTWARE\Atrinik-Client-1.1.1
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0"
+  DeleteRegKey HKLM SOFTWARE\Atrinik-Client-2.0
 
   Delete /REBOOTOK "$DESKTOP\Atrinik Client.lnk"
-  RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client 1.1.1"
+  RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client 2.0"
   RMDir /r /REBOOTOK "$INSTDIR"
 SectionEnd

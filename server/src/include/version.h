@@ -29,7 +29,7 @@
 
 /** Version of the server. */
 #ifdef MAKE
-#define Version "1.1"
+#define Version "2.0"
 #else
-#define VERSION "1.1"
+#define VERSION "2.0"
 #endif
