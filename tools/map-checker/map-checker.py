@@ -549,7 +549,7 @@ def check_file(file):
 	if map:
 		check_map(map)
 
-# Recursively scan directiores and call check_file on found files.
+# Recursively scan directories and call check_file on found files.
 # @param dir Directory to scan.
 def scan_dirs(dir):
 	files = os.listdir(dir)
