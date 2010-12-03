@@ -1142,7 +1142,7 @@ if not cli:
 
 				# See if we want Pango markup or not.
 				if columns[i][1]:
-					self.window.tv.column[i] = gtk.TreeViewColumn(columns[i][0], self.window.tv.cell[i], markup = True)
+					self.window.tv.column[i] = gtk.TreeViewColumn(columns[i][0], self.window.tv.cell[i], markup = 1)
 				else:
 					self.window.tv.column[i] = gtk.TreeViewColumn(columns[i][0])
 
