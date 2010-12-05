@@ -37,7 +37,7 @@ def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = 
 
 	# Display information about provisions.
 	elif event and msg == "provisions":
-		me.SayTo(activator, "\nYou can either buy the provisions one by one, or prefix the provision name with a number (maximum {0}), for example:\n^{0} {1}^".format(min(num_max, 10), event.inv.name))
+		me.SayTo(activator, "\nYou can either buy the provisions one by one, or prefix the provision name with a number (maximum {0}), for example:\n^{1} {2}^".format(num_max, min(num_max, 10), event.inv.name))
 
 	# See if the message matched one of the provision names.
 	elif event:
