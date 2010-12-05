@@ -39,6 +39,19 @@ stories = {
 			"The spell succeeded, Hierro has been teleported away.\nThe cave is ours, we can mine it today...",
 			"To this day, we still do not know\nwhat kind of creature was Hierro."]
 		),
+		("History of the Founding of Morliana", [
+			"They saw an object, when they looked up high.\nGetting brighter and brighter in the sky...",
+			"They looked with wonder and started to fear.\nThe object looked to be getting near...",
+			"They looked for cover, thinking this was their fate.\nNo time to run, it was too late...",
+			"The object missed them, it went right by.\nIt crashed on an island that was near by...",
+			"They gathered the people, to investigate.\nAlthough the task would be very great...",
+			"The island was known, to be very cold.\nWith proper supplies and only the bold...",
+			"Would be sent, on the day.\nThe party was off on their way...",
+			"In due time, they found the place.\nA glowing Blue Crystal in front of their face...",
+			"The closer they got, they could not believe.\nAll of the crystals and gems beneath their feet...",
+			"The Great Blue Crystal, seemed to be the source.\nIt glowed with power, giving off warmth...",
+			"They gathered the crystals, all they could take.\nAnd built a village with the money they made."]
+		),
 	],
 }
 
