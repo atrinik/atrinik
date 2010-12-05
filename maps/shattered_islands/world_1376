@@ -2935,6 +2935,10 @@ arch spawn_point
 x 17
 y 9
 arch female1
+msg
+@match ^hi$|^hey$|^hello$
+My services are not currently for sale, come back later.
+endmsg
 type 83
 direction 3
 end
@@ -2966,6 +2970,7 @@ race thelra
 is_male 0
 is_female 1
 type 83
+name thelra sorceress
 end
 end
 arch floor_wood1b
@@ -2995,6 +3000,7 @@ level 30
 race thelra
 type 83
 direction 1
+name thelra sorcerer
 end
 end
 arch floor_wood2b
@@ -3678,6 +3684,10 @@ arch floor_sand_d3
 x 21
 y 21
 end
+arch small_stones
+x 21
+y 21
+end
 arch floor_sand_d2
 x 21
 y 22
@@ -3825,6 +3835,10 @@ arch floor_sand_d2
 x 22
 y 20
 end
+arch tree_branch3
+x 22
+y 20
+end
 arch floor_sand_d2
 x 22
 y 21
@@ -3944,6 +3958,10 @@ x 23
 y 13
 end
 arch floor_sand_d3
+x 23
+y 14
+end
+arch tree_branch1
 x 23
 y 14
 end

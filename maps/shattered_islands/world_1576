@@ -70,6 +70,9 @@ end
 arch floor_sand_d2
 y 12
 end
+arch small_stones
+y 12
+end
 arch floor_sand_d2
 y 13
 end
@@ -389,6 +392,10 @@ x 2
 y 11
 end
 arch floor_sand_d2
+x 2
+y 12
+end
+arch tree_branch2
 x 2
 y 12
 end
@@ -867,6 +874,14 @@ x 5
 y 9
 end
 arch snow3
+x 5
+y 10
+end
+arch pillar_blue10
+x 5
+y 10
+end
+arch light5
 x 5
 y 10
 end
@@ -1659,6 +1674,10 @@ arch floor_sand_d2
 x 10
 y 12
 end
+arch tree_branch2
+x 10
+y 12
+end
 arch floor_sand_d2
 x 10
 y 13
@@ -1847,6 +1866,10 @@ arch floor_sand_d2
 x 11
 y 20
 end
+arch tree_branch2
+x 11
+y 20
+end
 arch floor_sand_d1
 x 11
 y 21
@@ -1979,6 +2002,10 @@ x 12
 y 16
 end
 arch floor_sand_d1
+x 12
+y 17
+end
+arch small_stones
 x 12
 y 17
 end
@@ -2233,6 +2260,10 @@ x 14
 y 11
 end
 arch floor_sand_d2
+x 14
+y 12
+end
+arch small_stones
 x 14
 y 12
 end
@@ -2956,6 +2987,10 @@ arch floor_sand_d3
 x 19
 y 12
 end
+arch tree_branch3
+x 19
+y 12
+end
 arch floor_sand_d3
 x 19
 y 13
@@ -3542,6 +3577,10 @@ x 23
 y 12
 end
 arch floor_sand_d3
+x 23
+y 13
+end
+arch small_stones
 x 23
 y 13
 end

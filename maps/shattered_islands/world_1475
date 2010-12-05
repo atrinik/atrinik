@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-05 Alex Tokar
+Modified: 2010-12-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,6 +24,12 @@ arch snow1
 y 1
 end
 arch snow1
+y 2
+end
+arch pillar_blue10
+y 2
+end
+arch light5
 y 2
 end
 arch snow2
@@ -375,19 +381,61 @@ x 2
 y 7
 end
 arch desk2
+layer 3
 x 2
 y 7
+end
+arch note
+layer 5
+z 29
+zoom 50
+align 13
+x 2
+y 7
+end
+arch lamp
+layer 7
+face lamp_lit1.101
+is_animated 1
+z 27
+zoom 65
+align 23
+x 2
+y 7
+end
+arch chair1_111
+direction 5
+z -5
+align -10
+x 2
+y 7
+end
+arch spawn_point
+x 2
+y 7
+arch mage_old
+msg
+@match ^hi$|^hey$|^hello$
+Hmm... This note sure talks about some strange things... Hmm...
+
+|Clayrel doesn't seem to notice you...|
+endmsg
+name Clayrell
+face thelra_m.131
+animation thelra_male
+z -5
+align -10
+direction 1
+level 74
+race thelra
+type 83
+end
 end
 arch floor_wood3a
 x 2
 y 8
 end
 arch carpet2i
-x 2
-y 8
-end
-arch chair1_111
-direction 5
 x 2
 y 8
 end
@@ -593,11 +641,19 @@ arch floor_sand_d2
 x 3
 y 13
 end
+arch small_stones
+x 3
+y 13
+end
 arch floor_sand_d3
 x 3
 y 14
 end
 arch floor_sand_d2
+x 3
+y 15
+end
+arch small_stones
 x 3
 y 15
 end
@@ -669,6 +725,10 @@ x 4
 y 4
 end
 arch floor_sand_d2
+x 4
+y 5
+end
+arch small_stones
 x 4
 y 5
 end
@@ -874,6 +934,10 @@ arch floor_sand_d4
 x 5
 y 11
 end
+arch tree_branch1
+x 5
+y 11
+end
 arch floor_sand_d3
 x 5
 y 12
@@ -998,51 +1062,99 @@ arch floor_sand_d4
 x 6
 y 5
 end
+arch tree_branch1
+x 6
+y 5
+end
 arch floor_sand_d1
 x 6
 y 6
 end
-arch floor_sand_d2
+arch fstone1c
 x 6
 y 7
 end
-arch floor_sand_d1
+arch sand_dm14
+x 6
+y 7
+end
+arch fstone1b
 x 6
 y 8
 end
-arch floor_sand_d4
+arch sand_dm8
+x 6
+y 8
+end
+arch fstone1b
 x 6
 y 9
 end
-arch floor_sand_d4
+arch sand_dm8
+x 6
+y 9
+end
+arch fstone1b
 x 6
 y 10
 end
-arch floor_sand_d4
+arch sand_dm8
+x 6
+y 10
+end
+arch fstone1b
 x 6
 y 11
 end
-arch floor_sand_d4
+arch sand_dm8
+x 6
+y 11
+end
+arch fstone1c
 x 6
 y 12
 end
-arch floor_sand_d1
+arch sand_dm8
+x 6
+y 12
+end
+arch fstone1c
 x 6
 y 13
 end
-arch floor_sand_d2
+arch sand_dm8
+x 6
+y 13
+end
+arch fstone1c
 x 6
 y 14
 end
-arch floor_sand_d4
+arch sand_dm8
+x 6
+y 14
+end
+arch fstone1b
 x 6
 y 15
 end
-arch floor_sand_d2
+arch sand_dm8
+x 6
+y 15
+end
+arch fstone1c
 x 6
 y 16
 end
-arch floor_sand_d2
+arch sand_dm8
+x 6
+y 16
+end
+arch fstone1c
+x 6
+y 17
+end
+arch sand_dm13
 x 6
 y 17
 end
@@ -1127,55 +1239,107 @@ arch bench2.111
 x 7
 y 5
 end
-arch floor_sand_d2
+arch fstone1c
 x 7
 y 6
 end
-arch floor_sand_d1
+arch sand_dm14
+x 7
+y 6
+end
+arch fstone1c
 x 7
 y 7
 end
-arch floor_sand_d4
+arch sand_dm3
+x 7
+y 7
+end
+arch fstone1c
 x 7
 y 8
 end
-arch floor_sand_d4
+arch sand_dm1
+x 7
+y 8
+end
+arch fstone1c
 x 7
 y 9
 end
-arch floor_sand_d4
+arch sand_dm9
+x 7
+y 9
+end
+arch fstone1b
 x 7
 y 10
 end
-arch floor_sand_d3
+arch sand_dm9
+x 7
+y 10
+end
+arch fstone1b
 x 7
 y 11
 end
-arch floor_sand_d1
+arch sand_dm9
+x 7
+y 11
+end
+arch fstone1b
 x 7
 y 12
 end
-arch floor_sand_d1
+arch sand_dm9
+x 7
+y 12
+end
+arch fstone1b
 x 7
 y 13
 end
-arch floor_sand_d2
+arch sand_dm9
+x 7
+y 13
+end
+arch fstone1c
 x 7
 y 14
 end
-arch floor_sand_d1
+arch sand_dm9
+x 7
+y 14
+end
+arch fstone1b
 x 7
 y 15
 end
-arch floor_sand_d4
+arch sand_dm9
+x 7
+y 15
+end
+arch fstone1c
 x 7
 y 16
 end
-arch floor_sand_d1
+arch sand_dm2
+x 7
+y 16
+end
+arch fstone1c
 x 7
 y 17
 end
-arch floor_sand_d2
+arch sand_dm4
+x 7
+y 17
+end
+arch fstone1c
+x 7
+y 18
+end
+arch sand_dm13
 x 7
 y 18
 end
@@ -1184,6 +1348,10 @@ x 7
 y 19
 end
 arch floor_sand_d3
+x 7
+y 20
+end
+arch tree_branch1
 x 7
 y 20
 end
@@ -1255,15 +1423,27 @@ arch light6
 x 8
 y 5
 end
-arch floor_sand_d4
+arch fstone1c
 x 8
 y 6
 end
-arch floor_sand_d3
+arch sand_dm6
+x 8
+y 6
+end
+arch fstone1b
 x 8
 y 7
 end
-arch floor_sand_d2
+arch sand_dm1
+x 8
+y 7
+end
+arch fstone1c
+x 8
+y 8
+end
+arch sand_dm16
 x 8
 y 8
 end
@@ -1271,7 +1451,11 @@ arch floor_sand_d1
 x 8
 y 9
 end
-arch water_lt3
+arch tree32
+x 8
+y 9
+end
+arch water_still
 x 8
 y 10
 end
@@ -1279,7 +1463,7 @@ arch sand_dm14
 x 8
 y 10
 end
-arch water_lt2
+arch water_still
 x 8
 y 11
 end
@@ -1287,7 +1471,7 @@ arch sand_dm8
 x 8
 y 11
 end
-arch water_lt2
+arch water_still
 x 8
 y 12
 end
@@ -1295,7 +1479,7 @@ arch sand_dm8
 x 8
 y 12
 end
-arch water_lt2
+arch water_still
 x 8
 y 13
 end
@@ -1303,7 +1487,7 @@ arch sand_dm8
 x 8
 y 13
 end
-arch water_lt4
+arch water_still
 x 8
 y 14
 end
@@ -1315,15 +1499,27 @@ arch floor_sand_d4
 x 8
 y 15
 end
-arch floor_sand_d3
+arch fstone1c
 x 8
 y 16
 end
-arch floor_sand_d3
+arch sand_dm15
+x 8
+y 16
+end
+arch fstone1c
 x 8
 y 17
 end
-arch floor_sand_d1
+arch sand_dm2
+x 8
+y 17
+end
+arch fstone1c
+x 8
+y 18
+end
+arch sand_dm7
 x 8
 y 18
 end
@@ -1406,11 +1602,19 @@ arch floor_sand_d4
 x 9
 y 5
 end
-arch floor_sand_d4
+arch fstone1b
 x 9
 y 6
 end
-arch floor_sand_d1
+arch sand_dm6
+x 9
+y 6
+end
+arch fstone1b
+x 9
+y 7
+end
+arch sand_dm7
 x 9
 y 7
 end
@@ -1418,7 +1622,11 @@ arch floor_sand_d1
 x 9
 y 8
 end
-arch water_lt3
+arch small_stones
+x 9
+y 8
+end
+arch water_still
 x 9
 y 9
 end
@@ -1426,27 +1634,27 @@ arch sand_dm14
 x 9
 y 9
 end
-arch water_lt4
+arch water_still
 x 9
 y 10
 end
-arch water_lt2
+arch water_still
 x 9
 y 11
 end
-arch water_lt
+arch water_still
 x 9
 y 12
 end
-arch water_lt
+arch water_still
 x 9
 y 13
 end
-arch water_lt
+arch water_still
 x 9
 y 14
 end
-arch water_lt
+arch water_still
 x 9
 y 15
 end
@@ -1458,11 +1666,23 @@ arch floor_sand_d1
 x 9
 y 16
 end
-arch floor_sand_d3
+arch tree44
+x 9
+y 16
+end
+arch fstone1c
 x 9
 y 17
 end
-arch floor_sand_d3
+arch sand_dm6
+x 9
+y 17
+end
+arch fstone1b
+x 9
+y 18
+end
+arch sand_dm7
 x 9
 y 18
 end
@@ -1475,6 +1695,10 @@ x 9
 y 20
 end
 arch floor_sand_d1
+x 9
+y 21
+end
+arch small_stones
 x 9
 y 21
 end
@@ -1536,15 +1760,23 @@ arch floor_sand_d3
 x 10
 y 5
 end
-arch floor_sand_d1
+arch fstone1b
 x 10
 y 6
 end
-arch floor_sand_d1
+arch sand_dm6
+x 10
+y 6
+end
+arch fstone1b
 x 10
 y 7
 end
-arch water_lt2
+arch sand_dm7
+x 10
+y 7
+end
+arch water_still
 x 10
 y 8
 end
@@ -1552,35 +1784,35 @@ arch sand_dm14
 x 10
 y 8
 end
-arch water_lt2
+arch water_still
 x 10
 y 9
 end
-arch water_lt4
+arch water_still
 x 10
 y 10
 end
-arch water_lt3
+arch water_still
 x 10
 y 11
 end
-arch water_lt4
+arch water_still
 x 10
 y 12
 end
-arch water_lt2
+arch water_still
 x 10
 y 13
 end
-arch water_lt
+arch water_still
 x 10
 y 14
 end
-arch water_lt
+arch water_still
 x 10
 y 15
 end
-arch water_lt4
+arch water_still
 x 10
 y 16
 end
@@ -1588,11 +1820,19 @@ arch sand_dm13
 x 10
 y 16
 end
-arch floor_sand_d4
+arch fstone1c
 x 10
 y 17
 end
-arch floor_sand_d4
+arch sand_dm6
+x 10
+y 17
+end
+arch fstone1b
+x 10
+y 18
+end
+arch sand_dm7
 x 10
 y 18
 end
@@ -1671,15 +1911,27 @@ arch floor_sand_d4
 x 11
 y 5
 end
-arch floor_sand_d1
+arch small_stones
+x 11
+y 5
+end
+arch fstone1b
 x 11
 y 6
 end
-arch floor_sand_d3
+arch sand_dm6
+x 11
+y 6
+end
+arch fstone1c
 x 11
 y 7
 end
-arch water_lt2
+arch sand_dm7
+x 11
+y 7
+end
+arch water_still
 x 11
 y 8
 end
@@ -1687,15 +1939,15 @@ arch sand_dm6
 x 11
 y 8
 end
-arch water_lt3
+arch water_still
 x 11
 y 9
 end
-arch water_lt3
+arch water_still
 x 11
 y 10
 end
-arch water_lt3
+arch water_still
 x 11
 y 11
 end
@@ -1707,7 +1959,7 @@ arch light9
 x 11
 y 11
 end
-arch water_lt
+arch water_still
 x 11
 y 12
 end
@@ -1719,7 +1971,7 @@ arch light9
 x 11
 y 12
 end
-arch water_lt2
+arch water_still
 x 11
 y 13
 end
@@ -1731,15 +1983,15 @@ arch light9
 x 11
 y 13
 end
-arch water_lt3
+arch water_still
 x 11
 y 14
 end
-arch water_lt4
+arch water_still
 x 11
 y 15
 end
-arch water_lt
+arch water_still
 x 11
 y 16
 end
@@ -1747,11 +1999,19 @@ arch sand_dm7
 x 11
 y 16
 end
-arch floor_sand_d3
+arch fstone1c
 x 11
 y 17
 end
-arch floor_sand_d1
+arch sand_dm6
+x 11
+y 17
+end
+arch fstone1b
+x 11
+y 18
+end
+arch sand_dm7
 x 11
 y 18
 end
@@ -1841,15 +2101,23 @@ arch light6
 x 12
 y 5
 end
-arch floor_sand_d2
+arch fstone1c
 x 12
 y 6
 end
-arch floor_sand_d2
+arch sand_dm6
+x 12
+y 6
+end
+arch fstone1b
 x 12
 y 7
 end
-arch water_lt3
+arch sand_dm7
+x 12
+y 7
+end
+arch water_still
 x 12
 y 8
 end
@@ -1857,15 +2125,15 @@ arch sand_dm6
 x 12
 y 8
 end
-arch water_lt4
+arch water_still
 x 12
 y 9
 end
-arch water_lt2
+arch water_still
 x 12
 y 10
 end
-arch water_lt2
+arch water_still
 x 12
 y 11
 end
@@ -1907,7 +2175,7 @@ no_save 0
 x 12
 y 12
 end
-arch water_lt3
+arch water_still
 x 12
 y 13
 end
@@ -1919,15 +2187,15 @@ arch light9
 x 12
 y 13
 end
-arch water_lt4
+arch water_still
 x 12
 y 14
 end
-arch water_lt2
+arch water_still
 x 12
 y 15
 end
-arch water_lt4
+arch water_still
 x 12
 y 16
 end
@@ -1935,15 +2203,27 @@ arch sand_dm7
 x 12
 y 16
 end
-arch floor_sand_d3
+arch fstone1c
 x 12
 y 17
 end
-arch floor_sand_d4
+arch sand_dm6
+x 12
+y 17
+end
+arch fstone1c
+x 12
+y 18
+end
+arch sand_dm7
 x 12
 y 18
 end
 arch floor_sand_d3
+x 12
+y 19
+end
+arch small_stones
 x 12
 y 19
 end
@@ -2010,15 +2290,23 @@ arch bench1b.111
 x 13
 y 5
 end
-arch floor_sand_d1
+arch fstone1c
 x 13
 y 6
 end
-arch floor_sand_d4
+arch sand_dm6
+x 13
+y 6
+end
+arch fstone1c
 x 13
 y 7
 end
-arch water_lt
+arch sand_dm7
+x 13
+y 7
+end
+arch water_still
 x 13
 y 8
 end
@@ -2026,15 +2314,15 @@ arch sand_dm6
 x 13
 y 8
 end
-arch water_lt
+arch water_still
 x 13
 y 9
 end
-arch water_lt2
+arch water_still
 x 13
 y 10
 end
-arch water_lt
+arch water_still
 x 13
 y 11
 end
@@ -2046,7 +2334,7 @@ arch light9
 x 13
 y 11
 end
-arch water_lt3
+arch water_still
 x 13
 y 12
 end
@@ -2058,7 +2346,7 @@ arch light9
 x 13
 y 12
 end
-arch water_lt2
+arch water_still
 x 13
 y 13
 end
@@ -2070,15 +2358,15 @@ arch light9
 x 13
 y 13
 end
-arch water_lt3
+arch water_still
 x 13
 y 14
 end
-arch water_lt
+arch water_still
 x 13
 y 15
 end
-arch water_lt
+arch water_still
 x 13
 y 16
 end
@@ -2086,11 +2374,19 @@ arch sand_dm7
 x 13
 y 16
 end
-arch floor_sand_d3
+arch fstone1c
 x 13
 y 17
 end
-arch floor_sand_d4
+arch sand_dm6
+x 13
+y 17
+end
+arch fstone1c
+x 13
+y 18
+end
+arch sand_dm7
 x 13
 y 18
 end
@@ -2186,19 +2482,23 @@ slaying morliana
 end
 end
 end
-arch light1
-x 14
-y 5
-end
-arch floor_sand_d4
+arch fstone1c
 x 14
 y 6
 end
-arch floor_sand_d2
+arch sand_dm6
+x 14
+y 6
+end
+arch fstone1b
 x 14
 y 7
 end
-arch water_lt
+arch sand_dm7
+x 14
+y 7
+end
+arch water_still
 x 14
 y 8
 end
@@ -2206,7 +2506,7 @@ arch sand_dm19
 x 14
 y 8
 end
-arch water_lt2
+arch water_still
 x 14
 y 9
 end
@@ -2214,27 +2514,27 @@ arch sand_dm2
 x 14
 y 9
 end
-arch water_lt
+arch water_still
 x 14
 y 10
 end
-arch water_lt
+arch water_still
 x 14
 y 11
 end
-arch water_lt2
+arch water_still
 x 14
 y 12
 end
-arch water_lt3
+arch water_still
 x 14
 y 13
 end
-arch water_lt4
+arch water_still
 x 14
 y 14
 end
-arch water_lt
+arch water_still
 x 14
 y 15
 end
@@ -2242,7 +2542,7 @@ arch sand_dm1
 x 14
 y 15
 end
-arch water_lt3
+arch water_still
 x 14
 y 16
 end
@@ -2250,11 +2550,19 @@ arch sand_dm16
 x 14
 y 16
 end
-arch floor_sand_d4
+arch fstone1c
 x 14
 y 17
 end
-arch floor_sand_d4
+arch sand_dm6
+x 14
+y 17
+end
+arch fstone1b
+x 14
+y 18
+end
+arch sand_dm7
 x 14
 y 18
 end
@@ -2304,16 +2612,16 @@ arch floor_sand_d2
 x 15
 y 2
 end
+arch floor_sand_d1
+x 15
+y 3
+end
 arch lantern2_magic.131
 direction 7
 x 15
-y 2
+y 3
 end
 arch light6
-x 15
-y 2
-end
-arch floor_sand_d1
 x 15
 y 3
 end
@@ -2321,15 +2629,27 @@ arch floor_sand_d3
 x 15
 y 4
 end
+arch small_stones
+x 15
+y 4
+end
 arch floor_sand_d1
 x 15
 y 5
 end
-arch floor_sand_d1
+arch fstone1c
 x 15
 y 6
 end
-arch floor_sand_d1
+arch sand_dm6
+x 15
+y 6
+end
+arch fstone1b
+x 15
+y 7
+end
+arch sand_dm7
 x 15
 y 7
 end
@@ -2337,7 +2657,7 @@ arch floor_sand_d1
 x 15
 y 8
 end
-arch water_lt
+arch water_still
 x 15
 y 9
 end
@@ -2345,7 +2665,7 @@ arch sand_dm19
 x 15
 y 9
 end
-arch water_lt2
+arch water_still
 x 15
 y 10
 end
@@ -2353,19 +2673,19 @@ arch sand_dm2
 x 15
 y 10
 end
-arch water_lt
+arch water_still
 x 15
 y 11
 end
-arch water_lt3
+arch water_still
 x 15
 y 12
 end
-arch water_lt2
+arch water_still
 x 15
 y 13
 end
-arch water_lt3
+arch water_still
 x 15
 y 14
 end
@@ -2373,7 +2693,7 @@ arch sand_dm1
 x 15
 y 14
 end
-arch water_lt
+arch water_still
 x 15
 y 15
 end
@@ -2385,11 +2705,27 @@ arch floor_sand_d1
 x 15
 y 16
 end
-arch floor_sand_d4
+arch sign_generic
+msg
+Life here is only possible because of The Great Crystal.
+endmsg
+direction 7
+x 15
+y 16
+end
+arch fstone1b
 x 15
 y 17
 end
-arch floor_sand_d3
+arch sand_dm6
+x 15
+y 17
+end
+arch fstone1b
+x 15
+y 18
+end
+arch sand_dm7
 x 15
 y 18
 end
@@ -2455,15 +2791,27 @@ arch floor_sand_d1
 x 16
 y 5
 end
-arch floor_sand_d1
+arch fstone1b
 x 16
 y 6
 end
-arch floor_sand_d2
+arch sand_dm6
+x 16
+y 6
+end
+arch fstone1b
 x 16
 y 7
 end
-arch floor_sand_d2
+arch sand_dm4
+x 16
+y 7
+end
+arch fstone1b
+x 16
+y 8
+end
+arch sand_dm13
 x 16
 y 8
 end
@@ -2471,7 +2819,11 @@ arch floor_sand_d4
 x 16
 y 9
 end
-arch water_lt3
+arch tree33
+x 16
+y 9
+end
+arch water_still
 x 16
 y 10
 end
@@ -2479,7 +2831,7 @@ arch sand_dm19
 x 16
 y 10
 end
-arch water_lt
+arch water_still
 x 16
 y 11
 end
@@ -2487,7 +2839,7 @@ arch sand_dm9
 x 16
 y 11
 end
-arch water_lt
+arch water_still
 x 16
 y 12
 end
@@ -2495,7 +2847,7 @@ arch sand_dm9
 x 16
 y 12
 end
-arch water_lt2
+arch water_still
 x 16
 y 13
 end
@@ -2503,7 +2855,7 @@ arch sand_dm9
 x 16
 y 13
 end
-arch water_lt3
+arch water_still
 x 16
 y 14
 end
@@ -2515,15 +2867,31 @@ arch floor_sand_d2
 x 16
 y 15
 end
-arch floor_sand_d3
+arch tree35
+x 16
+y 15
+end
+arch fstone1c
 x 16
 y 16
 end
-arch floor_sand_d4
+arch sand_dm14
+x 16
+y 16
+end
+arch fstone1c
 x 16
 y 17
 end
-arch floor_sand_d1
+arch sand_dm3
+x 16
+y 17
+end
+arch fstone1c
+x 16
+y 18
+end
+arch sand_dm7
 x 16
 y 18
 end
@@ -2532,6 +2900,10 @@ x 16
 y 19
 end
 arch floor_sand_d4
+x 16
+y 20
+end
+arch tree_branch3
 x 16
 y 20
 end
@@ -2577,6 +2949,10 @@ arch floor_sand_d2
 x 17
 y 3
 end
+arch tree_branch1
+x 17
+y 3
+end
 arch floor_sand_d2
 x 17
 y 4
@@ -2585,55 +2961,107 @@ arch floor_sand_d4
 x 17
 y 5
 end
-arch floor_sand_d4
+arch fstone1b
 x 17
 y 6
 end
-arch floor_sand_d2
+arch sand_dm15
+x 17
+y 6
+end
+arch fstone1b
 x 17
 y 7
 end
-arch floor_sand_d4
+arch sand_dm2
+x 17
+y 7
+end
+arch fstone1b
 x 17
 y 8
 end
-arch floor_sand_d3
+arch sand_dm4
+x 17
+y 8
+end
+arch fstone1c
 x 17
 y 9
 end
-arch floor_sand_d4
+arch sand_dm8
+x 17
+y 9
+end
+arch fstone1b
 x 17
 y 10
 end
-arch floor_sand_d1
+arch sand_dm8
+x 17
+y 10
+end
+arch fstone1c
 x 17
 y 11
 end
-arch floor_sand_d4
+arch sand_dm8
+x 17
+y 11
+end
+arch fstone1b
 x 17
 y 12
 end
-arch floor_sand_d2
+arch sand_dm8
+x 17
+y 12
+end
+arch fstone1c
 x 17
 y 13
 end
-arch floor_sand_d1
+arch sand_dm8
+x 17
+y 13
+end
+arch fstone1c
 x 17
 y 14
 end
-arch floor_sand_d1
+arch sand_dm8
+x 17
+y 14
+end
+arch fstone1b
 x 17
 y 15
 end
-arch floor_sand_d2
+arch sand_dm8
+x 17
+y 15
+end
+arch fstone1b
 x 17
 y 16
 end
-arch floor_sand_d2
+arch sand_dm3
+x 17
+y 16
+end
+arch fstone1c
 x 17
 y 17
 end
-arch floor_sand_d2
+arch sand_dm1
+x 17
+y 17
+end
+arch fstone1b
+x 17
+y 18
+end
+arch sand_dm16
 x 17
 y 18
 end
@@ -2699,47 +3127,91 @@ arch floor_sand_d2
 x 18
 y 6
 end
-arch floor_sand_d4
+arch fstone1b
 x 18
 y 7
 end
-arch floor_sand_d2
+arch sand_dm15
+x 18
+y 7
+end
+arch fstone1c
 x 18
 y 8
 end
-arch floor_sand_d3
+arch sand_dm9
+x 18
+y 8
+end
+arch fstone1c
 x 18
 y 9
 end
-arch floor_sand_d4
+arch sand_dm9
+x 18
+y 9
+end
+arch fstone1c
 x 18
 y 10
 end
-arch floor_sand_d3
+arch sand_dm9
+x 18
+y 10
+end
+arch fstone1b
 x 18
 y 11
 end
-arch floor_sand_d2
+arch sand_dm9
+x 18
+y 11
+end
+arch fstone1b
 x 18
 y 12
 end
-arch floor_sand_d2
+arch sand_dm9
+x 18
+y 12
+end
+arch fstone1b
 x 18
 y 13
 end
-arch floor_sand_d1
+arch sand_dm9
+x 18
+y 13
+end
+arch fstone1b
 x 18
 y 14
 end
-arch floor_sand_d1
+arch sand_dm9
+x 18
+y 14
+end
+arch fstone1b
 x 18
 y 15
 end
-arch floor_sand_d3
+arch sand_dm9
+x 18
+y 15
+end
+arch fstone1b
 x 18
 y 16
 end
-arch floor_sand_d4
+arch sand_dm9
+x 18
+y 16
+end
+arch fstone1c
+x 18
+y 17
+end
+arch sand_dm16
 x 18
 y 17
 end
@@ -2868,6 +3340,10 @@ x 19
 y 16
 end
 arch floor_sand_d4
+x 19
+y 17
+end
+arch small_stones
 x 19
 y 17
 end
@@ -2980,6 +3456,10 @@ arch floor_sand_d3
 x 20
 y 11
 end
+arch tree_branch1
+x 20
+y 11
+end
 arch floor_sand_d2
 x 20
 y 12
@@ -2989,6 +3469,10 @@ x 20
 y 13
 end
 arch floor_sand_d1
+x 20
+y 14
+end
+arch small_stones
 x 20
 y 14
 end
@@ -3310,6 +3794,10 @@ x 22
 y 18
 end
 arch floor_sand_d4
+x 22
+y 19
+end
+arch tree_branch1
 x 22
 y 19
 end
