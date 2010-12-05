@@ -197,6 +197,16 @@ void text_input_open(int maxchar)
 		cpl.inventory_win = IWIN_BELOW;
 	}
 
+	/* Raise the text/number input widget. */
+	if (cpl.input_mode == INPUT_MODE_NUMBER)
+	{
+		SetPriorityWidget(cur_widget[IN_NUMBER_ID]);
+	}
+	else if (cpl.input_mode == INPUT_MODE_CONSOLE)
+	{
+		SetPriorityWidget(cur_widget[IN_CONSOLE_ID]);
+	}
+
 	text_input_string_flag = 1;
 }
 
