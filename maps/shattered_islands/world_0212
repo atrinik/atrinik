@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2010-12-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2714,7 +2714,7 @@ y 4
 end
 arch client_map_info
 msg
-Church of Tabernacle.
+Temple of Tabernacle.
 endmsg
 stand_still 1
 name brynknot_church
