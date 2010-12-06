@@ -864,7 +864,6 @@ void fix_player(object *op)
 	/* For secure */
 	if (op->type != PLAYER)
 	{
-		LOG(llevDebug, "fix_player(): called from non Player/Mob object: %s (type %d)\n", query_name(op, NULL), op->type);
 		return;
 	}
 
