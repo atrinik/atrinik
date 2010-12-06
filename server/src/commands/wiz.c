@@ -1222,6 +1222,7 @@ int command_resetmap(object *op, char *params)
 {
 	mapstruct *m;
 	shstr *path;
+	int flags;
 
 	if (params == NULL)
 	{
@@ -1265,9 +1266,10 @@ int command_resetmap(object *op, char *params)
 	m->map_flags |= MAP_FLAG_FIXED_RTIME;
 	/* Store the path, so we can load it after swapping is done. */
 	path = add_refcount(m->path);
+	flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
 	swap_map(m, 1);
 
-	m = ready_map_name(path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
+	m = ready_map_name(path, flags);
 	free_string_shared(path);
 	new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
 	dm_map_reinsert_players(m, op);
