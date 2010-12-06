@@ -379,6 +379,7 @@ void spawn_point(object *op)
 	tmp = arch_to_object(op->other_arch);
 	/* Chain spawn point to our monster */
 	tmp->owner = op;
+	tmp->ownercount = op->count;
 	/* And put it inside the monster */
 	insert_ob_in_ob(tmp, monster);
 
