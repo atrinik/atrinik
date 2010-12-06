@@ -243,6 +243,8 @@ typedef enum
 	FIELDTYPE_FLOAT,
 	/** Pointer to object. */
 	FIELDTYPE_OBJECT,
+	/** Object. */
+	FIELDTYPE_OBJECT2,
 	/** Pointer to map. */
 	FIELDTYPE_MAP,
 	/** Object pointer + tag. */

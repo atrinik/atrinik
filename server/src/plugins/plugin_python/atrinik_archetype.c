@@ -41,7 +41,7 @@ static fields_struct fields[] =
 	{"next", FIELDTYPE_ARCH, offsetof(archetype, next), 0, 0},
 	{"head", FIELDTYPE_ARCH, offsetof(archetype, head), 0, 0},
 	{"more", FIELDTYPE_ARCH, offsetof(archetype, more), 0, 0},
-	{"clone", FIELDTYPE_OBJECT, offsetof(archetype, clone), 0, 0}
+	{"clone", FIELDTYPE_OBJECT2, offsetof(archetype, clone), 0, 0}
 };
 /* @endcparser */
 
