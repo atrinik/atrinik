@@ -1113,7 +1113,7 @@ y 18
 arch peasant
 msg
 @match ^hi$|^hey$|^hello$
-Hello! This ship will take you back to Greyton on Strakewood Island.
+Hello! This ship will take you back to Asteria on Strakewood Island.
 endmsg
 name Ship Captain
 type 83
