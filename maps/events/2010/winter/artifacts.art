@@ -1,0 +1,18 @@
+Allowed none
+chance 1
+artifact hierro_ring_ice
+def_arch ring_ice
+Object
+name Hierro's ring
+exp 2
+can_see_in_dark 1
+protect_cold 35
+msg
+This looks very much like a modified version of Ring of Ice, but it makes the wielder run faster, and grants them the ability to see in dark.
+
+It is unknown whether Hierro made this ring himself, or simply happened to find it from one of his victims.
+endmsg
+one_drop 1
+item_power 8
+item_level 24
+end

@@ -1,0 +1,3759 @@
+arch map
+name Hierro's Lair
+msg
+Created:  2010-12-06 Alex Tokar
+Modified: 2010-12-07 Alex Tokar
+endmsg
+width 22
+height 27
+swap_time 1000
+difficulty 1
+darkness 1
+no_save 1
+bg_music crystal_cave.ogg
+region morliana
+end
+arch floor_sand_d4
+end
+arch fwall_rock3
+end
+arch light1
+end
+arch floor_sand_d1
+y 1
+end
+arch fwall_rock2
+y 1
+end
+arch light1
+y 1
+end
+arch floor_sand_d2
+y 2
+end
+arch fwall_rock1
+y 2
+end
+arch light1
+y 2
+end
+arch floor_sand_d4
+y 3
+end
+arch fwall_rock1
+y 3
+end
+arch light1
+y 3
+end
+arch floor_sand_d1
+y 4
+end
+arch fwall_rock2
+y 4
+end
+arch light1
+y 4
+end
+arch floor_sand_d3
+y 5
+end
+arch fwall_rock2
+y 5
+end
+arch light1
+y 5
+end
+arch floor_sand_d3
+y 6
+end
+arch fwall_rock1
+y 6
+end
+arch light1
+y 6
+end
+arch floor_sand_d2
+y 7
+end
+arch fwall_rock3
+y 7
+end
+arch light1
+y 7
+end
+arch floor_sand_d4
+y 8
+end
+arch fwall_rock1
+y 8
+end
+arch light1
+y 8
+end
+arch floor_sand_d2
+y 9
+end
+arch fwall_rock1
+y 9
+end
+arch light1
+y 9
+end
+arch floor_sand_d2
+y 10
+end
+arch fwall_rock3
+y 10
+end
+arch light1
+y 10
+end
+arch floor_sand_d3
+y 11
+end
+arch fwall_rock1
+y 11
+end
+arch light1
+y 11
+end
+arch floor_sand_d1
+y 12
+end
+arch fwall_rock1
+y 12
+end
+arch light1
+y 12
+end
+arch floor_sand_d3
+y 13
+end
+arch fwall_rock1
+y 13
+end
+arch light1
+y 13
+end
+arch floor_sand_d1
+y 14
+end
+arch fwall_rock3
+y 14
+end
+arch light1
+y 14
+end
+arch floor_sand_d1
+y 15
+end
+arch fwall_rock3
+y 15
+end
+arch light1
+y 15
+end
+arch floor_sand_d3
+y 16
+end
+arch fwall_rock1
+y 16
+end
+arch light1
+y 16
+end
+arch floor_sand_d4
+y 17
+end
+arch fwall_rock3
+y 17
+end
+arch light1
+y 17
+end
+arch floor_sand_d1
+y 18
+end
+arch fwall_rock2
+y 18
+end
+arch light1
+y 18
+end
+arch floor_sand_d1
+y 19
+end
+arch fwall_rock2
+y 19
+end
+arch light1
+y 19
+end
+arch floor_sand_d2
+y 20
+end
+arch fwall_rock2
+y 20
+end
+arch light1
+y 20
+end
+arch floor_sand_d3
+y 21
+end
+arch fwall_rock2
+y 21
+end
+arch light1
+y 21
+end
+arch floor_sand_d3
+y 22
+end
+arch fwall_rock3
+y 22
+end
+arch light1
+y 22
+end
+arch floor_sand_d4
+y 23
+end
+arch fwall_rock3
+y 23
+end
+arch light1
+y 23
+end
+arch map_event_obj
+sub_type 9
+race /events/2010/winter/scripts/misc.py
+y 25
+end
+arch map_event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+y 26
+end
+arch floor_sand_d4
+x 1
+end
+arch fwall_rock2
+x 1
+end
+arch light1
+x 1
+end
+arch floor_sand_d2
+x 1
+y 1
+end
+arch mushroom_medium
+x 1
+y 1
+end
+arch floor_sand_d1
+x 1
+y 2
+end
+arch dirt_floor1
+x 1
+y 2
+end
+arch floor_sand_d4
+x 1
+y 3
+end
+arch floor_sand_d2
+x 1
+y 4
+end
+arch floor_sand_d1
+x 1
+y 5
+end
+arch floor_sand_d2
+x 1
+y 6
+end
+arch floor_sand_d1
+x 1
+y 7
+end
+arch blood_floor1
+x 1
+y 7
+end
+arch floor_sand_d2
+x 1
+y 8
+end
+arch floor_sand_d3
+x 1
+y 9
+end
+arch floor_sand_d4
+x 1
+y 10
+end
+arch mushroom_giant3
+x 1
+y 10
+end
+arch floor_sand_d2
+x 1
+y 11
+end
+arch mushroom_medium
+x 1
+y 11
+end
+arch floor_sand_d1
+x 1
+y 12
+end
+arch floor_sand_d3
+x 1
+y 13
+end
+arch stone6
+x 1
+y 13
+end
+arch floor_sand_d2
+x 1
+y 14
+end
+arch floor_sand_d3
+x 1
+y 15
+end
+arch floor_sand_d3
+x 1
+y 16
+end
+arch blood_floor1
+x 1
+y 16
+end
+arch floor_sand_d3
+x 1
+y 17
+end
+arch floor_sand_d1
+x 1
+y 18
+end
+arch floor_sand_d3
+x 1
+y 19
+end
+arch floor_sand_d1
+x 1
+y 20
+end
+arch floor_sand_d1
+x 1
+y 21
+end
+arch floor_sand_d1
+x 1
+y 22
+end
+arch mushroom_spot1
+x 1
+y 22
+end
+arch floor_sand_d3
+x 1
+y 23
+end
+arch fwall_rock2
+x 1
+y 23
+end
+arch light1
+x 1
+y 23
+end
+arch floor_sand_d1
+x 2
+end
+arch fwall_rock1
+x 2
+end
+arch light2
+x 2
+end
+arch floor_sand_d2
+x 2
+y 1
+end
+arch fwall_rock2
+x 2
+y 1
+end
+arch plant1_wall.151
+x 2
+y 1
+end
+arch floor_sand_d4
+x 2
+y 2
+end
+arch floor_sand_d1
+x 2
+y 3
+end
+arch fwall_rock1
+x 2
+y 3
+end
+arch floor_sand_d4
+x 2
+y 4
+end
+arch fwall_rock3
+x 2
+y 4
+end
+arch floor_sand_d2
+x 2
+y 5
+end
+arch fwall_rock2
+x 2
+y 5
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 5
+end
+arch floor_sand_d2
+x 2
+y 6
+end
+arch fwall_rock1
+x 2
+y 6
+end
+arch floor_sand_d3
+x 2
+y 7
+end
+arch fwall_rock3
+x 2
+y 7
+end
+arch floor_sand_d4
+x 2
+y 8
+end
+arch fwall_rock2
+x 2
+y 8
+end
+arch floor_sand_d2
+x 2
+y 9
+end
+arch fwall_rock1
+x 2
+y 9
+end
+arch floor_sand_d3
+x 2
+y 10
+end
+arch fwall_rock3
+x 2
+y 10
+end
+arch floor_sand_d1
+x 2
+y 11
+end
+arch fwall_rock3
+x 2
+y 11
+end
+arch floor_sand_d2
+x 2
+y 12
+end
+arch fwall_rock3
+x 2
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 12
+end
+arch floor_sand_d3
+x 2
+y 13
+end
+arch fwall_rock1
+x 2
+y 13
+end
+arch floor_sand_d2
+x 2
+y 14
+end
+arch fwall_rock2
+x 2
+y 14
+end
+arch floor_sand_d2
+x 2
+y 15
+end
+arch fwall_rock3
+x 2
+y 15
+end
+arch floor_sand_d3
+x 2
+y 16
+end
+arch fwall_rock1
+x 2
+y 16
+end
+arch floor_sand_d1
+x 2
+y 17
+end
+arch fwall_rock3
+x 2
+y 17
+end
+arch floor_sand_d1
+x 2
+y 18
+end
+arch fwall_rock1
+x 2
+y 18
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 18
+end
+arch floor_sand_d4
+x 2
+y 19
+end
+arch fwall_rock3
+x 2
+y 19
+end
+arch floor_sand_d2
+x 2
+y 20
+end
+arch fwall_rock3
+x 2
+y 20
+end
+arch floor_sand_d2
+x 2
+y 21
+end
+arch fwall_rock1
+x 2
+y 21
+end
+arch floor_sand_d3
+x 2
+y 22
+end
+arch floor_sand_d3
+x 2
+y 23
+end
+arch fwall_rock2
+x 2
+y 23
+end
+arch light1
+x 2
+y 23
+end
+arch floor_sand_d4
+x 3
+end
+arch fwall_rock2
+x 3
+end
+arch light2
+x 3
+end
+arch floor_sand_d3
+x 3
+y 1
+end
+arch mushroom_giant1
+x 3
+y 1
+end
+arch floor_sand_d1
+x 3
+y 2
+end
+arch floor_sand_d2
+x 3
+y 3
+end
+arch fwall_rock2
+x 3
+y 3
+end
+arch chains3.151
+x 3
+y 3
+end
+arch floor_marble_b1d
+x 3
+y 4
+end
+arch floor_marble_b1d
+x 3
+y 5
+end
+arch floor_marble_b1b
+x 3
+y 6
+end
+arch floor_marble_b1d
+x 3
+y 7
+end
+arch floor_marble_b1d
+x 3
+y 8
+end
+arch floor_marble_b1d
+x 3
+y 9
+end
+arch floor_marble_b1d
+x 3
+y 10
+end
+arch floor_marble_b1b
+x 3
+y 11
+end
+arch floor_marble_b1b
+x 3
+y 12
+end
+arch floor_marble_b1d
+x 3
+y 13
+end
+arch floor_marble_b1d
+x 3
+y 14
+end
+arch floor_marble_b1d
+x 3
+y 15
+end
+arch floor_marble_b1d
+x 3
+y 16
+end
+arch floor_marble_b1d
+x 3
+y 17
+end
+arch floor_marble_b1c
+x 3
+y 18
+end
+arch floor_marble_b1a
+x 3
+y 19
+end
+arch blood_floor2
+x 3
+y 19
+end
+arch floor_marble_b1d
+x 3
+y 20
+end
+arch floor_sand_d3
+x 3
+y 21
+end
+arch fwall_rock1
+x 3
+y 21
+end
+arch floor_sand_d1
+x 3
+y 22
+end
+arch floor_sand_d1
+x 3
+y 23
+end
+arch fwall_rock3
+x 3
+y 23
+end
+arch light1
+x 3
+y 23
+end
+arch floor_sand_d4
+x 4
+end
+arch fwall_rock3
+x 4
+end
+arch light2
+x 4
+end
+arch floor_sand_d4
+x 4
+y 1
+end
+arch floor_sand_d4
+x 4
+y 2
+end
+arch floor_sand_d1
+x 4
+y 3
+end
+arch fwall_rock1
+x 4
+y 3
+end
+arch chains3.151
+x 4
+y 3
+end
+arch floor_marble_b1d
+x 4
+y 4
+end
+arch floor_marble_b1c
+x 4
+y 5
+end
+arch floor_marble_b1d
+x 4
+y 6
+end
+arch floor_marble_b1b
+x 4
+y 7
+end
+arch dirt_floor1
+x 4
+y 7
+end
+arch floor_marble_b1d
+x 4
+y 8
+end
+arch floor_marble_b1b
+x 4
+y 9
+end
+arch floor_marble_b1d
+x 4
+y 10
+end
+arch floor_marble_b1c
+x 4
+y 11
+end
+arch dirt_floor3
+x 4
+y 11
+end
+arch floor_marble_b1c
+x 4
+y 12
+end
+arch small_stones
+x 4
+y 12
+end
+arch floor_marble_b1b
+x 4
+y 13
+end
+arch floor_marble_b1c
+x 4
+y 14
+end
+arch floor_marble_b1d
+x 4
+y 15
+end
+arch floor_marble_b1c
+x 4
+y 16
+end
+arch dirt_floor2
+x 4
+y 16
+end
+arch floor_marble_b1d
+x 4
+y 17
+end
+arch floor_marble_b1d
+x 4
+y 18
+end
+arch dirt_floor2
+x 4
+y 18
+end
+arch floor_marble_b1d
+x 4
+y 19
+end
+arch floor_marble_b1b
+x 4
+y 20
+end
+arch floor_sand_d3
+x 4
+y 21
+end
+arch fwall_rock3
+x 4
+y 21
+end
+arch plant2_wall.151
+x 4
+y 21
+end
+arch floor_sand_d3
+x 4
+y 22
+end
+arch floor_sand_d2
+x 4
+y 23
+end
+arch fwall_rock1
+x 4
+y 23
+end
+arch light1
+x 4
+y 23
+end
+arch floor_sand_d4
+x 5
+end
+arch fwall_rock3
+x 5
+end
+arch light2
+x 5
+end
+arch floor_sand_d1
+x 5
+y 1
+end
+arch blood_floor1
+x 5
+y 1
+end
+arch floor_sand_d3
+x 5
+y 2
+end
+arch floor_sand_d3
+x 5
+y 3
+end
+arch fwall_rock2
+x 5
+y 3
+end
+arch plant2_wall.151
+x 5
+y 3
+end
+arch floor_marble_b1d
+x 5
+y 4
+end
+arch floor_marble_b1d
+x 5
+y 5
+end
+arch blood_floor1
+x 5
+y 5
+end
+arch floor_marble_b1c
+x 5
+y 6
+end
+arch floor_marble_b1d
+x 5
+y 7
+end
+arch floor_marble_b1d
+x 5
+y 8
+end
+arch stone5
+x 5
+y 8
+end
+arch floor_marble_b1d
+x 5
+y 9
+end
+arch floor_marble_b1d
+x 5
+y 10
+end
+arch floor_marble_b1d
+x 5
+y 11
+end
+arch floor_marble_b1c
+x 5
+y 12
+end
+arch floor_marble_b1d
+x 5
+y 13
+end
+arch floor_marble_b1d
+x 5
+y 14
+end
+arch floor_marble_b1d
+x 5
+y 15
+end
+arch floor_marble_b1a
+x 5
+y 16
+end
+arch floor_marble_b1b
+x 5
+y 17
+end
+arch stone2
+x 5
+y 17
+end
+arch floor_marble_b1c
+x 5
+y 18
+end
+arch floor_marble_b1c
+x 5
+y 19
+end
+arch floor_marble_b1d
+x 5
+y 20
+end
+arch floor_sand_d2
+x 5
+y 21
+end
+arch fwall_rock3
+x 5
+y 21
+end
+arch floor_sand_d3
+x 5
+y 22
+end
+arch floor_sand_d1
+x 5
+y 23
+end
+arch fwall_rock3
+x 5
+y 23
+end
+arch light1
+x 5
+y 23
+end
+arch floor_sand_d4
+x 6
+end
+arch fwall_rock2
+x 6
+end
+arch plant1_wall.151
+x 6
+end
+arch light2
+x 6
+end
+arch floor_sand_d1
+x 6
+y 1
+end
+arch small_stones
+x 6
+y 1
+end
+arch floor_sand_d1
+x 6
+y 2
+end
+arch floor_sand_d2
+x 6
+y 3
+end
+arch fwall_rock3
+x 6
+y 3
+end
+arch floor_marble_b1c
+x 6
+y 4
+end
+arch floor_marble_b1c
+x 6
+y 5
+end
+arch floor_marble_b1c
+x 6
+y 6
+end
+arch floor_marble_b1d
+x 6
+y 7
+end
+arch floor_marble_b1b
+x 6
+y 8
+end
+arch floor_marble_b1c
+x 6
+y 9
+end
+arch floor_marble_b1d
+x 6
+y 10
+end
+arch floor_marble_b1a
+x 6
+y 11
+end
+arch floor_marble_b1c
+x 6
+y 12
+end
+arch floor_marble_b1d
+x 6
+y 13
+end
+arch floor_marble_b1d
+x 6
+y 14
+end
+arch floor_marble_b1d
+x 6
+y 15
+end
+arch floor_marble_b1c
+x 6
+y 16
+end
+arch floor_marble_b1c
+x 6
+y 17
+end
+arch floor_marble_b1c
+x 6
+y 18
+end
+arch floor_marble_b1d
+x 6
+y 19
+end
+arch floor_marble_b1d
+x 6
+y 20
+end
+arch floor_sand_d1
+x 6
+y 21
+end
+arch fwall_rock1
+x 6
+y 21
+end
+arch floor_sand_d3
+x 6
+y 22
+end
+arch dirt_floor2
+x 6
+y 22
+end
+arch floor_sand_d4
+x 6
+y 23
+end
+arch fwall_rock3
+x 6
+y 23
+end
+arch light1
+x 6
+y 23
+end
+arch floor_sand_d3
+x 7
+end
+arch fwall_rock1
+x 7
+end
+arch light2
+x 7
+end
+arch floor_sand_d4
+x 7
+y 1
+end
+arch mushroom_giant3
+x 7
+y 1
+end
+arch floor_sand_d1
+x 7
+y 2
+end
+arch floor_sand_d1
+x 7
+y 3
+end
+arch fwall_rock1
+x 7
+y 3
+end
+arch floor_marble_b1d
+x 7
+y 4
+end
+arch pillar_black2d
+x 7
+y 4
+end
+arch floor_marble_b1d
+x 7
+y 5
+end
+arch floor_marble_b1d
+x 7
+y 6
+end
+arch floor_marble_b1d
+x 7
+y 7
+end
+arch floor_marble_b1c
+x 7
+y 8
+end
+arch pillar_black2d
+x 7
+y 8
+end
+arch floor_marble_b1c
+x 7
+y 9
+end
+arch floor_marble_b1a
+x 7
+y 10
+end
+arch floor_marble_b1d
+x 7
+y 11
+end
+arch floor_marble_b1b
+x 7
+y 12
+end
+arch pillar_black2d
+x 7
+y 12
+end
+arch floor_marble_b1d
+x 7
+y 13
+end
+arch floor_marble_b1d
+x 7
+y 14
+end
+arch floor_marble_b1c
+x 7
+y 15
+end
+arch floor_marble_b1d
+x 7
+y 16
+end
+arch pillar_black2d
+x 7
+y 16
+end
+arch floor_marble_b1b
+x 7
+y 17
+end
+arch floor_marble_b1d
+x 7
+y 18
+end
+arch floor_marble_b1d
+x 7
+y 19
+end
+arch floor_marble_b1c
+x 7
+y 20
+end
+arch pillar_black2d
+x 7
+y 20
+end
+arch floor_sand_d4
+x 7
+y 21
+end
+arch fwall_rock3
+x 7
+y 21
+end
+arch floor_sand_d1
+x 7
+y 22
+end
+arch dirt_floor3
+x 7
+y 22
+end
+arch floor_sand_d2
+x 7
+y 23
+end
+arch fwall_rock3
+x 7
+y 23
+end
+arch light1
+x 7
+y 23
+end
+arch floor_sand_d3
+x 7
+y 24
+end
+arch fwall_rock1
+x 7
+y 24
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 24
+end
+arch light1
+x 7
+y 24
+end
+arch floor_sand_d3
+x 7
+y 25
+end
+arch fwall_rock3
+x 7
+y 25
+end
+arch light1
+x 7
+y 25
+end
+arch floor_sand_d2
+x 7
+y 26
+end
+arch fwall_rock3
+x 7
+y 26
+end
+arch light1
+x 7
+y 26
+end
+arch floor_sand_d4
+x 8
+end
+arch fwall_rock1
+x 8
+end
+arch light2
+x 8
+end
+arch floor_sand_d4
+x 8
+y 1
+end
+arch floor_sand_d2
+x 8
+y 2
+end
+arch floor_sand_d1
+x 8
+y 3
+end
+arch fwall_rock3
+x 8
+y 3
+end
+arch floor_marble_b1d
+x 8
+y 4
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 8
+y 4
+end
+arch floor_marble_b1d
+x 8
+y 5
+end
+arch floor_marble_b1c
+x 8
+y 6
+end
+arch floor_marble_b1d
+x 8
+y 7
+end
+arch floor_marble_b1a
+x 8
+y 8
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 8
+y 8
+end
+arch floor_marble_b1c
+x 8
+y 9
+end
+arch floor_marble_b1d
+x 8
+y 10
+end
+arch floor_marble_b1d
+x 8
+y 11
+end
+arch floor_marble_b1d
+x 8
+y 12
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 8
+y 12
+end
+arch floor_marble_b1c
+x 8
+y 13
+end
+arch floor_marble_b1c
+x 8
+y 14
+end
+arch floor_marble_b1d
+x 8
+y 15
+end
+arch floor_marble_b1a
+x 8
+y 16
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 8
+y 16
+end
+arch floor_marble_b1d
+x 8
+y 17
+end
+arch floor_marble_b1a
+x 8
+y 18
+end
+arch floor_marble_b1d
+x 8
+y 19
+end
+arch floor_marble_b1c
+x 8
+y 20
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 8
+y 20
+end
+arch floor_sand_d3
+x 8
+y 21
+end
+arch fwall_rock2
+x 8
+y 21
+end
+arch floor_sand_d1
+x 8
+y 22
+end
+arch floor_sand_d3
+x 8
+y 23
+end
+arch floor_sand_d3
+x 8
+y 24
+end
+arch floor_sand_d1
+x 8
+y 25
+end
+arch stairs_stone_up
+direction 1
+slaying /shattered_islands/world_1473
+hp 12
+sp 8
+x 8
+y 25
+arch event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+end
+end
+arch floor_sand_d1
+x 8
+y 26
+end
+arch fwall_rock3
+x 8
+y 26
+end
+arch light1
+x 8
+y 26
+end
+arch floor_sand_d2
+x 9
+end
+arch fwall_rock1
+x 9
+end
+arch light2
+x 9
+end
+arch floor_sand_d4
+x 9
+y 1
+end
+arch dirt_floor4
+x 9
+y 1
+end
+arch floor_sand_d3
+x 9
+y 2
+end
+arch marker
+slaying hierro_lair_door
+speed 1.0
+food 1000
+x 9
+y 2
+end
+arch floor_sand_d4
+x 9
+y 3
+end
+arch fwall_rock1
+x 9
+y 3
+end
+arch floor_marble_b1a
+x 9
+y 4
+end
+arch fwall_rock3
+x 9
+y 4
+end
+arch floor_marble_b1d
+x 9
+y 5
+end
+arch crystal_purple_s
+x 9
+y 5
+end
+arch light2
+x 9
+y 5
+end
+arch floor_marble_b1d
+x 9
+y 6
+end
+arch floor_marble_b1a
+x 9
+y 7
+end
+arch floor_marble_b1c
+x 9
+y 8
+end
+arch floor_marble_b1d
+x 9
+y 9
+end
+arch floor_marble_b1d
+x 9
+y 10
+end
+arch floor_marble_b1a
+x 9
+y 11
+end
+arch floor_marble_b1c
+x 9
+y 12
+end
+arch floor_marble_b1d
+x 9
+y 13
+end
+arch floor_marble_b1c
+x 9
+y 14
+end
+arch floor_marble_b1d
+x 9
+y 15
+end
+arch floor_marble_b1c
+x 9
+y 16
+end
+arch floor_marble_b1a
+x 9
+y 17
+end
+arch floor_marble_b1c
+x 9
+y 18
+end
+arch floor_marble_b1c
+x 9
+y 19
+end
+arch floor_marble_b1d
+x 9
+y 20
+end
+arch floor_sand_d2
+x 9
+y 21
+end
+arch fwall_rock2
+x 9
+y 21
+end
+arch floor_sand_d4
+x 9
+y 22
+end
+arch mushroom_giant2
+x 9
+y 22
+end
+arch floor_sand_d3
+x 9
+y 23
+end
+arch stone4
+x 9
+y 23
+end
+arch floor_sand_d1
+x 9
+y 24
+end
+arch dirt_floor3
+x 9
+y 24
+end
+arch light2
+x 9
+y 24
+end
+arch floor_sand_d4
+x 9
+y 25
+end
+arch stairs_stone_up
+direction 1
+slaying /shattered_islands/world_1473
+hp 13
+sp 8
+x 9
+y 25
+arch event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+end
+end
+arch floor_sand_d3
+x 9
+y 26
+end
+arch fwall_rock3
+x 9
+y 26
+end
+arch light1
+x 9
+y 26
+end
+arch floor_sand_d3
+x 10
+end
+arch fwall_rock2
+x 10
+end
+arch light2
+x 10
+end
+arch floor_sand_d2
+x 10
+y 1
+end
+arch floor_sand_d4
+x 10
+y 2
+end
+arch marker
+slaying hierro_lair_door
+speed 1.0
+food 1000
+x 10
+y 2
+end
+arch floor_marble_b1d
+x 10
+y 3
+end
+arch sand_dm6
+x 10
+y 3
+end
+arch marker
+slaying hierro_lair_door
+speed 1.0
+food 1000
+x 10
+y 3
+end
+arch floor_marble_b1c
+x 10
+y 4
+end
+arch door1_locked
+msg
+The door is shut.
+endmsg
+slaying hierro_lair_door
+sp 1
+x 10
+y 4
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying hierro_lair_door
+sp 1
+last_grace 1
+last_heal 1
+x 10
+y 4
+end
+arch floor_marble_b1d
+x 10
+y 5
+end
+arch magic_mouth
+msg
+The door shuts tightly after you...
+endmsg
+splitting 1
+direction 1
+x 10
+y 5
+end
+arch floor_marble_b1d
+x 10
+y 6
+end
+arch floor_marble_b1d
+x 10
+y 7
+end
+arch floor_marble_b1a
+x 10
+y 8
+end
+arch floor_marble_b1d
+x 10
+y 9
+end
+arch floor_marble_b1b
+x 10
+y 10
+end
+arch blood_floor2
+x 10
+y 10
+end
+arch floor_marble_b1d
+x 10
+y 11
+end
+arch floor_marble_b1c
+x 10
+y 12
+end
+arch floor_marble_b1a
+x 10
+y 13
+end
+arch floor_marble_b1d
+x 10
+y 14
+end
+arch floor_marble_b1a
+x 10
+y 15
+end
+arch floor_marble_b1d
+x 10
+y 16
+end
+arch blood_floor1
+x 10
+y 16
+end
+arch floor_marble_b1c
+x 10
+y 17
+end
+arch floor_marble_b1d
+x 10
+y 18
+end
+arch dirt_floor1
+x 10
+y 18
+end
+arch floor_marble_b1d
+x 10
+y 19
+end
+arch spawn_point
+x 10
+y 19
+arch raas
+name Hierro
+face eyes.101
+animation NONE
+is_animated 0
+alpha 255
+direction 1
+randomitems random_talisman
+item_condition 4
+exp 300
+speed -1.0
+flying 1
+is_female 0
+dam 55
+wc 7
+maxhp 250
+ac 3
+Con 0
+attack_cleave 0
+attack_force 50
+attack_chaos 50
+attack_confusion 10
+can_cast_spell 1
+can_use_weapon 0
+can_use_armour 0
+Wis 10
+attack_move_type 3
+run_away 5
+protect_cold 35
+type 83
+arch quest_container
+name Hierro's Ring
+arch hierro_ring_ice
+end
+end
+arch ability_firestorm
+sp 43
+hp 43
+last_grace 60
+end
+arch event_obj
+sub_type 3
+race /events/2010/winter/scripts/hierro_death.py
+end
+end
+end
+arch floor_marble_b1c
+x 10
+y 20
+end
+arch floor_sand_d2
+x 10
+y 21
+end
+arch fwall_rock3
+x 10
+y 21
+end
+arch floor_sand_d4
+x 10
+y 22
+end
+arch small_stones
+x 10
+y 22
+end
+arch floor_sand_d3
+x 10
+y 23
+end
+arch floor_sand_d1
+x 10
+y 24
+end
+arch floor_sand_d1
+x 10
+y 25
+end
+arch stairs_stone_up
+direction 1
+slaying /shattered_islands/world_1473
+hp 14
+sp 8
+x 10
+y 25
+arch event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+end
+end
+arch floor_sand_d1
+x 10
+y 26
+end
+arch fwall_rock2
+x 10
+y 26
+end
+arch light1
+x 10
+y 26
+end
+arch floor_sand_d3
+x 11
+end
+arch fwall_rock1
+x 11
+end
+arch plant1_wall.151
+x 11
+end
+arch light2
+x 11
+end
+arch floor_sand_d2
+x 11
+y 1
+end
+arch floor_sand_d4
+x 11
+y 2
+end
+arch marker
+slaying hierro_lair_door
+speed 1.0
+food 1000
+x 11
+y 2
+end
+arch floor_marble_b1d
+x 11
+y 3
+end
+arch sand_dm6
+x 11
+y 3
+end
+arch crystal_red_s
+x 11
+y 3
+end
+arch light4
+x 11
+y 3
+end
+arch floor_marble_b1a
+x 11
+y 4
+end
+arch fwall_rock3
+x 11
+y 4
+end
+arch plant2_wall.151
+x 11
+y 4
+end
+arch floor_marble_b1d
+x 11
+y 5
+end
+arch crystal_purple_s
+x 11
+y 5
+end
+arch light2
+x 11
+y 5
+end
+arch floor_marble_b1b
+x 11
+y 6
+end
+arch floor_marble_b1c
+x 11
+y 7
+end
+arch floor_marble_b1c
+x 11
+y 8
+end
+arch floor_marble_b1b
+x 11
+y 9
+end
+arch dirt_floor1
+x 11
+y 9
+end
+arch floor_marble_b1d
+x 11
+y 10
+end
+arch floor_marble_b1b
+x 11
+y 11
+end
+arch floor_marble_b1d
+x 11
+y 12
+end
+arch floor_marble_b1c
+x 11
+y 13
+end
+arch pile_floor1
+x 11
+y 13
+end
+arch floor_marble_b1d
+x 11
+y 14
+end
+arch floor_marble_b1d
+x 11
+y 15
+end
+arch floor_marble_b1a
+x 11
+y 16
+end
+arch floor_marble_b1d
+x 11
+y 17
+end
+arch floor_marble_b1b
+x 11
+y 18
+end
+arch floor_marble_b1d
+x 11
+y 19
+end
+arch floor_marble_b1c
+x 11
+y 20
+end
+arch floor_sand_d3
+x 11
+y 21
+end
+arch fwall_rock2
+x 11
+y 21
+end
+arch floor_sand_d2
+x 11
+y 22
+end
+arch floor_sand_d1
+x 11
+y 23
+end
+arch fwall_rock1
+x 11
+y 23
+end
+arch light1
+x 11
+y 23
+end
+arch floor_sand_d2
+x 11
+y 24
+end
+arch fwall_rock3
+x 11
+y 24
+end
+arch light1
+x 11
+y 24
+end
+arch floor_sand_d4
+x 11
+y 25
+end
+arch fwall_rock2
+x 11
+y 25
+end
+arch light1
+x 11
+y 25
+end
+arch floor_sand_d2
+x 11
+y 26
+end
+arch fwall_rock1
+x 11
+y 26
+end
+arch light1
+x 11
+y 26
+end
+arch floor_sand_d2
+x 12
+end
+arch fwall_rock2
+x 12
+end
+arch light2
+x 12
+end
+arch floor_sand_d2
+x 12
+y 1
+end
+arch dirt_floor3
+x 12
+y 1
+end
+arch floor_sand_d2
+x 12
+y 2
+end
+arch marker
+slaying hierro_lair_door
+speed 1.0
+food 1000
+x 12
+y 2
+end
+arch floor_sand_d4
+x 12
+y 3
+end
+arch fwall_rock1
+x 12
+y 3
+end
+arch floor_marble_b1d
+x 12
+y 4
+end
+arch fwall_rock3
+x 12
+y 4
+end
+arch floor_marble_b1d
+x 12
+y 5
+end
+arch floor_marble_b1b
+x 12
+y 6
+end
+arch floor_marble_b1d
+x 12
+y 7
+end
+arch floor_marble_b1d
+x 12
+y 8
+end
+arch floor_marble_b1b
+x 12
+y 9
+end
+arch floor_marble_b1a
+x 12
+y 10
+end
+arch floor_marble_b1d
+x 12
+y 11
+end
+arch floor_marble_b1d
+x 12
+y 12
+end
+arch floor_marble_b1d
+x 12
+y 13
+end
+arch floor_marble_b1c
+x 12
+y 14
+end
+arch floor_marble_b1b
+x 12
+y 15
+end
+arch floor_marble_b1b
+x 12
+y 16
+end
+arch floor_marble_b1c
+x 12
+y 17
+end
+arch floor_marble_b1d
+x 12
+y 18
+end
+arch floor_marble_b1d
+x 12
+y 19
+end
+arch floor_marble_b1d
+x 12
+y 20
+end
+arch floor_sand_d1
+x 12
+y 21
+end
+arch fwall_rock2
+x 12
+y 21
+end
+arch floor_sand_d3
+x 12
+y 22
+end
+arch floor_sand_d3
+x 12
+y 23
+end
+arch fwall_rock1
+x 12
+y 23
+end
+arch light1
+x 12
+y 23
+end
+arch floor_sand_d4
+x 13
+end
+arch fwall_rock3
+x 13
+end
+arch light2
+x 13
+end
+arch floor_sand_d4
+x 13
+y 1
+end
+arch floor_sand_d2
+x 13
+y 2
+end
+arch floor_sand_d3
+x 13
+y 3
+end
+arch fwall_rock2
+x 13
+y 3
+end
+arch floor_marble_b1d
+x 13
+y 4
+end
+arch floor_marble_b1d
+x 13
+y 5
+end
+arch floor_marble_b1d
+x 13
+y 6
+end
+arch floor_marble_b1a
+x 13
+y 7
+end
+arch floor_marble_b1d
+x 13
+y 8
+end
+arch floor_marble_b1d
+x 13
+y 9
+end
+arch floor_marble_b1a
+x 13
+y 10
+end
+arch floor_marble_b1d
+x 13
+y 11
+end
+arch floor_marble_b1d
+x 13
+y 12
+end
+arch floor_marble_b1d
+x 13
+y 13
+end
+arch floor_marble_b1d
+x 13
+y 14
+end
+arch floor_marble_b1a
+x 13
+y 15
+end
+arch floor_marble_b1c
+x 13
+y 16
+end
+arch floor_marble_b1b
+x 13
+y 17
+end
+arch floor_marble_b1c
+x 13
+y 18
+end
+arch floor_marble_b1d
+x 13
+y 19
+end
+arch floor_marble_b1c
+x 13
+y 20
+end
+arch floor_sand_d2
+x 13
+y 21
+end
+arch fwall_rock2
+x 13
+y 21
+end
+arch floor_sand_d1
+x 13
+y 22
+end
+arch dirt_floor1
+x 13
+y 22
+end
+arch floor_sand_d2
+x 13
+y 23
+end
+arch fwall_rock3
+x 13
+y 23
+end
+arch light1
+x 13
+y 23
+end
+arch floor_sand_d4
+x 14
+end
+arch fwall_rock1
+x 14
+end
+arch light2
+x 14
+end
+arch floor_sand_d1
+x 14
+y 1
+end
+arch mushroom_spot1
+x 14
+y 1
+end
+arch floor_sand_d2
+x 14
+y 2
+end
+arch floor_sand_d4
+x 14
+y 3
+end
+arch fwall_rock1
+x 14
+y 3
+end
+arch floor_marble_b1a
+x 14
+y 4
+end
+arch pillar_black2d
+x 14
+y 4
+end
+arch floor_marble_b1b
+x 14
+y 5
+end
+arch blood_floor1
+x 14
+y 5
+end
+arch floor_marble_b1c
+x 14
+y 6
+end
+arch floor_marble_b1d
+x 14
+y 7
+end
+arch floor_marble_b1d
+x 14
+y 8
+end
+arch pillar_black2d
+x 14
+y 8
+end
+arch floor_marble_b1c
+x 14
+y 9
+end
+arch floor_marble_b1c
+x 14
+y 10
+end
+arch floor_marble_b1b
+x 14
+y 11
+end
+arch floor_marble_b1d
+x 14
+y 12
+end
+arch pillar_black2d
+x 14
+y 12
+end
+arch floor_marble_b1c
+x 14
+y 13
+end
+arch floor_marble_b1d
+x 14
+y 14
+end
+arch floor_marble_b1d
+x 14
+y 15
+end
+arch floor_marble_b1d
+x 14
+y 16
+end
+arch pillar_black2d
+x 14
+y 16
+end
+arch floor_marble_b1a
+x 14
+y 17
+end
+arch floor_marble_b1d
+x 14
+y 18
+end
+arch floor_marble_b1c
+x 14
+y 19
+end
+arch floor_marble_b1b
+x 14
+y 20
+end
+arch pillar_black2d
+x 14
+y 20
+end
+arch floor_sand_d2
+x 14
+y 21
+end
+arch fwall_rock1
+x 14
+y 21
+end
+arch floor_sand_d2
+x 14
+y 22
+end
+arch mushroom_medium
+x 14
+y 22
+end
+arch floor_sand_d3
+x 14
+y 23
+end
+arch fwall_rock3
+x 14
+y 23
+end
+arch light1
+x 14
+y 23
+end
+arch floor_sand_d4
+x 15
+end
+arch fwall_rock1
+x 15
+end
+arch light2
+x 15
+end
+arch floor_sand_d2
+x 15
+y 1
+end
+arch floor_sand_d2
+x 15
+y 2
+end
+arch floor_sand_d2
+x 15
+y 3
+end
+arch fwall_rock1
+x 15
+y 3
+end
+arch plant2_wall.151
+x 15
+y 3
+end
+arch floor_marble_b1d
+x 15
+y 4
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 15
+y 4
+end
+arch floor_marble_b1c
+x 15
+y 5
+end
+arch floor_marble_b1d
+x 15
+y 6
+end
+arch floor_marble_b1d
+x 15
+y 7
+end
+arch floor_marble_b1a
+x 15
+y 8
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 15
+y 8
+end
+arch floor_marble_b1c
+x 15
+y 9
+end
+arch floor_marble_b1d
+x 15
+y 10
+end
+arch floor_marble_b1d
+x 15
+y 11
+end
+arch floor_marble_b1a
+x 15
+y 12
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 15
+y 12
+end
+arch floor_marble_b1c
+x 15
+y 13
+end
+arch floor_marble_b1a
+x 15
+y 14
+end
+arch floor_marble_b1d
+x 15
+y 15
+end
+arch floor_marble_b1d
+x 15
+y 16
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 15
+y 16
+end
+arch floor_marble_b1b
+x 15
+y 17
+end
+arch floor_marble_b1a
+x 15
+y 18
+end
+arch floor_marble_b1b
+x 15
+y 19
+end
+arch floor_marble_b1c
+x 15
+y 20
+end
+arch torch_wall_1
+msg
+The attached torch cannot be lit...
+endmsg
+last_sp 8
+face torch_wall.170
+is_animated 0
+glow_radius 0
+is_turnable 0
+direction 7
+type 79
+x 15
+y 20
+end
+arch floor_sand_d3
+x 15
+y 21
+end
+arch fwall_rock1
+x 15
+y 21
+end
+arch floor_sand_d1
+x 15
+y 22
+end
+arch floor_sand_d1
+x 15
+y 23
+end
+arch fwall_rock3
+x 15
+y 23
+end
+arch light1
+x 15
+y 23
+end
+arch floor_sand_d2
+x 16
+end
+arch fwall_rock1
+x 16
+end
+arch plant2_wall.151
+x 16
+end
+arch light2
+x 16
+end
+arch floor_sand_d4
+x 16
+y 1
+end
+arch small_stones
+x 16
+y 1
+end
+arch floor_sand_d1
+x 16
+y 2
+end
+arch floor_sand_d1
+x 16
+y 3
+end
+arch fwall_rock1
+x 16
+y 3
+end
+arch floor_marble_b1b
+x 16
+y 4
+end
+arch floor_marble_b1c
+x 16
+y 5
+end
+arch floor_marble_b1d
+x 16
+y 6
+end
+arch floor_marble_b1d
+x 16
+y 7
+end
+arch dirt_floor2
+x 16
+y 7
+end
+arch floor_marble_b1d
+x 16
+y 8
+end
+arch floor_marble_b1d
+x 16
+y 9
+end
+arch floor_marble_b1d
+x 16
+y 10
+end
+arch stone2
+x 16
+y 10
+end
+arch floor_marble_b1c
+x 16
+y 11
+end
+arch floor_marble_b1d
+x 16
+y 12
+end
+arch floor_marble_b1a
+x 16
+y 13
+end
+arch blood_floor2
+x 16
+y 13
+end
+arch floor_marble_b1c
+x 16
+y 14
+end
+arch floor_marble_b1c
+x 16
+y 15
+end
+arch floor_marble_b1d
+x 16
+y 16
+end
+arch floor_marble_b1d
+x 16
+y 17
+end
+arch floor_marble_b1c
+x 16
+y 18
+end
+arch floor_marble_b1a
+x 16
+y 19
+end
+arch dirt_floor1
+x 16
+y 19
+end
+arch floor_marble_b1c
+x 16
+y 20
+end
+arch floor_sand_d1
+x 16
+y 21
+end
+arch fwall_rock1
+x 16
+y 21
+end
+arch floor_sand_d2
+x 16
+y 22
+end
+arch floor_sand_d3
+x 16
+y 23
+end
+arch fwall_rock3
+x 16
+y 23
+end
+arch light1
+x 16
+y 23
+end
+arch floor_sand_d1
+x 17
+end
+arch fwall_rock3
+x 17
+end
+arch light2
+x 17
+end
+arch floor_sand_d1
+x 17
+y 1
+end
+arch blood_floor1
+x 17
+y 1
+end
+arch floor_sand_d2
+x 17
+y 2
+end
+arch floor_sand_d1
+x 17
+y 3
+end
+arch fwall_rock1
+x 17
+y 3
+end
+arch chains1.151
+x 17
+y 3
+end
+arch floor_marble_b1d
+x 17
+y 4
+end
+arch small_stones
+x 17
+y 4
+end
+arch floor_marble_b1c
+x 17
+y 5
+end
+arch floor_marble_b1d
+x 17
+y 6
+end
+arch floor_marble_b1d
+x 17
+y 7
+end
+arch floor_marble_b1c
+x 17
+y 8
+end
+arch floor_marble_b1b
+x 17
+y 9
+end
+arch floor_marble_b1c
+x 17
+y 10
+end
+arch floor_marble_b1c
+x 17
+y 11
+end
+arch floor_marble_b1a
+x 17
+y 12
+end
+arch floor_marble_b1d
+x 17
+y 13
+end
+arch floor_marble_b1d
+x 17
+y 14
+end
+arch pile_floor1
+x 17
+y 14
+end
+arch floor_marble_b1d
+x 17
+y 15
+end
+arch floor_marble_b1b
+x 17
+y 16
+end
+arch floor_marble_b1d
+x 17
+y 17
+end
+arch floor_marble_b1c
+x 17
+y 18
+end
+arch dirt_floor4
+x 17
+y 18
+end
+arch floor_marble_b1b
+x 17
+y 19
+end
+arch floor_marble_b1d
+x 17
+y 20
+end
+arch floor_sand_d3
+x 17
+y 21
+end
+arch fwall_rock2
+x 17
+y 21
+end
+arch floor_sand_d2
+x 17
+y 22
+end
+arch floor_sand_d2
+x 17
+y 23
+end
+arch fwall_rock3
+x 17
+y 23
+end
+arch light1
+x 17
+y 23
+end
+arch floor_sand_d3
+x 18
+end
+arch fwall_rock1
+x 18
+end
+arch light2
+x 18
+end
+arch floor_sand_d2
+x 18
+y 1
+end
+arch floor_sand_d2
+x 18
+y 2
+end
+arch floor_sand_d1
+x 18
+y 3
+end
+arch fwall_rock3
+x 18
+y 3
+end
+arch floor_marble_b1d
+x 18
+y 4
+end
+arch floor_marble_b1d
+x 18
+y 5
+end
+arch floor_marble_b1b
+x 18
+y 6
+end
+arch floor_marble_b1d
+x 18
+y 7
+end
+arch floor_marble_b1a
+x 18
+y 8
+end
+arch floor_marble_b1c
+x 18
+y 9
+end
+arch floor_marble_b1d
+x 18
+y 10
+end
+arch floor_marble_b1d
+x 18
+y 11
+end
+arch floor_marble_b1b
+x 18
+y 12
+end
+arch floor_marble_b1d
+x 18
+y 13
+end
+arch floor_marble_b1a
+x 18
+y 14
+end
+arch floor_marble_b1d
+x 18
+y 15
+end
+arch floor_marble_b1b
+x 18
+y 16
+end
+arch floor_marble_b1c
+x 18
+y 17
+end
+arch floor_marble_b1d
+x 18
+y 18
+end
+arch floor_marble_b1b
+x 18
+y 19
+end
+arch floor_marble_b1d
+x 18
+y 20
+end
+arch floor_sand_d4
+x 18
+y 21
+end
+arch fwall_rock3
+x 18
+y 21
+end
+arch floor_sand_d2
+x 18
+y 22
+end
+arch floor_sand_d1
+x 18
+y 23
+end
+arch fwall_rock2
+x 18
+y 23
+end
+arch light1
+x 18
+y 23
+end
+arch floor_sand_d3
+x 19
+end
+arch fwall_rock2
+x 19
+end
+arch light2
+x 19
+end
+arch floor_sand_d2
+x 19
+y 1
+end
+arch fwall_rock3
+x 19
+y 1
+end
+arch floor_sand_d1
+x 19
+y 2
+end
+arch floor_sand_d4
+x 19
+y 3
+end
+arch fwall_rock3
+x 19
+y 3
+end
+arch floor_sand_d4
+x 19
+y 4
+end
+arch fwall_rock2
+x 19
+y 4
+end
+arch floor_sand_d2
+x 19
+y 5
+end
+arch fwall_rock2
+x 19
+y 5
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 5
+end
+arch floor_sand_d2
+x 19
+y 6
+end
+arch fwall_rock2
+x 19
+y 6
+end
+arch floor_sand_d4
+x 19
+y 7
+end
+arch fwall_rock3
+x 19
+y 7
+end
+arch floor_sand_d1
+x 19
+y 8
+end
+arch fwall_rock2
+x 19
+y 8
+end
+arch floor_sand_d4
+x 19
+y 9
+end
+arch fwall_rock3
+x 19
+y 9
+end
+arch floor_sand_d3
+x 19
+y 10
+end
+arch fwall_rock2
+x 19
+y 10
+end
+arch floor_sand_d3
+x 19
+y 11
+end
+arch fwall_rock3
+x 19
+y 11
+end
+arch floor_sand_d3
+x 19
+y 12
+end
+arch fwall_rock3
+x 19
+y 12
+end
+arch floor_sand_d3
+x 19
+y 13
+end
+arch fwall_rock3
+x 19
+y 13
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 13
+end
+arch floor_sand_d1
+x 19
+y 14
+end
+arch fwall_rock3
+x 19
+y 14
+end
+arch floor_sand_d2
+x 19
+y 15
+end
+arch fwall_rock3
+x 19
+y 15
+end
+arch floor_sand_d4
+x 19
+y 16
+end
+arch fwall_rock1
+x 19
+y 16
+end
+arch floor_sand_d3
+x 19
+y 17
+end
+arch fwall_rock1
+x 19
+y 17
+end
+arch floor_sand_d2
+x 19
+y 18
+end
+arch fwall_rock1
+x 19
+y 18
+end
+arch floor_sand_d2
+x 19
+y 19
+end
+arch fwall_rock1
+x 19
+y 19
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 19
+end
+arch floor_sand_d3
+x 19
+y 20
+end
+arch fwall_rock3
+x 19
+y 20
+end
+arch floor_sand_d3
+x 19
+y 21
+end
+arch fwall_rock1
+x 19
+y 21
+end
+arch floor_sand_d4
+x 19
+y 22
+end
+arch floor_sand_d1
+x 19
+y 23
+end
+arch fwall_rock1
+x 19
+y 23
+end
+arch light1
+x 19
+y 23
+end
+arch floor_sand_d3
+x 20
+end
+arch fwall_rock3
+x 20
+end
+arch light1
+x 20
+end
+arch floor_sand_d4
+x 20
+y 1
+end
+arch mushroom_giant1
+x 20
+y 1
+end
+arch floor_sand_d3
+x 20
+y 2
+end
+arch floor_sand_d1
+x 20
+y 3
+end
+arch floor_sand_d4
+x 20
+y 4
+end
+arch floor_sand_d3
+x 20
+y 5
+end
+arch floor_sand_d3
+x 20
+y 6
+end
+arch blood_floor2
+x 20
+y 6
+end
+arch floor_sand_d4
+x 20
+y 7
+end
+arch floor_sand_d2
+x 20
+y 8
+end
+arch floor_sand_d3
+x 20
+y 9
+end
+arch mushroom_medium
+x 20
+y 9
+end
+arch floor_sand_d2
+x 20
+y 10
+end
+arch floor_sand_d1
+x 20
+y 11
+end
+arch floor_sand_d1
+x 20
+y 12
+end
+arch dirt_floor2
+x 20
+y 12
+end
+arch floor_sand_d4
+x 20
+y 13
+end
+arch floor_sand_d2
+x 20
+y 14
+end
+arch floor_sand_d4
+x 20
+y 15
+end
+arch floor_sand_d2
+x 20
+y 16
+end
+arch floor_sand_d4
+x 20
+y 17
+end
+arch floor_sand_d4
+x 20
+y 18
+end
+arch blood_floor2
+x 20
+y 18
+end
+arch floor_sand_d1
+x 20
+y 19
+end
+arch mushroom_giant3
+x 20
+y 19
+end
+arch floor_sand_d3
+x 20
+y 20
+end
+arch floor_sand_d4
+x 20
+y 21
+end
+arch floor_sand_d4
+x 20
+y 22
+end
+arch dirt_floor2
+x 20
+y 22
+end
+arch floor_sand_d3
+x 20
+y 23
+end
+arch fwall_rock1
+x 20
+y 23
+end
+arch light1
+x 20
+y 23
+end
+arch floor_sand_d2
+x 21
+end
+arch fwall_rock2
+x 21
+end
+arch light1
+x 21
+end
+arch floor_sand_d1
+x 21
+y 1
+end
+arch fwall_rock2
+x 21
+y 1
+end
+arch light1
+x 21
+y 1
+end
+arch floor_sand_d1
+x 21
+y 2
+end
+arch fwall_rock1
+x 21
+y 2
+end
+arch light1
+x 21
+y 2
+end
+arch floor_sand_d3
+x 21
+y 3
+end
+arch fwall_rock1
+x 21
+y 3
+end
+arch light1
+x 21
+y 3
+end
+arch floor_sand_d3
+x 21
+y 4
+end
+arch fwall_rock3
+x 21
+y 4
+end
+arch light1
+x 21
+y 4
+end
+arch floor_sand_d1
+x 21
+y 5
+end
+arch fwall_rock1
+x 21
+y 5
+end
+arch light1
+x 21
+y 5
+end
+arch floor_sand_d4
+x 21
+y 6
+end
+arch fwall_rock3
+x 21
+y 6
+end
+arch light1
+x 21
+y 6
+end
+arch floor_sand_d4
+x 21
+y 7
+end
+arch fwall_rock1
+x 21
+y 7
+end
+arch light1
+x 21
+y 7
+end
+arch floor_sand_d2
+x 21
+y 8
+end
+arch fwall_rock2
+x 21
+y 8
+end
+arch light1
+x 21
+y 8
+end
+arch floor_sand_d2
+x 21
+y 9
+end
+arch fwall_rock2
+x 21
+y 9
+end
+arch light1
+x 21
+y 9
+end
+arch floor_sand_d3
+x 21
+y 10
+end
+arch fwall_rock2
+x 21
+y 10
+end
+arch light1
+x 21
+y 10
+end
+arch floor_sand_d4
+x 21
+y 11
+end
+arch fwall_rock3
+x 21
+y 11
+end
+arch light1
+x 21
+y 11
+end
+arch floor_sand_d1
+x 21
+y 12
+end
+arch fwall_rock3
+x 21
+y 12
+end
+arch light1
+x 21
+y 12
+end
+arch floor_sand_d4
+x 21
+y 13
+end
+arch fwall_rock1
+x 21
+y 13
+end
+arch light1
+x 21
+y 13
+end
+arch floor_sand_d3
+x 21
+y 14
+end
+arch fwall_rock2
+x 21
+y 14
+end
+arch light1
+x 21
+y 14
+end
+arch floor_sand_d3
+x 21
+y 15
+end
+arch fwall_rock1
+x 21
+y 15
+end
+arch light1
+x 21
+y 15
+end
+arch floor_sand_d3
+x 21
+y 16
+end
+arch fwall_rock3
+x 21
+y 16
+end
+arch light1
+x 21
+y 16
+end
+arch floor_sand_d4
+x 21
+y 17
+end
+arch fwall_rock1
+x 21
+y 17
+end
+arch light1
+x 21
+y 17
+end
+arch floor_sand_d1
+x 21
+y 18
+end
+arch fwall_rock3
+x 21
+y 18
+end
+arch light1
+x 21
+y 18
+end
+arch floor_sand_d3
+x 21
+y 19
+end
+arch fwall_rock2
+x 21
+y 19
+end
+arch light1
+x 21
+y 19
+end
+arch floor_sand_d2
+x 21
+y 20
+end
+arch fwall_rock1
+x 21
+y 20
+end
+arch light1
+x 21
+y 20
+end
+arch floor_sand_d3
+x 21
+y 21
+end
+arch fwall_rock1
+x 21
+y 21
+end
+arch light1
+x 21
+y 21
+end
+arch floor_sand_d2
+x 21
+y 22
+end
+arch fwall_rock3
+x 21
+y 22
+end
+arch light1
+x 21
+y 22
+end
+arch floor_sand_d4
+x 21
+y 23
+end
+arch fwall_rock3
+x 21
+y 23
+end
+arch light1
+x 21
+y 23
+end
