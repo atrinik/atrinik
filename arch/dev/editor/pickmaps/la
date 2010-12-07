@@ -1,0 +1,184 @@
+arch map
+name la
+msg
+Created:  2010-12-05 Alex Tokar
+Modified: 2010-12-07 Alex Tokar
+endmsg
+width 20
+height 20
+difficulty 1
+darkness -1
+end
+arch tree33
+y 2
+end
+arch tree34
+y 3
+end
+arch tree35
+y 4
+end
+arch snowy_burnedtree1
+y 5
+end
+arch snowy_burnedtree2
+y 6
+end
+arch tree_branch1_winter
+x 2
+y 1
+end
+arch tree_branch2_winter
+x 2
+y 2
+end
+arch tree_branch3_winter
+x 2
+y 3
+end
+arch small_stones
+x 2
+y 5
+end
+arch stone6
+x 2
+y 6
+end
+arch stone2
+x 3
+y 5
+end
+arch stone3
+x 3
+y 6
+end
+arch snowy_pinetree1
+x 4
+end
+arch snow1
+x 4
+y 2
+end
+arch snow3
+x 4
+y 3
+end
+arch stone4
+x 4
+y 5
+end
+arch stone5
+x 4
+y 6
+end
+arch snowy_pinetree2
+x 5
+end
+arch snow2
+x 5
+y 2
+end
+arch snow4
+x 5
+y 3
+end
+arch snowy_autree2
+x 6
+end
+arch snowy_tree_bigb2
+x 7
+end
+arch spawn_point
+x 7
+y 2
+arch mage_old
+face thelra_m.131
+animation thelra_male
+level 30
+race thelra
+type 83
+name thelra sorcerer
+end
+end
+arch spawn_point
+x 7
+y 3
+arch mage_old
+face thelra_f.131
+animation thelra_female
+level 30
+race thelra
+is_male 0
+is_female 1
+type 83
+name thelra sorceress
+end
+end
+arch snowy_treeb1
+x 8
+end
+arch spawn_point
+x 8
+y 2
+arch mage_old
+level 30
+race thelra
+type 83
+end
+end
+arch snowy_tree_bigb1
+x 9
+end
+arch snowy_tree_big2
+x 10
+end
+arch snowy_tree_big1
+x 11
+end
+arch spawn_point
+x 11
+y 2
+arch snowman_evil
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
+arch spawn_point
+x 12
+y 2
+arch bear_grey
+name winter bear
+dam 57
+attack_cold 20
+unaggressive 1
+random_move 1
+item_race 4
+item_level 3
+type 83
+end
+end
+arch spawn_point
+x 13
+y 2
+arch wolf
+name winter wolf
+dam 53
+maxhp 70
+attack_cold 20
+type 83
+end
+end
