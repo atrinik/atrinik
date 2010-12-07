@@ -16,6 +16,7 @@ tile_path_5 world_1374
 tile_path_6 world_1372
 tile_path_7 world_1172
 tile_path_8 world_1174
+bg_music campfire_tales.mid
 region morliana
 end
 arch water_lt

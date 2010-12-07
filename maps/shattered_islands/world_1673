@@ -16,6 +16,7 @@ tile_path_5 world_1774
 tile_path_6 world_1772
 tile_path_7 world_1572
 tile_path_8 world_1574
+bg_music campfire_tales.mid
 region morliana
 end
 arch snow3
