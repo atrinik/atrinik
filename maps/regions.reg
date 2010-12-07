@@ -205,6 +205,17 @@ The one you're currently located on has the famous Wizards' Tower with the Thelr
 endmsg
 end
 
+# Morliana.
+region morliana
+parent lyondale_archipelago
+longname Lyondale Archipelago: Morliana
+msg
+Lyondale Archipelago is a set of small islands grouped close together.
+
+The one you're currently located on is the main island with the Morliana village.
+endmsg
+end
+
 ##############
 # Eld Woods Island.
 
