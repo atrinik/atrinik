@@ -2,11 +2,11 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-03 Alex Tokar
+Modified: 2010-12-07 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 20
 outdoor 1
 tile_path_1 world_1676
 tile_path_2 world_1775
@@ -16,6 +16,7 @@ tile_path_5 world_1776
 tile_path_6 world_1774
 tile_path_7 world_1574
 tile_path_8 world_1576
+region morliana
 end
 arch snow2
 end
@@ -23,6 +24,9 @@ arch snow4
 y 1
 end
 arch snow1
+y 2
+end
+arch stone2
 y 2
 end
 arch snow3
@@ -35,6 +39,9 @@ arch snow2
 y 5
 end
 arch snow2
+y 6
+end
+arch snowy_treeb1
 y 6
 end
 arch snow4
@@ -62,6 +69,9 @@ arch snow1
 y 14
 end
 arch snow4
+y 15
+end
+arch stone2
 y 15
 end
 arch snow2
@@ -91,6 +101,9 @@ end
 arch snow1
 x 1
 end
+arch tree_branch2_winter
+x 1
+end
 arch snow4
 x 1
 y 1
@@ -106,6 +119,29 @@ end
 arch snow1
 x 1
 y 4
+end
+arch spawn_point
+x 1
+y 4
+arch snowman_evil
+level 33
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
 end
 arch snow4
 x 1
@@ -176,6 +212,10 @@ x 1
 y 21
 end
 arch snow1
+x 1
+y 22
+end
+arch snowy_autree2
 x 1
 y 22
 end
@@ -226,11 +266,19 @@ arch snow3
 x 2
 y 10
 end
+arch snowy_pinetree2
+x 2
+y 10
+end
 arch snow1
 x 2
 y 11
 end
 arch snow1
+x 2
+y 12
+end
+arch tree_branch3_winter
 x 2
 y 12
 end
@@ -258,6 +306,10 @@ arch snow2
 x 2
 y 18
 end
+arch snowy_pinetree2
+x 2
+y 18
+end
 arch snow1
 x 2
 y 19
@@ -274,6 +326,10 @@ arch snow1
 x 2
 y 22
 end
+arch tree_branch2_winter
+x 2
+y 22
+end
 arch snow3
 x 2
 y 23
@@ -285,11 +341,19 @@ arch snow3
 x 3
 y 1
 end
+arch snowy_tree_bigb2
+x 3
+y 1
+end
 arch snow1
 x 3
 y 2
 end
 arch snow3
+x 3
+y 3
+end
+arch tree_branch1_winter
 x 3
 y 3
 end
@@ -310,6 +374,10 @@ x 3
 y 7
 end
 arch snow1
+x 3
+y 8
+end
+arch stone2
 x 3
 y 8
 end
@@ -392,6 +460,10 @@ arch snow2
 x 4
 y 4
 end
+arch snowy_pinetree2
+x 4
+y 4
+end
 arch snow2
 x 4
 y 5
@@ -433,6 +505,10 @@ x 4
 y 14
 end
 arch snow3
+x 4
+y 15
+end
+arch snowy_autree2
 x 4
 y 15
 end
@@ -468,7 +544,14 @@ arch snow1
 x 4
 y 23
 end
+arch stone2
+x 4
+y 23
+end
 arch snow3
+x 5
+end
+arch snowy_autree2
 x 5
 end
 arch snow2
@@ -480,6 +563,10 @@ x 5
 y 2
 end
 arch snow1
+x 5
+y 3
+end
+arch small_stones
 x 5
 y 3
 end
@@ -500,6 +587,10 @@ x 5
 y 7
 end
 arch snow2
+x 5
+y 8
+end
+arch tree_branch1_winter
 x 5
 y 8
 end
@@ -540,6 +631,10 @@ x 5
 y 17
 end
 arch snow3
+x 5
+y 18
+end
+arch tree_branch2_winter
 x 5
 y 18
 end
@@ -606,6 +701,10 @@ arch snow2
 x 6
 y 10
 end
+arch snowy_treeb1
+x 6
+y 10
+end
 arch snow3
 x 6
 y 11
@@ -621,6 +720,29 @@ end
 arch snow1
 x 6
 y 14
+end
+arch spawn_point
+x 6
+y 14
+arch snowman_evil
+level 33
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
 end
 arch snow3
 x 6
@@ -646,6 +768,29 @@ arch snow1
 x 6
 y 20
 end
+arch spawn_point
+x 6
+y 20
+arch snowman_evil
+level 32
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
 arch snow3
 x 6
 y 21
@@ -661,11 +806,37 @@ end
 arch snow3
 x 7
 end
+arch spawn_point
+x 7
+arch snowman_evil
+level 34
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
 arch snow2
 x 7
 y 1
 end
 arch snow2
+x 7
+y 2
+end
+arch tree_branch1_winter
 x 7
 y 2
 end
@@ -693,6 +864,29 @@ arch snow1
 x 7
 y 8
 end
+arch spawn_point
+x 7
+y 8
+arch snowman_evil
+level 33
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
 arch snow4
 x 7
 y 9
@@ -709,6 +903,10 @@ arch snow4
 x 7
 y 12
 end
+arch tree_branch1_winter
+x 7
+y 12
+end
 arch snow1
 x 7
 y 13
@@ -722,6 +920,10 @@ x 7
 y 15
 end
 arch snow3
+x 7
+y 16
+end
+arch small_stones
 x 7
 y 16
 end
@@ -750,6 +952,10 @@ x 7
 y 22
 end
 arch snow1
+x 7
+y 23
+end
+arch snowy_tree_bigb2
 x 7
 y 23
 end
@@ -785,6 +991,10 @@ x 8
 y 7
 end
 arch snow3
+x 8
+y 8
+end
+arch stone2
 x 8
 y 8
 end
@@ -863,6 +1073,10 @@ arch snow1
 x 9
 y 1
 end
+arch snowy_burnedtree1
+x 9
+y 1
+end
 arch snow4
 x 9
 y 2
@@ -880,6 +1094,10 @@ x 9
 y 5
 end
 arch snow4
+x 9
+y 6
+end
+arch snowy_tree_big2
 x 9
 y 6
 end
@@ -974,6 +1192,9 @@ end
 arch snow1
 x 10
 end
+arch small_stones
+x 10
+end
 arch snow2
 x 10
 y 1
@@ -1043,6 +1264,10 @@ x 10
 y 15
 end
 arch snow2
+x 10
+y 16
+end
+arch snowy_tree_big1
 x 10
 y 16
 end
@@ -1137,11 +1362,23 @@ arch snow1
 x 11
 y 9
 end
+arch stone2
+x 11
+y 9
+end
+arch stone2
+x 11
+y 9
+end
 arch snow4
 x 11
 y 10
 end
 arch snow4
+x 11
+y 11
+end
+arch snowy_tree_bigb1
 x 11
 y 11
 end

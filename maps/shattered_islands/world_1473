@@ -2,11 +2,11 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-03 Alex Tokar
+Modified: 2010-12-07 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 20
 outdoor 1
 tile_path_1 world_1474
 tile_path_2 world_1573
@@ -16,6 +16,7 @@ tile_path_5 world_1574
 tile_path_6 world_1572
 tile_path_7 world_1372
 tile_path_8 world_1374
+region morliana
 end
 arch snow1
 end
@@ -30,6 +31,9 @@ end
 arch snow3
 y 3
 end
+arch stone2
+y 3
+end
 arch snow1
 y 4
 end
@@ -96,14 +100,14 @@ end
 arch snow3
 x 1
 end
-arch rock_big2
+arch rock4
 x 1
 end
 arch snow3
 x 1
 y 1
 end
-arch rock_big2
+arch rock4
 x 1
 y 1
 end
@@ -127,6 +131,10 @@ arch snow4
 x 1
 y 6
 end
+arch tree_branch2_winter
+x 1
+y 6
+end
 arch snow3
 x 1
 y 7
@@ -147,7 +155,15 @@ arch snow1
 x 1
 y 11
 end
+arch small_stones
+x 1
+y 11
+end
 arch snow4
+x 1
+y 12
+end
+arch snowy_pinetree2
 x 1
 y 12
 end
@@ -206,6 +222,9 @@ end
 arch snow4
 x 2
 end
+arch rock_wall6
+x 2
+end
 arch snow3
 x 2
 y 1
@@ -214,11 +233,19 @@ arch snow3
 x 2
 y 2
 end
+arch rock_wall7
+x 2
+y 2
+end
 arch snow2
 x 2
 y 3
 end
 arch snow4
+x 2
+y 4
+end
+arch snowy_pinetree2
 x 2
 y 4
 end
@@ -243,6 +270,10 @@ x 2
 y 9
 end
 arch snow2
+x 2
+y 10
+end
+arch tree_branch3_winter
 x 2
 y 10
 end
@@ -305,9 +336,6 @@ end
 arch snow4
 x 3
 end
-arch rock_big2
-x 3
-end
 arch snow4
 x 3
 y 1
@@ -329,6 +357,10 @@ x 3
 y 5
 end
 arch snow1
+x 3
+y 6
+end
+arch small_stones
 x 3
 y 6
 end
@@ -359,6 +391,21 @@ end
 arch snow3
 x 3
 y 13
+end
+arch spawn_point
+x 3
+y 13
+arch bear_grey
+name winter bear
+level 29
+dam 57
+attack_cold 20
+unaggressive 1
+random_move 1
+item_race 4
+item_level 3
+type 83
+end
 end
 arch water_lt
 x 3
@@ -407,11 +454,18 @@ end
 arch snow1
 x 4
 end
+arch rock_wall7
+x 4
+end
 arch snow2
 x 4
 y 1
 end
 arch snow3
+x 4
+y 2
+end
+arch rock_wall7
 x 4
 y 2
 end
@@ -423,6 +477,10 @@ arch snow4
 x 4
 y 4
 end
+arch rock_wall6
+x 4
+y 4
+end
 arch snow3
 x 4
 y 5
@@ -430,6 +488,21 @@ end
 arch snow2
 x 4
 y 6
+end
+arch spawn_point
+x 4
+y 6
+arch bear_grey
+name winter bear
+level 29
+dam 57
+attack_cold 20
+unaggressive 1
+random_move 1
+item_race 4
+item_level 3
+type 83
+end
 end
 arch snow1
 x 4
@@ -448,6 +521,10 @@ x 4
 y 10
 end
 arch snow2
+x 4
+y 11
+end
+arch snowy_autree2
 x 4
 y 11
 end
@@ -609,11 +686,18 @@ end
 arch snow3
 x 6
 end
+arch rock_wall6
+x 6
+end
 arch snow4
 x 6
 y 1
 end
 arch snow4
+x 6
+y 2
+end
+arch rock_wall6
 x 6
 y 2
 end
@@ -625,11 +709,19 @@ arch snow3
 x 6
 y 4
 end
+arch rock_wall7
+x 6
+y 4
+end
 arch snow3
 x 6
 y 5
 end
 arch snow4
+x 6
+y 6
+end
+arch rock_wall6
 x 6
 y 6
 end
@@ -649,6 +741,10 @@ arch snow4
 x 6
 y 10
 end
+arch tree_branch3_winter
+x 6
+y 10
+end
 arch snow1
 x 6
 y 11
@@ -658,6 +754,10 @@ x 6
 y 12
 end
 arch snow1
+x 6
+y 13
+end
+arch snowy_autree2
 x 6
 y 13
 end
@@ -740,6 +840,10 @@ arch snow3
 x 7
 y 8
 end
+arch snowy_pinetree2
+x 7
+y 8
+end
 arch snow4
 x 7
 y 9
@@ -807,11 +911,18 @@ end
 arch snow1
 x 8
 end
+arch rock_wall7
+x 8
+end
 arch snow2
 x 8
 y 1
 end
 arch snow1
+x 8
+y 2
+end
+arch rock_wall8
 x 8
 y 2
 end
@@ -823,6 +934,10 @@ arch snow4
 x 8
 y 4
 end
+arch rock_wall6
+x 8
+y 4
+end
 arch snow4
 x 8
 y 5
@@ -831,11 +946,19 @@ arch snow4
 x 8
 y 6
 end
+arch rock_wall7
+x 8
+y 6
+end
 arch snow3
 x 8
 y 7
 end
 arch snow2
+x 8
+y 8
+end
+arch rock4
 x 8
 y 8
 end
@@ -856,6 +979,10 @@ x 8
 y 12
 end
 arch snow3
+x 8
+y 13
+end
+arch tree_branch3_winter
 x 8
 y 13
 end
@@ -942,6 +1069,10 @@ arch snow1
 x 9
 y 8
 end
+arch rock4
+x 9
+y 8
+end
 arch snow3
 x 9
 y 9
@@ -951,6 +1082,10 @@ x 9
 y 10
 end
 arch snow1
+x 9
+y 11
+end
+arch stone2
 x 9
 y 11
 end
@@ -1009,11 +1144,18 @@ end
 arch snow1
 x 10
 end
+arch rock_wall7
+x 10
+end
 arch snow3
 x 10
 y 1
 end
 arch snow1
+x 10
+y 2
+end
+arch rock_wall8
 x 10
 y 2
 end
@@ -1025,6 +1167,10 @@ arch snow3
 x 10
 y 4
 end
+arch rock_wall7
+x 10
+y 4
+end
 arch snow1
 x 10
 y 5
@@ -1033,11 +1179,19 @@ arch snow1
 x 10
 y 6
 end
+arch rock_wall6
+x 10
+y 6
+end
 arch snow1
 x 10
 y 7
 end
 arch snow1
+x 10
+y 8
+end
+arch rock_wall6
 x 10
 y 8
 end
@@ -1068,6 +1222,21 @@ end
 arch snow1
 x 10
 y 15
+end
+arch spawn_point
+x 10
+y 15
+arch bear_grey
+name winter bear
+level 29
+dam 57
+attack_cold 20
+unaggressive 1
+random_move 1
+item_race 4
+item_level 3
+type 83
+end
 end
 arch water_lt3
 x 10
@@ -1140,11 +1309,19 @@ arch snow1
 x 11
 y 8
 end
-arch snow4
+arch fstone1c
 x 11
 y 9
 end
-arch snow1
+arch snow_fmask.104
+x 11
+y 9
+end
+arch fstone1b
+x 11
+y 10
+end
+arch snow_fmask.102
 x 11
 y 10
 end
@@ -1165,6 +1342,10 @@ x 11
 y 14
 end
 arch snow1
+x 11
+y 15
+end
+arch snowy_pinetree2
 x 11
 y 15
 end
@@ -1211,11 +1392,18 @@ end
 arch snow1
 x 12
 end
+arch rock_wall7
+x 12
+end
 arch snow1
 x 12
 y 1
 end
 arch snow1
+x 12
+y 2
+end
+arch rock_wall8
 x 12
 y 2
 end
@@ -1227,11 +1415,19 @@ arch snow1
 x 12
 y 4
 end
+arch rock_wall8
+x 12
+y 4
+end
 arch snow1
 x 12
 y 5
 end
 arch snow2
+x 12
+y 6
+end
+arch rock_wall7
 x 12
 y 6
 end
@@ -1243,11 +1439,32 @@ arch snow1
 x 12
 y 8
 end
-arch snow3
+arch stairs_stone_down
+direction 1
+slaying /events/2010/winter/hierro_lair
+hp 8
+sp 25
+last_eat 1
+x 12
+y 8
+arch event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+end
+end
+arch fstone1c
 x 12
 y 9
 end
-arch snow4
+arch snow_fmask.105
+x 12
+y 9
+end
+arch fstone1b
+x 12
+y 10
+end
+arch snow_fmask.101
 x 12
 y 10
 end
@@ -1342,11 +1559,32 @@ arch snow1
 x 13
 y 8
 end
-arch snow4
+arch stairs_stone_down
+direction 1
+slaying /events/2010/winter/hierro_lair
+hp 9
+sp 25
+last_eat 1
+x 13
+y 8
+arch event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+end
+end
+arch fstone1b
 x 13
 y 9
 end
-arch snow1
+arch snow_fmask.105
+x 13
+y 9
+end
+arch fstone1b
+x 13
+y 10
+end
+arch snow_fmask.101
 x 13
 y 10
 end
@@ -1409,11 +1647,18 @@ end
 arch snow2
 x 14
 end
+arch rock_wall7
+x 14
+end
 arch snow4
 x 14
 y 1
 end
 arch snow2
+x 14
+y 2
+end
+arch rock_wall8
 x 14
 y 2
 end
@@ -1425,11 +1670,19 @@ arch snow4
 x 14
 y 4
 end
+arch rock_wall7
+x 14
+y 4
+end
 arch snow4
 x 14
 y 5
 end
 arch snow3
+x 14
+y 6
+end
+arch rock_wall8
 x 14
 y 6
 end
@@ -1441,11 +1694,32 @@ arch snow2
 x 14
 y 8
 end
-arch snow1
+arch stairs_stone_down
+direction 1
+slaying /events/2010/winter/hierro_lair
+hp 10
+sp 25
+last_eat 1
+x 14
+y 8
+arch event_obj
+sub_type 1
+race /events/2010/winter/scripts/misc.py
+end
+end
+arch fstone1c
 x 14
 y 9
 end
-arch snow1
+arch snow_fmask.105
+x 14
+y 9
+end
+arch fstone1b
+x 14
+y 10
+end
+arch snow_fmask.101
 x 14
 y 10
 end
@@ -1458,6 +1732,10 @@ x 14
 y 12
 end
 arch snow1
+x 14
+y 13
+end
+arch stone2
 x 14
 y 13
 end
@@ -1540,11 +1818,19 @@ arch snow1
 x 15
 y 8
 end
-arch snow1
+arch fstone1b
 x 15
 y 9
 end
-arch snow3
+arch snow_fmask.105
+x 15
+y 9
+end
+arch fstone1b
+x 15
+y 10
+end
+arch snow_fmask.101
 x 15
 y 10
 end
@@ -1569,6 +1855,10 @@ x 15
 y 15
 end
 arch snow3
+x 15
+y 16
+end
+arch snowy_pinetree2
 x 15
 y 16
 end
@@ -1611,11 +1901,18 @@ end
 arch snow1
 x 16
 end
+arch rock_wall7
+x 16
+end
 arch snow1
 x 16
 y 1
 end
 arch snow2
+x 16
+y 2
+end
+arch rock_wall8
 x 16
 y 2
 end
@@ -1627,11 +1924,19 @@ arch snow1
 x 16
 y 4
 end
+arch rock_wall6
+x 16
+y 4
+end
 arch snow2
 x 16
 y 5
 end
 arch snow4
+x 16
+y 6
+end
+arch rock_wall7
 x 16
 y 6
 end
@@ -1643,11 +1948,43 @@ arch snow4
 x 16
 y 8
 end
-arch snow1
+arch rock_wall7
+x 16
+y 8
+end
+arch fstone1b
 x 16
 y 9
 end
-arch snow3
+arch snow_fmask.106
+x 16
+y 9
+end
+arch fstone1c
+x 16
+y 10
+end
+arch snow_fmask.108
+x 16
+y 10
+end
+arch sign_generic
+msg
+Declaration From the High Priest:
+---------------------
+
+In memory of the people that died inside.
+They were attacked and killed, their lives thrown aside.
+
+Cursed be Hierro who lies within.
+A spell was cast to keep him in.
+
+Do not enter, for if you do.
+The fate of Hierro will become yours too.
+
+High priest Manzom
+endmsg
+direction 7
 x 16
 y 10
 end
@@ -1668,6 +2005,10 @@ x 16
 y 14
 end
 arch snow3
+x 16
+y 15
+end
+arch tree_branch2_winter
 x 16
 y 15
 end
@@ -1809,11 +2150,18 @@ end
 arch snow1
 x 18
 end
+arch rock_wall7
+x 18
+end
 arch snow3
 x 18
 y 1
 end
 arch snow3
+x 18
+y 2
+end
+arch rock_wall8
 x 18
 y 2
 end
@@ -1825,6 +2173,10 @@ arch snow3
 x 18
 y 4
 end
+arch rock_wall6
+x 18
+y 4
+end
 arch snow4
 x 18
 y 5
@@ -1833,11 +2185,19 @@ arch snow2
 x 18
 y 6
 end
+arch rock_wall8
+x 18
+y 6
+end
 arch snow3
 x 18
 y 7
 end
 arch snow1
+x 18
+y 8
+end
+arch rock_wall6
 x 18
 y 8
 end
@@ -1952,7 +2312,15 @@ arch snow1
 x 19
 y 10
 end
+arch small_stones
+x 19
+y 10
+end
 arch snow4
+x 19
+y 11
+end
+arch snowy_treeb1
 x 19
 y 11
 end
@@ -1964,11 +2332,19 @@ arch snow2
 x 19
 y 13
 end
+arch tree_branch3_winter
+x 19
+y 13
+end
 arch snow3
 x 19
 y 14
 end
 arch snow2
+x 19
+y 15
+end
+arch stone2
 x 19
 y 15
 end
@@ -2011,11 +2387,18 @@ end
 arch snow1
 x 20
 end
+arch rock_wall7
+x 20
+end
 arch snow2
 x 20
 y 1
 end
 arch snow1
+x 20
+y 2
+end
+arch rock_wall8
 x 20
 y 2
 end
@@ -2027,6 +2410,10 @@ arch snow4
 x 20
 y 4
 end
+arch rock_wall8
+x 20
+y 4
+end
 arch snow4
 x 20
 y 5
@@ -2035,11 +2422,19 @@ arch snow3
 x 20
 y 6
 end
+arch rock_wall6
+x 20
+y 6
+end
 arch snow3
 x 20
 y 7
 end
 arch snow2
+x 20
+y 8
+end
+arch rock_wall1
 x 20
 y 8
 end
@@ -2076,6 +2471,10 @@ x 20
 y 16
 end
 arch snow2
+x 20
+y 17
+end
+arch snowy_burnedtree2
 x 20
 y 17
 end
@@ -2142,6 +2541,10 @@ arch snow1
 x 21
 y 8
 end
+arch rock4
+x 21
+y 8
+end
 arch snow1
 x 21
 y 9
@@ -2153,6 +2556,21 @@ end
 arch snow2
 x 21
 y 11
+end
+arch spawn_point
+x 21
+y 11
+arch bear_grey
+name winter bear
+level 30
+dam 57
+attack_cold 20
+unaggressive 1
+random_move 1
+item_race 4
+item_level 3
+type 83
+end
 end
 arch snow3
 x 21
@@ -2209,11 +2627,18 @@ end
 arch snow1
 x 22
 end
+arch rock_wall7
+x 22
+end
 arch snow2
 x 22
 y 1
 end
 arch snow1
+x 22
+y 2
+end
+arch rock_wall8
 x 22
 y 2
 end
@@ -2225,6 +2650,10 @@ arch snow1
 x 22
 y 4
 end
+arch rock_wall6
+x 22
+y 4
+end
 arch snow1
 x 22
 y 5
@@ -2233,11 +2662,19 @@ arch snow4
 x 22
 y 6
 end
+arch rock_wall7
+x 22
+y 6
+end
 arch snow1
 x 22
 y 7
 end
 arch snow1
+x 22
+y 8
+end
+arch rock4
 x 22
 y 8
 end
@@ -2262,6 +2699,10 @@ x 22
 y 13
 end
 arch snow3
+x 22
+y 14
+end
+arch snowy_autree2
 x 22
 y 14
 end
@@ -2344,6 +2785,10 @@ arch snow2
 x 23
 y 9
 end
+arch snowy_burnedtree2
+x 23
+y 9
+end
 arch snow2
 x 23
 y 10
@@ -2356,6 +2801,10 @@ arch snow3
 x 23
 y 12
 end
+arch tree_branch3_winter
+x 23
+y 12
+end
 arch snow1
 x 23
 y 13
@@ -2365,6 +2814,10 @@ x 23
 y 14
 end
 arch snow3
+x 23
+y 15
+end
+arch stone2
 x 23
 y 15
 end

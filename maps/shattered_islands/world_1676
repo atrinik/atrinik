@@ -2,12 +2,13 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-05 Alex Tokar
+Modified: 2010-12-07 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 20
 outdoor 1
+no_harm 1
 tile_path_1 world_1677
 tile_path_2 world_1776
 tile_path_3 world_1675
@@ -16,6 +17,7 @@ tile_path_5 world_1777
 tile_path_6 world_1775
 tile_path_7 world_1575
 tile_path_8 world_1577
+region morliana
 end
 arch snow2
 end
@@ -122,6 +124,9 @@ arch snow3
 y 23
 end
 arch snow1
+x 1
+end
+arch stone2
 x 1
 end
 arch snow3
@@ -261,6 +266,10 @@ x 1
 y 22
 end
 arch snow3
+x 1
+y 23
+end
+arch stone2
 x 1
 y 23
 end
@@ -407,7 +416,14 @@ arch snow2
 x 2
 y 23
 end
+arch snowy_treeb1
+x 2
+y 23
+end
 arch snow3
+x 3
+end
+arch snowy_tree_big2
 x 3
 end
 arch snow4
@@ -1847,6 +1863,10 @@ x 12
 y 22
 end
 arch snow1
+x 12
+y 23
+end
+arch snowy_tree_big2
 x 12
 y 23
 end

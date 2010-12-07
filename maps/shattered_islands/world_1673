@@ -2,11 +2,11 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-03 Alex Tokar
+Modified: 2010-12-07 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 20
 outdoor 1
 tile_path_1 world_1674
 tile_path_2 world_1773
@@ -16,6 +16,7 @@ tile_path_5 world_1774
 tile_path_6 world_1772
 tile_path_7 world_1572
 tile_path_8 world_1574
+region morliana
 end
 arch snow3
 end
@@ -32,6 +33,9 @@ arch snow3
 y 4
 end
 arch snow3
+y 5
+end
+arch small_stones
 y 5
 end
 arch snow4
@@ -108,11 +112,19 @@ arch snow4
 x 1
 y 2
 end
+arch stone2
+x 1
+y 2
+end
 arch snow4
 x 1
 y 3
 end
 arch snow4
+x 1
+y 4
+end
+arch snowy_treeb1
 x 1
 y 4
 end
@@ -202,6 +214,28 @@ y 23
 end
 arch snow3
 x 2
+end
+arch spawn_point
+x 2
+arch snowman_evil
+level 31
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
 end
 arch snow2
 x 2
@@ -306,6 +340,9 @@ end
 arch snow2
 x 3
 end
+arch snowy_autree2
+x 3
+end
 arch snow3
 x 3
 y 1
@@ -315,6 +352,10 @@ x 3
 y 2
 end
 arch snow4
+x 3
+y 3
+end
+arch snowy_pinetree2
 x 3
 y 3
 end
@@ -407,6 +448,9 @@ x 3
 y 23
 end
 arch snow1
+x 4
+end
+arch small_stones
 x 4
 end
 arch snow3
