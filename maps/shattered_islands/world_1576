@@ -97,6 +97,15 @@ end
 arch wall_pattern1.181
 y 16
 end
+arch client_map_info
+msg
+Morliana Post Office.
+endmsg
+name morliana_post_office
+sub_type 2
+stand_still 1
+y 16
+end
 arch snow2
 y 17
 end
@@ -1096,6 +1105,12 @@ x 6
 y 16
 end
 arch wall_pattern1.111
+x 6
+y 16
+end
+arch client_map_info
+name morliana_post_office
+sub_type 2
 x 6
 y 16
 end

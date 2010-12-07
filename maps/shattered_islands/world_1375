@@ -1397,6 +1397,12 @@ arch wall_wood3_3
 x 11
 y 1
 end
+arch client_map_info
+name morliana_tavern
+sub_type 2
+x 11
+y 1
+end
 arch snow3
 x 11
 y 2
@@ -3013,6 +3019,17 @@ x 20
 y 23
 end
 arch wall_stone9_8
+x 20
+y 23
+end
+arch client_map_info
+msg
+Morliana Research Center.
+endmsg
+name morliana_research_center
+sub_type 2
+path_attuned 33
+path_repelled 10
 x 20
 y 23
 end

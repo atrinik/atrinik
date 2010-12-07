@@ -536,6 +536,16 @@ arch wall_stone13_8
 x 3
 y 13
 end
+arch client_map_info
+msg
+Temple of Tabernacle.
+endmsg
+name morliana_temple
+sub_type 2
+stand_still 1
+x 3
+y 13
+end
 arch snow4
 x 3
 y 14
@@ -589,6 +599,12 @@ x 3
 y 20
 end
 arch wall_stone13_3
+x 3
+y 20
+end
+arch client_map_info
+name morliana_temple
+sub_type 2
 x 3
 y 20
 end
@@ -2686,6 +2702,12 @@ x 16
 y 13
 end
 arch wall_stone13_1
+x 16
+y 13
+end
+arch client_map_info
+name morliana_temple
+sub_type 2
 x 16
 y 13
 end

@@ -30,6 +30,11 @@ end
 arch wall_pattern1.131
 y 1
 end
+arch client_map_info
+name morliana_post_office
+sub_type 2
+y 1
+end
 arch snow2
 y 2
 end
@@ -46,6 +51,15 @@ arch snow2
 y 5
 end
 arch wall_wood_8
+y 5
+end
+arch client_map_info
+msg
+Morliana Bank.
+endmsg
+name morliana_bank
+sub_type 2
+stand_still 1
 y 5
 end
 arch snow4
@@ -112,6 +126,11 @@ arch snow3
 y 16
 end
 arch wall_wood_3
+y 16
+end
+arch client_map_info
+name morliana_bank
+sub_type 2
 y 16
 end
 arch snow3
@@ -382,6 +401,7 @@ x 2
 y 7
 arch priest_green
 type 83
+name Nachur
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -447,6 +467,7 @@ x 2
 y 14
 arch monk
 type 83
+name Aenan
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -1089,6 +1110,12 @@ x 6
 y 5
 end
 arch wall_wood3_1
+x 6
+y 5
+end
+arch client_map_info
+name morliana_bank
+sub_type 2
 x 6
 y 5
 end
