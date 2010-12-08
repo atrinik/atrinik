@@ -2494,6 +2494,9 @@ y 14
 end
 arch stairs_wood_up
 direction 5
+slaying world_1_1575
+hp 14
+sp 13
 x 14
 y 14
 end

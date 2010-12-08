@@ -1,0 +1,627 @@
+arch map
+name Morliana
+msg
+Created:  2010-12-08 Alex Tokar
+Modified: 2010-12-08 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 20
+darkness -1
+no_harm 1
+bg_music campfire_tales.mid
+region morliana
+end
+arch blocked
+x 13
+y 9
+end
+arch wall_stone11_8
+x 13
+y 9
+end
+arch blocked
+x 13
+y 10
+end
+arch wall_stone11_3
+x 13
+y 10
+end
+arch blocked
+x 13
+y 11
+end
+arch wall_stone11_3
+x 13
+y 11
+end
+arch blocked
+x 13
+y 12
+end
+arch wall_stone11_3
+x 13
+y 12
+end
+arch flag_03
+direction 7
+x 13
+y 12
+end
+arch blocked
+x 13
+y 13
+end
+arch wall_stone11_3
+x 13
+y 13
+end
+arch blocked
+x 13
+y 14
+end
+arch wall_stone11_3
+x 13
+y 14
+end
+arch blocked
+x 14
+y 9
+end
+arch wall_stone11_1
+x 14
+y 9
+end
+arch floor_ostone10
+x 14
+y 10
+end
+arch shop_mat
+x 14
+y 10
+end
+arch floor_ostone10
+x 14
+y 11
+end
+arch floor_ostone10
+x 14
+y 12
+end
+arch floor_ostone10
+x 14
+y 13
+end
+arch stairs_wood_down
+direction 5
+slaying world_1575
+hp 14
+sp 14
+x 14
+y 13
+end
+arch floor_ostone10
+x 14
+y 14
+end
+arch wall_stone11_1
+x 14
+y 14
+end
+arch blocked
+x 14
+y 15
+end
+arch wall_stone11_3
+x 14
+y 15
+end
+arch blocked
+x 14
+y 16
+end
+arch wall_stone11_3
+x 14
+y 16
+end
+arch blocked
+x 14
+y 17
+end
+arch wall_stone11_3
+x 14
+y 17
+end
+arch picture7
+direction 7
+x 14
+y 17
+end
+arch blocked
+x 14
+y 18
+end
+arch wall_stone11_3
+x 14
+y 18
+end
+arch blocked
+x 15
+y 9
+end
+arch wall_stone11_1
+x 15
+y 9
+end
+arch floor_ostone10
+x 15
+y 10
+end
+arch grate1_3
+x 15
+y 10
+end
+arch floor_ostone10
+x 15
+y 11
+end
+arch grate1_3
+x 15
+y 11
+end
+arch floor_ostone10
+x 15
+y 12
+end
+arch grate1_3
+x 15
+y 12
+end
+arch floor_ostone10
+x 15
+y 13
+end
+arch grate1_3
+x 15
+y 13
+end
+arch floor_ostone10
+x 15
+y 14
+end
+arch grate1_3
+layer 4
+x 15
+y 14
+end
+arch grate1_1
+x 15
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_potion
+exp 75
+no_magic 1
+type 68
+x 15
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_potion
+exp 75
+no_magic 1
+type 68
+x 15
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_talisman
+exp 20
+no_magic 1
+type 68
+x 15
+y 17
+end
+arch floor_ostone10
+x 15
+y 18
+end
+arch wall_stone11_1
+x 15
+y 18
+end
+arch blocked
+x 16
+y 9
+end
+arch wall_stone11_1
+x 16
+y 9
+end
+arch floor_ostone10
+no_magic 1
+type 68
+x 16
+y 10
+end
+arch shop_mat
+x 16
+y 10
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 16
+y 11
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 12
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 13
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 40
+no_magic 1
+type 68
+x 16
+y 17
+end
+arch floor_ostone10
+x 16
+y 18
+end
+arch wall_stone11_1
+x 16
+y 18
+end
+arch blocked
+x 17
+y 9
+end
+arch wall_stone11_1
+x 17
+y 9
+end
+arch flag_02
+x 17
+y 9
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 17
+y 10
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 17
+y 11
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 12
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 13
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 30
+no_magic 1
+type 68
+x 17
+y 17
+end
+arch floor_ostone10
+x 17
+y 18
+end
+arch wall_stone11_1
+x 17
+y 18
+end
+arch blocked
+x 18
+y 9
+end
+arch wall_stone11_1
+x 18
+y 9
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 18
+y 10
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 18
+y 11
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 12
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 13
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 30
+no_magic 1
+type 68
+x 18
+y 17
+end
+arch floor_ostone10
+x 18
+y 18
+end
+arch wall_stone11_1
+x 18
+y 18
+end
+arch blocked
+x 19
+y 9
+end
+arch wall_stone11_1
+x 19
+y 9
+end
+arch floor_ostone10
+x 19
+y 10
+end
+arch wall_stone11_3
+x 19
+y 10
+end
+arch floor_ostone10
+x 19
+y 11
+end
+arch wall_stone11_3
+x 19
+y 11
+end
+arch floor_ostone10
+x 19
+y 12
+end
+arch wall_stone11_3
+x 19
+y 12
+end
+arch floor_ostone10
+x 19
+y 13
+end
+arch wall_stone11_3
+x 19
+y 13
+end
+arch floor_ostone10
+x 19
+y 14
+end
+arch wall_stone11_3
+x 19
+y 14
+end
+arch floor_ostone10
+x 19
+y 15
+end
+arch wall_stone11_3
+x 19
+y 15
+end
+arch floor_ostone10
+x 19
+y 16
+end
+arch wall_stone11_3
+x 19
+y 16
+end
+arch floor_ostone10
+x 19
+y 17
+end
+arch wall_stone11_3
+x 19
+y 17
+end
+arch floor_ostone10
+x 19
+y 18
+end
+arch wall_stone11_4
+x 19
+y 18
+end
