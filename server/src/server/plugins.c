@@ -696,6 +696,12 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		return 0;
 	}
 
+	/* Ai event and we don't want this type of events. */
+	if (event_type == EVENT_AI && !(event_obj->path_attuned & EVENT_FLAG(parm1)))
+	{
+		return 0;
+	}
+
 	if (event_obj->name && (plugin = find_plugin(event_obj->name)))
 	{
 		int returnvalue;

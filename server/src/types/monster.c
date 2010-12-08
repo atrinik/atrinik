@@ -893,6 +893,22 @@ static int move_randomly(object *op)
 			}
 		}
 
+		if (HAS_EVENT(op, EVENT_AI))
+		{
+			int ret = trigger_event(EVENT_AI, NULL, op, NULL, NULL, EVENT_AI_RANDOM_MOVE, r, 0, SCRIPT_FIX_NOTHING);
+
+			/* Cancel random movement. */
+			if (ret == 1)
+			{
+				return 0;
+			}
+			/* Keep trying. */
+			else if (ret == 2)
+			{
+				continue;
+			}
+		}
+
 		if (move_object(op, r))
 		{
 			return 1;

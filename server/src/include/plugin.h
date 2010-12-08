@@ -106,6 +106,16 @@
 #define EVENT_QUEST 13
 /** Ask script whether to show this object on map. */
 #define EVENT_ASK_SHOW 14
+/** AI related event. One of @ref EVENT_AI_xxx. */
+#define EVENT_AI 15
+/*@}*/
+
+/**
+ * @defgroup EVENT_AI_xxx AI events
+ * AI related events.
+ *@{*/
+/** Random movement. */
+#define EVENT_AI_RANDOM_MOVE 1
 /*@}*/
 
 /**
