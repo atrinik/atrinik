@@ -518,7 +518,7 @@ def check_obj(obj, map):
 			if get_entry(obj, "splitting") == 1 and get_entry(obj, "direction") == None:
 				add_error(map["file"], "Magic mouth '{0}' has adjacent direction set but actual facing direction is not set.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
-	if "direction" in obj and obj["direction"] != 0 and (not "is_turnable" in obj or obj["is_turnable"] != 1) and (not "is_animated" in obj or obj["is_animated"] != 1):
+	if get_entry(obj, "direction") not in (None, 0) and get_entry(obj, "is_turnable") != 1 and get_entry(obj, "is_animated") != 1 and get_entry(obj, "draw_direction") != 1:
 		add_error(map["file"], "Object '{0}' has direction but that type of object doesn't support directions.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 	if obj["type"] in (types.event_object, types.map_event_object):
