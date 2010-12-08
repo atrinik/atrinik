@@ -74,4 +74,8 @@
 	<bmentry bit="5" name="Layer 6" />
 	<bmentry bit="6" name="Layer 7" />
 </bitmask>
+
+<bitmask name="event_ai">
+	<bmentry bit="0" name="Random movement" />
+</bitmask>
 </bitmasks>
