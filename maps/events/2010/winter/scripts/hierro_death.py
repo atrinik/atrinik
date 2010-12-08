@@ -41,4 +41,6 @@ for (x, y) in locations:
 			obj.type = obj.arch.clone.type
 			obj.msg = None
 			obj.f_is_animated = True
+			obj.direction = 7
+			obj.f_is_turnable = True
 			me.Apply(obj, APPLY_TOGGLE | APPLY_NO_EVENT)
