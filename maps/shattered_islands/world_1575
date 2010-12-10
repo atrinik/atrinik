@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-08 Alex Tokar
+Modified: 2010-12-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -720,6 +720,10 @@ x 3
 y 23
 end
 arch wall_stone9_1
+x 3
+y 23
+end
+arch flag_05
 x 3
 y 23
 end

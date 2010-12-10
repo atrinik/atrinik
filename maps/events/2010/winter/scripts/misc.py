@@ -3,6 +3,7 @@
 
 from Atrinik import *
 
+me = WhoAmI()
 activator = WhoIsActivator()
 event_num = GetEventNumber()
 enabled = False
@@ -22,7 +23,6 @@ if WhatIsEvent().type == TYPE_MAP_EVENT_OBJ:
 		activator.map.difficulty = activator.level
 # Normal apply event.
 elif event_num == EVENT_APPLY:
-	me = WhoAmI()
 	quest = activator.GetQuestObject("Hierro's Ring")
 
 	# Going down.
@@ -54,3 +54,17 @@ elif event_num == EVENT_APPLY:
 	# Completed the quest?
 	elif quest and me.name == "stairs going up":
 		activator.Write("As you go up the stairs to the surface, there is a great rumble, and rocks fall from the ceiling, blocking the passage!\nIt seems you won't be able to go back...", COLOR_WHITE)
+# Handle the researcher NPC.
+elif event_num == EVENT_SAY:
+	msg = WhatIsMessage().strip().lower()
+
+	if msg == "hi" or msg == "hey" or msg == "hello":
+		me.SayTo(activator, "\nGreetings {}. I am {}, the head researcher.".format(activator.name, me.name))
+
+		if not enabled:
+			me.SayTo(activator, "There isn't much research going on at the moment, so most assistants are with Albar in the eastern wing doing experiments on the Great Blue Crystal shard.", True)
+		else:
+			me.SayTo(activator, "Most assistants are with Albar in the eastern wing doing experiments on the Great Blue Crystal shard, but I think I may have found something interesting just a moment ago.\n\n^What is it?^", True)
+	elif enabled:
+		if msg == "what is it?":
+			me.SayTo(activator, "\nApparently, about this time of the year, a cave in the mountains to the south of Morliana opens up. The rumor is that some creature called Hierro lurks inside... I'm not sure what could be inside, but I'm not too eager to find out, either.")
