@@ -3146,7 +3146,7 @@ arch carpet1.131
 x 22
 y 6
 end
-arch desk1.111
+arch table_lab3.111
 direction 7
 x 22
 y 6
