@@ -1853,7 +1853,6 @@ face eyes.101
 animation NONE
 is_animated 0
 weight 3000
-alpha 255
 direction 0
 randomitems random_talisman
 item_condition 4
