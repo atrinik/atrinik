@@ -932,6 +932,21 @@ direction 7
 x 5
 y 9
 end
+arch spawn_point
+x 5
+y 9
+arch mage_old
+name thelra sorceress
+face thelra_f.131
+animation thelra_female
+direction 3
+level 40
+race thelra
+is_male 0
+is_female 1
+type 83
+end
+end
 arch floor_sand_d2
 x 5
 y 10
@@ -1369,6 +1384,19 @@ arch snow_fmask.112
 x 7
 y 21
 end
+arch spawn_point
+x 7
+y 21
+arch mage_old
+name thelra sorcerer
+face thelra_m.131
+animation thelra_male
+level 38
+race thelra
+movement_type 64
+type 83
+end
+end
 arch floor_sand_d2
 x 7
 y 22
@@ -1635,6 +1663,19 @@ end
 arch small_stones
 x 9
 y 8
+end
+arch spawn_point
+x 9
+y 8
+arch mage_old
+msg
+@match ^hi$|^hey$|^hello$
+Ahh... Isn't the Great Blue Crystal beautiful? The way it sparkles!...
+endmsg
+level 38
+race thelra
+type 83
+end
 end
 arch water_still
 x 9
@@ -2766,6 +2807,21 @@ end
 arch snow_fmask.118
 x 15
 y 22
+end
+arch spawn_point
+x 15
+y 22
+arch mage_old
+name thelra sorcerer
+face thelra_m.131
+animation thelra_male
+level 30
+race thelra
+random_move 1
+item_race 3
+item_level 3
+type 83
+end
 end
 arch floor_sand_d2
 x 15
@@ -3925,6 +3981,14 @@ end
 arch snow_fmask.107
 x 23
 y 13
+end
+arch spawn_point
+x 23
+y 13
+arch guard_pole
+level 30
+type 83
+end
 end
 arch floor_sand_d2
 x 23

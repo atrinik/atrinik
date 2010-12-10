@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-07 Alex Tokar
+Modified: 2010-12-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -153,6 +153,13 @@ x 1
 end
 arch snow_fmask.102
 x 1
+end
+arch spawn_point
+x 1
+arch guard
+level 40
+type 83
+end
 end
 arch snow2
 x 1
@@ -471,6 +478,14 @@ end
 arch snow_fmask.102
 x 3
 y 4
+end
+arch spawn_point
+x 3
+y 4
+arch guard
+level 30
+type 83
+end
 end
 arch snow4
 x 3
@@ -797,6 +812,13 @@ x 5
 end
 arch snow_fmask.107
 x 5
+end
+arch spawn_point
+x 5
+arch guard
+level 36
+type 83
+end
 end
 arch floor_sand_d3
 x 5
@@ -1409,6 +1431,15 @@ arch bank1.111
 direction 7
 x 8
 y 19
+end
+arch spawn_point
+x 8
+y 19
+arch woman_old
+level 19
+race thelra
+type 83
+end
 end
 arch floor_marble_grey
 x 8
@@ -2090,6 +2121,15 @@ direction 7
 x 12
 y 19
 end
+arch spawn_point
+x 12
+y 19
+arch mage_old
+level 18
+race thelra
+type 83
+end
+end
 arch floor_marble_grey
 x 12
 y 20
@@ -2159,6 +2199,18 @@ end
 arch snow3
 x 13
 y 6
+end
+arch spawn_point
+x 13
+y 6
+arch mage_old
+name thelra sorcerer
+face thelra_m.131
+animation thelra_male
+level 38
+race thelra
+type 83
+end
 end
 arch snow2
 x 13

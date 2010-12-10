@@ -2205,6 +2205,15 @@ arch snow2
 x 16
 y 13
 end
+arch spawn_point
+x 16
+y 13
+arch guard
+level 28
+type 83
+direction 3
+end
+end
 arch snow2
 x 16
 y 14

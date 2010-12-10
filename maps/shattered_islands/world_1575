@@ -263,6 +263,15 @@ arch floor_wood2_l1
 x 1
 y 12
 end
+arch spawn_point
+x 1
+y 12
+arch guard_pole
+direction 3
+level 38
+type 83
+end
+end
 arch floor_wood2_l1
 x 1
 y 13

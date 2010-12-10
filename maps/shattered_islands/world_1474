@@ -975,6 +975,14 @@ arch snow3
 x 5
 y 10
 end
+arch spawn_point
+x 5
+y 10
+arch guard_pole
+level 40
+type 83
+end
+end
 arch floor_sand_d3
 x 5
 y 11
@@ -3151,6 +3159,14 @@ end
 arch snow4
 x 17
 y 10
+end
+arch spawn_point
+x 17
+y 10
+arch guard_pole
+level 40
+type 83
+end
 end
 arch floor_sand_d2
 x 17

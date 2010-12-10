@@ -1851,6 +1851,15 @@ arch snow3
 x 12
 y 2
 end
+arch spawn_point
+x 12
+y 2
+arch guard
+direction 3
+level 36
+type 83
+end
+end
 arch floor_sand_d4
 x 12
 y 3
