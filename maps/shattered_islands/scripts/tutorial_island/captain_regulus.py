@@ -27,7 +27,7 @@ def main():
 			if skill == -1:
 				me.SayTo(activator, "Unknown skill - remove traps.")
 			else:
-				if activator.GetSkill(TYPE_SKILL, skill) == None:
+				if activator.Controller().GetSkill(TYPE_SKILL, skill) == None:
 					me.SayTo(activator, "\nYou have done it! Really great! Thanks so much! Now say ^teach me remove traps^ for the reward.")
 				else:
 					me.SayTo(activator, "\nThank you for helping us out, but it seems like you already know the remove traps skill so I have nothing to reward you with.")
@@ -66,7 +66,7 @@ def main():
 				qm.complete()
 
 				# Only teach them if they don't know the skill yet.
-				if activator.GetSkill(TYPE_SKILL, skill) == None:
+				if activator.Controller().GetSkill(TYPE_SKILL, skill) == None:
 					me.SayTo(activator, "Here we go!")
 					me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Regulus teaches some ancient skill.", COLOR_YELLOW)
 					activator.AcquireSkill(skill)

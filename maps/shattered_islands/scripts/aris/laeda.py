@@ -45,7 +45,7 @@ def main():
 			me.SayTo(activator, "\nThey have started coming out of that open grave in the graveyard, and no matter how many we kill, they keep coming back! We're just not strong enough to banish them once and for all. That is why the door to the graveyard has been ^sealed off^ by magic.")
 
 		elif msg == "sealed off":
-			skill = activator.GetSkill(TYPE_SKILL, GetSkillNr("divine prayers"))
+			skill = activator.Controller().GetSkill(TYPE_SKILL, GetSkillNr("divine prayers"))
 
 			if not skill or skill.level < 20:
 				me.SayTo(activator, "\nIf only you were around level 20 in the divine prayers skill, you could help us out...")

@@ -22,7 +22,7 @@ qm = QuestManager(activator, quest)
 
 ## Get the activator's physical experience object, so we can check if
 ## they are high enough level for the quest.
-eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
+eobj = activator.Controller().GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
 
 msg = WhatIsMessage().strip().lower()
 text = msg.split()
@@ -48,7 +48,7 @@ def main():
 
 		## Get the activator's physical experience object, so we can check if
 		## they are high enough level for the quest.
-		eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
+		eobj = activator.Controller().GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
 
 		if not qm.finished():
 			me.SayTo(activator, "\nFirst bring me the elder wyvern tooth!")
@@ -58,7 +58,7 @@ def main():
 			return
 
 		skill = GetSkillNr("two-hand mastery")
-		sobj = activator.GetSkill(TYPE_SKILL, skill)
+		sobj = activator.Controller().GetSkill(TYPE_SKILL, skill)
 
 		qm.complete()
 		activator.Write("Taleus takes {0} from your inventory.".format(quest["item_name"]), COLOR_WHITE)
