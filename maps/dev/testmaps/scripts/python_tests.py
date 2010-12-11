@@ -155,7 +155,7 @@ def main_say():
 	# An example showing how to send custom binary commands to the client.
 	elif msg == "book":
 		me.SayTo(activator, "\nOpening a fake book.")
-		activator.Controller().WriteToSocket(30, "0000 <b t=\"Fake Book\"><t t=\"A Fake Book\">This is a fake book, made using the player.WriteToSocket() Python function.\n")
+		activator.Controller().WriteToSocket(30, "X<b t=\"Fake Book\"><t t=\"A Fake Book\">\nThis is a fake book, made using the player.WriteToSocket() Python function.\n")
 
 	elif msg == "ip":
 		me.SayTo(activator, "\nYour IP is: {0}".format(pl.s_host))
