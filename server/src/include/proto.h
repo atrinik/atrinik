@@ -983,7 +983,7 @@ void socket_disable_no_delay(int fd);
 void socket_buffer_clear(socket_struct *ns);
 void socket_buffer_write(socket_struct *ns);
 void Send_With_Handling(socket_struct *ns, SockList *msg);
-void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len);
+void Write_String_To_Socket(socket_struct *ns, char cmd, const char *buf, int len);
 
 /* socket/metaserver.c */
 void metaserver_info_update();

@@ -214,7 +214,8 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
  * @param command_data Data to send. */
 static PyObject *Atrinik_Player_WriteToSocket(Atrinik_Player *pl, PyObject *args)
 {
-	char command_id, *command_data;
+	char command_id;
+	const char *command_data;
 	int command_data_len;
 
 	if (!PyArg_ParseTuple(args, "bs#", &command_id, &command_data, &command_data_len))

@@ -399,7 +399,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 /**
  * Takes a string of data, and writes it out to the socket. A very handy
  * shortcut function. */
-void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len)
+void Write_String_To_Socket(socket_struct *ns, char cmd, const char *buf, int len)
 {
 	SockList sl;
 
