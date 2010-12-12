@@ -409,6 +409,17 @@ static PyObject *Atrinik_Player_AcquireSkill(Atrinik_Player *pl, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>player.FindMarkedObject()</h1>
+ * Find marked object in player's inventory.
+ * @return The marked object, or None if no object is marked. */
+static PyObject *Atrinik_Player_FindMarkedObject(Atrinik_Player *pl, PyObject *args)
+{
+	(void) args;
+
+	return wrap_object(hooks->find_marked_object(pl->pl->ob));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -428,6 +439,7 @@ static PyMethodDef methods[] =
 	{"AcquireSpell", (PyCFunction) Atrinik_Player_AcquireSpell, METH_VARARGS, 0},
 	{"DoKnowSkill", (PyCFunction) Atrinik_Player_DoKnowSkill, METH_VARARGS, 0},
 	{"AcquireSkill", (PyCFunction) Atrinik_Player_AcquireSkill, METH_VARARGS, 0},
+	{"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
