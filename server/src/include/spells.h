@@ -312,7 +312,9 @@ extern archetype *spellarch[NROFREALSPELLS];
 #define CAST_SCROLL 4
 /** Casting from a potion. */
 #define CAST_POTION 5
-/** NPC is doing the casting. */
+/**
+ * NPC is doing the casting, can cast no matter what (even in areas that
+ * block magic). */
 #define CAST_NPC 6
 /*@}*/
 
