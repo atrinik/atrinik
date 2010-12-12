@@ -85,7 +85,7 @@ class BaseTemple:
 			if self.services[spell][1]:
 				self._activator.Write("You pay the money.", 0)
 
-			self._me.CastAbility(self._activator, GetSpellNr(spell), CAST_NORMAL, 0, "")
+			self._me.Cast(GetSpellNr(spell), self._activator)
 		else:
 			self._me.SayTo(self._activator, "\nYou do not have enough money.")
 
