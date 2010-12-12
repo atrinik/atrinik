@@ -39,7 +39,7 @@ def main():
 			return
 
 		# Make sure we know the wizardry skill.
-		if not activator.DoKnowSkill(skill):
+		if not activator.Controller().DoKnowSkill(skill):
 			me.SayTo(activator, "\nYou first need the wizardry spells skill to learn spells!")
 			return
 

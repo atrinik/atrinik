@@ -20,10 +20,10 @@ def learn_weapon_skill(skill, weapon):
 	if skill_nr == -1:
 		me.SayTo(activator, "\nUnknown skill.")
 	else:
-		if activator.DoKnowSkill(skill_nr) == 1:
+		if activator.Controller().DoKnowSkill(skill_nr):
 			me.SayTo(activator, "\nYou already know this skill.")
 		else:
-			activator.AcquireSkill(skill_nr)
+			activator.Controller().AcquireSkill(skill_nr)
 			obj = activator.CreateObject(weapon, value = 1)
 			activator.Write("{0} gives you a {1}.".format(me.name, obj.name), 0)
 			activator.Apply(obj, 0)
@@ -47,7 +47,7 @@ def main():
 	elif msg == "weapons":
 		me.SayTo(activator, "\nWe have 4 different weapon skills.\nEach skill allows the use of a special kind of weapons.\nSlash weapons are swords.\nCleave weapons are axe-like weapons.\nPierce weapons are rapiers and daggers.\nImpact weapons are maces or hammers.\nNow select one and tell me: ^slash^, ^cleave^, ^pierce^ or ^impact^?")
 
-if activator.DoKnowSkill(GetSkillNr("impact weapons")) == 1 or activator.DoKnowSkill(GetSkillNr("slash weapons")) == 1 or activator.DoKnowSkill(GetSkillNr("cleave weapons")) == 1 or activator.DoKnowSkill(GetSkillNr("pierce weapons")) == 1:
+if activator.Controller().DoKnowSkill(GetSkillNr("impact weapons")) or activator.Controller().DoKnowSkill(GetSkillNr("slash weapons")) or activator.Controller().DoKnowSkill(GetSkillNr("cleave weapons")) or activator.Controller().DoKnowSkill(GetSkillNr("pierce weapons")):
 	me.SayTo(activator, "\nYou already know a weapon skill.")
 else:
 	main()

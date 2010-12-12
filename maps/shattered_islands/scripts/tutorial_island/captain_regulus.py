@@ -69,6 +69,6 @@ def main():
 				if activator.Controller().GetSkill(TYPE_SKILL, skill) == None:
 					me.SayTo(activator, "Here we go!")
 					me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Regulus teaches some ancient skill.", COLOR_YELLOW)
-					activator.AcquireSkill(skill)
+					activator.Controller().AcquireSkill(skill)
 
 main()

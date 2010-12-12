@@ -63,7 +63,7 @@ def main():
 			me.SayTo(activator, "\nYou already know that skill?!")
 		else:
 			me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Lepash teaches some ancient skill.", COLOR_YELLOW)
-			activator.AcquireSkill(skill)
+			activator.Controller().AcquireSkill(skill)
 
 	elif text[0] == "polearm" or text[0] == "polearms":
 		me.SayTo(activator, "\nPolearm mastery will allow you to fight with polearm weapons. You will do a lot more damage and you will have some protection even though you can't wear a shield using polearms.")

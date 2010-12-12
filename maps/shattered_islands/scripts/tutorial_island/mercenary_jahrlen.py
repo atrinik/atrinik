@@ -30,9 +30,9 @@ def teach_wizardy():
 	if skill == -1:
 		me.SayTo(activator, "Unknown skill.")
 	else:
-		if activator.DoKnowSkill(skill) != 1:
+		if not activator.Controller().DoKnowSkill(skill):
 			me.SayTo(activator, "First you need this skill to cast spells.")
-			activator.AcquireSkill(skill)
+			activator.Controller().AcquireSkill(skill)
 
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":

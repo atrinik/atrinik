@@ -55,7 +55,7 @@ def main():
 			complete_quest()
 
 			# Teach the skill
-			activator.AcquireSkill(GetSkillNr("bow archery"))
+			activator.Controller().AcquireSkill(GetSkillNr("bow archery"))
 
 			# Create the player's first bow
 			activator.CreateObject("bow_short")
@@ -73,7 +73,7 @@ def main():
 			complete_quest()
 
 			# Teach the skill
-			activator.AcquireSkill(GetSkillNr("sling archery"))
+			activator.Controller().AcquireSkill(GetSkillNr("sling archery"))
 
 			# Create the player's first sling
 			activator.CreateObject("sling_small")
@@ -91,7 +91,7 @@ def main():
 			complete_quest()
 
 			# Teach the skill
-			activator.AcquireSkill(GetSkillNr("crossbow archery"))
+			activator.Controller().AcquireSkill(GetSkillNr("crossbow archery"))
 
 			# Create the player's first crossbow
 			activator.CreateObject("crossbow_small")

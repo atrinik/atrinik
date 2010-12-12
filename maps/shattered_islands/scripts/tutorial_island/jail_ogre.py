@@ -74,6 +74,6 @@ def main():
 					activator.Write("{0} takes {1} from your inventory.".format(me.name, quest_items["jail_ogre"]["info"]["item_name"]), COLOR_WHITE)
 					me.SayTo(activator, "Here we go!")
 					me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Frah'ak teaches some ancient skill.", COLOR_YELLOW)
-					activator.AcquireSkill(skill)
+					activator.Controller().AcquireSkill(skill)
 
 main()

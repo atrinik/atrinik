@@ -17,10 +17,10 @@ if words[0] == "learn":
 	if skill == -1:
 		me.SayTo(activator, "\nUnknown skill.")
 	else:
-		if activator.DoKnowSkill(skill) == 1:
+		if activator.Controller().DoKnowSkill(skill):
 			me.SayTo(activator, "\nYou already know that skill.")
 		else:
-			activator.AcquireSkill(skill)
+			activator.Controller().AcquireSkill(skill)
 
 else:
 	me.SayTo(activator, "\nI am the Skillgiver.\nSay ^learn <skillname>^ to learn a particular skill.")
