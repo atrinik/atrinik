@@ -118,7 +118,7 @@ int recharge(object *op)
  * create.
  * @retval 0 No food created.
  * @retval 1 Food was created. */
-int cast_create_food(object *op, object *caster, int dir, char *stringarg)
+int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 {
 	int food_value;
 	archetype *at = NULL;

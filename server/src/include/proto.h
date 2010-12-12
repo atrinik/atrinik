@@ -805,7 +805,7 @@ int check_skill_action_time(object *op, object *skill);
 /* server/spell_effect.c */
 void cast_magic_storm(object *op, object *tmp, int lvl);
 int recharge(object *op);
-int cast_create_food(object *op, object *caster, int dir, char *stringarg);
+int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
 int probe(object *op);
 int cast_wor(object *op, object *caster);
 int cast_create_town_portal(object *op);
@@ -830,7 +830,7 @@ void dump_spells();
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
 spell *find_spell(int spelltype);
 int check_spell_known(object *op, int spell_type);
-int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, char *stringarg);
+int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg);
 int cast_create_obj(object *op, object *new_op, int dir);
 int fire_bolt(object *op, object *caster, int dir, int type);
 int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target);

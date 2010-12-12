@@ -314,7 +314,7 @@ int check_spell_known(object *op, int spell_type)
  * @param stringarg Any options that are being used.
  * @return 0 on failure, non-zero on success and is used by caller to
  * drain mana/grace. */
-int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, char *stringarg)
+int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg)
 {
 	spell *s = find_spell(type);
 	shstr *godname = NULL;
@@ -567,7 +567,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 	/* Trigger the map-wide spell event. */
 	if (op->map && op->map->events)
 	{
-		int retval = trigger_map_event(MEVENT_SPELL_CAST, op->map, op, caster, NULL, stringarg, type);
+		int retval = trigger_map_event(MEVENT_SPELL_CAST, op->map, op, caster, NULL, (char *) stringarg, type);
 
 		/* So the plugin's return value can affect the returned value. */
 		if (retval)

@@ -199,7 +199,7 @@ struct plugin_hooklist
 	void (*new_info_map)(int, mapstruct *, int, int, int, const char *);
 	void (*new_info_map_except)(int , mapstruct *, int, int, int, object *, object *, const char *);
 	void (*spring_trap)(object *, object *);
-	int (*cast_spell)(object *, object *, int, int, int, int, char *);
+	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
 	int (*command_rskill)(object *, char *);
 	void (*become_follower)(object *, object *);
