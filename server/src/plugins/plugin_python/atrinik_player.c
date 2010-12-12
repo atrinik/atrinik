@@ -329,6 +329,23 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
 	return Py_BuildValue("i", ret);
 }
 
+/**
+ * <h1>player.DoKnowSpell(int spell)</h1>
+ * Check if player knows a given spell.
+ * @param spell ID of the spell to check for.
+ * @return True if the player knows the spell, False otherwise. */
+static PyObject *Atrinik_Player_DoKnowSpell(Atrinik_Player *pl, PyObject *args)
+{
+	int spell;
+
+	if (!PyArg_ParseTuple(args, "i", &spell))
+	{
+		return NULL;
+	}
+
+	Py_ReturnBoolean(hooks->check_spell_known(pl->pl->ob, spell));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -344,6 +361,7 @@ static PyMethodDef methods[] =
 	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
 	{"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments, METH_VARARGS, 0},
 	{"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
+	{"DoKnowSpell", (PyCFunction) Atrinik_Player_DoKnowSpell, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
