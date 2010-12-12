@@ -913,7 +913,8 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *obj, PyObject *args)
  * The values of a player info object will NOT affect the object it is
  * in.
  * @param name Name of the player info
- * @return The new player info object */
+ * @return The new player info object
+ * @deprecated Use object.CreateObject("player_info") */
 static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *obj, PyObject *args)
 {
 	const char *txt;
@@ -953,7 +954,8 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *obj, PyObject *
  * Get the first player info object with the specified name in object's
  * inventory.
  * @param name Name of the player info
- * @return The player info object if found, None otherwise. */
+ * @return The player info object if found, None otherwise.
+ * @deprecated Use object.FindObject(archname = "player_info", name = "info_name") */
 static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *obj, PyObject *args)
 {
 	const char *name;
@@ -985,7 +987,7 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *obj, PyObject *arg
  * player_info.
  * @param player_info Previously found player info object.
  * @return The next player info object if found, None otherwise.
- * @todo Remove? */
+ * @deprecated Use object.FindObject(archname = "player_info", name = "info_name", multiple = True) */
 static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *myob;
