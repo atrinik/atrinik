@@ -774,18 +774,6 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
 }
 
 /**
- * <h1>object.FindMarkedObject()</h1>
- * Find marked object in object's inventory.
- * @return The marked object, or None if no object is marked. */
-static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *obj, PyObject *args)
-{
-	(void) args;
-	OBJEXISTCHECK(obj);
-
-	return wrap_object(hooks->find_marked_object(obj->obj));
-}
-
-/**
  * <h1>object.CreatePlayerForce(string force_name, int time)</h1>
  * Creates and inserts an invisible player force in object.
  *
@@ -2070,7 +2058,6 @@ static PyMethodDef methods[] =
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
-	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_NOARGS, 0},
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
 	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
 	{"StartQuest", (PyCFunction) Atrinik_Object_StartQuest, METH_VARARGS, 0},
