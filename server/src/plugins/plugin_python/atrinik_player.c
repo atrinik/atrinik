@@ -346,6 +346,33 @@ static PyObject *Atrinik_Player_DoKnowSpell(Atrinik_Player *pl, PyObject *args)
 	Py_ReturnBoolean(hooks->check_spell_known(pl->pl->ob, spell));
 }
 
+/**
+ * <h1>player.AcquireSpell(int spell, int [learn = True])</h1>
+ * Player acquires the specified spell.
+ * @param spell ID of the spell to acquire.
+ * @param learn If False, the player will forget the spell instead. */
+static PyObject *Atrinik_Player_AcquireSpell(Atrinik_Player *pl, PyObject *args)
+{
+	int spell, learn = 1;
+
+	if (!PyArg_ParseTuple(args, "i|i", &spell, &learn))
+	{
+		return NULL;
+	}
+
+	if (learn)
+	{
+		hooks->do_learn_spell(pl->pl->ob, spell, 0);
+	}
+	else
+	{
+		hooks->do_forget_spell(pl->pl->ob, spell);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -362,6 +389,7 @@ static PyMethodDef methods[] =
 	{"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments, METH_VARARGS, 0},
 	{"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
 	{"DoKnowSpell", (PyCFunction) Atrinik_Player_DoKnowSpell, METH_VARARGS, 0},
+	{"AcquireSpell", (PyCFunction) Atrinik_Player_AcquireSpell, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
