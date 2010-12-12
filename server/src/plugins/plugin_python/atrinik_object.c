@@ -720,21 +720,24 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.CastAbility(object target, int spellno, int mode, int direction, string option)</h1>
+ * <h1>object.CastAbility(object target, int spell, int [mode = -1], int [direction = 0], string [option = None])</h1>
  * Object casts the spell ID 'spell' on 'target'.
  * @param target The target object.
- * @param spellno ID of the spell to cast.
- * @param mode CAST_NORMAL or CAST_POTION.
- * @param direction The direction to cast the ability in.
- * @param option Additional string option(s). */
-static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args)
+ * @param spell ID of the spell to cast. You can lookup spell IDs by name
+ * using @ref Atrinik_GetSpellNr "GetSpellNr()".
+ * @param mode One of @ref CAST_xxx. If -1 (default), will try to figure
+ * out the appropriate mode automatically.
+ * @param direction The direction to cast the spell in.
+ * @param option Additional string option, required by some spells (create
+ * food for example). */
+static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
+	static char *kwlist[] = {"target", "spell", "mode", "direction", "option", NULL};
 	Atrinik_Object *target;
-	int spell, dir, mode;
-	int item;
-	char *stringarg;
+	int spell, direction = 0, mode = -1;
+	const char *option = NULL;
 
-	if (!PyArg_ParseTuple(args, "O!iiis", &Atrinik_ObjectType, &target, &spell, &mode, &dir, &stringarg))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!i|iis", kwlist, &Atrinik_ObjectType, &target, &spell, &mode, &direction, &option))
 	{
 		return NULL;
 	}
@@ -742,23 +745,20 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args)
 	OBJEXISTCHECK(obj);
 	OBJEXISTCHECK(target);
 
-	if (obj->obj->type != PLAYER)
+	/* Figure out the mode automatically. */
+	if (mode == -1)
 	{
-		item = CAST_NPC;
-	}
-	else
-	{
-		if (!mode)
+		if (obj->obj->type != PLAYER)
 		{
-			item = CAST_NORMAL;
+			mode = CAST_NPC;
 		}
 		else
 		{
-			item = CAST_POTION;
+			mode = CAST_NORMAL;
 		}
 	}
 
-	hooks->cast_spell(target->obj, obj->obj, dir, spell, 1, item, stringarg);
+	hooks->cast_spell(target->obj, obj->obj, direction, spell, 1, mode, option);
 
 	Py_INCREF(Py_None);
 	return Py_None;
