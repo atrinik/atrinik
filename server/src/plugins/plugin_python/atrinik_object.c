@@ -774,46 +774,6 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
 }
 
 /**
- * <h1>object.DoKnowSkill(int skill)</h1>
- * Check if object knows a given skill.
- * @param skill ID of the skill to check for.
- * @return 1 if the object knows the skill, 0 otherwise. */
-static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *obj, PyObject *args)
-{
-	int skill;
-
-	if (!PyArg_ParseTuple(args, "i", &skill))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	return Py_BuildValue("i", hooks->check_skill_known(obj->obj, skill));
-}
-
-/**
- * <h1>object.AcquireSkill(int skillno)</h1>
- * Object will learn or unlearn skill.
- * @param skillno ID of the skill to learn/unlearn. */
-static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *obj, PyObject *args)
-{
-	int skill;
-
-	if (!PyArg_ParseTuple(args, "i", &skill))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	hooks->learn_skill(obj->obj, NULL, NULL, skill, 0);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.FindMarkedObject()</h1>
  * Find marked object in object's inventory.
  * @return The marked object, or None if no object is marked. */
@@ -2108,8 +2068,6 @@ static PyMethodDef methods[] =
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
-	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
-	{"AcquireSkill", (PyCFunction) Atrinik_Object_AcquireSkill, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_NOARGS, 0},
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
 	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
