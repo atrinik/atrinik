@@ -153,78 +153,6 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>object.SetSkill(int type, int skillid, long level, long value)</h1>
- * Set object's experience in the skill to a new value.
- *
- * Also can change the level of a skill.
- * @param type Type of the skill, should be TYPE_SKILL
- * @param skillid ID of the skill
- * @param level Level to set for the skill. Must be non zero to set,
- * otherwise experience is set instead.
- * @param value Experience to set for the skill. Only set if level is
- * lower than 1.
- * @deprecated Use @ref Atrinik_Player_AddExp "player.AddExp()" instead. */
-static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
-{
-	object *tmp;
-	int type, skill, currentxp;
-	long level, value;
-
-	PyErr_WarnEx(PyExc_DeprecationWarning, "object.SetSkill() is deprecated; use player.AddExp() instead.", 1);
-
-	if (!PyArg_ParseTuple(args, "iill", &type, &skill, &level, &value))
-	{
-		return NULL;
-	}
-
-	/* We don't set anything in exp_obj types */
-	if (type != SKILL)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	/* Browse the inventory of object to find a matching skill. */
-	for (tmp = WHO->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type == type && tmp->stats.sp == skill)
-		{
-			/*LOG(-1,"LEVEL1 %d (->%d) :: %s (exp %d)\n",tmp->level,level,hooks->query_name(tmp), tmp->stats.exp);*/
-
-			/* This is a bit tricky: some skills are marked with exp -1
-			 * or -2 as special used skills (level but no exp):
-			 * if we have here a level > 0, we set level but NEVER exp.
-			 * if we have level == 0, we only set exp - the
-			 * addexp */
-			if (level > 0)
-			{
-				tmp->level = level;
-			}
-			else
-			{
-				currentxp = tmp->stats.exp;
-				value = value - currentxp;
-
-				hooks->add_exp(WHO, value, skill, 0);
-			}
-
-			/*LOG(-1,"LEVEL2 %d (->%d) :: %s (exp %d)\n",tmp->level,level,hooks->query_name(tmp), tmp->stats.exp);*/
-
-			/* We will sure change skill exp, mark for update */
-			if (WHO->type == PLAYER && CONTR(WHO))
-			{
-				CONTR(WHO)->update_skills = 1;
-			}
-
-			Py_INCREF(Py_None);
-			return Py_None;
-		}
-	}
-
-	RAISE("Unknown skill");
-}
-
-/**
  * <h1>object.ActivateRune(object who)</h1>
  * Activate a rune.
  * @param who Who should be affected by the effects of the rune.
@@ -2209,7 +2137,6 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] =
 {
-	{"SetSkill", (PyCFunction) Atrinik_Object_SetSkill, METH_VARARGS, 0},
 	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
 	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_NOARGS, 0},
 	{"SetGod", (PyCFunction) Atrinik_Object_SetGod, METH_VARARGS, 0},
