@@ -2,6 +2,7 @@
 ## Multi-purpose script used in the 2010 Winter Event.
 
 from Atrinik import *
+from QuestManager import get_quest_object
 
 me = WhoAmI()
 activator = WhoIsActivator()
@@ -15,7 +16,7 @@ if WhatIsEvent().type == TYPE_MAP_EVENT_OBJ:
 		other = WhoIsOther()
 
 		# Do not allow players to apply lights if they haven't killed Hierro.
-		if activator.type == TYPE_PLAYER and other.type == TYPE_LIGHT_APPLY and not activator.GetQuestObject("Hierro's Ring"):
+		if activator.type == TYPE_PLAYER and other.type == TYPE_LIGHT_APPLY and not get_quest_object(activator, "Hierro's Ring"):
 			SetReturnValue(2)
 			activator.Write("Something seems to prevent you from using the {}...".format(other.GetName()), COLOR_WHITE)
 	else:
@@ -23,7 +24,7 @@ if WhatIsEvent().type == TYPE_MAP_EVENT_OBJ:
 		activator.map.difficulty = activator.level
 # Normal apply event.
 elif event_num == EVENT_APPLY:
-	quest = activator.GetQuestObject("Hierro's Ring")
+	quest = get_quest_object(activator, "Hierro's Ring")
 
 	# Going down.
 	if me.name == "stairs going down":

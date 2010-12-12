@@ -19,6 +19,13 @@ def _create_quest_object(where, q_type, name, msg = None, num = 0):
 	obj.last_grace = num
 	return obj
 
+## Find a quest object inside obj's quest container.
+## @param obj Player in which to search.
+## @param quest Quest name to look for.
+## @return The quest container if found, None otherwise.
+def get_quest_object(obj, quest):
+	return obj.Controller().quest_container.FindObject(name = quest)
+
 ## Base quest manager class, from which the actual quest managers inherit.
 class QuestManagerBase:
 	## The quest object inside player's quest container.
@@ -32,7 +39,7 @@ class QuestManagerBase:
 	## @param activator The activator object.
 	## @param quest Information about the quest as a dictionary.
 	def __init__(self, activator, quest):
-		self.quest_object = activator.GetQuestObject(quest["quest_name"])
+		self.quest_object = get_quest_object(activator, quest["quest_name"])
 		self.quest = quest
 		self.activator = activator
 
