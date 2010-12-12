@@ -720,7 +720,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.CastAbility(object target, int spell, int [mode = -1], int [direction = 0], string [option = None])</h1>
+ * <h1>object.Cast(object target, int spell, int [mode = -1], int [direction = 0], string [option = None])</h1>
  * Object casts the spell ID 'spell' on 'target'.
  * @param target The target object.
  * @param spell ID of the spell to cast. You can lookup spell IDs by name
@@ -730,7 +730,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
  * @param direction The direction to cast the spell in.
  * @param option Additional string option, required by some spells (create
  * food for example). */
-static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"target", "spell", "mode", "direction", "option", NULL};
 	Atrinik_Object *target;
@@ -2148,7 +2148,7 @@ static PyMethodDef methods[] =
 	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_NOARGS, 0},
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
-	{"CastAbility", (PyCFunction) Atrinik_Object_CastAbility, METH_VARARGS, 0},
+	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS, 0},
 	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
 	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
 	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
