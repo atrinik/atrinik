@@ -248,12 +248,13 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 }
 
 /**
- * <h1>map.Message(string message, int x, int y, int distance, int [color = @ref NDI_BLUE])</h1>
+ * <h1>map.Message(int x, int y, int distance, string message, int [color = @ref NDI_BLUE])</h1>
  * Write a message to all players on a map.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @param distance Maximum distance for players to be away from x, y to
  * hear the message.
+ * @param message Message to write.
  * @param color Color of the message. */
 static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 {
