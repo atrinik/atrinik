@@ -828,73 +828,6 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject 
 }
 
 /**
- * <h1>object.GetQuestObject(string quest_name)</h1>
- * Get a quest object for specified quest.
- * @param quest_name Name of the quest to look for.
- * @return The quest object if found. */
-static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *obj, PyObject *args)
-{
-	const char *quest_name;
-	object *walk;
-
-	if (!PyArg_ParseTuple(args, "s", &quest_name))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	if (obj->obj->type != PLAYER)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	for (walk = CONTR(obj->obj)->quest_container->inv; walk; walk = walk->below)
-	{
-		if (!strcmp(walk->name, quest_name))
-		{
-			return wrap_object(walk);
-		}
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
- * <h1>object.StartQuest(string quest_name)</h1>
- * Create a quest object inside the specified object, starting a new
- * quest.
- * @param quest_name Name of the quest.
- * @return The newly created quest object. */
-static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *obj, PyObject *args)
-{
-	object *quest_object;
-	const char *quest_name;
-
-	if (!PyArg_ParseTuple(args, "s", &quest_name))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	if (obj->obj->type != PLAYER)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	quest_object = hooks->get_archetype(QUEST_CONTAINER_ARCHETYPE);
-	quest_object->magic = 0;
-	FREE_AND_COPY_HASH(quest_object->name, quest_name);
-	hooks->insert_ob_in_ob(quest_object, CONTR(obj->obj)->quest_container);
-
-	return wrap_object(quest_object);
-}
-
-/**
  * <h1>object.CreatePlayerInfo(string name)</h1>
  * Creates a player info object of specified name in object's inventory.
  *
@@ -2059,8 +1992,6 @@ static PyMethodDef methods[] =
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
-	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
-	{"StartQuest", (PyCFunction) Atrinik_Object_StartQuest, METH_VARARGS, 0},
 	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
 	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
 	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
