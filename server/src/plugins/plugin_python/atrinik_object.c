@@ -185,12 +185,12 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
  * <h1>object.GetGod()</h1>
  * Determine the object's god.
  * @return Returns a string of the god's name. */
-static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetGod(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("s", hooks->determine_god(WHO));
+	return Py_BuildValue("s", hooks->determine_god(obj->obj));
 }
 
 /**
@@ -199,7 +199,7 @@ static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
  *
  * The object must have the 'divine prayers' skill.
  * @param name Name of the god. */
-static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_SetGod(Atrinik_Object *obj, PyObject *args)
 {
 	const char *name;
 
@@ -208,13 +208,13 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	if (hooks->command_rskill(WHO, "divine prayers"))
+	if (hooks->command_rskill(obj->obj, "divine prayers"))
 	{
 		object *god = hooks->find_god(name);
 
-		hooks->become_follower(WHO, god);
+		hooks->become_follower(obj->obj, god);
 	}
 
 	Py_INCREF(Py_None);
@@ -222,14 +222,14 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.TeleportTo(string map, int x, int y, int [unique = False], int [sound = True])</h1>
+ * <h1>object.TeleportTo(string map, int x, int y, bool [unique = False], bool [sound = True])</h1>
  * Teleport object to the given position of map.
  * @param path Map path to teleport the object to.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @param unique If True, the destination will be unique map for the player.
  * @param sound If False, will not play a sound effect. */
-static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"path", "x", "y", "unique", "sound", NULL};
 	const char *path;
@@ -241,7 +241,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	tmp = hooks->get_object();
 	FREE_AND_COPY_HASH(EXIT_PATH(tmp), path);
@@ -253,11 +253,11 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 		tmp->last_eat = MAP_PLAYER_MAP;
 	}
 
-	hooks->enter_exit(WHO, tmp);
+	hooks->enter_exit(obj->obj, tmp);
 
-	if (WHO->map && sound)
+	if (obj->obj->map && sound)
 	{
-		hooks->play_sound_map(WHO->map, CMD_SOUND_EFFECT, "teleport.ogg", WHO->x, WHO->y, 0, 0);
+		hooks->play_sound_map(obj->obj->map, CMD_SOUND_EFFECT, "teleport.ogg", obj->obj->x, obj->obj->y, 0, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -304,32 +304,32 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 
 /**
  * <h1>object.Apply(object what, int flags)</h1>
- * Forces object to apply what.
+ * Forces 'object' to apply 'what'.
  * @param what What object to apply.
  * @param flags Reasonable combination of the following:
- * - <b>Atrinik.APPLY_TOGGLE</b>: Normal apply (toggle)
- * - <b>Atrinik.APPLY_ALWAYS</b>: Always apply (never unapply)
- * - <b>Atrinik.UNAPPLY_ALWAYS</b>: Always unapply (never apply)
- * - <b>Atrinik.UNAPPLY_NOMERGE</b>: Don't merge unapplied items
- * - <b>Atrinik.UNAPPLY_IGNORE_CURSE</b>: Unapply cursed items
+ * - <b>APPLY_TOGGLE</b>: Normal apply (toggle)
+ * - <b>APPLY_ALWAYS</b>: Always apply (never unapply)
+ * - <b>UNAPPLY_ALWAYS</b>: Always unapply (never apply)
+ * - <b>UNAPPLY_NOMERGE</b>: Don't merge unapplied items
+ * - <b>UNAPPLY_IGNORE_CURSE</b>: Unapply cursed items
  * @return Return values:
  * - <b>0</b>: Object cannot apply objects of that type.
  * - <b>1</b>: Object was applied, or not...
  * - <b>2</b>: Object must be in inventory to be applied. */
-static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Apply(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whatptr;
+	Atrinik_Object *what;
 	int flags;
 
-	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &whatptr, &flags))
+	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &what, &flags))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(what);
 
-	return Py_BuildValue("i", hooks->manual_apply(WHO, WHAT, flags));
+	return Py_BuildValue("i", hooks->manual_apply(obj->obj, what->obj, flags));
 }
 
 /**
@@ -394,7 +394,7 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
  * <h1>object.Communicate(string message)</h1>
  * Object says message to everybody on its map. Emote commands may be used.
  * @param message The message to say. */
-static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Communicate(Atrinik_Object *obj, PyObject *args)
 {
 	const char *message;
 	char *str;
@@ -404,10 +404,10 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	str = hooks->strdup_local(message);
-	hooks->communicate(WHO, str);
+	hooks->communicate(obj->obj, str);
 	free(str);
 
 	Py_INCREF(Py_None);
@@ -415,12 +415,11 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.Say(string message, int [mode = 0])</h1>
+ * <h1>object.Say(string message, bool [mode = False])</h1>
  * Object says message to everybody on its map.
  * @param message The message to say.
- * @param mode If set to non-zero, message is not prefixed with
- * "object.name says: ". */
-static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
+ * @param mode If True, message is not prefixed with "object.name says: ". */
+static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 {
 	const char *message;
 	char buf[HUGE_BUF];
@@ -431,16 +430,16 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	if (mode)
 	{
-		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, message);
+		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, message);
 	}
 	else
 	{
-		snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(WHO, NULL), message);
-		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, buf);
+		snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
+		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -448,42 +447,39 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.SayTo(object target, string message, int [mode = 0])</h1>
+ * <h1>object.SayTo(object target, string message, bool [mode = False])</h1>
  * NPC talks only to player but map gets "xxx talks to yyy" msg too.
  * @param target Target object the NPC is talking to.
  * @param message The message to say.
- * @param mode If set to non-zero, there is no "xxx talks to yyy" map
- * message. The message is not prefixed with "xxx says: " either. */
-static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
+ * @param mode If True, there is no "xxx talks to yyy" map message. The
+ * message is not prefixed with "xxx says: " either. */
+static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
 {
-	object *target;
-	Atrinik_Object *obptr2;
+	Atrinik_Object *target;
 	const char *message;
 	int mode = 0;
 
-	if (!PyArg_ParseTuple(args, "O!s|i", &Atrinik_ObjectType, &obptr2, &message, &mode))
+	if (!PyArg_ParseTuple(args, "O!s|i", &Atrinik_ObjectType, &target, &message, &mode))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(obptr2);
-
-	target = obptr2->obj;
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(target);
 
 	if (mode)
 	{
-		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target, message);
+		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target->obj, message);
 	}
 	else
 	{
 		char buf[HUGE_BUF];
 
-		snprintf(buf, sizeof(buf), "%s talks to %s.", hooks->query_name(WHO, NULL), hooks->query_name(target, NULL));
-		hooks->new_info_map_except(NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, WHO, target, buf);
+		snprintf(buf, sizeof(buf), "%s talks to %s.", hooks->query_name(obj->obj, NULL), hooks->query_name(target->obj, NULL));
+		hooks->new_info_map_except(NDI_UNIQUE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
 
-		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(WHO, NULL), message);
-		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target, buf);
+		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(obj->obj, NULL), message);
+		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target->obj, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -495,7 +491,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
  * Writes a message to a specific player object.
  * @param message The message to write.
  * @param color Color to write the message in. Defaults to orange. */
-static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args)
 {
 	int color = NDI_UNIQUE | NDI_ORANGE;
 	const char *message;
@@ -505,9 +501,9 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	hooks->new_draw_info(color, WHO, message);
+	hooks->new_draw_info(color, obj->obj, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -520,12 +516,12 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
  * @retval MALE Male.
  * @retval FEMALE Female.
  * @retval HERMAPHRODITE Both male and female. */
-static PyObject *Atrinik_Object_GetGender(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetGender(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->object_get_gender(WHO));
+	return Py_BuildValue("i", hooks->object_get_gender(obj->obj));
 }
 
 /**
@@ -587,7 +583,7 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
  *
  * @param rank_string The rank string in the guild to set.
  * @return The guild force object if found. */
-static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *obj, PyObject *args)
 {
 	object *walk;
 	const char *guild;
@@ -597,15 +593,15 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	if (WHO->type != PLAYER)
+	if (obj->obj->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	for (walk = WHO->inv; walk != NULL; walk = walk->below)
+	for (walk = obj->obj->inv; walk != NULL; walk = walk->below)
 	{
 		if (walk->name == hooks->shstr_cons->GUILD_FORCE && walk->arch->name == hooks->shstr_cons->guild_force)
 		{
@@ -621,13 +617,13 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 			}
 
 			/* Demand update to client */
-			CONTR(WHO)->socket.ext_title_flag = 1;
+			CONTR(obj->obj)->socket.ext_title_flag = 1;
 
 			return wrap_object(walk);
 		}
 	}
 
-	LOG(llevDebug, "Python Warning:: SetGuildForce: Object %s has no guild_force!\n", hooks->query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: SetGuildForce: Object %s has no guild_force!\n", hooks->query_name(obj->obj, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -637,20 +633,20 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
  * <h1>object.GetGuildForce()</h1>
  * Get the guild force from player's inventory.
  * @return The guild force object if found. */
-static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *obj, PyObject *args)
 {
 	object *walk;
 
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	if (WHO->type != PLAYER)
+	if (obj->obj->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	for (walk = WHO->inv; walk != NULL; walk = walk->below)
+	for (walk = obj->obj->inv; walk != NULL; walk = walk->below)
 	{
 		if (walk->name == hooks->shstr_cons->GUILD_FORCE && walk->arch->name == hooks->shstr_cons->guild_force)
 		{
@@ -658,7 +654,7 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 		}
 	}
 
-	LOG(llevDebug, "Python Warning:: GetGuildForce: Object %s has no guild_force!\n", hooks->query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: GetGuildForce: Object %s has no guild_force!\n", hooks->query_name(obj->obj, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -666,60 +662,57 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 
 /**
  * <h1>object.Fix()</h1>
- * Recalculate player's or monster's stats depending on equipment, forces
+ * Recalculate player's or monster's stats depending on equipment, forces,
  * skills, etc. */
-static PyObject *Atrinik_Object_Fix(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Fix(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	hooks->fix_player(WHO);
+	hooks->fix_player(obj->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 /**
- * <h1>object.Kill(object what, int how)</h1>
- * Kill an object.
- * @param what The object to kill
- * @param how How to kill the object.
- * @warning Untested. */
-static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
+ * <h1>object.Hit(object target, int damage)</h1>
+ * Make 'object' hit 'target' for the specified amount of damage.
+ * @param target The object to hit.
+ * @param damage How much damage to do. If -1, the target object will be
+ * killed, otherwise the actual damage done is calculated depending on
+ * the hitter's attack types, the target's protections, etc.
+ * @throws ValueError if 'target' is not on map or is not alive. */
+static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whatptr;
-	int ktype;
+	Atrinik_Object *target;
+	int damage;
 
-	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &whatptr, &ktype))
+	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &target, &damage))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(target);
 
-	WHAT->speed = 0;
-	WHAT->speed_left = 0.0;
-	hooks->update_ob_speed(WHAT);
-
-	if (QUERY_FLAG(WHAT, FLAG_REMOVED))
+	/* Cannot kill objects that are not alive or on map. */
+	if (!target->obj->map || !IS_LIVE(target->obj))
 	{
-		LOG(llevDebug, "Warning (from KillObject): Trying to remove removed object\n");
-		RAISE("Trying to remove removed object");
+		PyErr_SetString(PyExc_ValueError, "object.Hit(): Invalid object to hit/kill.");
+		return NULL;
 	}
+
+	/* Kill the target. */
+	if (damage == -1)
+	{
+		target->obj->stats.hp = -1;
+		hooks->kill_object(target->obj, 0, obj->obj, 0);
+	}
+	/* Do damage. */
 	else
 	{
-		WHAT->stats.hp = -1;
-		hooks->kill_object(WHAT, 1, WHO, ktype);
-	}
-
-	/* This is to avoid the attack routine to continue after we called
-	 * killObject, since the attacked object no longer exists.
-	 * By fixing guile_current_other to NULL, guile_use_weapon_script will
-	 * return -1, meaning the attack function must be immediately terminated. */
-	if (WHAT == current_context->other)
-	{
-		current_context->other = NULL;
+		hooks->hit_player(target->obj, damage, obj->obj, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -734,7 +727,7 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
  * @param mode Atrinik.CAST_NORMAL or Atrinik.CAST_POTION.
  * @param direction The direction to cast the ability in.
  * @param option Additional string option(s). */
-static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *target;
 	int spell, dir, mode;
@@ -746,10 +739,10 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 	OBJEXISTCHECK(target);
 
-	if (WHO->type != PLAYER)
+	if (obj->obj->type != PLAYER)
 	{
 		item = spellNPC;
 	}
@@ -765,7 +758,7 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
 		}
 	}
 
-	hooks->cast_spell(target->obj, WHO, dir, spell, 1, item, stringarg);
+	hooks->cast_spell(target->obj, obj->obj, dir, spell, 1, item, stringarg);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -776,7 +769,7 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
  * Check if object knows a given spell.
  * @param spell ID of the spell to check for.
  * @return 1 if the object knows the spell, 0 otherwise. */
-static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *obj, PyObject *args)
 {
 	int spell;
 
@@ -785,9 +778,9 @@ static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->check_spell_known(WHO, spell));
+	return Py_BuildValue("i", hooks->check_spell_known(obj->obj, spell));
 }
 
 /**
@@ -797,7 +790,7 @@ static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *ar
  * @param mode Possible modes:
  * - <b>Atrinik.LEARN</b>: Learn the spell.
  * - <b>Atrinik.UNLEARN</b>: Unlearn the spell. */
-static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *obj, PyObject *args)
 {
 	int spell, mode;
 
@@ -806,15 +799,15 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	if (mode)
 	{
-		hooks->do_forget_spell(WHO, spell);
+		hooks->do_forget_spell(obj->obj, spell);
 	}
 	else
 	{
-		hooks->do_learn_spell(WHO, spell, 0);
+		hooks->do_learn_spell(obj->obj, spell, 0);
 	}
 
 	Py_INCREF(Py_None);
@@ -826,7 +819,7 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
  * Check if object knows a given skill.
  * @param skill ID of the skill to check for.
  * @return 1 if the object knows the skill, 0 otherwise. */
-static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *obj, PyObject *args)
 {
 	int skill;
 
@@ -835,16 +828,16 @@ static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->check_skill_known(WHO, skill));
+	return Py_BuildValue("i", hooks->check_skill_known(obj->obj, skill));
 }
 
 /**
  * <h1>object.AcquireSkill(int skillno)</h1>
  * Object will learn or unlearn skill.
  * @param skillno ID of the skill to learn/unlearn. */
-static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *obj, PyObject *args)
 {
 	int skill;
 
@@ -853,9 +846,9 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	hooks->learn_skill(WHO, NULL, NULL, skill, 0);
+	hooks->learn_skill(obj->obj, NULL, NULL, skill, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -865,12 +858,12 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
  * <h1>object.FindMarkedObject()</h1>
  * Find marked object in object's inventory.
  * @return The marked object, or None if no object is marked. */
-static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return wrap_object(hooks->find_marked_object(WHO));
+	return wrap_object(hooks->find_marked_object(obj->obj));
 }
 
 /**
@@ -883,7 +876,7 @@ static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObjec
  * @param time If non-zero, the force will be removed again after
  * time / 0.02 ticks. Optional, defaults to 0.
  * @return The new player force object. */
-static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyObject *args)
+static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject *args)
 {
 	const char *txt;
 	object *myob;
@@ -894,7 +887,7 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whereptr);
+	OBJEXISTCHECK(obj);
 
 	myob = hooks->get_archetype("player_force");
 
@@ -920,9 +913,9 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 	}
 
 	FREE_AND_COPY_HASH(myob->name, txt);
-	myob = hooks->insert_ob_in_ob(myob, WHERE);
+	myob = hooks->insert_ob_in_ob(myob, obj->obj);
 
-	hooks->esrv_send_item(WHERE, myob);
+	hooks->esrv_send_item(obj->obj, myob);
 
 	return wrap_object(myob);
 }
@@ -932,7 +925,7 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
  * Get a quest object for specified quest.
  * @param quest_name Name of the quest to look for.
  * @return The quest object if found. */
-static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *obj, PyObject *args)
 {
 	const char *quest_name;
 	object *walk;
@@ -942,15 +935,15 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	if (WHO->type != PLAYER)
+	if (obj->obj->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	for (walk = CONTR(WHO)->quest_container->inv; walk; walk = walk->below)
+	for (walk = CONTR(obj->obj)->quest_container->inv; walk; walk = walk->below)
 	{
 		if (!strcmp(walk->name, quest_name))
 		{
@@ -968,7 +961,7 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
  * quest.
  * @param quest_name Name of the quest.
  * @return The newly created quest object. */
-static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *obj, PyObject *args)
 {
 	object *quest_object;
 	const char *quest_name;
@@ -978,9 +971,9 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	if (WHO->type != PLAYER)
+	if (obj->obj->type != PLAYER)
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -989,7 +982,7 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 	quest_object = hooks->get_archetype(QUEST_CONTAINER_ARCHETYPE);
 	quest_object->magic = 0;
 	FREE_AND_COPY_HASH(quest_object->name, quest_name);
-	hooks->insert_ob_in_ob(quest_object, CONTR(WHO)->quest_container);
+	hooks->insert_ob_in_ob(quest_object, CONTR(obj->obj)->quest_container);
 
 	return wrap_object(quest_object);
 }
@@ -1002,7 +995,7 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
  * in.
  * @param name Name of the player info
  * @return The new player info object */
-static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObject *args)
+static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *obj, PyObject *args)
 {
 	const char *txt;
 	object *myob;
@@ -1012,7 +1005,7 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whereptr);
+	OBJEXISTCHECK(obj);
 
 	myob = hooks->get_archetype("player_info");
 
@@ -1029,9 +1022,9 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
 	}
 
 	FREE_AND_COPY_HASH(myob->name, txt);
-	myob = hooks->insert_ob_in_ob(myob, WHERE);
+	myob = hooks->insert_ob_in_ob(myob, obj->obj);
 
-	hooks->esrv_send_item(WHERE, myob);
+	hooks->esrv_send_item(obj->obj, myob);
 
 	return wrap_object(myob);
 }
@@ -1042,7 +1035,7 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
  * inventory.
  * @param name Name of the player info
  * @return The player info object if found, None otherwise. */
-static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *obj, PyObject *args)
 {
 	const char *name;
 	object *walk;
@@ -1052,10 +1045,10 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	/* Get the first linked player info arch in this inventory */
-	for (walk = WHO->inv; walk != NULL; walk = walk->below)
+	for (walk = obj->obj->inv; walk != NULL; walk = walk->below)
 	{
 		if (walk->name && walk->arch->name == hooks->shstr_cons->player_info && !strcmp(walk->name, name))
 		{
@@ -1074,13 +1067,13 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *
  * @param player_info Previously found player info object.
  * @return The next player info object if found, None otherwise.
  * @todo Remove? */
-static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *myob;
 	char name[128];
 	object *walk;
 
-	(void) whoptr;
+	(void) obj;
 
 	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &myob))
 	{
@@ -1360,7 +1353,7 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
  * TeleportTo() for that.
  * @param x New X position on the same map
  * @param y New Y position on the same map */
-static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *obj, PyObject *args)
 {
 	int x, y;
 
@@ -1369,9 +1362,9 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	hooks->transfer_ob(WHO, x, y, 0, NULL, NULL);
+	hooks->transfer_ob(obj->obj, x, y, 0, NULL, NULL);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1454,20 +1447,20 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
  * - <b>Atrinik.COST_BUY</b>
  * - <b>Atrinik.COST_SELL</b>
  * @return The cost of the item as integer. */
-static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whatptr;
+	Atrinik_Object *what;
 	int flag;
 
-	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &whatptr, &flag))
+	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &what, &flag))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(what);
 
-	return Py_BuildValue("i", hooks->query_cost(WHAT, WHO, flag));
+	return Py_BuildValue("i", hooks->query_cost(what->obj, obj->obj, flag));
 }
 
 /**
@@ -1475,31 +1468,31 @@ static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *ar
  * Get all the money the object is carrying as integer.
  * @return The amount of money the object is carrying in copper (as
  * integer). */
-static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->query_money(WHO));
+	return Py_BuildValue("i", hooks->query_money(obj->obj));
 }
 
 /**
  * <h1>object.PayForItem(object what)</h1>
  * @warning Untested.
  * @todo Test, document. */
-static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whatptr;
+	Atrinik_Object *what;
 
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &what))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(what);
 
-	return Py_BuildValue("i", hooks->pay_for_item(WHAT, WHO));
+	return Py_BuildValue("i", hooks->pay_for_item(what->obj, obj->obj));
 }
 
 /**
@@ -1508,7 +1501,7 @@ static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *arg
  * @param value The amount of money in copper to pay for.
  * @return 1 if the object paid the money (the object had enough money in
  * inventory), 0 otherwise. */
-static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 {
 	int to_pay;
 
@@ -1517,9 +1510,9 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->pay_for_amount(to_pay, WHO));
+	return Py_BuildValue("i", hooks->pay_for_amount(to_pay, obj->obj));
 }
 
 /**
@@ -1534,7 +1527,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
  * - <b>Atrinik.CLONE_WITH_INVENTORY</b> (default)
  * - <b>Atrinik.CLONE_WITHOUT_INVENTORY</b>
  * @return The cloned object. */
-static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
 {
 	int mode = 0;
 	object *clone;
@@ -1544,16 +1537,16 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
 	if (!mode)
 	{
-		clone = hooks->object_create_clone(WHO);
+		clone = hooks->object_create_clone(obj->obj);
 	}
 	else
 	{
 		clone = hooks->get_object();
-		hooks->copy_object(WHO, clone, 0);
+		hooks->copy_object(obj->obj, clone, 0);
 	}
 
 	if (clone->type == PLAYER || QUERY_FLAG(clone, FLAG_IS_PLAYER))
@@ -1570,7 +1563,7 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
  * Get key value of an object.
  * @param key Key to look for.
  * @return Value for the key if found, None otherwise. */
-static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *obj, PyObject *args)
 {
 	const char *key;
 
@@ -1579,9 +1572,9 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("s", hooks->object_get_value(WHO, key));
+	return Py_BuildValue("s", hooks->object_get_value(obj->obj, key));
 }
 
 /**
@@ -1592,7 +1585,7 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
  * key's value if the key is found.
  * @param add_key Whether to add the key if it's not found in the object.
  * @return 1 on success, 0 on failure. */
-static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *obj, PyObject *args)
 {
 	const char *key, *value = NULL;
 	int add_key = 1;
@@ -1602,9 +1595,9 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->object_set_value(WHO, key, value, add_key));
+	return Py_BuildValue("i", hooks->object_set_value(obj->obj, key, value, add_key));
 }
 
 /**
@@ -1613,7 +1606,7 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
  * @param caller Object calling this.
  * @return Full name of the object, including material, name, title,
  * etc. */
-static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_GetName(Atrinik_Object *what, PyObject *args)
 {
 	Atrinik_Object *ob = NULL;
 
@@ -1622,14 +1615,14 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	if (ob)
 	{
 		OBJEXISTCHECK(ob);
 	}
 
-	return Py_BuildValue("s", hooks->query_short_name(WHAT, ob ? ob->obj : WHAT));
+	return Py_BuildValue("s", hooks->query_short_name(what->obj, ob ? ob->obj : what->obj));
 }
 
 /**
@@ -1639,7 +1632,7 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
  * @param mode If 1, delay is in seconds, if 2, delay is in ticks (8 ticks = 1 second)
  * @return 0 and higher means success (and represents ID of the created timer),
  * anything lower means a failure of some sort. */
-static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *what, PyObject *args)
 {
 	int mode, timer;
 	long delay;
@@ -1649,13 +1642,13 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	timer = hooks->cftimer_find_free_id();
 
 	if (timer != TIMER_ERR_ID)
 	{
-		int res = hooks->cftimer_create(timer, delay, WHAT, mode);
+		int res = hooks->cftimer_create(timer, delay, what->obj, mode);
 
 		if (res != TIMER_ERR_NONE)
 		{
@@ -1675,7 +1668,7 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
  * @param y Y position where the sound is playing from. Can be 0.
  * @param loop How many times to loop the sound, -1 for infinite number.
  * @param volume Volume adjustment. */
-static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_Sound(Atrinik_Object *obj, PyObject *args)
 {
 	int type = CMD_SOUND_EFFECT, x = 0, y = 0, loop = 0, volume = 0;
 	const char *filename;
@@ -1685,14 +1678,14 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	if (WHO->type != PLAYER)
+	if (obj->obj->type != PLAYER)
 	{
 		RAISE("Sound(): Can only be used on players.");
 	}
 
-	hooks->play_sound_player_only(CONTR(WHO), type, filename, x, y, loop, volume);
+	hooks->play_sound_player_only(CONTR(obj->obj), type, filename, x, y, loop, volume);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1703,18 +1696,18 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
  * Get object's controller (the player).
  * @throws AtrinikError if 'object' is not a player.
  * @return The controller if there is one, None otherwise. */
-static PyObject *Atrinik_Object_Controller(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_Controller(Atrinik_Object *what, PyObject *args)
 {
 	(void) args;
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
-	if (WHAT->type != PLAYER)
+	if (what->obj->type != PLAYER)
 	{
 		RAISE("Can only be used on players.");
 	}
 
-	return wrap_player(CONTR(WHAT));
+	return wrap_player(CONTR(what->obj));
 }
 
 /**
@@ -1723,7 +1716,7 @@ static PyObject *Atrinik_Object_Controller(Atrinik_Object *whatptr, PyObject *ar
  * @param nr Protection ID. One of ::_attacks.
  * @throws IndexError if the protection ID is invalid.
  * @return The protection value. */
-static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_Protection(Atrinik_Object *what, PyObject *args)
 {
 	int nr;
 
@@ -1732,7 +1725,7 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *ar
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
@@ -1740,7 +1733,7 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *ar
 		return NULL;
 	}
 
-	return Py_BuildValue("b", WHAT->protection[nr]);
+	return Py_BuildValue("b", what->obj->protection[nr]);
 }
 
 /**
@@ -1751,7 +1744,7 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *ar
  * @throws IndexError if the protection ID is invalid.
  * @throws OverflowError if the value to set is not in valid range.
  * @return The new protection value. */
-static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what, PyObject *args)
 {
 	int nr;
 	sint8 val;
@@ -1761,7 +1754,7 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject 
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
@@ -1769,8 +1762,8 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject 
 		return NULL;
 	}
 
-	WHAT->protection[nr] = val;
-	return Py_BuildValue("b", WHAT->protection[nr]);
+	what->obj->protection[nr] = val;
+	return Py_BuildValue("b", what->obj->protection[nr]);
 }
 
 /**
@@ -1779,7 +1772,7 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject 
  * @param nr Attack ID. One of ::_attacks.
  * @throws IndexError if the attack ID is invalid.
  * @return The attack value. */
-static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_Attack(Atrinik_Object *what, PyObject *args)
 {
 	int nr;
 
@@ -1788,7 +1781,7 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args)
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
@@ -1796,7 +1789,7 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("b", WHAT->attack[nr]);
+	return Py_BuildValue("b", what->obj->attack[nr]);
 }
 
 /**
@@ -1807,7 +1800,7 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args)
  * @throws IndexError if the attack ID is invalid.
  * @throws OverflowError if the value to set is not in valid range.
  * @return The new attack value. */
-static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 {
 	int nr;
 	uint8 val;
@@ -1817,7 +1810,7 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	if (nr < 0 || nr >= NROFATTACKS)
 	{
@@ -1825,8 +1818,8 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
 		return NULL;
 	}
 
-	WHAT->attack[nr] = val;
-	return Py_BuildValue("b", WHAT->attack[nr]);
+	what->obj->attack[nr] = val;
+	return Py_BuildValue("b", what->obj->attack[nr]);
 }
 
 /**
@@ -1834,19 +1827,19 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
  * Permanently alters an object's stats/flags based on another what.
  * @param what Object that is giving bonuses/penalties to 'object'.
  * @return 1 if we successfully changed a stat, 0 if nothing was changed. */
-static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *obj, PyObject *args)
 {
-	Atrinik_Object *whatptr;
+	Atrinik_Object *what;
 
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &what))
 	{
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whoptr);
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(what);
 
-	return Py_BuildValue("i", hooks->change_abil(WHO, WHAT));
+	return Py_BuildValue("i", hooks->change_abil(obj->obj, what->obj));
 }
 
 /**
@@ -1854,7 +1847,7 @@ static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *arg
  * Decreases an object, removing it if there's nothing left to decrease.
  * @param num How much to decrease the object by.
  * @return 'object' if something is left, None if the amount reached 0. */
-static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args)
+static PyObject *Atrinik_Object_Decrease(Atrinik_Object *what, PyObject *args)
 {
 	uint32 num = 1;
 
@@ -1863,9 +1856,9 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
-	return wrap_object(hooks->decrease_ob_nr(WHAT, num));
+	return wrap_object(hooks->decrease_ob_nr(what->obj, num));
 }
 
 /**
@@ -1905,7 +1898,7 @@ for (m, x, y) in activator.SquaresAround(1, type = AROUND_WALL, callable = cmp_s
  * considered ignored, False otherwise. 'type' being @ref AROUND_ALL takes
  * no effect if this is set, but it can be combined with @ref AROUND_xxx "other types".
  * @return A list containing tuples of the squares. */
-static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *args, PyObject *keywds)
 {
 	uint8 range, type = AROUND_ALL;
 	static char *kwlist[] = {"range", "type", "beyond", "callable", NULL};
@@ -1918,7 +1911,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 		return NULL;
 	}
 
-	OBJEXISTCHECK(whatptr);
+	OBJEXISTCHECK(what);
 
 	if (range == 0)
 	{
@@ -1939,16 +1932,16 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 	{
 		for (j = -range; j <= range; j++)
 		{
-			xt = WHAT->x + i;
-			yt = WHAT->y + j;
+			xt = what->obj->x + i;
+			yt = what->obj->y + j;
 
 			/* Skip ourselves. */
-			if (xt == WHAT->x && yt == WHAT->y)
+			if (xt == what->obj->x && yt == what->obj->y)
 			{
 				continue;
 			}
 
-			m = hooks->get_map_from_coord(WHAT->map, &xt, &yt);
+			m = hooks->get_map_from_coord(what->obj->map, &xt, &yt);
 
 			if (!m)
 			{
@@ -1968,9 +1961,9 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 				mapstruct *m2;
 				rv_vector rv;
 
-				m2 = WHAT->map;
-				xt2 = WHAT->x;
-				yt2 = WHAT->y;
+				m2 = what->obj->map;
+				xt2 = what->obj->x;
+				yt2 = what->obj->y;
 
 				if (!hooks->get_rangevector_from_mapcoords(m2, xt2, yt2, m, xt, yt, &rv, RV_NO_DISTANCE))
 				{
@@ -1984,7 +1977,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 					BRESENHAM_STEP(xt2, yt2, fraction, stepx, stepy, dx2, dy2);
 					m2 = hooks->get_map_from_coord(m2, &xt2, &yt2);
 
-					if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m2), xt2, yt2, wrap_object(WHAT)))))
+					if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m2), xt2, yt2, wrap_object(what->obj)))))
 					{
 						break;
 					}
@@ -2000,7 +1993,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *whatptr, PyObject 
 			 * a wall, etc, but not any squares behind them. */
 			else
 			{
-				if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), xt, yt, wrap_object(WHAT)))))
+				if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), xt, yt, wrap_object(what->obj)))))
 				{
 					continue;
 				}
@@ -2154,7 +2147,7 @@ static PyMethodDef methods[] =
 	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},
 	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_NOARGS, 0},
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
-	{"Kill", (PyCFunction) Atrinik_Object_Kill, METH_VARARGS, 0},
+	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"CastAbility", (PyCFunction) Atrinik_Object_CastAbility, METH_VARARGS, 0},
 	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
 	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
@@ -2199,85 +2192,85 @@ static PyMethodDef methods[] =
 
 /**
  * Get object's attribute.
- * @param whoptr Python object wrapper.
+ * @param obj Python object wrapper.
  * @param context Void pointer to the field.
  * @return Python object with the attribute value, NULL on failure. */
-static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, void *context)
+static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 {
-	OBJEXISTCHECK(whoptr);
+	OBJEXISTCHECK(obj);
 
-	return generic_field_getter((fields_struct *) context, WHO);
+	return generic_field_getter((fields_struct *) context, obj->obj);
 }
 
 /**
  * Set attribute of an object.
- * @param whoptr Python object wrapper.
+ * @param obj Python object wrapper.
  * @param value Value to set.
  * @param context Void pointer to the field.
  * @return 0 on success, -1 on failure. */
-static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, void *context)
+static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *context)
 {
 	object *tmp;
 	fields_struct *field = (fields_struct *) context;
 
-	OBJEXISTCHECK_INT(whoptr);
+	OBJEXISTCHECK_INT(obj);
 
-	if ((field->flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER)
+	if ((field->flags & FIELDFLAG_PLAYER_READONLY) && obj->obj->type == PLAYER)
 	{
 		INTRAISE("Trying to modify a field that is read-only for player objects.");
 	}
 
-	if (generic_field_setter(field, WHO, value) == -1)
+	if (generic_field_setter(field, obj->obj, value) == -1)
 	{
 		return -1;
 	}
 
 	/* Make sure the inventory image/text is updated. */
-	for (tmp = WHO->env; tmp; tmp = tmp->env)
+	for (tmp = obj->obj->env; tmp; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
 		{
-			hooks->esrv_send_item(tmp, WHO);
+			hooks->esrv_send_item(tmp, obj->obj);
 		}
 	}
 
 	/* Special handling for some player stuff. */
-	if (WHO->type == PLAYER)
+	if (obj->obj->type == PLAYER)
 	{
 		switch (field->offset)
 		{
 			case offsetof(object, stats.Str):
-				CONTR(WHO)->orig_stats.Str = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Str = (sint8) PyInt_AsLong(value);
 				break;
 
 			case offsetof(object, stats.Dex):
-				CONTR(WHO)->orig_stats.Dex = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Dex = (sint8) PyInt_AsLong(value);
 				break;
 
 			case offsetof(object, stats.Con):
-				CONTR(WHO)->orig_stats.Con = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Con = (sint8) PyInt_AsLong(value);
 				break;
 
 			case offsetof(object, stats.Wis):
-				CONTR(WHO)->orig_stats.Wis = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Wis = (sint8) PyInt_AsLong(value);
 				break;
 
 			case offsetof(object, stats.Pow):
-				CONTR(WHO)->orig_stats.Pow = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Pow = (sint8) PyInt_AsLong(value);
 				break;
 
 			case offsetof(object, stats.Cha):
-				CONTR(WHO)->orig_stats.Cha = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Cha = (sint8) PyInt_AsLong(value);
 				break;
 
 			case offsetof(object, stats.Int):
-				CONTR(WHO)->orig_stats.Int = (sint8) PyInt_AsLong(value);
+				CONTR(obj->obj)->orig_stats.Int = (sint8) PyInt_AsLong(value);
 				break;
 		}
 
 		if (field->flags & FIELDFLAG_PLAYER_FIX)
 		{
-			hooks->fix_player(WHO);
+			hooks->fix_player(obj->obj);
 		}
 	}
 

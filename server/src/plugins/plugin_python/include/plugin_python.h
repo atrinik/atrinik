@@ -85,13 +85,6 @@
 
 extern struct plugin_hooklist *hooks;
 
-/** Get object from Atrinik_Object 'whoptr'. */
-#define WHO (whoptr->obj)
-/** Get object from Atrinik_Object 'whatptr'. */
-#define WHAT (whatptr->obj)
-/** Get object from Atrinik_Object 'whereptr'. */
-#define WHERE (whereptr->obj)
-
 /**
  * @defgroup AROUND_xxx Types for object.SquaresAround()
  * The various types of squares returned by object.SquaresAround().
