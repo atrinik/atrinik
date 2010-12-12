@@ -153,48 +153,6 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>object.GetSkill(int type, int id)</h1>
- * Fetch a skill or exp_skill object from the specified object.
- * @param type Type of the object to look for. Unused.
- * @param id ID of the skill or experience object.
- * @return The object if found.
- * @deprecated Use @ref Atrinik_Player_GetSkill "player.GetSkill()" instead. */
-static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
-{
-	object *tmp;
-	int type, id;
-
-	PyErr_WarnEx(PyExc_DeprecationWarning, "object.GetSkill() is deprecated; use player.GetSkill() instead.", 1);
-
-	if (!PyArg_ParseTuple(args, "ii", &type, &id))
-	{
-		return NULL;
-	}
-
-	/* Browse the inventory of object to find a matching skill or exp_obj. */
-	for (tmp = WHO->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type != type)
-		{
-			continue;
-		}
-
-		if (tmp->type == SKILL && tmp->stats.sp == id)
-		{
-			return wrap_object(tmp);
-		}
-
-		if (tmp->type == EXPERIENCE && tmp->sub_type == id)
-		{
-			return wrap_object(tmp);
-		}
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.SetSkill(int type, int skillid, long level, long value)</h1>
  * Set object's experience in the skill to a new value.
  *
@@ -2251,7 +2209,6 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] =
 {
-	{"GetSkill", (PyCFunction) Atrinik_Object_GetSkill, METH_VARARGS, 0},
 	{"SetSkill", (PyCFunction) Atrinik_Object_SetSkill, METH_VARARGS, 0},
 	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
 	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_NOARGS, 0},
