@@ -139,9 +139,6 @@ static Atrinik_Constant constants[] =
 	{"CAST_POTION", CAST_POTION},
 	{"CAST_NPC", CAST_NPC},
 
-	{"LEARN", 0},
-	{"UNLEARN", 1},
-
 	{"UNIDENTIFIED", 0},
 	{"IDENTIFIED", 1},
 
