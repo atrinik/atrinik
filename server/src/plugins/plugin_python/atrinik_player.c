@@ -373,6 +373,42 @@ static PyObject *Atrinik_Player_AcquireSpell(Atrinik_Player *pl, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>player.DoKnowSkill(int skill)</h1>
+ * Check if player knows a given skill.
+ * @param skill ID of the skill to check for.
+ * @return True if the player knows the skill, False otherwise. */
+static PyObject *Atrinik_Player_DoKnowSkill(Atrinik_Player *pl, PyObject *args)
+{
+	int skill;
+
+	if (!PyArg_ParseTuple(args, "i", &skill))
+	{
+		return NULL;
+	}
+
+	Py_ReturnBoolean(pl->pl->skill_ptr[skill]);
+}
+
+/**
+ * <h1>player.AcquireSkill(int skill)</h1>
+ * Player will learn skill.
+ * @param skill ID of the skill to learn. */
+static PyObject *Atrinik_Player_AcquireSkill(Atrinik_Player *pl, PyObject *args)
+{
+	int skill;
+
+	if (!PyArg_ParseTuple(args, "i", &skill))
+	{
+		return NULL;
+	}
+
+	hooks->learn_skill(pl->pl->ob, NULL, NULL, skill, 0);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -390,6 +426,8 @@ static PyMethodDef methods[] =
 	{"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
 	{"DoKnowSpell", (PyCFunction) Atrinik_Player_DoKnowSpell, METH_VARARGS, 0},
 	{"AcquireSpell", (PyCFunction) Atrinik_Player_AcquireSpell, METH_VARARGS, 0},
+	{"DoKnowSkill", (PyCFunction) Atrinik_Player_DoKnowSkill, METH_VARARGS, 0},
+	{"AcquireSkill", (PyCFunction) Atrinik_Player_AcquireSkill, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
