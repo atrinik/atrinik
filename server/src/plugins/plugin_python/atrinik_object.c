@@ -720,11 +720,11 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Cast(object target, int spell, int [mode = -1], int [direction = 0], string [option = None])</h1>
- * Object casts the spell ID 'spell' on 'target'.
- * @param target The target object.
+ * <h1>object.Cast(int spell, object [target = None], int [mode = -1], int [direction = 0], string [option = None])</h1>
+ * Object casts the spell ID 'spell'.
  * @param spell ID of the spell to cast. You can lookup spell IDs by name
  * using @ref Atrinik_GetSpellNr "GetSpellNr()".
+ * @param target Target object for spells that require a valid target.
  * @param mode One of @ref CAST_xxx. If -1 (default), will try to figure
  * out the appropriate mode automatically.
  * @param direction The direction to cast the spell in.
@@ -733,17 +733,21 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"target", "spell", "mode", "direction", "option", NULL};
-	Atrinik_Object *target;
+	Atrinik_Object *target = NULL;
 	int spell, direction = 0, mode = -1;
 	const char *option = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!i|iis", kwlist, &Atrinik_ObjectType, &target, &spell, &mode, &direction, &option))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|O!iis", kwlist, &spell, &Atrinik_ObjectType, &target, &mode, &direction, &option))
 	{
 		return NULL;
 	}
 
 	OBJEXISTCHECK(obj);
-	OBJEXISTCHECK(target);
+
+	if (target)
+	{
+		OBJEXISTCHECK(target);
+	}
 
 	/* Figure out the mode automatically. */
 	if (mode == -1)
@@ -758,12 +762,12 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
 		}
 	}
 	/* Ensure the mode is valid. */
-	else if (mode == CAST_NORMAL && target != obj && obj->obj->type != PLAYER)
+	else if (mode == CAST_NORMAL && target && target != obj && obj->obj->type != PLAYER)
 	{
 		mode = CAST_NPC;
 	}
 
-	hooks->cast_spell(target->obj, obj->obj, direction, spell, 1, mode, option);
+	hooks->cast_spell(target ? target->obj : obj->obj, obj->obj, direction, spell, 1, mode, option);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2153,7 +2157,7 @@ static PyMethodDef methods[] =
 	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_NOARGS, 0},
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
-	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS, 0},
+	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
 	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
 	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
 	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
