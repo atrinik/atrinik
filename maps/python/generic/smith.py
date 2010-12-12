@@ -36,7 +36,7 @@ def main():
 	# Identify a single marked item
 	elif msg == "identify":
 		## Get the marked object.
-		marked_object = activator.FindMarkedObject()
+		marked_object = activator.Controller().FindMarkedObject()
 
 		if marked_object == None:
 			me.SayTo(activator, "\nYou must mark an item first.")
@@ -56,12 +56,12 @@ def main():
 	elif msg == "identify all":
 		if activator.level < level_free:
 			me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
-			me.IdentifyItem(activator, IDENTIFY_ALL, activator.FindMarkedObject())
+			me.IdentifyItem(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 		else:
 			if activator.PayAmount(costs["identify_all"]) == 1:
 				me.SayTo(activator, "\nOk, I will identify all your items.")
 				activator.Write("You pay the money.", 0)
-				me.IdentifyItem(activator, IDENTIFY_ALL, activator.FindMarkedObject())
+				me.IdentifyItem(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 			else:
 				me.SayTo(activator, "\nSorry, you do not have enough money.")
 

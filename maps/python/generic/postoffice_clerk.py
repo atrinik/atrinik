@@ -61,7 +61,7 @@ def main():
 	# Send an item to someone, showing how much to pay.
 	elif text[0] == "send":
 		if len(text) > 1:
-			marked = activator.FindMarkedObject()
+			marked = activator.Controller().FindMarkedObject()
 			text[1] = text[1].capitalize()
 
 			if check_send(text[1], marked):
@@ -71,7 +71,7 @@ def main():
 
 	# Actually send an item to someone.
 	elif text[0] == "sendto" and len(text) > 1:
-		marked = activator.FindMarkedObject()
+		marked = activator.Controller().FindMarkedObject()
 		text[1] = text[1].capitalize()
 
 		if check_send(text[1], marked):

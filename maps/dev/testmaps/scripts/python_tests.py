@@ -22,7 +22,7 @@ def main_say():
 	words = msg.split()
 
 	## Find a marked object.
-	marked = activator.FindMarkedObject()
+	marked = activator.Controller().FindMarkedObject()
 
 	if msg == "hello" or msg == "hey" or msg == "hi":
 		me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^, ^vector^")

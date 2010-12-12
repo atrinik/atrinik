@@ -50,7 +50,7 @@ def main():
 
 	# Save a message.
 	elif msg == "save":
-		marked = activator.FindMarkedObject()
+		marked = activator.Controller().FindMarkedObject()
 
 		if not marked:
 			me.SayTo(activator, "\nFirst mark the book you want to save your message into.")

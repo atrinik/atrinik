@@ -11,7 +11,7 @@ def main():
 		return
 
 	# Find the marked pipeweed.
-	marked = activator.FindMarkedObject()
+	marked = activator.Controller().FindMarkedObject()
 
 	if not marked:
 		activator.Write("You need to mark the object you want to smoke.", COLOR_BLUE)
