@@ -774,56 +774,6 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
 }
 
 /**
- * <h1>object.DoKnowSpell(int spell)</h1>
- * Check if object knows a given spell.
- * @param spell ID of the spell to check for.
- * @return 1 if the object knows the spell, 0 otherwise. */
-static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *obj, PyObject *args)
-{
-	int spell;
-
-	if (!PyArg_ParseTuple(args, "i", &spell))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	return Py_BuildValue("i", hooks->check_spell_known(obj->obj, spell));
-}
-
-/**
- * <h1>object.AcquireSpell(int spell, int mode)</h1>
- * Object will learn or unlearn spell, depending on the mode.
- * @param spell ID of the spell to learn/unlearn.
- * @param mode Possible modes:
- * - <b>Atrinik.LEARN</b>: Learn the spell.
- * - <b>Atrinik.UNLEARN</b>: Unlearn the spell. */
-static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *obj, PyObject *args)
-{
-	int spell, mode;
-
-	if (!PyArg_ParseTuple(args, "ii", &spell, &mode))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	if (mode)
-	{
-		hooks->do_forget_spell(obj->obj, spell);
-	}
-	else
-	{
-		hooks->do_learn_spell(obj->obj, spell, 0);
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.DoKnowSkill(int skill)</h1>
  * Check if object knows a given skill.
  * @param skill ID of the skill to check for.
@@ -2158,8 +2108,6 @@ static PyMethodDef methods[] =
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
-	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
-	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
 	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
 	{"AcquireSkill", (PyCFunction) Atrinik_Object_AcquireSkill, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_NOARGS, 0},
