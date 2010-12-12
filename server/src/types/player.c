@@ -716,7 +716,7 @@ void fire(object *op, int dir)
 				return;
 			}
 
-			spellcost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, spellNormal, NULL);
+			spellcost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, CAST_NORMAL, NULL);
 
 			if (spells[CONTR(op)->chosen_spell].type == SPELL_TYPE_PRIEST)
 			{
@@ -770,7 +770,7 @@ void fire(object *op, int dir)
 
 			new_draw_info(NDI_UNIQUE, op, "fire wand");
 
-			if (cast_spell(op, weap, dir, weap->stats.sp, 0, spellWand, NULL))
+			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CAST_WAND, NULL))
 			{
 				/* You now know something about it */
 				SET_FLAG(op, FLAG_BEEN_APPLIED);
@@ -858,7 +858,7 @@ trick_jump:
 				return;
 			}
 
-			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CONTR(op)->shoottype == range_rod ? spellRod : spellHorn, NULL))
+			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CONTR(op)->shoottype == range_rod ? CAST_ROD : CAST_HORN, NULL))
 			{
 				/* You now know something about it */
 				SET_FLAG(op, FLAG_BEEN_APPLIED);

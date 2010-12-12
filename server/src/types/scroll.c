@@ -84,7 +84,7 @@ void apply_scroll(object *op, object *tmp)
 
 	new_draw_info_format(NDI_WHITE, op, "The scroll of %s turns to dust.", spells[tmp->stats.sp].name);
 
-	cast_spell(op, tmp, op->facing ? op->facing : 4, scroll_spell, 0, spellScroll, NULL);
+	cast_spell(op, tmp, op->facing ? op->facing : 4, scroll_spell, 0, CAST_SCROLL, NULL);
 	decrease_ob(tmp);
 
 	if (op->type == PLAYER)

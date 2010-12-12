@@ -414,7 +414,7 @@ improve_done:
 	if (tmp->stats.sp != SP_NO_SPELL)
 	{
 		/* apply potion fires in player's facing direction, unless the spell is SELF one, ie, healing or cure illness. */
-		cast_spell(op, tmp, spells[tmp->stats.sp].flags & SPELL_DESC_SELF ? 0 : op->facing, tmp->stats.sp, 1, spellPotion, NULL);
+		cast_spell(op, tmp, spells[tmp->stats.sp].flags & SPELL_DESC_SELF ? 0 : op->facing, tmp->stats.sp, 1, CAST_POTION, NULL);
 		decrease_ob(tmp);
 
 		/* if you're dead, no point in doing this... */

@@ -136,7 +136,7 @@ void spring_trap(object *trap, object *victim)
 			}
 		}
 
-		cast_spell(trap, trap, trap->stats.maxsp, trap->stats.sp, 1, spellNormal, NULL);
+		cast_spell(trap, trap, trap->stats.maxsp, trap->stats.sp, 1, CAST_NORMAL, NULL);
 
 		/* Add the trap back to the object it was in, unless it was on
 		 * map to begin with. */

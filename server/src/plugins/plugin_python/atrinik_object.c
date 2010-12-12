@@ -721,17 +721,17 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 
 /**
  * <h1>object.CastAbility(object target, int spellno, int mode, int direction, string option)</h1>
- * Object casts the ability numbered spellno on target.
+ * Object casts the spell ID 'spell' on 'target'.
  * @param target The target object.
  * @param spellno ID of the spell to cast.
- * @param mode Atrinik.CAST_NORMAL or Atrinik.CAST_POTION.
+ * @param mode CAST_NORMAL or CAST_POTION.
  * @param direction The direction to cast the ability in.
  * @param option Additional string option(s). */
 static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *target;
 	int spell, dir, mode;
-	SpellTypeFrom item;
+	int item;
 	char *stringarg;
 
 	if (!PyArg_ParseTuple(args, "O!iiis", &Atrinik_ObjectType, &target, &spell, &mode, &dir, &stringarg))
@@ -744,17 +744,17 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *obj, PyObject *args)
 
 	if (obj->obj->type != PLAYER)
 	{
-		item = spellNPC;
+		item = CAST_NPC;
 	}
 	else
 	{
 		if (!mode)
 		{
-			item = spellNormal;
+			item = CAST_NORMAL;
 		}
 		else
 		{
-			item = spellPotion;
+			item = CAST_POTION;
 		}
 	}
 

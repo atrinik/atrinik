@@ -1562,7 +1562,7 @@ static void thrown_item_effect(object *hitter, object *victim)
 				if (hitter->stats.sp != SP_NO_SPELL && spells[hitter->stats.sp].flags&SPELL_DESC_DIRECTION)
 				{
 					/* apply potion ALWAYS fire on the spot the applier stands - good for healing - bad for firestorm */
-					cast_spell(hitter, hitter, hitter->direction, hitter->stats.sp, 1, spellPotion, NULL);
+					cast_spell(hitter, hitter, hitter->direction, hitter->stats.sp, 1, CAST_POTION, NULL);
 				}
 
 				decrease_ob(hitter);

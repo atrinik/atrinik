@@ -131,8 +131,13 @@ static Atrinik_Constant constants[] =
 
 	{"MAXLEVEL", MAXLEVEL},
 
-	{"CAST_NORMAL", 0},
-	{"CAST_POTION", 1},
+	{"CAST_NORMAL", CAST_NORMAL},
+	{"CAST_WAND", CAST_WAND},
+	{"CAST_ROD", CAST_ROD},
+	{"CAST_HORN", CAST_HORN},
+	{"CAST_SCROLL", CAST_SCROLL},
+	{"CAST_POTION", CAST_POTION},
+	{"CAST_NPC", CAST_NPC},
 
 	{"LEARN", 0},
 	{"UNLEARN", 1},

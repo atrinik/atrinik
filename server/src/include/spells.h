@@ -296,17 +296,25 @@ extern spell spells[NROFREALSPELLS];
 extern char *spellpathnames[NRSPELLPATHS];
 extern archetype *spellarch[NROFREALSPELLS];
 
-/** How is the spell being cast. */
-typedef enum SpellTypeFrom
-{
-	spellNormal,
-	spellWand,
-	spellRod,
-	spellHorn,
-	spellScroll,
-	spellPotion,
-	spellNPC
-} SpellTypeFrom;
+/**
+ * @defgroup CAST_xxx Casting modes
+ * Various casting modes.
+ *@{*/
+/** Normal cast. */
+#define CAST_NORMAL 0
+/** Casting from a wand. */
+#define CAST_WAND 1
+/** Casting from a rod. */
+#define CAST_ROD 2
+/** Casting from a horn. */
+#define CAST_HORN 3
+/** Casting from a scroll. */
+#define CAST_SCROLL 4
+/** Casting from a potion. */
+#define CAST_POTION 5
+/** NPC is doing the casting. */
+#define CAST_NPC 6
+/*@}*/
 
 /**
  * 20% sacrifice of money when casting the 'transform wealth' spell. */

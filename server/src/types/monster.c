@@ -1133,11 +1133,11 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 	 * parameters accordingly... */
 	if (target)
 	{
-		return cast_spell(target, part, dir, sp_typ, ability, spellNPC, NULL);
+		return cast_spell(target, part, dir, sp_typ, ability, CAST_NPC, NULL);
 	}
 
 	/* Otherwise a normal cast. */
-	return cast_spell(part, part, dir, sp_typ, ability, spellNormal, NULL);
+	return cast_spell(part, part, dir, sp_typ, ability, CAST_NORMAL, NULL);
 }
 
 /**

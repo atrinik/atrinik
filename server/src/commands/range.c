@@ -166,7 +166,7 @@ int command_cast_spell(object *op, char *params)
 		return 0;
 	}
 
-	value = cast_spell(op, op, op->facing, spnum, 0, spellNormal, cp);
+	value = cast_spell(op, op, op->facing, spnum, 0, CAST_NORMAL, cp);
 
 	if (value)
 	{

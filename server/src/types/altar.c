@@ -55,7 +55,7 @@ int apply_altar(object *altar, object *sacrifice, object *originator)
 		if (altar->stats.sp != -1)
 		{
 			new_draw_info_format(NDI_WHITE, originator, "The altar casts %s.", spells[altar->stats.sp].name);
-			cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, spellPotion, NULL);
+			cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, CAST_POTION, NULL);
 			/* If it is connected, push the button. Fixes some problems
 			 * with old maps. */
 			push_button(altar);

@@ -1267,7 +1267,7 @@ int remove_depletion(object *op, object *target)
  * @param src Where the spell comes from.
  * @return 0 on failure / no cursed items, number of objects uncursed
  * otherwise. */
-int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
+int remove_curse(object *op, object *target, int type, int src)
 {
 	object *tmp;
 	int success = 0;
@@ -1292,7 +1292,7 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
 	/* Player remove xx only removes applied stuff, npc remove clears ALL */
 	for (tmp = target->inv; tmp; tmp = tmp->below)
 	{
-		if ((src == spellNPC || QUERY_FLAG(tmp, FLAG_APPLIED)) && (QUERY_FLAG(tmp, FLAG_CURSED) || (type == SP_REMOVE_DAMNATION && QUERY_FLAG(tmp, FLAG_DAMNED))))
+		if ((src == CAST_NPC || QUERY_FLAG(tmp, FLAG_APPLIED)) && (QUERY_FLAG(tmp, FLAG_CURSED) || (type == SP_REMOVE_DAMNATION && QUERY_FLAG(tmp, FLAG_DAMNED))))
 		{
 			if (tmp->level <= SK_level(op))
 			{
@@ -1345,7 +1345,7 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
 		}
 		else
 		{
-			if (src == spellNormal)
+			if (src == CAST_NORMAL)
 			{
 				new_draw_info(NDI_UNIQUE, target, "You are not using any cursed items.");
 			}

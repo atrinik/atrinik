@@ -816,7 +816,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 int create_bomb(object *op, object *caster, int dir, int spell_type);
 void animate_bomb(object *op);
 int remove_depletion(object *op, object *target);
-int remove_curse(object *op, object *target, int type, SpellTypeFrom src);
+int remove_curse(object *op, object *target, int type, int src);
 int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
 int cast_identify(object *op, int level, object *single_ob, int mode);
 int cast_consecrate(object *op);
@@ -830,7 +830,7 @@ void dump_spells();
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
 spell *find_spell(int spelltype);
 int check_spell_known(object *op, int spell_type);
-int cast_spell(object *op, object *caster, int dir, int type, int ability, SpellTypeFrom item, char *stringarg);
+int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, char *stringarg);
 int cast_create_obj(object *op, object *new_op, int dir);
 int fire_bolt(object *op, object *caster, int dir, int type);
 int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target);

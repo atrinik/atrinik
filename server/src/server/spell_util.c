@@ -314,7 +314,7 @@ int check_spell_known(object *op, int spell_type)
  * @param stringarg Any options that are being used.
  * @return 0 on failure, non-zero on success and is used by caller to
  * drain mana/grace. */
-int cast_spell(object *op, object *caster, int dir, int type, int ability, SpellTypeFrom item, char *stringarg)
+int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, char *stringarg)
 {
 	spell *s = find_spell(type);
 	shstr *godname = NULL;
@@ -336,9 +336,9 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	}
 
 	/* Script NPCs can ALWAYS cast - even in no spell areas! */
-	if (item == spellNPC)
+	if (item == CAST_NPC)
 	{
-		/* If spellNPC, this usually comes from a script,
+		/* If CAST_NPC, this usually comes from a script,
 		 * and caster is the NPC and op the target. */
 		target = op;
 		op = caster;
@@ -351,7 +351,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		if (!caster)
 		{
-			if (item == spellNormal)
+			if (item == CAST_NORMAL)
 			{
 				caster = op;
 			}
@@ -392,7 +392,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 			/* Cancel player spells which are denied, but only real spells (not
 			 * potions, wands, etc). */
-			if (item == spellNormal)
+			if (item == CAST_NORMAL)
 			{
 				if (caster->path_denied & s->path)
 				{
@@ -418,7 +418,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 			/* If it a prayer, grab the player's god - if we have none, we
 			 * can't cast, except for potions. */
-			if (spells[type].type == SPELL_TYPE_PRIEST && item != spellPotion)
+			if (spells[type].type == SPELL_TYPE_PRIEST && item != CAST_POTION)
 			{
 				if ((godname = determine_god(op)) == shstr_cons.none)
 				{
@@ -430,13 +430,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		/* If it is an ability, assume that the designer of the archetype
 		 * knows what they are doing. */
-		if (item == spellNormal && !ability && SK_level(caster) < s->level && !QUERY_FLAG(op, FLAG_WIZ))
+		if (item == CAST_NORMAL && !ability && SK_level(caster) < s->level && !QUERY_FLAG(op, FLAG_WIZ))
 		{
 			new_draw_info(NDI_UNIQUE, op, "You lack enough skill to cast that spell.");
 			return 0;
 		}
 
-		if (item == spellPotion)
+		if (item == CAST_POTION)
 		{
 			/* If the potion casts a self spell, don't use the facing
 			 * direction. */
@@ -512,7 +512,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			return 0;
 		}
 
-		if (item == spellNormal && op->type == PLAYER)
+		if (item == CAST_NORMAL && op->type == PLAYER)
 		{
 			/* Chance to fumble the spell by too low wisdom. */
 			if (s->type == SPELL_TYPE_PRIEST && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
@@ -583,7 +583,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	 * we reach the return here, player levels up, cost of magic bullet increases
 	 * from 7 to 8. So the function would return 8 instead of 7, resulting in the
 	 * player's mana being -1. */
-	if (item != spellNPC)
+	if (item != CAST_NPC)
 	{
 		spell_cost = SP_level_spellpoint_cost(caster, type, -1);
 	}
@@ -736,7 +736,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 	play_sound_map(op->map, CMD_SOUND_EFFECT, spells[type].sound, op->x, op->y, 0, 0);
 
-	if (item == spellNPC)
+	if (item == CAST_NPC)
 	{
 		return success;
 	}

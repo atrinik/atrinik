@@ -376,7 +376,7 @@ void move_firewall(object *op)
 		return;
 	}
 
-	cast_spell(op, op, op->direction, op->stats.dam, 1, spellNPC, NULL);
+	cast_spell(op, op, op->direction, op->stats.dam, 1, CAST_NPC, NULL);
 }
 
 /**
