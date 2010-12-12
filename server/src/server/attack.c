@@ -1021,10 +1021,13 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			skill = owner->chosen_skill;
 		}
 
-		/* Calculate how much experience to gain. */
-		exp = calc_skill_exp(owner, op, skill->level);
-		/* Give the experience, sharing it with party members if applicable. */
-		share_kill_exp(owner, exp, skill);
+		if (skill)
+		{
+			/* Calculate how much experience to gain. */
+			exp = calc_skill_exp(owner, op, skill->level);
+			/* Give the experience, sharing it with party members if applicable. */
+			share_kill_exp(owner, exp, skill);
+		}
 	}
 
 	/* Player has been killed. */
