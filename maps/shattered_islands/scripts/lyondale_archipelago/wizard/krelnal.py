@@ -46,7 +46,7 @@ def main():
 		sp_nr = GetSpellNr(sp["spell"])
 
 		# Do we know the spell already?
-		if activator.DoKnowSpell(sp_nr):
+		if activator.Controller().DoKnowSpell(sp_nr):
 			me.SayTo(activator, "\nYou already know the spell {0}.".format(sp["spell"]))
 			return
 
@@ -56,10 +56,10 @@ def main():
 			me.SayTo(activator, "\nBut it seems that your wizardry spells skill is too low level!\n{0} requires at least level {1} wizardry spells.".format(sp["spell"].capitalize(), sp_info["level"]))
 			return
 
-		if activator.PayAmount(sp["cost"]) == 1:
+		if activator.PayAmount(sp["cost"]):
 			activator.Write("\nYou hand over {0} to {1}.".format(CostString(sp["cost"]), me.name), COLOR_YELLOW)
 			me.SayTo(activator, "\nHere we go!")
-			activator.AcquireSpell(sp_nr, LEARN)
+			activator.Controller().AcquireSpell(sp_nr)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
 

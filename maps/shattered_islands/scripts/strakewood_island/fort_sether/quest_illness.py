@@ -87,7 +87,7 @@ def npc_gwenty():
 		elif qm.started_part(5):
 			activator.Write("You tell Gwenty the priestess the news.", COLOR_YELLOW)
 			me.SayTo(activator, "\nExcellent news! Now I can finally offer you my usual services, as I don't have to tend the sick guards anymore. Also, to show my gratitude, please accept this spell from me...")
-			activator.AcquireSpell(GetSpellNr("cure disease"), LEARN)
+			activator.Controller().AcquireSpell(GetSpellNr("cure disease"))
 			qm.complete(sound = None)
 			return
 		# Haven't finished yet.

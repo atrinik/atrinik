@@ -123,7 +123,7 @@ def npc_talthor():
 				me.SayTo(activator, "\nYour wizardry spells skill is too low. Come back at level 70 wizardry.", 1)
 			else:
 				me.SayTo(activator, "\nNow, let me teach you the knowledge of firebolt...", 1)
-				activator.AcquireSpell(spell, LEARN)
+				activator.Controller().AcquireSpell(spell)
 				qm_t.complete()
 		else:
 			me.SayTo(activator, "\nGo and kill whoever is responsible for the planned attack as fast as you can.")

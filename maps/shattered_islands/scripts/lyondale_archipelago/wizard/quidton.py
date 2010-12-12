@@ -36,14 +36,14 @@ def main():
 				me.SayTo(activator, "\nGreat job fighting those ice giants. I hope frost nova will come in handy.")
 			elif qm2.finished():
 				me.SayTo(activator, "\nGood job fighting those ice giants. Now I can teach you frost nova...")
-				activator.AcquireSpell(GetSpellNr("frost nova"), LEARN)
+				activator.Controller().AcquireSpell(GetSpellNr("frost nova"))
 				qm2.complete()
 			else:
 				me.SayTo(activator, "\nDon't give up fighting the ice giants just yet! Remember, the portal is right behind me, and I can see you have what it takes to master frost nova.")
 
 		elif qm.finished():
 			me.SayTo(activator, "\nImpressive, you found my mana crystal! Very well then. Let me reward you for your help...")
-			activator.AcquireSpell(GetSpellNr("asteroid"), LEARN)
+			activator.Controller().AcquireSpell(GetSpellNr("asteroid"))
 			qm.complete()
 		else:
 			me.SayTo(activator, "\nFind my mana crystal the ice golems stole and I will reward you.\nYou can access the island the cave is on through the portal I have set up behind me for convenience.")

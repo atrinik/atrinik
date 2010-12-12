@@ -40,7 +40,7 @@ def main():
 				me.SayTo(activator, "\nYour wizardry spells skill is too low. Come back later when you train it up more, and I will teach you...", 1)
 			else:
 				me.SayTo(activator, "\nNow, let me teach you the knowledge of meteor...", 1)
-				activator.AcquireSpell(spell, LEARN)
+				activator.Controller().AcquireSpell(spell)
 				qm.complete()
 		else:
 			to_kill = qm.num_to_kill()

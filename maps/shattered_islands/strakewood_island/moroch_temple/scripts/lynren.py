@@ -24,7 +24,7 @@ def main():
 			me.SayTo(activator, "\nHello there...\n\n^Are you Lynren?^")
 		elif qm.finished():
 			me.SayTo(activator, "\nSplendid! Alright, let me have that book... This is what you have to do...")
-			activator.AcquireSpell(GetSpellNr("holy word"), LEARN)
+			activator.Controller().AcquireSpell(GetSpellNr("holy word"))
 			activator.Write("You use the holy word prayer to free Lynren the paladin.", COLOR_GREEN)
 			me.SayTo(activator, "\nThank you, thank you! I hope to meet you again once more... For now, farewell.")
 			qm.complete()

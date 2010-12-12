@@ -34,10 +34,10 @@ def main():
 			if spell == -1:
 				me.SayTo(activator, "\nUnknown spell.")
 			else:
-				if activator.DoKnowSpell(spell) == 1:
+				if activator.Controller().DoKnowSpell(spell):
 					me.SayTo(activator, "\nYou already know this prayer...")
 				else:
-					activator.AcquireSpell(spell, LEARN)
+					activator.Controller().AcquireSpell(spell)
 		else:
 			me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
 
@@ -54,10 +54,10 @@ def main():
 					qm.complete()
 					me.SayTo(activator, "\nHere we go!")
 
-					if activator.DoKnowSpell(spell) == 1:
+					if activator.Controller().DoKnowSpell(spell):
 						me.SayTo(activator, "\nYou already know this prayer...")
 					else:
-						activator.AcquireSpell(spell, LEARN)
+						activator.Controller().AcquireSpell(spell)
 		else:
 			me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
 

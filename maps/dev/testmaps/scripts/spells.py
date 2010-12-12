@@ -17,10 +17,10 @@ if words[0] == "learn":
 	if spell == -1:
 		me.SayTo(activator, "\nUnknown spell.")
 	else:
-		if activator.DoKnowSpell(spell) == 1:
+		if activator.Controller().DoKnowSpell(spell):
 			me.SayTo(activator, "\nYou already know that spell.")
 		else:
-			activator.AcquireSpell(spell, LEARN)
+			activator.Controller().AcquireSpell(spell)
 
 # Unlearn a spell.
 elif words[0] == "unlearn":
@@ -30,10 +30,10 @@ elif words[0] == "unlearn":
 	if spell == -1:
 		me.SayTo(activator, "\nUnknown spell.")
 	else:
-		if activator.DoKnowSpell(spell) == 0:
+		if not activator.Controller().DoKnowSpell(spell):
 			me.SayTo(activator, "\nYou don't know that spell.")
 		else:
-			activator.AcquireSpell(spell, UNLEARN)
+			activator.Controller().AcquireSpell(spell, False)
 
 else:
 	me.SayTo(activator, "\nI am the Spellgiver.\nSay ^learn <spellname>^ or ^unlearn <spellname>^ to learn or unlearn a given spell.")

@@ -39,7 +39,7 @@ def main():
 				me.SayTo(activator, "Your divine prayers skill is too low. Come back to me when you're at least level {0} in divine prayers.".format(spell_level), 1)
 			else:
 				me.SayTo(activator, "Allow me to teach you the knowledge of greater healing...", 1)
-				activator.AcquireSpell(spell, LEARN)
+				activator.Controller().AcquireSpell(spell)
 				qm.complete()
 		else:
 			me.SayTo(activator, "Continue fighting the ^orcs^ from the ^Underground City^ a bit more, we almost got them now!", 1)

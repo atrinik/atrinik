@@ -42,7 +42,7 @@ def main():
 				me.SayTo(activator, "\nYour wizardry spells skill is too low. Come back later when you train it up more, and I will teach you...", 1)
 			else:
 				me.SayTo(activator, "\nNow, let me teach you the knowledge of destruction...", 1)
-				activator.AcquireSpell(spell, LEARN)
+				activator.Controller().AcquireSpell(spell)
 				qm.complete()
 		else:
 			me.SayTo(activator, "You still need to kill the ant queen. The ant queen can be found by entering the well outside.", 1)

@@ -31,7 +31,7 @@ def main():
 			me.SayTo(activator, "\nThank you, the undead have stopped coming. Or are you here to learn about ^finger of death^?")
 		elif qm.finished():
 			me.SayTo(activator, "\nYou've done it! Thank you kind adventurer.\nNow, let me teach you the knowledge of ^finger of death^ as your reward...")
-			activator.AcquireSpell(GetSpellNr("finger of death"), LEARN)
+			activator.Controller().AcquireSpell(GetSpellNr("finger of death"))
 			qm.complete()
 		else:
 			me.SayTo(activator, "\nDon't give up just yet, please! You have to help us and banish those undead under the graveyard for good!")
