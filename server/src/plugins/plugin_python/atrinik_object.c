@@ -757,6 +757,11 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
 			mode = CAST_NORMAL;
 		}
 	}
+	/* Ensure the mode is valid. */
+	else if (mode == CAST_NORMAL && target != obj && obj->obj->type != PLAYER)
+	{
+		mode = CAST_NPC;
+	}
 
 	hooks->cast_spell(target->obj, obj->obj, direction, spell, 1, mode, option);
 
