@@ -1323,8 +1323,8 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
  * <h1>object.PayAmount(int value)</h1>
  * Get the object to pay a specified amount of money in copper.
  * @param value The amount of money in copper to pay for.
- * @return 1 if the object paid the money (the object had enough money in
- * inventory), 0 otherwise. */
+ * @return True if the object paid the money (the object had enough money
+ * in inventory), False otherwise. */
 static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 {
 	int to_pay;
@@ -1336,7 +1336,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 
 	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->pay_for_amount(to_pay, obj->obj));
+	Py_ReturnBoolean(hooks->pay_for_amount(to_pay, obj->obj));
 }
 
 /**
