@@ -4,7 +4,7 @@
 ## is to get it next to a wall, where it can't escape.
 
 from Atrinik import *
-from Common import freearr_x, freearr_y, get_randomized_dir
+from Common import get_randomized_dir
 import os
 
 me = WhoAmI()

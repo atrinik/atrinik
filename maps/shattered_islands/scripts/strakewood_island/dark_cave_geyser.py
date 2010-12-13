@@ -3,7 +3,7 @@
 
 from Atrinik import *
 from random import randint
-from Common import diagonal_distance, SIZEOFFREE, freearr_x, freearr_y
+from Common import diagonal_distance
 
 me = WhoAmI()
 

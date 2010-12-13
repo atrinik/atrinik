@@ -2,7 +2,6 @@
 ## Script for the Brynknot Lake portal in UC I.
 
 from Atrinik import *
-from Common import freearr_x, freearr_y, SIZEOFFREE1
 import random
 
 activator = WhoIsActivator()
