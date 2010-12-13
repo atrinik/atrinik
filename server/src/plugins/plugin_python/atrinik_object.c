@@ -1320,25 +1320,6 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.PayForItem(object what)</h1>
- * @warning Untested.
- * @todo Test, document. */
-static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *obj, PyObject *args)
-{
-	Atrinik_Object *what;
-
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &what))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-	OBJEXISTCHECK(what);
-
-	return Py_BuildValue("i", hooks->pay_for_item(what->obj, obj->obj));
-}
-
-/**
  * <h1>object.PayAmount(int value)</h1>
  * Get the object to pay a specified amount of money in copper.
  * @param value The amount of money in copper to pay for.
@@ -2005,7 +1986,6 @@ static PyMethodDef methods[] =
 	{"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS, 0},
 	{"GetItemCost", (PyCFunction) Atrinik_Object_GetItemCost, METH_VARARGS, 0},
 	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
-	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
 	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
