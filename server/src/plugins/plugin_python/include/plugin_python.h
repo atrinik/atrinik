@@ -201,10 +201,10 @@ extern PythonContext *current_context;
 typedef struct
 {
 	/** Name of the constant. */
-	char *name;
+	const char *name;
 
 	/** Value of the constant. */
-	int value;
+	const long value;
 } Atrinik_Constant;
 
 /** Types used in objects and maps structs. */

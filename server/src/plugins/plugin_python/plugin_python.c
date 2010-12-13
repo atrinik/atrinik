@@ -423,6 +423,136 @@ static const Atrinik_Constant constants[] =
 };
 /* @endcparser */
 
+/** Game object type constants. */
+/* @cparser
+ * @page plugin_python_constants_types Python game object type constants
+ * <h2>Python game object type constants</h2>
+ * List of the Python plugin game object type constants and their meaning. */
+static const Atrinik_Constant constants_types[] =
+{
+	{"PLAYER", PLAYER},
+	{"BULLET", BULLET},
+	{"ROD", ROD},
+	{"TREASURE", TREASURE},
+	{"POTION", POTION},
+	{"FOOD", FOOD},
+	{"POISON", POISON},
+	{"BOOK", BOOK},
+	{"CLOCK", CLOCK},
+	{"LIGHTNING", LIGHTNING},
+	{"ARROW", ARROW},
+	{"BOW", BOW},
+	{"WEAPON", WEAPON},
+	{"ARMOUR", ARMOUR},
+	{"PEDESTAL", PEDESTAL},
+	{"ALTAR", ALTAR},
+	{"CONFUSION", CONFUSION},
+	{"DOOR", DOOR},
+	{"KEY", KEY},
+	{"MAP", MAP},
+	{"MMISSILE", MMISSILE},
+	{"TIMED_GATE", TIMED_GATE},
+	{"TRIGGER", TRIGGER},
+	{"MAGIC_EAR", MAGIC_EAR},
+	{"TRIGGER_BUTTON", TRIGGER_BUTTON},
+	{"TRIGGER_ALTAR", TRIGGER_ALTAR},
+	{"TRIGGER_PEDESTAL", TRIGGER_PEDESTAL},
+	{"SHIELD", SHIELD},
+	{"HELMET", HELMET},
+	{"HORN", HORN},
+	{"MONEY", MONEY},
+	{"CLASS", CLASS},
+	{"GRAVESTONE", GRAVESTONE},
+	{"AMULET", AMULET},
+	{"PLAYERMOVER", PLAYERMOVER},
+	{"TELEPORTER", TELEPORTER},
+	{"CREATOR", CREATOR},
+	{"SKILL", SKILL},
+	{"EXPERIENCE", EXPERIENCE},
+	{"BOMB", BOMB},
+	{"THROWN_OBJ", THROWN_OBJ},
+	{"BLINDNESS", BLINDNESS},
+	{"GOD", GOD},
+	{"DETECTOR", DETECTOR},
+	{"SKILL_ITEM", SKILL_ITEM},
+	{"DEAD_OBJECT", DEAD_OBJECT},
+	{"DRINK", DRINK},
+	{"MARKER", MARKER},
+	{"HOLY_ALTAR", HOLY_ALTAR},
+	{"PEARL", PEARL},
+	{"GEM", GEM},
+	{"FIREWALL", FIREWALL},
+	{"CHECK_INV", CHECK_INV},
+	{"MOOD_FLOOR", MOOD_FLOOR},
+	{"EXIT", EXIT},
+	{"SHOP_FLOOR", SHOP_FLOOR},
+	{"SHOP_MAT", SHOP_MAT},
+	{"RING", RING},
+	{"FLOOR", FLOOR},
+	{"FLESH", FLESH},
+	{"INORGANIC", INORGANIC},
+	{"LIGHT_APPLY", LIGHT_APPLY},
+	{"LIGHTER", LIGHTER},
+	{"WALL", WALL},
+	{"LIGHT_SOURCE", LIGHT_SOURCE},
+	{"MISC_OBJECT", MISC_OBJECT},
+	{"MONSTER", MONSTER},
+	{"SPAWN_POINT", SPAWN_POINT},
+	{"LIGHT_REFILL", LIGHT_REFILL},
+	{"SPAWN_POINT_MOB", SPAWN_POINT_MOB},
+	{"SPAWN_POINT_INFO", SPAWN_POINT_INFO},
+	{"SPELLBOOK", SPELLBOOK},
+	{"ORGANIC", ORGANIC},
+	{"CLOAK", CLOAK},
+	{"CONE", CONE},
+	{"SPINNER", SPINNER},
+	{"GATE", GATE},
+	{"BUTTON", BUTTON},
+	{"HANDLE", HANDLE},
+	{"PIT", PIT},
+	{"TRAPDOOR", TRAPDOOR},
+	{"WORD_OF_RECALL", WORD_OF_RECALL},
+	{"SIGN", SIGN},
+	{"BOOTS", BOOTS},
+	{"GLOVES", GLOVES},
+	{"BASE_INFO", BASE_INFO},
+	{"RANDOM_DROP", RANDOM_DROP},
+	{"CONVERTER", CONVERTER},
+	{"BRACERS", BRACERS},
+	{"POISONING", POISONING},
+	{"SAVEBED", SAVEBED},
+	{"WAND", WAND},
+	{"ABILITY", ABILITY},
+	{"SCROLL", SCROLL},
+	{"DIRECTOR", DIRECTOR},
+	{"GIRDLE", GIRDLE},
+	{"FORCE", FORCE},
+	{"POTION_EFFECT", POTION_EFFECT},
+	{"JEWEL", JEWEL},
+	{"NUGGET", NUGGET},
+	{"EVENT_OBJECT", EVENT_OBJECT},
+	{"WAYPOINT_OBJECT", WAYPOINT_OBJECT},
+	{"QUEST_CONTAINER", QUEST_CONTAINER},
+	{"CLOSE_CON", CLOSE_CON},
+	{"CONTAINER", CONTAINER},
+	{"ARMOUR_IMPROVER", ARMOUR_IMPROVER},
+	{"WEAPON_IMPROVER", WEAPON_IMPROVER},
+	{"WEALTH", WEALTH},
+	{"SKILLSCROLL", SKILLSCROLL},
+	{"DEEP_SWAMP", DEEP_SWAMP},
+	{"IDENTIFY_ALTAR", IDENTIFY_ALTAR},
+	{"SWARM_SPELL", SWARM_SPELL},
+	{"RUNE", RUNE},
+	{"POWER_CRYSTAL", POWER_CRYSTAL},
+	{"CORPSE", CORPSE},
+	{"DISEASE", DISEASE},
+	{"SYMPTOM", SYMPTOM},
+	{"MAP_EVENT_OBJ", MAP_EVENT_OBJ},
+
+	{NULL, 0}
+};
+/* @endcparser */
+
 /** All the custom commands. */
 static PythonCmd CustomCommand[NR_CUSTOM_CMD];
 /** Contains the index of the next command that needs to be run. */
@@ -1981,6 +2111,33 @@ static PyObject *PyInit_Atrinik()
 #endif
 
 /**
+ * Creates a new module containing integer constants, and adds it to the
+ * specified module.
+ * @param module Module to add to.
+ * @param name Name of the created module.
+ * @param constants Constants to add. */
+static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *constants)
+{
+	char tmp[MAX_BUF];
+	size_t i = 0;
+	PyObject *module_tmp;
+
+	/* Create the new module. */
+	snprintf(tmp, sizeof(tmp), "Atrinik_%s", name);
+	module_tmp = PyModule_New(tmp);
+
+	/* Append constants. */
+	while (constants[i].name)
+	{
+		PyModule_AddIntConstant(module_tmp, constants[i].name, constants[i].value);
+		i++;
+	}
+
+	/* Add the module. */
+	PyDict_SetItemString(PyModule_GetDict(module), name, module_tmp);
+}
+
+/**
  * Construct a list from C array and add it to the specified module.
  * @param module Module to add to.
  * @param name Name of the list.
@@ -2051,6 +2208,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		return;
 	}
 
+	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
 	module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_SINT32);
 
