@@ -419,6 +419,10 @@ static const Atrinik_Constant constants[] =
 	{"GT_UPDATE_INV", GT_UPDATE_INV},
 	{"GT_NO_VALUE", GT_NO_VALUE},
 
+	{"SIZEOFFREE", SIZEOFFREE},
+	{"SIZEOFFREE1", SIZEOFFREE1},
+	{"SIZEOFFREE2", SIZEOFFREE2},
+
 	{NULL, 0}
 };
 /* @endcparser */
