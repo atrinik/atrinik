@@ -1980,6 +1980,34 @@ static PyObject *PyInit_Atrinik()
 }
 #endif
 
+/**
+ * Construct a list from C array and add it to the specified module.
+ * @param module Module to add to.
+ * @param name Name of the list.
+ * @param array Pointer to the C array.
+ * @param array_size Number of entries in the C array.
+ * @param type Type of the entries in the C array. */
+static void module_add_array(PyObject *module, const char *name, void *array, size_t array_size, field_type type)
+{
+	size_t i;
+	PyObject *list;
+
+	/* Create a new list. */
+	list = PyList_New(0);
+
+	/* Add entries to the list. */
+	for (i = 0; i < array_size; i++)
+	{
+		if (type == FIELDTYPE_SINT32)
+		{
+			PyList_Append(list, Py_BuildValue("i", ((sint32 *) array)[i]));
+		}
+	}
+
+	/* Add it to the module dictionary. */
+	PyDict_SetItemString(PyModule_GetDict(module), name, list);
+}
+
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
 	PyObject *m, *d;
@@ -2022,6 +2050,9 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	{
 		return;
 	}
+
+	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
+	module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_SINT32);
 
 	/* Initialize integer constants */
 	for (i = 0; constants[i].name; i++)
