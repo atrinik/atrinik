@@ -1308,6 +1308,7 @@ static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *obj, PyObject *args)
 /**
  * <h1>object.GetMoney()</h1>
  * Get all the money the object is carrying as integer.
+ * @note Can only be used on player or container objects.
  * @return The amount of money the object is carrying in copper (as
  * integer). */
 static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
