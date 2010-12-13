@@ -120,7 +120,7 @@ elif msg == "yes, i do":
 
 			old_apartment = apartments[pinfo.slaying]["path"]
 
-			if activator.PayAmount(apartment_info["price"]) == 1:
+			if activator.PayAmount(apartment_info["price"]):
 				upgrade_apartment(old_apartment, apartment_info["path"], apartments_info[apartment_id]["apartment_ids"][pinfo.last_heal], apartment_info["x"], apartment_info["y"])
 			else:
 				me.SayTo(activator, "\nSorry, you don't have enough money.")
@@ -146,7 +146,7 @@ elif text[0] == "sell" and text[1] == "me" and text[2] in apartments and text[3]
 	if pinfo == None:
 		apartment_info = apartments[text[2]]
 
-		if activator.PayAmount(apartment_info["price"]) == 1:
+		if activator.PayAmount(apartment_info["price"]):
 			activator.Write("You pay the money.", 0)
 			pinfo = activator.CreatePlayerInfo(apartment_tag)
 			pinfo.slaying = text[2]

@@ -34,7 +34,7 @@ def main():
 			me.SayTo(activator, "\nCertainly! The {0} will cost you {1}. Are you sure that you want to buy this luxury house and that you understand the ^fees^ system?\n\nIf you are, say ~I'm sure~.".format(house.get(house.name), CostString(house.get(house.cost))))
 
 		elif msg == "i'm sure":
-			if activator.PayAmount(house.get(house.cost)) == 1:
+			if activator.PayAmount(house.get(house.cost)):
 				me.SayTo(activator, "\nThank you for your business! We hope you enjoy your brand new house.")
 				house.add_house()
 			else:

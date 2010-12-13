@@ -19,7 +19,7 @@ if activator.type == Type.PLAYER:
 		cost = house.get(house.fee)
 
 		# Paid successfully?
-		if activator.PayAmount(cost) == 1:
+		if activator.PayAmount(cost):
 			activator.Write("You have paid {0} as your daily fee.".format(CostString(cost)), COLOR_GREEN)
 			# Reset it to the current time.
 			house.fees_reset()

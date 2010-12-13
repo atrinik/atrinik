@@ -45,7 +45,7 @@ def main():
 				me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
 				me.IdentifyItem(activator, IDENTIFY_MARKED, marked_object)
 			else:
-				if activator.PayAmount(costs["identify"]) == 1:
+				if activator.PayAmount(costs["identify"]):
 					me.SayTo(activator, "\nOk, I will identify the {0}.".format(marked_object.name))
 					activator.Write("You pay the money.", 0)
 					me.IdentifyItem(activator, IDENTIFY_MARKED, marked_object)
@@ -58,7 +58,7 @@ def main():
 			me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
 			me.IdentifyItem(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 		else:
-			if activator.PayAmount(costs["identify_all"]) == 1:
+			if activator.PayAmount(costs["identify_all"]):
 				me.SayTo(activator, "\nOk, I will identify all your items.")
 				activator.Write("You pay the money.", 0)
 				me.IdentifyItem(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())

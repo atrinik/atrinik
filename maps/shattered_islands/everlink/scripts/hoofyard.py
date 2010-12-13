@@ -34,7 +34,7 @@ def main():
 	elif msg == "teach me" and not has_skill:
 		if activator.level < req_level:
 			me.SayTo(activator, "\nYou are too low level. Come back when you are at least level {0}.".format(req_level))
-		elif activator.PayAmount(cost) == 1:
+		elif activator.PayAmount(cost):
 			me.SayTo(activator, "\nVery well then.\n~{0} teaches you the construction skill!~\nThank you, I hope it will serve you well.\nDo you need ^information^ about the construction skill now?".format(me.name))
 			activator.Controller().AcquireSkill(skill_nr)
 		else:
