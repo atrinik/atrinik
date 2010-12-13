@@ -1507,7 +1507,7 @@ static PyCodeObject *compilePython(char *filename)
 static int do_script(PythonContext *context, const char *filename, object *event)
 {
 	PyCodeObject *pycode;
-	PyObject *dict, *ret;
+	PyObject *module, *dict, *ret;
 	char path[HUGE_BUF];
 
 	strncpy(path, hooks->create_pathname(filename), sizeof(path) - 1);
@@ -1568,9 +1568,9 @@ static int do_script(PythonContext *context, const char *filename, object *event
 #endif
 
 		pushContext(context);
-		dict = PyDict_New();
-		PyDict_SetItemString(dict, "__builtins__", PyEval_GetBuiltins());
-		ret = PyEval_EvalCode(pycode, dict, NULL);
+		module = PyImport_AddModule("__main__");
+		dict = PyModule_GetDict(module);
+		ret = PyEval_EvalCode(pycode, dict, dict);
 
 		if (PyErr_Occurred())
 		{
@@ -1578,7 +1578,6 @@ static int do_script(PythonContext *context, const char *filename, object *event
 		}
 
 		Py_XDECREF(ret);
-		Py_DECREF(dict);
 
 		return 1;
 	}
