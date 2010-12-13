@@ -14,7 +14,7 @@ def is_in_player(obj):
 	while obj.env:
 		obj = obj.env
 
-	return obj.type == TYPE_PLAYER
+	return obj.type == Type.PLAYER
 
 def main():
 	# Don't allow skills to be used, except by administrators/DMs.
@@ -77,10 +77,10 @@ def main():
 		if is_in_player(other):
 			return
 
-		if other.type != TYPE_CONTAINER and not other.f_no_pick:
+		if other.type != Type.CONTAINER and not other.f_no_pick:
 			activator.Write("You must get it first!\n", COLOR_WHITE)
 			SetReturnValue(2)
-		elif other.type == TYPE_CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
+		elif other.type == Type.CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
 			activator.Write("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
 			SetReturnValue(2)
 	elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:

@@ -27,7 +27,7 @@ def main():
 
 		# Check if it really is a spawn point and whether there is a spawned
 		# monster, if so, set the spawned monster's enemy to activator too.
-		if obj.type == TYPE_SPAWN_POINT and obj.enemy:
+		if obj.type == Type.SPAWN_POINT and obj.enemy:
 			obj.enemy.enemy = activator
 
 main()

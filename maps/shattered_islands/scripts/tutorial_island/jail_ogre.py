@@ -26,7 +26,7 @@ def main():
 		elif qm.finished():
 			skill = GetSkillNr("find traps")
 
-			if activator.Controller().GetSkill(TYPE_SKILL, skill) == None:
+			if activator.Controller().GetSkill(Type.SKILL, skill) == None:
 				me.Communicate("/grin " + activator.name)
 				me.SayTo(activator, "\nAshahk! Yo bring me note!\nKobold chief bad time now, ha?\nNow me will teach you!\nSay ^teach me find traps^ now!")
 			else:
@@ -70,7 +70,7 @@ def main():
 
 				# Try to get the find traps skill object from the player; if
 				# found, we don't give the player the skill again.
-				if activator.Controller().GetSkill(TYPE_SKILL, skill) == None:
+				if activator.Controller().GetSkill(Type.SKILL, skill) == None:
 					activator.Write("{0} takes {1} from your inventory.".format(me.name, quest_items["jail_ogre"]["info"]["item_name"]), COLOR_WHITE)
 					me.SayTo(activator, "Here we go!")
 					me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Frah'ak teaches some ancient skill.", COLOR_YELLOW)

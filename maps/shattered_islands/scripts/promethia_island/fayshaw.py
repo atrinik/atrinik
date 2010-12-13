@@ -34,7 +34,7 @@ def main():
 			me.SayTo(activator, "Thank you for helping me out.", 1)
 		elif qm.finished():
 			me.SayTo(activator, "You have done an excellent job!", 1)
-			skill = activator.Controller().GetSkill(TYPE_SKILL, GetSkillNr("wizardry spells"))
+			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("wizardry spells"))
 			spell = GetSpellNr("meteor swarm")
 			spell_level = GetSpell(spell)["level"]
 

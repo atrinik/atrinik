@@ -54,7 +54,7 @@ def main():
 
 		if not marked:
 			me.SayTo(activator, "\nFirst mark the book you want to save your message into.")
-		elif marked.type != TYPE_BOOK:
+		elif marked.type != Type.BOOK:
 			me.SayTo(activator, "\nMarked item is not a book.")
 		else:
 			marked.msg = info.msg

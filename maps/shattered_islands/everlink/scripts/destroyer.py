@@ -11,7 +11,7 @@ activator = WhoIsActivator()
 if activator.owner and activator.owner.name == "magic wall":
 	# Go through objects on activator's square.
 	for ob in activator.map.GetFirstObject(activator.x, activator.y):
-		if ob.f_sys_object or ob.f_no_pick or not ob.weight or ob.type == TYPE_PLAYER:
+		if ob.f_sys_object or ob.f_no_pick or not ob.weight or ob.type == Type.PLAYER:
 			continue
 
 		# Randomly calculate when to destroy an item.

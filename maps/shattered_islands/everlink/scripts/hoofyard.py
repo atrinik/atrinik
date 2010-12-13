@@ -14,7 +14,7 @@ req_level = 45
 
 def main():
 	skill_nr = GetSkillNr("construction")
-	has_skill = activator.Controller().GetSkill(TYPE_SKILL, skill_nr)
+	has_skill = activator.Controller().GetSkill(Type.SKILL, skill_nr)
 
 	if msg == "hi" or msg == "hey" or msg == "hello":
 		if has_skill:

@@ -57,7 +57,7 @@ def main():
 			me.SayTo(activator, "\nI must have dropped it somewhere in the cave, and maybe one of the golems living there picked it up and ran away with it. I have been unable to find it.\n\n^Could I help you?^")
 
 		elif msg == "could i help you?":
-			skill = activator.Controller().GetSkill(TYPE_SKILL, GetSkillNr("wizardry spells"))
+			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("wizardry spells"))
 
 			if not skill or skill.level < 45:
 				me.SayTo(activator, "\nWell, the cave is a dangerous place. I don't think you'd be able to survive in there! Come back when you're around level 45 wizardry and it might just work...")
@@ -69,7 +69,7 @@ def main():
 	elif qm.completed() and not qm2.started():
 		if msg == "frost nova":
 			me.SayTo(activator, "A very powerful spell, it creates 3 asteroids in front of you at once.")
-			skill = activator.Controller().GetSkill(TYPE_SKILL, GetSkillNr("wizardry spells"))
+			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("wizardry spells"))
 
 			if not skill or skill.level < 90:
 				me.SayTo(activator, "If only you were level 90 wizardry or higher I could teach you...", 1)

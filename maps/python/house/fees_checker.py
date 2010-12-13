@@ -10,7 +10,7 @@ activator = WhoIsActivator()
 # We don't want the exits to actually work no matter what.
 SetReturnValue(1)
 
-if activator.type == TYPE_PLAYER:
+if activator.type == Type.PLAYER:
 	house = House(activator, GetOptions())
 
 	# Have the fees expires?

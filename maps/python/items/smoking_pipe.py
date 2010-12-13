@@ -7,7 +7,7 @@ activator = WhoIsActivator()
 
 def main():
 	# Safety.
-	if activator.type != TYPE_PLAYER:
+	if activator.type != Type.PLAYER:
 		return
 
 	# Find the marked pipeweed.
@@ -29,7 +29,7 @@ def main():
 
 	force = activator.CreateObject("force")
 	force.name = "pipeweed_force"
-	force.type = TYPE_POTION_EFFECT
+	force.type = Type.POTION_EFFECT
 	force.f_is_used_up = True
 	force.speed = 0.1
 	force.food = 50

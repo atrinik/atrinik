@@ -44,7 +44,7 @@ def main():
 			me.SayTo(activator, "\nI have set out on a mission to destroy all evil, and set this evil place as my first target... But I was overpowered and my magics were subdued by the evil magicians here...\n\n^Anything I can do to help?^\n^I see. Farewell.^")
 
 		elif msg == "anything i can do to help?":
-			skill = activator.Controller().GetSkill(TYPE_SKILL, GetSkillNr("divine prayers"))
+			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("divine prayers"))
 
 			if not skill or skill.level < 35:
 				me.SayTo(activator, "\nNo... I am afraid you can't... You don't have the power to break the unholy magics that imprisoned me... You would need at least lvl 35 divine prayers skill...")

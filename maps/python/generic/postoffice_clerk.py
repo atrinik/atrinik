@@ -30,7 +30,7 @@ def check_send(player, object):
 		me.SayTo(activator, "\nYou must first unapply that item.")
 		return False
 	# Don't allow sending containers with items inside it.
-	elif object.type == TYPE_CONTAINER and object.inv:
+	elif object.type == Type.CONTAINER and object.inv:
 		me.SayTo(activator, "\nDue to heightened security levels all items must be removed from containers and sent separately.")
 		return False
 	# Check if the item can be sent.
@@ -40,7 +40,7 @@ def check_send(player, object):
 	elif object.quickslot:
 		me.SayTo(activator, "\nYou must first remove that item from your quickslots.")
 		return False
-	elif object.type == TYPE_MONEY:
+	elif object.type == Type.MONEY:
 		me.SayTo(activator, "\nI'm terribly sorry, but we do not allow money to be sent.")
 		return False
 	# Sending to ourselves?

@@ -10,13 +10,13 @@ event_num = GetEventNumber()
 enabled = False
 
 # Handle map event objects.
-if WhatIsEvent().type == TYPE_MAP_EVENT_OBJ:
+if WhatIsEvent().type == Type.MAP_EVENT_OBJ:
 	# Apply event.
 	if event_num == MEVENT_APPLY:
 		other = WhoIsOther()
 
 		# Do not allow players to apply lights if they haven't killed Hierro.
-		if activator.type == TYPE_PLAYER and other.type == TYPE_LIGHT_APPLY and not get_quest_object(activator, "Hierro's Ring"):
+		if activator.type == Type.PLAYER and other.type == Type.LIGHT_APPLY and not get_quest_object(activator, "Hierro's Ring"):
 			SetReturnValue(2)
 			activator.Write("Something seems to prevent you from using the {}...".format(other.GetName()), COLOR_WHITE)
 	else:
@@ -38,7 +38,7 @@ elif event_num == EVENT_APPLY:
 
 			# Find applyable lights in player's inventory and extinguish
 			# them all.
-			for obj in activator.FindObject(mode = INVENTORY_CONTAINERS, type = TYPE_LIGHT_APPLY, multiple = True):
+			for obj in activator.FindObject(mode = INVENTORY_CONTAINERS, type = Type.LIGHT_APPLY, multiple = True):
 				# Is the light actually lit?
 				if obj.glow_radius:
 					done += 1

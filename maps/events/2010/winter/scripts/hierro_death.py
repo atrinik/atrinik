@@ -26,15 +26,15 @@ me.map.Message(me.x, me.y, 20, "You hear a booming voice...", COLOR_GREEN)
 me.map.Message(me.x, me.y, 20, "Noooooooooooooooo! Curse you {}, curse yoouuu!...".format(activator.race), COLOR_RED)
 
 # Remove the spawn point... no more Hierro for this player.
-me.FindObject(type = TYPE_SPAWN_POINT_INFO).owner.Remove()
+me.FindObject(type = Type.SPAWN_POINT_INFO).owner.Remove()
 
 for (x, y) in locations:
 	for obj in me.map.GetFirstObject(x, y):
 		# Remove markers, inventory checkers and signs (magic mouths).
-		if obj.type in (TYPE_MARKER, TYPE_CHECK_INV, TYPE_SIGN):
+		if obj.type in (Type.MARKER, Type.CHECK_INV, Type.SIGN):
 			obj.Remove()
 		# Unlock doors.
-		elif obj.type == TYPE_DOOR:
+		elif obj.type == Type.DOOR:
 			obj.slaying = None
 		# Change torches back to normal and light them up.
 		elif obj.name == "attached torch":
