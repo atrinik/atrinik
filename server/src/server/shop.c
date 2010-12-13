@@ -305,7 +305,7 @@ char *query_cost_string(object *tmp, object *who, int flag)
 sint64 query_money(object *op)
 {
 	object *tmp;
-	sint64	total = 0;
+	sint64 total = 0;
 
 	if (op->type != PLAYER && op->type != CONTAINER)
 	{
