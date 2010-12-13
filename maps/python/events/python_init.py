@@ -1,8 +1,9 @@
-import os.path, sys
+import os.path, sys, gc
 from Atrinik import CreatePathname
 
 path = CreatePathname("/python/events/init")
 sys.path.insert(0, CreatePathname("/python"))
+gc.enable()
 
 if os.path.exists(path):
 	files = os.listdir(path)
