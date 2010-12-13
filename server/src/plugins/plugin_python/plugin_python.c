@@ -57,7 +57,7 @@ PythonContext *current_context;
  * @page plugin_python_constants Python constants
  * <h2>Python constants</h2>
  * List of the Python plugin constants and their meaning. */
-static Atrinik_Constant constants[] =
+static const Atrinik_Constant constants[] =
 {
 	{"NORTH", NORTH},
 	{"NORTHEAST", NORTHEAST},
