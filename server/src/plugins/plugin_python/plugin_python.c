@@ -2457,7 +2457,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 			return Py_BuildValue("I", *(uint32 *) field_ptr);
 
 		case FIELDTYPE_SINT32:
-			return Py_BuildValue("l", *(sint32 *) field_ptr);
+			return Py_BuildValue("i", *(sint32 *) field_ptr);
 
 		case FIELDTYPE_UINT64:
 			return Py_BuildValue("K", *(uint64 *) field_ptr);
