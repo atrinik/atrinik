@@ -155,6 +155,8 @@ struct plugin_hooklist hooklist =
 	create_treasure,
 	dump_object_rec,
 	hit_player,
+	move_ob,
+	move_player,
 
 	season_name,
 	weekdays,

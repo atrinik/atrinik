@@ -1911,6 +1911,41 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
 	return Py_None;
 }
 
+/**
+ * <h1>object.Move(int direction)</h1>
+ * Move the object in the specified direction. The object must have the
+ * correct (combination of) object::terrain_flag set in order to able to
+ * move onto the new square.
+ * @param direction Direction to move into, one of @ref direction_constants.
+ * @throws AtrinikError if object is not on map.
+ * @return True if the object was moved successfully, False otherwise. */
+static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
+{
+	int direction;
+
+	if (!PyArg_ParseTuple(args, "i", &direction))
+	{
+		return NULL;
+	}
+
+	OBJEXISTCHECK(obj);
+
+	if (!obj->obj->map)
+	{
+		PyErr_SetString(AtrinikError, "object.Move(): Object not on map.");
+		return NULL;
+	}
+
+	if (obj->obj->type == PLAYER)
+	{
+		Py_ReturnBoolean(hooks->move_player(obj->obj, direction));
+	}
+	else
+	{
+		Py_ReturnBoolean(hooks->move_ob(obj->obj, direction, obj->obj));
+	}
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -1964,6 +1999,7 @@ static PyMethodDef methods[] =
 	{"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
 	{"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
