@@ -420,6 +420,32 @@ static PyObject *Atrinik_Player_FindMarkedObject(Atrinik_Player *pl, PyObject *a
 	return wrap_object(hooks->find_marked_object(pl->pl->ob));
 }
 
+/**
+ * <h1>player.Sound(string filename, int [type = @ref CMD_SOUND_EFFECT], int [x = 0], int [y = 0], int [loop = 0], int [volume = 0])</h1>
+ * Play a sound to the specified player.
+ * @param filename Sound file to play.
+ * @param type Sound type being played, one of @ref CMD_SOUND_xxx.
+ * @param x X position where the sound is playing from. Can be 0.
+ * @param y Y position where the sound is playing from. Can be 0.
+ * @param loop How many times to loop the sound, -1 for infinite number.
+ * @param volume Volume adjustment. */
+static PyObject *Atrinik_Player_Sound(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"filename", "type", "x", "y", "loop", "volume", NULL};
+	const char *filename;
+	int type = CMD_SOUND_EFFECT, x = 0, y = 0, loop = 0, volume = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|iiiii", kwlist, &filename, &type, &x, &y, &loop, &volume))
+	{
+		return NULL;
+	}
+
+	hooks->play_sound_player_only(pl->pl, type, filename, x, y, loop, volume);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -440,6 +466,7 @@ static PyMethodDef methods[] =
 	{"DoKnowSkill", (PyCFunction) Atrinik_Player_DoKnowSkill, METH_VARARGS, 0},
 	{"AcquireSkill", (PyCFunction) Atrinik_Player_AcquireSkill, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
+	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 
