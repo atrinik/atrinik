@@ -91,13 +91,13 @@ def main_say():
 
 	# An example of using GetGender().
 	elif msg == "get gender":
-		if activator.GetGender() == MALE:
+		if activator.GetGender() == Gender.MALE:
 			me.SayTo(activator, "\nYour gender is: male.")
-		elif activator.GetGender() == FEMALE:
+		elif activator.GetGender() == Gender.FEMALE:
 			me.SayTo(activator, "\nYour gender is: female.")
-		elif activator.GetGender() == NEUTER:
+		elif activator.GetGender() == Gender.NEUTER:
 			me.SayTo(activator, "\nYour gender is: neuter.")
-		elif activator.GetGender() == HERMAPHRODITE:
+		elif activator.GetGender() == Gender.HERMAPHRODITE:
 			me.SayTo(activator, "\nYour gender is: hermaphrodite.")
 
 		# Find out the gender ID.
@@ -108,16 +108,16 @@ def main_say():
 	# An example of using SetGender().
 	elif words[0] == "set" and words[1] == "gender" and len(words) > 2:
 		if words[2] == "male":
-			activator.SetGender(MALE)
+			activator.SetGender(Gender.MALE)
 			me.SayTo(activator, "\nYour gender is now male.")
 		elif words[2] == "female":
-			activator.SetGender(FEMALE)
+			activator.SetGender(Gender.FEMALE)
 			me.SayTo(activator, "\nYour gender is now female.")
 		elif words[2] == "neuter":
-			activator.SetGender(NEUTER)
+			activator.SetGender(Gender.NEUTER)
 			me.SayTo(activator, "\nYour gender is now neuter.")
 		elif words[2] == "hermaphrodite":
-			activator.SetGender(HERMAPHRODITE)
+			activator.SetGender(Gender.HERMAPHRODITE)
 			me.SayTo(activator, "\nYour gender is now hermaphrodite.")
 		else:
 			me.SayTo(activator, "\nUnknown gender. Try one of:\n^set gender male^, ^set gender female^, ^set gender neuter^ or ^set gender hermaphrodite^.")
