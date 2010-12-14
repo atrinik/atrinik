@@ -113,9 +113,9 @@ static const Atrinik_Constant constants[] =
 	{"MAP_INFO_NORMAL", MAP_INFO_NORMAL},
 	{"MAP_INFO_ALL", MAP_INFO_ALL},
 
-	{"COST_TRUE", F_TRUE},
-	{"COST_BUY", F_BUY},
-	{"COST_SELL", F_SELL},
+	{"COST_TRUE", COST_TRUE},
+	{"COST_BUY", COST_BUY},
+	{"COST_SELL", COST_SELL},
 
 	{"APPLY_TOGGLE", 0},
 	{"APPLY_ALWAYS", AP_APPLY},

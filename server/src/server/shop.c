@@ -72,7 +72,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 	{
 		if (tmp->arch != NULL)
 		{
-			if (flag == F_BUY)
+			if (flag == COST_BUY)
 			{
 				LOG(llevBug, "BUG: query_cost(): Asking for buy-value of unidentified object %s.\n", query_name(tmp, NULL));
 				val = tmp->arch->clone.value * number;
@@ -101,7 +101,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 			/* No archetype with this object - we generate some dummy values to avoid server break */
 			LOG(llevBug, "BUG: query_cost(): Have object with no archetype: %s\n", query_name(tmp, NULL));
 
-			if (flag == F_BUY)
+			if (flag == COST_BUY)
 			{
 				LOG(llevBug, "BUG: query_cost(): Asking for buy-value of unidentified object without arch.\n");
 				val = number * 100;
@@ -124,7 +124,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 	}
 
 	/* We are done if we only want get the real value */
-	if (flag == F_TRUE)
+	if (flag == COST_TRUE)
 	{
 		return val;
 	}
@@ -148,7 +148,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 	}
 
 	/* Now adjust for sell or buy multiplier */
-	if (flag == F_BUY)
+	if (flag == COST_BUY)
 	{
 		diff = (double) (1.0 - (double) cha_bonus[charisma]);
 	}
@@ -384,7 +384,7 @@ int pay_for_amount(sint64 to_pay, object *pl)
  * @return 1 if object was bought, 0 otherwise. */
 int pay_for_item(object *op, object *pl)
 {
-	sint64 to_pay = query_cost(op, pl, F_BUY);
+	sint64 to_pay = query_cost(op, pl, COST_BUY);
 	object *pouch;
 
 	if (to_pay == 0.0)
@@ -620,11 +620,11 @@ int get_payment(object *pl, object *op)
 
 	if (op != NULL && QUERY_FLAG(op, FLAG_UNPAID))
 	{
-		strncpy(buf, query_cost_string(op, pl, F_BUY), sizeof(buf));
+		strncpy(buf, query_cost_string(op, pl, COST_BUY), sizeof(buf));
 
 		if (!pay_for_item(op, pl))
 		{
-			sint64 i = query_cost(op, pl, F_BUY) - query_money(pl);
+			sint64 i = query_cost(op, pl, COST_BUY) - query_money(pl);
 
 			CLEAR_FLAG(op, FLAG_UNPAID);
 			new_draw_info_format(NDI_UNIQUE, pl, "You lack %s to buy %s.", cost_string_from_value(i), query_name(op, NULL));
@@ -685,7 +685,7 @@ void sell_item(object *op, object *pl, sint64 value)
 	}
 	else
 	{
-		i = query_cost(op, pl, F_SELL);
+		i = query_cost(op, pl, COST_SELL);
 	}
 
 	if (op && op->custom_name)

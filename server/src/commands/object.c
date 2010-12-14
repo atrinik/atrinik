@@ -312,13 +312,13 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 			SET_FLAG(tmp, FLAG_STARTEQUIP);
 			tmp->nrof = nrof;
 			tmp_nrof = nrof;
-			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, pl, F_BUY));
+			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, pl, COST_BUY));
 		}
 		/* This is an unique shop item */
 		else
 		{
 			tmp->nrof = nrof;
-			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, pl, F_BUY));
+			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, pl, COST_BUY));
 			tmp->nrof = tmp_nrof;
 		}
 	}
@@ -621,13 +621,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 			SET_FLAG(tmp, FLAG_STARTEQUIP);
 			tmp->nrof = nrof;
 			tmp_nrof = nrof;
-			new_draw_info_format(NDI_UNIQUE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			new_draw_info_format(NDI_UNIQUE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
 		}
 		/* This is an unique shop item */
 		else
 		{
 			tmp->nrof = nrof;
-			new_draw_info_format(NDI_UNIQUE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			new_draw_info_format(NDI_UNIQUE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
 			tmp->nrof = tmp_nrof;
 		}
 	}
@@ -1618,7 +1618,7 @@ void examine(object *op, object *tmp)
 		/* Unpaid clone shop item */
 		if (QUERY_FLAG(tmp, FLAG_UNPAID))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, F_BUY));
+			new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 		}
 		/* God-given item */
 		else
@@ -1629,7 +1629,7 @@ void examine(object *op, object *tmp)
 			{
 				if (tmp->value)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, F_TRUE));
+					new_draw_info_format(NDI_UNIQUE, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
 				}
 				else
 				{
@@ -1644,11 +1644,11 @@ void examine(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, F_BUY));
+				new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, F_TRUE));
+				new_draw_info_format(NDI_UNIQUE, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
 				goto dirty_little_jump1;
 			}
 		}
@@ -1675,7 +1675,7 @@ dirty_little_jump1:
 					}
 				}
 
-				new_draw_info_format(NDI_UNIQUE, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, F_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
+				new_draw_info_format(NDI_UNIQUE, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, COST_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
 			}
 		}
 	}

@@ -1301,14 +1301,15 @@
 #define EXIT_Y(xyz) (xyz)->stats.sp
 
 /**
- * @defgroup F_xxx F_xxx
+ * @defgroup COST_xxx Cost modes
+ * Cost modes.
  *@{*/
 /** Value for buying the item. */
-#define F_BUY 0
+#define COST_BUY 0
 /** Value for selling the item. */
-#define F_SELL 1
+#define COST_SELL 1
 /** True value of item, unadjusted. */
-#define F_TRUE 2
+#define COST_TRUE 2
 /*@}*/
 
 #define DIRX(xyz) freearr_x[(xyz)->direction]

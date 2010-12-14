@@ -1280,10 +1280,7 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
  * <h1>object.GetItemCost(object what, int type)</h1>
  * Get cost of an object in integer value.
  * @param what The object to query cost for.
- * @param type Possible types:
- * - <b>COST_TRUE</b>
- * - <b>COST_BUY</b>
- * - <b>COST_SELL</b>
+ * @param type One of @ref COST_xxx.
  * @return The cost of the item as integer. */
 static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *obj, PyObject *args)
 {
