@@ -1277,12 +1277,12 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.GetItemCost(object what, int type)</h1>
+ * <h1>object.GetCost(object what, int type)</h1>
  * Get cost of an object in integer value.
  * @param what The object to query cost for.
  * @param type One of @ref COST_xxx.
  * @return The cost of the item as integer. */
-static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *obj, PyObject *args)
+static PyObject *Atrinik_Object_GetCost(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *what;
 	int flag;
@@ -1947,7 +1947,7 @@ static PyMethodDef methods[] =
 	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
 	{"IdentifyItem", (PyCFunction) Atrinik_Object_IdentifyItem, METH_VARARGS, 0},
 	{"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS, 0},
-	{"GetItemCost", (PyCFunction) Atrinik_Object_GetItemCost, METH_VARARGS, 0},
+	{"GetCost", (PyCFunction) Atrinik_Object_GetCost, METH_VARARGS, 0},
 	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
 	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
 	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
