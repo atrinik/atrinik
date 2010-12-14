@@ -1216,11 +1216,7 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *obj, PyObject *args)
  * <h1>object.IdentifyItem(object target, int mode, object [marked = None])</h1>
  * Identify item(s) in target's inventory.
  * @param target The target object.
- * @param mode Possible modes:
- * - <b>Atrinik.IDENTIFY_NORMAL</b>: Normal identify.
- * - <b>Atrinik.IDENTIFY_ALL</b>: Identify all items, if 'marked' is set,
- *   all items inside that.
- * - <b>Atrinik.IDENTIFY_MARKED</b>: Identify only marked item.
+ * @param mode One of @ref identify_modes.
  * @param marked Marked item. */
 static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *obj, PyObject *args)
 {
