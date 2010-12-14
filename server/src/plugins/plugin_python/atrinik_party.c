@@ -170,6 +170,16 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 
 /*@}*/
 
+/** Available Python methods for the AtrinikParty object */
+static PyMethodDef PartyMethods[] =
+{
+	{"AddMember", (PyCFunction) Atrinik_Party_AddMember, METH_VARARGS, 0},
+	{"RemoveMember", (PyCFunction) Atrinik_Party_RemoveMember, METH_VARARGS, 0},
+	{"GetMembers", (PyCFunction) Atrinik_Party_GetMembers, METH_NOARGS, 0},
+	{"SendMessage", (PyCFunction) Atrinik_Party_SendMessage, METH_VARARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
 /**
  * Get party's attribute.
  * @param party Python party wrapper.
@@ -240,16 +250,6 @@ static PyObject *Atrinik_Party_str(Atrinik_Party *self)
 {
 	return Py_BuildValue("s", self->party->name);
 }
-
-/** Available Python methods for the AtrinikParty object */
-static PyMethodDef PartyMethods[] =
-{
-	{"AddMember", (PyCFunction) Atrinik_Party_AddMember, METH_VARARGS, 0},
-	{"RemoveMember", (PyCFunction) Atrinik_Party_RemoveMember, METH_VARARGS, 0},
-	{"GetMembers", (PyCFunction) Atrinik_Party_GetMembers, METH_NOARGS, 0},
-	{"SendMessage", (PyCFunction) Atrinik_Party_SendMessage, METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
-};
 
 static int Atrinik_Party_InternalCompare(Atrinik_Party *left, Atrinik_Party *right)
 {

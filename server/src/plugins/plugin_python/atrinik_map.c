@@ -422,6 +422,24 @@ static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args)
 
 /*@}*/
 
+/** Available Python methods for the AtrinikMap object */
+static PyMethodDef MapMethods[] =
+{
+	{"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
+	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
+	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
+	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
+	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS, 0},
+	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
+	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
+	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_NOARGS, 0},
+	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS, 0},
+	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
+	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
 /**
  * Get map's attribute.
  * @param map Python map wrapper.
@@ -550,24 +568,6 @@ static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 	snprintf(buf, sizeof(buf), "[%s \"%s\"]", self->map->path, self->map->name);
 	return Py_BuildValue("s", buf);
 }
-
-/** Available Python methods for the AtrinikMap object */
-static PyMethodDef MapMethods[] =
-{
-	{"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
-	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
-	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
-	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
-	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS | METH_KEYWORDS, 0},
-	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS, 0},
-	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
-	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
-	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_NOARGS, 0},
-	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS, 0},
-	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
-	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
-};
 
 static int Atrinik_Map_InternalCompare(Atrinik_Map *left, Atrinik_Map *right)
 {

@@ -1296,6 +1296,47 @@ static PyObject *Atrinik_GetFirstPlayer(PyObject *self, PyObject *args)
 /*@}*/
 
 /**
+ * Here is the Python Declaration Table, used by the interpreter to make
+ * an interface with the C code. */
+static PyMethodDef AtrinikMethods[] =
+{
+	{"LoadObject", Atrinik_LoadObject, METH_VARARGS, 0},
+	{"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, 0},
+	{"FindPlayer", Atrinik_FindPlayer, METH_VARARGS, 0},
+	{"PlayerExists", Atrinik_PlayerExists, METH_VARARGS, 0},
+	{"WhoAmI", Atrinik_WhoAmI, METH_NOARGS, 0},
+	{"WhoIsActivator", Atrinik_WhoIsActivator, METH_NOARGS, 0},
+	{"WhoIsOther", Atrinik_WhoIsOther, METH_NOARGS, 0},
+	{"WhatIsEvent", Atrinik_WhatIsEvent, METH_NOARGS, 0},
+	{"GetEventNumber", Atrinik_GetEventNumber, METH_NOARGS, 0},
+	{"WhatIsMessage", Atrinik_WhatIsMessage, METH_NOARGS, 0},
+	{"GetOptions", Atrinik_GetOptions, METH_NOARGS, 0},
+	{"GetReturnValue", Atrinik_GetReturnValue, METH_NOARGS, 0},
+	{"SetReturnValue", Atrinik_SetReturnValue, METH_VARARGS, 0},
+	{"GetEventParameters", Atrinik_GetEventParameters, METH_NOARGS, 0},
+	{"GetSpellNr", Atrinik_GetSpellNr, METH_VARARGS, 0},
+	{"GetSpell", Atrinik_GetSpell, METH_VARARGS, 0},
+	{"GetSkillNr", Atrinik_GetSkillNr, METH_VARARGS, 0},
+	{"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
+	{"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
+	{"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
+	{"LocateBeacon", Atrinik_LocateBeacon, METH_VARARGS, 0},
+	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
+	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
+	{"LOG", Atrinik_LOG, METH_VARARGS, 0},
+	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
+	{"FindFace", Atrinik_FindFace, METH_VARARGS, 0},
+	{"FindAnimation", Atrinik_FindAnimation, METH_VARARGS, 0},
+	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
+	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
+	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
+	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
+	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
+	{"GetFirstPlayer", Atrinik_GetFirstPlayer, METH_NOARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
+/**
  * Open a Python file.
  * @param filename File to open.
  * @return Python object of the file, NULL on failure. */
@@ -1868,47 +1909,6 @@ MODULEAPI void postinitPlugin()
 		Py_DECREF(scriptfile);
 	}
 }
-
-/**
- * Here is the Python Declaration Table, used by the interpreter to make
- * an interface with the C code. */
-static PyMethodDef AtrinikMethods[] =
-{
-	{"LoadObject", Atrinik_LoadObject, METH_VARARGS, 0},
-	{"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, 0},
-	{"FindPlayer", Atrinik_FindPlayer, METH_VARARGS, 0},
-	{"PlayerExists", Atrinik_PlayerExists, METH_VARARGS, 0},
-	{"WhoAmI", Atrinik_WhoAmI, METH_NOARGS, 0},
-	{"WhoIsActivator", Atrinik_WhoIsActivator, METH_NOARGS, 0},
-	{"WhoIsOther", Atrinik_WhoIsOther, METH_NOARGS, 0},
-	{"WhatIsEvent", Atrinik_WhatIsEvent, METH_NOARGS, 0},
-	{"GetEventNumber", Atrinik_GetEventNumber, METH_NOARGS, 0},
-	{"WhatIsMessage", Atrinik_WhatIsMessage, METH_NOARGS, 0},
-	{"GetOptions", Atrinik_GetOptions, METH_NOARGS, 0},
-	{"GetReturnValue", Atrinik_GetReturnValue, METH_NOARGS, 0},
-	{"SetReturnValue", Atrinik_SetReturnValue, METH_VARARGS, 0},
-	{"GetEventParameters", Atrinik_GetEventParameters, METH_NOARGS, 0},
-	{"GetSpellNr", Atrinik_GetSpellNr, METH_VARARGS, 0},
-	{"GetSpell", Atrinik_GetSpell, METH_VARARGS, 0},
-	{"GetSkillNr", Atrinik_GetSkillNr, METH_VARARGS, 0},
-	{"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
-	{"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
-	{"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
-	{"LocateBeacon", Atrinik_LocateBeacon, METH_VARARGS, 0},
-	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
-	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
-	{"LOG", Atrinik_LOG, METH_VARARGS, 0},
-	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
-	{"FindFace", Atrinik_FindFace, METH_VARARGS, 0},
-	{"FindAnimation", Atrinik_FindAnimation, METH_VARARGS, 0},
-	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
-	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
-	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
-	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
-	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
-	{"GetFirstPlayer", Atrinik_GetFirstPlayer, METH_NOARGS, 0},
-	{NULL, NULL, 0, 0}
-};
 
 #ifdef IS_PY3K
 static PyModuleDef AtrinikModule =
