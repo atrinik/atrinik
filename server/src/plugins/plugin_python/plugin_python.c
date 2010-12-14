@@ -1108,86 +1108,6 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>GetGenderStr(int gender, string type)</h1>
- * Get string representation of a gender ID depending on 'type'.
- * @param gender Gender ID. One of @ref GENDER_xxx, or -1 to get a list of
- * possible genders.
- * @param type Type of the gender string to get:
- * - <b>noun</b>: 'male', 'female', ...
- * - <b>subjective</b>: 'he', 'she', ...
- * - <b>subjective_upper</b>: 'He', 'She', ...
- * - <b>objective</b>: 'him', 'her', 'it', ...
- * - <b>possessive</b>: 'his', 'her', ...
- * - <b>reflexive</b>: 'himself', 'herself', ...
- * @throws ValueError if 'gender' is invalid.
- * @throws ValueError if 'type' has unknown value.
- * @return String representation of the gender, or a list of possible genders
- * if 'gender' was -1. */
-static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
-{
-	int gender;
-	const char *type, **arr;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "is", &gender, &type))
-	{
-		return NULL;
-	}
-
-	if (gender < -1 || gender >= GENDER_MAX)
-	{
-		PyErr_SetString(PyExc_ValueError, "GetGenderStr(): Invalid value for gender parameter.");
-		return NULL;
-	}
-
-	if (!strcmp(type, "noun"))
-	{
-		arr = hooks->gender_noun;
-	}
-	else if (!strcmp(type, "subjective"))
-	{
-		arr = hooks->gender_subjective;
-	}
-	else if (!strcmp(type, "subjective_upper"))
-	{
-		arr = hooks->gender_subjective_upper;
-	}
-	else if (!strcmp(type, "objective"))
-	{
-		arr = hooks->gender_objective;
-	}
-	else if (!strcmp(type, "possessive"))
-	{
-		arr = hooks->gender_possessive;
-	}
-	else if (!strcmp(type, "reflexive"))
-	{
-		arr = hooks->gender_reflexive;
-	}
-	else
-	{
-		PyErr_SetString(PyExc_ValueError, "GetGenderStr(): Invalid value for type parameter.");
-		return NULL;
-	}
-
-	if (gender == -1)
-	{
-		PyObject *list = PyList_New(0);
-		size_t i;
-
-		for (i = 0; i < GENDER_MAX; i++)
-		{
-			PyList_Append(list, Py_BuildValue("s", arr[i]));
-		}
-
-		return list;
-	}
-
-	return Py_BuildValue("s", arr[gender]);
-}
-
-/**
  * <h1>GetRangeVectorFromMapCoords(map map, int x, int y, map map2, int x2, int y2, int [flags = 0])</h1>
  * Get the distance and direction from one map coordinate to another.
  * @param map From which map to get distance from.
@@ -1982,7 +1902,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
 	{"FindFace", Atrinik_FindFace, METH_VARARGS, 0},
 	{"FindAnimation", Atrinik_FindAnimation, METH_VARARGS, 0},
-	{"GetGenderStr", Atrinik_GetGenderStr, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
