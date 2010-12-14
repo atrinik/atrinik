@@ -576,7 +576,7 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
  * force object.
  *
  * To test for guild force, use
- * @ref Atrinik_Object_GetGuildForce "Atrinik.GetGuildForce()".
+ * @ref Atrinik_Object_GetGuildForce "GetGuildForce()".
  *
  * To set the guild tag you can use this function, because it returns the
  * guild force object after setting the title.
@@ -1281,9 +1281,9 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
  * Get cost of an object in integer value.
  * @param what The object to query cost for.
  * @param type Possible types:
- * - <b>Atrinik.COST_TRUE</b>
- * - <b>Atrinik.COST_BUY</b>
- * - <b>Atrinik.COST_SELL</b>
+ * - <b>COST_TRUE</b>
+ * - <b>COST_BUY</b>
+ * - <b>COST_SELL</b>
  * @return The cost of the item as integer. */
 static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *obj, PyObject *args)
 {
@@ -1336,7 +1336,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Clone(int [mode = Atrinik.CLONE_WITH_INVENTORY])</h1>
+ * <h1>object.Clone(int [mode = CLONE_WITH_INVENTORY])</h1>
  * Clone an object.
  *
  * You should do something with the clone.
@@ -1344,8 +1344,8 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
  * @ref Atrinik_Object_InsertInside "InsertInside()" are useful functions
  * for that.
  * @param mode Optional mode, one of:
- * - <b>Atrinik.CLONE_WITH_INVENTORY</b> (default)
- * - <b>Atrinik.CLONE_WITHOUT_INVENTORY</b>
+ * - <b>CLONE_WITH_INVENTORY</b> (default)
+ * - <b>CLONE_WITHOUT_INVENTORY</b>
  * @return The cloned object. */
 static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
 {

@@ -525,7 +525,7 @@ static void freeContext(PythonContext *context)
  *@{*/
 
 /**
- * <h1>Atrinik.LoadObject(string dump)</h1>
+ * <h1>LoadObject(string dump)</h1>
  * Load an object from a string dump, for example, one stored using
  * @ref Atrinik_Object_Save "Save()".
  * @param dump The string dump from which to load the actual object. */
@@ -544,7 +544,7 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.ReadyMap(string path, int [unique = False])</h1>
+ * <h1>ReadyMap(string path, int [unique = False])</h1>
  * Make sure the named map is loaded into memory, loading it if necessary.
  * @param path Path to the map.
  * @param unique Whether the destination should be loaded as unique map,
@@ -571,7 +571,7 @@ static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindPlayer(string name)</h1>
+ * <h1>FindPlayer(string name)</h1>
  * Find a player by name.
  * @param name The player name to find.
  * @return The player's object if found, None otherwise. */
@@ -599,7 +599,7 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.PlayerExists(string name)</h1>
+ * <h1>PlayerExists(string name)</h1>
  * Check if player exists.
  * @param name The player name to check.
  * @return True if the player exists, False otherwise */
@@ -620,7 +620,7 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.WhoAmI()</h1>
+ * <h1>WhoAmI()</h1>
  * Get the owner of the active script (the object that has the event
  * handler).
  * @return The script owner. */
@@ -632,7 +632,7 @@ static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.WhoIsActivator()</h1>
+ * <h1>WhoIsActivator()</h1>
  * Get the object that activated the current event.
  * @return The script activator. */
 static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
@@ -643,7 +643,7 @@ static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.WhoIsOther()</h1>
+ * <h1>WhoIsOther()</h1>
  * Get another object related to the event. What this object is depends
  * on the event.
  * @return The other object. */
@@ -655,7 +655,7 @@ static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.WhatIsEvent()</h1>
+ * <h1>WhatIsEvent()</h1>
  * Get the event object that caused this event to trigger.
  * @return The event object. */
 static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
@@ -666,7 +666,7 @@ static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetEventNumber()</h1>
+ * <h1>GetEventNumber()</h1>
  * Get the ID of the event that is being triggered.
  * @return Event ID. */
 static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
@@ -677,7 +677,7 @@ static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.WhatIsMessage()</h1>
+ * <h1>WhatIsMessage()</h1>
  * Gets the actual message in SAY events.
  * @return The message. */
 static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
@@ -688,7 +688,7 @@ static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetOptions()</h1>
+ * <h1>GetOptions()</h1>
  * Gets the script options (as passed in the event's slaying field).
  * @return The script options. */
 static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
@@ -699,7 +699,7 @@ static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetReturnValue()</h1>
+ * <h1>GetReturnValue()</h1>
  * Gets the script's return value.
  * @return The return value. */
 static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
@@ -710,7 +710,7 @@ static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.SetReturnValue(int value)</h1>
+ * <h1>SetReturnValue(int value)</h1>
  * Sets the script's return value.
  * @param value The new return value. */
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
@@ -731,7 +731,7 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetEventParameters()</h1>
+ * <h1>GetEventParameters()</h1>
  * Get the parameters of an event. This varies from event to event, and
  * some events pass all parameters as 0. EVENT_ATTACK usually passes damage
  * done and the WC of the hit as second and third parameter, respectively.
@@ -754,7 +754,7 @@ static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetSpellNr(string name)</h1>
+ * <h1>GetSpellNr(string name)</h1>
  * Get the ID of the passed spell name.
  * @param name The spell name.
  * @return ID of the spell, -1 if no such spell exists. */
@@ -773,7 +773,7 @@ static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetSpell(int spell)</h1>
+ * <h1>GetSpell(int spell)</h1>
  * Get various information about a spell, including things like its
  * level, type, etc.
  * @param spell ID of the spell, can be acquired using @ref Atrinik_GetSpellNr "GetSpellNr()".
@@ -815,7 +815,7 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetSkillNr(string name)</h1>
+ * <h1>GetSkillNr(string name)</h1>
  * Get the ID of the skill.
  * @param name The skill name.
  * @return ID of the skill, -1 if no such skill exists. */
@@ -834,7 +834,7 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.RegisterCommand(string name, string path, float speed)</h1>
+ * <h1>RegisterCommand(string name, string path, float speed)</h1>
  * Register a custom command ran using Python script.
  * @param name Name of the command. For example, "roll" in order to create /roll
  * command. Note the lack forward slash in the name.
@@ -882,7 +882,7 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.CreatePathname(string path)</h1>
+ * <h1>CreatePathname(string path)</h1>
  * Creates path to file in the maps directory using the create_pathname()
  * function.
  * @param path Path to file to create.
@@ -902,7 +902,7 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetTime()</h1>
+ * <h1>GetTime()</h1>
  * Get the game time.
  * @return A dictionary containing all the information about the in-game
  * time:
@@ -945,7 +945,7 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.LocateBeacon(string name)</h1>
+ * <h1>LocateBeacon(string name)</h1>
  * Locate a beacon.
  * @param name The beacon name to find.
  * @return The beacon if found, None otherwise. */
@@ -970,7 +970,7 @@ static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindParty(string name)</h1>
+ * <h1>FindParty(string name)</h1>
  * Find a party by name.
  * @param name The party name to find.
  * @return The party if found, None otherwise. */
@@ -989,7 +989,7 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.CleanupChatString(string text)</h1>
+ * <h1>CleanupChatString(string text)</h1>
  * Cleans up a chat text removing special characters and extra whitespace.
  * @param text The text to cleanup.
  * @return Cleaned up text; can be None. */
@@ -1008,7 +1008,7 @@ static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.LOG(int mode, string message)</h1>
+ * <h1>LOG(int mode, string message)</h1>
  * Logs a message.
  * @param mode Logging mode to use, one of:
  * - llevError: An irrecoverable error. Will shut down the server.
@@ -1035,7 +1035,7 @@ static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.DestroyTimer(int timer)</h1>
+ * <h1>DestroyTimer(int timer)</h1>
  * Destroy an existing timer.
  * @param timer ID of the timer.
  * @return 0 on success, anything lower on failure. */
@@ -1054,7 +1054,7 @@ static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindFace(string face)</h1>
+ * <h1>FindFace(string face)</h1>
  * Find a face ID by its name.
  * @param face Name of the face to find.
  * @return ID of the face. */
@@ -1073,7 +1073,7 @@ static PyObject *Atrinik_FindFace(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindAnimation(string animation)</h1>
+ * <h1>FindAnimation(string animation)</h1>
  * Find an animation ID by its name.
  * @param animation Name of the animation to find.
  * @return ID of the animation. */
@@ -1092,7 +1092,7 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.GetGenderStr(int gender, string type)</h1>
+ * <h1>GetGenderStr(int gender, string type)</h1>
  * Get string representation of a gender ID depending on 'type'.
  * @param gender Gender ID. One of @ref GENDER_xxx, or -1 to get a list of
  * possible genders.
