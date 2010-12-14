@@ -43,12 +43,12 @@ def main():
 		else:
 			if activator.level < level_free:
 				me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
-				me.IdentifyItem(activator, IDENTIFY_MARKED, marked_object)
+				me.CastIdentify(activator, IDENTIFY_MARKED, marked_object)
 			else:
 				if activator.PayAmount(costs["identify"]):
 					me.SayTo(activator, "\nOk, I will identify the {0}.".format(marked_object.name))
 					activator.Write("You pay the money.", 0)
-					me.IdentifyItem(activator, IDENTIFY_MARKED, marked_object)
+					me.CastIdentify(activator, IDENTIFY_MARKED, marked_object)
 				else:
 					me.SayTo(activator, "\nSorry, you do not have enough money.")
 
@@ -56,12 +56,12 @@ def main():
 	elif msg == "identify all":
 		if activator.level < level_free:
 			me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
-			me.IdentifyItem(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
+			me.CastIdentify(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 		else:
 			if activator.PayAmount(costs["identify_all"]):
 				me.SayTo(activator, "\nOk, I will identify all your items.")
 				activator.Write("You pay the money.", 0)
-				me.IdentifyItem(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
+				me.CastIdentify(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 			else:
 				me.SayTo(activator, "\nSorry, you do not have enough money.")
 
