@@ -910,9 +910,11 @@ trick_jump:
  * Move a player.
  * @param op Player object.
  * @param dir Direction to move to.
- * @return Always returns 0. */
+ * @return 1 on success, 0 on failure. */
 int move_player(object *op, int dir)
 {
+	int ret = 0;
+
 	CONTR(op)->praying = 0;
 
 	if (op->map == NULL || op->map->in_memory != MAP_IN_MEMORY)
@@ -952,7 +954,9 @@ int move_player(object *op, int dir)
 	}
 	else
 	{
-		if (!move_ob(op, dir, op))
+		ret = move_ob(op, dir, op);
+
+		if (!ret)
 		{
 			op->anim_enemy_dir = dir;
 		}
@@ -972,7 +976,7 @@ int move_player(object *op, int dir)
 		animate_object(op, 0);
 	}
 
-	return 0;
+	return ret;
 }
 
 /**
@@ -1895,15 +1899,8 @@ void player_path_handle(player *pl)
 		{
 			int success = 0, dir = rv.direction;
 
-			if (QUERY_FLAG(pl->ob, FLAG_CONFUSED))
-			{
-				dir = get_randomized_dir(dir);
-			}
-
-			pl->praying = 0;
-
 			/* Can the player move there directly? */
-			if (move_object(pl->ob, dir))
+			if (move_player(pl->ob, dir))
 			{
 				success = 1;
 			}
@@ -1917,7 +1914,7 @@ void player_path_handle(player *pl)
 					/* Try left or right first? */
 					int m = 1 - (RANDOM() & 2);
 
-					if (move_object(pl->ob, absdir(dir + diff * m)) || move_object(pl->ob, absdir(dir - diff * m)))
+					if (move_player(pl->ob, absdir(dir + diff * m)) || move_player(pl->ob, absdir(dir - diff * m)))
 					{
 						success = 1;
 						break;
