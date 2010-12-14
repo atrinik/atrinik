@@ -118,7 +118,7 @@ class QuestManager(QuestManagerBase):
 		self.quest_object = _create_quest_object(self.activator.Controller().quest_container, self.quest["type"], self.quest["quest_name"], "message" in self.quest and self.quest["message"] or None, self.quest["type"] == QUEST_TYPE_KILL and self.quest["kills"] or 0)
 
 		if sound:
-			self.activator.Sound(sound)
+			self.activator.Controller().Sound(sound)
 
 	## Check if the quest has been finished.
 	## @return True if the quest has been finished, False otherwise.
@@ -135,7 +135,7 @@ class QuestManager(QuestManagerBase):
 		self.quest_object.magic = QUEST_STATUS_COMPLETED
 
 		if sound:
-			self.activator.Sound(sound)
+			self.activator.Controller().Sound(sound)
 
 		# Do special handling for different quest types.
 		self._complete(self.quest_object, self.quest)
@@ -180,7 +180,7 @@ class QuestManagerMulti(QuestManagerBase):
 				num += 1
 
 		if sound:
-			self.activator.Sound(sound)
+			self.activator.Controller().Sound(sound)
 
 	## Check if the specified quest part has already been started.
 	## @param part ID of the part to check.
@@ -228,7 +228,7 @@ class QuestManagerMulti(QuestManagerBase):
 	## only the specified part.
 	def complete(self, part = None, sound = "learnspell.ogg"):
 		if sound:
-			self.activator.Sound(sound)
+			self.activator.Controller().Sound(sound)
 
 		# Complete specified part of the quest.
 		if part:

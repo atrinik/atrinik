@@ -37,7 +37,7 @@ def adjust_map_music(m, music):
 	for player in m.GetPlayers():
 		# 1.1 client doesn't support this, unfortunately.
 		if player.Controller().s_socket_version >= 1038:
-			player.Sound(m.bg_music and m.bg_music or "no_music", CMD_SOUND_BACKGROUND, 0, 0, -1)
+			player.Controller().Sound(m.bg_music and m.bg_music or "no_music", CMD_SOUND_BACKGROUND, loop = -1)
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
