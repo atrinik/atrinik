@@ -146,7 +146,7 @@ def main_say():
 	# Example of using PlaySound().
 	elif msg == "sound":
 		me.SayTo(activator, "\nI can imitate a teleporter.")
-		me.map.PlaySound(me.x, me.y, "teleport.ogg")
+		me.map.PlaySound("teleport.ogg", me.x, me.y)
 
 	# Example of using savebed info.
 	elif msg == "savebed":
