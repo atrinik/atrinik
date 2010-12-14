@@ -438,6 +438,22 @@ static const Atrinik_Constant constants_types[] =
 };
 /* @endcparser */
 
+/** Gender constants. */
+/* @cparser
+ * @page plugin_python_constants_gender Python gender constants
+ * <h2>Python gender constants</h2>
+ * List of the Python plugin gender constants and their meaning. */
+static const Atrinik_Constant constants_gender[] =
+{
+	{"NEUTER", GENDER_NEUTER},
+	{"MALE", GENDER_MALE},
+	{"FEMALE", GENDER_FEMALE},
+	{"HERMAPHRODITE", GENDER_HERMAPHRODITE},
+
+	{NULL, 0}
+};
+/* @endcparser */
+
 /** All the custom commands. */
 static PythonCmd CustomCommand[NR_CUSTOM_CMD];
 /** Contains the index of the next command that needs to be run. */
@@ -1996,6 +2012,19 @@ static PyObject *PyInit_Atrinik()
 #endif
 
 /**
+ * Create a module.
+ * @param name Name of the module.
+ * @return The new module created using PyModule_New(). */
+static PyObject *module_create(const char *name)
+{
+	char tmp[MAX_BUF];
+
+	snprintf(tmp, sizeof(tmp), "Atrinik_%s", name);
+
+	return PyModule_New(tmp);
+}
+
+/**
  * Creates a new module containing integer constants, and adds it to the
  * specified module.
  * @param module Module to add to.
@@ -2003,13 +2032,11 @@ static PyObject *PyInit_Atrinik()
  * @param constants Constants to add. */
 static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *constants)
 {
-	char tmp[MAX_BUF];
 	size_t i = 0;
 	PyObject *module_tmp;
 
 	/* Create the new module. */
-	snprintf(tmp, sizeof(tmp), "Atrinik_%s", name);
-	module_tmp = PyModule_New(tmp);
+	module_tmp = module_create(name);
 
 	/* Append constants. */
 	while (constants[i].name)
@@ -2044,6 +2071,10 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 		{
 			PyList_Append(list, Py_BuildValue("i", ((sint32 *) array)[i]));
 		}
+		else if (type == FIELDTYPE_CSTR)
+		{
+			PyList_Append(list, Py_BuildValue("s", ((char **) array)[i]));
+		}
 	}
 
 	/* Add it to the module dictionary. */
@@ -2052,7 +2083,7 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	PyObject *m, *d;
+	PyObject *m, *d, *module_tmp;
 	int i;
 
 	hooks = hooklist;
@@ -2102,6 +2133,21 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	{
 		PyModule_AddIntConstant(m, constants[i].name, constants[i].value);
 	}
+
+	module_tmp = module_create("Gender");
+	module_add_array(module_tmp, "gender_noun", hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
+	module_add_array(module_tmp, "gender_subjective", hooks->gender_subjective, GENDER_MAX, FIELDTYPE_CSTR);
+	module_add_array(module_tmp, "gender_subjective_upper", hooks->gender_subjective_upper, GENDER_MAX, FIELDTYPE_CSTR);
+	module_add_array(module_tmp, "gender_objective", hooks->gender_objective, GENDER_MAX, FIELDTYPE_CSTR);
+	module_add_array(module_tmp, "gender_possessive", hooks->gender_possessive, GENDER_MAX, FIELDTYPE_CSTR);
+	module_add_array(module_tmp, "gender_reflexive", hooks->gender_reflexive, GENDER_MAX, FIELDTYPE_CSTR);
+
+	for (i = 0; constants_gender[i].name; i++)
+	{
+		PyModule_AddIntConstant(module_tmp, constants_gender[i].name, constants_gender[i].value);
+	}
+
+	PyDict_SetItemString(d, "Gender", module_tmp);
 
 	LOG(llevDebug, "  [Done]\n");
 }
