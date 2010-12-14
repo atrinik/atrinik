@@ -1213,12 +1213,12 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.IdentifyItem(object target, int mode, object [marked = None])</h1>
- * Identify item(s) in target's inventory.
+ * <h1>object.CastIdentify(object target, int mode, object [marked = None])</h1>
+ * Cast identify on target.
  * @param target The target object.
  * @param mode One of @ref identify_modes.
  * @param marked Marked item. */
-static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *obj, PyObject *args)
+static PyObject *Atrinik_Object_CastIdentify(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *target;
 	PyObject *marked = NULL;
@@ -1945,7 +1945,7 @@ static PyMethodDef methods[] =
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
 	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
-	{"IdentifyItem", (PyCFunction) Atrinik_Object_IdentifyItem, METH_VARARGS, 0},
+	{"CastIdentify", (PyCFunction) Atrinik_Object_CastIdentify, METH_VARARGS, 0},
 	{"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS, 0},
 	{"GetCost", (PyCFunction) Atrinik_Object_GetCost, METH_VARARGS, 0},
 	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
