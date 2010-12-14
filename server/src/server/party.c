@@ -31,14 +31,14 @@
 
 /**
  * String representations of the party looting modes. */
-const char *party_loot_modes[PARTY_LOOT_MAX] =
+const char *const party_loot_modes[PARTY_LOOT_MAX] =
 {
 	"normal", "leader", "random"
 };
 
 /**
  * Explanation of the party modes. */
-const char *party_loot_modes_help[PARTY_LOOT_MAX] =
+const char *const party_loot_modes_help[PARTY_LOOT_MAX] =
 {
 	"everyone is able to loot the corpse",
 	"only the leader can loot the corpse",
