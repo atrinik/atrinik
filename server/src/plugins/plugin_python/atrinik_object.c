@@ -1652,7 +1652,7 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
  * <h1>object.ChangeAbil(object what)</h1>
  * Permanently alters an object's stats/flags based on another what.
  * @param what Object that is giving bonuses/penalties to 'object'.
- * @return 1 if we successfully changed a stat, 0 if nothing was changed. */
+ * @return True if we successfully changed a stat, False if nothing was changed. */
 static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *what;
@@ -1665,7 +1665,7 @@ static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *obj, PyObject *args)
 	OBJEXISTCHECK(obj);
 	OBJEXISTCHECK(what);
 
-	return Py_BuildValue("i", hooks->change_abil(obj->obj, what->obj));
+	Py_ReturnBoolean(hooks->change_abil(obj->obj, what->obj));
 }
 
 /**
