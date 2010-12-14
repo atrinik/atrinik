@@ -223,25 +223,26 @@ static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.PlaySound(int x, int y, string filename, int [type = @ref CMD_SOUND_EFFECT], int [loop = 0], int [volume = 0])</h1>
+ * <h1>map.PlaySound(string filename, int x, int y, int [type = @ref CMD_SOUND_EFFECT], int [loop = 0], int [volume = 0])</h1>
  * Play a sound on map.
+ * @param filename Sound file to play.
  * @param x X position where the sound is playing from.
  * @param y Y position where the sound is playing from.
- * @param filename Sound file to play.
  * @param type Sound type being played, one of @ref CMD_SOUND_xxx.
  * @param loop How many times to loop the sound, -1 for infinite number.
  * @param volume Volume adjustment. */
-static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
+static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
-	int x, y, type = CMD_SOUND_EFFECT, loop = 0, volume = 0;
+	static char *kwlist[] = {"filename", "x", "y", "type", "loop", "volume", NULL};
 	const char *filename;
+	int x, y, type = CMD_SOUND_EFFECT, loop = 0, volume = 0;
 
-	if (!PyArg_ParseTuple(args, "iis|iii", &x, &y, &filename, &type, &loop, &volume))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|iii", kwlist, &filename, &x, &y, &type, &loop, &volume))
 	{
 		return NULL;
 	}
 
-	hooks->play_sound_map(whereptr->map, type, filename, x, y, loop, volume);
+	hooks->play_sound_map(map->map, type, filename, x, y, loop, volume);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -557,7 +558,7 @@ static PyMethodDef MapMethods[] =
 	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
 	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
 	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
-	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS, 0},
+	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
 	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
