@@ -138,7 +138,7 @@ void remove_party_member(party_struct *party, object *op)
  * Initialize a new party structure.
  * @param name Name of the new party.
  * @return The initialized party structure. */
-party_struct *make_party(const char *name)
+static party_struct *make_party(const char *name)
 {
 	party_struct *party = (party_struct *) get_poolchunk(pool_parties);
 
