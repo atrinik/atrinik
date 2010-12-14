@@ -1614,7 +1614,7 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *what, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("b", what->obj->attack[nr]);
+	return Py_BuildValue("B", what->obj->attack[nr]);
 }
 
 /**
