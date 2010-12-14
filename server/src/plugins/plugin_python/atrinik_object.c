@@ -311,10 +311,9 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
  * - <b>UNAPPLY_ALWAYS</b>: Always unapply (never apply)
  * - <b>UNAPPLY_NOMERGE</b>: Don't merge unapplied items
  * - <b>UNAPPLY_IGNORE_CURSE</b>: Unapply cursed items
- * @return Return values:
- * - <b>0</b>: Object cannot apply objects of that type.
- * - <b>1</b>: Object was applied, or not...
- * - <b>2</b>: Object must be in inventory to be applied. */
+ * @retval 0 Object cannot apply objects of that type.
+ * @retval 1 Object was applied.
+ * @retval 2 Object must be in inventory to be applied. */
 static PyObject *Atrinik_Object_Apply(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *what;
