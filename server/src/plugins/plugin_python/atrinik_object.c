@@ -1566,8 +1566,7 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *what, PyObject *args)
  * @param nr Protection ID. One of ::_attacks.
  * @param val Value to set.
  * @throws IndexError if the protection ID is invalid.
- * @throws OverflowError if the value to set is not in valid range.
- * @return The new protection value. */
+ * @throws OverflowError if the value to set is not in valid range. */
 static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what, PyObject *args)
 {
 	int nr;
@@ -1587,7 +1586,9 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what, PyObject *ar
 	}
 
 	what->obj->protection[nr] = val;
-	return Py_BuildValue("b", what->obj->protection[nr]);
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 /**
@@ -1622,8 +1623,7 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *what, PyObject *args)
  * @param nr Attack ID. One of ::_attacks.
  * @param val Value to set.
  * @throws IndexError if the attack ID is invalid.
- * @throws OverflowError if the value to set is not in valid range.
- * @return The new attack value. */
+ * @throws OverflowError if the value to set is not in valid range. */
 static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 {
 	int nr;
@@ -1643,7 +1643,9 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 	}
 
 	what->obj->attack[nr] = val;
-	return Py_BuildValue("b", what->obj->attack[nr]);
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 /**
