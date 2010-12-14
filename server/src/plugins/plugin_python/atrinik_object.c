@@ -1484,38 +1484,6 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *what, PyObject *args
 }
 
 /**
- * <h1>player.Sound(string filename, int [type = @ref CMD_SOUND_EFFECT], int [x = 0], int [y = 0], int [loop = 0], int [volume = 0])</h1>
- * Play a sound to the specified player.
- * @param filename Sound file to play.
- * @param type Sound type being played, one of @ref CMD_SOUND_xxx.
- * @param x X position where the sound is playing from. Can be 0.
- * @param y Y position where the sound is playing from. Can be 0.
- * @param loop How many times to loop the sound, -1 for infinite number.
- * @param volume Volume adjustment. */
-static PyObject *Atrinik_Object_Sound(Atrinik_Object *obj, PyObject *args)
-{
-	int type = CMD_SOUND_EFFECT, x = 0, y = 0, loop = 0, volume = 0;
-	const char *filename;
-
-	if (!PyArg_ParseTuple(args, "s|iiiii", &filename, &type, &x, &y, &loop, &volume))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	if (obj->obj->type != PLAYER)
-	{
-		RAISE("Sound(): Can only be used on players.");
-	}
-
-	hooks->play_sound_player_only(CONTR(obj->obj), type, filename, x, y, loop, volume);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.Controller()</h1>
  * Get object's controller (the player).
  * @throws AtrinikError if 'object' is not a player.
@@ -1994,7 +1962,6 @@ static PyMethodDef methods[] =
 	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
 	{"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},
 	{"CreateTimer", (PyCFunction) Atrinik_Object_CreateTimer, METH_VARARGS, 0},
-	{"Sound", (PyCFunction) Atrinik_Object_Sound, METH_VARARGS, 0},
 	{"Controller", (PyCFunction) Atrinik_Object_Controller, METH_NOARGS, 0},
 	{"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS, 0},
 	{"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS, 0},
