@@ -617,7 +617,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			break;
 
 		case SP_IDENTIFY:
-			success = cast_identify(target, SK_level(caster), NULL, IDENTIFY_MODE_NORMAL);
+			success = cast_identify(target, SK_level(caster), NULL, IDENTIFY_NORMAL);
 			break;
 
 		/* Spells after this use direction and not a target */

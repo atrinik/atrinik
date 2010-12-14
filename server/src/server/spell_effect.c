@@ -1401,7 +1401,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 		*done += 1;
 	}
 
-	if (mode == IDENTIFY_MODE_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level + op->stats.Int)
+	if (mode == IDENTIFY_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level + op->stats.Int)
 	{
 		return 0;
 	}
@@ -1413,7 +1413,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
  * Cast identify spell.
  * @param op Object receiving the spell effects.
  * @param level Level of the identification.
- * @param single_ob If set, and mode is @ref IDENTIFY_MODE_MARKED, only
+ * @param single_ob If set, and mode is @ref IDENTIFY_MARKED, only
  * this object will be identified, otherwise contents of this object.
  * If NULL, the inventory of 'op' will be identified.
  * @param mode One of @ref identify_modes.
@@ -1424,7 +1424,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 
 	insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
 
-	if (mode == IDENTIFY_MODE_MARKED)
+	if (mode == IDENTIFY_MARKED)
 	{
 		do_cast_identify(single_ob, op, mode, &done, level);
 	}

@@ -96,11 +96,11 @@
  * Modes for cast_identify().
  *@{*/
 /** Normal identification. */
-#define IDENTIFY_MODE_NORMAL    0
+#define IDENTIFY_NORMAL    0
 /** Identify everything. */
-#define IDENTIFY_MODE_ALL       1
+#define IDENTIFY_ALL       1
 /** Identify only marked item. */
-#define IDENTIFY_MODE_MARKED    2
+#define IDENTIFY_MARKED    2
 /*@}*/
 
 /**
