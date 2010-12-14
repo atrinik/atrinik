@@ -1123,9 +1123,8 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
  *  - Distance between the two coordinates.
  *  - X distance.
  *  - Y distance. */
-static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *args)
 {
-	static char *kwlist[] = {"map", "x", "y", "map2", "x2", "y2", NULL};
 	Atrinik_Map *map, *map2;
 	int x, y, x2, y2, flags = 0;
 	rv_vector rv;
@@ -1133,7 +1132,7 @@ static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *a
 
 	(void) self;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!iiO!ii|i", kwlist, &Atrinik_MapType, &map, &x, &y, &Atrinik_MapType, &map2, &x2, &y2, &flags))
+	if (!PyArg_ParseTuple(args, "O!iiO!ii|i", &Atrinik_MapType, &map, &x, &y, &Atrinik_MapType, &map2, &x2, &y2, &flags))
 	{
 		return NULL;
 	}
@@ -1902,7 +1901,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
 	{"FindFace", Atrinik_FindFace, METH_VARARGS, 0},
 	{"FindAnimation", Atrinik_FindAnimation, METH_VARARGS, 0},
-	{"GetRangeVectorFromMapCoords", (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS | METH_KEYWORDS, 0},
+	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
 	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
 	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
