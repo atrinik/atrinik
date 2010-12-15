@@ -27,11 +27,5 @@
 
 		Useful for maps like guild storage.</td>
 	</tr>
-	<tr>
-		<td>
-@ref page_type_88
-		</td><td>		Unique floor means that any items dropped on that spot will be
-		saved byond map reset.</td>
-	</tr>
 
 */

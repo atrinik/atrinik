@@ -39,6 +39,12 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_11
+		</td><td>        The number of items in the target pile will be multiplied by this value.
+		If it is set to zero, all target objects will be destroyed.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_72
 		</td><td>		The &lt;flesh level&gt; is not visible to the players and it
 		affects only dragon players. Normally this value reflects the
@@ -50,9 +56,8 @@
 	<tr>
 		<td>
 @ref page_type_88
-		</td><td>		I guess this value is supposed to work similar to monster levels.
-		But in fact, it does not seem to have an effect. Set any non-zero
-		value to be on the safe side.</td>
+		</td><td>		Level of the damager. Affects the chance for the damager to miss
+		(same chance as spells).</td>
 	</tr>
 	<tr>
 		<td>
@@ -83,7 +88,7 @@
 		<td>
 @ref page_type_62
 		</td><td>		The wall will cast it's spells at level &lt;spell level&gt;.
-		"level 1" walls cast spells at minimal strength. "level 110"
+		"level 1" walls cast spells at minimal strength. "level 115"
 		walls cast deadly spells. Arch default is level 1 - you should
 		always set this value to meet the overall difficulty of your map.</td>
 	</tr>

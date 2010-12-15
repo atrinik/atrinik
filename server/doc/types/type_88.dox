@@ -4,21 +4,21 @@ See @ref page_type_88
 */
 
 /**
-@page page_type_88 Hazard Floor
+@page page_type_88 Damager
 
 
 @section Description
-		The best example for Hazard Floor is lava. It works like standard
-		floor, but damages all creatures standing on it.
-
-		Damage is taken in regular time intervals.
+		This object will do damage to all enemy creatures standing on it. It is
+		perfect for implementing things like lava.
+		<br><br>
+		Damage is taken in regular time intervals. Remember to set an attack type
+		accordingly.
 	
 
 
 
 Type defined by:
 - @ref object::type = 88
-- @ref FLAG_IS_FLOOR set
 
 
 @section Attributes
@@ -28,6 +28,18 @@ Type defined by:
 		<th>Attribute</th>
 		<th>Field</th>
 		<th>Description</th>
+	</tr>
+	<tr>
+		<td>align</td>
+		<td>@ref obj::align</td>
+		<td>		X align of the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>alpha</td>
+		<td>@ref obj::alpha</td>
+		<td>		Alpha value of the object.
+		</td>
 	</tr>
 	<tr>
 		<td>anim speed</td>
@@ -43,19 +55,11 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>attack level</td>
-		<td>@ref obj::level</td>
-		<td>		I guess this value is supposed to work similar to monster levels.
-		But in fact, it does not seem to have an effect. Set any non-zero
-		value to be on the safe side.
-		</td>
-	</tr>
-	<tr>
 		<td>base damage</td>
 		<td>@ref liv::dam</td>
 		<td>		The &lt;base damage&gt; defines how much damage is inflicted to
 		the victim per hit. The final damage is influenced by several
-		other factors like the victim's resistance and level.
+		other factors like the victim's protections.
 		</td>
 	</tr>
 	<tr>
@@ -67,22 +71,18 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>can reflect missiles</td>
-		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>		Object can reflect missiles. See reflect missiles.
-		</td>
-	</tr>
-	<tr>
-		<td>can reflect spells</td>
-		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>		Object can reflect spells. See reflect spells.
-		</td>
-	</tr>
-	<tr>
 		<td>cursed</td>
 		<td>@ref FLAG_CURSED</td>
 		<td>		The item is cursed. This object can't be removed when wielded or
 		worn (without uncursing it). Remove curse will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>damaging speed</td>
+		<td>@ref obj::speed</td>
+		<td>		Controls how often the damager hits creatures standing on top of it.
+
+		If 0, no damage will be done.
 		</td>
 	</tr>
 	<tr>
@@ -92,12 +92,33 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction based drawing</td>
+		<td>@ref obj::draw_direction</td>
+		<td>		If enabled, the object will be shown depending on its direction
+		and player's position. Usually used by wall decoration so the
+		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
+		<td>friendly</td>
+		<td>@ref FLAG_FRIENDLY</td>
+		<td>		If set, the damager will not attack friendly creatures (players, NPCs, etc)
+		but only monsters.
+		</td>
+	</tr>
+	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
 		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
 		object appears lit up on dark maps. &lt;glow radius&gt; can be a
 		value between 0 and 4, the higher, the more light does the object
 		emit.
+		</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>@ref obj::z</td>
+		<td>		Adjusts Y position of the object as it appears on the map.
 		</td>
 	</tr>
 	<tr>
@@ -161,6 +182,13 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>level</td>
+		<td>@ref obj::level</td>
+		<td>		Level of the damager. Affects the chance for the damager to miss
+		(same chance as spells).
+		</td>
+	</tr>
+	<tr>
 		<td>magical</td>
 		<td>@ref FLAG_IS_MAGICAL</td>
 		<td>		If set, this object counts as "magical". Detect magic or identify
@@ -191,7 +219,10 @@ Type defined by:
 	<tr>
 		<td>name</td>
 		<td>@ref obj::name</td>
-		<td>		This is the name of the object, displayed to the player.
+		<td>		The name of the damager. This is so the player knows what is hitting them,
+		and in case they die, the killer's name.
+
+		Examples are 'lava', 'spikes', etc.
 		</td>
 	</tr>
 	<tr>
@@ -235,12 +266,9 @@ Type defined by:
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>		In the moment a player gets or applies this item, it will be
-		flagged as godgiven and vanish when dropped to the ground.
-
-		If this flag is set for an item inside monster's quest_container
-		with the quest being quest item type, the player will be able to
-		find the item again, should he lose it.
+		<td>		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will only be able
+		to get this item once.
 		</td>
 	</tr>
 	<tr>
@@ -267,16 +295,28 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>reflect missiles</td>
+		<td>@ref FLAG_REFL_MISSILE</td>
+		<td>		Object will reflect missiles.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect spells</td>
+		<td>@ref FLAG_REFL_SPELL</td>
+		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
 		<td>slow movement</td>
 		<td>@ref FLAG_SLOW_MOVE</td>
-		<td>			If &lt;slow movement&gt; is set to a value greater than zero,
-			all creatures moving over this spot will be slower than
-			normal.
-
-			&lt;slow movement&gt; 1 - rough terrain
-			&lt;slow movement&gt; 2 - very rough terrain
-			...
-			&lt;slow movement&gt; 7 - spider web (sticky as hell)
+		<td>			If set, 'slow movement penalty' will take effect.
+		</td>
+	</tr>
+	<tr>
+		<td>slow movement penalty</td>
+		<td>@ref liv::exp</td>
+		<td>			If set to a value greater than zero, all creatures moving over this
+			spot will be slower than normal.
 		</td>
 	</tr>
 	<tr>
@@ -342,13 +382,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>unique floor</td>
-		<td>@ref FLAG_UNIQUE</td>
-		<td>		Unique floor means that any items dropped on that spot will be
-		saved byond map reset.
-		</td>
-	</tr>
-	<tr>
 		<td>unpaid</td>
 		<td>@ref FLAG_UNPAID</td>
 		<td>		An &lt;unpaid&gt; item cannot be used unless the player carried
@@ -363,22 +396,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>weapon class</td>
-		<td>@ref liv::wc</td>
-		<td>		&lt;weapon class&gt; improves the chance of hitting the victim.
-		Higher values are better.
-
-		Usually, hazard floors like lave are supposed to hit the victim
-		all the time. Therefore, &lt;weapon class&gt; should be set to
-		something like 200 in such cases.
-		</td>
-	</tr>
-	<tr>
 		<td>weight</td>
 		<td>@ref obj::weight</td>
 		<td>		This value defines the object's weight in gram (1000g is 1kg).
 		Objects with zero weight are not pickable for players. Still, set
 		the "non-pickable" flag for explicitly non-pickable objects.
+		</td>
+	</tr>
+	<tr>
+		<td>zoom</td>
+		<td>@ref obj::zoom</td>
+		<td>		How much to zoom the object on the map.
 		</td>
 	</tr>
 </table>

@@ -46,6 +46,13 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_11
+		</td><td>        Only objects of matching archetype, lying on top of the duplicator
+        will be duplicated, multiplied or removed. All other objects will be
+        ignored.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_66, @ref page_type_94, @ref page_type_41, @ref page_type_95
 		</td><td>		The exit path defines the map that the player is transferred to.
 
@@ -62,7 +69,7 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64
+@ref page_type_64, @ref page_type_98
 		</td><td>		This string specifies the object we are looking for: We have a
 		match if the player does/don't carry a key object or a mark with
 		identical &lt;key string&gt;. This string is compared to the name
@@ -78,6 +85,14 @@
 		&lt;key string&gt; in the special key, then the door is unlocked.
 		It is VERY important to set the &lt;key string&gt; to something that
 		is unique among the Atrinik maps.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_28
+		</td><td>		The map path the magic mirror is pointing to. Can be either absolute
+		or relative map path.
+
+		If not set, the current map path is used.</td>
 	</tr>
 	<tr>
 		<td>
@@ -110,12 +125,6 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_154
-		</td><td>			Name of the spell in the rune, if any. Slaying is optional,
-			but if present, overrides the &lt;spell&gt; setting.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_21
 		</td><td>		This string must be identical with the &lt;key string&gt; in the
 		locked door, then it can be unlocked. It can also be used to
@@ -142,6 +151,11 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_127
+		</td><td>		This string is given the map event as option string.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_119
 		</td><td>		Path to destination map. Leave blank to use current map.
 
@@ -151,6 +165,11 @@
 		could use the relative path "0304"). Use relative paths whenever
 		possible! Note that upper/lower case must always be set
 		correctly. However, please use lower case only.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Color of the outline in HTML notation (default is red, or #ff0000).</td>
 	</tr>
 
 */

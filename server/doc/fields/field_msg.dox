@@ -143,5 +143,15 @@
 @ref page_type_109
 		</td><td>		This text may contain a description of the wand.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_118, @ref page_type_127
+		</td><td>		Allows you to pass multi-line options to the event.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Label name or the tooltip's contents. Client markup is allowed.</td>
+	</tr>
 
 */

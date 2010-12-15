@@ -36,6 +36,18 @@ Type defined by:
 		<th>Description</th>
 	</tr>
 	<tr>
+		<td>align</td>
+		<td>@ref obj::align</td>
+		<td>		X align of the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>alpha</td>
+		<td>@ref obj::alpha</td>
+		<td>		Alpha value of the object.
+		</td>
+	</tr>
+	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
 		<td>		How fast to play this animation.
@@ -57,21 +69,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>can reflect missiles</td>
-		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>		Object can reflect missiles. See reflect missiles.
-		</td>
-	</tr>
-	<tr>
-		<td>can reflect spells</td>
-		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>		Object can reflect spells. See reflect spells.
-		</td>
-	</tr>
-	<tr>
 		<td>direction</td>
 		<td>@ref obj::direction</td>
 		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
+		<td>direction based drawing</td>
+		<td>@ref obj::draw_direction</td>
+		<td>		If enabled, the object will be shown depending on its direction
+		and player's position. Usually used by wall decoration so the
+		decoration doesn't appear from both sides of the wall.
 		</td>
 	</tr>
 	<tr>
@@ -97,6 +105,12 @@ Type defined by:
 		object appears lit up on dark maps. &lt;glow radius&gt; can be a
 		value between 0 and 4, the higher, the more light does the object
 		emit.
+		</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>@ref obj::z</td>
+		<td>		Adjusts Y position of the object as it appears on the map.
 		</td>
 	</tr>
 	<tr>
@@ -233,12 +247,9 @@ Type defined by:
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>		In the moment a player gets or applies this item, it will be
-		flagged as godgiven and vanish when dropped to the ground.
-
-		If this flag is set for an item inside monster's quest_container
-		with the quest being quest item type, the player will be able to
-		find the item again, should he lose it.
+		<td>		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will only be able
+		to get this item once.
 		</td>
 	</tr>
 	<tr>
@@ -276,6 +287,18 @@ Type defined by:
 
 		Note that &lt;quality level&gt; mainly affects chance of magic
 		bonus and appearance of artifacts.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect missiles</td>
+		<td>@ref FLAG_REFL_MISSILE</td>
+		<td>		Object will reflect missiles.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect spells</td>
+		<td>@ref FLAG_REFL_SPELL</td>
+		<td>		Object will reflect spells.
 		</td>
 	</tr>
 	<tr>
@@ -375,6 +398,12 @@ Type defined by:
 		<td>		This value defines the object's weight in gram (1000g is 1kg).
 		Objects with zero weight are not pickable for players. Still, set
 		the "non-pickable" flag for explicitly non-pickable objects.
+		</td>
+	</tr>
+	<tr>
+		<td>zoom</td>
+		<td>@ref obj::zoom</td>
+		<td>		How much to zoom the object on the map.
 		</td>
 	</tr>
 </table>

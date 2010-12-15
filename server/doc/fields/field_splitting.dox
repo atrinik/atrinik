@@ -21,5 +21,11 @@
 		monsters is controlled by &lt;split number&gt;. If enabled, you
 		must also set &lt;breed monster&gt; and &lt;split number&gt;.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_98
+		</td><td>		If direction is set and this is set as well, two adjacent directions
+		will be considered instead of just the one direction.</td>
+	</tr>
 
 */

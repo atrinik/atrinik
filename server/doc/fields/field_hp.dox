@@ -74,6 +74,12 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_28
+		</td><td>		X position this magic mirror reflects objects of. -1 means it will
+		use the mirror's X.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_62
 		</td><td>			The more &lt;hitpoints&gt; the wall has, the longer it takes
 			to be destroyed.</td>
@@ -108,7 +114,16 @@
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>		The rune will detonate &lt;number of charges&gt; times before disappearing.</td>
+		</td><td>		The rune will detonate &lt;number of charges&gt; times before disappearing.
+		If -1, the rune will detonate infinitely, or at least until it's successfully
+		disarmed.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_98
+		</td><td>		This value specifies the object we are looking for: We have a
+		match if the player does/don't carry an object that is of type
+		&lt;match type&gt;.</td>
 	</tr>
 	<tr>
 		<td>

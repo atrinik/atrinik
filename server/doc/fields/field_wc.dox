@@ -26,16 +26,6 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_88
-		</td><td>		&lt;weapon class&gt; improves the chance of hitting the victim.
-		Higher values are better.
-
-		Usually, hazard floors like lave are supposed to hit the victim
-		all the time. Therefore, &lt;weapon class&gt; should be set to
-		something like 200 in such cases.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>			Monsters of high &lt;weapon class&gt; are more likely to
 			really hit their opponent. &lt;weapon class&gt; can be

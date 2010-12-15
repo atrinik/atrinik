@@ -14,10 +14,25 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_28
+		</td><td>		Layers to zoom.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>			Click on the &lt;attuned paths&gt; button to select
 			spellpaths. The creature will get attuned to the specified
 			spellpaths.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_127
+		</td><td>		A combination of AI events this object wants to receive.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Number of tiles east of the info object that the object spans.</td>
 	</tr>
 
 */

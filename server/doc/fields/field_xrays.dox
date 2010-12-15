@@ -12,5 +12,23 @@
 			two-square-wide radius. This is extremely helpful and
 			desirable, so don't give it away for cheap on equipment.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_71
+		</td><td>		It's not possible to push objects onto this tile with the
+		/push command.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_29
+		</td><td>		If on, all players in range will receive the magic ear's message,
+		instead of just the player who activated it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_98
+		</td><td>		If set, instead of printing the sign's contents to text window, use the
+		book GUI to show the message, using any fancy formatting books allow.</td>
+	</tr>
 
 */

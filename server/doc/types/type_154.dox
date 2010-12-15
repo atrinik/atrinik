@@ -34,6 +34,18 @@ Type defined by:
 		<th>Description</th>
 	</tr>
 	<tr>
+		<td>align</td>
+		<td>@ref obj::align</td>
+		<td>		X align of the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>alpha</td>
+		<td>@ref obj::alpha</td>
+		<td>		Alpha value of the object.
+		</td>
+	</tr>
+	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
 		<td>		How fast to play this animation.
@@ -52,18 +64,6 @@ Type defined by:
 		<td>		If an item is set to block view, players (and monsters) cannot
 		see beyond it unless they cross it or manage to stand on top of
 		it.
-		</td>
-	</tr>
-	<tr>
-		<td>can reflect missiles</td>
-		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>		Object can reflect missiles. See reflect missiles.
-		</td>
-	</tr>
-	<tr>
-		<td>can reflect spells</td>
-		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>		Object can reflect spells. See reflect spells.
 		</td>
 	</tr>
 	<tr>
@@ -103,12 +103,26 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction based drawing</td>
+		<td>@ref obj::draw_direction</td>
+		<td>		If enabled, the object will be shown depending on its direction
+		and player's position. Usually used by wall decoration so the
+		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
 		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
 		object appears lit up on dark maps. &lt;glow radius&gt; can be a
 		value between 0 and 4, the higher, the more light does the object
 		emit.
+		</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>@ref obj::z</td>
+		<td>		Adjusts Y position of the object as it appears on the map.
 		</td>
 	</tr>
 	<tr>
@@ -144,9 +158,9 @@ Type defined by:
 	<tr>
 		<td>invoke direction</td>
 		<td>@ref liv::maxsp</td>
-		<td>			If set, the rune will cast it's containing spell (if any) in
-			this &lt;direction&gt;. In most cases this appears useless
-			because the spell directly hits the player.
+		<td>			If set, the rune will cast its spell (if any) in this direction.
+			In most cases this appears useless because the spell directly
+			hits the player.
 		</td>
 	</tr>
 	<tr>
@@ -255,17 +269,16 @@ Type defined by:
 		<td>number of charges</td>
 		<td>@ref liv::hp</td>
 		<td>		The rune will detonate &lt;number of charges&gt; times before disappearing.
+		If -1, the rune will detonate infinitely, or at least until it's successfully
+		disarmed.
 		</td>
 	</tr>
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>		In the moment a player gets or applies this item, it will be
-		flagged as godgiven and vanish when dropped to the ground.
-
-		If this flag is set for an item inside monster's quest_container
-		with the quest being quest item type, the player will be able to
-		find the item again, should he lose it.
+		<td>		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will only be able
+		to get this item once.
 		</td>
 	</tr>
 	<tr>
@@ -292,6 +305,18 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>reflect missiles</td>
+		<td>@ref FLAG_REFL_MISSILE</td>
+		<td>		Object will reflect missiles.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect spells</td>
+		<td>@ref FLAG_REFL_SPELL</td>
+		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
 		<td>rune level</td>
 		<td>@ref obj::level</td>
 		<td>		This value sets the level the rune will cast the spell it
@@ -310,13 +335,6 @@ Type defined by:
 		<td>@ref liv::sp</td>
 		<td>			The selected &lt;spell&gt; defines the spell in the rune, if
 			any. Many runes and all traps do direct damage.
-		</td>
-	</tr>
-	<tr>
-		<td>spell name</td>
-		<td>@ref obj::slaying</td>
-		<td>			Name of the spell in the rune, if any. Slaying is optional,
-			but if present, overrides the &lt;spell&gt; setting.
 		</td>
 	</tr>
 	<tr>
@@ -374,24 +392,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>summon amount</td>
-		<td>@ref liv::maxhp</td>
-		<td>			This should only be set to a summoning rune. It will then
-			summon that many creatures of the kind &lt;summon monster&gt;.
-		</td>
-	</tr>
-	<tr>
-		<td>summon monster</td>
-		<td>@ref obj::race</td>
-		<td>			If this is set to the arch name of any monster, together with
-			&lt;spell name&gt; "summon evil monster", the rune will
-			summon a bunch of those on detonation. (dam and attacktype
-			will still be ignored in this case). Runes are even capable
-			of summoning multi-square monsters, given enough space.
-			You'd better test it though.
-		</td>
-	</tr>
-	<tr>
 		<td>title</td>
 		<td>@ref obj::title</td>
 		<td>		This is the object's title. Once an object is identified the
@@ -416,9 +416,7 @@ Type defined by:
 	<tr>
 		<td>visibility</td>
 		<td>@ref liv::Cha</td>
-		<td>		This value determines what fraction of the time the rune is
-		visible: It'll be randomly visible 1 / &lt;visibility&gt; of the
-		time. Also effects how easily the trap may be found.
+		<td>		Affects how easily the trap may be found.
 		</td>
 	</tr>
 	<tr>
@@ -427,6 +425,12 @@ Type defined by:
 		<td>		This value defines the object's weight in gram (1000g is 1kg).
 		Objects with zero weight are not pickable for players. Still, set
 		the "non-pickable" flag for explicitly non-pickable objects.
+		</td>
+	</tr>
+	<tr>
+		<td>zoom</td>
+		<td>@ref obj::zoom</td>
+		<td>		How much to zoom the object on the map.
 		</td>
 	</tr>
 </table>

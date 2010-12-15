@@ -41,6 +41,12 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_28
+		</td><td>		How much to adjust height of objects using height on the mirrored tile
+		by.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_62
 		</td><td>		If set the wall is "on" and casts spells - if not set the wall is
 		"off" and doesn't cast spells (but can be turned on).</td>

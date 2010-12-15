@@ -19,5 +19,10 @@
 			spellpaths. The creature will get repelled to the specified
 			spellpaths.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Number of tiles south of the info object that the object spans.</td>
+	</tr>
 
 */

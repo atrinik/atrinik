@@ -74,7 +74,7 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64
+@ref page_type_64, @ref page_type_98
 		</td><td>		Enabled means having that object is a match. Disabled means not
 		having that object is a match.</td>
 	</tr>
@@ -119,6 +119,11 @@
 		</td><td>		This value is supposed to be the base &lt;shooting range&gt;.
 		It is added to the base range of the used ammunition (arrow,
 		bolt, etc).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Adjusts the label's tile Y position.</td>
 	</tr>
 
 */

@@ -18,5 +18,11 @@
 			easy to kill. It's good for low level maps, but not much
 			more.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Automatically detects the width/height for this tooltip from 2 nearby
+		info objects with the same unique names.</td>
+	</tr>
 
 */

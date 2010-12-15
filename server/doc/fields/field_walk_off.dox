@@ -1,0 +1,15 @@
+/**
+@fn FLAG_WALK_OFF
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_92, @ref page_type_30, @ref page_type_17, @ref page_type_32
+		</td><td>		Whether to trigger the connection when the object is released. Do
+		not change unless "connection reset" is set.</td>
+	</tr>
+
+*/

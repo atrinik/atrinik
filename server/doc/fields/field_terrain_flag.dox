@@ -7,6 +7,11 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
+@ref page_type_79
+		</td><td>		What terrain can this object move on.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>			These settings define on which kind of terrain this creature
 			can move. If nothing is set, the creature can walk on land

@@ -13,5 +13,10 @@
 			affecting the item's stats. Lower quality than 100% means
 			effects like protection/damage etc are reduced.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>		Level of the monster relative to map difficulty.</td>
+	</tr>
 
 */

@@ -1,0 +1,17 @@
+/**
+@fn obj::no_pvp
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_71
+		</td><td>		This will disable PvP on the tile this floor is on. Use carefully on
+		maps with PvP enabled: it should not be possible to get on this floor
+		directly from the arena (escape route), but more like an area for
+		spectators.</td>
+	</tr>
+
+*/

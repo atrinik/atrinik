@@ -24,7 +24,7 @@
 @ref page_type_88
 		</td><td>		The &lt;base damage&gt; defines how much damage is inflicted to
 		the victim per hit. The final damage is influenced by several
-		other factors like the victim's resistance and level.</td>
+		other factors like the victim's protections.</td>
 	</tr>
 	<tr>
 		<td>

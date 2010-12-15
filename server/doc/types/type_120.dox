@@ -15,10 +15,9 @@ See @ref page_type_120
 		One drop quest is a quest which doesn't have a quest giver, but is only located
 		inside a monster. This is used to create quest items that will only drop once for
 		each player, like King Rhun's Cloak. Item to be dropped for the player is inserted
-		inside the quest container. If the item has "one_drop 1" set and the player drops
-		it somewhere, it will be given back to him when he kills the monster which has the
-		item. Such behavior is typical for dungeon monsters that drop keys, so player can
-		get the key again should he lose it.
+		inside the quest container. If the item has "one_drop 1" set, the player will never
+		be able to find the item again a second time. This means it should be set for special
+		drops like Rhun's Cloak, but not for keys.
 
 		<h2>Kill quest</h2>
 		This kind of quest requires the player to kill X monsters before the quest is
@@ -46,6 +45,18 @@ Type defined by:
 		<th>Description</th>
 	</tr>
 	<tr>
+		<td>align</td>
+		<td>@ref obj::align</td>
+		<td>		X align of the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>alpha</td>
+		<td>@ref obj::alpha</td>
+		<td>		Alpha value of the object.
+		</td>
+	</tr>
+	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
 		<td>		How fast to play this animation.
@@ -67,18 +78,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>can reflect missiles</td>
-		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>		Object can reflect missiles. See reflect missiles.
-		</td>
-	</tr>
-	<tr>
-		<td>can reflect spells</td>
-		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>		Object can reflect spells. See reflect spells.
-		</td>
-	</tr>
-	<tr>
 		<td>cursed</td>
 		<td>@ref FLAG_CURSED</td>
 		<td>		The item is cursed. This object can't be removed when wielded or
@@ -92,12 +91,26 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction based drawing</td>
+		<td>@ref obj::draw_direction</td>
+		<td>		If enabled, the object will be shown depending on its direction
+		and player's position. Usually used by wall decoration so the
+		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
 		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
 		object appears lit up on dark maps. &lt;glow radius&gt; can be a
 		value between 0 and 4, the higher, the more light does the object
 		emit.
+		</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>@ref obj::z</td>
+		<td>		Adjusts Y position of the object as it appears on the map.
 		</td>
 	</tr>
 	<tr>
@@ -229,12 +242,9 @@ Type defined by:
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>		In the moment a player gets or applies this item, it will be
-		flagged as godgiven and vanish when dropped to the ground.
-
-		If this flag is set for an item inside monster's quest_container
-		with the quest being quest item type, the player will be able to
-		find the item again, should he lose it.
+		<td>		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will only be able
+		to get this item once.
 		</td>
 	</tr>
 	<tr>
@@ -264,6 +274,18 @@ Type defined by:
 		<td>quest name</td>
 		<td>@ref obj::name</td>
 		<td>		Name of this quest.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect missiles</td>
+		<td>@ref FLAG_REFL_MISSILE</td>
+		<td>		Object will reflect missiles.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect spells</td>
+		<td>@ref FLAG_REFL_SPELL</td>
+		<td>		Object will reflect spells.
 		</td>
 	</tr>
 	<tr>
@@ -340,6 +362,12 @@ Type defined by:
 		<td>		This value defines the object's weight in gram (1000g is 1kg).
 		Objects with zero weight are not pickable for players. Still, set
 		the "non-pickable" flag for explicitly non-pickable objects.
+		</td>
+	</tr>
+	<tr>
+		<td>zoom</td>
+		<td>@ref obj::zoom</td>
+		<td>		How much to zoom the object on the map.
 		</td>
 	</tr>
 </table>

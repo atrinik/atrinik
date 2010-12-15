@@ -39,6 +39,12 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_28
+		</td><td>		Value to adjust Y position of the tile being mirrored. Useful if the
+		"Y position" is set to -1.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_62
 		</td><td>		If set and a connected object without "last_eat 1" gives signal,
 		the magic wall turns this steps.</td>
@@ -69,9 +75,9 @@
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>			If set, the rune will cast it's containing spell (if any) in
-			this &lt;direction&gt;. In most cases this appears useless
-			because the spell directly hits the player.</td>
+		</td><td>			If set, the rune will cast its spell (if any) in this direction.
+			In most cases this appears useless because the spell directly
+			hits the player.</td>
 	</tr>
 
 */

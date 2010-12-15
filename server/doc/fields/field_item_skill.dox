@@ -39,5 +39,11 @@
 		= physical means the player cannot use the weapon unless he is
 		equal or greater level than 15 in the physical skill category.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		If not 0, will draw an outline around the tooltip's edges with the
+		specified border size.</td>
+	</tr>
 
 */

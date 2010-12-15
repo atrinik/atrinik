@@ -8,11 +8,12 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_31
-		</td><td>		Being activated, the altar will reset after &lt;reset time&gt;
+		</td><td>		Being activated, the altar will reset after "reset time"
 		ticks. After reset, the altar is ready to be activated once
-		again.
+		again. If 0, the altar will never reset and won't be possible
+		to trigger again.
 
-		The default &lt;reset time&gt; is 30.</td>
+		The default reset time is 30.</td>
 	</tr>
 	<tr>
 		<td>
@@ -34,10 +35,36 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_30
+		</td><td>		Being activated, the button will reset after "reset time"
+		ticks. After reset, the button is ready to be activated once
+		again. If 0, the button will never reset and won't be possible
+		to trigger again.
+
+		The default reset time is 30.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_158
 		</td><td>			When the player manages to cure this disease (with a curing
 			spell), he is awarded with &lt;exp. for curing&gt;
 			experience.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_27
+		</td><td>		Being activated, the handle will reset after "reset time"
+		ticks. After reset, the handle is ready to be activated once
+		again. If 0, the handle will never reset and won't be possible
+		to trigger again.
+
+		The default reset time is 30.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_88
+		</td><td>			If set to a value greater than zero, all creatures moving over this
+			spot will be slower than normal.</td>
 	</tr>
 	<tr>
 		<td>
@@ -46,6 +73,16 @@
 		&lt;experience&gt;, with various adjustments, like what level the
 		monster was. The experience will flow into the skill category the
 		player used for the kill.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_32
+		</td><td>		Being activated, the pedestal will reset after "reset time"
+		ticks. After reset, the pedestal is ready to be activated once
+		again. If 0, the pedestal will never reset and won't be possible
+		to trigger again.
+
+		The default reset time is 30.</td>
 	</tr>
 	<tr>
 		<td>
@@ -59,6 +96,12 @@
 
 		Note that &lt;quality level&gt; mainly affects chance of magic
 		bonus and appearance of artifacts.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_138
+		</td><td>		If set to a value greater than zero, all creatures moving over this
+		spot will be slower than normal.</td>
 	</tr>
 	<tr>
 		<td>

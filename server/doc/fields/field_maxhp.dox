@@ -54,6 +54,12 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_28
+		</td><td>		Value to adjust X position of the tile being mirrored. Useful if the
+		"X position" is set to -1.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_62
 		</td><td>			&lt;Max hitpoints&gt; are the maximum amount of hitpoints the
 			wall can have. This only makes sense if the wall can regain
@@ -64,12 +70,6 @@
 @ref page_type_80, @ref page_type_83
 		</td><td>			&lt;max health&gt; is the maximum amount of
 			&lt;health points&gt; this monster can have.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_154
-		</td><td>			This should only be set to a summoning rune. It will then
-			summon that many creatures of the kind &lt;summon monster&gt;.</td>
 	</tr>
 
 */

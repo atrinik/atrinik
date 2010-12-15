@@ -46,6 +46,14 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_11
+		</td><td>        An activator (lever, altar, button, etc) with matching connection
+        value is able to trigger this duplicator. Be very careful that
+        players cannot abuse it to create endless amounts of money or other
+        valuable stuff!</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_91, @ref page_type_26
 		</td><td>		Whenever a "signal" object is triggered, all objects with
 		identical &lt;connection&gt; value get activated. This only makes
@@ -76,6 +84,14 @@
 		</td><td>		Every time the &lt;connection&gt; value is triggered, the wall
 		will cast it's spell. You should set &lt;casting speed&gt; to
 		zero, or this won't have much visible effect.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_81
+		</td><td>		If a connection value is set, the spawn point will try to spawn
+		whenever the connection is triggered.
+		If you set this, you should also set "speed" and "spawn chance"
+		to 0.</td>
 	</tr>
 	<tr>
 		<td>

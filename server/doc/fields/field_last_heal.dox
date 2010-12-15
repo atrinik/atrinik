@@ -37,6 +37,11 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_28
+		</td><td>		How much to zoom the mirrored objects.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_81
 		</td><td>		Size of an area around the spawn point where the mob should be
 		placed randomly. If this value is set to 0, spawn point will find
@@ -52,6 +57,11 @@
 		poison food this value sets how often the DOT force applies
 		damage before it wears out.
 		(DOT = Damage Over Time)</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_155
+		</td><td>		Adjusts the label's tile X position.</td>
 	</tr>
 
 */

@@ -1,0 +1,14 @@
+/**
+@fn obj::draw_double
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_77
+		</td><td>		If set, the wall will be drawn twice.</td>
+	</tr>
+
+*/

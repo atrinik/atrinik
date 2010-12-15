@@ -8,9 +8,7 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_154
-		</td><td>		This value determines what fraction of the time the rune is
-		visible: It'll be randomly visible 1 / &lt;visibility&gt; of the
-		time. Also effects how easily the trap may be found.</td>
+		</td><td>		Affects how easily the trap may be found.</td>
 	</tr>
 
 */

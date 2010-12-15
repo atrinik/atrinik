@@ -26,6 +26,13 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_88
+		</td><td>		Controls how often the damager hits creatures standing on top of it.
+
+		If 0, no damage will be done.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_62
 		</td><td>		The &lt;casting speed&gt; defines the spellcasting speed of the
 		wall. You can fine-tune how long the duration between two casts
@@ -64,9 +71,10 @@
 	<tr>
 		<td>
 @ref page_type_138
-		</td><td>		The higher the &lt;drowning speed&gt;, the faster will players
-		and items sink into the swamp. Swamp with very high
-		&lt;drowning speed&gt; can be a nasty and unexpected death-trap.
+		</td><td>		The higher this value, the faster will players and items sink
+		into the swamp. Swamp with very high drowning speed can be a
+		nasty and unexpected death-trap.
+
 		Players should get a warning before such areas.</td>
 	</tr>
 	<tr>

@@ -7,6 +7,12 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
+@ref page_type_88
+		</td><td>		If set, the damager will not attack friendly creatures (players, NPCs, etc)
+		but only monsters.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>			&lt;friendly&gt; monsters help the player, attacking any non-
 			friendly monsters in range.</td>

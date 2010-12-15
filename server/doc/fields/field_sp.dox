@@ -79,7 +79,7 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64
+@ref page_type_64, @ref page_type_98
 		</td><td>		Enabled means key text is compared to the slaying field of an
 		object and NOT to the name.</td>
 	</tr>
@@ -88,6 +88,12 @@
 @ref page_type_20
 		</td><td>		An opened door will auto-close after some time. The higher this
 		value the longer the door will stay open.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_28
+		</td><td>		Y position this magic mirror reflects objects of. -1 means it will
+		use the mirror's Y.</td>
 	</tr>
 	<tr>
 		<td>

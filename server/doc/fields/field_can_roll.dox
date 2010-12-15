@@ -10,7 +10,9 @@
 @ref page_type_79
 		</td><td>		If set, the object is able to "roll", so it can be pushed around
 		with the /push command. This setting is used for boulders and
-		barrels.
+		barrels. If you're setting this attribute, make sure to check
+		"can move on" as well, in order to set relevant terrain types
+		the object can be pushed to.
 
 		Useful for puzzles and mazes.</td>
 	</tr>
