@@ -77,8 +77,6 @@ static fields_struct fields[] =
 	{"last_grace", FIELDTYPE_SINT16, offsetof(object, last_grace), 0, 0},
 	{"last_eat", FIELDTYPE_SINT16, offsetof(object, last_eat), 0, 0},
 
-	{"animation_id", FIELDTYPE_UINT16, offsetof(object, animation_id), 0, 0},
-	{"inv_animation_id", FIELDTYPE_UINT16, offsetof(object, inv_animation_id), 0, 0},
 	{"magic", FIELDTYPE_SINT8, offsetof(object, magic), 0, 0},
 	{"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0},
 	{"level", FIELDTYPE_SINT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
