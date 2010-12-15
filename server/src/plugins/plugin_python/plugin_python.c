@@ -2078,6 +2078,23 @@ MODULEAPI void closePlugin()
 }
 
 /**
+ * Sets face field.
+ * @param ptr Pointer to ::New_Face structure.
+ * @param face_id ID of the face to set.
+ * @return 0 on success, -1 on failure. */
+static int set_face_field(void *ptr, long face_id)
+{
+	if (face_id < 0 || face_id >= *hooks->nrofpixmaps)
+	{
+		PyErr_Format(PyExc_ValueError, "Illegal value for face field: %ld", face_id);
+		return -1;
+	}
+
+	*(New_Face **) ptr = &(*hooks->new_faces)[face_id];
+	return 0;
+}
+
+/**
  * A generic field setter for all interfaces.
  * @param type Type of the field.
  * @param[out] field_ptr Field pointer.
@@ -2450,6 +2467,37 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 
 			break;
+
+		case FIELDTYPE_FACE:
+			if (PyTuple_Check(value))
+			{
+				if (PyTuple_GET_SIZE(value) != 2)
+				{
+					PyErr_Format(PyExc_ValueError, "Tuple for face field must have exactly two values.");
+					return -1;
+				}
+				else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1)))
+				{
+					PyErr_SetString(PyExc_ValueError, "Second value of tuple used for face field is not an integer.");
+					return -1;
+				}
+
+				return set_face_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+			}
+			else if (PyInt_Check(value))
+			{
+				return set_face_field(field_ptr, PyLong_AsLong(value));
+			}
+			else if (PyString_Check(value))
+			{
+				return set_face_field(field_ptr, hooks->find_face(PyString_AsString(value), 0));
+			}
+			else
+			{
+				INTRAISE("Illegal value for face field.");
+			}
+
+			break;
 	}
 
 	return 0;
@@ -2534,6 +2582,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_PLAYER:
 			return wrap_player(*(player **) field_ptr);
+
+		case FIELDTYPE_FACE:
+			return Py_BuildValue("(si)", (*(New_Face **) field_ptr)->name, (*(New_Face **) field_ptr)->number);
 	}
 
 	RAISE("BUG: Unknown field type.");

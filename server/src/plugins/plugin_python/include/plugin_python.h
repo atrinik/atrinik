@@ -249,7 +249,9 @@ typedef enum
 	/** Pointer to an archetype. */
 	FIELDTYPE_ARCH,
 	/** Pointer to a player. */
-	FIELDTYPE_PLAYER
+	FIELDTYPE_PLAYER,
+	/** Face pointer. */
+	FIELDTYPE_FACE
 } field_type;
 
 /**

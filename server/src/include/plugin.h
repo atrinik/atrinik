@@ -316,6 +316,8 @@ struct plugin_hooklist
 	int *freearr_x;
 	int *freearr_y;
 	player **first_player;
+	New_Face **new_faces;
+	int *nrofpixmaps;
 };
 
 /** General API function. */

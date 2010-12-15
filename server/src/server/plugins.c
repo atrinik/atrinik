@@ -28,6 +28,7 @@
  * Handles the plugins code. */
 
 #include <plugin.h>
+#include <loader.h>
 
 /** The plugin suffix. */
 #ifndef WIN32
@@ -173,7 +174,9 @@ struct plugin_hooklist hooklist =
 	object_flag_names,
 	freearr_x,
 	freearr_y,
-	&first_player
+	&first_player,
+	&new_faces,
+	&nrofpixmaps
 };
 
 /** The list of loaded plugins. */
