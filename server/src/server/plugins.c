@@ -176,7 +176,9 @@ struct plugin_hooklist hooklist =
 	freearr_y,
 	&first_player,
 	&new_faces,
-	&nrofpixmaps
+	&nrofpixmaps,
+	&animations,
+	&num_animations,
 };
 
 /** The list of loaded plugins. */

@@ -143,7 +143,9 @@ static fields_struct fields[] =
 	{"zoom", FIELDTYPE_UINT8, offsetof(object, zoom), 0, 0},
 	{"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0},
 	{"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0},
-	{"face", FIELDTYPE_FACE, offsetof(object, face), 0, 0}
+	{"face", FIELDTYPE_FACE, offsetof(object, face), 0, 0},
+	{"animation", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0},
+	{"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id), 0, 0}
 };
 /* @endcparser */
 

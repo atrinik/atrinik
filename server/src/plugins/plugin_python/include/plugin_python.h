@@ -251,7 +251,11 @@ typedef enum
 	/** Pointer to a player. */
 	FIELDTYPE_PLAYER,
 	/** Face pointer. */
-	FIELDTYPE_FACE
+	FIELDTYPE_FACE,
+	/**
+	 * Animation ID. The field is actually uint16, but the result is a
+	 * tuple containing the animation name and the animation ID. */
+	FIELDTYPE_ANIMATION
 } field_type;
 
 /**

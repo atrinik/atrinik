@@ -318,6 +318,8 @@ struct plugin_hooklist
 	player **first_player;
 	New_Face **new_faces;
 	int *nrofpixmaps;
+	Animations **animations;
+	int *num_animations;
 };
 
 /** General API function. */
