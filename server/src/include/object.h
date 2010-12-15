@@ -254,7 +254,13 @@ typedef struct obj
 	/** Y position in the map for this object */
 	sint16 y;
 
-	/** Z-Position in the map (in pixels) for this object. */
+	/**
+	 * Z-Position in the map (in pixels) for this object.
+	 *
+	 * For floor (layer 1), this makes the client use tile stretching. All
+	 * other objects get Y position (height) adjustment on the map (100 = the
+	 * object moves 100 pixels further to the top, -50 = the object moves
+	 * 50 pixels to the bottom). */
 	sint16 z;
 
 	/** Needed to target the nearest enemy */
@@ -300,7 +306,10 @@ typedef struct obj
 	sint16 ox, oy;
 #endif
 
-	/** X align of the object on the actual map. */
+	/**
+	 * X align of the object on the actual map. Similar to object::z,
+	 * a value of 100 = object is moved 100 pixels to the right, -50 and
+	 * the object is moved 50 pixels to the left. */
 	sint16 align;
 
 	/** Object is a light source */
@@ -413,7 +422,12 @@ typedef struct obj
 	/** Power rating of the object. */
 	sint8 item_power;
 
-	/** How much to zoom the object. */
+	/**
+	 * How much to zoom the object.
+	 *
+	 * 0 = 100 = 100% zoom of the object, which means the original (no
+	 * actual zooming is done). 50 = 50% of the original object's size,
+	 * 200 = 200% of the original object's size. */
 	uint8 zoom;
 
 	/** Object's alpha value. */
