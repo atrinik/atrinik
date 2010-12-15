@@ -1070,44 +1070,6 @@ static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>FindFace(string face)</h1>
- * Find a face ID by its name.
- * @param face Name of the face to find.
- * @return ID of the face. */
-static PyObject *Atrinik_FindFace(PyObject *self, PyObject *args)
-{
-	char *name;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "s", &name))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->find_face(name, 0));
-}
-
-/**
- * <h1>FindAnimation(string animation)</h1>
- * Find an animation ID by its name.
- * @param animation Name of the animation to find.
- * @return ID of the animation. */
-static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
-{
-	char *name;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "s", &name))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->find_animation(name));
-}
-
-/**
  * <h1>GetRangeVectorFromMapCoords(map map, int x, int y, map map2, int x2, int y2, int [flags = 0])</h1>
  * Get the distance and direction from one map coordinate to another.
  * @param map From which map to get distance from.
@@ -1325,8 +1287,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
 	{"LOG", Atrinik_LOG, METH_VARARGS, 0},
 	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
-	{"FindFace", Atrinik_FindFace, METH_VARARGS, 0},
-	{"FindAnimation", Atrinik_FindAnimation, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
 	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
