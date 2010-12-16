@@ -945,16 +945,19 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *obj, PyObject 
 }
 
 /**
- * <h1>object.CreateForce(string id)</h1>
+ * <h1>object.CreateForce(string name, int time)</h1>
  * Create a force object in object's inventory.
- * @param id String ID of the force object.
- * @return The created invisible force object. */
+ * @param name String ID of the force object.
+ * @param time If non-zero, the force will be removed again after
+ * time / 0.02 ticks. Optional, defaults to 0.
+ * @return The created force object. */
 static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 {
-	const char *id;
+	const char *name;
+	int time = 0;
 	object *force;
 
-	if (!PyArg_ParseTuple(args, "s", &id))
+	if (!PyArg_ParseTuple(args, "s|i", &name, &time))
 	{
 		return NULL;
 	}
@@ -962,13 +965,22 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 	OBJEXISTCHECK(obj);
 
 	force = hooks->get_archetype("force");
-	force->speed = 0.0;
-	hooks->update_ob_speed(force);
-	FREE_AND_COPY_HASH(force->slaying, id);
-	FREE_AND_COPY_HASH(force->name, id);
-	force = hooks->insert_ob_in_ob(force, obj->obj);
 
-	return wrap_object(force);
+	if (time > 0)
+	{
+		SET_FLAG(force, FLAG_IS_USED_UP);
+		force->stats.food = time;
+		force->speed = 0.02f;
+	}
+	else
+	{
+		force->speed = 0.0;
+	}
+
+	hooks->update_ob_speed(force);
+	FREE_AND_COPY_HASH(force->name, name);
+
+	return wrap_object(hooks->insert_ob_in_ob(force, obj->obj));
 }
 
 /**
