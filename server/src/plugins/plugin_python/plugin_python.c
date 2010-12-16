@@ -1065,7 +1065,7 @@ static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
  * <h1>DestroyTimer(int timer)</h1>
  * Destroy an existing timer.
  * @param timer ID of the timer.
- * @return 0 on success, anything lower on failure. */
+ * @return True on success, False on failure. */
 static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
 {
 	int id;
@@ -1077,7 +1077,7 @@ static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("i", hooks->cftimer_destroy(id));
+	Py_ReturnBoolean(hooks->cftimer_destroy(id) == TIMER_ERR_NONE);
 }
 
 /**
