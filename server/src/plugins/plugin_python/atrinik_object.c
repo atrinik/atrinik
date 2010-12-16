@@ -785,7 +785,8 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
  * @param force_name Name of the player force
  * @param time If non-zero, the force will be removed again after
  * time / 0.02 ticks. Optional, defaults to 0.
- * @return The new player force object. */
+ * @return The new player force object.
+ * @deprecated Use object.CreateForce() */
 static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject *args)
 {
 	const char *txt;
