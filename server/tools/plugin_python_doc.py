@@ -108,7 +108,7 @@ for comment in parser.cparser_comments:
 				doc_fp.write("\n\t\t<td>{0}</td>".format("comment" in mem and mem["comment"] or ""))
 				doc_fp.write("\n\t</tr>")
 
-		elif comment["data"][0]["name"] == "constants":
+		elif comment["data"][0]["name"].startswith("constants"):
 			doc_fp.write("\n\t<tr>")
 			doc_fp.write("\n\t\t<th width=\"10%\">Name</th>")
 			doc_fp.write("\n\t\t<th width=\"50%\">Details</th>")
