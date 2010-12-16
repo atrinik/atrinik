@@ -1016,16 +1016,22 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
  * @return Cleaned up text; can be None. */
 static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 {
-	char *string;
+	const char *text;
+	char *cp;
+	PyObject *ret;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "s", &string))
+	if (!PyArg_ParseTuple(args, "s", &text))
 	{
 		return NULL;
 	}
 
-	return Py_BuildValue("s", hooks->cleanup_chat_string(string));
+	cp = hooks->strdup_local(text);
+	ret = Py_BuildValue("s", hooks->cleanup_chat_string(cp));
+	free(cp);
+
+	return ret;
 }
 
 /**
