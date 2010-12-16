@@ -522,10 +522,7 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args)
 /**
  * <h1>object.GetGender()</h1>
  * Get an object's gender.
- * @retval NEUTER No gender.
- * @retval MALE Male.
- * @retval FEMALE Female.
- * @retval HERMAPHRODITE Both male and female. */
+ * @return One of the constants from Gender module @ref plugin_python_constants_gender "constants". */
 static PyObject *Atrinik_Object_GetGender(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
@@ -537,11 +534,7 @@ static PyObject *Atrinik_Object_GetGender(Atrinik_Object *obj, PyObject *args)
 /**
  * <h1>object.SetGender(int gender)</h1>
  * Changes the gender of object.
- * @param gender The new gender to set. One of:
- * - <b>NEUTER</b>: No gender.
- * - <b>MALE</b>: Male.
- * - <b>FEMALE</b>: Female.
- * - <b>HERMAPHRODITE</b>: Both male and female. */
+ * @param gender The new gender to set. One of the constants from Gender module @ref plugin_python_constants_gender "constants". */
 static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 {
 	int gender;
@@ -567,7 +560,7 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 		SET_FLAG(obj->obj, FLAG_IS_FEMALE);
 	}
 
-	/* Update the players client if object was a player */
+	/* Update the player's client if object was a player. */
 	if (obj->obj->type == PLAYER)
 	{
 		CONTR(obj->obj)->socket.ext_title_flag = 1;
