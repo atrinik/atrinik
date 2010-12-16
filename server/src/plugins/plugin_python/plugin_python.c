@@ -621,7 +621,9 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
  * @return True if the player exists, False otherwise */
 static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 {
-	char *name;
+	const char *name;
+	char *cp;
+	int ret;
 
 	(void) self;
 
@@ -630,9 +632,12 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	hooks->adjust_player_name(name);
+	cp = hooks->strdup_local(name);
+	hooks->adjust_player_name(cp);
+	ret = hooks->player_exists(cp);
+	free(cp);
 
-	return Py_BuildValue("i", hooks->player_exists(name));
+	Py_ReturnBoolean(ret);
 }
 
 /**
