@@ -2104,6 +2104,12 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 		}
 	}
 
+	/* Update object's speed. */
+	if (field->offset == offsetof(object, speed))
+	{
+		hooks->update_ob_speed(obj->obj);
+	}
+
 	return 0;
 }
 
