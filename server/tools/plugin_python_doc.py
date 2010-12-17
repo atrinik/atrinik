@@ -12,7 +12,7 @@ import os
 def fieldtype_to_string(fieldtype):
 	if fieldtype == "FIELDTYPE_CSTR" or fieldtype == "FIELDTYPE_SHSTR" or fieldtype == "FIELDTYPE_CARY":
 		return "string"
-	elif fieldtype == "FIELDTYPE_OBJECT" or fieldtype == "FIELDTYPE_OBJECTREF":
+	elif fieldtype == "FIELDTYPE_OBJECT" or fieldtype == "FIELDTYPE_OBJECTREF" or fieldtype == "FIELDTYPE_OBJECT2":
 		return "object"
 	elif fieldtype == "FIELDTYPE_UINT64" or fieldtype == "FIELDTYPE_SINT64" or fieldtype == "FIELDTYPE_UINT32" or fieldtype == "FIELDTYPE_SINT32" or fieldtype == "FIELDTYPE_UINT16" or fieldtype == "FIELDTYPE_SINT16" or fieldtype == "FIELDTYPE_UINT8" or fieldtype == "FIELDTYPE_SINT8":
 		return "integer"
@@ -28,6 +28,12 @@ def fieldtype_to_string(fieldtype):
 		return "player"
 	elif fieldtype == "FIELDTYPE_ARCH":
 		return "archetype"
+	elif fieldtype == "FIELDTYPE_BOOLEAN":
+		return "boolean"
+	elif fieldtype == "FIELDTYPE_ANIMATION":
+		return "animation"
+	elif fieldtype == "FIELDTYPE_FACE":
+		return "face"
 
 	return "unknown"
 
