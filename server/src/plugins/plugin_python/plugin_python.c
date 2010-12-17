@@ -2509,6 +2509,22 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 
 			break;
+
+		case FIELDTYPE_BOOLEAN:
+			if (value == Py_True)
+			{
+				*(uint8 *) field_ptr = 1;
+			}
+			else if (value == Py_False)
+			{
+				*(uint8 *) field_ptr = 0;
+			}
+			else
+			{
+				INTRAISE("Illegal value for boolean field.");
+			}
+
+			break;
 	}
 
 	return 0;
@@ -2599,6 +2615,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_ANIMATION:
 			return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16 *) field_ptr])->name, *(uint16 *) field_ptr);
+
+		case FIELDTYPE_BOOLEAN:
+			Py_ReturnBoolean(*(uint8 *) field_ptr);
 	}
 
 	RAISE("BUG: Unknown field type.");

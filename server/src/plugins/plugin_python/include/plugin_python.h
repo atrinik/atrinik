@@ -255,7 +255,9 @@ typedef enum
 	/**
 	 * Animation ID. The field is actually uint16, but the result is a
 	 * tuple containing the animation name and the animation ID. */
-	FIELDTYPE_ANIMATION
+	FIELDTYPE_ANIMATION,
+	/** uint8 that only accepts True/False. */
+	FIELDTYPE_BOOLEAN
 } field_type;
 
 /**
