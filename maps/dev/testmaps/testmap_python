@@ -2,7 +2,7 @@ arch map
 name Testmap: Python
 msg
 Created:  2009-12-11 Alex Tokar
-Modified: 2010-12-15 Alex Tokar
+Modified: 2010-12-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -176,6 +176,25 @@ end
 arch floor_ostone1
 x 1
 y 3
+end
+arch apple
+msg
+The apple sucks you in as soon as you take a bite out of it!
+
+You find yourself in a very strange place...
+endmsg
+name tasty looking apple
+can_stack 0
+no_pick 1
+identified 1
+is_magical 1
+type 79
+x 1
+y 3
+arch event_obj
+sub_type 1
+race /dev/testmaps/scripts/food_haven.py
+end
 end
 arch floor_ostone1
 x 1
