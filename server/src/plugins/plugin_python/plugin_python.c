@@ -1248,25 +1248,49 @@ static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>GetFirstPlayer()</h1>
- * Get the first player in the list of players.
- * @return The first player. */
-static PyObject *Atrinik_GetFirstPlayer(PyObject *self, PyObject *args)
+ * <h1>GetFirst(string what)</h1>
+ * Get first member of various linked lists.
+ * @param what What list to get first member of. Available list names:
+ * - player: First player.
+ * - map: First map.
+ * - archetype: First archetype.
+ * - party: First party.
+ * - region: First region.
+ * @return First member of the specified linked list. */
+static PyObject *Atrinik_GetFirst(PyObject *self, PyObject *args)
 {
-	(void) self;
-	(void) args;
-	return wrap_player(*hooks->first_player);
-}
+	const char *what;
 
-/**
- * <h1>GetFirstArchetype()</h1>
- * Get the first archetype in the list of archetypes.
- * @return The first archetype. */
-static PyObject *Atrinik_GetFirstArchetype(PyObject *self, PyObject *args)
-{
 	(void) self;
-	(void) args;
-	return wrap_archetype(*hooks->first_archetype);
+
+	if (!PyArg_ParseTuple(args, "s", &what))
+	{
+		return NULL;
+	}
+
+	if (!strcmp(what, "player"))
+	{
+		return wrap_player(*hooks->first_player);
+	}
+	else if (!strcmp(what, "map"))
+	{
+		return wrap_map(*hooks->first_map);
+	}
+	else if (!strcmp(what, "archetype"))
+	{
+		return wrap_archetype(*hooks->first_archetype);
+	}
+	else if (!strcmp(what, "party"))
+	{
+		return wrap_party(*hooks->first_party);
+	}
+	else if (!strcmp(what, "region"))
+	{
+		return wrap_region(*hooks->first_region);
+	}
+
+	PyErr_Format(PyExc_ValueError, "GetFirst(): '%s' is not a valid linked list.", what);
+	return NULL;
 }
 
 /**
@@ -1336,8 +1360,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
 	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
 	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
-	{"GetFirstPlayer", Atrinik_GetFirstPlayer, METH_NOARGS, 0},
-	{"GetFirstArchetype", Atrinik_GetFirstArchetype, METH_NOARGS, 0},
+	{"GetFirst", Atrinik_GetFirst, METH_VARARGS, 0},
 	{"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };

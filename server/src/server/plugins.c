@@ -182,6 +182,9 @@ struct plugin_hooklist hooklist =
 	&animations,
 	&num_animations,
 	&first_archetype,
+	&first_map,
+	&first_party,
+	&first_region,
 };
 
 /** The list of loaded plugins. */

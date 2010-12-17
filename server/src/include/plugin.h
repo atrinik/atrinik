@@ -323,6 +323,9 @@ struct plugin_hooklist
 	Animations **animations;
 	int *num_animations;
 	archetype **first_archetype;
+	mapstruct **first_map;
+	party_struct **first_party;
+	region **first_region;
 };
 
 /** General API function. */
