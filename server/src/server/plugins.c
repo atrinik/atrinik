@@ -158,6 +158,8 @@ struct plugin_hooklist hooklist =
 	hit_player,
 	move_ob,
 	move_player,
+	get_empty_map,
+	set_map_darkness,
 
 	season_name,
 	weekdays,
@@ -179,6 +181,7 @@ struct plugin_hooklist hooklist =
 	&nrofpixmaps,
 	&animations,
 	&num_animations,
+	&first_archetype,
 };
 
 /** The list of loaded plugins. */

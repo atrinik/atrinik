@@ -463,6 +463,11 @@ static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
 		return -1;
 	}
 
+	if (((fields_struct *) context)->offset == offsetof(mapstruct, darkness))
+	{
+		hooks->set_map_darkness(map->map, map->map->darkness);
+	}
+
 	return 0;
 }
 

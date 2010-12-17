@@ -299,6 +299,8 @@ struct plugin_hooklist
 	int (*hit_player)(object *, int, object *, int);
 	int (*move_ob)(object *, int, object *);
 	int (*move_player)(object *, int);
+	mapstruct *(*get_empty_map)(int, int);
+	void (*set_map_darkness)(mapstruct *, int);
 
 	const char **season_name;
 	const char **weekdays;
@@ -320,6 +322,7 @@ struct plugin_hooklist
 	int *nrofpixmaps;
 	Animations **animations;
 	int *num_animations;
+	archetype **first_archetype;
 };
 
 /** General API function. */
