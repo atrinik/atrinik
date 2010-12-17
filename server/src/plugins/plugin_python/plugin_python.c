@@ -1269,6 +1269,36 @@ static PyObject *Atrinik_GetFirstArchetype(PyObject *self, PyObject *args)
 	return wrap_archetype(*hooks->first_archetype);
 }
 
+/**
+ * <h1>CreateMap(int width, int height, string path)</h1>
+ * Creates an empty map.
+ * @param width The new map's width.
+ * @param height The new map's height.
+ * @param path Path to the new map. This should be a unique path to avoid
+ * collisions. "/python-maps/" is prepended to this to ensure no collision
+ * with regular maps.
+ * @return The new empty map. */
+static PyObject *Atrinik_CreateMap(PyObject *self, PyObject *args)
+{
+	int width, height;
+	const char *path;
+	mapstruct *m;
+	char buf[HUGE_BUF];
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "iis", &width, &height, &path))
+	{
+		return NULL;
+	}
+
+	m = hooks->get_empty_map(width, height);
+	snprintf(buf, sizeof(buf), "/python-maps/%s", path);
+	m->path = hooks->add_string(buf);
+
+	return wrap_map(m);
+}
+
 /*@}*/
 
 /**
@@ -1308,6 +1338,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
 	{"GetFirstPlayer", Atrinik_GetFirstPlayer, METH_NOARGS, 0},
 	{"GetFirstArchetype", Atrinik_GetFirstArchetype, METH_NOARGS, 0},
+	{"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
