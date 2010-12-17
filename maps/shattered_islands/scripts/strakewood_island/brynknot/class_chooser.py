@@ -92,7 +92,7 @@ def main():
 		activator.CreateObject("class_" + l[0]["name"])
 		# fix_player() will be called eventually, so we just need to mark
 		# the ext title for update.
-		activator.Controller().s_ext_title_flag = 1
+		activator.Controller().s_ext_title_flag = True
 		me.SayTo(activator, "\nCongratulations, you're {0} now!".format(l[0]["name"]))
 
 	else:
