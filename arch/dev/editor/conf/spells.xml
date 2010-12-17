@@ -8,7 +8,7 @@
   - #        to generate a new version of this file.         #
   - ##########################################################
   -->
-<!-- Generated on: Mon Jun 21 23:26:53 CEST 2010 -->
+<!-- Generated on: Fri Dec 17 02:34:35 CET 2010 -->
 <spells>
   <spell id="7"   name="asteroid" />
   <spell id="38"  name="bullet storm" />
@@ -34,6 +34,7 @@
   <spell id="8"   name="frost nova" />
   <spell id="46"  name="frostbolt" />
   <spell id="21"  name="greater healing" />
+  <spell id="51"  name="holy word" />
   <spell id="1"   name="icestorm" />
   <spell id="6"   name="identify" />
   <spell id="48"  name="lightning" />
