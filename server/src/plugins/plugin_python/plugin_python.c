@@ -1258,6 +1258,17 @@ static PyObject *Atrinik_GetFirstPlayer(PyObject *self, PyObject *args)
 	return wrap_player(*hooks->first_player);
 }
 
+/**
+ * <h1>GetFirstArchetype()</h1>
+ * Get the first archetype in the list of archetypes.
+ * @return The first archetype. */
+static PyObject *Atrinik_GetFirstArchetype(PyObject *self, PyObject *args)
+{
+	(void) self;
+	(void) args;
+	return wrap_archetype(*hooks->first_archetype);
+}
+
 /*@}*/
 
 /**
@@ -1296,6 +1307,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
 	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
 	{"GetFirstPlayer", Atrinik_GetFirstPlayer, METH_NOARGS, 0},
+	{"GetFirstArchetype", Atrinik_GetFirstArchetype, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
