@@ -3,7 +3,7 @@
 ## except those that match regex specified in event options (matched
 ## against the floor's arch name).
 
-from Atrinik import WhoAmI, GetOptions, LAYER_FLOOR
+from Atrinik import *
 import re
 
 me = WhoAmI()
