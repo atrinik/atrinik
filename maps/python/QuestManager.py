@@ -213,7 +213,7 @@ class QuestManagerMulti(QuestManagerBase):
 			return self._finished(obj, self.quest["parts"][part - 1])
 		# Otherwise all.
 		else:
-			for i in xrange(len(self.quest["parts"])):
+			for i in range(len(self.quest["parts"])):
 				obj = self.quest_object.FindObject(name = "part " + str(i + 1))
 
 				if not obj or not self._finished(obj, self.quest["parts"][i]):
