@@ -2,6 +2,7 @@
 ## Experimental script testing the power of CreateMap().
 
 from Atrinik import *
+import time
 
 activator = WhoIsActivator()
 
