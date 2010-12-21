@@ -250,8 +250,10 @@ class QuestManagerMulti(QuestManagerBase):
 			i = 0
 
 			for obj in self.quest_object.FindObject(archname = "quest_container", multiple = True):
-				obj.magic = QUEST_STATUS_COMPLETED
-				self._complete(obj, self.quest["parts"][i])
+				if obj.magic != QUEST_STATUS_COMPLETED:
+					obj.magic = QUEST_STATUS_COMPLETED
+					self._complete(obj, self.quest["parts"][i])
+
 				i += 1
 
 		# Complete the quest itself now.
