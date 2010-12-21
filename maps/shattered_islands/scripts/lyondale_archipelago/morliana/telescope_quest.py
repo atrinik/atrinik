@@ -28,8 +28,6 @@ quest = {
 		},
 		{
 			"message": "Albar has asked you to find a clear crystal for his telescope. He thinks Morg'eean the kobold trader south of Asteria might have some for sale in his little shop.",
-			"arch_name": "jewel_generic",
-			"item_name": "clear crystal",
 			"type": QUEST_TYPE_SPECIAL,
 		},
 		{
