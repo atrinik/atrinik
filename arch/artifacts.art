@@ -4888,3 +4888,50 @@ item_quality 81
 item_condition 81
 is_named 1
 end
+
+Allowed none
+chance 1
+artifact boots_cold_north
+def_arch high_boots
+Object
+is_magical 1
+title of the cold North
+ac_add 1
+material_real 203
+item_quality 90
+item_condition 90
+is_named 1
+protect_cold 15
+value 11500
+last_heal 3
+item_level_art 18
+maxhp 10
+item_power 4
+msg
+These boots were crafted in a way to absorb the chill from the cold North.
+
+They also slightly increase the wearer's hitpoints.
+endmsg
+end
+
+Allowed none
+chance 1
+artifact ring_nourishment
+def_arch ring_generic
+Object
+title of Nourishment
+is_magical 1
+face ring_magic3.101
+material 256
+item_quality 100
+item_condition 100
+material_real 0
+value 23000
+food 5
+is_named 1
+item_power 2
+item_level 10
+msg
+This ring has been enchanted to slow down its wearer's food consumption.
+endmsg
+end
