@@ -144,7 +144,7 @@ def npc_silmedsen():
 			obj.InsertInto(activator)
 			activator.Write("You receive {} from {}.".format(obj.GetName(), me.name), COLOR_GREEN)
 			qm.start(6)
-	elif qm.started_part(6) and not qm.completed_part(6):
+	elif qm.started_part(6) and not qm.completed_part(6) and not qm.finished(5):
 		if is_hello:
 			obj = activator.FindObject(name = "Silmedsen's potion bottle")
 
