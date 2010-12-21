@@ -32,4 +32,4 @@ filePath="/var/www/meta.htm"
 # Url of the main metaserver
 metaserverUrl="http://meta.atrinik.org/"
 
-/usr/bin/wget $metaserverUrl -O $filePath
+/usr/bin/wget -O $filePath $metaserverUrl
