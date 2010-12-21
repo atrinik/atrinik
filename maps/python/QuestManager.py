@@ -98,7 +98,7 @@ class QuestManagerBase:
 		# Special handling for kill item quests.
 		if quest["type"] == QUEST_TYPE_KILL_ITEM:
 			# Are we going to keep the quest item(s)?
-			keep = "quest_item_keep" in self.quest and self.quest["quest_item_keep"]
+			keep = "quest_item_keep" in quest and quest["quest_item_keep"]
 
 			# Find all matching objects.
 			for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
