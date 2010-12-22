@@ -182,6 +182,7 @@ def item_potion():
 			me.face = "potion_cyan.101"
 			me.value = 10000
 			me.f_is_magical = True
+			me.msg = None
 			activator.Write("You fill the bottle to the brim with the clear water.", COLOR_GREEN)
 			return
 	except:
