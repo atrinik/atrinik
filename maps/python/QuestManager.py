@@ -24,7 +24,10 @@ def _create_quest_object(where, q_type, name, msg = None, num = 0):
 ## @param quest Quest name to look for.
 ## @return The quest container if found, None otherwise.
 def get_quest_object(obj, quest):
-	return obj.Controller().quest_container.FindObject(name = quest)
+	try:
+		return obj.Controller().quest_container.FindObject(name = quest)
+	except:
+		return None
 
 ## Base quest manager class, from which the actual quest managers inherit.
 class QuestManagerBase:
