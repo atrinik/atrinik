@@ -108,6 +108,6 @@ class PostOffice:
 	## <pre>5% of object's value (for each object in a stack), always at
 	## least 20 (copper).</pre>
 	## @param object Object we want to send.
-	## @return The calculate price.
+	## @return The calculated price.
 	def get_price(self, object):
 		return int(max(object.GetCost(object, COST_TRUE) / 100 * 5, 20))
