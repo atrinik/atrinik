@@ -41,8 +41,6 @@ class Jail:
 		(m, x, y) = self.select_jail()
 		# Combine the jail map into a path.
 		map_path = os.path.dirname(self.me.map.path) + "/" + m
-		# Make sure the map is in memory.
-		ReadyMap(map_path)
 		# Teleport the player to the map.
 		player.TeleportTo(map_path, x, y)
 		# Get player's controller, and set their save bed map, so they can't
