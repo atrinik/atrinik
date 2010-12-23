@@ -52,10 +52,10 @@ class Jail:
 
 		# 'time' of 0 means forever.
 		if time != 0:
-			force = player.CreatePlayerForce("jail_force", int(time / 5))
+			force = player.CreateForce("jail_force", int(time / 5))
 			player.Write("You have been jailed for {0} for your actions.".format(datetime.timedelta(seconds = time)), COLOR_RED)
 		else:
-			force = player.CreatePlayerForce("jail_force", 0)
+			force = player.CreateForce("jail_force")
 			player.Write("You have been jailed for life for your actions.", COLOR_RED)
 
 		force.slaying = "jail_force"
