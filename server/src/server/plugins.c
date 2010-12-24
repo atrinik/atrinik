@@ -160,6 +160,7 @@ struct plugin_hooklist hooklist =
 	move_player,
 	get_empty_map,
 	set_map_darkness,
+	find_free_spot,
 
 	season_name,
 	weekdays,

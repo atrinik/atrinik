@@ -423,6 +423,53 @@ static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args)
 	return Py_BuildValue("i", hooks->blocked(ob->obj, m, x, y, terrain));
 }
 
+/**
+ * <h1>map.FreeSpot(object ob, int x, int y, int start, int stop)</h1>
+ * Find first free spot around map at x, y.
+ * @param ob Involved object - will be used to find the spot this object
+ * could move onto.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param start Start in the @ref freearr_x "freearr" arrays; 0 will also
+ * check the tile at xy, 1 will start searching around xy.
+ * @param stop Where to stop in the @ref freearr_x "freearr" arrays; one
+ * of @ref size_of_free_defines.
+ * @throws ValueError if either start or stop are not in a valid range.
+ * @return -1 on error, ID of the spot in the @ref freearr_x "freearr"
+ * arrays otherwise. */
+static PyObject *Atrinik_Map_FreeSpot(Atrinik_Map *map, PyObject *args)
+{
+	Atrinik_Object *ob;
+	int x, y, start, stop;
+	mapstruct *m;
+
+	if (!PyArg_ParseTuple(args, "O!iiii", &Atrinik_ObjectType, &ob, &x, &y, &start, &stop))
+	{
+		return NULL;
+	}
+
+	OBJEXISTCHECK(ob);
+
+	if (start < 0 || stop < 0)
+	{
+		PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'start' and 'stop' cannot be negative.");
+		return NULL;
+	}
+
+	if (stop > SIZEOFFREE)
+	{
+		PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'stop' cannot be higher than SIZEOFFREE.");
+		return NULL;
+	}
+
+	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
+	{
+		return Py_BuildValue("i", -1);
+	}
+
+	return Py_BuildValue("i", hooks->find_free_spot(ob->obj->arch, ob->obj, m, x, y, start, stop + 1));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
@@ -440,6 +487,7 @@ static PyMethodDef MapMethods[] =
 	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS, 0},
 	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
 	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
+	{"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
