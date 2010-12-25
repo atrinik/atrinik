@@ -146,6 +146,8 @@
 #define MEVENT_CMD_DROP 11
 /** The /take command was used. */
 #define MEVENT_CMD_TAKE 12
+/** Item was examined. */
+#define MEVENT_EXAMINE 13
 /*@}*/
 
 /**

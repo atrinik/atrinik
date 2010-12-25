@@ -1707,6 +1707,8 @@ dirty_little_jump1:
 		}
 	}
 
+	trigger_map_event(MEVENT_EXAMINE, op->map, op, tmp, NULL, NULL, 0);
+
 	/* Blank line */
 	new_draw_info(NDI_UNIQUE, op, " ");
 

@@ -33,6 +33,7 @@
 	<listentry value="10" name="player logs in" />
 	<listentry value="11" name="/drop command used" />
 	<listentry value="12" name="/take command used" />
+	<listentry value="13" name="item examined" />
 </list>
 
 <list name="direction">
