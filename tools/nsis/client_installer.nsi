@@ -72,7 +72,11 @@ Section "Client (required)"
 
   CreateDirectory $INSTDIR\timidity
   SetOutPath $INSTDIR\timidity
-  File "timidity\*.*"
+  File /r "timidity\*.*"
+
+  CreateDirectory $INSTDIR\fonts
+  SetOutPath $INSTDIR\fonts
+  File /r "fonts\*.*"
 
   SetOutPath $INSTDIR
 
