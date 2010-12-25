@@ -46,7 +46,7 @@ def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = 
 			# Split the string and get the (possible) number.
 			num_str = msg.split(" ", 1)[0]
 			# Parse the number into integer, but add limit.
-			num = min(int(num_str), num_max)
+			num = max(1, min(int(num_str), num_max))
 			# Adjust the message, removing the number.
 			msg = msg[len(num_str):].strip()
 		except:
