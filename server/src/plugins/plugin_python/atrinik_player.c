@@ -52,7 +52,7 @@ static fields_struct fields[] =
 	{"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
 	{"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
 	{"dm_stealth", FIELDTYPE_BOOLEAN, offsetof(player, dm_stealth), 0, 0},
-	{"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), FIELDFLAG_READONLY, offsetof(player, target_object_count)},
+	{"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0, offsetof(player, target_object_count)},
 	{"no_shout", FIELDTYPE_BOOLEAN, offsetof(player, no_shout), 0, 0},
 
 	{"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
@@ -488,9 +488,16 @@ static PyObject *get_attribute(Atrinik_Player *pl, void *context)
  * @return 0 on success, -1 on failure. */
 static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
 {
-	if (generic_field_setter((fields_struct *) context, pl->pl, value) == -1)
+	fields_struct *field = (fields_struct *) context;
+
+	if (generic_field_setter(field, pl->pl, value) == -1)
 	{
 		return -1;
+	}
+
+	if (field->offset == offsetof(player, target_object))
+	{
+		hooks->send_target_command(pl->pl);
 	}
 
 	return 0;

@@ -161,6 +161,7 @@ struct plugin_hooklist hooklist =
 	get_empty_map,
 	set_map_darkness,
 	find_free_spot,
+	send_target_command,
 
 	season_name,
 	weekdays,
