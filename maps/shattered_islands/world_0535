@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2353,7 +2353,7 @@ x 15
 y 15
 end
 arch picture10
-direction 5
+direction 7
 x 15
 y 15
 end

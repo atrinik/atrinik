@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -31,7 +31,7 @@ arch wall_dungeon_3
 y 2
 end
 arch chains1.151
-direction 5
+direction 7
 y 2
 end
 arch floor_stone_b3
@@ -51,7 +51,7 @@ arch wall_dungeon_3
 y 4
 end
 arch chains2.151
-direction 5
+direction 7
 y 4
 end
 arch floor_stone_b1
@@ -83,7 +83,7 @@ arch wall_dungeon_3
 y 9
 end
 arch chains1.151
-direction 5
+direction 7
 y 9
 end
 arch floor_stone_b2
@@ -99,7 +99,7 @@ arch wall_dungeon_3
 y 11
 end
 arch chains2.151
-direction 5
+direction 7
 y 11
 end
 arch floor_stone_b1
@@ -153,7 +153,7 @@ arch wall_dungeon_3
 y 20
 end
 arch chains3.151
-direction 5
+direction 7
 y 20
 end
 arch floor_stone_b2
@@ -175,7 +175,7 @@ arch wall_dungeon_3
 y 23
 end
 arch chains2.151
-direction 5
+direction 7
 y 23
 end
 arch floor_stone_b3

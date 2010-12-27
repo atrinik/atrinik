@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -402,7 +402,7 @@ x 2
 y 19
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 x 2
 y 19
 end
@@ -429,7 +429,7 @@ x 2
 y 21
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 x 2
 y 21
 end

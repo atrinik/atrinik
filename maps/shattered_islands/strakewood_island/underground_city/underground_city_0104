@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -37,7 +37,7 @@ arch wall_dungeon_3
 y 2
 end
 arch chains1.151
-direction 5
+direction 7
 y 2
 end
 arch floor_stone_b2
@@ -75,7 +75,7 @@ arch wall_dungeon_3
 y 13
 end
 arch chains3.151
-direction 5
+direction 7
 y 13
 end
 arch floor_stone_b4
@@ -85,7 +85,7 @@ arch wall_dungeon_3
 y 14
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 14
 end
 arch floor_stone_b1
@@ -95,7 +95,7 @@ arch wall_dungeon_3
 y 15
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 y 15
 end
 arch floor_stone_b2
@@ -111,7 +111,7 @@ arch wall_dungeon_3
 y 17
 end
 arch wmask_fire_on_1
-direction 5
+direction 7
 y 17
 end
 arch light2
@@ -130,7 +130,7 @@ arch wall_dungeon_3
 y 19
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 y 19
 end
 arch floor_stone_b2
@@ -140,7 +140,7 @@ arch wall_dungeon_3
 y 20
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 20
 end
 arch floor_stone_b2
@@ -150,7 +150,7 @@ arch wall_dungeon_3
 y 21
 end
 arch chains3.151
-direction 5
+direction 7
 y 21
 end
 arch floor_stone_b3
@@ -219,7 +219,7 @@ x 1
 y 5
 end
 arch chains1.151
-direction 5
+direction 7
 x 1
 y 5
 end
@@ -1691,7 +1691,7 @@ x 11
 y 20
 end
 arch picture6.151
-direction 5
+direction 7
 x 11
 y 20
 end
@@ -1712,7 +1712,7 @@ x 11
 y 22
 end
 arch picture6.151
-direction 5
+direction 7
 x 11
 y 22
 end

@@ -2,7 +2,7 @@ arch map
 name Giant Stronghold
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2010-08-17 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -71,7 +71,7 @@ arch fwall_marble1c
 y 9
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 9
 end
 arch floor_stone1a
@@ -90,7 +90,7 @@ arch fwall_marble1a
 y 12
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 12
 end
 arch floor_stone1b
@@ -958,7 +958,7 @@ x 6
 y 18
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 x 6
 y 18
 end
@@ -979,7 +979,7 @@ x 6
 y 21
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 x 6
 y 21
 end
@@ -1508,7 +1508,7 @@ x 10
 y 15
 end
 arch chains1.151
-direction 5
+direction 7
 x 10
 y 15
 end
@@ -1545,7 +1545,7 @@ x 10
 y 19
 end
 arch chains2.151
-direction 5
+direction 7
 x 10
 y 19
 end
@@ -2055,7 +2055,7 @@ x 14
 y 16
 end
 arch chains1.151
-direction 5
+direction 7
 x 14
 y 16
 end
@@ -2068,7 +2068,7 @@ x 14
 y 17
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 x 14
 y 17
 end

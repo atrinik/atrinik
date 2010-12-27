@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-27 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1521,7 +1521,6 @@ x 15
 y 15
 end
 arch picture11
-direction 3
 x 15
 y 15
 end

@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -47,7 +47,7 @@ arch fwall_flagstone2a
 y 5
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 5
 end
 arch floor_stone3d
@@ -57,7 +57,7 @@ arch fwall_flagstone2a
 y 6
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 6
 end
 arch floor_stone3d
@@ -67,7 +67,7 @@ arch fwall_flagstone2a
 y 7
 end
 arch wmask_bflag_brown_1
-direction 5
+direction 7
 y 7
 end
 arch floor_stone3d
@@ -137,7 +137,7 @@ arch fwall_flagstone2a
 y 18
 end
 arch chains2.151
-direction 5
+direction 7
 y 18
 end
 arch floor_stone3b
@@ -1367,7 +1367,7 @@ x 8
 y 19
 end
 arch chains2.151
-direction 5
+direction 7
 x 8
 y 19
 end
@@ -1931,7 +1931,7 @@ x 12
 y 15
 end
 arch chains2.151
-direction 5
+direction 7
 x 12
 y 15
 end

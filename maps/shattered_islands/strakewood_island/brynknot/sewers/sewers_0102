@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-06-26 Alex Tokar
+Modified: 2010-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1871,7 +1871,7 @@ x 13
 y 16
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 x 13
 y 16
 end
@@ -1892,7 +1892,7 @@ x 13
 y 18
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 x 13
 y 18
 end
@@ -1914,7 +1914,7 @@ x 13
 y 20
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 x 13
 y 20
 end
@@ -1935,7 +1935,7 @@ x 13
 y 22
 end
 arch wmask_bflag_fire1_1
-direction 5
+direction 7
 x 13
 y 22
 end
