@@ -539,6 +539,10 @@ def check_obj(obj, map):
 		if not get_entry(obj, "item_race") or not get_entry(obj, "item_level"):
 			add_error(map["file"], "Monster '{0}' has random movement enabled but no max movement range X/Y.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
+	if get_entry(obj, "is_turnable") == 1 and get_entry(obj, "draw_direction") == 1:
+		if get_entry(obj, "direction") in (5, 6, 4, 3, 2, 8):
+			add_error(map["file"], "Object {0} has wrong direction {1}; must be facing either west or north.".format(obj["archname"], get_entry(obj, "direction")), errors.low, env["x"], env["y"])
+
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
 # @param file Map to load.
