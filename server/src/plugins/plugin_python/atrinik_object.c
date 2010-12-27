@@ -50,6 +50,7 @@ static fields_struct fields[] =
 	{"msg", FIELDTYPE_SHSTR, offsetof(object, msg), 0, 0},
 	{"artifact", FIELDTYPE_SHSTR, offsetof(object, artifact), 0, 0},
 	{"weight", FIELDTYPE_SINT32, offsetof(object, weight), 0, 0},
+	{"count", FIELDTYPE_UINT32, offsetof(object, count), FIELDFLAG_READONLY, 0},
 
 	{"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0},
 	{"carrying", FIELDTYPE_SINT32, offsetof(object, carrying), 0, 0},
