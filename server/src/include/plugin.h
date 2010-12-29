@@ -305,6 +305,7 @@ struct plugin_hooklist
 	void (*set_map_darkness)(mapstruct *, int);
 	int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
 	void (*send_target_command)(player *);
+	void (*examine)(object *, object *);
 
 	const char **season_name;
 	const char **weekdays;

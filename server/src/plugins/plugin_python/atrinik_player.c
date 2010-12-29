@@ -446,6 +446,25 @@ static PyObject *Atrinik_Player_Sound(Atrinik_Player *pl, PyObject *args, PyObje
 	return Py_None;
 }
 
+/**
+ * <h1>player.Examine(object obj)</h1>
+ * Makes player examine the specified object.
+ * @param obj Object to examine. */
+static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
+{
+	Atrinik_Object *obj;
+
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &obj))
+	{
+		return NULL;
+	}
+
+	hooks->examine(pl->pl->ob, obj->obj);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -467,6 +486,7 @@ static PyMethodDef methods[] =
 	{"AcquireSkill", (PyCFunction) Atrinik_Player_AcquireSkill, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
 	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
