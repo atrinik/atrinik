@@ -1324,6 +1324,37 @@ static PyObject *Atrinik_CreateMap(PyObject *self, PyObject *args)
 	return wrap_map(m);
 }
 
+/**
+ * <h1>CreateObject(string archname)</h1>
+ * Creates a new object. If the created object is not put on map or
+ * inside an inventory of another object, it will be removed by the
+ * garbage collector.
+ * @param archname Name of the arch to create.
+ * @throws AtrinikError if 'archname' is not a valid archetype.
+ * @return The newly created object. * */
+static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
+{
+	const char *archname;
+	archetype *at;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &archname))
+	{
+		return NULL;
+	}
+
+	at = hooks->find_archetype(archname);
+
+	if (!at)
+	{
+		PyErr_Format(AtrinikError, "CreateObject(): The archetype '%s' doesn't exist.", archname);
+		return NULL;
+	}
+
+	return wrap_object(hooks->arch_to_object(at));
+}
+
 /*@}*/
 
 /**
@@ -1363,6 +1394,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
 	{"GetFirst", Atrinik_GetFirst, METH_VARARGS, 0},
 	{"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
+	{"CreateObject", Atrinik_CreateObject, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
