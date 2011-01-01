@@ -259,7 +259,6 @@ int command_t_tell(object *op, char *params)
 				if (m == t_obj->map && xt == t_obj->x && yt == t_obj->y)
 				{
 					LOG(llevInfo, "CLOG T_TELL:%s >%s<\n", query_name(op, NULL), params);
-					new_draw_info_format(NDI_UNIQUE | NDI_WHITE, op, "You say to %s: %s", query_name(t_obj, NULL), params);
 					talk_to_npc(op, t_obj, params);
 					play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "scroll.ogg", 0, 0, 0, 0);
 					return 1;
