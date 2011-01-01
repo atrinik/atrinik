@@ -1513,14 +1513,14 @@ void draw_client_map2(object *pl)
 					}
 
 					/* Z position set? */
-					if (tmp->z)
+					if (head->z)
 					{
 						flags |= MAP2_FLAG_HEIGHT;
 					}
 
 					/* Check if the object has zoom, or check if the magic mirror
 					 * should affect the zoom value of this layer. */
-					if ((tmp->zoom && tmp->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << layer)))
+					if ((head->zoom && head->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << layer)))
 					{
 						if (CONTR(pl)->socket.socket_version >= 1040)
 						{
@@ -1528,7 +1528,7 @@ void draw_client_map2(object *pl)
 						}
 					}
 
-					if (tmp->align || (mirror && mirror->align))
+					if (head->align || (mirror && mirror->align))
 					{
 						if (CONTR(pl)->socket.socket_version >= 1041)
 						{
@@ -1546,7 +1546,7 @@ void draw_client_map2(object *pl)
 						}
 					}
 
-					if (tmp->alpha)
+					if (head->alpha)
 					{
 						flags2 |= MAP2_FLAG2_ALPHA;
 					}
@@ -1583,7 +1583,7 @@ void draw_client_map2(object *pl)
 						mp->probe = probe;
 					}
 
-					if (OBJECT_IS_HIDDEN(pl, tmp))
+					if (OBJECT_IS_HIDDEN(pl, head))
 					{
 						/* Update target if applicable. */
 						if (flags & MAP2_FLAG_PROBE)
@@ -1639,11 +1639,11 @@ void draw_client_map2(object *pl)
 					{
 						if (mirror && mirror->last_eat)
 						{
-							SockList_AddShort(&sl_layer, tmp->z + mirror->last_eat);
+							SockList_AddShort(&sl_layer, head->z + mirror->last_eat);
 						}
 						else
 						{
-							SockList_AddShort(&sl_layer, tmp->z);
+							SockList_AddShort(&sl_layer, head->z);
 						}
 					}
 
@@ -1656,7 +1656,7 @@ void draw_client_map2(object *pl)
 						}
 						else
 						{
-							SockList_AddShort(&sl_layer, tmp->zoom);
+							SockList_AddShort(&sl_layer, head->zoom);
 						}
 					}
 
@@ -1664,11 +1664,11 @@ void draw_client_map2(object *pl)
 					{
 						if (mirror && mirror->align)
 						{
-							SockList_AddShort(&sl_layer, tmp->align + mirror->align);
+							SockList_AddShort(&sl_layer, head->align + mirror->align);
 						}
 						else
 						{
-							SockList_AddShort(&sl_layer, tmp->align);
+							SockList_AddShort(&sl_layer, head->align);
 						}
 					}
 
@@ -1678,7 +1678,7 @@ void draw_client_map2(object *pl)
 
 						if (flags2 & MAP2_FLAG2_ALPHA)
 						{
-							SockList_AddChar(&sl_layer, tmp->alpha);
+							SockList_AddChar(&sl_layer, head->alpha);
 						}
 					}
 				}
