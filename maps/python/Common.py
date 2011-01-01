@@ -24,4 +24,4 @@ def absdir(d):
 ## @return The randomized direction. */
 def get_randomized_dir(d):
 	from random import randint
-	return absdir(d + randint(0, 2) + randint(0, 2) - 2);
+	return absdir(d + randint(0, 2) + randint(0, 2) - 2)
