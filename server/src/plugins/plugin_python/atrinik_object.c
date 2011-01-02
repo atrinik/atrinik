@@ -1313,7 +1313,7 @@ static PyObject *Atrinik_Object_GetCost(Atrinik_Object *obj, PyObject *args)
 	OBJEXISTCHECK(obj);
 	OBJEXISTCHECK(what);
 
-	return Py_BuildValue("i", hooks->query_cost(what->obj, obj->obj, flag));
+	return Py_BuildValue("L", hooks->query_cost(what->obj, obj->obj, flag));
 }
 
 /**
@@ -1327,7 +1327,7 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
 	(void) args;
 	OBJEXISTCHECK(obj);
 
-	return Py_BuildValue("i", hooks->query_money(obj->obj));
+	return Py_BuildValue("L", hooks->query_money(obj->obj));
 }
 
 /**
@@ -1338,16 +1338,16 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
  * in inventory), False otherwise. */
 static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 {
-	int to_pay;
+	sint64 value;
 
-	if (!PyArg_ParseTuple(args, "i", &to_pay))
+	if (!PyArg_ParseTuple(args, "L", &value))
 	{
 		return NULL;
 	}
 
 	OBJEXISTCHECK(obj);
 
-	Py_ReturnBoolean(hooks->pay_for_amount(to_pay, obj->obj));
+	Py_ReturnBoolean(hooks->pay_for_amount(value, obj->obj));
 }
 
 /**
