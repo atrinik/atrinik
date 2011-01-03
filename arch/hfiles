@@ -1,50 +1,51 @@
 Name: main
 Title: General Help
-Atrinik is a Multiplayer Online Role-Playing Game started by Alex Tokar in 2009. Visit the Atrinik website at www.atrinik.org for FAQ, playing guides, and more.
+Atrinik is a Multiplayer Online Role-Playing Game started by Alex Tokar in 2009. Visit the Atrinik website at <a=url>http://www.atrinik.org</a> for FAQ, playing guides, and more.
 
 Quick help:
 
 Move with numpad keys. Press C to toggle combat mode on/off. Press X to target nearest enemy. Press S to target nearest friend. Press A to apply things on ground or in your inventory. Press ENTER to show the console box. Press SHIFT to show your inventory. Use ARROW keys to move around in your inventory. Hold ALT + direction to run. Hold CTRL + direction to cast/shoot.
 
-<t t="See also:">
-List of ^contributors^
-<p><t t="Useful commands">
-^afk^
-^apply^
-^cast^
-^drop^
-^drop_key^
-^emotions^
-^get^
-^guild^
-^guildmembers^
-^hiscore^
-^left^
-^mapinfo^
-^mark^
-^motd^
-^ms_privacy^
-^party^
-^pray^
-^push^
-^rename^
-^reply^
-^right^
-^roll^
-^run^
-^run_stop^
-^save^
-^say^
-^shout^
-^statistics^
-^take^
-^tell^
-^time^
-^version^
-^whereami^
-^who^
-<t t="Miscellaneous">
-^drop and take^
+<title>See also:</title>
+List of <a=help>contributors</a>
+<p>
+<title>Useful commands</title>
+<a=help>afk</a>
+<a=help>apply</a>
+<a=help>cast</a>
+<a=help>drop</a>
+<a=help>drop_key</a>
+<a=help>emotions</a>
+<a=help>get</a>
+<a=help>guild</a>
+<a=help>guildmembers</a>
+<a=help>hiscore</a>
+<a=help>left</a>
+<a=help>mapinfo</a>
+<a=help>mark</a>
+<a=help>motd</a>
+<a=help>ms_privacy</a>
+<a=help>party</a>
+<a=help>pray</a>
+<a=help>push</a>
+<a=help>rename</a>
+<a=help>reply</a>
+<a=help>right</a>
+<a=help>roll</a>
+<a=help>run</a>
+<a=help>run_stop</a>
+<a=help>save</a>
+<a=help>say</a>
+<a=help>shout</a>
+<a=help>statistics</a>
+<a=help>take</a>
+<a=help>tell</a>
+<a=help>time</a>
+<a=help>version</a>
+<a=help>whereami</a>
+<a=help>who</a>
+<title>Miscellaneous</title>
+<a=help>drop and take</a>
 ==========
 Name: apply
 Title: Apply Command
@@ -59,10 +60,11 @@ This would always apply the item 'amulet' from your inventory, never unapplying 
 
 This would always unapply the item 'amulet' from your inventory, never applying it:
 /apply -u amulet
-<p><t t="See Also:">
-^drop^
-^drop_key^
-^get^
+<p>
+<title>See Also:</title>
+<a=help>drop</a>
+<a=help>drop_key</a>
+<a=help>get</a>
 ==========
 Name: pray
 Title: Pray Command
@@ -72,117 +74,135 @@ Name: run
 Title: Run Command
 The run command is used to prepare your character for running. Your character will run in direction you press until you type /run_stop or press the ALT key.
 
-<t t="Syntax:">/run
-<p><t t="See Also:">
-^run_stop^
+<title>Syntax:</title>
+/run
+<p>
+<title>See Also:</title>
+<a=help>run_stop</a>
 ==========
 Name: run_stop
 Title: Stop Run Command
 The stop run command is used to stop your character from being in 'run mode' by previous usage of /run command.
 
-<t t="Syntax:">/run_stop
-<p><t t="See Also:">
-^run^
+<title>Syntax:</title>
+/run_stop
+<p>
+<title>See Also:</title>
+<a=help>run</a>
 ==========
 Name: cast
 Title: Cast Command
 The cast command will immediately cast a spell in the direction you're currently facing. It is useful to bind this command to your keys, like this:
 "/cast magic bullet"
 
-<t t="Syntax:">/cast [name of spell]
+<title>Syntax:</title>
+/cast [name of spell]
 ==========
 Name: shout
 Title: Shout Command
 The shout command is the main communication command. It will display your message to all currently logged in players.
 
-<t t="Syntax:">/shout [your message]
-<p><t t="See Also:">
-^reply^
-^say^
-^tell^
+<title>Syntax:</title>
+/shout [your message]
+<p>
+<title>See Also:</title>
+<a=help>reply</a>
+<a=help>say</a>
+<a=help>tell</a>
 ==========
 Name: tell
 Title: Tell Command
 The tell command is used to send a private message to another player online. Only he will be able to see the message!
 
-<t t="Syntax:">/tell [name] [your message]
-<p><t t="See Also:">
-^reply^
-^say^
-^shout^
+<title>Syntax:</title>
+/tell [name] [your message]
+<p>
+<title>See Also:</title>
+<a=help>reply</a>
+<a=help>say</a>
+<a=help>shout</a>
 ==========
 Name: reply
 Title: Reply Command
 The reply command is used to reply to the last player that sent you a private message. There's no need to specify his name, just the message!
 
-<t t="Syntax:">/reply [your message]
-<p><t t="See Also:">
-^say^
-^shout^
-^tell^
+<title>Syntax:</title>
+/reply [your message]
+<p>
+<title>See Also:</title>
+<a=help>say</a>
+<a=help>shout</a>
+<a=help>tell</a>
 ==========
 Name: who
 Title: Who Command
 The who command is used to display all players currently online. It will show their name, level, race and gender.
 
-<t t="Syntax:">/who
+<title>Syntax:</title>
+/who
 ==========
 Name: mapinfo
 Title: Map Info Command
 The map info command will give you some info about the map. It will show you the map path, map name, and a message the author may have left.
 
-<t t="Syntax:">/mapinfo
+<title>Syntax:</title>
+/mapinfo
 ==========
 Name: motd
 Title: MOTD Command
 The Message of the Day command will show you the current message of the day, as configured by the server administrator or a DM.
 
-<t t="Syntax:">/motd
+<title>Syntax:</title>
+/motd
 ==========
 Name: dm
 Title: Dungeon Master Command
 Autocomplete: 0
 Allows you to become a Dungeon Master, if you are allowed to.
 
-<t t="Syntax:">/dm
-<p><t t="See Also:">
-^addexp^
-^arrest^
-^ban^
-^cmd_permission^
-^create^
-^dmsay^
-^dm_light^
-^dm_password^
-^dm_stealth^
-^follow^
-^goto^
-^insert_into^
-^kick^
-^motd_set^
-^patch^
-^plugin^
-^plugout^
-^pluglist^
-^remove^
-^resetmap^
-^shutdown^
-^shutdown_now^
-^summon^
-^teleport^
-^wizpass^
+<title>Syntax:</title>
+/dm
+<p>
+<title>See Also:</title>
+<a=help>addexp</a>
+<a=help>arrest</a>
+<a=help>ban</a>
+<a=help>cmd_permission</a>
+<a=help>create</a>
+<a=help>dmsay</a>
+<a=help>dm_light</a>
+<a=help>dm_password</a>
+<a=help>dm_stealth</a>
+<a=help>follow</a>
+<a=help>goto</a>
+<a=help>insert_into</a>
+<a=help>kick</a>
+<a=help>motd_set</a>
+<a=help>patch</a>
+<a=help>plugin</a>
+<a=help>plugout</a>
+<a=help>pluglist</a>
+<a=help>remove</a>
+<a=help>resetmap</a>
+<a=help>shutdown</a>
+<a=help>shutdown_now</a>
+<a=help>summon</a>
+<a=help>teleport</a>
+<a=help>wizpass</a>
 ==========
 Name: time
 Title: Time Command
 The time command displays the current in-game time.
 
-<t t="Syntax:">/time
+<title>Syntax:</title>
+/time
 ==========
 Name: version
 Title: Version Command
 The version command shows you the current server's version.
 
-<t t="Syntax:">/version
+<title>Syntax:</title>
+/version
 ==========
 Name: mark
 Title: Mark Command
@@ -197,13 +217,15 @@ Name: save
 Title: Save Command
 The save command will save your character at your present location. This is automatically done every 10 minutes and when you logout, but it can be used as a "just-in-case" command. Remember, you must have some experience in order to be able to save your character!
 
-<t t="Syntax:">/save
+<title>Syntax:</title>
+/save
 ==========
 Name: hiscore
 Title: Highscore Command
 The highscore command shows the top players in the game, the ones with most experience points.
 
-<t t="Syntax:">/hiscore
+<title>Syntax:</title>
+/hiscore
 
 To search for someone in the highscore list:
 /hiscore [name]
@@ -214,11 +236,12 @@ The party command can be used to form a party, say a message in your party, and 
 
 However, note that there is a party GUI in the client, which can be opened by clicking the Party button at right top of the client. The GUI includes listing all existing parties, seeing who's in a party you're member of, forming new party, etc.
 
-<t t="Syntax:">To form a party:
-/party form \<party name\>
+<title>Syntax:</title>
+To form a party:
+/party form &lt;party name&gt;
 
 To join an existing party:
-/party join \<party name\>
+/party join &lt;party name&gt;
 
 To list ALL existing parties:
 /party list
@@ -227,16 +250,16 @@ To list players in your party:
 /party who
 
 To change party password:
-/party password \<new password\>
+/party password &lt;new password&gt;
 
 To leave your party:
 /party leave
 
 To post a message to your party members:
-/party say \<your message\>
+/party say &lt;your message&gt;
 
 To change party's loot mode:
-/party loot \<new mode\>
+/party loot &lt;new mode&gt;
 
 To see party's current loot mode:
 /party loot
@@ -244,23 +267,26 @@ To see party's current loot mode:
 Party loot mode controls how loot from corpses is handled. See "/party loot modes" for the various loot modes.
 
 To kick another player from your party:
-/party kick \<name\>
-<p><t t="See Also:">
-^gsay^
+/party kick &lt;name&gt;
+<p>
+<title>See Also:</title>
+<a=help>gsay</a>
 ==========
 Name: gsay
 Title: Gsay Command
 The Gsay command is an alias to "/party say". You can use it to send a message to your party.
-<t t="Syntax:">/gsay [your message]
+<title>Syntax:</title>
+/gsay [your message]
 ==========
 Name: drop_key
 Title: Drop
 The drop key is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
-<p><t t="See Also:">
-^apply^
-^drop^
-^get^
-^take^
+<p>
+<title>See Also:</title>
+<a=help>apply</a>
+<a=help>drop</a>
+<a=help>get</a>
+<a=help>take</a>
 ==========
 Name: drop and take
 Title: Drop and Take Syntax
@@ -324,66 +350,76 @@ Title: Drop Command
 You can use the /drop command to drop specific items from your inventory. If you have a container open, dropped items from your inventory will go into the container (even if the container is in your inventory). It has the same syntax as the /take command.
 
 For syntax and usage, see
-^drop and take^.
-<p><t t="See Also:">
-^apply^
-^drop_key^
-^get^
-^take^
+<a=help>drop and take</a>.
+<p>
+<title>See Also:</title>
+<a=help>apply</a>
+<a=help>drop_key</a>
+<a=help>get</a>
+<a=help>take</a>
 ==========
 Name: take
 Title: Take Command
 The /take command can be used to take items on floor, or items in your currently open container (even if you have the container in your inventory). It has the same syntax as the /drop command.
 
 For syntax and usage, see
-^drop and take^.
-<p><t t="See Also:">
-^apply^
-^drop_key^
-^get^
+<a=help>drop and take</a>.
+<p>
+<title>See Also:</title>
+<a=help>apply</a>
+<a=help>drop_key</a>
+<a=help>get</a>
 ==========
 Name: get
 Title: Get
 The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
 
-However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -\> General -\> Collect All Items.
-<p><t t="See Also:">
-^apply^
-^drop^
-^drop_key^
+However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -&gt; General -&gt; Collect All Items.
+<p>
+<title>See Also:</title>
+<a=help>apply</a>
+<a=help>drop</a>
+<a=help>drop_key</a>
 ==========
 Name: push
 Title: Push Command
 The push command is used to push objects out of your way. Rolling objects like barrels can be pushed.
 
-<t t="Syntax:">/push
-<p><t t="See Also:">
-^left^
-^right^
+<title>Syntax:</title>
+/push
+<p>
+<title>See Also:</title>
+<a=help>left</a>
+<a=help>right</a>
 ==========
 Name: left
 Title: Left Command
 The left command is used to turn your character left.
 
-<t t="Syntax:">/left
-<p><t t="See Also:">
-^push^
-^right^
+<title>Syntax:</title>
+/left
+<p>
+<title>See Also:</title>
+<a=help>push</a>
+<a=help>right</a>
 ==========
 Name: right
 Title: Right Command
 The right command is used to turn your character right.
 
-<t t="Syntax:">/right
-<p><t t="See Also:">
-^push^
-^left^
+<title>Syntax:</title>
+/right
+<p>
+<title>See Also:</title>
+<a=help>push</a>
+<a=help>left</a>
 ==========
 Name: roll
 Title: Roll Command
 The roll command is used to roll a dice. The results will be displayed to everyone on the map in range.
 
-<t t="Syntax:">/roll [times to roll the dice]d[number of sides]
+<title>Syntax:</title>
+/roll [times to roll the dice]d[number of sides]
 ==========
 Name: emotions
 Title: Emotion Commands
@@ -449,20 +485,23 @@ Name: afk
 Title: AFK Command
 The AFK (Away From Keyboard) command is used to mark you as away. It will be displayed in the client as a "reminder" next to your name, and will appear in the who list for everyone to see.
 
-<t t="Syntax:">/afk
+<title>Syntax:</title>
+/afk
 ==========
 Name: whereami
 Title: Where am I Command
 This command will tell you your current location, along with the location's information, a story, etc.
 
-<t t="Syntax:">/whereami
+<title>Syntax:</title>
+/whereami
 ==========
 Name: ms_privacy
 Title: Metaserver Privacy Command
 Autocomplete: 0
 This command is used to turn metaserver privacy on/off. While on, your player name will not be reported to the metaserver, so it won't be visible on the site's server list.
 
-<t t="Syntax:">/ms_privacy
+<title>Syntax:</title>
+/ms_privacy
 ==========
 Name: say
 Title: Say Command
@@ -471,31 +510,35 @@ The say command is used to talk with other players on same map, interact with NP
 
 This command does not require you to type anything before your message; you just write the message, and it gets said on the map you're located at.
 
-<t t="Syntax:">[your message]
+<title>Syntax:</title>
+[your message]
 
-<t t="See Also:">
-^reply^
-^shout^
-^tell^
+<title>See Also:</title>
+<a=help>reply</a>
+<a=help>shout</a>
+<a=help>tell</a>
 ==========
 Name: guild
 Title: Guild Command
 This command will send a message to all online members of your current guild.
 
-<t t="Syntax:">/guild [message]
+<title>Syntax:</title>
+/guild [message]
 ==========
 Name: guildmembers
 Title: Guild Members Command
 Autocomplete: 0
 This command will show all online members of your guild.
 
-<t t="Syntax:">/guildmembers
+<title>Syntax:</title>
+/guildmembers
 ==========
 Name: statistics
 Title: Statistics Command
 The /statistics command will show you various statistics related to your character, like total experience, experience needed for next level, item power of all equipped items, and so on.
 
-<t t="Syntax:">/statistics
+<title>Syntax:</title>
+/statistics
 ==========
 Name: rename
 Title: Rename Command
@@ -507,7 +550,8 @@ The item's name will then appear as "Hello World!" in inventories, the below inv
 
 Use /rename with no parameters to clear the custom name of an item.
 
-<t t="Syntax:">/rename \<new name\>
+<title>Syntax:</title>
+/rename &lt;new name&gt;
 
 To clear item's custom name:
 /rename
@@ -517,46 +561,54 @@ Title: Summon Command
 DM: 1
 This command allows you to summon a player next to yourself. The summoned player will get a message saying that he was summoned.
 
-<t t="Syntax:">/summon [player name]
-<p><t t="See Also:">
-^goto^
-^teleport^
+<title>Syntax:</title>
+/summon [player name]
+<p>
+<title>See Also:</title>
+<a=help>goto</a>
+<a=help>teleport</a>
 ==========
 Name: teleport
 Title: Teleport Command
 DM: 1
-This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have ^dm_stealth^ on.
+This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have <a=help>dm_stealth</a> on.
 
-<t t="Syntax:">/teleport [player name]
-<p><t t="See Also:">
-^goto^
-^summon^
+<title>Syntax:</title>
+/teleport [player name]
+<p>
+<title>See Also:</title>
+<a=help>goto</a>
+<a=help>summon</a>
 ==========
 Name: goto
 Title: Go To Command
 DM: 1
 The goto command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
 
-<t t="Syntax:">/goto [map path] [x] [y]
-<p><t t="See Also:">
-^summon^
-^teleport^
+<title>Syntax:</title>
+/goto [map path] [x] [y]
+<p>
+<title>See Also:</title>
+<a=help>summon</a>
+<a=help>teleport</a>
 ==========
 Name: kick
 Title: Kick Command
 DM: 1
 The kick command is used to kick another player from the game.
 
-<t t="Syntax:">/kick [player]
-<p><t t="See Also:">
-^ban^
+<title>Syntax:</title>
+/kick [player]
+<p>
+<title>See Also:</title>
+<a=help>ban</a>
 ==========
 Name: ban
 Title: Ban Command
 DM: 1
 The ban command can be used to ban player and/or IP address from the game. Note that IP addresses cannot contain ':' characters, so IPv4 addresses only.
 
-<t t="Examples:">
+<title>Examples:</title>
 List all current bans:
 /ban list
 
@@ -572,78 +624,92 @@ Ban anyone with IP address 127.0.0.1:
 Remove Noob's ban (same syntax as above applies):
 /ban remove Noob:*
 
-<p><t t="See Also:">
-^kick^
+<p>
+<title>See Also:</title>
+<a=help>kick</a>
 ==========
 Name: plugin
 Title: Load Plugin Command
 DM: 1
 This command will load a plugin based on its filename.
 
-<t t="Syntax:">/plugin [filename]
-<p><t t="See Also:">
-^pluglist^
-^plugout^
+<title>Syntax:</title>
+/plugin [filename]
+<p>
+<title>See Also:</title>
+<a=help>pluglist</a>
+<a=help>plugout</a>
 ==========
 Name: plugout
 Title: Unload Plugin Command
 DM: 1
 This command will unload a specified plugin.
 
-<t t="Syntax:">/plugout [plugin]
-<p><t t="See Also:">
-^plugin^
-^pluglist^
+<title>Syntax:</title>
+/plugout [plugin]
+<p>
+<title>See Also:</title>
+<a=help>plugin</a>
+<a=help>pluglist</a>
 ==========
 Name: pluglist
 Title: List Plugins Command
 DM: 1
 This command will show currently loaded plugins, along with loadable plugins from the server's plugins directory.
 
-<t t="Syntax:">/pluglist
-<p><t t="See Also:">
-^plugin^
-^plugout^
+<title>Syntax:</title>
+/pluglist
+<p>
+<title>See Also:</title>
+<a=help>plugin</a>
+<a=help>plugout</a>
 ==========
 Name: shutdown
 Title: Shutdown Command
 DM: 1
 This command will start a shutdown timer that will shutdown the server in specified number of seconds. Optionally, a reason for the shutdown can be provided.
 
-<t t="Syntax:">/shutdown [seconds] [reason]
-<p><t t="See Also:">
-^shutdown_now^
+<title>Syntax:</title>
+/shutdown [seconds] [reason]
+<p>
+<title>See Also:</title>
+<a=help>shutdown_now</a>
 ==========
 Name: shutdown_now
 Title: Shutdown Now Command
 DM: 1
 This command will instantly shutdown the server.
 
-<t t="Syntax:">/shutdown_now
-<p><t t="See Also:">
-^shutdown^
+<title>Syntax:</title>
+/shutdown_now
+<p>
+<title>See Also:</title>
+<a=help>shutdown</a>
 ==========
 Name: resetmap
 Title: Reset Map Command
 DM: 1
 This command will reset map the DM is currently on. Optionally, a map path can be given to reset another map and not the one DM is on.
 
-<t t="Syntax:">/resetmap [map]
+<title>Syntax:</title>
+/resetmap [map]
 ==========
 Name: create
 Title: Create Command
 DM: 1
 The DM create command used to create almost any item.
-<t t="NOTE: VERY DANGEROUS, USE WITH CAUTION!">
+<title>NOTE: VERY DANGEROUS, USE WITH CAUTION!</title>
 
-<t t="Syntax:">/create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ...
+<title>Syntax:</title>
+/create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ...
 ==========
 Name: addexp
 Title: Add Exp Command
 DM: 1
 The DM add exp command is used to add exp to specified skill to a player.
 
-<t t="Syntax:">/addexp [player name] [skill ID] [experience to add]
+<title>Syntax:</title>
+/addexp [player name] [skill ID] [experience to add]
 
 List skill IDs:
 /addexp
@@ -653,7 +719,8 @@ Title: DM Stealth Command
 DM: 1
 This command is used to allow a DM to become "stealthed" and invisible on /who list to anyone who is not a DM. On login their entering message will not be shown to other players. When other players message this DM they will get "No such player" message.
 
-<t t="Syntax:">/dm_stealth
+<title>Syntax:</title>
+/dm_stealth
 ==========
 Name: dm_light
 Title: DM Light Command
@@ -661,21 +728,24 @@ DM: 1
 This
 This command is used to make all maps appear in daylight for the DM.
 
-<t t="Syntax:">/dm_light
+<title>Syntax:</title>
+/dm_light
 ==========
 Name: wizpass
 Title: Wiz Pass Command
 DM: 1
 This command will turn on/off the ability to walk through walls and obstacles.
 
-<t t="Syntax:">/wizpass
+<title>Syntax:</title>
+/wizpass
 ==========
 Name: motd_set
 Title: Set MOTD Command
 DM: 1
 This command can be used to change the Message of the Day from game. It is useful to use this for game events, as this message will be automatically displayed to players upon logging in. This command does not overwrite the "default" Message of the Day, but it inserts a custom one, which is then used instead of the default one.
 
-<t t="Syntax:">To revert the original (default) Message of the Day:
+<title>Syntax:</title>
+To revert the original (default) Message of the Day:
 /motd_set original
 
 To set a custom Message of the Day:
@@ -686,37 +756,42 @@ Title: DM Say Command
 DM: 1
 This command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
 
-<t t="Syntax:">/dmsay [your message]
+<title>Syntax:</title>
+/dmsay [your message]
 ==========
 Name: arrest
 Title: Arrest Command
 DM: 1
 The arrest command can be used to arrest a player. Note that there will be no way for the player to escape, since even their savebed location will be set to the jail, so when they die or use word of recall, they will appear there again. To release the player, you need to summon them somewhere, and ensure they apply a savebed, so they don't reappear in the jail.
 
-<t t="Syntax:">/arrest [player]
+<title>Syntax:</title>
+/arrest [player]
 ==========
 Name: insert_into
 Title: Insert Into Command
 DM: 1
 This command allows you to insert marked item inside another object.
 
-<t t="Syntax:">/insert_into [^object_id^]
+<title>Syntax:</title>
+/insert_into [<a=help>object_id</a>]
 ==========
 Name: remove
 Title: Remove Command
 DM: 1
 This command is used to remove another object from the game (cannot be used on players).
 
-<t t="Syntax:">/remove [^object_id^]
+<title>Syntax:</title>
+/remove [<a=help>object_id</a>]
 ==========
 Name: patch
 Title: Patch Command
 DM: 1
 This command can be used to patch an attribute of an object.
 
-<t t="Syntax:">/patch [^object_id^] [attribute] [value]
+<title>Syntax:</title>
+/patch [<a=help>object_id</a>] [attribute] [value]
 
-<t t="Examples:">
+<title>Examples:</title>
 /patch guard friendly 0
 /patch floor no_pass 1
 ==========
@@ -725,7 +800,8 @@ Title: Follow Command
 DM: 1
 This command can allow a DM to follow another player (if the DM is invisible, the player will not know they are being followed).
 
-<t t="Syntax:">/follow [player]
+<title>Syntax:</title>
+/follow [player]
 
 To stop following someone:
 /follow
@@ -735,14 +811,15 @@ Title: DM Password Command
 DM: 1
 This command allows DM to change player's password.
 
-<t t="Syntax:">/dm_password [player] [new password]
+<title>Syntax:</title>
+/dm_password [player] [new password]
 ==========
 Name: cmd_permission
 Title: Command Permission Command
 DM: 1
 This command can allow DM to change DM command permissions for another player. In other words, it allows for a non-DM to acquire permissions to use DM commands like /kick.
 
-<t t="Examples:">
+<title>Examples:</title>
 Allow Tester to use /kick:
 /cmd_permission Tester add kick
 
@@ -759,7 +836,7 @@ Name: object_id
 Title: Object ID
 DM: 1
 Autocomplete: 0
-When a help page mentions ~object_id~ in syntax parameters, it means you have to specify object name (often without spaces) or its ID (which can be found by using examine on the object, near the top saying 'count xxxxx': the xxxxx is the ID).
+When a help page mentions <b>object_id</b> in syntax parameters, it means you have to specify object name (often without spaces) or its ID (which can be found by using examine on the object, near the top saying 'count xxxxx': the xxxxx is the ID).
 
 If you use the object's ID, you have to put a hash symbol in front of it, for example:
 
@@ -775,13 +852,13 @@ The IDs/names will first be checked against the online players (not in their inv
 Name: contributors
 Title: Contributors
 
-|Authors and contributors to Atrinik:|
+Authors and contributors to Atrinik:
 
-Alex Tokar \<admin@atokar.net\>
-Pete Spicer \<sleeping@myperch.org\>
-Edwin Miltenburg \<warming@live.nl\>
-Daniel Liptrot \<robotdan2003@yahoo.co.uk\>
-David Hanna \<ddhanna@hotmail.com\>
-Brian Angeletti \<emperorbma@suddenlink.net\>
-Matthew Bostick \<toigan1@netzero.com\>
+Alex Tokar &lt;admin@atokar.net&gt;
+Pete Spicer &lt;sleeping@myperch.org&gt;
+Edwin Miltenburg &lt;warming@live.nl&gt;
+Daniel Liptrot &lt;robotdan2003@yahoo.co.uk&gt;
+David Hanna &lt;ddhanna@hotmail.com&gt;
+Brian Angeletti &lt;emperorbma@suddenlink.net&gt;
+Matthew Bostick &lt;toigan1@netzero.com&gt;
 ==========
