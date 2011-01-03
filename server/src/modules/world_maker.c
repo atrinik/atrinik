@@ -349,7 +349,7 @@ void world_maker()
 	wm_region *wm_r;
 	char buf[MAX_BUF];
 	int x, y, layer, got_one;
-	int xpos, ypos;
+	int xpos = 0, ypos = 0;
 	FILE *def_fp;
 
 	/* Initialize the image colors. */
