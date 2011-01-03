@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-08 Alex Tokar
+Modified: 2011-01-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -847,7 +847,7 @@ arch ability_icestorm
 sp 13
 end
 arch rand_drop
-container 50
+container 30
 arch light_sandals
 end
 end

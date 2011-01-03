@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-01-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2145,7 +2145,7 @@ arch gloves_drula
 end
 end
 arch rand_drop
-container 200
+container 160
 arch boots_kriabe
 end
 end
