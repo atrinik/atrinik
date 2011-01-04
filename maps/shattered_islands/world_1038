@@ -2,7 +2,7 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-09 Alex Tokar
+Modified: 2011-01-03 emperorbma
 endmsg
 width 24
 height 24
@@ -52,43 +52,59 @@ end
 arch water_lt2
 y 10
 end
-arch water_lt3
+arch grassd_m3
+y 10
+end
+arch grassd_4
+z 4
 y 11
 end
-arch water_lt4
+arch grassd_6
+z 8
 y 12
 end
-arch water_lt3
+arch grassd_4
+z 14
 y 13
 end
-arch water_lt
+arch grassd_2
+z 20
 y 14
 end
-arch water_lt3
+arch grassd_6
+z 26
 y 15
 end
-arch water_lt2
+arch grassd_8
+z 32
 y 16
 end
-arch water_lt3
+arch grassd_7
+z 38
 y 17
 end
-arch water_lt2
+arch grassd_6
+z 44
 y 18
 end
-arch water_lt4
+arch grassd_3
+z 50
 y 19
 end
-arch water_lt2
+arch grassd_1
+z 50
 y 20
 end
-arch water_lt2
+arch grassd_8
+z 50
 y 21
 end
-arch water_lt2
+arch grassd_3
+z 50
 y 22
 end
-arch water_lt
+arch grassd_5
+z 50
 y 23
 end
 arch water_lt2
@@ -138,51 +154,63 @@ arch water_lt3
 x 1
 y 11
 end
-arch water_lt3
+arch grassd_1
+z 4
 x 1
 y 12
 end
-arch water_lt
+arch grassd_2
+z 8
 x 1
 y 13
 end
-arch water_lt4
+arch grassd_7
 x 1
 y 14
 end
-arch water_lt3
+arch rock_wall8
+x 1
+y 14
+end
+arch blocked
 x 1
 y 15
 end
-arch water_lt3
+arch blocked
 x 1
 y 16
 end
-arch water_lt2
+arch blocked
 x 1
 y 17
 end
-arch water_lt
+arch grassd_6
+z 50
 x 1
 y 18
 end
-arch water_lt4
+arch grassd_6
+z 50
 x 1
 y 19
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 1
 y 20
 end
-arch water_lt
+arch grassd_4
+z 50
 x 1
 y 21
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 1
 y 22
 end
-arch water_lt2
+arch grassd_3
+z 50
 x 1
 y 23
 end
@@ -237,47 +265,54 @@ arch water_lt
 x 2
 y 12
 end
-arch water_lt4
+arch grassd_4
+z 4
 x 2
 y 13
 end
-arch water_lt
+arch grassd_2
 x 2
 y 14
 end
-arch water_lt
+arch blocked
 x 2
 y 15
 end
-arch water_lt4
+arch blocked
 x 2
 y 16
 end
-arch water_lt4
+arch blocked
 x 2
 y 17
 end
-arch water_lt2
+arch grassd_6
+z 50
 x 2
 y 18
 end
-arch water_lt3
+arch grassd_6
+z 50
 x 2
 y 19
 end
-arch water_lt2
+arch grassd_6
+z 50
 x 2
 y 20
 end
-arch water_lt4
+arch grassd_2
+z 50
 x 2
 y 21
 end
-arch water_lt
+arch grassd_4
+z 50
 x 2
 y 22
 end
-arch water_lt4
+arch grassd_3
+z 50
 x 2
 y 23
 end
