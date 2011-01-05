@@ -1,19 +1,33 @@
 ## @file
-## Script for church priest Manard on Tutorial Island, who teached the
-## player first basic prayer "minor healing", and gives quest for
-## "cause light wounds" prayer.
-##
-## The quest is to find a lost prayer book in Slimes dungeon.
+## Script for priest in Tutorial Cave.
 
 from Atrinik import *
-from QuestManager import QuestManager
 
 activator = WhoIsActivator()
 me = WhoAmI()
 
-exec(open(CreatePathname("/shattered_islands/scripts/tutorial_island/quests.py")).read())
-
 msg = WhatIsMessage().strip().lower()
+<<<<<<< TREE
+
+if msg == "hello" or msg == "hi" or msg == "hey":
+	if activator.GetGod() == "Tabernacle":
+		me.SayTo(activator, "\nVery good. Now listen:\nI will teach you the prayer ~minor healing~ if you say ^healing^ to me.\nBut first you should ask me how to ^cast^ spells and prayers.\nI will tell you the ways you can cast a prayer or spell.")
+	else:
+		me.SayTo(activator, "\nWelcome to the church of the Tabernacle.\nTo access the powers of the Tabernacle, you have to apply altar of Tabernacle. One is over there, east of me.\nStep over it and apply it. Then come back to me.")
+
+elif activator.GetGod() == "Tabernacle":
+	if msg == "healing":
+		## Get spell ID.
+		spell = GetSpellNr("minor healing")
+
+		if spell == -1:
+			me.SayTo(activator, "\nUnknown spell.")
+		else:
+			if activator.DoKnowSpell(spell) == 1:
+				me.SayTo(activator, "\nYou already know this prayer...")
+			else:
+				activator.AcquireSpell(spell, LEARN)
+=======
 text = msg.split()
 
 ## Initialize QuestManager.
@@ -85,10 +99,9 @@ def main():
 		elif qm.completed():
 			me.SayTo(activator, "\nThank you for helping me out.")
 
+>>>>>>> MERGE-SOURCE
 	elif msg == "cast":
-		if activator.GetGod() == "Tabernacle":
-			me.SayTo(activator, "\nTo cast a prayer you need a deity.\nYou should be a follower of the Tabernacle by now.\n That should be written under your character name.\nYou can cast a spell or prayer in two ways:\nYou can type /cast <spellname> in the console.\nIn our case /cast minor healing.\nOr you can select the spell menu with F9.\nGo to the entry minor healing and press return over it.\nThen you can use it in the range menu like throwing.")
-		else:
-			me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
+		me.SayTo(activator, "\nTo cast a prayer you need a deity.\nYou should be a follower of the Tabernacle by now.\n That should be written under your character name.\nYou can cast a spell or prayer in two ways:\nYou can type /cast <spellname> in the console.\nIn our case /cast minor healing.\nOr you can select the spell menu with F9.\nGo to the entry minor healing and press return over it.\nThen you can use it in the range menu like throwing.")
 
-main()
+else:
+	me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")

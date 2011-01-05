@@ -1,0 +1,11101 @@
+arch map
+name Tutorial Cave
+msg
+Created:  2010-03-29 Kiana
+Modified: 2010-10-22 Kiana
+endmsg
+width 48
+height 48
+difficulty 1
+darkness 4
+no_save 1
+bg_music tutorialcave.ogg
+region tutorial
+end
+arch floor_sand_d4
+y 5
+end
+arch fwall_sand1a
+y 5
+end
+arch floor_sand_d3
+y 6
+end
+arch fwall_sand1a
+y 6
+end
+arch floor_sand_d2
+y 7
+end
+arch fwall_sand1b
+y 7
+end
+arch floor_sand_d3
+y 8
+end
+arch fwall_sand1b
+y 8
+end
+arch floor_sand_d3
+y 9
+end
+arch fwall_sand1b
+y 9
+end
+arch floor_sand_d2
+y 10
+end
+arch fwall_sand1b
+y 10
+end
+arch floor_earth1c
+y 19
+end
+arch fwall_sand1a
+y 19
+end
+arch floor_earth1e
+y 20
+end
+arch fwall_sand1a
+y 20
+end
+arch floor_earth1a
+y 21
+end
+arch fwall_sand1b
+y 21
+end
+arch floor_earth1c
+y 22
+end
+arch fwall_sand1a
+y 22
+end
+arch floor_earth1e
+y 23
+end
+arch fwall_sand1a
+y 23
+end
+arch floor_earth1d
+y 24
+end
+arch fwall_sand1b
+y 24
+end
+arch floor_earth1a
+y 25
+end
+arch fwall_sand1a
+y 25
+end
+arch floor_sand_d4
+x 1
+y 4
+end
+arch fwall_sand1b
+x 1
+y 4
+end
+arch floor_sand_d1
+x 1
+y 5
+end
+arch fwall_sand1b
+x 1
+y 5
+end
+arch floor_sand_d2
+x 1
+y 6
+end
+arch torch_wall_1
+direction 7
+x 1
+y 6
+end
+arch floor_sand_d3
+x 1
+y 7
+end
+arch floor_sand_d2
+x 1
+y 8
+end
+arch chest_sw_1
+direction 5
+x 1
+y 8
+arch t_dagger
+nrof 3
+identified 1
+end
+end
+arch floor_sand_d2
+x 1
+y 9
+end
+arch floor_sand_d2
+x 1
+y 10
+end
+arch fwall_sand1a
+x 1
+y 10
+end
+arch floor_sand_d2
+x 1
+y 11
+end
+arch fwall_sand1a
+x 1
+y 11
+end
+arch floor_sand_d2
+x 1
+y 12
+end
+arch fwall_sand1b
+x 1
+y 12
+end
+arch floor_earth1d
+x 1
+y 18
+end
+arch fwall_sand1a
+x 1
+y 18
+end
+arch floor_earth1b
+x 1
+y 19
+end
+arch fwall_sand1b
+x 1
+y 19
+end
+arch floor_earth1c
+x 1
+y 20
+end
+arch plant17
+x 1
+y 20
+end
+arch floor_earth1b
+x 1
+y 21
+end
+arch plant_flower7
+x 1
+y 21
+end
+arch floor_earth1b
+x 1
+y 22
+end
+arch plant12
+x 1
+y 22
+end
+arch floor_earth1c
+x 1
+y 23
+end
+arch floor_earth1d
+x 1
+y 24
+end
+arch floor_earth1b
+x 1
+y 25
+end
+arch fwall_sand1b
+x 1
+y 25
+end
+arch floor_earth1d
+x 1
+y 26
+end
+arch fwall_sand1a
+x 1
+y 26
+end
+arch floor_sand_d2
+x 2
+y 3
+end
+arch fwall_sand1b
+x 2
+y 3
+end
+arch floor_sand_d3
+x 2
+y 4
+end
+arch fwall_sand1b
+x 2
+y 4
+end
+arch floor_sand_d1
+x 2
+y 5
+end
+arch floor_sand_d4
+x 2
+y 6
+end
+arch floor_sand_d3
+x 2
+y 7
+end
+arch floor_sand_d3
+x 2
+y 8
+end
+arch light3
+x 2
+y 8
+end
+arch floor_sand_d3
+x 2
+y 9
+end
+arch floor_sand_d1
+x 2
+y 10
+end
+arch torch_wall_1
+direction 7
+x 2
+y 10
+end
+arch floor_sand_d4
+x 2
+y 11
+end
+arch floor_sand_d4
+x 2
+y 12
+end
+arch fwall_sand1a
+x 2
+y 12
+end
+arch floor_earth1d
+x 2
+y 17
+end
+arch fwall_sand1a
+x 2
+y 17
+end
+arch floor_earth1e
+x 2
+y 18
+end
+arch fwall_sand1a
+x 2
+y 18
+end
+arch floor_earth1b
+x 2
+y 19
+end
+arch plant1
+x 2
+y 19
+end
+arch torch_wall_1
+direction 7
+x 2
+y 19
+end
+arch floor_earth1c
+x 2
+y 20
+end
+arch floor_earth1c
+x 2
+y 21
+end
+arch spawn_point
+speed -0.04
+x 2
+y 21
+arch bat_brown
+level 2
+dam 5
+behavior 0
+movement_type 128
+type 83
+ac 0
+wc 0
+exp 0
+arch quest_container
+name Bat Key
+arch key2
+slaying tutorial_bat
+startequip 1
+end
+end
+end
+end
+arch floor_earth1a
+x 2
+y 22
+end
+arch plant10
+x 2
+y 22
+end
+arch floor_earth1c
+x 2
+y 23
+end
+arch floor_earth1c
+x 2
+y 24
+end
+arch plant5
+x 2
+y 24
+end
+arch floor_earth1c
+x 2
+y 25
+end
+arch torch_wall_1
+direction 7
+x 2
+y 25
+end
+arch floor_earth1c
+x 2
+y 26
+end
+arch fwall_sand1a
+x 2
+y 26
+end
+arch floor_sand_d3
+x 3
+y 3
+end
+arch fwall_sand1a
+x 3
+y 3
+end
+arch floor_sand_d4
+x 3
+y 4
+end
+arch floor_sand_d3
+x 3
+y 5
+end
+arch floor_sand_d4
+x 3
+y 6
+end
+arch floor_sand_d4
+x 3
+y 7
+end
+arch sign
+msg
+~Throwing~
+You can test out the throwing system right here. Use the throwing daggers you found earlier or get new daggers from the chest. To ready a throwing item or ammunition, locate the daggers in your inventory, and press 'f' (fire) key on them to ready them. Then press ~tab~ key until you can see them in the range chooser below your player name at top left. When a missile hits a wall or another solid object, it will be dropped on the floor before the object. Missiles that hit a mob fall on the floor and can be gathered when the mob dies or moves.
+endmsg
+name sign
+x 3
+y 7
+end
+arch floor_sand_d2
+x 3
+y 8
+end
+arch floor_sand_d3
+x 3
+y 9
+end
+arch sign
+msg
+~Range System and Throwing~
+Atrinik has a complex range system allowing you to throw items, fire bows or spells but also use skills. By using the ~tab~ key you can cycle through the range actions. You can have different range actions prepared but you can use only |one| at time. To throw/fire/control something you press and hold the ~control~ (ctrl) key and choose a direction with your movement keys. The object or spell will be fired in that direction. If you have a target and you press ~control~ (ctrl) key and 5 on numpad, your character will attempt to fire in the direction of the target.
+endmsg
+name sign
+x 3
+y 9
+end
+arch floor_sand_d4
+x 3
+y 10
+end
+arch floor_sand_d3
+x 3
+y 11
+end
+arch floor_sand_d3
+x 3
+y 12
+end
+arch fwall_sand1a
+x 3
+y 12
+end
+arch floor_earth1e
+x 3
+y 16
+end
+arch fwall_sand1a
+x 3
+y 16
+end
+arch floor_earth1d
+x 3
+y 17
+end
+arch fwall_sand1a
+x 3
+y 17
+end
+arch floor_earth1e
+x 3
+y 18
+end
+arch plant_mushroom3
+x 3
+y 18
+end
+arch floor_earth1b
+x 3
+y 19
+end
+arch floor_earth1d
+x 3
+y 20
+end
+arch floor_earth1a
+x 3
+y 21
+end
+arch floor_earth1b
+x 3
+y 22
+end
+arch floor_earth1c
+x 3
+y 23
+end
+arch floor_earth1c
+x 3
+y 24
+end
+arch floor_earth1d
+x 3
+y 25
+end
+arch floor_earth1c
+x 3
+y 26
+end
+arch fwall_sand1a
+x 3
+y 26
+end
+arch floor_earth1d
+x 3
+y 27
+end
+arch fwall_sand1b
+x 3
+y 27
+end
+arch floor_sand_d1
+x 4
+y 2
+end
+arch fwall_sand1b
+x 4
+y 2
+end
+arch floor_sand_d1
+x 4
+y 3
+end
+arch fwall_sand1b
+x 4
+y 3
+end
+arch floor_sand_d1
+x 4
+y 4
+end
+arch torch_wall_1
+x 4
+y 4
+end
+arch floor_sand_d4
+x 4
+y 5
+end
+arch floor_sand_d2
+x 4
+y 6
+end
+arch floor_sand_d3
+x 4
+y 7
+end
+arch floor_sand_d4
+x 4
+y 8
+end
+arch floor_sand_d2
+x 4
+y 9
+end
+arch floor_sand_d1
+x 4
+y 10
+end
+arch floor_sand_d4
+x 4
+y 11
+end
+arch floor_sand_d2
+x 4
+y 12
+end
+arch fwall_sand1b
+x 4
+y 12
+end
+arch floor_earth1b
+x 4
+y 15
+end
+arch fwall_sand1b
+x 4
+y 15
+end
+arch floor_earth1e
+x 4
+y 16
+end
+arch fwall_sand1b
+x 4
+y 16
+end
+arch floor_earth1c
+x 4
+y 17
+end
+arch plant13
+x 4
+y 17
+end
+arch floor_earth1b
+x 4
+y 18
+end
+arch water_md2_m
+direction 4
+x 4
+y 18
+end
+arch floor_earth1e
+x 4
+y 19
+end
+arch water_md_m
+direction 3
+x 4
+y 19
+end
+arch floor_earth1b
+x 4
+y 20
+end
+arch water_md_m
+direction 4
+x 4
+y 20
+end
+arch floor_earth1b
+x 4
+y 21
+end
+arch water_md3_m
+direction 3
+x 4
+y 21
+end
+arch floor_earth1b
+x 4
+y 22
+end
+arch water_md_m
+direction 2
+x 4
+y 22
+end
+arch floor_earth1b
+x 4
+y 23
+end
+arch water_md2_m
+direction 2
+x 4
+y 23
+end
+arch floor_earth1c
+x 4
+y 24
+end
+arch plant_mushroom3
+x 4
+y 24
+end
+arch floor_earth1a
+x 4
+y 25
+end
+arch floor_earth1e
+x 4
+y 26
+end
+arch plant10
+x 4
+y 26
+end
+arch floor_earth1e
+x 4
+y 27
+end
+arch fwall_sand1a
+x 4
+y 27
+end
+arch floor_earth1b
+x 4
+y 28
+end
+arch fwall_sand1a
+x 4
+y 28
+end
+arch floor_earth1b
+x 4
+y 29
+end
+arch fwall_sand1b
+x 4
+y 29
+end
+arch floor_sand_d1
+x 5
+y 2
+end
+arch fwall_sand1b
+x 5
+y 2
+end
+arch floor_sand_d4
+x 5
+y 3
+end
+arch floor_sand_d3
+x 5
+y 4
+end
+arch floor_sand_d4
+x 5
+y 5
+end
+arch floor_sand_d3
+x 5
+y 6
+end
+arch floor_sand_d2
+x 5
+y 7
+end
+arch fwall_sand1b
+x 5
+y 7
+end
+arch floor_sand_d1
+x 5
+y 8
+end
+arch floor_sand_d1
+x 5
+y 9
+end
+arch fwall_sand1b
+x 5
+y 9
+end
+arch floor_sand_d3
+x 5
+y 10
+end
+arch floor_sand_d4
+x 5
+y 11
+end
+arch fwall_sand1a
+x 5
+y 11
+end
+arch floor_sand_d2
+x 5
+y 12
+end
+arch fwall_sand1b
+x 5
+y 12
+end
+arch floor_earth1d
+x 5
+y 15
+end
+arch fwall_sand1b
+x 5
+y 15
+end
+arch floor_earth1a
+x 5
+y 16
+end
+arch plant_mushroom3
+x 5
+y 16
+end
+arch floor_earth1b
+x 5
+y 17
+end
+arch floor_earth1e
+x 5
+y 18
+end
+arch water_md_m
+direction 4
+x 5
+y 18
+end
+arch water_md
+x 5
+y 19
+end
+arch grass_leafm9
+x 5
+y 19
+end
+arch water_md2
+x 5
+y 20
+end
+arch grass_leafm10
+x 5
+y 20
+end
+arch water_md4
+x 5
+y 21
+end
+arch grass_leafm10
+x 5
+y 21
+end
+arch light4
+x 5
+y 21
+end
+arch water_md3
+x 5
+y 22
+end
+arch grass_leafm1
+x 5
+y 22
+end
+arch floor_earth1c
+x 5
+y 23
+end
+arch water_md5_m
+direction 2
+x 5
+y 23
+end
+arch floor_earth1a
+x 5
+y 24
+end
+arch water_md2_m
+direction 2
+x 5
+y 24
+end
+arch floor_earth1e
+x 5
+y 25
+end
+arch floor_earth1c
+x 5
+y 26
+end
+arch floor_earth1d
+x 5
+y 27
+end
+arch plant_flower7
+x 5
+y 27
+end
+arch floor_earth1b
+x 5
+y 28
+end
+arch floor_earth1b
+x 5
+y 29
+end
+arch fwall_sand1a
+x 5
+y 29
+end
+arch floor_earth1e
+x 5
+y 30
+end
+arch fwall_sand1a
+x 5
+y 30
+end
+arch floor_earth1e
+x 5
+y 31
+end
+arch fwall_sand1b
+x 5
+y 31
+end
+arch floor_sand_d3
+x 6
+y 2
+end
+arch fwall_sand1a
+x 6
+y 2
+end
+arch floor_sand_d3
+x 6
+y 3
+end
+arch floor_sand_d1
+x 6
+y 4
+end
+arch floor_sand_d1
+x 6
+y 5
+end
+arch floor_sand_d1
+x 6
+y 6
+end
+arch fwall_sand1b
+x 6
+y 6
+end
+arch floor_sand_d4
+x 6
+y 7
+end
+arch fwall_sand1a
+x 6
+y 7
+end
+arch floor_sand_d4
+x 6
+y 8
+end
+arch floor_sand_d3
+x 6
+y 9
+end
+arch fwall_sand1b
+x 6
+y 9
+end
+arch floor_sand_d3
+x 6
+y 10
+end
+arch floor_sand_d3
+x 6
+y 11
+end
+arch fwall_sand1a
+x 6
+y 11
+end
+arch floor_earth1e
+x 6
+y 15
+end
+arch fwall_sand1b
+x 6
+y 15
+end
+arch floor_earth1e
+x 6
+y 16
+end
+arch floor_earth1a
+x 6
+y 17
+end
+arch floor_earth1a
+x 6
+y 18
+end
+arch water_md5_m
+direction 5
+x 6
+y 18
+end
+arch water_md
+x 6
+y 19
+end
+arch grass_leafm14
+x 6
+y 19
+end
+arch light2
+x 6
+y 19
+end
+arch water_md3
+x 6
+y 20
+end
+arch grass_leafm2
+x 6
+y 20
+end
+arch water_md4
+x 6
+y 21
+end
+arch grass_leafm2
+x 6
+y 21
+end
+arch water_md2
+x 6
+y 22
+end
+arch grass_leafm7
+x 6
+y 22
+end
+arch water_md4
+x 6
+y 23
+end
+arch grass_leafm6
+x 6
+y 23
+end
+arch floor_earth1b
+x 6
+y 24
+end
+arch water_md2_m
+direction 1
+x 6
+y 24
+end
+arch floor_earth1d
+x 6
+y 25
+end
+arch plant5
+x 6
+y 25
+end
+arch floor_earth1c
+x 6
+y 26
+end
+arch floor_earth1a
+x 6
+y 27
+end
+arch floor_earth1e
+x 6
+y 28
+end
+arch floor_earth1a
+x 6
+y 29
+end
+arch floor_earth1e
+x 6
+y 30
+end
+arch torch_wall_1
+direction 7
+x 6
+y 30
+end
+arch floor_earth1a
+x 6
+y 31
+end
+arch fwall_sand1a
+x 6
+y 31
+end
+arch floor_earth1a
+x 6
+y 32
+end
+arch fwall_sand1a
+x 6
+y 32
+end
+arch floor_earth1d
+x 6
+y 33
+end
+arch fwall_sand1a
+x 6
+y 33
+end
+arch floor_earth1b
+x 6
+y 34
+end
+arch fwall_sand1b
+x 6
+y 34
+end
+arch floor_sand_d4
+x 7
+y 1
+end
+arch fwall_sand1a
+x 7
+y 1
+end
+arch floor_sand_d4
+x 7
+y 2
+end
+arch fwall_sand1a
+x 7
+y 2
+end
+arch floor_sand_d4
+x 7
+y 3
+end
+arch floor_sand_d1
+x 7
+y 4
+end
+arch floor_sand_d3
+x 7
+y 5
+end
+arch fwall_sand1a
+x 7
+y 5
+end
+arch floor_sand_d3
+x 7
+y 6
+end
+arch fwall_sand1b
+x 7
+y 6
+end
+arch floor_sand_d4
+x 7
+y 7
+end
+arch fwall_sand1b
+x 7
+y 7
+end
+arch floor_sand_d1
+x 7
+y 8
+end
+arch torch_wall_1
+x 7
+y 8
+end
+arch floor_sand_d4
+x 7
+y 9
+end
+arch floor_sand_d2
+x 7
+y 10
+end
+arch floor_sand_d1
+x 7
+y 11
+end
+arch fwall_sand1b
+x 7
+y 11
+end
+arch floor_sand_d2
+x 7
+y 12
+end
+arch fwall_sand1a
+x 7
+y 12
+end
+arch floor_earth1e
+x 7
+y 15
+end
+arch fwall_sand1b
+x 7
+y 15
+end
+arch floor_earth1c
+x 7
+y 16
+end
+arch plant10
+x 7
+y 16
+end
+arch torch_wall_1
+x 7
+y 16
+end
+arch floor_earth1c
+x 7
+y 17
+end
+arch floor_earth1a
+x 7
+y 18
+end
+arch water_md_m
+direction 6
+x 7
+y 18
+end
+arch water_md
+x 7
+y 19
+end
+arch plant12
+x 7
+y 19
+end
+arch water_md2
+x 7
+y 20
+end
+arch grass_leafm9
+x 7
+y 20
+end
+arch water_md3
+x 7
+y 21
+end
+arch grass_leafm13
+x 7
+y 21
+end
+arch water_md4
+x 7
+y 22
+end
+arch grass_leafm5
+x 7
+y 22
+end
+arch water_md3
+x 7
+y 23
+end
+arch grass_leafm8
+x 7
+y 23
+end
+arch light4
+x 7
+y 23
+end
+arch floor_earth1a
+x 7
+y 24
+end
+arch water_md_m
+direction 2
+x 7
+y 24
+end
+arch floor_earth1b
+x 7
+y 25
+end
+arch floor_earth1c
+x 7
+y 26
+end
+arch plant_mushroom2
+x 7
+y 26
+end
+arch floor_earth1b
+x 7
+y 27
+end
+arch floor_earth1e
+x 7
+y 28
+end
+arch plant16
+x 7
+y 28
+end
+arch floor_earth1d
+x 7
+y 29
+end
+arch floor_earth1e
+x 7
+y 30
+end
+arch floor_earth1d
+x 7
+y 31
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying tutorial_bat
+sp 1
+last_grace 1
+last_heal 1
+x 7
+y 31
+end
+arch gate1_locked
+slaying tutorial_bat
+sp 1
+x 7
+y 31
+end
+arch floor_earth1b
+x 7
+y 32
+end
+arch magic_mouth
+msg
+The key broke while opening the gate. You can't go back this way.
+endmsg
+x 7
+y 32
+end
+arch floor_earth1e
+x 7
+y 33
+end
+arch floor_earth1b
+x 7
+y 34
+end
+arch fwall_sand1b
+x 7
+y 34
+end
+arch floor_sand_d1
+x 8
+y 1
+end
+arch fwall_sand1b
+x 8
+y 1
+end
+arch floor_sand_d4
+x 8
+y 2
+end
+arch floor_sand_d1
+x 8
+y 3
+end
+arch floor_sand_d4
+x 8
+y 4
+end
+arch floor_sand_d4
+x 8
+y 5
+end
+arch fwall_sand1b
+x 8
+y 5
+end
+arch floor_sand_d3
+x 8
+y 6
+end
+arch fwall_sand1a
+x 8
+y 6
+end
+arch floor_sand_d4
+x 8
+y 7
+end
+arch floor_sand_d2
+x 8
+y 8
+end
+arch floor_sand_d2
+x 8
+y 9
+end
+arch floor_sand_d2
+x 8
+y 10
+end
+arch floor_sand_d2
+x 8
+y 11
+end
+arch floor_sand_d2
+x 8
+y 12
+end
+arch fwall_sand1a
+x 8
+y 12
+end
+arch floor_earth1e
+x 8
+y 15
+end
+arch fwall_sand1a
+x 8
+y 15
+end
+arch floor_earth1d
+x 8
+y 16
+end
+arch floor_earth1e
+x 8
+y 17
+end
+arch plant1
+x 8
+y 17
+end
+arch floor_earth1a
+x 8
+y 18
+end
+arch water_md2_m
+direction 6
+x 8
+y 18
+end
+arch floor_earth1d
+x 8
+y 19
+end
+arch water_md5_m
+direction 6
+x 8
+y 19
+end
+arch water_md2
+x 8
+y 20
+end
+arch grass_leafm14
+x 8
+y 20
+end
+arch light4
+x 8
+y 20
+end
+arch water_md
+x 8
+y 21
+end
+arch grass_leafm3
+x 8
+y 21
+end
+arch floor_earth1e
+x 8
+y 22
+end
+arch water_md_m
+direction 8
+x 8
+y 22
+end
+arch floor_earth1d
+x 8
+y 23
+end
+arch water_md_m
+direction 6
+x 8
+y 23
+end
+arch floor_earth1b
+x 8
+y 24
+end
+arch water_md_m
+direction 8
+x 8
+y 24
+end
+arch floor_earth1e
+x 8
+y 25
+end
+arch floor_earth1e
+x 8
+y 26
+end
+arch floor_earth1e
+x 8
+y 27
+end
+arch floor_earth1c
+x 8
+y 28
+end
+arch floor_earth1a
+x 8
+y 29
+end
+arch floor_earth1e
+x 8
+y 30
+end
+arch floor_earth1e
+x 8
+y 31
+end
+arch fwall_sand1a
+x 8
+y 31
+end
+arch floor_earth1c
+x 8
+y 32
+end
+arch fwall_sand1a
+x 8
+y 32
+end
+arch floor_earth1c
+x 8
+y 33
+end
+arch floor_earth1e
+x 8
+y 34
+end
+arch fwall_sand1b
+x 8
+y 34
+end
+arch floor_sand_d3
+x 9
+y 1
+end
+arch fwall_sand1a
+x 9
+y 1
+end
+arch floor_sand_d2
+x 9
+y 2
+end
+arch torch_wall_1
+x 9
+y 2
+end
+arch floor_sand_d1
+x 9
+y 3
+end
+arch floor_sand_d1
+x 9
+y 4
+end
+arch floor_sand_d2
+x 9
+y 5
+end
+arch fwall_sand1b
+x 9
+y 5
+end
+arch floor_sand_d3
+x 9
+y 6
+end
+arch fwall_sand1b
+x 9
+y 6
+end
+arch floor_sand_d1
+x 9
+y 7
+end
+arch floor_sand_d1
+x 9
+y 8
+end
+arch floor_sand_d4
+x 9
+y 9
+end
+arch floor_sand_d2
+x 9
+y 10
+end
+arch floor_sand_d4
+x 9
+y 11
+end
+arch floor_sand_d2
+x 9
+y 12
+end
+arch fwall_sand1a
+x 9
+y 12
+end
+arch floor_earth1d
+x 9
+y 15
+end
+arch fwall_sand1b
+x 9
+y 15
+end
+arch floor_earth1a
+x 9
+y 16
+end
+arch floor_earth1d
+x 9
+y 17
+end
+arch plant_flower5
+x 9
+y 17
+end
+arch floor_earth1e
+x 9
+y 18
+end
+arch floor_earth1d
+x 9
+y 19
+end
+arch water_md2_m
+direction 6
+x 9
+y 19
+end
+arch floor_earth1c
+x 9
+y 20
+end
+arch water_md5_m
+direction 6
+x 9
+y 20
+end
+arch water_md2
+x 9
+y 21
+end
+arch floor_earth1b
+x 9
+y 22
+end
+arch water_md_m
+direction 1
+x 9
+y 22
+end
+arch floor_earth1b
+x 9
+y 23
+end
+arch floor_earth1c
+x 9
+y 24
+end
+arch floor_earth1c
+x 9
+y 25
+end
+arch plant1
+x 9
+y 25
+end
+arch floor_earth1b
+x 9
+y 26
+end
+arch floor_earth1b
+x 9
+y 27
+end
+arch plant_flower2
+x 9
+y 27
+end
+arch floor_earth1c
+x 9
+y 28
+end
+arch floor_earth1d
+x 9
+y 29
+end
+arch floor_earth1c
+x 9
+y 30
+end
+arch fwall_sand1b
+x 9
+y 30
+end
+arch floor_earth1c
+x 9
+y 31
+end
+arch fwall_sand1a
+x 9
+y 31
+end
+arch floor_earth1a
+x 9
+y 32
+end
+arch torch_wall_1
+x 9
+y 32
+end
+arch floor_earth1b
+x 9
+y 33
+end
+arch floor_earth1e
+x 9
+y 34
+end
+arch fwall_sand1b
+x 9
+y 34
+end
+arch floor_sand_d1
+x 10
+end
+arch fwall_sand1a
+x 10
+end
+arch floor_sand_d4
+x 10
+y 1
+end
+arch fwall_sand1b
+x 10
+y 1
+end
+arch floor_sand_d2
+x 10
+y 2
+end
+arch floor_sand_d1
+x 10
+y 3
+end
+arch floor_sand_d1
+x 10
+y 4
+end
+arch fwall_sand1a
+x 10
+y 4
+end
+arch floor_sand_d2
+x 10
+y 5
+end
+arch fwall_sand1b
+x 10
+y 5
+end
+arch floor_sand_d4
+x 10
+y 6
+end
+arch fwall_sand1b
+x 10
+y 6
+end
+arch floor_sand_d1
+x 10
+y 7
+end
+arch floor_sand_d4
+x 10
+y 8
+end
+arch floor_sand_d3
+x 10
+y 9
+end
+arch light3
+x 10
+y 9
+end
+arch floor_sand_d4
+x 10
+y 10
+end
+arch floor_sand_d1
+x 10
+y 11
+end
+arch floor_sand_d1
+x 10
+y 12
+end
+arch fwall_sand1a
+x 10
+y 12
+end
+arch floor_earth1c
+x 10
+y 15
+end
+arch fwall_sand1b
+x 10
+y 15
+end
+arch floor_earth1a
+x 10
+y 16
+end
+arch fwall_sand1b
+x 10
+y 16
+end
+arch floor_earth1d
+x 10
+y 17
+end
+arch floor_earth1c
+x 10
+y 18
+end
+arch floor_earth1c
+x 10
+y 19
+end
+arch floor_earth1e
+x 10
+y 20
+end
+arch water_md2_m
+direction 6
+x 10
+y 20
+end
+arch floor_earth1c
+x 10
+y 21
+end
+arch water_md4_m
+direction 7
+x 10
+y 21
+end
+arch floor_earth1d
+x 10
+y 22
+end
+arch water_md2_m
+direction 8
+x 10
+y 22
+end
+arch floor_earth1e
+x 10
+y 23
+end
+arch floor_earth1e
+x 10
+y 24
+end
+arch floor_earth1d
+x 10
+y 25
+end
+arch plant_mushroom3
+x 10
+y 25
+end
+arch floor_earth1b
+x 10
+y 26
+end
+arch floor_earth1a
+x 10
+y 27
+end
+arch plant_mushroom3
+x 10
+y 27
+end
+arch floor_earth1e
+x 10
+y 28
+end
+arch floor_earth1b
+x 10
+y 29
+end
+arch fwall_sand1b
+x 10
+y 29
+end
+arch floor_earth1a
+x 10
+y 30
+end
+arch fwall_sand1a
+x 10
+y 30
+end
+arch floor_earth1c
+x 10
+y 31
+end
+arch sign
+msg
+~Quests~
+Congratulations! You completed your first real quest. One of the main sources of entertainment in Atrinik consists of quests. There are many types of quests. You've just had to kill a bat in order to get a key. When you get out of the cave you will have to kill several mobs in order to get something. Quests can be fun in groups when fighting difficult monsters or a challenge on your own when it is tricky. The most attracting are the rewards you'll get for doing quests.
+endmsg
+name sign
+x 10
+y 31
+end
+arch floor_earth1c
+x 10
+y 32
+end
+arch floor_earth1a
+x 10
+y 33
+end
+arch floor_earth1d
+x 10
+y 34
+end
+arch fwall_sand1b
+x 10
+y 34
+end
+arch floor_sand_d3
+x 11
+end
+arch fwall_sand1a
+x 11
+end
+arch floor_sand_d4
+x 11
+y 1
+end
+arch floor_sand_d3
+x 11
+y 2
+end
+arch floor_sand_d1
+x 11
+y 3
+end
+arch fwall_sand1a
+x 11
+y 3
+end
+arch floor_sand_d3
+x 11
+y 4
+end
+arch fwall_sand1b
+x 11
+y 4
+end
+arch floor_sand_d3
+x 11
+y 6
+end
+arch fwall_sand1a
+x 11
+y 6
+end
+arch floor_sand_d4
+x 11
+y 7
+end
+arch torch_wall_1
+x 11
+y 7
+end
+arch floor_sand_d2
+x 11
+y 8
+end
+arch floor_sand_d3
+x 11
+y 9
+end
+arch floor_sand_d2
+x 11
+y 10
+end
+arch floor_sand_d2
+x 11
+y 11
+end
+arch floor_sand_d3
+x 11
+y 12
+end
+arch fwall_sand1a
+x 11
+y 12
+end
+arch floor_earth1c
+x 11
+y 16
+end
+arch fwall_sand1a
+x 11
+y 16
+end
+arch floor_earth1a
+x 11
+y 17
+end
+arch fwall_sand1a
+x 11
+y 17
+end
+arch floor_earth1c
+x 11
+y 18
+end
+arch plant10
+x 11
+y 18
+end
+arch floor_earth1c
+x 11
+y 19
+end
+arch floor_earth1d
+x 11
+y 20
+end
+arch plant11
+x 11
+y 20
+end
+arch floor_earth1b
+x 11
+y 21
+end
+arch floor_earth1e
+x 11
+y 22
+end
+arch floor_earth1e
+x 11
+y 23
+end
+arch floor_earth1e
+x 11
+y 24
+end
+arch plant11
+x 11
+y 24
+end
+arch floor_earth1e
+x 11
+y 25
+end
+arch floor_earth1d
+x 11
+y 26
+end
+arch fwall_sand1a
+x 11
+y 26
+end
+arch floor_earth1e
+x 11
+y 27
+end
+arch fwall_sand1b
+x 11
+y 27
+end
+arch floor_earth1d
+x 11
+y 28
+end
+arch fwall_sand1a
+x 11
+y 28
+end
+arch floor_earth1e
+x 11
+y 29
+end
+arch fwall_sand1b
+x 11
+y 29
+end
+arch floor_earth1b
+x 11
+y 30
+end
+arch floor_earth1e
+x 11
+y 31
+end
+arch floor_earth1d
+x 11
+y 32
+end
+arch floor_earth1d
+x 11
+y 33
+end
+arch fwall_sand1a
+x 11
+y 33
+end
+arch floor_earth1c
+x 11
+y 34
+end
+arch fwall_sand1b
+x 11
+y 34
+end
+arch floor_sand_d3
+x 12
+end
+arch fwall_sand1a
+x 12
+end
+arch floor_sand_d4
+x 12
+y 1
+end
+arch floor_sand_d2
+x 12
+y 2
+end
+arch fwall_sand1a
+x 12
+y 2
+end
+arch floor_sand_d1
+x 12
+y 3
+end
+arch fwall_sand1a
+x 12
+y 3
+end
+arch floor_sand_d2
+x 12
+y 4
+end
+arch fwall_sand1a
+x 12
+y 4
+end
+arch floor_sand_d3
+x 12
+y 6
+end
+arch fwall_sand1a
+x 12
+y 6
+end
+arch floor_sand_d3
+x 12
+y 7
+end
+arch floor_sand_d2
+x 12
+y 8
+end
+arch spawn_point
+x 12
+y 8
+arch golem
+name training dummy
+type 83
+speed -2.0
+no_attack 1
+dam 0
+maxhp 5000
+ac 5
+Con 100
+stand_still 1
+end
+end
+arch floor_sand_d1
+x 12
+y 9
+end
+arch floor_sand_d2
+x 12
+y 10
+end
+arch spawn_point
+x 12
+y 10
+arch golem
+name training dummy
+type 83
+speed -2.0
+no_attack 1
+dam 0
+maxhp 5000
+ac 5
+Con 100
+stand_still 1
+end
+end
+arch floor_sand_d4
+x 12
+y 11
+end
+arch floor_sand_d4
+x 12
+y 12
+end
+arch fwall_sand1a
+x 12
+y 12
+end
+arch floor_earth1d
+x 12
+y 17
+end
+arch fwall_sand1a
+x 12
+y 17
+end
+arch floor_earth1d
+x 12
+y 18
+end
+arch fwall_sand1a
+x 12
+y 18
+end
+arch floor_earth1a
+x 12
+y 19
+end
+arch torch_wall_1
+x 12
+y 19
+end
+arch floor_earth1c
+x 12
+y 20
+end
+arch floor_earth1b
+x 12
+y 21
+end
+arch floor_earth1c
+x 12
+y 22
+end
+arch floor_earth1c
+x 12
+y 23
+end
+arch plant15
+x 12
+y 23
+end
+arch floor_earth1d
+x 12
+y 24
+end
+arch fwall_sand1a
+x 12
+y 24
+end
+arch floor_earth1c
+x 12
+y 25
+end
+arch fwall_sand1b
+x 12
+y 25
+end
+arch floor_earth1e
+x 12
+y 26
+end
+arch fwall_sand1b
+x 12
+y 26
+end
+arch floor_earth1e
+x 12
+y 27
+end
+arch floor_earth1a
+x 12
+y 28
+end
+arch floor_earth1d
+x 12
+y 29
+end
+arch fwall_sand1a
+x 12
+y 29
+end
+arch floor_earth1d
+x 12
+y 30
+end
+arch floor_earth1a
+x 12
+y 31
+end
+arch fwall_sand1a
+x 12
+y 31
+end
+arch floor_earth1c
+x 12
+y 32
+end
+arch fwall_sand1b
+x 12
+y 32
+end
+arch floor_earth1d
+x 12
+y 33
+end
+arch fwall_sand1b
+x 12
+y 33
+end
+arch floor_sand_d2
+x 13
+end
+arch fwall_sand1a
+x 13
+end
+arch floor_sand_d4
+x 13
+y 1
+end
+arch floor_sand_d2
+x 13
+y 2
+end
+arch floor_sand_d3
+x 13
+y 3
+end
+arch torch_wall_1
+direction 7
+x 13
+y 3
+end
+arch floor_sand_d1
+x 13
+y 4
+end
+arch fwall_sand1a
+x 13
+y 4
+end
+arch floor_sand_d4
+x 13
+y 6
+end
+arch fwall_sand1b
+x 13
+y 6
+end
+arch floor_sand_d3
+x 13
+y 7
+end
+arch floor_sand_d3
+x 13
+y 8
+end
+arch floor_sand_d3
+x 13
+y 9
+end
+arch light3
+x 13
+y 9
+end
+arch floor_sand_d1
+x 13
+y 10
+end
+arch floor_sand_d1
+x 13
+y 11
+end
+arch floor_sand_d3
+x 13
+y 12
+end
+arch fwall_sand1b
+x 13
+y 12
+end
+arch floor_earth1e
+x 13
+y 18
+end
+arch fwall_sand1b
+x 13
+y 18
+end
+arch floor_earth1c
+x 13
+y 19
+end
+arch plant11
+x 13
+y 19
+end
+arch floor_earth1d
+x 13
+y 20
+end
+arch floor_earth1d
+x 13
+y 21
+end
+arch plant_flower2
+x 13
+y 21
+end
+arch floor_earth1d
+x 13
+y 22
+end
+arch floor_earth1d
+x 13
+y 23
+end
+arch fwall_sand1a
+x 13
+y 23
+end
+arch floor_earth1d
+x 13
+y 24
+end
+arch fwall_sand1a
+x 13
+y 24
+end
+arch floor_earth1e
+x 13
+y 25
+end
+arch floor_earth1d
+x 13
+y 26
+end
+arch torch_wall_1
+direction 7
+x 13
+y 26
+end
+arch floor_earth1b
+x 13
+y 27
+end
+arch floor_earth1b
+x 13
+y 28
+end
+arch floor_earth1e
+x 13
+y 29
+end
+arch fwall_sand1a
+x 13
+y 29
+end
+arch floor_earth1b
+x 13
+y 30
+end
+arch floor_earth1d
+x 13
+y 31
+end
+arch torch_wall_1
+direction 7
+x 13
+y 31
+end
+arch floor_earth1e
+x 13
+y 32
+end
+arch floor_earth1d
+x 13
+y 33
+end
+arch fwall_sand1b
+x 13
+y 33
+end
+arch floor_earth1d
+x 13
+y 34
+end
+arch fwall_sand1a
+x 13
+y 34
+end
+arch floor_earth1a
+x 13
+y 35
+end
+arch fwall_sand1b
+x 13
+y 35
+end
+arch floor_sand_d2
+x 14
+end
+arch fwall_sand1b
+x 14
+end
+arch floor_sand_d3
+x 14
+y 1
+end
+arch fwall_sand1a
+x 14
+y 1
+end
+arch floor_sand_d3
+x 14
+y 2
+end
+arch floor_sand_d2
+x 14
+y 3
+end
+arch floor_sand_d4
+x 14
+y 4
+end
+arch fwall_sand1b
+x 14
+y 4
+end
+arch floor_sand_d1
+x 14
+y 6
+end
+arch fwall_sand1b
+x 14
+y 6
+end
+arch floor_sand_d1
+x 14
+y 7
+end
+arch fwall_sand1b
+x 14
+y 7
+end
+arch floor_sand_d1
+x 14
+y 8
+end
+arch floor_sand_d1
+x 14
+y 9
+end
+arch floor_sand_d4
+x 14
+y 10
+end
+arch floor_sand_d2
+x 14
+y 11
+end
+arch floor_sand_d4
+x 14
+y 12
+end
+arch fwall_sand1b
+x 14
+y 12
+end
+arch floor_earth1a
+x 14
+y 18
+end
+arch fwall_sand1b
+x 14
+y 18
+end
+arch floor_earth1a
+x 14
+y 19
+end
+arch floor_earth1b
+x 14
+y 20
+end
+arch floor_earth1b
+x 14
+y 21
+end
+arch floor_earth1e
+x 14
+y 22
+end
+arch plant_mushroom2
+x 14
+y 22
+end
+arch floor_earth1c
+x 14
+y 23
+end
+arch fwall_sand1b
+x 14
+y 23
+end
+arch floor_earth1a
+x 14
+y 24
+end
+arch floor_earth1e
+x 14
+y 25
+end
+arch sand_dm1
+x 14
+y 25
+end
+arch floor_earth1e
+x 14
+y 26
+end
+arch sand_dm5
+x 14
+y 26
+end
+arch floor_earth1b
+x 14
+y 27
+end
+arch sand_dm2
+x 14
+y 27
+end
+arch floor_earth1d
+x 14
+y 28
+end
+arch floor_earth1e
+x 14
+y 29
+end
+arch grate_closed
+x 14
+y 29
+end
+arch floor_earth1c
+x 14
+y 30
+end
+arch floor_earth1a
+x 14
+y 31
+end
+arch floor_earth1d
+x 14
+y 32
+end
+arch floor_earth1b
+x 14
+y 33
+end
+arch floor_earth1e
+x 14
+y 34
+end
+arch floor_earth1c
+x 14
+y 35
+end
+arch fwall_sand1a
+x 14
+y 35
+end
+arch floor_sand_d4
+x 15
+y 1
+end
+arch fwall_sand1b
+x 15
+y 1
+end
+arch floor_sand_d2
+x 15
+y 2
+end
+arch fwall_sand1a
+x 15
+y 2
+end
+arch floor_sand_d3
+x 15
+y 3
+end
+arch floor_sand_d2
+x 15
+y 4
+end
+arch fwall_sand1a
+x 15
+y 4
+end
+arch floor_sand_d3
+x 15
+y 7
+end
+arch fwall_sand1a
+x 15
+y 7
+end
+arch floor_sand_d3
+x 15
+y 8
+end
+arch fwall_sand1a
+x 15
+y 8
+end
+arch floor_sand_d1
+x 15
+y 9
+end
+arch floor_sand_d3
+x 15
+y 10
+end
+arch floor_sand_d4
+x 15
+y 11
+end
+arch fwall_sand1b
+x 15
+y 11
+end
+arch floor_sand_d4
+x 15
+y 12
+end
+arch fwall_sand1b
+x 15
+y 12
+end
+arch floor_earth1c
+x 15
+y 18
+end
+arch fwall_sand1b
+layer 4
+x 15
+y 18
+end
+arch floor_earth1c
+x 15
+y 19
+end
+arch post_rail_dk2
+direction 3
+x 15
+y 19
+end
+arch floor_earth1d
+x 15
+y 20
+end
+arch post_rail_door_dk
+direction 3
+x 15
+y 20
+end
+arch floor_earth1a
+x 15
+y 21
+end
+arch post_rail_dk2
+direction 3
+x 15
+y 21
+end
+arch floor_earth1b
+x 15
+y 22
+end
+arch fwall_sand1b
+x 15
+y 22
+end
+arch floor_earth1c
+x 15
+y 23
+end
+arch fwall_sand1a
+x 15
+y 23
+end
+arch floor_earth1c
+x 15
+y 24
+end
+arch torch_wall_1
+x 15
+y 24
+end
+arch floor_earth1c
+x 15
+y 25
+end
+arch sand_dm7
+x 15
+y 25
+end
+arch floor_sand_d4
+x 15
+y 26
+end
+arch floor_earth1c
+x 15
+y 27
+end
+arch sand_dm6
+x 15
+y 27
+end
+arch floor_earth1c
+x 15
+y 28
+end
+arch floor_earth1d
+x 15
+y 29
+end
+arch grate_closed
+x 15
+y 29
+end
+arch floor_earth1a
+x 15
+y 30
+end
+arch floor_earth1d
+x 15
+y 31
+end
+arch sign
+msg
+~Portals~
+The end of the tutorial is near. You have learned nearly all the basics and experience will teach you everything else. Now enter the portal to get to the other side of the grates. Portals and teleporters may transfer you to a different place simply by stepping on them, usually.
+endmsg
+name sign
+x 15
+y 31
+end
+arch floor_earth1d
+x 15
+y 32
+end
+arch floor_earth1b
+x 15
+y 33
+end
+arch exit
+slaying /shattered_islands/tutorial_island/tutorial-a
+hp 15
+sp 26
+last_eat 1
+x 15
+y 33
+end
+arch floor_earth1b
+x 15
+y 34
+end
+arch floor_earth1c
+x 15
+y 35
+end
+arch fwall_sand1b
+x 15
+y 35
+end
+arch floor_sand_d4
+x 16
+end
+arch fwall_sand1a
+x 16
+end
+arch floor_sand_d1
+x 16
+y 1
+end
+arch fwall_sand1a
+x 16
+y 1
+end
+arch floor_sand_d2
+x 16
+y 2
+end
+arch floor_sand_d1
+x 16
+y 3
+end
+arch floor_sand_d2
+x 16
+y 4
+end
+arch fwall_sand1a
+x 16
+y 4
+end
+arch floor_sand_d3
+x 16
+y 5
+end
+arch fwall_sand1a
+x 16
+y 5
+end
+arch floor_sand_d2
+x 16
+y 6
+end
+arch fwall_sand1b
+x 16
+y 6
+end
+arch floor_sand_d2
+x 16
+y 7
+end
+arch fwall_sand1b
+x 16
+y 7
+end
+arch floor_sand_d4
+x 16
+y 8
+end
+arch fwall_sand1b
+x 16
+y 8
+end
+arch floor_sand_d2
+x 16
+y 9
+end
+arch door1_locked
+direction 3
+cursed 1
+x 16
+y 9
+end
+arch floor_sand_d2
+x 16
+y 10
+end
+arch door1_locked
+cursed 1
+direction 5
+x 16
+y 10
+end
+arch floor_sand_d4
+x 16
+y 11
+end
+arch fwall_sand1b
+x 16
+y 11
+end
+arch floor_sand_d1
+x 16
+y 12
+end
+arch fwall_sand1b
+x 16
+y 12
+end
+arch floor_sand_d4
+x 16
+y 13
+end
+arch fwall_sand1b
+x 16
+y 13
+end
+arch floor_sand_d1
+x 16
+y 14
+end
+arch fwall_sand1a
+x 16
+y 14
+end
+arch floor_earth1e
+x 16
+y 16
+end
+arch fwall_sand1a
+x 16
+y 16
+end
+arch floor_earth1d
+x 16
+y 17
+end
+arch fwall_sand1a
+x 16
+y 17
+end
+arch floor_earth1e
+x 16
+y 18
+end
+arch fwall_sand1a
+x 16
+y 18
+end
+arch floor_earth1b
+x 16
+y 19
+end
+arch floor_earth1c
+x 16
+y 20
+end
+arch floor_earth1a
+x 16
+y 21
+end
+arch floor_earth1b
+x 16
+y 22
+end
+arch fwall_sand1b
+x 16
+y 22
+end
+arch floor_earth1b
+x 16
+y 23
+end
+arch fwall_sand1a
+x 16
+y 23
+end
+arch floor_earth1a
+x 16
+y 24
+end
+arch floor_earth1c
+x 16
+y 25
+end
+arch sand_dm4
+x 16
+y 25
+end
+arch floor_earth1b
+x 16
+y 26
+end
+arch sand_dm8
+x 16
+y 26
+end
+arch floor_earth1b
+x 16
+y 27
+end
+arch sand_dm3
+x 16
+y 27
+end
+arch floor_earth1d
+x 16
+y 28
+end
+arch floor_earth1a
+x 16
+y 29
+end
+arch grate_closed
+x 16
+y 29
+end
+arch floor_earth1a
+x 16
+y 30
+end
+arch floor_earth1e
+x 16
+y 31
+end
+arch floor_earth1c
+x 16
+y 32
+end
+arch floor_earth1a
+x 16
+y 33
+end
+arch floor_earth1d
+x 16
+y 34
+end
+arch floor_earth1c
+x 16
+y 35
+end
+arch fwall_sand1a
+x 16
+y 35
+end
+arch floor_sand_d3
+x 17
+end
+arch fwall_sand1b
+x 17
+end
+arch floor_sand_d4
+x 17
+y 1
+end
+arch floor_sand_d1
+x 17
+y 2
+end
+arch floor_sand_d1
+x 17
+y 3
+end
+arch floor_sand_d4
+x 17
+y 4
+end
+arch floor_sand_d1
+x 17
+y 5
+end
+arch floor_sand_d3
+x 17
+y 6
+end
+arch fwall_sand1a
+x 17
+y 6
+end
+arch floor_sand_d2
+x 17
+y 7
+end
+arch fwall_sand1b
+x 17
+y 7
+end
+arch floor_white2c
+x 17
+y 8
+end
+arch pillar_white1c
+x 17
+y 8
+end
+arch floor_white2c
+x 17
+y 9
+end
+arch floor_white2c
+x 17
+y 10
+end
+arch floor_white2c
+x 17
+y 11
+end
+arch floor_white2c
+x 17
+y 12
+end
+arch floor_white2c
+x 17
+y 13
+end
+arch pillar_white1c
+x 17
+y 13
+end
+arch floor_sand_d2
+x 17
+y 14
+end
+arch fwall_sand1b
+x 17
+y 14
+end
+arch floor_sand_d1
+x 17
+y 15
+end
+arch fwall_sand1b
+x 17
+y 15
+end
+arch floor_earth1e
+x 17
+y 16
+end
+arch fwall_sand1a
+x 17
+y 16
+end
+arch floor_earth1c
+x 17
+y 17
+end
+arch torch_wall_1
+x 17
+y 17
+end
+arch floor_earth1e
+x 17
+y 18
+end
+arch floor_earth1c
+x 17
+y 19
+end
+arch floor_earth1a
+x 17
+y 20
+end
+arch floor_earth1b
+x 17
+y 21
+end
+arch floor_earth1e
+x 17
+y 22
+end
+arch floor_earth1e
+x 17
+y 23
+end
+arch fwall_sand1a
+x 17
+y 23
+end
+arch floor_earth1b
+x 17
+y 24
+end
+arch floor_earth1d
+x 17
+y 25
+end
+arch floor_earth1d
+x 17
+y 26
+end
+arch floor_earth1d
+x 17
+y 27
+end
+arch floor_earth1c
+x 17
+y 28
+end
+arch floor_earth1e
+x 17
+y 29
+end
+arch fwall_sand1b
+x 17
+y 29
+end
+arch floor_earth1b
+x 17
+y 30
+end
+arch fwall_sand1a
+x 17
+y 30
+end
+arch floor_earth1a
+x 17
+y 31
+end
+arch fwall_sand1b
+x 17
+y 31
+end
+arch floor_earth1c
+x 17
+y 32
+end
+arch fwall_sand1b
+x 17
+y 32
+end
+arch floor_earth1d
+x 17
+y 33
+end
+arch fwall_sand1b
+x 17
+y 33
+end
+arch floor_earth1c
+x 17
+y 34
+end
+arch fwall_sand1b
+x 17
+y 34
+end
+arch floor_earth1c
+x 17
+y 35
+end
+arch fwall_sand1a
+x 17
+y 35
+end
+arch floor_sand_d2
+x 18
+end
+arch fwall_sand1a
+x 18
+end
+arch floor_sand_d2
+x 18
+y 1
+end
+arch floor_sand_d1
+x 18
+y 2
+end
+arch spawn_point
+x 18
+y 2
+arch golem
+name training dummy
+type 83
+speed -2.0
+no_attack 1
+dam 0
+maxhp 5000
+ac 5
+Con 100
+stand_still 1
+end
+end
+arch floor_sand_d1
+x 18
+y 3
+end
+arch floor_sand_d3
+x 18
+y 4
+end
+arch spawn_point
+x 18
+y 4
+arch golem
+name training dummy
+type 83
+speed -2.0
+no_attack 1
+dam 0
+maxhp 5000
+ac 5
+Con 100
+stand_still 1
+end
+end
+arch floor_sand_d1
+x 18
+y 5
+end
+arch floor_sand_d1
+x 18
+y 6
+end
+arch fwall_sand1b
+x 18
+y 6
+end
+arch floor_sand_d4
+x 18
+y 7
+end
+arch fwall_sand1a
+x 18
+y 7
+end
+arch floor_white2c
+x 18
+y 8
+end
+arch floor_white2c
+x 18
+y 9
+end
+arch bank1.111
+direction 7
+x 18
+y 9
+end
+arch light2
+x 18
+y 9
+end
+arch floor_white2c
+x 18
+y 10
+end
+arch floor_white2c
+x 18
+y 11
+end
+arch bank1.111
+direction 7
+x 18
+y 11
+end
+arch light2
+x 18
+y 11
+end
+arch floor_white2c
+x 18
+y 12
+end
+arch floor_white2c
+x 18
+y 13
+end
+arch shrine1.111
+no_pass 1
+x 18
+y 13
+end
+arch floor_sand_d2
+x 18
+y 14
+end
+arch fwall_sand1a
+x 18
+y 14
+end
+arch floor_sand_d4
+x 18
+y 15
+end
+arch fwall_sand1a
+x 18
+y 15
+end
+arch floor_earth1e
+x 18
+y 16
+end
+arch sand_dm10
+x 18
+y 16
+end
+arch floor_earth1a
+x 18
+y 17
+end
+arch floor_earth1c
+x 18
+y 18
+end
+arch floor_earth1d
+x 18
+y 19
+end
+arch floor_earth1e
+x 18
+y 20
+end
+arch light3
+x 18
+y 20
+end
+arch sign
+msg
+~For Real~
+Now you've learned how to fight it is time to try for real. Behind the fence you'll find a bat, kill it to get the key to the gate. Remember you can heal using the minor healing spell provided by the priest. Good luck!
+endmsg
+name sign
+x 18
+y 20
+end
+arch floor_earth1b
+x 18
+y 21
+end
+arch floor_earth1d
+x 18
+y 22
+end
+arch floor_earth1d
+x 18
+y 23
+end
+arch fwall_sand1a
+x 18
+y 23
+end
+arch earth_brown2
+x 18
+y 24
+end
+arch fwall_sand1a
+x 18
+y 24
+end
+arch earth_brown3
+x 18
+y 25
+end
+arch fwall_sand1b
+x 18
+y 25
+end
+arch earth_brown1
+x 18
+y 26
+end
+arch fwall_sand1a
+x 18
+y 26
+end
+arch earth_brown2
+x 18
+y 27
+end
+arch fwall_sand1b
+x 18
+y 27
+end
+arch floor_earth1b
+x 18
+y 28
+end
+arch earth_m13
+x 18
+y 28
+end
+arch torch_wall_1
+x 18
+y 28
+end
+arch earth_brown1
+x 18
+y 29
+end
+arch fwall_sand1a
+x 18
+y 29
+end
+arch floor_sand_d4
+x 19
+end
+arch fwall_sand1a
+x 19
+end
+arch floor_sand_d4
+x 19
+y 1
+end
+arch torch_wall_1
+x 19
+y 1
+end
+arch floor_sand_d1
+x 19
+y 2
+end
+arch floor_sand_d4
+x 19
+y 3
+end
+arch light3
+x 19
+y 3
+end
+arch floor_sand_d2
+x 19
+y 4
+end
+arch floor_sand_d4
+x 19
+y 5
+end
+arch floor_sand_d4
+x 19
+y 6
+end
+arch fwall_sand1b
+x 19
+y 6
+end
+arch floor_white2c
+x 19
+y 7
+end
+arch shrine1.111
+no_pass 1
+x 19
+y 7
+end
+arch floor_white2c
+x 19
+y 8
+end
+arch sign
+msg
+~Prayers and Deities~
+To cast heal spells and other prayers you need contact with a holy force - a higher being called a 'deity' or a powerful artifact like the Tabernacle. Prayers are spells using ~grace~, a special power needed to cast prayers. You get grace by praying to your deity - in the case of the Tabernacle praying is a special form of meditation. Talk to the priest Manard nearby. He will answer when you say "hello". He will also teach you your first prayer.
+endmsg
+name sign
+x 19
+y 8
+end
+arch floor_white2c
+x 19
+y 9
+end
+arch floor_white2c
+x 19
+y 10
+end
+arch floor_white2c
+x 19
+y 11
+end
+arch floor_white2c
+x 19
+y 12
+end
+arch floor_white2c
+x 19
+y 13
+end
+arch door1_locked
+cursed 1
+x 19
+y 13
+end
+arch floor_sand_d3
+x 19
+y 14
+end
+arch floor_sand_d3
+x 19
+y 15
+end
+arch floor_earth1b
+x 19
+y 16
+end
+arch sand_dm19
+x 19
+y 16
+end
+arch floor_earth1e
+x 19
+y 17
+end
+arch sand_dm2
+x 19
+y 17
+end
+arch floor_earth1b
+x 19
+y 18
+end
+arch floor_earth1a
+x 19
+y 19
+end
+arch floor_earth1d
+x 19
+y 20
+end
+arch floor_earth1c
+x 19
+y 21
+end
+arch floor_earth1c
+x 19
+y 22
+end
+arch earth_brown3
+x 19
+y 23
+end
+arch fwall_sand1a
+x 19
+y 23
+end
+arch earth_brown3
+x 19
+y 24
+end
+arch fwall_sand1a
+x 19
+y 24
+end
+arch floor_earth1c
+x 19
+y 25
+end
+arch earth_m18
+x 19
+y 25
+end
+arch floor_earth1d
+x 19
+y 26
+end
+arch earth_m17
+x 19
+y 26
+end
+arch earth_brown4
+x 19
+y 27
+end
+arch fwall_sand1b
+x 19
+y 27
+end
+arch earth_brown2
+x 19
+y 28
+end
+arch earth_brown2
+x 19
+y 29
+end
+arch fwall_sand1a
+x 19
+y 29
+end
+arch floor_sand_d3
+x 20
+end
+arch fwall_sand1b
+x 20
+end
+arch floor_sand_d3
+x 20
+y 1
+end
+arch floor_sand_d2
+x 20
+y 2
+end
+arch floor_sand_d3
+x 20
+y 3
+end
+arch floor_sand_d3
+x 20
+y 4
+end
+arch floor_sand_d3
+x 20
+y 5
+end
+arch floor_sand_d3
+x 20
+y 6
+end
+arch fwall_sand1b
+x 20
+y 6
+end
+arch floor_white2c
+x 20
+y 7
+end
+arch spawn_point
+x 20
+y 7
+arch priest_church
+name church priest Manard
+type 83
+level 20
+friendly 1
+arch event_obj
+sub_type 6
+race /shattered_islands/scripts/tutorial_island/priest.py
+end
+end
+end
+arch floor_white2c
+x 20
+y 8
+end
+arch floor_white2c
+x 20
+y 9
+end
+arch bank1.111
+direction 7
+x 20
+y 9
+end
+arch light2
+x 20
+y 9
+end
+arch floor_white2c
+x 20
+y 10
+end
+arch floor_white2c
+x 20
+y 11
+end
+arch bank1.111
+direction 7
+x 20
+y 11
+end
+arch light2
+x 20
+y 11
+end
+arch floor_white2c
+x 20
+y 12
+end
+arch floor_white2c
+x 20
+y 13
+end
+arch door1_locked
+cursed 1
+direction 7
+x 20
+y 13
+end
+arch floor_sand_d2
+x 20
+y 14
+end
+arch floor_sand_d1
+x 20
+y 15
+end
+arch floor_sand_d3
+x 20
+y 16
+end
+arch floor_earth1e
+x 20
+y 17
+end
+arch sand_dm19
+x 20
+y 17
+end
+arch floor_earth1e
+x 20
+y 18
+end
+arch sand_dm2
+x 20
+y 18
+end
+arch floor_earth1c
+x 20
+y 19
+end
+arch floor_earth1d
+x 20
+y 20
+end
+arch floor_earth1a
+x 20
+y 21
+end
+arch floor_earth1d
+x 20
+y 22
+end
+arch fwall_sand1a
+x 20
+y 22
+end
+arch earth_brown4
+x 20
+y 23
+end
+arch fwall_sand1b
+x 20
+y 23
+end
+arch floor_earth1e
+x 20
+y 24
+end
+arch earth_m18
+x 20
+y 24
+end
+arch floor_earth1c
+x 20
+y 25
+end
+arch candlelight4.101
+glow_radius 5
+type 78
+x 20
+y 25
+end
+arch floor_earth1d
+x 20
+y 26
+end
+arch floor_earth1b
+x 20
+y 27
+end
+arch earth_m17
+x 20
+y 27
+end
+arch earth_brown2
+x 20
+y 28
+end
+arch earth_brown2
+x 20
+y 29
+end
+arch fwall_sand1a
+x 20
+y 29
+end
+arch floor_sand_d3
+x 21
+end
+arch fwall_sand1a
+x 21
+end
+arch floor_sand_d4
+x 21
+y 1
+end
+arch floor_sand_d4
+x 21
+y 2
+end
+arch floor_sand_d1
+x 21
+y 3
+end
+arch floor_sand_d4
+x 21
+y 4
+end
+arch fwall_sand1b
+x 21
+y 4
+end
+arch floor_sand_d2
+x 21
+y 5
+end
+arch fwall_sand1b
+x 21
+y 5
+end
+arch floor_sand_d4
+x 21
+y 6
+end
+arch fwall_sand1b
+x 21
+y 6
+end
+arch floor_white2c
+x 21
+y 7
+end
+arch shrine1.111
+no_pass 1
+x 21
+y 7
+end
+arch floor_white2c
+x 21
+y 8
+end
+arch floor_white2c
+x 21
+y 9
+end
+arch floor_white2c
+x 21
+y 10
+end
+arch floor_white2c
+x 21
+y 11
+end
+arch floor_white2c
+x 21
+y 12
+end
+arch sign
+msg
+~Praying~
+Every prayer needs grace for casting. Every time you cast a prayer, you will lose some of that grace. Without enough grace you can't cast a prayer. To recover grace you have to ~pray~. Hit the 'p' key for 'p'raying.  You will pray until you reach your maximum grace. Be warned: You will stop fighting when you start praying - and moving, fighting and other actions will break praying.
+endmsg
+name sign
+x 21
+y 12
+end
+arch floor_white2c
+x 21
+y 13
+end
+arch shrine1.111
+no_pass 1
+x 21
+y 13
+end
+arch floor_sand_d3
+x 21
+y 14
+end
+arch fwall_sand1a
+x 21
+y 14
+end
+arch floor_sand_d3
+x 21
+y 15
+end
+arch fwall_sand1b
+x 21
+y 15
+end
+arch floor_sand_d1
+x 21
+y 16
+end
+arch fwall_sand1b
+x 21
+y 16
+end
+arch earth_brown2
+x 21
+y 17
+end
+arch fwall_sand1a
+x 21
+y 17
+end
+arch earth_brown3
+x 21
+y 18
+end
+arch fwall_sand1b
+x 21
+y 18
+end
+arch earth_brown4
+x 21
+y 19
+end
+arch fwall_sand1a
+x 21
+y 19
+end
+arch earth_brown2
+x 21
+y 20
+end
+arch fwall_sand1a
+x 21
+y 20
+end
+arch earth_brown2
+x 21
+y 21
+end
+arch fwall_sand1b
+x 21
+y 21
+end
+arch earth_brown2
+x 21
+y 22
+end
+arch fwall_sand1b
+x 21
+y 22
+end
+arch earth_brown4
+x 21
+y 23
+end
+arch fwall_sand1a
+x 21
+y 23
+end
+arch floor_earth1c
+x 21
+y 24
+end
+arch earth_m19
+x 21
+y 24
+end
+arch floor_earth1a
+x 21
+y 25
+end
+arch earth_m8
+x 21
+y 25
+end
+arch floor_earth1a
+x 21
+y 26
+end
+arch floor_earth1d
+x 21
+y 27
+end
+arch earth_m20
+x 21
+y 27
+end
+arch earth_brown4
+x 21
+y 28
+end
+arch earth_brown4
+x 21
+y 29
+end
+arch fwall_sand1b
+x 21
+y 29
+end
+arch floor_sand_d1
+x 22
+end
+arch fwall_sand1b
+x 22
+end
+arch floor_sand_d3
+x 22
+y 1
+end
+arch floor_sand_d2
+x 22
+y 2
+end
+arch sign
+msg
+~Attack the Combat Dummies~
+Now attack one of the combat dummies. Do not fear, it's only a training dummy. It will not fight back or die. Press the 'x' key to target the golem and 'c' to get into combat mode. Move next to the golem and watch the hit messages and the hit numbers over your target's head. Try to play around with 'x' and 'c' key - this is an easy fight but most times you have |a lot| more action.
+endmsg
+name sign
+x 22
+y 2
+end
+arch floor_sand_d3
+x 22
+y 3
+end
+arch floor_sand_d1
+x 22
+y 4
+end
+arch fwall_sand1b
+x 22
+y 4
+end
+arch floor_sand_d4
+x 22
+y 6
+end
+arch fwall_sand1b
+x 22
+y 6
+end
+arch floor_sand_d2
+x 22
+y 7
+end
+arch fwall_sand1b
+x 22
+y 7
+end
+arch floor_white2c
+x 22
+y 8
+end
+arch book
+msg
+<tt="Choosing a Deity">
+If you plan to utilise divine powers you must have the skill Divine Prayers and you must choose a cult of a higher being.
+To become a follower, find a holy altar of your cult, step onto the altar and apply it. The divine spirit inside this altar will touch your soul, attuning your mortal being to your new deity.
+Be warned: if you touch a altar of a enemy deity or of a deity of reverse alignment you will be punished very badly. You might lose Wisdom levels or worse.
+Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
+<tt="Prayers">
+Next you must learn prayers. Guilds, Priests and churches will teach you prayers. There are also rumours about Prayer books lost in ancient tombs ages ago...
+Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause wounds", "bless" or "minor healing".
+<tt="Grace">
+Casting prayers will drain your grace. This can only be replenished by resting. If your maximum grace is too low you should try to increase your Wisdom skill group,
+Never lose faith! Rumours abound of divine prayers of incredible power, and of old and wise priests who have almost reached immortality...
+endmsg
+name The Book of Deities
+no_pick 1
+x 22
+y 8
+end
+arch floor_white2c
+x 22
+y 9
+end
+arch floor_white2c
+x 22
+y 10
+end
+arch altar_tabernacle
+direction 7
+x 22
+y 10
+end
+arch light4
+x 22
+y 10
+end
+arch floor_white2c
+x 22
+y 11
+end
+arch floor_white2c
+x 22
+y 12
+end
+arch floor_white2c
+x 22
+y 13
+end
+arch floor_sand_d1
+x 22
+y 14
+end
+arch fwall_sand1a
+x 22
+y 14
+end
+arch earth_brown2
+x 22
+y 17
+end
+arch fwall_sand1a
+x 22
+y 17
+end
+arch floor_earth1d
+x 22
+y 18
+end
+arch earth_m4
+x 22
+y 18
+end
+arch floor_earth1e
+x 22
+y 19
+end
+arch earth_m2
+x 22
+y 19
+end
+arch floor_earth1d
+x 22
+y 20
+end
+arch earth_m4
+x 22
+y 20
+end
+arch torch_wall_1
+direction 7
+x 22
+y 20
+end
+arch floor_earth1a
+x 22
+y 21
+end
+arch earth_m2
+x 22
+y 21
+end
+arch earth_brown2
+x 22
+y 22
+end
+arch fwall_sand1b
+x 22
+y 22
+end
+arch earth_brown2
+x 22
+y 23
+end
+arch fwall_sand1a
+x 22
+y 23
+end
+arch earth_brown4
+x 22
+y 24
+end
+arch fwall_sand1a
+x 22
+y 24
+end
+arch floor_earth1b
+x 22
+y 25
+end
+arch earth_m21
+x 22
+y 25
+end
+arch ladder_up
+slaying /shattered_islands/tutorial_island/tutorial_0100
+hp 22
+sp 1
+x 22
+y 25
+end
+arch floor_earth1a
+x 22
+y 26
+end
+arch floor_earth1c
+x 22
+y 27
+end
+arch earth_m17
+x 22
+y 27
+end
+arch earth_brown2
+x 22
+y 28
+end
+arch earth_brown1
+x 22
+y 29
+end
+arch fwall_sand1a
+x 22
+y 29
+end
+arch floor_sand_d3
+x 23
+end
+arch fwall_sand1b
+x 23
+end
+arch floor_sand_d4
+x 23
+y 1
+end
+arch floor_sand_d3
+x 23
+y 2
+end
+arch floor_sand_d2
+x 23
+y 3
+end
+arch floor_sand_d1
+x 23
+y 4
+end
+arch fwall_sand1a
+x 23
+y 4
+end
+arch floor_sand_d2
+x 23
+y 7
+end
+arch fwall_sand1a
+x 23
+y 7
+end
+arch floor_white2c
+x 23
+y 8
+end
+arch pillar_white1c
+x 23
+y 8
+end
+arch floor_white2c
+x 23
+y 9
+end
+arch floor_white2c
+x 23
+y 10
+end
+arch floor_white2c
+x 23
+y 11
+end
+arch floor_white2c
+x 23
+y 12
+end
+arch floor_white2c
+x 23
+y 13
+end
+arch pillar_white1c
+x 23
+y 13
+end
+arch fwall_sand1a
+x 23
+y 14
+end
+arch earth_brown2
+x 23
+y 17
+end
+arch fwall_sand1a
+x 23
+y 17
+end
+arch floor_earth1e
+x 23
+y 18
+end
+arch earth_m1
+x 23
+y 18
+end
+arch floor_earth1c
+x 23
+y 19
+end
+arch earth_m8
+x 23
+y 19
+end
+arch ladder_up
+slaying /shattered_islands/tutorial_island/tutorial_0101
+hp 23
+sp 19
+x 23
+y 19
+end
+arch floor_earth1c
+x 23
+y 20
+end
+arch floor_earth1d
+x 23
+y 21
+end
+arch earth_m2
+x 23
+y 21
+end
+arch earth_brown2
+x 23
+y 22
+end
+arch earth_brown1
+x 23
+y 23
+end
+arch grate_closed
+x 23
+y 23
+end
+arch floor_earth1b
+x 23
+y 24
+end
+arch earth_m18
+x 23
+y 24
+end
+arch floor_earth1a
+x 23
+y 25
+end
+arch earth_m7
+x 23
+y 25
+end
+arch floor_earth1a
+x 23
+y 26
+end
+arch sign
+msg
+~Tutorial Cave~
+This is the end of the tutorial cave. Climb the ladder to go back to the surface of Tutorial Island and continue your adventure. Or enter the portal to get to the other side of the grates and explore the tutorial cave again. Next time you enter Atrinik as a new person, you may ask Alex (the ship captain) to ~skip tutorial~.
+endmsg
+name sign
+x 23
+y 26
+end
+arch floor_earth1e
+x 23
+y 27
+end
+arch earth_m15
+x 23
+y 27
+end
+arch earth_brown4
+x 23
+y 28
+end
+arch earth_brown4
+x 23
+y 29
+end
+arch fwall_sand1b
+x 23
+y 29
+end
+arch earth_brown1
+x 23
+y 30
+end
+arch fwall_sand1a
+x 23
+y 30
+end
+arch floor_sand_d2
+x 24
+end
+arch fwall_sand1b
+x 24
+end
+arch floor_sand_d1
+x 24
+y 1
+end
+arch torch_wall_1
+x 24
+y 1
+end
+arch floor_sand_d2
+x 24
+y 2
+end
+arch sign
+msg
+~Skills and Experience~
+You not only have a weapon, you also have a weapon skill. Press F10 or click the skill button for the skill list. When you kill an enemy you will |only| gain experience in the skill you do the final hit with! Under the protection table you will see the currently used skill. It is automatically updated depending on your actions. You will see ~action timer~ there as well. When using a skill, your action timer will gain a number of seconds before you can use the skill again. It will count down to zero, by which time you can use the skill again.
+endmsg
+name sign
+x 24
+y 2
+end
+arch floor_sand_d3
+x 24
+y 3
+end
+arch floor_sand_d4
+x 24
+y 4
+end
+arch fwall_sand1b
+x 24
+y 4
+end
+arch floor_sand_d3
+x 24
+y 5
+end
+arch fwall_sand1b
+x 24
+y 5
+end
+arch floor_sand_d3
+x 24
+y 7
+end
+arch fwall_sand1a
+x 24
+y 7
+end
+arch floor_sand_d4
+x 24
+y 8
+end
+arch fwall_sand1a
+x 24
+y 8
+end
+arch floor_sand_d4
+x 24
+y 9
+end
+arch fwall_sand1a
+x 24
+y 9
+end
+arch floor_sand_d3
+x 24
+y 10
+end
+arch fwall_sand1a
+x 24
+y 10
+end
+arch floor_sand_d2
+x 24
+y 11
+end
+arch fwall_sand1b
+x 24
+y 11
+end
+arch floor_sand_d2
+x 24
+y 12
+end
+arch fwall_sand1a
+x 24
+y 12
+end
+arch floor_sand_d4
+x 24
+y 13
+end
+arch fwall_sand1b
+x 24
+y 13
+end
+arch fwall_sand1b
+x 24
+y 14
+end
+arch earth_brown4
+x 24
+y 16
+end
+arch fwall_sand1a
+x 24
+y 16
+end
+arch earth_brown2
+x 24
+y 17
+end
+arch fwall_sand1b
+x 24
+y 17
+end
+arch earth_brown2
+x 24
+y 18
+end
+arch fwall_sand1b
+x 24
+y 18
+end
+arch floor_earth1c
+x 24
+y 19
+end
+arch earth_m4
+x 24
+y 19
+end
+arch sign
+msg
+~Unique maps~
+The surface of the island is a regular multiplayer map, you can see and talk to other players there. This cave is a unique map, this means only you may access it. Normally only apartment maps are unique to each player because this is a multiplayer game.
+endmsg
+name sign
+x 24
+y 19
+end
+arch floor_earth1d
+x 24
+y 20
+end
+arch floor_earth1c
+x 24
+y 21
+end
+arch earth_m17
+x 24
+y 21
+end
+arch earth_brown3
+x 24
+y 22
+end
+arch earth_brown1
+x 24
+y 23
+end
+arch grate_closed
+x 24
+y 23
+end
+arch floor_earth1b
+x 24
+y 24
+end
+arch earth_m10
+x 24
+y 24
+end
+arch floor_earth1e
+x 24
+y 25
+end
+arch exit
+name portal
+slaying /shattered_islands/tutorial_island/tutorial-a
+hp 24
+sp 21
+last_eat 1
+x 24
+y 25
+end
+arch floor_earth1c
+x 24
+y 26
+end
+arch floor_earth1e
+x 24
+y 27
+end
+arch floor_earth1b
+x 24
+y 28
+end
+arch earth_m17
+x 24
+y 28
+end
+arch earth_brown4
+x 24
+y 29
+end
+arch earth_brown4
+x 24
+y 30
+end
+arch fwall_sand1b
+x 24
+y 30
+end
+arch floor_sand_d4
+x 25
+end
+arch fwall_sand1b
+x 25
+end
+arch floor_sand_d4
+x 25
+y 1
+end
+arch floor_sand_d3
+x 25
+y 2
+end
+arch floor_sand_d3
+x 25
+y 3
+end
+arch floor_sand_d3
+x 25
+y 4
+end
+arch torch_wall_1
+direction 7
+x 25
+y 4
+end
+arch floor_sand_d3
+x 25
+y 5
+end
+arch wall_wood2_1
+x 25
+y 5
+end
+arch floor_sand_d1
+x 25
+y 6
+end
+arch wall_wood1_3
+x 25
+y 6
+end
+arch floor_sand_d1
+x 25
+y 7
+end
+arch wall_wood3_3
+x 25
+y 7
+end
+arch floor_sand_d4
+x 25
+y 8
+end
+arch wall_wood1_3
+x 25
+y 8
+end
+arch floor_sand_d4
+x 25
+y 9
+end
+arch wall_wood2_3
+x 25
+y 9
+end
+arch floor_sand_d4
+x 25
+y 10
+end
+arch wall_wood2_3
+x 25
+y 10
+end
+arch floor_sand_d2
+x 25
+y 11
+end
+arch wall_wood3_3
+x 25
+y 11
+end
+arch floor_sand_d2
+x 25
+y 12
+end
+arch wall_wood1_3
+x 25
+y 12
+end
+arch floor_sand_d2
+x 25
+y 13
+end
+arch wall_wood3_3
+x 25
+y 13
+end
+arch floor_sand_d1
+x 25
+y 14
+end
+arch wall_wood2_3
+x 25
+y 14
+end
+arch earth_brown2
+x 25
+y 16
+end
+arch fwall_sand1b
+x 25
+y 16
+end
+arch floor_earth1b
+x 25
+y 17
+end
+arch earth_m2
+x 25
+y 17
+end
+arch floor_earth1b
+x 25
+y 18
+end
+arch earth_m3
+x 25
+y 18
+end
+arch floor_earth1b
+x 25
+y 19
+end
+arch earth_m1
+x 25
+y 19
+end
+arch floor_earth1c
+x 25
+y 20
+end
+arch floor_earth1b
+x 25
+y 21
+end
+arch earth_m11
+x 25
+y 21
+end
+arch earth_brown1
+x 25
+y 22
+end
+arch earth_brown3
+x 25
+y 23
+end
+arch grate_closed
+x 25
+y 23
+end
+arch floor_earth1a
+x 25
+y 24
+end
+arch earth_m19
+x 25
+y 24
+end
+arch floor_earth1e
+x 25
+y 25
+end
+arch floor_earth1e
+x 25
+y 26
+end
+arch earth_m8
+x 25
+y 26
+end
+arch floor_earth1b
+x 25
+y 27
+end
+arch floor_earth1c
+x 25
+y 28
+end
+arch earth_m15
+x 25
+y 28
+end
+arch earth_brown1
+x 25
+y 29
+end
+arch earth_brown3
+x 25
+y 30
+end
+arch fwall_sand1b
+x 25
+y 30
+end
+arch floor_sand_d2
+x 26
+end
+arch fwall_sand1a
+x 26
+end
+arch floor_sand_d2
+x 26
+y 1
+end
+arch floor_sand_d1
+x 26
+y 2
+end
+arch sign
+msg
+~How to Fight~
+You have visited Twitriel, the weapon master, you now have a weapon in your hand. To fight with it you need two things: A target and to be in combat mode. Target with the 'x' key, and change from ~defensive~ to ~combat~ mode with the 'c' key. When you press 'c' the shield symbol in front of the target name area will change to two crossed swords. Pressing 'c' again will change back to ~safe~. You don't have to press 'c' before every attack.
+endmsg
+name sign
+x 26
+y 2
+end
+arch floor_sand_d3
+x 26
+y 3
+end
+arch floor_sand_d3
+x 26
+y 4
+end
+arch floor_sand_d2
+x 26
+y 5
+end
+arch wall_wood2_1
+x 26
+y 5
+end
+arch floor_wood2_l2
+x 26
+y 6
+end
+arch floor_wood2_l1
+x 26
+y 7
+end
+arch floor_wood2_l1
+x 26
+y 8
+end
+arch candlelight1.101
+glow_radius 5
+type 78
+x 26
+y 8
+end
+arch floor_wood2_l2
+x 26
+y 9
+end
+arch spawn_point
+x 26
+y 9
+arch jelly_blue
+type 83
+level 4
+invulnerable 1
+no_attack 1
+stand_still 1
+end
+end
+arch floor_wood2_l1
+x 26
+y 10
+end
+arch spawn_point
+x 26
+y 10
+arch blob_acid
+type 83
+level 3
+invulnerable 1
+no_attack 1
+stand_still 1
+end
+end
+arch floor_wood2_l2
+x 26
+y 11
+end
+arch spawn_point
+x 26
+y 11
+arch pudding_red
+type 83
+level 2
+invulnerable 1
+no_attack 1
+stand_still 1
+end
+end
+arch floor_wood2_l2
+x 26
+y 12
+end
+arch floor_wood2_l2
+x 26
+y 13
+end
+arch spawn_point
+x 26
+y 13
+arch ogre
+type 83
+invulnerable 1
+no_attack 1
+stand_still 1
+direction 3
+end
+end
+arch floor_wood2_l2
+x 26
+y 14
+end
+arch wall_wood3_1
+x 26
+y 14
+end
+arch earth_brown3
+x 26
+y 16
+end
+arch fwall_sand1a
+x 26
+y 16
+end
+arch earth_brown2
+x 26
+y 17
+end
+arch floor_earth1c
+x 26
+y 18
+end
+arch earth_m18
+x 26
+y 18
+end
+arch sign
+msg
+~Other Inventory Command~
+There are some more commands for objects. With 'm', which stands for ~mark~, you can mark an object. Some NPCs might want a marked object when they do an action, for example identifying a single object. With 'l', which stands for ~lock~ you can lock an item in your inventory. You cannot drop a locked item unless you first unlock it by pressing the 'l' key again. This is useful for making sure you don't accidentally drop your important items.
+endmsg
+name sign
+x 26
+y 18
+end
+arch floor_earth1c
+x 26
+y 19
+end
+arch earth_m18
+x 26
+y 19
+end
+arch floor_earth1d
+x 26
+y 20
+end
+arch floor_earth1d
+x 26
+y 21
+end
+arch earth_m20
+x 26
+y 21
+end
+arch earth_brown4
+x 26
+y 22
+end
+arch earth_brown3
+x 26
+y 23
+end
+arch fwall_sand1b
+x 26
+y 23
+end
+arch earth_brown2
+x 26
+y 24
+end
+arch fwall_sand1a
+x 26
+y 24
+end
+arch earth_brown4
+x 26
+y 25
+end
+arch floor_earth1e
+x 26
+y 26
+end
+arch earth_m19
+x 26
+y 26
+end
+arch floor_earth1a
+x 26
+y 27
+end
+arch floor_earth1c
+x 26
+y 28
+end
+arch earth_m20
+x 26
+y 28
+end
+arch candlelight4.101
+glow_radius 5
+type 78
+x 26
+y 28
+end
+arch earth_brown3
+x 26
+y 29
+end
+arch earth_brown3
+x 26
+y 30
+end
+arch fwall_sand1a
+x 26
+y 30
+end
+arch floor_sand_d3
+x 27
+end
+arch fwall_sand1b
+x 27
+end
+arch floor_sand_d2
+x 27
+y 1
+end
+arch fwall_sand1a
+x 27
+y 1
+end
+arch floor_sand_d3
+x 27
+y 2
+end
+arch floor_sand_d1
+x 27
+y 3
+end
+arch floor_sand_d1
+x 27
+y 4
+end
+arch floor_sand_d3
+x 27
+y 5
+end
+arch door_wood2
+x 27
+y 5
+end
+arch floor_wood2_l2
+x 27
+y 6
+end
+arch light2
+x 27
+y 6
+end
+arch floor_wood2_l1
+x 27
+y 7
+end
+arch sign
+msg
+~Corpses~
+Corpses appear when you have killed an enemy. They are used like ~containers~ and will hold the loot - all the items your enemy carried when killed. If there is your name on the corpse ("bounty of yourname"), only |you| can access the corpse - no one else. People will not be able to steal your loot from your kills.
+endmsg
+name sign
+x 27
+y 7
+end
+arch floor_wood2_l2
+x 27
+y 8
+end
+arch floor_wood2_l2
+x 27
+y 9
+end
+arch floor_wood2_l1
+x 27
+y 10
+end
+arch floor_wood2_l2
+x 27
+y 11
+end
+arch floor_wood2_l1
+x 27
+y 12
+end
+arch light3
+x 27
+y 12
+end
+arch floor_wood2_l1
+x 27
+y 13
+end
+arch floor_wood2_l2
+x 27
+y 14
+end
+arch wall_wood3_1
+x 27
+y 14
+end
+arch earth_brown4
+x 27
+y 15
+end
+arch fwall_sand1b
+x 27
+y 15
+end
+arch earth_brown4
+x 27
+y 16
+end
+arch fwall_sand1a
+x 27
+y 16
+end
+arch floor_earth1d
+x 27
+y 17
+end
+arch earth_m18
+x 27
+y 17
+end
+arch torch_wall_1
+x 27
+y 17
+end
+arch floor_earth1e
+x 27
+y 18
+end
+arch earth_m7
+x 27
+y 18
+end
+arch floor_earth1d
+x 27
+y 19
+end
+arch floor_earth1d
+x 27
+y 20
+end
+arch earth_m11
+x 27
+y 20
+end
+arch earth_brown4
+x 27
+y 21
+end
+arch earth_brown1
+x 27
+y 22
+end
+arch earth_brown2
+x 27
+y 23
+end
+arch fwall_sand1b
+x 27
+y 23
+end
+arch earth_brown1
+x 27
+y 24
+end
+arch fwall_sand1b
+x 27
+y 24
+end
+arch earth_brown3
+x 27
+y 25
+end
+arch earth_brown2
+x 27
+y 26
+end
+arch earth_brown3
+x 27
+y 27
+end
+arch earth_brown4
+x 27
+y 28
+end
+arch earth_brown3
+x 27
+y 29
+end
+arch earth_brown1
+x 27
+y 30
+end
+arch fwall_sand1b
+x 27
+y 30
+end
+arch floor_sand_d3
+x 28
+y 1
+end
+arch fwall_sand1b
+x 28
+y 1
+end
+arch floor_sand_d2
+x 28
+y 2
+end
+arch fwall_sand1a
+x 28
+y 2
+end
+arch floor_sand_d1
+x 28
+y 3
+end
+arch wall_wood1_3
+x 28
+y 3
+end
+arch floor_sand_d3
+x 28
+y 4
+end
+arch wall_wood2_3
+x 28
+y 4
+end
+arch floor_sand_d4
+x 28
+y 5
+end
+arch wall_wood_4
+x 28
+y 5
+end
+arch floor_wood2_l2
+x 28
+y 6
+end
+arch floor_wood2_l1
+x 28
+y 7
+end
+arch corpse_human
+name decaying corpse
+speed 0.0
+x 28
+y 7
+arch coppercoin
+nrof 5
+end
+end
+arch floor_wood2_l2
+x 28
+y 8
+end
+arch floor_wood2_l1
+x 28
+y 9
+end
+arch candlelight4.101
+glow_radius 7
+type 78
+x 28
+y 9
+end
+arch floor_wood2_l1
+x 28
+y 10
+end
+arch floor_wood2_l2
+x 28
+y 11
+end
+arch floor_wood2_l2
+x 28
+y 12
+end
+arch floor_wood2_l2
+x 28
+y 13
+end
+arch spawn_point
+x 28
+y 13
+arch slime
+type 83
+level 0
+invulnerable 1
+no_attack 1
+stand_still 1
+end
+end
+arch floor_wood2_l1
+x 28
+y 14
+end
+arch wall_wood3_1
+x 28
+y 14
+end
+arch earth_brown2
+x 28
+y 15
+end
+arch fwall_sand1b
+x 28
+y 15
+end
+arch earth_brown4
+x 28
+y 16
+end
+arch t_boulder
+no_pick 1
+x 28
+y 16
+end
+arch floor_earth1b
+x 28
+y 17
+end
+arch earth_m14
+x 28
+y 17
+end
+arch floor_earth1c
+x 28
+y 18
+end
+arch sign
+msg
+~The Apply Command~
+As shown before, the apply command will 'use' an object. Food is eaten, levers are pulled and weapons wielded. Remember that some items can't be applied. You will get a message normally but sometimes not. Some items must be picked up first - they can't be applied when they are on the floor. Other items will act differently when applied on the floor. You will get a message then explaining what's going on.
+endmsg
+name sign
+x 28
+y 18
+end
+arch floor_earth1c
+x 28
+y 19
+end
+arch earth_brown1
+x 28
+y 20
+end
+arch earth_brown4
+x 28
+y 21
+end
+arch earth_brown1
+x 28
+y 22
+end
+arch fwall_sand1a
+x 28
+y 22
+end
+arch earth_brown1
+x 28
+y 23
+end
+arch fwall_sand1a
+x 28
+y 23
+end
+arch earth_brown2
+x 28
+y 24
+end
+arch fwall_sand1b
+x 28
+y 24
+end
+arch earth_brown1
+x 28
+y 25
+end
+arch fwall_sand1b
+x 28
+y 25
+end
+arch earth_brown1
+x 28
+y 26
+end
+arch fwall_sand1a
+x 28
+y 26
+end
+arch earth_brown4
+x 28
+y 27
+end
+arch earth_brown1
+x 28
+y 28
+end
+arch earth_brown1
+x 28
+y 29
+end
+arch earth_brown4
+x 28
+y 30
+end
+arch fwall_sand1b
+x 28
+y 30
+end
+arch floor_sand_d3
+x 29
+y 5
+end
+arch wall_wood2_1
+x 29
+y 5
+end
+arch floor_wood2_l2
+x 29
+y 6
+end
+arch floor_wood2_l2
+x 29
+y 7
+end
+arch floor_wood2_l1
+x 29
+y 8
+end
+arch floor_wood2_l2
+x 29
+y 9
+end
+arch floor_wood2_l1
+x 29
+y 10
+end
+arch floor_wood2_l1
+x 29
+y 11
+end
+arch floor_wood2_l1
+x 29
+y 12
+end
+arch floor_wood2_l2
+x 29
+y 13
+end
+arch floor_wood2_l1
+x 29
+y 14
+end
+arch wall_wood2_1
+x 29
+y 14
+end
+arch earth_brown4
+x 29
+y 15
+end
+arch fwall_sand1a
+x 29
+y 15
+end
+arch earth_brown4
+x 29
+y 16
+end
+arch t_boulder
+no_pick 1
+identified 1
+x 29
+y 16
+end
+arch floor_earth1c
+x 29
+y 17
+end
+arch earth_m19
+x 29
+y 17
+end
+arch floor_earth1a
+x 29
+y 18
+end
+arch sign
+msg
+~The Examine Command~
+By selecting an object in the below or inventory windows (cursor keys) you can get a full description of it by pressing the 'e' (examine) key. You will get all information about the item, but only if it is identified. Try it on the 2 boulders nearby. One is identified, the other not. Most items you will find are unidentified. The 'identify' spell or a 'scroll of identify' can be used or a helpful NPC can be asked to identify the items.
+endmsg
+name sign
+x 29
+y 18
+end
+arch floor_earth1a
+x 29
+y 19
+end
+arch floor_earth1e
+x 29
+y 20
+end
+arch earth_m17
+x 29
+y 20
+end
+arch earth_brown2
+x 29
+y 21
+end
+arch earth_brown4
+x 29
+y 22
+end
+arch wall_stone_1
+x 29
+y 22
+end
+arch earth_brown4
+x 29
+y 23
+end
+arch earth_brown3
+x 29
+y 24
+end
+arch earth_brown4
+x 29
+y 25
+end
+arch earth_brown4
+x 29
+y 26
+end
+arch fwall_sand1a
+x 29
+y 26
+end
+arch earth_brown3
+x 29
+y 27
+end
+arch fwall_sand1b
+x 29
+y 27
+end
+arch earth_brown4
+x 29
+y 28
+end
+arch fwall_sand1a
+x 29
+y 28
+end
+arch earth_brown4
+x 29
+y 29
+end
+arch fwall_sand1b
+x 29
+y 29
+end
+arch earth_brown3
+x 29
+y 30
+end
+arch fwall_sand1a
+x 29
+y 30
+end
+arch earth_brown2
+x 29
+y 31
+end
+arch fwall_sand1a
+x 29
+y 31
+end
+arch earth_brown1
+x 29
+y 32
+end
+arch fwall_sand1a
+x 29
+y 32
+end
+arch earth_brown3
+x 29
+y 33
+end
+arch fwall_sand1a
+x 29
+y 33
+end
+arch floor_sand_d1
+x 30
+y 5
+end
+arch wall_wood2_1
+x 30
+y 5
+end
+arch floor_wood2_l1
+x 30
+y 6
+end
+arch candlelight4.101
+glow_radius 4
+type 78
+x 30
+y 6
+end
+arch floor_wood2_l1
+x 30
+y 7
+end
+arch floor_wood2_l1
+x 30
+y 8
+end
+arch floor_wood2_l1
+x 30
+y 9
+end
+arch floor_wood2_l2
+x 30
+y 10
+end
+arch floor_wood2_l2
+x 30
+y 11
+end
+arch floor_wood2_l2
+x 30
+y 12
+end
+arch floor_wood2_l1
+x 30
+y 13
+end
+arch candlelight1.101
+glow_radius 4
+type 78
+x 30
+y 13
+end
+arch floor_wood2_l2
+x 30
+y 14
+end
+arch wall_wood1_1
+x 30
+y 14
+end
+arch earth_brown3
+x 30
+y 15
+end
+arch fwall_sand1a
+x 30
+y 15
+end
+arch earth_brown2
+x 30
+y 16
+end
+arch earth_brown4
+x 30
+y 17
+end
+arch floor_earth1e
+x 30
+y 18
+end
+arch earth_m19
+x 30
+y 18
+end
+arch sign
+msg
+~The Get And Drop Commands~
+As described before the 'g' key will get items from below and put them in your inventory. Remember to open the inventory by holding ~shift~ key. To ~drop~ items from your inventory below your feet, you have to use the 'd' (drop) key. It works like the get command but in the other direction. One-drop items will ~vanish~ forever when dropped, so be careful!
+endmsg
+name sign
+x 30
+y 18
+end
+arch floor_earth1b
+x 30
+y 19
+end
+arch earth_m8
+x 30
+y 19
+end
+arch floor_earth1c
+x 30
+y 20
+end
+arch floor_earth1d
+x 30
+y 21
+end
+arch earth_m12
+x 30
+y 21
+end
+arch floor_earth1a
+x 30
+y 22
+end
+arch earth_m16
+x 30
+y 22
+end
+arch wall_stone_1
+x 30
+y 22
+end
+arch floor_earth1c
+x 30
+y 23
+end
+arch earth_m16
+x 30
+y 23
+end
+arch floor_earth1d
+x 30
+y 24
+end
+arch earth_m17
+x 30
+y 24
+end
+arch earth_brown4
+x 30
+y 25
+end
+arch earth_brown2
+x 30
+y 26
+end
+arch earth_brown2
+x 30
+y 27
+end
+arch earth_brown2
+x 30
+y 28
+end
+arch earth_brown4
+x 30
+y 29
+end
+arch earth_brown2
+x 30
+y 30
+end
+arch earth_brown2
+x 30
+y 31
+end
+arch earth_brown4
+x 30
+y 32
+end
+arch earth_brown4
+x 30
+y 33
+end
+arch fwall_sand1a
+x 30
+y 33
+end
+arch earth_brown3
+x 30
+y 34
+end
+arch fwall_sand1a
+x 30
+y 34
+end
+arch earth_brown4
+x 30
+y 35
+end
+arch fwall_sand1b
+x 30
+y 35
+end
+arch earth_brown3
+x 30
+y 36
+end
+arch fwall_sand1a
+x 30
+y 36
+end
+arch earth_brown4
+x 30
+y 37
+end
+arch fwall_sand1a
+x 30
+y 37
+end
+arch earth_brown3
+x 30
+y 38
+end
+arch fwall_sand1a
+x 30
+y 38
+end
+arch earth_brown2
+x 30
+y 39
+end
+arch fwall_sand1b
+x 30
+y 39
+end
+arch floor_sand_d4
+x 31
+y 5
+end
+arch wall_wood3_1
+x 31
+y 5
+end
+arch floor_wood2_l1
+x 31
+y 6
+end
+arch spawn_point
+x 31
+y 6
+arch ant_soldier
+invulnerable 1
+no_attack 1
+hp 5
+maxhp 400
+stand_still 1
+type 83
+end
+end
+arch floor_wood2_l1
+x 31
+y 7
+end
+arch sign
+msg
+~Hit Points and Levels~
+Every creature has an amount of hit points (short: HP). If the hit points drop to zero, the creature or player will die. The green line inside the target marker shows the current hit points of that creature in %. A full line means 100% hp, half a line 50%. If you target the two ants you will see that the black one is nearly dead and the red has only 67% left. Some monsters can have different level and hp! Always look for the target color, or the level 75 ant with 10000 hp will ruin your day.
+endmsg
+name sign
+x 31
+y 7
+end
+arch floor_wood2_l1
+x 31
+y 8
+end
+arch light2
+x 31
+y 8
+end
+arch floor_wood2_l1
+x 31
+y 9
+end
+arch floor_wood2_l2
+x 31
+y 10
+end
+arch light2
+x 31
+y 10
+end
+arch floor_wood2_l2
+x 31
+y 11
+end
+arch sign
+msg
+~Con Color Overview~
+Grey:      Very easy, but |no| loot and |no| experience.
+Green:     Easy and little experience.
+Blue:      Normal difficulty, average experience.
+Yellow:    Equal to your level, optimal experience.
+Orange:    Difficult to kill, but possible and good experience.
+Red:       Very difficult to kill, not very likely, great experience
+Purple:    Too difficult to kill, but awesome experience.
+Use 'x' to target the monsters again to see what the con color system really looks like.
+endmsg
+name sign
+x 31
+y 11
+end
+arch floor_wood2_l2
+x 31
+y 12
+end
+arch sign
+msg
+~The Con Color System~
+Con'ing (short: 'con') means considering whether you are able to be victorious over your target when you fight it. The color of your target's name in the target area will show you the general chances of it. There are 7 colors starting from "Too low to get experience" to "Too strong to kill even in your dreams". Remember: It's only a ~consider~. Some monsters have special powers and that is not considered. You'll find an overview on the next sign.
+endmsg
+name sign
+x 31
+y 12
+end
+arch floor_wood2_l2
+x 31
+y 13
+end
+arch sign
+msg
+~Monsters and Targets~
+Here you see some of your enemies. They are called monsters or mobs. Don't fear, they won't attack. You can target the monsters by pressing the ~x~ key. Pressing the ~x~ key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press ~x~ now! After you target something its name is shown on the bottom of the screen, in the target box. The color of the name has a special meaning - read about it on the next sign.
+endmsg
+name sign
+x 31
+y 13
+end
+arch floor_wood2_l2
+x 31
+y 14
+end
+arch wall_wood2_1
+x 31
+y 14
+end
+arch earth_brown3
+x 31
+y 15
+end
+arch fwall_sand1b
+x 31
+y 15
+end
+arch earth_brown3
+x 31
+y 16
+end
+arch fwall_sand1b
+x 31
+y 16
+end
+arch earth_brown1
+x 31
+y 17
+end
+arch coppercoin
+nrof 4
+x 31
+y 17
+end
+arch earth_brown3
+x 31
+y 18
+end
+arch sign
+msg
+~Object Stacks~
+If there are mutiple objects of the same kind, they can build ~stacks~. Not all objects can build stacks. Coins for example can build stacks. There is a stack of 4 copper coins in front of this sign. Get them with the 'g'et command. You will then be asked in a small window how many of the 4 coins you want to get. Pressing return or 'g' again will get all. You can also enter a number getting only a part of the stack. Items not picked up will stay on the floor.
+endmsg
+name sign
+x 31
+y 18
+end
+arch floor_earth1a
+x 31
+y 19
+end
+arch earth_m19
+x 31
+y 19
+end
+arch floor_earth1b
+x 31
+y 20
+end
+arch floor_earth1c
+x 31
+y 21
+end
+arch floor_earth1b
+x 31
+y 22
+end
+arch wall_stone_1
+x 31
+y 22
+end
+arch floor_earth1c
+x 31
+y 23
+end
+arch torch_wall_1
+x 31
+y 23
+end
+arch floor_earth1d
+x 31
+y 24
+end
+arch floor_earth1e
+x 31
+y 25
+end
+arch earth_m12
+x 31
+y 25
+end
+arch wall_stone_1
+x 31
+y 25
+end
+arch floor_earth1a
+x 31
+y 26
+end
+arch earth_m17
+x 31
+y 26
+end
+arch earth_brown4
+x 31
+y 27
+end
+arch floor_earth1e
+x 31
+y 28
+end
+arch earth_m18
+x 31
+y 28
+end
+arch wall_stone_1
+x 31
+y 28
+end
+arch floor_earth1a
+x 31
+y 29
+end
+arch earth_m16
+x 31
+y 29
+end
+arch floor_earth1a
+x 31
+y 30
+end
+arch earth_m16
+x 31
+y 30
+end
+arch floor_earth1c
+x 31
+y 31
+end
+arch earth_m17
+x 31
+y 31
+end
+arch wall_stone_1
+x 31
+y 31
+end
+arch earth_brown4
+x 31
+y 32
+end
+arch earth_brown3
+x 31
+y 33
+end
+arch earth_brown4
+x 31
+y 34
+end
+arch sign
+msg
+~Containers~
+Containers can be used to store other objects inside. You can only have ~one~ open container at any time - if you open another, the first one will close automatically. To open a container like this chest, move to it and 'a'pply it. It will open and you will see all items inside. Select the item you want and 'g'et it with 'g' key. To put an item inside, just 'd'rop it. The shelf and locker on the wall are also containers, and you will find many more in the game. Get the throwing daggers from the chest as well. Throwing and range system will be explained soon.
+endmsg
+name sign
+x 31
+y 34
+end
+arch earth_brown1
+x 31
+y 35
+end
+arch chest_sw_1
+direction 5
+x 31
+y 35
+arch food_generic
+end
+arch coppercoin
+end
+arch t_dagger
+nrof 3
+identified 1
+end
+end
+arch earth_brown1
+x 31
+y 36
+end
+arch earth_brown2
+x 31
+y 37
+end
+arch torch_wall_1
+direction 7
+x 31
+y 37
+end
+arch earth_brown2
+x 31
+y 38
+end
+arch earth_brown2
+x 31
+y 39
+end
+arch fwall_sand1b
+x 31
+y 39
+end
+arch floor_sand_d1
+x 32
+y 5
+end
+arch wall_wood3_1
+x 32
+y 5
+end
+arch floor_wood2_l2
+x 32
+y 6
+end
+arch spawn_point
+x 32
+y 6
+arch ant_red
+invulnerable 1
+no_attack 1
+hp 70
+maxhp 400
+stand_still 1
+type 83
+end
+end
+arch floor_wood2_l1
+x 32
+y 7
+end
+arch floor_wood2_l1
+x 32
+y 8
+end
+arch floor_wood2_l2
+x 32
+y 9
+end
+arch floor_wood2_l1
+x 32
+y 10
+end
+arch floor_wood2_l1
+x 32
+y 11
+end
+arch floor_wood2_l2
+x 32
+y 12
+end
+arch floor_wood2_l2
+x 32
+y 13
+end
+arch floor_wood2_l2
+x 32
+y 14
+end
+arch wall_wood2_1
+x 32
+y 14
+end
+arch floor_earth1b
+x 32
+y 15
+end
+arch fwall_sand1a
+x 32
+y 15
+end
+arch earth_brown2
+x 32
+y 16
+end
+arch fwall_sand1a
+x 32
+y 16
+end
+arch earth_brown2
+x 32
+y 17
+end
+arch torch_wall_1
+x 32
+y 17
+end
+arch earth_brown4
+x 32
+y 18
+end
+arch earth_brown2
+x 32
+y 19
+end
+arch floor_earth1a
+x 32
+y 20
+end
+arch earth_m19
+x 32
+y 20
+end
+arch sign
+msg
+~Doors~
+You open doors by moving into them. They will open if they are not locked by a key. After some time they will close automatically. If the door needs a key, you will get a message.
+endmsg
+name sign
+x 32
+y 20
+end
+arch floor_earth1a
+x 32
+y 21
+end
+arch earth_m13
+x 32
+y 21
+end
+arch floor_earth1d
+x 32
+y 22
+end
+arch door1_locked
+x 32
+y 22
+end
+arch floor_earth1a
+x 32
+y 23
+end
+arch floor_earth1b
+x 32
+y 24
+end
+arch floor_earth1d
+x 32
+y 25
+end
+arch curtain1
+x 32
+y 25
+end
+arch floor_earth1b
+x 32
+y 26
+end
+arch floor_earth1c
+x 32
+y 27
+end
+arch earth_m16
+x 32
+y 27
+end
+arch floor_earth1a
+x 32
+y 28
+end
+arch door_wood2
+x 32
+y 28
+end
+arch floor_earth1b
+x 32
+y 29
+end
+arch floor_earth1c
+x 32
+y 30
+end
+arch floor_earth1b
+x 32
+y 31
+end
+arch earth_m6
+x 32
+y 31
+end
+arch door1_locked
+slaying locked
+x 32
+y 31
+end
+arch floor_earth1d
+x 32
+y 32
+end
+arch earth_m12
+x 32
+y 32
+end
+arch floor_earth1c
+x 32
+y 33
+end
+arch earth_m17
+x 32
+y 33
+end
+arch floor_earth1a
+x 32
+y 34
+end
+arch earth_m18
+x 32
+y 34
+end
+arch floor_earth1e
+x 32
+y 35
+end
+arch earth_m12
+x 32
+y 35
+end
+arch floor_earth1e
+x 32
+y 36
+end
+arch earth_m17
+x 32
+y 36
+end
+arch earth_brown1
+x 32
+y 37
+end
+arch earth_brown3
+x 32
+y 38
+end
+arch earth_brown4
+x 32
+y 39
+end
+arch fwall_sand1a
+x 32
+y 39
+end
+arch earth_brown1
+x 32
+y 40
+end
+arch fwall_sand1a
+x 32
+y 40
+end
+arch earth_brown4
+x 32
+y 41
+end
+arch fwall_sand1a
+x 32
+y 41
+end
+arch earth_brown4
+x 32
+y 42
+end
+arch fwall_sand1b
+x 32
+y 42
+end
+arch floor_sand_d4
+x 33
+y 5
+end
+arch wall_wood2_1
+x 33
+y 5
+end
+arch floor_wood2_l1
+x 33
+y 6
+end
+arch wall_wood3_3
+x 33
+y 6
+end
+arch floor_wood2_l2
+x 33
+y 7
+end
+arch wall_wood3_3
+x 33
+y 7
+end
+arch floor_wood2_l1
+x 33
+y 8
+end
+arch wall_wood2_3
+x 33
+y 8
+end
+arch floor_wood2_l1
+x 33
+y 9
+end
+arch wall_wood3_3
+x 33
+y 9
+end
+arch floor_wood2_l2
+x 33
+y 10
+end
+arch wall_wood3_3
+x 33
+y 10
+end
+arch floor_wood2_l2
+x 33
+y 11
+end
+arch wall_wood3_3
+x 33
+y 11
+end
+arch floor_wood2_l2
+x 33
+y 12
+end
+arch wall_wood3_3
+x 33
+y 12
+end
+arch floor_wood2_l2
+x 33
+y 13
+end
+arch floor_wood2_l1
+x 33
+y 14
+end
+arch wall_wood2_1
+x 33
+y 14
+end
+arch earth_brown1
+x 33
+y 16
+end
+arch fwall_sand1a
+x 33
+y 16
+end
+arch earth_brown4
+x 33
+y 17
+end
+arch fwall_sand1a
+x 33
+y 17
+end
+arch earth_brown1
+x 33
+y 18
+end
+arch earth_brown2
+x 33
+y 19
+end
+arch earth_brown2
+x 33
+y 20
+end
+arch earth_brown1
+x 33
+y 21
+end
+arch floor_earth1d
+x 33
+y 22
+end
+arch earth_m19
+x 33
+y 22
+end
+arch wall_stone_1
+x 33
+y 22
+end
+arch floor_earth1d
+x 33
+y 23
+end
+arch earth_m9
+x 33
+y 23
+end
+arch floor_earth1e
+x 33
+y 24
+end
+arch earth_m9
+x 33
+y 24
+end
+arch sign
+msg
+~Fog Of War~
+Some objects like walls and solid doors will block your ~line of sight~ (LOS). You can't see what's behind them. But for some time you will remember the structure of an area where you have recently been. That area is shown in a dark blue color. Note that your memory will vanish for areas you haven't visited for a while or if you visit other areas.
+endmsg
+name sign
+layer 0
+sys_object 1
+x 33
+y 24
+end
+arch floor_earth1c
+x 33
+y 25
+end
+arch wall_stone_1
+x 33
+y 25
+end
+arch floor_earth1b
+x 33
+y 26
+end
+arch floor_earth1c
+x 33
+y 27
+end
+arch floor_earth1a
+x 33
+y 28
+end
+arch wall_stone_1
+x 33
+y 28
+end
+arch floor_earth1c
+x 33
+y 29
+end
+arch torch_wall_1
+x 33
+y 29
+end
+arch floor_earth1c
+x 33
+y 30
+end
+arch floor_earth1e
+x 33
+y 31
+end
+arch wall_stone_1
+x 33
+y 31
+end
+arch floor_earth1a
+x 33
+y 32
+end
+arch floor_earth1e
+x 33
+y 33
+end
+arch floor_earth1b
+x 33
+y 34
+end
+arch floor_earth1d
+x 33
+y 35
+end
+arch floor_earth1a
+x 33
+y 36
+end
+arch earth_m6
+x 33
+y 36
+end
+arch floor_earth1e
+x 33
+y 37
+end
+arch earth_m17
+x 33
+y 37
+end
+arch sign
+msg
+~Containers for your inventory~
+Some containers like this sack can be picked up and carried in your inventory, but their usage is different: To open the container, you must apply it two times. The first apply will ~ready~ it. If you now pick up an item, the item will be automatically stored in your readied container. That's very useful to collect arrows in a quiver, for example. A second apply will open the container and let you move things in and out of it with the 'g' key.
+endmsg
+name sign
+x 33
+y 37
+end
+arch earth_brown2
+x 33
+y 38
+end
+arch sack
+value 1
+identified 1
+x 33
+y 38
+end
+arch earth_brown4
+x 33
+y 39
+end
+arch earth_brown4
+x 33
+y 40
+end
+arch shelf1_wall.111
+direction 7
+x 33
+y 40
+arch coppercoin
+end
+end
+arch earth_brown4
+x 33
+y 41
+end
+arch locker2.111
+direction 7
+x 33
+y 41
+arch coppercoin
+end
+end
+arch earth_brown4
+x 33
+y 42
+end
+arch fwall_sand1b
+x 33
+y 42
+end
+arch earth_brown1
+x 33
+y 43
+end
+arch fwall_sand1a
+x 33
+y 43
+end
+arch earth_brown4
+x 33
+y 44
+end
+arch fwall_sand1b
+x 33
+y 44
+end
+arch floor_earth1c
+x 34
+y 7
+end
+arch wall_stone5_8
+x 34
+y 7
+end
+arch floor_earth1a
+x 34
+y 8
+end
+arch wall_stone6_3
+x 34
+y 8
+end
+arch floor_earth1b
+x 34
+y 9
+end
+arch wall_stone6_3
+x 34
+y 9
+end
+arch floor_earth1a
+x 34
+y 10
+end
+arch wall_stone6_3
+x 34
+y 10
+end
+arch floor_earth1d
+x 34
+y 11
+end
+arch wall_stone6_3
+x 34
+y 11
+end
+arch floor_earth1e
+x 34
+y 12
+end
+arch wall_stone6_4
+x 34
+y 12
+end
+arch floor_wood2_l2
+x 34
+y 13
+end
+arch door1_locked
+direction 5
+slaying tutorial_weapons_master
+x 34
+y 13
+end
+arch floor_wood2_l2
+x 34
+y 14
+end
+arch wall_stone6_4
+x 34
+y 14
+end
+arch floor_earth1e
+x 34
+y 15
+end
+arch wall_stone6_3
+x 34
+y 15
+end
+arch earth_brown3
+x 34
+y 17
+end
+arch fwall_sand1b
+x 34
+y 17
+end
+arch earth_brown1
+x 34
+y 18
+end
+arch fwall_sand1b
+x 34
+y 18
+end
+arch earth_brown2
+x 34
+y 19
+end
+arch fwall_sand1b
+x 34
+y 19
+end
+arch earth_brown4
+x 34
+y 20
+end
+arch fwall_sand1b
+x 34
+y 20
+end
+arch earth_brown1
+x 34
+y 21
+end
+arch earth_brown1
+x 34
+y 22
+end
+arch wall_stone_1
+x 34
+y 22
+end
+arch earth_brown4
+x 34
+y 23
+end
+arch earth_brown2
+x 34
+y 24
+end
+arch floor_earth1c
+x 34
+y 25
+end
+arch earth_m19
+x 34
+y 25
+end
+arch floor_earth1b
+x 34
+y 26
+end
+arch earth_m9
+x 34
+y 26
+end
+arch floor_earth1e
+x 34
+y 27
+end
+arch earth_m8
+x 34
+y 27
+end
+arch floor_earth1c
+x 34
+y 28
+end
+arch earth_m5
+x 34
+y 28
+end
+arch floor_earth1a
+x 34
+y 29
+end
+arch earth_m20
+x 34
+y 29
+end
+arch floor_earth1c
+x 34
+y 30
+end
+arch earth_m19
+x 34
+y 30
+end
+arch floor_earth1d
+x 34
+y 31
+end
+arch earth_m8
+x 34
+y 31
+end
+arch floor_earth1c
+x 34
+y 32
+end
+arch floor_earth1a
+x 34
+y 33
+end
+arch floor_earth1a
+x 34
+y 34
+end
+arch floor_earth1a
+x 34
+y 35
+end
+arch floor_earth1e
+x 34
+y 36
+end
+arch floor_earth1c
+x 34
+y 37
+end
+arch earth_m6
+x 34
+y 37
+end
+arch floor_earth1a
+x 34
+y 38
+end
+arch earth_m12
+x 34
+y 38
+end
+arch floor_earth1d
+x 34
+y 39
+end
+arch earth_m16
+x 34
+y 39
+end
+arch floor_earth1c
+x 34
+y 40
+end
+arch earth_m17
+x 34
+y 40
+end
+arch earth_brown4
+x 34
+y 41
+end
+arch earth_brown2
+x 34
+y 42
+end
+arch torch_wall_1
+direction 7
+x 34
+y 42
+end
+arch earth_brown1
+x 34
+y 43
+end
+arch earth_brown1
+x 34
+y 44
+end
+arch fwall_sand1a
+x 34
+y 44
+end
+arch earth_brown2
+x 34
+y 45
+end
+arch fwall_sand1a
+x 34
+y 45
+end
+arch floor_earth1b
+x 35
+y 7
+end
+arch wall_stone6_1
+x 35
+y 7
+end
+arch floor_ostone11
+x 35
+y 8
+end
+arch axe_double
+name double axe (cleave weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 35
+y 8
+end
+arch floor_ostone11
+x 35
+y 9
+end
+arch light3
+x 35
+y 9
+end
+arch longsword
+name longsword (slash weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 35
+y 9
+end
+arch floor_ostone11
+x 35
+y 10
+end
+arch spawn_point
+x 35
+y 10
+arch smith
+name Twitriel, the weapon master
+direction 3
+level 10
+friendly 1
+behavior 0
+type 83
+arch event_obj
+sub_type 6
+race /shattered_islands/scripts/tutorial_island/weapons_master.py
+end
+end
+end
+arch floor_ostone11
+x 35
+y 11
+end
+arch light3
+x 35
+y 11
+end
+arch degen
+name degen (pierce weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 35
+y 11
+end
+arch floor_ostone11
+x 35
+y 12
+end
+arch mace_spiked
+name spiked mace (impact weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 35
+y 12
+end
+arch floor_ostone11
+x 35
+y 13
+end
+arch floor_ostone11
+x 35
+y 14
+end
+arch light3
+x 35
+y 14
+end
+arch sign
+msg
+~Weapons~
+You can't take the weapons there on the floor, they are only examples. But you will eventually find them and *a lot* more weapons of every imaginable kind later in the game. Impact and slash weapons are most common in the game. Pierce weapons are more exotic and you will not find that many in the game but because most protection focus more on impact, slash and cleave, they will become more dangerous at higher levels. Cleave weapons (for example axes) are also dangerous. When you don't wield a weapon, you will resort to punching.
+endmsg
+name sign
+x 35
+y 14
+end
+arch floor_ostone11
+x 35
+y 15
+end
+arch wall_stone6_1
+x 35
+y 15
+end
+arch floor_earth1e
+x 35
+y 16
+end
+arch wall_wood_8
+x 35
+y 16
+end
+arch floor_earth1d
+x 35
+y 17
+end
+arch wall_wood3_3
+x 35
+y 17
+end
+arch floor_earth1c
+x 35
+y 18
+end
+arch wall_wood2_3
+x 35
+y 18
+end
+arch floor_earth1e
+x 35
+y 19
+end
+arch wall_wood3_3
+x 35
+y 19
+end
+arch earth_brown2
+x 35
+y 20
+end
+arch fwall_sand1a
+x 35
+y 20
+end
+arch earth_brown3
+x 35
+y 21
+end
+arch fwall_sand1b
+x 35
+y 21
+end
+arch earth_brown4
+x 35
+y 22
+end
+arch fwall_sand1b
+x 35
+y 22
+end
+arch earth_brown3
+x 35
+y 23
+end
+arch fwall_sand1a
+x 35
+y 23
+end
+arch earth_brown1
+x 35
+y 24
+end
+arch earth_brown3
+x 35
+y 25
+end
+arch earth_brown1
+x 35
+y 26
+end
+arch earth_brown1
+x 35
+y 27
+end
+arch earth_brown1
+x 35
+y 28
+end
+arch earth_brown2
+x 35
+y 29
+end
+arch earth_brown2
+x 35
+y 30
+end
+arch floor_earth1a
+x 35
+y 31
+end
+arch earth_m19
+x 35
+y 31
+end
+arch floor_earth1b
+x 35
+y 32
+end
+arch earth_m20
+x 35
+y 32
+end
+arch floor_earth1b
+x 35
+y 33
+end
+arch earth_m19
+x 35
+y 33
+end
+arch floor_earth1d
+x 35
+y 34
+end
+arch earth_m9
+x 35
+y 34
+end
+arch floor_earth1b
+x 35
+y 35
+end
+arch earth_m20
+x 35
+y 35
+end
+arch floor_earth1e
+x 35
+y 36
+end
+arch earth_m8
+x 35
+y 36
+end
+arch floor_earth1d
+x 35
+y 37
+end
+arch floor_earth1c
+x 35
+y 38
+end
+arch floor_earth1b
+x 35
+y 39
+end
+arch floor_earth1b
+x 35
+y 40
+end
+arch earth_m6
+x 35
+y 40
+end
+arch floor_earth1c
+x 35
+y 41
+end
+arch earth_m17
+x 35
+y 41
+end
+arch earth_brown3
+x 35
+y 42
+end
+arch plant_flower6
+x 35
+y 42
+end
+arch earth_brown4
+x 35
+y 43
+end
+arch earth_brown1
+x 35
+y 44
+end
+arch earth_brown4
+x 35
+y 45
+end
+arch fwall_sand1a
+x 35
+y 45
+end
+arch floor_earth1e
+x 36
+y 7
+end
+arch wall_stone6_1
+x 36
+y 7
+end
+arch floor_ostone11
+x 36
+y 8
+end
+arch floor_ostone11
+x 36
+y 9
+end
+arch floor_ostone11
+x 36
+y 10
+end
+arch carpet1.131
+x 36
+y 10
+end
+arch floor_ostone11
+x 36
+y 11
+end
+arch carpet1.131
+x 36
+y 11
+end
+arch floor_ostone11
+x 36
+y 12
+end
+arch carpet1.131
+x 36
+y 12
+end
+arch floor_ostone11
+x 36
+y 13
+end
+arch floor_ostone11
+x 36
+y 14
+end
+arch floor_ostone11
+x 36
+y 15
+end
+arch wall_stone6_1
+x 36
+y 15
+end
+arch floor_wood2_l1
+x 36
+y 16
+end
+arch wall_wood3_1
+x 36
+y 16
+end
+arch floor_wood2_l2
+x 36
+y 17
+end
+arch floor_wood2_l1
+x 36
+y 18
+end
+arch floor_wood2_l1
+x 36
+y 19
+end
+arch wall_wood3_1
+x 36
+y 19
+end
+arch earth_brown2
+x 36
+y 21
+end
+arch fwall_sand1a
+x 36
+y 21
+end
+arch water_md3
+x 36
+y 22
+end
+arch rock_big2_waterfall
+x 36
+y 22
+end
+arch earth_brown1
+x 36
+y 23
+end
+arch fwall_sand1b
+x 36
+y 23
+end
+arch earth_brown2
+x 36
+y 24
+end
+arch fwall_sand1a
+x 36
+y 24
+end
+arch earth_brown3
+x 36
+y 25
+end
+arch fwall_sand1b
+x 36
+y 25
+end
+arch earth_brown2
+x 36
+y 26
+end
+arch fwall_sand1b
+x 36
+y 26
+end
+arch earth_brown4
+x 36
+y 27
+end
+arch fwall_sand1b
+x 36
+y 27
+end
+arch earth_brown1
+x 36
+y 28
+end
+arch fwall_sand1b
+x 36
+y 28
+end
+arch earth_brown4
+x 36
+y 29
+end
+arch fwall_sand1a
+x 36
+y 29
+end
+arch earth_brown3
+x 36
+y 30
+end
+arch earth_brown3
+x 36
+y 31
+end
+arch earth_brown2
+x 36
+y 32
+end
+arch earth_brown2
+x 36
+y 33
+end
+arch earth_brown1
+x 36
+y 34
+end
+arch earth_brown1
+x 36
+y 35
+end
+arch floor_earth1a
+x 36
+y 36
+end
+arch earth_m19
+x 36
+y 36
+end
+arch floor_earth1c
+x 36
+y 37
+end
+arch earth_m8
+x 36
+y 37
+end
+arch floor_earth1c
+x 36
+y 38
+end
+arch floor_earth1c
+x 36
+y 39
+end
+arch floor_earth1d
+x 36
+y 40
+end
+arch floor_earth1e
+x 36
+y 41
+end
+arch floor_earth1b
+x 36
+y 42
+end
+arch earth_m2
+x 36
+y 42
+end
+arch earth_brown1
+x 36
+y 43
+end
+arch earth_brown2
+x 36
+y 44
+end
+arch earth_brown2
+x 36
+y 45
+end
+arch fwall_sand1b
+x 36
+y 45
+end
+arch earth_brown1
+x 36
+y 46
+end
+arch fwall_sand1b
+x 36
+y 46
+end
+arch floor_earth1d
+x 37
+y 7
+end
+arch wall_stone6_1
+x 37
+y 7
+end
+arch floor_ostone11
+x 37
+y 8
+end
+arch floor_ostone11
+x 37
+y 9
+end
+arch carpet1.151
+x 37
+y 9
+end
+arch floor_ostone11
+x 37
+y 10
+end
+arch carpet1
+x 37
+y 10
+end
+arch floor_ostone11
+x 37
+y 11
+end
+arch carpet1
+x 37
+y 11
+end
+arch floor_ostone11
+x 37
+y 12
+end
+arch carpet1
+x 37
+y 12
+end
+arch floor_ostone11
+x 37
+y 13
+end
+arch carpet1.111
+x 37
+y 13
+end
+arch floor_ostone11
+x 37
+y 14
+end
+arch floor_ostone11
+x 37
+y 15
+end
+arch wall_stone6_1
+x 37
+y 15
+end
+arch floor_wood2_l1
+x 37
+y 16
+end
+arch wall_wood2_1
+x 37
+y 16
+end
+arch floor_wood2_l2
+x 37
+y 17
+end
+arch floor_wood2_l1
+x 37
+y 18
+end
+arch floor_wood2_l2
+x 37
+y 19
+end
+arch wall_wood2_1
+x 37
+y 19
+end
+arch earth_brown3
+x 37
+y 20
+end
+arch fwall_sand1a
+x 37
+y 20
+end
+arch water_md
+x 37
+y 21
+end
+arch rock_big2_waterfall2
+x 37
+y 21
+end
+arch water_md3
+x 37
+y 22
+end
+arch plant11
+x 37
+y 22
+end
+arch water_md2
+x 37
+y 23
+end
+arch plant3
+x 37
+y 23
+end
+arch water_md
+x 37
+y 24
+end
+arch plant3
+x 37
+y 24
+end
+arch water_md
+x 37
+y 25
+end
+arch plant2
+x 37
+y 25
+end
+arch water_md4
+x 37
+y 26
+end
+arch plant7
+x 37
+y 26
+end
+arch water_md
+x 37
+y 27
+end
+arch plant_flower4
+x 37
+y 27
+end
+arch water_md2
+x 37
+y 28
+end
+arch plant7
+x 37
+y 28
+end
+arch earth_brown4
+x 37
+y 29
+end
+arch fwall_sand1a
+x 37
+y 29
+end
+arch earth_brown1
+x 37
+y 30
+end
+arch fwall_sand1a
+x 37
+y 30
+end
+arch earth_brown3
+x 37
+y 31
+end
+arch fwall_sand1b
+x 37
+y 31
+end
+arch earth_brown3
+x 37
+y 32
+end
+arch fwall_sand1a
+x 37
+y 32
+end
+arch earth_brown4
+x 37
+y 33
+end
+arch fwall_sand1b
+x 37
+y 33
+end
+arch earth_brown1
+x 37
+y 34
+end
+arch fwall_sand1b
+x 37
+y 34
+end
+arch earth_brown3
+x 37
+y 35
+end
+arch fwall_sand1b
+x 37
+y 35
+end
+arch earth_brown3
+x 37
+y 36
+end
+arch floor_earth1b
+x 37
+y 37
+end
+arch earth_m10
+x 37
+y 37
+end
+arch floor_earth1d
+x 37
+y 38
+end
+arch sign
+msg
+~Light Sources and Darkness~
+Some areas are darker than others. In outdoor areas you might get surprised by nightfall, and some dungeons can be completely dark. To have a light, get this torch. Apply the torch ~two~ times. The first apply will light the torch. The light is hidden until the second apply which will put the torch in your hand. You will see it appear on your player doll, if you have it open.
+endmsg
+name sign
+x 37
+y 38
+end
+arch floor_earth1c
+x 37
+y 39
+end
+arch torch
+x 37
+y 39
+end
+arch floor_earth1b
+x 37
+y 40
+end
+arch floor_earth1b
+x 37
+y 41
+end
+arch floor_earth1c
+x 37
+y 42
+end
+arch floor_earth1b
+x 37
+y 43
+end
+arch earth_m17
+x 37
+y 43
+end
+arch earth_brown1
+x 37
+y 44
+end
+arch plant_flower2
+x 37
+y 44
+end
+arch earth_brown2
+x 37
+y 45
+end
+arch earth_brown2
+x 37
+y 46
+end
+arch fwall_sand1a
+x 37
+y 46
+end
+arch floor_earth1e
+x 38
+y 7
+end
+arch wall_stone6_1
+x 38
+y 7
+end
+arch floor_ostone11
+x 38
+y 8
+end
+arch floor_ostone11
+x 38
+y 9
+end
+arch carpet1.151
+x 38
+y 9
+end
+arch floor_ostone11
+x 38
+y 10
+end
+arch carpet1
+x 38
+y 10
+end
+arch floor_ostone11
+x 38
+y 11
+end
+arch carpet1
+x 38
+y 11
+end
+arch candlelight4.101
+glow_radius 9
+type 78
+x 38
+y 11
+end
+arch floor_ostone11
+x 38
+y 12
+end
+arch carpet1
+x 38
+y 12
+end
+arch floor_ostone11
+x 38
+y 13
+end
+arch carpet1.111
+x 38
+y 13
+end
+arch floor_ostone11
+x 38
+y 14
+end
+arch floor_ostone11
+x 38
+y 15
+end
+arch wall_stone6_1
+x 38
+y 15
+end
+arch floor_earth1b
+x 38
+y 16
+end
+arch wall_wood1_1
+x 38
+y 16
+end
+arch floor_wood2_l1
+x 38
+y 17
+end
+arch floor_wood2_l1
+x 38
+y 18
+end
+arch floor_wood2_l2
+x 38
+y 19
+end
+arch wall_wood3_1
+x 38
+y 19
+end
+arch earth_brown3
+x 38
+y 20
+end
+arch fwall_sand1b
+x 38
+y 20
+end
+arch water_md2
+x 38
+y 21
+end
+arch water_md4
+x 38
+y 22
+end
+arch plant_flower4
+x 38
+y 22
+end
+arch water_md3
+x 38
+y 23
+end
+arch plant11
+x 38
+y 23
+end
+arch water_md3
+x 38
+y 24
+end
+arch plant8
+x 38
+y 24
+end
+arch water_md3
+x 38
+y 25
+end
+arch plant_flower10
+x 38
+y 25
+end
+arch water_md3
+x 38
+y 26
+end
+arch plant7
+x 38
+y 26
+end
+arch water_md4
+x 38
+y 27
+end
+arch plant7
+x 38
+y 27
+end
+arch water_md3
+x 38
+y 28
+end
+arch plant3
+x 38
+y 28
+end
+arch water_md2
+x 38
+y 29
+end
+arch plant8
+x 38
+y 29
+end
+arch water_md4
+x 38
+y 30
+end
+arch plant9
+x 38
+y 30
+end
+arch water_md3
+x 38
+y 31
+end
+arch plant2
+x 38
+y 31
+end
+arch water_md
+x 38
+y 32
+end
+arch plant_flower10
+x 38
+y 32
+end
+arch water_md
+x 38
+y 33
+end
+arch plant8
+x 38
+y 33
+end
+arch water_md2
+x 38
+y 34
+end
+arch plant_flower4
+x 38
+y 34
+end
+arch earth_brown2
+x 38
+y 35
+end
+arch fwall_sand1a
+x 38
+y 35
+end
+arch earth_brown2
+x 38
+y 36
+end
+arch fwall_sand1a
+x 38
+y 36
+end
+arch floor_earth1a
+x 38
+y 37
+end
+arch earth_m19
+x 38
+y 37
+end
+arch floor_earth1b
+x 38
+y 38
+end
+arch floor_earth1a
+x 38
+y 39
+end
+arch floor_earth1c
+x 38
+y 40
+end
+arch floor_earth1b
+x 38
+y 41
+end
+arch light2
+glow_radius -2
+x 38
+y 41
+end
+arch floor_earth1c
+x 38
+y 42
+end
+arch earth_m5
+x 38
+y 42
+end
+arch floor_earth1e
+x 38
+y 43
+end
+arch earth_m3
+x 38
+y 43
+end
+arch light1
+glow_radius -1
+x 38
+y 43
+end
+arch earth_brown1
+x 38
+y 44
+end
+arch earth_brown4
+x 38
+y 45
+end
+arch water_md_m
+direction 4
+x 38
+y 45
+end
+arch earth_brown4
+x 38
+y 46
+end
+arch fwall_sand1a
+x 38
+y 46
+end
+arch floor_earth1c
+x 39
+y 7
+end
+arch wall_stone6_1
+x 39
+y 7
+end
+arch floor_ostone11
+x 39
+y 8
+end
+arch light3
+x 39
+y 8
+end
+arch splint_mail
+no_pick 1
+identified 1
+x 39
+y 8
+end
+arch floor_ostone11
+x 39
+y 9
+end
+arch carpet1.151
+x 39
+y 9
+end
+arch floor_ostone11
+x 39
+y 10
+end
+arch carpet1
+x 39
+y 10
+end
+arch floor_ostone11
+x 39
+y 11
+end
+arch carpet1
+x 39
+y 11
+end
+arch floor_ostone11
+x 39
+y 12
+end
+arch carpet1
+x 39
+y 12
+end
+arch floor_ostone11
+x 39
+y 13
+end
+arch carpet1.111
+x 39
+y 13
+end
+arch floor_ostone11
+x 39
+y 14
+end
+arch floor_ostone11
+x 39
+y 15
+end
+arch wall_stone6_1
+x 39
+y 15
+end
+arch floor_earth1d
+x 39
+y 16
+end
+arch wall_wood3_1
+x 39
+y 16
+end
+arch floor_wood2_l2
+x 39
+y 17
+end
+arch wall_wood3_3
+x 39
+y 17
+end
+arch floor_wood2_l2
+x 39
+y 18
+end
+arch door_wood2
+direction 7
+x 39
+y 18
+end
+arch floor_wood2_l1
+x 39
+y 19
+end
+arch wall_wood_4
+x 39
+y 19
+end
+arch earth_brown1
+x 39
+y 20
+end
+arch fwall_sand1a
+x 39
+y 20
+end
+arch earth_brown4
+x 39
+y 21
+end
+arch fwall_sand1a
+x 39
+y 21
+end
+arch earth_brown3
+x 39
+y 22
+end
+arch fwall_sand1a
+x 39
+y 22
+end
+arch earth_brown2
+x 39
+y 23
+end
+arch fwall_sand1b
+x 39
+y 23
+end
+arch earth_brown2
+x 39
+y 24
+end
+arch fwall_sand1a
+x 39
+y 24
+end
+arch water_md
+x 39
+y 25
+end
+arch plant11
+x 39
+y 25
+end
+arch water_md
+x 39
+y 26
+end
+arch plant11
+x 39
+y 26
+end
+arch water_md3
+x 39
+y 27
+end
+arch plant5
+x 39
+y 27
+end
+arch water_md2
+x 39
+y 28
+end
+arch plant5
+x 39
+y 28
+end
+arch earth_brown1
+x 39
+y 29
+end
+arch water_md5_m
+direction 8
+x 39
+y 29
+end
+arch earth_brown3
+x 39
+y 30
+end
+arch water_md5_m
+direction 6
+x 39
+y 30
+end
+arch earth_brown1
+x 39
+y 31
+end
+arch water_md3_m
+direction 7
+x 39
+y 31
+end
+arch water_md3
+x 39
+y 32
+end
+arch plant11
+x 39
+y 32
+end
+arch water_md4
+x 39
+y 33
+end
+arch plant13
+x 39
+y 33
+end
+arch water_md
+x 39
+y 34
+end
+arch plant13
+x 39
+y 34
+end
+arch earth_brown3
+x 39
+y 35
+end
+arch fwall_sand1b
+x 39
+y 35
+end
+arch earth_brown2
+x 39
+y 36
+end
+arch fwall_sand1b
+x 39
+y 36
+end
+arch floor_earth1b
+x 39
+y 37
+end
+arch earth_m18
+x 39
+y 37
+end
+arch floor_earth1a
+x 39
+y 38
+end
+arch floor_earth1a
+x 39
+y 39
+end
+arch floor_earth1d
+x 39
+y 40
+end
+arch floor_earth1e
+x 39
+y 41
+end
+arch floor_earth1d
+x 39
+y 42
+end
+arch earth_m6
+x 39
+y 42
+end
+arch floor_earth1a
+x 39
+y 43
+end
+arch earth_m2
+x 39
+y 43
+end
+arch earth_brown1
+x 39
+y 44
+end
+arch plant_flower5
+x 39
+y 44
+end
+arch earth_brown4
+x 39
+y 45
+end
+arch water_md5_m
+direction 5
+x 39
+y 45
+end
+arch earth_brown3
+x 39
+y 46
+end
+arch fwall_sand1a
+x 39
+y 46
+end
+arch earth_brown1
+x 39
+y 47
+end
+arch fwall_sand1b
+x 39
+y 47
+end
+arch floor_earth1c
+x 40
+y 7
+end
+arch wall_stone6_1
+x 40
+y 7
+end
+arch floor_ostone11
+x 40
+y 8
+end
+arch helm_war
+no_pick 1
+identified 1
+x 40
+y 8
+end
+arch floor_ostone11
+x 40
+y 9
+end
+arch floor_ostone11
+x 40
+y 10
+end
+arch carpet1.171
+x 40
+y 10
+end
+arch floor_ostone11
+x 40
+y 11
+end
+arch carpet1.171
+x 40
+y 11
+end
+arch floor_ostone11
+x 40
+y 12
+end
+arch carpet1.171
+x 40
+y 12
+end
+arch floor_ostone11
+x 40
+y 13
+end
+arch floor_ostone11
+x 40
+y 14
+end
+arch floor_ostone11
+x 40
+y 15
+end
+arch wall_stone6_1
+x 40
+y 15
+end
+arch blocked
+x 40
+y 16
+end
+arch wall_wood2_1
+x 40
+y 16
+end
+arch floor_wood2_l2
+x 40
+y 17
+end
+arch candlelight2.101
+glow_radius 4
+type 78
+x 40
+y 17
+end
+arch floor_wood2_l1
+x 40
+y 18
+end
+arch floor_wood2_l1
+x 40
+y 19
+end
+arch wall_wood1_1
+x 40
+y 19
+end
+arch floor_earth1d
+x 40
+y 20
+end
+arch wall_wood2_3
+x 40
+y 20
+end
+arch floor_earth1c
+x 40
+y 21
+end
+arch wall_wood1_3
+x 40
+y 21
+end
+arch floor_earth1a
+x 40
+y 22
+end
+arch wall_wood2_3
+x 40
+y 22
+end
+arch floor_earth1e
+x 40
+y 23
+end
+arch wall_wood1_3
+x 40
+y 23
+end
+arch earth_brown4
+x 40
+y 24
+end
+arch fwall_sand1a
+x 40
+y 24
+end
+arch earth_brown4
+x 40
+y 25
+end
+arch fwall_sand1b
+x 40
+y 25
+end
+arch earth_brown2
+x 40
+y 26
+end
+arch fwall_sand1b
+x 40
+y 26
+end
+arch earth_brown2
+x 40
+y 27
+end
+arch fwall_sand1a
+x 40
+y 27
+end
+arch earth_brown1
+x 40
+y 28
+end
+arch fwall_sand1b
+x 40
+y 28
+end
+arch floor_earth1c
+x 40
+y 29
+end
+arch earth_m2
+x 40
+y 29
+end
+arch floor_earth1c
+x 40
+y 30
+end
+arch earth_m4
+x 40
+y 30
+end
+arch floor_earth1c
+x 40
+y 31
+end
+arch earth_m2
+x 40
+y 31
+end
+arch earth_brown1
+x 40
+y 32
+end
+arch earth_brown2
+x 40
+y 33
+end
+arch fwall_sand1b
+x 40
+y 33
+end
+arch earth_brown1
+x 40
+y 34
+end
+arch fwall_sand1b
+x 40
+y 34
+end
+arch earth_brown2
+x 40
+y 35
+end
+arch fwall_sand1b
+x 40
+y 35
+end
+arch floor_earth1c
+x 40
+y 36
+end
+arch earth_m18
+x 40
+y 36
+end
+arch floor_earth1c
+x 40
+y 37
+end
+arch earth_m7
+x 40
+y 37
+end
+arch floor_earth1b
+x 40
+y 38
+end
+arch floor_earth1c
+x 40
+y 39
+end
+arch light2
+glow_radius -2
+x 40
+y 39
+end
+arch floor_earth1b
+x 40
+y 40
+end
+arch floor_earth1a
+x 40
+y 41
+end
+arch sign
+msg
+It is not very dark here. Dark caves and dark nights are much darker! Never go out without a light source. A lamp or a magic lamp will give more light than a torch. Also, magic powers like xray-vision or infravision will enhance your vision.
+endmsg
+name sign
+x 40
+y 41
+end
+arch light1
+glow_radius -1
+x 40
+y 41
+end
+arch floor_earth1d
+x 40
+y 42
+end
+arch floor_earth1c
+x 40
+y 43
+end
+arch earth_m11
+x 40
+y 43
+end
+arch light2
+glow_radius -2
+x 40
+y 43
+end
+arch earth_brown3
+x 40
+y 44
+end
+arch water_md2_m
+direction 4
+x 40
+y 44
+end
+arch plant_flower1
+x 40
+y 44
+end
+arch earth_brown1
+x 40
+y 45
+end
+arch water_md5_m
+direction 4
+x 40
+y 45
+end
+arch water_plant3
+x 40
+y 45
+end
+arch water_md3
+x 40
+y 46
+end
+arch plant11
+x 40
+y 46
+end
+arch earth_brown4
+x 40
+y 47
+end
+arch fwall_sand1b
+x 40
+y 47
+end
+arch floor_earth1e
+x 41
+y 7
+end
+arch wall_stone6_1
+x 41
+y 7
+end
+arch floor_ostone11
+x 41
+y 8
+end
+arch light3
+x 41
+y 8
+end
+arch sign
+msg
+~Armour and Protection~
+If you open your inventory you will see the armour you got from the start. There are various kinds of armour: body armours, helmets and more. Most of them give you ~protection~ against one or more ~attack types~ - for example slash or cleave. If you apply the armour a message will say how much it protects - you can also see your current protection status in the armour protection table. The values tell how many percent of a hit your armour will absorb.
+endmsg
+name sign
+x 41
+y 8
+end
+arch floor_ostone11
+x 41
+y 9
+end
+arch floor_ostone11
+x 41
+y 10
+end
+arch floor_ostone11
+x 41
+y 11
+end
+arch floor_ostone11
+x 41
+y 12
+end
+arch floor_ostone11
+x 41
+y 13
+end
+arch floor_ostone11
+x 41
+y 14
+end
+arch floor_ostone11
+x 41
+y 15
+end
+arch wall_stone6_1
+x 41
+y 15
+end
+arch floor_earth1a
+x 41
+y 16
+end
+arch wall_wood1_1
+x 41
+y 16
+end
+arch floor_wood2_l2
+x 41
+y 17
+end
+arch floor_wood2_l2
+x 41
+y 18
+end
+arch spawn_point
+x 41
+y 18
+arch monk
+msg
+@match roger
+You have said ~roger~ to me.
+Many people in the game have hidden keywords
+which you must find out. Sometimes you have
+to listen carefully, other times you have to read
+a hint somewhere else.
+@match hint
+So you want a hint? Ok, proceed through the curtain over there.
+@match door|doors|locked
+That's a private area.
+@match *
+Hello stranger!
+You can talk to me by pressing the ~enter~ key
+again. Type ^roger^ and I will give you some hints
+related to chatting. I will repeat this text every time
+you ask me something different. So type ^roger^ now.
+You can also click on the blue roger text using
+your mouse. Read the signs nearby to learn more
+about mouse and chatting.
+endmsg
+name Sigmund
+level 3
+friendly 1
+behavior 0
+type 83
+end
+end
+arch floor_wood2_l1
+x 41
+y 19
+end
+arch bar1
+x 41
+y 19
+end
+arch floor_wood2_l1
+x 41
+y 20
+end
+arch floor_wood2_l2
+x 41
+y 21
+end
+arch floor_wood2_l2
+x 41
+y 22
+end
+arch candlelight2.101
+glow_radius 4
+type 78
+x 41
+y 22
+end
+arch floor_wood2_l1
+x 41
+y 23
+end
+arch wall_wood1_1
+x 41
+y 23
+end
+arch floor_earth1b
+x 41
+y 24
+end
+arch fwall_sand1b
+x 41
+y 24
+end
+arch floor_earth1c
+x 41
+y 25
+end
+arch earth_m4
+x 41
+y 25
+end
+arch floor_earth1c
+x 41
+y 26
+end
+arch earth_m2
+x 41
+y 26
+end
+arch plant5
+x 41
+y 26
+end
+arch floor_earth1a
+x 41
+y 27
+end
+arch earth_m4
+x 41
+y 27
+end
+arch plant_mushroom2
+x 41
+y 27
+end
+arch torch_wall_1
+direction 7
+x 41
+y 27
+end
+arch floor_earth1d
+x 41
+y 28
+end
+arch earth_m2
+x 41
+y 28
+end
+arch plant_flower1
+x 41
+y 28
+end
+arch floor_earth1b
+x 41
+y 29
+end
+arch earth_m2
+x 41
+y 29
+end
+arch floor_earth1e
+x 41
+y 30
+end
+arch earth_m1
+x 41
+y 30
+end
+arch floor_earth1d
+x 41
+y 31
+end
+arch earth_m3
+x 41
+y 31
+end
+arch plant_mushroom3
+x 41
+y 31
+end
+arch earth_brown1
+x 41
+y 32
+end
+arch plant1
+x 41
+y 32
+end
+arch floor_earth1b
+x 41
+y 33
+end
+arch earth_m1
+x 41
+y 33
+end
+arch floor_earth1d
+x 41
+y 34
+end
+arch earth_m2
+x 41
+y 34
+end
+arch torch_wall_1
+direction 7
+x 41
+y 34
+end
+arch floor_earth1d
+x 41
+y 35
+end
+arch earth_m4
+x 41
+y 35
+end
+arch floor_earth1c
+x 41
+y 36
+end
+arch earth_m7
+x 41
+y 36
+end
+arch floor_earth1a
+x 41
+y 37
+end
+arch floor_earth1d
+x 41
+y 38
+end
+arch floor_earth1e
+x 41
+y 39
+end
+arch floor_earth1d
+x 41
+y 40
+end
+arch floor_earth1c
+x 41
+y 41
+end
+arch floor_earth1a
+x 41
+y 42
+end
+arch floor_earth1d
+x 41
+y 43
+end
+arch earth_m20
+x 41
+y 43
+end
+arch earth_brown2
+x 41
+y 44
+end
+arch water_md_m
+direction 5
+x 41
+y 44
+end
+arch water_md2
+x 41
+y 45
+end
+arch water_lily2
+x 41
+y 45
+end
+arch water_md4
+x 41
+y 46
+end
+arch plant15
+x 41
+y 46
+end
+arch earth_brown2
+x 41
+y 47
+end
+arch fwall_sand1b
+x 41
+y 47
+end
+arch floor_earth1c
+x 42
+y 7
+end
+arch wall_stone6_1
+x 42
+y 7
+end
+arch floor_ostone11
+x 42
+y 8
+end
+arch wall_stone6_3
+x 42
+y 8
+end
+arch floor_ostone11
+x 42
+y 9
+end
+arch wall_stone6_w.131
+x 42
+y 9
+end
+arch floor_ostone11
+x 42
+y 10
+end
+arch wall_stone6_3
+x 42
+y 10
+end
+arch floor_ostone11
+x 42
+y 11
+end
+arch door1_locked
+cursed 1
+direction 3
+x 42
+y 11
+end
+arch floor_ostone11
+x 42
+y 12
+end
+arch door1_locked
+cursed 1
+direction 5
+x 42
+y 12
+end
+arch floor_ostone11
+x 42
+y 13
+end
+arch wall_stone6_3
+x 42
+y 13
+end
+arch floor_ostone11
+x 42
+y 14
+end
+arch wall_stone6_w.131
+x 42
+y 14
+end
+arch floor_ostone11
+x 42
+y 15
+end
+arch wall_stone6_4
+x 42
+y 15
+end
+arch floor_earth1c
+x 42
+y 16
+end
+arch wall_wood2_1
+x 42
+y 16
+end
+arch floor_wood2_l1
+x 42
+y 17
+end
+arch bar1
+direction 3
+x 42
+y 17
+end
+arch floor_wood2_l1
+x 42
+y 18
+end
+arch bar1
+direction 3
+x 42
+y 18
+end
+arch floor_wood2_l2
+x 42
+y 19
+end
+arch bar1
+direction 4
+x 42
+y 19
+end
+arch floor_wood2_l1
+x 42
+y 20
+end
+arch floor_wood2_l2
+x 42
+y 21
+end
+arch sign
+msg
+~Talk to NPCs~
+To talk with NPCs (Non Player Characters) you have to open the ~input console~. Press ~enter~ to do that. Now a small cursor appears under this text in the text window. Now type "hello" or "hi", and press ~enter~ again. You will see that the NPC here will answer you, unless you stand too far away. You must be inside a range of two tiles to him.
+endmsg
+name sign
+x 42
+y 21
+end
+arch floor_wood2_l1
+x 42
+y 22
+end
+arch floor_wood2_l1
+x 42
+y 23
+end
+arch wall_wood3_1
+x 42
+y 23
+end
+arch floor_earth1d
+x 42
+y 24
+end
+arch torch_wall_1
+x 42
+y 24
+end
+arch floor_earth1e
+x 42
+y 25
+end
+arch earth_m6
+x 42
+y 25
+end
+arch floor_earth1b
+x 42
+y 26
+end
+arch earth_m3
+x 42
+y 26
+end
+arch floor_earth1b
+x 42
+y 27
+end
+arch earth_m4
+x 42
+y 27
+end
+arch floor_earth1d
+x 42
+y 28
+end
+arch earth_m1
+x 42
+y 28
+end
+arch floor_earth1e
+x 42
+y 29
+end
+arch earth_m2
+x 42
+y 29
+end
+arch plant_flower6
+x 42
+y 29
+end
+arch earth_brown1
+x 42
+y 30
+end
+arch floor_earth1c
+x 42
+y 31
+end
+arch earth_m4
+x 42
+y 31
+end
+arch plant11
+x 42
+y 31
+end
+arch floor_earth1b
+x 42
+y 32
+end
+arch earth_m2
+x 42
+y 32
+end
+arch floor_earth1c
+x 42
+y 33
+end
+arch earth_m4
+x 42
+y 33
+end
+arch plant_mushroom2
+x 42
+y 33
+end
+arch floor_earth1c
+x 42
+y 34
+end
+arch earth_m4
+x 42
+y 34
+end
+arch floor_earth1b
+x 42
+y 35
+end
+arch floor_earth1d
+x 42
+y 36
+end
+arch floor_earth1a
+x 42
+y 37
+end
+arch floor_earth1a
+x 42
+y 38
+end
+arch floor_earth1b
+x 42
+y 39
+end
+arch light1
+glow_radius -1
+x 42
+y 39
+end
+arch floor_earth1e
+x 42
+y 40
+end
+arch floor_earth1b
+x 42
+y 41
+end
+arch light2
+glow_radius -2
+x 42
+y 41
+end
+arch floor_earth1c
+x 42
+y 42
+end
+arch floor_earth1e
+x 42
+y 43
+end
+arch earth_m17
+x 42
+y 43
+end
+arch plant_flower6
+x 42
+y 43
+end
+arch light1
+glow_radius -1
+x 42
+y 43
+end
+arch earth_brown4
+x 42
+y 44
+end
+arch water_md_m
+direction 4
+x 42
+y 44
+end
+arch water_plant4
+x 42
+y 44
+end
+arch water_md
+x 42
+y 45
+end
+arch water_lily
+x 42
+y 45
+end
+arch water_md2
+x 42
+y 46
+end
+arch water_plant2
+x 42
+y 46
+end
+arch earth_brown1
+x 42
+y 47
+end
+arch fwall_sand1a
+x 42
+y 47
+end
+arch floor_earth1e
+x 43
+y 7
+end
+arch wall_wood1_1
+x 43
+y 7
+end
+arch floor_earth1c
+x 43
+y 8
+end
+arch grassd_m11
+x 43
+y 8
+end
+arch plant_flower12
+x 43
+y 8
+end
+arch floor_earth1a
+x 43
+y 9
+end
+arch grassd_m8
+x 43
+y 9
+end
+arch plant_flower11
+x 43
+y 9
+end
+arch floor_earth1e
+x 43
+y 10
+end
+arch grassd_m12
+x 43
+y 10
+end
+arch plant_flower14
+layer 3
+x 43
+y 10
+end
+arch post_rail_dk3
+layer 4
+x 43
+y 10
+end
+arch lantern2_magic.131
+glow_radius 7
+direction 7
+type 78
+x 43
+y 10
+end
+arch floor_earth1d
+x 43
+y 11
+end
+arch sand_dm7
+x 43
+y 11
+end
+arch floor_earth1a
+x 43
+y 12
+end
+arch sand_dm10
+x 43
+y 12
+end
+arch floor_earth1d
+x 43
+y 13
+end
+arch plant6
+x 43
+y 13
+end
+arch lantern2_magic.131
+glow_radius 7
+direction 7
+type 78
+x 43
+y 13
+end
+arch floor_earth1a
+x 43
+y 14
+end
+arch plant6
+x 43
+y 14
+end
+arch floor_earth1a
+x 43
+y 15
+end
+arch plant7
+x 43
+y 15
+end
+arch floor_earth1a
+x 43
+y 16
+end
+arch wall_wood3_1
+x 43
+y 16
+end
+arch floor_wood2_l1
+x 43
+y 17
+end
+arch candlelight1.101
+glow_radius 4
+type 78
+x 43
+y 17
+end
+arch floor_wood2_l2
+x 43
+y 18
+end
+arch floor_wood2_l1
+x 43
+y 19
+end
+arch floor_wood2_l1
+x 43
+y 20
+end
+arch floor_wood2_l1
+x 43
+y 21
+end
+arch floor_wood2_l1
+x 43
+y 22
+end
+arch floor_wood2_l1
+x 43
+y 23
+end
+arch door_wood2
+x 43
+y 23
+end
+arch floor_earth1e
+x 43
+y 24
+end
+arch floor_earth1d
+x 43
+y 25
+end
+arch floor_earth1c
+x 43
+y 26
+end
+arch earth_m2
+x 43
+y 26
+end
+arch floor_earth1c
+x 43
+y 27
+end
+arch earth_m3
+x 43
+y 27
+end
+arch floor_earth1b
+x 43
+y 28
+end
+arch earth_m3
+x 43
+y 28
+end
+arch plant11
+x 43
+y 28
+end
+arch floor_earth1c
+x 43
+y 29
+end
+arch earth_m1
+x 43
+y 29
+end
+arch earth_brown1
+x 43
+y 30
+end
+arch plant_flower5
+x 43
+y 30
+end
+arch earth_brown3
+x 43
+y 31
+end
+arch earth_brown2
+x 43
+y 32
+end
+arch floor_earth1b
+x 43
+y 33
+end
+arch earth_m2
+x 43
+y 33
+end
+arch floor_earth1d
+x 43
+y 34
+end
+arch earth_m1
+x 43
+y 34
+end
+arch floor_earth1b
+x 43
+y 35
+end
+arch sign
+msg
+~Saving~
+Your character is automatically saved if you log out. You can also use the /save command or apply a save bed. Note that you will ONLY be saved if you have proven yourself worthy and collected some experience points, so don't log out too soon!
+endmsg
+name Saving
+x 43
+y 35
+end
+arch floor_earth1a
+x 43
+y 36
+end
+arch floor_earth1a
+x 43
+y 37
+end
+arch floor_earth1b
+x 43
+y 38
+end
+arch floor_earth1a
+x 43
+y 39
+end
+arch floor_earth1e
+x 43
+y 40
+end
+arch floor_earth1e
+x 43
+y 41
+end
+arch floor_earth1d
+x 43
+y 42
+end
+arch earth_m5
+x 43
+y 42
+end
+arch earth_brown4
+x 43
+y 43
+end
+arch water_md_m
+direction 5
+x 43
+y 43
+end
+arch water_md2
+x 43
+y 44
+end
+arch plant17
+x 43
+y 44
+end
+arch water_md
+x 43
+y 45
+end
+arch water_plant4
+x 43
+y 45
+end
+arch water_md2
+x 43
+y 46
+end
+arch plant16
+x 43
+y 46
+end
+arch earth_brown2
+x 43
+y 47
+end
+arch fwall_sand1b
+x 43
+y 47
+end
+arch floor_earth1d
+x 44
+y 7
+end
+arch wall_wood1_1
+x 44
+y 7
+end
+arch floor_earth1b
+x 44
+y 8
+end
+arch grassd_m7
+x 44
+y 8
+end
+arch plant_flower13
+x 44
+y 8
+end
+arch grassd_7
+x 44
+y 9
+end
+arch statue_black_big1
+blocksview 0
+x 44
+y 9
+end
+arch floor_earth1a
+x 44
+y 10
+end
+arch grassd_m10
+x 44
+y 10
+end
+arch plant_flower13
+x 44
+y 10
+end
+arch post_rail_dk3
+x 44
+y 10
+end
+arch floor_earth1a
+x 44
+y 11
+end
+arch sand_dm11
+x 44
+y 11
+end
+arch floor_earth1e
+x 44
+y 12
+end
+arch sand_dm19
+x 44
+y 12
+end
+arch floor_earth1b
+x 44
+y 13
+end
+arch sand_dm9
+x 44
+y 13
+end
+arch floor_earth1a
+x 44
+y 14
+end
+arch sand_dm5
+x 44
+y 14
+end
+arch floor_earth1a
+x 44
+y 15
+end
+arch sand_dm9
+x 44
+y 15
+end
+arch floor_earth1e
+x 44
+y 16
+end
+arch sand_dm9
+x 44
+y 16
+end
+arch wall_wood1_1
+x 44
+y 16
+end
+arch floor_wood2_l2
+x 44
+y 17
+end
+arch wall_wood3_3
+x 44
+y 17
+end
+arch floor_wood2_l1
+x 44
+y 18
+end
+arch curtain1
+direction 7
+x 44
+y 18
+end
+arch floor_wood2_l2
+x 44
+y 19
+end
+arch wall_wood2_3
+x 44
+y 19
+end
+arch floor_wood2_l1
+x 44
+y 20
+end
+arch wall_wood3_3
+x 44
+y 20
+end
+arch floor_wood2_l2
+x 44
+y 21
+end
+arch door_wood2
+slaying locked
+direction 7
+x 44
+y 21
+end
+arch floor_wood2_l2
+x 44
+y 22
+end
+arch wall_wood2_3
+x 44
+y 22
+end
+arch floor_wood2_l1
+x 44
+y 23
+end
+arch wall_wood_4
+x 44
+y 23
+end
+arch floor_earth1c
+x 44
+y 24
+end
+arch torch_wall_1
+x 44
+y 24
+end
+arch floor_earth1c
+x 44
+y 25
+end
+arch earth_m5
+x 44
+y 25
+end
+arch floor_earth1a
+x 44
+y 26
+end
+arch earth_m3
+x 44
+y 26
+end
+arch floor_earth1d
+x 44
+y 27
+end
+arch earth_m4
+x 44
+y 27
+end
+arch plant17
+x 44
+y 27
+end
+arch floor_earth1e
+x 44
+y 28
+end
+arch earth_m4
+x 44
+y 28
+end
+arch floor_earth1c
+x 44
+y 29
+end
+arch earth_m2
+x 44
+y 29
+end
+arch plant_mushroom3
+x 44
+y 29
+end
+arch floor_earth1b
+x 44
+y 30
+end
+arch earth_m4
+x 44
+y 30
+end
+arch earth_brown3
+x 44
+y 31
+end
+arch plant_mushroom1
+x 44
+y 31
+end
+arch earth_brown1
+x 44
+y 32
+end
+arch plant9
+x 44
+y 32
+end
+arch floor_earth1e
+x 44
+y 33
+end
+arch earth_m2
+x 44
+y 33
+end
+arch floor_earth1a
+x 44
+y 34
+end
+arch earth_m1
+x 44
+y 34
+end
+arch floor_earth1d
+x 44
+y 35
+end
+arch earth_m8
+x 44
+y 35
+end
+arch floor_earth1c
+x 44
+y 36
+end
+arch floor_earth1b
+x 44
+y 37
+end
+arch floor_earth1e
+x 44
+y 38
+end
+arch floor_earth1e
+x 44
+y 39
+end
+arch earth_m5
+x 44
+y 39
+end
+arch floor_earth1a
+x 44
+y 40
+end
+arch earth_m3
+x 44
+y 40
+end
+arch plant_flower2
+x 44
+y 40
+end
+arch earth_brown1
+x 44
+y 41
+end
+arch water_md2_m
+direction 4
+x 44
+y 41
+end
+arch earth_brown1
+x 44
+y 42
+end
+arch water_md2_m
+direction 3
+x 44
+y 42
+end
+arch plant_flower1
+x 44
+y 42
+end
+arch earth_brown1
+x 44
+y 43
+end
+arch water_md_m
+direction 4
+x 44
+y 43
+end
+arch water_plant3
+x 44
+y 43
+end
+arch water_md4
+x 44
+y 44
+end
+arch water_lily2
+x 44
+y 44
+end
+arch water_md3
+x 44
+y 45
+end
+arch water_plant2
+x 44
+y 45
+end
+arch earth_brown1
+x 44
+y 46
+end
+arch fwall_sand1a
+x 44
+y 46
+end
+arch earth_brown3
+x 44
+y 47
+end
+arch fwall_sand1b
+x 44
+y 47
+end
+arch floor_earth1a
+x 45
+y 7
+end
+arch wall_wood2_1
+x 45
+y 7
+end
+arch floor_earth1b
+x 45
+y 8
+end
+arch grassd_m14
+x 45
+y 8
+end
+arch plant_flower14
+x 45
+y 8
+end
+arch floor_earth1a
+x 45
+y 9
+end
+arch grassd_m9
+x 45
+y 9
+end
+arch plant_flower11
+x 45
+y 9
+end
+arch floor_earth1a
+x 45
+y 10
+end
+arch grassd_m13
+x 45
+y 10
+end
+arch plant_flower12
+x 45
+y 10
+end
+arch post_rail_dk3
+x 45
+y 10
+end
+arch floor_earth1b
+x 45
+y 11
+end
+arch sand_dm4
+x 45
+y 11
+end
+arch floor_earth1e
+x 45
+y 12
+end
+arch sand_dm8
+x 45
+y 12
+end
+arch floor_earth1b
+x 45
+y 13
+end
+arch sand_dm12
+x 45
+y 13
+end
+arch floor_earth1c
+x 45
+y 14
+end
+arch sand_dm12
+x 45
+y 14
+end
+arch floor_earth1b
+x 45
+y 15
+end
+arch sand_dm8
+x 45
+y 15
+end
+arch floor_earth1e
+x 45
+y 16
+end
+arch sand_dm12
+x 45
+y 16
+end
+arch door_wood2
+x 45
+y 16
+end
+arch floor_wood2_l1
+x 45
+y 17
+end
+arch floor_wood2_l2
+x 45
+y 18
+end
+arch floor_wood2_l1
+x 45
+y 19
+end
+arch wall_wood2_1
+x 45
+y 19
+end
+arch earth_brown3
+x 45
+y 23
+end
+arch fwall_sand1b
+x 45
+y 23
+end
+arch earth_brown1
+x 45
+y 24
+end
+arch fwall_sand1a
+x 45
+y 24
+end
+arch earth_brown1
+x 45
+y 25
+end
+arch floor_earth1d
+x 45
+y 26
+end
+arch earth_m3
+x 45
+y 26
+end
+arch floor_earth1d
+x 45
+y 27
+end
+arch earth_m1
+x 45
+y 27
+end
+arch floor_earth1a
+x 45
+y 28
+end
+arch earth_m1
+x 45
+y 28
+end
+arch floor_earth1c
+x 45
+y 29
+end
+arch earth_m3
+x 45
+y 29
+end
+arch earth_brown4
+x 45
+y 30
+end
+arch plant5
+x 45
+y 30
+end
+arch earth_brown1
+x 45
+y 31
+end
+arch floor_earth1d
+x 45
+y 32
+end
+arch earth_m22
+x 45
+y 32
+end
+arch floor_earth1b
+x 45
+y 33
+end
+arch earth_m21
+x 45
+y 33
+end
+arch floor_earth1c
+x 45
+y 34
+end
+arch earth_m2
+x 45
+y 34
+end
+arch floor_earth1e
+x 45
+y 35
+end
+arch earth_m1
+x 45
+y 35
+end
+arch plant_flower6
+x 45
+y 35
+end
+arch floor_earth1a
+x 45
+y 36
+end
+arch earth_m3
+x 45
+y 36
+end
+arch floor_earth1e
+x 45
+y 37
+end
+arch earth_m1
+x 45
+y 37
+end
+arch floor_earth1b
+x 45
+y 38
+end
+arch earth_m3
+x 45
+y 38
+end
+arch plant_flower5
+x 45
+y 38
+end
+arch earth_brown2
+x 45
+y 39
+end
+arch water_md_m
+direction 4
+x 45
+y 39
+end
+arch earth_brown4
+x 45
+y 40
+end
+arch water_md5_m
+direction 3
+x 45
+y 40
+end
+arch water_plant4
+x 45
+y 40
+end
+arch earth_brown2
+x 45
+y 41
+end
+arch water_md5_m
+direction 4
+x 45
+y 41
+end
+arch water_md4
+x 45
+y 42
+end
+arch water_plant3
+x 45
+y 42
+end
+arch water_md2
+x 45
+y 43
+end
+arch water_lily
+x 45
+y 43
+end
+arch water_md
+x 45
+y 44
+end
+arch plant1
+x 45
+y 44
+end
+arch water_md4
+x 45
+y 45
+end
+arch water_plant1
+x 45
+y 45
+end
+arch earth_brown1
+x 45
+y 46
+end
+arch fwall_sand1b
+x 45
+y 46
+end
+arch floor_earth1c
+x 46
+y 7
+end
+arch wall_wood1_1
+x 46
+y 7
+end
+arch floor_earth1d
+x 46
+y 8
+end
+arch wall_wood1_3
+x 46
+y 8
+end
+arch floor_earth1b
+x 46
+y 9
+end
+arch wall_wood1_3
+x 46
+y 9
+end
+arch floor_earth1d
+x 46
+y 10
+end
+arch wall_wood1_3
+x 46
+y 10
+end
+arch floor_earth1b
+x 46
+y 11
+end
+arch wall_wood2_3
+x 46
+y 11
+end
+arch floor_earth1a
+x 46
+y 12
+end
+arch wall_wood1_3
+x 46
+y 12
+end
+arch floor_earth1c
+x 46
+y 13
+end
+arch wall_wood2_3
+x 46
+y 13
+end
+arch floor_earth1e
+x 46
+y 14
+end
+arch wall_wood1_3
+x 46
+y 14
+end
+arch floor_earth1c
+x 46
+y 15
+end
+arch wall_wood2_3
+x 46
+y 15
+end
+arch floor_earth1c
+x 46
+y 16
+end
+arch wall_wood_4
+x 46
+y 16
+end
+arch floor_wood2_l2
+x 46
+y 17
+end
+arch sign
+msg
+~Talking using the mouse~
+You can talk to NPCs using the mouse only: Click on the NPC with the right mouse button to target him. A bit right of the target name you will see a "hello" button. Click on it with the left mouse button. This will make you say "hello" to the NPC. You can then click with the left mouse button on any blue keywords in the text window to say it out loud. This doesn't work when chatting with players - only with NPCs.
+endmsg
+name sign
+x 46
+y 17
+end
+arch floor_wood2_l1
+x 46
+y 18
+end
+arch sign
+msg
+~Other chatting commands~
+There are some more chat commands in the game:
+/shout <message> Sends a message to all players in the game.
+/tell <player name> <message> Sends a private message to one player.
+/say <message> Says out something loud, but only to players and NPCs nearby.
+
+/say is the default chat command - if you type something in the console it
+will be handled as "said", as long as it doesn't start with a '/'.
+The '/' is reserved for marking commands.
+Try ^/help^ as an example!
+endmsg
+name sign
+x 46
+y 18
+end
+arch floor_wood2_l1
+x 46
+y 19
+end
+arch wall_wood1_1
+x 46
+y 19
+end
+arch earth_brown4
+x 46
+y 24
+end
+arch fwall_sand1b
+x 46
+y 24
+end
+arch earth_brown3
+x 46
+y 25
+end
+arch fwall_sand1b
+x 46
+y 25
+end
+arch earth_brown1
+x 46
+y 26
+end
+arch fwall_sand1b
+x 46
+y 26
+end
+arch earth_brown1
+x 46
+y 27
+end
+arch fwall_sand1a
+x 46
+y 27
+end
+arch earth_brown2
+x 46
+y 28
+end
+arch earth_brown1
+x 46
+y 29
+end
+arch plant_flower1
+x 46
+y 29
+end
+arch earth_brown4
+x 46
+y 30
+end
+arch earth_brown3
+x 46
+y 31
+end
+arch earth_brown2
+x 46
+y 32
+end
+arch fwall_sand1a
+x 46
+y 32
+end
+arch earth_brown4
+x 46
+y 33
+end
+arch fwall_sand1b
+x 46
+y 33
+end
+arch earth_brown4
+x 46
+y 34
+end
+arch fwall_sand1b
+x 46
+y 34
+end
+arch earth_brown3
+x 46
+y 35
+end
+arch earth_brown1
+x 46
+y 36
+end
+arch earth_brown2
+x 46
+y 37
+end
+arch earth_brown3
+x 46
+y 38
+end
+arch water_md_m
+direction 4
+x 46
+y 38
+end
+arch water_md3
+x 46
+y 39
+end
+arch water_md4
+x 46
+y 40
+end
+arch water_md
+x 46
+y 41
+end
+arch plant11
+x 46
+y 41
+end
+arch water_md4
+x 46
+y 42
+end
+arch water_plant1
+x 46
+y 42
+end
+arch water_md3
+x 46
+y 43
+end
+arch water_plant2
+x 46
+y 43
+end
+arch water_md
+x 46
+y 44
+end
+arch water_plant1
+x 46
+y 44
+end
+arch water_md
+x 46
+y 45
+end
+arch plant16
+x 46
+y 45
+end
+arch earth_brown2
+x 46
+y 46
+end
+arch fwall_sand1b
+x 46
+y 46
+end
+arch floor_earth1b
+x 47
+y 16
+end
+arch wall_wood1_1
+x 47
+y 16
+end
+arch floor_earth1c
+x 47
+y 17
+end
+arch wall_wood2_3
+x 47
+y 17
+end
+arch floor_earth1a
+x 47
+y 18
+end
+arch wall_wood3_3
+x 47
+y 18
+end
+arch floor_earth1c
+x 47
+y 19
+end
+arch wall_wood_4
+x 47
+y 19
+end
+arch earth_brown1
+x 47
+y 27
+end
+arch fwall_sand1b
+x 47
+y 27
+end
+arch earth_brown4
+x 47
+y 28
+end
+arch fwall_sand1b
+x 47
+y 28
+end
+arch earth_brown3
+x 47
+y 29
+end
+arch fwall_sand1b
+x 47
+y 29
+end
+arch earth_brown4
+x 47
+y 30
+end
+arch fwall_sand1a
+x 47
+y 30
+end
+arch earth_brown4
+x 47
+y 31
+end
+arch fwall_sand1a
+x 47
+y 31
+end
+arch earth_brown2
+x 47
+y 32
+end
+arch fwall_sand1a
+x 47
+y 32
+end
+arch earth_brown3
+x 47
+y 34
+end
+arch fwall_sand1b
+x 47
+y 34
+end
+arch earth_brown4
+x 47
+y 35
+end
+arch fwall_sand1a
+x 47
+y 35
+end
+arch earth_brown4
+x 47
+y 36
+end
+arch fwall_sand1b
+x 47
+y 36
+end
+arch earth_brown2
+x 47
+y 37
+end
+arch fwall_sand1a
+x 47
+y 37
+end
+arch earth_brown4
+x 47
+y 38
+end
+arch fwall_sand1a
+x 47
+y 38
+end
+arch earth_brown2
+x 47
+y 39
+end
+arch fwall_sand1b
+x 47
+y 39
+end
+arch earth_brown4
+x 47
+y 40
+end
+arch fwall_sand1b
+x 47
+y 40
+end
+arch earth_brown2
+x 47
+y 41
+end
+arch fwall_sand1a
+x 47
+y 41
+end
+arch earth_brown4
+x 47
+y 42
+end
+arch fwall_sand1b
+x 47
+y 42
+end
+arch earth_brown4
+x 47
+y 43
+end
+arch fwall_sand1b
+x 47
+y 43
+end
+arch earth_brown3
+x 47
+y 44
+end
+arch fwall_sand1b
+x 47
+y 44
+end
+arch earth_brown1
+x 47
+y 45
+end
+arch fwall_sand1a
+x 47
+y 45
+end
+arch earth_brown2
+x 47
+y 46
+end
+arch fwall_sand1b
+x 47
+y 46
+end

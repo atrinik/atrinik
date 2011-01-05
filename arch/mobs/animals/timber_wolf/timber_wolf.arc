@@ -1,0 +1,31 @@
+Object timber_wolf
+type 80
+layer 6
+name timber wolf
+face timber_wolf.151
+animation timber_wolf
+is_animated 1
+anim_speed 4
+direction 5
+race wolf
+item_race 255
+item_level 255
+corpse 1
+alive 1
+monster 1
+is_male 1
+terrain_flag 1
+Wis 5
+exp 100
+hp -1
+maxhp 100
+ac 28
+wc 15
+dam 50
+weapon_speed 3.5
+speed -0.06
+run_away 6
+level 1
+weight 1350000
+no_pick 1
+end

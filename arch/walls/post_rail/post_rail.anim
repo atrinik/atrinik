@@ -1,0 +1,38 @@
+anim post_rail
+facings 9
+dummy.111
+dummy.111
+dummy.111
+post_rail.131
+post_rail.141
+post_rail.151
+dummy.111
+dummy.111
+post_rail.181
+mina
+
+anim post_rail2
+facings 9
+dummy.111
+dummy.111
+dummy.111
+post_rail2.131
+post_rail.141
+post_rail2.151
+dummy.111
+dummy.111
+post_rail.181
+mina
+
+anim post_rail3
+facings 9
+dummy.111
+dummy.111
+dummy.111
+post_rail3.131
+post_rail.141
+post_rail3.151
+dummy.111
+dummy.111
+post_rail.181
+mina
