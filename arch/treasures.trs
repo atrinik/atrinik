@@ -2847,6 +2847,9 @@ treasureone random_food
   more
   arch beer
     chance 10
+  more
+  arch chilli
+    chance 10
 end
 
 # Books
