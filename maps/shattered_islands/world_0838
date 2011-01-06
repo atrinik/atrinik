@@ -4094,10 +4094,6 @@ z 50
 x 23
 y 3
 end
-arch grassd_m11
-x 23
-y 3
-end
 arch floor_fs_grey1b
 z 50
 x 23

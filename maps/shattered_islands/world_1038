@@ -189,6 +189,7 @@ x 1
 y 16
 end
 arch blocked
+blocksview 0
 x 1
 y 17
 end
@@ -307,6 +308,7 @@ x 2
 y 16
 end
 arch blocked
+blocksview 0
 x 2
 y 17
 end
@@ -420,6 +422,7 @@ x 3
 y 16
 end
 arch blocked
+blocksview 0
 x 3
 y 17
 end
@@ -536,10 +539,12 @@ x 4
 y 16
 end
 arch blocked
+blocksview 0
 x 4
 y 17
 end
 arch blocked
+blocksview 0
 x 4
 y 18
 end
@@ -651,6 +656,7 @@ x 5
 y 17
 end
 arch blocked
+blocksview 0
 x 5
 y 18
 end
@@ -770,6 +776,7 @@ x 6
 y 17
 end
 arch blocked
+blocksview 0
 x 6
 y 18
 end
