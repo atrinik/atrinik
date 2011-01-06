@@ -2960,11 +2960,6 @@ z 42
 x 18
 y 17
 end
-arch grassd_m13
-z 42
-x 18
-y 17
-end
 arch grassd_6
 z 46
 x 18

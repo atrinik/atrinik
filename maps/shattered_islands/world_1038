@@ -880,16 +880,26 @@ arch water_lt3
 x 7
 y 17
 end
-arch water_lt2
+arch blocked
+blocksview 0
 x 7
 y 18
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 7
 y 19
 end
-arch grassd_3
+arch fstone1m4
+x 7
+y 19
+end
+arch grassd_4
 z 50
+x 7
+y 20
+end
+arch fstone1m10
 x 7
 y 20
 end
@@ -1023,16 +1033,22 @@ arch water_lt3
 x 8
 y 17
 end
-arch water_lt4
+arch blocked
+blocksview 0
 x 8
 y 18
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 8
 y 19
 end
-arch grassd_1
+arch grassd_2
 z 50
+x 8
+y 20
+end
+arch fstone1m12
 x 8
 y 20
 end
@@ -1168,12 +1184,17 @@ arch water_lt2
 x 9
 y 18
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 9
 y 19
 end
-arch grassd_2
+arch grassd_4
 z 50
+x 9
+y 20
+end
+arch fstone1m12
 x 9
 y 20
 end
@@ -1299,12 +1320,17 @@ arch water_lt2
 x 10
 y 18
 end
-arch water_lt2
+arch blocked
+blocksview 0
 x 10
 y 19
 end
 arch grassd_1
 z 50
+x 10
+y 20
+end
+arch fstone1m12
 x 10
 y 20
 end
