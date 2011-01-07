@@ -2,7 +2,7 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-05 emperorbma
+Modified: 2011-01-06 emperorbma
 endmsg
 width 24
 height 24
@@ -431,16 +431,12 @@ z 50
 x 3
 y 18
 end
-arch fstone1m4
+arch fstone1m12
 x 3
 y 18
 end
 arch grassd_4
 z 50
-x 3
-y 19
-end
-arch fstone1m10
 x 3
 y 19
 end
@@ -543,17 +539,17 @@ blocksview 0
 x 4
 y 17
 end
-arch blocked
-blocksview 0
-x 4
-y 18
-end
 arch grassd_2
 z 50
 x 4
-y 19
+y 18
 end
 arch fstone1m12
+x 4
+y 18
+end
+arch grassd_5
+z 50
 x 4
 y 19
 end
@@ -650,22 +646,22 @@ z 4
 x 5
 y 16
 end
-arch floor_ruin1
-z 4
-x 5
-y 17
-end
 arch blocked
 blocksview 0
 x 5
-y 18
+y 17
 end
 arch grassd_4
 z 50
 x 5
-y 19
+y 18
 end
 arch fstone1m12
+x 5
+y 18
+end
+arch grassd_2
+z 50
 x 5
 y 19
 end
@@ -766,26 +762,22 @@ direction 3
 x 6
 y 16
 end
-arch floor_ruin1
-x 6
-y 17
-end
-arch water_lt_m
-direction 3
-x 6
-y 17
-end
 arch blocked
 blocksview 0
 x 6
-y 18
+y 17
 end
 arch grassd_1
 z 50
 x 6
-y 19
+y 18
 end
 arch fstone1m12
+x 6
+y 18
+end
+arch grassd_4
+z 50
 x 6
 y 19
 end
@@ -876,30 +868,27 @@ arch water_lt3
 x 7
 y 16
 end
-arch water_lt3
-x 7
-y 17
-end
 arch blocked
 blocksview 0
 x 7
-y 18
+y 17
 end
 arch grassd_2
 z 50
 x 7
-y 19
+y 18
 end
-arch fstone1m4
+arch fstone1m12
+x 7
+y 18
+end
+arch grassd_3
+z 50
 x 7
 y 19
 end
 arch grassd_4
 z 50
-x 7
-y 20
-end
-arch fstone1m10
 x 7
 y 20
 end
@@ -1025,30 +1014,32 @@ arch water_lt4
 x 8
 y 15
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 8
 y 16
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 8
 y 17
 end
-arch blocked
-blocksview 0
+arch grassd_8
+z 50
 x 8
 y 18
 end
-arch blocked
-blocksview 0
+arch fstone1m12
+x 8
+y 18
+end
+arch grassd_4
+z 50
 x 8
 y 19
 end
-arch grassd_2
+arch grassd_3
 z 50
-x 8
-y 20
-end
-arch fstone1m12
 x 8
 y 20
 end
@@ -1172,29 +1163,36 @@ arch water_lt4
 x 9
 y 15
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 9
 y 16
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 9
 y 17
 end
-arch water_lt2
+arch fstone1m3
+x 9
+y 17
+end
+arch grassd_6
+z 50
 x 9
 y 18
 end
-arch blocked
-blocksview 0
+arch fstone1m5
+x 9
+y 18
+end
+arch grassd_8
+z 50
 x 9
 y 19
 end
 arch grassd_4
 z 50
-x 9
-y 20
-end
-arch fstone1m12
 x 9
 y 20
 end
@@ -1304,33 +1302,37 @@ arch water_lt4
 x 10
 y 14
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 10
 y 15
-end
-arch water_lt3
-x 10
-y 16
-end
-arch water_lt3
-x 10
-y 17
-end
-arch water_lt2
-x 10
-y 18
 end
 arch blocked
 blocksview 0
 x 10
-y 19
+y 16
 end
 arch grassd_1
 z 50
 x 10
-y 20
+y 17
 end
 arch fstone1m12
+x 10
+y 17
+end
+arch grassd_5
+z 50
+x 10
+y 18
+end
+arch grassd_1
+z 50
+x 10
+y 19
+end
+arch grassd_6
+z 50
 x 10
 y 20
 end
@@ -1444,31 +1446,46 @@ arch water_lt
 x 11
 y 13
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 11
 y 14
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 11
 y 15
 end
-arch water_lt3
+arch grassd_4
+z 50
 x 11
 y 16
 end
-arch water_lt2
+arch fstone1m3
+x 11
+y 16
+end
+arch grassd_6
+z 50
 x 11
 y 17
 end
-arch water_lt3
+arch fstone1m5
+x 11
+y 17
+end
+arch grassd_1
+z 50
 x 11
 y 18
 end
-arch water_lt
+arch grassd_4
+z 50
 x 11
 y 19
 end
-arch water_lt2
+arch grassd_8
+z 50
 x 11
 y 20
 end
@@ -1564,35 +1581,51 @@ arch water_lt4
 x 12
 y 12
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 12
 y 13
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 12
 y 14
 end
-arch water_lt3
+arch grassd_4
+z 50
 x 12
 y 15
 end
-arch water_lt2
+arch fstone1m3
+x 12
+y 15
+end
+arch grassd_6
+z 50
 x 12
 y 16
 end
-arch water_lt
+arch fstone1m5
+x 12
+y 16
+end
+arch grassd_6
+z 50
 x 12
 y 17
 end
-arch water_lt2
+arch grassd_8
+z 50
 x 12
 y 18
 end
-arch water_lt2
+arch grassd_5
+z 50
 x 12
 y 19
 end
-arch water_lt2
+arch grassd_7
+z 50
 x 12
 y 20
 end
@@ -1681,35 +1714,51 @@ arch water_lt2
 x 13
 y 12
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 13
 y 13
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 13
 y 14
 end
-arch water_lt4
+arch fstone1m3
+x 13
+y 14
+end
+arch grassd_6
+z 50
 x 13
 y 15
 end
-arch water_lt3
+arch fstone1m5
+x 13
+y 15
+end
+arch grassd_6
+z 50
 x 13
 y 16
 end
-arch water_lt4
+arch grassd_5
+z 50
 x 13
 y 17
 end
-arch water_lt
+arch grassd_4
+z 50
 x 13
 y 18
 end
-arch water_lt3
+arch grassd_1
+z 50
 x 13
 y 19
 end
-arch water_lt4
+arch grassd_6
+z 50
 x 13
 y 20
 end
@@ -1810,35 +1859,47 @@ arch water_lt3
 x 14
 y 12
 end
-arch water_lt2
+arch blocked
+blocksview 0
 x 14
 y 13
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 14
 y 14
 end
-arch water_lt2
+arch fstone1m12
+x 14
+y 14
+end
+arch grassd_7
+z 50
 x 14
 y 15
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 14
 y 16
 end
-arch water_lt
+arch grassd_4
+z 50
 x 14
 y 17
 end
-arch water_lt
+arch grassd_1
+z 50
 x 14
 y 18
 end
-arch water_lt3
+arch grassd_8
+z 50
 x 14
 y 19
 end
-arch water_lt4
+arch grassd_3
+z 50
 x 14
 y 20
 end
@@ -1935,35 +1996,47 @@ arch water_lt4
 x 15
 y 12
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 15
 y 13
 end
-arch water_lt
+arch grassd_2
+z 50
 x 15
 y 14
 end
-arch water_lt2
+arch fstone1m12
+x 15
+y 14
+end
+arch grassd_8
+z 50
 x 15
 y 15
 end
-arch water_lt
+arch grassd_7
+z 50
 x 15
 y 16
 end
-arch water_lt
+arch grassd_2
+z 50
 x 15
 y 17
 end
-arch water_lt4
+arch grassd_8
+z 50
 x 15
 y 18
 end
-arch water_lt
+arch grassd_5
+z 50
 x 15
 y 19
 end
-arch water_lt
+arch grassd_6
+z 50
 x 15
 y 20
 end
@@ -2072,35 +2145,47 @@ arch water_lt
 x 16
 y 12
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 16
 y 13
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 16
 y 14
 end
-arch water_lt3
+arch fstone1m12
+x 16
+y 14
+end
+arch grassd_2
+z 50
 x 16
 y 15
 end
-arch water_lt2
+arch grassd_4
+z 50
 x 16
 y 16
 end
-arch water_lt
+arch grassd_8
+z 50
 x 16
 y 17
 end
-arch water_lt
+arch grassd_6
+z 50
 x 16
 y 18
 end
-arch water_lt2
+arch grassd_7
+z 50
 x 16
 y 19
 end
-arch water_lt4
+arch grassd_1
+z 50
 x 16
 y 20
 end
@@ -2185,39 +2270,52 @@ arch water_lt
 x 17
 y 11
 end
-arch water_lt2
+arch blocked
+blocksview 0
 x 17
 y 12
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 17
 y 13
 end
-arch water_lt2
+arch grassd_4
+z 50
 x 17
 y 14
 end
-arch water_lt4
+arch fstone1m12
+x 17
+y 14
+end
+arch grassd_7
+z 50
 x 17
 y 15
 end
-arch water_lt
+arch grassd_6
+z 50
 x 17
 y 16
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 17
 y 17
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 17
 y 18
 end
-arch water_lt3
+arch grassd_4
+z 50
 x 17
 y 19
 end
-arch water_lt3
+arch grassd_1
+z 50
 x 17
 y 20
 end
@@ -2308,43 +2406,61 @@ arch water_lt4
 x 18
 y 10
 end
-arch water_lt4
+arch blocked
+blocksview 0
 x 18
 y 11
 end
-arch water_lt4
+arch blocked
+blocksview 0
 x 18
 y 12
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 18
 y 13
 end
-arch water_lt2
+arch fstone1m3
+x 18
+y 13
+end
+arch grassd_6
+z 50
 x 18
 y 14
 end
-arch water_lt
+arch fstone1m5
+x 18
+y 14
+end
+arch grassd_2
+z 50
 x 18
 y 15
 end
-arch water_lt
+arch grassd_7
+z 50
 x 18
 y 16
 end
-arch water_lt
+arch grassd_4
+z 50
 x 18
 y 17
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 18
 y 18
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 18
 y 19
 end
-arch water_lt4
+arch grassd_6
+z 50
 x 18
 y 20
 end
@@ -2440,43 +2556,61 @@ arch water_lt
 x 19
 y 10
 end
-arch water_lt4
+arch blocked
+blocksview 0
 x 19
 y 11
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 19
 y 12
 end
-arch water_lt
+arch fstone1m3
+x 19
+y 12
+end
+arch grassd_6
+z 50
 x 19
 y 13
 end
-arch water_lt
+arch fstone1m5
+x 19
+y 13
+end
+arch grassd_5
+z 50
 x 19
 y 14
 end
-arch water_lt
+arch grassd_1
+z 50
 x 19
 y 15
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 19
 y 16
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 19
 y 17
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 19
 y 18
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 19
 y 19
 end
-arch water_lt
+arch grassd_1
+z 50
 x 19
 y 20
 end
@@ -2566,43 +2700,57 @@ arch water_lt4
 x 20
 y 10
 end
-arch water_lt3
+arch blocked
+blocksview 0
 x 20
 y 11
 end
-arch water_lt4
+arch grassd_5
+z 50
 x 20
 y 12
 end
-arch water_lt3
+arch fstone1m12
+x 20
+y 12
+end
+arch grassd_3
+z 50
 x 20
 y 13
 end
-arch water_lt4
+arch grassd_7
+z 50
 x 20
 y 14
 end
-arch water_lt3
+arch grassd_6
+z 50
 x 20
 y 15
 end
-arch water_lt
+arch grassd_5
+z 50
 x 20
 y 16
 end
-arch water_lt4
+arch grassd_2
+z 50
 x 20
 y 17
 end
-arch water_lt3
+arch grassd_8
+z 50
 x 20
 y 18
 end
-arch water_lt3
+arch grassd_2
+z 50
 x 20
 y 19
 end
-arch water_lt4
+arch grassd_6
+z 50
 x 20
 y 20
 end
@@ -2688,43 +2836,57 @@ arch water_lt3
 x 21
 y 10
 end
-arch water_lt2
+arch blocked
+blocksview 0
 x 21
 y 11
 end
-arch water_lt4
+arch grassd_5
+z 50
 x 21
 y 12
 end
-arch water_lt3
+arch fstone1m12
+x 21
+y 12
+end
+arch grassd_6
+z 50
 x 21
 y 13
 end
-arch water_lt2
+arch grassd_2
+z 50
 x 21
 y 14
 end
-arch water_lt3
+arch grassd_6
+z 50
 x 21
 y 15
 end
-arch water_lt
+arch grassd_5
+z 50
 x 21
 y 16
 end
-arch water_lt3
+arch grassd_5
+z 50
 x 21
 y 17
 end
-arch water_lt4
+arch grassd_6
+z 50
 x 21
 y 18
 end
-arch water_lt4
+arch grassd_1
+z 50
 x 21
 y 19
 end
-arch water_lt4
+arch grassd_7
+z 50
 x 21
 y 20
 end
@@ -2806,43 +2968,57 @@ arch water_lt
 x 22
 y 10
 end
-arch water_lt2
+arch blocked
+blocksview 0
 x 22
 y 11
 end
-arch water_lt2
+arch grassd_7
+z 50
 x 22
 y 12
 end
-arch water_lt2
+arch fstone1m12
+x 22
+y 12
+end
+arch grassd_5
+z 50
 x 22
 y 13
 end
-arch water_lt3
+arch grassd_1
+z 50
 x 22
 y 14
 end
-arch water_lt
+arch grassd_3
+z 50
 x 22
 y 15
 end
-arch water_lt4
+arch grassd_7
+z 50
 x 22
 y 16
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 22
 y 17
 end
-arch water_lt2
+arch grassd_5
+z 50
 x 22
 y 18
 end
-arch water_lt4
+arch grassd_4
+z 50
 x 22
 y 19
 end
-arch water_lt
+arch grassd_1
+z 50
 x 22
 y 20
 end
@@ -2917,43 +3093,57 @@ arch water_lt2
 x 23
 y 10
 end
-arch water_lt
+arch blocked
+blocksview 0
 x 23
 y 11
 end
-arch water_lt3
+arch grassd_8
+z 50
 x 23
 y 12
 end
-arch water_lt
+arch fstone1m12
+x 23
+y 12
+end
+arch grassd_3
+z 50
 x 23
 y 13
 end
-arch water_lt
+arch grassd_4
+z 50
 x 23
 y 14
 end
-arch water_lt2
+arch grassd_1
+z 50
 x 23
 y 15
 end
-arch water_lt2
+arch grassd_6
+z 50
 x 23
 y 16
 end
-arch water_lt2
+arch grassd_3
+z 50
 x 23
 y 17
 end
-arch water_lt
+arch grassd_1
+z 50
 x 23
 y 18
 end
-arch water_lt2
+arch grassd_7
+z 50
 x 23
 y 19
 end
-arch water_lt4
+arch grassd_7
+z 50
 x 23
 y 20
 end
