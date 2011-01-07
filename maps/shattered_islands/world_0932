@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-01-06 emperorbma
 endmsg
 width 24
 height 24
@@ -502,34 +502,34 @@ arch fwall_fstone2c
 x 3
 y 23
 end
-arch water_lt
+arch bridge_wood_NS.171
 x 4
 end
-arch water_lt3
+arch bridge_wood_NS.171
 x 4
 y 1
 end
-arch water_lt2
+arch bridge_wood_NS.171
 x 4
 y 2
 end
-arch water_lt3
+arch bridge_wood_NS.171
 x 4
 y 3
 end
-arch grassd_m7
-x 4
-y 3
-end
-arch grassd_2
+arch bridge_wood_NS.171
 x 4
 y 4
 end
-arch grassd_4
+arch bridge_wood_NS.171
 x 4
 y 5
 end
-arch grassd_4
+arch floor_fs_grey1b
+x 4
+y 6
+end
+arch bridge_wood_NS.161
 x 4
 y 6
 end
@@ -537,7 +537,7 @@ arch floor_fs_grey1b
 x 4
 y 7
 end
-arch grassd_m4
+arch grassd_m9
 x 4
 y 7
 end
@@ -637,30 +637,26 @@ arch fwall_fstone2d
 x 4
 y 23
 end
-arch water_lt
+arch bridge_wood_NS.101
 x 5
 end
-arch water_lt
+arch bridge_wood_NS.101
 x 5
 y 1
 end
-arch water_lt2
+arch bridge_wood_NS.101
 x 5
 y 2
 end
-arch water_lt4
+arch bridge_wood_NS.101
 x 5
 y 3
 end
-arch grassd_m7
-x 5
-y 3
-end
-arch grassd_2
+arch bridge_wood_NS.101
 x 5
 y 4
 end
-arch grassd_3
+arch bridge_wood_NS.101
 x 5
 y 5
 end
@@ -668,15 +664,11 @@ arch floor_fs_grey1b
 x 5
 y 6
 end
-arch grassd_m4
+arch bridge_wood_NS.151
 x 5
 y 6
 end
 arch floor_fs_grey1b
-x 5
-y 7
-end
-arch grassd_m13
 x 5
 y 7
 end
@@ -772,34 +764,26 @@ arch floor_fstone2a
 x 5
 y 23
 end
-arch water_lt
+arch bridge_wood_NS.101
 x 6
 end
-arch water_lt
+arch bridge_wood_NS.101
 x 6
 y 1
 end
-arch water_lt4
+arch bridge_wood_NS.101
 x 6
 y 2
 end
-arch water_lt3
+arch bridge_wood_NS.101
 x 6
 y 3
 end
-arch grassd_m14
-x 6
-y 3
-end
-arch water_lt
+arch bridge_wood_NS.101
 x 6
 y 4
 end
-arch grassd_m3
-x 6
-y 4
-end
-arch grassd_8
+arch bridge_wood_NS.101
 x 6
 y 5
 end
@@ -807,7 +791,12 @@ arch floor_fs_grey1b
 x 6
 y 6
 end
-arch grassd_m6
+arch grassd_m8
+x 6
+y 6
+end
+arch bridge_wood_NS.151
+layer 3
 x 6
 y 6
 end
@@ -910,7 +899,14 @@ end
 arch water_lt2
 x 7
 end
+arch bridge_wood_NS.131
+x 7
+end
 arch water_lt2
+x 7
+y 1
+end
+arch bridge_wood_NS.131
 x 7
 y 1
 end
@@ -918,7 +914,15 @@ arch water_lt4
 x 7
 y 2
 end
+arch bridge_wood_NS.131
+x 7
+y 2
+end
 arch water_lt2
+x 7
+y 3
+end
+arch bridge_wood_NS.131
 x 7
 y 3
 end
@@ -930,6 +934,11 @@ arch grassd_m14
 x 7
 y 4
 end
+arch bridge_wood_NS.131
+layer 3
+x 7
+y 4
+end
 arch water_lt3
 x 7
 y 5
@@ -938,7 +947,16 @@ arch grassd_m3
 x 7
 y 5
 end
+arch bridge_wood_NS.131
+layer 3
+x 7
+y 5
+end
 arch grassd_6
+x 7
+y 6
+end
+arch bridge_wood_NS.141
 x 7
 y 6
 end
