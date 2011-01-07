@@ -2184,7 +2184,7 @@ z 50
 x 16
 y 19
 end
-arch grassd_1
+arch grass_stone3
 z 50
 x 16
 y 20
@@ -2314,7 +2314,7 @@ z 50
 x 17
 y 19
 end
-arch grassd_1
+arch grass_stone5
 z 50
 x 17
 y 20
@@ -2459,7 +2459,7 @@ z 50
 x 18
 y 19
 end
-arch grassd_6
+arch grass_stone3
 z 50
 x 18
 y 20
@@ -2609,7 +2609,7 @@ z 50
 x 19
 y 19
 end
-arch grassd_1
+arch grass_stone1
 z 50
 x 19
 y 20
@@ -2739,8 +2739,16 @@ z 50
 x 20
 y 17
 end
+arch wall_white2_8
+x 20
+y 17
+end
 arch grassd_8
 z 50
+x 20
+y 18
+end
+arch wall_white2_3
 x 20
 y 18
 end
@@ -2749,8 +2757,17 @@ z 50
 x 20
 y 19
 end
-arch grassd_6
+arch wall_white2_w.3
+x 20
+y 19
+end
+arch grass_stone3
 z 50
+x 20
+y 20
+end
+arch door1_locked
+direction 3
 x 20
 y 20
 end
@@ -2759,8 +2776,16 @@ z 50
 x 20
 y 21
 end
+arch wall_white2_w.3
+x 20
+y 21
+end
 arch grassd_2
 z 50
+x 20
+y 22
+end
+arch wall_white2_3
 x 20
 y 22
 end
@@ -2870,38 +2895,62 @@ z 50
 x 21
 y 16
 end
+arch wall_white2_8
+x 21
+y 16
+end
 arch grassd_5
 z 50
 x 21
 y 17
 end
-arch grassd_6
+arch wall_white2_4
+x 21
+y 17
+end
+arch floor_wood3g
 z 50
 x 21
 y 18
 end
-arch grassd_1
+arch floor_wood3h
 z 50
 x 21
 y 19
 end
-arch grassd_7
+arch carpet2.131
+x 21
+y 19
+end
+arch floor_wood3f
 z 50
 x 21
 y 20
 end
-arch grassd_6
+arch carpet2.131
+x 21
+y 20
+end
+arch floor_wood3g
 z 50
 x 21
 y 21
 end
-arch grassd_6
+arch floor_wood3g
 z 50
 x 21
 y 22
 end
-arch grassd_6
+arch wall_white2_1
+x 21
+y 22
+end
+arch grassd_5
 z 50
+x 21
+y 23
+end
+arch wall_white2_3
 x 21
 y 23
 end
@@ -3002,38 +3051,63 @@ z 50
 x 22
 y 16
 end
-arch grassd_4
+arch wall_white2_1
+x 22
+y 16
+end
+arch floor_wood3g
 z 50
 x 22
 y 17
 end
-arch grassd_5
+arch broom.111
+direction 3
+x 22
+y 17
+end
+arch floor_wood3h
 z 50
 x 22
 y 18
 end
-arch grassd_4
+arch floor_wood3h
 z 50
 x 22
 y 19
 end
-arch grassd_1
+arch carpet2d
+x 22
+y 19
+end
+arch floor_wood3g
 z 50
 x 22
 y 20
 end
-arch grassd_8
+arch carpet2d
+x 22
+y 20
+end
+arch floor_wood3g
 z 50
 x 22
 y 21
 end
-arch grassd_6
+arch floor_wood3f
 z 50
 x 22
 y 22
 end
-arch grassd_4
+arch light2
+x 22
+y 22
+end
+arch floor_wood3g
 z 50
+x 22
+y 23
+end
+arch wall_white2_1
 x 22
 y 23
 end
@@ -3127,38 +3201,59 @@ z 50
 x 23
 y 16
 end
-arch grassd_3
+arch wall_white2_1
+x 23
+y 16
+end
+arch floor_wood3h
 z 50
 x 23
 y 17
 end
-arch grassd_1
+arch torch_wall_1
+direction 3
+x 23
+y 17
+end
+arch floor_wood3g
 z 50
 x 23
 y 18
 end
-arch grassd_7
+arch floor_wood3g
 z 50
 x 23
 y 19
 end
-arch grassd_7
+arch carpet2d
+x 23
+y 19
+end
+arch floor_wood3g
 z 50
 x 23
 y 20
 end
-arch grassd_8
+arch carpet2d
+x 23
+y 20
+end
+arch floor_wood3f
 z 50
 x 23
 y 21
 end
-arch grassd_3
+arch floor_wood3f
 z 50
 x 23
 y 22
 end
-arch grassd_3
+arch floor_wood3g
 z 50
+x 23
+y 23
+end
+arch wall_white2_1
 x 23
 y 23
 end
