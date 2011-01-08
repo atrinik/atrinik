@@ -1,6 +1,6 @@
 Object uraniumoxide
 name pile
-title of uraniumoxide
+title of uranium oxide
 face sulfur.101
 layer 3
 material 64

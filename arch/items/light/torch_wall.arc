@@ -1,5 +1,5 @@
 Object torch_wall_1
-name attached torch
+name sconce
 layer 5
 type 74
 face torch_wall.110
