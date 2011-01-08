@@ -1,13 +1,14 @@
 arch map
-name World
+name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
 Modified: 2011-01-07 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 outdoor 1
+no_harm 1
 tile_path_1 world_1136
 tile_path_2 world_1235
 tile_path_3 world_1134
@@ -16,6 +17,8 @@ tile_path_5 world_1236
 tile_path_6 world_1234
 tile_path_7 world_1034
 tile_path_8 world_1036
+bg_music rainthunder.ogg
+region asteria
 end
 arch grassd_6
 z 50
@@ -2737,7 +2740,7 @@ arch floor_fs_grey1b
 x 23
 y 19
 end
-arch grassd_m10
+arch grassd_m6
 x 23
 y 19
 end
@@ -2745,11 +2748,15 @@ arch floor_fs_grey1b
 x 23
 y 20
 end
+arch grassd_m8
+x 23
+y 20
+end
 arch floor_fs_grey1b
 x 23
 y 21
 end
-arch grassd_m7
+arch grassd_m5
 x 23
 y 21
 end
