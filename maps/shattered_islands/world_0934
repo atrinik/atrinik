@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-07 emperorbma
+Modified: 2011-01-08 emperorbma
 endmsg
 width 24
 height 24
@@ -20,51 +20,80 @@ tile_path_8 world_0835
 bg_music rainthunder.ogg
 region asteria
 end
-arch grassd_5
+arch grassd_4
 z 50
 end
-arch grassd_2
+arch wall_marble1.111
+end
+arch grassd_1
 z 50
 y 1
 end
-arch grassd_7
+arch wall_marble1.111
+y 1
+end
+arch grassd_8
 z 50
 y 2
 end
-arch grassd_2
+arch wall_marble1.111
+y 2
+end
+arch grassd_5
 z 50
 y 3
 end
-arch grassd_2
-z 50
-y 4
-end
-arch grassd_7
-z 50
-y 5
-end
-arch grassd_7
-z 50
-y 6
+arch wall_marble1.111
+y 3
 end
 arch grassd_3
 z 50
+y 4
+end
+arch wall_marble1.111
+y 4
+end
+arch grassd_2
+z 50
+y 5
+end
+arch wall_marble1.111
+y 5
+end
+arch grassd_4
+z 50
+y 6
+end
+arch wall_marble1.111
+y 6
+end
+arch grassd_4
+z 50
+y 7
+end
+arch wall_marble1.111
 y 7
 end
 arch grassd_7
 z 50
 y 8
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 y 9
 end
-arch grassd_2
+arch grassd_m10
+y 9
+end
+arch floor_fs_grey1b
 z 50
 y 10
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
+y 11
+end
+arch grassd_m7
 y 11
 end
 arch grassd_8
@@ -127,50 +156,65 @@ arch fstone1a
 z 50
 y 23
 end
-arch grassd_5
+arch floor_dungeon1b
 z 50
 x 1
 end
-arch grassd_6
+arch floor_dungeon1b
 z 50
 x 1
 y 1
 end
-arch grassd_3
+arch chair1_111
+direction 5
+x 1
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 1
 y 2
 end
-arch grassd_7
+arch chair1_111
+direction 5
+x 1
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 1
 y 3
 end
-arch grassd_5
+arch floor_dungeon1b
 z 50
 x 1
 y 4
 end
-arch tree_big4b
+arch wall_marble1.131
 x 1
 y 4
 end
-arch grassd_1
+arch floor_dungeon1b
 z 50
 x 1
 y 5
 end
-arch grassd_7
+arch stairs_stone_up
+direction 5
+x 1
+y 5
+end
+arch floor_dungeon1b
 z 50
 x 1
 y 6
 end
-arch grassd_1
+arch floor_dungeon1b
 z 50
 x 1
 y 7
 end
-arch plant_flower7
+arch wall_marble1.131
 x 1
 y 7
 end
@@ -179,22 +223,26 @@ z 50
 x 1
 y 8
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
 x 1
 y 9
 end
-arch grassd_4
+arch grassd_m10
+x 1
+y 9
+end
+arch floor_fs_grey1b
 z 50
 x 1
 y 10
 end
-arch plant17
-x 1
-y 10
-end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
+x 1
+y 11
+end
+arch grassd_m7
 x 1
 y 11
 end
@@ -270,46 +318,73 @@ z 50
 x 1
 y 23
 end
-arch grassd_1
+arch floor_dungeon1b
 z 50
 x 2
 end
-arch grassd_4
+arch floor_dungeon1b
 z 50
 x 2
 y 1
 end
-arch tree_big4b
+arch chair1_111
+direction 5
 x 2
 y 1
 end
-arch grassd_8
+arch floor_dungeon1b
 z 50
 x 2
 y 2
 end
-arch grassd_7
+arch chair1_111
+direction 5
+x 2
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 2
 y 3
 end
-arch grassd_6
+arch floor_dungeon1b
 z 50
 x 2
 y 4
 end
-arch grassd_8
+arch wall_marble1.131
+x 2
+y 4
+end
+arch wmask_wanted.151
+msg
+Parliament Schedule
+8:00-10:00 - Early Morning deliberation
+11:00-12:00 - Parliament convenes
+12:00-1:00 - Lunch
+1:00-3:00 - Afternoon deliberation
+4:00-5:00 - Parliament convenes
+5:00 - Parliament recesses until tomorrow
+endmsg
+x 2
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 2
 y 5
 end
-arch grassd_8
+arch floor_dungeon1b
 z 50
 x 2
 y 6
 end
-arch grassd_2
+arch floor_dungeon1b
 z 50
+x 2
+y 7
+end
+arch wall_marble1.131
 x 2
 y 7
 end
@@ -318,18 +393,26 @@ z 50
 x 2
 y 8
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 2
 y 9
 end
-arch grassd_3
+arch grassd_m10
+x 2
+y 9
+end
+arch floor_fs_grey1b
 z 50
 x 2
 y 10
 end
-arch grassd_8
+arch floor_fs_grey1b
 z 50
+x 2
+y 11
+end
+arch grassd_m7
 x 2
 y 11
 end
@@ -409,49 +492,64 @@ arch fwall_fstone2c
 x 2
 y 23
 end
-arch grassd_4
+arch floor_dungeon1b
 z 50
 x 3
 end
-arch tree_branch2
-x 3
-end
-arch grassd_6
+arch floor_dungeon1b
 z 50
 x 3
 y 1
 end
-arch grassd_2
+arch chair1_111
+direction 5
+x 3
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 3
 y 2
 end
-arch grassd_2
+arch chair1_111
+direction 5
+x 3
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 3
 y 3
 end
-arch grassd_5
+arch floor_dungeon1b
 z 50
 x 3
 y 4
 end
-arch grassd_8
+arch wall_marble1.131
+x 3
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 3
 y 5
 end
-arch grassd_8
+arch torch_wall_1
+x 3
+y 5
+end
+arch floor_dungeon1b
 z 50
 x 3
 y 6
 end
-arch tree_big
-x 3
-y 6
-end
-arch grassd_3
+arch floor_dungeon1b
 z 50
+x 3
+y 7
+end
+arch wall_marble1.131
 x 3
 y 7
 end
@@ -460,27 +558,31 @@ z 50
 x 3
 y 8
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 3
 y 9
 end
-arch grassd_1
+arch grassd_m10
+x 3
+y 9
+end
+arch floor_fs_grey1b
 z 50
 x 3
 y 10
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
+x 3
+y 11
+end
+arch grassd_m7
 x 3
 y 11
 end
 arch grassd_6
 z 50
-x 3
-y 12
-end
-arch tree_big4b
 x 3
 y 12
 end
@@ -555,46 +657,77 @@ arch fwall_fstone2d
 x 3
 y 23
 end
-arch grassd_3
+arch floor_dungeon1b
 z 50
 x 4
 end
-arch grassd_8
+arch floor_dungeon1b
 z 50
 x 4
 y 1
 end
-arch grassd_1
+arch chair1_111
+direction 5
+x 4
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 4
 y 2
 end
-arch small_stones
+arch chair1_111
+direction 5
 x 4
 y 2
 end
-arch grassd_2
+arch floor_dungeon1b
 z 50
 x 4
 y 3
 end
-arch grassd_1
+arch floor_dungeon1b
 z 50
 x 4
 y 4
 end
-arch grassd_2
+arch wall_marble1.131
+x 4
+y 4
+end
+arch flag_eagle
+x 4
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 4
 y 5
 end
-arch grassd_1
+arch spawn_point
+x 4
+y 5
+arch guard
+name Asterian Guard
+type 83
+level 35
+end
+end
+arch floor_dungeon1b
 z 50
 x 4
 y 6
 end
-arch grassd_8
+arch floor_dungeon1b
 z 50
+x 4
+y 7
+end
+arch wall_marble1.131
+x 4
+y 7
+end
+arch flag_eagle
 x 4
 y 7
 end
@@ -603,22 +736,26 @@ z 50
 x 4
 y 8
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
 x 4
 y 9
 end
-arch tree_branch3
+arch grassd_m10
 x 4
 y 9
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 4
 y 10
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
+x 4
+y 11
+end
+arch grassd_m7
 x 4
 y 11
 end
@@ -698,62 +835,104 @@ z 46
 x 4
 y 23
 end
-arch grassd_8
+arch floor_dungeon1b
 z 50
 x 5
 end
-arch grassd_3
+arch carpet2.151
+x 5
+end
+arch table_lab3.111
+x 5
+end
+arch floor_dungeon1b
 z 50
 x 5
 y 1
 end
-arch grassd_6
+arch carpet2b
+x 5
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 5
 y 2
 end
-arch grassd_2
+arch carpet2b
+x 5
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 5
 y 3
 end
-arch grassd_1
+arch carpet2b
+x 5
+y 3
+end
+arch floor_dungeon1b
 z 50
 x 5
 y 4
 end
-arch grassd_3
+arch carpet2.111
+x 5
+y 4
+end
+arch door_wood1
+x 5
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 5
 y 5
 end
-arch grassd_7
+arch floor_dungeon1b
 z 50
 x 5
 y 6
 end
-arch grassd_5
+arch floor_dungeon1b
 z 50
 x 5
 y 7
 end
-arch grassd_2
+arch door_wood1
+x 5
+y 7
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 8
 end
-arch grassd_7
+arch grassd_m9
+x 5
+y 8
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 9
 end
-arch grassd_6
+arch grassd_m13
+x 5
+y 9
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 10
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
+x 5
+y 11
+end
+arch grassd_m7
 x 5
 y 11
 end
@@ -841,74 +1020,98 @@ arch stone1
 x 5
 y 23
 end
-arch grassd_5
+arch floor_dungeon1b
 z 50
 x 6
 end
-arch grassd_4
+arch floor_dungeon1b
 z 50
 x 6
 y 1
 end
-arch grassd_2
+arch chair1_111
+direction 5
+x 6
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 6
 y 2
 end
-arch tree_big
+arch chair1_111
+direction 5
 x 6
 y 2
 end
-arch grassd_8
+arch floor_dungeon1b
 z 50
 x 6
 y 3
 end
-arch grassd_6
+arch floor_dungeon1b
 z 50
 x 6
 y 4
 end
-arch grassd_3
+arch door_wood1
+direction 7
+x 6
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 6
 y 5
 end
-arch grassd_6
+arch floor_dungeon1b
 z 50
 x 6
 y 6
 end
-arch plant10
-x 6
-y 6
-end
-arch grassd_8
+arch floor_dungeon1b
 z 50
 x 6
 y 7
 end
-arch grassd_5
+arch door_wood1
+direction 7
+x 6
+y 7
+end
+arch floor_fs_grey1b
 z 50
 x 6
 y 8
 end
-arch grassd_3
+arch grassd_m8
+x 6
+y 8
+end
+arch floor_fs_grey1b
 z 50
 x 6
 y 9
 end
-arch tree_big4b
+arch grassd_m8
 x 6
 y 9
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
 x 6
 y 10
 end
-arch grassd_6
+arch grassd_m8
+x 6
+y 10
+end
+arch floor_fs_grey1b
 z 50
+x 6
+y 11
+end
+arch grassd_m5
 x 6
 y 11
 end
@@ -992,42 +1195,77 @@ z 42
 x 6
 y 23
 end
-arch grassd_3
+arch floor_dungeon1b
 z 50
 x 7
 end
-arch grassd_7
+arch floor_dungeon1b
 z 50
 x 7
 y 1
 end
-arch grassd_2
+arch chair1_111
+direction 5
+x 7
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 7
 y 2
 end
-arch grassd_2
+arch chair1_111
+direction 5
+x 7
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 7
 y 3
 end
-arch grassd_3
+arch floor_dungeon1b
 z 50
 x 7
 y 4
 end
-arch grassd_2
+arch wall_marble1.131
+x 7
+y 4
+end
+arch flag_eagle
+x 7
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 7
 y 5
 end
-arch grassd_2
+arch spawn_point
+x 7
+y 5
+arch guard
+name Asterian Guard
+type 83
+level 35
+end
+end
+arch floor_dungeon1b
 z 50
 x 7
 y 6
 end
-arch grassd_4
+arch floor_dungeon1b
 z 50
+x 7
+y 7
+end
+arch wall_marble1.131
+x 7
+y 7
+end
+arch flag_eagle
 x 7
 y 7
 end
@@ -1135,46 +1373,64 @@ z 38
 x 7
 y 23
 end
-arch grassd_1
+arch floor_dungeon1b
 z 50
 x 8
 end
-arch grassd_2
+arch floor_dungeon1b
 z 50
 x 8
 y 1
 end
-arch grassd_6
+arch chair1_111
+direction 5
+x 8
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 8
 y 2
 end
-arch grassd_1
+arch chair1_111
+direction 5
+x 8
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 8
 y 3
 end
-arch grassd_3
+arch floor_dungeon1b
 z 50
 x 8
 y 4
 end
-arch grassd_4
+arch wall_marble1.131
+x 8
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 8
 y 5
 end
-arch grassd_3
+arch torch_wall_1
+x 8
+y 5
+end
+arch floor_dungeon1b
 z 50
 x 8
 y 6
 end
-arch grassd_2
+arch floor_dungeon1b
 z 50
 x 8
 y 7
 end
-arch tree_big4b
+arch wall_marble1.131
 x 8
 y 7
 end
@@ -1274,50 +1530,65 @@ z 34
 x 8
 y 23
 end
-arch grassd_2
+arch floor_dungeon1b
 z 50
 x 9
 end
-arch grassd_3
+arch floor_dungeon1b
 z 50
 x 9
 y 1
 end
-arch plant_flower11
+arch chair1_111
+direction 5
 x 9
 y 1
 end
-arch grassd_4
+arch floor_dungeon1b
 z 50
 x 9
 y 2
 end
-arch grassd_3
+arch chair1_111
+direction 5
+x 9
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 9
 y 3
 end
-arch grassd_3
+arch floor_dungeon1b
 z 50
 x 9
 y 4
 end
-arch grassd_5
+arch wall_marble1.131
+x 9
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 9
 y 5
 end
-arch plant13
+arch stairs_stone_up
+direction 5
 x 9
 y 5
 end
-arch grassd_1
+arch floor_dungeon1b
 z 50
 x 9
 y 6
 end
-arch grassd_2
+arch floor_dungeon1b
 z 50
+x 9
+y 7
+end
+arch wall_marble1.131
 x 9
 y 7
 end
@@ -1429,49 +1700,73 @@ z 30
 x 9
 y 23
 end
-arch grassd_7
+arch floor_dungeon1b
 z 50
 x 10
 end
-arch tree_big2
+arch wall_marble1.111
 x 10
 end
-arch grassd_5
+arch floor_dungeon1b
 z 50
 x 10
 y 1
 end
-arch grassd_6
+arch wall_marble1.111
+x 10
+y 1
+end
+arch floor_dungeon1b
 z 50
 x 10
 y 2
 end
-arch grassd_4
+arch wall_marble1.111
+x 10
+y 2
+end
+arch floor_dungeon1b
 z 50
 x 10
 y 3
 end
-arch grassd_6
+arch wall_marble1.111
+x 10
+y 3
+end
+arch floor_dungeon1b
 z 50
 x 10
 y 4
 end
-arch grassd_1
+arch wall_marble1.141
+x 10
+y 4
+end
+arch floor_dungeon1b
 z 50
 x 10
 y 5
 end
-arch grassd_8
+arch wall_marble1.111
+x 10
+y 5
+end
+arch floor_dungeon1b
 z 50
 x 10
 y 6
 end
-arch grassd_5
+arch wall_marble1.111
+x 10
+y 6
+end
+arch floor_dungeon1b
 z 50
 x 10
 y 7
 end
-arch plant11
+arch wall_marble1.141
 x 10
 y 7
 end
@@ -1595,10 +1890,6 @@ y 2
 end
 arch grassd_1
 z 50
-x 11
-y 3
-end
-arch tree_big2
 x 11
 y 3
 end
