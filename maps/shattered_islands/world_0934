@@ -3448,7 +3448,7 @@ arch grassd_2
 x 22
 y 22
 end
-arch grassd_3
+arch grass_leaf1
 x 22
 y 23
 end
@@ -3571,11 +3571,15 @@ arch grassd_1
 x 23
 y 21
 end
-arch grassd_1
+arch grass_leaf2
 x 23
 y 22
 end
-arch grassd_4
+arch grassd_5
+x 23
+y 23
+end
+arch reed_sm1
 x 23
 y 23
 end

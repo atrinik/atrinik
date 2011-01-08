@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-01-07 emperorbma
 endmsg
 width 24
 height 24
@@ -55,6 +55,9 @@ arch tree_big4
 y 9
 end
 arch grassd_6
+y 10
+end
+arch reed_sm1
 y 10
 end
 arch water_lt4
@@ -145,6 +148,10 @@ x 1
 y 9
 end
 arch grassd_7
+x 1
+y 10
+end
+arch reed_sm1
 x 1
 y 10
 end
@@ -247,6 +254,10 @@ x 2
 y 8
 end
 arch grassd_5
+x 2
+y 9
+end
+arch reed_sm1
 x 2
 y 9
 end
@@ -361,6 +372,10 @@ arch grassd_8
 x 3
 y 9
 end
+arch reed_sm1
+x 3
+y 9
+end
 arch water_lt2
 x 3
 y 10
@@ -465,6 +480,10 @@ x 4
 y 8
 end
 arch grassd_1
+x 4
+y 9
+end
+arch reed_sm1
 x 4
 y 9
 end
@@ -575,6 +594,10 @@ x 5
 y 8
 end
 arch grassd_8
+x 5
+y 9
+end
+arch reed_sm1
 x 5
 y 9
 end
@@ -689,6 +712,10 @@ arch grassd_8
 x 6
 y 9
 end
+arch reed_sm1
+x 6
+y 9
+end
 arch water_lt3
 x 6
 y 10
@@ -789,6 +816,10 @@ x 7
 y 8
 end
 arch grassd_4
+x 7
+y 9
+end
+arch reed_sm1
 x 7
 y 9
 end
@@ -890,7 +921,15 @@ arch grassd_3
 x 8
 y 7
 end
+arch reed_sm1
+x 8
+y 7
+end
 arch grassd_8
+x 8
+y 8
+end
+arch reed_sm1
 x 8
 y 8
 end
@@ -989,7 +1028,15 @@ arch grassd_6
 x 9
 y 4
 end
+arch reed_sm1
+x 9
+y 4
+end
 arch grassd_1
+x 9
+y 5
+end
+arch reed_sm1
 x 9
 y 5
 end
@@ -998,6 +1045,10 @@ x 9
 y 5
 end
 arch grassd_6
+x 9
+y 6
+end
+arch reed_sm1
 x 9
 y 6
 end
@@ -1084,7 +1135,14 @@ end
 arch grassd_2
 x 10
 end
+arch reed_sm1
+x 10
+end
 arch grassd_3
+x 10
+y 1
+end
+arch reed_sm1
 x 10
 y 1
 end
@@ -1092,7 +1150,15 @@ arch grassd_5
 x 10
 y 2
 end
+arch reed_sm1
+x 10
+y 2
+end
 arch grassd_2
+x 10
+y 3
+end
+arch reed_sm1
 x 10
 y 3
 end
