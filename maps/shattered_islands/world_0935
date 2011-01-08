@@ -2629,10 +2629,6 @@ direction 3
 x 16
 y 19
 end
-arch grate1_3
-x 16
-y 19
-end
 arch floor_fs_grey1b
 z 50
 x 16
@@ -2647,9 +2643,9 @@ end
 arch magic_ear
 msg
 @match eagle
-Correct, but this area is restricted due to construction.
+Correct, you may pass.
 endmsg
-connected 1011
+connected 101
 x 16
 y 20
 end
@@ -2657,10 +2653,6 @@ arch light5
 x 16
 y 20
 end
-arch grate1_3
-x 16
-y 20
-end
 arch floor_fs_grey1b
 z 50
 x 16
@@ -2672,10 +2664,6 @@ direction 3
 x 16
 y 21
 end
-arch grate1_3
-x 16
-y 21
-end
 arch floor_fs_grey1b
 z 50
 x 16
@@ -2684,10 +2672,6 @@ end
 arch grate_open
 connected 101
 direction 3
-x 16
-y 22
-end
-arch grate1_3
 x 16
 y 22
 end

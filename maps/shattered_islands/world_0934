@@ -1683,10 +1683,6 @@ z 46
 x 11
 y 16
 end
-arch tree_big3
-x 11
-y 16
-end
 arch grassd_6
 z 42
 x 11
@@ -1833,25 +1829,13 @@ z 46
 x 12
 y 15
 end
-arch tree_big
-x 12
-y 15
-end
 arch grassd_6
 z 42
 x 12
 y 16
 end
-arch tree_big3
-x 12
-y 16
-end
 arch grassd_7
 z 42
-x 12
-y 17
-end
-arch tree_big3
 x 12
 y 17
 end
@@ -1983,16 +1967,8 @@ z 46
 x 13
 y 14
 end
-arch tree_big4b
-x 13
-y 14
-end
 arch grassd_4
 z 42
-x 13
-y 15
-end
-arch tree_big4b
 x 13
 y 15
 end
@@ -2001,16 +1977,8 @@ z 42
 x 13
 y 16
 end
-arch tree_big
-x 13
-y 16
-end
 arch grassd_7
 z 38
-x 13
-y 17
-end
-arch tree_big
 x 13
 y 17
 end
@@ -2156,16 +2124,8 @@ z 38
 x 14
 y 16
 end
-arch tree_big2
-x 14
-y 16
-end
 arch grassd_1
 z 34
-x 14
-y 17
-end
-arch tree_big4b
 x 14
 y 17
 end
@@ -2174,16 +2134,8 @@ z 30
 x 14
 y 18
 end
-arch tree_big4b
-x 14
-y 18
-end
 arch grassd_4
 z 26
-x 14
-y 19
-end
-arch tree_big
 x 14
 y 19
 end
@@ -2327,16 +2279,8 @@ z 34
 x 15
 y 16
 end
-arch tree_big2
-x 15
-y 16
-end
 arch grassd_5
 z 30
-x 15
-y 17
-end
-arch tree_big3
 x 15
 y 17
 end
@@ -2354,20 +2298,12 @@ z 22
 x 15
 y 19
 end
-arch tree_big2
-x 15
-y 19
-end
 arch floor_fs_grey1b
 z 22
 x 15
 y 20
 end
 arch grassd_m4
-x 15
-y 20
-end
-arch tree_big
 x 15
 y 20
 end
@@ -2491,16 +2427,8 @@ z 26
 x 16
 y 17
 end
-arch tree_big3
-x 16
-y 17
-end
 arch grassd_2
 z 22
-x 16
-y 18
-end
-arch tree_big
 x 16
 y 18
 end
@@ -2518,16 +2446,8 @@ z 22
 x 16
 y 20
 end
-arch tree_big2
-x 16
-y 20
-end
 arch floor_fs_grey1b
 z 18
-x 16
-y 21
-end
-arch tree_big3
 x 16
 y 21
 end
@@ -2655,25 +2575,13 @@ arch grassd_m4
 x 17
 y 18
 end
-arch tree_big2
-x 17
-y 18
-end
 arch floor_fs_grey1b
 z 22
 x 17
 y 19
 end
-arch tree_big2
-x 17
-y 19
-end
 arch floor_fs_grey1b
 z 18
-x 17
-y 20
-end
-arch tree_big3
 x 17
 y 20
 end
@@ -2686,16 +2594,8 @@ arch grassd_m5
 x 17
 y 21
 end
-arch tree_big3
-x 17
-y 21
-end
 arch grassd_8
 z 12
-x 17
-y 22
-end
-arch tree_big3
 x 17
 y 22
 end
@@ -2830,10 +2730,6 @@ z 18
 x 18
 y 19
 end
-arch tree_big
-x 18
-y 19
-end
 arch floor_fs_grey1b
 z 16
 x 18
@@ -2843,16 +2739,8 @@ arch grassd_m5
 x 18
 y 20
 end
-arch tree_big4b
-x 18
-y 20
-end
 arch grassd_5
 z 12
-x 18
-y 21
-end
-arch tree_big3
 x 18
 y 21
 end
@@ -2861,15 +2749,7 @@ z 6
 x 18
 y 22
 end
-arch tree_big4b
-x 18
-y 22
-end
 arch grassd_2
-x 18
-y 23
-end
-arch tree_big2
 x 18
 y 23
 end
@@ -3001,10 +2881,6 @@ z 12
 x 19
 y 20
 end
-arch tree_big3
-x 19
-y 20
-end
 arch grassd_8
 z 6
 x 19
@@ -3018,15 +2894,7 @@ arch grassd_4
 x 19
 y 22
 end
-arch tree_big3
-x 19
-y 22
-end
 arch grassd_1
-x 19
-y 23
-end
-arch tree_big2
 x 19
 y 23
 end
@@ -3174,10 +3042,6 @@ arch grassd_3
 x 20
 y 23
 end
-arch tree_big4b
-x 20
-y 23
-end
 arch grassd_8
 z 50
 x 21
@@ -3313,15 +3177,7 @@ arch grassd_4
 x 21
 y 22
 end
-arch tree_big3
-x 21
-y 22
-end
 arch grassd_7
-x 21
-y 23
-end
-arch tree_big4b
 x 21
 y 23
 end
@@ -3449,10 +3305,6 @@ x 22
 y 22
 end
 arch grass_leaf1
-x 22
-y 23
-end
-arch tree_big2
 x 22
 y 23
 end
