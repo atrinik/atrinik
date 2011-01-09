@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-09 Alex Tokar
+Modified: 2011-01-09 emperorbma
 endmsg
 width 24
 height 24
@@ -2078,7 +2078,7 @@ z 50
 x 11
 y 22
 end
-arch sand_dm8
+arch sand_dm22
 x 11
 y 22
 end
@@ -2090,12 +2090,8 @@ arch light7
 x 11
 y 22
 end
-arch grassd_8
+arch floor_sand_d1
 z 50
-x 11
-y 23
-end
-arch sand_dm8
 x 11
 y 23
 end
@@ -2256,7 +2252,11 @@ z 50
 x 12
 y 22
 end
-arch grassd_4
+arch sand_dm7
+x 12
+y 22
+end
+arch floor_sand_d2
 z 50
 x 12
 y 23
@@ -2416,7 +2416,7 @@ z 50
 x 13
 y 22
 end
-arch sand_dm9
+arch sand_dm20
 x 13
 y 22
 end
@@ -2428,12 +2428,8 @@ arch light7
 x 13
 y 22
 end
-arch grassd_4
+arch floor_sand_d4
 z 50
-x 13
-y 23
-end
-arch sand_dm9
 x 13
 y 23
 end
@@ -3270,6 +3266,10 @@ z 50
 x 18
 y 23
 end
+arch wall_marble1.181-06
+x 18
+y 23
+end
 arch grassd_6
 z 50
 x 19
@@ -3488,6 +3488,10 @@ z 50
 x 19
 y 23
 end
+arch wall_marble1.131-c-06-03
+x 19
+y 23
+end
 arch grassd_4
 z 50
 x 20
@@ -3604,6 +3608,10 @@ y 22
 end
 arch grassd_8
 z 50
+x 20
+y 23
+end
+arch wall_marble1.131-03
 x 20
 y 23
 end
@@ -3726,6 +3734,10 @@ z 50
 x 21
 y 23
 end
+arch wall_marble1.131-c-03-01
+x 21
+y 23
+end
 arch grassd_5
 z 50
 x 22
@@ -3845,6 +3857,10 @@ z 50
 x 22
 y 23
 end
+arch wall_marble1.131-01
+x 22
+y 23
+end
 arch grassd_4
 z 50
 x 23
@@ -3961,6 +3977,10 @@ y 22
 end
 arch grassd_1
 z 50
+x 23
+y 23
+end
+arch wall_marble1.131-c-01-07
 x 23
 y 23
 end
