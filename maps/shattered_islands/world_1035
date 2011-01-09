@@ -651,7 +651,8 @@ z 50
 x 4
 y 1
 end
-arch wood_pile.101
+arch lantern_magic.131
+glow_radius 7
 x 4
 y 1
 end
@@ -669,7 +670,7 @@ z 50
 x 4
 y 3
 end
-arch grain2.101
+arch wood_pile.101
 x 4
 y 3
 end
@@ -696,12 +697,17 @@ z 50
 x 4
 y 6
 end
+arch lantern_magic.131
+glow_radius 7
+x 4
+y 6
+end
 arch grassd_8
 z 50
 x 4
 y 7
 end
-arch box2.101
+arch box1.101
 x 4
 y 7
 end
@@ -742,7 +748,8 @@ z 50
 x 4
 y 12
 end
-arch pottery2.101
+arch lantern_magic.131
+glow_radius 7
 x 4
 y 12
 end
@@ -793,6 +800,12 @@ x 4
 y 18
 end
 arch grassd_m6
+x 4
+y 18
+end
+arch lantern_magic.131
+glow_radius 7
+direction 3
 x 4
 y 18
 end
@@ -929,6 +942,12 @@ z 50
 x 5
 y 13
 end
+arch whitewine
+can_stack 0
+type 79
+x 5
+y 13
+end
 arch grassd_6
 z 50
 x 5
@@ -1042,12 +1061,20 @@ z 50
 x 6
 y 4
 end
+arch stick_weasel
+can_stack 0
+no_pick 1
+type 79
+x 6
+y 4
+end
 arch grassd_4
 z 50
 x 6
 y 5
 end
 arch fire_cauld.131
+glow_radius 2
 x 6
 y 5
 end
@@ -1099,6 +1126,11 @@ end
 end
 arch grassd_1
 z 50
+x 6
+y 10
+end
+arch scimitar
+no_pick 1
 x 6
 y 10
 end
@@ -1700,6 +1732,11 @@ arch sand_dm8
 x 10
 y 5
 end
+arch lantern_black
+glow_radius 7
+x 10
+y 5
+end
 arch grassd_7
 z 50
 x 10
@@ -1754,6 +1791,11 @@ arch sand_dm8
 x 10
 y 11
 end
+arch lantern_black
+glow_radius 7
+x 10
+y 11
+end
 arch grassd_4
 z 50
 x 10
@@ -1781,6 +1823,10 @@ arch sand_dm8
 x 10
 y 14
 end
+arch grain2.101
+x 10
+y 14
+end
 arch grassd_8
 z 50
 x 10
@@ -1790,12 +1836,20 @@ arch sand_dm8
 x 10
 y 15
 end
+arch grain4.101
+x 10
+y 15
+end
 arch grassd_1
 z 50
 x 10
 y 16
 end
 arch sand_dm8
+x 10
+y 16
+end
+arch grain4.101
 x 10
 y 16
 end
@@ -1818,6 +1872,12 @@ x 10
 y 18
 end
 arch sand_dm8
+x 10
+y 18
+end
+arch lantern_magic.131
+glow_radius 7
+direction 3
 x 10
 y 18
 end
@@ -1875,13 +1935,33 @@ z 50
 x 11
 y 2
 end
+arch table_wood1.111
+direction 7
+x 11
+y 2
+end
+arch blackroot
+z 22
+type 79
+x 11
+y 2
+end
 arch grassd_4
 z 50
 x 11
 y 3
 end
+arch table_wood6
+direction 7
+x 11
+y 3
+end
 arch grassd_8
 z 50
+x 11
+y 4
+end
+arch grain1.101
 x 11
 y 4
 end
@@ -1895,8 +1975,36 @@ z 50
 x 11
 y 6
 end
+arch table_wood1.111
+direction 7
+x 11
+y 6
+end
+arch book_spell
+z 22
+type 79
+x 11
+y 6
+end
 arch grassd_8
 z 50
+x 11
+y 7
+end
+arch table_wood1.111
+direction 7
+x 11
+y 7
+end
+arch fmask_ruin1a.111
+msg
+This tablet seems to be written in some ancient dialect of Dwarvish.  You can't read it.
+endmsg
+name tablet
+value 15000
+z 22
+material 64
+identified 1
 x 11
 y 7
 end
@@ -1905,12 +2013,23 @@ z 50
 x 11
 y 8
 end
+arch table_wood1.111
+direction 7
+x 11
+y 8
+end
+arch note
+z 22
+type 79
+x 11
+y 8
+end
 arch grassd_7
 z 50
 x 11
 y 9
 end
-arch rows
+arch crystal_rune
 x 11
 y 9
 end
@@ -1951,13 +2070,31 @@ z 50
 x 11
 y 14
 end
+arch table_wood1.111
+x 11
+y 14
+end
+arch grapes
+z 22
+type 79
+x 11
+y 14
+end
 arch grassd_7
 z 50
 x 11
 y 15
 end
+arch grain3.101
+x 11
+y 15
+end
 arch grassd_8
 z 50
+x 11
+y 16
+end
+arch grain2.101
 x 11
 y 16
 end
@@ -2016,8 +2153,26 @@ arch grassd_4
 z 50
 x 12
 end
+arch lantern_black
+glow_radius 7
+x 12
+end
 arch grassd_2
 z 50
+x 12
+y 1
+end
+arch carpet6.151
+x 12
+y 1
+end
+arch table_wood1.111
+x 12
+y 1
+end
+arch seed_a
+z 22
+type 79
 x 12
 y 1
 end
@@ -2026,13 +2181,34 @@ z 50
 x 12
 y 2
 end
+arch carpet6b
+x 12
+y 2
+end
+arch spawn_point
+x 12
+y 2
+arch priest_green
+name herbalist
+level 28
+type 83
+end
+end
 arch grassd_4
 z 50
 x 12
 y 3
 end
+arch carpet6.111
+x 12
+y 3
+end
 arch grassd_7
 z 50
+x 12
+y 4
+end
+arch grain3.101
 x 12
 y 4
 end
@@ -2046,10 +2222,29 @@ z 50
 x 12
 y 6
 end
+arch locker3.111
+slaying no_open
+x 12
+y 6
+end
 arch grassd_5
 z 50
 x 12
 y 7
+end
+arch chair_small2
+x 12
+y 7
+end
+arch spawn_point
+x 12
+y 7
+arch mage_old
+name sage
+direction 7
+level 35
+type 83
+end
 end
 arch grassd_7
 z 50
@@ -2107,8 +2302,8 @@ x 12
 y 12
 end
 arch crystal_ball
-z 14
 layer 5
+z 23
 x 12
 y 12
 end
@@ -2122,13 +2317,42 @@ z 50
 x 12
 y 14
 end
+arch table_wood1.111
+x 12
+y 14
+end
+arch pineapple
+z 22
+type 79
+x 12
+y 14
+end
 arch grassd_3
 z 50
 x 12
 y 15
 end
+arch chair2_111
+direction 7
+x 12
+y 15
+end
+arch spawn_point
+x 12
+y 15
+arch guard_pole
+name farmer
+level 20
+type 83
+end
+end
 arch grassd_7
 z 50
+x 12
+y 16
+end
+arch pitchfork_item
+no_pick 1
 x 12
 y 16
 end
@@ -2137,8 +2361,18 @@ z 50
 x 12
 y 17
 end
+arch chest_sw_1
+direction 7
+slaying no_open
+x 12
+y 17
+end
 arch grassd_5
 z 50
+x 12
+y 18
+end
+arch straw2.111
 x 12
 y 18
 end
@@ -2187,6 +2421,16 @@ z 50
 x 13
 y 1
 end
+arch table_wood1.111
+x 13
+y 1
+end
+arch root_mandrake
+z 22
+type 79
+x 13
+y 1
+end
 arch grassd_8
 z 50
 x 13
@@ -2202,6 +2446,10 @@ z 50
 x 13
 y 4
 end
+arch bowl1_full.101
+x 13
+y 4
+end
 arch grassd_1
 z 50
 x 13
@@ -2209,6 +2457,11 @@ y 5
 end
 arch grassd_3
 z 50
+x 13
+y 6
+end
+arch table_lab1.111
+direction 5
 x 13
 y 6
 end
@@ -2228,6 +2481,11 @@ y 8
 end
 arch grassd_6
 z 50
+x 13
+y 9
+end
+arch candlelight3.101
+glow_radius 2
 x 13
 y 9
 end
@@ -2254,6 +2512,11 @@ z 50
 x 13
 y 12
 end
+arch luggage
+slaying no_open
+x 13
+y 12
+end
 arch grassd_3
 z 50
 x 13
@@ -2261,6 +2524,16 @@ y 13
 end
 arch grassd_7
 z 50
+x 13
+y 14
+end
+arch table_wood1.111
+x 13
+y 14
+end
+arch tomato
+z 22
+type 79
 x 13
 y 14
 end
@@ -2281,6 +2554,10 @@ y 17
 end
 arch grassd_6
 z 50
+x 13
+y 18
+end
+arch straw1.101
 x 13
 y 18
 end
@@ -2814,6 +3091,11 @@ arch sand_dm8
 x 17
 y 5
 end
+arch lantern_black
+glow_radius 7
+x 17
+y 5
+end
 arch grassd_5
 z 50
 x 17
@@ -2868,6 +3150,11 @@ arch sand_dm8
 x 17
 y 11
 end
+arch lantern_black
+glow_radius 7
+x 17
+y 11
+end
 arch grassd_2
 z 50
 x 17
@@ -2883,6 +3170,10 @@ x 17
 y 13
 end
 arch sand_dm8
+x 17
+y 13
+end
+arch tent_small
 x 17
 y 13
 end
