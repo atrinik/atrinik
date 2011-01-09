@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-07 emperorbma
+Modified: 2011-01-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -505,7 +505,7 @@ z 50
 x 3
 y 6
 end
-arch grassd_m8
+arch grassd_m12
 x 3
 y 6
 end
@@ -514,16 +514,8 @@ z 50
 x 3
 y 7
 end
-arch grassd_m8
-x 3
-y 7
-end
 arch floor_fs_grey1b
 z 50
-x 3
-y 8
-end
-arch grassd_m8
 x 3
 y 8
 end
@@ -532,7 +524,7 @@ z 50
 x 3
 y 9
 end
-arch grassd_m8
+arch grassd_m11
 x 3
 y 9
 end
@@ -559,7 +551,7 @@ z 50
 x 3
 y 12
 end
-arch grassd_m8
+arch grassd_m12
 x 3
 y 12
 end
@@ -568,16 +560,8 @@ z 50
 x 3
 y 13
 end
-arch grassd_m8
-x 3
-y 13
-end
 arch floor_fs_grey1b
 z 50
-x 3
-y 14
-end
-arch grassd_m8
 x 3
 y 14
 end
@@ -586,7 +570,7 @@ z 50
 x 3
 y 15
 end
-arch grassd_m8
+arch grassd_m11
 x 3
 y 15
 end
@@ -691,23 +675,31 @@ z 50
 x 4
 y 5
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
 x 4
 y 6
 end
-arch grassd_1
+arch grassd_m10
+x 4
+y 6
+end
+arch floor_fs_grey1b
 z 50
 x 4
 y 7
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 4
 y 8
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
+x 4
+y 9
+end
+arch grassd_m7
 x 4
 y 9
 end
@@ -721,23 +713,31 @@ z 50
 x 4
 y 11
 end
-arch grassd_8
+arch floor_fs_grey1b
 z 50
 x 4
 y 12
 end
-arch grassd_4
+arch grassd_m10
+x 4
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 4
 y 13
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
 x 4
 y 14
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
+x 4
+y 15
+end
+arch grassd_m7
 x 4
 y 15
 end
@@ -785,8 +785,15 @@ arch grassd_4
 z 50
 x 5
 end
+arch wall_stone_8
+x 5
+end
 arch grassd_5
 z 50
+x 5
+y 1
+end
+arch wall_stone_3
 x 5
 y 1
 end
@@ -795,8 +802,16 @@ z 50
 x 5
 y 2
 end
+arch wall_stone_w.131
+x 5
+y 2
+end
 arch grassd_2
 z 50
+x 5
+y 3
+end
+arch wall_stone_3
 x 5
 y 3
 end
@@ -805,28 +820,72 @@ z 50
 x 5
 y 4
 end
+arch wall_stone_3
+x 5
+y 4
+end
 arch grassd_4
 z 50
 x 5
 y 5
 end
-arch grassd_5
+arch wall_stone_3
+x 5
+y 5
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 6
 end
-arch grassd_1
+arch grassd_m6
+x 5
+y 6
+end
+arch wall_stone_w.131
+x 5
+y 6
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 7
 end
-arch grassd_2
+arch grassd_m12
+x 5
+y 7
+end
+arch door1_locked
+direction 3
+cursed 1
+x 5
+y 7
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 8
 end
-arch grassd_6
+arch grassd_m11
+x 5
+y 8
+end
+arch door1_locked
+direction 5
+cursed 1
+x 5
+y 8
+end
+arch floor_fs_grey1b
 z 50
+x 5
+y 9
+end
+arch grassd_m5
+x 5
+y 9
+end
+arch wall_stone_w.131
 x 5
 y 9
 end
@@ -835,28 +894,72 @@ z 50
 x 5
 y 10
 end
+arch wall_stone_3
+x 5
+y 10
+end
 arch grassd_5
 z 50
 x 5
 y 11
 end
-arch grassd_1
+arch wall_stone_3
+x 5
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 12
 end
-arch grassd_2
+arch grassd_m6
+x 5
+y 12
+end
+arch wall_stone_w.131
+x 5
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 13
 end
-arch grassd_6
+arch grassd_m12
+x 5
+y 13
+end
+arch door1_locked
+direction 3
+cursed 1
+x 5
+y 13
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 14
 end
-arch grassd_4
+arch grassd_m11
+x 5
+y 14
+end
+arch door1_locked
+direction 5
+cursed 1
+x 5
+y 14
+end
+arch floor_fs_grey1b
 z 50
+x 5
+y 15
+end
+arch grassd_m5
+x 5
+y 15
+end
+arch wall_stone_w.131
 x 5
 y 15
 end
@@ -865,8 +968,16 @@ z 50
 x 5
 y 16
 end
+arch wall_stone_3
+x 5
+y 16
+end
 arch grassd_1
 z 50
+x 5
+y 17
+end
+arch wall_stone_3
 x 5
 y 17
 end
@@ -875,8 +986,21 @@ z 50
 x 5
 y 18
 end
+arch wall_stone_w.131
+x 5
+y 18
+end
 arch grassd_6
 z 50
+x 5
+y 19
+end
+arch wall_stone_3
+x 5
+y 19
+end
+arch picture2.151
+direction 7
 x 5
 y 19
 end
@@ -885,8 +1009,16 @@ z 50
 x 5
 y 20
 end
+arch wall_stone_3
+x 5
+y 20
+end
 arch grassd_5
 z 50
+x 5
+y 21
+end
+arch wall_stone_3
 x 5
 y 21
 end
@@ -904,108 +1036,161 @@ arch grassd_8
 z 50
 x 6
 end
-arch grassd_7
+arch wall_stone_1
+x 6
+end
+arch floor_ostone4
 z 50
 x 6
 y 1
 end
-arch grassd_1
+arch chest_w1
+direction 7
+x 6
+y 1
+end
+arch floor_ostone4
 z 50
 x 6
 y 2
 end
-arch grassd_8
+arch chest_w1
+direction 7
+x 6
+y 2
+end
+arch floor_ostone4
 z 50
 x 6
 y 3
 end
-arch grassd_7
+arch chest_w1
+direction 7
+x 6
+y 3
+end
+arch floor_ostone4
 z 50
 x 6
 y 4
 end
-arch grassd_5
+arch bar1
+x 6
+y 4
+end
+arch floor_ostone4
 z 50
 x 6
 y 5
 end
-arch grassd_3
+arch torch_wall_1
+direction 7
+x 6
+y 5
+end
+arch floor_ostone4
 z 50
 x 6
 y 6
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 6
 y 7
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 6
 y 8
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 6
 y 9
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 6
 y 10
 end
-arch grassd_5
+arch fireplace_left
+x 6
+y 10
+end
+arch floor_ostone4
 z 50
 x 6
 y 11
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 6
 y 12
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 6
 y 13
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 6
 y 14
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 6
 y 15
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 6
 y 16
 end
-arch grassd_8
+arch torch_wall_1
+direction 7
+x 6
+y 16
+end
+arch floor_ostone4
 z 50
 x 6
 y 17
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 6
 y 18
 end
-arch grassd_4
+arch chair1_111
+x 6
+y 18
+end
+arch floor_ostone4
 z 50
 x 6
 y 19
 end
-arch grassd_8
+arch table_poker1
+x 6
+y 19
+end
+arch floor_ostone4
 z 50
 x 6
 y 20
 end
-arch grassd_1
+arch chair1_111
+direction 5
+x 6
+y 20
+end
+arch floor_ostone4
 z 50
+x 6
+y 21
+end
+arch wall_stone_1
 x 6
 y 21
 end
@@ -1023,108 +1208,142 @@ arch grassd_3
 z 50
 x 7
 end
-arch grassd_7
+arch wall_stone_w.111
+x 7
+end
+arch floor_ostone4
 z 50
 x 7
 y 1
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 7
 y 2
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 7
 y 3
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 7
 y 4
 end
-arch grassd_3
+arch bar1
+x 7
+y 4
+end
+arch floor_ostone4
 z 50
 x 7
 y 5
 end
-arch grassd_6
+arch chair1_111
+direction 5
+x 7
+y 5
+end
+arch floor_ostone4
 z 50
 x 7
 y 6
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 7
 y 7
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 7
 y 8
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 7
 y 9
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 7
 y 10
 end
-arch grassd_7
+arch light5
+x 7
+y 10
+end
+arch floor_ostone4
 z 50
 x 7
 y 11
 end
-arch grassd_2
+arch light5
+x 7
+y 11
+end
+arch floor_ostone4
 z 50
 x 7
 y 12
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 7
 y 13
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 7
 y 14
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 7
 y 15
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 7
 y 16
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 7
 y 17
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 7
 y 18
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 7
 y 19
 end
-arch grassd_1
+arch chair1_111
+direction 3
+x 7
+y 19
+end
+arch floor_ostone4
 z 50
 x 7
 y 20
 end
-arch grassd_4
+arch candlelight4.101
+z 7
+x 7
+y 20
+end
+arch floor_ostone4
 z 50
+x 7
+y 21
+end
+arch wall_stone_w.111
 x 7
 y 21
 end
@@ -1133,8 +1352,16 @@ z 50
 x 7
 y 22
 end
+arch sand_dm9
+x 7
+y 22
+end
 arch grassd_6
 z 50
+x 7
+y 23
+end
+arch sand_dm9
 x 7
 y 23
 end
@@ -1142,117 +1369,152 @@ arch grassd_6
 z 50
 x 8
 end
-arch grassd_8
+arch wall_stone_1
+x 8
+end
+arch floor_ostone4
 z 50
 x 8
 y 1
 end
-arch grassd_3
+arch torch_wall_1
+x 8
+y 1
+end
+arch floor_ostone4
 z 50
 x 8
 y 2
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 8
 y 3
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 8
 y 4
 end
-arch grassd_5
+arch bar1
+x 8
+y 4
+end
+arch depositbox
+layer 7
+z 23
+zoom 70
+x 8
+y 4
+end
+arch floor_ostone4
 z 50
 x 8
 y 5
 end
-arch grassd_5
+arch chair1_111
+direction 5
+x 8
+y 5
+end
+arch floor_ostone4
 z 50
 x 8
 y 6
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 8
 y 7
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 8
 y 8
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 8
 y 9
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 8
 y 10
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 8
 y 11
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 8
 y 12
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 8
 y 13
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 8
 y 14
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 8
 y 15
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 8
 y 16
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 8
 y 17
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 8
 y 18
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 8
 y 19
 end
-arch grassd_2
+arch light5
+x 8
+y 19
+end
+arch floor_ostone4
 z 50
 x 8
 y 20
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 8
 y 21
 end
-arch grassd_5
+arch wall_stone_1
+x 8
+y 21
+end
+arch flag_eagle
+x 8
+y 21
+end
+arch floor_sand_d4
 z 50
 x 8
 y 22
 end
-arch grassd_4
+arch floor_sand_d4
 z 50
 x 8
 y 23
@@ -1261,117 +1523,183 @@ arch grassd_3
 z 50
 x 9
 end
-arch grassd_8
+arch wall_stone_1
+x 9
+end
+arch floor_ostone4
 z 50
 x 9
 y 1
 end
-arch grassd_2
+arch door_bar1
+direction 3
+slaying asteria_auction_house_bar
+x 9
+y 1
+end
+arch floor_ostone4
 z 50
 x 9
 y 2
 end
-arch grassd_6
+arch bar1
+direction 3
+x 9
+y 2
+end
+arch floor_ostone4
 z 50
 x 9
 y 3
 end
-arch grassd_3
+arch bar1
+direction 3
+x 9
+y 3
+end
+arch depositbox
+layer 7
+z 22
+zoom 70
+align 10
+x 9
+y 3
+end
+arch floor_ostone4
 z 50
 x 9
 y 4
 end
-arch grassd_2
+arch candlelight3.101
+z 11
+x 9
+y 4
+end
+arch bar1
+direction 4
+x 9
+y 4
+end
+arch light5
+x 9
+y 4
+end
+arch floor_ostone4
 z 50
 x 9
 y 5
 end
-arch grassd_6
+arch chair1_111
+direction 5
+x 9
+y 5
+end
+arch floor_ostone4
 z 50
 x 9
 y 6
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 9
 y 7
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 9
 y 8
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 9
 y 9
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 9
 y 10
 end
-arch grassd_3
+arch chair1_111
+direction 7
+x 9
+y 10
+end
+arch floor_ostone4
 z 50
 x 9
 y 11
 end
-arch grassd_4
+arch chair1_111
+direction 7
+x 9
+y 11
+end
+arch floor_ostone4
 z 50
 x 9
 y 12
 end
-arch grassd_8
+arch chair1_111
+direction 7
+x 9
+y 12
+end
+arch floor_ostone4
 z 50
 x 9
 y 13
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 9
 y 14
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 9
 y 15
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 9
 y 16
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 9
 y 17
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 9
 y 18
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 9
 y 19
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 9
 y 20
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 9
 y 21
 end
-arch grassd_2
+arch door1_locked
+cursed 1
+x 9
+y 21
+end
+arch floor_sand_d1
 z 50
 x 9
 y 22
 end
-arch grassd_5
+arch floor_sand_d1
 z 50
 x 9
 y 23
@@ -1380,117 +1708,209 @@ arch grassd_7
 z 50
 x 10
 end
-arch grassd_4
+arch wall_stone_1
+x 10
+end
+arch flag_04
+x 10
+end
+arch floor_ostone4
 z 50
 x 10
 y 1
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 10
 y 2
 end
-arch grassd_7
+arch chair1_111
+direction 3
+x 10
+y 2
+end
+arch floor_ostone4
 z 50
 x 10
 y 3
 end
-arch grassd_1
+arch chair1_111
+direction 3
+x 10
+y 3
+end
+arch floor_ostone4
 z 50
 x 10
 y 4
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 10
 y 5
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 10
 y 6
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 10
 y 7
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 10
 y 8
 end
-arch grassd_6
+arch chair1_111
+x 10
+y 8
+end
+arch floor_ostone4
 z 50
 x 10
 y 9
 end
-arch grassd_2
+arch bar1
+direction 8
+x 10
+y 9
+end
+arch candlelight3.101
+layer 7
+x 10
+y 9
+end
+arch light5
+x 10
+y 9
+end
+arch floor_ostone4
 z 50
 x 10
 y 10
 end
-arch grassd_8
+arch bar1
+direction 7
+x 10
+y 10
+end
+arch depositbox
+layer 7
+z 25
+zoom 70
+x 10
+y 10
+end
+arch floor_ostone4
 z 50
 x 10
 y 11
 end
-arch grassd_1
+arch bar1
+direction 7
+x 10
+y 11
+end
+arch floor_ostone4
 z 50
 x 10
 y 12
 end
-arch grassd_4
+arch bar1
+direction 7
+x 10
+y 12
+end
+arch floor_ostone4
 z 50
 x 10
 y 13
 end
-arch grassd_4
+arch bar1
+direction 6
+x 10
+y 13
+end
+arch candlelight3.101
+layer 7
+z 8
+align 10
+x 10
+y 13
+end
+arch light5
+x 10
+y 13
+end
+arch floor_ostone4
 z 50
 x 10
 y 14
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 10
 y 15
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 10
 y 16
 end
-arch grassd_8
+arch candlelight4.101
+z -11
+x 10
+y 16
+end
+arch light9
+x 10
+y 16
+end
+arch floor_ostone4
 z 50
 x 10
 y 17
 end
-arch grassd_4
+arch chair1_111
+direction 7
+x 10
+y 17
+end
+arch floor_ostone4
 z 50
 x 10
 y 18
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 10
 y 19
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 10
 y 20
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 10
 y 21
 end
-arch grassd_2
+arch door1_locked
+direction 7
+cursed 1
+x 10
+y 21
+end
+arch floor_sand_d2
 z 50
 x 10
 y 22
 end
-arch grassd_1
+arch floor_sand_d2
 z 50
 x 10
 y 23
@@ -1499,108 +1919,157 @@ arch grassd_2
 z 50
 x 11
 end
-arch grassd_5
+arch wall_stone_1
+x 11
+end
+arch floor_ostone4
 z 50
 x 11
 y 1
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 11
 y 2
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 11
 y 3
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 11
 y 4
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 11
 y 5
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 11
 y 6
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 11
 y 7
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 11
 y 8
 end
-arch grassd_3
+arch chair1_111
+x 11
+y 8
+end
+arch floor_ostone4
 z 50
 x 11
 y 9
 end
-arch grassd_6
+arch bar1
+direction 5
+x 11
+y 9
+end
+arch floor_ostone4
 z 50
 x 11
 y 10
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 11
 y 11
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 11
 y 12
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 11
 y 13
 end
-arch grassd_7
+arch bar1
+x 11
+y 13
+end
+arch depositbox
+layer 7
+z 23
+zoom 70
+x 11
+y 13
+end
+arch floor_ostone4
 z 50
 x 11
 y 14
 end
-arch grassd_5
+arch chair1_111
+direction 5
+x 11
+y 14
+end
+arch floor_ostone4
 z 50
 x 11
 y 15
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 11
 y 16
 end
-arch grassd_4
+arch chair1_111
+x 11
+y 16
+end
+arch floor_ostone4
 z 50
 x 11
 y 17
 end
-arch grassd_3
+arch table_poker2
+x 11
+y 17
+end
+arch floor_ostone4
 z 50
 x 11
 y 18
 end
-arch grassd_8
+arch chair1_111
+direction 5
+x 11
+y 18
+end
+arch floor_ostone4
 z 50
 x 11
 y 19
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 11
 y 20
 end
-arch grassd_5
+arch floor_ostone4
 z 50
+x 11
+y 21
+end
+arch wall_stone_1
+x 11
+y 21
+end
+arch flag_eagle
 x 11
 y 21
 end
@@ -1609,8 +2078,24 @@ z 50
 x 11
 y 22
 end
+arch sand_dm8
+x 11
+y 22
+end
+arch lantern_black
+x 11
+y 22
+end
+arch light7
+x 11
+y 22
+end
 arch grassd_8
 z 50
+x 11
+y 23
+end
+arch sand_dm8
 x 11
 y 23
 end
@@ -1618,108 +2103,151 @@ arch grassd_6
 z 50
 x 12
 end
-arch grassd_8
+arch wall_stone_w.111
+x 12
+end
+arch floor_ostone4
 z 50
 x 12
 y 1
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 12
 y 2
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 12
 y 3
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 12
 y 4
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 12
 y 5
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 12
 y 6
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 12
 y 7
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 12
 y 8
 end
-arch grassd_2
+arch chair1_111
+x 12
+y 8
+end
+arch floor_ostone4
 z 50
 x 12
 y 9
 end
-arch grassd_8
+arch bar1
+direction 5
+x 12
+y 9
+end
+arch floor_ostone4
 z 50
 x 12
 y 10
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 12
 y 11
 end
-arch grassd_5
+arch fwall_flagstone1a
+blocksview 0
+draw_double 0
+x 12
+y 11
+end
+arch chest_w1
+layer 7
+z 20
+align -4
+x 12
+y 11
+end
+arch floor_ostone4
 z 50
 x 12
 y 12
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 12
 y 13
 end
-arch grassd_5
+arch bar1
+x 12
+y 13
+end
+arch floor_ostone4
 z 50
 x 12
 y 14
 end
-arch grassd_7
+arch chair1_111
+direction 5
+x 12
+y 14
+end
+arch floor_ostone4
 z 50
 x 12
 y 15
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 12
 y 16
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 12
 y 17
 end
-arch grassd_4
+arch chair1_111
+direction 3
+x 12
+y 17
+end
+arch floor_ostone4
 z 50
 x 12
 y 18
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 12
 y 19
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 12
 y 20
 end
-arch grassd_4
+arch floor_ostone4
 z 50
+x 12
+y 21
+end
+arch wall_stone_w.111
 x 12
 y 21
 end
@@ -1737,108 +2265,145 @@ arch grassd_8
 z 50
 x 13
 end
-arch grassd_4
+arch wall_stone_1
+x 13
+end
+arch floor_ostone4
 z 50
 x 13
 y 1
 end
-arch grassd_5
+arch wall_stone_3
+x 13
+y 1
+end
+arch floor_ostone4
 z 50
 x 13
 y 2
 end
-arch grassd_4
+arch wall_stone_3
+x 13
+y 2
+end
+arch floor_ostone4
 z 50
 x 13
 y 3
 end
-arch grassd_5
+arch wall_stone_3
+x 13
+y 3
+end
+arch floor_ostone4
 z 50
 x 13
 y 4
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 13
 y 5
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 13
 y 6
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 13
 y 7
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 13
 y 8
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 13
 y 9
 end
-arch grassd_5
+arch door_bar1
+slaying asteria_auction_house_bar
+x 13
+y 9
+end
+arch floor_ostone4
 z 50
 x 13
 y 10
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 13
 y 11
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 13
 y 12
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 13
 y 13
 end
-arch grassd_3
+arch bar1
+x 13
+y 13
+end
+arch floor_ostone4
 z 50
 x 13
 y 14
 end
-arch grassd_3
+arch chair1_111
+direction 5
+x 13
+y 14
+end
+arch floor_ostone4
 z 50
 x 13
 y 15
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 13
 y 16
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 13
 y 17
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 13
 y 18
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 13
 y 19
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 13
 y 20
 end
-arch grassd_5
+arch floor_ostone4
 z 50
+x 13
+y 21
+end
+arch wall_stone_1
+x 13
+y 21
+end
+arch flag_eagle
 x 13
 y 21
 end
@@ -1847,8 +2412,24 @@ z 50
 x 13
 y 22
 end
+arch sand_dm9
+x 13
+y 22
+end
+arch lantern_black
+x 13
+y 22
+end
+arch light7
+x 13
+y 22
+end
 arch grassd_4
 z 50
+x 13
+y 23
+end
+arch sand_dm9
 x 13
 y 23
 end
@@ -1856,117 +2437,194 @@ arch grassd_7
 z 50
 x 14
 end
-arch grassd_7
+arch wall_stone_1
+x 14
+end
+arch floor_ostone4
 z 50
 x 14
 y 1
 end
-arch grassd_3
+arch fwall_flagstone1a
+x 14
+y 1
+end
+arch floor_ostone4
 z 50
 x 14
 y 2
 end
-arch grassd_6
+arch fwall_flagstone1a
+x 14
+y 2
+end
+arch floor_ostone4
 z 50
 x 14
 y 3
 end
-arch grassd_3
+arch fwall_flagstone1a
+x 14
+y 3
+end
+arch floor_ostone4
 z 50
 x 14
 y 4
 end
-arch grassd_3
+arch torch_wall_1
+x 14
+y 4
+end
+arch floor_ostone4
 z 50
 x 14
 y 5
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 14
 y 6
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 14
 y 7
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 14
 y 8
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 14
 y 9
 end
-arch grassd_6
+arch bar1
+direction 2
+x 14
+y 9
+end
+arch candlelight3.101
+layer 7
+z 8
+align -10
+x 14
+y 9
+end
+arch light5
+x 14
+y 9
+end
+arch floor_ostone4
 z 50
 x 14
 y 10
 end
-arch grassd_1
+arch bar1
+direction 3
+x 14
+y 10
+end
+arch depositbox
+layer 7
+z 22
+zoom 70
+align 10
+x 14
+y 10
+end
+arch floor_ostone4
 z 50
 x 14
 y 11
 end
-arch grassd_4
+arch bar1
+direction 3
+x 14
+y 11
+end
+arch floor_ostone4
 z 50
 x 14
 y 12
 end
-arch grassd_3
+arch bar1
+direction 3
+x 14
+y 12
+end
+arch floor_ostone4
 z 50
 x 14
 y 13
 end
-arch grassd_6
+arch candlelight3.101
+z 11
+x 14
+y 13
+end
+arch bar1
+direction 4
+x 14
+y 13
+end
+arch light5
+x 14
+y 13
+end
+arch floor_ostone4
 z 50
 x 14
 y 14
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 14
 y 15
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 14
 y 16
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 14
 y 17
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 14
 y 18
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 14
 y 19
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 14
 y 20
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 14
 y 21
 end
-arch grassd_3
+arch door1_locked
+cursed 1
+x 14
+y 21
+end
+arch floor_sand_d4
 z 50
 x 14
 y 22
 end
-arch grassd_6
+arch floor_sand_d4
 z 50
 x 14
 y 23
@@ -1975,117 +2633,162 @@ arch grassd_1
 z 50
 x 15
 end
-arch grassd_5
+arch wall_stone_1
+x 15
+end
+arch floor_ostone4
 z 50
 x 15
 y 1
 end
-arch grassd_4
+arch stairs_stone_up
+slaying world_1_1036
+hp 14
+sp 1
+x 15
+y 1
+end
+arch floor_ostone4
 z 50
 x 15
 y 2
 end
-arch grassd_1
+arch stairs_stone_up
+slaying world_1_1036
+hp 14
+sp 2
+x 15
+y 2
+end
+arch floor_ostone4
 z 50
 x 15
 y 3
 end
-arch grassd_6
+arch stairs_stone_up
+slaying world_1_1036
+hp 14
+sp 3
+x 15
+y 3
+end
+arch floor_ostone4
 z 50
 x 15
 y 4
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 15
 y 5
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 15
 y 6
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 15
 y 7
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 15
 y 8
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 15
 y 9
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 15
 y 10
 end
-arch grassd_6
+arch chair1_111
+direction 3
+x 15
+y 10
+end
+arch floor_ostone4
 z 50
 x 15
 y 11
 end
-arch grassd_6
+arch chair1_111
+direction 3
+x 15
+y 11
+end
+arch floor_ostone4
 z 50
 x 15
 y 12
 end
-arch grassd_7
+arch chair1_111
+direction 3
+x 15
+y 12
+end
+arch floor_ostone4
 z 50
 x 15
 y 13
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 15
 y 14
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 15
 y 15
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 15
 y 16
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 15
 y 17
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 15
 y 18
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 15
 y 19
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 15
 y 20
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 15
 y 21
 end
-arch grassd_6
+arch door1_locked
+direction 7
+cursed 1
+x 15
+y 21
+end
+arch floor_sand_d1
 z 50
 x 15
 y 22
 end
-arch grassd_5
+arch floor_sand_d1
 z 50
 x 15
 y 23
@@ -2094,117 +2797,145 @@ arch grassd_7
 z 50
 x 16
 end
-arch grassd_6
+arch wall_stone_1
+x 16
+end
+arch picture3.151
+x 16
+end
+arch floor_ostone4
 z 50
 x 16
 y 1
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 16
 y 2
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 16
 y 3
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 16
 y 4
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 16
 y 5
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 16
 y 6
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 16
 y 7
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 16
 y 8
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 16
 y 9
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 16
 y 10
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 16
 y 11
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 16
 y 12
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 16
 y 13
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 16
 y 14
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 16
 y 15
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 16
 y 16
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 16
 y 17
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 16
 y 18
 end
-arch grassd_8
+arch candlelight4.101
+z -11
+x 16
+y 18
+end
+arch light5
+x 16
+y 18
+end
+arch floor_ostone4
 z 50
 x 16
 y 19
 end
-arch grassd_3
+arch chair1_111
+direction 7
+x 16
+y 19
+end
+arch floor_ostone4
 z 50
 x 16
 y 20
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 16
 y 21
 end
-arch grassd_6
+arch wall_stone_1
+x 16
+y 21
+end
+arch flag_eagle
+x 16
+y 21
+end
+arch floor_sand_d2
 z 50
 x 16
 y 22
 end
-arch grassd_2
+arch floor_sand_d2
 z 50
 x 16
 y 23
@@ -2213,108 +2944,128 @@ arch grassd_2
 z 50
 x 17
 end
-arch grassd_7
+arch wall_stone_w.111
+x 17
+end
+arch floor_ostone4
 z 50
 x 17
 y 1
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 17
 y 2
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 17
 y 3
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 17
 y 4
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 17
 y 5
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 17
 y 6
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 17
 y 7
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 17
 y 8
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 17
 y 9
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 17
 y 10
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 17
 y 11
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 17
 y 12
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 17
 y 13
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 17
 y 14
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 17
 y 15
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 17
 y 16
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 17
 y 17
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 17
 y 18
 end
-arch grassd_1
+arch chair1_111
+x 17
+y 18
+end
+arch floor_ostone4
 z 50
 x 17
 y 19
 end
-arch grassd_5
+arch table_round1
+x 17
+y 19
+end
+arch floor_ostone4
 z 50
 x 17
 y 20
 end
-arch grassd_6
+arch chair1_111
+direction 5
+x 17
+y 20
+end
+arch floor_ostone4
 z 50
+x 17
+y 21
+end
+arch wall_stone_w.111
 x 17
 y 21
 end
@@ -2323,8 +3074,16 @@ z 50
 x 17
 y 22
 end
+arch sand_dm8
+x 17
+y 22
+end
 arch grassd_4
 z 50
+x 17
+y 23
+end
+arch sand_dm8
 x 17
 y 23
 end
@@ -2332,108 +3091,136 @@ arch grassd_8
 z 50
 x 18
 end
-arch grassd_1
+arch wall_stone_1
+x 18
+end
+arch floor_ostone4
 z 50
 x 18
 y 1
 end
-arch grassd_8
+arch torch_wall_1
+x 18
+y 1
+end
+arch floor_ostone4
 z 50
 x 18
 y 2
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 18
 y 3
 end
-arch grassd_4
+arch floor_ostone4
 z 50
 x 18
 y 4
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 18
 y 5
 end
-arch grassd_5
+arch light5
+x 18
+y 5
+end
+arch floor_ostone4
 z 50
 x 18
 y 6
 end
-arch grassd_6
+arch floor_ostone4
 z 50
 x 18
 y 7
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 18
 y 8
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 18
 y 9
 end
-arch grassd_2
+arch floor_ostone4
 z 50
 x 18
 y 10
 end
-arch grassd_1
+arch light5
+x 18
+y 10
+end
+arch floor_ostone4
 z 50
 x 18
 y 11
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 18
 y 12
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 18
 y 13
 end
-arch grassd_5
+arch floor_ostone4
 z 50
 x 18
 y 14
 end
-arch grassd_5
+arch light5
+x 18
+y 14
+end
+arch floor_ostone4
 z 50
 x 18
 y 15
 end
-arch grassd_7
+arch floor_ostone4
 z 50
 x 18
 y 16
 end
-arch grassd_1
+arch floor_ostone4
 z 50
 x 18
 y 17
 end
-arch grassd_8
+arch floor_ostone4
 z 50
 x 18
 y 18
 end
-arch grassd_3
+arch floor_ostone4
 z 50
 x 18
 y 19
 end
-arch grassd_4
+arch chair1_111
+direction 3
+x 18
+y 19
+end
+arch floor_ostone4
 z 50
 x 18
 y 20
 end
-arch grassd_4
+arch floor_ostone4
 z 50
+x 18
+y 21
+end
+arch wall_stone_1
 x 18
 y 21
 end
@@ -2451,108 +3238,207 @@ arch grassd_6
 z 50
 x 19
 end
-arch grassd_5
+arch wall_stone_1
+x 19
+end
+arch floor_ostone4
 z 50
 x 19
 y 1
 end
-arch grassd_4
+arch wall_stone_3
+x 19
+y 1
+end
+arch floor_ostone4
 z 50
 x 19
 y 2
 end
-arch grassd_2
+arch wall_stone_w.131
+x 19
+y 2
+end
+arch floor_ostone4
 z 50
 x 19
 y 3
 end
-arch grassd_2
+arch wall_stone_3
+x 19
+y 3
+end
+arch floor_ostone4
 z 50
 x 19
 y 4
 end
-arch grassd_4
+arch wall_stone_3
+x 19
+y 4
+end
+arch floor_ostone4
 z 50
 x 19
 y 5
 end
-arch grassd_1
+arch candlelight3.101
+x 19
+y 5
+end
+arch wall_stone_3
+x 19
+y 5
+end
+arch floor_ostone4
 z 50
 x 19
 y 6
 end
-arch grassd_3
+arch wall_stone_w.131
+x 19
+y 6
+end
+arch floor_ostone4
 z 50
 x 19
 y 7
 end
-arch grassd_1
+arch wall_stone_3
+x 19
+y 7
+end
+arch floor_ostone4
 z 50
 x 19
 y 8
 end
-arch grassd_2
+arch wall_stone_3
+x 19
+y 8
+end
+arch floor_ostone4
 z 50
 x 19
 y 9
 end
-arch grassd_7
+arch wall_stone_w.131
+x 19
+y 9
+end
+arch floor_ostone4
 z 50
 x 19
 y 10
 end
-arch grassd_2
+arch candlelight3.101
+x 19
+y 10
+end
+arch wall_stone_3
+x 19
+y 10
+end
+arch floor_ostone4
 z 50
 x 19
 y 11
 end
-arch grassd_8
+arch wall_stone_3
+x 19
+y 11
+end
+arch floor_ostone4
 z 50
 x 19
 y 12
 end
-arch grassd_6
+arch wall_stone_w.131
+x 19
+y 12
+end
+arch floor_ostone4
 z 50
 x 19
 y 13
 end
-arch grassd_8
+arch wall_stone_3
+x 19
+y 13
+end
+arch floor_ostone4
 z 50
 x 19
 y 14
 end
-arch grassd_3
+arch candlelight3.101
+x 19
+y 14
+end
+arch wall_stone_3
+x 19
+y 14
+end
+arch floor_ostone4
 z 50
 x 19
 y 15
 end
-arch grassd_8
+arch wall_stone_w.131
+x 19
+y 15
+end
+arch floor_ostone4
 z 50
 x 19
 y 16
 end
-arch grassd_3
+arch wall_stone_3
+x 19
+y 16
+end
+arch floor_ostone4
 z 50
 x 19
 y 17
 end
-arch grassd_4
+arch wall_stone_3
+x 19
+y 17
+end
+arch floor_ostone4
 z 50
 x 19
 y 18
 end
-arch grassd_4
+arch wall_stone_w.131
+x 19
+y 18
+end
+arch floor_ostone4
 z 50
 x 19
 y 19
 end
-arch grassd_1
+arch wall_stone_3
+x 19
+y 19
+end
+arch floor_ostone4
 z 50
 x 19
 y 20
 end
-arch grassd_6
+arch wall_stone_3
+x 19
+y 20
+end
+arch floor_ostone4
 z 50
+x 19
+y 21
+end
+arch wall_stone_4
 x 19
 y 21
 end
