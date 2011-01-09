@@ -800,6 +800,15 @@ end
 arch wall_stone_8
 x 5
 end
+arch client_map_info
+msg
+Asteria Auction House.
+endmsg
+name asteria_auction_house
+sub_type 2
+stand_still 1
+x 5
+end
 arch grassd_5
 z 50
 x 5
@@ -1031,6 +1040,12 @@ x 5
 y 21
 end
 arch wall_stone_3
+x 5
+y 21
+end
+arch client_map_info
+name asteria_auction_house
+sub_type 2
 x 5
 y 21
 end
@@ -3444,6 +3459,11 @@ z 50
 x 19
 end
 arch wall_stone_1
+x 19
+end
+arch client_map_info
+name asteria_auction_house
+sub_type 2
 x 19
 end
 arch floor_ostone4
