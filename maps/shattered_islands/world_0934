@@ -356,7 +356,12 @@ arch wall_marble1.131
 x 2
 y 4
 end
-arch wmask_wanted.151
+arch floor_dungeon1b
+z 50
+x 2
+y 5
+end
+arch announcement
 msg
 Parliament Schedule
 8:00-10:00 - Early Morning deliberation
@@ -366,11 +371,6 @@ Parliament Schedule
 4:00-5:00 - Parliament convenes
 5:00 - Parliament recesses until tomorrow
 endmsg
-x 2
-y 4
-end
-arch floor_dungeon1b
-z 50
 x 2
 y 5
 end

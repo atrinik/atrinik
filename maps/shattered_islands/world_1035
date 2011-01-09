@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-07 emperorbma
+Modified: 2011-01-08 emperorbma
 endmsg
 width 24
 height 24
@@ -651,8 +651,16 @@ z 50
 x 4
 y 1
 end
+arch wood_pile.101
+x 4
+y 1
+end
 arch grassd_4
 z 50
+x 4
+y 2
+end
+arch grain4.101
 x 4
 y 2
 end
@@ -661,13 +669,25 @@ z 50
 x 4
 y 3
 end
+arch grain2.101
+x 4
+y 3
+end
 arch grassd_6
 z 50
 x 4
 y 4
 end
+arch grain3.101
+x 4
+y 4
+end
 arch grassd_2
 z 50
+x 4
+y 5
+end
+arch grain4.101
 x 4
 y 5
 end
@@ -681,13 +701,25 @@ z 50
 x 4
 y 7
 end
+arch box2.101
+x 4
+y 7
+end
 arch grassd_4
 z 50
 x 4
 y 8
 end
+arch box1.101
+x 4
+y 8
+end
 arch grassd_5
 z 50
+x 4
+y 9
+end
+arch barrel.101
 x 4
 y 9
 end
@@ -701,8 +733,16 @@ z 50
 x 4
 y 11
 end
+arch pottery1.101
+x 4
+y 11
+end
 arch grassd_3
 z 50
+x 4
+y 12
+end
+arch pottery2.101
 x 4
 y 12
 end
@@ -711,8 +751,16 @@ z 50
 x 4
 y 13
 end
+arch pottery4.101
+x 4
+y 13
+end
 arch grassd_1
 z 50
+x 4
+y 14
+end
+arch pottery4.101
 x 4
 y 14
 end
@@ -721,8 +769,16 @@ z 50
 x 4
 y 15
 end
+arch basket1.101
+x 4
+y 15
+end
 arch grassd_3
 z 50
+x 4
+y 16
+end
+arch basket2.101
 x 4
 y 16
 end
@@ -783,6 +839,11 @@ z 50
 x 5
 y 2
 end
+arch chest_sw_1
+slaying no_open
+x 5
+y 2
+end
 arch grassd_2
 z 50
 x 5
@@ -798,13 +859,25 @@ z 50
 x 5
 y 5
 end
+arch grain5.101
+x 5
+y 5
+end
 arch grassd_5
 z 50
 x 5
 y 6
 end
+arch carpet3.151
+x 5
+y 6
+end
 arch grassd_8
 z 50
+x 5
+y 7
+end
+arch carpet3.111
 x 5
 y 7
 end
@@ -818,8 +891,18 @@ z 50
 x 5
 y 9
 end
+arch chest_4.111
+direction 7
+slaying no_open
+x 5
+y 9
+end
 arch grassd_8
 z 50
+x 5
+y 10
+end
+arch barrel2.101
 x 5
 y 10
 end
@@ -828,8 +911,16 @@ z 50
 x 5
 y 11
 end
+arch pottery5.101
+x 5
+y 11
+end
 arch grassd_4
 z 50
+x 5
+y 12
+end
+arch amphora2.101
 x 5
 y 12
 end
@@ -843,8 +934,16 @@ z 50
 x 5
 y 14
 end
+arch beer_barrel.101
+x 5
+y 14
+end
 arch grassd_6
 z 50
+x 5
+y 15
+end
+arch barrel2.101
 x 5
 y 15
 end
@@ -855,6 +954,10 @@ y 16
 end
 arch grassd_4
 z 50
+x 5
+y 17
+end
+arch wagon_big
 x 5
 y 17
 end
@@ -910,10 +1013,29 @@ z 50
 x 6
 y 2
 end
+arch kettle_table
+x 6
+y 2
+end
 arch grassd_4
 z 50
 x 6
 y 3
+end
+arch chair2_111
+direction 7
+x 6
+y 3
+end
+arch spawn_point
+x 6
+y 3
+arch peasant
+name merchant
+direction 3
+level 21
+type 83
+end
 end
 arch grassd_8
 z 50
@@ -925,8 +1047,16 @@ z 50
 x 6
 y 5
 end
+arch fire_cauld.131
+x 6
+y 5
+end
 arch grassd_1
 z 50
+x 6
+y 6
+end
+arch bowl1_full.101
 x 6
 y 6
 end
@@ -935,8 +1065,16 @@ z 50
 x 6
 y 7
 end
+arch carpet2.151
+x 6
+y 7
+end
 arch grassd_4
 z 50
+x 6
+y 8
+end
+arch carpet2.111
 x 6
 y 8
 end
@@ -944,6 +1082,20 @@ arch grassd_1
 z 50
 x 6
 y 9
+end
+arch chair_small
+x 6
+y 9
+end
+arch spawn_point
+x 6
+y 9
+arch priest_sad
+name merchant
+direction 3
+level 24
+type 83
+end
 end
 arch grassd_1
 z 50
@@ -955,8 +1107,17 @@ z 50
 x 6
 y 11
 end
+arch pottery6.101
+x 6
+y 11
+end
 arch grassd_4
 z 50
+x 6
+y 12
+end
+arch chest_sm_1
+slaying no_open
 x 6
 y 12
 end
@@ -970,8 +1131,27 @@ z 50
 x 6
 y 14
 end
+arch chair1_111
+direction 7
+x 6
+y 14
+end
+arch spawn_point
+x 6
+y 14
+arch traveller_parka
+name merchant
+direction 3
+level 25
+type 83
+end
+end
 arch grassd_3
 z 50
+x 6
+y 15
+end
+arch barrel.101
 x 6
 y 15
 end
@@ -1027,8 +1207,15 @@ arch grassd_3
 z 50
 x 7
 end
+arch sand_dm9
+x 7
+end
 arch grassd_3
 z 50
+x 7
+y 1
+end
+arch sand_dm9
 x 7
 y 1
 end
@@ -1037,8 +1224,16 @@ z 50
 x 7
 y 2
 end
+arch sand_dm9
+x 7
+y 2
+end
 arch grassd_1
 z 50
+x 7
+y 3
+end
+arch sand_dm9
 x 7
 y 3
 end
@@ -1047,8 +1242,16 @@ z 50
 x 7
 y 4
 end
+arch sand_dm9
+x 7
+y 4
+end
 arch grassd_6
 z 50
+x 7
+y 5
+end
+arch sand_dm9
 x 7
 y 5
 end
@@ -1057,8 +1260,16 @@ z 50
 x 7
 y 6
 end
+arch sand_dm9
+x 7
+y 6
+end
 arch grassd_4
 z 50
+x 7
+y 7
+end
+arch sand_dm9
 x 7
 y 7
 end
@@ -1067,8 +1278,16 @@ z 50
 x 7
 y 8
 end
+arch sand_dm9
+x 7
+y 8
+end
 arch grassd_4
 z 50
+x 7
+y 9
+end
+arch sand_dm9
 x 7
 y 9
 end
@@ -1077,8 +1296,16 @@ z 50
 x 7
 y 10
 end
+arch sand_dm9
+x 7
+y 10
+end
 arch grassd_8
 z 50
+x 7
+y 11
+end
+arch sand_dm9
 x 7
 y 11
 end
@@ -1087,8 +1314,16 @@ z 50
 x 7
 y 12
 end
+arch sand_dm9
+x 7
+y 12
+end
 arch grassd_3
 z 50
+x 7
+y 13
+end
+arch sand_dm9
 x 7
 y 13
 end
@@ -1097,8 +1332,16 @@ z 50
 x 7
 y 14
 end
+arch sand_dm9
+x 7
+y 14
+end
 arch grassd_1
 z 50
+x 7
+y 15
+end
+arch sand_dm9
 x 7
 y 15
 end
@@ -1107,13 +1350,25 @@ z 50
 x 7
 y 16
 end
+arch sand_dm9
+x 7
+y 16
+end
 arch grassd_3
 z 50
 x 7
 y 17
 end
+arch sand_dm9
+x 7
+y 17
+end
 arch grassd_6
 z 50
+x 7
+y 18
+end
+arch sand_dm9
 x 7
 y 18
 end
@@ -1150,106 +1405,102 @@ z 50
 x 7
 y 23
 end
-arch grassd_2
+arch floor_sand_d4
 z 50
 x 8
 end
-arch grassd_5
+arch floor_sand_d4
 z 50
 x 8
 y 1
 end
-arch grassd_7
+arch floor_sand_d4
 z 50
 x 8
 y 2
 end
-arch grassd_6
+arch floor_sand_d2
 z 50
 x 8
 y 3
 end
-arch grassd_1
+arch floor_sand_d4
 z 50
 x 8
 y 4
 end
-arch grassd_6
+arch floor_sand_d2
 z 50
 x 8
 y 5
 end
-arch grassd_2
+arch floor_sand_d1
 z 50
 x 8
 y 6
 end
-arch grassd_8
+arch floor_sand_d2
 z 50
 x 8
 y 7
 end
-arch grassd_6
+arch floor_sand_d3
 z 50
 x 8
 y 8
 end
-arch grassd_7
+arch floor_sand_d2
 z 50
 x 8
 y 9
 end
-arch grassd_7
+arch floor_sand_d1
 z 50
 x 8
 y 10
 end
-arch grassd_7
+arch floor_sand_d3
 z 50
 x 8
 y 11
 end
-arch grassd_3
+arch floor_sand_d4
 z 50
 x 8
 y 12
 end
-arch grassd_7
+arch floor_sand_d2
 z 50
 x 8
 y 13
 end
-arch grassd_3
+arch floor_sand_d3
 z 50
 x 8
 y 14
 end
-arch grassd_2
+arch floor_sand_d4
 z 50
 x 8
 y 15
 end
-arch grassd_5
+arch floor_sand_d4
 z 50
 x 8
 y 16
 end
-arch grassd_7
+arch floor_sand_d4
 z 50
 x 8
 y 17
 end
-arch grassd_5
+arch floor_sand_d4
 z 50
 x 8
 y 18
 end
 arch floor_fs_grey1b
 z 50
-x 8
-y 19
-end
-arch grassd_m10
 x 8
 y 19
 end
@@ -1277,106 +1528,102 @@ z 50
 x 8
 y 23
 end
-arch grassd_8
+arch floor_sand_d1
 z 50
 x 9
 end
-arch grassd_7
+arch floor_sand_d2
 z 50
 x 9
 y 1
 end
-arch grassd_7
+arch floor_sand_d4
 z 50
 x 9
 y 2
 end
-arch grassd_1
+arch floor_sand_d2
 z 50
 x 9
 y 3
 end
-arch grassd_7
+arch floor_sand_d4
 z 50
 x 9
 y 4
 end
-arch grassd_4
+arch floor_sand_d4
 z 50
 x 9
 y 5
 end
-arch grassd_1
+arch floor_sand_d4
 z 50
 x 9
 y 6
 end
-arch grassd_7
+arch floor_sand_d3
 z 50
 x 9
 y 7
 end
-arch grassd_5
+arch floor_sand_d2
 z 50
 x 9
 y 8
 end
-arch grassd_6
+arch floor_sand_d2
 z 50
 x 9
 y 9
 end
-arch grassd_8
+arch floor_sand_d4
 z 50
 x 9
 y 10
 end
-arch grassd_1
+arch floor_sand_d1
 z 50
 x 9
 y 11
 end
-arch grassd_6
+arch floor_sand_d4
 z 50
 x 9
 y 12
 end
-arch grassd_6
+arch floor_sand_d3
 z 50
 x 9
 y 13
 end
-arch grassd_4
+arch floor_sand_d2
 z 50
 x 9
 y 14
 end
-arch grassd_1
+arch floor_sand_d3
 z 50
 x 9
 y 15
 end
-arch grassd_2
+arch floor_sand_d2
 z 50
 x 9
 y 16
 end
-arch grassd_3
+arch floor_sand_d4
 z 50
 x 9
 y 17
 end
-arch grassd_6
+arch floor_sand_d1
 z 50
 x 9
 y 18
 end
 arch floor_fs_grey1b
 z 50
-x 9
-y 19
-end
-arch grassd_m10
 x 9
 y 19
 end
@@ -1404,12 +1651,16 @@ z 50
 x 9
 y 23
 end
-arch grassd_2
+arch floor_sand_d2
 z 50
 x 10
 end
-arch grassd_2
+arch grassd_6
 z 50
+x 10
+y 1
+end
+arch sand_dm21
 x 10
 y 1
 end
@@ -1418,8 +1669,16 @@ z 50
 x 10
 y 2
 end
+arch sand_dm8
+x 10
+y 2
+end
 arch grassd_8
 z 50
+x 10
+y 3
+end
+arch sand_dm8
 x 10
 y 3
 end
@@ -1428,8 +1687,16 @@ z 50
 x 10
 y 4
 end
+arch sand_dm8
+x 10
+y 4
+end
 arch grassd_8
 z 50
+x 10
+y 5
+end
+arch sand_dm8
 x 10
 y 5
 end
@@ -1438,8 +1705,16 @@ z 50
 x 10
 y 6
 end
+arch sand_dm8
+x 10
+y 6
+end
 arch grassd_3
 z 50
+x 10
+y 7
+end
+arch sand_dm8
 x 10
 y 7
 end
@@ -1448,8 +1723,16 @@ z 50
 x 10
 y 8
 end
+arch sand_dm8
+x 10
+y 8
+end
 arch grassd_3
 z 50
+x 10
+y 9
+end
+arch sand_dm8
 x 10
 y 9
 end
@@ -1458,8 +1741,16 @@ z 50
 x 10
 y 10
 end
+arch sand_dm8
+x 10
+y 10
+end
 arch grassd_1
 z 50
+x 10
+y 11
+end
+arch sand_dm8
 x 10
 y 11
 end
@@ -1468,8 +1759,16 @@ z 50
 x 10
 y 12
 end
+arch sand_dm8
+x 10
+y 12
+end
 arch grassd_6
 z 50
+x 10
+y 13
+end
+arch sand_dm8
 x 10
 y 13
 end
@@ -1478,8 +1777,16 @@ z 50
 x 10
 y 14
 end
+arch sand_dm8
+x 10
+y 14
+end
 arch grassd_8
 z 50
+x 10
+y 15
+end
+arch sand_dm8
 x 10
 y 15
 end
@@ -1488,13 +1795,29 @@ z 50
 x 10
 y 16
 end
+arch sand_dm8
+x 10
+y 16
+end
 arch grassd_7
 z 50
 x 10
 y 17
 end
+arch sand_dm8
+x 10
+y 17
+end
+arch box_big.101
+x 10
+y 17
+end
 arch grassd_1
 z 50
+x 10
+y 18
+end
+arch sand_dm8
 x 10
 y 18
 end
@@ -1535,8 +1858,15 @@ arch grassd_2
 z 50
 x 11
 end
+arch sand_dm8
+x 11
+end
 arch grassd_2
 z 50
+x 11
+y 1
+end
+arch sand_dm8
 x 11
 y 1
 end
@@ -1580,13 +1910,29 @@ z 50
 x 11
 y 9
 end
+arch rows
+x 11
+y 9
+end
 arch grassd_8
 z 50
 x 11
 y 10
 end
+arch fire_cauld.131
+x 11
+y 10
+end
 arch grassd_3
 z 50
+x 11
+y 11
+end
+arch carpet4.131
+x 11
+y 11
+end
+arch table_poker2
 x 11
 y 11
 end
@@ -1620,8 +1966,16 @@ z 50
 x 11
 y 17
 end
+arch metal_bucket.101
+x 11
+y 17
+end
 arch grassd_3
 z 50
+x 11
+y 18
+end
+arch box_big.101
 x 11
 y 18
 end
@@ -1702,8 +2056,16 @@ z 50
 x 12
 y 8
 end
+arch bowl2.101
+x 12
+y 8
+end
 arch grassd_2
 z 50
+x 12
+y 9
+end
+arch box1.101
 x 12
 y 9
 end
@@ -1717,8 +2079,36 @@ z 50
 x 12
 y 11
 end
+arch carpet4a
+x 12
+y 11
+end
+arch chair_small
+x 12
+y 11
+end
+arch spawn_point
+x 12
+y 11
+arch female2
+name fortune teller
+level 26
+type 83
+direction 7
+end
+end
 arch grassd_4
 z 50
+x 12
+y 12
+end
+arch table_round1
+x 12
+y 12
+end
+arch crystal_ball
+z 14
+layer 5
 x 12
 y 12
 end
@@ -1789,6 +2179,9 @@ arch grassd_3
 z 50
 x 13
 end
+arch sand_dm9
+x 13
+end
 arch grassd_2
 z 50
 x 13
@@ -1829,6 +2222,10 @@ z 50
 x 13
 y 8
 end
+arch box2.101
+x 13
+y 8
+end
 arch grassd_6
 z 50
 x 13
@@ -1839,8 +2236,16 @@ z 50
 x 13
 y 10
 end
+arch mirror_big.111
+x 13
+y 10
+end
 arch grassd_3
 z 50
+x 13
+y 11
+end
+arch carpet4.171
 x 13
 y 11
 end
@@ -1912,12 +2317,16 @@ z 50
 x 13
 y 23
 end
-arch grassd_1
+arch floor_sand_d1
 z 50
 x 14
 end
-arch grassd_2
+arch grassd_6
 z 50
+x 14
+y 1
+end
+arch sand_dm19
 x 14
 y 1
 end
@@ -1926,8 +2335,16 @@ z 50
 x 14
 y 2
 end
+arch sand_dm9
+x 14
+y 2
+end
 arch grassd_4
 z 50
+x 14
+y 3
+end
+arch sand_dm9
 x 14
 y 3
 end
@@ -1936,8 +2353,16 @@ z 50
 x 14
 y 4
 end
+arch sand_dm9
+x 14
+y 4
+end
 arch grassd_1
 z 50
+x 14
+y 5
+end
+arch sand_dm9
 x 14
 y 5
 end
@@ -1946,8 +2371,16 @@ z 50
 x 14
 y 6
 end
+arch sand_dm9
+x 14
+y 6
+end
 arch grassd_7
 z 50
+x 14
+y 7
+end
+arch sand_dm9
 x 14
 y 7
 end
@@ -1956,8 +2389,16 @@ z 50
 x 14
 y 8
 end
+arch sand_dm9
+x 14
+y 8
+end
 arch grassd_3
 z 50
+x 14
+y 9
+end
+arch sand_dm9
 x 14
 y 9
 end
@@ -1966,8 +2407,16 @@ z 50
 x 14
 y 10
 end
+arch sand_dm9
+x 14
+y 10
+end
 arch grassd_1
 z 50
+x 14
+y 11
+end
+arch sand_dm9
 x 14
 y 11
 end
@@ -1976,8 +2425,16 @@ z 50
 x 14
 y 12
 end
+arch sand_dm9
+x 14
+y 12
+end
 arch grassd_3
 z 50
+x 14
+y 13
+end
+arch sand_dm9
 x 14
 y 13
 end
@@ -1986,8 +2443,16 @@ z 50
 x 14
 y 14
 end
+arch sand_dm9
+x 14
+y 14
+end
 arch grassd_1
 z 50
+x 14
+y 15
+end
+arch sand_dm9
 x 14
 y 15
 end
@@ -1996,13 +2461,25 @@ z 50
 x 14
 y 16
 end
+arch sand_dm9
+x 14
+y 16
+end
 arch grassd_2
 z 50
 x 14
 y 17
 end
+arch sand_dm9
+x 14
+y 17
+end
 arch grassd_6
 z 50
+x 14
+y 18
+end
+arch sand_dm9
 x 14
 y 18
 end
@@ -2039,106 +2516,102 @@ z 50
 x 14
 y 23
 end
-arch grassd_4
+arch floor_sand_d4
 z 50
 x 15
 end
-arch grassd_5
+arch floor_sand_d2
 z 50
 x 15
 y 1
 end
-arch grassd_8
+arch floor_sand_d3
 z 50
 x 15
 y 2
 end
-arch grassd_6
+arch floor_sand_d3
 z 50
 x 15
 y 3
 end
-arch grassd_3
+arch floor_sand_d2
 z 50
 x 15
 y 4
 end
-arch grassd_2
+arch floor_sand_d1
 z 50
 x 15
 y 5
 end
-arch grassd_7
+arch floor_sand_d4
 z 50
 x 15
 y 6
 end
-arch grassd_6
+arch floor_sand_d3
 z 50
 x 15
 y 7
 end
-arch grassd_5
+arch floor_sand_d1
 z 50
 x 15
 y 8
 end
-arch grassd_3
+arch floor_sand_d4
 z 50
 x 15
 y 9
 end
-arch grassd_1
+arch floor_sand_d3
 z 50
 x 15
 y 10
 end
-arch grassd_3
+arch floor_sand_d3
 z 50
 x 15
 y 11
 end
-arch grassd_4
+arch floor_sand_d1
 z 50
 x 15
 y 12
 end
-arch grassd_3
+arch floor_sand_d1
 z 50
 x 15
 y 13
 end
-arch grassd_4
+arch floor_sand_d4
 z 50
 x 15
 y 14
 end
-arch grassd_1
+arch floor_sand_d2
 z 50
 x 15
 y 15
 end
-arch grassd_2
+arch floor_sand_d3
 z 50
 x 15
 y 16
 end
-arch grassd_7
+arch floor_sand_d3
 z 50
 x 15
 y 17
 end
-arch grassd_8
+arch floor_sand_d4
 z 50
 x 15
 y 18
 end
 arch floor_fs_grey1b
 z 50
-x 15
-y 19
-end
-arch grassd_m10
 x 15
 y 19
 end
@@ -2166,106 +2639,102 @@ z 50
 x 15
 y 23
 end
-arch grassd_3
+arch floor_sand_d1
 z 50
 x 16
 end
-arch grassd_4
+arch floor_sand_d4
 z 50
 x 16
 y 1
 end
-arch grassd_1
+arch floor_sand_d3
 z 50
 x 16
 y 2
 end
-arch grassd_2
+arch floor_sand_d4
 z 50
 x 16
 y 3
 end
-arch grassd_5
+arch floor_sand_d3
 z 50
 x 16
 y 4
 end
-arch grassd_1
+arch floor_sand_d2
 z 50
 x 16
 y 5
 end
-arch grassd_5
+arch floor_sand_d3
 z 50
 x 16
 y 6
 end
-arch grassd_3
+arch floor_sand_d4
 z 50
 x 16
 y 7
 end
-arch grassd_4
+arch floor_sand_d2
 z 50
 x 16
 y 8
 end
-arch grassd_8
+arch floor_sand_d3
 z 50
 x 16
 y 9
 end
-arch grassd_7
+arch floor_sand_d3
 z 50
 x 16
 y 10
 end
-arch grassd_4
+arch floor_sand_d2
 z 50
 x 16
 y 11
 end
-arch grassd_1
+arch floor_sand_d4
 z 50
 x 16
 y 12
 end
-arch grassd_7
+arch floor_sand_d1
 z 50
 x 16
 y 13
 end
-arch grassd_7
+arch floor_sand_d1
 z 50
 x 16
 y 14
 end
-arch grassd_1
+arch floor_sand_d1
 z 50
 x 16
 y 15
 end
-arch grassd_2
+arch floor_sand_d1
 z 50
 x 16
 y 16
 end
-arch grassd_1
+arch floor_sand_d2
 z 50
 x 16
 y 17
 end
-arch grassd_2
+arch floor_sand_d2
 z 50
 x 16
 y 18
 end
 arch floor_fs_grey1b
 z 50
-x 16
-y 19
-end
-arch grassd_m10
 x 16
 y 19
 end
@@ -2297,8 +2766,15 @@ arch grassd_3
 z 50
 x 17
 end
+arch sand_dm8
+x 17
+end
 arch grassd_3
 z 50
+x 17
+y 1
+end
+arch sand_dm8
 x 17
 y 1
 end
@@ -2307,8 +2783,16 @@ z 50
 x 17
 y 2
 end
+arch sand_dm8
+x 17
+y 2
+end
 arch grassd_7
 z 50
+x 17
+y 3
+end
+arch sand_dm8
 x 17
 y 3
 end
@@ -2317,8 +2801,16 @@ z 50
 x 17
 y 4
 end
+arch sand_dm8
+x 17
+y 4
+end
 arch grassd_6
 z 50
+x 17
+y 5
+end
+arch sand_dm8
 x 17
 y 5
 end
@@ -2327,8 +2819,16 @@ z 50
 x 17
 y 6
 end
+arch sand_dm8
+x 17
+y 6
+end
 arch grassd_6
 z 50
+x 17
+y 7
+end
+arch sand_dm8
 x 17
 y 7
 end
@@ -2337,8 +2837,16 @@ z 50
 x 17
 y 8
 end
+arch sand_dm8
+x 17
+y 8
+end
 arch grassd_8
 z 50
+x 17
+y 9
+end
+arch sand_dm8
 x 17
 y 9
 end
@@ -2347,8 +2855,16 @@ z 50
 x 17
 y 10
 end
+arch sand_dm8
+x 17
+y 10
+end
 arch grassd_1
 z 50
+x 17
+y 11
+end
+arch sand_dm8
 x 17
 y 11
 end
@@ -2357,8 +2873,16 @@ z 50
 x 17
 y 12
 end
+arch sand_dm8
+x 17
+y 12
+end
 arch grassd_4
 z 50
+x 17
+y 13
+end
+arch sand_dm8
 x 17
 y 13
 end
@@ -2367,8 +2891,16 @@ z 50
 x 17
 y 14
 end
+arch sand_dm8
+x 17
+y 14
+end
 arch grassd_6
 z 50
+x 17
+y 15
+end
+arch sand_dm8
 x 17
 y 15
 end
@@ -2377,13 +2909,29 @@ z 50
 x 17
 y 16
 end
+arch sand_dm8
+x 17
+y 16
+end
 arch grassd_3
 z 50
 x 17
 y 17
 end
+arch sand_dm8
+x 17
+y 17
+end
+arch wagon_big
+x 17
+y 17
+end
 arch grassd_1
 z 50
+x 17
+y 18
+end
+arch sand_dm8
 x 17
 y 18
 end
