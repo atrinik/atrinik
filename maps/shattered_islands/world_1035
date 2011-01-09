@@ -2109,6 +2109,13 @@ x 11
 y 17
 end
 arch metal_bucket.101
+layer 3
+x 11
+y 17
+end
+arch pitchfork_item
+no_pick 1
+layer 4
 x 11
 y 17
 end
@@ -2339,29 +2346,24 @@ z 50
 x 12
 y 15
 end
-arch chair2_111
-direction 7
-x 12
-y 15
-end
-arch spawn_point
-x 12
-y 15
-arch guard_pole
-name farmer
-level 20
-type 83
-end
-end
 arch grassd_7
 z 50
 x 12
 y 16
 end
-arch pitchfork_item
-no_pick 1
+arch chair2_111
+direction 7
 x 12
 y 16
+end
+arch spawn_point
+x 12
+y 16
+arch guard_pole
+name farmer
+level 20
+type 83
+end
 end
 arch grassd_2
 z 50
