@@ -685,7 +685,7 @@ def main():
 		val = Auction.string_to_cost(msg[4:])
 
 		if not val:
-			me.SayTo(activator, "\nPlease tell me how much you want to sell the ~{}~ for, like this:\n\n<a>sell 10 gold 50 s</a>".format(marked.GetName()))
+			me.SayTo(activator, "\nPlease tell me how much you want to sell the <green>{}</green> for, like this:\n\n<a>sell 10 gold 50 s</a>".format(marked.GetName()))
 			return
 
 		# Over the max?
@@ -756,7 +756,7 @@ def main():
 		# Show confirmation.
 		else:
 			cost = CostString(val)
-			me.SayTo(activator, "\nPlease click below if you're sure you want to sell the ~{}~ for {}:\n\n<a>sell for {}</a>".format(marked.GetName(), cost, cost.replace(" coins", "").replace(" coin", "")))
+			me.SayTo(activator, "\nPlease click below if you're sure you want to sell the <green>{}</green> for {}:\n\n<a>sell for {}</a>".format(marked.GetName(), cost, cost.replace(" coins", "").replace(" coin", "")))
 
 	# Allow setting up the shop if the player is a DM.
 	elif activator.f_wiz and msg == "setup":
