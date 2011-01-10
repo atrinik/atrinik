@@ -979,6 +979,16 @@ arch wall_marble1.131-c-02-03
 x 7
 y 23
 end
+arch client_map_info
+msg
+Asteria Casino.
+endmsg
+name asteria_casino
+sub_type 2
+stand_still 1
+x 7
+y 23
+end
 arch grassd_5
 z 44
 x 8

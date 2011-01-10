@@ -985,6 +985,12 @@ z 50
 x 5
 y 18
 end
+arch client_map_info
+name asteria_bazaar
+sub_type 2
+x 5
+y 18
+end
 arch floor_fs_grey1b
 z 50
 x 5
@@ -2934,6 +2940,15 @@ arch floor_sand_d1
 z 50
 x 16
 end
+arch client_map_info
+msg
+Asteria Bazaar.
+endmsg
+name asteria_bazaar
+sub_type 2
+stand_still 1
+x 16
+end
 arch floor_sand_d4
 z 50
 x 16
@@ -3367,6 +3382,12 @@ x 18
 y 10
 end
 arch wall_marble1.111-c-06-03
+x 18
+y 10
+end
+arch client_map_info
+name asteria_casino
+sub_type 2
 x 18
 y 10
 end

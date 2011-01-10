@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-08 emperorbma
+Modified: 2011-01-09 emperorbma
 endmsg
 width 24
 height 24
@@ -1034,6 +1034,12 @@ x 5
 y 6
 end
 arch wall_marble1.111
+x 5
+y 6
+end
+arch client_map_info
+name asteria_city_hall
+sub_type 2
 x 5
 y 6
 end
