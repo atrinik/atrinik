@@ -47,84 +47,116 @@ arch grassd_6
 z 50
 y 3
 end
-arch grassd_1
+arch floor_white1e
 z 50
 y 4
 end
-arch grassd_2
+arch floor_white1d
 z 50
 y 5
 end
-arch grassd_4
+arch floor_white1e
 z 50
 y 6
 end
-arch grassd_7
+arch floor_white1d
 z 50
 y 7
 end
-arch grassd_1
+arch floor_white1e
 z 50
 y 8
 end
-arch grassd_1
+arch floor_white1d
 z 50
 y 9
 end
-arch grassd_5
+arch floor_white1e
 z 50
 y 10
 end
-arch grassd_4
+arch floor_white1d
 z 50
 y 11
 end
-arch grassd_6
+arch floor_white1e
 z 50
 y 12
 end
-arch grassd_2
+arch floor_white1d
 z 50
 y 13
 end
-arch grassd_7
+arch floor_white1e
 z 50
 y 14
 end
-arch grassd_4
+arch floor_white1d
 z 50
 y 15
 end
-arch grassd_8
+arch wall_stone9_1
+y 15
+end
+arch client_map_info
+name asteria_bank_business
+sub_type 2
+y 15
+end
+arch floor_pattern1a
 z 50
 y 16
 end
-arch grassd_2
+arch wall_stone9_w2.131
+y 16
+end
+arch floor_pattern1a
 z 50
 y 17
 end
-arch grassd_3
+arch wall_stone9_3
+y 17
+end
+arch floor_pattern1a
 z 50
 y 18
 end
-arch grassd_5
+arch wall_stone9_3
+y 18
+end
+arch floor_pattern1a
 z 50
 y 19
 end
-arch grassd_4
+arch wall_stone9_w2.131
+y 19
+end
+arch floor_pattern1a
 z 50
 y 20
 end
-arch grassd_5
+arch wall_stone9_3
+y 20
+end
+arch floor_pattern1a
 z 50
 y 21
 end
-arch grassd_8
+arch wall_stone9_3
+y 21
+end
+arch floor_pattern1a
 z 50
 y 22
 end
-arch grassd_8
+arch wall_stone9_w2.131
+y 22
+end
+arch floor_pattern1a
 z 50
+y 23
+end
+arch wall_stone9_4
 y 23
 end
 arch floor_fs_grey1b
@@ -161,111 +193,63 @@ arch grassd_m9
 x 1
 y 3
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 1
 y 4
 end
-arch grassd_m9
-x 1
-y 4
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 1
 y 5
 end
-arch grassd_m9
-x 1
-y 5
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 1
 y 6
 end
-arch grassd_m9
-x 1
-y 6
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 1
 y 7
 end
-arch grassd_m9
-x 1
-y 7
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 1
 y 8
 end
-arch grassd_m9
-x 1
-y 8
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 1
 y 9
 end
-arch grassd_m9
-x 1
-y 9
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 1
 y 10
 end
-arch grassd_m9
-x 1
-y 10
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 1
 y 11
 end
-arch grassd_m9
-x 1
-y 11
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 1
 y 12
 end
-arch grassd_m9
-x 1
-y 12
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 1
 y 13
 end
-arch grassd_m9
-x 1
-y 13
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 1
 y 14
 end
-arch grassd_m9
-x 1
-y 14
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
-x 1
-y 15
-end
-arch grassd_m9
 x 1
 y 15
 end
@@ -274,16 +258,8 @@ z 50
 x 1
 y 16
 end
-arch grassd_m9
-x 1
-y 16
-end
 arch floor_fs_grey1b
 z 50
-x 1
-y 17
-end
-arch grassd_m9
 x 1
 y 17
 end
@@ -292,16 +268,8 @@ z 50
 x 1
 y 18
 end
-arch grassd_m9
-x 1
-y 18
-end
 arch floor_fs_grey1b
 z 50
-x 1
-y 19
-end
-arch grassd_m9
 x 1
 y 19
 end
@@ -310,16 +278,8 @@ z 50
 x 1
 y 20
 end
-arch grassd_m9
-x 1
-y 20
-end
 arch floor_fs_grey1b
 z 50
-x 1
-y 21
-end
-arch grassd_m9
 x 1
 y 21
 end
@@ -328,16 +288,8 @@ z 50
 x 1
 y 22
 end
-arch grassd_m9
-x 1
-y 22
-end
 arch floor_fs_grey1b
 z 50
-x 1
-y 23
-end
-arch grassd_m9
 x 1
 y 23
 end
@@ -360,62 +312,62 @@ z 50
 x 2
 y 3
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 2
 y 4
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 2
 y 5
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 2
 y 6
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 2
 y 7
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 2
 y 8
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 2
 y 9
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 2
 y 10
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 2
 y 11
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 2
 y 12
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 2
 y 13
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 2
 y 14
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 2
 y 15
@@ -494,95 +446,63 @@ arch grassd_m8
 x 3
 y 3
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 3
 y 4
 end
-arch grassd_m8
-x 3
-y 4
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 3
 y 5
 end
-arch grassd_m8
-x 3
-y 5
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 3
 y 6
 end
-arch grassd_m12
-x 3
-y 6
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 3
 y 7
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 3
 y 8
 end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 3
 y 9
 end
-arch grassd_m11
-x 3
-y 9
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 3
 y 10
 end
-arch grassd_m8
-x 3
-y 10
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 3
 y 11
 end
-arch grassd_m8
-x 3
-y 11
-end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 3
 y 12
 end
-arch grassd_m12
-x 3
-y 12
-end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
 x 3
 y 13
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 3
 y 14
 end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
-x 3
-y 15
-end
-arch grassd_m11
 x 3
 y 15
 end
@@ -677,79 +597,63 @@ z 50
 x 4
 y 3
 end
-arch grassd_8
+arch floor_white1e
 z 50
 x 4
 y 4
 end
-arch grassd_4
+arch floor_white1d
 z 50
 x 4
 y 5
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 4
 y 6
 end
-arch grassd_m10
-x 4
-y 6
-end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 4
 y 7
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 4
 y 8
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 4
 y 9
 end
-arch grassd_m7
-x 4
-y 9
-end
-arch grassd_2
+arch floor_white1e
 z 50
 x 4
 y 10
 end
-arch grassd_5
+arch floor_white1d
 z 50
 x 4
 y 11
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 4
 y 12
 end
-arch grassd_m10
-x 4
-y 12
-end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
 x 4
 y 13
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 4
 y 14
 end
-arch floor_fs_grey1b
+arch floor_white1d
 z 50
-x 4
-y 15
-end
-arch grassd_m7
 x 4
 y 15
 end
@@ -836,7 +740,7 @@ arch wall_stone_3
 x 5
 y 3
 end
-arch grassd_6
+arch floor_white1e
 z 50
 x 5
 y 4
@@ -845,7 +749,7 @@ arch wall_stone_3
 x 5
 y 4
 end
-arch grassd_4
+arch floor_white2d
 z 50
 x 5
 y 5
@@ -867,12 +771,13 @@ arch wall_stone_w.131
 x 5
 y 6
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
 x 5
-y 7
+y 6
 end
-arch grassd_m12
+arch floor_white2d
+z 50
 x 5
 y 7
 end
@@ -882,12 +787,8 @@ cursed 1
 x 5
 y 7
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
-x 5
-y 8
-end
-arch grassd_m11
 x 5
 y 8
 end
@@ -897,12 +798,8 @@ cursed 1
 x 5
 y 8
 end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
-x 5
-y 9
-end
-arch grassd_m5
 x 5
 y 9
 end
@@ -910,7 +807,7 @@ arch wall_stone_w.131
 x 5
 y 9
 end
-arch grassd_4
+arch floor_white1e
 z 50
 x 5
 y 10
@@ -919,7 +816,7 @@ arch wall_stone_3
 x 5
 y 10
 end
-arch grassd_5
+arch floor_white2d
 z 50
 x 5
 y 11
@@ -928,12 +825,8 @@ arch wall_stone_3
 x 5
 y 11
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
-x 5
-y 12
-end
-arch grassd_m6
 x 5
 y 12
 end
@@ -941,12 +834,8 @@ arch wall_stone_w.131
 x 5
 y 12
 end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
-x 5
-y 13
-end
-arch grassd_m12
 x 5
 y 13
 end
@@ -956,12 +845,8 @@ cursed 1
 x 5
 y 13
 end
-arch floor_fs_grey1b
+arch floor_white1e
 z 50
-x 5
-y 14
-end
-arch grassd_m11
 x 5
 y 14
 end
@@ -971,12 +856,8 @@ cursed 1
 x 5
 y 14
 end
-arch floor_fs_grey1b
+arch floor_white2d
 z 50
-x 5
-y 15
-end
-arch grassd_m5
 x 5
 y 15
 end
