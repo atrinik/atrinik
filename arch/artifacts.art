@@ -4935,3 +4935,39 @@ msg
 This ring has been enchanted to slow down its wearer's food consumption.
 endmsg
 end
+
+Allowed none
+chance 1
+artifact mana_crystal_25
+def_arch power_crystal
+Object
+name mana crystal
+title (25 sp)
+maxsp 25
+value 25000
+weight 500
+end
+
+Allowed none
+chance 1
+artifact mana_crystal_50
+def_arch power_crystal
+Object
+name mana crystal
+title (50 sp)
+maxsp 50
+value 50000
+weight 500
+end
+
+Allowed none
+chance 1
+artifact mana_crystal_100
+def_arch power_crystal
+Object
+name mana crystal
+title (100 sp)
+maxsp 100
+value 100000
+weight 500
+end
