@@ -2705,6 +2705,13 @@ treasureone random_gem
     chance 50
 end
 
+treasureone random_wand
+	arch wand
+		chance 91
+		quality_range 15
+		magic 0
+end
+
 treasureone random_mtools
 	arch wand
 		chance 91
