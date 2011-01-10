@@ -3504,33 +3504,14 @@ z 50
 x 20
 y 17
 end
-arch spawn_point
-x 20
-y 17
-arch female2
-level 15
-type 83
-direction 3
-name Mira
-arch event_obj
-sub_type 6
-race /python/generic/bank.py
-end
-end
-end
 arch floor_pattern1a
 z 50
 x 20
 y 18
 end
-arch floor_pattern1a
-z 50
-x 20
-y 19
-end
 arch spawn_point
 x 20
-y 19
+y 18
 arch female2
 level 15
 type 83
@@ -3541,6 +3522,11 @@ sub_type 6
 race /python/generic/bank.py
 end
 end
+end
+arch floor_pattern1a
+z 50
+x 20
+y 19
 end
 arch floor_pattern1a
 z 50
@@ -3666,6 +3652,7 @@ y 16
 end
 arch bank2c
 direction 5
+no_pass 1
 x 21
 y 16
 end
@@ -3676,6 +3663,7 @@ y 17
 end
 arch bank2b
 direction 5
+no_pass 1
 x 21
 y 17
 end
@@ -3686,6 +3674,7 @@ y 18
 end
 arch bank2b
 direction 5
+no_pass 1
 x 21
 y 18
 end
@@ -3696,6 +3685,7 @@ y 19
 end
 arch bank2b
 direction 5
+no_pass 1
 x 21
 y 19
 end
@@ -3706,6 +3696,7 @@ y 20
 end
 arch bank2a
 direction 5
+no_pass 1
 x 21
 y 20
 end
