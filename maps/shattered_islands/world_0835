@@ -1122,6 +1122,16 @@ arch wall_marble1.181
 x 5
 y 23
 end
+arch client_map_info
+msg
+Asteria City Hall.
+endmsg
+name asteria_city_hall
+sub_type 2
+stand_still 1
+x 5
+y 23
+end
 arch floor_fs_grey1b
 z 50
 x 6
@@ -3192,11 +3202,10 @@ y 23
 end
 arch client_map_info
 msg
-Asteria City Hall.
+
 endmsg
 name asteria_city_hall
 sub_type 2
-stand_still 1
 x 16
 y 23
 end

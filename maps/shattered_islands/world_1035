@@ -842,6 +842,15 @@ arch grassd_3
 z 50
 x 5
 end
+arch client_map_info
+msg
+Asteria Bazaar.
+endmsg
+name asteria_bazaar
+sub_type 2
+stand_still 1
+x 5
+end
 arch grassd_8
 z 50
 x 5
@@ -2941,12 +2950,8 @@ z 50
 x 16
 end
 arch client_map_info
-msg
-Asteria Bazaar.
-endmsg
 name asteria_bazaar
 sub_type 2
-stand_still 1
 x 16
 end
 arch floor_sand_d4

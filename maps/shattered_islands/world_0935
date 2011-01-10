@@ -151,6 +151,15 @@ end
 arch wall_marble1.181
 y 22
 end
+arch client_map_info
+msg
+Asteria Parliament.
+endmsg
+name asteria_parliament
+sub_type 2
+stand_still 1
+y 22
+end
 arch grassd_4
 z 50
 y 23
@@ -1769,11 +1778,10 @@ y 22
 end
 arch client_map_info
 msg
-Asteria Parliament.
+
 endmsg
 name asteria_parliament
 sub_type 2
-stand_still 1
 x 10
 y 22
 end
