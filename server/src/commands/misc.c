@@ -912,15 +912,15 @@ int command_statistics(object *op, char *params)
 /**
  * The /region_map command.
  * @param op Player.
- * @param params Parameters.
+ * @param params Optional region ID that will be shown as the region map
+ * instead of the player's map region. Only possible if the player is a
+ * DM or has region_map command permission.
  * @return 1. */
 int command_region_map(object *op, char *params)
 {
 	region *r;
 	SockList sl;
-	uint8 sock_buf[HUGE_BUF];
-
-	(void) params;
+	uint8 sock_buf[HUGE_BUF], params_check;
 
 	if (!op->map)
 	{
@@ -934,9 +934,37 @@ int command_region_map(object *op, char *params)
 		return 1;
 	}
 
+	/* Check if params were given and whether the player is allowed to
+	 * see map of any region they want. */
+	params_check = params && can_do_wiz_command(CONTR(op), "region_map");
+
+	if (params_check)
+	{
+		size_t params_len = strlen(params);
+
+		/* Search for the region the player wants. */
+		for (r = first_region; r; r = r->next)
+		{
+			if (!strncasecmp(r->name, params, params_len))
+			{
+				break;
+			}
+		}
+
+		if (!r)
+		{
+			new_draw_info(NDI_UNIQUE, op, "No such region.");
+			return 1;
+		}
+	}
+	else
+	{
+		r = op->map->region;
+	}
+
 	/* Try to find a region that should have had a client map
 	 * generated. */
-	for (r = op->map->region; r; r = r->parent)
+	for (; r; r = r->parent)
 	{
 		if (r->map_first)
 		{
@@ -946,7 +974,15 @@ int command_region_map(object *op, char *params)
 
 	if (!r)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You cannot use that command here.");
+		if (params_check)
+		{
+			new_draw_info(NDI_UNIQUE, op, "That region doesn't have a map.");
+		}
+		else
+		{
+			new_draw_info(NDI_UNIQUE, op, "You cannot use that command here.");
+		}
+
 		return 1;
 	}
 
