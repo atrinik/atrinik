@@ -778,6 +778,12 @@ void command_new_char(char *params, int len, player *pl)
 	int stats[7], i, v;
 	char name[HUGE_BUF] = "";
 
+	/* Ignore the command if the player is already playing. */
+	if (CONTR(op)->state == ST_PLAYING)
+	{
+		return;
+	}
+
 	if (CONTR(op)->state != ST_ROLL_STAT)
 	{
 		LOG(llevDebug, "CRACK: command_new_char(): %s does not have state ST_ROLL_STAT.\n", query_name(pl->ob, NULL));
