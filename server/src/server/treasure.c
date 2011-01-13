@@ -2166,7 +2166,18 @@ jump_break1:
 						level = creator->level;
 					}
 
-					op->level = MIN(MAXLEVEL, MAX(1, (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100));
+					level = (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100;
+
+					if (level < 1)
+					{
+						level = 1;
+					}
+					else if (level > MAXLEVEL)
+					{
+						level = MAXLEVEL;
+					}
+
+					op->level = level;
 
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					generate_artifact(op, 1, T_STYLE_UNSET, 100);
