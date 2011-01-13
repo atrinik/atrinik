@@ -2145,6 +2145,8 @@ jump_break1:
 				 * and/or map level we found it on. */
 				if (!op->msg && !rndm_chance(10))
 				{
+					int level = 5;
+
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
 					{
@@ -2156,17 +2158,15 @@ jump_break1:
 
 						if (ob->map && ob->map->difficulty)
 						{
-							op->level = MIN(rndm(1, ob->map->difficulty) + rndm(0, 2), MAXLEVEL);
-						}
-						else
-						{
-							op->level = rndm(1, 20);
+							level = ob->map->difficulty;
 						}
 					}
 					else
 					{
-						op->level = rndm(1, creator->level);
+						level = creator->level;
 					}
+
+					op->level = MIN(MAXLEVEL, MAX(1, (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100));
 
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					generate_artifact(op, 1, T_STYLE_UNSET, 100);
