@@ -12,7 +12,7 @@ coin_values = [10000000, 10000, 100, 1]
 ## Maximum value of all items in a stack.
 MAX_VALUE = coin_values[0] * 10
 ## Maximum number of items a player is allowed to sell at once.
-MAX_ITEMS = 30
+MAX_ITEMS = 50
 ## Number of items per page.
 PER_PAGE = 15
 
