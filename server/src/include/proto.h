@@ -662,13 +662,6 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 path_node *compress_path(path_node *path);
 path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2);
 
-/* server/player_shop.c */
-void player_shop_open(char *data, player *pl);
-void player_shop_close(player *pl);
-void player_shop_load(char *data, player *pl);
-void player_shop_examine(char *data, player *pl);
-void player_shop_buy(char *data, player *pl);
-
 /* server/plugins.c */
 object *get_event_object(object *op, int event_nr);
 CommArray_s *find_plugin_command(const char *cmd);

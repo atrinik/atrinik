@@ -227,12 +227,6 @@
 			<Option link="0" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="../../../src/include/player_shop.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="../../../src/include/plugin.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
@@ -596,10 +590,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="../../../src/server/pathfinder.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="../../../src/server/player_shop.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>

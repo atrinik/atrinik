@@ -100,29 +100,6 @@ void widget_show_target(widgetdata *widget)
 		mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
 		sprite_blt(Bitmaps[BITMAP_TARGET_TALK], widget->x1 + 223, widget->y1 + 7, NULL, NULL);
-
-		if (mx > widget->x1 + 200 && mx < widget->x1 + 200 + 20 && my > widget->y1 + 3 && my < widget->y1 + 13)
-		{
-			static int delta = 0;
-
-			if (!(SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-			{
-				delta = 0;
-			}
-			else if (mb && mb_clicked && !(delta++ & 7))
-			{
-				char tmp_buf[MAX_BUF];
-
-				snprintf(tmp_buf, sizeof(tmp_buf), "shop load %s", cpl.target_name);
-				cs_write_string(tmp_buf, strlen(tmp_buf));
-			}
-
-			StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 200, widget->y1 + 3, COLOR_HGOLD, NULL, NULL);
-		}
-		else
-		{
-			StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 200, widget->y1 + 3, COLOR_WHITE, NULL, NULL);
-		}
 	}
 
 	if (options.show_target_self || cpl.target_code != 0)

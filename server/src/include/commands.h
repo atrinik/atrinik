@@ -55,8 +55,6 @@ extern const int CommandsSize, WizCommandsSize, CommunicationCommandSize;
  * @defgroup CMD_FLAG_xxx Command flags
  * Command flags used by CommArray_s::flags.
  *@{*/
-/** Don't allow the command to be used while in player shop. */
-#define CMD_FLAG_NO_PLAYER_SHOP 1
 /*@}*/
 
 /**

@@ -1746,44 +1746,9 @@ void draw_client_map2(object *pl)
  * @param pl The player */
 void ShopCmd(char *buf, int len, player *pl)
 {
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	/* Handle opening a shop */
-	if (strncmp(buf, "open|", 5) == 0)
-	{
-		buf += 5;
-
-		player_shop_open(buf, pl);
-	}
-	/* Handle closing a shop */
-	else if (strncmp(buf, "close", 5) == 0)
-	{
-		player_shop_close(pl);
-	}
-	/* Handle loading of a shop */
-	else if (strncmp(buf, "load ", 5) == 0)
-	{
-		buf += 5;
-
-		player_shop_load(buf, pl);
-	}
-	/* Do an examine on shop item */
-	else if (strncmp(buf, "examine ", 8) == 0)
-	{
-		buf += 8;
-
-		player_shop_examine(buf, pl);
-	}
-	/* Buy item an item */
-	else if (strncmp(buf, "buy ", 4) == 0)
-	{
-		buf += 4;
-
-		player_shop_buy(buf, pl);
-	}
+	(void) buf;
+	(void) len;
+	(void) pl;
 }
 
 /**

@@ -168,19 +168,6 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
-	else if (!strncmp(cmd, "/shop", 5))
-	{
-		if (!shop_gui)
-		{
-			initialize_shop(SHOP_STATE_NONE);
-		}
-		else
-		{
-			draw_info("You must close the shop window before trying to set up another shop.", COLOR_RED);
-		}
-
-		return 1;
-	}
 	else if (!strncmp(cmd, "/ignore", 7))
 	{
 		ignore_command(cmd + 7);

@@ -98,11 +98,6 @@ int key_event(SDL_KeyboardEvent *key)
 	}
 	else if (key->type == SDL_KEYDOWN)
 	{
-		if (shop_gui && check_shop_keys(key))
-		{
-			return 0;
-		}
-
 		if (cpl.menustatus != MENU_NO)
 		{
 			/* We catch here the keybind key, when we insert a new macro there */

@@ -223,9 +223,6 @@ void init_player_data()
 	cpl.container = NULL;
 
 	RangeFireMode = 0;
-
-	/* Clear the shop structure and hide it */
-	clear_shop(0);
 }
 
 /**

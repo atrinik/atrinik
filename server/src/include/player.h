@@ -531,11 +531,6 @@ typedef struct pl_player
 	/** Last stats sent to the client. */
 	living last_stats;
 
-	/**
-	 * Player shop structure, with linked list of items the player is
-	 * selling. */
-	player_shop *shop_items;
-
 	/** Pointer to the party this player is member of. */
 	party_struct *party;
 

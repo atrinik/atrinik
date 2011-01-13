@@ -491,10 +491,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\include\player_shop.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\include\plugin.h"
 				>
 			</File>
@@ -2426,42 +2422,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\server\player_shop.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\server\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\server\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\server\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\server\"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath="..\..\..\src\server\plugins.c"
 					>
 					<FileConfiguration
@@ -3574,6 +3534,7 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							ObjectFile="$(IntDir)\types\"
+
 						/>
 					</FileConfiguration>
 					<FileConfiguration

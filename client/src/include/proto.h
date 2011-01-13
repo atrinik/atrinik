@@ -360,20 +360,6 @@ void clear_party_interface();
 _gui_party_struct *load_party_interface(char *data, int len);
 int console_party();
 
-/* gui/player_shop.c */
-void widget_show_shop(widgetdata *widget);
-void shop_open();
-void shop_buy_item();
-void initialize_shop(int shop_state);
-void clear_shop(int send_to_server);
-void shop_add_close_button(int x, int y);
-int shop_put_item(int x, int y);
-void shop_object_remove(sint32 tag);
-int check_shop_keys(SDL_KeyboardEvent *key);
-char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore);
-int shop_price2int(char *text);
-char *shop_int2price(int value);
-
 /* gui/protections.c */
 void widget_show_resist(widgetdata *widget);
 

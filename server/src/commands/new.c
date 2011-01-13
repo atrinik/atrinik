@@ -1187,11 +1187,6 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [WIZ]");
 	}
 
-	if (pl->shop_items && QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
-	{
-		strcat(pl->quick_name, " [SHOP]");
-	}
-
 	if (pl->socket.socket_version >= 1044)
 	{
 	char name[MAX_BUF];

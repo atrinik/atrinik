@@ -181,7 +181,6 @@ typedef enum LogLevel
 #include <ignore.h>
 #include <sound.h>
 #include <map.h>
-#include <player_shop.h>
 #include <scripts.h>
 #include <inventory.h>
 #include <menu.h>

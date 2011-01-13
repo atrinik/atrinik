@@ -240,8 +240,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"player_info_bg.png",PIC_TYPE_DEFAULT},
 	{"target_bg.png", PIC_TYPE_DEFAULT},
 	{"textinput.png", PIC_TYPE_DEFAULT},
-	{"shop.png", PIC_TYPE_DEFAULT},
-	{"shop_input.png", PIC_TYPE_DEFAULT},
 
 	{"square_highlight.png", PIC_TYPE_DEFAULT},
 	{"servers_bg.png", PIC_TYPE_DEFAULT},

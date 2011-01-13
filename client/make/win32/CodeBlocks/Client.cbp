@@ -221,9 +221,6 @@
 		<Unit filename="..\..\..\src\include\image.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\player_shop.h">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\..\..\src\include\curl.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -312,9 +309,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\protections.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\..\..\src\gui\player_shop.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\map.c">

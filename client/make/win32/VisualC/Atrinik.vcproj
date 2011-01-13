@@ -483,10 +483,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\include\player_shop.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\include\proto.h"
 				>
 			</File>
@@ -935,42 +931,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\src\gui\party.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\gui\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\gui\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\gui\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\gui\"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\gui\player_shop.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"

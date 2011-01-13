@@ -1274,10 +1274,6 @@
 /**
  * Don't save this object - remove it before we save. */
 #define FLAG_NO_SAVE 134
-/**
- * The object has player shop open and cannot do move actions (checked
- * for in move_player(), as this is for players only). */
-#define FLAG_PLAYER_SHOP 135
 /*@}*/
 
 /** Should always be equal to the last defined flag. */

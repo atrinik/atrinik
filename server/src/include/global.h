@@ -349,7 +349,6 @@ typedef struct linked_char
 #include "pathfinder.h"
 #include "newserver.h"
 #include "skills.h"
-#include "player_shop.h"
 #include "party.h"
 #include "player.h"
 #include "treasure.h"
