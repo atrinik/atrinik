@@ -139,6 +139,10 @@ void apply_book(object *op, object *tmp)
 			}
 		}
 
+		SockList_AddStringUnterm(&sl, "<book>");
+		SockList_AddStringUnterm(&sl, query_name(tmp, NULL));
+		SockList_AddStringUnterm(&sl, "</book>");
+
 		buf[len] = '\0';
 		strcpy((char *) sl.buf + sl.len, buf);
 		sl.len += strlen(buf) + 1;

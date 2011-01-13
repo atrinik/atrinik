@@ -1478,6 +1478,13 @@
 	SockList_AddChar((_sl_), (_len_)); \
 	SockList_AddData((_sl_), (_data_), (_len_))
 
+/**
+ * Same as SockList_AddString(), but removes the trailing \0 added by
+ * SockList_AddString(). */
+#define SockList_AddStringUnterm(_sl_, _data_) \
+	SockList_AddString((_sl_), (_data_)); \
+	(_sl_)->len--;
+
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */
 #define GetInt_String(_data_)                                                      \
