@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-01-03 Alex Tokar
+Modified: 2011-01-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -506,6 +506,7 @@ arch spawn_point
 x 5
 y 7
 arch skel_mage
+name skeleton gate master
 level 53
 exp 125
 sp -1
