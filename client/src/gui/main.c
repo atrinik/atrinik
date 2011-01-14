@@ -577,7 +577,7 @@ static void popup_draw_func(popup_struct *popup)
 	bltfx.alpha = 0;
 
 	/* Downloading the files, or updates haven't finished yet? */
-	downloading = GameStatus <= GAME_STATUS_REQUEST_FILES || !file_updates_finished();
+	downloading = GameStatus < GAME_STATUS_LOGIN || !file_updates_finished();
 
 	/* Show the progress dots. */
 	for (i = 0; i < LOGIN_PROGRESS_DOTS; i++)
