@@ -140,7 +140,7 @@ void apply_book(object *op, object *tmp)
 		}
 
 		SockList_AddStringUnterm(&sl, "<book>");
-		SockList_AddStringUnterm(&sl, query_name(tmp, NULL));
+		SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
 		SockList_AddStringUnterm(&sl, "</book>");
 
 		buf[len] = '\0';
