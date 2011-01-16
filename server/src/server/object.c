@@ -311,7 +311,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"is_dust", NULL, "one_hit", NULL, "berserk",
 	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
 	NULL, NULL, NULL, NULL, NULL,
-	"sys_object", "use_fix_pos", "unpaid", NULL, "make_invisible",
+	"sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",
 	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
 	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
 	"cursed_perm", "damned_perm", "door_closed", NULL, "is_missile",

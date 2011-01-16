@@ -1208,6 +1208,9 @@
  * Object hasn't been paid for yet. */
 #define FLAG_UNPAID 112
 /**
+ * The object cannot be seen even with @ref FLAG_SEE_INVISIBLE. */
+#define FLAG_HIDDEN 113
+/**
  * Makes the wearer invisible. */
 #define FLAG_MAKE_INVISIBLE 114
 /**

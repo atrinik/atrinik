@@ -1375,7 +1375,7 @@ void draw_client_map2(object *pl)
 				object *tmp = GET_MAP_SPACE_LAYER(msp, layer);
 
 				/* Double check that we can actually see this object. */
-				if (tmp && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) && !inv_flag)
+				if (tmp && ((QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) && !inv_flag) || QUERY_FLAG(tmp, FLAG_HIDDEN)))
 				{
 					tmp = NULL;
 				}

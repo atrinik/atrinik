@@ -545,6 +545,7 @@ lex_error = 0;
 ^alive{S}           SET_OR_CLEAR_FLAG(op, FLAG_ALIVE, IVAL);
 ^applied{S}         SET_OR_CLEAR_FLAG(op, FLAG_APPLIED, IVAL);
 ^unpaid{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNPAID, IVAL);
+^hidden{S}          SET_OR_CLEAR_FLAG(op, FLAG_HIDDEN, IVAL);
 ^no_pick{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PICK, IVAL);
 ^no_pass{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PASS, IVAL);
 ^no_teleport{S}     SET_OR_CLEAR_FLAG(op, FLAG_NO_TELEPORT, IVAL);
