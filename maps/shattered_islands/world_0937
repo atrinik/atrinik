@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-05 emperorbma
+Modified: 2011-01-15 emperorbma
 endmsg
 width 24
 height 24
@@ -3619,13 +3619,35 @@ z 50
 x 19
 y 21
 end
+arch wall_pattern2.181
+x 19
+y 21
+end
+arch client_map_info
+msg
+Asteria Royal Express - Business Plaza
+endmsg
+name asteria_post_business
+sub_type 2
+stand_still 1
+x 19
+y 21
+end
 arch grassd_1
 z 50
 x 19
 y 22
 end
+arch wall_pattern2.131
+x 19
+y 22
+end
 arch grassd_2
 z 50
+x 19
+y 23
+end
+arch wall_pattern2.131
 x 19
 y 23
 end
@@ -3754,13 +3776,27 @@ z 50
 x 20
 y 21
 end
-arch grassd_5
+arch wall_pattern2.111
+x 20
+y 21
+end
+arch floor_bw1
 z 50
 x 20
 y 22
 end
-arch grassd_8
+arch lamp_wall
+x 20
+y 22
+end
+arch floor_bw1
 z 50
+x 20
+y 23
+end
+arch door_bar1
+slaying no_entry
+direction 5
 x 20
 y 23
 end
@@ -3897,13 +3933,21 @@ z 50
 x 21
 y 21
 end
-arch grassd_7
+arch wall_pattern2.111
+x 21
+y 21
+end
+arch floor_bw1
 z 50
 x 21
 y 22
 end
-arch grassd_5
+arch floor_bw1
 z 50
+x 21
+y 23
+end
+arch bar1
 x 21
 y 23
 end
@@ -4016,13 +4060,34 @@ z 50
 x 22
 y 21
 end
-arch grassd_4
+arch wall_pattern2.111
+x 22
+y 21
+end
+arch floor_bw1
 z 50
 x 22
 y 22
 end
-arch grassd_3
+arch spawn_point
+x 22
+y 22
+arch female2
+name Terri
+level 22
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/postoffice_clerk.py
+end
+end
+end
+arch floor_bw1
 z 50
+x 22
+y 23
+end
+arch bar1
 x 22
 y 23
 end
@@ -4138,13 +4203,25 @@ z 50
 x 23
 y 21
 end
-arch grassd_5
+arch wall_pattern2.111
+x 23
+y 21
+end
+arch floor_bw1
 z 50
 x 23
 y 22
 end
-arch grassd_8
+arch box1.101
+x 23
+y 22
+end
+arch floor_bw1
 z 50
+x 23
+y 23
+end
+arch bar1
 x 23
 y 23
 end

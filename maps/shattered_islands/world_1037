@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-09 emperorbma
+Modified: 2011-01-15 emperorbma
 endmsg
 width 24
 height 24
@@ -110,12 +110,26 @@ arch grassd_1
 z 50
 y 21
 end
-arch grassd_6
+arch wall_pattern2.111
+y 21
+end
+arch client_map_info
+name asteria_post_business
+sub_type 2
+y 21
+end
+arch floor_bw1
 z 50
 y 22
 end
-arch grassd_2
+arch wall_pattern2_w.131
+y 22
+end
+arch floor_bw1
 z 50
+y 23
+end
+arch wall_pattern2.131
 y 23
 end
 arch floor_fs_grey1b
@@ -312,16 +326,8 @@ z 50
 x 1
 y 22
 end
-arch grassd_m9
-x 1
-y 22
-end
 arch floor_fs_grey1b
 z 50
-x 1
-y 23
-end
-arch grassd_m9
 x 1
 y 23
 end
@@ -605,16 +611,8 @@ z 50
 x 3
 y 18
 end
-arch grassd_m8
-x 3
-y 18
-end
 arch floor_fs_grey1b
 z 50
-x 3
-y 19
-end
-arch grassd_m8
 x 3
 y 19
 end
@@ -623,16 +621,8 @@ z 50
 x 3
 y 20
 end
-arch grassd_m8
-x 3
-y 20
-end
 arch floor_fs_grey1b
 z 50
-x 3
-y 21
-end
-arch grassd_m8
 x 3
 y 21
 end
@@ -641,19 +631,11 @@ z 50
 x 3
 y 22
 end
-arch grassd_m8
-x 3
-y 22
-end
 arch floor_fs_grey1b
 z 50
 x 3
 y 23
 end
-arch grassd_m8
-x 3
-y 23
-end
 arch grassd_2
 z 50
 x 4
@@ -726,8 +708,16 @@ z 50
 x 4
 y 12
 end
+arch wall_white2_8
+x 4
+y 12
+end
 arch grassd_4
 z 50
+x 4
+y 13
+end
+arch wall_white2_3
 x 4
 y 13
 end
@@ -736,8 +726,16 @@ z 50
 x 4
 y 14
 end
+arch wall_white2_3
+x 4
+y 14
+end
 arch grassd_1
 z 50
+x 4
+y 15
+end
+arch wall_white2_w.3
 x 4
 y 15
 end
@@ -746,37 +744,45 @@ z 50
 x 4
 y 16
 end
+arch wall_white2_3
+x 4
+y 16
+end
 arch grassd_6
 z 50
 x 4
 y 17
 end
-arch grassd_2
+arch wall_white2_3
+x 4
+y 17
+end
+arch floor_white1
 z 50
 x 4
 y 18
 end
-arch grassd_5
+arch floor_white1
 z 50
 x 4
 y 19
 end
-arch grassd_8
+arch floor_white1
 z 50
 x 4
 y 20
 end
-arch grassd_4
+arch floor_white1
 z 50
 x 4
 y 21
 end
-arch grassd_5
+arch floor_white1
 z 50
 x 4
 y 22
 end
-arch grassd_1
+arch floor_white1
 z 50
 x 4
 y 23
@@ -853,57 +859,69 @@ z 50
 x 5
 y 12
 end
-arch grassd_2
+arch wall_white2_1
+x 5
+y 12
+end
+arch floor_blue3
 z 50
 x 5
 y 13
 end
-arch grassd_6
+arch chair2_111
+x 5
+y 13
+end
+arch floor_blue3
 z 50
 x 5
 y 14
 end
-arch grassd_4
+arch floor_blue3
 z 50
 x 5
 y 15
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 5
 y 16
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 5
 y 17
 end
-arch grassd_2
+arch wall_white2_1
+x 5
+y 17
+end
+arch floor_white1
 z 50
 x 5
 y 18
 end
-arch grassd_6
+arch floor_white1
 z 50
 x 5
 y 19
 end
-arch grassd_4
+arch floor_white1
 z 50
 x 5
 y 20
 end
-arch grassd_5
+arch floor_white1
 z 50
 x 5
 y 21
 end
-arch grassd_1
+arch floor_white1
 z 50
 x 5
 y 22
 end
-arch grassd_2
+arch floor_white1
 z 50
 x 5
 y 23
@@ -980,57 +998,75 @@ z 50
 x 6
 y 12
 end
-arch grassd_1
+arch wall_white2_1
+x 6
+y 12
+end
+arch floor_blue3
 z 50
 x 6
 y 13
 end
-arch grassd_8
+arch chair2_111
+x 6
+y 13
+end
+arch floor_blue3
 z 50
 x 6
 y 14
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 6
 y 15
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 6
 y 16
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 6
 y 17
 end
-arch grassd_7
+arch wall_white2_1
+x 6
+y 17
+end
+arch floor_white1
 z 50
 x 6
 y 18
 end
-arch grassd_8
+arch sign_generic
+name LandShare Industries - under construction
+direction 5
+x 6
+y 18
+end
+arch floor_white1
 z 50
 x 6
 y 19
 end
-arch grassd_2
+arch floor_white1
 z 50
 x 6
 y 20
 end
-arch grassd_4
+arch floor_white1
 z 50
 x 6
 y 21
 end
-arch grassd_5
+arch floor_white1
 z 50
 x 6
 y 22
 end
-arch grassd_3
+arch floor_white1
 z 50
 x 6
 y 23
@@ -1107,57 +1143,73 @@ z 50
 x 7
 y 12
 end
-arch grassd_5
+arch wall_white2_w.1
+x 7
+y 12
+end
+arch floor_blue3
 z 50
 x 7
 y 13
 end
-arch grassd_2
+arch chair2_111
+x 7
+y 13
+end
+arch floor_blue3
 z 50
 x 7
 y 14
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 7
 y 15
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 7
 y 16
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 7
 y 17
 end
-arch grassd_7
+arch door1_locked
+msg
+LandShare Industries is currently not open.
+endmsg
+slaying no_entry
+x 7
+y 17
+end
+arch floor_white1
 z 50
 x 7
 y 18
 end
-arch grassd_5
+arch floor_white1
 z 50
 x 7
 y 19
 end
-arch grassd_1
+arch floor_white1
 z 50
 x 7
 y 20
 end
-arch grassd_2
+arch floor_white1
 z 50
 x 7
 y 21
 end
-arch grassd_7
+arch floor_white1
 z 50
 x 7
 y 22
 end
-arch grassd_3
+arch floor_white1
 z 50
 x 7
 y 23
@@ -1234,57 +1286,69 @@ z 50
 x 8
 y 12
 end
-arch grassd_5
+arch wall_white2_1
+x 8
+y 12
+end
+arch floor_blue3
 z 50
 x 8
 y 13
 end
-arch grassd_4
+arch chair2_111
+x 8
+y 13
+end
+arch floor_blue3
 z 50
 x 8
 y 14
 end
-arch grassd_4
+arch floor_blue3
 z 50
 x 8
 y 15
 end
-arch grassd_2
+arch floor_blue3
 z 50
 x 8
 y 16
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 8
 y 17
 end
-arch grassd_1
+arch wall_white2_1
+x 8
+y 17
+end
+arch floor_white1
 z 50
 x 8
 y 18
 end
-arch grassd_3
+arch floor_white1
 z 50
 x 8
 y 19
 end
-arch grassd_2
+arch floor_white1
 z 50
 x 8
 y 20
 end
-arch grassd_2
+arch floor_white1
 z 50
 x 8
 y 21
 end
-arch grassd_6
+arch floor_white1
 z 50
 x 8
 y 22
 end
-arch grassd_2
+arch floor_white1
 z 50
 x 8
 y 23
@@ -1361,57 +1425,89 @@ z 50
 x 9
 y 12
 end
-arch grassd_4
+arch wall_white2_1
+x 9
+y 12
+end
+arch floor_blue3
 z 50
 x 9
 y 13
 end
-arch grassd_1
+arch chair2_111
+x 9
+y 13
+end
+arch floor_blue3
 z 50
 x 9
 y 14
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 9
 y 15
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 9
 y 16
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 9
 y 17
 end
-arch grassd_6
+arch wall_white2_1
+x 9
+y 17
+end
+arch floor_white1
 z 50
 x 9
 y 18
 end
-arch grassd_4
+arch wall_white2_3
+x 9
+y 18
+end
+arch floor_white1
 z 50
 x 9
 y 19
 end
-arch grassd_7
+arch wall_white2_3
+x 9
+y 19
+end
+arch floor_white1
 z 50
 x 9
 y 20
 end
-arch grassd_8
+arch wall_white2_3
+x 9
+y 20
+end
+arch floor_white1
 z 50
 x 9
 y 21
 end
-arch grassd_2
+arch wall_white2_3
+x 9
+y 21
+end
+arch floor_white1
 z 50
 x 9
 y 22
 end
-arch grassd_1
+arch wall_white2_3
+x 9
+y 22
+end
+arch floor_white1
 z 50
 x 9
 y 23
@@ -1488,53 +1584,77 @@ z 50
 x 10
 y 12
 end
-arch grassd_8
+arch wall_white2_1
+x 10
+y 12
+end
+arch floor_blue3
 z 50
 x 10
 y 13
 end
-arch grassd_7
+arch chair2_111
+x 10
+y 13
+end
+arch floor_blue3
 z 50
 x 10
 y 14
 end
-arch grassd_2
+arch floor_blue3
 z 50
 x 10
 y 15
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 10
 y 16
 end
-arch grassd_2
+arch shop_mat
+x 10
+y 16
+end
+arch floor_blue3
 z 50
 x 10
 y 17
 end
-arch grassd_6
+arch grate1_1
+x 10
+y 17
+end
+arch shop_floor
 z 50
 x 10
 y 18
 end
-arch grassd_3
+arch shop_mat
+x 10
+y 18
+end
+arch shop_floor
 z 50
 x 10
 y 19
 end
-arch grassd_5
+arch shop_floor
 z 50
 x 10
 y 20
 end
-arch grassd_3
+arch shop_floor
 z 50
 x 10
 y 21
 end
-arch grassd_6
+arch shop_floor
 z 50
+x 10
+y 22
+end
+arch wall_white2_1
 x 10
 y 22
 end
@@ -1615,53 +1735,65 @@ z 50
 x 11
 y 12
 end
-arch grassd_3
+arch wall_white2_1
+x 11
+y 12
+end
+arch floor_blue3
 z 50
 x 11
 y 13
 end
-arch grassd_4
+arch floor_blue3
 z 50
 x 11
 y 14
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 11
 y 15
 end
-arch grassd_4
+arch floor_blue3
 z 50
 x 11
 y 16
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 11
 y 17
 end
-arch grassd_7
+arch grate1_1
+x 11
+y 17
+end
+arch shop_floor
 z 50
 x 11
 y 18
 end
-arch grassd_8
+arch shop_floor
 z 50
 x 11
 y 19
 end
-arch grassd_5
+arch shop_floor
 z 50
 x 11
 y 20
 end
-arch grassd_2
+arch shop_floor
 z 50
 x 11
 y 21
 end
-arch grassd_4
+arch shop_floor
 z 50
+x 11
+y 22
+end
+arch wall_white2_1
 x 11
 y 22
 end
@@ -1742,53 +1874,65 @@ z 50
 x 12
 y 12
 end
-arch grassd_4
+arch wall_white2_1
+x 12
+y 12
+end
+arch floor_blue3
 z 50
 x 12
 y 13
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 12
 y 14
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 12
 y 15
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 12
 y 16
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 12
 y 17
 end
-arch grassd_7
+arch grate1_1
+x 12
+y 17
+end
+arch shop_floor
 z 50
 x 12
 y 18
 end
-arch grassd_1
+arch shop_floor
 z 50
 x 12
 y 19
 end
-arch grassd_5
+arch shop_floor
 z 50
 x 12
 y 20
 end
-arch grassd_5
+arch shop_floor
 z 50
 x 12
 y 21
 end
-arch grassd_1
+arch shop_floor
 z 50
+x 12
+y 22
+end
+arch wall_white2_1
 x 12
 y 22
 end
@@ -1869,53 +2013,88 @@ z 50
 x 13
 y 12
 end
-arch grassd_5
+arch wall_white2_1
+x 13
+y 12
+end
+arch floor_blue3
 z 50
 x 13
 y 13
 end
-arch grassd_1
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 13
+y 13
+end
+arch floor_blue3
 z 50
 x 13
 y 14
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 13
 y 15
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 13
 y 16
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 13
 y 17
 end
-arch grassd_2
+arch wall_white2_1
+x 13
+y 17
+end
+arch shop_floor
 z 50
 x 13
 y 18
 end
-arch grassd_1
+arch wall_white2_3
+x 13
+y 18
+end
+arch shop_floor
 z 50
 x 13
 y 19
 end
-arch grassd_3
+arch wall_white2_3
+x 13
+y 19
+end
+arch shop_floor
 z 50
 x 13
 y 20
 end
-arch grassd_8
+arch wall_white2_3
+x 13
+y 20
+end
+arch shop_floor
 z 50
 x 13
 y 21
 end
-arch grassd_7
+arch wall_white2_3
+x 13
+y 21
+end
+arch shop_floor
 z 50
+x 13
+y 22
+end
+arch wall_white2_4
 x 13
 y 22
 end
@@ -1996,53 +2175,87 @@ z 50
 x 14
 y 12
 end
-arch grassd_7
+arch wall_white2_1
+x 14
+y 12
+end
+arch floor_blue3
 z 50
 x 14
 y 13
 end
-arch grassd_3
+arch chair1_111
+direction 3
+x 14
+y 13
+end
+arch floor_blue3
 z 50
 x 14
 y 14
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 14
 y 15
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 14
 y 16
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 14
 y 17
 end
-arch grassd_2
+arch wall_white2_1
+x 14
+y 17
+end
+arch floor_blue3
 z 50
 x 14
 y 18
 end
-arch grassd_3
+arch stairs_stone_up
+direction 5
+x 14
+y 18
+end
+arch invis_exit
+x 14
+y 18
+end
+arch floor_blue3
 z 50
 x 14
 y 19
 end
-arch grassd_5
+arch stairs_stone_up
+slaying world_1_1036
+hp 14
+sp 1
+direction 5
+x 14
+y 19
+end
+arch floor_blue3
 z 50
 x 14
 y 20
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 14
 y 21
 end
-arch grassd_4
+arch floor_blue3
 z 50
+x 14
+y 22
+end
+arch wall_white2_1
 x 14
 y 22
 end
@@ -2123,53 +2336,90 @@ z 50
 x 15
 y 12
 end
-arch grassd_5
+arch wall_white2_1
+x 15
+y 12
+end
+arch floor_blue3
 z 50
 x 15
 y 13
 end
-arch grassd_7
+arch wall_white2_3
+x 15
+y 13
+end
+arch floor_blue3
 z 50
 x 15
 y 14
 end
-arch grassd_6
+arch wall_white2_3
+x 15
+y 14
+end
+arch floor_blue3
 z 50
 x 15
 y 15
 end
-arch grassd_3
+arch doorway_stone
+direction 7
+x 15
+y 15
+end
+arch floor_blue3
 z 50
 x 15
 y 16
 end
-arch grassd_4
+arch wall_white2_3
+x 15
+y 16
+end
+arch floor_blue3
 z 50
 x 15
 y 17
 end
-arch grassd_2
+arch wall_white2_4
+x 15
+y 17
+end
+arch floor_blue3
 z 50
 x 15
 y 18
 end
-arch grassd_3
+arch wall_white2_3
+x 15
+y 18
+end
+arch floor_blue3
 z 50
 x 15
 y 19
 end
-arch grassd_1
+arch wall_white2_3
+x 15
+y 19
+end
+arch floor_blue3
 z 50
 x 15
 y 20
 end
-arch grassd_4
+arch floor_blue3
 z 50
 x 15
 y 21
 end
-arch grassd_7
+arch floor_blue3
 z 50
+x 15
+y 22
+end
+arch wall_white2_1
 x 15
 y 22
 end
@@ -2250,53 +2500,61 @@ z 50
 x 16
 y 12
 end
-arch grassd_3
+arch wall_white2_1
+x 16
+y 12
+end
+arch floor_blue3
 z 50
 x 16
 y 13
 end
-arch grassd_2
+arch floor_blue3
 z 50
 x 16
 y 14
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 16
 y 15
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 16
 y 16
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 16
 y 17
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 16
 y 18
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 16
 y 19
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 16
 y 20
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 16
 y 21
 end
-arch grassd_8
+arch floor_blue3
 z 50
+x 16
+y 22
+end
+arch wall_white2_1
 x 16
 y 22
 end
@@ -2377,53 +2635,61 @@ z 50
 x 17
 y 12
 end
-arch grassd_7
+arch wall_white2_1
+x 17
+y 12
+end
+arch floor_blue3
 z 50
 x 17
 y 13
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 17
 y 14
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 17
 y 15
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 17
 y 16
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 17
 y 17
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 17
 y 18
 end
-arch grassd_2
+arch floor_blue3
 z 50
 x 17
 y 19
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 17
 y 20
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 17
 y 21
 end
-arch grassd_4
+arch floor_blue3
 z 50
+x 17
+y 22
+end
+arch wall_white2_1
 x 17
 y 22
 end
@@ -2504,53 +2770,89 @@ z 50
 x 18
 y 12
 end
-arch grassd_8
+arch wall_white2_1
+x 18
+y 12
+end
+arch floor_blue3
 z 50
 x 18
 y 13
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 18
 y 14
 end
-arch grassd_2
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 18
+y 14
+end
+arch floor_blue3
 z 50
 x 18
 y 15
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 18
 y 16
 end
-arch grassd_2
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 18
+y 16
+end
+arch floor_blue3
 z 50
 x 18
 y 17
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 18
 y 18
 end
-arch grassd_8
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 18
+y 18
+end
+arch floor_blue3
 z 50
 x 18
 y 19
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 18
 y 20
 end
-arch grassd_6
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 18
+y 20
+end
+arch floor_blue3
 z 50
 x 18
 y 21
 end
-arch grassd_2
+arch floor_blue3
 z 50
+x 18
+y 22
+end
+arch wall_white2_1
 x 18
 y 22
 end
@@ -2631,53 +2933,81 @@ z 50
 x 19
 y 12
 end
-arch grassd_3
+arch wall_white2_1
+x 19
+y 12
+end
+arch floor_blue3
 z 50
 x 19
 y 13
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 19
 y 14
 end
-arch grassd_1
+arch chair1_111
+direction 3
+x 19
+y 14
+end
+arch floor_blue3
 z 50
 x 19
 y 15
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 19
 y 16
 end
-arch grassd_5
+arch chair1_111
+direction 3
+x 19
+y 16
+end
+arch floor_blue3
 z 50
 x 19
 y 17
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 19
 y 18
 end
-arch grassd_4
+arch chair1_111
+direction 3
+x 19
+y 18
+end
+arch floor_blue3
 z 50
 x 19
 y 19
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 19
 y 20
 end
-arch grassd_7
+arch chair1_111
+direction 3
+x 19
+y 20
+end
+arch floor_blue3
 z 50
 x 19
 y 21
 end
-arch grassd_6
+arch floor_blue3
 z 50
+x 19
+y 22
+end
+arch wall_white2_1
 x 19
 y 22
 end
@@ -2758,53 +3088,61 @@ z 50
 x 20
 y 12
 end
-arch grassd_4
+arch wall_white2_1
+x 20
+y 12
+end
+arch floor_blue3
 z 50
 x 20
 y 13
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 20
 y 14
 end
-arch grassd_2
+arch floor_blue3
 z 50
 x 20
 y 15
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 20
 y 16
 end
-arch grassd_3
+arch floor_blue3
 z 50
 x 20
 y 17
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 20
 y 18
 end
-arch grassd_8
+arch floor_blue3
 z 50
 x 20
 y 19
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 20
 y 20
 end
-arch grassd_4
+arch floor_blue3
 z 50
 x 20
 y 21
 end
-arch grassd_1
+arch floor_blue3
 z 50
+x 20
+y 22
+end
+arch wall_white2_1
 x 20
 y 22
 end
@@ -2917,53 +3255,89 @@ z 50
 x 21
 y 12
 end
-arch grassd_3
+arch wall_white2_1
+x 21
+y 12
+end
+arch floor_blue3
 z 50
 x 21
 y 13
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 21
 y 14
 end
-arch grassd_6
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 21
+y 14
+end
+arch floor_blue3
 z 50
 x 21
 y 15
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 21
 y 16
 end
-arch grassd_6
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 21
+y 16
+end
+arch floor_blue3
 z 50
 x 21
 y 17
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 21
 y 18
 end
-arch grassd_8
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 21
+y 18
+end
+arch floor_blue3
 z 50
 x 21
 y 19
 end
-arch grassd_6
+arch floor_blue3
 z 50
 x 21
 y 20
 end
-arch grassd_4
+arch desk1.111
+no_pass 1
+type 79
+direction 7
+x 21
+y 20
+end
+arch floor_blue3
 z 50
 x 21
 y 21
 end
-arch grassd_2
+arch floor_blue3
 z 50
+x 21
+y 22
+end
+arch wall_white2_1
 x 21
 y 22
 end
@@ -3064,53 +3438,81 @@ z 50
 x 22
 y 12
 end
-arch grassd_4
+arch wall_white2_1
+x 22
+y 12
+end
+arch floor_blue3
 z 50
 x 22
 y 13
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 22
 y 14
 end
-arch grassd_3
+arch chair1_111
+direction 3
+x 22
+y 14
+end
+arch floor_blue3
 z 50
 x 22
 y 15
 end
-arch grassd_5
+arch floor_blue3
 z 50
 x 22
 y 16
 end
-arch grassd_4
+arch chair1_111
+direction 3
+x 22
+y 16
+end
+arch floor_blue3
 z 50
 x 22
 y 17
 end
-arch grassd_7
+arch floor_blue3
 z 50
 x 22
 y 18
 end
-arch grassd_4
+arch chair1_111
+direction 3
+x 22
+y 18
+end
+arch floor_blue3
 z 50
 x 22
 y 19
 end
-arch grassd_1
+arch floor_blue3
 z 50
 x 22
 y 20
 end
-arch grassd_3
+arch chair1_111
+direction 3
+x 22
+y 20
+end
+arch floor_blue3
 z 50
 x 22
 y 21
 end
-arch grassd_4
+arch floor_blue3
 z 50
+x 22
+y 22
+end
+arch wall_white2_1
 x 22
 y 22
 end
@@ -3212,53 +3614,97 @@ z 50
 x 23
 y 12
 end
-arch grassd_3
+arch wall_white2_1
+x 23
+y 12
+end
+arch floor_blue3
 z 50
 x 23
 y 13
 end
-arch grassd_7
+arch wall_white2_3
+x 23
+y 13
+end
+arch floor_blue3
 z 50
 x 23
 y 14
 end
-arch grassd_4
+arch wall_white2_3
+x 23
+y 14
+end
+arch floor_blue3
 z 50
 x 23
 y 15
 end
-arch grassd_3
+arch wall_white2_3
+x 23
+y 15
+end
+arch floor_blue3
 z 50
 x 23
 y 16
 end
-arch grassd_3
+arch wall_white2_3
+x 23
+y 16
+end
+arch floor_blue3
 z 50
 x 23
 y 17
 end
-arch grassd_8
+arch wall_white2_3
+x 23
+y 17
+end
+arch floor_blue3
 z 50
 x 23
 y 18
 end
-arch grassd_7
+arch wall_white2_3
+x 23
+y 18
+end
+arch floor_blue3
 z 50
 x 23
 y 19
 end
-arch grassd_6
+arch wall_white2_3
+x 23
+y 19
+end
+arch floor_blue3
 z 50
 x 23
 y 20
 end
-arch grassd_6
+arch wall_white2_3
+x 23
+y 20
+end
+arch floor_blue3
 z 50
 x 23
 y 21
 end
-arch grassd_7
+arch wall_white2_3
+x 23
+y 21
+end
+arch floor_blue3
 z 50
+x 23
+y 22
+end
+arch wall_white2_4
 x 23
 y 22
 end
