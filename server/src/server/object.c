@@ -3697,43 +3697,43 @@ int item_matched_string(object *pl, object *op, const char *name)
 		}
 
 		/* All is a very generic match - low match value */
-		if (!strcmp(cp, "all"))
+		if (!strcasecmp(cp, "all"))
 		{
 			return 1;
 		}
 
 		/* Unpaid is a little more specific */
-		if (!strcmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
+		if (!strcasecmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
 		{
 			return 2;
 		}
 
-		if (!strcmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
+		if (!strcasecmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
 		{
 			return 2;
 		}
 
-		if (!strcmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
+		if (!strcasecmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
 		{
 			return 2;
 		}
 
-		if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcmp(cp, "identified"))
+		if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "identified"))
 		{
 			return 2;
 		}
 
-		if (!QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcmp(cp, "unidentified"))
+		if (!QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "unidentified"))
 		{
 			return 2;
 		}
 
-		if ((op->type == FOOD || op->type == DRINK) && !strcmp(cp, "food"))
+		if ((op->type == FOOD || op->type == DRINK) && !strcasecmp(cp, "food"))
 		{
 			return 2;
 		}
 
-		if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) && !strcmp(cp, "valuables"))
+		if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) && !strcasecmp(cp, "valuables"))
 		{
 			return 2;
 		}
@@ -3744,28 +3744,28 @@ int item_matched_string(object *pl, object *op, const char *name)
 
 			if (weapon_type == WEAP_1H_IMPACT)
 			{
-				if (!strcmp(cp, "impact weapons"))
+				if (!strcasecmp(cp, "impact weapons"))
 				{
 					return 2;
 				}
 			}
 			else if (weapon_type == WEAP_1H_SLASH)
 			{
-				if (!strcmp(cp, "slash weapons"))
+				if (!strcasecmp(cp, "slash weapons"))
 				{
 					return 2;
 				}
 			}
 			else if (weapon_type == WEAP_1H_CLEAVE)
 			{
-				if (!strcmp(cp, "cleave weapons"))
+				if (!strcasecmp(cp, "cleave weapons"))
 				{
 					return 2;
 				}
 			}
 			else if (weapon_type == WEAP_1H_PIERCE)
 			{
-				if (!strcmp(cp, "pierce weapons"))
+				if (!strcasecmp(cp, "pierce weapons"))
 				{
 					return 2;
 				}
@@ -3773,19 +3773,19 @@ int item_matched_string(object *pl, object *op, const char *name)
 		}
 		else if (op->type == BOOK)
 		{
-			if (!strcmp(cp, "books"))
+			if (!strcasecmp(cp, "books"))
 			{
 				return 2;
 			}
 
-			if (!op->msg && !strcmp(cp, "empty books"))
+			if (!op->msg && !strcasecmp(cp, "empty books"))
 			{
 				return 2;
 			}
 
 			if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
 			{
-				if (!strcmp(cp, "unread books"))
+				if (!strcasecmp(cp, "unread books"))
 				{
 					return 2;
 				}
@@ -3802,7 +3802,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 			}
 			else
 			{
-				if (!strcmp(cp, "read books"))
+				if (!strcasecmp(cp, "read books"))
 				{
 					return 2;
 				}
