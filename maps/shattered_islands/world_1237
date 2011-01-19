@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-07 emperorbma
+Modified: 2011-01-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -68,7 +68,10 @@ end
 arch grassd_m3
 y 12
 end
-arch grass_leaf1
+arch grassd_3
+y 13
+end
+arch plant7
 y 13
 end
 arch grassd_7
@@ -83,10 +86,16 @@ end
 arch grassd_6
 y 17
 end
+arch plant_mushroom5
+y 17
+end
 arch grassd_3
 y 18
 end
 arch grassd_8
+y 19
+end
+arch tree_big2
 y 19
 end
 arch grassd_2
@@ -99,6 +108,9 @@ arch grassd_3
 y 22
 end
 arch grassd_6
+y 23
+end
+arch small_stones
 y 23
 end
 arch water_lt4
@@ -180,7 +192,11 @@ arch reed_sm1
 x 1
 y 13
 end
-arch grass_leaf1
+arch grassd_8
+x 1
+y 14
+end
+arch plant8
 x 1
 y 14
 end
@@ -212,6 +228,10 @@ arch grassd_2
 x 1
 y 21
 end
+arch plant_mushroom4
+x 1
+y 21
+end
 arch grassd_6
 x 1
 y 22
@@ -287,11 +307,19 @@ arch reed_sm1
 x 2
 y 14
 end
-arch grass_leaf1
+arch grassd_8
 x 2
 y 15
 end
-arch grass_leaf1
+arch plant8
+x 2
+y 15
+end
+arch grassd_7
+x 2
+y 16
+end
+arch plant8
 x 2
 y 16
 end
@@ -304,6 +332,10 @@ x 2
 y 18
 end
 arch grassd_5
+x 2
+y 19
+end
+arch plant_mushroom5
 x 2
 y 19
 end
@@ -320,6 +352,10 @@ x 2
 y 22
 end
 arch grassd_7
+x 2
+y 23
+end
+arch tree_big2
 x 2
 y 23
 end
@@ -402,11 +438,19 @@ arch reed_sm1
 x 3
 y 16
 end
-arch grass_leaf1
+arch grassd_7
 x 3
 y 17
 end
-arch grass_leaf1
+arch plant7
+x 3
+y 17
+end
+arch grassd_1
+x 3
+y 18
+end
+arch plant8
 x 3
 y 18
 end
@@ -423,6 +467,10 @@ x 3
 y 21
 end
 arch grassd_7
+x 3
+y 22
+end
+arch plant9
 x 3
 y 22
 end
@@ -521,11 +569,19 @@ arch reed_sm1
 x 4
 y 18
 end
-arch grass_leaf1
+arch grassd_3
 x 4
 y 19
 end
-arch grass_leaf1
+arch plant8
+x 4
+y 19
+end
+arch grassd_5
+x 4
+y 20
+end
+arch plant8
 x 4
 y 20
 end
@@ -640,7 +696,11 @@ arch reed_sm1
 x 5
 y 20
 end
-arch grass_leaf1
+arch grassd_1
+x 5
+y 21
+end
+arch plant8
 x 5
 y 21
 end
@@ -751,11 +811,19 @@ arch reed_sm1
 x 6
 y 21
 end
-arch grass_leaf1
+arch grassd_8
+x 6
+y 22
+end
+arch plant8
 x 6
 y 22
 end
 arch grassd_1
+x 6
+y 23
+end
+arch plant8
 x 6
 y 23
 end
@@ -858,7 +926,11 @@ arch reed_sm1
 x 7
 y 22
 end
-arch grass_leaf1
+arch grassd_2
+x 7
+y 23
+end
+arch plant8
 x 7
 y 23
 end
