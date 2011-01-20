@@ -2,7 +2,7 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-07 emperorbma
+Modified: 2011-01-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1714,6 +1714,10 @@ arch floor_ruin4
 x 14
 y 5
 end
+arch seashell
+x 14
+y 5
+end
 arch floor_ruin4
 x 14
 y 6
@@ -1805,6 +1809,10 @@ x 14
 y 22
 end
 arch floor_ruin4
+x 14
+y 23
+end
+arch starfish
 x 14
 y 23
 end
@@ -1977,6 +1985,10 @@ x 16
 y 6
 end
 arch floor_ruin4
+x 16
+y 7
+end
+arch starfish
 x 16
 y 7
 end
@@ -2438,6 +2450,10 @@ x 19
 y 15
 end
 arch floor_ruin4
+x 19
+y 16
+end
+arch starfish
 x 19
 y 16
 end

@@ -2247,6 +2247,9 @@ arch water_lt_m
 direction 3
 x 14
 end
+arch starfish
+x 14
+end
 arch floor_ruin1
 x 14
 y 1
@@ -2866,6 +2869,10 @@ x 18
 y 4
 end
 arch floor_ruin1
+x 18
+y 5
+end
+arch seashell3
 x 18
 y 5
 end
