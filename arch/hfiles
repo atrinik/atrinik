@@ -850,16 +850,25 @@ It's easier to use the object's name, but many objects have spaces in the names,
 The IDs/names will first be checked against the online players (not in their inventories though), then below you (including inventories), and at last on the whole map the DM is standing on (including inventories).
 ==========
 Name: contributors
-Title: Contributors
+Title: </u><u>
+<book>Atrinik Contributors</book><font=sans 14><b><o=#000000><c=#cf6900>Programming:</c></o></b></font><padding=4>
+Alex "<b>Cleo</b>" Tokar (+maps)
+Daniel "<b>Lippy</b>" Liptrot
+Dantee
+</padding>
+<font=sans 14><b><o=#000000><c=#cf6900>Maps:</c></o></b></font><padding=4>
+Asa "<b>Evilasa</b>" Hurren
+Brian "<b>Gramlath</b>" Angeletti (+graphics)
+Edwin "<b>Kiana</b>" Miltenburg
+Matthew "<b>Idicus</b>" Bostick
+</padding>
+<font=sans 14><b><o=#000000><c=#cf6900>Graphics:</c></o></b></font><padding=4>
+James "<b>Jlittle</b>" Little (+programming)
 
-Authors and contributors to Atrinik:
-
-Alex Tokar &lt;admin@atokar.net&gt;
-Pete Spicer &lt;sleeping@myperch.org&gt;
-Edwin Miltenburg &lt;warming@live.nl&gt;
-Daniel Liptrot &lt;robotdan2003@yahoo.co.uk&gt;
-David Hanna &lt;ddhanna@hotmail.com&gt;
-Brian Angeletti &lt;emperorbma@suddenlink.net&gt;
-Matthew Bostick &lt;toigan1@netzero.com&gt;
-Asa Hurren &lt;evildaddyasa@hotmail.com&gt;
+<a=url:http://rephial.org>Angband</a>, <a=url:http://crossmagi.sourceforge.net>Crossmagi</a>, <a=url:http://www.freedink.org>GNU FreeDink</a>, <a=url:http://reinerstileset.4players.de/englisch.html>Reiner's Tilesets</a>, <a=url:http://rltiles.sf.net>RLTiles</a>
+</padding>
+<font=sans 14><b><o=#000000><c=#cf6900>Other:</c></o></b></font><padding=4>
+David "<b>Ddhanna</b>" Hanna
+Pete "<b>Arantor</b>" Spicer
+</padding>
 ==========
