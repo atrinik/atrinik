@@ -685,7 +685,7 @@ int move_monster(object *op)
 	}
 
 	/* Hit enemy if possible */
-	if (!QUERY_FLAG(op, FLAG_SCARED) && can_hit(part, &rv))
+	if (!QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(enemy, FLAG_REMOVED) && can_hit(part, &rv))
 	{
 		if (QUERY_FLAG(op, FLAG_RUN_AWAY))
 		{
