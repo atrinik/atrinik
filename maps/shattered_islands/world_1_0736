@@ -2,14 +2,17 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2011-01-23 emperorbma
 endmsg
 width 24
 height 24
 difficulty 40
 darkness -1
 no_harm 1
+tile_path_1 world_1_0737
+tile_path_2 world_1_0836
 tile_path_3 world_1_0735
+tile_path_5 world_1_0837
 tile_path_6 world_1_0835
 region asteria
 end
@@ -2196,6 +2199,11 @@ z 30
 x 11
 y 16
 end
+arch sign
+name Authorized Personnel Only
+x 11
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 11
@@ -2714,8 +2722,17 @@ x 13
 y 23
 end
 arch floor_fs_grey1b
+layer 6
+x 14
+end
+arch floor_fs_grey1b
 z 30
 x 14
+end
+arch floor_fs_grey1b
+layer 6
+x 14
+y 1
 end
 arch floor_fs_grey1b
 z 30

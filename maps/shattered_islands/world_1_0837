@@ -1,0 +1,203 @@
+arch map
+name Asteria
+msg
+Created:  2011-01-23 emperorbma
+Modified: 2011-01-23 emperorbma
+endmsg
+width 24
+height 24
+difficulty 40
+darkness -1
+no_harm 1
+tile_path_3 world_1_0836
+tile_path_4 world_1_0737
+tile_path_7 world_1_0736
+region asteria
+end
+arch blocked
+z 30
+y 14
+end
+arch wall_dungeon_1
+y 14
+end
+arch floor_fs_grey1b
+z 30
+y 15
+end
+arch floor_fs_grey1b
+z 30
+y 16
+end
+arch floor_fs_grey1b
+z 30
+y 17
+end
+arch floor_fs_grey1b
+z 30
+y 18
+end
+arch floor_fs_grey1b
+z 30
+y 19
+end
+arch floor_fs_grey1b
+z 30
+y 20
+end
+arch floor_fs_grey1b
+z 30
+y 21
+end
+arch floor_fs_grey1b
+z 30
+y 22
+end
+arch floor_fs_grey1b
+z 30
+y 23
+end
+arch blocked
+z 30
+x 1
+y 14
+end
+arch wall_dungeon_1
+x 1
+y 14
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 15
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 16
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 17
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 18
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 19
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 20
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 21
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 22
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 23
+end
+arch blocked
+z 30
+x 2
+y 14
+end
+arch wall_dungeon_1
+x 2
+y 14
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 15
+end
+arch wall_dungeon_3
+x 2
+y 15
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 16
+end
+arch wall_dungeon_3
+x 2
+y 16
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 17
+end
+arch wall_dungeon_3
+x 2
+y 17
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 18
+end
+arch wall_dungeon_3
+x 2
+y 18
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 19
+end
+arch wall_dungeon_3
+x 2
+y 19
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 20
+end
+arch wall_dungeon_3
+x 2
+y 20
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 21
+end
+arch wall_dungeon_3
+x 2
+y 21
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 22
+end
+arch wall_dungeon_3
+x 2
+y 22
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 23
+end
+arch wall_dungeon_3
+x 2
+y 23
+end
