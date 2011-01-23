@@ -251,7 +251,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"consecrate", SPELL_TYPE_PRIEST,
 	 "icon_default.101", "Consecrates the altar you are standing on to your god. The prayer may fail if the altar's level is higher than yours.",
-	 15, 10, 200, 2, 0, 3, 1.0,
+	 15, 10, 80, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
 	 PATH_TRANSMUTE, NULL
