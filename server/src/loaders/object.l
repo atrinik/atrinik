@@ -798,6 +798,7 @@ lex_error = 0;
 							}
 						}
                     }
+^outdoor{S}         SET_OR_CLEAR_FLAG(op, FLAG_OUTDOOR, IVAL);
 ^unique{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
 ^inv_locked{S}      SET_OR_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL);
 ^is_wooded{S}       {}

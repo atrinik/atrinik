@@ -1278,13 +1278,46 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Calculate the darkness/light value for this tile. */
-			if (MAP_OUTDOORS(m))
+			if ((MAP_OUTDOORS(m) && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!MAP_OUTDOORS(m) && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR))
 			{
 				d = msp->light_value + wdark + dm_light;
 			}
 			else
 			{
 				d = m->light_value + msp->light_value + dm_light;
+			}
+
+			if (GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)
+			{
+				object *mirror_tmp;
+				magic_mirror_struct *m_data;
+				mapstruct *mirror_map;
+
+				/* Try to find the magic mirror, but only search on layer 0. */
+				for (mirror_tmp = GET_MAP_OB(m, nx, ny); mirror_tmp && mirror_tmp->layer == LAYER_SYS; mirror_tmp = mirror_tmp->above)
+				{
+					if (mirror_tmp->type == MAGIC_MIRROR)
+					{
+						mirror = mirror_tmp;
+						break;
+					}
+				}
+
+				m_data = MMIRROR(mirror);
+
+				if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
+				{
+					MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
+
+					if ((MAP_OUTDOORS(mirror_map) && !(GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR))
+					{
+						d = mirror_msp->light_value + wdark + dm_light;
+					}
+					else
+					{
+						d = mirror_map->light_value + mirror_msp->light_value + dm_light;
+					}
+				}
 			}
 
 			/* Tile is not normally visible */
@@ -1396,36 +1429,14 @@ void draw_client_map2(object *pl)
 				}
 
 				/* Still nothing, but there's a magic mirror on this tile? */
-				if (!tmp && GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)
+				if (!tmp && mirror)
 				{
-					/* No mirror found for this map space yet? */
-					if (!mirror)
+					magic_mirror_struct *m_data = MMIRROR(mirror);
+					mapstruct *mirror_map;
+
+					if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
 					{
-						object *mirror_tmp;
-
-						/* Try to find the magic mirror, but only search on layer 0. */
-						for (mirror_tmp = GET_MAP_OB(m, nx, ny); mirror_tmp && mirror_tmp->layer == LAYER_SYS; mirror_tmp = mirror_tmp->above)
-						{
-							if (mirror_tmp->type == MAGIC_MIRROR)
-							{
-								mirror = mirror_tmp;
-								break;
-							}
-						}
-					}
-
-					/* Due to the fact that we checked for P_MAGIC_MIRROR
-					 * above, 'mirror' should not be NULL, but check it for
-					 * safety anyway. */
-					if (mirror)
-					{
-						magic_mirror_struct *m_data = MMIRROR(mirror);
-						mapstruct *mirror_map;
-
-						if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
-						{
-							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer);
-						}
+						tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer);
 					}
 				}
 

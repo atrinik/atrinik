@@ -298,7 +298,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"reflecting", "changing", "splitting", "hitback", "startequip",
 	"blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
 	"reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
-	"run_away", "pass_thru", "can_pass_thru", NULL, "unique",
+	"run_away", "pass_thru", "can_pass_thru", "outdoor", "unique",
 	"no_drop", "is_indestructible", "can_cast_spell", NULL, NULL,
 	"can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
 	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
@@ -1356,6 +1356,11 @@ void update_object(object *op, int action)
 			if (op->type == MAGIC_MIRROR)
 			{
 				newflags |= P_MAGIC_MIRROR;
+			}
+
+			if (QUERY_FLAG(op, FLAG_OUTDOOR))
+			{
+				newflags |= P_OUTDOOR;
 			}
 		}
 	}

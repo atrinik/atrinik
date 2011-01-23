@@ -900,7 +900,7 @@
  * @defgroup flag_defines Flag defines
  * The object flags.
  *
- * Unused: 77, 78, 113, 128, 98, 81, 82, 104, 105, 106, 107, 108,
+ * Unused: 77, 78, 128, 98, 81, 82, 104, 105, 106, 107, 108,
  * 109, 96, 87, 88, 54, 53, 89, 79, 44, 23, 48.
  *
  * @note
@@ -1057,6 +1057,9 @@
 /**
  * Object can pass through objects with @ref FLAG_PASS_THRU set. */
 #define FLAG_CAN_PASS_THRU 47
+/**
+ * Outdoor tile. */
+#define FLAG_OUTDOOR 48
 /**
  * Item is unique. */
 #define FLAG_UNIQUE 49

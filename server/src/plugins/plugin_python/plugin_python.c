@@ -244,6 +244,7 @@ static const Atrinik_Constant constants[] =
 	{"P_FLY_OFF", P_FLY_OFF},
 	{"P_FLY_ON", P_FLY_ON},
 	{"P_MAGIC_MIRROR", P_MAGIC_MIRROR},
+	{"P_OUTDOOR", P_OUTDOOR},
 	{"P_OUT_OF_MAP", P_OUT_OF_MAP},
 	{"P_FLAGS_ONLY", P_FLAGS_ONLY},
 	{"P_FLAGS_UPDATE", P_FLAGS_UPDATE},

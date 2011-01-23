@@ -2289,6 +2289,11 @@ void update_position(mapstruct *m, int x, int y)
 			{
 				flags |= P_MAGIC_MIRROR;
 			}
+
+			if (QUERY_FLAG(tmp, FLAG_OUTDOOR))
+			{
+				flags |= P_OUTDOOR;
+			}
 		}
 
 #ifdef DEBUG_OLDFLAGS
