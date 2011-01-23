@@ -162,6 +162,12 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 		return 0;
 	}
 
+	/* No need to do this for tail parts. */
+	if (ob->head)
+	{
+		return 0;
+	}
+
 	/* Only render the following objects:
 	 * - floor (the terrain, obviously)
 	 * - walls
@@ -192,7 +198,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 				{
 					gdImageSetPixel(im, x + px, y + py, gdImageColorResolve(im, MAX(0, wm_face_colors[ob->face->number][2] - ob->z / 2.5), MAX(0, wm_face_colors[ob->face->number][3] - ob->z / 2.5), MAX(0, wm_face_colors[ob->face->number][4] - ob->z / 2.5)));
 				}
-				else if (wm_face_colors[ob->face->number][0])
+				else
 				{
 					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][py == 1 && px == 1 ? 1 : 0]);
 				}
