@@ -60,6 +60,11 @@ int command_bleed(object *op, char *params);
 int command_cringe(object *op, char *params);
 int command_think(object *op, char *params);
 int command_me(object *op, char *params);
+int command_stare(object *op, char *params);
+int command_sneer(object *op, char *params);
+int command_wince(object *op, char *params);
+int command_facepalm(object *op, char *params);
+int command_my(object *op, char *params);
 
 /* commands/commands.c */
 void init_commands();

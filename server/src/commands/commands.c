@@ -139,7 +139,12 @@ CommArray_s CommunicationCommands [] =
 	{"bleed",         command_bleed,         1.0, 0},
 	{"cringe",        command_cringe,        1.0, 0},
 	{"think",         command_think,         1.0, 0},
-	{"me",            command_me,            1.0, 0}
+	{"me",            command_me,            1.0, 0},
+	{"stare",         command_stare,         1.0, 0},
+	{"sneer",         command_sneer,         1.0, 0},
+	{"wince",         command_wince,         1.0, 0},
+	{"facepalm",      command_facepalm,      1.0, 0},
+	{"my",            command_my,            1.0, 0}
 };
 
 /** Size of emotion commands */

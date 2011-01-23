@@ -116,6 +116,11 @@ extern const int CommandsSize, WizCommandsSize, CommunicationCommandSize;
 #define EMOTE_CRINGE    53
 #define EMOTE_THINK     54
 #define EMOTE_ME        55
+#define EMOTE_STARE     56
+#define EMOTE_SNEER     57
+#define EMOTE_WINCE     58
+#define EMOTE_FACEPALM  59
+#define EMOTE_MY        60
 /*@}*/
 
 #endif

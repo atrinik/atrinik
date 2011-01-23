@@ -426,6 +426,7 @@ Title: Emotion Commands
 This is the list of all emote commands:
 
 /me
+/my
 /accuse
 /beg
 /bleed
@@ -440,6 +441,7 @@ This is the list of all emote commands:
 /cringe
 /cry
 /dance
+/facepalm
 /flip
 /frown
 /gasp
@@ -466,11 +468,13 @@ This is the list of all emote commands:
 /smile
 /smirk
 /snap
+/sneer
 /sneeze
 /snicker
 /sniff
 /snore
 /spit
+/stare
 /strut
 /sulk
 /thank
@@ -478,6 +482,7 @@ This is the list of all emote commands:
 /twiddle
 /wave
 /whistle
+/wince
 /wink
 /yawn
 ==========
