@@ -11,7 +11,9 @@ darkness -1
 no_harm 1
 tile_path_2 world_1_0837
 tile_path_3 world_1_0736
+tile_path_4 world_1_0637
 tile_path_6 world_1_0836
+tile_path_7 world_1_0636
 region asteria
 end
 arch blocked
@@ -209,8 +211,16 @@ z 30
 x 3
 y 18
 end
+arch wall_dungeon_3
+x 3
+y 18
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 19
+end
+arch wall_dungeon_3
 x 3
 y 19
 end
@@ -219,8 +229,16 @@ z 30
 x 3
 y 20
 end
+arch wall_dungeon_3
+x 3
+y 20
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 21
+end
+arch wall_dungeon_3
 x 3
 y 21
 end
@@ -229,8 +247,16 @@ z 30
 x 3
 y 22
 end
+arch wall_dungeon_3
+x 3
+y 22
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 23
+end
+arch wall_dungeon_3
 x 3
 y 23
 end
@@ -1188,8 +1214,16 @@ z 30
 x 18
 y 18
 end
+arch wall_dungeon_3
+x 18
+y 18
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 19
+end
+arch wall_dungeon_3
 x 18
 y 19
 end
@@ -1198,8 +1232,21 @@ z 30
 x 18
 y 20
 end
+arch wall_dungeon_3
+x 18
+y 20
+end
+arch flag_eagle
+direction 7
+x 18
+y 20
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 21
+end
+arch wall_dungeon_3
 x 18
 y 21
 end
@@ -1208,8 +1255,21 @@ z 30
 x 18
 y 22
 end
+arch wall_dungeon_3
+x 18
+y 22
+end
+arch flag_eagle
+direction 7
+x 18
+y 22
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 23
+end
+arch wall_dungeon_3
 x 18
 y 23
 end
@@ -1246,8 +1306,20 @@ z 30
 x 19
 y 18
 end
+arch rack3
+direction 7
+slaying no_open
+x 19
+y 18
+end
 arch floor_fs_grey1b
 z 30
+x 19
+y 19
+end
+arch rack2
+direction 7
+slaying no_open
 x 19
 y 19
 end
@@ -1261,6 +1333,12 @@ z 30
 x 19
 y 21
 end
+arch rack.111
+direction 7
+slaying no_open
+x 19
+y 21
+end
 arch floor_fs_grey1b
 z 30
 x 19
@@ -1268,6 +1346,12 @@ y 22
 end
 arch floor_fs_grey1b
 z 30
+x 19
+y 23
+end
+arch rack2
+direction 7
+slaying no_open
 x 19
 y 23
 end
@@ -1295,7 +1379,7 @@ z 30
 x 20
 y 17
 end
-arch wall_dungeon_1
+arch door1_locked
 x 20
 y 17
 end
@@ -1362,6 +1446,11 @@ z 30
 x 21
 y 18
 end
+arch chest_w1
+slaying no_open
+x 21
+y 18
+end
 arch floor_fs_grey1b
 z 30
 x 21
@@ -1372,6 +1461,11 @@ z 30
 x 21
 y 20
 end
+arch chest_w1
+slaying no_open
+x 21
+y 20
+end
 arch floor_fs_grey1b
 z 30
 x 21
@@ -1379,6 +1473,11 @@ y 21
 end
 arch floor_fs_grey1b
 z 30
+x 21
+y 22
+end
+arch chest_w1
+slaying no_open
 x 21
 y 22
 end
@@ -1420,6 +1519,11 @@ z 30
 x 22
 y 18
 end
+arch chest_w1
+slaying no_open
+x 22
+y 18
+end
 arch floor_fs_grey1b
 z 30
 x 22
@@ -1427,6 +1531,11 @@ y 19
 end
 arch floor_fs_grey1b
 z 30
+x 22
+y 20
+end
+arch chest_w1
+slaying no_open
 x 22
 y 20
 end
@@ -1440,10 +1549,24 @@ z 30
 x 22
 y 22
 end
+arch chest_w1
+slaying no_open
+x 22
+y 22
+end
 arch floor_fs_grey1b
 z 30
 x 22
 y 23
+end
+arch spawn_point
+x 22
+y 23
+arch guard
+name Asterian Guard
+level 100
+type 83
+end
 end
 arch blocked
 z 30

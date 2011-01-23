@@ -12,8 +12,10 @@ no_harm 1
 tile_path_1 world_1_0737
 tile_path_2 world_1_0836
 tile_path_3 world_1_0735
+tile_path_4 world_1_0636
 tile_path_5 world_1_0837
 tile_path_6 world_1_0835
+tile_path_8 world_1_0637
 region asteria
 end
 arch floor_fs_grey1b
@@ -63,9 +65,23 @@ arch floor_fs_grey1b
 z 30
 y 11
 end
+arch wall_dungeon_1
+y 11
+end
+arch flag_eagle
+y 11
+end
 arch floor_fs_grey1b
 z 30
 y 12
+end
+arch spawn_point
+y 12
+arch guard
+name Asterian Guard
+level 100
+type 83
+end
 end
 arch floor_fs_grey1b
 z 30
@@ -198,6 +214,10 @@ z 30
 x 1
 y 11
 end
+arch wall_dungeon_1
+x 1
+y 11
+end
 arch floor_fs_grey1b
 z 30
 x 1
@@ -223,7 +243,7 @@ z 30
 x 1
 y 16
 end
-arch wall_dungeon_1
+arch door1_locked
 x 1
 y 16
 end
@@ -349,6 +369,10 @@ z 30
 x 2
 y 11
 end
+arch wall_dungeon_1
+x 2
+y 11
+end
 arch floor_fs_grey1b
 z 30
 x 2
@@ -445,8 +469,15 @@ arch floor_fs_grey1b
 z 30
 x 3
 end
+arch wall_dungeon_3
+x 3
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 1
+end
+arch wall_dungeon_3
 x 3
 y 1
 end
@@ -455,8 +486,16 @@ z 30
 x 3
 y 2
 end
+arch wall_dungeon_3
+x 3
+y 2
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 3
+end
+arch wall_dungeon_3
 x 3
 y 3
 end
@@ -465,8 +504,16 @@ z 30
 x 3
 y 4
 end
+arch wall_dungeon_3
+x 3
+y 4
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 5
+end
+arch wall_dungeon_3
 x 3
 y 5
 end
@@ -475,8 +522,16 @@ z 30
 x 3
 y 6
 end
+arch wall_dungeon_3
+x 3
+y 6
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 7
+end
+arch wall_dungeon_3
 x 3
 y 7
 end
@@ -485,8 +540,16 @@ z 30
 x 3
 y 8
 end
+arch wall_dungeon_3
+x 3
+y 8
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 9
+end
+arch wall_dungeon_3
 x 3
 y 9
 end
@@ -495,8 +558,16 @@ z 30
 x 3
 y 10
 end
+arch wall_dungeon_3
+x 3
+y 10
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 11
+end
+arch wall_dungeon_4
 x 3
 y 11
 end
@@ -510,8 +581,16 @@ z 30
 x 3
 y 13
 end
+arch wall_dungeon_8
+x 3
+y 13
+end
 arch floor_fs_grey1b
 z 30
+x 3
+y 14
+end
+arch wall_dungeon_3
 x 3
 y 14
 end
@@ -520,12 +599,16 @@ z 30
 x 3
 y 15
 end
+arch wall_dungeon_3
+x 3
+y 15
+end
 arch floor_fs_grey1b
 z 30
 x 3
 y 16
 end
-arch wall_dungeon_1
+arch wall_dungeon_4
 x 3
 y 16
 end
@@ -779,7 +862,7 @@ z 30
 x 4
 y 11
 end
-arch wall_dungeon_3
+arch wall_dungeon_4
 x 4
 y 11
 end
@@ -798,7 +881,7 @@ z 30
 x 4
 y 13
 end
-arch wall_dungeon_3
+arch wall_dungeon_4
 x 4
 y 13
 end
@@ -2789,6 +2872,15 @@ z 30
 x 14
 y 11
 end
+arch spawn_point
+x 14
+y 11
+arch guard
+name Asterian Guard
+level 100
+type 83
+end
+end
 arch floor_fs_grey1b
 z 30
 x 14
@@ -3252,7 +3344,8 @@ z 30
 x 17
 y 1
 end
-arch wall_dungeon_3
+arch door1_locked
+direction 3
 x 17
 y 1
 end
@@ -3458,6 +3551,9 @@ arch floor_fs_grey1b
 z 30
 x 18
 end
+arch wall_dungeon2b_4
+x 18
+end
 arch floor_fs_grey1b
 z 30
 x 18
@@ -3468,8 +3564,16 @@ z 30
 x 18
 y 2
 end
+arch wall_dungeon2b_1
+x 18
+y 2
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 3
+end
+arch wall_dungeon_3
 x 18
 y 3
 end
@@ -3478,8 +3582,21 @@ z 30
 x 18
 y 4
 end
+arch wall_dungeon_3
+x 18
+y 4
+end
+arch picture2.151
+direction 7
+x 18
+y 4
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 5
+end
+arch wall_dungeon_3
 x 18
 y 5
 end
@@ -3488,8 +3605,21 @@ z 30
 x 18
 y 6
 end
+arch wall_dungeon_3
+x 18
+y 6
+end
+arch picture15
+direction 7
+x 18
+y 6
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 7
+end
+arch wall_dungeon_3
 x 18
 y 7
 end
@@ -3498,8 +3628,21 @@ z 30
 x 18
 y 8
 end
+arch wall_dungeon_3
+x 18
+y 8
+end
+arch picture3.151
+direction 7
+x 18
+y 8
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 9
+end
+arch wall_dungeon_3
 x 18
 y 9
 end
@@ -3508,8 +3651,16 @@ z 30
 x 18
 y 10
 end
+arch wall_dungeon_3
+x 18
+y 10
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 11
+end
+arch wall_dungeon_3
 x 18
 y 11
 end
@@ -3518,8 +3669,16 @@ z 30
 x 18
 y 12
 end
+arch wall_dungeon_3
+x 18
+y 12
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 13
+end
+arch wall_dungeon_3
 x 18
 y 13
 end
@@ -3528,8 +3687,16 @@ z 30
 x 18
 y 14
 end
+arch wall_dungeon_3
+x 18
+y 14
+end
 arch floor_fs_grey1b
 z 30
+x 18
+y 15
+end
+arch wall_dungeon_3
 x 18
 y 15
 end
@@ -3538,7 +3705,7 @@ z 30
 x 18
 y 16
 end
-arch wall_dungeon_1
+arch wall_dungeon_4
 x 18
 y 16
 end
@@ -3609,6 +3776,11 @@ arch floor_fs_grey1b
 z 30
 x 19
 end
+arch rack3
+direction 7
+slaying no_open
+x 19
+end
 arch floor_fs_grey1b
 z 30
 x 19
@@ -3619,8 +3791,16 @@ z 30
 x 19
 y 2
 end
+arch wall_dungeon_1
+x 19
+y 2
+end
 arch floor_fs_grey1b
 z 30
+x 19
+y 3
+end
+arch kettle_table
 x 19
 y 3
 end
@@ -3659,8 +3839,16 @@ z 30
 x 19
 y 10
 end
+arch wall_dungeon_1
+x 19
+y 10
+end
 arch floor_fs_grey1b
 z 30
+x 19
+y 11
+end
+arch shrine1.111
 x 19
 y 11
 end
@@ -3676,6 +3864,11 @@ y 13
 end
 arch floor_fs_grey1b
 z 30
+x 19
+y 14
+end
+arch bench2.111
+direction 5
 x 19
 y 14
 end
@@ -3770,6 +3963,14 @@ z 30
 x 20
 y 2
 end
+arch wall_dungeon_1
+x 20
+y 2
+end
+arch flag_eagle
+x 20
+y 2
+end
 arch floor_fs_grey1b
 z 30
 x 20
@@ -3780,8 +3981,16 @@ z 30
 x 20
 y 4
 end
+arch carpet3.151
+x 20
+y 4
+end
 arch floor_fs_grey1b
 z 30
+x 20
+y 5
+end
+arch carpet3e
 x 20
 y 5
 end
@@ -3790,8 +3999,26 @@ z 30
 x 20
 y 6
 end
+arch carpet3e
+x 20
+y 6
+end
+arch chair1_111
+direction 7
+x 20
+y 6
+end
 arch floor_fs_grey1b
 z 30
+x 20
+y 7
+end
+arch carpet3e
+x 20
+y 7
+end
+arch chair1_111
+direction 7
 x 20
 y 7
 end
@@ -3800,8 +4027,21 @@ z 30
 x 20
 y 8
 end
+arch carpet3e
+x 20
+y 8
+end
+arch chair1_111
+direction 7
+x 20
+y 8
+end
 arch floor_fs_grey1b
 z 30
+x 20
+y 9
+end
+arch carpet3.111
 x 20
 y 9
 end
@@ -3810,8 +4050,16 @@ z 30
 x 20
 y 10
 end
+arch wall_dungeon_1
+x 20
+y 10
+end
 arch floor_fs_grey1b
 z 30
+x 20
+y 11
+end
+arch candlelight4.101
 x 20
 y 11
 end
@@ -3827,6 +4075,11 @@ y 13
 end
 arch floor_fs_grey1b
 z 30
+x 20
+y 14
+end
+arch bench2.111
+direction 5
 x 20
 y 14
 end
@@ -3921,6 +4174,10 @@ z 30
 x 21
 y 2
 end
+arch door_wood1
+x 21
+y 2
+end
 arch floor_fs_grey1b
 z 30
 x 21
@@ -3931,8 +4188,20 @@ z 30
 x 21
 y 4
 end
+arch carpet3.151
+x 21
+y 4
+end
 arch floor_fs_grey1b
 z 30
+x 21
+y 5
+end
+arch carpet3g
+x 21
+y 5
+end
+arch throne.111
 x 21
 y 5
 end
@@ -3941,8 +4210,26 @@ z 30
 x 21
 y 6
 end
+arch carpet3g
+x 21
+y 6
+end
+arch table_lab3.111
+direction 7
+x 21
+y 6
+end
 arch floor_fs_grey1b
 z 30
+x 21
+y 7
+end
+arch carpet3g
+x 21
+y 7
+end
+arch table_lab3.111
+direction 7
 x 21
 y 7
 end
@@ -3951,8 +4238,21 @@ z 30
 x 21
 y 8
 end
+arch carpet3g
+x 21
+y 8
+end
+arch table_lab3.111
+direction 7
+x 21
+y 8
+end
 arch floor_fs_grey1b
 z 30
+x 21
+y 9
+end
+arch carpet3.111
 x 21
 y 9
 end
@@ -3961,8 +4261,29 @@ z 30
 x 21
 y 10
 end
+arch wall_dungeon_1
+x 21
+y 10
+end
 arch floor_fs_grey1b
 z 30
+x 21
+y 11
+end
+arch spawn_point
+x 21
+y 11
+arch priest_church
+name Friar Marcus
+level 45
+type 83
+arch event_obj
+sub_type 6
+race /python/temples/tabernacle.py
+end
+end
+end
+arch light9
 x 21
 y 11
 end
@@ -3971,8 +4292,20 @@ z 30
 x 21
 y 12
 end
+arch carpet4.151
+x 21
+y 12
+end
+arch altar_tabernacle
+x 21
+y 12
+end
 arch floor_fs_grey1b
 z 30
+x 21
+y 13
+end
+arch carpet4b
 x 21
 y 13
 end
@@ -3981,8 +4314,16 @@ z 30
 x 21
 y 14
 end
+arch carpet4b
+x 21
+y 14
+end
 arch floor_fs_grey1b
 z 30
+x 21
+y 15
+end
+arch carpet4.111
 x 21
 y 15
 end
@@ -3991,7 +4332,7 @@ z 30
 x 21
 y 16
 end
-arch wall_dungeon_1
+arch door_wood1
 x 21
 y 16
 end
@@ -4072,6 +4413,14 @@ z 30
 x 22
 y 2
 end
+arch wall_dungeon_1
+x 22
+y 2
+end
+arch flag_eagle
+x 22
+y 2
+end
 arch floor_fs_grey1b
 z 30
 x 22
@@ -4082,8 +4431,16 @@ z 30
 x 22
 y 4
 end
+arch carpet3.151
+x 22
+y 4
+end
 arch floor_fs_grey1b
 z 30
+x 22
+y 5
+end
+arch carpet3c
 x 22
 y 5
 end
@@ -4092,8 +4449,26 @@ z 30
 x 22
 y 6
 end
+arch carpet3c
+x 22
+y 6
+end
+arch chair1_111
+direction 3
+x 22
+y 6
+end
 arch floor_fs_grey1b
 z 30
+x 22
+y 7
+end
+arch carpet3c
+x 22
+y 7
+end
+arch chair1_111
+direction 3
 x 22
 y 7
 end
@@ -4102,13 +4477,30 @@ z 30
 x 22
 y 8
 end
+arch carpet3c
+x 22
+y 8
+end
+arch chair1_111
+direction 3
+x 22
+y 8
+end
 arch floor_fs_grey1b
 z 30
 x 22
 y 9
 end
+arch carpet3.111
+x 22
+y 9
+end
 arch floor_fs_grey1b
 z 30
+x 22
+y 10
+end
+arch wall_dungeon_1
 x 22
 y 10
 end
@@ -4129,6 +4521,11 @@ y 13
 end
 arch floor_fs_grey1b
 z 30
+x 22
+y 14
+end
+arch bench2.111
+direction 5
 x 22
 y 14
 end
@@ -4230,7 +4627,7 @@ z 30
 x 23
 y 2
 end
-arch wall_dungeon_3
+arch wall_dungeon_4
 x 23
 y 2
 end
@@ -4302,7 +4699,7 @@ z 30
 x 23
 y 10
 end
-arch wall_dungeon_3
+arch wall_dungeon_4
 x 23
 y 10
 end
