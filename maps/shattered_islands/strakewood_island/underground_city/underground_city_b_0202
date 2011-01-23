@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-26 Alex Tokar
+Modified: 2011-01-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2129,6 +2129,10 @@ end
 arch pottery5.101
 x 15
 y 6
+end
+arch floor_sand_d4
+x 15
+y 7
 end
 arch spawn_point
 x 15
