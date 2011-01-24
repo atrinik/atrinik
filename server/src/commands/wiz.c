@@ -561,9 +561,8 @@ int command_teleport(object *op, char *params)
 int command_create(object *op, char *params)
 {
 	object *tmp = NULL;
-	uint32 i;
 	int magic, set_magic = 0, set_nrof = 0, gotquote, gotspace;
-	uint32 nrof;
+	sint32 i, nrof;
 	char *cp, *bp, *bp2, *bp3, *bp4, *endline;
 	archetype *at;
 	artifact *art = NULL;
@@ -579,13 +578,15 @@ int command_create(object *op, char *params)
 	/* We need to know where the line ends */
 	endline = bp + strlen(bp);
 
-	if (sscanf(bp, "%u ", &nrof))
+	if (sscanf(bp, "%d ", &nrof))
 	{
 		if (!(bp = strchr(params, ' ')))
 		{
 			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
+
+		nrof = MAX(1, MIN(nrof, 1000));
 
 		bp++;
 		set_nrof = 1;
