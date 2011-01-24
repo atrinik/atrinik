@@ -253,7 +253,7 @@ void apply_player_light(object *who, object *op)
 			/* we are not in a player inventory - so simple turn it on */
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, who, "You prepare %s to light.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You light the %s.", query_name(op, NULL));
 
 				/* we have a non permanent source */
 				if (op->last_eat)
