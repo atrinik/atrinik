@@ -752,7 +752,7 @@ int command_create(object *op, char *params)
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s", tmp->name, tmp->count, bp2);
+			new_draw_info_format(NDI_UNIQUE, op, "(%s)->%s", tmp->name, bp2);
 		}
 
 		if (gotquote)
@@ -842,13 +842,18 @@ int command_create(object *op, char *params)
 				fix_monster(head);
 			}
 
-			insert_ob_in_map(head, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+			head = insert_ob_in_map(head, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
 		}
 		/* Into the DM's inventory otherwise. */
 		else
 		{
 			head = insert_ob_in_ob(head, op);
 			esrv_send_item(op, head);
+		}
+
+		if (!set_nrof || nrof == 1)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Created %s (#%d)", query_name(head, NULL), head->count);
 		}
 	}
 
