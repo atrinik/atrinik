@@ -2,25 +2,97 @@ arch map
 name Asteria
 msg
 Created:  2011-01-23 emperorbma
-Modified: 2011-01-23 emperorbma
+Modified: 2011-01-24 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
-darkness -1
+darkness 4
 no_harm 1
 tile_path_2 world_1_0837
 tile_path_3 world_1_0736
 tile_path_4 world_1_0637
 tile_path_6 world_1_0836
 tile_path_7 world_1_0636
+bg_music theme.mid
 region asteria
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 y 14
 end
 arch floor_fs_grey1b
@@ -29,6 +101,9 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+y 16
+end
+arch carpet2a
 y 16
 end
 arch floor_fs_grey1b
@@ -62,6 +137,76 @@ arch floor_fs_grey1b
 z 30
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 1
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 13
+end
 arch blocked
 z 30
 x 1
@@ -78,6 +223,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 1
+y 16
+end
+arch carpet2a
 x 1
 y 16
 end
@@ -120,6 +269,76 @@ z 30
 x 1
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 2
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 13
+end
 arch blocked
 z 30
 x 2
@@ -134,8 +353,16 @@ z 30
 x 2
 y 15
 end
+arch torch_wall_1
+x 2
+y 15
+end
 arch floor_fs_grey1b
 z 30
+x 2
+y 16
+end
+arch carpet2a
 x 2
 y 16
 end
@@ -178,12 +405,86 @@ z 30
 x 2
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 3
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 13
+end
 arch blocked
 z 30
 x 3
 y 14
 end
 arch wall_dungeon_1
+x 3
+y 14
+end
+arch picture2.151
 x 3
 y 14
 end
@@ -194,6 +495,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 3
+y 16
+end
+arch carpet2a
 x 3
 y 16
 end
@@ -258,104 +563,230 @@ y 23
 end
 arch wall_dungeon_3
 x 3
-y 23
-end
-arch blocked
-z 30
-x 4
-y 14
-end
-arch wall_dungeon_1
-x 4
-y 14
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 15
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 16
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 17
-end
-arch wall_dungeon_1
-x 4
-y 17
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 18
-end
-arch wall_dungeon_3
-x 4
-y 18
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 19
-end
-arch wall_dungeon_3
-x 4
-y 19
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 20
-end
-arch wall_dungeon_3
-x 4
-y 20
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 21
-end
-arch wall_dungeon_3
-x 4
-y 21
-end
-arch floor_fs_grey1b
-z 30
-x 4
-y 22
-end
-arch wall_dungeon_3
-x 4
-y 22
-end
-arch floor_fs_grey1b
-face trans.101
-x 4
-y 23
-end
-arch wall_dungeon_3
-layer 6
-z 90
-x 4
 y 23
 end
 arch magic_mirror
 slaying world_0737
 last_eat -50
 x 4
-y 23
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 13
 end
 arch blocked
 z 30
+blocksview 0
+x 4
+y 14
+end
+arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 4
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
+x 4
+y 14
+end
+arch floor_fs_grey1b
+z 30
+x 4
+y 15
+end
+arch floor_fs_grey1b
+z 30
+x 4
+y 16
+end
+arch carpet2a
+x 4
+y 16
+end
+arch floor_fs_grey1b
+z 30
+x 4
+y 17
+end
+arch wall_dungeon_1
+x 4
+y 17
+end
+arch floor_fs_grey1b
+face trans.101
+x 4
+y 23
+end
+arch wall_dungeon_8
+z 90
+x 4
+y 23
+end
+arch wall_dungeon_8
+z 70
+layer 4
+x 4
+y 23
+end
+arch magic_mirror
+last_eat -50
+slaying world_0736
+x 4
+y 23
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 5
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 13
+end
+arch blocked
+z 30
+blocksview 0
 x 5
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 5
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 5
 y 14
 end
@@ -369,6 +800,10 @@ z 30
 x 5
 y 16
 end
+arch carpet2a
+x 5
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 5
@@ -378,34 +813,19 @@ arch wall_dungeon_1
 x 5
 y 17
 end
-arch blocked
-x 5
-y 18
-end
-arch blocked
-x 5
-y 19
-end
-arch blocked
-x 5
-y 20
-end
-arch blocked
-x 5
-y 21
-end
-arch blocked
-x 5
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 5
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 5
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 5
 y 23
 end
@@ -415,6 +835,76 @@ last_eat -50
 x 5
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 6
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 13
+end
 arch blocked
 z 30
 x 6
@@ -434,6 +924,10 @@ z 30
 x 6
 y 16
 end
+arch carpet2a
+x 6
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 6
@@ -443,34 +937,19 @@ arch wall_dungeon_1
 x 6
 y 17
 end
-arch blocked
-x 6
-y 18
-end
-arch blocked
-x 6
-y 19
-end
-arch blocked
-x 6
-y 20
-end
-arch blocked
-x 6
-y 21
-end
-arch blocked
-x 6
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 6
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 6
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 6
 y 23
 end
@@ -480,6 +959,68 @@ last_eat -50
 x 6
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 7
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 7
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 7
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 7
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 7
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 13
+end
 arch blocked
 z 30
 x 7
@@ -494,8 +1035,16 @@ z 30
 x 7
 y 15
 end
+arch torch_wall_1
+x 7
+y 15
+end
 arch floor_fs_grey1b
 z 30
+x 7
+y 16
+end
+arch carpet2a
 x 7
 y 16
 end
@@ -508,34 +1057,19 @@ arch wall_dungeon_1
 x 7
 y 17
 end
-arch blocked
-x 7
-y 18
-end
-arch blocked
-x 7
-y 19
-end
-arch blocked
-x 7
-y 20
-end
-arch blocked
-x 7
-y 21
-end
-arch blocked
-x 7
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 7
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 7
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 7
 y 23
 end
@@ -545,12 +1079,78 @@ last_eat -50
 x 7
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 8
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 8
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 8
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 8
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 8
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 13
+end
 arch blocked
 z 30
 x 8
 y 14
 end
 arch wall_dungeon_1
+x 8
+y 14
+end
+arch picture13
 x 8
 y 14
 end
@@ -564,6 +1164,10 @@ z 30
 x 8
 y 16
 end
+arch carpet2a
+x 8
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 8
@@ -573,34 +1177,19 @@ arch wall_dungeon_1
 x 8
 y 17
 end
-arch blocked
-x 8
-y 18
-end
-arch blocked
-x 8
-y 19
-end
-arch blocked
-x 8
-y 20
-end
-arch blocked
-x 8
-y 21
-end
-arch blocked
-x 8
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 8
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 8
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 8
 y 23
 end
@@ -610,12 +1199,85 @@ last_eat -50
 x 8
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 9
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 9
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 9
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 9
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 9
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 x 9
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 9
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 9
 y 14
 end
@@ -629,6 +1291,10 @@ z 30
 x 9
 y 16
 end
+arch carpet2a
+x 9
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 9
@@ -638,34 +1304,19 @@ arch wall_dungeon_1
 x 9
 y 17
 end
-arch blocked
-x 9
-y 18
-end
-arch blocked
-x 9
-y 19
-end
-arch blocked
-x 9
-y 20
-end
-arch blocked
-x 9
-y 21
-end
-arch blocked
-x 9
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 9
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 9
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 9
 y 23
 end
@@ -675,12 +1326,83 @@ last_eat -50
 x 9
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 10
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 10
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 10
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 10
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 10
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 10
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 10
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 10
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 10
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 x 10
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 10
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 10
 y 14
 end
@@ -694,6 +1416,10 @@ z 30
 x 10
 y 16
 end
+arch carpet2a
+x 10
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 10
@@ -703,34 +1429,19 @@ arch wall_dungeon_1
 x 10
 y 17
 end
-arch blocked
-x 10
-y 18
-end
-arch blocked
-x 10
-y 19
-end
-arch blocked
-x 10
-y 20
-end
-arch blocked
-x 10
-y 21
-end
-arch blocked
-x 10
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 10
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 10
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 10
 y 23
 end
@@ -740,6 +1451,66 @@ last_eat -50
 x 10
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 11
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 11
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 11
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 11
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 11
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 11
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 11
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 11
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 11
+y 13
+end
 arch blocked
 z 30
 x 11
@@ -759,6 +1530,10 @@ z 30
 x 11
 y 16
 end
+arch carpet2a
+x 11
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 11
@@ -768,34 +1543,14 @@ arch wall_dungeon_1
 x 11
 y 17
 end
-arch blocked
-x 11
-y 18
-end
-arch blocked
-x 11
-y 19
-end
-arch blocked
-x 11
-y 20
-end
-arch blocked
-x 11
-y 21
-end
-arch blocked
-x 11
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 11
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+layer 7
 x 11
 y 23
 end
@@ -805,6 +1560,66 @@ last_eat -50
 x 11
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 12
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 12
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 12
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 12
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 12
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 12
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 12
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 12
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 12
+y 13
+end
 arch blocked
 z 30
 x 12
@@ -819,8 +1634,16 @@ z 30
 x 12
 y 15
 end
+arch torch_wall_1
+x 12
+y 15
+end
 arch floor_fs_grey1b
 z 30
+x 12
+y 16
+end
+arch carpet2a
 x 12
 y 16
 end
@@ -833,34 +1656,19 @@ arch wall_dungeon_1
 x 12
 y 17
 end
-arch blocked
-x 12
-y 18
-end
-arch blocked
-x 12
-y 19
-end
-arch blocked
-x 12
-y 20
-end
-arch blocked
-x 12
-y 21
-end
-arch blocked
-x 12
-y 22
-end
 arch floor_fs_grey1b
 face trans.101
 x 12
 y 23
 end
 arch wall_dungeon_1
-layer 6
 z 90
+x 12
+y 23
+end
+arch wall_dungeon_1
+z 70
+layer 4
 x 12
 y 23
 end
@@ -870,12 +1678,78 @@ last_eat -50
 x 12
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 13
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 13
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 13
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 13
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 13
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 13
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 13
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 13
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 13
+y 13
+end
 arch blocked
 z 30
 x 13
 y 14
 end
 arch wall_dungeon_1
+x 13
+y 14
+end
+arch picture4.151
 x 13
 y 14
 end
@@ -886,6 +1760,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 13
+y 16
+end
+arch carpet2a
 x 13
 y 16
 end
@@ -900,40 +1778,111 @@ y 17
 end
 arch blocked
 x 13
-y 18
+y 23
 end
-arch blocked
-x 13
-y 19
-end
-arch blocked
-x 13
-y 20
-end
-arch blocked
-x 13
-y 21
-end
-arch blocked
-x 13
-y 22
-end
-arch floor_fs_grey1b
-z 30
-face trans.101
+arch wall_dungeon_1
+layer 3
+z 10
 x 13
 y 23
 end
 arch wall_dungeon_1
+z 40
 x 13
 y 23
 end
+arch floor_fs_grey1b
+z 6
+layer 7
+x 13
+y 23
+end
+arch floor_fs_grey1b
+z -6
+align -24
+layer 4
+x 13
+y 23
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 14
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 14
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 14
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 14
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 14
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 14
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 14
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 14
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 14
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 x 14
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 14
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 14
 y 14
 end
@@ -947,6 +1896,10 @@ z 30
 x 14
 y 16
 end
+arch carpet2a
+x 14
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 14
@@ -957,40 +1910,99 @@ x 14
 y 17
 end
 arch blocked
-x 14
-y 18
-end
-arch blocked
-x 14
-y 19
-end
-arch blocked
-x 14
-y 20
-end
-arch blocked
-x 14
-y 21
-end
-arch blocked
-x 14
-y 22
-end
-arch blocked
 z 30
 x 14
 y 23
 end
 arch wall_dungeon_1
+layer 3
 x 14
 y 23
 end
+arch wall_dungeon_1
+z 10
+x 14
+y 23
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 15
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 15
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 15
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 15
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 15
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 15
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 15
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 15
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 15
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 x 15
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 15
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 15
 y 14
 end
@@ -1004,6 +2016,10 @@ z 30
 x 15
 y 16
 end
+arch carpet2a
+x 15
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 15
@@ -1014,33 +2030,93 @@ x 15
 y 17
 end
 arch blocked
-x 15
-y 18
-end
-arch blocked
-x 15
-y 19
-end
-arch blocked
-x 15
-y 20
-end
-arch blocked
-x 15
-y 21
-end
-arch blocked
-x 15
-y 22
-end
-arch blocked
 z 30
 x 15
 y 23
 end
 arch wall_dungeon_1
+layer 3
 x 15
 y 23
+end
+arch wall_dungeon_1
+z 10
+x 15
+y 23
+end
+arch flag_eagle
+x 15
+y 23
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 16
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 16
+y 13
 end
 arch blocked
 z 30
@@ -1061,6 +2137,10 @@ z 30
 x 16
 y 16
 end
+arch carpet2a
+x 16
+y 16
+end
 arch floor_fs_grey1b
 z 30
 x 16
@@ -1071,33 +2151,89 @@ x 16
 y 17
 end
 arch blocked
-x 16
-y 18
-end
-arch blocked
-x 16
-y 19
-end
-arch blocked
-x 16
-y 20
-end
-arch blocked
-x 16
-y 21
-end
-arch blocked
-x 16
-y 22
-end
-arch blocked
 z 30
 x 16
 y 23
 end
 arch wall_dungeon_1
+layer 3
 x 16
 y 23
+end
+arch wall_dungeon_1
+z 10
+x 16
+y 23
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 17
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 17
+y 13
 end
 arch blocked
 z 30
@@ -1113,8 +2249,16 @@ z 30
 x 17
 y 15
 end
+arch torch_wall_1
+x 17
+y 15
+end
 arch floor_fs_grey1b
 z 30
+x 17
+y 16
+end
+arch carpet2a
 x 17
 y 16
 end
@@ -1130,56 +2274,87 @@ end
 arch blocked
 z 30
 x 17
-y 18
+y 23
 end
-arch wall_dungeon_3
-x 17
-y 18
-end
-arch blocked
-z 30
-x 17
-y 19
-end
-arch wall_dungeon_3
-x 17
-y 19
-end
-arch blocked
-z 30
-x 17
-y 20
-end
-arch wall_dungeon_3
-x 17
-y 20
-end
-arch blocked
-z 30
-x 17
-y 21
-end
-arch wall_dungeon_3
-x 17
-y 21
-end
-arch blocked
-z 30
-x 17
-y 22
-end
-arch wall_dungeon_3
-x 17
-y 22
-end
-arch blocked
-z 30
+arch wall_dungeon_1
+layer 3
 x 17
 y 23
 end
-arch wall_dungeon_4
+arch wall_dungeon_1
+z 10
 x 17
 y 23
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 18
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 18
+y 13
 end
 arch blocked
 z 30
@@ -1190,6 +2365,10 @@ arch wall_dungeon_1
 x 18
 y 14
 end
+arch picture5.151
+x 18
+y 14
+end
 arch floor_fs_grey1b
 z 30
 x 18
@@ -1197,6 +2376,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 18
+y 16
+end
+arch carpet2a
 x 18
 y 16
 end
@@ -1273,6 +2456,76 @@ arch wall_dungeon_3
 x 18
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 19
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 19
+y 13
+end
 arch blocked
 z 30
 x 19
@@ -1289,6 +2542,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 19
+y 16
+end
+arch carpet2a
 x 19
 y 16
 end
@@ -1355,12 +2612,93 @@ slaying no_open
 x 19
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 20
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 20
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 x 20
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 20
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 20
 y 14
 end
@@ -1374,8 +2712,16 @@ z 30
 x 20
 y 16
 end
+arch carpet2f
+x 20
+y 16
+end
 arch floor_fs_grey1b
 z 30
+x 20
+y 17
+end
+arch carpet2.111
 x 20
 y 17
 end
@@ -1413,12 +2759,93 @@ z 30
 x 20
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 21
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 21
+y 13
+end
 arch blocked
 z 30
+blocksview 0
 x 21
 y 14
 end
 arch wall_dungeon_1
+blocksview 0
+draw_double 0
+x 21
+y 14
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
 x 21
 y 14
 end
@@ -1429,6 +2856,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 21
+y 16
+end
+arch carpet2a
 x 21
 y 16
 end
@@ -1486,6 +2917,76 @@ z 30
 x 21
 y 23
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 22
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 22
+y 13
+end
 arch blocked
 z 30
 x 22
@@ -1500,8 +3001,16 @@ z 30
 x 22
 y 15
 end
+arch torch_wall_1
+x 22
+y 15
+end
 arch floor_fs_grey1b
 z 30
+x 22
+y 16
+end
+arch carpet2a
 x 22
 y 16
 end
@@ -1568,12 +3077,86 @@ level 100
 type 83
 end
 end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+x 23
+y 5
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 6
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 7
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 8
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 9
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 10
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 11
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 12
+end
+arch magic_mirror
+slaying world_0737
+last_eat -50
+last_heal 80
+path_attuned 124
+x 23
+y 13
+end
 arch blocked
 z 30
 x 23
 y 14
 end
 arch wall_dungeon_1
+x 23
+y 14
+end
+arch picture2.151
 x 23
 y 14
 end
@@ -1584,6 +3167,10 @@ y 15
 end
 arch floor_fs_grey1b
 z 30
+x 23
+y 16
+end
+arch carpet2a
 x 23
 y 16
 end
@@ -1610,7 +3197,15 @@ z 30
 x 23
 y 19
 end
+arch candlelight3.101
+x 23
+y 19
+end
 arch wall_dungeon_3
+x 23
+y 19
+end
+arch light5
 x 23
 y 19
 end
@@ -1620,6 +3215,11 @@ x 23
 y 20
 end
 arch wall_dungeon_3
+x 23
+y 20
+end
+arch picture3.151
+direction 7
 x 23
 y 20
 end
@@ -1646,7 +3246,15 @@ z 30
 x 23
 y 23
 end
+arch candlelight3.101
+x 23
+y 23
+end
 arch wall_dungeon_3
+x 23
+y 23
+end
+arch light5
 x 23
 y 23
 end

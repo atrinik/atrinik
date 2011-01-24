@@ -2,20 +2,59 @@ arch map
 name Asteria
 msg
 -Made in game by -Gramlath_dm
-Modified: 2011-01-23 emperorbma
+Modified: 2011-01-24 Alex Tokar
 endmsg
 width 24
 height 24
 enter_x 1
 enter_y 1
-difficulty 40
-darkness -1
+difficulty 20
+darkness 4
 no_harm 1
 tile_path_1 world_1_0836
 tile_path_4 world_1_0735
 tile_path_8 world_1_0736
 region asteria
 end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+y 5
+end
 arch blocked
 y 8
 end
@@ -92,6 +131,51 @@ end
 arch flag_eagle
 y 17
 end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 1
+y 5
+end
 arch blocked
 x 1
 y 8
@@ -184,6 +268,51 @@ arch wall_pattern1.111
 x 1
 y 17
 end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 2
+y 5
+end
 arch blocked
 x 2
 y 8
@@ -276,6 +405,51 @@ arch wall_pattern1.111
 x 2
 y 17
 end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 3
+y 5
+end
 arch blocked
 x 3
 y 8
@@ -292,6 +466,12 @@ arch floor_wood2_l1
 x 3
 y 10
 end
+arch lamp_wall
+align -6
+direction 7
+x 3
+y 10
+end
 arch floor_wood2_l1
 x 3
 y 11
@@ -300,11 +480,23 @@ arch floor_wood2_l1
 x 3
 y 12
 end
+arch lamp_wall
+align -6
+direction 7
+x 3
+y 12
+end
 arch floor_wood2_l1
 x 3
 y 13
 end
 arch floor_wood2_l1
+x 3
+y 14
+end
+arch lamp_wall
+align -6
+direction 7
 x 3
 y 14
 end
@@ -323,6 +515,51 @@ end
 arch wall_pattern1.111
 x 3
 y 17
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 4
+y 5
 end
 arch blocked
 x 4
@@ -333,6 +570,10 @@ x 4
 y 8
 end
 arch floor_wood2_l1
+x 4
+y 9
+end
+arch lamp_wall
 x 4
 y 9
 end
@@ -375,6 +616,51 @@ end
 arch flag_eagle
 x 4
 y 17
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 5
+y 5
 end
 arch blocked
 x 5
@@ -430,6 +716,51 @@ end
 arch wall_pattern1.111
 x 5
 y 17
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 6
+y 5
 end
 arch blocked
 x 6
@@ -510,4 +841,172 @@ end
 arch wall_pattern1.141
 x 6
 y 17
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 7
+y 5
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 8
+y 5
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 9
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 9
+y 5
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 10
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 10
+y 1
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 10
+y 2
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 10
+y 3
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 10
+y 4
+end
+arch magic_mirror
+slaying world_0835
+last_eat -50
+x 10
+y 5
 end
