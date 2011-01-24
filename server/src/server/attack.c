@@ -856,7 +856,7 @@ static void share_kill_exp_one(object *op, sint64 exp, object *skill)
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "Your enemy was too low for exp.");
+		new_draw_info(NDI_UNIQUE, op, "Your enemy wasn't worth any experience to you.");
 	}
 }
 
