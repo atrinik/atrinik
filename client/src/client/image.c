@@ -431,6 +431,17 @@ static int load_gfx_user_face(uint16 num)
 
 		if (len > 0)
 		{
+			if (FaceList[num].sprite)
+			{
+				sprite_free_sprite(FaceList[num].sprite);
+			}
+
+			if (FaceList[num].name)
+			{
+				free(FaceList[num].name);
+				FaceList[num].name = NULL;
+			}
+
 			/* Try to load it. */
 			FaceList[num].sprite = sprite_tryload_file(buf, 0, NULL);
 
