@@ -1,5 +1,5 @@
 Object demon_red
-name big red demon
+name pit fiend
 face demon_red.151
 race demon
 randomitems mob_lom_lobon
