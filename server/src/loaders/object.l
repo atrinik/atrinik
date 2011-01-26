@@ -212,6 +212,8 @@ lex_error = 0;
 
 							if (linemode == 0)
 							{
+								extern int arch_init;
+
 								lex_load(depth, items, maxdepth, map_flags, linemode);
 								(*depth)--;
 
@@ -230,7 +232,7 @@ lex_error = 0;
 
 									insert_ob_in_ob(tmp, op);
 								}
-								else
+								else if (!arch_init)
 								{
 									LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
 								}
