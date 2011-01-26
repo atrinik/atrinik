@@ -690,8 +690,8 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 	 * Our formula is (100 - resist) / 100 - so test for 100 = zero division */
 	if (op->protection[attacknum] == 100)
 	{
-		dam = 0;
-		send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+		ATTACK_HIT_DAMAGE(hitter, attacknum);
+		send_attack_msg(op, hitter, attacknum, 0, dam);
 		return 0;
 	}
 
