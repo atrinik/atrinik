@@ -1242,7 +1242,7 @@ void do_some_living(object *op)
 	}
 
 	/* Regenerate grace. */
-	if (CONTR(op)->praying)
+	if (CONTR(op)->praying || op->stats.grace < op->stats.maxgrace / 3)
 	{
 		if (--op->last_grace < 0)
 		{
@@ -1259,6 +1259,11 @@ void do_some_living(object *op)
 			}
 
 			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
+
+			if (!CONTR(op)->praying)
+			{
+				op->last_grace *= 12;
+			}
 		}
 	}
 
