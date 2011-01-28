@@ -1117,6 +1117,41 @@ static void remove_unpaid_objects(object *op, object *env)
 }
 
 /**
+ * Figures out how much hp/mana/grace points to regenerate.
+ * @param regen Regeneration value used for client (for example, player::gen_client_hp).
+ * @param remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
+ * @return How much to generate. */
+int get_regen_amount(uint16 regen, uint16 *remainder)
+{
+	int ret = 1;
+	float div;
+
+	/* Check if the regen is higher than <max ticks per second> every
+	 * second. If so, we need to update the remainder variable (which will
+	 * distribute the remainder evenly over time). */
+	if (pticks % 8 == 0 && regen / 10.0f > (float) 1000000 / MAX_TIME)
+	{
+		*remainder += (int) ((float) (regen / 10.0f - (float) 1000000 / MAX_TIME)) * 10;
+	}
+
+	/* First check if we can distribute it evenly, if not, try to remove
+	 * leftovers, if any. */
+	for (div = (float) 1000000 / MAX_TIME; div != 1.0f; div = 1.0f)
+	{
+		if (*remainder / 10.0f / div >= 1.0f)
+		{
+			int add = (int) *remainder / 10.0f / div;
+
+			ret += add;
+			*remainder -= add * 10;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+/**
  * Regenerate player's hp/mana/grace, decrease food, etc.
  *
  * We will only regenerate HP and mana if the player has some food in their
@@ -1151,7 +1186,7 @@ void do_some_living(object *op)
 	{
 		if (op->stats.hp < op->stats.maxhp && op->stats.food)
 		{
-			op->stats.hp++;
+			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
 
 			/* DMs do not consume food. */
 			if (!QUERY_FLAG(op, FLAG_WIZ))
@@ -1168,6 +1203,10 @@ void do_some_living(object *op)
 				}
 			}
 		}
+		else
+		{
+			CONTR(op)->gen_hp_remainder = 0;
+		}
 
 		op->last_heal = rate_hp / (MAX(gen_hp, 20) + 10);
 	}
@@ -1177,7 +1216,7 @@ void do_some_living(object *op)
 	{
 		if (op->stats.sp < op->stats.maxsp && op->stats.food)
 		{
-			op->stats.sp++;
+			op->stats.sp += get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
 
 			/* DMs do not consume food. */
 			if (!QUERY_FLAG(op, FLAG_WIZ))
@@ -1193,6 +1232,10 @@ void do_some_living(object *op)
 					op->stats.food = last_food;
 				}
 			}
+		}
+		else
+		{
+			CONTR(op)->gen_sp_remainder = 0;
 		}
 
 		op->last_sp = rate_sp / (MAX(gen_sp, 20) + 10);
@@ -1248,7 +1291,11 @@ void do_some_living(object *op)
 		{
 			if (op->stats.grace < op->stats.maxgrace)
 			{
-				op->stats.grace++;
+				op->stats.grace += get_regen_amount(CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+			}
+			else
+			{
+				CONTR(op)->gen_grace_remainder = 0;
 			}
 
 			if (op->stats.grace >= op->stats.maxgrace)
@@ -1262,7 +1309,7 @@ void do_some_living(object *op)
 
 			if (!CONTR(op)->praying)
 			{
-				op->last_grace *= 12;
+				op->last_grace = MAX(1, op->last_grace) * 10;
 			}
 		}
 	}

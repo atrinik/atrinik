@@ -469,6 +469,15 @@ typedef struct pl_player
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;
 
+	/** Remainder for HP regen. */
+	uint16 gen_hp_remainder;
+
+	/** Remainder for mana regen. */
+	uint16 gen_sp_remainder;
+
+	/** Remainder for grace regen. */
+	uint16 gen_grace_remainder;
+
 	/** Regeneration speed of HP. */
 	uint16 gen_client_hp;
 

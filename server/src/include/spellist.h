@@ -99,7 +99,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"frost nova", SPELL_TYPE_WIZARD,
 	 "icon_default.101", "Similar to the spell of asteroid, but this spell fires a bunch of asteroids in front of you, which then explode into cones of ice if they hit something.",
-	 80, 70, 60, 2, 0, 3, 1.0,
+	 80, 70, 42, 2, 0, 3, 1.0,
 	 4, 10, 4, 8, 35, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FROST, "asteroid"
@@ -203,7 +203,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"greater healing", SPELL_TYPE_PRIEST,
 	 "icon_greater_healing.101", "An improved version of minor healing, this prayer heals wounds on either the caster or the target.",
-	 10, 6, 12, 3, 0, 3, 1.0,
+	 10, 6, 8, 3, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM | SPELL_USE_SCROLL | SPELL_USE_ROD | SPELL_USE_POTION, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
 	 PATH_RESTORE, "meffect_green"
@@ -251,7 +251,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"consecrate", SPELL_TYPE_PRIEST,
 	 "icon_default.101", "Consecrates the altar you are standing on to your god. The prayer may fail if the altar's level is higher than yours.",
-	 15, 10, 80, 2, 0, 3, 1.0,
+	 15, 10, 70, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
 	 PATH_TRANSMUTE, NULL
@@ -259,7 +259,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"finger of death", SPELL_TYPE_PRIEST,
 	 "icon_finger_of_death.101", "You point your finger at targeted creature, and it gets struck by the power of your god.",
-	 18, 7, 18, 2, 0, 5, 1.0,
+	 18, 7, 12, 2, 0, 5, 1.0,
 	 8, 0, 2, 0, 15, "magic_hword.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_ENEMY,
 	 PATH_DEATH, "spellobject_finger_of_death"
@@ -315,7 +315,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"meteor swarm", SPELL_TYPE_WIZARD,
 	 "icon_meteor_swarm.101", "Similar to the spell of meteor, but this spell fires a bunch of meteors in front of you, which then explode into cones of fire if they hit something.",
-	 80, 70, 60, 2, 0, 3, 1.0,
+	 80, 70, 42, 2, 0, 3, 1.0,
 	 4, 10, 4, 8, 35, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "meteor"
@@ -387,7 +387,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"rain of healing", SPELL_TYPE_PRIEST,
 	 "icon_rain_of_healing.101", "This prayer heals all friends around and below the caster, excluding the caster.",
-	 20, 6, 22, 0, 0, 0, 1.0,
+	 20, 6, 18, 0, 0, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
 	 PATH_RESTORE, "meffect_green"
@@ -395,7 +395,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"party heal", SPELL_TYPE_PRIEST,
 	 "icon_party_heal.101", "Heals all nearby party members, including the caster.",
-	 20, 6, 30, 0, 0, 0, 1.0,
+	 20, 6, 16, 0, 0, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
 	 PATH_RESTORE, "meffect_green"
@@ -443,7 +443,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"holy word", SPELL_TYPE_PRIEST,
 	 "icon_holy_word.101", "Cone of holy power that will damage all undead creatures it hits.",
-	 1, 6, 14, 0, 0, 0, 1.0,
+	 1, 6, 12, 0, 0, 0, 1.0,
 	 4, 6, 4, 4, 9, "magic_hword.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_TURNING, "holyword"
