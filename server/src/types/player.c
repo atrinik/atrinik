@@ -895,7 +895,7 @@ trick_jump:
 			}
 			else
 			{
-				do_skill(op, dir);
+				do_skill(op, dir, NULL);
 			}
 
 			return;

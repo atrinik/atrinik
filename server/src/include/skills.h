@@ -82,6 +82,9 @@ enum skillnrs
 	/** Player can use polearms. */
 	SK_POLEARMS,
 
+	/** Inscription. */
+	SK_INSCRIPTION,
+
 	/** Number of the skills, always last. */
 	NROFSKILLS
 };

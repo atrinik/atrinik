@@ -777,7 +777,7 @@ void do_throw(object *op, object *toss_item, int dir);
 /* server/skill_util.c */
 int find_skill_exp_level(object *pl, int item_skill);
 char *find_skill_exp_skillname(int item_skill);
-sint64 do_skill(object *op, int dir);
+sint64 do_skill(object *op, int dir, const char *params);
 sint64 calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
 void free_exp_objects();
@@ -922,6 +922,9 @@ void tick_the_clock();
 
 /* skills/construction.c */
 void construction_do(object *op, int dir);
+
+/* skills/inscription.c */
+int skill_inscription(object *op, const char *params);
 
 /* socket/image.c */
 int is_valid_faceset(int fsn);

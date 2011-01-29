@@ -180,8 +180,9 @@ char *find_skill_exp_skillname(int item_skill)
  * to utilize skills.
  * @param op The object actually using the skill.
  * @param dir The direction in which the skill is used.
+ * @param params String option for the skill.
  * @return 0 on failure of using the skill, non-zero otherwise. */
-sint64 do_skill(object *op, int dir)
+sint64 do_skill(object *op, int dir, const char *params)
 {
 	sint64 success = 0;
 	int skill = op->chosen_skill->stats.sp;
@@ -247,6 +248,10 @@ sint64 do_skill(object *op, int dir)
 		case SK_CONSTRUCTION:
 			construction_do(op, dir);
 			return success;
+
+		case SK_INSCRIPTION:
+			success = skill_inscription(op, params);
+			break;
 
 		default:
 			LOG(llevDebug, "%s attempted to use unknown skill: %d\n", query_name(op, NULL), op->chosen_skill->stats.sp);
@@ -1047,7 +1052,7 @@ int use_skill(object *op, char *string)
 		}
 		else
 		{
-			if (do_skill(op, op->facing))
+			if (do_skill(op, op->facing, string))
 			{
 				return 1;
 			}

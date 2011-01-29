@@ -83,5 +83,6 @@ skill skills[NROFSKILLS] =
 	{"impact weapons", NULL, EXP_PHYSICAL, 0},
 
 	{"two-hand mastery", NULL, EXP_PHYSICAL, 0},
-	{"polearm mastery", NULL, EXP_PHYSICAL, 0}
+	{"polearm mastery", NULL, EXP_PHYSICAL, 0},
+	{"inscription", NULL, EXP_MENTAL, 0},
 };
