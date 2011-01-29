@@ -3523,17 +3523,6 @@ z 50
 x 18
 y 17
 end
-arch marker3
-msg
-North - Way of the Gods
-South - Southeast Circuit
-West - Government Avenue
-endmsg
-name street sign
-direction 7
-x 18
-y 17
-end
 arch grassd_8
 z 50
 x 18
@@ -3711,6 +3700,17 @@ y 15
 end
 arch grassd_6
 z 50
+x 19
+y 16
+end
+arch marker3
+msg
+North - Way of the Gods
+South - Southeast Circuit
+West - Government Avenue
+endmsg
+name street sign
+direction 7
 x 19
 y 16
 end
