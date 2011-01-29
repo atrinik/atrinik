@@ -2,7 +2,7 @@ arch map
 name Asteria Auction House
 msg
 Created:  2011-01-09 Alex Tokar
-Modified: 2011-01-20 Alex Tokar
+Modified: 2011-01-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1794,11 +1794,21 @@ sp 5
 x 16
 y 4
 end
-arch floor_ostone4
+arch blocked
+no_pass 0
 x 16
 y 5
 end
-arch wall_stone_1
+arch wall_stone_1w
+z 6
+no_pass 0
+x 16
+y 5
+end
+arch invis_exit
+slaying world_3_1036
+hp 16
+sp 5
 x 16
 y 5
 end
@@ -1937,11 +1947,21 @@ sp 5
 x 17
 y 4
 end
-arch floor_ostone4
+arch blocked
+no_pass 0
 x 17
 y 5
 end
-arch wall_stone_1
+arch wall_stone_1w
+z 6
+no_pass 0
+x 17
+y 5
+end
+arch invis_exit
+slaying world_3_1036
+hp 17
+sp 5
 x 17
 y 5
 end
@@ -2084,11 +2104,21 @@ sp 5
 x 18
 y 4
 end
-arch floor_ostone4
+arch blocked
+no_pass 0
 x 18
 y 5
 end
-arch wall_stone_1
+arch wall_stone_1w
+z 6
+no_pass 0
+x 18
+y 5
+end
+arch invis_exit
+slaying world_3_1036
+hp 18
+sp 5
 x 18
 y 5
 end

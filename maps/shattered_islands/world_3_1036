@@ -2,7 +2,7 @@ arch map
 name Asteria Auction House
 msg
 Created:  2011-01-09 Alex Tokar
-Modified: 2011-01-20 Alex Tokar
+Modified: 2011-01-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -957,27 +957,57 @@ end
 arch wall_stone_1
 x 11
 end
-arch floor_ostone4
+arch blocked
+no_pass 0
 x 11
 y 1
 end
-arch wall_stone_3
+arch wall_stone_3w
+z 6
+no_pass 0
 x 11
 y 1
 end
-arch floor_ostone4
+arch invis_exit
+slaying world_2_1036
+hp 11
+sp 1
+x 11
+y 1
+end
+arch blocked
+no_pass 0
 x 11
 y 2
 end
-arch wall_stone_3
+arch wall_stone_3w
+z 6
+no_pass 0
 x 11
 y 2
 end
-arch floor_ostone4
+arch invis_exit
+slaying world_2_1036
+hp 11
+sp 2
+x 11
+y 2
+end
+arch blocked
+no_pass 0
 x 11
 y 3
 end
-arch wall_stone_3
+arch wall_stone_3w
+z 6
+no_pass 0
+x 11
+y 3
+end
+arch invis_exit
+slaying world_2_1036
+hp 11
+sp 3
 x 11
 y 3
 end
@@ -1147,8 +1177,7 @@ arch floor_ostone4
 x 12
 y 1
 end
-arch bed_1a.111
-direction 7
+arch fwall_flagstone1a
 x 12
 y 1
 end
@@ -1156,8 +1185,7 @@ arch floor_ostone4
 x 12
 y 2
 end
-arch bed_1b.111
-direction 7
+arch fwall_flagstone1a
 x 12
 y 2
 end
@@ -1165,7 +1193,7 @@ arch floor_ostone4
 x 12
 y 3
 end
-arch wall_stone_1
+arch fwall_flagstone1a
 x 12
 y 3
 end
@@ -1173,11 +1201,20 @@ arch floor_ostone4
 x 12
 y 4
 end
-arch rack.111
+arch fwall_flagstone1a
+x 12
+y 4
+end
+arch wmask_bflag_fire1_1
+direction 7
 x 12
 y 4
 end
 arch floor_ostone4
+x 12
+y 5
+end
+arch rack.111
 x 12
 y 5
 end
@@ -1877,11 +1914,17 @@ arch floor_ostone4
 x 17
 y 1
 end
-arch chest_w1
+arch bed_1a.111
+direction 7
 x 17
 y 1
 end
 arch floor_ostone4
+x 17
+y 2
+end
+arch bed_1b.111
+direction 7
 x 17
 y 2
 end
@@ -2190,7 +2233,7 @@ arch floor_ostone4
 x 19
 y 3
 end
-arch wall_stone_3
+arch wall_stone_4
 x 19
 y 3
 end
