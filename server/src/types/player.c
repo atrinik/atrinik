@@ -1121,7 +1121,7 @@ static void remove_unpaid_objects(object *op, object *env)
  * @param regen Regeneration value used for client (for example, player::gen_client_hp).
  * @param remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
  * @return How much to generate. */
-int get_regen_amount(uint16 regen, uint16 *remainder)
+static int get_regen_amount(uint16 regen, uint16 *remainder)
 {
 	int ret = 1;
 	float div;
