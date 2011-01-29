@@ -1513,6 +1513,11 @@ int cast_consecrate(object *op)
 					SET_ANIMATION(new_altar, (NUM_ANIMATIONS(new_altar) / NUM_FACINGS(new_altar)) * new_altar->direction);
 				}
 
+				if (QUERY_FLAG(tmp, FLAG_IS_BUILDABLE))
+				{
+					SET_FLAG(new_altar, FLAG_IS_BUILDABLE);
+				}
+
 				insert_ob_in_map(new_altar, tmp->map, NULL, 0);
 				remove_ob(tmp);
 
