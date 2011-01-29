@@ -2,7 +2,7 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-20 Alex Tokar
+Modified: 2011-01-29 emperorbma
 endmsg
 width 24
 height 24
@@ -834,9 +834,11 @@ name pier
 x 7
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 7
+y 23
+end
+arch light7
 x 7
 y 23
 end
@@ -1393,8 +1395,11 @@ name pier
 x 12
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 12
+y 23
+end
+arch light7
 x 12
 y 23
 end

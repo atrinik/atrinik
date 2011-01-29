@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-29 emperorbma
+Modified: 2011-01-29 emperorbma
 endmsg
 width 24
 height 24
@@ -27,9 +27,10 @@ arch grassd_5
 z 50
 y 1
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 1
+end
+arch light7
 y 1
 end
 arch grassd_3
@@ -55,9 +56,10 @@ arch grassd_7
 z 50
 y 6
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 6
+end
+arch light7
 y 6
 end
 arch grassd_1
@@ -91,9 +93,10 @@ arch grassd_5
 z 50
 y 11
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 11
+end
+arch light7
 y 11
 end
 arch grassd_6
@@ -130,9 +133,10 @@ arch grassd_7
 z 50
 y 16
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 16
+end
+arch light7
 y 16
 end
 arch grassd_1
@@ -155,9 +159,10 @@ arch grassd_4
 z 50
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 21
+end
+arch light7
 y 21
 end
 arch grassd_1
@@ -723,8 +728,11 @@ z 50
 x 4
 y 1
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 1
+end
+arch light7
 x 4
 y 1
 end
@@ -757,8 +765,11 @@ z 50
 x 4
 y 6
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 6
+end
+arch light7
 x 4
 y 6
 end
@@ -787,8 +798,11 @@ z 50
 x 4
 y 11
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 11
+end
+arch light7
 x 4
 y 11
 end
@@ -821,8 +835,11 @@ z 50
 x 4
 y 16
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 16
+end
+arch light7
 x 4
 y 16
 end
@@ -855,8 +872,11 @@ z 50
 x 4
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 21
+end
+arch light7
 x 4
 y 21
 end
@@ -1279,9 +1299,10 @@ arch grassd_1
 z 50
 x 8
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 8
+end
+arch light7
 x 8
 end
 arch grassd_5
@@ -1908,9 +1929,10 @@ arch grassd_1
 z 50
 x 12
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 12
+end
+arch light7
 x 12
 end
 arch grassd_7
@@ -2124,9 +2146,11 @@ z 50
 x 13
 y 9
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 13
+y 9
+end
+arch light7
 x 13
 y 9
 end
@@ -2160,9 +2184,11 @@ z 50
 x 13
 y 15
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 15
+end
+arch light7
 x 13
 y 15
 end
@@ -2191,9 +2217,11 @@ z 50
 x 13
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 20
+end
+arch light7
 x 13
 y 20
 end
@@ -2689,8 +2717,11 @@ z 50
 x 16
 y 15
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 15
+end
+arch light7
 x 16
 y 15
 end
@@ -2723,8 +2754,11 @@ z 50
 x 16
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 20
+end
+arch light7
 x 16
 y 20
 end
@@ -2747,9 +2781,10 @@ arch grassd_4
 z 50
 x 17
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 17
+end
+arch light7
 x 17
 end
 arch grassd_6
@@ -2944,9 +2979,11 @@ z 50
 x 18
 y 9
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 18
+y 9
+end
+arch light7
 x 18
 y 9
 end
@@ -2973,9 +3010,11 @@ z 50
 x 18
 y 12
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 18
+y 12
+end
+arch light7
 x 18
 y 12
 end
@@ -3527,9 +3566,10 @@ arch grassd_8
 z 50
 x 22
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 22
+end
+arch light7
 x 22
 end
 arch grassd_3
@@ -3757,9 +3797,11 @@ z 50
 x 23
 y 9
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 23
+y 9
+end
+arch light7
 x 23
 y 9
 end
@@ -3786,9 +3828,11 @@ z 50
 x 23
 y 12
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 23
+y 12
+end
+arch light7
 x 23
 y 12
 end

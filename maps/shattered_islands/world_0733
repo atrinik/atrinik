@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-09 Alex Tokar
+Modified: 2011-01-29 emperorbma
 endmsg
 width 24
 height 24
@@ -1343,9 +1343,11 @@ z 50
 x 9
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 9
+y 4
+end
+arch light7
 x 9
 y 4
 end
@@ -1434,9 +1436,11 @@ z 50
 x 9
 y 13
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 9
+y 13
+end
+arch light7
 x 9
 y 13
 end
@@ -1465,9 +1469,11 @@ z 32
 x 9
 y 18
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 9
+y 18
+end
+arch light7
 x 9
 y 18
 end
@@ -1496,9 +1502,11 @@ z 6
 x 9
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 9
+y 23
+end
+arch light7
 x 9
 y 23
 end
@@ -2056,8 +2064,11 @@ z 50
 x 13
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 4
+end
+arch light7
 x 13
 y 4
 end
@@ -2155,8 +2166,11 @@ z 50
 x 13
 y 13
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 13
+end
+arch light7
 x 13
 y 13
 end
@@ -2197,8 +2211,11 @@ arch grassd_m5
 x 13
 y 18
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 18
+end
+arch light7
 x 13
 y 18
 end
@@ -2227,8 +2244,11 @@ z 8
 x 13
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 23
+end
+arch light7
 x 13
 y 23
 end
