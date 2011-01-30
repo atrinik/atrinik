@@ -653,7 +653,7 @@ x 3
 y 20
 end
 arch floor_stone_b1
-z 50
+z 30
 x 3
 y 21
 end
