@@ -1074,6 +1074,10 @@ arch earth_brown2
 x 11
 y 19
 end
+arch earth_brown2
+x 11
+y 20
+end
 arch spawn_point
 x 11
 y 20
@@ -1081,10 +1085,6 @@ arch pudding_brown
 level 13
 type 83
 end
-end
-arch earth_brown2
-x 11
-y 20
 end
 arch earth_brown2
 x 11
