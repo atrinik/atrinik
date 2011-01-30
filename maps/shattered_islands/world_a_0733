@@ -1,7 +1,7 @@
 arch map
 name Asteria Sewers
 msg
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-01-29 emperorbma
 endmsg
 width 24
 height 24
@@ -804,7 +804,7 @@ x 23
 y 17
 end
 arch floor_stone_b1
-z 50
+z 48
 x 23
 y 18
 end
@@ -813,7 +813,7 @@ x 23
 y 18
 end
 arch floor_stone_b1
-z 50
+z 42
 x 23
 y 19
 end
@@ -822,7 +822,7 @@ x 23
 y 19
 end
 arch floor_stone_b1
-z 50
+z 36
 x 23
 y 20
 end
@@ -831,7 +831,7 @@ x 23
 y 20
 end
 arch floor_stone_b1
-z 50
+z 30
 x 23
 y 21
 end
@@ -840,7 +840,7 @@ x 23
 y 21
 end
 arch floor_stone_b1
-z 50
+z 24
 x 23
 y 22
 end
@@ -849,7 +849,7 @@ x 23
 y 22
 end
 arch floor_stone_b1
-z 50
+z 18
 x 23
 y 23
 end

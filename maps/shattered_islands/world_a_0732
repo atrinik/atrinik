@@ -2274,12 +2274,14 @@ x 22
 y 18
 end
 arch floor_stone_b1
+z 12
 x 23
 end
 arch fwall_marble3b
 x 23
 end
 arch floor_stone_b1
+z 6
 x 23
 y 1
 end

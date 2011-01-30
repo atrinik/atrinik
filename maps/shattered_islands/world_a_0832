@@ -16,8 +16,10 @@ tile_path_8 world_a_0733
 region asteria_sewers
 end
 arch water_lt2
+z 12
 end
 arch water_lt3
+z 6
 y 1
 end
 arch torch_wall_1
@@ -69,9 +71,11 @@ arch fwall_rock1
 y 18
 end
 arch floor_stone_b1
+z 12
 x 1
 end
 arch floor_stone_b1
+z 6
 x 1
 y 1
 end
@@ -208,12 +212,14 @@ x 1
 y 23
 end
 arch floor_stone_b1
+z 12
 x 2
 end
 arch fwall_marble3b
 x 2
 end
 arch floor_stone_b1
+z 6
 x 2
 y 1
 end
