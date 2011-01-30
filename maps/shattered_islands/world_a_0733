@@ -1,17 +1,12 @@
 arch map
 name Asteria Sewers
 msg
-Creator: Daimonin Map Editor
-Date:    6/4/2004
-Modified: 2011-01-29 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
 difficulty 40
 darkness 1
-outdoor 1
 tile_path_1 world_a_0734
 tile_path_2 world_a_0833
 tile_path_3 world_a_0732
@@ -649,12 +644,14 @@ x 13
 y 23
 end
 arch floor_stone_b1
+z 50
 x 23
 end
 arch fwall_marble3b
 x 23
 end
 arch floor_stone_b1
+z 50
 x 23
 y 1
 end
@@ -663,6 +660,7 @@ x 23
 y 1
 end
 arch floor_stone_b1
+z 50
 x 23
 y 2
 end
@@ -671,6 +669,7 @@ x 23
 y 2
 end
 arch floor_stone_b1
+z 50
 x 23
 y 3
 end
@@ -679,6 +678,7 @@ x 23
 y 3
 end
 arch floor_stone_b1
+z 50
 x 23
 y 4
 end
@@ -687,6 +687,7 @@ x 23
 y 4
 end
 arch floor_stone_b1
+z 50
 x 23
 y 5
 end
@@ -695,6 +696,7 @@ x 23
 y 5
 end
 arch floor_stone_b1
+z 50
 x 23
 y 6
 end
@@ -703,6 +705,7 @@ x 23
 y 6
 end
 arch floor_stone_b1
+z 50
 x 23
 y 7
 end
@@ -711,6 +714,7 @@ x 23
 y 7
 end
 arch floor_stone_b1
+z 50
 x 23
 y 8
 end
@@ -719,6 +723,7 @@ x 23
 y 8
 end
 arch floor_stone_b1
+z 50
 x 23
 y 9
 end
@@ -727,6 +732,7 @@ x 23
 y 9
 end
 arch floor_stone_b1
+z 50
 x 23
 y 10
 end
@@ -735,6 +741,7 @@ x 23
 y 10
 end
 arch floor_stone_b1
+z 50
 x 23
 y 11
 end
@@ -743,6 +750,7 @@ x 23
 y 11
 end
 arch floor_stone_b1
+z 50
 x 23
 y 12
 end
@@ -751,6 +759,7 @@ x 23
 y 12
 end
 arch floor_stone_b1
+z 50
 x 23
 y 13
 end
@@ -759,6 +768,7 @@ x 23
 y 13
 end
 arch floor_stone_b1
+z 50
 x 23
 y 14
 end
@@ -767,6 +777,7 @@ x 23
 y 14
 end
 arch floor_stone_b1
+z 50
 x 23
 y 15
 end
@@ -775,6 +786,7 @@ x 23
 y 15
 end
 arch floor_stone_b1
+z 50
 x 23
 y 16
 end
@@ -783,6 +795,7 @@ x 23
 y 16
 end
 arch floor_stone_b1
+z 50
 x 23
 y 17
 end
@@ -791,6 +804,7 @@ x 23
 y 17
 end
 arch floor_stone_b1
+z 50
 x 23
 y 18
 end
@@ -799,6 +813,7 @@ x 23
 y 18
 end
 arch floor_stone_b1
+z 50
 x 23
 y 19
 end
@@ -807,6 +822,7 @@ x 23
 y 19
 end
 arch floor_stone_b1
+z 50
 x 23
 y 20
 end
@@ -815,6 +831,7 @@ x 23
 y 20
 end
 arch floor_stone_b1
+z 50
 x 23
 y 21
 end
@@ -823,6 +840,7 @@ x 23
 y 21
 end
 arch floor_stone_b1
+z 50
 x 23
 y 22
 end
@@ -831,6 +849,7 @@ x 23
 y 22
 end
 arch floor_stone_b1
+z 50
 x 23
 y 23
 end

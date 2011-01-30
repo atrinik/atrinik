@@ -2,13 +2,10 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-10-02 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-reset_timeout 7200
 difficulty 20
 darkness 1
 no_harm 1
@@ -19,12 +16,14 @@ tile_path_6 world_a_0735
 region asteria_palace_dungeon
 end
 arch blocked
+z 50
 x 18
 end
 arch wall_dungeon_3
 x 18
 end
 arch blocked
+z 50
 x 18
 y 1
 end
@@ -33,6 +32,7 @@ x 18
 y 1
 end
 arch blocked
+z 50
 x 18
 y 2
 end
@@ -41,6 +41,7 @@ x 18
 y 2
 end
 arch blocked
+z 50
 x 18
 y 3
 end
@@ -49,6 +50,7 @@ x 18
 y 3
 end
 arch blocked
+z 50
 x 18
 y 4
 end
@@ -57,6 +59,7 @@ x 18
 y 4
 end
 arch blocked
+z 50
 x 18
 y 5
 end
@@ -65,6 +68,7 @@ x 18
 y 5
 end
 arch blocked
+z 50
 x 18
 y 6
 end
@@ -73,6 +77,7 @@ x 18
 y 6
 end
 arch blocked
+z 50
 x 18
 y 7
 end
@@ -81,6 +86,7 @@ x 18
 y 7
 end
 arch blocked
+z 50
 x 18
 y 8
 end
@@ -89,6 +95,7 @@ x 18
 y 8
 end
 arch blocked
+z 50
 x 18
 y 9
 end
@@ -97,6 +104,7 @@ x 18
 y 9
 end
 arch blocked
+z 50
 x 18
 y 10
 end
@@ -105,6 +113,7 @@ x 18
 y 10
 end
 arch blocked
+z 50
 x 18
 y 11
 end
@@ -113,6 +122,7 @@ x 18
 y 11
 end
 arch blocked
+z 50
 x 18
 y 12
 end
@@ -121,6 +131,7 @@ x 18
 y 12
 end
 arch blocked
+z 50
 x 18
 y 13
 end
@@ -129,6 +140,7 @@ x 18
 y 13
 end
 arch blocked
+z 50
 x 18
 y 14
 end
@@ -137,6 +149,7 @@ x 18
 y 14
 end
 arch blocked
+z 50
 x 18
 y 15
 end
@@ -145,6 +158,7 @@ x 18
 y 15
 end
 arch blocked
+z 50
 x 18
 y 16
 end
@@ -153,6 +167,7 @@ x 18
 y 16
 end
 arch blocked
+z 50
 x 18
 y 17
 end
@@ -161,6 +176,7 @@ x 18
 y 17
 end
 arch blocked
+z 50
 x 18
 y 18
 end
@@ -169,6 +185,7 @@ x 18
 y 18
 end
 arch blocked
+z 50
 x 18
 y 19
 end
@@ -177,17 +194,21 @@ x 18
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 19
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 3
 end
@@ -196,18 +217,22 @@ x 19
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 7
 end
@@ -216,17 +241,19 @@ x 19
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 8
 end
 arch t_axe
 identified 1
-known_magical 1
-known_cursed 1
+no_pick 1
+nrof 0
 x 19
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 9
 end
@@ -240,10 +267,12 @@ type 83
 end
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 11
 end
@@ -252,10 +281,12 @@ x 19
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 13
 end
@@ -265,6 +296,7 @@ x 19
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 14
 end
@@ -273,6 +305,7 @@ x 19
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 15
 end
@@ -285,6 +318,7 @@ x 19
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 16
 end
@@ -294,6 +328,7 @@ x 19
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 17
 end
@@ -325,6 +360,7 @@ end
 end
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 18
 end
@@ -334,6 +370,7 @@ x 19
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 19
 end
@@ -342,12 +379,14 @@ x 19
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 20
 end
 arch wall_dungeon_3
 x 20
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 1
 end
@@ -356,13 +395,12 @@ msg
 You need Asteria Dungeon Key 3
 endmsg
 slaying asteria_dungeon_key3
-face gate_lock1.131
 direction 3
-pass_thru 0
 x 20
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 2
 end
@@ -371,6 +409,7 @@ x 20
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 3
 end
@@ -379,6 +418,7 @@ x 20
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 4
 end
@@ -387,6 +427,7 @@ x 20
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 5
 end
@@ -395,13 +436,12 @@ msg
 You need Asteria Dungeon Key 2
 endmsg
 slaying asteria_dungeon_key2
-face gate_lock1.131
 direction 3
-pass_thru 0
 x 20
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 6
 end
@@ -410,6 +450,7 @@ x 20
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 7
 end
@@ -418,6 +459,7 @@ x 20
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 8
 end
@@ -426,6 +468,7 @@ x 20
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 9
 end
@@ -434,15 +477,13 @@ msg
 You need Asteria Dungeon Key 1
 endmsg
 slaying asteria_dungeon_key1
-face gate_lock1.131
 direction 3
-last_sp -1
 blocksview 1
-pass_thru 0
 x 20
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 10
 end
@@ -451,6 +492,7 @@ x 20
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 11
 end
@@ -459,14 +501,17 @@ x 20
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 14
 end
@@ -475,19 +520,21 @@ x 20
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 15
 end
 arch shelf3a.111
-object_int2 0
 x 20
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 17
 end
@@ -497,10 +544,12 @@ x 20
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 19
 end
@@ -509,17 +558,21 @@ x 20
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 21
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 3
 end
@@ -529,18 +582,22 @@ x 21
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 7
 end
@@ -550,18 +607,22 @@ x 21
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 11
 end
@@ -571,14 +632,17 @@ x 21
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 14
 end
@@ -587,27 +651,31 @@ x 21
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 15
 end
 arch drawers1.111
-object_int2 0
 x 21
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 19
 end
@@ -616,12 +684,14 @@ x 21
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 22
 end
 arch wall_dungeon_3
 x 22
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 1
 end
@@ -630,13 +700,12 @@ msg
 You need Asteria Dungeon Key 3
 endmsg
 slaying asteria_dungeon_key3
-face gate_lock1.131
 direction 3
-pass_thru 0
 x 22
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 2
 end
@@ -645,6 +714,7 @@ x 22
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 3
 end
@@ -653,6 +723,7 @@ x 22
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 4
 end
@@ -661,6 +732,7 @@ x 22
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 5
 end
@@ -669,13 +741,12 @@ msg
 You need Asteria Dungeon Key 2
 endmsg
 slaying asteria_dungeon_key2
-face gate_lock1.131
 direction 3
-pass_thru 0
 x 22
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 6
 end
@@ -684,6 +755,7 @@ x 22
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 7
 end
@@ -692,6 +764,7 @@ x 22
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 8
 end
@@ -700,6 +773,7 @@ x 22
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 9
 end
@@ -708,15 +782,13 @@ msg
 You need Asteria Dungeon Key 1
 endmsg
 slaying asteria_dungeon_key1
-face gate_lock1.131
 direction 3
-last_sp -1
 blocksview 1
-pass_thru 0
 x 22
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 10
 end
@@ -725,6 +797,7 @@ x 22
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 11
 end
@@ -733,14 +806,17 @@ x 22
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 14
 end
@@ -749,6 +825,7 @@ x 22
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 15
 end
@@ -757,6 +834,7 @@ x 22
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 16
 end
@@ -765,6 +843,7 @@ x 22
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 17
 end
@@ -776,6 +855,7 @@ x 22
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 18
 end
@@ -784,6 +864,7 @@ x 22
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 19
 end
@@ -792,17 +873,21 @@ x 22
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 23
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 3
 end
@@ -811,18 +896,22 @@ x 23
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 7
 end
@@ -831,18 +920,22 @@ x 23
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 11
 end
@@ -851,22 +944,27 @@ x 23
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 16
 end
@@ -876,14 +974,17 @@ x 23
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 19
 end

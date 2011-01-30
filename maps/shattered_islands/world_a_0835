@@ -2,13 +2,10 @@ arch map
 name Asteria Sewers
 msg
 -Enter Description Here-
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-reset_timeout 7200
 difficulty 1
 darkness 1
 tile_path_1 world_a_0836
@@ -21,51 +18,61 @@ tile_path_8 world_a_0736
 region asteria_sewers
 end
 arch floor_stone_b1
+z 50
 y 17
 end
 arch fwall_marble3b
 y 17
 end
 arch floor_stone_b1
+z 50
 y 18
 end
 arch floor_stone_b1
-y 19
-end
-arch water_lt4
-y 20
-end
-arch floor_stone_b1
-y 21
-end
-arch fwall_marble3b
-y 21
-end
-arch floor_stone_b1
-x 1
-y 17
-end
-arch fwall_marble3b
-x 1
-y 17
-end
-arch floor_stone_b1
-x 1
-y 18
-end
-arch torch_wall_1
-x 1
-y 18
-end
-arch floor_stone_b1
-x 1
+z 50
 y 19
 end
 arch water_lt2
+z 50
+y 20
+end
+arch floor_stone_b1
+z 50
+y 21
+end
+arch fwall_marble3b
+y 21
+end
+arch floor_stone_b1
+z 50
+x 1
+y 17
+end
+arch fwall_marble3b
+x 1
+y 17
+end
+arch floor_stone_b1
+z 50
+x 1
+y 18
+end
+arch torch_wall_1
+x 1
+y 18
+end
+arch floor_stone_b1
+z 50
+x 1
+y 19
+end
+arch water_lt4
+z 50
 x 1
 y 20
 end
 arch floor_stone_b1
+z 50
 x 1
 y 21
 end
@@ -74,6 +81,7 @@ x 1
 y 21
 end
 arch floor_stone_b1
+z 50
 x 2
 y 17
 end
@@ -82,18 +90,22 @@ x 2
 y 17
 end
 arch floor_stone_b1
+z 50
 x 2
 y 18
 end
 arch floor_stone_b1
+z 50
 x 2
 y 19
 end
 arch water_lt2
+z 50
 x 2
 y 20
 end
 arch floor_stone_b1
+z 50
 x 2
 y 21
 end
@@ -102,6 +114,7 @@ x 2
 y 21
 end
 arch floor_stone_b1
+z 50
 x 3
 y 17
 end
@@ -110,18 +123,22 @@ x 3
 y 17
 end
 arch floor_stone_b1
+z 50
 x 3
 y 18
 end
 arch floor_stone_b1
+z 50
 x 3
 y 19
 end
-arch water_lt4
+arch water_lt2
+z 50
 x 3
 y 20
 end
 arch floor_stone_b1
+z 50
 x 3
 y 21
 end
@@ -130,6 +147,7 @@ x 3
 y 21
 end
 arch floor_stone_b1
+z 50
 x 4
 y 17
 end
@@ -138,18 +156,22 @@ x 4
 y 17
 end
 arch floor_stone_b1
+z 50
 x 4
 y 18
 end
 arch floor_stone_b1
+z 50
 x 4
 y 19
 end
-arch water_lt3
+arch water_lt
+z 50
 x 4
 y 20
 end
 arch floor_stone_b1
+z 50
 x 4
 y 21
 end
@@ -158,6 +180,7 @@ x 4
 y 21
 end
 arch floor_stone_b1
+z 50
 x 5
 y 17
 end
@@ -166,6 +189,7 @@ x 5
 y 17
 end
 arch floor_stone_b1
+z 50
 x 5
 y 18
 end
@@ -174,14 +198,17 @@ x 5
 y 18
 end
 arch floor_stone_b1
+z 50
 x 5
 y 19
 end
 arch water_lt4
+z 50
 x 5
 y 20
 end
 arch floor_stone_b1
+z 50
 x 5
 y 21
 end
@@ -190,6 +217,7 @@ x 5
 y 21
 end
 arch floor_stone_b1
+z 50
 x 6
 y 17
 end
@@ -198,18 +226,22 @@ x 6
 y 17
 end
 arch floor_stone_b1
+z 50
 x 6
 y 18
 end
 arch floor_stone_b1
+z 50
 x 6
 y 19
 end
 arch water_lt3
+z 50
 x 6
 y 20
 end
 arch floor_stone_b1
+z 50
 x 6
 y 21
 end
@@ -218,6 +250,7 @@ x 6
 y 21
 end
 arch floor_stone_b1
+z 50
 x 7
 y 17
 end
@@ -226,46 +259,55 @@ x 7
 y 17
 end
 arch floor_stone_b1
+z 50
 x 7
 y 18
 end
 arch floor_stone_b1
+z 50
 x 7
-y 19
-end
-arch water_lt
-x 7
-y 20
-end
-arch floor_stone_b1
-x 7
-y 21
-end
-arch fwall_marble3b
-x 7
-y 21
-end
-arch floor_stone_b1
-x 8
-y 17
-end
-arch fwall_marble3b
-x 8
-y 17
-end
-arch floor_stone_b1
-x 8
-y 18
-end
-arch floor_stone_b1
-x 8
 y 19
 end
 arch water_lt4
+z 50
+x 7
+y 20
+end
+arch floor_stone_b1
+z 50
+x 7
+y 21
+end
+arch fwall_marble3b
+x 7
+y 21
+end
+arch floor_stone_b1
+z 50
+x 8
+y 17
+end
+arch fwall_marble3b
+x 8
+y 17
+end
+arch floor_stone_b1
+z 50
+x 8
+y 18
+end
+arch floor_stone_b1
+z 50
+x 8
+y 19
+end
+arch water_lt
+z 50
 x 8
 y 20
 end
 arch floor_stone_b1
+z 50
 x 8
 y 21
 end
@@ -274,6 +316,7 @@ x 8
 y 21
 end
 arch floor_stone_b1
+z 50
 x 8
 y 22
 end
@@ -282,6 +325,7 @@ x 8
 y 22
 end
 arch floor_stone_b1
+z 50
 x 8
 y 23
 end
@@ -290,6 +334,7 @@ x 8
 y 23
 end
 arch floor_stone_b1
+z 50
 x 9
 y 17
 end
@@ -298,6 +343,7 @@ x 9
 y 17
 end
 arch floor_stone_b1
+z 50
 x 9
 y 18
 end
@@ -306,26 +352,32 @@ x 9
 y 18
 end
 arch floor_stone_b1
+z 50
 x 9
 y 19
 end
-arch water_lt4
+arch water_lt3
+z 50
 x 9
 y 20
 end
 arch water_lt
+z 50
 x 9
 y 21
 end
 arch water_lt3
+z 50
 x 9
 y 22
 end
-arch water_lt3
+arch water_lt4
+z 50
 x 9
 y 23
 end
 arch floor_stone_b1
+z 50
 x 10
 y 17
 end
@@ -334,30 +386,37 @@ x 10
 y 17
 end
 arch floor_stone_b1
+z 50
 x 10
 y 18
 end
 arch floor_stone_b1
+z 50
 x 10
 y 19
 end
 arch floor_stone_b1
+z 50
 x 10
 y 20
 end
 arch floor_stone_b1
+z 50
 x 10
 y 21
 end
 arch floor_stone_b1
+z 50
 x 10
 y 22
 end
 arch floor_stone_b1
+z 50
 x 10
 y 23
 end
 arch floor_stone_b1
+z 50
 x 11
 y 17
 end
@@ -366,30 +425,37 @@ x 11
 y 17
 end
 arch floor_stone_b1
+z 50
 x 11
 y 18
 end
 arch floor_stone_b1
+z 50
 x 11
 y 19
 end
 arch floor_stone_b1
+z 50
 x 11
 y 20
 end
 arch floor_stone_b1
+z 50
 x 11
 y 21
 end
 arch floor_stone_b1
+z 50
 x 11
 y 22
 end
 arch floor_stone_b1
+z 50
 x 11
 y 23
 end
 arch floor_stone_b1
+z 50
 x 12
 y 17
 end
@@ -398,6 +464,7 @@ x 12
 y 17
 end
 arch floor_stone_b1
+z 50
 x 12
 y 18
 end
@@ -406,6 +473,7 @@ x 12
 y 18
 end
 arch floor_stone_b1
+z 50
 x 12
 y 19
 end
@@ -414,6 +482,7 @@ x 12
 y 19
 end
 arch floor_stone_b1
+z 50
 x 12
 y 20
 end
@@ -422,6 +491,7 @@ x 12
 y 20
 end
 arch floor_stone_b1
+z 50
 x 12
 y 21
 end
@@ -430,6 +500,7 @@ x 12
 y 21
 end
 arch floor_stone_b1
+z 50
 x 12
 y 22
 end
@@ -443,10 +514,12 @@ x 12
 y 22
 end
 arch floor_stone_b1
+z 50
 x 12
 y 23
 end
 arch floor_stone_b1
+z 50
 x 13
 y 21
 end
@@ -455,14 +528,17 @@ x 13
 y 21
 end
 arch floor_stone_b1
+z 50
 x 13
 y 22
 end
 arch floor_stone_b1
+z 50
 x 13
 y 23
 end
 arch floor_stone_b1
+z 50
 x 14
 y 21
 end
@@ -471,14 +547,17 @@ x 14
 y 21
 end
 arch floor_stone_b1
+z 50
 x 14
 y 22
 end
 arch floor_stone_b1
+z 50
 x 14
 y 23
 end
 arch floor_stone_b1
+z 50
 x 15
 y 9
 end
@@ -487,6 +566,7 @@ x 15
 y 9
 end
 arch floor_stone_b1
+z 50
 x 15
 y 10
 end
@@ -495,6 +575,7 @@ x 15
 y 10
 end
 arch floor_stone_b1
+z 50
 x 15
 y 11
 end
@@ -503,6 +584,7 @@ x 15
 y 11
 end
 arch floor_stone_b1
+z 50
 x 15
 y 12
 end
@@ -511,6 +593,7 @@ x 15
 y 12
 end
 arch floor_stone_b1
+z 50
 x 15
 y 13
 end
@@ -519,6 +602,7 @@ x 15
 y 13
 end
 arch floor_stone_b1
+z 50
 x 15
 y 14
 end
@@ -527,6 +611,7 @@ x 15
 y 14
 end
 arch floor_stone_b1
+z 50
 x 15
 y 15
 end
@@ -535,6 +620,7 @@ x 15
 y 15
 end
 arch floor_stone_b1
+z 50
 x 15
 y 16
 end
@@ -543,6 +629,7 @@ x 15
 y 16
 end
 arch floor_stone_b1
+z 50
 x 15
 y 17
 end
@@ -551,6 +638,7 @@ x 15
 y 17
 end
 arch floor_stone_b1
+z 50
 x 15
 y 18
 end
@@ -559,6 +647,7 @@ x 15
 y 18
 end
 arch floor_stone_b1
+z 50
 x 15
 y 19
 end
@@ -567,6 +656,7 @@ x 15
 y 19
 end
 arch floor_stone_b1
+z 50
 x 15
 y 20
 end
@@ -575,6 +665,7 @@ x 15
 y 20
 end
 arch floor_stone_b1
+z 50
 x 15
 y 21
 end
@@ -583,14 +674,17 @@ x 15
 y 21
 end
 arch floor_stone_b1
+z 50
 x 15
 y 22
 end
 arch floor_stone_b1
+z 50
 x 15
 y 23
 end
 arch floor_stone_b1
+z 50
 x 16
 y 9
 end
@@ -599,6 +693,7 @@ x 16
 y 9
 end
 arch water_lt2
+z 50
 x 16
 y 10
 end
@@ -607,23 +702,28 @@ direction 7
 x 16
 y 10
 end
-arch water_lt3
+arch water_lt2
+z 50
 x 16
 y 11
 end
 arch water_lt3
+z 50
 x 16
 y 12
 end
-arch water_lt2
+arch water_lt3
+z 50
 x 16
 y 13
 end
-arch water_lt3
+arch water_lt4
+z 50
 x 16
 y 14
 end
-arch water_lt2
+arch water_lt
+z 50
 x 16
 y 15
 end
@@ -632,27 +732,33 @@ direction 7
 x 16
 y 15
 end
-arch water_lt
+arch water_lt3
+z 50
 x 16
 y 16
 end
-arch water_lt4
+arch water_lt3
+z 50
 x 16
 y 17
 end
-arch water_lt
+arch water_lt4
+z 50
 x 16
 y 18
 end
-arch water_lt
+arch water_lt2
+z 50
 x 16
 y 19
 end
-arch water_lt4
+arch water_lt
+z 50
 x 16
 y 20
 end
-arch water_lt4
+arch water_lt
+z 50
 x 16
 y 21
 end
@@ -661,15 +767,18 @@ direction 7
 x 16
 y 21
 end
-arch water_lt3
+arch water_lt2
+z 50
 x 16
 y 22
 end
 arch bridge_wood_EW.101
+z 50
 x 16
 y 23
 end
 arch floor_stone_b1
+z 50
 x 17
 y 9
 end
@@ -678,62 +787,77 @@ x 17
 y 9
 end
 arch floor_stone_b1
+z 50
 x 17
 y 10
 end
 arch floor_stone_b1
+z 50
 x 17
 y 11
 end
 arch floor_stone_b1
+z 50
 x 17
 y 12
 end
 arch floor_stone_b1
+z 50
 x 17
 y 13
 end
 arch floor_stone_b1
+z 50
 x 17
 y 14
 end
 arch floor_stone_b1
+z 50
 x 17
 y 15
 end
 arch floor_stone_b1
+z 50
 x 17
 y 16
 end
 arch floor_stone_b1
+z 50
 x 17
 y 17
 end
 arch floor_stone_b1
+z 50
 x 17
 y 18
 end
 arch floor_stone_b1
+z 50
 x 17
 y 19
 end
 arch floor_stone_b1
+z 50
 x 17
 y 20
 end
 arch floor_stone_b1
+z 50
 x 17
 y 21
 end
 arch floor_stone_b1
+z 50
 x 17
 y 22
 end
 arch floor_stone_b1
+z 50
 x 17
 y 23
 end
 arch floor_stone_b1
+z 50
 x 18
 y 9
 end
@@ -742,6 +866,7 @@ x 18
 y 9
 end
 arch floor_stone_b1
+z 50
 x 18
 y 10
 end
@@ -750,6 +875,7 @@ x 18
 y 10
 end
 arch floor_stone_b1
+z 50
 x 18
 y 11
 end
@@ -758,6 +884,7 @@ x 18
 y 11
 end
 arch floor_stone_b1
+z 50
 x 18
 y 12
 end
@@ -766,6 +893,7 @@ x 18
 y 12
 end
 arch floor_stone_b1
+z 50
 x 18
 y 13
 end
@@ -776,6 +904,7 @@ x 18
 y 13
 end
 arch floor_stone_b1
+z 50
 x 18
 y 14
 end
@@ -786,6 +915,7 @@ x 18
 y 14
 end
 arch floor_stone_b1
+z 50
 x 18
 y 15
 end
@@ -794,6 +924,7 @@ x 18
 y 15
 end
 arch floor_stone_b1
+z 50
 x 18
 y 16
 end
@@ -802,6 +933,7 @@ x 18
 y 16
 end
 arch floor_stone_b1
+z 50
 x 18
 y 17
 end
@@ -810,6 +942,7 @@ x 18
 y 17
 end
 arch floor_stone_b1
+z 50
 x 18
 y 18
 end
@@ -818,6 +951,7 @@ x 18
 y 18
 end
 arch floor_stone_b1
+z 50
 x 18
 y 19
 end
@@ -826,6 +960,7 @@ x 18
 y 19
 end
 arch floor_stone_b1
+z 50
 x 18
 y 20
 end
@@ -834,6 +969,7 @@ x 18
 y 20
 end
 arch floor_stone_b1
+z 50
 x 18
 y 21
 end
@@ -842,6 +978,7 @@ x 18
 y 21
 end
 arch floor_stone_b1
+z 50
 x 18
 y 22
 end
@@ -850,10 +987,12 @@ x 18
 y 22
 end
 arch floor_stone_b1
+z 50
 x 18
 y 23
 end
 arch floor_wood2
+z 50
 x 19
 y 12
 end
@@ -862,6 +1001,7 @@ x 19
 y 12
 end
 arch floor_stone_b1
+z 50
 x 19
 y 13
 end
@@ -870,6 +1010,7 @@ x 19
 y 13
 end
 arch floor_stone_b1
+z 50
 x 19
 y 14
 end
@@ -878,6 +1019,7 @@ x 19
 y 14
 end
 arch floor_wood2
+z 50
 x 19
 y 15
 end
@@ -886,6 +1028,7 @@ x 19
 y 15
 end
 arch floor_wood2
+z 50
 x 19
 y 16
 end
@@ -895,6 +1038,7 @@ x 19
 y 16
 end
 arch floor_wood2
+z 50
 x 19
 y 17
 end
@@ -904,10 +1048,12 @@ x 19
 y 17
 end
 arch floor_wood2
+z 50
 x 19
 y 18
 end
 arch floor_wood2
+z 50
 x 19
 y 19
 end
@@ -917,14 +1063,17 @@ x 19
 y 19
 end
 arch floor_wood2
+z 50
 x 19
 y 20
 end
 arch floor_wood2
+z 50
 x 19
 y 21
 end
 arch floor_wood2
+z 50
 x 19
 y 22
 end
@@ -933,6 +1082,7 @@ x 19
 y 22
 end
 arch floor_wood2
+z 50
 x 19
 y 23
 end
@@ -941,6 +1091,7 @@ x 19
 y 23
 end
 arch floor_wood2
+z 50
 x 20
 y 12
 end
@@ -949,6 +1100,7 @@ x 20
 y 12
 end
 arch floor_stone_b1
+z 50
 x 20
 y 13
 end
@@ -957,6 +1109,7 @@ x 20
 y 13
 end
 arch floor_stone_b1
+z 50
 x 20
 y 14
 end
@@ -965,6 +1118,7 @@ x 20
 y 14
 end
 arch floor_wood2
+z 50
 x 20
 y 15
 end
@@ -973,10 +1127,14 @@ x 20
 y 15
 end
 arch floor_wood2
+z 50
 x 20
 y 16
 end
 arch hole
+msg
+You crawl through the tunnel.
+endmsg
 slaying world_a_0835
 hp 23
 sp 13
@@ -984,26 +1142,32 @@ x 20
 y 16
 end
 arch floor_wood2
+z 50
 x 20
 y 17
 end
 arch floor_wood2
+z 50
 x 20
 y 18
 end
 arch floor_wood2
+z 50
 x 20
 y 19
 end
 arch floor_wood2
+z 50
 x 20
 y 20
 end
 arch floor_wood2
+z 50
 x 20
 y 21
 end
 arch floor_wood2
+z 50
 x 20
 y 22
 end
@@ -1012,10 +1176,12 @@ x 20
 y 22
 end
 arch floor_wood2
+z 50
 x 20
 y 23
 end
 arch floor_wood2
+z 50
 x 21
 y 12
 end
@@ -1024,6 +1190,7 @@ x 21
 y 12
 end
 arch floor_stone_b1
+z 50
 x 21
 y 13
 end
@@ -1032,6 +1199,7 @@ x 21
 y 13
 end
 arch floor_stone_b1
+z 50
 x 21
 y 14
 end
@@ -1040,6 +1208,7 @@ x 21
 y 14
 end
 arch floor_wood2
+z 50
 x 21
 y 15
 end
@@ -1048,6 +1217,7 @@ x 21
 y 15
 end
 arch floor_wood2
+z 50
 x 21
 y 16
 end
@@ -1056,26 +1226,32 @@ x 21
 y 16
 end
 arch floor_wood2
+z 50
 x 21
 y 17
 end
 arch floor_wood2
+z 50
 x 21
 y 18
 end
 arch floor_wood2
+z 50
 x 21
 y 19
 end
 arch floor_wood2
+z 50
 x 21
 y 20
 end
 arch floor_wood2
+z 50
 x 21
 y 21
 end
 arch floor_wood2
+z 50
 x 21
 y 22
 end
@@ -1084,10 +1260,12 @@ x 21
 y 22
 end
 arch floor_wood2
+z 50
 x 21
 y 23
 end
 arch floor_wood2
+z 50
 x 22
 y 12
 end
@@ -1096,6 +1274,7 @@ x 22
 y 12
 end
 arch floor_stone_b1
+z 50
 x 22
 y 13
 end
@@ -1108,6 +1287,7 @@ x 22
 y 13
 end
 arch floor_stone_b1
+z 50
 x 22
 y 14
 end
@@ -1116,6 +1296,7 @@ x 22
 y 14
 end
 arch floor_wood2
+z 50
 x 22
 y 15
 end
@@ -1124,6 +1305,7 @@ x 22
 y 15
 end
 arch floor_wood2
+z 50
 x 22
 y 16
 end
@@ -1132,6 +1314,7 @@ x 22
 y 16
 end
 arch floor_wood2
+z 50
 x 22
 y 17
 end
@@ -1140,6 +1323,7 @@ x 22
 y 17
 end
 arch floor_wood2
+z 50
 x 22
 y 18
 end
@@ -1148,6 +1332,7 @@ x 22
 y 18
 end
 arch floor_wood2
+z 50
 x 22
 y 19
 end
@@ -1156,6 +1341,7 @@ x 22
 y 19
 end
 arch floor_wood2
+z 50
 x 22
 y 20
 end
@@ -1164,6 +1350,7 @@ x 22
 y 20
 end
 arch floor_wood2
+z 50
 x 22
 y 21
 end
@@ -1172,6 +1359,7 @@ x 22
 y 21
 end
 arch floor_wood2
+z 50
 x 22
 y 22
 end
@@ -1180,10 +1368,12 @@ x 22
 y 22
 end
 arch floor_wood2
+z 50
 x 22
 y 23
 end
 arch floor_wood2
+z 50
 x 23
 y 12
 end
@@ -1192,10 +1382,14 @@ x 23
 y 12
 end
 arch floor_stone_b1
+z 50
 x 23
 y 13
 end
 arch hole
+msg
+You crawl through the tunnel.
+endmsg
 slaying world_a_0835
 hp 20
 sp 16
@@ -1203,6 +1397,7 @@ x 23
 y 13
 end
 arch floor_stone_b1
+z 50
 x 23
 y 14
 end
@@ -1211,6 +1406,7 @@ x 23
 y 14
 end
 arch floor_wood2
+z 50
 x 23
 y 15
 end
@@ -1219,23 +1415,26 @@ x 23
 y 15
 end
 arch shop_floor
+z 50
 x 23
 y 16
 end
 arch shop_mat
-speed_left 0.500000
 x 23
 y 16
 end
 arch shop_floor
+z 50
 x 23
 y 17
 end
 arch shop_floor
+z 50
 x 23
 y 18
 end
 arch shop_floor
+z 50
 x 23
 y 19
 end
@@ -1244,14 +1443,17 @@ x 23
 y 19
 end
 arch shop_floor
+z 50
 x 23
 y 20
 end
 arch shop_floor
+z 50
 x 23
 y 21
 end
 arch floor_wood2
+z 50
 x 23
 y 22
 end
@@ -1260,6 +1462,7 @@ x 23
 y 22
 end
 arch floor_wood2
+z 50
 x 23
 y 23
 end
