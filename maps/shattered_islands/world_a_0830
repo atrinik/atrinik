@@ -6,10 +6,11 @@ Modified: 2011-01-29 emperorbma
 endmsg
 width 24
 height 24
-difficulty 1
-darkness -1
+difficulty 40
+darkness 1
 tile_path_1 world_a_0831
 tile_path_8 world_a_0731
+region asteria_sewers
 end
 arch earth_brown2
 x 5

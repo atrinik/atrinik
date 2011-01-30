@@ -501,7 +501,7 @@ x 3
 y 10
 end
 arch hole
-slaying [TODO]world_a_0832
+slaying world_a_0832
 hp 3
 sp 10
 x 3

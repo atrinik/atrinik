@@ -10,7 +10,7 @@ height 24
 enter_x 1
 enter_y 1
 difficulty 40
-darkness -1
+darkness 1
 outdoor 1
 tile_path_1 world_a_0734
 tile_path_2 world_a_0833
