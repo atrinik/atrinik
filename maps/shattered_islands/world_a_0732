@@ -6,9 +6,7 @@ Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-difficulty 40
+difficulty 7
 darkness 1
 tile_path_1 world_a_0733
 tile_path_2 world_a_0832
@@ -484,13 +482,6 @@ x 4
 y 1
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.871367
-glow_radius 5
-is_animated 1
-identified 1
-known_magical 1
-known_cursed 1
 x 4
 y 1
 end
@@ -1464,6 +1455,10 @@ arch blood_floor1
 x 15
 y 12
 end
+arch earth_brown2
+x 15
+y 13
+end
 arch spawn_point
 x 15
 y 13
@@ -1472,10 +1467,6 @@ level 11
 type 83
 random_move 1
 end
-end
-arch earth_brown2
-x 15
-y 13
 end
 arch earth_brown2
 x 15
@@ -1784,10 +1775,6 @@ x 18
 y 3
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.731297
-glow_radius 5
-is_animated 1
 x 18
 y 3
 end
@@ -1859,6 +1846,10 @@ arch earth_brown2
 x 18
 y 18
 end
+arch earth_brown2
+x 18
+y 19
+end
 arch spawn_point
 x 18
 y 19
@@ -1867,10 +1858,6 @@ level 11
 type 83
 random_move 1
 end
-end
-arch earth_brown2
-x 18
-y 19
 end
 arch earth_brown2
 x 18
@@ -1915,10 +1902,6 @@ end
 arch fwall_marble3b
 x 19
 y 6
-end
-arch floor_stone_b1
-x 19
-y 7
 end
 arch floor_stone_b1
 x 19

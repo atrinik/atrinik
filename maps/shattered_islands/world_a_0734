@@ -594,7 +594,6 @@ x 6
 y 6
 end
 arch depositbox
-object_int2 0
 x 6
 y 6
 end

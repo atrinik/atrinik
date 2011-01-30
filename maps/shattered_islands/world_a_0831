@@ -2,11 +2,11 @@ arch map
 name Slime Tunnels
 msg
 Created:  2011-01-29 emperorbma
-Modified: 2011-01-29 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 40
+difficulty 7
 darkness 1
 tile_path_1 world_a_0832
 tile_path_3 world_a_0830
@@ -200,11 +200,6 @@ x 5
 y 1
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.331005
-state 3
-glow_radius 5
-is_animated 1
 x 5
 y 1
 end
@@ -655,11 +650,6 @@ x 8
 y 2
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.331005
-state 3
-glow_radius 5
-is_animated 1
 x 8
 y 2
 end
@@ -1319,14 +1309,6 @@ y 8
 end
 arch earth_brown2
 x 16
-y 8
-end
-arch swamp1
-x 16
-y 8
-end
-arch earth_brown2
-x 16
 y 9
 end
 arch earth_brown2
@@ -1411,14 +1393,6 @@ y 7
 end
 arch earth_brown2
 x 17
-y 7
-end
-arch swamp1
-x 17
-y 7
-end
-arch earth_brown2
-x 17
 y 8
 end
 arch swamp1m5
@@ -1467,14 +1441,6 @@ y 6
 end
 arch earth_brown2
 x 18
-y 6
-end
-arch swamp1
-x 18
-y 6
-end
-arch earth_brown2
-x 18
 y 7
 end
 arch swamp1m5
@@ -1501,15 +1467,8 @@ arch earth_brown2
 x 18
 y 12
 end
-arch torch_wall_7
-face torch_wall.173
-speed_left -0.121034
-state 2
-glow_radius 5
-is_animated 1
-identified 1
-known_magical 1
-known_cursed 1
+arch torch_wall_1
+direction 7
 x 18
 y 12
 end
@@ -1588,18 +1547,18 @@ end
 arch earth_brown2
 x 20
 y 6
-end
-arch spawn_point
-x 20
-y 6
-arch ogre
-level 15
-type 83
-end
 end
 arch torch_wall_1
 x 20
 y 6
+end
+arch spawn_point
+x 20
+y 6
+arch ogre
+level 15
+type 83
+end
 end
 arch earth_brown2
 x 20
@@ -1632,6 +1591,10 @@ end
 arch earth_brown2
 x 20
 y 12
+end
+arch earth_brown2
+x 20
+y 13
 end
 arch fwall_rock1
 x 20

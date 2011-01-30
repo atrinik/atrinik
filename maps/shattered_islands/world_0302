@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -34,7 +34,6 @@ arch floor_sblack2
 y 2
 end
 arch grate_closed
-face grate_door1.131
 direction 3
 y 2
 end
@@ -51,7 +50,6 @@ arch floor_sblack2
 y 4
 end
 arch grate_closed
-face grate_door1.131
 direction 3
 y 4
 end
@@ -762,7 +760,6 @@ x 5
 y 2
 end
 arch grate_closed
-face grate_door1.131
 direction 3
 x 5
 y 2
@@ -788,7 +785,6 @@ x 5
 y 5
 end
 arch grate_closed
-face grate_door1.131
 direction 3
 x 5
 y 5

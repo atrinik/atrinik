@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-29 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -921,7 +921,6 @@ x 4
 y 11
 end
 arch shop_mat
-speed_left 0.500000
 x 4
 y 11
 end
@@ -1084,11 +1083,6 @@ x 5
 y 11
 end
 arch torch_wall_1
-face torch_wall.112
-speed_left -0.702518
-state 1
-glow_radius 5
-is_animated 1
 x 5
 y 11
 end
@@ -3570,9 +3564,6 @@ x 19
 y 1
 end
 arch shop_mat
-face exit.102
-speed_left 0.500000
-state 1
 x 19
 y 1
 end
@@ -3635,7 +3626,6 @@ x 19
 y 11
 end
 arch shop_mat
-speed_left 0.500000
 x 19
 y 11
 end
@@ -3926,9 +3916,6 @@ x 21
 y 1
 end
 arch shop_mat
-face exit.102
-speed_left 0.500000
-state 1
 x 21
 y 1
 end

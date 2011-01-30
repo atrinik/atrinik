@@ -505,11 +505,6 @@ x 12
 y 22
 end
 arch torch_wall_1
-face torch_wall.112
-speed_left -0.071869
-state 1
-glow_radius 5
-is_animated 1
 x 12
 y 22
 end

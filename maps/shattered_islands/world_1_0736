@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2011-01-24 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1739,6 +1739,10 @@ last_heal 80
 path_attuned 124
 x 8
 end
+arch floor_fs_grey1b
+x 8
+y 1
+end
 arch pillar_white1d
 x 8
 y 1
@@ -1790,6 +1794,10 @@ last_heal 80
 path_attuned 124
 x 8
 y 6
+end
+arch floor_fs_grey1b
+x 8
+y 7
 end
 arch pillar_white1d
 x 8

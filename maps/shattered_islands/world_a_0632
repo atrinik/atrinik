@@ -2,12 +2,10 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2011-01-29 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
 difficulty 40
 darkness 1
 no_harm 1
@@ -208,14 +206,6 @@ x 3
 y 17
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.111761
-state 3
-glow_radius 5
-is_animated 1
-identified 1
-known_magical 1
-known_cursed 1
 direction 7
 x 3
 y 17

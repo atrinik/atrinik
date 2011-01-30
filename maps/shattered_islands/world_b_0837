@@ -28,11 +28,6 @@ arch floor_dungeon1a
 y 2
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.670937
-state 3
-glow_radius 5
-is_animated 1
 y 2
 end
 arch floor_dungeon1a

@@ -2,12 +2,10 @@ arch map
 name Asteria
 msg
 -Made in game by -Gramlath_dm
-Modified: 2011-01-24 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
 difficulty 20
 darkness 4
 no_harm 1
@@ -128,9 +126,6 @@ end
 arch wall_pattern1.111
 y 17
 end
-arch flag_eagle
-y 17
-end
 arch magic_mirror
 slaying world_0835
 last_eat -50
@@ -610,10 +605,6 @@ x 4
 y 17
 end
 arch wall_pattern1.111
-x 4
-y 17
-end
-arch flag_eagle
 x 4
 y 17
 end
