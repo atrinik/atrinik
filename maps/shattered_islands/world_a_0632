@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-09-08 Alex Tokar
+Modified: 2011-01-29 emperorbma
 endmsg
 width 24
 height 24
@@ -905,6 +905,46 @@ end
 arch floor_ostone13
 x 22
 y 23
+end
+arch earth_brown2
+x 23
+y 6
+end
+arch fwall_rock1
+x 23
+y 6
+end
+arch earth_brown2
+x 23
+y 7
+end
+arch fwall_rock1
+x 23
+y 7
+end
+arch earth_brown2
+x 23
+y 8
+end
+arch fwall_rock1
+x 23
+y 8
+end
+arch earth_brown2
+x 23
+y 9
+end
+arch fwall_rock1
+x 23
+y 9
+end
+arch earth_brown2
+x 23
+y 10
+end
+arch fwall_rock1
+x 23
+y 10
 end
 arch blocked
 x 23

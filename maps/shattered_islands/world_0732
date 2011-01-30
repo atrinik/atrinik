@@ -434,6 +434,9 @@ x 3
 y 1
 end
 arch ladder_down
+hp 3
+sp 1
+slaying [TODO]world_a_0732
 x 3
 y 1
 end
