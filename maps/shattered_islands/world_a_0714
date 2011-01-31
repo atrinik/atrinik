@@ -2,7 +2,7 @@ arch map
 name Abandoned Mine
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-01-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -251,7 +251,7 @@ arch floor_cave1
 x 8
 y 20
 end
-arch wall_cave1.131
+arch wall_cave1.161
 x 8
 y 20
 end
@@ -259,7 +259,7 @@ arch floor_cave2
 x 8
 y 21
 end
-arch wall_cave1.131
+arch plant7
 x 8
 y 21
 end
@@ -267,15 +267,11 @@ arch floor_cave6
 x 8
 y 22
 end
-arch wall_cave1.131
-x 8
-y 22
-end
 arch floor_cave5
 x 8
 y 23
 end
-arch wall_cave1.131
+arch wall_cave1.101
 x 8
 y 23
 end
@@ -377,6 +373,34 @@ end
 arch wall_cave1b.141
 x 9
 y 19
+end
+arch floor_cave2
+x 9
+y 20
+end
+arch wall_cave1.111
+x 9
+y 20
+end
+arch floor_cave6
+x 9
+y 21
+end
+arch crystal_red
+x 9
+y 21
+end
+arch floor_cave5
+x 9
+y 22
+end
+arch floor_cave6
+x 9
+y 23
+end
+arch wall_cave1.151
+x 9
+y 23
 end
 arch floor_cave6
 x 10
@@ -501,6 +525,34 @@ arch wall_cave1b.141
 x 10
 y 18
 end
+arch floor_cave1
+x 10
+y 20
+end
+arch wall_cave1.111
+x 10
+y 20
+end
+arch floor_cave2
+x 10
+y 21
+end
+arch plant7
+x 10
+y 21
+end
+arch floor_cave5
+x 10
+y 22
+end
+arch floor_cave1
+x 10
+y 23
+end
+arch wall_cave1.151
+x 10
+y 23
+end
 arch floor_cave2
 x 11
 end
@@ -620,6 +672,34 @@ x 11
 y 17
 end
 arch floor_cave2
+x 11
+y 20
+end
+arch wall_cave1.111
+x 11
+y 20
+end
+arch floor_cave1
+x 11
+y 21
+end
+arch floor_cave6
+x 11
+y 22
+end
+arch mushroom_spot1
+x 11
+y 22
+end
+arch floor_cave6
+x 11
+y 23
+end
+arch wall_cave1.151
+x 11
+y 23
+end
+arch floor_cave2
 x 12
 y 2
 end
@@ -726,6 +806,34 @@ arch wall_cave1b.141
 x 12
 y 16
 end
+arch floor_cave5
+x 12
+y 20
+end
+arch wall_cave1.111
+x 12
+y 20
+end
+arch floor_cave5
+x 12
+y 21
+end
+arch crystal_purple_s
+x 12
+y 21
+end
+arch floor_cave5
+x 12
+y 22
+end
+arch floor_cave2
+x 12
+y 23
+end
+arch wall_cave1.151
+x 12
+y 23
+end
 arch floor_cave1
 x 13
 y 6
@@ -807,6 +915,34 @@ x 13
 y 15
 end
 arch floor_cave1
+x 13
+y 20
+end
+arch wall_cave1.111
+x 13
+y 20
+end
+arch floor_cave2
+x 13
+y 21
+end
+arch plant8
+x 13
+y 21
+end
+arch floor_cave2
+x 13
+y 22
+end
+arch floor_cave5
+x 13
+y 23
+end
+arch wall_cave1.151
+x 13
+y 23
+end
+arch floor_cave1
 x 14
 y 10
 end
@@ -845,4 +981,341 @@ end
 arch wall_cave1b.141
 x 14
 y 14
+end
+arch floor_cave6
+x 14
+y 19
+end
+arch wall_cave1.181
+x 14
+y 19
+end
+arch floor_cave6
+x 14
+y 20
+end
+arch wall_cave1.141
+x 14
+y 20
+end
+arch floor_cave1
+x 14
+y 21
+end
+arch floor_cave2
+x 14
+y 22
+end
+arch mushroom_giant3
+x 14
+y 22
+end
+arch floor_cave2
+x 14
+y 23
+end
+arch wall_cave1.151
+x 14
+y 23
+end
+arch floor_cave6
+x 15
+y 17
+end
+arch wall_cave1.181
+x 15
+y 17
+end
+arch floor_cave1
+x 15
+y 18
+end
+arch wall_cave1.171
+x 15
+y 18
+end
+arch floor_cave5
+x 15
+y 19
+end
+arch wall_cave1.141
+x 15
+y 19
+end
+arch floor_cave6
+x 15
+y 20
+end
+arch plant7
+x 15
+y 20
+end
+arch floor_cave5
+x 15
+y 21
+end
+arch floor_cave1
+x 15
+y 22
+end
+arch spider_web
+x 15
+y 22
+end
+arch damager
+speed 0.0
+slow_move 1
+exp 3
+x 15
+y 22
+end
+arch floor_cave2
+x 15
+y 23
+end
+arch wall_cave1.151
+x 15
+y 23
+end
+arch floor_cave5
+x 16
+y 16
+end
+arch wall_cave1.181
+x 16
+y 16
+end
+arch floor_cave5
+x 16
+y 17
+end
+arch wall_cave1.141
+x 16
+y 17
+end
+arch floor_cave1
+x 16
+y 18
+end
+arch crystal_purple_s
+x 16
+y 18
+end
+arch floor_cave5
+x 16
+y 19
+end
+arch plant8
+x 16
+y 19
+end
+arch floor_cave6
+x 16
+y 20
+end
+arch floor_cave5
+x 16
+y 21
+end
+arch small_stones
+x 16
+y 21
+end
+arch floor_cave1
+x 16
+y 22
+end
+arch wall_cave1.101
+x 16
+y 22
+end
+arch floor_cave6
+x 16
+y 23
+end
+arch wall_cave1b.141
+x 16
+y 23
+end
+arch floor_cave5
+x 17
+y 14
+end
+arch wall_cave1.181
+x 17
+y 14
+end
+arch floor_cave2
+x 17
+y 15
+end
+arch wall_cave1.171
+x 17
+y 15
+end
+arch floor_cave2
+x 17
+y 16
+end
+arch wall_cave1.141
+x 17
+y 16
+end
+arch floor_cave5
+x 17
+y 17
+end
+arch small_stones
+x 17
+y 17
+end
+arch floor_cave5
+x 17
+y 18
+end
+arch floor_cave6
+x 17
+y 19
+end
+arch floor_cave6
+x 17
+y 20
+end
+arch mushroom_spot1
+x 17
+y 20
+end
+arch floor_cave2
+x 17
+y 21
+end
+arch wall_cave1.101
+x 17
+y 21
+end
+arch floor_cave2
+x 17
+y 22
+end
+arch wall_cave1b.141
+x 17
+y 22
+end
+arch floor_cave2
+x 18
+y 14
+end
+arch wall_cave1.111
+x 18
+y 14
+end
+arch floor_cave5
+x 18
+y 15
+end
+arch rope_up
+msg
+You climb up the rope, fitting easily through what seemed like a small hole. As you look around to examine your surroundings and back at the hole, you notice that it has shrunk to its previous size...
+endmsg
+slaying world_0714
+hp 19
+sp 15
+x 18
+y 15
+end
+arch light1
+x 18
+y 15
+end
+arch floor_cave2
+x 18
+y 16
+end
+arch mushroom_spot2
+x 18
+y 16
+end
+arch floor_cave5
+x 18
+y 17
+end
+arch floor_cave1
+x 18
+y 18
+end
+arch mushroom_giant2
+x 18
+y 18
+end
+arch floor_cave2
+x 18
+y 19
+end
+arch wall_cave1.101
+x 18
+y 19
+end
+arch floor_cave2
+x 18
+y 20
+end
+arch wall_cave1.131
+x 18
+y 20
+end
+arch floor_cave2
+x 18
+y 21
+end
+arch wall_cave1b.141
+x 18
+y 21
+end
+arch floor_cave1
+x 19
+y 14
+end
+arch wall_cave1b.121
+x 19
+y 14
+end
+arch floor_cave1
+x 19
+y 15
+end
+arch wall_cave1.131
+x 19
+y 15
+end
+arch floor_cave5
+x 19
+y 16
+end
+arch wall_cave1.131
+x 19
+y 16
+end
+arch floor_cave5
+x 19
+y 17
+end
+arch wall_cave1.131
+x 19
+y 17
+end
+arch floor_cave1
+x 19
+y 18
+end
+arch wall_cave1.131
+x 19
+y 18
+end
+arch floor_cave5
+x 19
+y 19
+end
+arch wall_cave1b.141
+x 19
+y 19
 end
