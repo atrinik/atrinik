@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-26 Alex Tokar
+Modified: 2011-02-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -73,6 +73,36 @@ y 17
 end
 arch fwall_rock1
 y 17
+end
+arch floor_sand_d4
+y 20
+end
+arch fwall_rock2
+y 20
+end
+arch floor_sand_d4
+y 21
+end
+arch crystal_red
+y 21
+end
+arch light2
+y 21
+end
+arch floor_sand_d2
+y 22
+end
+arch dirt_floor3
+y 22
+end
+arch floor_sand_d4
+y 23
+end
+arch mushroom_spot1
+y 23
+end
+arch light2
+y 23
 end
 arch floor_sand_d3
 x 1
@@ -188,6 +218,38 @@ end
 arch fwall_rock1
 x 1
 y 18
+end
+arch floor_sand_d1
+x 1
+y 20
+end
+arch fwall_rock2
+x 1
+y 20
+end
+arch floor_sand_d1
+x 1
+y 21
+end
+arch fwall_rock3
+x 1
+y 21
+end
+arch floor_sand_d3
+x 1
+y 22
+end
+arch fwall_rock1
+x 1
+y 22
+end
+arch floor_sand_d1
+x 1
+y 23
+end
+arch fwall_rock2
+x 1
+y 23
 end
 arch floor_sand_d3
 x 2
