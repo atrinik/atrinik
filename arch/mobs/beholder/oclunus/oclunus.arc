@@ -7,7 +7,7 @@ face oclunus.151
 can_see_in_dark 1
 can_cast_spell 1
 direction 5
-speed -0.06
+speed -0.055
 corpse 1
 wc_range 20
 behavior 2
@@ -33,15 +33,16 @@ hp -1
 maxhp 78
 sp -1
 maxsp 10
+magic 5
 weapon_speed 0.040
-protect_pierce 25
-protect_slash 25
-protect_impact 25
-protect_cleave 25
-attack_pierce 90
+protect_pierce 20
+protect_slash 20
+protect_impact 20
+protect_cleave 20
+attack_pierce 85
 alive 1
 no_pick 1
-weight 1350000
+weight 1158000
 run_away 6
 end
 More
