@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 Created:  2011-01-29 emperorbma
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-02-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -381,6 +381,9 @@ x 3
 y 10
 end
 arch ladder_up
+msg
+You feel relieved as you climb back up to the surface and inhale the fresh air around you.
+endmsg
 slaying world_0832
 hp 3
 sp 10
