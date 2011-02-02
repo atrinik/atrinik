@@ -1120,7 +1120,7 @@ static void remove_unpaid_objects(object *op, object *env)
  * Figures out how much hp/mana/grace points to regenerate.
  * @param regen Regeneration value used for client (for example, player::gen_client_hp).
  * @param remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
- * @return How much to generate. */
+ * @return How much to regenerate. */
 static int get_regen_amount(uint16 regen, uint16 *remainder)
 {
 	int ret = 1;
@@ -1136,7 +1136,7 @@ static int get_regen_amount(uint16 regen, uint16 *remainder)
 
 	/* First check if we can distribute it evenly, if not, try to remove
 	 * leftovers, if any. */
-	for (div = (float) 1000000 / MAX_TIME; div != 1.0f; div = 1.0f)
+	for (div = (float) 1000000 / MAX_TIME; ; div = 1.0f)
 	{
 		if (*remainder / 10.0f / div >= 1.0f)
 		{
@@ -1144,6 +1144,11 @@ static int get_regen_amount(uint16 regen, uint16 *remainder)
 
 			ret += add;
 			*remainder -= add * 10;
+			break;
+		}
+
+		if (div == 1.0f)
+		{
 			break;
 		}
 	}
@@ -1186,6 +1191,11 @@ void do_some_living(object *op)
 	{
 		if (op->stats.hp < op->stats.maxhp && op->stats.food)
 		{
+if (pticks % 8 == 0)
+{
+LOG(llevInfo, "HP: regen: %f, %d\n", CONTR(op)->gen_client_hp / 10.0f, op->stats.hp);
+}
+
 			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
 
 			/* DMs do not consume food. */
