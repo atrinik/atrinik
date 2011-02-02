@@ -1001,6 +1001,7 @@ int command_take(object *op, char *params)
 				 * the actual number of visible items on the tile. */
 				if (tmp->type == PLAYER && CONTR(tmp) && CONTR(tmp)->socket.look_position > ground_total)
 				{
+					/* Update the visible row of objects. */
 					CONTR(tmp)->socket.look_position = ((int) (((float) ground_total / NUM_LOOK_OBJECTS) - 0.5f)) * NUM_LOOK_OBJECTS;
 				}
 			}

@@ -1203,7 +1203,7 @@ char *describe_item(object *op)
 						strcat(retbuf, buf);
 					}
 
-					if (op->last_sp)
+					if (op->last_sp && !IS_ARMOR(op))
 					{
 						sprintf(buf, "(range%+d)", op->last_sp);
 						strcat(retbuf, buf);
