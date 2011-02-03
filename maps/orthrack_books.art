@@ -1,0 +1,950 @@
+# Orthrack: A Tale of Kings, Queens and Heroes
+#
+# (C) Brian Angeletti
+
+Allowed none
+chance 1
+artifact book_orthrack_1
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part I
+msg
+Foreword
+
+    In 652 MC, in the city of Silane, a widow named Liagha gave birth to Gathrin, the child who would be the first in a line of heroes that would change the face of Trepkar forever.
+
+
+Background
+
+In the year 54 MC, a king named Orthrir Uratori, the last of the royal bloodline of Ztilia, founded the city/civilization of Porotesia.  459 years later, a barbarian group called Silanians invaded the shores of Porotesia.  After a quick battle, the Silanians were subdued and became a protectorate village of Porotesia.  However, in the year 532, the village of Silane, which was economically better off, became the new capital after a coup'd etat against the Uratori, and the Silanians became the ruling dynasty.  Needless to say, the original Porotesians were not pleased, but most didn't care enough to revolt.  Two clans, the Uratori (royal descendants) and the Yppa (royal guard), were incensed enough to hold a grudge.  The Yppa left, not to be heard from again, and the Uratori, being the descendants of Orthrir, stayed in an attempt to regain their authority.  In 651, the Uratori, led by Errikar, assassinated King Thrali II, and (rightfully) claimed the crown as his own.  The son of Thrali II, Thramil III, killed Errikar after a long battle, and recovered the crown.  Thramil pardoned the Uratori, but held a grudge evermore.
+
+
+Chapter I: The coming storm.
+
+
+-- Voirmient 5, 652 MC.
+
+"Lo, how is the the child of Errikar and Liagha today?" asked the friendly baker Malcomin.
+
+"Coo! Bbb...," said Gathrin.
+
+"Hee hee hee, well I guess he's fine," said his mother, "but we could use a little bread!"
+
+The baker replied, "Oh my goodness, I've forgotten to tend to my best customers.  How silly of me, that'll be 5 pliffins."
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_2
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part II
+msg
+Liagha payed the fee, and then asked "So, are the rumors true?  Is the King going to raise taxes again?"
+
+The baker said, "Aye, but only the Uratori family.  It seems that he hasn't forgotten that feud from last year."
+
+"Oh God, how can they do this to us again!  It's horrible!  The King has gone too far this time, and I don't think my family is going to stand for it!" screamed Liagha.
+
+Malcomin cautioned, "Shh!  You don't want the King's men to overhear your discontent, do you?"
+
+Liagha whispered, "I guess not..."
+
+"Alright, then, I guess you should be on your way!" said Malcomin.
+
+Liagha responded, "Aye, well good day to thee, then!"
+
+Malcomin replied, "Goodbye, come back again!"
+
+Liagha took her child, and walked home with their bread.  After several minutes, they got home.  When they had come back, Liagha found a note, which read:
+
+    Come to the family meeting tonight at the old granary.
+    We shall discuss the problem of our greedy King.
+
+    Signed: Jacobin, Uratori family elder.
+
+She shuddered at the thought of what they would probably do, but decided to go anyway.
+
+Liagha prepared her case for caution, but knew it would probably be in vain.  Soon, the meeting was underway.
+
+Jacobin started, "I have called this meeting to plan the destruction of that pompous fool, King Thramil.  First, we shall plan the battle, then we shall proceed to attack him..."
+
+Liagha interrupted, "I say we should proceed with caution.  Don't attack until we know that the King has in store for us!"
+
+"Silence, woman!  What do you know of tactics and warfare?  Marcos, quiet your sister before she makes herself look like a fool!" shouted Jacobin.
+
+Marcos whispered to Liagha, "Shh, this crowd won't listen to your nonsense!  Wait, ha!"
+
+Liagha, saddened by the responses, sat down.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_3
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part III
+msg
+Jacobin started again, "Fellow members, I feel that this fool King can be toppled without a loss to ourselves!  We must take our rightful place as the true descendents of the Porotesian king, Orthrir!  We will brook no opposition in our quest!  We will defeat these foolish, aristocratic dolts that seek to oppress the true rulers!"
+
+The crowd cheered.
+
+Jacobin continued, "This fool will fall!   The usurper dynasty will fall!  The honor of our ancestors will be kept, or we will die!"
+
+The crowd cheered and clapped!
+
+Then Jacobin took a quick leave to discuss the situation with Marcos.
+
+Jacobin hailed Marcos, "We shall attack tonight!  We will proceed to bring out our ballistae here, and bring our horsemen there, and the spearmen over there, and there...
+
+Marcos replied, "Shouldn't we wait for the Porotesian underground?"
+
+Jacobin responded, "Nay, we have the men, the equipment, and the will,  we go tonight!"
+
+Marcos agreed, then left to prepare.
+
+Jacobin began to speak again, "It is decided, we attack tonight!  This fool king will wish he had been slain in Errikar's rebellion!  To battle!"
+
+The crowd dispersed, and quickly prepared for battle, as Liagha headed home to pack up.  After half a watch, the preparations were complete.
+
+An hour later Jacobin, at the gates of the palace, prepared to attack.
+
+Jacobin said to the gatekeeper, "We've come for Thramil!  Give up or die!"
+
+"Come and taste this steel, boy!" replied the gatekeeper.
+
+Jacobin then ordered his archers to fire.  The volley of arrows injured a few guards, but killed no one.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_4
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part IV
+msg
+Then Jacobin sounded the attack.  The ballista bolts hit the wall, but did little damage!  As the clan charged, the rams followed.  After a few hits with the ram, the portcullis crumpled.  The clan rushed in, slaughtering half a dozen guards, but the King had obviously prepared a trap, as a division came from behind the clan's army!  Jacobin fell after taking out a few of the enemy.  The retreat was sounded by Marcos, and they headed for the forester's gate.
+
+Meanwhile, Liagha saw the chaos, and the rout.  As she went outside, Marcos rode by, shouting "Flee ye Uratori, the day is lost, and Jacobin is slain! Run q..."  As this last cry hung in the air, an arrow hit Marcos!  Marcos died at once.  Hearing the cry, Liagha snuck out the back door of her house, and ran for the forester's gate!  As she approached, the guard stopped her.
+
+The guard shouted, "Halt m'lady, in the name of King Thramil III!  Who goes there?"
+
+Liagha claimed that she was going out of town for a stroll.
+
+"With all of your posessions?  Ha!  I think we have one of the Uratori cornered!" observed the guard.
+
+The Captain of the Guard for this gate shouted, "Sieze her, sieze that traitorous wench!"
+
+Just then, a small contingent of the routed Uratori rushed past the mother and her child, and slew the guards!  The gate was quickly opened, and they ran, with Liagha following close behind.
+
+
+Chapter II: The boat will carry us to freedom!
+
+After a few hours of running, they came to the shore of the Gulf of Chamiran, southwest of Silane.  They knew that the Silanians would probably be on them soon if they didn't get out, especially because they were on the road going west from Silane!
+
+Liagha spoke, hoping she would not be ridiculed again, saying "We cannot escape by land, but if we made a raft, we might be able to escape by sea!  The Silanian navy is very weak right now, especially after the last battle with Ogeria!"
+
+The men agreed, and set about gathering wood with their hand axes.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_5
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part V
+msg
+Alas, the army was on them as they finished the raft!  Before the cavalry could catch them, they were drifting west on the water!
+
+They rowed west for a few hours, not encountering anything, but then a Silanian Galley caught them.
+
+The captain shouted, "Halt in the name of King Thramil III!  What is a raft doing rowing west here?  Don't you know that those are barbaric lands?"
+
+"Were going to fish some new coast!" replied the intrepid rowers.
+
+They soon were beyond Silanian territory, and continued west.  They fell asleep for a few hours before dawn, and then continued rowing.  They soon reached the mouth of a river, and went a way before realizing that the current was too strong!  The adventurous group quickly left the raft before it was dashed to bits on the rocks.
+
+Chapter III: A new land.
+
+-- Voirmient 6, 652:
+
+The Uratori survivors saw smoke to the south, and decided to go toward it.  This was easier said than done, as a few orcs seemed to be camping on the spot where the Uratori landed.  The Uratori, however had an advantage, in the form of bows!  Two orcs fell in the first volley, and the last three fell in a quick meelee with hand axes.  After collecting the orcs' rations, the Uratori continued south.  After 15 minutes, they reached a burned out settlement, and saw an even larger plume of smoke in the middle of the forest to the west!
+
+A small group of citizens that seem to have survived the attack that burned this village approached and greeted the Uratori.
+The citizens shouted, "Ahh, civilized people!  Thank God!  We are saved!  Wait a minute, where is the General?"
+The Uratorians replied, "What General?  We are from a city east of here called Silane."
+"Oh, you must be that troop promised bt Thramil!  We are the Ypptalians, and our capital is that plume in the forest.  This village is just a fishing village for Ypptal.  Come, you must meet the King!"
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_6
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part VI
+msg
+Before the Uratorians could explain, the Ypptalians whisked them to King Mitikanis's palace.
+The King greeted the last of the Uratori, and bade his subjects leave.
+"Hail, and greetings to our friends the Uratori!  We have been expecting you to arrive for some time now.  I told my villagers to wait for a General from Silane, as a cover for you.  Now come, tell me of your voyage Liagha!" laughed the King.
+Shocked, Liagha replied, "I have no idea how you knew that we were Uratori, but thank you!"  She then retold the progress of the voyage.  After a few minutes, the story was told.
+The King declared, "Ahh, we knew because we also loathe the meddlesome Silanian king.  We assumed that the true descendants would attack the foolish King of Silane, but fail to dislodge the usurper!  We had a small hope that we would see your clan again!  By the way, if your group didn't remember, we were the last loyal clan, the Yppa, that left as soon as the foolish Silanian barbarians took the throne!  I didn't expect your clan to be this thin, though!"
+Liagha inquired, "We were thinned by the last battle.  By the way, how did you know my name?"
+The King smiled and said, "Aye, all of the Yppa haven't left Silane, some stay as spies!  Hmm, your branch of the Uratori clan is quite prominent, Errikar led the first rebellion, after all!"
+Sobbing, she replied, "Alas, he is dead as my brother, Marcos, is also dead, so what hope does our lineage have?"
+"Ahh, you forget your son, Gathrin!  He is the direct descendant of Orthrir!" said the good King.
+Liagha was speechless!  This is unreal, her son was a descendant of the earliest Porotesian leader!
+The meeting continued for a few hours, and then changed focus to how to rebuild.
+The King inquired, "So what do we do about the lack of a real city?"
+Liagha suggested, "Dear friend, I think that the fishing village can be rebuilt, and improved.  If you don't want to rebuild Ypptal."
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_7
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part VII
+msg
+"This forest city is really inadequate for a kingdom as the forest takes too long to cut through to expand the city.  This city has a problem with certain forest denizens, like trolls, as well!" the King claimed.
+Liagha responds, "Well, then we are off to the fishing village!  I think the village needs a name, though!
+The King suggested, "I think that your clan name should be our city name!  It shall be called Uratoria henceforth!"
+Liagha agreed, and the company left for the coast.
+
+Chapter IV: The kingdom is established.
+
+-- Vitment 18, 677:
+
+After 25 years, Uratoria was a thriving village with a population of 1231 active citizens!  Although Liagha had just passed on at the age of 61, and King Mitikanis died 10 years earlier in battle with the Trolls as they were overtaking Ypptal, whose survivors fled to Uratoria.  Gathrin was the 25 year old monarch of this village and he ruled wisely.  The sun was rising on another day, and the king was awakwned by the sound of knocking.
+
+"Sire, news from the watch towers!" exclaimed the Captain of the Guard.
+
+King Gathrin implored the Captain to speak.
+
+"Well, several axemen are gathering south of the city!  They carry a brown and yellow banners!  Also, to the north, blue banners are approaching!"
+
+The king smiled, "Ah, the barbarian tribes have finally come to vanquish what is left of Ypptal!  Fools!  They don't know what they are up against!  Yptaal is now Uratoria, and they must now face the horrors of our defenses."
+
+"What defenses, m'lord?" the Captain asked.
+
+The king laughed and said, "Did you forget, we have built 13 ballista towers!  The towers will spook those foolish barbarians!  And, oh, let us not forget, we have the lighthouse!"
+
+"Lighthouse?  I have no idea what that will do, my sovereign!" the Captain replied.
+
+"Fool, don't you remember the focal mirrors?  The light of the sun will scorch those barbarians into cinders!" the king chuckled!
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_8
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part VIII
+msg
+Shocked, the guard dared not ask any more about the lighthouse!
+
+At noon, the battle began.  The barbarians moved forward, and the first few were hit by ballista bolts!  Meanwhile, in the lighthouse, the sun was focused on to the mirrors, which reflected the light into a concentrated beam. A lens amplified the light, and it formed a ray.  The yellow and brown troops were scorched, and incinerated!  Quickly, the blue barbarians put up a flag signaling that they wanted to talk.
+
+The king spoke to the blue barbarians, "Do you wish to yield or to be scorched?"
+
+"Aye, we shall ally with thee!  We are not barbarians like the yellow Tricerenians, or the brown Torogenians.  We are the Boromacians, and we are a peaceful kingdom to the north across the river." said the Boromacian Army.
+
+"Your terms are accepted, you are allies!" said the king.
+
+"Good day, king! We leave your territory now." said the Army.
+
+The Boromacians left, and crossed the river.
+
+"I don't trust them, but I have no choice.  I think we need to build up our defenses.  Don't we have a quarry southeast of Yptaal?  I say that we build city walls to block future attacks.  Don't you agree, Captain?" proposed King Gathrin.
+
+"Hail, it shall be done!  I feel, however that these walls should be placed at some distance from the city, so it can expand." agreed the Captain.
+
+The king smiled and said, "Build them from the southern end of the harbor to the forest, and from the edge of the northeastern forest across to the main forest.  This must be done as to secure our resources, and protect the city!  In addition, we must build a government center, when the walls are completed."
+
+The Captain saluted, and began to proceed with the project.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_9
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part IX
+msg
+Chapter V: Tricerenia and Torogenia capitulate!
+
+After a 2 years, the walls were built, and the city had established its own governing center, henceforth called a Parliament building (thanks to Gathrin).  The Parliament was a bicameral body elected every 3 years to govern economic policy (taxes and coinage) and civil projects (city development and lawmaking).  The King retained the powers of the military (army, navy, et al.), and diplomacy (declaring war, making treaties, et al.).  The Supreme court would judge the reasonability of laws compared to the Constitution of the Monarchy.  The Royal court judged the criminals based on several principles, Innocent until proven guilty, due process, etc.  The first Royal Census was taken in 396 MC, and the population had grown to 2694.  But King Gathrin would be dead when Torogenia and Tricerenia would finally capitulate.
+
+-- Nonmenth 21, 709:
+
+King Gathrin dies at age 57, King Hygat I rules at 21.
+
+-- Desment 4, 709:
+
+King Hygat speaks to his army of 624 soldiers, "The time has come to end the barbarian threat, we need not yield to barbarians, but conquer the fools!  This is our time, we will succeed!"
+
+The army marches southwest toward the village of Tricerenia.
+
+The barbarians did not expect the attack, and surrendered after losing 39 men, while Uratoria lost only 3!  The elders in the Tricerenian Great Hall capitulated without delay.  Tricerenia was a protectorate of Uratoria!
+
+Tricerenia offered their remaining army to Uratoria, bolstering the forces to 75 men.
+
+-- Desment 18, 709:
+
+After 2 weeks, the army was near the army of Torogenia.  The Uratorians brought 2 ballistas with them, and several horsemen.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_10
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part X
+msg
+This battle began with firing the ballistas, taking down 12 men right away.  The cavalry charged the remaining troops, and slaughtered 15 of them before the Torogenians were also routed.  The losses of Uratoria were nonexistant, and the barbarians lost 27.  The town became a Uratorian protectorate and the army was yielded to the Uratorians.
+
+Alas, Gathrin's hunch about Boromacia was correct, though, and it was not good news.  The lighthouse mirror was stolen, and the Boromacians declared war on Uratoria!  Needless to say, Uratoria was not pleased!
+
+Chapter VI: Boromacia falls!
+
+As Uratoria reeled at the events, their tempers flared.  The King was horribly enraged, how did this happen?  He then braced for the battle ahead.  Uratoria's north wall was under siege, and the lighthouse was useless!
+
+-- Desment 19, 709:
+
+The king was interrogatng Boromacian prisoners who didn't escape before he arrived.  From them he gleaned little, but a fisherman, who was near the lighthouse at the time of the theft, said he had seen the cutter head east toward a large island.
+
+The king gathered ordered meeting of Parliament immediately.
+
+The Seneschal (like the "Vice King" and Senate president) began the meeting with the fisherman's observation.
+
+"This is an emergency meeting of Parliament!  The kingdom of Uratoria was betrayed by the kingdom of Boromacia!  This travesty is unforgivable, but I suspect that it is only the fault of their mad monarch, King Terbirus IV.  We must remove this dictator to bring the peace we seek.  The evidence accrued is as follows:
+    1.  Fisherman saw mirrors going east to an island.
+    2.  Boromacia betrayed us.
+    3.  Boromacia has approximately 1720 troops.
+    4.  We cannot stave off an invasion force of 1720 soldiers without the          mirrors.
+I have concluded that we must recover the mirrors, soon!  I give full support to a declaration of war on Boromacia, and even implore the King to do so."
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_11
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XI
+msg
+The king replied, "War it is, then!  We go for the mirrors first, then we hold our ground with our lighthouse.  When the enemy force is decimated, we attack Boromacia herself."
+
+The Senate agreed, and the battle plan was set.
+
+The first part began with a small ship sailing to the island (named Yaparia), and recovering the mirrors (These mirrors are actually artifact mirrors, and are, thus, irreplaceable!).  The troops land, and slaughter the surprised Boromacian army, took the mirrors, but left the native inhabitants alone.
+
+The mirrors were quickly installed just as the Boromacian fleet started to arrive.  The naval force was decimated quite quickly by the wide beam lens in the lighthouse.  The king was very pleased, Boromacia could now be invaded!
+
+The Uratorian army marched on Boromacia en masse.  The Uratorians defeated the contingents, and besieged the fortified Boromacians for 3 months.  King Terbirus was slain by a group of horsemen after fleeing the burning Castle Barmograde.
+
+Chapter VII: The raiders and the rebels!
+
+Several years of peace followed the war with Boromacia, and Uratoria prospered.  The year was now 736 and the kingdom had grown powerful enough that the kingdom was becoming an empire.  The Senate was debating whether to make King Gramlath the Emperor of Uratoria, however certain factions were displeased with this development.  The seeds of the next conflict are already being sown.
+
+<Breaking the Curse of Vardegrim... kept Gramlath and Lilia from marrying (the Prince of Fire and Princess of Ice shall nary the twain meet) by destroying the orb of Desolation.>
+
+-- Priment 6, 736:
+The palace was cold today, and the ground was covered in new fallen snow.
+
+King Gramlath yawned, and said to his wife, Lilia, "There will be arrows flying soon, I know it!  This new title, although a great honor, will bring our country to war."
+
+She replied, "Don't worry, I'm sure that it won't get too far out of hand!"
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_12
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XII
+msg
+He nodded, but was still worried.  He couldn't turn down the title if it was deigned that it would be given.  Most of the empire would defect to new invaders that called themselves the "Dracians."  Thus it was a choice, rebellion or defection.
+
+The king, queen and their entourage of Praetorian Guards headed out to the Parliament House.
+
+When they arrived, the sun broke through the cold sky and the clouds began to dissipate.  It was to be a momentous day.  As the king entered the Senate, the room quieted down.  The king went to the throne where the previous kings sat before addressing the assembly.  When King Gramlath sat down, the seneschal began to speak.
+
+"Citizens of Uratoria, today is the dawn of a new era!  The assembly is about to vote on the future of Uratoria, and inexorably change the course of history.  The archduke of Boromacia, and the dukes of Tricerenia and Torogenia have all requested this vote.  Our kingdom is threatened by cruel barbaric invaders that call themselves 'Dracians,' and, unless we declare ourselves an empire and begin conquests, we will surely be defeated by them.  As a symbol of the new era, we have decided to consider whether to change our illustrious regent's title from 'king' to 'emperor,' as a statement of our strength and confidence.  Certain factions within the government, however disagree vehemently, luckily they aren't in the majority..."
+
+Suddenly three senators lunged for the seneschal, determined to silence any thoughts of an 'emperor' permanently!  Luckily the guards reacted just in time to save the seneschal from death by stabbing.  The arrow filled corpses of the dissidents were being dragged out as the seneschal resumed, "First, I'd like to give thanks to God that I 'm still alive!" He paused, reverently, for a moment, then resumed his speech.
+
+"This illustrates the urgency of the situation.  Let us not tarry any longer, I call the Senate to vote."
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_13
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XIII
+msg
+The votes trickled in.  5 votes left, 4, 3, 2, ... at last 1.  Finally, when all the votes came in, the Seneschal counted.  After a minute, he began to speak.
+
+"First, I shall mention the results from the House of Civilians, gathered yesterday.  12 for emperor, 6 against.  Narrow 2/3 victory.  Now the Senate's results, 25 for emperor, 8 against.  Definite victory.  Thus the title is now offered to the king.  King Gramlath, lord of Uratoria, master of the realm, defender of the faith, protector of the empire and ruler of Uratoria, rise and come forward."
+
+King Gramlath got up.  He wasn't surprised at the result of the vote, and reluctantly headed for his title confirmancy.  When the king got to the podium, the Seneschal resumed.
+
+"King Gramlath, do you take the honorable title offered here today to fulfill its duties and responsibilities from this day henceforth?"
+
+The king paused, then replied, "I do."
+
+"Very well, then we shall go to the cathedral for the coronation."
+
+The Parliament houses emptied, and everyone assembled at the now Imperial Cathedral.  At the door, the Archbishop awaited.  The church was full and on the altar sat the Blade of the Crown shining in the bright light of the midday sun.
+
+The king and his queen were told to prepare in the antechamber for the ceremony.  The royal couple doffed their crowns (an emperor cannot be crowned if he is already wearing one!) and donned the cloaks laid out for them.  Then they took their sceptres and prepared to begin.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_14
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XIV
+msg
+The call came soon after and the royals strode out calmly and assuredly.  The archbishop and the assembly of bishops awaited their approach.  The moment would be unique in the entire history of Uratoria, the only time a King  of Uratoria would be crowned Emperor.  From this day forward, all future rulers of Uratoria would be known as Emperor, and Gramlath would be known as the greatest as well.  The approach was complete and the former king and queen were kneeled before the altar.  The archbishop told the future emperor to put his hand on the Bible.
+
+"Do you, Gramlath of the family Uratori, former king of Uratoria, swear to uphold the laws of Uratoria to the best of your ability?"
+
+"I do," he replied.
+
+"Very well, do you, Gramlath swear to uphold the honor of the Uratorian Empire and to defend Uratoria against her foes.
+
+"I do," the monarch promised.
+
+"Then, I, by virtue of the office of Imperial Archbishop, dub thee, Gramlath Uratori, Emperor of Uratoria henceforth until thy death.  I also dub Lilia Uratori, by virtue of her marital bond to our Emperor, Empress of Uratoria, to rule by the Lord Gramlath's side 'til death do they part."
+
+Then the archbishop performed the dubbing ceremony with the Blade of the Crown, tapping Emperor and Empress first right, then left, then right and finally on the head.
+
+"Then rise, Emperor and Empress of Uratoria and rule as is thy right!"
+
+The Emperor and his wife headed quickly for the palace to evade the crowds already gathering there.
+
+The day sank into night, and the Emperor prepared for bed.  Lilia was staring out the window to the north.  She seemed to be keenly interested in a faint light in the forest across the Uratori river.
+
+"Dear, are those campfires?" she inquired.
+
+He joined her at the window, looked out and thought.  He then took out a lens and pointed it at the forest.  He didn't seem shocked, but he did suddenly tensed as though this confirmed his suspicions.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_15
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XV
+msg
+"Yes, they are campfires.  But whose?  My army isn't anywhere near there and I know of no bandits or adventurers near that forest.  Ah, but what is this, I see trebuchets!  I feel we are besieged!  I'll send out envoys by sea to the dukes, this is serious.  Wait, I shall return."
+
+"Not a chance, I'm coming too!" shouted Lilia.
+
+The couple headed off toward the ministry of defense.  If it's war they want, its war they get!
+
+On the way to the ministry, the Imperial entourage encountered a band of thugs, though!
+
+The Captain of the Guard shouted "Protect the Emperor!"  before a quarrel pierced his neck.
+
+The Lieutenant shouted to the Emperor, "Run to the ministry, you're almost there!"
+
+The Emperor, however sensed this was an ambush, and more foes were waiting ahead.  The Emperor shouted to Lilia, "Defense plan 15G?"
+
+She replied, "No, 32B!"
+
+They each, then pulled out a silvery cloak.  They donned them with utmost haste and vanished!  Invisibly, Gramlath pulled out a crossbow, cocked and aimed at a third story window.  Out fell a dark clad crossbowman, dead.  Then Lilia pulled out a phase dagger and plunged it into another assassin.  Then the Praetorian Guards caught on and each quaffed a from a citrine phial.  Invisibly, the Emperor, Empress and Guards silpped into the ministry and became visible (Emperor/Empress by doffing cloak, Guards by a counter-potion).  Then the stealthy entourage crept toward the war room.
+
+In the war room, the Defense Council was already assembled.
+
+"Ah, Emperor!  It is good to see you are unharmed!  Enemy assassins crept in this afternoon, and we couldn't catch them all before you left.  We noticed the campfires and assembled the army to prepare for battle.  All of our loyal troops are awaiting your command," cried the Minister of Defense.
+
+Gramlath replied, "No rest for a weary Emperor, I suppose.  Oh well, let the battle begin."
+
+"What is thy command, sire?" prompted the Minister.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_16
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XVI
+msg
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_17
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XVII
+msg
+"Clear the city of foes, commander!" the Emperor ordered.
+
+"A'once, sire.  Also, more bad news!  The Dracians are attacking the city of Torogenia and the outlying villages!"  the minister replied.
+
+Lilia scowled, "I knew those dogs were just waiting to attack!"
+
+Gramlath prompted, "Well, first thing's first!  We need a place to sleep and recover from the long day.  Our palace is probably full of assassins by now!"
+
+Suddenly a dagger flew out from a rafter!  The Emperor caught it before it hit the Minister, though.
+
+"See, there isn't any place safe!" remarked the Emperor.
+
+After a few more assassination attempts, the guards were finally able to secure the ministry, and the Imperial couple got some rest.
+
+-- Priment 7, 736:
+
+The morning came, cold and dry.  The Emperor awoke and donned his regalia.  Lilia soon followed.  In the midst of the night, the palace had been retaken, and the city was now assassin-free.  Now the work of planning the battle began.  The war council chamber in the palace was much more accomodating than the Ministry offices, and the entire Council prepared for battle.  The Senate recommended declaration of war, and it was soon so.  Some of the major officials of government weren't as lucky as the Emperor and Empress, the Seneschal, 4 senators, 3 civilian representatives, the minister of the treasury, the Captain of the Guard and the Duke of Tricerenia were all assassinated!  Civil war and foreign invasion!  The new Duke of Tricerenia, the Duke of Torogenia and the Archduke of Boromacia were all in need of assistance.  The Ministry of the Treasury soon had a new minister, and the Seneschal's son was sworn in.  The Lieutenant became new Captain of the Guard, and the Palace became the new staging ground for war.
+
+"The walls of Uratoria took quite a beating from bombardment last night, sire!" lamented the minister of defense!
+
+"How is the city holding up?" queried the monarch.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_18
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XVIII
+msg
+The minister stated, "Our lighthouse is out of commission until the damage is repaired, and the enemy has frigates!  Also the knights are out of commission."
+
+"Why are my knights out of commission?" demanded the Emperor.
+
+"Sick horses, poisoned hay, m'liege!" he offered.
+
+"Are you sure they are all poisoned?" requested the ruler.
+
+"Oh, wait!  We have 1 division left!" corrected the minister.
+
+"Ah, well take out the accursed trebuchets with them!" the Emperor demanded.
+
+Lilia intervened, "No, that would be suicide!  See the crossbows?  Try the ballistas!"
+
+The minister replied, "None left!  Siege knocked them out!"
+
+The Lord of Uratoria shouted, "Aha!  We still have the demolition ships, right?  Blow up the bridge and then we can recover while they rebuild our bridge!  Summon some of the Torogenian and Tricerenian militias to attack the Dracian camps, and use our militia and Boromacia's to wipe out the rebellion.  How long will the lighthouse take to repair?"
+
+The Defense Minister replied, "2 days, tops!  I see your plan!  They'll be walking across the bridge right to their doom!"
+
+They agreed, "Let it be so!"
+
+The bridge and ships were soon gone to fiery demolition ships, and the trebuchets soon stopped firing!  Panic ensued among the remaining rebels on this side of the bridge.  Those who didn't try to swim were captured or slain by the Uratorian Army.
+
+-- Priment 9, 736:
+
+It was a stormy day when the lighthouse became operational again.  The army was busy in Torogenia defeating the Dracians, and the navy bombarded the rebel encampment.  The Emperor and Empress watched the test ot the lighthouse intently.
+
+"Fire!" ordered the Emperor!
+
+The orange ray sliced into the water, leaving billowing smoke in its wake.  The artifact lenses, of course, were not damaged by the attack (unbeknownst to the rebels)!
+
+The bridge was nearly repaired, the battle would soon commence.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_19
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XIX
+msg
+The emperor thought to himself, "What imbeciles, they don't realize that I have trapped them!"  The Boromacian cavalry was advancing behind the rebels, and the lighthouse awaited anyone who moved within 3 kilometers of Uratoria.  The lighthouse truly is an awesome weapon for its time!  The lighthouse serves as a beacon and a weapon!
+
+"Let the good times roll!" said an ecstatic monarch at the completion of the bridge.
+
+10 minutes later, the Boromacians closed in on the camp, and rebels were sent fleeing south.  5 minutes after that, the lighthouse eliminated the fleeing foes.  Those who didn't flee were captured or killed by cavalry.
+
+Twenty minutes later, the Uratorian Army returned, having negotiated a peace deal with the Dracians.  They could build a city 25 km northeast of Torogenia and Uratoria would maintain leadership over the Duchy of Dracia.  The Dracians, it seems, were interested in the fancy devices and tools of the army and wanted to learn about them as much as they could.
+
+Chapter VIII: The island next door.
+
+Uratoria's young emperor had bought the Empire a year of peace, but this was not to remain.  Trading ships have been disappearing on their way to Dracia, and the crown wondered why.  The investigation turned up something startling.  There is an enemy city due east of Uratoria, only 35 km away!
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_20
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XX
+msg
+-- Welfimen 23, 737:
+
+The Emperor was startled by the report.  An enemy city, right next door!  Uratoria had neglected the island due east of it, the former Boromacian prison/storage camp.  Well, it seems that the decendants of the old king Terbirus IV were alive and causing havoc.  King Yathiras II of Yaparia.  Yes, it seems that Yaparia has rival ambitions to Uratoria.  The Emperor of Uratoria was furious.  How could his ancestors have left this kind of a problem.  The Dracians are suffering as their city isn't fully built, yet thanks to Yaparia.  The Dracians are almost about to surrender!  The loss of the iron ore discovered near Yaparia would be a major blow to Uratoria as the iron deposits they had been using, near old Ypptal can't be mined due to a troll infestation.  Ypptal had been abandoned to trolls at night for years, but the mine was protected until the evil troll king Haymbar had moved in.  The siege on Dracia must be stopped.
+
+"Page, take this letter to the defense minister!" commanded Gramlath.
+
+The page nodded, then left.
+
+Lilia queried, "What was that letter, dear?"
+
+The emperor frowned, "Dracia is besiged, we must go to war once more."
+
+Lilia laughed, "The lighthouse will protect us from any interlopers, and noonw would dare attack us by land.  Naval assault on us would be suicide."
+
+The emperor returned, "And without iron our armies will fall.  It would be a matter of time before a foe would get lucky enough to knock down the lighthouse.  What would defend us then?"
+
+She realized her mistake and corrected, "Oh, well I'm sure our navy can handle it."
+
+"Navy assassins!" chuckled the Emperor.
+
+She replied, "Why not?  Drop one off in the woods, and let him pick off Yathiras."
+
+"Hmm," thought Gramlath.
+
+"Otherwise, a massive assault would be called for," she added.
+
+"You're right! OK, we'll go with your plan, but first we MUST protect Dracia." he replied.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_21
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXI
+msg
+"Agreed, we'll tell the defense minister when he comes, I assume," she concured.
+
+"Of course," he replied.
+
+So, the conquest of another enemy begins.
+
+That night, the Emperor and Empress hosted a ball in the great hall.  The nobility from all over Uratoria attended.  As the ball contnued, a quest fell upon him.
+
+"Dear Emperor, I have been researching the history of Uratoria and have found mention of a city called Silane.  It says Uratorians were exiled from there 60 years ago.  I wonder if there are any plans to retake our ancestral homeland." said the Baron of Gilgerthaum.
+
+"You're absoultely correct, good Baron!  I will see to it as soon as our current conflicts are resolved.  Oh, Minister of Defense..." the emperor responds.
+
+Meanwhile, as the ball progressed, the assassin was dropped off on Yaparia.  He prepared to assassinate the leader of the Yaparian court.  He crept in to a courtyard near the castle and scaled the way up to where Yathiras slept.  The assassin saw, on the floor, glowing runic marks.  Traps!  But wait, didn't he have a potion?  Ah, acid.  He threw the acid at the bed and climbed back down.
+
+King Yathiras awoke to the sour smell of.. ACID!  How could an assassin get the great Yathiras, in bed?!  He died after 2 minutes of pure writhing agony, too weak to cry out to the guards.
+
+Back at the ball, now over, the Emperor and Empress were heading to bed.  They turned a corner, and Gramlath stopped Lilia.  He said, "See the trap?"  3 assassins awaited them at their bedroom door, hidden by rope tied to the ceiling.  After a quick cloak donning, the duo slew the assassins, and read the  note held by the assassins: "Kill the Emperor, 15,000 pliffins await you.  K. Yathiras"  All the proof needed to justify the assassination of Yathiras.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_22
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXII
+msg
+-- Welfimen 24, 737:
+
+With the plot foiled, the assassins dead, and King Yathiras dead, the conflict was quickly resolved.  Yaparia quickly joined the Uratorian Empire to prevent its own destruction.
+
+The Emperor could now muster the army needed to retake Silane and Porotesia without worrying about petty regional wars.
+
+Chapter IX: A Campaign of Conquest
+
+No sooner had the Emperor defeated the Yaparians than he was planning the conquest of the old rival of the Uratori, Silane.  King Thramil III has long been dead, but his great-great grand son, Machori II has been King for 15 years.  The conquest plans would take 2 years and bring the entire Silanian kingdom under Uratorian control.  The first stage involved the conquest of the rest of the Uratorian peninsula, then the conquest of Detracia and finally on to Silane itself.  After Silane fell, the rest will capitulate without a fight.  It was a simple plan, but it would be difficult.
+
+-- Welfimen 31, 737:
+
+"The new year will begin a new war, it seems," the Emperor observe.
+
+Lilia verified, "Yes, we shall reclaim our birthright!"
+
+"Let the preparations begin!  Ready my steed, prepare my army for we march today!  May God ride with us!" shouted the Emperor.
+
+While the Emperor's army massed outside the city and prepared to march north, the southern campaign was being led by the Archduke of Boromacia.  The armies began their march.
+
+By sunset both armies camped outside their destinations.
+
+-- Priment 1, 738:
+
+Thus the war begins.  The army of the Emperor readied their siege engines and loaded their crossbows, the siege of Dertraconia was on!
+
+"Let the battle begin!  Fire the catapults!" shouted the Emperor.
+
+The siege engine volley knocked a hole in the southern wall and main gate, allowing the cavalry to advance.  The Army marched north toward the hole, and captured the city almost without resistance.  The Emperor had taken Silane's forces completely by surprise and gained the city easily.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_23
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXIII
+msg
+The easy victory was a big boost to the Imperial Army's spirits.  That night, the Emperor and Empress enjoyed the hospitality of the Duke of Detraconia, now loyal to Uratoria.  But the citizens were reluctant to accept the Emperor and plotted to destroy him.  Unfortunately for them, the Emperor expected such a move and was well guarded.
+
+-- Priment 2, 738:
+
+The next morning, the Imperial army headed southeast toward Silane.  The Emperor was pleased with his progress, but knew the next stage was more difficult, and Silane wouldn't fall as easily.  Silane had the Royal Silanian Army and Uratoria had her Imperial Army, and the battle would begin when the Archduke finished his campaign.
+
+-- Priment 5, 738:
+
+The Archduke of Boromacia had just arrived after sailing north from Japilia, the newly conquered addition to Uratoria Province.  The Emperor prepared his troops for the final assault against an old foe.  Before the Emperor could march, however, an unknown navy sailed up behind Uratoria's!
+
+"Milord, the "Ogerians" wish to speak with you!" cried the page.
+
+"All right, let the envoy in," agreed the Emperor.
+
+"Ahh, so this is the great Emperor Gramlath!  A pleasure!" the envoy began.
+
+"I see my reputation preceeds me!  What do you wish?" the Lord of Uratoria asked.
+
+The Ogerian ambassador replied, "I see we have the same goal, to defeat Silane.  We propose a deal.  We would gain Porotesia, Ipsekar, and Terikar and you Silane."
+
+The Emperor responded, "No, we must have Porotesia, for it is our ancestral homeland!  Perhaps if we got Porotesia, otherwise no."
+
+"Unacceptable, milord!  If you will not accept this deal, you must then leave Silane and Porotesia to us." the diplomat laughed.
+
+The Emperor replied, "If you wish to be conquered along with Silane, you should have said so!  We will take Silane, Porotesia, Ipsijania and Terikar since you will not agree to our reasonable demand."
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_24
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXIV
+msg
+"You will eat your words, Emperor!" spat the enraged diplomat.
+
+The Ogerians, were going to be a problem, it seems!  But the Emperor was concerned with Silane at the moment.  The battle would soon begin and Silane would fall!
+
+-- Priment 6, 738:
+
+Trebuchets pounded at the walls of Silane, and the Silanian Army was engaged in battle with the Imperial Army.  The Silanians were going to fight despite the fact that they had two enemies advancing on their capital!  The forces of King Machori surrendered after a quick skirmish!  The King of Silane decided it would be best to ally with at least one of his enemies, and perhaps have a chance to survive!  Ogeria was an enemy to be reckoned with and the King decided the old rivalry between Uratoria and Silane was probably best forgotten and signed over to become the first non-Uratorian province in the Empire, and King Machori became the first official monarch of Silane Province.  A storm built over the ocean, and the sky flickered until midnight, this day would be remembered not only as the day Uratoria reclaimed her history, but also the day Ogeria declared war on Uratoria.  Another war was building as Uratoria secured her new
+
++ Uxragania
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_25
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXV
+msg
+Appendices
+
+
+Appendix A: Historical Dates
+0 MC - The Bible is divined from another plane.
+43 MC - Ztilia disappears!  (Due to the lich Vardegrim's evil influence)
+45 MC - Ztilian Empire crumbles.
+54 MC - Porotesia established.
+513 MC - Silanian invasion.
+532 MC - Silane supercedes Porotesia.
+581 MC - Yppa leave, found Ypptal.
+651 MC - Errikar's Rebellion.
+652 MC - Story Begins.
+
+Appendix B: Months
+Priment - Winter
+Diment
+Trement
+Voirmient -Spring
+Vitment
+Sement
+Heptimens - Summer
+Ociment
+Nonmenth
+Desment - Autumn
+Lefmen
+Welfimen
+
+Appendix C: Currency
+Uratorian/Silanian
+Pfalnig:
+Metal: Gold
+Symbol: Pg
+Worth: 100 Shilgin.
+Notes: Base currency unit.
+
+Pliffin:
+Metal: Silver
+Symbol: Pf
+Worth: 1/10 Pfalnig, 10 Shilgin.
+Notes: 1/10 Pfalnig.
+
+Shilgin:
+Metal: Copper
+Symbol: Sh
+Worth: 1/100 Pfalnig.
+Notes: Lowest denomination of coin.
+
+Ogerian
+Golgis
+Metal: Gold
+Symbol: G
+Worth: 20 yagri.
+Notes: Highest Ogerian denomination.
+
+Yagri
+Metal: Electrum (Gold+Silver)
+Symbol: Yi
+Worth: 1 yagri, 120 vilgin
+Notes: Base currency unit.
+
+Snafir
+Metal: Silver
+Symbol: Sf
+Worth 1/30 yagri, 40 vilgin
+Notes: N/a.
+
+Vilgin
+Metal: Copper
+Symbol: Vi
+Worth 1/120 yagri, 1 vilgin
+Notes: Lowest denomination.
+
+Appendix D: Major Cities
+
+Boromacia
+Founded: 34 MC
+Facilities:
+    Palace of Boramacia, Castle Barmogarde
+    City Wall
+Notes: 2nd Largest city in Uratorian Province, Seat of ArchDuchy of     Uratoria province.
+
+Dracia
+Founded: 475 MC
+Facilities:
+    City Wall
+    Port
+Notes: Major port of Uratoria.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_26
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXVI
+msg
+Porotesia
+Founded: 54 MC
+Facilities:
+    City Wall
+    Port
+Notes: Settled by the last remnants of the Ztilian Empire.  Served as capital of the Porotesian Kingdom until they were usurped by the Silanians in 532.  Served as the agricultural heart of the Silanian empire until the Uratorian conquest, now is the Arch Duchy of Silane Province.
+
+Silane
+Founded: 378 MC
+Facilities:
+    Castle Modrial
+    City Wall
+Notes: Capital of the Silanian Kingdom, later became Capital of Silane Province
+
+Torogenia
+Founded: 61 MC
+Facilities:
+    City Wall
+    Port
+Notes: Major city of Uratorian Province.
+
+Tricerenia
+Founded: 59 MC
+Facilities:
+    City Wall
+    Port
+Notes: Major city of Uratorian Province.
+
+Uratoria
+Founded: Voirmient 6, 652 MC
+Facilities:
+    Imperial Palace of Uratoria, Tholinar
+    Imperial Parliament
+    Imperial Cathedral
+    Praetoriate Barracks
+    Lighthouse
+    City Wall
+    Port
+Notes: Capital of Uratorian Empire, Capital of Uratoria Province.  Built on the former location of Ztilia, the lighthouse is the only remnant of the original city.
+
+Yaparia
+Founded: 655 MC
+Facilities:
+    Prison Ruins
+    Castle Vanguard
+    Port
+Notes: Served as Boromacian prison camp until Boromacia was defeated, then became an independant city.  Later declared war on Uratoria and was defeated.  Port in Uratoria Province.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_orthrack_27
+def_arch tome_indigo
+Object
+name Orthrack: A Tale of Kings, Queens and Heroes Part XXVII
+msg
+Ypptal
+Founded: 581 MC
+Facilities:
+    Ruin of Castle Inregil
+    Ruins of City
+Notes: Home of Yppa until the Uratorians arrived, served as staging ground for inital conquests until destroyed.  Now serves as a memorial to the Uratorian spirit, and the Yppa who aided it in the time of need.  Located in Uratoria Province.  Currently under nightly forest troll infestation.
+
+Ztilia (Lost 43 MC)
+Founded: ?
+Facilities:
+    Palace of Ztilia
+    Elderian Parliament
+    Xantia Tower
+    Hythian Wall
+Notes: Lost capital of the original Ztilian Empire.  Rumors of its original location suggest that Uratoria sits where Ztilia used to, however no maps exist from that time due to the chaos caused by its sudden disappearance.  The city served as the cultural heart of the Ztilian Empire until it disappeared.  Some think the disappearance was due to a celestial catastrophe (meteor), some think that the evil lich, Vardegrim, teleported it to the ethereal plane, and some believe that the Emperor ordered the entire city to be moved to another world.  One thing that is for certain is that the few citizens of the original capital that weren't lost sailed to Porotesia and founded a new kingdom.  It is also rumored that the Uratorian Lighthouse is the only building left from the original city, and it could be true.  No one knows if the Yppa built the tower or not, but the mirrors are certainly not Yppa design.  If it is part of Ztilia, it would provide a glimpse back to a pre-Porotesian era.
+endmsg
+no_pick 1
+end
