@@ -982,7 +982,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 {
 	int retval = 0;
 	float old_speed, old_sleft;
-	char inbuf[MAX_BUF];
+	char inbuf[HUGE_BUF];
 	object *items[MAXDEPTH];
 	int depth = 0;
 
@@ -1056,7 +1056,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	{
 		YY_BUFFER_STATE yybufstate;
 
-		while (fgets(inbuf, MAX_BUF - 3, (FILE *) fp))
+		while (fgets(inbuf, sizeof(inbuf) - 3, (FILE *) fp))
 		{
 			yybufstate = yy_scan_string(inbuf);
 			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);

@@ -421,7 +421,7 @@ void init_artifacts()
 	archetype *atemp;
 	long old_pos, file_pos;
 	FILE *fp;
-	char filename[MAX_BUF], buf[MAX_BUF], *cp, *next;
+	char filename[MAX_BUF], buf[HUGE_BUF], *cp, *next;
 	artifact *art = NULL;
 	linked_char *tmp;
 	int value, comp, none_flag = 0;
@@ -446,7 +446,7 @@ void init_artifacts()
 	}
 
 	/* Start read in the artifact list */
-	while (fgets(buf, MAX_BUF, fp) != NULL)
+	while (fgets(buf, sizeof(buf), fp) != NULL)
 	{
 		if (*buf == '#')
 		{
@@ -592,7 +592,7 @@ void init_artifacts()
 			 * copying it. */
 			lcount = 0;
 
-			while (fgets(buf, MAX_BUF - 3, fp))
+			while (fgets(buf, sizeof(buf) - 3, fp))
 			{
 				strcpy(buf_text + lcount, buf);
 				lcount += strlen(buf) + 1;
