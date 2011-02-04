@@ -35,6 +35,7 @@ def main():
 
 		elif msg == "i'm sure":
 			if activator.PayAmount(house.get(house.cost)):
+				activator.Write("You pay {}.".format(CostString(house.get(house.cost))), 0)
 				me.SayTo(activator, "\nThank you for your business! We hope you enjoy your brand new house.")
 				house.add_house()
 			else:

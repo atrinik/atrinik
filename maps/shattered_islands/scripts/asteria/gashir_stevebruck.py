@@ -39,17 +39,17 @@ def npc_gashir():
 
 	elif msg == "booze":
 		if activator.PayAmount(5):
+			activator.Write("You pay {}.".format(CostString(5)), 0)
 			me.SayTo(activator, "\nHere you go! Enjoy!")
 			activator.CreateObject("booze_generic", value = 1)
-			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
 
 	elif msg == "strong booze":
 		if activator.PayAmount(10):
+			activator.Write("You pay {}.".format(CostString(10)), 0)
 			me.SayTo(activator, "\nHere you go! But be careful, it is really strong!")
 			activator.CreateObject("booze2", value = 1)
-			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
 
@@ -57,25 +57,25 @@ def npc_gashir():
 		if not qm.completed():
 			me.SayTo(activator, "\nAh, sorry. We are fresh out! Maybe you could check down at the brewery to see what is holding my shipment up?")
 		elif activator.PayAmount(8):
+			activator.Write("You pay {}.".format(CostString(8)), 0)
 			me.SayTo(activator, "\nHere you go! It is quite good quality!")
 			me.FindObject(archname = "beer").Clone().InsertInto(activator)
-			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
 
 	elif msg == "water":
 		if activator.PayAmount(2):
+			activator.Write("You pay {}.".format(CostString(2)), 0)
 			me.SayTo(activator, "\nThirsty? Nothing like fresh water!")
 			activator.CreateObject("drink_generic", value = 1)
-			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
 
 	elif msg == "food":
 		if activator.PayAmount(10):
+			activator.Write("You pay {}.".format(CostString(10)), 0)
 			me.SayTo(activator, "\nHere you go! It's really tasty, I tell you.")
 			activator.CreateObject("food_generic", value = 1)
-			activator.Write("You pay the money.", 0)
 		else:
 			me.SayTo(activator, "\nSorry, you do not have enough money.")
 
