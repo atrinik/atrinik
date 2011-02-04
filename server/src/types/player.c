@@ -1191,11 +1191,6 @@ void do_some_living(object *op)
 	{
 		if (op->stats.hp < op->stats.maxhp && op->stats.food)
 		{
-if (pticks % 8 == 0)
-{
-LOG(llevInfo, "HP: regen: %f, %d\n", CONTR(op)->gen_client_hp / 10.0f, op->stats.hp);
-}
-
 			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
 
 			/* DMs do not consume food. */
