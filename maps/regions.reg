@@ -152,7 +152,7 @@ end
 
 # Moroch Temple.
 region moroch_temple
-parent world
+parent strakewood_island
 longname The Moroch Temple Dungeon
 msg
 You see many passages here, and wonder which you should take.
