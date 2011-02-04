@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-12 Kiana
+Modified: 2011-02-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1178,8 +1178,9 @@ x 8
 y 3
 end
 arch corpse_human
-name decaying corpse
 speed 0.0
+name decaying corpse
+is_used_up 0
 x 8
 y 3
 end
