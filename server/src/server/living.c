@@ -844,7 +844,7 @@ void fix_player(object *op)
 	int tmp_item, old_glow, max_boni_hp = 0, max_boni_sp = 0, max_boni_grace = 0;
 	float tmp_con;
 	int i, j, inv_flag, inv_see_flag, light, weapon_weight, best_wc, best_ac, wc, ac;
-	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS];
+	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
 	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
 	object *grace_obj = NULL, *mana_obj = NULL, *hp_obj = NULL, *wc_obj = NULL, *tmp, *skill_weapon = NULL;
 	float f,max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
@@ -1004,6 +1004,8 @@ void fix_player(object *op)
 
 	memset(&protect_boni, 0, sizeof(protect_boni));
 	memset(&protect_mali, 0, sizeof(protect_mali));
+	memset(&protect_exact_boni, 0, sizeof(protect_exact_boni));
+	memset(&protect_exact_mali, 0, sizeof(protect_exact_mali));
 	memset(&potion_protection_bonus, 0, sizeof(potion_protection_bonus));
 	memset(&potion_protection_malus, 0, sizeof(potion_protection_malus));
 	memset(&potion_attack, 0, sizeof(potion_attack));
@@ -1407,13 +1409,13 @@ fix_player_jump_resi:
 
 					for (i = 0; i < NROFATTACKS; i++)
 					{
-						if (tmp->protection[i] > 0)
+						if (tmp->protection[i] > protect_exact_boni[i])
 						{
-							protect_boni[i] += ((100 - protect_boni[i]) * tmp->protection[i]) / 100;
+							protect_exact_boni[i] = tmp->protection[i];
 						}
 						else if (tmp->protection[i] < 0)
 						{
-							protect_mali[i] += ((100 - protect_mali[i]) * (-tmp->protection[i])) / 100;
+							protect_exact_mali[i] += (-tmp->protection[i]);
 						}
 
 						if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
@@ -1616,7 +1618,7 @@ fix_player_jump_resi:
 			protect_mali[i] += ((100 - protect_mali[i]) * (-potion_protection_malus[i])) / 100;
 		}
 
-		ptemp = protect_boni[i] - protect_mali[i];
+		ptemp = protect_boni[i] + protect_exact_boni[i] - protect_mali[i] - protect_exact_mali[i];
 
 		if (ptemp < -100)
 		{
