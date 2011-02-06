@@ -50,6 +50,7 @@ List of <a=help>contributors</a>
 <a=help>who</a>
 <title>Miscellaneous</title>
 <a=help>drop and take</a>
+<a=help>writing pen</a>
 ==========
 Name: apply
 Title: Apply Command
@@ -902,6 +903,12 @@ The </b>/ready_skill</b> command can be used to ready a skill.
 Where:<padding=4>
 <b>skill name</b>: Full name of the skill to ready, for example, <b>construction</b>
 </padding>
+==========
+Name: writing pen
+Title: Writing Pen
+<book>Inscription Skill</book>You can apply a writing pen to use the inscription skill in order to write messages into books and letters. You simply mark the object you want to write into and type:
+
+/use_skill inscription &lt;message to write&gt;
 ==========
 Name: contributors
 Title: </u><u>
