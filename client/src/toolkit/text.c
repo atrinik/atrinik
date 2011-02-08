@@ -469,15 +469,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				 * temporary buffer so we can calculate its width. */
 				memcpy(buf, cp + 8, pos - cp - 8);
 				buf[pos - cp - 8] = '\0';
-				w = dest->x / 2 + box->w / 2 - string_get_width(*font, buf, flags) / 2;
+				w = dest->x + box->w / 2 - string_get_width(*font, buf, flags) / 2;
 				free(buf);
 
 				if (surface)
 				{
 					dest->x = w;
 				}
-
-				dest->w = w;
 			}
 
 			return 8;
