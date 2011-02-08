@@ -159,7 +159,7 @@ static int get_font_id(const char *name, size_t size)
 			cp++;
 		}
 
-		if ((!strcmp(cp, name) || (!ext && strncmp(cp, name, strlen(cp) - 4))) && fonts[i].size == size)
+		if ((!strcmp(cp, name) || (!ext && !strncmp(cp, name, strlen(cp) - 4))) && fonts[i].size == size)
 		{
 			return i;
 		}
