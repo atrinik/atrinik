@@ -1427,7 +1427,7 @@ void kill_player(object *op)
 		/* Create a bodypart-trophy to make the winner happy */
 		tmp = arch_to_object(find_archetype("finger"));
 
-		if (tmp != NULL)
+		if (tmp)
 		{
 			char race[MAX_BUF];
 
@@ -1441,6 +1441,8 @@ void kill_player(object *op)
 			tmp->x = op->x, tmp->y = op->y;
 			insert_ob_in_map(tmp, op->map, op, 0);
 		}
+
+		CONTR(op)->killer[0] = '\0';
 
 		/* Teleport defeated player to new destination */
 		transfer_ob(op, MAP_ENTER_X(op->map), MAP_ENTER_Y(op->map), 0, NULL, NULL);
