@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,6 +10,7 @@ difficulty 92
 darkness 2
 tile_path_1 moroch_temple_c_0202
 tile_path_4 moroch_temple_c_0101
+tile_path_8 moroch_temple_c_0102
 bg_music ghostly.ogg
 region moroch_temple
 end
@@ -640,6 +641,7 @@ random_move 1
 item_race 1
 item_level 1
 direction 7
+exp 119
 arch ability_firestorm
 end
 end
