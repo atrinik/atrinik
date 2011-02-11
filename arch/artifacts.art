@@ -3084,6 +3084,25 @@ value 5000
 item_power 1
 end
 
+Allowed all
+chance 20
+difficulty 14
+artifact weapon_crolmi
+def_arch sword
+Object
+title of Crolmi
+attack_weaponmagic 5
+type 15
+is_magical 1
+Str 1
+msg
+This weapon shares with its owner a bit of the strength of Crolmi, the Dwarven Spirit of Rocks and Mountains.
+endmsg
+value 5000
+item_power 3
+item_level_art 10
+end
+
 #########
 # Rings #
 #########
