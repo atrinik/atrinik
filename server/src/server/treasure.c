@@ -1383,7 +1383,14 @@ set_ring_bonus_jump1:
 		}
 		else if (RANDOM() & 2)
 		{
-			r = 10;
+			if (RANDOM() & 2)
+			{
+				r = 10;
+			}
+			else
+			{
+				r = 8;
+			}
 		}
 		else
 		{
