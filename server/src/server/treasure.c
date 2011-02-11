@@ -1693,8 +1693,14 @@ make_prot_items:
 			else
 			{
 				/* Regenerate hit points */
-				op->stats.hp = 1;
+				op->stats.hp += bonus;
 				op->value = (int) ((float) op->value * 1.3f);
+
+				if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
+				{
+					op->value = (int) ((float) op->value * 1.3f);
+					op->stats.hp++;
+				}
 			}
 
 			break;
@@ -1708,9 +1714,29 @@ make_prot_items:
 			else
 			{
 				/* Regenerate spell points */
-				op->stats.sp = 1;
+				op->stats.sp += bonus;
 				op->value = (int) ((float) op->value * 1.35f);
+
+				if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
+				{
+					op->value = (int) ((float) op->value * 1.35f);
+					op->stats.sp++;
+				}
 			}
+
+			break;
+
+		case 22:
+			/* Regenerate grace */
+			op->stats.grace += bonus;
+			op->value = (int) ((float) op->value * 1.35f);
+
+			if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
+			{
+				op->value = (int) ((float) op->value * 1.35f);
+				op->stats.grace++;
+			}
+
 			break;
 
 		default:
@@ -1792,12 +1818,17 @@ static void set_ring_item_power(object *ob)
 
 	if (ob->stats.hp > 0)
 	{
-		ob->item_power++;
+		ob->item_power += ob->stats.hp;
 	}
 
 	if (ob->stats.sp > 0)
 	{
-		ob->item_power += 2;
+		ob->item_power += ob->stats.sp + 1;
+	}
+
+	if (ob->stats.grace > 0)
+	{
+		ob->item_power += ob->stats.grace + 2;
 	}
 
 	tmp = 0;
