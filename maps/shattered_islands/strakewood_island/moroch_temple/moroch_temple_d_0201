@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-14 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -35,6 +35,9 @@ arch floor_sblack2b
 y 6
 end
 arch floor_sblack2b
+y 7
+end
+arch mushroom_spot2
 y 7
 end
 arch floor_sblack2b
@@ -126,6 +129,10 @@ arch floor_sblack3b
 x 1
 y 8
 end
+arch mushroom_spot1
+x 1
+y 8
+end
 arch floor_sblack2b
 x 1
 y 9
@@ -171,6 +178,10 @@ x 1
 y 18
 end
 arch floor_sblack1b
+x 1
+y 19
+end
+arch mushroom_spot2
 x 1
 y 19
 end
@@ -298,6 +309,10 @@ x 2
 y 17
 end
 arch floor_sblack2b
+x 2
+y 18
+end
+arch mushroom_spot1
 x 2
 y 18
 end
@@ -460,6 +475,10 @@ x 4
 y 3
 end
 arch floor_sblack2b
+x 4
+y 4
+end
+arch mushroom_spot1
 x 4
 y 4
 end
@@ -627,6 +646,10 @@ x 5
 y 14
 end
 arch floor_sblack2b
+x 5
+y 15
+end
+arch mushroom_spot2
 x 5
 y 15
 end
@@ -1119,6 +1142,10 @@ arch floor_sblack1b
 x 9
 y 22
 end
+arch mushroom_spot2
+x 9
+y 22
+end
 arch floor_sblack1b
 x 9
 y 23
@@ -1206,6 +1233,10 @@ arch floor_sblack1b
 x 10
 y 17
 end
+arch mushroom_spot1
+x 10
+y 17
+end
 arch floor_sblack2b
 x 10
 y 18
@@ -1235,6 +1266,10 @@ x 10
 y 21
 end
 arch floor_sblack2b
+x 10
+y 22
+end
+arch mushroom_spot1
 x 10
 y 22
 end
@@ -1626,7 +1661,15 @@ arch floor_sblack1b
 x 14
 y 14
 end
+arch mushroom_spot1
+x 14
+y 14
+end
 arch floor_sblack2b
+x 14
+y 15
+end
+arch mushroom_spot2
 x 14
 y 15
 end
@@ -1663,6 +1706,10 @@ x 14
 y 21
 end
 arch floor_sblack2b
+x 14
+y 22
+end
+arch mushroom_spot2
 x 14
 y 22
 end
@@ -1746,6 +1793,10 @@ x 15
 y 13
 end
 arch floor_sblack2b
+x 15
+y 14
+end
+arch mushroom_spot1
 x 15
 y 14
 end
@@ -2011,6 +2062,10 @@ x 18
 y 2
 end
 arch floor_sblack2b
+x 18
+y 3
+end
+arch mushroom_spot2
 x 18
 y 3
 end
@@ -2341,6 +2396,10 @@ arch floor_sblack1b
 x 20
 y 22
 end
+arch mushroom_spot1
+x 20
+y 22
+end
 arch floor_sblack2b
 x 20
 y 23
@@ -2440,7 +2499,15 @@ arch floor_sblack1b
 x 21
 y 21
 end
+arch mushroom_spot1
+x 21
+y 21
+end
 arch floor_sblack1b
+x 21
+y 22
+end
+arch mushroom_spot1
 x 21
 y 22
 end
@@ -2479,7 +2546,15 @@ arch floor_sblack2b
 x 22
 y 6
 end
+arch mushroom_spot2
+x 22
+y 6
+end
 arch floor_sblack2b
+x 22
+y 7
+end
+arch mushroom_spot2
 x 22
 y 7
 end
@@ -2488,6 +2563,10 @@ x 22
 y 8
 end
 arch floor_sblack3b
+x 22
+y 9
+end
+arch mushroom_spot1
 x 22
 y 9
 end
@@ -2508,6 +2587,10 @@ x 22
 y 13
 end
 arch floor_sblack2b
+x 22
+y 14
+end
+arch mushroom_spot1
 x 22
 y 14
 end
@@ -2535,11 +2618,23 @@ arch floor_sblack1b
 x 22
 y 20
 end
+arch mushroom_spot1
+x 22
+y 20
+end
 arch floor_sblack2b
 x 22
 y 21
 end
+arch mushroom_spot2
+x 22
+y 21
+end
 arch floor_sblack3b
+x 22
+y 22
+end
+arch mushroom_spot2
 x 22
 y 22
 end

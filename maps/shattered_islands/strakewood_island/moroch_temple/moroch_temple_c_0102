@@ -1504,6 +1504,10 @@ arch crystal_red
 x 12
 y 13
 end
+arch light5
+x 12
+y 13
+end
 arch floor_sblack2b
 x 12
 y 14

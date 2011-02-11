@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -180,6 +180,7 @@ arch skel_fighter2
 type 83
 level 71
 direction 3
+name skeleton store guard
 end
 end
 arch floor_sblack1b
@@ -199,6 +200,10 @@ x 1
 y 11
 end
 arch floor_sblack2b
+x 1
+y 12
+end
+arch shelf_wall_dem3.111
 x 1
 y 12
 end
@@ -334,6 +339,14 @@ arch floor_sblack2b
 x 2
 y 12
 end
+arch shelf5_wall.111
+x 2
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack2b
 x 2
 y 13
@@ -359,6 +372,7 @@ arch wraith
 type 83
 level 72
 direction 7
+name wraith alchemist
 end
 end
 arch floor_sblack1b
@@ -520,6 +534,7 @@ arch lost_soul
 type 83
 level 74
 direction 3
+name lost soul store guard
 end
 end
 arch floor_sblack1b
@@ -537,6 +552,7 @@ arch ghoul
 type 83
 level 74
 direction 3
+name ghoul store guard
 end
 end
 arch floor_sblack2b
@@ -588,6 +604,10 @@ x 4
 y 11
 end
 arch floor_sblack3b
+x 4
+y 12
+end
+arch shelf6_wall.111
 x 4
 y 12
 end
@@ -678,6 +698,7 @@ arch ghoul
 type 83
 level 73
 direction 3
+name ghoul store guard
 end
 end
 arch floor_sblack3b
@@ -724,6 +745,7 @@ arch demilich
 type 83
 level 73
 direction 1
+name demilich researcher
 arch ability_cause_lig_wound
 end
 end
@@ -1054,6 +1076,10 @@ arch floor_sblack2b
 x 8
 y 6
 end
+arch shelf_wall_dem1.111
+x 8
+y 6
+end
 arch floor_sblack2b
 x 8
 y 7
@@ -1101,6 +1127,11 @@ arch floor_sblack3b
 x 8
 y 12
 end
+arch shelf_wall_dem3.111
+direction 7
+x 8
+y 12
+end
 arch floor_sblack2b
 x 8
 y 13
@@ -1124,6 +1155,11 @@ x 8
 y 15
 end
 arch floor_sblack2b
+x 8
+y 16
+end
+arch shelf3_dem2.111
+direction 7
 x 8
 y 16
 end
@@ -1161,6 +1197,11 @@ arch floor_sblack2b
 x 8
 y 22
 end
+arch shelf_wall_dem2.111
+direction 7
+x 8
+y 22
+end
 arch floor_sblack3b
 x 8
 y 23
@@ -1178,6 +1219,10 @@ x 9
 y 5
 end
 arch floor_sblack2b
+x 9
+y 6
+end
+arch shelf_wall_dem3.111
 x 9
 y 6
 end
@@ -1288,6 +1333,10 @@ x 10
 y 5
 end
 arch floor_sblack1b
+x 10
+y 6
+end
+arch shelf_wall_dem3.111
 x 10
 y 6
 end
@@ -1570,7 +1619,17 @@ arch floor_sblack1b
 x 12
 y 2
 end
+arch shelf3_dem2.111
+direction 7
+x 12
+y 2
+end
 arch floor_sblack2b
+x 12
+y 3
+end
+arch shelf3_dem2.111
+direction 7
 x 12
 y 3
 end
@@ -1607,7 +1666,17 @@ arch floor_sblack1b
 x 12
 y 9
 end
+arch shelf3_dem3.111
+direction 7
+x 12
+y 9
+end
 arch floor_sblack1b
+x 12
+y 10
+end
+arch shelf3_dem1.111
+direction 7
 x 12
 y 10
 end
@@ -1615,7 +1684,17 @@ arch floor_sblack2b
 x 12
 y 11
 end
+arch shelf3_dem2.111
+direction 7
+x 12
+y 11
+end
 arch floor_sblack2b
+x 12
+y 12
+end
+arch shelf3_dem1.111
+direction 7
 x 12
 y 12
 end
@@ -2011,6 +2090,10 @@ arch floor_sblack1b
 x 16
 y 6
 end
+arch shelf3_dem2.111
+x 16
+y 6
+end
 arch floor_sblack2b
 x 16
 y 7
@@ -2044,7 +2127,17 @@ arch floor_sblack2b
 x 16
 y 12
 end
+arch shelf3_dem2.111
+direction 6
+x 16
+y 12
+end
 arch floor_sblack3b
+x 16
+y 13
+end
+arch shelf3_dem3.111
+direction 7
 x 16
 y 13
 end
@@ -2095,6 +2188,10 @@ x 17
 y 5
 end
 arch floor_sblack2b
+x 17
+y 6
+end
+arch shelf3_dem3.111
 x 17
 y 6
 end
@@ -2142,6 +2239,7 @@ arch skel_mage
 type 83
 level 73
 direction 1
+name skeleton alchemist
 arch ability_mbullet
 end
 end
@@ -2163,6 +2261,10 @@ x 17
 y 14
 end
 arch floor_sblack2b
+x 17
+y 15
+end
+arch shelf3_dem1.111
 x 17
 y 15
 end
@@ -2194,6 +2296,10 @@ arch floor_sblack1b
 x 18
 y 6
 end
+arch shelf3_dem2.111
+x 18
+y 6
+end
 arch floor_sblack1b
 x 18
 y 7
@@ -2217,6 +2323,18 @@ end
 arch floor_sblack2b
 x 18
 y 10
+end
+arch shelf3c.111
+x 18
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack1b
 x 18
@@ -2483,6 +2601,7 @@ arch lost_soul
 type 83
 level 72
 direction 1
+name lost soul researcher
 end
 end
 arch floor_sblack1b

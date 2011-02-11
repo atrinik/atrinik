@@ -30,6 +30,10 @@ end
 arch fwall_fstone1a
 y 2
 end
+arch chains3.151
+direction 7
+y 2
+end
 arch floor_sblack3b
 y 3
 end
@@ -40,6 +44,10 @@ arch floor_sblack2b
 y 4
 end
 arch fwall_fstone1a
+y 4
+end
+arch plant1_wall.151
+direction 7
 y 4
 end
 arch floor_sblack1b
@@ -76,6 +84,10 @@ end
 arch fwall_fstone1c
 y 9
 end
+arch plant2_wall.151
+direction 7
+y 9
+end
 arch floor_sblack2b
 y 10
 end
@@ -98,6 +110,10 @@ arch floor_sblack1b
 y 13
 end
 arch fwall_fstone1c
+y 13
+end
+arch plant2_wall.151
+direction 7
 y 13
 end
 arch floor_sblack2b
@@ -128,6 +144,10 @@ end
 arch fwall_fstone1a
 y 17
 end
+arch plant2_wall.151
+direction 7
+y 17
+end
 arch floor_sblack2b
 y 18
 end
@@ -144,6 +164,10 @@ arch floor_sblack2b
 y 20
 end
 arch fwall_fstone1b
+y 20
+end
+arch plant2_wall.151
+direction 7
 y 20
 end
 arch floor_sblack3b
@@ -199,11 +223,26 @@ arch floor_sblack2b
 x 1
 y 4
 end
+arch shelf3_dem1.111
+direction 7
+x 1
+y 4
+end
 arch floor_sblack2b
 x 1
 y 5
 end
+arch shelf3_dem2.111
+direction 7
+x 1
+y 5
+end
 arch floor_sblack3b
+x 1
+y 6
+end
+arch shelf3_dem3.111
+direction 7
 x 1
 y 6
 end
@@ -228,6 +267,11 @@ arch floor_sblack1b
 x 1
 y 10
 end
+arch shelf_wall_dem2.111
+direction 7
+x 1
+y 10
+end
 arch floor_sblack2b
 x 1
 y 11
@@ -238,6 +282,10 @@ x 1
 y 11
 end
 arch floor_sblack2b
+x 1
+y 12
+end
+arch bones2
 x 1
 y 12
 end
@@ -274,6 +322,11 @@ arch floor_sblack2b
 x 1
 y 18
 end
+arch shelf3_dem3.111
+direction 7
+x 1
+y 18
+end
 arch floor_sblack1b
 x 1
 y 19
@@ -288,6 +341,11 @@ x 1
 y 20
 end
 arch floor_sblack2b
+x 1
+y 21
+end
+arch shelf_wall_dem3.111
+direction 7
 x 1
 y 21
 end
@@ -314,7 +372,14 @@ end
 arch fwall_fstone1a
 x 2
 end
+arch plant2_wall.151
+x 2
+end
 arch floor_sblack1b
+x 2
+y 1
+end
+arch bone_skull
 x 2
 y 1
 end
@@ -352,7 +417,8 @@ y 7
 arch demilich
 type 83
 level 85
-direction 1
+direction 3
+name demilich researcher
 arch ability_cause_lig_wound
 end
 end
@@ -440,6 +506,10 @@ arch floor_sblack3b
 x 3
 y 1
 end
+arch amphora2.101
+x 3
+y 1
+end
 arch floor_sblack3b
 x 3
 y 2
@@ -460,11 +530,26 @@ arch floor_sblack1b
 x 3
 y 6
 end
+arch table_lab1.111
+direction 7
+x 3
+y 6
+end
 arch floor_sblack2b
 x 3
 y 7
 end
+arch table_lab3.111
+direction 7
+x 3
+y 7
+end
 arch floor_sblack2b
+x 3
+y 8
+end
+arch table_lab2.111
+direction 7
 x 3
 y 8
 end
@@ -509,6 +594,10 @@ x 3
 y 17
 end
 arch floor_sblack2b
+x 3
+y 18
+end
+arch bones1
 x 3
 y 18
 end
@@ -726,6 +815,10 @@ arch floor_sblack2b
 x 5
 y 12
 end
+arch shelf_wall_dem3.111
+x 5
+y 12
+end
 arch floor_sblack2b
 x 5
 y 13
@@ -751,6 +844,10 @@ x 6
 y 11
 end
 arch plant1_wall.151
+x 6
+y 11
+end
+arch plant2_wall.151
 x 6
 y 11
 end
@@ -823,6 +920,10 @@ arch floor_sblack3b
 x 8
 y 12
 end
+arch shelf_wall_dem2.111
+x 8
+y 12
+end
 arch floor_sblack2b
 x 8
 y 13
@@ -881,11 +982,21 @@ arch fwall_fstone1b
 x 9
 y 4
 end
+arch plant2_wall.151
+direction 7
+x 9
+y 4
+end
 arch floor_sblack3b
 x 9
 y 5
 end
 arch fwall_fstone1a
+x 9
+y 5
+end
+arch wall_drain1
+direction 7
 x 9
 y 5
 end
@@ -913,11 +1024,21 @@ arch fwall_fstone1a
 x 9
 y 8
 end
+arch plant1_wall.151
+direction 7
+x 9
+y 8
+end
 arch floor_sblack2b
 x 9
 y 9
 end
 arch fwall_fstone1a
+x 9
+y 9
+end
+arch plant2_wall.151
+direction 7
 x 9
 y 9
 end
@@ -971,6 +1092,10 @@ arch floor_sblack3b
 x 10
 y 1
 end
+arch prison_deco3.131
+x 10
+y 1
+end
 arch floor_sblack3b
 x 10
 y 2
@@ -996,6 +1121,11 @@ arch floor_sblack1b
 x 10
 y 6
 end
+arch shelf3_dem2.111
+direction 7
+x 10
+y 6
+end
 arch floor_sblack3b
 x 10
 y 7
@@ -1009,11 +1139,26 @@ arch floor_sblack2b
 x 10
 y 8
 end
+arch shelf3_dem3.111
+direction 7
+x 10
+y 8
+end
 arch floor_sblack2b
 x 10
 y 9
 end
+arch prison_deco2.131
+direction 7
+x 10
+y 9
+end
 arch floor_sblack2b
+x 10
+y 10
+end
+arch prison_deco2.131
+direction 7
 x 10
 y 10
 end
@@ -1022,6 +1167,10 @@ x 10
 y 11
 end
 arch fwall_fstone1b
+x 10
+y 11
+end
+arch plant2_wall.151
 x 10
 y 11
 end
@@ -1051,7 +1200,14 @@ end
 arch fwall_fstone1b
 x 11
 end
+arch wall_blood4
+x 11
+end
 arch floor_sblack2b
+x 11
+y 1
+end
+arch prison_deco3.131
 x 11
 y 1
 end
@@ -1164,6 +1320,10 @@ arch floor_sblack2b
 x 12
 y 1
 end
+arch prison_deco1.131
+x 12
+y 1
+end
 arch torch_wall_1
 x 12
 y 1
@@ -1204,6 +1364,14 @@ arch floor_sblack1b
 x 12
 y 9
 end
+arch pool_blood
+x 12
+y 9
+end
+arch light3
+x 12
+y 9
+end
 arch floor_sblack1b
 x 12
 y 10
@@ -1217,6 +1385,10 @@ x 12
 y 11
 end
 arch floor_sblack2b
+x 12
+y 12
+end
+arch chained_skel.111
 x 12
 y 12
 end
@@ -1240,6 +1412,9 @@ arch floor_sblack1b
 x 13
 end
 arch fwall_fstone1a
+x 13
+end
+arch plant2_wall.151
 x 13
 end
 arch floor_sblack2b
@@ -1300,7 +1475,15 @@ arch floor_sblack2b
 x 13
 y 5
 end
+arch pillar_black2c
+x 13
+y 5
+end
 arch floor_sblack2b
+x 13
+y 6
+end
+arch torch_wall_1
 x 13
 y 6
 end
@@ -1408,6 +1591,10 @@ arch floor_sblack2b
 x 14
 y 1
 end
+arch chest7_111
+x 14
+y 1
+end
 arch floor_sblack2b
 x 14
 y 2
@@ -1434,7 +1621,7 @@ level 86
 Dex 2
 can_use_bow 1
 random_move 1
-item_race 2
+item_race 1
 item_level 2
 arch ability_stone_throw
 race arrows
@@ -1502,6 +1689,10 @@ arch floor_sblack2b
 x 15
 y 1
 end
+arch chest7_111
+x 15
+y 1
+end
 arch floor_sblack1b
 x 15
 y 2
@@ -1516,6 +1707,7 @@ y 2
 arch raas
 type 83
 level 88
+name raas captain
 end
 end
 arch floor_sblack3b
@@ -1567,6 +1759,10 @@ arch floor_sblack3b
 x 15
 y 13
 end
+arch bone_broken
+x 15
+y 13
+end
 arch floor_sblack2b
 x 15
 y 14
@@ -1608,6 +1804,7 @@ arch skel_mage
 type 83
 level 88
 exp 116
+name skeleton mage captain
 arch ability_icestorm
 end
 arch ability_mbullet
@@ -1643,6 +1840,10 @@ x 16
 y 9
 end
 arch floor_sblack2b
+x 16
+y 10
+end
+arch bones4
 x 16
 y 10
 end
@@ -1684,7 +1885,14 @@ end
 arch fwall_fstone1a
 x 17
 end
+arch plant1_wall.151
+x 17
+end
 arch floor_sblack1b
+x 17
+y 1
+end
+arch chained_skel.111
 x 17
 y 1
 end
@@ -1714,8 +1922,8 @@ level 87
 Dex 2
 can_use_bow 1
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 arch ability_stone_throw
 race arrows
 end
@@ -1776,6 +1984,9 @@ arch floor_sblack1b
 x 18
 end
 arch fwall_fstone1a
+x 18
+end
+arch wall_drain3
 x 18
 end
 arch floor_sblack2b
@@ -1935,6 +2146,9 @@ end
 arch fwall_fstone1a
 x 19
 end
+arch plant2_wall.151
+x 19
+end
 arch floor_sblack2b
 x 19
 y 1
@@ -1955,7 +2169,15 @@ arch floor_sblack1b
 x 19
 y 5
 end
+arch pillar_black2c
+x 19
+y 5
+end
 arch floor_sblack2b
+x 19
+y 6
+end
+arch torch_wall_1
 x 19
 y 6
 end
@@ -2021,6 +2243,10 @@ arch floor_sblack3b
 x 20
 y 1
 end
+arch prison_deco1.131
+x 20
+y 1
+end
 arch torch_wall_1
 x 20
 y 1
@@ -2077,13 +2303,9 @@ arch floor_sblack2b
 x 20
 y 12
 end
-arch spawn_point
+arch table_lab1.111
 x 20
 y 12
-arch vampire
-type 83
-level 86
-end
 end
 arch floor_sblack2b
 x 20
@@ -2108,6 +2330,10 @@ arch fwall_fstone1c
 x 21
 end
 arch floor_sblack2b
+x 21
+y 1
+end
+arch prison_deco2.131
 x 21
 y 1
 end
@@ -2174,6 +2400,10 @@ arch floor_sblack1b
 x 21
 y 10
 end
+arch pottery6.101
+x 21
+y 10
+end
 arch floor_sblack2b
 x 21
 y 11
@@ -2186,9 +2416,28 @@ arch floor_sblack1b
 x 21
 y 12
 end
+arch table_lab2.111
+x 21
+y 12
+end
 arch floor_sblack3b
 x 21
 y 13
+end
+arch chair2_111
+direction 5
+x 21
+y 13
+end
+arch spawn_point
+x 21
+y 13
+arch vampire
+type 83
+level 86
+direction 1
+name vampire alchemist
+end
 end
 arch floor_sblack1b
 x 21
@@ -2208,7 +2457,14 @@ end
 arch fwall_fstone1b
 x 22
 end
+arch plant2_wall.151
+x 22
+end
 arch floor_sblack1b
+x 22
+y 1
+end
+arch prison_deco2.131
 x 22
 y 1
 end
@@ -2244,7 +2500,15 @@ arch floor_sblack3b
 x 22
 y 9
 end
+arch pottery3.101
+x 22
+y 9
+end
 arch floor_sblack2b
+x 22
+y 10
+end
+arch pottery5.101
 x 22
 y 10
 end
@@ -2260,11 +2524,23 @@ arch floor_sblack2b
 x 22
 y 12
 end
+arch table_lab3.111
+x 22
+y 12
+end
 arch floor_sblack2b
 x 22
 y 13
 end
+arch chest7_111
+x 22
+y 13
+end
 arch floor_sblack2b
+x 22
+y 14
+end
+arch box_big.101
 x 22
 y 14
 end
