@@ -1558,6 +1558,24 @@ value 6000
 item_power 2
 end
 
+Allowed robe
+chance 10
+difficulty 20
+artifact robe_displacement
+def_arch robe
+Object
+title of Displacement
+type 87
+ac_add 2
+is_magical 1
+msg
+This robe blurs the vision of those trying to attack, making the wearer more difficult to hit.
+endmsg
+item_power 3
+item_level_art 10
+value 6000
+end
+
 ################
 # Body armours #
 ################
@@ -1755,6 +1773,62 @@ value 9500
 item_power 1
 end
 
+Allowed all
+chance 10
+difficulty 35
+artifact armour_protection
+def_arch chain_mail
+Object
+title of protection
+type 16
+ac_add 2
+is_magical 1
+msg
+The quality of this superb armour is extreme; it gives much more protection than any made today.
+
+It is very old, probably from some lost civilization who had much better skills, but it doesn't look worn at all. It is obviously highly enchanted.
+endmsg
+item_level_art 35
+item_power 5
+value 125500
+end
+
+Allowed all
+chance 15
+difficulty 15
+artifact armour_berwean
+def_arch chain_mail
+Object
+title of Berwean
+type 16
+ac 0
+last_sp 0
+last_heal 0
+exp 1
+msg
+This armour is made of very light and expensive material. As a result you can move much faster in it, but it gives worse protection than normal armour.
+endmsg
+item_level_art 15
+value 105500
+end
+
+Allowed all
+chance 10
+difficulty 10
+artifact armour_irial
+def_arch chain_mail
+Object
+title of Irial
+type 16
+Cha 2
+is_magical 1
+msg
+This armour, which is of elven origin, is beautifully decorated with ancient emblems.
+endmsg
+item_power 1
+value 95500
+end
+
 ###########
 # Shields #
 ###########
@@ -1862,6 +1936,24 @@ is_magical 1
 protect_acid 15
 value 2400
 item_power 1
+end
+
+Allowed all
+chance 10
+difficulty 20
+artifact shield_deflection
+def_arch shield
+Object
+title of deflection
+type 33
+ac_add 1
+is_magical 1
+msg
+This highly enchanted shield is craftfully made to give more protection than usual.
+endmsg
+value 2400
+item_power 2
+item_level_art 20
 end
 
 ###########
@@ -2448,6 +2540,21 @@ msg
   survive their environment.
 endmsg
 item_power 2
+end
+
+Allowed all
+chance 5
+difficulty 14
+artifact helm_blindness
+def_arch helm_iron
+Object
+title of blindness
+type 34
+is_blind 1
+is_magical 1
+cursed 1
+item_power 1
+item_level_art 10
 end
 
 Allowed crown_generic
@@ -3097,6 +3204,25 @@ is_magical 1
 Str 1
 msg
 This weapon shares with its owner a bit of the strength of Crolmi, the Dwarven Spirit of Rocks and Mountains.
+endmsg
+value 5000
+item_power 3
+item_level_art 10
+end
+
+Allowed all
+chance 14
+difficulty 14
+artifact weapon_rhyz
+def_arch sword
+Object
+title of Rhyz
+type 15
+is_magical 1
+Str 1
+Dex 1
+msg
+The Archmage Rhyz devised many items that increased the strength and dexterity of their owners.
 endmsg
 value 5000
 item_power 3
@@ -4025,7 +4151,7 @@ ac 2
 type 39
 value 35000
 item_power 5
-art_item_level 25
+item_level_art 25
 item_condition 100
 item_quality 100
 is_named 1
