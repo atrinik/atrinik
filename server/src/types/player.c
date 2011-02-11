@@ -1193,6 +1193,11 @@ void do_some_living(object *op)
 		{
 			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
 
+			if (op->stats.hp > op->stats.maxhp)
+			{
+				op->stats.hp = op->stats.maxhp;
+			}
+
 			/* DMs do not consume food. */
 			if (!QUERY_FLAG(op, FLAG_WIZ))
 			{
@@ -1222,6 +1227,11 @@ void do_some_living(object *op)
 		if (op->stats.sp < op->stats.maxsp && op->stats.food)
 		{
 			op->stats.sp += get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
+
+			if (op->stats.sp > op->stats.maxsp)
+			{
+				op->stats.sp = op->stats.maxsp;
+			}
 
 			/* DMs do not consume food. */
 			if (!QUERY_FLAG(op, FLAG_WIZ))
@@ -1297,6 +1307,11 @@ void do_some_living(object *op)
 			if (op->stats.grace < op->stats.maxgrace)
 			{
 				op->stats.grace += get_regen_amount(CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+
+				if (op->stats.grace > op->stats.maxgrace)
+				{
+					op->stats.grace = op->stats.maxgrace;
+				}
 			}
 			else
 			{
