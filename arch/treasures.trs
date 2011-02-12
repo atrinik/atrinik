@@ -2857,6 +2857,9 @@ treasureone random_food
   more
   arch chilli
     chance 10
+  more
+  arch waybread
+    chance 10
 end
 
 # Books
