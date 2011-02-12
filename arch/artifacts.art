@@ -5256,3 +5256,44 @@ maxsp 100
 value 100000
 weight 500
 end
+
+Allowed none
+chance 1
+artifact cloak_underworld
+def_arch cloak
+Object
+title of the Underworld
+face cloak_darkgrey.101
+is_magical 1
+is_named 1
+item_quality 85
+item_condition 85
+protect_confusion 45
+protect_paralyze 20
+protect_acid 20
+protect_drain 20
+protect_poison 10
+protect_fire -50
+protect_godpower -10
+protect_electricity -15
+protect_impact 3
+protect_slash 3
+protect_cleave 3
+protect_pierce 3
+# Leather, magic material
+material 264
+ac 0
+Cha -6
+Str -1
+Con -4
+# Hunger +1
+food -1
+msg
+This curious cloak looks old and weathered, but as soon as you touch it you can feel its magics.
+
+It seems to protect its wearer from many elements, but also leaves them very vulnerable to fire. With so many protections, it's no wonder it feeds off its wearer.
+endmsg
+item_power 15
+value 16500
+item_level 48
+end
