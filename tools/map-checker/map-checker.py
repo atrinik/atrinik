@@ -490,7 +490,7 @@ def check_obj(obj, map):
 			add_error(map["file"], "Monster '{0}' cannot cast spells but has ability objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 	# Waypoints movement.
-	if "movement_type" in obj and obj["movement_type"] & 176:
+	if "movement_type" in obj and obj["movement_type"] == 176:
 		if not wps:
 			add_error(map["file"], "Monster '{0}' has waypoint movement enabled but no waypoints.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 		else:
