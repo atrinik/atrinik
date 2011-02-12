@@ -4465,6 +4465,31 @@ is_magical 1
 value 400
 end
 
+Allowed waybread
+chance 100
+difficulty 24
+artifact waybread_aelingas
+def_arch waybread
+Object
+title of Aelingas
+type 6
+Str 1
+Con 1
+is_magical 1
+value 980
+end
+
+Allowed drink_generic
+chance 90
+artifact drink_generic_wise
+def_arch drink_generic
+Object
+title of the wise
+type 54
+food 75
+value 200
+end
+
 ###########
 # Scrolls #
 ###########
