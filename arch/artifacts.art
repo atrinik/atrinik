@@ -3667,6 +3667,32 @@ item_power 10
 end
 
 Allowed ring_generic
+chance 40
+difficulty 26
+artifact ring_life
+def_arch ring_generic
+Object
+title of Life
+material 256
+item_level_art 26
+item_quality 100
+item_condition 100
+material_real 0
+face ring_mithril.101
+type 70
+is_magical 1
+value 225000
+protect_drain 30
+hp 2
+msg
+This semi-elemental ring is one of those made at the Guild of Magics by the powerful wizards who survived the ancient war of the elementals.
+
+The wielder is surrounded by a thin, almost invisible, globe of positive energy; which protects against life draining. It also grants an unnatural vitality.
+endmsg
+item_power 10
+end
+
+Allowed ring_generic
 chance 20
 difficulty 18
 artifact ring_yordan
@@ -4310,6 +4336,179 @@ item_condition 100
 item_quality 100
 is_named 1
 item_power 4
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 38
+artifact amulet_deflection
+def_arch amulet_generic
+Object
+title of Deflection
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+ac 1
+protect_impact 10
+protect_slash 10
+protect_pierce 10
+protect_cleave 10
+reflect_missile 1
+value 41500
+item_quality 100
+item_condition 100
+is_named 1
+item_power 5
+item_level 38
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 42
+artifact amulet_empowerment
+def_arch amulet_generic
+Object
+title of Empowerment
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+sp 1
+Int 1
+value 38500
+item_quality 100
+item_condition 100
+is_named 1
+item_power 4
+item_level 42
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 72
+artifact amulet_power
+def_arch amulet_generic
+Object
+title of Power
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+sp 3
+Pow 1
+Int 1
+value 47800
+item_quality 100
+item_condition 100
+is_named 1
+item_power 10
+item_level 72
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 56
+artifact amulet_shielded_mind
+def_arch amulet_generic
+Object
+title of Shielded Mind
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+protect_confusion 35
+protect_paralyze 35
+protect_mind 20
+value 34500
+item_quality 100
+item_condition 100
+is_named 1
+item_power 14
+item_level 56
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 38
+artifact amulet_free_action
+def_arch amulet_generic
+Object
+title of Free Action
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+protect_confusion 15
+protect_paralyze 20
+protect_slow 35
+value 34500
+item_quality 100
+item_condition 100
+is_named 1
+item_power 7
+item_level 38
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 24
+artifact amulet_holiness
+def_arch amulet_generic
+Object
+title of Holiness
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+Wis 2
+value 26000
+path_attuned 385
+item_quality 100
+item_condition 100
+is_named 1
+item_power 4
+item_level 24
+item_skill 6
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 24
+artifact amulet_magi
+def_arch amulet_generic
+Object
+title of the Magi
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+Int 1
+Pow 2
+value 28000
+item_quality 100
+item_condition 100
+is_named 1
+item_power 5
+item_level 24
+item_skill 5
+end
+
+Allowed amulet_generic
+chance 13
+difficulty 24
+artifact amulet_unholiness
+def_arch amulet_generic
+Object
+title of Unholiness
+face amulet_lif.101
+is_magical 1
+type 39
+value 8500
+path_repelled 257
+path_attuned 192
+damned 1
+cursed 1
 end
 
 ########
