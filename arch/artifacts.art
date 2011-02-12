@@ -2639,6 +2639,7 @@ artifact crown_xebinon
 def_arch crown_generic
 Object
 title of Xebinon
+face crown2.101
 item_level_art 40
 item_skill 5
 type 34
@@ -2665,6 +2666,7 @@ artifact crown_magi
 def_arch crown_generic
 Object
 title of the Magi
+face crown_mage.101
 item_level_art 70
 item_skill 5
 type 34
@@ -2683,11 +2685,12 @@ artifact crown_lordliness
 def_arch crown_generic
 Object
 title of Lordliness
+face crown_dark.101
 item_level_art 10
 type 34
 is_magical 1
 value 1000
-Cha 2
+Cha 3
 item_power 1
 end
 
@@ -2698,11 +2701,12 @@ artifact crown_rulership
 def_arch crown_generic
 Object
 title of Rulership
+face crown_gold.101
 item_level_art 25
 type 34
 is_magical 1
 value 6400
-Cha 1
+Cha 2
 Wis 1
 item_power 2
 end
