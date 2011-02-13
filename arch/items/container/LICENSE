@@ -13,11 +13,13 @@ Crossfire - http://crossfire.real-time.com/ - GPLv2:
 	luggage.101.png
 	close_rsack.101.png
 	r_sack.101.png
-	close_sack.101.png
-	sack.101.png
 
 Zerosumtiles - Freeware:
 	desks
 	drawers
 	lockers
 	shelfs
+
+RLTiles - http://rltiles.sf.net/ - Public Domain:
+	close_sack.101.png
+	sack.101.png

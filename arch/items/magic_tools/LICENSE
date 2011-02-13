@@ -1,20 +1,17 @@
 Crossfire - http://crossfire.real-time.com/ - GPLv2:
-	horn_legendary.101.png
-	horn_unicorn.101.png
-	power_crystal.101.png
-	power_crystal.102.png
-	power_crystal.103.png
-	power_crystal.104.png
-	rod_heavy.101.png
-	rod_heavy.102.png
-	rod_heavy.103.png
-	rod_light.101.png
-	rod_light.102.png
-	rod_light.103.png
+	power_crystal
+	rod_heavy
+	rod_light
+	unicornhorn
 	shellhorn1.101.png
 	shellhorn2.101.png
-	unicornhorn.101.png
-	unicornhorn.102.png
-	unicornhorn.103.png
-	unicornhorn.104.png
-	unicornhorn.105.png
+
+RLTiles - http://rltiles.sf.net/ - Public Domain:
+	crystal_ball
+	horn
+	wand
+	a_scepter1.101.png
+	a_scepter2.101.png
+	a_scepter3.101.png
+	horn_legendary.101.png
+	horn_unicorn.101.png

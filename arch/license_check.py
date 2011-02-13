@@ -136,6 +136,7 @@ for (dirpath, dirnames, filenames) in os.walk(path):
 # Show list of unlicensed images in verbose mode.
 if verbose:
 	print(colors.underscore + "List of unlicensed images:" + colors.end)
+	unlicensed.sort()
 
 	for entry in unlicensed:
 		print("\t" + entry)
