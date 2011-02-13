@@ -1849,7 +1849,7 @@ item_power 1
 end
 
 Allowed all
-chance 10
+chance 15
 difficulty 35
 artifact armour_protection
 def_arch chain_mail
@@ -1870,25 +1870,26 @@ end
 
 Allowed all
 chance 15
-difficulty 15
+difficulty 20
 artifact armour_berwean
 def_arch chain_mail
 Object
 title of Berwean
 type 16
 ac 0
+is_magical 1
 last_sp 0
 last_heal 0
 exp 1
 msg
 This armour is made of very light and expensive material. As a result you can move much faster in it, but it gives worse protection than normal armour.
 endmsg
-item_level_art 15
+item_level_art 20
 value 14500
 end
 
 Allowed all
-chance 10
+chance 15
 difficulty 10
 artifact armour_irial
 def_arch chain_mail
@@ -4255,6 +4256,7 @@ protect_pierce 20
 protect_cleave 20
 type 39
 value 60000
+is_named 1
 item_power 4
 end
 
@@ -4292,6 +4294,9 @@ value 0
 cursed 1
 cursed_perm 1
 protect_weaponmagic -100
+item_condition 100
+item_quality 100
+is_named 1
 item_power 1
 end
 
@@ -4317,6 +4322,9 @@ protect_fire -100
 protect_electricity -100
 protect_cold -100
 protect_acid -100
+item_condition 100
+item_quality 100
+is_named 1
 item_power 1
 end
 
@@ -4356,8 +4364,8 @@ protect_pierce 10
 protect_cleave 10
 reflect_missile 1
 value 41500
-item_quality 100
-item_condition 100
+item_quality 85
+item_condition 85
 is_named 1
 item_power 5
 item_level 38
@@ -4421,8 +4429,8 @@ protect_confusion 35
 protect_paralyze 35
 protect_mind 20
 value 34500
-item_quality 100
-item_condition 100
+item_quality 90
+item_condition 90
 is_named 1
 item_power 14
 item_level 56
@@ -4443,8 +4451,8 @@ protect_confusion 15
 protect_paralyze 20
 protect_slow 35
 value 34500
-item_quality 100
-item_condition 100
+item_quality 90
+item_condition 90
 is_named 1
 item_power 7
 item_level 38
@@ -4505,6 +4513,9 @@ face amulet_lif.101
 is_magical 1
 type 39
 value 8500
+item_quality 100
+item_condition 100
+is_named 1
 path_repelled 257
 path_attuned 192
 damned 1
