@@ -1,17 +1,20 @@
 RLTiles - http://rltiles.sf.net/ - Public Domain:
-	bat_brown
-	crocodile
-	frog
-	rodents
-	snake
-	tiger
-	wolf
+	bat_brown (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
+	crocodile (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
+	frog (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
+	rodents (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
+	snake (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
+	tiger (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
+	wolf (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
 
 David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
-	chicken_large
+	chicken_large (animation by: Crossmagi - http://crossmagi.sf.net/ - GPLv2)
 	dog_brown
 	horse_white
 
 Crossfire - http://crossfire.real-time.com/ - GPLv2:
 	bear_brown
 	bear_polar
+
+Crossmagi - http://crossmagi.sf.net/ - GPLv2:
+	cat_black

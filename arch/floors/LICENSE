@@ -14,6 +14,7 @@ Zerosumtiles - Freeware:
 	grass
 	grey
 	grit
+	ice (based on: cave)
 	marble
 	misc
 	natural
@@ -40,3 +41,9 @@ Public Domain:
 Crossfire - http://crossfire.real-time.com/ - GPLv2:
 	oil
 	quicksilver
+
+Bjorn "Gecko" Axelsson - Freeware:
+	knot
+
+Marmoth - Freeware:
+	desert
