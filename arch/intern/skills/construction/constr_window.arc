@@ -2,7 +2,7 @@ Object constr_window
 name window material
 type 10
 sub_type 4
-face constr_window.101
+face wall_window.111
 slaying wall_wood_w_3
 layer 3
 value 2000

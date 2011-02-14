@@ -98,7 +98,7 @@ Object constr_fireplace
 name fireplace material
 type 10
 sub_type 3
-face constr_fireplace.101
+face wmask_fire_on.u.151
 slaying wmask_fire_on_1
 layer 3
 value 5000
