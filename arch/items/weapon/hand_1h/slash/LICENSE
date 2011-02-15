@@ -8,6 +8,8 @@ David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
 	sword_blue.101.png
 	sword_fire.101.png
 	tulwar.101.png
+	gladius.101.png
+	sword_curved.101.png
 
 RLTiles - http://rltiles.sf.net/ - Public Domain:
 	a_bsword.101.png
@@ -21,6 +23,7 @@ RLTiles - http://rltiles.sf.net/ - Public Domain:
 	tsurugi.101.png
 	wakizashi.101.png
 	ninjato.101.png
+	baselard.101.png
 
 Crossfire - http://crossfire.real-time.com/ - GPLv2:
 	a_falchion.101.png
