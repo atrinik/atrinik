@@ -1991,7 +1991,7 @@ level 80
 sp 27
 arch event_obj
 sub_type 1
-race scripts/eld_woods_island/vielumin_ruins_altar.py
+race /shattered_islands/scripts/eld_woods_island/vielumin_ruins_altar.py
 end
 end
 end
