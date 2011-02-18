@@ -1731,7 +1731,7 @@ dirty_little_jump1:
 	{
 		/* This is just a hack so when identifying the items, we print
 		 * out the extra message */
-		if (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
+		if ((need_identify(tmp) || QUERY_FLAG(tmp, FLAG_QUEST_ITEM)) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
 			new_draw_info(NDI_UNIQUE, op, "The object has a story:");
 			new_draw_info(NDI_UNIQUE, op, tmp->msg);
