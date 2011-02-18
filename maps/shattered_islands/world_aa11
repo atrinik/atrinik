@@ -3715,7 +3715,15 @@ arch floor_wood2_l2
 x 20
 y 15
 end
+arch candlelight3.101
+x 20
+y 15
+end
 arch wall_wood_3
+x 20
+y 15
+end
+arch light5
 x 20
 y 15
 end
@@ -3965,6 +3973,10 @@ x 22
 y 12
 end
 arch candlelight4.101
+x 22
+y 12
+end
+arch light5
 x 22
 y 12
 end

@@ -877,7 +877,15 @@ arch floor_wood2_l2
 x 4
 y 14
 end
+arch candlelight3.101
+x 4
+y 14
+end
 arch wall_wood3_3
+x 4
+y 14
+end
+arch light5
 x 4
 y 14
 end
