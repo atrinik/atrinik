@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-02-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3609,11 +3609,15 @@ arch grassd_m8
 x 21
 y 7
 end
+arch flagwall_short_brick1.181
+x 21
+y 7
+end
 arch floor_flagm4
 x 21
 y 8
 end
-arch grassd_m8
+arch flagwall_short_brick1.131
 x 21
 y 8
 end
@@ -3621,7 +3625,7 @@ arch floor_flagm3
 x 21
 y 9
 end
-arch grassd_m8
+arch flagwall_short_brick1.131
 x 21
 y 9
 end
@@ -3629,15 +3633,7 @@ arch floor_flagm1
 x 21
 y 10
 end
-arch grassd_m8
-x 21
-y 10
-end
 arch floor_flagm3
-x 21
-y 11
-end
-arch grassd_m8
 x 21
 y 11
 end
@@ -3645,7 +3641,7 @@ arch floor_flagm2
 x 21
 y 12
 end
-arch grassd_m8
+arch flagwall_short_brick1.181
 x 21
 y 12
 end
@@ -3653,7 +3649,7 @@ arch floor_flagm1
 x 21
 y 13
 end
-arch grassd_m8
+arch flagwall_short_brick1.131
 x 21
 y 13
 end
@@ -3661,7 +3657,7 @@ arch floor_flagm2
 x 21
 y 14
 end
-arch grassd_m8
+arch flagwall_short_brick1.131
 x 21
 y 14
 end
@@ -3780,39 +3776,74 @@ arch grassd_3
 x 22
 y 7
 end
-arch grassd_3
+arch flagwall_short_brick1.111
+x 22
+y 7
+end
+arch earth_brown3
 x 22
 y 8
 end
-arch grassd_1
+arch plant_flower14
+x 22
+y 8
+end
+arch earth_brown3
 x 22
 y 9
 end
-arch grassd_5
-x 22
-y 10
-end
 arch lantern_magic.131
+direction 3
+layer 4
 x 22
-y 10
+y 9
+end
+arch flagwall_short_brick1.111
+x 22
+y 9
 end
 arch light7
 x 22
+y 9
+end
+arch floor_flagm2
+x 22
 y 10
 end
-arch grassd_4
+arch floor_flagm2
 x 22
 y 11
 end
-arch grassd_2
+arch floor_flagm3
 x 22
 y 12
 end
-arch grassd_5
+arch flagwall_short_brick1.111
+x 22
+y 12
+end
+arch earth_brown4
 x 22
 y 13
 end
-arch grassd_4
+arch lantern_magic.131
+direction 7
+x 22
+y 13
+end
+arch light7
+x 22
+y 13
+end
+arch earth_brown1
+x 22
+y 14
+end
+arch plant_flower14
+x 22
+y 14
+end
+arch flagwall_short_brick1.111
 x 22
 y 14
 end
@@ -3919,47 +3950,67 @@ arch grassd_4
 x 23
 y 7
 end
-arch tree_big3
+arch plant7
 x 23
 y 7
 end
-arch grassd_2
+arch flagwall_short_brick1.111
+x 23
+y 7
+end
+arch earth_brown2
 x 23
 y 8
 end
-arch grassd_2
+arch plant_flower14
+x 23
+y 8
+end
+arch earth_brown2
 x 23
 y 9
 end
-arch plant_mushroom2
+arch plant_flower13
 x 23
 y 9
 end
-arch grassd_5
+arch flagwall_short_brick1.111
+x 23
+y 9
+end
+arch floor_flagm4
 x 23
 y 10
 end
-arch grassd_6
+arch floor_flagm4
 x 23
 y 11
 end
-arch grassd_3
+arch floor_flagm2
 x 23
 y 12
 end
-arch grassd_1
+arch flagwall_short_brick1.111
+x 23
+y 12
+end
+arch earth_brown1
 x 23
 y 13
 end
-arch plant_flower14
+arch plant_flower13
 x 23
 y 13
 end
-arch grassd_2
+arch earth_brown2
 x 23
 y 14
 end
-arch tree_big4b
+arch plant_flower14
+x 23
+y 14
+end
+arch flagwall_short_brick1.111
 x 23
 y 14
 end
