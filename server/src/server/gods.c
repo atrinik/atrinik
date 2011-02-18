@@ -198,7 +198,7 @@ void pray_at_altar(object *pl, object *altar)
 
 		/* whether we will be successfull in defecting or not -
 		 * we lose experience from the clerical experience obj */
-		loss = (int) ((float)0.1 * (float) pl->chosen_skill->exp_obj->stats.exp);
+		loss = (int) ((float) 0.1 * (float) pl->chosen_skill->exp_obj->stats.exp);
 
 		if (loss)
 		{
@@ -207,7 +207,7 @@ void pray_at_altar(object *pl, object *altar)
 
 		/* May switch Gods, but it's random chance based on our current
 		 * level. Note it gets harder to swap gods the higher we get */
-		if ((angry == 1) && !(rndm(0, pl->chosen_skill->exp_obj->level)))
+		if (QUERY_FLAG(altar, FLAG_XRAYS) || (angry == 1 && rndm_chance(pl->chosen_skill->exp_obj->level)))
 		{
 			become_follower(pl, &altar->other_arch->clone);
 		}
