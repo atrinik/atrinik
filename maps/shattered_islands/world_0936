@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-19 Alex Tokar
+Modified: 2011-02-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -935,6 +935,7 @@ x 5
 y 6
 end
 arch altar_rogroth
+xrays 1
 x 5
 y 6
 end
@@ -1737,6 +1738,7 @@ x 9
 y 19
 end
 arch altar_drolaxi
+xrays 1
 x 9
 y 19
 end

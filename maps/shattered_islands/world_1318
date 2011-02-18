@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-02-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -811,6 +811,7 @@ y 18
 end
 arch altar_tabernacle
 direction 7
+xrays 1
 x 5
 y 18
 end
