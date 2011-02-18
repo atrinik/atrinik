@@ -1255,6 +1255,15 @@ arch table_round1
 x 7
 y 19
 end
+arch pizza
+layer 7
+z 22
+zoom 60
+align 10
+no_pick 1
+x 7
+y 19
+end
 arch floor_wood3a
 x 7
 y 20
@@ -2058,6 +2067,15 @@ arch bar1
 x 12
 y 16
 end
+arch beer
+layer 7
+z 14
+zoom 80
+align 10
+no_pick 1
+x 12
+y 16
+end
 arch floor_wood3a
 x 12
 y 17
@@ -2745,6 +2763,15 @@ x 16
 y 19
 end
 arch table_round1
+x 16
+y 19
+end
+arch booze_empty
+layer 7
+z 21
+zoom 80
+align 5
+no_pick 1
 x 16
 y 19
 end
