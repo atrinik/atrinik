@@ -130,8 +130,6 @@ int esrv_apply_container(object *op, object *sack)
 		}
 	}
 
-	SET_FLAG(sack, FLAG_BEEN_APPLIED);
-
 	/* By the time we get here, we have made sure any other container has been closed and
 	 * if this is a locked container, the player they key to open it. */
 
@@ -178,6 +176,10 @@ int esrv_apply_container(object *op, object *sack)
 			container_trap(op, sack);
 		}
 	}
+
+	/* Only after actually readying/opening the container we know more
+	 * about it. */
+	SET_FLAG(sack, FLAG_BEEN_APPLIED);
 
 	return 1;
 }
