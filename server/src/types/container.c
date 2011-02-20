@@ -161,16 +161,17 @@ int esrv_apply_container(object *op, object *sack)
 	else
 	{
 		/* readied sack becoming open */
-		if (QUERY_FLAG (sack, FLAG_APPLIED))
+		if (QUERY_FLAG(sack, FLAG_APPLIED))
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "You open %s.", query_name(sack, op));
 			container_link(CONTR(op), sack);
 		}
 		else
 		{
-			CLEAR_FLAG (sack, FLAG_APPLIED);
+			CLEAR_FLAG(sack, FLAG_APPLIED);
 			new_draw_info_format(NDI_UNIQUE, op, "You readied %s.", query_name(sack, op));
-			SET_FLAG (sack, FLAG_APPLIED);
+			SET_FLAG(sack, FLAG_APPLIED);
+
 			update_object(sack, UP_OBJ_FACE);
 			esrv_update_item(UPD_FLAGS, op, sack);
 			/* search & explode a rune in the container */
