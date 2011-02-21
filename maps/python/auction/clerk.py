@@ -492,7 +492,7 @@ def main():
 
 		# No name and no filters.
 		if not name and not filters:
-			me.SayTo(activator, "\nSearching works by telling me what to search for, like this:\n<a>search ring</a> -- name of the item to find prefixed with 'search '.\nYou can also browse by the following item types:\n{}".format(", ".join(["<a=:/t_tell srchadv 1 " + str(t[1]) + " xx>" + t[0] + "</a>" for t in Filter.types])))
+			me.SayTo(activator, "\nSearching works by telling me what to search for, like this:\n<a>search ring</a> -- name of the item to find prefixed with 'search '.\nIt is possible to see all items of a single player at once, by using, for example: <a>player Atrinik</a>\nYou can also browse by the following item types:\n{}".format(", ".join(["<a=:/t_tell srchadv 1 " + str(t[1]) + " xx>" + t[0] + "</a>" for t in Filter.types])))
 			return
 
 		# Name must be at least 3 characters long.
