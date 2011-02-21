@@ -409,7 +409,7 @@ def create_list(l, action, back = None, sort = None, start = None):
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to the Auction House. I can explain how <a>selling</a> and <a>buying</a> works, or do you need me to <a>search</a> for items in the storage?")
+		me.SayTo(activator, "\nWelcome to the Auction House. I can explain how <a>selling</a> and <a>buying</a> works, or do you need me to <a>search</a> for items in the storage? I can also list your <a>items</a>.")
 
 	elif msg == "selling":
 		me.SayTo(activator, "\nYou can put up to {} different items (regardless of their number) at once into this Auction House. You are not charged any price for selling items. In order to sell an item, please mark the item and tell me the price to sell the item for, like this:\n\n<a>sell 10 gold 50 s</a>".format(Auction.MAX_ITEMS))
@@ -418,7 +418,7 @@ def main():
 		me.SayTo(activator, "\nFirst, you need to <a>search</a> for the item you want to buy. If your search terms find any results, you will see a list of objects that you can buy, and more detailed instructions how buying works. You can also search manually, by looking through the shop boxes in this Auction House -- see explanation sign near the stairs going up.")
 
 	# List player's items.
-	elif msg == "my items":
+	elif msg == "my items" or msg == "items":
 		l = find_items(seller = activator.name)
 		pl.target_object = me
 
@@ -426,7 +426,23 @@ def main():
 			create_interface("You do not have any items in this Auction House.")
 			return
 
-		create_interface("Your items in this auction house:\n{}\n\n<a>withdraw all</a>".format(create_list(l, "withdraw", sort = Filter.SORT_ALPHA)))
+		create_interface("Your items in this Auction House:\n{}\n\n<a>withdraw all</a>".format(create_list(l, "withdraw", sort = Filter.SORT_ALPHA)))
+
+	elif msg.startswith("player "):
+		name = msg[7:].capitalize()
+
+		if not PlayerExists(name):
+			me.SayTo(activator, "\nThat player does not exist.")
+			return
+
+		l = find_items(seller = name)
+		pl.target_object = me
+
+		if not l:
+			create_interface("{} does not have any items in this Auction House.".format(name))
+			return
+
+		create_interface("{} has the following items in this Auction House:\n{}".format(name, create_list(l, "buy", msg)))
 
 	# Search for items.
 	elif msg.startswith("search") or msg.startswith("srchadv"):
