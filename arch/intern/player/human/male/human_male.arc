@@ -18,7 +18,7 @@ anim_speed 3
 type 1
 level 1
 ac 0
-wc 0
+wc 2
 wc_range 20
 hp -1
 maxhp 8
