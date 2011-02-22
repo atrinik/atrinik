@@ -30,5 +30,5 @@ hp -1
 maxhp 71
 level 1
 speed -0.061
-weight 772500
+weight 77500
 end
