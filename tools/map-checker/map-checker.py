@@ -289,7 +289,7 @@ def check_map(map):
 		add_error(map["file"], "Map has invalid difficulty: {0}. Valid difficulties are 1-{1}.".format(map["difficulty"], checker.max_level), errors.medium)
 
 	if "bg_music" in map:
-		if not re.match("\w*\.(ogg|mid|wav)[ 0-9\-]?", map["bg_music"]):
+		if not re.match("([a-zA-Z0-9_\-]+)\.(\w+)[ 0-9\-]?", map["bg_music"]):
 			add_error(map["file"], "Map's background music attribute ('{0}') is not in a valid format. Valid format is (example): ocean.ogg".format(map["bg_music"]), errors.high)
 
 	# Map missing 'width' or 'height' is a serious error.
