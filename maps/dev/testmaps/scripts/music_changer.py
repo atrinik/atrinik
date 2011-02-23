@@ -11,7 +11,7 @@ msg = WhatIsMessage().strip().lower()
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
 		me.SayTo(activator, "\nWelcome. I am the music changer -- just tell me which background music file to play and I will change this map to play it. You can find a list of media files <a=url:http://www.atrinik.org/page/client_media_files>here</a>. Say <a>none</a> to stop any music on the map.")
-	elif msg == "none" or re.match("([a-zA-Z0-9_\-]+)\.(\w+)[ 0-9\-]?", msg):
+	elif msg == "none" or re.match("^([a-zA-Z0-9_\-]+)\.(\w+)[ 0-9\-]?$", msg):
 		me.map.bg_music = None if msg == "none" else WhatIsMessage().strip()
 		map_music = me.map.bg_music if me.map.bg_music else "no_music"
 
