@@ -13,6 +13,7 @@ tile_path_2 sewers_0202
 tile_path_3 sewers_0101
 tile_path_5 sewers_0203
 tile_path_6 sewers_0201
+bg_music sewers.ogg
 region brynknot
 end
 arch blocked

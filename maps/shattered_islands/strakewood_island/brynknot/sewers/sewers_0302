@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-06-12 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,7 @@ tile_path_3 sewers_0301
 tile_path_4 sewers_0202
 tile_path_7 sewers_0201
 tile_path_8 sewers_0203
+bg_music sewers.ogg
 region brynknot
 end
 arch floor_earth1d
