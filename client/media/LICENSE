@@ -2,166 +2,234 @@
 = KQ - http://sourceforge.net/projects/kqlives/ - GPLv2 =
 =========================================================
 
-aa_arofl.xm
-comeback.mod
-enfero.xm
-eranasp.mod
-infanita.mod
-rain.s3m
-toroia.s3m
-town.mod
-waterworld.xm
+aa_arofl.xm: Space station
+comeback.mod: Dungeon-like, slow, a bit eerie
+enfero.xm: Military, fort
+eranasp.mod: Dungeon
+infanita.mod: Mountain pass
+rain.s3m: Funeral, rainy, sad
+toroia.s3m: Harmony, peaceful, forest, fairy village, magic spring
+town.mod: Town music
+waterworld.xm: Disco, water cave, happy place
+walk.s3m
+rend.s3m
 
 =================================================================
 = HyperNewbie - http://www.hypernewbie.com/ - Permission to use =
 =================================================================
 
-campfire_tales.mid
-courage.mid
-desert_town.mid
-escape.mid
-grandeur.mid
-harmony.mid
-harmony2.mid
-lost_cavern.mid
-ruins.mid
-shanty.mid
-solemn.mid
-theme.mid
-unexpected.mid
+campfire_tales.mid: Outside, campfire, night, tales, story telling, night forest
+courage.mid: Cathedral, church
+desert_town.mid: Desert
+escape.mid: Frantic, boss, escape
+grandeur.mid: King died, long live the king, grim, funeral
+harmony.mid: Harmony, quiet place in a forest
+harmony2.mid: Busy place, town music, wedding
+lost_cavern.mid: Cave
+ruins.mid: Ancient ruins, sad place
+shanty.mid: Shanty, kobold trader
+solemn.mid: Town music
+theme.mid: Town music
+unexpected.mid: Dungeon, running away from something sinister, important building
+scape.mid
+lurking.mid
+dead_silence.mid
 
 =============================================
 = Allacrost - http://allacrost.org/ - GPLv2 =
 =============================================
 
-betrayal_battle.ogg
-cave2.ogg
-desert.ogg
-the_creature_awakens.ogg
-town_folk.ogg
-venturing_dragons_in_the_dark.ogg
+betrayal_battle.ogg: Boss
+cave2.ogg: Cave
+desert.ogg: Desert, lonely place
+the_creature_awakens.ogg: Dungeon, boss fight
+town_folk.ogg: Town music, peaceful
+venturing_dragons_in_the_dark.ogg: Very dark cave with wet floor, tunnels, dwarvish mines
 
 ===================================================
 = GNU FreeDink - http://www.freedink.org/ - GPLv3 =
 ===================================================
 
-insper.mid
-lively.mid
-love.mid
-piano.mid
+insper.mid: Sad, determined
+lively.mid: Town music, lively place, battle
+love.mid: Wedding
+piano.mid: Reverie
 
 ===============================================
 = ZhayTee - http://www.zhaymusic.com/ - GPLv2 =
 ===============================================
 
-the_trail_2.ogg
+the_trail_2.ogg: Quest, all alone, trek through something
 
 ======================================================================
 = Stendhal - http://arianne.sourceforge.net/game/stendhal.html - GPL =
 ======================================================================
 
-adventurers_wish.ogg
-a_weird_place.ogg
-come_to_rest.ogg
-medieval_harp.ogg
-sewers.ogg
-the_forsaken_mine.ogg
-the_old_tavern.ogg
-warriors_fight.ogg
+adventurers_wish.ogg: Magic village
+a_weird_place.ogg: Eerie cave, graveyard, catacombs
+come_to_rest.ogg: Inn
+medieval_harp.ogg: Magic place, forest, dryad
+sewers.ogg: Sewers, water dripping, a bit eerie
+the_forsaken_mine.ogg: Abandoned mine, eerie, forbidden mines
+the_old_tavern.ogg: Very lively tavern
+warriors_fight.ogg: Fight, fight at the bar, clash of the titans
+dungeon_entrance.ogg: Dungeon
+deep_forest.ogg: Forest
+sacred_moments.ogg
+magical_tower.ogg
+mystical_aura.ogg
+new_hope.ogg
 
 ======================================================
 = Meritous - http://www.asceai.net/meritous/ - GPLv3 =
 ======================================================
 
-ice_frontier.s3m
-rpg_battle.xm
-cavern.xm
-cave.xm
+amblight.xm
+cavern_boss.mod: Boss
+ice_frontier.s3m: Snowy place, tower, icy mountain pass
+rpg_battle.xm: Boss fight
+cavern.xm: Ranch
+cave.xm: Cave
+wood.s3m
 
 ===================================================================================
 = Dung Truong - http://www.yoyogames.com/downloads/resources/res03.zip - Freeware =
 ===================================================================================
 
-allusion_world.mid, allusion_world.ogg
-joyful_life.mid, joyful_life.ogg
-inner_peace.mid
-inner_stampede.mid
-rock_on.mid
-still_here.mid
+allusion_world.mid, allusion_world.ogg: Town music
+joyful_life.mid, joyful_life.ogg: Town music
+inner_peace.mid: Romance, peace
+inner_stampede.mid: Carnival, lively
+rock_on.mid: Tropical
+still_here.mid: Carnival, ocean
+no_worry.mid
 
 ===================================================================================================
 = Game Maker Resource Pack #2 - http://www.yoyogames.com/downloads/resources/res02.zip - Freeware =
 ===================================================================================================
 
-casino.mid
-dream.mid
-dream2.mid
-dream3.mid
-special.mid
-lavaboil.ogg
-lontala.mid
-losing.mid
-memories.mid
-boss.mid
-town.mid
-snow.mid
-aqua.mid
-tree.mid
-sand.mid
+casino.mid: Casino
+dream.mid: Magic
+dream2.mid: Dream world
+dream3.mid: Dream world, ocean
+special.mid: Shops, marketplace
+lavaboil.ogg: Lava boiling
+lontala.mid: Town music, castle
+losing.mid: Houses
+memories.mid: University
+boss.mid: Boss
+town.mid: Town music
+snow.mid: Eerie snow cave/dungeon
+aqua.mid: Ocean
+tree.mid: Forest, haunted forest
+sand.mid: Desert, graveyard
 
 =============================================================
 = OpenTTD OpenMSX - http://wiki.openttd.org/OpenMSX - GPLv2 =
 =============================================================
 
-run_for_your_life.mid
-the_fast_route.mid
-ultimate_run.mid
+run_for_your_life.mid: Maze, beach
+the_fast_route.mid: Fancy restaurant, forest
+ultimate_run.mid: Beach
 
 ===========================
 = Sammy Broock - Freeware =
 ===========================
 
-crystal_cave.ogg
-lonely_travel.ogg
-orchestral.ogg
-hidden_passage.ogg
-world.ogg
-world2.ogg
-town_music.ogg
+crystal_cave.ogg: Eerie crystal cave, magic village
+lonely_travel.ogg: Traveling underground
+orchestral.ogg: Intro music
+hidden_passage.ogg: Night club
+world.ogg: Forest, magic forest, eerie
+world2.ogg: Eerie, cave
+town_music.ogg: Town music, sinister, Berri Lur
 
 ====================================
 = Edwin "Kiana" Miltenburg - GPLv2 =
 ====================================
-banrril.mid
-burnt_forest.mid
-chether.mid
-denkash.mid
-denkash-finale.mid
-endurance.mid
-essilda-finale.mid
-kaitindam.mid
-tutorialisland.mid
+
+banrril.mid: Peaceful, homes
+burnt_forest.mid: Burnt Forest, grim, sadness, depressive
+chether.mid: Happy homes, town music, Asteria
+denkash.mid: Lazy town
+denkash-finale.mid: Related to denkash.mid
+endurance.mid: Holding breath, scanning machine
+essilda-finale.mid: Tavern, sub-boss
+kaitindam.mid: Palace, castle, fort, cathedral
+tutorialisland.mid: Tutorial island
+
+=================================================================
+= RPG Maker - http://en.wikipedia.org/wiki/RPG_Maker - Freeware =
+=================================================================
+
+boss1.mid
+boss2.mid
+boss3.mid
+boss4.mid
+dungeon1.mid
+dungeon2.mid
+dungeon3.mid
+dungeon4.mid
+dungeon5.mid
+energy.mid
+fairy1.mid
+fairy2.mid
+fanfare1.mid
+fanfare2.mid
+fanfare3.mid
+fanfare4.mid
+fanfare5.mid
+fanfare6.mid
+field1.mid
+field2.mid
+field3.mid
+field4.mid
+gameover3.mid
+gosttown2.mid
+hero1.mid
+hero2.mid
+inn1.mid
+inn2.mid
+peace1.mid
+peace2.mid
+peace3.mid
+riddle.mid
+ride1.mid
+shop1.mid
+shop2.mid
+shop3.mid
+thief.mid
+tower1.mid
+tower2.mid
+tower3.mid
+village2.mid
+village3.mid
+fairyfountain.mid
+star.mid
+Treasure.mid
+Trial.mid
+yewtree.mid
 
 =====================
 = GPL (unconfirmed) =
 =====================
 
-fuego.ogg
-ghostly_passage.ogg
-travelling.ogg
+fuego.ogg: Tribal, luxury house
+ghostly_passage.ogg: Eerie/ghostly passage/cave
+travelling.ogg: Traveling music, ships
 
 ===========
 = Unknown =
 ===========
 
-bubblyghost.ogg
-ghostly.ogg
-thonkdonk.ogg
-swamp.ogg
-sea_waves.ogg
-river.ogg
-rainthunder.ogg
-ocean.ogg
-jungle1.ogg
-water_stream.ogg
+bubblyghost.ogg: Eerie, ghostly
+ghostly.ogg: Ghostly/eerie temple, forbidden temple, graveyard
+thonkdonk.ogg: Tribal, dungeon-like
+swamp.ogg: Ducks and seagulls, ocean, docks
+sea_waves.ogg: Sea waves, ocean, ocean cliffs
+river.ogg: River
+rainthunder.ogg: Rain and thunder
+ocean.ogg: Sea waves, seagulls, ocean, docks
+jungle1.ogg: Jungle
+water_stream.ogg: Waterfall
 
