@@ -109,6 +109,16 @@
 /*@}*/
 
 /**
+ * @defgroup CMD_MAPSTATS_xxx Mapstats command types
+ * Mapstats command types.
+ *@{*/
+/** Change map name. */
+#define CMD_MAPSTATS_NAME 1
+/** Change map music. */
+#define CMD_MAPSTATS_MUSIC 2
+/*@}*/
+
+/**
  * One map cell. Used to hold 'cache' of faces we already sent
  * to the client. */
 typedef struct MapCell_struct

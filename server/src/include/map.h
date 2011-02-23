@@ -338,6 +338,14 @@ int map_tiled_reverse[TILED_MAPS];
 #define P_NO_TERRAIN          0x80000000
 /*@}*/
 
+/**
+ * @defgroup MSP_EXTRA_xxx Map space extra flags
+ * Map space extra flags
+ *@{*/
+/** No harmful spells. */
+#define MSP_EXTRA_NO_HARM 1
+/*@}*/
+
 /** Single tile on a map */
 typedef struct MapSpace_s
 {
@@ -349,6 +357,9 @@ typedef struct MapSpace_s
 
 	/** Last object in this list */
 	object *last;
+
+	/** Map info object bound to this tile. */
+	object *map_info;
 
 	/** Used to create chained light source list. */
 	struct MapSpace_s *prev_light;
@@ -383,6 +394,9 @@ typedef struct MapSpace_s
 
 	/** How much light this space provides */
 	uint8 light;
+
+	/** Extra flags from @ref MSP_EXTRA_xxx. */
+	uint8 extra_flags;
 } MapSpace;
 
 /**

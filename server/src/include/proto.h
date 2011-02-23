@@ -560,6 +560,8 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *m
 int on_same_map(object *op1, object *op2);
 int players_on_map(mapstruct *m);
 int wall_blocked(mapstruct *m, int x, int y);
+void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info);
+void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info);
 
 /* server/mempool.c */
 uint32 nearest_pow_two_exp(uint32 n);
@@ -1101,6 +1103,9 @@ void apply_lighter(object *who, object *lighter);
 void magic_mirror_init(object *mirror);
 void magic_mirror_deinit(object *mirror);
 mapstruct *magic_mirror_get_map(object *mirror);
+
+/* types/map_info.c */
+void map_info_init(object *info);
 
 /* types/marker.c */
 void move_marker(object *op);

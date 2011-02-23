@@ -186,13 +186,15 @@ void malloc_info(object *op)
 static void current_map_info(object *op)
 {
 	mapstruct *m = op->map;
+	MapSpace *msp;
 
 	if (!m)
 	{
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, x: %d, y: %d)", m->name, m->path, op->x, op->y);
+	msp = GET_MAP_SPACE_PTR(m, op->x, op->y);
+	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, x: %d, y: %d)", msp->map_info && msp->map_info->race ? msp->map_info->race : m->name, m->path, op->x, op->y);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{

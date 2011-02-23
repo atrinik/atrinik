@@ -3661,6 +3661,7 @@ void init_object_initializers()
 	object_initializers[BEACON] = beacon_add;
 	object_initializers[MAP_EVENT_OBJ] = map_event_obj_init;
 	object_initializers[MAGIC_MIRROR] = magic_mirror_init;
+	object_initializers[MAP_INFO] = map_info_init;
 }
 
 /**

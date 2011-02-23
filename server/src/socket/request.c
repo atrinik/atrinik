@@ -1091,6 +1091,125 @@ void draw_client_map(object *pl)
 	}
 
 	draw_client_map2(pl);
+
+	/* If we moved on the same map, check for map name/music to update. */
+	if (redraw_below && CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_SAME)
+	{
+		SockList sl;
+		unsigned char sock_buf[MAXSOCKBUF];
+		MapSpace *msp;
+
+		/* Newer clients support the MAPSTATS command, which is specially
+		 * for things like this. */
+		if (CONTR(pl)->socket.socket_version >= 1046)
+		{
+		sl.buf = sock_buf;
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAPSTATS);
+		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+
+		/* Is there a map info object on this square? */
+		if (msp->map_info)
+		{
+			/* Check if there is map info name, but only update if it hasn't changed. */
+			if (msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name))
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_NAME);
+				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+
+				strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+				CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
+			}
+
+			/* Likewise for map info music. */
+			if (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music))
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_MUSIC);
+				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
+
+				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+			}
+		}
+		/* There isn't map info object, check if we need to update previously
+		 * overriden values. */
+		else
+		{
+			/* Update map name... */
+			if (CONTR(pl)->map_info_name[0] != '\0')
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_NAME);
+				SockList_AddMapName(&sl, pl, pl->map, NULL);
+
+				CONTR(pl)->map_info_name[0] = '\0';
+			}
+
+			/* Update map music... */
+			if (CONTR(pl)->map_info_music[0] != '\0')
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_MUSIC);
+				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
+
+				CONTR(pl)->map_info_music[0] = '\0';
+			}
+		}
+
+		/* Anything to send? */
+		if (sl.len > 1)
+		{
+			Send_With_Handling(&CONTR(pl)->socket, &sl);
+		}
+		}
+		/* Backwards compatibility... */
+		else if (CONTR(pl)->socket.socket_version >= 1044)
+		{
+		sl.buf = sock_buf;
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
+		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+
+		SockList_AddChar(&sl, MAP_UPDATE_CMD_NEW);
+
+		if (msp->map_info)
+		{
+			if ((msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name)) || (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music)))
+			{
+				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
+
+				if (msp->map_info->race)
+				{
+					strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+					CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
+				}
+
+				if (msp->map_info->slaying)
+				{
+					strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+					CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+				}
+			}
+		}
+		else
+		{
+			if (CONTR(pl)->map_info_name[0] != '\0' || CONTR(pl)->map_info_music[0] != '\0')
+			{
+				SockList_AddMapName(&sl, pl, pl->map, NULL);
+				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
+				CONTR(pl)->map_info_name[0] = '\0';
+				CONTR(pl)->map_info_music[0] = '\0';
+			}
+		}
+
+		SockList_AddChar(&sl, 0);
+		SockList_AddChar(&sl, 0);
+		SockList_AddChar(&sl, pl->x);
+		SockList_AddChar(&sl, pl->y);
+
+		if (sl.len > 6)
+		{
+			Send_With_Handling(&CONTR(pl)->socket, &sl);
+		}
+		}
+	}
 }
 
 /**
@@ -1159,41 +1278,24 @@ void draw_client_map2(object *pl)
 
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
-		if (CONTR(pl)->socket.socket_version >= 1045)
-		{
-			SockList_AddString(&sl, "<b><o=0,0,0>");
-			/* Ignore the terminating NUL. */
-			sl.len--;
-			SockList_AddString(&sl, pl->map->name);
-			/* Ignore the terminating NUL. */
-			sl.len--;
-			SockList_AddString(&sl, "</o></b>");
-		}
-		else
-		{
-			SockList_AddString(&sl, pl->map->name);
-		}
+		MapSpace *msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 
-		if (CONTR(pl)->socket.socket_version < 1038)
-		{
-			if (!pl->map->bg_music)
-			{
-				SockList_AddString(&sl, "no_music");
-			}
-			else
-			{
-				char bg_music_tmp[MAX_BUF];
+		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
 
-				/* Replace .mid uses with .ogg variant. */
-				replace(pl->map->bg_music, ".mid", ".ogg", bg_music_tmp, sizeof(bg_music_tmp) - 20);
-				/* Add the fade/loop settings older clients require. */
-				strncat(bg_music_tmp, "|0|-1", sizeof(bg_music_tmp) - strlen(bg_music_tmp) - 1);
-				SockList_AddString(&sl, bg_music_tmp);
-			}
-		}
-		else
+		if (msp->map_info)
 		{
-			SockList_AddString(&sl, pl->map->bg_music ? pl->map->bg_music : "no_music");
+			if (msp->map_info->race)
+			{
+				strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+				CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
+			}
+
+			if (msp->map_info->slaying)
+			{
+				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+			}
 		}
 
 		if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
@@ -1284,7 +1386,22 @@ void draw_client_map2(object *pl)
 			}
 			else
 			{
-				d = m->light_value + msp->light_value + dm_light;
+				/* Check if map info object bound to this tile has a darkness. */
+				if (msp->map_info && msp->map_info->item_power != -1)
+				{
+					int dark_value = msp->map_info->item_power;
+
+					if (dark_value < 0 || dark_value > MAX_DARKNESS)
+					{
+						dark_value = MAX_DARKNESS;
+					}
+
+					d = global_darkness_table[dark_value] + msp->light_value + dm_light;
+				}
+				else
+				{
+					d = m->light_value + msp->light_value + dm_light;
+				}
 			}
 
 			if (GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)

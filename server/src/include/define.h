@@ -154,7 +154,7 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 152, 155, 151, 141, 107, 89, 61, 57, 45, 28,
+ * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57, 45, 28,
  * 46, 24.
  *@{*/
 /**
@@ -520,6 +520,9 @@
 /**
  * Identification altar. */
 #define IDENTIFY_ALTAR 139
+/**
+ * Map information object. */
+#define MAP_INFO 152
 /**
  * A swarm spell. */
 #define SWARM_SPELL 153

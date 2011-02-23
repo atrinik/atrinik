@@ -228,6 +228,12 @@ typedef struct pl_player
 	/** DM command permissions. */
 	char **cmd_permissions;
 
+	/** Last map info name sent. */
+	char map_info_name[HUGE_BUF];
+
+	/** Last map info music sent. */
+	char map_info_music[HUGE_BUF];
+
 	/**
 	 * Last sent map. */
 	struct mapdef *last_update;
