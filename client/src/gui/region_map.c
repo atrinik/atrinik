@@ -578,6 +578,11 @@ void region_map_handle_key(SDLKey key)
 {
 	int pos = RM_SCROLL;
 
+	if (!region_map_png)
+	{
+		return;
+	}
+
 	/* Shift is held, increase the scrolling 'speed'. */
 	if (SDL_GetModState() & KMOD_SHIFT)
 	{
@@ -627,6 +632,11 @@ void region_map_handle_key(SDLKey key)
  * @param event The event. */
 void region_map_handle_event(SDL_Event *event)
 {
+	if (!region_map_png)
+	{
+		return;
+	}
+
 	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
 		/* Zoom in. */
