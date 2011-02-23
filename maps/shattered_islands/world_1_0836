@@ -1,8 +1,8 @@
 arch map
-name Asteria
+name Asteria Palace
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-24 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -14,7 +14,7 @@ tile_path_3 world_1_0835
 tile_path_4 world_1_0736
 tile_path_7 world_1_0735
 tile_path_8 world_1_0737
-bg_music theme.mid
+bg_music kaitindam.mid
 region asteria
 end
 arch floor_fs_grey1b
@@ -2402,27 +2402,19 @@ last_eat -50
 x 10
 y 23
 end
-arch blocked
+arch map_info
+hp 6
+sp 8
+race Lynren's Home
+slaying theme.mid
 x 12
 y 8
-end
-arch wall_stone16_8
-x 12
-y 8
-end
-arch blocked
-x 12
-y 9
-end
-arch wall_stone16_3
-x 12
-y 9
 end
 arch blocked
 x 12
 y 10
 end
-arch wall_stone16_3
+arch wall_stone16_8
 x 12
 y 10
 end
@@ -2483,18 +2475,6 @@ end
 arch wall_stone16_3
 x 12
 y 16
-end
-arch blocked
-x 13
-y 8
-end
-arch wall_stone16_1
-x 13
-y 8
-end
-arch blocked
-x 13
-y 9
 end
 arch blocked
 x 13
@@ -2562,7 +2542,7 @@ arch blocked
 x 14
 y 8
 end
-arch wall_stone16_1
+arch wall_stone16_8
 x 14
 y 8
 end

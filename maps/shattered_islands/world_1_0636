@@ -1,8 +1,8 @@
 arch map
-name Asteria
+name Asteria Palace
 msg
 Created:  2011-01-23 emperorbma
-Modified: 2011-01-24 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -14,7 +14,7 @@ tile_path_2 world_1_0736
 tile_path_3 world_1_0635
 tile_path_5 world_1_0737
 tile_path_6 world_1_0735
-bg_music theme.mid
+bg_music kaitindam.mid
 region asteria
 end
 arch magic_mirror
