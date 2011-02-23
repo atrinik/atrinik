@@ -2,28 +2,28 @@
 = KQ - http://sourceforge.net/projects/kqlives/ - GPLv2 =
 =========================================================
 
-aa_arofl.xm: Space station
-comeback.mod: Dungeon-like, slow, a bit eerie
+aa_arofl.xm: Space station, ~underground cave full of light
+comeback.mod: Dungeon-like, slow, a bit eerie, ~abandoned temple of loki
 enfero.xm: Military, fort
 eranasp.mod: Dungeon
-infanita.mod: Mountain pass
-rain.s3m: Funeral, rainy, sad
+infanita.mod: Mountain pass, ~cave, elven forest
+rain.s3m: Funeral, rainy, sad, ~temple dungeon, dark forest
 toroia.s3m: Harmony, peaceful, forest, fairy village, magic spring
-town.mod: Town music
-waterworld.xm: Disco, water cave, happy place
-walk.s3m
-rend.s3m
+town.mod: Town music, ~castle outskirts (village)
+waterworld.xm: Disco, water cave, happy place, ~valley
+walk.s3m: ~nah
+rend.s3m: ~nah
 
 =================================================================
 = HyperNewbie - http://www.hypernewbie.com/ - Permission to use =
 =================================================================
 
-campfire_tales.mid: Outside, campfire, night, tales, story telling, night forest
-courage.mid: Cathedral, church
+campfire_tales.mid: Outside, campfire, night, tales, story telling, night forest, ~sleeping
+courage.mid: Cathedral, church, ~boss room or level
 desert_town.mid: Desert
-escape.mid: Frantic, boss, escape
-grandeur.mid: King died, long live the king, grim, funeral
-harmony.mid: Harmony, quiet place in a forest
+escape.mid: Frantic, boss, escape, ~quest maze
+grandeur.mid: King died, long live the king, grim, funeral, ~King's Tomb
+harmony.mid: Harmony, quiet place in a forest ~mage, old memories
 harmony2.mid: Busy place, town music, wedding
 lost_cavern.mid: Cave
 ruins.mid: Ancient ruins, sad place
@@ -150,6 +150,7 @@ town_music.ogg: Town music, sinister, Berri Lur
 
 banrril.mid: Peaceful, homes
 burnt_forest.mid: Burnt Forest, grim, sadness, depressive
+burnt_forest2.mid
 chether.mid: Happy homes, town music, Asteria
 denkash.mid: Lazy town
 denkash-finale.mid: Related to denkash.mid
