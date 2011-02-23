@@ -1320,6 +1320,41 @@ static void map_play_footstep()
 }
 
 /**
+ * Mapstats command.
+ * @param data The incoming data.
+ * @param len Length of the data. */
+void MapStatsCmd(unsigned char *data, int len)
+{
+	int pos = 0;
+	char buf[HUGE_BUF];
+	uint8 type;
+
+	/* Loop, trying to find data. */
+	while (pos < len)
+	{
+		/* Get the type of this command... */
+		type = (uint8) (data[pos++]);
+
+		/* Change map name. */
+		if (type == CMD_MAPSTATS_NAME)
+		{
+			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			pos += strlen(buf) + 1;
+			update_map_data(buf, NULL);
+		}
+		/* Change map music. */
+		else if (type == CMD_MAPSTATS_MUSIC)
+		{
+			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			pos += strlen(buf) + 1;
+			update_map_data(NULL, buf);
+		}
+	}
+}
+
+/**
  * Map2 command.
  * @param data The incoming data
  * @param len Length of the data */

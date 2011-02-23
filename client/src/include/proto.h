@@ -40,6 +40,7 @@ void ItemYCmd(unsigned char *data, int len);
 void UpdateItemCmd(unsigned char *data, int len);
 void DeleteItem(unsigned char *data, int len);
 void DeleteInventory(unsigned char *data);
+void MapStatsCmd(unsigned char *data, int len);
 void Map2Cmd(unsigned char *data, int len);
 void MagicMapCmd(unsigned char *data, int len);
 void VersionCmd(char *data);

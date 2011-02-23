@@ -145,14 +145,18 @@ void update_map_data(const char *name, char *bg_music)
 {
 	widgetdata *widget;
 
-	if (!strcmp(bg_music, "no_music"))
+	if (bg_music)
 	{
-		sound_stop_bg_music();
-	}
-	else
-	{
-		strncpy(MapData.music, bg_music, sizeof(MapData.music));
-		parse_map_bg_music(bg_music);
+		if (!strcmp(bg_music, "no_music"))
+		{
+			sound_stop_bg_music();
+		}
+		else
+		{
+			strncpy(MapData.music, bg_music, sizeof(MapData.music) - 1);
+			MapData.music[sizeof(MapData.music) - 1] = '\0';
+			parse_map_bg_music(bg_music);
+		}
 	}
 
 	if (name)

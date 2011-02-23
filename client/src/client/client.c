@@ -121,7 +121,7 @@ struct CmdMapping commands[] =
 	{"anim", AnimCmd, SHORT_ARRAY},
 	{"skill_rdy", (CmdProc) SkillRdyCmd, ASCII},
 	{"player", PlayerCmd, MIXED},
-	{"mapstats", NULL, ASCII},
+	{"mapstats", MapStatsCmd, ASCII},
 	{"splist", (CmdProc) SpelllistCmd, ASCII},
 	{"sklist", (CmdProc) SkilllistCmd, ASCII},
 	{"clr", NULL, ASCII},
