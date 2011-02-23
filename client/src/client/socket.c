@@ -791,7 +791,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
  * @return 1 on success, 0 on failure. */
 int socket_open(struct ClientSocket *csock, char *host, int port)
 {
-	int tmp = 1, oldbufsize, newbufsize = 65535;
+	int oldbufsize, newbufsize = 65535;
 	socklen_t buflen = sizeof(int);
 	struct linger linger_opt;
 
@@ -811,9 +811,14 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
 
-	if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1)
+	if (options.tcp_nodelay)
 	{
-		LOG(llevBug, "socket_open(): Error setting TCP_NODELAY.");
+		int tmp = 1;
+
+		if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1)
+		{
+			LOG(llevBug, "socket_open(): Error setting TCP_NODELAY.");
+		}
 	}
 
 	if (getsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)

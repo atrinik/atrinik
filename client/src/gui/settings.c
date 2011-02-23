@@ -78,6 +78,7 @@ _option opt[] =
 	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
 	{"Key repeat speed:", "How fast to repeat a held down key.", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
 	{"Disable file updates:", "If on, will not update sound effects/background music/etc on server\nconnect. This may be useful for users with low bandwidth.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_updates, VAL_BOOL},
+	{"Minimize latency:", "Disables Nagle's Algorithm in order to minimize latency, at the expense\nof more outgoing bandwidth.\nRequires server re-connection.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.tcp_nodelay, VAL_BOOL},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Map */

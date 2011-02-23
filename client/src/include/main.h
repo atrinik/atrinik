@@ -194,6 +194,7 @@ typedef struct _options
 	uint32 videoflags_win;
 	int reload_gfx_user;
 	int disable_updates;
+	int tcp_nodelay;
 	int disable_rm_cache;
 	int fastport;
 }_options;
