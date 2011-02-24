@@ -531,7 +531,7 @@ extern struct mempool_chunk *removed_objects;
 /*@}*/
 
 /**
- * Macro for the often used object validity test (verify an pointer/count
+ * Macro for the often used object validity test (verify a pointer/count
  * pair) */
 #define OBJECT_VALID(_ob_, _count_) ((_ob_) && (_ob_)->count == ((tag_t) _count_) && !QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
 
