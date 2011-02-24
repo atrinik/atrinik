@@ -1108,7 +1108,7 @@ void draw_client_map(object *pl)
 		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 
 		/* Is there a map info object on this square? */
-		if (msp->map_info)
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
 		{
 			/* Check if there is map info name, but only update if it hasn't changed. */
 			if (msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name))
@@ -1168,7 +1168,7 @@ void draw_client_map(object *pl)
 
 		SockList_AddChar(&sl, MAP_UPDATE_CMD_NEW);
 
-		if (msp->map_info)
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
 		{
 			if ((msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name)) || (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music)))
 			{
@@ -1283,7 +1283,7 @@ void draw_client_map2(object *pl)
 		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
 		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
 
-		if (msp->map_info)
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
 		{
 			if (msp->map_info->race)
 			{
@@ -1387,7 +1387,7 @@ void draw_client_map2(object *pl)
 			else
 			{
 				/* Check if map info object bound to this tile has a darkness. */
-				if (msp->map_info && msp->map_info->item_power != -1)
+				if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1)
 				{
 					int dark_value = msp->map_info->item_power;
 

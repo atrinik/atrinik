@@ -344,6 +344,12 @@ int map_tiled_reverse[TILED_MAPS];
  *@{*/
 /** No harmful spells. */
 #define MSP_EXTRA_NO_HARM 1
+/** No PvP. */
+#define MSP_EXTRA_NO_PVP 2
+/** No magic. */
+#define MSP_EXTRA_NO_MAGIC 4
+/** No prayers. */
+#define MSP_EXTRA_NO_CLERIC 8
 /*@}*/
 
 /** Single tile on a map */
@@ -369,6 +375,9 @@ typedef struct MapSpace_s
 
 	/** Tag for last_damage */
 	uint32 round_tag;
+
+	/** ID of ::map_info. */
+	tag_t map_info_count;
 
 	/** Counter for update tile */
 	uint32 update_tile;

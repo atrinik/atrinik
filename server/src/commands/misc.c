@@ -194,7 +194,7 @@ static void current_map_info(object *op)
 	}
 
 	msp = GET_MAP_SPACE_PTR(m, op->x, op->y);
-	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, x: %d, y: %d)", msp->map_info && msp->map_info->race ? msp->map_info->race : m->name, m->path, op->x, op->y);
+	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, x: %d, y: %d)", msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->race ? msp->map_info->race : m->name, m->path, op->x, op->y);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{

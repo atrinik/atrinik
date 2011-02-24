@@ -55,20 +55,21 @@ void map_info_init(object *info)
 
 			msp = GET_MAP_SPACE_PTR(info->map, x, y);
 			msp->map_info = info;
+			msp->map_info_count = info->count;
 
 			if (QUERY_FLAG(info, FLAG_NO_MAGIC))
 			{
-				msp->flags |= P_NO_MAGIC;
+				msp->extra_flags |= MSP_EXTRA_NO_MAGIC;
 			}
 
 			if (QUERY_FLAG(info, FLAG_NO_CLERIC))
 			{
-				msp->flags |= P_NO_CLERIC;
+				msp->extra_flags |= MSP_EXTRA_NO_CLERIC;
 			}
 
 			if (QUERY_FLAG(info, FLAG_NO_PVP))
 			{
-				msp->flags |= P_NO_PVP;
+				msp->extra_flags |= MSP_EXTRA_NO_PVP;
 			}
 
 			if (QUERY_FLAG(info, FLAG_STAND_STILL))

@@ -627,7 +627,7 @@ int blocks_magic(mapstruct *m, int x, int y)
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
 	}
 
-	return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC);
+	return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_MAGIC);
 }
 
 /**
@@ -644,7 +644,7 @@ int blocks_cleric(mapstruct *m, int x, int y)
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_CLERIC | P_OUT_OF_MAP);
 	}
 
-	return (GET_MAP_FLAGS(m, x, y) & P_NO_CLERIC);
+	return (GET_MAP_FLAGS(m, x, y) & P_NO_CLERIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_CLERIC);
 }
 
 /**
@@ -686,7 +686,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
 	if (flags & P_IS_PLAYER)
 	{
-		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP)))
+		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) && !(msp->extra_flags & MSP_EXTRA_NO_PVP)))
 		{
 			return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
 		}
