@@ -24,8 +24,8 @@ arch floor_fs_grey1b
 z 50
 end
 arch map_info
-hp 2
-sp 19
+hp 9
+sp 23
 race Asteria Palace
 slaying kaitindam.mid
 end

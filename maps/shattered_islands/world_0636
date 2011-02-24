@@ -1654,6 +1654,13 @@ end
 arch small_stones
 x 10
 end
+arch map_info
+hp 13
+sp 23
+race Asteria Palace
+slaying kaitindam.mid
+x 10
+end
 arch grassd_2
 z 50
 x 10
@@ -2969,13 +2976,6 @@ z 50
 x 18
 end
 arch wall_dungeon_3
-x 18
-end
-arch map_info
-hp 5
-sp 19
-race Asteria Palace
-slaying kaitindam.mid
 x 18
 end
 arch grassd_5

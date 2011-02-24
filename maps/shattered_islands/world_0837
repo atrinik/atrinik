@@ -52,6 +52,13 @@ arch grassd_2
 z 50
 y 6
 end
+arch map_info
+hp 9
+sp 17
+race Asteria Palace
+slaying kaitindam.mid
+y 6
+end
 arch grassd_3
 z 50
 y 7
@@ -106,13 +113,6 @@ z 50
 y 14
 end
 arch wall_dungeon_1
-y 14
-end
-arch map_info
-hp 2
-sp 9
-race Asteria Palace
-slaying kaitindam.mid
 y 14
 end
 arch floor_fs_grey1b

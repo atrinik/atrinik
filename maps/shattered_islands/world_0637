@@ -1689,6 +1689,14 @@ arch wall_fstone_round.104
 x 10
 y 6
 end
+arch map_info
+hp 13
+sp 17
+race Asteria Palace
+slaying kaitindam.mid
+x 10
+y 6
+end
 arch grassd_2
 z 50
 x 10
@@ -3029,14 +3037,6 @@ x 18
 y 14
 end
 arch wall_dungeon_8
-x 18
-y 14
-end
-arch map_info
-hp 5
-sp 9
-race Asteria Palace
-slaying kaitindam.mid
 x 18
 y 14
 end
