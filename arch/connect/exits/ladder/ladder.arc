@@ -1,6 +1,9 @@
 Object ladder_down
 name ladder going down
-face ladder_down.101
+face ladder_down.111
+animation ladder_down
+is_turnable 1
+direction 1
 type 66
 no_teleport 1
 hp -1
