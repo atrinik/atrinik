@@ -1,8 +1,8 @@
 arch map
-name Fort Ghzal
+name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-31 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -579,6 +579,13 @@ arch grassd_4
 x 4
 end
 arch small_stones
+x 4
+end
+arch map_info
+hp 19
+sp 10
+race Fort Ghzal
+slaying enfero.xm
 x 4
 end
 arch grassd_8
