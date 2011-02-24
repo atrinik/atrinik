@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1195,7 +1195,13 @@ arch grate1_1
 x 9
 y 8
 end
-arch floor_flagm4
+arch floor_flagm1
+x 9
+y 9
+end
+arch map_info
+hp 5
+sp 5
 no_magic 1
 no_cleric 1
 no_pvp 1
@@ -1203,37 +1209,22 @@ x 9
 y 9
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 9
 y 10
 end
-arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm2
 x 9
 y 11
 end
-arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm4
 x 9
 y 12
 end
 arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 9
 y 13
 end
 arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 9
 y 14
 end
@@ -1325,44 +1316,26 @@ x 10
 y 8
 end
 arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 10
 y 9
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 10
 y 10
 end
 arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 10
 y 11
 end
 arch floor_flagm1
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 10
 y 12
 end
-arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm1
 x 10
 y 13
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 10
 y 14
 end
@@ -1464,24 +1437,15 @@ arch grate1_1
 x 11
 y 8
 end
-arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm1
 x 11
 y 9
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 11
 y 10
 end
-arch floor_flagm1
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm2
 x 11
 y 11
 end
@@ -1496,10 +1460,7 @@ arch light9
 x 11
 y 11
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm1
 x 11
 y 12
 end
@@ -1508,16 +1469,10 @@ x 11
 y 12
 end
 arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 11
 y 13
 end
 arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 11
 y 14
 end
@@ -1631,24 +1586,15 @@ arch grate1_1
 x 12
 y 8
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm4
 x 12
 y 9
 end
-arch floor_flagm1
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm4
 x 12
 y 10
 end
 arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 12
 y 11
 end
@@ -1657,9 +1603,6 @@ x 12
 y 11
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 12
 y 12
 end
@@ -1667,17 +1610,11 @@ arch light9
 x 12
 y 12
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm3
 x 12
 y 13
 end
-arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm1
 x 12
 y 14
 end
@@ -1780,45 +1717,27 @@ arch grate1_1
 x 13
 y 8
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm4
 x 13
 y 9
 end
-arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm2
 x 13
 y 10
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 13
 y 11
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 13
 y 12
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm1
 x 13
 y 13
 end
 arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 13
 y 14
 end
@@ -1909,45 +1828,27 @@ arch grate1_1
 x 14
 y 8
 end
-arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm4
 x 14
 y 9
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm4
 x 14
 y 10
 end
-arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm3
 x 14
 y 11
 end
 arch floor_flagm3
-no_magic 1
-no_cleric 1
-no_pvp 1
 x 14
 y 12
 end
-arch floor_flagm2
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm3
 x 14
 y 13
 end
-arch floor_flagm4
-no_magic 1
-no_cleric 1
-no_pvp 1
+arch floor_flagm3
 x 14
 y 14
 end
