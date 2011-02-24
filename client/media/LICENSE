@@ -11,8 +11,8 @@ rain.s3m: Funeral, rainy, sad, ~temple dungeon, dark forest
 toroia.s3m: Harmony, peaceful, forest, fairy village, magic spring
 town.mod: Town music, ~castle outskirts (village)
 waterworld.xm: Disco, water cave, happy place, ~valley
-walk.s3m: ~nah
-rend.s3m: ~nah
+walk.s3m: Boss fight
+rend.s3m: Victory music
 
 =================================================================
 = HyperNewbie - http://www.hypernewbie.com/ - Permission to use =
@@ -22,7 +22,7 @@ campfire_tales.mid: Outside, campfire, night, tales, story telling, night forest
 courage.mid: Cathedral, church, ~boss room or level
 desert_town.mid: Desert
 escape.mid: Frantic, boss, escape, ~quest maze
-grandeur.mid: King died, long live the king, grim, funeral, ~King's Tomb
+grandeur.mid: King died, long live the king, grim, funeral, ~King's Tomb, palace catacombs
 harmony.mid: Harmony, quiet place in a forest ~mage, old memories
 harmony2.mid: Busy place, town music, wedding
 lost_cavern.mid: Cave
@@ -31,9 +31,9 @@ shanty.mid: Shanty, kobold trader
 solemn.mid: Town music
 theme.mid: Town music
 unexpected.mid: Dungeon, running away from something sinister, important building
-scape.mid
-lurking.mid
-dead_silence.mid
+scape.mid: Nursery, playful
+lurking.mid: Thieves, slow
+dead_silence.mid: Lurky, sneaky, dark passageway, hidden danger
 
 =============================================
 = Allacrost - http://allacrost.org/ - GPLv2 =
@@ -75,22 +75,22 @@ the_old_tavern.ogg: Very lively tavern
 warriors_fight.ogg: Fight, fight at the bar, clash of the titans
 dungeon_entrance.ogg: Dungeon
 deep_forest.ogg: Forest
-sacred_moments.ogg
-magical_tower.ogg
-mystical_aura.ogg
-new_hope.ogg
+sacred_moments.ogg: Scene with awe, hopeful sorrow, chapel
+magical_tower.ogg: Magic, dark
+mystical_aura.ogg: Magic place, crystal, ice
+new_hope.ogg: Nostalgic Amiga-like
 
 ======================================================
 = Meritous - http://www.asceai.net/meritous/ - GPLv3 =
 ======================================================
 
-amblight.xm
+amblight.xm: Techno, boss battle
 cavern_boss.mod: Boss
 ice_frontier.s3m: Snowy place, tower, icy mountain pass
 rpg_battle.xm: Boss fight
 cavern.xm: Ranch
 cave.xm: Cave
-wood.s3m
+wood.s3m: Retro, battle
 
 ===================================================================================
 = Dung Truong - http://www.yoyogames.com/downloads/resources/res03.zip - Freeware =
@@ -102,7 +102,7 @@ inner_peace.mid: Romance, peace
 inner_stampede.mid: Carnival, lively
 rock_on.mid: Tropical
 still_here.mid: Carnival, ocean
-no_worry.mid
+no_worry.mid: Tropical paradise
 
 ===================================================================================================
 = Game Maker Resource Pack #2 - http://www.yoyogames.com/downloads/resources/res02.zip - Freeware =
@@ -150,7 +150,7 @@ town_music.ogg: Town music, sinister, Berri Lur
 
 banrril.mid: Peaceful, homes
 burnt_forest.mid: Burnt Forest, grim, sadness, depressive
-burnt_forest2.mid
+burnt_forest2.mid: Burnt Forest, sadness
 chether.mid: Happy homes, town music, Asteria
 denkash.mid: Lazy town
 denkash-finale.mid: Related to denkash.mid
@@ -163,53 +163,51 @@ tutorialisland.mid: Tutorial island
 = RPG Maker - http://en.wikipedia.org/wiki/RPG_Maker - Freeware =
 =================================================================
 
-boss1.mid
-boss2.mid
-boss3.mid
-boss4.mid
-dungeon1.mid
-dungeon2.mid
-dungeon3.mid
-dungeon4.mid
-dungeon5.mid
-energy.mid
-fairy1.mid
-fairy2.mid
-fanfare1.mid
-fanfare2.mid
-fanfare3.mid
-fanfare4.mid
-fanfare5.mid
-fanfare6.mid
-field1.mid
-field2.mid
-field3.mid
-field4.mid
-gameover3.mid
-gosttown2.mid
-hero1.mid
-hero2.mid
-inn1.mid
-inn2.mid
-peace1.mid
-peace2.mid
-peace3.mid
-riddle.mid
-ride1.mid
-shop1.mid
-shop2.mid
-shop3.mid
-thief.mid
-tower1.mid
-tower2.mid
-tower3.mid
-village2.mid
-village3.mid
-fairyfountain.mid
-star.mid
-treasure.mid
-trial.mid
-yewtree.mid
+boss1.mid: Boss fight
+boss2.mid: Vampire boss
+boss3.mid: Boss
+boss4.mid: Boss fight
+dungeon1.mid: Dungeon
+dungeon2.mid: Dungeon
+dungeon3.mid: Dungeon
+dungeon5.mid: Dungeon
+energy.mid: Fanfare/parade
+fairy1.mid: Fairy, magical
+fairy2.mid: Fairy, magical
+fanfare1.mid: Fanfare
+fanfare2.mid: Fanfare, welcoming the king
+fanfare3.mid: Town music
+fanfare4.mid: Fanfare, fast, you have won
+fanfare5.mid: Fanfare, fast, you have won
+fanfare6.mid: Fanfare, fast, obtaining quest item, finding treasure, quest reward
+field1.mid: Mountains
+field2.mid: Field, happy place
+field3.mid: Happy place
+field4.mid: Traveling
+gameover3.mid: Losing
+gosttown2.mid: Ghost town, graveyard
+hero1.mid: The hero returns
+hero2.mid: Welcome the hero
+inn1.mid: Elven inn
+inn2.mid: Inn
+peace1.mid: Peaceful place somewhere
+peace2.mid: Peaceful meadow
+riddle.mid: Riddle
+ride1.mid: Traveling
+shop1.mid: Shop, marketplace
+shop2.mid: Shop, marketplace, smith
+shop3.mid: Shop, marketplace
+thief.mid: Carnival
+tower1.mid: Cave
+tower2.mid: Sad bridge
+tower3.mid: Clock tower
+village2.mid: Town music
+village3.mid: Farm, slow
+fairyfountain.mid: Eerie, fairy forest, magic place
+star.mid: Cave, slow
+treasure.mid: Creepy cave
+trial.mid: Courthouse
+yewtree.mid: Forest, peaceful
 
 =====================
 = GPL (unconfirmed) =
