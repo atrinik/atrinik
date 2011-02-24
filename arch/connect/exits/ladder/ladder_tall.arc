@@ -4,6 +4,9 @@ name ladder going up
 hp -1
 sp -1
 face ladder_tall.111
+animation ladder_tall
+is_turnable 1
+direction 1
 type 66
 no_pick 1
 end

@@ -8,6 +8,7 @@ sp -1
 layer 5
 no_pick 1
 end
+
 Object ladder_down2
 name ladder going down
 face ladder_down_01.101
@@ -23,6 +24,7 @@ sp -1
 layer 5
 no_pick 1
 end
+
 Object ladder_down3
 name ladder going down
 face ladder_round_down_01.101
@@ -38,12 +40,16 @@ sp -1
 layer 5
 no_pick 1
 end
+
 Object ladder_up
 layer 4
 name ladder going up
 hp -1
 sp -1
-face ladder_up.101
+face ladder_up.111
+animation ladder_up
+is_turnable 1
+direction 1
 type 66
 no_pick 1
 end
