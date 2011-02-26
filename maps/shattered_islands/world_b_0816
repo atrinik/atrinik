@@ -2,12 +2,13 @@ arch map
 name Inn In The Mountains
 msg
 Created:  2010-08-27 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-02-26 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 3
 darkness 1
+bg_music sewers.ogg
 region strakewood_island
 end
 arch blocked
