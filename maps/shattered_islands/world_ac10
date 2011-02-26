@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-01 Alex Tokar
+Modified: 2011-02-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,7 +12,7 @@ no_harm 1
 tile_path_1 world_ac11
 tile_path_2 world_ab10
 tile_path_5 world_ab11
-bg_music rainthunder.ogg
+bg_music lontala.mid
 region brynknot
 end
 arch water_lt
