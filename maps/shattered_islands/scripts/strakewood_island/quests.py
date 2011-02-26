@@ -53,7 +53,7 @@ quest_items = {
 		{
 			"not_started": "Recently, there have been sightings of skeletons coming back to life near the Forgotten Graveyard, located west of Aris. I think you should go check it out.",
 			"reward": "You receive seven scrolls of recharge (level 10).",
-			"not_finished": "You still need to kill {0} skeleton{1} from the Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
+			"not_finished": "You still need to kill {0} skeleton{1} from the Forgotten Graveyard west of Aris.\nRemember, they only appear at nighttime.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
 			"accepted": "\nKill at least {0} skeletons at Forgotten Graveyard west of Aris.\nRemember, they only appear at nighttime.",
