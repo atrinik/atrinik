@@ -2113,6 +2113,31 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 	{
 		hooks->update_ob_speed(obj->obj);
 	}
+	/* Handle object's type changing. */
+	else if (field->offset == offsetof(object, type))
+	{
+		/* Changing to a spawn point monster requires special handling:
+		 * as the object was most likely created and put on active list,
+		 * we must remove it from the active list, as spawn point monsters
+		 * are not allowed to be on the list. */
+		if (obj->obj->type == SPAWN_POINT_MOB)
+		{
+			float old_speed;
+
+			/* Store original speed, as in order to actually remove the object
+			 * from the active list, we need to set its speed to 0 and make it
+			 * a non-SPAWN_POINT_MOB type. */
+			old_speed = obj->obj->speed;
+			obj->obj->speed = 0.0f;
+			obj->obj->type = MONSTER;
+			/* Remove it from the active list. */
+			hooks->update_ob_speed(obj->obj);
+
+			/* Restore original speed and type info. */
+			obj->obj->speed = old_speed;
+			obj->obj->type = SPAWN_POINT_MOB;
+		}
+	}
 
 	return 0;
 }
