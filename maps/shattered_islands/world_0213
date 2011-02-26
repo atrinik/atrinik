@@ -394,6 +394,13 @@ arch basket2.101
 x 2
 y 13
 end
+arch map_info
+hp 14
+sp 6
+slaying town_music.ogg
+x 2
+y 13
+end
 arch floor_wood3a
 x 2
 y 14
