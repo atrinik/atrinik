@@ -1758,11 +1758,18 @@ static int handle_global_event(int event_type, va_list args)
 
 			if (flags & CACHE_FLAG_PYOBJ)
 			{
+				PyObject *retval;
+
 				/* Attempt to close file/database/etc objects. */
-				if (PyObject_GetAttrString((PyObject *) ptr, "close"))
+				retval = PyObject_CallMethod((PyObject *) ptr, "close", "");
+
+				/* No close() method, ignore the exception. */
+				if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError))
 				{
-					PyObject_CallMethod((PyObject *) ptr, "close", "");
+					PyErr_Clear();
 				}
+
+				Py_XDECREF(retval);
 
 				/* Decrease the reference count. */
 				Py_DECREF((PyObject *) ptr);
