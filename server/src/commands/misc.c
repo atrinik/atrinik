@@ -321,6 +321,12 @@ int command_time(object *op, char *params)
  * @return 1. */
 int command_hiscore(object *op, char *params)
 {
+	if (params && strlen(params) < PLAYER_NAME_MIN)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
+		return 1;
+	}
+
 	hiscore_display(op, 25, params);
 	return 1;
 }

@@ -556,6 +556,12 @@ typedef struct pl_player
 	player_path *move_path_end;
 } player;
 
+/** Minimum length a player name must have. */
+#define PLAYER_NAME_MIN 2
+
+/** Maximum length a player name can have. */
+#define PLAYER_NAME_MAX 12
+
 #ifdef WIN32
 #pragma pack(pop)
 #endif

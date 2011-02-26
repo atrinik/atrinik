@@ -30,12 +30,6 @@
 #include <global.h>
 #include <loader.h>
 
-/** Minimum length a player name must have. */
-#define PLAYER_NAME_MIN 2
-
-/** Maximum length a player name can have. */
-#define PLAYER_NAME_MAX 12
-
 /**
  * Save all players.
  * @param flag If non zero, it means that we want to try and save
