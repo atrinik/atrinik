@@ -1636,6 +1636,13 @@ static char *find_matching_message(const char *msg, const char *match)
 		{
 			/* Find the end of the line, and copy the regex portion into it */
 			cp2 = strchr(cp + 7, '\n');
+
+			if (!cp2)
+			{
+				LOG(llevDebug, "DEBUG: find_matching_message(): Found empty match response: %s\n", msg);
+				return NULL;
+			}
+
 			strncpy(regex, cp + 7, (cp2 - cp - 7));
 			regex[cp2 - cp - 7] = '\0';
 
