@@ -685,6 +685,12 @@ void region_map_show()
 		reset_keys();
 	}
 
+	/* Show direction markers. */
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>N</o>", box.x, y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>E</o>", x + Bitmaps[BITMAP_BOOK]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>S</o>", box.x, y + Bitmaps[BITMAP_BOOK]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>W</o>", x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
+
 	/* Check the status of the downloads. */
 	ret_png = curl_download_finished(data_png);
 	ret_def = curl_download_finished(data_def);
