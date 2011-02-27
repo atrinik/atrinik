@@ -291,3 +291,21 @@ int server_files_parse_setup(const char *cmd, const char *param)
 
 	return 0;
 }
+
+/**
+ * Clear update flag from all server files. */
+void server_files_clear_update()
+{
+	size_t i;
+
+	for (i = 0; i < SERVER_FILES_MAX; i++)
+	{
+		/* Invalid file. */
+		if (!server_file_setup_names[i])
+		{
+			continue;
+		}
+
+		server_files[i].update = 0;
+	}
+}

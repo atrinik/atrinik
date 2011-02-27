@@ -100,6 +100,7 @@ void SetupCmd(char *buf, int len)
 	int s;
 	char *cmd, *param;
 
+	server_files_clear_update();
 	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
 
 	for (s = 0; ;)
