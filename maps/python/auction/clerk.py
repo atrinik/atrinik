@@ -191,6 +191,7 @@ def find_items(seller = None, namepart = None, filters = None):
 	# Go through all the Auction House maps.
 	for (path, types, tiles) in db["maps"]:
 		m = ReadyMap(path)
+		m.timeout = 60 * 10 * 8
 
 		for (x, y) in tiles:
 			# Go through the objects on this square.
@@ -317,6 +318,7 @@ def find_item(t):
 
 		# Load up the map.
 		m = ReadyMap(path)
+		m.timeout = 60 * 10 * 8
 
 		# Try to search for the item.
 		for obj in m.GetFirstObject(x, y):
@@ -760,6 +762,7 @@ def main():
 
 				# Ready the map.
 				m = ReadyMap(path)
+				m.timeout = 60 * 10 * 8
 				t = None
 
 				# Choose first tile that doesn't have any items yet.
