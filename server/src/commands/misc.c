@@ -321,13 +321,35 @@ int command_time(object *op, char *params)
  * @return 1. */
 int command_hiscore(object *op, char *params)
 {
-	if (params && strlen(params) < PLAYER_NAME_MIN)
+	int results = 0;
+
+	if (params)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
-		return 1;
+		results = atoi(params);
+
+		/* If it was a number, don't bother using params to search in /hiscore. */
+		if (results != 0)
+		{
+			params = NULL;
+		}
+		else if (strlen(params) < PLAYER_NAME_MIN)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
+			return 1;
+		}
 	}
 
-	hiscore_display(op, 25, params);
+	/* Add some limits. */
+	if (results <= 0)
+	{
+		results = 25;
+	}
+	else if (results > 50)
+	{
+		results = 50;
+	}
+
+	hiscore_display(op, results, params);
 	return 1;
 }
 
