@@ -81,6 +81,7 @@ def create_money_container(value, msg):
 def clear_custom_values(obj):
 	obj.WriteKey("auction_house_seller")
 	obj.WriteKey("auction_house_value")
+	obj.WriteKey("auction_house_id")
 
 ## Buy an item from the Auction House.
 ## @param activator Who is buying the item.

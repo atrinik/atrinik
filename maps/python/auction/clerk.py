@@ -57,8 +57,11 @@ class Filter:
 	JEWELRY_RING = 35
 	JEWELRY_AMULET = 36
 	JEWELRY_VALUABLE = 37
+	SORT_NEWEST = 38
+	SORT_OLDEST = 39
+	MISC = 40
 	## Last member.
-	MAX = 38
+	MAX = 41
 	## @}
 
 	## Object filters. Any number of these can be applied in filtering.
@@ -122,6 +125,7 @@ class Filter:
 			("amulet", JEWELRY_AMULET),
 			("valuable", JEWELRY_VALUABLE),
 		]]),
+		("misc", MISC, []),
 	]
 
 	## All possible sorts.
@@ -130,6 +134,8 @@ class Filter:
 		("alphabetically (reverse)", SORT_ALPHA_REVERSE),
 		("lower cost first", SORT_VALUE),
 		("higher cost first", SORT_VALUE_REVERSE),
+		("newest", SORT_NEWEST),
+		("oldest", SORT_OLDEST),
 	]
 
 	## Weapon sub types.
@@ -259,6 +265,11 @@ def find_items(seller = None, namepart = None, filters = None):
 							for i in range(len(Filter.jewelry_types)):
 								if Filter.JEWELRY + 1 + i in filters and not obj.type in Filter.jewelry_types[i]:
 									raise OutOfLoopException
+
+						# Misc (none of the above)
+						if Filter.MISC in filters:
+							if obj.type == Type.WEAPON or obj.type == Type.ARROW or obj.type == Type.BOW or obj.type in Filter.jewelry_all_types or obj.type in Filter.armour_types:
+								continue
 					except OutOfLoopException:
 						continue
 
@@ -364,6 +375,10 @@ def create_list(l, action, back = None, sort = None, start = None):
 		l.sort(key = lambda obj: obj.GetName(), reverse = True)
 	elif sort == Filter.SORT_VALUE_REVERSE:
 		l.sort(key = lambda obj: int(obj.ReadKey("auction_house_value")), reverse = True)
+	elif sort == Filter.SORT_NEWEST:
+		l.sort(key = lambda obj: int(obj.ReadKey("auction_house_id")), reverse = True)
+	elif sort == Filter.SORT_OLDEST:
+		l.sort(key = lambda obj: int(obj.ReadKey("auction_house_id")))
 	else:
 		l.sort(key = lambda obj: int(obj.ReadKey("auction_house_value")))
 
@@ -765,6 +780,8 @@ def main():
 				me.SayTo(activator, "\nYour {} has been placed in this Auction House successfully.\nSelling price: {} (each)\nClick <a=:/t_tell my items>here</a> to see your items.".format(marked.GetName(), CostString(val)))
 				marked.WriteKey("auction_house_seller", activator.name)
 				marked.WriteKey("auction_house_value", str(val))
+				marked.WriteKey("auction_house_id", str(db["uid"]))
+				auction_uid_increase()
 				m.Insert(marked, x, y)
 				return
 
@@ -778,44 +795,66 @@ def main():
 	elif activator.f_wiz and msg == "setup":
 		import json
 		temp = []
+		sign = None
 
-		# Look at xy 0,0 for sign object.
-		for obj in me.map.GetFirstObject(0, 0):
-			if obj.name != "sign":
-				continue
+		# Try and find the sign object on current map.
+		try:
+			for x in range(me.map.width):
+				for y in range(me.map.height):
+					for obj in me.map.GetLayer(x, y, LAYER_SYS):
+						if obj.name == "Auction House sign":
+							sign = obj
+							raise OutOfLoopException
+		except OutOfLoopException:
+			pass
 
-			# Load the data from the sign's message using json.
-			for (path, types) in json.loads(obj.msg):
-				m = ReadyMap(path)
-				t = (path, [], [])
+		if not sign:
+			me.SayTo(activator, "\nCould not find Auction House information sign on current map, bailing out.")
+			return
 
-				# Look for unique floor tiles on the map and append them to a list in
-				# the above tuple.
-				for x in range(m.width):
-					for y in range(m.height):
-						try:
-							floor = m.GetLayer(x, y, LAYER_FLOOR)[0]
+		# Load the data from the sign's message using json.
+		for (path, types) in json.loads(sign.msg):
+			m = ReadyMap(path)
+			t = (path, [], [])
 
-							if floor.f_unique:
-								t[2].append((x, y))
-						except:
-							pass
+			# Look for unique floor tiles on the map and append them to a list in
+			# the above tuple.
+			for x in range(m.width):
+				for y in range(m.height):
+					try:
+						floor = m.GetLayer(x, y, LAYER_FLOOR)[0]
 
-				# Parse the types.
-				for token in types.split(","):
-					token = token.strip()
+						if floor.f_unique:
+							t[2].append((x, y))
+					except:
+						pass
 
-					if token == "other":
-						t[1].append(token)
-					else:
-						t[1].append(Type.__dict__[token])
+			# Parse the types.
+			for token in types.split(","):
+				token = token.strip()
 
-				temp.append(t)
+				if token == "other":
+					t[1].append(token)
+				else:
+					t[1].append(Type.__dict__[token])
 
-			break
+			temp.append(t)
 
 		# Update the database.
 		db["maps"] = temp
+		# Reset UID counter.
+		db["uid"] = 0
+
+		# Assign UID to all objects in the Auction House.
+		for obj in find_items():
+			obj.WriteKey("auction_house_id", str(db["uid"]))
+			auction_uid_increase()
+
+## Increase the Auction House UID counter by 1.
+def auction_uid_increase():
+	temp = db["uid"]
+	temp += 1
+	db["uid"] = temp
 
 try:
 	main()
