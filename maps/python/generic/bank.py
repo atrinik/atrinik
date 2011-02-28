@@ -10,30 +10,30 @@ text = msg.split()
 
 def main():
 	if msg == "bank" or msg == "hello" or msg == "hi" or msg == "hey":
-		me.SayTo(activator, "\nHello! I am {0}, the banker.\nDo you want to ^deposit all^ or ^withdraw all^, or should I ^explain^ how we work?".format(me.name))
+		me.SayTo(activator, "\nHello! I am {}, the banker.\nDo you want to <a>deposit all</a> or <a>withdraw all</a>, or should I <a>explain</a> how we work?".format(me.name))
 
 	# Give out information about the bank
 	elif msg == "explain":
-		me.SayTo(activator, "\nStoring your money in a bank account is a wise idea indeed. Just ask for the ^balance^ to see what's in your account. You can also ^deposit^ money to your account or ^withdraw^ money from it.")
+		me.SayTo(activator, "\nStoring your money in a bank account is a wise idea indeed. Just ask for the <a>balance</a> to see what's in your account. You can also <a>deposit</a> money to your account or <a>withdraw</a> money from it.")
 
 	elif msg == "balance":
 		balance = activator.Controller().BankBalance()
 
 		if balance == 0:
-			me.SayTo(activator, "\nYou have no money stored in your bank account.\nWould you like to ^deposit all^ your money?")
+			me.SayTo(activator, "\nYou have no money stored in your bank account.\nWould you like to <a>deposit all</a> your money?")
 		else:
-			me.SayTo(activator, "\nYour balance is {0}.".format(CostString(balance)))
+			me.SayTo(activator, "\nYour balance is {}.".format(CostString(balance)))
 
 	# Deposit money
 	elif text[0] == "deposit":
 		if len(text) == 1:
-			me.SayTo(activator, "\nYou can store money in your account by saying ~deposit~ followed by the amount.\nFor example ~deposit 1 mithril, 99 silver~\nYou can also ^deposit all^.")
+			me.SayTo(activator, "\nYou can store money in your account by saying <green>deposit</green> followed by the amount.\nFor example <green>deposit 1 mithril, 99 silver</green>\nYou can also <a>deposit all</a>.")
 			return
 
 		(ret, value) = activator.Controller().BankDeposit(msg)
 
 		if ret == BANK_SYNTAX_ERROR:
-			me.SayTo(activator, "\nDeposit what?\nUse 'deposit all' or 'deposit 40 gold, 20 silver...'")
+			me.SayTo(activator, "\n<a>Deposit</a> what?\nUse <a>deposit all</a> or <green>deposit 40 gold, 20 silver</green>...")
 		elif ret == BANK_DEPOSIT_COPPER:
 			me.SayTo(activator, "\nYou don't have that many copper coins.")
 		elif ret == BANK_DEPOSIT_SILVER:
@@ -53,13 +53,13 @@ def main():
 	# Withdraw some money
 	elif text[0] == "withdraw":
 		if len(text) == 1:
-			me.SayTo(activator, "\nYou can get money from your account saying by ~withdraw~ followed by the amount.\nFor example ~withdraw 2 gold, 40 copper~\nYou can also ^withdraw all^.")
+			me.SayTo(activator, "\nYou can get money from your account by saying <green>withdraw</green> followed by the amount.\nFor example <green>withdraw 2 gold, 40 copper</green>\nYou can also <a>withdraw all</a>.")
 			return
 
 		(ret, value) = activator.Controller().BankWithdraw(msg)
 
 		if ret == BANK_SYNTAX_ERROR:
-			me.SayTo(activator, "\nWithdraw what?\nUse 'withdraw all' or 'withdraw 30 gold, 20 silver...'")
+			me.SayTo(activator, "\n<a>Withdraw</a> what?\nUse <a>withdraw all</a> or <green>withdraw 30 gold, 20 silver</green>...")
 		elif ret == BANK_WITHDRAW_HIGH:
 			me.SayTo(activator, "\nYou can't withdraw that much at once.")
 		elif ret == BANK_WITHDRAW_MISSING:
