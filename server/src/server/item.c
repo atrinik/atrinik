@@ -705,6 +705,49 @@ char *query_name(object *op, object *caller)
 }
 
 /**
+ * Queries an object's name, but only includes the name, title (if any)
+ * and material information (if any).
+ * @param op Object.
+ * @return The object's name. */
+char *query_material_name(object *op)
+{
+	static char buf[MAX_BUF];
+	size_t len;
+
+	buf[0] = '\0';
+	len = 0;
+
+	if (!op->name)
+	{
+		return "(null)";
+	}
+
+	if (!QUERY_FLAG(op, FLAG_IS_NAMED))
+	{
+		/* Add the item race name */
+		if (!IS_LIVE(op) && op->type != BASE_INFO)
+		{
+			safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
+		}
+
+		if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
+		{
+			safe_strcat(buf, material_real[op->material_real].name, &len, sizeof(buf));
+		}
+	}
+
+	safe_strcat(buf, op->name, &len, sizeof(buf));
+
+	if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED))
+	{
+		safe_strcat(buf, " ", &len, sizeof(buf));
+		safe_strcat(buf, op->title, &len, sizeof(buf));
+	}
+
+	return buf;
+}
+
+/**
  * Returns a character pointer pointing to a static buffer which contains
  * a verbose textual representation of the name of the given object.
  *

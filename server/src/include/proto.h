@@ -463,6 +463,7 @@ char *query_weight(object *op);
 char *get_levelnumber(int i);
 char *query_short_name(object *op, object *caller);
 char *query_name(object *op, object *caller);
+char *query_material_name(object *op);
 char *query_base_name(object *op, object *caller);
 char *describe_item(object *op);
 int need_identify(object *op);

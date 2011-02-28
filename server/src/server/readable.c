@@ -669,7 +669,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 		give_artifact_abilities(tmp, art);
 		SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-		stringbuffer_append_printf(desc, "\n<t t=\"%s %s\">It is ", tmp->name, tmp->title ? tmp->title : "");
+		stringbuffer_append_printf(desc, "\n<t t=\"%s\">It is ", query_material_name(tmp));
 
 		/* Chance of finding. */
 		chance = 100 * ((float) art->chance / al->total_chance);
