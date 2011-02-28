@@ -757,8 +757,8 @@ object *bank_get_info(object *op);
 object *bank_create_info(object *op);
 object *bank_get_create_info(object *op);
 sint64 bank_get_balance(object *op);
-int bank_deposit(object *op, const char *text);
-int bank_withdraw(object *op, const char *text);
+int bank_deposit(object *op, const char *text, sint64 *value);
+int bank_withdraw(object *op, const char *text, sint64 *value);
 sint64 insert_coins(object *pl, sint64 value);
 
 /* server/shstr.c */

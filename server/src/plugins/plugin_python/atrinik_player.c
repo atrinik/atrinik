@@ -233,34 +233,44 @@ static PyObject *Atrinik_Player_WriteToSocket(Atrinik_Player *pl, PyObject *args
  * <h1>player.BankDeposit(string text)</h1>
  * Deposit money to bank.
  * @param text How much money to deposit, in string representation.
- * @return One of @ref BANK_xxx. */
+ * @return Tuple containing the status code (one of @ref BANK_xxx) and amount
+ * of money deposited as integer. */
 static PyObject *Atrinik_Player_BankDeposit(Atrinik_Player *pl, PyObject *args)
 {
 	const char *text;
+	int ret;
+	sint64 value;
 
 	if (!PyArg_ParseTuple(args, "s", &text))
 	{
 		return NULL;
 	}
 
-	return Py_BuildValue("i", hooks->bank_deposit(pl->pl->ob, text));
+	ret = hooks->bank_deposit(pl->pl->ob, text, &value);
+
+	return Py_BuildValue("(iL)", ret, value);
 }
 
 /**
  * <h1>player.BankWithdraw(string text)</h1>
  * Withdraw money from bank.
  * @param text How much money to withdraw, in string representation.
- * @return One of @ref BANK_xxx. */
+ * @return Tuple containing the status code (one of @ref BANK_xxx) and amount
+ * of money withdrawn as integer. */
 static PyObject *Atrinik_Player_BankWithdraw(Atrinik_Player *pl, PyObject *args)
 {
 	const char *text;
+	int ret;
+	sint64 value;
 
 	if (!PyArg_ParseTuple(args, "s", &text))
 	{
 		return NULL;
 	}
 
-	return Py_BuildValue("i", hooks->bank_withdraw(pl->pl->ob, text));
+	ret = hooks->bank_withdraw(pl->pl->ob, text, &value);
+
+	return Py_BuildValue("(iL)", ret, value);
 }
 
 /**

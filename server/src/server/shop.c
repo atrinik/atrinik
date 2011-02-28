@@ -988,8 +988,9 @@ sint64 bank_get_balance(object *op)
  * Deposit money to player's bank object.
  * @param op Player.
  * @param text What was said to trigger this.
+ * @param[out] value Will contain the deposited amount.
  * @return One of @ref BANK_xxx. */
-int bank_deposit(object *op, const char *text)
+int bank_deposit(object *op, const char *text, sint64 *value)
 {
 	int pos = 0;
 	_money_block money;
@@ -997,6 +998,7 @@ int bank_deposit(object *op, const char *text)
 
 	get_word_from_string(text, &pos);
 	get_money_from_string(text + pos, &money);
+	*value = 0;
 
 	if (!money.mode)
 	{
@@ -1005,7 +1007,8 @@ int bank_deposit(object *op, const char *text)
 	else if (money.mode == MONEYSTRING_ALL)
 	{
 		bank = bank_get_create_info(op);
-		bank->value += remove_money_type(op, op, -1, 0);
+		*value = remove_money_type(op, op, -1, 0);
+		bank->value += *value;
 		fix_player(op);
 	}
 	else
@@ -1063,7 +1066,8 @@ int bank_deposit(object *op, const char *text)
 		}
 
 		bank = bank_get_create_info(op);
-		bank->value += money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
+		*value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
+		bank->value += *value;
 		fix_player(op);
 	}
 
@@ -1075,8 +1079,9 @@ int bank_deposit(object *op, const char *text)
  * @param op Player.
  * @param bank Bank object in player's inventory.
  * @param text What was said to trigger this.
+ * @param[out] value Will contain the withdrawn amount.
  * @return One of @ref BANK_xxx. */
-int bank_withdraw(object *op, const char *text)
+int bank_withdraw(object *op, const char *text, sint64 *value)
 {
 	int pos = 0;
 	sint64 big_value;
@@ -1087,6 +1092,7 @@ int bank_withdraw(object *op, const char *text)
 	get_money_from_string(text + pos, &money);
 
 	bank = bank_get_info(op);
+	*value = 0;
 
 	if (!bank || !bank->value)
 	{
@@ -1099,6 +1105,7 @@ int bank_withdraw(object *op, const char *text)
 	}
 	else if (money.mode == MONEYSTRING_ALL)
 	{
+		*value = bank->value;
 		sell_item(NULL, op, bank->value);
 		bank->value = 0;
 		fix_player(op);
@@ -1143,6 +1150,7 @@ int bank_withdraw(object *op, const char *text)
 			insert_money_in_player(op, &coins_arch[3]->clone, money.copper);
 		}
 
+		*value = big_value;
 		bank->value -= big_value;
 		fix_player(op);
 	}

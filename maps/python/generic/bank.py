@@ -30,7 +30,7 @@ def main():
 			me.SayTo(activator, "\nYou can store money in your account by saying ~deposit~ followed by the amount.\nFor example ~deposit 1 mithril, 99 silver~\nYou can also ^deposit all^.")
 			return
 
-		ret = activator.Controller().BankDeposit(msg)
+		(ret, value) = activator.Controller().BankDeposit(msg)
 
 		if ret == BANK_SYNTAX_ERROR:
 			me.SayTo(activator, "\nDeposit what?\nUse 'deposit all' or 'deposit 40 gold, 20 silver...'")
@@ -45,8 +45,8 @@ def main():
 		elif ret == BANK_SUCCESS:
 			balance = activator.Controller().BankBalance()
 
-			if balance:
-				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(balance)))
+			if value:
+				me.SayTo(activator, "\nYou deposit {}; your new balance is {}.".format(CostString(value), CostString(balance)))
 			else:
 				me.SayTo(activator, "\nYou don't have any money on hand.")
 
@@ -56,7 +56,7 @@ def main():
 			me.SayTo(activator, "\nYou can get money from your account saying by ~withdraw~ followed by the amount.\nFor example ~withdraw 2 gold, 40 copper~\nYou can also ^withdraw all^.")
 			return
 
-		ret = activator.Controller().BankWithdraw(msg)
+		(ret, value) = activator.Controller().BankWithdraw(msg)
 
 		if ret == BANK_SYNTAX_ERROR:
 			me.SayTo(activator, "\nWithdraw what?\nUse 'withdraw all' or 'withdraw 30 gold, 20 silver...'")
@@ -70,8 +70,8 @@ def main():
 			balance = activator.Controller().BankBalance()
 
 			if balance == 0:
-				me.SayTo(activator, "\nYou removed all your money.")
+				me.SayTo(activator, "\nYou removed your entire balance of {}.".format(CostString(value)))
 			else:
-				me.SayTo(activator, "\nYour new balance is {0}.".format(CostString(balance)))
+				me.SayTo(activator, "\nYou withdraw {}; your new balance is {}.".format(CostString(value), CostString(balance)))
 
 main()
