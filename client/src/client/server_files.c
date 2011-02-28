@@ -73,8 +73,9 @@ void server_files_init()
 
 /**
  * Load the server files. If they haven't changed since last load, no
- * loading will be done. */
-void server_files_load()
+ * loading will be done.
+ * @param post_load Unless 1, (re)parsing the server files will not be done. */
+void server_files_load(int post_load)
 {
 	size_t i;
 	FILE *fp;
@@ -91,7 +92,7 @@ void server_files_load()
 		}
 
 		/* Server file was loaded previously. */
-		if (server_files[i].loaded)
+		if (post_load && server_files[i].loaded)
 		{
 			if (server_file_funcs_reload[i])
 			{
@@ -124,12 +125,15 @@ void server_files_load()
 		free(contents);
 		fclose(fp);
 
-		/* Mark that we have loaded this file. */
-		server_files[i].loaded = 1;
-
-		if (server_file_funcs[i])
+		if (post_load)
 		{
-			server_file_funcs[i]();
+			/* Mark that we have loaded this file. */
+			server_files[i].loaded = 1;
+
+			if (server_file_funcs[i])
+			{
+				server_file_funcs[i]();
+			}
 		}
 	}
 }
@@ -242,7 +246,7 @@ void server_files_setup_add(char *buf, size_t buf_size)
 	char tmp[MAX_BUF];
 
 	/* Load up the files. */
-	server_files_load();
+	server_files_load(0);
 
 	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{

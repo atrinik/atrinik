@@ -175,7 +175,7 @@ void script_unload(const char *params);
 
 /* client/server_files.c */
 void server_files_init();
-void server_files_load();
+void server_files_load(int post_load);
 FILE *server_file_open(size_t id);
 void server_file_save(size_t id, unsigned char *data, size_t len);
 int server_files_updating();

@@ -709,7 +709,7 @@ static int game_status_chain()
 	{
 		if (!server_files_updating())
 		{
-			server_files_load();
+			server_files_load(1);
 			GameStatus = GAME_STATUS_ADDME;
 		}
 	}
