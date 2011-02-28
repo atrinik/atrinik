@@ -2997,7 +2997,7 @@ void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_
 {
 	if (pl && CONTR(pl)->socket.socket_version < 1038)
 	{
-		if (!map->bg_music && !map_info && !map_info->slaying)
+		if (!map->bg_music && (!map_info || !map_info->slaying))
 		{
 			SockList_AddString(sl, "no_music");
 		}
