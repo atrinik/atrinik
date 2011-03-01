@@ -213,45 +213,45 @@ yewtree.mid: Forest, peaceful
 = http://piano-midi.de/ - CC BY-SA 3.0 =
 ========================================
 
-autumn.mid
-barcarolle.mid
-carnival.mid
-christmas1.mid
-christmas2.mid
-christmas3.mid
-christmas4.mid
-christmas5.mid
-christmas6.mid
-elise.mid
-fireside.mid
-fountain.mid
-harvest.mid
-lark.mid
-pearls.mid
-prelude1.mid
-prelude2.mid
-prelude3.mid
-reaper.mid
-ride.mid
-snowdrop.mid
-starlight.mid
-tango.mid
-the_hunt.mid
-thunderstorm.mid
+autumn.mid: Town dungeon, peaceful, tavern
+barcarolle.mid: Town
+carnival.mid: Carnival
+christmas1.mid: Silent night
+christmas2.mid: Christmas tree, cathedral
+christmas3.mid: Ice village
+christmas4.mid: Ice village
+christmas5.mid: Ice village
+christmas6.mid: Ice village
+elise.mid: Town
+fireside.mid: Inn
+fountain.mid: Fountain, happy place
+harvest.mid: Frantic, farm, running away
+lark.mid: Lazy village
+pearls.mid: Underwater
+prelude1.mid: Town, overland, forest
+prelude2.mid: Frantic
+prelude3.mid: Frantic run
+reaper.mid: Graveyard, boss fight
+ride.mid: Plains, farm
+snowdrop.mid: Snowy
+starlight.mid: Night, peaceful
+tango.mid: Ball music
+the_hunt.mid: Hunt
+thunderstorm.mid: Fast pouring rain, storm
 
 ====================================================================================================
 = David J. Grossman - http://www.jsbach.net/ - Freely re-distributable for non-commercial purposes =
 ====================================================================================================
 
-dg1.mid
-dg2.mid
-dg3.mid
-dg4.mid
-dg5.mid
-dg6.mid
-dg7.mid
-dg8.mid
-dg9.mid
+dg1.mid: Inn, town
+dg2.mid: Inn, town, violin
+dg3.mid: Inn, town
+dg4.mid: Inn, town
+dg5.mid: Mystic forest
+dg6.mid: Magic forest
+dg7.mid: Magic forest
+dg8.mid: Magic forest
+dg9.mid: Castle, fort, palace
 
 =====================
 = GPL (unconfirmed) =
