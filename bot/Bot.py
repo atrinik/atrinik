@@ -200,6 +200,8 @@ class Bot(BaseSocket):
 	def handle_chat(self, name, msg, chat):
 		# Default message if we can't match any regex.
 		ret = "I cannot answer that query."
+		# Remove extraneous spaces between words.
+		msg = " ".join(msg.split())
 
 		# Try to parse the commands.
 		for (regex, cmd) in self.commands:
