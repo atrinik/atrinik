@@ -204,7 +204,7 @@ class Commands:
 	def player_command_chat(self, name, groups):
 		(msg, ) = groups
 		msg.replace("{{bot}}", "")
-		return self._bot.howie.submit(msg, "{0}@{1}:{2}-{3}".format(self._bot.name, self._bot.host, self._bot.port, name)).replace("\n", " ").replace("{{bot}}", self._bot.name)
+		return self._bot.howie.submit(msg, name, "{0}@{1}:{2}-{3}".format(self._bot.name, self._bot.host, self._bot.port, name)).replace("\n", " ").replace("{{bot}}", self._bot.name)
 
 	## Calculates currency.
 	## @param name The player's name.
