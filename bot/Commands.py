@@ -2,7 +2,7 @@
 ## Player commands handling.
 
 from misc import command_execute
-import locale, time
+import locale, time, sys
 
 ## The commands class.
 class Commands:
@@ -224,3 +224,12 @@ class Commands:
 			return "{0} {1} coin(s) in {2} coin(s): {3}".format(amount, def_currency1[0][:-1], def_currency2[0][:-1], locale.format("%d", def_currency1[1] * amount / def_currency2[1], grouping = True))
 
 		return "Gee... I can't answer that..."
+
+	## Exits the bot.
+	## @param name The player's name.
+	## @param groups Data from regex that triggered this.
+	def player_command_quit(self, name, groups):
+		if not name in self._bot.config.get(self._bot.section, "admins").split(","):
+			return "I don't really want to..."
+
+		sys.exit(0)

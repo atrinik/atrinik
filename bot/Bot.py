@@ -60,6 +60,7 @@ class Bot(BaseSocket):
 			("^reload commands(?:\.)?$", self.cmds.player_commands_reload),
 			("^chat (.+)$", self.cmds.player_command_chat),
 			("^(?:how much is )?(\d+) (\w+)(?: coin(?:s)?)? in (\w+)(?: coin(?:s)?)?(?:\?)?$", self.cmds.player_command_currency),
+			("^shutdown$", self.cmds.player_command_quit),
 		]
 
 		# Is there a commands section?
