@@ -96,7 +96,7 @@ class Commands:
 			return "Players with most deaths{0}: {1}".format(" in the arena" if pvp else "", ", ".join(list(map(lambda player: "{0} ({1})".format(player, len(self._bot.db["players"][player][entry])), [player for player in l[:min(self._bot.config.getint("General", "max_kill_top"), len(l))] if self._bot.db["players"][player][entry]]))))
 		# Just the first one.
 		else:
-			return "{0} has been killed most often{1}, with {2} deaths.".format(l[0], " in the arena" if pvp else "", self._bot.db["players"][l[0]][entry])
+			return "{0} has been killed most often{1}, with {2} deaths.".format(l[0], " in the arena" if pvp else "", len(self._bot.db["players"][l[0]][entry]))
 
 	## Ask the bot how many times a player has died.
 	## @param name The player's name.
@@ -152,6 +152,7 @@ class Commands:
 			return "Players with most kills in the arena: {0}".format(", ".join(list(map(lambda key: "{0} ({1})".format(self._bot.db["kills"][key]["name"], len(self._bot.db["kills"][key]["arena"])), [key for key in l[:min(self._bot.config.getint("General", "max_kill_top"), len(l))] if self._bot.db["kills"][key]["arena"]]))))
 		# Just the first one.
 		else:
+			print("{0} has killed the most players in the arena, with {1} kills.".format(self._bot.db["kills"][l[0]]["name"], len(self._bot.db["kills"][l[0]]["arena"])))
 			return "{0} has killed the most players in the arena, with {1} kills.".format(self._bot.db["kills"][l[0]]["name"], len(self._bot.db["kills"][l[0]]["arena"]))
 
 	## Ask the bot how many times something has killed.
