@@ -18,7 +18,7 @@ class KillsLog:
 	## @param name Name of the killer.
 	def _init_killer(self, name):
 		# Check that it doesn't exist yet.
-		if name in self._bot.db["kills"]:
+		if name.lower() in self._bot.db["kills"]:
 			return
 
 		# Initialize the dictionary for this killer. The killer's name is
