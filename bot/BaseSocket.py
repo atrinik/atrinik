@@ -11,7 +11,7 @@ class BaseSocket:
 		self._reconnect = 0
 		self._command_queue = []
 		self._command_queue_stamp = ts
-		self._command_queue_lock = threading.Lock()
+		self._command_queue_lock = threading.RLock()
 		self._connect()
 
 	## Connect to a server.

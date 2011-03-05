@@ -15,7 +15,7 @@ except:
 	from configparser import ConfigParser
 
 ## Create database lock.
-db_lock = threading.Lock()
+db_lock = threading.RLock()
 ## Create the database.
 db = shelve.open("bot.db", writeback = True)
 bots = []
