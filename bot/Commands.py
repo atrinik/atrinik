@@ -2,6 +2,7 @@
 ## Player commands handling.
 
 from misc import command_execute
+import locale
 
 ## The commands class.
 class Commands:
@@ -11,6 +12,14 @@ class Commands:
 		self._bot = bot
 		# Allowed info for ::player_command_info.
 		self._info_allowed = ("level", "class", "race", "gender")
+		self._currencies = [
+			("coppers", 1),
+			("silvers", 100),
+			("golds", 10000),
+#			("jades", 1000000),
+			("mithrils", 10000000),
+		]
+		locale.setlocale(locale.LC_ALL, "")
 
 	## Get entry from the players dictionary.
 	## @param name The player's name.
@@ -178,3 +187,22 @@ class Commands:
 		(msg, ) = groups
 		msg.replace("{{bot}}", "")
 		return self._bot.howie.submit(msg, "{0}@{1}:{2}-{3}".format(self._bot.name, self._bot.host, self._bot.port, name)).replace("\n", " ").replace("{{bot}}", self._bot.name)
+
+	## Calculates currency.
+	## @param name The player's name.
+	## @param groups Data from regex that triggered this.
+	def player_command_currency(self, name, groups):
+		(amount, currency1, currency2) = groups
+
+		try:
+			(def_currency1, ) = (t for t in self._currencies if t[0].startswith(currency1))
+			(def_currency2, ) = (t for t in self._currencies if t[0].startswith(currency2))
+		except ValueError:
+			return "Gee... I can't calculate that one..."
+
+		amount = int(amount)
+
+		if def_currency1[1] * amount >= def_currency2[1]:
+			return "{0} {1} coin(s) in {2} coin(s): {3}".format(amount, def_currency1[0][:-1], def_currency2[0][:-1], locale.format("%d", def_currency1[1] * amount / def_currency2[1], grouping = True))
+
+		return "Gee... I can't answer that..."
