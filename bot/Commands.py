@@ -2,7 +2,7 @@
 ## Player commands handling.
 
 from misc import command_execute
-import locale
+import locale, time
 
 ## The commands class.
 class Commands:
@@ -52,7 +52,7 @@ class Commands:
 		if not entry:
 			return "I have never ever seen {0}.".format(player)
 
-		return "Last time I saw {0}: {0}".format(player, time.strftime("%A, %d %B %Y %H:%M:%S UTC (+0000)", time.gmtime(entry)))
+		return "Last time I saw {0}: {1}".format(player, time.strftime("%A, %d %B %Y %H:%M:%S UTC (+0000)", time.gmtime(entry)))
 
 	## Ask information (gender/level/etc) about a player.
 	## @param name The player's name.
