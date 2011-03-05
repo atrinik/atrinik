@@ -53,9 +53,9 @@ class Bot(BaseSocket):
 			("wh(?:o|ich player(s)?) (?:(?:has |have )?died|got killed)(?: the)? most(?: often)?( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_died),
 			("wh(?:ich|at) (?:mo(?:b|nster)|beast|thing|creature)(s)? (?:is|are|r)(?: (?:the )?most)? (?:lethal|dangerous)(?:\?)?", self.cmds.player_command_lethal),
 			("wh(?:o|ich player(s)?) (?:has|have) killed(?: (?:the )?most)(?: players)? in(?: the)? arena(?:\?)?", self.cmds.player_command_arena),
-
-			("how (?:many times|much) (?:has|did) (.+) killed ([a-zA-Z0-9_-]+)( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_killed_player),
-			("how (?:many times|much) (?:has|did) (.+) killed( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_killed_count),
+			("how (?:many times|much) (?:has|did) ([a-zA-Z0-9_-]+) die(?:d)?( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_died_player),
+			("how (?:many times|much) (?:has|did) (.+) kill(?:ed)? ([a-zA-Z0-9_-]+)( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_killed_player),
+			("how (?:many times|much) (?:has|did) (.+) kill(?:ed)?( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_killed_count),
 
 			("^reload commands(?:\.)?$", self.cmds.player_commands_reload),
 			("^chat (.+)$", self.cmds.player_command_chat),

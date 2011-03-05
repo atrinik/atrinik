@@ -98,6 +98,24 @@ class Commands:
 		else:
 			return "{0} has been killed most often{1}, with {2} deaths.".format(l[0], " in the arena" if pvp else "", self._bot.db["players"][l[0]][entry])
 
+	## Ask the bot how many times a player has died.
+	## @param name The player's name.
+	## @param groups Data from regex that triggered this.
+	def player_command_died_player(self, name, groups):
+		(player, pvp) = groups
+		player = player.capitalize()
+		entry = "deaths_arena" if pvp else "deaths"
+
+		if not player in self._bot.db["players"]:
+			return "I don't know anything about {0}.".format(player)
+
+		num = len(self._bot.db["players"][player][entry])
+
+		if not num:
+			return "{0} has never ever died{1}.".format(player, " in the arena" if pvp else "")
+
+		return "{0} has died {1} times{2}.".format(player, num, " in the arena" if pvp else "")
+
 	## Ask which monster(s) are most lethal.
 	## @param name The player's name.
 	## @param groups Data from regex that triggered this.
