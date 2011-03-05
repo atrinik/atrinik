@@ -63,6 +63,8 @@ class types:
 	map_event_object = 127
 	wall = 77
 	magic_mirror = 28
+	door = 20
+	gate = 91
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -542,6 +544,13 @@ def check_obj(obj, map):
 	if get_entry(obj, "is_turnable") == 1 and get_entry(obj, "draw_direction") == 1:
 		if get_entry(obj, "direction") in (5, 6, 4, 3, 2, 8):
 			add_error(map["file"], "Object {0} has wrong direction {1}; must be facing either west or north.".format(obj["archname"], get_entry(obj, "direction")), errors.low, env["x"], env["y"])
+
+	if obj["type"] in (types.door, types.gate, types.wall):
+		if get_entry(obj, "damned") == 1:
+			add_error(map["file"], "Object {0} has 'damned 1' flag set, but this is not supported.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+		if get_entry(obj, "no_magic") == 1:
+			add_error(map["file"], "Object {0} has 'no_magic 1' flag set, which may be an error, as this flag is usually set on floor objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
