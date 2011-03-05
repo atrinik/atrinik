@@ -30,10 +30,6 @@ class Howie:
 			return "This function is not available at this time."
 
 		self._change_dir()
-
-		if not howie.core.kernel.getPredicate("name", session):
-			howie.core.kernel.setPredicate("name", name, session)
-
 		ret = howie.core.submit(msg, session)
 		self._restore_dir()
 		return ret

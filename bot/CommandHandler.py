@@ -104,6 +104,12 @@ class CommandHandler:
 			if match:
 				(name, msg) = match.groups()
 				self._bot.handle_chat(name, msg, "tell")
+		elif flags & NDI.SAY:
+			match = re.match("([a-zA-Z0-9_-]+) says: {0}, (.+)".format(self._bot.name), data)
+
+			if match:
+				(name, msg) = match.groups()
+				self._bot.handle_chat(name, msg, "say")
 		# Dark orange message.
 		elif color == NDI.DK_ORANGE:
 			# Entered the game, update timestamp.

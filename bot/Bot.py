@@ -217,3 +217,5 @@ class Bot(BaseSocket):
 
 		if chat == "tell":
 			self.send_command("/tell {0} {1}".format(name, ret))
+		elif chat == "say":
+			self.send_command("/say {0}".format(ret))
