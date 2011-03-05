@@ -94,8 +94,12 @@ class Bot(BaseSocket):
 			s = s.encode()
 
 		l = len(s)
-		self.socket.send(struct.pack("BB", (l >> 8 & 0xFF), l & 0xFF))
-		self.socket.send(s)
+		s = struct.pack("BB", (l >> 8 & 0xFF), l & 0xFF) + s
+		l += 2
+		sent = 0
+
+		while sent < l:
+			sent += self.socket.send(s[sent:])
 
 	## Send game command to the server.
 	## @param s The command to send.
