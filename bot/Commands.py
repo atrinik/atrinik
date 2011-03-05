@@ -130,10 +130,10 @@ class Commands:
 
 		# Top #x killers.
 		if multiple:
-			return "Most dangerous killers: {0}".format(", ".join(list(map(lambda key: "{0} ({1})".format(key, len(self._bot.db["kills"][key]["normal"])), [key for key in l[:min(self._bot.config.getint("General", "max_kill_top"), len(l))] if self._bot.db["kills"][key]["normal"]]))))
+			return "Most dangerous killers: {0}".format(", ".join(list(map(lambda key: "{0} ({1})".format(self._bot.db["kills"][key]["name"], len(self._bot.db["kills"][key]["normal"])), [key for key in l[:min(self._bot.config.getint("General", "max_kill_top"), len(l))] if self._bot.db["kills"][key]["normal"]]))))
 		# Just the first one.
 		else:
-			return "{0} is the most dangerous, with {1} kills.".format(l[0], len(self._bot.db["kills"][l[0]]["normal"]))
+			return "{0} is the most dangerous, with {1} kills.".format(self._bot.db["kills"][l[0]]["name"], len(self._bot.db["kills"][l[0]]["normal"]))
 
 	## Ask which player(s) killed the most in the arena.
 	## @param name The player's name.
@@ -149,10 +149,10 @@ class Commands:
 
 		# Show top #x arena killers.
 		if multiple:
-			return "Players with most kills in the arena: {0}".format(", ".join(list(map(lambda key: "{0} ({1})".format(key, len(self._bot.db["kills"][key]["arena"])), [key for key in l[:min(self._bot.config.getint("General", "max_kill_top"), len(l))] if self._bot.db["kills"][key]["arena"]]))))
+			return "Players with most kills in the arena: {0}".format(", ".join(list(map(lambda key: "{0} ({1})".format(self._bot.db["kills"][key]["name"], len(self._bot.db["kills"][key]["arena"])), [key for key in l[:min(self._bot.config.getint("General", "max_kill_top"), len(l))] if self._bot.db["kills"][key]["arena"]]))))
 		# Just the first one.
 		else:
-			return "{0} has killed the most players in the arena, with {1} kills.".format(l[0], len(self._bot.db["kills"][l[0]]["arena"]))
+			return "{0} has killed the most players in the arena, with {1} kills.".format(self._bot.db["kills"][l[0]]["name"], len(self._bot.db["kills"][l[0]]["arena"]))
 
 	## Ask the bot how many times something has killed.
 	## @param name The player's name.

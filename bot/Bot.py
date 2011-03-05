@@ -43,19 +43,19 @@ class Bot(BaseSocket):
 		self.config.read(['config.cfg'])
 		# List of recognized commands.
 		self.commands = [
-			("what does(?: (?:the )?acronym)? (\w+) (?:stand for|mean)(?:\?)?", self.cmds.player_command_acronym),
-			("(?:wtf|what) is (\w+)(?:\?)?", self.cmds.player_command_acronym),
-			("when was ([a-zA-Z0-9_-]+) last (?:on|online|logged in|here|seen)(?:\?)?", self.cmds.player_command_seen),
-			("seen ([a-zA-Z0-9_-]+)(?:\?)?", self.cmds.player_command_seen),
-			("(?:when (?:have (?:you|u) last seen|did (?:you|u) last see)|(?:last )?seen|have (?:you|u) seen|did (?:you|u) see) ([a-zA-Z0-9_-]+)(?:\?)?", self.cmds.player_command_seen),
-			("(?:what|which) (\w+) is ([a-zA-Z0-9_-]+)(?:\?)?", self.cmds.player_command_info),
+			("^what does(?: (?:the )?acronym)? (\w+) (?:stand for|mean)(?:\?)?$", self.cmds.player_command_acronym),
+			("^(?:wtf|what) is (\w+)(?:\?)?$", self.cmds.player_command_acronym),
+			("^when was ([a-zA-Z0-9_-]+) last (?:on|online|logged in|here|seen)(?:\?)?$", self.cmds.player_command_seen),
+			("^seen ([a-zA-Z0-9_-]+)(?:\?)?$", self.cmds.player_command_seen),
+			("^(?:when (?:have (?:you|u) last seen|did (?:you|u) last see)|(?:last )?seen|have (?:you|u) seen|did (?:you|u) see) ([a-zA-Z0-9_-]+)(?:\?)?$", self.cmds.player_command_seen),
+			("^(?:what|which) (\w+) is ([a-zA-Z0-9_-]+)(?:\?)?$", self.cmds.player_command_info),
 
-			("wh(?:o|ich player(s)?) (?:(?:has |have )?died|got killed)(?: the)? most(?: often)?( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_died),
-			("wh(?:ich|at) (?:mo(?:b|nster)|beast|thing|creature)(s)? (?:is|are|r)(?: (?:the )?most)? (?:lethal|dangerous)(?:\?)?", self.cmds.player_command_lethal),
-			("wh(?:o|ich player(s)?) (?:has|have) killed(?: (?:the )?most)(?: players)? in(?: the)? arena(?:\?)?", self.cmds.player_command_arena),
-			("how (?:many times|much) (?:has|did) ([a-zA-Z0-9_-]+) die(?:d)?( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_died_player),
-			("how (?:many times|much) (?:has|did) (.+) kill(?:ed)? ([a-zA-Z0-9_-]+)( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_killed_player),
-			("how (?:many times|much) (?:has|did) (.+) kill(?:ed)?( in(?: the)? arena)?(?:\?)?", self.cmds.player_command_killed_count),
+			("^wh(?:o|ich player(s)?) (?:(?:has |have )?died|got killed)(?: the)? most(?: often)?( in(?: the)? arena)?(?:\?)?$", self.cmds.player_command_died),
+			("^wh(?:ich|at) (?:mo(?:b|nster)|beast|thing|creature)(s)? (?:is|are|r)(?: (?:the )?most)? (?:lethal|dangerous)(?:\?)?$", self.cmds.player_command_lethal),
+			("^wh(?:o|ich player(s)?) (?:has|have) killed(?: (?:the )?most)(?: players)? in(?: the)? arena(?:\?)?$", self.cmds.player_command_arena),
+			("^how (?:many times|much) (?:has|did) ([a-zA-Z0-9_-]+) die(?:d)?( in(?: the)? arena)?(?:\?)?$", self.cmds.player_command_died_player),
+			("^how (?:many times|much) (?:has|did) (.+) kill(?:ed)?( in(?: the)? arena)?(?:\?)?$", self.cmds.player_command_killed_count),
+			("^how (?:many times|much) (?:has|did) (.+) kill(?:ed)? ([a-zA-Z0-9_-]+)( in(?: the)? arena)?(?:\?)?$", self.cmds.player_command_killed_player),
 
 			("^reload commands(?:\.)?$", self.cmds.player_commands_reload),
 			("^chat (.+)$", self.cmds.player_command_chat),
