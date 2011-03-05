@@ -33,6 +33,7 @@ class Bot(BaseSocket):
 		self.kl = KillsLog(self)
 		self.cmds = Commands(self)
 		BaseSocket.__init__(self)
+		self.socket.setblocking(0)
 		self.commands_load()
 
 		ts = time.time()
@@ -148,8 +149,11 @@ class Bot(BaseSocket):
 			# command.
 			toread = self._cmd_len + self._header_len - self._readbuf_len
 
-		# Try to read the data.
-		data = self.socket.recv(toread)
+		try:
+			# Try to read the data.
+			data = self.socket.recv(toread)
+		except socket.error:
+			return
 
 		# Failed; reset connection.
 		if not data:
