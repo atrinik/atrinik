@@ -268,6 +268,7 @@ SDL_Surface *IMG_Load_wrapper(const char *file);
 void mouse_InputNumber();
 
 /* events/event.c */
+uint8 key_is_pressed(SDLKey key);
 int draggingInvItem(int src);
 void resize_window(int width, int height);
 int Event_PollInputDevice();

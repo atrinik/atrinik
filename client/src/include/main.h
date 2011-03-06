@@ -676,6 +676,7 @@ extern int text_input_count;
 extern int text_input_string_flag;
 extern int text_input_string_end_flag;
 extern int text_input_string_esc_flag;
+uint32 text_input_opened;
 
 /* Range table */
 extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
