@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Kiana
-Modified: 2011-02-24 Alex Tokar
+Modified: 2011-03-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1506,8 +1506,6 @@ end
 arch grate_closed
 direction 7
 connected 204
-no_magic 1
-damned 1
 x 10
 y 10
 end
@@ -1681,8 +1679,6 @@ end
 arch grate_closed
 direction 7
 connected 203
-no_magic 1
-damned 1
 x 11
 y 10
 end
@@ -1840,8 +1836,6 @@ end
 arch grate_closed
 direction 7
 connected 202
-no_magic 1
-damned 1
 x 12
 y 10
 end
@@ -1988,8 +1982,6 @@ end
 arch grate_closed
 direction 7
 connected 201
-no_magic 1
-damned 1
 x 13
 y 10
 end
