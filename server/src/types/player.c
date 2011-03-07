@@ -1131,7 +1131,7 @@ static int get_regen_amount(uint16 regen, uint16 *remainder)
 	 * distribute the remainder evenly over time). */
 	if (pticks % 8 == 0 && regen / 10.0f > (float) 1000000 / MAX_TIME)
 	{
-		*remainder += (int) ((float) (regen / 10.0f - (float) 1000000 / MAX_TIME)) * 10;
+		*remainder += (int) (((float) (regen / 10.0f - (float) 1000000 / MAX_TIME)) * 10);
 	}
 
 	/* First check if we can distribute it evenly, if not, try to remove
