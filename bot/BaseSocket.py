@@ -74,18 +74,20 @@ class BaseSocket:
 	def _command_queue_handle(self):
 		ts = time.time()
 
+		# Acquire lock.
+		self._command_queue_lock.acquire()
+
 		# Anything in the queue, and has enough time passed yet?
 		if self._command_queue and ts >= self._command_queue_stamp:
-			# Acquire lock.
-			self._command_queue_lock.acquire()
 			# Remove the first element.
 			(cmd, delay) = self._command_queue.pop(0)
-			self._command_queue_lock.release()
 			# Handle the command.
 			self._command_queue_handler(cmd)
 			# Update the time that must pass until we can send another
 			# command in this queue.
 			self._command_queue_stamp = ts + delay
+
+		self._command_queue_lock.release()
 
 	## Queue command handler. By default, the command is sent to the server
 	## as-is.

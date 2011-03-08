@@ -33,7 +33,6 @@ class Bot(BaseSocket):
 		self.kl = KillsLog(self)
 		self.cmds = Commands(self)
 		BaseSocket.__init__(self)
-		self.socket.setblocking(0)
 		self.commands_load()
 
 		ts = time.time()
@@ -61,7 +60,7 @@ class Bot(BaseSocket):
 			("^reload commands(?:\.)?$", self.cmds.player_commands_reload),
 			("^chat (.+)$", self.cmds.player_command_chat),
 			("^(?:how much is )?(\d+) (\w+)(?: coin(?:s)?)? in (\w+)(?: coin(?:s)?)?(?:\?)?$", self.cmds.player_command_currency),
-			("^shutdown$", self.cmds.player_command_quit),
+			("^shut(?: )?down$", self.cmds.player_command_quit),
 		]
 
 		# Is there a commands section?
