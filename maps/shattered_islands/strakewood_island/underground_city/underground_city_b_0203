@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-01-31 Alex Tokar
+Modified: 2011-03-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2736,6 +2736,69 @@ arch fwall_rock3
 x 18
 y 17
 end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch fwall_rock3
+x 18
+y 18
+end
+arch plant2_wall.151
+direction 7
+x 18
+y 18
+end
+arch floor_sand_d1
+x 18
+y 19
+end
+arch fwall_rock3
+x 18
+y 19
+end
+arch plant1_wall.151
+direction 7
+x 18
+y 19
+end
+arch floor_sand_d3
+x 18
+y 20
+end
+arch fwall_rock3
+x 18
+y 20
+end
+arch floor_sand_d4
+x 18
+y 21
+end
+arch fwall_rock3
+x 18
+y 21
+end
+arch plant1_wall.151
+direction 7
+x 18
+y 21
+end
+arch floor_sand_d3
+x 18
+y 22
+end
+arch fwall_rock2
+x 18
+y 22
+end
+arch floor_sand_d4
+x 18
+y 23
+end
+arch fwall_rock1
+x 18
+y 23
+end
 arch floor_sand_d2
 x 19
 end
@@ -2876,8 +2939,45 @@ x 19
 y 17
 end
 arch fwall_rock2
+no_pass 0
 x 19
 y 17
+end
+arch floor_sand_d2
+x 19
+y 18
+end
+arch trash_wood2.101
+x 19
+y 18
+end
+arch floor_sand_d3
+x 19
+y 19
+end
+arch trash_wood1.101
+x 19
+y 19
+end
+arch floor_sand_d4
+x 19
+y 20
+end
+arch floor_sand_d3
+x 19
+y 21
+end
+arch floor_sand_d1
+x 19
+y 22
+end
+arch floor_sand_d1
+x 19
+y 23
+end
+arch trash_wood1.101
+x 19
+y 23
 end
 arch floor_sand_d3
 x 20
@@ -3035,6 +3135,54 @@ end
 arch fwall_rock1
 x 20
 y 17
+end
+arch floor_sand_d3
+x 20
+y 18
+end
+arch fwall_rock2
+x 20
+y 18
+end
+arch floor_sand_d3
+x 20
+y 19
+end
+arch fwall_rock2
+x 20
+y 19
+end
+arch floor_sand_d2
+x 20
+y 20
+end
+arch fwall_rock3
+x 20
+y 20
+end
+arch floor_sand_d1
+x 20
+y 21
+end
+arch fwall_rock1
+x 20
+y 21
+end
+arch floor_sand_d4
+x 20
+y 22
+end
+arch fwall_rock3
+x 20
+y 22
+end
+arch floor_sand_d2
+x 20
+y 23
+end
+arch fwall_rock1
+x 20
+y 23
 end
 arch floor_sand_d4
 x 21

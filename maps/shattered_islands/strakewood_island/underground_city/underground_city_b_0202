@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-01-23 Alex Tokar
+Modified: 2011-03-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -549,7 +549,7 @@ end
 arch spawn_point
 x 4
 y 4
-arch drow_captain
+arch drow_fighter
 level 68
 type 83
 end
@@ -1472,17 +1472,9 @@ end
 arch spawn_point
 x 10
 y 20
-arch drow_sorcerer
-level 67
-exp 112
-maxsp 16
-Pow 20
-Dex 2
+arch drow_fighter
+level 7067type 83
 type 83
-arch ability_cause_lig_wound
-end
-arch ability_mbullet
-end
 end
 end
 arch floor_sand_d1
@@ -2452,6 +2444,58 @@ arch fwall_rock1
 x 17
 y 22
 end
+arch floor_sand_d4
+x 18
+end
+arch fwall_rock1
+x 18
+end
+arch plant1_wall.151
+direction 7
+x 18
+end
+arch floor_sand_d4
+x 18
+y 1
+end
+arch fwall_rock2
+x 18
+y 1
+end
+arch floor_sand_d1
+x 18
+y 2
+end
+arch fwall_rock1
+x 18
+y 2
+end
+arch plant1_wall.151
+direction 7
+x 18
+y 2
+end
+arch floor_sand_d1
+x 18
+y 3
+end
+arch fwall_rock1
+x 18
+y 3
+end
+arch plant2_wall.151
+direction 7
+x 18
+y 3
+end
+arch floor_sand_d4
+x 18
+y 4
+end
+arch fwall_rock3
+x 18
+y 4
+end
 arch floor_sand_d2
 x 18
 y 5
@@ -2593,11 +2637,49 @@ arch fwall_rock1
 x 18
 y 22
 end
+arch floor_sand_d2
+x 19
+end
+arch dirt_floor2
+x 19
+end
+arch floor_sand_d1
+x 19
+y 1
+end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 19
+y 1
+end
+arch floor_sand_d3
+x 19
+y 2
+end
+arch floor_sand_d3
+x 19
+y 3
+end
+arch blood_floor1
+x 19
+y 3
+end
+arch floor_sand_d4
+x 19
+y 4
+end
 arch floor_sand_d3
 x 19
 y 5
 end
 arch fwall_rock2
+no_pass 0
+x 19
+y 5
+end
+arch sewer_wall
 x 19
 y 5
 end
@@ -2701,6 +2783,44 @@ arch fwall_rock2
 x 19
 y 22
 end
+arch floor_sand_d1
+x 20
+end
+arch fwall_rock2
+x 20
+end
+arch floor_sand_d2
+x 20
+y 1
+end
+arch fwall_rock3
+x 20
+y 1
+end
+arch floor_sand_d3
+x 20
+y 2
+end
+arch fwall_rock1
+x 20
+y 2
+end
+arch floor_sand_d4
+x 20
+y 3
+end
+arch fwall_rock2
+x 20
+y 3
+end
+arch floor_sand_d3
+x 20
+y 4
+end
+arch fwall_rock3
+x 20
+y 4
+end
 arch floor_sand_d4
 x 20
 y 5
@@ -2740,7 +2860,7 @@ end
 arch spawn_point
 x 20
 y 9
-arch drow_captain
+arch drow_fighter
 level 65
 type 83
 end
