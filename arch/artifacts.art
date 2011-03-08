@@ -5507,3 +5507,28 @@ item_power 15
 value 16500
 item_level 48
 end
+
+Allowed none
+chance 1
+artifact skeletal_dragon_bone_young
+def_arch bone_broken
+Object
+name bone of a young skeletal dragon
+title
+is_named 1
+item_quality 100
+item_condition 100
+nrof 1
+can_stack 1
+identified 1
+quest_item 1
+layer 3
+no_pick 0
+weight 500
+value 1500
+msg
+A perfect bone taken from a young skeletal dragon.
+
+It may have some interesting alchemical properties.
+endmsg
+end

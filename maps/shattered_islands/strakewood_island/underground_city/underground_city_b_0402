@@ -184,6 +184,11 @@ protect_pierce 15
 protect_fire 90
 protect_cold -35
 type 83
+arch rand_drop
+container 85
+arch skeletal_dragon_bone_young
+end
+end
 end
 end
 arch floor_sand_d3
