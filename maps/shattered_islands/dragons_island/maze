@@ -2,7 +2,7 @@ arch map
 name Underground Maze
 msg
 Created:  2010-06-12 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-03-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -196,9 +196,9 @@ x 1
 y 20
 end
 arch ladder_up
-slaying ../world_0106
-hp 8
-sp 9
+slaying ../world_0207
+hp 22
+sp 13
 x 1
 y 20
 end
