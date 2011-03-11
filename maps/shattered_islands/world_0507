@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2011-03-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2129,9 +2129,9 @@ arch desert.104
 x 19
 y 13
 end
-arch ladder_down2
-slaying dragons_island/maze
-hp 13
+arch exit
+slaying world_b_0207
+hp 14
 sp 21
 x 19
 y 13

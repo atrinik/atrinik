@@ -5158,10 +5158,11 @@ arch floor_volcano_2
 x 22
 y 13
 end
-arch ladder_down2
-slaying dragons_island/maze
-hp 1
-sp 20
+arch ladder_down
+slaying world_a_0207
+hp 22
+sp 13
+direction 7
 x 22
 y 13
 end

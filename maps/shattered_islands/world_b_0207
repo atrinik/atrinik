@@ -1,15 +1,15 @@
 arch map
 name Underground Maze
 msg
-Created:  2010-06-12 Alex Tokar
-Modified: 2011-03-09 Alex Tokar
+Created:  2011-03-11 Alex Tokar
+Modified: 2011-03-11 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 4
 bg_music hidden_passage.ogg
-region world
+region promethia_island
 end
 arch blocked
 y 6
@@ -196,9 +196,9 @@ x 1
 y 20
 end
 arch ladder_up
-slaying ../world_0207
-hp 22
-sp 13
+slaying world_a_0207
+hp 1
+sp 20
 x 1
 y 20
 end
@@ -2126,9 +2126,9 @@ arch floor_sblack3b
 x 13
 y 21
 end
-arch ladder_up
-slaying ../world_0507
-hp 19
+arch exit
+slaying world_0507
+hp 20
 sp 13
 x 13
 y 21
