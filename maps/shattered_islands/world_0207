@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-03-09 Alex Tokar
+Modified: 2011-03-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2551,11 +2551,11 @@ layoutstyle snake
 monsterstyle promethia_island
 exitstyle stairs_stone
 doorstyle none
-dungeon_depth 110
+dungeon_depth 114
 dungeon_level 48
 xsize 24
 ysize 24
-floorstyle lava
+floorstyle volcano
 wallstyle lava
 num_monsters 10
 darkness 3
@@ -2563,6 +2563,8 @@ level_increment 2
 orientation 1
 dungeon_name Promethia Island Volcano
 bg_music escape.mid
+decorstyle volcano
+decorchance 5
 endmsg
 direction 7
 slaying /random/
