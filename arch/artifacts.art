@@ -5514,7 +5514,6 @@ artifact skeletal_dragon_bone_young
 def_arch bone_broken
 Object
 name bone of a young skeletal dragon
-title
 is_named 1
 item_quality 100
 item_condition 100
