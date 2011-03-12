@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-03-08 Alex Tokar
+Modified: 2011-03-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -176,6 +176,7 @@ maxhp 82
 ac 11
 Con 1
 attack_cleave 0
+attack_pierce 85
 terrain_flag 1
 protect_impact 15
 protect_slash 15
