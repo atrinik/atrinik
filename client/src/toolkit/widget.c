@@ -562,6 +562,46 @@ void reset_widget(const char *name)
 	}
 }
 
+/**
+ * Ensures a single widget is on-screen.
+ * @param widget The widget. */
+static void widget_ensure_onscreen(widgetdata *widget)
+{
+	int dx = 0, dy = 0;
+
+	if (widget->x1 < 0)
+	{
+		dx = -widget->x1;
+	}
+	else if (widget->x1 + widget->wd > Screensize->x)
+	{
+		dx = Screensize->x - widget->wd - widget->x1;
+	}
+
+	if (widget->y1 < 0)
+	{
+		dy = -widget->y1;
+	}
+	else if (widget->y1 + widget->ht > Screensize->y)
+	{
+		dy = Screensize->y - widget->ht - widget->y1;
+	}
+
+	move_widget_rec(widget, dx, dy);
+}
+
+/**
+ * Ensures all widgets are on-screen. */
+void widgets_ensure_onscreen()
+{
+	widgetdata *tmp;
+
+	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	{
+		widget_ensure_onscreen(tmp);
+	}
+}
+
 /** Recursive function to nuke the entire widget tree. */
 void kill_widget_tree(widgetdata *widget)
 {
@@ -1448,6 +1488,12 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		/* we move the widget here, as well as all the widgets inside it if they exist */
 		/* we use the recursive version since we already have the outermost container */
 		move_widget_rec(widget, dx, dy);
+
+		/* Ensure widget is on-screen. */
+		if (!options.allow_widgets_offscreen)
+		{
+			widget_ensure_onscreen(widget);
+		}
 
 		map_udate_flag = 2;
 

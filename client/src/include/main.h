@@ -197,6 +197,7 @@ typedef struct _options
 	int tcp_nodelay;
 	int disable_rm_cache;
 	int fastport;
+	int allow_widgets_offscreen;
 }_options;
 
 extern struct _options options;

@@ -486,6 +486,7 @@ void remove_widget_inv(widgetdata *widget);
 void init_widgets();
 void kill_widgets();
 void reset_widget(const char *name);
+void widgets_ensure_onscreen();
 void kill_widget_tree(widgetdata *widget);
 widgetdata *create_widget(int widget_id);
 void remove_widget(widgetdata *widget);

@@ -381,6 +381,11 @@ static void init_game_data()
 	text_input_history_clear();
 	delete_player_lists();
 	metaserver_init();
+
+	if (!options.allow_widgets_offscreen)
+	{
+		widgets_ensure_onscreen();
+	}
 }
 
 /**
