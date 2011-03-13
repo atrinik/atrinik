@@ -94,6 +94,9 @@ typedef struct effect_struct
 
 	/** Wind blow modification (how strongly the wind blows to its direction). */
 	double wind_mod;
+
+	/** Sprites per move, defaults to 1. */
+	int sprites_per_move;
 } effect_struct;
 
 /** One sprite currently shown. */

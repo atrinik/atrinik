@@ -178,6 +178,10 @@ void effects_init()
 			{
 				effect->wind_mod = atof(buf + 9);
 			}
+			else if (!strncmp(buf, "sprites_per_move ", 17))
+			{
+				effect->sprites_per_move = atoi(buf + 17);
+			}
 			/* Start of sprite block. */
 			else if (!strncmp(buf, "sprite ", 7))
 			{
@@ -209,6 +213,7 @@ void effects_init()
 			effect->wind_blow_dir = WIND_BLOW_RANDOM;
 			effect->wind_mod = 1.0;
 			effect->max_sprites = -1;
+			effect->sprites_per_move = 1;
 		}
 	}
 
@@ -411,7 +416,7 @@ void effect_sprites_play()
 			/* Apply wind. */
 			if (tmp->def->wind && current_effect->wind_blow_dir != WIND_BLOW_NONE)
 			{
-				tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * (-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0) * tmp->def->wind_mod));
+				tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * ((-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wind_mod));
 			}
 
 			tmp->delay_ticks = SDL_GetTicks();
@@ -435,35 +440,38 @@ void effect_sprites_play()
 
 	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || SDL_GetTicks() - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
 	{
-		int x, y;
+		int i, x, y;
 		effect_sprite *sprite;
 
-		/* Calculate where to put the sprite. */
-		x = (double) ScreenSurfaceMap->w * RANDOM() / (RAND_MAX + 1.0);
-		y = options.mapstart_y + (double) 60 * RANDOM() / (RAND_MAX + 1.0);
-
-		/* Add the sprite. */
-		sprite = effect_sprite_add(current_effect, x, y);
-
-		if (!sprite)
+		for (i = 0; i < current_effect->sprites_per_move; i++)
 		{
-			return;
-		}
+			/* Calculate where to put the sprite. */
+			x = (double) ScreenSurfaceMap->w * RANDOM() / (RAND_MAX + 1.0);
+			y = options.mapstart_y + (double) 60 * RANDOM() / (RAND_MAX + 1.0);
 
-		/* Invalid sprite. */
-		if (sprite->def->id == -1 || !FaceList[sprite->def->id].sprite)
-		{
-			effect_sprite_remove(sprite);
-			return;
-		}
+			/* Add the sprite. */
+			sprite = effect_sprite_add(current_effect, x, y);
 
-		if (sprite->def->reverse)
-		{
-			sprite->y = MAP_START_YOFF + MAP_TILE_POS_YOFF * options.map_size_y - FaceList[sprite->def->id].sprite->bitmap->h;
-		}
+			if (!sprite)
+			{
+				return;
+			}
 
-		sprite->x += sprite->def->xpos;
-		sprite->y += sprite->def->ypos;
+			/* Invalid sprite. */
+			if (sprite->def->id == -1 || !FaceList[sprite->def->id].sprite)
+			{
+				effect_sprite_remove(sprite);
+				return;
+			}
+
+			if (sprite->def->reverse)
+			{
+				sprite->y = MAP_START_YOFF + MAP_TILE_POS_YOFF * options.map_size_y - FaceList[sprite->def->id].sprite->bitmap->h;
+			}
+
+			sprite->x += sprite->def->xpos;
+			sprite->y += sprite->def->ypos;
+		}
 
 		current_effect->delay_ticks = SDL_GetTicks();
 	}
