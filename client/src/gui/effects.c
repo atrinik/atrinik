@@ -138,6 +138,14 @@ void effects_init()
 			{
 				sprite_def->y = atoi(buf + 2);
 			}
+			else if (!strncmp(buf, "xpos ", 5))
+			{
+				sprite_def->xpos = atoi(buf + 5);
+			}
+			else if (!strncmp(buf, "ypos ", 5))
+			{
+				sprite_def->ypos = atoi(buf + 5);
+			}
 			else if (!strncmp(buf, "reverse ", 8))
 			{
 				sprite_def->reverse = atoi(buf + 8);
@@ -453,6 +461,9 @@ void effect_sprites_play()
 		{
 			sprite->y = MAP_START_YOFF + MAP_TILE_POS_YOFF * options.map_size_y - FaceList[sprite->def->id].sprite->bitmap->h;
 		}
+
+		sprite->x += sprite->def->xpos;
+		sprite->y += sprite->def->ypos;
 
 		current_effect->delay_ticks = SDL_GetTicks();
 	}
