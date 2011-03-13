@@ -4,6 +4,190 @@ weight 1
 chance 5
 end
 sprite snow_middle.101
-weight 3
+weight 2
+wind_mod 0
 end
+delay 60
+end
+
+effect snow_heavy_left
+sprite snow_little.101
+weight 1
+weight_mod 5.0
+chance 6
+wiggle 0
+wind_mod 0
+end
+sprite snow_middle.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+wind_blow_dir 1
+wind_mod 6
+sprites_per_move 5
+delay 30
+end
+
+effect snow_heavy_right
+sprite snow_little.101
+weight 1
+weight_mod 5.0
+chance 6
+wiggle 0
+wind_mod 0
+end
+sprite snow_middle.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+wind_blow_dir 2
+wind_mod 6
+sprites_per_move 5
+delay 30
+end
+
+effect rain_light_straight
+sprite rain_particle_middle.101
+weight 2
+chance 5
+wiggle 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 2
+wiggle 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 2
+wiggle 0
+end
+wind_blow_dir 0
+sprites_per_move 2
+delay 40
+end
+
+effect rain_light_left
+sprite rain_particle_middle.101
+weight 2
+chance 5
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+wind_blow_dir 1
+wind_mod 6
+sprites_per_move 2
+delay 40
+end
+
+effect rain_light_right
+sprite rain_particle_middle.101
+weight 2
+chance 5
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+wind_blow_dir 2
+wind_mod 6
+sprites_per_move 2
+delay 40
+end
+
+effect rain_heavy_straight
+sprite rain_particle_middle.101
+weight 2
+chance 5
+wiggle 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 2
+wiggle 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 2
+wiggle 0
+end
+wind_blow_dir 0
+sprites_per_move 10
+delay 40
+end
+
+effect rain_heavy_left
+sprite rain_particle_middle.101
+weight 2
+chance 5
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+wind_blow_dir 1
+wind_mod 6
+sprites_per_move 10
+delay 40
+end
+
+effect rain_heavy_right
+sprite rain_particle_middle.101
+weight 2
+chance 5
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 2
+wiggle 0
+wind_mod 0
+end
+wind_blow_dir 2
+wind_mod 6
+sprites_per_move 10
+delay 40
 end
