@@ -30,6 +30,20 @@
 #ifndef EFFECTS_H
 #define EFFECT_H
 
+/**
+ * @defgroup WIND_BLOW_xxx Wind blow directions
+ * Wind blow directions.
+ *@{*/
+/** No wind blow. */
+#define WIND_BLOW_NONE 0
+/** Blowing to the left. */
+#define WIND_BLOW_LEFT 1
+/** Blowing to the right. */
+#define WIND_BLOW_RIGHT 2
+/** Blowing randomly. */
+#define WIND_BLOW_RANDOM 3
+/*@}*/
+
 /** One effect definition in a linked list. */
 typedef struct effect_struct
 {
@@ -64,6 +78,9 @@ typedef struct effect_struct
 	/** Wind modifier. */
 	long wind;
 
+	/** Direction this sprite is getting blown into, one of @ref WIND_BLOW_xxx. */
+	uint8 wind_blow_dir;
+
 	/**
 	 * Delay in ticks that must pass until another sprite can be created
 	 * (regardless of the actual chance to create one). Default is 0. */
@@ -71,6 +88,12 @@ typedef struct effect_struct
 
 	/** When a sprite was last created, in ticks. */
 	uint32 delay_ticks;
+
+	/** Maximum number of visible sprites, -1 for infinite (default). */
+	int max_sprites;
+
+	/** Wind blow modification (how strongly the wind blows to its direction). */
+	double wind_mod;
 } effect_struct;
 
 /** One sprite currently shown. */
@@ -120,6 +143,25 @@ typedef struct effect_sprite_def
 
 	/** How long to delay until another movement, in ticks. Default is 0. */
 	uint32 delay;
+
+	/** Non-zero value to enable wind simulation. Default is 1. */
+	uint8 wind;
+
+	/**
+	 * How much to wiggle when falling down, 0.0 to fall straight down.
+	 * Default 1.0. */
+	double wiggle;
+
+	/**
+	 * How much to affect randomization part of wind blowing simulation (0.0 to
+	 * disable the randomization). Default is 1.0. */
+	double wind_mod;
+
+	/** X position of the sprite, -1 for random (default). */
+	int x;
+
+	/** Y position of the sprite, -1 for random (default). */
+	int y;
 } effect_sprite_def;
 
 #endif

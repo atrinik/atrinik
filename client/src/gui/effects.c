@@ -118,6 +118,26 @@ void effects_init()
 			{
 				sprite_def->delay = atoi(buf + 6);
 			}
+			else if (!strncmp(buf, "wind ", 5))
+			{
+				sprite_def->wind = atoi(buf + 5);
+			}
+			else if (!strncmp(buf, "wiggle ", 7))
+			{
+				sprite_def->wiggle = atof(buf + 7);
+			}
+			else if (!strncmp(buf, "wind_mod ", 9))
+			{
+				sprite_def->wind_mod = atof(buf + 9);
+			}
+			else if (!strncmp(buf, "x ", 2))
+			{
+				sprite_def->x = atoi(buf + 2);
+			}
+			else if (!strncmp(buf, "y ", 2))
+			{
+				sprite_def->y = atoi(buf + 2);
+			}
 		}
 		/* Parse definitions inside effect block. */
 		else if (effect)
@@ -134,6 +154,18 @@ void effects_init()
 			{
 				effect->delay = atoi(buf + 6);
 			}
+			else if (!strncmp(buf, "wind_blow_dir ", 14))
+			{
+				effect->wind_blow_dir = atoi(buf + 14);
+			}
+			else if (!strncmp(buf, "max_sprites ", 12))
+			{
+				effect->max_sprites = atoi(buf + 12);
+			}
+			else if (!strncmp(buf, "wind_mod ", 9))
+			{
+				effect->wind_mod = atof(buf + 9);
+			}
 			/* Start of sprite block. */
 			else if (!strncmp(buf, "sprite ", 7))
 			{
@@ -144,6 +176,11 @@ void effects_init()
 				sprite_def->chance = 1;
 				sprite_def->weight = 1.0;
 				sprite_def->weight_mod = 2.0;
+				sprite_def->wind = 1;
+				sprite_def->wiggle = 1.0;
+				sprite_def->wind_mod = 1.0;
+				sprite_def->x = -1;
+				sprite_def->y = -1;
 			}
 		}
 		/* Start of effect block. */
@@ -156,6 +193,9 @@ void effects_init()
 			/* Initialize default values. */
 			effect->wind_chance = 0.98;
 			effect->sprite_chance = 60.0;
+			effect->wind_blow_dir = WIND_BLOW_RANDOM;
+			effect->wind_mod = 1.0;
+			effect->max_sprites = -1;
 		}
 	}
 
@@ -294,9 +334,9 @@ void effect_sprite_add(effect_struct *effect, int x, int y)
 
 	/* Allocate a new sprite. */
 	sprite = calloc(1, sizeof(*sprite));
-	sprite->x = x;
-	sprite->y = y;
 	sprite->def = tmp;
+	sprite->x = sprite->def->x == -1 ? x : options.mapstart_x + sprite->def->x;
+	sprite->y = sprite->def->y == -1 ? y : options.mapstart_y + sprite->def->y;
 
 	/* Add it to the linked list. */
 	if (!effect->sprites)
@@ -316,6 +356,7 @@ void effect_sprite_add(effect_struct *effect, int x, int y)
 void effect_sprites_play()
 {
 	effect_sprite *tmp, *next;
+	int num_sprites = 0;
 
 	/* No current effect or not playing, quit. */
 	if (!current_effect || GameStatus != GAME_STATUS_PLAY)
@@ -343,26 +384,40 @@ void effect_sprites_play()
 
 		/* Show the sprite. */
 		sprite_blt(FaceList[tmp->def->id].sprite, options.mapstart_x + tmp->x, options.mapstart_y + tmp->y, NULL, NULL);
+		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
 		if (!tmp->def->delay || !tmp->delay_ticks || SDL_GetTicks() - tmp->delay_ticks > tmp->def->delay)
 		{
 			tmp->y += tmp->def->weight * tmp->def->weight_mod;
-			tmp->x += -1.0 + 3.0 * RANDOM() / (RAND_MAX + 1.0);
+			tmp->x += (-1.0 + 3.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wiggle;
 
-			/* Apply wind */
-			tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * (-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)));
+			/* Apply wind. */
+			if (tmp->def->wind && current_effect->wind_blow_dir != WIND_BLOW_NONE)
+			{
+				tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * (-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0) * tmp->def->wind_mod));
+			}
+
 			tmp->delay_ticks = SDL_GetTicks();
 		}
 	}
 
 	/* Change wind direction... */
-	if (current_effect->wind_chance != 1.0 && (current_effect->wind_chance == 0.0 || RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance))
+	if (current_effect->wind_blow_dir == WIND_BLOW_RANDOM && current_effect->wind_chance != 1.0 && (current_effect->wind_chance == 0.0 || RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance))
 	{
-		current_effect->wind += -2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0);
+		current_effect->wind += (-2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0)) * current_effect->wind_mod;
 	}
 
-	if ((!current_effect->delay || !current_effect->delay_ticks || SDL_GetTicks() - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
+	if (current_effect->wind_blow_dir == WIND_BLOW_LEFT)
+	{
+		current_effect->wind = -1.0 * current_effect->wind_mod;
+	}
+	else if (current_effect->wind_blow_dir == WIND_BLOW_RIGHT)
+	{
+		current_effect->wind = 1.0 * current_effect->wind_mod;
+	}
+
+	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || SDL_GetTicks() - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
 	{
 		int x, y;
 
