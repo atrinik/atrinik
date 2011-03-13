@@ -162,6 +162,9 @@ typedef struct effect_sprite_def
 
 	/** Y position of the sprite, -1 for random (default). */
 	int y;
+
+	/** Whether to go from bottom to top, instead of top to bottom, 0 by default. */
+	uint8 reverse;
 } effect_sprite_def;
 
 #endif

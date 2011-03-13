@@ -311,7 +311,7 @@ void effect_free(effect_struct *effect);
 void effect_sprite_def_free(effect_sprite_def *sprite_def);
 void effect_sprite_free(effect_sprite *sprite);
 void effect_sprite_remove(effect_sprite *sprite);
-void effect_sprite_add(effect_struct *effect, int x, int y);
+effect_sprite *effect_sprite_add(effect_struct *effect, int x, int y);
 void effect_sprites_play();
 int effect_start(const char *name);
 void effect_stop();
