@@ -31,6 +31,8 @@
 #define MAIN_H
 
 #define HUGE_BUF 4096
+/** Maximum frames per second. */
+#define FRAMES_PER_SECOND 30
 
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
@@ -150,6 +152,7 @@ typedef struct _options
 
 	/* True: show frame rate */
 	int show_frame;
+	int intelligent_fps_cap;
 	int sleep;
 	int max_speed;
 	int auto_bpp_flag;

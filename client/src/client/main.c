@@ -1148,7 +1148,7 @@ static void DisplayCustomCursor()
 int main(int argc, char *argv[])
 {
 	int x, y, drag, done = 0;
-	uint32 anim_tick;
+	uint32 anim_tick, frame_start_time;
 	Uint32 videoflags;
 	size_t i;
 
@@ -1268,6 +1268,7 @@ int main(int argc, char *argv[])
 
 	while (!done)
 	{
+		frame_start_time = SDL_GetTicks();
 		done = Event_PollInputDevice();
 
 		/* Have we been shutdown? */
@@ -1496,8 +1497,17 @@ int main(int argc, char *argv[])
 			SDL_Flip(ScreenSurface);
 		}
 
+		if (options.intelligent_fps_cap)
+		{
+			uint32 elapsed_time = SDL_GetTicks() - frame_start_time;
+
+			if (elapsed_time < 1000 / FRAMES_PER_SECOND)
+			{
+				SDL_Delay(1000 / FRAMES_PER_SECOND - elapsed_time);
+			}
+		}
 		/* Force the thread to sleep */
-		if (options.max_speed)
+		else if (options.max_speed)
 		{
 			SDL_Delay(options.sleep);
 		}
