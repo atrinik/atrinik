@@ -1,0 +1,9 @@
+effect snow
+sprite snow_little.101
+weight 1
+chance 5
+end
+sprite snow_middle.101
+weight 3
+end
+end

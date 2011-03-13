@@ -90,6 +90,9 @@ typedef signed char sint8;
 #	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+#define RANDOM() rand()
+#define SRANDOM(xyz) srand(xyz)
+
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 
 #include <SDL_mixer.h>
@@ -171,6 +174,7 @@ typedef enum LogLevel
 #include <sdlsocket.h>
 #include <commands.h>
 #include <main.h>
+#include <effects.h>
 #include <sprite.h>
 #include <widget.h>
 #include <textwin.h>

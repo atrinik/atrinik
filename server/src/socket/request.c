@@ -250,6 +250,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_SERVER_SETTINGS);
 		}
+		else if (!strcmp(cmd, "eff"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_EFFECTS);
+		}
 		else if (!strcmp(cmd, "bot"))
 		{
 			int is_bot = atoi(param);

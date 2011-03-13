@@ -34,7 +34,7 @@ static const char *const server_file_names[SERVER_FILES_MAX] =
 {
 	"skills", NULL, NULL, NULL, "bmaps",
 	"hfiles", "updates", "spells", "settings",
-	"anims"
+	"anims", "effects"
 };
 
 /** Identifiers of the server files used in the setup command. */
@@ -42,7 +42,7 @@ static const char *const server_file_setup_names[SERVER_FILES_MAX] =
 {
 	"skf", NULL, NULL, NULL, "bpf",
 	"hpf", "upf", "spfv2", "ssf",
-	"amfv2"
+	"amfv2", "eff"
 };
 
 /** Post-loading functions to call. */
@@ -50,7 +50,7 @@ static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
 	read_skills, NULL, NULL, NULL, read_bmaps,
 	read_help_files, file_updates_parse, read_spells, server_settings_init,
-	read_anims
+	read_anims, effects_init
 };
 
 /** Functions to call if the server file was already loaded. */
@@ -58,7 +58,7 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, spells_reload, NULL,
-	anims_reset
+	anims_reset, NULL
 };
 
 /** The server files. */

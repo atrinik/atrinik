@@ -435,6 +435,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\src\include\effects.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\src\include\event.h"
 				>
 			</File>
@@ -571,6 +575,42 @@
 				>
 				<File
 					RelativePath="..\..\..\src\gui\book.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\gui\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\gui\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\gui\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\gui\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\gui\effects.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1813,6 +1853,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
+
 							ObjectFile="$(IntDir)\client\"
 						/>
 					</FileConfiguration>

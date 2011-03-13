@@ -386,6 +386,8 @@ static void init_game_data()
 	{
 		widgets_ensure_onscreen();
 	}
+
+	SRANDOM(time(NULL));
 }
 
 /**
@@ -1031,6 +1033,8 @@ static void display_layer1()
 	{
 		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &rect);
 	}
+
+	effect_sprites_play();
 
 	/* The damage numbers */
 	play_anims();

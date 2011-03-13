@@ -113,6 +113,7 @@ void system_end()
 	free_bitmaps();
 	text_deinit();
 	free_help_files();
+	effects_deinit();
 	SDL_Quit();
 }
 

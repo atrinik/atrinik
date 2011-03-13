@@ -581,6 +581,9 @@ void init_srv_files()
 	create_server_animations();
 	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
 	load_srv_file(buf, SRV_CLIENT_ANIMS_V2);
+
+	snprintf(buf, sizeof(buf), "%s/effects", settings.datadir);
+	load_srv_file(buf, SRV_CLIENT_EFFECTS);
 }
 
 /**

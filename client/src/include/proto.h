@@ -132,6 +132,7 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
 void convert_newline(char *str);
 void browser_open(const char *url);
+int rndm(int min, int max);
 
 /* client/player.c */
 void clear_player();
@@ -301,6 +302,19 @@ void book_load(const char *data, int len);
 void book_show();
 void book_handle_key(SDLKey key);
 void book_handle_event(SDL_Event *event);
+
+/* gui/effects.c */
+void effects_init();
+void effects_deinit();
+void effect_sprites_free(effect_struct *effect);
+void effect_free(effect_struct *effect);
+void effect_sprite_def_free(effect_sprite_def *sprite_def);
+void effect_sprite_free(effect_sprite *sprite);
+void effect_sprite_remove(effect_sprite *sprite);
+void effect_sprite_add(effect_struct *effect, int x, int y);
+void effect_sprites_play();
+int effect_start(const char *name);
+void effect_stop();
 
 /* gui/fps.c */
 void widget_show_fps(widgetdata *widget);

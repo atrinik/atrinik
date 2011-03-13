@@ -218,6 +218,26 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
+	else if (!strncmp(cmd, "/effect ", 8))
+	{
+		if (!strcmp(cmd + 8, "none"))
+		{
+			effect_stop();
+			draw_info("Stopped effect.", COLOR_GREEN);
+			return 1;
+		}
+
+		if (effect_start(cmd + 8))
+		{
+			draw_info_format(COLOR_GREEN, "Started effect %s.", cmd + 8);
+		}
+		else
+		{
+			draw_info_format(COLOR_GREEN, "No such effect %s.", cmd + 8);
+		}
+
+		return 1;
+	}
 
 	return 0;
 }

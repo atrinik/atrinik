@@ -194,6 +194,9 @@
 		<Unit filename="..\..\..\src\include\dialog.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\effects.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\main.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -315,6 +318,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\book.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\gui\effects.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\main.c">
