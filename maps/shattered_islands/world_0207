@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-03-11 Alex Tokar
+Modified: 2011-03-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -5370,17 +5370,6 @@ x 23
 y 13
 end
 arch fstone1m11
-x 23
-y 13
-end
-arch magic_mouth
-msg
-<yellow>*** You hear a booming voice inside your head ***</yellow>
-
-Are you up for Scursaur's challenge, adventurer?! Pass my maze, beware of the skulls, and I'll show you the land of dragons.
-endmsg
-splitting 1
-direction 3
 x 23
 y 13
 end
