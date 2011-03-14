@@ -536,22 +536,23 @@ static void fire_bow(object *op, int dir)
 	arrow->last_heal = arrow->stats.wc;
 	/* Will be put back in fix_arrow() */
 	arrow->stats.hp = arrow->stats.dam;
+	/* Determine how many tiles the arrow will fly. */
+	arrow->last_sp = bow->last_sp + arrow->last_sp;
+	/* Get the used skill. */
+	tmp_op = SK_skill(op);
 
 	/* Now we do this: arrow wc = wc base from skill + (wc arrow + magic) + (wc range weapon bonus + magic) */
-	if ((tmp_op = SK_skill(op)))
+	if (tmp_op)
 	{
 		/* wc is in last heal */
 		arrow->stats.wc += tmp_op->last_heal;
+		/* Add tiles range from the skill object. */
+		arrow->last_sp += tmp_op->last_sp;
 	}
 	else
 	{
 		arrow->stats.wc += 10;
 	}
-
-	/* Now we determine how many tiles the arrow will fly. Again we use
-	 * the skill base and add arrow + weapon values - but no magic add
-	 * here. */
-	arrow->last_sp = tmp_op->last_sp + bow->last_sp + arrow->last_sp;
 
 	/* Add in all our wc bonus */
 	arrow->stats.wc += (bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc);
