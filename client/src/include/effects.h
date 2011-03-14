@@ -174,6 +174,17 @@ typedef struct effect_sprite_def
 
 	/** Whether to go from bottom to top, instead of top to bottom, 0 by default. */
 	uint8 reverse;
+
+	/**
+	 * Initial Y starting position; will be randomized between 0-value.
+	 * Default is 60.0. */
+	double y_rndm;
+
+	/** X calculation modification. */
+	double x_mod;
+
+	/** Y calculation modification. */
+	double y_mod;
 } effect_sprite_def;
 
 #endif
