@@ -149,6 +149,19 @@ void effects_init()
 			else if (!strncmp(buf, "reverse ", 8))
 			{
 				sprite_def->reverse = atoi(buf + 8);
+				sprite_def->y_mod = -sprite_def->y_mod;
+			}
+			else if (!strncmp(buf, "y_rndm ", 7))
+			{
+				sprite_def->y_rndm = atof(buf + 7);
+			}
+			else if (!strncmp(buf, "x_mod ", 6))
+			{
+				sprite_def->x_mod = atof(buf + 6);
+			}
+			else if (!strncmp(buf, "y_mod ", 6))
+			{
+				sprite_def->y_mod = atof(buf + 6);
 			}
 		}
 		/* Parse definitions inside effect block. */
@@ -198,6 +211,9 @@ void effects_init()
 				sprite_def->x = -1;
 				sprite_def->y = -1;
 				sprite_def->reverse = 0;
+				sprite_def->y_rndm = 60.0;
+				sprite_def->x_mod = 1.0;
+				sprite_def->y_mod = 1.0;
 			}
 		}
 		/* Start of effect block. */
@@ -324,10 +340,8 @@ void effect_sprite_remove(effect_sprite *sprite)
  *
  * A random sprite definition object will be chosen.
  * @param effect Effect this is being done for.
- * @param x Initial X position.
- * @param y Initial Y position.
  * @return The created sprite. */
-effect_sprite *effect_sprite_add(effect_struct *effect, int x, int y)
+static effect_sprite *effect_sprite_create(effect_struct *effect)
 {
 	int roll;
 	effect_sprite_def *tmp;
@@ -354,8 +368,6 @@ effect_sprite *effect_sprite_add(effect_struct *effect, int x, int y)
 	/* Allocate a new sprite. */
 	sprite = calloc(1, sizeof(*sprite));
 	sprite->def = tmp;
-	sprite->x = sprite->def->x == -1 ? x : options.mapstart_x + sprite->def->x;
-	sprite->y = sprite->def->y == -1 ? y : options.mapstart_y + sprite->def->y;
 
 	/* Add it to the linked list. */
 	if (!effect->sprites)
@@ -390,14 +402,14 @@ void effect_sprites_play()
 		next = tmp->next;
 
 		/* Off-screen? */
-		if (tmp->x < options.mapstart_x || options.mapstart_x + tmp->x + FaceList[tmp->def->id].sprite->bitmap->w > options.mapstart_x + MAP_TILE_POS_XOFF * options.map_size_x || tmp->y < options.mapstart_y || options.mapstart_y + tmp->y + FaceList[tmp->def->id].sprite->bitmap->h > options.mapstart_y + MAP_START_YOFF + MAP_TILE_POS_YOFF * options.map_size_y)
+		if (tmp->x < 0 || tmp->x + FaceList[tmp->def->id].sprite->bitmap->w > ScreenSurfaceMap->w || tmp->y < 0 || tmp->y + FaceList[tmp->def->id].sprite->bitmap->h > ScreenSurfaceMap->h)
 		{
 			effect_sprite_remove(tmp);
 			continue;
 		}
 
 		/* Show the sprite. */
-		sprite_blt(FaceList[tmp->def->id].sprite, options.mapstart_x + tmp->x, options.mapstart_y + tmp->y, NULL, NULL);
+		sprite_blt_map(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, NULL, NULL, 0, 0);
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
@@ -420,6 +432,7 @@ void effect_sprites_play()
 			}
 
 			tmp->delay_ticks = SDL_GetTicks();
+			map_redraw_flag = 1;
 		}
 	}
 
@@ -440,17 +453,13 @@ void effect_sprites_play()
 
 	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || SDL_GetTicks() - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
 	{
-		int i, x, y;
+		int i;
 		effect_sprite *sprite;
 
 		for (i = 0; i < current_effect->sprites_per_move; i++)
 		{
-			/* Calculate where to put the sprite. */
-			x = (double) ScreenSurfaceMap->w * RANDOM() / (RAND_MAX + 1.0);
-			y = options.mapstart_y + (double) 60 * RANDOM() / (RAND_MAX + 1.0);
-
 			/* Add the sprite. */
-			sprite = effect_sprite_add(current_effect, x, y);
+			sprite = effect_sprite_create(current_effect);
 
 			if (!sprite)
 			{
@@ -460,17 +469,35 @@ void effect_sprites_play()
 			/* Invalid sprite. */
 			if (sprite->def->id == -1 || !FaceList[sprite->def->id].sprite)
 			{
+				LOG(llevInfo, "Invalid sprite ID %d\n", sprite->def->id);
 				effect_sprite_remove(sprite);
 				return;
 			}
 
+			if (sprite->def->x != -1)
+			{
+				sprite->x = sprite->def->x;
+			}
+			else
+			{
+				/* Calculate where to put the sprite. */
+				sprite->x = (double) ScreenSurfaceMap->w * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
+			}
+
 			if (sprite->def->reverse)
 			{
-				sprite->y = MAP_START_YOFF + MAP_TILE_POS_YOFF * options.map_size_y - FaceList[sprite->def->id].sprite->bitmap->h;
+				sprite->y = ScreenSurfaceMap->h - FaceList[sprite->def->id].sprite->bitmap->h;
 			}
+			else if (sprite->def->y != -1)
+			{
+				sprite->y = sprite->def->y;
+			}
+
+			sprite->y += sprite->def->y_rndm * (RANDOM() / (RAND_MAX + 1.0) * sprite->def->y_mod);
 
 			sprite->x += sprite->def->xpos;
 			sprite->y += sprite->def->ypos;
+			map_redraw_flag = 1;
 		}
 
 		current_effect->delay_ticks = SDL_GetTicks();

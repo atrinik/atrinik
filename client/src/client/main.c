@@ -1014,6 +1014,7 @@ static void display_layer1()
 		SDL_FillRect(ScreenSurfaceMap, NULL, 0);
 		map_draw_map();
 		map_redraw_flag = 0;
+		effect_sprites_play();
 
 		if (options.zoom != 100)
 		{
@@ -1033,8 +1034,6 @@ static void display_layer1()
 	{
 		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &rect);
 	}
-
-	effect_sprites_play();
 
 	/* The damage numbers */
 	play_anims();
