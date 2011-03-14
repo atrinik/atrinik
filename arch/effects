@@ -10,6 +10,22 @@ end
 delay 60
 end
 
+effect snow_light
+sprite snow_tiny.101
+weight 1
+chance 5
+end
+sprite snow_tiny_opaque.101
+weight 1
+chance 2
+end
+sprite snow_grayish_tiny.101
+weight 1
+chance 2
+end
+delay 40
+end
+
 effect snow_heavy_left
 sprite snow_little.101
 weight 1
