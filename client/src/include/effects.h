@@ -185,6 +185,31 @@ typedef struct effect_sprite_def
 
 	/** Y calculation modification. */
 	double y_mod;
+
+	/**
+	 * Whether to affect side-checking of sprites with the sprite's
+	 * width, 1 by default. */
+	uint8 x_check_mod;
+
+	/**
+	 * Whether to affect side-checking of sprites with the sprite's
+	 * height, 1 by default. */
+	uint8 y_check_mod;
+
+	/**
+	 * Whether to kill sprites that go too far to the left (off
+	 * screen), 1 by default. */
+	uint8 kill_side_left;
+
+	/**
+	 * Whether to kill sprites that go too far to the right (off
+	 * screen), 0 by default. */
+	uint8 kill_side_right;
+
+	/**
+	 * How much to zoom this sprite, 0 by default (no zoom), 100 = same
+	 * as current sprite, 200 = twice as big. */
+	uint16 zoom;
 } effect_sprite_def;
 
 #endif

@@ -163,6 +163,30 @@ void effects_init()
 			{
 				sprite_def->y_mod = atof(buf + 6);
 			}
+			else if (!strncmp(buf, "x_check_mod ", 12))
+			{
+				sprite_def->x_check_mod = atoi(buf + 12);
+			}
+			else if (!strncmp(buf, "y_check_mod ", 12))
+			{
+				sprite_def->y_check_mod = atoi(buf + 12);
+			}
+			else if (!strncmp(buf, "kill_sides ", 11))
+			{
+				sprite_def->kill_side_left = sprite_def->kill_side_right = atoi(buf + 11);
+			}
+			else if (!strncmp(buf, "kill_side_left ", 15))
+			{
+				sprite_def->kill_side_left = atoi(buf + 15);
+			}
+			else if (!strncmp(buf, "kill_side_right ", 16))
+			{
+				sprite_def->kill_side_right = atoi(buf + 16);
+			}
+			else if (!strncmp(buf, "zoom ", 5))
+			{
+				sprite_def->zoom = atoi(buf + 5);
+			}
 		}
 		/* Parse definitions inside effect block. */
 		else if (effect)
@@ -214,6 +238,11 @@ void effects_init()
 				sprite_def->y_rndm = 60.0;
 				sprite_def->x_mod = 1.0;
 				sprite_def->y_mod = 1.0;
+				sprite_def->x_check_mod = 1;
+				sprite_def->y_check_mod = 1;
+				sprite_def->kill_side_left = 1;
+				sprite_def->kill_side_right = 0;
+				sprite_def->zoom = 0;
 			}
 		}
 		/* Start of effect block. */
@@ -390,6 +419,7 @@ void effect_sprites_play()
 {
 	effect_sprite *tmp, *next;
 	int num_sprites = 0;
+	int x_check, y_check;
 
 	/* No current effect or not playing, quit. */
 	if (!current_effect || GameStatus != GAME_STATUS_PLAY)
@@ -401,15 +431,27 @@ void effect_sprites_play()
 	{
 		next = tmp->next;
 
+		x_check = y_check = 0;
+
+		if (tmp->def->x_check_mod)
+		{
+			x_check = FaceList[tmp->def->id].sprite->bitmap->w;
+		}
+
+		if (tmp->def->y_check_mod)
+		{
+			y_check = FaceList[tmp->def->id].sprite->bitmap->h;
+		}
+
 		/* Off-screen? */
-		if (tmp->x < 0 || tmp->x + FaceList[tmp->def->id].sprite->bitmap->w > ScreenSurfaceMap->w || tmp->y < 0 || tmp->y + FaceList[tmp->def->id].sprite->bitmap->h > ScreenSurfaceMap->h)
+		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > ScreenSurfaceMap->w) || tmp->y + y_check < 0 || tmp->y - y_check > ScreenSurfaceMap->h)
 		{
 			effect_sprite_remove(tmp);
 			continue;
 		}
 
 		/* Show the sprite. */
-		sprite_blt_map(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, NULL, NULL, 0, 0);
+		sprite_blt_map(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, NULL, NULL, 0, tmp->def->zoom);
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
@@ -511,6 +553,20 @@ void effect_sprites_play()
 int effect_start(const char *name)
 {
 	effect_struct *tmp;
+
+	if (!strcmp(name, "num"))
+	{
+		int num = 0;
+		effect_sprite *tmp;
+
+		for (tmp = current_effect->sprites; tmp; tmp = tmp->next)
+		{
+			num++;
+		}
+
+		draw_info_format(COLOR_GREEN, "Number of visible particles: %d", num);
+		return 0;
+	}
 
 	for (tmp = effects; tmp; tmp = tmp->next)
 	{
