@@ -796,8 +796,10 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 		xpos -= (sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
 	}
 
-	ypos -= the_map.cells[x][y].height[1];
-	ypos += the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1];
+	if (the_map.cells[x][y].faces[1])
+	{
+		ypos = (ypos - (the_map.cells[x][y].height[1])) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]);
+	}
 
 	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0);
 }
@@ -852,16 +854,18 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + options.mapstart_y;
 
 	/* Go through all the map squares. */
-	for (x = 0; x < options.map_size_x; x++)
+	for (x = options.map_size_x - 1; x >= 0; x--)
 	{
-		for (y = 0; y < options.map_size_y; y++)
+		for (y = options.map_size_y - 1; y >= 0; y--)
 		{
 			/* X/Y position of the map square. */
 			xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * (options.zoom / 100.0);
 			ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * (options.zoom / 100.0);
 
-			ypos -= the_map.cells[x][y].height[1];
-			ypos += the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1];
+			if (the_map.cells[x][y].faces[1])
+			{
+				ypos = (ypos - (the_map.cells[x][y].height[1]) * (options.zoom / 100.0)) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]) * (options.zoom / 100.0);
+			}
 
 			/* See if this square matches our 48x24 box shape. */
 			if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) && my >= ypos && my < ypos + (MAP_TILE_YOFF * (options.zoom / 100.0)))
