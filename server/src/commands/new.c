@@ -969,21 +969,6 @@ void command_fire(char *params, int len, player *pl)
 }
 
 /**
- * Sends mapstats command to the client, after the player has entered the map.
- *
- * Command sends map width, map height, map name, map music, etc.
- * @param op Player object.
- * @param map Map. */
-void send_mapstats_cmd(object *op, struct mapdef *map)
-{
-	char tmp[HUGE_BUF];
-
-	CONTR(op)->last_update = map;
-	snprintf(tmp, sizeof(tmp), "X%d %d %d %d %s %s", map->width, map->height, op->x, op->y, map->bg_music ? map->bg_music : "no_music", map->name);
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_MAPSTATS, tmp, strlen(tmp));
-}
-
-/**
  * Determine spell's path for spell list sending.
  * @param op Object.
  * @param spell_number Spell ID.

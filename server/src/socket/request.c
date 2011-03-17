@@ -569,15 +569,6 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 }
 
 /**
- * Newmap command. */
-void MapNewmapCmd(player *pl)
-{
-	/* We are really on a new map. Tell it the client */
-	send_mapstats_cmd(pl->ob, pl->ob->map);
-	memset(&pl->socket.lastmap, 0, sizeof(struct Map));
-}
-
-/**
  * Moves an object (typically, container to inventory).
  *
  * Syntax:
