@@ -602,4 +602,6 @@ extern Client_Player cpl;
 #define CMD_MAPSTATS_NAME 1
 /** Change map music. */
 #define CMD_MAPSTATS_MUSIC 2
+/** Change map weather. */
+#define CMD_MAPSTATS_WEATHER 3
 /*@}*/

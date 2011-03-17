@@ -1934,6 +1934,7 @@ void free_map(mapstruct *m, int flag)
 
 	FREE_AND_NULL_PTR(m->name);
 	FREE_AND_NULL_PTR(m->bg_music);
+	FREE_AND_NULL_PTR(m->weather);
 	FREE_AND_NULL_PTR(m->spaces);
 	FREE_AND_NULL_PTR(m->msg);
 	m->buttons = NULL;
@@ -3016,4 +3017,22 @@ void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_
 	{
 		SockList_AddString(sl, map_info && map_info->slaying ? (char *) map_info->slaying : (map->bg_music ? map->bg_music : "no_music"));
 	}
+}
+
+/**
+ * Add map weather to a SockList instance.
+ * @param sl The SockList instance.
+ * @param pl Optional player object this is being done for; will be used
+ * to check whether the player's client can receive weather data.
+ * @param map Map to add weather of.
+ * @param map_info Map information object -- if not NULL and the object
+ * holds map weather, it will be used to override the actual map's weather. */
+void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info)
+{
+	if (pl && CONTR(pl)->socket.socket_version < 1047)
+	{
+		return;
+	}
+
+	SockList_AddString(sl, map_info && map_info->title ? (char *) map_info->title : (map->weather ? map->weather : "none"));
 }

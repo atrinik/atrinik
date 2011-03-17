@@ -548,37 +548,84 @@ void effect_sprites_play()
 
 /**
  * Start an effect identified by its name.
- * @param name Name of the effect to start.
+ * @param name Name of the effect to start. 'none' is a reserved effect name
+ * and will stop any currently playing effect.
  * @return 1 if the effect was started, 0 otherwise. */
 int effect_start(const char *name)
 {
 	effect_struct *tmp;
 
-	if (!strcmp(name, "num"))
+	/* Stop playing any effect. */
+	if (!strcmp(name, "none"))
 	{
-		int num = 0;
-		effect_sprite *tmp;
-
-		for (tmp = current_effect->sprites; tmp; tmp = tmp->next)
-		{
-			num++;
-		}
-
-		draw_info_format(COLOR_GREEN, "Number of visible particles: %d", num);
-		return 0;
+		effect_stop();
+		return 1;
 	}
 
+	/* Already playing the same effect? */
+	if (current_effect && !strcmp(current_effect->name, name))
+	{
+		return 1;
+	}
+
+	/* Find the effect... */
 	for (tmp = effects; tmp; tmp = tmp->next)
 	{
+		/* Found it? */
 		if (!strcmp(tmp->name, name))
 		{
+			/* Stop current effect (if any) */
+			effect_stop();
+			/* Reset wind direction. */
 			tmp->wind = 0;
+			/* Load it up. */
 			current_effect = tmp;
 			return 1;
 		}
 	}
 
 	return 0;
+}
+
+/**
+ * Used for debugging effects code using /d_effect command.
+ * @param type What debugging command to run. */
+void effect_debug(const char *type)
+{
+	if (!strcmp(type, "num"))
+	{
+		uint32 num = 0;
+		uint64 bytes;
+		double kbytes;
+		effect_sprite *tmp;
+
+		if (!current_effect)
+		{
+			draw_info("No effect is currently playing.", COLOR_RED);
+			return;
+		}
+
+		for (tmp = current_effect->sprites; tmp; tmp = tmp->next)
+		{
+			num++;
+		}
+
+		bytes = ((uint64) sizeof(effect_sprite)) * num;
+		kbytes = (double) bytes / 1024;
+
+		draw_info_format(COLOR_WHITE, "Visible sprites: <green>%d</green> using <green>%"FMT64U"</green> bytes (<green>%2.2f</green> KB)", num, bytes, kbytes);
+	}
+	else if (!strcmp(type, "sizeof"))
+	{
+		draw_info("Information about various data structures used by effects:\n", COLOR_WHITE);
+		draw_info_format(COLOR_WHITE, "Size of a single sprite definition: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite_def));
+		draw_info_format(COLOR_WHITE, "Size of a single visible sprite: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite));
+		draw_info_format(COLOR_WHITE, "Size of a single effect structure: <green>%"FMT64U"</green>", (uint64) sizeof(effect_struct));
+	}
+	else
+	{
+		draw_info_format(COLOR_RED, "No such debug option '%s'.", type);
+	}
 }
 
 /**

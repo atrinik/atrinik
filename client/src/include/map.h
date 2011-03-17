@@ -92,9 +92,6 @@ typedef struct _mapdata
 	/** Map name. */
 	char name[HUGE_BUF];
 
-	/** Map background music. */
-	char music[HUGE_BUF];
-
 	/** X length. */
 	int xlen;
 

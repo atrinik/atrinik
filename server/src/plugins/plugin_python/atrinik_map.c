@@ -52,7 +52,8 @@ static fields_struct fields[] =
 	{"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
 	{"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
 	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
-	{"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0}
+	{"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0},
+	{"weather", FIELDTYPE_CSTR, offsetof(mapstruct, weather), 0, 0}
 };
 /* @endcparser */
 

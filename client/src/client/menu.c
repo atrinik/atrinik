@@ -233,9 +233,14 @@ int client_command_check(char *cmd)
 		}
 		else
 		{
-			draw_info_format(COLOR_GREEN, "No such effect %s.", cmd + 8);
+			draw_info_format(COLOR_RED, "No such effect %s.", cmd + 8);
 		}
 
+		return 1;
+	}
+	else if (!strncmp(cmd, "/d_effect ", 10))
+	{
+		effect_debug(cmd + 10);
 		return 1;
 	}
 

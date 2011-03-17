@@ -560,6 +560,9 @@ typedef struct mapdef
 	/** Background music of the map */
 	char *bg_music;
 
+	/** Weather effect active on this map. */
+	char *weather;
+
 	/** Name of temporary file */
 	char *tmpname;
 

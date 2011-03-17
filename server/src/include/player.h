@@ -234,6 +234,9 @@ typedef struct pl_player
 	/** Last map info music sent. */
 	char map_info_music[HUGE_BUF];
 
+	/** Last map info weather sent. */
+	char map_info_weather[MAX_BUF];
+
 	/**
 	 * Last sent map. */
 	struct mapdef *last_update;

@@ -138,40 +138,45 @@ void map_draw_map_clear()
 }
 
 /**
- * Update map's data.
- * @param name Map's name.
- * @param bg_music Map's background music. */
-void update_map_data(const char *name, char *bg_music)
+ * Update map's name.
+ * @param name New map name. */
+void update_map_name(const char *name)
 {
 	widgetdata *widget;
 
-	if (bg_music)
-	{
-		if (!strcmp(bg_music, "no_music"))
-		{
-			sound_stop_bg_music();
-		}
-		else
-		{
-			strncpy(MapData.music, bg_music, sizeof(MapData.music) - 1);
-			MapData.music[sizeof(MapData.music) - 1] = '\0';
-			parse_map_bg_music(bg_music);
-		}
-	}
+	strncpy(MapData.name, name, sizeof(MapData.name) - 1);
+	MapData.name[sizeof(MapData.name) - 1] = '\0';
 
-	if (name)
+	/* We need to update all mapname widgets on the screen now.
+	 * Not that there should be more than one at a time, but just in case. */
+	for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
 	{
-		strncpy(MapData.name, name, sizeof(MapData.name) - 1);
-		MapData.name[sizeof(MapData.name) - 1] = '\0';
-
-		/* We need to update all mapname widgets on the screen now.
-		 * Not that there should be more than one at a time, but just in case. */
-		for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
-		{
-			resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
-			resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, name, TEXT_MARKUP));
-		}
+		resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
+		resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, name, TEXT_MARKUP));
 	}
+}
+
+/**
+ * Update map's background music.
+ * @param bg_music New background music. */
+void update_map_bg_music(const char *bg_music)
+{
+	if (!strcmp(bg_music, "no_music"))
+	{
+		sound_stop_bg_music();
+	}
+	else
+	{
+		parse_map_bg_music(bg_music);
+	}
+}
+
+/**
+ * Update map's weather.
+ * @param weather New weather. */
+void update_map_weather(const char *weather)
+{
+	effect_start(weather);
 }
 
 /**

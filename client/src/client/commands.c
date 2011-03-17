@@ -1342,7 +1342,7 @@ void MapStatsCmd(unsigned char *data, int len)
 			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
 			buf[sizeof(buf) - 1] = '\0';
 			pos += strlen(buf) + 1;
-			update_map_data(buf, NULL);
+			update_map_name(buf);
 		}
 		/* Change map music. */
 		else if (type == CMD_MAPSTATS_MUSIC)
@@ -1350,7 +1350,15 @@ void MapStatsCmd(unsigned char *data, int len)
 			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
 			buf[sizeof(buf) - 1] = '\0';
 			pos += strlen(buf) + 1;
-			update_map_data(NULL, buf);
+			update_map_bg_music(buf);
+		}
+		/* Change map weather. */
+		else if (type == CMD_MAPSTATS_WEATHER)
+		{
+			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			pos += strlen(buf) + 1;
+			update_map_weather(buf);
 		}
 	}
 }
@@ -1372,12 +1380,14 @@ void Map2Cmd(unsigned char *data, int len)
 
 	if (mapstat != MAP_UPDATE_CMD_SAME)
 	{
-		char mapname[256], bg_music[256];
+		char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF];
 
 		strncpy(mapname, (const char *) (data + pos), sizeof(mapname) - 1);
 		pos += strlen(mapname) + 1;
 		strncpy(bg_music, (const char *) (data + pos), sizeof(bg_music) - 1);
 		pos += strlen(bg_music) + 1;
+		strncpy(weather, (const char *) (data + pos), sizeof(weather) - 1);
+		pos += strlen(weather) + 1;
 
 		if (mapstat == MAP_UPDATE_CMD_NEW)
 		{
@@ -1409,7 +1419,9 @@ void Map2Cmd(unsigned char *data, int len)
 			map_play_footstep();
 		}
 
-		update_map_data(mapname, bg_music);
+		update_map_name(mapname);
+		update_map_bg_music(bg_music);
+		update_map_weather(weather);
 	}
 	else
 	{

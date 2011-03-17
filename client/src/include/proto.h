@@ -311,9 +311,9 @@ void effect_free(effect_struct *effect);
 void effect_sprite_def_free(effect_sprite_def *sprite_def);
 void effect_sprite_free(effect_sprite *sprite);
 void effect_sprite_remove(effect_sprite *sprite);
-effect_sprite *effect_sprite_add(effect_struct *effect, int x, int y);
 void effect_sprites_play();
 int effect_start(const char *name);
+void effect_debug(const char *type);
 void effect_stop();
 
 /* gui/fps.c */
@@ -357,7 +357,9 @@ void widget_show_mapname(widgetdata *widget);
 void clear_map();
 void display_mapscroll(int dx, int dy);
 void map_draw_map_clear();
-void update_map_data(const char *name, char *bg_music);
+void update_map_name(const char *name);
+void update_map_bg_music(const char *bg_music);
+void update_map_weather(const char *weather);
 void init_map_data(int xl, int yl, int px, int py);
 void align_tile_stretch(int x, int y);
 void adjust_tile_stretch();

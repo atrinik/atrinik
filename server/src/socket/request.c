@@ -1133,6 +1133,16 @@ void draw_client_map(object *pl)
 				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
 				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
 			}
+
+			/* And weather... */
+			if (msp->map_info->title && strcmp(msp->map_info->title, CONTR(pl)->map_info_weather))
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_WEATHER);
+				SockList_AddMapWeather(&sl, pl, pl->map, msp->map_info);
+
+				strncpy(CONTR(pl)->map_info_weather, msp->map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
+			}
 		}
 		/* There isn't map info object, check if we need to update previously
 		 * overriden values. */
@@ -1154,6 +1164,15 @@ void draw_client_map(object *pl)
 				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
 
 				CONTR(pl)->map_info_music[0] = '\0';
+			}
+
+			/* Update map weather... */
+			if (CONTR(pl)->map_info_weather[0] != '\0')
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_WEATHER);
+				SockList_AddMapWeather(&sl, pl, pl->map, NULL);
+
+				CONTR(pl)->map_info_weather[0] = '\0';
 			}
 		}
 
@@ -1286,6 +1305,7 @@ void draw_client_map2(object *pl)
 
 		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
 		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
+		SockList_AddMapWeather(&sl, pl, pl->map, msp->map_info);
 
 		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
 		{
@@ -1299,6 +1319,12 @@ void draw_client_map2(object *pl)
 			{
 				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
 				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+			}
+
+			if (msp->map_info->title)
+			{
+				strncpy(CONTR(pl)->map_info_weather, msp->map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
 			}
 		}
 

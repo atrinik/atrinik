@@ -563,6 +563,7 @@ int players_on_map(mapstruct *m);
 int wall_blocked(mapstruct *m, int x, int y);
 void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info);
 void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info);
+void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info);
 
 /* server/mempool.c */
 uint32 nearest_pow_two_exp(uint32 n);
