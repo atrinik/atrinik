@@ -12,7 +12,7 @@ outdoor 1
 tile_path_1 tutorial_0102
 tile_path_2 tutorial_0201
 tile_path_5 tutorial_0202
-bg_music tutorialisland.ogg
+bg_music tutorialisland.mid
 region creation
 end
 arch water_dk4
