@@ -20,6 +20,13 @@ if options == "cave-enter":
 # Exiting either the cave or the tutorial island so update the save bed -
 # don't want players to have any access back.
 elif options == "cave-exit" or options == "island-exit":
+	# Exiting cave, remove no longer needed weapons master force.
+	if options == "cave-exit":
+		obj = activator.FindObject(name = "tutorial_weapons_master")
+
+		if obj:
+			obj.Remove()
+
 	pl.savebed_map = me.slaying
 	pl.bed_x = me.hp
 	pl.bed_y = me.sp
