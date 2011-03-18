@@ -210,6 +210,10 @@ typedef struct effect_sprite_def
 	 * How much to zoom this sprite, 0 by default (no zoom), 100 = same
 	 * as current sprite, 200 = twice as big. */
 	uint16 zoom;
+
+	/**
+	 * Warp sprites going too far to the sides (off screen), 1 by default. */
+	uint8 warp_sides;
 } effect_sprite_def;
 
 #endif

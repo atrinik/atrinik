@@ -187,6 +187,10 @@ void effects_init()
 			{
 				sprite_def->zoom = atoi(buf + 5);
 			}
+			else if (!strncmp(buf, "warp_sides ", 11))
+			{
+				sprite_def->warp_sides = atoi(buf + 11);
+			}
 		}
 		/* Parse definitions inside effect block. */
 		else if (effect)
@@ -243,6 +247,7 @@ void effects_init()
 				sprite_def->kill_side_left = 1;
 				sprite_def->kill_side_right = 0;
 				sprite_def->zoom = 0;
+				sprite_def->warp_sides = 1;
 			}
 		}
 		/* Start of effect block. */
@@ -441,6 +446,20 @@ void effect_sprites_play()
 		if (tmp->def->y_check_mod)
 		{
 			y_check = FaceList[tmp->def->id].sprite->bitmap->h;
+		}
+
+		if (tmp->def->warp_sides)
+		{
+			if (tmp->x + x_check < 0)
+			{
+				tmp->x = ScreenSurfaceMap->w;
+				continue;
+			}
+			else if (tmp->x - x_check > ScreenSurfaceMap->w)
+			{
+				tmp->x = -x_check;
+				continue;
+			}
 		}
 
 		/* Off-screen? */
