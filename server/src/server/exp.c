@@ -359,6 +359,9 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	/* First we see what we can add to our skill */
 	exp = adjust_exp(op, exp_skill, exp);
 
+	/* Notify the player of the exp gain */
+	new_draw_info_format(NDI_UNIQUE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
+
 	/* adjust_exp() has adjusted the skill and all exp_obj and player
 	 * experience. Now let's check for level up in all categories. */
 	player_lvl_adj(op, exp_skill);
@@ -369,9 +372,6 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	{
 		op->exp_obj = NULL;
 	}
-
-	/* Notify the player of the exp gain */
-	new_draw_info_format(NDI_UNIQUE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
 
 	/* The real experience we have added to our skill */
 	return exp;
