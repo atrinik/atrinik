@@ -60,6 +60,11 @@ int command_bleed(object *op, char *params);
 int command_cringe(object *op, char *params);
 int command_think(object *op, char *params);
 int command_me(object *op, char *params);
+int command_stare(object *op, char *params);
+int command_sneer(object *op, char *params);
+int command_wince(object *op, char *params);
+int command_facepalm(object *op, char *params);
+int command_my(object *op, char *params);
 
 /* commands/commands.c */
 void init_commands();
@@ -111,7 +116,6 @@ int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
 void command_new_char(char *params, int len, player *pl);
 void command_fire(char *params, int len, player *pl);
-void send_mapstats_cmd(object *op, struct mapdef *map);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
 void send_skilllist_cmd(object *op, object *skillp, int mode);
 void send_ready_skill(object *op, const char *skillname);
@@ -458,6 +462,7 @@ char *query_weight(object *op);
 char *get_levelnumber(int i);
 char *query_short_name(object *op, object *caller);
 char *query_name(object *op, object *caller);
+char *query_material_name(object *op);
 char *query_base_name(object *op, object *caller);
 char *describe_item(object *op);
 int need_identify(object *op);
@@ -555,6 +560,9 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *m
 int on_same_map(object *op1, object *op2);
 int players_on_map(mapstruct *m);
 int wall_blocked(mapstruct *m, int x, int y);
+void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info);
+void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info);
+void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info);
 
 /* server/mempool.c */
 uint32 nearest_pow_two_exp(uint32 n);
@@ -662,13 +670,6 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 path_node *compress_path(path_node *path);
 path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2);
 
-/* server/player_shop.c */
-void player_shop_open(char *data, player *pl);
-void player_shop_close(player *pl);
-void player_shop_load(char *data, player *pl);
-void player_shop_examine(char *data, player *pl);
-void player_shop_buy(char *data, player *pl);
-
 /* server/plugins.c */
 object *get_event_object(object *op, int event_nr);
 CommArray_s *find_plugin_command(const char *cmd);
@@ -756,8 +757,8 @@ object *bank_get_info(object *op);
 object *bank_create_info(object *op);
 object *bank_get_create_info(object *op);
 sint64 bank_get_balance(object *op);
-int bank_deposit(object *op, const char *text);
-int bank_withdraw(object *op, const char *text);
+int bank_deposit(object *op, const char *text, sint64 *value);
+int bank_withdraw(object *op, const char *text, sint64 *value);
 sint64 insert_coins(object *pl, sint64 value);
 
 /* server/shstr.c */
@@ -779,7 +780,7 @@ void do_throw(object *op, object *toss_item, int dir);
 /* server/skill_util.c */
 int find_skill_exp_level(object *pl, int item_skill);
 char *find_skill_exp_skillname(int item_skill);
-sint64 do_skill(object *op, int dir);
+sint64 do_skill(object *op, int dir, const char *params);
 sint64 calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
 void free_exp_objects();
@@ -925,6 +926,9 @@ void tick_the_clock();
 /* skills/construction.c */
 void construction_do(object *op, int dir);
 
+/* skills/inscription.c */
+int skill_inscription(object *op, const char *params);
+
 /* socket/image.c */
 int is_valid_faceset(int fsn);
 void free_socket_images();
@@ -995,7 +999,6 @@ void PlayerCmd(char *buf, int len, player *pl);
 void ReplyCmd(char *buf, int len, player *pl);
 void RequestFileCmd(char *buf, int len, socket_struct *ns);
 void VersionCmd(char *buf, int len, socket_struct *ns);
-void MapNewmapCmd(player *pl);
 void MoveCmd(char *buf, int len, player *pl);
 void send_query(socket_struct *ns, uint8 flags, char *text);
 void add_skill_to_skilllist(object *skill, StringBuffer *sb);
@@ -1100,6 +1103,9 @@ void apply_lighter(object *who, object *lighter);
 void magic_mirror_init(object *mirror);
 void magic_mirror_deinit(object *mirror);
 mapstruct *magic_mirror_get_map(object *mirror);
+
+/* types/map_info.c */
+void map_info_init(object *info);
 
 /* types/marker.c */
 void move_marker(object *op);

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -34,6 +34,20 @@ int old_mouse_y = 0;
 
 int cursor_type = 0;
 int itemExamined = 0;
+
+/**
+ * Table of all the keys recognized by SDL. If an element is 1, that key
+ * is currently being held. */
+static uint8 keys_pressed[SDLK_LAST];
+
+/**
+ * Check whether the specified key is being held.
+ * @param key Key to check.
+ * @return 1 if the keys is being held, 0 otherwise. */
+uint8 key_is_pressed(SDLKey key)
+{
+	return keys_pressed[key];
+}
 
 /* src:  (if != DRAG_GET_STATUS) set actual dragging source.
  * item: (if != NULL) set actual dragging item.
@@ -109,6 +123,15 @@ int Event_PollInputDevice()
 	{
 		static int old_mouse_y = 0, old_map_mouse_x = 0, old_map_mouse_y = 0;
 
+		if (event.type == SDL_KEYUP)
+		{
+			keys_pressed[event.key.keysym.sym] = 0;
+		}
+		else if (event.type == SDL_KEYDOWN)
+		{
+			keys_pressed[event.key.keysym.sym] = 1;
+		}
+
 		x = event.motion.x;
 		y = event.motion.y;
 
@@ -141,14 +164,6 @@ int Event_PollInputDevice()
 
 				mb_clicked = 0;
 				active_scrollbar = 0;
-
-				if (cur_widget[SHOP_ID]->show && draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
-				{
-					if (shop_put_item(x, y))
-					{
-						break;
-					}
-				}
 
 				/* Widget has higher priority than anything below, except menus
 				 * so break if we had a widget event */

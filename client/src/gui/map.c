@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -138,36 +138,45 @@ void map_draw_map_clear()
 }
 
 /**
- * Update map's data.
- * @param name Map's name.
- * @param bg_music Map's background music. */
-void update_map_data(const char *name, char *bg_music)
+ * Update map's name.
+ * @param name New map name. */
+void update_map_name(const char *name)
 {
 	widgetdata *widget;
 
+	strncpy(MapData.name, name, sizeof(MapData.name) - 1);
+	MapData.name[sizeof(MapData.name) - 1] = '\0';
+
+	/* We need to update all mapname widgets on the screen now.
+	 * Not that there should be more than one at a time, but just in case. */
+	for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
+	{
+		resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
+		resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, name, TEXT_MARKUP));
+	}
+}
+
+/**
+ * Update map's background music.
+ * @param bg_music New background music. */
+void update_map_bg_music(const char *bg_music)
+{
 	if (!strcmp(bg_music, "no_music"))
 	{
 		sound_stop_bg_music();
 	}
 	else
 	{
-		strncpy(MapData.music, bg_music, sizeof(MapData.music));
 		parse_map_bg_music(bg_music);
 	}
+}
 
-	if (name)
-	{
-		strncpy(MapData.name, name, sizeof(MapData.name) - 1);
-		MapData.name[sizeof(MapData.name) - 1] = '\0';
-
-		/* We need to update all mapname widgets on the screen now.
-		 * Not that there should be more than one at a time, but just in case. */
-		for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
-		{
-			resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
-			resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, name, TEXT_MARKUP));
-		}
-	}
+/**
+ * Update map's weather.
+ * @param weather New weather. */
+void update_map_weather(const char *weather)
+{
+	effect_start(weather);
 }
 
 /**
@@ -792,6 +801,11 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 		xpos -= (sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
 	}
 
+	if (the_map.cells[x][y].faces[1])
+	{
+		ypos = (ypos - (the_map.cells[x][y].height[1])) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]);
+	}
+
 	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0);
 }
 
@@ -845,13 +859,18 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + options.mapstart_y;
 
 	/* Go through all the map squares. */
-	for (x = 0; x < options.map_size_x; x++)
+	for (x = options.map_size_x - 1; x >= 0; x--)
 	{
-		for (y = 0; y < options.map_size_y; y++)
+		for (y = options.map_size_y - 1; y >= 0; y--)
 		{
 			/* X/Y position of the map square. */
 			xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * (options.zoom / 100.0);
 			ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * (options.zoom / 100.0);
+
+			if (the_map.cells[x][y].faces[1])
+			{
+				ypos = (ypos - (the_map.cells[x][y].height[1]) * (options.zoom / 100.0)) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]) * (options.zoom / 100.0);
+			}
 
 			/* See if this square matches our 48x24 box shape. */
 			if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) && my >= ypos && my < ypos + (MAP_TILE_YOFF * (options.zoom / 100.0)))

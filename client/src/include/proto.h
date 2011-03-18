@@ -40,6 +40,7 @@ void ItemYCmd(unsigned char *data, int len);
 void UpdateItemCmd(unsigned char *data, int len);
 void DeleteItem(unsigned char *data, int len);
 void DeleteInventory(unsigned char *data);
+void MapStatsCmd(unsigned char *data, int len);
 void Map2Cmd(unsigned char *data, int len);
 void MagicMapCmd(unsigned char *data, int len);
 void VersionCmd(char *data);
@@ -131,6 +132,7 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep);
 void *reallocz(void *ptr, size_t old_size, size_t new_size);
 void convert_newline(char *str);
 void browser_open(const char *url);
+int rndm(int min, int max);
 
 /* client/player.c */
 void clear_player();
@@ -174,12 +176,13 @@ void script_unload(const char *params);
 
 /* client/server_files.c */
 void server_files_init();
-void server_files_load();
+void server_files_load(int post_load);
 FILE *server_file_open(size_t id);
 void server_file_save(size_t id, unsigned char *data, size_t len);
 int server_files_updating();
 void server_files_setup_add(char *buf, size_t buf_size);
 int server_files_parse_setup(const char *cmd, const char *param);
+void server_files_clear_update();
 
 /* client/server_settings.c */
 void server_settings_init();
@@ -266,6 +269,7 @@ SDL_Surface *IMG_Load_wrapper(const char *file);
 void mouse_InputNumber();
 
 /* events/event.c */
+uint8 key_is_pressed(SDLKey key);
 int draggingInvItem(int src);
 void resize_window(int width, int height);
 int Event_PollInputDevice();
@@ -298,6 +302,19 @@ void book_load(const char *data, int len);
 void book_show();
 void book_handle_key(SDLKey key);
 void book_handle_event(SDL_Event *event);
+
+/* gui/effects.c */
+void effects_init();
+void effects_deinit();
+void effect_sprites_free(effect_struct *effect);
+void effect_free(effect_struct *effect);
+void effect_sprite_def_free(effect_sprite_def *sprite_def);
+void effect_sprite_free(effect_sprite *sprite);
+void effect_sprite_remove(effect_sprite *sprite);
+void effect_sprites_play();
+int effect_start(const char *name);
+void effect_debug(const char *type);
+void effect_stop();
 
 /* gui/fps.c */
 void widget_show_fps(widgetdata *widget);
@@ -340,7 +357,9 @@ void widget_show_mapname(widgetdata *widget);
 void clear_map();
 void display_mapscroll(int dx, int dy);
 void map_draw_map_clear();
-void update_map_data(const char *name, char *bg_music);
+void update_map_name(const char *name);
+void update_map_bg_music(const char *bg_music);
+void update_map_weather(const char *weather);
 void init_map_data(int xl, int yl, int px, int py);
 void align_tile_stretch(int x, int y);
 void adjust_tile_stretch();
@@ -359,20 +378,6 @@ void gui_party_interface_mouse(SDL_Event *e);
 void clear_party_interface();
 _gui_party_struct *load_party_interface(char *data, int len);
 int console_party();
-
-/* gui/player_shop.c */
-void widget_show_shop(widgetdata *widget);
-void shop_open();
-void shop_buy_item();
-void initialize_shop(int shop_state);
-void clear_shop(int send_to_server);
-void shop_add_close_button(int x, int y);
-int shop_put_item(int x, int y);
-void shop_object_remove(sint32 tag);
-int check_shop_keys(SDL_KeyboardEvent *key);
-char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore);
-int shop_price2int(char *text);
-char *shop_int2price(int value);
 
 /* gui/protections.c */
 void widget_show_resist(widgetdata *widget);
@@ -497,6 +502,7 @@ void remove_widget_inv(widgetdata *widget);
 void init_widgets();
 void kill_widgets();
 void reset_widget(const char *name);
+void widgets_ensure_onscreen();
 void kill_widget_tree(widgetdata *widget);
 widgetdata *create_widget(int widget_id);
 void remove_widget(widgetdata *widget);

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -920,7 +920,7 @@ void drop(object *op, object *tmp, int no_mevent)
 int command_take(object *op, char *params)
 {
 	object *tmp, *next;
-	int did_one = 0, missed = 0, ival;
+	int did_one = 0, missed = 0, ground_total = 0, ival;
 
 	if (!params)
 	{
@@ -973,13 +973,44 @@ int command_take(object *op, char *params)
 				did_one = 1;
 			}
 		}
+
+		/* Keep track how many visible objects are left on the ground. */
+		if (!CONTR(op)->container && !tmp->env)
+		{
+			if (!(tmp->layer <= LAYER_FMASK || IS_SYS_INVISIBLE(tmp) || (!QUERY_FLAG(op, FLAG_SEE_INVISIBLE) && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE))) || QUERY_FLAG(op, FLAG_WIZ))
+			{
+				ground_total++;
+			}
+		}
 	}
 
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
 	if (did_one)
 	{
+		int layer;
+
 		fix_player(op);
+
+		/* Update below inventory positions for all players on this tile. */
+		for (layer = LAYER_LIVING; ; layer = LAYER_LIVING + NUM_LAYERS)
+		{
+			for (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, layer - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+			{
+				/* Ensures the below inventory position is not higher than
+				 * the actual number of visible items on the tile. */
+				if (tmp->type == PLAYER && CONTR(tmp) && CONTR(tmp)->socket.look_position > ground_total)
+				{
+					/* Update the visible row of objects. */
+					CONTR(tmp)->socket.look_position = ((int) (((float) ground_total / NUM_LOOK_OBJECTS) - 0.5f)) * NUM_LOOK_OBJECTS;
+				}
+			}
+
+			if (layer != LAYER_LIVING)
+			{
+				break;
+			}
+		}
 	}
 	else if (!missed)
 	{
@@ -1700,7 +1731,7 @@ dirty_little_jump1:
 	{
 		/* This is just a hack so when identifying the items, we print
 		 * out the extra message */
-		if (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
+		if ((need_identify(tmp) || QUERY_FLAG(tmp, FLAG_QUEST_ITEM)) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
 			new_draw_info(NDI_UNIQUE, op, "The object has a story:");
 			new_draw_info(NDI_UNIQUE, op, tmp->msg);

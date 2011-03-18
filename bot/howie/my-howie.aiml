@@ -1,0 +1,10 @@
+<!-- This file is for your own custom AIML experimentation.  Go nuts! -->
+
+<aiml version="1.0">
+
+<category>
+<pattern>TEST SYSTEM TAG *</pattern>
+<template>Howie says: <system mode="sync">scripts\echo.py <star/></system>, a'ite?</template>
+</category>
+
+</aiml>

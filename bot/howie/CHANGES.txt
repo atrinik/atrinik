@@ -1,0 +1,98 @@
+0.6.0:
+ - Upgraded to PyAIML version 0.8.4.  This version includes support for
+   multiple wildcards in AIML patterns, the "index" attribute of the "star"
+   AIML elements, and Unicode input and AIML files.
+ - Improved error-handling during front-end module initialization.  Previously,
+   any errors were mistakenly reported as "could not find valid frontend class"
+   warnings.
+ - AIM: Replaced broken PyTOC module with Twisted's OSCAR module.
+ - ICQ: Added support for the ICQ protocol.
+ - IRC: Added support for the IRC protocol (courtesy of Jamie Turner).
+ - JABBER: Modified jabber back-end to use the xmpppy package, instead of the
+   apparently-defunct jabber.py.
+ - MSN: Applied patch to msnp module to fix problem with redirect messages while
+   logging in.
+ - MSN: Fixed bug in msnp's __process_add() function.
+ - MSN: Fixed bug in MSN frontend's friend-adding code.
+ - XMLRPC: Wrapped call to register_introspection_functions() to allow it to run
+   without crashing older versions of Python.
+
+
+0.5.0:
+ - Arbitrary switch from date-based snapshots to "real" version numbers
+ - Upgraded AIML interpreter to PyAIML version 0.8.2.  This release fixes some
+   crashes involving infinite AIML recursion and passing Unicode strings as
+   input to the bot.
+ - Upgraded to MSNP 0.4.1.  The MSN front-end is now working!  I'll continue to
+   improve it in future releases, but it should be quite usable for now.
+ - Added Jabber chat front-end (based on jabber.py by Matthew Allum).
+ - Added new "botinfo" section to the config file, used to customize your bot's
+   personality.  Any entries added to this section are used to set up the
+   bot predicates (accessed through the AIML <bot> element).
+
+1/10/2004:
+ - Upgraded AIML interpreter to PyAIML version 0.8.1.  Fixes a problem with "system"
+   tags written for Windows not working on UNIX, and vice versa.  For cross-platform
+   compatibility, all "system" tags should use UNIX-style pathnames (e.g.
+   "path/to/script").
+ - Added "unix-install.py" helper script to automate some necessary setup steps on UNIX
+   platforms.
+ - Removed some Python 2.3-specific features; Howie should now run on Python 2.2.x.
+ - Howie now prompts for screenname/password at startup if the values aren't specified
+   in the config file (useful for those who don't like leaving passwords lying around
+   in plaintext on disk).
+ - Reorganized and commented configuration file.
+
+1/9/2004:
+ - Upgraded AIML interpreter to PyAIML version 0.8.
+ - Upgraded msnp package to v0.4.0 (the frontend still doesn't work, though).
+ - Added XMLRPC front-end.
+ - Added support for "what does X stand for" questions (acronym expansion).
+ - Added support for persistent session data (so Howie remembers the people he's
+   talked to even after he's rebooted).  To enable, set "sessionspersist" to "yes"
+   in howie.ini
+
+12/17/2003:
+ - New pure-Python AIML interpreter (out with J-Alice, in with PyAIML,
+   version 0.5).
+ - Fixed minor bugs in Googlism code.
+ - Added some missing tags in AIML files.
+ - Bot name and verbosity are now initialized from the config file.
+ - Added support for conversation logging (enabled in the config file).
+ - Howie can now answer "what rhymes with X?" questions.
+ - Installer now lets you customize which optional extension modules are
+   installed.
+
+12/1/2003: "Apocalypse Howie (Dev-20031201) is released
+ - Fixed bug in front-end loader that required a bunch of otherwise
+   unnecessary Python scripts to be included with a binary installation.
+ - Fixed broken sync-mode <system> tags on Win32 builds!  This is huge --
+   sync-mode <system> tags will be the keystone of Howie's future
+   functionality.
+ - Added a "scripts" directory, as a repository for the add-on commands
+   that Howie will run from inside <system> tags.
+ - Added a "my-howie.aiml" file for users to fill with their own custom AIML
+   responses.
+ - Moved Googlisms back-end into a stand-alone Python script, triggered through
+   AIML using a sync-mode <system> tag.  This is the future!
+
+11/21/2003: "Return of the Howie Extended Edition" (Dev-20031121) is released
+ - Windows binary distribution is now a self-contained executable.
+   On Windows systems, Python is no longer required to run Howie.
+ - Added documentation folder, mostly pertaining to compiling the sources.
+
+11/19/2003: "Return Of The Howie" (Dev-20031119) is released
+ - Updated J-Alice to version 0.5.  See the J-Alice homepage for summary
+   of new features.
+
+5/30/2003: "Finding Howie" (Dev-20030530) is released
+ - Fixed J-Alice bug which caused Howie to repeat his first response
+   over and over.
+ - Massive code reorganization makes adding new frontends a breeze!
+ - Connection parameters are read from the new configuration file,
+   howie.ini.
+ - Added command-line interface (force command-line only with the -l flag).
+
+5/15/2003: "Howie Reloaded" (Dev-20030515) is released
+ - initial pre-pre-alpha version, Windows installer only.
+ - AIM only

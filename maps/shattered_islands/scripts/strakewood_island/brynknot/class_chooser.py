@@ -5,7 +5,6 @@ from Atrinik import *
 
 activator = WhoIsActivator()
 me = WhoAmI()
-
 msg = WhatIsMessage().strip().lower()
 
 ## The possible classes.
@@ -15,9 +14,20 @@ classes = [
 		"msg": "As a warrior you've been trained in the art of combat with weapons and in archery.\nBecause of your training, you're stronger, more agile, and hardier than you would be otherwise.\nYour education, however, has not included studies in the magical arts or religious devotion, and, in general, lacks breadth.",
 		"bonus": [
 			"+20% hit points",
+			"+2 AC",
 			"+2 Strength",
 			"+1 Dexterity",
 			"+1 Constitution",
+		],
+	},
+	{
+		"name": "archer",
+		"msg": "As an archer, you have learned the art of using long range weapons such as bows and crossbows.\nYou have been taught how to read the wind in order to strike down enemies more effectively, but you have neglected religious devotion.\nYou have also trained your strength in order to be able to fire missiles from ranged weapons with enough strength to cause the most damage to your enemies.",
+		"bonus": [
+			"+5% hit points",
+			"+2 Strength",
+			"+3 Dexterity",
+			"+1 Intelligence",
 		],
 	},
 	{
@@ -62,7 +72,7 @@ classes = [
 
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey" or msg == "back":
-		me.SayTo(activator, "\nHello, {0}. I am the {1}.\nI will teach you the class of your choice. Now, tell me which class do you want more information about:\n{2}".format(activator.name, me.name, ", ".join(map(lambda d: "^" + d["name"] + "^", classes))))
+		me.SayTo(activator, "\nHello, {}. I am the {}.\nI will teach you the class of your choice. Now, tell me which class do you want more information about:\n{}".format(activator.name, me.name, ", ".join(map(lambda d: "<a>" + d["name"] + "</a>", classes))))
 
 	# Get a class.
 	elif msg[:7] == "become ":
@@ -75,7 +85,7 @@ def main():
 		if not l:
 			return
 
-		me.SayTo(activator, "\nAre you quite sure that you want to become {0}?\n\n^Yes, become {0}^".format(l[0]["name"]))
+		me.SayTo(activator, "\nAre you quite sure that you want to become {0}?\n\n<a>Yes, become {0}</a>".format(l[0]["name"]))
 
 	# Confirmation for getting a class.
 	elif msg[:12] == "yes, become ":
@@ -93,7 +103,7 @@ def main():
 		# fix_player() will be called eventually, so we just need to mark
 		# the ext title for update.
 		activator.Controller().s_ext_title_flag = True
-		me.SayTo(activator, "\nCongratulations, you're {0} now!".format(l[0]["name"]))
+		me.SayTo(activator, "\nCongratulations, you're {} now!".format(l[0]["name"]))
 
 	else:
 		l = list(filter(lambda d: d["name"] == msg, classes))
@@ -102,10 +112,10 @@ def main():
 			return
 
 		# Tell the player about this class, and its bonuses.
-		me.SayTo(activator, "\n{0}\n~Bonuses~:\n{1}".format(l[0]["msg"], "\n".join(l[0]["bonus"])))
+		me.SayTo(activator, "\n{}\n<green>Bonuses</green>:\n{}".format(l[0]["msg"], "\n".join(l[0]["bonus"])))
 
 		# Show a link to get the class or go back to the list of classes.
 		if not activator.Controller().class_ob:
-			me.SayTo(activator, "\n^Become {0}^ or go ^back^".format(l[0]["name"]), 1)
+			me.SayTo(activator, "\n<a>Become {}</a> or go <a>back</a>".format(l[0]["name"]), True)
 
 main()

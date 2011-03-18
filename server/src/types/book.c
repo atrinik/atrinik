@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -138,6 +138,10 @@ void apply_book(object *op, object *tmp)
 				break;
 			}
 		}
+
+		SockList_AddStringUnterm(&sl, "<book>");
+		SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
+		SockList_AddStringUnterm(&sl, "</book>");
 
 		buf[len] = '\0';
 		strcpy((char *) sl.buf + sl.len, buf);

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -244,6 +244,7 @@ static const Atrinik_Constant constants[] =
 	{"P_FLY_OFF", P_FLY_OFF},
 	{"P_FLY_ON", P_FLY_ON},
 	{"P_MAGIC_MIRROR", P_MAGIC_MIRROR},
+	{"P_OUTDOOR", P_OUTDOOR},
 	{"P_OUT_OF_MAP", P_OUT_OF_MAP},
 	{"P_FLAGS_ONLY", P_FLAGS_ONLY},
 	{"P_FLAGS_UPDATE", P_FLAGS_UPDATE},
@@ -1757,11 +1758,18 @@ static int handle_global_event(int event_type, va_list args)
 
 			if (flags & CACHE_FLAG_PYOBJ)
 			{
+				PyObject *retval;
+
 				/* Attempt to close file/database/etc objects. */
-				if (PyObject_GetAttrString((PyObject *) ptr, "close"))
+				retval = PyObject_CallMethod((PyObject *) ptr, "close", "");
+
+				/* No close() method, ignore the exception. */
+				if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError))
 				{
-					PyObject_CallMethod((PyObject *) ptr, "close", "");
+					PyErr_Clear();
 				}
+
+				Py_XDECREF(retval);
 
 				/* Decrease the reference count. */
 				Py_DECREF((PyObject *) ptr);

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -246,8 +246,8 @@ struct plugin_hooklist
 	object *(*arch_to_object)(archetype *);
 	object *(*insert_ob_in_map)(object *, mapstruct *, object *, int);
 	char *(*cost_string_from_value)(sint64);
-	int (*bank_deposit)(object *, const char *);
-	int (*bank_withdraw)(object *, const char *);
+	int (*bank_deposit)(object *, const char *, sint64 *value);
+	int (*bank_withdraw)(object *, const char *, sint64 *value);
 	sint64 (*bank_get_balance)(object *);
 	int (*swap_apartments)(const char *, const char *, int, int, object *);
 	int (*player_exists)(char *);

@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -142,7 +142,17 @@ arch floor_sblack1b
 x 1
 y 2
 end
+arch shelf3_dem2.111
+direction 7
+x 1
+y 2
+end
 arch floor_sblack2b
+x 1
+y 3
+end
+arch shelf3_dem3.111
+direction 7
 x 1
 y 3
 end
@@ -270,11 +280,25 @@ arch floor_sblack1b
 x 1
 y 19
 end
+arch table_lab3.111
+x 1
+y 19
+end
 arch floor_sblack1b
 x 1
 y 20
 end
+arch chest7_111
+direction 7
+x 1
+y 20
+end
 arch floor_sblack2b
+x 1
+y 21
+end
+arch chest7_111
+direction 7
 x 1
 y 21
 end
@@ -284,6 +308,11 @@ x 1
 y 21
 end
 arch floor_sblack3b
+x 1
+y 22
+end
+arch chest7_111
+direction 7
 x 1
 y 22
 end
@@ -302,6 +331,10 @@ arch fwall_fstone1a
 x 2
 end
 arch floor_sblack1b
+x 2
+y 1
+end
+arch chest7_111
 x 2
 y 1
 end
@@ -411,6 +444,10 @@ x 2
 y 18
 end
 arch floor_sblack1b
+x 2
+y 19
+end
+arch table_lab1.111
 x 2
 y 19
 end
@@ -1024,6 +1061,10 @@ arch floor_sblack1b
 x 9
 y 1
 end
+arch shelf3_dem2.111
+x 9
+y 1
+end
 arch floor_sblack2b
 x 9
 y 2
@@ -1063,6 +1104,10 @@ arch fwall_fstone1a
 x 10
 end
 arch floor_sblack3b
+x 10
+y 1
+end
+arch shelf3_dem3.111
 x 10
 y 1
 end
@@ -1345,7 +1390,17 @@ arch floor_sblack2b
 x 12
 y 11
 end
+arch shelf3_dem3.111
+direction 7
+x 12
+y 11
+end
 arch floor_sblack2b
+x 12
+y 12
+end
+arch shelf3_dem2.111
+direction 7
 x 12
 y 12
 end
@@ -1378,11 +1433,26 @@ arch floor_sblack1b
 x 12
 y 16
 end
+arch shelf3_dem2.111
+direction 7
+x 12
+y 16
+end
 arch floor_sblack1b
 x 12
 y 17
 end
+arch shelf3_dem3.111
+direction 7
+x 12
+y 17
+end
 arch floor_sblack3b
+x 12
+y 18
+end
+arch shelf3_dem2.111
+direction 7
 x 12
 y 18
 end
@@ -1408,6 +1478,11 @@ x 12
 y 21
 end
 arch floor_sblack1b
+x 12
+y 22
+end
+arch shelf3_dem1.111
+direction 7
 x 12
 y 22
 end
@@ -1892,6 +1967,11 @@ arch floor_sblack1b
 x 16
 y 9
 end
+arch shelf3_dem3.111
+direction 7
+x 16
+y 9
+end
 arch floor_sblack2b
 x 16
 y 10
@@ -1900,7 +1980,17 @@ arch pile_floor2
 x 16
 y 10
 end
+arch shelf3_dem2.111
+direction 7
+x 16
+y 10
+end
 arch floor_sblack1b
+x 16
+y 11
+end
+arch shelf3_dem1.111
+direction 7
 x 16
 y 11
 end
@@ -1914,6 +2004,11 @@ x 16
 y 12
 end
 arch floor_sblack3b
+x 16
+y 13
+end
+arch shelf3_dem3.111
+direction 7
 x 16
 y 13
 end
@@ -1946,11 +2041,26 @@ arch floor_sblack1b
 x 16
 y 18
 end
+arch shelf3_dem3.111
+direction 7
+x 16
+y 18
+end
 arch floor_sblack3b
 x 16
 y 19
 end
+arch shelf3_dem1.111
+direction 7
+x 16
+y 19
+end
 arch floor_sblack3b
+x 16
+y 20
+end
+arch shelf3_dem2.111
+direction 7
 x 16
 y 20
 end
@@ -2229,11 +2339,11 @@ arch fwall_fstone1a
 x 19
 y 1
 end
-arch wall_blood4
-x 19
-y 1
-end
 arch floor_sblack2b
+x 19
+y 2
+end
+arch shelf3_dem3.111
 x 19
 y 2
 end
@@ -2364,6 +2474,10 @@ x 20
 y 1
 end
 arch floor_sblack3b
+x 20
+y 2
+end
+arch shelf3_dem2.111
 x 20
 y 2
 end

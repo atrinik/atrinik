@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -85,7 +85,7 @@ void cmd_request_update(unsigned char *data, int len)
 	data = dest;
 	len = ucomp_len;
 
-	fp = fopen(filename, "wb");
+	fp = fopen_wrapper(filename, "wb");
 
 	if (!fp)
 	{
@@ -143,7 +143,7 @@ void file_updates_parse()
 			continue;
 		}
 
-		fp2 = fopen(filename, "rb");
+		fp2 = fopen_wrapper(filename, "rb");
 
 		/* No such file? Then we'll want to update this. */
 		if (!fp2)

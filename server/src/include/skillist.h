@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -83,5 +83,6 @@ skill skills[NROFSKILLS] =
 	{"impact weapons", NULL, EXP_PHYSICAL, 0},
 
 	{"two-hand mastery", NULL, EXP_PHYSICAL, 0},
-	{"polearm mastery", NULL, EXP_PHYSICAL, 0}
+	{"polearm mastery", NULL, EXP_PHYSICAL, 0},
+	{"inscription", NULL, EXP_MENTAL, 0},
 };

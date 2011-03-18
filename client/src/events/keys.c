@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -98,11 +98,6 @@ int key_event(SDL_KeyboardEvent *key)
 	}
 	else if (key->type == SDL_KEYDOWN)
 	{
-		if (shop_gui && check_shop_keys(key))
-		{
-			return 0;
-		}
-
 		if (cpl.menustatus != MENU_NO)
 		{
 			/* We catch here the keybind key, when we insert a new macro there */
@@ -325,25 +320,28 @@ int event_poll_key(SDL_Event *event)
 		{
 			cpl.inventory_win = IWIN_INV;
 
-			if (event->key.keysym.sym == SDLK_1)
+			if (GameStatus == GAME_STATUS_PLAY && event->key.type != SDL_KEYUP)
 			{
-				inventory_filter_set(INVENTORY_FILTER_ALL);
-				return 0;
-			}
-			else if (event->key.keysym.sym == SDLK_2)
-			{
-				inventory_filter_set(INVENTORY_FILTER_APPLIED);
-				return 0;
-			}
-			else if (event->key.keysym.sym == SDLK_3)
-			{
-				inventory_filter_set(INVENTORY_FILTER_LOCKED);
-				return 0;
-			}
-			else if (event->key.keysym.sym == SDLK_4)
-			{
-				inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
-				return 0;
+				if (event->key.keysym.sym == SDLK_1)
+				{
+					inventory_filter_set(INVENTORY_FILTER_ALL);
+					return 0;
+				}
+				else if (event->key.keysym.sym == SDLK_2)
+				{
+					inventory_filter_set(INVENTORY_FILTER_APPLIED);
+					return 0;
+				}
+				else if (event->key.keysym.sym == SDLK_3)
+				{
+					inventory_filter_set(INVENTORY_FILTER_LOCKED);
+					return 0;
+				}
+				else if (event->key.keysym.sym == SDLK_4)
+				{
+					inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
+					return 0;
+				}
 			}
 		}
 		else

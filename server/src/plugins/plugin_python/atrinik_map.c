@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -43,6 +43,7 @@ static fields_struct fields[] =
 	{"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
 	{"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
 	{"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
+	{"timeout", FIELDTYPE_SINT32, offsetof(mapstruct, timeout), 0, 0},
 	{"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
 	{"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), FIELDFLAG_READONLY, 0},
 	{"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), FIELDFLAG_READONLY, 0},
@@ -51,7 +52,8 @@ static fields_struct fields[] =
 	{"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
 	{"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
 	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
-	{"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0}
+	{"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0},
+	{"weather", FIELDTYPE_CSTR, offsetof(mapstruct, weather), 0, 0}
 };
 /* @endcparser */
 

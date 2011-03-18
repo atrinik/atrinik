@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -106,6 +106,18 @@
  *@{*/
 /** Clear this layer. */
 #define MAP2_LAYER_CLEAR    255
+/*@}*/
+
+/**
+ * @defgroup CMD_MAPSTATS_xxx Mapstats command types
+ * Mapstats command types.
+ *@{*/
+/** Change map name. */
+#define CMD_MAPSTATS_NAME 1
+/** Change map music. */
+#define CMD_MAPSTATS_MUSIC 2
+/** Change map weather. */
+#define CMD_MAPSTATS_WEATHER 3
 /*@}*/
 
 /**

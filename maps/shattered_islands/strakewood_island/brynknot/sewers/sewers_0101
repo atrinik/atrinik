@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Kiana
-Modified: 2010-06-26 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness 3
 tile_path_1 sewers_0102
 tile_path_2 sewers_0201
 tile_path_5 sewers_0202
+bg_music sewers.ogg
 region brynknot
 end
 arch blocked
@@ -2214,6 +2215,13 @@ arch blocked
 x 13
 end
 arch wall_stone_3
+x 13
+end
+arch map_info
+hp 5
+sp 2
+race Brynknot Mercenaries
+slaying theme.mid
 x 13
 end
 arch blocked

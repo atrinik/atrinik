@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -100,6 +100,7 @@ void SetupCmd(char *buf, int len)
 	int s;
 	char *cmd, *param;
 
+	server_files_clear_update();
 	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
 
 	for (s = 0; ;)
@@ -1320,6 +1321,49 @@ static void map_play_footstep()
 }
 
 /**
+ * Mapstats command.
+ * @param data The incoming data.
+ * @param len Length of the data. */
+void MapStatsCmd(unsigned char *data, int len)
+{
+	int pos = 0;
+	char buf[HUGE_BUF];
+	uint8 type;
+
+	/* Loop, trying to find data. */
+	while (pos < len)
+	{
+		/* Get the type of this command... */
+		type = (uint8) (data[pos++]);
+
+		/* Change map name. */
+		if (type == CMD_MAPSTATS_NAME)
+		{
+			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			pos += strlen(buf) + 1;
+			update_map_name(buf);
+		}
+		/* Change map music. */
+		else if (type == CMD_MAPSTATS_MUSIC)
+		{
+			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			pos += strlen(buf) + 1;
+			update_map_bg_music(buf);
+		}
+		/* Change map weather. */
+		else if (type == CMD_MAPSTATS_WEATHER)
+		{
+			strncpy(buf, (const char *) (data + pos), sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			pos += strlen(buf) + 1;
+			update_map_weather(buf);
+		}
+	}
+}
+
+/**
  * Map2 command.
  * @param data The incoming data
  * @param len Length of the data */
@@ -1336,12 +1380,14 @@ void Map2Cmd(unsigned char *data, int len)
 
 	if (mapstat != MAP_UPDATE_CMD_SAME)
 	{
-		char mapname[256], bg_music[256];
+		char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF];
 
 		strncpy(mapname, (const char *) (data + pos), sizeof(mapname) - 1);
 		pos += strlen(mapname) + 1;
 		strncpy(bg_music, (const char *) (data + pos), sizeof(bg_music) - 1);
 		pos += strlen(bg_music) + 1;
+		strncpy(weather, (const char *) (data + pos), sizeof(weather) - 1);
+		pos += strlen(weather) + 1;
 
 		if (mapstat == MAP_UPDATE_CMD_NEW)
 		{
@@ -1373,7 +1419,9 @@ void Map2Cmd(unsigned char *data, int len)
 			map_play_footstep();
 		}
 
-		update_map_data(mapname, bg_music);
+		update_map_name(mapname);
+		update_map_bg_music(bg_music);
+		update_map_weather(weather);
 	}
 	else
 	{
@@ -1767,134 +1815,8 @@ void DataCmd(unsigned char *data, int len)
  * @param len Length of the buffer */
 void ShopCmd(unsigned char *data, int len)
 {
-	/* If we are loading */
-	if (strncmp((char *) data, "load|", 5) == 0)
-	{
-		char *p;
-
-		data += 5;
-
-		/* Only can load once */
-		if (shop_gui && shop_gui->shop_items)
-		{
-			return;
-		}
-
-		/* Initialize the shop */
-		initialize_shop(SHOP_STATE_BUYING);
-
-		p = strtok((char *) data, "|");
-
-		snprintf(shop_gui->shop_owner, sizeof(shop_gui->shop_owner), "%s", p);
-
-		p = strtok(NULL, "|");
-
-		/* Loop through the data */
-		while (p)
-		{
-			sint32 tag, price;
-			int nrof;
-			_shop_struct *shop_item_tmp;
-
-			/* Get the tag, nrof and price */
-			if (!sscanf(p, "%d:%d:%d", &tag, &nrof, &price))
-			{
-				return;
-			}
-
-			/* Allocate a new shop item */
-			shop_item_tmp = (_shop_struct *) malloc(sizeof(_shop_struct));
-
-			/* Set the values */
-			shop_item_tmp->nrof = nrof;
-			shop_item_tmp->price = price;
-			shop_item_tmp->tag = tag;
-			shop_item_tmp->next = NULL;
-
-			/* One more item */
-			shop_gui->shop_items_count++;
-
-			/* If this is the first item, things are easier */
-			if (!shop_gui->shop_items)
-			{
-				shop_gui->shop_items = shop_item_tmp;
-			}
-			/* Otherwise we need to calculate the end of the list */
-			else
-			{
-				_shop_struct *shop_item_next = shop_gui->shop_items;
-				int i;
-
-				/* Loop until the end of the list */
-				for (i = 1; i < shop_gui->shop_items_count - 1 && shop_item_next; i++, shop_item_next = shop_item_next->next)
-				{
-				}
-
-				/* Append the item to the end of the list */
-				shop_item_next->next = shop_item_tmp;
-			}
-
-			p = strtok(NULL, "|");
-		}
-	}
-	else if (strncmp((char *) data, "close", 5) == 0)
-	{
-		clear_shop(0);
-	}
-	/* Otherwise this is data of a specific item */
-	else
-	{
-		int tag, face, flags, pos = 0, nlen, anim, nrof;
-		uint8 animspeed, direction = 0;
-		char name[MAX_BUF];
-
-		/* Loop until we reach end of the data */
-		while (pos < len)
-		{
-			/* Get the item tag */
-			tag = GetInt_String((unsigned char *) data + pos);
-			pos += 4;
-
-			/* Get the flags */
-			flags = GetInt_String((unsigned char *) data + pos);
-			pos += 4;
-
-			/* Get the face */
-			face = GetInt_String((unsigned char *) data + pos);
-			pos += 4;
-
-			/* Request the face now */
-			request_face(face);
-
-			/* Get the direction the item is facing */
-			direction = data[pos++];
-
-			/* Get the item name */
-			nlen = data[pos++];
-			memcpy(name, data + pos, nlen);
-			pos += nlen;
-			name[nlen] = '\0';
-
-			/* Get the animation */
-			anim = GetShort_String((unsigned char *) data + pos);
-			pos += 2;
-
-			/* Get the animation speed */
-			animspeed = data[pos++];
-
-			/* Get the number of the items */
-			nrof = GetInt_String((unsigned char *) data + pos);
-			pos += 4;
-
-			/* Update the item */
-			update_object(tag, -2, name, -1, face, flags, anim, animspeed, nrof, 0, 0, 0, 0, 0, 0, direction, 1);
-		}
-
-		if (pos > len)
-		{
-			LOG(llevBug, "ShopCmd(): Overread buffer: %d > %d\n", pos, len);
-		}
-	}
+	(void) data;
+	(void) len;
 }
 
 /**

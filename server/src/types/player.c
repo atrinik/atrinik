@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -536,22 +536,23 @@ static void fire_bow(object *op, int dir)
 	arrow->last_heal = arrow->stats.wc;
 	/* Will be put back in fix_arrow() */
 	arrow->stats.hp = arrow->stats.dam;
+	/* Determine how many tiles the arrow will fly. */
+	arrow->last_sp = bow->last_sp + arrow->last_sp;
+	/* Get the used skill. */
+	tmp_op = SK_skill(op);
 
 	/* Now we do this: arrow wc = wc base from skill + (wc arrow + magic) + (wc range weapon bonus + magic) */
-	if ((tmp_op = SK_skill(op)))
+	if (tmp_op)
 	{
 		/* wc is in last heal */
 		arrow->stats.wc += tmp_op->last_heal;
+		/* Add tiles range from the skill object. */
+		arrow->last_sp += tmp_op->last_sp;
 	}
 	else
 	{
 		arrow->stats.wc += 10;
 	}
-
-	/* Now we determine how many tiles the arrow will fly. Again we use
-	 * the skill base and add arrow + weapon values - but no magic add
-	 * here. */
-	arrow->last_sp = tmp_op->last_sp + bow->last_sp + arrow->last_sp;
 
 	/* Add in all our wc bonus */
 	arrow->stats.wc += (bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc);
@@ -895,7 +896,7 @@ trick_jump:
 			}
 			else
 			{
-				do_skill(op, dir);
+				do_skill(op, dir, NULL);
 			}
 
 			return;
@@ -1117,6 +1118,46 @@ static void remove_unpaid_objects(object *op, object *env)
 }
 
 /**
+ * Figures out how much hp/mana/grace points to regenerate.
+ * @param regen Regeneration value used for client (for example, player::gen_client_hp).
+ * @param remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
+ * @return How much to regenerate. */
+static int get_regen_amount(uint16 regen, uint16 *remainder)
+{
+	int ret = 1;
+	float div;
+
+	/* Check if the regen is higher than <max ticks per second> every
+	 * second. If so, we need to update the remainder variable (which will
+	 * distribute the remainder evenly over time). */
+	if (pticks % 8 == 0 && regen / 10.0f > (float) 1000000 / MAX_TIME)
+	{
+		*remainder += (int) (((float) (regen / 10.0f - (float) 1000000 / MAX_TIME)) * 10);
+	}
+
+	/* First check if we can distribute it evenly, if not, try to remove
+	 * leftovers, if any. */
+	for (div = (float) 1000000 / MAX_TIME; ; div = 1.0f)
+	{
+		if (*remainder / 10.0f / div >= 1.0f)
+		{
+			int add = (int) *remainder / 10.0f / div;
+
+			ret += add;
+			*remainder -= add * 10;
+			break;
+		}
+
+		if (div == 1.0f)
+		{
+			break;
+		}
+	}
+
+	return ret;
+}
+
+/**
  * Regenerate player's hp/mana/grace, decrease food, etc.
  *
  * We will only regenerate HP and mana if the player has some food in their
@@ -1151,7 +1192,12 @@ void do_some_living(object *op)
 	{
 		if (op->stats.hp < op->stats.maxhp && op->stats.food)
 		{
-			op->stats.hp++;
+			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
+
+			if (op->stats.hp > op->stats.maxhp)
+			{
+				op->stats.hp = op->stats.maxhp;
+			}
 
 			/* DMs do not consume food. */
 			if (!QUERY_FLAG(op, FLAG_WIZ))
@@ -1168,6 +1214,10 @@ void do_some_living(object *op)
 				}
 			}
 		}
+		else
+		{
+			CONTR(op)->gen_hp_remainder = 0;
+		}
 
 		op->last_heal = rate_hp / (MAX(gen_hp, 20) + 10);
 	}
@@ -1177,7 +1227,12 @@ void do_some_living(object *op)
 	{
 		if (op->stats.sp < op->stats.maxsp && op->stats.food)
 		{
-			op->stats.sp++;
+			op->stats.sp += get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
+
+			if (op->stats.sp > op->stats.maxsp)
+			{
+				op->stats.sp = op->stats.maxsp;
+			}
 
 			/* DMs do not consume food. */
 			if (!QUERY_FLAG(op, FLAG_WIZ))
@@ -1193,6 +1248,10 @@ void do_some_living(object *op)
 					op->stats.food = last_food;
 				}
 			}
+		}
+		else
+		{
+			CONTR(op)->gen_sp_remainder = 0;
 		}
 
 		op->last_sp = rate_sp / (MAX(gen_sp, 20) + 10);
@@ -1242,13 +1301,22 @@ void do_some_living(object *op)
 	}
 
 	/* Regenerate grace. */
-	if (CONTR(op)->praying)
+	if (CONTR(op)->praying || op->stats.grace < op->stats.maxgrace / 3)
 	{
 		if (--op->last_grace < 0)
 		{
 			if (op->stats.grace < op->stats.maxgrace)
 			{
-				op->stats.grace++;
+				op->stats.grace += get_regen_amount(CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+
+				if (op->stats.grace > op->stats.maxgrace)
+				{
+					op->stats.grace = op->stats.maxgrace;
+				}
+			}
+			else
+			{
+				CONTR(op)->gen_grace_remainder = 0;
 			}
 
 			if (op->stats.grace >= op->stats.maxgrace)
@@ -1259,6 +1327,11 @@ void do_some_living(object *op)
 			}
 
 			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
+
+			if (!CONTR(op)->praying)
+			{
+				op->last_grace = MAX(1, op->last_grace) * 10;
+			}
 		}
 	}
 
@@ -1370,7 +1443,7 @@ void kill_player(object *op)
 		/* Create a bodypart-trophy to make the winner happy */
 		tmp = arch_to_object(find_archetype("finger"));
 
-		if (tmp != NULL)
+		if (tmp)
 		{
 			char race[MAX_BUF];
 
@@ -1384,6 +1457,8 @@ void kill_player(object *op)
 			tmp->x = op->x, tmp->y = op->y;
 			insert_ob_in_map(tmp, op->map, op, 0);
 		}
+
+		CONTR(op)->killer[0] = '\0';
 
 		/* Teleport defeated player to new destination */
 		transfer_ob(op, MAP_ENTER_X(op->map), MAP_ENTER_Y(op->map), 0, NULL, NULL);
@@ -1668,7 +1743,7 @@ int pvp_area(object *attacker, object *victim)
 
 	if (attacker && attacker->map)
 	{
-		if (!(attacker->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_NO_PVP)
+		if (!(attacker->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_NO_PVP || GET_MAP_SPACE_PTR(attacker->map, attacker->x, attacker->y)->extra_flags & MSP_EXTRA_NO_PVP)
 		{
 			return 0;
 		}
@@ -1676,7 +1751,7 @@ int pvp_area(object *attacker, object *victim)
 
 	if (victim && victim->map)
 	{
-		if (!(victim->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_NO_PVP)
+		if (!(victim->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_NO_PVP || GET_MAP_SPACE_PTR(victim->map, victim->x, victim->y)->extra_flags & MSP_EXTRA_NO_PVP)
 		{
 			return 0;
 		}

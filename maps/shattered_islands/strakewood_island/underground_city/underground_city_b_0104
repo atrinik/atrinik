@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-29 Alex Tokar
+Modified: 2011-03-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness 2
 tile_path_1 underground_city_b_0105
 tile_path_2 underground_city_b_0204
 tile_path_3 underground_city_b_0103
+tile_path_5 underground_city_b_0205
 tile_path_6 underground_city_b_0203
 bg_music thonkdonk.ogg
 region underground_city
@@ -1679,11 +1680,33 @@ maxsp 16
 Pow 20
 Dex 2
 type 83
+name Daorosio the sorcerer
+arch key2
+msg
+Portal key from the drow sorcerer Daorosio in Underground City III.
+endmsg
+name Daorosio's portal key
+face key_gold_blue.111
+slaying drow_daorosio_portal
+startequip 1
+end
 arch ability_cause_lig_wound
 sp 50
 hp 50
 end
 arch ability_mbullet
+end
+arch quest_container
+name Daorosio's Portal Key
+arch key2
+msg
+Portal key from the drow sorcerer Daorosio in Underground City III.
+endmsg
+name Daorosio's portal key
+face key_gold_blue.111
+slaying drow_daorosio_portal
+startequip 1
+end
 end
 end
 end
@@ -2858,7 +2881,18 @@ arch floor_sand_d3
 x 19
 y 23
 end
-arch fwall_rock3
+arch door1_locked
+direction 3
+slaying drow_daorosio_portal
+x 19
+y 23
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying drow_daorosio_portal
+sp 1
+last_grace 1
 x 19
 y 23
 end
@@ -3063,6 +3097,11 @@ arch fwall_rock3
 x 20
 y 21
 end
+arch plant1_wall.151
+direction 7
+x 20
+y 21
+end
 arch floor_sand_d2
 x 20
 y 22
@@ -3070,6 +3109,18 @@ end
 arch fwall_rock2
 x 20
 y 22
+end
+arch plant1_wall.151
+x 20
+y 22
+end
+arch floor_sand_d4
+x 20
+y 23
+end
+arch dirt_floor3
+x 20
+y 23
 end
 arch floor_sand_d3
 x 21
@@ -3229,6 +3280,34 @@ x 21
 y 18
 end
 arch floor_sand_d1
+x 21
+y 20
+end
+arch fwall_rock3
+x 21
+y 20
+end
+arch floor_sand_d2
+x 21
+y 21
+end
+arch mushroom_spot1
+x 21
+y 21
+end
+arch light2
+x 21
+y 21
+end
+arch floor_sand_d3
+x 21
+y 22
+end
+arch floor_sand_d4
+x 21
+y 23
+end
+arch floor_sand_d1
 x 22
 y 2
 end
@@ -3359,6 +3438,48 @@ arch fwall_rock1
 x 22
 y 17
 end
+arch floor_sand_d3
+x 22
+y 20
+end
+arch fwall_rock3
+x 22
+y 20
+end
+arch floor_sand_d2
+x 22
+y 21
+end
+arch portal_yellow
+z 6
+zoom 60
+align 8
+slaying ../../world_a_0713
+hp 7
+sp 9
+speed 0.02
+x 22
+y 21
+end
+arch magic_mouth
+msg
+The portal is slowly warming up...
+endmsg
+x 22
+y 21
+end
+arch light5
+x 22
+y 21
+end
+arch floor_sand_d3
+x 22
+y 22
+end
+arch floor_sand_d3
+x 22
+y 23
+end
 arch floor_sand_d1
 x 23
 y 2
@@ -3447,4 +3568,36 @@ end
 arch fwall_rock3
 x 23
 y 16
+end
+arch floor_sand_d2
+x 23
+y 20
+end
+arch fwall_rock3
+x 23
+y 20
+end
+arch plant2_wall.151
+x 23
+y 20
+end
+arch floor_sand_d3
+x 23
+y 21
+end
+arch blood_floor2
+x 23
+y 21
+end
+arch floor_sand_d1
+x 23
+y 22
+end
+arch floor_sand_d3
+x 23
+y 23
+end
+arch dirt_floor2
+x 23
+y 23
 end

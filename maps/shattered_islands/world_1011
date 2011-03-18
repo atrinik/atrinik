@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-16 Alex Tokar
+Modified: 2011-01-26 emperorbma
 endmsg
 width 24
 height 24
@@ -1085,16 +1085,11 @@ end
 arch spawn_point
 x 8
 y 6
-arch archer
+arch elvish_captain
 name Maplevale
 direction 1
 level 38
-friendly 1
 type 83
-arch event_obj
-sub_type 6
-race scripts/strakewood_island/maplevale_talthor.py
-end
 arch key2
 msg
 An amulet given to you by the elven priest Maplevale to let you pass through the hidden portal in the Underground City.
@@ -1103,6 +1098,10 @@ name Maplevale's amulet
 title of Llwyfen
 face amulet_crystal_red.101
 slaying maplevale_amulet
+end
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/maplevale_talthor.py
 end
 end
 end

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -241,7 +241,6 @@ typedef enum WidgetID
 	MAPNAME_ID,
 	IN_CONSOLE_ID,
 	IN_NUMBER_ID,
-	SHOP_ID,
 	FPS_ID,
 	CONTAINER_ID,
 	LABEL_ID,

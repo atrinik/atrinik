@@ -2,13 +2,10 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-reset_timeout 7200
 difficulty 1
 darkness 1
 tile_path_3 world_b_0837
@@ -51,11 +48,6 @@ x 2
 y 23
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.930931
-state 3
-glow_radius 5
-is_animated 1
 x 2
 y 23
 end
@@ -96,7 +88,6 @@ x 5
 y 23
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 5
 y 23

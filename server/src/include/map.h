@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -316,8 +316,8 @@ int map_tiled_reverse[TILED_MAPS];
 #define P_FLY_ON              0x8000
 /** There is a @ref MAGIC_MIRROR object on this tile. */
 #define P_MAGIC_MIRROR 0x10000
-/** Unused. */
-#define P_UNUSED2 0x20000
+/** The tile has object with 'outdoor 1' flag. */
+#define P_OUTDOOR 0x20000
 /**
  * Of course not set for map tiles but from blocked_xx() function where
  * the get_map_from_coord() fails to grab a valid map or tile. */
@@ -338,6 +338,20 @@ int map_tiled_reverse[TILED_MAPS];
 #define P_NO_TERRAIN          0x80000000
 /*@}*/
 
+/**
+ * @defgroup MSP_EXTRA_xxx Map space extra flags
+ * Map space extra flags
+ *@{*/
+/** No harmful spells. */
+#define MSP_EXTRA_NO_HARM 1
+/** No PvP. */
+#define MSP_EXTRA_NO_PVP 2
+/** No magic. */
+#define MSP_EXTRA_NO_MAGIC 4
+/** No prayers. */
+#define MSP_EXTRA_NO_CLERIC 8
+/*@}*/
+
 /** Single tile on a map */
 typedef struct MapSpace_s
 {
@@ -350,6 +364,9 @@ typedef struct MapSpace_s
 	/** Last object in this list */
 	object *last;
 
+	/** Map info object bound to this tile. */
+	object *map_info;
+
 	/** Used to create chained light source list. */
 	struct MapSpace_s *prev_light;
 
@@ -358,6 +375,9 @@ typedef struct MapSpace_s
 
 	/** Tag for last_damage */
 	uint32 round_tag;
+
+	/** ID of ::map_info. */
+	tag_t map_info_count;
 
 	/** Counter for update tile */
 	uint32 update_tile;
@@ -383,6 +403,9 @@ typedef struct MapSpace_s
 
 	/** How much light this space provides */
 	uint8 light;
+
+	/** Extra flags from @ref MSP_EXTRA_xxx. */
+	uint8 extra_flags;
 } MapSpace;
 
 /**
@@ -536,6 +559,9 @@ typedef struct mapdef
 
 	/** Background music of the map */
 	char *bg_music;
+
+	/** Weather effect active on this map. */
+	char *weather;
 
 	/** Name of temporary file */
 	char *tmpname;

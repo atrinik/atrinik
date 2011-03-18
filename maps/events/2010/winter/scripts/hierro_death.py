@@ -37,7 +37,7 @@ for (x, y) in locations:
 		elif obj.type == Type.DOOR:
 			obj.slaying = None
 		# Change torches back to normal and light them up.
-		elif obj.name == "attached torch":
+		elif obj.name == "sconce":
 			obj.type = obj.arch.clone.type
 			obj.msg = None
 			obj.f_is_animated = True

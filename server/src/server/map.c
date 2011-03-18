@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -627,7 +627,7 @@ int blocks_magic(mapstruct *m, int x, int y)
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
 	}
 
-	return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC);
+	return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_MAGIC);
 }
 
 /**
@@ -644,7 +644,7 @@ int blocks_cleric(mapstruct *m, int x, int y)
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_CLERIC | P_OUT_OF_MAP);
 	}
 
-	return (GET_MAP_FLAGS(m, x, y) & P_NO_CLERIC);
+	return (GET_MAP_FLAGS(m, x, y) & P_NO_CLERIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_CLERIC);
 }
 
 /**
@@ -686,7 +686,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
 	if (flags & P_IS_PLAYER)
 	{
-		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP)))
+		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) && !(msp->extra_flags & MSP_EXTRA_NO_PVP)))
 		{
 			return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
 		}
@@ -1934,6 +1934,7 @@ void free_map(mapstruct *m, int flag)
 
 	FREE_AND_NULL_PTR(m->name);
 	FREE_AND_NULL_PTR(m->bg_music);
+	FREE_AND_NULL_PTR(m->weather);
 	FREE_AND_NULL_PTR(m->spaces);
 	FREE_AND_NULL_PTR(m->msg);
 	m->buttons = NULL;
@@ -2288,6 +2289,11 @@ void update_position(mapstruct *m, int x, int y)
 			if (tmp->type == MAGIC_MIRROR)
 			{
 				flags |= P_MAGIC_MIRROR;
+			}
+
+			if (QUERY_FLAG(tmp, FLAG_OUTDOOR))
+			{
+				flags |= P_OUTDOOR;
 			}
 		}
 
@@ -2952,4 +2958,81 @@ int wall_blocked(mapstruct *m, int x, int y)
 	r = GET_MAP_FLAGS(m, x, y) & (P_NO_PASS | P_PASS_THRU);
 
 	return r;
+}
+
+/**
+ * Add map name to a SockList instance.
+ * @param sl The SockList instance.
+ * @param pl Optional player object this is being done for; will be used
+ * to check which format the player's client can accept.
+ * @param map Map to add name of.
+ * @param map_info Map information object -- if not NULL and the object
+ * holds map name, it will be used to override the actual map's name. */
+void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info)
+{
+	if (!pl || CONTR(pl)->socket.socket_version >= 1045)
+	{
+		SockList_AddString(sl, "<b><o=0,0,0>");
+		/* Ignore the terminating NUL. */
+		sl->len--;
+		SockList_AddString(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
+		/* Ignore the terminating NUL. */
+		sl->len--;
+		SockList_AddString(sl, "</o></b>");
+	}
+	else
+	{
+		SockList_AddString(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
+	}
+}
+
+/**
+ * Add map music to a SockList instance.
+ * @param sl The SockList instance.
+ * @param pl Optional player object this is being done for; will be used
+ * to check which format the player's client can accept.
+ * @param map Map to add music of.
+ * @param map_info Map information object -- if not NULL and the object
+ * holds map music, it will be used to override the actual map's music. */
+void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info)
+{
+	if (pl && CONTR(pl)->socket.socket_version < 1038)
+	{
+		if (!map->bg_music && (!map_info || !map_info->slaying))
+		{
+			SockList_AddString(sl, "no_music");
+		}
+		else
+		{
+			char bg_music_tmp[MAX_BUF];
+
+			/* Replace .mid uses with .ogg variant. */
+			replace(map_info && map_info->slaying ? map_info->slaying : map->bg_music, ".mid", ".ogg", bg_music_tmp, sizeof(bg_music_tmp) - 20);
+			/* Add the fade/loop settings older clients require. */
+			strncat(bg_music_tmp, "|0|-1", sizeof(bg_music_tmp) - strlen(bg_music_tmp) - 1);
+			SockList_AddString(sl, bg_music_tmp);
+		}
+	}
+	else
+	{
+		SockList_AddString(sl, map_info && map_info->slaying ? (char *) map_info->slaying : (map->bg_music ? map->bg_music : "no_music"));
+	}
+}
+
+/**
+ * Add map weather to a SockList instance.
+ * @param sl The SockList instance.
+ * @param pl Optional player object this is being done for; will be used
+ * to check whether the player's client can receive weather data.
+ * @param map Map to add weather of.
+ * @param map_info Map information object -- if not NULL and the object
+ * holds map weather, it will be used to override the actual map's weather. */
+void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info)
+{
+	if (pl && CONTR(pl)->socket.socket_version < 1047)
+	{
+		return;
+	}
+
+	SockList_AddString(sl, map_info && map_info->title ? (char *) map_info->title : (map->weather ? map->weather : "none"));
 }

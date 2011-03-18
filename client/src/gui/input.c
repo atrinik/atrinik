@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -96,6 +96,13 @@ void do_number()
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
 		cur_widget[IN_NUMBER_ID]->show = 0;
+	}
+
+	if (((cpl.nummode == NUM_MODE_GET && key_is_pressed(get_action_keycode)) || (cpl.nummode == NUM_MODE_DROP && key_is_pressed(drop_action_keycode))) && SDL_GetTicks() - text_input_opened > 125)
+	{
+		SDL_EnableKeyRepeat(0 , SDL_DEFAULT_REPEAT_INTERVAL);
+		text_input_string_flag = 0;
+		text_input_string_end_flag = 1;
 	}
 
 	/* if set, we got a finished input!*/

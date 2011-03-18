@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-03-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,7 +16,7 @@ tile_path_5 world_0714
 tile_path_6 world_0712
 tile_path_7 world_0512
 tile_path_8 world_0514
-bg_music jungle1.ogg
+bg_music enfero.xm
 region fort_ghzal
 end
 arch grassd_4
@@ -550,7 +550,7 @@ arch wall_wood1_1
 x 3
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 3
 y 11
 end
@@ -562,7 +562,7 @@ arch torch_wall_1
 x 3
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 3
 y 12
 end
@@ -716,7 +716,7 @@ arch door_wood2
 x 4
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 4
 y 11
 end
@@ -724,7 +724,7 @@ arch grassd_m10
 x 4
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 4
 y 12
 end
@@ -736,7 +736,7 @@ arch grassd_m14
 x 4
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 4
 y 14
 end
@@ -873,7 +873,7 @@ arch wall_wood_4
 x 5
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 5
 y 11
 end
@@ -893,7 +893,7 @@ arch grassd_m8
 x 5
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 5
 y 13
 end
@@ -901,7 +901,7 @@ arch grassd_m12
 x 5
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 5
 y 14
 end
@@ -909,7 +909,7 @@ arch grassd_m14
 x 5
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 5
 y 15
 end
@@ -1077,7 +1077,7 @@ arch grassd_m6
 x 6
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 6
 y 14
 end
@@ -1085,7 +1085,7 @@ arch grassd_m12
 x 6
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 6
 y 15
 end
@@ -1267,7 +1267,7 @@ arch floor_sand_d3
 x 7
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 7
 y 16
 end
@@ -1446,7 +1446,7 @@ arch grassd_2
 x 8
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 8
 y 14
 end
@@ -1454,15 +1454,15 @@ arch grassd_m10
 x 8
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 8
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 8
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 8
 y 17
 end
@@ -1470,7 +1470,7 @@ arch grassd_m14
 x 8
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 8
 y 18
 end
@@ -1621,7 +1621,7 @@ arch grassd_3
 x 9
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 9
 y 14
 end
@@ -1629,7 +1629,7 @@ arch grassd_m6
 x 9
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 9
 y 15
 end
@@ -1637,7 +1637,7 @@ arch grassd_m12
 x 9
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 9
 y 16
 end
@@ -1645,11 +1645,11 @@ arch light3
 x 9
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 9
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 9
 y 18
 end
@@ -1797,7 +1797,7 @@ arch grassd_2
 x 10
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 10
 y 15
 end
@@ -1805,15 +1805,15 @@ arch grassd_m10
 x 10
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 10
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 10
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 10
 y 18
 end
@@ -2024,7 +2024,7 @@ arch grassd_3
 x 11
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 11
 y 15
 end
@@ -2032,11 +2032,11 @@ arch grassd_m10
 x 11
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 11
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 11
 y 17
 end
@@ -2094,7 +2094,7 @@ arch grassd_m9
 x 12
 y 1
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 12
 y 2
 end
@@ -2102,7 +2102,7 @@ arch grassd_m9
 x 12
 y 2
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 12
 y 3
 end
@@ -2110,7 +2110,7 @@ arch grassd_m9
 x 12
 y 3
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 12
 y 4
 end
@@ -2118,7 +2118,7 @@ arch grassd_m9
 x 12
 y 4
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 12
 y 5
 end
@@ -2130,7 +2130,7 @@ arch light3
 x 12
 y 5
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 12
 y 6
 end
@@ -2138,7 +2138,7 @@ arch grassd_m9
 x 12
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 12
 y 7
 end
@@ -2146,7 +2146,7 @@ arch grassd_m9
 x 12
 y 7
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 12
 y 8
 end
@@ -2154,7 +2154,7 @@ arch grassd_m9
 x 12
 y 8
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 12
 y 9
 end
@@ -2162,7 +2162,7 @@ arch grassd_m9
 x 12
 y 9
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 12
 y 10
 end
@@ -2170,7 +2170,7 @@ arch grassd_m9
 x 12
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 12
 y 11
 end
@@ -2190,7 +2190,7 @@ arch grassd_m9
 x 12
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 12
 y 13
 end
@@ -2198,7 +2198,7 @@ arch grassd_m9
 x 12
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 12
 y 14
 end
@@ -2206,7 +2206,7 @@ arch grassd_m9
 x 12
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 12
 y 15
 end
@@ -2214,15 +2214,15 @@ arch grassd_m13
 x 12
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 12
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 12
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 12
 y 18
 end
@@ -2250,41 +2250,41 @@ arch grassd_2
 x 12
 y 23
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 end
 arch grassd_m13
 x 13
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 1
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 2
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 3
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 4
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 5
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 7
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 8
 end
@@ -2296,31 +2296,31 @@ arch floor_sand_d3
 x 13
 y 9
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 13
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 13
 y 16
 end
@@ -2332,7 +2332,7 @@ arch floor_sand_d3
 x 13
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 13
 y 18
 end
@@ -2364,7 +2364,7 @@ arch grassd_m9
 x 13
 y 21
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 13
 y 22
 end
@@ -2384,13 +2384,13 @@ arch grassd_m9
 x 13
 y 23
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 end
 arch grassd_m8
 x 14
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 1
 end
@@ -2398,7 +2398,7 @@ arch grassd_m8
 x 14
 y 1
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 2
 end
@@ -2406,7 +2406,7 @@ arch grassd_m8
 x 14
 y 2
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 3
 end
@@ -2422,7 +2422,7 @@ arch grassd_m8
 x 14
 y 4
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 14
 y 5
 end
@@ -2438,7 +2438,7 @@ arch grassd_m8
 x 14
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 14
 y 7
 end
@@ -2454,7 +2454,7 @@ arch grassd_m8
 x 14
 y 8
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 9
 end
@@ -2462,7 +2462,7 @@ arch grassd_m8
 x 14
 y 9
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 10
 end
@@ -2470,7 +2470,7 @@ arch grassd_m8
 x 14
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 11
 end
@@ -2478,7 +2478,7 @@ arch grassd_m12
 x 14
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 12
 end
@@ -2486,7 +2486,7 @@ arch grassd_m11
 x 14
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 13
 end
@@ -2494,7 +2494,7 @@ arch grassd_m8
 x 14
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 14
 end
@@ -2502,7 +2502,7 @@ arch grassd_m8
 x 14
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 14
 y 15
 end
@@ -2510,7 +2510,7 @@ arch grassd_m8
 x 14
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 16
 end
@@ -2518,11 +2518,11 @@ arch grassd_m12
 x 14
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 18
 end
@@ -2534,19 +2534,19 @@ arch light3
 x 14
 y 19
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 20
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 14
 y 21
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 22
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 14
 y 23
 end
@@ -2626,7 +2626,7 @@ arch grassd_3
 x 15
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 15
 y 11
 end
@@ -2634,7 +2634,7 @@ arch grassd_m10
 x 15
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 12
 end
@@ -2658,7 +2658,7 @@ arch grassd_4
 x 15
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 15
 y 16
 end
@@ -2674,7 +2674,7 @@ arch grassd_m8
 x 15
 y 17
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 15
 y 18
 end
@@ -2682,7 +2682,7 @@ arch grassd_m8
 x 15
 y 18
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 19
 end
@@ -2690,7 +2690,7 @@ arch grassd_m8
 x 15
 y 19
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 20
 end
@@ -2698,7 +2698,7 @@ arch grassd_m8
 x 15
 y 20
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 21
 end
@@ -2706,7 +2706,7 @@ arch grassd_m8
 x 15
 y 21
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 22
 end
@@ -2714,7 +2714,7 @@ arch grassd_m8
 x 15
 y 22
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 23
 end
@@ -2841,7 +2841,7 @@ arch grassd_m14
 x 16
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 16
 y 13
 end
@@ -3001,7 +3001,7 @@ arch wall_wood3_1
 x 17
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 17
 y 11
 end
@@ -3155,7 +3155,7 @@ arch grassd_m10
 x 18
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 18
 y 13
 end
@@ -3246,6 +3246,7 @@ x 19
 y 5
 end
 arch altar_tabernacle
+xrays 1
 x 19
 y 5
 end
@@ -3289,7 +3290,7 @@ arch grassd_m4
 x 19
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 19
 y 12
 end
@@ -3297,7 +3298,7 @@ arch grassd_m13
 x 19
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 19
 y 13
 end
@@ -3423,7 +3424,7 @@ arch wall_wood2_1
 x 20
 y 10
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 20
 y 11
 end
@@ -3435,11 +3436,15 @@ arch torch_wall_1
 x 20
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 20
 y 12
 end
-arch floor_sand_d3
+arch grassd_m8
+x 20
+y 12
+end
+arch floor_sand_d4
 x 20
 y 13
 end

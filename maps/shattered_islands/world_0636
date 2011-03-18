@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-02-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,7 +17,7 @@ tile_path_5 world_0737
 tile_path_6 world_0735
 tile_path_7 world_0535
 tile_path_8 world_0537
-bg_music rainthunder.ogg
+bg_music chether.mid
 region asteria
 end
 arch grassd_2
@@ -34,9 +34,10 @@ arch grassd_6
 z 50
 y 2
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 2
+end
+arch light7
 y 2
 end
 arch grassd_7
@@ -62,9 +63,10 @@ arch grassd_8
 z 50
 y 7
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 7
+end
+arch light7
 y 7
 end
 arch grassd_8
@@ -90,9 +92,10 @@ arch grassd_7
 z 50
 y 12
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 12
+end
+arch light7
 y 12
 end
 arch grassd_2
@@ -115,9 +118,10 @@ arch grassd_3
 z 50
 y 17
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 17
+end
+arch light7
 y 17
 end
 arch grassd_8
@@ -146,9 +150,10 @@ arch grassd_5
 z 50
 y 22
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+y 22
+end
+arch light7
 y 22
 end
 arch grassd_4
@@ -716,8 +721,11 @@ z 50
 x 4
 y 2
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 2
+end
+arch light7
 x 4
 y 2
 end
@@ -746,8 +754,11 @@ z 50
 x 4
 y 7
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 7
+end
+arch light7
 x 4
 y 7
 end
@@ -776,8 +787,11 @@ z 50
 x 4
 y 12
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 12
+end
+arch light7
 x 4
 y 12
 end
@@ -810,8 +824,11 @@ z 50
 x 4
 y 17
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 17
+end
+arch light7
 x 4
 y 17
 end
@@ -844,8 +861,11 @@ z 50
 x 4
 y 22
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 22
+end
+arch light7
 x 4
 y 22
 end
@@ -1634,6 +1654,13 @@ end
 arch small_stones
 x 10
 end
+arch map_info
+hp 13
+sp 23
+race Asteria Palace
+slaying kaitindam.mid
+x 10
+end
 arch grassd_2
 z 50
 x 10
@@ -2044,9 +2071,11 @@ z 50
 x 13
 y 1
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 1
+end
+arch light7
 x 13
 y 1
 end
@@ -2079,9 +2108,11 @@ z 50
 x 13
 y 6
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 6
+end
+arch light7
 x 13
 y 6
 end
@@ -2114,9 +2145,11 @@ z 50
 x 13
 y 11
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 11
+end
+arch light7
 x 13
 y 11
 end
@@ -2145,9 +2178,11 @@ z 50
 x 13
 y 16
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 16
+end
+arch light7
 x 13
 y 16
 end
@@ -2176,9 +2211,11 @@ z 50
 x 13
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 13
+y 21
+end
+arch light7
 x 13
 y 21
 end
@@ -2637,8 +2674,11 @@ z 50
 x 16
 y 1
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 1
+end
+arch light7
 x 16
 y 1
 end
@@ -2671,8 +2711,11 @@ z 50
 x 16
 y 6
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 6
+end
+arch light7
 x 16
 y 6
 end
@@ -2701,8 +2744,11 @@ z 50
 x 16
 y 11
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 11
+end
+arch light7
 x 16
 y 11
 end
@@ -2735,8 +2781,11 @@ z 50
 x 16
 y 16
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 16
+end
+arch light7
 x 16
 y 16
 end
@@ -2765,8 +2814,11 @@ z 50
 x 16
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 16
+y 21
+end
+arch light7
 x 16
 y 21
 end
@@ -2823,10 +2875,6 @@ z 50
 x 17
 y 7
 end
-arch plant1
-x 17
-y 7
-end
 arch grassd_5
 z 50
 x 17
@@ -2834,10 +2882,6 @@ y 8
 end
 arch grassd_8
 z 50
-x 17
-y 9
-end
-arch tree_big
 x 17
 y 9
 end
@@ -3564,9 +3608,11 @@ z 50
 x 21
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 21
+y 21
+end
+arch light7
 x 21
 y 21
 end

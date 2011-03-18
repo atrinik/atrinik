@@ -1,38 +1,2420 @@
 arch map
-name Asteria
+name Asteria Palace
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-16 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
 darkness 4
 no_harm 1
-bg_music theme.mid
+tile_path_1 world_1_0837
+tile_path_3 world_1_0835
+tile_path_4 world_1_0736
+tile_path_7 world_1_0735
+tile_path_8 world_1_0737
+bg_music kaitindam.mid
 region asteria
 end
-arch blocked
-x 12
+arch floor_fs_grey1b
+z 30
+end
+arch carpet2b
+end
+arch floor_fs_grey1b
+z 30
+y 1
+end
+arch carpet2b
+y 1
+end
+arch floor_fs_grey1b
+z 30
+y 2
+end
+arch carpet2b
+y 2
+end
+arch floor_fs_grey1b
+z 30
+y 3
+end
+arch carpet2b
+y 3
+end
+arch floor_fs_grey1b
+z 30
+y 4
+end
+arch carpet2b
+y 4
+end
+arch floor_fs_grey1b
+z 30
+y 5
+end
+arch carpet2b
+y 5
+end
+arch floor_fs_grey1b
+z 30
+y 6
+end
+arch carpet2b
+y 6
+end
+arch floor_fs_grey1b
+z 30
+y 7
+end
+arch carpet2b
+y 7
+end
+arch floor_fs_grey1b
+z 30
 y 8
 end
-arch wall_stone16_8
-x 12
+arch carpet2b
 y 8
 end
-arch blocked
-x 12
+arch floor_fs_grey1b
+z 30
 y 9
 end
-arch wall_stone16_3
-x 12
+arch carpet2b
 y 9
+end
+arch floor_fs_grey1b
+z 30
+y 10
+end
+arch carpet2b
+y 10
+end
+arch floor_fs_grey1b
+z 30
+y 11
+end
+arch carpet2b
+y 11
+end
+arch floor_fs_grey1b
+z 30
+y 12
+end
+arch carpet2b
+y 12
+end
+arch floor_fs_grey1b
+z 30
+y 13
+end
+arch carpet2b
+y 13
+end
+arch floor_fs_grey1b
+z 30
+y 14
+end
+arch carpet2b
+y 14
+end
+arch floor_fs_grey1b
+z 30
+y 15
+end
+arch carpet2b
+y 15
+end
+arch floor_fs_grey1b
+z 30
+y 16
+end
+arch carpet2b
+y 16
+end
+arch torch_wall_1
+direction 7
+y 16
+end
+arch floor_fs_grey1b
+z 30
+y 17
+end
+arch carpet2k
+y 17
+end
+arch floor_fs_grey1b
+z 30
+y 18
+end
+arch floor_fs_grey1b
+z 30
+y 19
+end
+arch wall_dungeon_1
+z -0
+draw_double 0
+blocksview 0
+y 19
+end
+arch wall_dungeon_1
+z -20
+layer 4
+blocksview 0
+y 19
+end
+arch wall_dungeon_1
+z -30
+layer 3
+blocksview 0
+y 19
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+y 23
+end
+arch floor_fs_grey1b
+z 30
+x 1
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 1
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 2
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 3
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 4
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 5
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 6
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 7
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 8
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 9
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 10
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 11
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 12
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 13
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 14
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 15
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 16
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 17
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 18
+end
+arch floor_fs_grey1b
+z 30
+x 1
+y 19
+end
+arch wall_dungeon_1
+z -0
+draw_double 0
+blocksview 0
+x 1
+y 19
+end
+arch wall_dungeon_1
+z -20
+layer 4
+blocksview 0
+x 1
+y 19
+end
+arch wall_dungeon_1
+z -30
+layer 3
+blocksview 0
+x 1
+y 19
+end
+arch wall_dungeon_1
+face wall_window.111
+layer 7
+draw_double 0
+blocksview 0
+x 1
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 1
+y 23
+end
+arch floor_fs_grey1b
+z 30
+x 2
+end
+arch wall_dungeon_3
+x 2
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 1
+end
+arch wall_dungeon_3
+x 2
+y 1
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 1
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 1
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 2
+end
+arch wall_dungeon_3
+x 2
+y 2
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 2
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 2
+end
+arch candlelight3.101
+layer 2
+x 2
+y 2
+end
+arch light5
+x 2
+y 2
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 3
+end
+arch wall_dungeon_3
+blocksview 0
+draw_double 0
+x 2
+y 3
+end
+arch wall_dungeon_3
+z -20
+layer 4
+blocksview 0
+x 2
+y 3
+end
+arch wall_dungeon_3
+z -30
+layer 3
+blocksview 0
+x 2
+y 3
+end
+arch wall_dungeon_1
+face wall_window.131
+layer 7
+draw_double 0
+blocksview 0
+x 2
+y 3
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 4
+end
+arch wall_dungeon_3
+blocksview 0
+draw_double 0
+x 2
+y 4
+end
+arch wall_dungeon_3
+z -20
+layer 4
+blocksview 0
+x 2
+y 4
+end
+arch wall_dungeon_3
+z -30
+layer 3
+blocksview 0
+x 2
+y 4
+end
+arch wall_dungeon_1
+face wall_window.131
+layer 7
+draw_double 0
+blocksview 0
+x 2
+y 4
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 5
+end
+arch wall_dungeon_3
+x 2
+y 5
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 5
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 5
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 6
+end
+arch wall_dungeon_3
+x 2
+y 6
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 6
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 6
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 7
+end
+arch wall_dungeon_3
+x 2
+y 7
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 7
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 7
+end
+arch candlelight3.101
+layer 2
+x 2
+y 7
+end
+arch light5
+x 2
+y 7
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 8
+end
+arch wall_dungeon_3
+blocksview 0
+draw_double 0
+x 2
+y 8
+end
+arch wall_dungeon_3
+z -20
+layer 4
+blocksview 0
+x 2
+y 8
+end
+arch wall_dungeon_3
+z -30
+layer 3
+blocksview 0
+x 2
+y 8
+end
+arch wall_dungeon_1
+face wall_window.131
+layer 7
+draw_double 0
+blocksview 0
+x 2
+y 8
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 9
+end
+arch wall_dungeon_3
+blocksview 0
+draw_double 0
+x 2
+y 9
+end
+arch wall_dungeon_3
+z -20
+layer 4
+blocksview 0
+x 2
+y 9
+end
+arch wall_dungeon_3
+z -30
+layer 3
+blocksview 0
+x 2
+y 9
+end
+arch wall_dungeon_1
+face wall_window.131
+layer 7
+draw_double 0
+blocksview 0
+x 2
+y 9
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 10
+end
+arch wall_dungeon_3
+x 2
+y 10
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 10
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 10
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 11
+end
+arch wall_dungeon_3
+x 2
+y 11
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 11
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 11
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 12
+end
+arch wall_dungeon_3
+x 2
+y 12
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 12
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 12
+end
+arch candlelight3.101
+layer 2
+x 2
+y 12
+end
+arch light5
+x 2
+y 12
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 13
+end
+arch wall_dungeon_3
+blocksview 0
+draw_double 0
+x 2
+y 13
+end
+arch wall_dungeon_3
+z -20
+layer 4
+blocksview 0
+x 2
+y 13
+end
+arch wall_dungeon_3
+z -30
+layer 3
+blocksview 0
+x 2
+y 13
+end
+arch wall_dungeon_1
+face wall_window.131
+layer 7
+draw_double 0
+blocksview 0
+x 2
+y 13
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 14
+end
+arch wall_dungeon_3
+blocksview 0
+draw_double 0
+x 2
+y 14
+end
+arch wall_dungeon_3
+z -20
+layer 4
+blocksview 0
+x 2
+y 14
+end
+arch wall_dungeon_3
+z -30
+layer 3
+blocksview 0
+x 2
+y 14
+end
+arch wall_dungeon_1
+face wall_window.131
+layer 7
+draw_double 0
+blocksview 0
+x 2
+y 14
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 15
+end
+arch wall_dungeon_3
+x 2
+y 15
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 15
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 15
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 16
+end
+arch wall_dungeon_3
+x 2
+y 16
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 16
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 16
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 17
+end
+arch wall_dungeon_3
+x 2
+y 17
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 17
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 17
+end
+arch candlelight3.101
+layer 2
+x 2
+y 17
+end
+arch light5
+x 2
+y 17
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 18
+end
+arch wall_dungeon_3
+x 2
+y 18
+end
+arch wall_dungeon_3
+z -20
+layer 4
+x 2
+y 18
+end
+arch wall_dungeon_3
+z -30
+layer 3
+x 2
+y 18
+end
+arch floor_fs_grey1b
+z 30
+x 2
+y 19
+end
+arch wall_dungeon_4
+x 2
+y 19
+end
+arch wall_dungeon_4
+z -20
+layer 4
+x 2
+y 19
+end
+arch wall_dungeon_4
+z -30
+layer 3
+x 2
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 2
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 3
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 4
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 5
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 6
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 7
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 8
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+last_heal 80
+path_attuned 124
+x 9
+y 23
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 1
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 2
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 3
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 4
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 5
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 6
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 7
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 8
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 9
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 10
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 11
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 12
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 13
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 14
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 15
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 16
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 17
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 18
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 19
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 20
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 21
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 22
+end
+arch magic_mirror
+slaying world_0836
+last_eat -50
+x 10
+y 23
+end
+arch map_info
+hp 6
+sp 8
+race Lynren's Home
+slaying theme.mid
+x 12
+y 8
 end
 arch blocked
 x 12
 y 10
 end
-arch wall_stone16_3
+arch wall_stone16_8
 x 12
 y 10
 end
@@ -93,18 +2475,6 @@ end
 arch wall_stone16_3
 x 12
 y 16
-end
-arch blocked
-x 13
-y 8
-end
-arch wall_stone16_1
-x 13
-y 8
-end
-arch blocked
-x 13
-y 9
 end
 arch blocked
 x 13
@@ -172,7 +2542,7 @@ arch blocked
 x 14
 y 8
 end
-arch wall_stone16_1
+arch wall_stone16_8
 x 14
 y 8
 end

@@ -2,7 +2,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -77,6 +77,7 @@ lex_error = 0;
 
 ^name{S}             m->name = strdup_local(yval());
 ^bg_music{S}         m->bg_music = strdup_local(yval());
+^weather{S}          m->weather = strdup_local(yval());
 ^region{S}           m->region = get_region_by_name(yval());
 ^enter_x{S}          m->enter_x = IVAL;
 ^enter_y{S}          m->enter_y = IVAL;
@@ -319,6 +320,11 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 	if (m->bg_music)
 	{
 		fprintf(fp, "bg_music %s\n", m->bg_music);
+	}
+
+	if (m->weather)
+	{
+		fprintf(fp, "weather %s\n", m->weather);
 	}
 
 	if (m->region)

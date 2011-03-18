@@ -2,7 +2,7 @@ Object constr_wall_wood
 name wood wall material
 type 10
 sub_type 2
-face constr_wall_wood.101
+face wall_wood.d.181
 slaying wall_wood_3
 layer 3
 value 1200

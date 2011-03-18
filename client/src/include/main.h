@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -31,6 +31,8 @@
 #define MAIN_H
 
 #define HUGE_BUF 4096
+/** Maximum frames per second. */
+#define FRAMES_PER_SECOND 30
 
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
@@ -150,6 +152,7 @@ typedef struct _options
 
 	/* True: show frame rate */
 	int show_frame;
+	int intelligent_fps_cap;
 	int sleep;
 	int max_speed;
 	int auto_bpp_flag;
@@ -194,8 +197,10 @@ typedef struct _options
 	uint32 videoflags_win;
 	int reload_gfx_user;
 	int disable_updates;
+	int tcp_nodelay;
 	int disable_rm_cache;
 	int fastport;
+	int allow_widgets_offscreen;
 }_options;
 
 extern struct _options options;
@@ -636,8 +641,6 @@ typedef enum _bitmap_index
 	BITMAP_PLAYER_INFO,
 	BITMAP_TARGET_BG,
 	BITMAP_TEXTINPUT,
-	BITMAP_SHOP,
-	BITMAP_SHOP_INPUT,
 
 	BITMAP_SQUARE_HIGHLIGHT,
 	BITMAP_SERVERS_BG,
@@ -677,6 +680,7 @@ extern int text_input_count;
 extern int text_input_string_flag;
 extern int text_input_string_end_flag;
 extern int text_input_string_esc_flag;
+uint32 text_input_opened;
 
 /* Range table */
 extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];

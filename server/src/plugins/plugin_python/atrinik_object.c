@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -1855,7 +1855,7 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
 }
 
 /**
- * <h1>object.CreateTreasure(string [treasure = None], int [level = -1], int [flags = 0])</h1>
+ * <h1>object.CreateTreasure(string [treasure = None], int [level = -1], int [flags = 0], int [a_chance = @ref ART_CHANCE_UNSET])</h1>
  * Create treasure inside (or below, if GT_ENVIRONMENT flag was set) the object.
  * @param treasure Treasure list name to generate. If None, will try to
  * generate treasure based on the object's randomitems.
@@ -1863,15 +1863,17 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
  * level to use based on the object's level or the difficulty value of
  * the map the object is on. If neither is applicable, will use MAXLEVEL.
  * @param flags A combination of @ref GT_xxx.
+ * @param a_chance Chance for the treasure to become artifact, if possible.
+ * A value of 0 will disable any chance for artifacts.
  * @throws ValueError if treasure is not valid. */
 static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"treasure", "level", "flags", NULL};
+	static char *kwlist[] = {"treasure", "level", "flags", "a_chance", NULL};
 	const char *treasure = NULL;
-	int level = 0, flags = 0;
+	int level = 0, flags = 0, a_chance = ART_CHANCE_UNSET;
 	treasurelist *t;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|zii", kwlist, &treasure, &level, &flags))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ziii", kwlist, &treasure, &level, &flags, &a_chance))
 	{
 		return NULL;
 	}
@@ -1924,7 +1926,7 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
 	}
 
 	/* Create the treasure. */
-	hooks->create_treasure(t, obj->obj, flags, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+	hooks->create_treasure(t, obj->obj, flags, level, T_STYLE_UNSET, a_chance, 0, NULL);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2110,6 +2112,31 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 	if (field->offset == offsetof(object, speed))
 	{
 		hooks->update_ob_speed(obj->obj);
+	}
+	/* Handle object's type changing. */
+	else if (field->offset == offsetof(object, type))
+	{
+		/* Changing to a spawn point monster requires special handling:
+		 * as the object was most likely created and put on active list,
+		 * we must remove it from the active list, as spawn point monsters
+		 * are not allowed to be on the list. */
+		if (obj->obj->type == SPAWN_POINT_MOB)
+		{
+			float old_speed;
+
+			/* Store original speed, as in order to actually remove the object
+			 * from the active list, we need to set its speed to 0 and make it
+			 * a non-SPAWN_POINT_MOB type. */
+			old_speed = obj->obj->speed;
+			obj->obj->speed = 0.0f;
+			obj->obj->type = MONSTER;
+			/* Remove it from the active list. */
+			hooks->update_ob_speed(obj->obj);
+
+			/* Restore original speed and type info. */
+			obj->obj->speed = old_speed;
+			obj->obj->type = SPAWN_POINT_MOB;
+		}
 	}
 
 	return 0;

@@ -2,15 +2,14 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-09-08 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
 difficulty 40
 darkness 1
 no_harm 1
+tile_path_1 world_a_0633
 tile_path_2 world_a_0732
 tile_path_3 world_a_0631
 tile_path_5 world_a_0733
@@ -207,14 +206,6 @@ x 3
 y 17
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.111761
-state 3
-glow_radius 5
-is_animated 1
-identified 1
-known_magical 1
-known_cursed 1
 direction 7
 x 3
 y 17
@@ -905,6 +896,46 @@ end
 arch floor_ostone13
 x 22
 y 23
+end
+arch earth_brown2
+x 23
+y 6
+end
+arch fwall_rock1
+x 23
+y 6
+end
+arch earth_brown2
+x 23
+y 7
+end
+arch fwall_rock1
+x 23
+y 7
+end
+arch earth_brown2
+x 23
+y 8
+end
+arch fwall_rock1
+x 23
+y 8
+end
+arch earth_brown2
+x 23
+y 9
+end
+arch fwall_rock1
+x 23
+y 9
+end
+arch earth_brown2
+x 23
+y 10
+end
+arch fwall_rock1
+x 23
+y 10
 end
 arch blocked
 x 23

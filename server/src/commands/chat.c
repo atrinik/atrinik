@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -470,6 +470,18 @@ static void emote_other(object *op, object *target, char *str, char *buf, size_t
 			snprintf(buf3, size3, "%s cringes away from %s in mortal terror.", op->name, name);
 			break;
 
+		case EMOTE_STARE:
+			snprintf(buf, size, "You stare intently at %s.", name);
+			snprintf(buf2, size2, "%s stares intently at you.", op->name);
+			snprintf(buf3, size3, "%s stares intently at %s.", op->name, name);
+			break;
+
+		case EMOTE_SNEER:
+			snprintf(buf, size, "You sneer at %s.", name);
+			snprintf(buf2, size2, "%s sneers at you.", op->name);
+			snprintf(buf3, size3, "%s sneers at %s.", op->name, name);
+			break;
+
 		default:
 			snprintf(buf, size, "You are still nuts.");
 			snprintf(buf2, size2, "You get the distinct feeling that %s is nuts.", op->name);
@@ -855,6 +867,21 @@ static void emote_no_target(object *op, char *buf, size_t size, char *buf2, size
 			snprintf(buf2, size2, "Anything in particular that you'd care to think about?");
 			break;
 
+		case EMOTE_STARE:
+			snprintf(buf, size, "%s stares wide-eyed.", op->name);
+			snprintf(buf2, size2, "You stare.");
+			break;
+
+		case EMOTE_WINCE:
+			snprintf(buf, size, "%s winces.", op->name);
+			snprintf(buf2, size2, "You wince.");
+			break;
+
+		case EMOTE_FACEPALM:
+			snprintf(buf, size, "%s's face meets %s palm.", op->name, gender_possessive[object_get_gender(op)]);
+			snprintf(buf2, size2, "Your face meets your palm.");
+			break;
+
 		default:
 			snprintf(buf, size, "%s dances with glee.", op->name);
 			snprintf(buf2, size2, "You are nuts.");
@@ -891,7 +918,7 @@ static int basic_emote(object *op, char *params, int emotion)
 	}
 	else if (params)
 	{
-		if (emotion != EMOTE_ME && op->type == PLAYER)
+		if (emotion != EMOTE_ME && emotion != EMOTE_MY && op->type == PLAYER)
 		{
 			adjust_player_name(params);
 		}
@@ -925,11 +952,12 @@ static int basic_emote(object *op, char *params, int emotion)
 
 		if (emotion == EMOTE_ME)
 		{
-			if (op->type == PLAYER)
-			{
-				new_draw_info(NDI_UNIQUE, op, "Usage: /me <emote to display>");
-			}
-
+			new_draw_info(NDI_UNIQUE, op, "Usage: /me <emote to display>");
+			return 0;
+		}
+		else if (emotion == EMOTE_MY)
+		{
+			new_draw_info(NDI_UNIQUE, op, "Usage: /my <emote to display>");
 			return 0;
 		}
 
@@ -950,9 +978,16 @@ static int basic_emote(object *op, char *params, int emotion)
 	/* We have params. */
 	else
 	{
-		if (emotion == EMOTE_ME)
+		if (emotion == EMOTE_ME || emotion == EMOTE_MY)
 		{
-			snprintf(buf, sizeof(buf), "%s %s", op->name, params);
+			if (emotion == EMOTE_ME)
+			{
+				snprintf(buf, sizeof(buf), "%s %s", op->name, params);
+			}
+			else if (emotion == EMOTE_MY)
+			{
+				snprintf(buf, sizeof(buf), "%s's %s", op->name, params);
+			}
 
 			if (op->type == PLAYER)
 			{
@@ -1301,6 +1336,31 @@ int command_think(object *op, char *params)
 int command_me(object *op, char *params)
 {
 	return basic_emote(op, params, EMOTE_ME);
+}
+
+int command_stare(object *op, char *params)
+{
+	return basic_emote(op, params, EMOTE_STARE);
+}
+
+int command_sneer(object *op, char *params)
+{
+	return basic_emote(op, params, EMOTE_SNEER);
+}
+
+int command_wince(object *op, char *params)
+{
+	return basic_emote(op, params, EMOTE_WINCE);
+}
+
+int command_facepalm(object *op, char *params)
+{
+	return basic_emote(op, params, EMOTE_FACEPALM);
+}
+
+int command_my(object *op, char *params)
+{
+	return basic_emote(op, params, EMOTE_MY);
 }
 
 /** @endcond */

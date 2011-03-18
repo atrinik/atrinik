@@ -2,7 +2,7 @@ arch map
 name Temple of Loki
 msg
 Created:  2010-05-11 Asa
-Modified: 2010-06-20 Alex Tokar
+Modified: 2011-02-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -780,17 +780,17 @@ x 7
 y 8
 arch lom_lobon
 name ice demon
+direction 3
 level 100
-other_arch ice golem
-splitting 1
+dam 50
 can_cast_spell 1
-maxsp 80
+maxsp 20
 Pow 3
-path_attuned 4
+magic 4
+Dex 4
 protect_fire -50
 protect_cold 100
 type 83
-direction 3
 arch ability_icestorm
 end
 end
@@ -1549,12 +1549,12 @@ y 2
 arch lom_lobon
 name ice demon
 level 100
-other_arch ice golem
-splitting 1
+dam 50
 can_cast_spell 1
-maxsp 80
+maxsp 20
 Pow 3
-path_attuned 4
+magic 4
+Dex 4
 protect_fire -50
 protect_cold 100
 type 83
@@ -2540,14 +2540,15 @@ y 9
 arch dragon_blue
 name ice dragon
 level 99
+dam 49
 attack_slash 100
 attack_cleave 0
 attack_cold 0
 can_cast_spell 1
 sp -1
-maxsp 80
-Pow 5
-path_attuned 4
+maxsp 20
+Pow 4
+magic 3
 Dex 3
 protect_impact 15
 protect_slash 15

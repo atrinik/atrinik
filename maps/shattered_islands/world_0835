@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-01-03 emperorbma
+Modified: 2011-02-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,13 +17,19 @@ tile_path_5 world_0936
 tile_path_6 world_0934
 tile_path_7 world_0734
 tile_path_8 world_0736
-bg_music rainthunder.ogg
+bg_music chether.mid
 region asteria
 end
 arch floor_fs_grey1b
 z 50
 end
 arch grassd_m7
+end
+arch map_info
+hp 9
+sp 4
+race Asteria Palace
+slaying kaitindam.mid
 end
 arch grassd_5
 z 50
@@ -177,9 +183,11 @@ z 50
 x 1
 y 1
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 1
+y 1
+end
+arch light7
 x 1
 y 1
 end
@@ -918,9 +926,11 @@ z 50
 x 4
 y 22
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 4
+y 22
+end
+arch light7
 x 4
 y 22
 end
@@ -1118,7 +1128,17 @@ z 50
 x 5
 y 23
 end
-arch tree_big3
+arch wall_marble1.181
+x 5
+y 23
+end
+arch client_map_info
+msg
+Asteria City Hall.
+endmsg
+name asteria_city_hall
+sub_type 2
+stand_still 1
 x 5
 y 23
 end
@@ -1300,12 +1320,18 @@ z 50
 x 6
 y 23
 end
+arch wall_marble1.131a
+x 6
+y 23
+end
 arch grassd_3
 z 50
 x 7
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 7
+end
+arch light7
 x 7
 end
 arch grassd_4
@@ -1479,6 +1505,10 @@ z 50
 x 7
 y 23
 end
+arch wall_marble1wb.111
+x 7
+y 23
+end
 arch grassd_8
 z 50
 x 8
@@ -1636,6 +1666,10 @@ z 50
 x 8
 y 23
 end
+arch wall_marble1.131a
+x 8
+y 23
+end
 arch grassd_1
 z 50
 x 9
@@ -1789,9 +1823,11 @@ z 50
 x 9
 y 18
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 9
+y 18
+end
+arch light7
 x 9
 y 18
 end
@@ -1823,14 +1859,20 @@ z 50
 x 9
 y 22
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 9
+y 22
+end
+arch light7
 x 9
 y 22
 end
 arch grassd_1
 z 50
+x 9
+y 23
+end
+arch wall_marble1.131a
 x 9
 y 23
 end
@@ -2023,8 +2065,16 @@ z 50
 x 10
 y 22
 end
+arch plant_flower11
+x 10
+y 22
+end
 arch grassd_2
 z 50
+x 10
+y 23
+end
+arch wall_marble1.131a
 x 10
 y 23
 end
@@ -2227,7 +2277,7 @@ z 50
 x 11
 y 23
 end
-arch plant_flower11
+arch wall_marble1.131a
 x 11
 y 23
 end
@@ -2423,7 +2473,7 @@ z 50
 x 12
 y 23
 end
-arch plant_flower5
+arch wall_marble1.131a
 x 12
 y 23
 end
@@ -2630,6 +2680,10 @@ z 50
 x 13
 y 23
 end
+arch wall_marble1wb.111
+x 13
+y 23
+end
 arch floor_ostone10
 z 50
 x 14
@@ -2779,8 +2833,11 @@ z 50
 x 14
 y 18
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 14
+y 18
+end
+arch light7
 x 14
 y 18
 end
@@ -2814,6 +2871,10 @@ y 22
 end
 arch grassd_3
 z 50
+x 14
+y 23
+end
+arch wall_marble1.131a
 x 14
 y 23
 end
@@ -2971,9 +3032,11 @@ z 50
 x 15
 y 22
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 15
+y 22
+end
+arch light7
 x 15
 y 22
 end
@@ -2982,7 +3045,7 @@ z 50
 x 15
 y 23
 end
-arch tree_branch3
+arch wall_marble1.131a
 x 15
 y 23
 end
@@ -3151,6 +3214,19 @@ y 22
 end
 arch grassd_4
 z 50
+x 16
+y 23
+end
+arch wall_marble1.131a
+x 16
+y 23
+end
+arch client_map_info
+msg
+
+endmsg
+name asteria_city_hall
+sub_type 2
 x 16
 y 23
 end
@@ -3453,17 +3529,6 @@ z 50
 x 18
 y 17
 end
-arch marker3
-msg
-North - Way of the Gods
-South - Southeast Circuit
-West - Government Avenue
-endmsg
-name street sign
-direction 7
-x 18
-y 17
-end
 arch grassd_8
 z 50
 x 18
@@ -3525,9 +3590,11 @@ z 50
 x 19
 y 3
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 19
+y 3
+end
+arch light7
 x 19
 y 3
 end
@@ -3578,9 +3645,11 @@ z 50
 x 19
 y 8
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 19
+y 8
+end
+arch light7
 x 19
 y 8
 end
@@ -3613,9 +3682,11 @@ z 50
 x 19
 y 13
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 19
+y 13
+end
+arch light7
 x 19
 y 13
 end
@@ -3638,6 +3709,17 @@ z 50
 x 19
 y 16
 end
+arch marker3
+msg
+North - Way of the Gods
+South - Southeast Circuit
+West - Government Avenue
+endmsg
+name street sign
+direction 7
+x 19
+y 16
+end
 arch grassd_1
 z 50
 x 19
@@ -3656,9 +3738,11 @@ arch grassd_m4
 x 19
 y 18
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 19
+y 18
+end
+arch light7
 x 19
 y 18
 end
@@ -3699,9 +3783,11 @@ z 50
 x 19
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 19
+y 23
+end
+arch light7
 x 19
 y 23
 end
@@ -4252,8 +4338,11 @@ arch grassd_m5
 x 23
 y 3
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 3
+end
+arch light7
 x 23
 y 3
 end
@@ -4286,8 +4375,11 @@ z 50
 x 23
 y 8
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 8
+end
+arch light7
 x 23
 y 8
 end
@@ -4320,8 +4412,11 @@ z 50
 x 23
 y 13
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 13
+end
+arch light7
 x 23
 y 13
 end
@@ -4358,8 +4453,11 @@ arch grassd_m6
 x 23
 y 18
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 18
+end
+arch light7
 x 23
 y 18
 end
@@ -4392,8 +4490,11 @@ z 50
 x 23
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 23
+end
+arch light7
 x 23
 y 23
 end

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -431,6 +431,17 @@ static int load_gfx_user_face(uint16 num)
 
 		if (len > 0)
 		{
+			if (FaceList[num].sprite)
+			{
+				sprite_free_sprite(FaceList[num].sprite);
+			}
+
+			if (FaceList[num].name)
+			{
+				free(FaceList[num].name);
+				FaceList[num].name = NULL;
+			}
+
 			/* Try to load it. */
 			FaceList[num].sprite = sprite_tryload_file(buf, 0, NULL);
 

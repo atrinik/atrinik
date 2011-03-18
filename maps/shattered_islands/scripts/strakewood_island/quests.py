@@ -51,19 +51,19 @@ quest_items = {
 		"level": 6,
 		"messages":
 		{
-			"not_started": "Recently, there have been sightings of skeletons coming back to life near the Forgotten Graveyard, located west of Aris. I think you should go check it out.",
+			"not_started": "Recently, there have been sightings of skeletons coming back to life near the forgotten graveyard, located west of Aris. I think you should go check it out.",
 			"reward": "You receive seven scrolls of recharge (level 10).",
-			"not_finished": "You still need to kill {0} skeleton{1} from the Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
+			"not_finished": "You still need to kill {0} skeleton{1} at the forgotten graveyard west of Aris.\nRemember, they only appear at nighttime.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least {0} skeletons at Forgotten Graveyard west of Aris.\nRemember, they only appear at nighttime.",
+			"accepted": "\nKill at least {0} skeletons at the forgotten graveyard west of Aris.\nRemember, they only appear at nighttime.",
 		},
 		"info":
 		{
 			"quest_name": "Forgotten Graveyard at Strakewood Island",
 			"type": 1,
 			"kills": 10,
-			"message": "Kill 10 skeletons at Forgotten Graveyard west of Aris and return to Derowyn in Brynknot. Remember, skeletons there only appear at nighttime.",
+			"message": "Kill 10 skeletons at the forgotten graveyard west of Aris and return to Derowyn in Brynknot. Remember, skeletons there only appear at nighttime.",
 		}
 	},
 	"quest_4":

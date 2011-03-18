@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -249,6 +249,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		else if (!strcmp(cmd, "ssf"))
 		{
 			parse_srv_setup(param, cmdback, SRV_SERVER_SETTINGS);
+		}
+		else if (!strcmp(cmd, "eff"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_EFFECTS);
 		}
 		else if (!strcmp(cmd, "bot"))
 		{
@@ -562,15 +566,6 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 		ns->status = Ns_Zombie;
 		return;
 	}
-}
-
-/**
- * Newmap command. */
-void MapNewmapCmd(player *pl)
-{
-	/* We are really on a new map. Tell it the client */
-	send_mapstats_cmd(pl->ob, pl->ob->map);
-	memset(&pl->socket.lastmap, 0, sizeof(struct Map));
 }
 
 /**
@@ -1091,6 +1086,144 @@ void draw_client_map(object *pl)
 	}
 
 	draw_client_map2(pl);
+
+	/* If we moved on the same map, check for map name/music to update. */
+	if (redraw_below && CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_SAME)
+	{
+		SockList sl;
+		unsigned char sock_buf[MAXSOCKBUF];
+		MapSpace *msp;
+
+		/* Newer clients support the MAPSTATS command, which is specially
+		 * for things like this. */
+		if (CONTR(pl)->socket.socket_version >= 1046)
+		{
+		sl.buf = sock_buf;
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAPSTATS);
+		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+
+		/* Is there a map info object on this square? */
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
+		{
+			/* Check if there is map info name, but only update if it hasn't changed. */
+			if (msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name))
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_NAME);
+				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+
+				strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+				CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
+			}
+
+			/* Likewise for map info music. */
+			if (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music))
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_MUSIC);
+				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
+
+				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+			}
+
+			/* And weather... */
+			if (msp->map_info->title && strcmp(msp->map_info->title, CONTR(pl)->map_info_weather))
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_WEATHER);
+				SockList_AddMapWeather(&sl, pl, pl->map, msp->map_info);
+
+				strncpy(CONTR(pl)->map_info_weather, msp->map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
+			}
+		}
+		/* There isn't map info object, check if we need to update previously
+		 * overriden values. */
+		else
+		{
+			/* Update map name... */
+			if (CONTR(pl)->map_info_name[0] != '\0')
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_NAME);
+				SockList_AddMapName(&sl, pl, pl->map, NULL);
+
+				CONTR(pl)->map_info_name[0] = '\0';
+			}
+
+			/* Update map music... */
+			if (CONTR(pl)->map_info_music[0] != '\0')
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_MUSIC);
+				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
+
+				CONTR(pl)->map_info_music[0] = '\0';
+			}
+
+			/* Update map weather... */
+			if (CONTR(pl)->map_info_weather[0] != '\0')
+			{
+				SockList_AddChar(&sl, CMD_MAPSTATS_WEATHER);
+				SockList_AddMapWeather(&sl, pl, pl->map, NULL);
+
+				CONTR(pl)->map_info_weather[0] = '\0';
+			}
+		}
+
+		/* Anything to send? */
+		if (sl.len > 1)
+		{
+			Send_With_Handling(&CONTR(pl)->socket, &sl);
+		}
+		}
+		/* Backwards compatibility... */
+		else if (CONTR(pl)->socket.socket_version >= 1044)
+		{
+		sl.buf = sock_buf;
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
+		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+
+		SockList_AddChar(&sl, MAP_UPDATE_CMD_NEW);
+
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
+		{
+			if ((msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name)) || (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music)))
+			{
+				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
+
+				if (msp->map_info->race)
+				{
+					strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+					CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
+				}
+
+				if (msp->map_info->slaying)
+				{
+					strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+					CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+				}
+			}
+		}
+		else
+		{
+			if (CONTR(pl)->map_info_name[0] != '\0' || CONTR(pl)->map_info_music[0] != '\0')
+			{
+				SockList_AddMapName(&sl, pl, pl->map, NULL);
+				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
+				CONTR(pl)->map_info_name[0] = '\0';
+				CONTR(pl)->map_info_music[0] = '\0';
+			}
+		}
+
+		SockList_AddChar(&sl, 0);
+		SockList_AddChar(&sl, 0);
+		SockList_AddChar(&sl, pl->x);
+		SockList_AddChar(&sl, pl->y);
+
+		if (sl.len > 6)
+		{
+			Send_With_Handling(&CONTR(pl)->socket, &sl);
+		}
+		}
+	}
 }
 
 /**
@@ -1159,41 +1292,31 @@ void draw_client_map2(object *pl)
 
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
-		if (CONTR(pl)->socket.socket_version >= 1045)
-		{
-			SockList_AddString(&sl, "<b><o=0,0,0>");
-			/* Ignore the terminating NUL. */
-			sl.len--;
-			SockList_AddString(&sl, pl->map->name);
-			/* Ignore the terminating NUL. */
-			sl.len--;
-			SockList_AddString(&sl, "</o></b>");
-		}
-		else
-		{
-			SockList_AddString(&sl, pl->map->name);
-		}
+		MapSpace *msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 
-		if (CONTR(pl)->socket.socket_version < 1038)
-		{
-			if (!pl->map->bg_music)
-			{
-				SockList_AddString(&sl, "no_music");
-			}
-			else
-			{
-				char bg_music_tmp[MAX_BUF];
+		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
+		SockList_AddMapWeather(&sl, pl, pl->map, msp->map_info);
 
-				/* Replace .mid uses with .ogg variant. */
-				replace(pl->map->bg_music, ".mid", ".ogg", bg_music_tmp, sizeof(bg_music_tmp) - 20);
-				/* Add the fade/loop settings older clients require. */
-				strncat(bg_music_tmp, "|0|-1", sizeof(bg_music_tmp) - strlen(bg_music_tmp) - 1);
-				SockList_AddString(&sl, bg_music_tmp);
-			}
-		}
-		else
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
 		{
-			SockList_AddString(&sl, pl->map->bg_music ? pl->map->bg_music : "no_music");
+			if (msp->map_info->race)
+			{
+				strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+				CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
+			}
+
+			if (msp->map_info->slaying)
+			{
+				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+			}
+
+			if (msp->map_info->title)
+			{
+				strncpy(CONTR(pl)->map_info_weather, msp->map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
+			}
 		}
 
 		if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
@@ -1278,13 +1401,61 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Calculate the darkness/light value for this tile. */
-			if (MAP_OUTDOORS(m))
+			if ((MAP_OUTDOORS(m) && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!MAP_OUTDOORS(m) && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR))
 			{
 				d = msp->light_value + wdark + dm_light;
 			}
 			else
 			{
-				d = m->light_value + msp->light_value + dm_light;
+				/* Check if map info object bound to this tile has a darkness. */
+				if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1)
+				{
+					int dark_value = msp->map_info->item_power;
+
+					if (dark_value < 0 || dark_value > MAX_DARKNESS)
+					{
+						dark_value = MAX_DARKNESS;
+					}
+
+					d = global_darkness_table[dark_value] + msp->light_value + dm_light;
+				}
+				else
+				{
+					d = m->light_value + msp->light_value + dm_light;
+				}
+			}
+
+			if (GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)
+			{
+				object *mirror_tmp;
+				magic_mirror_struct *m_data;
+				mapstruct *mirror_map;
+
+				/* Try to find the magic mirror, but only search on layer 0. */
+				for (mirror_tmp = GET_MAP_OB(m, nx, ny); mirror_tmp && mirror_tmp->layer == LAYER_SYS; mirror_tmp = mirror_tmp->above)
+				{
+					if (mirror_tmp->type == MAGIC_MIRROR)
+					{
+						mirror = mirror_tmp;
+						break;
+					}
+				}
+
+				m_data = MMIRROR(mirror);
+
+				if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
+				{
+					MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
+
+					if ((MAP_OUTDOORS(mirror_map) && !(GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR))
+					{
+						d = mirror_msp->light_value + wdark + dm_light;
+					}
+					else
+					{
+						d = mirror_map->light_value + mirror_msp->light_value + dm_light;
+					}
+				}
 			}
 
 			/* Tile is not normally visible */
@@ -1375,7 +1546,7 @@ void draw_client_map2(object *pl)
 				object *tmp = GET_MAP_SPACE_LAYER(msp, layer);
 
 				/* Double check that we can actually see this object. */
-				if (tmp && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) && !inv_flag)
+				if (tmp && ((QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) && !inv_flag) || QUERY_FLAG(tmp, FLAG_HIDDEN)))
 				{
 					tmp = NULL;
 				}
@@ -1396,36 +1567,14 @@ void draw_client_map2(object *pl)
 				}
 
 				/* Still nothing, but there's a magic mirror on this tile? */
-				if (!tmp && GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)
+				if (!tmp && mirror)
 				{
-					/* No mirror found for this map space yet? */
-					if (!mirror)
+					magic_mirror_struct *m_data = MMIRROR(mirror);
+					mapstruct *mirror_map;
+
+					if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
 					{
-						object *mirror_tmp;
-
-						/* Try to find the magic mirror, but only search on layer 0. */
-						for (mirror_tmp = GET_MAP_OB(m, nx, ny); mirror_tmp && mirror_tmp->layer == LAYER_SYS; mirror_tmp = mirror_tmp->above)
-						{
-							if (mirror_tmp->type == MAGIC_MIRROR)
-							{
-								mirror = mirror_tmp;
-								break;
-							}
-						}
-					}
-
-					/* Due to the fact that we checked for P_MAGIC_MIRROR
-					 * above, 'mirror' should not be NULL, but check it for
-					 * safety anyway. */
-					if (mirror)
-					{
-						magic_mirror_struct *m_data = MMIRROR(mirror);
-						mapstruct *mirror_map;
-
-						if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
-						{
-							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer);
-						}
+						tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer);
 					}
 				}
 
@@ -1746,44 +1895,9 @@ void draw_client_map2(object *pl)
  * @param pl The player */
 void ShopCmd(char *buf, int len, player *pl)
 {
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	/* Handle opening a shop */
-	if (strncmp(buf, "open|", 5) == 0)
-	{
-		buf += 5;
-
-		player_shop_open(buf, pl);
-	}
-	/* Handle closing a shop */
-	else if (strncmp(buf, "close", 5) == 0)
-	{
-		player_shop_close(pl);
-	}
-	/* Handle loading of a shop */
-	else if (strncmp(buf, "load ", 5) == 0)
-	{
-		buf += 5;
-
-		player_shop_load(buf, pl);
-	}
-	/* Do an examine on shop item */
-	else if (strncmp(buf, "examine ", 8) == 0)
-	{
-		buf += 8;
-
-		player_shop_examine(buf, pl);
-	}
-	/* Buy item an item */
-	else if (strncmp(buf, "buy ", 4) == 0)
-	{
-		buf += 4;
-
-		player_shop_buy(buf, pl);
-	}
+	(void) buf;
+	(void) len;
+	(void) pl;
 }
 
 /**

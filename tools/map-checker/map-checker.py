@@ -63,6 +63,8 @@ class types:
 	map_event_object = 127
 	wall = 77
 	magic_mirror = 28
+	door = 20
+	gate = 91
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -71,7 +73,7 @@ class checker:
 	# Version.
 	version = "1.0"
 	# Copyright.
-	copyright = "Copyright \xc2\xa9 2010 Atrinik Development Team"
+	copyright = "Copyright \xc2\xa9 2010-2011 Atrinik Development Team"
 	# GNU GPL license.
 	license = "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA."
 	# Description of the application.
@@ -289,7 +291,7 @@ def check_map(map):
 		add_error(map["file"], "Map has invalid difficulty: {0}. Valid difficulties are 1-{1}.".format(map["difficulty"], checker.max_level), errors.medium)
 
 	if "bg_music" in map:
-		if not re.match("\w*\.(ogg|mid|wav)[ 0-9\-]?", map["bg_music"]):
+		if not re.match("([a-zA-Z0-9_\-]+)\.(\w+)[ 0-9\-]?", map["bg_music"]):
 			add_error(map["file"], "Map's background music attribute ('{0}') is not in a valid format. Valid format is (example): ocean.ogg".format(map["bg_music"]), errors.high)
 
 	# Map missing 'width' or 'height' is a serious error.
@@ -490,7 +492,7 @@ def check_obj(obj, map):
 			add_error(map["file"], "Monster '{0}' cannot cast spells but has ability objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 	# Waypoints movement.
-	if "movement_type" in obj and obj["movement_type"] & 176:
+	if "movement_type" in obj and obj["movement_type"] == 176:
 		if not wps:
 			add_error(map["file"], "Monster '{0}' has waypoint movement enabled but no waypoints.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 		else:
@@ -542,6 +544,13 @@ def check_obj(obj, map):
 	if get_entry(obj, "is_turnable") == 1 and get_entry(obj, "draw_direction") == 1:
 		if get_entry(obj, "direction") in (5, 6, 4, 3, 2, 8):
 			add_error(map["file"], "Object {0} has wrong direction {1}; must be facing either west or north.".format(obj["archname"], get_entry(obj, "direction")), errors.low, env["x"], env["y"])
+
+	if obj["type"] in (types.door, types.gate, types.wall):
+		if get_entry(obj, "damned") == 1:
+			add_error(map["file"], "Object {0} has 'damned 1' flag set, but this is not supported.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+		if get_entry(obj, "no_magic") == 1:
+			add_error(map["file"], "Object {0} has 'no_magic 1' flag set, which may be an error, as this flag is usually set on floor objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().

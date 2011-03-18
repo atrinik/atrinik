@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -83,19 +83,19 @@ struct player_cmd_mapping
 static const struct player_cmd_mapping player_commands[] =
 {
 	{"ex",          ExamineCmd, 0},
-	{"ap",          ApplyCmd, CMD_FLAG_NO_PLAYER_SHOP},
-	{"mv",          MoveCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"ap",          ApplyCmd, 0},
+	{"mv",          MoveCmd, 0},
 	{"reply",       ReplyCmd, 0},
 	{"cm",          PlayerCmd, 0},
-	{"lock",        (func_uint8_int_pl) LockItem, CMD_FLAG_NO_PLAYER_SHOP},
+	{"lock",        (func_uint8_int_pl) LockItem, 0},
 	{"mark",        (func_uint8_int_pl) MarkItem, 0},
 	{"/fire",       command_fire, 0},
 	{"nc",          command_new_char, 0},
 	{"pt",          PartyCmd, 0},
-	{"qs",          (func_uint8_int_pl) QuickSlotCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"qs",          (func_uint8_int_pl) QuickSlotCmd, 0},
 	{"shop",        ShopCmd, 0},
 	{"qlist",       QuestListCmd, 0},
-	{"mp", (func_uint8_int_pl) command_move_path, CMD_FLAG_NO_PLAYER_SHOP},
+	{"mp", (func_uint8_int_pl) command_move_path, 0},
 	{NULL, NULL, 0}
 };
 
@@ -240,13 +240,6 @@ static int check_command(socket_struct *ns, player *pl)
 		{
 			if (strcmp((char *) ns->inbuf.buf + 2, player_commands[i].cmdname) == 0)
 			{
-				if (player_commands[i].flags & CMD_FLAG_NO_PLAYER_SHOP && QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
-				{
-					new_draw_info(NDI_UNIQUE, pl->ob, "You can't do that while in player shop.");
-					ns->inbuf.len = 0;
-					return 1;
-				}
-
 				player_commands[i].cmdproc((char *) data, len, pl);
 				ns->inbuf.len = 0;
 				return 1;

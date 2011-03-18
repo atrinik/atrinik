@@ -11,6 +11,7 @@ layer 5
 type 79
 no_pick 1
 end
+
 Object lantern2_magic.131
 name magic lantern
 face lantern2_magic.131

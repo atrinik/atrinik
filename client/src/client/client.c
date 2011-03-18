@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -121,7 +121,7 @@ struct CmdMapping commands[] =
 	{"anim", AnimCmd, SHORT_ARRAY},
 	{"skill_rdy", (CmdProc) SkillRdyCmd, ASCII},
 	{"player", PlayerCmd, MIXED},
-	{"mapstats", NULL, ASCII},
+	{"mapstats", MapStatsCmd, ASCII},
 	{"splist", (CmdProc) SpelllistCmd, ASCII},
 	{"sklist", (CmdProc) SkilllistCmd, ASCII},
 	{"clr", NULL, ASCII},

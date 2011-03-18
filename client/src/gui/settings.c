@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -74,10 +74,13 @@ _option opt[] =
 	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
 	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.\nNOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
 	{"Textwindows alpha value:", "Transparent value of text windows. Higher = darker", "", SEL_RANGE, 0, 255, 5, 255, &options.textwin_alpha, VAL_INT},
+	{"Use intelligent fps cap:", "Enables intelligent fps capping.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.intelligent_fps_cap, VAL_BOOL},
 	{"Save CPU time with sleep():", "Client eats less CPU time when set.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
-	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
+	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 25, &options.sleep, VAL_INT},
 	{"Key repeat speed:", "How fast to repeat a held down key.", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
 	{"Disable file updates:", "If on, will not update sound effects/background music/etc on server\nconnect. This may be useful for users with low bandwidth.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_updates, VAL_BOOL},
+	{"Minimize latency:", "Disables Nagle's Algorithm in order to minimize latency, at the expense\nof more outgoing bandwidth.\nRequires server re-connection.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.tcp_nodelay, VAL_BOOL},
+	{"Allow off-screen widgets:", "Allows moving (parts of) widgets off-screen.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.allow_widgets_offscreen, VAL_BOOL},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Map */

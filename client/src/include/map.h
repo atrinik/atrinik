@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -90,10 +90,7 @@ typedef struct _multi_part_obj
 typedef struct _mapdata
 {
 	/** Map name. */
-	char name[1024];
-
-	/** Map background music. */
-	char music[256];
+	char name[HUGE_BUF];
 
 	/** X length. */
 	int xlen;

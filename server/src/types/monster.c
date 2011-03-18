@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -685,7 +685,7 @@ int move_monster(object *op)
 	}
 
 	/* Hit enemy if possible */
-	if (!QUERY_FLAG(op, FLAG_SCARED) && can_hit(part, &rv))
+	if (!QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(enemy, FLAG_REMOVED) && can_hit(part, &rv))
 	{
 		if (QUERY_FLAG(op, FLAG_RUN_AWAY))
 		{
@@ -1571,12 +1571,6 @@ void communicate(object *op, char *txt)
 	if (op->type == PLAYER)
 	{
 		new_info_map(NDI_WHITE | NDI_PLAYER | NDI_SAY, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
-
-		/* No talking to NPCs/magic ears while in player shop. */
-		if (QUERY_FLAG(op, FLAG_PLAYER_SHOP))
-		{
-			return;
-		}
 	}
 	else
 	{
@@ -1642,6 +1636,13 @@ static char *find_matching_message(const char *msg, const char *match)
 		{
 			/* Find the end of the line, and copy the regex portion into it */
 			cp2 = strchr(cp + 7, '\n');
+
+			if (!cp2)
+			{
+				LOG(llevDebug, "DEBUG: find_matching_message(): Found empty match response: %s\n", msg);
+				return NULL;
+			}
+
 			strncpy(regex, cp + 7, (cp2 - cp - 7));
 			regex[cp2 - cp - 7] = '\0';
 

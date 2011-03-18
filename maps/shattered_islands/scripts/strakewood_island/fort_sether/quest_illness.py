@@ -48,7 +48,7 @@ def npc_gwenty():
 		def temple_post_init(self):
 			self.services = []
 
-		Temple.TempleGrunhilde.post_init = temple_post_init
+		TempleGrunhildeGwenty.post_init = temple_post_init
 
 		## Create the quest potion.
 		def create_potion():
@@ -57,7 +57,7 @@ def npc_gwenty():
 
 		# Not started yet.
 		if not qm.started_part(1):
-			Temple.TempleGrunhilde.hello_msg = "\nApologies, but I'm busy right now with the ^illness^ in Fort Sether, so I'm sorry I can't assist you."
+			TempleGrunhildeGwenty.hello_msg = "\nApologies, but I'm busy right now with the ^illness^ in Fort Sether, so I'm sorry I can't assist you."
 
 			if msg == "illness":
 				me.SayTo(activator, "\nMany guards are falling ill, one after one. Being the only priestess around, I'm quite busy tending the sick guards.\n\n^Do you know the reason?^")
@@ -92,11 +92,11 @@ def npc_gwenty():
 			return
 		# Haven't finished yet.
 		else:
-			Temple.TempleGrunhilde.hello_msg = "\nApologies, but the illness is still going strong, so until the issue is resolved, I'm afraid I can't help you, as I am busy tending the sick guards."
+			TempleGrunhildeGwenty.hello_msg = "\nApologies, but the illness is still going strong, so until the issue is resolved, I'm afraid I can't help you, as I am busy tending the sick guards."
 	else:
-		Temple.TempleGrunhilde.hello_msg = "Thank you for your help with the illness problem."
+		TempleGrunhildeGwenty.hello_msg = "Thank you for your help with the illness problem."
 
-	Temple.handle_temple(Temple.TempleGrunhilde, me, activator, msg)
+	Temple.handle_temple(TempleGrunhildeGwenty, me, activator, msg)
 
 ## Handle Brownrott the kobold.
 def npc_brownrott():
@@ -175,4 +175,8 @@ elif me.name == "Fortress Guard":
 # Handle the priestess.
 else:
 	import Temple
+
+	class TempleGrunhildeGwenty(Temple.TempleGrunhilde):
+		pass
+
 	npc_gwenty()

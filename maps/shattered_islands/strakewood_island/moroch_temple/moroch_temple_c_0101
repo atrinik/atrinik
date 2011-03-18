@@ -2,12 +2,13 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-06-14 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 95
 darkness 2
+tile_path_1 moroch_temple_c_0102
 tile_path_2 moroch_temple_c_0201
 tile_path_5 moroch_temple_c_0202
 bg_music ghostly.ogg
@@ -61,6 +62,11 @@ arch fwall_fstone1a
 x 2
 y 6
 end
+arch wall_blood2
+direction 7
+x 2
+y 6
+end
 arch floor_sblack2b
 x 2
 y 7
@@ -82,6 +88,11 @@ x 2
 y 9
 end
 arch fwall_fstone1c
+x 2
+y 9
+end
+arch plant2_wall.151
+direction 7
 x 2
 y 9
 end
@@ -125,7 +136,17 @@ arch floor_sblack3b
 x 3
 y 2
 end
+arch prison_deco3.131
+direction 7
+x 3
+y 2
+end
 arch floor_sblack3b
+x 3
+y 3
+end
+arch prison_deco3.131
+direction 7
 x 3
 y 3
 end
@@ -184,11 +205,26 @@ arch floor_sblack2b
 x 3
 y 9
 end
+arch shelf3_dem3.111
+direction 7
+x 3
+y 9
+end
 arch floor_sblack2b
 x 3
 y 10
 end
+arch prison_deco2.131
+direction 7
+x 3
+y 10
+end
 arch floor_sblack3b
+x 3
+y 11
+end
+arch prison_deco2.131
+direction 7
 x 3
 y 11
 end
@@ -208,7 +244,15 @@ arch fwall_fstone1c
 x 4
 y 1
 end
+arch plant2_wall.151
+x 4
+y 1
+end
 arch floor_sblack1b
+x 4
+y 2
+end
+arch table_lab1.111
 x 4
 y 2
 end
@@ -225,6 +269,10 @@ x 4
 y 5
 end
 arch floor_sblack3b
+x 4
+y 6
+end
+arch dirt_floor3
 x 4
 y 6
 end
@@ -250,6 +298,7 @@ random_move 1
 item_race 2
 item_level 2
 direction 3
+name guard beholder
 arch ability_firestorm
 end
 arch ability_mbullet
@@ -284,11 +333,20 @@ arch floor_sblack2b
 x 5
 y 2
 end
+arch table_lab3.111
+x 5
+y 2
+end
 arch torch_wall_1
 x 5
 y 2
 end
 arch floor_sblack2b
+x 5
+y 3
+end
+arch chair2_111
+direction 5
 x 5
 y 3
 end
@@ -298,10 +356,9 @@ y 3
 arch skel_mage
 type 83
 level 93
-random_move 1
-item_race 3
-item_level 3
 direction 3
+exp 116
+name skeleton researcher
 arch ability_mbullet
 end
 arch ability_icestorm
@@ -327,8 +384,8 @@ arch demon_fire
 type 83
 level 94
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 direction 3
 end
 end
@@ -368,7 +425,15 @@ arch fwall_fstone1a
 x 6
 y 1
 end
+arch ring_wall.151
+x 6
+y 1
+end
 arch floor_sblack3b
+x 6
+y 2
+end
+arch table_lab2.111
 x 6
 y 2
 end
@@ -376,11 +441,23 @@ arch floor_sblack1b
 x 6
 y 3
 end
+arch pillar_black2c
+x 6
+y 3
+end
 arch floor_sblack1b
 x 6
 y 4
 end
+arch torch_wall_1
+x 6
+y 4
+end
 arch floor_sblack2b
+x 6
+y 5
+end
+arch dirt_floor4
 x 6
 y 5
 end
@@ -400,7 +477,15 @@ arch floor_sblack2b
 x 6
 y 9
 end
+arch water_floor
+x 6
+y 9
+end
 arch floor_sblack1b
+x 6
+y 10
+end
+arch pillar_black2c
 x 6
 y 10
 end
@@ -424,6 +509,10 @@ arch fwall_fstone1a
 x 7
 y 1
 end
+arch wall_drain4
+x 7
+y 1
+end
 arch floor_sblack2b
 x 7
 y 2
@@ -457,6 +546,11 @@ x 7
 y 9
 end
 arch floor_sblack2b
+x 7
+y 10
+end
+arch torch_wall_1
+direction 7
 x 7
 y 10
 end
@@ -484,6 +578,18 @@ arch floor_sblack1b
 x 8
 y 2
 end
+arch shelf3a.111
+x 8
+y 2
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack1b
 x 8
 y 3
@@ -520,6 +626,10 @@ arch floor_sblack3b
 x 8
 y 11
 end
+arch pottery5.101
+x 8
+y 11
+end
 arch floor_sblack3b
 x 8
 y 12
@@ -527,6 +637,12 @@ end
 arch fwall_fstone1a
 x 8
 y 12
+end
+arch floor_sblack2b
+x 9
+end
+arch fwall_fstone1b
+x 9
 end
 arch floor_sblack1b
 x 9
@@ -670,6 +786,9 @@ arch fwall_fstone1c
 x 9
 y 16
 end
+arch floor_sblack2b
+x 10
+end
 arch floor_sblack3b
 x 10
 y 1
@@ -766,6 +885,10 @@ arch floor_sblack1b
 x 10
 y 15
 end
+arch bones3
+x 10
+y 15
+end
 arch floor_sblack2b
 x 10
 y 16
@@ -776,13 +899,12 @@ y 16
 end
 arch floor_sblack2b
 x 11
-y 1
 end
-arch fwall_fstone1a
+arch floor_sblack2b
 x 11
 y 1
 end
-arch wall_blood4
+arch door1_locked
 x 11
 y 1
 end
@@ -826,6 +948,10 @@ arch floor_sblack1b
 x 11
 y 8
 end
+arch bone_broken
+x 11
+y 8
+end
 arch floor_sblack2b
 x 11
 y 9
@@ -861,6 +987,9 @@ end
 arch fwall_fstone1a
 x 11
 y 16
+end
+arch floor_sblack2b
+x 12
 end
 arch floor_sblack2b
 x 12
@@ -937,6 +1066,12 @@ end
 arch fwall_fstone1a
 x 12
 y 16
+end
+arch floor_sblack2b
+x 13
+end
+arch fwall_fstone1a
+x 13
 end
 arch floor_sblack2b
 x 13
@@ -1155,6 +1290,10 @@ arch floor_sblack1b
 x 15
 y 15
 end
+arch bone_skull
+x 15
+y 15
+end
 arch floor_sblack2b
 x 15
 y 16
@@ -1195,6 +1334,10 @@ arch floor_sblack3b
 x 16
 y 13
 end
+arch shelf3_dem1.111
+x 16
+y 13
+end
 arch floor_sblack3b
 x 16
 y 14
@@ -1213,6 +1356,24 @@ y 16
 end
 arch floor_sblack1b
 x 17
+end
+arch fwall_fstone1b
+x 17
+end
+arch plant1_wall.151
+direction 7
+x 17
+end
+arch floor_sblack3b
+x 17
+y 1
+end
+arch fwall_fstone1b
+x 17
+y 1
+end
+arch floor_sblack1b
+x 17
 y 2
 end
 arch fwall_fstone1c
@@ -1220,6 +1381,10 @@ x 17
 y 2
 end
 arch floor_sblack1b
+x 17
+y 3
+end
+arch blood_floor1
 x 17
 y 3
 end
@@ -1244,6 +1409,11 @@ x 17
 y 6
 end
 arch fwall_fstone1b
+x 17
+y 6
+end
+arch plant2_wall.151
+direction 7
 x 17
 y 6
 end
@@ -1276,6 +1446,10 @@ x 17
 y 12
 end
 arch fwall_fstone1a
+x 17
+y 12
+end
+arch plant1_wall.151
 x 17
 y 12
 end
@@ -1287,6 +1461,10 @@ arch pile_floor3
 x 17
 y 13
 end
+arch shelf3_dem3.111
+x 17
+y 13
+end
 arch floor_sblack1b
 x 17
 y 14
@@ -1303,11 +1481,14 @@ arch fwall_fstone1a
 x 17
 y 16
 end
+arch floor_sblack1b
+x 18
+end
 arch floor_sblack2b
 x 18
-y 2
+y 1
 end
-arch fwall_fstone1c
+arch floor_sblack2b
 x 18
 y 2
 end
@@ -1352,6 +1533,10 @@ x 18
 y 12
 end
 arch floor_sblack3b
+x 18
+y 13
+end
+arch shelf3_dem2.111
 x 18
 y 13
 end
@@ -1366,6 +1551,7 @@ arch demilich
 type 83
 level 92
 direction 3
+exp 116
 arch ability_cause_lig_wound
 end
 end
@@ -1382,6 +1568,20 @@ arch fwall_fstone1a
 x 18
 y 16
 end
+arch floor_sblack1b
+x 19
+end
+arch fwall_fstone1b
+x 19
+end
+arch floor_sblack2b
+x 19
+y 1
+end
+arch fwall_fstone1b
+x 19
+y 1
+end
 arch floor_sblack3b
 x 19
 y 2
@@ -1406,6 +1606,11 @@ arch fwall_fstone1c
 x 19
 y 4
 end
+arch plant2_wall.151
+direction 7
+x 19
+y 4
+end
 arch floor_sblack1b
 x 19
 y 5
@@ -1427,6 +1632,10 @@ x 19
 y 7
 end
 arch fwall_fstone1c
+x 19
+y 7
+end
+arch ring_wall.151
 x 19
 y 7
 end
@@ -1491,6 +1700,10 @@ x 20
 y 4
 end
 arch floor_sblack2b
+x 20
+y 5
+end
+arch dirt_floor1
 x 20
 y 5
 end
@@ -1614,6 +1827,10 @@ arch fwall_fstone1c
 x 21
 y 12
 end
+arch plant2_wall.151
+x 21
+y 12
+end
 arch floor_sblack3b
 x 21
 y 13
@@ -1639,6 +1856,10 @@ x 22
 y 2
 end
 arch fwall_fstone1c
+x 22
+y 2
+end
+arch plant2_wall.151
 x 22
 y 2
 end
@@ -1719,6 +1940,10 @@ x 23
 y 13
 end
 arch floor_sblack1b
+x 23
+y 14
+end
+arch bones1
 x 23
 y 14
 end

@@ -1,0 +1,51 @@
+anim wallsign_pub
+facings 9
+dummy.111
+wallsign_pub.131
+wallsign_pub.131
+wallsign_pub.131
+wallsign_pub.151
+wallsign_pub.151
+wallsign_pub.151
+wallsign_pub.151
+wallsign_pub.131
+mina
+
+anim wallsign_cross
+facings 9
+dummy.111
+wallsign_cross.131
+wallsign_cross.131
+wallsign_cross.131
+wallsign_cross.151
+wallsign_cross.151
+wallsign_cross.151
+wallsign_cross.151
+wallsign_cross.131
+mina
+
+anim wallsign_potion
+facings 9
+dummy.111
+wallsign_potion.131
+wallsign_potion.131
+wallsign_potion.131
+wallsign_potion.151
+wallsign_potion.151
+wallsign_potion.151
+wallsign_potion.151
+wallsign_potion.131
+mina
+
+anim wallsign_weapon
+facings 9
+dummy.111
+wallsign_weapon.131
+wallsign_weapon.131
+wallsign_weapon.131
+wallsign_weapon.151
+wallsign_weapon.151
+wallsign_weapon.151
+wallsign_weapon.151
+wallsign_weapon.131
+mina

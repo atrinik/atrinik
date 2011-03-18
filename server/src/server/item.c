@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -705,6 +705,49 @@ char *query_name(object *op, object *caller)
 }
 
 /**
+ * Queries an object's name, but only includes the name, title (if any)
+ * and material information (if any).
+ * @param op Object.
+ * @return The object's name. */
+char *query_material_name(object *op)
+{
+	static char buf[MAX_BUF];
+	size_t len;
+
+	buf[0] = '\0';
+	len = 0;
+
+	if (!op->name)
+	{
+		return "(null)";
+	}
+
+	if (!QUERY_FLAG(op, FLAG_IS_NAMED))
+	{
+		/* Add the item race name */
+		if (!IS_LIVE(op) && op->type != BASE_INFO)
+		{
+			safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
+		}
+
+		if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
+		{
+			safe_strcat(buf, material_real[op->material_real].name, &len, sizeof(buf));
+		}
+	}
+
+	safe_strcat(buf, op->name, &len, sizeof(buf));
+
+	if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED))
+	{
+		safe_strcat(buf, " ", &len, sizeof(buf));
+		safe_strcat(buf, op->title, &len, sizeof(buf));
+	}
+
+	return buf;
+}
+
+/**
  * Returns a character pointer pointing to a static buffer which contains
  * a verbose textual representation of the name of the given object.
  *
@@ -1180,7 +1223,7 @@ char *describe_item(object *op)
 					 * item have no penalty, or is it not fully identified for example. */
 					if (ARMOUR_SPELLS(op))
 					{
-						sprintf(buf, "(mana reg %d)", -1 * ARMOUR_SPELLS(op));
+						sprintf(buf, "(armour mana reg %d)", -1 * ARMOUR_SPELLS(op));
 						strcat(retbuf, buf);
 					}
 
@@ -1203,7 +1246,7 @@ char *describe_item(object *op)
 						strcat(retbuf, buf);
 					}
 
-					if (op->last_sp)
+					if (op->last_sp && !IS_ARMOR(op))
 					{
 						sprintf(buf, "(range%+d)", op->last_sp);
 						strcat(retbuf, buf);

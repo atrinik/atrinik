@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-03-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ enter_y 3
 difficulty 60
 darkness 2
 fixed_login 1
+tile_path_2 underground_city_b_0402
 tile_path_4 underground_city_b_0202
 bg_music thonkdonk.ogg
 region underground_city
@@ -1055,6 +1056,13 @@ arch bridge_wood_EW.101
 x 5
 y 12
 end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 5
+y 12
+end
 arch pedestal_trigger
 exp 70
 layer 0
@@ -1088,6 +1096,13 @@ x 5
 y 13
 end
 arch bridge_wood_EW.101
+x 5
+y 14
+end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
 x 5
 y 14
 end
@@ -1331,6 +1346,13 @@ arch bridge_wood_EW.111
 x 6
 y 11
 end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 6
+y 11
+end
 arch dirt_floor3
 x 6
 y 11
@@ -1356,6 +1378,13 @@ x 6
 y 12
 end
 arch bridge_wood_EW.101
+x 6
+y 13
+end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
 x 6
 y 13
 end
@@ -1697,6 +1726,13 @@ arch bridge_wood_EW.101
 x 7
 y 14
 end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 7
+y 14
+end
 arch pedestal_trigger
 exp 70
 layer 0
@@ -1964,6 +2000,13 @@ arch bridge_wood_EW.101
 x 8
 y 12
 end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 8
+y 12
+end
 arch pedestal_trigger
 exp 70
 layer 0
@@ -2190,6 +2233,13 @@ arch bridge_wood_EW.111
 x 9
 y 11
 end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 9
+y 11
+end
 arch pedestal_trigger
 exp 70
 layer 0
@@ -2241,6 +2291,13 @@ x 9
 y 13
 end
 arch bridge_wood_EW.101
+x 9
+y 14
+end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
 x 9
 y 14
 end
@@ -2703,30 +2760,30 @@ arch floor_sand_d2
 x 11
 y 8
 end
-arch corpse_human
-name slain half-elf warrior
-speed 0
-is_used_up 0
-x 11
-y 8
-end
 arch floor_sand_d1
 x 11
 y 9
 end
-arch spawn_point
+arch rock2
+layer 3
 x 11
 y 9
-arch drow_sorcerer
-level 64
-exp 112
-maxsp 16
-Pow 20
-Dex 2
-type 83
-arch ability_cause_lig_wound
 end
+arch naginata
+layer 4
+zoom 75
+align 10
+x 11
+y 9
 end
+arch shield_high
+layer 5
+face shield_ankh.101
+z 5
+zoom 90
+align -8
+x 11
+y 9
 end
 arch floor_sand_d4
 x 11
@@ -2876,37 +2933,6 @@ arch floor_sand_d1
 x 12
 y 5
 end
-arch corpse_human
-name slain half-elf warrior
-speed 0
-is_used_up 0
-x 12
-y 5
-arch letter
-msg
-<t t="Day 1:">
-We have penetrated the first defenses of Underground City easily. The orcs were no match for us, as our race was used to fighting them. Many orcs died that day, but more kept coming still. We hid in an empty room to catch some sleep, with one of us watching as guard. That night went without any trouble.
-
-<t t="Day 2:">
-More orcs were slain. We found some undead ghosts and ghouls, but they didn't see us, so we didn't attempt a fight. Finally, we reached the first drows, and the first challenge. There were many, and they weren't happy to see us.
-
-<t t="Day 3:">
-We found a powerful drow magician guarding a secret passage to lower level. We fought our way, only to find many skeletons and ghosts living there. We slashed our way through. We found more drows and a dead end, so we decided to rest there.
-
-<t t="Day 4:">
-We returned to the stairs we found earlier and tried the other way, fighting many undead. Eventually we found an ancient library with valuable information and a ghost guarding some key. We decided to rest there.
-
-<t t="Day 5:">
-Undead as far as the eye could see, but we eventually found something that looked like a temple. This was a very gruesome fight, and our last magicians fell, but we managed to win. We found a human guard prisoner in a hidden room there, but he was in no state to talk to us. We decided to rest again.
-
-<t t="Day 6:">
-We found stairs leading to yet another level. Using the knowledge we learned from the ancient library, we figured out that a ---ic bul--- was needed to be cast northwest from a fake torch, otherwise we would face nearly instant death. We had no magicians left however, so some of us tried to cross the bridge and...
-endmsg
-no_pick 1
-level 10
-exp 0
-end
-end
 arch floor_sand_d2
 x 12
 y 6
@@ -2926,6 +2952,71 @@ end
 arch floor_sand_d4
 x 12
 y 9
+end
+arch corpse_human
+speed 0
+is_used_up 0
+name slain half-elf warrior
+x 12
+y 9
+arch note
+msg
+<t t="Day 6:">
+We found stairs leading to yet another level.
+
+Using the knowledge we learned from the ancient library, we figured out that a ---ic bul--- was needed. It must be cast northwest from a special location.
+
+We have marked the spot with a fake torch, our hope is that the creatures that live down here will not notice and leave the torch where we have placed it.
+
+Unfortunately we have no way to test this, our last magician died today.
+
+The number of wounded is growing every day. We will stay here and rest tonight.
+
+<t t="Day 7:">
+The bridge looks harmless; We are hoping the information about a death trap is to just to scare people away.
+
+After breakfast, we will attempt to cross the bridge.
+
+IT'S A TRAP!!!!
+
+When we attempted to cross the bridge, it killed them. So much power, they didn't have a chance. I am the only survivor.
+
+If you are reading this;
+
+!!! STAY OFF THE BRIDGE, IT IS A TRAP !!!!
+
+I hear them coming. The noise from the trap has attracted unwanted attention and I am in no shape to fight.
+
+Today is a good day to die.
+endmsg
+exp 0
+face note2.101
+no_pick 1
+level 10
+name note: Day 6 - 7
+end
+arch note
+msg
+<t t="Day 1:">
+We have penetrated the first defenses of Underground City easily. The orcs were no match for us, as our race was used to fighting them. Many orcs died that day, but more kept coming still. We hid in an empty room to catch some sleep, with one of us watching as guard. That night went without any trouble.
+
+<t t="Day 2:">
+More orcs were slain. We found some undead ghosts and ghouls, but they didn't see us, so we didn't attempt a fight. Finally, we reached the first drows, and the first challenge. There were many, and they weren't happy to see us.
+
+<t t="Day 3:">
+We found a powerful drow magician guarding a secret passage to lower level. We fought our way, only to find many skeletons and ghosts living there. We slashed our way through. We found more drows and a dead end, so we decided to rest there.
+
+<t t="Day 4:">
+We returned to the stairs we found earlier and tried the other way, fighting many undead. Eventually we found an ancient library with valuable information and a ghost guarding some key. We decided to rest there.
+
+<t t="Day 5:">
+Undead as far as the eye could see, but we eventually found something that looked like a temple. This was a very gruesome fight, and our last magicians fell, but we managed to win. We found a human guard prisoner in a hidden room there, but he was in no state to talk to us. We decided to rest again.
+endmsg
+exp 0
+no_pick 1
+level 10
+name note: Day 1 - 5
+end
 end
 arch floor_sand_d3
 x 12
@@ -2951,15 +3042,11 @@ arch floor_sand_d2
 x 12
 y 13
 end
-arch spawn_point
-x 12
-y 13
-arch drow_captain
-level 64
-type 83
-end
-end
 arch floor_sand_d1
+x 12
+y 14
+end
+arch blood_floor2
 x 12
 y 14
 end
@@ -3067,14 +3154,11 @@ arch floor_sand_d2
 x 13
 y 6
 end
-arch floor_sand_d4
+arch rock5
 x 13
-y 7
+y 6
 end
-arch corpse_human
-name slain half-elf warrior
-speed 0
-is_used_up 0
+arch floor_sand_d4
 x 13
 y 7
 end
@@ -3087,13 +3171,6 @@ x 13
 y 9
 end
 arch floor_sand_d4
-x 13
-y 10
-end
-arch corpse_human
-name slain half-elf warrior
-speed 0
-is_used_up 0
 x 13
 y 10
 end
@@ -3876,6 +3953,10 @@ arch floor_sand_d1
 x 18
 y 8
 end
+arch trash_wood1.101
+x 18
+y 8
+end
 arch floor_sand_d2
 x 18
 y 9
@@ -3891,20 +3972,6 @@ end
 arch floor_sand_d4
 x 18
 y 12
-end
-arch spawn_point
-x 18
-y 12
-arch drow_sorcerer
-level 63
-exp 112
-maxsp 16
-Pow 20
-Dex 2
-type 83
-arch ability_cause_lig_wound
-end
-end
 end
 arch floor_sand_d3
 x 18
@@ -4031,6 +4098,10 @@ arch floor_sand_d3
 x 19
 y 6
 end
+arch torch_wall_1
+x 19
+y 6
+end
 arch floor_sand_d2
 x 19
 y 7
@@ -4050,6 +4121,14 @@ end
 arch floor_sand_d1
 x 19
 y 11
+end
+arch spawn_point
+x 19
+y 11
+arch drow_guard
+level 63
+type 83
+end
 end
 arch floor_sand_d2
 x 19
@@ -4123,7 +4202,11 @@ arch floor_sand_d2
 x 20
 y 6
 end
-arch fwall_rock3
+arch fwall_rock1
+x 20
+y 6
+end
+arch plant2_wall.151
 x 20
 y 6
 end
@@ -4131,111 +4214,525 @@ arch floor_sand_d2
 x 20
 y 7
 end
+arch floor_sand_d2
+x 20
+y 8
+end
+arch blood_floor2
+x 20
+y 8
+end
+arch floor_sand_d2
+x 20
+y 9
+end
+arch floor_sand_d2
+x 20
+y 10
+end
+arch fwall_rock1
+x 20
+y 10
+end
+arch floor_sand_d2
+x 20
+y 11
+end
 arch fwall_rock3
 x 20
+y 11
+end
+arch floor_sand_d1
+x 20
+y 12
+end
+arch fwall_rock2
+x 20
+y 12
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 7
+x 20
+y 12
+end
+arch floor_sand_d1
+x 20
+y 13
+end
+arch fwall_rock2
+x 20
+y 13
+end
+arch floor_sand_d4
+x 20
+y 14
+end
+arch fwall_rock2
+x 20
+y 14
+end
+arch plant1_wall.151
+x 20
+y 14
+end
+arch floor_sand_d1
+x 20
+y 15
+end
+arch dirt_floor4
+x 20
+y 15
+end
+arch torch_wall_1
+x 20
+y 15
+end
+arch floor_sand_d3
+x 20
+y 16
+end
+arch floor_sand_d4
+x 20
+y 17
+end
+arch floor_sand_d3
+x 20
+y 18
+end
+arch fwall_rock1
+x 20
+y 18
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 8
+x 20
+y 18
+end
+arch floor_sand_d2
+x 20
+y 19
+end
+arch fwall_rock3
+x 20
+y 19
+end
+arch floor_sand_d1
+x 20
+y 20
+end
+arch fwall_rock2
+x 20
+y 20
+end
+arch floor_sand_d2
+x 21
+y 6
+end
+arch fwall_rock1
+x 21
+y 6
+end
+arch floor_sand_d2
+x 21
+y 7
+end
+arch floor_sand_d4
+x 21
+y 8
+end
+arch floor_sand_d3
+x 21
+y 9
+end
+arch floor_sand_d3
+x 21
+y 10
+end
+arch fwall_rock1
+x 21
+y 10
+end
+arch blocked
+x 21
+y 11
+end
+arch blocked
+x 21
+y 12
+end
+arch blocked
+x 21
+y 13
+end
+arch floor_sand_d1
+x 21
+y 14
+end
+arch fwall_rock1
+x 21
+y 14
+end
+arch floor_sand_d1
+x 21
+y 15
+end
+arch dirt_floor3
+x 21
+y 15
+end
+arch floor_sand_d1
+x 21
+y 16
+end
+arch floor_sand_d4
+x 21
+y 17
+end
+arch floor_sand_d2
+x 21
+y 18
+end
+arch fwall_rock3
+x 21
+y 18
+end
+arch blocked
+x 21
+y 19
+end
+arch floor_sand_d4
+x 22
+end
+arch fwall_rock3
+x 22
+end
+arch floor_sand_d4
+x 22
+y 1
+end
+arch fwall_rock2
+x 22
+y 1
+end
+arch plant2_wall.151
+direction 7
+x 22
+y 1
+end
+arch floor_sand_d1
+x 22
+y 2
+end
+arch fwall_rock3
+x 22
+y 2
+end
+arch plant1_wall.151
+direction 7
+x 22
+y 2
+end
+arch floor_sand_d2
+x 22
+y 3
+end
+arch fwall_rock3
+x 22
+y 3
+end
+arch floor_sand_d1
+x 22
+y 4
+end
+arch fwall_rock3
+x 22
+y 4
+end
+arch floor_sand_d4
+x 22
+y 5
+end
+arch fwall_rock3
+x 22
+y 5
+end
+arch floor_sand_d4
+x 22
+y 6
+end
+arch fwall_rock1
+x 22
+y 6
+end
+arch plant1_wall.151
+x 22
+y 6
+end
+arch floor_sand_d3
+x 22
+y 7
+end
+arch mushroom_giant2
+x 22
+y 7
+end
+arch floor_sand_d3
+x 22
+y 8
+end
+arch floor_sand_d3
+x 22
+y 9
+end
+arch floor_sand_d2
+x 22
+y 10
+end
+arch fwall_rock2
+x 22
+y 10
+end
+arch floor_sand_d3
+x 22
+y 11
+end
+arch fwall_rock2
+x 22
+y 11
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+direction 3
+last_eat 0
+dam 50
+level 75
+speed -0.5
+connected 201
+alive 0
+x 22
+y 11
+end
+arch floor_sand_d3
+x 22
+y 12
+end
+arch fwall_rock1
+x 22
+y 12
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 35
+level 75
+speed -0.5
+connected 201
+alive 0
+direction 3
+x 22
+y 12
+end
+arch floor_sand_d1
+x 22
+y 13
+end
+arch fwall_rock3
+x 22
+y 13
+end
+arch floor_sand_d2
+x 22
+y 14
+end
+arch fwall_rock2
+x 22
+y 14
+end
+arch plant2_wall.151
+x 22
+y 14
+end
+arch floor_sand_d1
+x 22
+y 15
+end
+arch floor_sand_d2
+x 22
+y 16
+end
+arch floor_sand_d4
+x 22
+y 17
+end
+arch dirt_floor2
+x 22
+y 17
+end
+arch mushroom_giant3
+x 22
+y 17
+end
+arch floor_sand_d3
+x 22
+y 18
+end
+arch fwall_rock3
+x 22
+y 18
+end
+arch floor_sand_d1
+x 23
+end
+arch fwall_rock2
+x 23
+end
+arch floor_sand_d1
+x 23
+y 1
+end
+arch dirt_floor1
+x 23
+y 1
+end
+arch floor_sand_d3
+x 23
+y 2
+end
+arch torch_wall_green
+direction 7
+x 23
+y 2
+end
+arch floor_sand_d4
+x 23
+y 3
+end
+arch floor_sand_d2
+x 23
+y 4
+end
+arch rock4
+x 23
+y 4
+end
+arch floor_sand_d4
+x 23
+y 5
+end
+arch door1_locked
+msg
+The door appears to be blocked by something...
+endmsg
+slaying no_entry
+x 23
+y 5
+end
+arch floor_sand_d2
+x 23
+y 6
+end
+arch dirt_floor4
+x 23
+y 6
+end
+arch floor_sand_d1
+x 23
 y 7
 end
 arch floor_sand_d2
-x 20
+x 23
 y 8
 end
-arch fwall_rock2
-x 20
-y 8
-end
-arch floor_sand_d2
-x 20
+arch floor_sand_d4
+x 23
 y 9
 end
-arch fwall_rock1
-x 20
+arch blood_floor2
+x 23
 y 9
 end
-arch floor_sand_d2
-x 20
+arch floor_sand_d3
+x 23
 y 10
 end
-arch fwall_rock1
-x 20
-y 10
-end
-arch floor_sand_d2
-x 20
-y 11
-end
-arch fwall_rock3
-x 20
-y 11
-end
-arch floor_sand_d1
-x 20
-y 12
-end
-arch fwall_rock2
-x 20
-y 12
-end
-arch magic_wall
-name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
-dam 35
-level 75
-speed -0.5
-connected 201
-alive 0
+arch torch_wall_1
 direction 7
-x 20
+x 23
+y 10
+end
+arch floor_sand_d2
+x 23
+y 11
+end
+arch trash_wood2.101
+x 23
+y 11
+end
+arch floor_sand_d2
+x 23
 y 12
 end
 arch floor_sand_d1
-x 20
+x 23
 y 13
 end
-arch fwall_rock2
-x 20
-y 13
-end
-arch floor_sand_d4
-x 20
+arch floor_sand_d1
+x 23
 y 14
 end
-arch fwall_rock2
-x 20
+arch torch_wall_1
+direction 7
+x 23
 y 14
 end
 arch floor_sand_d1
-x 20
+x 23
 y 15
 end
-arch fwall_rock1
-x 20
-y 15
-end
-arch floor_sand_d3
-x 20
+arch floor_sand_d2
+x 23
 y 16
 end
-arch fwall_rock1
-x 20
-y 16
-end
-arch floor_sand_d4
-x 20
-y 17
-end
-arch fwall_rock3
-x 20
-y 17
-end
 arch floor_sand_d3
-x 20
+x 23
+y 17
+end
+arch dirt_floor3
+x 23
+y 17
+end
+arch floor_sand_d1
+x 23
 y 18
 end
-arch fwall_rock1
-x 20
+arch fwall_rock2
+x 23
 y 18
 end
 arch magic_wall
@@ -4244,52 +4741,11 @@ layer 0
 sys_object 1
 blocksview 0
 last_eat 0
-dam 35
+dam 49
 level 75
 speed -0.5
 connected 201
 alive 0
-direction 7
-x 20
+x 23
 y 18
-end
-arch floor_sand_d2
-x 20
-y 19
-end
-arch fwall_rock3
-x 20
-y 19
-end
-arch floor_sand_d1
-x 20
-y 20
-end
-arch fwall_rock2
-x 20
-y 20
-end
-arch blocked
-x 21
-y 11
-end
-arch blocked
-x 21
-y 12
-end
-arch blocked
-x 21
-y 13
-end
-arch blocked
-x 21
-y 17
-end
-arch blocked
-x 21
-y 18
-end
-arch blocked
-x 21
-y 19
 end

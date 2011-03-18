@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -213,9 +213,6 @@ typedef struct Player_Struct
 
 	/* Pointer to open container */
 	object *container;
-
-	/** Inventory of items in shop */
-	object *shop;
 
 	/* Tag of the container */
 	sint32 container_tag;
@@ -595,4 +592,16 @@ extern Client_Player cpl;
 #define CMD_SOUND_BACKGROUND 2
 /** Path to sound effect with an absolute filename. MIDI is not supported. */
 #define CMD_SOUND_ABSOLUTE 3
+/*@}*/
+
+/**
+ * @defgroup CMD_MAPSTATS_xxx Mapstats command types
+ * Mapstats command types.
+ *@{*/
+/** Change map name. */
+#define CMD_MAPSTATS_NAME 1
+/** Change map music. */
+#define CMD_MAPSTATS_MUSIC 2
+/** Change map weather. */
+#define CMD_MAPSTATS_WEATHER 3
 /*@}*/

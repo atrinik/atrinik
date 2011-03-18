@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-02-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,15 +17,15 @@ tile_path_5 world_0939
 tile_path_6 world_0937
 tile_path_7 world_0737
 tile_path_8 world_0739
-bg_music rainthunder.ogg
+bg_music chether.mid
 region asteria
 end
 arch grassd_2
 z 50
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+end
+arch light7
 end
 arch floor_fs_grey1b
 z 50
@@ -49,9 +49,10 @@ arch grassd_1
 z 50
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+y 4
+end
+arch light7
 y 4
 end
 arch grassd_8
@@ -67,6 +68,12 @@ y 6
 end
 arch floor_marble1g
 z 50
+y 7
+end
+arch map_info
+hp 2
+sp 10
+slaying courage.mid
 y 7
 end
 arch floor_marble1g
@@ -699,9 +706,11 @@ z 50
 x 4
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 4
+y 4
+end
+arch light7
 x 4
 y 4
 end
@@ -789,9 +798,11 @@ z 50
 x 4
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 4
+y 20
+end
+arch light7
 x 4
 y 20
 end
@@ -822,9 +833,10 @@ arch grassd_2
 z 50
 x 5
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 5
+end
+arch light7
 x 5
 end
 arch floor_fs_grey1b
@@ -1199,9 +1211,11 @@ z 50
 x 7
 y 7
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 7
+y 7
+end
+arch light7
 x 7
 y 7
 end
@@ -1617,6 +1631,7 @@ x 9
 y 14
 end
 arch altar_grumthar
+xrays 1
 x 9
 y 14
 end
@@ -1668,9 +1683,11 @@ z 50
 x 9
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 9
+y 20
+end
+arch light7
 x 9
 y 20
 end
@@ -1701,9 +1718,10 @@ arch grassd_7
 z 50
 x 10
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 10
+end
+arch light7
 x 10
 end
 arch floor_fs_grey1b
@@ -1738,9 +1756,11 @@ arch plant_flower5
 x 10
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 10
+y 4
+end
+arch light7
 x 10
 y 4
 end
@@ -1930,8 +1950,11 @@ z 50
 x 11
 y 6
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 11
+y 6
+end
+arch light7
 x 11
 y 6
 end
@@ -1976,9 +1999,11 @@ z 50
 x 11
 y 11
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 11
+y 11
+end
+arch light7
 x 11
 y 11
 end
@@ -2561,9 +2586,11 @@ z 50
 x 14
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 14
+y 20
+end
+arch light7
 x 14
 y 20
 end
@@ -2594,9 +2621,10 @@ arch grassd_3
 z 50
 x 15
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 15
+end
+arch light7
 x 15
 end
 arch floor_fs_grey1b
@@ -2627,9 +2655,11 @@ z 50
 x 15
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 15
+y 4
+end
+arch light7
 x 15
 y 4
 end
@@ -2667,8 +2697,11 @@ z 50
 x 15
 y 10
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 15
+y 10
+end
+arch light7
 x 15
 y 10
 end
@@ -2713,9 +2746,11 @@ z 50
 x 15
 y 15
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 15
+y 15
+end
+arch light7
 x 15
 y 15
 end
@@ -3502,9 +3537,11 @@ arch grassd_m4
 x 19
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 19
+y 20
+end
+arch light7
 x 19
 y 20
 end
@@ -3661,8 +3698,11 @@ z 50
 x 20
 y 15
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 20
+y 15
+end
+arch light7
 x 20
 y 15
 end
@@ -3932,9 +3972,11 @@ z 50
 x 22
 y 5
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 22
+y 5
+end
+arch light7
 x 22
 y 5
 end
@@ -4094,21 +4136,21 @@ z 50
 x 23
 y 3
 end
-arch grassd_m11
-x 23
-y 3
-end
 arch floor_fs_grey1b
 z 50
 x 23
 y 4
 end
-arch grassd_m5
+arch grassd_m14
 x 23
 y 4
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
+x 23
+y 5
+end
+arch grassd_m3
 x 23
 y 5
 end
@@ -4211,8 +4253,11 @@ z 50
 x 23
 y 20
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 20
+end
+arch light7
 x 23
 y 20
 end

@@ -3,7 +3,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -212,6 +212,8 @@ lex_error = 0;
 
 							if (linemode == 0)
 							{
+								extern int arch_init;
+
 								lex_load(depth, items, maxdepth, map_flags, linemode);
 								(*depth)--;
 
@@ -230,7 +232,7 @@ lex_error = 0;
 
 									insert_ob_in_ob(tmp, op);
 								}
-								else
+								else if (!arch_init)
 								{
 									LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
 								}
@@ -545,6 +547,7 @@ lex_error = 0;
 ^alive{S}           SET_OR_CLEAR_FLAG(op, FLAG_ALIVE, IVAL);
 ^applied{S}         SET_OR_CLEAR_FLAG(op, FLAG_APPLIED, IVAL);
 ^unpaid{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNPAID, IVAL);
+^hidden{S}          SET_OR_CLEAR_FLAG(op, FLAG_HIDDEN, IVAL);
 ^no_pick{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PICK, IVAL);
 ^no_pass{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PASS, IVAL);
 ^no_teleport{S}     SET_OR_CLEAR_FLAG(op, FLAG_NO_TELEPORT, IVAL);
@@ -797,6 +800,7 @@ lex_error = 0;
 							}
 						}
                     }
+^outdoor{S}         SET_OR_CLEAR_FLAG(op, FLAG_OUTDOOR, IVAL);
 ^unique{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
 ^inv_locked{S}      SET_OR_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL);
 ^is_wooded{S}       {}
@@ -978,7 +982,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 {
 	int retval = 0;
 	float old_speed, old_sleft;
-	char inbuf[MAX_BUF];
+	char inbuf[HUGE_BUF];
 	object *items[MAXDEPTH];
 	int depth = 0;
 
@@ -1052,7 +1056,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	{
 		YY_BUFFER_STATE yybufstate;
 
-		while (fgets(inbuf, MAX_BUF - 3, (FILE *) fp))
+		while (fgets(inbuf, sizeof(inbuf) - 3, (FILE *) fp))
 		{
 			yybufstate = yy_scan_string(inbuf);
 			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);

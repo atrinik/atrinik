@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -34,7 +34,7 @@ static const char *const server_file_names[SERVER_FILES_MAX] =
 {
 	"skills", NULL, NULL, NULL, "bmaps",
 	"hfiles", "updates", "spells", "settings",
-	"anims"
+	"anims", "effects"
 };
 
 /** Identifiers of the server files used in the setup command. */
@@ -42,7 +42,7 @@ static const char *const server_file_setup_names[SERVER_FILES_MAX] =
 {
 	"skf", NULL, NULL, NULL, "bpf",
 	"hpf", "upf", "spfv2", "ssf",
-	"amfv2"
+	"amfv2", "eff"
 };
 
 /** Post-loading functions to call. */
@@ -50,7 +50,7 @@ static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
 	read_skills, NULL, NULL, NULL, read_bmaps,
 	read_help_files, file_updates_parse, read_spells, server_settings_init,
-	read_anims
+	read_anims, effects_init
 };
 
 /** Functions to call if the server file was already loaded. */
@@ -58,7 +58,7 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, spells_reload, NULL,
-	anims_reset
+	anims_reset, NULL
 };
 
 /** The server files. */
@@ -73,8 +73,9 @@ void server_files_init()
 
 /**
  * Load the server files. If they haven't changed since last load, no
- * loading will be done. */
-void server_files_load()
+ * loading will be done.
+ * @param post_load Unless 1, (re)parsing the server files will not be done. */
+void server_files_load(int post_load)
 {
 	size_t i;
 	FILE *fp;
@@ -91,7 +92,7 @@ void server_files_load()
 		}
 
 		/* Server file was loaded previously. */
-		if (server_files[i].loaded)
+		if (post_load && server_files[i].loaded)
 		{
 			if (server_file_funcs_reload[i])
 			{
@@ -124,12 +125,15 @@ void server_files_load()
 		free(contents);
 		fclose(fp);
 
-		/* Mark that we have loaded this file. */
-		server_files[i].loaded = 1;
-
-		if (server_file_funcs[i])
+		if (post_load)
 		{
-			server_file_funcs[i]();
+			/* Mark that we have loaded this file. */
+			server_files[i].loaded = 1;
+
+			if (server_file_funcs[i])
+			{
+				server_file_funcs[i]();
+			}
 		}
 	}
 }
@@ -242,7 +246,7 @@ void server_files_setup_add(char *buf, size_t buf_size)
 	char tmp[MAX_BUF];
 
 	/* Load up the files. */
-	server_files_load();
+	server_files_load(0);
 
 	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
@@ -290,4 +294,22 @@ int server_files_parse_setup(const char *cmd, const char *param)
 	}
 
 	return 0;
+}
+
+/**
+ * Clear update flag from all server files. */
+void server_files_clear_update()
+{
+	size_t i;
+
+	for (i = 0; i < SERVER_FILES_MAX; i++)
+	{
+		/* Invalid file. */
+		if (!server_file_setup_names[i])
+		{
+			continue;
+		}
+
+		server_files[i].update = 0;
+	}
 }

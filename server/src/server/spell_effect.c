@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -1461,7 +1461,6 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
  * @retval 1 An altar was consecrated. */
 int cast_consecrate(object *op)
 {
-	char buf[MAX_BUF];
 	object *tmp, *god = find_god(determine_god(op));
 
 	if (!god)
@@ -1486,18 +1485,41 @@ int cast_consecrate(object *op)
 				new_draw_info_format(NDI_UNIQUE, op, "You are not powerful enough to reconsecrate the %s.", tmp->name);
 				return 0;
 			}
+			else if (tmp->other_arch == god->arch)
+			{
+				new_draw_info_format(NDI_UNIQUE, op, "That altar is already consecrated to %s.", god->name);
+				return 0;
+			}
 			else
 			{
-				/* If we got here, we are consecrating an altar */
-				snprintf(buf, sizeof(buf), "%s of %s", tmp->arch->clone.name, god->name);
-				FREE_AND_COPY_HASH(tmp->name, buf);
-				tmp->level = SK_level(op);
-				tmp->other_arch = god->arch;
+				char buf[MAX_BUF], *cp;
+				object *new_altar;
 
-				if (op->type == PLAYER)
+				snprintf(buf, sizeof(buf), "altar_%s", god->name);
+
+				for (cp = buf; *cp != '\0'; cp++)
 				{
-					esrv_update_item(UPD_NAME, op, tmp);
+					*cp = tolower(*cp);
 				}
+
+				new_altar = get_archetype(buf);
+				new_altar->level = tmp->level;
+				new_altar->x = tmp->x;
+				new_altar->y = tmp->y;
+				new_altar->direction = tmp->direction;
+
+				if (QUERY_FLAG(new_altar, FLAG_IS_TURNABLE))
+				{
+					SET_ANIMATION(new_altar, (NUM_ANIMATIONS(new_altar) / NUM_FACINGS(new_altar)) * new_altar->direction);
+				}
+
+				if (QUERY_FLAG(tmp, FLAG_IS_BUILDABLE))
+				{
+					SET_FLAG(new_altar, FLAG_IS_BUILDABLE);
+				}
+
+				insert_ob_in_map(new_altar, tmp->map, NULL, 0);
+				remove_ob(tmp);
 
 				new_draw_info_format(NDI_UNIQUE, op, "You consecrated the altar to %s!", god->name);
 				return 1;

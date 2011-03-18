@@ -2,15 +2,18 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2010-08-29 Alex Tokar
+Modified: 2011-01-24 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 40
-darkness -1
+difficulty 20
+darkness 4
 no_harm 1
 tile_path_1 world_1_0736
 tile_path_2 world_1_0835
+tile_path_4 world_1_0635
+tile_path_5 world_1_0836
+tile_path_8 world_1_0636
 region asteria
 end
 arch magic_mirror
@@ -1242,6 +1245,11 @@ randomitems random_read
 end
 end
 arch floor_wood2_l1
+x 23
+y 16
+end
+arch lamp_wall
+direction 7
 x 23
 y 16
 end

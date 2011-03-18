@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -174,4 +174,26 @@ void browser_open(const char *url)
 #else
 	LOG(llevDebug, "browser_open(): Unknown platform, cannot open '%s'.\n", url);
 #endif
+}
+
+/**
+ * Calculates a random number between min and max.
+ *
+ * It is suggested one uses this function rather than RANDOM()%, as it
+ * would appear that a number of off-by-one-errors exist due to improper
+ * use of %.
+ *
+ * This should also prevent SIGFPE.
+ * @param min Starting range.
+ * @param max Ending range.
+ * @return The random number. */
+int rndm(int min, int max)
+{
+	if (max < 1 || max - min + 1 < 1)
+	{
+		LOG(llevBug, "BUG: Calling rndm() with min=%d max=%d\n", min, max);
+		return min;
+	}
+
+	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }

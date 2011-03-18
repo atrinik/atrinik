@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -561,9 +561,8 @@ int command_teleport(object *op, char *params)
 int command_create(object *op, char *params)
 {
 	object *tmp = NULL;
-	uint32 i;
 	int magic, set_magic = 0, set_nrof = 0, gotquote, gotspace;
-	uint32 nrof;
+	sint32 i, nrof;
 	char *cp, *bp, *bp2, *bp3, *bp4, *endline;
 	archetype *at;
 	artifact *art = NULL;
@@ -579,13 +578,15 @@ int command_create(object *op, char *params)
 	/* We need to know where the line ends */
 	endline = bp + strlen(bp);
 
-	if (sscanf(bp, "%u ", &nrof))
+	if (sscanf(bp, "%d ", &nrof))
 	{
 		if (!(bp = strchr(params, ' ')))
 		{
 			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
+
+		nrof = MAX(1, MIN(nrof, 1000));
 
 		bp++;
 		set_nrof = 1;
@@ -751,7 +752,7 @@ int command_create(object *op, char *params)
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s", tmp->name, tmp->count, bp2);
+			new_draw_info_format(NDI_UNIQUE, op, "(%s)->%s", tmp->name, bp2);
 		}
 
 		if (gotquote)
@@ -841,13 +842,18 @@ int command_create(object *op, char *params)
 				fix_monster(head);
 			}
 
-			insert_ob_in_map(head, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+			head = insert_ob_in_map(head, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
 		}
 		/* Into the DM's inventory otherwise. */
 		else
 		{
 			head = insert_ob_in_ob(head, op);
 			esrv_send_item(op, head);
+		}
+
+		if (!set_nrof || nrof == 1)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Created %s (#%d)", query_name(head, NULL), head->count);
 		}
 	}
 

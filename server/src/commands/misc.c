@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -186,13 +186,15 @@ void malloc_info(object *op)
 static void current_map_info(object *op)
 {
 	mapstruct *m = op->map;
+	MapSpace *msp;
 
 	if (!m)
 	{
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, x: %d, y: %d)", m->name, m->path, op->x, op->y);
+	msp = GET_MAP_SPACE_PTR(m, op->x, op->y);
+	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, %s, x: %d, y: %d)", msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->race ? msp->map_info->race : m->name, msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->slaying ? msp->map_info->slaying : (m->bg_music ? m->bg_music : "no_music"), m->path, op->x, op->y);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
@@ -319,7 +321,35 @@ int command_time(object *op, char *params)
  * @return 1. */
 int command_hiscore(object *op, char *params)
 {
-	hiscore_display(op, 25, params);
+	int results = 0;
+
+	if (params)
+	{
+		results = atoi(params);
+
+		/* If it was a number, don't bother using params to search in /hiscore. */
+		if (results != 0)
+		{
+			params = NULL;
+		}
+		else if (strlen(params) < PLAYER_NAME_MIN)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
+			return 1;
+		}
+	}
+
+	/* Add some limits. */
+	if (results <= 0)
+	{
+		results = 25;
+	}
+	else if (results > 50)
+	{
+		results = 50;
+	}
+
+	hiscore_display(op, results, params);
 	return 1;
 }
 
@@ -912,15 +942,15 @@ int command_statistics(object *op, char *params)
 /**
  * The /region_map command.
  * @param op Player.
- * @param params Parameters.
+ * @param params Optional region ID that will be shown as the region map
+ * instead of the player's map region. Only possible if the player is a
+ * DM or has region_map command permission.
  * @return 1. */
 int command_region_map(object *op, char *params)
 {
 	region *r;
 	SockList sl;
-	uint8 sock_buf[HUGE_BUF];
-
-	(void) params;
+	uint8 sock_buf[HUGE_BUF], params_check;
 
 	if (!op->map)
 	{
@@ -934,9 +964,37 @@ int command_region_map(object *op, char *params)
 		return 1;
 	}
 
+	/* Check if params were given and whether the player is allowed to
+	 * see map of any region they want. */
+	params_check = params && can_do_wiz_command(CONTR(op), "region_map");
+
+	if (params_check)
+	{
+		size_t params_len = strlen(params);
+
+		/* Search for the region the player wants. */
+		for (r = first_region; r; r = r->next)
+		{
+			if (!strncasecmp(r->name, params, params_len))
+			{
+				break;
+			}
+		}
+
+		if (!r)
+		{
+			new_draw_info(NDI_UNIQUE, op, "No such region.");
+			return 1;
+		}
+	}
+	else
+	{
+		r = op->map->region;
+	}
+
 	/* Try to find a region that should have had a client map
 	 * generated. */
-	for (r = op->map->region; r; r = r->parent)
+	for (; r; r = r->parent)
 	{
 		if (r->map_first)
 		{
@@ -946,7 +1004,15 @@ int command_region_map(object *op, char *params)
 
 	if (!r)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You cannot use that command here.");
+		if (params_check)
+		{
+			new_draw_info(NDI_UNIQUE, op, "That region doesn't have a map.");
+		}
+		else
+		{
+			new_draw_info(NDI_UNIQUE, op, "You cannot use that command here.");
+		}
+
 		return 1;
 	}
 

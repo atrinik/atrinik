@@ -227,12 +227,6 @@
 			<Option link="0" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="../../../src/include/player_shop.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="../../../src/include/plugin.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
@@ -599,10 +593,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="../../../src/server/player_shop.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="../../../src/server/plugins.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -809,6 +799,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="../../../src/types/map_info.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../../src/types/marker.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -890,6 +884,10 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="../../../src/skills/construction.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../../src/skills/inscription.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>

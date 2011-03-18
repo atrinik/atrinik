@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -368,6 +368,7 @@ enum
 	SRV_FILE_SPELLS_V2,
 	SRV_SERVER_SETTINGS,
 	SRV_CLIENT_ANIMS_V2,
+	SRV_CLIENT_EFFECTS,
 	/* last index */
 	SRV_CLIENT_FILES
 };
@@ -435,6 +436,7 @@ enum
 	BINARY_CMD_BOOK,
 	BINARY_CMD_PARTY,
 	BINARY_CMD_QUICKSLOT,
+	/** @deprecated. */
 	BINARY_CMD_SHOP,
 	BINARY_CMD_QLIST,
 	BINARY_CMD_REGION_MAP,

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -168,19 +168,6 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
-	else if (!strncmp(cmd, "/shop", 5))
-	{
-		if (!shop_gui)
-		{
-			initialize_shop(SHOP_STATE_NONE);
-		}
-		else
-		{
-			draw_info("You must close the shop window before trying to set up another shop.", COLOR_RED);
-		}
-
-		return 1;
-	}
 	else if (!strncmp(cmd, "/ignore", 7))
 	{
 		ignore_command(cmd + 7);
@@ -229,6 +216,31 @@ int client_command_check(char *cmd)
 			reset_widget(cmd);
 		}
 
+		return 1;
+	}
+	else if (!strncmp(cmd, "/effect ", 8))
+	{
+		if (!strcmp(cmd + 8, "none"))
+		{
+			effect_stop();
+			draw_info("Stopped effect.", COLOR_GREEN);
+			return 1;
+		}
+
+		if (effect_start(cmd + 8))
+		{
+			draw_info_format(COLOR_GREEN, "Started effect %s.", cmd + 8);
+		}
+		else
+		{
+			draw_info_format(COLOR_RED, "No such effect %s.", cmd + 8);
+		}
+
+		return 1;
+	}
+	else if (!strncmp(cmd, "/d_effect ", 10))
+	{
+		effect_debug(cmd + 10);
 		return 1;
 	}
 

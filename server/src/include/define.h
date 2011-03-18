@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -154,7 +154,7 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 152, 155, 151, 141, 107, 89, 61, 57, 45, 28,
+ * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57, 45, 28,
  * 46, 24.
  *@{*/
 /**
@@ -520,6 +520,9 @@
 /**
  * Identification altar. */
 #define IDENTIFY_ALTAR 139
+/**
+ * Map information object. */
+#define MAP_INFO 152
 /**
  * A swarm spell. */
 #define SWARM_SPELL 153
@@ -900,7 +903,7 @@
  * @defgroup flag_defines Flag defines
  * The object flags.
  *
- * Unused: 77, 78, 113, 128, 98, 81, 82, 104, 105, 106, 107, 108,
+ * Unused: 77, 78, 128, 98, 81, 82, 104, 105, 106, 107, 108,
  * 109, 96, 87, 88, 54, 53, 89, 79, 44, 23, 48.
  *
  * @note
@@ -1058,6 +1061,9 @@
  * Object can pass through objects with @ref FLAG_PASS_THRU set. */
 #define FLAG_CAN_PASS_THRU 47
 /**
+ * Outdoor tile. */
+#define FLAG_OUTDOOR 48
+/**
  * Item is unique. */
 #define FLAG_UNIQUE 49
 /**
@@ -1208,6 +1214,9 @@
  * Object hasn't been paid for yet. */
 #define FLAG_UNPAID 112
 /**
+ * The object cannot be seen even with @ref FLAG_SEE_INVISIBLE. */
+#define FLAG_HIDDEN 113
+/**
  * Makes the wearer invisible. */
 #define FLAG_MAKE_INVISIBLE 114
 /**
@@ -1274,10 +1283,6 @@
 /**
  * Don't save this object - remove it before we save. */
 #define FLAG_NO_SAVE 134
-/**
- * The object has player shop open and cannot do move actions (checked
- * for in move_player(), as this is for players only). */
-#define FLAG_PLAYER_SHOP 135
 /*@}*/
 
 /** Should always be equal to the last defined flag. */
@@ -1477,6 +1482,13 @@
 #define SockList_AddLen8Data(_sl_, _data_, _len_) \
 	SockList_AddChar((_sl_), (_len_)); \
 	SockList_AddData((_sl_), (_data_), (_len_))
+
+/**
+ * Same as SockList_AddString(), but removes the trailing \0 added by
+ * SockList_AddString(). */
+#define SockList_AddStringUnterm(_sl_, _data_) \
+	SockList_AddString((_sl_), (_data_)); \
+	(_sl_)->len--;
 
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */

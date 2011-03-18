@@ -2,7 +2,7 @@ arch map
 name Temple of Loki
 msg
 Created:  2010-05-11 Asa
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-02-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -265,14 +265,15 @@ y 18
 arch dragon_fire
 direction 4
 level 97
+dam 49
 attack_slash 100
 attack_cleave 0
 attack_fire 0
 can_cast_spell 1
 sp -1
-maxsp 80
+maxsp 20
 Pow 5
-path_attuned 2
+magic 3
 Dex 3
 protect_impact 15
 protect_slash 15
@@ -333,16 +334,13 @@ y 3
 arch demon_fire
 direction 4
 level 100
-other_arch lava golem
-splitting 1
 attack_cleave 0
 attack_fire 100
 can_cast_spell 1
 sp -1
-maxsp 80
+maxsp 20
 Pow 3
-path_attuned 2
-path_denied 4
+magic 4
 Dex 3
 protect_impact 15
 protect_slash 15
@@ -2953,14 +2951,15 @@ direction 5
 x 19
 y 16
 end
-arch blood_floor1
-x 19
-y 16
-end
-arch invis_exit
+arch exit
 msg
-Your surroundings suddenly change!
+You squeeze headfirst through the tiny portal.
 endmsg
+face portal_azure.101
+animation portal_azure
+z 30
+zoom 30
+align 15
 slaying tol_0201
 hp 22
 sp 22
@@ -3545,15 +3544,15 @@ direction 5
 x 23
 y 5
 end
-arch blood_floor1
-x 23
-y 5
-end
-arch invis_exit
+arch exit
 msg
-Your surroundings suddenly change!
+You squeeze headfirst through the tiny portal.
 endmsg
-slaying tol_0101
+face portal_red.101
+animation portal_red
+z 30
+zoom 30
+align 15
 hp 22
 sp 22
 x 23

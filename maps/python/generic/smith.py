@@ -46,8 +46,8 @@ def main():
 				me.CastIdentify(activator, IDENTIFY_MARKED, marked_object)
 			else:
 				if activator.PayAmount(costs["identify"]):
+					activator.Write("You pay {}.".format(CostString(costs["identify"])), 0)
 					me.SayTo(activator, "\nOk, I will identify the {0}.".format(marked_object.name))
-					activator.Write("You pay the money.", 0)
 					me.CastIdentify(activator, IDENTIFY_MARKED, marked_object)
 				else:
 					me.SayTo(activator, "\nSorry, you do not have enough money.")
@@ -59,8 +59,8 @@ def main():
 			me.CastIdentify(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 		else:
 			if activator.PayAmount(costs["identify_all"]):
+				activator.Write("You pay {}.".format(CostString(costs["identify_all"])), 0)
 				me.SayTo(activator, "\nOk, I will identify all your items.")
-				activator.Write("You pay the money.", 0)
 				me.CastIdentify(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
 			else:
 				me.SayTo(activator, "\nSorry, you do not have enough money.")

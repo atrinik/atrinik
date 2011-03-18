@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -253,7 +253,7 @@ void apply_player_light(object *who, object *op)
 			/* we are not in a player inventory - so simple turn it on */
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, who, "You prepare %s to light.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You light the %s.", query_name(op, NULL));
 
 				/* we have a non permanent source */
 				if (op->last_eat)

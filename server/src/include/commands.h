@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -55,8 +55,6 @@ extern const int CommandsSize, WizCommandsSize, CommunicationCommandSize;
  * @defgroup CMD_FLAG_xxx Command flags
  * Command flags used by CommArray_s::flags.
  *@{*/
-/** Don't allow the command to be used while in player shop. */
-#define CMD_FLAG_NO_PLAYER_SHOP 1
 /*@}*/
 
 /**
@@ -118,6 +116,11 @@ extern const int CommandsSize, WizCommandsSize, CommunicationCommandSize;
 #define EMOTE_CRINGE    53
 #define EMOTE_THINK     54
 #define EMOTE_ME        55
+#define EMOTE_STARE     56
+#define EMOTE_SNEER     57
+#define EMOTE_WINCE     58
+#define EMOTE_FACEPALM  59
+#define EMOTE_MY        60
 /*@}*/
 
 #endif

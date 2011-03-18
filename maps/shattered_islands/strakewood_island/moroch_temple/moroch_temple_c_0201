@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,6 +10,7 @@ difficulty 92
 darkness 2
 tile_path_1 moroch_temple_c_0202
 tile_path_4 moroch_temple_c_0101
+tile_path_8 moroch_temple_c_0102
 bg_music ghostly.ogg
 region moroch_temple
 end
@@ -175,11 +176,21 @@ arch floor_sblack3b
 x 1
 y 8
 end
+arch shelf3_dem3.111
+direction 7
+x 1
+y 8
+end
 arch floor_sblack2b
 x 1
 y 9
 end
 arch dirt_floor4
+x 1
+y 9
+end
+arch shelf3_dem2.111
+direction 7
 x 1
 y 9
 end
@@ -259,6 +270,10 @@ arch floor_sblack1b
 x 2
 y 8
 end
+arch bone_broken
+x 2
+y 8
+end
 arch floor_sblack3b
 x 2
 y 9
@@ -315,6 +330,10 @@ arch floor_sblack3b
 x 3
 y 1
 end
+arch bones1
+x 3
+y 1
+end
 arch floor_sblack3b
 x 3
 y 2
@@ -368,6 +387,14 @@ x 3
 y 14
 end
 arch floor_sblack3b
+x 3
+y 15
+end
+arch crystal_yellow
+x 3
+y 15
+end
+arch light5
 x 3
 y 15
 end
@@ -574,6 +601,10 @@ arch floor_sblack1b
 x 6
 y 6
 end
+arch shelf3_dem2.111
+x 6
+y 6
+end
 arch floor_sblack2b
 x 6
 y 7
@@ -591,6 +622,10 @@ x 6
 y 9
 end
 arch floor_sblack1b
+x 6
+y 10
+end
+arch table_lab1.111
 x 6
 y 10
 end
@@ -626,6 +661,10 @@ arch floor_sblack2b
 x 7
 y 8
 end
+arch pillar_black2c
+x 7
+y 8
+end
 arch floor_sblack3b
 x 7
 y 9
@@ -639,12 +678,17 @@ level 90
 random_move 1
 item_race 1
 item_level 1
-direction 7
+exp 119
+name demilich researcher
 arch ability_firestorm
 end
 end
 end
 arch floor_sblack2b
+x 7
+y 10
+end
+arch table_lab2.111
 x 7
 y 10
 end
@@ -680,11 +724,19 @@ arch floor_sblack2b
 x 8
 y 8
 end
+arch bones1
+x 8
+y 8
+end
 arch floor_sblack3b
 x 8
 y 9
 end
 arch floor_sblack3b
+x 8
+y 10
+end
+arch table_lab3.111
 x 8
 y 10
 end
@@ -705,6 +757,10 @@ x 9
 y 5
 end
 arch floor_sblack2b
+x 9
+y 6
+end
+arch chained_skel.111
 x 9
 y 6
 end
@@ -889,11 +945,30 @@ arch floor_sblack2b
 x 11
 y 2
 end
+arch shelf5_wall.111
+direction 7
+x 11
+y 2
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack1b
 x 11
 y 3
 end
+arch shelf_wall_dem1.111
+direction 7
+x 11
+y 3
+end
 arch floor_sblack3b
+x 11
+y 4
+end
+arch shelf_wall_dem3.111
+direction 7
 x 11
 y 4
 end
@@ -944,7 +1019,17 @@ arch floor_sblack2b
 x 11
 y 12
 end
+arch shelf3_wall.111
+direction 7
+x 11
+y 12
+end
 arch floor_sblack3b
+x 11
+y 13
+end
+arch shelf_wall_dem2.111
+direction 7
 x 11
 y 13
 end
@@ -975,12 +1060,21 @@ end
 arch fwall_fstone1a
 x 12
 end
-arch plant2_wall.151
-x 12
-end
 arch floor_sblack2b
 x 12
 y 1
+end
+arch shelf3b.111
+x 12
+y 1
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack1b
 x 12
@@ -1064,6 +1158,18 @@ end
 arch floor_sblack2b
 x 13
 y 1
+end
+arch shelf3c.111
+x 13
+y 1
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 13
@@ -1161,6 +1267,22 @@ arch floor_sblack2b
 x 14
 y 1
 end
+arch shelf3a.111
+x 14
+y 1
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack2b
 x 14
 y 2
@@ -1174,6 +1296,10 @@ x 14
 y 4
 end
 arch floor_sblack2b
+x 14
+y 5
+end
+arch pillar_black2c
 x 14
 y 5
 end
@@ -1198,6 +1324,10 @@ x 14
 y 10
 end
 arch floor_sblack2b
+x 14
+y 11
+end
+arch pillar_black2c
 x 14
 y 11
 end
@@ -1247,6 +1377,10 @@ arch floor_sblack1b
 x 15
 y 2
 end
+arch pool_ember
+x 15
+y 2
+end
 arch floor_sblack3b
 x 15
 y 3
@@ -1260,6 +1394,11 @@ x 15
 y 4
 end
 arch floor_sblack1b
+x 15
+y 5
+end
+arch torch_wall_1
+direction 7
 x 15
 y 5
 end
@@ -1281,6 +1420,7 @@ random_move 1
 item_race 3
 item_level 3
 direction 7
+name lom lobon scribe
 end
 end
 arch floor_sblack2b
@@ -1296,6 +1436,11 @@ x 15
 y 10
 end
 arch floor_sblack2b
+x 15
+y 11
+end
+arch torch_wall_1
+direction 7
 x 15
 y 11
 end
@@ -1330,6 +1475,10 @@ arch fwall_fstone1a
 x 16
 end
 arch floor_sblack2b
+x 16
+y 1
+end
+arch chest7_111
 x 16
 y 1
 end

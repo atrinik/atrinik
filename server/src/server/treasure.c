@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -421,7 +421,7 @@ void init_artifacts()
 	archetype *atemp;
 	long old_pos, file_pos;
 	FILE *fp;
-	char filename[MAX_BUF], buf[MAX_BUF], *cp, *next;
+	char filename[MAX_BUF], buf[HUGE_BUF], *cp, *next;
 	artifact *art = NULL;
 	linked_char *tmp;
 	int value, comp, none_flag = 0;
@@ -446,7 +446,7 @@ void init_artifacts()
 	}
 
 	/* Start read in the artifact list */
-	while (fgets(buf, MAX_BUF, fp) != NULL)
+	while (fgets(buf, sizeof(buf), fp) != NULL)
 	{
 		if (*buf == '#')
 		{
@@ -592,7 +592,7 @@ void init_artifacts()
 			 * copying it. */
 			lcount = 0;
 
-			while (fgets(buf, MAX_BUF - 3, fp))
+			while (fgets(buf, sizeof(buf) - 3, fp))
 			{
 				strcpy(buf_text + lcount, buf);
 				lcount += strlen(buf) + 1;
@@ -1383,7 +1383,14 @@ set_ring_bonus_jump1:
 		}
 		else if (RANDOM() & 2)
 		{
-			r = 10;
+			if (RANDOM() & 2)
+			{
+				r = 10;
+			}
+			else
+			{
+				r = 8;
+			}
 		}
 		else
 		{
@@ -1686,8 +1693,14 @@ make_prot_items:
 			else
 			{
 				/* Regenerate hit points */
-				op->stats.hp = 1;
+				op->stats.hp += bonus;
 				op->value = (int) ((float) op->value * 1.3f);
+
+				if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
+				{
+					op->value = (int) ((float) op->value * 1.3f);
+					op->stats.hp++;
+				}
 			}
 
 			break;
@@ -1701,9 +1714,29 @@ make_prot_items:
 			else
 			{
 				/* Regenerate spell points */
-				op->stats.sp = 1;
+				op->stats.sp += bonus;
 				op->value = (int) ((float) op->value * 1.35f);
+
+				if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
+				{
+					op->value = (int) ((float) op->value * 1.35f);
+					op->stats.sp++;
+				}
 			}
+
+			break;
+
+		case 22:
+			/* Regenerate grace */
+			op->stats.grace += bonus;
+			op->value = (int) ((float) op->value * 1.35f);
+
+			if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
+			{
+				op->value = (int) ((float) op->value * 1.35f);
+				op->stats.grace++;
+			}
+
 			break;
 
 		default:
@@ -1785,12 +1818,17 @@ static void set_ring_item_power(object *ob)
 
 	if (ob->stats.hp > 0)
 	{
-		ob->item_power++;
+		ob->item_power += ob->stats.hp;
 	}
 
 	if (ob->stats.sp > 0)
 	{
-		ob->item_power += 2;
+		ob->item_power += ob->stats.sp + 1;
+	}
+
+	if (ob->stats.grace > 0)
+	{
+		ob->item_power += ob->stats.grace + 2;
 	}
 
 	tmp = 0;
@@ -2145,6 +2183,8 @@ jump_break1:
 				 * and/or map level we found it on. */
 				if (!op->msg && !rndm_chance(10))
 				{
+					int level = 5;
+
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
 					{
@@ -2156,17 +2196,26 @@ jump_break1:
 
 						if (ob->map && ob->map->difficulty)
 						{
-							op->level = MIN(rndm(1, ob->map->difficulty) + rndm(0, 2), MAXLEVEL);
-						}
-						else
-						{
-							op->level = rndm(1, 20);
+							level = ob->map->difficulty;
 						}
 					}
 					else
 					{
-						op->level = rndm(1, creator->level);
+						level = creator->level;
 					}
+
+					level = (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100;
+
+					if (level < 1)
+					{
+						level = 1;
+					}
+					else if (level > MAXLEVEL)
+					{
+						level = MAXLEVEL;
+					}
+
+					op->level = level;
 
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					generate_artifact(op, 1, T_STYLE_UNSET, 100);

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -70,7 +70,6 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SHOP",            794,   0, 200, 320, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -560,6 +559,46 @@ void reset_widget(const char *name)
 			tmp->show = con_widget[tmp->WidgetTypeID].show;
 			WIDGET_REDRAW(tmp);
 		}
+	}
+}
+
+/**
+ * Ensures a single widget is on-screen.
+ * @param widget The widget. */
+static void widget_ensure_onscreen(widgetdata *widget)
+{
+	int dx = 0, dy = 0;
+
+	if (widget->x1 < 0)
+	{
+		dx = -widget->x1;
+	}
+	else if (widget->x1 + widget->wd > Screensize->x)
+	{
+		dx = Screensize->x - widget->wd - widget->x1;
+	}
+
+	if (widget->y1 < 0)
+	{
+		dy = -widget->y1;
+	}
+	else if (widget->y1 + widget->ht > Screensize->y)
+	{
+		dy = Screensize->y - widget->ht - widget->y1;
+	}
+
+	move_widget_rec(widget, dx, dy);
+}
+
+/**
+ * Ensures all widgets are on-screen. */
+void widgets_ensure_onscreen()
+{
+	widgetdata *tmp;
+
+	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	{
+		widget_ensure_onscreen(tmp);
 	}
 }
 
@@ -1450,6 +1489,12 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		/* we use the recursive version since we already have the outermost container */
 		move_widget_rec(widget, dx, dy);
 
+		/* Ensure widget is on-screen. */
+		if (!options.allow_widgets_offscreen)
+		{
+			widget_ensure_onscreen(widget);
+		}
+
 		map_udate_flag = 2;
 
 		return 1;
@@ -1747,10 +1792,6 @@ static void process_widget(widgetdata *widget)
 
 		case IN_NUMBER_ID:
 			widget_show_number(widget);
-			break;
-
-		case SHOP_ID:
-			widget_show_shop(widget);
 			break;
 
 		case FPS_ID:

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -189,7 +189,7 @@ void sound_play_effect(const char *filename, int volume)
 	char path[HUGE_BUF];
 
 	snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
-	sound_add_effect(path, volume, 0);
+	sound_add_effect(file_path(path, "r"), volume, 0);
 }
 
 /**
@@ -222,7 +222,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 	if (!tmp)
 	{
-		music = Mix_LoadMUS(path);
+		music = Mix_LoadMUS(file_path(path, "r"));
 
 		if (!music)
 		{

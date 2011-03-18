@@ -40,6 +40,12 @@
 "This skill is auto-used when the player reads something."
 "You get experience by reading unread books."
 " "
+"inscription"
+1 b sk_013.png
+"Allows writing content into books."
+" "
+" "
+" "
 "wizardry spells"
 2 a sk_032.png
 "This skill allows casting wizardry based spells using mana (spellpoints)."

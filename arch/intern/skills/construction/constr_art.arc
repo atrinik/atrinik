@@ -2,7 +2,7 @@ Object constr_art
 name art material
 type 10
 sub_type 3
-face constr_art.101
+face flag_04.u.151
 slaying flag_04
 layer 3
 value 5000
@@ -18,7 +18,7 @@ Object constr_art2
 name art material
 type 10
 sub_type 3
-face constr_art2.101
+face picture1.u.151
 slaying picture1.151
 layer 3
 value 5000
@@ -34,7 +34,7 @@ Object constr_art3
 name art material
 type 10
 sub_type 3
-face constr_art3.101
+face picture3.u.151
 slaying picture3.151
 layer 3
 value 5000
@@ -50,7 +50,7 @@ Object constr_art4
 name art material
 type 10
 sub_type 3
-face constr_art4.101
+face picture5.u.151
 slaying picture5.151
 layer 3
 value 5000
@@ -66,7 +66,7 @@ Object constr_art5
 name art material
 type 10
 sub_type 3
-face constr_art5.101
+face wmask_bflag_fire1.u.151
 slaying wmask_bflag_fire1_1
 layer 3
 value 5000

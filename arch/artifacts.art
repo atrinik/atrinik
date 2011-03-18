@@ -1558,6 +1558,99 @@ value 6000
 item_power 2
 end
 
+Allowed robe
+chance 20
+difficulty 20
+artifact robe_displacement
+def_arch robe
+Object
+title of Displacement
+type 87
+ac_add 2
+is_magical 1
+msg
+This robe blurs the vision of those trying to attack, making the wearer more difficult to hit.
+endmsg
+item_power 3
+item_level_art 10
+value 6000
+end
+
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_acid_proofing
+def_arch robe
+Object
+title of Acid Proofing
+type 87
+protect_acid 25
+face robe_black.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_warmth
+def_arch robe
+Object
+title of Warmth
+type 87
+protect_cold 20
+face robe_blue.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_insulation
+def_arch robe
+Object
+title of Insulation
+type 87
+protect_electricity 20
+face robe_white.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_asbestos
+def_arch robe
+Object
+title of Asbestos
+type 87
+protect_fire 20
+face robe_red.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+Allowed robe
+chance 25
+difficulty 7
+artifact robe_beguilement
+def_arch robe
+Object
+title of beguilement
+type 87
+Cha 2
+face cloak_darkred.101
+is_magical 1
+value 5500
+item_power 3
+end
+
 ################
 # Body armours #
 ################
@@ -1755,6 +1848,63 @@ value 9500
 item_power 1
 end
 
+Allowed all
+chance 15
+difficulty 35
+artifact armour_protection
+def_arch chain_mail
+Object
+title of protection
+type 16
+ac_add 2
+is_magical 1
+msg
+The quality of this superb armour is extreme; it gives much more protection than any made today.
+
+It is very old, probably from some lost civilization who had much better skills, but it doesn't look worn at all. It is obviously highly enchanted.
+endmsg
+item_level_art 35
+item_power 5
+value 11500
+end
+
+Allowed all
+chance 15
+difficulty 20
+artifact armour_berwean
+def_arch chain_mail
+Object
+title of Berwean
+type 16
+ac 0
+is_magical 1
+last_sp 0
+last_heal 0
+exp 1
+msg
+This armour is made of very light and expensive material. As a result you can move much faster in it, but it gives worse protection than normal armour.
+endmsg
+item_level_art 20
+value 14500
+end
+
+Allowed all
+chance 15
+difficulty 10
+artifact armour_irial
+def_arch chain_mail
+Object
+title of Irial
+type 16
+Cha 2
+is_magical 1
+msg
+This armour, which is of elven origin, is beautifully decorated with ancient emblems.
+endmsg
+item_power 1
+value 15500
+end
+
 ###########
 # Shields #
 ###########
@@ -1862,6 +2012,24 @@ is_magical 1
 protect_acid 15
 value 2400
 item_power 1
+end
+
+Allowed all
+chance 10
+difficulty 20
+artifact shield_deflection
+def_arch shield
+Object
+title of deflection
+type 33
+ac_add 1
+is_magical 1
+msg
+This highly enchanted shield is craftfully made to give more protection than usual.
+endmsg
+value 2400
+item_power 2
+item_level_art 20
 end
 
 ###########
@@ -2450,6 +2618,21 @@ endmsg
 item_power 2
 end
 
+Allowed all
+chance 5
+difficulty 14
+artifact helm_blindness
+def_arch helm_iron
+Object
+title of blindness
+type 34
+is_blind 1
+is_magical 1
+cursed 1
+item_power 1
+item_level_art 10
+end
+
 Allowed crown_generic
 chance 15
 difficulty 40
@@ -2457,6 +2640,7 @@ artifact crown_xebinon
 def_arch crown_generic
 Object
 title of Xebinon
+face crown2.101
 item_level_art 40
 item_skill 5
 type 34
@@ -2483,6 +2667,7 @@ artifact crown_magi
 def_arch crown_generic
 Object
 title of the Magi
+face crown_mage.101
 item_level_art 70
 item_skill 5
 type 34
@@ -2501,12 +2686,30 @@ artifact crown_lordliness
 def_arch crown_generic
 Object
 title of Lordliness
+face crown_dark.101
 item_level_art 10
 type 34
 is_magical 1
 value 1000
-Cha 2
+Cha 3
 item_power 1
+end
+
+Allowed crown_generic
+chance 25
+difficulty 30
+artifact crown_rulership
+def_arch crown_generic
+Object
+title of Rulership
+face crown_gold.101
+item_level_art 25
+type 34
+is_magical 1
+value 6400
+Cha 2
+Wis 1
+item_power 2
 end
 
 Allowed crown_generic
@@ -3084,6 +3287,44 @@ value 5000
 item_power 1
 end
 
+Allowed all
+chance 20
+difficulty 14
+artifact weapon_crolmi
+def_arch sword
+Object
+title of Crolmi
+attack_weaponmagic 5
+type 15
+is_magical 1
+Str 1
+msg
+This weapon shares with its owner a bit of the strength of Crolmi, the Dwarven Spirit of Rocks and Mountains.
+endmsg
+value 5000
+item_power 3
+item_level_art 10
+end
+
+Allowed all
+chance 14
+difficulty 14
+artifact weapon_rhyz
+def_arch sword
+Object
+title of Rhyz
+type 15
+is_magical 1
+Str 1
+Dex 1
+msg
+The Archmage Rhyz devised many items that increased the strength and dexterity of their owners.
+endmsg
+value 6000
+item_power 3
+item_level_art 10
+end
+
 #########
 # Rings #
 #########
@@ -3422,6 +3663,32 @@ msg
   cold and allows cold attacks.
   It also gives facility with cold
   spells and resists.
+endmsg
+item_power 10
+end
+
+Allowed ring_generic
+chance 40
+difficulty 26
+artifact ring_life
+def_arch ring_generic
+Object
+title of Life
+material 256
+item_level_art 26
+item_quality 100
+item_condition 100
+material_real 0
+face ring_mithril.101
+type 70
+is_magical 1
+value 225000
+protect_drain 30
+hp 2
+msg
+This semi-elemental ring is one of those made at the Guild of Magics by the powerful wizards who survived the ancient war of the elementals.
+
+The wielder is surrounded by a thin, almost invisible, globe of positive energy; which protects against life draining. It also grants an unnatural vitality.
 endmsg
 item_power 10
 end
@@ -3989,7 +4256,28 @@ protect_pierce 20
 protect_cleave 20
 type 39
 value 60000
+is_named 1
 item_power 4
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 25
+artifact amulet_melee_balance
+def_arch amulet_generic
+Object
+title of Melee Balance
+face amu_green.101
+is_magical 1
+wc 2
+ac 2
+type 39
+value 35000
+item_power 5
+item_level_art 25
+item_condition 100
+item_quality 100
+is_named 1
 end
 
 Allowed amulet_generic
@@ -4006,6 +4294,9 @@ value 0
 cursed 1
 cursed_perm 1
 protect_weaponmagic -100
+item_condition 100
+item_quality 100
+is_named 1
 item_power 1
 end
 
@@ -4031,6 +4322,9 @@ protect_fire -100
 protect_electricity -100
 protect_cold -100
 protect_acid -100
+item_condition 100
+item_quality 100
+is_named 1
 item_power 1
 end
 
@@ -4050,6 +4344,182 @@ item_condition 100
 item_quality 100
 is_named 1
 item_power 4
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 38
+artifact amulet_deflection
+def_arch amulet_generic
+Object
+title of Deflection
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+ac 1
+protect_impact 10
+protect_slash 10
+protect_pierce 10
+protect_cleave 10
+reflect_missile 1
+value 41500
+item_quality 85
+item_condition 85
+is_named 1
+item_power 5
+item_level 38
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 42
+artifact amulet_empowerment
+def_arch amulet_generic
+Object
+title of Empowerment
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+sp 1
+Int 1
+value 38500
+item_quality 100
+item_condition 100
+is_named 1
+item_power 4
+item_level 42
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 72
+artifact amulet_power
+def_arch amulet_generic
+Object
+title of Power
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+sp 3
+Pow 1
+Int 1
+value 47800
+item_quality 100
+item_condition 100
+is_named 1
+item_power 10
+item_level 72
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 56
+artifact amulet_shielded_mind
+def_arch amulet_generic
+Object
+title of Shielded Mind
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+protect_confusion 35
+protect_paralyze 35
+protect_mind 20
+value 34500
+item_quality 90
+item_condition 90
+is_named 1
+item_power 14
+item_level 56
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 38
+artifact amulet_free_action
+def_arch amulet_generic
+Object
+title of Free Action
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+protect_confusion 15
+protect_paralyze 20
+protect_slow 35
+value 34500
+item_quality 90
+item_condition 90
+is_named 1
+item_power 7
+item_level 38
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 24
+artifact amulet_holiness
+def_arch amulet_generic
+Object
+title of Holiness
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+Wis 2
+value 26000
+path_attuned 385
+item_quality 100
+item_condition 100
+is_named 1
+item_power 4
+item_level 24
+item_skill 6
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 24
+artifact amulet_magi
+def_arch amulet_generic
+Object
+title of the Magi
+face amulet_lif.101
+is_magical 1
+type 39
+material 256
+Int 1
+Pow 2
+value 28000
+item_quality 100
+item_condition 100
+is_named 1
+item_power 5
+item_level 24
+item_skill 5
+end
+
+Allowed amulet_generic
+chance 13
+difficulty 24
+artifact amulet_unholiness
+def_arch amulet_generic
+Object
+title of Unholiness
+face amulet_lif.101
+is_magical 1
+type 39
+value 8500
+item_quality 100
+item_condition 100
+is_named 1
+path_repelled 257
+path_attuned 192
+damned 1
+cursed 1
 end
 
 ########
@@ -4203,6 +4673,31 @@ type 6
 grace 57
 is_magical 1
 value 400
+end
+
+Allowed waybread
+chance 100
+difficulty 24
+artifact waybread_aelingas
+def_arch waybread
+Object
+title of Aelingas
+type 6
+Str 1
+Con 1
+is_magical 1
+value 980
+end
+
+Allowed drink_generic
+chance 90
+artifact drink_generic_wise
+def_arch drink_generic
+Object
+title of the wise
+type 54
+food 75
+value 200
 end
 
 ###########
@@ -4933,5 +5428,106 @@ item_power 2
 item_level 10
 msg
 This ring has been enchanted to slow down its wearer's food consumption.
+endmsg
+end
+
+Allowed none
+chance 1
+artifact mana_crystal_25
+def_arch power_crystal
+Object
+name mana crystal
+title (25 sp)
+maxsp 25
+value 25000
+weight 500
+end
+
+Allowed none
+chance 1
+artifact mana_crystal_50
+def_arch power_crystal
+Object
+name mana crystal
+title (50 sp)
+maxsp 50
+value 50000
+weight 500
+end
+
+Allowed none
+chance 1
+artifact mana_crystal_100
+def_arch power_crystal
+Object
+name mana crystal
+title (100 sp)
+maxsp 100
+value 100000
+weight 500
+end
+
+Allowed none
+chance 1
+artifact cloak_underworld
+def_arch cloak
+Object
+title of the Underworld
+face cloak_darkgrey.101
+is_magical 1
+is_named 1
+item_quality 85
+item_condition 85
+protect_confusion 45
+protect_paralyze 20
+protect_acid 20
+protect_drain 20
+protect_poison 10
+protect_fire -50
+protect_godpower -10
+protect_electricity -15
+protect_impact 3
+protect_slash 3
+protect_cleave 3
+protect_pierce 3
+# Leather, magic material
+material 264
+ac 0
+Cha -6
+Str -1
+Con -4
+# Hunger +1
+food -1
+msg
+This curious cloak looks old and weathered, but as soon as you touch it you can feel its magics.
+
+It seems to protect its wearer from many elements, but also leaves them very vulnerable to fire. With so many protections, it's no wonder it feeds off its wearer.
+endmsg
+item_power 15
+value 16500
+item_level 48
+end
+
+Allowed none
+chance 1
+artifact skeletal_dragon_bone_young
+def_arch bone_broken
+Object
+name bone of a young skeletal dragon
+is_named 1
+item_quality 100
+item_condition 100
+nrof 1
+can_stack 1
+identified 1
+quest_item 1
+layer 3
+no_pick 0
+weight 500
+value 1500
+msg
+A perfect bone taken from a young skeletal dragon.
+
+It may have some interesting alchemical properties.
 endmsg
 end

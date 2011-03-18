@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -577,7 +577,7 @@ static void popup_draw_func(popup_struct *popup)
 	bltfx.alpha = 0;
 
 	/* Downloading the files, or updates haven't finished yet? */
-	downloading = GameStatus <= GAME_STATUS_REQUEST_FILES || !file_updates_finished();
+	downloading = GameStatus < GAME_STATUS_LOGIN || !file_updates_finished();
 
 	/* Show the progress dots. */
 	for (i = 0; i < LOGIN_PROGRESS_DOTS; i++)
@@ -976,6 +976,14 @@ void show_meta_server()
 	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
 	{
 		list_handle_enter(list_exists(LIST_SERVERS));
+	}
+
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 35, "Refresh", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	{
+		if (!ms_connecting(-1))
+		{
+			GameStatus = GAME_STATUS_META;
+		}
 	}
 
 	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))

@@ -2,13 +2,10 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-25 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-reset_timeout 7200
 difficulty 1
 darkness 1
 no_harm 1
@@ -20,17 +17,22 @@ tile_path_8 world_a_0737
 region asteria_palace_dungeon
 end
 arch floor_fs_grey1b
+z 50
 end
 arch floor_fs_grey1b
+z 50
 y 1
 end
 arch floor_fs_grey1b
+z 50
 y 2
 end
 arch floor_fs_grey1b
+z 50
 y 3
 end
 arch floor_fs_grey1b
+z 50
 y 4
 end
 arch torch_wall_1
@@ -38,15 +40,19 @@ direction 7
 y 4
 end
 arch floor_fs_grey1b
+z 50
 y 5
 end
 arch floor_fs_grey1b
+z 50
 y 6
 end
 arch floor_fs_grey1b
+z 50
 y 7
 end
 arch floor_fs_grey1b
+z 50
 y 8
 end
 arch torch_wall_1
@@ -54,101 +60,123 @@ direction 7
 y 8
 end
 arch floor_fs_grey1b
+z 50
 y 9
 end
 arch floor_fs_grey1b
+z 50
 y 10
 end
 arch floor_fs_grey1b
+z 50
 y 11
 end
 arch door1_locked
-last_sp -1
 y 11
 end
 arch floor_fs_grey1b
+z 50
 y 12
 end
 arch floor_fs_grey1b
+z 50
 y 13
 end
 arch floor_fs_grey1b
+z 50
 y 14
 end
 arch floor_fs_grey1b
+z 50
 y 15
 end
 arch grain4.101
 y 15
 end
 arch floor_fs_grey1b
+z 50
 y 16
 end
 arch grain4.101
 y 16
 end
 arch floor_fs_grey1b
+z 50
 y 17
 end
 arch grain1.101
 y 17
 end
 arch floor_fs_grey1b
+z 50
 y 18
 end
 arch grain2.101
 y 18
 end
 arch floor_fs_grey1b
+z 50
 y 19
 end
 arch wall_dungeon_1
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 1
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 11
 end
@@ -157,6 +185,7 @@ x 1
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 12
 end
@@ -165,6 +194,7 @@ x 1
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 13
 end
@@ -173,10 +203,12 @@ x 1
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 15
 end
@@ -185,6 +217,7 @@ x 1
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 16
 end
@@ -193,6 +226,7 @@ x 1
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 17
 end
@@ -201,6 +235,7 @@ x 1
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 18
 end
@@ -209,6 +244,7 @@ x 1
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 19
 end
@@ -217,12 +253,14 @@ x 1
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 2
 end
 arch wall_dungeon_3
 x 2
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 1
 end
@@ -231,6 +269,7 @@ x 2
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 2
 end
@@ -239,6 +278,7 @@ x 2
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 3
 end
@@ -247,6 +287,7 @@ x 2
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 4
 end
@@ -255,6 +296,7 @@ x 2
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 5
 end
@@ -263,6 +305,7 @@ x 2
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 6
 end
@@ -271,6 +314,7 @@ x 2
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 7
 end
@@ -279,6 +323,7 @@ x 2
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 8
 end
@@ -287,6 +332,7 @@ x 2
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 9
 end
@@ -295,6 +341,7 @@ x 2
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 10
 end
@@ -303,6 +350,7 @@ x 2
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 11
 end
@@ -311,6 +359,7 @@ x 2
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 12
 end
@@ -319,6 +368,7 @@ x 2
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 13
 end
@@ -327,6 +377,7 @@ x 2
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 14
 end
@@ -335,6 +386,7 @@ x 2
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 15
 end
@@ -343,6 +395,7 @@ x 2
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 16
 end
@@ -351,6 +404,7 @@ x 2
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 17
 end
@@ -359,6 +413,7 @@ x 2
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 18
 end
@@ -367,6 +422,7 @@ x 2
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 19
 end

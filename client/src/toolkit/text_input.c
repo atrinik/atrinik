@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -51,6 +51,8 @@ int text_input_string_flag;
 int text_input_string_end_flag;
 /** If 1, ESC was pressed while entering some text to console. */
 int text_input_string_esc_flag;
+/** When the console was opened. */
+uint32 text_input_opened;
 
 /**
  * Calculate X offset for centering a text input bitmap.
@@ -208,6 +210,7 @@ void text_input_open(int maxchar)
 	}
 
 	text_input_string_flag = 1;
+	text_input_opened = SDL_GetTicks();
 }
 
 /**

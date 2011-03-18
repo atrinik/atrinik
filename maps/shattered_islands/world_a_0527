@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2010-11-23 Alex Tokar
+Modified: 2011-02-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -218,6 +218,7 @@ y 10
 end
 arch altar_grunhilde
 direction 7
+xrays 1
 x 3
 y 10
 end

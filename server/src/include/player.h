@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -227,6 +227,15 @@ typedef struct pl_player
 
 	/** DM command permissions. */
 	char **cmd_permissions;
+
+	/** Last map info name sent. */
+	char map_info_name[HUGE_BUF];
+
+	/** Last map info music sent. */
+	char map_info_music[HUGE_BUF];
+
+	/** Last map info weather sent. */
+	char map_info_weather[MAX_BUF];
 
 	/**
 	 * Last sent map. */
@@ -469,6 +478,15 @@ typedef struct pl_player
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;
 
+	/** Remainder for HP regen. */
+	uint16 gen_hp_remainder;
+
+	/** Remainder for mana regen. */
+	uint16 gen_sp_remainder;
+
+	/** Remainder for grace regen. */
+	uint16 gen_grace_remainder;
+
 	/** Regeneration speed of HP. */
 	uint16 gen_client_hp;
 
@@ -531,11 +549,6 @@ typedef struct pl_player
 	/** Last stats sent to the client. */
 	living last_stats;
 
-	/**
-	 * Player shop structure, with linked list of items the player is
-	 * selling. */
-	player_shop *shop_items;
-
 	/** Pointer to the party this player is member of. */
 	party_struct *party;
 
@@ -545,6 +558,12 @@ typedef struct pl_player
 	/** End of the movement path queue. */
 	player_path *move_path_end;
 } player;
+
+/** Minimum length a player name must have. */
+#define PLAYER_NAME_MIN 2
+
+/** Maximum length a player name can have. */
+#define PLAYER_NAME_MAX 12
 
 #ifdef WIN32
 #pragma pack(pop)

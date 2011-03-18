@@ -27,7 +27,6 @@ pinfo = activator.GetPlayerInfo(apartment_tag)
 
 ## Function to upgrade an old apartment to a new one.
 def upgrade_apartment(ap_old, ap_new, pid, x, y):
-	activator.Write("You pay the money.", 0)
 	activator.Write("{0} is casting some strange magic.".format(me.name), 0)
 
 	if not activator.Controller().SwapApartments(ap_old, ap_new, x, y):
@@ -121,6 +120,7 @@ elif msg == "yes, i do":
 			old_apartment = apartments[pinfo.slaying]["path"]
 
 			if activator.PayAmount(apartment_info["price"]):
+				activator.Write("You pay {}.".format(CostString(apartment_info["price"])), 0)
 				upgrade_apartment(old_apartment, apartment_info["path"], apartments_info[apartment_id]["apartment_ids"][pinfo.last_heal], apartment_info["x"], apartment_info["y"])
 			else:
 				me.SayTo(activator, "\nSorry, you don't have enough money.")
@@ -147,7 +147,7 @@ elif text[0] == "sell" and text[1] == "me" and text[2] in apartments and text[3]
 		apartment_info = apartments[text[2]]
 
 		if activator.PayAmount(apartment_info["price"]):
-			activator.Write("You pay the money.", 0)
+			activator.Write("You pay {}.".format(CostString(apartment_info["price"])), 0)
 			pinfo = activator.CreatePlayerInfo(apartment_tag)
 			pinfo.slaying = text[2]
 

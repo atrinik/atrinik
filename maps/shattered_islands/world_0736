@@ -1,8 +1,8 @@
 arch map
-name Asteria
+name Asteria Palace
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-11-09 Alex Tokar
+Modified: 2011-02-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,7 +17,7 @@ tile_path_5 world_0837
 tile_path_6 world_0835
 tile_path_7 world_0635
 tile_path_8 world_0637
-bg_music rainthunder.ogg
+bg_music kaitindam.mid
 region asteria
 end
 arch floor_red1
@@ -410,9 +410,11 @@ z 50
 x 2
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 2
+y 21
+end
+arch light7
 x 2
 y 21
 end
@@ -570,6 +572,7 @@ z 50
 x 4
 end
 arch wall_dungeon_3
+layer 3
 x 4
 end
 arch floor_fs_grey1b
@@ -578,6 +581,7 @@ x 4
 y 1
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 1
 end
@@ -587,6 +591,7 @@ x 4
 y 2
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 2
 end
@@ -596,6 +601,7 @@ x 4
 y 3
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 3
 end
@@ -605,6 +611,7 @@ x 4
 y 4
 end
 arch wall_dungeon_4
+layer 3
 x 4
 y 4
 end
@@ -629,6 +636,7 @@ x 4
 y 6
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 6
 end
@@ -643,6 +651,7 @@ x 4
 y 7
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 7
 end
@@ -652,6 +661,7 @@ x 4
 y 8
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 8
 end
@@ -661,6 +671,7 @@ x 4
 y 9
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 9
 end
@@ -670,6 +681,7 @@ x 4
 y 10
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 10
 end
@@ -679,6 +691,7 @@ x 4
 y 11
 end
 arch wall_dungeon_3
+layer 3
 x 4
 y 11
 end
@@ -1163,14 +1176,6 @@ z 50
 x 7
 y 10
 end
-arch stairs_stone_up
-direction 7
-slaying world_1_0736
-hp 7
-sp 10
-x 7
-y 10
-end
 arch floor_fs_grey1b
 z 50
 x 7
@@ -1200,11 +1205,12 @@ z 50
 x 7
 y 15
 end
-arch stairs_stone_up
-direction 7
+arch stairs_spiral_stone_up
 slaying world_1_0736
 hp 7
 sp 15
+z 6
+align 4
 x 7
 y 15
 end
@@ -1246,9 +1252,11 @@ z 50
 x 7
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 7
+y 21
+end
+arch light7
 x 7
 y 21
 end
@@ -1275,7 +1283,7 @@ z 50
 x 8
 y 1
 end
-arch pillar_white1d
+arch pillar_white1b
 x 8
 y 1
 end
@@ -1322,7 +1330,7 @@ z 50
 x 8
 y 7
 end
-arch pillar_white1d
+arch pillar_white1b
 x 8
 y 7
 end
@@ -1351,7 +1359,12 @@ z 50
 x 8
 y 12
 end
-arch pillar_white1d
+arch stairs_spiral_stone_up
+slaying world_1_0736
+hp 8
+sp 12
+z 6
+align 4
 x 8
 y 12
 end
@@ -1454,6 +1467,11 @@ arch carpet1.131
 x 9
 y 1
 end
+arch torch_wall_1
+direction 7
+x 9
+y 1
+end
 arch floor_fs_grey1b
 z 50
 x 9
@@ -1501,6 +1519,11 @@ x 9
 y 7
 end
 arch carpet1.131
+x 9
+y 7
+end
+arch torch_wall_1
+direction 7
 x 9
 y 7
 end
@@ -1555,6 +1578,8 @@ x 9
 y 13
 end
 arch potted_plant4
+z -6
+align -6
 x 9
 y 13
 end
@@ -2330,12 +2355,16 @@ z 50
 x 14
 y 1
 end
-arch pillar_white1d
+arch pillar_white1b
 x 14
 y 1
 end
 arch floor_fs_grey1b
 z 50
+x 14
+y 2
+end
+arch torch_wall_1
 x 14
 y 2
 end
@@ -2377,12 +2406,16 @@ z 50
 x 14
 y 7
 end
-arch pillar_white1d
+arch pillar_white1b
 x 14
 y 7
 end
 arch floor_fs_grey1b
 z 50
+x 14
+y 8
+end
+arch torch_wall_1
 x 14
 y 8
 end
@@ -2406,7 +2439,12 @@ z 50
 x 14
 y 12
 end
-arch pillar_white1d
+arch stairs_spiral_stone_up
+slaying world_1_0736
+hp 14
+sp 12
+z 6
+align 4
 x 14
 y 12
 end
@@ -2581,10 +2619,12 @@ z 50
 x 15
 y 15
 end
-arch stairs_stone_up
+arch stairs_spiral_stone_up
 slaying world_1_0736
 hp 15
 sp 15
+z 6
+align 4
 x 15
 y 15
 end
@@ -2626,9 +2666,11 @@ z 50
 x 15
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 15
+y 21
+end
+arch light7
 x 15
 y 21
 end
@@ -3494,9 +3536,11 @@ z 50
 x 20
 y 21
 end
-arch lantern_magic.131
-glow_radius 7
-direction 3
+arch lantern_black
+x 20
+y 21
+end
+arch light7
 x 20
 y 21
 end

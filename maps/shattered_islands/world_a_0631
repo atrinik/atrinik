@@ -2,12 +2,10 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2010-09-08 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
 difficulty 40
 darkness 1
 no_harm 1

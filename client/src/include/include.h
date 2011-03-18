@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -90,6 +90,9 @@ typedef signed char sint8;
 #	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+#define RANDOM() rand()
+#define SRANDOM(xyz) srand(xyz)
+
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 
 #include <SDL_mixer.h>
@@ -171,6 +174,7 @@ typedef enum LogLevel
 #include <sdlsocket.h>
 #include <commands.h>
 #include <main.h>
+#include <effects.h>
 #include <sprite.h>
 #include <widget.h>
 #include <textwin.h>
@@ -181,7 +185,6 @@ typedef enum LogLevel
 #include <ignore.h>
 #include <sound.h>
 #include <map.h>
-#include <player_shop.h>
 #include <scripts.h>
 #include <inventory.h>
 #include <menu.h>

@@ -1,15 +1,10 @@
 arch map
 name Asteria Palace Dungeon
 msg
-Creator: Daimonin Map Editor
-Date:    6/9/2004
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-reset_timeout 7200
 difficulty 25
 darkness 1
 no_harm 1
@@ -23,122 +18,141 @@ tile_path_8 world_a_0637
 region asteria_palace_dungeon
 end
 arch floor_fs_grey1b
+z 50
 end
 arch wall_dungeon_3
 end
 arch floor_fs_grey1b
+z 50
 y 1
 end
 arch wall_dungeon_3
 y 1
 end
 arch floor_fs_grey1b
+z 50
 y 2
 end
 arch wall_dungeon_3
 y 2
 end
 arch floor_fs_grey1b
+z 50
 y 3
 end
 arch wall_dungeon_3
 y 3
 end
 arch floor_fs_grey1b
+z 50
 y 4
 end
 arch wall_dungeon_3
 y 4
 end
 arch floor_fs_grey1b
+z 50
 y 5
 end
 arch wall_dungeon_3
 y 5
 end
 arch floor_fs_grey1b
+z 50
 y 6
 end
 arch wall_dungeon_3
 y 6
 end
 arch floor_fs_grey1b
+z 50
 y 7
 end
 arch wall_dungeon_3
 y 7
 end
 arch floor_fs_grey1b
+z 50
 y 8
 end
 arch wall_dungeon_3
 y 8
 end
 arch floor_fs_grey1b
+z 50
 y 9
 end
 arch wall_dungeon_3
 y 9
 end
 arch floor_fs_grey1b
+z 50
 y 10
 end
 arch wall_dungeon_3
 y 10
 end
 arch floor_fs_grey1b
+z 50
 y 11
 end
 arch wall_dungeon_4
 y 11
 end
 arch floor_fs_grey1b
+z 50
 y 12
 end
 arch floor_fs_grey1b
+z 50
 y 13
 end
 arch floor_fs_grey1b
+z 50
 y 14
 end
 arch floor_fs_grey1b
+z 50
 y 15
 end
 arch floor_fs_grey1b
+z 50
 y 16
 end
 arch floor_fs_grey1b
+z 50
 y 17
 end
 arch floor_fs_grey1b
+z 50
 y 18
 end
 arch floor_fs_grey1b
+z 50
 y 19
 end
 arch wall_dungeon_1
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 1
 end
 arch torch_wall_1
-face torch_wall.113
-speed_left -0.491763
-state 2
-glow_radius 5
-is_animated 1
 x 1
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 3
 end
@@ -148,22 +162,27 @@ x 1
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 8
 end
@@ -173,14 +192,17 @@ x 1
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 11
 end
@@ -189,6 +211,7 @@ x 1
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 12
 end
@@ -197,6 +220,7 @@ x 1
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 13
 end
@@ -205,6 +229,7 @@ x 1
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 14
 end
@@ -213,6 +238,7 @@ x 1
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 15
 end
@@ -224,6 +250,7 @@ x 1
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 16
 end
@@ -232,6 +259,7 @@ x 1
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 17
 end
@@ -240,6 +268,7 @@ x 1
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 18
 end
@@ -248,6 +277,7 @@ x 1
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 1
 y 19
 end
@@ -256,49 +286,61 @@ x 1
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 2
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 11
 end
@@ -307,6 +349,7 @@ x 2
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 12
 end
@@ -315,6 +358,7 @@ x 2
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 13
 end
@@ -323,6 +367,7 @@ x 2
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 14
 end
@@ -331,10 +376,12 @@ x 2
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 16
 end
@@ -343,6 +390,7 @@ x 2
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 17
 end
@@ -356,6 +404,7 @@ x 2
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 18
 end
@@ -364,6 +413,7 @@ x 2
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 2
 y 19
 end
@@ -372,13 +422,16 @@ x 2
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 3
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 2
 end
@@ -387,6 +440,7 @@ x 3
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 3
 end
@@ -395,6 +449,7 @@ x 3
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 4
 end
@@ -403,6 +458,7 @@ x 3
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 5
 end
@@ -411,6 +467,7 @@ x 3
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 6
 end
@@ -419,6 +476,7 @@ x 3
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 7
 end
@@ -427,6 +485,7 @@ x 3
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 8
 end
@@ -435,14 +494,17 @@ x 3
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 11
 end
@@ -451,6 +513,7 @@ x 3
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 12
 end
@@ -459,10 +522,12 @@ x 3
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 14
 end
@@ -471,10 +536,12 @@ x 3
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 16
 end
@@ -483,10 +550,12 @@ x 3
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 18
 end
@@ -495,6 +564,7 @@ x 3
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 3
 y 19
 end
@@ -503,13 +573,16 @@ x 3
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 4
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 2
 end
@@ -518,26 +591,32 @@ x 4
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 8
 end
@@ -546,14 +625,17 @@ x 4
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 11
 end
@@ -562,6 +644,7 @@ x 4
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 12
 end
@@ -570,30 +653,37 @@ x 4
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 4
 y 19
 end
@@ -602,13 +692,16 @@ x 4
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 5
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 2
 end
@@ -617,26 +710,32 @@ x 5
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 8
 end
@@ -645,22 +744,21 @@ x 5
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 9
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.011766
-glow_radius 5
-is_animated 1
 x 5
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 11
 end
@@ -669,6 +767,7 @@ x 5
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 12
 end
@@ -677,6 +776,7 @@ x 5
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 13
 end
@@ -685,6 +785,7 @@ x 5
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 14
 end
@@ -693,10 +794,12 @@ x 5
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 16
 end
@@ -705,6 +808,7 @@ x 5
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 17
 end
@@ -713,6 +817,7 @@ x 5
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 18
 end
@@ -721,6 +826,7 @@ x 5
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 5
 y 19
 end
@@ -729,13 +835,16 @@ x 5
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 6
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 2
 end
@@ -744,26 +853,32 @@ x 6
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 8
 end
@@ -772,14 +887,17 @@ x 6
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 11
 end
@@ -788,6 +906,7 @@ x 6
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 12
 end
@@ -796,10 +915,12 @@ x 6
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 14
 end
@@ -808,10 +929,12 @@ x 6
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 16
 end
@@ -820,10 +943,12 @@ x 6
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 18
 end
@@ -832,6 +957,7 @@ x 6
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 6
 y 19
 end
@@ -840,21 +966,19 @@ x 6
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 7
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.311764
-state 3
-glow_radius 5
-is_animated 1
 x 7
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 2
 end
@@ -863,26 +987,32 @@ x 7
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 8
 end
@@ -891,14 +1021,17 @@ x 7
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 11
 end
@@ -907,6 +1040,7 @@ x 7
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 12
 end
@@ -915,30 +1049,37 @@ x 7
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 7
 y 19
 end
@@ -947,13 +1088,16 @@ x 7
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 8
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 2
 end
@@ -962,26 +1106,32 @@ x 8
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 8
 end
@@ -990,14 +1140,17 @@ x 8
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 11
 end
@@ -1006,6 +1159,7 @@ x 8
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 12
 end
@@ -1014,6 +1168,7 @@ x 8
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 13
 end
@@ -1022,6 +1177,7 @@ x 8
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 14
 end
@@ -1030,10 +1186,12 @@ x 8
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 16
 end
@@ -1042,6 +1200,7 @@ x 8
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 17
 end
@@ -1050,6 +1209,7 @@ x 8
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 18
 end
@@ -1058,6 +1218,7 @@ x 8
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 8
 y 19
 end
@@ -1066,13 +1227,16 @@ x 8
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 9
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 2
 end
@@ -1081,26 +1245,32 @@ x 9
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 8
 end
@@ -1109,14 +1279,17 @@ x 9
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 11
 end
@@ -1125,6 +1298,7 @@ x 9
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 12
 end
@@ -1133,10 +1307,12 @@ x 9
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 14
 end
@@ -1145,10 +1321,12 @@ x 9
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 16
 end
@@ -1157,10 +1335,12 @@ x 9
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 18
 end
@@ -1169,6 +1349,7 @@ x 9
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 9
 y 19
 end
@@ -1177,6 +1358,7 @@ x 9
 y 19
 end
 arch floor_stone_b1
+z 50
 x 9
 y 20
 end
@@ -1185,6 +1367,7 @@ x 9
 y 20
 end
 arch floor_stone_b1
+z 50
 x 9
 y 21
 end
@@ -1193,6 +1376,7 @@ x 9
 y 21
 end
 arch floor_stone_b1
+z 50
 x 9
 y 22
 end
@@ -1201,6 +1385,7 @@ x 9
 y 22
 end
 arch floor_stone_b1
+z 50
 x 9
 y 23
 end
@@ -1209,13 +1394,16 @@ x 9
 y 23
 end
 arch floor_fs_grey1b
+z 50
 x 10
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 2
 end
@@ -1224,26 +1412,32 @@ x 10
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 8
 end
@@ -1252,22 +1446,21 @@ x 10
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 9
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.591764
-glow_radius 5
-is_animated 1
 x 10
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 11
 end
@@ -1276,6 +1469,7 @@ x 10
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 12
 end
@@ -1284,6 +1478,7 @@ x 10
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 13
 end
@@ -1292,6 +1487,7 @@ x 10
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 14
 end
@@ -1300,6 +1496,7 @@ x 10
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 15
 end
@@ -1308,6 +1505,7 @@ x 10
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 16
 end
@@ -1316,6 +1514,7 @@ x 10
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 17
 end
@@ -1328,10 +1527,12 @@ x 10
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 10
 y 19
 end
@@ -1344,6 +1545,7 @@ x 10
 y 19
 end
 arch floor_stone_b1
+z 50
 x 10
 y 20
 end
@@ -1356,18 +1558,15 @@ level 100
 type 83
 carrying 4600
 weight 5000
-friendly 1
 unaggressive 0
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
-startequip 1
-quest_item 1
-one_drop 1
 end
 end
 end
 arch floor_stone_b1
+z 50
 x 10
 y 21
 end
@@ -1377,6 +1576,7 @@ x 10
 y 21
 end
 arch floor_stone_b1
+z 50
 x 10
 y 22
 end
@@ -1386,17 +1586,21 @@ x 10
 y 22
 end
 arch floor_stone_b1
+z 50
 x 10
 y 23
 end
 arch floor_fs_grey1b
+z 50
 x 11
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 2
 end
@@ -1405,26 +1609,32 @@ x 11
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 8
 end
@@ -1433,26 +1643,32 @@ x 11
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 14
 end
@@ -1462,18 +1678,22 @@ x 11
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 18
 end
@@ -1483,19 +1703,21 @@ x 11
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 11
 y 19
 end
 arch door1_locked
-last_sp -1
 x 11
 y 19
 end
 arch floor_stone_b1
+z 50
 x 11
 y 20
 end
 arch floor_stone_b1
+z 50
 x 11
 y 21
 end
@@ -1509,35 +1731,34 @@ msg
 @match eagle
 Correct, you may pass.
 endmsg
-path_attuned 101
-value 1
 connected 101
 x 11
 y 21
 end
 arch floor_stone_b1
+z 50
 x 11
 y 22
 end
 arch floor_stone_b1
+z 50
 x 11
 y 23
 end
 arch floor_fs_grey1b
+z 50
 x 12
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.031764
-glow_radius 5
-is_animated 1
 x 12
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 2
 end
@@ -1546,26 +1767,32 @@ x 12
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 8
 end
@@ -1574,46 +1801,57 @@ x 12
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 12
 y 19
 end
@@ -1621,20 +1859,17 @@ arch wall_dungeon_1
 x 12
 y 19
 end
-arch water_lt4
+arch water_lt2
+z 50
 x 12
 y 20
 end
 arch torch_wall_1
-face torch_wall.112
-speed_left -0.191817
-state 1
-glow_radius 5
-is_animated 1
 x 12
 y 20
 end
 arch water_lt2
+z 50
 x 12
 y 21
 end
@@ -1643,22 +1878,27 @@ connected 101
 x 12
 y 21
 end
-arch water_lt3
+arch water_lt2
+z 50
 x 12
 y 22
 end
-arch water_lt3
+arch water_lt
+z 50
 x 12
 y 23
 end
 arch floor_fs_grey1b
+z 50
 x 13
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 2
 end
@@ -1667,6 +1907,7 @@ x 13
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 3
 end
@@ -1675,6 +1916,7 @@ x 13
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 4
 end
@@ -1683,6 +1925,7 @@ x 13
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 5
 end
@@ -1691,6 +1934,7 @@ x 13
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 6
 end
@@ -1699,6 +1943,7 @@ x 13
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 7
 end
@@ -1707,6 +1952,7 @@ x 13
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 8
 end
@@ -1715,14 +1961,17 @@ x 13
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 11
 end
@@ -1731,6 +1980,7 @@ x 13
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 12
 end
@@ -1739,6 +1989,7 @@ x 13
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 13
 end
@@ -1747,6 +1998,7 @@ x 13
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 14
 end
@@ -1755,6 +2007,7 @@ x 13
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 15
 end
@@ -1763,6 +2016,7 @@ x 13
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 16
 end
@@ -1771,6 +2025,7 @@ x 13
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 17
 end
@@ -1779,6 +2034,7 @@ x 13
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 18
 end
@@ -1787,6 +2043,7 @@ x 13
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 13
 y 19
 end
@@ -1795,10 +2052,12 @@ x 13
 y 19
 end
 arch water_lt3
+z 50
 x 13
 y 20
 end
-arch water_lt4
+arch water_lt2
+z 50
 x 13
 y 21
 end
@@ -1807,21 +2066,25 @@ connected 101
 x 13
 y 21
 end
-arch water_lt2
+arch water_lt4
+z 50
 x 13
 y 22
 end
-arch water_lt3
+arch water_lt4
+z 50
 x 13
 y 23
 end
 arch floor_fs_grey1b
+z 50
 x 14
 end
 arch wall_dungeon_3
 x 14
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 1
 end
@@ -1830,9 +2093,7 @@ msg
 You need Asteria Dungeon Key 1 to enter here.
 endmsg
 slaying asteria_dungeon_key1
-face door_lock1.131
 direction 3
-last_sp -1
 x 14
 y 1
 end
@@ -1846,6 +2107,7 @@ x 14
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 2
 end
@@ -1854,14 +2116,17 @@ x 14
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 5
 end
@@ -1871,14 +2136,17 @@ x 14
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 8
 end
@@ -1887,14 +2155,17 @@ x 14
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 11
 end
@@ -1903,6 +2174,7 @@ x 14
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 12
 end
@@ -1911,6 +2183,7 @@ x 14
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 13
 end
@@ -1919,6 +2192,7 @@ x 14
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 14
 end
@@ -1927,6 +2201,7 @@ x 14
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 15
 end
@@ -1935,6 +2210,7 @@ x 14
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 16
 end
@@ -1943,6 +2219,7 @@ x 14
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 17
 end
@@ -1951,6 +2228,7 @@ x 14
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 18
 end
@@ -1959,6 +2237,7 @@ x 14
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 14
 y 19
 end
@@ -1967,6 +2246,7 @@ x 14
 y 19
 end
 arch floor_stone_b1
+z 50
 x 14
 y 20
 end
@@ -1975,6 +2255,7 @@ x 14
 y 20
 end
 arch floor_stone_b1
+z 50
 x 14
 y 21
 end
@@ -1983,6 +2264,7 @@ x 14
 y 21
 end
 arch floor_stone_b1
+z 50
 x 14
 y 22
 end
@@ -1991,6 +2273,7 @@ x 14
 y 22
 end
 arch floor_stone_b1
+z 50
 x 14
 y 23
 end
@@ -1999,6 +2282,7 @@ x 14
 y 23
 end
 arch floor_fs_grey1b
+z 50
 x 15
 end
 arch spawn_point
@@ -2018,10 +2302,12 @@ end
 end
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 2
 end
@@ -2030,26 +2316,32 @@ x 15
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 8
 end
@@ -2058,23 +2350,21 @@ x 15
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 9
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.331762
-state 3
-glow_radius 5
-is_animated 1
 x 15
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 11
 end
@@ -2083,6 +2373,7 @@ x 15
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 12
 end
@@ -2091,6 +2382,7 @@ x 15
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 13
 end
@@ -2099,6 +2391,7 @@ x 15
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 14
 end
@@ -2107,6 +2400,7 @@ x 15
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 15
 end
@@ -2115,6 +2409,7 @@ x 15
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 16
 end
@@ -2123,6 +2418,7 @@ x 15
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 17
 end
@@ -2131,6 +2427,7 @@ x 15
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 18
 end
@@ -2139,6 +2436,7 @@ x 15
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 15
 y 19
 end
@@ -2147,13 +2445,16 @@ x 15
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 16
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 2
 end
@@ -2162,26 +2463,32 @@ x 16
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 8
 end
@@ -2190,14 +2497,17 @@ x 16
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 11
 end
@@ -2206,6 +2516,7 @@ x 16
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 12
 end
@@ -2214,6 +2525,7 @@ x 16
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 13
 end
@@ -2222,26 +2534,32 @@ x 16
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 16
 y 19
 end
@@ -2250,13 +2568,16 @@ x 16
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 17
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 2
 end
@@ -2265,35 +2586,36 @@ x 17
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 3
 end
 arch torch_wall_1
-face torch_wall.112
-speed_left -0.451770
-state 1
-glow_radius 5
-is_animated 1
 x 17
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 8
 end
@@ -2302,14 +2624,17 @@ x 17
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 11
 end
@@ -2318,6 +2643,7 @@ x 17
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 12
 end
@@ -2326,6 +2652,7 @@ x 17
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 13
 end
@@ -2334,10 +2661,12 @@ x 17
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 15
 end
@@ -2346,6 +2675,7 @@ x 17
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 16
 end
@@ -2354,6 +2684,7 @@ x 17
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 17
 end
@@ -2362,6 +2693,7 @@ x 17
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 18
 end
@@ -2370,6 +2702,7 @@ x 17
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 17
 y 19
 end
@@ -2378,12 +2711,14 @@ x 17
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 18
 end
 arch wall_dungeon_3
 x 18
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 1
 end
@@ -2392,6 +2727,7 @@ x 18
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 2
 end
@@ -2400,26 +2736,32 @@ x 18
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 8
 end
@@ -2428,14 +2770,17 @@ x 18
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 11
 end
@@ -2444,6 +2789,7 @@ x 18
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 12
 end
@@ -2452,6 +2798,7 @@ x 18
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 13
 end
@@ -2464,10 +2811,12 @@ x 18
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 15
 end
@@ -2476,6 +2825,7 @@ x 18
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 16
 end
@@ -2484,6 +2834,7 @@ x 18
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 17
 end
@@ -2492,6 +2843,7 @@ x 18
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 18
 end
@@ -2500,6 +2852,7 @@ x 18
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 18
 y 19
 end
@@ -2508,13 +2861,16 @@ x 18
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 19
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 2
 end
@@ -2523,26 +2879,32 @@ x 19
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 8
 end
@@ -2551,14 +2913,17 @@ x 19
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 11
 end
@@ -2567,6 +2932,7 @@ x 19
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 12
 end
@@ -2579,14 +2945,17 @@ x 19
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 15
 end
@@ -2595,6 +2964,7 @@ x 19
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 16
 end
@@ -2603,6 +2973,7 @@ x 19
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 17
 end
@@ -2611,6 +2982,7 @@ x 19
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 18
 end
@@ -2619,6 +2991,7 @@ x 19
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 19
 y 19
 end
@@ -2627,9 +3000,11 @@ x 19
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 20
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 1
 end
@@ -2638,6 +3013,7 @@ x 20
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 2
 end
@@ -2646,6 +3022,7 @@ x 20
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 3
 end
@@ -2654,6 +3031,7 @@ x 20
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 4
 end
@@ -2662,6 +3040,7 @@ x 20
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 5
 end
@@ -2670,6 +3049,7 @@ x 20
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 6
 end
@@ -2678,6 +3058,7 @@ x 20
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 7
 end
@@ -2686,6 +3067,7 @@ x 20
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 8
 end
@@ -2694,22 +3076,21 @@ x 20
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 9
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.751762
-glow_radius 5
-is_animated 1
 x 20
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 11
 end
@@ -2718,6 +3099,7 @@ x 20
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 12
 end
@@ -2726,14 +3108,17 @@ x 20
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 15
 end
@@ -2742,6 +3127,7 @@ x 20
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 16
 end
@@ -2750,6 +3136,7 @@ x 20
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 17
 end
@@ -2758,6 +3145,7 @@ x 20
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 18
 end
@@ -2766,6 +3154,7 @@ x 20
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 20
 y 19
 end
@@ -2774,9 +3163,11 @@ x 20
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 21
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 1
 end
@@ -2785,6 +3176,7 @@ x 21
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 2
 end
@@ -2797,6 +3189,7 @@ x 21
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 3
 end
@@ -2805,14 +3198,17 @@ x 21
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 6
 end
@@ -2822,10 +3218,12 @@ x 21
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 8
 end
@@ -2834,14 +3232,17 @@ x 21
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 11
 end
@@ -2850,6 +3251,7 @@ x 21
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 12
 end
@@ -2858,6 +3260,7 @@ x 21
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 13
 end
@@ -2866,10 +3269,12 @@ x 21
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 15
 end
@@ -2878,6 +3283,7 @@ x 21
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 16
 end
@@ -2886,6 +3292,7 @@ x 21
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 17
 end
@@ -2894,6 +3301,7 @@ x 21
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 18
 end
@@ -2902,6 +3310,7 @@ x 21
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 21
 y 19
 end
@@ -2910,9 +3319,11 @@ x 21
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 22
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 1
 end
@@ -2921,10 +3332,12 @@ x 22
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 3
 end
@@ -2933,22 +3346,27 @@ x 22
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 8
 end
@@ -2957,14 +3375,17 @@ x 22
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 11
 end
@@ -2973,6 +3394,7 @@ x 22
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 12
 end
@@ -2981,6 +3403,7 @@ x 22
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 13
 end
@@ -2989,10 +3412,12 @@ x 22
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 15
 end
@@ -3001,6 +3426,7 @@ x 22
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 16
 end
@@ -3009,6 +3435,7 @@ x 22
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 17
 end
@@ -3017,6 +3444,7 @@ x 22
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 18
 end
@@ -3025,6 +3453,7 @@ x 22
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 22
 y 19
 end
@@ -3033,12 +3462,14 @@ x 22
 y 19
 end
 arch floor_fs_grey1b
+z 50
 x 23
 end
 arch wall_dungeon_3
 x 23
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 1
 end
@@ -3047,10 +3478,12 @@ x 23
 y 1
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 2
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 3
 end
@@ -3059,6 +3492,7 @@ x 23
 y 3
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 4
 end
@@ -3067,6 +3501,7 @@ x 23
 y 4
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 5
 end
@@ -3075,6 +3510,7 @@ x 23
 y 5
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 6
 end
@@ -3085,6 +3521,7 @@ x 23
 y 6
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 7
 end
@@ -3093,6 +3530,7 @@ x 23
 y 7
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 8
 end
@@ -3101,14 +3539,17 @@ x 23
 y 8
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 9
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 10
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 11
 end
@@ -3117,6 +3558,7 @@ x 23
 y 11
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 12
 end
@@ -3125,6 +3567,7 @@ x 23
 y 12
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 13
 end
@@ -3133,10 +3576,12 @@ x 23
 y 13
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 14
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 15
 end
@@ -3145,6 +3590,7 @@ x 23
 y 15
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 16
 end
@@ -3153,6 +3599,7 @@ x 23
 y 16
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 17
 end
@@ -3161,6 +3608,7 @@ x 23
 y 17
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 18
 end
@@ -3169,6 +3617,7 @@ x 23
 y 18
 end
 arch floor_fs_grey1b
+z 50
 x 23
 y 19
 end

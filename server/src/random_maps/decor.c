@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -65,7 +65,7 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
 
 			new_decor_object = pick_random_object(decor_map);
 
-			if (layout[i][j] == (new_decor_object->type == WALL ? '#' : '\0'))
+			if (layout[i][j] == (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) ? '#' : '\0'))
 			{
 				object *this_object = get_object();
 
@@ -73,7 +73,7 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
 				this_object->x = i;
 				this_object->y = j;
 
-				if (new_decor_object->type == WALL && surround_flag2(layout, i, j, RP) & (4 | 8))
+				if (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) && surround_flag2(layout, i, j, RP) & (4 | 8))
 				{
 					this_object->direction = 7;
 					SET_ANIMATION(this_object, (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) * this_object->direction);

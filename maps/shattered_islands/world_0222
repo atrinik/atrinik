@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-02-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,7 +16,7 @@ tile_path_5 world_0323
 tile_path_6 world_0321
 tile_path_7 world_0121
 tile_path_8 world_0123
-bg_music jungle1.ogg
+bg_music ghosttown2.mid
 region strakewood_island
 end
 arch grassd_4
@@ -400,7 +400,6 @@ randomitems mob_mage_l9
 level 7
 last_eat -6
 maxsp 16
-magic 0
 Dex 2
 Wis 5
 arch ability_mbullet
@@ -706,14 +705,13 @@ arch spawn_point
 x 4
 y 11
 arch skel_mage
-type 83
 randomitems mob_mage_l9
 level 7
 last_eat -6
 maxsp 16
-magic 0
 Dex 2
 Wis 5
+type 83
 arch ability_mbullet
 end
 arch quest_container
@@ -1041,7 +1039,6 @@ randomitems mob_mage_l9
 level 7
 last_eat -6
 maxsp 16
-magic 0
 Dex 2
 Wis 5
 arch ability_mbullet

@@ -2,13 +2,10 @@ arch map
 name Asteria Royal Catacombs
 msg
 -Enter Description Here-
-Modified: 2010-09-04 emperorbma
+Modified: 2011-01-30 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
-reset_timeout 7200
 difficulty 1
 darkness 1
 tile_path_2 world_b_0838
@@ -186,10 +183,6 @@ x 18
 y 23
 end
 arch torch_wall_1
-face torch_wall.111
-speed_left -0.390931
-glow_radius 5
-is_animated 1
 x 18
 y 23
 end
@@ -422,11 +415,6 @@ x 21
 y 10
 end
 arch torch_wall_1
-face torch_wall.112
-speed_left -0.210921
-state 1
-glow_radius 5
-is_animated 1
 x 21
 y 10
 end
@@ -632,7 +620,6 @@ y 22
 end
 arch door1_locked
 slaying no_entry
-last_sp -1
 x 22
 y 22
 end

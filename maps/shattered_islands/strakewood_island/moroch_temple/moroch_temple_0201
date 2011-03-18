@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,6 +24,9 @@ arch ring_wall.151
 y 10
 end
 arch floor_sblack2b
+y 11
+end
+arch table_lab3.111
 y 11
 end
 arch floor_sblack1b
@@ -70,13 +73,29 @@ end
 arch floor_sblack3b
 y 19
 end
+arch table_lab2.111
+direction 7
+y 19
+end
 arch floor_sblack2b
+y 20
+end
+arch table_lab3.111
+direction 7
 y 20
 end
 arch floor_sblack3b
 y 21
 end
+arch table_lab2.111
+direction 7
+y 21
+end
 arch floor_sblack2b
+y 22
+end
+arch table_lab1.111
+direction 7
 y 22
 end
 arch floor_sblack1b
@@ -93,11 +112,24 @@ arch fwall_fstone1c
 x 1
 y 10
 end
+arch plant2_wall.151
+x 1
+y 10
+end
 arch floor_sblack2b
 x 1
 y 11
 end
+arch table_lab3.111
+x 1
+y 11
+end
 arch floor_sblack2b
+x 1
+y 12
+end
+arch chair2_111
+direction 5
 x 1
 y 12
 end
@@ -108,6 +140,7 @@ arch skel_mage
 type 83
 level 64
 direction 3
+name skeleton mage apprentice
 arch ability_icestorm
 end
 end
@@ -148,6 +181,11 @@ arch floor_sblack2b
 x 1
 y 21
 end
+arch chair2_111
+direction 3
+x 1
+y 21
+end
 arch floor_sblack3b
 x 1
 y 22
@@ -172,6 +210,10 @@ arch floor_sblack1b
 x 2
 y 11
 end
+arch table_lab2.111
+x 2
+y 11
+end
 arch floor_sblack2b
 x 2
 y 12
@@ -189,6 +231,10 @@ x 2
 y 14
 end
 arch floor_sblack1b
+x 2
+y 15
+end
+arch pillar_black2c
 x 2
 y 15
 end
@@ -218,12 +264,17 @@ y 19
 arch demilich
 type 83
 level 65
-direction 1
+direction 7
+name demilich researcher
 arch ability_firestorm
 end
 end
 end
 arch floor_sblack2b
+x 2
+y 20
+end
+arch pillar_black2c
 x 2
 y 20
 end
@@ -255,6 +306,10 @@ arch floor_sblack3b
 x 3
 y 11
 end
+arch table_lab1.111
+x 3
+y 11
+end
 arch floor_sblack3b
 x 3
 y 12
@@ -268,6 +323,10 @@ x 3
 y 14
 end
 arch floor_sblack3b
+x 3
+y 15
+end
+arch bones2
 x 3
 y 15
 end
@@ -299,6 +358,14 @@ arch floor_sblack3b
 x 3
 y 21
 end
+arch pool_murky
+x 3
+y 21
+end
+arch light3
+x 3
+y 21
+end
 arch floor_sblack2b
 x 3
 y 22
@@ -315,6 +382,10 @@ arch floor_sblack2b
 x 4
 end
 arch fwall_fstone1a
+x 4
+end
+arch plant2_wall.151
+direction 7
 x 4
 end
 arch floor_sblack2b
@@ -391,6 +462,11 @@ arch fwall_fstone1a
 x 4
 y 8
 end
+arch plant2_wall.151
+direction 7
+x 4
+y 8
+end
 arch floor_sblack3b
 x 4
 y 9
@@ -408,6 +484,10 @@ x 4
 y 10
 end
 arch floor_sblack1b
+x 4
+y 11
+end
+arch table_lab2.111
 x 4
 y 11
 end
@@ -495,7 +575,17 @@ arch floor_sblack1b
 x 5
 y 6
 end
+arch shelf3_dem1.111
+direction 6
+x 5
+y 6
+end
 arch floor_sblack1b
+x 5
+y 7
+end
+arch shelf3_dem2.111
+direction 7
 x 5
 y 7
 end
@@ -504,6 +594,10 @@ x 5
 y 8
 end
 arch floor_sblack3b
+x 5
+y 9
+end
+arch bones3
 x 5
 y 9
 end
@@ -716,7 +810,17 @@ arch floor_sblack2b
 x 6
 y 12
 end
+arch shelf_wall_dem3.111
+direction 7
+x 6
+y 12
+end
 arch floor_sblack2b
+x 6
+y 13
+end
+arch shelf_wall_dem2.111
+direction 7
 x 6
 y 13
 end
@@ -895,6 +999,10 @@ arch floor_sblack1b
 x 7
 y 22
 end
+arch dirt_floor1
+x 7
+y 22
+end
 arch floor_sblack2b
 x 7
 y 23
@@ -1042,103 +1150,140 @@ arch floor_sblack2b
 x 8
 y 22
 end
+arch floor_sblack3b
+x 8
+y 23
+end
 arch fwall_fstone1a
 x 8
+y 23
+end
+arch floor_sblack2b
+x 9
+end
+arch fwall_fstone1a
+x 9
+end
+arch floor_sblack1b
+x 9
+y 1
+end
+arch fwall_fstone1b
+x 9
+y 1
+end
+arch floor_sblack2b
+x 9
+y 2
+end
+arch fwall_fstone1a
+x 9
+y 2
+end
+arch floor_sblack3b
+x 9
+y 3
+end
+arch fwall_fstone1b
+x 9
+y 3
+end
+arch plant1_wall.151
+direction 7
+x 9
+y 3
+end
+arch floor_sblack2b
+x 9
+y 4
+end
+arch fwall_fstone1c
+x 9
+y 4
+end
+arch floor_sblack3b
+x 9
+y 5
+end
+arch fwall_fstone1a
+x 9
+y 5
+end
+arch floor_sblack2b
+x 9
+y 6
+end
+arch fwall_fstone1b
+x 9
+y 6
+end
+arch floor_sblack1b
+x 9
+y 7
+end
+arch fwall_fstone1c
+x 9
+y 7
+end
+arch plant1_wall.151
+direction 7
+x 9
+y 7
+end
+arch wall_blood2
+direction 7
+x 9
+y 7
+end
+arch floor_sblack2b
+x 9
+y 8
+end
+arch door1_locked
+direction 3
+x 9
+y 8
+end
+arch floor_sblack2b
+x 9
+y 9
+end
+arch door1_locked
+direction 5
+x 9
+y 9
+end
+arch floor_sblack1b
+x 9
+y 10
+end
+arch fwall_fstone1a
+x 9
+y 10
+end
+arch floor_sblack3b
+x 9
+y 21
+end
+arch fwall_fstone1b
+x 9
+y 21
+end
+arch floor_sblack3b
+x 9
 y 22
 end
-arch floor_sblack3b
-x 8
+arch torch_wall_1
+x 9
+y 22
+end
+arch floor_sblack2b
+x 9
 y 23
 end
-arch fwall_fstone1a
-x 8
+arch fwall_fstone1b
+x 9
 y 23
-end
-arch floor_sblack2b
-x 9
-end
-arch fwall_fstone1a
-x 9
-end
-arch floor_sblack1b
-x 9
-y 1
-end
-arch fwall_fstone1b
-x 9
-y 1
-end
-arch floor_sblack2b
-x 9
-y 2
-end
-arch fwall_fstone1a
-x 9
-y 2
-end
-arch floor_sblack3b
-x 9
-y 3
-end
-arch fwall_fstone1b
-x 9
-y 3
-end
-arch floor_sblack2b
-x 9
-y 4
-end
-arch fwall_fstone1c
-x 9
-y 4
-end
-arch floor_sblack3b
-x 9
-y 5
-end
-arch fwall_fstone1a
-x 9
-y 5
-end
-arch floor_sblack2b
-x 9
-y 6
-end
-arch fwall_fstone1b
-x 9
-y 6
-end
-arch floor_sblack1b
-x 9
-y 7
-end
-arch fwall_fstone1c
-x 9
-y 7
-end
-arch floor_sblack2b
-x 9
-y 8
-end
-arch fwall_fstone1a
-x 9
-y 8
-end
-arch floor_sblack2b
-x 9
-y 9
-end
-arch fwall_fstone1a
-x 9
-y 9
-end
-arch floor_sblack1b
-x 9
-y 10
-end
-arch fwall_fstone1a
-x 9
-y 10
 end
 arch floor_sblack2b
 x 10
@@ -1160,7 +1305,17 @@ arch floor_sblack1b
 x 10
 y 3
 end
+arch shelf3_dem2.111
+direction 7
+x 10
+y 3
+end
 arch floor_sblack1b
+x 10
+y 4
+end
+arch shelf3_dem1.111
+direction 7
 x 10
 y 4
 end
@@ -1285,11 +1440,11 @@ arch fwall_fstone1a
 x 10
 y 21
 end
-arch floor_sblack2b
+arch plant1_wall.151
 x 10
-y 22
+y 21
 end
-arch fwall_fstone1c
+arch floor_sblack2b
 x 10
 y 22
 end
@@ -1402,6 +1557,10 @@ x 11
 y 20
 end
 arch floor_sblack1b
+x 11
+y 21
+end
+arch blood_floor1
 x 11
 y 21
 end
@@ -1521,11 +1680,6 @@ arch fwall_fstone1b
 x 12
 y 17
 end
-arch wall_blood1
-direction 7
-x 12
-y 17
-end
 arch floor_sblack3b
 x 12
 y 18
@@ -1670,37 +1824,117 @@ arch floor_sblack3b
 x 13
 y 13
 end
+arch shelf3c.111
+direction 7
+x 13
+y 13
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack2b
 x 13
 y 14
+end
+arch shelf3b.111
+direction 7
+x 13
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 13
 y 15
 end
+arch shelf3a.111
+direction 7
+x 13
+y 15
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack1b
 x 13
 y 16
+end
+arch shelf3b.111
+direction 7
+x 13
+y 16
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 13
 y 17
 end
+arch shelf3a.111
+direction 7
+x 13
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack2b
 x 13
 y 18
+end
+arch shelf3b.111
+direction 7
+x 13
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 13
 y 19
 end
+arch shelf3c.111
+direction 7
+x 13
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack3b
 x 13
 y 20
 end
-arch bone_broken
+arch shelf3a.111
+direction 7
 x 13
 y 20
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 13
@@ -1769,6 +2003,10 @@ x 14
 y 10
 end
 arch floor_sblack2b
+x 14
+y 11
+end
+arch shelf_wall_dem2.111
 x 14
 y 11
 end
@@ -1861,6 +2099,10 @@ x 15
 y 10
 end
 arch floor_sblack2b
+x 15
+y 11
+end
+arch shelf5_wall.111
 x 15
 y 11
 end
@@ -1984,7 +2226,15 @@ arch floor_sblack3b
 x 16
 y 14
 end
+arch pillar_black2c
+x 16
+y 14
+end
 arch floor_sblack2b
+x 16
+y 15
+end
+arch torch_wall_1
 x 16
 y 15
 end
@@ -1993,6 +2243,14 @@ x 16
 y 16
 end
 arch floor_sblack3b
+x 16
+y 17
+end
+arch pool_poison
+x 16
+y 17
+end
+arch light3
 x 16
 y 17
 end
@@ -2008,7 +2266,15 @@ arch floor_sblack3b
 x 16
 y 19
 end
+arch pillar_black2c
+x 16
+y 19
+end
 arch floor_sblack3b
+x 16
+y 20
+end
+arch torch_wall_1
 x 16
 y 20
 end
@@ -2016,9 +2282,13 @@ arch spawn_point
 x 16
 y 20
 arch wraith
-type 83
-level 61
 direction 7
+level 61
+random_move 1
+item_race 1
+item_level 1
+type 83
+name wraith library guard
 end
 end
 arch floor_sblack2b
@@ -2046,6 +2316,10 @@ x 17
 y 3
 end
 arch floor_sblack1b
+x 17
+y 4
+end
+arch shelf3_dem3.111
 x 17
 y 4
 end
@@ -2096,6 +2370,7 @@ arch ghoul
 type 83
 level 59
 direction 7
+name ghoul library guard
 end
 end
 arch floor_sblack2b
@@ -2107,6 +2382,10 @@ x 17
 y 16
 end
 arch floor_sblack3b
+x 17
+y 17
+end
+arch bones4
 x 17
 y 17
 end
@@ -2147,6 +2426,10 @@ x 18
 y 3
 end
 arch floor_sblack2b
+x 18
+y 4
+end
+arch shelf3_dem1.111
 x 18
 y 4
 end
@@ -2262,6 +2545,10 @@ x 19
 y 3
 end
 arch floor_sblack1b
+x 19
+y 4
+end
+arch shelf3_dem2.111
 x 19
 y 4
 end
@@ -2457,7 +2744,21 @@ arch floor_sblack2b
 x 20
 y 6
 end
+arch shelf5_wall.111
+direction 7
+x 20
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack1b
+x 20
+y 7
+end
+arch table_lab3.111
+direction 7
 x 20
 y 7
 end
@@ -2465,9 +2766,31 @@ arch floor_sblack1b
 x 20
 y 8
 end
+arch shelf3c.111
+direction 7
+x 20
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
 arch floor_sblack2b
 x 20
 y 9
+end
+arch shelf3a.111
+direction 7
+x 20
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 20
@@ -2522,7 +2845,8 @@ y 7
 arch demilich
 type 83
 level 60
-direction 1
+direction 7
+name demilich scribe
 arch ability_cause_lig_wound
 end
 end
@@ -2579,6 +2903,11 @@ x 22
 y 8
 end
 arch floor_sblack3b
+x 22
+y 9
+end
+arch chest7_111
+direction 7
 x 22
 y 9
 end

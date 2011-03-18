@@ -2,15 +2,18 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-26 Alex Tokar
+Modified: 2011-03-08 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 70
 darkness 2
+tile_path_1 underground_city_b_0205
 tile_path_3 underground_city_b_0203
 tile_path_4 underground_city_b_0104
+tile_path_5 underground_city_b_0305
 tile_path_7 underground_city_b_0103
+tile_path_8 underground_city_b_0105
 bg_music thonkdonk.ogg
 region underground_city
 end
@@ -73,6 +76,36 @@ y 17
 end
 arch fwall_rock1
 y 17
+end
+arch floor_sand_d4
+y 20
+end
+arch fwall_rock2
+y 20
+end
+arch floor_sand_d4
+y 21
+end
+arch crystal_red
+y 21
+end
+arch light2
+y 21
+end
+arch floor_sand_d2
+y 22
+end
+arch dirt_floor3
+y 22
+end
+arch floor_sand_d4
+y 23
+end
+arch mushroom_spot1
+y 23
+end
+arch light2
+y 23
 end
 arch floor_sand_d3
 x 1
@@ -188,6 +221,38 @@ end
 arch fwall_rock1
 x 1
 y 18
+end
+arch floor_sand_d1
+x 1
+y 20
+end
+arch fwall_rock2
+x 1
+y 20
+end
+arch floor_sand_d1
+x 1
+y 21
+end
+arch fwall_rock3
+x 1
+y 21
+end
+arch floor_sand_d3
+x 1
+y 22
+end
+arch fwall_rock1
+x 1
+y 22
+end
+arch floor_sand_d1
+x 1
+y 23
+end
+arch fwall_rock2
+x 1
+y 23
 end
 arch floor_sand_d3
 x 2
@@ -3258,6 +3323,14 @@ arch floor_sand_d4
 x 17
 y 7
 end
+arch mushroom_medium
+x 17
+y 7
+end
+arch light2
+x 17
+y 7
+end
 arch floor_sand_d4
 x 17
 y 8
@@ -3355,6 +3428,7 @@ x 18
 y 7
 end
 arch fwall_rock1
+no_pass 0
 x 18
 y 7
 end
@@ -3466,6 +3540,26 @@ arch floor_sand_d3
 x 18
 y 23
 end
+arch floor_sand_d3
+x 19
+y 6
+end
+arch fwall_rock1
+x 19
+y 6
+end
+arch floor_sand_d2
+x 19
+y 7
+end
+arch floor_sand_d3
+x 19
+y 8
+end
+arch fwall_rock2
+x 19
+y 8
+end
 arch floor_sand_d1
 x 19
 y 9
@@ -3556,6 +3650,38 @@ y 23
 end
 arch floor_sand_d1
 x 20
+y 5
+end
+arch fwall_rock1
+x 20
+y 5
+end
+arch floor_sand_d2
+x 20
+y 6
+end
+arch fwall_rock3
+x 20
+y 6
+end
+arch plant1_wall.151
+x 20
+y 6
+end
+arch floor_sand_d4
+x 20
+y 7
+end
+arch floor_sand_d3
+x 20
+y 8
+end
+arch fwall_rock2
+x 20
+y 8
+end
+arch floor_sand_d1
+x 20
 y 21
 end
 arch fwall_rock1
@@ -3577,4 +3703,194 @@ end
 arch fwall_rock3
 x 20
 y 23
+end
+arch floor_sand_d4
+x 21
+end
+arch fwall_rock1
+x 21
+end
+arch plant1_wall.151
+direction 7
+x 21
+end
+arch floor_sand_d3
+x 21
+y 1
+end
+arch fwall_rock1
+x 21
+y 1
+end
+arch floor_sand_d4
+x 21
+y 2
+end
+arch fwall_rock2
+x 21
+y 2
+end
+arch plant1_wall.151
+direction 7
+x 21
+y 2
+end
+arch floor_sand_d2
+x 21
+y 3
+end
+arch fwall_rock3
+x 21
+y 3
+end
+arch plant1_wall.151
+direction 7
+x 21
+y 3
+end
+arch floor_sand_d4
+x 21
+y 4
+end
+arch fwall_rock3
+x 21
+y 4
+end
+arch floor_sand_d2
+x 21
+y 5
+end
+arch fwall_rock2
+x 21
+y 5
+end
+arch plant2_wall.151
+direction 7
+x 21
+y 5
+end
+arch floor_sand_d4
+x 21
+y 6
+end
+arch floor_sand_d2
+x 21
+y 7
+end
+arch floor_sand_d1
+x 21
+y 8
+end
+arch fwall_rock3
+x 21
+y 8
+end
+arch floor_sand_d1
+x 22
+end
+arch floor_sand_d3
+x 22
+y 1
+end
+arch mushroom_spot1
+x 22
+y 1
+end
+arch floor_sand_d4
+x 22
+y 2
+end
+arch floor_sand_d2
+x 22
+y 3
+end
+arch floor_sand_d2
+x 22
+y 4
+end
+arch floor_sand_d4
+x 22
+y 5
+end
+arch floor_sand_d3
+x 22
+y 6
+end
+arch floor_sand_d1
+x 22
+y 7
+end
+arch fwall_rock3
+x 22
+y 7
+end
+arch floor_sand_d1
+x 22
+y 8
+end
+arch fwall_rock2
+x 22
+y 8
+end
+arch floor_sand_d1
+x 23
+end
+arch fwall_rock2
+x 23
+end
+arch floor_sand_d3
+x 23
+y 1
+end
+arch fwall_rock1
+x 23
+y 1
+end
+arch floor_sand_d2
+x 23
+y 2
+end
+arch fwall_rock3
+x 23
+y 2
+end
+arch floor_sand_d1
+x 23
+y 3
+end
+arch fwall_rock2
+x 23
+y 3
+end
+arch floor_sand_d4
+x 23
+y 4
+end
+arch fwall_rock2
+x 23
+y 4
+end
+arch floor_sand_d1
+x 23
+y 5
+end
+arch fwall_rock2
+x 23
+y 5
+end
+arch floor_sand_d1
+x 23
+y 6
+end
+arch fwall_rock2
+x 23
+y 6
+end
+arch floor_sand_d2
+x 23
+y 7
+end
+arch fwall_rock1
+x 23
+y 7
 end

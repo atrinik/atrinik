@@ -1,8 +1,8 @@
 arch map
-name Fort Ghzal
+name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-31 Alex Tokar
+Modified: 2011-03-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -207,7 +207,7 @@ arch grassd_2
 x 1
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 1
 y 12
 end
@@ -227,7 +227,7 @@ arch floor_sand_d1
 x 1
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 1
 y 15
 end
@@ -373,7 +373,7 @@ arch grassd_m14
 x 2
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 2
 y 17
 end
@@ -543,7 +543,7 @@ arch floor_sand_d1
 x 3
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 3
 y 17
 end
@@ -579,6 +579,13 @@ arch grassd_4
 x 4
 end
 arch small_stones
+x 4
+end
+arch map_info
+hp 19
+sp 10
+race Fort Ghzal
+slaying enfero.xm
 x 4
 end
 arch grassd_8
@@ -653,7 +660,7 @@ arch grassd_m10
 x 4
 y 15
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 4
 y 16
 end
@@ -1109,7 +1116,7 @@ arch grassd_5
 x 7
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 7
 y 15
 end
@@ -1251,7 +1258,7 @@ arch grassd_7
 x 8
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 8
 y 15
 end
@@ -1459,7 +1466,7 @@ arch floor_sand_d2
 x 9
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 9
 y 17
 end
@@ -1594,7 +1601,7 @@ arch grassd_m4
 x 10
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 10
 y 15
 end
@@ -1606,7 +1613,7 @@ arch floor_sand_d4
 x 10
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 10
 y 17
 end
@@ -1775,7 +1782,7 @@ arch grassd_m13
 x 11
 y 14
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 11
 y 15
 end
@@ -1835,15 +1842,23 @@ direction 7
 x 12
 y 1
 end
-arch grassd_1
+arch floor_sand_d1
 x 12
 y 2
 end
-arch grassd_5
+arch grassd_m4
+x 12
+y 2
+end
+arch floor_sand_d1
 x 12
 y 3
 end
-arch grassd_7
+arch floor_sand_d4
+x 12
+y 4
+end
+arch grassd_m3
 x 12
 y 4
 end
@@ -1937,7 +1952,7 @@ arch grassd_m4
 x 12
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 12
 y 13
 end
@@ -1997,7 +2012,7 @@ arch grassd_8
 x 12
 y 23
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 end
 arch grassd_m9
@@ -2015,7 +2030,7 @@ arch floor_sand_d1
 x 13
 y 2
 end
-arch grassd_m9
+arch grassd_m13
 x 13
 y 2
 end
@@ -2027,19 +2042,15 @@ arch floor_sand_d4
 x 13
 y 3
 end
-arch grassd_m9
-x 13
-y 3
-end
 arch floor_sand_d2
 x 13
 y 4
 end
-arch grassd_m9
+arch grassd_m14
 x 13
 y 4
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 13
 y 5
 end
@@ -2055,7 +2066,7 @@ arch grassd_m9
 x 13
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 7
 end
@@ -2063,7 +2074,7 @@ arch grassd_m9
 x 13
 y 7
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 8
 end
@@ -2095,7 +2106,7 @@ arch grassd_m9
 x 13
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 13
 y 12
 end
@@ -2103,7 +2114,7 @@ arch grassd_m13
 x 13
 y 12
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 13
 y 13
 end
@@ -2159,14 +2170,14 @@ arch grassd_4
 x 13
 y 23
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 14
 y 1
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 2
 end
@@ -2178,7 +2189,7 @@ arch floor_sand_d2
 x 14
 y 4
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 5
 end
@@ -2190,7 +2201,7 @@ arch light3
 x 14
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 14
 y 7
 end
@@ -2222,7 +2233,7 @@ arch grassd_m11
 x 14
 y 13
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 14
 y 14
 end
@@ -2288,7 +2299,7 @@ arch grassd_m8
 x 15
 y 1
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 15
 y 2
 end
@@ -2320,7 +2331,7 @@ arch grassd_m8
 x 15
 y 5
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 6
 end
@@ -2328,7 +2339,7 @@ arch grassd_m8
 x 15
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 15
 y 7
 end
@@ -2336,7 +2347,7 @@ arch grassd_m8
 x 15
 y 7
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 15
 y 8
 end
@@ -2991,7 +3002,7 @@ arch grassd_8
 x 20
 y 2
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 20
 y 3
 end

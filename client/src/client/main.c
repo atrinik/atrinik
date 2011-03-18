@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -240,8 +240,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"player_info_bg.png",PIC_TYPE_DEFAULT},
 	{"target_bg.png", PIC_TYPE_DEFAULT},
 	{"textinput.png", PIC_TYPE_DEFAULT},
-	{"shop.png", PIC_TYPE_DEFAULT},
-	{"shop_input.png", PIC_TYPE_DEFAULT},
 
 	{"square_highlight.png", PIC_TYPE_DEFAULT},
 	{"servers_bg.png", PIC_TYPE_DEFAULT},
@@ -383,6 +381,13 @@ static void init_game_data()
 	text_input_history_clear();
 	delete_player_lists();
 	metaserver_init();
+
+	if (!options.allow_widgets_offscreen)
+	{
+		widgets_ensure_onscreen();
+	}
+
+	SRANDOM(time(NULL));
 }
 
 /**
@@ -711,7 +716,7 @@ static int game_status_chain()
 	{
 		if (!server_files_updating())
 		{
-			server_files_load();
+			server_files_load(1);
 			GameStatus = GAME_STATUS_ADDME;
 		}
 	}
@@ -1009,6 +1014,7 @@ static void display_layer1()
 		SDL_FillRect(ScreenSurfaceMap, NULL, 0);
 		map_draw_map();
 		map_redraw_flag = 0;
+		effect_sprites_play();
 
 		if (options.zoom != 100)
 		{
@@ -1141,7 +1147,7 @@ static void DisplayCustomCursor()
 int main(int argc, char *argv[])
 {
 	int x, y, drag, done = 0;
-	uint32 anim_tick;
+	uint32 anim_tick, frame_start_time;
 	Uint32 videoflags;
 	size_t i;
 
@@ -1261,6 +1267,7 @@ int main(int argc, char *argv[])
 
 	while (!done)
 	{
+		frame_start_time = SDL_GetTicks();
 		done = Event_PollInputDevice();
 
 		/* Have we been shutdown? */
@@ -1489,8 +1496,17 @@ int main(int argc, char *argv[])
 			SDL_Flip(ScreenSurface);
 		}
 
+		if (options.intelligent_fps_cap)
+		{
+			uint32 elapsed_time = SDL_GetTicks() - frame_start_time;
+
+			if (elapsed_time < 1000 / FRAMES_PER_SECOND)
+			{
+				SDL_Delay(1000 / FRAMES_PER_SECOND - elapsed_time);
+			}
+		}
 		/* Force the thread to sleep */
-		if (options.max_speed)
+		else if (options.max_speed)
 		{
 			SDL_Delay(options.sleep);
 		}

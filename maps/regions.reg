@@ -7,7 +7,7 @@ jail /shattered_islands/strakewood_island/greyton/jail/jail_a 1 11
 end
 region creation
 parent world
-longname The Creation of Time
+longname Plane of Creation
 msg
 No one knows where this place is, but all have seen it.
 
@@ -152,7 +152,7 @@ end
 
 # Moroch Temple.
 region moroch_temple
-parent world
+parent strakewood_island
 longname The Moroch Temple Dungeon
 msg
 You see many passages here, and wonder which you should take.

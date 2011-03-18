@@ -2,12 +2,10 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-02-18 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 1
-enter_y 1
 difficulty 30
 darkness 1
 tile_path_1 world_b_0738
@@ -358,7 +356,7 @@ arch floor_dungeon1a
 x 17
 y 6
 end
-arch wall_dungeon_1
+arch wall_dungeon_4
 x 17
 y 6
 end
@@ -586,11 +584,6 @@ x 20
 y 2
 end
 arch torch_wall_1
-face torch_wall.114
-speed_left -0.810973
-state 3
-glow_radius 5
-is_animated 1
 x 20
 y 2
 end
@@ -812,6 +805,7 @@ y 9
 end
 arch sign
 name TODO: Knight's Chapel
+is_invisible 1
 x 21
 y 9
 end
@@ -828,11 +822,6 @@ x 21
 y 11
 end
 arch torch_wall_1
-face torch_wall.113
-speed_left -0.930971
-state 2
-glow_radius 5
-is_animated 1
 x 21
 y 11
 end
@@ -919,6 +908,7 @@ y 3
 end
 arch altar_grunhilde
 direction 5
+xrays 1
 x 22
 y 3
 end

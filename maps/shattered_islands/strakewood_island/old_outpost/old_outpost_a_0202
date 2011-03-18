@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-02-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -267,7 +267,6 @@ dam 80
 wc 8
 maxhp 80
 ac 11
-Wis 3
 end
 end
 arch floor_stone3d
@@ -485,7 +484,9 @@ x 2
 y 16
 end
 arch corpse_human
+is_used_up 0
 name slain thraal mercenary
+speed 0
 x 2
 y 16
 end
@@ -506,6 +507,8 @@ x 2
 y 20
 end
 arch corpse_human
+is_used_up 0
+speed 0
 name slain chin'hao knight
 x 2
 y 20
@@ -762,7 +765,9 @@ x 4
 y 19
 end
 arch corpse_human
+is_used_up 0
 name slain chin'hao knight
+speed 0
 x 4
 y 19
 end
@@ -906,7 +911,6 @@ dam 80
 wc 8
 maxhp 80
 ac 11
-Wis 3
 end
 end
 arch floor_stone3d
@@ -918,7 +922,9 @@ x 5
 y 16
 end
 arch corpse_human
+is_used_up 0
 name slain chin'hao knight
+speed 0
 x 5
 y 16
 end
@@ -1226,7 +1232,9 @@ x 7
 y 20
 end
 arch corpse_human
+is_used_up 0
 name slain chin'hao knight captain
+speed 0
 x 7
 y 20
 arch letter
@@ -2515,7 +2523,6 @@ dam 90
 wc 8
 maxhp 80
 ac 11
-Wis 3
 end
 end
 arch floor_stone3b

@@ -31,13 +31,13 @@ quest = {
 			"type": QUEST_TYPE_SPECIAL,
 		},
 		{
-			"message": "After delivering the clear crystal to Albar, he has asked to find him wood from the ancient treant Silmedsen who should be south of the Asteria Swamp.",
+			"message": "After delivering the clear crystal to Albar, he has asked to find him wood from the ancient tree Silmedsen who should be south of the Asteria Swamp.",
 			"arch_name": "tree_branch1",
 			"item_name": "Silmedsen's branches",
 			"type": QUEST_TYPE_KILL_ITEM,
 		},
 		{
-			"message": "The ancient treant Silmedsen south of Asteria Swamp has asked you to fill an empty bottle - which he has given you - with water that surrounds the Great Blue Crystal in Morliana.",
+			"message": "The ancient tree Silmedsen south of Asteria Swamp has asked you to fill an empty bottle - which he has given you - with water that surrounds the Great Blue Crystal in Morliana.",
 			"type": QUEST_TYPE_SPECIAL,
 		},
 	],
@@ -73,12 +73,12 @@ def npc_albar():
 				else:
 					obj.Decrease()
 					activator.Write("You hand one clear crystal to {}.".format(me.name), COLOR_YELLOW)
-					me.SayTo(activator, "\nThat's a perfect clear crystal, thank you! Now, I need a stand to mount the telescope on. It needs to be a very sturdy one... The wood from the ancient treant Silmedsen should do. I have heard he was located south of Asteria Swamp...")
+					me.SayTo(activator, "\nThat's a perfect clear crystal, thank you! Now, I need a stand to mount the telescope on. It needs to be a very sturdy one... The wood from the ancient tree Silmedsen should do. I have heard he was located south of Asteria Swamp...")
 					qm.start(5)
 					qm.complete(4, sound = False)
 			elif qm.started_part(5) and not qm.completed_part(5):
 				if not qm.finished(5):
-					me.SayTo(activator, "\nHave you found the wood from the ancient treant Silmedsen yet? I have heard he was located south of Asteria Swamp...")
+					me.SayTo(activator, "\nHave you found the wood from the ancient tree Silmedsen yet? I have heard he was located south of Asteria Swamp...")
 				else:
 					activator.Write("You hand the wood from Silmedsen to {}.".format(me.name), COLOR_YELLOW)
 					me.SayTo(activator, "\nThat's great wood, just perfect, thank you. Now I can finish the telescope... Please, accept this gift from me. It's some protection against the winter here in the cold North.")
@@ -200,7 +200,7 @@ if GetEventNumber() == EVENT_SAY:
 		npc_albar()
 	elif me.name.find("Jonaslen") != -1:
 		npc_jonaslen()
-	elif me.name.find("Silmedsen") != -1:
+	elif me.name == "Silmedsen":
 		npc_silmedsen()
 else:
 	# Handle the potion.

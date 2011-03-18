@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -348,6 +348,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 		/* It looks like the only properties we ever care about from the casting
 		 * object (caster) is spell paths and level. */
 		object *cast_op = op;
+		MapSpace *msp;
 
 		if (!caster)
 		{
@@ -379,8 +380,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			return 0;
 		}
 
+		msp = GET_MAP_SPACE_PTR(cast_op->map, cast_op->x, cast_op->y);
+
 		/* No harm spell and not town safe. */
-		if (MAP_NOHARM(cast_op->map) && !(spells[type].flags & SPELL_DESC_TOWN))
+		if ((MAP_NOHARM(cast_op->map) || (msp->extra_flags & MSP_EXTRA_NO_HARM)) && !(MAP_NOHARM(cast_op->map) && (msp->extra_flags & MSP_EXTRA_NO_HARM)) && !(spells[type].flags & SPELL_DESC_TOWN))
 		{
 			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all harmful magic here!");
 			return 0;

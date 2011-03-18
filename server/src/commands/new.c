@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -778,6 +778,12 @@ void command_new_char(char *params, int len, player *pl)
 	int stats[7], i, v;
 	char name[HUGE_BUF] = "";
 
+	/* Ignore the command if the player is already playing. */
+	if (CONTR(op)->state == ST_PLAYING)
+	{
+		return;
+	}
+
 	if (CONTR(op)->state != ST_ROLL_STAT)
 	{
 		LOG(llevDebug, "CRACK: command_new_char(): %s does not have state ST_ROLL_STAT.\n", query_name(pl->ob, NULL));
@@ -960,21 +966,6 @@ void command_fire(char *params, int len, player *pl)
 	CONTR(op)->fire_on = 0;
 	/* marks no client fire action */
 	CONTR(op)->firemode_type = -1;
-}
-
-/**
- * Sends mapstats command to the client, after the player has entered the map.
- *
- * Command sends map width, map height, map name, map music, etc.
- * @param op Player object.
- * @param map Map. */
-void send_mapstats_cmd(object *op, struct mapdef *map)
-{
-	char tmp[HUGE_BUF];
-
-	CONTR(op)->last_update = map;
-	snprintf(tmp, sizeof(tmp), "X%d %d %d %d %s %s", map->width, map->height, op->x, op->y, map->bg_music ? map->bg_music : "no_music", map->name);
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_MAPSTATS, tmp, strlen(tmp));
 }
 
 /**
@@ -1179,11 +1170,6 @@ void generate_ext_title(player *pl)
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 	{
 		strcat(pl->quick_name, " [WIZ]");
-	}
-
-	if (pl->shop_items && QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
-	{
-		strcat(pl->quick_name, " [SHOP]");
 	}
 
 	if (pl->socket.socket_version >= 1044)

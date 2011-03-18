@@ -60,6 +60,7 @@ mpart_id 5
 mpart_nr 5
 no_pass 1
 no_pick 1
+hidden 1
 end
 
 Object pillar_ruin1b.101

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -578,6 +578,11 @@ void region_map_handle_key(SDLKey key)
 {
 	int pos = RM_SCROLL;
 
+	if (!region_map_png)
+	{
+		return;
+	}
+
 	/* Shift is held, increase the scrolling 'speed'. */
 	if (SDL_GetModState() & KMOD_SHIFT)
 	{
@@ -627,6 +632,11 @@ void region_map_handle_key(SDLKey key)
  * @param event The event. */
 void region_map_handle_event(SDL_Event *event)
 {
+	if (!region_map_png)
+	{
+		return;
+	}
+
 	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
 		/* Zoom in. */
@@ -674,6 +684,12 @@ void region_map_show()
 		map_udate_flag = 2;
 		reset_keys();
 	}
+
+	/* Show direction markers. */
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>N</o>", box.x, y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>E</o>", x + Bitmaps[BITMAP_BOOK]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>S</o>", box.x, y + Bitmaps[BITMAP_BOOK]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>W</o>", x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
 
 	/* Check the status of the downloads. */
 	ret_png = curl_download_finished(data_png);

@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -298,7 +298,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"reflecting", "changing", "splitting", "hitback", "startequip",
 	"blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
 	"reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
-	"run_away", "pass_thru", "can_pass_thru", NULL, "unique",
+	"run_away", "pass_thru", "can_pass_thru", "outdoor", "unique",
 	"no_drop", "is_indestructible", "can_cast_spell", NULL, NULL,
 	"can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
 	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
@@ -311,7 +311,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"is_dust", NULL, "one_hit", NULL, "berserk",
 	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
 	NULL, NULL, NULL, NULL, NULL,
-	"sys_object", "use_fix_pos", "unpaid", NULL, "make_invisible",
+	"sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",
 	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
 	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
 	"cursed_perm", "damned_perm", "door_closed", NULL, "is_missile",
@@ -1356,6 +1356,11 @@ void update_object(object *op, int action)
 			if (op->type == MAGIC_MIRROR)
 			{
 				newflags |= P_MAGIC_MIRROR;
+			}
+
+			if (QUERY_FLAG(op, FLAG_OUTDOOR))
+			{
+				newflags |= P_OUTDOOR;
 			}
 		}
 	}
@@ -3656,6 +3661,7 @@ void init_object_initializers()
 	object_initializers[BEACON] = beacon_add;
 	object_initializers[MAP_EVENT_OBJ] = map_event_obj_init;
 	object_initializers[MAGIC_MIRROR] = magic_mirror_init;
+	object_initializers[MAP_INFO] = map_info_init;
 }
 
 /**
@@ -3697,43 +3703,43 @@ int item_matched_string(object *pl, object *op, const char *name)
 		}
 
 		/* All is a very generic match - low match value */
-		if (!strcmp(cp, "all"))
+		if (!strcasecmp(cp, "all"))
 		{
 			return 1;
 		}
 
 		/* Unpaid is a little more specific */
-		if (!strcmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
+		if (!strcasecmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
 		{
 			return 2;
 		}
 
-		if (!strcmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
+		if (!strcasecmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
 		{
 			return 2;
 		}
 
-		if (!strcmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
+		if (!strcasecmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
 		{
 			return 2;
 		}
 
-		if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcmp(cp, "identified"))
+		if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "identified"))
 		{
 			return 2;
 		}
 
-		if (!QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcmp(cp, "unidentified"))
+		if (!QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "unidentified"))
 		{
 			return 2;
 		}
 
-		if ((op->type == FOOD || op->type == DRINK) && !strcmp(cp, "food"))
+		if ((op->type == FOOD || op->type == DRINK) && !strcasecmp(cp, "food"))
 		{
 			return 2;
 		}
 
-		if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) && !strcmp(cp, "valuables"))
+		if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) && !strcasecmp(cp, "valuables"))
 		{
 			return 2;
 		}
@@ -3744,28 +3750,28 @@ int item_matched_string(object *pl, object *op, const char *name)
 
 			if (weapon_type == WEAP_1H_IMPACT)
 			{
-				if (!strcmp(cp, "impact weapons"))
+				if (!strcasecmp(cp, "impact weapons"))
 				{
 					return 2;
 				}
 			}
 			else if (weapon_type == WEAP_1H_SLASH)
 			{
-				if (!strcmp(cp, "slash weapons"))
+				if (!strcasecmp(cp, "slash weapons"))
 				{
 					return 2;
 				}
 			}
 			else if (weapon_type == WEAP_1H_CLEAVE)
 			{
-				if (!strcmp(cp, "cleave weapons"))
+				if (!strcasecmp(cp, "cleave weapons"))
 				{
 					return 2;
 				}
 			}
 			else if (weapon_type == WEAP_1H_PIERCE)
 			{
-				if (!strcmp(cp, "pierce weapons"))
+				if (!strcasecmp(cp, "pierce weapons"))
 				{
 					return 2;
 				}
@@ -3773,19 +3779,19 @@ int item_matched_string(object *pl, object *op, const char *name)
 		}
 		else if (op->type == BOOK)
 		{
-			if (!strcmp(cp, "books"))
+			if (!strcasecmp(cp, "books"))
 			{
 				return 2;
 			}
 
-			if (!op->msg && !strcmp(cp, "empty books"))
+			if (!op->msg && !strcasecmp(cp, "empty books"))
 			{
 				return 2;
 			}
 
 			if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
 			{
-				if (!strcmp(cp, "unread books"))
+				if (!strcasecmp(cp, "unread books"))
 				{
 					return 2;
 				}
@@ -3802,7 +3808,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 			}
 			else
 			{
-				if (!strcmp(cp, "read books"))
+				if (!strcasecmp(cp, "read books"))
 				{
 					return 2;
 				}

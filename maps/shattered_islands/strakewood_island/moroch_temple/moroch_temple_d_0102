@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -52,6 +52,11 @@ arch fwall_fstone1a
 x 2
 y 4
 end
+arch plant1_wall.151
+direction 7
+x 2
+y 4
+end
 arch floor_sblack1b
 x 2
 y 5
@@ -73,6 +78,11 @@ x 2
 y 7
 end
 arch fwall_fstone1b
+x 2
+y 7
+end
+arch plant1_wall.151
+direction 7
 x 2
 y 7
 end
@@ -108,6 +118,11 @@ arch fwall_fstone1a
 x 2
 y 11
 end
+arch plant1_wall.151
+direction 7
+x 2
+y 11
+end
 arch floor_sblack2b
 x 2
 y 12
@@ -161,6 +176,11 @@ x 2
 y 18
 end
 arch fwall_fstone1c
+x 2
+y 18
+end
+arch plant1_wall.151
+direction 7
 x 2
 y 18
 end
@@ -185,6 +205,11 @@ x 2
 y 21
 end
 arch fwall_fstone1b
+x 2
+y 21
+end
+arch plant2_wall.151
+direction 7
 x 2
 y 21
 end
@@ -214,6 +239,14 @@ arch floor_sblack3b
 x 3
 y 1
 end
+arch crystal_blue_s
+x 3
+y 1
+end
+arch light3
+x 3
+y 1
+end
 arch floor_sblack3b
 x 3
 y 2
@@ -227,11 +260,26 @@ arch floor_sblack3b
 x 3
 y 3
 end
+arch shelf3_dem2.111
+direction 7
+x 3
+y 3
+end
 arch floor_sblack3b
 x 3
 y 4
 end
+arch shelf3_dem3.111
+direction 7
+x 3
+y 4
+end
 arch floor_sblack1b
+x 3
+y 5
+end
+arch shelf3_dem2.111
+direction 7
 x 3
 y 5
 end
@@ -252,7 +300,17 @@ arch floor_sblack2b
 x 3
 y 8
 end
+arch shelf3_dem3.111
+direction 7
+x 3
+y 8
+end
 arch floor_sblack2b
+x 3
+y 9
+end
+arch shelf3_dem1.111
+direction 7
 x 3
 y 9
 end
@@ -269,11 +327,26 @@ arch floor_sblack3b
 x 3
 y 11
 end
+arch shelf3_dem3.111
+direction 7
+x 3
+y 11
+end
 arch floor_sblack3b
 x 3
 y 12
 end
+arch shelf3_dem1.111
+direction 7
+x 3
+y 12
+end
 arch floor_sblack1b
+x 3
+y 13
+end
+arch shelf3_dem2.111
+direction 7
 x 3
 y 13
 end
@@ -293,7 +366,15 @@ arch floor_sblack2b
 x 3
 y 16
 end
+arch mushroom_spot2
+x 3
+y 16
+end
 arch floor_sblack1b
+x 3
+y 17
+end
+arch mushroom_spot2
 x 3
 y 17
 end
@@ -301,7 +382,15 @@ arch floor_sblack2b
 x 3
 y 18
 end
+arch mushroom_spot2
+x 3
+y 18
+end
 arch floor_sblack2b
+x 3
+y 19
+end
+arch mushroom_spot1
 x 3
 y 19
 end
@@ -454,7 +543,15 @@ arch fwall_fstone1a
 x 4
 y 15
 end
+arch plant2_wall.151
+x 4
+y 15
+end
 arch floor_sblack2b
+x 4
+y 16
+end
+arch mushroom_spot2
 x 4
 y 16
 end
@@ -462,7 +559,7 @@ arch floor_sblack2b
 x 4
 y 17
 end
-arch blood_floor2
+arch mushroom_spot1
 x 4
 y 17
 end
@@ -504,6 +601,14 @@ arch floor_sblack3b
 x 5
 y 1
 end
+arch crystal_blue_s
+x 5
+y 1
+end
+arch light3
+x 5
+y 1
+end
 arch floor_sblack2b
 x 5
 y 2
@@ -512,7 +617,15 @@ arch floor_sblack2b
 x 5
 y 3
 end
+arch mushroom_spot1
+x 5
+y 3
+end
 arch floor_sblack1b
+x 5
+y 4
+end
+arch mushroom_spot1
 x 5
 y 4
 end
@@ -520,7 +633,15 @@ arch floor_sblack2b
 x 5
 y 5
 end
+arch mushroom_spot2
+x 5
+y 5
+end
 arch floor_sblack1b
+x 5
+y 6
+end
+arch mushroom_spot1
 x 5
 y 6
 end
@@ -572,6 +693,10 @@ arch floor_sblack3b
 x 5
 y 14
 end
+arch mushroom_spot2
+x 5
+y 14
+end
 arch floor_sblack2b
 x 5
 y 15
@@ -581,6 +706,10 @@ x 5
 y 15
 end
 arch floor_sblack2b
+x 5
+y 16
+end
+arch mushroom_spot2
 x 5
 y 16
 end
@@ -686,6 +815,11 @@ arch fwall_fstone1a
 x 6
 y 7
 end
+arch plant1_wall.151
+direction 7
+x 6
+y 7
+end
 arch floor_sblack2b
 x 6
 y 8
@@ -818,6 +952,10 @@ arch floor_sblack2b
 x 6
 y 16
 end
+arch mushroom_spot2
+x 6
+y 16
+end
 arch floor_sblack3b
 x 6
 y 17
@@ -826,7 +964,15 @@ arch floor_sblack1b
 x 6
 y 18
 end
+arch mushroom_spot2
+x 6
+y 18
+end
 arch floor_sblack1b
+x 6
+y 19
+end
+arch mushroom_spot1
 x 6
 y 19
 end
@@ -871,6 +1017,11 @@ x 7
 y 6
 end
 arch floor_sblack3b
+x 7
+y 7
+end
+arch shelf3_dem3.111
+direction 7
 x 7
 y 7
 end
@@ -977,6 +1128,10 @@ x 8
 y 5
 end
 arch floor_sblack2b
+x 8
+y 6
+end
+arch shelf3_dem1.111
 x 8
 y 6
 end
@@ -1040,11 +1195,19 @@ arch floor_sblack2b
 x 8
 y 14
 end
+arch mushroom_spot2
+x 8
+y 14
+end
 arch floor_sblack3b
 x 8
 y 15
 end
 arch fwall_fstone1c
+x 8
+y 15
+end
+arch plant2_wall.151
 x 8
 y 15
 end
@@ -1164,6 +1327,10 @@ arch floor_sblack2b
 x 9
 y 14
 end
+arch mushroom_spot1
+x 9
+y 14
+end
 arch floor_sblack2b
 x 9
 y 15
@@ -1244,7 +1411,15 @@ arch floor_sblack2b
 x 10
 y 11
 end
+arch mushroom_spot1
+x 10
+y 11
+end
 arch floor_sblack1b
+x 10
+y 12
+end
+arch mushroom_spot2
 x 10
 y 12
 end
@@ -1252,7 +1427,15 @@ arch floor_sblack3b
 x 10
 y 13
 end
+arch mushroom_spot1
+x 10
+y 13
+end
 arch floor_sblack2b
+x 10
+y 14
+end
+arch mushroom_spot1
 x 10
 y 14
 end
@@ -1300,6 +1483,10 @@ arch floor_sblack1b
 x 10
 y 21
 end
+arch mushroom_spot2
+x 10
+y 21
+end
 arch floor_sblack2b
 x 10
 y 22
@@ -1329,6 +1516,11 @@ x 11
 y 4
 end
 arch fwall_fstone1a
+x 11
+y 4
+end
+arch plant1_wall.151
+direction 7
 x 11
 y 4
 end
@@ -1420,6 +1612,11 @@ arch fwall_fstone1b
 x 11
 y 11
 end
+arch plant1_wall.151
+direction 7
+x 11
+y 11
+end
 arch floor_sblack2b
 x 11
 y 12
@@ -1472,6 +1669,10 @@ arch floor_sblack2b
 x 11
 y 20
 end
+arch mushroom_spot2
+x 11
+y 20
+end
 arch floor_sblack1b
 x 11
 y 21
@@ -1481,6 +1682,10 @@ x 11
 y 21
 end
 arch floor_sblack1b
+x 11
+y 22
+end
+arch mushroom_spot1
 x 11
 y 22
 end
@@ -1508,6 +1713,10 @@ arch shelf1_wall.111
 direction 7
 x 12
 y 4
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack3b
 x 12
@@ -1555,12 +1764,28 @@ arch shelf2_wall.111
 direction 7
 x 12
 y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 12
 y 11
 end
+arch mushroom_spot2
+x 12
+y 11
+end
 arch floor_sblack2b
+x 12
+y 12
+end
+arch mushroom_spot2
 x 12
 y 12
 end
@@ -1581,6 +1806,10 @@ x 12
 y 15
 end
 arch floor_sblack1b
+x 12
+y 16
+end
+arch mushroom_spot1
 x 12
 y 16
 end
@@ -1716,7 +1945,15 @@ arch fwall_fstone1a
 x 13
 y 15
 end
+arch plant1_wall.151
+x 13
+y 15
+end
 arch floor_sblack1b
+x 13
+y 16
+end
+arch mushroom_spot2
 x 13
 y 16
 end
@@ -1763,6 +2000,14 @@ end
 arch floor_sblack2b
 x 14
 y 3
+end
+arch shelf3c.111
+x 14
+y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 14
@@ -1868,6 +2113,10 @@ arch floor_sblack2b
 x 14
 y 16
 end
+arch mushroom_spot2
+x 14
+y 16
+end
 arch floor_sblack2b
 x 14
 y 17
@@ -1919,6 +2168,14 @@ end
 arch shelf3b.111
 x 15
 y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack1b
 x 15
@@ -2016,6 +2273,10 @@ arch floor_sblack2b
 x 15
 y 16
 end
+arch mushroom_spot2
+x 15
+y 16
+end
 arch floor_sblack2b
 x 15
 y 17
@@ -2059,6 +2320,18 @@ end
 arch floor_sblack2b
 x 16
 y 3
+end
+arch shelf3b.111
+x 16
+y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 16
@@ -2148,7 +2421,15 @@ arch fwall_fstone1a
 x 16
 y 15
 end
+arch plant1_wall.151
+x 16
+y 15
+end
 arch floor_sblack2b
+x 16
+y 16
+end
+arch mushroom_spot2
 x 16
 y 16
 end
@@ -2195,6 +2476,14 @@ end
 arch shelf3a.111
 x 17
 y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack1b
 x 17
@@ -2260,7 +2549,7 @@ name Moroch's heavy rod
 no_pick 1
 identified 1
 sp 2
-level 110
+level 115
 is_magical 1
 end
 end
@@ -2293,6 +2582,10 @@ x 17
 y 15
 end
 arch floor_sblack3b
+x 17
+y 16
+end
+arch mushroom_spot1
 x 17
 y 16
 end
@@ -2351,6 +2644,14 @@ end
 arch floor_sblack2b
 x 18
 y 3
+end
+arch shelf3a.111
+x 18
+y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 18
@@ -2444,6 +2745,10 @@ arch floor_sblack3b
 x 18
 y 16
 end
+arch mushroom_spot2
+x 18
+y 16
+end
 arch floor_sblack2b
 x 18
 y 17
@@ -2453,6 +2758,10 @@ x 18
 y 18
 end
 arch floor_sblack1b
+x 18
+y 19
+end
+arch mushroom_spot2
 x 18
 y 19
 end
@@ -2585,11 +2894,19 @@ arch floor_sblack1b
 x 19
 y 16
 end
+arch mushroom_spot2
+x 19
+y 16
+end
 arch floor_sblack2b
 x 19
 y 17
 end
 arch floor_sblack2b
+x 19
+y 18
+end
+arch mushroom_spot2
 x 19
 y 18
 end
@@ -2602,6 +2919,10 @@ x 19
 y 19
 end
 arch floor_sblack1b
+x 19
+y 20
+end
+arch mushroom_spot1
 x 19
 y 20
 end
@@ -2628,6 +2949,18 @@ end
 arch floor_sblack2b
 x 20
 y 3
+end
+arch shelf3a.111
+x 20
+y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack1b
 x 20
@@ -2861,6 +3194,10 @@ arch fwall_fstone1b
 x 21
 y 15
 end
+arch plant1_wall.151
+x 21
+y 15
+end
 arch floor_sblack3b
 x 21
 y 16
@@ -2921,6 +3258,10 @@ arch floor_sblack2b
 x 22
 y 3
 end
+arch shelf3_dem2.111
+x 22
+y 3
+end
 arch floor_sblack2b
 x 22
 y 4
@@ -2962,6 +3303,10 @@ x 22
 y 11
 end
 arch floor_sblack2b
+x 22
+y 12
+end
+arch mushroom_spot1
 x 22
 y 12
 end
@@ -3033,6 +3378,10 @@ arch floor_sblack1b
 x 23
 y 4
 end
+arch mushroom_spot2
+x 23
+y 4
+end
 arch floor_sblack2b
 x 23
 y 5
@@ -3069,7 +3418,15 @@ arch floor_sblack3b
 x 23
 y 11
 end
+arch mushroom_spot2
+x 23
+y 11
+end
 arch floor_sblack2b
+x 23
+y 12
+end
+arch mushroom_spot1
 x 23
 y 12
 end

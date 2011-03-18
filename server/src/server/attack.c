@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -690,8 +690,8 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 	 * Our formula is (100 - resist) / 100 - so test for 100 = zero division */
 	if (op->protection[attacknum] == 100)
 	{
-		dam = 0;
-		send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+		ATTACK_HIT_DAMAGE(hitter, attacknum);
+		send_attack_msg(op, hitter, attacknum, 0, dam);
 		return 0;
 	}
 
@@ -856,7 +856,7 @@ static void share_kill_exp_one(object *op, sint64 exp, object *skill)
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "Your enemy was too low for exp.");
+		new_draw_info(NDI_UNIQUE, op, "Your enemy wasn't worth any experience to you.");
 	}
 }
 

@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-17 Alex Tokar
+Modified: 2011-02-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,7 +17,7 @@ tile_path_5 world_0835
 tile_path_6 world_0833
 tile_path_7 world_0633
 tile_path_8 world_0635
-bg_music rainthunder.ogg
+bg_music chether.mid
 region asteria
 end
 arch grassd_6
@@ -921,7 +921,6 @@ x 4
 y 11
 end
 arch shop_mat
-speed_left 0.500000
 x 4
 y 11
 end
@@ -969,8 +968,11 @@ z 50
 x 4
 y 19
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 4
+y 19
+end
+arch light7
 x 4
 y 19
 end
@@ -1002,9 +1004,11 @@ z 50
 x 4
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 4
+y 23
+end
+arch light7
 x 4
 y 23
 end
@@ -1079,11 +1083,6 @@ x 5
 y 11
 end
 arch torch_wall_1
-face torch_wall.112
-speed_left -0.702518
-state 1
-glow_radius 5
-is_animated 1
 x 5
 y 11
 end
@@ -1746,9 +1745,11 @@ arch grassd_m4
 x 9
 y 4
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 9
+y 4
+end
+arch light7
 x 9
 y 4
 end
@@ -1785,9 +1786,11 @@ z 50
 x 9
 y 9
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 9
+y 9
+end
+arch light7
 x 9
 y 9
 end
@@ -1869,9 +1872,11 @@ arch grassd_m4
 x 9
 y 19
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 9
+y 19
+end
+arch light7
 x 9
 y 19
 end
@@ -1907,9 +1912,11 @@ arch grassd_m3
 x 9
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 5
+arch lantern_black
+x 9
+y 23
+end
+arch light7
 x 9
 y 23
 end
@@ -2481,8 +2488,11 @@ z 50
 x 13
 y 9
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 9
+end
+arch light7
 x 13
 y 9
 end
@@ -2528,8 +2538,11 @@ arch grassd_m5
 x 13
 y 15
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 15
+end
+arch light7
 x 13
 y 15
 end
@@ -2557,8 +2570,11 @@ arch grassd_m6
 x 13
 y 19
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 19
+end
+arch light7
 x 13
 y 19
 end
@@ -2594,8 +2610,11 @@ arch grassd_m5
 x 13
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 13
+y 23
+end
+arch light7
 x 13
 y 23
 end
@@ -3488,8 +3507,11 @@ z 50
 x 18
 y 19
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 18
+y 19
+end
+arch light7
 x 18
 y 19
 end
@@ -3521,9 +3543,11 @@ z 50
 x 18
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 18
+y 23
+end
+arch light7
 x 18
 y 23
 end
@@ -3540,9 +3564,6 @@ x 19
 y 1
 end
 arch shop_mat
-face exit.102
-speed_left 0.500000
-state 1
 x 19
 y 1
 end
@@ -3605,7 +3626,6 @@ x 19
 y 11
 end
 arch shop_mat
-speed_left 0.500000
 x 19
 y 11
 end
@@ -3896,9 +3916,6 @@ x 21
 y 1
 end
 arch shop_mat
-face exit.102
-speed_left 0.500000
-state 1
 x 21
 y 1
 end
@@ -4483,8 +4500,11 @@ z 50
 x 23
 y 19
 end
-arch lantern_magic.131
-glow_radius 7
+arch lantern_black
+x 23
+y 19
+end
+arch light7
 x 23
 y 19
 end
@@ -4516,9 +4536,11 @@ z 50
 x 23
 y 23
 end
-arch lantern_magic.131
-glow_radius 7
-direction 7
+arch lantern_black
+x 23
+y 23
+end
+arch light7
 x 23
 y 23
 end

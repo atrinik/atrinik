@@ -2,13 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-09 Alex Tokar
+Modified: 2011-02-26 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 15
 outdoor 1
 no_harm 1
+fixed_resettime 1
 tile_path_1 world_0313
 tile_path_2 world_0412
 tile_path_3 world_0311
@@ -17,7 +18,7 @@ tile_path_5 world_0413
 tile_path_6 world_0411
 tile_path_7 world_0211
 tile_path_8 world_0213
-bg_music rainthunder.ogg
+bg_music lontala.mid
 region brynknot
 end
 arch floor_flagm4
@@ -50,8 +51,8 @@ arch floor_marble1
 y 7
 end
 arch altar_tabernacle
-face altar_default.131
 direction 3
+xrays 1
 y 7
 end
 arch floor_marble1
@@ -78,34 +79,81 @@ end
 arch grassd_1
 y 13
 end
+arch wall_wood_8
+y 13
+end
+arch client_map_info
+msg
+Brynknot Library.
+endmsg
+name brynknot_library
+sub_type 2
+stand_still 1
+y 13
+end
 arch grassd_1
+y 14
+end
+arch wall_wood_3
 y 14
 end
 arch grassd_2
 y 15
 end
-arch plant1
+arch wall_wood2_3
 y 15
 end
 arch grassd_5
 y 16
 end
+arch wall_wood3_3
+y 16
+end
+arch picture2.151
+z 4
+align -8
+direction 7
+y 16
+end
 arch grassd_1
+y 17
+end
+arch wall_wood2_3
 y 17
 end
 arch grassd_7
 y 18
 end
+arch wall_wood2_3
+y 18
+end
 arch grassd_5
+y 19
+end
+arch wall_wood_3
 y 19
 end
 arch grassd_2
 y 20
 end
+arch wall_wood2_3
+y 20
+end
 arch grassd_6
 y 21
 end
+arch wall_wood_3
+y 21
+end
 arch grassd_2
+y 22
+end
+arch wall_wood_3
+y 22
+end
+arch client_map_info
+name brynknot_library
+sub_type 2
 y 22
 end
 arch grassd_2
@@ -195,47 +243,125 @@ arch grassd_8
 x 1
 y 13
 end
-arch grassd_6
+arch wall_wood3_1
+x 1
+y 13
+end
+arch floor_wood2_l1
 x 1
 y 14
 end
-arch grassd_6
+arch fwall_wood1c
+x 1
+y 14
+end
+arch floor_wood2_l1
+z 22
 x 1
 y 15
 end
-arch grassd_2
+arch stairs_wood_up
+direction 5
+x 1
+y 15
+end
+arch invis_exit
+slaying world_1_0312
+hp 1
+sp 15
+x 1
+y 15
+end
+arch floor_wood2_l2
 x 1
 y 16
 end
-arch grassd_3
+arch stairs_wood_up
+direction 5
+slaying world_1_0312
+hp 1
+sp 15
+x 1
+y 16
+end
+arch floor_wood2_l1
 x 1
 y 17
 end
-arch tree_big
+arch lamp_wall
+direction 7
 x 1
 y 17
 end
-arch grassd_3
+arch floor_wood2_l2
 x 1
 y 18
 end
-arch grassd_3
+arch shelf5_wall.111
+direction 7
+x 1
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
 x 1
 y 19
 end
-arch grassd_4
+arch shelf3c.111
+direction 7
+x 1
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
 x 1
 y 20
 end
-arch grassd_3
+arch shelf3b.111
+direction 7
+x 1
+y 20
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
 x 1
 y 21
 end
-arch grassd_5
+arch shelf3a.111
+direction 7
+x 1
+y 21
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
 x 1
 y 22
 end
-arch plant_flower6
+arch wall_wood_1
 x 1
 y 22
 end
@@ -320,47 +446,86 @@ arch grassd_8
 x 2
 y 13
 end
-arch grassd_1
+arch wall_wood2_1
+x 2
+y 13
+end
+arch floor_wood2_l1
 x 2
 y 14
 end
-arch tree_big5b
+arch wall_wood2_3
+z 10
+align -20
 x 2
 y 14
 end
-arch grassd_1
+arch fireplace_left
+layer 7
+align 10
+x 2
+y 14
+end
+arch floor_wood2_l1
 x 2
 y 15
 end
-arch grassd_7
+arch wall_wood2_3
+z 10
+align -20
+draw_double 0
+x 2
+y 15
+end
+arch floor_wood2_l1
 x 2
 y 16
 end
-arch grassd_4
+arch carpet1.131
+x 2
+y 16
+end
+arch light5
+x 2
+y 16
+end
+arch floor_wood2_l2
 x 2
 y 17
 end
-arch grassd_1
+arch carpet1.131
+x 2
+y 17
+end
+arch floor_wood2_l2
 x 2
 y 18
 end
-arch grassd_8
+arch carpet1.131
+x 2
+y 18
+end
+arch floor_wood2_l2
 x 2
 y 19
 end
-arch grassd_2
+arch carpet1.131
+x 2
+y 19
+end
+arch floor_wood2_l1
 x 2
 y 20
 end
-arch plant_flower7
-x 2
-y 20
-end
-arch grassd_5
+arch floor_wood2_l2
 x 2
 y 21
 end
-arch grassd_3
+arch floor_wood2_l2
+x 2
+y 22
+end
+arch wall_wood_1
 x 2
 y 22
 end
@@ -452,43 +617,145 @@ arch grassd_5
 x 3
 y 13
 end
-arch grassd_3
+arch wall_wood_w_1
+x 3
+y 13
+end
+arch floor_wood2_l2
 x 3
 y 14
 end
-arch grassd_6
+arch floor_wood2_l1
 x 3
 y 15
 end
-arch grassd_7
+arch carpet1.151
+x 3
+y 15
+end
+arch light5
+x 3
+y 15
+end
+arch floor_wood2_l2
 x 3
 y 16
 end
-arch grassd_1
+arch carpet1
+x 3
+y 16
+end
+arch floor_wood2_l2
 x 3
 y 17
 end
-arch grassd_4
+arch carpet1
+x 3
+y 17
+end
+arch floor_wood2_l2
 x 3
 y 18
 end
-arch grassd_7
+arch carpet1
+x 3
+y 18
+end
+arch chair2_111
+direction 7
+x 3
+y 18
+end
+arch floor_wood2_l1
 x 3
 y 19
 end
-arch grassd_8
+arch carpet1
+x 3
+y 19
+end
+arch floor_wood2_l1
 x 3
 y 20
 end
-arch grassd_5
+arch carpet1.111
+x 3
+y 20
+end
+arch chair2_111
+x 3
+y 20
+end
+arch spawn_point
+x 3
+y 20
+arch woman_old
+name Lairwenn the librarian
+direction 3
+level 14
+movement_type 176
+type 83
+arch waypoint
+name wp5
+title wp1
+hp 3
+sp 20
+wc 50
+end
+arch waypoint
+name wp4
+title wp5
+hp 1
+sp 19
+wc 6
+end
+arch waypoint
+name wp3
+title wp4
+hp 3
+sp 20
+wc 20
+end
+arch waypoint
+name wp2
+title wp3
+hp 1
+sp 20
+wc 7
+end
+arch waypoint
+name wp1
+title wp2
+hp 3
+sp 20
+wc 45
+cursed 1
+end
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/brynknot/lairwenn.py
+end
+arch writing_pen
+end
+end
+end
+arch floor_wood2_l1
 x 3
 y 21
 end
-arch grassd_3
+arch table_lab3.111
+x 3
+y 21
+end
+arch light2
+x 3
+y 21
+end
+arch floor_wood2_l1
 x 3
 y 22
 end
-arch tree_big4b
+arch wall_wood_w_1
 x 3
 y 22
 end
@@ -577,51 +844,105 @@ arch grassd_4
 x 4
 y 13
 end
-arch grassd_5
+arch wall_wood_1
+x 4
+y 13
+end
+arch floor_wood2_l1
 x 4
 y 14
 end
-arch grassd_5
+arch shelf3c.111
+x 4
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
 x 4
 y 15
 end
-arch plant15
+arch carpet1.151
 x 4
 y 15
 end
-arch grassd_3
+arch floor_wood2_l1
 x 4
 y 16
 end
-arch grassd_4
+arch carpet1
+x 4
+y 16
+end
+arch chair2_111
+x 4
+y 16
+end
+arch floor_wood2_l2
 x 4
 y 17
 end
-arch grassd_8
+arch carpet1
+x 4
+y 17
+end
+arch table_wood1.111
+direction 7
+x 4
+y 17
+end
+arch floor_wood2_l1
 x 4
 y 18
 end
-arch plant_flower7
+arch carpet1
 x 4
 y 18
 end
-arch grassd_1
+arch table_wood1.111
+direction 7
+x 4
+y 18
+end
+arch floor_wood2_l1
 x 4
 y 19
 end
-arch tree_big2
+arch carpet1
 x 4
 y 19
 end
-arch grassd_5
+arch floor_wood2_l1
 x 4
 y 20
 end
-arch grassd_6
+arch carpet1.111
+x 4
+y 20
+end
+arch floor_wood2_l1
 x 4
 y 21
 end
-arch grassd_2
+arch table_lab3.111
+x 4
+y 21
+end
+arch light2
+x 4
+y 21
+end
+arch floor_wood2_l2
+x 4
+y 22
+end
+arch wall_wood_1
 x 4
 y 22
 end
@@ -696,39 +1017,106 @@ arch grassd_7
 x 5
 y 13
 end
-arch grassd_6
+arch wall_wood2_1
+x 5
+y 13
+end
+arch floor_wood2_l2
 x 5
 y 14
 end
-arch grassd_4
+arch desk2
+x 5
+y 14
+end
+arch floor_wood2_l1
 x 5
 y 15
 end
-arch grassd_5
+arch carpet1.151
+x 5
+y 15
+end
+arch chair1_111
+direction 5
+x 5
+y 15
+end
+arch floor_wood2_l1
 x 5
 y 16
 end
-arch grassd_6
+arch carpet1
+x 5
+y 16
+end
+arch candlelight4.101
+x 5
+y 16
+end
+arch light5
+x 5
+y 16
+end
+arch floor_wood2_l2
 x 5
 y 17
 end
-arch grassd_5
+arch carpet1
+x 5
+y 17
+end
+arch chair2_111
+direction 7
+x 5
+y 17
+end
+arch floor_wood2_l2
 x 5
 y 18
 end
-arch grassd_7
+arch carpet1
+x 5
+y 18
+end
+arch chair2_111
+direction 7
+x 5
+y 18
+end
+arch floor_wood2_l1
 x 5
 y 19
 end
-arch grassd_1
+arch carpet1
+x 5
+y 19
+end
+arch floor_wood2_l2
 x 5
 y 20
 end
-arch grassd_7
+arch carpet1.111
+x 5
+y 20
+end
+arch floor_wood2_l2
 x 5
 y 21
 end
-arch grassd_5
+arch table_lab3.111
+x 5
+y 21
+end
+arch light2
+x 5
+y 21
+end
+arch floor_wood2_l2
+x 5
+y 22
+end
+arch wall_wood2_1
 x 5
 y 22
 end
@@ -815,55 +1203,81 @@ arch grassd_1
 x 6
 y 13
 end
-arch tree_big2
+arch wall_wood_w_1
 x 6
 y 13
 end
-arch grassd_4
+arch floor_wood2_l1
 x 6
 y 14
 end
-arch grassd_1
+arch floor_wood2_l2
 x 6
 y 15
 end
-arch grassd_2
+arch carpet1.151
+x 6
+y 15
+end
+arch floor_wood2_l1
 x 6
 y 16
 end
-arch plant_mushroom1
+arch carpet1
 x 6
 y 16
 end
-arch grassd_7
+arch floor_wood2_l1
 x 6
 y 17
 end
-arch grassd_8
+arch carpet1
+x 6
+y 17
+end
+arch table_wood1.111
+direction 7
+x 6
+y 17
+end
+arch floor_wood2_l1
 x 6
 y 18
 end
-arch grassd_5
+arch carpet1
+x 6
+y 18
+end
+arch table_wood1.111
+direction 7
+x 6
+y 18
+end
+arch floor_wood2_l1
 x 6
 y 19
 end
-arch grassd_3
+arch carpet1
+x 6
+y 19
+end
+arch floor_wood2_l1
 x 6
 y 20
 end
-arch grassd_7
+arch carpet1.111
+x 6
+y 20
+end
+arch floor_wood2_l2
 x 6
 y 21
 end
-arch plant_mushroom1
-x 6
-y 21
-end
-arch grassd_1
+arch floor_wood2_l2
 x 6
 y 22
 end
-arch tree_big4b
+arch wall_wood_w_1
 x 6
 y 22
 end
@@ -938,43 +1352,71 @@ arch grassd_2
 x 7
 y 13
 end
-arch grassd_6
+arch wall_wood_1
+x 7
+y 13
+end
+arch floor_wood2_l1
 x 7
 y 14
 end
-arch grassd_6
+arch shelf5_wall.111
+x 7
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
 x 7
 y 15
 end
-arch grassd_7
+arch floor_wood2_l2
 x 7
 y 16
 end
-arch grassd_6
+arch carpet1.171
+x 7
+y 16
+end
+arch floor_wood2_l1
 x 7
 y 17
 end
-arch grassd_3
+arch carpet1.171
+x 7
+y 17
+end
+arch floor_wood2_l2
 x 7
 y 18
 end
-arch tree_big4b
+arch carpet1.171
 x 7
 y 18
 end
-arch grassd_2
+arch floor_wood2_l2
 x 7
 y 19
 end
-arch grassd_6
+arch carpet1.171
+x 7
+y 19
+end
+arch floor_wood2_l2
 x 7
 y 20
 end
-arch grassd_6
+arch floor_wood2_l2
 x 7
 y 21
 end
-arch grassd_2
+arch floor_wood2_l1
+x 7
+y 22
+end
+arch wall_wood_1
 x 7
 y 22
 end
@@ -1077,39 +1519,86 @@ arch grassd_8
 x 8
 y 13
 end
-arch grassd_4
+arch wall_wood2_1
+x 8
+y 13
+end
+arch client_map_info
+name brynknot_library
+sub_type 2
+x 8
+y 13
+end
+arch floor_wood2_l2
 x 8
 y 14
 end
-arch grassd_3
+arch wall_wood2_3
+x 8
+y 14
+end
+arch floor_wood2_l2
 x 8
 y 15
 end
-arch grassd_1
+arch wall_wood_3
+x 8
+y 15
+end
+arch floor_wood2_l2
 x 8
 y 16
 end
-arch grassd_8
+arch wall_wood_w_3
+x 8
+y 16
+end
+arch floor_wood2_l2
 x 8
 y 17
 end
-arch grassd_8
+arch wall_wood3_3
+x 8
+y 17
+end
+arch floor_wood2_l1
 x 8
 y 18
 end
-arch grassd_8
+arch door_wood2
+direction 7
+x 8
+y 18
+end
+arch floor_wood2_l1
 x 8
 y 19
 end
-arch grassd_3
+arch wall_wood3_3
+x 8
+y 19
+end
+arch floor_wood2_l2
 x 8
 y 20
 end
-arch grassd_1
+arch wall_wood_w_3
+x 8
+y 20
+end
+arch floor_wood2_l1
 x 8
 y 21
 end
-arch grassd_3
+arch wall_wood_3
+x 8
+y 21
+end
+arch floor_wood2_l1
+x 8
+y 22
+end
+arch wall_wood_4
 x 8
 y 22
 end
@@ -1239,8 +1728,8 @@ arch grassd_8
 x 9
 y 15
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 9
 y 15
 end
@@ -1252,19 +1741,23 @@ arch grassd_7
 x 9
 y 16
 end
-arch grassd_2
+arch floor_flagm2
 x 9
 y 17
 end
-arch grassd_8
+arch grassd_m4
+x 9
+y 17
+end
+arch floor_flagm3
 x 9
 y 18
 end
-arch plant_mushroom5
+arch floor_flagm1
 x 9
-y 18
+y 19
 end
-arch grassd_3
+arch grassd_m3
 x 9
 y 19
 end
@@ -1276,8 +1769,8 @@ arch grassd_3
 x 9
 y 21
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 9
 y 21
 end
@@ -1420,7 +1913,7 @@ arch floor_flagm3
 x 10
 y 17
 end
-arch grassd_m9
+arch grassd_m13
 x 10
 y 17
 end
@@ -1428,15 +1921,11 @@ arch floor_flagm1
 x 10
 y 18
 end
-arch grassd_m9
-x 10
-y 18
-end
 arch floor_flagm1
 x 10
 y 19
 end
-arch grassd_m9
+arch grassd_m14
 x 10
 y 19
 end

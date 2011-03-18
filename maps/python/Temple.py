@@ -80,11 +80,10 @@ class BaseTemple:
 	## @param spell Spell name.
 	def handle_spell(self, spell):
 		if self._activator.PayAmount(self.services[spell][1]):
-			self._me.SayTo(self._activator, "\nOk, I will cast {0} on you now.".format(spell))
-
 			if self.services[spell][1]:
-				self._activator.Write("You pay the money.", 0)
+				self._activator.Write("You pay {}.".format(CostString(self.services[spell][1])), 0)
 
+			self._me.SayTo(self._activator, "\nOk, I will cast {0} on you now.".format(spell))
 			self._me.Cast(GetSpellNr(spell), self._activator)
 		else:
 			self._me.SayTo(self._activator, "\nYou do not have enough money.")

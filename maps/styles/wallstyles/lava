@@ -1,9 +1,9 @@
 arch map
 name <unnamed>
 msg
-Modified: 2009-12-27 Alex Tokar
+Modified: 2011-03-10 Alex Tokar
 endmsg
-width 3
+width 9
 height 1
 difficulty 1
 end
@@ -14,4 +14,22 @@ x 1
 end
 arch fwall_lava1f
 x 2
+end
+arch fwall_lava1a
+x 3
+end
+arch fwall_lava1b
+x 4
+end
+arch fwall_lava1c
+x 5
+end
+arch fwall_fire1a
+x 6
+end
+arch fwall_fire1b
+x 7
+end
+arch fwall_fire1c
+x 8
 end

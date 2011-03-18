@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-11-15 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -196,11 +196,26 @@ arch floor_sblack2b
 x 1
 y 4
 end
+arch shelf3_dem1.111
+direction 7
+x 1
+y 4
+end
 arch floor_sblack2b
 x 1
 y 5
 end
+arch shelf3_dem2.111
+direction 7
+x 1
+y 5
+end
 arch floor_sblack3b
+x 1
+y 6
+end
+arch shelf3_dem1.111
+direction 7
 x 1
 y 6
 end
@@ -245,7 +260,17 @@ arch floor_sblack2b
 x 1
 y 15
 end
+arch shelf3_dem2.111
+direction 7
+x 1
+y 15
+end
 arch floor_sblack2b
+x 1
+y 16
+end
+arch shelf3_dem1.111
+direction 7
 x 1
 y 16
 end
@@ -253,11 +278,26 @@ arch floor_sblack1b
 x 1
 y 17
 end
+arch prison_deco1.131
+direction 7
+x 1
+y 17
+end
 arch floor_sblack2b
 x 1
 y 18
 end
+arch prison_deco3.131
+direction 7
+x 1
+y 18
+end
 arch floor_sblack1b
+x 1
+y 19
+end
+arch prison_deco1.131
+direction 7
 x 1
 y 19
 end
@@ -274,7 +314,17 @@ arch floor_sblack2b
 x 1
 y 21
 end
+arch table_lab1.111
+direction 7
+x 1
+y 21
+end
 arch floor_sblack3b
+x 1
+y 22
+end
+arch table_lab3.111
+direction 7
 x 1
 y 22
 end
@@ -514,6 +564,10 @@ arch floor_sblack2b
 x 3
 y 22
 end
+arch table_lab1.111
+x 3
+y 22
+end
 arch floor_sblack1b
 x 3
 y 23
@@ -610,6 +664,10 @@ x 4
 y 21
 end
 arch floor_sblack2b
+x 4
+y 22
+end
+arch table_lab2.111
 x 4
 y 22
 end
@@ -803,6 +861,10 @@ arch floor_sblack2b
 x 6
 y 7
 end
+arch shelf3_dem2.111
+x 6
+y 7
+end
 arch floor_sblack2b
 x 6
 y 8
@@ -882,6 +944,10 @@ arch floor_sblack3b
 x 7
 y 7
 end
+arch shelf3_dem2.111
+x 7
+y 7
+end
 arch floor_sblack2b
 x 7
 y 8
@@ -907,6 +973,10 @@ x 7
 y 18
 end
 arch floor_sblack2b
+x 7
+y 19
+end
+arch shelf3_dem2.111
 x 7
 y 19
 end
@@ -973,6 +1043,10 @@ arch floor_sblack2b
 x 8
 y 7
 end
+arch shelf3_dem1.111
+x 8
+y 7
+end
 arch floor_sblack2b
 x 8
 y 8
@@ -1023,6 +1097,10 @@ x 8
 y 18
 end
 arch floor_sblack2b
+x 8
+y 19
+end
+arch shelf_wall_dem2.111
 x 8
 y 19
 end
@@ -1081,6 +1159,10 @@ arch floor_sblack1b
 x 9
 y 7
 end
+arch shelf_wall_dem2.111
+x 9
+y 7
+end
 arch floor_sblack2b
 x 9
 y 8
@@ -1108,6 +1190,14 @@ end
 arch floor_sblack1b
 x 9
 y 19
+end
+arch shelf3c.111
+x 9
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack1b
 x 9
@@ -1190,6 +1280,18 @@ end
 arch floor_sblack1b
 x 10
 y 19
+end
+arch shelf3a.111
+x 10
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_sblack2b
 x 10
@@ -1418,7 +1520,7 @@ arch spawn_point
 x 12
 y 19
 arch demilich
-name demilich master
+name demilich master researcher
 type 83
 level 58
 direction 3
@@ -1535,6 +1637,10 @@ arch floor_sblack2b
 x 13
 y 19
 end
+arch shelf3_dem2.111
+x 13
+y 19
+end
 arch floor_sblack3b
 x 13
 y 20
@@ -1615,6 +1721,10 @@ x 14
 y 18
 end
 arch floor_sblack1b
+x 14
+y 19
+end
+arch shelf3.111
 x 14
 y 19
 end
@@ -1725,6 +1835,10 @@ x 15
 y 18
 end
 arch floor_sblack3b
+x 15
+y 19
+end
+arch shelf3.111
 x 15
 y 19
 end
@@ -2018,11 +2132,26 @@ arch floor_sblack2b
 x 18
 y 3
 end
+arch shelf3_dem2.111
+direction 7
+x 18
+y 3
+end
 arch floor_sblack2b
 x 18
 y 4
 end
+arch shelf3_dem1.111
+direction 7
+x 18
+y 4
+end
 arch floor_sblack1b
+x 18
+y 5
+end
+arch shelf3_dem2.111
+direction 7
 x 18
 y 5
 end
@@ -2068,7 +2197,17 @@ arch floor_sblack3b
 x 18
 y 13
 end
+arch shelf3_dem1.111
+direction 7
+x 18
+y 13
+end
 arch floor_sblack3b
+x 18
+y 14
+end
+arch shelf3_dem1.111
+direction 7
 x 18
 y 14
 end
@@ -2089,7 +2228,17 @@ arch floor_sblack2b
 x 18
 y 17
 end
+arch shelf3_dem1.111
+direction 7
+x 18
+y 17
+end
 arch floor_sblack2b
+x 18
+y 18
+end
+arch shelf3_dem2.111
+direction 7
 x 18
 y 18
 end
@@ -2466,6 +2615,10 @@ arch floor_sblack1b
 x 21
 y 22
 end
+arch pottery6.101
+x 21
+y 22
+end
 arch floor_sblack1b
 x 21
 y 23
@@ -2561,7 +2714,15 @@ arch floor_sblack2b
 x 22
 y 21
 end
+arch pottery4.101
+x 22
+y 21
+end
 arch floor_sblack3b
+x 22
+y 22
+end
+arch pottery5.101
 x 22
 y 22
 end

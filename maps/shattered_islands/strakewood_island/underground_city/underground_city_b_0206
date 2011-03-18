@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-30 Alex Tokar
+Modified: 2011-03-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -295,11 +295,17 @@ end
 arch spawn_point
 x 10
 y 16
-arch drow_captain
+arch drow_annihilator
 level 86
-exp 108
-attack_slash 85
+exp 144
+maxsp 16
+Pow 20
+Dex 2
 type 83
+arch ability_firestorm
+sp 1
+hp 1
+end
 end
 end
 arch floor_sand_d3
@@ -2161,17 +2167,11 @@ end
 arch spawn_point
 x 19
 y 20
-arch drow_annihilator
+arch drow_captain
 level 84
-exp 144
-maxsp 16
-Pow 20
-Dex 2
+exp 108
+attack_slash 85
 type 83
-arch ability_firestorm
-sp 1
-hp 1
-end
 end
 end
 arch floor_sand_d3

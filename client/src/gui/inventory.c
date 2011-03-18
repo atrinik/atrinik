@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -113,6 +113,7 @@ void inventory_filter_set(uint64 filter)
 	cpl.win_inv_slot = 0;
 	cpl.win_inv_start = 0;
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
+	draw_info("Inventory filter changed.", COLOR_GREEN);
 }
 
 /**
@@ -132,6 +133,7 @@ void inventory_filter_toggle(uint64 filter)
 	cpl.win_inv_slot = 0;
 	cpl.win_inv_start = 0;
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
+	draw_info("Inventory filter changed.", COLOR_GREEN);
 }
 
 /* This function returns number of items and adjusts the inventory window data */

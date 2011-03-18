@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-02-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -23,7 +23,13 @@ end
 arch floor_sblack3b
 y 3
 end
+arch mushroom_spot2
+y 3
+end
 arch floor_sblack2b
+y 4
+end
+arch mushroom_spot1
 y 4
 end
 arch floor_sblack1b
@@ -50,10 +56,19 @@ end
 arch floor_sblack2b
 y 10
 end
+arch mushroom_spot1
+y 10
+end
 arch floor_sblack2b
 y 11
 end
+arch mushroom_spot2
+y 11
+end
 arch floor_sblack2b
+y 12
+end
+arch mushroom_spot1
 y 12
 end
 arch floor_sblack1b
@@ -66,6 +81,9 @@ arch floor_sblack1b
 y 15
 end
 arch fwall_fstone1a
+y 15
+end
+arch plant2_wall.151
 y 15
 end
 arch floor_sblack2b
@@ -254,6 +272,10 @@ arch floor_sblack2b
 x 1
 y 16
 end
+arch mushroom_spot1
+x 1
+y 16
+end
 arch floor_sblack1b
 x 1
 y 17
@@ -380,6 +402,10 @@ arch floor_sblack2b
 x 2
 y 14
 end
+arch mushroom_spot1
+x 2
+y 14
+end
 arch floor_sblack1b
 x 2
 y 15
@@ -498,11 +524,19 @@ arch floor_sblack3b
 x 3
 y 12
 end
+arch mushroom_spot1
+x 3
+y 12
+end
 arch floor_sblack1b
 x 3
 y 13
 end
 arch floor_sblack2b
+x 3
+y 14
+end
+arch mushroom_spot2
 x 3
 y 14
 end
@@ -556,13 +590,50 @@ end
 arch fwall_fstone1a
 x 4
 end
+arch plant1_wall.151
+x 4
+end
 arch floor_sblack2b
+x 4
+y 1
+end
+arch mushroom_spot1
 x 4
 y 1
 end
 arch floor_sblack1b
 x 4
 y 2
+end
+arch spawn_point
+x 4
+y 2
+arch lom_lobon
+level 105
+random_move 1
+item_race 1
+item_level 1
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+end
 end
 arch floor_sblack1b
 x 4
@@ -616,6 +687,10 @@ arch floor_sblack1b
 x 4
 y 14
 end
+arch mushroom_spot1
+x 4
+y 14
+end
 arch floor_sblack2b
 x 4
 y 15
@@ -628,6 +703,10 @@ arch floor_sblack2b
 x 4
 y 16
 end
+arch mushroom_spot2
+x 4
+y 16
+end
 arch floor_sblack2b
 x 4
 y 17
@@ -637,6 +716,10 @@ x 4
 y 18
 end
 arch floor_sblack1b
+x 4
+y 19
+end
+arch mushroom_spot2
 x 4
 y 19
 end
@@ -670,7 +753,15 @@ arch floor_sblack3b
 x 5
 y 1
 end
+arch mushroom_spot1
+x 5
+y 1
+end
 arch floor_sblack2b
+x 5
+y 2
+end
+arch mushroom_spot1
 x 5
 y 2
 end
@@ -689,36 +780,6 @@ end
 arch floor_sblack1b
 x 5
 y 4
-end
-arch spawn_point
-x 5
-y 4
-arch lom_lobon
-level 105
-random_move 1
-item_race 2
-item_level 2
-behavior 2
-type 83
-arch key_brown
-name lom lobon master key
-layer 0
-sys_object 1
-slaying moroch_temple_key5
-end
-arch key2
-name dread beholder master key
-layer 0
-sys_object 1
-slaying moroch_temple_key3
-end
-arch key_blue
-name raas master key
-layer 0
-sys_object 1
-slaying moroch_temple_key4
-end
-end
 end
 arch floor_sblack2b
 x 5
@@ -739,8 +800,8 @@ arch beholder_dread
 type 83
 level 106
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 direction 7
 arch ability_firestorm
 end
@@ -788,9 +849,6 @@ y 11
 arch raas
 direction 1
 level 105
-random_move 1
-item_race 2
-item_level 2
 behavior 2
 type 83
 arch key_blue
@@ -845,6 +903,10 @@ arch floor_sblack2b
 x 5
 y 16
 end
+arch mushroom_spot1
+x 5
+y 16
+end
 arch floor_sblack1b
 x 5
 y 17
@@ -884,6 +946,10 @@ arch fwall_fstone1b
 x 6
 end
 arch floor_sblack3b
+x 6
+y 1
+end
+arch mushroom_spot2
 x 6
 y 1
 end
@@ -947,7 +1013,15 @@ arch fwall_fstone1a
 x 6
 y 15
 end
+arch plant1_wall.151
+x 6
+y 15
+end
 arch floor_sblack2b
+x 6
+y 16
+end
+arch mushroom_spot1
 x 6
 y 16
 end
@@ -1073,6 +1147,10 @@ arch floor_sblack2b
 x 7
 y 16
 end
+arch mushroom_spot1
+x 7
+y 16
+end
 arch floor_sblack3b
 x 7
 y 17
@@ -1187,6 +1265,10 @@ arch floor_sblack2b
 x 8
 y 16
 end
+arch mushroom_spot2
+x 8
+y 16
+end
 arch floor_sblack2b
 x 8
 y 17
@@ -1255,8 +1337,8 @@ y 4
 arch raas
 level 106
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 behavior 2
 type 83
 arch key_blue
@@ -1287,6 +1369,10 @@ arch floor_sblack2b
 x 9
 y 6
 end
+arch mushroom_spot1
+x 9
+y 6
+end
 arch floor_sblack1b
 x 9
 y 7
@@ -1300,6 +1386,10 @@ x 9
 y 7
 end
 arch floor_sblack2b
+x 9
+y 8
+end
+arch mushroom_spot2
 x 9
 y 8
 end
@@ -1322,8 +1412,8 @@ arch lom_lobon
 direction 1
 level 106
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 behavior 2
 type 83
 arch key_brown
@@ -1378,6 +1468,10 @@ arch floor_sblack1b
 x 9
 y 16
 end
+arch mushroom_spot1
+x 9
+y 16
+end
 arch floor_sblack2b
 x 9
 y 17
@@ -1420,6 +1514,9 @@ end
 arch fwall_fstone1a
 x 10
 end
+arch plant2_wall.151
+x 10
+end
 arch floor_sblack3b
 x 10
 y 1
@@ -1432,7 +1529,15 @@ arch floor_sblack1b
 x 10
 y 3
 end
+arch mushroom_spot1
+x 10
+y 3
+end
 arch floor_sblack1b
+x 10
+y 4
+end
+arch mushroom_spot1
 x 10
 y 4
 end
@@ -1445,6 +1550,10 @@ x 10
 y 6
 end
 arch floor_sblack3b
+x 10
+y 7
+end
+arch mushroom_spot1
 x 10
 y 7
 end
@@ -1469,6 +1578,10 @@ x 10
 y 12
 end
 arch floor_sblack3b
+x 10
+y 13
+end
+arch mushroom_spot1
 x 10
 y 13
 end
@@ -1590,6 +1703,10 @@ arch floor_sblack3b
 x 11
 y 13
 end
+arch mushroom_spot2
+x 11
+y 13
+end
 arch floor_sblack2b
 x 11
 y 14
@@ -1626,7 +1743,15 @@ arch floor_sblack1b
 x 11
 y 21
 end
+arch mushroom_spot2
+x 11
+y 21
+end
 arch floor_sblack1b
+x 11
+y 22
+end
+arch mushroom_spot1
 x 11
 y 22
 end
@@ -1638,6 +1763,9 @@ arch floor_sblack3b
 x 12
 end
 arch fwall_fstone1b
+x 12
+end
+arch plant1_wall.151
 x 12
 end
 arch floor_sblack2b
@@ -1761,6 +1889,10 @@ arch floor_sblack1b
 x 12
 y 22
 end
+arch mushroom_spot1
+x 12
+y 22
+end
 arch floor_sblack3b
 x 12
 y 23
@@ -1772,6 +1904,10 @@ arch fwall_fstone1a
 x 13
 end
 arch floor_sblack2b
+x 13
+y 1
+end
+arch mushroom_spot1
 x 13
 y 1
 end
@@ -1800,9 +1936,6 @@ x 13
 y 4
 arch lom_lobon
 level 107
-random_move 1
-item_race 2
-item_level 2
 behavior 2
 type 83
 arch key_brown
@@ -1842,9 +1975,6 @@ x 13
 y 7
 arch demon_fire
 level 107
-random_move 1
-item_race 4
-item_level 4
 type 83
 arch key_blue
 name raas master key
@@ -1888,9 +2018,6 @@ y 11
 arch raas
 direction 1
 level 107
-random_move 1
-item_race 2
-item_level 2
 behavior 2
 type 83
 arch key_brown
@@ -1941,6 +2068,10 @@ arch fwall_fstone1a
 x 13
 y 15
 end
+arch plant2_wall.151
+x 13
+y 15
+end
 arch floor_sblack1b
 x 13
 y 16
@@ -1987,7 +2118,15 @@ arch floor_sblack2b
 x 14
 y 1
 end
+arch mushroom_spot1
+x 14
+y 1
+end
 arch floor_sblack2b
+x 14
+y 2
+end
+arch mushroom_spot2
 x 14
 y 2
 end
@@ -2044,6 +2183,10 @@ x 14
 y 15
 end
 arch fwall_fstone1a
+x 14
+y 15
+end
+arch plant2_wall.151
 x 14
 y 15
 end
@@ -2207,6 +2350,9 @@ end
 arch fwall_fstone1a
 x 16
 end
+arch plant1_wall.151
+x 16
+end
 arch floor_sblack2b
 x 16
 y 1
@@ -2337,36 +2483,6 @@ arch floor_sblack1b
 x 17
 y 4
 end
-arch spawn_point
-x 17
-y 4
-arch raas
-level 108
-random_move 1
-item_race 2
-item_level 2
-behavior 2
-type 83
-arch key_brown
-name lom lobon master key
-layer 0
-sys_object 1
-slaying moroch_temple_key5
-end
-arch key2
-name dread beholder master key
-layer 0
-sys_object 1
-slaying moroch_temple_key3
-end
-arch key_blue
-name raas master key
-layer 0
-sys_object 1
-slaying moroch_temple_key4
-end
-end
-end
 arch floor_sblack1b
 x 17
 y 5
@@ -2386,8 +2502,8 @@ arch demilich
 direction 7
 level 109
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 type 83
 arch ability_firestorm
 end
@@ -2422,8 +2538,8 @@ arch skel_mage
 direction 7
 level 109
 random_move 1
-item_race 2
-item_level 2
+item_race 1
+item_level 1
 type 83
 arch ability_icestorm
 end
@@ -2465,9 +2581,6 @@ y 11
 arch lom_lobon
 direction 1
 level 108
-random_move 1
-item_race 2
-item_level 2
 behavior 2
 type 83
 arch key_blue
@@ -2558,12 +2671,12 @@ arch grave_cross2.111
 msg
 You enter the ancient halls of Moroch. You feel a huge amount of energy in this place.
 endmsg
+no_pass 0
 name strange grave
-type 66
 slaying moroch_temple_d_0102
 hp 4
 sp 3
-no_pass 0
+type 66
 x 17
 y 21
 end
@@ -2592,6 +2705,36 @@ end
 arch floor_sblack2b
 x 18
 y 3
+end
+arch spawn_point
+x 18
+y 3
+arch raas
+level 108
+random_move 1
+item_race 1
+item_level 1
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+end
 end
 arch floor_sblack2b
 x 18
@@ -2646,6 +2789,10 @@ x 18
 y 15
 end
 arch floor_sblack3b
+x 18
+y 16
+end
+arch mushroom_spot1
 x 18
 y 16
 end
@@ -2751,6 +2898,10 @@ arch floor_sblack1b
 x 19
 y 14
 end
+arch mushroom_spot1
+x 19
+y 14
+end
 arch floor_sblack2b
 x 19
 y 15
@@ -2760,6 +2911,10 @@ x 19
 y 15
 end
 arch floor_sblack1b
+x 19
+y 16
+end
+arch mushroom_spot2
 x 19
 y 16
 end
@@ -2797,6 +2952,7 @@ y 21
 arch beholder_dread
 type 83
 level 105
+name beholder grave guard
 arch ability_mbullet
 end
 arch ability_firestorm
@@ -2818,6 +2974,10 @@ arch fwall_fstone1c
 x 20
 end
 arch floor_sblack3b
+x 20
+y 1
+end
+arch mushroom_spot2
 x 20
 y 1
 end
@@ -2893,6 +3053,10 @@ arch floor_sblack3b
 x 20
 y 14
 end
+arch mushroom_spot2
+x 20
+y 14
+end
 arch floor_sblack3b
 x 20
 y 15
@@ -2901,7 +3065,15 @@ arch fwall_fstone1b
 x 20
 y 15
 end
+arch plant2_wall.151
+x 20
+y 15
+end
 arch floor_sblack1b
+x 20
+y 16
+end
+arch mushroom_spot2
 x 20
 y 16
 end
@@ -2943,7 +3115,14 @@ end
 arch fwall_fstone1c
 x 21
 end
+arch plant1_wall.151
+x 21
+end
 arch floor_sblack2b
+x 21
+y 1
+end
+arch mushroom_spot2
 x 21
 y 1
 end
@@ -3064,7 +3243,15 @@ arch floor_sblack3b
 x 21
 y 13
 end
+arch mushroom_spot1
+x 21
+y 13
+end
 arch floor_sblack1b
+x 21
+y 14
+end
+arch mushroom_spot1
 x 21
 y 14
 end
@@ -3080,11 +3267,23 @@ arch floor_sblack3b
 x 21
 y 16
 end
+arch mushroom_spot2
+x 21
+y 16
+end
 arch floor_sblack2b
 x 21
 y 17
 end
+arch mushroom_spot2
+x 21
+y 17
+end
 arch floor_sblack1b
+x 21
+y 18
+end
+arch mushroom_spot1
 x 21
 y 18
 end
@@ -3122,11 +3321,23 @@ arch floor_sblack1b
 x 22
 y 1
 end
+arch mushroom_spot2
+x 22
+y 1
+end
 arch floor_sblack2b
 x 22
 y 2
 end
+arch mushroom_spot2
+x 22
+y 2
+end
 arch floor_sblack2b
+x 22
+y 3
+end
+arch mushroom_spot1
 x 22
 y 3
 end
@@ -3166,11 +3377,23 @@ arch floor_sblack2b
 x 22
 y 12
 end
+arch mushroom_spot1
+x 22
+y 12
+end
 arch floor_sblack2b
 x 22
 y 13
 end
+arch mushroom_spot2
+x 22
+y 13
+end
 arch floor_sblack2b
+x 22
+y 14
+end
+arch mushroom_spot1
 x 22
 y 14
 end
@@ -3186,7 +3409,15 @@ arch floor_sblack2b
 x 22
 y 16
 end
+arch mushroom_spot1
+x 22
+y 16
+end
 arch floor_sblack1b
+x 22
+y 17
+end
+arch mushroom_spot2
 x 22
 y 17
 end
@@ -3194,11 +3425,23 @@ arch floor_sblack2b
 x 22
 y 18
 end
+arch mushroom_spot2
+x 22
+y 18
+end
 arch floor_sblack1b
 x 22
 y 19
 end
+arch mushroom_spot1
+x 22
+y 19
+end
 arch floor_sblack1b
+x 22
+y 20
+end
+arch mushroom_spot2
 x 22
 y 20
 end

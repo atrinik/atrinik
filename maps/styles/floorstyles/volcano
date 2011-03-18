@@ -1,0 +1,17 @@
+arch map
+name <unnamed>
+msg
+Modified: 2011-03-10 Alex Tokar
+endmsg
+width 3
+height 1
+difficulty 1
+end
+arch floor_volcano_1
+end
+arch floor_volcano_2
+x 1
+end
+arch floor_volcano_4
+x 2
+end

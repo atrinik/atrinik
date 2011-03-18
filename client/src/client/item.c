@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -152,26 +152,10 @@ object *object_find(sint32 tag)
 		return cpl.sack;
 	}
 
-	if (tag == -2)
-	{
-		return cpl.shop;
-	}
-
 	/* Below the player. */
 	if (cpl.below)
 	{
 		op = object_find_object(cpl.below->inv, tag);
-
-		if (op)
-		{
-			return op;
-		}
-	}
-
-	/* In shop. */
-	if (cpl.shop)
-	{
-		op = object_find_object(cpl.shop->inv, tag);
 
 		if (op)
 		{
@@ -477,16 +461,13 @@ void objects_init()
 	objects_free(cpl.sack);
 	objects_free(cpl.below);
 	objects_free(cpl.ob);
-	objects_free(cpl.shop);
 
 	cpl.ob = object_new();
 	cpl.below = object_new();
 	cpl.sack = object_new();
-	cpl.shop = object_new();
 
 	cpl.below->weight = -111;
 	cpl.sack->weight = -111;
-	cpl.shop->weight = -111;
 }
 
 /**
@@ -587,14 +568,6 @@ void animate_objects()
 	if (cpl.container)
 	{
 		for (ob = cpl.sack->inv; ob; ob = ob->next)
-		{
-			animate_object(ob);
-		}
-	}
-
-	if (cpl.shop)
-	{
-		for (ob = cpl.shop->inv; ob; ob = ob->next)
 		{
 			animate_object(ob);
 		}

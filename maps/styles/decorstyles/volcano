@@ -1,0 +1,81 @@
+arch map
+name <unnamed>
+msg
+Modified: 2011-03-10 Alex Tokar
+endmsg
+width 5
+height 5
+difficulty 1
+end
+arch obstacle_volcano_3
+no_pass 0
+end
+arch obstacle_volcano_2
+no_pass 0
+y 1
+end
+arch obstacle_volcano_1
+no_pass 0
+y 2
+end
+arch obstacle_volcano_2
+no_pass 0
+y 3
+end
+arch obstacle_volcano_1
+no_pass 0
+y 4
+end
+arch cave_deco_f1.101
+x 2
+end
+arch cave_deco_f7.101
+x 2
+y 1
+end
+arch dirt_floor1
+x 2
+y 3
+end
+arch pile_floor3
+x 2
+y 4
+end
+arch cave_deco_f2.101
+x 3
+end
+arch cave_deco_f6.101
+x 3
+y 1
+end
+arch cave_deco_f8.101
+x 3
+y 2
+end
+arch dirt_floor3
+x 3
+y 3
+end
+arch pile_floor2
+x 3
+y 4
+end
+arch cave_deco_f3.101
+x 4
+end
+arch cave_deco_f4.101
+x 4
+y 1
+end
+arch cave_deco_f5.101
+x 4
+y 2
+end
+arch pile_floor1
+x 4
+y 3
+end
+arch dirt_floor4
+x 4
+y 4
+end
