@@ -684,6 +684,10 @@ static void set_first_map(object *op)
 	{
 		enter_exit(op, NULL);
 	}
+
+	/* Update save bed X/Y in any case. */
+	CONTR(op)->bed_x = op->x;
+	CONTR(op)->bed_y = op->y;
 }
 
 /**
