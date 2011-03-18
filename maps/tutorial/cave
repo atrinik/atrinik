@@ -2,7 +2,7 @@ arch map
 name Tutorial Cave
 msg
 Created:  2010-03-29 Kiana
-Modified: 2011-03-18 Alex Tokar
+Modified: 2011-03-19 Alex Tokar
 endmsg
 width 48
 height 48
@@ -328,12 +328,13 @@ x 2
 y 21
 arch bat_brown
 level 2
+exp 0
 dam 5
+wc 0
+ac 0
 behavior 0
 movement_type 128
 type 83
-ac 0
-wc 0
 arch quest_container
 name Tutorial Cave Bat Key
 arch key2
