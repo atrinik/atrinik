@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2010-03-29 Kiana
-Modified: 2010-10-22 Kiana
+Modified: 2011-03-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,11 +12,11 @@ difficulty 1
 darkness -1
 outdoor 1
 fixed_login 1
-tile_path_2 tutorial_0101
-tile_path_3 tutorial_0000
-tile_path_6 tutorial_0100
-bg_music tutorialisland.ogg
-region tutorial
+tile_path_2 tutorial_0202
+tile_path_3 tutorial_0101
+tile_path_6 tutorial_0201
+bg_music tutorialisland.mid
+region creation
 end
 arch water_dk3
 end
@@ -1640,12 +1640,12 @@ arch spawn_point
 x 15
 y 15
 arch smith
-name Alex
-friendly 1
+name Portolas
+level 14
 type 83
 arch event_obj
 sub_type 6
-race /shattered_islands/scripts/tutorial_island/tutorial_welcome.py
+race scripts/portolas.py
 end
 end
 end
@@ -1655,9 +1655,10 @@ y 16
 end
 arch magic_mouth
 msg
-Alex says:
+Portolas says:
 Welcome to Atrinik!
-Move with the numpad keys. Press 3 now to move down.
+Move either by left-clicking a tile with the mouse, or using the numpad. Use numpad 3 to go west.
+Read the nearby sign by moving on top of it.
 Press F12 for help.
 endmsg
 x 15
@@ -2768,16 +2769,18 @@ arch sand_dm10
 x 22
 y 16
 end
-arch light6
+arch sign
+msg
+<green>Scrolling in the message windows</green>
+Sometimes messages are too long to fit the window, or maybe you just want to look back and see what was said five minutes ago. You can use the <green>page up</green> and <green>page down</green> keys to view older messages in the right window (which shows messages from other players), or <green>insert</green> and <green>delete</green> for the left window (the one that shows this text and game related notices light fighting in combat). You can also control the scroll bar with your mouse. Note that it is easy to miss new messages if you aren't at the bottom of the message windows.
+Now continue onto the next sign.
+endmsg
+walk_on 1
+fly_on 1
 x 22
 y 16
 end
-arch sign
-msg
-~Scrolling in the message windows~
-Sometimes messages are too long to fit the window, or maybe you just want to look back and see what was said five minutes ago. You can use the ~page up~ and ~page down~ keys to view older messages. You can also control the scroll bar with your mouse. Note that it is easy to miss new messages if you aren't at the bottom of the message windows. There are two message windows. The right one shows this text and game related notices like fighting in combat, the left one shows messages from other players.
-endmsg
-name sign - Press the 'a' key to read me
+arch light6
 x 22
 y 16
 end

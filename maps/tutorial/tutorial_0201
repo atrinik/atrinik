@@ -2,20 +2,20 @@ arch map
 name Tutorial Island
 msg
 Created:  2010-03-29 Kiana
-Modified: 2010-04-05 Alex Tokar
+Modified: 2011-03-18 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
 outdoor 1
-tile_path_1 tutorial_0101
-tile_path_2 tutorial_0200
-tile_path_4 tutorial_0000
-tile_path_5 tutorial_0201
-tile_path_8 tutorial_0001
-bg_music tutorialisland.ogg
-region tutorial
+tile_path_1 tutorial_0202
+tile_path_2 tutorial_0301
+tile_path_4 tutorial_0101
+tile_path_5 tutorial_0302
+tile_path_8 tutorial_0102
+bg_music tutorialisland.mid
+region creation
 end
 arch water_lt2
 end
@@ -1340,12 +1340,13 @@ arch water_md
 x 11
 y 2
 end
-arch light5
+arch meffect_blue
+is_used_up 0
+no_save 0
 x 11
 y 2
 end
-arch meffect_blue
-is_used_up 0
+arch light5
 x 11
 y 2
 end
@@ -2037,19 +2038,22 @@ arch spawn_point
 last_grace 4
 x 15
 y 9
-arch timber_wolf_cub
-randomitems default_loot
+arch wolf
+z 4
+zoom 80
+align 4
 exp 0
 no_attack 1
+maxhp 50
 ac 0
 unaggressive 1
 random_move 1
 item_race 3
 item_level 3
 type 83
-maxhp 50
+name wolf cub
 arch quest_container
-name Wolf Cubs
+name Tutorial Wolf Cubs
 sub_type 1
 end
 end
@@ -2070,19 +2074,22 @@ arch spawn_point
 last_grace 4
 x 15
 y 12
-arch timber_wolf_cub
-randomitems default_loot
+arch wolf
+z 4
+zoom 80
+align 4
 exp 0
 no_attack 1
+maxhp 50
 ac 0
 unaggressive 1
 random_move 1
 item_race 3
 item_level 3
 type 83
-maxhp 50
+name wolf cub
 arch quest_container
-name Wolf Cubs
+name Tutorial Wolf Cubs
 sub_type 1
 end
 end
@@ -2348,19 +2355,22 @@ arch spawn_point
 last_grace 4
 x 17
 y 7
-arch timber_wolf_cub
-randomitems default_loot
+arch wolf
+z 4
+zoom 80
+align 4
 exp 0
 no_attack 1
+maxhp 50
 ac 0
 unaggressive 1
 random_move 1
 item_race 3
 item_level 3
 type 83
-maxhp 50
+name wolf cub
 arch quest_container
-name Wolf Cubs
+name Tutorial Wolf Cubs
 sub_type 1
 end
 end
@@ -2546,19 +2556,22 @@ arch spawn_point
 last_grace 4
 x 18
 y 11
-arch timber_wolf_cub
-randomitems default_loot
+arch wolf
+z 4
+zoom 80
+align 4
 exp 0
 no_attack 1
+maxhp 50
 ac 0
 unaggressive 1
 random_move 1
 item_race 3
 item_level 3
 type 83
-maxhp 50
+name wolf cub
 arch quest_container
-name Wolf Cubs
+name Tutorial Wolf Cubs
 sub_type 1
 end
 end
@@ -2838,19 +2851,22 @@ arch spawn_point
 last_grace 4
 x 20
 y 9
-arch timber_wolf_cub
-randomitems default_loot
+arch wolf
+z 4
+zoom 80
+align 4
 exp 0
 no_attack 1
+maxhp 50
 ac 0
 unaggressive 1
 random_move 1
 item_race 3
 item_level 3
 type 83
-maxhp 50
+name wolf cub
 arch quest_container
-name Wolf Cubs
+name Tutorial Wolf Cubs
 sub_type 1
 end
 end
@@ -3126,6 +3142,15 @@ arch grass_thickm8
 x 22
 y 1
 end
+arch ladder_down
+msg
+The lower part of the ladder is broken and it is impossible to climb down.
+endmsg
+hp 22
+sp 1
+x 22
+y 1
+end
 arch grassd_4
 x 22
 y 2
@@ -3276,11 +3301,11 @@ arch grassd_7
 x 23
 y 2
 end
-arch woods_tree
-x 23
-y 2
-end
 arch grassd_7
+x 23
+y 3
+end
+arch woods_tree
 x 23
 y 3
 end
@@ -3332,19 +3357,22 @@ arch spawn_point
 last_grace 4
 x 23
 y 8
-arch timber_wolf_cub
-randomitems default_loot
+arch wolf
+z 4
+zoom 80
+align 4
 exp 0
 no_attack 1
+maxhp 50
 ac 0
 unaggressive 1
 random_move 1
 item_race 3
 item_level 3
 type 83
-maxhp 50
+name wolf cub
 arch quest_container
-name Wolf Cubs
+name Tutorial Wolf Cubs
 sub_type 1
 end
 end

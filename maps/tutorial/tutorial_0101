@@ -2,18 +2,18 @@ arch map
 name Tutorial Island
 msg
 Created:  2010-03-29 Kiana
-Modified: 2010-03-29 Kiana
+Modified: 2011-03-18 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
 outdoor 1
-tile_path_1 tutorial_0001
-tile_path_2 tutorial_0100
-tile_path_5 tutorial_0101
+tile_path_1 tutorial_0102
+tile_path_2 tutorial_0201
+tile_path_5 tutorial_0202
 bg_music tutorialisland.ogg
-region tutorial
+region creation
 end
 arch water_dk4
 end
