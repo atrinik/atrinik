@@ -19,6 +19,6 @@ def main():
 		import os
 
 		me.SayTo(activator, "\nOkay, good luck {}!".format(activator.name))
-		activator.TeleportTo("{}/{}".format(os.path.dirname(me.map.path), "tutorial_0201"), 22, 1)
+		activator.TeleportTo("{}/{}".format(os.path.dirname(me.map.path), "tutorial_0302"), 6, 21)
 
 main()
