@@ -13,6 +13,7 @@ tile_path_2 tunnels_0301
 tile_path_4 tunnels_0101
 tile_path_5 tunnels_0302
 tile_path_8 tunnels_0102
+bg_music thonkdonk.ogg
 end
 arch floor_sand_d1
 end
@@ -21,7 +22,13 @@ end
 arch floor_sand_d2
 y 1
 end
+arch torch_wall_1
+y 1
+end
 arch floor_sand_d3
+y 2
+end
+arch dirt_floor2
 y 2
 end
 arch floor_sand_d1
@@ -39,7 +46,14 @@ end
 arch fwall_sand1a
 x 1
 end
+arch plant1_wall.151
+x 1
+end
 arch floor_sand_d4
+x 1
+y 1
+end
+arch trash_wood2.101
 x 1
 y 1
 end
@@ -65,6 +79,9 @@ end
 arch fwall_sand1b
 x 2
 end
+arch plant1_wall.151
+x 2
+end
 arch floor_sand_d3
 x 2
 y 1
@@ -103,6 +120,11 @@ arch floor_sand_d4
 x 3
 y 2
 end
+arch doorway_wood1_1
+direction 7
+x 3
+y 2
+end
 arch floor_sand_d1
 x 3
 y 3
@@ -111,6 +133,11 @@ arch fwall_sand1a
 x 3
 y 3
 end
+arch plant1_wall.151
+direction 7
+x 3
+y 3
+end
 arch floor_sand_d3
 x 3
 y 4
@@ -135,6 +162,11 @@ arch fwall_sand1a
 x 3
 y 6
 end
+arch plant2_wall.151
+direction 7
+x 3
+y 6
+end
 arch floor_sand_d1
 x 3
 y 7
@@ -165,7 +197,15 @@ end
 arch fwall_sand1a
 x 4
 end
+arch plant1_wall.151
+x 4
+end
 arch floor_sand_d4
+x 4
+y 1
+end
+arch torch_wall_1
+direction 7
 x 4
 y 1
 end
@@ -189,6 +229,11 @@ arch floor_sand_d1
 x 4
 y 5
 end
+arch torch_wall_1
+direction 7
+x 4
+y 5
+end
 arch floor_sand_d4
 x 4
 y 6
@@ -197,7 +242,15 @@ arch floor_sand_d2
 x 4
 y 7
 end
+arch trash_wood2.101
+x 4
+y 7
+end
 arch floor_sand_d3
+x 4
+y 8
+end
+arch chair1_drop_111
 x 4
 y 8
 end
@@ -214,6 +267,11 @@ x 4
 y 10
 end
 arch fwall_sand1a
+x 4
+y 10
+end
+arch plant1_wall.151
+direction 7
 x 4
 y 10
 end
@@ -233,6 +291,11 @@ arch fwall_sand1a
 x 4
 y 12
 end
+arch plant1_wall.151
+direction 7
+x 4
+y 12
+end
 arch floor_sand_d2
 x 4
 y 13
@@ -250,6 +313,9 @@ x 4
 y 14
 end
 arch floor_sand_d4
+x 5
+end
+arch doorway_wood1_1
 x 5
 end
 arch floor_sand_d2
@@ -257,6 +323,10 @@ x 5
 y 1
 end
 arch floor_sand_d1
+x 5
+y 2
+end
+arch dirt_floor3
 x 5
 y 2
 end
@@ -268,11 +338,19 @@ arch floor_sand_d2
 x 5
 y 4
 end
+arch doorway_wood1_1
+x 5
+y 4
+end
 arch floor_sand_d1
 x 5
 y 5
 end
 arch floor_sand_d4
+x 5
+y 6
+end
+arch dirt_floor2
 x 5
 y 6
 end
@@ -292,6 +370,11 @@ arch floor_sand_d1
 x 5
 y 10
 end
+arch torch_wall_1
+direction 7
+x 5
+y 10
+end
 arch floor_sand_d1
 x 5
 y 11
@@ -300,7 +383,15 @@ arch floor_sand_d1
 x 5
 y 12
 end
+arch barrel_water.101
+x 5
+y 12
+end
 arch floor_sand_d3
+x 5
+y 13
+end
+arch trash_wood1.101
 x 5
 y 13
 end
@@ -309,6 +400,11 @@ x 5
 y 14
 end
 arch fwall_sand1a
+x 5
+y 14
+end
+arch plant2_wall.151
+direction 7
 x 5
 y 14
 end
@@ -333,6 +429,11 @@ x 5
 y 17
 end
 arch fwall_sand1b
+x 5
+y 17
+end
+arch plant2_wall.151
+direction 7
 x 5
 y 17
 end
@@ -362,6 +463,10 @@ arch floor_sand_d4
 x 6
 y 1
 end
+arch torch_wall_1
+x 6
+y 1
+end
 arch floor_sand_d1
 x 6
 y 2
@@ -398,7 +503,15 @@ arch floor_sand_d4
 x 6
 y 9
 end
+arch water_floor
+x 6
+y 9
+end
 arch floor_sand_d2
+x 6
+y 10
+end
+arch dirt_floor1
 x 6
 y 10
 end
@@ -422,7 +535,16 @@ arch floor_sand_d4
 x 6
 y 15
 end
+arch torch_wall_1
+direction 7
+x 6
+y 15
+end
 arch floor_sand_d2
+x 6
+y 16
+end
+arch chair1_drop_171
 x 6
 y 16
 end
@@ -431,6 +553,10 @@ x 6
 y 17
 end
 arch floor_sand_d4
+x 6
+y 18
+end
+arch wood_pile.101
 x 6
 y 18
 end
@@ -464,7 +590,17 @@ arch fwall_sand1a
 x 7
 y 1
 end
+arch plant2_wall.151
+direction 7
+x 7
+y 1
+end
 arch floor_sand_d2
+x 7
+y 2
+end
+arch doorway_wood1_1
+direction 7
 x 7
 y 2
 end
@@ -536,6 +672,10 @@ arch floor_sand_d1
 x 7
 y 14
 end
+arch dirt_floor4
+x 7
+y 14
+end
 arch floor_sand_d3
 x 7
 y 15
@@ -552,7 +692,15 @@ arch floor_sand_d2
 x 7
 y 18
 end
+arch water_floor
+x 7
+y 18
+end
 arch floor_sand_d4
+x 7
+y 19
+end
+arch wood_pile.101
 x 7
 y 19
 end
@@ -582,6 +730,10 @@ arch floor_sand_d4
 x 8
 y 3
 end
+arch barrel_water.101
+x 8
+y 3
+end
 arch floor_sand_d4
 x 8
 y 4
@@ -658,11 +810,19 @@ arch floor_sand_d3
 x 8
 y 17
 end
+arch dirt_floor1
+x 8
+y 17
+end
 arch floor_sand_d3
 x 8
 y 18
 end
 arch floor_sand_d4
+x 8
+y 19
+end
+arch barrel_water.101
 x 8
 y 19
 end
@@ -684,11 +844,19 @@ arch floor_sand_d3
 x 9
 y 1
 end
+arch trash_wood1.101
+x 9
+y 1
+end
 arch floor_sand_d1
 x 9
 y 2
 end
 arch floor_sand_d2
+x 9
+y 3
+end
+arch water_floor
 x 9
 y 3
 end
@@ -745,6 +913,10 @@ x 9
 y 18
 end
 arch floor_sand_d1
+x 9
+y 19
+end
+arch box2.101
 x 9
 y 19
 end
@@ -762,11 +934,18 @@ end
 arch fwall_sand1b
 x 10
 end
+arch plant1_wall.151
+x 10
+end
 arch floor_sand_d2
 x 10
 y 1
 end
 arch floor_sand_d3
+x 10
+y 2
+end
+arch dirt_floor3
 x 10
 y 2
 end
@@ -798,6 +977,11 @@ arch fwall_sand1a
 x 10
 y 9
 end
+arch plant2_wall.151
+direction 7
+x 10
+y 9
+end
 arch floor_sand_d4
 x 10
 y 10
@@ -811,6 +995,11 @@ x 10
 y 11
 end
 arch fwall_sand1a
+x 10
+y 11
+end
+arch plant1_wall.151
+direction 7
 x 10
 y 11
 end
@@ -850,11 +1039,19 @@ arch floor_sand_d4
 x 10
 y 17
 end
+arch torch_wall_1
+x 10
+y 17
+end
 arch floor_sand_d4
 x 10
 y 18
 end
 arch floor_sand_d4
+x 10
+y 19
+end
+arch grain2.101
 x 10
 y 19
 end
@@ -872,7 +1069,14 @@ end
 arch fwall_sand1a
 x 11
 end
+arch plant1_wall.151
+x 11
+end
 arch floor_sand_d4
+x 11
+y 1
+end
+arch torch_wall_1
 x 11
 y 1
 end
@@ -908,6 +1112,11 @@ arch fwall_sand1a
 x 11
 y 7
 end
+arch plant1_wall.151
+direction 7
+x 11
+y 7
+end
 arch floor_sand_d4
 x 11
 y 8
@@ -916,22 +1125,130 @@ arch fwall_sand1b
 x 11
 y 8
 end
+arch plant1_wall.151
+x 11
+y 8
+end
 arch floor_sand_d1
 x 11
 y 9
+end
+arch chest7_111
+direction 5
+x 11
+y 9
+arch buckler
+no_pick 1
+identified 1
+end
+arch buckler
+no_pick 1
+identified 1
+end
+arch buckler
+no_pick 1
+identified 1
+end
+arch buckler
+no_pick 1
+identified 1
+end
 end
 arch floor_sand_d1
 x 11
 y 10
 end
+arch chest7_111
+direction 5
+x 11
+y 10
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+end
 arch floor_sand_d1
 x 11
 y 11
+end
+arch chest7_111
+direction 5
+x 11
+y 11
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
+arch dagger_small
+no_pick 1
+identified 1
+end
 end
 arch floor_sand_d3
 x 11
 y 12
 end
+arch chest7_111
+direction 5
+x 11
+y 12
+arch lamellar_mail
+no_pick 1
+identified 1
+end
+arch lamellar_mail
+no_pick 1
+identified 1
+end
+arch lamellar_mail
+no_pick 1
+identified 1
+end
+arch lamellar_mail
+no_pick 1
+identified 1
+end
+arch lamellar_mail
+no_pick 1
+identified 1
+end
+end
 arch floor_sand_d2
 x 11
 y 13
@@ -945,10 +1262,18 @@ x 11
 y 16
 end
 arch fwall_sand1a
+x 11
+y 16
+end
+arch plant1_wall.151
 x 11
 y 16
 end
 arch floor_sand_d1
+x 11
+y 17
+end
+arch trash_wood2.101
 x 11
 y 17
 end
@@ -1006,7 +1331,20 @@ arch floor_sand_d3
 x 12
 y 7
 end
+arch prison_deco1.131
+x 12
+y 7
+end
 arch floor_sand_d1
+x 12
+y 8
+end
+arch dirt_floor2
+x 12
+y 8
+end
+arch torch_wall_1
+direction 7
 x 12
 y 8
 end
@@ -1018,11 +1356,23 @@ arch floor_sand_d2
 x 12
 y 10
 end
+arch water_floor
+x 12
+y 10
+end
 arch floor_sand_d1
 x 12
 y 11
 end
+arch dirt_floor1
+x 12
+y 11
+end
 arch floor_sand_d4
+x 12
+y 12
+end
+arch wood_pile.101
 x 12
 y 12
 end
@@ -1059,6 +1409,10 @@ x 12
 y 18
 end
 arch floor_sand_d1
+x 12
+y 19
+end
+arch dirt_floor4
 x 12
 y 19
 end
@@ -1076,6 +1430,9 @@ end
 arch fwall_sand1b
 x 13
 end
+arch plant1_wall.151
+x 13
+end
 arch floor_sand_d2
 x 13
 y 1
@@ -1104,7 +1461,15 @@ arch fwall_sand1b
 x 13
 y 6
 end
+arch plant1_wall.151
+x 13
+y 6
+end
 arch floor_sand_d3
+x 13
+y 7
+end
+arch prison_deco1.131
 x 13
 y 7
 end
@@ -1116,6 +1481,19 @@ arch floor_sand_d1
 x 13
 y 9
 end
+arch chair1_111
+x 13
+y 9
+end
+arch spawn_point
+x 13
+y 9
+arch kobold_guard
+direction 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 13
 y 10
@@ -1125,6 +1503,10 @@ x 13
 y 11
 end
 arch floor_sand_d4
+x 13
+y 12
+end
+arch wood_pile.101
 x 13
 y 12
 end
@@ -1148,6 +1530,10 @@ arch floor_sand_d4
 x 13
 y 16
 end
+arch chair1_drop_111
+x 13
+y 16
+end
 arch floor_sand_d1
 x 13
 y 17
@@ -1157,6 +1543,10 @@ x 13
 y 18
 end
 arch floor_sand_d3
+x 13
+y 19
+end
+arch barrel.101
 x 13
 y 19
 end
@@ -1178,6 +1568,10 @@ arch floor_sand_d4
 x 14
 y 1
 end
+arch dirt_floor1
+x 14
+y 1
+end
 arch floor_sand_d1
 x 14
 y 2
@@ -1214,6 +1608,10 @@ arch floor_sand_d4
 x 14
 y 7
 end
+arch prison_deco1.131
+x 14
+y 7
+end
 arch floor_sand_d1
 x 14
 y 8
@@ -1227,6 +1625,10 @@ x 14
 y 10
 end
 arch floor_sand_d2
+x 14
+y 11
+end
+arch barrel.101
 x 14
 y 11
 end
@@ -1254,11 +1656,19 @@ arch fwall_sand1b
 x 14
 y 15
 end
+arch plant1_wall.151
+x 14
+y 15
+end
 arch floor_sand_d1
 x 14
 y 16
 end
 arch floor_sand_d2
+x 14
+y 17
+end
+arch dirt_floor2
 x 14
 y 17
 end
@@ -1292,6 +1702,10 @@ arch floor_sand_d3
 x 15
 y 1
 end
+arch chair1_drop_111
+x 15
+y 1
+end
 arch floor_sand_d2
 x 15
 y 2
@@ -1301,6 +1715,10 @@ x 15
 y 3
 end
 arch floor_sand_d1
+x 15
+y 4
+end
+arch box2.101
 x 15
 y 4
 end
@@ -1337,6 +1755,14 @@ x 15
 y 8
 end
 arch floor_sand_d1
+x 15
+y 9
+end
+arch dirt_floor4
+x 15
+y 9
+end
+arch torch_wall_1
 x 15
 y 9
 end
@@ -1377,6 +1803,10 @@ x 15
 y 15
 end
 arch floor_sand_d2
+x 15
+y 16
+end
+arch torch_wall_1
 x 15
 y 16
 end
@@ -1414,6 +1844,10 @@ arch floor_sand_d3
 x 16
 y 2
 end
+arch torch_wall_1
+x 16
+y 2
+end
 arch floor_sand_d2
 x 16
 y 3
@@ -1438,7 +1872,15 @@ arch fwall_sand1b
 x 16
 y 8
 end
+arch plant1_wall.151
+x 16
+y 8
+end
 arch floor_sand_d3
+x 16
+y 9
+end
+arch chair1_drop_171
 x 16
 y 9
 end
@@ -1462,7 +1904,15 @@ arch fwall_sand1b
 x 16
 y 14
 end
+arch plant2_wall.151
+x 16
+y 14
+end
 arch floor_sand_d4
+x 16
+y 15
+end
+arch grain2.101
 x 16
 y 15
 end
@@ -1494,6 +1944,10 @@ arch fwall_sand1b
 x 17
 y 1
 end
+arch plant1_wall.151
+x 17
+y 1
+end
 arch floor_sand_d4
 x 17
 y 2
@@ -1555,6 +2009,10 @@ x 17
 y 14
 end
 arch floor_sand_d4
+x 17
+y 15
+end
+arch grain2.101
 x 17
 y 15
 end
@@ -1594,11 +2052,19 @@ arch floor_sand_d1
 x 18
 y 2
 end
+arch trash_wood1.101
+x 18
+y 2
+end
 arch floor_sand_d3
 x 18
 y 3
 end
 arch floor_sand_d1
+x 18
+y 4
+end
+arch dirt_floor4
 x 18
 y 4
 end
@@ -1626,6 +2092,10 @@ arch fwall_sand1a
 x 18
 y 8
 end
+arch plant1_wall.151
+x 18
+y 8
+end
 arch floor_sand_d2
 x 18
 y 9
@@ -1650,7 +2120,15 @@ arch fwall_sand1b
 x 18
 y 13
 end
+arch plant1_wall.151
+x 18
+y 13
+end
 arch floor_sand_d3
+x 18
+y 14
+end
+arch trash_wood2.101
 x 18
 y 14
 end
@@ -1682,6 +2160,10 @@ arch fwall_sand1b
 x 19
 y 1
 end
+arch plant1_wall.151
+x 19
+y 1
+end
 arch floor_sand_d2
 x 19
 y 2
@@ -1711,6 +2193,11 @@ x 19
 y 7
 end
 arch fwall_sand1b
+x 19
+y 7
+end
+arch plant1_wall.151
+direction 7
 x 19
 y 7
 end
@@ -1746,6 +2233,11 @@ arch fwall_sand1a
 x 19
 y 12
 end
+arch plant1_wall.151
+direction 7
+x 19
+y 12
+end
 arch floor_sand_d4
 x 19
 y 13
@@ -1763,6 +2255,10 @@ x 19
 y 15
 end
 arch floor_sand_d2
+x 19
+y 16
+end
+arch blood_floor2
 x 19
 y 16
 end
@@ -1814,7 +2310,16 @@ arch floor_sand_d1
 x 20
 y 7
 end
+arch water_floor
+x 20
+y 7
+end
 arch floor_sand_d1
+x 20
+y 8
+end
+arch torch_wall_1
+direction 7
 x 20
 y 8
 end
@@ -1827,6 +2332,15 @@ x 20
 y 10
 end
 arch floor_sand_d1
+x 20
+y 11
+end
+arch dirt_floor2
+x 20
+y 11
+end
+arch torch_wall_1
+direction 7
 x 20
 y 11
 end
@@ -1843,6 +2357,10 @@ x 20
 y 13
 end
 arch floor_sand_d1
+x 20
+y 14
+end
+arch torch_wall_1
 x 20
 y 14
 end
@@ -1886,6 +2404,10 @@ arch fwall_sand1a
 x 21
 y 2
 end
+arch plant2_wall.151
+x 21
+y 2
+end
 arch floor_sand_d4
 x 21
 y 3
@@ -1899,6 +2421,10 @@ x 21
 y 5
 end
 arch floor_sand_d2
+x 21
+y 6
+end
+arch doorway_wood1_1
 x 21
 y 6
 end
@@ -1930,11 +2456,19 @@ arch floor_sand_d3
 x 21
 y 13
 end
+arch doorway_wood1_1
+x 21
+y 13
+end
 arch floor_sand_d3
 x 21
 y 14
 end
 arch floor_sand_d3
+x 21
+y 15
+end
+arch water_floor
 x 21
 y 15
 end
@@ -1962,6 +2496,10 @@ arch floor_sand_d1
 x 22
 y 3
 end
+arch torch_wall_1
+x 22
+y 3
+end
 arch floor_sand_d1
 x 22
 y 4
@@ -1982,6 +2520,10 @@ arch floor_sand_d1
 x 22
 y 7
 end
+arch box2.101
+x 22
+y 7
+end
 arch floor_sand_d3
 x 22
 y 8
@@ -1990,7 +2532,15 @@ arch floor_sand_d2
 x 22
 y 9
 end
+arch trash_wood1.101
+x 22
+y 9
+end
 arch floor_sand_d4
+x 22
+y 10
+end
+arch trash_wood1.101
 x 22
 y 10
 end
@@ -2007,6 +2557,10 @@ x 22
 y 13
 end
 arch fwall_sand1b
+x 22
+y 13
+end
+arch plant2_wall.151
 x 22
 y 13
 end
@@ -2046,6 +2600,10 @@ arch floor_sand_d4
 x 23
 y 4
 end
+arch dirt_floor1
+x 23
+y 4
+end
 arch floor_sand_d1
 x 23
 y 5
@@ -2123,6 +2681,10 @@ x 23
 y 15
 end
 arch floor_sand_d1
+x 23
+y 16
+end
+arch dirt_floor4
 x 23
 y 16
 end
