@@ -1,3 +1,7 @@
+## @file
+## Implements Manard the priest inside Tutorial Cave, who teaches the
+## player the minor healing prayer and explains how to cast spells.
+
 from Atrinik import *
 
 activator = WhoIsActivator()

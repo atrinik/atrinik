@@ -1,3 +1,6 @@
+## @file
+## The weapons master inside the Tutorial Cave.
+
 from Atrinik import *
 
 activator = WhoIsActivator()
