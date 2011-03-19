@@ -19,11 +19,13 @@ To become a follower, find a holy altar of your cult, step onto the altar and ap
 Beware though, if you already have a deity and you touch an altar of a different deity, you will be punished most severely.
 
 Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
-<p><t t="Prayers">
+<p>
+<t t="Prayers">
 Next you must learn prayers. Priests, churches and various others will teach you prayers. There are also rumors about Prayer books lost in ancient tombs ages ago...
 
 Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause light wounds" and "minor healing".
-<p><t t="Grace">
+<p>
+<t t="Grace">
 Casting prayers will drain your grace, which can only be replenished by praying. If your maximum grace is too low you should try to increase your Divine Prayers skill or your Wisdom stat.
 
 
