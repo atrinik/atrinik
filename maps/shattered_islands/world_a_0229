@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-17 emperorbma
-Modified: 2011-03-20 emperorbma
+Modified: 2011-03-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2167,6 +2167,7 @@ arch floor_sand_d3
 x 20
 end
 arch fwall_rock1
+draw_double 0
 x 20
 end
 arch floor_sand_d1
@@ -2174,6 +2175,7 @@ x 20
 y 1
 end
 arch fwall_rock1
+draw_double 0
 x 20
 y 1
 end
