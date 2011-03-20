@@ -2097,10 +2097,6 @@ z 18
 x 19
 y 23
 end
-arch light2
-x 19
-y 23
-end
 arch stairs_stone_up
 direction 5
 slaying world_0230
@@ -2113,6 +2109,10 @@ arch invis_exit
 slaying world_0230
 hp 19
 sp 23
+x 19
+y 23
+end
+arch light2
 x 19
 y 23
 end
