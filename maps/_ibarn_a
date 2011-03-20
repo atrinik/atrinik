@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2010-08-22 Kiana
-Modified: 2011-01-06 Kiana
+Modified: 2011-03-20 Alex Tokar
 endmsg
 width 48
 height 24
@@ -2887,6 +2887,10 @@ arch floor_earth1a
 x 17
 y 2
 end
+arch pile_floor2
+x 17
+y 2
+end
 arch spawn_point
 x 17
 y 2
@@ -2896,10 +2900,6 @@ randomitems mob_fighter_l9
 wc_range 12
 Wis 3
 end
-end
-arch pile_floor2
-x 17
-y 2
 end
 arch floor_earth1c
 x 17

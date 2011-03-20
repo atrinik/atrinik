@@ -2,7 +2,7 @@ arch map
 name Incuna - Slime Pit
 msg
 Created:  2010-10-23 Kiana
-Modified: 2010-10-24 Kiana
+Modified: 2011-03-20 Alex Tokar
 endmsg
 width 48
 height 24
@@ -5445,11 +5445,11 @@ z 37
 x 42
 y 18
 end
-arch light2
+arch small_stones
 x 42
 y 18
 end
-arch small_stones
+arch light2
 x 42
 y 18
 end
@@ -5582,11 +5582,11 @@ z 37
 x 43
 y 17
 end
-arch light2
+arch small_stones
 x 43
 y 17
 end
-arch small_stones
+arch light2
 x 43
 y 17
 end
@@ -5595,11 +5595,11 @@ z 44
 x 43
 y 18
 end
-arch light3
+arch sand_dm17
 x 43
 y 18
 end
-arch sand_dm17
+arch light3
 x 43
 y 18
 end
@@ -5615,11 +5615,11 @@ z 37
 x 43
 y 19
 end
-arch light1
+arch plant16
 x 43
 y 19
 end
-arch plant16
+arch light1
 x 43
 y 19
 end
@@ -5768,11 +5768,11 @@ z 37
 x 44
 y 18
 end
-arch light1
+arch plant13
 x 44
 y 18
 end
-arch plant13
+arch light1
 x 44
 y 18
 end
