@@ -11,8 +11,11 @@ outdoor 1
 tile_path_1 world_0133
 tile_path_2 world_0232
 tile_path_3 world_0131
+tile_path_4 world_aa32
 tile_path_5 world_0233
 tile_path_6 world_0231
+tile_path_7 world_aa31
+tile_path_8 world_aa33
 bg_music jungle1.ogg
 region strakewood_island
 end

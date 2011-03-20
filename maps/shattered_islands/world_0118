@@ -11,8 +11,11 @@ outdoor 1
 tile_path_1 world_0119
 tile_path_2 world_0218
 tile_path_3 world_0117
+tile_path_4 world_aa18
 tile_path_5 world_0219
 tile_path_6 world_0217
+tile_path_7 world_aa17
+tile_path_8 world_aa19
 bg_music swamp.ogg
 region strakewood_island
 end

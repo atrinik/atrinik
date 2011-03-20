@@ -9,9 +9,14 @@ height 24
 difficulty 1
 outdoor 1
 no_harm 1
+tile_path_1 world_ac14
 tile_path_2 world_ab13
 tile_path_3 world_ac12
+tile_path_4 world_ad13
+tile_path_5 world_ab14
 tile_path_6 world_ab12
+tile_path_7 world_ad12
+tile_path_8 world_ad14
 bg_music lontala.mid
 region brynknot
 end

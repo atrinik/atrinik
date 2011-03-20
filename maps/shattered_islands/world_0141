@@ -10,8 +10,11 @@ outdoor 1
 tile_path_1 world_0142
 tile_path_2 world_0241
 tile_path_3 world_0140
+tile_path_4 world_aa41
 tile_path_5 world_0242
 tile_path_6 world_0240
+tile_path_7 world_aa40
+tile_path_8 world_aa42
 end
 arch water_still
 end
