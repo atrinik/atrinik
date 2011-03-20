@@ -42,6 +42,9 @@ end
 arch floor_sand_d4
 y 10
 end
+arch floor_sand_d4
+y 11
+end
 arch floor_sand_d1
 y 12
 end
@@ -188,6 +191,10 @@ arch fwall_rock1
 x 2
 y 1
 end
+arch plant1_wall.151
+x 2
+y 1
+end
 arch floor_sand_d1
 x 2
 y 2
@@ -248,6 +255,10 @@ arch fwall_rock1
 x 2
 y 13
 end
+arch plant2_wall.151
+x 2
+y 13
+end
 arch floor_sand_d2
 x 2
 y 14
@@ -257,6 +268,10 @@ x 2
 y 15
 end
 arch floor_sand_d4
+x 2
+y 16
+end
+arch mushroom_giant4
 x 2
 y 16
 end
@@ -522,6 +537,10 @@ arch floor_sand_d1
 x 5
 y 2
 end
+arch stone2
+x 5
+y 2
+end
 arch floor_sand_d1
 x 5
 y 3
@@ -668,6 +687,10 @@ arch floor_sand_d3
 x 6
 y 11
 end
+arch trash_wood2.101
+x 6
+y 11
+end
 arch floor_sand_d2
 x 6
 y 12
@@ -840,6 +863,10 @@ arch floor_sand_d4
 x 8
 y 4
 end
+arch floor_sand_d4
+x 8
+y 5
+end
 arch floor_sand_d1
 x 8
 y 6
@@ -960,6 +987,10 @@ arch floor_sand_d3
 x 9
 y 10
 end
+arch mushroom_medium
+x 9
+y 10
+end
 arch floor_sand_d1
 x 9
 y 11
@@ -977,6 +1008,10 @@ x 9
 y 14
 end
 arch floor_sand_d4
+x 9
+y 15
+end
+arch mushroom_giant2
 x 9
 y 15
 end
@@ -1400,6 +1435,10 @@ arch fwall_rock1
 x 13
 y 10
 end
+arch plant1_wall.151
+x 13
+y 10
+end
 arch floor_sand_d4
 x 13
 y 11
@@ -1468,6 +1507,10 @@ arch floor_sand_d1
 x 14
 y 3
 end
+arch tree_cuta
+x 14
+y 3
+end
 arch floor_sand_d1
 x 14
 y 4
@@ -1544,6 +1587,10 @@ arch floor_sand_d4
 x 14
 y 19
 end
+arch mushroom_giant3
+x 14
+y 19
+end
 arch floor_sand_d4
 x 14
 y 20
@@ -1551,6 +1598,10 @@ end
 arch floor_sand_d3
 x 14
 y 21
+end
+arch floor_sand_d1
+x 14
+y 22
 end
 arch floor_sand_d3
 x 14
@@ -1652,9 +1703,17 @@ arch floor_sand_d2
 x 15
 y 20
 end
+arch trash_wood1.101
+x 15
+y 20
+end
 arch floor_sand_d2
 x 15
 y 21
+end
+arch floor_sand_d4
+x 15
+y 22
 end
 arch floor_sand_d1
 x 15
@@ -1729,6 +1788,10 @@ x 16
 y 13
 end
 arch floor_sand_d4
+x 16
+y 14
+end
+arch pile_floor2
 x 16
 y 14
 end
@@ -1843,6 +1906,10 @@ end
 arch floor_sand_d4
 x 17
 y 15
+end
+arch floor_sand_d1
+x 17
+y 16
 end
 arch floor_sand_d1
 x 17
@@ -2124,6 +2191,10 @@ arch fwall_rock1
 x 20
 y 3
 end
+arch plant2_wall.151
+x 20
+y 3
+end
 arch floor_sand_d2
 x 20
 y 4
@@ -2145,6 +2216,10 @@ x 20
 y 8
 end
 arch floor_sand_d4
+x 20
+y 9
+end
+arch stone3
 x 20
 y 9
 end

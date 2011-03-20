@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-17 emperorbma
-Modified: 2011-03-17 emperorbma
+Modified: 2011-03-20 emperorbma
 endmsg
 width 24
 height 24
@@ -68,6 +68,11 @@ arch fwall_rock1
 x 5
 y 21
 end
+arch plant2_wall.151
+direction 7
+x 5
+y 21
+end
 arch floor_sand_d4
 x 5
 y 22
@@ -172,6 +177,10 @@ arch floor_sand_d3
 x 7
 y 17
 end
+arch water_floor
+x 7
+y 17
+end
 arch floor_sand_d2
 x 7
 y 18
@@ -420,6 +429,10 @@ arch fwall_rock1
 x 10
 y 14
 end
+arch plant1_wall.151
+x 10
+y 14
+end
 arch floor_sand_d3
 x 10
 y 15
@@ -473,6 +486,10 @@ x 11
 y 7
 end
 arch floor_sand_d4
+x 11
+y 8
+end
+arch trash_wood2.101
 x 11
 y 8
 end
@@ -544,6 +561,10 @@ arch fwall_rock1
 x 11
 y 22
 end
+arch plant2_wall.151
+x 11
+y 22
+end
 arch floor_sand_d4
 x 11
 y 23
@@ -585,6 +606,10 @@ x 12
 y 12
 end
 arch floor_sand_d2
+x 12
+y 13
+end
+arch plant_mushroom1
 x 12
 y 13
 end
@@ -741,6 +766,10 @@ x 14
 y 6
 end
 arch floor_sand_d4
+x 14
+y 7
+end
+arch pile_floor1
 x 14
 y 7
 end
@@ -859,6 +888,10 @@ end
 arch floor_sand_d1
 x 15
 y 9
+end
+arch floor_sand_d1
+x 15
+y 10
 end
 arch floor_sand_d1
 x 15
@@ -1140,6 +1173,10 @@ arch floor_sand_d3
 x 17
 y 21
 end
+arch water_floor
+x 17
+y 21
+end
 arch floor_sand_d1
 x 17
 y 22
@@ -1353,6 +1390,10 @@ x 19
 y 15
 end
 arch fwall_rock1
+x 19
+y 15
+end
+arch plant2_wall.151
 x 19
 y 15
 end
@@ -1600,6 +1641,10 @@ arch floor_sand_d4
 x 21
 y 15
 end
+arch mushroom_spot1
+x 21
+y 15
+end
 arch floor_sand_d3
 x 21
 y 16
@@ -1643,6 +1688,10 @@ x 22
 y 1
 end
 arch fwall_rock1
+x 22
+y 1
+end
+arch plant1_wall.151
 x 22
 y 1
 end
@@ -1827,6 +1876,10 @@ x 23
 y 14
 end
 arch floor_sand_d1
+x 23
+y 15
+end
+arch pile_floor2
 x 23
 y 15
 end
