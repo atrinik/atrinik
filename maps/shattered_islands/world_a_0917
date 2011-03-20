@@ -9,7 +9,10 @@ height 24
 difficulty 3
 darkness 3
 tile_path_3 world_a_0916
+tile_path_4 world_a_0817
 tile_path_6 world_a_1016
+tile_path_7 world_a_0816
+tile_path_8 world_a_0818
 bg_music water_stream.ogg
 region strakewood_island
 end

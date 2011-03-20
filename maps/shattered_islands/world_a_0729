@@ -10,6 +10,7 @@ difficulty 5
 darkness 3
 bg_music lost_cavern.mid
 region strakewood_island
+tile_path_5 world_a_0830
 end
 arch blocked
 x 11

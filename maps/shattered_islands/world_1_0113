@@ -10,6 +10,7 @@ difficulty 1
 darkness 3
 no_harm 1
 region brynknot
+tile_path_2 world_1_0213
 end
 arch blocked
 x 7
