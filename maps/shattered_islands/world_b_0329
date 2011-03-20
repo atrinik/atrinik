@@ -1,0 +1,149 @@
+arch map
+name Caverns
+msg
+Created:  2011-03-20 emperorbma
+Modified: 2011-03-20 emperorbma
+endmsg
+width 24
+height 24
+difficulty 30
+darkness 4
+tile_path_2 world_b_0429
+tile_path_3 world_b_0328
+tile_path_6 world_b_0428
+end
+arch water_lt
+x 3
+y 7
+end
+arch water_lt2
+x 3
+y 8
+end
+arch floor_sand_d4
+x 3
+y 10
+end
+arch ladder_tall_up
+slaying world_a_0329
+hp 3
+sp 10
+x 3
+y 10
+end
+arch rock_wall7
+x 4
+y 6
+end
+arch blocked
+x 4
+y 7
+end
+arch water_lt3
+x 4
+y 8
+end
+arch blocked
+x 5
+y 6
+end
+arch waterfall_huge
+x 5
+y 6
+end
+arch blocked
+x 5
+y 7
+end
+arch water_lt2
+x 5
+y 8
+end
+arch water_lt4
+x 5
+y 9
+end
+arch blocked
+x 6
+y 5
+end
+arch rock4
+x 6
+y 5
+end
+arch blocked
+x 6
+y 6
+end
+arch water_lt3
+x 6
+y 7
+end
+arch water_lt
+x 6
+y 8
+end
+arch water_lt3
+x 6
+y 9
+end
+arch blocked
+x 7
+y 5
+end
+arch rock_wall6
+x 7
+y 5
+end
+arch blocked
+x 7
+y 6
+end
+arch water_lt3
+x 7
+y 7
+end
+arch water_lt2
+x 7
+y 8
+end
+arch water_lt2
+x 7
+y 9
+end
+arch blocked
+x 8
+y 5
+end
+arch blocked
+x 8
+y 6
+end
+arch water_lt3
+x 8
+y 7
+end
+arch water_lt2
+x 8
+y 8
+end
+arch water_lt2
+x 8
+y 9
+end
+arch water_lt
+x 9
+y 5
+end
+arch water_lt
+x 9
+y 6
+end
+arch water_lt
+x 9
+y 7
+end
+arch water_lt3
+x 9
+y 8
+end

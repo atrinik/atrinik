@@ -10,7 +10,9 @@ difficulty 10
 darkness 2
 tile_path_1 world_b_0428
 tile_path_2 world_b_0527
+tile_path_4 world_b_0327
 tile_path_5 world_b_0528
+tile_path_8 world_b_0328
 bg_music desert_town.mid
 region fort_sether
 end
