@@ -291,10 +291,6 @@ def connect_maps(directory):
 
 		# Write out the lines.
 		for line in lines:
-			# Ignore tile_path lines, we'll write them out right below.
-			if not line.startswith("tile_path_"):
-				f.write(line)
-
 			# Not written yet and this is either the end of the map header
 			# or we found a tile_path line.
 			if not tile_written and (line == "end\n" or line.startswith("tile_path_")):
@@ -310,6 +306,10 @@ def connect_maps(directory):
 					# The map exists and is a file, so we have a valid tiled map.
 					if os.path.exists(tiled_path) and os.path.isfile(tiled_path):
 						f.write("tile_path_{0} {1}\n".format(tile, tiled_map))
+
+			# Ignore tile_path lines.
+			if not line.startswith("tile_path_"):
+				f.write(line)
 
 		f.close()
 
