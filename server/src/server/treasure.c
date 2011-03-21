@@ -2541,6 +2541,35 @@ archetype *find_artifact_archtype(const char *name)
 }
 
 /**
+ * Find an artifact by its name and type (as there are several lists
+ * of artifacts, depending on their types).
+ * @param name Name of the artifact to find.
+ * @param type Type of the artifact to find.
+ * @return The artifact if found, NULL otherwise. */
+artifact *find_artifact_type(const char *name, int type)
+{
+	artifactlist *al;
+	artifact *art;
+
+	al = find_artifactlist(type);
+
+	if (!al)
+	{
+		return NULL;
+	}
+
+	for (art = al->items; art; art = art->next)
+	{
+		if (!strcmp(art->name, name))
+		{
+			return art;
+		}
+	}
+
+	return NULL;
+}
+
+/**
  * For debugging purposes. Dumps all tables. */
 void dump_artifacts()
 {

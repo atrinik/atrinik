@@ -892,6 +892,7 @@ void set_abs_magic(object *op, int magic);
 int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
 artifactlist *find_artifactlist(int type);
 archetype *find_artifact_archtype(const char *name);
+artifact *find_artifact_type(const char *name, int type);
 void dump_artifacts();
 void give_artifact_abilities(object *op, artifact *art);
 int generate_artifact(object *op, int difficulty, int t_style, int a_chance);

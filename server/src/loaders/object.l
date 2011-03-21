@@ -44,6 +44,7 @@ static void *cur_buffer;
 static int object_load_flag;
 static int lex_error;
 static char msgbuf[HUGE_BUF];
+static artifact *art_amask;
 
 /**
  * Utility macro to set or clear an object's flag depending whether the
@@ -196,6 +197,7 @@ lex_error = 0;
 						if (op->arch)
 						{
 							object *tmp;
+							artifact *art_amask_tmp;
 
 							tmp = get_object();
 							tmp->arch = find_archetype(yval());
@@ -209,6 +211,9 @@ lex_error = 0;
 
 							(*depth)++;
 							items[*depth] = tmp;
+
+							art_amask_tmp = art_amask;
+							art_amask = NULL;
 
 							if (linemode == 0)
 							{
@@ -237,6 +242,13 @@ lex_error = 0;
 									LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
 								}
 							}
+
+							if (art_amask)
+							{
+								give_artifact_abilities(tmp, art_amask);
+							}
+
+							art_amask = art_amask_tmp;
 
 							if (!(map_flags & MAP_STYLE))
 							{
@@ -382,6 +394,14 @@ lex_error = 0;
 						}
 					}
 ^artifact{S}        FREE_AND_COPY_HASH(op->artifact, yval());
+^amask{S}           {
+						art_amask = find_artifact_type(yval(), op->arch->clone.type);
+
+						if (!art_amask)
+						{
+							LOG(llevBug, "BUG: Invalid amask '%s'.\n", yval());
+						}
+					}
 ^quickslot{S}       op->quickslot = IVAL;
 
 ^other_arch{S}      op->other_arch = find_archetype(yval());
@@ -1005,6 +1025,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 
 	*msgbuf = '\0';
 	items[0] = op;
+	art_amask = NULL;
 
 	if (bufstate == LO_REPEAT)
 	{
@@ -1132,6 +1153,11 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			{
 				op->speed_left = op->speed_left + (float)(RANDOM() % 90) / 100.0f;
 			}
+		}
+
+		if (art_amask)
+		{
+			give_artifact_abilities(op, art_amask);
 		}
 
 		update_ob_speed(op);
