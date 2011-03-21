@@ -44,10 +44,10 @@ void move_player_mover(object *op)
 		return;
 	}
 
-	/* Determine direction now for random movers so we do the right thing */
-	if (!dir)
+	/* Determine direction now for random movers so we do the right thing. */
+	if (!dir && !QUERY_FLAG(op, FLAG_XRAYS))
 	{
-		dir = get_random_dir();
+		dir = op->direction;
 	}
 
 	for (victim = GET_BOTTOM_MAP_OB(op); victim != NULL; victim = victim->above)
@@ -60,10 +60,23 @@ void move_player_mover(object *op)
 				return;
 			}
 
+			/* No direction, this means 'xrays 1' was set; so use the
+			 * victim's direction instead. */
+			if (!dir)
+			{
+				dir = victim->direction;
+			}
+
 			xt = op->x + freearr_x[dir];
 			yt = op->y + freearr_y[dir];
 
 			if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
+			{
+				return;
+			}
+
+			/* Flag to stop moving if there's a wall. */
+			if (QUERY_FLAG(op, FLAG_STAND_STILL) && wall(mt, xt, yt))
 			{
 				return;
 			}
