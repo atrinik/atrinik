@@ -2,26 +2,15 @@ arch map
 name Caverns
 msg
 Created:  2011-03-20 emperorbma
-Modified: 2011-03-21 Alex Tokar
+Modified: 2011-03-20 emperorbma
 endmsg
 width 24
 height 24
 difficulty 30
-darkness 4
+darkness 2
 tile_path_2 world_b_0429
 tile_path_3 world_b_0328
 tile_path_6 world_b_0428
-end
-arch floor_sand_d4
-x 3
-y 10
-end
-arch ladder_tall_up
-slaying world_a_0329
-hp 3
-sp 10
-x 3
-y 10
 end
 arch floor_sand_d4
 x 6
@@ -78,6 +67,7 @@ x 7
 y 6
 end
 arch mover
+speed 0.5
 direction 3
 x 7
 y 6
@@ -89,6 +79,7 @@ x 7
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 7
 y 7
@@ -100,6 +91,7 @@ x 7
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 7
 y 8
@@ -142,6 +134,7 @@ x 8
 y 6
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 6
@@ -152,6 +145,7 @@ x 8
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 7
@@ -162,6 +156,7 @@ x 8
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 8
@@ -172,6 +167,7 @@ x 8
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 9
@@ -206,6 +202,7 @@ x 9
 y 5
 end
 arch mover
+speed 0.5
 direction 3
 x 9
 y 5
@@ -216,6 +213,7 @@ x 9
 y 6
 end
 arch mover
+speed 0.5
 direction 3
 x 9
 y 6
@@ -231,6 +229,7 @@ x 9
 y 7
 end
 arch water_dk3
+speed 0.5
 terrain_type 1
 x 9
 y 8
@@ -256,6 +255,7 @@ x 9
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 9
 y 9
@@ -300,6 +300,7 @@ x 10
 y 5
 end
 arch mover
+speed 0.5
 direction 4
 x 10
 y 5
@@ -310,6 +311,7 @@ x 10
 y 6
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 6
@@ -320,6 +322,7 @@ x 10
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 7
@@ -330,6 +333,7 @@ x 10
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 8
@@ -345,6 +349,7 @@ x 10
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 9
@@ -360,6 +365,7 @@ x 10
 y 10
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 10
@@ -399,6 +405,7 @@ x 11
 y 5
 end
 arch water_dk
+terrain_type 1
 x 11
 y 6
 end
@@ -408,6 +415,7 @@ x 11
 y 6
 end
 arch mover
+speed 0.5
 direction 4
 x 11
 y 6
@@ -423,6 +431,7 @@ x 11
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 11
 y 7
@@ -433,6 +442,7 @@ x 11
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 11
 y 8
@@ -448,6 +458,7 @@ x 11
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 11
 y 9
@@ -458,6 +469,7 @@ x 11
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 11
 y 10
@@ -468,6 +480,7 @@ x 11
 y 11
 end
 arch mover
+speed 1.0
 direction 2
 x 11
 y 11
@@ -494,6 +507,7 @@ x 12
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 12
 y 6
@@ -509,6 +523,7 @@ x 12
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 12
 y 7
@@ -519,6 +534,7 @@ x 12
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 12
 y 8
@@ -534,6 +550,7 @@ x 12
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 12
 y 9
@@ -544,6 +561,7 @@ x 12
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 12
 y 10
@@ -554,6 +572,7 @@ x 12
 y 11
 end
 arch mover
+speed 1.0
 direction 2
 x 12
 y 11
@@ -588,6 +607,7 @@ x 13
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 13
 y 6
@@ -603,6 +623,7 @@ x 13
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 13
 y 7
@@ -613,6 +634,7 @@ x 13
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 13
 y 8
@@ -628,6 +650,7 @@ x 13
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 13
 y 9
@@ -638,6 +661,7 @@ x 13
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 13
 y 10
@@ -695,6 +719,7 @@ x 14
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 14
 y 6
@@ -710,6 +735,7 @@ x 14
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 14
 y 7
@@ -720,6 +746,7 @@ x 14
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 14
 y 8
@@ -735,6 +762,7 @@ x 14
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 14
 y 9
@@ -745,11 +773,13 @@ x 14
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 14
 y 10
 end
 arch water_lt2
+terrain_type 1
 x 14
 y 11
 end
@@ -819,6 +849,7 @@ x 15
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 15
 y 6
@@ -834,6 +865,7 @@ x 15
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 15
 y 7
@@ -844,6 +876,7 @@ x 15
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 15
 y 8
@@ -859,6 +892,7 @@ x 15
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 15
 y 9
@@ -869,11 +903,13 @@ x 15
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 15
 y 10
 end
 arch water_lt4
+terrain_type 1
 x 15
 y 11
 end
@@ -964,6 +1000,7 @@ x 16
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 16
 y 6
@@ -979,6 +1016,7 @@ x 16
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 16
 y 7
@@ -989,6 +1027,7 @@ x 16
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 16
 y 8
@@ -1004,6 +1043,7 @@ x 16
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 16
 y 9
@@ -1014,11 +1054,13 @@ x 16
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 16
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 16
 y 11
 end
@@ -1111,6 +1153,7 @@ x 17
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 17
 y 6
@@ -1126,6 +1169,7 @@ x 17
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 17
 y 7
@@ -1136,6 +1180,7 @@ x 17
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 17
 y 8
@@ -1151,6 +1196,7 @@ x 17
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 17
 y 9
@@ -1161,11 +1207,13 @@ x 17
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 17
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 17
 y 11
 end
@@ -1255,6 +1303,7 @@ x 18
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 18
 y 6
@@ -1270,6 +1319,7 @@ x 18
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 18
 y 7
@@ -1280,6 +1330,7 @@ x 18
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 18
 y 8
@@ -1295,6 +1346,7 @@ x 18
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 18
 y 9
@@ -1305,11 +1357,13 @@ x 18
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 18
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 18
 y 11
 end
@@ -1395,6 +1449,7 @@ x 19
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 19
 y 6
@@ -1410,6 +1465,7 @@ x 19
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 19
 y 7
@@ -1420,6 +1476,7 @@ x 19
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 19
 y 8
@@ -1435,6 +1492,7 @@ x 19
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 19
 y 9
@@ -1445,11 +1503,13 @@ x 19
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 19
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 19
 y 11
 end
@@ -1579,6 +1639,7 @@ x 20
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 20
 y 6
@@ -1608,6 +1669,7 @@ x 20
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 20
 y 7
@@ -1618,6 +1680,7 @@ x 20
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 20
 y 8
@@ -1633,6 +1696,7 @@ x 20
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 20
 y 9
@@ -1643,11 +1707,13 @@ x 20
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 20
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 20
 y 11
 end
@@ -1749,6 +1815,7 @@ x 21
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 21
 y 6
@@ -1764,6 +1831,7 @@ x 21
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 21
 y 7
@@ -1786,6 +1854,7 @@ x 21
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 21
 y 8
@@ -1814,6 +1883,7 @@ x 21
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 21
 y 9
@@ -1837,6 +1907,7 @@ x 21
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 21
 y 10
@@ -1852,6 +1923,7 @@ x 21
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 21
 y 11
 end
@@ -1978,6 +2050,7 @@ x 22
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 22
 y 6
@@ -1993,6 +2066,7 @@ x 22
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 22
 y 7
@@ -2003,6 +2077,7 @@ x 22
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 22
 y 8
@@ -2018,6 +2093,7 @@ x 22
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 22
 y 9
@@ -2028,11 +2104,13 @@ x 22
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 22
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 22
 y 11
 end
@@ -2148,6 +2226,7 @@ x 23
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 x 23
 y 6
@@ -2163,6 +2242,7 @@ x 23
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 x 23
 y 7
@@ -2173,6 +2253,7 @@ x 23
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 x 23
 y 8
@@ -2188,6 +2269,7 @@ x 23
 y 9
 end
 arch mover
+speed 0.5
 direction 3
 x 23
 y 9
@@ -2198,11 +2280,13 @@ x 23
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 x 23
 y 10
 end
 arch water_lt3
+terrain_type 1
 x 23
 y 11
 end

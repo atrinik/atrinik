@@ -47,6 +47,7 @@ terrain_type 1
 y 6
 end
 arch mover
+speed 1.0
 direction 4
 y 6
 end
@@ -59,6 +60,7 @@ direction 1
 y 7
 end
 arch mover
+speed 0.5
 direction 3
 y 7
 end
@@ -67,6 +69,7 @@ terrain_type 1
 y 8
 end
 arch mover
+speed 0.5
 direction 3
 y 8
 end
@@ -79,7 +82,8 @@ direction 5
 y 9
 end
 arch mover
-direction 2
+speed 0.5
+direction 3
 y 9
 end
 arch water_md4
@@ -87,6 +91,7 @@ terrain_type 1
 y 10
 end
 arch mover
+speed 1.0
 direction 2
 y 10
 end
@@ -167,8 +172,8 @@ terrain_type 1
 x 1
 y 5
 end
-arch water_md2_m
-direction 5
+arch water_md_m
+direction 4
 x 1
 y 5
 end
@@ -178,7 +183,13 @@ x 1
 y 6
 end
 arch mover
+speed 1.0
 direction 3
+x 1
+y 6
+end
+arch water_dk_m
+direction 4
 x 1
 y 6
 end
@@ -187,12 +198,8 @@ terrain_type 1
 x 1
 y 7
 end
-arch water_md2_m
-direction 1
-x 1
-y 7
-end
 arch mover
+speed 0.5
 direction 2
 x 1
 y 7
@@ -202,22 +209,25 @@ terrain_type 1
 x 1
 y 8
 end
-arch water_md2_m
-direction 5
-x 1
-y 8
-end
 arch mover
+speed 0.5
 direction 2
 x 1
 y 8
 end
-arch water_md4
+arch water_dk2
 terrain_type 1
 x 1
 y 9
 end
+arch water_md2_m
+direction 5
+x 1
+y 9
+end
 arch mover
+speed 0.5
+direction 2
 x 1
 y 9
 end
@@ -227,6 +237,7 @@ x 1
 y 10
 end
 arch mover
+speed 1.0
 x 1
 y 10
 end
@@ -318,8 +329,8 @@ terrain_type 1
 x 2
 y 4
 end
-arch water_md2_m
-direction 5
+arch water_md_m
+direction 4
 x 2
 y 4
 end
@@ -328,7 +339,13 @@ terrain_type 1
 x 2
 y 5
 end
+arch water_dk_m
+direction 4
+x 2
+y 5
+end
 arch mover
+speed 1.0
 direction 3
 x 2
 y 5
@@ -338,12 +355,8 @@ terrain_type 1
 x 2
 y 6
 end
-arch water_md2_m
-direction 7
-x 2
-y 6
-end
 arch mover
+speed 0.5
 direction 2
 x 2
 y 6
@@ -353,22 +366,20 @@ terrain_type 1
 x 2
 y 7
 end
-arch water_md2_m
-direction 5
-x 2
-y 7
-end
 arch mover
+speed 0.5
 direction 2
 x 2
 y 7
 end
-arch water_md4
+arch water_dk2
 terrain_type 1
 x 2
 y 8
 end
 arch mover
+speed 0.5
+direction 2
 x 2
 y 8
 end
@@ -378,180 +389,206 @@ x 2
 y 9
 end
 arch mover
+speed 1.0
 x 2
 y 9
+end
+arch water_dk_m
+direction 8
+x 2
+y 9
+end
+arch water_md4
+terrain_type 1
+x 2
+y 10
+end
+arch mover
+speed 1.0
+direction 8
+x 2
+y 10
 end
 arch water_lt3
 terrain_type 1
 x 2
-y 10
+y 11
 end
 arch water_md2_m
-direction 7
+direction 1
 x 2
-y 10
+y 11
 end
 arch floor_sand_d1
 x 2
+y 12
+end
+arch water_lt_m
+direction 1
+x 2
+y 12
+end
+arch floor_sand_d1
+x 2
+y 13
+end
+arch floor_sand_d4
+x 2
+y 14
+end
+arch floor_sand_d4
+x 2
+y 15
+end
+arch floor_sand_d2
+x 2
+y 16
+end
+arch floor_sand_d4
+x 2
+y 17
+end
+arch floor_sand_d1
+x 2
+y 18
+end
+arch floor_sand_d2
+x 2
+y 19
+end
+arch floor_sand_d2
+x 2
+y 20
+end
+arch floor_sand_d3
+x 2
+y 21
+end
+arch floor_sand_d3
+x 2
+y 22
+end
+arch floor_sand_d2
+x 2
+y 23
+end
+arch floor_sand_d1
+x 3
+end
+arch floor_sand_d2
+x 3
+y 1
+end
+arch floor_sand_d2
+x 3
+y 2
+end
+arch water_lt_m
+direction 4
+x 3
+y 2
+end
+arch water_lt
+terrain_type 1
+x 3
+y 3
+end
+arch water_md_m
+direction 4
+x 3
+y 3
+end
+arch water_md2
+terrain_type 1
+x 3
+y 4
+end
+arch mover
+speed 1.0
+direction 3
+x 3
+y 4
+end
+arch water_dk_m
+direction 4
+x 3
+y 4
+end
+arch water_dk2
+terrain_type 1
+x 3
+y 5
+end
+arch mover
+speed 0.5
+direction 2
+x 3
+y 5
+end
+arch water_dk2
+speed 0.5
+terrain_type 1
+x 3
+y 6
+end
+arch mover
+direction 2
+x 3
+y 6
+end
+arch water_dk2
+terrain_type 1
+x 3
+y 7
+end
+arch mover
+speed 0.5
+direction 2
+x 3
+y 7
+end
+arch water_md4
+terrain_type 1
+x 3
+y 8
+end
+arch mover
+speed 1.0
+x 3
+y 8
+end
+arch water_dk_m
+direction 8
+x 3
+y 8
+end
+arch water_md4
+terrain_type 1
+x 3
+y 9
+end
+arch mover
+speed 1.0
+direction 8
+x 3
+y 9
+end
+arch water_lt3
+terrain_type 1
+x 3
+y 10
+end
+arch water_md2_m
+direction 1
+x 3
+y 10
+end
+arch floor_sand_d1
+x 3
 y 11
 end
 arch water_lt_m
 direction 8
-x 2
-y 11
-end
-arch floor_sand_d1
-x 2
-y 12
-end
-arch floor_sand_d1
-x 2
-y 13
-end
-arch floor_sand_d4
-x 2
-y 14
-end
-arch floor_sand_d4
-x 2
-y 15
-end
-arch floor_sand_d2
-x 2
-y 16
-end
-arch floor_sand_d4
-x 2
-y 17
-end
-arch floor_sand_d1
-x 2
-y 18
-end
-arch floor_sand_d2
-x 2
-y 19
-end
-arch floor_sand_d2
-x 2
-y 20
-end
-arch floor_sand_d3
-x 2
-y 21
-end
-arch floor_sand_d3
-x 2
-y 22
-end
-arch floor_sand_d2
-x 2
-y 23
-end
-arch floor_sand_d1
-x 3
-end
-arch floor_sand_d2
-x 3
-y 1
-end
-arch floor_sand_d2
-x 3
-y 2
-end
-arch water_lt_m
-direction 4
-x 3
-y 2
-end
-arch water_lt
-terrain_type 1
-x 3
-y 3
-end
-arch water_md2_m
-direction 5
-x 3
-y 3
-end
-arch water_md2
-terrain_type 1
-x 3
-y 4
-end
-arch mover
-direction 3
-x 3
-y 4
-end
-arch water_dk2
-terrain_type 1
-x 3
-y 5
-end
-arch water_md2_m
-direction 7
-x 3
-y 5
-end
-arch mover
-direction 2
-x 3
-y 5
-end
-arch water_dk2
-terrain_type 1
-x 3
-y 6
-end
-arch water_md2_m
-direction 5
-x 3
-y 6
-end
-arch mover
-direction 2
-x 3
-y 6
-end
-arch water_md4
-terrain_type 1
-x 3
-y 7
-end
-arch mover
-x 3
-y 7
-end
-arch water_md4
-terrain_type 1
-x 3
-y 8
-end
-arch mover
-x 3
-y 8
-end
-arch water_lt3
-terrain_type 1
-x 3
-y 9
-end
-arch water_md2_m
-direction 7
-x 3
-y 9
-end
-arch floor_sand_d1
-x 3
-y 10
-end
-arch water_lt_m
-direction 8
-x 3
-y 10
-end
-arch floor_sand_d3
 x 3
 y 11
 end
@@ -620,8 +657,8 @@ terrain_type 1
 x 4
 y 2
 end
-arch water_md2_m
-direction 5
+arch water_md_m
+direction 4
 x 4
 y 2
 end
@@ -631,7 +668,13 @@ x 4
 y 3
 end
 arch mover
+speed 1.0
 direction 3
+x 4
+y 3
+end
+arch water_dk_m
+direction 4
 x 4
 y 3
 end
@@ -640,12 +683,8 @@ terrain_type 1
 x 4
 y 4
 end
-arch water_md2_m
-direction 7
-x 4
-y 4
-end
 arch mover
+speed 0.5
 direction 2
 x 4
 y 4
@@ -655,22 +694,20 @@ terrain_type 1
 x 4
 y 5
 end
-arch water_md2_m
-direction 5
-x 4
-y 5
-end
 arch mover
+speed 0.5
 direction 2
 x 4
 y 5
 end
-arch water_md4
+arch water_dk3
 terrain_type 1
 x 4
 y 6
 end
 arch mover
+speed 0.5
+direction 2
 x 4
 y 6
 end
@@ -680,26 +717,34 @@ x 4
 y 7
 end
 arch mover
+speed 1.0
 x 4
 y 7
 end
-arch water_lt3
-terrain_type 1
-x 4
-y 8
-end
-arch water_md2_m
-direction 7
-x 4
-y 8
-end
-arch floor_sand_d1
-x 4
-y 9
-end
-arch water_lt_m
+arch water_dk_m
 direction 8
 x 4
+y 7
+end
+arch water_md4
+terrain_type 1
+x 4
+y 8
+end
+arch mover
+speed 1.0
+direction 8
+x 4
+y 8
+end
+arch water_lt3
+terrain_type 1
+x 4
+y 9
+end
+arch water_md2_m
+direction 7
+x 4
 y 9
 end
 arch floor_sand_d3
@@ -808,6 +853,7 @@ x 5
 y 2
 end
 arch mover
+speed 1.0
 direction 4
 x 5
 y 2
@@ -817,12 +863,8 @@ terrain_type 1
 x 5
 y 3
 end
-arch water_md2_m
-direction 7
-x 5
-y 3
-end
 arch mover
+speed 0.5
 direction 3
 x 5
 y 3
@@ -834,6 +876,7 @@ x 5
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 5
 y 4
@@ -843,12 +886,8 @@ terrain_type 1
 x 5
 y 5
 end
-arch water_md2_m
-direction 5
-x 5
-y 5
-end
 arch mover
+speed 0.5
 direction 3
 x 5
 y 5
@@ -859,25 +898,34 @@ x 5
 y 6
 end
 arch mover
+speed 1.0
 direction 2
 x 5
 y 6
 end
-arch water_lt3
+arch water_dk_m
+direction 8
+x 5
+y 6
+end
+arch water_md4
 terrain_type 1
 x 5
 y 7
 end
-arch water_md2_m
-direction 7
+arch mover
+speed 1.0
+direction 8
 x 5
 y 7
 end
-arch floor_sand_d3
+arch water_lt3
+terrain_type 1
 x 5
 y 8
 end
-arch fwall_rock3
+arch water_md2_m
+direction 7
 x 5
 y 8
 end
@@ -959,6 +1007,7 @@ x 6
 y 2
 end
 arch mover
+speed 1.0
 direction 4
 x 6
 y 2
@@ -974,6 +1023,7 @@ x 6
 y 3
 end
 arch mover
+speed 0.5
 direction 3
 x 6
 y 3
@@ -984,6 +1034,7 @@ x 6
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 6
 y 4
@@ -999,6 +1050,7 @@ x 6
 y 5
 end
 arch mover
+speed 0.5
 direction 3
 x 6
 y 5
@@ -1009,6 +1061,7 @@ x 6
 y 6
 end
 arch mover
+speed 1.0
 direction 2
 x 6
 y 6
@@ -1030,6 +1083,14 @@ end
 arch fwall_rock3
 x 6
 y 8
+end
+arch floor_sand_d3
+x 6
+y 9
+end
+arch fwall_rock3
+x 6
+y 9
 end
 arch floor_sand_d3
 x 6
@@ -1089,6 +1150,7 @@ x 7
 y 2
 end
 arch mover
+speed 1.0
 direction 4
 x 7
 y 2
@@ -1104,6 +1166,7 @@ x 7
 y 3
 end
 arch mover
+speed 0.5
 direction 3
 x 7
 y 3
@@ -1114,6 +1177,7 @@ x 7
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 7
 y 4
@@ -1129,6 +1193,7 @@ x 7
 y 5
 end
 arch mover
+speed 0.5
 direction 3
 x 7
 y 5
@@ -1139,6 +1204,7 @@ x 7
 y 6
 end
 arch mover
+speed 1.0
 direction 2
 x 7
 y 6
@@ -1219,6 +1285,7 @@ x 8
 y 2
 end
 arch mover
+speed 1.0
 direction 4
 x 8
 y 2
@@ -1234,6 +1301,7 @@ x 8
 y 3
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 3
@@ -1244,6 +1312,7 @@ x 8
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 4
@@ -1259,6 +1328,7 @@ x 8
 y 5
 end
 arch mover
+speed 0.5
 direction 3
 x 8
 y 5
@@ -1269,6 +1339,7 @@ x 8
 y 6
 end
 arch mover
+speed 1.0
 direction 2
 x 8
 y 6
@@ -1345,6 +1416,7 @@ x 9
 y 2
 end
 arch mover
+speed 1.0
 direction 4
 x 9
 y 2
@@ -1360,6 +1432,7 @@ x 9
 y 3
 end
 arch mover
+speed 0.5
 direction 3
 x 9
 y 3
@@ -1370,6 +1443,7 @@ x 9
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 9
 y 4
@@ -1385,6 +1459,7 @@ x 9
 y 5
 end
 arch mover
+speed 0.5
 direction 3
 x 9
 y 5
@@ -1395,6 +1470,7 @@ x 9
 y 6
 end
 arch mover
+speed 1.0
 direction 2
 x 9
 y 6
@@ -1444,6 +1520,7 @@ x 10
 y 2
 end
 arch mover
+speed 1.0
 direction 4
 x 10
 y 2
@@ -1459,6 +1536,7 @@ x 10
 y 3
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 3
@@ -1469,6 +1547,7 @@ x 10
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 4
@@ -1484,6 +1563,7 @@ x 10
 y 5
 end
 arch mover
+speed 0.5
 direction 3
 x 10
 y 5
@@ -1494,6 +1574,7 @@ x 10
 y 6
 end
 arch mover
+speed 1.0
 direction 2
 x 10
 y 6
@@ -1545,12 +1626,18 @@ direction 5
 x 11
 y 2
 end
+arch water_md_m
+direction 6
+x 11
+y 2
+end
 arch water_md4
 terrain_type 1
 x 11
 y 3
 end
 arch mover
+speed 0.5
 direction 4
 x 11
 y 3
@@ -1561,6 +1648,7 @@ x 11
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 11
 y 4
@@ -1571,6 +1659,7 @@ x 11
 y 5
 end
 arch mover
+speed 0.5
 direction 2
 x 11
 y 5
@@ -1582,6 +1671,11 @@ y 6
 end
 arch water_md2_m
 direction 6
+x 11
+y 6
+end
+arch water_md_m
+direction 8
 x 11
 y 6
 end
@@ -1620,17 +1714,28 @@ arch water_lt3
 x 12
 y 3
 end
+arch water_md_m
+direction 6
+x 12
+y 3
+end
 arch water_md4
 terrain_type 1
 x 12
 y 4
 end
 arch mover
+speed 0.5
 direction 3
 x 12
 y 4
 end
 arch water_lt
+x 12
+y 5
+end
+arch water_md_m
+direction 8
 x 12
 y 5
 end
