@@ -47,9 +47,9 @@ void move_player_mover(object *op)
 	}
 
 	/* Determine direction now for random movers so we do the right thing. */
-	if (!dir && !QUERY_FLAG(op, FLAG_XRAYS))
+	if (!dir)
 	{
-		dir = op->direction;
+		dir = get_random_dir();
 	}
 
 	for (victim = GET_BOTTOM_MAP_OB(op); victim; victim = victim_next)
@@ -66,7 +66,7 @@ void move_player_mover(object *op)
 
 			/* No direction, this means 'xrays 1' was set; so use the
 			 * victim's direction instead. */
-			if (!dir)
+			if (!op->direction && QUERY_FLAG(op, FLAG_XRAYS))
 			{
 				dir = victim->direction;
 			}
