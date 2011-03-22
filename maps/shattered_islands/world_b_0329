@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-20 emperorbma
-Modified: 2011-03-21 Alex Tokar
+Modified: 2011-03-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -242,11 +242,6 @@ terrain_type 1
 x 9
 y 8
 end
-arch mover
-direction 3
-x 9
-y 8
-end
 arch campfire
 face fountain_stream.101
 animation fountain_stream
@@ -254,6 +249,11 @@ name stream
 anim_speed 2
 glow_radius 0
 align -14
+x 9
+y 8
+end
+arch mover
+direction 3
 x 9
 y 8
 end
@@ -307,9 +307,15 @@ terrain_type 1
 x 10
 y 5
 end
+arch water_md_m
+direction 2
+x 10
+y 5
+end
 arch mover
-speed 0.5
 direction 4
+sp 1
+speed 1.0
 x 10
 y 5
 end
@@ -368,7 +374,7 @@ x 10
 y 10
 end
 arch water_md_m
-direction 3
+direction 4
 x 10
 y 10
 end
@@ -385,6 +391,8 @@ y 11
 end
 arch mover
 direction 2
+sp 1
+speed 1.0
 x 10
 y 11
 end
@@ -417,14 +425,15 @@ terrain_type 1
 x 11
 y 6
 end
-arch water_md2_m
-direction 3
+arch water_md_m
+direction 2
 x 11
 y 6
 end
 arch mover
-speed 0.5
 direction 4
+sp 1
+speed 1.0
 x 11
 y 6
 end
@@ -477,8 +486,9 @@ x 11
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 11
 y 10
 end
@@ -488,8 +498,9 @@ x 11
 y 11
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 11
 y 11
 end
@@ -515,8 +526,9 @@ x 12
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 12
 y 6
 end
@@ -569,8 +581,9 @@ x 12
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 12
 y 10
 end
@@ -580,8 +593,9 @@ x 12
 y 11
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 12
 y 11
 end
@@ -615,8 +629,9 @@ x 13
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 13
 y 6
 end
@@ -669,8 +684,9 @@ x 13
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 13
 y 10
 end
@@ -679,8 +695,8 @@ terrain_type 1
 x 13
 y 11
 end
-arch water_md2_m
-direction 1
+arch water_md_m
+direction 8
 x 13
 y 11
 end
@@ -727,8 +743,9 @@ x 14
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 14
 y 6
 end
@@ -781,8 +798,9 @@ x 14
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 14
 y 10
 end
@@ -801,7 +819,7 @@ x 14
 y 12
 end
 arch water_lt_m
-direction 1
+direction 8
 x 14
 y 12
 end
@@ -857,8 +875,9 @@ x 15
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 15
 y 6
 end
@@ -911,8 +930,9 @@ x 15
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 15
 y 10
 end
@@ -1008,8 +1028,9 @@ x 16
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 16
 y 6
 end
@@ -1062,8 +1083,9 @@ x 16
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 16
 y 10
 end
@@ -1161,8 +1183,9 @@ x 17
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 17
 y 6
 end
@@ -1215,8 +1238,9 @@ x 17
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 17
 y 10
 end
@@ -1311,8 +1335,9 @@ x 18
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 18
 y 6
 end
@@ -1365,8 +1390,9 @@ x 18
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 18
 y 10
 end
@@ -1457,8 +1483,9 @@ x 19
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 19
 y 6
 end
@@ -1511,8 +1538,9 @@ x 19
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 19
 y 10
 end
@@ -1646,12 +1674,6 @@ terrain_type 1
 x 20
 y 6
 end
-arch mover
-speed 1.0
-direction 4
-x 20
-y 6
-end
 arch bollard_tied_s_2
 msg
 You use the rope to exit the rapids.
@@ -1663,6 +1685,13 @@ slaying world_b_0329
 hp 20
 sp 4
 type 66
+x 20
+y 6
+end
+arch mover
+direction 4
+sp 1
+speed 1.0
 x 20
 y 6
 end
@@ -1715,8 +1744,9 @@ x 20
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 20
 y 10
 end
@@ -1823,8 +1853,9 @@ x 21
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 21
 y 6
 end
@@ -1835,12 +1866,6 @@ y 7
 end
 arch water_md2_m
 direction 1
-x 21
-y 7
-end
-arch mover
-speed 0.5
-direction 3
 x 21
 y 7
 end
@@ -1856,14 +1881,14 @@ type 66
 x 21
 y 7
 end
-arch water_dk4
-terrain_type 1
-x 21
-y 8
-end
 arch mover
 speed 0.5
 direction 3
+x 21
+y 7
+end
+arch water_dk4
+terrain_type 1
 x 21
 y 8
 end
@@ -1880,6 +1905,12 @@ type 66
 x 21
 y 8
 end
+arch mover
+speed 0.5
+direction 3
+x 21
+y 8
+end
 arch water_dk3
 terrain_type 1
 x 21
@@ -1887,12 +1918,6 @@ y 9
 end
 arch water_md2_m
 direction 5
-x 21
-y 9
-end
-arch mover
-speed 0.5
-direction 3
 x 21
 y 9
 end
@@ -1909,14 +1934,14 @@ type 66
 x 21
 y 9
 end
+arch mover
+speed 0.5
+direction 3
+x 21
+y 9
+end
 arch water_md4
 terrain_type 1
-x 21
-y 10
-end
-arch mover
-speed 1.0
-direction 2
 x 21
 y 10
 end
@@ -1927,6 +1952,13 @@ slaying world_b_0329
 hp 22
 sp 12
 type 66
+x 21
+y 10
+end
+arch mover
+direction 2
+sp 1
+speed 1.0
 x 21
 y 10
 end
@@ -2058,8 +2090,9 @@ x 22
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 22
 y 6
 end
@@ -2112,8 +2145,9 @@ x 22
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 22
 y 10
 end
@@ -2234,8 +2268,9 @@ x 23
 y 6
 end
 arch mover
-speed 1.0
 direction 4
+sp 1
+speed 1.0
 x 23
 y 6
 end
@@ -2288,8 +2323,9 @@ x 23
 y 10
 end
 arch mover
-speed 1.0
 direction 2
+sp 1
+speed 1.0
 x 23
 y 10
 end
