@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness -1
+region creation
 end
 arch blocked
 end
