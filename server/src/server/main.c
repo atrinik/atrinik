@@ -290,8 +290,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			CONTR(op)->count = 0;
 		}
 
-		op->direction = 0;
-
 		/* If the player is changing maps, we need to do some special things
 		 * Do this after the player is on the new map - otherwise the force swap of the
 		 * old map does not work. */

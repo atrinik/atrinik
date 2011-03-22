@@ -333,7 +333,6 @@ int command_kick(object *ob, char *params)
 
 			remove_ob(op);
 			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-			op->direction = 0;
 
 			if (params)
 			{

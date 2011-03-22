@@ -710,8 +710,14 @@ void check_login(object *op)
 	pl->socket.update_tile = 0;
 	pl->socket.look_position = 0;
 	pl->socket.ext_title_flag = 1;
-	/* So the player faces southeast. */
-	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 4;
+
+	/* No direction; default to southeast. */
+	if (!op->direction)
+	{
+		op->direction = SOUTHEAST;
+	}
+
+	op->anim_last_facing = op->anim_last_facing_last = op->facing = op->direction;
 	/* We assume that players always have a valid animation. */
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 	esrv_new_player(pl, op->weight + op->carrying);
