@@ -2,12 +2,13 @@ arch map
 name Caverns
 msg
 Created:  2011-03-20 emperorbma
-Modified: 2011-03-22 Alex Tokar
+Modified: 2011-03-22 emperorbma
 endmsg
 width 24
 height 24
 difficulty 30
 darkness 2
+tile_path_1 world_b_0330
 tile_path_2 world_b_0429
 tile_path_3 world_b_0328
 tile_path_6 world_b_0428
@@ -2228,7 +2229,10 @@ arch floor_sand_d4
 x 22
 y 23
 end
-arch floor_sand_d3
+arch floor_sand_d2
+x 23
+end
+arch fwall_rock1
 x 23
 end
 arch floor_sand_d2
