@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2011-03-19 Alex Tokar
+Modified: 2011-03-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -142,6 +142,15 @@ arch floor_sand_d3
 x 2
 y 3
 end
+arch spawn_point
+x 2
+y 3
+arch kobold_fighter
+level 2
+Wis 2
+type 83
+end
+end
 arch floor_sand_d4
 x 2
 y 4
@@ -280,6 +289,18 @@ arch floor_sand_d1
 x 3
 y 7
 end
+arch spawn_point
+x 3
+y 7
+arch kobold
+name kobold sneaker
+level 2
+wc_range 12
+unaggressive 1
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 3
 y 8
@@ -348,6 +369,15 @@ end
 arch floor_sand_d4
 x 3
 y 16
+end
+arch spawn_point
+x 3
+y 16
+arch kobold_fighter
+level 2
+Wis 2
+type 83
+end
 end
 arch floor_sand_d2
 x 3
@@ -665,6 +695,15 @@ arch floor_sand_d2
 x 6
 y 9
 end
+arch spawn_point
+x 6
+y 9
+arch kobold_fighter
+level 2
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 6
 y 10
@@ -684,6 +723,15 @@ end
 arch floor_sand_d4
 x 6
 y 13
+end
+arch spawn_point
+x 6
+y 13
+arch kobold_guard
+level 2
+Wis 2
+type 83
+end
 end
 arch floor_sand_d2
 x 6
@@ -757,6 +805,15 @@ end
 arch floor_sand_d3
 x 7
 y 3
+end
+arch spawn_point
+x 7
+y 3
+arch kobold_fighter
+level 2
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 7
@@ -1196,6 +1253,16 @@ arch floor_sand_d4
 x 10
 y 17
 end
+arch spawn_point
+x 10
+y 17
+arch kobold_fighter
+direction 3
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 10
 y 18
@@ -1311,13 +1378,19 @@ arch floor_sand_d1
 x 11
 y 18
 end
-arch campfire
-x 11
-y 18
-end
 arch floor_sand_d4
 x 11
 y 19
+end
+arch spawn_point
+x 11
+y 19
+arch kobold_fighter
+direction 3
+level 3
+Wis 2
+type 83
+end
 end
 arch floor_sand_d1
 x 11
@@ -1401,11 +1474,24 @@ arch floor_sand_d2
 x 12
 y 16
 end
+arch spawn_point
+x 12
+y 16
+arch kobold_guard
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 12
 y 17
 end
 arch floor_sand_d1
+x 12
+y 18
+end
+arch campfire
 x 12
 y 18
 end
@@ -1466,6 +1552,15 @@ end
 arch floor_sand_d1
 x 13
 y 3
+end
+arch spawn_point
+x 13
+y 3
+arch kobold_guard
+level 3
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 13
@@ -1530,6 +1625,17 @@ end
 arch floor_sand_d3
 x 13
 y 18
+end
+arch spawn_point
+x 13
+y 18
+arch kobold_guard
+name kobold fighter leader
+level 3
+attack_slash 80
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 13
@@ -1602,6 +1708,18 @@ end
 arch floor_sand_d1
 x 14
 y 7
+end
+arch spawn_point
+x 14
+y 7
+arch kobold
+name kobold sneaker
+level 2
+wc_range 12
+unaggressive 1
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 14
@@ -1970,6 +2088,15 @@ arch floor_sand_d3
 x 16
 y 15
 end
+arch spawn_point
+x 16
+y 15
+arch kobold_fighter
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 16
 y 16
@@ -2208,6 +2335,22 @@ arch floor_sand_d4
 x 18
 y 12
 end
+arch spawn_point
+x 18
+y 12
+arch kobold_shaman
+direction 3
+level 2
+maxsp 10
+magic 1
+Dex 10
+Wis 2
+type 83
+arch ability_cause_lig_wound
+last_grace 14
+end
+end
+end
 arch floor_sand_d4
 x 18
 y 13
@@ -2264,6 +2407,18 @@ arch water_floor
 x 18
 y 20
 end
+arch spawn_point
+x 18
+y 20
+arch kobold
+name kobold mushroom keeper
+direction 7
+level 2
+wc_range 12
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 18
 y 21
@@ -2315,6 +2470,15 @@ arch water_floor
 x 19
 y 5
 end
+arch spawn_point
+x 19
+y 5
+arch kobold_fighter
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d3
 x 19
 y 6
@@ -2342,6 +2506,21 @@ end
 arch floor_sand_d2
 x 19
 y 10
+end
+arch spawn_point
+x 19
+y 10
+arch kobold_shaman
+level 3
+maxsp 10
+magic 1
+Dex 10
+Wis 2
+type 83
+arch ability_cause_lig_wound
+last_grace 14
+end
+end
 end
 arch floor_sand_d1
 x 19
@@ -2664,6 +2843,18 @@ end
 arch blood_floor2
 x 21
 y 16
+end
+arch spawn_point
+x 21
+y 16
+arch kobold
+name kobold mushroom keeper
+direction 7
+level 2
+wc_range 12
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 21

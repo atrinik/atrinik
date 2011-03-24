@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2011-03-19 Alex Tokar
+Modified: 2011-03-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -217,6 +217,16 @@ arch floor_sand_d1
 x 1
 y 21
 end
+arch spawn_point
+x 1
+y 21
+arch slug_giant
+type 83
+level 3
+Wis 2
+direction 3
+end
+end
 arch floor_sand_d3
 x 1
 y 22
@@ -370,6 +380,15 @@ arch shelf3_dem2.111
 x 3
 y 4
 end
+arch spawn_point
+x 3
+y 4
+arch kobold_guard
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 3
 y 5
@@ -401,6 +420,16 @@ end
 arch plant_mushroom2
 x 3
 y 15
+end
+arch spawn_point
+x 3
+y 15
+arch kobold_guard
+name kobold mushroom protector
+level 2
+Wis 2
+type 83
+end
 end
 arch floor_sand_d2
 x 3
@@ -785,6 +814,18 @@ arch mushroom_giant2
 x 6
 y 12
 end
+arch spawn_point
+x 6
+y 12
+arch kobold
+name kobold mushroom collector
+randomitems mob_mage_l9
+wc_range 12
+unaggressive 1
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 6
 y 13
@@ -842,6 +883,18 @@ arch torch_wall_1
 direction 7
 x 6
 y 19
+end
+arch spawn_point
+x 6
+y 19
+arch kobold
+name kobold mushroom collector
+randomitems mob_mage_l9
+wc_range 12
+unaggressive 1
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 6
@@ -1032,6 +1085,17 @@ arch torch_wall_1
 x 8
 y 2
 end
+arch spawn_point
+x 8
+y 2
+arch kobold
+name kobold hunter
+level 3
+unaggressive 1
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 8
 y 3
@@ -1067,6 +1131,15 @@ end
 arch blood_floor2
 x 8
 y 10
+end
+arch spawn_point
+x 8
+y 10
+arch cube_gel
+type 83
+level 3
+Wis 2
+end
 end
 arch floor_sand_d2
 x 8
@@ -1164,7 +1237,7 @@ arch fwall_sand1a
 x 9
 y 1
 end
-arch floor_sand_d1
+arch floor_sand_d2
 x 9
 y 2
 end
@@ -1231,6 +1304,18 @@ end
 arch floor_sand_d3
 x 9
 y 15
+end
+arch spawn_point
+x 9
+y 15
+arch kobold
+name kobold mushroom collector
+randomitems mob_mage_l9
+wc_range 12
+unaggressive 1
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 9
@@ -1391,6 +1476,18 @@ end
 arch plant_mushroom3
 x 10
 y 19
+end
+arch spawn_point
+x 10
+y 19
+arch kobold
+name kobold mushroom collector
+randomitems mob_mage_l9
+wc_range 12
+unaggressive 1
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 10
@@ -1680,6 +1777,15 @@ arch floor_sand_d4
 x 13
 y 4
 end
+arch spawn_point
+x 13
+y 4
+arch kobold_fighter
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d4
 x 13
 y 5
@@ -1890,6 +1996,15 @@ arch floor_sand_d2
 x 15
 y 9
 end
+arch spawn_point
+x 15
+y 9
+arch kobold_fighter
+level 3
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 15
 y 10
@@ -2044,6 +2159,15 @@ end
 arch floor_sand_d1
 x 16
 y 14
+end
+arch spawn_point
+x 16
+y 14
+arch kobold_guard
+level 3
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 16
@@ -2217,6 +2341,15 @@ end
 arch floor_sand_d3
 x 17
 y 20
+end
+arch spawn_point
+x 17
+y 20
+arch cube_gel
+level 3
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 17

@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2011-03-19 Alex Tokar
+Modified: 2011-03-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -50,43 +50,83 @@ end
 arch fwall_sand1a
 y 5
 end
-arch floor_sand_d3
-y 6
-end
-arch fwall_sand1b
-y 6
-end
-arch plant1_wall.151
-direction 7
-y 6
-end
-arch floor_sand_d3
-y 7
-end
-arch fwall_sand1a
-y 7
-end
-arch floor_sand_d3
-y 8
-end
-arch fwall_sand1b
-y 8
-end
-arch plant1_wall.151
-direction 7
-y 8
-end
 arch floor_sand_d2
 y 9
 end
-arch fwall_sand1a
+arch fwall_sand1b
 y 9
 end
-arch floor_sand_d2
+arch floor_sand_d3
 y 10
 end
 arch fwall_sand1b
 y 10
+end
+arch plant2_wall.151
+direction 7
+y 10
+end
+arch floor_sand_d3
+y 11
+end
+arch fwall_sand1a
+y 11
+end
+arch floor_sand_d3
+y 12
+end
+arch fwall_sand1a
+y 12
+end
+arch floor_sand_d1
+y 13
+end
+arch fwall_sand1a
+y 13
+end
+arch plant1_wall.151
+direction 7
+y 13
+end
+arch floor_sand_d2
+y 14
+end
+arch fwall_sand1b
+y 14
+end
+arch floor_sand_d3
+y 15
+end
+arch fwall_sand1b
+y 15
+end
+arch floor_sand_d2
+y 16
+end
+arch fwall_sand1b
+y 16
+end
+arch floor_sand_d3
+y 17
+end
+arch fwall_sand1b
+y 17
+end
+arch plant2_wall.151
+direction 7
+y 17
+end
+arch floor_sand_d2
+y 18
+end
+arch fwall_sand1a
+y 18
+end
+arch floor_sand_d2
+y 19
+end
+arch fwall_sand1b
+y 19
 end
 arch floor_sand_d3
 x 1
@@ -121,11 +161,15 @@ arch floor_sand_d4
 x 1
 y 5
 end
-arch dirt_floor1
+arch fwall_sand1a
 x 1
 y 5
 end
-arch floor_sand_d2
+arch floor_sand_d1
+x 1
+y 6
+end
+arch fwall_sand1b
 x 1
 y 6
 end
@@ -133,75 +177,150 @@ arch floor_sand_d4
 x 1
 y 7
 end
-arch floor_sand_d2
+arch fwall_sand1b
+x 1
+y 7
+end
+arch floor_sand_d1
 x 1
 y 8
+end
+arch fwall_sand1b
+x 1
+y 8
+end
+arch floor_sand_d2
+x 1
+y 9
+end
+arch fwall_sand1a
+x 1
+y 9
+end
+arch floor_sand_d3
+x 1
+y 10
+end
+arch prison_deco1.131
+direction 7
+x 1
+y 10
+end
+arch floor_sand_d3
+x 1
+y 11
+end
+arch prison_deco2.131
+direction 7
+x 1
+y 11
+end
+arch floor_sand_d1
+x 1
+y 12
+end
+arch prison_deco2.131
+direction 7
+x 1
+y 12
+end
+arch floor_sand_d4
+x 1
+y 13
+end
+arch prison_deco1.131
+direction 7
+x 1
+y 13
+end
+arch floor_sand_d2
+x 1
+y 14
+end
+arch prison_deco1.131
+direction 7
+x 1
+y 14
+end
+arch floor_sand_d3
+x 1
+y 15
+end
+arch prison_deco2.131
+direction 7
+x 1
+y 15
 end
 arch torch_wall_1
 direction 7
 x 1
-y 8
-end
-arch floor_sand_d2
-x 1
-y 9
-end
-arch box1.101
-x 1
-y 9
+y 15
 end
 arch floor_sand_d1
 x 1
-y 10
+y 16
 end
-arch fwall_sand1b
+arch prison_deco1.131
+direction 7
 x 1
-y 10
+y 16
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 1
-y 11
+y 17
 end
-arch fwall_sand1a
+arch prison_deco2.131
+direction 7
 x 1
-y 11
+y 17
 end
 arch floor_sand_d4
 x 1
-y 12
+y 18
+end
+arch prison_deco1.131
+direction 7
+x 1
+y 18
+end
+arch spawn_point
+x 1
+y 18
+arch kobold_fighter
+direction 3
+level 5
+Wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 1
+y 19
 end
 arch fwall_sand1b
 x 1
-y 12
+y 19
 end
 arch plant2_wall.151
 direction 7
 x 1
-y 12
-end
-arch floor_sand_d3
-x 1
-y 13
-end
-arch fwall_sand1b
-x 1
-y 13
+y 19
 end
 arch floor_sand_d2
 x 1
-y 14
+y 20
 end
-arch fwall_sand1a
+arch fwall_sand1b
 x 1
-y 14
+y 20
 end
-arch floor_sand_d4
+arch floor_sand_d3
 x 1
-y 15
+y 21
 end
-arch fwall_sand1a
+arch fwall_sand1b
 x 1
-y 15
+y 21
 end
 arch floor_sand_d1
 x 2
@@ -227,6 +346,19 @@ arch floor_sand_d1
 x 2
 y 3
 end
+arch dirt_floor1
+x 2
+y 3
+end
+arch spawn_point
+x 2
+y 3
+arch kobold_fighter
+level 4
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 2
 y 4
@@ -239,11 +371,19 @@ arch floor_sand_d4
 x 2
 y 5
 end
-arch floor_sand_d3
+arch doorway_wood1_1
+x 2
+y 5
+end
+arch floor_sand_d1
 x 2
 y 6
 end
-arch floor_sand_d4
+arch floor_sand_d2
+x 2
+y 7
+end
+arch dirt_floor2
 x 2
 y 7
 end
@@ -251,96 +391,116 @@ arch floor_sand_d3
 x 2
 y 8
 end
-arch floor_sand_d4
-x 2
-y 9
-end
-arch floor_sand_d4
-x 2
-y 10
-end
-arch floor_sand_d3
-x 2
-y 11
-end
-arch floor_sand_d3
-x 2
-y 12
-end
-arch shelf3_dem2.111
-direction 7
-x 2
-y 12
-end
-arch floor_sand_d2
-x 2
-y 13
-end
 arch torch_wall_1
 direction 7
 x 2
+y 8
+end
+arch floor_sand_d3
+x 2
+y 9
+end
+arch doorway_wood1_1
+x 2
+y 9
+end
+arch floor_sand_d1
+x 2
+y 10
+end
+arch trash_wood2.101
+x 2
+y 10
+end
+arch spawn_point
+x 2
+y 10
+arch kobold_fighter
+level 4
+Wis 2
+type 83
+end
+end
+arch floor_sand_d2
+x 2
+y 11
+end
+arch floor_sand_d4
+x 2
+y 12
+end
+arch dirt_floor3
+x 2
+y 12
+end
+arch floor_sand_d1
+x 2
 y 13
 end
 arch floor_sand_d2
 x 2
 y 14
 end
-arch chair1_drop_111
+arch spawn_point
 x 2
 y 14
+arch kobold_guard
+level 4
+Wis 2
+type 83
 end
-arch floor_sand_d3
-x 2
-y 15
-end
-arch fwall_sand1b
-x 2
-y 15
-end
-arch floor_sand_d3
-x 2
-y 16
-end
-arch fwall_sand1b
-x 2
-y 16
-end
-arch plant2_wall.151
-direction 7
-x 2
-y 16
-end
-arch floor_sand_d2
-x 2
-y 17
-end
-arch fwall_sand1a
-x 2
-y 17
-end
-arch floor_sand_d3
-x 2
-y 18
-end
-arch fwall_sand1a
-x 2
-y 18
 end
 arch floor_sand_d1
 x 2
-y 19
+y 15
 end
-arch fwall_sand1b
+arch dirt_floor4
 x 2
-y 19
+y 15
 end
 arch floor_sand_d2
 x 2
+y 16
+end
+arch floor_sand_d1
+x 2
+y 17
+end
+arch trash_wood2.101
+x 2
+y 17
+end
+arch floor_sand_d2
+x 2
+y 18
+end
+arch floor_sand_d4
+x 2
+y 19
+end
+arch floor_sand_d4
+x 2
 y 20
+end
+arch dirt_floor2
+x 2
+y 20
+end
+arch floor_sand_d4
+x 2
+y 21
 end
 arch fwall_sand1a
 x 2
-y 20
+y 21
+end
+arch floor_sand_d3
+x 2
+y 22
+end
+arch fwall_sand1b
+x 2
+y 22
 end
 arch floor_sand_d2
 x 3
@@ -366,27 +526,31 @@ arch floor_sand_d3
 x 3
 y 5
 end
-arch floor_sand_d1
+arch fwall_sand1a
+x 3
+y 5
+end
+arch floor_sand_d3
 x 3
 y 6
 end
-arch pottery1.101
+arch fwall_sand1a
 x 3
 y 6
-end
-arch floor_sand_d1
-x 3
-y 7
-end
-arch pottery1.101
-x 3
-y 7
 end
 arch floor_sand_d2
 x 3
+y 7
+end
+arch fwall_sand1a
+x 3
+y 7
+end
+arch floor_sand_d4
+x 3
 y 8
 end
-arch dirt_floor4
+arch fwall_sand1b
 x 3
 y 8
 end
@@ -394,11 +558,11 @@ arch floor_sand_d2
 x 3
 y 9
 end
-arch floor_sand_d3
+arch fwall_sand1a
 x 3
-y 10
+y 9
 end
-arch water_floor
+arch floor_sand_d3
 x 3
 y 10
 end
@@ -406,15 +570,15 @@ arch floor_sand_d1
 x 3
 y 11
 end
+arch floor_sand_d4
+x 3
+y 12
+end
 arch floor_sand_d3
 x 3
-y 12
+y 13
 end
-arch dirt_floor3
-x 3
-y 12
-end
-arch floor_sand_d1
+arch prison_deco1.131
 x 3
 y 13
 end
@@ -422,24 +586,31 @@ arch floor_sand_d1
 x 3
 y 14
 end
-arch trash_wood2.101
+arch prison_deco2.131
 x 3
 y 14
 end
-arch floor_sand_d2
+arch floor_sand_d3
 x 3
 y 15
 end
-arch floor_sand_d1
+arch prison_deco1.131
+x 3
+y 15
+end
+arch floor_sand_d3
 x 3
 y 16
 end
-arch floor_sand_d3
+arch prison_deco1.131
+x 3
+y 16
+end
+arch floor_sand_d1
 x 3
 y 17
 end
-arch shelf3_dem2.111
-direction 7
+arch prison_deco2.131
 x 3
 y 17
 end
@@ -447,55 +618,29 @@ arch floor_sand_d3
 x 3
 y 18
 end
-arch torch_wall_1
-direction 7
+arch prison_deco1.131
 x 3
 y 18
 end
-arch floor_sand_d4
-x 3
-y 19
-end
-arch chair1_drop_111
+arch floor_sand_d2
 x 3
 y 19
 end
 arch floor_sand_d2
 x 3
 y 20
+end
+arch floor_sand_d1
+x 3
+y 21
+end
+arch floor_sand_d3
+x 3
+y 22
 end
 arch fwall_sand1b
 x 3
-y 20
-end
-arch floor_sand_d2
-x 3
-y 21
-end
-arch fwall_sand1a
-x 3
-y 21
-end
-arch plant2_wall.151
-direction 7
-x 3
-y 21
-end
-arch floor_sand_d2
-x 3
 y 22
-end
-arch fwall_sand1a
-x 3
-y 22
-end
-arch floor_sand_d2
-x 3
-y 23
-end
-arch fwall_sand1a
-x 3
-y 23
 end
 arch floor_sand_d2
 x 4
@@ -538,59 +683,55 @@ arch fwall_sand1b
 x 4
 y 5
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 4
-y 6
+y 9
 end
-arch fwall_sand1b
+arch fwall_sand1a
 x 4
-y 6
+y 9
 end
 arch floor_sand_d2
 x 4
-y 7
+y 10
 end
-arch fwall_sand1b
+arch doorway_wood1_1
+direction 7
 x 4
-y 7
-end
-arch floor_sand_d1
-x 4
-y 8
-end
-arch fwall_sand1b
-x 4
-y 8
-end
-arch floor_sand_d1
-x 4
-y 9
-end
-arch barrel.101
-x 4
-y 9
+y 10
 end
 arch floor_sand_d4
 x 4
-y 10
+y 11
 end
-arch barrel.101
-x 4
-y 10
-end
-arch floor_sand_d1
+arch fwall_sand1a
 x 4
 y 11
 end
-arch basket1.101
+arch plant1_wall.151
+direction 7
 x 4
 y 11
 end
-arch floor_sand_d3
+arch floor_sand_d4
 x 4
 y 12
 end
-arch floor_sand_d2
+arch doorway_wood1_1
+direction 7
+x 4
+y 12
+end
+arch floor_sand_d3
+x 4
+y 13
+end
+arch fwall_sand1a
+x 4
+y 13
+end
+arch plant2_wall.151
+direction 7
 x 4
 y 13
 end
@@ -598,7 +739,15 @@ arch floor_sand_d4
 x 4
 y 14
 end
-arch floor_sand_d3
+arch fwall_sand1a
+x 4
+y 14
+end
+arch floor_sand_d2
+x 4
+y 15
+end
+arch fwall_sand1b
 x 4
 y 15
 end
@@ -606,15 +755,28 @@ arch floor_sand_d1
 x 4
 y 16
 end
-arch dirt_floor4
+arch fwall_sand1a
 x 4
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 4
 y 17
 end
-arch floor_sand_d1
+arch fwall_sand1b
+x 4
+y 17
+end
+arch plant2_wall.151
+direction 7
+x 4
+y 17
+end
+arch floor_sand_d2
+x 4
+y 18
+end
+arch fwall_sand1a
 x 4
 y 18
 end
@@ -622,26 +784,35 @@ arch floor_sand_d4
 x 4
 y 19
 end
+arch doorway_wood1_1
+direction 7
+x 4
+y 19
+end
 arch floor_sand_d2
 x 4
 y 20
 end
-arch floor_sand_d1
+arch fwall_sand1a
 x 4
-y 21
-end
-arch floor_sand_d4
-x 4
-y 22
+y 20
 end
 arch floor_sand_d3
 x 4
-y 23
+y 21
 end
-arch torch_wall_1
+arch doorway_wood1_1
 direction 7
 x 4
-y 23
+y 21
+end
+arch floor_sand_d3
+x 4
+y 22
+end
+arch fwall_sand1a
+x 4
+y 22
 end
 arch floor_sand_d3
 x 5
@@ -679,71 +850,86 @@ arch fwall_sand1a
 x 5
 y 5
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 5
-y 8
+y 9
 end
 arch fwall_sand1b
 x 5
-y 8
+y 9
+end
+arch plant1_wall.151
+x 5
+y 9
+end
+arch floor_sand_d3
+x 5
+y 10
+end
+arch trash_wood1.101
+x 5
+y 10
+end
+arch floor_sand_d3
+x 5
+y 11
+end
+arch torch_wall_1
+direction 7
+x 5
+y 11
 end
 arch floor_sand_d2
 x 5
-y 9
-end
-arch fwall_sand1b
-x 5
-y 9
-end
-arch floor_sand_d3
-x 5
-y 10
-end
-arch fwall_sand1a
-x 5
-y 10
+y 12
 end
 arch floor_sand_d4
 x 5
-y 11
-end
-arch fwall_sand1b
-x 5
-y 11
-end
-arch floor_sand_d2
-x 5
-y 12
-end
-arch fwall_sand1a
-x 5
-y 12
-end
-arch floor_sand_d2
-x 5
 y 13
 end
-arch fwall_sand1a
+arch prison_deco2.131
+direction 7
 x 5
 y 13
-end
-arch floor_sand_d2
-x 5
-y 14
-end
-arch barrel_water.101
-x 5
-y 14
 end
 arch floor_sand_d1
 x 5
+y 14
+end
+arch prison_deco2.131
+direction 7
+x 5
+y 14
+end
+arch floor_sand_d4
+x 5
 y 15
 end
-arch floor_sand_d3
+arch prison_deco2.131
+direction 7
+x 5
+y 15
+end
+arch torch_wall_1
+direction 7
+x 5
+y 15
+end
+arch floor_sand_d4
 x 5
 y 16
 end
-arch floor_sand_d4
+arch prison_deco1.131
+direction 7
+x 5
+y 16
+end
+arch floor_sand_d2
+x 5
+y 17
+end
+arch prison_deco2.131
+direction 7
 x 5
 y 17
 end
@@ -751,19 +937,38 @@ arch floor_sand_d3
 x 5
 y 18
 end
+arch prison_deco2.131
+direction 7
+x 5
+y 18
+end
+arch spawn_point
+x 5
+y 18
+arch kobold_guard
+level 5
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 5
 y 19
 end
-arch floor_sand_d3
+arch floor_sand_d1
 x 5
 y 20
 end
-arch trash_wood2.101
+arch dirt_floor1
 x 5
 y 20
 end
-arch floor_sand_d3
+arch torch_wall_1
+direction 7
+x 5
+y 20
+end
+arch floor_sand_d2
 x 5
 y 21
 end
@@ -771,13 +976,9 @@ arch floor_sand_d1
 x 5
 y 22
 end
-arch blood_floor1
+arch fwall_sand1b
 x 5
 y 22
-end
-arch floor_sand_d1
-x 5
-y 23
 end
 arch floor_sand_d3
 x 6
@@ -815,67 +1016,92 @@ arch fwall_sand1b
 x 6
 y 5
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 6
-y 13
+y 9
 end
 arch fwall_sand1a
 x 6
-y 13
+y 9
 end
 arch floor_sand_d4
 x 6
-y 14
+y 10
 end
 arch fwall_sand1a
 x 6
-y 14
+y 10
 end
 arch floor_sand_d1
 x 6
-y 15
+y 11
 end
-arch fwall_sand1b
+arch prison_deco2.131
 x 6
-y 15
+y 11
+end
+arch floor_sand_d2
+x 6
+y 12
+end
+arch blood_floor1
+x 6
+y 12
 end
 arch floor_sand_d4
 x 6
-y 16
+y 13
 end
-arch fwall_sand1a
+arch floor_sand_d3
 x 6
-y 16
+y 14
 end
-arch floor_sand_d2
+arch dirt_floor2
 x 6
-y 17
+y 14
 end
-arch fwall_sand1a
+arch spawn_point
 x 6
-y 17
+y 14
+arch kobold_guard
+level 4
+Wis 2
+type 83
 end
-arch floor_sand_d2
-x 6
-y 18
 end
-arch fwall_sand1a
+arch floor_sand_d4
 x 6
-y 18
+y 15
 end
 arch floor_sand_d1
 x 6
-y 19
+y 16
 end
-arch rubbish.101
+arch floor_sand_d4
+x 6
+y 17
+end
+arch floor_sand_d3
+x 6
+y 18
+end
+arch dirt_floor4
+x 6
+y 18
+end
+arch floor_sand_d4
 x 6
 y 19
 end
-arch floor_sand_d3
+arch floor_sand_d2
 x 6
 y 20
 end
-arch floor_sand_d3
+arch floor_sand_d4
+x 6
+y 21
+end
+arch trash_wood2.101
 x 6
 y 21
 end
@@ -883,9 +1109,9 @@ arch floor_sand_d2
 x 6
 y 22
 end
-arch floor_sand_d1
+arch fwall_sand1b
 x 6
-y 23
+y 22
 end
 arch floor_sand_d2
 x 7
@@ -911,6 +1137,15 @@ arch water_floor
 x 7
 y 3
 end
+arch spawn_point
+x 7
+y 3
+arch kobold_guard
+level 4
+Wis 2
+type 83
+end
+end
 arch floor_sand_d4
 x 7
 y 4
@@ -925,51 +1160,107 @@ y 5
 end
 arch floor_sand_d3
 x 7
-y 18
-end
-arch fwall_sand1b
-x 7
-y 18
-end
-arch floor_sand_d2
-x 7
-y 19
+y 10
 end
 arch fwall_sand1a
 x 7
-y 19
-end
-arch floor_sand_d4
-x 7
-y 20
-end
-arch fwall_sand1a
-x 7
-y 20
-end
-arch floor_sand_d4
-x 7
-y 21
-end
-arch fwall_sand1a
-x 7
-y 21
-end
-arch floor_sand_d3
-x 7
-y 22
-end
-arch fwall_sand1a
-x 7
-y 22
+y 10
 end
 arch floor_sand_d1
 x 7
-y 23
+y 11
 end
 arch fwall_sand1b
 x 7
-y 23
+y 11
+end
+arch floor_sand_d4
+x 7
+y 12
+end
+arch fwall_sand1a
+x 7
+y 12
+end
+arch floor_sand_d3
+x 7
+y 13
+end
+arch fwall_sand1a
+x 7
+y 13
+end
+arch floor_sand_d1
+x 7
+y 14
+end
+arch prison_deco1.131
+x 7
+y 14
+end
+arch floor_sand_d1
+x 7
+y 15
+end
+arch prison_deco1.131
+x 7
+y 15
+end
+arch floor_sand_d3
+x 7
+y 16
+end
+arch prison_deco2.131
+x 7
+y 16
+end
+arch floor_sand_d1
+x 7
+y 17
+end
+arch prison_deco1.131
+x 7
+y 17
+end
+arch floor_sand_d2
+x 7
+y 18
+end
+arch prison_deco2.131
+x 7
+y 18
+end
+arch floor_sand_d1
+x 7
+y 19
+end
+arch prison_deco1.131
+x 7
+y 19
+end
+arch floor_sand_d4
+x 7
+y 20
+end
+arch prison_deco2.131
+x 7
+y 20
+end
+arch floor_sand_d4
+x 7
+y 21
+end
+arch fwall_sand1b
+x 7
+y 21
+end
+arch floor_sand_d2
+x 7
+y 22
+end
+arch fwall_sand1a
+x 7
+y 22
 end
 arch floor_sand_d1
 x 8
@@ -1063,6 +1354,78 @@ end
 arch fwall_sand1b
 x 8
 y 12
+end
+arch floor_sand_d1
+x 8
+y 13
+end
+arch fwall_sand1b
+x 8
+y 13
+end
+arch floor_sand_d1
+x 8
+y 14
+end
+arch fwall_sand1a
+x 8
+y 14
+end
+arch floor_sand_d4
+x 8
+y 15
+end
+arch fwall_sand1a
+x 8
+y 15
+end
+arch floor_sand_d4
+x 8
+y 16
+end
+arch fwall_sand1b
+x 8
+y 16
+end
+arch floor_sand_d3
+x 8
+y 17
+end
+arch fwall_sand1b
+x 8
+y 17
+end
+arch floor_sand_d1
+x 8
+y 18
+end
+arch fwall_sand1b
+x 8
+y 18
+end
+arch floor_sand_d1
+x 8
+y 19
+end
+arch fwall_sand1a
+x 8
+y 19
+end
+arch floor_sand_d1
+x 8
+y 20
+end
+arch fwall_sand1b
+x 8
+y 20
+end
+arch floor_sand_d4
+x 8
+y 21
+end
+arch fwall_sand1b
+x 8
+y 21
 end
 arch floor_sand_d4
 x 9
@@ -1477,6 +1840,17 @@ arch floor_sand_d4
 x 12
 y 4
 end
+arch spawn_point
+x 12
+y 4
+arch kobold
+name kobold hunter
+level 4
+unaggressive 1
+Wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 12
 y 5
@@ -1526,6 +1900,7 @@ x 12
 y 13
 arch kobold
 name kobold mushroom collector
+level 4
 wc_range 12
 unaggressive 1
 Wis 2
@@ -1578,6 +1953,7 @@ y 19
 arch kobold
 name kobold mushroom collector
 randomitems mob_mage_l9
+level 4
 wc_range 12
 unaggressive 1
 Wis 2
@@ -2142,6 +2518,7 @@ y 12
 arch kobold
 name kobold mushroom collector
 randomitems mob_mage_l9
+level 3
 wc_range 12
 unaggressive 1
 Wis 2
@@ -2197,6 +2574,7 @@ x 16
 y 19
 arch kobold
 name kobold mushroom collector
+level 4
 wc_range 12
 unaggressive 1
 Wis 2
@@ -2250,6 +2628,15 @@ end
 arch floor_sand_d1
 x 17
 y 5
+end
+arch spawn_point
+x 17
+y 5
+arch kobold_fighter
+level 4
+Wis 2
+type 83
+end
 end
 arch floor_sand_d2
 x 17
@@ -2803,6 +3190,17 @@ arch floor_sand_d3
 x 21
 y 10
 end
+arch spawn_point
+x 21
+y 10
+arch kobold_guard
+name kobold mushroom protector
+direction 3
+level 4
+Wis 2
+type 83
+end
+end
 arch floor_sand_d4
 x 21
 y 11
@@ -2887,6 +3285,16 @@ direction 7
 x 21
 y 20
 end
+arch spawn_point
+x 21
+y 20
+arch slug_giant
+direction 3
+level 4
+Wis 2
+type 83
+end
+end
 arch floor_sand_d4
 x 21
 y 21
@@ -2927,6 +3335,16 @@ end
 arch floor_sand_d3
 x 22
 y 4
+end
+arch spawn_point
+x 22
+y 4
+arch kobold_guard
+name kobold mushroom protector
+level 4
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 22
@@ -2979,6 +3397,17 @@ end
 arch floor_sand_d2
 x 22
 y 15
+end
+arch spawn_point
+x 22
+y 15
+arch kobold_guard
+name kobold mushroom protector
+direction 1
+level 4
+Wis 2
+type 83
+end
 end
 arch floor_sand_d1
 x 22

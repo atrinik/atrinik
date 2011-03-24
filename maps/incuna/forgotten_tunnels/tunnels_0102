@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2011-03-19 Alex Tokar
+Modified: 2011-03-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -121,6 +121,17 @@ end
 arch floor_sand_d1
 x 1
 y 11
+end
+arch spawn_point
+x 1
+y 11
+arch kobold
+name kobold hunter
+level 4
+unaggressive 1
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 1
@@ -523,6 +534,16 @@ arch floor_sand_d4
 x 4
 y 17
 end
+arch spawn_point
+x 4
+y 17
+arch kobold_fighter
+direction 3
+level 5
+Wis 2
+type 83
+end
+end
 arch floor_sand_d3
 x 4
 y 18
@@ -599,6 +620,16 @@ arch floor_sand_d4
 x 5
 y 7
 end
+arch spawn_point
+x 5
+y 7
+arch kobold_fighter
+direction 3
+level 5
+Wis 2
+type 83
+end
+end
 arch floor_sand_d4
 x 5
 y 8
@@ -638,6 +669,15 @@ end
 arch floor_sand_d2
 x 5
 y 15
+end
+arch spawn_point
+x 5
+y 15
+arch kobold_fighter
+level 5
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 5
@@ -891,6 +931,16 @@ arch floor_sand_d2
 x 7
 y 20
 end
+arch spawn_point
+x 7
+y 20
+arch kobold_guard
+direction 3
+level 5
+Wis 2
+type 83
+end
+end
 arch floor_sand_d3
 x 7
 y 21
@@ -1002,6 +1052,15 @@ end
 arch floor_sand_d2
 x 8
 y 18
+end
+arch spawn_point
+x 8
+y 18
+arch kobold_guard
+level 5
+Wis 2
+type 83
+end
 end
 arch floor_sand_d2
 x 8
@@ -1187,6 +1246,15 @@ arch dirt_floor1
 x 10
 y 5
 end
+arch spawn_point
+x 10
+y 5
+arch kobold_fighter
+level 5
+Wis 2
+type 83
+end
+end
 arch floor_sand_d2
 x 10
 y 6
@@ -1234,6 +1302,18 @@ end
 arch dirt_floor4
 x 10
 y 13
+end
+arch spawn_point
+x 10
+y 13
+arch kobold
+name kobold mushroom keeper
+direction 7
+level 4
+wc_range 12
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 10
@@ -1498,6 +1578,16 @@ end
 arch floor_sand_d1
 x 12
 y 18
+end
+arch spawn_point
+x 12
+y 18
+arch kobold_guard
+name kobold clan guard
+level 5
+Wis 2
+type 83
+end
 end
 arch floor_sand_d4
 x 12
@@ -1815,6 +1905,17 @@ arch floor_sand_d3
 x 15
 y 4
 end
+arch spawn_point
+x 15
+y 4
+arch kobold
+name kobold hunter
+level 4
+unaggressive 1
+Wis 2
+type 83
+end
+end
 arch floor_sand_d3
 x 15
 y 5
@@ -2005,6 +2106,16 @@ arch floor_sand_d4
 x 16
 y 11
 end
+arch spawn_point
+x 16
+y 11
+arch kobold_guard
+name kobold clan guard
+level 5
+Wis 2
+type 83
+end
+end
 arch floor_sand_d3
 x 16
 y 12
@@ -2060,6 +2171,16 @@ end
 arch floor_sand_d2
 x 16
 y 19
+end
+arch spawn_point
+x 16
+y 19
+arch kobold_guard
+name kobold clan guard
+level 5
+Wis 2
+type 83
+end
 end
 arch floor_sand_d2
 x 16
@@ -2182,6 +2303,22 @@ end
 arch floor_sand_d2
 x 17
 y 17
+end
+arch spawn_point
+x 17
+y 17
+arch kobold_shaman
+level 6
+Wis 2
+type 83
+arch ability_cause_lig_wound
+last_grace 14
+end
+arch ability_cause_lig_wound
+sp 2
+hp 2
+end
+end
 end
 arch floor_sand_d4
 x 17
@@ -2399,6 +2536,10 @@ arch floor_sand_d1
 x 19
 y 13
 end
+arch cave_deco_f1.101
+x 19
+y 13
+end
 arch floor_sand_d2
 x 19
 y 14
@@ -2414,6 +2555,28 @@ end
 arch throne.111
 x 19
 y 15
+end
+arch spawn_point
+x 19
+y 15
+arch kobold_big
+name kobold clan chief
+level 6
+Wis 2
+type 83
+arch quest_container
+name Forgotten Tunnels Kobold Key
+arch key2
+msg
+Key from kobold clan chief in Forgotten Tunnels
+endmsg
+name Forgotten Tunnels Kobold Key
+face key_gray.111
+slaying forgotten_tunnels_kobold_key
+startequip 1
+end
+end
+end
 end
 arch floor_sand_d4
 x 19
@@ -2532,6 +2695,10 @@ arch floor_sand_d3
 x 20
 y 14
 end
+arch cave_deco_f1.101
+x 20
+y 14
+end
 arch floor_sand_d2
 x 20
 y 15
@@ -2551,6 +2718,16 @@ end
 arch floor_sand_d2
 x 20
 y 17
+end
+arch spawn_point
+x 20
+y 17
+arch kobold_guard
+name kobold guard leader
+level 6
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 20
@@ -2611,6 +2788,16 @@ end
 arch dirt_floor1
 x 21
 y 3
+end
+arch spawn_point
+x 21
+y 3
+arch kobold_guard
+direction 3
+level 4
+Wis 2
+type 83
+end
 end
 arch floor_sand_d3
 x 21
