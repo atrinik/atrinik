@@ -181,7 +181,7 @@ map_no_region = on
 decor_wall_l2 = off
 decor_wall_l3 = off
 decor_wall_l4 = off
-sys_not_on_top = off
+sys_not_on_top = on
 """)
 
 config = ConfigParser()
