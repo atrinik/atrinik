@@ -187,9 +187,11 @@ void open_locked_door(object *op, object *opener)
 		op->state = 1;
 		/* Init "open" counter */
 		op->last_sp = op->stats.sp;
-		/* Save and clear blocksview and no_pass */
-		QUERY_FLAG(op, FLAG_BLOCKSVIEW) ? (op->stats.grace = 1) : (op->stats.grace = 0);
-		QUERY_FLAG(op, FLAG_DOOR_CLOSED) ? (op->last_grace = 1) : (op->last_grace = 0);
+
+		/* Save and clear blocksview and door_closed */
+		op->stats.grace = QUERY_FLAG(op, FLAG_BLOCKSVIEW) ? 1 : 0;
+		op->last_grace = QUERY_FLAG(op, FLAG_DOOR_CLOSED) ? 1 : 0;
+
 		CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
 		CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
 
@@ -276,9 +278,27 @@ void close_locked_door(object *op)
 
 		/* Change to "close door" faces */
 		op->state = 0;
-		op->stats.grace = 1 ? SET_FLAG(op, FLAG_BLOCKSVIEW) : CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
-		op->last_grace = 1 ? SET_FLAG(op, FLAG_DOOR_CLOSED) : CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
+
+		if (op->stats.grace)
+		{
+			SET_FLAG(op, FLAG_BLOCKSVIEW);
+		}
+		else
+		{
+			CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
+		}
+
 		op->stats.grace = 0;
+
+		if (op->last_grace)
+		{
+			SET_FLAG(op, FLAG_DOOR_CLOSED);
+		}
+		else
+		{
+			CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
+		}
+
 		op->last_grace = 0;
 
 		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
