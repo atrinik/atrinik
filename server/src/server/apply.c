@@ -122,11 +122,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		case SPINNER:
 			if (victim->direction)
 			{
-				if ((victim->direction = victim->direction + trap->direction) > 8)
-				{
-					victim->direction = (victim->direction % 8) + 1;
-				}
-
+				victim->direction = absdir(victim->direction + trap->direction);
 				update_turn_face(victim);
 			}
 
