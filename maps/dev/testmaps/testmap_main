@@ -2,7 +2,7 @@ arch map
 name Testmap: Main
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-03-22 Alex Tokar
+Modified: 2011-03-26 Alex Tokar
 endmsg
 width 17
 height 17
@@ -1110,6 +1110,13 @@ x 11
 y 5
 end
 arch floor_ostone1
+x 11
+y 6
+end
+arch exit
+slaying /planes/creation/creation_0808
+hp 11
+sp 12
 x 11
 y 6
 end

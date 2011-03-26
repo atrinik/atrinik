@@ -1,0 +1,3460 @@
+arch map
+name Plane of Creation
+msg
+Created:  2011-03-25 Alex Tokar
+Modified: 2011-03-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+tile_path_1 creation_0802
+tile_path_2 creation_0901
+tile_path_4 creation_0701
+tile_path_5 creation_0902
+tile_path_8 creation_0702
+region creation
+end
+arch floor_stone_b2
+end
+arch border_top_nw2
+end
+arch wall_stone_8
+end
+arch client_map_info
+msg
+House of Connections.
+endmsg
+name creation_house_connection
+sub_type 2
+stand_still 1
+end
+arch floor_stone_b3
+y 1
+end
+arch border_top_w1
+y 1
+end
+arch wall_stone_3
+y 1
+end
+arch floor_stone_b4
+y 2
+end
+arch border_top_w1
+y 2
+end
+arch wall_stone_3
+y 2
+end
+arch floor_stone_b2
+y 3
+end
+arch border_top_w1
+y 3
+end
+arch wall_stone_3
+y 3
+end
+arch floor_stone_b3
+y 4
+end
+arch border_top_w1
+y 4
+end
+arch wall_stone_3
+y 4
+end
+arch floor_stone_b4
+y 5
+end
+arch border_top_w1
+y 5
+end
+arch wall_stone_3
+y 5
+end
+arch floor_stone_b1
+y 6
+end
+arch border_top_w1
+y 6
+end
+arch wall_stone_3
+y 6
+end
+arch floor_stone_b4
+y 7
+end
+arch border_top_w1
+y 7
+end
+arch wall_stone_3
+y 7
+end
+arch floor_stone_b4
+y 8
+end
+arch border_top_w1
+y 8
+end
+arch wall_stone_3
+y 8
+end
+arch floor_stone_b2
+y 9
+end
+arch border_top_w1
+y 9
+end
+arch wall_stone_3
+y 9
+end
+arch floor_stone_b4
+y 10
+end
+arch border_top_w1
+y 10
+end
+arch wall_stone_3
+y 10
+end
+arch floor_stone_b4
+y 11
+end
+arch border_top_w1
+y 11
+end
+arch wall_stone_3
+y 11
+end
+arch floor_stone_b4
+y 12
+end
+arch border_top_w1
+y 12
+end
+arch wall_stone_3
+y 12
+end
+arch floor_stone_b2
+y 13
+end
+arch border_top_w1
+y 13
+end
+arch wall_stone_3
+y 13
+end
+arch floor_stone_b3
+y 14
+end
+arch border_top_w1
+y 14
+end
+arch wall_stone_3
+y 14
+end
+arch floor_stone_b2
+y 15
+end
+arch border_top_w1
+y 15
+end
+arch wall_stone_3
+y 15
+end
+arch floor_stone_b4
+y 16
+end
+arch border_top_w1
+y 16
+end
+arch wall_stone_3
+y 16
+end
+arch floor_stone_b2
+y 17
+end
+arch border_top_w1
+y 17
+end
+arch wall_stone_3
+y 17
+end
+arch floor_stone_b1
+y 18
+end
+arch border_top_w1
+y 18
+end
+arch wall_stone_3
+y 18
+end
+arch floor_stone_b4
+y 19
+end
+arch border_top_w1
+y 19
+end
+arch wall_stone_3
+y 19
+end
+arch floor_stone_b2
+y 20
+end
+arch border_top_w1
+y 20
+end
+arch wall_stone_3
+y 20
+end
+arch floor_stone_b4
+y 21
+end
+arch border_top_w1
+y 21
+end
+arch wall_stone_3
+y 21
+end
+arch floor_stone_b4
+y 22
+end
+arch border_top_sw2
+y 22
+end
+arch wall_stone_3
+y 22
+end
+arch client_map_info
+name creation_house_connection
+sub_type 2
+y 22
+end
+arch water_lt2
+y 23
+end
+arch border_wall_n2
+y 23
+end
+arch floor_stone_b1
+x 1
+end
+arch border_top_n1
+x 1
+end
+arch wall_stone_1
+x 1
+end
+arch floor_stone_b2
+x 1
+y 1
+end
+arch floor_stone_b2
+x 1
+y 2
+end
+arch floor_stone_b4
+x 1
+y 3
+end
+arch floor_stone_b3
+x 1
+y 4
+end
+arch floor_stone_b2
+x 1
+y 5
+end
+arch floor_stone_b3
+x 1
+y 6
+end
+arch floor_stone_b3
+x 1
+y 7
+end
+arch floor_stone_b3
+x 1
+y 8
+end
+arch door1_locked
+x 1
+y 8
+end
+arch floor_stone_b2
+x 1
+y 9
+end
+arch floor_stone_b1
+x 1
+y 10
+end
+arch floor_stone_b3
+x 1
+y 11
+end
+arch door1_locked
+x 1
+y 11
+end
+arch floor_stone_b4
+x 1
+y 12
+end
+arch floor_stone_b4
+x 1
+y 13
+end
+arch floor_stone_b3
+x 1
+y 14
+end
+arch floor_stone_b1
+x 1
+y 15
+end
+arch floor_stone_b4
+x 1
+y 16
+end
+arch floor_stone_b4
+x 1
+y 17
+end
+arch floor_stone_b2
+x 1
+y 18
+end
+arch floor_stone_b2
+x 1
+y 19
+end
+arch floor_stone_b1
+x 1
+y 20
+end
+arch floor_stone_b4
+x 1
+y 21
+end
+arch floor_stone_b4
+x 1
+y 22
+end
+arch wall_stone_1
+x 1
+y 22
+end
+arch water_lt3
+x 1
+y 23
+end
+arch border_wall_n1
+x 1
+y 23
+end
+arch floor_stone_b4
+x 2
+end
+arch border_top_n1
+x 2
+end
+arch wall_stone_1
+x 2
+end
+arch floor_stone_b2
+x 2
+y 1
+end
+arch floor_stone_b2
+x 2
+y 2
+end
+arch floor_stone_b3
+x 2
+y 3
+end
+arch floor_stone_b3
+x 2
+y 4
+end
+arch floor_stone_b4
+x 2
+y 5
+end
+arch floor_stone_b3
+x 2
+y 6
+end
+arch floor_stone_b3
+x 2
+y 7
+end
+arch floor_stone_b3
+x 2
+y 8
+end
+arch door1_locked
+direction 7
+x 2
+y 8
+end
+arch floor_stone_b4
+x 2
+y 9
+end
+arch floor_stone_b3
+x 2
+y 10
+end
+arch floor_stone_b3
+x 2
+y 11
+end
+arch door1_locked
+direction 7
+x 2
+y 11
+end
+arch floor_stone_b4
+x 2
+y 12
+end
+arch floor_stone_b4
+x 2
+y 13
+end
+arch floor_stone_b2
+x 2
+y 14
+end
+arch floor_stone_b1
+x 2
+y 15
+end
+arch floor_stone_b3
+x 2
+y 16
+end
+arch floor_stone_b1
+x 2
+y 17
+end
+arch floor_stone_b3
+x 2
+y 18
+end
+arch floor_stone_b3
+x 2
+y 19
+end
+arch floor_stone_b3
+x 2
+y 20
+end
+arch floor_stone_b1
+x 2
+y 21
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying creation_key_connect
+sp 1
+connected 104
+x 2
+y 21
+end
+arch floor_stone_b4
+x 2
+y 22
+end
+arch wall_stone_1
+x 2
+y 22
+end
+arch water_lt
+x 2
+y 23
+end
+arch border_wall_n1
+x 2
+y 23
+end
+arch floor_stone_b4
+x 3
+end
+arch border_top_n1
+x 3
+end
+arch wall_stone_1
+x 3
+end
+arch floor_stone_b2
+x 3
+y 1
+end
+arch wall_stone_3
+x 3
+y 1
+end
+arch floor_stone_b1
+x 3
+y 2
+end
+arch grate_closed
+direction 3
+connected 101
+x 3
+y 2
+end
+arch floor_stone_b4
+x 3
+y 3
+end
+arch grate_open
+direction 3
+connected 101
+x 3
+y 3
+end
+arch floor_stone_b3
+x 3
+y 4
+end
+arch wall_stone_3
+x 3
+y 4
+end
+arch floor_stone_b4
+x 3
+y 5
+end
+arch gateTrg1
+direction 3
+connected 102
+x 3
+y 5
+end
+arch floor_stone_b4
+x 3
+y 6
+end
+arch wall_stone_3
+x 3
+y 6
+end
+arch floor_stone_b4
+x 3
+y 7
+end
+arch wall_stone_3
+x 3
+y 7
+end
+arch floor_stone_b1
+x 3
+y 8
+end
+arch wall_stone_4
+x 3
+y 8
+end
+arch floor_stone_b1
+x 3
+y 9
+end
+arch floor_stone_b2
+x 3
+y 10
+end
+arch floor_stone_b4
+x 3
+y 11
+end
+arch wall_stone_1
+x 3
+y 11
+end
+arch floor_stone_b1
+x 3
+y 12
+end
+arch wall_stone_3
+x 3
+y 12
+end
+arch floor_stone_b3
+x 3
+y 13
+end
+arch wall_stone_3
+x 3
+y 13
+end
+arch floor_stone_b1
+x 3
+y 14
+end
+arch wall_stone_3
+x 3
+y 14
+end
+arch floor_stone_b3
+x 3
+y 15
+end
+arch wall_stone_3
+x 3
+y 15
+end
+arch floor_stone_b3
+x 3
+y 16
+end
+arch wall_stone_3
+x 3
+y 16
+end
+arch floor_stone_b3
+x 3
+y 17
+end
+arch wall_stone_3
+x 3
+y 17
+end
+arch floor_stone_b2
+x 3
+y 18
+end
+arch wall_stone_3
+x 3
+y 18
+end
+arch floor_stone_b4
+x 3
+y 19
+end
+arch wall_stone_3
+x 3
+y 19
+end
+arch floor_stone_b4
+x 3
+y 20
+end
+arch door1_locked
+direction 3
+slaying creation_key_connect
+x 3
+y 20
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying creation_key_connect
+sp 1
+last_grace 1
+x 3
+y 20
+end
+arch floor_stone_b1
+x 3
+y 21
+end
+arch gate_closed
+direction 7
+connected 104
+x 3
+y 21
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying creation_key_connect
+sp 1
+connected 104
+x 3
+y 21
+end
+arch floor_stone_b2
+x 3
+y 22
+end
+arch wall_stone_4
+x 3
+y 22
+end
+arch water_lt4
+x 3
+y 23
+end
+arch border_wall_n1
+x 3
+y 23
+end
+arch floor_stone_b3
+x 4
+end
+arch border_top_n1
+x 4
+end
+arch wall_stone_1
+x 4
+end
+arch floor_stone_b4
+x 4
+y 1
+end
+arch switch_wall
+connected 101
+x 4
+y 1
+end
+arch floor_stone_b4
+x 4
+y 2
+end
+arch floor_stone_b2
+x 4
+y 3
+end
+arch floor_stone_b1
+x 4
+y 4
+end
+arch floor_stone_b1
+x 4
+y 5
+end
+arch floor_stone_b3
+x 4
+y 6
+end
+arch floor_stone_b2
+x 4
+y 7
+end
+arch floor_stone_b2
+x 4
+y 8
+end
+arch floor_stone_b1
+x 4
+y 9
+end
+arch floor_stone_b3
+x 4
+y 10
+end
+arch floor_stone_b4
+x 4
+y 11
+end
+arch floor_stone_b2
+x 4
+y 12
+end
+arch floor_stone_b2
+x 4
+y 13
+end
+arch floor_stone_b4
+x 4
+y 14
+end
+arch floor_stone_b1
+x 4
+y 15
+end
+arch floor_stone_b1
+x 4
+y 16
+end
+arch floor_stone_b3
+x 4
+y 17
+end
+arch floor_stone_b2
+x 4
+y 18
+end
+arch sign
+msg
+Pull the lever to get a key for the door and the gate.
+endmsg
+x 4
+y 18
+end
+arch floor_stone_b4
+x 4
+y 19
+end
+arch handle_lever
+connected 105
+x 4
+y 19
+end
+arch floor_stone_b1
+x 4
+y 20
+end
+arch floor_stone_b3
+x 4
+y 21
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying creation_key_connect
+sp 1
+connected 104
+x 4
+y 21
+end
+arch floor_stone_b1
+x 4
+y 22
+end
+arch wall_stone_1
+x 4
+y 22
+end
+arch water_lt3
+x 4
+y 23
+end
+arch border_wall_n1
+x 4
+y 23
+end
+arch floor_stone_b1
+x 5
+end
+arch border_top_n1
+x 5
+end
+arch wall_stone_1
+x 5
+end
+arch floor_stone_b4
+x 5
+y 1
+end
+arch sign
+msg
+Simple connection, involving grates. A switch can open and close connected grates.
+endmsg
+x 5
+y 1
+end
+arch floor_stone_b1
+x 5
+y 2
+end
+arch floor_stone_b4
+x 5
+y 3
+end
+arch floor_stone_b2
+x 5
+y 4
+end
+arch floor_stone_b2
+x 5
+y 5
+end
+arch sign
+msg
+Say <green>sesame</green> in order for the gate to open. However, hurry up, otherwise it will close shortly.
+endmsg
+x 5
+y 5
+end
+arch magic_ear
+connected 102
+x 5
+y 5
+end
+arch floor_stone_b4
+x 5
+y 6
+end
+arch floor_stone_b2
+x 5
+y 7
+end
+arch floor_stone_b1
+x 5
+y 8
+end
+arch floor_stone_b3
+x 5
+y 9
+end
+arch floor_stone_b4
+x 5
+y 10
+end
+arch floor_stone_b1
+x 5
+y 11
+end
+arch floor_stone_b1
+x 5
+y 12
+end
+arch floor_stone_b4
+x 5
+y 13
+end
+arch floor_stone_b2
+x 5
+y 14
+end
+arch floor_stone_b4
+x 5
+y 15
+end
+arch floor_stone_b2
+x 5
+y 16
+end
+arch floor_stone_b1
+x 5
+y 17
+end
+arch floor_stone_b1
+x 5
+y 18
+end
+arch floor_stone_b4
+x 5
+y 19
+end
+arch creator
+connected 105
+lifesave 1
+one_drop 1
+x 5
+y 19
+arch key2
+no_drop 0
+name Plane of Creation Connections Key
+slaying creation_key_connect
+startequip 1
+end
+end
+arch floor_stone_b3
+x 5
+y 20
+end
+arch floor_stone_b1
+x 5
+y 21
+end
+arch sign
+msg
+Demonstrates how inventory checkers work. They can be used to automatically open a gate for a player with a key or another object, or used along with doors to prevent players without the key passing through if the door was opened for them by another player.
+endmsg
+x 5
+y 21
+end
+arch floor_stone_b1
+x 5
+y 22
+end
+arch wall_stone_1
+x 5
+y 22
+end
+arch water_lt
+x 5
+y 23
+end
+arch border_wall_n1
+x 5
+y 23
+end
+arch floor_stone_b2
+x 6
+end
+arch border_top_n1
+x 6
+end
+arch wall_stone_1
+x 6
+end
+arch floor_stone_b2
+x 6
+y 1
+end
+arch floor_stone_b4
+x 6
+y 2
+end
+arch floor_stone_b3
+x 6
+y 3
+end
+arch floor_stone_b3
+x 6
+y 4
+end
+arch floor_stone_b3
+x 6
+y 5
+end
+arch floor_stone_b2
+x 6
+y 6
+end
+arch floor_stone_b1
+x 6
+y 7
+end
+arch floor_stone_b3
+x 6
+y 8
+end
+arch floor_stone_b3
+x 6
+y 9
+end
+arch floor_stone_b4
+x 6
+y 10
+end
+arch floor_stone_b1
+x 6
+y 11
+end
+arch floor_stone_b3
+x 6
+y 12
+end
+arch floor_stone_b1
+x 6
+y 13
+end
+arch floor_stone_b4
+x 6
+y 14
+end
+arch floor_stone_b4
+x 6
+y 15
+end
+arch floor_stone_b1
+x 6
+y 16
+end
+arch floor_stone_b4
+x 6
+y 17
+end
+arch floor_stone_b4
+x 6
+y 18
+end
+arch floor_stone_b3
+x 6
+y 19
+end
+arch floor_stone_b3
+x 6
+y 20
+end
+arch floor_stone_b2
+x 6
+y 21
+end
+arch floor_stone_b2
+x 6
+y 22
+end
+arch wall_stone_1
+x 6
+y 22
+end
+arch water_lt3
+x 6
+y 23
+end
+arch border_wall_n1
+x 6
+y 23
+end
+arch floor_stone_b1
+x 7
+end
+arch border_top_n1
+x 7
+end
+arch wall_stone_1
+x 7
+end
+arch floor_stone_b4
+x 7
+y 1
+end
+arch floor_stone_b4
+x 7
+y 2
+end
+arch floor_stone_b2
+x 7
+y 3
+end
+arch floor_stone_b3
+x 7
+y 4
+end
+arch floor_stone_b4
+x 7
+y 5
+end
+arch floor_stone_b2
+x 7
+y 6
+end
+arch floor_stone_b2
+x 7
+y 7
+end
+arch floor_stone_b4
+x 7
+y 8
+end
+arch floor_stone_b4
+x 7
+y 9
+end
+arch floor_stone_b2
+x 7
+y 10
+end
+arch floor_stone_b1
+x 7
+y 11
+end
+arch floor_stone_b1
+x 7
+y 12
+end
+arch floor_stone_b3
+x 7
+y 13
+end
+arch floor_stone_b1
+x 7
+y 14
+end
+arch floor_stone_b4
+x 7
+y 15
+end
+arch floor_stone_b4
+x 7
+y 16
+end
+arch floor_stone_b3
+x 7
+y 17
+end
+arch floor_stone_b2
+x 7
+y 18
+end
+arch floor_stone_b1
+x 7
+y 19
+end
+arch floor_stone_b2
+x 7
+y 20
+end
+arch floor_stone_b3
+x 7
+y 21
+end
+arch floor_stone_b4
+x 7
+y 22
+end
+arch wall_stone_1
+x 7
+y 22
+end
+arch water_lt
+x 7
+y 23
+end
+arch border_wall_n1
+x 7
+y 23
+end
+arch floor_stone_b1
+x 8
+end
+arch border_top_nw1
+x 8
+end
+arch wall_stone_1
+x 8
+end
+arch floor_stone_b1
+x 8
+y 1
+end
+arch floor_stone_b4
+x 8
+y 2
+end
+arch floor_stone_b1
+x 8
+y 3
+end
+arch floor_stone_b2
+x 8
+y 4
+end
+arch floor_stone_b2
+x 8
+y 5
+end
+arch floor_stone_b2
+x 8
+y 6
+end
+arch floor_stone_b1
+x 8
+y 7
+end
+arch floor_stone_b2
+x 8
+y 8
+end
+arch floor_stone_b3
+x 8
+y 9
+end
+arch floor_stone_b1
+x 8
+y 10
+end
+arch floor_stone_b2
+x 8
+y 11
+end
+arch floor_stone_b1
+x 8
+y 12
+end
+arch floor_stone_b4
+x 8
+y 13
+end
+arch floor_stone_b1
+x 8
+y 14
+end
+arch floor_stone_b2
+x 8
+y 15
+end
+arch floor_stone_b3
+x 8
+y 16
+end
+arch floor_stone_b4
+x 8
+y 17
+end
+arch floor_stone_b4
+x 8
+y 18
+end
+arch floor_stone_b3
+x 8
+y 19
+end
+arch floor_stone_b1
+x 8
+y 20
+end
+arch floor_stone_b1
+x 8
+y 21
+end
+arch floor_stone_b3
+x 8
+y 22
+end
+arch wall_stone_1
+x 8
+y 22
+end
+arch water_lt2
+x 8
+y 23
+end
+arch border_wall_n1
+x 8
+y 23
+end
+arch floor_stone_b4
+x 9
+end
+arch door1_locked
+x 9
+end
+arch floor_stone_b3
+x 9
+y 1
+end
+arch floor_stone_b2
+x 9
+y 2
+end
+arch floor_stone_b3
+x 9
+y 3
+end
+arch floor_stone_b4
+x 9
+y 4
+end
+arch floor_stone_b2
+x 9
+y 5
+end
+arch floor_stone_b4
+x 9
+y 6
+end
+arch floor_stone_b4
+x 9
+y 7
+end
+arch floor_stone_b1
+x 9
+y 8
+end
+arch floor_stone_b2
+x 9
+y 9
+end
+arch floor_stone_b4
+x 9
+y 10
+end
+arch floor_stone_b2
+x 9
+y 11
+end
+arch floor_stone_b4
+x 9
+y 12
+end
+arch floor_stone_b1
+x 9
+y 13
+end
+arch floor_stone_b3
+x 9
+y 14
+end
+arch floor_stone_b1
+x 9
+y 15
+end
+arch floor_stone_b4
+x 9
+y 16
+end
+arch floor_stone_b1
+x 9
+y 17
+end
+arch floor_stone_b1
+x 9
+y 18
+end
+arch floor_stone_b2
+x 9
+y 19
+end
+arch floor_stone_b2
+x 9
+y 20
+end
+arch floor_stone_b3
+x 9
+y 21
+end
+arch floor_stone_b1
+x 9
+y 22
+end
+arch wall_stone_1
+x 9
+y 22
+end
+arch water_lt
+x 9
+y 23
+end
+arch border_wall_n1
+x 9
+y 23
+end
+arch floor_stone_b2
+x 10
+end
+arch door1_locked
+direction 7
+x 10
+end
+arch floor_stone_b1
+x 10
+y 1
+end
+arch floor_stone_b3
+x 10
+y 2
+end
+arch floor_stone_b1
+x 10
+y 3
+end
+arch floor_stone_b4
+x 10
+y 4
+end
+arch floor_stone_b2
+x 10
+y 5
+end
+arch floor_stone_b1
+x 10
+y 6
+end
+arch floor_stone_b2
+x 10
+y 7
+end
+arch floor_stone_b4
+x 10
+y 8
+end
+arch floor_stone_b2
+x 10
+y 9
+end
+arch floor_stone_b2
+x 10
+y 10
+end
+arch floor_stone_b2
+x 10
+y 11
+end
+arch floor_stone_b1
+x 10
+y 12
+end
+arch floor_stone_b2
+x 10
+y 13
+end
+arch floor_stone_b1
+x 10
+y 14
+end
+arch floor_stone_b4
+x 10
+y 15
+end
+arch floor_stone_b1
+x 10
+y 16
+end
+arch floor_stone_b2
+x 10
+y 17
+end
+arch floor_stone_b4
+x 10
+y 18
+end
+arch floor_stone_b3
+x 10
+y 19
+end
+arch floor_stone_b2
+x 10
+y 20
+end
+arch floor_stone_b3
+x 10
+y 21
+end
+arch floor_stone_b2
+x 10
+y 22
+end
+arch wall_stone_1
+x 10
+y 22
+end
+arch water_lt3
+x 10
+y 23
+end
+arch border_wall_n1
+x 10
+y 23
+end
+arch floor_stone_b4
+x 11
+end
+arch border_top_ne1
+x 11
+end
+arch wall_stone_1
+x 11
+end
+arch floor_stone_b4
+x 11
+y 1
+end
+arch floor_stone_b3
+x 11
+y 2
+end
+arch floor_stone_b1
+x 11
+y 3
+end
+arch floor_stone_b3
+x 11
+y 4
+end
+arch floor_stone_b4
+x 11
+y 5
+end
+arch floor_stone_b3
+x 11
+y 6
+end
+arch floor_stone_b4
+x 11
+y 7
+end
+arch floor_stone_b4
+x 11
+y 8
+end
+arch floor_stone_b2
+x 11
+y 9
+end
+arch floor_stone_b3
+x 11
+y 10
+end
+arch floor_stone_b4
+x 11
+y 11
+end
+arch floor_stone_b1
+x 11
+y 12
+end
+arch floor_stone_b4
+x 11
+y 13
+end
+arch floor_stone_b3
+x 11
+y 14
+end
+arch floor_stone_b2
+x 11
+y 15
+end
+arch floor_stone_b2
+x 11
+y 16
+end
+arch floor_stone_b2
+x 11
+y 17
+end
+arch floor_stone_b4
+x 11
+y 18
+end
+arch floor_stone_b1
+x 11
+y 19
+end
+arch floor_stone_b2
+x 11
+y 20
+end
+arch floor_stone_b2
+x 11
+y 21
+end
+arch floor_stone_b4
+x 11
+y 22
+end
+arch wall_stone_1
+x 11
+y 22
+end
+arch water_lt
+x 11
+y 23
+end
+arch border_wall_n1
+x 11
+y 23
+end
+arch floor_stone_b4
+x 12
+end
+arch border_top_n1
+x 12
+end
+arch wall_stone_1
+x 12
+end
+arch floor_stone_b1
+x 12
+y 1
+end
+arch floor_stone_b3
+x 12
+y 2
+end
+arch floor_stone_b2
+x 12
+y 3
+end
+arch floor_stone_b2
+x 12
+y 4
+end
+arch floor_stone_b3
+x 12
+y 5
+end
+arch floor_stone_b3
+x 12
+y 6
+end
+arch floor_stone_b4
+x 12
+y 7
+end
+arch floor_stone_b1
+x 12
+y 8
+end
+arch floor_stone_b1
+x 12
+y 9
+end
+arch floor_stone_b1
+x 12
+y 10
+end
+arch floor_stone_b4
+x 12
+y 11
+end
+arch floor_stone_b3
+x 12
+y 12
+end
+arch floor_stone_b3
+x 12
+y 13
+end
+arch floor_stone_b1
+x 12
+y 14
+end
+arch floor_stone_b3
+x 12
+y 15
+end
+arch floor_stone_b3
+x 12
+y 16
+end
+arch floor_stone_b2
+x 12
+y 17
+end
+arch floor_stone_b3
+x 12
+y 18
+end
+arch floor_stone_b1
+x 12
+y 19
+end
+arch floor_stone_b1
+x 12
+y 20
+end
+arch floor_stone_b1
+x 12
+y 21
+end
+arch floor_stone_b4
+x 12
+y 22
+end
+arch wall_stone_1
+x 12
+y 22
+end
+arch water_lt4
+x 12
+y 23
+end
+arch border_wall_n1
+x 12
+y 23
+end
+arch floor_stone_b3
+x 13
+end
+arch border_top_n1
+x 13
+end
+arch wall_stone_1
+x 13
+end
+arch floor_stone_b1
+x 13
+y 1
+end
+arch altar
+slaying coppercoin
+food 1
+sp 21
+level 115
+x 13
+y 1
+end
+arch floor_stone_b2
+x 13
+y 2
+end
+arch sign
+msg
+Drop one copper coin on this altar to receive a level 115 greater healing.
+endmsg
+x 13
+y 2
+end
+arch floor_stone_b2
+x 13
+y 3
+end
+arch floor_stone_b2
+x 13
+y 4
+end
+arch floor_stone_b2
+x 13
+y 5
+end
+arch floor_stone_b1
+x 13
+y 6
+end
+arch floor_stone_b1
+x 13
+y 7
+end
+arch floor_stone_b4
+x 13
+y 8
+end
+arch floor_stone_b4
+x 13
+y 9
+end
+arch floor_stone_b4
+x 13
+y 10
+end
+arch floor_stone_b3
+x 13
+y 11
+end
+arch floor_stone_b1
+x 13
+y 12
+end
+arch floor_stone_b1
+x 13
+y 13
+end
+arch floor_stone_b1
+x 13
+y 14
+end
+arch floor_stone_b4
+x 13
+y 15
+end
+arch floor_stone_b4
+x 13
+y 16
+end
+arch floor_stone_b1
+x 13
+y 17
+end
+arch floor_stone_b3
+x 13
+y 18
+end
+arch floor_stone_b2
+x 13
+y 19
+end
+arch floor_stone_b4
+x 13
+y 20
+end
+arch floor_stone_b1
+x 13
+y 21
+end
+arch floor_stone_b1
+x 13
+y 22
+end
+arch wall_stone_1
+x 13
+y 22
+end
+arch water_lt2
+x 13
+y 23
+end
+arch border_wall_n1
+x 13
+y 23
+end
+arch floor_stone_b1
+x 14
+end
+arch border_top_n1
+x 14
+end
+arch wall_stone_1
+x 14
+end
+arch floor_stone_b2
+x 14
+y 1
+end
+arch floor_stone_b1
+x 14
+y 2
+end
+arch floor_stone_b3
+x 14
+y 3
+end
+arch floor_stone_b3
+x 14
+y 4
+end
+arch floor_stone_b4
+x 14
+y 5
+end
+arch floor_stone_b1
+x 14
+y 6
+end
+arch floor_stone_b1
+x 14
+y 7
+end
+arch floor_stone_b3
+x 14
+y 8
+end
+arch floor_stone_b1
+x 14
+y 9
+end
+arch floor_stone_b3
+x 14
+y 10
+end
+arch floor_stone_b3
+x 14
+y 11
+end
+arch floor_stone_b4
+x 14
+y 12
+end
+arch floor_stone_b4
+x 14
+y 13
+end
+arch floor_stone_b3
+x 14
+y 14
+end
+arch floor_stone_b2
+x 14
+y 15
+end
+arch floor_stone_b1
+x 14
+y 16
+end
+arch floor_stone_b3
+x 14
+y 17
+end
+arch floor_stone_b3
+x 14
+y 18
+end
+arch floor_stone_b4
+x 14
+y 19
+end
+arch floor_stone_b1
+x 14
+y 20
+end
+arch floor_stone_b4
+x 14
+y 21
+end
+arch floor_stone_b2
+x 14
+y 22
+end
+arch wall_stone_1
+x 14
+y 22
+end
+arch water_lt3
+x 14
+y 23
+end
+arch border_wall_n1
+x 14
+y 23
+end
+arch floor_stone_b4
+x 15
+end
+arch border_top_n1
+x 15
+end
+arch wall_stone_1
+x 15
+end
+arch floor_stone_b1
+x 15
+y 1
+end
+arch altar_trigger
+slaying coppercoin
+food 2
+connected 103
+x 15
+y 1
+end
+arch floor_stone_b4
+x 15
+y 2
+end
+arch sign
+msg
+Drop 2 copper coins on top of the altar to open one hole and close the other. The altar, and the holes, will reset after some time.
+endmsg
+x 15
+y 2
+end
+arch floor_stone_b3
+x 15
+y 3
+end
+arch floor_stone_b1
+x 15
+y 4
+end
+arch floor_stone_b3
+x 15
+y 5
+end
+arch floor_stone_b4
+x 15
+y 6
+end
+arch floor_stone_b1
+x 15
+y 7
+end
+arch floor_stone_b4
+x 15
+y 8
+end
+arch floor_stone_b2
+x 15
+y 9
+end
+arch floor_stone_b2
+x 15
+y 10
+end
+arch floor_stone_b1
+x 15
+y 11
+end
+arch floor_stone_b3
+x 15
+y 12
+end
+arch floor_stone_b4
+x 15
+y 13
+end
+arch sign
+msg
+Directors may be used to direct flying objects such as spells and missiles.
+endmsg
+x 15
+y 13
+end
+arch floor_stone_b2
+x 15
+y 14
+end
+arch floor_stone_b2
+x 15
+y 15
+end
+arch floor_stone_b1
+x 15
+y 16
+end
+arch floor_stone_b2
+x 15
+y 17
+end
+arch sign
+msg
+Detectors are used by this magic wall to detect magic bullets are they get cast, turning the magic wall's casting direction.
+
+The magic wall ignores connection release signal, otherwise it would also turn when a magic bullet leaves the tile with a detector.
+endmsg
+x 15
+y 17
+end
+arch floor_stone_b4
+x 15
+y 18
+end
+arch floor_stone_b2
+x 15
+y 19
+end
+arch floor_stone_b4
+x 15
+y 20
+end
+arch floor_stone_b3
+x 15
+y 21
+end
+arch floor_stone_b4
+x 15
+y 22
+end
+arch wall_stone_1
+x 15
+y 22
+end
+arch water_lt4
+x 15
+y 23
+end
+arch border_wall_n1
+x 15
+y 23
+end
+arch floor_stone_b4
+x 16
+end
+arch border_top_n1
+x 16
+end
+arch wall_stone_1
+x 16
+end
+arch floor_stone_b2
+x 16
+y 1
+end
+arch pit_closed
+connected 103
+hp 19
+sp 1
+walk_on 1
+x 16
+y 1
+end
+arch floor_stone_b2
+x 16
+y 2
+end
+arch floor_stone_b3
+x 16
+y 3
+end
+arch floor_stone_b1
+x 16
+y 4
+end
+arch floor_stone_b3
+x 16
+y 5
+end
+arch floor_stone_b1
+x 16
+y 6
+end
+arch floor_stone_b2
+x 16
+y 7
+end
+arch floor_stone_b4
+x 16
+y 8
+end
+arch floor_stone_b2
+x 16
+y 9
+end
+arch floor_stone_b2
+x 16
+y 10
+end
+arch floor_stone_b3
+x 16
+y 11
+end
+arch floor_stone_b3
+x 16
+y 12
+end
+arch fence_metal.181
+x 16
+y 12
+end
+arch floor_stone_b1
+x 16
+y 13
+end
+arch fence_metal.131
+x 16
+y 13
+end
+arch floor_stone_b4
+x 16
+y 14
+end
+arch fence_metal.131
+x 16
+y 14
+end
+arch floor_stone_b3
+x 16
+y 15
+end
+arch fence_metal.131
+x 16
+y 15
+end
+arch floor_stone_b1
+x 16
+y 16
+end
+arch fence_metal.131
+x 16
+y 16
+end
+arch floor_stone_b2
+x 16
+y 17
+end
+arch fence_metal.131
+x 16
+y 17
+end
+arch floor_stone_b4
+x 16
+y 18
+end
+arch fence_metal.131
+x 16
+y 18
+end
+arch floor_stone_b3
+x 16
+y 19
+end
+arch fence_metal.131
+x 16
+y 19
+end
+arch floor_stone_b1
+x 16
+y 20
+end
+arch fence_metal.131
+x 16
+y 20
+end
+arch floor_stone_b2
+x 16
+y 21
+end
+arch floor_stone_b2
+x 16
+y 22
+end
+arch wall_stone_1
+x 16
+y 22
+end
+arch water_lt2
+x 16
+y 23
+end
+arch border_wall_n1
+x 16
+y 23
+end
+arch floor_stone_b3
+x 17
+end
+arch border_top_n1
+x 17
+end
+arch wall_stone_1
+x 17
+end
+arch floor_stone_b3
+x 17
+y 1
+end
+arch pit_open
+connected 103
+hp 19
+sp 1
+x 17
+y 1
+end
+arch floor_stone_b2
+x 17
+y 2
+end
+arch floor_stone_b2
+x 17
+y 3
+end
+arch floor_stone_b3
+x 17
+y 4
+end
+arch floor_stone_b1
+x 17
+y 5
+end
+arch floor_stone_b4
+x 17
+y 6
+end
+arch floor_stone_b3
+x 17
+y 7
+end
+arch floor_stone_b1
+x 17
+y 8
+end
+arch floor_stone_b1
+x 17
+y 9
+end
+arch floor_stone_b2
+x 17
+y 10
+end
+arch floor_stone_b2
+x 17
+y 11
+end
+arch floor_stone_b1
+x 17
+y 12
+end
+arch fence_metal.111
+x 17
+y 12
+end
+arch floor_stone_b1
+x 17
+y 13
+end
+arch director
+direction 3
+x 17
+y 13
+end
+arch floor_stone_b4
+x 17
+y 14
+end
+arch director
+x 17
+y 14
+end
+arch floor_stone_b1
+x 17
+y 15
+end
+arch director
+x 17
+y 15
+end
+arch floor_stone_b3
+x 17
+y 16
+end
+arch fence_metal.111
+x 17
+y 16
+end
+arch floor_stone_b4
+x 17
+y 17
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 17
+y 17
+end
+arch floor_stone_b3
+x 17
+y 18
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 17
+y 18
+end
+arch floor_stone_b2
+x 17
+y 19
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 17
+y 19
+end
+arch floor_stone_b3
+x 17
+y 20
+end
+arch fence_metal.111
+x 17
+y 20
+end
+arch floor_stone_b2
+x 17
+y 21
+end
+arch floor_stone_b2
+x 17
+y 22
+end
+arch wall_stone_1
+x 17
+y 22
+end
+arch water_lt
+x 17
+y 23
+end
+arch border_wall_n1
+x 17
+y 23
+end
+arch floor_stone_b3
+x 18
+end
+arch border_top_n1
+x 18
+end
+arch wall_stone_1
+x 18
+end
+arch floor_stone_b1
+x 18
+y 1
+end
+arch sign
+msg
+Pits may be used to swallow players that enter them, but using connections pits can be opened/closed.
+endmsg
+x 18
+y 1
+end
+arch floor_stone_b3
+x 18
+y 2
+end
+arch floor_stone_b2
+x 18
+y 3
+end
+arch floor_stone_b4
+x 18
+y 4
+end
+arch floor_fur2
+x 18
+y 5
+end
+arch floor_stone_b2
+x 18
+y 6
+end
+arch floor_stone_b3
+x 18
+y 7
+end
+arch floor_stone_b1
+x 18
+y 8
+end
+arch floor_stone_b3
+x 18
+y 9
+end
+arch floor_stone_b1
+x 18
+y 10
+end
+arch floor_stone_b3
+x 18
+y 11
+end
+arch floor_stone_b2
+x 18
+y 12
+end
+arch fence_metal.111
+x 18
+y 12
+end
+arch floor_stone_b3
+x 18
+y 13
+end
+arch director
+direction 3
+x 18
+y 13
+end
+arch floor_stone_b2
+x 18
+y 14
+end
+arch magic_wall
+z -10
+blocksview 0
+dam 13
+speed 1.0
+alive 0
+x 18
+y 14
+end
+arch floor_stone_b3
+x 18
+y 15
+end
+arch director
+direction 7
+x 18
+y 15
+end
+arch floor_stone_b3
+x 18
+y 16
+end
+arch fence_metal.111
+x 18
+y 16
+end
+arch floor_stone_b1
+x 18
+y 17
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 18
+y 17
+end
+arch floor_stone_b4
+x 18
+y 18
+end
+arch magic_wall
+z -10
+blocksview 0
+dam 13
+speed 1.0
+connected 106
+connect_no_release 1
+alive 0
+x 18
+y 18
+end
+arch floor_stone_b3
+x 18
+y 19
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 18
+y 19
+end
+arch floor_stone_b1
+x 18
+y 20
+end
+arch fence_metal.111
+x 18
+y 20
+end
+arch floor_stone_b3
+x 18
+y 21
+end
+arch floor_stone_b1
+x 18
+y 22
+end
+arch wall_stone_1
+x 18
+y 22
+end
+arch water_lt2
+x 18
+y 23
+end
+arch border_wall_n1
+x 18
+y 23
+end
+arch floor_stone_b1
+x 19
+end
+arch border_top_n1
+x 19
+end
+arch wall_stone_1
+x 19
+end
+arch floor_fur2
+x 19
+y 1
+end
+arch floor_stone_b4
+x 19
+y 2
+end
+arch floor_stone_b4
+x 19
+y 3
+end
+arch floor_stone_b3
+x 19
+y 4
+end
+arch floor_stone_b2
+x 19
+y 5
+end
+arch floor_stone_b1
+x 19
+y 6
+end
+arch floor_stone_b3
+x 19
+y 7
+end
+arch floor_stone_b4
+x 19
+y 8
+end
+arch floor_stone_b1
+x 19
+y 9
+end
+arch floor_stone_b3
+x 19
+y 10
+end
+arch floor_stone_b2
+x 19
+y 11
+end
+arch floor_stone_b2
+x 19
+y 12
+end
+arch fence_metal.111
+x 19
+y 12
+end
+arch floor_stone_b4
+x 19
+y 13
+end
+arch director
+direction 5
+x 19
+y 13
+end
+arch floor_stone_b3
+x 19
+y 14
+end
+arch director
+direction 5
+x 19
+y 14
+end
+arch floor_stone_b4
+x 19
+y 15
+end
+arch director
+direction 7
+x 19
+y 15
+end
+arch floor_stone_b4
+x 19
+y 16
+end
+arch fence_metal.111
+x 19
+y 16
+end
+arch floor_stone_b4
+x 19
+y 17
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 19
+y 17
+end
+arch floor_stone_b3
+x 19
+y 18
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 19
+y 18
+end
+arch floor_stone_b3
+x 19
+y 19
+end
+arch detector
+layer 0
+sys_object 1
+slaying magic bullet
+connected 106
+speed 1.0
+x 19
+y 19
+end
+arch floor_stone_b4
+x 19
+y 20
+end
+arch fence_metal.111
+x 19
+y 20
+end
+arch floor_stone_b2
+x 19
+y 21
+end
+arch floor_stone_b2
+x 19
+y 22
+end
+arch wall_stone_1
+x 19
+y 22
+end
+arch water_lt3
+x 19
+y 23
+end
+arch border_wall_n1
+x 19
+y 23
+end
+arch floor_stone_b3
+x 20
+end
+arch border_top_n1
+x 20
+end
+arch wall_stone_1
+x 20
+end
+arch floor_stone_b1
+x 20
+y 1
+end
+arch floor_stone_b4
+x 20
+y 2
+end
+arch floor_stone_b1
+x 20
+y 3
+end
+arch sign
+msg
+Simple exit: it transports the player to its location when walked into.
+endmsg
+x 20
+y 3
+end
+arch floor_stone_b1
+x 20
+y 4
+end
+arch floor_stone_b2
+x 20
+y 5
+end
+arch sign
+msg
+This exit requires to be applied in order to transport the player.
+endmsg
+x 20
+y 5
+end
+arch floor_stone_b3
+x 20
+y 6
+end
+arch floor_stone_b3
+x 20
+y 7
+end
+arch sign
+msg
+This teleporter must be activated by a connection signal; for example, the lever below it must be applied.
+endmsg
+x 20
+y 7
+end
+arch floor_stone_b3
+x 20
+y 8
+end
+arch floor_stone_b4
+x 20
+y 9
+end
+arch floor_stone_b2
+x 20
+y 10
+end
+arch floor_stone_b1
+x 20
+y 11
+end
+arch floor_stone_b2
+x 20
+y 12
+end
+arch fence_metal.111
+x 20
+y 12
+end
+arch floor_stone_b4
+x 20
+y 13
+end
+arch fence_metal.131
+x 20
+y 13
+end
+arch floor_stone_b4
+x 20
+y 14
+end
+arch fence_metal.131
+x 20
+y 14
+end
+arch floor_stone_b3
+x 20
+y 15
+end
+arch fence_metal.131
+x 20
+y 15
+end
+arch floor_stone_b1
+x 20
+y 16
+end
+arch fence_metal.141
+x 20
+y 16
+end
+arch floor_stone_b3
+x 20
+y 17
+end
+arch fence_metal.131
+x 20
+y 17
+end
+arch floor_stone_b1
+x 20
+y 18
+end
+arch fence_metal.131
+x 20
+y 18
+end
+arch floor_stone_b1
+x 20
+y 19
+end
+arch fence_metal.131
+x 20
+y 19
+end
+arch floor_stone_b1
+x 20
+y 20
+end
+arch fence_metal.141
+x 20
+y 20
+end
+arch floor_stone_b2
+x 20
+y 21
+end
+arch floor_stone_b1
+x 20
+y 22
+end
+arch wall_stone_1
+x 20
+y 22
+end
+arch water_lt
+x 20
+y 23
+end
+arch border_wall_n1
+x 20
+y 23
+end
+arch floor_stone_b1
+x 21
+end
+arch border_top_n1
+x 21
+end
+arch wall_stone_1
+x 21
+end
+arch floor_stone_b2
+x 21
+y 1
+end
+arch floor_stone_b4
+x 21
+y 2
+end
+arch floor_stone_b1
+x 21
+y 3
+end
+arch exit
+hp 18
+sp 5
+x 21
+y 3
+end
+arch floor_stone_b4
+x 21
+y 4
+end
+arch floor_stone_b2
+x 21
+y 5
+end
+arch exit
+hp 18
+sp 5
+walk_on 0
+fly_on 0
+x 21
+y 5
+end
+arch floor_stone_b3
+x 21
+y 6
+end
+arch floor_stone_b3
+x 21
+y 7
+end
+arch teleporter
+hp 18
+sp 5
+connected 107
+x 21
+y 7
+end
+arch handle_lever
+connected 107
+x 21
+y 7
+end
+arch floor_stone_b3
+x 21
+y 8
+end
+arch floor_stone_b1
+x 21
+y 9
+end
+arch floor_stone_b3
+x 21
+y 10
+end
+arch floor_stone_b4
+x 21
+y 11
+end
+arch floor_stone_b4
+x 21
+y 12
+end
+arch floor_stone_b4
+x 21
+y 13
+end
+arch floor_stone_b4
+x 21
+y 14
+end
+arch floor_stone_b1
+x 21
+y 15
+end
+arch floor_stone_b1
+x 21
+y 16
+end
+arch floor_stone_b3
+x 21
+y 17
+end
+arch floor_stone_b1
+x 21
+y 18
+end
+arch floor_stone_b3
+x 21
+y 19
+end
+arch floor_stone_b4
+x 21
+y 20
+end
+arch floor_stone_b3
+x 21
+y 21
+end
+arch floor_stone_b3
+x 21
+y 22
+end
+arch wall_stone_1
+x 21
+y 22
+end
+arch water_lt
+x 21
+y 23
+end
+arch border_wall_n1
+x 21
+y 23
+end
+arch floor_stone_b2
+x 22
+end
+arch border_top_ne2
+x 22
+end
+arch wall_stone_1
+x 22
+end
+arch client_map_info
+name creation_house_connection
+sub_type 2
+x 22
+end
+arch floor_stone_b2
+x 22
+y 1
+end
+arch wall_stone_3
+x 22
+y 1
+end
+arch floor_stone_b1
+x 22
+y 2
+end
+arch wall_stone_3
+x 22
+y 2
+end
+arch floor_stone_b2
+x 22
+y 3
+end
+arch wall_stone_3
+x 22
+y 3
+end
+arch floor_stone_b1
+x 22
+y 4
+end
+arch wall_stone_3
+x 22
+y 4
+end
+arch floor_stone_b1
+x 22
+y 5
+end
+arch wall_stone_3
+x 22
+y 5
+end
+arch floor_stone_b3
+x 22
+y 6
+end
+arch wall_stone_3
+x 22
+y 6
+end
+arch floor_stone_b4
+x 22
+y 7
+end
+arch wall_stone_3
+x 22
+y 7
+end
+arch floor_stone_b2
+x 22
+y 8
+end
+arch wall_stone_3
+x 22
+y 8
+end
+arch floor_stone_b3
+x 22
+y 9
+end
+arch wall_stone_3
+x 22
+y 9
+end
+arch floor_stone_b2
+x 22
+y 10
+end
+arch wall_stone_3
+x 22
+y 10
+end
+arch floor_stone_b2
+x 22
+y 11
+end
+arch wall_stone_3
+x 22
+y 11
+end
+arch floor_stone_b2
+x 22
+y 12
+end
+arch wall_stone_3
+x 22
+y 12
+end
+arch floor_stone_b1
+x 22
+y 13
+end
+arch wall_stone_3
+x 22
+y 13
+end
+arch floor_stone_b1
+x 22
+y 14
+end
+arch wall_stone_3
+x 22
+y 14
+end
+arch floor_stone_b4
+x 22
+y 15
+end
+arch wall_stone_3
+x 22
+y 15
+end
+arch floor_stone_b2
+x 22
+y 16
+end
+arch wall_stone_3
+x 22
+y 16
+end
+arch floor_stone_b3
+x 22
+y 17
+end
+arch wall_stone_3
+x 22
+y 17
+end
+arch floor_stone_b2
+x 22
+y 18
+end
+arch wall_stone_3
+x 22
+y 18
+end
+arch floor_stone_b2
+x 22
+y 19
+end
+arch wall_stone_3
+x 22
+y 19
+end
+arch floor_stone_b1
+x 22
+y 20
+end
+arch wall_stone_3
+x 22
+y 20
+end
+arch floor_stone_b4
+x 22
+y 21
+end
+arch wall_stone_3
+x 22
+y 21
+end
+arch floor_stone_b4
+x 22
+y 22
+end
+arch wall_stone_4
+x 22
+y 22
+end
+arch water_lt3
+x 22
+y 23
+end
+arch border_wall_n1
+x 22
+y 23
+end
+arch water_lt2
+x 23
+end
+arch border_wall_w2
+x 23
+end
+arch water_lt3
+x 23
+y 1
+end
+arch border_wall_w1
+x 23
+y 1
+end
+arch water_lt
+x 23
+y 2
+end
+arch border_wall_w1
+x 23
+y 2
+end
+arch water_lt
+x 23
+y 3
+end
+arch border_wall_w1
+x 23
+y 3
+end
+arch water_lt4
+x 23
+y 4
+end
+arch border_wall_w1
+x 23
+y 4
+end
+arch water_lt3
+x 23
+y 5
+end
+arch border_wall_w1
+x 23
+y 5
+end
+arch water_lt2
+x 23
+y 6
+end
+arch border_wall_w1
+x 23
+y 6
+end
+arch water_lt3
+x 23
+y 7
+end
+arch border_wall_w1
+x 23
+y 7
+end
+arch water_lt4
+x 23
+y 8
+end
+arch border_wall_w1
+x 23
+y 8
+end
+arch water_lt3
+x 23
+y 9
+end
+arch border_wall_w1
+x 23
+y 9
+end
+arch water_lt3
+x 23
+y 10
+end
+arch border_wall_w1
+x 23
+y 10
+end
+arch water_lt3
+x 23
+y 11
+end
+arch border_wall_w1
+x 23
+y 11
+end
+arch water_lt2
+x 23
+y 12
+end
+arch border_wall_w1
+x 23
+y 12
+end
+arch water_lt3
+x 23
+y 13
+end
+arch border_wall_w1
+x 23
+y 13
+end
+arch water_lt3
+x 23
+y 14
+end
+arch border_wall_w1
+x 23
+y 14
+end
+arch water_lt4
+x 23
+y 15
+end
+arch border_wall_w1
+x 23
+y 15
+end
+arch water_lt2
+x 23
+y 16
+end
+arch border_wall_w1
+x 23
+y 16
+end
+arch water_lt4
+x 23
+y 17
+end
+arch border_wall_w1
+x 23
+y 17
+end
+arch water_lt4
+x 23
+y 18
+end
+arch border_wall_w1
+x 23
+y 18
+end
+arch water_lt3
+x 23
+y 19
+end
+arch border_wall_w1
+x 23
+y 19
+end
+arch water_lt
+x 23
+y 20
+end
+arch border_wall_w1
+x 23
+y 20
+end
+arch water_lt3
+x 23
+y 21
+end
+arch border_wall_w1
+x 23
+y 21
+end
+arch water_lt4
+x 23
+y 22
+end
+arch border_wall_w1
+x 23
+y 22
+end
+arch water_lt
+x 23
+y 23
+end
+arch border_wall_nw2
+x 23
+y 23
+end
