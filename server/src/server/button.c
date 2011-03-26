@@ -142,11 +142,7 @@ void push_button(object *op)
 					/* next direction */
 					if (tmp->stats.maxsp)
 					{
-						if ((tmp->direction += tmp->stats.maxsp) > 8)
-						{
-							tmp->direction = (tmp->direction % 8) + 1;
-						}
-
+						tmp->direction = absdir(tmp->direction + tmp->stats.maxsp);
 						animate_turning(tmp);
 					}
 				}
