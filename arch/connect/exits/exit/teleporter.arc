@@ -10,5 +10,4 @@ no_pick 1
 animation teleporter
 is_animated 1
 anim_speed 3
-player_only 1
 end
