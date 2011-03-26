@@ -693,7 +693,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			break;
 
 		case HANDLE:
-			new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
+			new_draw_info_format(NDI_UNIQUE, op, "You turn the %s.", tmp->name);
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
 			tmp->value = tmp->value ? 0 : 1;
 			SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
@@ -705,12 +705,12 @@ int manual_apply(object *op, object *tmp, int aflag)
 		case TRIGGER:
 			if (check_trigger(tmp, op))
 			{
-				new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
+				new_draw_info_format(NDI_UNIQUE, op, "You turn the %s.", tmp->name);
 				play_sound_map(tmp->map, CMD_SOUND_EFFECT, "pull.ogg", tmp->x, tmp->y, 0, 0);
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "The handle doesn't move.");
+				new_draw_info_format(NDI_UNIQUE, op, "The %s doesn't move.", tmp->name);
 			}
 
 			return 1;
