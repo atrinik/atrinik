@@ -2138,6 +2138,17 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 			obj->obj->type = SPAWN_POINT_MOB;
 		}
 	}
+	/* Direction, update object's facing. */
+	else if (field->offset == offsetof(object, direction))
+	{
+		obj->obj->anim_last_facing = obj->obj->anim_last_facing_last = obj->obj->facing = obj->obj->direction;
+
+		/* If the object is animated and turnable, updated its face as well. */
+		if (obj->obj->animation_id && QUERY_FLAG(obj->obj, FLAG_IS_TURNABLE))
+		{
+			SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) / NUM_FACINGS(obj->obj)) * obj->obj->direction + obj->obj->state);
+		}
+	}
 
 	return 0;
 }

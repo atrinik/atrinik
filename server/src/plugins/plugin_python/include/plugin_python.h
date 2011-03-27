@@ -149,6 +149,13 @@ extern struct plugin_hooklist *hooks;
 	}                                    \
 }
 
+#undef SET_ANIMATION
+#define SET_ANIMATION(ob, newanim) ob->face = &(*hooks->new_faces)[(*hooks->animations)[ob->animation_id].faces[newanim]]
+#undef NUM_ANIMATIONS
+#define NUM_ANIMATIONS(ob) ((*hooks->animations)[ob->animation_id].num_animations)
+#undef NUM_FACINGS
+#define NUM_FACINGS(ob) ((*hooks->animations)[ob->animation_id].facings)
+
 extern PyObject *AtrinikError;
 
 /** Raise an error using AtrinikError, and return NULL. */
