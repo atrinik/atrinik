@@ -113,12 +113,6 @@ void pray_at_altar(object *pl, object *altar)
 {
 	object *pl_god = find_god(determine_god(pl));
 
-	/* Trigger the APPLY event */
-	if (trigger_event(EVENT_APPLY, pl, altar, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
-	{
-		return;
-	}
-
 	/* If non consecrate altar, don't do anything */
 	if (!altar->other_arch)
 	{
