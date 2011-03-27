@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-03-26 Alex Tokar
+Modified: 2011-03-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -590,7 +590,9 @@ arch floor_stone_b3
 x 3
 y 13
 end
-arch wall_stone_3
+arch grate_closed
+direction 3
+connected 109
 x 3
 y 13
 end
@@ -614,7 +616,9 @@ arch floor_stone_b3
 x 3
 y 16
 end
-arch wall_stone_3
+arch gate_closed
+direction 3
+connected 108
 x 3
 y 16
 end
@@ -738,7 +742,29 @@ arch floor_stone_b2
 x 4
 y 7
 end
+arch sign
+msg
+Pulling the lever will activate a magic mouth that says its message to everyone around.
+
+What to do if you have a trigger lever that will reset itself? It will signal the magic mouth again, printing the same message, which is probably not wanted - in this case, you can enable "ignore connection release" option in the magic mouth's configuration to prevent just that.
+endmsg
+x 4
+y 7
+end
 arch floor_stone_b2
+x 4
+y 8
+end
+arch handle_lever
+connected 110
+x 4
+y 8
+end
+arch magic_mouth
+msg
+This is a global message!
+endmsg
+connected 110
 x 4
 y 8
 end
@@ -758,7 +784,19 @@ arch floor_stone_b2
 x 4
 y 12
 end
+arch sign
+msg
+This button requires very small weight (1 gram).
+endmsg
+x 4
+y 12
+end
 arch floor_stone_b2
+x 4
+y 13
+end
+arch button_small
+connected 109
 x 4
 y 13
 end
@@ -770,7 +808,19 @@ arch floor_stone_b1
 x 4
 y 15
 end
+arch sign
+msg
+Buttons can require huge weights to activate. Note that they recursively check weight of all objects on their tile and carrying weight, so many players with heavy inventories could activate even this button.
+endmsg
+x 4
+y 15
+end
 arch floor_stone_b1
+x 4
+y 16
+end
+arch button_plate
+connected 108
 x 4
 y 16
 end
@@ -923,6 +973,12 @@ arch floor_stone_b2
 x 5
 y 16
 end
+arch boulder
+can_roll 1
+terrain_flag 1
+x 5
+y 16
+end
 arch floor_stone_b1
 x 5
 y 17
@@ -991,6 +1047,16 @@ end
 arch floor_stone_b2
 x 6
 y 1
+end
+arch switch_wall
+layer 0
+sys_object 1
+connected 112
+x 6
+y 1
+arch beacon
+name creation_house_connect_beacon
+end
 end
 arch floor_stone_b4
 x 6
@@ -1101,6 +1167,27 @@ arch floor_stone_b4
 x 7
 y 1
 end
+arch altar_normal
+x 7
+y 1
+arch event_obj
+msg
+<yellow>You touch the altar, and you feel being squeezed through time and space!</yellow>
+endmsg
+sub_type 1
+race /python/events/trigger/connection.py
+slaying creation_house_connect_beacon;;1
+end
+end
+arch teleporter
+layer 0
+sys_object 1
+hp 1
+sp 4
+connected 112
+x 7
+y 1
+end
 arch floor_stone_b4
 x 7
 y 2
@@ -1207,6 +1294,13 @@ arch wall_stone_1
 x 8
 end
 arch floor_stone_b1
+x 8
+y 1
+end
+arch sign
+msg
+Any object can have a connection using scripts. The altar has an apply event script, which applies an invisible switch next to it, through the use of beacons, which activates a portal under the altar.
+endmsg
 x 8
 y 1
 end
@@ -1340,7 +1434,15 @@ arch floor_stone_b4
 x 9
 y 7
 end
+arch wall_stone_3
+x 9
+y 7
+end
 arch floor_stone_b1
+x 9
+y 8
+end
+arch wall_stone_3
 x 9
 y 8
 end
@@ -1348,7 +1450,15 @@ arch floor_stone_b2
 x 9
 y 9
 end
+arch wall_stone_3
+x 9
+y 9
+end
 arch floor_stone_b4
+x 9
+y 10
+end
+arch wall_stone_3
 x 9
 y 10
 end
@@ -1356,7 +1466,15 @@ arch floor_stone_b2
 x 9
 y 11
 end
+arch wall_stone_3
+x 9
+y 11
+end
 arch floor_stone_b4
+x 9
+y 12
+end
+arch wall_stone_3
 x 9
 y 12
 end
@@ -1364,7 +1482,15 @@ arch floor_stone_b1
 x 9
 y 13
 end
+arch wall_stone_3
+x 9
+y 13
+end
 arch floor_stone_b3
+x 9
+y 14
+end
+arch wall_stone_3
 x 9
 y 14
 end
@@ -1372,7 +1498,15 @@ arch floor_stone_b1
 x 9
 y 15
 end
+arch wall_stone_3
+x 9
+y 15
+end
 arch floor_stone_b4
+x 9
+y 16
+end
+arch wall_stone_3
 x 9
 y 16
 end
@@ -1380,7 +1514,15 @@ arch floor_stone_b1
 x 9
 y 17
 end
+arch wall_stone_3
+x 9
+y 17
+end
 arch floor_stone_b1
+x 9
+y 18
+end
+arch wall_stone_3
 x 9
 y 18
 end
@@ -1447,7 +1589,21 @@ arch floor_stone_b2
 x 10
 y 7
 end
-arch floor_stone_b4
+arch trigger_lever
+exp 100
+connected 111
+x 10
+y 7
+end
+arch floor_red1
+x 10
+y 8
+end
+arch duplicator
+slaying coppercoin
+level 2
+connected 111
+connect_no_release 1
 x 10
 y 8
 end
@@ -1455,11 +1611,34 @@ arch floor_stone_b2
 x 10
 y 9
 end
+arch sign
+msg
+Duplicators may be used to multiply a target arch on top of them by the specified factor, or to remove matching targets completely.
+
+Try dropping any amount of copper coins on the marker square and pulling the lever.
+endmsg
+x 10
+y 9
+end
 arch floor_stone_b2
 x 10
 y 10
 end
-arch floor_stone_b2
+arch sign
+msg
+Damagers hit living creatures over time. They can be configured to cause confusion damage, work very slowly, or instantly when the player steps on them, or even cause internal attack damage (no protection against it, so it always hits anything at 100%). They can also be configured to damage unfriendly objects instead of friendly ones.
+endmsg
+x 10
+y 10
+end
+arch floor_red1
+x 10
+y 11
+end
+arch damager
+dam 10
+attack_fire 50
+attack_cold 50
 x 10
 y 11
 end
@@ -1467,11 +1646,34 @@ arch floor_stone_b1
 x 10
 y 12
 end
-arch floor_stone_b2
+arch floor_stone_b1
 x 10
 y 13
 end
-arch floor_stone_b1
+arch detector
+walk_on 1
+fly_on 1
+name convert mithril to gold
+slaying mitcoin
+food 1
+other_arch goldcoin
+sp 1000
+type 103
+x 10
+y 13
+end
+arch floor_stone_b4
+x 10
+y 14
+end
+arch detector
+walk_on 1
+fly_on 1
+name convert gold to mithril
+slaying goldcoin
+food 1000
+other_arch mitcoin
+type 103
 x 10
 y 14
 end
@@ -1479,7 +1681,29 @@ arch floor_stone_b4
 x 10
 y 15
 end
-arch floor_stone_b1
+arch detector
+walk_on 1
+fly_on 1
+name convert silver to gold
+slaying silvercoin
+food 100
+other_arch goldcoin
+type 103
+x 10
+y 15
+end
+arch floor_stone_b4
+x 10
+y 16
+end
+arch detector
+walk_on 1
+fly_on 1
+name convert copper to silver
+slaying coppercoin
+food 100
+other_arch silvercoin
+type 103
 x 10
 y 16
 end
@@ -1487,11 +1711,36 @@ arch floor_stone_b2
 x 10
 y 17
 end
+arch sign
+msg
+Converters are able to transform x number of somethings into y number of somethings.
+endmsg
+x 10
+y 17
+end
 arch floor_stone_b4
 x 10
 y 18
 end
+arch wall_stone_1
+x 10
+y 18
+end
 arch floor_stone_b3
+x 10
+y 19
+end
+arch marker
+slaying creation_house_connection_marker
+speed 1.0
+food 100
+x 10
+y 19
+end
+arch sign
+msg
+Markers can create temporary identification forces inside players. These can be used to allow them to walk through a door or a force field, for example.
+endmsg
 x 10
 y 19
 end
@@ -1600,7 +1849,28 @@ arch floor_stone_b4
 x 11
 y 18
 end
+arch door1_locked
+x 11
+y 18
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying creation_house_connection_marker
+sp 1
+last_grace 1
+last_heal 1
+x 11
+y 18
+end
 arch floor_stone_b1
+x 11
+y 19
+end
+arch marker
+slaying creation_house_connection_marker
+speed 1.0
+food 100
 x 11
 y 19
 end
@@ -1709,7 +1979,18 @@ arch floor_stone_b3
 x 12
 y 18
 end
+arch wall_stone_1
+x 12
+y 18
+end
 arch floor_stone_b1
+x 12
+y 19
+end
+arch marker
+slaying creation_house_connection_marker
+speed 1.0
+food 100
 x 12
 y 19
 end
@@ -1898,7 +2179,17 @@ arch floor_stone_b1
 x 14
 y 7
 end
+arch director
+direction 5
+x 14
+y 7
+end
 arch floor_stone_b3
+x 14
+y 8
+end
+arch director
+direction 3
 x 14
 y 8
 end
@@ -2021,7 +2312,16 @@ arch floor_stone_b1
 x 15
 y 7
 end
+arch director
+direction 7
+x 15
+y 7
+end
 arch floor_stone_b4
+x 15
+y 8
+end
+arch director
 x 15
 y 8
 end
@@ -2154,7 +2454,22 @@ arch floor_stone_b2
 x 16
 y 7
 end
+arch sign
+msg
+Directors may be used to direct flying missiles/spells into another direction. Try shooting the nearby daggers into these directors.
+endmsg
+x 16
+y 7
+end
 arch floor_stone_b4
+x 16
+y 8
+end
+arch t_dagger
+title of near infinite range
+nrof 20
+identified 1
+last_sp 10000
 x 16
 y 8
 end
@@ -2478,11 +2793,25 @@ arch floor_stone_b1
 x 18
 y 8
 end
+arch spinner
+layer 4
+sys_object 0
+direction 3
+x 18
+y 8
+end
 arch floor_stone_b3
 x 18
 y 9
 end
 arch floor_stone_b1
+x 18
+y 10
+end
+arch sign
+msg
+Unlike directors, spinners change direction of flying missile/spell depending on the angle it comes from.
+endmsg
 x 18
 y 10
 end
@@ -2647,11 +2976,32 @@ arch floor_stone_b4
 x 19
 y 8
 end
+arch spinner
+layer 4
+sys_object 0
+direction 6
+x 19
+y 8
+end
 arch floor_stone_b1
 x 19
 y 9
 end
+arch spinner
+layer 4
+sys_object 0
+direction 5
+x 19
+y 9
+end
 arch floor_stone_b3
+x 19
+y 10
+end
+arch spinner
+layer 4
+sys_object 0
+direction 2
 x 19
 y 10
 end
