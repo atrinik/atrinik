@@ -69,6 +69,9 @@
 		<Unit filename="..\..\..\src\plugins\plugin_python\plugin_python.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\attr_list.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />

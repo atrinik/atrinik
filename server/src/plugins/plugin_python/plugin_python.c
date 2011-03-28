@@ -2111,7 +2111,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		CustomCommand[i].speed = 0.0;
 	}
 
-	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m))
+	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) || !Atrinik_AttrList_init(m))
 	{
 		return;
 	}
@@ -2228,7 +2228,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 			else if (PyString_Check(value))
 			{
-				free(*(char **) field_ptr);
+				if (*(char **) field_ptr)
+				{
+					free(*(char **) field_ptr);
+				}
+
 				*(char **) field_ptr = hooks->strdup_local(PyString_AsString(value));
 			}
 			else
@@ -2636,6 +2640,9 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 
 			break;
+
+		default:
+			break;
 	}
 
 	return 0;
@@ -2729,6 +2736,12 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_BOOLEAN:
 			Py_ReturnBoolean(*(uint8 *) field_ptr);
+
+		case FIELDTYPE_LIST:
+			return wrap_attr_list(ptr, field->offset, field->extra_data);
+
+		default:
+			break;
 	}
 
 	RAISE("BUG: Unknown field type.");
