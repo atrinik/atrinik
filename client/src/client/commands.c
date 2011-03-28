@@ -363,7 +363,7 @@ void DrawInfoCmd(unsigned char *data)
 void DrawInfoCmd2(unsigned char *data, int len)
 {
 	int flags;
-	char buf[2048], *tmp = NULL;
+	char buf[20048], *tmp = NULL;
 
 	flags = (int) GetShort_String(data);
 	data += 2;
@@ -372,9 +372,9 @@ void DrawInfoCmd2(unsigned char *data, int len)
 
 	if (len >= 0)
 	{
-		if (len > 2000)
+		if (len > 20000)
 		{
-			len = 2000;
+			len = 20000;
 		}
 
 		if (options.chat_timestamp && (flags & NDI_PLAYER))
