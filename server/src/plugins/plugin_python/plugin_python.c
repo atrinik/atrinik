@@ -298,6 +298,8 @@ static const Atrinik_Constant constants[] =
 	{"SIZEOFFREE1", SIZEOFFREE1},
 	{"SIZEOFFREE2", SIZEOFFREE2},
 
+	{"NROFREALSPELLS", NROFREALSPELLS},
+
 	{NULL, 0}
 };
 /* @endcparser */
