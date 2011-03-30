@@ -853,11 +853,16 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 {
 	object *tmp;
 
-	for (tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above)
 	{
 		/* This must be before the checks below. Code for inventory checkers. */
 		if (tmp->type == CHECK_INV && tmp->last_grace)
 		{
+			if (QUERY_FLAG(tmp, FLAG_XRAYS) && op->type != PLAYER)
+			{
+				continue;
+			}
+
 			/* If last_sp is set, the player/monster needs an object,
 			 * so we check for it. If they don't have it, they can't
 			 * pass through this space. */
