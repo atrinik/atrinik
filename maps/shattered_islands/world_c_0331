@@ -2,7 +2,7 @@ arch map
 name Drow Outpost
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-03-26 emperorbma
+Modified: 2011-03-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,6 +16,7 @@ tile_path_5 world_c_0432
 tile_path_6 world_c_0430
 tile_path_7 world_c_0230
 tile_path_8 world_c_0232
+region strakewood_island
 end
 arch floor_cave2
 end
@@ -68,9 +69,7 @@ arch floor_ostone8
 y 11
 end
 arch door_wood1
-face door_wood1.131
 direction 3
-last_sp -1
 y 11
 end
 arch floor_ostone8
@@ -1082,7 +1081,6 @@ arch floor_ostone8
 x 9
 end
 arch spider_web
-speed_left -0.352380
 x 9
 end
 arch floor_red1
@@ -1342,7 +1340,6 @@ x 11
 y 3
 end
 arch spider_web
-speed_left -0.352380
 x 11
 y 3
 end
@@ -1363,7 +1360,10 @@ x 11
 y 6
 end
 arch lantern2_magic.131
-glow_radius 7
+x 11
+y 6
+end
+arch light7
 x 11
 y 6
 end
@@ -1385,7 +1385,6 @@ x 11
 y 9
 end
 arch water_still
-speed_left -0.362417
 x 11
 y 10
 end
@@ -1473,7 +1472,6 @@ x 12
 y 5
 end
 arch door_wood1
-last_sp -1
 x 12
 y 5
 end
@@ -1490,22 +1488,22 @@ x 12
 y 8
 end
 arch water_still
-speed_left -0.362417
 x 12
 y 9
 end
 arch water_still
-speed_left -0.362417
 x 12
 y 10
 end
 arch statue_fire_black1
-glow_radius 10
+x 12
+y 10
+end
+arch light9
 x 12
 y 10
 end
 arch water_still
-speed_left -0.362417
 x 12
 y 11
 end
@@ -1554,10 +1552,6 @@ x 12
 y 22
 end
 arch grate_open
-speed_left -0.500000
-path_attuned 101
-value 1
-connected 101
 x 12
 y 22
 end
@@ -1589,7 +1583,6 @@ x 13
 y 5
 end
 arch door_wood1
-last_sp -1
 x 13
 y 5
 end
@@ -1610,7 +1603,6 @@ x 13
 y 9
 end
 arch water_still
-speed_left -0.362417
 x 13
 y 10
 end
@@ -1663,10 +1655,6 @@ x 13
 y 22
 end
 arch grate_open
-speed_left -0.500000
-path_attuned 101
-value 1
-connected 101
 x 13
 y 22
 end
@@ -1678,7 +1666,6 @@ arch floor_ostone8
 x 14
 end
 arch spider_web
-speed_left -0.352380
 x 14
 end
 arch floor_red1
@@ -1710,7 +1697,10 @@ x 14
 y 6
 end
 arch lantern2_magic.131
-glow_radius 7
+x 14
+y 6
+end
+arch light7
 x 14
 y 6
 end

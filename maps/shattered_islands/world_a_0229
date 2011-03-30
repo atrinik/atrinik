@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-17 emperorbma
-Modified: 2011-03-20 emperorbma
+Modified: 2011-03-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,7 @@ tile_path_2 world_a_0329
 tile_path_4 world_a_0129
 tile_path_5 world_a_0330
 tile_path_8 world_a_0130
+region strakewood_island
 end
 arch floor_sand_d1
 y 7
@@ -2140,11 +2141,11 @@ arch floor_nstone3
 x 19
 y 1
 end
-arch light9
+arch floor_nstone3
 x 19
 y 2
 end
-arch floor_nstone3
+arch light9
 x 19
 y 2
 end

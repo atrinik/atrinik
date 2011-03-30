@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-03-27 Alex Tokar
+Modified: 2011-03-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -463,7 +463,7 @@ arch sign
 msg
 This lever has a beacon in its inventory. Beacons are objects that can easily be found by scripts, wherever in the game they are.
 
-Go to the Python Tester and tell him <a>beacon dev_testmaps_beacon_1</a>.
+Go to the Python Tester and tell him <a>beacon plane_of_creation_python</a>.
 endmsg
 x 2
 y 1
@@ -589,7 +589,7 @@ arch handle_lever
 x 3
 y 1
 arch beacon
-name dev_testmaps_beacon_1
+name plane_of_creation_python
 end
 end
 arch floor_stone_b1
