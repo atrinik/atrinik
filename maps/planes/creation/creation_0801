@@ -765,6 +765,8 @@ msg
 This is a global message!
 endmsg
 connected 110
+walk_on 0
+fly_on 0
 x 4
 y 8
 end
