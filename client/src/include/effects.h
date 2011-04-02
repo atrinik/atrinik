@@ -130,6 +130,9 @@ typedef struct effect_sprite_def
 	/** ID of in-game sprite to use. */
 	int id;
 
+	/** Name of the in-game sprite to use. */
+	char *name;
+
 	/**
 	 * Weight of the sprite: affects how fast it falls down, and gets
 	 * blown away by wind, default is 1.0. */

@@ -306,6 +306,7 @@ void book_handle_event(SDL_Event *event);
 /* gui/effects.c */
 void effects_init();
 void effects_deinit();
+void effects_reinit();
 void effect_sprites_free(effect_struct *effect);
 void effect_free(effect_struct *effect);
 void effect_sprite_def_free(effect_sprite_def *sprite_def);

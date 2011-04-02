@@ -58,7 +58,7 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, spells_reload, NULL,
-	anims_reset, NULL
+	anims_reset, effects_reinit
 };
 
 /** The server files. */

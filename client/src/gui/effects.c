@@ -227,8 +227,9 @@ void effects_init()
 			else if (!strncmp(buf, "sprite ", 7))
 			{
 				sprite_def = calloc(1, sizeof(*sprite_def));
-				/* Store the sprite ID. */
+				/* Store the sprite ID and name. */
 				sprite_def->id = get_bmap_id(buf + 7);
+				sprite_def->name = strdup(buf + 7);
 				/* Initialize default values. */
 				sprite_def->chance = 1;
 				sprite_def->weight = 1.0;
@@ -299,6 +300,23 @@ void effects_deinit()
 }
 
 /**
+ * Makes sure all sprite definitions have correct sprite IDs and their
+ * images are properly loaded. */
+void effects_reinit()
+{
+	effect_struct *effect;
+	effect_sprite_def *sprite_def;
+
+	for (effect = effects; effect; effect = effect->next)
+	{
+		for (sprite_def = effect->sprite_defs; sprite_def; sprite_def = sprite_def->next)
+		{
+			sprite_def->id = get_bmap_id(sprite_def->name);
+		}
+	}
+}
+
+/**
  * Deinitialize shown sprites of a single effect.
  * @param effect The effect to have shown sprites deinitialized. */
 void effect_sprites_free(effect_struct *effect)
@@ -327,6 +345,7 @@ void effect_free(effect_struct *effect)
  * @param sprite_def Sprite definition that will be freed. */
 void effect_sprite_def_free(effect_sprite_def *sprite_def)
 {
+	free(sprite_def->name);
 	free(sprite_def);
 }
 
@@ -435,6 +454,11 @@ void effect_sprites_play()
 	for (tmp = current_effect->sprites; tmp; tmp = next)
 	{
 		next = tmp->next;
+
+		if (!FaceList[tmp->def->id].sprite)
+		{
+			continue;
+		}
 
 		x_check = y_check = 0;
 
