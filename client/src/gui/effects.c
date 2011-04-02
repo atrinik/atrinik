@@ -33,6 +33,8 @@
 static effect_struct *effects = NULL;
 /** Current effect. */
 static effect_struct *current_effect = NULL;
+/** RGBA as lowercase overlay color names. */
+static const char *overlay_cols[] = {"r", "g", "b", "a"};
 
 /**
  * Initialize effects from file. */
@@ -42,6 +44,7 @@ void effects_init()
 	char buf[MAX_BUF], *cp;
 	effect_struct *effect = NULL;
 	effect_sprite_def *sprite_def = NULL;
+	effect_overlay *overlay = NULL;
 
 	/* Try to deinitialize all effects first. */
 	effects_deinit();
@@ -77,6 +80,12 @@ void effects_init()
 					/* Update total chance value. */
 					effect->chance_total += sprite_def->chance;
 					sprite_def = NULL;
+				}
+				/* Overlay block, just set it as the effect's overlay. */
+				else if (overlay)
+				{
+					effect->overlay = overlay;
+					overlay = NULL;
 				}
 				/* Inside effect block. */
 				else
@@ -190,6 +199,61 @@ void effects_init()
 			else if (!strncmp(buf, "warp_sides ", 11))
 			{
 				sprite_def->warp_sides = atoi(buf + 11);
+			}
+		}
+		else if (!strcmp(buf, "overlay"))
+		{
+			size_t col;
+
+			overlay = calloc(1, sizeof(effect_overlay));
+
+			for (col = 0; col < arraysize(overlay_cols); col++)
+			{
+				overlay->col[col].val = -1;
+				overlay->col[col].mod[4] = 1.0;
+			}
+		}
+		else if (overlay)
+		{
+			size_t col;
+
+			for (col = 0; col < arraysize(overlay_cols); col++)
+			{
+				if (!strncmp(buf, overlay_cols[col], strlen(overlay_cols[col])))
+				{
+					if (!strncmp(buf + 1, "_rndm_min ", 10))
+					{
+						overlay->col[col].rndm_min = atoi(buf + 11);
+					}
+					else if (!strncmp(buf + 1, "_rndm_max ", 10))
+					{
+						overlay->col[col].rndm_max = atoi(buf + 11);
+					}
+					else if (!strncmp(buf + 1, "_mod1 ", 6))
+					{
+						overlay->col[col].mod[0] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod2 ", 6))
+					{
+						overlay->col[col].mod[1] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod3 ", 6))
+					{
+						overlay->col[col].mod[2] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod4 ", 6))
+					{
+						overlay->col[col].mod[3] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod5 ", 6))
+					{
+						overlay->col[col].mod[4] = atof(buf + 7);
+					}
+					else
+					{
+						overlay->col[col].val = atoi(buf + 2);
+					}
+				}
 			}
 		}
 		/* Parse definitions inside effect block. */
@@ -337,6 +401,11 @@ void effect_sprites_free(effect_struct *effect)
  * @param effect Effect that will be freed. */
 void effect_free(effect_struct *effect)
 {
+	if (effect->overlay)
+	{
+		free(effect->overlay);
+	}
+
 	free(effect);
 }
 
@@ -399,6 +468,11 @@ static effect_sprite *effect_sprite_create(effect_struct *effect)
 	int roll;
 	effect_sprite_def *tmp;
 	effect_sprite *sprite;
+
+	if (!effect->sprite_defs)
+	{
+		return NULL;
+	}
 
 	/* Choose which sprite to use. */
 	roll = rndm(1, effect->chance_total) - 1;
@@ -623,6 +697,39 @@ int effect_start(const char *name)
 			tmp->wind = 0;
 			/* Load it up. */
 			current_effect = tmp;
+
+			/* Does this effect have an overlay? If so, we need to free
+			 * old dark levels, as they are rendered without the image
+			 * overlay. */
+			if (current_effect->overlay)
+			{
+				size_t i, dark;
+
+				for (i = 0; i < MAX_FACE_TILES; i++)
+				{
+					if (!FaceList[i].sprite)
+					{
+						continue;
+					}
+
+					if (FaceList[i].sprite->effect)
+					{
+						SDL_FreeSurface(FaceList[i].sprite->effect);
+						FaceList[i].sprite->effect = NULL;
+					}
+
+					/* Free all dark levels. */
+					for (dark = 0; dark < DARK_LEVELS; dark++)
+					{
+						if (FaceList[i].sprite->dark_level[dark])
+						{
+							SDL_FreeSurface(FaceList[i].sprite->dark_level[dark]);
+							FaceList[i].sprite->dark_level[dark] = NULL;
+						}
+					}
+				}
+			}
+
 			return 1;
 		}
 	}
@@ -664,6 +771,7 @@ void effect_debug(const char *type)
 		draw_info_format(COLOR_WHITE, "Size of a single sprite definition: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite_def));
 		draw_info_format(COLOR_WHITE, "Size of a single visible sprite: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite));
 		draw_info_format(COLOR_WHITE, "Size of a single effect structure: <green>%"FMT64U"</green>", (uint64) sizeof(effect_struct));
+		draw_info_format(COLOR_WHITE, "Size of a single overlay: <green>%"FMT64U"</green>", (uint64) sizeof(effect_overlay));
 	}
 	else
 	{
@@ -682,4 +790,46 @@ void effect_stop()
 
 	effect_sprites_free(current_effect);
 	current_effect = NULL;
+}
+
+/**
+ * Check whether there is an overlay on the active effect (if any).
+ * @return 1 if there is an overlay, 0 otherwise. */
+uint8 effect_has_overlay()
+{
+	if (!current_effect)
+	{
+		return 0;
+	}
+
+	return current_effect->overlay ? 1 : 0;
+}
+
+/**
+ * Add an effect overlay to a sprite.
+ * @param sprite The sprite to add overlay to. */
+void effect_scale(_Sprite *sprite)
+{
+	int j, k, r, g, b, a, index;
+	Uint8 vals[4];
+	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
+
+	for (k = 0; k < temp->h; k++)
+	{
+		for (j = 0; j < temp->w; j++)
+		{
+			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &vals[0], &vals[1], &vals[2], &vals[3]);
+
+			index = 0;
+			EFFECT_SCALE_ADJUST(r, current_effect->overlay);
+			EFFECT_SCALE_ADJUST(g, current_effect->overlay);
+			EFFECT_SCALE_ADJUST(b, current_effect->overlay);
+			EFFECT_SCALE_ADJUST(a, current_effect->overlay);
+
+			putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
+		}
+	}
+
+	sprite->effect = SDL_DisplayFormatAlpha(temp);
+	SDL_FreeSurface(temp);
 }

@@ -316,6 +316,8 @@ void effect_sprites_play();
 int effect_start(const char *name);
 void effect_debug(const char *type);
 void effect_stop();
+uint8 effect_has_overlay();
+void effect_scale(_Sprite *sprite);
 
 /* gui/fps.c */
 void widget_show_fps(widgetdata *widget);

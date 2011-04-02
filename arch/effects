@@ -207,3 +207,25 @@ wind_mod 6
 sprites_per_move 10
 delay 40
 end
+
+effect rednight
+overlay
+r 0
+r_mod1 0.212671
+r_mod2 0.715160
+r_mod3 0.072169
+g 0
+b 0
+end
+end
+
+effect fog
+overlay
+r_rndm_min 20
+r_rndm_max 40
+g_rndm_min 10
+g_rndm_max 20
+b_rndm_min 20
+b_rndm_max 30
+end
+end

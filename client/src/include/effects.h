@@ -97,6 +97,9 @@ typedef struct effect_struct
 
 	/** Sprites per move, defaults to 1. */
 	int sprites_per_move;
+
+	/** Map overlay. */
+	struct effect_overlay *overlay;
 } effect_struct;
 
 /** One sprite currently shown. */
@@ -218,5 +221,42 @@ typedef struct effect_sprite_def
 	 * Warp sprites going too far to the sides (off screen), 1 by default. */
 	uint8 warp_sides;
 } effect_sprite_def;
+
+/** One single color in the overlay configuration. */
+typedef struct effect_overlay_col
+{
+	/** Initial value; if -1, will use the original color value. */
+	sint16 val;
+
+	/** Modification of the color. */
+	double mod[5];
+
+	/** Min random range. */
+	uint8 rndm_min;
+
+	/** Max random range. */
+	uint8 rndm_max;
+} effect_overlay_col;
+
+/**
+ * Holds information about effect overlay. */
+typedef struct effect_overlay
+{
+	/** Array of the configuration; R(ed), G(reen), B(lue), A(lpha). */
+	effect_overlay_col col[4];
+} effect_overlay;
+
+/** Macro used in effect_scale(). */
+#define EFFECT_SCALE_ADJUST(i, overlay) \
+	(i) = (overlay)->col[index].val == -1 ? vals[index] : (overlay)->col[index].val; \
+	(i) += (int) (((double) vals[0] * (overlay)->col[index].mod[0] + (double) vals[1] * (overlay)->col[index].mod[1] + (double) vals[2] * (overlay)->col[index].mod[2] + (double) vals[3] * (overlay)->col[index].mod[3]) * (overlay)->col[index].mod[4]); \
+	\
+	if ((overlay)->col[index].rndm_max != 0) \
+	{ \
+		(i) += rndm((overlay)->col[index].rndm_min, (overlay)->col[index].rndm_max); \
+	} \
+	\
+	(i) = MAX(0, MIN(255, (i))); \
+	index++;
 
 #endif

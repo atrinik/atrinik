@@ -33,7 +33,7 @@
 struct _anim *start_anim;
 
 /** Format holder for red_scale(), fow_scale() and grey_scale() functions. */
-static SDL_Surface *FormatHolder;
+SDL_Surface *FormatHolder;
 
 /** Darkness alpha values. */
 static int dark_alpha[DARK_LEVELS] =
@@ -174,6 +174,11 @@ void sprite_free_sprite(_Sprite *sprite)
 		SDL_FreeSurface(sprite->fog_of_war);
 	}
 
+	if (sprite->effect)
+	{
+		SDL_FreeSurface(sprite->effect);
+	}
+
 	if (sprite->dark_level)
 	{
 		for (i = 0; i < DARK_LEVELS; i++)
@@ -272,6 +277,38 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 
 	if (bltfx)
 	{
+		/* Is there an effect overlay active? */
+		if (effect_has_overlay())
+		{
+			/* There is one, so add an overlay to the image if there isn't
+			 * one yet. */
+			if (!sprite->effect)
+			{
+				effect_scale(sprite);
+			}
+
+			blt_sprite = sprite->effect;
+		}
+		/* No overlay, but the image was previously overlayed; need to
+		 * free the dark surfaces so they can be re-rendered, without the
+		 * overlay. */
+		else if (sprite->effect)
+		{
+			size_t i;
+
+			SDL_FreeSurface(sprite->effect);
+			sprite->effect = NULL;
+
+			for (i = 0; i < DARK_LEVELS; i++)
+			{
+				if (sprite->dark_level[i])
+				{
+					SDL_FreeSurface(sprite->dark_level[i]);
+					sprite->dark_level[i] = NULL;
+				}
+			}
+		}
+
 		if (bltfx->flags & BLTFX_FLAG_DARK)
 		{
 			/* Last dark level is "no color" */
@@ -293,7 +330,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			}
 			else
 			{
-				blt_sprite = SDL_DisplayFormatAlpha(sprite->bitmap);
+				blt_sprite = SDL_DisplayFormatAlpha(blt_sprite);
 				SDL_BlitSurface(darkness_filter[bltfx->dark_level], NULL, blt_sprite, NULL);
 				sprite->dark_level[bltfx->dark_level] = blt_sprite;
 			}

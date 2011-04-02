@@ -91,6 +91,9 @@ typedef struct _Sprite
 	/** Fog of war. */
 	SDL_Surface *fog_of_war;
 
+	/** Overlay effect. */
+	SDL_Surface *effect;
+
 	/** Dark levels. */
 	SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
@@ -183,5 +186,7 @@ typedef struct tColorY
 {
 	Uint8 y;
 } tColorY;
+
+SDL_Surface *FormatHolder;
 
 #endif
