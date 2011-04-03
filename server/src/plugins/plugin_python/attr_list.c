@@ -391,6 +391,7 @@ static PySequenceMethods SequenceMethods =
 	(lenfunc) __len__,
 	NULL, NULL, NULL, NULL, NULL, NULL,
 	(objobjproc) __contains__,
+	NULL, NULL
 };
 
 /**
