@@ -1,8 +1,8 @@
 arch map
-name Drow Outpost
+name Outpost of Dr'kass
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-03-30 Alex Tokar
+Modified: 2011-04-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,6 +16,7 @@ tile_path_5 world_c_0432
 tile_path_6 world_c_0430
 tile_path_7 world_c_0230
 tile_path_8 world_c_0232
+bg_music unexpected.mid
 region strakewood_island
 end
 arch floor_cave2
@@ -1083,11 +1084,15 @@ end
 arch spider_web
 x 9
 end
+arch torch_wall_1
+direction 7
+x 9
+end
 arch floor_red1
 x 9
 y 1
 end
-arch torch_wall_1
+arch shrine1.111
 direction 7
 x 9
 y 1
@@ -1133,6 +1138,31 @@ x 9
 y 8
 end
 arch fwall_grit2b
+layer 3
+draw_double 0
+x 9
+y 8
+end
+arch fwall_grit2b
+z 24
+draw_double 0
+layer 4
+x 9
+y 8
+end
+arch fwall_grit2b
+z 48
+draw_double 0
+x 9
+y 8
+end
+arch statue_fire_black1
+layer 7
+z 72
+x 9
+y 8
+end
+arch light5
 x 9
 y 8
 end
@@ -1161,6 +1191,31 @@ x 9
 y 14
 end
 arch fwall_grit2b
+layer 3
+draw_double 0
+x 9
+y 14
+end
+arch fwall_grit2b
+z 24
+draw_double 0
+layer 4
+x 9
+y 14
+end
+arch fwall_grit2b
+z 48
+draw_double 0
+x 9
+y 14
+end
+arch statue_fire_black1
+layer 7
+z 72
+x 9
+y 14
+end
+arch light5
 x 9
 y 14
 end
@@ -1256,7 +1311,15 @@ arch fstone1a
 x 10
 y 9
 end
+arch border_top_se1
+x 10
+y 9
+end
 arch fstone1a
+x 10
+y 10
+end
+arch border_top_e1
 x 10
 y 10
 end
@@ -1264,11 +1327,23 @@ arch fstone1a
 x 10
 y 11
 end
+arch border_top_e1
+x 10
+y 11
+end
 arch fstone1b
 x 10
 y 12
 end
+arch border_top_e1
+x 10
+y 12
+end
 arch fstone1b
+x 10
+y 13
+end
+arch border_top_ne1
 x 10
 y 13
 end
@@ -1380,23 +1455,43 @@ arch fstone1a
 x 11
 y 8
 end
-arch fstone1a
+arch fstone1c
 x 11
 y 9
 end
-arch water_still
+arch border_top_s1
+x 11
+y 9
+end
+arch water_lt4
 x 11
 y 10
 end
-arch floor_grey9c
+arch border_wall_nw1
+x 11
+y 10
+end
+arch water_lt
 x 11
 y 11
 end
-arch fstone1b
+arch border_wall_w1
+x 11
+y 11
+end
+arch water_lt4
+x 11
+y 12
+end
+arch border_wall_w1
 x 11
 y 12
 end
 arch fstone1b
+x 11
+y 13
+end
+arch border_top_n1
 x 11
 y 13
 end
@@ -1487,31 +1582,61 @@ arch fstone1a
 x 12
 y 8
 end
-arch water_still
+arch fstone1b
 x 12
 y 9
 end
-arch water_still
+arch border_top_s1
+x 12
+y 9
+end
+arch water_lt2
 x 12
 y 10
 end
-arch statue_fire_black1
+arch border_wall_n1
 x 12
 y 10
 end
-arch light9
-x 12
-y 10
-end
-arch water_still
+arch water_lt
 x 12
 y 11
 end
-arch floor_grey9c
+arch fwall_grit2b
+layer 4
+draw_double 0
+align 18
+z -12
+x 12
+y 11
+end
+arch fwall_grit2b
+z 12
+draw_double 0
+align 18
+x 12
+y 11
+end
+arch statue_fire_black1
+layer 7
+z 30
+align 18
+x 12
+y 11
+end
+arch light9
+x 12
+y 11
+end
+arch water_lt2
 x 12
 y 12
 end
 arch fstone1b
+x 12
+y 13
+end
+arch border_top_n1
 x 12
 y 13
 end
@@ -1583,6 +1708,7 @@ x 13
 y 5
 end
 arch door_wood1
+direction 7
 x 13
 y 5
 end
@@ -1598,23 +1724,35 @@ arch fstone1b
 x 13
 y 8
 end
-arch floor_grey9b
+arch fstone1a
 x 13
 y 9
 end
-arch water_still
+arch border_top_s1
+x 13
+y 9
+end
+arch water_lt2
 x 13
 y 10
 end
-arch floor_grey9a
+arch border_wall_n1
+x 13
+y 10
+end
+arch water_lt
 x 13
 y 11
 end
-arch floor_grey9d
+arch water_lt2
 x 13
 y 12
 end
 arch fstone1b
+x 13
+y 13
+end
+arch border_top_n1
 x 13
 y 13
 end
@@ -1716,19 +1854,31 @@ arch fstone1a
 x 14
 y 9
 end
-arch floor_grey9b
+arch border_top_s1
+x 14
+y 9
+end
+arch water_lt3
 x 14
 y 10
 end
-arch floor_grey9d
+arch border_wall_n1
+x 14
+y 10
+end
+arch water_lt
 x 14
 y 11
 end
-arch fstone1a
+arch water_lt3
 x 14
 y 12
 end
 arch fstone1b
+x 14
+y 13
+end
+arch border_top_n1
 x 14
 y 13
 end
@@ -1831,7 +1981,15 @@ arch fstone1b
 x 15
 y 9
 end
+arch border_top_sw1
+x 15
+y 9
+end
 arch fstone1b
+x 15
+y 10
+end
+arch border_top_w1
 x 15
 y 10
 end
@@ -1839,11 +1997,23 @@ arch fstone1b
 x 15
 y 11
 end
+arch border_top_w1
+x 15
+y 11
+end
 arch fstone1b
 x 15
 y 12
 end
+arch border_top_w1
+x 15
+y 12
+end
 arch fstone1b
+x 15
+y 13
+end
+arch border_top_nw1
 x 15
 y 13
 end
@@ -1958,6 +2128,31 @@ x 16
 y 8
 end
 arch fwall_grit2b
+layer 3
+draw_double 0
+x 16
+y 8
+end
+arch fwall_grit2b
+z 24
+draw_double 0
+layer 4
+x 16
+y 8
+end
+arch fwall_grit2b
+z 48
+draw_double 0
+x 16
+y 8
+end
+arch statue_fire_black1
+layer 7
+z 72
+x 16
+y 8
+end
+arch light5
 x 16
 y 8
 end
@@ -1994,6 +2189,31 @@ x 16
 y 14
 end
 arch fwall_grit2b
+layer 3
+draw_double 0
+x 16
+y 14
+end
+arch fwall_grit2b
+z 24
+draw_double 0
+layer 4
+x 16
+y 14
+end
+arch fwall_grit2b
+z 48
+draw_double 0
+x 16
+y 14
+end
+arch statue_fire_black1
+layer 7
+z 72
+x 16
+y 14
+end
+arch light5
 x 16
 y 14
 end

@@ -1,8 +1,8 @@
 arch map
-name Drow Outpost
+name Outpost of Dr'kass
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-03-30 Alex Tokar
+Modified: 2011-04-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,7 @@ tile_path_3 world_c_0331
 tile_path_4 world_c_0232
 tile_path_6 world_c_0431
 tile_path_7 world_c_0231
+bg_music unexpected.mid
 region strakewood_island
 end
 arch floor_cave6
@@ -477,11 +478,21 @@ arch floor_ostone8
 x 9
 y 19
 end
+arch shrine1.111
+direction 7
+x 9
+y 19
+end
 arch floor_ostone8
 x 9
 y 20
 end
 arch floor_ostone8
+x 9
+y 21
+end
+arch shrine1.111
+direction 7
 x 9
 y 21
 end
@@ -495,6 +506,11 @@ x 9
 y 22
 end
 arch floor_red1
+x 9
+y 23
+end
+arch shrine1.111
+direction 7
 x 9
 y 23
 end
@@ -628,6 +644,10 @@ x 12
 y 18
 end
 arch floor_ostone8
+x 12
+y 19
+end
+arch shrine1.111
 x 12
 y 19
 end

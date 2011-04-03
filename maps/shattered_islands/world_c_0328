@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-03-30 Alex Tokar
+Modified: 2011-04-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness 2
 tile_path_1 world_c_0329
 tile_path_4 world_c_0228
 tile_path_8 world_c_0229
+bg_music eranasp.mod
 region strakewood_island
 end
 arch floor_sand_d2
@@ -955,6 +956,10 @@ z 50
 x 10
 y 8
 end
+arch torch_wall_1
+x 10
+y 8
+end
 arch floor_sand_d3
 z 50
 x 10
@@ -1025,8 +1030,26 @@ z 50
 x 11
 y 8
 end
+arch magic_mouth
+msg
+The passage appears caved-in, but it might be possible to get through...
+endmsg
+direction 7
+splitting 1
+x 11
+y 8
+end
 arch floor_sand_d4
 z 50
+x 11
+y 9
+end
+arch magic_mouth
+msg
+The passage appears caved-in, but it might be possible to get through...
+endmsg
+direction 7
+splitting 1
 x 11
 y 9
 end
@@ -1035,8 +1058,26 @@ z 50
 x 11
 y 10
 end
+arch magic_mouth
+msg
+The passage appears caved-in, but it might be possible to get through...
+endmsg
+direction 7
+splitting 1
+x 11
+y 10
+end
 arch floor_sand_d3
 z 50
+x 11
+y 11
+end
+arch magic_mouth
+msg
+The passage appears caved-in, but it might be possible to get through...
+endmsg
+direction 7
+splitting 1
 x 11
 y 11
 end
@@ -1058,15 +1099,6 @@ arch fwall_rock3
 x 11
 y 13
 end
-arch floor_sand_d1
-z 50
-x 12
-y 6
-end
-arch fwall_rock3
-x 12
-y 6
-end
 arch floor_sand_d2
 z 50
 x 12
@@ -1076,14 +1108,17 @@ arch fwall_rock3
 x 12
 y 7
 end
-arch floor_sand_d1
+arch cave_deco_wall1
+draw_direction 0
+x 12
+y 7
+end
+arch floor_sand_d3
 z 50
 x 12
 y 8
 end
-arch cave_deco_f3.101
-blocksview 1
-no_pass 1
+arch cave_deco3
 x 12
 y 8
 end
@@ -1092,25 +1127,23 @@ z 50
 x 12
 y 9
 end
-arch floor_sand_d2
+arch cave_deco_f4.101
+x 12
+y 9
+end
+arch floor_sand_d3
 z 50
 x 12
 y 10
 end
+arch floor_sand_d2
+z 50
+x 12
+y 11
+end
 arch floor_sand_d1
 z 50
 x 12
-y 11
-end
-arch cave_deco_f3.101
-blocksview 1
-no_pass 1
-x 12
-y 11
-end
-arch floor_sand_d3
-z 50
-x 12
 y 12
 end
 arch fwall_rock3
@@ -1131,21 +1164,43 @@ z 50
 x 13
 y 7
 end
-arch cave_deco_f1.101
-blocksview 1
-no_pass 1
+arch fwall_rock3
+layer 4
+x 13
+y 7
+end
+arch cave_deco_wall1
+layer 5
+draw_direction 0
+x 13
+y 7
+end
+arch cave_deco_wall3
+direction 7
+draw_direction 0
 x 13
 y 7
 end
 arch floor_sand_d3
 z 50
+x 13
+y 8
+end
+arch cave_deco3
+x 13
+y 8
+end
+arch cave_deco_f6.101
 x 13
 y 8
 end
 arch invis_exit
+msg
+You manage to squeeze through the blocked passage.
+endmsg
 slaying world_b_0328
-hp 20
-sp 6
+hp 18
+sp 7
 x 13
 y 8
 end
@@ -1155,179 +1210,273 @@ x 13
 y 9
 end
 arch cave_deco_f2.101
-blocksview 1
-no_pass 1
 x 13
 y 9
-end
-arch floor_sand_d3
-z 50
-x 13
-y 10
 end
 arch invis_exit
+msg
+You manage to squeeze through the blocked passage.
+endmsg
 slaying world_b_0328
-hp 20
-sp 6
+hp 18
+sp 8
 x 13
-y 10
-end
-arch floor_sand_d2
-z 50
-x 13
-y 11
-end
-arch invis_exit
-slaying world_b_0328
-hp 20
-sp 6
-x 13
-y 11
-end
-arch floor_sand_d1
-z 50
-x 13
-y 12
-end
-arch fwall_rock3
-x 13
-y 12
-end
-arch floor_sand_d1
-z 50
-x 14
-y 6
-end
-arch fwall_rock3
-x 14
-y 6
-end
-arch floor_sand_d3
-z 50
-x 14
-y 7
-end
-arch cave_deco_f7.101
-blocksview 1
-no_pass 1
-x 14
-y 7
-end
-arch floor_sand_d4
-z 50
-x 14
-y 8
-end
-arch cave_deco_f7.101
-blocksview 1
-no_pass 1
-x 14
-y 8
-end
-arch floor_sand_d2
-z 50
-x 14
 y 9
 end
-arch cave_deco_f3.101
-blocksview 1
-no_pass 1
-x 14
-y 9
-end
-arch floor_sand_d2
-z 50
-x 14
-y 10
-end
-arch cave_deco_f1.101
-blocksview 1
-no_pass 1
-x 14
-y 10
-end
-arch floor_sand_d1
-z 50
-x 14
-y 11
-end
 arch floor_sand_d4
 z 50
-x 14
-y 12
-end
-arch fwall_rock3
-x 14
-y 12
-end
-arch floor_sand_d3
-z 50
-x 15
-y 6
-end
-arch fwall_rock3
-x 15
-y 6
-end
-arch floor_sand_d4
-z 50
-x 15
-y 7
-end
-arch cave_deco_f5.101
-blocksview 1
-no_pass 1
-x 15
-y 7
-end
-arch floor_sand_d3
-z 50
-x 15
-y 8
+x 13
+y 10
 end
 arch cave_deco_f4.101
-blocksview 1
-no_pass 1
-x 15
-y 8
+x 13
+y 10
+end
+arch invis_exit
+msg
+You manage to squeeze through the blocked passage.
+endmsg
+slaying world_b_0328
+hp 18
+sp 9
+x 13
+y 10
 end
 arch floor_sand_d2
 z 50
-x 15
-y 9
-end
-arch cave_deco_f3.101
-blocksview 1
-no_pass 1
-x 15
-y 9
-end
-arch floor_sand_d4
-z 50
-x 15
-y 10
-end
-arch cave_deco_f7.101
-blocksview 1
-no_pass 1
-x 15
-y 10
-end
-arch floor_sand_d4
-z 50
-x 15
+x 13
 y 11
 end
 arch fwall_rock3
-x 15
+x 13
+y 11
+end
+arch floor_sand_d3
+z 50
+x 13
+y 12
+end
+arch fwall_rock3
+x 13
+y 12
+end
+arch floor_sand_d2
+z 50
+x 14
+y 6
+end
+arch fwall_rock3
+x 14
+y 6
+end
+arch cave_deco_wall1
+draw_direction 0
+x 14
+y 6
+end
+arch floor_sand_d4
+z 50
+x 14
+y 7
+end
+arch cave_deco
+x 14
+y 7
+end
+arch rock6
+x 14
+y 7
+end
+arch floor_sand_d1
+z 50
+x 14
+y 8
+end
+arch rock5
+x 14
+y 8
+end
+arch floor_sand_d4
+z 50
+x 14
+y 9
+end
+arch rock6
+x 14
+y 9
+end
+arch floor_sand_d4
+z 50
+x 14
+y 10
+end
+arch cave_deco_f3.101
+x 14
+y 10
+end
+arch floor_sand_d4
+z 50
+x 14
+y 11
+end
+arch fwall_rock3
+x 14
 y 11
 end
 arch floor_sand_d3
 z 50
 x 15
-y 12
+y 6
 end
 arch fwall_rock3
 x 15
-y 12
+y 6
+end
+arch cave_deco_wall5
+draw_direction 0
+x 15
+y 6
+end
+arch floor_sand_d2
+z 50
+x 15
+y 7
+end
+arch cave_deco1
+x 15
+y 7
+end
+arch rock6
+x 15
+y 7
+end
+arch floor_sand_d4
+z 50
+x 15
+y 8
+end
+arch rock6
+x 15
+y 8
+end
+arch floor_sand_d3
+z 50
+x 15
+y 9
+end
+arch rock5
+x 15
+y 9
+end
+arch floor_sand_d2
+z 50
+x 15
+y 10
+end
+arch cave_deco_f3.101
+x 15
+y 10
+end
+arch floor_sand_d3
+z 50
+x 15
+y 11
+end
+arch fwall_rock3
+x 15
+y 11
+end
+arch floor_sand_d1
+z 50
+x 16
+y 6
+end
+arch fwall_rock3
+layer 4
+x 16
+y 6
+end
+arch cave_deco_wall3
+layer 5
+draw_direction 0
+x 16
+y 6
+end
+arch cave_deco_wall2
+draw_direction 0
+x 16
+y 6
+end
+arch floor_sand_d3
+z 50
+x 16
+y 7
+end
+arch cave_deco1
+x 16
+y 7
+end
+arch rock5
+x 16
+y 7
+end
+arch floor_sand_d4
+z 50
+x 16
+y 8
+end
+arch cave_deco_f2.101
+x 16
+y 8
+end
+arch floor_sand_d2
+z 50
+x 16
+y 9
+end
+arch cave_deco_f3.101
+x 16
+y 9
+end
+arch floor_sand_d3
+z 50
+x 16
+y 10
+end
+arch cave_deco_f3.101
+x 16
+y 10
+end
+arch floor_sand_d4
+z 50
+x 16
+y 11
+end
+arch fwall_rock3
+x 16
+y 11
+end
+arch blocked
+x 17
+y 6
+end
+arch blocked
+x 17
+y 7
+end
+arch blocked
+x 17
+y 8
+end
+arch blocked
+x 17
+y 9
+end
+arch blocked
+x 17
+y 10
+end
+arch blocked
+x 17
+y 11
 end
