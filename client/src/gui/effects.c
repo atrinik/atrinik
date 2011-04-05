@@ -200,6 +200,10 @@ void effects_init()
 			{
 				sprite_def->warp_sides = atoi(buf + 11);
 			}
+			else if (!strncmp(buf, "ttl ", 4))
+			{
+				sprite_def->ttl = atoi(buf + 4);
+			}
 		}
 		else if (!strcmp(buf, "overlay"))
 		{
@@ -313,6 +317,7 @@ void effects_init()
 				sprite_def->kill_side_right = 0;
 				sprite_def->zoom = 0;
 				sprite_def->warp_sides = 1;
+				sprite_def->ttl = 0;
 			}
 		}
 		/* Start of effect block. */
@@ -518,6 +523,7 @@ void effect_sprites_play()
 	effect_sprite *tmp, *next;
 	int num_sprites = 0;
 	int x_check, y_check;
+	uint32 ticks;
 
 	/* No current effect or not playing, quit. */
 	if (!current_effect || GameStatus != GAME_STATUS_PLAY)
@@ -525,12 +531,21 @@ void effect_sprites_play()
 		return;
 	}
 
+	ticks = SDL_GetTicks();
+
 	for (tmp = current_effect->sprites; tmp; tmp = next)
 	{
 		next = tmp->next;
 
 		if (!FaceList[tmp->def->id].sprite)
 		{
+			continue;
+		}
+
+		/* Check if the sprite should be removed due to ttl being up. */
+		if (tmp->def->ttl && ticks - tmp->created_tick > tmp->def->ttl)
+		{
+			effect_sprite_remove(tmp);
 			continue;
 		}
 
@@ -572,7 +587,7 @@ void effect_sprites_play()
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
-		if (!tmp->def->delay || !tmp->delay_ticks || SDL_GetTicks() - tmp->delay_ticks > tmp->def->delay)
+		if (!tmp->def->delay || !tmp->delay_ticks || ticks - tmp->delay_ticks > tmp->def->delay)
 		{
 			int ypos = tmp->def->weight * tmp->def->weight_mod;
 
@@ -590,7 +605,7 @@ void effect_sprites_play()
 				tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * ((-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wind_mod));
 			}
 
-			tmp->delay_ticks = SDL_GetTicks();
+			tmp->delay_ticks = ticks;
 			map_redraw_flag = 1;
 		}
 	}
@@ -610,7 +625,7 @@ void effect_sprites_play()
 		current_effect->wind = 1.0 * current_effect->wind_mod;
 	}
 
-	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || SDL_GetTicks() - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
+	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || ticks - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
 	{
 		int i;
 		effect_sprite *sprite;
@@ -656,10 +671,12 @@ void effect_sprites_play()
 
 			sprite->x += sprite->def->xpos;
 			sprite->y += sprite->def->ypos;
+
+			sprite->created_tick = ticks;
 			map_redraw_flag = 1;
 		}
 
-		current_effect->delay_ticks = SDL_GetTicks();
+		current_effect->delay_ticks = ticks;
 	}
 }
 

@@ -120,6 +120,9 @@ typedef struct effect_sprite
 	/** Last time the sprite was moved, in ticks. */
 	uint32 delay_ticks;
 
+	/** When the sprite was created. */
+	uint32 created_tick;
+
 	/** Settings of this sprite. */
 	struct effect_sprite_def *def;
 } effect_sprite;
@@ -220,6 +223,9 @@ typedef struct effect_sprite_def
 	/**
 	 * Warp sprites going too far to the sides (off screen), 1 by default. */
 	uint8 warp_sides;
+
+	/** Time to live (in ticks). */
+	uint32 ttl;
 } effect_sprite_def;
 
 /** One single color in the overlay configuration. */
