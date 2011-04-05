@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-12-10 Alex Tokar
+Modified: 2011-04-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,10 +19,16 @@ tile_path_7 world_1473
 tile_path_8 world_1475
 bg_music campfire_tales.mid
 region morliana
+weather snow_light
 end
 arch floor_ostone12
 end
 arch table_lab2.111
+end
+arch map_info
+hp 4
+sp 8
+title none
 end
 arch floor_ostone12
 y 1
