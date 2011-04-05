@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-04-02 Alex Tokar
+Modified: 2011-04-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3313,6 +3313,19 @@ arch floor_stone_b4
 x 20
 y 21
 end
+arch sign
+msg
+Heavy thunderstorm.
+endmsg
+name thunderstorm_heavy
+x 20
+y 21
+end
+arch map_info
+title thunderstorm_heavy
+x 20
+y 21
+end
 arch floor_stone_b3
 x 20
 y 22
@@ -3537,6 +3550,19 @@ x 21
 y 20
 end
 arch floor_stone_b4
+x 21
+y 21
+end
+arch sign
+msg
+Light thunderstorm.
+endmsg
+name thunderstorm_light
+x 21
+y 21
+end
+arch map_info
+title thunderstorm_light
 x 21
 y 21
 end

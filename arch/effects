@@ -229,3 +229,164 @@ b_rndm_min 20
 b_rndm_max 30
 end
 end
+
+effect thunderstorm_light
+sprite rain_particle_middle.101
+weight 2
+chance 500
+wiggle 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 250
+wiggle 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 250
+wiggle 0
+end
+sprite lightning_bolt.101
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt.102
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt2.101
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt2.102
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt3.101
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt3.102
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+wind_blow_dir 0
+sprites_per_move 2
+delay 40
+end
+
+effect thunderstorm_heavy
+sprite rain_particle_middle.101
+weight 2
+chance 2000
+wiggle 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 800
+wiggle 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 800
+wiggle 0
+end
+sprite lightning_bolt.101
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt.102
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt.103
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt2.101
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt2.102
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt2.103
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt3.101
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt3.102
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+sprite lightning_bolt3.103
+wiggle 0
+y 10
+ttl 240
+weight 0
+end
+wind_blow_dir 0
+sprites_per_move 10
+delay 40
+end
+
+effect poison_fume
+sprite poison_fume.101
+weight 1
+wiggle 0
+reverse 1
+delay 30
+end
+sprite poison_fume5.101
+weight 1
+wiggle 0
+reverse 1
+delay 30
+end
+sprite poison_fume6.101
+weight 1
+wiggle 0
+reverse 1
+delay 30
+end
+wind_blow_dir 0
+delay 1000
+end
