@@ -2,13 +2,14 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-30 Alex Tokar
+Modified: 2011-04-06 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 95
 darkness 1
 tile_path_4 underground_city_c_0708
+tile_path_7 underground_city_c_0707
 bg_music thonkdonk.ogg
 region underground_city
 end
@@ -201,6 +202,10 @@ arch floor_sand_d1
 x 4
 y 8
 end
+arch border_abyss_nw1
+x 4
+y 8
+end
 arch fwall_rock1
 x 4
 y 8
@@ -209,11 +214,19 @@ arch floor_sand_d2
 x 4
 y 9
 end
+arch border_abyss_w1
+x 4
+y 9
+end
 arch fwall_rock3
 x 4
 y 9
 end
 arch floor_sand_d3
+x 4
+y 10
+end
+arch border_abyss_w1
 x 4
 y 10
 end
@@ -229,7 +242,15 @@ arch floor_sand_d2
 x 4
 y 11
 end
+arch border_abyss_w1
+x 4
+y 11
+end
 arch floor_sand_d2
+x 4
+y 12
+end
+arch border_abyss_sw1
 x 4
 y 12
 end
@@ -242,7 +263,7 @@ x 4
 y 13
 arch oclunus
 level 108
-exp 128
+exp 148
 dam 75
 maxhp 85
 Con 10
@@ -254,10 +275,6 @@ Pow 0
 Dex 2
 Wis 3
 run_away 0
-protect_impact 20
-protect_slash 20
-protect_cleave 20
-protect_pierce 20
 protect_weaponmagic 10
 protect_fire 10
 protect_cold 10
@@ -335,6 +352,10 @@ arch floor_sand_d3
 x 5
 y 8
 end
+arch border_abyss_n1
+x 5
+y 8
+end
 arch mushroom_spot2
 x 5
 y 8
@@ -350,7 +371,7 @@ no_pass 0
 x 5
 y 9
 end
-arch sand_dm14
+arch abyss_nw1
 x 5
 y 9
 end
@@ -371,7 +392,7 @@ no_pass 0
 x 5
 y 10
 end
-arch sand_dm8
+arch abyss_w1
 x 5
 y 10
 end
@@ -392,7 +413,7 @@ no_pass 0
 x 5
 y 11
 end
-arch sand_dm13
+arch abyss_w1
 x 5
 y 11
 end
@@ -407,6 +428,10 @@ x 5
 y 11
 end
 arch floor_sand_d3
+x 5
+y 12
+end
+arch border_abyss_s1
 x 5
 y 12
 end
@@ -462,11 +487,19 @@ arch floor_sand_d4
 x 6
 y 3
 end
+arch border_abyss_nw1
+x 6
+y 3
+end
 arch fwall_rock1
 x 6
 y 3
 end
 arch floor_sand_d3
+x 6
+y 4
+end
+arch border_abyss_w1
 x 6
 y 4
 end
@@ -478,11 +511,19 @@ arch floor_sand_d3
 x 6
 y 5
 end
+arch border_abyss_w1
+x 6
+y 5
+end
 arch fwall_rock2
 x 6
 y 5
 end
 arch floor_sand_d4
+x 6
+y 6
+end
+arch border_abyss_sw1
 x 6
 y 6
 end
@@ -502,6 +543,10 @@ arch floor_sand_d1
 x 6
 y 8
 end
+arch border_abyss_n1
+x 6
+y 8
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -509,7 +554,7 @@ no_pass 0
 x 6
 y 9
 end
-arch sand_dm15
+arch abyss_n1
 x 6
 y 9
 end
@@ -530,10 +575,6 @@ no_pass 0
 x 6
 y 10
 end
-arch sand_dm9
-x 6
-y 10
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -551,15 +592,21 @@ no_pass 0
 x 6
 y 11
 end
-arch sand_dm16
-x 6
-y 11
-end
-arch cave_pillar5
+arch damager
+name falling into the abyss
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 6
 y 11
 end
 arch floor_sand_d2
+x 6
+y 12
+end
+arch border_abyss_s1
 x 6
 y 12
 end
@@ -643,6 +690,10 @@ arch floor_sand_d1
 x 7
 y 3
 end
+arch border_abyss_n1
+x 7
+y 3
+end
 arch fwall_rock1
 x 7
 y 3
@@ -654,7 +705,7 @@ no_pass 0
 x 7
 y 4
 end
-arch sand_dm14
+arch abyss_nw1
 x 7
 y 4
 end
@@ -675,7 +726,7 @@ no_pass 0
 x 7
 y 5
 end
-arch sand_dm13
+arch abyss_w1
 x 7
 y 5
 end
@@ -693,6 +744,10 @@ arch floor_sand_d2
 x 7
 y 6
 end
+arch border_abyss_s1
+x 7
+y 6
+end
 arch floor_sand_d3
 x 7
 y 7
@@ -701,12 +756,16 @@ arch floor_sand_d4
 x 7
 y 8
 end
+arch border_abyss_ne1
+x 7
+y 8
+end
 arch spawn_point
 x 7
 y 8
 arch oclunus
 level 109
-exp 136
+exp 146
 attack_weaponmagic 10
 maxsp 30
 Pow 10
@@ -738,7 +797,15 @@ arch floor_sand_d2
 x 7
 y 9
 end
+arch border_abyss_e1
+x 7
+y 9
+end
 arch floor_sand_d3
+x 7
+y 10
+end
+arch border_abyss_e1
 x 7
 y 10
 end
@@ -746,7 +813,15 @@ arch floor_sand_d4
 x 7
 y 11
 end
+arch border_abyss_e1
+x 7
+y 11
+end
 arch floor_sand_d4
+x 7
+y 12
+end
+arch border_abyss_se1
 x 7
 y 12
 end
@@ -836,6 +911,10 @@ arch floor_sand_d4
 x 8
 y 3
 end
+arch border_abyss_n1
+x 8
+y 3
+end
 arch crystal10
 x 8
 y 3
@@ -851,7 +930,7 @@ no_pass 0
 x 8
 y 4
 end
-arch sand_dm15
+arch abyss_n1
 x 8
 y 4
 end
@@ -872,10 +951,6 @@ no_pass 0
 x 8
 y 5
 end
-arch sand_dm16
-x 8
-y 5
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -887,6 +962,10 @@ x 8
 y 5
 end
 arch floor_sand_d1
+x 8
+y 6
+end
+arch border_abyss_s1
 x 8
 y 6
 end
@@ -911,6 +990,14 @@ x 8
 y 10
 end
 arch floor_sand_d1
+x 8
+y 11
+end
+arch mushroom_medium
+x 8
+y 11
+end
+arch light4
 x 8
 y 11
 end
@@ -959,7 +1046,7 @@ x 8
 y 18
 arch oclunus
 level 108
-exp 142
+exp 152
 attack_weaponmagic 10
 maxsp 30
 Pow 10
@@ -1049,7 +1136,7 @@ arch floor_sand_d1
 x 9
 y 3
 end
-arch dirt_floor2
+arch border_abyss_ne1
 x 9
 y 3
 end
@@ -1057,11 +1144,23 @@ arch floor_sand_d2
 x 9
 y 4
 end
+arch border_abyss_e1
+x 9
+y 4
+end
 arch floor_sand_d2
 x 9
 y 5
 end
+arch border_abyss_e1
+x 9
+y 5
+end
 arch floor_sand_d4
+x 9
+y 6
+end
+arch border_abyss_se1
 x 9
 y 6
 end
@@ -1077,7 +1176,15 @@ arch floor_sand_d2
 x 9
 y 7
 end
+arch border_abyss_nw1
+x 9
+y 7
+end
 arch floor_sand_d1
+x 9
+y 8
+end
+arch border_abyss_w1
 x 9
 y 8
 end
@@ -1085,7 +1192,15 @@ arch floor_sand_d2
 x 9
 y 9
 end
+arch border_abyss_w1
+x 9
+y 9
+end
 arch floor_sand_d3
+x 9
+y 10
+end
+arch border_abyss_w1
 x 9
 y 10
 end
@@ -1093,7 +1208,15 @@ arch floor_sand_d1
 x 9
 y 11
 end
+arch border_abyss_w1
+x 9
+y 11
+end
 arch floor_sand_d3
+x 9
+y 12
+end
+arch border_abyss_w1
 x 9
 y 12
 end
@@ -1101,7 +1224,15 @@ arch floor_sand_d2
 x 9
 y 13
 end
+arch border_abyss_w1
+x 9
+y 13
+end
 arch floor_sand_d2
+x 9
+y 14
+end
+arch border_abyss_w1
 x 9
 y 14
 end
@@ -1109,15 +1240,19 @@ arch floor_sand_d4
 x 9
 y 15
 end
+arch border_abyss_w1
+x 9
+y 15
+end
 arch floor_sand_d3
 x 9
 y 16
 end
-arch floor_sand_d3
+arch border_abyss_sw1
 x 9
-y 17
+y 16
 end
-arch light4
+arch floor_sand_d3
 x 9
 y 17
 end
@@ -1129,11 +1264,15 @@ arch floor_sand_d2
 x 9
 y 19
 end
+arch border_abyss_nw1
+x 9
+y 19
+end
 arch floor_sand_d1
 x 9
 y 20
 end
-arch cave_pillar5
+arch border_abyss_w1
 x 9
 y 20
 end
@@ -1141,7 +1280,15 @@ arch floor_sand_d2
 x 9
 y 21
 end
+arch border_abyss_w1
+x 9
+y 21
+end
 arch floor_sand_d2
+x 9
+y 22
+end
+arch border_abyss_sw1
 x 9
 y 22
 end
@@ -1176,7 +1323,7 @@ x 10
 y 3
 arch oclunus
 level 109
-exp 152
+exp 157
 attack_weaponmagic 10
 maxsp 30
 Pow 10
@@ -1220,6 +1367,10 @@ arch floor_sand_d1
 x 10
 y 7
 end
+arch border_abyss_n1
+x 10
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1227,7 +1378,7 @@ no_pass 0
 x 10
 y 8
 end
-arch sand_dm14
+arch abyss_nw1
 x 10
 y 8
 end
@@ -1248,7 +1399,7 @@ no_pass 0
 x 10
 y 9
 end
-arch sand_dm8
+arch abyss_w1
 x 10
 y 9
 end
@@ -1269,7 +1420,7 @@ no_pass 0
 x 10
 y 10
 end
-arch sand_dm8
+arch abyss_w1
 x 10
 y 10
 end
@@ -1290,7 +1441,7 @@ no_pass 0
 x 10
 y 11
 end
-arch sand_dm8
+arch abyss_w1
 x 10
 y 11
 end
@@ -1311,7 +1462,7 @@ no_pass 0
 x 10
 y 12
 end
-arch sand_dm8
+arch abyss_w1
 x 10
 y 12
 end
@@ -1332,7 +1483,7 @@ no_pass 0
 x 10
 y 13
 end
-arch sand_dm8
+arch abyss_w1
 x 10
 y 13
 end
@@ -1353,7 +1504,7 @@ no_pass 0
 x 10
 y 14
 end
-arch sand_dm8
+arch abyss_w1
 x 10
 y 14
 end
@@ -1374,7 +1525,7 @@ no_pass 0
 x 10
 y 15
 end
-arch sand_dm13
+arch abyss_w1
 x 10
 y 15
 end
@@ -1392,11 +1543,19 @@ arch floor_sand_d4
 x 10
 y 16
 end
+arch border_abyss_s1
+x 10
+y 16
+end
 arch floor_sand_d1
 x 10
 y 17
 end
 arch mushroom_medium
+x 10
+y 17
+end
+arch light4
 x 10
 y 17
 end
@@ -1408,6 +1567,10 @@ arch floor_sand_d4
 x 10
 y 19
 end
+arch border_abyss_n1
+x 10
+y 19
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1415,7 +1578,7 @@ no_pass 0
 x 10
 y 20
 end
-arch sand_dm14
+arch abyss_nw1
 x 10
 y 20
 end
@@ -1436,7 +1599,7 @@ no_pass 0
 x 10
 y 21
 end
-arch sand_dm13
+arch abyss_w1
 x 10
 y 21
 end
@@ -1451,6 +1614,10 @@ x 10
 y 21
 end
 arch floor_sand_d1
+x 10
+y 22
+end
+arch border_abyss_s1
 x 10
 y 22
 end
@@ -1504,6 +1671,10 @@ arch floor_sand_d4
 x 11
 y 7
 end
+arch border_abyss_n1
+x 11
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1511,7 +1682,7 @@ no_pass 0
 x 11
 y 8
 end
-arch sand_dm6
+arch abyss_n1
 x 11
 y 8
 end
@@ -1532,10 +1703,6 @@ no_pass 0
 x 11
 y 9
 end
-arch sand_dm1
-x 11
-y 9
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1553,10 +1720,6 @@ no_pass 0
 x 11
 y 10
 end
-arch sand_dm5
-x 11
-y 10
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1574,10 +1737,6 @@ no_pass 0
 x 11
 y 11
 end
-arch sand_dm5
-x 11
-y 11
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1595,10 +1754,6 @@ no_pass 0
 x 11
 y 12
 end
-arch sand_dm5
-x 11
-y 12
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1616,10 +1771,6 @@ no_pass 0
 x 11
 y 13
 end
-arch sand_dm5
-x 11
-y 13
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1637,10 +1788,6 @@ no_pass 0
 x 11
 y 14
 end
-arch sand_dm2
-x 11
-y 14
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1655,10 +1802,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 11
-y 15
-end
-arch sand_dm7
 x 11
 y 15
 end
@@ -1673,6 +1816,10 @@ x 11
 y 15
 end
 arch floor_sand_d4
+x 11
+y 16
+end
+arch border_abyss_s1
 x 11
 y 16
 end
@@ -1692,6 +1839,10 @@ arch floor_sand_d1
 x 11
 y 19
 end
+arch border_abyss_n1
+x 11
+y 19
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1699,7 +1850,7 @@ no_pass 0
 x 11
 y 20
 end
-arch sand_dm6
+arch abyss_n1
 x 11
 y 20
 end
@@ -1717,10 +1868,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 11
-y 21
-end
-arch sand_dm7
 x 11
 y 21
 end
@@ -1735,6 +1882,10 @@ x 11
 y 21
 end
 arch floor_sand_d4
+x 11
+y 22
+end
+arch border_abyss_s1
 x 11
 y 22
 end
@@ -1772,10 +1923,6 @@ arch floor_sand_d2
 x 12
 y 4
 end
-arch cave_pillar3
-x 12
-y 4
-end
 arch floor_sand_d4
 x 12
 y 5
@@ -1788,6 +1935,10 @@ arch floor_sand_d4
 x 12
 y 7
 end
+arch border_abyss_n1
+x 12
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1795,7 +1946,7 @@ no_pass 0
 x 12
 y 8
 end
-arch sand_dm6
+arch abyss_n1
 x 12
 y 8
 end
@@ -1813,10 +1964,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 12
-y 9
-end
-arch sand_dm7
 x 12
 y 9
 end
@@ -1834,11 +1981,19 @@ arch floor_sand_d4
 x 12
 y 10
 end
+arch border_abyss_se2
+x 12
+y 10
+end
 arch cave_pillar5
 x 12
 y 10
 end
 arch floor_sand_d2
+x 12
+y 11
+end
+arch border_abyss_e1
 x 12
 y 11
 end
@@ -1854,6 +2009,10 @@ arch floor_sand_d2
 x 12
 y 12
 end
+arch border_abyss_e1
+x 12
+y 12
+end
 arch mushroom_spot2
 x 12
 y 12
@@ -1863,6 +2022,10 @@ x 12
 y 12
 end
 arch floor_sand_d1
+x 12
+y 13
+end
+arch border_abyss_ne2
 x 12
 y 13
 end
@@ -1877,7 +2040,7 @@ no_pass 0
 x 12
 y 14
 end
-arch sand_dm6
+arch abyss_n2
 x 12
 y 14
 end
@@ -1895,10 +2058,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 12
-y 15
-end
-arch sand_dm7
 x 12
 y 15
 end
@@ -1916,6 +2075,10 @@ arch floor_sand_d4
 x 12
 y 16
 end
+arch border_abyss_s1
+x 12
+y 16
+end
 arch floor_sand_d4
 x 12
 y 17
@@ -1928,6 +2091,10 @@ arch floor_sand_d4
 x 12
 y 19
 end
+arch border_abyss_n1
+x 12
+y 19
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1935,7 +2102,7 @@ no_pass 0
 x 12
 y 20
 end
-arch sand_dm15
+arch abyss_n1
 x 12
 y 20
 end
@@ -1953,10 +2120,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 12
-y 21
-end
-arch sand_dm16
 x 12
 y 21
 end
@@ -1971,6 +2134,10 @@ x 12
 y 21
 end
 arch floor_sand_d4
+x 12
+y 22
+end
+arch border_abyss_s1
 x 12
 y 22
 end
@@ -2030,6 +2197,10 @@ arch floor_sand_d2
 x 13
 y 7
 end
+arch border_abyss_n1
+x 13
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -2037,7 +2208,7 @@ no_pass 0
 x 13
 y 8
 end
-arch sand_dm6
+arch abyss_n1
 x 13
 y 8
 end
@@ -2055,10 +2226,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 13
-y 9
-end
-arch sand_dm7
 x 13
 y 9
 end
@@ -2073,6 +2240,10 @@ x 13
 y 9
 end
 arch floor_sand_d4
+x 13
+y 10
+end
+arch border_abyss_s1
 x 13
 y 10
 end
@@ -2093,7 +2264,7 @@ x 13
 y 11
 arch oclunus
 level 110
-exp 142
+exp 172
 speed -0.1
 dam 70
 maxhp 90
@@ -2137,6 +2308,18 @@ arch floor_sand_d2
 x 13
 y 13
 end
+arch border_abyss_n1
+x 13
+y 13
+end
+arch mushroom_spot2
+x 13
+y 13
+end
+arch light4
+x 13
+y 13
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -2144,7 +2327,7 @@ no_pass 0
 x 13
 y 14
 end
-arch sand_dm6
+arch abyss_n1
 x 13
 y 14
 end
@@ -2162,10 +2345,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 13
-y 15
-end
-arch sand_dm7
 x 13
 y 15
 end
@@ -2183,6 +2362,10 @@ arch floor_sand_d1
 x 13
 y 16
 end
+arch border_abyss_s1
+x 13
+y 16
+end
 arch floor_sand_d1
 x 13
 y 17
@@ -2195,7 +2378,7 @@ arch floor_sand_d2
 x 13
 y 19
 end
-arch dirt_floor1
+arch border_abyss_ne1
 x 13
 y 19
 end
@@ -2203,11 +2386,23 @@ arch floor_sand_d3
 x 13
 y 20
 end
+arch border_abyss_e1
+x 13
+y 20
+end
 arch floor_sand_d1
 x 13
 y 21
 end
+arch border_abyss_e1
+x 13
+y 21
+end
 arch floor_sand_d1
+x 13
+y 22
+end
+arch border_abyss_se1
 x 13
 y 22
 end
@@ -2255,7 +2450,19 @@ arch floor_sand_d1
 x 14
 y 6
 end
+arch mushroom_medium
+x 14
+y 6
+end
+arch light4
+x 14
+y 6
+end
 arch floor_sand_d2
+x 14
+y 7
+end
+arch border_abyss_n1
 x 14
 y 7
 end
@@ -2266,7 +2473,7 @@ no_pass 0
 x 14
 y 8
 end
-arch sand_dm6
+arch abyss_n1
 x 14
 y 8
 end
@@ -2287,10 +2494,6 @@ no_pass 0
 x 14
 y 9
 end
-arch sand_dm7
-x 14
-y 9
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -2302,6 +2505,10 @@ x 14
 y 9
 end
 arch floor_sand_d2
+x 14
+y 10
+end
+arch border_abyss_s1
 x 14
 y 10
 end
@@ -2325,6 +2532,18 @@ arch floor_sand_d1
 x 14
 y 13
 end
+arch border_abyss_n1
+x 14
+y 13
+end
+arch mushroom_spot1
+x 14
+y 13
+end
+arch light4
+x 14
+y 13
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -2332,7 +2551,7 @@ no_pass 0
 x 14
 y 14
 end
-arch sand_dm6
+arch abyss_n1
 x 14
 y 14
 end
@@ -2350,10 +2569,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 14
-y 15
-end
-arch sand_dm7
 x 14
 y 15
 end
@@ -2368,6 +2583,10 @@ x 14
 y 15
 end
 arch floor_sand_d2
+x 14
+y 16
+end
+arch border_abyss_s1
 x 14
 y 16
 end
@@ -2388,7 +2607,7 @@ x 14
 y 19
 arch oclunus
 level 109
-exp 152
+exp 162
 attack_weaponmagic 10
 maxsp 30
 Pow 10
@@ -2477,7 +2696,7 @@ x 15
 y 5
 arch oclunus
 level 109
-exp 142
+exp 152
 attack_weaponmagic 10
 maxsp 30
 Pow 10
@@ -2513,6 +2732,10 @@ arch floor_sand_d4
 x 15
 y 7
 end
+arch border_abyss_n1
+x 15
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -2520,7 +2743,7 @@ no_pass 0
 x 15
 y 8
 end
-arch sand_dm6
+arch abyss_n1
 x 15
 y 8
 end
@@ -2538,10 +2761,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 15
-y 9
-end
-arch sand_dm7
 x 15
 y 9
 end
@@ -2556,6 +2775,10 @@ x 15
 y 9
 end
 arch floor_sand_d3
+x 15
+y 10
+end
+arch border_abyss_sw2
 x 15
 y 10
 end
@@ -2567,7 +2790,7 @@ arch floor_sand_d2
 x 15
 y 11
 end
-arch bridge_wood_EW.181
+arch border_abyss_sw1
 x 15
 y 11
 end
@@ -2575,7 +2798,7 @@ arch floor_sand_d1
 x 15
 y 12
 end
-arch bridge_wood_EW.171
+arch border_abyss_nw1
 x 15
 y 12
 end
@@ -2583,7 +2806,15 @@ arch floor_sand_d3
 x 15
 y 13
 end
-arch bridge_wood_EW.161
+arch border_abyss_nw2
+x 15
+y 13
+end
+arch mushroom_spot1
+x 15
+y 13
+end
+arch light4
 x 15
 y 13
 end
@@ -2594,7 +2825,7 @@ no_pass 0
 x 15
 y 14
 end
-arch sand_dm6
+arch abyss_n1
 x 15
 y 14
 end
@@ -2612,10 +2843,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 15
-y 15
-end
-arch sand_dm7
 x 15
 y 15
 end
@@ -2630,6 +2857,18 @@ x 15
 y 15
 end
 arch floor_sand_d4
+x 15
+y 16
+end
+arch border_abyss_s1
+x 15
+y 16
+end
+arch mushroom_medium
+x 15
+y 16
+end
+arch light4
 x 15
 y 16
 end
@@ -2701,6 +2940,10 @@ arch floor_sand_d2
 x 16
 y 7
 end
+arch border_abyss_n1
+x 16
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -2708,7 +2951,7 @@ no_pass 0
 x 16
 y 8
 end
-arch sand_dm6
+arch abyss_n1
 x 16
 y 8
 end
@@ -2729,10 +2972,6 @@ no_pass 0
 x 16
 y 9
 end
-arch sand_dm4
-x 16
-y 9
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -2750,7 +2989,7 @@ no_pass 0
 x 16
 y 10
 end
-arch sand_dm8
+arch abyss_w2
 x 16
 y 10
 end
@@ -2764,11 +3003,19 @@ exp 2
 x 16
 y 10
 end
-arch bridge_wood_EW.111
+arch floor_sand_d3
 x 16
 y 11
 end
-arch bridge_wood_EW.101
+arch border_abyss_s1
+x 16
+y 11
+end
+arch floor_sand_d4
+x 16
+y 12
+end
+arch border_abyss_n1
 x 16
 y 12
 end
@@ -2779,12 +3026,7 @@ no_pass 0
 x 16
 y 13
 end
-arch sand_dm8
-x 16
-y 13
-end
-arch bridge_wood_EW.151
-layer 3
+arch abyss_nw1
 x 16
 y 13
 end
@@ -2805,7 +3047,7 @@ no_pass 0
 x 16
 y 14
 end
-arch sand_dm3
+arch abyss_nw2
 x 16
 y 14
 end
@@ -2823,10 +3065,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 16
-y 15
-end
-arch sand_dm7
 x 16
 y 15
 end
@@ -2841,6 +3079,10 @@ x 16
 y 15
 end
 arch floor_sand_d2
+x 16
+y 16
+end
+arch border_abyss_s1
 x 16
 y 16
 end
@@ -2904,6 +3146,10 @@ arch floor_sand_d2
 x 17
 y 7
 end
+arch border_abyss_n1
+x 17
+y 7
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -2911,7 +3157,7 @@ no_pass 0
 x 17
 y 8
 end
-arch sand_dm15
+arch abyss_n1
 x 17
 y 8
 end
@@ -2932,10 +3178,6 @@ no_pass 0
 x 17
 y 9
 end
-arch sand_dm5
-x 17
-y 9
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -2953,10 +3195,6 @@ no_pass 0
 x 17
 y 10
 end
-arch sand_dm5
-x 17
-y 10
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -2967,11 +3205,19 @@ exp 2
 x 17
 y 10
 end
-arch bridge_wood_EW.111
+arch floor_sand_d4
 x 17
 y 11
 end
-arch bridge_wood_EW.101
+arch border_abyss_s1
+x 17
+y 11
+end
+arch floor_sand_d4
+x 17
+y 12
+end
+arch border_abyss_n1
 x 17
 y 12
 end
@@ -2982,12 +3228,7 @@ no_pass 0
 x 17
 y 13
 end
-arch sand_dm5
-x 17
-y 13
-end
-arch bridge_wood_EW.151
-layer 3
+arch abyss_n1
 x 17
 y 13
 end
@@ -3008,10 +3249,6 @@ no_pass 0
 x 17
 y 14
 end
-arch sand_dm5
-x 17
-y 14
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -3026,10 +3263,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 17
-y 15
-end
-arch sand_dm16
 x 17
 y 15
 end
@@ -3044,6 +3277,10 @@ x 17
 y 15
 end
 arch floor_sand_d2
+x 17
+y 16
+end
+arch border_abyss_s1
 x 17
 y 16
 end
@@ -3111,6 +3348,10 @@ arch floor_sand_d1
 x 18
 y 4
 end
+arch dirt_floor3
+x 18
+y 4
+end
 arch floor_sand_d4
 x 18
 y 5
@@ -3131,7 +3372,15 @@ arch floor_sand_d4
 x 18
 y 7
 end
+arch border_abyss_ne1
+x 18
+y 7
+end
 arch floor_sand_d1
+x 18
+y 8
+end
+arch border_abyss_e1
 x 18
 y 8
 end
@@ -3139,7 +3388,15 @@ arch floor_sand_d3
 x 18
 y 9
 end
+arch border_abyss_e1
+x 18
+y 9
+end
 arch floor_sand_d1
+x 18
+y 10
+end
+arch border_abyss_e1
 x 18
 y 10
 end
@@ -3147,7 +3404,15 @@ arch floor_sand_d3
 x 18
 y 11
 end
-arch bridge_wood_EW.121
+arch border_abyss_se1
+x 18
+y 11
+end
+arch mushroom_medium
+x 18
+y 11
+end
+arch light4
 x 18
 y 11
 end
@@ -3155,7 +3420,7 @@ arch floor_sand_d3
 x 18
 y 12
 end
-arch bridge_wood_EW.131
+arch border_abyss_ne1
 x 18
 y 12
 end
@@ -3163,7 +3428,7 @@ arch floor_sand_d2
 x 18
 y 13
 end
-arch bridge_wood_EW.141
+arch border_abyss_e1
 x 18
 y 13
 end
@@ -3171,11 +3436,23 @@ arch floor_sand_d1
 x 18
 y 14
 end
+arch border_abyss_e1
+x 18
+y 14
+end
 arch floor_sand_d2
 x 18
 y 15
 end
+arch border_abyss_e1
+x 18
+y 15
+end
 arch floor_sand_d2
+x 18
+y 16
+end
+arch border_abyss_se1
 x 18
 y 16
 end
@@ -3223,11 +3500,15 @@ arch floor_sand_d1
 x 19
 y 3
 end
+arch border_abyss_nw1
+x 19
+y 3
+end
 arch floor_sand_d1
 x 19
 y 4
 end
-arch dirt_floor3
+arch border_abyss_w1
 x 19
 y 4
 end
@@ -3235,11 +3516,15 @@ arch floor_sand_d3
 x 19
 y 5
 end
+arch border_abyss_w1
+x 19
+y 5
+end
 arch floor_sand_d2
 x 19
 y 6
 end
-arch cave_pillar3
+arch border_abyss_sw1
 x 19
 y 6
 end
@@ -3299,10 +3584,6 @@ arch floor_sand_d4
 x 19
 y 19
 end
-arch cave_pillar5
-x 19
-y 19
-end
 arch floor_sand_d4
 x 19
 y 20
@@ -3327,6 +3608,10 @@ arch floor_sand_d3
 x 20
 y 3
 end
+arch border_abyss_n1
+x 20
+y 3
+end
 arch mushroom_spot2
 x 20
 y 3
@@ -3342,7 +3627,7 @@ no_pass 0
 x 20
 y 4
 end
-arch sand_dm14
+arch abyss_nw1
 x 20
 y 4
 end
@@ -3363,7 +3648,7 @@ no_pass 0
 x 20
 y 5
 end
-arch sand_dm13
+arch abyss_w1
 x 20
 y 5
 end
@@ -3381,6 +3666,10 @@ arch floor_sand_d4
 x 20
 y 6
 end
+arch border_abyss_s1
+x 20
+y 6
+end
 arch floor_sand_d2
 x 20
 y 7
@@ -3394,7 +3683,7 @@ x 20
 y 8
 arch oclunus
 level 110
-exp 128
+exp 148
 dam 75
 maxhp 85
 Con 10
@@ -3406,10 +3695,6 @@ Pow 0
 Dex 2
 Wis 3
 run_away 0
-protect_impact 20
-protect_slash 20
-protect_cleave 20
-protect_pierce 20
 protect_weaponmagic 10
 protect_fire 10
 protect_cold 10
@@ -3468,7 +3753,7 @@ x 20
 y 16
 arch oclunus
 level 110
-exp 136
+exp 146
 attack_weaponmagic 10
 maxsp 30
 Pow 10
@@ -3532,6 +3817,10 @@ arch floor_sand_d4
 x 21
 y 3
 end
+arch border_abyss_n1
+x 21
+y 3
+end
 arch fwall_rock3
 x 21
 y 3
@@ -3543,7 +3832,7 @@ no_pass 0
 x 21
 y 4
 end
-arch sand_dm15
+arch abyss_n1
 x 21
 y 4
 end
@@ -3561,10 +3850,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 21
-y 5
-end
-arch sand_dm16
 x 21
 y 5
 end
@@ -3579,6 +3864,10 @@ x 21
 y 5
 end
 arch floor_sand_d4
+x 21
+y 6
+end
+arch border_abyss_s1
 x 21
 y 6
 end
@@ -3662,6 +3951,10 @@ arch floor_sand_d4
 x 22
 y 3
 end
+arch border_abyss_ne1
+x 22
+y 3
+end
 arch fwall_rock3
 x 22
 y 3
@@ -3670,11 +3963,23 @@ arch floor_sand_d4
 x 22
 y 4
 end
+arch border_abyss_e1
+x 22
+y 4
+end
 arch floor_sand_d2
 x 22
 y 5
 end
+arch border_abyss_e1
+x 22
+y 5
+end
 arch floor_sand_d2
+x 22
+y 6
+end
+arch border_abyss_se1
 x 22
 y 6
 end
