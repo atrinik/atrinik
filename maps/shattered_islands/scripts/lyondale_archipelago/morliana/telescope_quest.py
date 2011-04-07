@@ -43,8 +43,6 @@ quest = {
 	],
 }
 
-qm = QuestManagerMulti(activator, quest)
-
 ## Handle Albar in Morliana research center.
 def npc_albar():
 	if not qm.completed():
@@ -194,6 +192,7 @@ def item_potion():
 if GetEventNumber() == EVENT_SAY:
 	msg = WhatIsMessage().strip().lower()
 	is_hello = msg in ("hi", "hey", "hello")
+	qm = QuestManagerMulti(activator, quest)
 
 	# Handle NPCs.
 	if me.name == "Albar":
