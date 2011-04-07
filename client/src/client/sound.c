@@ -240,6 +240,15 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	Mix_VolumeMusic(volume);
 	Mix_PlayMusic((Mix_Music *) tmp->data, loop);
 
+	/* Due to a bug in SDL_mixer, some audio types (such as XM, among
+	 * others) will continue playing even when the volume has been set to
+	 * 0, which means we need to manually pause the music if volume is 0,
+	 * and unpause it in sound_update_volume(), if the volume changes. */
+	if (volume == 0)
+	{
+		Mix_PauseMusic();
+	}
+
 	/* Re-sort the array as needed. */
 	if (music)
 	{
@@ -281,6 +290,25 @@ void parse_map_bg_music(const char *bg_music)
 void sound_update_volume()
 {
 	Mix_VolumeMusic(options.music_volume);
+
+	/* If there is any background music, due to a bug in SDL_mixer, we
+	 * may need to pause or unpause the music. */
+	if (sound_background)
+	{
+		/* If the new volume is 0, pause the music. */
+		if (options.music_volume == 0)
+		{
+			if (!Mix_PausedMusic())
+			{
+				Mix_PauseMusic();
+			}
+		}
+		/* Non-zero and already paused, so resume the music. */
+		else if (Mix_PausedMusic())
+		{
+			Mix_ResumeMusic();
+		}
+	}
 }
 
 /**
