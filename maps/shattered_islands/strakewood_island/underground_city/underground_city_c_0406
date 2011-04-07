@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-06 Alex Tokar
+Modified: 2011-04-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -767,7 +767,6 @@ terrain_type 1
 x 3
 end
 arch lava_blob
-state 3
 x 3
 end
 arch damager
@@ -2457,7 +2456,7 @@ x 10
 y 9
 end
 arch lava_blob
-state 3
+state 1
 x 10
 y 9
 end
@@ -2847,7 +2846,7 @@ x 12
 y 2
 end
 arch lava_blob
-state 2
+state 4
 x 12
 y 2
 end
@@ -3633,7 +3632,7 @@ x 15
 y 8
 end
 arch lava_blob
-state 1
+state 2
 x 15
 y 8
 end
@@ -4487,7 +4486,7 @@ x 21
 y 4
 end
 arch lava_blob
-state 2
+state 3
 x 21
 y 4
 end
