@@ -876,7 +876,8 @@ int manual_apply(object *op, object *tmp, int aflag)
 				timeofday_t tod;
 
 				get_tod(&tod);
-				new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
+				new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s.", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
+				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "clock.ogg", 0, 0, 0, 0);
 				return 1;
 			}
 
