@@ -1967,6 +1967,20 @@ static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
 	}
 }
 
+/**
+ * <h1>object.Activate()</h1>
+ * Activates the object's connection, if it has one. */
+static PyObject *Atrinik_Object_Activate(Atrinik_Object *obj, PyObject *args)
+{
+	(void) args;
+
+	OBJEXISTCHECK(obj);
+	hooks->push_button(obj->obj);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2021,6 +2035,7 @@ static PyMethodDef methods[] =
 	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
 	{"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
+	{"Activate", (PyCFunction) Atrinik_Object_Activate, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

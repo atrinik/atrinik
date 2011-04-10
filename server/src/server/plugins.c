@@ -163,6 +163,7 @@ struct plugin_hooklist hooklist =
 	find_free_spot,
 	send_target_command,
 	examine,
+	push_button,
 
 	season_name,
 	weekdays,
