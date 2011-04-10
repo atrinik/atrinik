@@ -381,9 +381,17 @@ void move_firewall(object *op)
 
 /**
  * Main object move function.
- * @param op Object to move. */
+ * @param op Object to move.
+ * @todo Do not process objects that are inside an object that is inside
+ * a creator (using get_env_recursive())? */
 void process_object(object *op)
 {
+	/* No need to process objects inside creators. */
+	if (op->env && op->env->type == CREATOR)
+	{
+		return;
+	}
+
 	if (QUERY_FLAG(op, FLAG_MONSTER))
 	{
 		if (move_monster(op) || OBJECT_FREE(op))
