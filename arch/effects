@@ -230,6 +230,23 @@ b_rndm_max 30
 end
 end
 
+effect grayscale
+overlay
+r 0
+r_mod1 0.212671
+r_mod2 0.715160
+r_mod3 0.072169
+g 0
+g_mod1 0.212671
+g_mod2 0.715160
+g_mod3 0.072169
+b 0
+b_mod1 0.212671
+b_mod2 0.715160
+b_mod3 0.072169
+end
+end
+
 effect thunderstorm_light
 sprite rain_particle_middle.101
 weight 2
@@ -366,27 +383,4 @@ end
 wind_blow_dir 0
 sprites_per_move 10
 delay 40
-end
-
-effect poison_fume
-sprite poison_fume.101
-weight 1
-wiggle 0
-reverse 1
-delay 30
-end
-sprite poison_fume5.101
-weight 1
-wiggle 0
-reverse 1
-delay 30
-end
-sprite poison_fume6.101
-weight 1
-wiggle 0
-reverse 1
-delay 30
-end
-wind_blow_dir 0
-delay 1000
 end
