@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-03-09 Alex Tokar
+Modified: 2011-04-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2183,6 +2183,10 @@ x 15
 y 7
 end
 arch floor_marble_grey
+x 15
+y 8
+end
+arch clock
 x 15
 y 8
 end
