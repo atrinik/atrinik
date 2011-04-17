@@ -11,7 +11,7 @@ def_arch tome_black
 Object
 name The Book of Deities
 msg
-<t t="Choosing a Deity">
+<title>Choosing a Deity</title>
 If you plan to utilize divine powers you must have the skill Divine Prayers and you must choose a cult of a higher being.
 
 To become a follower, find a holy altar of your cult, step onto the altar and apply it. The divine spirit inside this altar will touch your soul, attuning your mortal being to your new deity.
@@ -20,15 +20,14 @@ Beware though, if you already have a deity and you touch an altar of a different
 
 Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
 <p>
-<t t="Prayers">
+<title>Prayers</title>
 Next you must learn prayers. Priests, churches and various others will teach you prayers. There are also rumors about Prayer books lost in ancient tombs ages ago...
 
 Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause light wounds" and "minor healing".
 <p>
-<t t="Grace">
+<title>Grace</title>
 Casting prayers will drain your grace, which can only be replenished by praying. If your maximum grace is too low you should try to increase your Divine Prayers skill or your Wisdom stat.
-
-
+<p>
 Never lose faith! Rumors abound of divine prayers of incredible power, and of old and wise priests who have nearly reached immortality...
 endmsg
 no_pick 1
