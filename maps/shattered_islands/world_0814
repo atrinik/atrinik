@@ -1322,31 +1322,7 @@ end
 arch shelf3c.111
 x 8
 y 14
-arch book_red
-msg
-<book>The Abandoned Mine</book><title>Entrance</title>
-The entrance has an inscription written on the gate:
-
-<b>Pedo mellon a minno!</b>
-
-Which translates to:
-
-<b>Speak friend and enter!</b>
-
-The riddle, as I figured out, is that you need to say <b>Mellon</b> for the gate to open.
-<p>
-<title>Moroch Temple</title>
-Not much is known about this temple, which is rumored to be hidden somewhere in the mine. It is said to be an entrance with an altar devoted to Moroch, with several portals leading to the same dimension in which Moroch Temple is, and as the rumor says, Moroch himself.
-
-<p>
-<title>One-way exits</title>
-The mine is supposed to have one-way exits to both Fort Ghzal and Giant Mountains. There may be other exits from the mine, and, quite possibly, other entrances apart from the main one.
-endmsg
-exp 0
-no_skill_ident 1
-name Lothost's Notes
-no_pick 1
-level 25
+arch book_notes_lothost
 end
 end
 arch floor_pattern_brown2
