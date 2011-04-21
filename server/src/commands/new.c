@@ -691,74 +691,104 @@ static void set_first_map(object *op)
 }
 
 /**
- * A single new character template. */
-typedef struct _new_char_template
+ * Information about a character the player may choose. */
+typedef struct new_char_struct
 {
 	/** Archetype of the player. */
-	char *name;
+	char arch[MAX_BUF];
 
 	/**
 	 * Maximum number of points the player can allocate to their
 	 * character's stats. */
-	int max_p;
+	int points_max;
 
-	/** Minimum strength. */
-	int min_Str;
+	/** Base values of stats for this character. */
+	int stats_base[NUM_STATS];
 
-	/** Maximum strength. */
-	int max_Str;
+	/** Minimum values of stats for this character. */
+	int stats_min[NUM_STATS];
 
-	/** Minimum dexterity. */
-	int min_Dex;
+	/** Maximum values of stats for this character. */
+	int stats_max[NUM_STATS];
+} new_char_struct;
 
-	/** Maximum dexterity. */
-	int max_Dex;
-
-	/** Minimum constitution. */
-	int min_Con;
-
-	/** Maximum constitution. */
-	int max_Con;
-
-	/** Minimum intelligence. */
-	int min_Int;
-
-	/** Maximum intelligence. */
-	int max_Int;
-
-	/** Minimum wisdom. */
-	int min_Wis;
-
-	/** Maximum wisdom. */
-	int max_Wis;
-
-	/** Minimum power. */
-	int min_Pow;
-
-	/** Maximum power. */
-	int max_Pow;
-
-	/** Minimum charisma. */
-	int min_Cha;
-
-	/** Maximum charisma. */
-	int max_Cha;
-}_new_char_template;
+/** All the loaded characters. */
+new_char_struct *new_chars = NULL;
+/** Number of ::new_chars. */
+static size_t num_new_chars = 0;
 
 /**
- * The new character templates. */
-static _new_char_template new_char_template[] =
+ * Initialize ::new_chars by reading server_settings file. */
+void new_chars_init()
 {
-	{"human_male", 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14},
-	{"human_female", 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14},
-	{"half_elf_male", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
-	{"half_elf_female", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
-	{"dwarf_male", 5, 13, 15, 11, 13, 13, 15, 12, 14, 12, 14, 11, 13, 12, 14},
-	{"dwarf_female", 5, 13, 15, 11, 13, 13, 15, 12, 14, 12, 14, 11, 13, 12, 14},
-	{"thelra_male", 5, 12, 13, 12, 14, 13, 14, 14, 15, 12, 14, 13, 15, 12, 14},
-	{"thelra_female", 5, 12, 13, 12, 14, 13, 14, 14, 15, 12, 14, 13, 15, 12, 14},
-	{NULL, 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14}
-};
+	char filename[HUGE_BUF], buf[HUGE_BUF];
+	FILE *fp;
+	size_t added = 0, i;
+
+	/* Open the server_settings file. */
+	snprintf(filename, sizeof(filename), "%s/server_settings", settings.localdir);
+	fp = fopen(filename, "r");
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
+	{
+		/* New race; added keeps track of how many archetypes have been
+		 * added since the last new. */
+		if (!strncmp(buf, "char ", 5))
+		{
+			added = 0;
+		}
+		/* Add new archetype for this race. */
+		else if (!strncmp(buf, "gender ", 7))
+		{
+			char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
+
+			/* Parse the line. */
+			if (sscanf(buf + 7, "%s %s %s", gender, arch, face) != 3)
+			{
+				LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+			}
+
+			new_chars = realloc(new_chars, sizeof(*new_chars) * (num_new_chars + 1));
+			strncpy(new_chars[num_new_chars].arch, arch, sizeof(new_chars[num_new_chars].arch) - 1);
+			new_chars[num_new_chars].arch[sizeof(new_chars[num_new_chars].arch) - 1] = '\0';
+			num_new_chars++;
+			added++;
+		}
+		/* Data that applies to any gender archetype of this race. */
+		else if (!strncmp(buf, "points_max ", 11) || !strncmp(buf, "stats_", 6))
+		{
+			/* Start from the end of the array. */
+			for (i = num_new_chars - 1; ; i--)
+			{
+				if (!strncmp(buf, "points_max ", 11))
+				{
+					new_chars[i].points_max = atoi(buf + 11);
+				}
+				else if (!strncmp(buf, "stats_base ", 11) && sscanf(buf + 11, "%d %d %d %d %d %d %d", &new_chars[i].stats_base[STR], &new_chars[i].stats_base[DEX], &new_chars[i].stats_base[CON], &new_chars[i].stats_base[INT], &new_chars[i].stats_base[WIS], &new_chars[i].stats_base[POW], &new_chars[i].stats_base[CHA]) != NUM_STATS)
+				{
+					LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+				}
+				else if (!strncmp(buf, "stats_min ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_min[STR], &new_chars[i].stats_min[DEX], &new_chars[i].stats_min[CON], &new_chars[i].stats_min[INT], &new_chars[i].stats_min[WIS], &new_chars[i].stats_min[POW], &new_chars[i].stats_min[CHA]) != NUM_STATS)
+				{
+					LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+				}
+				else if (!strncmp(buf, "stats_max ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_max[STR], &new_chars[i].stats_max[DEX], &new_chars[i].stats_max[CON], &new_chars[i].stats_max[INT], &new_chars[i].stats_max[WIS], &new_chars[i].stats_max[POW], &new_chars[i].stats_max[CHA]) != NUM_STATS)
+				{
+					LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+				}
+
+				/* Check if we have reached the total number of gender
+				 * archetypes added for this race. */
+				if (i == num_new_chars - added)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	fclose(fp);
+}
 
 /**
  * Client sent us a new char creation.
@@ -775,75 +805,90 @@ static _new_char_template new_char_template[] =
  * @param pl Player structure. */
 void command_new_char(char *params, int len, player *pl)
 {
-	archetype *p_arch = NULL;
+	archetype *player_arch;
 	const char *name_tmp = NULL;
 	object *op = pl->ob;
 	int x = pl->ob->x, y = pl->ob->y;
-	int stats[7], i, v;
-	char name[HUGE_BUF] = "";
+	int stats[NUM_STATS];
+	size_t i, j;
+	char arch[HUGE_BUF] = "";
 
 	/* Ignore the command if the player is already playing. */
-	if (CONTR(op)->state == ST_PLAYING)
+	if (pl->state == ST_PLAYING)
 	{
 		return;
 	}
 
-	if (CONTR(op)->state != ST_ROLL_STAT)
+	/* Incorrect state... */
+	if (pl->state != ST_ROLL_STAT)
 	{
-		LOG(llevDebug, "CRACK: command_new_char(): %s does not have state ST_ROLL_STAT.\n", query_name(pl->ob, NULL));
+		LOG(llevDebug, "DEBUG: command_new_char(): %s does not have state ST_ROLL_STAT.\n", pl->ob->name);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	if (!params || !len || len > MAX_BUF || sscanf(params, "%s %d %d %d %d %d %d %d\n", name, &stats[0], &stats[1], &stats[2], &stats[3], &stats[4], &stats[5], &stats[6]) != 8)
+	/* Make sure there is some data to process for this command, and
+	 * actually process the data. */
+	if (!params || !len || len > MAX_BUF || sscanf(params, "%s %d %d %d %d %d %d %d\n", arch, &stats[STR], &stats[DEX], &stats[CON], &stats[INT], &stats[WIS], &stats[POW], &stats[CHA]) != 8)
 	{
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	/* now: we have to verify every *bit* of what the client has sent us */
+	player_arch = find_archetype(arch);
 
-	/* invalid player arch? */
-	if (!(p_arch = find_archetype(name)) || p_arch->clone.type != PLAYER)
+	/* Invalid player arch? */
+	if (!player_arch || player_arch->clone.type != PLAYER)
 	{
-		LOG(llevSystem, "CRACK: %s: Invalid player arch!\n", query_name(pl->ob, NULL));
+		LOG(llevSystem, "CRACK: command_new_char(): %s tried to make a character with invalid player arch.\n", pl->ob->name);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	LOG(llevDebug, "NewChar: %s:: ARCH: %s (%d %d %d %d %d %d %d)\n", query_name(pl->ob, NULL), name, stats[0], stats[1], stats[2], stats[3], stats[4], stats[5], stats[6]);
+	LOG(llevDebug, "NewChar: %s: ARCH: %s (%d %d %d %d %d %d %d)\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
 
-	for (i = 0; new_char_template[i].name != NULL; i++)
+	for (i = 0; i < num_new_chars; i++)
 	{
-		if (!strcmp(name, new_char_template[i].name))
+		if (!strcmp(arch, new_chars[i].arch))
 		{
 			break;
 		}
 	}
 
-	if (!new_char_template[i].name)
+	if (i == num_new_chars)
 	{
-		LOG(llevDebug, "BUG:: %s: NewChar %s not in def table!\n", query_name(pl->ob, NULL), name);
-		/* Kill socket */
+		LOG(llevDebug, "DEBUG: command_new_char(): %s tried to make a character with valid player arch (%s), but the arch is not defined in server_settings file.\n", pl->ob->name, arch);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	v = new_char_template[i].min_Str + new_char_template[i].min_Dex + new_char_template[i].min_Con + new_char_template[i].min_Int + new_char_template[i].min_Wis + new_char_template[i].min_Pow + new_char_template[i].min_Cha + new_char_template[i].max_p;
-
-	/* All bonus values put on the player? */
-	if (v != (stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]) || stats[0] < new_char_template[i].min_Str || stats[0] > new_char_template[i].max_Str || stats[1] < new_char_template[i].min_Dex || stats[1] > new_char_template[i].max_Dex || stats[2] < new_char_template[i].min_Con || stats[2] > new_char_template[i].max_Con || stats[3] < new_char_template[i].min_Int || stats[3] > new_char_template[i].max_Int || stats[4] < new_char_template[i].min_Wis || stats[4] > new_char_template[i].max_Wis || stats[5] < new_char_template[i].min_Pow || stats[5] > new_char_template[i].max_Pow || stats[6] < new_char_template[i].min_Cha || stats[6] > new_char_template[i].max_Cha)
+	/* Ensure all stat points have been allocated. */
+	if (stats[STR] + stats[DEX] + stats[CON] + stats[INT] + stats[WIS] + stats[POW] + stats[CHA] != new_chars[i].stats_min[STR] + new_chars[i].stats_min[DEX] + new_chars[i].stats_min[CON] + new_chars[i].stats_min[INT] + new_chars[i].stats_min[WIS] + new_chars[i].stats_min[POW] + new_chars[i].stats_min[CHA] + new_chars[i].points_max)
 	{
-		LOG(llevDebug, "CRACK: %s: Tried to crack NewChar! (%d - %d)\n", query_name(pl->ob, NULL), i, stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]);
+		LOG(llevSystem, "CRACK: command_new_char(): %s didn't allocate all stat points (player arch: %s) (stats: %d, %d, %d, %d, %d, %d, %d).\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	/* the stats of a player are saved in pl struct and copied to the object */
+	/* Make sure all the stats are in a valid range. */
+	for (j = 0; j < NUM_STATS; j++)
+	{
+		if (stats[j] < new_chars[i].stats_min[j])
+		{
+			LOG(llevSystem, "CRACK: command_new_char(): %s tried to allocate too few points to %s (min: %d).", pl->ob->name, statname[j], new_chars[i].stats_min[j]);
+			pl->socket.status = Ns_Dead;
+			return;
+		}
+		else if (stats[j] > new_chars[i].stats_max[j])
+		{
+			LOG(llevSystem, "CRACK: command_new_char(): %s tried to allocate too many points to %s (max: %d).", pl->ob->name, statname[j], new_chars[i].stats_max[j]);
+			pl->socket.status = Ns_Dead;
+			return;
+		}
+	}
 
-	/* need to copy the name to new arch */
 	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
-	copy_object(&p_arch->clone, op, 0);
+	copy_object(&player_arch->clone, op, 0);
 	op->custom_attrset = pl;
 	pl->ob = op;
 	FREE_AND_CLEAR_HASH2(op->name);
@@ -855,16 +900,16 @@ void command_new_char(char *params, int len, player *pl)
 	/* We assume that players always have a valid animation. */
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 
-	pl->orig_stats.Str = stats[0];
-	pl->orig_stats.Dex = stats[1];
-	pl->orig_stats.Con = stats[2];
-	pl->orig_stats.Int = stats[3];
-	pl->orig_stats.Wis = stats[4];
-	pl->orig_stats.Pow = stats[5];
-	pl->orig_stats.Cha = stats[6];
+	pl->orig_stats.Str = stats[STR];
+	pl->orig_stats.Dex = stats[DEX];
+	pl->orig_stats.Con = stats[CON];
+	pl->orig_stats.Int = stats[INT];
+	pl->orig_stats.Wis = stats[WIS];
+	pl->orig_stats.Pow = stats[POW];
+	pl->orig_stats.Cha = stats[CHA];
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
-	/* this must before then initial items are given */
+	/* This must before then initial items are given. */
 	esrv_new_player(CONTR(op), op->weight + op->carrying);
 
 	/* Trigger the global BORN event */

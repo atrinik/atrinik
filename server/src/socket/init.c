@@ -577,6 +577,7 @@ void init_srv_files()
 	create_server_settings();
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
 	load_srv_file(buf, SRV_SERVER_SETTINGS);
+	new_chars_init();
 
 	create_server_animations();
 	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
