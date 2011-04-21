@@ -50,6 +50,11 @@ static int book_level_mod[MAX_STAT + 1] =
 	6, 7, 8, 9, 10
 };
 
+/**
+ * The higher your wisdom, the more you are able to make use of the
+ * knowledge you read from books. Thus, you get more experience by
+ * reading books the more wisdom you have, and less experience if you
+ * have unnaturally low wisdom. */
 static double book_exp_mod[MAX_STAT + 1] =
 {
 	-3.00f,
@@ -89,7 +94,7 @@ void apply_book(object *op, object *tmp)
 		return;
 	}
 
-	/* need a literacy skill to read stuff! */
+	/* Need a literacy skill to read stuff! */
 	if (!change_skill(op, SK_LITERACY))
 	{
 		new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
