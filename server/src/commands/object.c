@@ -1451,9 +1451,52 @@ void examine(object *op, object *tmp)
 			break;
 
 		case BOOK:
-			if (tmp->msg != NULL)
+			if (tmp->msg)
 			{
 				strcpy(buf, "Something is written in it.");
+
+				if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT))
+				{
+					int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
+
+					new_draw_info(NDI_UNIQUE, op, buf);
+
+					/* Gray. */
+					if (tmp->level < level_color[level].green)
+					{
+						strcpy(buf, "It seems to contain no knowledge you could learn from.");
+					}
+					/* Green. */
+					else if (tmp->level < level_color[level].blue)
+					{
+						strcpy(buf, "It seems to contain tiny bits of knowledge you could learn from.");
+					}
+					/* Blue. */
+					else if (tmp->level < level_color[level].yellow)
+					{
+						strcpy(buf, "It seems to contain a small amount of knowledge you could learn from.");
+					}
+					/* Yellow. */
+					else if (tmp->level < level_color[level].orange)
+					{
+						strcpy(buf, "It seems to contain an average amount of knowledge you could learn from.");
+					}
+					/* Orange. */
+					else if (tmp->level < level_color[level].red)
+					{
+						strcpy(buf, "It seems to contain a moderate amount of knowledge you could learn from.");
+					}
+					/* Red. */
+					else if (tmp->level < level_color[level].purple)
+					{
+						strcpy(buf, "It seems to contain a fair amount of knowledge you could learn from.");
+					}
+					/* Purple. */
+					else
+					{
+						strcpy(buf, "It seems to contain a great amount of knowledge you could learn from.");
+					}
+				}
 			}
 
 			break;
