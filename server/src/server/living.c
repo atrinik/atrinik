@@ -80,19 +80,21 @@ static float wis_bonus[MAX_STAT + 1] =
 /**
  * Charisma bonus.
  *
- * As a base value, got get in a shop 20% of the real value of an item.
- * With a charisma bonus, you can go up to 25% maximum or 5% minimum. For
- * buying, they are reversely used. You can buy for 95% at best, or 115%
- * at worst. */
+ * As a base value, you get in a shop 20% of the real value of an item.
+ *
+ * With a charisma bonus, you can go up to 30% at maximum or 5% at
+ * minimum (actually this is 10% minimum, because stats cannot go below
+ * 1). For buying, these values are used in reverse. You can buy for 90%
+ * at best, or 115% (110%, because stats cannot go below 1) at worst. */
 float cha_bonus[MAX_STAT + 1] =
 {
 	-0.15f,
 	-0.10f, -0.08f,-0.05f, -0.03f, -0.02f,
-	-0.01f, -0.005f, -0.003f, 0.001f, 0.0f,
-	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	0.003f, 0.005f, 0.009f, 0.01f, 0.012f,
-	0.014f, 0.016f, 0.019f, 0.021f, 0.023f,
-	0.025f, 0.03f, 0.035f, 0.04f, 0.05f
+	-0.01f, -0.005f, -0.003f, -0.001f, 0.0f,
+	0.0f, 0.0f, 0.0f, 0.005f, 0.010f,
+	0.015f, 0.02f, 0.025f, 0.03f, 0.035f,
+	0.04f, 0.045f, 0.05f, 0.055f, 0.06f,
+	0.065f, 0.07f, 0.08f, 0.09f, 0.1f
 };
 
 /**
