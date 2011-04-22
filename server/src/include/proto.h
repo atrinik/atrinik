@@ -624,6 +624,7 @@ object *present_arch_in_ob(archetype *at, object *op);
 int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop);
 int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y);
 int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range);
+void permute(int *arr, int begin, int end);
 void get_search_arr(int *search_arr);
 int find_dir_2(int x, int y);
 int absdir(int d);

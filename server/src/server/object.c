@@ -2993,7 +2993,7 @@ int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, 
  * @param arr Array to permute.
  * @param begin First index to permute.
  * @param end Second index to permute. */
-static void permute(int *arr, int begin, int end)
+void permute(int *arr, int begin, int end)
 {
 	int i, j, tmp, len;
 
