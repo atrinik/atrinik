@@ -30,6 +30,142 @@
 #include <global.h>
 
 /**
+ * @defgroup POTION_IMPROVE_xxx POTION_IMPROVE_xxx
+ * Defines used in improvement potions handling code.
+ *@{*/
+/** Number of stats available for improvement. */
+#define POTION_IMPROVE_STATS 3
+/** Health. */
+#define POTION_IMPROVE_HP 0
+/** Mana. */
+#define POTION_IMPROVE_SP 1
+/** Grace. */
+#define POTION_IMPROVE_GRACE 2
+/*@}*/
+
+/**
+ * Offsets of the levxxx arrays in the player structure. These are used
+ * in potion_improve_apply() for dynamic access. */
+static const size_t potion_improve_stat_offsets[POTION_IMPROVE_STATS] =
+{
+	offsetof(player, levhp), offsetof(player, levsp), offsetof(player, levgrace)
+};
+
+/**
+ * String representations of the stats improvement potions can improve.
+ * These are used in potion_improve_apply() to inform a player which stat
+ * has increased (or decreased, in case of cursed potions). */
+static const char *const potion_improve_stat_names[POTION_IMPROVE_STATS] =
+{
+	"health", "mana", "grace"
+};
+
+/**
+ * Handle applying an improvement potion.
+ * @param op Player applying the potion.
+ * @param tmp The potion.
+ * @return 1. */
+static int potion_improve_apply(object *op, object *tmp)
+{
+	int indices[POTION_IMPROVE_STATS] = {POTION_IMPROVE_HP, POTION_IMPROVE_SP, POTION_IMPROVE_GRACE};
+	int stat, i, level, max, cursed;
+	char *levarr, oldlev;
+
+	/* Shuffle the array so we check all the stats for possible
+	 * improvement in random order. */
+	permute(indices, 0, POTION_IMPROVE_STATS);
+	/* Determine whether the potion is cursed or not. */
+	cursed = QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED);
+
+	/* A potion will be used up even if we don't actually increase any
+	 * stats. */
+	CLEAR_FLAG(tmp, FLAG_APPLIED);
+	decrease_ob(tmp);
+
+	/* Check all the stats. As 'indices' has been shuffled, that is used
+	 * to determine which stat we're working on, instead of directly
+	 * using 'stat'. */
+	for (stat = 0; stat < POTION_IMPROVE_STATS; stat++)
+	{
+		/* Determine level related to this stat, and the maximum possible
+		 * value it can be improved to. */
+		if (indices[stat] == POTION_IMPROVE_HP)
+		{
+			level = op->level;
+			max = op->arch->clone.stats.maxhp;
+		}
+		else if (indices[stat] == POTION_IMPROVE_SP)
+		{
+			level = CONTR(op)->exp_ptr[EXP_MAGICAL]->level;
+			max = op->arch->clone.stats.maxsp;
+		}
+		else
+		{
+			level = CONTR(op)->exp_ptr[EXP_WISDOM]->level;
+			max = op->arch->clone.stats.maxgrace;
+		}
+
+		/* Check to see if we can increase (or decrease, if the potion is
+		 * cursed) any stats. If the potion is cursed, we start at level
+		 * 2, because level 1 has the improvement fixed to the maximum
+		 * value (since it's the first level, obviously). */
+		for (i = cursed ? 2 : 1; i <= level; i++)
+		{
+			/* Get pointer to the array that stores the level
+			 * improvements for this stat. */
+			levarr = (void *) ((char *) CONTR(op) + potion_improve_stat_offsets[indices[stat]]);
+
+			if (cursed)
+			{
+				/* The potion is cursed and there is a stat improvement
+				 * for this level, so go ahead and remove the
+				 * improvement. */
+				if (levarr[i] != 1)
+				{
+					oldlev = levarr[i];
+					levarr[i] = 1;
+					fix_player(op);
+					insert_spell_effect("meffect_purple", op->map, op->x, op->y);
+					play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
+					new_draw_info_format(NDI_UNIQUE, op, "The foul potion burns like fire inside you, and your %s decreases by %d!", potion_improve_stat_names[indices[stat]], oldlev - levarr[i]);
+					return 1;
+				}
+			}
+			else
+			{
+				/* The stat improvement for this level has not been maxed
+				 * yet, so go ahead and increase it. */
+				if (levarr[i] != max)
+				{
+					oldlev = levarr[i];
+					levarr[i] = max;
+					fix_player(op);
+					insert_spell_effect("meffect_yellow", op->map, op->x, op->y);
+					play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
+					new_draw_info_format(NDI_UNIQUE, op, "You feel a little more perfect, and your %s increases by %d!", potion_improve_stat_names[indices[stat]], levarr[i] - oldlev);
+					return 1;
+				}
+			}
+		}
+	}
+
+	/* No effect (because there is nothing to increase [or decrease, in
+	 * case of cursed potions]); inform the player. */
+	if (cursed)
+	{
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
+		new_draw_info(NDI_UNIQUE, op, "The potion was foul but had no effect on your tortured body.");
+	}
+	else
+	{
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
+		new_draw_info(NDI_UNIQUE, op, "The potion had no effect - you are already perfect.");
+	}
+
+	return 1;
+}
+
+/**
  * Apply a potion.
  * @param op Object applying the potion.
  * @param tmp The potion.
@@ -234,171 +370,10 @@ int apply_potion(object *op, object *tmp)
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
 			return 1;
 		}
-		/* improvement potion */
+		/* Improvement potion. */
 		else if (tmp->last_eat == 2)
 		{
-			int success_flag = 0, hp_flag = 0, sp_flag = 0, grace_flag = 0;
-
-			if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
-			{
-				/* jump in by random - goto power */
-				if (RANDOM() % 2)
-				{
-					goto hp_jump;
-				}
-				else if (RANDOM() % 2)
-				{
-					goto sp_jump;
-				}
-				else
-				{
-					goto grace_jump;
-				}
-
-				while (!hp_flag || !sp_flag || !grace_flag)
-				{
-hp_jump:
-					/* mark we have checked hp chain */
-					hp_flag = 1;
-
-					for (i = 2; i <= op->level; i++)
-					{
-						/* move one value to max */
-						if (CONTR(op)->levhp[i] != 1)
-						{
-							CONTR(op)->levhp[i] = 1;
-							success_flag = 2;
-							goto improve_done;
-						}
-					}
-sp_jump:
-					/* mark we have checked sp chain */
-					sp_flag = 1;
-
-					for (i = 2; i <= CONTR(op)->exp_ptr[EXP_MAGICAL]->level; i++)
-					{
-						/* move one value to max */
-						if (CONTR(op)->levsp[i] != 1)
-						{
-							CONTR(op)->levsp[i] = 1;
-							success_flag = 2;
-							goto improve_done;
-						}
-					}
-grace_jump:
-					/* mark we have checked grace chain */
-					grace_flag = 1;
-
-					for (i = 2; i <= CONTR(op)->exp_ptr[EXP_WISDOM]->level; i++)
-					{
-						/* move one value to max */
-						if (CONTR(op)->levgrace[i] != 1)
-						{
-							CONTR(op)->levgrace[i] = 1;
-							success_flag = 2;
-							goto improve_done;
-						}
-					}
-				}
-
-				success_flag = 3;
-			}
-			else
-			{
-				/* jump in by random - goto power */
-				if (RANDOM() % 2)
-				{
-					goto hp_jump2;
-				}
-				else if (RANDOM() % 2)
-				{
-					goto sp_jump2;
-				}
-				else
-				{
-					goto grace_jump2;
-				}
-
-				while (!hp_flag || !sp_flag || !grace_flag)
-				{
-hp_jump2:
-					/* mark we have checked hp chain */
-					hp_flag = 1;
-
-					for (i = 1; i <= op->level; i++)
-					{
-						/* move one value to max */
-						if (CONTR(op)->levhp[i] != (char) op->arch->clone.stats.maxhp)
-						{
-							CONTR(op)->levhp[i] = (char) op->arch->clone.stats.maxhp;
-							success_flag = 1;
-							goto improve_done;
-						}
-					}
-sp_jump2:
-					/* mark we have checked sp chain */
-					sp_flag = 1;
-
-					for (i = 1; i <= CONTR(op)->exp_ptr[EXP_MAGICAL]->level; i++)
-					{
-						/* move one value to max */
-						if (CONTR(op)->levsp[i] != (char) op->arch->clone.stats.maxsp)
-						{
-							CONTR(op)->levsp[i] = (char) op->arch->clone.stats.maxsp;
-							success_flag = 1;
-							goto improve_done;
-						}
-					}
-grace_jump2:
-					/* mark we have checked grace chain */
-					grace_flag = 1;
-
-					for (i = 1; i <= CONTR(op)->exp_ptr[EXP_WISDOM]->level; i++)
-					{
-						/* move one value to max */
-						if (CONTR(op)->levgrace[i] != (char) op->arch->clone.stats.maxgrace)
-						{
-							CONTR(op)->levgrace[i] = (char) op->arch->clone.stats.maxgrace;
-							success_flag = 1;
-							goto improve_done;
-						}
-
-					}
-				}
-			}
-
-improve_done:
-			CLEAR_FLAG(tmp, FLAG_APPLIED);
-
-			if (!success_flag)
-			{
-				new_draw_info(NDI_UNIQUE, op, "The potion had no effect - you are already perfect.");
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-			}
-			else if (success_flag == 1)
-			{
-				fix_player(op);
-				insert_spell_effect("meffect_yellow", op->map, op->x, op->y);
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-				new_draw_info(NDI_UNIQUE, op, "You feel a little more perfect!");
-			}
-			else if (success_flag == 2)
-			{
-				fix_player(op);
-				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-				new_draw_info(NDI_UNIQUE, op, "The foul potion burns like fire in you!");
-			}
-			/* bad potion but all values of this player are 1! poor poor guy.... */
-			else
-			{
-				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-				new_draw_info(NDI_UNIQUE, op, "The potion was foul but had no effect on your tortured body.");
-			}
-
-			decrease_ob(tmp);
-			return 1;
+			return potion_improve_apply(op, tmp);
 		}
 	}
 
