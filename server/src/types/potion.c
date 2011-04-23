@@ -79,7 +79,6 @@ static int potion_improve_apply(object *op, object *tmp)
 
 	/* A potion will be used up even if we don't actually increase any
 	 * stats. */
-	CLEAR_FLAG(tmp, FLAG_APPLIED);
 	decrease_ob(tmp);
 
 	/* Check all the stats. As 'indices' has been shuffled, that is used
@@ -166,209 +165,216 @@ static int potion_improve_apply(object *op, object *tmp)
 }
 
 /**
+ * Apply a potion that gives player temporary effects (resists, stat
+ * increases, etc).
+ * @param op Player applying the potion.
+ * @param tmp The potion.
+ * @return 1 on success, 0 on failure. */
+static int potion_special_apply(object *op, object *tmp)
+{
+	object *force;
+	int i, val;
+
+	/* Create a force and copy the effects in. */
+	force = get_archetype("force");
+
+	if (!force)
+	{
+		LOG(llevBug, "BUG: potion_special_apply(): Can't create force object.\n");
+		return 0;
+	}
+
+	force->type = POTION_EFFECT;
+	/* Copy the amount of time the effect should last. */
+	force->stats.food = tmp->stats.food;
+	SET_FLAG(force, FLAG_IS_USED_UP);
+
+	/* Make sure the effect lasts for at least a little while. */
+	if (force->stats.food <= 0)
+	{
+		force->stats.food = 1;
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
+	{
+		int protection;
+
+		/* The potion is cursed/damned, so the negative effects stay
+		 * longer. */
+		force->stats.food *= 3;
+
+		/* Copy over protection values to the force from the potion, but
+		 * reverse them first. Attacks are ignored, as it's not actually
+		 * possible to store negative attack values in objects. */
+		for (i = 0; i < NROFATTACKS; i++)
+		{
+			protection = tmp->protection[i] > 0 ? -tmp->protection[i] : tmp->protection[i];
+
+			/* If the potion is damned, the effects worsen... */
+			if (QUERY_FLAG(tmp, FLAG_DAMNED))
+			{
+				protection *= 2;
+			}
+
+			/* Actually set the protection value, but make sure it's in a
+			 * valid range. */
+			force->protection[i] = MIN(100, MAX(-100, protection));
+		}
+
+		insert_spell_effect("meffect_purple", op->map, op->x, op->y);
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
+	}
+	else
+	{
+		memcpy(force->protection, tmp->protection, sizeof(tmp->protection));
+		memcpy(force->attack, tmp->attack, sizeof(tmp->attack));
+
+		insert_spell_effect("meffect_green", op->map, op->x, op->y);
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
+	}
+
+	/* Copy over stat values. */
+	for (i = 0; i < NUM_STATS; i++)
+	{
+		/* Get the stat value from the potion. */
+		val = get_attr_value(&tmp->stats, i);
+
+		/* No value, nothing to do. */
+		if (!val)
+		{
+			continue;
+		}
+
+		/* If the potion is cursed/damned and the stat increase is
+		 * positive, reverse it. */
+		if ((QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) && val > 0)
+		{
+			val = -val;
+		}
+
+		/* The potion is damned, so the negative effect is worse. */
+		if (QUERY_FLAG(tmp, FLAG_DAMNED))
+		{
+			val *= 2;
+		}
+
+		/* Now set the stat value of the force to the one calculcated
+		 * above, but make sure it doesn't overflow sint8. */
+		change_attr_value(&force->stats, i, MIN(SINT8_MAX, MAX(SINT8_MIN, val)));
+	}
+
+	/* Insert the force into the player and apply it. */
+	force->speed_left = -1;
+	force = insert_ob_in_ob(force, op);
+	SET_FLAG(force, FLAG_APPLIED);
+
+	if (!change_abil(op, force))
+	{
+		new_draw_info(NDI_UNIQUE, op, "Nothing happened.");
+	}
+
+	decrease_ob(tmp);
+	return 1;
+}
+
+/**
+ * Apply a potion of minor restoration; cures depleted stats. If the
+ * potion is cursed or damned, stats are depleted instead.
+ * @param op Player applying the potion.
+ * @param tmp The potion.
+ * @return 1 on success, 0 on failure. */
+static int potion_restoration_apply(object *op, object *tmp)
+{
+	object *depletion;
+	archetype *at;
+	int i;
+
+	/* Cursed potion of minor restoration; reverse effects (stats are
+	 * depleted). */
+	if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
+	{
+		/* Drain 2 stats if the potion is cursed, 4 if it's damned. */
+		for (i = QUERY_FLAG(tmp, FLAG_DAMNED) ? 0 : 2; i < 4; i++)
+		{
+			drain_stat(op);
+		}
+
+		insert_spell_effect("meffect_purple", op->map, op->x, op->y);
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
+		decrease_ob(tmp);
+		return 1;
+	}
+
+	at = find_archetype("depletion");
+
+	if (!at)
+	{
+		LOG(llevBug, "BUG: potion_restoration_apply(): Could not find archetype 'depletion'.\n");
+		return 0;
+	}
+
+	depletion = present_arch_in_ob(at, op);
+
+	if (depletion)
+	{
+		for (i = 0; i < NUM_STATS; i++)
+		{
+			if (get_attr_value(&depletion->stats, i))
+			{
+				new_draw_info(NDI_UNIQUE, op, restore_msg[i]);
+			}
+		}
+
+		remove_ob(depletion);
+		fix_player(op);
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, op, "You are not depleted.");
+	}
+
+	insert_spell_effect("meffect_green", op->map, op->x, op->y);
+	play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
+	decrease_ob(tmp);
+	return 1;
+}
+
+/**
  * Apply a potion.
  * @param op Object applying the potion.
  * @param tmp The potion.
  * @return 1 if the potion was successfully applied, 0 otherwise. */
 int apply_potion(object *op, object *tmp)
 {
-	int i;
-
-	/* some sanity checks */
-	if (!op || !tmp || (op->type == PLAYER && (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])))
-	{
-		LOG(llevBug,"apply_potion() called with invalid objects! obj: %s (%s - %s) tmp:%s\n", query_name(op, NULL), CONTR(op) ? query_name(CONTR(op)->exp_ptr[EXP_MAGICAL], NULL) : "<no contr>", CONTR(op) ? query_name(CONTR(op)->exp_ptr[EXP_WISDOM], NULL) : "<no contr>", query_name(tmp, NULL));
-		return 0;
-	}
-
 	if (op->type == PLAYER)
 	{
-		/* set chosen_skill to "magic device" - that's used when we "use" a potion */
-		if (!change_skill(op, SK_USE_MAGIC_ITEM))
+		if (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])
 		{
-			/* no skill, no potion use (dust & balm too!) */
+			LOG(llevBug, "BUG: apply_potion(): Called with invalid player object (no controller or no magic/wisdom exp object).\n");
 			return 0;
 		}
 
+		/* Use magic devices skill for using potions. */
+		if (!change_skill(op, SK_USE_MAGIC_ITEM))
+		{
+			return 0;
+		}
+
+		/* We are using it, so we now know what it does. */
 		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
 			identify(tmp);
 		}
 
-		/* special potions. Only players get this */
+		/* Potions with temporary effects. */
 		if (tmp->last_eat == -1)
 		{
-			/* create a force and copy the effects in */
-			object *force = get_archetype("force");
-
-			if (!force)
-			{
-				LOG(llevBug, "apply_potion: Can't create force object?\n");
-				return 0;
-			}
-
-			force->type = POTION_EFFECT;
-			/* or it will auto destroy with first tick */
-			SET_FLAG(force, FLAG_IS_USED_UP);
-			/* how long this force will stay */
-			force->stats.food += tmp->stats.food;
-
-			if (force->stats.food <= 0)
-			{
-				force->stats.food = 1;
-			}
-
-			/* negative effects because cursed or damned */
-			if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
-			{
-				/* now we have a bit work because we change (multiply,...) the
-				 * base values of the potion - that can invoke out of bounce
-				 * values we must catch here. */
-
-				/* effects stays 3 times longer */
-				force->stats.food *= 3;
-
-				for (i = 0; i < NROFATTACKS; i++)
-				{
-					int tmp_a;
-					int tmp_p;
-
-					tmp_a = tmp->attack[i] > 0 ? -tmp->attack[i] : tmp->attack[i];
-					tmp_p = tmp->protection[i] > 0 ? -tmp->protection[i] : tmp->protection[i];
-
-					/* double bad effect when damned */
-					if (QUERY_FLAG(tmp, FLAG_DAMNED))
-					{
-						tmp_a *= 2;
-						tmp_p *= 2;
-					}
-
-					/* we don't want out of bound values ... */
-					if ((int) force->protection[i] + tmp_p > 100)
-					{
-						force->protection[i] = 100;
-					}
-					else if ((int) force->protection[i] + tmp_p < -100)
-					{
-						force->protection[i] = -100;
-					}
-					else
-					{
-						force->protection[i] += (sint8) tmp_p;
-					}
-
-					if ((int) force->attack[i] + tmp_a > 100)
-					{
-						force->attack[i] = 100;
-					}
-					else if ((int) force->attack[i] + tmp_a < 0)
-					{
-						force->attack[i] = 0;
-					}
-					else
-					{
-						force->attack[i] += tmp_a;
-					}
-				}
-
-				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-			}
-			/* all positive (when not on default negative) */
-			else
-			{
-				/* we don't must do the hard way like cursed/damned (no multiplication or
-				 * sign change). */
-				memcpy(force->protection, tmp->protection, sizeof(tmp->protection));
-				memcpy(force->attack, tmp->attack, sizeof(tmp->attack));
-				insert_spell_effect("meffect_green", op->map, op->x, op->y);
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-			}
-
-			/* now copy stats values */
-			force->stats.Str = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Str > 0 ? -tmp->stats.Str : tmp->stats.Str) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Str > 0 ? (-tmp->stats.Str) * 2 : tmp->stats.Str * 2) : tmp->stats.Str);
-			force->stats.Con = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Con > 0 ? -tmp->stats.Con : tmp->stats.Con) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Con > 0 ? (-tmp->stats.Con) * 2 : tmp->stats.Con * 2) : tmp->stats.Con);
-			force->stats.Dex = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Dex > 0 ? -tmp->stats.Dex : tmp->stats.Dex) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Dex > 0 ? (-tmp->stats.Dex) * 2 : tmp->stats.Dex * 2) : tmp->stats.Dex);
-			force->stats.Int = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Int > 0 ? -tmp->stats.Int : tmp->stats.Int) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Int > 0 ? (-tmp->stats.Int) * 2 : tmp->stats.Int * 2) : tmp->stats.Int);
-			force->stats.Wis = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Wis > 0 ? -tmp->stats.Wis : tmp->stats.Wis) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Wis > 0 ? (-tmp->stats.Wis) * 2 : tmp->stats.Wis * 2) : tmp->stats.Wis);
-			force->stats.Pow = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Pow > 0 ? -tmp->stats.Pow : tmp->stats.Pow) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Pow > 0 ? (-tmp->stats.Pow) * 2 : tmp->stats.Pow * 2) : tmp->stats.Pow);
-			force->stats.Cha = QUERY_FLAG(tmp, FLAG_CURSED) ? (tmp->stats.Cha > 0 ? -tmp->stats.Cha : tmp->stats.Cha) : (QUERY_FLAG(tmp, FLAG_DAMNED) ? (tmp->stats.Cha > 0 ? (-tmp->stats.Cha) * 2 : tmp->stats.Cha * 2) : tmp->stats.Cha);
-
-			/* kick the force in, and apply it to player */
-			force->speed_left = -1;
-			force = insert_ob_in_ob(force, op);
-			CLEAR_FLAG(tmp, FLAG_APPLIED);
-			SET_FLAG(force, FLAG_APPLIED);
-
-			/* implicit fix_player() here */
-			if (!change_abil(op, force))
-			{
-				new_draw_info(NDI_UNIQUE, op, "Nothing happened.");
-			}
-
-			decrease_ob(tmp);
-			return 1;
+			return potion_special_apply(op, tmp);
 		}
-
-		/* Potion of minor restoration */
-		if (tmp->last_eat == 1)
+		/* Potion of minor restoration (removes depletion). */
+		else if (tmp->last_eat == 1)
 		{
-			object *depl;
-			archetype *at;
-
-			if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
-			{
-				if (QUERY_FLAG(tmp, FLAG_DAMNED))
-				{
-					drain_stat(op);
-					drain_stat(op);
-					drain_stat(op);
-					drain_stat(op);
-				}
-				else
-				{
-					drain_stat(op);
-					drain_stat(op);
-				}
-
-				fix_player(op);
-				decrease_ob(tmp);
-				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
-				play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-				return 1;
-			}
-
-			if ((at = find_archetype("depletion")) == NULL)
-			{
-				LOG(llevBug, "BUG: Could not find archetype depletion.");
-				return 0;
-			}
-
-			depl = present_arch_in_ob(at, op);
-
-			if (depl != NULL)
-			{
-				for (i = 0; i < NUM_STATS; i++)
-				{
-					if (get_attr_value(&depl->stats, i))
-					{
-						new_draw_info(NDI_UNIQUE, op, restore_msg[i]);
-					}
-				}
-
-				/* in inventory of ... */
-				remove_ob(depl);
-				fix_player(op);
-			}
-			else
-			{
-				new_draw_info(NDI_UNIQUE, op, "You feel a great loss...");
-			}
-
-			decrease_ob(tmp);
-			insert_spell_effect("meffect_green", op->map, op->x, op->y);
-			play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-			return 1;
+			return potion_restoration_apply(op, tmp);
 		}
 		/* Improvement potion. */
 		else if (tmp->last_eat == 2)
@@ -384,29 +390,15 @@ int apply_potion(object *op, object *tmp)
 		return 0;
 	}
 
-	/* A potion that casts a spell.  Healing, restore spellpoint (power
-	 * potion) and heroism all fit into this category. */
-	if (tmp->stats.sp != SP_NO_SPELL)
+	/* Fire in the player's facing direction, unless the spell is
+	 * something like healing or cure disease. */
+	cast_spell(op, tmp, spells[tmp->stats.sp].flags & SPELL_DESC_SELF ? 0 : op->facing, tmp->stats.sp, 1, CAST_POTION, NULL);
+	decrease_ob(tmp);
+
+	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		/* apply potion fires in player's facing direction, unless the spell is SELF one, ie, healing or cure illness. */
-		cast_spell(op, tmp, spells[tmp->stats.sp].flags & SPELL_DESC_SELF ? 0 : op->facing, tmp->stats.sp, 1, CAST_POTION, NULL);
-		decrease_ob(tmp);
-
-		/* if you're dead, no point in doing this... */
-		if (!QUERY_FLAG(op, FLAG_REMOVED))
-		{
-			fix_player(op);
-		}
-
-		return 1;
+		fix_player(op);
 	}
 
-	/* CLEAR_FLAG is so that if the character has other potions
-	 * that were grouped with the one consumed, his
-	 * stat will not be raised by them.  fix_player just clears
-	 * up all the stats. */
-	CLEAR_FLAG(tmp, FLAG_APPLIED);
-	fix_player(op);
-	decrease_ob(tmp);
 	return 1;
 }
