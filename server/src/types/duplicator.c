@@ -60,9 +60,9 @@ void move_duplicator(object *op)
 			{
 				uint64 new_nrof = (uint64) tmp->nrof * op->level;
 
-				if (new_nrof >= 1UL << 31)
+				if (new_nrof > SINT32_MAX)
 				{
-					new_nrof = 1UL << 31;
+					new_nrof = SINT32_MAX;
 				}
 
 				tmp->nrof = new_nrof;

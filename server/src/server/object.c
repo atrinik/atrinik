@@ -448,10 +448,9 @@ int CAN_MERGE(object *ob1, object *ob2)
 		return 0;
 	}
 
-	/* Do not merge objects if nrof would overflow. We use 1UL << 31 since that
-	 * value could not be stored in a sint32 (which unfortunately sometimes is
-	 * used to store nrof). */
-	if (ob1->nrof + ob2->nrof >= 1UL << 31)
+	/* Do not merge objects if nrof would overflow. We use SINT32_MAX
+	 * because sint32 is often used to store nrof instead of uint32. */
+	if (ob1->nrof + ob2->nrof > SINT32_MAX)
 	{
 		return 0;
 	}
