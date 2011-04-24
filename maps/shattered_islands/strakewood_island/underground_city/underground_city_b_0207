@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-06 Alex Tokar
+Modified: 2011-04-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -15,70 +15,1670 @@ bg_music thonkdonk.ogg
 region underground_city
 end
 arch floor_sand_d2
-x 14
-y 2
-end
-arch fwall_rock3
-x 14
-y 2
-end
-arch floor_sand_d1
-x 14
-y 3
+y 4
 end
 arch fwall_rock1
-x 14
-y 3
+y 4
 end
 arch floor_sand_d3
-x 14
-y 4
+y 5
 end
-arch fwall_rock3
-x 14
-y 4
+arch fwall_rock2
+y 5
 end
-arch floor_sand_d2
-x 14
-y 22
-end
-arch fwall_rock3
-x 14
-y 22
-end
-arch floor_sand_d2
-x 14
-y 23
+arch floor_sand_d4
+y 6
 end
 arch fwall_rock1
-x 14
-y 23
+y 6
 end
-arch floor_sand_d4
-x 15
-y 1
-end
-arch fwall_rock3
-x 15
-y 1
-end
-arch floor_sand_d4
-x 15
-y 2
+arch floor_sand_d2
+x 1
+y 3
 end
 arch fwall_rock3
-x 15
-y 2
+x 1
+y 3
 end
 arch floor_sand_d1
-x 15
-y 3
+x 1
+y 4
 end
-arch mushroom_medium
-x 15
-y 3
+arch fwall_rock1
+x 1
+y 4
+end
+arch floor_sand_d3
+x 1
+y 5
+end
+arch crystal_purple_s
+x 1
+y 5
 end
 arch light4
+x 1
+y 5
+end
+arch floor_sand_d3
+x 1
+y 6
+end
+arch fwall_rock1
+x 1
+y 6
+end
+arch floor_sand_d3
+x 1
+y 7
+end
+arch fwall_rock3
+x 1
+y 7
+end
+arch floor_sand_d3
+x 1
+y 8
+end
+arch fwall_rock1
+x 1
+y 8
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 8
+end
+arch floor_sand_d3
+x 1
+y 9
+end
+arch fwall_rock1
+x 1
+y 9
+end
+arch floor_sand_d2
+x 2
+y 2
+end
+arch fwall_rock2
+x 2
+y 2
+end
+arch floor_sand_d2
+x 2
+y 3
+end
+arch fwall_rock2
+x 2
+y 3
+end
+arch plant2_wall.151
+x 2
+y 3
+end
+arch floor_sand_d4
+x 2
+y 4
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+direction 7
+x 2
+y 4
+end
+arch floor_sand_d1
+x 2
+y 5
+end
+arch floor_sand_d1
+x 2
+y 6
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+direction 7
+x 2
+y 6
+end
+arch floor_sand_d3
+x 2
+y 7
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+direction 7
+x 2
+y 7
+end
+arch floor_sand_d2
+x 2
+y 8
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+direction 7
+x 2
+y 8
+end
+arch floor_sand_d2
+x 2
+y 9
+end
+arch fwall_rock3
+x 2
+y 9
+end
+arch floor_sand_d3
+x 2
+y 10
+end
+arch fwall_rock1
+x 2
+y 10
+end
+arch floor_sand_d1
+x 3
+end
+arch fwall_rock2
+x 3
+end
+arch floor_sand_d2
+x 3
+y 1
+end
+arch fwall_rock1
+x 3
+y 1
+end
+arch floor_sand_d1
+x 3
+y 2
+end
+arch fwall_rock2
+x 3
+y 2
+end
+arch floor_sand_d2
+x 3
+y 3
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+direction 7
+x 3
+y 3
+end
+arch floor_sand_d1
+x 3
+y 4
+end
+arch floor_sand_d4
+x 3
+y 5
+end
+arch floor_sand_d3
+x 3
+y 6
+end
+arch floor_sand_d2
+x 3
+y 7
+end
+arch floor_sand_d3
+x 3
+y 8
+end
+arch blood_floor2
+x 3
+y 8
+end
+arch floor_sand_d3
+x 3
+y 9
+end
+arch floor_sand_d4
+x 3
+y 10
+end
+arch fwall_rock2
+x 3
+y 10
+end
+arch floor_sand_d2
+x 3
+y 11
+end
+arch fwall_rock3
+x 3
+y 11
+end
+arch floor_sand_d4
+x 4
+end
+arch fwall_rock2
+x 4
+end
+arch floor_sand_d1
+x 4
+y 1
+end
+arch stairs_stone_down
+msg
+You start climbing down the staircase leading into darkness. You take many steps in the near complete darkness, but eventually you see a dim light. You reach the end of the staircase, and the moment you step onto the cavern floor, you hear a hissing voice, seemingly without a source...
+
+<yellow><i>Hissss</i>... You are not welcome here... Leave... <i>Hisssss</i>.... Now...</yellow>
+endmsg
+direction 7
+slaying underground_city_c_0207
+hp 3
+sp 1
+x 4
+y 1
+end
+arch floor_sand_d3
+x 4
+y 2
+end
+arch stairs_stone_down
+msg
+You start climbing down the staircase leading into darkness. You take many steps in the near complete darkness, but eventually you see a dim light. You reach the end of the staircase, and the moment you step onto the cavern floor, you hear a hissing voice, seemingly without a source...
+
+<yellow><i>Hissss</i>... You are not welcome here... Leave... <i>Hisssss</i>.... Now...</yellow>
+endmsg
+direction 7
+slaying underground_city_c_0207
+hp 3
+sp 2
+x 4
+y 2
+end
+arch floor_sand_d2
+x 4
+y 3
+end
+arch floor_sand_d3
+x 4
+y 4
+end
+arch floor_sand_d1
+x 4
+y 5
+end
+arch dirt_floor4
+x 4
+y 5
+end
+arch floor_sand_d2
+x 4
+y 6
+end
+arch floor_sand_d1
+x 4
+y 7
+end
+arch floor_sand_d4
+x 4
+y 8
+end
+arch floor_sand_d4
+x 4
+y 9
+end
+arch floor_sand_d2
+x 4
+y 10
+end
+arch floor_sand_d2
+x 4
+y 11
+end
+arch fwall_rock2
+x 4
+y 11
+end
+arch floor_sand_d3
+x 5
+end
+arch fwall_rock3
+x 5
+end
+arch plant2_wall.151
+x 5
+end
+arch floor_sand_d4
+x 5
+y 1
+end
+arch dirt_floor3
+x 5
+y 1
+end
+arch floor_sand_d3
+x 5
+y 2
+end
+arch floor_sand_d2
+x 5
+y 3
+end
+arch floor_sand_d2
+x 5
+y 4
+end
+arch floor_sand_d2
+x 5
+y 5
+end
+arch floor_sand_d4
+x 5
+y 6
+end
+arch mushroom_spot1
+x 5
+y 6
+end
+arch light4
+x 5
+y 6
+end
+arch floor_sand_d3
+x 5
+y 7
+end
+arch dirt_floor2
+x 5
+y 7
+end
+arch floor_sand_d4
+x 5
+y 8
+end
+arch floor_sand_d1
+x 5
+y 9
+end
+arch floor_sand_d1
+x 5
+y 10
+end
+arch floor_sand_d1
+x 5
+y 11
+end
+arch fwall_rock2
+x 5
+y 11
+end
+arch floor_sand_d1
+x 5
+y 20
+end
+arch fwall_rock1
+x 5
+y 20
+end
+arch floor_sand_d4
+x 5
+y 21
+end
+arch fwall_rock2
+x 5
+y 21
+end
+arch floor_sand_d1
+x 5
+y 22
+end
+arch fwall_rock1
+x 5
+y 22
+end
+arch plant1_wall.151
+direction 7
+x 5
+y 22
+end
+arch floor_sand_d1
+x 5
+y 23
+end
+arch fwall_rock2
+x 5
+y 23
+end
+arch floor_sand_d2
+x 6
+end
+arch fwall_rock1
+x 6
+end
+arch floor_sand_d3
+x 6
+y 1
+end
+arch mushroom_spot2
+x 6
+y 1
+end
+arch light4
+x 6
+y 1
+end
+arch floor_sand_d3
+x 6
+y 2
+end
+arch floor_sand_d1
+x 6
+y 3
+end
+arch floor_sand_d3
+x 6
+y 4
+end
+arch floor_sand_d3
+x 6
+y 5
+end
+arch mushroom_spot2
+x 6
+y 5
+end
+arch light4
+x 6
+y 5
+end
+arch floor_sand_d2
+x 6
+y 6
+end
+arch cave_pillar3
+x 6
+y 6
+end
+arch floor_sand_d1
+x 6
+y 7
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+x 6
+y 7
+end
+arch floor_sand_d1
+x 6
+y 8
+end
+arch floor_sand_d1
+x 6
+y 9
+end
+arch floor_sand_d1
+x 6
+y 10
+end
+arch floor_sand_d4
+x 6
+y 11
+end
+arch fwall_rock2
+x 6
+y 11
+end
+arch floor_sand_d3
+x 6
+y 12
+end
+arch fwall_rock2
+x 6
+y 12
+end
+arch floor_sand_d2
+x 6
+y 20
+end
+arch fwall_rock1
+x 6
+y 20
+end
+arch plant2_wall.151
+x 6
+y 20
+end
+arch floor_sand_d1
+x 6
+y 21
+end
+arch crystal10
+x 6
+y 21
+end
+arch light5
+x 6
+y 21
+end
+arch floor_sand_d3
+x 6
+y 22
+end
+arch floor_sand_d1
+x 6
+y 23
+end
+arch fwall_rock1
+x 6
+y 23
+end
+arch floor_sand_d1
+x 7
+end
+arch fwall_rock1
+x 7
+end
+arch floor_sand_d2
+x 7
+y 1
+end
+arch chained_skel.111
+x 7
+y 1
+end
+arch floor_sand_d4
+x 7
+y 2
+end
+arch floor_sand_d2
+x 7
+y 3
+end
+arch floor_sand_d2
+x 7
+y 4
+end
+arch blood_floor2
+x 7
+y 4
+end
+arch floor_sand_d4
+x 7
+y 5
+end
+arch floor_sand_d4
+x 7
+y 6
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+direction 7
+x 7
+y 6
+end
+arch floor_sand_d4
+x 7
+y 7
+end
+arch mushroom_spot1
+x 7
+y 7
+end
+arch floor_sand_d1
+x 7
+y 8
+end
+arch floor_sand_d3
+x 7
+y 9
+end
+arch floor_sand_d4
+x 7
+y 10
+end
+arch floor_sand_d1
+x 7
+y 11
+end
+arch crystal_red
+x 7
+y 11
+end
+arch light4
+x 7
+y 11
+end
+arch floor_sand_d2
+x 7
+y 12
+end
+arch fwall_rock2
+x 7
+y 12
+end
+arch floor_sand_d4
+x 7
+y 20
+end
+arch fwall_rock2
+x 7
+y 20
+end
+arch floor_sand_d1
+x 7
+y 21
+end
+arch floor_sand_d3
+x 7
+y 22
+end
+arch floor_sand_d3
+x 7
+y 23
+end
+arch fwall_rock2
+x 7
+y 23
+end
+arch floor_sand_d3
+x 8
+end
+arch fwall_rock2
+x 8
+end
+arch floor_sand_d2
+x 8
+y 1
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+x 8
+y 1
+end
+arch floor_sand_d2
+x 8
+y 2
+end
+arch blood_floor2
+x 8
+y 2
+end
+arch floor_sand_d3
+x 8
+y 3
+end
+arch floor_sand_d1
+x 8
+y 4
+end
+arch floor_sand_d4
+x 8
+y 5
+end
+arch floor_sand_d2
+x 8
+y 6
+end
+arch floor_sand_d4
+x 8
+y 7
+end
+arch floor_sand_d1
+x 8
+y 8
+end
+arch spawn_point
+x 8
+y 8
+arch drow_captain
+level 91
+exp 108
+attack_slash 85
+type 83
+direction 3
+name drow vault guard
+end
+end
+arch floor_sand_d4
+x 8
+y 9
+end
+arch floor_sand_d4
+x 8
+y 10
+end
+arch dirt_floor2
+x 8
+y 10
+end
+arch floor_sand_d1
+x 8
+y 11
+end
+arch floor_sand_d1
+x 8
+y 12
+end
+arch fwall_rock2
+x 8
+y 12
+end
+arch floor_sand_d2
+x 8
+y 20
+end
+arch fwall_rock3
+x 8
+y 20
+end
+arch floor_sand_d1
+x 8
+y 21
+end
+arch fwall_rock3
+x 8
+y 21
+end
+arch floor_sand_d1
+x 8
+y 22
+end
+arch dirt_floor1
+x 8
+y 22
+end
+arch floor_sand_d3
+x 8
+y 23
+end
+arch fwall_rock3
+x 8
+y 23
+end
+arch floor_sand_d4
+x 9
+end
+arch fwall_rock3
+x 9
+end
+arch floor_sand_d3
+x 9
+y 1
+end
+arch crystal_red_s
+x 9
+y 1
+end
+arch light4
+x 9
+y 1
+end
+arch floor_sand_d3
+x 9
+y 2
+end
+arch spawn_point
+x 9
+y 2
+arch drow_captain
+level 90
+exp 108
+attack_slash 85
+type 83
+name drow vault guard
+end
+end
+arch floor_sand_d2
+x 9
+y 3
+end
+arch floor_sand_d4
+x 9
+y 4
+end
+arch floor_sand_d3
+x 9
+y 5
+end
+arch floor_sand_d2
+x 9
+y 6
+end
+arch dirt_floor4
+x 9
+y 6
+end
+arch floor_sand_d1
+x 9
+y 7
+end
+arch floor_sand_d4
+x 9
+y 8
+end
+arch floor_sand_d3
+x 9
+y 9
+end
+arch floor_sand_d3
+x 9
+y 10
+end
+arch floor_sand_d1
+x 9
+y 11
+end
+arch floor_sand_d3
+x 9
+y 12
+end
+arch fwall_rock2
+name illusionary wall
+x 9
+y 12
+end
+arch floor_sand_d3
+x 9
+y 13
+end
+arch fwall_rock3
+x 9
+y 13
+end
+arch floor_sand_d1
+x 9
+y 14
+end
+arch fwall_rock3
+x 9
+y 14
+end
+arch plant2_wall.151
+direction 7
+x 9
+y 14
+end
+arch floor_sand_d3
+x 9
+y 15
+end
+arch fwall_rock3
+x 9
+y 15
+end
+arch floor_sand_d4
+x 9
+y 16
+end
+arch fwall_rock2
+x 9
+y 16
+end
+arch floor_sand_d4
+x 9
+y 20
+end
+arch fwall_rock3
+x 9
+y 20
+end
+arch floor_sand_d4
+x 9
+y 21
+end
+arch fwall_rock1
+x 9
+y 21
+end
+arch floor_sand_d4
+x 9
+y 22
+end
+arch floor_sand_d2
+x 9
+y 23
+end
+arch fwall_rock3
+x 9
+y 23
+end
+arch floor_sand_d2
+x 10
+end
+arch fwall_rock1
+x 10
+end
+arch floor_sand_d3
+x 10
+y 1
+end
+arch fwall_rock1
+x 10
+y 1
+end
+arch floor_sand_d1
+x 10
+y 2
+end
+arch chest7_111
+slaying uc3_drow_king_vault
+x 10
+y 2
+end
+arch floor_sand_d4
+x 10
+y 3
+end
+arch floor_sand_d4
+x 10
+y 4
+end
+arch floor_sand_d1
+x 10
+y 5
+end
+arch floor_sand_d3
+x 10
+y 6
+end
+arch floor_sand_d2
+x 10
+y 7
+end
+arch floor_sand_d2
+x 10
+y 8
+end
+arch floor_sand_d1
+x 10
+y 9
+end
+arch floor_sand_d1
+x 10
+y 10
+end
+arch floor_sand_d2
+x 10
+y 11
+end
+arch floor_sand_d3
+x 10
+y 12
+end
+arch fwall_rock3
+name illusionary wall
+no_pass 0
+x 10
+y 12
+end
+arch floor_sand_d2
+x 10
+y 13
+end
+arch floor_sand_d4
+x 10
+y 14
+end
+arch blood_floor1
+x 10
+y 14
+end
+arch floor_sand_d2
+x 10
+y 15
+end
+arch floor_sand_d3
+x 10
+y 16
+end
+arch fwall_rock2
+x 10
+y 16
+end
+arch floor_sand_d4
+x 10
+y 17
+end
+arch fwall_rock3
+x 10
+y 17
+end
+arch floor_sand_d2
+x 10
+y 19
+end
+arch fwall_rock1
+x 10
+y 19
+end
+arch floor_sand_d4
+x 10
+y 20
+end
+arch fwall_rock3
+x 10
+y 20
+end
+arch plant2_wall.151
+x 10
+y 20
+end
+arch floor_sand_d2
+x 10
+y 21
+end
+arch floor_sand_d1
+x 10
+y 22
+end
+arch floor_sand_d2
+x 10
+y 23
+end
+arch fwall_rock1
+x 10
+y 23
+end
+arch floor_sand_d3
+x 11
+y 1
+end
+arch fwall_rock1
+x 11
+y 1
+end
+arch floor_sand_d1
+x 11
+y 2
+end
+arch fwall_rock3
+x 11
+y 2
+end
+arch floor_sand_d1
+x 11
+y 3
+end
+arch blood_floor1
+x 11
+y 3
+end
+arch floor_sand_d4
+x 11
+y 4
+end
+arch dirt_floor2
+x 11
+y 4
+end
+arch floor_sand_d1
+x 11
+y 5
+end
+arch fwall_rock1
+x 11
+y 5
+end
+arch floor_sand_d3
+x 11
+y 6
+end
+arch fwall_rock2
+x 11
+y 6
+end
+arch floor_sand_d2
+x 11
+y 7
+end
+arch crystal_red
+x 11
+y 7
+end
+arch light4
+x 11
+y 7
+end
+arch floor_sand_d1
+x 11
+y 8
+end
+arch floor_sand_d1
+x 11
+y 9
+end
+arch floor_sand_d3
+x 11
+y 10
+end
+arch floor_sand_d4
+x 11
+y 11
+end
+arch dirt_floor4
+x 11
+y 11
+end
+arch crystal_purple
+x 11
+y 11
+end
+arch light4
+x 11
+y 11
+end
+arch floor_sand_d3
+x 11
+y 12
+end
+arch fwall_rock2
+x 11
+y 12
+end
+arch floor_sand_d4
+x 11
+y 13
+end
+arch fwall_rock2
+x 11
+y 13
+end
+arch floor_sand_d2
+x 11
+y 14
+end
+arch fwall_rock3
+x 11
+y 14
+end
+arch floor_sand_d1
+x 11
+y 15
+end
+arch floor_sand_d4
+x 11
+y 16
+end
+arch floor_sand_d1
+x 11
+y 17
+end
+arch fwall_rock3
+x 11
+y 17
+end
+arch floor_sand_d1
+x 11
+y 18
+end
+arch fwall_rock1
+x 11
+y 18
+end
+arch plant2_wall.151
+direction 7
+x 11
+y 18
+end
+arch floor_sand_d1
+x 11
+y 19
+end
+arch fwall_rock3
+x 11
+y 19
+end
+arch floor_sand_d3
+x 11
+y 20
+end
+arch floor_sand_d1
+x 11
+y 21
+end
+arch floor_sand_d3
+x 11
+y 22
+end
+arch fwall_rock1
+x 11
+y 22
+end
+arch floor_sand_d4
+x 11
+y 23
+end
+arch fwall_rock1
+x 11
+y 23
+end
+arch floor_sand_d2
+x 12
+y 2
+end
+arch fwall_rock2
+x 12
+y 2
+end
+arch floor_sand_d4
+x 12
+y 3
+end
+arch floor_sand_d2
+x 12
+y 4
+end
+arch floor_sand_d4
+x 12
+y 5
+end
+arch fwall_rock3
+x 12
+y 5
+end
+arch floor_sand_d1
+x 12
+y 6
+end
+arch fwall_rock1
+x 12
+y 6
+end
+arch floor_sand_d1
+x 12
+y 7
+end
+arch fwall_rock2
+x 12
+y 7
+end
+arch floor_sand_d3
+x 12
+y 8
+end
+arch fwall_rock3
+x 12
+y 8
+end
+arch floor_sand_d2
+x 12
+y 9
+end
+arch fwall_rock3
+x 12
+y 9
+end
+arch floor_sand_d2
+x 12
+y 10
+end
+arch floor_sand_d3
+x 12
+y 11
+end
+arch fwall_rock1
+x 12
+y 11
+end
+arch floor_sand_d4
+x 12
+y 12
+end
+arch fwall_rock1
+x 12
+y 12
+end
+arch floor_sand_d4
+x 12
+y 14
+end
+arch fwall_rock3
+x 12
+y 14
+end
+arch floor_sand_d3
+x 12
+y 15
+end
+arch fwall_rock1
+x 12
+y 15
+end
+arch floor_sand_d1
+x 12
+y 16
+end
+arch dirt_floor4
+x 12
+y 16
+end
+arch floor_sand_d3
+x 12
+y 17
+end
+arch dirt_floor4
+x 12
+y 17
+end
+arch floor_sand_d4
+x 12
+y 18
+end
+arch floor_sand_d1
+x 12
+y 19
+end
+arch floor_sand_d2
+x 12
+y 20
+end
+arch floor_sand_d4
+x 12
+y 21
+end
+arch fwall_rock1
+x 12
+y 21
+end
+arch floor_sand_d2
+x 12
+y 22
+end
+arch fwall_rock3
+x 12
+y 22
+end
+arch floor_sand_d1
+x 13
+y 2
+end
+arch fwall_rock3
+x 13
+y 2
+end
+arch plant1_wall.151
+x 13
+y 2
+end
+arch floor_sand_d3
+x 13
+y 3
+end
+arch floor_sand_d2
+x 13
+y 4
+end
+arch floor_sand_d3
+x 13
+y 5
+end
+arch fwall_rock3
+name illusionary wall
+no_pass 0
+x 13
+y 5
+end
+arch floor_sand_d4
+x 13
+y 6
+end
+arch floor_sand_d1
+x 13
+y 7
+end
+arch blood_floor2
+x 13
+y 7
+end
+arch floor_sand_d1
+x 13
+y 8
+end
+arch floor_sand_d2
+x 13
+y 9
+end
+arch fwall_rock2
+x 13
+y 9
+end
+arch floor_sand_d3
+x 13
+y 10
+end
+arch fwall_rock1
+x 13
+y 10
+end
+arch floor_sand_d2
+x 13
+y 11
+end
+arch fwall_rock1
+x 13
+y 11
+end
+arch floor_sand_d4
+x 13
+y 12
+end
+arch fwall_rock3
+x 13
+y 12
+end
+arch floor_sand_d4
+x 13
+y 13
+end
+arch fwall_rock2
+x 13
+y 13
+end
+arch floor_sand_d1
+x 13
+y 15
+end
+arch fwall_rock1
+x 13
+y 15
+end
+arch floor_sand_d4
+x 13
+y 16
+end
+arch fwall_rock3
+x 13
+y 16
+end
+arch floor_sand_d1
+x 13
+y 17
+end
+arch floor_sand_d1
+x 13
+y 18
+end
+arch fwall_rock2
+x 13
+y 18
+end
+arch floor_sand_d3
+x 13
+y 19
+end
+arch fwall_rock1
+x 13
+y 19
+end
+arch floor_sand_d3
+x 13
+y 20
+end
+arch fwall_rock3
+x 13
+y 20
+end
+arch floor_sand_d1
+x 13
+y 21
+end
+arch fwall_rock2
+x 13
+y 21
+end
+arch floor_sand_d2
+x 14
+y 2
+end
+arch fwall_rock3
+x 14
+y 2
+end
+arch floor_sand_d1
+x 14
+y 3
+end
+arch blood_floor1
+x 14
+y 3
+end
+arch floor_sand_d3
+x 14
+y 4
+end
+arch floor_sand_d1
+x 14
+y 5
+end
+arch fwall_rock2
+x 14
+y 5
+end
+arch floor_sand_d1
+x 14
+y 6
+end
+arch fwall_rock2
+x 14
+y 6
+end
+arch floor_sand_d4
+x 14
+y 7
+end
+arch fwall_rock2
+x 14
+y 7
+end
+arch floor_sand_d1
+x 14
+y 8
+end
+arch floor_sand_d4
+x 14
+y 9
+end
+arch floor_sand_d2
+x 14
+y 10
+end
+arch floor_sand_d4
+x 14
+y 11
+end
+arch floor_sand_d4
+x 14
+y 12
+end
+arch blood_floor1
+x 14
+y 12
+end
+arch floor_sand_d2
+x 14
+y 13
+end
+arch fwall_rock3
+x 14
+y 13
+end
+arch floor_sand_d2
+x 14
+y 14
+end
+arch fwall_rock3
+x 14
+y 14
+end
+arch plant1_wall.151
+direction 7
+x 14
+y 14
+end
+arch floor_sand_d2
+x 14
+y 15
+end
+arch fwall_rock3
+x 14
+y 15
+end
+arch floor_sand_d3
+x 14
+y 16
+end
+arch fwall_rock3
+x 14
+y 16
+end
+arch floor_sand_d3
+x 14
+y 17
+end
+arch floor_sand_d1
+x 14
+y 18
+end
+arch fwall_rock2
+x 14
+y 18
+end
+arch floor_sand_d2
+x 14
+y 22
+end
+arch fwall_rock3
+x 14
+y 22
+end
+arch floor_sand_d2
+x 14
+y 23
+end
+arch fwall_rock1
+x 14
+y 23
+end
+arch floor_sand_d4
+x 15
+y 1
+end
+arch fwall_rock3
+x 15
+y 1
+end
+arch floor_sand_d4
+x 15
+y 2
+end
+arch fwall_rock3
+x 15
+y 2
+end
+arch floor_sand_d1
+x 15
+y 3
+end
+arch door1_locked
+direction 3
 x 15
 y 3
 end
@@ -86,7 +1686,8 @@ arch floor_sand_d2
 x 15
 y 4
 end
-arch fwall_rock1
+arch door1_locked
+direction 5
 x 15
 y 4
 end
@@ -97,6 +1698,80 @@ end
 arch fwall_rock3
 x 15
 y 5
+end
+arch floor_sand_d2
+x 15
+y 7
+end
+arch fwall_rock1
+x 15
+y 7
+end
+arch floor_sand_d1
+x 15
+y 8
+end
+arch fwall_rock2
+x 15
+y 8
+end
+arch floor_sand_d4
+x 15
+y 9
+end
+arch fwall_rock3
+x 15
+y 9
+end
+arch floor_sand_d2
+x 15
+y 10
+end
+arch fwall_rock2
+x 15
+y 10
+end
+arch floor_sand_d1
+x 15
+y 11
+end
+arch floor_sand_d1
+x 15
+y 12
+end
+arch floor_sand_d3
+x 15
+y 13
+end
+arch floor_sand_d4
+x 15
+y 14
+end
+arch floor_sand_d3
+x 15
+y 15
+end
+arch floor_sand_d2
+x 15
+y 16
+end
+arch fwall_rock1
+name illusionary wall
+no_pass 0
+x 15
+y 16
+end
+arch floor_sand_d2
+x 15
+y 17
+end
+arch floor_sand_d2
+x 15
+y 18
+end
+arch fwall_rock3
+x 15
+y 18
 end
 arch floor_sand_d4
 x 15
@@ -115,6 +1790,14 @@ x 15
 y 22
 end
 arch floor_sand_d2
+x 15
+y 23
+end
+arch crystal_red_s
+x 15
+y 23
+end
+arch light4
 x 15
 y 23
 end
@@ -168,6 +1851,74 @@ arch fwall_rock2
 x 16
 y 6
 end
+arch floor_sand_d2
+x 16
+y 10
+end
+arch fwall_rock2
+x 16
+y 10
+end
+arch floor_sand_d1
+x 16
+y 11
+end
+arch fwall_rock2
+x 16
+y 11
+end
+arch floor_sand_d4
+x 16
+y 12
+end
+arch floor_sand_d4
+x 16
+y 13
+end
+arch dirt_floor2
+x 16
+y 13
+end
+arch floor_sand_d3
+x 16
+y 14
+end
+arch fwall_rock3
+x 16
+y 14
+end
+arch floor_sand_d2
+x 16
+y 15
+end
+arch fwall_rock2
+x 16
+y 15
+end
+arch floor_sand_d4
+x 16
+y 16
+end
+arch fwall_rock2
+x 16
+y 16
+end
+arch floor_sand_d1
+x 16
+y 17
+end
+arch blood_floor1
+x 16
+y 17
+end
+arch floor_sand_d3
+x 16
+y 18
+end
+arch fwall_rock1
+x 16
+y 18
+end
 arch floor_sand_d1
 x 16
 y 20
@@ -193,10 +1944,6 @@ x 16
 y 22
 end
 arch floor_sand_d3
-x 16
-y 23
-end
-arch border_abyss_nw1
 x 16
 y 23
 end
@@ -254,6 +2001,54 @@ arch fwall_rock1
 x 17
 y 7
 end
+arch floor_sand_d3
+x 17
+y 11
+end
+arch fwall_rock3
+x 17
+y 11
+end
+arch floor_sand_d4
+x 17
+y 12
+end
+arch floor_sand_d3
+x 17
+y 13
+end
+arch fwall_rock2
+x 17
+y 13
+end
+arch floor_sand_d4
+x 17
+y 14
+end
+arch fwall_rock3
+x 17
+y 14
+end
+arch floor_sand_d2
+x 17
+y 16
+end
+arch fwall_rock3
+x 17
+y 16
+end
+arch floor_sand_d2
+x 17
+y 17
+end
+arch floor_sand_d4
+x 17
+y 18
+end
+arch fwall_rock3
+x 17
+y 18
+end
 arch floor_sand_d4
 x 17
 y 19
@@ -287,10 +2082,6 @@ x 17
 y 22
 end
 arch floor_sand_d2
-x 17
-y 23
-end
-arch border_abyss_n1
 x 17
 y 23
 end
@@ -328,6 +2119,8 @@ level 90
 exp 108
 attack_slash 85
 type 83
+direction 3
+name drow vault guard
 end
 end
 arch floor_sand_d1
@@ -354,6 +2147,30 @@ arch fwall_rock3
 x 18
 y 8
 end
+arch floor_sand_d2
+x 18
+y 11
+end
+arch fwall_rock3
+x 18
+y 11
+end
+arch floor_sand_d1
+x 18
+y 12
+end
+arch blood_floor1
+x 18
+y 12
+end
+arch floor_sand_d3
+x 18
+y 13
+end
+arch fwall_rock1
+x 18
+y 13
+end
 arch floor_sand_d4
 x 18
 y 16
@@ -367,6 +2184,8 @@ x 18
 y 17
 end
 arch fwall_rock1
+name illusionary wall
+no_pass 0
 x 18
 y 17
 end
@@ -406,10 +2225,6 @@ arch floor_sand_d1
 x 18
 y 23
 end
-arch border_abyss_n1
-x 18
-y 23
-end
 arch floor_sand_d2
 x 19
 end
@@ -432,15 +2247,7 @@ arch floor_sand_d2
 x 19
 y 2
 end
-arch border_abyss_nw1
-x 19
-y 2
-end
 arch floor_sand_d1
-x 19
-y 3
-end
-arch border_abyss_w1
 x 19
 y 3
 end
@@ -448,15 +2255,7 @@ arch floor_sand_d1
 x 19
 y 4
 end
-arch border_abyss_w1
-x 19
-y 4
-end
 arch floor_sand_d3
-x 19
-y 5
-end
-arch border_abyss_w1
 x 19
 y 5
 end
@@ -464,15 +2263,7 @@ arch floor_sand_d3
 x 19
 y 6
 end
-arch border_abyss_w1
-x 19
-y 6
-end
 arch floor_sand_d3
-x 19
-y 7
-end
-arch border_abyss_sw1
 x 19
 y 7
 end
@@ -491,6 +2282,26 @@ end
 arch fwall_rock1
 x 19
 y 9
+end
+arch floor_sand_d3
+x 19
+y 11
+end
+arch fwall_rock2
+x 19
+y 11
+end
+arch floor_sand_d1
+x 19
+y 12
+end
+arch floor_sand_d2
+x 19
+y 13
+end
+arch fwall_rock1
+x 19
+y 13
 end
 arch floor_sand_d2
 x 19
@@ -544,10 +2355,6 @@ arch floor_sand_d1
 x 19
 y 23
 end
-arch border_abyss_n1
-x 19
-y 23
-end
 arch floor_sand_d3
 x 20
 end
@@ -562,91 +2369,23 @@ arch floor_sand_d3
 x 20
 y 2
 end
-arch border_abyss_n1
-x 20
-y 2
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 20
 y 3
 end
-arch abyss_nw1
+arch dirt_floor1
 x 20
 y 3
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 20
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 20
 y 4
 end
-arch abyss_w1
-x 20
-y 4
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 20
-y 4
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 20
 y 5
 end
-arch abyss_w1
-x 20
-y 5
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 20
-y 5
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 20
-y 6
-end
-arch abyss_w1
-x 20
-y 6
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d4
 x 20
 y 6
 end
@@ -654,7 +2393,7 @@ arch floor_sand_d2
 x 20
 y 7
 end
-arch border_abyss_s1
+arch dirt_floor2
 x 20
 y 7
 end
@@ -677,6 +2416,26 @@ end
 arch fwall_rock2
 x 20
 y 9
+end
+arch floor_sand_d1
+x 20
+y 11
+end
+arch fwall_rock2
+x 20
+y 11
+end
+arch floor_sand_d3
+x 20
+y 12
+end
+arch floor_sand_d1
+x 20
+y 13
+end
+arch fwall_rock1
+x 20
+y 13
 end
 arch floor_sand_d4
 x 20
@@ -756,10 +2515,6 @@ arch floor_sand_d1
 x 20
 y 23
 end
-arch border_abyss_ne1
-x 20
-y 23
-end
 arch floor_sand_d2
 x 21
 end
@@ -770,91 +2525,36 @@ arch floor_sand_d2
 x 21
 y 1
 end
+arch chest7_111
+slaying uc3_drow_king
+x 21
+y 1
+end
 arch floor_sand_d2
 x 21
 y 2
 end
-arch border_abyss_n1
-x 21
-y 2
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 21
 y 3
 end
-arch abyss_n1
-x 21
-y 3
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 21
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 21
 y 4
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 21
-y 4
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 21
 y 5
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch dirt_floor2
 x 21
 y 5
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 21
-y 6
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d2
 x 21
 y 6
 end
 arch floor_sand_d4
-x 21
-y 7
-end
-arch border_abyss_s1
 x 21
 y 7
 end
@@ -891,6 +2591,8 @@ x 21
 y 12
 end
 arch fwall_rock1
+name illusionary wall
+no_pass 0
 x 21
 y 12
 end
@@ -980,78 +2682,39 @@ arch floor_sand_d3
 x 22
 y 2
 end
-arch border_abyss_ne1
-x 22
-y 2
-end
 arch floor_sand_d1
 x 22
 y 3
 end
-arch border_abyss_ne2
-x 22
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 22
 y 4
 end
-arch abyss_n2
+arch mushroom_spot1
 x 22
 y 4
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch light4
 x 22
 y 4
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 22
 y 5
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 22
-y 5
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 22
 y 6
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch mushroom_spot2
+x 22
+y 6
+end
+arch light4
 x 22
 y 6
 end
 arch floor_sand_d2
-x 22
-y 7
-end
-arch border_abyss_s1
 x 22
 y 7
 end
@@ -1163,17 +2826,13 @@ arch floor_sand_d2
 x 23
 y 1
 end
-arch floor_sand_d3
-x 23
-y 2
-end
 arch stone_throne
 x 23
-y 2
+y 1
 end
 arch spawn_point
 x 23
-y 2
+y 1
 arch drow_annihilator
 name drow king
 level 91
@@ -1223,16 +2882,11 @@ hp 43
 end
 end
 end
+arch floor_sand_d3
+x 23
+y 2
+end
 arch floor_sand_d4
-x 23
-y 3
-end
-arch border_abyss_ne1
-x 23
-y 3
-end
-arch border_abyss_nw1
-layer 3
 x 23
 y 3
 end
@@ -1240,64 +2894,19 @@ arch floor_sand_d1
 x 23
 y 4
 end
-arch stairs_stone_down
-msg
-The stairs seem blocked by something...
-endmsg
-direction 5
-slaying underground_city_c_0207
-hp 23
-sp 4
-x 23
-y 4
-end
-arch light4
-x 23
-y 4
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 23
 y 5
 end
-arch abyss_n2
+arch cave_pillar4
 x 23
 y 5
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 23
-y 5
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 23
-y 6
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d2
 x 23
 y 6
 end
 arch floor_sand_d3
-x 23
-y 7
-end
-arch border_abyss_s1
 x 23
 y 7
 end

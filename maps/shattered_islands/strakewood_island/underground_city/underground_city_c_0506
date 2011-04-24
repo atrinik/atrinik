@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-07 Alex Tokar
+Modified: 2011-04-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -45,7 +45,7 @@ y 2
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 2
 end
@@ -59,7 +59,7 @@ y 3
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 3
 end
@@ -73,7 +73,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 4
 end
@@ -87,7 +87,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 5
 end
@@ -107,7 +107,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 8
 end
@@ -121,7 +121,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 9
 end
@@ -135,7 +135,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 10
 end
@@ -149,7 +149,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 y 11
 end
@@ -252,7 +252,7 @@ y 2
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 1
 y 2
@@ -277,7 +277,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 1
 y 4
@@ -294,7 +294,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 1
 y 5
@@ -323,7 +323,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 1
 y 8
@@ -340,7 +340,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 1
 y 9
@@ -365,7 +365,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 1
 y 11
@@ -493,7 +493,7 @@ y 2
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 2
@@ -510,7 +510,7 @@ y 3
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 3
@@ -532,7 +532,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 4
@@ -549,7 +549,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 5
@@ -578,7 +578,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 8
@@ -595,7 +595,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 9
@@ -612,7 +612,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 10
@@ -629,7 +629,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 2
 y 11
@@ -802,7 +802,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 3
 y 4
@@ -835,7 +835,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 3
 y 8
@@ -1050,7 +1050,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 4
 y 4
@@ -1075,7 +1075,7 @@ y 7
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 4
 y 7
@@ -1092,7 +1092,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 4
 y 8
@@ -1263,7 +1263,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 5
 y 4
@@ -1288,7 +1288,7 @@ y 7
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 5
 y 7
@@ -1473,7 +1473,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 6
 y 4
@@ -1502,7 +1502,7 @@ y 7
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 6
 y 7
@@ -1519,7 +1519,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 6
 y 8
@@ -1536,7 +1536,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 6
 y 9
@@ -1553,7 +1553,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 6
 y 10
@@ -1570,7 +1570,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 6
 y 11
@@ -1717,7 +1717,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 7
 y 4
@@ -1754,7 +1754,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 7
 y 8
@@ -1771,7 +1771,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 7
 y 9
@@ -1796,7 +1796,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 7
 y 11
@@ -1974,7 +1974,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 8
 y 4
@@ -1991,7 +1991,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 8
 y 5
@@ -2016,7 +2016,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 8
 y 8
@@ -2033,7 +2033,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 8
 y 9
@@ -2050,7 +2050,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 8
 y 10
@@ -2067,7 +2067,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 8
 y 11
@@ -2258,7 +2258,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 9
 y 5
@@ -2283,7 +2283,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 9
 y 8
@@ -2450,7 +2450,7 @@ y 2
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 10
 y 2
@@ -2467,7 +2467,7 @@ y 3
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 10
 y 3
@@ -2484,7 +2484,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 10
 y 4
@@ -2501,7 +2501,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 10
 y 5
@@ -2526,7 +2526,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 10
 y 8
@@ -2706,7 +2706,7 @@ y 2
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 2
@@ -2731,7 +2731,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 4
@@ -2748,7 +2748,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 5
@@ -2777,7 +2777,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 8
@@ -2794,7 +2794,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 9
@@ -2843,7 +2843,7 @@ y 12
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 12
@@ -2860,7 +2860,7 @@ y 13
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 13
@@ -2877,7 +2877,7 @@ y 14
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 11
 y 14
@@ -2972,7 +2972,7 @@ y 2
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 2
@@ -2989,7 +2989,7 @@ y 3
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 3
@@ -3006,7 +3006,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 4
@@ -3023,7 +3023,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 5
@@ -3060,7 +3060,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 9
@@ -3137,7 +3137,7 @@ y 12
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 12
@@ -3162,7 +3162,7 @@ y 14
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 12
 y 14
@@ -3331,7 +3331,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 13
 y 5
@@ -3348,7 +3348,7 @@ y 6
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 13
 y 6
@@ -3373,7 +3373,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 13
 y 9
@@ -3422,7 +3422,7 @@ y 12
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 13
 y 12
@@ -3439,7 +3439,7 @@ y 13
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 13
 y 13
@@ -3456,7 +3456,7 @@ y 14
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 13
 y 14
@@ -3700,7 +3700,7 @@ y 6
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 14
 y 6
@@ -3725,7 +3725,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 14
 y 9
@@ -3838,7 +3838,7 @@ y 16
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 14
 y 16
@@ -3855,7 +3855,7 @@ y 17
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 14
 y 17
@@ -3872,7 +3872,7 @@ y 18
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 14
 y 18
@@ -3990,7 +3990,7 @@ y 6
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 15
 y 6
@@ -4015,7 +4015,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 15
 y 9
@@ -4032,7 +4032,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 15
 y 10
@@ -4118,7 +4118,7 @@ y 15
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 15
 y 15
@@ -4135,7 +4135,7 @@ y 16
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 15
 y 16
@@ -4218,7 +4218,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 4
@@ -4235,7 +4235,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 5
@@ -4257,7 +4257,7 @@ y 6
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 6
@@ -4294,7 +4294,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 10
@@ -4311,7 +4311,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 11
@@ -4360,7 +4360,7 @@ y 14
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 14
@@ -4377,7 +4377,7 @@ y 15
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 16
 y 15
@@ -4454,7 +4454,7 @@ y 4
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 4
@@ -4484,7 +4484,7 @@ y 6
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 6
@@ -4501,7 +4501,7 @@ y 7
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 7
@@ -4534,7 +4534,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 11
@@ -4551,7 +4551,7 @@ y 12
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 12
@@ -4568,7 +4568,7 @@ y 13
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 13
@@ -4585,7 +4585,7 @@ y 14
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 14
@@ -4618,7 +4618,7 @@ y 18
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 17
 y 18
@@ -4689,7 +4689,7 @@ y 5
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 5
@@ -4706,7 +4706,7 @@ y 6
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 6
@@ -4723,7 +4723,7 @@ y 7
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 7
@@ -4740,7 +4740,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 8
@@ -4769,7 +4769,7 @@ y 12
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 12
@@ -4786,7 +4786,7 @@ y 13
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 13
@@ -4815,7 +4815,7 @@ y 17
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 17
@@ -4832,7 +4832,7 @@ y 18
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 18
 y 18
@@ -4943,7 +4943,7 @@ y 8
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 19
 y 8
@@ -4960,7 +4960,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 19
 y 9
@@ -5014,7 +5014,7 @@ y 16
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 19
 y 16
@@ -5036,7 +5036,7 @@ y 17
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 19
 y 17
@@ -5053,7 +5053,7 @@ y 18
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 19
 y 18
@@ -5165,7 +5165,7 @@ y 9
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 20
 y 9
@@ -5182,7 +5182,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 20
 y 10
@@ -5219,7 +5219,7 @@ y 15
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 20
 y 15
@@ -5241,7 +5241,7 @@ y 16
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 20
 y 16
@@ -5266,7 +5266,7 @@ y 18
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 20
 y 18
@@ -5345,7 +5345,7 @@ y 10
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 10
@@ -5362,7 +5362,7 @@ y 11
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 11
@@ -5379,7 +5379,7 @@ y 12
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 12
@@ -5396,7 +5396,7 @@ y 13
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 13
@@ -5413,7 +5413,7 @@ y 14
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 14
@@ -5430,7 +5430,7 @@ y 15
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 15
@@ -5447,7 +5447,7 @@ y 16
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 16
@@ -5464,7 +5464,7 @@ y 17
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 17
@@ -5481,7 +5481,7 @@ y 18
 end
 arch damager
 name lava's heat
-dam 5
+dam 20
 attack_internal 100
 x 21
 y 18
