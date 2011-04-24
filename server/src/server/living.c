@@ -1718,6 +1718,8 @@ fix_player_jump_resi:
 
 	/* *3 is base */
 	op->stats.maxhp += op->arch->clone.stats.maxhp + op->arch->clone.stats.maxhp;
+	op->stats.maxsp += op->arch->clone.stats.maxsp + op->arch->clone.stats.maxsp;
+	op->stats.maxgrace += op->arch->clone.stats.maxgrace + op->arch->clone.stats.maxgrace;
 
 	for (i = 1; i <= op->level; i++)
 	{
