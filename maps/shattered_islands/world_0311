@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2011-04-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -25,19 +25,19 @@ end
 arch grassd_2
 y 1
 end
-arch water_still
+arch water_lt3
 y 2
 end
 arch grass_thickm1
 y 2
 end
-arch water_still
+arch water_lt2
 y 3
 end
-arch water_still
+arch water_lt4
 y 4
 end
-arch water_still
+arch water_lt2
 y 5
 end
 arch grass_thick2
@@ -66,13 +66,13 @@ end
 arch light1
 y 7
 end
-arch water_still
+arch water_lt2
 y 8
 end
-arch water_still
+arch water_lt
 y 9
 end
-arch water_still
+arch water_lt4
 y 10
 end
 arch grass_thickm6
@@ -132,7 +132,7 @@ end
 arch grassd_2
 x 1
 end
-arch water_still
+arch water_lt
 x 1
 y 1
 end
@@ -140,35 +140,39 @@ arch grass_thickm1
 x 1
 y 1
 end
-arch water_still
+arch water_lt2
 x 1
 y 2
 end
-arch water_still
+arch grassd_m13
+x 1
+y 2
+end
+arch water_lt
 x 1
 y 3
 end
-arch water_still
+arch water_lt3
 x 1
 y 4
 end
-arch water_still
+arch water_lt3
 x 1
 y 5
 end
-arch water_still
+arch water_lt2
 x 1
 y 6
 end
-arch water_still
+arch water_lt3
 x 1
 y 7
 end
-arch water_still
+arch water_lt4
 x 1
 y 8
 end
-arch water_still
+arch water_lt2
 x 1
 y 9
 end
@@ -176,7 +180,7 @@ arch light1
 x 1
 y 9
 end
-arch water_still
+arch water_lt4
 x 1
 y 10
 end
@@ -184,7 +188,7 @@ arch grassd_m14
 x 1
 y 10
 end
-arch water_still
+arch water_lt3
 x 1
 y 11
 end
@@ -258,7 +262,7 @@ end
 arch plant10
 x 2
 end
-arch water_still
+arch water_lt
 x 2
 y 1
 end
@@ -266,7 +270,7 @@ arch grass_thickm3
 x 2
 y 1
 end
-arch water_still
+arch water_lt
 x 2
 y 2
 end
@@ -274,7 +278,7 @@ arch grass_thickm7
 x 2
 y 2
 end
-arch water_still
+arch water_lt
 x 2
 y 3
 end
@@ -282,7 +286,7 @@ arch grass_thickm7
 x 2
 y 3
 end
-arch water_still
+arch water_lt4
 x 2
 y 4
 end
@@ -290,15 +294,19 @@ arch grass_thickm7
 x 2
 y 4
 end
-arch water_still
+arch water_lt
 x 2
 y 5
 end
-arch water_still
+arch grassd_m12
+x 2
+y 5
+end
+arch water_lt2
 x 2
 y 6
 end
-arch water_still
+arch water_lt2
 x 2
 y 7
 end
@@ -314,23 +322,27 @@ friendly 1
 random_move 1
 end
 end
-arch water_still
+arch water_lt2
 x 2
 y 8
 end
-arch water_still
+arch water_lt2
 x 2
 y 9
 end
-arch water_still
+arch water_lt2
 x 2
 y 10
 end
-arch water_still
+arch water_lt3
 x 2
 y 11
 end
-arch water_still
+arch grassd_m14
+x 2
+y 11
+end
+arch water_lt
 x 2
 y 12
 end
@@ -425,7 +437,7 @@ arch tree_big3
 x 3
 y 4
 end
-arch water_still
+arch water_lt2
 x 3
 y 5
 end
@@ -433,19 +445,23 @@ arch grass_thickm4
 x 3
 y 5
 end
-arch water_still
+arch water_lt2
 x 3
 y 6
 end
-arch water_still
+arch water_lt4
 x 3
 y 7
 end
-arch water_still
+arch water_lt
 x 3
 y 8
 end
-arch water_still
+arch grassd_m11
+x 3
+y 8
+end
+arch water_lt4
 x 3
 y 9
 end
@@ -453,15 +469,19 @@ arch grass_thickm7
 x 3
 y 9
 end
-arch water_still
+arch water_lt3
 x 3
 y 10
 end
-arch water_still
+arch grassd_m12
+x 3
+y 10
+end
+arch water_lt3
 x 3
 y 11
 end
-arch water_still
+arch water_lt
 x 3
 y 12
 end
@@ -548,7 +568,7 @@ arch grassd_4
 x 4
 y 4
 end
-arch water_still
+arch water_lt2
 x 4
 y 5
 end
@@ -556,7 +576,7 @@ arch grassd_m6
 x 4
 y 5
 end
-arch water_still
+arch water_lt4
 x 4
 y 6
 end
@@ -564,7 +584,7 @@ arch grass_thickm7
 x 4
 y 6
 end
-arch water_still
+arch water_lt
 x 4
 y 7
 end
@@ -572,7 +592,7 @@ arch grass_thickm7
 x 4
 y 7
 end
-arch water_still
+arch water_lt4
 x 4
 y 8
 end
@@ -584,7 +604,7 @@ arch grassd_3
 x 4
 y 9
 end
-arch water_still
+arch water_lt3
 x 4
 y 10
 end
@@ -592,7 +612,7 @@ arch grass_thickm3
 x 4
 y 10
 end
-arch water_still
+arch water_lt3
 x 4
 y 11
 end
@@ -836,7 +856,28 @@ arch grassd_3
 x 6
 y 7
 end
+arch candlelight4.101
+x 6
+y 7
+end
+arch light6
+x 6
+y 7
+end
 arch grassd_6
+x 6
+y 8
+end
+arch table_wood1.111
+direction 6
+x 6
+y 8
+end
+arch picture1.151
+z 12
+align -9
+draw_direction 0
+direction 7
 x 6
 y 8
 end
@@ -844,7 +885,15 @@ arch grassd_3
 x 6
 y 9
 end
-arch tree_branch3
+arch table_small1
+x 6
+y 9
+end
+arch book_journal_garland
+layer 5
+z 15
+zoom 75
+align 4
 x 6
 y 9
 end
@@ -853,10 +902,6 @@ x 6
 y 10
 end
 arch grassd_7
-x 6
-y 11
-end
-arch tree_big3
 x 6
 y 11
 end
@@ -961,6 +1006,25 @@ end
 arch grassd_1
 x 7
 y 8
+end
+arch chair2_111
+direction 3
+x 7
+y 8
+end
+arch spawn_point
+x 7
+y 8
+arch peasant
+msg
+@match ^hi$|^hey$|^hello$
+Why, hello there, my name is Garland. I am making a drawing of the portal for my <a>journal</a>.
+@match ^journal$
+Yes, I have some history about the portal in it, take a look if you like.
+endmsg
+type 83
+name Garland
+end
 end
 arch grassd_8
 x 7

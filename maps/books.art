@@ -61,7 +61,7 @@ def_arch tome_blue
 Object
 name Binary Bible
 msg
-In the beginning, the Giver of Data (GOD) generated silicon and carbon, and the system without architecture, and un-initialized, randomness was apon the arrangement of the matrix.......
+In the beginning, the Giver of Data (GOD) generated silicon and carbon, and the system without architecture, and un-initialized, randomness was upon the arrangement of the matrix.......
 endmsg
 no_pick 1
 end
@@ -77,7 +77,7 @@ Frank Tore Johansen started writing Crossfire in March 1992. Since then several 
 
 The earlier versions looked a lot like the game Gauntlet. Then it started adopting the features of Nethack and Moria.
 
-Now it is moving in the direction of more complex games like Ultima. But during all those years, Crossfire has developed it's very own unique style.
+Now it is moving in the direction of more complex games like Ultima. But during all those years, Crossfire has developed its very own unique style.
 endmsg
 no_pick 1
 no_skill_ident 1
@@ -109,6 +109,49 @@ Not much is known about this temple, which is rumored to be hidden somewhere in 
 <p>
 <title>One-way exits</title>
 The mine is supposed to have one-way exits to both Fort Ghzal and Giant Mountains. There may be other exits from the mine, and, quite possibly, other entrances apart from the main one.
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_journal_garland
+def_arch book
+Object
+name Garland's Journal
+face book_light_blue.101
+level 5
+exp 60
+msg
+<b>About the Brynknot Lake Portal...</b>
+
+<title>Facts:</title>
+
+The portal appeared shortly after Brynknot was built.
+
+According to the Elders, many people entered the portal wondering where it would take them.
+
+Those entering the portal were never seen again.
+
+It was decided that the danger of the portal was too great and the Elders tried many things to close the portal, but failed. Thus, they built the lake around the portal. It now stands as a symbol to those that were lost to it.
+
+The hole on the island leads to sewers under the city.
+
+<title>Rumors:</title>
+
+It is said that the portal leads to a Great City below the ground.
+
+The portal is a pathway to the Gods.
+
+Some drow prisoners have claimed that humans attacked them first, coming to their city uninvited. Thus it was the humans that started the war.
+
+It is said that those that made it to the other side of the portal were unable to re-enter the portal on the other side to get back.
+
+Those that enter the portal become immortal.
+
+Much gold, silver, and jewels await those that enter the portal.
+
+Demons and creatures with many eyes await those that enter the portal.
 endmsg
 no_pick 1
 end
