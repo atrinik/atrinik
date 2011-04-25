@@ -966,7 +966,7 @@ char *query_base_name(object *op, object *caller)
 				}
 			}
 
-			if (op->title && (need_identify(op) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
+			if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->title, &len, sizeof(buf));
