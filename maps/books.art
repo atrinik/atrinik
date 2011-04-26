@@ -155,3 +155,36 @@ Demons and creatures with many eyes await those that enter the portal.
 endmsg
 no_pick 1
 end
+
+Allowed none
+chance 1
+artifact book_diary_dunsor
+def_arch book_green
+Object
+name Dunsor's diary
+level 15
+exp 50
+msg
+<title>6:00</title>
+We are going into the portal today. I am saying goodbye to my family, telling them I will see them when I get back. We don't know if it is safe, or where the portal leads, but we are going to find out in about an hour.
+
+<title>7:00</title>
+We leave now. Here goes nothing.
+
+<title>7:05</title>
+We seem to be in some sort of a city. From what we can see, it is under the ground. Incredible...
+
+<title>7:10</title>
+We can hear a lot of noise all around us, it seems that we were not as quiet as we should have been. There seems to be a group coming towards us. We are prepared to defend ourselves if it is necessary, but I hope it won't come to that.
+
+<title>7:20</title>
+Drow... They don't seem happy to see us. They are yelling something about "death to the humans" and "save the king at all cost". Upon hearing what the drow were saying, we tried to go back through the portal. It doesn't work. We are stuck here.
+
+<title>7:25</title>
+We have tried to talk to them, but they won't listen and are preparing to attack. There are hundreds of them, it is impossible we can overpower them. The leader of the group just laughed when we tried to leave, and told us that only those that possess the amulet of Llwyfen can pass through the portal. I have heard that the mayor of Brynknot is a follower of Llwyfen.
+
+<title>7:30</title>
+I hear their war cries. We have no means of esca... <img=wall_blood1.u.151 -5 -10>
+endmsg
+no_pick 1
+end
