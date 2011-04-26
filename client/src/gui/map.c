@@ -733,15 +733,16 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		/* Draw the name of target if it's not a player */
 		if (!(options.player_names && map->pname[layer][0]))
 		{
-			StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xpos - (strlen(cpl.target_name) * 2) + 22, yl - 26, cpl.target_color, NULL, NULL);
+			StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, cpl.target_name) / 2 - 2, yl - 26, cpl.target_color, NULL, NULL);
 		}
 
 		/* Draw HP remaining percent */
 		if (cpl.target_hp > 0)
 		{
 			char hp_text[9];
-			int hp_len = snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
-			StringBlt(ScreenSurfaceMap, &Font6x3Out, hp_text, xpos - hp_len * 2 + 22, yl - 36, hp_col, NULL, NULL);
+
+			snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
+			StringBlt(ScreenSurfaceMap, &Font6x3Out, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, hp_text) / 2 - 2, yl - 36, hp_col, NULL, NULL);
 		}
 	}
 }
