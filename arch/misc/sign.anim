@@ -49,3 +49,16 @@ wallsign_weapon.151
 wallsign_weapon.151
 wallsign_weapon.131
 mina
+
+anim wallsign_text
+facings 9
+dummy.111
+wallsign_text.131
+wallsign_text.131
+wallsign_text.131
+wallsign_text.151
+wallsign_text.151
+wallsign_text.151
+wallsign_text.151
+wallsign_text.131
+mina
