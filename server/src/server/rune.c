@@ -271,7 +271,7 @@ int trap_disarm(object *disarmer, object *trap)
  * @param difficulty Map difficulty. */
 void trap_adjust(object *trap, int difficulty)
 {
-	int off;
+	int off, level, hide;
 
 	if (difficulty < 1)
 	{
@@ -279,19 +279,11 @@ void trap_adjust(object *trap, int difficulty)
 	}
 
 	off = (int) ((float) difficulty * 0.2f);
+	level = rndm(difficulty - off, difficulty + off);
+	level = MAX(1, MIN(level, MAXLEVEL));
+	hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
+	hide = MAX(1, MIN(hide, SINT8_MAX));
 
-	trap->level = rndm(difficulty - off, difficulty + off);
-
-	if (trap->level < 1)
-	{
-		trap->level = 1;
-	}
-
-	/* Set the hiddenness of the trap */
-	trap->stats.Cha = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
-
-	if (trap->stats.Cha < 1)
-	{
-		trap->stats.Cha = 1;
-	}
+	trap->level = level;
+	trap->stats.Cha = hide;
 }
