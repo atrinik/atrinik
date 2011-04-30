@@ -257,15 +257,15 @@ dg9.mid: Castle, fort, palace
 = Brandon Morris - http://opengameart.org/users/brandon-morris - CC-BY 3.0 =
 ============================================================================
 
-running_from_something.ogg
-evil_temple.ogg
-lost_in_the_meadows.ogg
+running_from_something.ogg: Dungeon
+evil_temple.ogg: Evil eerie temple, chanting
+lost_in_the_meadows.ogg: Peaceful, meadow
 
 =================================================================
 = Gobusto - http://opengameart.org/users/gobusto - CC-BY-SA 3.0 =
 =================================================================
 
-hull_et_belle.ogg
+hull_et_belle.ogg: Boss rush, pre-boss
 
 =====================
 = GPL (unconfirmed) =
