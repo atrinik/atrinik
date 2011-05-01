@@ -316,9 +316,6 @@ typedef struct pl_player
 	/** ID of the object being used as ammunition for bow/crossbow/etc. */
 	int firemode_tag2;
 
-	/** Number of items the player has in his shop. */
-	int shop_items_count;
-
 	/**
 	 * Array showing what spaces the player can see. For maps smaller
 	 * than MAP_CLIENT_.., the upper left is used. */
