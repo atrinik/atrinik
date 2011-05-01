@@ -289,7 +289,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 				if (tmp)
 				{
 					/* Show it */
-					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], 0);
+					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 
 					/* And show tooltip, if mouse is over it */
 					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)

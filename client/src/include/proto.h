@@ -346,7 +346,7 @@ void widget_show_inventory_window(widgetdata *widget);
 void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
 void widget_show_below_window(widgetdata *widget);
 int blt_inv_item_centered(object *tmp, int x, int y);
-void blt_inv_item(object *tmp, int x, int y, int nrof);
+void blt_inv_item(object *tmp, int x, int y);
 void examine_range_inv();
 
 /* gui/keybind.c */

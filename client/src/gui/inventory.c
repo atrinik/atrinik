@@ -492,7 +492,7 @@ void widget_show_inventory_window(widgetdata *widget)
 				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
 			}
 
-			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
+			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30);
 
 			if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 			{
@@ -517,7 +517,7 @@ jump_in_container1:
 					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
 				}
 
-				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
+				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30);
 
 				if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 				{
@@ -649,7 +649,7 @@ void widget_show_below_window(widgetdata *widget)
 		if (tmp->tag != cpl.container_tag)
 			tmp->flags &= ~F_APPLIED;
 
-		blt_inv_item(tmp, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
+		blt_inv_item(tmp, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19);
 
 		if (at)
 		{
@@ -684,7 +684,7 @@ void widget_show_below_window(widgetdata *widget)
 jump_in_container2:
 			for (; tmpc && i < INVITEMBELOWXLEN * INVITEMBELOWYLEN; tmpc = tmpc->next)
 			{
-				blt_inv_item(tmpc, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
+				blt_inv_item(tmpc, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19);
 
 				if (i + cpl.win_below_start == cpl.win_below_slot)
 				{
@@ -854,32 +854,24 @@ int blt_inv_item_centered(object *tmp, int x, int y)
  * and draws nrof (if higher than 1) of items near the bottom.
  * @param tmp Pointer to the inventory item
  * @param x X position of the item
- * @param y Y position of the item
- * @param nrof If non-zero, will use the value instead of the item's own
- * nrof. */
-void blt_inv_item(object *tmp, int x, int y, int nrof)
+ * @param y Y position of the item */
+void blt_inv_item(object *tmp, int x, int y)
 {
-	int tmp_nrof = tmp->nrof;
 	int fire_ready;
-
-	if (nrof)
-	{
-		tmp_nrof = nrof;
-	}
 
 	blt_inv_item_centered(tmp, x, y);
 
-	if (tmp_nrof > 1)
+	if (tmp->nrof > 1)
 	{
 		char buf[64];
 
-		if (tmp_nrof > 9999)
+		if (tmp->nrof > 9999)
 		{
 			snprintf(buf, sizeof(buf), "many");
 		}
 		else
 		{
-			snprintf(buf, sizeof(buf), "%d", tmp_nrof);
+			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 18, COLOR_WHITE, NULL, NULL);
