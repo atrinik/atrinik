@@ -860,6 +860,7 @@ int blt_inv_item_centered(object *tmp, int x, int y)
 void blt_inv_item(object *tmp, int x, int y, int nrof)
 {
 	int tmp_nrof = tmp->nrof;
+	int fire_ready;
 
 	if (nrof)
 	{
@@ -884,27 +885,50 @@ void blt_inv_item(object *tmp, int x, int y, int nrof)
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 18, COLOR_WHITE, NULL, NULL);
 	}
 
-	if (tmp->flags & F_LOCKED)
-		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + ICONDEFLEN - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
+	/* Determine whether there is a readied object for firing or not. */
+	fire_ready = fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag;
 
-	/* Applied and unpaid same spot - can't apply unpaid items */
 	if (tmp->flags & F_APPLIED)
+	{
 		sprite_blt(Bitmaps[BITMAP_APPLY], x, y, NULL, NULL);
 
-	if (tmp->flags & F_UNPAID)
+		if (fire_ready)
+		{
+			sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y + 8, NULL, NULL);
+		}
+	}
+	else if (tmp->flags & F_UNPAID)
+	{
 		sprite_blt(Bitmaps[BITMAP_UNPAID], x, y, NULL, NULL);
+	}
+	else if (fire_ready)
+	{
+		sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y, NULL, NULL);
+	}
+
+	if (tmp->flags & F_LOCKED)
+	{
+		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + ICONDEFLEN - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
+	}
 
 	if (tmp->flags & F_MAGIC)
-		sprite_blt(Bitmaps[BITMAP_MAGIC], x + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + ICONDEFLEN-Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
-
-	if (tmp->flags & F_CURSED)
-		sprite_blt(Bitmaps[BITMAP_CURSED], x + ICONDEFLEN-Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
+	{
+		sprite_blt(Bitmaps[BITMAP_MAGIC], x + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
+	}
 
 	if (tmp->flags & F_DAMNED)
+	{
 		sprite_blt(Bitmaps[BITMAP_DAMNED], x + ICONDEFLEN - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
+	}
+	else if (tmp->flags & F_CURSED)
+	{
+		sprite_blt(Bitmaps[BITMAP_CURSED], x + ICONDEFLEN - Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
+	}
 
 	if (tmp->flags & F_TRAPPED)
-		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + 8, y + 7, NULL, NULL);
+	{
+		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + ICONDEFLEN / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->w / 2, y + ICONDEFLEN / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->h / 2, NULL, NULL);
+	}
 }
 
 void examine_range_inv()

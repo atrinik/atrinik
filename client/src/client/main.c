@@ -137,6 +137,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"damned.png", PIC_TYPE_DEFAULT},
 	{"lock.png", PIC_TYPE_DEFAULT},
 	{"magic.png", PIC_TYPE_DEFAULT},
+	{"fire_ready.png", PIC_TYPE_DEFAULT},
 
 	{"range.png", PIC_TYPE_TRANS},
 	{"range_marker.png", PIC_TYPE_TRANS},
