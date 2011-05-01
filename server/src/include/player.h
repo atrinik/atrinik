@@ -171,6 +171,17 @@ typedef struct player_path
 	uint8 fails;
 } player_path;
 
+/**
+ * Enumerations of the READY_OBJ_xxx constants used by
+ * @ref BINARY_CMD_READY.
+ * @anchor READY_OBJ_xxx */
+enum
+{
+	READY_OBJ_ARROW,
+	READY_OBJ_THROW,
+	READY_OBJ_MAX
+};
+
 #ifdef WIN32
 #pragma pack(push,1)
 #endif
@@ -292,6 +303,14 @@ typedef struct pl_player
 	/** Player's quest container. */
 	object *quest_container;
 
+	/**
+	 * Readied objects (arrows, quivers, bolts, etc). Whenever a readied
+	 * object is removed by remove_ob(), the applicable entry is removed
+	 * from this array (set to NULL), thus no additional checking like
+	 * "is the object still in player's inventory" or "does the object
+	 * even exist" is necessary. */
+	object *ready_object[READY_OBJ_MAX];
+
 	/** For the client target HP marker. */
 	int target_hp;
 
@@ -310,10 +329,10 @@ typedef struct pl_player
 	/** firemode_xxx are set from command_fire() */
 	int firemode_type;
 
-	/** ID of the object being thrown. */
+	/** ID of the object being thrown. @deprecated */
 	int firemode_tag1;
 
-	/** ID of the object being used as ammunition for bow/crossbow/etc. */
+	/** ID of the object being used as ammunition for bow/crossbow/etc. @deprecated */
 	int firemode_tag2;
 
 	/**

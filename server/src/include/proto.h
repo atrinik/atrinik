@@ -116,7 +116,7 @@ int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
 void new_chars_init();
 void command_new_char(char *params, int len, player *pl);
-void command_fire(char *params, int len, player *pl);
+void command_fire_old(char *params, int len, player *pl);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
 void send_skilllist_cmd(object *op, object *skillp, int mode);
 void send_ready_skill(object *op, const char *skillname);
@@ -972,6 +972,9 @@ void ApplyCmd(char *buf, int len, player *pl);
 void LockItem(uint8 *data, int len, player *pl);
 void MarkItem(uint8 *data, int len, player *pl);
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
+void cmd_ready_send(player *pl, tag_t tag, int type);
+int cmd_ready_determine(object *tmp);
+void cmd_ready_clear(object *op, int type);
 
 /* socket/loop.c */
 void handle_client(socket_struct *ns, player *pl);
@@ -1014,7 +1017,9 @@ void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
 void command_clear_cmds(char *buf, int len, socket_struct *ns);
 void SetSound(char *buf, int len, socket_struct *ns);
-void command_move_path(char *buf, int len, player *pl);
+void command_move_path(uint8 *buf, int len, player *pl);
+void cmd_ready(uint8 *buf, int len, player *pl);
+void command_fire(uint8 *buf, int len, player *pl);
 
 /* socket/sounds.c */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);

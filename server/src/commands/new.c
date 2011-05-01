@@ -960,8 +960,9 @@ void command_new_char(char *params, int len, player *pl)
  * Sent by the client by pressing Ctrl + numpad.
  * @param params Parameters.
  * @param len Length.
- * @param pl Player. */
-void command_fire(char *params, int len, player *pl)
+ * @param pl Player.
+ * @deprecated */
+void command_fire_old(char *params, int len, player *pl)
 {
 	int dir = 0, type, tag1, tag2;
 	object *op = pl->ob;

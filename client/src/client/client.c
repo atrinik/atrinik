@@ -96,6 +96,7 @@ enum
 	BINARY_CMD_SHOP,
 	BINARY_CMD_QLIST,
 	BINARY_CMD_REGION_MAP,
+	BINARY_CMD_READY,
 	/* last entry */
 	BINAR_CMD
 };
@@ -140,6 +141,7 @@ struct CmdMapping commands[] =
 	{"shop", ShopCmd, ASCII},
 	{"qlist", QuestListCmd, ASCII},
 	{"region_map", RegionMapCmd, ASCII},
+	{"rd", ReadyCmd, INT_ARRAY},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd, NODATA},

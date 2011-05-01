@@ -292,7 +292,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"sleep", "confused", NULL, "scared", "is_blind",
 	"is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
 	"no_pass", "is_animated", "slow_move", "flying", "monster",
-	"friendly", NULL, "been_applied", "auto_apply", NULL,
+	"friendly", NULL, "been_applied", "auto_apply", "is_ready",
 	"is_neutral", "see_invisible", "can_roll", "connect_reset", "is_turnable",
 	"walk_off", "fly_on", "fly_off", "is_used_up", "identified",
 	"reflecting", "changing", "splitting", "hitback", "startequip",
@@ -1739,6 +1739,23 @@ void remove_ob(object *op)
 
 	mark_object_removed(op);
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
+	op->quickslot = 0;
+
+	/* If the object is ready and it's in inventory of the player, remove
+	 * it from the player's ready_object array, inform the client, and
+	 * clear the ready flag. */
+	if (QUERY_FLAG(op, FLAG_IS_READY) && op->env && op->env->type == PLAYER)
+	{
+		int type = cmd_ready_determine(op);
+
+		if (type != -1)
+		{
+			CONTR(op->env)->ready_object[type] = NULL;
+			cmd_ready_send(CONTR(op->env), -1, type);
+		}
+
+		CLEAR_FLAG(op, FLAG_IS_READY);
+	}
 
 	/* In this case, the object to be removed is in someones
 	 * inventory. */

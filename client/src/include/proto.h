@@ -53,6 +53,7 @@ void NewCharCmd();
 void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
 void QuestListCmd(unsigned char *data, int len);
+void ReadyCmd(unsigned char *data, int len);
 
 /* client/curl.c */
 int curl_connect(void *c_data);
@@ -99,6 +100,7 @@ object *object_create(object *env, sint32 tag, int bflag);
 void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
 void toggle_locked(object *op);
 void object_send_mark(object *op);
+void ready_object(object *op);
 void objects_init();
 void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
 void animate_objects();
@@ -346,7 +348,6 @@ void widget_show_below_window(widgetdata *widget);
 int blt_inv_item_centered(object *tmp, int x, int y);
 void blt_inv_item(object *tmp, int x, int y, int nrof);
 void examine_range_inv();
-void examine_range_marks(int tag);
 
 /* gui/keybind.c */
 void show_keybind();

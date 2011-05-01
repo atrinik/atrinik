@@ -2066,7 +2066,7 @@ void SetSound(char *buf, int len, socket_struct *ns)
  * @param buf Data.
  * @param len Length of 'buf'.
  * @param pl Player. */
-void command_move_path(char *buf, int len, player *pl)
+void command_move_path(uint8 *buf, int len, player *pl)
 {
 	sint8 x, y;
 	mapstruct *m;
@@ -2133,4 +2133,118 @@ void command_move_path(char *buf, int len, player *pl)
 	/* The last x,y where we wanted to move is not included in the
 	 * above paths finding, so we have to add it manually. */
 	player_path_add(pl, m, xt, yt);
+}
+
+/**
+ * The ready command; client informs the server about new object to
+ * mark as ready.
+ * @param buf Data.
+ * @param len Length of the data.
+ * @param pl Player. */
+void cmd_ready(uint8 *buf, int len, player *pl)
+{
+	tag_t tag;
+	object *tmp;
+	int type;
+
+	if (!buf || len < 4)
+	{
+		return;
+	}
+
+	/* Get the ID of the object this is being done for. */
+	tag = GetInt_String(buf);
+
+	/* Search for the object in the player's inventory. */
+	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->count == tag)
+		{
+			/* Determine whether this object can be readied. */
+			type = cmd_ready_determine(tmp);
+
+			if (type == -1)
+			{
+				return;
+			}
+
+			/* If it's already readied, just unready it. */
+			if (QUERY_FLAG(tmp, FLAG_IS_READY))
+			{
+				CLEAR_FLAG(tmp, FLAG_IS_READY);
+				pl->ready_object[type] = NULL;
+				/* Inform the client about the change. */
+				cmd_ready_send(pl, -1, type);
+
+				new_draw_info_format(NDI_UNIQUE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
+			}
+			/* Otherwise ready it. */
+			else
+			{
+				/* Unready previously readied object of this type, if any. */
+				cmd_ready_clear(pl->ob, type);
+				SET_FLAG(tmp, FLAG_IS_READY);
+				pl->ready_object[type] = tmp;
+				/* Inform the client about the change. */
+				cmd_ready_send(pl, tag, type);
+
+				if (type == READY_OBJ_ARROW)
+				{
+					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
+				}
+				else if (type == READY_OBJ_THROW)
+				{
+					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
+				}
+			}
+
+			break;
+		}
+	}
+}
+
+/**
+ * The fire command used by client's range widget, and triggered by the
+ * player using ctrl + numpad.
+ * @param buf Data.
+ * @param len Length of the data.
+ * @param pl Player. */
+void command_fire(uint8 *buf, int len, player *pl)
+{
+	int dir, pos = 0;
+	uint8 type;
+
+	if (!buf || len < 2)
+	{
+		return;
+	}
+
+	/* Get the direction for firing and the fire mode (type). */
+	dir = absdir(buf[pos++]);
+	type = buf[pos++];
+
+	/* For spell and skill firing, get the name of what to use. */
+	if (type == FIRE_MODE_SPELL || type == FIRE_MODE_SKILL)
+	{
+		if (len < 4)
+		{
+			return;
+		}
+
+		/* Store the name. */
+		strncpy(pl->firemode_name, (char *) buf + pos, sizeof(pl->firemode_name) - 1);
+		pl->firemode_name[sizeof(pl->firemode_name) - 1] = '\0';
+	}
+
+	/* Check that we can actually cast this spell... */
+	if (type == FIRE_MODE_SPELL && !fire_cast_spell(pl->ob, pl->firemode_name))
+	{
+		return;
+	}
+
+	pl->fire_on = 1;
+	pl->firemode_type = type;
+	move_player(pl->ob, dir);
+	pl->fire_on = 0;
+	pl->firemode_type = -1;
 }

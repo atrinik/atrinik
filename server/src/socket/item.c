@@ -1261,11 +1261,6 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		return;
 	}
 
-	if (op->quickslot)
-	{
-		op->quickslot = 0;
-	}
-
 	/* drop it to the ground */
 	if (!to)
 	{
@@ -1303,7 +1298,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		}
 
 		CONTR(pl)->count = nrof;
-		/* Tt goes in player inv or readied container */
+		/* It goes in player inv or readied container */
 		pick_up(pl, op, 0);
 		return;
 	}
@@ -1384,4 +1379,71 @@ static int check_container(object *pl, object *con)
 	}
 
 	return ret;
+}
+
+/**
+ * Sends a @ref BINARY_CMD_READY to the player's client.
+ * @param pl The player.
+ * @param tag Object UID that the client should be notified about being
+ * readied.
+ * @param type Type of the object as returned by cmd_ready_determine(). */
+void cmd_ready_send(player *pl, tag_t tag, int type)
+{
+	SockList sl;
+	unsigned char sockbuf[6];
+
+	sl.buf = sockbuf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_READY);
+	SockList_AddChar(&sl, type);
+	SockList_AddInt(&sl, tag);
+	Send_With_Handling(&pl->socket, &sl);
+}
+
+/**
+ * Determines one of @ref READY_OBJ_xxx for the specified object.
+ * @param tmp The object.
+ * @return One of @ref READY_OBJ_xxx, -1 if not applicable to any of the
+ * defined constants. */
+int cmd_ready_determine(object *tmp)
+{
+	/* System object, can't be any of the below. */
+	if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
+	{
+		return -1;
+	}
+
+	/* Objects that can be thrown. */
+	if (QUERY_FLAG(tmp, FLAG_IS_THROWN))
+	{
+		return READY_OBJ_THROW;
+	}
+	/* Arrows, or containers like quivers. */
+	else if (tmp->type == ARROW || tmp->type == CONTAINER)
+	{
+		return READY_OBJ_ARROW;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+/**
+ * Look through player's inventory and unready readied object of the
+ * specified type.
+ * @param op Player.
+ * @param type One of @ref READY_OBJ_xxx that the readied object must
+ * match. */
+void cmd_ready_clear(object *op, int type)
+{
+	object *tmp;
+
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		if (QUERY_FLAG(tmp, FLAG_IS_READY) && cmd_ready_determine(tmp) == type)
+		{
+			CLEAR_FLAG(tmp, FLAG_IS_READY);
+			break;
+		}
+	}
 }

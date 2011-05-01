@@ -274,19 +274,18 @@ void check_keys(int key)
 int process_macro_keys(int id, int value)
 {
 	int nrof, tag = 0, loc = 0;
-	char buf[256];
+	char buf[MAX_BUF];
 	object *it, *tmp;
 	widgetdata *widget;
 
 	switch (id)
 	{
 		case KEYFUNC_FIREREADY:
-			if (cpl.inventory_win == IWIN_BELOW)
-				tag = cpl.win_below_tag;
-			else
-				tag = cpl.win_inv_tag;
+			if (cpl.inventory_win == IWIN_INV && cpl.win_inv_tag != -1)
+			{
+				ready_object(object_find(cpl.win_inv_tag));
+			}
 
-			examine_range_marks(tag);
 			break;
 
 		case KEYFUNC_PAGEUP:

@@ -196,6 +196,8 @@ object *find_throw_tag(object *op, tag_t tag)
 {
 	object *tmp;
 
+if (CONTR(op)->socket.socket_version < 1048)
+{
 	/* Look through the inventory. */
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
@@ -210,6 +212,11 @@ object *find_throw_tag(object *op, tag_t tag)
 			break;
 		}
 	}
+}
+else
+{
+	tmp = CONTR(op)->ready_object[READY_OBJ_THROW];
+}
 
 	if (!tmp)
 	{

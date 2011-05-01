@@ -440,6 +440,10 @@ enum
 	BINARY_CMD_SHOP,
 	BINARY_CMD_QLIST,
 	BINARY_CMD_REGION_MAP,
+	/**
+	 * Used to exchange information about readied objects such as arrows,
+	 * bolts, quivers, throwing knives, etc. */
+	BINARY_CMD_READY,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

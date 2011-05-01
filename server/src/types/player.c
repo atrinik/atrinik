@@ -37,7 +37,7 @@
 static archetype *get_player_archetype(archetype *at);
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
-static object *find_arrow_ext(object *op, const char *type, int tag);
+static object *find_arrow_ext(object *op, shstr *type, int tag);
 
 /**
  * Loop through the player list and find player specified by plname.
@@ -174,7 +174,6 @@ static player *get_player(player *p)
 	op->speed_left = 0.5;
 	op->speed = 1.0;
 	op->run_away = 0;
-	op->quickslot = 0;
 
 	p->state = ST_ROLL_STAT;
 
@@ -690,7 +689,7 @@ void fire(object *op, int dir)
 			return;
 
 		case range_bow:
-			if (CONTR(op)->firemode_tag2 != -1)
+			if (CONTR(op)->firemode_tag2 != -1 || CONTR(op)->socket.socket_version >= 1048)
 			{
 				/* Still need to recover from range action? */
 				if (!check_skill_action_time(op, op->chosen_skill))
@@ -1769,7 +1768,9 @@ int pvp_area(object *attacker, object *victim)
  * @param type Type of the ammunition (arrows, bolts, etc).
  * @param tag Firemode tag.
  * @return Pointer to the arrow, NULL if not found. */
-static object *find_arrow_ext(object *op, const char *type, int tag)
+static object *find_arrow_ext(object *op, shstr *type, int tag)
+{
+if (CONTR(op)->socket.socket_version < 1048)
 {
 	object *tmp = NULL;
 
@@ -1819,6 +1820,42 @@ static object *find_arrow_ext(object *op, const char *type, int tag)
 
 		return tmp;
 	}
+}
+else
+{
+	object *tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
+
+	/* Nothing readied. */
+	if (!tmp)
+	{
+		return NULL;
+	}
+
+	/* The type does not match the arrow/quiver. */
+	if (tmp->race != type)
+	{
+		return NULL;
+	}
+
+	/* The readied item is an arrow, so simply return it. */
+	if (tmp->type == ARROW)
+	{
+		return tmp;
+	}
+	/* A quiver, search through it for arrows. */
+	else if (tmp->type == CONTAINER)
+	{
+		for (tmp = tmp->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->race == type && tmp->type == ARROW)
+			{
+				return tmp;
+			}
+		}
+	}
+
+	return NULL;
+}
 }
 
 /**

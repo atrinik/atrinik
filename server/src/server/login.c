@@ -346,10 +346,11 @@ void check_login(object *op)
 	FILE *fp;
 	void *mybuffer;
 	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF];
-	int i, value, comp, correct = 0;
+	int i, value, comp, correct = 0, type;
 	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
+	object *tmp;
 
 	strcpy(pl->maplevel, first_map_path);
 
@@ -724,6 +725,22 @@ void check_login(object *op)
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_quickslots(pl);
+
+	/* Go through the player's inventory and inform the client about
+	 * readied objects. */
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		if (QUERY_FLAG(tmp, FLAG_IS_READY))
+		{
+			type = cmd_ready_determine(tmp);
+
+			if (type != -1)
+			{
+				pl->ready_object[type] = tmp;
+				cmd_ready_send(pl, tmp->count, type);
+			}
+		}
+	}
 
 	if (op->map && op->map->events)
 	{

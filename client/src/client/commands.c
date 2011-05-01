@@ -1832,3 +1832,28 @@ void QuestListCmd(unsigned char *data, int len)
 	data += 4;
 	book_load((char *) data, len - 4);
 }
+
+/**
+ * Ready command. Marks an object with specified UID as readied (arrow,
+ * quiver, etc).
+ * @param data Data.
+ * @param len Length of the data. */
+void ReadyCmd(unsigned char *data, int len)
+{
+	int tag;
+	uint8 type;
+
+	(void) len;
+
+	type = data[0];
+	tag = GetInt_String(data + 1);
+
+	if (type == READY_OBJ_ARROW)
+	{
+		fire_mode_tab[FIRE_MODE_BOW].amun = tag;
+	}
+	else if (type == READY_OBJ_THROW)
+	{
+		fire_mode_tab[FIRE_MODE_THROW].item = tag;
+	}
+}
