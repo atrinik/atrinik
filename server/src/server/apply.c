@@ -1408,16 +1408,9 @@ int apply_special(object *who, object *op, int aflags)
 			SET_FLAG(op, FLAG_APPLIED);
 			new_draw_info_format(NDI_UNIQUE, who, "You ready %s.", query_name(op, NULL));
 
-			if (who->type == PLAYER)
+			if (op->type == BOW)
 			{
-				if (op->type == BOW)
-				{
-					new_draw_info_format(NDI_UNIQUE, who, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, NULL));
-				}
-				else
-				{
-					CONTR(who)->known_spell = (QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED));
-				}
+				new_draw_info_format(NDI_UNIQUE, who, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, NULL));
 			}
 
 			break;

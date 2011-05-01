@@ -479,9 +479,6 @@ typedef struct pl_player
 	/** Is metaserver privacy activated? */
 	uint32 ms_privacy:1;
 
-	/** True if you know the spell of the wand */
-	uint32 known_spell:1;
-
 	/** Update skill list when set. */
 	uint32 update_skills:1;
 
