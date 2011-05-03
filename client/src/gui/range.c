@@ -33,25 +33,6 @@
 #define ICONDEFLEN 32
 
 /**
- * Locate and return the name of range item.
- * @param tag Item tag
- * @return "Nothing" if no range item, the range item name otherwise */
-static char *get_range_item_name(int tag)
-{
-	object *tmp;
-
-	if (tag != FIRE_ITEM_NO)
-	{
-		tmp = object_find(tag);
-
-		if (tmp)
-			return tmp->s_name;
-	}
-
-	return "Nothing";
-}
-
-/**
  * Mouse event on range widget.
  * @param x Mouse X position
  * @param y Mouse Y position
@@ -64,10 +45,14 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 		if (MEvent == MOUSE_DOWN)
 		{
 			if (event.button.button == SDL_BUTTON_LEFT)
+			{
 				process_macro_keys(KEYFUNC_RANGE, 0);
+			}
 			/* Mousewheel up */
 			else if (event.button.button == 4)
+			{
 				process_macro_keys(KEYFUNC_RANGE, 0);
+			}
 		}
 		else if (MEvent == MOUSE_UP)
 		{
@@ -77,6 +62,7 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 				 * be placed in cpl.win_inv_tag. So we do this and after DnD we restore the old values. */
 				int old_inv_win = cpl.inventory_win;
 				int old_inv_tag = cpl.win_inv_tag;
+
 				cpl.inventory_win = IWIN_INV;
 
 				/* Range field */
@@ -84,7 +70,7 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 				{
 					RangeFireMode = 4;
 
-					/* Drop to player doll */
+					/* Drop to player doll. */
 					process_macro_keys(KEYFUNC_APPLY, 0);
 				}
 
@@ -97,19 +83,33 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 
 /**
  * Show range widget.
- * @param x X position of the range
- * @param y Y position of the range */
+ * @param widget The widget. */
 void widget_show_range(widgetdata *widget)
 {
-	char buf[256];
-	SDL_Rect rec_range;
-	SDL_Rect rec_item;
-	object *op;
+	char buf[MAX_BUF];
+	SDL_Rect rec_range, rec_item;
 	object *tmp;
 
 	rec_range.w = 160;
 	rec_item.w = 185;
-	examine_range_inv();
+
+	fire_mode_tab[FIRE_MODE_BOW].item = FIRE_ITEM_NO;
+	fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
+
+	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
+	{
+		if (tmp->flags & F_APPLIED)
+		{
+			if (tmp->itype == TYPE_BOW)
+			{
+				fire_mode_tab[FIRE_MODE_BOW].item = tmp->tag;
+			}
+			else if (tmp->itype == TYPE_WAND || tmp->itype == TYPE_ROD || tmp->itype == TYPE_HORN)
+			{
+				fire_mode_tab[FIRE_MODE_WAND].item = tmp->tag;
+			}
+		}
+	}
 
 	sprite_blt(Bitmaps[BITMAP_RANGE], widget->x1 - 2, widget->y1, NULL, NULL);
 
@@ -118,64 +118,52 @@ void widget_show_range(widgetdata *widget)
 		case FIRE_MODE_BOW:
 			if (fire_mode_tab[FIRE_MODE_BOW].item != FIRE_ITEM_NO)
 			{
-				snprintf(buf, sizeof(buf), "using %s", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].item));
-				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].item, widget->x1 + 3, widget->y1 + 2);
+				tmp = object_find_object(cpl.ob, fire_mode_tab[RangeFireMode].item);
 
-				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
+				blt_inv_item_centered(tmp, widget->x1 + 3, widget->y1 + 2);
+				string_blt(ScreenSurface, FONT_SANS10, tmp->s_name, widget->x1 + 3, widget->y1 + 35, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 
-				if (fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO)
+				if (fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO && (tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun)))
 				{
-					tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun);
-
-					if (tmp)
+					if (tmp->itype == TYPE_ARROW)
 					{
-						if (tmp->itype == TYPE_ARROW)
-							snprintf(buf, sizeof(buf), "ammo %s (%d)", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].amun), tmp->nrof);
-						else
-							snprintf(buf, sizeof(buf), "ammo %s", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].amun));
+						snprintf(buf, sizeof(buf), "%s (%d)", tmp->s_name, tmp->nrof);
 					}
 					else
-						snprintf(buf, sizeof(buf), "ammo not selected");
+					{
+						snprintf(buf, sizeof(buf), "%s (%4.3f kg)", tmp->s_name, tmp->weight);
+					}
 
-					blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].amun, widget->x1 + 43, widget->y1 + 2);
+					blt_inv_item_centered(tmp, widget->x1 + 43, widget->y1 + 2);
+					string_blt(ScreenSurface, FONT_SANS10, buf, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "ammo not selected");
-				}
-
-				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 			else
 			{
-				StringBlt(ScreenSurface, &SystemFont, "no range weapon applied", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, "no range weapon applied", widget->x1 + 3, widget->y1 + 35, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 
 			sprite_blt(Bitmaps[BITMAP_RANGE_MARKER], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
 			break;
 
-			/* Wands, staves, rods and horns */
+		/* Wands, staves, rods and horns */
 		case FIRE_MODE_WAND:
-			if (!object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item))
-				fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
-
-			if (fire_mode_tab[FIRE_MODE_WAND].item != FIRE_ITEM_NO)
+			if (fire_mode_tab[FIRE_MODE_WAND].item != FIRE_ITEM_NO && (tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item)))
 			{
-				snprintf(buf, sizeof(buf), "%s", get_range_item_name(fire_mode_tab[FIRE_MODE_WAND].item));
-				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, tmp->s_name, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_WAND].item, widget->x1 + 43, widget->y1 + 2);
+				blt_inv_item_centered(tmp, widget->x1 + 43, widget->y1 + 2);
 			}
 			else
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "nothing applied", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, "nothing applied", widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "use range tool", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
+			string_blt(ScreenSurface, FONT_SANS10, "use range tool", widget->x1 + 3, widget->y1 + 35, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			break;
 
-			/* These are client only, no server signal needed */
+		/* These are client only, no server signal needed */
 		case FIRE_MODE_SKILL:
 			if (fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
@@ -184,76 +172,75 @@ void widget_show_range(widgetdata *widget)
 				if (fire_mode_tab[FIRE_MODE_SKILL].skill->flag != -1)
 				{
 					sprite_blt(fire_mode_tab[FIRE_MODE_SKILL].skill->icon, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
-					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SKILL].skill->name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+					string_blt(ScreenSurface, FONT_SANS10, fire_mode_tab[FIRE_MODE_SKILL].skill->name, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 				}
 				else
+				{
 					fire_mode_tab[FIRE_MODE_SKILL].skill = NULL;
+				}
 			}
 			else
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no skill selected", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, "no skill selected", widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "use skill", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
-
+			string_blt(ScreenSurface, FONT_SANS10, "use skill", widget->x1 + 3, widget->y1 + 35, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			break;
 
 		case FIRE_MODE_SPELL:
 			if (fire_mode_tab[FIRE_MODE_SPELL].spell)
 			{
-				/* We use wizard spells as default */
 				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
 
 				if (fire_mode_tab[FIRE_MODE_SPELL].spell->flag != -1)
 				{
 					blit_face(fire_mode_tab[FIRE_MODE_SPELL].spell->icon, widget->x1 + 43, widget->y1 + 2);
-					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SPELL].spell->name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+					string_blt(ScreenSurface, FONT_SANS10, fire_mode_tab[FIRE_MODE_SPELL].spell->name, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 				}
 				else
+				{
 					fire_mode_tab[FIRE_MODE_SPELL].spell = NULL;
+				}
 			}
 			else
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no spell selected", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, "no spell selected", widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "cast spell", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
-
+			string_blt(ScreenSurface, FONT_SANS10, "cast spell", widget->x1 + 3, widget->y1 + 35, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			break;
 
 		case FIRE_MODE_THROW:
-			if (!(op = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
-				fire_mode_tab[FIRE_MODE_THROW].item = FIRE_ITEM_NO;
-
-			if (fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO)
+			if (fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO && (tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_THROW], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_THROW].item, widget->x1 + 43, widget->y1 + 2);
+				blt_inv_item_centered(tmp, widget->x1 + 43, widget->y1 + 2);
 
-				if (op->nrof > 1)
+				if (tmp->nrof > 1)
 				{
-					if (op->nrof > 9999)
+					if (tmp->nrof > 9999)
+					{
 						snprintf(buf, sizeof(buf), "many");
+					}
 					else
-						snprintf(buf, sizeof(buf), "%d",op->nrof);
+					{
+						snprintf(buf, sizeof(buf), "%d", tmp->nrof);
+					}
 
-					StringBlt(ScreenSurface, &Font6x3Out, buf, widget->x1 + 43 + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), widget->y1 + 22, COLOR_WHITE, NULL, NULL);
+					string_blt(ScreenSurface, FONT_SANS7, buf, widget->x1 + 43 + ICONDEFLEN / 2 - string_get_width(FONT_SANS7, buf, TEXT_OUTLINE) / 2, widget->y1 + 2 + ICONDEFLEN - FONT_HEIGHT(FONT_SANS7), COLOR_SIMPLE(COLOR_WHITE), TEXT_OUTLINE, NULL);
 				}
 
-				snprintf(buf, sizeof(buf), "%s", get_range_item_name(fire_mode_tab[FIRE_MODE_THROW].item));
-				StringBlt(ScreenSurface, &SystemFont,buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, tmp->s_name, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 			else
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_THROW_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no item ready", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				string_blt(ScreenSurface, FONT_SANS10, "no item ready", widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 
-			snprintf(buf, sizeof(buf), "throw item");
-			StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
-
+			string_blt(ScreenSurface, FONT_SANS10, "throw item", widget->x1 + 3, widget->y1 + 35, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			break;
 	}
 }

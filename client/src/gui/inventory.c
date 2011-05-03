@@ -922,28 +922,3 @@ void blt_inv_item(object *tmp, int x, int y)
 		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + ICONDEFLEN / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->w / 2, y + ICONDEFLEN / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->h / 2, NULL, NULL);
 	}
 }
-
-void examine_range_inv()
-{
-	object *op, *tmp;
-
-	op = cpl.ob;
-
-	if (!op->inv)
-		return;
-
-	fire_mode_tab[FIRE_MODE_BOW].item = FIRE_ITEM_NO;
-	fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
-
-	for (tmp = op->inv; tmp; tmp = tmp->next)
-	{
-		if (tmp->flags & F_APPLIED && tmp->itype == TYPE_BOW)
-		{
-			fire_mode_tab[FIRE_MODE_BOW].item = tmp->tag;
-		}
-		else if (tmp->flags & F_APPLIED && (tmp->itype == TYPE_WAND || tmp->itype == TYPE_ROD || tmp->itype == TYPE_HORN))
-		{
-			fire_mode_tab[FIRE_MODE_WAND].item = tmp->tag;
-		}
-	}
-}
