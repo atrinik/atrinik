@@ -87,11 +87,7 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 void widget_show_range(widgetdata *widget)
 {
 	char buf[MAX_BUF];
-	SDL_Rect rec_range, rec_item;
 	object *tmp;
-
-	rec_range.w = 160;
-	rec_item.w = 185;
 
 	fire_mode_tab[FIRE_MODE_BOW].item = FIRE_ITEM_NO;
 	fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
