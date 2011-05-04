@@ -199,6 +199,8 @@ int command_map_reset(object *op, char *params);
 int command_map_patch(object *op, char *params);
 int command_no_shout(object *op, char *params);
 int command_dmtake(object *op, char *params);
+int command_server_shout(object *op, char *params);
+int command_mod_shout(object *op, char *params);
 
 /* loaders/map_header.c */
 int map_lex_load(mapstruct *m);

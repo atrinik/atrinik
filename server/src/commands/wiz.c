@@ -2603,3 +2603,73 @@ int command_dmtake(object *op, char *params)
 	pick_up(op, tmp, 0);
 	return 1;
 }
+
+/**
+ * /server_shout command. Shouts a message in green and prefixes it with
+ * [Server]. For those with this command permission will also see who
+ * used the command in the message, but not anyone else.
+ * @param op DM.
+ * @param params Message to shout.
+ * @return 1 on success, 0 on failure. */
+int command_server_shout(object *op, char *params)
+{
+	player *pl;
+
+	params = cleanup_chat_string(params);
+
+	if (!params || *params == '\0')
+	{
+		return 0;
+	}
+
+	LOG(llevInfo, "CLOG SERVERSHOUT: %s: %s\n", query_name(op, NULL), params);
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (can_do_wiz_command(pl, "server_shout"))
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_GREEN, pl->ob, "[Server] (%s): %s", op->name, params);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_GREEN, pl->ob, "[Server]: %s", params);
+		}
+	}
+
+	return 1;
+}
+
+/**
+ * /mod_shout command. Shouts a message in red and prefixes it with
+ * [Moderator]. For those with this command permission will also see who
+ * used the command in the message, but not anyone else.
+ * @param op DM.
+ * @param params Message to shout.
+ * @return 1 on success, 0 on failure. */
+int command_mod_shout(object *op, char *params)
+{
+	player *pl;
+
+	params = cleanup_chat_string(params);
+
+	if (!params || *params == '\0')
+	{
+		return 0;
+	}
+
+	LOG(llevInfo, "CLOG MODSHOUT: %s: %s\n", query_name(op, NULL), params);
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (can_do_wiz_command(pl, "mod_shout"))
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[Moderator] (%s): %s", op->name, params);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[Moderator]: %s", params);
+		}
+	}
+
+	return 1;
+}
