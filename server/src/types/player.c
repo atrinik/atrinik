@@ -1770,7 +1770,7 @@ int pvp_area(object *attacker, object *victim)
  * @return Pointer to the arrow, NULL if not found. */
 static object *find_arrow_ext(object *op, shstr *type, int tag)
 {
-if (CONTR(op)->socket.socket_version < 1048)
+if (op->type != PLAYER || CONTR(op)->socket.socket_version < 1048)
 {
 	object *tmp = NULL;
 
