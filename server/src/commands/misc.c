@@ -643,6 +643,12 @@ int command_party(object *op, char *params)
 			return 1;
 		}
 
+		if (CONTR(op)->party->leader != op->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the password.");
+			return 1;
+		}
+
 		strncpy(CONTR(op)->party->passwd, params + 9, sizeof(CONTR(op)->party->passwd) - 1);
 		snprintf(buf, sizeof(buf), "The password for party %s changed to '%s'.", CONTR(op)->party->name, CONTR(op)->party->passwd);
 		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
