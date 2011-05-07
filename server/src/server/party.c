@@ -561,6 +561,12 @@ void PartyCmd(char *buf, int len, player *pl)
 			return;
 		}
 
+		if (pl->party->leader != pl->ob->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Only the party's leader can change the password.");
+			return;
+		}
+
 		strncpy(pl->party->passwd, buf, sizeof(pl->party->passwd) - 1);
 		snprintf(tmpbuf, sizeof(tmpbuf), "The password for party %s changed to '%s'.", pl->party->name, pl->party->passwd);
 		send_party_message(pl->party, tmpbuf, PARTY_MESSAGE_STATUS, NULL);

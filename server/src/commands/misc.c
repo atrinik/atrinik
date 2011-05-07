@@ -578,7 +578,7 @@ int command_party(object *op, char *params)
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You are a member of party %s.", CONTR(op)->party->name);
+			new_draw_info_format(NDI_UNIQUE, op, "You are a member of party %s (leader: %s).", CONTR(op)->party->name, CONTR(op)->party->leader);
 		}
 
 		return 1;
@@ -597,6 +597,7 @@ int command_party(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, op, "To see who is in your party: /party who");
 		new_draw_info(NDI_UNIQUE, op, "To change the party's looting mode: /party loot mode");
 		new_draw_info(NDI_UNIQUE, op, "To kick another player from your party: /party kick <name>");
+		new_draw_info(NDI_UNIQUE, op, "To change party leader: /party leader <name>");
 		return 1;
 	}
 	else if (!strncmp(params, "say ", 4))
@@ -766,6 +767,47 @@ int command_party(object *op, char *params)
 		}
 
 		new_draw_info(NDI_UNIQUE | NDI_RED, op, "There's no player with that name in your party.");
+		return 1;
+	}
+	else if (!strncmp(params, "leader ", 7))
+	{
+		player *pl;
+
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		if (CONTR(op)->party->leader != op->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the leader.");
+			return 1;
+		}
+
+		pl = find_player(params + 7);
+
+		if (!pl)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "No such player.");
+			return 1;
+		}
+
+		if (pl->ob == op)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are already the party leader.");
+			return 1;
+		}
+
+		if (!pl->party || pl->party != CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "That player is not a member of your party.");
+			return 1;
+		}
+
+		FREE_AND_ADD_REF_HASH(pl->party->leader, pl->ob->name);
+		new_draw_info_format(NDI_UNIQUE, pl->ob, "You are the new leader of party %s!", pl->party->name);
+		new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s is the new leader of your party.", pl->ob->name);
 		return 1;
 	}
 	else
