@@ -704,6 +704,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
+		new_draw_info(NDI_UNIQUE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -890,6 +891,7 @@ void drop(object *op, object *tmp, int no_mevent)
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 	{
+		new_draw_info(NDI_UNIQUE, op, "You can't drop that item.");
 		return;
 	}
 
