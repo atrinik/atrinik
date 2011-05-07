@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-17 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -111,6 +111,10 @@ arch floor_sand_d2
 x 6
 y 19
 end
+arch cave_deco_f8.101
+x 6
+y 19
+end
 arch floor_sand_d1
 x 6
 y 20
@@ -199,6 +203,14 @@ arch floor_sand_d4
 x 7
 y 21
 end
+arch spawn_point
+x 7
+y 21
+arch pudding_green
+level 20
+type 83
+end
+end
 arch floor_sand_d4
 x 7
 y 22
@@ -396,6 +408,10 @@ x 10
 y 8
 end
 arch floor_sand_d4
+x 10
+y 9
+end
+arch cave_deco_f3.101
 x 10
 y 9
 end
@@ -439,6 +455,10 @@ arch floor_sand_d3
 x 10
 y 15
 end
+arch earth_m18
+x 10
+y 15
+end
 arch floor_sand_d4
 x 10
 y 16
@@ -448,6 +468,10 @@ x 10
 y 17
 end
 arch floor_sand_d1
+x 10
+y 18
+end
+arch mushroom_giant8
 x 10
 y 18
 end
@@ -499,6 +523,10 @@ arch floor_sand_d1
 x 11
 y 9
 end
+arch spider_web
+x 11
+y 9
+end
 arch floor_sand_d3
 x 11
 y 10
@@ -527,7 +555,15 @@ arch floor_sand_d1
 x 11
 y 14
 end
+arch earth_m18
+x 11
+y 14
+end
 arch floor_sand_d3
+x 11
+y 15
+end
+arch earth_m7
 x 11
 y 15
 end
@@ -586,6 +622,14 @@ end
 arch floor_sand_d1
 x 12
 y 9
+end
+arch spawn_point
+x 12
+y 9
+arch spider
+level 21
+type 83
+end
 end
 arch floor_sand_d4
 x 12
@@ -680,6 +724,10 @@ x 13
 y 7
 end
 arch floor_sand_d1
+x 13
+y 8
+end
+arch spider_web
 x 13
 y 8
 end
@@ -1051,6 +1099,10 @@ arch floor_sand_d3
 x 16
 y 18
 end
+arch cave_deco_f7.101
+x 16
+y 18
+end
 arch floor_sand_d2
 x 16
 y 19
@@ -1088,6 +1140,10 @@ x 17
 y 1
 end
 arch floor_sand_d3
+x 17
+y 2
+end
+arch cave_deco_f4.101
 x 17
 y 2
 end
@@ -1241,6 +1297,10 @@ arch floor_sand_d3
 x 18
 y 8
 end
+arch mushroom_giant11
+x 18
+y 8
+end
 arch floor_sand_d1
 x 18
 y 9
@@ -1319,6 +1379,10 @@ arch floor_sand_d3
 x 19
 y 1
 end
+arch earth_m18
+x 19
+y 1
+end
 arch floor_sand_d3
 x 19
 y 2
@@ -1364,6 +1428,10 @@ x 19
 y 9
 end
 arch floor_sand_d4
+x 19
+y 10
+end
+arch cave_pillar1
 x 19
 y 10
 end
@@ -1411,6 +1479,10 @@ arch floor_sand_d4
 x 19
 y 18
 end
+arch small_stones
+x 19
+y 18
+end
 arch floor_sand_d2
 x 19
 y 19
@@ -1438,6 +1510,10 @@ arch fwall_rock1
 x 20
 end
 arch floor_sand_d1
+x 20
+y 1
+end
+arch earth_m14
 x 20
 y 1
 end
@@ -1488,6 +1564,14 @@ end
 arch floor_sand_d4
 x 20
 y 10
+end
+arch spawn_point
+x 20
+y 10
+arch jelly_ochre
+level 18
+type 83
+end
 end
 arch floor_sand_d1
 x 20
@@ -1540,6 +1624,14 @@ end
 arch floor_sand_d1
 x 20
 y 19
+end
+arch spawn_point
+x 20
+y 19
+arch jelly_blue
+level 19
+type 83
+end
 end
 arch floor_sand_d3
 x 20
@@ -1729,6 +1821,10 @@ arch floor_sand_d2
 x 22
 y 9
 end
+arch cave_deco_f6.101
+x 22
+y 9
+end
 arch floor_sand_d3
 x 22
 y 10
@@ -1773,7 +1869,15 @@ arch floor_sand_d4
 x 22
 y 18
 end
+arch cave_pillar3
+x 22
+y 18
+end
 arch floor_sand_d4
+x 22
+y 19
+end
+arch mushroom_giant10
 x 22
 y 19
 end

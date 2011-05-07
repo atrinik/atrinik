@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -83,6 +83,10 @@ arch floor_sand_d3
 x 15
 y 1
 end
+arch cave_deco_f5.101
+x 15
+y 1
+end
 arch floor_sand_d2
 x 15
 y 2
@@ -123,6 +127,9 @@ x 16
 y 4
 end
 arch floor_sand_d4
+x 17
+end
+arch dirt_floor1
 x 17
 end
 arch floor_sand_d1
@@ -292,6 +299,10 @@ y 17
 end
 arch floor_sand_d1
 z 26
+x 18
+y 18
+end
+arch dirt_floor4
 x 18
 y 18
 end
@@ -463,6 +474,10 @@ arch floor_sand_d2
 x 20
 y 1
 end
+arch torch_wall_1
+x 20
+y 1
+end
 arch floor_sand_d2
 x 20
 y 2
@@ -513,6 +528,10 @@ y 11
 end
 arch floor_sand_d3
 z 18
+x 20
+y 12
+end
+arch dirt_floor2
 x 20
 y 12
 end
@@ -588,6 +607,10 @@ arch floor_sand_d1
 x 21
 y 2
 end
+arch cave_deco_f6.101
+x 21
+y 2
+end
 arch floor_sand_d4
 x 21
 y 3
@@ -609,6 +632,10 @@ y 6
 end
 arch floor_sand_d2
 z 8
+x 21
+y 7
+end
+arch dirt_floor3
 x 21
 y 7
 end

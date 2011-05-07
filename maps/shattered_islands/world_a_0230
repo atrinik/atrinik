@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-17 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -235,6 +235,10 @@ arch floor_sand_d4
 x 2
 y 9
 end
+arch earth_m18
+x 2
+y 9
+end
 arch floor_sand_d2
 x 2
 y 10
@@ -325,6 +329,10 @@ arch floor_sand_d2
 x 3
 y 2
 end
+arch cave_deco_f7.101
+x 3
+y 2
+end
 arch floor_sand_d3
 x 3
 y 3
@@ -369,6 +377,10 @@ arch floor_sand_d1
 x 3
 y 9
 end
+arch earth_m14
+x 3
+y 9
+end
 arch floor_sand_d3
 x 3
 y 10
@@ -393,6 +405,10 @@ arch floor_sand_d3
 x 3
 y 14
 end
+arch cave_deco_f4.101
+x 3
+y 14
+end
 arch floor_sand_d4
 x 3
 y 15
@@ -404,6 +420,14 @@ end
 arch floor_sand_d3
 x 3
 y 17
+end
+arch spawn_point
+x 3
+y 17
+arch lost_soul
+level 24
+type 83
+end
 end
 arch floor_sand_d1
 x 3
@@ -434,6 +458,14 @@ end
 arch floor_sand_d1
 x 4
 y 2
+end
+arch spawn_point
+x 4
+y 2
+arch slime_blue
+level 20
+type 83
+end
 end
 arch floor_sand_d3
 x 4
@@ -467,7 +499,15 @@ arch floor_sand_d3
 x 4
 y 8
 end
+arch earth_m18
+x 4
+y 8
+end
 arch floor_sand_d4
+x 4
+y 9
+end
+arch earth_m7
 x 4
 y 9
 end
@@ -667,11 +707,19 @@ arch floor_sand_d4
 x 6
 y 5
 end
+arch pile_floor3
+x 6
+y 5
+end
 arch floor_sand_d1
 x 6
 y 6
 end
 arch floor_sand_d4
+x 6
+y 7
+end
+arch cave_deco_f8.101
 x 6
 y 7
 end
@@ -715,11 +763,19 @@ arch floor_sand_d2
 x 6
 y 16
 end
+arch mushroom_giant6
+x 6
+y 16
+end
 arch floor_sand_d4
 x 6
 y 17
 end
 arch floor_sand_d3
+x 6
+y 18
+end
+arch mushroom_giant12
 x 6
 y 18
 end
@@ -803,6 +859,10 @@ arch floor_sand_d1
 x 7
 y 13
 end
+arch cave_pillar1
+x 7
+y 13
+end
 arch floor_sand_d2
 x 7
 y 14
@@ -824,6 +884,10 @@ x 7
 y 18
 end
 arch floor_sand_d2
+x 7
+y 19
+end
+arch pile_floor3
 x 7
 y 19
 end
@@ -959,6 +1023,10 @@ arch floor_sand_d4
 x 9
 y 3
 end
+arch mushroom_giant9
+x 9
+y 3
+end
 arch floor_sand_d2
 x 9
 y 4
@@ -1027,11 +1095,19 @@ arch floor_sand_d4
 x 9
 y 16
 end
+arch water_floor
+x 9
+y 16
+end
 arch floor_sand_d1
 x 9
 y 17
 end
 arch floor_sand_d2
+x 9
+y 18
+end
+arch mushroom_giant4
 x 9
 y 18
 end
@@ -1132,6 +1208,10 @@ x 10
 y 13
 end
 arch floor_sand_d1
+x 10
+y 14
+end
+arch pile_floor1
 x 10
 y 14
 end
@@ -1259,11 +1339,19 @@ arch floor_sand_d2
 x 11
 y 16
 end
+arch mushroom_spot2
+x 11
+y 16
+end
 arch floor_sand_d2
 x 11
 y 17
 end
 arch floor_sand_d2
+x 11
+y 18
+end
+arch cave_pillar5
 x 11
 y 18
 end
@@ -1359,6 +1447,10 @@ arch floor_sand_d1
 x 12
 y 14
 end
+arch mushroom_giant7
+x 12
+y 14
+end
 arch floor_sand_d1
 x 12
 y 15
@@ -1451,6 +1543,10 @@ arch floor_sand_d4
 x 13
 y 11
 end
+arch cave_deco_f6.101
+x 13
+y 11
+end
 arch floor_sand_d1
 x 13
 y 12
@@ -1467,9 +1563,21 @@ arch floor_sand_d1
 x 13
 y 15
 end
+arch cave_pillar4
+x 13
+y 15
+end
 arch floor_sand_d2
 x 13
 y 16
+end
+arch spawn_point
+x 13
+y 16
+arch blob_quivering
+level 22
+type 83
+end
 end
 arch floor_sand_d3
 x 13
@@ -1584,6 +1692,10 @@ x 14
 y 16
 end
 arch floor_sand_d1
+x 14
+y 17
+end
+arch pile_floor2
 x 14
 y 17
 end
@@ -1759,6 +1871,10 @@ arch floor_sand_d4
 x 16
 y 5
 end
+arch plant_mushroom4
+x 16
+y 5
+end
 arch floor_sand_d1
 x 16
 y 6
@@ -1879,6 +1995,10 @@ arch floor_sand_d2
 x 17
 y 7
 end
+arch pile_floor1
+x 17
+y 7
+end
 arch floor_sand_d3
 x 17
 y 8
@@ -2099,6 +2219,10 @@ arch floor_sand_d3
 x 19
 y 4
 end
+arch cave_deco_f1.101
+x 19
+y 4
+end
 arch floor_sand_d4
 x 19
 y 5
@@ -2106,6 +2230,14 @@ end
 arch floor_sand_d3
 x 19
 y 6
+end
+arch spawn_point
+x 19
+y 6
+arch slime
+level 25
+type 83
+end
 end
 arch floor_sand_d2
 x 19
@@ -2295,6 +2427,10 @@ arch floor_sand_d2
 x 21
 y 6
 end
+arch mushroom_giant8
+x 21
+y 6
+end
 arch floor_sand_d2
 x 21
 y 7
@@ -2312,6 +2448,10 @@ x 21
 y 10
 end
 arch floor_sand_d4
+x 21
+y 11
+end
+arch earth_m17
 x 21
 y 11
 end
@@ -2375,6 +2515,10 @@ arch floor_sand_d1
 x 22
 y 9
 end
+arch cave_pillar5
+x 22
+y 9
+end
 arch floor_sand_d2
 x 22
 y 10
@@ -2383,7 +2527,15 @@ arch floor_sand_d4
 x 22
 y 11
 end
+arch earth_m6
+x 22
+y 11
+end
 arch floor_sand_d2
+x 22
+y 12
+end
+arch earth_m17
 x 22
 y 12
 end
@@ -2459,7 +2611,15 @@ arch floor_sand_d1
 x 23
 y 12
 end
+arch earth_m6
+x 23
+y 12
+end
 arch floor_sand_d1
+x 23
+y 13
+end
+arch earth_m17
 x 23
 y 13
 end

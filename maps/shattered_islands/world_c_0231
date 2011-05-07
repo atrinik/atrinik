@@ -2,7 +2,7 @@ arch map
 name Outpost of Dr'kass
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -713,6 +713,7 @@ x 19
 y 6
 end
 arch candlelight3.101
+glow_radius 5
 x 19
 y 6
 end
@@ -748,6 +749,7 @@ x 19
 y 10
 end
 arch candlelight3.101
+glow_radius 5
 x 19
 y 10
 end
@@ -755,11 +757,34 @@ arch floor_ostone8
 x 19
 y 11
 end
+arch desk2
+direction 7
+x 19
+y 11
+arch note
+msg
+<title>Intelligence Report - Operative A234ZX</title>
+Topic: Asteria Defences
+
+The defences of Asteria appear to be difficult to penetrate.  We have discovered that the guards will not open the gates except for those who know an, as yet, unknown password.  The guards will close the gate as soon as any substantial threat is detected.  This gate system would need to be disabled if we decided to mount an attack against the city.
+
+The gate control system is protected by a series of locked doors.  It is unknown how many layers of defence exist, but rumors suggest that there are 3 layers.  We know that each guard in Asteria possesses the first of these keys.  However, we have not been able to obtain the first key.  It seems to be magically protected so that it disappears when we try to steal it or kill the guard for it.
+
+One of our wizards has analyzed this enchantment as we attempted to take the key.  It seems to be a type of teleportation charm that activates whenever the "ownership" of a key changes.  If this is correct, then the key can only change "ownership" at a designated "exchange point."  If an "ownership" exchange does not occur at an "exchange point," then the key recalls to the nearest "exchange point."
+
+It is unknown if any "exchange point" is outside of the area already being protected by the enchanted keys but it is likely that they are found inside guardposts.
+endmsg
+name drow intelligence report
+no_pick 1
+level 10
+end
+end
 arch floor_ostone8
 x 19
 y 12
 end
 arch candlelight3.101
+glow_radius 5
 x 19
 y 12
 end
@@ -785,6 +810,7 @@ x 19
 y 16
 end
 arch candlelight2.101
+glow_radius 5
 x 19
 y 16
 end
@@ -1003,6 +1029,7 @@ x 21
 y 4
 end
 arch candlelight3.101
+glow_radius 5
 x 21
 y 4
 end
@@ -1159,6 +1186,7 @@ x 22
 y 12
 end
 arch candlelight3.101
+glow_radius 5
 x 22
 y 12
 end
@@ -1179,6 +1207,7 @@ x 22
 y 16
 end
 arch candlelight3.101
+glow_radius 5
 x 22
 y 16
 end

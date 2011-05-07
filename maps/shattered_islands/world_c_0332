@@ -2,7 +2,7 @@ arch map
 name Outpost of Dr'kass
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -562,6 +562,11 @@ arch floor_red1
 x 10
 y 23
 end
+arch bench2.111
+direction 5
+x 10
+y 23
+end
 arch floor_cave2
 x 11
 y 16
@@ -616,6 +621,11 @@ unaggressive 1
 end
 end
 arch floor_red1
+x 11
+y 23
+end
+arch bench2.111
+direction 5
 x 11
 y 23
 end
@@ -779,6 +789,11 @@ arch floor_red1
 x 14
 y 23
 end
+arch bench2.111
+direction 5
+x 14
+y 23
+end
 arch floor_cave6
 x 15
 y 16
@@ -833,6 +848,11 @@ unaggressive 1
 end
 end
 arch floor_red1
+x 15
+y 23
+end
+arch bench2.111
+direction 5
 x 15
 y 23
 end

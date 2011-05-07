@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-20 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -862,6 +862,10 @@ arch fwall_rock3
 x 15
 y 4
 end
+arch plant2_wall.151
+x 15
+y 4
+end
 arch water_lt
 terrain_type 1
 x 15
@@ -1115,6 +1119,10 @@ arch floor_sand_d1
 x 16
 y 13
 end
+arch mushroom_giant3
+x 16
+y 13
+end
 arch floor_sand_d3
 x 16
 y 14
@@ -1158,6 +1166,10 @@ x 17
 y 2
 end
 arch floor_sand_d2
+x 17
+y 3
+end
+arch mushroom_giant12
 x 17
 y 3
 end
@@ -1305,6 +1317,11 @@ arch floor_sand_d1
 x 18
 y 1
 end
+arch torch_wall_1
+direction 7
+x 18
+y 1
+end
 arch floor_sand_d4
 x 18
 y 2
@@ -1423,6 +1440,10 @@ x 18
 y 13
 end
 arch floor_sand_d1
+x 18
+y 14
+end
+arch cave_deco_f3.101
 x 18
 y 14
 end
@@ -1784,6 +1805,10 @@ arch floor_sand_d3
 x 20
 y 15
 end
+arch dirt_floor1
+x 20
+y 15
+end
 arch floor_sand_d1
 x 20
 y 16
@@ -1793,6 +1818,11 @@ x 20
 y 17
 end
 arch floor_sand_d3
+x 20
+y 18
+end
+arch torch_wall_1
+direction 7
 x 20
 y 18
 end
@@ -2029,6 +2059,10 @@ arch floor_sand_d2
 x 21
 y 20
 end
+arch rock2
+x 21
+y 20
+end
 arch floor_sand_d4
 x 21
 y 21
@@ -2203,6 +2237,10 @@ arch floor_sand_d4
 x 22
 y 16
 end
+arch mushroom_giant2
+x 22
+y 16
+end
 arch floor_sand_d3
 x 22
 y 17
@@ -2237,11 +2275,18 @@ end
 arch fwall_rock1
 x 23
 end
+arch plant2_wall.151
+x 23
+end
 arch floor_sand_d2
 x 23
 y 1
 end
 arch floor_sand_d3
+x 23
+y 2
+end
+arch mushroom_giant13
 x 23
 y 2
 end

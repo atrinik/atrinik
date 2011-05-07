@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-20 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -550,6 +550,10 @@ arch floor_sand_d4
 x 21
 y 3
 end
+arch mushroom_giant12
+x 21
+y 3
+end
 arch floor_sand_d4
 x 21
 y 4
@@ -641,6 +645,10 @@ x 23
 y 1
 end
 arch floor_sand_d1
+x 23
+y 2
+end
+arch dirt_floor4
 x 23
 y 2
 end

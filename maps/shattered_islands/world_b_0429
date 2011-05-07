@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -31,6 +31,9 @@ arch floor_sand_d2
 y 1
 end
 arch floor_sand_d4
+y 2
+end
+arch trash_wood1.101
 y 2
 end
 arch floor_sand_d4
@@ -136,6 +139,9 @@ end
 arch floor_sand_d4
 y 17
 end
+arch pile_floor3
+y 17
+end
 arch floor_sand_d2
 y 18
 end
@@ -152,6 +158,9 @@ arch floor_sand_d4
 y 22
 end
 arch floor_sand_d1
+y 23
+end
+arch cave_pillar4
 y 23
 end
 arch floor_sand_d2
@@ -298,6 +307,10 @@ x 1
 y 14
 end
 arch floor_sand_d1
+x 1
+y 15
+end
+arch trash_wood2.101
 x 1
 y 15
 end
@@ -510,6 +523,10 @@ arch floor_sand_d3
 x 2
 y 21
 end
+arch pile_floor1
+x 2
+y 21
+end
 arch floor_sand_d3
 x 2
 y 22
@@ -522,6 +539,9 @@ arch floor_sand_d2
 x 3
 end
 arch fwall_rock1
+x 3
+end
+arch plant2_wall.151
 x 3
 end
 arch floor_sand_d2
@@ -683,6 +703,10 @@ x 3
 y 17
 end
 arch floor_sand_d2
+x 3
+y 18
+end
+arch mushroom_giant4
 x 3
 y 18
 end
@@ -1108,6 +1132,9 @@ end
 arch fwall_rock3
 x 6
 end
+arch plant2_wall.151
+x 6
+end
 arch water_lt3
 terrain_type 1
 x 6
@@ -1270,6 +1297,10 @@ x 6
 y 21
 end
 arch floor_sand_d1
+x 6
+y 22
+end
+arch trash_wood1.101
 x 6
 y 22
 end
