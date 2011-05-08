@@ -42,7 +42,11 @@ struct Settings settings =
 	"",
 	/* Client/server port */
 	CSPORT,
+#ifdef DEBUG
+	llevDebug,
+#else
 	llevInfo,
+#endif
 	/* dumpvalues, dumparg, daemonmode */
 	0, NULL, 0,
 	DATADIR,
