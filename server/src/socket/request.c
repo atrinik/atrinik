@@ -277,7 +277,6 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		}
 	}
 
-	/*LOG(llevInfo, "SendBack SetupCmd:: %s\n", cmdback);*/
 	Write_String_To_Socket(ns, BINARY_CMD_SETUP, cmdback, strlen(cmdback));
 }
 
@@ -383,7 +382,7 @@ void ReplyCmd(char *buf, int len, player *pl)
 	{
 		case ST_PLAYING:
 			pl->socket.status = Ns_Dead;
-			LOG(llevBug, "BUG: Got reply message with ST_PLAYING input state (player %s)\n", query_name(pl->ob, NULL));
+			LOG(llevBug, "Got reply message with ST_PLAYING input state (player %s)\n", query_name(pl->ob, NULL));
 			break;
 
 		case ST_GET_NAME:
@@ -397,7 +396,7 @@ void ReplyCmd(char *buf, int len, player *pl)
 
 		default:
 			pl->socket.status = Ns_Dead;
-			LOG(llevBug, "BUG: Unknown input state: %d\n", pl->state);
+			LOG(llevBug, "Unknown input state: %d\n", pl->state);
 			break;
 	}
 }
@@ -419,7 +418,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 	/* *only* allow this command between the first login and the "addme" command! */
 	if (ns->status != Ns_Add || !buf || !len)
 	{
-		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -428,7 +426,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 
 	if (id < 0 || id >= SRV_CLIENT_FILES)
 	{
-		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -438,7 +435,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_SKILLS:
 			if (ns->rf_skills)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call skills \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -453,7 +449,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_FILE_SPELLS_V2:
 			if (ns->rf_spells)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call spells \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -468,7 +463,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_SERVER_SETTINGS:
 			if (ns->rf_settings)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call settings \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -482,7 +476,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_BMAPS:
 			if (ns->rf_bmaps)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call bmaps \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -497,7 +490,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_ANIMS_V2:
 			if (ns->rf_anims)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call anims \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -511,7 +503,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_HFILES:
 			if (ns->rf_hfiles)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call hfiles \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -536,7 +527,6 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (!buf || !len || ns->version)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "INFO: VersionCmd(): Received corrupted version command\n");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -548,7 +538,7 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (!cp)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "INFO: VersionCmd(): Connection from false client (invalid name)\n");
+		LOG(llevDebug, "VersionCmd(): Connection from false client (invalid name)\n");
 		ns->status = Ns_Zombie;
 		return;
 	}
@@ -587,7 +577,6 @@ void MoveCmd(char *buf, int len, player *pl)
 
 	if (sscanf(buf, "%d %d %d", &vals[0], &vals[1], &vals[2]) != 3)
 	{
-		LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
 		return;
 	}
 
@@ -976,7 +965,7 @@ void draw_client_map(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: draw_client_map(): Called with non-player: %s\n", pl->name);
+		LOG(llevBug, "draw_client_map(): Called with non-player: %s\n", pl->name);
 		return;
 	}
 
@@ -1366,7 +1355,7 @@ void draw_client_map2(object *pl)
 			{
 				if (!QUERY_FLAG(pl, FLAG_WIZ))
 				{
-					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
+					LOG(llevDebug, "draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
 				}
 
 				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)

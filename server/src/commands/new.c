@@ -745,7 +745,7 @@ void new_chars_init()
 			/* Parse the line. */
 			if (sscanf(buf + 7, "%s %s %s", gender, arch, face) != 3)
 			{
-				LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+				LOG(llevError, "Bogus line in %s: %s\n", filename, buf);
 			}
 
 			new_chars = realloc(new_chars, sizeof(*new_chars) * (num_new_chars + 1));
@@ -766,15 +766,15 @@ void new_chars_init()
 				}
 				else if (!strncmp(buf, "stats_base ", 11) && sscanf(buf + 11, "%d %d %d %d %d %d %d", &new_chars[i].stats_base[STR], &new_chars[i].stats_base[DEX], &new_chars[i].stats_base[CON], &new_chars[i].stats_base[INT], &new_chars[i].stats_base[WIS], &new_chars[i].stats_base[POW], &new_chars[i].stats_base[CHA]) != NUM_STATS)
 				{
-					LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+					LOG(llevError, "Bogus line in %s: %s\n", filename, buf);
 				}
 				else if (!strncmp(buf, "stats_min ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_min[STR], &new_chars[i].stats_min[DEX], &new_chars[i].stats_min[CON], &new_chars[i].stats_min[INT], &new_chars[i].stats_min[WIS], &new_chars[i].stats_min[POW], &new_chars[i].stats_min[CHA]) != NUM_STATS)
 				{
-					LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+					LOG(llevError, "Bogus line in %s: %s\n", filename, buf);
 				}
 				else if (!strncmp(buf, "stats_max ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_max[STR], &new_chars[i].stats_max[DEX], &new_chars[i].stats_max[CON], &new_chars[i].stats_max[INT], &new_chars[i].stats_max[WIS], &new_chars[i].stats_max[POW], &new_chars[i].stats_max[CHA]) != NUM_STATS)
 				{
-					LOG(llevError, "ERROR: Bogus line in %s: %s\n", filename, buf);
+					LOG(llevError, "Bogus line in %s: %s\n", filename, buf);
 				}
 
 				/* Check if we have reached the total number of gender
@@ -822,7 +822,7 @@ void command_new_char(char *params, int len, player *pl)
 	/* Incorrect state... */
 	if (pl->state != ST_ROLL_STAT)
 	{
-		LOG(llevDebug, "DEBUG: command_new_char(): %s does not have state ST_ROLL_STAT.\n", pl->ob->name);
+		LOG(llevSystem, "command_new_char(): %s does not have state ST_ROLL_STAT.\n", pl->ob->name);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
@@ -840,12 +840,12 @@ void command_new_char(char *params, int len, player *pl)
 	/* Invalid player arch? */
 	if (!player_arch || player_arch->clone.type != PLAYER)
 	{
-		LOG(llevSystem, "CRACK: command_new_char(): %s tried to make a character with invalid player arch.\n", pl->ob->name);
+		LOG(llevSystem, "command_new_char(): %s tried to make a character with invalid player arch.\n", pl->ob->name);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	LOG(llevDebug, "NewChar: %s: ARCH: %s (%d %d %d %d %d %d %d)\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
+	LOG(llevInfo, "NewChar: %s: ARCH: %s (%d %d %d %d %d %d %d)\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
 
 	for (i = 0; i < num_new_chars; i++)
 	{
@@ -857,7 +857,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (i == num_new_chars)
 	{
-		LOG(llevDebug, "DEBUG: command_new_char(): %s tried to make a character with valid player arch (%s), but the arch is not defined in server_settings file.\n", pl->ob->name, arch);
+		LOG(llevSystem, "command_new_char(): %s tried to make a character with valid player arch (%s), but the arch is not defined in server_settings file.\n", pl->ob->name, arch);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
@@ -865,7 +865,7 @@ void command_new_char(char *params, int len, player *pl)
 	/* Ensure all stat points have been allocated. */
 	if (stats[STR] + stats[DEX] + stats[CON] + stats[INT] + stats[WIS] + stats[POW] + stats[CHA] != new_chars[i].stats_min[STR] + new_chars[i].stats_min[DEX] + new_chars[i].stats_min[CON] + new_chars[i].stats_min[INT] + new_chars[i].stats_min[WIS] + new_chars[i].stats_min[POW] + new_chars[i].stats_min[CHA] + new_chars[i].points_max)
 	{
-		LOG(llevSystem, "CRACK: command_new_char(): %s didn't allocate all stat points (player arch: %s) (stats: %d, %d, %d, %d, %d, %d, %d).\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
+		LOG(llevSystem, "command_new_char(): %s didn't allocate all stat points (player arch: %s) (stats: %d, %d, %d, %d, %d, %d, %d).\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
@@ -875,13 +875,13 @@ void command_new_char(char *params, int len, player *pl)
 	{
 		if (stats[j] < new_chars[i].stats_min[j])
 		{
-			LOG(llevSystem, "CRACK: command_new_char(): %s tried to allocate too few points to %s (min: %d).", pl->ob->name, statname[j], new_chars[i].stats_min[j]);
+			LOG(llevSystem, "command_new_char(): %s tried to allocate too few points to %s (min: %d).", pl->ob->name, statname[j], new_chars[i].stats_min[j]);
 			pl->socket.status = Ns_Dead;
 			return;
 		}
 		else if (stats[j] > new_chars[i].stats_max[j])
 		{
-			LOG(llevSystem, "CRACK: command_new_char(): %s tried to allocate too many points to %s (max: %d).", pl->ob->name, statname[j], new_chars[i].stats_max[j]);
+			LOG(llevSystem, "command_new_char(): %s tried to allocate too many points to %s (max: %d).", pl->ob->name, statname[j], new_chars[i].stats_max[j]);
 			pl->socket.status = Ns_Dead;
 			return;
 		}
@@ -1180,7 +1180,7 @@ void generate_ext_title(player *pl)
 	{
 		if (!walk->name || !walk->arch->name)
 		{
-			LOG(llevDebug, "BUG: Object in %s doesn't have name/archname! (%s:%s)\n", pl->ob->name, STRING_SAFE(walk->name), STRING_SAFE(walk->arch->name));
+			LOG(llevDebug, "Object in %s doesn't have name/archname! (%s:%s)\n", pl->ob->name, STRING_SAFE(walk->name), STRING_SAFE(walk->arch->name));
 			continue;
 		}
 

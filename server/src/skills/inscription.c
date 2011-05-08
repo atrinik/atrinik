@@ -50,7 +50,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 	if (strcasestr_local(msg, "endmsg"))
 	{
 		new_draw_info(NDI_UNIQUE, op, "Trying to cheat now are we?");
-		LOG(llevInfo, "CRACK: %s tried to write a bogus message using inscription skill.\n", op->name);
+		LOG(llevInfo, "%s tried to write a bogus message using inscription skill.\n", op->name);
 		return 0;
 	}
 

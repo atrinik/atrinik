@@ -323,11 +323,11 @@ static void wrong_password(player *pl)
 {
 	pl->socket.password_fails++;
 
-	LOG(llevSystem, "CRACK: %s@%s: Failed to provide correct password.\n", query_name(pl->ob, NULL), pl->socket.host);
+	LOG(llevSystem, "%s@%s: Failed to provide correct password.\n", query_name(pl->ob, NULL), pl->socket.host);
 
 	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
 	{
-		LOG(llevSystem, "CRACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
+		LOG(llevSystem, "%s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "You have failed to provide a correct password too many times.");
 		pl->socket.status = Ns_Zombie;
 	}
@@ -377,7 +377,7 @@ void check_login(object *op)
 
 	if (pl->state == ST_PLAYING)
 	{
-		LOG(llevSystem, "CRACK: >%s< from IP %s - double login!\n", op->name, pl->socket.host);
+		LOG(llevSystem, ">%s< from IP %s - double login!\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
 		pl->socket.status = Ns_Zombie;
 		return;
@@ -385,13 +385,13 @@ void check_login(object *op)
 
 	if (checkbanned(op->name, pl->socket.host))
 	{
-		LOG(llevInfo, "BAN: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
+		LOG(llevSystem, "Ban: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou are banned!");
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
 
-	LOG(llevInfo, "LOGIN: >%s< from IP %s\n", op->name, pl->socket.host);
+	LOG(llevInfo, "Login %s from IP %s\n", op->name, pl->socket.host);
 
 	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
 
@@ -406,7 +406,7 @@ void check_login(object *op)
 
 	if (fstat(fileno(fp), &statbuf))
 	{
-		LOG(llevBug, "BUG: Unable to stat %s?\n", filename);
+		LOG(llevBug, "Unable to stat %s?\n", filename);
 		elapsed_save_time = 0;
 	}
 	else
@@ -415,7 +415,7 @@ void check_login(object *op)
 
 		if (elapsed_save_time < 0)
 		{
-			LOG(llevBug, "BUG: Player file %s was saved in the future? (%"FMT64U" time)\n", filename, (uint64) elapsed_save_time);
+			LOG(llevBug, "Player file %s was saved in the future? (%"FMT64U" time)\n", filename, (uint64) elapsed_save_time);
 			elapsed_save_time = 0;
 		}
 	}
@@ -595,7 +595,7 @@ void check_login(object *op)
 
 			if (i == NROFREALSPELLS)
 			{
-				LOG(llevDebug, "BUG: check_login(): Bogus spell (%s) in %s\n", cp, filename);
+				LOG(llevDebug, "check_login(): Bogus spell (%s) in %s\n", cp, filename);
 			}
 		}
 		else if (!strcmp(buf, "cmd_permission"))
@@ -617,7 +617,7 @@ void check_login(object *op)
 
 			if (spell_id < 0 || spell_id >= NROFREALSPELLS)
 			{
-				LOG(llevDebug, "BUG: check_login(): Bogus spell ID (#%d) in %s\n", spell_id, filename);
+				LOG(llevDebug, "check_login(): Bogus spell ID (#%d) in %s\n", spell_id, filename);
 			}
 
 			pl->spell_quickslots[value] = spell_id;
@@ -702,7 +702,7 @@ void check_login(object *op)
 
 	if (!QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
-		LOG(llevBug, "BUG: Player %s was loaded without friendly flag!", query_name(op, NULL));
+		LOG(llevBug, "Player %s was loaded without friendly flag!", query_name(op, NULL));
 		SET_FLAG(op, FLAG_FRIENDLY);
 	}
 

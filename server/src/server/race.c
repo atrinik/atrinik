@@ -190,7 +190,7 @@ void race_init()
 	archetype *at, *tmp;
 	size_t i;
 
-	LOG(llevDebug, "Initializing races...\n");
+	LOG(llevDebug, "Initializing races...");
 
 	for (at = first_archetype; at; at = at->next)
 	{
@@ -214,7 +214,7 @@ void race_init()
 
 	if (!tmp)
 	{
-		LOG(llevError, " ERROR: race_init(): Can't find required archetype: '%s'.\n", RACE_CORPSE_DEFAULT);
+		LOG(llevError, "race_init(): Can't find required archetype: '%s'.\n", RACE_CORPSE_DEFAULT);
 		return;
 	}
 
@@ -228,7 +228,7 @@ void race_init()
 		}
 	}
 
-	LOG(llevDebug, " Done.\n");
+	LOG(llevDebug, " done.\n");
 }
 
 /**

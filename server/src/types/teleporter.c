@@ -73,7 +73,7 @@ void move_teleporter(object *op)
 			/* use OUT_OF_REAL_MAP() - we want be truly on THIS map */
 			if (OUT_OF_REAL_MAP(op->map, EXIT_X(op), EXIT_Y(op)))
 			{
-				LOG(llevBug, "BUG: Removed illegal teleporter (map: %s (%d,%d)) -> (%d,%d)\n", op->map->name, op->x, op->y, EXIT_X(op), EXIT_Y(op));
+				LOG(llevBug, "Removed illegal teleporter (map: %s (%d,%d)) -> (%d,%d)\n", op->map->name, op->x, op->y, EXIT_X(op), EXIT_Y(op));
 				remove_ob(op);
 				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 				return;

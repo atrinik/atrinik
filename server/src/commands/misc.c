@@ -618,7 +618,7 @@ int command_party(object *op, char *params)
 
 		snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
 		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, NULL);
-		LOG(llevInfo, "CLOG PARTY: %s [%s] >%s<\n", query_name(op, NULL), CONTR(op)->party->name, params);
+		LOG(llevChat, "Party: %s [%s]: %s\n", op->name, CONTR(op)->party->name, params);
 		return 1;
 	}
 	else if (!strcmp(params, "leave"))

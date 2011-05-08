@@ -212,7 +212,7 @@ static archetype *get_archetype_struct()
 
 	if (new == NULL)
 	{
-		LOG(llevError, "ERROR: get_archetype_struct(): Out of memory\n");
+		LOG(llevError, "get_archetype_struct(): Out of memory\n");
 	}
 
 	/* To initial state other also */
@@ -248,12 +248,12 @@ static void first_arch_pass(FILE *fp)
 		 * alter speed_left to guarantee a random & sensible start value. */
 		if (!op->layer && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
 		{
-			LOG(llevDebug, "WARNING: Archetype %s has layer 0 without being sys_object!\n", STRING_OBJ_ARCH_NAME(op));
+			LOG(llevDebug, "Archetype %s has layer 0 without being sys_object!\n", STRING_OBJ_ARCH_NAME(op));
 		}
 
 		if (op->layer && QUERY_FLAG(op, FLAG_SYS_OBJECT))
 		{
-			LOG(llevDebug, "WARNING: Archetype %s has layer %d (!= 0) and is sys_object!\n", STRING_OBJ_ARCH_NAME(op), op->layer);
+			LOG(llevDebug, "Archetype %s has layer %d (!= 0) and is sys_object!\n", STRING_OBJ_ARCH_NAME(op), op->layer);
 		}
 
 		switch (i)
@@ -274,7 +274,7 @@ static void first_arch_pass(FILE *fp)
 
 				if (!op->type)
 				{
-					LOG(llevDebug, "WARNING: Archetype %s has no type!\n", STRING_OBJ_ARCH_NAME(op));
+					LOG(llevDebug, "Archetype %s has no type!\n", STRING_OBJ_ARCH_NAME(op));
 				}
 
 				break;
@@ -341,7 +341,7 @@ static void second_arch_pass(FILE *fp_start)
 		{
 			if ((at = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "BUG: Failed to find arch %s\n", STRING_SAFE(argument));
+				LOG(llevBug, "Failed to find arch %s\n", STRING_SAFE(argument));
 			}
 		}
 		else if (!strcmp("other_arch", variable))
@@ -350,7 +350,7 @@ static void second_arch_pass(FILE *fp_start)
 			{
 				if ((other = find_archetype(argument)) == NULL)
 				{
-					LOG(llevBug, "BUG: Failed to find other_arch %s\n", STRING_SAFE(argument));
+					LOG(llevBug, "Failed to find other_arch %s\n", STRING_SAFE(argument));
 				}
 				else if (at != NULL)
 				{
@@ -366,7 +366,7 @@ static void second_arch_pass(FILE *fp_start)
 
 				if (tl == NULL)
 				{
-					LOG(llevBug, "BUG: Failed to link treasure to arch. (arch: %s ->%s\n", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
+					LOG(llevBug, "Failed to link treasure to arch. (arch: %s ->%s\n", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
 				}
 				else
 				{
@@ -395,7 +395,7 @@ static void second_arch_pass(FILE *fp_start)
 
 	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
 	{
-		LOG(llevError, "ERROR: Can't open %s.\n", filename);
+		LOG(llevError, "Can't open %s.\n", filename);
 		return;
 	}
 
@@ -426,14 +426,14 @@ static void second_arch_pass(FILE *fp_start)
 		{
 			if ((at = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "BUG: Second artifacts pass: Failed to find artifact %s\n", STRING_SAFE(argument));
+				LOG(llevBug, "Second artifacts pass: Failed to find artifact %s\n", STRING_SAFE(argument));
 			}
 		}
 		else if (!strcmp("def_arch", variable))
 		{
 			if ((other = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "BUG: Second artifacts pass: Failed to find def_arch %s from artifact %s\n", STRING_SAFE(argument), STRING_ARCH_NAME(at));
+				LOG(llevBug, "Second artifacts pass: Failed to find def_arch %s from artifact %s\n", STRING_SAFE(argument), STRING_ARCH_NAME(at));
 			}
 
 			/* now copy from real arch the stuff from above to our "fake" arches */
@@ -444,7 +444,7 @@ static void second_arch_pass(FILE *fp_start)
 		{
 			if ((other = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "BUG: Second artifacts pass: Failed to find other_arch %s\n", STRING_SAFE(argument));
+				LOG(llevBug, "Second artifacts pass: Failed to find other_arch %s\n", STRING_SAFE(argument));
 			}
 			else if (at != NULL)
 			{
@@ -457,7 +457,7 @@ static void second_arch_pass(FILE *fp_start)
 
 			if (tl == NULL)
 			{
-				LOG(llevBug, "BUG: Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)\n", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
+				LOG(llevBug, "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)\n", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
 			}
 			else if (at != NULL)
 			{
@@ -490,7 +490,7 @@ static void load_archetypes()
 
 	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
 	{
-		LOG(llevError, "ERROR: Can't open archetype file.\n");
+		LOG(llevError, "Can't open archetype file.\n");
 		return;
 	}
 
@@ -549,7 +549,7 @@ object *arch_to_object(archetype *at)
 
 	if (at == NULL)
 	{
-		LOG(llevBug, "BUG: arch_to_object(): Archetype at is NULL.\n");
+		LOG(llevBug, "arch_to_object(): Archetype at is NULL.\n");
 		return NULL;
 	}
 
@@ -675,7 +675,7 @@ static void add_arch(archetype *at)
 	{
 		if (arch_table[index] && !strcmp(arch_table[index]->name, at->name))
 		{
-			LOG(llevError, "ERROR: add_arch(): Double use of arch name %s.\n", STRING_ARCH_NAME(at));
+			LOG(llevError, "add_arch(): Double use of arch name %s.\n", STRING_ARCH_NAME(at));
 		}
 
 		if (arch_table[index] == NULL)
@@ -691,7 +691,7 @@ static void add_arch(archetype *at)
 
 		if (index == org_index)
 		{
-			LOG(llevError, "ERROR: add_arch(): Archtable too small.\n");
+			LOG(llevError, "add_arch(): Archtable too small.\n");
 		}
 	}
 }

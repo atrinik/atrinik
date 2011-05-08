@@ -56,7 +56,7 @@ void init_spells()
 
 	if (!fp)
 	{
-		LOG(llevError, "\nERROR: Cannot open file '%s' for writing.\n", filename);
+		LOG(llevError, "Cannot open file '%s' for writing.\n", filename);
 	}
 
 	for (i = 0; i < NROFREALSPELLS; i++)
@@ -132,7 +132,7 @@ void init_spells()
 		{
 			if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL)
 			{
-				LOG(llevError, "ERROR: Spell %s needs arch %s, your archetypes file is out of date.\n", spells[i].name, spells[i].archname);
+				LOG(llevError, "Spell %s needs arch %s, your archetypes file is out of date.\n", spells[i].name, spells[i].archname);
 			}
 		}
 		else
@@ -144,7 +144,7 @@ void init_spells()
 		{
 			if (!find_face(spells[i].icon, 0))
 			{
-				LOG(llevError, "ERROR: Spell '%s' needs face '%s', but it could not be found.\n", spells[i].name, spells[i].icon);
+				LOG(llevError, "Spell '%s' needs face '%s', but it could not be found.\n", spells[i].name, spells[i].icon);
 			}
 		}
 
@@ -196,7 +196,7 @@ void dump_spells()
 			int j;
 			object *caster, *tmp = NULL;
 
-			LOG(llevInfo, "\nInformation about '%s' (ID: %d):\n", spells[i].name, i);
+			LOG(llevInfo, "Information about '%s' (ID: %d):\n", spells[i].name, i);
 			caster = get_object();
 
 			if (spellarch[i])
@@ -233,13 +233,13 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 
 	if (!archname || !m)
 	{
-		LOG(llevBug, "BUG: insert_spell_effect(): archname or map NULL.\n");
+		LOG(llevBug, "insert_spell_effect(): archname or map NULL.\n");
 		return 1;
 	}
 
 	if (!(effect_arch = find_archetype(archname)))
 	{
-		LOG(llevBug, "BUG: insert_spell_effect(): Couldn't find effect arch (%s).\n", archname);
+		LOG(llevBug, "insert_spell_effect(): Couldn't find effect arch (%s).\n", archname);
 		return 1;
 	}
 
@@ -251,7 +251,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 
 	if (!insert_ob_in_map(effect_ob, m, NULL, 0))
 	{
-		LOG(llevBug, "BUG: insert_spell_effect(): effect arch (%s) out of map (%s) (%d,%d) or failed insertion.\n", archname, effect_ob->map->name, x, y);
+		LOG(llevBug, "insert_spell_effect(): effect arch (%s) out of map (%s) (%d,%d) or failed insertion.\n", archname, effect_ob->map->name, x, y);
 
 		/* Something is wrong - kill object */
 		if (!QUERY_FLAG(effect_ob, FLAG_REMOVED))
@@ -323,7 +323,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 	if (!s)
 	{
-		LOG(llevBug, "BUG: cast_spell(): Unknown spell: %d\n", type);
+		LOG(llevBug, "cast_spell(): Unknown spell: %d\n", type);
 		return 0;
 	}
 
@@ -733,7 +733,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			break;
 
 		default:
-			LOG(llevBug, "BUG: cast_spell(): Invalid invalid spell: %d\n", type);
+			LOG(llevBug, "cast_spell(): Invalid invalid spell: %d\n", type);
 			break;
 	}
 
@@ -1000,7 +1000,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
 	if (!tmp)
 	{
-		LOG(llevBug, "BUG: cast_cone(): arch_to_object() failed!? (%s)\n", spell_arch->name);
+		LOG(llevBug, "cast_cone(): arch_to_object() failed!? (%s)\n", spell_arch->name);
 		return 0;
 	}
 
@@ -1045,12 +1045,12 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
 		if (!QUERY_FLAG(tmp, FLAG_FLYING))
 		{
-			LOG(llevDebug, "DEBUG: cast_cone(): arch %s doesn't have flying 1\n", spell_arch->name);
+			LOG(llevDebug, "cast_cone(): arch %s doesn't have flying 1\n", spell_arch->name);
 		}
 
 		if ((!QUERY_FLAG(tmp, FLAG_WALK_ON) || !QUERY_FLAG(tmp, FLAG_FLY_ON)) && tmp->stats.dam)
 		{
-			LOG(llevDebug, "DEBUG: cast_cone(): arch %s doesn't have walk_on 1 and fly_on 1\n", spell_arch->name);
+			LOG(llevDebug, "cast_cone(): arch %s doesn't have walk_on 1 and fly_on 1\n", spell_arch->name);
 		}
 
 		if (!insert_ob_in_map(tmp, op->map, op, 0))
@@ -1112,7 +1112,7 @@ void move_cone(object *op)
 	/* If no map then hit_map will crash so just ignore object */
 	if (!op->map)
 	{
-		LOG(llevBug, "BUG: Tried to move_cone object %s without a map.\n", query_name(op, NULL));
+		LOG(llevBug, "Tried to move_cone object %s without a map.\n", query_name(op, NULL));
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
@@ -1424,7 +1424,7 @@ void explode_object(object *op)
 
 	if (op->other_arch == NULL)
 	{
-		LOG(llevBug, "BUG: explode_object(): op %s without other_arch\n", query_name(op, NULL));
+		LOG(llevBug, "explode_object(): op %s without other_arch\n", query_name(op, NULL));
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;

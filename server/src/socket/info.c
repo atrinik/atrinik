@@ -69,7 +69,7 @@ void new_draw_info(int flags, object *pl, const char *buf)
 
 	if (CONTR(pl) == NULL)
 	{
-		LOG(llevBug, "BUG: new_draw_info(): Called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
+		LOG(llevBug, "new_draw_info(): Called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
 		return;
 	}
 

@@ -42,7 +42,7 @@ struct Settings settings =
 	"",
 	/* Client/server port */
 	CSPORT,
-	GLOBAL_LOG_LEVEL,
+	llevInfo,
 	/* dumpvalues, dumparg, daemonmode */
 	0, NULL, 0,
 	DATADIR,
@@ -64,7 +64,8 @@ struct Settings settings =
 	0,
 	0,
 	10,
-	1.0f
+	1.0f,
+	0
 };
 
 /** World's darkness value. */
@@ -177,7 +178,7 @@ void init_library()
 
 	if (!level_up_arch)
 	{
-		LOG(llevBug, "BUG: Can't find '%s' arch\n", ARCHETYPE_LEVEL_UP);
+		LOG(llevBug, "Can't find '%s' arch\n", ARCHETYPE_LEVEL_UP);
 	}
 }
 
@@ -252,7 +253,7 @@ void init_globals()
 	else if ((logfile = fopen(settings.logfilename, "w")) == NULL)
 	{
 		logfile = stderr;
-		LOG(llevInfo, "Unable to open %s as the logfile - will use stderr instead\n", settings.logfilename);
+		LOG(llevBug, "Unable to open %s as the logfile - will use stderr instead\n", settings.logfilename);
 	}
 
 	/* Global round ticker */
@@ -319,7 +320,7 @@ void write_todclock()
 
 	if ((fp = fopen(filename, "w")) == NULL)
 	{
-		LOG(llevBug, "BUG: Cannot open %s for writing.\n", filename);
+		LOG(llevBug, "Cannot open %s for writing.\n", filename);
 		return;
 	}
 
@@ -394,9 +395,9 @@ static void unset_debug()
 	settings.debug = llevInfo;
 }
 
-static void set_mondebug()
+static void set_timestamp()
 {
-	settings.debug = llevMonster;
+	settings.timestamp = 1;
 }
 
 static void set_dumpmon1()
@@ -529,7 +530,7 @@ static void set_csport(const char *val)
 #ifndef WIN32
 	if (settings.csport <= 0 || settings.csport > 32765 || (settings.csport < 1024 && getuid() != 0))
 	{
-		LOG(llevError, "ERROR: %d is an invalid csport number.\n", settings.csport);
+		LOG(llevError, "%d is an invalid csport number.\n", settings.csport);
 	}
 #endif
 }
@@ -559,7 +560,7 @@ static void set_unit_tests()
 #if defined(HAVE_CHECK)
 	settings.unit_tests = 1;
 #else
-	LOG(llevInfo, "\nThe server was built without the check unit testing framework.\nIf you want to run unit tests, you must first install this framework.\n");
+	LOG(llevInfo, "The server was built without the check unit testing framework.\nIf you want to run unit tests, you must first install this framework.\n");
 	exit(0);
 #endif
 }
@@ -576,7 +577,7 @@ static void set_world_maker(const char *data)
 	}
 #else
 	(void) data;
-	LOG(llevInfo, "\nThe server was built without the world maker module.\n");
+	LOG(llevInfo, "The server was built without the world maker module.\n");
 	exit(0);
 #endif
 }
@@ -621,7 +622,6 @@ struct Command_Line_Options options[] =
 	{"-v", 0, 1, call_version},
 	{"-d", 0, 1, set_debug},
 	{"+d", 0, 1, unset_debug},
-	{"-mon", 0, 1, set_mondebug},
 	{"-data",1,1, set_datadir},
 	{"-local",1,1, set_localdir},
 	{"-maps", 1, 1, set_mapdir},
@@ -630,6 +630,7 @@ struct Command_Line_Options options[] =
 	{"-uniquedir", 1, 1, set_uniquedir},
 	{"-tmpdir", 1, 1, set_tmpdir},
 	{"-log", 1, 1, set_logfile},
+	{"-ts", 0, 1, set_timestamp},
 
 	/* Pass 2 functions.  Most of these could probably be in pass 1,
 	 * as they don't require much of anything to bet set up. */
@@ -755,7 +756,7 @@ static void load_settings()
 	 * will not be a good thing. */
 	if ((fp = open_and_uncompress(buf, 0, &comp)) == NULL)
 	{
-		LOG(llevBug, "BUG: No %s file found\n", SETTINGS);
+		LOG(llevBug, "No %s file found\n", SETTINGS);
 		return;
 	}
 
@@ -807,7 +808,7 @@ static void load_settings()
 			}
 			else
 			{
-				LOG(llevBug, "BUG: load_settings(): Unknown value for metaserver_notification: %s\n", cp);
+				LOG(llevBug, "load_settings(): Unknown value for metaserver_notification: %s\n", cp);
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_server"))
@@ -818,7 +819,7 @@ static void load_settings()
 			}
 			else
 			{
-				LOG(llevBug, "BUG: load_settings(): metaserver_server must have a value.\n");
+				LOG(llevBug, "load_settings(): metaserver_server must have a value.\n");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_host"))
@@ -829,7 +830,7 @@ static void load_settings()
 			}
 			else
 			{
-				LOG(llevBug, "BUG: load_settings(): metaserver_host must have a value.\n");
+				LOG(llevBug, "load_settings(): metaserver_host must have a value.\n");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_name"))
@@ -840,7 +841,7 @@ static void load_settings()
 			}
 			else
 			{
-				LOG(llevBug, "BUG: load_settings(): metaserver_name must have a value.\n");
+				LOG(llevBug, "load_settings(): metaserver_name must have a value.\n");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_comment"))
@@ -853,7 +854,7 @@ static void load_settings()
 
 			if (tmp < 0)
 			{
-				LOG(llevError, "ERROR: load_settings(): item_power_factor must be a positive number (%f < 0).\n", tmp);
+				LOG(llevError, "load_settings(): item_power_factor must be a positive number (%f < 0).\n", tmp);
 			}
 			else
 			{
@@ -872,12 +873,12 @@ static void load_settings()
 			}
 			else
 			{
-				LOG(llevBug, "BUG: load_settings(): client_maps must have a value.\n");
+				LOG(llevBug, "load_settings(): client_maps must have a value.\n");
 			}
 		}
 		else
 		{
-			LOG(llevBug, "BUG: Unknown value in %s file: %s\n", SETTINGS, buf);
+			LOG(llevBug, "Unknown value in %s file: %s\n", SETTINGS, buf);
 		}
 	}
 
@@ -956,11 +957,10 @@ static void help()
 	LOG(llevInfo, " +d          Turns off debugging (useful if server compiled with debugging\n");
 	LOG(llevInfo, "             as default).\n");
 	LOG(llevInfo, " -detach     The server will go in the background, closing all\n");
-	LOG(llevInfo, "             connections to the tty.\n");
-	LOG(llevInfo, " -h          Display this information.\n");
+	LOG(llevInfo, "             connections to the tty (UNIX only).\n");
+	LOG(llevInfo, " -h, -help   Display this information.\n");
 	LOG(llevInfo, " -log <file> Specifies which file to send output to.\n");
 	LOG(llevInfo, "             Only has meaning if -detach is specified.\n");
-	LOG(llevInfo, " -mon        Turns on monster debugging.\n");
 	LOG(llevInfo, " -o          Prints out info on what was defined at compile time.\n");
 	LOG(llevInfo, " -s          Display the high-score list.\n");
 	LOG(llevInfo, " -score <name or class> Displays all high scores with matching name/class.\n");
@@ -973,8 +973,7 @@ static void help()
 	LOG(llevInfo, " -local      Read/write local data (hiscore, unique items, etc.)\n");
 	LOG(llevInfo, " -maps       Sets the directory for maps.\n");
 	LOG(llevInfo, " -arch       Sets the archetype file to use.\n");
-	LOG(llevInfo, " -playerdir  Sets the directory for the player files.\n");
-	LOG(llevInfo, " -treasures	 Sets the treasures file to use.\n");
+	LOG(llevInfo, " -treasures  Sets the treasures file to use.\n");
 	LOG(llevInfo, " -uniquedir  Sets the unique items/maps directory.\n");
 	LOG(llevInfo, " -tmpdir     Sets the directory for temporary files (mostly maps.)\n");
 	LOG(llevInfo, " -m1         Dumps out object settings for all monsters.\n");
@@ -989,7 +988,22 @@ static void help()
 	LOG(llevInfo, " -m10        Dumps out all arches.\n");
 	LOG(llevInfo, " -m11 <arch> Dumps out list of treasures for a monster.\n");
 	LOG(llevInfo, " -m12        Dumps out level colors table.\n");
-	LOG(llevInfo, " -spell <name> Dumps various information about the specified spell (if 'all', information about all spells available). This is useful when debugging/balancing spells.\n");
+	LOG(llevInfo, " -spell <name> Dumps various information about the specified spell\n");
+	LOG(llevInfo, "             (if 'all', information about all spells available). This\n");
+	LOG(llevInfo, "             is useful when debugging/balancing spells.\n");
+
+#if defined(HAVE_CHECK)
+	LOG(llevInfo, " -tests      Runs unit tests.\n");
+#endif
+
+#if defined(HAVE_GD)
+	LOG(llevInfo, " -world_maker <path> Generates region maps and stores them in the specified path.\n");
+#endif
+
+	LOG(llevInfo, " -watchdog   Enables sending datagrams to an external watchdog program.\n");
+	LOG(llevInfo, " -interactive Enables interactive mode. Type 'help' in console for more information.\n");
+	LOG(llevInfo, " -timestamp  If enables, all log entries will be prefixed with UNIX timestamp.\n");
+
 	exit(0);
 }
 

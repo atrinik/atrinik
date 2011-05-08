@@ -223,7 +223,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 
 					if (tmp2->type == RANDOM_DROP)
 					{
-						LOG(llevDebug, "DEBUG:: RANDOM_DROP not allowed inside another RANDOM_DROP. Monster: >%s< map: %s (x: %d, y: %d)\n", query_name(monster, NULL), op->map ? op->map->path : "null", op->x, op->y);
+						LOG(llevDebug, "RANDOM_DROP not allowed inside another RANDOM_DROP. Monster: >%s< map: %s (x: %d, y: %d)\n", query_name(monster, NULL), op->map ? op->map->path : "null", op->x, op->y);
 					}
 					else
 					{
@@ -307,7 +307,7 @@ void spawn_point(object *op)
 	/* Spawn point without inventory! */
 	if (!op->inv)
 	{
-		LOG(llevBug, "BUG: Spawn point without inventory! --> map %s (x: %d, y: %d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
+		LOG(llevBug, "Spawn point without inventory! --> map %s (x: %d, y: %d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
@@ -324,7 +324,7 @@ void spawn_point(object *op)
 
 		if (tmp->type != SPAWN_POINT_MOB)
 		{
-			LOG(llevBug, "BUG: Spawn point in map %s (x: %d, y: %d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
+			LOG(llevBug, "Spawn point in map %s (x: %d, y: %d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
 		}
 		else if ((int) tmp->enemy_count <= op->stats.sp && (int) tmp->enemy_count >= rmt)
 		{

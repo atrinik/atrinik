@@ -73,11 +73,6 @@
 #	define MODULEAPI
 #endif
 
-/** Print out some general information about scripts running. */
-#ifndef PRODUCTION_SERVER
-#	define PYTHON_DEBUG
-#endif
-
 /** Name of the plugin. */
 #define PLUGIN_NAME "Python"
 /** Name of the plugin, and its version. */

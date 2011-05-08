@@ -109,7 +109,7 @@ void move_arrow(object *op)
 
 	if (op->map == NULL)
 	{
-		LOG(llevBug, "BUG: move_arrow(): Arrow %s had no map.\n", query_name(op, NULL));
+		LOG(llevBug, "move_arrow(): Arrow %s had no map.\n", query_name(op, NULL));
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;

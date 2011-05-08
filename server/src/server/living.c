@@ -810,7 +810,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 
 	if (!at)
 	{
-		LOG(llevBug, "BUG: Couldn't find archetype depletion.\n");
+		LOG(llevBug, "Couldn't find archetype depletion.\n");
 		return;
 	}
 	else
@@ -1110,7 +1110,7 @@ void fix_player(object *op)
 
 					if (!op->weapon_speed)
 					{
-						LOG(llevBug, "BUG: monster/player %s applied weapon %s without weapon speed!\n", op->name, tmp->name);
+						LOG(llevBug, "monster/player %s applied weapon %s without weapon speed!\n", op->name, tmp->name);
 					}
 
 					wc += (tmp->stats.wc + tmp->magic);
@@ -1441,7 +1441,7 @@ fix_player_jump_resi:
 				/* Catch items which are applied but should not be -
 				 * or we forgot to catch them here. */
 				default:
-					LOG(llevDebug, "DEBUG: fix_player(): unexpected applied object %s (%d)(clear flag now!)\n", query_name(tmp, NULL), tmp->type);
+					LOG(llevDebug, "fix_player(): unexpected applied object %s (%d)(clear flag now!)\n", query_name(tmp, NULL), tmp->type);
 					CLEAR_FLAG(tmp, FLAG_APPLIED);
 					break;
 			}
@@ -1840,7 +1840,7 @@ fix_player_jump_resi:
 		}
 		else
 		{
-			LOG(llevBug, "BUG: fix_player(): player %s has no hth skill!\n", op->name);
+			LOG(llevBug, "fix_player(): player %s has no hth skill!\n", op->name);
 		}
 	}
 	/* Weapon in hand */
@@ -1851,7 +1851,7 @@ fix_player_jump_resi:
 		/* Weapon without the skill applied... */
 		if (!pl->skill_ptr[pl->set_skill_weapon])
 		{
-			LOG(llevBug, "BUG: fix_player(): player %s has weapon selected but not the skill #%d!!!\n", op->name, pl->set_skill_weapon);
+			LOG(llevBug, "fix_player(): player %s has weapon selected but not the skill #%d!!!\n", op->name, pl->set_skill_weapon);
 		}
 		else
 		{
@@ -1878,7 +1878,7 @@ fix_player_jump_resi:
 	{
 		object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-		LOG(llevBug, "BUG: fix_player(): Player %s had no quest container, fixing.\n", op->name);
+		LOG(llevBug, "fix_player(): Player %s had no quest container, fixing.\n", op->name);
 		insert_ob_in_ob(quest_container, op);
 		pl->quest_container = quest_container;
 	}
@@ -2080,7 +2080,7 @@ object *insert_base_info_object(object *op)
 
 	if (op->type == PLAYER)
 	{
-		LOG(llevBug, "BUG: insert_base_info_object() Try to inserting base_info in player %s!\n", query_name(head, NULL));
+		LOG(llevBug, "insert_base_info_object() Try to inserting base_info in player %s!\n", query_name(head, NULL));
 		return NULL;
 	}
 

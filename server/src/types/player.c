@@ -139,7 +139,7 @@ static player *get_player(player *p)
 
 		if (p == NULL)
 		{
-			LOG(llevError, "ERROR: get_player(): Out of memory\n");
+			LOG(llevError, "get_player(): Out of memory\n");
 		}
 
 		if (!last_player)
@@ -335,7 +335,7 @@ static archetype *get_player_archetype(archetype *at)
 
 		if (at == start)
 		{
-			LOG(llevError, "ERROR: No player achetypes\n");
+			LOG(llevError, "No player achetypes\n");
 			exit(-1);
 		}
 	}
@@ -484,7 +484,7 @@ static void fire_bow(object *op, int dir)
 
 	if (!bow)
 	{
-		LOG(llevBug, "BUG: fire_bow(): bow without activated bow (%s - %d).\n", op->name, dir);
+		LOG(llevBug, "fire_bow(): bow without activated bow (%s - %d).\n", op->name, dir);
 	}
 
 	if (!bow->race)
@@ -508,7 +508,7 @@ static void fire_bow(object *op, int dir)
 	/* This should not happen, but sometimes does */
 	if (arrow->nrof == 0)
 	{
-		LOG(llevDebug, "BUG?: arrow->nrof == 0 in fire_bow() (%s)\n", query_name(arrow, NULL));
+		LOG(llevDebug, "arrow->nrof == 0 in fire_bow() (%s)\n", query_name(arrow, NULL));
 		remove_ob(arrow);
 		return;
 	}
@@ -1077,7 +1077,7 @@ static int save_life(object *op)
 		}
 	}
 
-	LOG(llevBug, "BUG: save_life(): LIFESAVE set without applied object.\n");
+	LOG(llevBug, "save_life(): LIFESAVE set without applied object.\n");
 	CLEAR_FLAG(op, FLAG_LIFESAVE);
 	/* Bring him home. */
 	enter_player_savebed(op);
@@ -1676,7 +1676,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
 	if (!(spells[throw_ob->stats.sp].flags & SPELL_DESC_DIRECTION))
 	{
-		LOG(llevBug, "DEBUG: Warning, dust %s is not AE spell!!\n", query_name(throw_ob, NULL));
+		LOG(llevBug, "Warning, dust %s is not AE spell!!\n", query_name(throw_ob, NULL));
 		return;
 	}
 
@@ -1703,7 +1703,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 	/* Problem occurred! */
 	else
 	{
-		LOG(llevBug, "BUG: cast_dust() can't find an archetype to use!\n");
+		LOG(llevBug, "cast_dust() can't find an archetype to use!\n");
 	}
 
 	if (op->type == PLAYER && arch)

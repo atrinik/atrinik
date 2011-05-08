@@ -152,6 +152,6 @@ void move_creator(object *op)
 	}
 	else
 	{
-		LOG(llevDebug, "DEBUG: Creator object with no other_arch/inventory: %s (%d, %d)\n", op->map->path, op->x, op->y);
+		LOG(llevDebug, "Creator object with no other_arch/inventory: %s (%d, %d)\n", op->map->path, op->x, op->y);
 	}
 }

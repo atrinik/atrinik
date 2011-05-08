@@ -90,7 +90,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 		}
 	}
 
-	LOG(llevSystem, "BUG: open_door() - Door on wrong layer. Map: %s (%d, %d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
+	LOG(llevSystem, "open_door() - Door on wrong layer. Map: %s (%d, %d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
 	return 0;
 }
 
@@ -236,14 +236,14 @@ void close_locked_door(object *op)
 	/* This is a bug - active speed but not marked as active */
 	if (!op->last_eat)
 	{
-		LOG(llevBug, "BUG: Door has speed but is not marked as active. (%s - map: %s (%d, %d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
+		LOG(llevBug, "Door has speed but is not marked as active. (%s - map: %s (%d, %d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
 		op->last_eat = 0;
 		return;
 	}
 
 	if (!op->map)
 	{
-		LOG(llevBug, "BUG: Door with speed but no map (%s - (%d, %d))\n", query_name(op, NULL), op->x, op->y);
+		LOG(llevBug, "Door with speed but no map (%s - (%d, %d))\n", query_name(op, NULL), op->x, op->y);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;

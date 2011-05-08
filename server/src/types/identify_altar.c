@@ -98,7 +98,7 @@ int apply_identify_altar(object *money, object *altar, object *pl)
 			}
 			else
 			{
-				LOG(llevBug, "BUG: apply_identify_altar(): Couldn't do sacrifice when we should have been able to.\n");
+				LOG(llevBug, "apply_identify_altar(): Couldn't do sacrifice when we should have been able to.\n");
 				break;
 			}
 		}

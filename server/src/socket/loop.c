@@ -249,7 +249,7 @@ static int check_command(socket_struct *ns, player *pl)
 		}
 	}
 
-	LOG(llevDebug, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
+	LOG(llevSystem, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
 	return 0;
 }
 
@@ -375,7 +375,7 @@ void remove_ns_dead_player(player *pl)
 		}
 	}
 
-	LOG(llevInfo, "LOGOUT: >%s< from IP %s\n", pl->ob->name, pl->socket.host);
+	LOG(llevInfo, "Logout %s from IP %s\n", pl->ob->name, pl->socket.host);
 
 	/* To avoid problems with inventory window */
 	pl->ob->type = DEAD_OBJECT;
@@ -503,7 +503,7 @@ void doeric_server()
 
 	if (pollret == -1)
 	{
-		LOG(llevDebug, "DEBUG: doeric_server(): select failed: %s\n", strerror_local(errno));
+		LOG(llevDebug, "doeric_server(): select failed: %s\n", strerror_local(errno));
 		return;
 	}
 
@@ -519,7 +519,7 @@ void doeric_server()
 
 			if (!init_sockets)
 			{
-				LOG(llevError, "ERROR: doeric_server(): Out of memory\n");
+				LOG(llevError, "doeric_server(): Out of memory\n");
 			}
 
 			newsocknum = socket_info.allocated_sockets;
@@ -555,7 +555,7 @@ void doeric_server()
 
 			if (checkbanned(NULL, buf))
 			{
-				LOG(llevInfo, "BAN: Banned IP tried to connect. [%s]\n", buf);
+				LOG(llevSystem, "Ban: Banned IP tried to connect: %s\n", buf);
 #ifndef WIN32
 				close(init_sockets[newsocknum].fd);
 #else
@@ -594,7 +594,7 @@ void doeric_server()
 
 				if (rr < 0)
 				{
-					LOG(llevDebug, "Drop connection: %s\n", STRING_SAFE(init_sockets[i].host));
+					LOG(llevInfo, "Drop connection: %s\n", STRING_SAFE(init_sockets[i].host));
 					init_sockets[i].status = Ns_Dead;
 				}
 				else
@@ -644,7 +644,7 @@ void doeric_server()
 
 			if (rr < 0)
 			{
-				LOG(llevDebug, "Drop connection: %s (%s)\n", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
+				LOG(llevInfo, "Drop connection: %s (%s)\n", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
 				pl->socket.status = Ns_Dead;
 			}
 			else

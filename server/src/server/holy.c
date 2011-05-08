@@ -40,7 +40,7 @@ static godlink *init_godslist()
 
 	if (gl == NULL)
 	{
-		LOG(llevError, "ERROR: init_godslist(): Out of memory.\n");
+		LOG(llevError, "init_godslist(): Out of memory.\n");
 	}
 
 	/* How to describe the god to the player */
@@ -84,7 +84,7 @@ static void add_god_to_list(archetype *god_arch)
 
 	if (!god_arch)
 	{
-		LOG(llevBug, "BUG: Tried to add null god to list!\n");
+		LOG(llevBug, "Tried to add null god to list!\n");
 		return;
 	}
 
@@ -131,7 +131,7 @@ godlink *get_rand_god()
 
 	if (!god)
 	{
-		LOG(llevBug, "BUG: get_rand_god(): Can't find a random god!\n");
+		LOG(llevBug, "get_rand_god(): Can't find a random god!\n");
 	}
 
 	return god;

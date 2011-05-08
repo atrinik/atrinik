@@ -339,7 +339,7 @@ int command_kick(object *ob, char *params)
 				new_draw_info_format(NDI_UNIQUE | NDI_ALL, ob, "%s was kicked out of the game.", op->name);
 			}
 
-			LOG(llevInfo, "%s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
+			LOG(llevChat, "Kick: %s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
 
 			CONTR(op)->socket.status = Ns_Dead;
 			remove_ns_dead_player(CONTR(op));
@@ -1142,7 +1142,7 @@ int command_addexp(object *op, char *params)
 
 	if (!exp_ob)
 	{
-		LOG(llevBug, "BUG: add_exp() skill:%s - no exp_ob found!\n", query_name(exp_skill, NULL));
+		LOG(llevBug, "add_exp() skill:%s - no exp_ob found!\n", query_name(exp_skill, NULL));
 		return 0;
 	}
 
@@ -1261,7 +1261,7 @@ int command_resetmap(object *op, char *params)
 
 	if (m->in_memory != MAP_IN_MEMORY)
 	{
-		LOG(llevBug, "BUG: Tried to swap out map which was not in memory.\n");
+		LOG(llevBug, "Tried to swap out map which was not in memory.\n");
 		return 0;
 	}
 
@@ -1320,7 +1320,7 @@ static int checkdm(object *op, char *pl_passwd)
 
 	if ((fp = fopen(filename, "r")) == NULL)
 	{
-		LOG(llevDebug, "Could not read DM file.\n");
+		LOG(llevBug, "Could not read DM file.\n");
 		return 0;
 	}
 
@@ -1333,7 +1333,7 @@ static int checkdm(object *op, char *pl_passwd)
 
 		if (sscanf(buf, "%[^:]:%[^:]:%s\n", name, passwd, host) != 3)
 		{
-			LOG(llevBug, "BUG: malformed dm file entry: %s", buf);
+			LOG(llevBug, "Malformed dm file entry: %s", buf);
 		}
 		else if ((!strcmp(name, "*") || (op->name && !strcmp(op->name, name))) && (!strcmp(passwd, "*") || !strcmp(passwd, pl_passwd)) && (!strcmp(host, "*") || !strcmp(host, CONTR(op)->socket.host)))
 		{
@@ -2307,7 +2307,7 @@ int command_arrest(object *op, char *params)
 
 	enter_exit(pl->ob, dummy);
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Jailed %s.", pl->ob->name);
-	LOG(llevInfo, "Player %s arrested by %s\n", pl->ob->name, op->name);
+	LOG(llevChat, "Arrest: Player %s arrested by %s\n", pl->ob->name, op->name);
 	return 1;
 }
 
@@ -2446,8 +2446,8 @@ int command_map_save(object *op, char *params)
 
 		if (!fp)
 		{
-			LOG(llevBug, "BUG: command_map_save(): Could not open '%s' for writing.\n", buf);
-			new_draw_info_format(NDI_UNIQUE, op, "ERROR: Could not open '%s' for writing.", buf);
+			LOG(llevBug, "command_map_save(): Could not open '%s' for writing.\n", buf);
+			new_draw_info_format(NDI_UNIQUE, op, "Could not open '%s' for writing.", buf);
 			return 1;
 		}
 
@@ -2622,7 +2622,7 @@ int command_server_shout(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevInfo, "CLOG SERVERSHOUT: %s: %s\n", query_name(op, NULL), params);
+	LOG(llevChat, "Server shout: %s: %s\n", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
@@ -2657,7 +2657,7 @@ int command_mod_shout(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevInfo, "CLOG MODSHOUT: %s: %s\n", query_name(op, NULL), params);
+	LOG(llevChat, "Mod shout: %s: %s\n", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{

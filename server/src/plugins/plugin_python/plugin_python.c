@@ -68,10 +68,12 @@ static const Atrinik_Constant constants[] =
 	{"WEST", WEST},
 	{"NORTHWEST", NORTHWEST},
 
+	{"llevSystem", llevSystem},
 	{"llevError", llevError},
 	{"llevBug", llevBug},
 	{"llevInfo", llevInfo},
 	{"llevDebug", llevDebug},
+	{"llevChat", llevChat},
 
 	{"PLUGIN_EVENT_NORMAL", PLUGIN_EVENT_NORMAL},
 	{"PLUGIN_EVENT_GLOBAL", PLUGIN_EVENT_GLOBAL},
@@ -1455,13 +1457,13 @@ static PyCodeObject *compilePython(char *filename)
 
 	if (!(scriptfile = python_openfile(filename)))
 	{
-		LOG(llevDebug, "PYTHON:: The script file %s can't be opened.\n", filename);
+		LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
 		return NULL;
 	}
 
 	if (stat(filename, &stat_buf))
 	{
-		LOG(llevDebug, "PYTHON:: The script file %s can't be stat()ed.\n", filename);
+		LOG(llevDebug, "Python: The script file %s can't be stat()ed.\n", filename);
 		Py_DECREF(scriptfile);
 		return NULL;
 	}
@@ -1586,7 +1588,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 	if (pycode)
 	{
-#ifdef PYTHON_DEBUG
+#ifndef PRODUCTION_SERVER
 		PyObject *modules = PyImport_GetModuleDict(), *key, *value;
 		Py_ssize_t pos = 0;
 		const char *m_filename;
@@ -1662,20 +1664,13 @@ static int handle_event(va_list args)
 	context->options = va_arg(args, char *);
 	context->returnvalue = 0;
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON:: Start script file >%s<\n", script);
-	LOG(llevDebug, "PYTHON:: Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
-#endif
+	LOG(llevDebug, "Python: Start script file >%s<, activator: %s, who: %s, other: %s, text: %s, parms: %d, %d, %d, %d\n", script, STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
 
 	if (!do_script(context, script, context->who))
 	{
 		freeContext(context);
 		return 0;
 	}
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "fixing. ");
-#endif
 
 	context = popContext();
 
@@ -1703,10 +1698,7 @@ static int handle_event(va_list args)
 
 	rv = context->returnvalue;
 	freeContext(context);
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "done (returned: %d)!\n", rv);
-#endif
+	LOG(llevDebug, "Python: done (returned: %d).\n", rv);
 
 	return rv;
 }
@@ -1837,9 +1829,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 	event_type = va_arg(args, int);
 	eventcode = va_arg(args, int);
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON:: triggerEvent(): eventcode %d\n", eventcode);
-#endif
+	LOG(llevDebug, "Python: triggerEvent(): eventcode %d\n", eventcode);
 
 	switch (event_type)
 	{
@@ -1856,7 +1846,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 			break;
 
 		default:
-			LOG(llevBug, "PYTHON:: BUG: Requested unknown event type %d.\n", event_type);
+			LOG(llevBug, "Python: Requested unknown event type %d.\n", event_type);
 			break;
 	}
 
@@ -1930,9 +1920,7 @@ static int cmd_customPython(object *op, char *params)
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON:: cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
-#endif
+	LOG(llevDebug, "Python: handling command %s using script: %s\n", CustomCommand[NextCustomCommand].name, CustomCommand[NextCustomCommand].script);
 
 	context->activator = op;
 	context->who = op;
@@ -1956,9 +1944,7 @@ static int cmd_customPython(object *op, char *params)
 	rv = context->returnvalue;
 	freeContext(context);
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "done (returned: %d)!\n", rv);
-#endif
+	LOG(llevDebug, "Python: done (returned: %d).\n", rv);
 
 	return rv;
 }
@@ -1968,7 +1954,7 @@ MODULEAPI void postinitPlugin()
 	PyObject *scriptfile;
 	char path[HUGE_BUF];
 
-	LOG(llevDebug, "PYTHON:: Start postinitPlugin.\n");
+	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
@@ -2080,7 +2066,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	hooks = hooklist;
 
-	LOG(llevDebug, "Atrinik Plugin loading...\n");
+	LOG(llevDebug, "Python: Atrinik Python Plugin loading...\n");
 
 #ifdef IS_PY26
 	Py_Py3kWarningFlag++;
@@ -2092,7 +2078,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	Py_Initialize();
 
-	LOG(llevDebug, "PYTHON:: Start initAtrinik.\n");
+	LOG(llevDebug, "Python: Start initAtrinik.\n");
 
 #ifdef IS_PY3K
 	m = PyImport_ImportModule("Atrinik");
@@ -2141,12 +2127,12 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	PyDict_SetItemString(d, "Gender", module_tmp);
 
-	LOG(llevDebug, "  [Done]\n");
+	LOG(llevDebug, "Python:  [Done]\n");
 }
 
 MODULEAPI void closePlugin()
 {
-	LOG(llevInfo, "Python Plugin closing.\n");
+	LOG(llevDebug, "Python Plugin closing.\n");
 	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);
 	Py_Finalize();
 }
@@ -2744,7 +2730,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 			break;
 	}
 
-	RAISE("BUG: Unknown field type.");
+	RAISE("Unknown field type.");
 }
 
 /**

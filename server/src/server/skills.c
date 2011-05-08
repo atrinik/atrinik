@@ -250,7 +250,7 @@ else
 		{
 			if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
 			{
-				LOG(llevBug, "BUG: find_throw_ob(): couldn't unapply throwing item %s from %s\n", query_name(tmp, NULL), query_name(op, NULL));
+				LOG(llevBug, "find_throw_ob(): couldn't unapply throwing item %s from %s\n", query_name(tmp, NULL), query_name(op, NULL));
 				return NULL;
 			}
 		}

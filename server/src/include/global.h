@@ -591,6 +591,8 @@ typedef struct Settings
 
 	/** See note in setings file. */
 	float item_power_factor;
+
+	uint8 timestamp;
 } Settings;
 
 extern Settings settings;

@@ -66,7 +66,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 	 * proper.  This code was causing needless crashes. */
 	if (recursion_depth >= 500)
 	{
-		LOG(llevDebug, "WARNING: move_apply(): aborting recursion [trap arch %s, name %s; victim arch %s, name %s]\n", trap->arch->name, trap->name, victim->arch->name, victim->name);
+		LOG(llevDebug, "move_apply(): aborting recursion [trap arch %s, name %s; victim arch %s, name %s]\n", trap->arch->name, trap->name, victim->arch->name, victim->name);
 		return;
 	}
 
@@ -376,7 +376,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: do_learn_spell(): not a player ->%s\n", op->name);
+		LOG(llevBug, "do_learn_spell(): not a player ->%s\n", op->name);
 		return;
 	}
 
@@ -387,7 +387,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 
 		if (special_prayer || !tmp)
 		{
-			LOG(llevBug, "BUG: do_learn_spell(): spell already known, but can't upgrade it\n");
+			LOG(llevBug, "do_learn_spell(): spell already known, but can't upgrade it\n");
 			return;
 		}
 
@@ -398,7 +398,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	/* Learn new spell/prayer */
 	if (tmp)
 	{
-		LOG(llevBug, "BUG: do_learn_spell(): spell unknown, but special prayer mark present\n");
+		LOG(llevBug, "do_learn_spell(): spell unknown, but special prayer mark present\n");
 		remove_ob(tmp);
 	}
 
@@ -432,13 +432,13 @@ void do_forget_spell(object *op, int spell)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: do_forget_spell(): Not a player: %s (%d).\n", query_name(op, NULL), spell);
+		LOG(llevBug, "do_forget_spell(): Not a player: %s (%d).\n", query_name(op, NULL), spell);
 		return;
 	}
 
 	if (!check_spell_known(op, spell))
 	{
-		LOG(llevBug, "BUG: do_forget_spell(): Spell %d not known.\n", spell);
+		LOG(llevBug, "do_forget_spell(): Spell %d not known.\n", spell);
 		return;
 	}
 
@@ -462,7 +462,7 @@ void do_forget_spell(object *op, int spell)
 		}
 	}
 
-	LOG(llevBug, "BUG: do_forget_spell(): Couldn't find spell %d.\n", spell);
+	LOG(llevBug, "do_forget_spell(): Couldn't find spell %d.\n", spell);
 }
 
 /**
@@ -981,7 +981,7 @@ void player_apply_below(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: player_apply_below() called for non player object >%s<\n", query_name(pl, NULL));
+		LOG(llevBug, "player_apply_below() called for non player object >%s<\n", query_name(pl, NULL));
 		return;
 	}
 
@@ -1066,7 +1066,7 @@ int apply_special(object *who, object *op, int aflags)
 
 	if (who == NULL)
 	{
-		LOG(llevBug, "BUG: apply_special() from object without environment.\n");
+		LOG(llevBug, "apply_special() from object without environment.\n");
 		return 1;
 	}
 
@@ -1124,7 +1124,7 @@ int apply_special(object *who, object *op, int aflags)
 			case SKILL:
 				if (op != who->chosen_skill)
 				{
-					LOG(llevBug, "BUG: apply_special(): applied skill is not chosen skill\n");
+					LOG(llevBug, "apply_special(): applied skill is not chosen skill\n");
 				}
 
 				if (who->type == PLAYER)
@@ -1361,7 +1361,7 @@ int apply_special(object *who, object *op, int aflags)
 		case SKILL:
 			if (who->chosen_skill)
 			{
-				LOG(llevBug, "BUG: apply_special(): can't apply two skills\n");
+				LOG(llevBug, "apply_special(): can't apply two skills\n");
 				return 1;
 			}
 
@@ -1374,7 +1374,7 @@ int apply_special(object *who, object *op, int aflags)
 					/* for tools */
 					if (op->exp_obj)
 					{
-						LOG(llevBug, "BUG: apply_special(SKILL): found unapplied tool with experience object\n");
+						LOG(llevBug, "apply_special(SKILL): found unapplied tool with experience object\n");
 					}
 					else
 					{

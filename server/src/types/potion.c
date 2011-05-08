@@ -180,7 +180,7 @@ static int potion_special_apply(object *op, object *tmp)
 
 	if (!force)
 	{
-		LOG(llevBug, "BUG: potion_special_apply(): Can't create force object.\n");
+		LOG(llevBug, "potion_special_apply(): Can't create force object.\n");
 		return 0;
 	}
 
@@ -309,7 +309,7 @@ static int potion_restoration_apply(object *op, object *tmp)
 
 	if (!at)
 	{
-		LOG(llevBug, "BUG: potion_restoration_apply(): Could not find archetype 'depletion'.\n");
+		LOG(llevBug, "potion_restoration_apply(): Could not find archetype 'depletion'.\n");
 		return 0;
 	}
 
@@ -350,7 +350,7 @@ int apply_potion(object *op, object *tmp)
 	{
 		if (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])
 		{
-			LOG(llevBug, "BUG: apply_potion(): Called with invalid player object (no controller or no magic/wisdom exp object).\n");
+			LOG(llevBug, "apply_potion(): Called with invalid player object (no controller or no magic/wisdom exp object).\n");
 			return 0;
 		}
 

@@ -1117,7 +1117,7 @@ else
 	}
 	else
 	{
-		LOG(llevDebug, "CRACK: Client %s@%s sent invalid quickslot command.\n", pl->ob->name, pl->socket.host);
+		LOG(llevSystem, "Client %s@%s sent invalid quickslot command.\n", pl->ob->name, pl->socket.host);
 		pl->socket.status = Ns_Dead;
 	}
 }

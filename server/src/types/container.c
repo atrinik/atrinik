@@ -46,7 +46,7 @@ int esrv_apply_container(object *op, object *sack)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: esrv_apply_container: called from non player: <%s>!\n", query_name(op, NULL));
+		LOG(llevBug, "esrv_apply_container: called from non player: <%s>!\n", query_name(op, NULL));
 		return 0;
 	}
 
@@ -55,7 +55,7 @@ int esrv_apply_container(object *op, object *sack)
 
 	if (sack == NULL || sack->type != CONTAINER || (cont && cont->type != CONTAINER))
 	{
-		LOG(llevBug, "BUG: esrv_apply_container: object *sack = %s is not container (cont:<%s>)!\n", query_name(sack, NULL), query_name(cont, NULL));
+		LOG(llevBug, "esrv_apply_container: object *sack = %s is not container (cont:<%s>)!\n", query_name(sack, NULL), query_name(cont, NULL));
 		return 0;
 	}
 
@@ -199,7 +199,7 @@ int container_link(player *pl, object *sack)
 	{
 		if (sack->attacked_by->type != PLAYER || !CONTR(sack->attacked_by) || CONTR(sack->attacked_by)->container != sack)
 		{
-			LOG(llevBug, "BUG: container_link() - invalid player linked: <%s>\n", query_name(sack->attacked_by, NULL));
+			LOG(llevBug, "container_link() - invalid player linked: <%s>\n", query_name(sack->attacked_by, NULL));
 			sack->attacked_by = NULL;
 		}
 	}
@@ -210,7 +210,7 @@ int container_link(player *pl, object *sack)
 	 * so, give a bug warning out! */
 	if (pl->container)
 	{
-		LOG(llevBug, "BUG: container_link() - called from player with open container!: <%s> sack:<%s>\n", query_name(sack->attacked_by, NULL), query_name(sack, NULL));
+		LOG(llevBug, "container_link() - called from player with open container!: <%s> sack:<%s>\n", query_name(sack->attacked_by, NULL), query_name(sack, NULL));
 		container_unlink(pl, sack);
 	}
 
@@ -285,7 +285,7 @@ int container_unlink(player *pl, object *sack)
 
 	if (pl == NULL && sack == NULL)
 	{
-		LOG(llevBug, "BUG: container_unlink() - *pl AND *sack == NULL!\n");
+		LOG(llevBug, "container_unlink() - *pl AND *sack == NULL!\n");
 		return 0;
 	}
 
@@ -315,7 +315,7 @@ int container_unlink(player *pl, object *sack)
 			/* we should be that object... */
 			if (pl->container->attacked_by != pl->ob)
 			{
-				LOG(llevBug, "BUG: container_unlink() - container link don't match player!: <%s> sack:<%s> (%s)\n", query_name(pl->ob, NULL), query_name(sack->attacked_by, NULL), query_name(sack, NULL));
+				LOG(llevBug, "container_unlink() - container link don't match player!: <%s> sack:<%s> (%s)\n", query_name(pl->ob, NULL), query_name(sack->attacked_by, NULL), query_name(sack, NULL));
 				return 0;
 			}
 
@@ -399,7 +399,7 @@ int container_unlink(player *pl, object *sack)
 		/* valid player in list? */
 		if (!CONTR(tmp) || CONTR(tmp)->container != sack)
 		{
-			LOG(llevBug,"BUG: container_unlink() - container link list mismatch!: player?:<%s> sack:<%s> (%s)\n", query_name(tmp, NULL), query_name(sack, NULL), query_name(sack->attacked_by, NULL));
+			LOG(llevBug,"container_unlink() - container link list mismatch!: player?:<%s> sack:<%s> (%s)\n", query_name(tmp, NULL), query_name(sack, NULL), query_name(sack->attacked_by, NULL));
 			return 1;
 		}
 

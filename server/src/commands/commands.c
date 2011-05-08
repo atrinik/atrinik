@@ -341,7 +341,7 @@ int execute_newserver_command(object *pl, char *command)
 
 		if (csp)
 		{
-			LOG(llevInfo, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
+			LOG(llevSystem, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
 		}
 	}
 
@@ -371,7 +371,7 @@ int execute_newserver_command(object *pl, char *command)
 #ifdef DEBUG
 	if (csp->time && pl->speed_left < -2.0)
 	{
-		LOG(llevDebug, "DEBUG: execute_newclient_command: Player issued command that takes more time than he has left.\n");
+		LOG(llevDebug, "execute_newclient_command: Player issued command that takes more time than he has left.\n");
 	}
 #endif
 

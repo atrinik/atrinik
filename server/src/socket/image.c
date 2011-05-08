@@ -142,7 +142,7 @@ static int get_face_fallback(int faceset, int imageno)
 
 	if (!facesets[faceset].prefix)
 	{
-		LOG(llevBug, "BUG: get_face_fallback called with unused set (%d)?\n", faceset);
+		LOG(llevBug, "get_face_fallback called with unused set (%d)?\n", faceset);
 
 		/* use default set */
 		return 0;
@@ -214,7 +214,7 @@ void read_client_images()
 
 	if ((infile = open_and_uncompress(filename, 0, &compressed)) == NULL)
 	{
-		LOG(llevError, "ERROR: read_client_images(): Unable to open %s\n", filename);
+		LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
 	}
 
 	while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
@@ -228,7 +228,7 @@ void read_client_images()
 
 		if (split_string(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
 		{
-			LOG(llevBug, "BUG: read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
+			LOG(llevBug, "read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
 		}
 		else
 		{
@@ -236,7 +236,7 @@ void read_client_images()
 
 			if (len >= MAX_FACE_SETS)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Too high a setnum in image_info file: %d > %d\n", len, MAX_FACE_SETS);
+				LOG(llevError, "read_client_images(): Too high a setnum in image_info file: %d > %d\n", len, MAX_FACE_SETS);
 			}
 
 			facesets[len].prefix = strdup_local(cps[1]);
@@ -274,31 +274,31 @@ void read_client_images()
 		LOG(llevDebug, "Loading image file %s\n", filename);
 
 		/* We don't use more than one face set here! */
-		LOG(llevInfo, "Creating client_bmap....\n");
+		LOG(llevDebug, "Creating client_bmap....\n");
 		snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
 
 		if ((fbmap = fopen(buf, "wb")) == NULL)
 		{
-			LOG(llevError, "ERROR: read_client_images(): Unable to open %s\n", buf);
+			LOG(llevError, "read_client_images(): Unable to open %s\n", buf);
 		}
 
 		if ((infile = open_and_uncompress(filename, 0, &compressed)) == NULL)
 		{
-			LOG(llevError, "ERROR: read_client_images(): Unable to open %s\n", filename);
+			LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
 		}
 
 		while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
 		{
 			if (strncmp(buf, "IMAGE ", 6) != 0)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Bad image line - not IMAGE, instead\n%s", buf);
+				LOG(llevError, "read_client_images(): Bad image line - not IMAGE, instead\n%s", buf);
 			}
 
 			num = atoi(buf + 6);
 
 			if (num < 0 || num >= nrofpixmaps)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Image num %d not in 0..%d\n%s", num, nrofpixmaps, buf);
+				LOG(llevError, "read_client_images(): Image num %d not in 0..%d\n%s", num, nrofpixmaps, buf);
 			}
 
 			/* Skip across the number data */
@@ -310,7 +310,7 @@ void read_client_images()
 
 			if (len == 0 || len > MAX_IMAGE_SIZE)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Length not valid: %d > %d \n%s", len, MAX_IMAGE_SIZE, buf);
+				LOG(llevError, "read_client_images(): Length not valid: %d > %d \n%s", len, MAX_IMAGE_SIZE, buf);
 			}
 
 			/* We don't actually care about the name if the image that
@@ -320,7 +320,7 @@ void read_client_images()
 
 			if ((i = fread(facesets[fileno].faces[num].data, len, 1, infile)) != 1)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Did not read desired amount of data, wanted %d, got %d\n%s", len, i, buf);
+				LOG(llevError, "read_client_images(): Did not read desired amount of data, wanted %d, got %d\n%s", len, i, buf);
 			}
 
 			facesets[fileno].faces[num].checksum = (uint32) crc32(1L, facesets[fileno].faces[num].data, len);
@@ -369,7 +369,7 @@ int esrv_send_face(socket_struct *ns, short face_num)
 
 	if (face_num < 0 || face_num >= nrofpixmaps)
 	{
-		LOG(llevBug, "BUG: esrv_send_face(): Face %d out of bounds!\n", face_num);
+		LOG(llevBug, "esrv_send_face(): Face %d out of bounds!\n", face_num);
 		return SEND_FACE_OUT_OF_BOUNDS;
 	}
 
@@ -377,7 +377,7 @@ int esrv_send_face(socket_struct *ns, short face_num)
 
 	if (facesets[fallback].faces[face_num].data == NULL)
 	{
-		LOG(llevBug, "BUG: esrv_send_face(): faces[%d].data == NULL\n", face_num);
+		LOG(llevBug, "esrv_send_face(): faces[%d].data == NULL\n", face_num);
 		return SEND_FACE_NO_DATA;
 	}
 

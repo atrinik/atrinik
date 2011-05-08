@@ -51,24 +51,14 @@ typedef enum LogLevel
 	 * shut down. */
 	llevBug,
 
+	/** Chat, for example, shout, say, etc. */
+	llevChat,
+
 	/** Just tell the log stuff we think it's useful to know. */
 	llevInfo,
 
 	/** Give out maximal information for debug and bug control. */
-	llevDebug,
-
-	/**
-	 * Give out full monster information and debug messages. */
-	llevMonster
+	llevDebug
 } LogLevel;
-
-/* If not set from outside, we force a useful setting here */
-#ifndef GLOBAL_LOG_LEVEL
-#	ifdef DEBUG
-#		define GLOBAL_LOG_LEVEL llevMonster
-#	else
-#		define GLOBAL_LOG_LEVEL llevInfo
-#	endif
-#endif
 
 #endif

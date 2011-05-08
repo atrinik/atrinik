@@ -328,7 +328,7 @@ void set_block(int x, int y, int bx, int by)
 	block[x][y].index++;
 
 #ifdef LOS_DEBUG
-	LOG(llevInfo, "DEBUG: setblock: added %d %d -> %d %d (%d)\n", x, y, bx, by, block[x][y].index);
+	LOG(llevDebug, "setblock: added %d %d -> %d %d (%d)\n", x, y, bx, by, block[x][y].index);
 #endif
 }
 
@@ -903,7 +903,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
 				continue;
 			}
 
@@ -930,7 +930,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO MAP PATH?");
 				continue;
 			}
 
@@ -957,7 +957,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
 				continue;
 			}
 
@@ -984,7 +984,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
 				continue;
 			}
 
@@ -1011,7 +1011,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
 				continue;
 			}
 
@@ -1038,7 +1038,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO MAP PATH?");
 				continue;
 			}
 
@@ -1065,7 +1065,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
 				continue;
 			}
 
@@ -1092,7 +1092,7 @@ void check_light_source_list(mapstruct *map)
 		{
 			if (!tmp->first)
 			{
-				LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
+				LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", t_map->path ? t_map->path : "NO T_MAP PATH?");
 				continue;
 			}
 
@@ -1175,7 +1175,7 @@ void remove_light_source_list(mapstruct *map)
 		/* There MUST be at least ONE object in this map space */
 		if (!tmp->first)
 		{
-			LOG(llevBug, "BUG: remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", map->path ? map->path : "NO MAP PATH?");
+			LOG(llevBug, "remove_light_source_list() map:>%s< - no object in mapspace of light source!\n", map->path ? map->path : "NO MAP PATH?");
 			continue;
 		}
 

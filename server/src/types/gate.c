@@ -41,7 +41,7 @@ void move_gate(object *op)
 
 	if (op->stats.wc < 0 || (int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)))
 	{
-		LOG(llevBug, "BUG: move_gate(): Gate animation was %d, max=%d\n", op->stats.wc, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
+		LOG(llevBug, "move_gate(): Gate animation was %d, max=%d\n", op->stats.wc, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 		op->stats.wc = 0;
 	}
 

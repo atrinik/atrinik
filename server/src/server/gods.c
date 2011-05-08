@@ -259,7 +259,7 @@ static void check_special_prayers(object *op, object *god)
 
 		if (god->randomitems == NULL)
 		{
-			LOG(llevBug, "BUG: check_special_prayers(): %s without randomitems\n", query_name(god, NULL));
+			LOG(llevBug, "check_special_prayers(): %s without randomitems\n", query_name(god, NULL));
 			do_forget_spell(op, spell);
 			continue;
 		}
@@ -570,7 +570,7 @@ archetype *determine_holy_arch(object *god, const char *type)
 
 	if (!god || !god->randomitems)
 	{
-		LOG(llevBug, "BUG: determine_holy_arch(): no god or god without randomitems\n");
+		LOG(llevBug, "determine_holy_arch(): no god or god without randomitems\n");
 		return NULL;
 	}
 
@@ -642,7 +642,7 @@ static int follower_level_to_enchantments(int level, int difficulty)
 {
 	if (difficulty < 1)
 	{
-		LOG(llevBug, "BUG: follower_level_to_enchantments(): difficulty %d is invalid\n", difficulty);
+		LOG(llevBug, "follower_level_to_enchantments(): difficulty %d is invalid\n", difficulty);
 		return 0;
 	}
 
@@ -827,7 +827,7 @@ static void god_intervention(object *op, object *god)
 
 	if (!god || !god->randomitems)
 	{
-		LOG(llevBug, "BUG: god_intervention(): (p:%s) no god %s or god without randomitems\n", query_name(op, NULL), query_name(god, NULL));
+		LOG(llevBug, "god_intervention(): (p:%s) no god %s or god without randomitems\n", query_name(op, NULL), query_name(god, NULL));
 		return;
 	}
 
@@ -867,7 +867,7 @@ static void god_intervention(object *op, object *god)
 
 		if (!tr->item)
 		{
-			LOG(llevBug, "BUG: Empty entry in %s's treasure list\n", query_name(god, NULL));
+			LOG(llevBug, "Empty entry in %s's treasure list\n", query_name(god, NULL));
 			continue;
 		}
 
@@ -979,7 +979,7 @@ static void god_intervention(object *op, object *god)
 
 			if ((at = find_archetype("depletion")) == NULL)
 			{
-				LOG(llevBug, "BUG: Could not find archetype depletion.\n");
+				LOG(llevBug, "Could not find archetype depletion.\n");
 				continue;
 			}
 
@@ -1049,13 +1049,13 @@ static void god_intervention(object *op, object *god)
 
 			if (!QUERY_FLAG(item, FLAG_STARTEQUIP))
 			{
-				LOG(llevBug, "BUG: visible spellbook in %s's treasure list lacks FLAG_STARTEQUIP\n", query_name(god, NULL));
+				LOG(llevBug, "visible spellbook in %s's treasure list lacks FLAG_STARTEQUIP\n", query_name(god, NULL));
 				continue;
 			}
 
 			if (!item->stats.Wis)
 			{
-				LOG(llevBug, "BUG: visible spellbook in %s's treasure list doesn't contain a special prayer\n", query_name(god, NULL));
+				LOG(llevBug, "visible spellbook in %s's treasure list doesn't contain a special prayer\n", query_name(god, NULL));
 				continue;
 			}
 
@@ -1195,7 +1195,7 @@ static void lose_priest_exp(object *pl, int loss)
 #if 0
 	if (!pl || pl->type != PLAYER || !pl->chosen_skill || !pl->chosen_skill->exp_obj)
 	{
-		LOG(llevBug, "BUG: Bad call to lose_priest_exp()\n");
+		LOG(llevBug, "Bad call to lose_priest_exp()\n");
 		return;
 	}
 

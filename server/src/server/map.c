@@ -63,7 +63,7 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
 
 	if (!map || map != orig_map->tile_map[tile_num])
 	{
-		LOG(llevBug, "BUG: Failed to connect map %s with tile #%d (%s).\n", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
+		LOG(llevBug, "Failed to connect map %s with tile #%d (%s).\n", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
 		FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
 		return NULL;
 	}
@@ -271,7 +271,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 	{
 		mapstruct *m;
 
-		LOG(llevDebug, "DEBUG: relative_tile_position(): resetting traversal id\n");
+		LOG(llevDebug, "relative_tile_position(): resetting traversal id\n");
 
 		for (m = first_map; m != NULL; m = m->next)
 		{
@@ -302,7 +302,7 @@ mapstruct *has_been_loaded_sh(shstr *name)
 
 	if (*name != '/' && *name != '.')
 	{
-		LOG(llevDebug, "DEBUG: has_been_loaded_sh(): Found map name without starting '/' or '.' (%s)\n", name);
+		LOG(llevDebug, "has_been_loaded_sh(): Found map name without starting '/' or '.' (%s)\n", name);
 		return NULL;
 	}
 
@@ -493,7 +493,7 @@ char *normalize_path(const char *src, const char *dst, char *path)
 
 	if (strstr(p, "//"))
 	{
-		LOG(llevBug, "BUG: Map path with unhandled '//' element: %s\n", buf);
+		LOG(llevBug, "Map path with unhandled '//' element: %s\n", buf);
 	}
 
 	*path = '\0';
@@ -516,7 +516,7 @@ char *normalize_path(const char *src, const char *dst, char *path)
 			}
 			else
 			{
-				LOG(llevBug, "BUG: Illegal path (too many \"..\" entries): %s\n", dst);
+				LOG(llevBug, "Illegal path (too many \"..\" entries): %s\n", dst);
 				*path = '\0';
 				return path;
 			}
@@ -969,7 +969,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 	{
 		if (i == LL_MORE)
 		{
-			LOG(llevDebug, "BUG: load_objects(%s): object %s - its a tail!\n", m->path ? m->path : ">no map<", query_short_name(op, NULL));
+			LOG(llevDebug, "load_objects(%s): object %s - its a tail!\n", m->path ? m->path : ">no map<", query_short_name(op, NULL));
 			continue;
 		}
 
@@ -978,7 +978,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 		 * will not be able to do anything with it either. */
 		if (op->arch == NULL)
 		{
-			LOG(llevDebug, "BUG:load_objects(%s): object %s (%d)- invalid archetype. (pos:%d,%d)\n", m->path ? m->path : ">no map<", query_short_name(op, NULL), op->type, op->x, op->y);
+			LOG(llevDebug, "load_objects(%s): object %s (%d)- invalid archetype. (pos:%d,%d)\n", m->path ? m->path : ">no map<", query_short_name(op, NULL), op->type, op->x, op->y);
 			continue;
 		}
 
@@ -1191,7 +1191,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 							}
 							else
 							{
-								LOG(llevBug, "BUG: Spawn mob (%s (%s)) has SPAWN INFO without or illegal owner set (%s)!\n", op->arch->name, query_name(head, NULL), query_name(tmp->owner, NULL));
+								LOG(llevBug, "Spawn mob (%s (%s)) has SPAWN INFO without or illegal owner set (%s)!\n", op->arch->name, query_name(head, NULL), query_name(tmp->owner, NULL));
 							}
 
 							remove_ob(head);
@@ -1201,7 +1201,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 						}
 					}
 
-					LOG(llevBug, "BUG: Spawn mob (%s %s) without SPAWN INFO.\n", head->arch->name, query_name(head, NULL));
+					LOG(llevBug, "Spawn mob (%s %s) without SPAWN INFO.\n", head->arch->name, query_name(head, NULL));
 					remove_ob(head);
 					check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
 
@@ -1269,7 +1269,7 @@ save_objects_jump1:
 
 				if (head->owner)
 				{
-					LOG(llevDebug, "WARNING (only debug): save_obj(): obj w. owner. map:%s obj:%s (%s) (%d,%d)\n", m->path, query_name(op, NULL), op->arch && op->arch->name ? op->arch->name : "<no arch name>", op->x, op->y);
+					LOG(llevDebug, "save_obj(): obj w. owner. map:%s obj:%s (%s) (%d,%d)\n", m->path, query_name(op, NULL), op->arch && op->arch->name ? op->arch->name : "<no arch name>", op->x, op->y);
 					head->owner = NULL;
 					continue;
 				}
@@ -1411,7 +1411,7 @@ mapstruct *get_linked_map()
 
 	if (map == NULL)
 	{
-		LOG(llevError, "ERROR: get_linked_map(): Out of memory.\n");
+		LOG(llevError, "get_linked_map(): Out of memory.\n");
 	}
 
 	if (first_map)
@@ -1448,12 +1448,12 @@ static void allocate_map(mapstruct *m)
 
 	if (m->spaces || m->bitmap)
 	{
-		LOG(llevError, "ERROR: allocate_map(): Callled with already allocated map (%s)\n", m->path);
+		LOG(llevError, "allocate_map(): Callled with already allocated map (%s)\n", m->path);
 	}
 
 	if (m->buttons)
 	{
-		LOG(llevBug, "BUG: allocate_map(): Callled with already set buttons (%s)\n", m->path);
+		LOG(llevBug, "allocate_map(): Callled with already set buttons (%s)\n", m->path);
 	}
 
 	m->spaces = calloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
@@ -1462,7 +1462,7 @@ static void allocate_map(mapstruct *m)
 
 	if (m->spaces == NULL || m->bitmap == NULL)
 	{
-		LOG(llevError, "ERROR: allocate_map(): Out of memory.\n");
+		LOG(llevError, "allocate_map(): Out of memory.\n");
 	}
 }
 
@@ -1512,7 +1512,7 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	if (*filename != '/' && *filename != '.')
 	{
-		LOG(llevDebug, "DEBUG: load_original_map(): Filename without starting '/' - fixed. %s\n", filename);
+		LOG(llevDebug, "load_original_map(): Filename without starting '/' - fixed. %s\n", filename);
 		tmp_fname[0] = '/';
 		strcpy(tmp_fname + 1, filename);
 		filename = tmp_fname;
@@ -1533,7 +1533,7 @@ mapstruct *load_original_map(const char *filename, int flags)
 	{
 		if (!(flags & MAP_PLAYER_UNIQUE))
 		{
-			LOG(llevBug, "BUG: Can't open map file %s\n", pathname);
+			LOG(llevBug, "Can't open map file %s\n", pathname);
 		}
 
 		return NULL;
@@ -1547,7 +1547,7 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	if (!load_map_header(m, fp))
 	{
-		LOG(llevBug, "BUG: Failure loading map header for %s, flags=%d\n", filename, flags);
+		LOG(llevBug, "Failure loading map header for %s, flags=%d\n", filename, flags);
 		delete_map(m);
 		return NULL;
 	}
@@ -1587,7 +1587,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
 
 	if (!m->tmpname)
 	{
-		LOG(llevBug, "BUG: No temporary filename for map %s! Fallback to original!\n", m->path);
+		LOG(llevBug, "No temporary filename for map %s! Fallback to original!\n", m->path);
 		strcpy(buf, m->path);
 		delete_map(m);
 		m = load_original_map(buf, 0);
@@ -1609,7 +1609,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
 			return NULL;
 		}
 
-		LOG(llevBug, "BUG: Can't open temporary map %s! Fallback to original!\n", m->tmpname);
+		LOG(llevBug, "Can't open temporary map %s! Fallback to original!\n", m->tmpname);
 		strcpy(buf, m->path);
 		delete_map(m);
 		m = load_original_map(buf, 0);
@@ -1626,7 +1626,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
 
 	if (!load_map_header(m, fp))
 	{
-		LOG(llevBug, "BUG: Error loading map header for %s (%s)! Fallback to original!\n", m->path, m->tmpname);
+		LOG(llevBug, "Error loading map header for %s (%s)! Fallback to original!\n", m->path, m->tmpname);
 		delete_map(m);
 		m = load_original_map(m->path, 0);
 
@@ -1753,7 +1753,7 @@ int new_save_map(mapstruct *m, int flag)
 
 	if (flag && !*m->path)
 	{
-		LOG(llevBug, "BUG: Tried to save map without path.\n");
+		LOG(llevBug, "Tried to save map without path.\n");
 		return -1;
 	}
 
@@ -1817,7 +1817,7 @@ int new_save_map(mapstruct *m, int flag)
 
 	if (!fp)
 	{
-		LOG(llevError, "ERROR: Can't open file %s for saving.\n", filename);
+		LOG(llevError, "Can't open file %s for saving.\n", filename);
 		return -1;
 	}
 
@@ -1832,7 +1832,7 @@ int new_save_map(mapstruct *m, int flag)
 
 		if ((fp2 = fopen(buf, "w")) == NULL)
 		{
-			LOG(llevBug, "BUG: Can't open unique items file %s\n", buf);
+			LOG(llevBug, "Can't open unique items file %s\n", buf);
 		}
 
 		save_objects(m, fp, fp2);
@@ -1921,7 +1921,7 @@ void free_map(mapstruct *m, int flag)
 
 	if (!m->in_memory)
 	{
-		LOG(llevBug, "BUG: Trying to free freed map.\n");
+		LOG(llevBug, "Trying to free freed map.\n");
 		return;
 	}
 
@@ -1952,7 +1952,7 @@ void free_map(mapstruct *m, int flag)
 		{
 			if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m)
 			{
-				LOG(llevBug, "BUG: Freeing map %s linked to %s which links back to another map.\n", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
+				LOG(llevBug, "Freeing map %s linked to %s which links back to another map.\n", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
 			}
 
 			m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
@@ -2178,7 +2178,7 @@ void update_position(mapstruct *m, int x, int y)
 
 	if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE)))
 	{
-		LOG(llevDebug, "DEBUG: update_position called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)\n", m->path, x, y);
+		LOG(llevDebug, "update_position called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)\n", m->path, x, y);
 	}
 #endif
 
@@ -2308,7 +2308,7 @@ void update_position(mapstruct *m, int x, int y)
 		 * if they don't match, logic is broken someplace. */
 		if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR)))
 		{
-			LOG(llevDebug,"DEBUG: update_position: updated flags do not match old flags: %s (%d,%d) old:%x != %x\n", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
+			LOG(llevDebug,"update_position: updated flags do not match old flags: %s (%d,%d) old:%x != %x\n", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
 		}
 #endif
 

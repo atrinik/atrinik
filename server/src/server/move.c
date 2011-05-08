@@ -47,13 +47,13 @@ int move_ob(object *op, int dir, object *originator)
 
 	if (op == NULL)
 	{
-		LOG(llevBug, "BUG: move_ob(): Trying to move NULL.\n");
+		LOG(llevBug, "move_ob(): Trying to move NULL.\n");
 		return 0;
 	}
 
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "BUG: move_ob: monster has been removed - will not process further\n");
+		LOG(llevBug, "move_ob: monster has been removed - will not process further\n");
 		return 0;
 	}
 
@@ -61,7 +61,7 @@ int move_ob(object *op, int dir, object *originator)
 	 * recursively, and functions calling us should pass the right part. */
 	if (op->head)
 	{
-		LOG(llevDebug, "DEBUG: move_ob() called with non head object: %s %s (%d,%d)\n", query_name(op->head, NULL), op->map->path ? op->map->path : "<no map>", op->x, op->y);
+		LOG(llevDebug, "move_ob() called with non head object: %s %s (%d,%d)\n", query_name(op->head, NULL), op->map->path ? op->map->path : "<no map>", op->x, op->y);
 		op = op->head;
 	}
 
@@ -288,7 +288,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 
 	if (!nrofalt)
 	{
-		LOG(llevBug, "BUG: teleport(): No alternative teleporters around!\n");
+		LOG(llevBug, "teleport(): No alternative teleporters around!\n");
 		return 0;
 	}
 

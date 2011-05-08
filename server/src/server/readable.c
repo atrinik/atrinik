@@ -363,8 +363,8 @@ static void init_msgfile()
 				{
 					if (strlen(msgbuf) > BOOK_BUF)
 					{
-						LOG(llevDebug, "WARNING: This string exceeded max book buf size:\n");
-						LOG(llevDebug, "  %s\n", msgbuf);
+						LOG(llevBug, "This string exceeded max book buf size:\n");
+						LOG(llevBug, "  %s\n", msgbuf);
 					}
 
 					num_msgs++;
@@ -379,7 +379,7 @@ static void init_msgfile()
 				}
 				else if (error_lineno != 0)
 				{
-					LOG(llevInfo, "WARNING: Truncating book at %s, line %d\n", fname, error_lineno);
+					LOG(llevBug, "Truncating book at %s, line %d\n", fname, error_lineno);
 					error_lineno = 0;
 				}
 			}
@@ -391,7 +391,7 @@ static void init_msgfile()
 			}
 			else
 			{
-				LOG(llevInfo, "WARNING: Syntax error at %s, line %d\n", fname, lineno);
+				LOG(llevBug, "Syntax error at %s, line %d\n", fname, lineno);
 			}
 		}
 

@@ -51,7 +51,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!update_files)
 	{
-		LOG(llevError, "ERROR: updates_file_new(): Out of memory.\n");
+		LOG(llevError, "updates_file_new(): Out of memory.\n");
 		return;
 	}
 
@@ -61,7 +61,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!contents)
 	{
-		LOG(llevError, "ERROR: updates_file_new(): Out of memory.\n");
+		LOG(llevError, "updates_file_new(): Out of memory.\n");
 		return;
 	}
 
@@ -69,7 +69,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!fp)
 	{
-		LOG(llevError, "ERROR: updates_file_new(): Could not open file '%s' for reading.\n", filename);
+		LOG(llevError, "updates_file_new(): Could not open file '%s' for reading.\n", filename);
 		return;
 	}
 
@@ -86,7 +86,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!compressed)
 	{
-		LOG(llevError, "ERROR: updates_file_new(): Out of memory.\n");
+		LOG(llevError, "updates_file_new(): Out of memory.\n");
 		return;
 	}
 
@@ -95,7 +95,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!update_files[update_files_num].contents)
 	{
-		LOG(llevError, "ERROR: updates_file_new(): Out of memory.\n");
+		LOG(llevError, "updates_file_new(): Out of memory.\n");
 		return;
 	}
 
@@ -157,7 +157,7 @@ static void updates_traverse(const char *path)
 
 	if (!dir)
 	{
-		LOG(llevError, "ERROR: traverse_updates(): Could not open directory '%s'.\n", path);
+		LOG(llevError, "traverse_updates(): Could not open directory '%s'.\n", path);
 		return;
 	}
 
@@ -197,18 +197,18 @@ void updates_init()
 	update_files = NULL;
 	update_files_num = 0;
 
-	LOG(llevInfo, "INFO: Loading client updates...\n");
+	LOG(llevDebug, "Loading client updates...\n");
 	updates_traverse(UPDATES_DIR_NAME);
 	/* Sort the entries. */
 	qsort((void *) update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)()) updates_file_compare);
 
 	snprintf(path, sizeof(path), "%s/%s", settings.localdir, UPDATES_FILE_NAME);
-	LOG(llevInfo, "INFO: Creating '%s'...\n", path);
+	LOG(llevDebug, "Creating '%s'...\n", path);
 	fp = fopen(path, "wb");
 
 	if (!fp)
 	{
-		LOG(llevError, "ERROR: updates_init(): Could not open file '%s' for writing.\n", path);
+		LOG(llevError, "updates_init(): Could not open file '%s' for writing.\n", path);
 		return;
 	}
 

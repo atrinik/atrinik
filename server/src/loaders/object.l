@@ -318,7 +318,7 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevError, "ERROR: Object lacks name.\n");
+							LOG(llevError, "Object lacks name.\n");
 							return LL_IGNORED;
 						}
 
@@ -372,7 +372,7 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevBug, "BUG: Custom name without val.\n");
+							LOG(llevBug, "Custom name without val.\n");
 						}
 						else
 						{
@@ -399,7 +399,7 @@ lex_error = 0;
 
 						if (!art_amask)
 						{
-							LOG(llevBug, "BUG: Invalid amask '%s'.\n", yval());
+							LOG(llevBug, "Invalid amask '%s'.\n", yval());
 						}
 					}
 ^quickslot{S}       op->quickslot = IVAL;
@@ -471,7 +471,7 @@ lex_error = 0;
 
 						if (!_face_)
 						{
-							LOG(llevBug, "BUG: Object %s - can't find face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+							LOG(llevBug, "Object %s - can't find face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
 						}
                     }
 ^inv_face{S}        {
@@ -480,7 +480,7 @@ lex_error = 0;
 
 						if (!_face_)
 						{
-							LOG(llevBug, "BUG: Object %s - can't find inv_face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+							LOG(llevBug, "Object %s - can't find inv_face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
 						}
                     }
 
@@ -809,7 +809,7 @@ lex_error = 0;
 
 						if (*y == '\0')
 						{
-							LOG(llevBug, "BUG: loader(): Title without value.\n");
+							LOG(llevBug, "loader(): Title without value.\n");
 						}
 						else
 						{

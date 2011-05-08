@@ -98,7 +98,7 @@ void load_bans_file()
 		}
 		else
 		{
-			LOG(llevBug, "BUG: Malformed line in bans file: %s\n", buf);
+			LOG(llevBug, "Malformed line in bans file: %s\n", buf);
 		}
 	}
 
@@ -117,7 +117,7 @@ void save_bans_file()
 
 	if (!(fp = fopen(filename, "w")))
 	{
-		LOG(llevBug, "BUG: Cannot open %s for writing.\n", filename);
+		LOG(llevBug, "Cannot open %s for writing.\n", filename);
 		return;
 	}
 
@@ -218,7 +218,7 @@ void list_bans(object *op)
 	}
 	else
 	{
-		LOG(llevInfo, "\nList of bans:\n");
+		LOG(llevInfo, "List of bans:\n");
 	}
 
 	for (ol = ban_list; ol; ol = ol->next)

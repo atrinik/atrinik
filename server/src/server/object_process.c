@@ -318,7 +318,7 @@ static void change_object(object *op)
 
 	if (op->other_arch == NULL)
 	{
-		LOG(llevBug, "BUG: Change object (%s) without other_arch error.\n", op->name);
+		LOG(llevBug, "Change object (%s) without other_arch error.\n", op->name);
 		return;
 	}
 
