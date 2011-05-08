@@ -198,11 +198,6 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
 
-	if (op->type == KEY && sack->slaying && op->slaying)
-	{
-		snprintf(buf, sizeof(buf), "You don't want put the key into %s.", query_name(sack, NULL));
-	}
-
 	if (sack->weight_limit && sack->carrying + (sint32) ((float) (((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (sint32) sack->weight_limit)
 	{
 		snprintf(buf, sizeof(buf), "That won't fit in the %s!", query_name(sack, NULL));
