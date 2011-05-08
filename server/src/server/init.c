@@ -1002,7 +1002,7 @@ static void help()
 
 	LOG(llevInfo, " -watchdog   Enables sending datagrams to an external watchdog program.\n");
 	LOG(llevInfo, " -interactive Enables interactive mode. Type 'help' in console for more information.\n");
-	LOG(llevInfo, " -timestamp  If enables, all log entries will be prefixed with UNIX timestamp.\n");
+	LOG(llevInfo, " -timestamp  If enabled, all log entries will be prefixed with UNIX timestamp.\n");
 
 	exit(0);
 }
