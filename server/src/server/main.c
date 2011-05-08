@@ -44,6 +44,13 @@ extern void check_use_object_list();
 
 /** Object used in process_events(). */
 static object marker;
+/** Where to search for .bzr directory. */
+static const char *const branch_paths[] =
+{
+	".", ".."
+};
+/** Revision number of the branch, if any. */
+static uint32 branch_revision = 0;
 
 static char *unclean_path(const char *src);
 static void process_players1();
@@ -78,7 +85,14 @@ void version(object *op)
 {
 	if (op)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s", VERSION);
+		if (branch_revision)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s (r%d)", VERSION, branch_revision);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s", VERSION);
+		}
 	}
 	else
 	{
@@ -1524,9 +1538,12 @@ static void iterate_main_loop()
  * @return 0. */
 int main(int argc, char **argv)
 {
-	char input[HUGE_BUF];
+	char buf[HUGE_BUF];
+	size_t i;
+	FILE *fp;
 
-#ifdef WIN32 /* ---win32 this sets the win32 from 0d0a to 0a handling */
+#ifdef WIN32
+	/* ---win32 this sets the win32 from 0d0a to 0a handling */
 	_fmode = _O_BINARY;
 #endif
 
@@ -1554,6 +1571,27 @@ int main(int argc, char **argv)
 
 	memset(&marker, 0, sizeof(struct obj));
 
+	/* Try to find branch revision. */
+	for (i = 0; i < arraysize(branch_paths); i++)
+	{
+		snprintf(buf, sizeof(buf), "%s/.bzr/branch/last-revision", branch_paths[i]);
+		fp = fopen(buf, "r");
+
+		if (fp && fgets(buf, sizeof(buf) - 1, fp))
+		{
+			char *end = strchr(buf, ' ');
+
+			if (end)
+			{
+				*end = '\0';
+			}
+
+			branch_revision = atoi(buf);
+			fclose(fp);
+			break;
+		}
+	}
+
 	LOG(llevInfo, "Server ready. Waiting for connections...\n");
 
 	if (settings.interactive)
@@ -1567,9 +1605,9 @@ int main(int argc, char **argv)
 			}
 
 			/* Otherwise we've got some keyboard input, parse it */
-			if (scanf("\n%4096[^\n]", input))
+			if (scanf("\n%4096[^\n]", buf))
 			{
-				process_keyboard_input(input);
+				process_keyboard_input(buf);
 			}
 		}
 	}
