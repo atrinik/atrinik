@@ -89,6 +89,8 @@ void widget_show_number(widgetdata *widget)
  * If ESC was pressed, close the input widget. */
 void do_number()
 {
+	int held = 0;
+
 	map_udate_flag = 2;
 
 	if (text_input_string_esc_flag)
@@ -100,9 +102,10 @@ void do_number()
 
 	if (((cpl.nummode == NUM_MODE_GET && key_is_pressed(get_action_keycode)) || (cpl.nummode == NUM_MODE_DROP && key_is_pressed(drop_action_keycode))) && SDL_GetTicks() - text_input_opened > 125)
 	{
-		SDL_EnableKeyRepeat(0 , SDL_DEFAULT_REPEAT_INTERVAL);
+		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 		text_input_string_flag = 0;
 		text_input_string_end_flag = 1;
+		held = 1;
 	}
 
 	/* if set, we got a finished input!*/
@@ -133,6 +136,15 @@ void do_number()
 		}
 
 		reset_keys();
+
+		if (held)
+		{
+			SDLKey key = cpl.nummode == NUM_MODE_GET ? get_action_keycode : drop_action_keycode;
+
+			keys[key].pressed = 1;
+			keys[key].time = LastTick + 125;
+		}
+
 		cpl.input_mode = INPUT_MODE_NO;
 		cur_widget[IN_NUMBER_ID]->show = 0;
 	}
