@@ -204,6 +204,15 @@ void effects_init()
 			{
 				sprite_def->ttl = atoi(buf + 4);
 			}
+			else if (!strncmp(buf, "sound_file ", 11))
+			{
+				strncpy(sprite_def->sound_file, buf + 11, sizeof(sprite_def->sound_file) - 1);
+				sprite_def->sound_file[sizeof(sprite_def->sound_file) - 1] = '\0';
+			}
+			else if (!strncmp(buf, "sound_volume ", 13))
+			{
+				sprite_def->sound_volume = atoi(buf + 13);
+			}
 		}
 		else if (!strcmp(buf, "overlay"))
 		{
@@ -318,6 +327,7 @@ void effects_init()
 				sprite_def->zoom = 0;
 				sprite_def->warp_sides = 1;
 				sprite_def->ttl = 0;
+				sprite_def->sound_volume = 100;
 			}
 		}
 		/* Start of effect block. */
@@ -671,6 +681,11 @@ void effect_sprites_play()
 
 			sprite->x += sprite->def->xpos;
 			sprite->y += sprite->def->ypos;
+
+			if (sprite->def->sound_file[0] != '\0')
+			{
+				sound_play_effect(sprite->def->sound_file, sprite->def->sound_volume);
+			}
 
 			sprite->created_tick = ticks;
 			map_redraw_flag = 1;

@@ -226,6 +226,14 @@ typedef struct effect_sprite_def
 
 	/** Time to live (in ticks). */
 	uint32 ttl;
+
+	/**
+	 * Sound effect to play each time this sprite is created. By default,
+	 * no sound is played. */
+	char sound_file[MAX_BUF];
+
+	/** Volume of the sound effect to play. Default is 100. */
+	uint8 sound_volume;
 } effect_sprite_def;
 
 /** One single color in the overlay configuration. */
