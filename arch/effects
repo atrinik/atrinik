@@ -268,36 +268,42 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_2_near.ogg
 end
 sprite lightning_bolt.102
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_far.ogg
 end
 sprite lightning_bolt2.101
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_2_near.ogg
 end
 sprite lightning_bolt2.102
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_far.ogg
 end
 sprite lightning_bolt3.101
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_2_near.ogg
 end
 sprite lightning_bolt3.102
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_far.ogg
 end
 wind_blow_dir 0
 sprites_per_move 2
@@ -326,6 +332,7 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_2_near.ogg
 end
 sprite lightning_bolt.102
 chance 2
@@ -333,12 +340,14 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_far.ogg
 end
 sprite lightning_bolt.103
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_near.ogg
 end
 sprite lightning_bolt2.101
 chance 2
@@ -346,6 +355,7 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_2_near.ogg
 end
 sprite lightning_bolt2.102
 chance 2
@@ -353,12 +363,14 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_far.ogg
 end
 sprite lightning_bolt2.103
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_near.ogg
 end
 sprite lightning_bolt3.101
 chance 2
@@ -366,6 +378,7 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_2_near.ogg
 end
 sprite lightning_bolt3.102
 chance 2
@@ -373,12 +386,14 @@ wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_far.ogg
 end
 sprite lightning_bolt3.103
 wiggle 0
 y 10
 ttl 240
 weight 0
+sound_file thunder_4_near.ogg
 end
 wind_blow_dir 0
 sprites_per_move 10
