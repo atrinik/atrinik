@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-05-11 Kiana
 endmsg
 width 24
 height 24
@@ -652,19 +652,6 @@ x 4
 y 15
 end
 arch grassd_4
-x 4
-y 16
-end
-arch sign
-x 4
-y 16
-arch event_obj
-sub_type 1
-race /python/generic/news_sign.py
-slaying Clearhaven
-end
-end
-arch light2
 x 4
 y 16
 end
