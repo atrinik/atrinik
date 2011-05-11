@@ -1,11 +1,6 @@
-Thumbs.db
 .dedit
 *.log
 *.pyc
-*.o
-*.so
-*.dll
-core
 arch/animations
 arch/animtree
 arch/archetypes
@@ -14,12 +9,15 @@ arch/atrinik.0
 arch/bmaps
 arch/facetree
 arch/treasures
-server/atrinik_server
-server/atrinikloop
 server/data
 server/lib
-Makefile
+editor/*.conf
+tools/map-checker/config.cfg
+codeblocks.txt
+visualc*.txt
 
+Makefile
+core
 configure
 config.status
 server/src/atrinik_server
@@ -30,9 +28,14 @@ server/tools/atrinik_watchdog
 aclocal.m4
 autom4te.cache
 atrinik-client
-client-1.1.1
+client-2.0
 client/src/include/define.h
+*.o
+*.so
+server/atrinik_server
+server/atrinikloop
 
+Thumbs.db
 atrinik.exe
 atrinik_server.exe
 client/stdout.txt
@@ -48,7 +51,4 @@ Release
 pthread.h
 sched.h
 semaphore.h
-codeblocks.txt
-visualc*.txt
-editor/*.conf
-tools/map-checker/config.cfg
+*.dll
