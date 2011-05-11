@@ -1,5 +1,6 @@
 Thumbs.db
-maps/**/.dedit
+.dedit
+*.log
 *.pyc
 *.o
 *.so
@@ -19,7 +20,6 @@ server/data
 server/lib
 Makefile
 
-config.log
 configure
 config.status
 server/src/atrinik_server
@@ -32,3 +32,23 @@ autom4te.cache
 atrinik-client
 client-1.1.1
 client/src/include/define.h
+
+atrinik.exe
+atrinik_server.exe
+client/stdout.txt
+client/stderr.txt
+*.cbTemp
+*.depend
+plugin*.layout
+.objs
+curl
+sdl_inc
+sdl_lib
+Release
+pthread.h
+sched.h
+semaphore.h
+codeblocks.txt
+visualc*.txt
+editor/*.conf
+tools/map-checker/config.cfg
