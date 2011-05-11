@@ -1,0 +1,297 @@
+arch map
+name Incuna Shop
+msg
+Created:  2011-05-09 Kiana
+Modified: 2011-05-09 Kiana
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+region incuna
+end
+arch blocked
+end
+arch wall_pattern4.181
+end
+arch blocked
+y 1
+end
+arch wall_pattern4.131
+y 1
+end
+arch blocked
+y 2
+end
+arch wall_pattern4.131
+y 2
+end
+arch blocked
+y 3
+end
+arch wall_pattern4.131
+y 3
+end
+arch blocked
+y 4
+end
+arch wall_pattern4.131
+y 4
+end
+arch blocked
+x 1
+end
+arch wall_pattern4.111
+x 1
+end
+arch shop_floor
+x 1
+y 1
+end
+arch leather_armour
+unpaid 1
+no_pick 1
+identified 1
+x 1
+y 1
+end
+arch shop_floor
+x 1
+y 2
+end
+arch cloak
+unpaid 1
+no_pick 1
+identified 1
+x 1
+y 2
+end
+arch shop_floor
+x 1
+y 3
+end
+arch buckler
+unpaid 1
+no_pick 1
+identified 1
+x 1
+y 3
+end
+arch shop_floor_normal
+x 1
+y 4
+end
+arch wall_pattern4.111
+x 1
+y 4
+end
+arch blocked
+x 2
+end
+arch wall_pattern4.111
+x 2
+end
+arch shop_floor
+x 2
+y 1
+end
+arch helm_leather
+unpaid 1
+no_pick 1
+identified 1
+x 2
+y 1
+end
+arch shop_floor
+x 2
+y 2
+end
+arch low_boots
+unpaid 1
+no_pick 1
+identified 1
+x 2
+y 2
+end
+arch shop_floor
+x 2
+y 3
+end
+arch gloves
+unpaid 1
+no_pick 1
+identified 1
+x 2
+y 3
+end
+arch shop_floor_normal
+x 2
+y 4
+end
+arch wall_pattern4.111
+x 2
+y 4
+end
+arch blocked
+x 3
+end
+arch wall_pattern4.111
+x 3
+end
+arch shop_floor
+x 3
+y 1
+end
+arch torch_wall_1
+x 3
+y 1
+end
+arch shop_floor
+x 3
+y 2
+end
+arch potion_cure_sickness
+value 79
+no_pick 1
+identified 1
+unpaid 1
+level 15
+x 3
+y 2
+end
+arch shop_floor
+x 3
+y 3
+end
+arch girdle
+unpaid 1
+no_pick 1
+identified 1
+x 3
+y 3
+end
+arch shop_floor_normal
+x 3
+y 4
+end
+arch wall_pattern4.111
+x 3
+y 4
+end
+arch blocked
+x 4
+end
+arch wall_pattern4.111
+x 4
+end
+arch shop_floor
+x 4
+y 1
+end
+arch pouch
+unpaid 1
+no_pick 1
+identified 1
+x 4
+y 1
+end
+arch shop_floor
+x 4
+y 2
+end
+arch food_generic
+unpaid 1
+no_pick 1
+identified 1
+nrof 5
+x 4
+y 2
+end
+arch shop_floor
+x 4
+y 3
+end
+arch shop_floor_normal
+x 4
+y 4
+end
+arch wall_pattern4.111
+x 4
+y 4
+end
+arch blocked
+x 5
+end
+arch wall_pattern4.111
+x 5
+end
+arch shop_floor
+x 5
+y 1
+end
+arch sack
+unpaid 1
+no_pick 1
+identified 1
+x 5
+y 1
+end
+arch shop_floor
+x 5
+y 2
+end
+arch shop_floor
+x 5
+y 3
+end
+arch stairs_stone_up
+direction 1
+x 5
+y 3
+end
+arch shop_floor_normal
+x 5
+y 4
+end
+arch wall_pattern4.111
+x 5
+y 4
+end
+arch blocked
+x 6
+end
+arch wall_pattern4.111
+x 6
+end
+arch shop_floor_normal
+x 6
+y 1
+end
+arch wall_pattern4.131
+x 6
+y 1
+end
+arch shop_floor_normal
+x 6
+y 2
+end
+arch wall_pattern4.131
+x 6
+y 2
+end
+arch shop_floor_normal
+x 6
+y 3
+end
+arch wall_pattern4.131
+x 6
+y 3
+end
+arch shop_floor_normal
+x 6
+y 4
+end
+arch wall_pattern4.141
+x 6
+y 4
+end
