@@ -2,13 +2,14 @@ arch map
 name Mushroom Cave
 msg
 Created:  2011-05-08 emperorbma
-Modified: 2011-05-08 emperorbma
+Modified: 2011-05-11 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 30
 darkness 2
 tile_path_4 world_a_0233
+region strakewood_island
 end
 arch fstone1b
 y 1
@@ -229,14 +230,6 @@ arch fstone1b
 x 2
 y 7
 end
-arch fwall_grit2b
-x 2
-y 7
-end
-arch fstone1b
-x 2
-y 7
-end
 arch fwall_grit2a
 x 2
 y 7
@@ -248,14 +241,6 @@ end
 arch fwall_grit2a
 x 2
 y 8
-end
-arch fstone1b
-x 2
-y 9
-end
-arch fwall_grit2b
-x 2
-y 9
 end
 arch fstone1b
 x 2
