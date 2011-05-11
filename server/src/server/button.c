@@ -98,7 +98,15 @@ void push_button(object *op)
 			case SIGN:
 				if (!tmp->stats.food || tmp->last_eat < tmp->stats.food)
 				{
-					new_info_map(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
+					if (tmp->title)
+					{
+						play_sound_map(tmp->map, CMD_SOUND_EFFECT, tmp->title, tmp->x, tmp->y, 0, 0);
+					}
+
+					if (tmp->msg)
+					{
+						new_info_map(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
+					}
 
 					if (tmp->stats.food)
 					{
