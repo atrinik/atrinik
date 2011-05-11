@@ -781,7 +781,7 @@ class ObjectParser:
 				if parsed:
 					(attr, value) = parsed
 
-					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack"):
+					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "z", "zoom", "alpha", "align"):
 						archetype["modified_artifact"] = True
 
 		if invalid_arch:
