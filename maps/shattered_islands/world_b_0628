@@ -9,8 +9,11 @@ height 24
 difficulty 10
 darkness 2
 tile_path_1 world_b_0629
+tile_path_2 world_b_0728
 tile_path_3 world_b_0627
 tile_path_4 world_b_0528
+tile_path_5 world_b_0729
+tile_path_6 world_b_0727
 tile_path_7 world_b_0527
 tile_path_8 world_b_0529
 bg_music desert_town.mid

@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 30
 darkness 2
+tile_path_2 world_b_0430
 tile_path_3 world_b_0329
 tile_path_6 world_b_0429
 bg_music eranasp.mod

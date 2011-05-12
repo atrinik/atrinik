@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 10
 darkness 2
+tile_path_1 world_b_0727
 tile_path_4 world_b_0626
 tile_path_8 world_b_0627
 bg_music desert_town.mid

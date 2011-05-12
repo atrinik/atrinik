@@ -2,15 +2,17 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-05-07 emperorbma
+Modified: 2011-05-12 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 darkness 2
+tile_path_1 world_b_0430
 tile_path_2 world_b_0529
 tile_path_3 world_b_0428
 tile_path_4 world_b_0329
+tile_path_5 world_b_0530
 tile_path_6 world_b_0528
 tile_path_7 world_b_0328
 tile_path_8 world_b_0330
@@ -169,11 +171,10 @@ end
 arch fwall_rock1
 x 1
 end
-arch floor_sand_d2
+arch plant2_wall.151
 x 1
-y 1
 end
-arch fwall_rock1
+arch floor_sand_d2
 x 1
 y 1
 end
@@ -349,14 +350,10 @@ end
 arch floor_sand_d2
 x 2
 end
-arch fwall_rock1
+arch plant7
 x 2
 end
 arch floor_sand_d2
-x 2
-y 1
-end
-arch fwall_rock1
 x 2
 y 1
 end
@@ -536,12 +533,6 @@ x 2
 y 23
 end
 arch floor_sand_d2
-x 3
-end
-arch fwall_rock1
-x 3
-end
-arch plant2_wall.151
 x 3
 end
 arch floor_sand_d2
@@ -733,7 +724,8 @@ end
 arch floor_sand_d2
 x 4
 end
-arch fwall_rock1
+arch water_lt_m
+direction 4
 x 4
 end
 arch water_lt3
@@ -932,10 +924,7 @@ arch floor_sand_d2
 x 4
 y 23
 end
-arch floor_sand_d3
-x 5
-end
-arch fwall_rock3
+arch water_lt4
 x 5
 end
 arch water_lt4
@@ -1126,13 +1115,7 @@ arch floor_sand_d1
 x 5
 y 23
 end
-arch floor_sand_d3
-x 6
-end
-arch fwall_rock3
-x 6
-end
-arch plant2_wall.151
+arch water_lt
 x 6
 end
 arch water_lt3
@@ -1308,10 +1291,7 @@ arch floor_sand_d2
 x 6
 y 23
 end
-arch floor_sand_d3
-x 7
-end
-arch fwall_rock3
+arch water_lt
 x 7
 end
 arch water_lt
@@ -1481,10 +1461,7 @@ arch floor_sand_d2
 x 7
 y 23
 end
-arch floor_sand_d3
-x 8
-end
-arch fwall_rock3
+arch water_lt3
 x 8
 end
 arch water_lt3
@@ -1646,10 +1623,7 @@ arch fwall_rock3
 x 8
 y 23
 end
-arch floor_sand_d3
-x 9
-end
-arch fwall_rock3
+arch water_lt2
 x 9
 end
 arch water_lt
@@ -1775,7 +1749,7 @@ arch fwall_rock3
 x 9
 y 11
 end
-arch water_lt2
+arch water_lt
 x 10
 end
 arch water_lt
@@ -1892,7 +1866,7 @@ arch fwall_rock3
 x 10
 y 10
 end
-arch water_lt3
+arch water_lt4
 x 11
 end
 arch water_lt2
@@ -1996,7 +1970,7 @@ arch fwall_rock3
 x 11
 y 10
 end
-arch water_lt2
+arch water_lt3
 x 12
 end
 arch water_lt3
@@ -2109,6 +2083,9 @@ x 12
 y 11
 end
 arch water_lt4
+x 13
+end
+arch plant8
 x 13
 end
 arch water_lt3
@@ -2232,7 +2209,7 @@ arch fwall_rock1
 x 13
 y 13
 end
-arch water_lt2
+arch water_lt
 x 14
 end
 arch water_lt
@@ -2357,7 +2334,10 @@ arch fwall_rock2
 x 14
 y 14
 end
-arch water_lt
+arch water_lt2
+x 15
+end
+arch plant8
 x 15
 end
 arch water_lt
@@ -2602,7 +2582,7 @@ arch fwall_rock2
 x 16
 y 16
 end
-arch water_lt
+arch water_lt4
 x 17
 end
 arch water_lt3
@@ -3045,7 +3025,7 @@ arch fwall_rock2
 x 19
 y 23
 end
-arch water_lt3
+arch water_lt2
 x 20
 end
 arch water_lt2
@@ -3207,7 +3187,7 @@ arch water_lt3
 x 20
 y 23
 end
-arch water_lt2
+arch water_lt4
 x 21
 end
 arch water_lt3
@@ -3408,7 +3388,7 @@ direction 3
 x 21
 y 23
 end
-arch water_lt4
+arch water_lt3
 x 22
 end
 arch water_lt
@@ -3594,7 +3574,7 @@ direction 6
 x 22
 y 23
 end
-arch water_lt
+arch water_lt4
 x 23
 end
 arch water_lt4

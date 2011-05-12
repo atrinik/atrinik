@@ -2,21 +2,24 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-03-22 Alex Tokar
+Modified: 2011-05-12 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 darkness 2
+tile_path_1 world_b_0530
 tile_path_2 world_b_0629
 tile_path_3 world_b_0528
 tile_path_4 world_b_0429
+tile_path_5 world_b_0630
 tile_path_6 world_b_0628
 tile_path_7 world_b_0428
+tile_path_8 world_b_0430
 bg_music desert_town.mid
 region fort_sether
 end
-arch water_lt4
+arch water_lt3
 end
 arch water_lt
 y 1
@@ -153,7 +156,7 @@ end
 arch water_lt2
 y 23
 end
-arch water_lt4
+arch water_lt
 x 1
 end
 arch water_lt4
@@ -312,7 +315,7 @@ arch water_lt3
 x 1
 y 23
 end
-arch water_lt2
+arch water_lt3
 x 2
 end
 arch water_lt4
@@ -577,7 +580,7 @@ arch fwall_rock3
 x 3
 y 17
 end
-arch water_lt2
+arch water_lt
 x 4
 end
 arch water_lt
@@ -878,7 +881,7 @@ direction 7
 x 5
 y 23
 end
-arch water_lt4
+arch water_lt
 x 6
 end
 arch water_lt2
@@ -1029,7 +1032,7 @@ arch spider_web
 x 6
 y 23
 end
-arch water_lt4
+arch water_lt3
 x 7
 end
 arch water_lt4
@@ -1156,7 +1159,7 @@ arch fwall_rock1
 x 7
 y 23
 end
-arch water_lt3
+arch water_lt2
 x 8
 end
 arch water_lt4
@@ -1275,7 +1278,7 @@ arch fwall_rock3
 x 8
 y 21
 end
-arch water_lt3
+arch water_lt
 x 9
 end
 arch water_lt
@@ -1463,7 +1466,7 @@ arch fwall_rock2
 x 9
 y 22
 end
-arch water_lt2
+arch water_lt3
 x 10
 end
 arch water_lt2
@@ -1618,7 +1621,7 @@ arch fwall_rock3
 x 10
 y 23
 end
-arch water_lt3
+arch water_lt4
 x 11
 end
 arch water_lt4
@@ -1765,7 +1768,7 @@ arch fwall_rock2
 x 11
 y 23
 end
-arch water_lt4
+arch water_lt3
 x 12
 end
 arch water_lt2
@@ -2062,7 +2065,7 @@ arch fwall_rock2
 x 13
 y 23
 end
-arch water_lt
+arch water_lt4
 x 14
 end
 arch water_lt3
@@ -2227,7 +2230,7 @@ arch fwall_rock3
 x 14
 y 23
 end
-arch water_lt3
+arch water_lt2
 x 15
 end
 arch water_lt3
@@ -2407,7 +2410,7 @@ arch plant_mushroom1
 x 15
 y 23
 end
-arch water_lt4
+arch water_lt3
 x 16
 end
 arch water_lt
@@ -2875,7 +2878,7 @@ arch fwall_rock1
 x 18
 y 19
 end
-arch water_lt
+arch water_lt2
 x 19
 end
 arch water_lt4
@@ -3022,7 +3025,7 @@ arch fwall_rock2
 x 19
 y 20
 end
-arch water_lt2
+arch water_lt
 x 20
 end
 arch water_lt4
@@ -3333,7 +3336,7 @@ arch fwall_rock2
 x 21
 y 22
 end
-arch water_lt2
+arch water_lt4
 x 22
 end
 arch water_lt3
