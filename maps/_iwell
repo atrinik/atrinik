@@ -1,0 +1,1016 @@
+arch map
+name Incuna - Water Well
+msg
+Created:  2011-05-09 Kiana
+Modified: 2011-05-12 Kiana
+endmsg
+width 72
+height 48
+difficulty 1
+darkness 2
+region Incuna
+end
+arch blocked
+x 17
+y 6
+end
+arch wall_dungeon_8
+x 17
+y 6
+end
+arch blocked
+x 17
+y 7
+end
+arch wall_dungeon_3
+x 17
+y 7
+end
+arch blocked
+x 17
+y 8
+end
+arch wall_dungeon_3
+x 17
+y 8
+end
+arch blocked
+x 17
+y 9
+end
+arch wall_dungeon_3
+x 17
+y 9
+end
+arch blocked
+x 18
+y 4
+end
+arch wall_dungeon_8
+x 18
+y 4
+end
+arch blocked
+x 18
+y 5
+end
+arch wall_dungeon_3
+x 18
+y 5
+end
+arch blocked
+x 18
+y 6
+end
+arch wall_dungeon_4
+x 18
+y 6
+end
+arch floor_cave6
+x 18
+y 7
+end
+arch floor_cave6
+x 18
+y 8
+end
+arch floor_cave5
+x 18
+y 9
+end
+arch wall_dungeon_1
+x 18
+y 9
+end
+arch blocked
+x 18
+y 10
+end
+arch wall_dungeon_3
+x 18
+y 10
+end
+arch blocked
+x 19
+y 3
+end
+arch wall_dungeon_8
+x 19
+y 3
+end
+arch blocked
+x 19
+y 4
+end
+arch wall_dungeon_4
+x 19
+y 4
+end
+arch floor_cave3
+x 19
+y 5
+end
+arch floor_cave3
+x 19
+y 6
+end
+arch floor_cave4
+x 19
+y 7
+end
+arch floor_cave6
+x 19
+y 8
+end
+arch floor_cave2
+x 19
+y 9
+end
+arch floor_cave6
+x 19
+y 10
+end
+arch wall_dungeon_1
+x 19
+y 10
+end
+arch blocked
+x 20
+y 3
+end
+arch wall_dungeon_1
+x 20
+y 3
+end
+arch floor_cave1
+x 20
+y 4
+end
+arch floor_cave4
+x 20
+y 5
+end
+arch floor_cave4
+x 20
+y 6
+end
+arch well_bucket
+x 20
+y 6
+end
+arch floor_cave4
+x 20
+y 7
+end
+arch floor_cave6
+x 20
+y 8
+end
+arch floor_cave5
+x 20
+y 9
+end
+arch floor_cave6
+x 20
+y 10
+end
+arch wall_dungeon_1
+x 20
+y 10
+end
+arch blocked
+x 21
+y 3
+end
+arch wall_dungeon_1
+x 21
+y 3
+end
+arch floor_cave1
+x 21
+y 4
+end
+arch floor_cave3
+x 21
+y 5
+end
+arch floor_cave4
+x 21
+y 6
+end
+arch floor_cave3
+x 21
+y 7
+end
+arch floor_cave6
+x 21
+y 8
+end
+arch floor_cave1
+x 21
+y 9
+end
+arch floor_cave5
+x 21
+y 10
+end
+arch wall_dungeon_1
+x 21
+y 10
+end
+arch blocked
+x 22
+y 3
+end
+arch wall_dungeon_1
+x 22
+y 3
+end
+arch floor_cave5
+x 22
+y 4
+end
+arch wall_dungeon_3
+x 22
+y 4
+end
+arch floor_cave6
+x 22
+y 5
+end
+arch floor_cave2
+x 22
+y 6
+end
+arch floor_cave1
+x 22
+y 7
+end
+arch floor_cave2
+x 22
+y 8
+end
+arch floor_cave6
+x 22
+y 9
+end
+arch wall_dungeon_8
+x 22
+y 9
+end
+arch floor_cave1
+x 22
+y 10
+end
+arch wall_dungeon_4
+x 22
+y 10
+end
+arch blocked
+x 23
+y 4
+end
+arch wall_dungeon_1
+x 23
+y 4
+end
+arch floor_cave6
+x 23
+y 5
+end
+arch wall_dungeon_3
+x 23
+y 5
+end
+arch floor_cave6
+x 23
+y 6
+end
+arch floor_cave2
+x 23
+y 7
+end
+arch floor_cave2
+x 23
+y 8
+end
+arch wall_dungeon_8
+x 23
+y 8
+end
+arch floor_cave2
+x 23
+y 9
+end
+arch wall_dungeon_4
+x 23
+y 9
+end
+arch blocked
+x 24
+y 5
+end
+arch wall_dungeon_1
+x 24
+y 5
+end
+arch floor_cave5
+x 24
+y 6
+end
+arch floor_cave5
+x 24
+y 7
+end
+arch wall_dungeon_8
+x 24
+y 7
+end
+arch floor_cave5
+x 24
+y 8
+end
+arch wall_dungeon_4
+x 24
+y 8
+end
+arch blocked
+x 25
+y 5
+end
+arch wall_dungeon_1
+x 25
+y 5
+end
+arch floor_cave5
+x 25
+y 6
+end
+arch floor_cave1
+x 25
+y 7
+end
+arch wall_dungeon_1
+x 25
+y 7
+end
+arch blocked
+x 43
+y 21
+end
+arch blocked
+x 43
+y 22
+end
+arch blocked
+x 43
+y 23
+end
+arch blocked
+x 43
+y 24
+end
+arch blocked
+x 43
+y 25
+end
+arch floor_sand_d1
+x 43
+y 28
+end
+arch wall_cave1.181
+x 43
+y 28
+end
+arch floor_sand_d2
+x 43
+y 29
+end
+arch wall_cave1.171
+x 43
+y 29
+end
+arch floor_sand_d1
+x 43
+y 30
+end
+arch blocked
+x 44
+y 21
+end
+arch floor_sand_d2
+x 44
+y 22
+end
+arch wall_cave1.151
+layer 3
+x 44
+y 22
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 44
+y 23
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 44
+y 24
+end
+arch floor_sand_d2
+x 44
+y 25
+end
+arch wall_cave1.111
+x 44
+y 25
+end
+arch floor_sand_d1
+x 44
+y 26
+end
+arch wall_cave1.181
+x 44
+y 26
+end
+arch floor_sand_d3
+x 44
+y 27
+end
+arch wall_cave1.171
+x 44
+y 27
+end
+arch floor_sand_d4
+x 44
+y 28
+end
+arch wall_cave1.141
+x 44
+y 28
+end
+arch floor_sand_d4
+x 44
+y 29
+end
+arch floor_sand_d1
+x 44
+y 30
+end
+arch blocked
+x 45
+y 21
+end
+arch floor_sand_d3
+x 45
+y 22
+end
+arch wall_cave1.151
+layer 3
+x 45
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 45
+y 23
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 45
+y 24
+end
+arch floor_sand_d1
+x 45
+y 25
+end
+arch wall_cave1.181
+blocksview 0
+x 45
+y 25
+end
+arch floor_sand_d1
+x 45
+y 26
+end
+arch wall_cave1.141
+x 45
+y 26
+end
+arch floor_sand_d1
+x 45
+y 27
+end
+arch floor_sand_d4
+x 45
+y 28
+end
+arch floor_sand_d3
+x 45
+y 29
+end
+arch floor_sand_d2
+x 45
+y 30
+end
+arch blocked
+x 46
+y 20
+end
+arch wall_dungeon_3
+x 46
+y 20
+end
+arch blocked
+x 46
+y 21
+end
+arch wall_dungeon_3
+x 46
+y 21
+end
+arch floor_sand_d2
+x 46
+y 22
+end
+arch wall_cave1.151
+layer 3
+x 46
+y 22
+end
+arch wall_dungeon_3
+x 46
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 46
+y 23
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 46
+y 24
+end
+arch floor_sand_d4
+x 46
+y 25
+end
+arch wall_cave1.111
+blocksview 0
+x 46
+y 25
+end
+arch floor_sand_d4
+x 46
+y 26
+end
+arch floor_sand_d4
+x 46
+y 27
+end
+arch floor_sand_d2
+x 46
+y 28
+end
+arch floor_sand_d1
+x 46
+y 29
+end
+arch floor_sand_d3
+x 46
+y 30
+end
+arch floor_sand_d3
+x 47
+y 18
+end
+arch floor_sand_d4
+x 47
+y 19
+end
+arch floor_sand_d4
+x 47
+y 20
+end
+arch floor_sand_d1
+x 47
+y 21
+end
+arch ladder_tall_up
+direction 7
+slaying /_incuna
+hp 81
+sp 80
+x 47
+y 21
+end
+arch floor_sand_d3
+x 47
+y 22
+end
+arch wall_cave1.151
+blocksview 0
+layer 3
+x 47
+y 22
+end
+arch torch_wall_1
+direction 5
+x 47
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 47
+y 23
+end
+arch reed_sm7
+layer 5
+z 18
+x 47
+y 23
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 47
+y 24
+end
+arch floor_sand_d1
+x 47
+y 25
+end
+arch wall_cave1.111
+blocksview 0
+x 47
+y 25
+end
+arch floor_sand_d1
+x 47
+y 26
+end
+arch rock5
+blocksview 1
+x 47
+y 26
+end
+arch floor_sand_d1
+x 47
+y 27
+end
+arch wall_cave1.101
+blocksview 0
+x 47
+y 27
+end
+arch floor_sand_d2
+z 5
+x 47
+y 28
+end
+arch wall_cave1.131
+x 47
+y 28
+end
+arch floor_sand_d4
+z 3
+x 47
+y 29
+end
+arch wall_cave1.131
+x 47
+y 29
+end
+arch floor_sand_d1
+x 47
+y 30
+end
+arch floor_sand_d3
+x 48
+y 18
+end
+arch wall_cave1.131
+x 48
+y 18
+end
+arch floor_sand_d1
+x 48
+y 19
+end
+arch wall_cave1.131
+x 48
+y 19
+end
+arch floor_sand_d1
+x 48
+y 20
+end
+arch wall_cave1.131
+x 48
+y 20
+end
+arch floor_sand_d2
+x 48
+y 21
+end
+arch wall_cave1.131
+x 48
+y 21
+end
+arch floor_sand_d2
+x 48
+y 22
+end
+arch wall_cave1b.141
+layer 3
+x 48
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 48
+y 23
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 48
+y 24
+end
+arch floor_sand_d4
+x 48
+y 25
+end
+arch wall_cave1b.121
+x 48
+y 25
+end
+arch floor_sand_d2
+x 48
+y 26
+end
+arch wall_cave1.131
+x 48
+y 26
+end
+arch floor_sand_d2
+x 48
+y 27
+end
+arch wall_cave1b.141
+x 48
+y 27
+end
+arch blocked
+x 48
+y 28
+end
+arch blocked
+z 18
+x 49
+y 21
+end
+arch flagwall_short_brick1.111
+x 49
+y 21
+end
+arch floor_ruin1
+z 18
+layer 4
+type 79
+terrain_type 2
+x 49
+y 22
+end
+arch water_lt_m
+layer 5
+z 18
+direction 4
+x 49
+y 22
+end
+arch grassd_m9
+layer 7
+z 18
+x 49
+y 22
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 49
+y 23
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 49
+y 24
+end
+arch reed_sm7
+layer 5
+z 18
+x 49
+y 24
+end
+arch floor_ruin1
+terrain_type 2
+z 18
+layer 4
+type 79
+x 49
+y 25
+end
+arch water_lt_m
+layer 5
+z 18
+direction 2
+x 49
+y 25
+end
+arch flagwall_short_brick1.111
+layer 7
+z 18
+x 49
+y 25
+end
+arch floor_ruin6
+z 18
+layer 4
+type 79
+terrain_type 2
+x 50
+y 21
+end
+arch water_lt5_m
+layer 5
+z 18
+direction 4
+x 50
+y 21
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 50
+y 22
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 50
+y 23
+end
+arch reed_sm6
+layer 5
+z 18
+x 50
+y 23
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 50
+y 24
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 51
+y 20
+end
+arch reed_sm4
+layer 5
+z 18
+x 51
+y 20
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 51
+y 21
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 51
+y 22
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 51
+y 23
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 52
+y 19
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 52
+y 20
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 52
+y 21
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 52
+y 22
+end
+arch reed_sm4
+layer 5
+z 18
+x 52
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 53
+y 18
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 53
+y 19
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 53
+y 20
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 53
+y 21
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 54
+y 18
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 54
+y 19
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 54
+y 20
+end

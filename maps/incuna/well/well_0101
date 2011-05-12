@@ -1,0 +1,198 @@
+arch map
+name Incuna - Water Well
+msg
+Created:  2011-05-09 Kiana
+Modified: 2011-05-12 Kiana
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+tile_path_2 well_0201
+tile_path_3 well_0100
+tile_path_4 well_0001
+tile_path_6 well_0200
+tile_path_7 well_0000
+region Incuna
+end
+arch blocked
+y 5
+end
+arch wall_dungeon_1
+y 5
+end
+arch floor_cave5
+y 6
+end
+arch floor_cave5
+y 7
+end
+arch wall_dungeon_8
+y 7
+end
+arch floor_cave5
+y 8
+end
+arch wall_dungeon_4
+y 8
+end
+arch blocked
+x 1
+y 5
+end
+arch wall_dungeon_1
+x 1
+y 5
+end
+arch floor_cave5
+x 1
+y 6
+end
+arch floor_cave1
+x 1
+y 7
+end
+arch wall_dungeon_1
+x 1
+y 7
+end
+arch blocked
+x 19
+y 21
+end
+arch blocked
+x 19
+y 22
+end
+arch blocked
+x 19
+y 23
+end
+arch blocked
+x 20
+y 21
+end
+arch floor_sand_d2
+x 20
+y 22
+end
+arch wall_cave1.151
+layer 3
+x 20
+y 22
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 20
+y 23
+end
+arch blocked
+x 21
+y 21
+end
+arch floor_sand_d3
+x 21
+y 22
+end
+arch wall_cave1.151
+layer 3
+x 21
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 21
+y 23
+end
+arch blocked
+x 22
+y 20
+end
+arch wall_dungeon_3
+x 22
+y 20
+end
+arch blocked
+x 22
+y 21
+end
+arch wall_dungeon_3
+x 22
+y 21
+end
+arch floor_sand_d2
+x 22
+y 22
+end
+arch wall_cave1.151
+layer 3
+x 22
+y 22
+end
+arch wall_dungeon_3
+x 22
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 22
+y 23
+end
+arch floor_sand_d3
+x 23
+y 18
+end
+arch floor_sand_d4
+x 23
+y 19
+end
+arch floor_sand_d4
+x 23
+y 20
+end
+arch floor_sand_d1
+x 23
+y 21
+end
+arch ladder_tall_up
+direction 7
+slaying /_incuna
+hp 81
+sp 80
+x 23
+y 21
+end
+arch floor_sand_d3
+x 23
+y 22
+end
+arch wall_cave1.151
+blocksview 0
+layer 3
+x 23
+y 22
+end
+arch torch_wall_1
+direction 5
+x 23
+y 22
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 23
+y 23
+end
+arch reed_sm7
+layer 5
+z 18
+x 23
+y 23
+end
