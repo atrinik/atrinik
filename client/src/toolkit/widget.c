@@ -688,8 +688,8 @@ widgetdata *create_widget(int widget_id)
 	/* increment the unique ID counter */
 	++widget_uid;
 
-	LOG(llevDebug, "..ALLOCATED: %s, WidgetObjID: %d\n", node->name, node->WidgetObjID);
 #ifdef DEBUG_WIDGET
+	LOG(llevDebug, "..ALLOCATED: %s, WidgetObjID: %d\n", node->name, node->WidgetObjID);
 	debug_count_nodes(1);
 
 	LOG(llevInfo, "..create_widget(): Done.\n");
@@ -793,7 +793,9 @@ void remove_widget(widgetdata *widget)
 		}
 	}
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..REMOVED: %s, WidgetObjID: %d\n", widget->name, widget->WidgetObjID);
+#endif
 
 	/* free the surface */
 	if (widget->widgetSF)
@@ -1859,20 +1861,26 @@ void process_widgets_rec(widgetdata *widget)
  * and then work our way back down again, bringing each node in front of its siblings. */
 void SetPriorityWidget(widgetdata *node)
 {
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "Entering SetPriorityWidget(WidgetObjID=%d)..\n", node->WidgetObjID);
+#endif
 
 	/* widget doesn't exist, means parent node has no children, so nothing to do here */
 	if (!node)
 	{
+#ifdef DEBUG_WIDGET
 		LOG(llevDebug, "..SetPriorityWidget(): Done (Node does not exist).\n");
+#endif
 		return;
 	}
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..BEFORE:\n");
 	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
 	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
 	LOG(llevDebug, "....node->prev: %p - %s, node->next: %p - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
 	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
+#endif
 
 	/* see if the node has a parent before continuing */
 	if (node->env)
@@ -1893,7 +1901,9 @@ void SetPriorityWidget(widgetdata *node)
 	/* now we need to move our other node in front of the first sibling */
 	if (!node->prev)
 	{
+#ifdef DEBUG_WIDGET
 		LOG(llevDebug, "..SetPriorityWidget(): Done (Node already at front).\n");
+#endif
 		/* no point continuing, node is already at the front */
 		return;
 	}
@@ -1943,6 +1953,7 @@ void SetPriorityWidget(widgetdata *node)
 	/* There's no siblings in front of node now. */
 	node->prev = NULL;
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..AFTER:\n");
 	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
 	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
@@ -1950,6 +1961,7 @@ void SetPriorityWidget(widgetdata *node)
 	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
 
 	LOG(llevDebug, "..SetPriorityWidget(): Done.\n");
+#endif
 }
 
 void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget)
