@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 -Enter Description Here-
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -163,6 +163,15 @@ end
 arch floor_wood2
 z 50
 x 2
+y 11
+end
+arch fwall_marble3b
+x 2
+y 11
+end
+arch floor_wood2
+z 50
+x 2
 y 12
 end
 arch fwall_marble3b
@@ -271,14 +280,36 @@ end
 arch floor_wood2
 z 50
 x 3
-y 12
+y 11
 end
 arch fwall_marble3b
+x 3
+y 11
+end
+arch blocked
+z 50
+blocksview 0
+no_pass 0
+x 3
+y 12
+end
+arch invis_exit
+slaying world_b_0935
+hp 3
+sp 12
 x 3
 y 12
 end
 arch floor_wood2
 z 50
+x 3
+y 13
+end
+arch stairs_stone_down
+direction 1
+slaying world_b_0935
+hp 3
+sp 12
 x 3
 y 13
 end
@@ -297,13 +328,13 @@ z 50
 x 3
 y 16
 end
-arch sign
-name To do
-x 3
-y 16
-end
 arch floor_wood2
 z 50
+x 3
+y 17
+end
+arch torch_wall_1
+direction 7
 x 3
 y 17
 end
@@ -332,10 +363,24 @@ z 50
 x 3
 y 22
 end
+arch torch_wall_1
+direction 7
+x 3
+y 22
+end
 arch floor_wood2
 z 50
 x 3
 y 23
+end
+arch floor_wood2
+z 50
+x 4
+y 11
+end
+arch fwall_marble3b
+x 4
+y 11
 end
 arch floor_wood2
 z 50
@@ -348,6 +393,10 @@ y 12
 end
 arch floor_wood2
 z 50
+x 4
+y 13
+end
+arch torch_wall_1
 x 4
 y 13
 end

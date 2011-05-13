@@ -2,16 +2,18 @@ arch map
 name Underground Tunnels
 msg
 -Enter Description Here-
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 3
+tile_path_2 world_b_1037
+tile_path_3 world_b_0936
 tile_path_4 world_b_0837
 tile_path_7 world_b_0836
 tile_path_8 world_b_0838
-region world
+region strakewood_island
 end
 arch blocked
 end
@@ -103,13 +105,13 @@ end
 arch wall_dungeon_4
 y 14
 end
-arch earth_brown2
+arch earth_brown3
 y 16
 end
 arch fwall_grit1c
 y 16
 end
-arch earth_brown2
+arch earth_brown3
 y 17
 end
 arch fwall_grit1c
@@ -129,7 +131,7 @@ arch fwall_grit1c
 x 1
 y 10
 end
-arch earth_brown2
+arch earth_brown1
 x 1
 y 11
 end
@@ -137,7 +139,7 @@ arch fwall_grit1c
 x 1
 y 11
 end
-arch earth_brown2
+arch earth_brown1
 x 1
 y 12
 end
@@ -152,7 +154,7 @@ last_sp -1
 x 1
 y 12
 end
-arch earth_brown2
+arch earth_brown1
 x 1
 y 13
 end
@@ -160,7 +162,7 @@ arch fwall_grit1c
 x 1
 y 13
 end
-arch earth_brown2
+arch earth_brown1
 x 1
 y 14
 end
@@ -168,7 +170,7 @@ arch fwall_grit1c
 x 1
 y 14
 end
-arch earth_brown2
+arch earth_brown4
 x 1
 y 15
 end
@@ -176,7 +178,7 @@ arch fwall_grit1c
 x 1
 y 15
 end
-arch earth_brown2
+arch earth_brown4
 x 1
 y 16
 end
@@ -188,7 +190,11 @@ arch earth_brown2
 x 1
 y 17
 end
-arch earth_brown2
+arch rock2
+x 1
+y 17
+end
+arch earth_brown1
 x 1
 y 18
 end
@@ -196,7 +202,7 @@ arch fwall_grit1c
 x 1
 y 18
 end
-arch earth_brown2
+arch earth_brown4
 x 1
 y 19
 end
@@ -204,7 +210,7 @@ arch fwall_grit1c
 x 1
 y 19
 end
-arch earth_brown2
+arch earth_brown4
 x 2
 y 10
 end
@@ -220,11 +226,11 @@ arch earth_brown2
 x 2
 y 12
 end
-arch earth_brown2
+arch earth_brown1
 x 2
 y 13
 end
-arch earth_brown2
+arch earth_brown4
 x 2
 y 14
 end
@@ -240,19 +246,28 @@ arch fwall_grit1c
 x 2
 y 15
 end
-arch earth_brown2
+arch plant1_wall.151
+direction 7
+x 2
+y 15
+end
+arch earth_brown1
 x 2
 y 16
 end
-arch earth_brown2
+arch plant_mushroom5
+x 2
+y 16
+end
+arch earth_brown3
 x 2
 y 17
 end
-arch earth_brown2
+arch earth_brown4
 x 2
 y 18
 end
-arch earth_brown2
+arch earth_brown4
 x 2
 y 19
 end
@@ -260,7 +275,7 @@ arch fwall_grit1c
 x 2
 y 19
 end
-arch earth_brown2
+arch earth_brown3
 x 3
 y 10
 end
@@ -268,7 +283,7 @@ arch fwall_grit1c
 x 3
 y 10
 end
-arch earth_brown2
+arch earth_brown4
 x 3
 y 11
 end
@@ -280,27 +295,39 @@ arch earth_brown2
 x 3
 y 12
 end
-arch earth_brown2
+arch torch_wall_1
+x 3
+y 12
+end
+arch earth_brown3
 x 3
 y 13
 end
-arch earth_brown2
+arch small_stones
+x 3
+y 13
+end
+arch earth_brown4
 x 3
 y 14
 end
-arch earth_brown2
+arch earth_brown4
 x 3
 y 15
 end
-arch earth_brown2
+arch earth_brown1
 x 3
 y 16
 end
-arch earth_brown2
+arch blood_floor2
+x 3
+y 16
+end
+arch earth_brown1
 x 3
 y 17
 end
-arch earth_brown2
+arch earth_brown3
 x 3
 y 18
 end
@@ -312,7 +339,7 @@ arch fwall_grit1c
 x 3
 y 19
 end
-arch earth_brown2
+arch earth_brown1
 x 3
 y 20
 end
@@ -328,7 +355,7 @@ arch fwall_grit1c
 x 3
 y 21
 end
-arch earth_brown2
+arch earth_brown1
 x 4
 y 10
 end
@@ -336,11 +363,11 @@ arch fwall_grit1c
 x 4
 y 10
 end
-arch earth_brown2
+arch earth_brown4
 x 4
 y 11
 end
-arch earth_brown2
+arch earth_brown1
 x 4
 y 12
 end
@@ -348,11 +375,11 @@ arch earth_brown2
 x 4
 y 13
 end
-arch earth_brown2
+arch earth_brown4
 x 4
 y 14
 end
-arch earth_brown2
+arch earth_brown1
 x 4
 y 15
 end
@@ -360,11 +387,15 @@ arch earth_brown2
 x 4
 y 16
 end
-arch earth_brown2
+arch earth_brown4
 x 4
 y 17
 end
-arch earth_brown2
+arch small_stones
+x 4
+y 17
+end
+arch earth_brown3
 x 4
 y 18
 end
@@ -372,11 +403,20 @@ arch earth_brown2
 x 4
 y 19
 end
-arch earth_brown2
+arch torch_wall_1
+direction 7
+x 4
+y 19
+end
+arch earth_brown4
 x 4
 y 20
 end
-arch earth_brown2
+arch rock5
+x 4
+y 20
+end
+arch earth_brown4
 x 4
 y 21
 end
@@ -384,21 +424,7 @@ arch fwall_grit1c
 x 4
 y 21
 end
-arch earth_brown2
-x 5
-end
-arch fwall_grit1c
-x 5
-end
-arch earth_brown2
-x 5
-y 1
-end
-arch fwall_grit1c
-x 5
-y 1
-end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 2
 end
@@ -414,7 +440,7 @@ arch fwall_grit1c
 x 5
 y 3
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 4
 end
@@ -422,7 +448,12 @@ arch fwall_grit1c
 x 5
 y 4
 end
-arch earth_brown2
+arch plant2_wall.151
+direction 7
+x 5
+y 4
+end
+arch earth_brown3
 x 5
 y 5
 end
@@ -438,7 +469,7 @@ arch fwall_grit1c
 x 5
 y 6
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 7
 end
@@ -446,7 +477,7 @@ arch fwall_grit1c
 x 5
 y 7
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 8
 end
@@ -454,7 +485,7 @@ arch fwall_grit1c
 x 5
 y 8
 end
-arch earth_brown2
+arch earth_brown1
 x 5
 y 9
 end
@@ -462,7 +493,7 @@ arch fwall_grit1c
 x 5
 y 9
 end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 10
 end
@@ -470,7 +501,7 @@ arch fwall_grit1c
 x 5
 y 10
 end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 11
 end
@@ -478,11 +509,11 @@ arch fwall_grit1c
 x 5
 y 11
 end
-arch earth_brown2
+arch earth_brown1
 x 5
 y 12
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 13
 end
@@ -490,7 +521,7 @@ arch fwall_grit1c
 x 5
 y 13
 end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 14
 end
@@ -498,27 +529,27 @@ arch fwall_grit1c
 x 5
 y 14
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 15
 end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 16
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 17
 end
-arch earth_brown2
+arch earth_brown1
 x 5
 y 18
 end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 19
 end
-arch earth_brown2
+arch earth_brown4
 x 5
 y 20
 end
@@ -530,11 +561,16 @@ arch fwall_grit1c
 x 5
 y 21
 end
-arch earth_brown2
+arch earth_brown3
 x 5
 y 22
 end
 arch fwall_grit1c
+x 5
+y 22
+end
+arch plant1_wall.151
+direction 7
 x 5
 y 22
 end
@@ -546,10 +582,7 @@ arch fwall_grit1c
 x 5
 y 23
 end
-arch earth_brown2
-x 6
-end
-arch earth_brown2
+arch earth_brown4
 x 6
 y 1
 end
@@ -557,7 +590,7 @@ arch fwall_grit1c
 x 6
 y 1
 end
-arch earth_brown2
+arch earth_brown3
 x 6
 y 2
 end
@@ -565,23 +598,31 @@ arch fwall_grit1c
 x 6
 y 2
 end
-arch earth_brown2
+arch earth_brown1
 x 6
 y 3
 end
-arch earth_brown2
+arch rock5
+x 6
+y 3
+end
+arch earth_brown4
 x 6
 y 4
 end
-arch earth_brown2
+arch earth_brown3
 x 6
 y 5
 end
-arch earth_brown2
+arch plant_mushroom1
+x 6
+y 5
+end
+arch earth_brown3
 x 6
 y 6
 end
-arch earth_brown2
+arch earth_brown4
 x 6
 y 7
 end
@@ -589,7 +630,12 @@ arch fwall_grit1c
 x 6
 y 7
 end
-arch earth_brown2
+arch plant2_wall.151
+direction 7
+x 6
+y 7
+end
+arch earth_brown4
 x 6
 y 8
 end
@@ -601,11 +647,15 @@ arch earth_brown2
 x 6
 y 9
 end
-arch earth_brown2
+arch plant_mushroom1
+x 6
+y 9
+end
+arch earth_brown4
 x 6
 y 10
 end
-arch earth_brown2
+arch earth_brown4
 x 6
 y 11
 end
@@ -613,15 +663,24 @@ arch fwall_grit1c
 x 6
 y 11
 end
-arch earth_brown2
+arch plant2_wall.151
+direction 7
+x 6
+y 11
+end
+arch earth_brown1
 x 6
 y 12
 end
-arch earth_brown2
+arch plant_mushroom4
+x 6
+y 12
+end
+arch earth_brown1
 x 6
 y 13
 end
-arch earth_brown2
+arch earth_brown4
 x 6
 y 14
 end
@@ -637,6 +696,11 @@ arch fwall_grit1c
 x 6
 y 15
 end
+arch plant2_wall.151
+direction 7
+x 6
+y 15
+end
 arch earth_brown2
 x 6
 y 16
@@ -645,7 +709,7 @@ arch fwall_grit1c
 x 6
 y 16
 end
-arch earth_brown2
+arch earth_brown1
 x 6
 y 17
 end
@@ -653,7 +717,7 @@ arch fwall_grit1c
 x 6
 y 17
 end
-arch earth_brown2
+arch earth_brown4
 x 6
 y 18
 end
@@ -669,7 +733,12 @@ arch fwall_grit1c
 x 6
 y 19
 end
-arch earth_brown2
+arch plant1_wall.151
+direction 7
+x 6
+y 19
+end
+arch earth_brown3
 x 6
 y 20
 end
@@ -677,7 +746,7 @@ arch fwall_grit1c
 x 6
 y 20
 end
-arch earth_brown2
+arch earth_brown3
 x 6
 y 21
 end
@@ -685,30 +754,39 @@ arch fwall_grit1c
 x 6
 y 21
 end
-arch earth_brown2
+arch earth_brown3
 x 6
 y 22
 end
-arch earth_brown2
+arch dirt_floor2
+x 6
+y 22
+end
+arch earth_brown1
 x 6
 y 23
 end
-arch earth_brown2
-x 7
-end
-arch earth_brown2
+arch earth_brown1
 x 7
 y 1
 end
-arch earth_brown2
+arch fwall_grit1b
+x 7
+y 1
+end
+arch earth_brown3
 x 7
 y 2
 end
-arch earth_brown2
+arch torch_wall_1
+x 7
+y 2
+end
+arch earth_brown4
 x 7
 y 3
 end
-arch earth_brown2
+arch earth_brown3
 x 7
 y 4
 end
@@ -716,7 +794,11 @@ arch earth_brown2
 x 7
 y 5
 end
-arch earth_brown2
+arch dirt_floor1
+x 7
+y 5
+end
+arch earth_brown4
 x 7
 y 6
 end
@@ -724,7 +806,16 @@ arch earth_brown2
 x 7
 y 7
 end
-arch earth_brown2
+arch small_stones
+x 7
+y 7
+end
+arch earth_brown3
+x 7
+y 8
+end
+arch torch_wall_1
+direction 7
 x 7
 y 8
 end
@@ -732,51 +823,60 @@ arch earth_brown2
 x 7
 y 9
 end
-arch earth_brown2
+arch earth_brown3
 x 7
 y 10
 end
-arch earth_brown2
+arch earth_brown3
 x 7
 y 11
 end
-arch earth_brown2
+arch earth_brown1
 x 7
 y 12
 end
-arch earth_brown2
+arch earth_brown1
 x 7
 y 13
 end
-arch earth_brown2
+arch earth_brown3
 x 7
 y 14
 end
-arch earth_brown2
+arch small_stones
+x 7
+y 14
+end
+arch earth_brown4
 x 7
 y 15
 end
-arch earth_brown2
+arch earth_brown3
 x 7
 y 16
 end
-arch earth_brown2
+arch earth_brown4
 x 7
 y 17
 end
-arch earth_brown2
+arch torch_wall_1
+direction 7
+x 7
+y 17
+end
+arch earth_brown1
 x 7
 y 18
 end
-arch earth_brown2
+arch earth_brown4
 x 7
 y 19
 end
-arch earth_brown2
+arch earth_brown1
 x 7
 y 20
 end
-arch earth_brown2
+arch earth_brown4
 x 7
 y 21
 end
@@ -784,38 +884,51 @@ arch earth_brown2
 x 7
 y 22
 end
-arch earth_brown2
+arch small_stones
+x 7
+y 22
+end
+arch earth_brown1
 x 7
 y 23
 end
 arch earth_brown2
 x 8
+y 1
 end
-arch earth_brown2
+arch fwall_grit1c
 x 8
 y 1
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 2
 end
-arch earth_brown2
+arch rock5
+x 8
+y 2
+end
+arch earth_brown3
 x 8
 y 3
 end
-arch earth_brown2
+arch earth_brown1
 x 8
 y 4
 end
-arch earth_brown2
+arch small_stones
+x 8
+y 4
+end
+arch earth_brown1
 x 8
 y 5
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 6
 end
-arch earth_brown2
+arch earth_brown1
 x 8
 y 7
 end
@@ -835,7 +948,7 @@ arch fwall_grit1c
 x 8
 y 10
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 11
 end
@@ -843,7 +956,7 @@ arch fwall_grit1c
 x 8
 y 11
 end
-arch earth_brown2
+arch earth_brown4
 x 8
 y 12
 end
@@ -851,7 +964,7 @@ arch fwall_grit1c
 x 8
 y 12
 end
-arch earth_brown2
+arch earth_brown4
 x 8
 y 13
 end
@@ -863,11 +976,11 @@ arch earth_brown2
 x 8
 y 15
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 16
 end
-arch earth_brown2
+arch earth_brown1
 x 8
 y 17
 end
@@ -875,7 +988,7 @@ arch fwall_grit1c
 x 8
 y 17
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 18
 end
@@ -883,7 +996,7 @@ arch fwall_grit1c
 x 8
 y 18
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 19
 end
@@ -891,37 +1004,35 @@ arch fwall_grit1c
 x 8
 y 19
 end
-arch earth_brown2
+arch earth_brown1
 x 8
 y 20
 end
-arch earth_brown2
+arch earth_brown1
 x 8
 y 21
 end
-arch earth_brown2
+arch plant_mushroom1
+x 8
+y 21
+end
+arch earth_brown4
 x 8
 y 22
 end
-arch earth_brown2
+arch earth_brown3
 x 8
 y 23
 end
-arch earth_brown2
-x 9
-end
-arch fwall_grit1c
-x 9
-end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 1
 end
-arch fwall_grit1c
+arch fwall_grit1a
 x 9
 y 1
 end
-arch earth_brown2
+arch earth_brown3
 x 9
 y 2
 end
@@ -929,27 +1040,19 @@ arch fwall_grit1c
 x 9
 y 2
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 3
 end
-arch earth_brown2
+arch earth_brown4
 x 9
 y 4
 end
-arch fwall_grit1c
-x 9
-y 4
-end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 5
 end
-arch fwall_grit1c
-x 9
-y 5
-end
-arch earth_brown2
+arch earth_brown3
 x 9
 y 6
 end
@@ -957,7 +1060,7 @@ arch fwall_grit1c
 x 9
 y 6
 end
-arch earth_brown2
+arch earth_brown3
 x 9
 y 7
 end
@@ -965,7 +1068,7 @@ arch fwall_grit1c
 x 9
 y 7
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 8
 end
@@ -973,7 +1076,7 @@ arch fwall_grit1c
 x 9
 y 8
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 9
 end
@@ -981,7 +1084,7 @@ arch fwall_grit1c
 x 9
 y 9
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 10
 end
@@ -997,7 +1100,7 @@ arch fwall_grit1c
 x 9
 y 12
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 13
 end
@@ -1005,7 +1108,7 @@ arch fwall_grit1c
 x 9
 y 13
 end
-arch earth_brown2
+arch earth_brown4
 x 9
 y 14
 end
@@ -1013,7 +1116,7 @@ arch fwall_grit1c
 x 9
 y 14
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 15
 end
@@ -1021,7 +1124,7 @@ arch fwall_grit1c
 x 9
 y 15
 end
-arch earth_brown2
+arch earth_brown3
 x 9
 y 16
 end
@@ -1029,7 +1132,7 @@ arch fwall_grit1c
 x 9
 y 16
 end
-arch earth_brown2
+arch earth_brown4
 x 9
 y 17
 end
@@ -1045,7 +1148,7 @@ arch fwall_grit1c
 x 9
 y 19
 end
-arch earth_brown2
+arch earth_brown1
 x 9
 y 20
 end
@@ -1053,7 +1156,7 @@ arch fwall_grit1c
 x 9
 y 20
 end
-arch earth_brown2
+arch earth_brown3
 x 9
 y 21
 end
@@ -1061,7 +1164,7 @@ arch fwall_grit1c
 x 9
 y 21
 end
-arch earth_brown2
+arch earth_brown4
 x 9
 y 22
 end
@@ -1081,7 +1184,7 @@ arch earth_brown2
 x 10
 y 2
 end
-arch fwall_grit1c
+arch fwall_grit1b
 x 10
 y 2
 end
@@ -1089,15 +1192,459 @@ arch earth_brown2
 x 10
 y 3
 end
-arch fwall_grit1c
+arch earth_brown3
 x 10
-y 3
+y 4
+end
+arch earth_brown1
+x 10
+y 5
+end
+arch rock6
+x 10
+y 5
 end
 arch earth_brown2
 x 10
-y 4
+y 6
+end
+arch fwall_grit1a
+x 10
+y 6
+end
+arch earth_brown2
+x 11
+y 2
 end
 arch fwall_grit1c
-x 10
+x 11
+y 2
+end
+arch plant1_wall.151
+x 11
+y 2
+end
+arch earth_brown3
+x 11
+y 3
+end
+arch plant_mushroom2
+x 11
+y 3
+end
+arch earth_brown3
+x 11
 y 4
+end
+arch earth_brown1
+x 11
+y 5
+end
+arch fwall_grit1a
+x 11
+y 5
+end
+arch earth_brown2
+x 11
+y 6
+end
+arch fwall_grit1c
+x 11
+y 6
+end
+arch earth_brown1
+x 12
+y 2
+end
+arch fwall_grit1b
+x 12
+y 2
+end
+arch earth_brown3
+x 12
+y 3
+end
+arch small_stones
+x 12
+y 3
+end
+arch earth_brown3
+x 12
+y 4
+end
+arch earth_brown1
+x 12
+y 5
+end
+arch fwall_grit1b
+x 12
+y 5
+end
+arch earth_brown4
+x 13
+y 2
+end
+arch fwall_grit1a
+x 13
+y 2
+end
+arch earth_brown2
+x 13
+y 3
+end
+arch earth_brown4
+x 13
+y 4
+end
+arch earth_brown2
+x 13
+y 5
+end
+arch fwall_grit1a
+x 13
+y 5
+end
+arch earth_brown1
+x 13
+y 6
+end
+arch fwall_grit1c
+x 13
+y 6
+end
+arch earth_brown3
+x 14
+y 2
+end
+arch fwall_grit1b
+x 14
+y 2
+end
+arch earth_brown3
+x 14
+y 3
+end
+arch torch_wall_1
+x 14
+y 3
+end
+arch earth_brown2
+x 14
+y 4
+end
+arch dirt_floor4
+x 14
+y 4
+end
+arch earth_brown4
+x 14
+y 5
+end
+arch earth_brown4
+x 14
+y 6
+end
+arch fwall_grit1b
+x 14
+y 6
+end
+arch earth_brown2
+x 15
+y 2
+end
+arch fwall_grit1b
+x 15
+y 2
+end
+arch earth_brown1
+x 15
+y 3
+end
+arch earth_brown1
+x 15
+y 4
+end
+arch earth_brown3
+x 15
+y 5
+end
+arch earth_brown4
+x 15
+y 6
+end
+arch fwall_grit1b
+x 15
+y 6
+end
+arch earth_brown2
+x 16
+y 2
+end
+arch fwall_grit1c
+x 16
+y 2
+end
+arch plant1_wall.151
+x 16
+y 2
+end
+arch earth_brown3
+x 16
+y 3
+end
+arch small_stones
+x 16
+y 3
+end
+arch earth_brown4
+x 16
+y 4
+end
+arch earth_brown3
+x 16
+y 5
+end
+arch fwall_grit1b
+x 16
+y 5
+end
+arch earth_brown1
+x 16
+y 6
+end
+arch fwall_grit1a
+x 16
+y 6
+end
+arch earth_brown3
+x 17
+y 2
+end
+arch fwall_grit1b
+x 17
+y 2
+end
+arch earth_brown4
+x 17
+y 3
+end
+arch earth_brown1
+x 17
+y 4
+end
+arch plant_mushroom4
+x 17
+y 4
+end
+arch earth_brown1
+x 17
+y 5
+end
+arch earth_brown2
+x 17
+y 6
+end
+arch fwall_grit1c
+x 17
+y 6
+end
+arch earth_brown4
+x 18
+y 2
+end
+arch fwall_grit1a
+x 18
+y 2
+end
+arch earth_brown4
+x 18
+y 3
+end
+arch rock6
+x 18
+y 3
+end
+arch earth_brown1
+x 18
+y 4
+end
+arch earth_brown4
+x 18
+y 5
+end
+arch earth_brown4
+x 18
+y 6
+end
+arch fwall_grit1a
+x 18
+y 6
+end
+arch earth_brown4
+x 19
+y 2
+end
+arch fwall_grit1a
+x 19
+y 2
+end
+arch earth_brown1
+x 19
+y 3
+end
+arch fwall_grit1a
+x 19
+y 3
+end
+arch earth_brown1
+x 19
+y 4
+end
+arch earth_brown4
+x 19
+y 5
+end
+arch earth_brown1
+x 19
+y 6
+end
+arch fwall_grit1b
+x 19
+y 6
+end
+arch earth_brown4
+x 20
+y 2
+end
+arch fwall_grit1a
+x 20
+y 2
+end
+arch earth_brown2
+x 20
+y 3
+end
+arch fwall_grit1b
+x 20
+y 3
+end
+arch plant2_wall.151
+x 20
+y 3
+end
+arch earth_brown4
+x 20
+y 4
+end
+arch earth_brown2
+x 20
+y 5
+end
+arch earth_brown4
+x 20
+y 6
+end
+arch fwall_grit1b
+x 20
+y 6
+end
+arch earth_brown3
+x 21
+y 2
+end
+arch fwall_grit1a
+x 21
+y 2
+end
+arch earth_brown4
+x 21
+y 3
+end
+arch earth_brown4
+x 21
+y 4
+end
+arch earth_brown1
+x 21
+y 5
+end
+arch earth_brown3
+x 21
+y 6
+end
+arch fwall_grit1b
+x 21
+y 6
+end
+arch earth_brown3
+x 22
+y 2
+end
+arch fwall_grit1a
+x 22
+y 2
+end
+arch earth_brown1
+x 22
+y 3
+end
+arch torch_wall_1
+x 22
+y 3
+end
+arch earth_brown1
+x 22
+y 4
+end
+arch small_stones
+x 22
+y 4
+end
+arch earth_brown3
+x 22
+y 5
+end
+arch earth_brown3
+x 22
+y 6
+end
+arch fwall_grit1c
+x 22
+y 6
+end
+arch earth_brown4
+x 23
+y 2
+end
+arch fwall_grit1b
+x 23
+y 2
+end
+arch earth_brown3
+x 23
+y 3
+end
+arch earth_brown4
+x 23
+y 4
+end
+arch plant_mushroom2
+x 23
+y 4
+end
+arch earth_brown4
+x 23
+y 5
+end
+arch fwall_grit1a
+x 23
+y 5
+end
+arch earth_brown1
+x 23
+y 6
+end
+arch fwall_grit1a
+x 23
+y 6
 end
