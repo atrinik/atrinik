@@ -2,7 +2,7 @@ arch map
 name Mushroom Cave
 msg
 Created:  2011-05-08 emperorbma
-Modified: 2011-05-11 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -81,7 +81,7 @@ arch fwall_grit2a
 y 14
 end
 arch fstone1b
-z 18
+z 22
 y 15
 end
 arch stairs_stone_up
