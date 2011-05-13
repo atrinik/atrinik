@@ -2,13 +2,14 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2011-05-11 Kiana
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
 no_harm 1
+bg_music shanty.mid
 region strakewood_island
 end
 arch map_event_obj

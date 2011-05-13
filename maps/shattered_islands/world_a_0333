@@ -9,6 +9,7 @@ height 24
 difficulty 30
 darkness 2
 tile_path_4 world_a_0233
+bg_music treasure.mid
 region strakewood_island
 end
 arch fstone1b

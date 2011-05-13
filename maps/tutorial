@@ -2,7 +2,7 @@ arch map
 name The Starting Tutorial
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-06 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,7 @@ darkness -1
 no_save 1
 fixed_resettime 1
 player_no_save 1
+bg_music tutorialisland.mid
 region tutorial
 end
 arch floor_stone_b3

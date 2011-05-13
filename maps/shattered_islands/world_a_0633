@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 Created:  2011-01-29 emperorbma
-Modified: 2011-01-29 emperorbma
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,6 +12,7 @@ tile_path_2 world_a_0733
 tile_path_3 world_a_0632
 tile_path_5 world_a_0734
 tile_path_6 world_a_0732
+bg_music sewers.ogg
 region asteria_sewers
 end
 arch earth_brown2

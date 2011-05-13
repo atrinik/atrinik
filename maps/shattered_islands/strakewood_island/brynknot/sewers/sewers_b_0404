@@ -2,12 +2,13 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Kiana
-Modified: 2011-03-06 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 60
 darkness 2
+bg_music escape.mid
 region brynknot
 end
 arch blocked

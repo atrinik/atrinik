@@ -1,5 +1,5 @@
 arch map
-name Asteria Sewers
+name Thieves Guild
 msg
 -Enter Description Here-
 Modified: 2011-05-13 Alex Tokar
@@ -12,6 +12,7 @@ tile_path_3 world_a_0934
 tile_path_4 world_a_0835
 tile_path_7 world_a_0834
 tile_path_8 world_a_0836
+bg_music sacred_moments.ogg
 region asteria_sewers
 end
 arch floor_wood2
@@ -26,6 +27,13 @@ z 50
 y 13
 end
 arch barrel2.101
+y 13
+end
+arch map_info
+hp 1
+sp 1
+race Asteria Sewers
+slaying sewers.ogg
 y 13
 end
 arch floor_stone_b1

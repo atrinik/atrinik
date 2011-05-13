@@ -2,7 +2,7 @@ arch map
 name Vielumin Ruins
 msg
 Created:  2010-08-18 Idicus
-Modified: 2011-02-18 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness 1
 tile_path_1 ruins_0102
 tile_path_2 ruins_0201
 tile_path_5 ruins_0202
+bg_music ruins.mid
 region eld_woods_island
 end
 arch floor_ruin6

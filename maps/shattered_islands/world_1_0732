@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ darkness -1
 outdoor 1
 no_harm 1
 tile_path_4 world_1_0632
+bg_music chether.mid
 region asteria
 end
 arch blocked
