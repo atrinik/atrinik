@@ -13,6 +13,7 @@ tile_path_3 world_b_0936
 tile_path_4 world_b_0837
 tile_path_7 world_b_0836
 tile_path_8 world_b_0838
+bg_music unexpected.mid
 region strakewood_island
 end
 arch blocked

@@ -9,6 +9,7 @@ height 24
 difficulty 1
 darkness 3
 tile_path_4 world_b_1037
+bg_music unexpected.mid
 region strakewood_island
 end
 arch earth_brown2
