@@ -312,6 +312,9 @@ typedef struct obj
 	 * the object is moved 50 pixels to the left. */
 	sint16 align;
 
+	/** Object's rotation value in degrees. */
+	sint16 rotate;
+
 	/** Object is a light source */
 	sint8 glow_radius;
 

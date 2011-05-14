@@ -140,6 +140,7 @@ static fields_struct fields[] =
 	{"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
 	{"z", FIELDTYPE_SINT16, offsetof(object, z), 0, 0},
 	{"zoom", FIELDTYPE_UINT8, offsetof(object, zoom), 0, 0},
+	{"rotate", FIELDTYPE_SINT16, offsetof(object, rotate), 0, 0},
 	{"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0},
 	{"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0},
 	/* Returns the object's face in a tuple containing the face name as

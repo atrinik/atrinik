@@ -220,7 +220,7 @@ _Sprite *sprite_load_file(char *fname, uint32 flags);
 _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop);
 void sprite_free_sprite(_Sprite *sprite);
 void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom);
+void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom, sint16 rotate);
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
@@ -233,8 +233,6 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value);
 void remove_anim(struct _anim *anim);
 void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
-SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
-void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 
 /* client/tilestretcher.c */
@@ -347,7 +345,6 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
 void widget_show_below_window(widgetdata *widget);
 int blt_inv_item_centered(object *tmp, int x, int y);
 void blt_inv_item(object *tmp, int x, int y);
-void examine_range_inv();
 
 /* gui/keybind.c */
 void show_keybind();
@@ -367,7 +364,7 @@ void update_map_weather(const char *weather);
 void init_map_data(int xl, int yl, int px, int py);
 void align_tile_stretch(int x, int y);
 void adjust_tile_stretch();
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha);
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate);
 void map_clear_cell(int x, int y);
 void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
@@ -467,6 +464,24 @@ int range_buttons_show(int x, int y, int *val, int advance);
 
 /* toolkit/scroll_buttons.c */
 void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
+
+/* toolkit/SDL_rotozoom.c */
+Uint32 _colorkey(SDL_Surface *src);
+int _shrinkSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
+int _shrinkSurfaceY(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
+int _zoomSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int flipx, int flipy, int smooth);
+int _zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst, int flipx, int flipy);
+void _transformSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int cx, int cy, int isin, int icos, int flipx, int flipy, int smooth);
+void transformSurfaceY(SDL_Surface *src, SDL_Surface *dst, int cx, int cy, int isin, int icos, int flipx, int flipy);
+SDL_Surface *rotateSurface90Degrees(SDL_Surface *src, int numClockwiseTurns);
+void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx, double zoomy, int *dstwidth, int *dstheight, double *canglezoom, double *sanglezoom);
+void rotozoomSurfaceSizeXY(int width, int height, double angle, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight);
+SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
+SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoomx, double zoomy, int smooth);
+void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
+SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
 
 /* toolkit/text.c */
 void text_init();

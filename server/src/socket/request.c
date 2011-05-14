@@ -1689,6 +1689,11 @@ void draw_client_map2(object *pl)
 						flags2 |= MAP2_FLAG2_ALPHA;
 					}
 
+					if (head->rotate && CONTR(pl)->socket.socket_version >= 1049)
+					{
+						flags2 |= MAP2_FLAG2_ROTATE;
+					}
+
 					if (flags2)
 					{
 						if (CONTR(pl)->socket.socket_version >= 1043)
@@ -1817,6 +1822,11 @@ void draw_client_map2(object *pl)
 						if (flags2 & MAP2_FLAG2_ALPHA)
 						{
 							SockList_AddChar(&sl_layer, head->alpha);
+						}
+
+						if (flags2 & MAP2_FLAG2_ROTATE)
+						{
+							SockList_AddShort(&sl_layer, head->rotate);
 						}
 					}
 				}

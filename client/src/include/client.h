@@ -532,6 +532,8 @@ extern Client_Player cpl;
  *@{*/
 /** Custom alpha value. */
 #define MAP2_FLAG2_ALPHA 1
+/** Custom rotate value in degrees. */
+#define MAP2_FLAG2_ROTATE 2
 /*@}*/
 
 /**

@@ -132,7 +132,7 @@ void map_draw_map_clear()
 		{
 			xpos = options.mapstart_x + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 			ypos = options.mapstart_y + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0, 0);
+			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0, 0, 0);
 		}
 	}
 }
@@ -372,8 +372,9 @@ void adjust_tile_stretch()
  * @param height Z position of the tile.
  * @param probe Target's HP bar.
  * @param zoom How much to zoom the face by.
- * @param align X align. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha)
+ * @param align X align.
+ * @param rotate Rotation in degrees. */
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -388,6 +389,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].align[layer] = align;
 	the_map.cells[x][y].draw_double[layer] = draw_double;
 	the_map.cells[x][y].alpha[layer] = alpha;
+	the_map.cells[x][y].rotate[layer] = rotate;
 }
 
 /**
@@ -410,6 +412,7 @@ void map_clear_cell(int x, int y)
 		the_map.cells[x][y].height[i] = 0;
 		the_map.cells[x][y].zoom[i] = 0;
 		the_map.cells[x][y].align[i] = 0;
+		the_map.cells[x][y].rotate[i] = 0;
 	}
 }
 
@@ -582,14 +585,14 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		yl -= map->height[layer];
 	}
 
-	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[layer]);
+	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[layer], map->rotate[layer]);
 
 	/* Double faces are shown twice, one above the other, when not lower
 	 * on the screen than the player. This simulates high walls without
 	 * obscuring the user's view. */
 	if (map->draw_double[layer])
 	{
-		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom[layer]);
+		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom[layer], map->rotate[layer]);
 	}
 
 	/* Do we have a playername? Then print it! */
@@ -606,28 +609,28 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		if (map->flags[layer] & FFLAG_SLEEP)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_CONFUSED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_SCARED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_BLINDED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
 		}
 
 		if (map->flags[layer] & FFLAG_PARALYZED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom[layer]);
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 9, yl + 3, NULL, NULL, 0, map->zoom[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 9, yl + 3, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
 		}
 	}
 
@@ -807,7 +810,7 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 		ypos = (ypos - (the_map.cells[x][y].height[1])) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]);
 	}
 
-	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0);
+	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0);
 }
 
 /** Tile offsets used in mouse_to_tile_coords(). */
