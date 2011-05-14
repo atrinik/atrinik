@@ -2,12 +2,13 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-05-14 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 27
 darkness 2
+tile_path_1 old_outpost_a_0204
 tile_path_3 old_outpost_a_0202
 bg_music desert_town.mid
 region old_outpost
@@ -173,7 +174,16 @@ end
 arch floor_stone3b
 x 1
 end
-arch fwall_flagstone2a
+arch door1_locked
+slaying king_rhun_vault
+x 1
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying king_rhun_vault
+sp 1
+last_grace 1
 x 1
 end
 arch floor_stone3b
@@ -218,8 +228,6 @@ y 4
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 4
 end
@@ -245,8 +253,6 @@ y 8
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 8
 end
@@ -366,7 +372,17 @@ end
 arch floor_stone3d
 x 2
 end
-arch fwall_flagstone2a
+arch door1_locked
+slaying king_rhun_vault
+direction 7
+x 2
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying king_rhun_vault
+sp 1
+last_grace 1
 x 2
 end
 arch floor_stone3d
@@ -417,7 +433,7 @@ dam 110
 wc 14
 maxhp 130
 ac 14
-Wis 3
+direction 3
 arch rand_drop
 container 80
 arch gauntlet_precision
@@ -431,6 +447,22 @@ end
 arch quest_container
 name Gandyld's Quest II
 sub_type 1
+end
+arch quest_container
+name King Rhun's Vault Key
+arch key_skull
+msg
+Key from the King Rhun's Vault entrance.
+endmsg
+name King Rhun's Vault Key
+slaying king_rhun_vault
+startequip 1
+end
+end
+arch key_skull
+name King Rhun's Vault Key
+slaying king_rhun_vault
+startequip 1
 end
 end
 end
@@ -567,11 +599,16 @@ dam 100
 wc 14
 maxhp 110
 ac 14
-Wis 3
+direction 3
 arch rand_drop
 container 70
 arch bracers_relurgh
 end
+end
+arch key_skull
+name King Rhun's Vault Key
+slaying king_rhun_vault
+startequip 1
 end
 end
 end
@@ -618,11 +655,16 @@ dam 100
 wc 14
 maxhp 110
 ac 14
-Wis 3
+direction 3
 arch rand_drop
 container 70
 arch helm_chrordir
 end
+end
+arch key_skull
+name King Rhun's Vault Key
+slaying king_rhun_vault
+startequip 1
 end
 end
 end
@@ -997,8 +1039,6 @@ x 6
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 1
 end
@@ -3452,8 +3492,6 @@ y 12
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 22
 y 12
 end

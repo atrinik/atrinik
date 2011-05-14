@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-03-22 Alex Tokar
+Modified: 2011-05-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,305 +10,410 @@ difficulty 10
 darkness 2
 tile_path_1 world_b_0428
 tile_path_2 world_b_0527
+tile_path_3 world_b_0426
 tile_path_4 world_b_0327
 tile_path_5 world_b_0528
 tile_path_8 world_b_0328
 bg_music desert_town.mid
 region fort_sether
 end
-arch floor_sand_d1
+arch floor_sand_d2
+x 2
+y 12
+end
+arch fwall_rock3
+x 2
+y 12
+end
+arch floor_sand_d4
+x 2
+y 13
+end
+arch fwall_rock2
+x 2
+y 13
+end
+arch floor_sand_d2
+x 2
+y 14
+end
+arch fwall_rock3
+x 2
+y 14
+end
+arch floor_sand_d4
+x 2
+y 15
+end
+arch fwall_rock2
+x 2
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 15
+end
+arch floor_sand_d3
+x 2
+y 16
+end
+arch fwall_rock1
+x 2
+y 16
+end
+arch floor_sand_d4
+x 2
+y 17
+end
+arch fwall_rock1
+x 2
+y 17
+end
+arch floor_sand_d3
+x 2
+y 18
+end
+arch fwall_rock3
+x 2
+y 18
+end
+arch floor_sand_d3
+x 2
+y 19
+end
+arch fwall_rock3
+x 2
+y 19
+end
+arch plant1_wall.151
+direction 7
+x 2
+y 19
+end
+arch floor_sand_d2
+x 2
+y 20
+end
+arch fwall_rock3
+x 2
+y 20
+end
+arch floor_sand_d4
+x 2
+y 21
+end
+arch fwall_rock1
+x 2
+y 21
+end
+arch floor_sand_d3
+x 2
+y 22
+end
+arch fwall_rock1
+x 2
+y 22
+end
+arch floor_sand_d3
+x 2
+y 23
+end
+arch fwall_rock3
+x 2
+y 23
+end
+arch floor_sand_d3
+x 3
 y 11
 end
 arch fwall_rock1
+x 3
 y 11
 end
-arch water_lt
+arch floor_sand_d3
+x 3
+y 12
+end
+arch fwall_rock2
+x 3
 y 12
 end
 arch water_lt2
+x 3
 y 13
-end
-arch water_md_m
-direction 5
-y 13
-end
-arch water_dk3
-y 14
-end
-arch water_md3_m
-direction 8
-y 14
 end
 arch water_lt
-y 15
-end
-arch water_md_m
-direction 1
-y 15
-end
-arch water_lt4
-y 16
-end
-arch floor_sand_d2
-y 17
-end
-arch fwall_rock2
-y 17
-end
-arch floor_sand_d4
-x 1
-y 11
-end
-arch fwall_rock2
-x 1
-y 11
-end
-arch water_lt2
-x 1
-y 12
+x 3
+y 14
 end
 arch water_lt3
-x 1
+x 3
+y 15
+end
+arch plant8
+x 3
+y 15
+end
+arch water_lt3
+x 3
+y 16
+end
+arch water_lt4
+x 3
+y 17
+end
+arch plant7
+x 3
+y 17
+end
+arch water_lt4
+x 3
+y 18
+end
+arch water_lt2
+x 3
+y 19
+end
+arch plant7
+x 3
+y 19
+end
+arch water_lt
+x 3
+y 20
+end
+arch water_lt
+x 3
+y 21
+end
+arch plant8
+x 3
+y 21
+end
+arch water_lt
+x 3
+y 22
+end
+arch plant7
+x 3
+y 22
+end
+arch floor_sand_d4
+x 3
+y 23
+end
+arch fwall_rock2
+x 3
+y 23
+end
+arch floor_sand_d4
+x 4
+y 11
+end
+arch fwall_rock2
+x 4
+y 11
+end
+arch water_lt4
+x 4
+y 12
+end
+arch plant7
+x 4
+y 12
+end
+arch water_lt
+x 4
+y 13
+end
+arch water_lt2
+x 4
+y 14
+end
+arch water_md_m
+direction 3
+x 4
+y 14
+end
+arch water_lt3
+x 4
+y 15
+end
+arch water_md_m
+direction 3
+x 4
+y 15
+end
+arch water_lt
+x 4
+y 16
+end
+arch water_md_m
+direction 3
+x 4
+y 16
+end
+arch water_lt3
+x 4
+y 17
+end
+arch water_md_m
+direction 3
+x 4
+y 17
+end
+arch water_lt4
+x 4
+y 18
+end
+arch water_md_m
+direction 3
+x 4
+y 18
+end
+arch water_lt
+x 4
+y 19
+end
+arch water_lt3
+x 4
+y 20
+end
+arch water_md_m
+direction 3
+x 4
+y 20
+end
+arch water_lt4
+x 4
+y 21
+end
+arch water_md_m
+direction 3
+x 4
+y 21
+end
+arch water_lt4
+x 4
+y 22
+end
+arch water_lt3
+x 4
+y 23
+end
+arch plant8
+x 4
+y 23
+end
+arch floor_sand_d1
+x 5
+y 11
+end
+arch fwall_rock3
+x 5
+y 11
+end
+arch plant2_wall.151
+x 5
+y 11
+end
+arch water_lt2
+x 5
+y 12
+end
+arch plant8
+x 5
+y 12
+end
+arch water_lt4
+x 5
 y 13
 end
 arch water_md_m
 direction 5
-x 1
+x 5
 y 13
 end
 arch water_dk
-x 1
+x 5
 y 14
 end
-arch water_md3_m
+arch water_md4_m
 direction 8
-x 1
+x 5
 y 14
-end
-arch water_lt
-x 1
-y 15
-end
-arch water_md_m
-direction 1
-x 1
-y 15
-end
-arch water_lt
-x 1
-y 16
-end
-arch floor_sand_d2
-x 1
-y 17
-end
-arch fwall_rock1
-x 1
-y 17
-end
-arch floor_sand_d3
-x 2
-y 11
-end
-arch fwall_rock3
-x 2
-y 11
-end
-arch water_lt3
-x 2
-y 12
-end
-arch water_lt3
-x 2
-y 13
-end
-arch water_md_m
-direction 5
-x 2
-y 13
-end
-arch water_dk4
-x 2
-y 14
-end
-arch water_md3_m
-direction 8
-x 2
-y 14
-end
-arch water_lt3
-x 2
-y 15
-end
-arch water_md_m
-direction 1
-x 2
-y 15
-end
-arch water_lt3
-x 2
-y 16
-end
-arch floor_sand_d4
-x 2
-y 17
-end
-arch fwall_rock1
-x 2
-y 17
-end
-arch floor_sand_d3
-x 3
-y 11
-end
-arch fwall_rock1
-x 3
-y 11
-end
-arch water_lt
-x 3
-y 12
-end
-arch water_lt
-x 3
-y 13
-end
-arch water_md_m
-direction 5
-x 3
-y 13
-end
-arch water_dk3
-x 3
-y 14
-end
-arch water_md3_m
-direction 8
-x 3
-y 14
-end
-arch water_lt4
-x 3
-y 15
-end
-arch water_md_m
-direction 1
-x 3
-y 15
-end
-arch water_lt3
-x 3
-y 16
-end
-arch floor_sand_d1
-x 3
-y 17
-end
-arch fwall_rock2
-x 3
-y 17
-end
-arch floor_sand_d4
-x 4
-y 11
-end
-arch fwall_rock2
-x 4
-y 11
-end
-arch water_lt4
-x 4
-y 12
-end
-arch water_lt3
-x 4
-y 13
-end
-arch water_md_m
-direction 5
-x 4
-y 13
 end
 arch water_dk2
-x 4
-y 14
+x 5
+y 15
 end
 arch water_md3_m
-direction 8
-x 4
-y 14
-end
-arch water_lt4
-x 4
+direction 6
+x 5
 y 15
 end
-arch water_md_m
-direction 1
-x 4
-y 15
-end
-arch water_lt
-x 4
+arch water_dk2
+x 5
 y 16
 end
-arch floor_sand_d3
-x 4
-y 17
-end
-arch fwall_rock3
-x 4
-y 17
-end
-arch floor_sand_d1
+arch water_md3_m
+direction 6
 x 5
-y 11
-end
-arch fwall_rock3
-x 5
-y 11
-end
-arch water_lt2
-x 5
-y 12
-end
-arch water_lt4
-x 5
-y 13
-end
-arch water_md_m
-direction 5
-x 5
-y 13
+y 16
 end
 arch water_dk4
 x 5
-y 14
+y 17
 end
 arch water_md3_m
-direction 8
+direction 6
 x 5
-y 14
+y 17
 end
-arch water_lt
+arch water_dk4
 x 5
-y 15
+y 18
+end
+arch water_md3_m
+direction 6
+x 5
+y 18
+end
+arch water_dk
+x 5
+y 19
+end
+arch water_md3_m
+direction 6
+x 5
+y 19
+end
+arch water_dk2
+x 5
+y 20
+end
+arch water_md5_m
+direction 5
+x 5
+y 20
+end
+arch water_md4
+x 5
+y 21
+end
+arch water_lt3
+x 5
+y 22
 end
 arch water_md_m
-direction 1
+direction 2
 x 5
-y 15
+y 22
 end
 arch water_lt
 x 5
-y 16
-end
-arch floor_sand_d2
-x 5
-y 17
-end
-arch fwall_rock1
-x 5
-y 17
+y 23
 end
 arch floor_sand_d3
 x 6
@@ -319,6 +424,10 @@ x 6
 y 11
 end
 arch water_lt4
+x 6
+y 12
+end
+arch plant7
 x 6
 y 12
 end
@@ -345,7 +454,7 @@ x 6
 y 15
 end
 arch water_md_m
-direction 1
+direction 8
 x 6
 y 15
 end
@@ -353,13 +462,63 @@ arch water_lt2
 x 6
 y 16
 end
-arch floor_sand_d3
+arch water_md_m
+direction 7
+x 6
+y 16
+end
+arch water_lt2
 x 6
 y 17
 end
-arch fwall_rock2
+arch water_md_m
+direction 7
 x 6
 y 17
+end
+arch water_lt2
+x 6
+y 18
+end
+arch water_md_m
+direction 7
+x 6
+y 18
+end
+arch water_lt4
+x 6
+y 19
+end
+arch water_md_m
+direction 7
+x 6
+y 19
+end
+arch water_lt
+x 6
+y 20
+end
+arch water_md_m
+direction 6
+x 6
+y 20
+end
+arch water_md2
+x 6
+y 21
+end
+arch water_md4
+x 6
+y 22
+end
+arch water_lt4
+x 6
+y 23
+end
+arch water_md_m
+direction 1
+x 6
+y 23
 end
 arch floor_sand_d2
 x 7
@@ -417,13 +576,43 @@ arch water_lt
 x 7
 y 16
 end
-arch floor_sand_d2
+arch water_lt3
 x 7
 y 17
 end
-arch fwall_rock3
+arch water_lt2
 x 7
-y 17
+y 18
+end
+arch water_lt
+x 7
+y 19
+end
+arch water_lt4
+x 7
+y 20
+end
+arch water_lt4
+x 7
+y 21
+end
+arch water_md_m
+direction 7
+x 7
+y 21
+end
+arch water_lt
+x 7
+y 22
+end
+arch water_md_m
+direction 7
+x 7
+y 22
+end
+arch water_lt3
+x 7
+y 23
 end
 arch floor_sand_d2
 x 8
@@ -481,13 +670,88 @@ direction 8
 x 8
 y 16
 end
+arch mushroom_giant8
+x 8
+y 16
+end
 arch floor_sand_d2
 x 8
 y 17
 end
-arch fwall_rock1
+arch water_lt_m
+direction 7
 x 8
 y 17
+end
+arch floor_sand_d3
+x 8
+y 18
+end
+arch water_lt2_m
+direction 7
+x 8
+y 18
+end
+arch floor_sand_d2
+x 8
+y 19
+end
+arch water_lt2_m
+direction 7
+x 8
+y 19
+end
+arch plant_mushroom2
+x 8
+y 19
+end
+arch floor_sand_d4
+x 8
+y 20
+end
+arch water_lt2_m
+direction 7
+x 8
+y 20
+end
+arch floor_sand_d1
+x 8
+y 21
+end
+arch water_lt_m
+direction 7
+x 8
+y 21
+end
+arch mushroom_spot1
+x 8
+y 21
+end
+arch light3
+x 8
+y 21
+end
+arch floor_sand_d2
+x 8
+y 22
+end
+arch water_lt_m
+direction 7
+x 8
+y 22
+end
+arch floor_sand_d3
+x 8
+y 23
+end
+arch water_lt2_m
+direction 7
+x 8
+y 23
+end
+arch plant_mushroom1
+x 8
+y 23
 end
 arch floor_sand_d4
 x 9
@@ -502,6 +766,11 @@ x 9
 y 10
 end
 arch fwall_rock1
+x 9
+y 10
+end
+arch plant1_wall.151
+direction 7
 x 9
 y 10
 end
@@ -556,6 +825,54 @@ end
 arch fwall_rock1
 x 9
 y 17
+end
+arch floor_sand_d4
+x 9
+y 18
+end
+arch fwall_rock2
+x 9
+y 18
+end
+arch floor_sand_d1
+x 9
+y 19
+end
+arch fwall_rock2
+x 9
+y 19
+end
+arch floor_sand_d4
+x 9
+y 20
+end
+arch fwall_rock1
+x 9
+y 20
+end
+arch floor_sand_d1
+x 9
+y 21
+end
+arch fwall_rock2
+x 9
+y 21
+end
+arch floor_sand_d2
+x 9
+y 22
+end
+arch fwall_rock2
+x 9
+y 22
+end
+arch floor_sand_d3
+x 9
+y 23
+end
+arch fwall_rock1
+x 9
+y 23
 end
 arch floor_sand_d1
 x 10
@@ -622,6 +939,10 @@ y 16
 end
 arch water_lt2_m
 direction 1
+x 10
+y 16
+end
+arch plant_mushroom1
 x 10
 y 16
 end
@@ -699,6 +1020,14 @@ y 16
 end
 arch water_lt2_m
 direction 1
+x 11
+y 16
+end
+arch mushroom_spot1
+x 11
+y 16
+end
+arch light3
 x 11
 y 16
 end
@@ -795,6 +1124,11 @@ x 13
 y 8
 end
 arch fwall_rock2
+x 13
+y 8
+end
+arch plant1_wall.151
+direction 7
 x 13
 y 8
 end
@@ -936,6 +1270,10 @@ y 15
 end
 arch water_lt2_m
 direction 1
+x 14
+y 15
+end
+arch plant_mushroom1
 x 14
 y 15
 end
@@ -1055,6 +1393,11 @@ arch fwall_rock3
 x 16
 y 4
 end
+arch plant2_wall.151
+direction 7
+x 16
+y 4
+end
 arch floor_sand_d1
 x 16
 y 5
@@ -1125,6 +1468,14 @@ y 14
 end
 arch water_lt2_m
 direction 1
+x 16
+y 14
+end
+arch mushroom_spot1
+x 16
+y 14
+end
+arch light3
 x 16
 y 14
 end
@@ -1256,6 +1607,11 @@ x 18
 y 1
 end
 arch fwall_rock3
+x 18
+y 1
+end
+arch plant1_wall.151
+direction 7
 x 18
 y 1
 end
@@ -1342,6 +1698,10 @@ y 13
 end
 arch water_lt_m
 direction 8
+x 18
+y 13
+end
+arch plant_mushroom2
 x 18
 y 13
 end
