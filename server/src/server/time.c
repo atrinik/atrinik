@@ -257,10 +257,9 @@ void get_tod(timeofday_t *tod)
 	tod->hour = todtick % HOURS_PER_DAY;
 	tod->minute = (pticks % PTICKS_PER_CLOCK) / (PTICKS_PER_CLOCK / 58);
 
-	/* it's imprecise at best anyhow */
-	if (tod->minute > 58)
+	if (tod->minute > 59)
 	{
-		tod->minute = 58;
+		tod->minute = 59;
 	}
 
 	tod->weekofmonth = tod->day / WEEKS_PER_MONTH;
@@ -328,7 +327,7 @@ void print_tod(object *op)
 	int day;
 
 	get_tod(&tod);
-	new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s, on %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
+	new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s, on %s", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
 
 	day = tod.day + 1;
 

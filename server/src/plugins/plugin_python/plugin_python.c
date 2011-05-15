@@ -953,7 +953,7 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 	PyDict_SetItemString(dict, "month_name", Py_BuildValue("s", hooks->month_name[tod.month]));
 	PyDict_SetItemString(dict, "day", Py_BuildValue("i", tod.day + 1));
 	PyDict_SetItemString(dict, "hour", Py_BuildValue("i", tod.hour));
-	PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute + 1));
+	PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute));
 	PyDict_SetItemString(dict, "dayofweek", Py_BuildValue("i", tod.dayofweek + 1));
 	PyDict_SetItemString(dict, "dayofweek_name", Py_BuildValue("s", hooks->weekdays[tod.dayofweek]));
 	PyDict_SetItemString(dict, "season", Py_BuildValue("i", tod.season + 1));
