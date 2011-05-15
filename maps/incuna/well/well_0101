@@ -2,197 +2,713 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Kiana
-Modified: 2011-05-12 Kiana
+Modified: 2011-05-15 Kiana
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 2
-tile_path_2 well_0201
 tile_path_3 well_0100
 tile_path_4 well_0001
 tile_path_6 well_0200
-tile_path_7 well_0000
 region Incuna
 end
-arch blocked
-y 5
+arch floor_sand_d1
+y 17
 end
-arch wall_dungeon_1
-y 5
+arch wall_cave1.111
+y 17
 end
-arch floor_cave5
-y 6
+arch floor_sand_d1
+y 18
 end
-arch floor_cave5
-y 7
-end
-arch wall_dungeon_8
-y 7
-end
-arch floor_cave5
-y 8
-end
-arch wall_dungeon_4
-y 8
-end
-arch blocked
-x 1
-y 5
-end
-arch wall_dungeon_1
-x 1
-y 5
-end
-arch floor_cave5
-x 1
-y 6
-end
-arch floor_cave1
-x 1
-y 7
-end
-arch wall_dungeon_1
-x 1
-y 7
-end
-arch blocked
-x 19
-y 21
-end
-arch blocked
-x 19
-y 22
-end
-arch blocked
-x 19
-y 23
-end
-arch blocked
-x 20
-y 21
+arch floor_sand_d3
+y 19
 end
 arch floor_sand_d2
-x 20
-y 22
+y 20
 end
-arch wall_cave1.151
-layer 3
-x 20
+arch water_lt2
+y 21
+end
+arch flagwall_short_brick1.111
+align 24
+z 12
+y 21
+end
+arch water_lt4
+y 21
+end
+arch duplicator
+slaying bridge_wood_EW.101
+connected 101
+y 21
+end
+arch creator
+connected 102
+lifesave 1
+one_drop 1
+y 21
+arch bridge_wood_EW.101
+align 27
+z 52
+rotate 128
+layer 4
+end
+end
+arch water_lt2
 y 22
 end
 arch water_lt4
-z 18
-layer 4
-type 79
-x 20
-y 23
-end
-arch blocked
-x 21
-y 21
-end
-arch floor_sand_d3
-x 21
 y 22
 end
-arch wall_cave1.151
+arch duplicator
+slaying bridge_wood_EW.101
+connected 101
+y 22
+end
+arch creator
+connected 102
+lifesave 1
+one_drop 1
+y 22
+arch bridge_wood_EW.101
+align 57
+z 36
+rotate 128
 layer 3
-x 21
-y 22
 end
-arch water_lt2
-z 18
-layer 4
-type 79
-x 21
-y 23
-end
-arch blocked
-x 22
-y 20
-end
-arch wall_dungeon_3
-x 22
-y 20
-end
-arch blocked
-x 22
-y 21
-end
-arch wall_dungeon_3
-x 22
-y 21
-end
-arch floor_sand_d2
-x 22
-y 22
-end
-arch wall_cave1.151
-layer 3
-x 22
-y 22
-end
-arch wall_dungeon_3
-x 22
-y 22
-end
-arch water_lt2
-z 18
-layer 4
-type 79
-x 22
-y 23
-end
-arch floor_sand_d3
-x 23
-y 18
 end
 arch floor_sand_d4
-x 23
+y 23
+end
+arch wall_cave1.121
+y 23
+end
+arch floor_sand_d1
+x 1
+y 17
+end
+arch wall_cave1b.121
+x 1
+y 17
+end
+arch floor_sand_d2
+x 1
+y 18
+end
+arch wall_cave1.161
+x 1
+y 18
+end
+arch floor_sand_d2
+x 1
+y 19
+end
+arch trigger_lever
+msg
+You hear a
+endmsg
+exp 45
+connected 100
+direction 7
+x 1
 y 19
 end
 arch floor_sand_d4
-x 23
+x 1
 y 20
 end
-arch floor_sand_d1
-x 23
+arch bridge_wood_NS.111
+x 1
+y 20
+end
+arch duplicator
+slaying portal_big
+connected 101
+x 1
+y 20
+end
+arch duplicator
+slaying floor_inv
+connected 101
+x 1
+y 20
+end
+arch creator
+connected 102
+lifesave 1
+one_drop 1
+x 1
+y 20
+arch portal_big
+no_pass 1
+is_invisible 1
+hp 1
+sp 19
+end
+end
+arch water_lt4
+x 1
 y 21
 end
-arch ladder_tall_up
-direction 7
-slaying /_incuna
-hp 81
-sp 80
-x 23
+arch duplicator
+slaying portal_big
+connected 101
+x 1
+y 21
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 102
+x 1
+y 21
+end
+arch duplicator
+slaying water_lt4
+connected 101
+x 1
+y 21
+end
+arch creator
+connected 102
+lifesave 1
+one_drop 1
+x 1
+y 21
+arch water_lt4
+end
+arch portal_big
+is_invisible 1
+hp 1
+sp 19
+end
+end
+arch creator
+connected 101
+lifesave 1
+one_drop 1
+x 1
+y 21
+arch bridge_wood_NS.101
+glow_radius 3
+end
+end
+arch water_lt4
+x 1
+y 22
+end
+arch duplicator
+slaying portal_big
+connected 101
+x 1
+y 22
+end
+arch duplicator
+slaying flagwall_short_brick1.111
+connected 101
+x 1
+y 22
+end
+arch duplicator
+slaying bridge_wood_NS.101
+connected 102
+x 1
+y 22
+end
+arch duplicator
+slaying water_lt4
+connected 101
+x 1
+y 22
+end
+arch creator
+connected 102
+lifesave 1
+one_drop 1
+x 1
+y 22
+arch water_lt4
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+end
+arch portal_big
+is_invisible 1
+hp 1
+sp 19
+end
+end
+arch creator
+connected 101
+lifesave 1
+one_drop 1
+x 1
+y 22
+arch bridge_wood_NS.101
+glow_radius 3
+end
+end
+arch floor_sand_d3
+x 1
+y 23
+end
+arch floor_sand_d4
+x 2
+y 18
+end
+arch wall_cave1b.121
+x 2
+y 18
+end
+arch floor_sand_d4
+x 2
+y 19
+end
+arch wall_cave1.131
+x 2
+y 19
+end
+arch floor_sand_d1
+x 2
+y 20
+end
+arch wall_cave1.161
+x 2
+y 20
+end
+arch water_lt
+x 2
+y 21
+end
+arch water_lt4
+x 2
+y 22
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+x 2
+y 22
+end
+arch floor_sand_d3
+x 2
+y 23
+end
+arch magic_mouth
+msg
+You hear a creaking sound. The bridge is moving!
+endmsg
+connected 100
+walk_on 0
+fly_on 0
+z 24
+x 3
+y 17
+end
+arch floor_black1a
+z 24
+x 3
+y 18
+end
+arch wall_cave1.151
+x 3
+y 18
+end
+arch floor_black1a
+z 24
+x 3
+y 19
+end
+arch button_plate
+connected 102
+x 3
+y 19
+end
+arch grate_open
+direction 3
+connected 100
+layer 4
+x 3
+y 19
+end
+arch boulder
+can_roll 1
+terrain_flag 1
+x 3
+y 19
+end
+arch floor_sand_d3
+x 3
+y 20
+end
+arch wall_cave1.111
+x 3
+y 20
+end
+arch water_lt
+x 3
+y 21
+end
+arch water_lt3
+x 3
+y 22
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+x 3
+y 22
+end
+arch floor_sand_d2
+x 3
+y 23
+end
+arch floor_black1a
+z 24
+x 4
+y 18
+end
+arch wall_cave1.151
+x 4
+y 18
+end
+arch floor_black1a
+z 24
+x 4
+y 19
+end
+arch button_plate
+connected 101
+x 4
+y 19
+end
+arch grate_closed
+connected 100
+layer 4
+x 4
+y 19
+end
+arch floor_sand_d3
+x 4
+y 20
+end
+arch wall_cave1.111
+x 4
+y 20
+end
+arch water_lt
+x 4
+y 21
+end
+arch water_lt4
+x 4
+y 22
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+x 4
+y 22
+end
+arch floor_sand_d2
+x 4
+y 23
+end
+arch floor_black1a
+z 24
+x 5
+y 18
+end
+arch wall_cave1.151
+x 5
+y 18
+end
+arch floor_black1a
+z 24
+x 5
+y 19
+end
+arch wall_cave1.161
+x 5
+y 19
+end
+arch floor_sand_d2
+x 5
+y 20
+end
+arch wall_cave1.111
+x 5
+y 20
+end
+arch water_lt2
+x 5
+y 21
+end
+arch water_lt2
+x 5
+y 22
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+x 5
+y 22
+end
+arch blocked
+blocksview 0
+no_pass 0
+x 5
+y 23
+end
+arch invis_exit
+slaying well_0100
+hp 6
+sp 0
+x 5
+y 23
+end
+arch floor_sand_d1
+x 6
+y 20
+end
+arch wall_cave1.111
+x 6
+y 20
+end
+arch water_lt
+x 6
+y 21
+end
+arch water_lt2
+x 6
+y 22
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+x 6
+y 22
+end
+arch blocked
+blocksview 0
+x 6
+y 23
+end
+arch floor_sand_d3
+x 7
+y 20
+end
+arch wall_cave1.111
+x 7
+y 20
+end
+arch water_lt
+x 7
+y 21
+end
+arch water_lt
+x 7
+y 22
+end
+arch blocked
+blocksview 0
+x 7
+y 23
+end
+arch blocked
+x 8
+y 20
+end
+arch blocked
+blocksview 0
+x 8
+y 21
+end
+arch water_lt2
+z 24
+x 8
+y 22
+end
+arch water_lt4
+z 24
+x 8
+y 23
+end
+arch blocked
+x 9
+y 20
+end
+arch floor_sand_d3
+z 24
+x 9
+y 21
+end
+arch wall_cave1.111
+x 9
+y 21
+end
+arch water_lt3
+z 24
+x 9
+y 22
+end
+arch water_lt4
+z 24
+x 9
+y 23
+end
+arch floor_sand_d1
+z 24
+x 10
+y 21
+end
+arch wall_cave1b.121
+x 10
 y 21
 end
 arch floor_sand_d3
-x 23
+z 24
+x 10
 y 22
 end
-arch wall_cave1.151
-blocksview 0
-layer 3
-x 23
+arch wall_cave1.131
+x 10
 y 22
 end
-arch torch_wall_1
-direction 5
-x 23
-y 22
-end
-arch water_lt2
-z 18
-layer 4
-type 79
-x 23
+arch floor_sand_d4
+z 24
+x 10
 y 23
 end
-arch reed_sm7
-layer 5
-z 18
-x 23
+arch wall_cave1.131
+x 10
+y 23
+end
+arch floor_black1a
+z 24
+x 11
+y 23
+end
+arch wall_cave1.151
+x 11
+y 23
+end
+arch floor_black2a
+z 24
+x 12
+y 23
+end
+arch wall_cave1.151
+x 12
+y 23
+end
+arch floor_black2a
+z 24
+x 13
+y 23
+end
+arch wall_cave1.151
+x 13
+y 23
+end
+arch floor_black2a
+z 24
+x 14
+y 23
+end
+arch wall_cave1.151
+x 14
+y 23
+end
+arch floor_black2a
+z 24
+x 15
+y 23
+end
+arch wall_cave1.151
+x 15
+y 23
+end
+arch floor_black2a
+z 24
+x 16
+y 23
+end
+arch wall_cave1.151
+x 16
+y 23
+end
+arch floor_black2a
+z 24
+x 17
+y 23
+end
+arch wall_cave1.151
+x 17
+y 23
+end
+arch floor_black2a
+z 24
+x 18
+y 23
+end
+arch wall_cave1.151
+x 18
+y 23
+end
+arch floor_black2a
+z 24
+x 19
+y 23
+end
+arch wall_cave1.151
+x 19
+y 23
+end
+arch floor_black2a
+z 24
+x 20
+y 23
+end
+arch wall_cave1.151
+x 20
+y 23
+end
+arch floor_black2a
+z 24
+x 21
+y 23
+end
+arch wall_cave1.151
+x 21
+y 23
+end
+arch floor_black2a
+z 24
+x 22
+y 23
+end
+arch wall_cave1.151
+x 22
 y 23
 end
