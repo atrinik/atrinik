@@ -362,7 +362,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 int move_monster(object *op)
 {
 	int dir, special_dir = 0, diff;
-	object *enemy, *part, *tmp;
+	object *enemy, *part;
 	rv_vector rv;
 
 	if (op->head)
@@ -386,7 +386,6 @@ int move_monster(object *op)
 
 	/* Here is the heart of the mob attack and target area.
 	 * find_enemy() checks the old enemy or gets us a new one. */
-	tmp = op->enemy;
 
 	/* We never ever attack */
 	if (QUERY_FLAG(op, FLAG_NO_ATTACK))

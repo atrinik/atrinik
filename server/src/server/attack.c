@@ -250,7 +250,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	int maxdam = 0;
 	int attacknum, hit_level;
 	int simple_attack;
-	tag_t op_tag, hitter_tag;
 	int rtn_kill = 0;
 
 	/* If our target has no_damage 1 set or is wiz, we can't hurt him. */
@@ -355,9 +354,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	{
 		return 0;
 	}
-
-	op_tag = op->count;
-	hitter_tag = hitter->count;
 
 	/* Go through and hit the player with each attacktype, one by one.
 	 * hit_player_attacktype only figures out the damage, doesn't inflict
@@ -466,7 +462,7 @@ int hit_map(object *op, int dir, int reduce)
 {
 	object *tmp, *next, *tmp_obj, *tmp_head;
 	mapstruct *map;
-	int x, y, mflags;
+	int x, y;
 	tag_t op_tag, next_tag = 0;
 
 	if (OBJECT_FREE(op))
@@ -501,8 +497,6 @@ int hit_map(object *op, int dir, int reduce)
 	{
 		return 0;
 	}
-
-	mflags = GET_MAP_FLAGS(map, x, y);
 
 	next = get_map_ob(map, x, y);
 
@@ -624,7 +618,6 @@ int hit_map(object *op, int dir, int reduce)
 static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum)
 {
 	double dam = (double) damage;
-	int doesnt_slay = 1;
 
 	/* Sanity check */
 	if (dam < 0)
@@ -637,8 +630,6 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 	{
 		if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying)))
 		{
-			doesnt_slay = 0;
-
 			if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION))
 			{
 				damage = (int) ((double) damage * 2.25);
@@ -1174,7 +1165,7 @@ object *hit_with_arrow(object *op, object *victim)
 {
 	object *container, *hitter;
 	int hit_something = 0;
-	tag_t victim_tag, hitter_tag;
+	tag_t hitter_tag;
 	sint16 victim_x, victim_y;
 	mapstruct *victim_map;
 
@@ -1196,7 +1187,6 @@ object *hit_with_arrow(object *op, object *victim)
 	victim_x = victim->x;
 	victim_y = victim->y;
 	victim_map = victim->map;
-	victim_tag = victim->count;
 	hitter_tag = hitter->count;
 
 	if (HAS_EVENT(hitter, EVENT_ATTACK))

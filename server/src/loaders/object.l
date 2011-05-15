@@ -252,10 +252,9 @@ lex_error = 0;
 
 							if (!(map_flags & MAP_STYLE))
 							{
-								float old_sleft, old_speed;
+								float old_sleft;
 
 								old_sleft = tmp->speed_left;
-								old_speed = tmp->speed;
 
 								/* First adjust speed.
 								 * Only change something if we:
@@ -1003,7 +1002,7 @@ void *create_loader_buffer(void *fp)
 int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags)
 {
 	int retval = 0;
-	float old_speed, old_sleft;
+	float old_sleft;
 	char inbuf[HUGE_BUF];
 	object *items[MAXDEPTH];
 	int depth = 0;
@@ -1020,7 +1019,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	 * case, these values are the arch pre sets. We need to track this
 	 * down to adjust for the "real in-game" object the right speed and
 	 * speed_left. */
-	old_speed = op->speed;
 	old_sleft = op->speed_left;
 	/* We assume an "arch" load as default */
 	object_load_flag = 0;

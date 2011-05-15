@@ -1271,9 +1271,7 @@ void do_some_living(object *op)
 void kill_player(object *op)
 {
 	char buf[HUGE_BUF];
-	int x, y, i;
-	/* this is for resurrection */
-	mapstruct *map;
+	int i;
 	object *tmp;
 	int z;
 	int num_stats_lose;
@@ -1338,11 +1336,6 @@ void kill_player(object *op)
 	trigger_global_event(GEVENT_PLAYER_DEATH, NULL, op);
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
-
-	/* Save the map location for corpse, gravestone */
-	x = op->x;
-	y = op->y;
-	map = op->map;
 
 	/* Basically two ways to go - remove a stat permanently, or just
 	 * make it depletion.  This bunch of code deals with that aspect
@@ -1519,7 +1512,6 @@ void kill_player(object *op)
 	/* Show a nasty message */
 	new_draw_info(NDI_UNIQUE, op, "YOU HAVE DIED.");
 	save_player(op, 1);
-	return;
 }
 
 /**

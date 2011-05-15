@@ -302,18 +302,10 @@ void become_follower(object *op, object *new_god)
 {
 	/* obj. containing god data */
 	object *exp_obj = op->chosen_skill->exp_obj;
-	/* old god */
-	object *old_god = NULL;
 	treasure *tr;
 	int i;
 
 	CONTR(op)->socket.ext_title_flag = 1;
-
-	/* get old god */
-	if (exp_obj->title)
-	{
-		old_god = find_god(exp_obj->title);
-	}
 
 	/* give the player any special god-characteristic-items. */
 	for (tr = new_god->randomitems->items; tr != NULL; tr = tr->next)
