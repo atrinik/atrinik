@@ -72,7 +72,8 @@
 /**
  * This structure allows any object to have extra fields the Flex loader
  * does not know about. */
-typedef struct key_value_struct {
+typedef struct key_value_struct
+{
 	/** Name of this extra field. Shared string. */
 	const char *key;
 
