@@ -156,7 +156,7 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
  * Adds a colour to the palette in a bitmap ("surface"). */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
 {
-	int i, r_code;
+	int i;
 	Uint8 ncol = dest->format->palette->ncolors;
 	SDL_Color colors[256];
 
@@ -172,7 +172,7 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
 	colors[ncol].b = blue;
 	ncol++;
 
-	r_code = SDL_SetColors(dest, colors, 0, ncol);
+	SDL_SetColors(dest, colors, 0, ncol);
 	dest->format->palette->ncolors = ncol;
 
 	return 0;
@@ -399,7 +399,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 	float dest_slope_2;
 	int dest_x_inc, dest_y_inc;
 	float kicker, kicker_2;
-	int dest_x_inc_2, dest_y_inc_2;
+	int dest_y_inc_2;
 	int x1, y1, y2;
 	int at_least_one;
 	int src_len;
@@ -573,16 +573,6 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 		else
 		{
 			dest_y_inc_2 = 1;
-		}
-
-		/* Calculate the direction of the 2nd x co-ordinate */
-		if (dest_sx_2 > dest_ex_2)
-		{
-			dest_x_inc_2 = -1;
-		}
-		else
-		{
-			dest_x_inc_2 = 1;
 		}
 
 		/* Initialise loop controls: "kicker" means the co-ordinate

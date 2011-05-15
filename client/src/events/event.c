@@ -86,9 +86,7 @@ int Event_PollInputDevice()
 {
 	SDL_Event event;
 	int x, y, done = 0;
-	static int active_scrollbar = 0;
-	static int itemExamined = 0;
-	static Uint32 Ticks= 0;
+	static Uint32 Ticks = 0;
 	Uint32 videoflags = get_video_flags();
 	int tx, ty;
 
@@ -121,7 +119,7 @@ int Event_PollInputDevice()
 
 	while (SDL_PollEvent(&event))
 	{
-		static int old_mouse_y = 0, old_map_mouse_x = 0, old_map_mouse_y = 0;
+		static int old_map_mouse_x = 0, old_map_mouse_y = 0;
 
 		if (event.type == SDL_KEYUP)
 		{
@@ -163,7 +161,6 @@ int Event_PollInputDevice()
 					break;
 
 				mb_clicked = 0;
-				active_scrollbar = 0;
 
 				/* Widget has higher priority than anything below, except menus
 				 * so break if we had a widget event */

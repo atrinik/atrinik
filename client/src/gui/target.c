@@ -95,10 +95,6 @@ void widget_show_target(widgetdata *widget)
 
 	if (cpl.target_code)
 	{
-		int mx, my, mb;
-
-		mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-
 		sprite_blt(Bitmaps[BITMAP_TARGET_TALK], widget->x1 + 223, widget->y1 + 7, NULL, NULL);
 	}
 

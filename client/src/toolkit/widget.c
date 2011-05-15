@@ -932,7 +932,6 @@ static int load_interface_file(char *filename)
 	int i = -1, pos;
 	FILE *stream;
 	widgetdata *widget = NULL;
-	_textwin *textwin = NULL;
 	char line[256], keyword[256], parameter[256];
 	int found_widget[TOTAL_SUBWIDGETS] = {0};
 
@@ -1008,8 +1007,6 @@ static int load_interface_file(char *filename)
 					LOG(llevDebug, ".. Failed to create widget!\n");
 					continue;
 				}
-
-				textwin = TEXTWIN(widget);
 
 				while (fgets(line, 255, stream))
 				{

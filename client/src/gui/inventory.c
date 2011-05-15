@@ -543,8 +543,6 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 	/* ground ( IWIN_BELOW )  */
 	if (y >= widget->y1 + 19 && y <= widget->y1 + widget->ht - 4 && x > widget->x1 + 4 && x < widget->x1 + widget->wd - 12)
 	{
-		object *Item;
-
 		if (cpl.inventory_win == IWIN_INV)
 		{
 			cpl.inventory_win = IWIN_BELOW;
@@ -553,8 +551,6 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 		cpl.win_below_slot = (x - widget->x1 - 5) / 32;
 
 		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-
-		Item = object_find(cpl.win_below_tag);
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 		{
