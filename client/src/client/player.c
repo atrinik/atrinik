@@ -627,7 +627,6 @@ void widget_show_player_doll(widgetdata *widget)
 {
 	object *tmp;
 	char *tooltip_text = NULL;
-	char buf[128];
 	int index, tooltip_index = -1, ring_flag = 0;
 	int mx, my;
 
@@ -651,30 +650,26 @@ void widget_show_player_doll(widgetdata *widget)
 		return;
 	}
 
-	/* Armour class */
-	StringBlt(ScreenSurface, &SystemFont, "AC", widget->x1 + 8, widget->y1 + 50, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%02d", cpl.stats.ac);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 25, widget->y1 + 50, COLOR_WHITE, NULL, NULL);
+	string_blt(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x1 + 20, widget->y1 + 188, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 9, widget->y1 + 205, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 205, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.ranged_dam);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 10, widget->y1 + 215, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 215, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.ranged_wc);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 10, widget->y1 + 225, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 225, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
 
-	/* Weapon class */
-	StringBlt(ScreenSurface, &SystemFont, "WC", widget->x1 + 150, widget->y1 + 50, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%02d", cpl.stats.wc);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 50, COLOR_WHITE, NULL, NULL);
+	string_blt(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x1 + 155, widget->y1 + 188, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 139, widget->y1 + 205, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 205, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.dam);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 140, widget->y1 + 215, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 215, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.wc);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 140, widget->y1 + 225, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 225, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%3.2fs", weapon_speed_table[ws_temp]);
 
-	/* Damage */
-	StringBlt(ScreenSurface, &SystemFont, "DMG", widget->x1 + 150, widget->y1 + 60, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%02d", cpl.stats.dam);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 60, COLOR_WHITE, NULL, NULL);
-
-	/* Weapon speed */
-	StringBlt(ScreenSurface, &SystemFont, "WS", widget->x1 + 150, widget->y1 + 70, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%3.2f sec", weapon_speed_table[ws_temp]);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 70, COLOR_WHITE, NULL, NULL);
-
-	/* Moving speed */
-	StringBlt(ScreenSurface, &SystemFont, "Speed ", widget->x1 + 47, widget->y1 + 190, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 75, widget->y1 + 190, COLOR_WHITE, NULL, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, "Speed", widget->x1 + 92, widget->y1 + 193, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 93, widget->y1 + 205, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
+	string_blt(ScreenSurface, FONT_ARIAL10, "AC", widget->x1 + 92, widget->y1 + 215, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 92, widget->y1 + 225, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.ac);
 
 	/* Show items applied */
 	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)

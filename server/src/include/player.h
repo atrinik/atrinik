@@ -485,6 +485,9 @@ typedef struct pl_player
 	/** Any numbers typed before a command. */
 	uint32 count;
 
+	/** Last ranged weapon speed sent. */
+	sint32 last_ranged_ws;
+
 	/** Type of readied spell. */
 	sint16 chosen_spell;
 
@@ -541,6 +544,12 @@ typedef struct pl_player
 
 	/** IDs of spell quickslots. */
 	sint16 spell_quickslots[MAX_QUICKSLOT];
+
+	/** Last ranged damage sent. */
+	sint16 last_ranged_dam;
+
+	/** Last ranged wc sent. */
+	sint16 last_ranged_wc;
 
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFATTACKS];

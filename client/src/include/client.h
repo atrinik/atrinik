@@ -191,6 +191,15 @@ typedef struct Stat_struct
 
 	/* Skills */
 	sint64 skill_exp[MAX_SKILL];
+
+	/** Ranged weapon damage. */
+	sint16 ranged_dam;
+
+	/** Ranged weapon wc. */
+	sint16 ranged_wc;
+
+	/** Ranged weapon speed. */
+	sint32 ranged_ws;
 } Stats;
 
 typedef enum _inventory_win
@@ -367,6 +376,9 @@ extern Client_Player cpl;
 #define CS_STAT_REG_GRACE 	30
 #define CS_STAT_TARGET_HP 	31
 #define CS_STAT_ACTION_TIME	36
+#define CS_STAT_RANGED_DAM 37
+#define CS_STAT_RANGED_WC 38
+#define CS_STAT_RANGED_WS 39
 
 /* Start and end of resistances, inclusive. */
 #define CS_STAT_RESIST_START	100

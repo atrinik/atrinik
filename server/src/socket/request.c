@@ -759,8 +759,10 @@ void esrv_update_stats(player *pl)
 	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM);
 	AddIfChar(pl->last_weapon_sp, pl->weapon_sp, CS_STAT_WEAP_SP);
 
-	if (pl->ob != NULL)
+	if (pl->ob)
 	{
+		object *arrow;
+
 		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP);
 		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP);
 		AddIfShort(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP);
@@ -789,6 +791,22 @@ void esrv_update_stats(player *pl)
 		AddIfShort(pl->last_stats.dam, pl->client_dam, CS_STAT_DAM);
 		AddIfShort(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD);
 		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
+
+		if (pl->socket.socket_version >= 1050)
+		{
+		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race, -1)))
+		{
+			AddIfShort(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM);
+			AddIfShort(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC);
+			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WS);
+		}
+		else
+		{
+			AddIfShort(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM);
+			AddIfShort(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC);
+			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS);
+		}
+		}
 	}
 
 	for (i = 0; i < pl->last_skill_index; i++)

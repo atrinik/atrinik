@@ -818,6 +818,21 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 				}
 
+				case CS_STAT_RANGED_DAM:
+					cpl.stats.ranged_dam = GetShort_String(data + i);
+					i += 2;
+					break;
+
+				case CS_STAT_RANGED_WC:
+					cpl.stats.ranged_wc = GetShort_String(data + i);
+					i += 2;
+					break;
+
+				case CS_STAT_RANGED_WS:
+					cpl.stats.ranged_ws = GetInt_String(data + i);
+					i += 4;
+					break;
+
 				default:
 					fprintf(stderr, "Unknown stat number %d\n", c);
 			}

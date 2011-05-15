@@ -25,9 +25,281 @@
 
 /**
  * @file
- * @ref ARROW "Arrow" related code. */
+ * @ref ARROW "Arrow" and @ref BOW "bow" related code. */
 
 #include <global.h>
+
+/**
+ * Calculate how quickly bow fires its arrow.
+ * @param bow The bow.
+ * @param arrow Arrow.
+ * @return Firing speed. */
+sint32 bow_get_ws(object *bow, object *arrow)
+{
+	return (((float) bow->stats.sp / (1000000 / MAX_TIME)) + ((float) arrow->last_grace / (1000000 / MAX_TIME))) * 1000;
+}
+
+/**
+ * Calculate arrow's wc.
+ * @param op Player.
+ * @param bow Bow used.
+ * @param arrow Arrow.
+ * @return The arrow's wc. */
+sint16 arrow_get_wc(object *op, object *bow, object *arrow)
+{
+	return arrow->stats.wc + bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc;
+}
+
+/**
+ * Calculate arrow's damage.
+ * @param op Player.
+ * @param bow Bow used.
+ * @param arrow Arrow.
+ * @return The arrow's damage. */
+sint16 arrow_get_damage(object *op, object *bow, object *arrow)
+{
+	sint16 dam;
+
+	dam = arrow->stats.dam + arrow->magic;
+	dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(SK_level(op)))));
+	dam += dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
+
+	if (bow->item_condition > arrow->item_condition)
+	{
+		dam = (sint16) (((float) dam / 100.0f) * (float) bow->item_condition);
+	}
+	else
+	{
+		dam = (sint16) (((float) dam / 100.0f) * (float) arrow->item_condition);
+	}
+
+	return dam;
+}
+/**
+ * Extended find arrow version, using tag and containers.
+ *
+ * Find an arrow in the inventory and after that in the right type
+ * container (quiver).
+ * @param op Player.
+ * @param type Type of the ammunition (arrows, bolts, etc).
+ * @param tag Firemode tag.
+ * @return Pointer to the arrow, NULL if not found. */
+object *arrow_find(object *op, shstr *type, int tag)
+{
+if (op->type != PLAYER || CONTR(op)->socket.socket_version < 1048)
+{
+	object *tmp = NULL;
+
+	if (tag == -2)
+	{
+		for (op = op->inv; op; op = op->below)
+		{
+			if (!tmp && op->type == CONTAINER && op->race == type && QUERY_FLAG(op, FLAG_APPLIED))
+			{
+				tmp = arrow_find(op, type, -2);
+			}
+			else if (op->type == ARROW && op->race == type)
+			{
+				return op;
+			}
+		}
+
+		return tmp;
+	}
+	else
+	{
+		if (tag == -1)
+		{
+			return tmp;
+		}
+
+		for (op = op->inv; op; op = op->below)
+		{
+			if (op->count == (tag_t) tag)
+			{
+				/* Simple task: we have an arrow marked */
+				if (op->race == type && op->type == ARROW)
+				{
+					return op;
+				}
+
+				/* we have container marked as missile source. Skip
+				 * search when there is nothing in. Use the standard
+				 * search now. */
+				if (op->race == type && op->type == CONTAINER)
+				{
+					tmp = arrow_find(op, type, -2);
+					return tmp;
+				}
+			}
+		}
+
+		return tmp;
+	}
+}
+else
+{
+	object *tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
+
+	/* Nothing readied. */
+	if (!tmp)
+	{
+		return NULL;
+	}
+
+	/* The type does not match the arrow/quiver. */
+	if (tmp->race != type)
+	{
+		return NULL;
+	}
+
+	/* The readied item is an arrow, so simply return it. */
+	if (tmp->type == ARROW)
+	{
+		return tmp;
+	}
+	/* A quiver, search through it for arrows. */
+	else if (tmp->type == CONTAINER)
+	{
+		for (tmp = tmp->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->race == type && tmp->type == ARROW)
+			{
+				return tmp;
+			}
+		}
+	}
+
+	return NULL;
+}
+}
+
+/**
+ * Player fires a bow.
+ * @param op Object firing.
+ * @param dir Direction to fire. */
+void bow_fire(object *op, int dir)
+{
+	object *left_cont, *bow, *arrow = NULL, *left, *tmp_op;
+	tag_t left_tag;
+
+	/* If no dir is specified, attempt to find get the direction from
+	 * player's target. */
+	if (!dir && op->type == PLAYER && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
+	{
+		rv_vector range_vector;
+		dir = get_dir_to_target(op, CONTR(op)->target_object, &range_vector);
+	}
+
+	if (!dir)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You can't shoot yourself!");
+		return;
+	}
+
+	bow = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
+
+	if (!bow)
+	{
+		LOG(llevBug, "bow_fire(): bow without activated bow (%s - %d).\n", op->name, dir);
+	}
+
+	if (!bow->race)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "Your %s is broken.", bow->name);
+		return;
+	}
+
+	if ((arrow = arrow_find(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "You have no %s left.", bow->race);
+		return;
+	}
+
+	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
+	{
+		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
+		return;
+	}
+
+	/* This should not happen, but sometimes does */
+	if (arrow->nrof == 0)
+	{
+		LOG(llevDebug, "arrow->nrof == 0 in bow_fire() (%s)\n", query_name(arrow, NULL));
+		remove_ob(arrow);
+		return;
+	}
+
+	/* These are arrows left to the player */
+	left = arrow;
+	left_tag = left->count;
+	left_cont = left->env;
+	arrow = get_split_ob(arrow, 1, NULL, 0);
+	set_owner(arrow, op);
+	arrow->direction = dir;
+	arrow->x = op->x;
+	arrow->y = op->y;
+	arrow->speed = 1;
+
+	/* Now the trick: we transfer the shooting speed in the used
+	 * skill - that will allow us to use "set_skill_speed() as global
+	 * function. */
+	op->chosen_skill->stats.maxsp = bow->stats.sp + arrow->last_grace;
+	update_ob_speed(arrow);
+	arrow->speed_left = 0;
+	SET_ANIMATION(arrow, (NUM_ANIMATIONS(arrow) / NUM_FACINGS(arrow)) * dir);
+	/* Save original wc and dam */
+	arrow->last_heal = arrow->stats.wc;
+	/* Will be put back in fix_arrow() */
+	arrow->stats.hp = arrow->stats.dam;
+	/* Determine how many tiles the arrow will fly. */
+	arrow->last_sp = bow->last_sp + arrow->last_sp;
+	/* Get the used skill. */
+	tmp_op = SK_skill(op);
+
+	/* Now we do this: arrow wc = wc base from skill + (wc arrow + magic) + (wc range weapon bonus + magic) */
+	if (tmp_op)
+	{
+		/* wc is in last heal */
+		arrow->stats.wc += tmp_op->last_heal;
+		/* Add tiles range from the skill object. */
+		arrow->last_sp += tmp_op->last_sp;
+	}
+	else
+	{
+		arrow->stats.wc += 10;
+	}
+
+	/* Add in all our wc bonus */
+	arrow->stats.wc = arrow_get_wc(op, bow, arrow);
+	arrow->stats.wc_range = bow->stats.wc_range;
+	arrow->stats.dam = arrow_get_damage(op, bow, arrow);
+	arrow->level = SK_level(op);
+	arrow->map = op->map;
+	SET_MULTI_FLAG(arrow, FLAG_FLYING);
+	SET_FLAG(arrow, FLAG_IS_MISSILE);
+	SET_FLAG(arrow, FLAG_FLY_ON);
+	SET_FLAG(arrow, FLAG_WALK_ON);
+	/* Temporary buffer for "tiles to fly" */
+	arrow->stats.grace = arrow->last_sp;
+	/* Reflection timer */
+	arrow->stats.maxgrace = 60 + (RANDOM() % 12);
+	play_sound_map(op->map, CMD_SOUND_EFFECT, "bow1.ogg", op->x, op->y, 0, 0);
+
+	if (insert_ob_in_map(arrow, op->map, op, 0))
+	{
+		move_arrow(arrow);
+	}
+
+	if (was_destroyed(left, left_tag))
+	{
+		esrv_del_item(CONTR(op), left_tag, left_cont);
+	}
+	else
+	{
+		esrv_send_item(op, left);
+	}
+}
 
 /**
  * Fix a stopped arrow.

@@ -1040,6 +1040,11 @@ int operate_altar(object *altar, object **sacrifice);
 void apply_armour_improver(object *op, object *tmp);
 
 /* types/arrow.c */
+sint16 arrow_get_wc(object *op, object *bow, object *arrow);
+sint32 bow_get_ws(object *bow, object *arrow);
+sint16 arrow_get_damage(object *op, object *bow, object *arrow);
+object *arrow_find(object *op, shstr *type, int tag);
+void bow_fire(object *op, int dir);
 object *fix_stopped_arrow(object *op);
 void move_arrow(object *op);
 void stop_arrow(object *op);
