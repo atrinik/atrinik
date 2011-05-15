@@ -676,7 +676,7 @@ down_border:
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
 {
 	int i, tmp, line_clip = -1, line_count = 0;
-	int gflag, colorToggle = 0, mode, color_real;
+	int gflag, colorToggle = 0, color_real;
 	SDL_Rect src, dst;
 	SDL_Color color, color_g;
 
@@ -686,7 +686,6 @@ void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, i
 	}
 
 	color_real = col & 0xff;
-	mode = col;
 
 	/* .w/h are not used from BlitSurface to draw */
 	dst.x = x;
