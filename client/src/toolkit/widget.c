@@ -61,7 +61,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PLAYERDOLL",        0,  41, 221, 224, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -1679,25 +1679,6 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 
 		switch (widget->WidgetTypeID)
 		{
-			/* Playerdoll widget is NOT a rectangle, handle special... */
-			case PDOLL_ID:
-				if (x > widget->x1 + 111)
-				{
-					if (x <= widget->x1 + widget->wd && y >= widget->y1 && y <= ((x - (widget->x1 + 111)) / -2) + 215 + widget->y1)
-					{
-						return widget;
-					}
-				}
-				else
-				{
-					if (x >= widget->x1 && y >= widget->y1 && y <= ((x - widget->x1) / 2) + 160 + widget->y1)
-					{
-						return widget;
-					}
-				}
-
-				break;
-
 			default:
 				if (x >= widget->x1 && x <= (widget->x1 + widget->wd) && y >= widget->y1 && y <= (widget->y1 + widget->ht))
 				{
