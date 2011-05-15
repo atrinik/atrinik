@@ -247,7 +247,7 @@ void waypoint_move(object *op, object *waypoint)
 	mapstruct *destmap = op->map;
 	rv_vector local_rv, global_rv, *dest_rv;
 	int dir;
-	sint16 new_offset = 0, success = 0;
+	sint16 new_offset = 0;
 
 	if (!waypoint || !op || !op->map)
 	{
@@ -463,11 +463,7 @@ void waypoint_move(object *op, object *waypoint)
 	if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL))
 	{
 		/* Can the monster move directly toward waypoint? */
-		if (move_object(op, dir))
-		{
-			success = 1;
-		}
-		else
+		if (!move_object(op, dir))
 		{
 			int diff;
 
@@ -479,7 +475,6 @@ void waypoint_move(object *op, object *waypoint)
 
 				if (move_object(op, absdir(dir + diff * m)) || move_object(op, absdir(dir - diff * m)))
 				{
-					success = 1;
 					break;
 				}
 			}

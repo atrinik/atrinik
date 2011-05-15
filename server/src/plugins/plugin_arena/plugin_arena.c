@@ -682,6 +682,14 @@ MODULEAPI void *triggerEvent(int *type, ...)
 				script = va_arg(args, char *);
 				options = va_arg(args, char *);
 
+				(void) other;
+				(void) event;
+				(void) text;
+				(void) parm1;
+				(void) parm2;
+				(void) parm3;
+				(void) parm4;
+
 				result = arena_event(activator, who, options, script);
 				break;
 			}

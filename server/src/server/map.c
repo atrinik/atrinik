@@ -2171,7 +2171,7 @@ void free_all_maps()
 void update_position(mapstruct *m, int x, int y)
 {
 	object *tmp;
-	int flags, move_flags, light;
+	int flags, move_flags;
 
 #ifdef DEBUG_OLDFLAGS
 	int oldflags;
@@ -2191,7 +2191,7 @@ void update_position(mapstruct *m, int x, int y)
 #ifdef DEBUG_CORE
 		LOG(llevDebug, "UP - FLAGS: %d,%d\n", x, y);
 #endif
-		light = move_flags = 0;
+		move_flags = 0;
 
 		/* This is a key function and highly often called - every saved tick is good. */
 		for (tmp = get_map_ob (m, x, y); tmp; tmp = tmp->above)
