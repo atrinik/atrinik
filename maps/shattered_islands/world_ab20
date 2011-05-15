@@ -1,7 +1,8 @@
 arch map
-name World
+name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
+Modified: 2011-05-15 emperorbma
 endmsg
 width 24
 height 24
@@ -15,6 +16,8 @@ tile_path_5 world_aa21
 tile_path_6 world_aa19
 tile_path_7 world_ac19
 tile_path_8 world_ac21
+bg_music jungle1.ogg
+region strakewood_island
 end
 arch water_lt2
 end
@@ -1895,6 +1898,9 @@ end
 arch water_lt
 x 20
 end
+arch grassd_m10
+x 20
+end
 arch water_lt2
 x 20
 y 1
@@ -1990,7 +1996,14 @@ end
 arch water_lt3
 x 21
 end
+arch grassd_m6
+x 21
+end
 arch water_lt4
+x 21
+y 1
+end
+arch grassd_m12
 x 21
 y 1
 end
@@ -2082,10 +2095,17 @@ arch water_lt2
 x 21
 y 23
 end
-arch water_lt
+arch grassd_7
+x 22
+end
+arch reed_sm1
 x 22
 end
 arch water_lt2
+x 22
+y 1
+end
+arch grassd_m10
 x 22
 y 1
 end
@@ -2177,14 +2197,25 @@ arch water_lt
 x 22
 y 23
 end
-arch water_lt4
+arch grassd_5
+x 23
+end
+arch reed_sm1
 x 23
 end
 arch water_lt3
 x 23
 y 1
 end
+arch grassd_m6
+x 23
+y 1
+end
 arch water_lt4
+x 23
+y 2
+end
+arch grassd_m12
 x 23
 y 2
 end

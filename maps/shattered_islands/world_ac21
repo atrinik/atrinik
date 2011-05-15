@@ -1,7 +1,8 @@
 arch map
-name World
+name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
+Modified: 2011-05-15 emperorbma
 endmsg
 width 24
 height 24
@@ -15,6 +16,8 @@ tile_path_5 world_ab22
 tile_path_6 world_ab20
 tile_path_7 world_ad20
 tile_path_8 world_ad22
+bg_music jungle1.ogg
+region strakewood_island
 end
 arch water_lt3
 end
@@ -1610,6 +1613,9 @@ end
 arch water_lt4
 x 17
 end
+arch grassd_m12
+x 17
+end
 arch water_lt2
 x 17
 y 1
@@ -1705,7 +1711,14 @@ end
 arch water_lt4
 x 18
 end
+arch grassd_m6
+x 18
+end
 arch water_lt2
+x 18
+y 1
+end
+arch grassd_m12
 x 18
 y 1
 end
@@ -1797,14 +1810,25 @@ arch water_lt4
 x 18
 y 23
 end
-arch water_lt
+arch grassd_1
+x 19
+end
+arch reed_sm1
 x 19
 end
 arch water_lt
 x 19
 y 1
 end
+arch grassd_m6
+x 19
+y 1
+end
 arch water_lt
+x 19
+y 2
+end
+arch grassd_m12
 x 19
 y 2
 end
@@ -1892,10 +1916,17 @@ arch water_lt4
 x 19
 y 23
 end
-arch water_lt
+arch grassd_3
 x 20
 end
-arch water_lt
+arch plant6
+x 20
+end
+arch grassd_1
+x 20
+y 1
+end
+arch reed_sm1
 x 20
 y 1
 end
@@ -1903,7 +1934,15 @@ arch water_lt4
 x 20
 y 2
 end
+arch grassd_m6
+x 20
+y 2
+end
 arch water_lt
+x 20
+y 3
+end
+arch grassd_m12
 x 20
 y 3
 end
@@ -1987,14 +2026,22 @@ arch water_lt3
 x 20
 y 23
 end
-arch water_lt
+arch grassd_6
 x 21
 end
-arch water_lt2
+arch grassd_7
 x 21
 y 1
 end
-arch water_lt4
+arch plant7
+x 21
+y 1
+end
+arch grassd_3
+x 21
+y 2
+end
+arch reed_sm1
 x 21
 y 2
 end
@@ -2002,7 +2049,15 @@ arch water_lt
 x 21
 y 3
 end
+arch grassd_m6
+x 21
+y 3
+end
 arch water_lt
+x 21
+y 4
+end
+arch grassd_m12
 x 21
 y 4
 end
@@ -2082,18 +2137,29 @@ arch water_lt3
 x 21
 y 23
 end
-arch water_lt3
+arch grassd_4
 x 22
 end
-arch water_lt3
+arch plant11
+x 22
+end
+arch grassd_1
 x 22
 y 1
 end
-arch water_lt4
+arch grassd_8
 x 22
 y 2
 end
-arch water_lt2
+arch plant8
+x 22
+y 2
+end
+arch grassd_7
+x 22
+y 3
+end
+arch reed_sm1
 x 22
 y 3
 end
@@ -2101,7 +2167,15 @@ arch water_lt
 x 22
 y 4
 end
+arch grassd_m6
+x 22
+y 4
+end
 arch water_lt
+x 22
+y 5
+end
+arch grassd_m12
 x 22
 y 5
 end
@@ -2176,35 +2250,59 @@ end
 arch water_lt2
 x 22
 y 23
+end
+arch grassd_5
+x 23
+end
+arch grassd_7
+x 23
+y 1
+end
+arch tree_big3
+x 23
+y 1
+end
+arch grassd_6
+x 23
+y 2
+end
+arch grassd_4
+x 23
+y 3
+end
+arch plant6
+x 23
+y 3
+end
+arch grassd_2
+x 23
+y 4
+end
+arch reed_sm1
+x 23
+y 4
+end
+arch water_lt2
+x 23
+y 5
+end
+arch grassd_m6
+x 23
+y 5
 end
 arch water_lt4
 x 23
+y 6
 end
-arch water_lt3
-x 23
-y 1
-end
-arch water_lt
-x 23
-y 2
-end
-arch water_lt
-x 23
-y 3
-end
-arch water_lt4
-x 23
-y 4
-end
-arch water_lt2
-x 23
-y 5
-end
-arch water_lt4
+arch grassd_m8
 x 23
 y 6
 end
 arch water_lt
+x 23
+y 7
+end
+arch grassd_m12
 x 23
 y 7
 end
