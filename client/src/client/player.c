@@ -1193,7 +1193,6 @@ void widget_show_regeneration(widgetdata *widget)
 void widget_show_container(widgetdata *widget)
 {
 	SDL_Rect box, box2;
-	_BLTFX bltfx;
 	int x = widget->x1;
 	int y = widget->y1;
 
@@ -1244,10 +1243,6 @@ void widget_show_container(widgetdata *widget)
 		widget->redraw = 0;
 
 		SDL_FillRect(widget->widgetSF, NULL, SDL_MapRGBA(widget->widgetSF->format, 0, 0, 0, options.textwin_alpha));
-
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
 
 		box.x = 0;
 		box.y = 0;

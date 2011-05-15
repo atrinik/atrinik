@@ -395,7 +395,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 	int ln_num;
 	int dest_sx, dest_sy, dest_ex, dest_ey;
 	float dest_slope;
-	int dest_sx_2, dest_sy_2, dest_ex_2, dest_ey_2;
+	int dest_sx_2, dest_sy_2, dest_ey_2;
 	float dest_slope_2;
 	int dest_x_inc, dest_y_inc;
 	float kicker, kicker_2;
@@ -531,7 +531,6 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 			/* Extract the information for the second, i.e. top, line (W or N edge) */
 			dest_sx_2 = dest_lines[ln_num + 1].sx;
 			dest_sy_2 = dest_lines[ln_num + 1].sy;
-			dest_ex_2 = dest_lines[ln_num + 1].end_x;
 			dest_ey_2 = dest_lines[ln_num + 1].end_y;
 			dest_slope_2 = dest_lines[ln_num + 1].slope;
 		}
@@ -540,7 +539,6 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 			/* Dead code: information about the second line is the same as the first! */
 			dest_sx_2 = dest_lines[ln_num].sx;
 			dest_sy_2 = dest_lines[ln_num].sy;
-			dest_ex_2 = dest_lines[ln_num].end_x;
 			dest_ey_2 = dest_lines[ln_num].end_y;
 			dest_slope_2 = dest_lines[ln_num].slope;
 		}
