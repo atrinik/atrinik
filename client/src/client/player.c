@@ -1048,7 +1048,7 @@ void widget_show_skill_exp(widgetdata *widget)
 			StringBlt(widget->widgetSF, &SystemFont, buf, 160, 0, COLOR_WHITE, NULL, NULL);
 		}
 
-		sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 143, 11, NULL, &bltfx);
+		sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 142, 11, NULL, &bltfx);
 
 		if (multi)
 		{
@@ -1067,14 +1067,14 @@ void widget_show_skill_exp(widgetdata *widget)
 				box.w = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w;
 			}
 
-			sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 146, 18, &box, &bltfx);
+			sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 145, 18, &box, &bltfx);
 		}
 
 		if (line > 0)
 		{
 			for (s = 0; s < (int) line; s++)
 			{
-				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 146 + s * 5, 13, NULL, &bltfx);
+				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 145 + s * 5, 13, NULL, &bltfx);
 			}
 		}
 	}
