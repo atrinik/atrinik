@@ -171,7 +171,7 @@ def main():
 
 	# List members awaiting membership application.
 	elif msg == "applications":
-		me.SayTo(activator, "\nList of membership applications:")
+		me.SayTo(activator, "\nList of membership applications:\nExample: ~approve Atrinik~ or ~remove Atrinik~")
 		l = []
 
 		for member in guild.get_members():
