@@ -2,7 +2,7 @@ arch map
 name Incuna - Below Ellamin's House
 msg
 Created:  2010-10-22 Kiana
-Modified: 2011-03-20 Alex Tokar
+Modified: 2011-05-16 Kiana
 endmsg
 width 24
 height 24
@@ -457,8 +457,8 @@ x 3
 end
 arch invis_exit
 slaying /_incuna
-hp 111
-sp 38
+hp 63
+sp 55
 x 3
 end
 arch earth_brown2
@@ -734,8 +734,8 @@ y 13
 end
 arch stairs_wood_up
 slaying /_incuna
-hp 109
-sp 43
+hp 61
+sp 60
 x 4
 y 13
 end

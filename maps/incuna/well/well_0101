@@ -36,9 +36,6 @@ align 24
 z 12
 y 21
 end
-arch water_lt4
-y 21
-end
 arch duplicator
 slaying bridge_wood_EW.101
 connected 101
@@ -54,12 +51,10 @@ align 27
 z 52
 rotate 128
 layer 4
+face floor_wood2.101
 end
 end
 arch water_lt2
-y 22
-end
-arch water_lt4
 y 22
 end
 arch duplicator
@@ -73,10 +68,11 @@ lifesave 1
 one_drop 1
 y 22
 arch bridge_wood_EW.101
-align 57
-z 36
+align 56
+z 38
 rotate 128
 layer 3
+face floor_wood2.101
 end
 end
 arch floor_sand_d4
