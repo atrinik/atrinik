@@ -1310,10 +1310,10 @@ int apply_special(object *who, object *op, int aflags)
 				return 1;
 			}
 
+			snprintf(buf, sizeof(buf), "You wield %s.", query_name(op, NULL));
 			SET_FLAG(op, FLAG_APPLIED);
 			SET_FLAG(who, FLAG_READY_WEAPON);
 			(void) change_abil(who, op);
-			snprintf(buf, sizeof(buf), "You wield %s.", query_name(op, NULL));
 			break;
 		}
 
@@ -1352,9 +1352,9 @@ int apply_special(object *who, object *op, int aflags)
 
 		case RING:
 		case AMULET:
+			snprintf(buf, sizeof(buf), "You wear %s.", query_name(op, NULL));
 			SET_FLAG(op, FLAG_APPLIED);
 			(void) change_abil(who, op);
-			snprintf(buf, sizeof(buf), "You wear %s.", query_name(op, NULL));
 			break;
 
 		/* This part is needed for skill-tools */
@@ -1405,8 +1405,8 @@ int apply_special(object *who, object *op, int aflags)
 				return 1;
 			}
 
-			SET_FLAG(op, FLAG_APPLIED);
 			new_draw_info_format(NDI_UNIQUE, who, "You ready %s.", query_name(op, NULL));
+			SET_FLAG(op, FLAG_APPLIED);
 
 			if (op->type == BOW)
 			{
