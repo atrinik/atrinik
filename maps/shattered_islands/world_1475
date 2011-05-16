@@ -428,7 +428,7 @@ msg
 @match ^hi$|^hey$|^hello$
 Hmm... This note sure talks about some strange things... Hmm...
 
-|Clayrel doesn't seem to notice you...|
+|Clayrell doesn't seem to notice you...|
 endmsg
 name Clayrell
 face thelra_m.131
