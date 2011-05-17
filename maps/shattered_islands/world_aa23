@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-05-17 emperorbma
+Modified: 2011-05-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3329,7 +3329,7 @@ x 21
 y 16
 end
 arch map_info
-hp 3
+hp 2
 sp 4
 race Rockforge
 item_power 5
