@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-05-14 Alex Tokar
+Modified: 2011-05-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3139,23 +3139,11 @@ arch floor_stone3b
 x 20
 y 9
 end
-arch fwall_flagstone2a
-x 20
-y 9
-end
 arch floor_stone3b
 x 20
 y 10
 end
-arch fwall_flagstone2a
-x 20
-y 10
-end
 arch floor_stone3b
-x 20
-y 11
-end
-arch fwall_flagstone2a
 x 20
 y 11
 end
@@ -3278,9 +3266,7 @@ arch floor_stone3d
 x 21
 y 6
 end
-arch exit
-hp 21
-sp 22
+arch fwall_flagstone2a
 x 21
 y 6
 end
@@ -3312,9 +3298,7 @@ arch floor_stone3d
 x 21
 y 10
 end
-arch exit
-hp 21
-sp 22
+arch fwall_flagstone2a
 x 21
 y 10
 end
@@ -3462,23 +3446,28 @@ arch floor_orange1
 x 22
 y 9
 end
-arch torch_wall_1
-direction 5
-glow_radius 5
-is_animated 1
+arch forcefield_orange_1
 x 22
 y 9
 end
 arch check_inv
 layer 0
 sys_object 1
-direction 3
 slaying orange stone giant key
 last_grace 1
 x 22
 y 9
 end
 arch floor_stone3d
+x 22
+y 10
+end
+arch magic_mouth
+msg
+The orange force field prevents you from reaching the door. <i>Xuhrexal, the stone giant</i> is engraved on the door.
+endmsg
+slaying orange stone giant key
+last_sp 1
 x 22
 y 10
 end
@@ -3509,10 +3498,13 @@ name enchanted floor
 x 22
 y 14
 end
+arch forcefield_blue_1
+x 22
+y 14
+end
 arch check_inv
 layer 0
 sys_object 1
-direction 3
 slaying blue stone giant key
 last_grace 1
 x 22
@@ -3524,9 +3516,10 @@ y 15
 end
 arch magic_mouth
 msg
-The blue floor nearby radiates some kind
-of magic force field...
+The blue force field prevents you from reaching the door. <i>Ksha'sha, the troll</i> is engraved on the door.
 endmsg
+slaying blue stone giant key
+last_sp 1
 x 22
 y 15
 end
