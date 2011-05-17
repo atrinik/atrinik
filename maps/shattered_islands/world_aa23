@@ -3492,6 +3492,7 @@ sys_object 1
 slaying rockforge_entry_item
 sp 1
 last_grace 1
+xrays 0
 x 22
 y 19
 end
@@ -3633,6 +3634,7 @@ sys_object 1
 slaying rockforge_entry_item
 sp 1
 last_grace 1
+xrays 0
 x 23
 y 19
 end
