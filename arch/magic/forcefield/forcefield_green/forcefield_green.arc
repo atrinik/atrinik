@@ -1,3 +1,15 @@
+Object forcefield_green_0
+name green force field
+face forcefield_green.101
+animation forcefield_green_0
+is_animated 1
+anim_speed 2
+type 77
+layer 5
+no_pick 1
+speed 0.02
+end
+
 Object forcefield_green_1
 name green force field
 face forcefield_green.111
