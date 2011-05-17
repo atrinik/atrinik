@@ -1408,7 +1408,7 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Calculate the darkness/light value for this tile. */
-			if ((MAP_OUTDOORS(m) && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!MAP_OUTDOORS(m) && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR))
+			if (((MAP_OUTDOORS(m) && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!MAP_OUTDOORS(m) && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power == -1))
 			{
 				d = msp->light_value + wdark + dm_light;
 			}
