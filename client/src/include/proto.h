@@ -442,11 +442,12 @@ list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, 
 void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
 void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
 void list_set_font(list_struct *list, int font);
+void list_scrollbar_enable(list_struct *list);
 void list_show(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
 int lists_handle_keyboard(SDL_KeyboardEvent *event);
-void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
+int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);

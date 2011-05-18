@@ -125,6 +125,18 @@ typedef struct list_struct
 	/** If 1, this list has the active focus. */
 	uint8 focus;
 
+	/** Is the scrollbar being dragged? */
+	uint8 scrollbar_dragging;
+
+	/** Does the list use scrollbars? */
+	uint8 scrollbar;
+
+	/** Scrollbar height. */
+	int scrollbar_h;
+
+	/** Scrollbar Y position modifier. */
+	int scrollbar_y;
+
 	/** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
 	int font;
 
@@ -201,7 +213,9 @@ typedef struct list_struct
 /** Figure out full height of the list, including its header. */
 #define LIST_HEIGHT_FULL(list) ((int) LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
 /** Calculate whether mouse is over the specified list. */
-#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + (list)->width && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
+#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + (list)->width + LIST_SCROLLBAR_WIDTH && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
+/** Scrollbar width used by lists. */
+#define LIST_SCROLLBAR_WIDTH 6
 
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300

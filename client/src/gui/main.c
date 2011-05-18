@@ -722,9 +722,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			}
 			else
 			{
-				if (LIST_MOUSE_OVER(list, event->motion.x, event->motion.y))
+				if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
 				{
-					list_handle_mouse(list, event->motion.x, event->motion.y, event);
 					return 1;
 				}
 			}
@@ -833,12 +832,13 @@ void show_meta_server()
 		}
 
 		/* Create the servers list. */
-		list = list_create(LIST_SERVERS, x + 13, y + 8, 11, 3, 8);
+		list = list_create(LIST_SERVERS, x + 12, y + 8, 11, 3, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->handle_esc_func = list_handle_esc;
+		list_scrollbar_enable(list);
 		list_set_column(list, 0, 295, 7, "Server", -1);
 		list_set_column(list, 1, 50, 9, "Port", 1);
-		list_set_column(list, 2, 50, 7, "Players", 1);
+		list_set_column(list, 2, 48, 7, "Players", 1);
 
 		/* Add the servers to the list. */
 		for (i = 0; i < server_count; i++)

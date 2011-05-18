@@ -157,10 +157,17 @@ int Event_PollInputDevice()
 			case SDL_MOUSEBUTTONUP:
 				cursor_type = 0;
 
-				if (GameStatus < GAME_STATUS_PLAY)
-					break;
-
 				mb_clicked = 0;
+
+				if (lists_handle_mouse(x, y, &event))
+				{
+					break;
+				}
+
+				if (GameStatus < GAME_STATUS_PLAY)
+				{
+					break;
+				}
 
 				/* Widget has higher priority than anything below, except menus
 				 * so break if we had a widget event */
