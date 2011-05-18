@@ -43,7 +43,7 @@ static int list_handle_key(list_struct *list, SDLKey key);
  * @param list List to draw the frame for. */
 static void list_draw_frame(list_struct *list)
 {
-	draw_frame(ScreenSurface, list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
+	draw_frame(list->surface, list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
 }
 
 /**
@@ -57,11 +57,11 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 
 	if (row & 1)
 	{
-		SDL_FillRect(ScreenSurface, &box, sdl_gray2);
+		SDL_FillRect(list->surface, &box, sdl_gray2);
 	}
 	else
 	{
-		SDL_FillRect(ScreenSurface, &box, sdl_gray1);
+		SDL_FillRect(list->surface, &box, sdl_gray1);
 	}
 }
 
@@ -72,7 +72,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
 	(void) list;
-	SDL_FillRect(ScreenSurface, &box, sdl_dgreen);
+	SDL_FillRect(list->surface, &box, sdl_dgreen);
 }
 
 /**
@@ -82,7 +82,7 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
 	(void) list;
-	SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+	SDL_FillRect(list->surface, &box, sdl_blue1);
 }
 
 /**
@@ -166,6 +166,7 @@ list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, 
 	list->cols = cols;
 	list->spacing = spacing;
 	list->font = FONT_SANS10;
+	list->surface = ScreenSurface;
 
 	/* Initialize defaults. */
 	list->frame_offset = -2;
@@ -348,7 +349,7 @@ static void list_scrollbar_render(list_struct *list)
 
 	SDL_GetMouseState(&mx, &my);
 
-	draw_frame(ScreenSurface, scrollbar_box.x, scrollbar_box.y, scrollbar_box.w, scrollbar_box.h);
+	draw_frame(list->surface, scrollbar_box.x, scrollbar_box.y, scrollbar_box.w, scrollbar_box.h);
 
 	scrollbar_box.x += 1;
 	scrollbar_box.y += 1;
@@ -379,11 +380,11 @@ static void list_scrollbar_render(list_struct *list)
 
 	if (mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + scrollbar_box.h)
 	{
-		SDL_FillRect(ScreenSurface, &scrollbar_box, SDL_MapRGBA(ScreenSurface->format, 175, 154, 110, 255));
+		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 175, 154, 110, 255));
 	}
 	else
 	{
-		SDL_FillRect(ScreenSurface, &scrollbar_box, SDL_MapRGBA(ScreenSurface->format, 157, 139, 98, 255));
+		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 157, 139, 98, 255));
 	}
 }
 
@@ -428,7 +429,7 @@ void list_show(list_struct *list)
 		/* Actually draw the column name. */
 		if (list->col_names[col])
 		{
-			string_blt_shadow(ScreenSurface, list->font, list->col_names[col], list->x + w + extra_width, list->y, COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+			string_blt_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 		}
 
 		w += list->col_widths[col] + list->col_spacings[col];
@@ -495,7 +496,7 @@ void list_show(list_struct *list)
 				box.w = list->col_widths[col] + list->col_spacings[col];
 				box.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(ScreenSurface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];

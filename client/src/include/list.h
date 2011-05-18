@@ -140,6 +140,9 @@ typedef struct list_struct
 	/** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
 	int font;
 
+	/** Surface used to draw the list on. */
+	SDL_Surface *surface;
+
 	/**
 	 * Function that will draw frame (and/or other effects) right before
 	 * the column names and the actual rows.
