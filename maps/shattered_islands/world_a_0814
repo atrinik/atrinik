@@ -966,6 +966,7 @@ sys_object 1
 slaying moroch_temple_key1
 sp 1
 last_grace 1
+xrays 0
 x 13
 y 16
 end
@@ -1175,6 +1176,7 @@ sys_object 1
 slaying moroch_temple_key2
 sp 1
 last_grace 1
+xrays 0
 x 16
 y 16
 end
@@ -1375,6 +1377,7 @@ sys_object 1
 slaying moroch_temple_key3
 sp 1
 last_grace 1
+xrays 0
 x 19
 y 16
 end
