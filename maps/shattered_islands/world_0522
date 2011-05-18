@@ -2,7 +2,7 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-05-18 Kiana
 endmsg
 width 24
 height 24
@@ -1703,9 +1703,15 @@ arch spawn_point
 x 11
 y 16
 arch peasant
+msg
+@match hi|hey|hello
+Hello! If you're interested in wizardry, visit ^Gandyld^ the mage. He might have something useful for you.
+@match Gandyld
+Gandyld is a mage who you'll probably find in a hut northeast of Aris.
+endmsg
 name Tom Jacobson
-type 83
 level 6
+type 83
 end
 end
 arch floor_wood2b
@@ -2543,6 +2549,27 @@ arch bartender
 name Felton Entzi
 type 83
 level 10
+arch event_obj
+sub_type 6
+race /python/generic/bartender.py
+arch apple
+end
+arch beer
+identified 1
+value 15
+end
+arch drink_generic
+identified 1
+end
+arch chicken_leg
+identified 1
+value 20
+end
+arch booze_generic
+identified 1
+value 15
+end
+end
 end
 end
 arch floor_wood2b
@@ -3344,6 +3371,14 @@ slaying strakewood_island
 end
 end
 arch floor_wood2b
+x 21
+y 13
+end
+arch sign
+msg
+Strakewood Island apartment portal.
+You can only enter if you already own an apartment.
+endmsg
 x 21
 y 13
 end
