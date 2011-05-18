@@ -229,6 +229,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_TRANS},
+	{"region_map.png", PIC_TYPE_TRANS},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
 	{"mouse_cursor_move.png", PIC_TYPE_TRANS},
