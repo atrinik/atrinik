@@ -67,6 +67,9 @@ def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = 
 					clone = obj.Clone()
 					# Adjust the nrof.
 					clone.nrof = num
+					# Reset value to arch default so the provisions stack properly
+					# with regular food drops.
+					clone.value = clone.arch.clone.value
 					# Insert the clone into the player.
 					clone.InsertInto(activator)
 				else:
