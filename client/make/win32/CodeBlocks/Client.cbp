@@ -48,11 +48,11 @@
 			<Add library="mingw32" />
 			<Add library="wsock32" />
 			<Add library="sdl_lib\libSDLmain.a" />
-			<Add library="sdl_lib\SDL_image.lib" />
-			<Add library="sdl_lib\SDL_mixer.lib" />
-			<Add library="sdl_lib\SDL_ttf.lib" />
+			<Add library="sdl_lib\libSDL_image.dll.a" />
+			<Add library="sdl_lib\libSDL_mixer.dll.a" />
+			<Add library="sdl_lib\libSDL_ttf.dll.a" />
 			<Add library="sdl_lib\libSDL.dll.a" />
-			<Add library="sdl_lib\static\libcurl.a" />
+			<Add library="sdl_lib\libcurl.a" />
 			<Add directory="sdl_lib" />
 			<Add directory="..\CodeBlocks" />
 			<Add library="libwsock32.a" />
