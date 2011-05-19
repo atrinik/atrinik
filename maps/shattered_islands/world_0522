@@ -2553,6 +2553,7 @@ arch event_obj
 sub_type 6
 race /python/generic/bartender.py
 arch apple
+identified 1
 end
 arch beer
 identified 1
