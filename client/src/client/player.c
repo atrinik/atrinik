@@ -481,6 +481,19 @@ void widget_player_stats(widgetdata *widget)
 void widget_menubuttons(widgetdata *widget)
 {
 	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], widget->x1, widget->y1, NULL, NULL);
+
+	if (button_show(cur_widget[MPLAYER_ID]->show ? BITMAP_BUTTON_ROUND_DOWN2 : BITMAP_BUTTON_ROUND2, -1, -1, widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND2]->bitmap->h - 3, NULL, 0, COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0)))
+	{
+		cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
+		SetPriorityWidget(cur_widget[MPLAYER_ID]);
+	}
+
+	sprite_blt(Bitmaps[BITMAP_ICON_MUSIC], widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND2]->bitmap->h - 3, NULL, NULL);
+
+	if (button_show(BITMAP_BUTTON_ROUND2, -1, -1, widget->x1 + 26, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND2]->bitmap->h - 3, "?", FONT_SANS16, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	{
+		show_help("main");
+	}
 }
 
 /**
@@ -511,11 +524,6 @@ void widget_menubuttons_event(widgetdata *widget, int x, int y)
 		else if (dy >= 51 && dy <= 74)
 		{
 			send_command("/party list");
-		}
-		/* Help system */
-		else if (dy >= 76 && dy <= 99)
-		{
-			show_help("main");
 		}
 	}
 }

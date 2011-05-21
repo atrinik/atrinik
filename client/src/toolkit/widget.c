@@ -71,6 +71,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -1267,6 +1268,10 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			case IN_NUMBER_ID:
 				widget_number_event(widget, x, y);
 				break;
+
+			case MPLAYER_ID:
+				widget_mplayer_mevent(widget, event);
+				break;
 		}
 	}
 
@@ -1372,6 +1377,10 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case MAIN_INV_ID:
 				widget_inventory_event(widget, x, y, *event);
+				break;
+
+			case MPLAYER_ID:
+				widget_mplayer_mevent(widget, event);
 				break;
 		}
 
@@ -1541,6 +1550,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			case MAIN_INV_ID:
 				widget_inventory_event(widget, x, y, *event);
+				break;
+
+			case MPLAYER_ID:
+				widget_mplayer_mevent(widget, event);
 				break;
 		}
 
@@ -1788,6 +1801,10 @@ static void process_widget(widgetdata *widget)
 
 		case BITMAP_ID:
 			widget_show_bitmap(widget);
+			break;
+
+		case MPLAYER_ID:
+			widget_show_mplayer(widget);
 			break;
 	}
 }

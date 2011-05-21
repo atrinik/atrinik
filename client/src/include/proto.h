@@ -212,6 +212,8 @@ void sound_start_bg_music(const char *filename, int volume, int loop);
 void sound_stop_bg_music();
 void parse_map_bg_music(const char *bg_music);
 void sound_update_volume();
+const char *sound_get_bg_music();
+uint8 sound_map_background(int new);
 void SoundCmd(uint8 *data, int len);
 
 /* client/sprite.c */
@@ -371,6 +373,10 @@ void map_draw_map();
 void map_draw_one(int x, int y, _Sprite *sprite);
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 
+/* gui/mplayer.c */
+void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
+void widget_show_mplayer(widgetdata *widget);
+
 /* gui/party.c */
 void switch_tabs();
 void draw_party_tabs(int x, int y);
@@ -451,6 +457,7 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
+void list_sort(list_struct *list, int type);
 
 /* toolkit/popup.c */
 popup_struct *popup_create(int bitmap_id);

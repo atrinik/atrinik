@@ -199,6 +199,8 @@ typedef struct list_struct
 #define LIST_NEWS 2
 /** List for use of displaying data in character creation screen. */
 #define LIST_CREATION 3
+/** List used in the music player widget. */
+#define LIST_MPLAYER 4
 /*@}*/
 
 /** Calculate list's row height. */
@@ -219,6 +221,14 @@ typedef struct list_struct
 #define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + (list)->width + LIST_SCROLLBAR_WIDTH && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
 /** Scrollbar width used by lists. */
 #define LIST_SCROLLBAR_WIDTH 6
+
+/**
+ * @defgroup LIST_SORT_xxx List sort types
+ * List sort types.
+ *@{*/
+/** Alphabetical sort. */
+#define LIST_SORT_ALPHA 1
+/*@}*/
 
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300

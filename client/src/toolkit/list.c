@@ -724,6 +724,11 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
 		return 0;
 	}
 
+	if (list->surface != ScreenSurface)
+	{
+		return 0;
+	}
+
 	if (event->type == SDL_KEYDOWN)
 	{
 		/* Rotate between lists using tab. */
@@ -835,12 +840,12 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 
 			list->scrollbar_y = event->motion.y - old_scrollbar_pos;
 
-			if (list->scrollbar_y > scrollbar_box.h - list->scrollbar_h)
+			if (list->scrollbar_y > scrollbar_box.h - list->scrollbar_h - 1)
 			{
-				list->scrollbar_y = scrollbar_box.h - list->scrollbar_h;
+				list->scrollbar_y = scrollbar_box.h - list->scrollbar_h - 1;
 			}
 
-			list->row_offset = MAX(0, list->scrollbar_y) * list->rows / (LIST_ROW_HEIGHT(list) * list->max_rows - 2);
+			list->row_offset = MAX(0, list->scrollbar_y) * list->rows / (LIST_ROW_HEIGHT(list) * list->max_rows - 1);
 			list->row_selected = list->max_rows + list->row_offset - 1;
 			return 1;
 		}
@@ -927,7 +932,7 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event)
 
 	for (tmp = list_head; tmp; tmp = tmp->next)
 	{
-		if (list_handle_mouse(tmp, mx, my, event))
+		if (tmp->surface == ScreenSurface && list_handle_mouse(tmp, mx, my, event))
 		{
 			return 1;
 		}
@@ -966,4 +971,28 @@ list_struct *list_exists(uint32 id)
 	}
 
 	return NULL;
+}
+
+/**
+ * Used for alphabetical sorting in list_sort().
+ * @param a What to compare.
+ * @param b What to compare against.
+ * @return Return value of strcmp() against the two entries. */
+static int list_compare_alpha(const void *a, const void *b)
+{
+	return strcmp(((char ***) a)[0][0], ((char ***) b)[0][0]);
+}
+
+/**
+ * Sort a list's entries.
+ * @param list List to sort.
+ * @param type How to sort, one of @ref LIST_SORT_xxx.
+ * @note Sorting is done by looking at the first column of each row. */
+void list_sort(list_struct *list, int type)
+{
+	/* Alphabetical sort. */
+	if (type == LIST_SORT_ALPHA)
+	{
+		qsort((void *) list->text, list->rows, sizeof(*list->text), (void *) (int (*)()) list_compare_alpha);
+	}
 }

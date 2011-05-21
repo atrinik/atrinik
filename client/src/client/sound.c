@@ -31,6 +31,8 @@
 
 /** Path to the background music file being played. */
 static char *sound_background;
+/** If 1, will not allow music change based on map. */
+static uint8 sound_map_background_disabled = 0;
 /** Loaded sounds. */
 static sound_data_struct *sound_data;
 /** Number of ::sound_data. */
@@ -203,7 +205,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	sound_data_struct *tmp;
 	Mix_Music *music = NULL;
 
-	if (!strcmp(filename, "no_music"))
+	if (!strcmp(filename, "no_music") || !strcmp(filename, "Disable music"))
 	{
 		sound_stop_bg_music();
 		return;
@@ -276,6 +278,11 @@ void parse_map_bg_music(const char *bg_music)
 	int loop = -1, vol = 0;
 	char filename[MAX_BUF];
 
+	if (sound_map_background_disabled)
+	{
+		return;
+	}
+
 	if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
 	{
 		LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
@@ -308,6 +315,32 @@ void sound_update_volume()
 		{
 			Mix_ResumeMusic();
 		}
+	}
+}
+
+/**
+ * Get the currently playing background music, if any.
+ * @return Background music file name, NULL if no music is playing. */
+const char *sound_get_bg_music()
+{
+	return sound_background;
+}
+
+/**
+ * Get or set ::sound_map_background_disabled.
+ * @param new If -1, will return the current value of ::sound_map_background_disabled;
+ * any other value will set ::sound_map_background_disabled to that value.
+ * @return Value of ::sound_map_background_disabled. */
+uint8 sound_map_background(int new)
+{
+	if (new == -1)
+	{
+		return sound_map_background_disabled;
+	}
+	else
+	{
+		sound_map_background_disabled = new;
+		return new;
 	}
 }
 
@@ -356,7 +389,10 @@ void SoundCmd(uint8 *data, int len)
 	}
 	else if (type == CMD_SOUND_BACKGROUND)
 	{
-		sound_start_bg_music(filename, options.music_volume + volume, loop);
+		if (!sound_map_background_disabled)
+		{
+			sound_start_bg_music(filename, options.music_volume + volume, loop);
+		}
 	}
 	else if (type == CMD_SOUND_ABSOLUTE)
 	{

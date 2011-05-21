@@ -255,13 +255,17 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"arrow_down2.png", PIC_TYPE_DEFAULT},
 	{"button_round.png", PIC_TYPE_DEFAULT},
 	{"button_round_down.png", PIC_TYPE_DEFAULT},
+	{"button_round2.png", PIC_TYPE_TRANS},
+	{"button_round_down2.png", PIC_TYPE_TRANS},
 	{"map_marker.png", PIC_TYPE_DEFAULT},
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
 	{"button.png", PIC_TYPE_DEFAULT},
 	{"button_down.png", PIC_TYPE_DEFAULT},
 	{"checkbox.png", PIC_TYPE_TRANS},
-	{"checkbox_on.png", PIC_TYPE_TRANS}
+	{"checkbox_on.png", PIC_TYPE_TRANS},
+	{"content.png", PIC_TYPE_DEFAULT},
+	{"icon_music.png", PIC_TYPE_TRANS}
 };
 
 /** Number of bitmaps. */
@@ -1278,6 +1282,7 @@ int main(int argc, char *argv[])
 			GameStatus = GAME_STATUS_INIT;
 			/* Make sure no popup is visible. */
 			popup_destroy_visible();
+			list_remove_all();
 			continue;
 		}
 
