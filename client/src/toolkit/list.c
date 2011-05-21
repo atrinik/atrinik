@@ -950,7 +950,10 @@ void lists_handle_resize(int y_offset)
 
 	for (tmp = list_head; tmp; tmp = tmp->next)
 	{
-		tmp->y += y_offset;
+		if (tmp->surface == ScreenSurface)
+		{
+			tmp->y += y_offset;
+		}
 	}
 }
 
