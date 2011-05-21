@@ -238,7 +238,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 	sound_background = strdup(path);
 	Mix_VolumeMusic(volume);
-	Mix_FadeInMusic((Mix_Music *) tmp->data, loop, 2000);
+	Mix_PlayMusic((Mix_Music *) tmp->data, loop);
 
 	/* Due to a bug in SDL_mixer, some audio types (such as XM, among
 	 * others) will continue playing even when the volume has been set to
