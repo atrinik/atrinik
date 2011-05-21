@@ -42,9 +42,9 @@ dead_silence.mid: Lurky, sneaky, dark passageway, hidden danger
 betrayal_battle.ogg: Boss
 cave2.ogg: Cave
 desert.ogg: Desert, lonely place
-the_creature_awakens.ogg: Dungeon, boss fight
+creature_awakens.ogg: Dungeon, boss fight
 town_folk.ogg: Town music, peaceful
-venturing_dragons_in_the_dark.ogg: Very dark cave with wet floor, tunnels, dwarvish mines
+venturing_dragons.ogg: Very dark cave with wet floor, tunnels, dwarvish mines
 
 ===================================================
 = GNU FreeDink - http://www.freedink.org/ - GPLv3 =
@@ -257,9 +257,9 @@ dg9.mid: Castle, fort, palace
 = Brandon Morris - http://opengameart.org/users/brandon-morris - CC-BY 3.0 =
 ============================================================================
 
-running_from_something.ogg: Dungeon
+running.ogg: Dungeon
 evil_temple.ogg: Evil eerie temple, chanting
-lost_in_the_meadows.ogg: Peaceful, meadow
+lost_in_meadows.ogg: Peaceful, meadow
 
 =================================================================
 = Gobusto - http://opengameart.org/users/gobusto - CC-BY-SA 3.0 =
