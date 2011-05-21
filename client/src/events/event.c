@@ -77,6 +77,11 @@ void resize_window(int width, int height)
 
 	Screensize->x = width;
 	Screensize->y = height;
+
+	if (!options.allow_widgets_offscreen)
+	{
+		widgets_ensure_onscreen();
+	}
 }
 
 /**
