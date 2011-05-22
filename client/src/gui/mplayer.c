@@ -31,22 +31,8 @@
 
 /** Is shuffle enabled? */
 static uint8 shuffle = 0;
-
-/**
- * Handle mouse events for the music player widget.
- * @param widget The widget.
- * @param event The event. */
-void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
-{
-	list_struct *list = list_exists(LIST_MPLAYER);
-
-	/* If the list has handled the mouse event, we need to redraw the
-	 * widget. */
-	if (list && list_handle_mouse(list, event->motion.x - widget->x1, event->motion.y - widget->y1, event))
-	{
-		widget->redraw = 1;
-	}
-}
+/** Button buffer. */
+static button_struct button_play, button_shuffle;
 
 /**
  * Handle music list double-click and "Play" button.
@@ -144,6 +130,9 @@ void widget_show_mplayer(widgetdata *widget)
 			list_sort(list, LIST_SORT_ALPHA);
 			list_add(list, i++, 0, "Disable music");
 		}
+
+		button_create(&button_play);
+		button_create(&button_shuffle);
 	}
 
 	if (widget->redraw)
@@ -182,8 +171,48 @@ void widget_show_mplayer(widgetdata *widget)
 	/* Show the music that is being played. */
 	string_blt(ScreenSurface, FONT_SANS11, bg_music ? bg_music : "No music", widget->x1 + widget->wd / 2, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
-	/* Show Play/Stop button. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, widget->x1 + 20, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, sound_map_background(-1) ? "Stop" : "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	button_play.x = widget->x1 + 20;
+	button_play.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
+	button_render(&button_play, sound_map_background(-1) ? "Stop" : "Play");
+
+	button_shuffle.x = widget->x1 + 20 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5;
+	button_shuffle.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
+
+	if (shuffle)
+	{
+		button_shuffle.pressed = 1;
+	}
+
+	button_render(&button_shuffle, "Shuffle");
+
+	/* Show close button. */
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4, widget->y1 + 4, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	{
+		widget->show = 0;
+	}
+
+	if (shuffle)
+	{
+		mplayer_check_shuffle(list);
+	}
+}
+
+/**
+ * Handle mouse events for the music player widget.
+ * @param widget The widget.
+ * @param event The event. */
+void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
+{
+	list_struct *list = list_exists(LIST_MPLAYER);
+
+	/* If the list has handled the mouse event, we need to redraw the
+	 * widget. */
+	if (list && list_handle_mouse(list, event->motion.x - widget->x1, event->motion.y - widget->y1, event))
+	{
+		widget->redraw = 1;
+	}
+
+	if (button_event(&button_play, event))
 	{
 		if (sound_map_background(-1))
 		{
@@ -196,8 +225,7 @@ void widget_show_mplayer(widgetdata *widget)
 			list_handle_enter(list);
 		}
 	}
-
-	if (button_show(shuffle ? BITMAP_BUTTON_DOWN : BITMAP_BUTTON, -1, -1, widget->x1 + 20 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, "Shuffle", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	else if (button_event(&button_shuffle, event))
 	{
 		shuffle = !shuffle;
 
@@ -211,16 +239,5 @@ void widget_show_mplayer(widgetdata *widget)
 			sound_start_bg_music("no_music", 0, 0);
 			sound_map_background(0);
 		}
-	}
-
-	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4, widget->y1 + 4, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
-	{
-		widget->show = 0;
-	}
-
-	if (shuffle)
-	{
-		mplayer_check_shuffle(list);
 	}
 }

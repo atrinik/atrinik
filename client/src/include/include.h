@@ -190,6 +190,7 @@ typedef enum LogLevel
 #include <menu.h>
 #include <dialog.h>
 #include <list.h>
+#include <button.h>
 #include <popup.h>
 #include <server_settings.h>
 #include <server_files.h>

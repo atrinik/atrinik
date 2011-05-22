@@ -440,6 +440,9 @@ void change_textwin_font(int font);
 
 /* toolkit/button.c */
 int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags);
+void button_create(button_struct *button);
+void button_render(button_struct *button, const char *text);
+int button_event(button_struct *button, SDL_Event *event);
 
 /* toolkit/list.c */
 list_struct *list_get_focused();

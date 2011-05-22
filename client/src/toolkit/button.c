@@ -104,3 +104,109 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 
 	return ret;
 }
+
+/**
+ * Determine button's sprite, based on its bitmap settings and whether it
+ * is currently pressed, or mouse is over it.
+ * @param button Button.
+ * @return Sprite to use. */
+static _Sprite *button_determine_sprite(button_struct *button)
+{
+	if (button->pressed && button->bitmap_pressed != -1)
+	{
+		return Bitmaps[button->bitmap_pressed];
+	}
+	else if (button->mouse_over && button->bitmap_over != -1)
+	{
+		return Bitmaps[button->bitmap_over];
+	}
+	else
+	{
+		return Bitmaps[button->bitmap];
+	}
+}
+
+/**
+ * Initialize a button's default values.
+ * @param button Button. */
+void button_create(button_struct *button)
+{
+	/* Initialize default values. */
+	button->x = button->y = 0;
+	button->bitmap = BITMAP_BUTTON;
+	button->bitmap_over = -1;
+	button->bitmap_pressed = BITMAP_BUTTON_DOWN;
+	button->font = FONT_ARIAL10;
+	button->flags = 0;
+	button->color = COLOR_SIMPLE(COLOR_WHITE);
+	button->color_shadow = COLOR_SIMPLE(COLOR_BLACK);
+	button->color_over = COLOR_SIMPLE(COLOR_HGOLD);
+	button->color_over_shadow = COLOR_SIMPLE(COLOR_BLACK);
+
+	button->mouse_over = button->pressed = 0;
+}
+
+/**
+ * Render a button.
+ * @param button Button to render.
+ * @param text Optional text to render. */
+void button_render(button_struct *button, const char *text)
+{
+	_Sprite *sprite = button_determine_sprite(button);
+
+	sprite_blt(sprite, button->x, button->y, NULL, NULL);
+
+	if (text)
+	{
+		SDL_Color color, color_shadow;
+
+		if (button->mouse_over)
+		{
+			color = button->color_over;
+			color_shadow = button->color_over_shadow;
+		}
+		else
+		{
+			color = button->color;
+			color_shadow = button->color_shadow;
+		}
+
+		string_blt_shadow(ScreenSurface, button->font, text, button->x + sprite->bitmap->w / 2 - string_get_width(button->font, text, button->flags) / 2, button->y + sprite->bitmap->h / 2 - FONT_HEIGHT(button->font) / 2, color, color_shadow, button->flags, NULL);
+	}
+}
+
+/**
+ * Handle SDL event for a button.
+ * @param button Button to handle.
+ * @param event The event.
+ * @return 1 if the event makes the button pressed, 0 otherwise. */
+int button_event(button_struct *button, SDL_Event *event)
+{
+	_Sprite *sprite;
+
+	/* Always reset this. */
+	button->mouse_over = 0;
+
+	/* Mouse button is released, the button is no longer being pressed. */
+	if (event->type == SDL_MOUSEBUTTONUP)
+	{
+		button->pressed = 0;
+		return 0;
+	}
+
+	sprite = button_determine_sprite(button);
+
+	if (event->motion.x >= button->x && event->motion.x < button->x + sprite->bitmap->w && event->motion.y >= button->y && event->motion.y < button->y + sprite->bitmap->h)
+	{
+		button->mouse_over = 1;
+
+		/* Left mouse click, the button has been pressed. */
+		if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+		{
+			button->pressed = 1;
+			return 1;
+		}
+	}
+
+	return 0;
+}
