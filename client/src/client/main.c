@@ -255,8 +255,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"arrow_down2.png", PIC_TYPE_DEFAULT},
 	{"button_round.png", PIC_TYPE_DEFAULT},
 	{"button_round_down.png", PIC_TYPE_DEFAULT},
-	{"button_round2.png", PIC_TYPE_TRANS},
-	{"button_round_down2.png", PIC_TYPE_TRANS},
+	{"button_rect.png", PIC_TYPE_DEFAULT},
+	{"button_rect_down.png", PIC_TYPE_DEFAULT},
 	{"map_marker.png", PIC_TYPE_DEFAULT},
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
@@ -265,7 +265,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"checkbox.png", PIC_TYPE_TRANS},
 	{"checkbox_on.png", PIC_TYPE_TRANS},
 	{"content.png", PIC_TYPE_DEFAULT},
-	{"icon_music.png", PIC_TYPE_TRANS}
+	{"icon_music.png", PIC_TYPE_ALPHA}
 };
 
 /** Number of bitmaps. */
@@ -840,7 +840,7 @@ static int load_bitmap(int index)
 
 	if (index >= BITMAP_INTRO && index != BITMAP_TEXTWIN_MASK)
 	{
-		flags |= SURFACE_FLAG_DISPLAYFORMAT;
+		flags |= bitmap_name[index].type == PIC_TYPE_ALPHA ? SURFACE_FLAG_DISPLAYFORMATALPHA : SURFACE_FLAG_DISPLAYFORMAT;
 	}
 
 	Bitmaps[index] = sprite_load_file(buf, flags);

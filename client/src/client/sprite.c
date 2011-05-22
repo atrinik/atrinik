@@ -131,7 +131,12 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 	/* We store our original bitmap */
 	sprite->bitmap = bitmap;
 
-	if (flag & SURFACE_FLAG_DISPLAYFORMAT)
+	if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA)
+	{
+		sprite->bitmap = SDL_DisplayFormatAlpha(bitmap);
+		SDL_FreeSurface(bitmap);
+	}
+	else if (flag & SURFACE_FLAG_DISPLAYFORMAT)
 	{
 		sprite->bitmap = SDL_DisplayFormat(bitmap);
 		SDL_FreeSurface(bitmap);

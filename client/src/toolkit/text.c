@@ -1022,6 +1022,29 @@ int glyph_get_width(int font, char c)
 }
 
 /**
+ * Get glyph's height.
+ * @param font Font of the glyph.
+ * @param c The glyph.
+ * @return The height. */
+int glyph_get_height(int font, char c)
+{
+	int miny, maxy;
+
+	if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, &miny, &maxy, NULL) != -1)
+	{
+		if (miny)
+		{
+			//LOG(llevInfo, "%d, %d\n", miny, maxy);
+			maxy -= miny;
+		}
+
+		return maxy;
+	}
+
+	return 0;
+}
+
+/**
  * Draw a string on the specified surface.
  * @param surface Surface to draw on.
  * @param font Font to use. One of @ref FONT_xxx.

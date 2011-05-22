@@ -148,7 +148,7 @@ void widget_show_mplayer(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_SANS11, bg_music ? bg_music : "No music", widget->x1 + widget->wd / 2, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
 	/* Show Play/Stop button. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, widget->x1 + widget->wd / 4 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, sound_map_background(-1) ? "Stop" : "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, widget->x1 + widget->wd / 4 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, sound_map_background(-1) ? "Stop" : "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		if (sound_map_background(-1))
 		{
@@ -162,7 +162,7 @@ void widget_show_mplayer(widgetdata *widget)
 	}
 
 	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4, widget->y1 + 4, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4, widget->y1 + 4, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		widget->show = 0;
 	}

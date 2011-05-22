@@ -136,7 +136,7 @@ void book_show()
 	scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box);
 
 	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x, y + 30, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x, y + 30, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		cpl.menustatus = MENU_NO;
 		map_udate_flag = 2;

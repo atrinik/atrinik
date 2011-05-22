@@ -187,7 +187,7 @@ void popup_draw()
 	}
 
 	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		popup_destroy_visible();
 	}

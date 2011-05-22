@@ -52,9 +52,10 @@ static uint32 ticks = 0;
  * to use 'color'.
  * @param color_over_shadow Shadow color to use when the mouse is over
  * the button. -1 to use 'color_shadow'.
+ * @param flags Text @ref TEXT_xxx "flags".
  * @return 1 if left mouse button is being held over the button, 0
  * otherwise. */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow)
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags)
 {
 	_Sprite *sprite = Bitmaps[bitmap_id];
 	int mx, my, ret = 0, state;
@@ -98,7 +99,7 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 	/* If text was passed, draw it as well. */
 	if (text)
 	{
-		string_blt_shadow(ScreenSurface, font, text, x + sprite->bitmap->w / 2 - string_get_width(font, text, 0) / 2, y + sprite->bitmap->h / 2 - FONT_HEIGHT(font) / 2, use_color, use_color_shadow, 0, NULL);
+		string_blt_shadow(ScreenSurface, font, text, x + sprite->bitmap->w / 2 - string_get_width(font, text, flags) / 2, y + sprite->bitmap->h / 2 - FONT_HEIGHT(font) / 2, use_color, use_color_shadow, flags, NULL);
 	}
 
 	return ret;

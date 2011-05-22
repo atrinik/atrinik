@@ -482,15 +482,15 @@ void widget_menubuttons(widgetdata *widget)
 {
 	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], widget->x1, widget->y1, NULL, NULL);
 
-	if (button_show(cur_widget[MPLAYER_ID]->show ? BITMAP_BUTTON_ROUND_DOWN2 : BITMAP_BUTTON_ROUND2, -1, -1, widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND2]->bitmap->h - 3, NULL, 0, COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0)))
+	if (button_show(cur_widget[MPLAYER_ID]->show ? BITMAP_BUTTON_RECT_DOWN : BITMAP_BUTTON_RECT, -1, -1, widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_RECT]->bitmap->h - 3, NULL, 0, COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0), 0))
 	{
 		cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
 		SetPriorityWidget(cur_widget[MPLAYER_ID]);
 	}
 
-	sprite_blt(Bitmaps[BITMAP_ICON_MUSIC], widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND2]->bitmap->h - 3, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_ICON_MUSIC], widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_RECT]->bitmap->h - 3, NULL, NULL);
 
-	if (button_show(BITMAP_BUTTON_ROUND2, -1, -1, widget->x1 + 26, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND2]->bitmap->h - 3, "?", FONT_SANS16, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON_RECT, -1, -1, widget->x1 + 26, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_RECT]->bitmap->h - 3, "<y=2>?", FONT_SANS16, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP))
 	{
 		show_help("main");
 	}

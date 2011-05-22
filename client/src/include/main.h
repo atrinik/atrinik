@@ -489,11 +489,12 @@ enum
 /** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
 #define SURFACE_FLAG_DISPLAYFORMAT 4
+#define SURFACE_FLAG_DISPLAYFORMATALPHA 8
 
 /** Types of pictures. */
 typedef enum _pic_type
 {
-	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS
+	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS, PIC_TYPE_ALPHA
 } _pic_type;
 
 /** Bitmap name structure */
@@ -656,8 +657,8 @@ typedef enum _bitmap_index
 	BITMAP_ARROW_DOWN2,
 	BITMAP_BUTTON_ROUND,
 	BITMAP_BUTTON_ROUND_DOWN,
-	BITMAP_BUTTON_ROUND2,
-	BITMAP_BUTTON_ROUND_DOWN2,
+	BITMAP_BUTTON_RECT,
+	BITMAP_BUTTON_RECT_DOWN,
 	BITMAP_MAP_MARKER,
 	BITMAP_LOADING_OFF,
 	BITMAP_LOADING_ON,

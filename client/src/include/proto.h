@@ -439,7 +439,7 @@ void textwin_event(int e, SDL_Event *event, widgetdata *widget);
 void change_textwin_font(int font);
 
 /* toolkit/button.c */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow);
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags);
 
 /* toolkit/list.c */
 list_struct *list_get_focused();
@@ -496,6 +496,7 @@ void text_init();
 void text_deinit();
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
+int glyph_get_height(int font, char c);
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box);
 void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
