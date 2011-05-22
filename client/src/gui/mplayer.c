@@ -65,13 +65,12 @@ static void mplayer_do_shuffle(list_struct *list)
 }
 
 /**
- * Check whether we need to start another song.
- * @param list The music list. */
-static void mplayer_check_shuffle(list_struct *list)
+ * Check whether we need to start another song. */
+static void mplayer_check_shuffle()
 {
 	if (!Mix_PlayingMusic())
 	{
-		mplayer_do_shuffle(list);
+		mplayer_do_shuffle(list_exists(LIST_MPLAYER));
 	}
 }
 
@@ -199,10 +198,20 @@ void widget_show_mplayer(widgetdata *widget)
 	{
 		show_help("music player");
 	}
+}
 
+/**
+ * Process background tasks of the music player widget.
+ * @param widget The music player widget. */
+void widget_mplayer_background(widgetdata *widget)
+{
+	(void) widget;
+
+	/* If shuffle is enabled, check whether we need to start playing
+	 * another song. */
 	if (shuffle)
 	{
-		mplayer_check_shuffle(list);
+		mplayer_check_shuffle();
 	}
 }
 

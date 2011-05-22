@@ -374,8 +374,9 @@ void map_draw_one(int x, int y, _Sprite *sprite);
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 
 /* gui/mplayer.c */
-void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
 void widget_show_mplayer(widgetdata *widget);
+void widget_mplayer_background(widgetdata *widget);
+void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
 
 /* gui/party.c */
 void switch_tabs();

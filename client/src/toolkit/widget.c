@@ -1810,6 +1810,20 @@ static void process_widget(widgetdata *widget)
 }
 
 /**
+ * Process background tasks of a widget; called even if the widget is
+ * not currently visible.
+ * @param widget The widget. */
+static void process_widget_background(widgetdata *widget)
+{
+	switch (widget->WidgetTypeID)
+	{
+		case MPLAYER_ID:
+			widget_mplayer_background(widget);
+			break;
+	}
+}
+
+/**
  * Traverse through all the widgets and call the corresponding handlers.
  * This is now a wrapper function just to make the sanity checks before continuing with the actual handling. */
 void process_widgets()
@@ -1836,6 +1850,8 @@ void process_widgets_rec(widgetdata *widget)
 		{
 			process_widget(widget);
 		}
+
+		process_widget_background(widget);
 
 		/* we want to process the widgets starting from the right hand side of the tree first */
 		if (widget->inv_rev)
