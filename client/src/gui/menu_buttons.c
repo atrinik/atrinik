@@ -40,6 +40,8 @@ enum
 	BUTTON_PARTY,
 	/** Music player. */
 	BUTTON_MPLAYER,
+	/** Region map. */
+	BUTTON_MAP,
 	/** Help. */
 	BUTTON_HELP,
 
@@ -52,7 +54,7 @@ static button_struct buttons[NUM_BUTTONS];
 /** Images to render on top of the buttons, -1 for none. */
 static int button_images[NUM_BUTTONS] =
 {
-	BITMAP_ICON_MAGIC, BITMAP_ICON_SKILL, BITMAP_ICON_PARTY, BITMAP_ICON_MUSIC, -1
+	BITMAP_ICON_MAGIC, BITMAP_ICON_SKILL, BITMAP_ICON_PARTY, BITMAP_ICON_MUSIC, BITMAP_ICON_MAP, -1
 };
 /** Whether the ::buttons have been initialized. */
 static uint8 did_init = 0;
@@ -153,6 +155,10 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			{
 				cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
 				SetPriorityWidget(cur_widget[MPLAYER_ID]);
+			}
+			else if (i == BUTTON_MAP)
+			{
+				send_command("/region_map");
 			}
 			else if (i == BUTTON_HELP)
 			{
