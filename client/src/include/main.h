@@ -672,6 +672,7 @@ typedef enum _bitmap_index
 	BITMAP_ICON_SKILL,
 	BITMAP_ICON_PARTY,
 	BITMAP_ICON_MAP,
+	BITMAP_ICON_COGS,
 
 	BITMAP_INIT
 }_bitmap_index;

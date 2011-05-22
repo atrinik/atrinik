@@ -269,7 +269,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"icon_magic.png", PIC_TYPE_ALPHA},
 	{"icon_skill.png", PIC_TYPE_ALPHA},
 	{"icon_party.png", PIC_TYPE_ALPHA},
-	{"icon_map.png", PIC_TYPE_ALPHA}
+	{"icon_map.png", PIC_TYPE_ALPHA},
+	{"icon_cogs.png", PIC_TYPE_ALPHA}
 };
 
 /** Number of bitmaps. */
