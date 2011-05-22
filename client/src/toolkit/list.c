@@ -378,6 +378,20 @@ static void list_scrollbar_render(list_struct *list)
 		scrollbar_box.y += list->scrollbar_y;
 	}
 
+	/* Adjust the mouse X/Y positions for lists that are not rendered
+	 * directly on the screen surface, in order to simplify the checks
+	 * below. */
+	if (list->surface != ScreenSurface)
+	{
+		widgetdata *widget = widget_find_by_surface(list->surface);
+
+		if (widget)
+		{
+			mx -= widget->x1;
+			my -= widget->y1;
+		}
+	}
+
 	if (mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + scrollbar_box.h)
 	{
 		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 175, 154, 110, 255));
