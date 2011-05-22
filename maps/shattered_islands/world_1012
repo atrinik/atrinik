@@ -721,7 +721,7 @@ x 4
 y 9
 arch guard_royal
 msg
-@match hi|hey|hello
+@match ^hi$|^hey$|^hello$
 Welcome to Greyton!
 endmsg
 type 83
