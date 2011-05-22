@@ -1576,7 +1576,7 @@ void Map2Cmd(unsigned char *data, int len)
 
 					if (flags2 & MAP2_FLAG2_ROTATE)
 					{
-						rotate = GetShort_String(data + pos);;
+						rotate = GetShort_String(data + pos);
 						pos += 2;
 					}
 				}
