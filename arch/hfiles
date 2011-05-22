@@ -934,3 +934,21 @@ David "<b>Ddhanna</b>" Hanna
 Pete "<b>Arantor</b>" Spicer
 </padding>
 ==========
+Name: music player
+Title: Music Player Widget
+You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).
+
+Note that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.
+
+The <b>Currently playing</b> field will show you name of the current music file being played, either by the music player or in-game area.
+
+<title>Controls</title>
+
+Use mouse wheel or drag the slider to scroll the list of music files. To play a music file, either double-click it, or select it by left-clicking it once and click on <b>Play</b>. The selected music file will loop infinitely, or until the <b>Stop</b> button is pressed (which replaces the <b>Play</b> button if the music player is playing something).
+
+Click the <b>Shuffle</b> button to play music files at random. When one songs ends in the shuffle mode, no looping is done, but instead next one is chosen at random.
+
+In order to stop all background music for the current client session, you can double-click <b>Disable music</b> at the end of the music list.
+
+If you stop the music player and you want the in-game area music to return, you will have to re-enter the area.
+==========

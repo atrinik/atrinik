@@ -194,6 +194,12 @@ void widget_show_mplayer(widgetdata *widget)
 		widget->show = 0;
 	}
 
+	/* Show help button. */
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4, widget->y1 + 4, "?", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	{
+		show_help("music player");
+	}
+
 	if (shuffle)
 	{
 		mplayer_check_shuffle(list);
