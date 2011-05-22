@@ -265,7 +265,10 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"checkbox.png", PIC_TYPE_TRANS},
 	{"checkbox_on.png", PIC_TYPE_TRANS},
 	{"content.png", PIC_TYPE_DEFAULT},
-	{"icon_music.png", PIC_TYPE_ALPHA}
+	{"icon_music.png", PIC_TYPE_ALPHA},
+	{"icon_magic.png", PIC_TYPE_ALPHA},
+	{"icon_skill.png", PIC_TYPE_ALPHA},
+	{"icon_party.png", PIC_TYPE_ALPHA}
 };
 
 /** Number of bitmaps. */

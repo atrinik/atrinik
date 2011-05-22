@@ -335,6 +335,9 @@
 		<Unit filename="..\..\..\src\gui\mplayer.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\gui\menu_buttons.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\gui\region_map.c">
 			<Option compilerVar="CC" />
 		</Unit>

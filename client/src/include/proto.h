@@ -149,8 +149,6 @@ void init_player_data();
 void widget_player_data_event(widgetdata *widget, int x, int y);
 void widget_show_player_data(widgetdata *widget);
 void widget_player_stats(widgetdata *widget);
-void widget_menubuttons(widgetdata *widget);
-void widget_menubuttons_event(widgetdata *widget, int x, int y);
 void widget_skillgroups(widgetdata *widget);
 void widget_show_player_doll_event();
 void widget_show_player_doll(widgetdata *widget);
@@ -372,6 +370,10 @@ void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
 void map_draw_one(int x, int y, _Sprite *sprite);
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
+
+/* gui/menu_buttons.c */
+void widget_menubuttons(widgetdata *widget);
+void widget_menubuttons_event(widgetdata *widget, SDL_Event *event);
 
 /* gui/mplayer.c */
 void widget_show_mplayer(widgetdata *widget);

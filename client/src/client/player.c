@@ -473,62 +473,6 @@ void widget_player_stats(widgetdata *widget)
 }
 
 /**
- * Show menu buttons widget.
- *
- * Menu buttons contain things like the Party button, spell list button,
- * etc.
- * @param widget The widget object. */
-void widget_menubuttons(widgetdata *widget)
-{
-	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], widget->x1, widget->y1, NULL, NULL);
-
-	if (button_show(cur_widget[MPLAYER_ID]->show ? BITMAP_BUTTON_RECT_DOWN : BITMAP_BUTTON_RECT, -1, -1, widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_RECT]->bitmap->h - 3, NULL, 0, COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0), COLOR_SIMPLE(0), 0))
-	{
-		cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
-		SetPriorityWidget(cur_widget[MPLAYER_ID]);
-	}
-
-	sprite_blt(Bitmaps[BITMAP_ICON_MUSIC], widget->x1 + 3, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_RECT]->bitmap->h - 3, NULL, NULL);
-
-	if (button_show(BITMAP_BUTTON_RECT, -1, -1, widget->x1 + 26, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_RECT]->bitmap->h - 3, "<y=2>?", FONT_SANS16, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP))
-	{
-		show_help("main");
-	}
-}
-
-/**
- * Handle mouse events over the menu buttons widget.
- *
- * Basically calls the right functions depending on which button was
- * clicked.
- * @param widget The widget object.
- * @param x X position of the mouse.
- * @param y Y position of the mouse. */
-void widget_menubuttons_event(widgetdata *widget, int x, int y)
-{
-	int dx = x - widget->x1, dy = y - widget->y1;
-
-	if (dx >= 3 && dx <= 44)
-	{
-		/* Spell list */
-		if (dy >= 1 && dy <= 24)
-		{
-			check_menu_macros("?M_SPELL_LIST");
-		}
-		/* Skill list */
-		else if (dy >= 26 && dy <= 49)
-		{
-			check_menu_macros("?M_SKILL_LIST");
-		}
-		/* Party GUI */
-		else if (dy >= 51 && dy <= 74)
-		{
-			send_command("/party list");
-		}
-	}
-}
-
-/**
  * Show skill groups widget.
  * @param widget The widget object. */
 void widget_skillgroups(widgetdata *widget)

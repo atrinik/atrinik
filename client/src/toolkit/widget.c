@@ -1233,7 +1233,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				break;
 
 			case MENU_B_ID:
-				widget_menubuttons_event(widget, x, y);
+				widget_menubuttons_event(widget, event);
 				break;
 
 			case QUICKSLOT_ID:
@@ -1381,6 +1381,10 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case MPLAYER_ID:
 				widget_mplayer_mevent(widget, event);
+				break;
+
+			case MENU_B_ID:
+				widget_menubuttons_event(widget, event);
 				break;
 		}
 
@@ -1554,6 +1558,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			case MPLAYER_ID:
 				widget_mplayer_mevent(widget, event);
+				break;
+
+			case MENU_B_ID:
+				widget_menubuttons_event(widget, event);
 				break;
 		}
 
