@@ -29,6 +29,9 @@
 
 #include <include.h>
 
+/** Is shuffle enabled? */
+static uint8 shuffle = 0;
+
 /**
  * Handle mouse events for the music player widget.
  * @param widget The widget.
@@ -52,6 +55,38 @@ static void list_handle_enter(list_struct *list)
 {
 	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, -1);
 	sound_map_background(1);
+	shuffle = 0;
+}
+
+/**
+ * Perform a shuffle of the selected row in the music list and start
+ * playing the shuffled music.
+ * @param list The music list. */
+static void mplayer_do_shuffle(list_struct *list)
+{
+	/* Must have at least 3 rows to shuffle (last one is ignored, as it's
+	 * the disable music one). */
+	if (list->rows >= 3)
+	{
+		uint32 selected = rndm(1, list->rows - 1);
+
+		list->row_selected = selected;
+		list->row_offset = MIN(list->rows - list->max_rows, selected - 1);
+	}
+
+	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, 0);
+	cur_widget[MPLAYER_ID]->redraw = 1;
+}
+
+/**
+ * Check whether we need to start another song.
+ * @param list The music list. */
+static void mplayer_check_shuffle(list_struct *list)
+{
+	if (!Mix_PlayingMusic())
+	{
+		mplayer_do_shuffle(list);
+	}
 }
 
 /**
@@ -148,12 +183,13 @@ void widget_show_mplayer(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_SANS11, bg_music ? bg_music : "No music", widget->x1 + widget->wd / 2, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
 	/* Show Play/Stop button. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, widget->x1 + widget->wd / 4 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, sound_map_background(-1) ? "Stop" : "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, widget->x1 + 20, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, sound_map_background(-1) ? "Stop" : "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		if (sound_map_background(-1))
 		{
 			sound_start_bg_music("no_music", 0, 0);
 			sound_map_background(0);
+			shuffle = 0;
 		}
 		else
 		{
@@ -161,9 +197,30 @@ void widget_show_mplayer(widgetdata *widget)
 		}
 	}
 
+	if (button_show(shuffle ? BITMAP_BUTTON_DOWN : BITMAP_BUTTON, -1, -1, widget->x1 + 20 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5, widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4, "Shuffle", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	{
+		shuffle = !shuffle;
+
+		if (shuffle)
+		{
+			mplayer_do_shuffle(list);
+			sound_map_background(1);
+		}
+		else
+		{
+			sound_start_bg_music("no_music", 0, 0);
+			sound_map_background(0);
+		}
+	}
+
 	/* Show close button. */
 	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4, widget->y1 + 4, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		widget->show = 0;
+	}
+
+	if (shuffle)
+	{
+		mplayer_check_shuffle(list);
 	}
 }
