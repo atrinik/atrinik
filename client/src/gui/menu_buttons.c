@@ -81,6 +81,7 @@ void widget_menubuttons(widgetdata *widget)
 		{
 			button_create(&buttons[i]);
 			buttons[i].bitmap = BITMAP_BUTTON_RECT;
+			buttons[i].bitmap_over = BITMAP_BUTTON_RECT_HOVER;
 			buttons[i].bitmap_pressed = BITMAP_BUTTON_RECT_DOWN;
 		}
 
