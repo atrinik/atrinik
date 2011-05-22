@@ -30,6 +30,9 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+/** Determine whether the x,y position is over the specified button. */
+#define BUTTON_MOUSE_OVER(button, mx, my, sprite) ((mx) >= (button)->x && (mx) < (button)->x + (sprite)->bitmap->w && (my) >= (button)->y && (my) < (button)->y + (sprite)->bitmap->h)
+
 /** Button structure. */
 typedef struct button_struct
 {

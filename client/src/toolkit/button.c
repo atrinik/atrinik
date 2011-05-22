@@ -152,8 +152,21 @@ void button_create(button_struct *button)
  * @param text Optional text to render. */
 void button_render(button_struct *button, const char *text)
 {
-	_Sprite *sprite = button_determine_sprite(button);
+	_Sprite *sprite;
 
+	if (button->mouse_over)
+	{
+		int mx, my;
+
+		SDL_GetMouseState(&mx, &my);
+
+		if (!BUTTON_MOUSE_OVER(button, mx, my, Bitmaps[button->bitmap]))
+		{
+			button->mouse_over = 0;
+		}
+	}
+
+	sprite = button_determine_sprite(button);
 	sprite_blt(sprite, button->x, button->y, NULL, NULL);
 
 	if (text)
@@ -184,9 +197,6 @@ int button_event(button_struct *button, SDL_Event *event)
 {
 	_Sprite *sprite;
 
-	/* Always reset this. */
-	button->mouse_over = 0;
-
 	/* Mouse button is released, the button is no longer being pressed. */
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{
@@ -194,9 +204,12 @@ int button_event(button_struct *button, SDL_Event *event)
 		return 0;
 	}
 
+	/* Always reset this. */
+	button->mouse_over = 0;
+
 	sprite = button_determine_sprite(button);
 
-	if (event->motion.x >= button->x && event->motion.x < button->x + sprite->bitmap->w && event->motion.y >= button->y && event->motion.y < button->y + sprite->bitmap->h)
+	if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, sprite))
 	{
 		button->mouse_over = 1;
 
