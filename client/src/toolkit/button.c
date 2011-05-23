@@ -154,6 +154,7 @@ void button_render(button_struct *button, const char *text)
 {
 	_Sprite *sprite;
 
+	/* Make sure the mouse is still over the button. */
 	if (button->mouse_over)
 	{
 		int mx, my;
@@ -207,6 +208,12 @@ int button_event(button_struct *button, SDL_Event *event)
 	/* Always reset this. */
 	button->mouse_over = 0;
 
+	/* The button is disabled, we don't care about the mouse. */
+	if (button->disabled)
+	{
+		return 0;
+	}
+
 	sprite = button_determine_sprite(button);
 
 	if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, sprite))
@@ -217,6 +224,7 @@ int button_event(button_struct *button, SDL_Event *event)
 		if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 		{
 			button->pressed = 1;
+			button->pressed_ticks = SDL_GetTicks();
 			return 1;
 		}
 	}

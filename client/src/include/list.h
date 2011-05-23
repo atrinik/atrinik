@@ -187,6 +187,15 @@ typedef struct list_struct
 	 * @retval 0 Handled the event.
 	 * @retval 1 Handled the event, and allow keyboard repeating. */
 	int (*key_event_func)(struct list_struct *list, SDLKey key);
+
+	/**
+	 * Hook to use for setting text color based on row/column.
+	 * @param list List.
+	 * @param default_color Color that will be used by default.
+	 * @param row Text row.
+	 * @param col Column.
+	 * @return Color to use for the text. */
+	SDL_Color (*text_color_hook)(struct list_struct *list, SDL_Color default_color, uint32 row, uint32 col);
 } list_struct;
 
 /**

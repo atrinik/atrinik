@@ -456,6 +456,13 @@ void remove_widget_object_intern(widgetdata *widget)
 		widget->subwidget = NULL;
 	}
 
+	switch (widget_subtype_id)
+	{
+		case MPLAYER_ID:
+			widget_mplayer_deinit(widget);
+			break;
+	}
+
 	/* finally de-allocate the widget node, this should always be the last node removed in here */
 	remove_widget(widget);
 

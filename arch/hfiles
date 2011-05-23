@@ -951,4 +951,10 @@ Click the <b>Shuffle</b> button to play music files at random. When one songs en
 In order to stop all background music for the current client session, you can double-click <b>Disable music</b> at the end of the music list.
 
 If you stop the music player and you want the in-game area music to return, you will have to re-enter the area.
+
+<title>Playlist</title>
+
+You can construct your own playlist using the music player by <b>blacklisting</b> songs you don't want on the playlist. In order to blacklist a song, select it in the music list and press the <b>-</b> button. Blacklisted entries will appear in red color on the music list, and will never play in the shuffle mode. You can remove a song from the blacklist by selecting it and clicking the <b>+</b> button (which will appear instead of the <b>-</b> one).
+
+In order to mass-change blacklist status of all the songs, select a song, and hold down the <b>-</b>/<b>+</b> button (depending on whether you want to blacklist the song or remove it from the blacklist, respectively).
 ==========

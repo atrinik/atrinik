@@ -211,6 +211,7 @@ void sound_stop_bg_music();
 void parse_map_bg_music(const char *bg_music);
 void sound_update_volume();
 const char *sound_get_bg_music();
+const char *sound_get_bg_music_basename();
 uint8 sound_map_background(int new);
 void SoundCmd(uint8 *data, int len);
 
@@ -378,6 +379,7 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event);
 /* gui/mplayer.c */
 void widget_show_mplayer(widgetdata *widget);
 void widget_mplayer_background(widgetdata *widget);
+void widget_mplayer_deinit(widgetdata *widget);
 void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
 
 /* gui/party.c */

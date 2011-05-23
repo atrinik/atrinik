@@ -29,10 +29,19 @@
 
 #include <include.h>
 
+/** File where the blacklist data is stored. */
+#define FILE_MPLAYER_BLACKLIST "mplayer.blacklist"
+/**
+ * How many milliseconds the blacklist button must be held in order to
+ * mass-change blacklist status. */
+#define BLACKLIST_ALL_DELAY 1500
+
 /** Is shuffle enabled? */
 static uint8 shuffle = 0;
+/** Blacklisted music files. */
+static uint8 *shuffle_blacklist = NULL;
 /** Button buffer. */
-static button_struct button_play, button_shuffle;
+static button_struct button_play, button_shuffle, button_blacklist, button_close, button_help;
 
 /**
  * Handle music list double-click and "Play" button.
@@ -45,21 +54,63 @@ static void list_handle_enter(list_struct *list)
 }
 
 /**
+ * Handle list::text_color_hook in the music player list. */
+static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color, uint32 row, uint32 col)
+{
+	(void) list;
+	(void) col;
+
+	if (shuffle_blacklist[row])
+	{
+		return COLOR_SIMPLE(COLOR_RED);
+	}
+
+	return default_color;
+}
+
+/**
  * Perform a shuffle of the selected row in the music list and start
  * playing the shuffled music.
  * @param list The music list. */
 static void mplayer_do_shuffle(list_struct *list)
 {
-	/* Must have at least 3 rows to shuffle (last one is ignored, as it's
-	 * the disable music one). */
-	if (list->rows >= 3)
-	{
-		uint32 selected = rndm(1, list->rows - 1);
+	size_t i;
+	uint8 found_num = 0;
+	uint32 *row_ids, row_num, selected;
 
-		list->row_selected = selected;
-		list->row_offset = MIN(list->rows - list->max_rows, selected - 1);
+	/* Calculate whether there are enough non-blacklisted songs to
+	 * shuffle through. */
+	for (i = 0; i < list->rows - 1 && found_num < 2; i++)
+	{
+		if (!shuffle_blacklist[i])
+		{
+			found_num++;
+		}
 	}
 
+	if (found_num < 2)
+	{
+		return;
+	}
+
+	/* Build a list containing non-blacklisted row IDs. */
+	row_num = 0;
+	row_ids = malloc(sizeof(*row_ids) * (list->rows - 1));
+
+	for (i = 0; i < list->rows - 1; i++)
+	{
+		if (!shuffle_blacklist[i])
+		{
+			row_ids[row_num++] = i;
+		}
+	}
+
+	/* Select a row ID at random. */
+	selected = row_ids[rndm(1, row_num) - 1];
+	free(row_ids);
+
+	list->row_selected = selected + 1;
+	list->row_offset = MIN(list->rows - list->max_rows, selected);
 	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, 0);
 	cur_widget[MPLAYER_ID]->redraw = 1;
 }
@@ -75,13 +126,103 @@ static void mplayer_check_shuffle()
 }
 
 /**
+ * Check whether the currently selected row in the music list is
+ * blacklisted.
+ * @param list The music list.
+ * @return 1 if the selected row is blacklisted, 0 otherwise. */
+static int mplayer_blacklisted(list_struct *list)
+{
+	if (list && shuffle_blacklist && shuffle_blacklist[list->row_selected - 1])
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Toggle blacklist status on the selected row.
+ * @param list The music list. */
+static void mplayer_blacklist_toggle(list_struct *list)
+{
+	if (list && shuffle_blacklist)
+	{
+		/* Clear blacklist status. */
+		if (shuffle_blacklist[list->row_selected - 1])
+		{
+			shuffle_blacklist[list->row_selected - 1] = 0;
+		}
+		/* Enable blacklist status. */
+		else
+		{
+			shuffle_blacklist[list->row_selected - 1] = 1;
+
+			/* Shuffle mode and we're playing the music we just
+			 * blacklisted, so stop playing it. */
+			if (shuffle && !strcmp(sound_get_bg_music_basename(), list->text[list->row_selected - 1][0]))
+			{
+				sound_start_bg_music("no_music", 0, 0);
+			}
+		}
+
+		cur_widget[MPLAYER_ID]->redraw = 1;
+	}
+}
+
+/**
+ * Change blacklist status of all the music files at once.
+ * @param list The music list.
+ * @param state 1 to blacklist all, 0 to clear blacklist status. */
+static void mplayer_blacklist_mass_toggle(list_struct *list, uint8 state)
+{
+	if (list && shuffle_blacklist)
+	{
+		size_t row;
+
+		for (row = 0; row < list->rows - 1; row++)
+		{
+			shuffle_blacklist[row] = state;
+		}
+
+		/* Shuffle mode and we're disabling all, turn off music. */
+		if (shuffle && state == 1)
+		{
+			sound_start_bg_music("no_music", 0, 0);
+		}
+
+		cur_widget[MPLAYER_ID]->redraw = 1;
+	}
+}
+
+/**
+ * Save the blacklist data to file.
+ * @param list The music list. */
+static void mplayer_blacklist_save(list_struct *list)
+{
+	FILE *fp;
+	size_t row;
+
+	fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "w");
+
+	for (row = 0; row < list->rows; row++)
+	{
+		if (shuffle_blacklist[row])
+		{
+			fprintf(fp, "%s\n", list->text[row][0]);
+		}
+	}
+
+	fclose(fp);
+}
+
+/**
  * Render the music player widget.
  * @param widget The widget. */
 void widget_show_mplayer(widgetdata *widget)
 {
 	SDL_Rect box, box2;
 	list_struct *list;
-	const char *bg_music, *cp;
+	const char *bg_music;
 
 	if (!widget->widgetSF)
 	{
@@ -100,6 +241,7 @@ void widget_show_mplayer(widgetdata *widget)
 		/* Create the list and set up settings. */
 		list = list_create(LIST_MPLAYER, 10, 2, 12, 1, 8);
 		list->handle_enter_func = list_handle_enter;
+		list->text_color_hook = list_text_color_hook;
 		list->surface = widget->widgetSF;
 		list_scrollbar_enable(list);
 		list_set_column(list, 0, 130, 7, NULL, -1);
@@ -126,12 +268,52 @@ void widget_show_mplayer(widgetdata *widget)
 		 * to disable background music. */
 		if (i)
 		{
+			FILE *fp;
+
+			/* Allocate the blacklist. + 1 is for the last entry added
+			 * further down. It is not actually used by the blacklist as
+			 * it's not possible to toggle it on/off using the button, but
+			 * it simplifies other logic checks. */
+			shuffle_blacklist = calloc(1, sizeof(*shuffle_blacklist) * (list->rows + 1));
+
+			/* Sort the list. */
 			list_sort(list, LIST_SORT_ALPHA);
+
+			/* Read the blacklist file contents. */
+			fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "r");
+
+			if (fp)
+			{
+				char buf[MAX_BUF];
+				size_t row;
+
+				while (fgets(buf, sizeof(buf) - 1, fp))
+				{
+					for (row = 0; row < list->rows; row++)
+					{
+						if (!strncmp(buf, list->text[row][0], strlen(buf) - 1))
+						{
+							shuffle_blacklist[row] = 1;
+							break;
+						}
+					}
+				}
+
+				fclose(fp);
+			}
+
 			list_add(list, i++, 0, "Disable music");
 		}
 
+		list_set_focus(list);
+
 		button_create(&button_play);
 		button_create(&button_shuffle);
+		button_create(&button_blacklist);
+		button_create(&button_help);
+		button_create(&button_close);
+		button_blacklist.bitmap = button_help.bitmap = button_close.bitmap = BITMAP_BUTTON_ROUND;
+		button_blacklist.bitmap_pressed = button_help.bitmap_pressed = button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
 	}
 
 	if (widget->redraw)
@@ -160,24 +342,18 @@ void widget_show_mplayer(widgetdata *widget)
 	box2.y = widget->y1;
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box2);
 
-	bg_music = sound_get_bg_music();
+	bg_music = sound_get_bg_music_basename();
 	box.h = 0;
 	box.w = widget->wd / 2;
-
-	/* Strip off the directory path, if any. */
-	if (bg_music && (cp = strrchr(bg_music, '/')))
-	{
-		bg_music = cp + 1;
-	}
 
 	/* Show the music that is being played. */
 	string_blt(ScreenSurface, FONT_SANS11, bg_music ? bg_music : "No music", widget->x1 + widget->wd / 2, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
-	button_play.x = widget->x1 + 20;
+	button_play.x = widget->x1 + 10;
 	button_play.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
 	button_render(&button_play, sound_map_background(-1) ? "Stop" : "Play");
 
-	button_shuffle.x = widget->x1 + 20 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5;
+	button_shuffle.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5;
 	button_shuffle.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
 
 	if (shuffle)
@@ -187,17 +363,30 @@ void widget_show_mplayer(widgetdata *widget)
 
 	button_render(&button_shuffle, "Shuffle");
 
-	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4, widget->y1 + 4, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	button_blacklist.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w * 2 + 5 * 2;
+	button_blacklist.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
+	button_blacklist.disabled = list->row_selected == list->rows;
+
+	/* Do mass blacklist status change if the button has been held for
+	 * some time. */
+	if (button_blacklist.pressed && SDL_GetTicks() - button_blacklist.pressed_ticks > BLACKLIST_ALL_DELAY)
 	{
-		widget->show = 0;
+		mplayer_blacklist_mass_toggle(list, mplayer_blacklisted(list));
+		mplayer_blacklist_save(list);
+		button_blacklist.pressed_ticks = SDL_GetTicks();
 	}
 
+	button_render(&button_blacklist, mplayer_blacklisted(list) ? "+" : "-");
+
+	/* Show close button. */
+	button_close.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4;
+	button_close.y = widget->y1 + 4;
+	button_render(&button_close, "X");
+
 	/* Show help button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4, widget->y1 + 4, "?", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
-	{
-		show_help("music player");
-	}
+	button_help.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4;
+	button_help.y = widget->y1 + 4;
+	button_render(&button_help, "?");
 }
 
 /**
@@ -213,6 +402,17 @@ void widget_mplayer_background(widgetdata *widget)
 	{
 		mplayer_check_shuffle();
 	}
+}
+
+/**
+ * Deinitialize the music player widget.
+ * @param widget The music player widget. */
+void widget_mplayer_deinit(widgetdata *widget)
+{
+	(void) widget;
+
+	free(shuffle_blacklist);
+	shuffle_blacklist = NULL;
 }
 
 /**
@@ -257,5 +457,20 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 			sound_start_bg_music("no_music", 0, 0);
 			sound_map_background(0);
 		}
+	}
+	else if (button_event(&button_blacklist, event))
+	{
+		/* Toggle the blacklist state of the selected row. */
+		mplayer_blacklist_toggle(list);
+		mplayer_blacklist_save(list);
+	}
+	else if (button_event(&button_close, event))
+	{
+		widget->show = 0;
+		button_close.pressed = 0;
+	}
+	else if (button_event(&button_help, event))
+	{
+		show_help("music player");
 	}
 }

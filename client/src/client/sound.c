@@ -327,6 +327,22 @@ const char *sound_get_bg_music()
 }
 
 /**
+ * Get the background music base file name.
+ * @return The background music base file name, if any. NULL otherwise. */
+const char *sound_get_bg_music_basename()
+{
+	const char *bg_music = sound_background;
+	char *cp;
+
+	if (bg_music && (cp = strrchr(bg_music, '/')))
+	{
+		bg_music = cp + 1;
+	}
+
+	return bg_music;
+}
+
+/**
  * Get or set ::sound_map_background_disabled.
  * @param new If -1, will return the current value of ::sound_map_background_disabled;
  * any other value will set ::sound_map_background_disabled to that value.

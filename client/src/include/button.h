@@ -78,6 +78,12 @@ typedef struct button_struct
 
 	/** 1 if the button is being pressed. */
 	int pressed;
+
+	/** If 1, the button is in disabled state and cannot be pressed. */
+	int disabled;
+
+	/** When the button was pressed. */
+	uint32 pressed_ticks;
 } button_struct;
 
 #endif

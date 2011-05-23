@@ -496,7 +496,7 @@ void list_show(list_struct *list)
 			/* Is there any text to show? */
 			if (list->text[row][col])
 			{
-				SDL_Rect box;
+				SDL_Color text_color;
 
 				extra_width = 0;
 
@@ -506,11 +506,18 @@ void list_show(list_struct *list)
 					extra_width = list->col_widths[col] / 2 - string_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
 				}
 
+				text_color = COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY);
+
+				if (list->text_color_hook)
+				{
+					text_color = list->text_color_hook(list, text_color, row, col);
+				}
+
 				/* Add width limit on the string. */
 				box.w = list->col_widths[col] + list->col_spacings[col];
 				box.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
