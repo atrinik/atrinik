@@ -60,6 +60,11 @@ static int button_images[NUM_BUTTONS] =
 {
 	BITMAP_ICON_MAGIC, BITMAP_ICON_SKILL, BITMAP_ICON_PARTY, BITMAP_ICON_MUSIC, BITMAP_ICON_MAP, BITMAP_ICON_QUEST, -1, BITMAP_ICON_COGS
 };
+/** Tooltip texts for the buttons. */
+static const char *const button_tooltips[NUM_BUTTONS] =
+{
+	"Spells", "Skills", "Party", "Music player", "Region map", "Quest list", "Help", "Settings"
+};
 /** Whether the ::buttons have been initialized. */
 static uint8 did_init = 0;
 
@@ -117,6 +122,7 @@ void widget_menubuttons(widgetdata *widget)
 		buttons[i].x = widget->x1 + x;
 		buttons[i].y = widget->y1 + y;
 		button_render(&buttons[i], text);
+		button_tooltip(&buttons[i], FONT_ARIAL10, button_tooltips[i]);
 
 		if (button_images[i] != -1)
 		{

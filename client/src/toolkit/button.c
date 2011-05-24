@@ -197,6 +197,7 @@ void button_render(button_struct *button, const char *text)
 int button_event(button_struct *button, SDL_Event *event)
 {
 	_Sprite *sprite;
+	int old_mouse_over;
 
 	/* Mouse button is released, the button is no longer being pressed. */
 	if (event->type == SDL_MOUSEBUTTONUP)
@@ -205,6 +206,7 @@ int button_event(button_struct *button, SDL_Event *event)
 		return 0;
 	}
 
+	old_mouse_over = button->mouse_over;
 	/* Always reset this. */
 	button->mouse_over = 0;
 
@@ -218,8 +220,6 @@ int button_event(button_struct *button, SDL_Event *event)
 
 	if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, sprite))
 	{
-		button->mouse_over = 1;
-
 		/* Left mouse click, the button has been pressed. */
 		if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 		{
@@ -227,7 +227,44 @@ int button_event(button_struct *button, SDL_Event *event)
 			button->pressed_ticks = SDL_GetTicks();
 			return 1;
 		}
+		else
+		{
+			button->mouse_over = 1;
+
+			/* Do not reset hover ticks if the previous state was already
+			 * in highlight mode. */
+			if (!old_mouse_over)
+			{
+				button->hover_ticks = SDL_GetTicks();
+			}
+		}
 	}
 
 	return 0;
+}
+
+/**
+ * Render a tooltip, if possible.
+ * @param button Button.
+ * @param font Font to use for the tooltip text.
+ * @param text Tooltip text. */
+void button_tooltip(button_struct *button, int font, const char *text)
+{
+	/* Sanity check. */
+	if (!button || !text)
+	{
+		return;
+	}
+
+	/* Render the tooltip if the mouse is over the button, it's not
+	 * pressed, and enough time has passed since the button was
+	 * highlighted. */
+	if (button->mouse_over && !button->pressed && SDL_GetTicks() - button->hover_ticks > BUTTON_TOOLTIP_DELAY)
+	{
+		int mx, my;
+
+		SDL_GetMouseState(&mx, &my);
+
+		tooltip_create(mx, my, font, text);
+	}
 }

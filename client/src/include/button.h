@@ -32,6 +32,8 @@
 
 /** Determine whether the x,y position is over the specified button. */
 #define BUTTON_MOUSE_OVER(button, mx, my, sprite) ((mx) >= (button)->x && (mx) < (button)->x + (sprite)->bitmap->w && (my) >= (button)->y && (my) < (button)->y + (sprite)->bitmap->h)
+/** Delay in milliseconds for the tooltip to appear (if any). */
+#define BUTTON_TOOLTIP_DELAY 750
 
 /** Button structure. */
 typedef struct button_struct
@@ -84,6 +86,9 @@ typedef struct button_struct
 
 	/** When the button was pressed. */
 	uint32 pressed_ticks;
+
+	/** When the mouse started hovering over the button. */
+	uint32 hover_ticks;
 } button_struct;
 
 #endif
