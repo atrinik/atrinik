@@ -417,6 +417,7 @@ void region_map_show();
 /* gui/settings.c */
 void optwin_draw_options(int x, int y);
 void show_optwin();
+void settings_open();
 
 /* gui/skill_list.c */
 void show_skilllist();

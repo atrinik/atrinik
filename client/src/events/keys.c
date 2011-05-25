@@ -157,12 +157,9 @@ int key_event(SDL_KeyboardEvent *key)
 		/* no menu */
 		else
 		{
-			if (esc_menu_flag != 1)
-			{
-				keys[key->keysym.sym].pressed = 1;
-				keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-				check_keys(key->keysym.sym);
-			}
+			keys[key->keysym.sym].pressed = 1;
+			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
+			check_keys(key->keysym.sym);
 
 			switch ((int)key->keysym.sym)
 			{
@@ -233,69 +230,7 @@ int key_event(SDL_KeyboardEvent *key)
 					break;
 
 				case SDLK_ESCAPE:
-					if (esc_menu_flag == 0)
-					{
-						map_udate_flag = 1;
-						esc_menu_flag = 1;
-						esc_menu_index = ESC_MENU_BACK;
-					}
-					else
-						esc_menu_flag = 0;
-
-					sound_play_effect("scroll.ogg", 100);
-					break;
-
-				default:
-					if (esc_menu_flag == 1)
-					{
-						reset_keys();
-
-						switch ((int)key->keysym.sym)
-						{
-							case SDLK_RETURN:
-							case SDLK_KP_ENTER:
-								if (esc_menu_index == ESC_MENU_KEYS)
-								{
-									keybind_status = KEYBIND_STATUS_NO;
-									cpl.menustatus = MENU_KEYBIND;
-								}
-								else if (esc_menu_index == ESC_MENU_SETTINGS)
-								{
-									keybind_status = KEYBIND_STATUS_NO;
-
-									if (cpl.menustatus == MENU_KEYBIND)
-										save_keybind_file(KEYBIND_FILE);
-
-									cpl.menustatus = MENU_OPTION;
-								}
-								else if (esc_menu_index == ESC_MENU_LOGOUT)
-								{
-									socket_close(&csocket);
-									GameStatus = GAME_STATUS_INIT;
-								}
-
-								sound_play_effect("scroll.ogg", 100);
-								esc_menu_flag = 0;
-
-								break;
-
-							case SDLK_UP:
-								esc_menu_index--;
-
-								if (esc_menu_index < 0)
-									esc_menu_index = ESC_MENU_INDEX - 1;
-
-								break;
-
-							case SDLK_DOWN:
-								esc_menu_index++;
-
-								if (esc_menu_index >= ESC_MENU_INDEX)
-									esc_menu_index = 0;
-
-								break;
-						}
-					}
+					settings_open();
 					break;
 			}
 		}

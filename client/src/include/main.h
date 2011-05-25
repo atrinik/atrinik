@@ -467,8 +467,6 @@ extern uint32 tmpGameTick;
 extern uint32 FrameCount;
 extern server_struct *selected_server;
 extern int map_udate_flag, map_redraw_flag;
-extern int esc_menu_flag;
-extern int esc_menu_index;
 
 enum
 {
@@ -618,15 +616,6 @@ typedef enum _bitmap_index
 	BITMAP_EXP_SKILL_BORDER,
 	BITMAP_EXP_SKILL_LINE,
 	BITMAP_EXP_SKILL_BUBBLE,
-
-	BITMAP_OPTIONS_HEAD,
-	BITMAP_OPTIONS_KEYS,
-	BITMAP_OPTIONS_SETTINGS,
-	BITMAP_OPTIONS_LOGOUT,
-	BITMAP_OPTIONS_BACK,
-	BITMAP_OPTIONS_MARK_LEFT,
-	BITMAP_OPTIONS_MARK_RIGHT,
-	BITMAP_OPTIONS_ALPHA,
 
 	BITMAP_TRAPPED,
 	BITMAP_PRAY,

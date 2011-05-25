@@ -181,9 +181,11 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			}
 			else if (i == BUTTON_SETTINGS)
 			{
-				map_udate_flag = 1;
-				esc_menu_flag = 1;
-				esc_menu_index = ESC_MENU_BACK;
+				/* Popup will block any future events, including the mouse
+				 * being released, so we have to take care of clearing the
+				 * pressed state of the button ourselves. */
+				buttons[i].pressed = 0;
+				settings_open();
 			}
 
 			break;

@@ -497,6 +497,7 @@ void list_show(list_struct *list)
 			if (list->text[row][col])
 			{
 				SDL_Color text_color;
+				SDL_Rect text_rect;
 
 				extra_width = 0;
 
@@ -514,10 +515,10 @@ void list_show(list_struct *list)
 				}
 
 				/* Add width limit on the string. */
-				box.w = list->col_widths[col] + list->col_spacings[col];
-				box.h = LIST_ROW_HEIGHT(list);
+				text_rect.w = list->col_widths[col] + list->col_spacings[col];
+				text_rect.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &text_rect);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];

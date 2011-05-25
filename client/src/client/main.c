@@ -74,11 +74,6 @@ uint32 tmpGameTick;
 /** Number of frames drawn. */
 uint32 FrameCount = 0;
 
-/** Is the esc menu open? */
-int esc_menu_flag;
-/** ID of the selected option in esc menu. */
-int esc_menu_index;
-
 int f_custom_cursor = 0;
 int x_custom_cursor = 0;
 int y_custom_cursor = 0;
@@ -217,15 +212,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"exp_skill_line.png", PIC_TYPE_DEFAULT},
 	{"exp_skill_bubble.png", PIC_TYPE_TRANS},
 
-	{"options_head.png", PIC_TYPE_TRANS},
-	{"options_keys.png", PIC_TYPE_TRANS},
-	{"options_settings.png", PIC_TYPE_TRANS},
-	{"options_logout.png", PIC_TYPE_TRANS},
-	{"options_back.png", PIC_TYPE_TRANS},
-	{"options_mark_left.png", PIC_TYPE_TRANS},
-	{"options_mark_right.png", PIC_TYPE_TRANS},
-	{"options_alpha.png", PIC_TYPE_DEFAULT},
-
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_TRANS},
@@ -332,8 +318,6 @@ static void delete_player_lists()
 static void init_game_data()
 {
 	size_t i;
-
-	esc_menu_flag = 0;
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
@@ -964,55 +948,6 @@ void list_vid_modes()
 }
 
 /**
- * Show the options window (the 'ESC' menu).
- * @param x X position.
- * @param y Y position. */
-static void show_option(int x, int y)
-{
-	int index = 0, x1, y1 = 0, x2, y2 = 0;
-	_BLTFX bltfx;
-
-	bltfx.dark_level = 0;
-	bltfx.surface = NULL;
-	bltfx.alpha = 118;
-	bltfx.flags = BLTFX_FLAG_SRCALPHA;
-
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_ALPHA], x - Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->w / 2, y, NULL, &bltfx);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_HEAD], x - Bitmaps[BITMAP_OPTIONS_HEAD]->bitmap->w / 2, y, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_KEYS], x - Bitmaps[BITMAP_OPTIONS_KEYS]->bitmap->w / 2, y + 100, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_SETTINGS], x - Bitmaps[BITMAP_OPTIONS_SETTINGS]->bitmap->w / 2, y + 165, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_LOGOUT], x - Bitmaps[BITMAP_OPTIONS_LOGOUT]->bitmap->w / 2, y + 235, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_BACK], x - Bitmaps[BITMAP_OPTIONS_BACK]->bitmap->w / 2, y + 305, NULL, NULL);
-
-	if (esc_menu_index == ESC_MENU_KEYS)
-	{
-		index = BITMAP_OPTIONS_KEYS;
-		y1 = y2 = y + 105;
-	}
-	else if (esc_menu_index == ESC_MENU_SETTINGS)
-	{
-		index = BITMAP_OPTIONS_SETTINGS;
-		y1 = y2 = y + 170;
-	}
-	else if (esc_menu_index == ESC_MENU_LOGOUT)
-	{
-		index = BITMAP_OPTIONS_LOGOUT;
-		y1 = y2 = y + 244;
-	}
-	else if (esc_menu_index == ESC_MENU_BACK)
-	{
-		index = BITMAP_OPTIONS_BACK;
-		y1 = y2 = y + 310;
-	}
-
-	x1 = x - Bitmaps[index]->bitmap->w / 2 - 6;
-	x2 = x + Bitmaps[index]->bitmap->w / 2 + 6;
-
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_MARK_LEFT], x1 - Bitmaps[BITMAP_OPTIONS_MARK_LEFT]->bitmap->w, y1, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_MARK_RIGHT], x2, y2, NULL, NULL);
-}
-
-/**
  * Map, animations and other effects. */
 static void display_layer1()
 {
@@ -1022,7 +957,7 @@ static void display_layer1()
 	SDL_FillRect(ScreenSurface, NULL, 0);
 
 	/* We recreate the map only when there is a change */
-	if (map_redraw_flag)
+	if (map_redraw_flag && (!popup_get_visible() || popup_overlay_need_update(popup_get_visible())))
 	{
 		SDL_FillRect(ScreenSurfaceMap, NULL, 0);
 		map_draw_map();
@@ -1134,11 +1069,6 @@ static void display_layer4()
 		{
 			do_keybind_input();
 		}
-	}
-
-	if (esc_menu_flag)
-	{
-		show_option(Screensize->x / 2, (Screensize->y / 2) - (Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2));
 	}
 }
 
@@ -1324,11 +1254,7 @@ int main(int argc, char *argv[])
 				SDL_FillRect(ScreenSurface, NULL, 0);
 			}
 
-			if (esc_menu_flag)
-			{
-				map_udate_flag = 1;
-			}
-			else if (!options.force_redraw)
+			if (!options.force_redraw)
 			{
 				if (options.doublebuf_flag)
 				{
@@ -1371,12 +1297,6 @@ int main(int argc, char *argv[])
 			{
 				LOG(llevError, "Error connecting: GameStatus: %d  SocketError: %d\n", GameStatus, socket_get_error());
 			}
-		}
-
-		/* Show main option menu */
-		if (esc_menu_flag)
-		{
-			show_option(Screensize->x / 2, Screensize->y / 2 - Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2);
 		}
 
 		/* Show the current dragged item */
