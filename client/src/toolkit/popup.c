@@ -98,7 +98,7 @@ popup_struct *popup_create(int bitmap_id)
 	popup_struct *popup = calloc(1, sizeof(popup_struct));
 
 	/* Create the surface used by the popup. */
-	popup->surface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, Bitmaps[bitmap_id]->bitmap->w, Bitmaps[bitmap_id]->bitmap->h, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+	popup->surface = SDL_ConvertSurface(Bitmaps[bitmap_id]->bitmap, Bitmaps[bitmap_id]->bitmap->format, Bitmaps[bitmap_id]->bitmap->flags);
 	/* Store the bitmap used. */
 	popup->bitmap_id = bitmap_id;
 	/* Create overlay. */

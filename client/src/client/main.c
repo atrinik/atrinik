@@ -248,7 +248,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"servers_bg_over.png", PIC_TYPE_TRANS},
 	{"news_bg.png", PIC_TYPE_DEFAULT},
 	{"eyes.png", PIC_TYPE_DEFAULT},
-	{"popup.png", PIC_TYPE_DEFAULT},
+	{"popup.png", PIC_TYPE_ALPHA},
 	{"arrow_up.png", PIC_TYPE_DEFAULT},
 	{"arrow_up2.png", PIC_TYPE_DEFAULT},
 	{"arrow_down.png", PIC_TYPE_DEFAULT},
