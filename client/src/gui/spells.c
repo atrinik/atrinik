@@ -632,7 +632,6 @@ void spells_reload()
 void SpelllistCmd(char *data)
 {
 	char *tmp_data, *cp;
-
 	size_t spell_path, spell_id;
 
 	for (spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++)
