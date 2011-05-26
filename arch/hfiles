@@ -958,3 +958,18 @@ You can construct your own playlist using the music player by <b>blacklisting</b
 
 In order to mass-change blacklist status of all the songs, select a song, and hold down the <b>-</b>/<b>+</b> button (depending on whether you want to blacklist the song or remove it from the blacklist, respectively).
 ==========
+Name: spell list
+Title: Spell List Widget
+The spells widget allows you to browse all in-game spells sorted by their path.
+
+Right of the spells list, you can see the currently selected spell's description (if any). If you know the selected spell, you will be able to see the mana/grace cost below the description, near the bottom. You will also see the spell's icon, and path <b>Status</b>. Usually, this will be <b>Normal</b>, but if you apply an object that is attuned to a certain path, or repelled/denied from it, you will see that in the <b>Status</b>.
+
+<title>Controls</title>
+
+Use mouse wheel or drag the slider to scroll the list of spells (if applicable). Switch between spell paths by clicking the <b>&lt;</b> and <b>&gt;</b> buttons below the list of spells. If you keep holding those buttons, the spell paths will continue changing. The last spell path will show you all the spells, from all spell paths.
+
+In order to ready a spell, double-click its name in the spells list. You can also drag the currently selected spell's icon in the bottom right corner, and drop it into your quickslots for fast access.
+
+You can filter the list of spells using the buttons above the currently selected spell's description. If you press <b>Known</b>, only spells that you know will be shown - otherwise, both known and uknown are shown. The <b>&lt;</b> and <b>&gt;</b> buttons allow you to switch between types of spells shown: wizardry <b>spells</b>, divine <b>prayers</b>, or <b>all</b>.
+
+==========
