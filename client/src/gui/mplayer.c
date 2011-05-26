@@ -229,6 +229,11 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 	/* Read the media directory and add the file names to the list. */
 	dir = opendir(path);
 
+	if (!dir)
+	{
+		return;
+	}
+
 	while ((currentfile = readdir(dir)))
 	{
 		/* Ignore hidden files and files without extension. */
