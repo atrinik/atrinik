@@ -39,6 +39,14 @@ static int book_lines = 0;
 static int book_scroll_lines = 0;
 /** Lines scrolled. */
 static int book_scroll = 0;
+/** Book GUI surface. */
+static SDL_Surface *surface = NULL;
+/** Is it time to redraw? */
+static uint8 redraw = 1;
+/**
+ * Cache of ::book_scroll, used to check whether it's time to redraw due
+ * to scroll change. */
+static int redraw_scroll = 0;
 
 /**
  * Change the book's displayed name.
@@ -102,6 +110,7 @@ void book_load(const char *data, int len)
 	string_blt(NULL, FONT_ARIAL11, book_content, 30, 50, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	book_lines = box.h;
 	book_scroll_lines = box.y;
+	redraw = 1;
 
 	/* The book menu is now ready to be shown. */
 	cpl.menustatus = MENU_BOOK;
@@ -111,24 +120,52 @@ void book_load(const char *data, int len)
  * Actually show the book interface. */
 void book_show()
 {
-	SDL_Rect box;
+	SDL_Rect box, box2;
 	int x, y;
 
 	/* Draw the background. */
 	x = BOOK_BACKGROUND_X;
 	y = BOOK_BACKGROUND_Y;
-	sprite_blt(Bitmaps[BITMAP_BOOK], x, y, NULL, NULL);
 
-	/* Draw the book name. */
-	box.w = Bitmaps[BITMAP_BOOK]->bitmap->w - 60;
-	box.h = 0;
-	string_blt(ScreenSurface, FONT_SERIF16, book_name, x + 30, y + 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+	if (!surface)
+	{
+		surface = SDL_ConvertSurface(Bitmaps[BITMAP_BOOK]->bitmap, Bitmaps[BITMAP_BOOK]->bitmap->format, Bitmaps[BITMAP_BOOK]->bitmap->flags);
+	}
 
-	/* Draw the content. */
-	box.w = BOOK_CONTENT_WIDTH;
-	box.h = BOOK_CONTENT_HEIGHT;
-	box.y = book_scroll;
-	string_blt(ScreenSurface, FONT_ARIAL11, book_content, x + 30, y + 50, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+	if (book_scroll != redraw_scroll)
+	{
+		redraw = 1;
+	}
+
+	if (redraw)
+	{
+		_BLTFX bltfx;
+
+		bltfx.surface = surface;
+		bltfx.flags = 0;
+		bltfx.alpha = 0;
+		sprite_blt(Bitmaps[BITMAP_BOOK], 0, 0, NULL, &bltfx);
+
+		redraw = 0;
+		redraw_scroll = book_scroll;
+
+		/* Draw the book name. */
+		box.w = Bitmaps[BITMAP_BOOK]->bitmap->w - 60;
+		box.h = 0;
+		text_offset_set(x, y);
+		string_blt(surface, FONT_SERIF16, book_name, 30, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+
+		/* Draw the content. */
+		box.w = BOOK_CONTENT_WIDTH;
+		box.h = BOOK_CONTENT_HEIGHT;
+		box.y = book_scroll;
+		string_blt(surface, FONT_ARIAL11, book_content, 30, 50, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_offset_reset();
+	}
+
+	box2.x = x;
+	box2.y = y;
+	SDL_BlitSurface(surface, NULL, ScreenSurface, &box2);
 
 	/* Show scroll buttons. */
 	box.x = x + Bitmaps[BITMAP_BOOK]->bitmap->w - 50;
@@ -195,5 +232,7 @@ void book_handle_event(SDL_Event *event)
 		{
 			book_handle_key(SDLK_UP);
 		}
+
+		redraw = 1;
 	}
 }

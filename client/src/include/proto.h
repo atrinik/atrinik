@@ -421,13 +421,13 @@ void settings_open();
 void show_skilllist();
 void read_skills();
 
-/* gui/spell_list.c */
+/* gui/spells.c */
 void widget_spells_render(widgetdata *widget);
 void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
-void spells_init();
 int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
 int spell_find_path_selected(const char *name, size_t *spell_id);
 spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
+void spells_init();
 void spells_reload();
 void SpelllistCmd(char *data);
 
@@ -508,6 +508,8 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
 /* toolkit/text.c */
 void text_init();
 void text_deinit();
+void text_offset_set(int x, int y);
+void text_offset_reset();
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
 int glyph_get_height(int font, char c);

@@ -45,6 +45,11 @@ static uint8 text_anchor_help_clicked = 0;
 /** Help GUI to open if ::text_anchor_help_clicked is 1. */
 static char text_anchor_help[HUGE_BUF];
 
+/** Mouse X offset. */
+static int text_offset_mx = -1;
+/** Mouse Y offset. */
+static int text_offset_my = -1;
+
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
@@ -160,6 +165,30 @@ void text_deinit()
 	}
 
 	TTF_Quit();
+}
+
+/**
+ * If string_blt() is called on surface that is not ScreenSurface, you
+ * must use this to set mouse X/Y detection offset, so things like links
+ * will work correctly.
+ *
+ * Note that this is not required for widget surfaces, as it's done
+ * automatically by searching the widgets for the surface that is being
+ * used.
+ * @param x X position of the surface.
+ * @param y Y position of the surface. */
+void text_offset_set(int x, int y)
+{
+	text_offset_mx = x;
+	text_offset_my = y;
+}
+
+/**
+ * Reset the text offset. This must be done after text_offset_set() and
+ * string_blt() calls eventually, */
+void text_offset_reset()
+{
+	text_offset_mx = text_offset_my = -1;
 }
 
 /**
@@ -889,12 +918,27 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (surface != ScreenSurface)
 			{
-				widgetdata *widget = widget_find_by_surface(surface);
-
-				if (widget)
+				if (text_offset_mx != -1 || text_offset_my != -1)
 				{
-					mx -= widget->x1;
-					my -= widget->y1;
+					if (text_offset_mx != -1)
+					{
+						mx -= text_offset_mx;
+					}
+
+					if (text_offset_my != -1)
+					{
+						my -= text_offset_my;
+					}
+				}
+				else
+				{
+					widgetdata *widget = widget_find_by_surface(surface);
+
+					if (widget)
+					{
+						mx -= widget->x1;
+						my -= widget->y1;
+					}
 				}
 			}
 
