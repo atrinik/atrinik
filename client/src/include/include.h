@@ -170,10 +170,10 @@ typedef enum LogLevel
 #include <text.h>
 #include <curl.h>
 #include <book.h>
-#include <client.h>
 #include <sdlsocket.h>
 #include <commands.h>
 #include <main.h>
+#include <client.h>
 #include <effects.h>
 #include <sprite.h>
 #include <widget.h>

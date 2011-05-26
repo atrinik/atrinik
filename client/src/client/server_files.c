@@ -49,7 +49,7 @@ static const char *const server_file_setup_names[SERVER_FILES_MAX] =
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
 	read_skills, NULL, NULL, NULL, read_bmaps,
-	read_help_files, file_updates_parse, read_spells, server_settings_init,
+	read_help_files, file_updates_parse, spells_init, server_settings_init,
 	read_anims, effects_init
 };
 

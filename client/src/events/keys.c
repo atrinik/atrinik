@@ -164,35 +164,35 @@ int key_event(SDL_KeyboardEvent *key)
 			switch ((int)key->keysym.sym)
 			{
 				case SDLK_F1:
-					quickslot_key(key, 0);
+					quickslots_handle_key(key, 0);
 					break;
 
 				case SDLK_F2:
-					quickslot_key(key, 1);
+					quickslots_handle_key(key, 1);
 					break;
 
 				case SDLK_F3:
-					quickslot_key(key, 2);
+					quickslots_handle_key(key, 2);
 					break;
 
 				case SDLK_F4:
-					quickslot_key(key, 3);
+					quickslots_handle_key(key, 3);
 					break;
 
 				case SDLK_F5:
-					quickslot_key(key, 4);
+					quickslots_handle_key(key, 4);
 					break;
 
 				case SDLK_F6:
-					quickslot_key(key, 5);
+					quickslots_handle_key(key, 5);
 					break;
 
 				case SDLK_F7:
-					quickslot_key(key, 6);
+					quickslots_handle_key(key, 6);
 					break;
 
 				case SDLK_F8:
-					quickslot_key(key, 7);
+					quickslots_handle_key(key, 7);
 					break;
 
 				case SDLK_END:
@@ -768,110 +768,6 @@ void check_menu_keys(int menu, int key)
 						{
 							skill_list_set.group_nr++;
 							skill_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_DOWN;
-					break;
-			}
-
-			break;
-
-		case MENU_SPELL:
-			switch (key)
-			{
-				case SDLK_F1:
-					quickslot_key(NULL, 0);
-					break;
-
-				case SDLK_F2:
-					quickslot_key(NULL, 1);
-					break;
-
-				case SDLK_F3:
-					quickslot_key(NULL, 2);
-					break;
-
-				case SDLK_F4:
-					quickslot_key(NULL, 3);
-					break;
-
-				case SDLK_F5:
-					quickslot_key(NULL, 4);
-					break;
-
-				case SDLK_F6:
-					quickslot_key(NULL, 5);
-					break;
-
-				case SDLK_F7:
-					quickslot_key(NULL, 6);
-					break;
-
-				case SDLK_F8:
-					quickslot_key(NULL, 7);
-					break;
-
-				case SDLK_RETURN:
-				case SDLK_KP_ENTER:
-					if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
-					{
-						fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr];
-						RangeFireMode = FIRE_MODE_SPELL;
-						sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					}
-					else
-						sound_play_effect("click_fail.ogg", MENU_SOUND_VOL);
-
-					map_udate_flag = 2;
-					cpl.menustatus = MENU_NO;
-					reset_keys();
-					break;
-
-				case SDLK_LEFT:
-					if (spell_list_set.class_nr > 0)
-						spell_list_set.class_nr--;
-
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					break;
-
-				case SDLK_RIGHT:
-					if (spell_list_set.class_nr < SPELL_LIST_CLASS - 1)
-						spell_list_set.class_nr++;
-
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					break;
-
-				case SDLK_UP:
-					if (!shiftPressed)
-					{
-						if (spell_list_set.entry_nr > 0)
-							spell_list_set.entry_nr--;
-					}
-					else
-					{
-						if (spell_list_set.group_nr > 0)
-						{
-							spell_list_set.group_nr--;
-							spell_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_UP;
-					break;
-
-				case SDLK_DOWN:
-					if (!shiftPressed)
-					{
-						if (spell_list_set.entry_nr < DIALOG_LIST_ENTRY - 1)
-							spell_list_set.entry_nr++;
-					}
-					else
-					{
-						if (spell_list_set.group_nr < SPELL_LIST_MAX - 1)
-						{
-							spell_list_set.group_nr++;
-							spell_list_set.entry_nr = 0;
 						}
 					}
 

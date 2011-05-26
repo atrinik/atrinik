@@ -210,6 +210,8 @@ typedef struct list_struct
 #define LIST_CREATION 3
 /** List used in the music player widget. */
 #define LIST_MPLAYER 4
+/** List used in the spells widget. */
+#define LIST_SPELLS 5
 /*@}*/
 
 /** Calculate list's row height. */

@@ -31,6 +31,7 @@
 #define MAIN_H
 
 #define HUGE_BUF 4096
+#define MAX_BUF 256
 /** Maximum frames per second. */
 #define FRAMES_PER_SECOND 30
 
@@ -299,27 +300,18 @@ typedef struct _dialog_list_set
 	int key_change;
 }_dialog_list_set;
 
-/** Spell list max */
-#define SPELL_LIST_MAX 20
-/** Spell list classes */
-#define SPELL_LIST_CLASS 2
-
-/** Spell list entry structure */
-typedef struct _spell_list_entry
+typedef struct spell_entry_struct
 {
-	/** -1 - entry is unused */
-	int flag;
-
-	/** name of entry */
-	char name[LIST_NAME_MAX];
+	/** Name of the spell. */
+	char name[MAX_BUF];
 
 	/** Icon name */
-	char icon_name[128];
+	char icon_name[MAX_BUF];
 
 	/** Description. */
 	char desc[HUGE_BUF];
 
-	/** Spell's icon ID. */
+	/** Spell's icon. */
 	int icon;
 
 	/** Cost of spell. */
@@ -331,13 +323,18 @@ typedef struct _spell_list_entry
 	 * - r: Repelled
 	 * - d: Denied */
 	char path;
-}_spell_list_entry;
 
-/** Spell list structure */
-typedef struct _spell_list
-{
-	_spell_list_entry entry[SPELL_LIST_CLASS][DIALOG_LIST_ENTRY];
-}_spell_list;
+	/** 1 if the player knows this spell, 0 otherwise. */
+	uint8 known;
+
+	/** Type of the spell (spell/prayer). */
+	uint8 type;
+} spell_entry_struct;
+
+/**
+ * Maximum number of spell paths. The last one is always 'all' and holds
+ * pointers to spells in the other spell paths. */
+#define SPELL_PATH_NUM 21
 
 /** Fire mode structure */
 typedef struct _fire_mode
@@ -348,8 +345,7 @@ typedef struct _fire_mode
 	/** Ammunition */
 	int amun;
 
-	/** Spell */
-	_spell_list_entry *spell;
+	spell_entry_struct *spell;
 
 	/** Skill */
 	_skill_list_entry *skill;

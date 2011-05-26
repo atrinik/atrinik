@@ -48,7 +48,6 @@ void SendVersion();
 void RequestFile(int index);
 void SendAddMe();
 void SkilllistCmd(char *data);
-void SpelllistCmd(char *data);
 void NewCharCmd();
 void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
@@ -395,12 +394,11 @@ int console_party();
 void widget_show_resist(widgetdata *widget);
 
 /* gui/quickslots.c */
-void quickslot_key(SDL_KeyboardEvent *key, int slot);
+void quickslots_handle_key(SDL_KeyboardEvent *key, int slot);
 int get_quickslot(int x, int y);
 void show_quickslots(int x, int y, int vertical_quickslot);
 void widget_quickslots(widgetdata *widget);
-void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent);
-void update_quickslots(int del_item);
+void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event);
 void QuickSlotCmd(unsigned char *data, int len);
 
 /* gui/range.c */
@@ -424,10 +422,14 @@ void show_skilllist();
 void read_skills();
 
 /* gui/spell_list.c */
-void show_spelllist();
-void read_spells();
-int find_spell(const char *name, int *spell_group, int *spell_class, int *spell_nr);
+void widget_spells_render(widgetdata *widget);
+void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
+void spells_init();
+int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
+int spell_find_path_selected(const char *name, size_t *spell_id);
+spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
 void spells_reload();
+void SpelllistCmd(char *data);
 
 /* gui/target.c */
 void widget_event_target(widgetdata *widget, int x, int y);
@@ -468,6 +470,8 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
 void list_sort(list_struct *list, int type);
+void list_clear_rows(list_struct *list);
+int list_set_selected(list_struct *list, const char *str, uint32 col);
 
 /* toolkit/popup.c */
 popup_struct *popup_create(int bitmap_id);

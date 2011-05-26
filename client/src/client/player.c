@@ -543,7 +543,7 @@ void widget_show_player_doll_event()
 
 	if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
 	{
-		cpl.win_inv_tag = cpl.win_quick_tag;
+		cpl.win_inv_tag = cpl.dragging.tag;
 
 		/* Drop to player doll */
 		if (!(object_find(cpl.win_inv_tag)->flags & F_APPLIED))
@@ -569,7 +569,6 @@ void widget_show_player_doll_event()
 	cpl.win_inv_tag = old_inv_tag;
 
 	draggingInvItem(DRAG_NONE);
-	itemExamined = 0;
 }
 
 /**

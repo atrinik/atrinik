@@ -105,7 +105,6 @@ enum
 };
 
 extern int cursor_type;
-extern int itemExamined;
 
 SDLKey get_action_keycode, drop_action_keycode;
 

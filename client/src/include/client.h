@@ -29,8 +29,6 @@
 
 #include "include.h"
 
-#define MAX_BUF 256
-
 /** Default width. */
 #define WINDOW_DEFAULT_WIDTH 1024
 /** Default height. */
@@ -261,7 +259,6 @@ typedef struct Player_Struct
 
 	int win_inv_slot;
 	int win_inv_tag;
-	int win_quick_tag;
 	int win_pdoll_tag;
 	int win_inv_start;
 	int win_inv_count;
@@ -332,6 +329,13 @@ typedef struct Player_Struct
 
 	/** Whom to reply to. */
 	char player_reply[64];
+
+	union
+	{
+		int tag;
+
+		spell_entry_struct *spell;
+	} dragging;
 } Client_Player;
 
 /* Player object. */

@@ -33,7 +33,6 @@
 int old_mouse_y = 0;
 
 int cursor_type = 0;
-int itemExamined = 0;
 
 /**
  * Table of all the keys recognized by SDL. If an element is 1, that key
@@ -182,10 +181,6 @@ int Event_PollInputDevice()
 
 					/* Sanity handling */
 					draggingInvItem(DRAG_NONE);
-
-					/* Ready for next item */
-					itemExamined = 0;
-
 					break;
 				}
 
@@ -215,9 +210,6 @@ int Event_PollInputDevice()
 				}
 
 				draggingInvItem(DRAG_NONE);
-
-				/* Ready for next item */
-				itemExamined  = 0;
 				break;
 
 			case SDL_MOUSEMOTION:

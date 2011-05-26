@@ -58,8 +58,6 @@
 
 struct _skill_list skill_list[SKILL_LIST_MAX];
 extern _dialog_list_set skill_list_set;
-struct _spell_list spell_list[SPELL_LIST_MAX];
-extern _dialog_list_set spell_list_set;
 extern _dialog_list_set option_list_set;
 struct _bindkey_list bindkey_list[BINDKEY_LIST_MAX];
 extern _dialog_list_set bindkey_list_set;
@@ -74,20 +72,10 @@ extern int keybind_status;
 /** One quickslot. */
 typedef struct _quickslot
 {
-	/** Do we have an item or a spell in this quickslot? */
-	int spell;
-
 	/** If this is item, what tag ID. */
 	int tag;
 
-	/** Spell's number. */
-	int spellNr;
-
-	/** Spell group's number. */
-	int groupNr;
-
-	/** Spell's class. */
-	int classNr;
+	spell_entry_struct *spell;
 } _quickslot;
 
 extern int quickslot_group;

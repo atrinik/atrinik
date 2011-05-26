@@ -341,7 +341,7 @@
 		<Unit filename="..\..\..\src\gui\region_map.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\spell_list.c">
+		<Unit filename="..\..\..\src\gui\spells.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\keybind.c">

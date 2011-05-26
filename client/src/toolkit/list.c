@@ -1015,9 +1015,68 @@ static int list_compare_alpha(const void *a, const void *b)
  * @note Sorting is done by looking at the first column of each row. */
 void list_sort(list_struct *list, int type)
 {
+	if (!list->text)
+	{
+		return;
+	}
+
 	/* Alphabetical sort. */
 	if (type == LIST_SORT_ALPHA)
 	{
 		qsort((void *) list->text, list->rows, sizeof(*list->text), (void *) (int (*)()) list_compare_alpha);
 	}
+}
+
+/**
+ * Clear all the allocated rows of a list.
+ * @param list The list. */
+void list_clear_rows(list_struct *list)
+{
+	uint32 row, col;
+
+	for (row = 0; row < list->rows; row++)
+	{
+		for (col = 0; col < list->cols; col++)
+		{
+			if (list->text[row][col])
+			{
+				free(list->text[row][col]);
+			}
+		}
+
+		free(list->text[row]);
+	}
+
+	if (list->text)
+	{
+		free(list->text);
+		list->text = NULL;
+	}
+
+	list->rows = 0;
+	list->row_selected = 1;
+	list->row_offset = 0;
+}
+
+/**
+ * Set the selected row based on column's text.
+ * @param list The list.
+ * @param str Text to search for in all the rows.
+ * @param col The column to check value of in each row.
+ * @return 1 if new selected row was set, 0 otherwise. */
+int list_set_selected(list_struct *list, const char *str, uint32 col)
+{
+	uint32 row;
+
+	for (row = 0; row < list->rows; row++)
+	{
+		if (!strcmp(list->text[row][col], str))
+		{
+			list->row_selected = row + 1;
+			list->row_offset = MIN(list->rows - list->max_rows, row);
+			return 1;
+		}
+	}
+
+	return 0;
 }

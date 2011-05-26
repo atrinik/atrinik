@@ -84,7 +84,7 @@ void move_keys(int num)
 		}
 		else if (RangeFireMode == FIRE_MODE_SPELL)
 		{
-			if (!fire_mode_tab[FIRE_MODE_SPELL].spell || fire_mode_tab[FIRE_MODE_SPELL].spell->flag == -1)
+			if (!fire_mode_tab[FIRE_MODE_SPELL].spell)
 			{
 				draw_info("No spell selected.", COLOR_WHITE);
 				return;

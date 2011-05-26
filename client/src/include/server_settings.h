@@ -44,6 +44,8 @@ enum
 	SERVER_TEXT_PROTECTION_LETTERS,
 	SERVER_TEXT_PROTECTION_FULL,
 
+	SERVER_TEXT_SPELL_PATHS,
+
 	SERVER_TEXT_MAX
 };
 
@@ -104,9 +106,14 @@ typedef struct server_settings
 	/** Server-configured strings. */
 	char *text[SERVER_TEXT_MAX];
 
+	/** Protection few-letter acronyms. */
 	char protection_letters[20][MAX_BUF];
 
+	/** Full protection names. */
 	char protection_full[20][MAX_BUF];
+
+	/** Spell path names. */
+	char spell_paths[SPELL_PATH_NUM][MAX_BUF];
 } server_settings;
 
 server_settings *s_settings;

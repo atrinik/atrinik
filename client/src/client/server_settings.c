@@ -191,6 +191,18 @@ void server_settings_init()
 						cp = strtok(NULL, " ");
 					}
 				}
+				else if (text_id == SERVER_TEXT_SPELL_PATHS)
+				{
+					cp = strtok(s_settings->text[text_id], " ");
+
+					while (cp)
+					{
+						strncpy(s_settings->spell_paths[j], cp, sizeof(*s_settings->spell_paths) - 1);
+						s_settings->spell_paths[j][sizeof(*s_settings->spell_paths) - 1] = '\0';
+						j++;
+						cp = strtok(NULL, " ");
+					}
+				}
 
 				text_id++;
 			}

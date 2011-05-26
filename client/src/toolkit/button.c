@@ -187,6 +187,12 @@ void button_render(button_struct *button, const char *text)
 
 		string_blt_shadow(ScreenSurface, button->font, text, button->x + sprite->bitmap->w / 2 - string_get_width(button->font, text, button->flags) / 2, button->y + sprite->bitmap->h / 2 - FONT_HEIGHT(button->font) / 2, color, color_shadow, button->flags, NULL);
 	}
+
+	if (button->repeat_func && button->pressed && SDL_GetTicks() - button->pressed_ticks > 150)
+	{
+		button->repeat_func(button);
+		button->pressed_ticks = SDL_GetTicks();
+	}
 }
 
 /**

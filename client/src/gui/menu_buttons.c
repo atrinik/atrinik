@@ -114,6 +114,10 @@ void widget_menubuttons(widgetdata *widget)
 		{
 			text = "<y=2>?";
 		}
+		else if (i == BUTTON_SPELLS)
+		{
+			buttons[i].pressed = cur_widget[SPELLS_ID]->show;
+		}
 		else if (i == BUTTON_MPLAYER)
 		{
 			buttons[i].pressed = cur_widget[MPLAYER_ID]->show;
@@ -152,7 +156,8 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 		{
 			if (i == BUTTON_SPELLS)
 			{
-				check_menu_macros("?M_SPELL_LIST");
+				cur_widget[SPELLS_ID]->show = !cur_widget[SPELLS_ID]->show;
+				SetPriorityWidget(cur_widget[SPELLS_ID]);
 			}
 			else if (i == BUTTON_SKILLS)
 			{

@@ -72,6 +72,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -1244,7 +1245,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				break;
 
 			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, x, y, MOUSE_DOWN);
+				widget_quickslots_mouse_event(widget, event);
 				break;
 
 			case CHATWIN_ID:
@@ -1278,6 +1279,10 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case MPLAYER_ID:
 				widget_mplayer_mevent(widget, event);
+				break;
+
+			case SPELLS_ID:
+				widget_spells_mevent(widget, event);
 				break;
 		}
 	}
@@ -1366,7 +1371,7 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 		switch (widget->WidgetTypeID)
 		{
 			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, x, y, MOUSE_UP);
+				widget_quickslots_mouse_event(widget, event);
 				break;
 
 			case CHATWIN_ID:
@@ -1388,6 +1393,10 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case MPLAYER_ID:
 				widget_mplayer_mevent(widget, event);
+				break;
+
+			case SPELLS_ID:
+				widget_spells_mevent(widget, event);
 				break;
 
 			case MENU_B_ID:
@@ -1565,6 +1574,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			case MPLAYER_ID:
 				widget_mplayer_mevent(widget, event);
+				break;
+
+			case SPELLS_ID:
+				widget_spells_mevent(widget, event);
 				break;
 
 			case MENU_B_ID:
@@ -1820,6 +1833,10 @@ static void process_widget(widgetdata *widget)
 
 		case MPLAYER_ID:
 			widget_show_mplayer(widget);
+			break;
+
+		case SPELLS_ID:
+			widget_spells_render(widget);
 			break;
 	}
 }

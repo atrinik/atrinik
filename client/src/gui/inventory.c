@@ -303,8 +303,6 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			}
 
 			draggingInvItem(DRAG_NONE);
-			/* ready for next item */
-			itemExamined = 0;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:

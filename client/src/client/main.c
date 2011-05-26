@@ -295,22 +295,6 @@ static void delete_player_lists()
 			}
 		}
 	}
-
-	for (i = 0;i < SPELL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if (spell_list[i].entry[0][ii].flag == LIST_ENTRY_KNOWN)
-			{
-				spell_list[i].entry[0][ii].flag = LIST_ENTRY_USED;
-			}
-
-			if (spell_list[i].entry[1][ii].flag == LIST_ENTRY_KNOWN)
-			{
-				spell_list[i].entry[1][ii].flag = LIST_ENTRY_USED;
-			}
-		}
-	}
 }
 
 /**
@@ -1314,7 +1298,7 @@ int main(int argc, char *argv[])
 			}
 			else if (drag == DRAG_QUICKSLOT)
 			{
-				Item = object_find(cpl.win_quick_tag);
+				Item = object_find(cpl.dragging.tag);
 			}
 			else if (drag == DRAG_PDOLL)
 			{
@@ -1325,7 +1309,7 @@ int main(int argc, char *argv[])
 
 			if (drag == DRAG_QUICKSLOT_SPELL)
 			{
-				blit_face(spell_list[quick_slots[cpl.win_quick_tag].groupNr].entry[quick_slots[cpl.win_quick_tag].classNr][quick_slots[cpl.win_quick_tag].spellNr].icon, x, y);
+				blit_face(cpl.dragging.spell->icon, x, y);
 			}
 			else
 			{
