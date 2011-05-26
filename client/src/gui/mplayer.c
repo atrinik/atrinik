@@ -216,6 +216,55 @@ static void mplayer_blacklist_save(list_struct *list)
 }
 
 /**
+ * Initialize music player list by reading the directory 'path'.
+ * @param list The music player list.
+ * @param path The directory to read.
+ * @param duplicates Whether to check for and ignore duplicates in the
+ * directory (entries already in the list). */
+static void mplayer_list_init(list_struct *list, const char *path, uint8 duplicates)
+{
+	DIR *dir;
+	struct dirent *currentfile;
+
+	/* Read the media directory and add the file names to the list. */
+	dir = opendir(path);
+
+	while ((currentfile = readdir(dir)))
+	{
+		/* Ignore hidden files and files without extension. */
+		if (currentfile->d_name[0] == '.' || !strchr(currentfile->d_name, '.'))
+		{
+			continue;
+		}
+
+		/* Check for duplicates. */
+		if (duplicates)
+		{
+			uint8 found = 0;
+			uint32 row;
+
+			for (row = 0; row < list->rows; row++)
+			{
+				if (!strcmp(list->text[row][0], currentfile->d_name))
+				{
+					found = 1;
+					break;
+				}
+			}
+
+			if (found)
+			{
+				continue;
+			}
+		}
+
+		list_add(list, list->rows, 0, currentfile->d_name);
+	}
+
+	closedir(dir);
+}
+
+/**
  * Render the music player widget.
  * @param widget The widget. */
 void widget_show_mplayer(widgetdata *widget)
@@ -234,9 +283,7 @@ void widget_show_mplayer(widgetdata *widget)
 	/* The list doesn't exist yet, create it. */
 	if (!list)
 	{
-		DIR *dir;
-		struct dirent *currentfile;
-		size_t i = 0;
+		char buf[HUGE_BUF];
 
 		/* Create the list and set up settings. */
 		list = list_create(LIST_MPLAYER, 10, 2, 12, 1, 8);
@@ -247,26 +294,15 @@ void widget_show_mplayer(widgetdata *widget)
 		list_set_column(list, 0, 130, 7, NULL, -1);
 		list_set_font(list, FONT_ARIAL10);
 
-		/* Read the default media directory and add the file names to the list. */
-		dir = opendir(DIRECTORY_MEDIA);
-
-		while ((currentfile = readdir(dir)))
-		{
-			/* Ignore hidden files and files without extension. */
-			if (currentfile->d_name[0] == '.' || !strchr(currentfile->d_name, '.'))
-			{
-				continue;
-			}
-
-			list_add(list, i, 0, currentfile->d_name);
-			i++;
-		}
-
-		closedir(dir);
+		/* Add default media directory songs. */
+		mplayer_list_init(list, DIRECTORY_MEDIA, 0);
+		snprintf(buf, sizeof(buf), "%s/.atrinik/"PACKAGE_VERSION"/"DIRECTORY_MEDIA, get_config_dir());
+		/* Now add custom ones, but ignore duplicates. */
+		mplayer_list_init(list, buf, 1);
 
 		/* If we added any, sort the list alphabetically and add an entry
 		 * to disable background music. */
-		if (i)
+		if (list->rows)
 		{
 			FILE *fp;
 
@@ -302,7 +338,7 @@ void widget_show_mplayer(widgetdata *widget)
 				fclose(fp);
 			}
 
-			list_add(list, i++, 0, "Disable music");
+			list_add(list, list->rows, 0, "Disable music");
 		}
 
 		list_set_focus(list);
@@ -330,6 +366,7 @@ void widget_show_mplayer(widgetdata *widget)
 		box.h = 0;
 		box.w = widget->wd;
 		string_blt(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		list->focus = 1;
 		list_show(list);
 		box.w /= 2;
 		string_blt(widget->widgetSF, FONT_SANS10, "Currently playing:", widget->wd / 2, 22, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER, &box);
