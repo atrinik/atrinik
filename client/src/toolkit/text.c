@@ -234,7 +234,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[HUGE_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
-	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255;
+	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255, in_bold = 0;
+	uint8 remove_bold = 0;
 
 	if (c == '\r')
 	{
@@ -359,12 +360,28 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Bold. */
 		else if (!strncmp(cp, "<b>", 3))
 		{
-			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+			}
+			else
+			{
+				in_bold = 1;
+			}
+
 			return 3;
 		}
 		else if (!strncmp(cp, "</b>", 4))
 		{
-			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+			}
+			else
+			{
+				in_bold = 0;
+			}
+
 			return 4;
 		}
 		/* Italic. */
@@ -832,10 +849,21 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
+	if (in_bold && !surface && !(TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD))
+	{
+		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+		remove_bold = 1;
+	}
+
 	/* Get the glyph's metrics. */
 	if (TTF_GlyphMetrics(fonts[*font].font, c, &minx, NULL, NULL, NULL, &width) == -1)
 	{
 		return ret;
+	}
+
+	if (remove_bold)
+	{
+		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
 	}
 
 	if (minx < 0)
@@ -1034,7 +1062,6 @@ int glyph_get_height(int font, char c)
 	{
 		if (miny)
 		{
-			//LOG(llevInfo, "%d, %d\n", miny, maxy);
 			maxy -= miny;
 		}
 
