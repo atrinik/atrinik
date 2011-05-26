@@ -112,7 +112,6 @@ static void spell_list_reload()
 {
 	list_struct *list;
 	size_t i;
-	spell_entry_struct *spell = NULL;
 	uint32 offset, rows, selected;
 
 	list = list_exists(LIST_SPELLS);
@@ -120,16 +119,6 @@ static void spell_list_reload()
 	if (!list)
 	{
 		return;
-	}
-
-	if (list->text)
-	{
-		size_t spell_id;
-
-		if (spell_find_path_selected(list->text[list->row_selected - 1][0], &spell_id))
-		{
-			spell = spell_get(spell_list_path, spell_id);
-		}
 	}
 
 	offset = list->row_offset;
