@@ -90,6 +90,12 @@ typedef struct button_struct
 	/** When the mouse started hovering over the button. */
 	uint32 hover_ticks;
 
+	/** Ticks needed to trigger a repeat. */
+	uint32 pressed_repeat_ticks;
+
+	/**
+	 * Function called on button repeat
+	 * @param button The button. */
 	void (*repeat_func)(struct button_struct *button);
 } button_struct;
 
