@@ -15,6 +15,7 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-Os" />
+					<Add option="-Wno-uninitialized" />
 				</Compiler>
 			</Target>
 			<Target title="Debug">
@@ -25,6 +26,7 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-Wno-uninitialized" />
 				</Compiler>
 			</Target>
 		</Build>
