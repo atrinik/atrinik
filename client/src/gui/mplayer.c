@@ -277,6 +277,7 @@ void widget_show_mplayer(widgetdata *widget)
 	SDL_Rect box, box2;
 	list_struct *list;
 	const char *bg_music;
+	char buf[HUGE_BUF];
 
 	if (!widget->widgetSF)
 	{
@@ -288,8 +289,6 @@ void widget_show_mplayer(widgetdata *widget)
 	/* The list doesn't exist yet, create it. */
 	if (!list)
 	{
-		char buf[HUGE_BUF];
-
 		/* Create the list and set up settings. */
 		list = list_create(LIST_MPLAYER, 10, 2, 12, 1, 8);
 		list->handle_enter_func = list_handle_enter;
@@ -388,8 +387,17 @@ void widget_show_mplayer(widgetdata *widget)
 	box.h = 0;
 	box.w = widget->wd / 2;
 
+	/* Store the background music file name in temporary buffer and
+	 * make sure it won't overflow by truncating it if necessary. */
+	if (bg_music)
+	{
+		strncpy(buf, bg_music, sizeof(buf) - 1);
+		buf[sizeof(buf) - 1] = '\0';
+		string_truncate_overflow(FONT_SANS11, buf, 150);
+	}
+
 	/* Show the music that is being played. */
-	string_blt(ScreenSurface, FONT_SANS11, bg_music ? bg_music : "No music", widget->x1 + widget->wd / 2, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+	string_blt(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
 
 	button_play.x = widget->x1 + 10;
 	button_play.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;

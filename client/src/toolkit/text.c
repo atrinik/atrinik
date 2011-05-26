@@ -1446,6 +1446,30 @@ int string_get_height(int font, const char *text, uint64 flags)
 }
 
 /**
+ * Truncate a text string if overflow would occur when rendering it.
+ * @param font Font used for the text.
+ * @param text The text.
+ * @param max_width Maximum possible width. */
+void string_truncate_overflow(int font, char *text, int max_width)
+{
+	size_t pos = 0;
+	int width = 0;
+
+	while (text[pos] != '\0')
+	{
+		width += glyph_get_width(font, text[pos]);
+
+		if (width > max_width)
+		{
+			text[pos] = '\0';
+			break;
+		}
+
+		pos++;
+	}
+}
+
+/**
  * Enable text debugging. */
 void text_enable_debug()
 {

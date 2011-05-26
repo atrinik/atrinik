@@ -519,6 +519,7 @@ void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color c
 void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
 int string_get_width(int font, const char *text, uint64 flags);
 int string_get_height(int font, const char *text, uint64 flags);
+void string_truncate_overflow(int font, char *text, int max_width);
 void text_enable_debug();
 
 /* toolkit/text_input.c */
