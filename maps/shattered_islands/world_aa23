@@ -2,13 +2,12 @@ arch map
 name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-05-18 Alex Tokar
+Modified: 2011-05-26 emperorbma
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-no_harm 1
 tile_path_1 world_aa24
 tile_path_2 world_0123
 tile_path_3 world_aa22
@@ -2610,6 +2609,7 @@ hp 6
 sp 15
 race Rockforge
 item_power 5
+stand_still 1
 x 17
 end
 arch blocked
@@ -3272,6 +3272,7 @@ arch spawn_point
 x 21
 y 5
 arch dwarf_steelclad
+name Tockli Goldrock
 level 30
 type 83
 end
@@ -3333,6 +3334,7 @@ hp 2
 sp 4
 race Rockforge
 item_power 5
+stand_still 1
 x 21
 y 16
 end
@@ -3488,11 +3490,11 @@ y 19
 end
 arch check_inv
 layer 0
+player_only 1
 sys_object 1
 slaying rockforge_entry_item
 sp 1
 last_grace 1
-xrays 0
 x 22
 y 19
 end
@@ -3630,6 +3632,7 @@ y 19
 end
 arch check_inv
 layer 0
+player_only 1
 sys_object 1
 slaying rockforge_entry_item
 sp 1
