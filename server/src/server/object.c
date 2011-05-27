@@ -607,7 +607,7 @@ object *merge_ob(object *op, object *top)
 			continue;
 		}
 
-		if (CAN_MERGE(op,top))
+		if (CAN_MERGE(op, top))
 		{
 			top->nrof += op->nrof;
 
