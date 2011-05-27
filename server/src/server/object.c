@@ -538,7 +538,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 	}
 
 	/* Ignore REMOVED and BEEN_APPLIED */
-	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300) != (ob2->flags[0] | 0x300) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power)
+	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300 | (1 << FLAG_IS_READY)) != (ob2->flags[0] | 0x300 | (1 << FLAG_IS_READY)) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power)
 	{
 		return 0;
 	}
@@ -2401,6 +2401,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 		}
 	}
 
+	CLEAR_FLAG(newob, FLAG_IS_READY);
 	newob->nrof = nr;
 	return newob;
 }
@@ -2542,6 +2543,7 @@ object *insert_ob_in_ob(object *op, object *where)
 	if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
 		object *tmp;
+		int ready;
 
 		for (tmp = where->inv; tmp; tmp = tmp->below)
 		{
@@ -2559,10 +2561,18 @@ object *insert_ob_in_ob(object *op, object *where)
 				SET_FLAG(op, FLAG_REMOVED);
 
 				op = tmp;
+				ready = QUERY_FLAG(op, FLAG_IS_READY);
+				CLEAR_FLAG(op, FLAG_IS_READY);
 				/* And fix old object's links (we will insert it further down)*/
 				remove_ob(op);
 				/* Just kidding about previous remove */
 				CLEAR_FLAG(op, FLAG_REMOVED);
+
+				if (ready)
+				{
+					SET_FLAG(op, FLAG_IS_READY);
+				}
+
 				break;
 			}
 		}
