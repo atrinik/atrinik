@@ -79,6 +79,5 @@ typedef struct _quickslot
 } _quickslot;
 
 extern int quickslot_group;
-extern _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
 
 #endif

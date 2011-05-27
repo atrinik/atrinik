@@ -85,7 +85,7 @@ const char *gender_noun[GENDER_MAX] =
  * Clear the player data like quickslots, inventory items, etc. */
 void clear_player()
 {
-	memset(quick_slots, -1, sizeof(quick_slots));
+	quickslots_init();
 	objects_init();
 	init_player_data();
 }

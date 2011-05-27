@@ -394,6 +394,7 @@ int console_party();
 void widget_show_resist(widgetdata *widget);
 
 /* gui/quickslots.c */
+void quickslots_init();
 void quickslots_handle_key(SDL_KeyboardEvent *key, int slot);
 int get_quickslot(int x, int y);
 void show_quickslots(int x, int y, int vertical_quickslot);

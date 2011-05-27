@@ -30,7 +30,7 @@
 #include <include.h>
 
 /** Quick slot entries */
-_quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
+static _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
 
 /** Current quickslot group */
 int quickslot_group = 1;
@@ -102,6 +102,18 @@ static void quickslot_unset(uint8 slot)
 	SockList_AddChar(&sl, CMD_QUICKSLOT_UNSET);
 	SockList_AddChar(&sl, slot);
 	send_socklist(sl);
+}
+
+void quickslots_init()
+{
+	size_t slot;
+
+	/* Clear all quickslots. */
+	for (slot = 0; slot < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; slot++)
+	{
+		quick_slots[slot].tag = -1;
+		quick_slots[slot].spell = NULL;
+	}
 }
 
 /**
