@@ -982,15 +982,14 @@ static void remove_unpaid_objects(object *op, object *env)
  * @return How much to regenerate. */
 static int get_regen_amount(uint16 regen, uint16 *remainder)
 {
-	int ret = 1;
+	int ret = 0;
 	float div;
 
-	/* Check if the regen is higher than <max ticks per second> every
-	 * second. If so, we need to update the remainder variable (which will
-	 * distribute the remainder evenly over time). */
-	if (pticks % 8 == 0 && regen / 10.0f > (float) 1000000 / MAX_TIME)
+	/* Check whether it's time to update the remainder variable (which
+	 * will distribute the remainder evenly over time). */
+	if (pticks % 8 == 0)
 	{
-		*remainder += (int) (((float) (regen / 10.0f - (float) 1000000 / MAX_TIME)) * 10);
+		*remainder += regen;
 	}
 
 	/* First check if we can distribute it evenly, if not, try to remove
@@ -1028,6 +1027,7 @@ void do_some_living(object *op)
 	int rate_hp = 2000;
 	int rate_sp = 1200;
 	int rate_grace = 400;
+	int add;
 
 	if (CONTR(op)->state != ST_PLAYING)
 	{
@@ -1046,11 +1046,13 @@ void do_some_living(object *op)
 	CONTR(op)->gen_client_grace = ((float) (1000000 / MAX_TIME) / ((float) rate_grace / (MAX(gen_grace, 20) + 10))) * 10.0f;
 
 	/* Regenerate hit points. */
-	if (--op->last_heal < 0)
+	if (op->stats.hp < op->stats.maxhp && op->stats.food)
 	{
-		if (op->stats.hp < op->stats.maxhp && op->stats.food)
+		add = get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
+
+		if (add)
 		{
-			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
+			op->stats.hp += add;
 
 			if (op->stats.hp > op->stats.maxhp)
 			{
@@ -1072,20 +1074,20 @@ void do_some_living(object *op)
 				}
 			}
 		}
-		else
-		{
-			CONTR(op)->gen_hp_remainder = 0;
-		}
-
-		op->last_heal = rate_hp / (MAX(gen_hp, 20) + 10);
+	}
+	else
+	{
+		CONTR(op)->gen_hp_remainder = 0;
 	}
 
 	/* Regenerate mana. */
-	if (--op->last_sp < 0)
+	if (op->stats.sp < op->stats.maxsp && op->stats.food)
 	{
-		if (op->stats.sp < op->stats.maxsp && op->stats.food)
+		add = get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
+
+		if (add)
 		{
-			op->stats.sp += get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
+			op->stats.sp += add;
 
 			if (op->stats.sp > op->stats.maxsp)
 			{
@@ -1107,12 +1109,10 @@ void do_some_living(object *op)
 				}
 			}
 		}
-		else
-		{
-			CONTR(op)->gen_sp_remainder = 0;
-		}
-
-		op->last_sp = rate_sp / (MAX(gen_sp, 20) + 10);
+	}
+	else
+	{
+		CONTR(op)->gen_sp_remainder = 0;
 	}
 
 	/* Stop and pray. */
@@ -1142,8 +1142,6 @@ void do_some_living(object *op)
 				new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
 				CONTR(op)->praying = 0;
 			}
-
-			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
 		}
 		else
 		{
@@ -1155,41 +1153,35 @@ void do_some_living(object *op)
 	{
 		new_draw_info(NDI_UNIQUE, op, "You stop praying.");
 		CONTR(op)->was_praying = 0;
-		op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
 	}
 
 	/* Regenerate grace. */
 	if (CONTR(op)->praying || op->stats.grace < op->stats.maxgrace / 3)
 	{
-		if (--op->last_grace < 0)
+		if (op->stats.grace < op->stats.maxgrace)
 		{
-			if (op->stats.grace < op->stats.maxgrace)
+			add = get_regen_amount(!CONTR(op)->praying ? CONTR(op)->gen_client_grace / 10 : CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+
+			if (add)
 			{
-				op->stats.grace += get_regen_amount(CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+				op->stats.grace += add;
 
 				if (op->stats.grace > op->stats.maxgrace)
 				{
 					op->stats.grace = op->stats.maxgrace;
 				}
 			}
-			else
-			{
-				CONTR(op)->gen_grace_remainder = 0;
-			}
+		}
+		else
+		{
+			CONTR(op)->gen_grace_remainder = 0;
+		}
 
-			if (op->stats.grace >= op->stats.maxgrace)
-			{
-				op->stats.grace = op->stats.maxgrace;
-				new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
-				CONTR(op)->was_praying = 0;
-			}
-
-			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
-
-			if (!CONTR(op)->praying)
-			{
-				op->last_grace = MAX(1, op->last_grace) * 10;
-			}
+		if (op->stats.grace >= op->stats.maxgrace)
+		{
+			op->stats.grace = op->stats.maxgrace;
+			new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
+			CONTR(op)->was_praying = 0;
 		}
 	}
 
