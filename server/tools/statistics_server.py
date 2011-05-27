@@ -20,44 +20,7 @@ def handle_stat(database, type, name, i, buf):
 	# Not yet in the database, initialize the player.
 	if not name in database:
 		database[name] = {
-			"stats": {
-				"deaths": 0,
-				"kills_mob": 0,
-				"kills_pvp": 0,
-				"damage_taken": 0,
-				"damage_dealt": 0,
-				"hp_regen": 0,
-				"sp_regen": 0,
-				"grace_regen": 0,
-				"food_consumed": 0,
-				"food_num_consumed": 0,
-				"damage_healed": 0,
-				"damage_healed_other": 0,
-				"damage_heal_received": 0,
-				"steps_taken": 0,
-				"spells_cast": 0,
-				"prayers_cast": 0,
-				"time_played": 0,
-				"time_afk": 0,
-				"arrows_fired": 0,
-				"missiles_thrown": 0,
-				"books_read": 0,
-				"unique_books_read": 0,
-				"potions_used": 0,
-				"scrolls_used": 0,
-				"exp_gained": 0,
-				"items_dropped": 0,
-				"items_picked": 0,
-				"corpses_searched": 0,
-				"traps_found": 0,
-				"traps_disarmed": 0,
-				"traps_sprung": 0,
-				"afk_used": 0,
-				"formed_party": 0,
-				"joined_party": 0,
-				"renamed_items": 0,
-				"emotes_used": 0,
-			},
+			"stats": {},
 			"kills": {},
 		}
 
@@ -69,6 +32,9 @@ def handle_stat(database, type, name, i, buf):
 		database[name]["kills"][buf] += i
 	# Regular integer-based statistic.
 	else:
+		if not type in database[name]["stats"]:
+			database[name]["stats"][type] = 0
+
 		database[name]["stats"][type] += i
 
 ## Open the monthly database.
