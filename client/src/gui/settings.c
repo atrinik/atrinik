@@ -468,6 +468,9 @@ static void settings_popup_draw_func(popup_struct *popup)
 {
 	SDL_Rect box;
 	size_t i;
+	int x, y, mx, my;
+	char buf[MAX_BUF];
+	uint64 flags;
 
 	box.x = 0;
 	box.y = 10;
@@ -476,6 +479,8 @@ static void settings_popup_draw_func(popup_struct *popup)
 	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 	box.y += 50;
 
+	SDL_GetMouseState(&mx, &my);
+
 	for (i = 0; i < BUTTON_NUM; i++)
 	{
 		if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
@@ -483,13 +488,29 @@ static void settings_popup_draw_func(popup_struct *popup)
 			continue;
 		}
 
-		if (button_selected == i)
+		flags = TEXT_ALIGN_CENTER;
+		x = Screensize->x / 2 - popup->surface->w / 2 + box.x;
+		y = Screensize->y / 2 - popup->surface->h / 2 + box.y;
+
+		if (mx >= x && my < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
 		{
-			string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", button_names[i]);
+			snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
+			flags |= TEXT_MARKUP;
 		}
 		else
 		{
-			string_blt_shadow(popup->surface, FONT_SERIF40, button_names[i], box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+			strncpy(buf, button_names[i], sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+		}
+
+		if (button_selected == i)
+		{
+			string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), flags | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", buf);
+		}
+		else
+		{
+
+			string_blt_shadow(popup->surface, FONT_SERIF40, buf, box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), flags, &box);
 		}
 
 		box.y += FONT_HEIGHT(FONT_SERIF40);
