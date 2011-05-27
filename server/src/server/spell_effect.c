@@ -947,6 +947,16 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 		if (target->stats.hp < target->stats.maxhp)
 		{
+			if (target == op)
+			{
+				CONTR(op)->stat_damage_healed += MIN(heal, target->stats.maxhp - target->stats.hp);
+			}
+			else
+			{
+				CONTR(op)->stat_damage_healed_other += MIN(heal, target->stats.maxhp - target->stats.hp);
+				CONTR(target)->stat_damage_heal_received += MIN(heal, target->stats.maxhp - target->stats.hp);
+			}
+
 			success = 1;
 			target->stats.hp += heal;
 

@@ -940,6 +940,7 @@ void init(int argc, char **argv)
 	init_ericserver();
 	metaserver_init();
 	load_bans_file();
+	statistics_init();
 	reset_sleep();
 	init_done = 1;
 }

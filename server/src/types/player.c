@@ -1053,6 +1053,7 @@ void do_some_living(object *op)
 		if (add)
 		{
 			op->stats.hp += add;
+			CONTR(op)->stat_hp_regen += add;
 
 			if (op->stats.hp > op->stats.maxhp)
 			{
@@ -1088,6 +1089,7 @@ void do_some_living(object *op)
 		if (add)
 		{
 			op->stats.sp += add;
+			CONTR(op)->stat_sp_regen += add;
 
 			if (op->stats.sp > op->stats.maxsp)
 			{
@@ -1165,6 +1167,7 @@ void do_some_living(object *op)
 			if (add)
 			{
 				op->stats.grace += add;
+				CONTR(op)->stat_grace_regen += add;
 
 				if (op->stats.grace > op->stats.maxgrace)
 				{
@@ -1323,6 +1326,8 @@ void kill_player(object *op)
 	{
 		return;
 	}
+
+	CONTR(op)->stat_deaths++;
 
 	/* Trigger the global GDEATH event */
 	trigger_global_event(GEVENT_PLAYER_DEATH, NULL, op);

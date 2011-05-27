@@ -401,6 +401,8 @@ void do_throw(object *op, object *toss_item, int dir)
 		return;
 	}
 
+	CONTR(op)->stat_missiles_thrown++;
+
 	set_owner(throw_ob, op);
 	set_owner(throw_ob->inv, op);
 	throw_ob->direction = dir;

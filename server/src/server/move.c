@@ -153,6 +153,11 @@ int move_ob(object *op, int dir, object *originator)
 
 	insert_ob_in_map(op, op->map, originator, 0);
 
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->stat_steps_taken++;
+	}
+
 	return 1;
 }
 

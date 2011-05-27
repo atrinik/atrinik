@@ -878,6 +878,11 @@ static int basic_emote(object *op, char *params, int emotion)
 
 	LOG(llevChat, "Emote: %s, params: %s, target: %s, emote: %d\n", query_name(op, NULL), params ? params : "NULL", CONTR(op) ? query_name(CONTR(op)->target_object, NULL) : "NULL", emotion);
 
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->stat_emotes_used++;
+	}
+
 	params = cleanup_chat_string(params);
 
 	if (params && *params == '\0')

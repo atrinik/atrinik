@@ -346,41 +346,46 @@ static int potion_restoration_apply(object *op, object *tmp)
  * @return 1 if the potion was successfully applied, 0 otherwise. */
 int apply_potion(object *op, object *tmp)
 {
-	if (op->type == PLAYER)
+	if (op->type != PLAYER)
 	{
-		if (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])
-		{
-			LOG(llevBug, "apply_potion(): Called with invalid player object (no controller or no magic/wisdom exp object).\n");
-			return 0;
-		}
+		return 0;
+	}
 
-		/* Use magic devices skill for using potions. */
-		if (!change_skill(op, SK_USE_MAGIC_ITEM))
-		{
-			return 0;
-		}
+	if (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])
+	{
+		LOG(llevBug, "apply_potion(): Called with invalid player object (no controller or no magic/wisdom exp object).\n");
+		return 0;
+	}
 
-		/* We are using it, so we now know what it does. */
-		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-		{
-			identify(tmp);
-		}
+	/* Use magic devices skill for using potions. */
+	if (!change_skill(op, SK_USE_MAGIC_ITEM))
+	{
+		return 0;
+	}
 
-		/* Potions with temporary effects. */
-		if (tmp->last_eat == -1)
-		{
-			return potion_special_apply(op, tmp);
-		}
-		/* Potion of minor restoration (removes depletion). */
-		else if (tmp->last_eat == 1)
-		{
-			return potion_restoration_apply(op, tmp);
-		}
-		/* Improvement potion. */
-		else if (tmp->last_eat == 2)
-		{
-			return potion_improve_apply(op, tmp);
-		}
+	/* We are using it, so we now know what it does. */
+	if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
+	{
+		identify(tmp);
+	}
+
+	/* Potions with temporary effects. */
+	if (tmp->last_eat == -1)
+	{
+		CONTR(op)->stat_potions_used++;
+		return potion_special_apply(op, tmp);
+	}
+	/* Potion of minor restoration (removes depletion). */
+	else if (tmp->last_eat == 1)
+	{
+		CONTR(op)->stat_potions_used++;
+		return potion_restoration_apply(op, tmp);
+	}
+	/* Improvement potion. */
+	else if (tmp->last_eat == 2)
+	{
+		CONTR(op)->stat_potions_used++;
+		return potion_improve_apply(op, tmp);
 	}
 
 	if (tmp->stats.sp == SP_NO_SPELL)
@@ -389,6 +394,8 @@ int apply_potion(object *op, object *tmp)
 		decrease_ob(tmp);
 		return 0;
 	}
+
+	CONTR(op)->stat_potions_used++;
 
 	/* Fire in the player's facing direction, unless the spell is
 	 * something like healing or cure disease. */

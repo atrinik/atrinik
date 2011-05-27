@@ -380,6 +380,16 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		op->damage_round_tag = ROUND_TAG;
 	}
 
+	if (hit_obj->type == PLAYER)
+	{
+		CONTR(hit_obj)->stat_damage_dealt += maxdam;
+	}
+
+	if (target_obj->type == PLAYER)
+	{
+		CONTR(target_obj)->stat_damage_taken += maxdam;
+	}
+
 	op->last_damage += maxdam;
 
 	/* Damage the target got */
@@ -986,6 +996,16 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		else
 		{
 			new_draw_info_format(NDI_UNIQUE, owner, "You killed %s.", query_name(op, NULL));
+		}
+
+		if (op->type == MONSTER)
+		{
+			CONTR(owner)->stat_kills_mob++;
+			statistic_update("kills", owner, 1, op->name);
+		}
+		else if (op->type == PLAYER)
+		{
+			CONTR(owner)->stat_kills_pvp++;
 		}
 	}
 

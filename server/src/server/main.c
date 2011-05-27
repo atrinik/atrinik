@@ -886,6 +886,21 @@ static void process_players1()
 			hiscore_check(pl->ob, 1);
 		}
 #endif
+
+		/* Update total playing time. */
+		if (pl->state == ST_PLAYING && time(NULL) > pl->last_stat_time_played)
+		{
+			pl->last_stat_time_played = time(NULL);
+
+			if (pl->afk)
+			{
+				pl->stat_time_afk++;
+			}
+			else
+			{
+				pl->stat_time_played++;
+			}
+		}
 	}
 }
 

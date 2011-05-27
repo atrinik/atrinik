@@ -339,6 +339,7 @@ void remove_ns_dead_player(player *pl)
 	{
 		/* Trigger the global LOGOUT event */
 		trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
+		statistics_player_logout(pl);
 
 		if (!pl->dm_stealth)
 		{

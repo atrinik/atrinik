@@ -361,6 +361,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 
 	/* Notify the player of the exp gain */
 	new_draw_info_format(NDI_UNIQUE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
+	CONTR(op)->stat_exp_gained += exp;
 
 	/* adjust_exp() has adjusted the skill and all exp_obj and player
 	 * experience. Now let's check for level up in all categories. */

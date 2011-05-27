@@ -81,6 +81,8 @@ static double book_exp_mod[MAX_STAT + 1] =
 void apply_book(object *op, object *tmp)
 {
 	int lev_diff;
+	SockList sl;
+	unsigned char sock_buf[MAXSOCKBUF];
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
 	{
@@ -134,70 +136,62 @@ void apply_book(object *op, object *tmp)
 	}
 
 	new_draw_info_format(NDI_UNIQUE, op, "You open the %s and start reading.", tmp->name);
+	CONTR(op)->stat_books_read++;
 
-	if (HAS_EVENT(tmp, EVENT_APPLY))
+	sl.buf = sock_buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
+
+	if (CONTR(op)->socket.socket_version >= 1043)
 	{
-		/* Trigger the APPLY event */
-		trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL);
-	}
-	else
+	char buf[MAXSOCKBUF - 10];
+	const char *cp = tmp->msg;
+	size_t pos = 0, len = 0;
+
+	while (cp[pos] != '\0')
 	{
-		SockList sl;
-		unsigned char sock_buf[MAXSOCKBUF];
-
-		sl.buf = sock_buf;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
-
-		if (CONTR(op)->socket.socket_version >= 1043)
+		if (!strncmp(cp + pos, "\">", 2))
 		{
-		char buf[MAXSOCKBUF - 10];
-		const char *cp = tmp->msg;
-		size_t pos = 0, len = 0;
-
-		while (cp[pos] != '\0')
-		{
-			if (!strncmp(cp + pos, "\">", 2))
-			{
-				strncpy(buf + len, "\">\n", sizeof(buf) - len - 1);
-				len += 3;
-				pos += 1;
-			}
-			else
-			{
-				buf[len] = cp[pos];
-				len++;
-			}
-
-			pos++;
-
-			if (len > sizeof(buf) - 1)
-			{
-				break;
-			}
-		}
-
-		SockList_AddStringUnterm(&sl, "<book>");
-		SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
-		SockList_AddStringUnterm(&sl, "</book>");
-
-		buf[len] = '\0';
-		strcpy((char *) sl.buf + sl.len, buf);
-		sl.len += strlen(buf) + 1;
+			strncpy(buf + len, "\">\n", sizeof(buf) - len - 1);
+			len += 3;
+			pos += 1;
 		}
 		else
 		{
-		SockList_AddInt(&sl, tmp->weight_limit);
-		strcpy((char *) sl.buf + sl.len, tmp->msg);
-		sl.len += strlen(tmp->msg) + 1;
+			buf[len] = cp[pos];
+			len++;
 		}
 
-		Send_With_Handling(&CONTR(op)->socket, &sl);
+		pos++;
+
+		if (len > sizeof(buf) - 1)
+		{
+			break;
+		}
 	}
+
+	SockList_AddStringUnterm(&sl, "<book>");
+	SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
+	SockList_AddStringUnterm(&sl, "</book>");
+
+	buf[len] = '\0';
+	strcpy((char *) sl.buf + sl.len, buf);
+	sl.len += strlen(buf) + 1;
+	}
+	else
+	{
+	SockList_AddInt(&sl, tmp->weight_limit);
+	strcpy((char *) sl.buf + sl.len, tmp->msg);
+	sl.len += strlen(tmp->msg) + 1;
+	}
+
+	Send_With_Handling(&CONTR(op)->socket, &sl);
 
 	/* Gain xp from reading but only if not read before. */
 	if (!QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT))
 	{
 		sint64 exp_gain, old_exp;
+
+		CONTR(op)->stat_unique_books_read++;
 
 		/* Store original exp value. We want to keep the experience cap
 		 * from calc_skill_exp() below, so we temporarily adjust the exp

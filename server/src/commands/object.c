@@ -297,6 +297,11 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 	}
 #endif
 
+	if (pl->type == PLAYER)
+	{
+		CONTR(pl)->stat_items_picked++;
+	}
+
 	if (QUERY_FLAG(tmp, FLAG_UNPAID))
 	{
 		/* This is a clone shop - clone an item for inventory */
@@ -772,6 +777,11 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 		{
 			return;
 		}
+	}
+
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->stat_items_dropped++;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID))
@@ -1851,6 +1861,7 @@ int command_rename_item(object *op, char *params)
 		/* Set custom name. */
 		FREE_AND_COPY_HASH(tmp->custom_name, params);
 		new_draw_info_format(NDI_UNIQUE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+		CONTR(op)->stat_renamed_items++;
 	}
 
 	del_tag = tmp->count;

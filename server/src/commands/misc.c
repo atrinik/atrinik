@@ -529,6 +529,7 @@ int command_afk(object *op, char *params)
 	else
 	{
 		CONTR(op)->afk = 1;
+		CONTR(op)->stat_afk_used++;
 		new_draw_info(NDI_UNIQUE, op, "You are now AFK.");
 	}
 
@@ -882,6 +883,7 @@ int command_party(object *op, char *params)
 				if (party->passwd[0] == '\0' || (party_password && !strcmp(party->passwd, party_password)))
 				{
 					add_party_member(party, op);
+					CONTR(op)->stat_joined_party++;
 					new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "You have joined party: %s.", party->name);
 					snprintf(buf, sizeof(buf), "%s joined party %s.", op->name, party->name);
 					send_party_message(party, buf, PARTY_MESSAGE_STATUS, op);

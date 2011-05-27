@@ -854,6 +854,11 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
 
+/* server/statistics.c */
+void statistics_init();
+void statistic_update(const char *type, object *op, sint64 i, const char *buf);
+void statistics_player_logout(player *pl);
+
 /* server/stringbuffer.c */
 StringBuffer *stringbuffer_new();
 char *stringbuffer_finish(StringBuffer *sb);
@@ -1040,8 +1045,8 @@ int operate_altar(object *altar, object **sacrifice);
 void apply_armour_improver(object *op, object *tmp);
 
 /* types/arrow.c */
-sint16 arrow_get_wc(object *op, object *bow, object *arrow);
 sint32 bow_get_ws(object *bow, object *arrow);
+sint16 arrow_get_wc(object *op, object *bow, object *arrow);
 sint16 arrow_get_damage(object *op, object *bow, object *arrow);
 object *arrow_find(object *op, shstr *type, int tag);
 void bow_fire(object *op, int dir);

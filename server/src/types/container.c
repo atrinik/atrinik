@@ -177,6 +177,11 @@ int esrv_apply_container(object *op, object *sack)
 		}
 	}
 
+	if ((sack->sub_type == ST1_CONTAINER_CORPSE_party || sack->sub_type == ST1_CONTAINER_CORPSE_player) && !QUERY_FLAG(sack, FLAG_BEEN_APPLIED))
+	{
+		CONTR(op)->stat_corpses_searched++;
+	}
+
 	/* Only after actually readying/opening the container we know more
 	 * about it. */
 	SET_FLAG(sack, FLAG_BEEN_APPLIED);

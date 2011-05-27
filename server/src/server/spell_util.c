@@ -579,6 +579,18 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 		}
 	}
 
+	if (caster->type == PLAYER)
+	{
+		if (s->type == SPELL_TYPE_WIZARD)
+		{
+			CONTR(caster)->stat_spells_cast++;
+		}
+		else
+		{
+			CONTR(caster)->stat_prayers_cast++;
+		}
+	}
+
 	/* We need to calculate the spell point cost before the spell actually
 	 * does something, otherwise the following can happen (example):
 	 * Player has 7 mana left, kills a monster with magic bullet (which costs 7

@@ -230,6 +230,8 @@ void bow_fire(object *op, int dir)
 		return;
 	}
 
+	CONTR(op)->stat_arrows_fired++;
+
 	/* These are arrows left to the player */
 	left = arrow;
 	left_tag = left->count;
