@@ -72,6 +72,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 
 	FREE_AND_COPY_HASH(marked->msg, buf);
 	new_draw_info_format(NDI_UNIQUE, op, "You write in the %s.", query_short_name(marked, op));
+	CONTR(op)->stat_books_inscribed++;
 
 	return strlen(msg);
 }

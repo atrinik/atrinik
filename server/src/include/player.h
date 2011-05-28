@@ -557,6 +557,11 @@ typedef struct pl_player
 	/** Number of times the player has used an emote command. */
 	uint64 stat_emotes_used;
 
+	/**
+	 * Number of times the player used inscription skill to write in a
+	 * book. */
+	uint64 stat_books_inscribed;
+
 	/** Count of target. */
 	uint32 target_object_count;
 

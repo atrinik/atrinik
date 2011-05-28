@@ -148,4 +148,5 @@ void statistics_player_logout(player *pl)
 	statistic_update("joined_party", pl->ob, pl->stat_joined_party, NULL);
 	statistic_update("renamed_items", pl->ob, pl->stat_renamed_items, NULL);
 	statistic_update("emotes_used", pl->ob, pl->stat_emotes_used, NULL);
+	statistic_update("books_inscribed", pl->ob, pl->stat_books_inscribed, NULL);
 }
