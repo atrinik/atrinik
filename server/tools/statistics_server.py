@@ -1,7 +1,7 @@
 ## @file
 ## Implements the statistics server. Requires Python 3.0 or later.
 
-import socket, shelve, sys
+import socket, shelve, sys, time
 from datetime import datetime
 
 ## Get 64-bit integer from data.
@@ -52,6 +52,8 @@ def check_monthly_db():
 
 ## The main loop.
 def main():
+	last_time = time.time()
+
 	while True:
 		data, address = s.recvfrom(65565)
 		check_monthly_db()
@@ -72,6 +74,12 @@ def main():
 		# Store the data.
 		handle_stat(db, type, name, i, buf)
 		handle_stat(db_monthly, type, name, i, buf)
+
+		# Flush cache every hour.
+		if time.time() >= last_time + 60 * 60:
+			db.sync()
+			db_monthly.sync()
+			last_time = time.time()
 
 # Need at least Python 3.0.
 if sys.version_info < (3, 0):
