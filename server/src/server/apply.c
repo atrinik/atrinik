@@ -897,6 +897,17 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 			return 0;
 
+		case COMPASS:
+			if (op->type == PLAYER)
+			{
+				const char *direction_names[] = {"north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"};
+
+				new_draw_info_format(NDI_UNIQUE, op, "You are facing %s.", direction_names[absdir(op->facing) - 1]);
+				return 1;
+			}
+
+			return 0;
+
 		/* So the below default case doesn't execute for these objects,
 		 * even if they have message. */
 		case DOOR:

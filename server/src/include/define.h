@@ -521,6 +521,9 @@
  * Identification altar. */
 #define IDENTIFY_ALTAR 139
 /**
+ * Compass. */
+#define COMPASS 151
+/**
  * Map information object. */
 #define MAP_INFO 152
 /**

@@ -432,6 +432,7 @@ static const Atrinik_Constant constants_types[] =
 	{"SYMPTOM", SYMPTOM},
 	{"MAP_EVENT_OBJ", MAP_EVENT_OBJ},
 	{"MAP_INFO", MAP_INFO},
+	{"COMPASS", COMPASS},
 
 	{NULL, 0}
 };
