@@ -2237,7 +2237,8 @@ void command_fire(uint8 *buf, int len, player *pl)
 	}
 
 	/* Get the direction for firing and the fire mode (type). */
-	dir = absdir(buf[pos++]);
+	dir = buf[pos++];
+	dir = MAX(0, MIN(dir, 8));
 	type = buf[pos++];
 
 	/* For spell and skill firing, get the name of what to use. */
