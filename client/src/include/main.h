@@ -124,8 +124,6 @@ typedef struct _options
 #ifdef WIDGET_SNAP
 	int widget_snap;
 #endif
-	int mapstart_x;
-	int mapstart_y;
 	int map_size_x;
 	int map_size_y;
 
@@ -698,7 +696,6 @@ extern struct _Font SystemFont;
 extern struct _Font Font6x3Out;
 
 extern SDL_Surface *ScreenSurface;
-extern SDL_Surface *ScreenSurfaceMap;
 
 /* Server's attributes */
 extern struct sockaddr_in insock;

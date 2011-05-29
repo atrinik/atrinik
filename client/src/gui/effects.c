@@ -575,10 +575,10 @@ void effect_sprites_play()
 		{
 			if (tmp->x + x_check < 0)
 			{
-				tmp->x = ScreenSurfaceMap->w;
+				tmp->x = cur_widget[MAP_ID]->wd;
 				continue;
 			}
-			else if (tmp->x - x_check > ScreenSurfaceMap->w)
+			else if (tmp->x - x_check > cur_widget[MAP_ID]->wd)
 			{
 				tmp->x = -x_check;
 				continue;
@@ -586,7 +586,7 @@ void effect_sprites_play()
 		}
 
 		/* Off-screen? */
-		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > ScreenSurfaceMap->w) || tmp->y + y_check < 0 || tmp->y - y_check > ScreenSurfaceMap->h)
+		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > cur_widget[MAP_ID]->ht) || tmp->y + y_check < 0 || tmp->y - y_check > cur_widget[MAP_ID]->ht)
 		{
 			effect_sprite_remove(tmp);
 			continue;
@@ -665,12 +665,12 @@ void effect_sprites_play()
 			else
 			{
 				/* Calculate where to put the sprite. */
-				sprite->x = (double) ScreenSurfaceMap->w * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
+				sprite->x = (double) cur_widget[MAP_ID]->wd * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
 			}
 
 			if (sprite->def->reverse)
 			{
-				sprite->y = ScreenSurfaceMap->h - FaceList[sprite->def->id].sprite->bitmap->h;
+				sprite->y = cur_widget[MAP_ID]->ht - FaceList[sprite->def->id].sprite->bitmap->h;
 			}
 			else if (sprite->def->y != -1)
 			{

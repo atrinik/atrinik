@@ -106,7 +106,7 @@ int Event_PollInputDevice()
 			}
 			/* Mouse gesture: hold right+left buttons or middle button
 			 * to fire. */
-			else if (!cpl.action_timer && cpl.menustatus == MENU_NO && !widget_mouse_event.owner)
+			else if (!cpl.action_timer && cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID])
 			{
 				int state = SDL_GetMouseState(&x, &y);
 
@@ -123,8 +123,6 @@ int Event_PollInputDevice()
 
 	while (SDL_PollEvent(&event))
 	{
-		static int old_map_mouse_x = 0, old_map_mouse_y = 0;
-
 		if (event.type == SDL_KEYUP)
 		{
 			keys_pressed[event.key.keysym.sym] = 0;
@@ -214,8 +212,6 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEMOTION:
 			{
-				int map_mouse_x, map_mouse_y;
-
 				mb_clicked = 0;
 
 				if (lists_handle_mouse(x, y, &event))
@@ -235,13 +231,6 @@ int Event_PollInputDevice()
 				if (cpl.menustatus != MENU_NO)
 				{
 					break;
-				}
-
-				if (mouse_to_tile_coords(x, y, &map_mouse_x, &map_mouse_y) && (map_mouse_x != old_map_mouse_x || map_mouse_y != old_map_mouse_y))
-				{
-					map_redraw_flag = 1;
-					old_map_mouse_x = map_mouse_x;
-					old_map_mouse_y = map_mouse_y;
 				}
 
 				if (widget_event_mousemv(x, y, &event))
@@ -306,45 +295,6 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				/* Mouse in play field */
-				if (mouse_to_tile_coords(x, y, &tx, &ty))
-				{
-					uint8 state = SDL_GetMouseState(NULL, NULL);
-
-					cpl.inventory_win = IWIN_BELOW;
-
-					/* Targeting */
-					if (state == SDL_BUTTON(SDL_BUTTON_RIGHT))
-					{
-						char buf[MAX_BUF];
-
-						snprintf(buf, sizeof(buf), "/target !%d %d", tx, ty);
-						send_command(buf);
-					}
-					/* Running */
-					else if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
-					{
-						if (cpl.fire_on || cpl.run_on)
-						{
-							move_keys(dir_from_tile_coords(tx, ty));
-						}
-						else
-						{
-							SockList sl;
-							uint8 buf[HUGE_BUF];
-
-							sl.buf = buf;
-							sl.len = 0;
-							SockList_AddString(&sl, "mp ");
-							SockList_AddChar(&sl, tx);
-							SockList_AddChar(&sl, ty);
-							send_socklist(sl);
-						}
-					}
-
-					break;
-				}
-
 				break;
 			}
 
@@ -360,6 +310,7 @@ int Event_PollInputDevice()
 			default:
 				break;
 		}
+
 		old_mouse_y = y;
 	}
 

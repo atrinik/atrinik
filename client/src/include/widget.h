@@ -244,6 +244,7 @@ typedef enum WidgetID
 	FPS_ID,
 	MPLAYER_ID,
 	SPELLS_ID,
+	MAP_ID,
 	CONTAINER_ID,
 	LABEL_ID,
 	BITMAP_ID,

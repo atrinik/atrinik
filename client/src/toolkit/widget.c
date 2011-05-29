@@ -73,6 +73,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -1187,7 +1188,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
-	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT))
+	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT) && widget->WidgetTypeID != MAP_ID)
 	{
 		/* For some reason, checking for the ctrl key won't work here. */
 		if (cpl.fire_on)
@@ -1283,6 +1284,10 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case SPELLS_ID:
 				widget_spells_mevent(widget, event);
+				break;
+
+			case MAP_ID:
+				widget_map_mevent(widget, event);
 				break;
 		}
 	}
@@ -1401,6 +1406,10 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case MENU_B_ID:
 				widget_menubuttons_event(widget, event);
+				break;
+
+			case MAP_ID:
+				widget_map_mevent(widget, event);
 				break;
 		}
 
@@ -1582,6 +1591,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			case MENU_B_ID:
 				widget_menubuttons_event(widget, event);
+				break;
+
+			case MAP_ID:
+				widget_map_mevent(widget, event);
 				break;
 		}
 

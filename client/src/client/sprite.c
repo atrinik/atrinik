@@ -274,7 +274,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 	}
 
 	blt_sprite = sprite->bitmap;
-	surface = ScreenSurfaceMap;
+	surface = cur_widget[MAP_ID]->widgetSF;
 	dst.x = x;
 	dst.y = y;
 
@@ -1140,8 +1140,8 @@ void play_anims()
 
 					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + options.map_size_x && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + options.map_size_y)
 					{
-						xpos = options.mapstart_x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
-						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
+						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
+						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
 
 						if (anim->value < 0)
 						{
@@ -1162,8 +1162,8 @@ void play_anims()
 
 					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + options.map_size_x && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + options.map_size_y)
 					{
-						xpos = options.mapstart_x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
-						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
+						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
+						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
 
 						sprite_blt(Bitmaps[BITMAP_DEATH], xpos + anim->x - 5, ypos + tmp_y - 4, NULL, NULL);
 						snprintf(buf, sizeof(buf), "%d", anim->value);

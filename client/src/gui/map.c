@@ -33,11 +33,19 @@
 #define MAP_NAME_FONT FONT_SERIF14
 
 static struct Map the_map;
+static SDL_Surface *zoomed = NULL;
 
 /** Current shown map: mapname, length, etc */
 _mapdata MapData;
 
 static _multi_part_obj MultiArchs[16];
+
+/** Holds coordinates of the last map square the mouse was over. */
+static int old_map_mouse_x = 0, old_map_mouse_y = 0;
+/**
+ * When the right button was pressed on the map widget. -1 = not
+ * pressed. */
+static int right_click_ticks = -1;
 
 /* Load the multi arch offsets */
 void load_mapdef_dat()
@@ -130,8 +138,8 @@ void map_draw_map_clear()
 	{
 		for (y = 0; y < options.map_size_y; y++)
 		{
-			xpos = options.mapstart_x + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
-			ypos = options.mapstart_y + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
+			xpos = x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
+			ypos = x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
 			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0, 0, 0);
 		}
 	}
@@ -600,7 +608,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
 		{
-			StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[layer], xpos - (strlen(map->pname[layer]) * 2) + 22, yl - 26, map->pcolor[layer], NULL, NULL);
+			StringBlt(cur_widget[MAP_ID]->widgetSF, &Font6x3Out, map->pname[layer], xpos - (strlen(map->pname[layer]) * 2) + 22, yl - 26, map->pcolor[layer], NULL, NULL);
 		}
 	}
 
@@ -704,39 +712,39 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		rect.x = 0;
 		rect.y = 0;
 
-		sdl_col = SDL_MapRGB(ScreenSurfaceMap->format, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].b);
+		sdl_col = SDL_MapRGB(cur_widget[MAP_ID]->widgetSF->format, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].b);
 
 		/* First draw the bar */
 		rect.x = xmpos + xtemp - 1;
 		rect.y = yl - 9;
 		rect.h = 1;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 		/* Horizontal lines of left bracket */
 		rect.h = 1;
 		rect.w = 3;
 		rect.x = xmpos + xtemp - 3;
 		rect.y = yl - 11;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 		rect.y = yl - 7;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 		/* Horizontal lines of right bracket */
 		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 3;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 		rect.y = yl - 11;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 		/* Vertical lines */
 		rect.w = 1;
 		rect.h = 5;
 		rect.x = xmpos + xtemp - 3;
 		rect.y = yl - 11;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 1;
-		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 
 		/* Draw the name of target if it's not a player */
 		if (!(options.player_names && map->pname[layer][0]))
 		{
-			StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, cpl.target_name) / 2 - 2, yl - 26, cpl.target_color, NULL, NULL);
+			StringBlt(cur_widget[MAP_ID]->widgetSF, &Font6x3Out, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, cpl.target_name) / 2 - 2, yl - 26, cpl.target_color, NULL, NULL);
 		}
 
 		/* Draw HP remaining percent */
@@ -745,7 +753,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 			char hp_text[9];
 
 			snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
-			StringBlt(ScreenSurfaceMap, &Font6x3Out, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, hp_text) / 2 - 2, yl - 36, hp_col, NULL, NULL);
+			StringBlt(cur_widget[MAP_ID]->widgetSF, &Font6x3Out, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, hp_text) / 2 - 2, yl - 36, hp_col, NULL, NULL);
 		}
 	}
 }
@@ -784,7 +792,7 @@ void map_draw_map()
 		}
 	}
 
-	if (cpl.menustatus == MENU_NO && !widget_mouse_event.owner && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
+	if (cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
 	{
 		map_draw_one(tx, ty, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
 	}
@@ -811,6 +819,212 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 	}
 
 	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0);
+}
+
+/**
+ * Send a command to move the player to the specified square.
+ * @param tx Square X position.
+ * @param ty Square Y position. */
+static void send_move_path(int tx, int ty)
+{
+	SockList sl;
+	uint8 buf[HUGE_BUF];
+
+	sl.buf = buf;
+	sl.len = 0;
+	SockList_AddString(&sl, "mp ");
+	SockList_AddChar(&sl, tx);
+	SockList_AddChar(&sl, ty);
+	send_socklist(sl);
+}
+
+/**
+ * Send a command to target an NPC.
+ * @param tx NPC's X position.
+ * @param ty NPC's Y position. */
+static void send_target(int tx, int ty)
+{
+	char buf[MAX_BUF];
+
+	snprintf(buf, sizeof(buf), "/target !%d %d", tx, ty);
+	send_command(buf);
+}
+
+/**
+ * Handle mouse events inside the map widget.
+ * @param widget The widget.
+ * @param event The event to handle. */
+void widget_map_mevent(widgetdata *widget, SDL_Event *event)
+{
+	int tx, ty;
+
+	(void) widget;
+
+	/* Check if the mouse is in play field. */
+	if (!mouse_to_tile_coords(event->motion.x, event->motion.y, &tx, &ty))
+	{
+		return;
+	}
+
+	if (event->type == SDL_MOUSEBUTTONUP)
+	{
+		/* Send target command if we released the right button in time;
+		 * otherwise the widget menu will be created. */
+		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
+		{
+			send_target(tx, ty);
+		}
+
+		right_click_ticks = -1;
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (event->button.button == SDL_BUTTON_RIGHT)
+		{
+			right_click_ticks = SDL_GetTicks();
+		}
+		/* Running */
+		else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT)
+		{
+			if (cpl.fire_on || cpl.run_on)
+			{
+				move_keys(dir_from_tile_coords(tx, ty));
+			}
+			else
+			{
+				send_move_path(tx, ty);
+			}
+		}
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		if (tx != old_map_mouse_x || ty != old_map_mouse_y)
+		{
+			map_redraw_flag = 1;
+			old_map_mouse_x = tx;
+			old_map_mouse_y = ty;
+		}
+	}
+}
+
+/**
+ * Press the "Walk Here" option in map widget menu. */
+static void menu_map_walk_here(widgetdata *widget, int x, int y)
+{
+	int tx, ty;
+
+	(void) widget;
+	(void) x;
+	(void) y;
+
+	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
+	{
+		send_move_path(tx, ty);
+	}
+}
+
+/**
+ * Press the "Talk To NPC" option in map widget menu. */
+static void menu_map_talk_to(widgetdata *widget, int x, int y)
+{
+	int tx, ty;
+
+	(void) widget;
+	(void) x;
+	(void) y;
+
+	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
+	{
+		send_target(tx, ty);
+		send_command("/t_tell hi");
+	}
+}
+
+/**
+ * Render the map widget.
+ * @param widget The widget. */
+void widget_map_render(widgetdata *widget)
+{
+	static int gfx_toggle = 0;
+	SDL_Rect box;
+	int mx, my;
+
+	if (!widget->widgetSF)
+	{
+		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), 850, 600, options.used_video_bpp, 0, 0, 0, 0);
+	}
+
+	if (options.zoom != 100)
+	{
+		int w, h;
+
+		zoomSurfaceSize(widget->widgetSF->w, widget->widgetSF->h, options.zoom / 100.0, options.zoom / 100.0, &w, &h);
+		widget->wd = w;
+		widget->ht = h;
+	}
+
+	/* We recreate the map only when there is a change. */
+	if (map_redraw_flag && (!popup_get_visible() || popup_overlay_need_update(popup_get_visible())))
+	{
+		SDL_FillRect(widget->widgetSF, NULL, 0);
+		map_draw_map();
+		map_redraw_flag = 0;
+		effect_sprites_play();
+
+		if (options.zoom != 100)
+		{
+			if (zoomed)
+			{
+				SDL_FreeSurface(zoomed);
+			}
+
+			zoomed = zoomSurface(widget->widgetSF, options.zoom / 100.0, options.zoom / 100.0, options.zoom_smooth);
+		}
+	}
+
+	box.x = widget->x1;
+	box.y = widget->y1;
+
+	if (options.zoom == 100)
+	{
+		SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
+	}
+	else
+	{
+		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &box);
+	}
+
+	/* The damage numbers */
+	play_anims();
+
+	/* Draw warning icons above player */
+	if ((gfx_toggle++ & 63) < 25)
+	{
+		if (options.warning_hp && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= options.warning_hp)
+		{
+			sprite_blt(Bitmaps[BITMAP_WARN_HP], widget->x1 + 393 * (options.zoom / 100.0), widget->y1 + 298 * (options.zoom / 100.0), NULL, NULL);
+		}
+	}
+	else
+	{
+		/* Low food */
+		if (options.warning_food && ((float) cpl.stats.food / 1000.0f) * 100 <= options.warning_food)
+		{
+			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], widget->x1 + 390 * (options.zoom / 100.0), widget->y1 + 294 * (options.zoom / 100.0), NULL, NULL);
+		}
+	}
+
+	/* Holding the right mouse button for some time, create a menu. */
+	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_RIGHT) && right_click_ticks != -1 && SDL_GetTicks() - right_click_ticks > 500)
+	{
+		widgetdata *menu;
+
+		menu = create_menu(mx, my, widget);
+		add_menuitem(menu, "Walk Here", &menu_map_walk_here, MENU_NORMAL, 0);
+		add_menuitem(menu, "Talk To NPC", &menu_map_talk_to, MENU_NORMAL, 0);
+		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+		right_click_ticks = -1;
+	}
 }
 
 /** Tile offsets used in mouse_to_tile_coords(). */
@@ -859,8 +1073,8 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 
 	/* Adjust mouse x/y, making it look as if the map was drawn from
 	 * top left corner, in order to simplify comparisons below. */
-	mx -= (MAP_START_XOFF * (options.zoom / 100.0)) + options.mapstart_x;
-	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + options.mapstart_y;
+	mx -= (MAP_START_XOFF * (options.zoom / 100.0)) + cur_widget[MAP_ID]->x1;
+	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + cur_widget[MAP_ID]->y1;
 
 	/* Go through all the map squares. */
 	for (x = options.map_size_x - 1; x >= 0; x--)

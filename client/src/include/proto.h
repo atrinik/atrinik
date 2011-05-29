@@ -369,6 +369,8 @@ void map_clear_cell(int x, int y);
 void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
 void map_draw_one(int x, int y, _Sprite *sprite);
+void widget_map_mevent(widgetdata *widget, SDL_Event *event);
+void widget_map_render(widgetdata *widget);
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 
 /* gui/menu_buttons.c */

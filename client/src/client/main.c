@@ -31,10 +31,6 @@
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
-/** Map surface. */
-SDL_Surface *ScreenSurfaceMap;
-/** Zoomed map surface. */
-SDL_Surface *zoomed;
 _Font MediumFont;
 /* our main font */
 _Font SystemFont;
@@ -348,8 +344,6 @@ static void init_game_data()
 #endif
 
 	options.zoom = 100;
-	options.mapstart_x = 0;
-	options.mapstart_y = 10;
 
 	load_options_dat();
 
@@ -935,56 +929,11 @@ void list_vid_modes()
  * Map, animations and other effects. */
 static void display_layer1()
 {
-	static int gfx_toggle = 0;
-	SDL_Rect rect;
-
 	SDL_FillRect(ScreenSurface, NULL, 0);
 
-	/* We recreate the map only when there is a change */
-	if (map_redraw_flag && (!popup_get_visible() || popup_overlay_need_update(popup_get_visible())))
+	if (GameStatus == GAME_STATUS_PLAY)
 	{
-		SDL_FillRect(ScreenSurfaceMap, NULL, 0);
-		map_draw_map();
-		map_redraw_flag = 0;
-		effect_sprites_play();
-
-		if (options.zoom != 100)
-		{
-			SDL_FreeSurface(zoomed);
-			zoomed = zoomSurface(ScreenSurfaceMap, options.zoom / 100.0, options.zoom / 100.0, options.zoom_smooth);
-		}
-	}
-
-	rect.x = options.mapstart_x;
-	rect.y = options.mapstart_y;
-
-	if (options.zoom == 100)
-	{
-		SDL_BlitSurface(ScreenSurfaceMap, NULL, ScreenSurface, &rect);
-	}
-	else
-	{
-		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &rect);
-	}
-
-	/* The damage numbers */
-	play_anims();
-
-	/* Draw warning icons above player */
-	if ((gfx_toggle++ & 63) < 25)
-	{
-		if (options.warning_hp && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= options.warning_hp)
-		{
-			sprite_blt(Bitmaps[BITMAP_WARN_HP], options.mapstart_x + 393 * (options.zoom / 100.0), options.mapstart_y + 298 * (options.zoom / 100.0), NULL, NULL);
-		}
-	}
-	else
-	{
-		/* Low food */
-		if (options.warning_food && ((float) cpl.stats.food / 1000.0f) * 100 <= options.warning_food)
-		{
-			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], options.mapstart_x + 390 * (options.zoom / 100.0), options.mapstart_y + 294 * (options.zoom / 100.0), NULL, NULL);
-		}
+		widget_map_render(cur_widget[MAP_ID]);
 	}
 }
 
@@ -1148,7 +1097,6 @@ int main(int argc, char *argv[])
 	}
 
 	sprite_init_system();
-	ScreenSurfaceMap = SDL_CreateRGBSurface(videoflags, 850, 600, options.used_video_bpp, 0,0,0,0);
 
 	/* 60, 70*/
 	sdl_dgreen = SDL_MapRGB(ScreenSurface->format, 0x00, 0x80, 0x00);

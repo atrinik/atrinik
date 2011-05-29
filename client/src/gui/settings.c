@@ -85,8 +85,6 @@ _option opt[] =
 
 	/* Map */
 	{"Player Names:", "Show names of players above their heads.", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
-	{"Playfield start X:", "The X-position of the playfield.", "", SEL_RANGE, -200, 1000, 10, 0, &options.mapstart_x, VAL_INT},
-	{"Playfield start Y:", "The Y-position of the playfield.", "", SEL_RANGE, -200, 700, 10, 10, &options.mapstart_y, VAL_INT},
 	{"Playfield zoom:", "The zoom percentage of the playfield.", "", SEL_RANGE, 50, 200, 5, 100, &options.zoom, VAL_INT},
 	{"Smooth zoom:", "Whether to use smooth zoom on the playfield.\nWarning: Very CPU intensive.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.zoom_smooth, VAL_BOOL},
 	{"Low health warning:", "Shows a low health warning above your head.\nActivated if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
