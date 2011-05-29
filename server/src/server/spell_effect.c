@@ -632,7 +632,14 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 
 				if (!is_friend_of(op, tmp))
 				{
-					hit_player(tmp, dam, hitter, attacktype);
+					sint16 damage = dam;
+
+					if (tmp->quick_pos)
+					{
+						damage /= (tmp->quick_pos >> 4) + 1;
+					}
+
+					hit_player(tmp, damage, hitter, attacktype);
 					break;
 				}
 			}
