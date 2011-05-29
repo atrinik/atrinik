@@ -492,7 +492,7 @@ static void settings_popup_draw_func(popup_struct *popup)
 		x = Screensize->x / 2 - popup->surface->w / 2 + box.x;
 		y = Screensize->y / 2 - popup->surface->h / 2 + box.y;
 
-		if (mx >= x && my < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
+		if (mx >= x && mx < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
 		{
 			snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
 			flags |= TEXT_MARKUP;
