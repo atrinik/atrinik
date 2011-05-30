@@ -1184,11 +1184,8 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		return 0;
 	}
 
-	if (widget->WidgetTypeID != MAP_ID)
-	{
-		/* Set the priority to this widget */
-		SetPriorityWidget(widget);
-	}
+	/* Set the priority to this widget */
+	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
 	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT) && widget->WidgetTypeID != MAP_ID)
@@ -1934,6 +1931,11 @@ void SetPriorityWidget(widgetdata *node)
 #ifdef DEBUG_WIDGET
 		LOG(llevDebug, "..SetPriorityWidget(): Done (Node does not exist).\n");
 #endif
+		return;
+	}
+
+	if (node->WidgetTypeID == MAP_ID)
+	{
 		return;
 	}
 
