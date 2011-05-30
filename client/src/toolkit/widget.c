@@ -1184,8 +1184,11 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		return 0;
 	}
 
-	/* Set the priority to this widget */
-	SetPriorityWidget(widget);
+	if (widget->WidgetTypeID != MAP_ID)
+	{
+		/* Set the priority to this widget */
+		SetPriorityWidget(widget);
+	}
 
 	/* Right mouse button was clicked */
 	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT) && widget->WidgetTypeID != MAP_ID)
