@@ -2029,6 +2029,55 @@ void SetPriorityWidget(widgetdata *node)
 #endif
 }
 
+/**
+ * Like SetPriorityWidget(), but in reverse.
+ * @param node The widget. */
+void SetPriorityWidget_reverse(widgetdata *node)
+{
+	if (!node)
+	{
+		return;
+	}
+
+	if (!node->next)
+	{
+		return;
+	}
+
+	if (!node->prev)
+	{
+		if (node->env)
+		{
+			node->env->inv_rev = node->next;
+		}
+		else
+		{
+			widget_list_head = node->next;
+		}
+
+		node->next->prev = NULL;
+	}
+	else
+	{
+		node->next->prev = node->prev;
+		node->prev->next = node->next;
+	}
+
+	if (node->env)
+	{
+		node->prev = node->env->inv;
+		node->env->inv = node;
+	}
+	else
+	{
+		node->prev = widget_list_foot;
+		widget_list_foot = node;
+	}
+
+	node->prev->next = node;
+	node->next = NULL;
+}
+
 void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget)
 {
 	_widget_container *container;

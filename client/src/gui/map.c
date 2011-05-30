@@ -954,6 +954,9 @@ void widget_map_render(widgetdata *widget)
 		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), 850, 600, options.used_video_bpp, 0, 0, 0, 0);
 	}
 
+	/* Make sure the map widget is always the last to handle events for. */
+	SetPriorityWidget_reverse(widget);
+
 	if (options.zoom != 100)
 	{
 		int w, h;

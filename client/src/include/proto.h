@@ -567,6 +567,7 @@ widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
 widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *end);
 void process_widgets();
 void process_widgets_rec(widgetdata *widget);
+void SetPriorityWidget_reverse(widgetdata *node);
 void SetPriorityWidget(widgetdata *node);
 void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
 widgetdata *get_outermost_container(widgetdata *widget);
