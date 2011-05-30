@@ -1024,7 +1024,6 @@ int main(int argc, char *argv[])
 {
 	int x, y, drag, done = 0;
 	uint32 anim_tick, frame_start_time;
-	Uint32 videoflags;
 	size_t i;
 
 	init_signals();
@@ -1078,7 +1077,6 @@ int main(int argc, char *argv[])
 	system_start();
 	list_vid_modes();
 
-	videoflags = get_video_flags();
 	options.used_video_bpp = 16;
 
 	if (!options.fullscreen_flag)
