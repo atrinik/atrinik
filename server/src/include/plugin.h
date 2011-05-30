@@ -332,6 +332,7 @@ struct plugin_hooklist
 	mapstruct **first_map;
 	party_struct **first_party;
 	region **first_region;
+	FILE **logfile;
 };
 
 /** General API function. */

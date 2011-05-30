@@ -2060,9 +2060,23 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 	PyDict_SetItemString(PyModule_GetDict(module), name, list);
 }
 
+/**
+ * Open a log file in replacement for stdout and stderr.
+ * @param fp File pointer.
+ * @param name Name, for example, \<stdout\>.
+ * @return The opened log file. */
+static PyObject *python_openlogfile(FILE *fp, char *name)
+{
+#ifdef IS_PY3K
+	return PyFile_FromFd(fileno(fp), name, "w", 1, NULL, NULL, NULL, 0);
+#else
+	return PyFile_FromFile(fp, name, "w", 0);
+#endif
+}
+
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	PyObject *m, *d, *module_tmp;
+	PyObject *m, *d, *module_tmp, *logfile;
 	int i;
 
 	hooks = hooklist;
@@ -2102,6 +2116,13 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	{
 		return;
 	}
+
+	logfile = python_openlogfile(*hooks->logfile, "<stdout>");
+	PySys_SetObject("stdout", logfile);
+	PySys_SetObject("__stdout__", logfile);
+	logfile = python_openlogfile(*hooks->logfile, "<stderr>");
+	PySys_SetObject("stderr", logfile);
+	PySys_SetObject("__stderr__", logfile);
 
 	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
