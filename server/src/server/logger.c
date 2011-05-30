@@ -71,13 +71,6 @@ static void do_print(const char *buf)
 		fputs(buf, stderr);
 	}
 
-#ifdef DEBUG
-	if (logfile)
-	{
-		fflush(logfile);
-	}
-#endif
-
 	if (logfile && logfile != stderr)
 	{
 		fputs(buf, stderr);
@@ -90,6 +83,13 @@ static void do_print(const char *buf)
 	else
 	{
 		fputs(buf, stderr);
+	}
+#endif
+
+#ifdef DEBUG
+	if (logfile)
+	{
+		fflush(logfile);
 	}
 #endif
 }
