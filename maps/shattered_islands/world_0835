@@ -488,6 +488,12 @@ arch spawn_point
 x 2
 y 11
 arch female3
+msg
+@match ^hi$|^hey$|^hello$
+Can't you see I'm ^reading^?
+@match ^reading$
+Yes, reading.  Is it a crime for the daughter of a king to enjoy reading?
+endmsg
 name Princess Helena
 level 18
 type 83
