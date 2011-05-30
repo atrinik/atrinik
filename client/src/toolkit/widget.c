@@ -1113,7 +1113,7 @@ void save_interface_file()
 	fputs("#############################################\n", stream);
 
 	/* start walking through the widgets */
-	save_interface_file_rec(widget_list_head, stream);
+	save_interface_file_rec(widget_list_foot, stream);
 
 	fclose(stream);
 }
@@ -1128,14 +1128,14 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		/* skip the widget if it shouldn't be saved */
 		if (!widget->save)
 		{
-			widget = widget->next;
+			widget = widget->prev;
 			continue;
 		}
 
 		/* we want to process the widgets starting from the left hand side of the tree first */
-		if (widget->inv)
+		if (widget->inv_rev)
 		{
-			save_interface_file_rec(widget->inv, stream);
+			save_interface_file_rec(widget->inv_rev, stream);
 		}
 
 		fprintf(stream, "\nWidget: %s\n", widget->name);
@@ -1154,7 +1154,7 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		fputs("end\n", stream);
 
 		/* get the next sibling for our next loop */
-		widget = widget->next;
+		widget = widget->prev;
 	}
 	while (widget);
 }
