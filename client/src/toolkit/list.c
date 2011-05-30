@@ -862,12 +862,12 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 
 			list->scrollbar_y = event->motion.y - old_scrollbar_pos;
 
-			if (list->scrollbar_y > scrollbar_box.h - list->scrollbar_h - 1)
+			if (list->scrollbar_y > scrollbar_box.h - list->scrollbar_h)
 			{
-				list->scrollbar_y = scrollbar_box.h - list->scrollbar_h - 1;
+				list->scrollbar_y = scrollbar_box.h - list->scrollbar_h;
 			}
 
-			list->row_offset = MAX(0, list->scrollbar_y) * list->rows / (LIST_ROW_HEIGHT(list) * list->max_rows - 1);
+			list->row_offset = MIN(list->rows - list->max_rows, MAX(0, list->scrollbar_y) * list->rows / scrollbar_box.h);
 			list->row_selected = list->max_rows + list->row_offset - 1;
 			return 1;
 		}
