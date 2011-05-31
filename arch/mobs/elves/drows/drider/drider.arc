@@ -1,6 +1,6 @@
 Object drider
 name drider
-face drider.131
+face drider.333
 race drows
 is_male 1
 behavior 2
