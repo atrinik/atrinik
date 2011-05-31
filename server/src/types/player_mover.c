@@ -82,7 +82,7 @@ void move_player_mover(object *op)
 			/* Flag to stop moving if there's a wall. */
 			if (QUERY_FLAG(op, FLAG_STAND_STILL) && blocked(victim, mt, xt, yt, victim->terrain_flag))
 			{
-				return;
+				continue;
 			}
 
 			/* Unless there is an alive object or a player on the square
@@ -123,12 +123,16 @@ void move_player_mover(object *op)
 				}
 				else
 				{
-					return;
+					continue;
 				}
 			}
 			else if (op->stats.grace)
 			{
 				move_object(victim, dir);
+			}
+			else
+			{
+				continue;
 			}
 
 			if (!op->stats.maxsp && op->stats.sp)
