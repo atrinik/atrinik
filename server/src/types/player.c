@@ -1681,8 +1681,18 @@ char *player_get_race_class(object *op, char *buf, size_t size)
 
 	if (CONTR(op)->class_ob)
 	{
+		shstr *name_female;
+
 		strncat(buf, " ", size - strlen(buf) - 1);
-		strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
+
+		if (object_get_gender(op) == GENDER_FEMALE && (name_female = object_get_value(CONTR(op)->class_ob, "name_female")))
+		{
+			strncat(buf, name_female, size - strlen(buf) - 1);
+		}
+		else
+		{
+			strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
+		}
 	}
 
 	return buf;

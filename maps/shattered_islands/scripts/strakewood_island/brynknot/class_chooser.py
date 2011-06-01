@@ -32,6 +32,7 @@ classes = [
 	},
 	{
 		"name": "sorcerer",
+		"name_female": "sorceress",
 		"msg": "Your study of magic has been obsessive. Your frequent practice has greatly enhanced your powers, and your intellect has been sharpened enormously by your quest for ever better ways to channel energies.\nOn the other hand, you have totally neglected to learn to use weaponry, so you're soft and weak.",
 		"bonus": [
 			"+20% spell points",
@@ -51,7 +52,10 @@ classes = [
 	},
 	{
 		"name": "priest",
-		"msg": "As a priest, you've learned an intense devotion to your god, and you've learned how to channel the energies your god vouchsafes to his devotees.\nYou've been taught the use of weapons, but only cursorily, and your physical training has been lacking in general.",
+		"name_female": "priestess",
+		"msg": "As a {}, you've learned an intense devotion to your god, and you've learned how to channel the energies your god vouchsafes to his devotees.\nYou've been taught the use of weapons, but only cursorily, and your physical training has been lacking in general.",
+		"format": ("priest"),
+		"format_female": ("priestess"),
 		"bonus": [
 			"+20% grace points",
 			"+3 Wisdom",
@@ -60,7 +64,9 @@ classes = [
 	},
 	{
 		"name": "paladin",
-		"msg": "You are a militant priest, with an emphasis on 'priest'.\nYou've been taught archery and the use of weapons, but great care has been taken that you're doctrinally correct. Now you've been sent out in the world to convert the unrighteous and destroy the enemies of the faith. Your church members have been charged a pretty penny to equip you for the job!",
+		"msg": "You are a militant {0}, with an emphasis on '{0}'.\nYou've been taught archery and the use of weapons, but great care has been taken that you're doctrinally correct. Now you've been sent out in the world to convert the unrighteous and destroy the enemies of the faith. Your church members have been charged a pretty penny to equip you for the job!",
+		"format": ("priest"),
+		"format_female": ("priestess"),
 		"bonus": [
 			"+10% hit points",
 			"+10% grace points",
@@ -71,8 +77,19 @@ classes = [
 ]
 
 def main():
+	# Decide which name variant to use depending on the player's gender.
+	if activator.GetGender() == Gender.FEMALE:
+		# Make sure each entry has a female name...
+		for entry in classes:
+			if not "name_female" in entry:
+				entry["name_female"] = entry["name"]
+
+		name = "name_female"
+	else:
+		name = "name"
+
 	if msg == "hello" or msg == "hi" or msg == "hey" or msg == "back":
-		me.SayTo(activator, "\nHello, {}. I am the {}.\nI will teach you the class of your choice. Now, tell me which class do you want more information about:\n{}".format(activator.name, me.name, ", ".join(map(lambda d: "<a>" + d["name"] + "</a>", classes))))
+		me.SayTo(activator, "\nHello, {}. I am the {}.\nI will teach you the class of your choice. Now, tell me which class do you want more information about:\n{}".format(activator.name, me.name, ", ".join(map(lambda d: "<a>" + d[name] + "</a>", classes))))
 
 	# Get a class.
 	elif msg[:7] == "become ":
@@ -80,12 +97,12 @@ def main():
 		if activator.Controller().class_ob:
 			return
 
-		l = list(filter(lambda d: d["name"] == msg[7:], classes))
+		l = list(filter(lambda d: d[name] == msg[7:], classes))
 
 		if not l:
 			return
 
-		me.SayTo(activator, "\nAre you quite sure that you want to become {0}?\n\n<a>Yes, become {0}</a>".format(l[0]["name"]))
+		me.SayTo(activator, "\nAre you quite sure that you want to become {0}?\n\n<a>Yes, become {0}</a>".format(l[0][name]))
 
 	# Confirmation for getting a class.
 	elif msg[:12] == "yes, become ":
@@ -93,7 +110,7 @@ def main():
 		if activator.Controller().class_ob:
 			return
 
-		l = list(filter(lambda d: d["name"] == msg[12:], classes))
+		l = list(filter(lambda d: d[name] == msg[12:], classes))
 
 		if not l:
 			return
@@ -103,19 +120,26 @@ def main():
 		# fix_player() will be called eventually, so we just need to mark
 		# the ext title for update.
 		activator.Controller().s_ext_title_flag = True
-		me.SayTo(activator, "\nCongratulations, you're {} now!".format(l[0]["name"]))
+		me.SayTo(activator, "\nCongratulations, you're {} now!".format(l[0][name]))
 
 	else:
-		l = list(filter(lambda d: d["name"] == msg, classes))
+		l = list(filter(lambda d: d[name] == msg, classes))
 
 		if not l:
 			return
 
+		class_msg = l[0]["msg"]
+
+		if activator.GetGender() == Gender.FEMALE and "format_female" in l[0]:
+			class_msg = class_msg.format(l[0]["format_female"])
+		elif "format" in l[0]:
+			class_msg = class_msg.format(l[0]["format"])
+
 		# Tell the player about this class, and its bonuses.
-		me.SayTo(activator, "\n{}\n<green>Bonuses</green>:\n{}".format(l[0]["msg"], "\n".join(l[0]["bonus"])))
+		me.SayTo(activator, "\n{}\n<green>Bonuses</green>:\n{}".format(class_msg, "\n".join(l[0]["bonus"])))
 
 		# Show a link to get the class or go back to the list of classes.
 		if not activator.Controller().class_ob:
-			me.SayTo(activator, "\n<a>Become {}</a> or go <a>back</a>".format(l[0]["name"]), True)
+			me.SayTo(activator, "\n<a>Become {}</a> or go <a>back</a>".format(l[0][name]), True)
 
 main()

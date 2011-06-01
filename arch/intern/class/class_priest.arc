@@ -1,5 +1,6 @@
 Object class_priest
 name priest
+name_female priestess
 type 37
 layer 0
 sys_object 1
