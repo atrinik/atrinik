@@ -230,6 +230,16 @@ int client_command_check(char *cmd)
 		mplayer_now_playing();
 		return 1;
 	}
+	else if (!strncmp(cmd, "/music_pause", 12))
+	{
+		Mix_PauseMusic();
+		return 1;
+	}
+	else if (!strncmp(cmd, "/music_resume", 13))
+	{
+		Mix_ResumeMusic();
+		return 1;
+	}
 
 	return 0;
 }
