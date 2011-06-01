@@ -608,7 +608,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
 		{
-			StringBlt(cur_widget[MAP_ID]->widgetSF, &Font6x3Out, map->pname[layer], xpos - (strlen(map->pname[layer]) * 2) + 22, yl - 26, map->pcolor[layer], NULL, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS8, map->pname[layer], xpos + 23 - string_get_width(FONT_SANS8, map->pname[layer], 0) / 2, yl - 26, COLOR_SIMPLE(map->pcolor[layer]), TEXT_OUTLINE, NULL);
 		}
 	}
 
@@ -744,7 +744,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		/* Draw the name of target if it's not a player */
 		if (!(options.player_names && map->pname[layer][0]))
 		{
-			StringBlt(cur_widget[MAP_ID]->widgetSF, &Font6x3Out, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, cpl.target_name) / 2 - 2, yl - 26, cpl.target_color, NULL, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS8, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS8, cpl.target_name, 0) / 2 - 2, yl - 24, COLOR_SIMPLE(cpl.target_color), TEXT_OUTLINE, NULL);
 		}
 
 		/* Draw HP remaining percent */
@@ -753,7 +753,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 			char hp_text[9];
 
 			snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
-			StringBlt(cur_widget[MAP_ID]->widgetSF, &Font6x3Out, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - StringWidth(&Font6x3Out, hp_text) / 2 - 2, yl - 36, hp_col, NULL, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS8, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS8, hp_text, 0) / 2 - 2, yl - 36, COLOR_SIMPLE(hp_col), TEXT_OUTLINE, NULL);
 		}
 	}
 }
