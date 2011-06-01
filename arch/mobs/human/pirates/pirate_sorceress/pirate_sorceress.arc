@@ -5,7 +5,7 @@ type 80
 layer 6
 behavior 2
 direction 5
-is_male 1
+is_female 1
 wc_range 20
 is_good 1
 terrain_flag 1
