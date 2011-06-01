@@ -524,3 +524,20 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 		show_help("music player");
 	}
 }
+
+/**
+ * Announce currently playing music to nearby players using /me. */
+void mplayer_now_playing()
+{
+	char buf[HUGE_BUF];
+
+	if (sound_map_background(-1) && Mix_PlayingMusic())
+	{
+		snprintf(buf, sizeof(buf), "/me is currently listening to: %s", sound_get_bg_music_basename());
+		send_command(buf);
+	}
+	else
+	{
+		draw_info("You are not playing any custom music.", COLOR_RED);
+	}
+}

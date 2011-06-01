@@ -225,6 +225,11 @@ int client_command_check(char *cmd)
 		effect_debug(cmd + 10);
 		return 1;
 	}
+	else if (!strncmp(cmd, "/np", 3))
+	{
+		mplayer_now_playing();
+		return 1;
+	}
 
 	return 0;
 }
