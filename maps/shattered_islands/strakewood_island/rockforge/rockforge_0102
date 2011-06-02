@@ -301,9 +301,9 @@ arch floor_bw4
 x 8
 y 6
 end
-arch button_trigger
+arch pedestal
+slaying boulder
 connected 102
-exp 100
 x 8
 y 6
 end
@@ -314,7 +314,8 @@ one_drop 1
 x 8
 y 6
 arch boulder
-food 1
+food 2
+race boulder
 is_used_up 1
 speed 0.02
 end
