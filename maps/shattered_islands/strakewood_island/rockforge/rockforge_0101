@@ -1,0 +1,1655 @@
+arch map
+name Rockforge: Palace
+msg
+Created:  2011-06-02 Alex Tokar
+Modified: 2011-06-02 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+tile_path_1 rockforge_0102
+end
+arch blocked
+x 5
+end
+arch wall_marble1.111a
+x 5
+end
+arch flag_rockforge
+direction 7
+x 5
+end
+arch blocked
+x 5
+y 1
+end
+arch wall_marble1.111
+x 5
+y 1
+end
+arch blocked
+x 5
+y 2
+end
+arch wall_marble1.111
+x 5
+y 2
+end
+arch blocked
+x 5
+y 3
+end
+arch wall_marble1.111a
+x 5
+y 3
+end
+arch flag_rockforge
+direction 7
+x 5
+y 3
+end
+arch blocked
+x 5
+y 4
+end
+arch wall_marble1.111
+x 5
+y 4
+end
+arch blocked
+x 5
+y 5
+end
+arch wall_marble1.111a
+x 5
+y 5
+end
+arch blocked
+x 5
+y 6
+end
+arch wall_marble1.111a
+x 5
+y 6
+end
+arch floor_marble1b
+x 6
+end
+arch floor_marble1b
+x 6
+y 1
+end
+arch floor_marble1b
+x 6
+y 2
+end
+arch floor_marble1b
+x 6
+y 3
+end
+arch floor_marble1b
+x 6
+y 4
+end
+arch floor_marble1
+x 6
+y 5
+end
+arch floor_marble1
+x 6
+y 6
+end
+arch wall_marble1.131a
+x 6
+y 6
+end
+arch floor_marble1b
+x 7
+end
+arch floor_marble1
+x 7
+y 1
+end
+arch floor_marble1a
+x 7
+y 2
+end
+arch fwall_marble2c
+blocksview 0
+draw_double 0
+layer 3
+x 7
+y 2
+end
+arch fmask_rockforge
+rotate -15
+layer 4
+align -14
+z 12
+x 7
+y 2
+end
+arch fmask_rockforge
+rotate 15
+layer 5
+align 12
+z 12
+x 7
+y 2
+end
+arch statue_fire
+z 24
+layer 7
+blocksview 0
+x 7
+y 2
+end
+arch light9
+x 7
+y 2
+end
+arch floor_marble1
+x 7
+y 3
+end
+arch floor_marble1a
+x 7
+y 4
+end
+arch floor_marble1b
+x 7
+y 5
+end
+arch floor_marble1a
+x 7
+y 6
+end
+arch wall_marble1.131a
+x 7
+y 6
+end
+arch floor_marble1
+x 8
+end
+arch carpet2.131
+x 8
+end
+arch floor_marble1b
+x 8
+y 1
+end
+arch carpet2.131
+x 8
+y 1
+end
+arch floor_marble1
+x 8
+y 2
+end
+arch carpet2.131
+x 8
+y 2
+end
+arch floor_marble1a
+x 8
+y 3
+end
+arch carpet2.122
+x 8
+y 3
+end
+arch spawn_point
+x 8
+y 3
+arch dwarf_steelclad
+type 83
+direction 3
+end
+end
+arch floor_marble1b
+x 8
+y 4
+end
+arch floor_marble1b
+x 8
+y 5
+end
+arch floor_marble1
+x 8
+y 6
+end
+arch wall_marble1.131
+x 8
+y 6
+end
+arch floor_marble1
+x 9
+end
+arch carpet2e
+x 9
+end
+arch floor_marble1
+x 9
+y 1
+end
+arch carpet2e
+x 9
+y 1
+end
+arch floor_marble1b
+x 9
+y 2
+end
+arch carpet2j
+x 9
+y 2
+end
+arch floor_marble1a
+x 9
+y 3
+end
+arch carpet2.111
+x 9
+y 3
+end
+arch floor_marble1
+x 9
+y 4
+end
+arch floor_marble1
+x 9
+y 5
+end
+arch floor_marble1
+x 9
+y 6
+end
+arch wall_marble1.131a
+x 9
+y 6
+end
+arch blocked
+x 9
+y 7
+end
+arch wall_marble1.111a
+x 9
+y 7
+end
+arch blocked
+x 9
+y 8
+end
+arch wall_marble1.111
+x 9
+y 8
+end
+arch blocked
+x 9
+y 9
+end
+arch wall_marble1.111a
+x 9
+y 9
+end
+arch blocked
+x 9
+y 10
+end
+arch wall_marble1.111a
+x 9
+y 10
+end
+arch blocked
+x 9
+y 11
+end
+arch wall_marble1.111a
+x 9
+y 11
+end
+arch blocked
+x 9
+y 12
+end
+arch wall_marble1.111
+x 9
+y 12
+end
+arch blocked
+x 9
+y 13
+end
+arch wall_marble1.111
+x 9
+y 13
+end
+arch blocked
+x 9
+y 14
+end
+arch wall_marble1.111a
+x 9
+y 14
+end
+arch blocked
+x 9
+y 15
+end
+arch wall_marble1.111a
+x 9
+y 15
+end
+arch blocked
+x 9
+y 16
+end
+arch wall_marble1.111
+x 9
+y 16
+end
+arch blocked
+x 9
+y 17
+end
+arch wall_marble1.111a
+x 9
+y 17
+end
+arch blocked
+x 9
+y 18
+end
+arch wall_marble1.111a
+x 9
+y 18
+end
+arch blocked
+x 9
+y 19
+end
+arch wall_marble1.111
+x 9
+y 19
+end
+arch blocked
+x 9
+y 20
+end
+arch wall_marble1.111
+x 9
+y 20
+end
+arch blocked
+x 9
+y 21
+end
+arch wall_marble1.111
+x 9
+y 21
+end
+arch blocked
+x 9
+y 22
+end
+arch wall_marble1.111a
+x 9
+y 22
+end
+arch blocked
+x 9
+y 23
+end
+arch wall_marble1.111a
+x 9
+y 23
+end
+arch floor_marble1b
+x 10
+end
+arch carpet2g
+x 10
+end
+arch floor_marble1b
+x 10
+y 1
+end
+arch carpet2g
+x 10
+y 1
+end
+arch floor_marble1a
+x 10
+y 2
+end
+arch carpet2d
+x 10
+y 2
+end
+arch floor_marble1
+x 10
+y 3
+end
+arch carpet2.121
+x 10
+y 3
+end
+arch floor_marble1b
+x 10
+y 4
+end
+arch carpet2.131
+x 10
+y 4
+end
+arch floor_marble1b
+x 10
+y 5
+end
+arch carpet2.131
+x 10
+y 5
+end
+arch floor_marble1
+x 10
+y 6
+end
+arch carpet2.131
+x 10
+y 6
+end
+arch floor_marble1b
+x 10
+y 7
+end
+arch carpet2.131
+x 10
+y 7
+end
+arch lamp_wall
+direction 7
+x 10
+y 7
+end
+arch floor_marble1
+x 10
+y 8
+end
+arch carpet2.131
+x 10
+y 8
+end
+arch spawn_point
+x 10
+y 8
+arch dwarf_steelclad
+type 83
+direction 3
+end
+end
+arch floor_marble1
+x 10
+y 9
+end
+arch carpet2.131
+x 10
+y 9
+end
+arch floor_marble1a
+x 10
+y 10
+end
+arch carpet2.131
+x 10
+y 10
+end
+arch floor_marble1a
+x 10
+y 11
+end
+arch carpet2.131
+x 10
+y 11
+end
+arch lamp_wall
+direction 7
+x 10
+y 11
+end
+arch floor_marble1b
+x 10
+y 12
+end
+arch carpet2.131
+x 10
+y 12
+end
+arch floor_marble1
+x 10
+y 13
+end
+arch carpet2.131
+x 10
+y 13
+end
+arch spawn_point
+x 10
+y 13
+arch dwarf_steelclad
+type 83
+direction 3
+end
+end
+arch floor_marble1a
+x 10
+y 14
+end
+arch carpet2.131
+x 10
+y 14
+end
+arch floor_marble1
+x 10
+y 15
+end
+arch carpet2.131
+x 10
+y 15
+end
+arch lamp_wall
+direction 7
+x 10
+y 15
+end
+arch floor_marble1
+x 10
+y 16
+end
+arch carpet2.131
+x 10
+y 16
+end
+arch floor_marble1a
+x 10
+y 17
+end
+arch carpet2.131
+x 10
+y 17
+end
+arch floor_marble1
+x 10
+y 18
+end
+arch carpet2.131
+x 10
+y 18
+end
+arch spawn_point
+x 10
+y 18
+arch dwarf_steelclad
+type 83
+direction 3
+end
+end
+arch floor_marble1
+x 10
+y 19
+end
+arch carpet2.131
+x 10
+y 19
+end
+arch lamp_wall
+direction 7
+x 10
+y 19
+end
+arch floor_marble1
+x 10
+y 20
+end
+arch carpet2.122
+x 10
+y 20
+end
+arch floor_marble1b
+x 10
+y 21
+end
+arch wall_marble1.131a
+blocksview 0
+x 10
+y 21
+end
+arch floor_marble1
+x 10
+y 22
+end
+arch fwall_marble2b
+blocksview 0
+x 10
+y 22
+end
+arch floor_marble1
+x 10
+y 23
+end
+arch fwall_marble2b
+x 10
+y 23
+end
+arch floor_marble1
+x 11
+end
+arch carpet2g
+x 11
+end
+arch floor_marble1b
+x 11
+y 1
+end
+arch carpet2g
+x 11
+y 1
+end
+arch floor_marble1a
+x 11
+y 2
+end
+arch carpet2g
+x 11
+y 2
+end
+arch light7
+x 11
+y 2
+end
+arch floor_marble1a
+x 11
+y 3
+end
+arch carpet2e
+x 11
+y 3
+end
+arch floor_marble1a
+x 11
+y 4
+end
+arch carpet2e
+x 11
+y 4
+end
+arch floor_marble1b
+x 11
+y 5
+end
+arch carpet2e
+x 11
+y 5
+end
+arch floor_marble1
+x 11
+y 6
+end
+arch carpet2e
+x 11
+y 6
+end
+arch floor_marble1a
+x 11
+y 7
+end
+arch carpet2e
+x 11
+y 7
+end
+arch floor_marble1b
+x 11
+y 8
+end
+arch carpet2e
+x 11
+y 8
+end
+arch floor_marble1
+x 11
+y 9
+end
+arch carpet2e
+x 11
+y 9
+end
+arch floor_marble1
+x 11
+y 10
+end
+arch carpet2e
+x 11
+y 10
+end
+arch floor_marble1a
+x 11
+y 11
+end
+arch carpet2e
+x 11
+y 11
+end
+arch floor_marble1a
+x 11
+y 12
+end
+arch carpet2e
+x 11
+y 12
+end
+arch floor_marble1b
+x 11
+y 13
+end
+arch carpet2e
+x 11
+y 13
+end
+arch floor_marble1b
+x 11
+y 14
+end
+arch carpet2e
+x 11
+y 14
+end
+arch floor_marble1b
+x 11
+y 15
+end
+arch carpet2e
+x 11
+y 15
+end
+arch floor_marble1b
+x 11
+y 16
+end
+arch carpet2e
+x 11
+y 16
+end
+arch floor_marble1a
+x 11
+y 17
+end
+arch carpet2e
+x 11
+y 17
+end
+arch floor_marble1a
+x 11
+y 18
+end
+arch carpet2e
+x 11
+y 18
+end
+arch floor_marble1a
+x 11
+y 19
+end
+arch carpet2j
+x 11
+y 19
+end
+arch floor_marble1a
+x 11
+y 20
+end
+arch carpet2.111
+x 11
+y 20
+end
+arch floor_marble1
+x 11
+y 21
+end
+arch stairs_stone_up
+direction 1
+slaying ../../world_aa23
+hp 18
+sp 2
+x 11
+y 21
+end
+arch floor_marble1b
+z 20
+x 11
+y 22
+end
+arch stairs_stone_up
+direction 1
+x 11
+y 22
+end
+arch invis_exit
+slaying ../../world_aa23
+hp 18
+sp 2
+x 11
+y 22
+end
+arch floor_marble1b
+x 11
+y 23
+end
+arch fwall_marble2c
+x 11
+y 23
+end
+arch floor_marble1
+x 12
+end
+arch carpet2g
+x 12
+end
+arch floor_marble1b
+x 12
+y 1
+end
+arch carpet2g
+x 12
+y 1
+end
+arch floor_marble1b
+x 12
+y 2
+end
+arch carpet2g
+x 12
+y 2
+end
+arch light7
+x 12
+y 2
+end
+arch floor_marble1a
+x 12
+y 3
+end
+arch carpet2c
+x 12
+y 3
+end
+arch floor_marble1a
+x 12
+y 4
+end
+arch carpet2c
+x 12
+y 4
+end
+arch floor_marble1a
+x 12
+y 5
+end
+arch carpet2c
+x 12
+y 5
+end
+arch floor_marble1a
+x 12
+y 6
+end
+arch carpet2c
+x 12
+y 6
+end
+arch floor_marble1b
+x 12
+y 7
+end
+arch carpet2c
+x 12
+y 7
+end
+arch floor_marble1a
+x 12
+y 8
+end
+arch carpet2c
+x 12
+y 8
+end
+arch floor_marble1a
+x 12
+y 9
+end
+arch carpet2c
+x 12
+y 9
+end
+arch floor_marble1b
+x 12
+y 10
+end
+arch carpet2c
+x 12
+y 10
+end
+arch floor_marble1
+x 12
+y 11
+end
+arch carpet2c
+x 12
+y 11
+end
+arch floor_marble1
+x 12
+y 12
+end
+arch carpet2c
+x 12
+y 12
+end
+arch floor_marble1
+x 12
+y 13
+end
+arch carpet2c
+x 12
+y 13
+end
+arch floor_marble1b
+x 12
+y 14
+end
+arch carpet2c
+x 12
+y 14
+end
+arch floor_marble1b
+x 12
+y 15
+end
+arch carpet2c
+x 12
+y 15
+end
+arch floor_marble1a
+x 12
+y 16
+end
+arch carpet2c
+x 12
+y 16
+end
+arch floor_marble1
+x 12
+y 17
+end
+arch carpet2c
+x 12
+y 17
+end
+arch floor_marble1
+x 12
+y 18
+end
+arch carpet2c
+x 12
+y 18
+end
+arch floor_marble1a
+x 12
+y 19
+end
+arch carpet2k
+x 12
+y 19
+end
+arch floor_marble1
+x 12
+y 20
+end
+arch carpet2.111
+x 12
+y 20
+end
+arch floor_marble1
+x 12
+y 21
+end
+arch stairs_stone_up
+direction 1
+slaying ../../world_aa23
+hp 19
+sp 2
+x 12
+y 21
+end
+arch floor_marble1b
+z 20
+x 12
+y 22
+end
+arch stairs_stone_up
+direction 1
+x 12
+y 22
+end
+arch invis_exit
+slaying ../../world_aa23
+hp 19
+sp 2
+x 12
+y 22
+end
+arch floor_marble1b
+x 12
+y 23
+end
+arch fwall_marble2a
+x 12
+y 23
+end
+arch floor_marble1a
+x 13
+end
+arch carpet2g
+x 13
+end
+arch floor_marble1b
+x 13
+y 1
+end
+arch carpet2g
+x 13
+y 1
+end
+arch floor_marble1b
+x 13
+y 2
+end
+arch carpet2d
+x 13
+y 2
+end
+arch floor_marble1
+x 13
+y 3
+end
+arch carpet2.181
+x 13
+y 3
+end
+arch floor_marble1a
+x 13
+y 4
+end
+arch carpet2.171
+x 13
+y 4
+end
+arch floor_marble1b
+x 13
+y 5
+end
+arch carpet2.171
+x 13
+y 5
+end
+arch floor_marble1a
+x 13
+y 6
+end
+arch carpet2.171
+x 13
+y 6
+end
+arch floor_marble1
+x 13
+y 7
+end
+arch carpet2.171
+x 13
+y 7
+end
+arch floor_marble1a
+x 13
+y 8
+end
+arch carpet2.171
+x 13
+y 8
+end
+arch spawn_point
+x 13
+y 8
+arch dwarf_steelclad
+type 83
+end
+end
+arch floor_marble1b
+x 13
+y 9
+end
+arch carpet2.171
+x 13
+y 9
+end
+arch floor_marble1b
+x 13
+y 10
+end
+arch carpet2.171
+x 13
+y 10
+end
+arch floor_marble1a
+x 13
+y 11
+end
+arch carpet2.171
+x 13
+y 11
+end
+arch floor_marble1b
+x 13
+y 12
+end
+arch carpet2.171
+x 13
+y 12
+end
+arch floor_marble1
+x 13
+y 13
+end
+arch carpet2.171
+x 13
+y 13
+end
+arch spawn_point
+x 13
+y 13
+arch dwarf_steelclad
+type 83
+end
+end
+arch floor_marble1a
+x 13
+y 14
+end
+arch carpet2.171
+x 13
+y 14
+end
+arch floor_marble1
+x 13
+y 15
+end
+arch carpet2.171
+x 13
+y 15
+end
+arch floor_marble1b
+x 13
+y 16
+end
+arch carpet2.171
+x 13
+y 16
+end
+arch floor_marble1
+x 13
+y 17
+end
+arch carpet2.171
+x 13
+y 17
+end
+arch floor_marble1b
+x 13
+y 18
+end
+arch carpet2.171
+x 13
+y 18
+end
+arch spawn_point
+x 13
+y 18
+arch dwarf_steelclad
+type 83
+end
+end
+arch floor_marble1a
+x 13
+y 19
+end
+arch carpet2.171
+x 13
+y 19
+end
+arch floor_marble1a
+x 13
+y 20
+end
+arch carpet2.182
+x 13
+y 20
+end
+arch floor_marble1a
+x 13
+y 21
+end
+arch wall_marble1.131a
+blocksview 0
+x 13
+y 21
+end
+arch floor_marble1
+x 13
+y 22
+end
+arch fwall_marble2a
+blocksview 0
+x 13
+y 22
+end
+arch floor_marble1b
+x 13
+y 23
+end
+arch fwall_marble2b
+x 13
+y 23
+end
+arch floor_marble1
+x 14
+end
+arch carpet2c
+x 14
+end
+arch floor_marble1a
+x 14
+y 1
+end
+arch carpet2c
+x 14
+y 1
+end
+arch floor_marble1a
+x 14
+y 2
+end
+arch carpet2k
+x 14
+y 2
+end
+arch floor_marble1
+x 14
+y 3
+end
+arch carpet2.111
+x 14
+y 3
+end
+arch floor_marble1a
+x 14
+y 4
+end
+arch floor_marble1a
+x 14
+y 5
+end
+arch floor_marble1a
+x 14
+y 6
+end
+arch wall_marble1.181
+x 14
+y 6
+end
+arch floor_marble1
+x 14
+y 7
+end
+arch wall_marble1.111
+x 14
+y 7
+end
+arch floor_marble1
+x 14
+y 8
+end
+arch wall_marble1.111
+x 14
+y 8
+end
+arch floor_marble1a
+x 14
+y 9
+end
+arch wall_marble1.111
+x 14
+y 9
+end
+arch floor_marble1
+x 14
+y 10
+end
+arch wall_marble1.111a
+x 14
+y 10
+end
+arch floor_marble1
+x 14
+y 11
+end
+arch wall_marble1.111a
+x 14
+y 11
+end
+arch floor_marble1b
+x 14
+y 12
+end
+arch wall_marble1.111
+x 14
+y 12
+end
+arch floor_marble1a
+x 14
+y 13
+end
+arch wall_marble1.111a
+x 14
+y 13
+end
+arch floor_marble1b
+x 14
+y 14
+end
+arch wall_marble1.111a
+x 14
+y 14
+end
+arch floor_marble1a
+x 14
+y 15
+end
+arch wall_marble1.111a
+x 14
+y 15
+end
+arch floor_marble1a
+x 14
+y 16
+end
+arch wall_marble1.111a
+x 14
+y 16
+end
+arch floor_marble1a
+x 14
+y 17
+end
+arch wall_marble1.111
+x 14
+y 17
+end
+arch floor_marble1b
+x 14
+y 18
+end
+arch wall_marble1.111
+x 14
+y 18
+end
+arch floor_marble1
+x 14
+y 19
+end
+arch wall_marble1.111a
+x 14
+y 19
+end
+arch floor_marble1a
+x 14
+y 20
+end
+arch wall_marble1.111a
+x 14
+y 20
+end
+arch floor_marble1b
+x 14
+y 21
+end
+arch wall_marble1.141
+x 14
+y 21
+end
+arch floor_marble1a
+x 14
+y 22
+end
+arch fwall_marble2b
+x 14
+y 22
+end
+arch floor_marble1
+x 14
+y 23
+end
+arch fwall_marble2a
+x 14
+y 23
+end
+arch floor_marble1
+x 15
+end
+arch carpet2.171
+x 15
+end
+arch floor_marble1b
+x 15
+y 1
+end
+arch carpet2.171
+x 15
+y 1
+end
+arch floor_marble1a
+x 15
+y 2
+end
+arch carpet2.171
+x 15
+y 2
+end
+arch floor_marble1a
+x 15
+y 3
+end
+arch carpet2.182
+x 15
+y 3
+end
+arch spawn_point
+x 15
+y 3
+arch dwarf_steelclad
+type 83
+end
+end
+arch floor_marble1
+x 15
+y 4
+end
+arch floor_marble1a
+x 15
+y 5
+end
+arch floor_marble1
+x 15
+y 6
+end
+arch wall_marble1.131a
+x 15
+y 6
+end
+arch floor_marble1b
+x 16
+end
+arch floor_marble1b
+x 16
+y 1
+end
+arch floor_marble1a
+x 16
+y 2
+end
+arch fwall_marble2c
+blocksview 0
+draw_double 0
+layer 3
+x 16
+y 2
+end
+arch fmask_rockforge
+rotate -15
+layer 4
+align -14
+z 12
+x 16
+y 2
+end
+arch fmask_rockforge
+rotate 15
+layer 5
+align 12
+z 12
+x 16
+y 2
+end
+arch statue_fire
+z 24
+layer 7
+blocksview 0
+x 16
+y 2
+end
+arch light9
+x 16
+y 2
+end
+arch floor_marble1
+x 16
+y 3
+end
+arch floor_marble1a
+x 16
+y 4
+end
+arch floor_marble1a
+x 16
+y 5
+end
+arch floor_marble1b
+x 16
+y 6
+end
+arch wall_marble1.131
+x 16
+y 6
+end
+arch floor_marble1b
+x 17
+end
+arch floor_marble1a
+x 17
+y 1
+end
+arch floor_marble1
+x 17
+y 2
+end
+arch floor_marble1a
+x 17
+y 3
+end
+arch floor_marble1b
+x 17
+y 4
+end
+arch floor_marble1b
+x 17
+y 5
+end
+arch floor_marble1a
+x 17
+y 6
+end
+arch wall_marble1.131
+x 17
+y 6
+end
+arch floor_marble1a
+x 18
+end
+arch wall_marble1.111
+x 18
+end
+arch floor_marble1b
+x 18
+y 1
+end
+arch wall_marble1.111a
+x 18
+y 1
+end
+arch floor_marble1
+x 18
+y 2
+end
+arch wall_marble1.111
+x 18
+y 2
+end
+arch floor_marble1b
+x 18
+y 3
+end
+arch wall_marble1.111a
+x 18
+y 3
+end
+arch floor_marble1a
+x 18
+y 4
+end
+arch wall_marble1.111
+x 18
+y 4
+end
+arch floor_marble1
+x 18
+y 5
+end
+arch wall_marble1.111a
+x 18
+y 5
+end
+arch floor_marble1
+x 18
+y 6
+end
+arch wall_marble1.141
+x 18
+y 6
+end
