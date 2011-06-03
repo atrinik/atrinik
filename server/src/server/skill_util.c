@@ -409,6 +409,8 @@ void init_new_exp_system()
 {
 	static int init_new_exp_done = 0;
 	int i;
+	FILE *fp;
+	char filename[MAX_BUF];
 
 	if (init_new_exp_done)
 	{
@@ -429,6 +431,34 @@ void init_new_exp_system()
 			LOG(llevError, "Aborting! Skill #%d (%s) not found in archlist!\n", i, skills[i].name);
 		}
 	}
+
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, SRV_CLIENT_SKILLS_FILENAME);
+	fp = fopen(filename, "w");
+
+	if (!fp)
+	{
+		LOG(llevError, "Cannot open file '%s' for writing.\n", filename);
+	}
+
+	for (i = 0; i < NROFSKILLS; i++)
+	{
+		if (skills[i].description)
+		{
+			char icon[MAX_BUF], tmpresult[MAX_BUF];
+
+			replace(skills[i].name, " ", "_", tmpresult, sizeof(tmpresult));
+			snprintf(icon, sizeof(icon), "icon_%s.101", tmpresult);
+
+			if (!find_face(icon, 0))
+			{
+				LOG(llevError, "Skill '%s' needs face '%s', but it could not be found.\n", skills[i].name, icon);
+			}
+
+			fprintf(fp, "%s\n%d\n%s\n%s\nend\n", skills[i].name, skills[i].category - 1, icon, skills[i].description);
+		}
+	}
+
+	fclose(fp);
 }
 
 /**

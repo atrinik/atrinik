@@ -45,6 +45,7 @@ enum
 	SERVER_TEXT_PROTECTION_FULL,
 
 	SERVER_TEXT_SPELL_PATHS,
+	SERVER_TEXT_SKILL_TYPES,
 
 	SERVER_TEXT_MAX
 };
@@ -114,6 +115,9 @@ typedef struct server_settings
 
 	/** Spell path names. */
 	char spell_paths[SPELL_PATH_NUM][MAX_BUF];
+
+	/** Skill type names. */
+	char skill_types[SKILL_LIST_TYPES][MAX_BUF];
 } server_settings;
 
 server_settings *s_settings;

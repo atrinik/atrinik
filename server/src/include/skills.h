@@ -95,6 +95,9 @@ typedef struct skill_struct
 	/** How to describe it to the player */
 	char *name;
 
+	/** Description of the skill for client's skill list. */
+	char *description;
+
 	/** Pointer to the skill archetype in the archlist */
 	archetype *at;
 

@@ -38,10 +38,6 @@
 #define MENU_NO 1
 /** The keybinding menu. */
 #define MENU_KEYBIND 2
-/** The spell list. */
-#define MENU_SPELL 4
-/** The skill list. */
-#define MENU_SKILL 8
 /** Settings menu. */
 #define MENU_OPTION 16
 /** Character creation. */
@@ -56,7 +52,6 @@
 /** Sound volume for menus. */
 #define MENU_SOUND_VOL 40
 
-struct _skill_list skill_list[SKILL_LIST_MAX];
 extern _dialog_list_set skill_list_set;
 extern _dialog_list_set option_list_set;
 struct _bindkey_list bindkey_list[BINDKEY_LIST_MAX];

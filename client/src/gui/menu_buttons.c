@@ -122,6 +122,10 @@ void widget_menubuttons(widgetdata *widget)
 		{
 			buttons[i].pressed = cur_widget[MPLAYER_ID]->show;
 		}
+		else if (i == BUTTON_SKILLS)
+		{
+			buttons[i].pressed = cur_widget[SKILLS_ID]->show;
+		}
 
 		buttons[i].x = widget->x1 + x;
 		buttons[i].y = widget->y1 + y;
@@ -161,7 +165,8 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			}
 			else if (i == BUTTON_SKILLS)
 			{
-				check_menu_macros("?M_SKILL_LIST");
+				cur_widget[SKILLS_ID]->show = !cur_widget[SKILLS_ID]->show;
+				SetPriorityWidget(cur_widget[SKILLS_ID]);
 			}
 			else if (i == BUTTON_PARTY)
 			{

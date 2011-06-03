@@ -222,6 +222,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_FILE_SPELLS_V2);
 		}
+		else if (!strcmp(cmd, "skfv2"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SKILLS_V2);
+		}
 		else if (!strcmp(cmd, "stf"))
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_SETTINGS);
@@ -433,6 +437,7 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 	switch (id)
 	{
 		case SRV_CLIENT_SKILLS:
+		case SRV_CLIENT_SKILLS_V2:
 			if (ns->rf_skills)
 			{
 				ns->status = Ns_Dead;

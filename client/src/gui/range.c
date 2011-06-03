@@ -164,16 +164,8 @@ void widget_show_range(widgetdata *widget)
 			if (fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-
-				if (fire_mode_tab[FIRE_MODE_SKILL].skill->flag != -1)
-				{
-					sprite_blt(fire_mode_tab[FIRE_MODE_SKILL].skill->icon, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
-					string_blt(ScreenSurface, FONT_SANS10, fire_mode_tab[FIRE_MODE_SKILL].skill->name, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
-				}
-				else
-				{
-					fire_mode_tab[FIRE_MODE_SKILL].skill = NULL;
-				}
+				blit_face(fire_mode_tab[FIRE_MODE_SKILL].skill->icon, widget->x1 + 43, widget->y1 + 2);
+				string_blt(ScreenSurface, FONT_SANS10, fire_mode_tab[FIRE_MODE_SKILL].skill->name, widget->x1 + 3, widget->y1 + 46, COLOR_SIMPLE(COLOR_WHITE), 0, NULL);
 			}
 			else
 			{

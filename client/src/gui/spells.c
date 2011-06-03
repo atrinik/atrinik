@@ -434,7 +434,7 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
  * @return 1 if the spell was found, 0 otherwise. */
 int spell_find(const char *name, size_t *spell_path, size_t *spell_id)
 {
-	for (*spell_path = 0; *spell_path < SPELL_PATH_NUM; *spell_path += 1)
+	for (*spell_path = 0; *spell_path < SPELL_PATH_NUM - 1; *spell_path += 1)
 	{
 		for (*spell_id = 0; *spell_id < spell_list_num[*spell_path]; *spell_id += 1)
 		{
@@ -606,7 +606,7 @@ void spells_reload()
 {
 	size_t spell_path, spell_id;
 
-	for (spell_path = 0; spell_path < SPELL_PATH_NUM; spell_path++)
+	for (spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++)
 	{
 		for (spell_id = 0; spell_id < spell_list_num[spell_path]; spell_id++)
 		{

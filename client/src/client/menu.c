@@ -73,6 +73,45 @@ int client_command_check(char *cmd)
 		draw_info("Unknown spell.", COLOR_RED);
 		return 1;
 	}
+	else if (!strncasecmp(cmd, "/ready_skill", 12))
+	{
+		cmd = strchr(cmd, ' ');
+
+		if (!cmd || *++cmd == '\0')
+		{
+			draw_info("Usage: /ready_skill <skill name>", COLOR_RED);
+		}
+		else
+		{
+			size_t type, id;
+
+			if (skill_find(cmd, &type, &id))
+			{
+				skill_entry_struct *skill = skill_get(type, id);
+
+				if (skill->known)
+				{
+					char buf[MAX_BUF];
+
+					fire_mode_tab[FIRE_MODE_SKILL].skill = skill;
+					RangeFireMode = FIRE_MODE_SKILL;
+					draw_info_format(COLOR_GREEN, "Readied %s.", skill->name);
+
+					snprintf(buf, sizeof(buf), "/ready_skill %s", skill->name);
+					send_command(buf);
+					return 1;
+				}
+				else
+				{
+					draw_info_format(COLOR_RED, "You have no knowledge of the skill %s.", skill->name);
+					return 1;
+				}
+			}
+		}
+
+		draw_info("Unknown skill.", COLOR_RED);
+		return 1;
+	}
 	else if (!strncasecmp(cmd, "/pray", 5))
 	{
 		/* Give out "You are at full grace." when needed -
@@ -279,8 +318,6 @@ void show_menu()
 	}
 	else if (cpl.menustatus == MENU_PARTY)
 		show_party();
-	else if (cpl.menustatus == MENU_SKILL)
-		show_skilllist();
 	else if (cpl.menustatus == MENU_OPTION)
 		show_optwin();
 }

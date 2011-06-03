@@ -305,31 +305,25 @@ void ImageCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void SkillRdyCmd(char *data, int len)
 {
-	int i, ii;
+	size_t type, id;
 
 	(void) len;
 
-	strcpy(cpl.skill_name, data);
-	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
+	strncpy(cpl.skill_name, data, sizeof(cpl.skill_name) - 1);
+	cpl.skill_name[sizeof(cpl.skill_name) - 1] = '\0';
+	cpl.skill = NULL;
 
-	/* lets find the skill... and setup the shortcuts to the exp values*/
-	for (ii = 0; ii < SKILL_LIST_MAX; ii++)
+	if (skill_find(cpl.skill_name, &type, &id))
 	{
-		for (i = 0; i < DIALOG_LIST_ENTRY; i++)
+		skill_entry_struct *skill = skill_get(type, id);
+
+		if (skill->known)
 		{
-			/* we have a list entry */
-			if (skill_list[ii].entry[i].flag == LIST_ENTRY_KNOWN)
-			{
-				/* and is it the one we searched for? */
-				if (!strcmp(skill_list[ii].entry[i].name, cpl.skill_name))
-				{
-					cpl.skill_g = ii;
-					cpl.skill_e = i;
-					return;
-				}
-			}
+			cpl.skill = skill;
 		}
 	}
+
+	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
 
 /**
@@ -1653,82 +1647,6 @@ void RequestFile(int index)
 void SendAddMe()
 {
 	cs_write_string("addme", 5);
-}
-
-/**
- * Skill list command. Used to update player's skill list.
- * @param data The incoming data */
-void SkilllistCmd(char *data)
-{
-	char *tmp, *tmp2, *tmp3, *tmp4;
-	int l, i, ii, mode;
-	sint64 e;
-	char name[256];
-
-	/* We grab our mode */
-	mode = atoi(data);
-
-	/* Now look for the members of the list we have */
-	for (; ;)
-	{
-		/* Find start of a name */
-		tmp = strchr(data, '/');
-
-		if (!tmp)
-		{
-			return;
-		}
-
-		data = tmp + 1;
-
-		tmp2 = strchr(data, '/');
-
-		if (tmp2)
-		{
-			strncpy(name, data, tmp2 - data);
-			name[tmp2 - data] = '\0';
-			data = tmp2;
-		}
-		else
-		{
-			strcpy(name, data);
-		}
-
-		tmp3 = strchr(name, '|');
-		*tmp3 = '\0';
-		tmp4 = strchr(tmp3 + 1, '|');
-
-		l = atoi(tmp3 + 1);
-		e = atoll(tmp4 + 1);
-
-		/* We have a name, the level and exp - now setup the list */
-		for (ii = 0; ii < SKILL_LIST_MAX; ii++)
-		{
-			for (i = 0; i < DIALOG_LIST_ENTRY; i++)
-			{
-				/* We have a list entry */
-				if (skill_list[ii].entry[i].flag != LIST_ENTRY_UNUSED)
-				{
-					/* And it is the one we searched for? */
-					if (!strcmp(skill_list[ii].entry[i].name, name))
-					{
-						/* Remove? */
-						if (mode == SPLIST_MODE_REMOVE)
-						{
-							skill_list[ii].entry[i].flag = LIST_ENTRY_USED;
-						}
-						else
-						{
-							skill_list[ii].entry[i].flag = LIST_ENTRY_KNOWN;
-							skill_list[ii].entry[i].exp = e;
-							skill_list[ii].entry[i].exp_level = l;
-							WIDGET_REDRAW_ALL(SKILL_EXP_ID);
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 /**

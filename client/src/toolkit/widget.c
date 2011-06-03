@@ -74,6 +74,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -1237,10 +1238,6 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		/* Place here all the mousedown handlers. */
 		switch (widget->WidgetTypeID)
 		{
-			case SKILL_EXP_ID:
-				widget_skill_exp_event(widget);
-				break;
-
 			case MENU_B_ID:
 				widget_menubuttons_event(widget, event);
 				break;
@@ -1288,6 +1285,10 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case MAP_ID:
 				widget_map_mevent(widget, event);
+				break;
+
+			case SKILLS_ID:
+				widget_skills_mevent(widget, event);
 				break;
 		}
 	}
@@ -1410,6 +1411,10 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case MAP_ID:
 				widget_map_mevent(widget, event);
+				break;
+
+			case SKILLS_ID:
+				widget_skills_mevent(widget, event);
 				break;
 		}
 
@@ -1595,6 +1600,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			case MAP_ID:
 				widget_map_mevent(widget, event);
+				break;
+
+			case SKILLS_ID:
+				widget_skills_mevent(widget, event);
 				break;
 		}
 
@@ -1850,6 +1859,10 @@ static void process_widget(widgetdata *widget)
 
 		case SPELLS_ID:
 			widget_spells_render(widget);
+			break;
+
+		case SKILLS_ID:
+			widget_skills_render(widget);
 			break;
 	}
 }

@@ -235,35 +235,6 @@ typedef struct _face_struct
 
 /* Skill list defines */
 
-/* Groups of skills */
-#define SKILL_LIST_MAX 7
-
-typedef struct _skill_list_entry
-{
-	/* -1: entry is unused */
-	int flag;
-
-	/* Name of entry */
-	char name[LIST_NAME_MAX];
-
-	char icon_name[32];
-	struct _Sprite *icon;
-
-	/* Description (in 4 rows) */
-	char desc[4][96];
-
-	/* -1: skill has no level or exp */
-	int exp_level;
-
-	/* exp of this skill */
-	sint64 exp;
-}_skill_list_entry;
-
-typedef struct _skill_list
-{
-	_skill_list_entry entry[DIALOG_LIST_ENTRY];
-}_skill_list;
-
 /* Bind key list defines */
 
 /** Bindkey list max */
@@ -334,6 +305,30 @@ typedef struct spell_entry_struct
  * pointers to spells in the other spell paths. */
 #define SPELL_PATH_NUM 21
 
+typedef struct skill_entry_struct
+{
+	/** Name of the skill. */
+	char name[MAX_BUF];
+
+	/** Icon name */
+	char icon_name[MAX_BUF];
+
+	/** Description. */
+	char desc[HUGE_BUF];
+
+	/** Skill's icon. */
+	int icon;
+
+	/** 1 if the player knows this skill, 0 otherwise. */
+	uint8 known;
+
+	int level;
+
+	sint64 exp;
+} skill_entry_struct;
+
+#define SKILL_LIST_TYPES 7
+
 /** Fire mode structure */
 typedef struct _fire_mode
 {
@@ -346,7 +341,7 @@ typedef struct _fire_mode
 	spell_entry_struct *spell;
 
 	/** Skill */
-	_skill_list_entry *skill;
+	skill_entry_struct *skill;
 
 	/** Name */
 	char name[128];

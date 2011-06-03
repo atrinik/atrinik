@@ -251,9 +251,7 @@ typedef struct Player_Struct
 	int tag;
 	int nrof;
 
-	/* Skill group and entry of ready skill */
-	int skill_g;
-	int skill_e;
+	skill_entry_struct *skill;
 
 	int warn_hp;
 

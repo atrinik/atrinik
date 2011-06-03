@@ -47,7 +47,6 @@ void VersionCmd(char *data);
 void SendVersion();
 void RequestFile(int index);
 void SendAddMe();
-void SkilllistCmd(char *data);
 void NewCharCmd();
 void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
@@ -153,7 +152,6 @@ void widget_show_player_doll_event();
 void widget_show_player_doll(widgetdata *widget);
 void widget_show_main_lvl(widgetdata *widget);
 void widget_show_skill_exp(widgetdata *widget);
-void widget_skill_exp_event(widgetdata *widget);
 void widget_show_regeneration(widgetdata *widget);
 void widget_show_container(widgetdata *widget);
 void widget_highlight_menu(widgetdata *widget);
@@ -421,8 +419,14 @@ void show_optwin();
 void settings_open();
 
 /* gui/skill_list.c */
-void show_skilllist();
-void read_skills();
+void widget_skills_render(widgetdata *widget);
+void widget_skills_mevent(widgetdata *widget, SDL_Event *event);
+int skill_find(const char *name, size_t *type, size_t *id);
+int skill_find_type_selected(const char *name, size_t *id);
+skill_entry_struct *skill_get(size_t type, size_t id);
+void skills_init();
+void skills_reload();
+void SkilllistCmd(char *data);
 
 /* gui/spells.c */
 void widget_spells_render(widgetdata *widget);

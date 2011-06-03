@@ -270,7 +270,7 @@ static int load_bitmap(int index);
  * Clear player lists like skill list, spell list, etc. */
 static void delete_player_lists()
 {
-	size_t i, ii;
+	size_t i;
 
 	for (i = 0; i < FIRE_MODE_INIT; i++)
 	{
@@ -279,17 +279,6 @@ static void delete_player_lists()
 		fire_mode_tab[i].skill = NULL;
 		fire_mode_tab[i].spell = NULL;
 		fire_mode_tab[i].name[0] = '\0';
-	}
-
-	for (i = 0; i < SKILL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if (skill_list[i].entry[ii].flag == LIST_ENTRY_KNOWN)
-			{
-				skill_list[i].entry[ii].flag = LIST_ENTRY_USED;
-			}
-		}
 	}
 }
 
@@ -312,11 +301,9 @@ static void init_game_data()
 	}
 
 	memset(FaceList, 0, sizeof(struct _face_struct) * MAX_FACE_TILES);
-	memset(&cpl, 0, sizeof(cpl));
-	objects_init();
 
 	init_keys();
-	init_player_data();
+	clear_player();
 	text_input_clear();
 
 	msg_anim.message[0] = '\0';
@@ -827,22 +814,11 @@ static int load_bitmap(int index)
  * Free the bitmaps. */
 void free_bitmaps()
 {
-	size_t i, ii;
+	size_t i;
 
 	for (i = 0; i < BITMAP_MAX; i++)
 	{
 		sprite_free_sprite(Bitmaps[i]);
-	}
-
-	for (i = 0; i < SKILL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if ((skill_list[i].entry[ii].flag != LIST_ENTRY_UNUSED) && skill_list[i].entry[ii].icon)
-			{
-				sprite_free_sprite(skill_list[i].entry[ii].icon);
-			}
-		}
 	}
 }
 

@@ -85,9 +85,11 @@ const char *gender_noun[GENDER_MAX] =
  * Clear the player data like quickslots, inventory items, etc. */
 void clear_player()
 {
+	memset(&cpl, 0, sizeof(cpl));
 	quickslots_init();
 	objects_init();
 	init_player_data();
+	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
 
 /**
@@ -179,7 +181,7 @@ void set_weight_limit(uint32 wlim)
  * Initialize player data. */
 void init_player_data()
 {
-	new_player(0, 0,0);
+	new_player(0, 0, 0);
 
 	cpl.dm = 0;
 	cpl.fire_on = cpl.firekey_on = 0;
@@ -887,9 +889,9 @@ void widget_show_skill_exp(widgetdata *widget)
 				case 2:
 				case 3:
 				case 4:
-					if ((skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0) || (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2))
+					if (cpl.skill && (cpl.skill->exp >= 0 || cpl.skill->exp == -2))
 					{
-						snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+						snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, cpl.skill->level);
 					}
 					else
 					{
@@ -901,16 +903,16 @@ void widget_show_skill_exp(widgetdata *widget)
 
 			StringBlt(widget->widgetSF, &SystemFont, buf, 28, 0, COLOR_WHITE, NULL, NULL);
 
-			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+			if (cpl.skill && cpl.skill->exp >= 0)
 			{
-				level_exp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-				multi = modf(((double) level_exp / (double) (s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1] - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level]) * 10.0), &line);
+				level_exp = cpl.skill->exp - s_settings->level_exp[cpl.skill->level];
+				multi = modf(((double) level_exp / (double) (s_settings->level_exp[cpl.skill->level + 1] - s_settings->level_exp[cpl.skill->level]) * 10.0), &line);
 
-				liTExp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp;
-				liTExpTNL = s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1];
+				liTExp = cpl.skill->exp;
+				liTExpTNL = s_settings->level_exp[cpl.skill->level + 1];
 
-				liLExp = liTExp - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-				liLExpTNL = liTExpTNL - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
+				liLExp = liTExp - s_settings->level_exp[cpl.skill->level];
+				liLExpTNL = liTExpTNL - s_settings->level_exp[cpl.skill->level];
 
 				fLExpPercent = ((float) liLExp / (float) (liLExpTNL)) * 100.0f;
 			}
@@ -920,13 +922,13 @@ void widget_show_skill_exp(widgetdata *widget)
 				/* Default */
 				default:
 				case 0:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level, skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
+						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, cpl.skill->level, cpl.skill->exp);
 					}
-					else if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
+					else if (cpl.skill && cpl.skill->exp == -2)
 					{
-						snprintf(buf, sizeof(buf), "%d / **", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+						snprintf(buf, sizeof(buf), "%d / **", cpl.skill->level);
 					}
 					else
 					{
@@ -937,7 +939,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* LExp% */
 				case 1:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%#05.2f%%", fLExpPercent);
 					}
@@ -950,7 +952,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* LExp/LExp tnl */
 				case 2:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liLExp, liLExpTNL);
 					}
@@ -963,7 +965,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* TExp/TExp tnl */
 				case 3:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liTExp, liTExpTNL);
 					}
@@ -976,7 +978,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* (LExp%) LExp/LExp tnl */
 				case 4:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%#05.2f%% - %"FMT64, fLExpPercent, liLExpTNL - liLExp);
 					}
@@ -988,7 +990,7 @@ void widget_show_skill_exp(widgetdata *widget)
 					break;
 			}
 
-			if ((uint32) skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == s_settings->max_level)
+			if (cpl.skill && (uint32) cpl.skill->level == s_settings->max_level)
 			{
 				strncpy(buf, "Maximum level reached", sizeof(buf) - 1);
 			}
@@ -1033,62 +1035,6 @@ void widget_show_skill_exp(widgetdata *widget)
 	box.x = widget->x1;
 	box.y = widget->y1;
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
-}
-
-/**
- * Handle mouse events over skill experience widget.
- * @param widget The widget object. */
-void widget_skill_exp_event(widgetdata *widget)
-{
-	int i, ii, j, jj, bFound = 0;
-
-	/* Let's find the skill... and setup the shortcuts to the exp values */
-	for (ii = 0; ii <= SKILL_LIST_MAX && (!bFound); ii++)
-	{
-		jj = cpl.skill_g + ii;
-
-		if (jj >= SKILL_LIST_MAX)
-		{
-			jj -= SKILL_LIST_MAX;
-		}
-
-		for (i = 0; i < DIALOG_LIST_ENTRY && (!bFound); i++)
-		{
-			/* First page, we have to be offset (and break before looping) */
-			if (ii == 0)
-			{
-				j = cpl.skill_e + i + 1;
-
-				if (j >= DIALOG_LIST_ENTRY)
-				{
-					break;
-				}
-			}
-			/* Other pages we look through MUST NOT BE OFFSET */
-			else
-			{
-				j = i;
-			}
-
-			if (j >= DIALOG_LIST_ENTRY)
-			{
-				j -= DIALOG_LIST_ENTRY;
-			}
-
-			/* We have a list entry */
-			if (skill_list[jj].entry[j].flag == LIST_ENTRY_KNOWN)
-			{
-				/* First one we find is the one we want */
-				strncpy(cpl.skill_name, skill_list[jj].entry[j].name, sizeof(cpl.skill_name) - 1);
-				cpl.skill_g = jj;
-				cpl.skill_e = j;
-				bFound = 1;
-				break;
-			}
-		}
-	}
-
-	WIDGET_REDRAW(widget);
 }
 
 /**

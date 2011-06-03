@@ -585,6 +585,9 @@ void init_srv_files()
 
 	snprintf(buf, sizeof(buf), "%s/effects", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_EFFECTS);
+
+	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SRV_CLIENT_SKILLS_FILENAME);
+	load_srv_file(buf, SRV_CLIENT_SKILLS_V2);
 }
 
 /**

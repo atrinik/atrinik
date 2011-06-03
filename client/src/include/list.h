@@ -212,6 +212,8 @@ typedef struct list_struct
 #define LIST_MPLAYER 4
 /** List used in the spells widget. */
 #define LIST_SPELLS 5
+/** List used in the skills widget. */
+#define LIST_SKILLS 6
 /*@}*/
 
 /** Calculate list's row height. */

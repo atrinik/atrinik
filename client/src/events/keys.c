@@ -719,64 +719,6 @@ void check_menu_keys(int menu, int key)
 
 			break;
 
-		case MENU_SKILL:
-			switch (key)
-			{
-				case SDLK_RETURN:
-				case SDLK_KP_ENTER:
-					if (skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
-					{
-						fire_mode_tab[FIRE_MODE_SKILL].skill = &skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr];
-						RangeFireMode = FIRE_MODE_SKILL;
-						sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					}
-					else
-						sound_play_effect("click_fail.ogg", MENU_SOUND_VOL);
-
-					map_udate_flag = 2;
-					cpl.menustatus = MENU_NO;
-					reset_keys();
-					break;
-
-				case SDLK_UP:
-					if (!shiftPressed)
-					{
-						if (skill_list_set.entry_nr > 0)
-							skill_list_set.entry_nr--;
-					}
-					else
-					{
-						if (skill_list_set.group_nr > 0)
-						{
-							skill_list_set.group_nr--;
-							skill_list_set.entry_nr=0;
-						}
-					}
-
-					menuRepeatKey = SDLK_UP;
-					break;
-
-				case SDLK_DOWN:
-					if (!shiftPressed)
-					{
-						if (skill_list_set.entry_nr < DIALOG_LIST_ENTRY - 1)
-							skill_list_set.entry_nr++;
-					}
-					else
-					{
-						if (skill_list_set.group_nr < SKILL_LIST_MAX - 1)
-						{
-							skill_list_set.group_nr++;
-							skill_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_DOWN;
-					break;
-			}
-
-			break;
-
 		case MENU_KEYBIND:
 			switch (key)
 			{

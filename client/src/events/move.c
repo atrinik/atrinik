@@ -74,7 +74,7 @@ void move_keys(int num)
 
 		if (RangeFireMode == FIRE_MODE_SKILL)
 		{
-			if (!fire_mode_tab[FIRE_MODE_SKILL].skill || fire_mode_tab[FIRE_MODE_SKILL].skill->flag == -1)
+			if (!fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
 				draw_info("No skill selected.", COLOR_WHITE);
 				return;

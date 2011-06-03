@@ -253,6 +253,7 @@
 		<Unit filename="..\..\..\src\include\ignore.h">
 			<Option compilerVar="CC" />
 		</Unit>
+
 		<Unit filename="..\..\..\src\include\commands.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -364,7 +365,7 @@
 		<Unit filename="..\..\..\src\gui\target.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\skill_list.c">
+		<Unit filename="..\..\..\src\gui\skills.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\events\console.c">
