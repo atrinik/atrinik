@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-06-02 Alex Tokar
+Modified: 2011-06-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2806,8 +2806,8 @@ x 18
 y 1
 end
 arch invis_exit
-slaying strakewood_island/rockforge/rockforge_0101
-hp 11
+slaying strakewood_island/rockforge/rockforge_a_0101
+hp 7
 sp 21
 x 18
 y 1
@@ -2818,8 +2818,8 @@ y 2
 end
 arch stairs_stone_down
 direction 1
-slaying strakewood_island/rockforge/rockforge_0101
-hp 11
+slaying strakewood_island/rockforge/rockforge_a_0101
+hp 7
 sp 21
 x 18
 y 2
@@ -2957,8 +2957,8 @@ x 19
 y 1
 end
 arch invis_exit
-slaying strakewood_island/rockforge/rockforge_0101
-hp 12
+slaying strakewood_island/rockforge/rockforge_a_0101
+hp 8
 sp 21
 x 19
 y 1
@@ -2969,8 +2969,8 @@ y 2
 end
 arch stairs_stone_down
 direction 1
-slaying strakewood_island/rockforge/rockforge_0101
-hp 12
+slaying strakewood_island/rockforge/rockforge_a_0101
+hp 8
 sp 21
 x 19
 y 2
@@ -3411,6 +3411,9 @@ x 22
 y 1
 end
 arch invis_exit
+slaying strakewood_island/rockforge/rockforge_0101
+hp 11
+sp 21
 x 22
 y 1
 end
@@ -3420,6 +3423,9 @@ y 2
 end
 arch stairs_stone_down
 direction 1
+slaying strakewood_island/rockforge/rockforge_0101
+hp 11
+sp 21
 x 22
 y 2
 end
@@ -3550,6 +3556,9 @@ x 23
 y 1
 end
 arch invis_exit
+slaying strakewood_island/rockforge/rockforge_0101
+hp 12
+sp 21
 x 23
 y 1
 end
@@ -3559,6 +3568,9 @@ y 2
 end
 arch stairs_stone_down
 direction 1
+slaying strakewood_island/rockforge/rockforge_0101
+hp 12
+sp 21
 x 23
 y 2
 end

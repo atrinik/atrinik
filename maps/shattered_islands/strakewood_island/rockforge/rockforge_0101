@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-06-02 Alex Tokar
+Modified: 2011-06-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -73,6 +73,30 @@ arch wall_marble1.111a
 x 5
 y 6
 end
+arch blocked
+x 5
+y 7
+end
+arch wall_marble1.111
+x 5
+y 7
+end
+arch blocked
+x 5
+y 8
+end
+arch wall_marble1.111
+x 5
+y 8
+end
+arch blocked
+x 5
+y 9
+end
+arch wall_marble1.111
+x 5
+y 9
+end
 arch floor_marble1b
 x 6
 end
@@ -100,9 +124,44 @@ arch floor_marble1
 x 6
 y 6
 end
-arch wall_marble1.131a
+arch floor_marble1a
 x 6
-y 6
+y 7
+end
+arch stairs_stone_down
+direction 5
+slaying rockforge_a_0101
+hp 6
+sp 8
+x 6
+y 7
+end
+arch blocked
+blocksview 0
+no_pass 0
+x 6
+y 8
+end
+arch lamp_wall
+z -10
+direction 7
+x 6
+y 8
+end
+arch invis_exit
+slaying rockforge_a_0101
+hp 6
+sp 8
+x 6
+y 8
+end
+arch floor_marble1b
+x 6
+y 9
+end
+arch wall_marble1.131
+x 6
+y 9
 end
 arch floor_marble1b
 x 7
@@ -165,9 +224,38 @@ arch floor_marble1a
 x 7
 y 6
 end
-arch wall_marble1.131a
+arch floor_marble1b
 x 7
-y 6
+y 7
+end
+arch stairs_stone_down
+direction 5
+slaying rockforge_a_0101
+hp 7
+sp 8
+x 7
+y 7
+end
+arch blocked
+blocksview 0
+no_pass 0
+x 7
+y 8
+end
+arch invis_exit
+slaying rockforge_a_0101
+hp 7
+sp 8
+x 7
+y 8
+end
+arch floor_marble1a
+x 7
+y 9
+end
+arch wall_marble1.131
+x 7
+y 9
 end
 arch floor_marble1
 x 8
@@ -219,9 +307,33 @@ arch floor_marble1
 x 8
 y 6
 end
-arch wall_marble1.131
+arch wall_marble1.181
 x 8
 y 6
+end
+arch floor_marble1
+x 8
+y 7
+end
+arch wall_marble1.111a
+x 8
+y 7
+end
+arch floor_marble1b
+x 8
+y 8
+end
+arch wall_marble1.111a
+x 8
+y 8
+end
+arch floor_marble1a
+x 8
+y 9
+end
+arch wall_marble1.141
+x 8
+y 9
 end
 arch floor_marble1
 x 9
@@ -818,7 +930,7 @@ end
 arch stairs_stone_up
 direction 1
 slaying ../../world_aa23
-hp 18
+hp 22
 sp 2
 x 11
 y 21
@@ -835,7 +947,7 @@ y 22
 end
 arch invis_exit
 slaying ../../world_aa23
-hp 18
+hp 22
 sp 2
 x 11
 y 22
@@ -1025,7 +1137,7 @@ end
 arch stairs_stone_up
 direction 1
 slaying ../../world_aa23
-hp 19
+hp 23
 sp 2
 x 12
 y 21
@@ -1042,7 +1154,7 @@ y 22
 end
 arch invis_exit
 slaying ../../world_aa23
-hp 19
+hp 23
 sp 2
 x 12
 y 22
@@ -1503,6 +1615,30 @@ arch wall_marble1.131a
 x 15
 y 6
 end
+arch blocked
+x 15
+y 7
+end
+arch wall_marble1.111
+x 15
+y 7
+end
+arch blocked
+x 15
+y 8
+end
+arch wall_marble1.111a
+x 15
+y 8
+end
+arch blocked
+x 15
+y 9
+end
+arch wall_marble1.111
+x 15
+y 9
+end
 arch floor_marble1b
 x 16
 end
@@ -1564,9 +1700,44 @@ arch floor_marble1b
 x 16
 y 6
 end
+arch floor_marble1c
+x 16
+y 7
+end
+arch stairs_stone_down
+direction 5
+slaying rockforge_a_0101
+hp 16
+sp 8
+x 16
+y 7
+end
+arch blocked
+blocksview 0
+no_pass 0
+x 16
+y 8
+end
+arch lamp_wall
+z -10
+direction 7
+x 16
+y 8
+end
+arch invis_exit
+slaying rockforge_a_0101
+hp 16
+sp 8
+x 16
+y 8
+end
+arch floor_marble1c
+x 16
+y 9
+end
 arch wall_marble1.131
 x 16
-y 6
+y 9
 end
 arch floor_marble1b
 x 17
@@ -1594,10 +1765,39 @@ end
 arch floor_marble1a
 x 17
 y 6
+end
+arch floor_marble1c
+x 17
+y 7
+end
+arch stairs_stone_down
+direction 5
+slaying rockforge_a_0101
+hp 17
+sp 8
+x 17
+y 7
+end
+arch blocked
+blocksview 0
+no_pass 0
+x 17
+y 8
+end
+arch invis_exit
+slaying rockforge_a_0101
+hp 17
+sp 8
+x 17
+y 8
+end
+arch floor_marble1b
+x 17
+y 9
 end
 arch wall_marble1.131
 x 17
-y 6
+y 9
 end
 arch floor_marble1a
 x 18
@@ -1648,8 +1848,32 @@ end
 arch floor_marble1
 x 18
 y 6
+end
+arch wall_marble1.111a
+x 18
+y 6
+end
+arch floor_marble1c
+x 18
+y 7
+end
+arch wall_marble1.111
+x 18
+y 7
+end
+arch floor_marble1c
+x 18
+y 8
+end
+arch wall_marble1.111a
+x 18
+y 8
+end
+arch floor_marble1c
+x 18
+y 9
 end
 arch wall_marble1.141
 x 18
-y 6
+y 9
 end
