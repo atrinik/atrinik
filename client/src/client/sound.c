@@ -271,25 +271,32 @@ void sound_stop_bg_music()
 }
 
 /**
- * Parse map's background music information.
- * @param bg_music What to parse. */
-void parse_map_bg_music(const char *bg_music)
+ * Update map's background music.
+ * @param bg_music New background music. */
+void update_map_bg_music(const char *bg_music)
 {
-	int loop = -1, vol = 0;
-	char filename[MAX_BUF];
-
 	if (sound_map_background_disabled)
 	{
 		return;
 	}
 
-	if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
+	if (!strcmp(bg_music, "no_music"))
 	{
-		LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
-		return;
+		sound_stop_bg_music();
 	}
+	else
+	{
+		int loop = -1, vol = 0;
+		char filename[MAX_BUF];
 
-	sound_start_bg_music(filename, options.music_volume + vol, loop);
+		if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
+		{
+			LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+			return;
+		}
+
+		sound_start_bg_music(filename, options.music_volume + vol, loop);
+	}
 }
 
 /**

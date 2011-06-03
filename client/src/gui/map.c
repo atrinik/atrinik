@@ -165,21 +165,6 @@ void update_map_name(const char *name)
 }
 
 /**
- * Update map's background music.
- * @param bg_music New background music. */
-void update_map_bg_music(const char *bg_music)
-{
-	if (!strcmp(bg_music, "no_music"))
-	{
-		sound_stop_bg_music();
-	}
-	else
-	{
-		parse_map_bg_music(bg_music);
-	}
-}
-
-/**
  * Update map's weather.
  * @param weather New weather. */
 void update_map_weather(const char *weather)
