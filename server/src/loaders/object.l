@@ -557,6 +557,7 @@ lex_error = 0;
 ^is_missile{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
 ^draw_direction{S}  SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DIRECTION, IVAL);
 ^draw_double{S}     SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE, IVAL);
+^draw_double_always{S} SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE_ALWAYS, IVAL);
 ^see_invisible{S}   SET_OR_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
 ^make_invisible{S}  SET_OR_CLEAR_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL);
 ^make_ethereal{S}   SET_OR_CLEAR_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL);

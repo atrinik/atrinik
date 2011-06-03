@@ -1699,7 +1699,7 @@ void draw_client_map2(object *pl)
 
 					/* Draw the object twice if set, but only if it's not
 					 * in the bottom quadrant of the map. */
-					if (QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2))
+					if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS))
 					{
 						if (CONTR(pl)->socket.socket_version >= 1043)
 						{

@@ -308,7 +308,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"is_thrown", NULL, NULL, "is_male", "is_female",
 	"applied", "inv_locked", NULL, NULL, NULL,
 	"has_ready_weapon", "no_skill_ident", "was_wiz", "can_see_in_dark", "is_cauldron",
-	"is_dust", NULL, "one_hit", NULL, "berserk",
+	"is_dust", NULL, "one_hit", "draw_double_always", "berserk",
 	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
 	NULL, NULL, NULL, NULL, NULL,
 	"sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",

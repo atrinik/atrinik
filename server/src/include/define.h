@@ -1194,6 +1194,9 @@
  * Monster can only hit once, then evaporates. */
 #define FLAG_ONE_HIT 97
 /**
+ * Always draw the object twice. */
+#define FLAG_DRAW_DOUBLE_ALWAYS 98
+/**
  * Monster will attack closest living object, even friends. */
 #define FLAG_BERSERK 99
 /**
