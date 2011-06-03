@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-03 Alex Tokar
+Modified: 2011-06-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -455,6 +455,10 @@ arch floor_marble1b
 x 5
 y 12
 end
+arch lamp_wall
+x 5
+y 12
+end
 arch floor_marble1
 x 5
 y 13
@@ -654,6 +658,11 @@ arch floor_marble2a
 x 8
 y 2
 end
+arch lamp_wall
+direction 7
+x 8
+y 2
+end
 arch floor_marble2c
 x 8
 y 3
@@ -667,6 +676,11 @@ x 8
 y 5
 end
 arch floor_marble2b
+x 8
+y 6
+end
+arch lamp_wall
+direction 7
 x 8
 y 6
 end
@@ -686,11 +700,24 @@ arch floor_marble2c
 x 8
 y 10
 end
+arch lamp_wall
+direction 7
+x 8
+y 10
+end
 arch floor_marble2a
 x 8
 y 11
 end
 arch floor_marble2b
+x 8
+y 12
+end
+arch sign_generic
+msg
+Church of Grumthar
+endmsg
+direction 3
 x 8
 y 12
 end
@@ -703,6 +730,11 @@ x 8
 y 14
 end
 arch floor_marble2c
+x 8
+y 15
+end
+arch lamp_wall
+direction 7
 x 8
 y 15
 end
@@ -1086,6 +1118,10 @@ x 14
 y 11
 end
 arch floor_marble2b
+x 14
+y 12
+end
+arch lamp_wall
 x 14
 y 12
 end
@@ -1214,6 +1250,10 @@ x 18
 y 11
 end
 arch floor_marble2b
+x 18
+y 12
+end
+arch lamp_wall
 x 18
 y 12
 end
@@ -1342,6 +1382,10 @@ x 22
 y 11
 end
 arch floor_marble2b
+x 22
+y 12
+end
+arch lamp_wall
 x 22
 y 12
 end

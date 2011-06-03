@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-03 Alex Tokar
+Modified: 2011-06-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -115,6 +115,10 @@ arch floor_marble2c
 x 3
 y 12
 end
+arch lamp_wall
+x 3
+y 12
+end
 arch floor_marble2c
 x 3
 y 13
@@ -240,6 +244,10 @@ x 7
 y 11
 end
 arch floor_marble2c
+x 7
+y 12
+end
+arch lamp_wall
 x 7
 y 12
 end
@@ -368,6 +376,10 @@ x 11
 y 11
 end
 arch floor_marble2c
+x 11
+y 12
+end
+arch lamp_wall
 x 11
 y 12
 end
@@ -585,6 +597,10 @@ arch floor_marble2b
 x 15
 y 12
 end
+arch lamp_wall
+x 15
+y 12
+end
 arch floor_marble2a
 x 15
 y 13
@@ -620,6 +636,11 @@ arch floor_marble2a
 x 16
 y 3
 end
+arch lamp_wall
+direction 7
+x 16
+y 3
+end
 arch floor_marble2a
 x 16
 y 4
@@ -636,6 +657,11 @@ arch floor_marble2c
 x 16
 y 7
 end
+arch lamp_wall
+direction 7
+x 16
+y 7
+end
 arch floor_marble2c
 x 16
 y 8
@@ -649,6 +675,11 @@ x 16
 y 10
 end
 arch floor_marble2b
+x 16
+y 11
+end
+arch lamp_wall
+direction 7
 x 16
 y 11
 end
@@ -1056,6 +1087,10 @@ x 22
 y 11
 end
 arch floor_marble2a
+x 22
+y 12
+end
+arch lamp_wall
 x 22
 y 12
 end

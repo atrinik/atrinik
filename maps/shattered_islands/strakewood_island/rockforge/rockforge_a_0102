@@ -383,10 +383,6 @@ arch floor_marble1a
 x 6
 y 4
 end
-arch lamp_wall
-x 6
-y 4
-end
 arch floor_marble1a
 x 6
 y 5
@@ -530,7 +526,19 @@ arch floor_marble1
 x 7
 y 4
 end
+arch fireplace_right
+x 7
+y 4
+end
 arch floor_marble1a
+x 7
+y 5
+end
+arch carpet1.131
+x 7
+y 5
+end
+arch light5
 x 7
 y 5
 end
@@ -538,7 +546,20 @@ arch floor_marble1a
 x 7
 y 6
 end
+arch carpet1.131
+x 7
+y 6
+end
+arch chair1_111
+direction 3
+x 7
+y 6
+end
 arch floor_marble1b
+x 7
+y 7
+end
+arch carpet1.131
 x 7
 y 7
 end
@@ -637,7 +658,19 @@ arch floor_marble1a
 x 8
 y 4
 end
+arch carpet1.151
+x 8
+y 4
+end
 arch floor_marble1b
+x 8
+y 5
+end
+arch carpet1
+x 8
+y 5
+end
+arch light5
 x 8
 y 5
 end
@@ -645,11 +678,23 @@ arch floor_marble1a
 x 8
 y 6
 end
+arch carpet1
+x 8
+y 6
+end
 arch floor_marble1
 x 8
 y 7
 end
+arch carpet1
+x 8
+y 7
+end
 arch floor_marble1a
+x 8
+y 8
+end
+arch carpet1.111
 x 8
 y 8
 end
@@ -769,7 +814,15 @@ arch floor_marble1b
 x 9
 y 4
 end
+arch carpet1.151
+x 9
+y 4
+end
 arch floor_marble1
+x 9
+y 5
+end
+arch carpet1
 x 9
 y 5
 end
@@ -777,11 +830,23 @@ arch floor_marble1b
 x 9
 y 6
 end
+arch carpet1
+x 9
+y 6
+end
 arch floor_marble1a
 x 9
 y 7
 end
+arch carpet1
+x 9
+y 7
+end
 arch floor_marble1b
+x 9
+y 8
+end
+arch carpet1.111
 x 9
 y 8
 end
@@ -899,6 +964,10 @@ arch floor_marble1
 x 10
 y 4
 end
+arch carpet1.151
+x 10
+y 4
+end
 arch lamp_wall
 x 10
 y 4
@@ -921,7 +990,15 @@ arch floor_marble1b
 x 10
 y 5
 end
+arch carpet1
+x 10
+y 5
+end
 arch floor_marble1b
+x 10
+y 6
+end
+arch carpet1
 x 10
 y 6
 end
@@ -929,7 +1006,15 @@ arch floor_marble1a
 x 10
 y 7
 end
+arch carpet1
+x 10
+y 7
+end
 arch floor_marble1
+x 10
+y 8
+end
+arch carpet1.111
 x 10
 y 8
 end
@@ -1038,7 +1123,15 @@ arch floor_marble1
 x 11
 y 4
 end
+arch carpet1.151
+x 11
+y 4
+end
 arch floor_marble1a
+x 11
+y 5
+end
+arch carpet1
 x 11
 y 5
 end
@@ -1046,11 +1139,23 @@ arch floor_marble1b
 x 11
 y 6
 end
+arch carpet1
+x 11
+y 6
+end
 arch floor_marble1a
 x 11
 y 7
 end
+arch carpet1
+x 11
+y 7
+end
 arch floor_marble1
+x 11
+y 8
+end
+arch carpet1.111
 x 11
 y 8
 end
@@ -1128,7 +1233,15 @@ arch floor_marble1
 x 12
 y 4
 end
+arch carpet1.151
+x 12
+y 4
+end
 arch floor_marble1a
+x 12
+y 5
+end
+arch carpet1
 x 12
 y 5
 end
@@ -1136,11 +1249,23 @@ arch floor_marble1b
 x 12
 y 6
 end
+arch carpet1
+x 12
+y 6
+end
 arch floor_marble1
 x 12
 y 7
 end
+arch carpet1
+x 12
+y 7
+end
 arch floor_marble1b
+x 12
+y 8
+end
+arch carpet1.111
 x 12
 y 8
 end
@@ -1218,6 +1343,10 @@ arch floor_marble1
 x 13
 y 4
 end
+arch carpet1.151
+x 13
+y 4
+end
 arch lamp_wall
 x 13
 y 4
@@ -1240,7 +1369,15 @@ arch floor_marble1
 x 13
 y 5
 end
+arch carpet1
+x 13
+y 5
+end
 arch floor_marble1a
+x 13
+y 6
+end
+arch carpet1
 x 13
 y 6
 end
@@ -1248,7 +1385,15 @@ arch floor_marble1
 x 13
 y 7
 end
+arch carpet1
+x 13
+y 7
+end
 arch floor_marble1
+x 13
+y 8
+end
+arch carpet1.111
 x 13
 y 8
 end
@@ -1338,7 +1483,15 @@ arch floor_marble1b
 x 14
 y 4
 end
+arch carpet1.151
+x 14
+y 4
+end
 arch floor_marble1
+x 14
+y 5
+end
+arch carpet1
 x 14
 y 5
 end
@@ -1346,11 +1499,23 @@ arch floor_marble1
 x 14
 y 6
 end
+arch carpet1
+x 14
+y 6
+end
 arch floor_marble1b
 x 14
 y 7
 end
+arch carpet1
+x 14
+y 7
+end
 arch floor_marble1b
+x 14
+y 8
+end
+arch carpet1.111
 x 14
 y 8
 end
@@ -1457,7 +1622,15 @@ arch floor_marble1
 x 15
 y 4
 end
+arch carpet1.151
+x 15
+y 4
+end
 arch floor_marble1
+x 15
+y 5
+end
+arch carpet1
 x 15
 y 5
 end
@@ -1465,11 +1638,23 @@ arch floor_marble1b
 x 15
 y 6
 end
+arch carpet1
+x 15
+y 6
+end
 arch floor_marble1
 x 15
 y 7
 end
+arch carpet1
+x 15
+y 7
+end
 arch floor_marble1b
+x 15
+y 8
+end
+arch carpet1.111
 x 15
 y 8
 end
@@ -1564,7 +1749,23 @@ arch floor_marble1b
 x 16
 y 4
 end
+arch carpet1.151
+x 16
+y 4
+end
+arch fireplace_right
+x 16
+y 4
+end
 arch floor_marble1a
+x 16
+y 5
+end
+arch carpet1
+x 16
+y 5
+end
+arch light5
 x 16
 y 5
 end
@@ -1572,11 +1773,23 @@ arch floor_marble1
 x 16
 y 6
 end
+arch carpet1
+x 16
+y 6
+end
 arch floor_marble1
 x 16
 y 7
 end
+arch carpet1
+x 16
+y 7
+end
 arch floor_marble1
+x 16
+y 8
+end
+arch carpet1.111
 x 16
 y 8
 end
@@ -1674,11 +1887,15 @@ arch floor_marble1a
 x 17
 y 4
 end
-arch lamp_wall
-x 17
-y 4
-end
 arch floor_marble1b
+x 17
+y 5
+end
+arch carpet1.171
+x 17
+y 5
+end
+arch light5
 x 17
 y 5
 end
@@ -1686,7 +1903,20 @@ arch floor_marble1b
 x 17
 y 6
 end
+arch carpet1.171
+x 17
+y 6
+end
+arch chair1_111
+direction 7
+x 17
+y 6
+end
 arch floor_marble1
+x 17
+y 7
+end
+arch carpet1.171
 x 17
 y 7
 end

@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-06-03 Alex Tokar
+Modified: 2011-06-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -82,6 +82,10 @@ arch floor_marble2b
 x 2
 y 12
 end
+arch lamp_wall
+x 2
+y 12
+end
 arch floor_marble2a
 x 2
 y 13
@@ -319,6 +323,10 @@ sp 7
 x 6
 y 7
 end
+arch light3
+x 6
+y 7
+end
 arch floor_marble1b
 x 6
 y 8
@@ -343,6 +351,11 @@ arch floor_marble1
 x 6
 y 11
 end
+arch lamp_wall
+direction 7
+x 6
+y 11
+end
 arch floor_marble1b
 x 6
 y 12
@@ -364,6 +377,11 @@ x 6
 y 16
 end
 arch floor_marble1b
+x 6
+y 17
+end
+arch lamp_wall
+direction 7
 x 6
 y 17
 end
@@ -473,6 +491,10 @@ sp 7
 x 7
 y 7
 end
+arch light3
+x 7
+y 7
+end
 arch floor_marble1b
 x 7
 y 8
@@ -561,6 +583,10 @@ y 21
 end
 arch stairs_stone_up
 direction 1
+x 7
+y 21
+end
+arch light3
 x 7
 y 21
 end
@@ -715,6 +741,10 @@ direction 1
 x 8
 y 21
 end
+arch light3
+x 8
+y 21
+end
 arch floor_marble1b
 z 60
 x 8
@@ -768,6 +798,10 @@ arch floor_marble1b
 x 9
 y 9
 end
+arch lamp_wall
+x 9
+y 9
+end
 arch floor_marble1b
 x 9
 y 10
@@ -915,6 +949,10 @@ arch floor_marble1b
 x 10
 y 16
 end
+arch lamp_wall
+x 10
+y 16
+end
 arch floor_marble1b
 x 10
 y 17
@@ -1127,6 +1165,10 @@ arch floor_marble1a
 x 14
 y 9
 end
+arch lamp_wall
+x 14
+y 9
+end
 arch floor_marble1b
 x 14
 y 10
@@ -1168,6 +1210,10 @@ x 14
 y 15
 end
 arch floor_marble1a
+x 14
+y 16
+end
+arch lamp_wall
 x 14
 y 16
 end
@@ -1297,6 +1343,11 @@ x 15
 y 12
 end
 arch floor_marble1b
+x 15
+y 13
+end
+arch lamp_wall
+direction 7
 x 15
 y 13
 end
@@ -1356,6 +1407,10 @@ y 21
 end
 arch stairs_stone_up
 direction 1
+x 15
+y 21
+end
+arch light3
 x 15
 y 21
 end
@@ -1422,6 +1477,10 @@ arch invis_exit
 slaying rockforge_0101
 hp 16
 sp 7
+x 16
+y 7
+end
+arch light3
 x 16
 y 7
 end
@@ -1523,6 +1582,10 @@ direction 1
 x 16
 y 21
 end
+arch light3
+x 16
+y 21
+end
 arch floor_marble1b
 z 60
 x 16
@@ -1586,6 +1649,10 @@ arch invis_exit
 slaying rockforge_0101
 hp 17
 sp 7
+x 17
+y 7
+end
+arch light3
 x 17
 y 7
 end
@@ -1820,6 +1887,10 @@ arch floor_marble2a
 x 19
 y 12
 end
+arch lamp_wall
+x 19
+y 12
+end
 arch floor_marble2a
 x 19
 y 13
@@ -1945,6 +2016,10 @@ x 23
 y 11
 end
 arch floor_marble2c
+x 23
+y 12
+end
+arch lamp_wall
 x 23
 y 12
 end
