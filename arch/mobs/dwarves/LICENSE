@@ -3,6 +3,14 @@ Wesnoth 1.9.4 - http://wesnoth.org/ - GPLv2:
 	dwarf_berserker
 	dwarf_fighter
 	dwarf_steelclad
+	dwarf_explorer
+	dwarf_fighter2
+	dwarf_guard
+	dwarf_lord
+	dwarf_pathfinder
+	dwarf_runemaster
+	dwarf_scout
+	dwarf_thunderer
 
 RLTiles - http://rltiles.sf.net/ - Public Domain:
 	dwarf_noble
