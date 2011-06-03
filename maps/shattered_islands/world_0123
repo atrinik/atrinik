@@ -319,7 +319,7 @@ end
 arch invis_exit
 slaying strakewood_island/rockforge/rockforge_a_0101
 hp 15
-sp 21
+sp 19
 x 2
 y 1
 end
@@ -331,7 +331,7 @@ arch stairs_stone_down
 direction 1
 slaying strakewood_island/rockforge/rockforge_a_0101
 hp 15
-sp 21
+sp 19
 x 2
 y 2
 end
@@ -475,7 +475,7 @@ end
 arch invis_exit
 slaying strakewood_island/rockforge/rockforge_a_0101
 hp 16
-sp 21
+sp 19
 x 3
 y 1
 end
@@ -487,7 +487,7 @@ arch stairs_stone_down
 direction 1
 slaying strakewood_island/rockforge/rockforge_a_0101
 hp 16
-sp 21
+sp 19
 x 3
 y 2
 end
