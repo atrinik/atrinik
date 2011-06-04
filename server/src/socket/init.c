@@ -98,6 +98,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	}
 
 	ns->login_count = 0;
+	ns->keepalive = 0;
 	ns->addme = 0;
 	ns->faceset = 0;
 	ns->sound = 0;

@@ -450,6 +450,7 @@ enum
 	 * Used to exchange information about readied objects such as arrows,
 	 * bolts, quivers, throwing knives, etc. */
 	BINARY_CMD_READY,
+	BINARY_CMD_KEEPALIVE,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

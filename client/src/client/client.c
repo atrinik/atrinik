@@ -97,6 +97,7 @@ enum
 	BINARY_CMD_QLIST,
 	BINARY_CMD_REGION_MAP,
 	BINARY_CMD_READY,
+	BINARY_CMD_KEEPALIVE,
 	/* last entry */
 	BINAR_CMD
 };
@@ -142,6 +143,7 @@ struct CmdMapping commands[] =
 	{"qlist", QuestListCmd, ASCII},
 	{"region_map", RegionMapCmd, ASCII},
 	{"rd", ReadyCmd, INT_ARRAY},
+	{"ka", NULL, NODATA},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd, NODATA},

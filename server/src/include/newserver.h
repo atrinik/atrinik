@@ -290,7 +290,18 @@ typedef struct socket_struct
 
 	/** Last socket buffer. */
 	socket_buffer *buffer_back;
+
+	/**
+	 * Buffer for how many ticks have passed since the last keep alive
+	 * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
+	 * socket is disconnected. */
+	uint32 keepalive;
 } socket_struct;
+
+/**
+ * How many seconds must pass since the last keep alive command for the
+ * socket to be disconnected. */
+#define SOCKET_KEEPALIVE_TIMEOUT (60 * 5)
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct

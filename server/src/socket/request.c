@@ -311,6 +311,7 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
 		ns->addme = 1;
 		/* Reset idle counter */
 		ns->login_count = 0;
+		ns->keepalive = 0;
 		socket_info.nconns--;
 		ns->status = Ns_Avail;
 	}
@@ -2270,4 +2271,16 @@ void command_fire(uint8 *buf, int len, player *pl)
 	move_player(pl->ob, dir);
 	pl->fire_on = 0;
 	pl->firemode_type = -1;
+}
+
+/**
+ * Client notifies the server that it is still alive.
+ * @param buf Data.
+ * @param len Length of data.
+ * @param ns The client's socket. */
+void cmd_keepalive(char *buf, int len, socket_struct *ns)
+{
+	(void) buf;
+	(void) len;
+	ns->keepalive = 0;
 }

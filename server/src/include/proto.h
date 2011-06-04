@@ -1027,6 +1027,7 @@ void SetSound(char *buf, int len, socket_struct *ns);
 void command_move_path(uint8 *buf, int len, player *pl);
 void cmd_ready(uint8 *buf, int len, player *pl);
 void command_fire(uint8 *buf, int len, player *pl);
+void cmd_keepalive(char *buf, int len, socket_struct *ns);
 
 /* socket/sounds.c */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);

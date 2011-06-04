@@ -112,6 +112,7 @@ static const struct client_cmd_mapping client_commands[] =
 	{"clr", command_clear_cmds},
 	{"setsound", SetSound},
 	{"upf", cmd_request_update},
+	{"ka", cmd_keepalive},
 	{NULL, NULL}
 };
 
@@ -284,6 +285,7 @@ void handle_client(socket_struct *ns, player *pl)
 		if (pl && pl->state == ST_PLAYING)
 		{
 			ns->login_count = 0;
+			ns->keepalive = 0;
 		}
 
 		if (check_command(ns, pl))
@@ -450,8 +452,7 @@ void doeric_server()
 		{
 			if (init_sockets[i].status > Ns_Wait)
 			{
-				/* Kill this socket after being 3 minutes idle */
-				if (init_sockets[i].login_count++ >= 60 * 4 * (1000000 / MAX_TIME))
+				if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
 				{
 					FREE_SOCKET(i);
 					continue;
@@ -471,6 +472,11 @@ void doeric_server()
 		if (pl->socket.status != Ns_Dead && !is_fd_valid(pl->socket.fd))
 		{
 			LOG(llevDebug, "doeric_server(): Invalid file descriptor for player %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+			pl->socket.status = Ns_Dead;
+		}
+
+		if (pl->socket.status != Ns_Dead && pl->socket.socket_version >= 1052 && pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
+		{
 			pl->socket.status = Ns_Dead;
 		}
 
