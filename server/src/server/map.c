@@ -664,6 +664,12 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
 	flags = (msp = GET_MAP_SPACE_PTR(m, x, y))->flags;
 
+	/* Flying objects can move over various terrains. */
+	if (op && QUERY_FLAG(op, FLAG_FLYING))
+	{
+		terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK | TERRAIN_CLOUDWALK;
+	}
+
 	/* First, look at the terrain. If we don't have a valid terrain flag,
 	 * this is forbidden to enter. */
 	if (msp->move_flags & ~terrain)
