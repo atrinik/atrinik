@@ -1248,6 +1248,7 @@ y 8
 end
 arch spawn_point
 name CirnoSpawn 2000
+speed 0.05
 last_grace 1
 x 8
 y 8
