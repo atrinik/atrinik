@@ -602,7 +602,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	{
 		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
 		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[layer], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[layer], 0) / 2 - 2, yl - 26, COLOR_SIMPLE(map->pcolor[layer]), TEXT_OUTLINE, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[layer], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[layer], 0) / 2 - 2, yl - 24, COLOR_SIMPLE(map->pcolor[layer]), TEXT_OUTLINE, NULL);
 		}
 	}
 
