@@ -622,17 +622,12 @@ void SpelllistCmd(char *data)
 {
 	char *tmp_data, *cp;
 	size_t spell_path, spell_id;
-
-	for (spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++)
-	{
-		for (spell_id = 0; spell_id < spell_list_num[spell_path]; spell_id++)
-		{
-			spell_list[spell_path][spell_id]->known = 0;
-		}
-	}
+	int mode;
 
 	tmp_data = strdup(data);
 	cp = strtok(tmp_data, "/");
+
+	mode = atoi(data);
 
 	while (cp)
 	{
@@ -650,9 +645,16 @@ void SpelllistCmd(char *data)
 		{
 			spell_entry_struct *spell = spell_get(spell_path, spell_id);
 
-			spell->known = 1;
-			spell->path = tmp[2][0];
-			spell->cost = atoi(tmp[1]);
+			if (mode == SPLIST_MODE_REMOVE)
+			{
+				spell->known = 0;
+			}
+			else
+			{
+				spell->known = 1;
+				spell->path = tmp[2][0];
+				spell->cost = atoi(tmp[1]);
+			}
 		}
 
 		cp = strtok(NULL, "/");
