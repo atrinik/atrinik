@@ -1257,6 +1257,7 @@ Eye'm the strongest!
 endmsg
 name Tomboyish Fairy
 level 9
+spawn_time 09:09-10:10
 attack_cold 15
 can_cast_spell 1
 sp -1
