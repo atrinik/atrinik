@@ -63,7 +63,7 @@ skill skills[NROFSKILLS] =
 	{"construction", "This skill allows you to modify contents of the game, like your apartment. See nearby construction manager NPC for help and explanation of this skill.", NULL, EXP_PERSONAL, 0},
 
 	{"punching", "This skill is the basic hand-to-hand attack skill. You will use this skill automatically when attacking without a weapon.", NULL, EXP_PHYSICAL, 0},
-	{"karate", "This skill is advanced hand-to-hand attack skill. You will use this skill automatically when attacking without a weapon.", NULL, EXP_PHYSICAL, 0},
+	{"karate", NULL, NULL, EXP_PHYSICAL, 0},
 	{"throwing", "Throwing is the skill to throw weapons in a deadly way at your opponent. This skill has a separate entry in the range selection.", NULL, EXP_AGILITY, 1},
 
 	{"wizardry spells", "This skill allows casting wizardry based spells using mana (spellpoints). This skill is auto-used when casting the spell.", NULL, EXP_MAGICAL, 1},
