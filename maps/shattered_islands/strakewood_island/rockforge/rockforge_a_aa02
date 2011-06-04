@@ -24,6 +24,10 @@ end
 arch wall_marble1.111a
 x 7
 end
+arch flag_rockforge
+direction 7
+x 7
+end
 arch blocked
 x 7
 y 1
@@ -53,6 +57,11 @@ x 7
 y 4
 end
 arch wall_marble1.111
+x 7
+y 4
+end
+arch flag_rockforge
+direction 7
 x 7
 y 4
 end
@@ -85,6 +94,11 @@ x 7
 y 8
 end
 arch wall_marble1.111
+x 7
+y 8
+end
+arch flag_rockforge
+direction 7
 x 7
 y 8
 end
@@ -117,6 +131,11 @@ x 7
 y 12
 end
 arch wall_marble1.111a
+x 7
+y 12
+end
+arch flag_rockforge
+direction 7
 x 7
 y 12
 end
@@ -149,6 +168,11 @@ x 7
 y 16
 end
 arch wall_marble1.111a
+x 7
+y 16
+end
+arch flag_rockforge
+direction 7
 x 7
 y 16
 end
@@ -181,6 +205,11 @@ x 7
 y 20
 end
 arch wall_marble1.111a
+x 7
+y 20
+end
+arch flag_rockforge
+direction 7
 x 7
 y 20
 end
@@ -356,6 +385,10 @@ arch floor_marble2a
 x 9
 y 5
 end
+arch fmask_rockforge2
+x 9
+y 5
+end
 arch floor_marble2b
 x 9
 y 6
@@ -393,6 +426,10 @@ x 9
 y 14
 end
 arch floor_marble2c
+x 9
+y 15
+end
+arch fmask_rockforge2
 x 9
 y 15
 end
