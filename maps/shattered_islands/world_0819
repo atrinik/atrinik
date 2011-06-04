@@ -1255,7 +1255,11 @@ y 8
 arch fairy2
 msg
 @match ^hi$|^hey$|^hello$
-Eye'm the strongest!
+Eye'm the <a>strongest</a>!
+@match ^baka$|^idiot$|^nineball$|^marukyuu$|^(9)$
+The one saying "idiot" is an idiot.
+@match ^strongest$|^strong$|^Cirno$
+Yay!
 endmsg
 name Tomboyish Fairy
 level 9
