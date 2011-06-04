@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-03 Alex Tokar
+Modified: 2011-06-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -85,11 +85,21 @@ arch wall_marble1.111a
 x 7
 y 13
 end
+arch flag_rockforge
+direction 7
+x 7
+y 13
+end
 arch blocked
 x 7
 y 14
 end
 arch wall_marble1.111a
+x 7
+y 14
+end
+arch flag_rockforge
+direction 7
 x 7
 y 14
 end
@@ -114,6 +124,11 @@ x 7
 y 17
 end
 arch wall_marble1.111a
+x 7
+y 17
+end
+arch flag_rockforge
+direction 4
 x 7
 y 17
 end
@@ -169,7 +184,17 @@ arch floor_marble1
 x 8
 y 6
 end
+arch chest_w1
+direction 7
+x 8
+y 6
+end
 arch floor_marble1
+x 8
+y 7
+end
+arch shelf2_wall.111
+direction 7
 x 8
 y 7
 end
@@ -177,7 +202,21 @@ arch floor_marble1
 x 8
 y 8
 end
+arch desk2
+direction 7
+x 8
+y 8
+end
 arch floor_marble1b
+x 8
+y 9
+end
+arch shelf1_wall.111
+direction 7
+x 8
+y 9
+end
+arch light3
 x 8
 y 9
 end
@@ -185,27 +224,45 @@ arch floor_marble1b
 x 8
 y 10
 end
+arch wall_marble1.131a
+x 8
+y 10
+end
 arch floor_marble1
 x 8
 y 11
 end
-arch floor_marble1
+arch floor_white1b
 x 8
 y 12
 end
-arch floor_marble1
+arch shrine1.111
+direction 7
+x 8
+y 12
+end
+arch floor_white1b
 x 8
 y 13
 end
-arch floor_marble1a
+arch floor_white1b
 x 8
 y 14
 end
-arch floor_marble1
+arch floor_white1b
+x 8
+y 15
+end
+arch shrine1.111
+direction 7
 x 8
 y 15
 end
 arch floor_marble1b
+x 8
+y 16
+end
+arch border_wall_n1
 x 8
 y 16
 end
@@ -221,11 +278,24 @@ arch floor_marble1
 x 8
 y 19
 end
+arch wall_marble1.131
+x 8
+y 19
+end
 arch floor_marble1
 x 8
 y 20
 end
+arch basin1_full.101
+x 8
+y 20
+end
 arch floor_marble1a
+x 8
+y 21
+end
+arch chair1_111
+direction 7
 x 8
 y 21
 end
@@ -249,11 +319,20 @@ arch floor_marble1b
 x 9
 y 6
 end
+arch drawers1.111
+x 9
+y 6
+end
 arch floor_marble1a
 x 9
 y 7
 end
 arch floor_marble1a
+x 9
+y 8
+end
+arch chair2_111
+direction 3
 x 9
 y 8
 end
@@ -265,27 +344,61 @@ arch floor_marble1a
 x 9
 y 10
 end
+arch wall_marble1.131
+x 9
+y 10
+end
+arch flag_rockforge
+x 9
+y 10
+end
 arch floor_marble1a
 x 9
 y 11
 end
-arch floor_marble1b
+arch floor_white1b
 x 9
 y 12
 end
-arch floor_marble1
+arch floor_white1b
 x 9
 y 13
 end
-arch floor_marble1a
+arch spawn_point
+x 9
+y 13
+arch dwarf_runemaster
+name Hivro Holygauntlet
+level 50
+type 83
+direction 3
+arch event_obj
+sub_type 6
+race /python/temples/grumthar.py
+end
+end
+end
+arch light9
+x 9
+y 13
+end
+arch floor_white1b
 x 9
 y 14
 end
-arch floor_marble1b
+arch light9
+x 9
+y 14
+end
+arch floor_white1b
 x 9
 y 15
 end
 arch floor_marble1
+x 9
+y 16
+end
+arch border_wall_n1
 x 9
 y 16
 end
@@ -301,11 +414,19 @@ arch floor_marble1
 x 9
 y 19
 end
+arch wall_marble1w2.131
+x 9
+y 19
+end
 arch floor_marble1b
 x 9
 y 20
 end
 arch floor_marble1a
+x 9
+y 21
+end
+arch table_small1
 x 9
 y 21
 end
@@ -329,6 +450,10 @@ arch floor_marble1
 x 10
 y 6
 end
+arch torch_wall_1
+x 10
+y 6
+end
 arch floor_marble1a
 x 10
 y 7
@@ -345,27 +470,43 @@ arch floor_marble1b
 x 10
 y 10
 end
+arch wall_marble1w.131
+x 10
+y 10
+end
 arch floor_marble1a
 x 10
 y 11
 end
-arch floor_marble1a
+arch floor_white1b
 x 10
 y 12
 end
-arch floor_marble1b
+arch floor_white1b
 x 10
 y 13
 end
-arch floor_marble1a
+arch light9
+x 10
+y 13
+end
+arch floor_white1b
 x 10
 y 14
 end
-arch floor_marble1
+arch light9
+x 10
+y 14
+end
+arch floor_white1b
 x 10
 y 15
 end
 arch floor_marble1
+x 10
+y 16
+end
+arch border_wall_n1
 x 10
 y 16
 end
@@ -381,11 +522,24 @@ arch floor_marble1b
 x 10
 y 19
 end
+arch wall_marble1.131
+x 10
+y 19
+end
 arch floor_marble1b
 x 10
 y 20
 end
+arch torch_wall_1
+x 10
+y 20
+end
 arch floor_marble1a
+x 10
+y 21
+end
+arch chair1_111
+direction 3
 x 10
 y 21
 end
@@ -409,7 +563,16 @@ arch floor_marble1
 x 11
 y 6
 end
+arch wall_marble1.111a
+x 11
+y 6
+end
 arch floor_marble1
+x 11
+y 7
+end
+arch door1_locked
+direction 3
 x 11
 y 7
 end
@@ -417,7 +580,20 @@ arch floor_marble1b
 x 11
 y 8
 end
+arch wall_marble1.111a
+x 11
+y 8
+end
 arch floor_marble1b
+x 11
+y 9
+end
+arch wall_marble1.111a
+x 11
+y 9
+end
+arch flag_rockforge
+direction 7
 x 11
 y 9
 end
@@ -425,27 +601,55 @@ arch floor_marble1
 x 11
 y 10
 end
+arch wall_marble1.141
+x 11
+y 10
+end
 arch floor_marble1b
 x 11
 y 11
 end
-arch floor_marble1b
+arch floor_white1b
 x 11
 y 12
 end
-arch floor_marble1b
+arch altar_grumthar
+direction 7
+x 11
+y 12
+end
+arch floor_white1b
 x 11
 y 13
 end
-arch floor_marble1a
+arch altar_grumthar
+direction 7
+x 11
+y 13
+end
+arch floor_white1b
 x 11
 y 14
 end
-arch floor_marble1
+arch altar_grumthar
+direction 7
+x 11
+y 14
+end
+arch floor_white1b
+x 11
+y 15
+end
+arch altar_grumthar
+direction 7
 x 11
 y 15
 end
 arch floor_marble1b
+x 11
+y 16
+end
+arch border_wall_n1
 x 11
 y 16
 end
@@ -460,21 +664,34 @@ end
 arch floor_marble1a
 x 11
 y 19
-end
-arch floor_marble1b
-x 11
-y 20
-end
-arch floor_marble1b
-x 11
-y 21
-end
-arch floor_marble1b
-x 11
-y 22
 end
 arch wall_marble1.131a
 x 11
+y 19
+end
+arch floor_marble1b
+x 11
+y 20
+end
+arch door1_locked
+direction 3
+x 11
+y 20
+end
+arch floor_marble1b
+x 11
+y 21
+end
+arch wall_marble1.111
+x 11
+y 21
+end
+arch floor_marble1b
+x 11
+y 22
+end
+arch wall_marble1.141
+x 11
 y 22
 end
 arch blocked
@@ -513,7 +730,15 @@ arch floor_marble1
 x 12
 y 12
 end
+arch border_wall_w2
+x 12
+y 12
+end
 arch floor_marble1
+x 12
+y 13
+end
+arch border_wall_w1
 x 12
 y 13
 end
@@ -521,11 +746,23 @@ arch floor_marble1
 x 12
 y 14
 end
+arch border_wall_w1
+x 12
+y 14
+end
 arch floor_marble1a
 x 12
 y 15
 end
+arch border_wall_w1
+x 12
+y 15
+end
 arch floor_marble1b
+x 12
+y 16
+end
+arch border_wall_nw2
 x 12
 y 16
 end
@@ -565,6 +802,10 @@ arch wall_marble1.131
 x 13
 y 5
 end
+arch flag_rockforge
+x 13
+y 5
+end
 arch floor_marble1
 x 13
 y 6
@@ -597,7 +838,15 @@ arch floor_marble1
 x 13
 y 13
 end
+arch carpet1.131
+x 13
+y 13
+end
 arch floor_marble1b
+x 13
+y 14
+end
+arch carpet1.131
 x 13
 y 14
 end
@@ -653,11 +902,21 @@ arch floor_marble1
 x 14
 y 7
 end
+arch bank1.111
+direction 7
+x 14
+y 7
+end
 arch floor_marble1
 x 14
 y 8
 end
 arch floor_marble1
+x 14
+y 9
+end
+arch bank1.111
+direction 7
 x 14
 y 9
 end
@@ -669,7 +928,16 @@ arch floor_marble1
 x 14
 y 11
 end
+arch bank1.111
+direction 7
+x 14
+y 11
+end
 arch floor_marble1a
+x 14
+y 12
+end
+arch carpet1.151
 x 14
 y 12
 end
@@ -677,11 +945,23 @@ arch floor_marble1
 x 14
 y 13
 end
+arch carpet1
+x 14
+y 13
+end
 arch floor_marble1
 x 14
 y 14
 end
+arch carpet1
+x 14
+y 14
+end
 arch floor_marble1a
+x 14
+y 15
+end
+arch carpet1.111
 x 14
 y 15
 end
@@ -693,6 +973,20 @@ arch floor_marble1b
 x 14
 y 17
 end
+arch bank1.111
+direction 7
+x 14
+y 17
+end
+arch spawn_point
+x 14
+y 17
+arch dwarf_guard
+name Tikor Tunnelsmith
+level 60
+type 83
+end
+end
 arch floor_marble1a
 x 14
 y 18
@@ -701,11 +995,21 @@ arch floor_marble1a
 x 14
 y 19
 end
+arch bank1.111
+direction 7
+x 14
+y 19
+end
 arch floor_marble1
 x 14
 y 20
 end
 arch floor_marble1b
+x 14
+y 21
+end
+arch bank1.111
+direction 7
 x 14
 y 21
 end
@@ -725,6 +1029,10 @@ arch wall_marble1.131a
 x 15
 y 5
 end
+arch flag_rockforge
+x 15
+y 5
+end
 arch floor_marble1a
 x 15
 y 6
@@ -753,7 +1061,15 @@ arch floor_marble1a
 x 15
 y 12
 end
+arch carpet1.151
+x 15
+y 12
+end
 arch floor_marble1b
+x 15
+y 13
+end
+arch carpet1
 x 15
 y 13
 end
@@ -761,7 +1077,15 @@ arch floor_marble1a
 x 15
 y 14
 end
+arch carpet1
+x 15
+y 14
+end
 arch floor_marble1b
+x 15
+y 15
+end
+arch carpet1.111
 x 15
 y 15
 end
@@ -809,7 +1133,20 @@ arch floor_marble1
 x 16
 y 6
 end
+arch glower.101
+x 16
+y 6
+end
+arch light9
+x 16
+y 6
+end
 arch floor_marble1a
+x 16
+y 7
+end
+arch bank1.111
+direction 7
 x 16
 y 7
 end
@@ -821,6 +1158,11 @@ arch floor_marble1a
 x 16
 y 9
 end
+arch bank1.111
+direction 7
+x 16
+y 9
+end
 arch floor_marble1a
 x 16
 y 10
@@ -829,7 +1171,24 @@ arch floor_marble1b
 x 16
 y 11
 end
+arch bank1.111
+direction 7
+x 16
+y 11
+end
 arch floor_marble1
+x 16
+y 12
+end
+arch carpet1.151
+x 16
+y 12
+end
+arch glower.101
+x 16
+y 12
+end
+arch light9
 x 16
 y 12
 end
@@ -837,7 +1196,15 @@ arch floor_marble1b
 x 16
 y 13
 end
+arch carpet1
+x 16
+y 13
+end
 arch floor_marble1b
+x 16
+y 14
+end
+arch carpet1
 x 16
 y 14
 end
@@ -845,11 +1212,28 @@ arch floor_marble1
 x 16
 y 15
 end
+arch carpet1.111
+x 16
+y 15
+end
 arch floor_marble1b
 x 16
 y 16
 end
+arch glower.101
+x 16
+y 16
+end
+arch light9
+x 16
+y 16
+end
 arch floor_marble1b
+x 16
+y 17
+end
+arch bank1.111
+direction 7
 x 16
 y 17
 end
@@ -861,6 +1245,11 @@ arch floor_marble1
 x 16
 y 19
 end
+arch bank1.111
+direction 7
+x 16
+y 19
+end
 arch floor_marble1b
 x 16
 y 20
@@ -869,7 +1258,16 @@ arch floor_marble1a
 x 16
 y 21
 end
+arch bank1.111
+direction 7
+x 16
+y 21
+end
 arch floor_marble1a
+x 16
+y 22
+end
+arch glower.101
 x 16
 y 22
 end
@@ -877,6 +1275,10 @@ arch wall_marble1.131a
 x 16
 y 22
 end
+arch light9
+x 16
+y 22
+end
 arch blocked
 x 17
 y 5
@@ -885,6 +1287,10 @@ arch wall_marble1.131a
 x 17
 y 5
 end
+arch flag_rockforge
+x 17
+y 5
+end
 arch floor_marble1b
 x 17
 y 6
@@ -913,7 +1319,15 @@ arch floor_marble1
 x 17
 y 12
 end
+arch carpet1.151
+x 17
+y 12
+end
 arch floor_marble1
+x 17
+y 13
+end
+arch carpet1
 x 17
 y 13
 end
@@ -921,7 +1335,15 @@ arch floor_marble1b
 x 17
 y 14
 end
+arch carpet1
+x 17
+y 14
+end
 arch floor_marble1b
+x 17
+y 15
+end
+arch carpet1.111
 x 17
 y 15
 end
@@ -973,11 +1395,32 @@ arch floor_marble1a
 x 18
 y 7
 end
+arch bank1.111
+direction 7
+x 18
+y 7
+end
+arch spawn_point
+x 18
+y 7
+arch dwarf_lord
+name Higa Glittermail
+level 36
+is_male 0
+is_female 1
+type 83
+end
+end
 arch floor_marble1b
 x 18
 y 8
 end
 arch floor_marble1a
+x 18
+y 9
+end
+arch bank1.111
+direction 7
 x 18
 y 9
 end
@@ -989,7 +1432,16 @@ arch floor_marble1
 x 18
 y 11
 end
+arch bank1.111
+direction 7
+x 18
+y 11
+end
 arch floor_marble1a
+x 18
+y 12
+end
+arch carpet1.151
 x 18
 y 12
 end
@@ -997,11 +1449,23 @@ arch floor_marble1
 x 18
 y 13
 end
+arch carpet1
+x 18
+y 13
+end
 arch floor_marble1b
 x 18
 y 14
 end
+arch carpet1
+x 18
+y 14
+end
 arch floor_marble1a
+x 18
+y 15
+end
+arch carpet1.111
 x 18
 y 15
 end
@@ -1013,6 +1477,11 @@ arch floor_marble1a
 x 18
 y 17
 end
+arch bank1.111
+direction 7
+x 18
+y 17
+end
 arch floor_marble1
 x 18
 y 18
@@ -1021,11 +1490,30 @@ arch floor_marble1
 x 18
 y 19
 end
+arch bank1.111
+direction 7
+x 18
+y 19
+end
+arch spawn_point
+x 18
+y 19
+arch dwarf_thunderer
+name Rolgir Ironender
+level 46
+type 83
+end
+end
 arch floor_marble1
 x 18
 y 20
 end
 arch floor_marble1b
+x 18
+y 21
+end
+arch bank1.111
+direction 7
 x 18
 y 21
 end
@@ -1045,6 +1533,10 @@ arch wall_marble1.131a
 x 19
 y 5
 end
+arch flag_rockforge
+x 19
+y 5
+end
 arch floor_marble1b
 x 19
 y 6
@@ -1073,7 +1565,15 @@ arch floor_marble1
 x 19
 y 12
 end
+arch carpet1.151
+x 19
+y 12
+end
 arch floor_marble1a
+x 19
+y 13
+end
+arch carpet1
 x 19
 y 13
 end
@@ -1081,7 +1581,15 @@ arch floor_marble1b
 x 19
 y 14
 end
+arch carpet1
+x 19
+y 14
+end
 arch floor_marble1
+x 19
+y 15
+end
+arch carpet1.111
 x 19
 y 15
 end
@@ -1129,7 +1637,20 @@ arch floor_marble1b
 x 20
 y 6
 end
+arch glower.101
+x 20
+y 6
+end
+arch light9
+x 20
+y 6
+end
 arch floor_marble1
+x 20
+y 7
+end
+arch bank1.111
+direction 7
 x 20
 y 7
 end
@@ -1141,6 +1662,11 @@ arch floor_marble1
 x 20
 y 9
 end
+arch bank1.111
+direction 7
+x 20
+y 9
+end
 arch floor_marble1a
 x 20
 y 10
@@ -1149,7 +1675,24 @@ arch floor_marble1a
 x 20
 y 11
 end
+arch bank1.111
+direction 7
+x 20
+y 11
+end
 arch floor_marble1
+x 20
+y 12
+end
+arch carpet1.151
+x 20
+y 12
+end
+arch glower.101
+x 20
+y 12
+end
+arch light9
 x 20
 y 12
 end
@@ -1157,7 +1700,15 @@ arch floor_marble1
 x 20
 y 13
 end
+arch carpet1
+x 20
+y 13
+end
 arch floor_marble1b
+x 20
+y 14
+end
+arch carpet1
 x 20
 y 14
 end
@@ -1165,11 +1716,28 @@ arch floor_marble1a
 x 20
 y 15
 end
+arch carpet1.111
+x 20
+y 15
+end
 arch floor_marble1a
 x 20
 y 16
 end
+arch glower.101
+x 20
+y 16
+end
+arch light9
+x 20
+y 16
+end
 arch floor_marble1a
+x 20
+y 17
+end
+arch bank1.111
+direction 7
 x 20
 y 17
 end
@@ -1181,6 +1749,11 @@ arch floor_marble1
 x 20
 y 19
 end
+arch bank1.111
+direction 7
+x 20
+y 19
+end
 arch floor_marble1
 x 20
 y 20
@@ -1189,7 +1762,16 @@ arch floor_marble1a
 x 20
 y 21
 end
+arch bank1.111
+direction 7
+x 20
+y 21
+end
 arch floor_marble1
+x 20
+y 22
+end
+arch glower.101
 x 20
 y 22
 end
@@ -1197,11 +1779,19 @@ arch wall_marble1.131a
 x 20
 y 22
 end
+arch light9
+x 20
+y 22
+end
 arch blocked
 x 21
 y 5
 end
 arch wall_marble1.131
+x 21
+y 5
+end
+arch flag_rockforge
 x 21
 y 5
 end
@@ -1233,7 +1823,15 @@ arch floor_marble1b
 x 21
 y 12
 end
+arch carpet1.151
+x 21
+y 12
+end
 arch floor_marble1
+x 21
+y 13
+end
+arch carpet1
 x 21
 y 13
 end
@@ -1241,7 +1839,15 @@ arch floor_marble1a
 x 21
 y 14
 end
+arch carpet1
+x 21
+y 14
+end
 arch floor_marble1a
+x 21
+y 15
+end
+arch carpet1.111
 x 21
 y 15
 end
@@ -1293,11 +1899,21 @@ arch floor_marble1
 x 22
 y 7
 end
+arch bank1.111
+direction 7
+x 22
+y 7
+end
 arch floor_marble1
 x 22
 y 8
 end
 arch floor_marble1
+x 22
+y 9
+end
+arch bank1.111
+direction 7
 x 22
 y 9
 end
@@ -1309,7 +1925,16 @@ arch floor_marble1
 x 22
 y 11
 end
+arch bank1.111
+direction 7
+x 22
+y 11
+end
 arch floor_marble1a
+x 22
+y 12
+end
+arch carpet1.151
 x 22
 y 12
 end
@@ -1317,11 +1942,23 @@ arch floor_marble1a
 x 22
 y 13
 end
+arch carpet1
+x 22
+y 13
+end
 arch floor_marble1
 x 22
 y 14
 end
+arch carpet1
+x 22
+y 14
+end
 arch floor_marble1b
+x 22
+y 15
+end
+arch carpet1.111
 x 22
 y 15
 end
@@ -1333,11 +1970,21 @@ arch floor_marble1b
 x 22
 y 17
 end
+arch bank1.111
+direction 7
+x 22
+y 17
+end
 arch floor_marble1a
 x 22
 y 18
 end
 arch floor_marble1
+x 22
+y 19
+end
+arch bank1.111
+direction 7
 x 22
 y 19
 end
@@ -1348,6 +1995,20 @@ end
 arch floor_marble1
 x 22
 y 21
+end
+arch bank1.111
+direction 7
+x 22
+y 21
+end
+arch spawn_point
+x 22
+y 21
+arch dwarf_explorer
+name Dbor Slatemine
+level 23
+type 83
+end
 end
 arch floor_marble1a
 x 22
@@ -1365,6 +2026,10 @@ arch wall_marble1.131
 x 23
 y 5
 end
+arch flag_rockforge
+x 23
+y 5
+end
 arch floor_marble1b
 x 23
 y 6
@@ -1393,7 +2058,15 @@ arch floor_marble1a
 x 23
 y 12
 end
+arch carpet1.151
+x 23
+y 12
+end
 arch floor_marble1a
+x 23
+y 13
+end
+arch carpet1
 x 23
 y 13
 end
@@ -1401,7 +2074,15 @@ arch floor_marble1b
 x 23
 y 14
 end
+arch carpet1
+x 23
+y 14
+end
 arch floor_marble1b
+x 23
+y 15
+end
+arch carpet1.111
 x 23
 y 15
 end

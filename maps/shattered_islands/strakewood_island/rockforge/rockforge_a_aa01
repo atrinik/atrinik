@@ -24,8 +24,26 @@ end
 arch floor_marble1a
 y 6
 end
+arch glower.101
+y 6
+end
+arch light9
+y 6
+end
 arch floor_marble1a
 y 7
+end
+arch bank1.111
+direction 7
+y 7
+end
+arch spawn_point
+y 7
+arch dwarf_steelclad
+name Hodda Gravelender
+level 39
+type 83
+end
 end
 arch floor_marble1a
 y 8
@@ -33,34 +51,92 @@ end
 arch floor_marble1
 y 9
 end
+arch bank1.111
+direction 7
+y 9
+end
+arch spawn_point
+y 9
+arch dwarf_explorer
+name Rile Gravelender
+level 50
+is_male 0
+is_female 1
+type 83
+end
+end
 arch floor_marble1b
 y 10
 end
 arch floor_marble1
 y 11
 end
+arch bank1.111
+direction 7
+y 11
+end
 arch floor_marble1
+y 12
+end
+arch carpet1.151
+y 12
+end
+arch glower.101
+y 12
+end
+arch light9
 y 12
 end
 arch floor_marble1a
 y 13
 end
+arch carpet1
+y 13
+end
 arch floor_marble1a
+y 14
+end
+arch carpet1
 y 14
 end
 arch floor_marble1b
 y 15
 end
+arch carpet1.111
+y 15
+end
 arch floor_marble1b
+y 16
+end
+arch glower.101
+y 16
+end
+arch light9
 y 16
 end
 arch floor_marble1b
 y 17
 end
+arch bank1.111
+direction 7
+y 17
+end
+arch spawn_point
+y 17
+arch dwarf_scout
+name Tvard Spiritbreaker
+level 28
+type 83
+end
+end
 arch floor_marble1a
 y 18
 end
 arch floor_marble1b
+y 19
+end
+arch bank1.111
+direction 7
 y 19
 end
 arch floor_marble1b
@@ -69,10 +145,20 @@ end
 arch floor_marble1
 y 21
 end
+arch bank1.111
+direction 7
+y 21
+end
 arch floor_marble1b
 y 22
 end
+arch glower.101
+y 22
+end
 arch wall_marble1.131
+y 22
+end
+arch light9
 y 22
 end
 arch blocked
@@ -80,6 +166,10 @@ x 1
 y 5
 end
 arch wall_marble1.131a
+x 1
+y 5
+end
+arch flag_rockforge
 x 1
 y 5
 end
@@ -111,7 +201,15 @@ arch floor_marble1
 x 1
 y 12
 end
+arch carpet1.151
+x 1
+y 12
+end
 arch floor_marble1
+x 1
+y 13
+end
+arch carpet1
 x 1
 y 13
 end
@@ -119,7 +217,15 @@ arch floor_marble1
 x 1
 y 14
 end
+arch carpet1
+x 1
+y 14
+end
 arch floor_marble1
+x 1
+y 15
+end
+arch carpet1.111
 x 1
 y 15
 end
@@ -171,11 +277,21 @@ arch floor_marble1b
 x 2
 y 7
 end
+arch bank1.111
+direction 7
+x 2
+y 7
+end
 arch floor_marble1a
 x 2
 y 8
 end
 arch floor_marble1a
+x 2
+y 9
+end
+arch bank1.111
+direction 7
 x 2
 y 9
 end
@@ -187,7 +303,16 @@ arch floor_marble1a
 x 2
 y 11
 end
+arch bank1.111
+direction 7
+x 2
+y 11
+end
 arch floor_marble1b
+x 2
+y 12
+end
+arch carpet1.151
 x 2
 y 12
 end
@@ -195,11 +320,23 @@ arch floor_marble1
 x 2
 y 13
 end
+arch carpet1
+x 2
+y 13
+end
 arch floor_marble1b
 x 2
 y 14
 end
+arch carpet1
+x 2
+y 14
+end
 arch floor_marble1a
+x 2
+y 15
+end
+arch carpet1.111
 x 2
 y 15
 end
@@ -211,6 +348,11 @@ arch floor_marble1b
 x 2
 y 17
 end
+arch bank1.111
+direction 7
+x 2
+y 17
+end
 arch floor_marble1b
 x 2
 y 18
@@ -219,11 +361,21 @@ arch floor_marble1b
 x 2
 y 19
 end
+arch bank1.111
+direction 7
+x 2
+y 19
+end
 arch floor_marble1a
 x 2
 y 20
 end
 arch floor_marble1
+x 2
+y 21
+end
+arch bank1.111
+direction 7
 x 2
 y 21
 end
@@ -240,6 +392,10 @@ x 3
 y 5
 end
 arch wall_marble1.131
+x 3
+y 5
+end
+arch flag_rockforge
 x 3
 y 5
 end
@@ -271,7 +427,15 @@ arch floor_marble1a
 x 3
 y 12
 end
+arch carpet1.151
+x 3
+y 12
+end
 arch floor_marble1
+x 3
+y 13
+end
+arch carpet1
 x 3
 y 13
 end
@@ -279,7 +443,15 @@ arch floor_marble1a
 x 3
 y 14
 end
+arch carpet1
+x 3
+y 14
+end
 arch floor_marble1b
+x 3
+y 15
+end
+arch carpet1.111
 x 3
 y 15
 end
@@ -375,7 +547,15 @@ arch floor_marble1
 x 4
 y 12
 end
+arch carpet1.151
+x 4
+y 12
+end
 arch floor_marble1b
+x 4
+y 13
+end
+arch carpet1
 x 4
 y 13
 end
@@ -383,7 +563,15 @@ arch floor_marble1b
 x 4
 y 14
 end
+arch carpet1
+x 4
+y 14
+end
 arch floor_marble1a
+x 4
+y 15
+end
+arch carpet1.111
 x 4
 y 15
 end
@@ -455,6 +643,10 @@ arch floor_marble1b
 x 5
 y 12
 end
+arch carpet1.151
+x 5
+y 12
+end
 arch lamp_wall
 x 5
 y 12
@@ -463,11 +655,23 @@ arch floor_marble1
 x 5
 y 13
 end
+arch carpet1
+x 5
+y 13
+end
 arch floor_marble1
 x 5
 y 14
 end
+arch carpet1
+x 5
+y 14
+end
 arch floor_marble1
+x 5
+y 15
+end
+arch carpet1.111
 x 5
 y 15
 end
@@ -499,11 +703,23 @@ arch floor_marble1
 x 6
 y 13
 end
+arch carpet1.171
+x 6
+y 13
+end
 arch floor_marble1a
 x 6
 y 14
 end
+arch carpet1.171
+x 6
+y 14
+end
 arch floor_marble1b
+x 6
+y 15
+end
+arch basin1_full.101
 x 6
 y 15
 end
