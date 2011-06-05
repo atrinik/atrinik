@@ -513,7 +513,7 @@ void world_maker()
 					/* Didn't get an object, fill this square with black. */
 					if (!got_one)
 					{
-						gdImageFilledRectangle(im, xpos, ypos, xpos + MAX_PIXELS, ypos + MAX_PIXELS, gdImageColorAllocate(im, 0, 0, 0));
+						gdImageFilledRectangle(im, xpos, ypos, xpos + MAX_PIXELS - 1, ypos + MAX_PIXELS - 1, gdImageColorAllocate(im, 0, 0, 0));
 					}
 				}
 			}
