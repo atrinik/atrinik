@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-03 Alex Tokar
+Modified: 2011-06-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -494,6 +494,16 @@ x 5
 y 5
 end
 arch floor_marble1b
+x 5
+y 6
+end
+arch dwarven_machine
+x 5
+y 6
+end
+arch dwarven_teleporter
+z 85
+align 3
 x 5
 y 6
 end
