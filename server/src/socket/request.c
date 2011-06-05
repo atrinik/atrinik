@@ -1283,7 +1283,7 @@ void draw_client_map2(object *pl)
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
-	int oldlen;
+	int oldlen, outdoor;
 	object *mirror = NULL;
 
 	/* Do we have dm_light? */
@@ -1413,8 +1413,10 @@ void draw_client_map2(object *pl)
 				}
 			}
 
+			outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
+
 			/* Calculate the darkness/light value for this tile. */
-			if (((MAP_OUTDOORS(m) && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!MAP_OUTDOORS(m) && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power == -1))
+			if (((outdoor && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!outdoor && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0))
 			{
 				d = msp->light_value + wdark + dm_light;
 			}
