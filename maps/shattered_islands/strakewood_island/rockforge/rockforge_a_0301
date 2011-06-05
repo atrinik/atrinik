@@ -502,8 +502,8 @@ x 5
 y 6
 end
 arch dwarven_teleporter
-z 85
-align 3
+z 80
+align -8
 x 5
 y 6
 end

@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-06-04 Alex Tokar
+Modified: 2011-06-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -613,13 +613,6 @@ y 21
 end
 arch floor_marble1b
 z 60
-x 7
-y 22
-end
-arch fwall_marble2c
-draw_double_always 1
-z -60
-layer 3
 x 7
 y 22
 end

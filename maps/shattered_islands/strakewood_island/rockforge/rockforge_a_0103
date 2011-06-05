@@ -1031,10 +1031,7 @@ end
 arch blocked
 x 9
 end
-arch wall_marble1.131
-x 9
-end
-arch flag_rockforge
+arch wall_marble1.141
 x 9
 end
 arch floor_marble1b
@@ -1137,10 +1134,7 @@ arch wall_marble1.111
 x 9
 y 23
 end
-arch blocked
-x 10
-end
-arch wall_marble1.131
+arch floor_marble1a
 x 10
 end
 arch floor_marble1
@@ -1240,17 +1234,10 @@ direction 7
 x 10
 y 23
 end
-arch blocked
-x 11
-end
-arch wall_marble1.131
+arch floor_marble1b
 x 11
 end
 arch floor_marble1
-x 11
-y 1
-end
-arch lamp_wall
 x 11
 y 1
 end
@@ -1374,10 +1361,7 @@ arch floor_marble1b
 x 11
 y 23
 end
-arch blocked
-x 12
-end
-arch wall_marble1.131
+arch floor_marble1a
 x 12
 end
 arch floor_marble1a
@@ -1500,13 +1484,7 @@ arch floor_marble1
 x 12
 y 23
 end
-arch blocked
-x 13
-end
-arch wall_marble1.131a
-x 13
-end
-arch flag_rockforge
+arch floor_marble1b
 x 13
 end
 arch floor_marble1b
@@ -1601,10 +1579,10 @@ arch floor_marble1b
 x 13
 y 23
 end
-arch blocked
+arch floor_marble1
 x 14
 end
-arch wall_marble1.131
+arch wall_marble1.111
 x 14
 end
 arch floor_marble1a

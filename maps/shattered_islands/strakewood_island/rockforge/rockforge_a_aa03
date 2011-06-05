@@ -252,9 +252,97 @@ y 5
 end
 arch blocked
 x 7
+y 6
+end
+arch wall_marble1.111a
+x 7
+y 6
+end
+arch blocked
+x 7
+y 7
+end
+arch wall_marble1.111a
+x 7
+y 7
+end
+arch blocked
+x 7
+y 8
+end
+arch wall_marble1.111
+x 7
+y 8
+end
+arch blocked
+x 7
+y 9
+end
+arch wall_marble1.111
+x 7
+y 9
+end
+arch blocked
+x 7
+y 10
+end
+arch wall_marble1.111a
+x 7
+y 10
+end
+arch blocked
+x 7
+y 11
+end
+arch wall_marble1.111a
+x 7
+y 11
+end
+arch blocked
+x 7
+y 12
+end
+arch wall_marble1.111
+x 7
+y 12
+end
+arch blocked
+x 7
+y 13
+end
+arch wall_marble1.111a
+x 7
+y 13
+end
+arch blocked
+x 7
+y 14
+end
+arch wall_marble1.111a
+x 7
+y 14
+end
+arch blocked
+x 7
+y 15
+end
+arch wall_marble1.111a
+x 7
+y 15
+end
+arch blocked
+x 7
+y 16
+end
+arch wall_marble1.111
+x 7
+y 16
+end
+arch blocked
+x 7
 y 17
 end
-arch wall_marble1.181
+arch wall_marble1.111
 x 7
 y 17
 end
@@ -337,15 +425,51 @@ arch floor_marble2a
 x 8
 y 5
 end
-arch wall_marble1.131
+arch floor_marble2b
 x 8
-y 5
+y 6
 end
-arch blocked
+arch floor_marble2b
 x 8
-y 17
+y 7
 end
-arch wall_marble1.131
+arch floor_marble2a
+x 8
+y 8
+end
+arch floor_marble2a
+x 8
+y 9
+end
+arch floor_marble2c
+x 8
+y 10
+end
+arch floor_marble2c
+x 8
+y 11
+end
+arch floor_marble2a
+x 8
+y 12
+end
+arch floor_marble2a
+x 8
+y 13
+end
+arch floor_marble2b
+x 8
+y 14
+end
+arch floor_marble2a
+x 8
+y 15
+end
+arch floor_marble2c
+x 8
+y 16
+end
+arch floor_marble2a
 x 8
 y 17
 end
@@ -381,7 +505,7 @@ end
 arch blocked
 x 9
 end
-arch wall_marble1.131a
+arch wall_marble1.141
 x 9
 end
 arch floor_marble2c
@@ -404,23 +528,55 @@ arch floor_marble2b
 x 9
 y 5
 end
-arch wall_marble1.131a
+arch floor_marble2c
 x 9
-y 5
+y 6
 end
-arch blocked
+arch floor_marble2a
 x 9
-y 17
+y 7
 end
-arch wall_marble1.131
+arch floor_marble2c
+x 9
+y 8
+end
+arch floor_marble2b
+x 9
+y 9
+end
+arch floor_marble2c
+x 9
+y 10
+end
+arch floor_marble2c
+x 9
+y 11
+end
+arch floor_marble2a
+x 9
+y 12
+end
+arch floor_marble2c
+x 9
+y 13
+end
+arch floor_marble2a
+x 9
+y 14
+end
+arch floor_marble2c
+x 9
+y 15
+end
+arch floor_marble2c
+x 9
+y 16
+end
+arch floor_marble2c
 x 9
 y 17
 end
 arch floor_marble2c
-x 9
-y 18
-end
-arch lamp_wall
 x 9
 y 18
 end
@@ -448,10 +604,7 @@ arch floor_marble2b
 x 9
 y 23
 end
-arch blocked
-x 10
-end
-arch wall_marble1.131a
+arch floor_marble2b
 x 10
 end
 arch floor_marble2c
@@ -474,15 +627,51 @@ arch floor_marble2c
 x 10
 y 5
 end
-arch wall_marble1.131a
+arch floor_marble2c
 x 10
-y 5
+y 6
 end
-arch blocked
+arch floor_marble2b
 x 10
-y 17
+y 7
 end
-arch wall_marble1.131
+arch floor_marble2b
+x 10
+y 8
+end
+arch floor_marble2b
+x 10
+y 9
+end
+arch floor_marble2b
+x 10
+y 10
+end
+arch floor_marble2a
+x 10
+y 11
+end
+arch floor_marble2a
+x 10
+y 12
+end
+arch floor_marble2b
+x 10
+y 13
+end
+arch floor_marble2c
+x 10
+y 14
+end
+arch floor_marble2b
+x 10
+y 15
+end
+arch floor_marble2c
+x 10
+y 16
+end
+arch floor_marble2b
 x 10
 y 17
 end
@@ -510,10 +699,7 @@ arch floor_marble2c
 x 10
 y 23
 end
-arch blocked
-x 11
-end
-arch wall_marble1.131a
+arch floor_marble2c
 x 11
 end
 arch floor_marble2a
@@ -536,19 +722,51 @@ arch floor_marble2a
 x 11
 y 5
 end
-arch wall_marble1.131a
+arch floor_marble2a
 x 11
-y 5
+y 6
 end
-arch blocked
+arch floor_marble2a
 x 11
-y 17
+y 7
 end
-arch wall_marble1.131a
+arch floor_marble2c
 x 11
-y 17
+y 8
 end
-arch flag_rockforge
+arch floor_marble2c
+x 11
+y 9
+end
+arch floor_marble2c
+x 11
+y 10
+end
+arch floor_marble2a
+x 11
+y 11
+end
+arch floor_marble2b
+x 11
+y 12
+end
+arch floor_marble2b
+x 11
+y 13
+end
+arch floor_marble2b
+x 11
+y 14
+end
+arch floor_marble2b
+x 11
+y 15
+end
+arch floor_marble2a
+x 11
+y 16
+end
+arch floor_marble2b
 x 11
 y 17
 end
@@ -576,10 +794,7 @@ arch floor_marble2a
 x 11
 y 23
 end
-arch blocked
-x 12
-end
-arch wall_marble1.131a
+arch floor_marble2b
 x 12
 end
 arch floor_marble2a
@@ -602,15 +817,103 @@ arch floor_marble2a
 x 12
 y 5
 end
-arch wall_marble1.131a
+arch wall_marble1.181
 x 12
 y 5
 end
-arch blocked
+arch floor_marble2b
+x 12
+y 6
+end
+arch wall_marble1.111
+x 12
+y 6
+end
+arch floor_marble2a
+x 12
+y 7
+end
+arch wall_marble1.111
+x 12
+y 7
+end
+arch floor_marble2a
+x 12
+y 8
+end
+arch wall_marble1.111
+x 12
+y 8
+end
+arch floor_marble2b
+x 12
+y 9
+end
+arch wall_marble1.111
+x 12
+y 9
+end
+arch floor_marble2b
+x 12
+y 10
+end
+arch wall_marble1.111
+x 12
+y 10
+end
+arch floor_marble2c
+x 12
+y 11
+end
+arch wall_marble1.111
+x 12
+y 11
+end
+arch floor_marble2c
+x 12
+y 12
+end
+arch wall_marble1.111
+x 12
+y 12
+end
+arch floor_marble2a
+x 12
+y 13
+end
+arch wall_marble1.111
+x 12
+y 13
+end
+arch floor_marble2a
+x 12
+y 14
+end
+arch wall_marble1.111
+x 12
+y 14
+end
+arch floor_marble2a
+x 12
+y 15
+end
+arch wall_marble1.111a
+x 12
+y 15
+end
+arch floor_marble2c
+x 12
+y 16
+end
+arch wall_marble1.111a
+x 12
+y 16
+end
+arch floor_marble2b
 x 12
 y 17
 end
-arch wall_marble1.131a
+arch wall_marble1.111
 x 12
 y 17
 end
@@ -646,10 +949,7 @@ arch wall_marble1.111
 x 12
 y 23
 end
-arch blocked
-x 13
-end
-arch wall_marble1.131
+arch floor_marble2c
 x 13
 end
 arch floor_marble2b
@@ -712,10 +1012,10 @@ arch wall_marble1.131
 x 13
 y 22
 end
-arch blocked
+arch floor_marble2b
 x 14
 end
-arch wall_marble1.131
+arch wall_marble1.111
 x 14
 end
 arch floor_marble2c
