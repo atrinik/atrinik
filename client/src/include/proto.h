@@ -418,7 +418,7 @@ void optwin_draw_options(int x, int y);
 void show_optwin();
 void settings_open();
 
-/* gui/skill_list.c */
+/* gui/skills.c */
 void widget_skills_render(widgetdata *widget);
 void widget_skills_mevent(widgetdata *widget, SDL_Event *event);
 int skill_find(const char *name, size_t *type, size_t *id);
@@ -517,6 +517,7 @@ void text_init();
 void text_deinit();
 void text_offset_set(int x, int y);
 void text_offset_reset();
+void text_color_set(int r, int g, int b);
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
 int glyph_get_height(int font, char c);

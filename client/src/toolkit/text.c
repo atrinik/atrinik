@@ -50,6 +50,11 @@ static int text_offset_mx = -1;
 /** Mouse Y offset. */
 static int text_offset_my = -1;
 
+/** Default link color. */
+SDL_Color text_link_color_default = {96, 160, 255, 0};
+/** Current text link color. */
+SDL_Color text_link_color = {0, 0, 0, 0};
+
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
@@ -151,6 +156,8 @@ void text_init()
 		fonts[i].font = font;
 		fonts[i].height = TTF_FontLineSkip(font);
 	}
+
+	text_link_color = text_link_color_default;
 }
 
 /**
@@ -189,6 +196,13 @@ void text_offset_set(int x, int y)
 void text_offset_reset()
 {
 	text_offset_mx = text_offset_my = -1;
+}
+
+void text_color_set(int r, int g, int b)
+{
+	text_link_color.r = r;
+	text_link_color.g = g;
+	text_link_color.b = b;
 }
 
 /**
@@ -566,9 +580,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				/* Change to light blue only if no custom color was specified. */
 				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b)
 				{
-					color->r = 96;
-					color->g = 160;
-					color->b = 255;
+					color->r = text_link_color.r;
+					color->g = text_link_color.g;
+					color->b = text_link_color.b;
 				}
 
 				anchor_tag = strchr(cp, '>') + 1;
@@ -1330,6 +1344,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		text_anchor_help_clicked = 0;
 		show_help(text_anchor_help);
 	}
+
+	text_link_color = text_link_color_default;
 }
 
 /**
