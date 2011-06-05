@@ -153,13 +153,14 @@ void book_show()
 		box.w = Bitmaps[BITMAP_BOOK]->bitmap->w - 60;
 		box.h = 0;
 		text_offset_set(x, y);
-		string_blt(surface, FONT_SERIF16, book_name, 30, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		string_blt(surface, FONT_SERIF16, book_name, 30, 30, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
 		box.w = BOOK_CONTENT_WIDTH;
 		box.h = BOOK_CONTENT_HEIGHT;
 		box.y = book_scroll;
-		string_blt(surface, FONT_ARIAL11, book_content, 30, 50, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_color_set(0, 0, 255);
+		string_blt(surface, FONT_ARIAL11, book_content, 30, 50, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 	}
 

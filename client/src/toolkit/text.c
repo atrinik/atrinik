@@ -587,7 +587,6 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				anchor_tag = strchr(cp, '>') + 1;
 				anchor_action[0] = '\0';
-				outline_show = 1;
 			}
 
 			/* Scan for action other than the default. */
@@ -604,7 +603,6 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			{
 				reset_color(surface, color, orig_color);
 				anchor_tag = NULL;
-				outline_show = 0;
 			}
 
 			return 4;
