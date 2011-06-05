@@ -10,8 +10,6 @@ anim_speed 1
 speed 0.02
 no_pass 1
 no_pick 1
-z 8
-align 5
 end
 More
 Object dwarven_teleporter_b
