@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-05 Alex Tokar
+Modified: 2011-06-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,7 +13,7 @@ tile_path_3 rockforge_a_0204
 tile_path_4 rockforge_a_0105
 tile_path_6 rockforge_a_0304
 tile_path_7 rockforge_a_0104
-region world
+region rockforge
 end
 arch blocked
 end

@@ -11,7 +11,7 @@ darkness 3
 tile_path_3 rockforge_a_0304
 tile_path_4 rockforge_a_0205
 tile_path_7 rockforge_a_0204
-region world
+region rockforge
 end
 arch blocked
 blocksview 0
