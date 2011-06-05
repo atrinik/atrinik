@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-05 Alex Tokar
+Modified: 2011-06-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -220,7 +220,30 @@ arch earth_brown4
 x 2
 y 1
 end
+arch mushroom_spot1
+x 2
+y 1
+end
+arch light3
+x 2
+y 1
+end
+arch map_info
+hp 20
+sp 19
+item_power -2
+x 2
+y 1
+end
 arch earth_brown2
+x 2
+y 2
+end
+arch mushroom_spot2
+x 2
+y 2
+end
+arch light3
 x 2
 y 2
 end
@@ -228,11 +251,35 @@ arch earth_brown4
 x 2
 y 3
 end
+arch mushroom_spot2
+x 2
+y 3
+end
+arch light3
+x 2
+y 3
+end
 arch earth_brown4
 x 2
 y 4
 end
+arch mushroom_spot2
+x 2
+y 4
+end
+arch light3
+x 2
+y 4
+end
 arch earth_brown1
+x 2
+y 5
+end
+arch mushroom_spot1
+x 2
+y 5
+end
+arch light3
 x 2
 y 5
 end
@@ -248,7 +295,16 @@ arch earth_brown2
 x 2
 y 8
 end
+arch lamp_wall
+direction 7
+x 2
+y 8
+end
 arch earth_brown3
+x 2
+y 9
+end
+arch plant_mushroom4
 x 2
 y 9
 end
@@ -260,7 +316,15 @@ arch earth_brown3
 x 2
 y 11
 end
+arch plant_mushroom2
+x 2
+y 11
+end
 arch earth_brown2
+x 2
+y 12
+end
+arch mushroom_giant5
 x 2
 y 12
 end
@@ -268,7 +332,15 @@ arch earth_brown4
 x 2
 y 13
 end
+arch plant_mushroom1
+x 2
+y 13
+end
 arch earth_brown2
+x 2
+y 14
+end
+arch plant_mushroom3
 x 2
 y 14
 end
@@ -276,7 +348,20 @@ arch earth_brown4
 x 2
 y 15
 end
+arch mushroom_giant3
+x 2
+y 15
+end
 arch earth_brown1
+x 2
+y 16
+end
+arch plant_mushroom2
+x 2
+y 16
+end
+arch lamp_wall
+direction 7
 x 2
 y 16
 end
@@ -284,7 +369,15 @@ arch earth_brown4
 x 2
 y 17
 end
+arch plant_mushroom2
+x 2
+y 17
+end
 arch earth_brown3
+x 2
+y 18
+end
+arch plant_mushroom1
 x 2
 y 18
 end
@@ -292,7 +385,15 @@ arch earth_brown1
 x 2
 y 19
 end
+arch mushroom_giant7
+x 2
+y 19
+end
 arch earth_brown4
+x 2
+y 20
+end
+arch plant_mushroom4
 x 2
 y 20
 end
@@ -315,11 +416,35 @@ arch earth_brown3
 x 3
 y 1
 end
+arch mushroom_spot1
+x 3
+y 1
+end
+arch light3
+x 3
+y 1
+end
 arch earth_brown1
 x 3
 y 2
 end
+arch mushroom_spot1
+x 3
+y 2
+end
+arch light3
+x 3
+y 2
+end
 arch earth_brown2
+x 3
+y 3
+end
+arch mushroom_spot2
+x 3
+y 3
+end
+arch light3
 x 3
 y 3
 end
@@ -379,6 +504,10 @@ arch earth_brown1
 x 3
 y 12
 end
+arch plant_mushroom1
+x 3
+y 12
+end
 arch earth_brown3
 x 3
 y 13
@@ -395,11 +524,23 @@ arch grassd_m8
 x 3
 y 14
 end
+arch mushroom_medium
+x 3
+y 14
+end
+arch light4
+x 3
+y 14
+end
 arch earth_brown2
 x 3
 y 15
 end
 arch grassd_m8
+x 3
+y 15
+end
+arch plant_mushroom2
 x 3
 y 15
 end
@@ -411,7 +552,15 @@ arch grassd_m12
 x 3
 y 16
 end
+arch plant_mushroom1
+x 3
+y 16
+end
 arch earth_brown2
+x 3
+y 17
+end
+arch mushroom_giant6
 x 3
 y 17
 end
@@ -423,7 +572,15 @@ arch earth_brown4
 x 3
 y 19
 end
+arch plant_mushroom2
+x 3
+y 19
+end
 arch earth_brown2
+x 3
+y 20
+end
+arch plant_mushroom5
 x 3
 y 20
 end
@@ -446,7 +603,23 @@ arch earth_brown2
 x 4
 y 1
 end
+arch mushroom_spot1
+x 4
+y 1
+end
+arch light3
+x 4
+y 1
+end
 arch earth_brown2
+x 4
+y 2
+end
+arch mushroom_spot2
+x 4
+y 2
+end
+arch light3
 x 4
 y 2
 end
@@ -455,6 +628,14 @@ x 4
 y 3
 end
 arch grassd_m11
+x 4
+y 3
+end
+arch mushroom_spot1
+x 4
+y 3
+end
+arch light3
 x 4
 y 3
 end
@@ -546,7 +727,15 @@ arch grassd_m12
 x 4
 y 17
 end
+arch plant_mushroom2
+x 4
+y 17
+end
 arch earth_brown4
+x 4
+y 18
+end
+arch plant_mushroom2
 x 4
 y 18
 end
@@ -554,7 +743,19 @@ arch earth_brown1
 x 4
 y 19
 end
+arch mushroom_medium
+x 4
+y 19
+end
+arch light4
+x 4
+y 19
+end
 arch earth_brown1
+x 4
+y 20
+end
+arch mushroom_giant2
 x 4
 y 20
 end
@@ -577,7 +778,23 @@ arch earth_brown2
 x 5
 y 1
 end
+arch mushroom_spot1
+x 5
+y 1
+end
+arch light3
+x 5
+y 1
+end
 arch earth_brown2
+x 5
+y 2
+end
+arch mushroom_spot2
+x 5
+y 2
+end
+arch light3
 x 5
 y 2
 end
@@ -601,11 +818,19 @@ arch grassd_6
 x 5
 y 6
 end
+arch plant5
+x 5
+y 6
+end
 arch grassd_1
 x 5
 y 7
 end
 arch grassd_4
+x 5
+y 8
+end
+arch plant13
 x 5
 y 8
 end
@@ -649,7 +874,15 @@ arch grassd_2
 x 5
 y 15
 end
+arch tree_a_03
+x 5
+y 15
+end
 arch grassd_7
+x 5
+y 16
+end
+arch plant_mushroom5
 x 5
 y 16
 end
@@ -669,11 +902,23 @@ arch grassd_m12
 x 5
 y 18
 end
+arch plant_mushroom5
+x 5
+y 18
+end
 arch earth_brown2
 x 5
 y 19
 end
+arch mushroom_giant11
+x 5
+y 19
+end
 arch earth_brown1
+x 5
+y 20
+end
+arch plant_mushroom1
 x 5
 y 20
 end
@@ -693,6 +938,14 @@ arch wall_marble1.131
 x 6
 end
 arch earth_brown2
+x 6
+y 1
+end
+arch mushroom_spot2
+x 6
+y 1
+end
+arch light3
 x 6
 y 1
 end
@@ -728,11 +981,19 @@ arch grassd_2
 x 6
 y 7
 end
+arch tree_a_01
+x 6
+y 7
+end
 arch grassd_2
 x 6
 y 8
 end
 arch grassd_4
+x 6
+y 9
+end
+arch tree_a_04
 x 6
 y 9
 end
@@ -748,7 +1009,15 @@ arch grassd_8
 x 6
 y 12
 end
+arch plant1
+x 6
+y 12
+end
 arch grassd_5
+x 6
+y 13
+end
+arch tree_a_08
 x 6
 y 13
 end
@@ -760,11 +1029,19 @@ arch grassd_4
 x 6
 y 15
 end
+arch tree_branch2
+x 6
+y 15
+end
 arch grassd_3
 x 6
 y 16
 end
 arch grassd_6
+x 6
+y 17
+end
+arch plant_mushroom3
 x 6
 y 17
 end
@@ -788,6 +1065,10 @@ arch earth_brown2
 x 6
 y 20
 end
+arch plant_mushroom1
+x 6
+y 20
+end
 arch earth_brown4
 x 6
 y 21
@@ -807,6 +1088,14 @@ arch earth_brown1
 x 7
 y 1
 end
+arch mushroom_spot1
+x 7
+y 1
+end
+arch light3
+x 7
+y 1
+end
 arch earth_brown1
 x 7
 y 2
@@ -823,6 +1112,10 @@ arch grassd_5
 x 7
 y 4
 end
+arch plant13
+x 7
+y 4
+end
 arch grassd_1
 x 7
 y 5
@@ -831,11 +1124,19 @@ arch grassd_7
 x 7
 y 6
 end
+arch tree_a_02
+x 7
+y 6
+end
 arch grassd_6
 x 7
 y 7
 end
 arch grassd_4
+x 7
+y 8
+end
+arch tree_a_02
 x 7
 y 8
 end
@@ -851,7 +1152,15 @@ arch grassd_2
 x 7
 y 11
 end
+arch tree_a_06
+x 7
+y 11
+end
 arch grassd_6
+x 7
+y 12
+end
+arch tree_a_03
 x 7
 y 12
 end
@@ -863,6 +1172,10 @@ arch grassd_6
 x 7
 y 14
 end
+arch tree_branch1
+x 7
+y 14
+end
 arch grassd_4
 x 7
 y 15
@@ -871,11 +1184,23 @@ arch grassd_5
 x 7
 y 16
 end
+arch tree_a_03
+x 7
+y 16
+end
 arch grassd_4
 x 7
 y 17
 end
 arch grassd_5
+x 7
+y 18
+end
+arch mushroom_medium
+x 7
+y 18
+end
+arch light4
 x 7
 y 18
 end
@@ -887,6 +1212,10 @@ arch grassd_m10
 x 7
 y 19
 end
+arch plant_mushroom4
+x 7
+y 19
+end
 arch earth_brown1
 x 7
 y 20
@@ -930,11 +1259,23 @@ arch grassd_5
 x 8
 y 5
 end
+arch tree_a_04
+x 8
+y 5
+end
 arch grassd_3
 x 8
 y 6
 end
+arch plant9
+x 8
+y 6
+end
 arch grassd_5
+x 8
+y 7
+end
+arch plant12
 x 8
 y 7
 end
@@ -946,7 +1287,15 @@ arch grassd_6
 x 8
 y 9
 end
+arch tree_a_08
+x 8
+y 9
+end
 arch grassd_3
+x 8
+y 10
+end
+arch plant15
 x 8
 y 10
 end
@@ -970,6 +1319,10 @@ arch grassd_3
 x 8
 y 15
 end
+arch tree_a_02
+x 8
+y 15
+end
 arch grassd_4
 x 8
 y 16
@@ -978,7 +1331,15 @@ arch grassd_5
 x 8
 y 17
 end
+arch tree_a_03
+x 8
+y 17
+end
 arch grassd_5
+x 8
+y 18
+end
+arch plant_mushroom1
 x 8
 y 18
 end
@@ -994,6 +1355,10 @@ arch earth_brown4
 x 8
 y 20
 end
+arch plant_mushroom5
+x 8
+y 20
+end
 arch earth_brown1
 x 8
 y 21
@@ -1033,11 +1398,19 @@ arch grassd_7
 x 9
 y 5
 end
+arch tree_a_06
+x 9
+y 5
+end
 arch grassd_4
 x 9
 y 6
 end
 arch grassd_1
+x 9
+y 7
+end
+arch tree_a_03
 x 9
 y 7
 end
@@ -1061,11 +1434,19 @@ arch grassd_7
 x 9
 y 12
 end
+arch tree_a_06
+x 9
+y 12
+end
 arch grassd_7
 x 9
 y 13
 end
 arch grassd_6
+x 9
+y 14
+end
+arch tree_a_06
 x 9
 y 14
 end
@@ -1116,6 +1497,10 @@ arch earth_brown1
 x 10
 y 1
 end
+arch lamp_wall
+x 10
+y 1
+end
 arch earth_brown4
 x 10
 y 2
@@ -1129,6 +1514,10 @@ x 10
 y 3
 end
 arch grassd_6
+x 10
+y 4
+end
+arch plant13
 x 10
 y 4
 end
@@ -1152,6 +1541,10 @@ arch grassd_8
 x 10
 y 9
 end
+arch tree_a_07
+x 10
+y 9
+end
 arch grassd_3
 x 10
 y 10
@@ -1160,11 +1553,19 @@ arch grassd_2
 x 10
 y 11
 end
+arch tree_a_06
+x 10
+y 11
+end
 arch grassd_7
 x 10
 y 12
 end
 arch grassd_6
+x 10
+y 13
+end
+arch plant5
 x 10
 y 13
 end
@@ -1180,7 +1581,15 @@ arch grassd_1
 x 10
 y 16
 end
+arch plant16
+x 10
+y 16
+end
 arch grassd_8
+x 10
+y 17
+end
+arch tree_a_04
 x 10
 y 17
 end
@@ -1255,7 +1664,15 @@ arch grassd_4
 x 11
 y 4
 end
+arch tree_a_03
+x 11
+y 4
+end
 arch grassd_7
+x 11
+y 5
+end
+arch plant12
 x 11
 y 5
 end
@@ -1263,11 +1680,23 @@ arch grassd_8
 x 11
 y 6
 end
+arch tree_a_07
+x 11
+y 6
+end
 arch grassd_8
 x 11
 y 7
 end
+arch tree_a_08
+x 11
+y 7
+end
 arch grassd_3
+x 11
+y 8
+end
+arch plant17
 x 11
 y 8
 end
@@ -1291,11 +1720,23 @@ arch grassd_6
 x 11
 y 13
 end
+arch plant16
+x 11
+y 13
+end
 arch grassd_7
 x 11
 y 14
 end
+arch tree_a_04
+x 11
+y 14
+end
 arch grassd_2
+x 11
+y 15
+end
+arch plant1
 x 11
 y 15
 end
@@ -1304,6 +1745,10 @@ x 11
 y 16
 end
 arch grassd_3
+x 11
+y 17
+end
+arch tree_a_03
 x 11
 y 17
 end
@@ -1323,6 +1768,15 @@ arch grassd_m13
 x 11
 y 19
 end
+arch spawn_point
+x 11
+y 19
+arch dwarf_fighter2
+type 83
+name Hrec Blackcopper
+level 38
+end
+end
 arch earth_brown4
 x 11
 y 20
@@ -1336,6 +1790,11 @@ x 11
 y 21
 end
 arch floor_marble1
+x 11
+y 22
+end
+arch lamp_wall
+direction 7
 x 11
 y 22
 end
@@ -1398,14 +1857,15 @@ arch grassd_4
 x 12
 y 9
 end
+arch tree_a_01
+x 12
+y 9
+end
 arch grassd_5
 x 12
 y 10
 end
-arch sign
-msg
-tree farm
-endmsg
+arch tree_a_06
 x 12
 y 10
 end
@@ -1414,6 +1874,10 @@ x 12
 y 11
 end
 arch grassd_4
+x 12
+y 12
+end
+arch tree_a_08
 x 12
 y 12
 end
@@ -1461,6 +1925,10 @@ arch earth_m14
 x 12
 y 21
 end
+arch light5
+x 12
+y 21
+end
 arch floor_marble1
 x 12
 y 22
@@ -1504,7 +1972,15 @@ arch grassd_8
 x 13
 y 5
 end
+arch tree_a_04
+x 13
+y 5
+end
 arch grassd_2
+x 13
+y 6
+end
+arch tree_a_05
 x 13
 y 6
 end
@@ -1512,7 +1988,15 @@ arch grassd_4
 x 13
 y 7
 end
+arch tree_a_02
+x 13
+y 7
+end
 arch grassd_8
+x 13
+y 8
+end
+arch plant16
 x 13
 y 8
 end
@@ -1540,7 +2024,15 @@ arch grassd_5
 x 13
 y 14
 end
+arch tree_branch3
+x 13
+y 14
+end
 arch grassd_1
+x 13
+y 15
+end
+arch tree_a_05
 x 13
 y 15
 end
@@ -1548,7 +2040,15 @@ arch grassd_6
 x 13
 y 16
 end
+arch tree_a_03
+x 13
+y 16
+end
 arch grassd_5
+x 13
+y 17
+end
+arch plant9
 x 13
 y 17
 end
@@ -1580,6 +2080,10 @@ arch earth_m10
 x 13
 y 21
 end
+arch light5
+x 13
+y 21
+end
 arch floor_marble1a
 x 13
 y 22
@@ -1601,6 +2105,10 @@ arch wall_marble1.131
 x 14
 end
 arch earth_brown3
+x 14
+y 1
+end
+arch lamp_wall
 x 14
 y 1
 end
@@ -1632,6 +2140,10 @@ arch grassd_2
 x 14
 y 6
 end
+arch plant11
+x 14
+y 6
+end
 arch grassd_8
 x 14
 y 7
@@ -1644,11 +2156,23 @@ arch grassd_8
 x 14
 y 9
 end
+arch tree_a_05
+x 14
+y 9
+end
 arch grassd_3
 x 14
 y 10
 end
+arch tree_a_03
+x 14
+y 10
+end
 arch grassd_4
+x 14
+y 11
+end
+arch tree_a_07
 x 14
 y 11
 end
@@ -1657,6 +2181,10 @@ x 14
 y 12
 end
 arch grassd_5
+x 14
+y 13
+end
+arch tree_a_05
 x 14
 y 13
 end
@@ -1739,7 +2267,15 @@ arch grassd_4
 x 15
 y 4
 end
+arch plant15
+x 15
+y 4
+end
 arch grassd_8
+x 15
+y 5
+end
+arch tree_a_08
 x 15
 y 5
 end
@@ -1752,6 +2288,10 @@ x 15
 y 7
 end
 arch grassd_4
+x 15
+y 8
+end
+arch tree_a_06
 x 15
 y 8
 end
@@ -1771,6 +2311,10 @@ arch grassd_8
 x 15
 y 12
 end
+arch tree_branch1
+x 15
+y 12
+end
 arch grassd_7
 x 15
 y 13
@@ -1779,7 +2323,15 @@ arch grassd_7
 x 15
 y 14
 end
+arch tree_a_08
+x 15
+y 14
+end
 arch grassd_2
+x 15
+y 15
+end
+arch plant12
 x 15
 y 15
 end
@@ -1791,7 +2343,15 @@ arch grassd_8
 x 15
 y 17
 end
+arch tree_a_01
+x 15
+y 17
+end
 arch grassd_7
+x 15
+y 18
+end
+arch plant17
 x 15
 y 18
 end
@@ -1862,6 +2422,10 @@ arch grassd_2
 x 16
 y 4
 end
+arch tree_a_06
+x 16
+y 4
+end
 arch grassd_7
 x 16
 y 5
@@ -1871,6 +2435,10 @@ x 16
 y 6
 end
 arch grassd_6
+x 16
+y 7
+end
+arch plant13
 x 16
 y 7
 end
@@ -1886,11 +2454,19 @@ arch grassd_4
 x 16
 y 10
 end
+arch tree_branch2
+x 16
+y 10
+end
 arch grassd_5
 x 16
 y 11
 end
 arch grassd_2
+x 16
+y 12
+end
+arch tree_a_06
 x 16
 y 12
 end
@@ -1914,6 +2490,10 @@ arch grassd_2
 x 16
 y 17
 end
+arch tree_a_06
+x 16
+y 17
+end
 arch grassd_1
 x 16
 y 18
@@ -1927,6 +2507,10 @@ x 16
 y 19
 end
 arch earth_brown3
+x 16
+y 20
+end
+arch pumpkin_02
 x 16
 y 20
 end
@@ -1946,6 +2530,10 @@ arch wall_marble1.131
 x 17
 end
 arch earth_brown3
+x 17
+y 1
+end
+arch plant8
 x 17
 y 1
 end
@@ -1981,6 +2569,10 @@ arch grassd_7
 x 17
 y 8
 end
+arch tree_a_03
+x 17
+y 8
+end
 arch grassd_5
 x 17
 y 9
@@ -1989,11 +2581,19 @@ arch grassd_6
 x 17
 y 10
 end
+arch tree_a_06
+x 17
+y 10
+end
 arch grassd_5
 x 17
 y 11
 end
 arch grassd_8
+x 17
+y 12
+end
+arch tree_a_03
 x 17
 y 12
 end
@@ -2009,11 +2609,23 @@ arch grassd_4
 x 17
 y 15
 end
+arch tree_a_07
+x 17
+y 15
+end
 arch grassd_4
 x 17
 y 16
 end
+arch tree_a_02
+x 17
+y 16
+end
 arch grassd_2
+x 17
+y 17
+end
+arch tree_branch3
 x 17
 y 17
 end
@@ -2033,7 +2645,15 @@ arch grassd_m13
 x 17
 y 19
 end
+arch pumpkin_02
+x 17
+y 19
+end
 arch earth_brown4
+x 17
+y 20
+end
+arch pumpkin_02
 x 17
 y 20
 end
@@ -2053,6 +2673,10 @@ arch wall_marble1.131a
 x 18
 end
 arch earth_brown4
+x 18
+y 1
+end
+arch plant8
 x 18
 y 1
 end
@@ -2080,7 +2704,15 @@ arch grassd_3
 x 18
 y 5
 end
+arch tree_branch3
+x 18
+y 5
+end
 arch grassd_3
+x 18
+y 6
+end
+arch tree_a_04
 x 18
 y 6
 end
@@ -2089,6 +2721,10 @@ x 18
 y 7
 end
 arch grassd_1
+x 18
+y 8
+end
+arch plant16
 x 18
 y 8
 end
@@ -2108,7 +2744,15 @@ arch grassd_6
 x 18
 y 12
 end
+arch plant17
+x 18
+y 12
+end
 arch grassd_8
+x 18
+y 13
+end
+arch tree_a_06
 x 18
 y 13
 end
@@ -2124,6 +2768,10 @@ arch grassd_3
 x 18
 y 16
 end
+arch plant_flower11
+x 18
+y 16
+end
 arch grassd_5
 x 18
 y 17
@@ -2136,11 +2784,23 @@ arch grassd_m10
 x 18
 y 18
 end
+arch pumpkin_02
+x 18
+y 18
+end
 arch earth_brown3
 x 18
 y 19
 end
+arch pumpkin_02
+x 18
+y 19
+end
 arch earth_brown4
+x 18
+y 20
+end
+arch pumpkin_02
 x 18
 y 20
 end
@@ -2163,7 +2823,15 @@ arch earth_brown1
 x 19
 y 1
 end
+arch plant7
+x 19
+y 1
+end
 arch earth_brown2
+x 19
+y 2
+end
+arch plant7
 x 19
 y 2
 end
@@ -2195,11 +2863,23 @@ arch grassd_5
 x 19
 y 8
 end
+arch tree_a_08
+x 19
+y 8
+end
 arch grassd_7
 x 19
 y 9
 end
+arch plant15
+x 19
+y 9
+end
 arch grassd_5
+x 19
+y 10
+end
+arch tree_a_05
 x 19
 y 10
 end
@@ -2211,7 +2891,15 @@ arch grassd_3
 x 19
 y 12
 end
+arch tree_a_07
+x 19
+y 12
+end
 arch grassd_8
+x 19
+y 13
+end
+arch plant15
 x 19
 y 13
 end
@@ -2220,6 +2908,10 @@ x 19
 y 14
 end
 arch grassd_6
+x 19
+y 15
+end
+arch tree_a_02
 x 19
 y 15
 end
@@ -2239,6 +2931,10 @@ arch grassd_m9
 x 19
 y 17
 end
+arch pumpkin_01
+x 19
+y 17
+end
 arch earth_brown1
 x 19
 y 18
@@ -2247,11 +2943,23 @@ arch grassd_m13
 x 19
 y 18
 end
+arch pumpkin_01
+x 19
+y 18
+end
 arch earth_brown4
 x 19
 y 19
 end
+arch pumpkin_01
+x 19
+y 19
+end
 arch earth_brown2
+x 19
+y 20
+end
+arch pumpkin_02
 x 19
 y 20
 end
@@ -2274,7 +2982,15 @@ arch earth_brown4
 x 20
 y 1
 end
+arch plant7
+x 20
+y 1
+end
 arch earth_brown3
+x 20
+y 2
+end
+arch plant8
 x 20
 y 2
 end
@@ -2374,7 +3090,15 @@ arch grassd_m13
 x 20
 y 16
 end
+arch pumpkin_02
+x 20
+y 16
+end
 arch earth_brown1
+x 20
+y 17
+end
+arch pumpkin_02
 x 20
 y 17
 end
@@ -2382,11 +3106,23 @@ arch earth_brown1
 x 20
 y 18
 end
+arch pumpkin_02
+x 20
+y 18
+end
 arch earth_brown4
 x 20
 y 19
 end
+arch pumpkin_02
+x 20
+y 19
+end
 arch earth_brown4
+x 20
+y 20
+end
+arch pumpkin_01
 x 20
 y 20
 end
@@ -2409,11 +3145,23 @@ arch earth_brown1
 x 21
 y 1
 end
+arch plant8
+x 21
+y 1
+end
 arch earth_brown1
 x 21
 y 2
 end
+arch plant7
+x 21
+y 2
+end
 arch earth_brown2
+x 21
+y 3
+end
+arch plant7
 x 21
 y 3
 end
@@ -2497,7 +3245,15 @@ arch earth_brown4
 x 21
 y 15
 end
+arch pumpkin_02
+x 21
+y 15
+end
 arch earth_brown4
+x 21
+y 16
+end
+arch pumpkin_02
 x 21
 y 16
 end
@@ -2505,7 +3261,15 @@ arch earth_brown3
 x 21
 y 17
 end
+arch pumpkin_01
+x 21
+y 17
+end
 arch earth_brown1
+x 21
+y 18
+end
+arch pumpkin_02
 x 21
 y 18
 end
@@ -2513,7 +3277,15 @@ arch earth_brown4
 x 21
 y 19
 end
+arch pumpkin_01
+x 21
+y 19
+end
 arch earth_brown4
+x 21
+y 20
+end
+arch pumpkin_01
 x 21
 y 20
 end
@@ -2536,7 +3308,15 @@ arch earth_brown1
 x 22
 y 1
 end
+arch plant7
+x 22
+y 1
+end
 arch earth_brown3
+x 22
+y 2
+end
+arch plant8
 x 22
 y 2
 end
@@ -2544,11 +3324,23 @@ arch earth_brown1
 x 22
 y 3
 end
+arch plant7
+x 22
+y 3
+end
 arch earth_brown1
 x 22
 y 4
 end
+arch plant8
+x 22
+y 4
+end
 arch earth_brown1
+x 22
+y 5
+end
+arch plant8
 x 22
 y 5
 end
@@ -2584,7 +3376,15 @@ arch earth_brown2
 x 22
 y 13
 end
+arch pumpkin_02
+x 22
+y 13
+end
 arch earth_brown4
+x 22
+y 14
+end
+arch pumpkin_02
 x 22
 y 14
 end
@@ -2592,7 +3392,15 @@ arch earth_brown2
 x 22
 y 15
 end
+arch pumpkin_02
+x 22
+y 15
+end
 arch earth_brown3
+x 22
+y 16
+end
+arch pumpkin_01
 x 22
 y 16
 end
@@ -2600,7 +3408,15 @@ arch earth_brown4
 x 22
 y 17
 end
+arch pumpkin_01
+x 22
+y 17
+end
 arch earth_brown4
+x 22
+y 18
+end
+arch pumpkin_02
 x 22
 y 18
 end
@@ -2608,7 +3424,15 @@ arch earth_brown1
 x 22
 y 19
 end
+arch pumpkin_02
+x 22
+y 19
+end
 arch earth_brown2
+x 22
+y 20
+end
+arch pumpkin_02
 x 22
 y 20
 end
