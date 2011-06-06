@@ -224,7 +224,9 @@ enum
  * final height in box->h (where the initial height limit came from).
  *
  * If this flag is passed, you can also specify skipping # of rows in
- * the box's 'y'. */
+ * the box's 'y'. Even if you don't want to skip any rows, you must still
+ * initialize the y member of the box structure to 0, in order to avoid
+ * uninitialized reads. */
 #define TEXT_HEIGHT 16
 /**
  * Vertically center the text to that of the passed box's height. Note
