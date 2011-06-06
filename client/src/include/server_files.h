@@ -35,7 +35,8 @@
  * Server file IDs. */
 enum
 {
-	SERVER_FILE_SKILLS,
+	/** @deprecated */
+	SERVER_FILE_UNUSED4,
 	/** @deprecated */
 	SERVER_FILE_UNUSED1,
 	/** @deprecated */
@@ -49,6 +50,7 @@ enum
 	SERVER_FILE_SETTINGS,
 	SERVER_FILE_ANIMS,
 	SERVER_FILE_EFFECTS,
+	SERVER_FILE_SKILLS,
 
 	/** Last index. */
 	SERVER_FILES_MAX

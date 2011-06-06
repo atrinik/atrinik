@@ -11,4 +11,5 @@ no_pick 1
 animation portal_big
 is_animated 1
 anim_speed 2
+player_only 1
 end

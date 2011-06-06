@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,8 +12,10 @@ tile_path_1 world_b_0838
 tile_path_2 world_b_0937
 tile_path_3 world_b_0836
 tile_path_4 world_b_0737
+tile_path_6 world_b_0936
 tile_path_7 world_b_0736
 tile_path_8 world_b_0738
+bg_music trial.mid
 region asteria_palace_dungeon
 end
 arch floor_dungeon1a
@@ -337,6 +339,11 @@ arch floor_dungeon1a
 x 3
 y 23
 end
+arch torch_wall_1
+direction 7
+x 3
+y 23
+end
 arch floor_dungeon1a
 x 4
 end
@@ -521,6 +528,10 @@ x 6
 y 21
 end
 arch floor_dungeon1a
+x 6
+y 22
+end
+arch torch_wall_1
 x 6
 y 22
 end
@@ -750,6 +761,11 @@ arch floor_dungeon1a
 x 10
 y 5
 end
+arch torch_wall_1
+direction 7
+x 10
+y 5
+end
 arch floor_dungeon1a
 x 10
 y 6
@@ -784,6 +800,11 @@ x 10
 y 10
 end
 arch floor_dungeon1a
+x 10
+y 11
+end
+arch torch_wall_1
+direction 7
 x 10
 y 11
 end
@@ -939,6 +960,10 @@ arch floor_dungeon1a
 x 11
 y 22
 end
+arch torch_wall_1
+x 11
+y 22
+end
 arch floor_dungeon1a
 x 11
 y 23
@@ -1035,6 +1060,10 @@ arch floor_dungeon1a
 x 12
 y 14
 end
+arch torch_wall_1
+x 12
+y 14
+end
 arch floor_dungeon1a
 x 12
 y 15
@@ -1109,6 +1138,10 @@ arch floor_dungeon1a
 x 13
 y 1
 end
+arch torch_wall_1
+x 13
+y 1
+end
 arch floor_dungeon1a
 x 13
 y 2
@@ -1134,6 +1167,10 @@ x 13
 y 5
 end
 arch floor_dungeon1a
+x 13
+y 6
+end
+arch torch_wall_1
 x 13
 y 6
 end
@@ -1212,6 +1249,11 @@ x 13
 y 17
 end
 arch floor_dungeon1a
+x 13
+y 18
+end
+arch torch_wall_1
+direction 7
 x 13
 y 18
 end
@@ -1575,11 +1617,21 @@ arch floor_dungeon1a
 x 16
 y 2
 end
+arch torch_wall_1
+direction 7
+x 16
+y 2
+end
 arch floor_dungeon1a
 x 16
 y 3
 end
 arch floor_dungeon1a
+x 16
+y 4
+end
+arch torch_wall_1
+direction 7
 x 16
 y 4
 end
@@ -1591,11 +1643,21 @@ arch floor_dungeon1a
 x 16
 y 6
 end
+arch torch_wall_1
+direction 7
+x 16
+y 6
+end
 arch floor_dungeon1a
 x 16
 y 7
 end
 arch floor_dungeon1a
+x 16
+y 8
+end
+arch torch_wall_1
+direction 7
 x 16
 y 8
 end
@@ -1611,11 +1673,21 @@ arch floor_dungeon1a
 x 16
 y 11
 end
+arch torch_wall_1
+direction 7
+x 16
+y 11
+end
 arch floor_dungeon1a
 x 16
 y 12
 end
 arch floor_dungeon1a
+x 16
+y 13
+end
+arch torch_wall_1
+direction 7
 x 16
 y 13
 end
@@ -1632,6 +1704,10 @@ x 16
 y 15
 end
 arch floor_dungeon1a
+x 16
+y 16
+end
+arch torch_wall_1
 x 16
 y 16
 end
@@ -1665,6 +1741,10 @@ x 16
 y 21
 end
 arch floor_dungeon1a
+x 16
+y 22
+end
+arch torch_wall_1
 x 16
 y 22
 end
@@ -1925,6 +2005,10 @@ arch floor_dungeon1a
 x 18
 y 16
 end
+arch torch_wall_1
+x 18
+y 16
+end
 arch floor_dungeon1a
 x 18
 y 17
@@ -1955,6 +2039,10 @@ x 18
 y 21
 end
 arch floor_dungeon1a
+x 18
+y 22
+end
+arch torch_wall_1
 x 18
 y 22
 end
@@ -2005,6 +2093,11 @@ arch floor_dungeon1a
 x 19
 y 6
 end
+arch torch_wall_1
+direction 7
+x 19
+y 6
+end
 arch floor_dungeon1a
 x 19
 y 7
@@ -2047,6 +2140,11 @@ x 19
 y 12
 end
 arch floor_dungeon1a
+x 19
+y 13
+end
+arch torch_wall_1
+direction 7
 x 19
 y 13
 end
@@ -2256,6 +2354,10 @@ arch floor_dungeon1a
 x 21
 y 1
 end
+arch torch_wall_1
+x 21
+y 1
+end
 arch floor_dungeon1a
 x 21
 y 2
@@ -2297,6 +2399,10 @@ x 21
 y 8
 end
 arch floor_dungeon1a
+x 21
+y 9
+end
+arch torch_wall_1
 x 21
 y 9
 end
@@ -2407,6 +2513,11 @@ x 22
 y 4
 end
 arch floor_dungeon1a
+x 22
+y 5
+end
+arch torch_wall_1
+direction 7
 x 22
 y 5
 end
@@ -2557,6 +2668,11 @@ x 23
 y 12
 end
 arch floor_dungeon1a
+x 23
+y 13
+end
+arch torch_wall_1
+direction 7
 x 23
 y 13
 end

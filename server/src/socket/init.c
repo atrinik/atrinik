@@ -98,6 +98,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	}
 
 	ns->login_count = 0;
+	ns->keepalive = 0;
 	ns->addme = 0;
 	ns->faceset = 0;
 	ns->sound = 0;
@@ -210,7 +211,7 @@ void init_ericserver()
 
 	if (protox == NULL)
 	{
-		LOG(llevBug, "BUG: init_ericserver: Error getting protox\n");
+		LOG(llevBug, "init_ericserver: Error getting protox\n");
 		return;
 	}
 
@@ -222,7 +223,7 @@ void init_ericserver()
 
 	if (init_sockets[0].fd == -1)
 	{
-		LOG(llevError, "ERROR: Cannot create socket: %s\n", strerror_local(errno));
+		LOG(llevError, "Cannot create socket: %s\n", strerror_local(errno));
 	}
 
 	insock.sin_family = AF_INET;
@@ -234,7 +235,7 @@ void init_ericserver()
 
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevError, "ERROR: init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
+		LOG(llevError, "init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
 	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that
@@ -355,7 +356,7 @@ static void load_srv_file(char *fname, int id)
 
 	if ((fp = fopen(fname, "rb")) == NULL)
 	{
-		LOG(llevError, "\nERROR: Can't open file %s\n", fname);
+		LOG(llevError, "Can't open file %s\n", fname);
 	}
 
 	fstat(fileno(fp), &statbuf);
@@ -365,7 +366,7 @@ static void load_srv_file(char *fname, int id)
 
 	if (!contents)
 	{
-		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
+		LOG(llevError, "load_srv_file(): Out of memory.\n");
 	}
 
 	numread = fread(contents, 1, fsize, fp);
@@ -383,7 +384,7 @@ static void load_srv_file(char *fname, int id)
 
 	if (!compressed)
 	{
-		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
+		LOG(llevError, "load_srv_file(): Out of memory.\n");
 	}
 
 	compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
@@ -391,7 +392,7 @@ static void load_srv_file(char *fname, int id)
 
 	if (!SrvClientFiles[id].file)
 	{
-		LOG(llevError, "ERROR: load_srv_file(): Out of memory.\n");
+		LOG(llevError, "load_srv_file(): Out of memory.\n");
 	}
 
 	memcpy(SrvClientFiles[id].file, compressed, numread);
@@ -401,7 +402,7 @@ static void load_srv_file(char *fname, int id)
 	free(contents);
 	free(compressed);
 
-	LOG(llevDebug, "(size: %"FMT64U" (%"FMT64U") (crc uncomp.: %lx)\n", (uint64) SrvClientFiles[id].len_ucomp, (uint64) numread, SrvClientFiles[id].crc);
+	LOG(llevDebug, " size: %"FMT64U" (%"FMT64U") (crc uncomp.: %lx)\n", (uint64) SrvClientFiles[id].len_ucomp, (uint64) numread, SrvClientFiles[id].crc);
 }
 
 /**
@@ -420,7 +421,7 @@ static void create_client_settings()
 	/* Open default */
 	if ((fset_default = fopen(buf, "rb")) == NULL)
 	{
-		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
+		LOG(llevError, "Can not open file %s\n", buf);
 	}
 
 	/* Delete our target - we create it new now */
@@ -431,7 +432,7 @@ static void create_client_settings()
 	if ((fset_create = fopen(buf, "wb")) == NULL)
 	{
 		fclose(fset_default);
-		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
+		LOG(llevError, "Can not open file %s\n", buf);
 	}
 
 	/* Copy default to target */
@@ -465,7 +466,7 @@ static void create_server_settings()
 	FILE *fp;
 
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
-	LOG(llevInfo, "Creating %s...\n", buf);
+	LOG(llevDebug, "Creating %s...\n", buf);
 
 	fp = fopen(buf, "wb");
 
@@ -499,7 +500,7 @@ static void create_server_animations()
 	FILE *fp, *fp2;
 
 	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
-	LOG(llevInfo, "Creating %s...\n", buf);
+	LOG(llevDebug, "Creating %s...\n", buf);
 
 	fp = fopen(buf, "wb");
 
@@ -577,6 +578,7 @@ void init_srv_files()
 	create_server_settings();
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
 	load_srv_file(buf, SRV_SERVER_SETTINGS);
+	new_chars_init();
 
 	create_server_animations();
 	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
@@ -584,6 +586,9 @@ void init_srv_files()
 
 	snprintf(buf, sizeof(buf), "%s/effects", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_EFFECTS);
+
+	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SRV_CLIENT_SKILLS_FILENAME);
+	load_srv_file(buf, SRV_CLIENT_SKILLS_V2);
 }
 
 /**

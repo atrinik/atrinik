@@ -91,7 +91,7 @@ int read_bmap_names()
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{
-		LOG(llevError, "ERROR: Can't open bmaps file: %s\n", buf);
+		LOG(llevError, "Can't open bmaps file: %s\n", buf);
 	}
 
 	/* First count how many bitmaps we have, so we can allocate correctly */
@@ -192,7 +192,7 @@ int find_face(char *name, int error)
 	 * change. */
 	if ((i = atoi(name)))
 	{
-		LOG(llevBug, "BUG: Integer face name used: %s\n", name);
+		LOG(llevBug, "Integer face name used: %s\n", name);
 		return i;
 	}
 

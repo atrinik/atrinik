@@ -85,8 +85,6 @@ _option opt[] =
 
 	/* Map */
 	{"Player Names:", "Show names of players above their heads.", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
-	{"Playfield start X:", "The X-position of the playfield.", "", SEL_RANGE, -200, 1000, 10, 0, &options.mapstart_x, VAL_INT},
-	{"Playfield start Y:", "The Y-position of the playfield.", "", SEL_RANGE, -200, 700, 10, 10, &options.mapstart_y, VAL_INT},
 	{"Playfield zoom:", "The zoom percentage of the playfield.", "", SEL_RANGE, 50, 200, 5, 100, &options.zoom, VAL_INT},
 	{"Smooth zoom:", "Whether to use smooth zoom on the playfield.\nWarning: Very CPU intensive.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.zoom_smooth, VAL_BOOL},
 	{"Low health warning:", "Shows a low health warning above your head.\nActivated if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
@@ -439,4 +437,174 @@ void show_optwin()
 	{
 		active_button = -1;
 	}
+}
+
+/** The different buttons of the settings popup. */
+enum
+{
+	BUTTON_SETTINGS,
+	BUTTON_KEY_SETTINGS,
+	BUTTON_LOGOUT,
+	BUTTON_BACK,
+
+	BUTTON_NUM
+};
+
+/** Names of the buttons. */
+static const char *const button_names[BUTTON_NUM] =
+{
+	"Client Settings", "Key settings", "Logout", "Back to play"
+};
+
+/** Currently selected button. */
+static size_t button_selected;
+
+/**
+ * Draw the settings popup.
+ * @param popup The popup. */
+static void settings_popup_draw_func(popup_struct *popup)
+{
+	SDL_Rect box;
+	size_t i;
+	int x, y, mx, my;
+	char buf[MAX_BUF];
+	uint64 flags;
+
+	box.x = 0;
+	box.y = 10;
+	box.w = popup->surface->w;
+	box.h = 0;
+	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	box.y += 50;
+
+	SDL_GetMouseState(&mx, &my);
+
+	for (i = 0; i < BUTTON_NUM; i++)
+	{
+		if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
+		{
+			continue;
+		}
+
+		flags = TEXT_ALIGN_CENTER;
+		x = Screensize->x / 2 - popup->surface->w / 2 + box.x;
+		y = Screensize->y / 2 - popup->surface->h / 2 + box.y;
+
+		if (mx >= x && mx < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
+		{
+			snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
+			flags |= TEXT_MARKUP;
+		}
+		else
+		{
+			strncpy(buf, button_names[i], sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+		}
+
+		if (button_selected == i)
+		{
+			string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), flags | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", buf);
+		}
+		else
+		{
+
+			string_blt_shadow(popup->surface, FONT_SERIF40, buf, box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), flags, &box);
+		}
+
+		box.y += FONT_HEIGHT(FONT_SERIF40);
+	}
+}
+
+/**
+ * Handle pressing a button in the settings popup.
+ * @param button The button ID. */
+static void settings_button_handle(size_t button)
+{
+	if (button == BUTTON_KEY_SETTINGS)
+	{
+		keybind_status = KEYBIND_STATUS_NO;
+		cpl.menustatus = MENU_KEYBIND;
+	}
+	else if (button == BUTTON_SETTINGS)
+	{
+		cpl.menustatus = MENU_OPTION;
+	}
+	else if (button == BUTTON_LOGOUT)
+	{
+		socket_close(&csocket);
+		GameStatus = GAME_STATUS_INIT;
+	}
+
+	popup_destroy_visible();
+}
+
+/**
+ * Handle events for the settings popup. */
+static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
+{
+	if (event->type == SDL_KEYDOWN)
+	{
+		/* Move the selected button up and down. */
+		if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN)
+		{
+			int selected = button_selected, num_buttons;
+
+			selected += event->key.keysym.sym == SDLK_DOWN ? 1 : -1;
+			num_buttons = (GameStatus == GAME_STATUS_PLAY ? BUTTON_NUM : BUTTON_LOGOUT) - 1;
+
+			if (selected < 0)
+			{
+				selected = num_buttons;
+			}
+			else if (selected > num_buttons)
+			{
+				selected = 0;
+			}
+
+			button_selected = selected;
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER)
+		{
+			settings_button_handle(button_selected);
+			return 1;
+		}
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			int x, y;
+			size_t i;
+
+			x = Screensize->x / 2 - popup->surface->w / 2;
+			y = Screensize->y / 2 - popup->surface->h / 2 + 60;
+
+			for (i = 0; i < BUTTON_NUM; i++)
+			{
+				if (event->motion.x >= x && event->motion.x < x + popup->surface->w && event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40))
+				{
+					settings_button_handle(i);
+					break;
+				}
+
+				y += FONT_HEIGHT(FONT_SERIF40);
+			}
+		}
+	}
+
+	return -1;
+}
+
+/**
+ * Open the settings popup. */
+void settings_open()
+{
+	popup_struct *popup;
+
+	popup = popup_create(BITMAP_POPUP);
+	popup->draw_func = settings_popup_draw_func;
+	popup->event_func = settings_popup_event_func;
+
+	button_selected = GameStatus == GAME_STATUS_PLAY ? BUTTON_BACK : BUTTON_SETTINGS;
 }

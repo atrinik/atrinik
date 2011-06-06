@@ -80,6 +80,7 @@ void apply_scroll(object *op, object *tmp)
 		old_spell = CONTR(op)->chosen_spell;
 		CONTR(op)->shoottype = range_scroll;
 		CONTR(op)->chosen_spell = scroll_spell;
+		CONTR(op)->stat_scrolls_used++;
 	}
 
 	new_draw_info_format(NDI_WHITE, op, "The scroll of %s turns to dust.", spells[tmp->stats.sp].name);

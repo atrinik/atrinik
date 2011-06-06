@@ -133,7 +133,7 @@ int check_weapon_power(object *who, int improvs)
 
 		if (!wc_obj)
 		{
-			LOG(llevBug, "BUG: Player: %s lacks wc experience object.\n", who->name);
+			LOG(llevBug, "Player: %s lacks wc experience object.\n", who->name);
 		}
 		else
 		{
@@ -352,7 +352,7 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 			new_draw_info(NDI_UNIQUE, op, "Unknown improvement type.");
 	}
 
-	LOG(llevBug, "BUG: improve_weapon(): Got to end of function!\n");
+	LOG(llevBug, "improve_weapon(): Got to end of function!\n");
 
 	return 0;
 }

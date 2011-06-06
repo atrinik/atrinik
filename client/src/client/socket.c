@@ -528,7 +528,7 @@ int socket_initialize()
 {
 #ifdef WIN32
 	WSADATA w;
-	WORD wVersionRequested = MAKEWORD( 2, 2 );
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	int error;
 
 	csocket.fd = SOCKET_NO;
@@ -536,18 +536,18 @@ int socket_initialize()
 
 	if (error)
 	{
-		wVersionRequested = MAKEWORD( 2, 0 );
+		wVersionRequested = MAKEWORD(2, 0);
 		error = WSAStartup(wVersionRequested, &w);
 
 		if (error)
 		{
-			wVersionRequested = MAKEWORD( 1, 1 );
+			wVersionRequested = MAKEWORD(1, 1);
 			error = WSAStartup(wVersionRequested, &w);
 
 			if (error)
 			{
 				LOG(llevBug, "socket_initialize(): Error initializing WinSock: %d.\n", error);
-				return(0);
+				return 0;
 			}
 		}
 	}

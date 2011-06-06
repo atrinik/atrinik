@@ -28,7 +28,7 @@
  * This is the config file for the client. */
 
 /** Socket version. */
-#define SOCKET_VERSION 1047
+#define SOCKET_VERSION 1052
 
 /** File with all the key bindings. */
 #define KEYBIND_FILE "keys.dat"
@@ -66,7 +66,6 @@
 #define DARK_LEVELS 7
 
 #define DIRECTORY_BITMAPS "bitmaps"
-#define DIRECTORY_ICONS "icons"
 #define DIRECTORY_SFX "sfx"
 #define DIRECTORY_CACHE "cache"
 #define DIRECTORY_GFX_USER "gfx_user"

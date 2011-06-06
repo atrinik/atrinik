@@ -74,7 +74,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 		{
 			if (flag == COST_BUY)
 			{
-				LOG(llevBug, "BUG: query_cost(): Asking for buy-value of unidentified object %s.\n", query_name(tmp, NULL));
+				LOG(llevBug, "query_cost(): Asking for buy-value of unidentified object %s.\n", query_name(tmp, NULL));
 				val = tmp->arch->clone.value * number;
 			}
 			/* Trying to sell something, or get true value */
@@ -99,11 +99,11 @@ sint64 query_cost(object *tmp, object *who, int flag)
 		else
 		{
 			/* No archetype with this object - we generate some dummy values to avoid server break */
-			LOG(llevBug, "BUG: query_cost(): Have object with no archetype: %s\n", query_name(tmp, NULL));
+			LOG(llevBug, "query_cost(): Have object with no archetype: %s\n", query_name(tmp, NULL));
 
 			if (flag == COST_BUY)
 			{
-				LOG(llevBug, "BUG: query_cost(): Asking for buy-value of unidentified object without arch.\n");
+				LOG(llevBug, "query_cost(): Asking for buy-value of unidentified object without arch.\n");
 				val = number * 100;
 			}
 			else
@@ -309,7 +309,7 @@ sint64 query_money(object *op)
 
 	if (op->type != PLAYER && op->type != CONTAINER)
 	{
-		LOG(llevBug, "BUG: query_money(): Called with non player/container.\n");
+		LOG(llevBug, "query_money(): Called with non player/container.\n");
 		return 0;
 	}
 
@@ -462,7 +462,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 					 * the two. */
 					if (coin_objs[i] != NULL)
 					{
-						LOG(llevBug, "BUG: pay_from_container(): %s has two money entries of (%s)\n", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
+						LOG(llevBug, "pay_from_container(): %s has two money entries of (%s)\n", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
 						remove_ob(tmp);
 						coin_objs[i]->nrof += tmp->nrof;
 						esrv_del_item(CONTR(pouch), tmp->count, tmp->env);
@@ -485,7 +485,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 
 			if (i == NUM_COINS)
 			{
-				LOG(llevBug, "BUG: pay_from_container(): Did not find string match for %s\n", tmp->arch->name);
+				LOG(llevBug, "pay_from_container(): Did not find string match for %s\n", tmp->arch->name);
 			}
 		}
 		else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL)
@@ -504,7 +504,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 
 			if (at == NULL)
 			{
-				LOG(llevBug, "BUG: pay_from_container(): Could not find %s archetype", coins[NUM_COINS - 1 - i]);
+				LOG(llevBug, "pay_from_container(): Could not find %s archetype", coins[NUM_COINS - 1 - i]);
 			}
 
 			coin_objs[i] = get_object();
@@ -531,10 +531,10 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 			num_coins = coin_objs[i]->nrof;
 		}
 
-		if (num_coins > ((sint64) 1 << 31))
+		if (num_coins > SINT32_MAX)
 		{
-			LOG(llevDebug, "DEBUG: pay_from_container(): Money overflow value->nrof: number of coins > 2 ^ 32 (type coin %d)\n", i);
-			num_coins = ((sint64) 1 << 31);
+			LOG(llevDebug, "pay_from_container(): Money overflow value->nrof: number of coins > SINT32_MAX (type coin %d)\n", i);
+			num_coins = SINT32_MAX;
 		}
 
 		remain -= num_coins * coin_objs[i]->value;
@@ -675,7 +675,7 @@ void sell_item(object *op, object *pl, sint64 value)
 
 	if (pl == NULL || pl->type != PLAYER)
 	{
-		LOG(llevDebug, "DEBUG: sell_item(): Object other than player tried to sell something.\n");
+		LOG(llevDebug, "sell_item(): Object other than player tried to sell something.\n");
 		return;
 	}
 
@@ -710,7 +710,7 @@ void sell_item(object *op, object *pl, sint64 value)
 
 	if (i != 0)
 	{
-		LOG(llevBug, "BUG: Warning - payment not zero: %"FMT64"\n", i);
+		LOG(llevBug, "Warning - payment not zero: %"FMT64"\n", i);
 	}
 
 	new_draw_info_format(NDI_UNIQUE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
@@ -1175,7 +1175,7 @@ sint64 insert_coins(object *pl, sint64 value)
 
 		if (at == NULL)
 		{
-			LOG(llevBug, "BUG: Could not find %s archetype", coins[count]);
+			LOG(llevBug, "Could not find %s archetype", coins[count]);
 		}
 		else if ((value / at->clone.value) > 0)
 		{

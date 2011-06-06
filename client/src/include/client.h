@@ -29,8 +29,6 @@
 
 #include "include.h"
 
-#define MAX_BUF 256
-
 /** Default width. */
 #define WINDOW_DEFAULT_WIDTH 1024
 /** Default height. */
@@ -191,6 +189,15 @@ typedef struct Stat_struct
 
 	/* Skills */
 	sint64 skill_exp[MAX_SKILL];
+
+	/** Ranged weapon damage. */
+	sint16 ranged_dam;
+
+	/** Ranged weapon wc. */
+	sint16 ranged_wc;
+
+	/** Ranged weapon speed. */
+	sint32 ranged_ws;
 } Stats;
 
 typedef enum _inventory_win
@@ -244,15 +251,12 @@ typedef struct Player_Struct
 	int tag;
 	int nrof;
 
-	/* Skill group and entry of ready skill */
-	int skill_g;
-	int skill_e;
+	skill_entry_struct *skill;
 
 	int warn_hp;
 
 	int win_inv_slot;
 	int win_inv_tag;
-	int win_quick_tag;
 	int win_pdoll_tag;
 	int win_inv_start;
 	int win_inv_count;
@@ -323,6 +327,13 @@ typedef struct Player_Struct
 
 	/** Whom to reply to. */
 	char player_reply[64];
+
+	union
+	{
+		int tag;
+
+		spell_entry_struct *spell;
+	} dragging;
 } Client_Player;
 
 /* Player object. */
@@ -367,6 +378,9 @@ extern Client_Player cpl;
 #define CS_STAT_REG_GRACE 	30
 #define CS_STAT_TARGET_HP 	31
 #define CS_STAT_ACTION_TIME	36
+#define CS_STAT_RANGED_DAM 37
+#define CS_STAT_RANGED_WC 38
+#define CS_STAT_RANGED_WS 39
 
 /* Start and end of resistances, inclusive. */
 #define CS_STAT_RESIST_START	100
@@ -532,6 +546,8 @@ extern Client_Player cpl;
  *@{*/
 /** Custom alpha value. */
 #define MAP2_FLAG2_ALPHA 1
+/** Custom rotate value in degrees. */
+#define MAP2_FLAG2_ROTATE 2
 /*@}*/
 
 /**

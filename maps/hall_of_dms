@@ -2,7 +2,7 @@ arch map
 name Hall of DMs
 msg
 Created:  2009-12-19 Alex Tokar
-Modified: 2010-07-15 Kiana
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -661,37 +661,9 @@ arch floor_stone_b4
 x 10
 y 21
 end
-arch sign
-msg
-News changer. Use to change the news in various locations.
-Known locations:
-
-Hall of DMs: This map.
-Clearhaven: Clearhaven on Eld Woods Island.
-Greyton: The City of Greyton on Strakewood Island.
-Brynknot: Brynknot on Strakewood Island.
-Tutorial Island: The Tutorial Island.
-Quick Wolves Guild: Quick Wolves guild on Strakewood Island.
-endmsg
-x 10
-y 21
-end
 arch floor_stone_b3
 x 10
 y 22
-end
-arch spawn_point
-x 10
-y 22
-arch monk
-name News Changer
-friendly 1
-type 83
-arch event_obj
-sub_type 6
-race /python/generic/news_change.py
-end
-end
 end
 arch floor_stone_b3
 x 10
@@ -728,16 +700,6 @@ end
 arch floor_stone_b3
 x 11
 y 18
-end
-arch announcement
-name Hall of DMs
-x 11
-y 18
-arch event_obj
-sub_type 1
-race /python/generic/news_sign.py
-slaying Hall of DMs
-end
 end
 arch floor_stone_b3
 x 11
@@ -784,9 +746,9 @@ x 12
 y 16
 end
 arch exit
-slaying /dev/testmaps/testmap_main
-hp 1
-sp 1
+slaying /planes/creation/creation_0808
+hp 11
+sp 12
 x 12
 y 16
 end
@@ -796,9 +758,9 @@ y 17
 end
 arch sign
 msg
-Dev Testmaps
+Plane of Creation
 endmsg
-name Dev Testmaps
+name Plane of Creation
 x 12
 y 17
 end

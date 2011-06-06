@@ -82,7 +82,7 @@ void print_monsters()
 
 		if (QUERY_FLAG(op, FLAG_MONSTER))
 		{
-			LOG(llevInfo,"%-15s|%5d|%3d|%4d|%4d|", op->arch->name, op->stats.maxhp, op->stats.dam, op->stats.ac, op->stats.wc);
+			LOG(llevInfo, "%-15s|%5d|%3d|%4d|%4d|", op->arch->name, op->stats.maxhp, op->stats.dam, op->stats.ac, op->stats.wc);
 
 			for (i = 0; i < NROFATTACKS; i++)
 			{

@@ -264,7 +264,7 @@ static FILE *open_and_uncompress_file(const char *ext, const char *uncompressor,
 
 	if (!WIFEXITED(ret) || WEXITSTATUS(ret) != 0)
 	{
-		LOG(llevBug, "BUG: system(%s) returned %d\n", buf2, ret);
+		LOG(llevBug, "system(%s) returned %d\n", buf2, ret);
 		errno = ENOENT;
 		return NULL;
 	}
@@ -349,7 +349,7 @@ void make_path_to_file(char *filename)
 		{
 			if (mkdir(buf, 0777))
 			{
-				LOG(llevBug, "BUG: Cannot mkdir %s: %s\n", buf, strerror_local(errno));
+				LOG(llevBug, "Cannot mkdir %s: %s\n", buf, strerror_local(errno));
 				return;
 			}
 		}

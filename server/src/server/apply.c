@@ -66,7 +66,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 	 * proper.  This code was causing needless crashes. */
 	if (recursion_depth >= 500)
 	{
-		LOG(llevDebug, "WARNING: move_apply(): aborting recursion [trap arch %s, name %s; victim arch %s, name %s]\n", trap->arch->name, trap->name, victim->arch->name, victim->name);
+		LOG(llevDebug, "move_apply(): aborting recursion [trap arch %s, name %s; victim arch %s, name %s]\n", trap->arch->name, trap->name, victim->arch->name, victim->name);
 		return;
 	}
 
@@ -122,11 +122,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		case SPINNER:
 			if (victim->direction)
 			{
-				if ((victim->direction = victim->direction + trap->direction) > 8)
-				{
-					victim->direction = (victim->direction % 8) + 1;
-				}
-
+				victim->direction = absdir(victim->direction + trap->direction);
 				update_turn_face(victim);
 			}
 
@@ -380,7 +376,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: do_learn_spell(): not a player ->%s\n", op->name);
+		LOG(llevBug, "do_learn_spell(): not a player ->%s\n", op->name);
 		return;
 	}
 
@@ -391,7 +387,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 
 		if (special_prayer || !tmp)
 		{
-			LOG(llevBug, "BUG: do_learn_spell(): spell already known, but can't upgrade it\n");
+			LOG(llevBug, "do_learn_spell(): spell already known, but can't upgrade it\n");
 			return;
 		}
 
@@ -402,7 +398,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	/* Learn new spell/prayer */
 	if (tmp)
 	{
-		LOG(llevBug, "BUG: do_learn_spell(): spell unknown, but special prayer mark present\n");
+		LOG(llevBug, "do_learn_spell(): spell unknown, but special prayer mark present\n");
 		remove_ob(tmp);
 	}
 
@@ -436,13 +432,13 @@ void do_forget_spell(object *op, int spell)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: do_forget_spell(): Not a player: %s (%d).\n", query_name(op, NULL), spell);
+		LOG(llevBug, "do_forget_spell(): Not a player: %s (%d).\n", query_name(op, NULL), spell);
 		return;
 	}
 
 	if (!check_spell_known(op, spell))
 	{
-		LOG(llevBug, "BUG: do_forget_spell(): Spell %d not known.\n", spell);
+		LOG(llevBug, "do_forget_spell(): Spell %d not known.\n", spell);
 		return;
 	}
 
@@ -466,7 +462,7 @@ void do_forget_spell(object *op, int spell)
 		}
 	}
 
-	LOG(llevBug, "BUG: do_forget_spell(): Couldn't find spell %d.\n", spell);
+	LOG(llevBug, "do_forget_spell(): Couldn't find spell %d.\n", spell);
 }
 
 /**
@@ -697,7 +693,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			break;
 
 		case HANDLE:
-			new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
+			new_draw_info_format(NDI_UNIQUE, op, "You turn the %s.", tmp->name);
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
 			tmp->value = tmp->value ? 0 : 1;
 			SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
@@ -709,12 +705,12 @@ int manual_apply(object *op, object *tmp, int aflag)
 		case TRIGGER:
 			if (check_trigger(tmp, op))
 			{
-				new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
+				new_draw_info_format(NDI_UNIQUE, op, "You turn the %s.", tmp->name);
 				play_sound_map(tmp->map, CMD_SOUND_EFFECT, "pull.ogg", tmp->x, tmp->y, 0, 0);
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "The handle doesn't move.");
+				new_draw_info_format(NDI_UNIQUE, op, "The %s doesn't move.", tmp->name);
 			}
 
 			return 1;
@@ -880,7 +876,8 @@ int manual_apply(object *op, object *tmp, int aflag)
 				timeofday_t tod;
 
 				get_tod(&tod);
-				new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
+				new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s.", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
+				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "clock.ogg", 0, 0, 0, 0);
 				return 1;
 			}
 
@@ -895,6 +892,17 @@ int manual_apply(object *op, object *tmp, int aflag)
 			if (op->type == PLAYER)
 			{
 				apply_lighter(op, tmp);
+				return 1;
+			}
+
+			return 0;
+
+		case COMPASS:
+			if (op->type == PLAYER)
+			{
+				const char *direction_names[] = {"north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"};
+
+				new_draw_info_format(NDI_UNIQUE, op, "You are facing %s.", direction_names[absdir(op->facing) - 1]);
 				return 1;
 			}
 
@@ -984,7 +992,7 @@ void player_apply_below(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: player_apply_below() called for non player object >%s<\n", query_name(pl, NULL));
+		LOG(llevBug, "player_apply_below() called for non player object >%s<\n", query_name(pl, NULL));
 		return;
 	}
 
@@ -1069,7 +1077,7 @@ int apply_special(object *who, object *op, int aflags)
 
 	if (who == NULL)
 	{
-		LOG(llevBug, "BUG: apply_special() from object without environment.\n");
+		LOG(llevBug, "apply_special() from object without environment.\n");
 		return 1;
 	}
 
@@ -1127,7 +1135,7 @@ int apply_special(object *who, object *op, int aflags)
 			case SKILL:
 				if (op != who->chosen_skill)
 				{
-					LOG(llevBug, "BUG: apply_special(): applied skill is not chosen skill\n");
+					LOG(llevBug, "apply_special(): applied skill is not chosen skill\n");
 				}
 
 				if (who->type == PLAYER)
@@ -1313,10 +1321,10 @@ int apply_special(object *who, object *op, int aflags)
 				return 1;
 			}
 
+			snprintf(buf, sizeof(buf), "You wield %s.", query_name(op, NULL));
 			SET_FLAG(op, FLAG_APPLIED);
 			SET_FLAG(who, FLAG_READY_WEAPON);
 			(void) change_abil(who, op);
-			snprintf(buf, sizeof(buf), "You wield %s.", query_name(op, NULL));
 			break;
 		}
 
@@ -1355,16 +1363,16 @@ int apply_special(object *who, object *op, int aflags)
 
 		case RING:
 		case AMULET:
+			snprintf(buf, sizeof(buf), "You wear %s.", query_name(op, NULL));
 			SET_FLAG(op, FLAG_APPLIED);
 			(void) change_abil(who, op);
-			snprintf(buf, sizeof(buf), "You wear %s.", query_name(op, NULL));
 			break;
 
 		/* This part is needed for skill-tools */
 		case SKILL:
 			if (who->chosen_skill)
 			{
-				LOG(llevBug, "BUG: apply_special(): can't apply two skills\n");
+				LOG(llevBug, "apply_special(): can't apply two skills\n");
 				return 1;
 			}
 
@@ -1377,7 +1385,7 @@ int apply_special(object *who, object *op, int aflags)
 					/* for tools */
 					if (op->exp_obj)
 					{
-						LOG(llevBug, "BUG: apply_special(SKILL): found unapplied tool with experience object\n");
+						LOG(llevBug, "apply_special(SKILL): found unapplied tool with experience object\n");
 					}
 					else
 					{
@@ -1408,19 +1416,12 @@ int apply_special(object *who, object *op, int aflags)
 				return 1;
 			}
 
-			SET_FLAG(op, FLAG_APPLIED);
 			new_draw_info_format(NDI_UNIQUE, who, "You ready %s.", query_name(op, NULL));
+			SET_FLAG(op, FLAG_APPLIED);
 
-			if (who->type == PLAYER)
+			if (op->type == BOW)
 			{
-				if (op->type == BOW)
-				{
-					new_draw_info_format(NDI_UNIQUE, who, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, NULL));
-				}
-				else
-				{
-					CONTR(who)->known_spell = (QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED));
-				}
+				new_draw_info_format(NDI_UNIQUE, who, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, NULL));
 			}
 
 			break;

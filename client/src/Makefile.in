@@ -28,7 +28,7 @@ CFLAGS = @CFLAGS@ @SDL_CFLAGS@ $(EXTRA_CFLAGS)
 # Include directories
 INCLUDES= $(EXTRA_INCLUDES) -Iinclude
 # Libraries needed
-LIBS = @LIBS@ @SDL_LIBS@ -lSDL_image -lSDL_mixer -lSDL_ttf $(EXTRA_LIBS)
+LIBS = @LIBS@ @SDL_LIBS@ -lSDL_image -lSDL_mixer -lSDL_ttf -lm $(EXTRA_LIBS)
 
 # Now the source files
 SRCS := \

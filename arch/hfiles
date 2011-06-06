@@ -920,7 +920,7 @@ Dantee
 <font=sans 14><b><o=#000000><c=#cf6900>Maps:</c></o></b></font><padding=4>
 Asa "<b>Evilasa</b>" Hurren
 Brian "<b>Gramlath</b>" Angeletti (+graphics)
-Edwin "<b>Kiana</b>" Miltenburg (+music)
+Edwin "<b>Mamoru</b>" Miltenburg (+music)
 Matthew "<b>Idicus</b>" Bostick
 </padding>
 <font=sans 14><b><o=#000000><c=#cf6900>Graphics:</c></o></b></font><padding=4>
@@ -933,4 +933,43 @@ Glenn Hanna
 David "<b>Ddhanna</b>" Hanna
 Pete "<b>Arantor</b>" Spicer
 </padding>
+==========
+Name: music player
+Title: Music Player Widget
+You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).
+
+Note that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.
+
+The <b>Currently playing</b> field will show you name of the current music file being played, either by the music player or in-game area.
+
+<title>Controls</title>
+
+Use mouse wheel or drag the slider to scroll the list of music files. To play a music file, either double-click it, or select it by left-clicking it once and click on <b>Play</b>. The selected music file will loop infinitely, or until the <b>Stop</b> button is pressed (which replaces the <b>Play</b> button if the music player is playing something).
+
+Click the <b>Shuffle</b> button to play music files at random. When one songs ends in the shuffle mode, no looping is done, but instead next one is chosen at random.
+
+In order to stop all background music for the current client session, you can double-click <b>Disable music</b> at the end of the music list.
+
+If you stop the music player and you want the in-game area music to return, you will have to re-enter the area.
+
+<title>Playlist</title>
+
+You can construct your own playlist using the music player by <b>blacklisting</b> songs you don't want on the playlist. In order to blacklist a song, select it in the music list and press the <b>-</b> button. Blacklisted entries will appear in red color on the music list, and will never play in the shuffle mode. You can remove a song from the blacklist by selecting it and clicking the <b>+</b> button (which will appear instead of the <b>-</b> one).
+
+In order to mass-change blacklist status of all the songs, select a song, and hold down the <b>-</b>/<b>+</b> button (depending on whether you want to blacklist the song or remove it from the blacklist, respectively).
+==========
+Name: spell list
+Title: Spell List Widget
+The spells widget allows you to browse all in-game spells sorted by their path.
+
+Right of the spells list, you can see the currently selected spell's description (if any). If you know the selected spell, you will be able to see the mana/grace cost below the description, near the bottom. You will also see the spell's icon, and path <b>Status</b>. Usually, this will be <b>Normal</b>, but if you apply an object that is attuned to a certain path, or repelled/denied from it, you will see that in the <b>Status</b>.
+
+<title>Controls</title>
+
+Use mouse wheel or drag the slider to scroll the list of spells (if applicable). Switch between spell paths by clicking the <b>&lt;</b> and <b>&gt;</b> buttons below the list of spells. If you keep holding those buttons, the spell paths will continue changing. The last spell path will show you all the spells, from all spell paths.
+
+In order to ready a spell, double-click its name in the spells list. You can also drag the currently selected spell's icon in the bottom right corner, and drop it into your quickslots for fast access.
+
+You can filter the list of spells using the buttons above the currently selected spell's description. If you press <b>Known</b>, only spells that you know will be shown - otherwise, both known and uknown are shown. The <b>&lt;</b> and <b>&gt;</b> buttons allow you to switch between types of spells shown: wizardry <b>spells</b>, divine <b>prayers</b>, or <b>all</b>.
+
 ==========

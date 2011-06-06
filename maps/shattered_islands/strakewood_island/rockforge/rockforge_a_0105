@@ -1,0 +1,3569 @@
+arch map
+name Rockforge: City
+msg
+Created:  2011-06-03 Alex Tokar
+Modified: 2011-06-06 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+tile_path_2 rockforge_a_0205
+tile_path_3 rockforge_a_0104
+tile_path_4 rockforge_a_aa05
+tile_path_6 rockforge_a_0204
+tile_path_7 rockforge_a_aa04
+region rockforge
+end
+arch blocked
+end
+arch wall_marble1.131
+end
+arch floor_marble2b
+y 1
+end
+arch floor_marble2b
+y 2
+end
+arch floor_marble2c
+y 3
+end
+arch floor_marble2c
+y 4
+end
+arch floor_marble2a
+y 5
+end
+arch wall_marble1.131
+y 5
+end
+arch blocked
+y 7
+end
+arch wall_marble1.131a
+y 7
+end
+arch floor_marble1b
+y 8
+end
+arch lamp_wall
+y 8
+end
+arch floor_marble1a
+y 9
+end
+arch chair1_111
+y 9
+end
+arch floor_marble1
+y 10
+end
+arch table_wood1.111
+direction 3
+y 10
+end
+arch light5
+y 10
+end
+arch floor_marble1a
+y 11
+end
+arch chair1_111
+direction 5
+y 11
+end
+arch floor_marble1
+y 12
+end
+arch floor_marble1b
+y 13
+end
+arch chair1_111
+y 13
+end
+arch floor_marble1a
+y 14
+end
+arch table_wood1.111
+direction 3
+y 14
+end
+arch light5
+y 14
+end
+arch floor_marble1b
+y 15
+end
+arch chair1_111
+direction 5
+y 15
+end
+arch floor_marble1
+y 16
+end
+arch floor_marble1b
+y 17
+end
+arch chair1_111
+y 17
+end
+arch floor_marble1a
+y 18
+end
+arch table_wood1.111
+y 18
+end
+arch whitewine
+zoom 90
+layer 5
+z 30
+y 18
+end
+arch light5
+y 18
+end
+arch floor_marble1a
+y 19
+end
+arch chair1_111
+direction 5
+y 19
+end
+arch floor_marble1
+y 20
+end
+arch floor_marble1a
+y 21
+end
+arch wall_marble1.131
+y 21
+end
+arch blocked
+x 1
+end
+arch wall_marble1.131a
+x 1
+end
+arch floor_marble2c
+x 1
+y 1
+end
+arch floor_marble2c
+x 1
+y 2
+end
+arch floor_marble2a
+x 1
+y 3
+end
+arch floor_marble2b
+x 1
+y 4
+end
+arch floor_marble2c
+x 1
+y 5
+end
+arch wall_marble1.131a
+x 1
+y 5
+end
+arch blocked
+x 1
+y 7
+end
+arch wall_marble1.131
+x 1
+y 7
+end
+arch floor_marble1a
+x 1
+y 8
+end
+arch floor_marble1
+x 1
+y 9
+end
+arch chair1_111
+x 1
+y 9
+end
+arch floor_marble1b
+x 1
+y 10
+end
+arch table_wood1.111
+direction 3
+x 1
+y 10
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 1
+y 10
+end
+arch floor_marble1a
+x 1
+y 11
+end
+arch chair1_111
+direction 5
+x 1
+y 11
+end
+arch floor_marble1
+x 1
+y 12
+end
+arch floor_marble1b
+x 1
+y 13
+end
+arch chair1_111
+x 1
+y 13
+end
+arch spawn_point
+x 1
+y 13
+arch dwarf_scout
+msg
+@match ^hi$|^hey$|^hello$
+<yellow>*chews* *chews* *nomnomnom* *chews*</yellow>
+Mmm, this steak is delicious! But it's expensive, since it's so difficult to acquire steaks from dragons...
+endmsg
+type 83
+name Tidek Ironbellows
+level 27
+end
+end
+arch floor_marble1b
+x 1
+y 14
+end
+arch table_wood1.111
+direction 3
+x 1
+y 14
+end
+arch steak_dragon
+z 36
+zoom 75
+layer 5
+rotate -45
+x 1
+y 14
+end
+arch floor_marble1
+x 1
+y 15
+end
+arch chair1_111
+direction 5
+x 1
+y 15
+end
+arch floor_marble1
+x 1
+y 16
+end
+arch floor_marble1
+x 1
+y 17
+end
+arch chair1_111
+x 1
+y 17
+end
+arch floor_marble1a
+x 1
+y 18
+end
+arch table_wood1.111
+x 1
+y 18
+end
+arch floor_marble1b
+x 1
+y 19
+end
+arch chair1_111
+direction 5
+x 1
+y 19
+end
+arch floor_marble1a
+x 1
+y 20
+end
+arch floor_marble1a
+x 1
+y 21
+end
+arch wall_marble1.131
+x 1
+y 21
+end
+arch blocked
+x 2
+end
+arch wall_marble1.131a
+x 2
+end
+arch floor_marble2a
+x 2
+y 1
+end
+arch floor_marble2a
+x 2
+y 2
+end
+arch floor_marble2a
+x 2
+y 3
+end
+arch floor_marble2c
+x 2
+y 4
+end
+arch floor_marble2a
+x 2
+y 5
+end
+arch wall_marble1.131
+x 2
+y 5
+end
+arch blocked
+x 2
+y 7
+end
+arch wall_marble1.131a
+x 2
+y 7
+end
+arch floor_marble1
+x 2
+y 8
+end
+arch floor_marble1a
+x 2
+y 9
+end
+arch chair1_111
+x 2
+y 9
+end
+arch floor_marble1b
+x 2
+y 10
+end
+arch table_wood1.111
+direction 3
+x 2
+y 10
+end
+arch light5
+x 2
+y 10
+end
+arch floor_marble1b
+x 2
+y 11
+end
+arch chair1_111
+direction 5
+x 2
+y 11
+end
+arch floor_marble1
+x 2
+y 12
+end
+arch floor_marble1
+x 2
+y 13
+end
+arch chair1_111
+x 2
+y 13
+end
+arch floor_marble1
+x 2
+y 14
+end
+arch table_wood1.111
+direction 3
+x 2
+y 14
+end
+arch pizza
+z 26
+align 5
+layer 5
+zoom 80
+x 2
+y 14
+end
+arch light5
+x 2
+y 14
+end
+arch floor_marble1b
+x 2
+y 15
+end
+arch chair1_111
+direction 5
+x 2
+y 15
+end
+arch floor_marble1b
+x 2
+y 16
+end
+arch floor_marble1a
+x 2
+y 17
+end
+arch chair1_111
+x 2
+y 17
+end
+arch floor_marble1
+x 2
+y 18
+end
+arch table_wood1.111
+x 2
+y 18
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
+x 2
+y 18
+end
+arch light5
+x 2
+y 18
+end
+arch floor_marble1
+x 2
+y 19
+end
+arch chair1_111
+direction 5
+x 2
+y 19
+end
+arch floor_marble1
+x 2
+y 20
+end
+arch floor_marble1a
+x 2
+y 21
+end
+arch wall_marble1.131a
+x 2
+y 21
+end
+arch blocked
+x 3
+end
+arch wall_marble1.131
+x 3
+end
+arch floor_marble2a
+x 3
+y 1
+end
+arch floor_marble2c
+x 3
+y 2
+end
+arch floor_marble2a
+x 3
+y 3
+end
+arch floor_marble2a
+x 3
+y 4
+end
+arch floor_marble2c
+x 3
+y 5
+end
+arch wall_marble1.131a
+x 3
+y 5
+end
+arch blocked
+x 3
+y 6
+end
+arch wall_marble1.111
+x 3
+y 6
+end
+arch blocked
+x 3
+y 7
+end
+arch wall_marble1.141
+x 3
+y 7
+end
+arch floor_marble1b
+x 3
+y 8
+end
+arch floor_marble1a
+x 3
+y 9
+end
+arch carpet1.131
+x 3
+y 9
+end
+arch floor_marble1a
+x 3
+y 10
+end
+arch carpet1.131
+x 3
+y 10
+end
+arch floor_marble1
+x 3
+y 11
+end
+arch carpet1.131
+x 3
+y 11
+end
+arch floor_marble1
+x 3
+y 12
+end
+arch carpet1.131
+x 3
+y 12
+end
+arch floor_marble1a
+x 3
+y 13
+end
+arch carpet1.131
+x 3
+y 13
+end
+arch floor_marble1b
+x 3
+y 14
+end
+arch carpet1.131
+x 3
+y 14
+end
+arch floor_marble1a
+x 3
+y 15
+end
+arch carpet1.131
+x 3
+y 15
+end
+arch floor_marble1
+x 3
+y 16
+end
+arch carpet1.131
+x 3
+y 16
+end
+arch floor_marble1b
+x 3
+y 17
+end
+arch carpet1.131
+x 3
+y 17
+end
+arch floor_marble1b
+x 3
+y 18
+end
+arch carpet1.131
+x 3
+y 18
+end
+arch floor_marble1b
+x 3
+y 19
+end
+arch carpet1.131
+x 3
+y 19
+end
+arch floor_marble1
+x 3
+y 20
+end
+arch floor_marble1b
+x 3
+y 21
+end
+arch wall_marble1.131a
+x 3
+y 21
+end
+arch blocked
+x 4
+end
+arch wall_marble1.131
+x 4
+end
+arch floor_marble2c
+x 4
+y 1
+end
+arch floor_marble2b
+x 4
+y 2
+end
+arch floor_marble2b
+x 4
+y 3
+end
+arch floor_marble2b
+x 4
+y 4
+end
+arch floor_marble2b
+x 4
+y 5
+end
+arch floor_marble2a
+x 4
+y 6
+end
+arch floor_marble2c
+x 4
+y 7
+end
+arch wall_marble1.131
+x 4
+y 7
+end
+arch floor_marble1a
+x 4
+y 8
+end
+arch carpet1.151
+x 4
+y 8
+end
+arch lamp_wall
+x 4
+y 8
+end
+arch floor_marble1a
+x 4
+y 9
+end
+arch carpet1
+x 4
+y 9
+end
+arch floor_marble1b
+x 4
+y 10
+end
+arch carpet1
+x 4
+y 10
+end
+arch floor_marble1
+x 4
+y 11
+end
+arch carpet1
+x 4
+y 11
+end
+arch floor_marble1a
+x 4
+y 12
+end
+arch carpet1
+x 4
+y 12
+end
+arch floor_marble1a
+x 4
+y 13
+end
+arch carpet1
+x 4
+y 13
+end
+arch floor_marble1
+x 4
+y 14
+end
+arch carpet1
+x 4
+y 14
+end
+arch floor_marble1a
+x 4
+y 15
+end
+arch carpet1
+x 4
+y 15
+end
+arch floor_marble1a
+x 4
+y 16
+end
+arch carpet1
+x 4
+y 16
+end
+arch floor_marble1b
+x 4
+y 17
+end
+arch carpet1
+x 4
+y 17
+end
+arch floor_marble1a
+x 4
+y 18
+end
+arch carpet1
+x 4
+y 18
+end
+arch floor_marble1a
+x 4
+y 19
+end
+arch carpet1
+x 4
+y 19
+end
+arch floor_marble1b
+x 4
+y 20
+end
+arch carpet1.111
+x 4
+y 20
+end
+arch floor_marble1a
+x 4
+y 21
+end
+arch wall_marble1.131
+x 4
+y 21
+end
+arch blocked
+x 5
+end
+arch wall_marble1.131a
+x 5
+end
+arch floor_marble2c
+x 5
+y 1
+end
+arch floor_marble2a
+x 5
+y 2
+end
+arch floor_marble2a
+x 5
+y 3
+end
+arch floor_marble2c
+x 5
+y 4
+end
+arch floor_marble2a
+x 5
+y 5
+end
+arch floor_marble2b
+x 5
+y 6
+end
+arch floor_marble2b
+x 5
+y 7
+end
+arch door1_locked
+x 5
+y 7
+end
+arch floor_marble1
+x 5
+y 8
+end
+arch carpet1.151
+x 5
+y 8
+end
+arch floor_marble1
+x 5
+y 9
+end
+arch carpet1
+x 5
+y 9
+end
+arch floor_marble1
+x 5
+y 10
+end
+arch carpet1
+x 5
+y 10
+end
+arch light5
+x 5
+y 10
+end
+arch floor_marble1a
+x 5
+y 11
+end
+arch carpet1
+x 5
+y 11
+end
+arch floor_marble1
+x 5
+y 12
+end
+arch carpet1
+x 5
+y 12
+end
+arch floor_marble1b
+x 5
+y 13
+end
+arch carpet1
+x 5
+y 13
+end
+arch floor_marble1a
+x 5
+y 14
+end
+arch carpet1
+x 5
+y 14
+end
+arch light5
+x 5
+y 14
+end
+arch floor_marble1b
+x 5
+y 15
+end
+arch carpet1
+x 5
+y 15
+end
+arch floor_marble1
+x 5
+y 16
+end
+arch carpet1
+x 5
+y 16
+end
+arch floor_marble1
+x 5
+y 17
+end
+arch carpet1
+x 5
+y 17
+end
+arch floor_marble1a
+x 5
+y 18
+end
+arch carpet1
+x 5
+y 18
+end
+arch light5
+x 5
+y 18
+end
+arch floor_marble1a
+x 5
+y 19
+end
+arch carpet1
+x 5
+y 19
+end
+arch floor_marble1b
+x 5
+y 20
+end
+arch carpet1.111
+x 5
+y 20
+end
+arch floor_marble1
+x 5
+y 21
+end
+arch wall_marble1.131
+x 5
+y 21
+end
+arch blocked
+x 6
+end
+arch wall_marble1.131
+x 6
+end
+arch floor_marble2b
+x 6
+y 1
+end
+arch floor_marble2b
+x 6
+y 2
+end
+arch floor_marble2a
+x 6
+y 3
+end
+arch floor_marble2b
+x 6
+y 4
+end
+arch floor_marble2a
+x 6
+y 5
+end
+arch floor_marble2c
+x 6
+y 6
+end
+arch floor_marble2b
+x 6
+y 7
+end
+arch door1_locked
+direction 7
+x 6
+y 7
+end
+arch floor_marble1a
+x 6
+y 8
+end
+arch carpet1.151
+x 6
+y 8
+end
+arch floor_marble1
+x 6
+y 9
+end
+arch carpet1
+x 6
+y 9
+end
+arch floor_marble1
+x 6
+y 10
+end
+arch carpet1
+x 6
+y 10
+end
+arch light5
+x 6
+y 10
+end
+arch floor_marble1
+x 6
+y 11
+end
+arch carpet1
+x 6
+y 11
+end
+arch floor_marble1b
+x 6
+y 12
+end
+arch carpet1
+x 6
+y 12
+end
+arch floor_marble1b
+x 6
+y 13
+end
+arch carpet1
+x 6
+y 13
+end
+arch floor_marble1b
+x 6
+y 14
+end
+arch carpet1
+x 6
+y 14
+end
+arch light5
+x 6
+y 14
+end
+arch floor_marble1
+x 6
+y 15
+end
+arch carpet1
+x 6
+y 15
+end
+arch floor_marble1b
+x 6
+y 16
+end
+arch carpet1
+x 6
+y 16
+end
+arch floor_marble1a
+x 6
+y 17
+end
+arch carpet1
+x 6
+y 17
+end
+arch floor_marble1a
+x 6
+y 18
+end
+arch carpet1
+x 6
+y 18
+end
+arch light5
+x 6
+y 18
+end
+arch floor_marble1
+x 6
+y 19
+end
+arch carpet1
+x 6
+y 19
+end
+arch floor_marble1
+x 6
+y 20
+end
+arch carpet1.111
+x 6
+y 20
+end
+arch floor_marble1a
+x 6
+y 21
+end
+arch wall_marble1.131
+x 6
+y 21
+end
+arch blocked
+x 7
+end
+arch wall_marble1.131
+x 7
+end
+arch floor_marble2b
+x 7
+y 1
+end
+arch floor_marble2b
+x 7
+y 2
+end
+arch floor_marble2a
+x 7
+y 3
+end
+arch floor_marble2a
+x 7
+y 4
+end
+arch floor_marble2c
+x 7
+y 5
+end
+arch floor_marble2b
+x 7
+y 6
+end
+arch floor_marble2c
+x 7
+y 7
+end
+arch wall_marble1.131
+x 7
+y 7
+end
+arch floor_marble1a
+x 7
+y 8
+end
+arch carpet1.151
+x 7
+y 8
+end
+arch lamp_wall
+x 7
+y 8
+end
+arch floor_marble1b
+x 7
+y 9
+end
+arch carpet1
+x 7
+y 9
+end
+arch floor_marble1a
+x 7
+y 10
+end
+arch carpet1
+x 7
+y 10
+end
+arch floor_marble1a
+x 7
+y 11
+end
+arch carpet1
+x 7
+y 11
+end
+arch floor_marble1
+x 7
+y 12
+end
+arch carpet1
+x 7
+y 12
+end
+arch floor_marble1b
+x 7
+y 13
+end
+arch carpet1
+x 7
+y 13
+end
+arch floor_marble1a
+x 7
+y 14
+end
+arch carpet1
+x 7
+y 14
+end
+arch floor_marble1b
+x 7
+y 15
+end
+arch carpet1
+x 7
+y 15
+end
+arch floor_marble1b
+x 7
+y 16
+end
+arch carpet1
+x 7
+y 16
+end
+arch floor_marble1a
+x 7
+y 17
+end
+arch carpet1
+x 7
+y 17
+end
+arch floor_marble1
+x 7
+y 18
+end
+arch carpet1
+x 7
+y 18
+end
+arch floor_marble1b
+x 7
+y 19
+end
+arch carpet1
+x 7
+y 19
+end
+arch floor_marble1b
+x 7
+y 20
+end
+arch carpet1.111
+x 7
+y 20
+end
+arch floor_marble1b
+x 7
+y 21
+end
+arch wall_marble1.131a
+x 7
+y 21
+end
+arch blocked
+x 8
+end
+arch wall_marble1.131
+x 8
+end
+arch floor_marble2c
+x 8
+y 1
+end
+arch floor_marble2b
+x 8
+y 2
+end
+arch floor_marble2a
+x 8
+y 3
+end
+arch floor_marble2a
+x 8
+y 4
+end
+arch floor_marble2c
+x 8
+y 5
+end
+arch wall_marble1.181
+x 8
+y 5
+end
+arch floor_marble2b
+x 8
+y 6
+end
+arch wall_marble1.111a
+x 8
+y 6
+end
+arch floor_marble2c
+x 8
+y 7
+end
+arch wall_marble1.141
+x 8
+y 7
+end
+arch floor_marble1a
+x 8
+y 8
+end
+arch floor_marble1b
+x 8
+y 9
+end
+arch carpet1.171
+x 8
+y 9
+end
+arch floor_marble1
+x 8
+y 10
+end
+arch carpet1.171
+x 8
+y 10
+end
+arch floor_marble1
+x 8
+y 11
+end
+arch carpet1.171
+x 8
+y 11
+end
+arch floor_marble1
+x 8
+y 12
+end
+arch carpet1.171
+x 8
+y 12
+end
+arch floor_marble1a
+x 8
+y 13
+end
+arch carpet1.171
+x 8
+y 13
+end
+arch floor_marble1a
+x 8
+y 14
+end
+arch carpet1.171
+x 8
+y 14
+end
+arch floor_marble1
+x 8
+y 15
+end
+arch carpet1.171
+x 8
+y 15
+end
+arch floor_marble1a
+x 8
+y 16
+end
+arch carpet1.171
+x 8
+y 16
+end
+arch floor_marble1a
+x 8
+y 17
+end
+arch carpet1.171
+x 8
+y 17
+end
+arch floor_marble1
+x 8
+y 18
+end
+arch carpet1.171
+x 8
+y 18
+end
+arch floor_marble1
+x 8
+y 19
+end
+arch carpet1.171
+x 8
+y 19
+end
+arch floor_marble1
+x 8
+y 20
+end
+arch floor_marble1b
+x 8
+y 21
+end
+arch wall_marble1.131
+x 8
+y 21
+end
+arch blocked
+x 9
+end
+arch wall_marble1.131a
+x 9
+end
+arch floor_marble2a
+x 9
+y 1
+end
+arch floor_marble2b
+x 9
+y 2
+end
+arch floor_marble2c
+x 9
+y 3
+end
+arch floor_marble2c
+x 9
+y 4
+end
+arch floor_marble2a
+x 9
+y 5
+end
+arch wall_marble1.131
+x 9
+y 5
+end
+arch blocked
+x 9
+y 7
+end
+arch wall_marble1.131a
+x 9
+y 7
+end
+arch floor_marble1a
+x 9
+y 8
+end
+arch floor_marble1a
+x 9
+y 9
+end
+arch chair1_111
+x 9
+y 9
+end
+arch floor_marble1
+x 9
+y 10
+end
+arch table_wood1.111
+direction 3
+x 9
+y 10
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 9
+y 10
+end
+arch floor_marble1a
+x 9
+y 11
+end
+arch chair1_111
+direction 5
+x 9
+y 11
+end
+arch floor_marble1a
+x 9
+y 12
+end
+arch floor_marble1
+x 9
+y 13
+end
+arch chair1_111
+x 9
+y 13
+end
+arch floor_marble1b
+x 9
+y 14
+end
+arch table_wood1.111
+direction 3
+x 9
+y 14
+end
+arch waybread
+name Gimli's lembas
+zoom 90
+z 26
+layer 5
+x 9
+y 14
+end
+arch floor_marble1b
+x 9
+y 15
+end
+arch chair1_111
+direction 5
+x 9
+y 15
+end
+arch spawn_point
+x 9
+y 15
+arch dwarf_fighter2
+msg
+@match ^hi$|^hey$|^hello$
+Lembas... <a>again</a>....
+@match ^again$
+I don't know why the <a>cooks</a> keep purchasing so much waybread from the elves...
+@match ^cooks$
+<yellow>*grumbles*</yellow>
+Lazy buggers...
+endmsg
+type 83
+name Kendo Flamecutter
+level 40
+direction 1
+end
+end
+arch floor_marble1b
+x 9
+y 16
+end
+arch floor_marble1b
+x 9
+y 17
+end
+arch chair1_111
+x 9
+y 17
+end
+arch floor_marble1a
+x 9
+y 18
+end
+arch table_wood1.111
+x 9
+y 18
+end
+arch floor_marble1b
+x 9
+y 19
+end
+arch chair1_111
+direction 5
+x 9
+y 19
+end
+arch floor_marble1
+x 9
+y 20
+end
+arch floor_marble1b
+x 9
+y 21
+end
+arch wall_marble1.131a
+x 9
+y 21
+end
+arch blocked
+x 10
+end
+arch wall_marble1.131
+x 10
+end
+arch floor_marble2c
+x 10
+y 1
+end
+arch floor_marble2b
+x 10
+y 2
+end
+arch floor_marble2b
+x 10
+y 3
+end
+arch floor_marble2c
+x 10
+y 4
+end
+arch floor_marble2c
+x 10
+y 5
+end
+arch wall_marble1.131
+x 10
+y 5
+end
+arch blocked
+x 10
+y 7
+end
+arch wall_marble1.131a
+x 10
+y 7
+end
+arch floor_marble1b
+x 10
+y 8
+end
+arch floor_marble1b
+x 10
+y 9
+end
+arch chair1_111
+x 10
+y 9
+end
+arch floor_marble1b
+x 10
+y 10
+end
+arch table_wood1.111
+direction 3
+x 10
+y 10
+end
+arch light5
+x 10
+y 10
+end
+arch floor_marble1b
+x 10
+y 11
+end
+arch chair1_111
+direction 5
+x 10
+y 11
+end
+arch floor_marble1
+x 10
+y 12
+end
+arch floor_marble1b
+x 10
+y 13
+end
+arch chair1_111
+x 10
+y 13
+end
+arch floor_marble1
+x 10
+y 14
+end
+arch table_wood1.111
+direction 3
+x 10
+y 14
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
+x 10
+y 14
+end
+arch light5
+x 10
+y 14
+end
+arch floor_marble1a
+x 10
+y 15
+end
+arch chair1_111
+direction 5
+x 10
+y 15
+end
+arch floor_marble1a
+x 10
+y 16
+end
+arch floor_marble1b
+x 10
+y 17
+end
+arch chair1_111
+x 10
+y 17
+end
+arch floor_marble1b
+x 10
+y 18
+end
+arch table_wood1.111
+x 10
+y 18
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 10
+y 18
+end
+arch light5
+x 10
+y 18
+end
+arch floor_marble1b
+x 10
+y 19
+end
+arch chair1_111
+direction 5
+x 10
+y 19
+end
+arch floor_marble1
+x 10
+y 20
+end
+arch floor_marble1b
+x 10
+y 21
+end
+arch wall_marble1.131
+x 10
+y 21
+end
+arch blocked
+x 11
+end
+arch wall_marble1.131
+x 11
+end
+arch floor_marble2c
+x 11
+y 1
+end
+arch floor_marble2c
+x 11
+y 2
+end
+arch floor_marble2c
+x 11
+y 3
+end
+arch floor_marble2c
+x 11
+y 4
+end
+arch floor_marble2a
+x 11
+y 5
+end
+arch wall_marble1.131a
+x 11
+y 5
+end
+arch blocked
+x 11
+y 7
+end
+arch wall_marble1.131a
+x 11
+y 7
+end
+arch floor_marble1
+x 11
+y 8
+end
+arch lamp_wall
+x 11
+y 8
+end
+arch floor_marble1
+x 11
+y 9
+end
+arch chair1_111
+x 11
+y 9
+end
+arch spawn_point
+x 11
+y 9
+arch dwarf_pathfinder
+msg
+@match ^hi$|^hey$|^hello$
+No, you can't fool me! That cake is surely a lie! ... or is it? Hmm....
+endmsg
+type 83
+name Fede Greatblade
+level 38
+end
+end
+arch floor_marble1a
+x 11
+y 10
+end
+arch table_wood1.111
+direction 3
+x 11
+y 10
+end
+arch cake
+layer 5
+zoom 80
+z 30
+x 11
+y 10
+end
+arch floor_marble1
+x 11
+y 11
+end
+arch chair1_111
+direction 5
+x 11
+y 11
+end
+arch floor_marble1
+x 11
+y 12
+end
+arch floor_marble1a
+x 11
+y 13
+end
+arch chair1_111
+x 11
+y 13
+end
+arch floor_marble1
+x 11
+y 14
+end
+arch table_wood1.111
+direction 3
+x 11
+y 14
+end
+arch floor_marble1a
+x 11
+y 15
+end
+arch chair1_111
+direction 5
+x 11
+y 15
+end
+arch floor_marble1
+x 11
+y 16
+end
+arch floor_marble1
+x 11
+y 17
+end
+arch chair1_111
+x 11
+y 17
+end
+arch floor_marble1
+x 11
+y 18
+end
+arch table_wood1.111
+x 11
+y 18
+end
+arch floor_marble1
+x 11
+y 19
+end
+arch chair1_111
+direction 5
+x 11
+y 19
+end
+arch floor_marble1
+x 11
+y 20
+end
+arch floor_marble1a
+x 11
+y 21
+end
+arch wall_marble1.131a
+x 11
+y 21
+end
+arch blocked
+x 12
+end
+arch wall_marble1.131a
+x 12
+end
+arch floor_marble2b
+x 12
+y 1
+end
+arch floor_marble2a
+x 12
+y 2
+end
+arch floor_marble2b
+x 12
+y 3
+end
+arch floor_marble2c
+x 12
+y 4
+end
+arch floor_marble2a
+x 12
+y 5
+end
+arch wall_marble1.131a
+x 12
+y 5
+end
+arch blocked
+x 12
+y 7
+end
+arch wall_marble1.131
+x 12
+y 7
+end
+arch floor_marble1a
+x 12
+y 8
+end
+arch floor_marble1b
+x 12
+y 9
+end
+arch chair1_111
+x 12
+y 9
+end
+arch floor_marble1b
+x 12
+y 10
+end
+arch table_wood1.111
+direction 3
+x 12
+y 10
+end
+arch light5
+x 12
+y 10
+end
+arch floor_marble1a
+x 12
+y 11
+end
+arch chair1_111
+direction 5
+x 12
+y 11
+end
+arch floor_marble1a
+x 12
+y 12
+end
+arch floor_marble1b
+x 12
+y 13
+end
+arch chair1_111
+x 12
+y 13
+end
+arch floor_marble1a
+x 12
+y 14
+end
+arch table_wood1.111
+direction 3
+x 12
+y 14
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 12
+y 14
+end
+arch light5
+x 12
+y 14
+end
+arch floor_marble1
+x 12
+y 15
+end
+arch chair1_111
+direction 5
+x 12
+y 15
+end
+arch floor_marble1
+x 12
+y 16
+end
+arch floor_marble1
+x 12
+y 17
+end
+arch chair1_111
+x 12
+y 17
+end
+arch floor_marble1a
+x 12
+y 18
+end
+arch table_wood1.111
+x 12
+y 18
+end
+arch light5
+x 12
+y 18
+end
+arch floor_marble1b
+x 12
+y 19
+end
+arch chair1_111
+direction 5
+x 12
+y 19
+end
+arch floor_marble1a
+x 12
+y 20
+end
+arch floor_marble1b
+x 12
+y 21
+end
+arch wall_marble1.131a
+x 12
+y 21
+end
+arch blocked
+x 13
+end
+arch wall_marble1.131
+x 13
+end
+arch floor_marble2a
+x 13
+y 1
+end
+arch floor_marble2b
+x 13
+y 2
+end
+arch floor_marble2b
+x 13
+y 3
+end
+arch floor_marble2c
+x 13
+y 4
+end
+arch floor_marble2a
+x 13
+y 5
+end
+arch wall_marble1.131a
+x 13
+y 5
+end
+arch blocked
+x 13
+y 7
+end
+arch wall_marble1.131
+x 13
+y 7
+end
+arch floor_marble1
+x 13
+y 8
+end
+arch floor_marble1a
+x 13
+y 9
+end
+arch chair1_111
+x 13
+y 9
+end
+arch floor_marble1b
+x 13
+y 10
+end
+arch table_wood1.111
+direction 3
+x 13
+y 10
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
+x 13
+y 10
+end
+arch floor_marble1a
+x 13
+y 11
+end
+arch chair1_111
+direction 5
+x 13
+y 11
+end
+arch floor_marble1
+x 13
+y 12
+end
+arch floor_marble1a
+x 13
+y 13
+end
+arch chair1_111
+x 13
+y 13
+end
+arch floor_marble1b
+x 13
+y 14
+end
+arch table_wood1.111
+direction 3
+x 13
+y 14
+end
+arch floor_marble1
+x 13
+y 15
+end
+arch chair1_111
+direction 5
+x 13
+y 15
+end
+arch floor_marble1
+x 13
+y 16
+end
+arch floor_marble1a
+x 13
+y 17
+end
+arch chair1_111
+x 13
+y 17
+end
+arch floor_marble1b
+x 13
+y 18
+end
+arch table_wood1.111
+x 13
+y 18
+end
+arch bonbons
+zoom 50
+layer 5
+z 32
+align 17
+x 13
+y 18
+end
+arch cup_empty
+zoom 50
+align 1
+z 37
+layer 7
+x 13
+y 18
+end
+arch floor_marble1
+x 13
+y 19
+end
+arch chair1_111
+direction 5
+x 13
+y 19
+end
+arch spawn_point
+x 13
+y 19
+arch dwarf_runemaster
+msg
+@match ^hi$|^hey$|^hello$
+Eh? What is this? Bonbons? Blech!
+endmsg
+type 83
+direction 1
+name Tdoh Glittercarver
+level 37
+is_male 0
+is_female 1
+end
+end
+arch floor_marble1
+x 13
+y 20
+end
+arch floor_marble1
+x 13
+y 21
+end
+arch wall_marble1.131a
+x 13
+y 21
+end
+arch blocked
+x 14
+end
+arch wall_marble1.131
+x 14
+end
+arch floor_marble2c
+x 14
+y 1
+end
+arch floor_marble2c
+x 14
+y 2
+end
+arch floor_marble2c
+x 14
+y 3
+end
+arch floor_marble2a
+x 14
+y 4
+end
+arch floor_marble2c
+x 14
+y 5
+end
+arch wall_marble1.131
+x 14
+y 5
+end
+arch blocked
+x 14
+y 7
+end
+arch wall_marble1.131a
+x 14
+y 7
+end
+arch floor_marble1b
+x 14
+y 8
+end
+arch floor_marble1b
+x 14
+y 9
+end
+arch chair1_111
+x 14
+y 9
+end
+arch floor_marble1b
+x 14
+y 10
+end
+arch table_wood1.111
+direction 3
+x 14
+y 10
+end
+arch light5
+x 14
+y 10
+end
+arch floor_marble1
+x 14
+y 11
+end
+arch chair1_111
+direction 5
+x 14
+y 11
+end
+arch floor_marble1b
+x 14
+y 12
+end
+arch floor_marble1
+x 14
+y 13
+end
+arch chair1_111
+x 14
+y 13
+end
+arch floor_marble1b
+x 14
+y 14
+end
+arch table_wood1.111
+direction 3
+x 14
+y 14
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
+x 14
+y 14
+end
+arch light5
+x 14
+y 14
+end
+arch floor_marble1b
+x 14
+y 15
+end
+arch chair1_111
+direction 5
+x 14
+y 15
+end
+arch spawn_point
+x 14
+y 15
+arch dwarf_guard
+msg
+@match ^hi$|^hey$|^hello$
+Hello there! My name is Raru Mountainsmiter, but please excuse me, I'm about to start <a>eating</a>.
+@match ^eating$
+Well, since this is the Dining Hall, yes! Well, as soon as the cooks quit being lazy and bring me my meal...
+<yellow>The dwarf yells:</yellow>
+Oi! Hurry up, you lazy cooks!
+endmsg
+type 83
+direction 1
+name Raru Mountainsmiter
+level 37
+is_male 0
+is_female 1
+end
+end
+arch floor_marble1a
+x 14
+y 16
+end
+arch floor_marble1a
+x 14
+y 17
+end
+arch chair1_111
+x 14
+y 17
+end
+arch floor_marble1b
+x 14
+y 18
+end
+arch table_wood1.111
+x 14
+y 18
+end
+arch light5
+x 14
+y 18
+end
+arch floor_marble1b
+x 14
+y 19
+end
+arch chair1_111
+direction 5
+x 14
+y 19
+end
+arch floor_marble1a
+x 14
+y 20
+end
+arch floor_marble1
+x 14
+y 21
+end
+arch wall_marble1.131
+x 14
+y 21
+end
+arch blocked
+x 15
+end
+arch wall_marble1.131
+x 15
+end
+arch floor_marble2c
+x 15
+y 1
+end
+arch floor_marble2a
+x 15
+y 2
+end
+arch floor_marble2b
+x 15
+y 3
+end
+arch floor_marble2a
+x 15
+y 4
+end
+arch floor_marble2a
+x 15
+y 5
+end
+arch wall_marble1.131
+x 15
+y 5
+end
+arch blocked
+x 15
+y 7
+end
+arch wall_marble1.131a
+x 15
+y 7
+end
+arch floor_marble1a
+x 15
+y 8
+end
+arch lamp_wall
+x 15
+y 8
+end
+arch floor_marble1a
+x 15
+y 9
+end
+arch chair1_111
+x 15
+y 9
+end
+arch spawn_point
+x 15
+y 9
+arch dwarf_fighter2
+msg
+@match ^hi$|^hey$|^hello$
+Mmm! Those cooks sure are slow and lazy, but they make the most delicious pizza in all the land. Yummy!
+endmsg
+name Calsi Ettinkiller
+level 29
+is_male 0
+is_female 1
+type 83
+end
+end
+arch floor_marble1
+x 15
+y 10
+end
+arch table_wood1.111
+direction 3
+x 15
+y 10
+end
+arch pizza
+z 26
+align 5
+layer 5
+zoom 80
+x 15
+y 10
+end
+arch floor_marble1a
+x 15
+y 11
+end
+arch chair1_111
+direction 5
+x 15
+y 11
+end
+arch floor_marble1b
+x 15
+y 12
+end
+arch floor_marble1
+x 15
+y 13
+end
+arch chair1_111
+x 15
+y 13
+end
+arch floor_marble1a
+x 15
+y 14
+end
+arch table_wood1.111
+direction 3
+x 15
+y 14
+end
+arch floor_marble1b
+x 15
+y 15
+end
+arch chair1_111
+direction 5
+x 15
+y 15
+end
+arch floor_marble1a
+x 15
+y 16
+end
+arch floor_marble1
+x 15
+y 17
+end
+arch chair1_111
+x 15
+y 17
+end
+arch floor_marble1
+x 15
+y 18
+end
+arch table_wood1.111
+x 15
+y 18
+end
+arch floor_marble1b
+x 15
+y 19
+end
+arch chair1_111
+direction 5
+x 15
+y 19
+end
+arch floor_marble1
+x 15
+y 20
+end
+arch floor_marble1a
+x 15
+y 21
+end
+arch wall_marble1.131a
+x 15
+y 21
+end
+arch blocked
+x 16
+end
+arch wall_marble1.131a
+x 16
+end
+arch floor_marble2a
+x 16
+y 1
+end
+arch floor_marble2b
+x 16
+y 2
+end
+arch floor_marble2a
+x 16
+y 3
+end
+arch floor_marble2b
+x 16
+y 4
+end
+arch floor_marble2a
+x 16
+y 5
+end
+arch wall_marble1.131
+x 16
+y 5
+end
+arch blocked
+x 16
+y 7
+end
+arch wall_marble1.131
+x 16
+y 7
+end
+arch floor_marble1
+x 16
+y 8
+end
+arch floor_marble1a
+x 16
+y 9
+end
+arch floor_marble1b
+x 16
+y 10
+end
+arch floor_marble1
+x 16
+y 11
+end
+arch floor_marble1
+x 16
+y 12
+end
+arch floor_marble1b
+x 16
+y 13
+end
+arch floor_marble1
+x 16
+y 14
+end
+arch floor_marble1
+x 16
+y 15
+end
+arch floor_marble1a
+x 16
+y 16
+end
+arch floor_marble1a
+x 16
+y 17
+end
+arch floor_marble1b
+x 16
+y 18
+end
+arch floor_marble1b
+x 16
+y 19
+end
+arch floor_marble1
+x 16
+y 20
+end
+arch floor_marble1a
+x 16
+y 21
+end
+arch wall_marble1.131a
+x 16
+y 21
+end
+arch blocked
+x 17
+end
+arch wall_marble1.131a
+x 17
+end
+arch floor_marble2c
+x 17
+y 1
+end
+arch floor_marble2a
+x 17
+y 2
+end
+arch floor_marble2b
+x 17
+y 3
+end
+arch floor_marble2a
+x 17
+y 4
+end
+arch floor_marble2a
+x 17
+y 5
+end
+arch wall_marble1.131a
+x 17
+y 5
+end
+arch blocked
+x 17
+y 7
+end
+arch wall_marble1.131a
+x 17
+y 7
+end
+arch floor_marble1
+x 17
+y 8
+end
+arch floor_marble1b
+x 17
+y 9
+end
+arch floor_marble1a
+x 17
+y 10
+end
+arch floor_marble1
+x 17
+y 11
+end
+arch floor_marble1b
+x 17
+y 12
+end
+arch floor_marble1a
+x 17
+y 13
+end
+arch floor_marble1b
+x 17
+y 14
+end
+arch floor_marble1a
+x 17
+y 15
+end
+arch floor_marble1a
+x 17
+y 16
+end
+arch floor_marble1a
+x 17
+y 17
+end
+arch floor_marble1
+x 17
+y 18
+end
+arch floor_marble1b
+x 17
+y 19
+end
+arch floor_marble1b
+x 17
+y 20
+end
+arch floor_marble1a
+x 17
+y 21
+end
+arch wall_marble1.131a
+x 17
+y 21
+end
+arch blocked
+x 18
+end
+arch wall_marble1.131a
+x 18
+end
+arch floor_marble2c
+x 18
+y 1
+end
+arch floor_marble2c
+x 18
+y 2
+end
+arch floor_marble2b
+x 18
+y 3
+end
+arch floor_marble2c
+x 18
+y 4
+end
+arch floor_marble2a
+x 18
+y 5
+end
+arch wall_marble1.131
+x 18
+y 5
+end
+arch blocked
+x 18
+y 7
+end
+arch wall_marble1.131
+x 18
+y 7
+end
+arch floor_marble1a
+x 18
+y 8
+end
+arch wall_marble1.111
+x 18
+y 8
+end
+arch floor_marble1b
+x 18
+y 9
+end
+arch wall_marble1.111a
+x 18
+y 9
+end
+arch floor_marble1a
+x 18
+y 10
+end
+arch wall_marble1.111a
+x 18
+y 10
+end
+arch floor_marble1
+x 18
+y 11
+end
+arch wall_marble1.111
+x 18
+y 11
+end
+arch floor_marble1b
+x 18
+y 12
+end
+arch wall_marble1.111
+x 18
+y 12
+end
+arch floor_marble1a
+x 18
+y 13
+end
+arch wall_marble1.111a
+x 18
+y 13
+end
+arch floor_marble1a
+x 18
+y 14
+end
+arch wall_marble1.111
+x 18
+y 14
+end
+arch floor_marble1a
+x 18
+y 15
+end
+arch door_bar1
+direction 3
+slaying rockforge_dining_hall
+x 18
+y 15
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying rockforge_dining_hall
+sp 1
+last_grace 1
+x 18
+y 15
+end
+arch floor_marble1a
+x 18
+y 16
+end
+arch bar1
+direction 3
+x 18
+y 16
+end
+arch floor_marble1a
+x 18
+y 17
+end
+arch bar1
+direction 3
+x 18
+y 17
+end
+arch floor_marble1a
+x 18
+y 18
+end
+arch bar1
+direction 3
+x 18
+y 18
+end
+arch floor_marble1a
+x 18
+y 19
+end
+arch candlelight4.101
+x 18
+y 19
+end
+arch bar1
+direction 3
+x 18
+y 19
+end
+arch light5
+x 18
+y 19
+end
+arch floor_marble1b
+x 18
+y 20
+end
+arch wall_marble1.111
+x 18
+y 20
+end
+arch floor_marble1b
+x 18
+y 21
+end
+arch wall_marble1.141
+x 18
+y 21
+end
+arch blocked
+x 19
+end
+arch wall_marble1.131
+x 19
+end
+arch floor_marble2b
+x 19
+y 1
+end
+arch floor_marble2b
+x 19
+y 2
+end
+arch floor_marble2a
+x 19
+y 3
+end
+arch floor_marble2c
+x 19
+y 4
+end
+arch floor_marble2a
+x 19
+y 5
+end
+arch wall_marble1.131a
+x 19
+y 5
+end
+arch blocked
+x 19
+y 11
+end
+arch wall_marble1.131a
+x 19
+y 11
+end
+arch floor_marble1a
+x 19
+y 12
+end
+arch broom.111
+layer 3
+x 19
+y 12
+end
+arch metal_bucket.101
+x 19
+y 12
+end
+arch floor_marble1b
+x 19
+y 13
+end
+arch shelf6_wall.111
+direction 7
+x 19
+y 13
+end
+arch floor_marble1a
+x 19
+y 14
+end
+arch lamp_wall
+direction 7
+x 19
+y 14
+end
+arch floor_marble1a
+x 19
+y 15
+end
+arch floor_marble1
+x 19
+y 16
+end
+arch floor_marble1b
+x 19
+y 17
+end
+arch spawn_point
+x 19
+y 17
+arch dwarf_thunderer
+type 83
+name Fhod Grimfist
+level 30
+arch event_obj
+msg
+{
+	"welcome_text": "\n<yellow>*grumbles*</yellow>\nAnother customer... Very well... I am {}.",
+	"buy_text": "\nHere you go, {} {}, just as you ordered. Now off with ya."
+}
+endmsg
+sub_type 6
+race /python/generic/bartender.py
+arch beer
+identified 1
+value 40
+end
+arch drink_generic
+identified 1
+value 10
+end
+arch booze_generic
+identified 1
+value 25
+end
+arch pizza
+identified 1
+value 100
+end
+arch steak_dragon
+identified 1
+value 300
+end
+arch waybread
+identified 1
+value 200
+end
+end
+end
+end
+arch floor_marble1b
+x 19
+y 18
+end
+arch floor_marble1a
+x 19
+y 19
+end
+arch floor_marble1b
+x 19
+y 20
+end
+arch kettle_table
+x 19
+y 20
+end
+arch floor_marble1b
+x 19
+y 21
+end
+arch wall_marble1.131a
+x 19
+y 21
+end
+arch blocked
+x 20
+end
+arch wall_marble1.131a
+x 20
+end
+arch floor_marble2b
+x 20
+y 1
+end
+arch floor_marble2c
+x 20
+y 2
+end
+arch floor_marble2b
+x 20
+y 3
+end
+arch floor_marble2b
+x 20
+y 4
+end
+arch floor_marble2b
+x 20
+y 5
+end
+arch wall_marble1.131
+x 20
+y 5
+end
+arch blocked
+x 20
+y 11
+end
+arch wall_marble1.131
+x 20
+y 11
+end
+arch floor_marble1
+x 20
+y 12
+end
+arch chair1_111
+direction 7
+x 20
+y 12
+end
+arch floor_marble1b
+x 20
+y 13
+end
+arch floor_marble1b
+x 20
+y 14
+end
+arch floor_marble1b
+x 20
+y 15
+end
+arch floor_marble1b
+x 20
+y 16
+end
+arch floor_marble1a
+x 20
+y 17
+end
+arch floor_marble1
+x 20
+y 18
+end
+arch floor_marble1b
+x 20
+y 19
+end
+arch floor_marble1b
+x 20
+y 20
+end
+arch chair1_111
+direction 7
+x 20
+y 20
+end
+arch spawn_point
+x 20
+y 20
+arch dwarf_thunderer
+type 83
+name dwarf cook
+level 30
+direction 3
+end
+end
+arch floor_marble1
+x 20
+y 21
+end
+arch wall_marble1.131
+x 20
+y 21
+end
+arch blocked
+x 21
+end
+arch wall_marble1.131
+x 21
+end
+arch floor_marble2c
+x 21
+y 1
+end
+arch floor_marble2c
+x 21
+y 2
+end
+arch floor_marble2c
+x 21
+y 3
+end
+arch floor_marble2a
+x 21
+y 4
+end
+arch floor_marble2c
+x 21
+y 5
+end
+arch wall_marble1.131
+x 21
+y 5
+end
+arch blocked
+x 21
+y 11
+end
+arch wall_marble1.131
+x 21
+y 11
+end
+arch floor_marble1a
+x 21
+y 12
+end
+arch table_poker2
+x 21
+y 12
+end
+arch floor_marble1a
+x 21
+y 13
+end
+arch chair1_111
+direction 5
+x 21
+y 13
+end
+arch floor_marble1
+x 21
+y 14
+end
+arch floor_marble1
+x 21
+y 15
+end
+arch floor_marble1b
+x 21
+y 16
+end
+arch floor_marble1b
+x 21
+y 17
+end
+arch floor_marble1a
+x 21
+y 18
+end
+arch floor_marble1b
+x 21
+y 19
+end
+arch chair1_111
+x 21
+y 19
+end
+arch spawn_point
+x 21
+y 19
+arch dwarf_thunderer
+type 83
+name dwarf cook
+level 30
+is_male 0
+is_female 1
+end
+end
+arch floor_marble1a
+x 21
+y 20
+end
+arch kettle_table
+x 21
+y 20
+end
+arch floor_marble1b
+x 21
+y 21
+end
+arch wall_marble1.131
+x 21
+y 21
+end
+arch blocked
+x 22
+end
+arch wall_marble1.131
+x 22
+end
+arch floor_marble2a
+x 22
+y 1
+end
+arch floor_marble2a
+x 22
+y 2
+end
+arch floor_marble2a
+x 22
+y 3
+end
+arch floor_marble2b
+x 22
+y 4
+end
+arch floor_marble2b
+x 22
+y 5
+end
+arch wall_marble1.131a
+x 22
+y 5
+end
+arch blocked
+x 22
+y 11
+end
+arch wall_marble1.131
+x 22
+y 11
+end
+arch floor_marble1
+x 22
+y 12
+end
+arch chair1_drop_171
+x 22
+y 12
+end
+arch lamp_wall
+x 22
+y 12
+end
+arch floor_marble1a
+x 22
+y 13
+end
+arch floor_marble1
+x 22
+y 14
+end
+arch floor_marble1a
+x 22
+y 15
+end
+arch wall_marble1.131
+blocksview 0
+draw_double_always 1
+layer 4
+x 22
+y 15
+end
+arch wall_marble1.131
+blocksview 0
+draw_double 0
+z 44
+x 22
+y 15
+end
+arch pot_wall.131
+z 22
+x 22
+y 15
+end
+arch floor_marble1
+x 22
+y 16
+end
+arch fwall_marble2a
+layer 3
+blocksview 0
+draw_double 0
+x 22
+y 16
+end
+arch bowl2.101
+z 25
+x 22
+y 16
+end
+arch floor_marble1a
+x 22
+y 17
+end
+arch floor_marble1a
+x 22
+y 18
+end
+arch floor_marble1b
+x 22
+y 19
+end
+arch floor_marble1
+x 22
+y 20
+end
+arch chair1_111
+direction 3
+x 22
+y 20
+end
+arch floor_marble1
+x 22
+y 21
+end
+arch wall_marble1.131
+x 22
+y 21
+end
+arch blocked
+x 23
+end
+arch wall_marble1.131a
+x 23
+end
+arch floor_marble2a
+x 23
+y 1
+end
+arch floor_marble2a
+x 23
+y 2
+end
+arch floor_marble2a
+x 23
+y 3
+end
+arch floor_marble2c
+x 23
+y 4
+end
+arch floor_marble2b
+x 23
+y 5
+end
+arch wall_marble1.131
+x 23
+y 5
+end
+arch blocked
+x 23
+y 11
+end
+arch wall_marble1.131
+x 23
+y 11
+end
+arch floor_marble1b
+x 23
+y 12
+end
+arch wall_well.131
+align -8
+z 8
+x 23
+y 12
+end
+arch floor_marble1a
+x 23
+y 13
+end
+arch floor_marble1
+x 23
+y 14
+end
+arch floor_marble1
+x 23
+y 15
+end
+arch wall_marble1.131
+blocksview 0
+draw_double_always 1
+layer 4
+x 23
+y 15
+end
+arch wall_marble1.131
+blocksview 0
+draw_double 0
+z 44
+x 23
+y 15
+end
+arch floor_marble1b
+x 23
+y 16
+end
+arch fwall_marble2a
+layer 3
+blocksview 0
+draw_double 0
+x 23
+y 16
+end
+arch lamp_wall
+z 22
+x 23
+y 16
+end
+arch floor_marble1b
+x 23
+y 17
+end
+arch floor_marble1a
+x 23
+y 18
+end
+arch floor_marble1b
+x 23
+y 19
+end
+arch water_floor
+x 23
+y 19
+end
+arch floor_marble1b
+x 23
+y 20
+end
+arch floor_marble1
+x 23
+y 21
+end
+arch wall_marble1.131a
+x 23
+y 21
+end

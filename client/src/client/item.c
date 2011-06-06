@@ -454,6 +454,27 @@ void object_send_mark(object *op)
 }
 
 /**
+ * Ready an object for firing.
+ * @param op Object to ready. */
+void ready_object(object *op)
+{
+	SockList sl;
+	char buf[MAX_BUF];
+
+	/* If object is on the ground, don't ready it. */
+	if (!op || !op->env || op->env->tag == 0)
+	{
+		return;
+	}
+
+	sl.buf = (unsigned char *) buf;
+	strcpy((char *) sl.buf, "rd ");
+	sl.len = 3;
+	SockList_AddInt(&sl, op->tag);
+	send_socklist(sl);
+}
+
+/**
  * Initializes the various objects of ::cpl structure, freeing them first
  * if necessary. */
 void objects_init()

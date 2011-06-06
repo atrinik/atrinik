@@ -316,15 +316,6 @@ int legal_range(object *op, int r)
 			{
 				if (tmp->type == WAND && QUERY_FLAG(tmp, FLAG_APPLIED))
 				{
-					if (QUERY_FLAG(tmp, FLAG_BEEN_APPLIED) || QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-					{
-						CONTR(op)->known_spell = 1;
-					}
-					else
-					{
-						CONTR(op)->known_spell = 0;
-					}
-
 					return 1;
 				}
 			}
@@ -337,15 +328,6 @@ int legal_range(object *op, int r)
 			{
 				if (tmp->type == ROD && QUERY_FLAG(tmp, FLAG_APPLIED))
 				{
-					if (QUERY_FLAG(tmp, FLAG_BEEN_APPLIED) || QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-					{
-						CONTR(op)->known_spell = 1;
-					}
-					else
-					{
-						CONTR(op)->known_spell = 0;
-					}
-
 					return 1;
 				}
 			}
@@ -358,15 +340,6 @@ int legal_range(object *op, int r)
 			{
 				if (tmp->type == HORN && QUERY_FLAG(tmp, FLAG_APPLIED))
 				{
-					if (QUERY_FLAG(tmp, FLAG_BEEN_APPLIED) || QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-					{
-						CONTR(op)->known_spell = 1;
-					}
-					else
-					{
-						CONTR(op)->known_spell = 0;
-					}
-
 					return 1;
 				}
 			}

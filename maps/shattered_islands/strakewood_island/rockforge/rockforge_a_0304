@@ -1,0 +1,577 @@
+arch map
+name Rockforge: City
+msg
+Created:  2011-06-03 Alex Tokar
+Modified: 2011-06-06 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+tile_path_1 rockforge_a_0305
+tile_path_3 rockforge_a_0303
+tile_path_4 rockforge_a_0204
+tile_path_7 rockforge_a_0203
+tile_path_8 rockforge_a_0205
+region rockforge
+end
+arch blocked
+y 2
+end
+arch wall_marble1.131
+y 2
+end
+arch floor_marble2a
+y 3
+end
+arch floor_marble2a
+y 4
+end
+arch floor_marble2a
+y 5
+end
+arch floor_marble2a
+y 6
+end
+arch floor_marble2c
+y 7
+end
+arch wall_marble1.131
+y 7
+end
+arch blocked
+x 1
+y 2
+end
+arch wall_marble1.131a
+x 1
+y 2
+end
+arch floor_marble2a
+x 1
+y 3
+end
+arch floor_marble2c
+x 1
+y 4
+end
+arch floor_marble2c
+x 1
+y 5
+end
+arch floor_marble2a
+x 1
+y 6
+end
+arch floor_marble2b
+x 1
+y 7
+end
+arch wall_marble1.131
+x 1
+y 7
+end
+arch blocked
+x 2
+y 2
+end
+arch wall_marble1.131a
+x 2
+y 2
+end
+arch floor_marble2b
+x 2
+y 3
+end
+arch floor_marble2c
+x 2
+y 4
+end
+arch floor_marble2a
+x 2
+y 5
+end
+arch floor_marble2b
+x 2
+y 6
+end
+arch floor_marble2a
+x 2
+y 7
+end
+arch wall_marble1.131
+x 2
+y 7
+end
+arch blocked
+x 3
+y 2
+end
+arch wall_marble1.131a
+x 3
+y 2
+end
+arch floor_marble2a
+x 3
+y 3
+end
+arch floor_marble2c
+x 3
+y 4
+end
+arch floor_marble2b
+x 3
+y 5
+end
+arch floor_marble2a
+x 3
+y 6
+end
+arch floor_marble2c
+x 3
+y 7
+end
+arch wall_marble1.131a
+x 3
+y 7
+end
+arch blocked
+x 4
+y 2
+end
+arch wall_marble1.131
+x 4
+y 2
+end
+arch floor_marble2c
+x 4
+y 3
+end
+arch floor_marble2b
+x 4
+y 4
+end
+arch floor_marble2b
+x 4
+y 5
+end
+arch floor_marble2a
+x 4
+y 6
+end
+arch floor_marble2a
+x 4
+y 7
+end
+arch wall_marble1.131a
+x 4
+y 7
+end
+arch blocked
+x 5
+y 2
+end
+arch wall_marble1.131a
+x 5
+y 2
+end
+arch floor_marble2b
+x 5
+y 3
+end
+arch floor_marble2c
+x 5
+y 4
+end
+arch floor_marble2b
+x 5
+y 5
+end
+arch floor_marble2c
+x 5
+y 6
+end
+arch floor_marble2a
+x 5
+y 7
+end
+arch wall_marble1.131
+x 5
+y 7
+end
+arch blocked
+x 6
+y 2
+end
+arch wall_marble1.131
+x 6
+y 2
+end
+arch floor_marble2a
+x 6
+y 3
+end
+arch floor_marble2b
+x 6
+y 4
+end
+arch floor_marble2b
+x 6
+y 5
+end
+arch floor_marble2a
+x 6
+y 6
+end
+arch floor_marble2a
+x 6
+y 7
+end
+arch wall_marble1.131a
+x 6
+y 7
+end
+arch blocked
+x 7
+y 2
+end
+arch wall_marble1.131
+x 7
+y 2
+end
+arch floor_marble2b
+x 7
+y 3
+end
+arch floor_marble2b
+x 7
+y 4
+end
+arch floor_marble2c
+x 7
+y 5
+end
+arch floor_marble2b
+x 7
+y 6
+end
+arch floor_marble2c
+x 7
+y 7
+end
+arch wall_marble1.131a
+x 7
+y 7
+end
+arch blocked
+x 8
+y 2
+end
+arch wall_marble1.131
+x 8
+y 2
+end
+arch floor_marble2b
+x 8
+y 3
+end
+arch floor_marble2c
+x 8
+y 4
+end
+arch floor_marble2a
+x 8
+y 5
+end
+arch floor_marble2b
+x 8
+y 6
+end
+arch floor_marble2b
+x 8
+y 7
+end
+arch wall_marble1.131a
+x 8
+y 7
+end
+arch blocked
+x 9
+y 2
+end
+arch wall_marble1.131a
+x 9
+y 2
+end
+arch floor_marble2c
+x 9
+y 3
+end
+arch floor_marble2c
+x 9
+y 4
+end
+arch floor_marble2a
+x 9
+y 5
+end
+arch floor_marble2c
+x 9
+y 6
+end
+arch floor_marble2c
+x 9
+y 7
+end
+arch wall_marble1.131
+x 9
+y 7
+end
+arch blocked
+x 10
+end
+arch wall_marble1.111
+x 10
+end
+arch blocked
+x 10
+y 1
+end
+arch wall_marble1.111a
+x 10
+y 1
+end
+arch blocked
+x 10
+y 2
+end
+arch wall_marble1.141
+x 10
+y 2
+end
+arch floor_marble2c
+x 10
+y 3
+end
+arch floor_marble2c
+x 10
+y 4
+end
+arch floor_marble2b
+x 10
+y 5
+end
+arch floor_marble2a
+x 10
+y 6
+end
+arch floor_marble2b
+x 10
+y 7
+end
+arch wall_marble1.131a
+x 10
+y 7
+end
+arch floor_marble2c
+x 11
+end
+arch floor_marble2a
+x 11
+y 1
+end
+arch floor_marble2c
+x 11
+y 2
+end
+arch floor_marble2b
+x 11
+y 3
+end
+arch floor_marble2c
+x 11
+y 4
+end
+arch floor_marble2c
+x 11
+y 5
+end
+arch floor_marble2a
+x 11
+y 6
+end
+arch floor_marble2b
+x 11
+y 7
+end
+arch wall_marble1.131
+x 11
+y 7
+end
+arch floor_marble2a
+x 12
+end
+arch floor_marble2b
+x 12
+y 1
+end
+arch floor_marble2c
+x 12
+y 2
+end
+arch floor_marble2a
+x 12
+y 3
+end
+arch floor_marble2b
+x 12
+y 4
+end
+arch floor_marble2a
+x 12
+y 5
+end
+arch floor_marble2a
+x 12
+y 6
+end
+arch floor_marble2a
+x 12
+y 7
+end
+arch wall_marble1.131a
+x 12
+y 7
+end
+arch floor_marble2c
+x 13
+end
+arch floor_marble2a
+x 13
+y 1
+end
+arch floor_marble2c
+x 13
+y 2
+end
+arch floor_marble2c
+x 13
+y 3
+end
+arch floor_marble2c
+x 13
+y 4
+end
+arch floor_marble2a
+x 13
+y 5
+end
+arch floor_marble2b
+x 13
+y 6
+end
+arch floor_marble2c
+x 13
+y 7
+end
+arch wall_marble1.131a
+x 13
+y 7
+end
+arch floor_marble2a
+x 14
+end
+arch floor_marble2c
+x 14
+y 1
+end
+arch floor_marble2b
+x 14
+y 2
+end
+arch floor_marble2a
+x 14
+y 3
+end
+arch floor_marble2c
+x 14
+y 4
+end
+arch floor_marble2b
+x 14
+y 5
+end
+arch floor_marble2b
+x 14
+y 6
+end
+arch floor_marble2a
+x 14
+y 7
+end
+arch wall_marble1.131a
+x 14
+y 7
+end
+arch floor_marble2c
+x 15
+end
+arch wall_marble1.111a
+x 15
+end
+arch floor_marble2c
+x 15
+y 1
+end
+arch wall_marble1.111
+x 15
+y 1
+end
+arch floor_marble2b
+x 15
+y 2
+end
+arch wall_marble1.111a
+x 15
+y 2
+end
+arch floor_marble2b
+x 15
+y 3
+end
+arch wall_marble1.111
+x 15
+y 3
+end
+arch floor_marble2a
+x 15
+y 4
+end
+arch wall_marble1.111
+x 15
+y 4
+end
+arch floor_marble2c
+x 15
+y 5
+end
+arch wall_marble1.111a
+x 15
+y 5
+end
+arch floor_marble2b
+x 15
+y 6
+end
+arch wall_marble1.111
+x 15
+y 6
+end
+arch floor_marble2a
+x 15
+y 7
+end
+arch wall_marble1.141
+x 15
+y 7
+end

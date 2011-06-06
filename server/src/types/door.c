@@ -90,7 +90,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 		}
 	}
 
-	LOG(llevSystem, "BUG: open_door() - Door on wrong layer. Map: %s (%d, %d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
+	LOG(llevSystem, "open_door() - Door on wrong layer. Map: %s (%d, %d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
 	return 0;
 }
 
@@ -187,9 +187,11 @@ void open_locked_door(object *op, object *opener)
 		op->state = 1;
 		/* Init "open" counter */
 		op->last_sp = op->stats.sp;
-		/* Save and clear blocksview and no_pass */
-		QUERY_FLAG(op, FLAG_BLOCKSVIEW) ? (op->stats.grace = 1) : (op->stats.grace = 0);
-		QUERY_FLAG(op, FLAG_DOOR_CLOSED) ? (op->last_grace = 1) : (op->last_grace = 0);
+
+		/* Save and clear blocksview and door_closed */
+		op->stats.grace = QUERY_FLAG(op, FLAG_BLOCKSVIEW) ? 1 : 0;
+		op->last_grace = QUERY_FLAG(op, FLAG_DOOR_CLOSED) ? 1 : 0;
+
 		CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
 		CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
 
@@ -234,14 +236,14 @@ void close_locked_door(object *op)
 	/* This is a bug - active speed but not marked as active */
 	if (!op->last_eat)
 	{
-		LOG(llevBug, "BUG: Door has speed but is not marked as active. (%s - map: %s (%d, %d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
+		LOG(llevBug, "Door has speed but is not marked as active. (%s - map: %s (%d, %d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
 		op->last_eat = 0;
 		return;
 	}
 
 	if (!op->map)
 	{
-		LOG(llevBug, "BUG: Door with speed but no map (%s - (%d, %d))\n", query_name(op, NULL), op->x, op->y);
+		LOG(llevBug, "Door with speed but no map (%s - (%d, %d))\n", query_name(op, NULL), op->x, op->y);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
@@ -276,9 +278,27 @@ void close_locked_door(object *op)
 
 		/* Change to "close door" faces */
 		op->state = 0;
-		op->stats.grace = 1 ? SET_FLAG(op, FLAG_BLOCKSVIEW) : CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
-		op->last_grace = 1 ? SET_FLAG(op, FLAG_DOOR_CLOSED) : CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
+
+		if (op->stats.grace)
+		{
+			SET_FLAG(op, FLAG_BLOCKSVIEW);
+		}
+		else
+		{
+			CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
+		}
+
 		op->stats.grace = 0;
+
+		if (op->last_grace)
+		{
+			SET_FLAG(op, FLAG_DOOR_CLOSED);
+		}
+		else
+		{
+			CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
+		}
+
 		op->last_grace = 0;
 
 		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))

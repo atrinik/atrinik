@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-05-07 emperorbma
 endmsg
 width 24
 height 24
@@ -623,6 +623,10 @@ arch floor_sand_d1
 x 5
 y 17
 end
+arch wall_cave1.181
+x 5
+y 17
+end
 arch floor_sand_d2
 x 5
 y 18
@@ -746,7 +750,15 @@ arch floor_sand_d3
 x 6
 y 16
 end
+arch wall_cave1.181
+x 6
+y 16
+end
 arch floor_sand_d1
+x 6
+y 17
+end
+arch wall_cave1.141
 x 6
 y 17
 end
@@ -857,11 +869,23 @@ arch floor_sand_d1
 x 7
 y 16
 end
+arch wall_cave1.111
+x 7
+y 16
+end
 arch floor_sand_d3
 x 7
 y 17
 end
+arch cave_deco_f1.101
+x 7
+y 17
+end
 arch floor_sand_d2
+x 7
+y 18
+end
+arch wall_cave1b.161
 x 7
 y 18
 end
@@ -967,11 +991,19 @@ arch floor_sand_d4
 x 8
 y 16
 end
+arch wall_cave1.111
+x 8
+y 16
+end
 arch floor_sand_d3
 x 8
 y 17
 end
 arch floor_sand_d3
+x 8
+y 18
+end
+arch wall_cave1.151
 x 8
 y 18
 end
@@ -1078,11 +1110,23 @@ arch floor_sand_d1
 x 9
 y 16
 end
+arch wall_cave1.111
+x 9
+y 16
+end
 arch floor_sand_d3
 x 9
 y 17
 end
+arch dirt_floor2
+x 9
+y 17
+end
 arch floor_sand_d2
+x 9
+y 18
+end
+arch wall_cave1.151
 x 9
 y 18
 end
@@ -1193,6 +1237,10 @@ arch floor_sand_d1
 x 10
 y 16
 end
+arch wall_cave1.111
+x 10
+y 16
+end
 arch floor_sand_d2
 x 10
 y 17
@@ -1201,15 +1249,23 @@ arch floor_sand_d4
 x 10
 y 18
 end
+arch wall_cave1.151
+x 10
+y 18
+end
 arch floor_sand_d4
 x 10
 y 19
 end
-arch wall_cave1.111
+arch wall_cave1b.121
 x 10
 y 19
 end
-arch swamp1
+arch floor_sand_d3
+x 10
+y 20
+end
+arch wall_cave1.161
 x 10
 y 20
 end
@@ -1316,6 +1372,10 @@ arch floor_sand_d3
 x 11
 y 16
 end
+arch wall_cave1.111
+x 11
+y 16
+end
 arch floor_sand_d3
 x 11
 y 17
@@ -1324,19 +1384,23 @@ arch floor_sand_d4
 x 11
 y 18
 end
+arch wall_cave1.121
+x 11
+y 18
+end
 arch floor_sand_d1
 x 11
 y 19
 end
-arch wall_cave1b.121
+arch wall_cave1.171
 x 11
 y 19
 end
-arch floor_sand_d2
+arch floor_sand_d4
 x 11
 y 20
 end
-arch wall_cave1.161
+arch wall_cave1.141
 x 11
 y 20
 end
@@ -1427,7 +1491,15 @@ arch floor_sand_d1
 x 12
 y 16
 end
+arch wall_cave1.111
+x 12
+y 16
+end
 arch floor_sand_d4
+x 12
+y 17
+end
+arch dirt_floor4
 x 12
 y 17
 end
@@ -1439,15 +1511,7 @@ arch floor_sand_d1
 x 12
 y 19
 end
-arch rock_big1
-x 12
-y 19
-end
-arch floor_sand_d2
-x 12
-y 20
-end
-arch rock_big2
+arch floor_sand_d1
 x 12
 y 20
 end
@@ -1545,6 +1609,10 @@ arch floor_sand_d1
 x 13
 y 16
 end
+arch wall_cave1.111
+x 13
+y 16
+end
 arch floor_sand_d4
 x 13
 y 17
@@ -1557,7 +1625,7 @@ arch floor_sand_d4
 x 13
 y 19
 end
-arch rock_big3
+arch cave_deco_f5.101
 x 13
 y 19
 end
@@ -1565,7 +1633,7 @@ arch floor_sand_d2
 x 13
 y 20
 end
-arch wall_cave1b.121
+arch wall_cave1.101
 x 13
 y 20
 end
@@ -1660,7 +1728,15 @@ arch floor_sand_d2
 x 14
 y 16
 end
+arch wall_cave1b.121
+x 14
+y 16
+end
 arch floor_sand_d3
+x 14
+y 17
+end
+arch wall_cave1.161
 x 14
 y 17
 end
@@ -1673,6 +1749,10 @@ x 14
 y 19
 end
 arch floor_sand_d4
+x 14
+y 20
+end
+arch wall_cave1.121
 x 14
 y 20
 end
@@ -1791,6 +1871,10 @@ arch floor_sand_d2
 x 15
 y 17
 end
+arch wall_cave1.111
+x 15
+y 17
+end
 arch floor_sand_d2
 x 15
 y 18
@@ -1799,11 +1883,19 @@ arch floor_sand_d3
 x 15
 y 19
 end
+arch dirt_floor3
+x 15
+y 19
+end
 arch floor_sand_d2
 x 15
 y 20
 end
 arch floor_sand_d3
+x 15
+y 21
+end
+arch wall_cave1b.161
 x 15
 y 21
 end
@@ -1906,7 +1998,15 @@ arch floor_sand_d2
 x 16
 y 17
 end
+arch wall_cave1b.121
+x 16
+y 17
+end
 arch floor_sand_d2
+x 16
+y 18
+end
+arch wall_cave1.161
 x 16
 y 18
 end
@@ -1926,7 +2026,15 @@ arch floor_sand_d3
 x 16
 y 22
 end
+arch wall_cave1.171
+x 16
+y 22
+end
 arch floor_sand_d4
+x 16
+y 23
+end
+arch wall_cave1b.161
 x 16
 y 23
 end
@@ -2024,6 +2132,10 @@ arch floor_sand_d4
 x 17
 y 18
 end
+arch wall_cave1.111
+x 17
+y 18
+end
 arch floor_sand_d4
 x 17
 y 19
@@ -2036,11 +2148,15 @@ arch floor_sand_d4
 x 17
 y 21
 end
-arch floor_sand_d1
+arch floor_cave6
 x 17
 y 22
 end
 arch floor_sand_d3
+x 17
+y 23
+end
+arch wall_cave1.121
 x 17
 y 23
 end
@@ -2135,7 +2251,15 @@ arch floor_sand_d1
 x 18
 y 18
 end
+arch wall_cave1b.121
+x 18
+y 18
+end
 arch floor_sand_d1
+x 18
+y 19
+end
+arch wall_cave1.161
 x 18
 y 19
 end
@@ -2143,15 +2267,19 @@ arch floor_sand_d1
 x 18
 y 20
 end
-arch floor_sand_d3
+arch floor_cave6
 x 18
 y 21
 end
-arch floor_sand_d4
+arch cave_pillar1
+x 18
+y 21
+end
+arch floor_cave6
 x 18
 y 22
 end
-arch floor_sand_d4
+arch floor_cave6
 x 18
 y 23
 end
@@ -2246,19 +2374,35 @@ arch floor_sand_d3
 x 19
 y 19
 end
-arch floor_sand_d2
+arch wall_cave1.111
+x 19
+y 19
+end
+arch floor_cave6
 x 19
 y 20
 end
-arch floor_sand_d3
+arch cave_deco_f4.101
+x 19
+y 20
+end
+arch floor_cave4
 x 19
 y 21
 end
-arch floor_sand_d4
+arch floor_cave5
 x 19
 y 22
 end
-arch floor_sand_d4
+arch floor_cave6
+x 19
+y 23
+end
+arch stairs_stone_down
+direction 5
+slaying world_a_0229
+hp 19
+sp 0
 x 19
 y 23
 end
@@ -2349,19 +2493,39 @@ arch floor_sand_d2
 x 20
 y 19
 end
-arch floor_sand_d1
+arch wall_cave1b.121
+x 20
+y 19
+end
+arch floor_cave6
 x 20
 y 20
 end
-arch floor_sand_d4
+arch wall_cave1.131
+x 20
+y 20
+end
+arch floor_cave6
 x 20
 y 21
 end
-arch floor_sand_d1
+arch wall_cave1.131
+x 20
+y 21
+end
+arch floor_cave5
 x 20
 y 22
 end
-arch floor_sand_d1
+arch wall_cave1.131
+x 20
+y 22
+end
+arch floor_cave3
+x 20
+y 23
+end
+arch wall_cave1.131
 x 20
 y 23
 end
@@ -2491,11 +2655,11 @@ arch floor_sand_d3
 x 21
 y 21
 end
-arch floor_sand_d1
+arch floor_cave2
 x 21
 y 22
 end
-arch floor_sand_d1
+arch floor_cave2
 x 21
 y 23
 end
@@ -2598,11 +2762,15 @@ arch floor_sand_d1
 x 22
 y 21
 end
-arch floor_sand_d3
+arch wall_cave1.111
+x 22
+y 21
+end
+arch floor_cave2
 x 22
 y 22
 end
-arch floor_sand_d4
+arch floor_cave4
 x 22
 y 23
 end
@@ -2705,11 +2873,15 @@ arch floor_sand_d4
 x 23
 y 21
 end
-arch floor_sand_d1
+arch wall_cave1.111
+x 23
+y 21
+end
+arch floor_cave1
 x 23
 y 22
 end
-arch floor_sand_d1
+arch floor_cave1
 x 23
 y 23
 end

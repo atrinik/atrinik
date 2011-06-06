@@ -85,9 +85,11 @@ const char *gender_noun[GENDER_MAX] =
  * Clear the player data like quickslots, inventory items, etc. */
 void clear_player()
 {
-	memset(quick_slots, -1, sizeof(quick_slots));
+	memset(&cpl, 0, sizeof(cpl));
+	quickslots_init();
 	objects_init();
 	init_player_data();
+	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
 
 /**
@@ -179,7 +181,7 @@ void set_weight_limit(uint32 wlim)
  * Initialize player data. */
 void init_player_data()
 {
-	new_player(0, 0,0);
+	new_player(0, 0, 0);
 
 	cpl.dm = 0;
 	cpl.fire_on = cpl.firekey_on = 0;
@@ -473,54 +475,6 @@ void widget_player_stats(widgetdata *widget)
 }
 
 /**
- * Show menu buttons widget.
- *
- * Menu buttons contain things like the Party button, spell list button,
- * etc.
- * @param widget The widget object. */
-void widget_menubuttons(widgetdata *widget)
-{
-	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], widget->x1, widget->y1, NULL, NULL);
-}
-
-/**
- * Handle mouse events over the menu buttons widget.
- *
- * Basically calls the right functions depending on which button was
- * clicked.
- * @param widget The widget object.
- * @param x X position of the mouse.
- * @param y Y position of the mouse. */
-void widget_menubuttons_event(widgetdata *widget, int x, int y)
-{
-	int dx = x - widget->x1, dy = y - widget->y1;
-
-	if (dx >= 3 && dx <= 44)
-	{
-		/* Spell list */
-		if (dy >= 1 && dy <= 24)
-		{
-			check_menu_macros("?M_SPELL_LIST");
-		}
-		/* Skill list */
-		else if (dy >= 26 && dy <= 49)
-		{
-			check_menu_macros("?M_SKILL_LIST");
-		}
-		/* Party GUI */
-		else if (dy >= 51 && dy <= 74)
-		{
-			send_command("/party list");
-		}
-		/* Help system */
-		else if (dy >= 76 && dy <= 99)
-		{
-			show_help("main");
-		}
-	}
-}
-
-/**
  * Show skill groups widget.
  * @param widget The widget object. */
 void widget_skillgroups(widgetdata *widget)
@@ -591,7 +545,7 @@ void widget_show_player_doll_event()
 
 	if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
 	{
-		cpl.win_inv_tag = cpl.win_quick_tag;
+		cpl.win_inv_tag = cpl.dragging.tag;
 
 		/* Drop to player doll */
 		if (!(object_find(cpl.win_inv_tag)->flags & F_APPLIED))
@@ -617,7 +571,6 @@ void widget_show_player_doll_event()
 	cpl.win_inv_tag = old_inv_tag;
 
 	draggingInvItem(DRAG_NONE);
-	itemExamined = 0;
 }
 
 /**
@@ -627,7 +580,6 @@ void widget_show_player_doll(widgetdata *widget)
 {
 	object *tmp;
 	char *tooltip_text = NULL;
-	char buf[128];
 	int index, tooltip_index = -1, ring_flag = 0;
 	int mx, my;
 
@@ -651,30 +603,26 @@ void widget_show_player_doll(widgetdata *widget)
 		return;
 	}
 
-	/* Armour class */
-	StringBlt(ScreenSurface, &SystemFont, "AC", widget->x1 + 8, widget->y1 + 50, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%02d", cpl.stats.ac);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 25, widget->y1 + 50, COLOR_WHITE, NULL, NULL);
+	string_blt(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x1 + 20, widget->y1 + 188, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 9, widget->y1 + 205, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 205, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.ranged_dam);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 10, widget->y1 + 215, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 215, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.ranged_wc);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 10, widget->y1 + 225, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 225, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
 
-	/* Weapon class */
-	StringBlt(ScreenSurface, &SystemFont, "WC", widget->x1 + 150, widget->y1 + 50, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%02d", cpl.stats.wc);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 50, COLOR_WHITE, NULL, NULL);
+	string_blt(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x1 + 155, widget->y1 + 188, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 139, widget->y1 + 205, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 205, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.dam);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 140, widget->y1 + 215, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 215, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.wc);
+	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 140, widget->y1 + 225, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 225, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%3.2fs", weapon_speed_table[ws_temp]);
 
-	/* Damage */
-	StringBlt(ScreenSurface, &SystemFont, "DMG", widget->x1 + 150, widget->y1 + 60, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%02d", cpl.stats.dam);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 60, COLOR_WHITE, NULL, NULL);
-
-	/* Weapon speed */
-	StringBlt(ScreenSurface, &SystemFont, "WS", widget->x1 + 150, widget->y1 + 70, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%3.2f sec", weapon_speed_table[ws_temp]);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 70, COLOR_WHITE, NULL, NULL);
-
-	/* Moving speed */
-	StringBlt(ScreenSurface, &SystemFont, "Speed ", widget->x1 + 47, widget->y1 + 190, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 75, widget->y1 + 190, COLOR_WHITE, NULL, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, "Speed", widget->x1 + 92, widget->y1 + 193, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 93, widget->y1 + 205, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
+	string_blt(ScreenSurface, FONT_ARIAL10, "AC", widget->x1 + 92, widget->y1 + 215, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 92, widget->y1 + 225, COLOR_SIMPLE(COLOR_WHITE), 0, NULL, "%02d", cpl.stats.ac);
 
 	/* Show items applied */
 	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
@@ -941,9 +889,9 @@ void widget_show_skill_exp(widgetdata *widget)
 				case 2:
 				case 3:
 				case 4:
-					if ((skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0) || (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2))
+					if (cpl.skill && (cpl.skill->exp >= 0 || cpl.skill->exp == -2))
 					{
-						snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+						snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, cpl.skill->level);
 					}
 					else
 					{
@@ -955,16 +903,16 @@ void widget_show_skill_exp(widgetdata *widget)
 
 			StringBlt(widget->widgetSF, &SystemFont, buf, 28, 0, COLOR_WHITE, NULL, NULL);
 
-			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+			if (cpl.skill && cpl.skill->exp >= 0)
 			{
-				level_exp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-				multi = modf(((double) level_exp / (double) (s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1] - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level]) * 10.0), &line);
+				level_exp = cpl.skill->exp - s_settings->level_exp[cpl.skill->level];
+				multi = modf(((double) level_exp / (double) (s_settings->level_exp[cpl.skill->level + 1] - s_settings->level_exp[cpl.skill->level]) * 10.0), &line);
 
-				liTExp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp;
-				liTExpTNL = s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1];
+				liTExp = cpl.skill->exp;
+				liTExpTNL = s_settings->level_exp[cpl.skill->level + 1];
 
-				liLExp = liTExp - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-				liLExpTNL = liTExpTNL - s_settings->level_exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
+				liLExp = liTExp - s_settings->level_exp[cpl.skill->level];
+				liLExpTNL = liTExpTNL - s_settings->level_exp[cpl.skill->level];
 
 				fLExpPercent = ((float) liLExp / (float) (liLExpTNL)) * 100.0f;
 			}
@@ -974,13 +922,13 @@ void widget_show_skill_exp(widgetdata *widget)
 				/* Default */
 				default:
 				case 0:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level, skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
+						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, cpl.skill->level, cpl.skill->exp);
 					}
-					else if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
+					else if (cpl.skill && cpl.skill->exp == -2)
 					{
-						snprintf(buf, sizeof(buf), "%d / **", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+						snprintf(buf, sizeof(buf), "%d / **", cpl.skill->level);
 					}
 					else
 					{
@@ -991,7 +939,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* LExp% */
 				case 1:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%#05.2f%%", fLExpPercent);
 					}
@@ -1004,7 +952,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* LExp/LExp tnl */
 				case 2:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liLExp, liLExpTNL);
 					}
@@ -1017,7 +965,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* TExp/TExp tnl */
 				case 3:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liTExp, liTExpTNL);
 					}
@@ -1030,7 +978,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 				/* (LExp%) LExp/LExp tnl */
 				case 4:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					if (cpl.skill && cpl.skill->exp >= 0)
 					{
 						snprintf(buf, sizeof(buf), "%#05.2f%% - %"FMT64, fLExpPercent, liLExpTNL - liLExp);
 					}
@@ -1042,7 +990,7 @@ void widget_show_skill_exp(widgetdata *widget)
 					break;
 			}
 
-			if ((uint32) skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == s_settings->max_level)
+			if (cpl.skill && (uint32) cpl.skill->level == s_settings->max_level)
 			{
 				strncpy(buf, "Maximum level reached", sizeof(buf) - 1);
 			}
@@ -1053,7 +1001,7 @@ void widget_show_skill_exp(widgetdata *widget)
 			StringBlt(widget->widgetSF, &SystemFont, buf, 160, 0, COLOR_WHITE, NULL, NULL);
 		}
 
-		sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 143, 11, NULL, &bltfx);
+		sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 142, 11, NULL, &bltfx);
 
 		if (multi)
 		{
@@ -1072,14 +1020,14 @@ void widget_show_skill_exp(widgetdata *widget)
 				box.w = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w;
 			}
 
-			sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 146, 18, &box, &bltfx);
+			sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 145, 18, &box, &bltfx);
 		}
 
 		if (line > 0)
 		{
 			for (s = 0; s < (int) line; s++)
 			{
-				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 146 + s * 5, 13, NULL, &bltfx);
+				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 145 + s * 5, 13, NULL, &bltfx);
 			}
 		}
 	}
@@ -1087,62 +1035,6 @@ void widget_show_skill_exp(widgetdata *widget)
 	box.x = widget->x1;
 	box.y = widget->y1;
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
-}
-
-/**
- * Handle mouse events over skill experience widget.
- * @param widget The widget object. */
-void widget_skill_exp_event(widgetdata *widget)
-{
-	int i, ii, j, jj, bFound = 0;
-
-	/* Let's find the skill... and setup the shortcuts to the exp values */
-	for (ii = 0; ii <= SKILL_LIST_MAX && (!bFound); ii++)
-	{
-		jj = cpl.skill_g + ii;
-
-		if (jj >= SKILL_LIST_MAX)
-		{
-			jj -= SKILL_LIST_MAX;
-		}
-
-		for (i = 0; i < DIALOG_LIST_ENTRY && (!bFound); i++)
-		{
-			/* First page, we have to be offset (and break before looping) */
-			if (ii == 0)
-			{
-				j = cpl.skill_e + i + 1;
-
-				if (j >= DIALOG_LIST_ENTRY)
-				{
-					break;
-				}
-			}
-			/* Other pages we look through MUST NOT BE OFFSET */
-			else
-			{
-				j = i;
-			}
-
-			if (j >= DIALOG_LIST_ENTRY)
-			{
-				j -= DIALOG_LIST_ENTRY;
-			}
-
-			/* We have a list entry */
-			if (skill_list[jj].entry[j].flag == LIST_ENTRY_KNOWN)
-			{
-				/* First one we find is the one we want */
-				strncpy(cpl.skill_name, skill_list[jj].entry[j].name, sizeof(cpl.skill_name) - 1);
-				cpl.skill_g = jj;
-				cpl.skill_e = j;
-				bFound = 1;
-				break;
-			}
-		}
-	}
-
-	WIDGET_REDRAW(widget);
 }
 
 /**
@@ -1198,7 +1090,6 @@ void widget_show_regeneration(widgetdata *widget)
 void widget_show_container(widgetdata *widget)
 {
 	SDL_Rect box, box2;
-	_BLTFX bltfx;
 	int x = widget->x1;
 	int y = widget->y1;
 
@@ -1249,10 +1140,6 @@ void widget_show_container(widgetdata *widget)
 		widget->redraw = 0;
 
 		SDL_FillRect(widget->widgetSF, NULL, SDL_MapRGBA(widget->widgetSF->format, 0, 0, 0, options.textwin_alpha));
-
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
 
 		box.x = 0;
 		box.y = 0;

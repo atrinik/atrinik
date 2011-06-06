@@ -162,6 +162,7 @@ void form_party(object *op, const char *name)
 	add_party_member(party, op);
 	new_draw_info_format(NDI_UNIQUE, op, "You have formed party: %s", name);
 	FREE_AND_ADD_REF_HASH(party->leader, op->name);
+	CONTR(op)->stat_formed_party++;
 }
 
 /**
@@ -500,6 +501,7 @@ void PartyCmd(char *buf, int len, player *pl)
 			if (party->passwd[0] == '\0' || !strcmp(party->passwd, partypassword))
 			{
 				add_party_member(party, pl->ob);
+				pl->stat_joined_party++;
 				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, pl->ob, "You have joined party: %s", party->name);
 				snprintf(tmpbuf, sizeof(tmpbuf), "%s joined party %s.", pl->ob->name, party->name);
 				send_party_message(party, tmpbuf, PARTY_MESSAGE_STATUS, pl->ob);
@@ -558,6 +560,12 @@ void PartyCmd(char *buf, int len, player *pl)
 		if (!pl->party)
 		{
 			new_draw_info(NDI_UNIQUE, pl->ob, "You are not a member of any party.");
+			return;
+		}
+
+		if (pl->party->leader != pl->ob->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Only the party's leader can change the password.");
 			return;
 		}
 

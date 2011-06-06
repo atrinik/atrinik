@@ -73,11 +73,6 @@
 #	define MODULEAPI
 #endif
 
-/** Print out some general information about scripts running. */
-#ifndef PRODUCTION_SERVER
-#	define PYTHON_DEBUG
-#endif
-
 /** Name of the plugin. */
 #define PLUGIN_NAME "Python"
 /** Name of the plugin, and its version. */
@@ -148,6 +143,13 @@ extern struct plugin_hooklist *hooks;
 		_nv_ = NULL;                     \
 	}                                    \
 }
+
+#undef SET_ANIMATION
+#define SET_ANIMATION(ob, newanim) ob->face = &(*hooks->new_faces)[(*hooks->animations)[ob->animation_id].faces[newanim]]
+#undef NUM_ANIMATIONS
+#define NUM_ANIMATIONS(ob) ((*hooks->animations)[ob->animation_id].num_animations)
+#undef NUM_FACINGS
+#define NUM_FACINGS(ob) ((*hooks->animations)[ob->animation_id].facings)
 
 extern PyObject *AtrinikError;
 
@@ -257,7 +259,13 @@ typedef enum
 	 * tuple containing the animation name and the animation ID. */
 	FIELDTYPE_ANIMATION,
 	/** uint8 that only accepts True/False. */
-	FIELDTYPE_BOOLEAN
+	FIELDTYPE_BOOLEAN,
+	/** AttrList field type; the field is an array. */
+	FIELDTYPE_LIST,
+	/** Player's known spells array. */
+	FIELDTYPE_KNOWN_SPELLS,
+	/** Player's command permissions. */
+	FIELDTYPE_CMD_PERMISSIONS
 } field_type;
 
 /**
@@ -367,6 +375,30 @@ typedef struct
 	/** Pointer to the Atrinik archetype we wrap. */
 	archetype *at;
 } Atrinik_Archetype;
+
+PyTypeObject Atrinik_AttrListType;
+PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field);
+int Atrinik_AttrList_init(PyObject *module);
+
+/** The Atrinik_AttrList structure. */
+typedef struct
+{
+	PyObject_HEAD
+
+	/** Pointer to the structure the array is in. */
+	void *ptr;
+
+	/** Where in the structure the array is. */
+	size_t offset;
+
+	/**
+	 * Type of the array being handled; for example,
+	 * @ref FIELDTYPE_KNOWN_SPELLS. */
+	field_type field;
+
+	/** Used to keep track of iteration index. */
+	unsigned PY_LONG_LONG iter;
+} Atrinik_AttrList;
 
 /** This structure is used to define one Python-implemented command. */
 typedef struct PythonCmdStruct

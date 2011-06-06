@@ -246,7 +246,7 @@ int cast_wor(object *op, object *caster)
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "BUG: cast_wor(): get_archetype failed (%s - %s)!\n", query_name(op, NULL), query_name(caster, NULL));
+		LOG(llevBug, "cast_wor(): get_archetype failed (%s - %s)!\n", query_name(op, NULL), query_name(caster, NULL));
 		return 0;
 	}
 
@@ -305,7 +305,7 @@ int cast_create_town_portal(object *op)
 
 	if (!dummy)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", op->name);
+		LOG(llevBug, "cast_create_town_portal(): get_archetype failed (force) for %s!\n", op->name);
 		return 0;
 	}
 
@@ -350,7 +350,7 @@ int cast_create_town_portal(object *op)
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "cast_create_town_portal(): get_archetype failed (force) for %s!\n", query_name(op, NULL));
 		return 0;
 	}
 
@@ -483,7 +483,7 @@ int cast_create_town_portal(object *op)
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): arch_to_object failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "cast_create_town_portal(): arch_to_object failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 0;
 	}
@@ -507,7 +507,7 @@ int cast_create_town_portal(object *op)
 
 	if (force == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "cast_create_town_portal(): get_archetype failed (force) for %s!\n", query_name(op, NULL));
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 0;
 	}
@@ -530,7 +530,7 @@ int cast_create_town_portal(object *op)
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): arch_to_object failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "cast_create_town_portal(): arch_to_object failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 0;
 	}
@@ -555,7 +555,7 @@ int cast_create_town_portal(object *op)
 
 	if (force == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "cast_create_town_portal(): get_archetype failed (force) for %s!\n", query_name(op, NULL));
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 0;
 	}
@@ -632,7 +632,14 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 
 				if (!is_friend_of(op, tmp))
 				{
-					hit_player(tmp, dam, hitter, attacktype);
+					sint16 damage = dam;
+
+					if (tmp->quick_pos)
+					{
+						damage /= (tmp->quick_pos >> 4) + 1;
+					}
+
+					hit_player(tmp, damage, hitter, attacktype);
 					break;
 				}
 			}
@@ -736,7 +743,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 	if (!op || !target)
 	{
-		LOG(llevBug, "BUG: cast_heal(): target or caster NULL (op: %s target: %s)\n", query_name(op, NULL), query_name(target, NULL));
+		LOG(llevBug, "cast_heal(): target or caster NULL (op: %s target: %s)\n", query_name(op, NULL), query_name(target, NULL));
 		return 0;
 	}
 
@@ -947,6 +954,26 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 		if (target->stats.hp < target->stats.maxhp)
 		{
+			if (target == op)
+			{
+				if (op->type == PLAYER)
+				{
+					CONTR(op)->stat_damage_healed += MIN(heal, target->stats.maxhp - target->stats.hp);
+				}
+			}
+			else
+			{
+				if (op->type == PLAYER)
+				{
+					CONTR(op)->stat_damage_healed_other += MIN(heal, target->stats.maxhp - target->stats.hp);
+				}
+
+				if (target->type == PLAYER)
+				{
+					CONTR(target)->stat_damage_heal_received += MIN(heal, target->stats.maxhp - target->stats.hp);
+				}
+			}
+
 			success = 1;
 			target->stats.hp += heal;
 
@@ -1188,7 +1215,7 @@ int remove_depletion(object *op, object *target)
 
 	if ((at = find_archetype("depletion")) == NULL)
 	{
-		LOG(llevBug, "BUG: Could not find archetype depletion");
+		LOG(llevBug, "Could not find archetype depletion");
 		return 0;
 	}
 

@@ -106,9 +106,45 @@ type 79
 no_pick 1
 end
 
+Object carpet2.121
+name carpet
+face carpet2.121
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
+Object carpet2.122
+name carpet
+face carpet2.122
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
 Object carpet2.131
 name carpet
 face carpet2.131
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
+Object carpet2.141
+name carpet
+face carpet2.141
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
+Object carpet2.142
+name carpet
+face carpet2.142
 no_teleport 1
 layer 2
 type 79
@@ -124,9 +160,45 @@ type 79
 no_pick 1
 end
 
+Object carpet2.161
+name carpet
+face carpet2.161
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
+Object carpet2.162
+name carpet
+face carpet2.162
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
 Object carpet2.171
 name carpet
 face carpet2.171
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
+Object carpet2.181
+name carpet
+face carpet2.181
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end
+
+Object carpet2.182
+name carpet
+face carpet2.182
 no_teleport 1
 layer 2
 type 79

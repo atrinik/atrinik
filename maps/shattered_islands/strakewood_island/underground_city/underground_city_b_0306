@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-30 Alex Tokar
+Modified: 2011-04-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -36,85 +36,40 @@ end
 arch floor_sand_d1
 y 6
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 y 7
 end
-arch sand_dm15
+arch border_abyss_ne1
 y 7
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-y 7
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 y 8
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch border_abyss_e1
 y 8
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch spawn_point
+y 8
+arch drow_captain
+level 86
+exp 108
+attack_slash 85
+type 83
+end
+end
+arch floor_sand_d2
 y 9
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch border_abyss_e1
 y 9
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 y 10
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch border_abyss_se1
 y 10
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-y 11
-end
-arch sand_dm16
-y 11
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d1
 y 11
 end
 arch floor_sand_d2
@@ -141,8 +96,11 @@ end
 arch floor_sand_d3
 y 19
 end
+arch floor_sand_d1
+y 20
+end
 arch spawn_point
-y 19
+y 20
 arch drow_sorcerer
 level 86
 exp 127
@@ -156,43 +114,13 @@ hp 49
 end
 end
 end
-arch floor_sand_d1
-y 20
-end
 arch floor_sand_d4
 y 21
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 y 22
 end
-arch sand_dm15
-y 22
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-y 22
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-y 23
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d2
 y 23
 end
 arch floor_sand_d1
@@ -230,66 +158,15 @@ arch floor_sand_d1
 x 1
 y 7
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 1
 y 8
 end
-arch sand_dm15
-x 1
-y 8
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 1
-y 8
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 1
 y 9
 end
-arch sand_dm9
-x 1
-y 9
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 1
-y 9
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 1
-y 10
-end
-arch sand_dm16
-x 1
-y 10
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d3
 x 1
 y 10
 end
@@ -355,24 +232,7 @@ arch floor_sand_d4
 x 1
 y 22
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 1
-y 23
-end
-arch sand_dm15
-x 1
-y 23
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d3
 x 1
 y 23
 end
@@ -412,10 +272,6 @@ x 2
 y 8
 end
 arch floor_sand_d2
-x 2
-y 9
-end
-arch dirt_floor3
 x 2
 y 9
 end
@@ -493,7 +349,7 @@ arch crystal10
 x 3
 y 2
 end
-arch light3
+arch light4
 x 3
 y 2
 end
@@ -513,7 +369,7 @@ arch mushroom_spot1
 x 3
 y 4
 end
-arch light3
+arch light4
 x 3
 y 4
 end
@@ -538,6 +394,10 @@ x 3
 y 9
 end
 arch floor_sand_d4
+x 3
+y 10
+end
+arch dirt_floor4
 x 3
 y 10
 end
@@ -569,7 +429,7 @@ arch crystal_purple_s
 x 3
 y 15
 end
-arch light3
+arch light4
 x 3
 y 15
 end
@@ -605,7 +465,7 @@ arch crystal11
 x 3
 y 21
 end
-arch light3
+arch light4
 x 3
 y 21
 end
@@ -636,7 +496,7 @@ arch mushroom_spot2
 x 4
 y 3
 end
-arch light3
+arch light4
 x 4
 y 3
 end
@@ -678,7 +538,7 @@ arch crystal12
 x 4
 y 8
 end
-arch light3
+arch light4
 x 4
 y 8
 end
@@ -710,7 +570,7 @@ arch crystal_purple_s
 x 4
 y 14
 end
-arch light3
+arch light4
 x 4
 y 14
 end
@@ -722,45 +582,11 @@ arch cave_pillar4
 x 4
 y 15
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 4
 y 16
 end
-arch sand_dm14
-x 4
-y 16
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 4
-y 16
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 4
-y 17
-end
-arch sand_dm13
-x 4
-y 17
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d2
 x 4
 y 17
 end
@@ -859,79 +685,23 @@ arch floor_sand_d3
 x 5
 y 14
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 5
 y 15
 end
-arch sand_dm14
+arch blood_floor1
 x 5
 y 15
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 5
-y 15
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 5
 y 16
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 5
-y 16
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 5
 y 17
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 5
-y 17
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 5
-y 18
-end
-arch sand_dm13
-x 5
-y 18
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d2
 x 5
 y 18
 end
@@ -939,13 +709,9 @@ arch floor_sand_d4
 x 5
 y 19
 end
-arch floor_sand_d2
-x 5
-y 20
-end
 arch spawn_point
 x 5
-y 20
+y 19
 arch drow_sorcerer
 level 86
 exp 127
@@ -963,6 +729,10 @@ end
 end
 arch floor_sand_d2
 x 5
+y 20
+end
+arch floor_sand_d2
+x 5
 y 21
 end
 arch floor_sand_d1
@@ -974,6 +744,9 @@ x 5
 y 23
 end
 arch floor_sand_d1
+x 6
+end
+arch dirt_floor1
 x 6
 end
 arch floor_sand_d1
@@ -1004,7 +777,15 @@ arch floor_sand_d2
 x 6
 y 6
 end
+arch border_abyss_nw1
+x 6
+y 6
+end
 arch floor_sand_d3
+x 6
+y 7
+end
+arch border_abyss_w1
 x 6
 y 7
 end
@@ -1012,11 +793,23 @@ arch floor_sand_d2
 x 6
 y 8
 end
+arch border_abyss_w1
+x 6
+y 8
+end
 arch floor_sand_d4
 x 6
 y 9
 end
+arch border_abyss_w1
+x 6
+y 9
+end
 arch floor_sand_d1
+x 6
+y 10
+end
+arch border_abyss_w1
 x 6
 y 10
 end
@@ -1034,7 +827,7 @@ arch floor_sand_d3
 x 6
 y 11
 end
-arch blood_floor2
+arch border_abyss_sw1
 x 6
 y 11
 end
@@ -1050,79 +843,19 @@ arch floor_sand_d2
 x 6
 y 14
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 6
 y 15
 end
-arch sand_dm6
-x 6
-y 15
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 6
-y 15
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 6
 y 16
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 6
-y 16
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 6
 y 17
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 6
-y 17
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 6
-y 18
-end
-arch sand_dm7
-x 6
-y 18
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d4
 x 6
 y 18
 end
@@ -1173,70 +906,75 @@ arch floor_sand_d2
 x 7
 y 6
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch border_abyss_n1
+x 7
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
 x 7
 y 7
 end
-arch sand_dm14
+arch border_lava_nw1
 x 7
 y 7
 end
 arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 7
 y 7
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
 x 7
 y 8
 end
-arch sand_dm8
+arch border_lava_w1
 x 7
 y 8
 end
 arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 7
 y 8
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
 x 7
 y 9
 end
-arch sand_dm13
+arch border_lava_w1
 x 7
 y 9
 end
 arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 7
 y 9
 end
-arch floor_sand_d4
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 10
+end
+arch border_lava_sw1
+x 7
+y 10
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 7
 y 10
 end
@@ -1244,7 +982,15 @@ arch floor_sand_d1
 x 7
 y 11
 end
+arch border_abyss_sw2
+x 7
+y 11
+end
 arch floor_sand_d2
+x 7
+y 12
+end
+arch border_abyss_w1
 x 7
 y 12
 end
@@ -1252,87 +998,35 @@ arch floor_sand_d1
 x 7
 y 13
 end
+arch border_abyss_sw1
+x 7
+y 13
+end
 arch floor_sand_d3
 x 7
 y 14
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 7
 y 15
 end
-arch sand_dm15
-x 7
-y 15
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 7
-y 15
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 7
 y 16
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 7
-y 16
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 7
 y 17
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 7
-y 17
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 7
-y 18
-end
-arch sand_dm7
-x 7
-y 18
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d4
 x 7
 y 18
 end
 arch floor_sand_d1
+x 7
+y 19
+end
+arch dirt_floor2
 x 7
 y 19
 end
@@ -1348,7 +1042,7 @@ arch mushroom_spot2
 x 7
 y 21
 end
-arch light3
+arch light4
 x 7
 y 21
 end
@@ -1387,57 +1081,40 @@ arch floor_sand_d1
 x 8
 y 5
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 8
 y 6
 end
-arch sand_dm14
+arch border_abyss_n1
 x 8
 y 6
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
 x 8
-y 6
+y 7
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch border_lava_n1
 x 8
 y 7
 end
 arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 8
 y 7
 end
-arch blocked
+arch floor_lava_4
+glow_radius 3
 player_only 1
-blocksview 0
-no_pass 0
-x 8
-y 8
-end
-arch sand_dm9
+terrain_type 1
 x 8
 y 8
 end
 arch damager
-name falling into the abyss
+name lava
 dam 10000
 speed 1.0
 attack_internal 100
@@ -1446,15 +1123,15 @@ exp 2
 x 8
 y 8
 end
-arch blocked
+arch floor_lava_3
+glow_radius 3
 player_only 1
-blocksview 0
-no_pass 0
+terrain_type 1
 x 8
 y 9
 end
 arch damager
-name falling into the abyss
+name lava
 dam 10000
 speed 1.0
 attack_internal 100
@@ -1463,32 +1140,54 @@ exp 2
 x 8
 y 9
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
 x 8
 y 10
 end
-arch sand_dm13
+arch border_lava_sw2
 x 8
 y 10
 end
 arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 8
 y 10
 end
-arch floor_sand_d3
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
 x 8
 y 11
 end
-arch floor_sand_d1
+arch border_lava_w1
+x 8
+y 11
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 8
+y 11
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 12
+end
+arch border_lava_sw1
+x 8
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 8
 y 12
 end
@@ -1496,7 +1195,7 @@ arch floor_sand_d1
 x 8
 y 13
 end
-arch dirt_floor4
+arch border_abyss_s1
 x 8
 y 13
 end
@@ -1508,62 +1207,15 @@ arch floor_sand_d2
 x 8
 y 15
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 8
 y 16
 end
-arch sand_dm15
-x 8
-y 16
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 8
-y 16
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 8
 y 17
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 8
-y 17
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 8
-y 18
-end
-arch sand_dm7
-x 8
-y 18
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d1
 x 8
 y 18
 end
@@ -1610,7 +1262,7 @@ arch mushroom_medium
 x 9
 y 2
 end
-arch light3
+arch light4
 x 9
 y 2
 end
@@ -1626,69 +1278,57 @@ arch floor_sand_d4
 x 9
 y 5
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 9
 y 6
 end
-arch sand_dm6
+arch border_abyss_n1
 x 9
 y 6
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 9
-y 6
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
 x 9
 y 7
 end
-arch sand_dm7
+arch border_lava_ne1
 x 9
 y 7
 end
 arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 9
 y 7
 end
-arch floor_sand_d4
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
 x 9
 y 8
 end
-arch cave_pillar3
+arch border_lava_ne21
 x 9
 y 8
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 9
-y 9
+y 8
 end
-arch sand_dm6
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
 x 9
 y 9
 end
 arch damager
-name falling into the abyss
+name lava
 dam 10000
 speed 1.0
 attack_internal 100
@@ -1697,19 +1337,15 @@ exp 2
 x 9
 y 9
 end
-arch blocked
+arch floor_lava_4
+glow_radius 3
 player_only 1
-blocksview 0
-no_pass 0
-x 9
-y 10
-end
-arch sand_dm7
+terrain_type 1
 x 9
 y 10
 end
 arch damager
-name falling into the abyss
+name lava
 dam 10000
 speed 1.0
 attack_internal 100
@@ -1718,17 +1354,57 @@ exp 2
 x 9
 y 10
 end
-arch floor_sand_d1
+arch floor_lava_4
+glow_radius 3
+player_only 1
+terrain_type 1
 x 9
 y 11
 end
-arch floor_sand_d4
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 11
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 12
+end
+arch border_lava_s1
+x 9
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 9
 y 12
 end
 arch floor_sand_d4
 x 9
 y 13
+end
+arch border_abyss_s1
+x 9
+y 13
+end
+arch spawn_point
+x 9
+y 13
+arch drow_guard
+level 87
+exp 107
+attack_slash 80
+type 83
+end
 end
 arch floor_sand_d3
 x 9
@@ -1742,45 +1418,15 @@ arch floor_sand_d2
 x 9
 y 16
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 9
 y 17
 end
-arch sand_dm15
-x 9
-y 17
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 9
-y 17
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 9
 y 18
 end
-arch sand_dm16
-x 9
-y 18
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch blood_floor2
 x 9
 y 18
 end
@@ -1843,112 +1489,112 @@ arch floor_sand_d3
 x 10
 y 5
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 10
 y 6
 end
-arch sand_dm15
+arch border_abyss_ne1
 x 10
 y 6
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 10
-y 6
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 10
-y 7
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 10
-y 7
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 10
-y 8
-end
-arch sand_dm8
-x 10
-y 8
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 10
-y 8
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 10
-y 9
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 10
-y 9
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 10
-y 10
-end
-arch sand_dm16
-x 10
-y 10
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 10
-y 10
 end
 arch floor_sand_d3
+x 10
+y 7
+end
+arch border_abyss_ne2
+x 10
+y 7
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 8
+end
+arch border_lava_ne1
+x 10
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 8
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 9
+end
+arch border_lava_e1
+x 10
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 9
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 10
+end
+arch border_lava_e1
+x 10
+y 10
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 10
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
 x 10
 y 11
 end
-arch floor_sand_d3
+arch border_lava_e1
+x 10
+y 11
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 11
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 12
+end
+arch border_lava_se1
+x 10
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 10
 y 12
 end
 arch floor_sand_d2
+x 10
+y 13
+end
+arch border_abyss_s1
 x 10
 y 13
 end
@@ -1964,21 +1610,7 @@ arch floor_sand_d4
 x 10
 y 16
 end
-arch spawn_point
-x 10
-y 16
-arch drow_fighter
-level 86
-exp 109
-attack_slash 90
-type 83
-end
-end
 arch floor_sand_d1
-x 10
-y 17
-end
-arch blood_floor2
 x 10
 y 17
 end
@@ -1989,6 +1621,16 @@ end
 arch floor_sand_d2
 x 10
 y 19
+end
+arch spawn_point
+x 10
+y 19
+arch drow_fighter
+level 86
+exp 109
+attack_slash 90
+type 83
+end
 end
 arch floor_sand_d2
 x 10
@@ -2040,66 +1682,27 @@ arch floor_sand_d2
 x 11
 y 6
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 11
 y 7
 end
-arch sand_dm15
+arch border_abyss_ne1
 x 11
 y 7
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 11
-y 7
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 11
 y 8
 end
-arch sand_dm9
+arch border_abyss_e1
 x 11
 y 8
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 11
-y 8
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 11
 y 9
 end
-arch sand_dm16
-x 11
-y 9
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch border_abyss_e1
 x 11
 y 9
 end
@@ -2107,7 +1710,15 @@ arch floor_sand_d2
 x 11
 y 10
 end
+arch border_abyss_e1
+x 11
+y 10
+end
 arch floor_sand_d3
+x 11
+y 11
+end
+arch border_abyss_e1
 x 11
 y 11
 end
@@ -2115,7 +1726,15 @@ arch floor_sand_d2
 x 11
 y 12
 end
+arch border_abyss_e1
+x 11
+y 12
+end
 arch floor_sand_d3
+x 11
+y 13
+end
+arch border_abyss_se1
 x 11
 y 13
 end
@@ -2223,7 +1842,7 @@ arch crystal_purple
 x 12
 y 6
 end
-arch light3
+arch light4
 x 12
 y 6
 end
@@ -2283,7 +1902,7 @@ arch mushroom_spot1
 x 12
 y 14
 end
-arch light3
+arch light4
 x 12
 y 14
 end

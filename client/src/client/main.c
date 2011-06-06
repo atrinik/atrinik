@@ -31,10 +31,6 @@
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
-/** Map surface. */
-SDL_Surface *ScreenSurfaceMap;
-/** Zoomed map surface. */
-SDL_Surface *zoomed;
 _Font MediumFont;
 /* our main font */
 _Font SystemFont;
@@ -74,11 +70,6 @@ uint32 tmpGameTick;
 /** Number of frames drawn. */
 uint32 FrameCount = 0;
 
-/** Is the esc menu open? */
-int esc_menu_flag;
-/** ID of the selected option in esc menu. */
-int esc_menu_index;
-
 int f_custom_cursor = 0;
 int x_custom_cursor = 0;
 int y_custom_cursor = 0;
@@ -106,6 +97,8 @@ _face_struct FaceList[MAX_FACE_TILES];
 
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
+/** Last time we sent keepalive command. */
+static time_t last_keepalive;
 
 /** All the bitmaps. */
 static _bitmap_name bitmap_name[BITMAP_INIT] =
@@ -137,6 +130,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"damned.png", PIC_TYPE_DEFAULT},
 	{"lock.png", PIC_TYPE_DEFAULT},
 	{"magic.png", PIC_TYPE_DEFAULT},
+	{"fire_ready.png", PIC_TYPE_DEFAULT},
 
 	{"range.png", PIC_TYPE_TRANS},
 	{"range_marker.png", PIC_TYPE_TRANS},
@@ -216,18 +210,10 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"exp_skill_line.png", PIC_TYPE_DEFAULT},
 	{"exp_skill_bubble.png", PIC_TYPE_TRANS},
 
-	{"options_head.png", PIC_TYPE_TRANS},
-	{"options_keys.png", PIC_TYPE_TRANS},
-	{"options_settings.png", PIC_TYPE_TRANS},
-	{"options_logout.png", PIC_TYPE_TRANS},
-	{"options_back.png", PIC_TYPE_TRANS},
-	{"options_mark_left.png", PIC_TYPE_TRANS},
-	{"options_mark_right.png", PIC_TYPE_TRANS},
-	{"options_alpha.png", PIC_TYPE_DEFAULT},
-
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
-	{"book.png", PIC_TYPE_TRANS},
+	{"book.png", PIC_TYPE_ALPHA},
+	{"region_map.png", PIC_TYPE_TRANS},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
 	{"mouse_cursor_move.png", PIC_TYPE_TRANS},
@@ -246,20 +232,31 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"servers_bg_over.png", PIC_TYPE_TRANS},
 	{"news_bg.png", PIC_TYPE_DEFAULT},
 	{"eyes.png", PIC_TYPE_DEFAULT},
-	{"popup.png", PIC_TYPE_DEFAULT},
+	{"popup.png", PIC_TYPE_ALPHA},
 	{"arrow_up.png", PIC_TYPE_DEFAULT},
 	{"arrow_up2.png", PIC_TYPE_DEFAULT},
 	{"arrow_down.png", PIC_TYPE_DEFAULT},
 	{"arrow_down2.png", PIC_TYPE_DEFAULT},
 	{"button_round.png", PIC_TYPE_DEFAULT},
 	{"button_round_down.png", PIC_TYPE_DEFAULT},
+	{"button_rect.png", PIC_TYPE_DEFAULT},
+	{"button_rect_hover.png", PIC_TYPE_DEFAULT},
+	{"button_rect_down.png", PIC_TYPE_DEFAULT},
 	{"map_marker.png", PIC_TYPE_DEFAULT},
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
 	{"button.png", PIC_TYPE_DEFAULT},
 	{"button_down.png", PIC_TYPE_DEFAULT},
 	{"checkbox.png", PIC_TYPE_TRANS},
-	{"checkbox_on.png", PIC_TYPE_TRANS}
+	{"checkbox_on.png", PIC_TYPE_TRANS},
+	{"content.png", PIC_TYPE_DEFAULT},
+	{"icon_music.png", PIC_TYPE_ALPHA},
+	{"icon_magic.png", PIC_TYPE_ALPHA},
+	{"icon_skill.png", PIC_TYPE_ALPHA},
+	{"icon_party.png", PIC_TYPE_ALPHA},
+	{"icon_map.png", PIC_TYPE_ALPHA},
+	{"icon_cogs.png", PIC_TYPE_ALPHA},
+	{"icon_quest.png", PIC_TYPE_ALPHA}
 };
 
 /** Number of bitmaps. */
@@ -275,7 +272,7 @@ static int load_bitmap(int index);
  * Clear player lists like skill list, spell list, etc. */
 static void delete_player_lists()
 {
-	size_t i, ii;
+	size_t i;
 
 	for (i = 0; i < FIRE_MODE_INIT; i++)
 	{
@@ -285,33 +282,6 @@ static void delete_player_lists()
 		fire_mode_tab[i].spell = NULL;
 		fire_mode_tab[i].name[0] = '\0';
 	}
-
-	for (i = 0; i < SKILL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if (skill_list[i].entry[ii].flag == LIST_ENTRY_KNOWN)
-			{
-				skill_list[i].entry[ii].flag = LIST_ENTRY_USED;
-			}
-		}
-	}
-
-	for (i = 0;i < SPELL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if (spell_list[i].entry[0][ii].flag == LIST_ENTRY_KNOWN)
-			{
-				spell_list[i].entry[0][ii].flag = LIST_ENTRY_USED;
-			}
-
-			if (spell_list[i].entry[1][ii].flag == LIST_ENTRY_KNOWN)
-			{
-				spell_list[i].entry[1][ii].flag = LIST_ENTRY_USED;
-			}
-		}
-	}
 }
 
 /**
@@ -319,8 +289,6 @@ static void delete_player_lists()
 static void init_game_data()
 {
 	size_t i;
-
-	esc_menu_flag = 0;
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
@@ -335,11 +303,9 @@ static void init_game_data()
 	}
 
 	memset(FaceList, 0, sizeof(struct _face_struct) * MAX_FACE_TILES);
-	memset(&cpl, 0, sizeof(cpl));
-	objects_init();
 
 	init_keys();
-	init_player_data();
+	clear_player();
 	text_input_clear();
 
 	msg_anim.message[0] = '\0';
@@ -367,8 +333,6 @@ static void init_game_data()
 #endif
 
 	options.zoom = 100;
-	options.mapstart_x = 0;
-	options.mapstart_y = 10;
 
 	load_options_dat();
 
@@ -681,6 +645,7 @@ static int game_status_chain()
 		map_udate_flag = 2;
 		snprintf(buf, sizeof(buf), "Trying server %s (%d)...", selected_server->name, selected_server->port);
 		draw_info(buf, COLOR_GREEN);
+		last_keepalive = time(NULL);
 		GameStatus = GAME_STATUS_CONNECT;
 	}
 	else if (GameStatus == GAME_STATUS_CONNECT)
@@ -834,7 +799,7 @@ static int load_bitmap(int index)
 
 	if (index >= BITMAP_INTRO && index != BITMAP_TEXTWIN_MASK)
 	{
-		flags |= SURFACE_FLAG_DISPLAYFORMAT;
+		flags |= bitmap_name[index].type == PIC_TYPE_ALPHA ? SURFACE_FLAG_DISPLAYFORMATALPHA : SURFACE_FLAG_DISPLAYFORMAT;
 	}
 
 	Bitmaps[index] = sprite_load_file(buf, flags);
@@ -852,22 +817,11 @@ static int load_bitmap(int index)
  * Free the bitmaps. */
 void free_bitmaps()
 {
-	size_t i, ii;
+	size_t i;
 
 	for (i = 0; i < BITMAP_MAX; i++)
 	{
 		sprite_free_sprite(Bitmaps[i]);
-	}
-
-	for (i = 0; i < SKILL_LIST_MAX; i++)
-	{
-		for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-		{
-			if ((skill_list[i].entry[ii].flag != LIST_ENTRY_UNUSED) && skill_list[i].entry[ii].icon)
-			{
-				sprite_free_sprite(skill_list[i].entry[ii].icon);
-			}
-		}
 	}
 }
 
@@ -951,108 +905,14 @@ void list_vid_modes()
 }
 
 /**
- * Show the options window (the 'ESC' menu).
- * @param x X position.
- * @param y Y position. */
-static void show_option(int x, int y)
-{
-	int index = 0, x1, y1 = 0, x2, y2 = 0;
-	_BLTFX bltfx;
-
-	bltfx.dark_level = 0;
-	bltfx.surface = NULL;
-	bltfx.alpha = 118;
-	bltfx.flags = BLTFX_FLAG_SRCALPHA;
-
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_ALPHA], x - Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->w / 2, y, NULL, &bltfx);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_HEAD], x - Bitmaps[BITMAP_OPTIONS_HEAD]->bitmap->w / 2, y, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_KEYS], x - Bitmaps[BITMAP_OPTIONS_KEYS]->bitmap->w / 2, y + 100, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_SETTINGS], x - Bitmaps[BITMAP_OPTIONS_SETTINGS]->bitmap->w / 2, y + 165, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_LOGOUT], x - Bitmaps[BITMAP_OPTIONS_LOGOUT]->bitmap->w / 2, y + 235, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_BACK], x - Bitmaps[BITMAP_OPTIONS_BACK]->bitmap->w / 2, y + 305, NULL, NULL);
-
-	if (esc_menu_index == ESC_MENU_KEYS)
-	{
-		index = BITMAP_OPTIONS_KEYS;
-		y1 = y2 = y + 105;
-	}
-	else if (esc_menu_index == ESC_MENU_SETTINGS)
-	{
-		index = BITMAP_OPTIONS_SETTINGS;
-		y1 = y2 = y + 170;
-	}
-	else if (esc_menu_index == ESC_MENU_LOGOUT)
-	{
-		index = BITMAP_OPTIONS_LOGOUT;
-		y1 = y2 = y + 244;
-	}
-	else if (esc_menu_index == ESC_MENU_BACK)
-	{
-		index = BITMAP_OPTIONS_BACK;
-		y1 = y2 = y + 310;
-	}
-
-	x1 = x - Bitmaps[index]->bitmap->w / 2 - 6;
-	x2 = x + Bitmaps[index]->bitmap->w / 2 + 6;
-
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_MARK_LEFT], x1 - Bitmaps[BITMAP_OPTIONS_MARK_LEFT]->bitmap->w, y1, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_OPTIONS_MARK_RIGHT], x2, y2, NULL, NULL);
-}
-
-/**
  * Map, animations and other effects. */
 static void display_layer1()
 {
-	static int gfx_toggle = 0;
-	SDL_Rect rect;
-
 	SDL_FillRect(ScreenSurface, NULL, 0);
 
-	/* We recreate the map only when there is a change */
-	if (map_redraw_flag)
+	if (GameStatus == GAME_STATUS_PLAY)
 	{
-		SDL_FillRect(ScreenSurfaceMap, NULL, 0);
-		map_draw_map();
-		map_redraw_flag = 0;
-		effect_sprites_play();
-
-		if (options.zoom != 100)
-		{
-			SDL_FreeSurface(zoomed);
-			zoomed = zoomSurface(ScreenSurfaceMap, options.zoom / 100.0, options.zoom / 100.0, options.zoom_smooth);
-		}
-	}
-
-	rect.x = options.mapstart_x;
-	rect.y = options.mapstart_y;
-
-	if (options.zoom == 100)
-	{
-		SDL_BlitSurface(ScreenSurfaceMap, NULL, ScreenSurface, &rect);
-	}
-	else
-	{
-		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &rect);
-	}
-
-	/* The damage numbers */
-	play_anims();
-
-	/* Draw warning icons above player */
-	if ((gfx_toggle++ & 63) < 25)
-	{
-		if (options.warning_hp && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= options.warning_hp)
-		{
-			sprite_blt(Bitmaps[BITMAP_WARN_HP], options.mapstart_x + 393 * (options.zoom / 100.0), options.mapstart_y + 298 * (options.zoom / 100.0), NULL, NULL);
-		}
-	}
-	else
-	{
-		/* Low food */
-		if (options.warning_food && ((float) cpl.stats.food / 1000.0f) * 100 <= options.warning_food)
-		{
-			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], options.mapstart_x + 390 * (options.zoom / 100.0), options.mapstart_y + 294 * (options.zoom / 100.0), NULL, NULL);
-		}
+		widget_map_render(cur_widget[MAP_ID]);
 	}
 }
 
@@ -1122,11 +982,6 @@ static void display_layer4()
 			do_keybind_input();
 		}
 	}
-
-	if (esc_menu_flag)
-	{
-		show_option(Screensize->x / 2, (Screensize->y / 2) - (Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2));
-	}
 }
 
 /**
@@ -1148,7 +1003,6 @@ int main(int argc, char *argv[])
 {
 	int x, y, drag, done = 0;
 	uint32 anim_tick, frame_start_time;
-	Uint32 videoflags;
 	size_t i;
 
 	init_signals();
@@ -1202,7 +1056,6 @@ int main(int argc, char *argv[])
 	system_start();
 	list_vid_modes();
 
-	videoflags = get_video_flags();
 	options.used_video_bpp = 16;
 
 	if (!options.fullscreen_flag)
@@ -1221,7 +1074,6 @@ int main(int argc, char *argv[])
 	}
 
 	sprite_init_system();
-	ScreenSurfaceMap = SDL_CreateRGBSurface(videoflags, 850, 600, options.used_video_bpp, 0,0,0,0);
 
 	/* 60, 70*/
 	sdl_dgreen = SDL_MapRGB(ScreenSurface->format, 0x00, 0x80, 0x00);
@@ -1276,11 +1128,19 @@ int main(int argc, char *argv[])
 			GameStatus = GAME_STATUS_INIT;
 			/* Make sure no popup is visible. */
 			popup_destroy_visible();
+			list_remove_all();
 			continue;
 		}
 
 		if (GameStatus > GAME_STATUS_CONNECT)
 		{
+			/* Send keepalive command every 2 minutes. */
+			if (time(NULL) - last_keepalive > 2 * 60)
+			{
+				cs_write_string("ka", 2);
+				last_keepalive = time(NULL);
+			}
+
 			DoClient();
 		}
 
@@ -1310,11 +1170,7 @@ int main(int argc, char *argv[])
 				SDL_FillRect(ScreenSurface, NULL, 0);
 			}
 
-			if (esc_menu_flag)
-			{
-				map_udate_flag = 1;
-			}
-			else if (!options.force_redraw)
+			if (!options.force_redraw)
 			{
 				if (options.doublebuf_flag)
 				{
@@ -1359,12 +1215,6 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		/* Show main option menu */
-		if (esc_menu_flag)
-		{
-			show_option(Screensize->x / 2, Screensize->y / 2 - Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2);
-		}
-
 		/* Show the current dragged item */
 		if ((drag = draggingInvItem(DRAG_GET_STATUS)))
 		{
@@ -1380,7 +1230,7 @@ int main(int argc, char *argv[])
 			}
 			else if (drag == DRAG_QUICKSLOT)
 			{
-				Item = object_find(cpl.win_quick_tag);
+				Item = object_find(cpl.dragging.tag);
 			}
 			else if (drag == DRAG_PDOLL)
 			{
@@ -1391,7 +1241,7 @@ int main(int argc, char *argv[])
 
 			if (drag == DRAG_QUICKSLOT_SPELL)
 			{
-				blit_face(spell_list[quick_slots[cpl.win_quick_tag].groupNr].entry[quick_slots[cpl.win_quick_tag].classNr][quick_slots[cpl.win_quick_tag].spellNr].icon, x, y);
+				blit_face(cpl.dragging.spell->icon, x, y);
 			}
 			else
 			{

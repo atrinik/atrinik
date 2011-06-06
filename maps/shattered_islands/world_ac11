@@ -12,8 +12,11 @@ no_harm 1
 tile_path_1 world_ac12
 tile_path_2 world_ab11
 tile_path_3 world_ac10
+tile_path_4 world_ad11
 tile_path_5 world_ab12
 tile_path_6 world_ab10
+tile_path_7 world_ad10
+tile_path_8 world_ad12
 bg_music lontala.mid
 region brynknot
 end

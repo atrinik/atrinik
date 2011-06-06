@@ -529,6 +529,7 @@ int command_afk(object *op, char *params)
 	else
 	{
 		CONTR(op)->afk = 1;
+		CONTR(op)->stat_afk_used++;
 		new_draw_info(NDI_UNIQUE, op, "You are now AFK.");
 	}
 
@@ -578,7 +579,7 @@ int command_party(object *op, char *params)
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You are a member of party %s.", CONTR(op)->party->name);
+			new_draw_info_format(NDI_UNIQUE, op, "You are a member of party %s (leader: %s).", CONTR(op)->party->name, CONTR(op)->party->leader);
 		}
 
 		return 1;
@@ -597,6 +598,7 @@ int command_party(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, op, "To see who is in your party: /party who");
 		new_draw_info(NDI_UNIQUE, op, "To change the party's looting mode: /party loot mode");
 		new_draw_info(NDI_UNIQUE, op, "To kick another player from your party: /party kick <name>");
+		new_draw_info(NDI_UNIQUE, op, "To change party leader: /party leader <name>");
 		return 1;
 	}
 	else if (!strncmp(params, "say ", 4))
@@ -617,7 +619,7 @@ int command_party(object *op, char *params)
 
 		snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
 		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, NULL);
-		LOG(llevInfo, "CLOG PARTY: %s [%s] >%s<\n", query_name(op, NULL), CONTR(op)->party->name, params);
+		LOG(llevChat, "Party: %s [%s]: %s\n", op->name, CONTR(op)->party->name, params);
 		return 1;
 	}
 	else if (!strcmp(params, "leave"))
@@ -640,6 +642,12 @@ int command_party(object *op, char *params)
 		if (!CONTR(op)->party)
 		{
 			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		if (CONTR(op)->party->leader != op->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the password.");
 			return 1;
 		}
 
@@ -762,6 +770,47 @@ int command_party(object *op, char *params)
 		new_draw_info(NDI_UNIQUE | NDI_RED, op, "There's no player with that name in your party.");
 		return 1;
 	}
+	else if (!strncmp(params, "leader ", 7))
+	{
+		player *pl;
+
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		if (CONTR(op)->party->leader != op->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the leader.");
+			return 1;
+		}
+
+		pl = find_player(params + 7);
+
+		if (!pl)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "No such player.");
+			return 1;
+		}
+
+		if (pl->ob == op)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are already the party leader.");
+			return 1;
+		}
+
+		if (!pl->party || pl->party != CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "That player is not a member of your party.");
+			return 1;
+		}
+
+		FREE_AND_ADD_REF_HASH(pl->party->leader, pl->ob->name);
+		new_draw_info_format(NDI_UNIQUE, pl->ob, "You are the new leader of party %s!", pl->party->name);
+		new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s is the new leader of your party.", pl->ob->name);
+		return 1;
+	}
 	else
 	{
 		party_struct *party;
@@ -834,6 +883,7 @@ int command_party(object *op, char *params)
 				if (party->passwd[0] == '\0' || (party_password && !strcmp(party->passwd, party_password)))
 				{
 					add_party_member(party, op);
+					CONTR(op)->stat_joined_party++;
 					new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "You have joined party: %s.", party->name);
 					snprintf(buf, sizeof(buf), "%s joined party %s.", op->name, party->name);
 					send_party_message(party, buf, PARTY_MESSAGE_STATUS, op);

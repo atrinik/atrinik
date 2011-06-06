@@ -32,25 +32,25 @@
 /** File names of the server files inside srv_files directory. */
 static const char *const server_file_names[SERVER_FILES_MAX] =
 {
-	"skills", NULL, NULL, NULL, "bmaps",
+	NULL, NULL, NULL, NULL, "bmaps",
 	"hfiles", "updates", "spells", "settings",
-	"anims", "effects"
+	"anims", "effects", "skills"
 };
 
 /** Identifiers of the server files used in the setup command. */
 static const char *const server_file_setup_names[SERVER_FILES_MAX] =
 {
-	"skf", NULL, NULL, NULL, "bpf",
+	NULL, NULL, NULL, NULL, "bpf",
 	"hpf", "upf", "spfv2", "ssf",
-	"amfv2", "eff"
+	"amfv2", "eff", "skfv2"
 };
 
 /** Post-loading functions to call. */
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
-	read_skills, NULL, NULL, NULL, read_bmaps,
-	read_help_files, file_updates_parse, read_spells, server_settings_init,
-	read_anims, effects_init
+	NULL, NULL, NULL, NULL, read_bmaps,
+	read_help_files, file_updates_parse, spells_init, server_settings_init,
+	read_anims, effects_init, skills_init
 };
 
 /** Functions to call if the server file was already loaded. */
@@ -58,7 +58,7 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, spells_reload, NULL,
-	anims_reset, NULL
+	anims_reset, effects_reinit, skills_reload
 };
 
 /** The server files. */

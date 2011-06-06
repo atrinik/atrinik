@@ -89,13 +89,15 @@ static const struct player_cmd_mapping player_commands[] =
 	{"cm",          PlayerCmd, 0},
 	{"lock",        (func_uint8_int_pl) LockItem, 0},
 	{"mark",        (func_uint8_int_pl) MarkItem, 0},
-	{"/fire",       command_fire, 0},
+	{"/fire", command_fire_old, 0},
+	{"fire", (func_uint8_int_pl) command_fire, 0},
 	{"nc",          command_new_char, 0},
 	{"pt",          PartyCmd, 0},
 	{"qs",          (func_uint8_int_pl) QuickSlotCmd, 0},
 	{"shop",        ShopCmd, 0},
 	{"qlist",       QuestListCmd, 0},
 	{"mp", (func_uint8_int_pl) command_move_path, 0},
+	{"rd", (func_uint8_int_pl) cmd_ready, 0},
 	{NULL, NULL, 0}
 };
 
@@ -110,6 +112,7 @@ static const struct client_cmd_mapping client_commands[] =
 	{"clr", command_clear_cmds},
 	{"setsound", SetSound},
 	{"upf", cmd_request_update},
+	{"ka", cmd_keepalive},
 	{NULL, NULL}
 };
 
@@ -247,7 +250,7 @@ static int check_command(socket_struct *ns, player *pl)
 		}
 	}
 
-	LOG(llevDebug, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
+	LOG(llevSystem, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
 	return 0;
 }
 
@@ -282,6 +285,7 @@ void handle_client(socket_struct *ns, player *pl)
 		if (pl && pl->state == ST_PLAYING)
 		{
 			ns->login_count = 0;
+			ns->keepalive = 0;
 		}
 
 		if (check_command(ns, pl))
@@ -337,6 +341,7 @@ void remove_ns_dead_player(player *pl)
 	{
 		/* Trigger the global LOGOUT event */
 		trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
+		statistics_player_logout(pl);
 
 		if (!pl->dm_stealth)
 		{
@@ -373,7 +378,7 @@ void remove_ns_dead_player(player *pl)
 		}
 	}
 
-	LOG(llevInfo, "LOGOUT: >%s< from IP %s\n", pl->ob->name, pl->socket.host);
+	LOG(llevInfo, "Logout %s from IP %s\n", pl->ob->name, pl->socket.host);
 
 	/* To avoid problems with inventory window */
 	pl->ob->type = DEAD_OBJECT;
@@ -447,8 +452,7 @@ void doeric_server()
 		{
 			if (init_sockets[i].status > Ns_Wait)
 			{
-				/* Kill this socket after being 3 minutes idle */
-				if (init_sockets[i].login_count++ >= 60 * 4 * (1000000 / MAX_TIME))
+				if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
 				{
 					FREE_SOCKET(i);
 					continue;
@@ -468,6 +472,11 @@ void doeric_server()
 		if (pl->socket.status != Ns_Dead && !is_fd_valid(pl->socket.fd))
 		{
 			LOG(llevDebug, "doeric_server(): Invalid file descriptor for player %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+			pl->socket.status = Ns_Dead;
+		}
+
+		if (pl->socket.status != Ns_Dead && pl->socket.socket_version >= 1052 && pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
+		{
 			pl->socket.status = Ns_Dead;
 		}
 
@@ -501,7 +510,7 @@ void doeric_server()
 
 	if (pollret == -1)
 	{
-		LOG(llevDebug, "DEBUG: doeric_server(): select failed: %s\n", strerror_local(errno));
+		LOG(llevDebug, "doeric_server(): select failed: %s\n", strerror_local(errno));
 		return;
 	}
 
@@ -517,7 +526,7 @@ void doeric_server()
 
 			if (!init_sockets)
 			{
-				LOG(llevError, "ERROR: doeric_server(): Out of memory\n");
+				LOG(llevError, "doeric_server(): Out of memory\n");
 			}
 
 			newsocknum = socket_info.allocated_sockets;
@@ -553,7 +562,7 @@ void doeric_server()
 
 			if (checkbanned(NULL, buf))
 			{
-				LOG(llevInfo, "BAN: Banned IP tried to connect. [%s]\n", buf);
+				LOG(llevSystem, "Ban: Banned IP tried to connect: %s\n", buf);
 #ifndef WIN32
 				close(init_sockets[newsocknum].fd);
 #else
@@ -592,7 +601,7 @@ void doeric_server()
 
 				if (rr < 0)
 				{
-					LOG(llevDebug, "Drop connection: %s\n", STRING_SAFE(init_sockets[i].host));
+					LOG(llevInfo, "Drop connection: %s\n", STRING_SAFE(init_sockets[i].host));
 					init_sockets[i].status = Ns_Dead;
 				}
 				else
@@ -642,7 +651,7 @@ void doeric_server()
 
 			if (rr < 0)
 			{
-				LOG(llevDebug, "Drop connection: %s (%s)\n", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
+				LOG(llevInfo, "Drop connection: %s (%s)\n", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
 				pl->socket.status = Ns_Dead;
 			}
 			else

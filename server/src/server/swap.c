@@ -43,7 +43,7 @@ static void write_map_log()
 
 	if (!(fp = fopen(buf, "w")))
 	{
-		LOG(llevBug, "BUG: Could not open %s for writing\n", buf);
+		LOG(llevBug, "Could not open %s for writing\n", buf);
 		return;
 	}
 
@@ -90,7 +90,7 @@ void read_map_log()
 
 		if (split_string(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
 		{
-			LOG(llevDebug, "DEBUG: %s/temp.maps: ignoring invalid line: %s\n", settings.localdir, buf);
+			LOG(llevDebug, "%s/temp.maps: ignoring invalid line: %s\n", settings.localdir, buf);
 			continue;
 		}
 
@@ -123,7 +123,7 @@ void swap_map(mapstruct *map, int force_flag)
 
 	if (map->in_memory != MAP_IN_MEMORY)
 	{
-		LOG(llevBug, "BUG: Tried to swap out map which was not in memory (%s).\n", map->path);
+		LOG(llevBug, "Tried to swap out map which was not in memory (%s).\n", map->path);
 		return;
 	}
 
@@ -172,7 +172,7 @@ void swap_map(mapstruct *map, int force_flag)
 
 	if (new_save_map(map, 0) == -1)
 	{
-		LOG(llevBug, "BUG: Failed to swap map %s.\n", map->path);
+		LOG(llevBug, "Failed to swap map %s.\n", map->path);
 		/* Need to reset the in_memory flag so that delete map will also
 		 * free the objects with it. */
 		map->in_memory = MAP_IN_MEMORY;

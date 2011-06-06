@@ -93,7 +93,7 @@ static shared_string *new_shared_string(const char *str)
 
 	if (!ss)
 	{
-		LOG(llevError, "ERROR: new_shared_string(): Out of memory.");
+		LOG(llevError, "new_shared_string(): Out of memory.");
 	}
 
 	ss->u.previous = NULL;
@@ -122,7 +122,7 @@ shstr *add_string(const char *str)
 	 * core dumps. */
 	if (str == NULL)
 	{
-		LOG(llevBug, "BUG: add_string(): Tried to add NULL string to hash table\n");
+		LOG(llevBug, "add_string(): Tried to add NULL string to hash table\n");
 		return NULL;
 	}
 
@@ -213,7 +213,7 @@ shstr *add_refcount(shstr *str)
 
 	if (!str || str != tmp_str)
 	{
-		LOG(llevBug, "BUG: add_refcount(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
+		LOG(llevBug, "add_refcount(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
 		return NULL;
 	}
 #endif
@@ -296,7 +296,7 @@ void free_string_shared(shstr *str)
 
 	if (!str || str != tmp_str)
 	{
-		LOG(llevBug, "BUG: free_string_shared(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
+		LOG(llevBug, "free_string_shared(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
 		return;
 	}
 #endif

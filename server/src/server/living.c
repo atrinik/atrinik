@@ -80,19 +80,21 @@ static float wis_bonus[MAX_STAT + 1] =
 /**
  * Charisma bonus.
  *
- * As a base value, got get in a shop 20% of the real value of an item.
- * With a charisma bonus, you can go up to 25% maximum or 5% minimum. For
- * buying, they are reversely used. You can buy for 95% at best, or 115%
- * at worst. */
+ * As a base value, you get in a shop 20% of the real value of an item.
+ *
+ * With a charisma bonus, you can go up to 30% at maximum or 5% at
+ * minimum (actually this is 10% minimum, because stats cannot go below
+ * 1). For buying, these values are used in reverse. You can buy for 90%
+ * at best, or 115% (110%, because stats cannot go below 1) at worst. */
 float cha_bonus[MAX_STAT + 1] =
 {
 	-0.15f,
 	-0.10f, -0.08f,-0.05f, -0.03f, -0.02f,
-	-0.01f, -0.005f, -0.003f, 0.001f, 0.0f,
-	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	0.003f, 0.005f, 0.009f, 0.01f, 0.012f,
-	0.014f, 0.016f, 0.019f, 0.021f, 0.023f,
-	0.025f, 0.03f, 0.035f, 0.04f, 0.05f
+	-0.01f, -0.005f, -0.003f, -0.001f, 0.0f,
+	0.0f, 0.0f, 0.0f, 0.005f, 0.010f,
+	0.015f, 0.02f, 0.025f, 0.03f, 0.035f,
+	0.04f, 0.045f, 0.05f, 0.055f, 0.06f,
+	0.065f, 0.07f, 0.08f, 0.09f, 0.1f
 };
 
 /**
@@ -808,7 +810,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 
 	if (!at)
 	{
-		LOG(llevBug, "BUG: Couldn't find archetype depletion.\n");
+		LOG(llevBug, "Couldn't find archetype depletion.\n");
 		return;
 	}
 	else
@@ -1108,7 +1110,7 @@ void fix_player(object *op)
 
 					if (!op->weapon_speed)
 					{
-						LOG(llevBug, "BUG: monster/player %s applied weapon %s without weapon speed!\n", op->name, tmp->name);
+						LOG(llevBug, "monster/player %s applied weapon %s without weapon speed!\n", op->name, tmp->name);
 					}
 
 					wc += (tmp->stats.wc + tmp->magic);
@@ -1439,7 +1441,7 @@ fix_player_jump_resi:
 				/* Catch items which are applied but should not be -
 				 * or we forgot to catch them here. */
 				default:
-					LOG(llevDebug, "DEBUG: fix_player(): unexpected applied object %s (%d)(clear flag now!)\n", query_name(tmp, NULL), tmp->type);
+					LOG(llevDebug, "fix_player(): unexpected applied object %s (%d)(clear flag now!)\n", query_name(tmp, NULL), tmp->type);
 					CLEAR_FLAG(tmp, FLAG_APPLIED);
 					break;
 			}
@@ -1716,6 +1718,8 @@ fix_player_jump_resi:
 
 	/* *3 is base */
 	op->stats.maxhp += op->arch->clone.stats.maxhp + op->arch->clone.stats.maxhp;
+	op->stats.maxsp += op->arch->clone.stats.maxsp + op->arch->clone.stats.maxsp;
+	op->stats.maxgrace += op->arch->clone.stats.maxgrace + op->arch->clone.stats.maxgrace;
 
 	for (i = 1; i <= op->level; i++)
 	{
@@ -1836,7 +1840,7 @@ fix_player_jump_resi:
 		}
 		else
 		{
-			LOG(llevBug, "BUG: fix_player(): player %s has no hth skill!\n", op->name);
+			LOG(llevBug, "fix_player(): player %s has no hth skill!\n", op->name);
 		}
 	}
 	/* Weapon in hand */
@@ -1847,7 +1851,7 @@ fix_player_jump_resi:
 		/* Weapon without the skill applied... */
 		if (!pl->skill_ptr[pl->set_skill_weapon])
 		{
-			LOG(llevBug, "BUG: fix_player(): player %s has weapon selected but not the skill #%d!!!\n", op->name, pl->set_skill_weapon);
+			LOG(llevBug, "fix_player(): player %s has weapon selected but not the skill #%d!!!\n", op->name, pl->set_skill_weapon);
 		}
 		else
 		{
@@ -1874,7 +1878,7 @@ fix_player_jump_resi:
 	{
 		object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-		LOG(llevBug, "BUG: fix_player(): Player %s had no quest container, fixing.\n", op->name);
+		LOG(llevBug, "fix_player(): Player %s had no quest container, fixing.\n", op->name);
 		insert_ob_in_ob(quest_container, op);
 		pl->quest_container = quest_container;
 	}
@@ -2076,7 +2080,7 @@ object *insert_base_info_object(object *op)
 
 	if (op->type == PLAYER)
 	{
-		LOG(llevBug, "BUG: insert_base_info_object() Try to inserting base_info in player %s!\n", query_name(head, NULL));
+		LOG(llevBug, "insert_base_info_object() Try to inserting base_info in player %s!\n", query_name(head, NULL));
 		return NULL;
 	}
 

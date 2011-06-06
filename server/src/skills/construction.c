@@ -584,7 +584,7 @@ static void construction_builder(object *op, int x, int y)
 			break;
 
 		default:
-			LOG(llevBug, "BUG: construction_builder(): Invalid material subtype %d.\n", material->sub_type);
+			LOG(llevBug, "construction_builder(): Invalid material subtype %d.\n", material->sub_type);
 			new_draw_info(NDI_UNIQUE, op, "Don't know how to apply this material, sorry.");
 			break;
 	}
@@ -666,7 +666,7 @@ void construction_do(object *op, int dir)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: construction_do(): Construction can only be used by players.\n");
+		LOG(llevBug, "construction_do(): Construction can only be used by players.\n");
 		return;
 	}
 
@@ -759,7 +759,7 @@ void construction_do(object *op, int dir)
 			break;
 
 		default:
-			LOG(llevBug, "BUG: Skill item %s has invalid subtype.\n", query_name(skill_item, NULL));
+			LOG(llevBug, "Skill item %s has invalid subtype.\n", query_name(skill_item, NULL));
 			new_draw_info(NDI_UNIQUE, op, "Don't know how to apply this tool, sorry.");
 			break;
 	}

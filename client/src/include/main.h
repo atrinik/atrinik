@@ -31,6 +31,7 @@
 #define MAIN_H
 
 #define HUGE_BUF 4096
+#define MAX_BUF 256
 /** Maximum frames per second. */
 #define FRAMES_PER_SECOND 30
 
@@ -123,8 +124,6 @@ typedef struct _options
 #ifdef WIDGET_SNAP
 	int widget_snap;
 #endif
-	int mapstart_x;
-	int mapstart_y;
 	int map_size_x;
 	int map_size_y;
 
@@ -236,35 +235,6 @@ typedef struct _face_struct
 
 /* Skill list defines */
 
-/* Groups of skills */
-#define SKILL_LIST_MAX 7
-
-typedef struct _skill_list_entry
-{
-	/* -1: entry is unused */
-	int flag;
-
-	/* Name of entry */
-	char name[LIST_NAME_MAX];
-
-	char icon_name[32];
-	struct _Sprite *icon;
-
-	/* Description (in 4 rows) */
-	char desc[4][96];
-
-	/* -1: skill has no level or exp */
-	int exp_level;
-
-	/* exp of this skill */
-	sint64 exp;
-}_skill_list_entry;
-
-typedef struct _skill_list
-{
-	_skill_list_entry entry[DIALOG_LIST_ENTRY];
-}_skill_list;
-
 /* Bind key list defines */
 
 /** Bindkey list max */
@@ -299,27 +269,18 @@ typedef struct _dialog_list_set
 	int key_change;
 }_dialog_list_set;
 
-/** Spell list max */
-#define SPELL_LIST_MAX 20
-/** Spell list classes */
-#define SPELL_LIST_CLASS 2
-
-/** Spell list entry structure */
-typedef struct _spell_list_entry
+typedef struct spell_entry_struct
 {
-	/** -1 - entry is unused */
-	int flag;
-
-	/** name of entry */
-	char name[LIST_NAME_MAX];
+	/** Name of the spell. */
+	char name[MAX_BUF];
 
 	/** Icon name */
-	char icon_name[128];
+	char icon_name[MAX_BUF];
 
 	/** Description. */
 	char desc[HUGE_BUF];
 
-	/** Spell's icon ID. */
+	/** Spell's icon. */
 	int icon;
 
 	/** Cost of spell. */
@@ -331,13 +292,42 @@ typedef struct _spell_list_entry
 	 * - r: Repelled
 	 * - d: Denied */
 	char path;
-}_spell_list_entry;
 
-/** Spell list structure */
-typedef struct _spell_list
+	/** 1 if the player knows this spell, 0 otherwise. */
+	uint8 known;
+
+	/** Type of the spell (spell/prayer). */
+	uint8 type;
+} spell_entry_struct;
+
+/**
+ * Maximum number of spell paths. The last one is always 'all' and holds
+ * pointers to spells in the other spell paths. */
+#define SPELL_PATH_NUM 21
+
+typedef struct skill_entry_struct
 {
-	_spell_list_entry entry[SPELL_LIST_CLASS][DIALOG_LIST_ENTRY];
-}_spell_list;
+	/** Name of the skill. */
+	char name[MAX_BUF];
+
+	/** Icon name */
+	char icon_name[MAX_BUF];
+
+	/** Description. */
+	char desc[HUGE_BUF];
+
+	/** Skill's icon. */
+	int icon;
+
+	/** 1 if the player knows this skill, 0 otherwise. */
+	uint8 known;
+
+	int level;
+
+	sint64 exp;
+} skill_entry_struct;
+
+#define SKILL_LIST_TYPES 7
 
 /** Fire mode structure */
 typedef struct _fire_mode
@@ -348,11 +338,10 @@ typedef struct _fire_mode
 	/** Ammunition */
 	int amun;
 
-	/** Spell */
-	_spell_list_entry *spell;
+	spell_entry_struct *spell;
 
 	/** Skill */
-	_skill_list_entry *skill;
+	skill_entry_struct *skill;
 
 	/** Name */
 	char name[128];
@@ -467,8 +456,6 @@ extern uint32 tmpGameTick;
 extern uint32 FrameCount;
 extern server_struct *selected_server;
 extern int map_udate_flag, map_redraw_flag;
-extern int esc_menu_flag;
-extern int esc_menu_index;
 
 enum
 {
@@ -489,11 +476,12 @@ enum
 /** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
 #define SURFACE_FLAG_DISPLAYFORMAT 4
+#define SURFACE_FLAG_DISPLAYFORMATALPHA 8
 
 /** Types of pictures. */
 typedef enum _pic_type
 {
-	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS
+	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS, PIC_TYPE_ALPHA
 } _pic_type;
 
 /** Bitmap name structure */
@@ -538,6 +526,7 @@ typedef enum _bitmap_index
 	BITMAP_DAMNED,
 	BITMAP_LOCK,
 	BITMAP_MAGIC,
+	BITMAP_FIRE_READY,
 
 	BITMAP_RANGE,
 	BITMAP_RANGE_MARKER,
@@ -617,18 +606,10 @@ typedef enum _bitmap_index
 	BITMAP_EXP_SKILL_LINE,
 	BITMAP_EXP_SKILL_BUBBLE,
 
-	BITMAP_OPTIONS_HEAD,
-	BITMAP_OPTIONS_KEYS,
-	BITMAP_OPTIONS_SETTINGS,
-	BITMAP_OPTIONS_LOGOUT,
-	BITMAP_OPTIONS_BACK,
-	BITMAP_OPTIONS_MARK_LEFT,
-	BITMAP_OPTIONS_MARK_RIGHT,
-	BITMAP_OPTIONS_ALPHA,
-
 	BITMAP_TRAPPED,
 	BITMAP_PRAY,
 	BITMAP_BOOK,
+	BITMAP_REGION_MAP,
 	BITMAP_SLIDER_LONG,
 	BITMAP_INVSLOT_MARKED,
 	BITMAP_MSCURSOR_MOVE,
@@ -654,6 +635,9 @@ typedef enum _bitmap_index
 	BITMAP_ARROW_DOWN2,
 	BITMAP_BUTTON_ROUND,
 	BITMAP_BUTTON_ROUND_DOWN,
+	BITMAP_BUTTON_RECT,
+	BITMAP_BUTTON_RECT_HOVER,
+	BITMAP_BUTTON_RECT_DOWN,
 	BITMAP_MAP_MARKER,
 	BITMAP_LOADING_OFF,
 	BITMAP_LOADING_ON,
@@ -661,6 +645,14 @@ typedef enum _bitmap_index
 	BITMAP_BUTTON_DOWN,
 	BITMAP_CHECKBOX,
 	BITMAP_CHECKBOX_ON,
+	BITMAP_CONTENT,
+	BITMAP_ICON_MUSIC,
+	BITMAP_ICON_MAGIC,
+	BITMAP_ICON_SKILL,
+	BITMAP_ICON_PARTY,
+	BITMAP_ICON_MAP,
+	BITMAP_ICON_COGS,
+	BITMAP_ICON_QUEST,
 
 	BITMAP_INIT
 }_bitmap_index;
@@ -699,7 +691,6 @@ extern struct _Font SystemFont;
 extern struct _Font Font6x3Out;
 
 extern SDL_Surface *ScreenSurface;
-extern SDL_Surface *ScreenSurfaceMap;
 
 /* Server's attributes */
 extern struct sockaddr_in insock;

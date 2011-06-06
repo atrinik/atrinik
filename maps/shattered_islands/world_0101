@@ -10,7 +10,9 @@ difficulty 1
 outdoor 1
 tile_path_1 world_0102
 tile_path_2 world_0201
+tile_path_4 world_aa01
 tile_path_5 world_0202
+tile_path_8 world_aa02
 end
 arch water_still
 end

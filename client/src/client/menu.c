@@ -43,52 +43,73 @@ int client_command_check(char *cmd)
 	{
 		cmd = strchr(cmd, ' ');
 
-		if (!cmd || *++cmd == 0)
+		if (!cmd || *++cmd == '\0')
 		{
 			draw_info("Usage: /ready_spell <spell name>", COLOR_GREEN);
 		}
 		else
 		{
-			int i, ii;
+			size_t spell_path, spell_id;
 
-			for (i = 0; i < SPELL_LIST_MAX; i++)
+			if (spell_find(cmd, &spell_path, &spell_id))
 			{
-				for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
-				{
-					if (spell_list[i].entry[0][ii].flag >= LIST_ENTRY_USED)
-					{
-						if (!strcmp(spell_list[i].entry[0][ii].name, cmd))
-						{
-							if (spell_list[i].entry[0][ii].flag == LIST_ENTRY_KNOWN)
-							{
-								fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[i].entry[0][ii];
-								RangeFireMode = FIRE_MODE_SPELL;
-								sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-								draw_info("Spell ready.", COLOR_GREEN);
-								return 1;
-							}
-						}
-					}
+				spell_entry_struct *spell = spell_get(spell_path, spell_id);
 
-					if (spell_list[i].entry[1][ii].flag >= LIST_ENTRY_USED)
-					{
-						if (!strcmp(spell_list[i].entry[1][ii].name, cmd))
-						{
-							if (spell_list[i].entry[1][ii].flag==LIST_ENTRY_KNOWN)
-							{
-								fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[i].entry[1][ii];
-								RangeFireMode = FIRE_MODE_SPELL;
-								sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-								draw_info("Spell ready.", COLOR_GREEN);
-								return 1;
-							}
-						}
-					}
+				if (spell->known)
+				{
+					fire_mode_tab[FIRE_MODE_SPELL].spell = spell;
+					RangeFireMode = FIRE_MODE_SPELL;
+					draw_info_format(COLOR_GREEN, "Readied %s.", spell->name);
+					return 1;
+				}
+				else
+				{
+					draw_info_format(COLOR_RED, "You have no knowledge of the spell %s.", spell->name);
+					return 1;
 				}
 			}
 		}
 
-		draw_info("Unknown spell.", COLOR_GREEN);
+		draw_info("Unknown spell.", COLOR_RED);
+		return 1;
+	}
+	else if (!strncasecmp(cmd, "/ready_skill", 12))
+	{
+		cmd = strchr(cmd, ' ');
+
+		if (!cmd || *++cmd == '\0')
+		{
+			draw_info("Usage: /ready_skill <skill name>", COLOR_RED);
+		}
+		else
+		{
+			size_t type, id;
+
+			if (skill_find(cmd, &type, &id))
+			{
+				skill_entry_struct *skill = skill_get(type, id);
+
+				if (skill->known)
+				{
+					char buf[MAX_BUF];
+
+					fire_mode_tab[FIRE_MODE_SKILL].skill = skill;
+					RangeFireMode = FIRE_MODE_SKILL;
+					draw_info_format(COLOR_GREEN, "Readied %s.", skill->name);
+
+					snprintf(buf, sizeof(buf), "/ready_skill %s", skill->name);
+					send_command(buf);
+					return 1;
+				}
+				else
+				{
+					draw_info_format(COLOR_RED, "You have no knowledge of the skill %s.", skill->name);
+					return 1;
+				}
+			}
+		}
+
+		draw_info("Unknown skill.", COLOR_RED);
 		return 1;
 	}
 	else if (!strncasecmp(cmd, "/pray", 5))
@@ -243,6 +264,21 @@ int client_command_check(char *cmd)
 		effect_debug(cmd + 10);
 		return 1;
 	}
+	else if (!strncmp(cmd, "/np", 3))
+	{
+		mplayer_now_playing();
+		return 1;
+	}
+	else if (!strncmp(cmd, "/music_pause", 12))
+	{
+		Mix_PauseMusic();
+		return 1;
+	}
+	else if (!strncmp(cmd, "/music_resume", 13))
+	{
+		Mix_ResumeMusic();
+		return 1;
+	}
 
 	return 0;
 }
@@ -269,8 +305,6 @@ void blt_inventory_face_from_tag(int tag, int x, int y)
  * Show one of the menus (book, party, etc). */
 void show_menu()
 {
-	SDL_Rect box;
-
 	if (!cpl.menustatus)
 		return;
 
@@ -284,18 +318,6 @@ void show_menu()
 	}
 	else if (cpl.menustatus == MENU_PARTY)
 		show_party();
-	else if (cpl.menustatus == MENU_SPELL)
-	{
-		show_spelllist();
-		box.x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-		box.y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2 - 42;
-		box.h = 42;
-		box.w = Bitmaps[BITMAP_DIALOG_BG]->bitmap->w;
-		SDL_FillRect(ScreenSurface, &box, 0);
-		show_quickslots(box.x + 120, box.y + 3, 0);
-	}
-	else if (cpl.menustatus == MENU_SKILL)
-		show_skilllist();
 	else if (cpl.menustatus == MENU_OPTION)
 		show_optwin();
 }

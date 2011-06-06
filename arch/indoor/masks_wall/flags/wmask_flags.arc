@@ -95,3 +95,15 @@ no_pick 1
 layer 7
 draw_direction 1
 end
+
+Object flag_rockforge
+name Rockforge flag
+face flag_rockforge.151
+animation flag_rockforge
+is_turnable 1
+direction 1
+type 77
+no_pick 1
+layer 7
+draw_direction 1
+end

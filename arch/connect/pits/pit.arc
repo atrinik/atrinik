@@ -12,7 +12,9 @@ anim_speed 1
 is_animated 0
 wc 7
 maxsp 0
+player_only 1
 end
+
 Object pit_open
 name pit
 hp -1
@@ -28,4 +30,5 @@ is_animated 0
 walk_on 1
 wc 0
 maxsp 1
+player_only 1
 end

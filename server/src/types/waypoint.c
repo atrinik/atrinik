@@ -171,7 +171,7 @@ void waypoint_compute_path(object *waypoint)
 		}
 		else
 		{
-			LOG(llevBug, "BUG: waypoint_compute_path(): Dynamic waypoint without valid target: '%s'\n", waypoint->name);
+			LOG(llevBug, "waypoint_compute_path(): Dynamic waypoint without valid target: '%s'\n", waypoint->name);
 			return;
 		}
 	}
@@ -183,7 +183,7 @@ void waypoint_compute_path(object *waypoint)
 
 	if (!destmap)
 	{
-		LOG(llevBug, "BUG: waypoint_compute_path(): Invalid destination map '%s'\n", waypoint->slaying);
+		LOG(llevBug, "waypoint_compute_path(): Invalid destination map '%s'\n", waypoint->slaying);
 		return;
 	}
 
@@ -191,7 +191,7 @@ void waypoint_compute_path(object *waypoint)
 
 	if (!path)
 	{
-		LOG(llevBug, "BUG: waypoint_compute_path(): No path to destination ('%s' -> '%s')\n", op->name, waypoint->name);
+		LOG(llevBug, "waypoint_compute_path(): No path to destination ('%s' -> '%s')\n", op->name, waypoint->name);
 		return;
 	}
 
@@ -207,7 +207,7 @@ void waypoint_compute_path(object *waypoint)
 	{
 		path_node *tmp;
 
-		LOG(llevDebug, "DEBUG: waypoint_compute_path(): '%s' new path -> '%s': ", op->name, waypoint->name);
+		LOG(llevDebug, "waypoint_compute_path(): '%s' new path -> '%s': ", op->name, waypoint->name);
 
 		for (tmp = path; tmp; tmp = tmp->next)
 		{
@@ -247,7 +247,7 @@ void waypoint_move(object *op, object *waypoint)
 	mapstruct *destmap = op->map;
 	rv_vector local_rv, global_rv, *dest_rv;
 	int dir;
-	sint16 new_offset = 0, success = 0;
+	sint16 new_offset = 0;
 
 	if (!waypoint || !op || !op->map)
 	{
@@ -281,7 +281,7 @@ void waypoint_move(object *op, object *waypoint)
 
 	if (!destmap)
 	{
-		LOG(llevBug, "BUG: waypoint_move(): Invalid destination map '%s' for '%s' -> '%s'\n", waypoint->slaying, op->name, waypoint->name);
+		LOG(llevBug, "waypoint_move(): Invalid destination map '%s' for '%s' -> '%s'\n", waypoint->slaying, op->name, waypoint->name);
 		return;
 	}
 
@@ -351,7 +351,7 @@ void waypoint_move(object *op, object *waypoint)
 #ifdef DEBUG_PATHFINDING
 			else
 			{
-				LOG(llevDebug, "BUG: waypoint_move(): '%s' is missing next waypoint.\n", op->name);
+				LOG(llevDebug, "waypoint_move(): '%s' is missing next waypoint.\n", op->name);
 			}
 #endif
 		}
@@ -463,11 +463,7 @@ void waypoint_move(object *op, object *waypoint)
 	if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL))
 	{
 		/* Can the monster move directly toward waypoint? */
-		if (move_object(op, dir))
-		{
-			success = 1;
-		}
-		else
+		if (!move_object(op, dir))
 		{
 			int diff;
 
@@ -479,7 +475,6 @@ void waypoint_move(object *op, object *waypoint)
 
 				if (move_object(op, absdir(dir + diff * m)) || move_object(op, absdir(dir - diff * m)))
 				{
-					success = 1;
 					break;
 				}
 			}

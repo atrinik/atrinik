@@ -88,3 +88,16 @@ flag_eagle.u.131
 flag_eagle.u.131
 flag_eagle.u.151
 mina
+
+anim flag_rockforge
+facings 9
+dummy.111
+flag_rockforge.151
+flag_rockforge.151
+flag_rockforge.151
+flag_rockforge.131
+flag_rockforge.131
+flag_rockforge.131
+flag_rockforge.131
+flag_rockforge.151
+mina

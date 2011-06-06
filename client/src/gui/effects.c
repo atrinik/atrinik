@@ -33,6 +33,8 @@
 static effect_struct *effects = NULL;
 /** Current effect. */
 static effect_struct *current_effect = NULL;
+/** RGBA as lowercase overlay color names. */
+static const char *overlay_cols[] = {"r", "g", "b", "a"};
 
 /**
  * Initialize effects from file. */
@@ -42,6 +44,7 @@ void effects_init()
 	char buf[MAX_BUF], *cp;
 	effect_struct *effect = NULL;
 	effect_sprite_def *sprite_def = NULL;
+	effect_overlay *overlay = NULL;
 
 	/* Try to deinitialize all effects first. */
 	effects_deinit();
@@ -77,6 +80,12 @@ void effects_init()
 					/* Update total chance value. */
 					effect->chance_total += sprite_def->chance;
 					sprite_def = NULL;
+				}
+				/* Overlay block, just set it as the effect's overlay. */
+				else if (overlay)
+				{
+					effect->overlay = overlay;
+					overlay = NULL;
 				}
 				/* Inside effect block. */
 				else
@@ -191,6 +200,74 @@ void effects_init()
 			{
 				sprite_def->warp_sides = atoi(buf + 11);
 			}
+			else if (!strncmp(buf, "ttl ", 4))
+			{
+				sprite_def->ttl = atoi(buf + 4);
+			}
+			else if (!strncmp(buf, "sound_file ", 11))
+			{
+				strncpy(sprite_def->sound_file, buf + 11, sizeof(sprite_def->sound_file) - 1);
+				sprite_def->sound_file[sizeof(sprite_def->sound_file) - 1] = '\0';
+			}
+			else if (!strncmp(buf, "sound_volume ", 13))
+			{
+				sprite_def->sound_volume = atoi(buf + 13);
+			}
+		}
+		else if (!strcmp(buf, "overlay"))
+		{
+			size_t col;
+
+			overlay = calloc(1, sizeof(effect_overlay));
+
+			for (col = 0; col < arraysize(overlay_cols); col++)
+			{
+				overlay->col[col].val = -1;
+				overlay->col[col].mod[4] = 1.0;
+			}
+		}
+		else if (overlay)
+		{
+			size_t col;
+
+			for (col = 0; col < arraysize(overlay_cols); col++)
+			{
+				if (!strncmp(buf, overlay_cols[col], strlen(overlay_cols[col])))
+				{
+					if (!strncmp(buf + 1, "_rndm_min ", 10))
+					{
+						overlay->col[col].rndm_min = atoi(buf + 11);
+					}
+					else if (!strncmp(buf + 1, "_rndm_max ", 10))
+					{
+						overlay->col[col].rndm_max = atoi(buf + 11);
+					}
+					else if (!strncmp(buf + 1, "_mod1 ", 6))
+					{
+						overlay->col[col].mod[0] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod2 ", 6))
+					{
+						overlay->col[col].mod[1] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod3 ", 6))
+					{
+						overlay->col[col].mod[2] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod4 ", 6))
+					{
+						overlay->col[col].mod[3] = atof(buf + 7);
+					}
+					else if (!strncmp(buf + 1, "_mod5 ", 6))
+					{
+						overlay->col[col].mod[4] = atof(buf + 7);
+					}
+					else
+					{
+						overlay->col[col].val = atoi(buf + 2);
+					}
+				}
+			}
 		}
 		/* Parse definitions inside effect block. */
 		else if (effect)
@@ -227,8 +304,9 @@ void effects_init()
 			else if (!strncmp(buf, "sprite ", 7))
 			{
 				sprite_def = calloc(1, sizeof(*sprite_def));
-				/* Store the sprite ID. */
+				/* Store the sprite ID and name. */
 				sprite_def->id = get_bmap_id(buf + 7);
+				sprite_def->name = strdup(buf + 7);
 				/* Initialize default values. */
 				sprite_def->chance = 1;
 				sprite_def->weight = 1.0;
@@ -248,6 +326,8 @@ void effects_init()
 				sprite_def->kill_side_right = 0;
 				sprite_def->zoom = 0;
 				sprite_def->warp_sides = 1;
+				sprite_def->ttl = 0;
+				sprite_def->sound_volume = 100;
 			}
 		}
 		/* Start of effect block. */
@@ -299,6 +379,23 @@ void effects_deinit()
 }
 
 /**
+ * Makes sure all sprite definitions have correct sprite IDs and their
+ * images are properly loaded. */
+void effects_reinit()
+{
+	effect_struct *effect;
+	effect_sprite_def *sprite_def;
+
+	for (effect = effects; effect; effect = effect->next)
+	{
+		for (sprite_def = effect->sprite_defs; sprite_def; sprite_def = sprite_def->next)
+		{
+			sprite_def->id = get_bmap_id(sprite_def->name);
+		}
+	}
+}
+
+/**
  * Deinitialize shown sprites of a single effect.
  * @param effect The effect to have shown sprites deinitialized. */
 void effect_sprites_free(effect_struct *effect)
@@ -319,6 +416,11 @@ void effect_sprites_free(effect_struct *effect)
  * @param effect Effect that will be freed. */
 void effect_free(effect_struct *effect)
 {
+	if (effect->overlay)
+	{
+		free(effect->overlay);
+	}
+
 	free(effect);
 }
 
@@ -327,6 +429,7 @@ void effect_free(effect_struct *effect)
  * @param sprite_def Sprite definition that will be freed. */
 void effect_sprite_def_free(effect_sprite_def *sprite_def)
 {
+	free(sprite_def->name);
 	free(sprite_def);
 }
 
@@ -381,6 +484,11 @@ static effect_sprite *effect_sprite_create(effect_struct *effect)
 	effect_sprite_def *tmp;
 	effect_sprite *sprite;
 
+	if (!effect->sprite_defs)
+	{
+		return NULL;
+	}
+
 	/* Choose which sprite to use. */
 	roll = rndm(1, effect->chance_total) - 1;
 
@@ -425,6 +533,7 @@ void effect_sprites_play()
 	effect_sprite *tmp, *next;
 	int num_sprites = 0;
 	int x_check, y_check;
+	uint32 ticks;
 
 	/* No current effect or not playing, quit. */
 	if (!current_effect || GameStatus != GAME_STATUS_PLAY)
@@ -432,9 +541,23 @@ void effect_sprites_play()
 		return;
 	}
 
+	ticks = SDL_GetTicks();
+
 	for (tmp = current_effect->sprites; tmp; tmp = next)
 	{
 		next = tmp->next;
+
+		if (!FaceList[tmp->def->id].sprite)
+		{
+			continue;
+		}
+
+		/* Check if the sprite should be removed due to ttl being up. */
+		if (tmp->def->ttl && ticks - tmp->created_tick > tmp->def->ttl)
+		{
+			effect_sprite_remove(tmp);
+			continue;
+		}
 
 		x_check = y_check = 0;
 
@@ -452,10 +575,10 @@ void effect_sprites_play()
 		{
 			if (tmp->x + x_check < 0)
 			{
-				tmp->x = ScreenSurfaceMap->w;
+				tmp->x = cur_widget[MAP_ID]->wd;
 				continue;
 			}
-			else if (tmp->x - x_check > ScreenSurfaceMap->w)
+			else if (tmp->x - x_check > cur_widget[MAP_ID]->wd)
 			{
 				tmp->x = -x_check;
 				continue;
@@ -463,18 +586,18 @@ void effect_sprites_play()
 		}
 
 		/* Off-screen? */
-		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > ScreenSurfaceMap->w) || tmp->y + y_check < 0 || tmp->y - y_check > ScreenSurfaceMap->h)
+		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > cur_widget[MAP_ID]->ht) || tmp->y + y_check < 0 || tmp->y - y_check > cur_widget[MAP_ID]->ht)
 		{
 			effect_sprite_remove(tmp);
 			continue;
 		}
 
 		/* Show the sprite. */
-		sprite_blt_map(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, NULL, NULL, 0, tmp->def->zoom);
+		sprite_blt_map(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, NULL, NULL, 0, tmp->def->zoom, 0);
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
-		if (!tmp->def->delay || !tmp->delay_ticks || SDL_GetTicks() - tmp->delay_ticks > tmp->def->delay)
+		if (!tmp->def->delay || !tmp->delay_ticks || ticks - tmp->delay_ticks > tmp->def->delay)
 		{
 			int ypos = tmp->def->weight * tmp->def->weight_mod;
 
@@ -492,7 +615,7 @@ void effect_sprites_play()
 				tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * ((-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wind_mod));
 			}
 
-			tmp->delay_ticks = SDL_GetTicks();
+			tmp->delay_ticks = ticks;
 			map_redraw_flag = 1;
 		}
 	}
@@ -512,7 +635,7 @@ void effect_sprites_play()
 		current_effect->wind = 1.0 * current_effect->wind_mod;
 	}
 
-	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || SDL_GetTicks() - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
+	if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) && (!current_effect->delay || !current_effect->delay_ticks || ticks - current_effect->delay_ticks > current_effect->delay) && RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0)
 	{
 		int i;
 		effect_sprite *sprite;
@@ -542,12 +665,12 @@ void effect_sprites_play()
 			else
 			{
 				/* Calculate where to put the sprite. */
-				sprite->x = (double) ScreenSurfaceMap->w * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
+				sprite->x = (double) cur_widget[MAP_ID]->wd * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
 			}
 
 			if (sprite->def->reverse)
 			{
-				sprite->y = ScreenSurfaceMap->h - FaceList[sprite->def->id].sprite->bitmap->h;
+				sprite->y = cur_widget[MAP_ID]->ht - FaceList[sprite->def->id].sprite->bitmap->h;
 			}
 			else if (sprite->def->y != -1)
 			{
@@ -558,10 +681,17 @@ void effect_sprites_play()
 
 			sprite->x += sprite->def->xpos;
 			sprite->y += sprite->def->ypos;
+
+			if (sprite->def->sound_file[0] != '\0')
+			{
+				sound_play_effect(sprite->def->sound_file, sprite->def->sound_volume);
+			}
+
+			sprite->created_tick = ticks;
 			map_redraw_flag = 1;
 		}
 
-		current_effect->delay_ticks = SDL_GetTicks();
+		current_effect->delay_ticks = ticks;
 	}
 }
 
@@ -599,6 +729,39 @@ int effect_start(const char *name)
 			tmp->wind = 0;
 			/* Load it up. */
 			current_effect = tmp;
+
+			/* Does this effect have an overlay? If so, we need to free
+			 * old dark levels, as they are rendered without the image
+			 * overlay. */
+			if (current_effect->overlay)
+			{
+				size_t i, dark;
+
+				for (i = 0; i < MAX_FACE_TILES; i++)
+				{
+					if (!FaceList[i].sprite)
+					{
+						continue;
+					}
+
+					if (FaceList[i].sprite->effect)
+					{
+						SDL_FreeSurface(FaceList[i].sprite->effect);
+						FaceList[i].sprite->effect = NULL;
+					}
+
+					/* Free all dark levels. */
+					for (dark = 0; dark < DARK_LEVELS; dark++)
+					{
+						if (FaceList[i].sprite->dark_level[dark])
+						{
+							SDL_FreeSurface(FaceList[i].sprite->dark_level[dark]);
+							FaceList[i].sprite->dark_level[dark] = NULL;
+						}
+					}
+				}
+			}
+
 			return 1;
 		}
 	}
@@ -640,6 +803,7 @@ void effect_debug(const char *type)
 		draw_info_format(COLOR_WHITE, "Size of a single sprite definition: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite_def));
 		draw_info_format(COLOR_WHITE, "Size of a single visible sprite: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite));
 		draw_info_format(COLOR_WHITE, "Size of a single effect structure: <green>%"FMT64U"</green>", (uint64) sizeof(effect_struct));
+		draw_info_format(COLOR_WHITE, "Size of a single overlay: <green>%"FMT64U"</green>", (uint64) sizeof(effect_overlay));
 	}
 	else
 	{
@@ -658,4 +822,46 @@ void effect_stop()
 
 	effect_sprites_free(current_effect);
 	current_effect = NULL;
+}
+
+/**
+ * Check whether there is an overlay on the active effect (if any).
+ * @return 1 if there is an overlay, 0 otherwise. */
+uint8 effect_has_overlay()
+{
+	if (!current_effect)
+	{
+		return 0;
+	}
+
+	return current_effect->overlay ? 1 : 0;
+}
+
+/**
+ * Add an effect overlay to a sprite.
+ * @param sprite The sprite to add overlay to. */
+void effect_scale(_Sprite *sprite)
+{
+	int j, k, r, g, b, a, index;
+	Uint8 vals[4];
+	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
+
+	for (k = 0; k < temp->h; k++)
+	{
+		for (j = 0; j < temp->w; j++)
+		{
+			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &vals[0], &vals[1], &vals[2], &vals[3]);
+
+			index = 0;
+			EFFECT_SCALE_ADJUST(r, current_effect->overlay);
+			EFFECT_SCALE_ADJUST(g, current_effect->overlay);
+			EFFECT_SCALE_ADJUST(b, current_effect->overlay);
+			EFFECT_SCALE_ADJUST(a, current_effect->overlay);
+
+			putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
+		}
+	}
+
+	sprite->effect = SDL_DisplayFormatAlpha(temp);
+	SDL_FreeSurface(temp);
 }

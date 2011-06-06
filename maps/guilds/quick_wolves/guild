@@ -2,13 +2,14 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2010-08-17 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
 no_harm 1
+bg_music shanty.mid
 region strakewood_island
 end
 arch map_event_obj
@@ -2365,15 +2366,6 @@ end
 arch carpet2.151
 x 20
 y 18
-end
-arch sign
-x 20
-y 18
-arch event_obj
-sub_type 1
-race /python/generic/news_sign.py
-slaying Quick Wolves Guild
-end
 end
 arch floor_wood2_l1
 x 20

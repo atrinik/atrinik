@@ -41,7 +41,7 @@ void move_gate(object *op)
 
 	if (op->stats.wc < 0 || (int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)))
 	{
-		LOG(llevBug, "BUG: move_gate(): Gate animation was %d, max=%d\n", op->stats.wc, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
+		LOG(llevBug, "move_gate(): Gate animation was %d, max=%d\n", op->stats.wc, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 		op->stats.wc = 0;
 	}
 
@@ -122,9 +122,9 @@ void move_gate(object *op)
 		 * objects are above the gate. If so, we finish closing the gate,
 		 * otherwise, we fall through to the code below which should lower
 		 * the gate slightly. */
-		for (tmp = op->above; tmp != NULL; tmp = tmp->above)
+		for (tmp = GET_BOTTOM_MAP_OB(op); tmp; tmp = tmp->above)
 		{
-			if (!QUERY_FLAG(tmp, FLAG_NO_PICK) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || IS_LIVE(tmp))
+			if (QUERY_FLAG(tmp, FLAG_CAN_ROLL) || IS_LIVE(tmp))
 			{
 				break;
 			}
@@ -173,53 +173,40 @@ void move_gate(object *op)
 		 * If a player/monster, we don't roll, we just hit them with damage */
 		if ((int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2)
 		{
-			/* Halfway or further, check blocks
-			 * First, get the top object on the square. */
-			for (tmp = op->above; tmp != NULL && tmp->above != NULL; tmp = tmp->above)
-			{
-			}
+			object *next;
 
-			if (tmp != NULL)
+			/* Halfway or further, check blocks */
+			for (tmp = GET_BOTTOM_MAP_OB(op); tmp; tmp = next)
 			{
-				if (IS_LIVE(tmp))
+				next = tmp->above;
+
+				/* If the object is alive or the object rolls, move the object
+				 * off the gate. */
+				if (QUERY_FLAG(tmp, FLAG_CAN_ROLL) || IS_LIVE(tmp))
 				{
-					hit_player(tmp, 4, op, AT_PHYSICAL);
+					int i;
 
-					if (tmp->type == PLAYER)
+					if (IS_LIVE(tmp))
 					{
+						hit_player(tmp, 4, op, AT_PHYSICAL);
 						new_draw_info_format(NDI_UNIQUE, tmp, "You are crushed by the %s!", op->name);
 					}
-				}
 
-				/* If the object is not alive, and the object either can
-				 * be picked up or the object rolls, move the object
-				 * off the gate. */
-				if (IS_LIVE(tmp) || (!QUERY_FLAG(tmp, FLAG_NO_PICK) || QUERY_FLAG(tmp, FLAG_CAN_ROLL)))
-				{
-					/* If it has speed, it should move itself, otherwise: */
-					int i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, 9);
+					i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, 9);
 
-					/* If there is a free spot, move the object someplace */
+					/* If there is a free spot, move the object someplace. */
 					if (i != -1)
 					{
 						remove_ob(tmp);
 						check_walk_off(tmp, NULL, MOVE_APPLY_VANISHED);
-						tmp->x += freearr_x[i], tmp->y += freearr_y[i];
+						tmp->x += freearr_x[i];
+						tmp->y += freearr_y[i];
 						insert_ob_in_map(tmp, op->map, op, 0);
 					}
 				}
 			}
 
-			/* See if there is still anything blocking the gate */
-			for (tmp = op->above; tmp != NULL; tmp = tmp->above)
-			{
-				if (!QUERY_FLAG(tmp, FLAG_NO_PICK) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || IS_LIVE(tmp))
-				{
-					break;
-				}
-			}
-
-			/* If there is, start putting the gate down */
+			/* If there is still something, start putting the gate down */
 			if (tmp)
 			{
 				op->stats.food = 1;
@@ -230,19 +217,25 @@ void move_gate(object *op)
 				if (op->last_heal)
 				{
 					if (QUERY_FLAG(op, FLAG_NO_PASS))
+					{
 						update = UP_OBJ_FLAGFACE;
+					}
 
 					CLEAR_FLAG(op, FLAG_NO_PASS);
 
 					if (QUERY_FLAG(op, FLAG_BLOCKSVIEW))
+					{
 						update = UP_OBJ_FLAGFACE;
+					}
 
 					CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
 				}
 				else
 				{
 					if (!QUERY_FLAG(op, FLAG_NO_PASS))
+					{
 						update = UP_OBJ_FLAGFACE;
+					}
 
 					/* The coast is clear, block the way */
 					SET_FLAG(op, FLAG_NO_PASS);
@@ -250,7 +243,9 @@ void move_gate(object *op)
 					if (!op->arch->clone.stats.ac)
 					{
 						if (!QUERY_FLAG(op, FLAG_BLOCKSVIEW))
+						{
 							update = UP_OBJ_FLAGFACE;
+						}
 
 						SET_FLAG(op, FLAG_BLOCKSVIEW);
 					}

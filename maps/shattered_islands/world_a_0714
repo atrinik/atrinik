@@ -13,6 +13,7 @@ tile_path_2 world_a_0814
 tile_path_3 world_a_0713
 tile_path_5 world_a_0815
 tile_path_6 world_a_0813
+tile_path_7 world_a_0613
 bg_music crystal_cave.ogg
 region strakewood_abandoned_mine
 end

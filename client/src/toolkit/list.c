@@ -33,6 +33,8 @@
 static list_struct *list_head = NULL;
 /** End of the visible lists. */
 static list_struct *list_tail = NULL;
+/** Used to store scrollbar position. */
+static int old_scrollbar_pos = 0;
 
 static int list_handle_key(list_struct *list, SDLKey key);
 
@@ -41,7 +43,7 @@ static int list_handle_key(list_struct *list, SDLKey key);
  * @param list List to draw the frame for. */
 static void list_draw_frame(list_struct *list)
 {
-	draw_frame(ScreenSurface, list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
+	draw_frame(list->surface, list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
 }
 
 /**
@@ -55,11 +57,11 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 
 	if (row & 1)
 	{
-		SDL_FillRect(ScreenSurface, &box, sdl_gray2);
+		SDL_FillRect(list->surface, &box, sdl_gray2);
 	}
 	else
 	{
-		SDL_FillRect(ScreenSurface, &box, sdl_gray1);
+		SDL_FillRect(list->surface, &box, sdl_gray1);
 	}
 }
 
@@ -70,7 +72,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
 	(void) list;
-	SDL_FillRect(ScreenSurface, &box, sdl_dgreen);
+	SDL_FillRect(list->surface, &box, sdl_dgreen);
 }
 
 /**
@@ -80,7 +82,7 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
 	(void) list;
-	SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+	SDL_FillRect(list->surface, &box, sdl_blue1);
 }
 
 /**
@@ -164,6 +166,7 @@ list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, 
 	list->cols = cols;
 	list->spacing = spacing;
 	list->font = FONT_SANS10;
+	list->surface = ScreenSurface;
 
 	/* Initialize defaults. */
 	list->frame_offset = -2;
@@ -297,6 +300,109 @@ void list_set_font(list_struct *list, int font)
 }
 
 /**
+ * Enable scrollbar.
+ * @param list List to enable scrollbar on. */
+void list_scrollbar_enable(list_struct *list)
+{
+	list->scrollbar = 1;
+}
+
+/**
+ * Get scrollbar's size.
+ * @param list List.
+ * @param box Where to store the size of the scrollbar.
+ * @return 1 on success, 0 on failure (no scrollbar active). */
+static int list_scrollbar_get_size(list_struct *list, SDL_Rect *box)
+{
+	uint32 col;
+
+	if (!list->scrollbar)
+	{
+		return 0;
+	}
+
+	box->x = list->x + list->frame_offset + 1;
+	box->y = LIST_ROWS_START(list) + list->frame_offset;
+	box->w = LIST_SCROLLBAR_WIDTH;
+	box->h = LIST_ROW_HEIGHT(list) * list->max_rows;
+
+	for (col = 0; col < list->cols; col++)
+	{
+		box->x += list->col_widths[col] + list->col_spacings[col];
+	}
+
+	return 1;
+}
+
+/**
+ * Render scrollbar for a list.
+ * @param list The list. */
+static void list_scrollbar_render(list_struct *list)
+{
+	SDL_Rect scrollbar_box;
+	int mx, my;
+
+	if (!list_scrollbar_get_size(list, &scrollbar_box))
+	{
+		return;
+	}
+
+	SDL_GetMouseState(&mx, &my);
+
+	draw_frame(list->surface, scrollbar_box.x, scrollbar_box.y, scrollbar_box.w, scrollbar_box.h);
+
+	scrollbar_box.x += 1;
+	scrollbar_box.y += 1;
+	scrollbar_box.w -= 1;
+	scrollbar_box.h -= 1;
+
+	if (list->rows > list->max_rows)
+	{
+		int scroll;
+
+		scroll = list->max_rows + list->row_offset;
+		list->scrollbar_h = scrollbar_box.h * list->max_rows / list->rows;
+		list->scrollbar_y = ((scroll - list->max_rows) * scrollbar_box.h) / list->rows;
+
+		if (list->scrollbar_h < 1)
+		{
+			list->scrollbar_h = 1;
+		}
+
+		if (scroll - list->max_rows > 0 && list->scrollbar_y + list->scrollbar_h < scrollbar_box.h)
+		{
+			list->scrollbar_y++;
+		}
+
+		scrollbar_box.h = list->scrollbar_h;
+		scrollbar_box.y += list->scrollbar_y;
+	}
+
+	/* Adjust the mouse X/Y positions for lists that are not rendered
+	 * directly on the screen surface, in order to simplify the checks
+	 * below. */
+	if (list->surface != ScreenSurface)
+	{
+		widgetdata *widget = widget_find_by_surface(list->surface);
+
+		if (widget)
+		{
+			mx -= widget->x1;
+			my -= widget->y1;
+		}
+	}
+
+	if (mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + scrollbar_box.h)
+	{
+		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 175, 154, 110, 255));
+	}
+	else
+	{
+		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 157, 139, 98, 255));
+	}
+}
+
+/**
  * Show one list.
  * @param list List to show. */
 void list_show(list_struct *list)
@@ -337,7 +443,7 @@ void list_show(list_struct *list)
 		/* Actually draw the column name. */
 		if (list->col_names[col])
 		{
-			string_blt_shadow(ScreenSurface, list->font, list->col_names[col], list->x + w + extra_width, list->y, COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+			string_blt_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
 		}
 
 		w += list->col_widths[col] + list->col_spacings[col];
@@ -347,6 +453,8 @@ void list_show(list_struct *list)
 	box.x = list->x + list->frame_offset;
 	box.w = list->width;
 	box.h = LIST_ROW_HEIGHT(list);
+
+	list_scrollbar_render(list);
 
 	/* Doing coloring of each row? */
 	if (list->row_color_func)
@@ -388,7 +496,8 @@ void list_show(list_struct *list)
 			/* Is there any text to show? */
 			if (list->text[row][col])
 			{
-				SDL_Rect box;
+				SDL_Color text_color;
+				SDL_Rect text_rect;
 
 				extra_width = 0;
 
@@ -398,11 +507,18 @@ void list_show(list_struct *list)
 					extra_width = list->col_widths[col] / 2 - string_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
 				}
 
+				text_color = COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY);
+
+				if (list->text_color_hook)
+				{
+					text_color = list->text_color_hook(list, text_color, row, col);
+				}
+
 				/* Add width limit on the string. */
-				box.w = list->col_widths[col] + list->col_spacings[col];
-				box.h = LIST_ROW_HEIGHT(list);
+				text_rect.w = list->col_widths[col] + list->col_spacings[col];
+				text_rect.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(ScreenSurface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &box);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP, &text_rect);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
@@ -630,6 +746,11 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
 		return 0;
 	}
 
+	if (list->surface != ScreenSurface)
+	{
+		return 0;
+	}
+
 	if (event->type == SDL_KEYDOWN)
 	{
 		/* Rotate between lists using tab. */
@@ -695,17 +816,66 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
  * @param list The list.
  * @param mx Mouse X.
  * @param my Mouse Y.
- * @param event Event. */
-void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
+ * @param event Event.
+ * @return 1 if the event was handled, 0 otherwise. */
+int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 {
 	uint32 row;
 
-	(void) mx;
+	if (!LIST_MOUSE_OVER(list, mx, my) && !list->scrollbar_dragging)
+	{
+		return 0;
+	}
 
 	/* Left mouse button was pressed, update focused list. */
 	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
 		list_set_focus(list);
+
+		if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			SDL_Rect scrollbar_box;
+
+			if (list_scrollbar_get_size(list, &scrollbar_box) && mx > scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my > scrollbar_box.y + list->scrollbar_y && my < scrollbar_box.y + list->scrollbar_y + list->scrollbar_h)
+			{
+				old_scrollbar_pos = event->motion.y - list->scrollbar_y;
+				list->scrollbar_dragging = 1;
+				return 1;
+			}
+		}
+	}
+	else if (event->type == SDL_MOUSEBUTTONUP)
+	{
+		list->scrollbar_dragging = 0;
+		return 1;
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		if (list->scrollbar_dragging)
+		{
+			SDL_Rect scrollbar_box;
+
+			if (!list_scrollbar_get_size(list, &scrollbar_box))
+			{
+				return 0;
+			}
+
+			list->scrollbar_y = event->motion.y - old_scrollbar_pos;
+
+			if (list->scrollbar_y > scrollbar_box.h - list->scrollbar_h)
+			{
+				list->scrollbar_y = scrollbar_box.h - list->scrollbar_h;
+			}
+
+			list->row_offset = MIN(list->rows - list->max_rows, MAX(0, list->scrollbar_y) * list->rows / scrollbar_box.h);
+			list->row_selected = list->max_rows + list->row_offset - 1;
+			return 1;
+		}
+	}
+
+	if (mx >= list->x + list->width)
+	{
+		return 1;
 	}
 
 	/* No row is highlighted now. Will be switched back on as needed
@@ -767,6 +937,8 @@ void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 			break;
 		}
 	}
+
+	return 1;
 }
 
 /**
@@ -782,11 +954,8 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event)
 
 	for (tmp = list_head; tmp; tmp = tmp->next)
 	{
-		/* Check whether the mouse is inside the list. */
-		if (LIST_MOUSE_OVER(tmp, mx, my))
+		if (tmp->surface == ScreenSurface && list_handle_mouse(tmp, mx, my, event))
 		{
-			/* Handle the actual mouse for this list. */
-			list_handle_mouse(tmp, mx, my, event);
 			return 1;
 		}
 	}
@@ -803,7 +972,10 @@ void lists_handle_resize(int y_offset)
 
 	for (tmp = list_head; tmp; tmp = tmp->next)
 	{
-		tmp->y += y_offset;
+		if (tmp->surface == ScreenSurface)
+		{
+			tmp->y += y_offset;
+		}
 	}
 }
 
@@ -824,4 +996,87 @@ list_struct *list_exists(uint32 id)
 	}
 
 	return NULL;
+}
+
+/**
+ * Used for alphabetical sorting in list_sort().
+ * @param a What to compare.
+ * @param b What to compare against.
+ * @return Return value of strcmp() against the two entries. */
+static int list_compare_alpha(const void *a, const void *b)
+{
+	return strcmp(((char ***) a)[0][0], ((char ***) b)[0][0]);
+}
+
+/**
+ * Sort a list's entries.
+ * @param list List to sort.
+ * @param type How to sort, one of @ref LIST_SORT_xxx.
+ * @note Sorting is done by looking at the first column of each row. */
+void list_sort(list_struct *list, int type)
+{
+	if (!list->text)
+	{
+		return;
+	}
+
+	/* Alphabetical sort. */
+	if (type == LIST_SORT_ALPHA)
+	{
+		qsort((void *) list->text, list->rows, sizeof(*list->text), (void *) (int (*)()) list_compare_alpha);
+	}
+}
+
+/**
+ * Clear all the allocated rows of a list.
+ * @param list The list. */
+void list_clear_rows(list_struct *list)
+{
+	uint32 row, col;
+
+	for (row = 0; row < list->rows; row++)
+	{
+		for (col = 0; col < list->cols; col++)
+		{
+			if (list->text[row][col])
+			{
+				free(list->text[row][col]);
+			}
+		}
+
+		free(list->text[row]);
+	}
+
+	if (list->text)
+	{
+		free(list->text);
+		list->text = NULL;
+	}
+
+	list->rows = 0;
+	list->row_selected = 1;
+	list->row_offset = 0;
+}
+
+/**
+ * Set the selected row based on column's text.
+ * @param list The list.
+ * @param str Text to search for in all the rows.
+ * @param col The column to check value of in each row.
+ * @return 1 if new selected row was set, 0 otherwise. */
+int list_set_selected(list_struct *list, const char *str, uint32 col)
+{
+	uint32 row;
+
+	for (row = 0; row < list->rows; row++)
+	{
+		if (!strcmp(list->text[row][col], str))
+		{
+			list->row_selected = row + 1;
+			list->row_offset = MIN(list->rows - list->max_rows, row);
+			return 1;
+		}
+	}
+
+	return 0;
 }

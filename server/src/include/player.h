@@ -171,6 +171,17 @@ typedef struct player_path
 	uint8 fails;
 } player_path;
 
+/**
+ * Enumerations of the READY_OBJ_xxx constants used by
+ * @ref BINARY_CMD_READY.
+ * @anchor READY_OBJ_xxx */
+enum
+{
+	READY_OBJ_ARROW,
+	READY_OBJ_THROW,
+	READY_OBJ_MAX
+};
+
 #ifdef WIN32
 #pragma pack(push,1)
 #endif
@@ -292,6 +303,14 @@ typedef struct pl_player
 	/** Player's quest container. */
 	object *quest_container;
 
+	/**
+	 * Readied objects (arrows, quivers, bolts, etc). Whenever a readied
+	 * object is removed by remove_ob(), the applicable entry is removed
+	 * from this array (set to NULL), thus no additional checking like
+	 * "is the object still in player's inventory" or "does the object
+	 * even exist" is necessary. */
+	object *ready_object[READY_OBJ_MAX];
+
 	/** For the client target HP marker. */
 	int target_hp;
 
@@ -310,14 +329,11 @@ typedef struct pl_player
 	/** firemode_xxx are set from command_fire() */
 	int firemode_type;
 
-	/** ID of the object being thrown. */
+	/** ID of the object being thrown. @deprecated */
 	int firemode_tag1;
 
-	/** ID of the object being used as ammunition for bow/crossbow/etc. */
+	/** ID of the object being used as ammunition for bow/crossbow/etc. @deprecated */
 	int firemode_tag2;
-
-	/** Number of items the player has in his shop. */
-	int shop_items_count;
 
 	/**
 	 * Array showing what spaces the player can see. For maps smaller
@@ -430,6 +446,122 @@ typedef struct pl_player
 	/** Skill experience for all skills. */
 	sint64 skill_exp[NROFSKILLS];
 
+	/** Number of deaths. */
+	uint64 stat_deaths;
+
+	/** Number of monsters killed. */
+	uint64 stat_kills_mob;
+
+	/** Number of players killed in PvP. */
+	uint64 stat_kills_pvp;
+
+	/** Total damage taken. */
+	uint64 stat_damage_taken;
+
+	/** Total damage dealt. */
+	uint64 stat_damage_dealt;
+
+	/** HP regenerated. */
+	uint64 stat_hp_regen;
+
+	/** Mana regenerated. */
+	uint64 stat_sp_regen;
+
+	/** Grace regenerated. */
+	uint64 stat_grace_regen;
+
+	/** How many food points have been consumed. */
+	uint64 stat_food_consumed;
+
+	/** Number of food items consumed. */
+	uint64 stat_food_num_consumed;
+
+	/** Amount of HP healed using heal spells. */
+	uint64 stat_damage_healed;
+
+	/** Amount of HP healed using heal spells on friendly targets. */
+	uint64 stat_damage_healed_other;
+
+	/** Amount of HP healed by receiving healing from friendly creatures. */
+	uint64 stat_damage_heal_received;
+
+	/** Number of steps taken. */
+	uint64 stat_steps_taken;
+
+	/** Number of spells cast. */
+	uint64 stat_spells_cast;
+
+	/** Number of prayers cast. */
+	uint64 stat_prayers_cast;
+
+	/** Number of seconds played. */
+	uint64 stat_time_played;
+
+	/** Number of seconds spent AFK. */
+	uint64 stat_time_afk;
+
+	/** Cache for value of ::stat_time_played. */
+	time_t last_stat_time_played;
+
+	/** Number of arrows/bolts/etc fired. */
+	uint64 stat_arrows_fired;
+
+	/** Number of missiles thrown. */
+	uint64 stat_missiles_thrown;
+
+	/** Number of books read. */
+	uint64 stat_books_read;
+
+	/** Number of unique books read (the ones that give exp). */
+	uint64 stat_unique_books_read;
+
+	/** Number of potions used. */
+	uint64 stat_potions_used;
+
+	/** Number of scrolls used. */
+	uint64 stat_scrolls_used;
+
+	/** Total experience gained. */
+	uint64 stat_exp_gained;
+
+	/** Total number of items dropped. */
+	uint64 stat_items_dropped;
+
+	/** Total number of items picked up. */
+	uint64 stat_items_picked;
+
+	/** Total number of unique corpses searched. */
+	uint64 stat_corpses_searched;
+
+	/** Number of traps found using the find traps skill. */
+	uint64 stat_traps_found;
+
+	/** Number of traps successfully disarmed. */
+	uint64 stat_traps_disarmed;
+
+	/** Number of traps sprung. */
+	uint64 stat_traps_sprung;
+
+	/** Number of times the player has enabled AFK mode. */
+	uint64 stat_afk_used;
+
+	/** Number of times the player has formed a party. */
+	uint64 stat_formed_party;
+
+	/** Number of times the player has joined a party. */
+	uint64 stat_joined_party;
+
+	/** Number of items the player has renamed an item. */
+	uint64 stat_renamed_items;
+
+	/** Number of times the player has used an emote command. */
+	uint64 stat_emotes_used;
+
+	/**
+	 * Number of times the player used inscription skill to write in a
+	 * book. */
+	uint64 stat_books_inscribed;
+
 	/** Count of target. */
 	uint32 target_object_count;
 
@@ -463,14 +595,14 @@ typedef struct pl_player
 	/** Is metaserver privacy activated? */
 	uint32 ms_privacy:1;
 
-	/** True if you know the spell of the wand */
-	uint32 known_spell:1;
-
 	/** Update skill list when set. */
 	uint32 update_skills:1;
 
 	/** Any numbers typed before a command. */
 	uint32 count;
+
+	/** Last ranged weapon speed sent. */
+	sint32 last_ranged_ws;
 
 	/** Type of readied spell. */
 	sint16 chosen_spell;
@@ -528,6 +660,12 @@ typedef struct pl_player
 
 	/** IDs of spell quickslots. */
 	sint16 spell_quickslots[MAX_QUICKSLOT];
+
+	/** Last ranged damage sent. */
+	sint16 last_ranged_dam;
+
+	/** Last ranged wc sent. */
+	sint16 last_ranged_wc;
 
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFATTACKS];

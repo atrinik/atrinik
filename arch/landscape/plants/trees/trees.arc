@@ -117,6 +117,26 @@ no_pass 1
 blocksview 1
 end
 
+Object tree_big8
+layer 5
+name tree
+face tree_big8.101
+type 79
+no_pick 1
+no_pass 1
+blocksview 1
+end
+
+Object tree_big8b
+layer 5
+name tree
+face tree_big8b.101
+type 79
+no_pick 1
+no_pass 1
+blocksview 1
+end
+
 Object tree_huge
 layer 5
 name tree

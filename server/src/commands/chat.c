@@ -37,21 +37,14 @@
  * @return 1 on success, 0 on failure. */
 int command_say(object *op, char *params)
 {
-	if (!params)
-	{
-		return 0;
-	}
-
-	LOG(llevInfo, "CLOG SAY:%s >%s<\n", query_name(op, NULL), params);
-
 	params = cleanup_chat_string(params);
 
-	/* This happens when whitespace only string was submitted. */
 	if (!params || *params == '\0')
 	{
 		return 0;
 	}
 
+	LOG(llevChat, "Say: %s: %s\n", query_name(op, NULL), params);
 	communicate(op, params);
 
 	return 1;
@@ -69,20 +62,14 @@ int command_dmsay(object *op, char *params)
 {
 	player *pl;
 
-	if (!params)
-	{
-		return 0;
-	}
-
-	LOG(llevInfo, "CLOG DMSAY:%s >%s<\n", query_name(op, NULL), params);
-
 	params = cleanup_chat_string(params);
 
-	/* This can happen when whitespace only string was sent */
 	if (!params || *params == '\0')
 	{
 		return 0;
 	}
+
+	LOG(llevChat, "DMsay: %s: %s\n", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
@@ -102,7 +89,9 @@ int command_dmsay(object *op, char *params)
  * @return 1 on success, 0 on failure */
 int command_shout(object *op, char *params)
 {
-	if (!params)
+	params = cleanup_chat_string(params);
+
+	if (!params || *params == '\0')
 	{
 		return 0;
 	}
@@ -113,16 +102,7 @@ int command_shout(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevInfo, "CLOG SHOUT:%s >%s<\n", query_name(op, NULL), params);
-
-	params = cleanup_chat_string(params);
-
-	/* This happens when whitespace only string was submitted. */
-	if (!params || *params == '\0')
-	{
-		return 0;
-	}
-
+	LOG(llevChat, "Shout: %s: %s\n", query_name(op, NULL), params);
 	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE | NDI_SHOUT, NULL, "%s shouts: %s", op->name, params);
 
 	return 1;
@@ -138,20 +118,14 @@ int command_tell(object *op, char *params)
 	char *name = NULL, *msg = NULL;
 	player *pl;
 
-	if (!params)
-	{
-		return 0;
-	}
-
-	LOG(llevInfo, "CLOG TELL:%s >%s<\n", query_name(op, NULL), params);
-
 	params = cleanup_chat_string(params);
 
-	/* This happens when whitespace only string was submitted. */
 	if (!params || *params == '\0')
 	{
 		return 0;
 	}
+
+	LOG(llevChat, "Tell: %s: %s\n", op->name, params);
 
 	name = params;
 	msg = strchr(name, ' ');
@@ -224,14 +198,8 @@ int command_t_tell(object *op, char *params)
 	int i, xt, yt;
 	mapstruct *m;
 
-	if (!params)
-	{
-		return 0;
-	}
-
 	params = cleanup_chat_string(params);
 
-	/* This happens when whitespace only string was submitted. */
 	if (!params || *params == '\0')
 	{
 		return 0;
@@ -258,7 +226,7 @@ int command_t_tell(object *op, char *params)
 
 				if (m == t_obj->map && xt == t_obj->x && yt == t_obj->y)
 				{
-					LOG(llevInfo, "CLOG T_TELL:%s >%s<\n", query_name(op, NULL), params);
+					LOG(llevChat, "Talk to: %s: %s\n", op->name, params);
 					talk_to_npc(op, t_obj, params);
 					play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "scroll.ogg", 0, 0, 0, 0);
 					return 1;
@@ -908,7 +876,12 @@ static int basic_emote(object *op, char *params, int emotion)
 {
 	char buf[MAX_BUF], buf2[MAX_BUF], buf3[MAX_BUF];
 
-	LOG(llevDebug, "EMOTE: %s (params: >%s<) (t: %s) %d\n", query_name(op, NULL), params ? params : "NULL", CONTR(op) ? query_name(CONTR(op)->target_object, NULL) : "NULL", emotion);
+	LOG(llevChat, "Emote: %s, params: %s, target: %s, emote: %d\n", query_name(op, NULL), params ? params : "NULL", CONTR(op) ? query_name(CONTR(op)->target_object, NULL) : "NULL", emotion);
+
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->stat_emotes_used++;
+	}
 
 	params = cleanup_chat_string(params);
 

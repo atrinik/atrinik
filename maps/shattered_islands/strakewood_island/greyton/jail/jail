@@ -2,7 +2,7 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-05-14 Edwin Miltenburg
 endmsg
 width 15
 height 23
@@ -379,7 +379,7 @@ msg
 @match ^sorry$|^im sorry$|^i am sorry$|i repent$|^i'm sorry$|^sorry.$|^im sorry.|^i am sorry.$|^i repent.$|^i'm sorry.$
 Since you have repented, you may eat today.
 endmsg
-connected 116
+connected 111
 x 2
 y 3
 end
@@ -425,7 +425,7 @@ msg
 @match ^sorry$|^im sorry$|^i am sorry$|i repent$|^i'm sorry$|^sorry.$|^im sorry.|^i am sorry.$|^i repent.$|^i'm sorry.$
 Since you have repented, you may eat today.
 endmsg
-connected 116
+connected 112
 x 2
 y 9
 end
@@ -471,7 +471,7 @@ msg
 @match ^sorry$|^im sorry$|^i am sorry$|i repent$|^i'm sorry$|^sorry.$|^im sorry.|^i am sorry.$|^i repent.$|^i'm sorry.$
 Since you have repented, you may eat today.
 endmsg
-connected 116
+connected 113
 x 2
 y 15
 end
@@ -2542,7 +2542,7 @@ msg
 @match ^sorry$|^im sorry$|^i am sorry$|i repent$|^i'm sorry$|^sorry.$|^im sorry.|^i am sorry.$|^i repent.$|^i'm sorry.$
 Since you have repented, you may eat today.
 endmsg
-connected 116
+connected 114
 x 12
 y 3
 end
@@ -2592,7 +2592,7 @@ msg
 @match ^sorry$|^im sorry$|^i am sorry$|i repent$|^i'm sorry$|^sorry.$|^im sorry.|^i am sorry.$|^i repent.$|^i'm sorry.$
 Since you have repented, you may eat today.
 endmsg
-connected 116
+connected 115
 x 12
 y 9
 end

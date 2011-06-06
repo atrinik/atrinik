@@ -44,6 +44,13 @@ extern void check_use_object_list();
 
 /** Object used in process_events(). */
 static object marker;
+/** Where to search for .bzr directory. */
+static const char *const branch_paths[] =
+{
+	".", ".."
+};
+/** Revision number of the branch, if any. */
+static uint32 branch_revision = 0;
 
 static char *unclean_path(const char *src);
 static void process_players1();
@@ -78,7 +85,14 @@ void version(object *op)
 {
 	if (op)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s", VERSION);
+		if (branch_revision)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s (r%d)", VERSION, branch_revision);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s", VERSION);
+		}
 	}
 	else
 	{
@@ -203,7 +217,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	if (op->head)
 	{
 		op = op->head;
-		LOG(llevBug, "BUG: enter_map(): called from tail of object! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
+		LOG(llevBug, "enter_map(): called from tail of object! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
 	}
 
 	/* this is a last secure check. In fact, newmap MUST legal and we only
@@ -211,7 +225,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	 * if not, we have somewhere missed some checks - give a note to the log. */
 	if (OUT_OF_REAL_MAP(newmap, x, y))
 	{
-		LOG(llevBug, "BUG: enter_map(): supplied coordinates are not within the map! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
+		LOG(llevBug, "enter_map(): supplied coordinates are not within the map! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
 		x = MAP_ENTER_X(newmap);
 		y = MAP_ENTER_Y(newmap);
 	}
@@ -289,8 +303,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			strcpy(CONTR(op)->maplevel, newmap->path);
 			CONTR(op)->count = 0;
 		}
-
-		op->direction = 0;
 
 		/* If the player is changing maps, we need to do some special things
 		 * Do this after the player is on the new map - otherwise the force swap of the
@@ -513,7 +525,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	else
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "The %s is closed.", query_name(exit_ob, NULL));
-LOG(llevDebug, "DEBUG: enter_unique_map: Exit %s (%d,%d) on map %s leads no where.\n", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
+LOG(llevDebug, "enter_unique_map: Exit %s (%d,%d) on map %s leads no where.\n", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
 	}
 }
 
@@ -729,7 +741,7 @@ void enter_exit(object *op, object *exit_ob)
 		{
 			if (strncmp(CONTR(op)->maplevel, "/random/", 8))
 			{
-				LOG(llevBug, "BUG: enter_exit(): Pathname to map does not exist! player: %s (%s)\n", op->name, CONTR(op)->maplevel);
+				LOG(llevBug, "enter_exit(): Pathname to map does not exist! player: %s (%s)\n", op->name, CONTR(op)->maplevel);
 				newmap = ready_map_name(EMERGENCY_MAPPATH, 0);
 				op->x = EMERGENCY_X;
 				op->y = EMERGENCY_Y;
@@ -738,7 +750,7 @@ void enter_exit(object *op, object *exit_ob)
 				 * really screwed up, so bail out now. */
 				if (!newmap)
 				{
-					LOG(llevError, "ERROR: enter_exit(): could not load emergency map? Fatal error! (player: %s)\n", op->name);
+					LOG(llevError, "enter_exit(): could not load emergency map? Fatal error! (player: %s)\n", op->name);
 				}
 			}
 			else
@@ -874,6 +886,21 @@ static void process_players1()
 			hiscore_check(pl->ob, 1);
 		}
 #endif
+
+		/* Update total playing time. */
+		if (pl->state == ST_PLAYING && time(NULL) > pl->last_stat_time_played)
+		{
+			pl->last_stat_time_played = time(NULL);
+
+			if (pl->afk)
+			{
+				pl->stat_time_afk++;
+			}
+			else
+			{
+				pl->stat_time_played++;
+			}
+		}
 	}
 }
 
@@ -950,7 +977,7 @@ void process_events(mapstruct *map)
 		/* Now process op */
 		if (OBJECT_FREE(op))
 		{
-			LOG(llevBug, "BUG: process_events(): Free object on active list\n");
+			LOG(llevBug, "process_events(): Free object on active list\n");
 			op->speed = 0;
 			update_ob_speed(op);
 			continue;
@@ -965,7 +992,7 @@ void process_events(mapstruct *map)
 
 		if (!op->speed)
 		{
-			LOG(llevBug, "BUG: process_events(): Object %s (%s, type:%d count:%d) has no speed, but is on active list\n", op->arch->name, query_name(op, NULL), op->type, op->count);
+			LOG(llevBug, "process_events(): Object %s (%s, type:%d count:%d) has no speed, but is on active list\n", op->arch->name, query_name(op, NULL), op->type, op->count);
 			update_ob_speed(op);
 			continue;
 		}
@@ -977,7 +1004,7 @@ void process_events(mapstruct *map)
 				continue;
 			}
 
-			LOG(llevBug, "BUG: process_events(): Object without map or inventory is on active list: %s (%d)\n", query_name(op, NULL), op->count);
+			LOG(llevBug, "process_events(): Object without map or inventory is on active list: %s (%d)\n", query_name(op, NULL), op->count);
 			op->speed = 0;
 			update_ob_speed(op);
 			continue;
@@ -1191,7 +1218,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
 	if (!oldmap)
 	{
-		LOG(llevBug, "BUG: swap_apartments(): Could not get oldmap using ready_map_name().\n");
+		LOG(llevBug, "swap_apartments(): Could not get oldmap using ready_map_name().\n");
 		return 0;
 	}
 
@@ -1200,7 +1227,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
 	if (!newmap)
 	{
-		LOG(llevBug, "BUG: swap_apartments(): Could not get newmap using ready_map_name().\n");
+		LOG(llevBug, "swap_apartments(): Could not get newmap using ready_map_name().\n");
 		return 0;
 	}
 
@@ -1350,7 +1377,7 @@ static void process_keyboard_input(char *input)
 	/* Show help */
 	if (strncmp(input, "help", 4) == 0)
 	{
-		LOG(llevInfo, "\nAtrinik Interactive Server Interface Help\n");
+		LOG(llevInfo, "Atrinik Interactive Server Interface Help\n");
 		LOG(llevInfo, "The Atrinik Interface Server Interface is used to allow server administrators\nto easily maintain their servers if ran from terminal.\nThe following commands are available:\n\n");
 		LOG(llevInfo, "help: Display this help.\n");
 		LOG(llevInfo, "list: Display logged in players and their IPs.\n");
@@ -1381,7 +1408,7 @@ static void process_keyboard_input(char *input)
 		/* Show count of players online */
 		if (count)
 		{
-			LOG(llevInfo, "\nTotal of %d players online.\n", count);
+			LOG(llevInfo, "Total of %d players online.\n", count);
 		}
 		else
 		{
@@ -1431,7 +1458,7 @@ static void process_keyboard_input(char *input)
 
 		input = cleanup_chat_string(input);
 
-		LOG(llevInfo, "CLOG SYSTEM: %s\n", input);
+		LOG(llevChat, "System: %s\n", input);
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, NULL, "[System]: %s", input);
 	}
 	/* Ban command */
@@ -1526,21 +1553,23 @@ static void iterate_main_loop()
  * @return 0. */
 int main(int argc, char **argv)
 {
-	char input[HUGE_BUF];
+	char buf[HUGE_BUF];
+	size_t i;
+	FILE *fp;
 
-#ifdef WIN32 /* ---win32 this sets the win32 from 0d0a to 0a handling */
+#ifdef WIN32
+	/* ---win32 this sets the win32 from 0d0a to 0a handling */
 	_fmode = _O_BINARY;
 #endif
 
 	init(argc, argv);
 	init_plugins();
-	compile_info();
 
 #ifdef HAVE_CHECK
 	/* Now that we have everything loaded, we can run unit tests. */
 	if (settings.unit_tests)
 	{
-		LOG(llevInfo, "\nRunning unit tests...\n");
+		LOG(llevInfo, "Running unit tests...\n");
 		check_main();
 		exit(0);
 	}
@@ -1549,7 +1578,7 @@ int main(int argc, char **argv)
 #if defined(HAVE_GD)
 	if (settings.world_maker)
 	{
-		LOG(llevInfo, "\nRunning the world maker...\n");
+		LOG(llevInfo, "Running the world maker...\n");
 		world_maker();
 		exit(0);
 	}
@@ -1557,7 +1586,28 @@ int main(int argc, char **argv)
 
 	memset(&marker, 0, sizeof(struct obj));
 
-	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");
+	/* Try to find branch revision. */
+	for (i = 0; i < arraysize(branch_paths); i++)
+	{
+		snprintf(buf, sizeof(buf), "%s/.bzr/branch/last-revision", branch_paths[i]);
+		fp = fopen(buf, "r");
+
+		if (fp && fgets(buf, sizeof(buf) - 1, fp))
+		{
+			char *end = strchr(buf, ' ');
+
+			if (end)
+			{
+				*end = '\0';
+			}
+
+			branch_revision = atoi(buf);
+			fclose(fp);
+			break;
+		}
+	}
+
+	LOG(llevInfo, "Server ready. Waiting for connections...\n");
 
 	if (settings.interactive)
 	{
@@ -1570,9 +1620,9 @@ int main(int argc, char **argv)
 			}
 
 			/* Otherwise we've got some keyboard input, parse it */
-			if (scanf("\n%4096[^\n]", input))
+			if (scanf("\n%4096[^\n]", buf))
 			{
-				process_keyboard_input(input);
+				process_keyboard_input(buf);
 			}
 		}
 	}

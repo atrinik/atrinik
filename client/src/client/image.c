@@ -520,22 +520,24 @@ int request_face(int pnum)
  * @return Face ID if found, -1 otherwise */
 int get_bmap_id(char *name)
 {
-	int l = 0, r = bmaps_size - 1, x;
+	int l = 0, r = bmaps_size - 1, x, cmp;
 
+	/* All the faces in ::bmaps are already sorted, so we can use a
+	 * binary search here. */
 	while (r >= l)
 	{
 		x = (l + r) / 2;
+		cmp = strcmp(name, bmaps[x].name);
 
-		if (strcmp(name, bmaps[x].name) < 0)
+		if (cmp < 0)
 		{
 			r = x - 1;
 		}
-		else
+		else if (cmp > 0)
 		{
 			l = x + 1;
 		}
-
-		if (!strcmp(name, bmaps[x].name))
+		else
 		{
 			request_face(x);
 			return x;

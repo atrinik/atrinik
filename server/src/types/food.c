@@ -80,6 +80,7 @@ void apply_food(object *op, object *tmp)
 			}
 
 			op->stats.food += tmp->stats.food;
+			CONTR(op)->stat_food_consumed += tmp->stats.food;
 
 			if (capacity_remaining < tmp->stats.food)
 			{
@@ -109,6 +110,8 @@ void apply_food(object *op, object *tmp)
 
 			op->stats.food += ft;
 		}
+
+		CONTR(op)->stat_food_num_consumed++;
 
 		new_draw_info(NDI_UNIQUE, op, buf);
 

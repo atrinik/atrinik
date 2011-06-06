@@ -118,6 +118,9 @@
 #define CS_STAT_TARGET_HP 		31
 
 #define CS_STAT_ACTION_TIME		36
+#define CS_STAT_RANGED_DAM 37
+#define CS_STAT_RANGED_WC 38
+#define CS_STAT_RANGED_WS 39
 
 #define CS_STAT_RESIST_START	100
 #define CS_STAT_RESIST_END		117
@@ -354,6 +357,8 @@ typedef struct _srv_client_files
 
 /** Name of the client spells file. */
 #define SRV_FILE_SPELLS_FILENAME "client_spells_v2"
+/** Name of the client skills file. */
+#define SRV_CLIENT_SKILLS_FILENAME "client_skills_v2"
 
 /** Srv client files. */
 enum
@@ -369,6 +374,7 @@ enum
 	SRV_SERVER_SETTINGS,
 	SRV_CLIENT_ANIMS_V2,
 	SRV_CLIENT_EFFECTS,
+	SRV_CLIENT_SKILLS_V2,
 	/* last index */
 	SRV_CLIENT_FILES
 };
@@ -440,6 +446,11 @@ enum
 	BINARY_CMD_SHOP,
 	BINARY_CMD_QLIST,
 	BINARY_CMD_REGION_MAP,
+	/**
+	 * Used to exchange information about readied objects such as arrows,
+	 * bolts, quivers, throwing knives, etc. */
+	BINARY_CMD_READY,
+	BINARY_CMD_KEEPALIVE,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

@@ -132,7 +132,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 		}
 
 #ifdef ALCHEMY_DEBUG
-		LOG(llevDebug, "DEBUG: Got alchemy ability lvl = %d\n", ability);
+		LOG(llevDebug, "Got alchemy ability lvl = %d\n", ability);
 #endif
 
 		if (QUERY_FLAG(caster, FLAG_WIZ))
@@ -142,7 +142,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 			while (rp && (formula % rp->index) != 0)
 			{
 #ifdef EXTREME_ALCHEMY_DEBUG
-				LOG(llevDebug, "DEBUG: found list %d formula: %s of %s (%d)\n", numb, rp->arch_name, rp->title, rp->index);
+				LOG(llevDebug, "found list %d formula: %s of %s (%d)\n", numb, rp->arch_name, rp->title, rp->index);
 #endif
 				rp = rp->next;
 			}
@@ -152,18 +152,18 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 #ifdef ALCHEMY_DEBUG
 				if (rp->title != shstr_cons.NONE)
 				{
-					LOG(llevDebug, "DEBUG: WIZ got formula: %s of %s\n", rp->arch_name, rp->title);
+					LOG(llevDebug, "WIZ got formula: %s of %s\n", rp->arch_name, rp->title);
 				}
 				else
 				{
-					LOG(llevDebug, "DEBUG: WIZ got formula: %s (nbatches:%d)\n", rp->arch_name, formula / rp->index);
+					LOG(llevDebug, "WIZ got formula: %s (nbatches:%d)\n", rp->arch_name, formula / rp->index);
 				}
 #endif
 				attempt_recipe(caster, cauldron, ability, rp, formula / rp->index);
 			}
 			else
 			{
-				LOG(llevDebug, "DEBUG: WIZ couldn't find formula for ingredients.\n");
+				LOG(llevDebug, "WIZ couldn't find formula for ingredients.\n");
 			}
 
 			return;
@@ -202,7 +202,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 				}
 
 #ifdef ALCHEMY_DEBUG
-				LOG(llevDebug, "DEBUG: percent success chance =  %f\n", success_chance);
+				LOG(llevDebug, "percent success chance =  %f\n", success_chance);
 #endif
 
 				/* Roll the dice */
@@ -217,7 +217,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 						/* So when skill id this item, less xp is awarded */
 						item->stats.exp = 0;
 #ifdef EXTREME_ALCHEMY_DEBUG
-						LOG(llevDebug, "DEBUG: %s gains %"FMT64" experience points.\n", caster->name, amount);
+						LOG(llevDebug, "%s gains %"FMT64" experience points.\n", caster->name, amount);
 #endif
 					}
 
@@ -258,7 +258,7 @@ static int content_recipe_value(object *op)
 		tval = (strtoint(name) * (tmp->nrof ? tmp->nrof : 1));
 
 #ifdef ALCHEMY_DEBUG
-		LOG(llevDebug, "DEBUG: Got ingredient %d %s(%d)\n", tmp->nrof ? tmp->nrof : 1, name, tval);
+		LOG(llevDebug, "Got ingredient %d %s(%d)\n", tmp->nrof ? tmp->nrof : 1, name, tval);
 #endif
 
 		formula += tval;
@@ -266,7 +266,7 @@ static int content_recipe_value(object *op)
 	}
 
 #ifdef ALCHEMY_DEBUG
-	LOG(llevDebug, "DEBUG: Formula value=%d\n", formula);
+	LOG(llevDebug, "Formula value=%d\n", formula);
 #endif
 
 	return formula;
@@ -289,7 +289,7 @@ static int numb_ob_inside(object *op)
 	}
 
 #ifdef ALCHEMY_DEBUG
-	LOG(llevDebug, "DEBUG: numb_ob_inside(%s): found %d ingredients\n", op->name, o_number);
+	LOG(llevDebug, "numb_ob_inside(%s): found %d ingredients\n", op->name, o_number);
 #endif
 
 	return o_number;
@@ -335,8 +335,8 @@ static object *attempt_recipe(object *caster, object *cauldron, int ability, rec
 	}
 
 #ifdef EXTREME_ALCHEMY_DEBUG
-	LOG(llevDebug, "DEBUG: attempt_recipe(): got %d nbatches\n", nbatches);
-	LOG(llevDebug, "DEBUG: attempt_recipe(): using recipe %s\n", rp->title ? rp->title : "unknown");
+	LOG(llevDebug, "attempt_recipe(): got %d nbatches\n", nbatches);
+	LOG(llevDebug, "attempt_recipe(): using recipe %s\n", rp->title ? rp->title : "unknown");
 #endif
 
 	if ((item = make_item_from_recipe(cauldron, rp)) != NULL)
@@ -419,7 +419,7 @@ static object *make_item_from_recipe(object *cauldron, recipe *rp)
 	/* Find the appropriate object to transform...*/
 	if ((item = find_transmution_ob(cauldron->inv, rp)) == NULL)
 	{
-		LOG(llevDebug, "DEBUG: make_alchemy_item(): Failed to create alchemical object.\n");
+		LOG(llevDebug, "make_alchemy_item(): Failed to create alchemical object.\n");
 		return NULL;
 	}
 
@@ -428,8 +428,8 @@ static object *make_item_from_recipe(object *cauldron, recipe *rp)
 	{
 		if ((art = locate_recipe_artifact(rp)) == NULL)
 		{
-			LOG(llevBug, "BUG: make_alchemy_item(): failed to locate recipe artifact.\n");
-			LOG(llevBug, "BUG: --requested recipe: %s of %s.\n", rp->arch_name, rp->title);
+			LOG(llevBug, "make_alchemy_item(): failed to locate recipe artifact.\n");
+			LOG(llevBug, "--requested recipe: %s of %s.\n", rp->arch_name, rp->title);
 			return NULL;
 		}
 
@@ -480,14 +480,14 @@ static object *find_transmution_ob(object *first_ingred, recipe *rp)
 	}
 
 #ifdef ALCHEMY_DEBUG
-	LOG(llevDebug, "DEBUG: recipe calls for%stransmution.\n", rp->transmute ? " " : " no ");
+	LOG(llevDebug, "recipe calls for%stransmution.\n", rp->transmute ? " " : " no ");
 
 	if (strcmp(item->arch->name, rp->arch_name))
 	{
-		LOG(llevDebug, "WARNING: recipe calls for arch: %s\n", rp->arch_name);
+		LOG(llevDebug, "recipe calls for arch: %s\n", rp->arch_name);
 	}
 
-	LOG(llevDebug, "DEBUG: find_transmutable_ob(): returns arch %s(sp:%d)\n", item->arch->name, item->stats.sp);
+	LOG(llevDebug, "find_transmutable_ob(): returns arch %s(sp:%d)\n", item->arch->name, item->stats.sp);
 #endif
 
 	return item;
@@ -518,7 +518,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 	}
 
 #ifdef ALCHEMY_DEBUG
-	LOG(llevDebug, "DEBUG: Alchemy_failure_effect(): using level=%d\n", level);
+	LOG(llevDebug, "Alchemy_failure_effect(): using level=%d\n", level);
 #endif
 
 	/* possible outcomes based on level */
@@ -872,7 +872,7 @@ static int calc_alch_danger(object *caster, object *cauldron)
 	}
 
 #ifdef ALCHEMY_DEBUG
-	LOG(llevDebug, "DEBUG: calc_alch_danger() returned danger=%d\n", danger);
+	LOG(llevDebug, "calc_alch_danger() returned danger=%d\n", danger);
 #endif
 
 	return danger;

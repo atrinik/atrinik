@@ -64,6 +64,9 @@ static SDL_Rect region_map_pos;
 /** Count for mouse clicks. */
 static uint32 region_mouse_ticks = 0;
 
+/** Height of the tooltip area of the bitmap. */
+#define RM_TOOLTIP_HEIGHT 150
+
 /**
  * Find a map by path in ::rm_def.
  * @param path Map path to find.
@@ -487,8 +490,8 @@ void RegionMapCmd(uint8 *data, int len)
 
 	region_map_pos.x = 0;
 	region_map_pos.y = 0;
-	region_map_pos.w = Bitmaps[BITMAP_BOOK]->bitmap->w - RM_BORDER_SIZE * 2;
-	region_map_pos.h = Bitmaps[BITMAP_BOOK]->bitmap->h - RM_BORDER_SIZE * 2;
+	region_map_pos.w = Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE * 2;
+	region_map_pos.h = Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE * 2 -RM_TOOLTIP_HEIGHT;
 
 	/* The map is the same, no downloading needed. */
 	if (region_map_is_same(url))
@@ -668,9 +671,9 @@ void region_map_show()
 	size_t i;
 
 	/* Show the background. */
-	x = BOOK_BACKGROUND_X;
-	y = BOOK_BACKGROUND_Y;
-	sprite_blt(Bitmaps[BITMAP_BOOK], x, y, NULL, NULL);
+	x = (Screensize->x / 2 - Bitmaps[BITMAP_REGION_MAP]->bitmap->w / 2);
+	y = (Screensize->y / 2 - Bitmaps[BITMAP_REGION_MAP]->bitmap->h / 2);
+	sprite_blt(Bitmaps[BITMAP_REGION_MAP], x, y, NULL, NULL);
 
 	box.x = x + RM_BORDER_SIZE;
 	box.y = y + RM_BORDER_SIZE;
@@ -678,7 +681,7 @@ void region_map_show()
 	box.h = region_map_pos.h;
 
 	/* Show a close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w, y + 10, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w, y + 10, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		cpl.menustatus = MENU_NO;
 		map_udate_flag = 2;
@@ -686,10 +689,10 @@ void region_map_show()
 	}
 
 	/* Show direction markers. */
-	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>N</o>", box.x, y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>E</o>", x + Bitmaps[BITMAP_BOOK]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>S</o>", box.x, y + Bitmaps[BITMAP_BOOK]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "<o=#000000>W</o>", x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "N", box.x, y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "E", x + Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "S", box.x, y + Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2 - RM_TOOLTIP_HEIGHT, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "W", x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_SIMPLE(COLOR_HGOLD), TEXT_OUTLINE, &box);
 
 	/* Check the status of the downloads. */
 	ret_png = curl_download_finished(data_png);
@@ -698,14 +701,14 @@ void region_map_show()
 	/* We failed. */
 	if (ret_png == -1 || ret_def == -1)
 	{
-		string_blt(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		string_blt(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
 		return;
 	}
 
 	/* Still in progress. */
 	if (ret_png == 0 || ret_def == 0)
 	{
-		string_blt(ScreenSurface, FONT_SERIF14, "Downloading the map, please wait...", box.x, box.y, COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		string_blt(ScreenSurface, FONT_SERIF14, "Downloading the map, please wait...", box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
 		return;
 	}
 
@@ -820,17 +823,22 @@ void region_map_show()
 	/* Actually blit the map. */
 	SDL_BlitSurface(region_map_png, &region_map_pos, ScreenSurface, &dest);
 
+	string_blt(ScreenSurface, FONT_ARIAL11, "Move the mouse cursor over buildings to see additional information about them, if any. Scroll the map by pressing left mouse click.", box.x + 3, y + Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE - FONT_HEIGHT(FONT_ARIAL11) - 3, COLOR_SIMPLE(COLOR_WHITE), TEXT_OUTLINE, NULL);
+
 	if (mx >= box.x && mx <= box.x + box.w && my >= box.y && my <= box.y + box.h)
 	{
+		SDL_Rect tooltip_box;
+
+		tooltip_box.x = box.x + 3;
+		tooltip_box.y = box.y + box.h + RM_BORDER_SIZE + 3;
+		tooltip_box.w = box.w;
+		tooltip_box.h = RM_TOOLTIP_HEIGHT - RM_BORDER_SIZE * 2;
+
 		for (i = 0; i < rm_def->num_tooltips; i++)
 		{
 			if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && region_map_pos.x + mx - box.x <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
 			{
-				x = box.x + box.w + RM_BORDER_SIZE;
-				sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
-				box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
-				box.h = Bitmaps[BITMAP_NEWS_BG]->bitmap->w - 8 * 2;
-				string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].text, x + 8, y + 8, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &box);
+				string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].text, tooltip_box.x, tooltip_box.y, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &tooltip_box);
 				break;
 			}
 		}

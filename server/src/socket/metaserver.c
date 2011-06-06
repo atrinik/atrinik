@@ -123,7 +123,7 @@ void metaserver_init()
 
 	if (ret)
 	{
-		LOG(llevError, "ERROR: metaserver_init(): Failed to create thread: %d.\n", ret);
+		LOG(llevError, "metaserver_init(): Failed to create thread: %d.\n", ret);
 	}
 }
 
@@ -140,7 +140,7 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 
 	(void) data;
 
-	LOG(llevDebug, "DEBUG: metaserver_writer(): Returned data:\n%s\n", (const char *) ptr);
+	LOG(llevDebug, "metaserver_writer(): Returned data:\n%s\n", (const char *) ptr);
 
 	return realsize;
 }
@@ -193,7 +193,7 @@ static void metaserver_update()
 
 		if (res)
 		{
-			LOG(llevDebug, "DEBUG: metaserver_update(): easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
+			LOG(llevDebug, "metaserver_update(): easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
 		}
 
 		/* Always cleanup */
@@ -208,7 +208,7 @@ static void metaserver_update()
 	{
 		time_t now = time(NULL);
 
-		LOG(llevInfo, "INFO: metaserver_update(): Sent data at %.19s.\n", ctime(&now));
+		LOG(llevDebug, "metaserver_update(): Sent data at %.19s.\n", ctime(&now));
 	}
 }
 

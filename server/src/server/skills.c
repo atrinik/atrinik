@@ -196,6 +196,8 @@ object *find_throw_tag(object *op, tag_t tag)
 {
 	object *tmp;
 
+if (CONTR(op)->socket.socket_version < 1048)
+{
 	/* Look through the inventory. */
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
@@ -210,6 +212,11 @@ object *find_throw_tag(object *op, tag_t tag)
 			break;
 		}
 	}
+}
+else
+{
+	tmp = CONTR(op)->ready_object[READY_OBJ_THROW];
+}
 
 	if (!tmp)
 	{
@@ -243,7 +250,7 @@ object *find_throw_tag(object *op, tag_t tag)
 		{
 			if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
 			{
-				LOG(llevBug, "BUG: find_throw_ob(): couldn't unapply throwing item %s from %s\n", query_name(tmp, NULL), query_name(op, NULL));
+				LOG(llevBug, "find_throw_ob(): couldn't unapply throwing item %s from %s\n", query_name(tmp, NULL), query_name(op, NULL));
 				return NULL;
 			}
 		}
@@ -393,6 +400,8 @@ void do_throw(object *op, object *toss_item, int dir)
 
 		return;
 	}
+
+	CONTR(op)->stat_missiles_thrown++;
 
 	set_owner(throw_ob, op);
 	set_owner(throw_ob->inv, op);

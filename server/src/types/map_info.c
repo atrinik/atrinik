@@ -49,7 +49,7 @@ void map_info_init(object *info)
 		{
 			if (OUT_OF_REAL_MAP(info->map, x, y))
 			{
-				LOG(llevBug, "Map info object (%d, %d) spans invalid area.\n", x, y);
+				LOG(llevBug, "Map info object (%d, %d) spans invalid area.\n", info->x, info->y);
 				return;
 			}
 

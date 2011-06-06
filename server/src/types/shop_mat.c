@@ -84,7 +84,7 @@ int apply_shop_mat(object *shop_mat, object *op)
 
 		if (i == -1)
 		{
-			LOG(llevBug, "BUG: Internal shop-mat problem (map:%s object:%s pos: %d,%d).\n", op->map->name, op->name, op->x, op->y);
+			LOG(llevBug, "Internal shop-mat problem (map:%s object:%s pos: %d,%d).\n", op->map->name, op->name, op->x, op->y);
 		}
 		else
 		{

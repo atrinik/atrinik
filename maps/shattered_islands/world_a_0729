@@ -2,12 +2,13 @@ arch map
 name Morg'eean's Cellar
 msg
 Created:  2010-12-21 Alex Tokar
-Modified: 2010-12-21 Alex Tokar
+Modified: 2011-05-29 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 5
 darkness 3
+tile_path_5 world_a_0830
 bg_music lost_cavern.mid
 region strakewood_island
 end
@@ -809,9 +810,17 @@ arch floor_fs_grey1c
 x 21
 y 11
 end
-arch pile_floor2
+arch grain2.101
 x 21
 y 11
+end
+arch spawn_point
+x 21
+y 11
+arch cube_gel
+level 9
+type 83
+end
 end
 arch floor_fs_grey1c
 x 21
@@ -836,6 +845,12 @@ end
 arch floor_fs_grey1b
 no_magic 1
 type 68
+x 21
+y 14
+end
+arch compass
+no_pick 1
+unpaid 1
 x 21
 y 14
 end
@@ -901,21 +916,21 @@ arch floor_fs_grey1b
 x 22
 y 11
 end
-arch grain2.101
+arch hole
+msg
+You fell into the hole! Unfortunately, it seems there's no way back up...
+endmsg
+slaying world_b_0729
+hp 22
+sp 11
+walk_on 1
+layer 4
 x 22
 y 11
 end
 arch torch_wall_1
 x 22
 y 11
-end
-arch spawn_point
-x 22
-y 11
-arch cube_gel
-level 9
-type 83
-end
 end
 arch floor_fs_grey1b
 x 22

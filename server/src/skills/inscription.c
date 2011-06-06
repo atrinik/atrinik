@@ -50,7 +50,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 	if (strcasestr_local(msg, "endmsg"))
 	{
 		new_draw_info(NDI_UNIQUE, op, "Trying to cheat now are we?");
-		LOG(llevInfo, "CRACK: %s tried to write a bogus message using inscription skill.\n", op->name);
+		LOG(llevInfo, "%s tried to write a bogus message using inscription skill.\n", op->name);
 		return 0;
 	}
 
@@ -72,6 +72,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 
 	FREE_AND_COPY_HASH(marked->msg, buf);
 	new_draw_info_format(NDI_UNIQUE, op, "You write in the %s.", query_short_name(marked, op));
+	CONTR(op)->stat_books_inscribed++;
 
 	return strlen(msg);
 }

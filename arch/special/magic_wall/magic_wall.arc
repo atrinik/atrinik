@@ -23,4 +23,5 @@ protect_fire 100
 protect_electricity 100
 protect_cold 100
 blocksview 1
+no_pick 1
 end

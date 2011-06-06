@@ -72,7 +72,8 @@
 /**
  * This structure allows any object to have extra fields the Flex loader
  * does not know about. */
-typedef struct key_value_struct {
+typedef struct key_value_struct
+{
 	/** Name of this extra field. Shared string. */
 	const char *key;
 
@@ -311,6 +312,9 @@ typedef struct obj
 	 * a value of 100 = object is moved 100 pixels to the right, -50 and
 	 * the object is moved 50 pixels to the left. */
 	sint16 align;
+
+	/** Object's rotation value in degrees. */
+	sint16 rotate;
 
 	/** Object is a light source */
 	sint8 glow_radius;

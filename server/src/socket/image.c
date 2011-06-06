@@ -59,9 +59,6 @@ typedef struct
 	/** Full name */
 	char *fullname;
 
-	/** Fallback */
-	uint8 fallback;
-
 	/** Size */
 	char *size;
 
@@ -120,76 +117,6 @@ void free_socket_images()
 	}
 }
 
-/**
- * This returns the set we will actually use when sending
- * a face. This is used because the image files may be sparse.
- *
- * This function is recursive.
- * @param faceset The face set ID to use.
- * @param imageno The face number we're trying to send.
- * @return The face set ID. */
-static int get_face_fallback(int faceset, int imageno)
-{
-	/* faceset 0 is supposed to have every image, so just return.  Doing
-	 * so also prevents infinite loops in the case if it not having
-	 * the face, but in that case, we are likely to crash when we try
-	 * to access the data, but that is probably preferable to an infinite
-	 * loop. */
-	if (faceset == 0)
-	{
-		return 0;
-	}
-
-	if (!facesets[faceset].prefix)
-	{
-		LOG(llevBug, "BUG: get_face_fallback called with unused set (%d)?\n", faceset);
-
-		/* use default set */
-		return 0;
-	}
-
-	if (facesets[faceset].faces[imageno].data)
-	{
-		return faceset;
-	}
-
-	return get_face_fallback(facesets[faceset].fallback, imageno);
-}
-
-/**
- * This is a simple recursive function that makes sure the fallbacks are
- * all proper (eg, they fall back to defined sets, and also eventually
- * fall back to 0).
- *
- * This is only run when we first load the facesets.
- * @param faceset The faceset ID
- * @param togo At the top level, this is set to MAX_FACE_SETS. If it gets
- * to zero, it means we have a loop. */
-static void check_faceset_fallback(int faceset, int togo)
-{
-	int fallback = facesets[faceset].fallback;
-
-	/* proper case - falls back to base set */
-	if (fallback == 0)
-	{
-		return;
-	}
-
-	if (!facesets[fallback].prefix)
-	{
-		LOG(llevError, "Face set %d falls to non set faceset %d\n", faceset, fallback);
-	}
-
-	togo--;
-
-	if (togo == 0)
-	{
-		LOG(llevError, "Infinite loop found in facesets. Aborting.\n");
-	}
-
-	check_faceset_fallback(fallback, togo);
-}
-
 /** Maximum possible size of a single image in bytes. */
 #define MAX_IMAGE_SIZE 50000
 
@@ -206,7 +133,7 @@ void read_client_images()
 {
 	char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
 	FILE *infile, *fbmap;
-	int num, len, compressed, fileno, i, badline;
+	int num, len, compressed, fileno, i;
 
 	memset(facesets, 0, sizeof(facesets));
 
@@ -214,13 +141,11 @@ void read_client_images()
 
 	if ((infile = open_and_uncompress(filename, 0, &compressed)) == NULL)
 	{
-		LOG(llevError, "ERROR: read_client_images(): Unable to open %s\n", filename);
+		LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
 	}
 
 	while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
 	{
-		badline = 0;
-
 		if (buf[0] == '#')
 		{
 			continue;
@@ -228,7 +153,7 @@ void read_client_images()
 
 		if (split_string(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
 		{
-			LOG(llevBug, "BUG: read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
+			LOG(llevBug, "read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
 		}
 		else
 		{
@@ -236,12 +161,11 @@ void read_client_images()
 
 			if (len >= MAX_FACE_SETS)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Too high a setnum in image_info file: %d > %d\n", len, MAX_FACE_SETS);
+				LOG(llevError, "read_client_images(): Too high a setnum in image_info file: %d > %d\n", len, MAX_FACE_SETS);
 			}
 
 			facesets[len].prefix = strdup_local(cps[1]);
 			facesets[len].fullname = strdup_local(cps[2]);
-			facesets[len].fallback = atoi(cps[3]);
 			facesets[len].size = strdup_local(cps[4]);
 			facesets[len].extension = strdup_local(cps[5]);
 			facesets[len].comment = strdup_local(cps[6]);
@@ -249,14 +173,6 @@ void read_client_images()
 	}
 
 	close_and_delete(infile, compressed);
-
-	for (i = 0; i < MAX_FACE_SETS; i++)
-	{
-		if (facesets[i].prefix)
-		{
-			check_faceset_fallback(i, MAX_FACE_SETS);
-		}
-	}
 
 	/* Loaded the faceset information - now need to load up the
 	 * actual faces. */
@@ -274,31 +190,31 @@ void read_client_images()
 		LOG(llevDebug, "Loading image file %s\n", filename);
 
 		/* We don't use more than one face set here! */
-		LOG(llevInfo, "Creating client_bmap....\n");
+		LOG(llevDebug, "Creating client_bmap....\n");
 		snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
 
 		if ((fbmap = fopen(buf, "wb")) == NULL)
 		{
-			LOG(llevError, "ERROR: read_client_images(): Unable to open %s\n", buf);
+			LOG(llevError, "read_client_images(): Unable to open %s\n", buf);
 		}
 
 		if ((infile = open_and_uncompress(filename, 0, &compressed)) == NULL)
 		{
-			LOG(llevError, "ERROR: read_client_images(): Unable to open %s\n", filename);
+			LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
 		}
 
 		while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
 		{
 			if (strncmp(buf, "IMAGE ", 6) != 0)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Bad image line - not IMAGE, instead\n%s", buf);
+				LOG(llevError, "read_client_images(): Bad image line - not IMAGE, instead\n%s", buf);
 			}
 
 			num = atoi(buf + 6);
 
 			if (num < 0 || num >= nrofpixmaps)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Image num %d not in 0..%d\n%s", num, nrofpixmaps, buf);
+				LOG(llevError, "read_client_images(): Image num %d not in 0..%d\n%s", num, nrofpixmaps, buf);
 			}
 
 			/* Skip across the number data */
@@ -310,7 +226,7 @@ void read_client_images()
 
 			if (len == 0 || len > MAX_IMAGE_SIZE)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Length not valid: %d > %d \n%s", len, MAX_IMAGE_SIZE, buf);
+				LOG(llevError, "read_client_images(): Length not valid: %d > %d \n%s", len, MAX_IMAGE_SIZE, buf);
 			}
 
 			/* We don't actually care about the name if the image that
@@ -320,7 +236,7 @@ void read_client_images()
 
 			if ((i = fread(facesets[fileno].faces[num].data, len, 1, infile)) != 1)
 			{
-				LOG(llevError, "ERROR: read_client_images(): Did not read desired amount of data, wanted %d, got %d\n%s", len, i, buf);
+				LOG(llevError, "read_client_images(): Did not read desired amount of data, wanted %d, got %d\n%s", len, i, buf);
 			}
 
 			facesets[fileno].faces[num].checksum = (uint32) crc32(1L, facesets[fileno].faces[num].data, len);
@@ -365,31 +281,28 @@ void SendFaceCmd(char *buf, int len, socket_struct *ns)
 int esrv_send_face(socket_struct *ns, short face_num)
 {
 	SockList sl;
-	int fallback;
 
 	if (face_num < 0 || face_num >= nrofpixmaps)
 	{
-		LOG(llevBug, "BUG: esrv_send_face(): Face %d out of bounds!\n", face_num);
+		LOG(llevBug, "esrv_send_face(): Face %d out of bounds!\n", face_num);
 		return SEND_FACE_OUT_OF_BOUNDS;
 	}
 
-	fallback = get_face_fallback(ns->faceset, face_num);
-
-	if (facesets[fallback].faces[face_num].data == NULL)
+	if (facesets[0].faces[face_num].data == NULL)
 	{
-		LOG(llevBug, "BUG: esrv_send_face(): faces[%d].data == NULL\n", face_num);
+		LOG(llevBug, "esrv_send_face(): faces[%d].data == NULL\n", face_num);
 		return SEND_FACE_NO_DATA;
 	}
 
 	/* 1 byte for the command ID, 4 bytes for the face ID, 4 bytes for
 	 * length of the face data. */
-	sl.buf = malloc(1 + 4 + 4 + facesets[fallback].faces[face_num].datalen);
+	sl.buf = malloc(1 + 4 + 4 + facesets[0].faces[face_num].datalen);
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_IMAGE);
 	SockList_AddInt(&sl, face_num);
-	SockList_AddInt(&sl, facesets[fallback].faces[face_num].datalen);
-	memcpy(sl.buf + sl.len, facesets[fallback].faces[face_num].data, facesets[fallback].faces[face_num].datalen);
-	sl.len += facesets[fallback].faces[face_num].datalen;
+	SockList_AddInt(&sl, facesets[0].faces[face_num].datalen);
+	memcpy(sl.buf + sl.len, facesets[0].faces[face_num].data, facesets[0].faces[face_num].datalen);
+	sl.len += facesets[0].faces[face_num].datalen;
 	Send_With_Handling(ns, &sl);
 	free(sl.buf);
 

@@ -516,14 +516,14 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	/* Show previous button if we're not in the first step. */
 	if (char_step > 0)
 	{
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 		{
 			char_creation_reset(list);
 		}
 	}
 
 	/* Show the next button, or the play button if we're in the last step. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		char_creation_enter(list);
 	}
@@ -722,9 +722,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			}
 			else
 			{
-				if (LIST_MOUSE_OVER(list, event->motion.x, event->motion.y))
+				if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
 				{
-					list_handle_mouse(list, event->motion.x, event->motion.y, event);
 					return 1;
 				}
 			}
@@ -833,12 +832,13 @@ void show_meta_server()
 		}
 
 		/* Create the servers list. */
-		list = list_create(LIST_SERVERS, x + 13, y + 8, 11, 3, 8);
+		list = list_create(LIST_SERVERS, x + 12, y + 8, 11, 3, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->handle_esc_func = list_handle_esc;
+		list_scrollbar_enable(list);
 		list_set_column(list, 0, 295, 7, "Server", -1);
 		list_set_column(list, 1, 50, 9, "Port", 1);
-		list_set_column(list, 2, 50, 7, "Players", 1);
+		list_set_column(list, 2, 48, 7, "Players", 1);
 
 		/* Add the servers to the list. */
 		for (i = 0; i < server_count; i++)
@@ -973,12 +973,12 @@ void show_meta_server()
 	}
 
 	/* Show the play button. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		list_handle_enter(list_exists(LIST_SERVERS));
 	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 35, "Refresh", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 35, "Refresh", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		if (!ms_connecting(-1))
 		{
@@ -986,7 +986,7 @@ void show_meta_server()
 		}
 	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		system_end();
 		exit(0);

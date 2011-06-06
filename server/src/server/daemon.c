@@ -58,7 +58,7 @@ void become_daemon(char *filename)
 
 	logfile = fopen(filename, "a");
 
-	LOG(llevInfo, "\n******************************************************\n");
+	LOG(llevInfo, "******************************************************\n");
 	LOG(llevInfo, "* New server session initialized at %.16s *\n", ctime(&now));
 	LOG(llevInfo, "******************************************************\n\n");
 

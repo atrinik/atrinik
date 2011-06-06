@@ -9,6 +9,8 @@ height 24
 difficulty 55
 darkness 2
 tile_path_3 underground_city_a_0602
+tile_path_4 underground_city_a_0503
+tile_path_7 underground_city_a_0502
 bg_music thonkdonk.ogg
 region underground_city
 end

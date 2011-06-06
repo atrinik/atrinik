@@ -362,12 +362,12 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 int move_monster(object *op)
 {
 	int dir, special_dir = 0, diff;
-	object *enemy, *part, *tmp;
+	object *enemy, *part;
 	rv_vector rv;
 
 	if (op->head)
 	{
-		LOG(llevBug, "BUG: move_monster(): called from tail part. (%s -- %s)\n", query_name(op, NULL), op->arch->name);
+		LOG(llevBug, "move_monster(): called from tail part. (%s -- %s)\n", query_name(op, NULL), op->arch->name);
 		return 0;
 	}
 
@@ -386,7 +386,6 @@ int move_monster(object *op)
 
 	/* Here is the heart of the mob attack and target area.
 	 * find_enemy() checks the old enemy or gets us a new one. */
-	tmp = op->enemy;
 
 	/* We never ever attack */
 	if (QUERY_FLAG(op, FLAG_NO_ATTACK))
@@ -1016,7 +1015,7 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 
 	if ((spell_item = monster_choose_random_spell(head, flags)) == NULL)
 	{
-		LOG(llevDebug, "DEBUG: monster_cast_spell: No spell found! Turned off spells in %s (%s) (%d,%d)\n", query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y );
+		LOG(llevDebug, "monster_cast_spell: No spell found! Turned off spells in %s (%s) (%d,%d)\n", query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y );
 		/* Will be turned on when picking up book */
 		CLEAR_FLAG(head, FLAG_CAST_SPELL);
 		return 0;
@@ -1049,7 +1048,7 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 
 	if (sp_typ == -1 || (sp = find_spell(sp_typ)) == NULL)
 	{
-		LOG(llevDebug, "DEBUG: monster_cast_spell: Can't find spell #%d for mob %s (%s) (%d,%d)\n", sp_typ, query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y);
+		LOG(llevDebug, "monster_cast_spell: Can't find spell #%d for mob %s (%s) (%d,%d)\n", sp_typ, query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y);
 		return 0;
 	}
 
@@ -1161,7 +1160,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 
 	if (bow == NULL)
 	{
-		LOG(llevBug, "BUG: Monster %s (%d) HAS_READY_BOW() without bow.\n", query_name(head, NULL), head->count);
+		LOG(llevBug, "Monster %s (%d) HAS_READY_BOW() without bow.\n", query_name(head, NULL), head->count);
 		CLEAR_FLAG(head, FLAG_READY_BOW);
 		return 0;
 	}
@@ -1534,7 +1533,7 @@ void communicate(object *op, char *txt)
 		 * something else after the slash. */
 		if (txt[0] != '/' || !txt[1])
 		{
-			LOG(llevBug, "BUG: communicate(): %s attempted an illegal command '%s'.\n", op->name, txt);
+			LOG(llevBug, "communicate(): %s attempted an illegal command '%s'.\n", op->name, txt);
 			return;
 		}
 
@@ -1629,7 +1628,7 @@ static char *find_matching_message(const char *msg, const char *match)
 	{
 		if (strncmp(cp, "@match ", 7))
 		{
-			LOG(llevDebug, "DEBUG: find_matching_message(): Invalid message: %s\n", msg);
+			LOG(llevDebug, "find_matching_message(): Invalid message: %s\n", msg);
 			return NULL;
 		}
 		else
@@ -1639,7 +1638,7 @@ static char *find_matching_message(const char *msg, const char *match)
 
 			if (!cp2)
 			{
-				LOG(llevDebug, "DEBUG: find_matching_message(): Found empty match response: %s\n", msg);
+				LOG(llevDebug, "find_matching_message(): Found empty match response: %s\n", msg);
 				return NULL;
 			}
 

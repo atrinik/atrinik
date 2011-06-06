@@ -305,31 +305,25 @@ void ImageCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void SkillRdyCmd(char *data, int len)
 {
-	int i, ii;
+	size_t type, id;
 
 	(void) len;
 
-	strcpy(cpl.skill_name, data);
-	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
+	strncpy(cpl.skill_name, data, sizeof(cpl.skill_name) - 1);
+	cpl.skill_name[sizeof(cpl.skill_name) - 1] = '\0';
+	cpl.skill = NULL;
 
-	/* lets find the skill... and setup the shortcuts to the exp values*/
-	for (ii = 0; ii < SKILL_LIST_MAX; ii++)
+	if (skill_find(cpl.skill_name, &type, &id))
 	{
-		for (i = 0; i < DIALOG_LIST_ENTRY; i++)
+		skill_entry_struct *skill = skill_get(type, id);
+
+		if (skill->known)
 		{
-			/* we have a list entry */
-			if (skill_list[ii].entry[i].flag == LIST_ENTRY_KNOWN)
-			{
-				/* and is it the one we searched for? */
-				if (!strcmp(skill_list[ii].entry[i].name, cpl.skill_name))
-				{
-					cpl.skill_g = ii;
-					cpl.skill_e = i;
-					return;
-				}
-			}
+			cpl.skill = skill;
 		}
 	}
+
+	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
 
 /**
@@ -363,7 +357,7 @@ void DrawInfoCmd(unsigned char *data)
 void DrawInfoCmd2(unsigned char *data, int len)
 {
 	int flags;
-	char buf[2048], *tmp = NULL;
+	char buf[20048], *tmp = NULL;
 
 	flags = (int) GetShort_String(data);
 	data += 2;
@@ -372,9 +366,9 @@ void DrawInfoCmd2(unsigned char *data, int len)
 
 	if (len >= 0)
 	{
-		if (len > 2000)
+		if (len > 20000)
 		{
-			len = 2000;
+			len = 20000;
 		}
 
 		if (options.chat_timestamp && (flags & NDI_PLAYER))
@@ -817,6 +811,21 @@ void StatsCmd(unsigned char *data, int len)
 
 					break;
 				}
+
+				case CS_STAT_RANGED_DAM:
+					cpl.stats.ranged_dam = GetShort_String(data + i);
+					i += 2;
+					break;
+
+				case CS_STAT_RANGED_WC:
+					cpl.stats.ranged_wc = GetShort_String(data + i);
+					i += 2;
+					break;
+
+				case CS_STAT_RANGED_WS:
+					cpl.stats.ranged_ws = GetInt_String(data + i);
+					i += 4;
+					break;
 
 				default:
 					fprintf(stderr, "Unknown stat number %d\n", c);
@@ -1475,12 +1484,12 @@ void Map2Cmd(unsigned char *data, int len)
 			/* Clear this layer. */
 			if (type == MAP2_LAYER_CLEAR)
 			{
-				map_set_data(x, y, data[pos++], 0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0);
+				map_set_data(x, y, data[pos++], 0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0, 0);
 			}
 			/* We have some data. */
 			else
 			{
-				sint16 face = GetShort_String(data + pos), height = 0, zoom = 0, align = 0;
+				sint16 face = GetShort_String(data + pos), height = 0, zoom = 0, align = 0, rotate = 0;
 				uint8 flags, obj_flags, quick_pos = 0, player_color = 0, probe = 0, draw_double = 0, alpha = 0;
 				char player_name[64];
 
@@ -1558,10 +1567,16 @@ void Map2Cmd(unsigned char *data, int len)
 					{
 						alpha = data[pos++];
 					}
+
+					if (flags2 & MAP2_FLAG2_ROTATE)
+					{
+						rotate = GetShort_String(data + pos);
+						pos += 2;
+					}
 				}
 
 				/* Set the data we figured out. */
-				map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe, zoom, align, draw_double, alpha);
+				map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe, zoom, align, draw_double, alpha, rotate);
 			}
 		}
 
@@ -1635,147 +1650,6 @@ void SendAddMe()
 }
 
 /**
- * Skill list command. Used to update player's skill list.
- * @param data The incoming data */
-void SkilllistCmd(char *data)
-{
-	char *tmp, *tmp2, *tmp3, *tmp4;
-	int l, i, ii, mode;
-	sint64 e;
-	char name[256];
-
-	/* We grab our mode */
-	mode = atoi(data);
-
-	/* Now look for the members of the list we have */
-	for (; ;)
-	{
-		/* Find start of a name */
-		tmp = strchr(data, '/');
-
-		if (!tmp)
-		{
-			return;
-		}
-
-		data = tmp + 1;
-
-		tmp2 = strchr(data, '/');
-
-		if (tmp2)
-		{
-			strncpy(name, data, tmp2 - data);
-			name[tmp2 - data] = '\0';
-			data = tmp2;
-		}
-		else
-		{
-			strcpy(name, data);
-		}
-
-		tmp3 = strchr(name, '|');
-		*tmp3 = '\0';
-		tmp4 = strchr(tmp3 + 1, '|');
-
-		l = atoi(tmp3 + 1);
-		e = atoll(tmp4 + 1);
-
-		/* We have a name, the level and exp - now setup the list */
-		for (ii = 0; ii < SKILL_LIST_MAX; ii++)
-		{
-			for (i = 0; i < DIALOG_LIST_ENTRY; i++)
-			{
-				/* We have a list entry */
-				if (skill_list[ii].entry[i].flag != LIST_ENTRY_UNUSED)
-				{
-					/* And it is the one we searched for? */
-					if (!strcmp(skill_list[ii].entry[i].name, name))
-					{
-						/* Remove? */
-						if (mode == SPLIST_MODE_REMOVE)
-						{
-							skill_list[ii].entry[i].flag = LIST_ENTRY_USED;
-						}
-						else
-						{
-							skill_list[ii].entry[i].flag = LIST_ENTRY_KNOWN;
-							skill_list[ii].entry[i].exp = e;
-							skill_list[ii].entry[i].exp_level = l;
-							WIDGET_REDRAW_ALL(SKILL_EXP_ID);
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-/**
- * Spell list command. Used to update the player's spell list.
- * @param data The incoming data. */
-void SpelllistCmd(char *data)
-{
-	int mode;
-	char *tmp_data, *cp;
-
-	/* We grab our mode */
-	mode = atoi(data);
-
-	tmp_data = strdup(data);
-	cp = strtok(tmp_data, "/");
-
-	while (cp)
-	{
-		int i, ii, spell_type, found = 0;
-		char *tmp[3];
-
-		if (split_string(cp, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
-		{
-			cp = strtok(NULL, "/");
-			continue;
-		}
-
-		/* We have a name - now check the spelllist file and set the entry
-		 * to KNOWN */
-		for (i = 0; i < SPELL_LIST_MAX && !found; i++)
-		{
-			for (ii = 0; ii < DIALOG_LIST_ENTRY && !found; ii++)
-			{
-				for (spell_type = 0; spell_type < SPELL_LIST_CLASS; spell_type++)
-				{
-					if (spell_list[i].entry[spell_type][ii].flag >= LIST_ENTRY_USED)
-					{
-						if (!strcmp(spell_list[i].entry[spell_type][ii].name, tmp[0]))
-						{
-							/* Store the cost */
-							spell_list[i].entry[spell_type][ii].cost = atoi(tmp[1]);
-							/* Store the path relationship */
-							spell_list[i].entry[spell_type][ii].path = tmp[2][0];
-
-							if (mode == SPLIST_MODE_REMOVE)
-							{
-								spell_list[i].entry[spell_type][ii].flag = LIST_ENTRY_USED;
-							}
-							else
-							{
-								spell_list[i].entry[spell_type][ii].flag = LIST_ENTRY_KNOWN;
-							}
-
-							found = 1;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		cp = strtok(NULL, "/");
-	}
-
-	free(tmp_data);
-}
-
-/**
  * New char command.
  * Used when server tells us to go to the new character creation. */
 void NewCharCmd()
@@ -1831,4 +1705,29 @@ void QuestListCmd(unsigned char *data, int len)
 
 	data += 4;
 	book_load((char *) data, len - 4);
+}
+
+/**
+ * Ready command. Marks an object with specified UID as readied (arrow,
+ * quiver, etc).
+ * @param data Data.
+ * @param len Length of the data. */
+void ReadyCmd(unsigned char *data, int len)
+{
+	int tag;
+	uint8 type;
+
+	(void) len;
+
+	type = data[0];
+	tag = GetInt_String(data + 1);
+
+	if (type == READY_OBJ_ARROW)
+	{
+		fire_mode_tab[FIRE_MODE_BOW].amun = tag;
+	}
+	else if (type == READY_OBJ_THROW)
+	{
+		fire_mode_tab[FIRE_MODE_THROW].item = tag;
+	}
 }

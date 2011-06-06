@@ -31,6 +31,8 @@
 
 /** Path to the background music file being played. */
 static char *sound_background;
+/** If 1, will not allow music change based on map. */
+static uint8 sound_map_background_disabled = 0;
 /** Loaded sounds. */
 static sound_data_struct *sound_data;
 /** Number of ::sound_data. */
@@ -203,7 +205,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	sound_data_struct *tmp;
 	Mix_Music *music = NULL;
 
-	if (!strcmp(filename, "no_music"))
+	if (!strcmp(filename, "no_music") || !strcmp(filename, "Disable music"))
 	{
 		sound_stop_bg_music();
 		return;
@@ -240,6 +242,15 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	Mix_VolumeMusic(volume);
 	Mix_PlayMusic((Mix_Music *) tmp->data, loop);
 
+	/* Due to a bug in SDL_mixer, some audio types (such as XM, among
+	 * others) will continue playing even when the volume has been set to
+	 * 0, which means we need to manually pause the music if volume is 0,
+	 * and unpause it in sound_update_volume(), if the volume changes. */
+	if (volume == 0)
+	{
+		Mix_PauseMusic();
+	}
+
 	/* Re-sort the array as needed. */
 	if (music)
 	{
@@ -260,20 +271,32 @@ void sound_stop_bg_music()
 }
 
 /**
- * Parse map's background music information.
- * @param bg_music What to parse. */
-void parse_map_bg_music(const char *bg_music)
+ * Update map's background music.
+ * @param bg_music New background music. */
+void update_map_bg_music(const char *bg_music)
 {
-	int loop = -1, vol = 0;
-	char filename[MAX_BUF];
-
-	if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
+	if (sound_map_background_disabled)
 	{
-		LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
 		return;
 	}
 
-	sound_start_bg_music(filename, options.music_volume + vol, loop);
+	if (!strcmp(bg_music, "no_music"))
+	{
+		sound_stop_bg_music();
+	}
+	else
+	{
+		int loop = -1, vol = 0;
+		char filename[MAX_BUF];
+
+		if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
+		{
+			LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+			return;
+		}
+
+		sound_start_bg_music(filename, options.music_volume + vol, loop);
+	}
 }
 
 /**
@@ -281,6 +304,67 @@ void parse_map_bg_music(const char *bg_music)
 void sound_update_volume()
 {
 	Mix_VolumeMusic(options.music_volume);
+
+	/* If there is any background music, due to a bug in SDL_mixer, we
+	 * may need to pause or unpause the music. */
+	if (sound_background)
+	{
+		/* If the new volume is 0, pause the music. */
+		if (options.music_volume == 0)
+		{
+			if (!Mix_PausedMusic())
+			{
+				Mix_PauseMusic();
+			}
+		}
+		/* Non-zero and already paused, so resume the music. */
+		else if (Mix_PausedMusic())
+		{
+			Mix_ResumeMusic();
+		}
+	}
+}
+
+/**
+ * Get the currently playing background music, if any.
+ * @return Background music file name, NULL if no music is playing. */
+const char *sound_get_bg_music()
+{
+	return sound_background;
+}
+
+/**
+ * Get the background music base file name.
+ * @return The background music base file name, if any. NULL otherwise. */
+const char *sound_get_bg_music_basename()
+{
+	const char *bg_music = sound_background;
+	char *cp;
+
+	if (bg_music && (cp = strrchr(bg_music, '/')))
+	{
+		bg_music = cp + 1;
+	}
+
+	return bg_music;
+}
+
+/**
+ * Get or set ::sound_map_background_disabled.
+ * @param new If -1, will return the current value of ::sound_map_background_disabled;
+ * any other value will set ::sound_map_background_disabled to that value.
+ * @return Value of ::sound_map_background_disabled. */
+uint8 sound_map_background(int new)
+{
+	if (new == -1)
+	{
+		return sound_map_background_disabled;
+	}
+	else
+	{
+		sound_map_background_disabled = new;
+		return new;
+	}
 }
 
 /**
@@ -328,7 +412,10 @@ void SoundCmd(uint8 *data, int len)
 	}
 	else if (type == CMD_SOUND_BACKGROUND)
 	{
-		sound_start_bg_music(filename, options.music_volume + volume, loop);
+		if (!sound_map_background_disabled)
+		{
+			sound_start_bg_music(filename, options.music_volume + volume, loop);
+		}
 	}
 	else if (type == CMD_SOUND_ABSOLUTE)
 	{

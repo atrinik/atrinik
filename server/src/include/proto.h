@@ -114,8 +114,9 @@ int command_run_stop(object *op, char *params);
 void send_target_command(player *pl);
 int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
+void new_chars_init();
 void command_new_char(char *params, int len, player *pl);
-void command_fire(char *params, int len, player *pl);
+void command_fire_old(char *params, int len, player *pl);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
 void send_skilllist_cmd(object *op, object *skillp, int mode);
 void send_ready_skill(object *op, const char *skillname);
@@ -198,6 +199,8 @@ int command_map_reset(object *op, char *params);
 int command_map_patch(object *op, char *params);
 int command_no_shout(object *op, char *params);
 int command_dmtake(object *op, char *params);
+int command_server_shout(object *op, char *params);
+int command_mod_shout(object *op, char *params);
 
 /* loaders/map_header.c */
 int map_lex_load(mapstruct *m);
@@ -623,6 +626,7 @@ object *present_arch_in_ob(archetype *at, object *op);
 int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop);
 int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y);
 int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range);
+void permute(int *arr, int begin, int end);
 void get_search_arr(int *search_arr);
 int find_dir_2(int x, int y);
 int absdir(int d);
@@ -850,6 +854,11 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
 
+/* server/statistics.c */
+void statistics_init();
+void statistic_update(const char *type, object *op, sint64 i, const char *buf);
+void statistics_player_logout(player *pl);
+
 /* server/stringbuffer.c */
 StringBuffer *stringbuffer_new();
 char *stringbuffer_finish(StringBuffer *sb);
@@ -892,6 +901,7 @@ void set_abs_magic(object *op, int magic);
 int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
 artifactlist *find_artifactlist(int type);
 archetype *find_artifact_archtype(const char *name);
+artifact *find_artifact_type(const char *name, int type);
 void dump_artifacts();
 void give_artifact_abilities(object *op, artifact *art);
 int generate_artifact(object *op, int difficulty, int t_style, int a_chance);
@@ -969,6 +979,9 @@ void ApplyCmd(char *buf, int len, player *pl);
 void LockItem(uint8 *data, int len, player *pl);
 void MarkItem(uint8 *data, int len, player *pl);
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
+void cmd_ready_send(player *pl, tag_t tag, int type);
+int cmd_ready_determine(object *tmp);
+void cmd_ready_clear(object *op, int type);
 
 /* socket/loop.c */
 void handle_client(socket_struct *ns, player *pl);
@@ -1011,7 +1024,10 @@ void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
 void command_clear_cmds(char *buf, int len, socket_struct *ns);
 void SetSound(char *buf, int len, socket_struct *ns);
-void command_move_path(char *buf, int len, player *pl);
+void command_move_path(uint8 *buf, int len, player *pl);
+void cmd_ready(uint8 *buf, int len, player *pl);
+void command_fire(uint8 *buf, int len, player *pl);
+void cmd_keepalive(char *buf, int len, socket_struct *ns);
 
 /* socket/sounds.c */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
@@ -1030,6 +1046,11 @@ int operate_altar(object *altar, object **sacrifice);
 void apply_armour_improver(object *op, object *tmp);
 
 /* types/arrow.c */
+sint32 bow_get_ws(object *bow, object *arrow);
+sint16 arrow_get_wc(object *op, object *bow, object *arrow);
+sint16 arrow_get_damage(object *op, object *bow, object *arrow);
+object *arrow_find(object *op, shstr *type, int tag);
+void bow_fire(object *op, int dir);
 object *fix_stopped_arrow(object *op);
 void move_arrow(object *op);
 void stop_arrow(object *op);

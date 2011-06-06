@@ -68,10 +68,12 @@ static const Atrinik_Constant constants[] =
 	{"WEST", WEST},
 	{"NORTHWEST", NORTHWEST},
 
+	{"llevSystem", llevSystem},
 	{"llevError", llevError},
 	{"llevBug", llevBug},
 	{"llevInfo", llevInfo},
 	{"llevDebug", llevDebug},
+	{"llevChat", llevChat},
 
 	{"PLUGIN_EVENT_NORMAL", PLUGIN_EVENT_NORMAL},
 	{"PLUGIN_EVENT_GLOBAL", PLUGIN_EVENT_GLOBAL},
@@ -298,6 +300,8 @@ static const Atrinik_Constant constants[] =
 	{"SIZEOFFREE1", SIZEOFFREE1},
 	{"SIZEOFFREE2", SIZEOFFREE2},
 
+	{"NROFREALSPELLS", NROFREALSPELLS},
+
 	{NULL, 0}
 };
 /* @endcparser */
@@ -427,6 +431,8 @@ static const Atrinik_Constant constants_types[] =
 	{"DISEASE", DISEASE},
 	{"SYMPTOM", SYMPTOM},
 	{"MAP_EVENT_OBJ", MAP_EVENT_OBJ},
+	{"MAP_INFO", MAP_INFO},
+	{"COMPASS", COMPASS},
 
 	{NULL, 0}
 };
@@ -948,7 +954,7 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 	PyDict_SetItemString(dict, "month_name", Py_BuildValue("s", hooks->month_name[tod.month]));
 	PyDict_SetItemString(dict, "day", Py_BuildValue("i", tod.day + 1));
 	PyDict_SetItemString(dict, "hour", Py_BuildValue("i", tod.hour));
-	PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute + 1));
+	PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute));
 	PyDict_SetItemString(dict, "dayofweek", Py_BuildValue("i", tod.dayofweek + 1));
 	PyDict_SetItemString(dict, "dayofweek_name", Py_BuildValue("s", hooks->weekdays[tod.dayofweek]));
 	PyDict_SetItemString(dict, "season", Py_BuildValue("i", tod.season + 1));
@@ -1452,13 +1458,13 @@ static PyCodeObject *compilePython(char *filename)
 
 	if (!(scriptfile = python_openfile(filename)))
 	{
-		LOG(llevDebug, "PYTHON:: The script file %s can't be opened.\n", filename);
+		LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
 		return NULL;
 	}
 
 	if (stat(filename, &stat_buf))
 	{
-		LOG(llevDebug, "PYTHON:: The script file %s can't be stat()ed.\n", filename);
+		LOG(llevDebug, "Python: The script file %s can't be stat()ed.\n", filename);
 		Py_DECREF(scriptfile);
 		return NULL;
 	}
@@ -1583,7 +1589,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 	if (pycode)
 	{
-#ifdef PYTHON_DEBUG
+#ifndef PRODUCTION_SERVER
 		PyObject *modules = PyImport_GetModuleDict(), *key, *value;
 		Py_ssize_t pos = 0;
 		const char *m_filename;
@@ -1659,20 +1665,13 @@ static int handle_event(va_list args)
 	context->options = va_arg(args, char *);
 	context->returnvalue = 0;
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON:: Start script file >%s<\n", script);
-	LOG(llevDebug, "PYTHON:: Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
-#endif
+	LOG(llevDebug, "Python: Start script file >%s<, activator: %s, who: %s, other: %s, text: %s, parms: %d, %d, %d, %d\n", script, STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
 
 	if (!do_script(context, script, context->who))
 	{
 		freeContext(context);
 		return 0;
 	}
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "fixing. ");
-#endif
 
 	context = popContext();
 
@@ -1700,10 +1699,7 @@ static int handle_event(va_list args)
 
 	rv = context->returnvalue;
 	freeContext(context);
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "done (returned: %d)!\n", rv);
-#endif
+	LOG(llevDebug, "Python: done (returned: %d).\n", rv);
 
 	return rv;
 }
@@ -1834,9 +1830,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 	event_type = va_arg(args, int);
 	eventcode = va_arg(args, int);
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON:: triggerEvent(): eventcode %d\n", eventcode);
-#endif
+	LOG(llevDebug, "Python: triggerEvent(): eventcode %d\n", eventcode);
 
 	switch (event_type)
 	{
@@ -1853,7 +1847,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 			break;
 
 		default:
-			LOG(llevBug, "PYTHON:: BUG: Requested unknown event type %d.\n", event_type);
+			LOG(llevBug, "Python: Requested unknown event type %d.\n", event_type);
 			break;
 	}
 
@@ -1927,9 +1921,7 @@ static int cmd_customPython(object *op, char *params)
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON:: cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
-#endif
+	LOG(llevDebug, "Python: handling command %s using script: %s\n", CustomCommand[NextCustomCommand].name, CustomCommand[NextCustomCommand].script);
 
 	context->activator = op;
 	context->who = op;
@@ -1953,9 +1945,7 @@ static int cmd_customPython(object *op, char *params)
 	rv = context->returnvalue;
 	freeContext(context);
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "done (returned: %d)!\n", rv);
-#endif
+	LOG(llevDebug, "Python: done (returned: %d).\n", rv);
 
 	return rv;
 }
@@ -1965,7 +1955,7 @@ MODULEAPI void postinitPlugin()
 	PyObject *scriptfile;
 	char path[HUGE_BUF];
 
-	LOG(llevDebug, "PYTHON:: Start postinitPlugin.\n");
+	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
@@ -2070,14 +2060,28 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 	PyDict_SetItemString(PyModule_GetDict(module), name, list);
 }
 
+/**
+ * Open a log file in replacement for stdout and stderr.
+ * @param fp File pointer.
+ * @param name Name, for example, \<stdout\>.
+ * @return The opened log file. */
+static PyObject *python_openlogfile(FILE *fp, char *name)
+{
+#ifdef IS_PY3K
+	return PyFile_FromFd(fileno(fp), name, "w", 1, NULL, NULL, NULL, 0);
+#else
+	return PyFile_FromFile(fp, name, "w", 0);
+#endif
+}
+
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	PyObject *m, *d, *module_tmp;
+	PyObject *m, *d, *module_tmp, *logfile;
 	int i;
 
 	hooks = hooklist;
 
-	LOG(llevDebug, "Atrinik Plugin loading...\n");
+	LOG(llevDebug, "Python: Atrinik Python Plugin loading...\n");
 
 #ifdef IS_PY26
 	Py_Py3kWarningFlag++;
@@ -2089,7 +2093,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	Py_Initialize();
 
-	LOG(llevDebug, "PYTHON:: Start initAtrinik.\n");
+	LOG(llevDebug, "Python: Start initAtrinik.\n");
 
 #ifdef IS_PY3K
 	m = PyImport_ImportModule("Atrinik");
@@ -2108,10 +2112,17 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		CustomCommand[i].speed = 0.0;
 	}
 
-	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m))
+	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) || !Atrinik_AttrList_init(m))
 	{
 		return;
 	}
+
+	logfile = python_openlogfile(*hooks->logfile, "<stdout>");
+	PySys_SetObject("stdout", logfile);
+	PySys_SetObject("__stdout__", logfile);
+	logfile = python_openlogfile(*hooks->logfile, "<stderr>");
+	PySys_SetObject("stderr", logfile);
+	PySys_SetObject("__stderr__", logfile);
 
 	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
@@ -2138,12 +2149,12 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	PyDict_SetItemString(d, "Gender", module_tmp);
 
-	LOG(llevDebug, "  [Done]\n");
+	LOG(llevDebug, "Python:  [Done]\n");
 }
 
 MODULEAPI void closePlugin()
 {
-	LOG(llevInfo, "Python Plugin closing.\n");
+	LOG(llevDebug, "Python Plugin closing.\n");
 	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);
 	Py_Finalize();
 }
@@ -2225,7 +2236,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 			else if (PyString_Check(value))
 			{
-				free(*(char **) field_ptr);
+				if (*(char **) field_ptr)
+				{
+					free(*(char **) field_ptr);
+				}
+
 				*(char **) field_ptr = hooks->strdup_local(PyString_AsString(value));
 			}
 			else
@@ -2633,6 +2648,9 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 
 			break;
+
+		default:
+			break;
 	}
 
 	return 0;
@@ -2726,9 +2744,15 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_BOOLEAN:
 			Py_ReturnBoolean(*(uint8 *) field_ptr);
+
+		case FIELDTYPE_LIST:
+			return wrap_attr_list(ptr, field->offset, field->extra_data);
+
+		default:
+			break;
 	}
 
-	RAISE("BUG: Unknown field type.");
+	RAISE("Unknown field type.");
 }
 
 /**

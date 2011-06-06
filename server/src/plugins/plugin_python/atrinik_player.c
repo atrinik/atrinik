@@ -54,6 +54,8 @@ static fields_struct fields[] =
 	{"dm_stealth", FIELDTYPE_BOOLEAN, offsetof(player, dm_stealth), 0, 0},
 	{"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0, offsetof(player, target_object_count)},
 	{"no_shout", FIELDTYPE_BOOLEAN, offsetof(player, no_shout), 0, 0},
+	{"known_spells", FIELDTYPE_LIST, offsetof(player, known_spells), 0, FIELDTYPE_KNOWN_SPELLS},
+	{"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
 
 	{"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},

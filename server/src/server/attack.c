@@ -99,7 +99,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
 	if (!hitter->stats.wc_range)
 	{
-		LOG(llevDebug, "BUG attack.c: hitter %s has wc_range == 0! (set to 20)\n", query_name(hitter, NULL));
+		LOG(llevDebug, "attack.c: hitter %s has wc_range == 0! (set to 20)\n", query_name(hitter, NULL));
 		hitter->stats.wc_range = 20;
 	}
 
@@ -250,7 +250,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	int maxdam = 0;
 	int attacknum, hit_level;
 	int simple_attack;
-	tag_t op_tag, hitter_tag;
 	int rtn_kill = 0;
 
 	/* If our target has no_damage 1 set or is wiz, we can't hurt him. */
@@ -314,7 +313,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	/* Very useful sanity check */
 	if (hit_level == 0 || target_obj->level == 0)
 	{
-		LOG(llevDebug, "DEBUG: hit_player(): hit or target object level == 0(h:>%s< (o:>%s<) l->%d t:>%s< (>%s<)(o:>%s<) l->%d\n", query_name(hitter, NULL), query_name(get_owner(hitter), NULL), hit_level, query_name(op, NULL), target_obj->arch->name, query_name(get_owner(op), NULL), target_obj->level);
+		LOG(llevDebug, "hit_player(): hit or target object level == 0(h:>%s< (o:>%s<) l->%d t:>%s< (>%s<)(o:>%s<) l->%d\n", query_name(hitter, NULL), query_name(get_owner(hitter), NULL), hit_level, query_name(op, NULL), target_obj->arch->name, query_name(get_owner(op), NULL), target_obj->level);
 	}
 
 	/* Do not let friendly objects attack each other. */
@@ -356,9 +355,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		return 0;
 	}
 
-	op_tag = op->count;
-	hitter_tag = hitter->count;
-
 	/* Go through and hit the player with each attacktype, one by one.
 	 * hit_player_attacktype only figures out the damage, doesn't inflict
 	 * it. It will do the appropriate action for attacktypes with
@@ -382,6 +378,16 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	{
 		op->last_damage = 0;
 		op->damage_round_tag = ROUND_TAG;
+	}
+
+	if (hit_obj->type == PLAYER)
+	{
+		CONTR(hit_obj)->stat_damage_dealt += maxdam;
+	}
+
+	if (target_obj->type == PLAYER)
+	{
+		CONTR(target_obj)->stat_damage_taken += maxdam;
 	}
 
 	op->last_damage += maxdam;
@@ -418,7 +424,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
 		if (!op->other_arch)
 		{
-			LOG(llevBug, "BUG: SPLITTING without other_arch error.\n");
+			LOG(llevBug, "SPLITTING without other_arch error.\n");
 			return maxdam;
 		}
 
@@ -466,18 +472,18 @@ int hit_map(object *op, int dir, int reduce)
 {
 	object *tmp, *next, *tmp_obj, *tmp_head;
 	mapstruct *map;
-	int x, y, mflags;
+	int x, y;
 	tag_t op_tag, next_tag = 0;
 
 	if (OBJECT_FREE(op))
 	{
-		LOG(llevBug, "BUG: hit_map(): free object\n");
+		LOG(llevBug, "hit_map(): free object\n");
 		return 0;
 	}
 
 	if (QUERY_FLAG(op, FLAG_REMOVED) || op->env != NULL)
 	{
-		LOG(llevBug, "BUG: hit_map(): hitter (arch %s, name %s) not on a map\n", op->arch->name, query_name(op, NULL));
+		LOG(llevBug, "hit_map(): hitter (arch %s, name %s) not on a map\n", op->arch->name, query_name(op, NULL));
 		return 0;
 	}
 
@@ -490,7 +496,7 @@ int hit_map(object *op, int dir, int reduce)
 
 	if (!op->map)
 	{
-		LOG(llevBug, "BUG: hit_map(): %s has no map.\n", query_name(op, NULL));
+		LOG(llevBug, "hit_map(): %s has no map.\n", query_name(op, NULL));
 		return 0;
 	}
 
@@ -501,8 +507,6 @@ int hit_map(object *op, int dir, int reduce)
 	{
 		return 0;
 	}
-
-	mflags = GET_MAP_FLAGS(map, x, y);
 
 	next = get_map_ob(map, x, y);
 
@@ -545,7 +549,7 @@ int hit_map(object *op, int dir, int reduce)
 
 		if (OBJECT_FREE(tmp))
 		{
-			LOG(llevBug, "BUG: hit_map(): found freed object (%s)\n", tmp->arch->name ? tmp->arch->name : "<NULL>");
+			LOG(llevBug, "hit_map(): found freed object (%s)\n", tmp->arch->name ? tmp->arch->name : "<NULL>");
 			break;
 		}
 
@@ -624,12 +628,11 @@ int hit_map(object *op, int dir, int reduce)
 static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum)
 {
 	double dam = (double) damage;
-	int doesnt_slay = 1;
 
 	/* Sanity check */
 	if (dam < 0)
 	{
-		LOG(llevBug, "BUG: hit_player_attacktype called with negative damage: %f from object: %s\n", dam, query_name(op, NULL));
+		LOG(llevBug, "hit_player_attacktype called with negative damage: %f from object: %s\n", dam, query_name(op, NULL));
 		return 0;
 	}
 
@@ -637,8 +640,6 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 	{
 		if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying)))
 		{
-			doesnt_slay = 0;
-
 			if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION))
 			{
 				damage = (int) ((double) damage * 2.25);
@@ -996,6 +997,16 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		{
 			new_draw_info_format(NDI_UNIQUE, owner, "You killed %s.", query_name(op, NULL));
 		}
+
+		if (op->type == MONSTER)
+		{
+			CONTR(owner)->stat_kills_mob++;
+			statistic_update("kills", owner, 1, op->name);
+		}
+		else if (op->type == PLAYER)
+		{
+			CONTR(owner)->stat_kills_pvp++;
+		}
 	}
 
 	/* Killed a player in PvP area. */
@@ -1106,7 +1117,7 @@ static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 {
 	if (OBJECT_FREE(*target) || OBJECT_FREE(*hitter))
 	{
-		LOG(llevBug, "BUG: get_attack_mode(): freed object\n");
+		LOG(llevBug, "get_attack_mode(): freed object\n");
 		return 1;
 	}
 
@@ -1128,7 +1139,7 @@ static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 
 	if (QUERY_FLAG(*target, FLAG_REMOVED) || QUERY_FLAG(*hitter, FLAG_REMOVED) || !on_same_map((*hitter), (*target)))
 	{
-		LOG(llevBug, "BUG: hitter (arch %s, name %s) with no relation to target\n", (*hitter)->arch->name, query_name(*hitter, NULL));
+		LOG(llevBug, "hitter (arch %s, name %s) with no relation to target\n", (*hitter)->arch->name, query_name(*hitter, NULL));
 		return 1;
 	}
 
@@ -1174,7 +1185,7 @@ object *hit_with_arrow(object *op, object *victim)
 {
 	object *container, *hitter;
 	int hit_something = 0;
-	tag_t victim_tag, hitter_tag;
+	tag_t hitter_tag;
 	sint16 victim_x, victim_y;
 	mapstruct *victim_map;
 
@@ -1196,7 +1207,6 @@ object *hit_with_arrow(object *op, object *victim)
 	victim_x = victim->x;
 	victim_y = victim->y;
 	victim_map = victim->map;
-	victim_tag = victim->count;
 	hitter_tag = hitter->count;
 
 	if (HAS_EVENT(hitter, EVENT_ATTACK))
@@ -1297,7 +1307,7 @@ static void poison_player(object *op, object *hitter, float dam)
 	{
 		if ((tmp = arch_to_object(at)) == NULL)
 		{
-			LOG(llevBug, "BUG: Failed to clone arch poisoning.\n");
+			LOG(llevBug, "Failed to clone arch poisoning.\n");
 			return;
 		}
 		else
@@ -1410,7 +1420,7 @@ static void slow_living(object *op)
 
 	if (at == NULL)
 	{
-		LOG(llevBug, "BUG: Can't find slowness archetype.\n");
+		LOG(llevBug, "Can't find slowness archetype.\n");
 	}
 
 	if ((tmp = present_arch_in_ob(at, op)) == NULL)
@@ -1593,7 +1603,7 @@ static int adj_attackroll(object *hitter, object *target)
 	/* Safety */
 	if (!target || !hitter || !hitter->map || !target->map || !on_same_map(hitter, target))
 	{
-		LOG(llevBug, "BUG: adj_attackroll(): hitter and target not on same map\n");
+		LOG(llevBug, "adj_attackroll(): hitter and target not on same map\n");
 		return 0;
 	}
 

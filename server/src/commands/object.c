@@ -198,11 +198,6 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
 
-	if (op->type == KEY && sack->slaying && op->slaying)
-	{
-		snprintf(buf, sizeof(buf), "You don't want put the key into %s.", query_name(sack, NULL));
-	}
-
 	if (sack->weight_limit && sack->carrying + (sint32) ((float) (((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (sint32) sack->weight_limit)
 	{
 		snprintf(buf, sizeof(buf), "That won't fit in the %s!", query_name(sack, NULL));
@@ -301,6 +296,11 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 		SET_FLAG(tmp, FLAG_WAS_WIZ);
 	}
 #endif
+
+	if (pl->type == PLAYER)
+	{
+		CONTR(pl)->stat_items_picked++;
+	}
 
 	if (QUERY_FLAG(tmp, FLAG_UNPAID))
 	{
@@ -474,7 +474,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	{
 		alt = CONTR(op)->container;
 
-		if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count))
+		if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt))
 		{
 			goto leave;
 		}
@@ -484,7 +484,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	{
 		for (alt = op->inv; alt; alt = alt->below)
 		{
-			if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count))
+			if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt))
 			{
 				/* Perfect match */
 				break;
@@ -495,7 +495,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 		{
 			for (alt = op->inv; alt; alt = alt->below)
 			{
-				if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && sack_can_hold(NULL, alt, tmp, count))
+				if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt))
 				{
 					/* General container comes next */
 					break;
@@ -560,7 +560,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevDebug, "DEBUG: put_object_in_sack: op not a player.\n");
+		LOG(llevDebug, "put_object_in_sack: op not a player.\n");
 		return;
 	}
 
@@ -704,6 +704,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
+		new_draw_info(NDI_UNIQUE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -776,6 +777,11 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 		{
 			return;
 		}
+	}
+
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->stat_items_dropped++;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID))
@@ -890,6 +896,7 @@ void drop(object *op, object *tmp, int no_mevent)
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 	{
+		new_draw_info(NDI_UNIQUE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -1451,9 +1458,52 @@ void examine(object *op, object *tmp)
 			break;
 
 		case BOOK:
-			if (tmp->msg != NULL)
+			if (tmp->msg)
 			{
 				strcpy(buf, "Something is written in it.");
+
+				if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT))
+				{
+					int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
+
+					new_draw_info(NDI_UNIQUE, op, buf);
+
+					/* Gray. */
+					if (tmp->level < level_color[level].green)
+					{
+						strcpy(buf, "It seems to contain no knowledge you could learn from.");
+					}
+					/* Green. */
+					else if (tmp->level < level_color[level].blue)
+					{
+						strcpy(buf, "It seems to contain tiny bits of knowledge you could learn from.");
+					}
+					/* Blue. */
+					else if (tmp->level < level_color[level].yellow)
+					{
+						strcpy(buf, "It seems to contain a small amount of knowledge you could learn from.");
+					}
+					/* Yellow. */
+					else if (tmp->level < level_color[level].orange)
+					{
+						strcpy(buf, "It seems to contain an average amount of knowledge you could learn from.");
+					}
+					/* Orange. */
+					else if (tmp->level < level_color[level].red)
+					{
+						strcpy(buf, "It seems to contain a moderate amount of knowledge you could learn from.");
+					}
+					/* Red. */
+					else if (tmp->level < level_color[level].purple)
+					{
+						strcpy(buf, "It seems to contain a fair amount of knowledge you could learn from.");
+					}
+					/* Purple. */
+					else
+					{
+						strcpy(buf, "It seems to contain a great amount of knowledge you could learn from.");
+					}
+				}
 			}
 
 			break;
@@ -1811,6 +1861,7 @@ int command_rename_item(object *op, char *params)
 		/* Set custom name. */
 		FREE_AND_COPY_HASH(tmp->custom_name, params);
 		new_draw_info_format(NDI_UNIQUE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+		CONTR(op)->stat_renamed_items++;
 	}
 
 	del_tag = tmp->count;

@@ -37,7 +37,6 @@
 static archetype *get_player_archetype(archetype *at);
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
-static object *find_arrow_ext(object *op, const char *type, int tag);
 
 /**
  * Loop through the player list and find player specified by plname.
@@ -139,7 +138,7 @@ static player *get_player(player *p)
 
 		if (p == NULL)
 		{
-			LOG(llevError, "ERROR: get_player(): Out of memory\n");
+			LOG(llevError, "get_player(): Out of memory\n");
 		}
 
 		if (!last_player)
@@ -174,7 +173,6 @@ static player *get_player(player *p)
 	op->speed_left = 0.5;
 	op->speed = 1.0;
 	op->run_away = 0;
-	op->quickslot = 0;
 
 	p->state = ST_ROLL_STAT;
 
@@ -336,7 +334,7 @@ static archetype *get_player_archetype(archetype *at)
 
 		if (at == start)
 		{
-			LOG(llevError, "ERROR: No player achetypes\n");
+			LOG(llevError, "No player achetypes\n");
 			exit(-1);
 		}
 	}
@@ -459,146 +457,6 @@ object *find_arrow(object *op, const char *type)
 }
 
 /**
- * Player fires a bow.
- * @param op Object firing.
- * @param dir Direction to fire. */
-static void fire_bow(object *op, int dir)
-{
-	object *left_cont, *bow, *arrow = NULL, *left, *tmp_op;
-	tag_t left_tag;
-
-	/* If no dir is specified, attempt to find get the direction from
-	 * player's target. */
-	if (!dir && op->type == PLAYER && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
-	{
-		rv_vector range_vector;
-		dir = get_dir_to_target(op, CONTR(op)->target_object, &range_vector);
-	}
-
-	if (!dir)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You can't shoot yourself!");
-		return;
-	}
-
-	bow = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
-
-	if (!bow)
-	{
-		LOG(llevBug, "BUG: fire_bow(): bow without activated bow (%s - %d).\n", op->name, dir);
-	}
-
-	if (!bow->race)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your %s is broken.", bow->name);
-		return;
-	}
-
-	if ((arrow = find_arrow_ext(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "You have no %s left.", bow->race);
-		return;
-	}
-
-	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
-	{
-		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
-		return;
-	}
-
-	/* This should not happen, but sometimes does */
-	if (arrow->nrof == 0)
-	{
-		LOG(llevDebug, "BUG?: arrow->nrof == 0 in fire_bow() (%s)\n", query_name(arrow, NULL));
-		remove_ob(arrow);
-		return;
-	}
-
-	/* These are arrows left to the player */
-	left = arrow;
-	left_tag = left->count;
-	left_cont = left->env;
-	arrow = get_split_ob(arrow, 1, NULL, 0);
-	set_owner(arrow, op);
-	arrow->direction = dir;
-	arrow->x = op->x;
-	arrow->y = op->y;
-	arrow->speed = 1;
-
-	/* Now the trick: we transfer the shooting speed in the used
-	 * skill - that will allow us to use "set_skill_speed() as global
-	 * function. */
-	op->chosen_skill->stats.maxsp = bow->stats.sp + arrow->last_grace;
-	update_ob_speed(arrow);
-	arrow->speed_left = 0;
-	SET_ANIMATION(arrow, (NUM_ANIMATIONS(arrow) / NUM_FACINGS(arrow)) * dir);
-	/* Save original wc and dam */
-	arrow->last_heal = arrow->stats.wc;
-	/* Will be put back in fix_arrow() */
-	arrow->stats.hp = arrow->stats.dam;
-	/* Determine how many tiles the arrow will fly. */
-	arrow->last_sp = bow->last_sp + arrow->last_sp;
-	/* Get the used skill. */
-	tmp_op = SK_skill(op);
-
-	/* Now we do this: arrow wc = wc base from skill + (wc arrow + magic) + (wc range weapon bonus + magic) */
-	if (tmp_op)
-	{
-		/* wc is in last heal */
-		arrow->stats.wc += tmp_op->last_heal;
-		/* Add tiles range from the skill object. */
-		arrow->last_sp += tmp_op->last_sp;
-	}
-	else
-	{
-		arrow->stats.wc += 10;
-	}
-
-	/* Add in all our wc bonus */
-	arrow->stats.wc += (bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc);
-	arrow->stats.wc_range = bow->stats.wc_range;
-
-	arrow->stats.dam += arrow->magic;
-	arrow->stats.dam = FABS((int) ((float) (arrow->stats.dam * LEVEL_DAMAGE(SK_level(op)))));
-	arrow->stats.dam += arrow->stats.dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
-
-	if (bow->item_condition > arrow->item_condition)
-	{
-		arrow->stats.dam = (sint16) (((float) arrow->stats.dam / 100.0f) * (float) bow->item_condition);
-	}
-	else
-	{
-		arrow->stats.dam = (sint16) (((float) arrow->stats.dam / 100.0f) * (float) arrow->item_condition);
-	}
-
-	arrow->level = SK_level(op);
-	arrow->map = op->map;
-	SET_MULTI_FLAG(arrow, FLAG_FLYING);
-	SET_FLAG(arrow, FLAG_IS_MISSILE);
-	SET_FLAG(arrow, FLAG_FLY_ON);
-	SET_FLAG(arrow, FLAG_WALK_ON);
-	/* Temporary buffer for "tiles to fly" */
-	arrow->stats.grace = arrow->last_sp;
-	/* Reflection timer */
-	arrow->stats.maxgrace = 60 + (RANDOM() % 12);
-	play_sound_map(op->map, CMD_SOUND_EFFECT, "bow1.ogg", op->x, op->y, 0, 0);
-
-	if (insert_ob_in_map(arrow, op->map, op, 0))
-	{
-		move_arrow(arrow);
-	}
-
-	if (was_destroyed(left, left_tag))
-	{
-		esrv_del_item(CONTR(op), left_tag, left_cont);
-	}
-	else
-	{
-		esrv_send_item(op, left);
-	}
-}
-
-/**
  * Fire command for spells, range, throwing, etc.
  * @param op Object firing this.
  * @param dir Direction to fire to. */
@@ -690,7 +548,7 @@ void fire(object *op, int dir)
 			return;
 
 		case range_bow:
-			if (CONTR(op)->firemode_tag2 != -1)
+			if (CONTR(op)->firemode_tag2 != -1 || CONTR(op)->socket.socket_version >= 1048)
 			{
 				/* Still need to recover from range action? */
 				if (!check_skill_action_time(op, op->chosen_skill))
@@ -698,7 +556,7 @@ void fire(object *op, int dir)
 					return;
 				}
 
-				fire_bow(op, dir);
+				bow_fire(op, dir);
 				get_skill_time(op, op->chosen_skill->stats.sp);
 				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
@@ -1078,7 +936,7 @@ static int save_life(object *op)
 		}
 	}
 
-	LOG(llevBug, "BUG: save_life(): LIFESAVE set without applied object.\n");
+	LOG(llevBug, "save_life(): LIFESAVE set without applied object.\n");
 	CLEAR_FLAG(op, FLAG_LIFESAVE);
 	/* Bring him home. */
 	enter_player_savebed(op);
@@ -1124,15 +982,14 @@ static void remove_unpaid_objects(object *op, object *env)
  * @return How much to regenerate. */
 static int get_regen_amount(uint16 regen, uint16 *remainder)
 {
-	int ret = 1;
+	int ret = 0;
 	float div;
 
-	/* Check if the regen is higher than <max ticks per second> every
-	 * second. If so, we need to update the remainder variable (which will
-	 * distribute the remainder evenly over time). */
-	if (pticks % 8 == 0 && regen / 10.0f > (float) 1000000 / MAX_TIME)
+	/* Check whether it's time to update the remainder variable (which
+	 * will distribute the remainder evenly over time). */
+	if (pticks % 8 == 0)
 	{
-		*remainder += (int) (((float) (regen / 10.0f - (float) 1000000 / MAX_TIME)) * 10);
+		*remainder += regen;
 	}
 
 	/* First check if we can distribute it evenly, if not, try to remove
@@ -1170,6 +1027,7 @@ void do_some_living(object *op)
 	int rate_hp = 2000;
 	int rate_sp = 1200;
 	int rate_grace = 400;
+	int add;
 
 	if (CONTR(op)->state != ST_PLAYING)
 	{
@@ -1188,11 +1046,14 @@ void do_some_living(object *op)
 	CONTR(op)->gen_client_grace = ((float) (1000000 / MAX_TIME) / ((float) rate_grace / (MAX(gen_grace, 20) + 10))) * 10.0f;
 
 	/* Regenerate hit points. */
-	if (--op->last_heal < 0)
+	if (op->stats.hp < op->stats.maxhp && op->stats.food)
 	{
-		if (op->stats.hp < op->stats.maxhp && op->stats.food)
+		add = get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
+
+		if (add)
 		{
-			op->stats.hp += get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
+			op->stats.hp += add;
+			CONTR(op)->stat_hp_regen += add;
 
 			if (op->stats.hp > op->stats.maxhp)
 			{
@@ -1214,20 +1075,21 @@ void do_some_living(object *op)
 				}
 			}
 		}
-		else
-		{
-			CONTR(op)->gen_hp_remainder = 0;
-		}
-
-		op->last_heal = rate_hp / (MAX(gen_hp, 20) + 10);
+	}
+	else
+	{
+		CONTR(op)->gen_hp_remainder = 0;
 	}
 
 	/* Regenerate mana. */
-	if (--op->last_sp < 0)
+	if (op->stats.sp < op->stats.maxsp && op->stats.food)
 	{
-		if (op->stats.sp < op->stats.maxsp && op->stats.food)
+		add = get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
+
+		if (add)
 		{
-			op->stats.sp += get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
+			op->stats.sp += add;
+			CONTR(op)->stat_sp_regen += add;
 
 			if (op->stats.sp > op->stats.maxsp)
 			{
@@ -1249,12 +1111,10 @@ void do_some_living(object *op)
 				}
 			}
 		}
-		else
-		{
-			CONTR(op)->gen_sp_remainder = 0;
-		}
-
-		op->last_sp = rate_sp / (MAX(gen_sp, 20) + 10);
+	}
+	else
+	{
+		CONTR(op)->gen_sp_remainder = 0;
 	}
 
 	/* Stop and pray. */
@@ -1284,8 +1144,6 @@ void do_some_living(object *op)
 				new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
 				CONTR(op)->praying = 0;
 			}
-
-			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
 		}
 		else
 		{
@@ -1297,41 +1155,36 @@ void do_some_living(object *op)
 	{
 		new_draw_info(NDI_UNIQUE, op, "You stop praying.");
 		CONTR(op)->was_praying = 0;
-		op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
 	}
 
 	/* Regenerate grace. */
 	if (CONTR(op)->praying || op->stats.grace < op->stats.maxgrace / 3)
 	{
-		if (--op->last_grace < 0)
+		if (op->stats.grace < op->stats.maxgrace)
 		{
-			if (op->stats.grace < op->stats.maxgrace)
+			add = get_regen_amount(!CONTR(op)->praying ? CONTR(op)->gen_client_grace / 10 : CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+
+			if (add)
 			{
-				op->stats.grace += get_regen_amount(CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
+				op->stats.grace += add;
+				CONTR(op)->stat_grace_regen += add;
 
 				if (op->stats.grace > op->stats.maxgrace)
 				{
 					op->stats.grace = op->stats.maxgrace;
 				}
 			}
-			else
-			{
-				CONTR(op)->gen_grace_remainder = 0;
-			}
+		}
+		else
+		{
+			CONTR(op)->gen_grace_remainder = 0;
+		}
 
-			if (op->stats.grace >= op->stats.maxgrace)
-			{
-				op->stats.grace = op->stats.maxgrace;
-				new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
-				CONTR(op)->was_praying = 0;
-			}
-
-			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
-
-			if (!CONTR(op)->praying)
-			{
-				op->last_grace = MAX(1, op->last_grace) * 10;
-			}
+		if (op->stats.grace >= op->stats.maxgrace)
+		{
+			op->stats.grace = op->stats.maxgrace;
+			new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
+			CONTR(op)->was_praying = 0;
 		}
 	}
 
@@ -1413,9 +1266,7 @@ void do_some_living(object *op)
 void kill_player(object *op)
 {
 	char buf[HUGE_BUF];
-	int x, y, i;
-	/* this is for resurrection */
-	mapstruct *map;
+	int i;
 	object *tmp;
 	int z;
 	int num_stats_lose;
@@ -1476,15 +1327,12 @@ void kill_player(object *op)
 		return;
 	}
 
+	CONTR(op)->stat_deaths++;
+
 	/* Trigger the global GDEATH event */
 	trigger_global_event(GEVENT_PLAYER_DEATH, NULL, op);
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
-
-	/* Save the map location for corpse, gravestone */
-	x = op->x;
-	y = op->y;
-	map = op->map;
 
 	/* Basically two ways to go - remove a stat permanently, or just
 	 * make it depletion.  This bunch of code deals with that aspect
@@ -1661,7 +1509,6 @@ void kill_player(object *op)
 	/* Show a nasty message */
 	new_draw_info(NDI_UNIQUE, op, "YOU HAVE DIED.");
 	save_player(op, 1);
-	return;
 }
 
 /**
@@ -1677,7 +1524,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
 	if (!(spells[throw_ob->stats.sp].flags & SPELL_DESC_DIRECTION))
 	{
-		LOG(llevBug, "DEBUG: Warning, dust %s is not AE spell!!\n", query_name(throw_ob, NULL));
+		LOG(llevBug, "Warning, dust %s is not AE spell!!\n", query_name(throw_ob, NULL));
 		return;
 	}
 
@@ -1704,7 +1551,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 	/* Problem occurred! */
 	else
 	{
-		LOG(llevBug, "BUG: cast_dust() can't find an archetype to use!\n");
+		LOG(llevBug, "cast_dust() can't find an archetype to use!\n");
 	}
 
 	if (op->type == PLAYER && arch)
@@ -1758,67 +1605,6 @@ int pvp_area(object *attacker, object *victim)
 	}
 
 	return 1;
-}
-
-/**
- * Extended find arrow version, using tag and containers.
- *
- * Find an arrow in the inventory and after that in the right type
- * container (quiver).
- * @param op Player.
- * @param type Type of the ammunition (arrows, bolts, etc).
- * @param tag Firemode tag.
- * @return Pointer to the arrow, NULL if not found. */
-static object *find_arrow_ext(object *op, const char *type, int tag)
-{
-	object *tmp = NULL;
-
-	if (tag == -2)
-	{
-		for (op = op->inv; op; op = op->below)
-		{
-			if (!tmp && op->type == CONTAINER && op->race == type && QUERY_FLAG(op, FLAG_APPLIED))
-			{
-				tmp = find_arrow_ext(op, type, -2);
-			}
-			else if (op->type == ARROW && op->race == type)
-			{
-				return op;
-			}
-		}
-
-		return tmp;
-	}
-	else
-	{
-		if (tag == -1)
-		{
-			return tmp;
-		}
-
-		for (op = op->inv; op; op = op->below)
-		{
-			if (op->count == (tag_t) tag)
-			{
-				/* Simple task: we have an arrow marked */
-				if (op->race == type && op->type == ARROW)
-				{
-					return op;
-				}
-
-				/* we have container marked as missile source. Skip
-				 * search when there is nothing in. Use the standard
-				 * search now. */
-				if (op->race == type && op->type == CONTAINER)
-				{
-					tmp = find_arrow_ext(op, type, -2);
-					return tmp;
-				}
-			}
-		}
-
-		return tmp;
-	}
 }
 
 /**
@@ -1895,8 +1681,18 @@ char *player_get_race_class(object *op, char *buf, size_t size)
 
 	if (CONTR(op)->class_ob)
 	{
+		shstr *name_female;
+
 		strncat(buf, " ", size - strlen(buf) - 1);
-		strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
+
+		if (object_get_gender(op) == GENDER_FEMALE && (name_female = object_get_value(CONTR(op)->class_ob, "name_female")))
+		{
+			strncat(buf, name_female, size - strlen(buf) - 1);
+		}
+		else
+		{
+			strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
+		}
 	}
 
 	return buf;

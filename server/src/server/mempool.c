@@ -241,14 +241,14 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 
 	if (pool->nrof_free[arraysize_exp] > 0)
 	{
-		LOG(llevBug, "BUG: expand_mempool called with chunks still available in pool\n");
+		LOG(llevBug, "expand_mempool() called with chunks still available in pool\n");
 	}
 
 	nrof_arrays = pool->expand_size >> arraysize_exp;
 
 	if (nrof_arrays == 0)
 	{
-		LOG(llevDebug, "WARNING: expand_mempool called with too big array size for its expand_size\n");
+		LOG(llevDebug, "expand_mempool() called with too big array size for its expand_size\n");
 		nrof_arrays = 1;
 	}
 
@@ -257,7 +257,7 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 
 	if (first == NULL)
 	{
-		LOG(llevError, "ERROR: expand_mempool(): Out of memory.\n");
+		LOG(llevError, "expand_mempool(): Out of memory.\n");
 	}
 
 	pool->freelist[arraysize_exp] = first;
@@ -350,7 +350,7 @@ void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp)
 #ifdef DEBUG_MEMPOOL_OBJECT_TRACKING
 	if (new_obj->obj_prev || new_obj->obj_next)
 	{
-		LOG(llevDebug, "WARNING:DEBUG_OBJ::get_poolchunk() object >%d< is in used_object list!!\n", new_obj->id);
+		LOG(llevDebug, "get_poolchunk_array_real() object >%d< is in used_object list!!\n", new_obj->id);
 	}
 
 	/* Put it in front of the used object list */
@@ -383,7 +383,7 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempoo
 
 	if (CHUNK_FREE(data))
 	{
-		LOG(llevBug, "BUG: return_poolchunk on already free chunk (pool \"%s\")\n", pool->chunk_description);
+		LOG(llevBug, "return_poolchunk_array_real() on already free chunk (pool \"%s\")\n", pool->chunk_description);
 		return;
 	}
 
@@ -450,8 +450,8 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 			if (mempools[j]->nrof_allocated[k] > 0)
 			{
 				int ob_used = mempools[j]->nrof_allocated[k] - mempools[j]->  nrof_free[k], ob_free = mempools[j]->nrof_free[k];
-				int mem_used = ob_used*((mempools[j]->chunksize << k) + sizeof(struct mempool_chunk));
-				int mem_free = ob_free*((mempools[j]->chunksize << k) + sizeof(struct mempool_chunk));
+				int mem_used = ob_used * ((mempools[j]->chunksize << k) + sizeof(struct mempool_chunk));
+				int mem_free = ob_free * ((mempools[j]->chunksize << k) + sizeof(struct mempool_chunk));
 
 				snprintf(buf, sizeof(buf), "%4d used (%4d free) %s[%3d]: %d (%d)", ob_used, ob_free, mempools[j]->chunk_description, 1 << k, mem_used, mem_free);
 
@@ -503,7 +503,7 @@ void check_use_object_list()
 
 			if (QUERY_FLAG(tmp, FLAG_REMOVED))
 			{
-				LOG(llevDebug, "VOID:DEBUG_OBJ:: object >%s< (%d) has removed flag set!\n", query_name(tmp), chunk->id);
+				LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has removed flag set!\n", query_name(tmp), chunk->id);
 			}
 
 			/* We are on a map */
@@ -511,7 +511,7 @@ void check_use_object_list()
 			{
 				if (tmp->map->in_memory != MAP_IN_MEMORY)
 				{
-					LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
+					LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
 				}
 				else
 				{
@@ -523,7 +523,7 @@ void check_use_object_list()
 						}
 					}
 
-					LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
+					LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
 				}
 			}
 			else if (tmp->env)
@@ -537,12 +537,12 @@ void check_use_object_list()
 					}
 				}
 
-				LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid env >%d<!\n", query_name(tmp), query_name(tmp->env), chunk->id);
+				LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has invalid env >%d<!\n", query_name(tmp), query_name(tmp->env), chunk->id);
 			}
 			/* Where are we? */
 			else
 			{
-				LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has no env/map\n", query_name(tmp), chunk->id);
+				LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has no env/map\n", query_name(tmp), chunk->id);
 			}
 		}
 		else if (chunk->pool == pool_player)
@@ -551,7 +551,7 @@ void check_use_object_list()
 		}
 		else
 		{
-			LOG(llevDebug, "BUG:DEBUG_OBJ: wrong pool ID! (%s - %d)", chunk->pool->chunk_description, chunk->id);
+			LOG(llevDebug, "check_use_object_list(): wrong pool ID! (%s - %d)", chunk->pool->chunk_description, chunk->id);
 		}
 
 		goto_object_found:;

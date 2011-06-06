@@ -38,7 +38,7 @@
  * @param sign The sign or magic mouth object. */
 void apply_sign(object *op, object *sign)
 {
-	if (sign->msg == NULL)
+	if (!sign->msg && !sign->title)
 	{
 		new_draw_info(NDI_UNIQUE, op, "Nothing is written on it.");
 		return;
@@ -89,6 +89,16 @@ void apply_sign(object *op, object *sign)
 	if (sign->direction && QUERY_FLAG(sign, FLAG_SYS_OBJECT))
 	{
 		if (op->direction != absdir(sign->direction + 4) && !(QUERY_FLAG(sign, FLAG_SPLITTING) && (op->direction == absdir(sign->direction - 5) || op->direction == absdir(sign->direction + 5))))
+		{
+			return;
+		}
+	}
+
+	if (sign->title)
+	{
+		play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, sign->title, 0, 0, 0, 0);
+
+		if (!sign->msg)
 		{
 			return;
 		}

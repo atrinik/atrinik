@@ -16,6 +16,7 @@ tile_path_4 world_ab13
 tile_path_5 world_0114
 tile_path_6 world_0112
 tile_path_7 world_ab12
+tile_path_8 world_ab14
 bg_music lontala.mid
 region brynknot
 end

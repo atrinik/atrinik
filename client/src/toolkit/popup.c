@@ -98,7 +98,7 @@ popup_struct *popup_create(int bitmap_id)
 	popup_struct *popup = calloc(1, sizeof(popup_struct));
 
 	/* Create the surface used by the popup. */
-	popup->surface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, Bitmaps[bitmap_id]->bitmap->w, Bitmaps[bitmap_id]->bitmap->h, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+	popup->surface = SDL_ConvertSurface(Bitmaps[bitmap_id]->bitmap, Bitmaps[bitmap_id]->bitmap->format, Bitmaps[bitmap_id]->bitmap->flags);
 	/* Store the bitmap used. */
 	popup->bitmap_id = bitmap_id;
 	/* Create overlay. */
@@ -187,7 +187,7 @@ void popup_draw()
 	}
 
 	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK)))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
 	{
 		popup_destroy_visible();
 	}

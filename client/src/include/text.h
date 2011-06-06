@@ -145,6 +145,62 @@ enum
 	FONT_ARIAL18,
 	/** Arial, 20px. */
 	FONT_ARIAL20,
+	/** Logisoso, 8px. */
+	FONT_LOGISOSO8,
+	/** Logisoso, 10px. */
+	FONT_LOGISOSO10,
+	/** Logisoso, 12px. */
+	FONT_LOGISOSO12,
+	/** Logisoso, 14px. */
+	FONT_LOGISOSO14,
+	/** Logisoso, 16px. */
+	FONT_LOGISOSO16,
+	/** Logisoso, 18px. */
+	FONT_LOGISOSO18,
+	/** Logisoso, 20px. */
+	FONT_LOGISOSO20,
+	/** Fanwood, 8px. */
+	FONT_FANWOOD8,
+	/** Fanwood, 10px. */
+	FONT_FANWOOD10,
+	/** Fanwood, 12px. */
+	FONT_FANWOOD12,
+	/** Fanwood, 14px. */
+	FONT_FANWOOD14,
+	/** Fanwood, 16px. */
+	FONT_FANWOOD16,
+	/** Fanwood, 18px. */
+	FONT_FANWOOD18,
+	/** Fanwood, 20px. */
+	FONT_FANWOOD20,
+	/** Courier, 8px. */
+	FONT_COURIER8,
+	/** Courier, 10px. */
+	FONT_COURIER10,
+	/** Courier, 12px. */
+	FONT_COURIER12,
+	/** Courier, 14px. */
+	FONT_COURIER14,
+	/** Courier, 16px. */
+	FONT_COURIER16,
+	/** Courier, 18px. */
+	FONT_COURIER18,
+	/** Courier, 20px. */
+	FONT_COURIER20,
+	/** Pecita, 8px. */
+	FONT_PECITA8,
+	/** Pecita, 10px. */
+	FONT_PECITA10,
+	/** Pecita, 12px. */
+	FONT_PECITA12,
+	/** Pecita, 14px. */
+	FONT_PECITA14,
+	/** Pecita, 16px. */
+	FONT_PECITA16,
+	/** Pecita, 18px. */
+	FONT_PECITA18,
+	/** Pecita, 20px. */
+	FONT_PECITA20,
 
 	/** Number of the fonts. */
 	FONTS_MAX
@@ -168,7 +224,9 @@ enum
  * final height in box->h (where the initial height limit came from).
  *
  * If this flag is passed, you can also specify skipping # of rows in
- * the box's 'y'. */
+ * the box's 'y'. Even if you don't want to skip any rows, you must still
+ * initialize the y member of the box structure to 0, in order to avoid
+ * uninitialized reads. */
 #define TEXT_HEIGHT 16
 /**
  * Vertically center the text to that of the passed box's height. Note

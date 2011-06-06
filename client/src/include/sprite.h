@@ -91,6 +91,9 @@ typedef struct _Sprite
 	/** Fog of war. */
 	SDL_Surface *fog_of_war;
 
+	/** Overlay effect. */
+	SDL_Surface *effect;
+
 	/** Dark levels. */
 	SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
@@ -169,19 +172,6 @@ typedef struct _anim
 
 extern struct _anim *start_anim;
 
-#define VALUE_LIMIT 0.001
-
-typedef struct tColorRGBA
-{
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
-	Uint8 a;
-} tColorRGBA;
-
-typedef struct tColorY
-{
-	Uint8 y;
-} tColorY;
+SDL_Surface *FormatHolder;
 
 #endif

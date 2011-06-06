@@ -557,7 +557,7 @@ static void script_process_cmd(int i)
 	else if (!strncmp(cmd, "request ", 8))
 	{
 		char buf[MAX_BUF];
-		int w;
+		int w = 0;
 
 		c = cmd + 8;
 
@@ -673,6 +673,11 @@ static void script_process_cmd(int i)
 		{
 			draw_info_format(COLOR_RED, "Script %d %s malfunction; unimplemented request: %s", i + 1, scripts[i].name, cmd);
 		}
+
+		if (w < 0)
+		{
+			LOG(llevBug, "script_process_cmd(): Write system call failed.\n");
+		}
 	}
 	else if (!strncmp(cmd, "issue ", 6))
 	{
@@ -750,6 +755,11 @@ static void script_send_item(int i, const char *head, const object *it)
 
 	snprintf(buf, sizeof(buf), "%s%d %d %f %d %d %s\n", head, it->tag, it->nrof, it->weight, it->flags, it->itype, it->s_name);
 	w = write(scripts[i].out_fd, buf, strlen(buf));
+
+	if (w < 0)
+	{
+		LOG(llevBug, "script_send_item(): Write system call failed.\n");
+	}
 }
 
 /**
@@ -1038,6 +1048,11 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 			}
 
 			w = write(scripts[i].out_fd, buf, strlen(buf));
+
+			if (w < 0)
+			{
+				LOG(llevBug, "script_trigger_event(): Write system call failed.\n");
+			}
 		}
 	}
 
@@ -1077,6 +1092,11 @@ void script_send(char *params)
 	w = write(scripts[i].out_fd, "scriptsend ", 11);
 	w = write(scripts[i].out_fd, c, strlen(c));
 	w = write(scripts[i].out_fd, "\n", 1);
+
+	if (w < 0)
+	{
+		LOG(llevBug, "script_send(): Write system call failed.\n");
+	}
 }
 
 /**

@@ -44,7 +44,7 @@ int rndm(int min, int max)
 {
 	if (max < 1 || max - min + 1 < 1)
 	{
-		LOG(llevBug, "BUG: Calling rndm() with min=%d max=%d\n", min, max);
+		LOG(llevBug, "Calling rndm() with min=%d max=%d\n", min, max);
 		return min;
 	}
 
@@ -59,7 +59,7 @@ int rndm_chance(uint32 n)
 {
 	if (!n)
 	{
-		LOG(llevBug, "BUG: Calling rndm_chance() with n=0.\n");
+		LOG(llevBug, "Calling rndm_chance() with n=0.\n");
 		return 0;
 	}
 
@@ -402,7 +402,7 @@ void copy_file(const char *filename, FILE *fpout)
 
 	if (!fp)
 	{
-		LOG(llevBug, "BUG: copy_file(): Failed to open '%s'.\n", filename);
+		LOG(llevBug, "copy_file(): Failed to open '%s'.\n", filename);
 		return;
 	}
 

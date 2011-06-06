@@ -306,6 +306,7 @@ struct plugin_hooklist
 	int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
 	void (*send_target_command)(player *);
 	void (*examine)(object *, object *);
+	void (*push_button)(object *);
 
 	const char **season_name;
 	const char **weekdays;
@@ -331,6 +332,7 @@ struct plugin_hooklist
 	mapstruct **first_map;
 	party_struct **first_party;
 	region **first_region;
+	FILE **logfile;
 };
 
 /** General API function. */

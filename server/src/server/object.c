@@ -195,7 +195,7 @@ void init_materials()
 
 	if (!(fp = fopen(filename, "r")))
 	{
-		LOG(llevBug, "BUG: Could not open materials file: %s\n", filename);
+		LOG(llevBug, "Could not open materials file: %s\n", filename);
 	}
 
 	while (fgets(buf, sizeof(buf), fp))
@@ -212,7 +212,7 @@ void init_materials()
 
 			if (i > NUM_MATERIALS_REAL)
 			{
-				LOG(llevError, "ERROR: Materials file contains declaration for material #%d but it doesn't exist.\n", i);
+				LOG(llevError, "Materials file contains declaration for material #%d but it doesn't exist.\n", i);
 			}
 
 			name[0] = '\0';
@@ -226,7 +226,7 @@ void init_materials()
 
 				if (!sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name))
 				{
-					LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
+					LOG(llevError, "Bogus line in materials file: %s\n", buf);
 				}
 			}
 
@@ -241,7 +241,7 @@ void init_materials()
 		}
 		else
 		{
-			LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
+			LOG(llevError, "Bogus line in materials file: %s\n", buf);
 		}
 	}
 
@@ -292,7 +292,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"sleep", "confused", NULL, "scared", "is_blind",
 	"is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
 	"no_pass", "is_animated", "slow_move", "flying", "monster",
-	"friendly", NULL, "been_applied", "auto_apply", NULL,
+	"friendly", NULL, "been_applied", "auto_apply", "is_ready",
 	"is_neutral", "see_invisible", "can_roll", "connect_reset", "is_turnable",
 	"walk_off", "fly_on", "fly_off", "is_used_up", "identified",
 	"reflecting", "changing", "splitting", "hitback", "startequip",
@@ -308,7 +308,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"is_thrown", NULL, NULL, "is_male", "is_female",
 	"applied", "inv_locked", NULL, NULL, NULL,
 	"has_ready_weapon", "no_skill_ident", "was_wiz", "can_see_in_dark", "is_cauldron",
-	"is_dust", NULL, "one_hit", NULL, "berserk",
+	"is_dust", NULL, "one_hit", "draw_double_always", "berserk",
 	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
 	NULL, NULL, NULL, NULL, NULL,
 	"sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",
@@ -332,7 +332,7 @@ void mark_object_removed(object *ob)
 
 	if (OBJECT_FREE(ob))
 	{
-		LOG(llevBug, "BUG: mark_object_removed() called for free object\n");
+		LOG(llevBug, "mark_object_removed() called for free object\n");
 	}
 
 	SET_FLAG(ob, FLAG_REMOVED);
@@ -371,7 +371,7 @@ void object_gc()
 			{
 				if (OBJECT_FREE(ob))
 				{
-					LOG(llevBug, "BUG: Freed object in remove list: %s\n", STRING_OBJ_NAME(ob));
+					LOG(llevBug, "Freed object in remove list: %s\n", STRING_OBJ_NAME(ob));
 				}
 				else
 				{
@@ -448,10 +448,9 @@ int CAN_MERGE(object *ob1, object *ob2)
 		return 0;
 	}
 
-	/* Do not merge objects if nrof would overflow. We use 1UL << 31 since that
-	 * value could not be stored in a sint32 (which unfortunately sometimes is
-	 * used to store nrof). */
-	if (ob1->nrof + ob2->nrof >= 1UL << 31)
+	/* Do not merge objects if nrof would overflow. We use SINT32_MAX
+	 * because sint32 is often used to store nrof instead of uint32. */
+	if (ob1->nrof + ob2->nrof > SINT32_MAX)
 	{
 		return 0;
 	}
@@ -539,7 +538,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 	}
 
 	/* Ignore REMOVED and BEEN_APPLIED */
-	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300) != (ob2->flags[0] | 0x300) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power)
+	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300 | (1 << FLAG_IS_READY)) != (ob2->flags[0] | 0x300 | (1 << FLAG_IS_READY)) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power)
 	{
 		return 0;
 	}
@@ -608,7 +607,7 @@ object *merge_ob(object *op, object *top)
 			continue;
 		}
 
-		if (CAN_MERGE(op,top))
+		if (CAN_MERGE(op, top))
 		{
 			top->nrof += op->nrof;
 
@@ -1150,7 +1149,7 @@ void update_ob_speed(object *op)
 	 * since they never really need to be updated. */
 	if (OBJECT_FREE(op) && op->speed)
 	{
-		LOG(llevBug, "BUG: Object %s is freed but has speed.\n", op->name);
+		LOG(llevBug, "Object %s is freed but has speed.\n", op->name);
 		op->speed = 0;
 	}
 
@@ -1237,7 +1236,7 @@ void update_object(object *op, int action)
 
 	if (op == NULL)
 	{
-		LOG(llevError, "ERROR: update_object() called for NULL object.\n");
+		LOG(llevError, "update_object() called for NULL object.\n");
 		return;
 	}
 
@@ -1407,7 +1406,7 @@ void update_object(object *op, int action)
 	}
 	else
 	{
-		LOG(llevError, "ERROR: update_object called with invalid action: %d\n", action);
+		LOG(llevError, "update_object called with invalid action: %d\n", action);
 		return;
 	}
 
@@ -1444,14 +1443,14 @@ void drop_ob_inv(object *ob)
 	/* We don't handle players here */
 	if (ob->type == PLAYER)
 	{
-		LOG(llevBug, "BUG: drop_ob_inv() - tried to drop items of %s\n", ob->name);
+		LOG(llevBug, "drop_ob_inv() - tried to drop items of %s\n", ob->name);
 		return;
 	}
 
 	/* TODO */
 	if (ob->env == NULL && (ob->map == NULL || ob->map->in_memory != MAP_IN_MEMORY))
 	{
-		LOG(llevDebug, "BUG: drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%p)\n", ob->name, ob->map);
+		LOG(llevDebug, "drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%p)\n", ob->name, ob->map);
 		return;
 	}
 
@@ -1610,7 +1609,7 @@ void destroy_object(object *ob)
 
 		dump_object(ob, sb);
 		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "BUG: Trying to destroy freed object.\n%s\n", diff);
+		LOG(llevBug, "Trying to destroy freed object.\n%s\n", diff);
 		free(diff);
 		return;
 	}
@@ -1622,7 +1621,7 @@ void destroy_object(object *ob)
 
 		dump_object(ob, sb);
 		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "BUG: Destroy object called with non removed object\n:%s\n", diff);
+		LOG(llevBug, "Destroy object called with non removed object\n:%s\n", diff);
 		free(diff);
 	}
 
@@ -1663,7 +1662,7 @@ void destroy_object(object *ob)
 				break;
 
 			default:
-				LOG(llevBug, "BUG: destroy_object() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
+				LOG(llevBug, "destroy_object() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
 		}
 
 		ob->custom_attrset = NULL;
@@ -1728,7 +1727,7 @@ void remove_ob(object *op)
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
 		/*dump_object(op);*/
-		LOG(llevBug, "BUG: Trying to remove removed object.:%s map:%s (%d,%d)\n", query_name(op, NULL), op->map ? (op->map->path ? op->map->path : "op->map->path == NULL") : "op->map == NULL", op->x, op->y);
+		LOG(llevBug, "Trying to remove removed object.:%s map:%s (%d,%d)\n", query_name(op, NULL), op->map ? (op->map->path ? op->map->path : "op->map->path == NULL") : "op->map == NULL", op->x, op->y);
 		return;
 	}
 
@@ -1740,6 +1739,23 @@ void remove_ob(object *op)
 
 	mark_object_removed(op);
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
+	op->quickslot = 0;
+
+	/* If the object is ready and it's in inventory of the player, remove
+	 * it from the player's ready_object array, inform the client, and
+	 * clear the ready flag. */
+	if (QUERY_FLAG(op, FLAG_IS_READY) && op->env && op->env->type == PLAYER)
+	{
+		int type = cmd_ready_determine(op);
+
+		if (type != -1)
+		{
+			CONTR(op->env)->ready_object[type] = NULL;
+			cmd_ready_send(CONTR(op->env), -1, type);
+		}
+
+		CLEAR_FLAG(op, FLAG_IS_READY);
+	}
 
 	/* In this case, the object to be removed is in someones
 	 * inventory. */
@@ -1789,7 +1805,7 @@ void remove_ob(object *op)
 	/* If we get here, we are removing it from a map */
 	if (!op->map)
 	{
-		LOG(llevBug, "BUG: remove_ob(): object %s (%s) not on map or env.\n", query_short_name(op, NULL), op->arch ? (op->arch->name ? op->arch->name : "<nor arch name!>") : "<no arch!>");
+		LOG(llevBug, "remove_ob(): object %s (%s) not on map or env.\n", query_short_name(op, NULL), op->arch ? (op->arch->name ? op->arch->name : "<nor arch name!>") : "<no arch!>");
 		return;
 	}
 
@@ -1933,26 +1949,26 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	 * which tracks we have problems or not */
 	if (OBJECT_FREE(op))
 	{
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert freed object %s in map %s!\n", query_name(op, NULL), m->name);
+		LOG(llevBug, "insert_ob_in_map(): Trying to insert freed object %s in map %s!\n", query_name(op, NULL), m->name);
 		return NULL;
 	}
 
 	if (m == NULL)
 	{
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s in null-map!\n", query_name(op, NULL));
+		LOG(llevBug, "insert_ob_in_map(): Trying to insert object %s in null-map!\n", query_name(op, NULL));
 		return NULL;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n", query_name(op, NULL), m->name);
+		LOG(llevBug, "insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n", query_name(op, NULL), m->name);
 		return NULL;
 	}
 
 	/* tail, but no INS_TAIL_MARKER: we had messed something outside! */
 	if (op->head && !(flag & INS_TAIL_MARKER))
 	{
-		LOG(llevBug, "BUG: insert_ob_in_map(): inserting op->more WITHOUT INS_TAIL_MARKER! OB:%s (ARCH: %s) (MAP: %s (%d,%d))\n", query_name(op, NULL), op->arch->name, m->path, op->x, op->y);
+		LOG(llevBug, "insert_ob_in_map(): inserting op->more WITHOUT INS_TAIL_MARKER! OB:%s (ARCH: %s) (MAP: %s (%d,%d))\n", query_name(op, NULL), op->arch->name, m->path, op->x, op->y);
 		return NULL;
 	}
 
@@ -1962,7 +1978,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		{
 			if (!op->head)
 			{
-				LOG(llevBug, "BUG: insert_ob_in_map(): inserting op->more killed op %s in map %s\n", query_name(op, NULL), m->name);
+				LOG(llevBug, "insert_ob_in_map(): inserting op->more killed op %s in map %s\n", query_name(op, NULL), m->name);
 			}
 
 			return NULL;
@@ -1984,7 +2000,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
 	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s outside the map %s (%d,%d).\n\n", query_name(op, NULL), op->map->path, op->x, op->y);
+		LOG(llevBug, "insert_ob_in_map(): Trying to insert object %s outside the map %s (%d,%d).\n\n", query_name(op, NULL), op->map->path, op->x, op->y);
 		return NULL;
 	}
 
@@ -2385,6 +2401,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 		}
 	}
 
+	CLEAR_FLAG(newob, FLAG_IS_READY);
 	newob->nrof = nr;
 	return newob;
 }
@@ -2491,7 +2508,7 @@ object *insert_ob_in_ob(object *op, object *where)
 		sb = stringbuffer_new();
 		dump_object(op, sb);
 		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "BUG: Trying to insert (ob) inserted object.\n%s\n", diff);
+		LOG(llevBug, "Trying to insert (ob) inserted object.\n%s\n", diff);
 		free(diff);
 		return op;
 	}
@@ -2504,20 +2521,20 @@ object *insert_ob_in_ob(object *op, object *where)
 		sb = stringbuffer_new();
 		dump_object(op, sb);
 		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "BUG: Trying to put object in NULL.\n%s\n", diff);
+		LOG(llevBug, "Trying to put object in NULL.\n%s\n", diff);
 		free(diff);
 		return op;
 	}
 
 	if (where->head)
 	{
-		LOG(llevBug, "BUG: Tried to insert object wrong part of multipart object.\n");
+		LOG(llevBug, "Tried to insert object wrong part of multipart object.\n");
 		where = where->head;
 	}
 
 	if (op->more)
 	{
-		LOG(llevError, "ERROR: Tried to insert multipart object %s (%d)\n", query_name(op, NULL), op->count);
+		LOG(llevError, "Tried to insert multipart object %s (%d)\n", query_name(op, NULL), op->count);
 		return op;
 	}
 
@@ -2526,6 +2543,7 @@ object *insert_ob_in_ob(object *op, object *where)
 	if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
 		object *tmp;
+		int ready;
 
 		for (tmp = where->inv; tmp; tmp = tmp->below)
 		{
@@ -2543,10 +2561,18 @@ object *insert_ob_in_ob(object *op, object *where)
 				SET_FLAG(op, FLAG_REMOVED);
 
 				op = tmp;
+				ready = QUERY_FLAG(op, FLAG_IS_READY);
+				CLEAR_FLAG(op, FLAG_IS_READY);
 				/* And fix old object's links (we will insert it further down)*/
 				remove_ob(op);
 				/* Just kidding about previous remove */
 				CLEAR_FLAG(op, FLAG_REMOVED);
+
+				if (ready)
+				{
+					SET_FLAG(op, FLAG_IS_READY);
+				}
+
 				break;
 			}
 		}
@@ -2716,7 +2742,7 @@ int check_walk_off(object *op, object *originator, int flags)
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "BUG: check_walk_off: object %s is not removed when called\n", query_name(op, NULL));
+		LOG(llevBug, "check_walk_off: object %s is not removed when called\n", query_name(op, NULL));
 		return CHECK_WALK_OK;
 	}
 
@@ -2826,7 +2852,7 @@ object *present_arch(archetype *at, mapstruct *m, int x, int y)
 
 	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
-		LOG(llevError, "ERROR: present_arch() called outside map.\n");
+		LOG(llevError, "present_arch() called outside map.\n");
 		return NULL;
 	}
 
@@ -2855,7 +2881,7 @@ object *present(uint8 type, mapstruct *m, int x, int y)
 
 	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
-		LOG(llevError, "ERROR: Present called outside map.\n");
+		LOG(llevError, "Present called outside map.\n");
 		return NULL;
 	}
 
@@ -2993,7 +3019,7 @@ int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, 
  * @param arr Array to permute.
  * @param begin First index to permute.
  * @param end Second index to permute. */
-static void permute(int *arr, int begin, int end)
+void permute(int *arr, int begin, int end)
 {
 	int i, j, tmp, len;
 
@@ -3296,7 +3322,7 @@ object *load_object_str(char *obstr)
 
 	if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0))
 	{
-		LOG(llevBug, "BUG: load_object_str(): load_object() failed.");
+		LOG(llevBug, "load_object_str(): load_object() failed.");
 		return NULL;
 	}
 
@@ -3323,7 +3349,7 @@ int auto_apply(object *op)
 
 	if (op->env && op->env->type == PLAYER)
 	{
-		LOG(llevDebug, "DEBUG: Object with auto_apply (%s, %s) found in %s.\n", op->name, op->arch->name, op->env->name);
+		LOG(llevDebug, "Object with auto_apply (%s, %s) found in %s.\n", op->name, op->arch->name, op->env->name);
 		return 0;
 	}
 

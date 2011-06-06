@@ -94,7 +94,7 @@ static void hiscore_save(const score_table *table)
 
 	if (!fp)
 	{
-		LOG(llevBug, "BUG: Cannot create highscore file %s: %s\n", table->fname, strerror_local(errno));
+		LOG(llevBug, "Cannot create highscore file %s: %s\n", table->fname, strerror_local(errno));
 		return;
 	}
 
@@ -111,12 +111,12 @@ static void hiscore_save(const score_table *table)
 
 	if (ferror(fp))
 	{
-		LOG(llevBug, "BUG: Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
+		LOG(llevBug, "Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
 		fclose(fp);
 	}
 	else if (fclose(fp) != 0)
 	{
-		LOG(llevBug, "BUG: Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
+		LOG(llevBug, "Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
 	}
 }
 
@@ -281,16 +281,16 @@ static void hiscore_load(score_table *table)
 	{
 		if (errno == ENOENT)
 		{
-			LOG(llevInfo, "Highscore file %s does not exist\n", table->fname);
+			LOG(llevDebug, "Highscore file %s does not exist\n", table->fname);
 		}
 		else
 		{
-			LOG(llevBug, "BUG: Cannot open highscore file %s: %s\n", table->fname, strerror_local(errno));
+			LOG(llevBug, "Cannot open highscore file %s: %s\n", table->fname, strerror_local(errno));
 		}
 	}
 	else
 	{
-		LOG(llevInfo, "Reading highscore file %s\n", table->fname);
+		LOG(llevDebug, "Reading highscore file %s\n", table->fname);
 
 		while (i < HIGHSCORE_LENGTH)
 		{

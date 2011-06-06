@@ -203,7 +203,9 @@ CommArray_s WizCommands [] =
 	{"map_reset",      command_map_reset,              0.0, 0},
 	{"map_patch",      command_map_patch,              0.0, 0},
 	{"no_shout",       command_no_shout,               0.0, 0},
-	{"dmtake",         command_dmtake,                 0.0, 0}
+	{"dmtake",         command_dmtake,                 0.0, 0},
+	{"server_shout", command_server_shout, 0.0, 0},
+	{"mod_shout", command_mod_shout, 0.0, 0}
 };
 
 /** Size of Wizard commands */
@@ -339,7 +341,7 @@ int execute_newserver_command(object *pl, char *command)
 
 		if (csp)
 		{
-			LOG(llevInfo, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
+			LOG(llevSystem, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
 		}
 	}
 
@@ -369,7 +371,7 @@ int execute_newserver_command(object *pl, char *command)
 #ifdef DEBUG
 	if (csp->time && pl->speed_left < -2.0)
 	{
-		LOG(llevDebug, "DEBUG: execute_newclient_command: Player issued command that takes more time than he has left.\n");
+		LOG(llevDebug, "execute_newclient_command: Player issued command that takes more time than he has left.\n");
 	}
 #endif
 

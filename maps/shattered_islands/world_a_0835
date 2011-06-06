@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 -Enter Description Here-
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -15,6 +15,7 @@ tile_path_4 world_a_0735
 tile_path_6 world_a_0934
 tile_path_7 world_a_0734
 tile_path_8 world_a_0736
+bg_music sewers.ogg
 region asteria_sewers
 end
 arch floor_stone_b1
@@ -1032,6 +1033,14 @@ direction 7
 x 19
 y 16
 end
+arch map_info
+hp 4
+sp 7
+race Thieves Guild
+slaying sacred_moments.ogg
+x 19
+y 16
+end
 arch floor_wood2
 z 50
 x 19
@@ -1364,6 +1373,10 @@ y 22
 end
 arch floor_wood2
 z 50
+x 22
+y 23
+end
+arch torch_wall_1
 x 22
 y 23
 end

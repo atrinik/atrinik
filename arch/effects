@@ -207,3 +207,195 @@ wind_mod 6
 sprites_per_move 10
 delay 40
 end
+
+effect rednight
+overlay
+r 0
+r_mod1 0.212671
+r_mod2 0.715160
+r_mod3 0.072169
+g 0
+b 0
+end
+end
+
+effect fog
+overlay
+r_rndm_min 20
+r_rndm_max 40
+g_rndm_min 10
+g_rndm_max 20
+b_rndm_min 20
+b_rndm_max 30
+end
+end
+
+effect grayscale
+overlay
+r 0
+r_mod1 0.212671
+r_mod2 0.715160
+r_mod3 0.072169
+g 0
+g_mod1 0.212671
+g_mod2 0.715160
+g_mod3 0.072169
+b 0
+b_mod1 0.212671
+b_mod2 0.715160
+b_mod3 0.072169
+end
+end
+
+effect thunderstorm_light
+sprite rain_particle_middle.101
+weight 2
+chance 500
+wiggle 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 250
+wiggle 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 250
+wiggle 0
+end
+sprite lightning_bolt.101
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_2_near.ogg
+end
+sprite lightning_bolt.102
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_far.ogg
+end
+sprite lightning_bolt2.101
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_2_near.ogg
+end
+sprite lightning_bolt2.102
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_far.ogg
+end
+sprite lightning_bolt3.101
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_2_near.ogg
+end
+sprite lightning_bolt3.102
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_far.ogg
+end
+wind_blow_dir 0
+sprites_per_move 2
+delay 40
+end
+
+effect thunderstorm_heavy
+sprite rain_particle_middle.101
+weight 2
+chance 2000
+wiggle 0
+end
+sprite rain_particle_big.101
+weight 2
+chance 800
+wiggle 0
+end
+sprite rain_particle_little.101
+weight 2
+chance 800
+wiggle 0
+end
+sprite lightning_bolt.101
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_2_near.ogg
+end
+sprite lightning_bolt.102
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_far.ogg
+end
+sprite lightning_bolt.103
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_near.ogg
+end
+sprite lightning_bolt2.101
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_2_near.ogg
+end
+sprite lightning_bolt2.102
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_far.ogg
+end
+sprite lightning_bolt2.103
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_near.ogg
+end
+sprite lightning_bolt3.101
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_2_near.ogg
+end
+sprite lightning_bolt3.102
+chance 2
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_far.ogg
+end
+sprite lightning_bolt3.103
+wiggle 0
+y 10
+ttl 240
+weight 0
+sound_file thunder_4_near.ogg
+end
+wind_blow_dir 0
+sprites_per_move 10
+delay 40
+end

@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-09-11 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-06-04 Alex Tokar
 endmsg
 width 17
 height 15
@@ -686,12 +686,7 @@ arch floor_bw1
 x 6
 y 4
 end
-arch carpet1.171
-x 6
-y 4
-end
-arch carpet1.111
-layer 3
+arch carpet1.181
 x 6
 y 4
 end

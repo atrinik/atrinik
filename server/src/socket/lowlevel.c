@@ -171,7 +171,7 @@ void socket_enable_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevDebug, "DEBUG: socket_enable_no_delay(): Cannot enable TCP_NODELAY: %s\n", strerror_local(errno));
+		LOG(llevDebug, "socket_enable_no_delay(): Cannot enable TCP_NODELAY: %s\n", strerror_local(errno));
 	}
 }
 
@@ -184,7 +184,7 @@ void socket_disable_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevDebug, "DEBUG: socket_disable_no_delay(): Cannot disable TCP_NODELAY: %s\n", strerror_local(errno));
+		LOG(llevDebug, "socket_disable_no_delay(): Cannot disable TCP_NODELAY: %s\n", strerror_local(errno));
 	}
 }
 
@@ -292,11 +292,11 @@ void socket_buffer_write(socket_struct *ns)
 #ifdef WIN32
 			if (WSAGetLastError() != WSAEWOULDBLOCK)
 			{
-				LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
+				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "DEBUG: socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
 				ns->status = Ns_Dead;
 				return;
@@ -385,7 +385,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 		socket_buffer_enqueue(ns, sbuf, 2, 0);
 	}
 
-	socket_buffer_enqueue(ns, buf, len, msg->buf[0] == BINARY_CMD_MAP2);
+	socket_buffer_enqueue(ns, buf, len, msg->buf[0] == BINARY_CMD_MAP2 || msg->buf[0] == BINARY_CMD_ITEMY);
 
 #if COMPRESS_DATA_PACKETS
 	/* Free the buffer that was used for compression, if it was allocated. */

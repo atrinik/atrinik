@@ -12,4 +12,5 @@ no_pick 1
 walk_on 1
 walk_off 1
 last_sp 1
+xrays 1
 end

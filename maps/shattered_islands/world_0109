@@ -14,6 +14,7 @@ tile_path_3 world_0108
 tile_path_4 world_aa09
 tile_path_5 world_0210
 tile_path_6 world_0208
+tile_path_7 world_aa08
 tile_path_8 world_aa10
 end
 arch water_lt

@@ -9,6 +9,7 @@ height 24
 difficulty 14
 darkness 2
 tile_path_2 old_outpost_0201
+tile_path_5 old_outpost_0202
 bg_music desert_town.mid
 region old_outpost
 end

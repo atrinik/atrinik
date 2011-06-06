@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2011-05-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -351,7 +351,15 @@ arch water_lt
 x 3
 y 17
 end
+arch forcefield_orange_8
+x 3
+y 17
+end
 arch water_lt3
+x 3
+y 18
+end
+arch forcefield_orange_3
 x 3
 y 18
 end
@@ -359,7 +367,15 @@ arch water_lt4
 x 3
 y 19
 end
+arch forcefield_orange_3
+x 3
+y 19
+end
 arch water_lt2
+x 3
+y 20
+end
+arch forcefield_orange_3
 x 3
 y 20
 end
@@ -367,11 +383,23 @@ arch water_lt
 x 3
 y 21
 end
+arch forcefield_orange_3
+x 3
+y 21
+end
 arch water_lt
 x 3
 y 22
 end
+arch forcefield_orange_3
+x 3
+y 22
+end
 arch water_lt2
+x 3
+y 23
+end
+arch forcefield_orange_3
 x 3
 y 23
 end
@@ -442,7 +470,15 @@ arch water_lt3
 x 4
 y 16
 end
+arch forcefield_orange_8
+x 4
+y 16
+end
 arch water_lt2
+x 4
+y 17
+end
+arch forcefield_orange_4
 x 4
 y 17
 end
@@ -533,7 +569,15 @@ arch water_lt4
 x 5
 y 15
 end
+arch forcefield_orange_8
+x 5
+y 15
+end
 arch water_lt4
+x 5
+y 16
+end
+arch forcefield_orange_4
 x 5
 y 16
 end
@@ -624,7 +668,15 @@ arch water_lt2
 x 6
 y 14
 end
+arch forcefield_orange_8
+x 6
+y 14
+end
 arch water_lt4
+x 6
+y 15
+end
+arch forcefield_orange_4
 x 6
 y 15
 end
@@ -727,7 +779,15 @@ arch water_lt3
 x 7
 y 13
 end
+arch forcefield_orange_8
+x 7
+y 13
+end
 arch water_lt2
+x 7
+y 14
+end
+arch forcefield_orange_4
 x 7
 y 14
 end
@@ -830,7 +890,15 @@ arch water_lt3
 x 8
 y 12
 end
+arch forcefield_orange_8
+x 8
+y 12
+end
 arch water_lt3
+x 8
+y 13
+end
+arch forcefield_orange_4
 x 8
 y 13
 end
@@ -941,7 +1009,15 @@ arch water_lt4
 x 9
 y 11
 end
+arch forcefield_orange_8
+x 9
+y 11
+end
 arch water_lt
+x 9
+y 12
+end
+arch forcefield_orange_4
 x 9
 y 12
 end
@@ -1044,7 +1120,15 @@ arch water_lt2
 x 10
 y 10
 end
+arch forcefield_orange_8
+x 10
+y 10
+end
 arch water_lt2
+x 10
+y 11
+end
+arch forcefield_orange_4
 x 10
 y 11
 end
@@ -1186,7 +1270,15 @@ arch water_lt4
 x 11
 y 9
 end
+arch forcefield_orange_8
+x 11
+y 9
+end
 arch water_lt4
+x 11
+y 10
+end
+arch forcefield_orange_4
 x 11
 y 10
 end
@@ -1312,7 +1404,15 @@ arch water_lt4
 x 12
 y 8
 end
+arch forcefield_orange_8
+x 12
+y 8
+end
 arch water_lt
+x 12
+y 9
+end
+arch forcefield_orange_4
 x 12
 y 9
 end
@@ -1415,7 +1515,15 @@ arch water_lt3
 x 13
 y 7
 end
+arch forcefield_orange_8
+x 13
+y 7
+end
 arch water_lt4
+x 13
+y 8
+end
+arch forcefield_orange_4
 x 13
 y 8
 end
@@ -1526,7 +1634,15 @@ arch water_lt3
 x 14
 y 6
 end
+arch forcefield_orange_8
+x 14
+y 6
+end
 arch water_lt
+x 14
+y 7
+end
+arch forcefield_orange_4
 x 14
 y 7
 end
@@ -1662,7 +1778,15 @@ arch water_lt2
 x 15
 y 5
 end
+arch forcefield_orange_8
+x 15
+y 5
+end
 arch water_lt4
+x 15
+y 6
+end
+arch forcefield_orange_4
 x 15
 y 6
 end
@@ -1777,7 +1901,15 @@ arch water_lt4
 x 16
 y 4
 end
+arch forcefield_orange_8
+x 16
+y 4
+end
 arch water_lt4
+x 16
+y 5
+end
+arch forcefield_orange_4
 x 16
 y 5
 end
@@ -1892,7 +2024,15 @@ arch water_lt4
 x 17
 y 3
 end
+arch forcefield_orange_8
+x 17
+y 3
+end
 arch water_lt
+x 17
+y 4
+end
+arch forcefield_orange_4
 x 17
 y 4
 end
@@ -2007,7 +2147,15 @@ arch water_lt
 x 18
 y 2
 end
+arch forcefield_orange_8
+x 18
+y 2
+end
 arch water_lt3
+x 18
+y 3
+end
+arch forcefield_orange_4
 x 18
 y 3
 end
@@ -2134,7 +2282,15 @@ arch water_lt
 x 19
 y 1
 end
+arch forcefield_orange_8
+x 19
+y 1
+end
 arch water_lt
+x 19
+y 2
+end
+arch forcefield_orange_4
 x 19
 y 2
 end
@@ -2286,6 +2442,10 @@ arch water_lt4
 x 20
 y 1
 end
+arch forcefield_orange_1
+x 20
+y 1
+end
 arch water_lt4
 x 20
 y 2
@@ -2402,6 +2562,10 @@ arch water_lt3
 x 21
 end
 arch water_lt
+x 21
+y 1
+end
+arch forcefield_orange_1
 x 21
 y 1
 end
@@ -2525,6 +2689,10 @@ arch water_lt2
 x 22
 end
 arch water_lt2
+x 22
+y 1
+end
+arch forcefield_orange_1
 x 22
 y 1
 end
@@ -2664,6 +2832,10 @@ arch water_lt4
 x 23
 end
 arch water_lt
+x 23
+y 1
+end
+arch forcefield_orange_1
 x 23
 y 1
 end

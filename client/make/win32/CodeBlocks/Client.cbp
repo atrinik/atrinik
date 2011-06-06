@@ -15,6 +15,7 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-Os" />
+					<Add option="-Wno-uninitialized" />
 				</Compiler>
 			</Target>
 			<Target title="Debug">
@@ -25,6 +26,7 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-Wno-uninitialized" />
 				</Compiler>
 			</Target>
 		</Build>
@@ -48,11 +50,11 @@
 			<Add library="mingw32" />
 			<Add library="wsock32" />
 			<Add library="sdl_lib\libSDLmain.a" />
-			<Add library="sdl_lib\SDL_image.lib" />
-			<Add library="sdl_lib\SDL_mixer.lib" />
-			<Add library="sdl_lib\SDL_ttf.lib" />
+			<Add library="sdl_lib\libSDL_image.dll.a" />
+			<Add library="sdl_lib\libSDL_mixer.dll.a" />
+			<Add library="sdl_lib\libSDL_ttf.dll.a" />
 			<Add library="sdl_lib\libSDL.dll.a" />
-			<Add library="sdl_lib\static\libcurl.a" />
+			<Add library="sdl_lib\libcurl.a" />
 			<Add directory="sdl_lib" />
 			<Add directory="..\CodeBlocks" />
 			<Add library="libwsock32.a" />
@@ -158,6 +160,9 @@
 		<Unit filename="..\..\..\src\toolkit\widget.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\toolkit\SDL_rotozoom.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\popup.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -248,6 +253,7 @@
 		<Unit filename="..\..\..\src\include\ignore.h">
 			<Option compilerVar="CC" />
 		</Unit>
+
 		<Unit filename="..\..\..\src\include\commands.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -329,10 +335,16 @@
 		<Unit filename="..\..\..\src\gui\range.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\gui\mplayer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\gui\menu_buttons.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\gui\region_map.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\spell_list.c">
+		<Unit filename="..\..\..\src\gui\spells.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\gui\keybind.c">
@@ -353,7 +365,7 @@
 		<Unit filename="..\..\..\src\gui\target.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\skill_list.c">
+		<Unit filename="..\..\..\src\gui\skills.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\events\console.c">

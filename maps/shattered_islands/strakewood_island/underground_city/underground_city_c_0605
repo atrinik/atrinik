@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-30 Alex Tokar
+Modified: 2011-04-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,6 +10,8 @@ difficulty 90
 darkness 1
 tile_path_2 underground_city_c_0705
 tile_path_4 underground_city_c_0505
+tile_path_5 underground_city_c_0706
+tile_path_8 underground_city_c_0506
 bg_music thonkdonk.ogg
 region underground_city
 end
@@ -1028,7 +1030,15 @@ arch floor_sand_d2
 x 15
 y 11
 end
+arch border_abyss_nw1
+x 15
+y 11
+end
 arch floor_sand_d1
+x 15
+y 12
+end
+arch border_abyss_w1
 x 15
 y 12
 end
@@ -1036,7 +1046,7 @@ arch floor_sand_d4
 x 15
 y 13
 end
-arch blood_floor1
+arch border_abyss_w1
 x 15
 y 13
 end
@@ -1044,7 +1054,15 @@ arch floor_sand_d2
 x 15
 y 14
 end
+arch border_abyss_w1
+x 15
+y 14
+end
 arch floor_sand_d2
+x 15
+y 15
+end
+arch border_abyss_sw1
 x 15
 y 15
 end
@@ -1148,6 +1166,10 @@ arch floor_sand_d1
 x 16
 y 11
 end
+arch border_abyss_n1
+x 16
+y 11
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1155,7 +1177,7 @@ no_pass 0
 x 16
 y 12
 end
-arch sand_dm14
+arch abyss_nw1
 x 16
 y 12
 end
@@ -1176,7 +1198,7 @@ no_pass 0
 x 16
 y 13
 end
-arch sand_dm8
+arch abyss_w1
 x 16
 y 13
 end
@@ -1197,7 +1219,7 @@ no_pass 0
 x 16
 y 14
 end
-arch sand_dm13
+arch abyss_w1
 x 16
 y 14
 end
@@ -1212,6 +1234,10 @@ x 16
 y 14
 end
 arch floor_sand_d3
+x 16
+y 15
+end
+arch border_abyss_s1
 x 16
 y 15
 end
@@ -1287,6 +1313,10 @@ arch floor_sand_d1
 x 17
 y 11
 end
+arch border_abyss_n1
+x 17
+y 11
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1294,7 +1324,7 @@ no_pass 0
 x 17
 y 12
 end
-arch sand_dm6
+arch abyss_n1
 x 17
 y 12
 end
@@ -1329,10 +1359,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 17
-y 14
-end
-arch sand_dm7
 x 17
 y 14
 end
@@ -1347,6 +1373,10 @@ x 17
 y 14
 end
 arch floor_sand_d2
+x 17
+y 15
+end
+arch border_abyss_s1
 x 17
 y 15
 end
@@ -1450,6 +1480,10 @@ arch floor_sand_d3
 x 18
 y 11
 end
+arch border_abyss_n1
+x 18
+y 11
+end
 arch blocked
 player_only 1
 blocksview 0
@@ -1457,7 +1491,7 @@ no_pass 0
 x 18
 y 12
 end
-arch sand_dm15
+arch abyss_n1
 x 18
 y 12
 end
@@ -1478,10 +1512,6 @@ no_pass 0
 x 18
 y 13
 end
-arch sand_dm9
-x 18
-y 13
-end
 arch damager
 name falling into the abyss
 dam 10000
@@ -1496,10 +1526,6 @@ arch blocked
 player_only 1
 blocksview 0
 no_pass 0
-x 18
-y 14
-end
-arch sand_dm16
 x 18
 y 14
 end
@@ -1514,6 +1540,10 @@ x 18
 y 14
 end
 arch floor_sand_d4
+x 18
+y 15
+end
+arch border_abyss_s1
 x 18
 y 15
 end
@@ -1585,7 +1615,15 @@ arch floor_sand_d1
 x 19
 y 11
 end
+arch border_abyss_ne1
+x 19
+y 11
+end
 arch floor_sand_d3
+x 19
+y 12
+end
+arch border_abyss_e1
 x 19
 y 12
 end
@@ -1593,11 +1631,23 @@ arch floor_sand_d1
 x 19
 y 13
 end
+arch border_abyss_e1
+x 19
+y 13
+end
 arch floor_sand_d2
 x 19
 y 14
 end
+arch border_abyss_e1
+x 19
+y 14
+end
 arch floor_sand_d4
+x 19
+y 15
+end
+arch border_abyss_se1
 x 19
 y 15
 end

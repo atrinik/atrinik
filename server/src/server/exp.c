@@ -302,7 +302,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	/* Sanity check */
 	if (!op)
 	{
-		LOG(llevBug, "BUG: add_exp(): Called for NULL object.\n");
+		LOG(llevBug, "add_exp(): Called for NULL object.\n");
 		return 0;
 	}
 
@@ -325,7 +325,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	/* Sanity */
 	if (!exp_skill)
 	{
-		LOG(llevDebug, "DEBUG: add_exp(): called for %s with skill nr %d / %"FMT64" exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
+		LOG(llevDebug, "add_exp(): called for %s with skill nr %d / %"FMT64" exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
 		return 0;
 	}
 
@@ -341,7 +341,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 
 	if (!exp_ob)
 	{
-		LOG(llevBug, "BUG: add_exp() skill: %s - no exp_ob found!!\n", query_name(exp_skill, NULL));
+		LOG(llevBug, "add_exp() skill: %s - no exp_ob found!!\n", query_name(exp_skill, NULL));
 		return 0;
 	}
 
@@ -361,6 +361,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 
 	/* Notify the player of the exp gain */
 	new_draw_info_format(NDI_UNIQUE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
+	CONTR(op)->stat_exp_gained += exp;
 
 	/* adjust_exp() has adjusted the skill and all exp_obj and player
 	 * experience. Now let's check for level up in all categories. */
@@ -397,7 +398,7 @@ void player_lvl_adj(object *who, object *op)
 	/* No exp gain for indirect skills */
 	if (op->type == SKILL && !op->last_eat)
 	{
-		LOG(llevBug,"BUG: player_lvl_adj() called for indirect skill %s (who: %s)\n", query_name(op, NULL), who == NULL ? "<null>" : query_name(who, NULL));
+		LOG(llevBug,"player_lvl_adj() called for indirect skill %s (who: %s)\n", query_name(op, NULL), who == NULL ? "<null>" : query_name(who, NULL));
 		return;
 	}
 
@@ -572,7 +573,7 @@ sint64 adjust_exp(object *pl, object *op, sint64 exp)
 	/* Be sure this is a skill object from a player. */
 	if (op->type != SKILL || !pl || pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: adjust_exp() - called for non player or non skill: skill: %s -> player: %s\n", query_name(op, NULL), query_name(pl, NULL));
+		LOG(llevBug, "adjust_exp() - called for non player or non skill: skill: %s -> player: %s\n", query_name(op, NULL), query_name(pl, NULL));
 		return 0;
 	}
 
@@ -737,7 +738,7 @@ float calc_level_difference(int who_lvl, int op_lvl)
 	/* Sanity checks */
 	if (who_lvl < 0 || who_lvl > 200 || op_lvl < 0 || op_lvl > 200)
 	{
-		LOG(llevBug, "BUG: calc_level_difference(): Level out of range! (%d - %d)\n", who_lvl, op_lvl);
+		LOG(llevBug, "calc_level_difference(): Level out of range! (%d - %d)\n", who_lvl, op_lvl);
 		return 0.0f;
 	}
 

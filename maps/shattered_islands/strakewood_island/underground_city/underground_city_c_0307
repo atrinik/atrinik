@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2010-07-30 Alex Tokar
+Modified: 2011-04-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,106 +19,52 @@ arch floor_sand_d2
 end
 arch fwall_rock3
 end
-arch floor_sand_d3
+arch floor_sand_d2
 y 1
 end
-arch dirt_floor1
+arch corpse_human
+speed 0
+is_used_up 0
+name decaying corpse
 y 1
 end
 arch floor_sand_d1
 y 2
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch mushroom_giant3
+y 2
+end
+arch floor_sand_d2
 y 3
 end
-arch sand_dm14
+arch dirt_floor3
 y 3
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 y 4
 end
-arch sand_dm8
-y 4
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-y 4
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 y 5
 end
-arch sand_dm3
+arch mushroom_spot2
 y 5
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch light3
 y 5
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-y 6
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-y 6
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-y 7
-end
-arch sand_dm7
-y 7
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-y 7
 end
 arch floor_sand_d4
+y 6
+end
+arch floor_sand_d2
+y 7
+end
+arch floor_sand_d3
 y 8
 end
-arch dirt_floor2
+arch mushroom_medium
+y 8
+end
+arch light3
 y 8
 end
 arch floor_sand_d4
@@ -131,6 +77,27 @@ arch fwall_rock3
 y 10
 end
 arch floor_sand_d1
+y 17
+end
+arch fwall_rock3
+y 17
+end
+arch floor_sand_d2
+y 18
+end
+arch blood_floor1
+y 18
+end
+arch floor_sand_d2
+y 19
+end
+arch floor_sand_d1
+y 20
+end
+arch fwall_rock1
+y 20
+end
+arch floor_sand_d1
 x 1
 end
 arch fwall_rock3
@@ -140,117 +107,55 @@ arch floor_sand_d1
 x 1
 y 1
 end
-arch mushroom_giant2
+arch crystal_red_s
 x 1
 y 1
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch light4
+x 1
+y 1
+end
+arch floor_sand_d1
 x 1
 y 2
 end
-arch sand_dm14
-x 1
-y 2
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 1
-y 2
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 1
 y 3
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 1
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 1
 y 4
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch mushroom_spot1
 x 1
 y 4
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch light3
+x 1
+y 4
+end
+arch floor_sand_d3
 x 1
 y 5
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch cave_pillar4
 x 1
 y 5
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 1
 y 6
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch mushroom_spot1
 x 1
 y 6
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch light3
 x 1
-y 7
+y 6
 end
-arch sand_dm7
-x 1
-y 7
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d4
 x 1
 y 7
 end
@@ -269,6 +174,78 @@ end
 arch fwall_rock2
 x 1
 y 10
+end
+arch floor_sand_d4
+x 1
+y 14
+end
+arch fwall_rock2
+x 1
+y 14
+end
+arch floor_sand_d2
+x 1
+y 15
+end
+arch fwall_rock3
+x 1
+y 15
+end
+arch floor_sand_d1
+x 1
+y 16
+end
+arch fwall_rock2
+x 1
+y 16
+end
+arch floor_sand_d2
+x 1
+y 17
+end
+arch fwall_rock3
+x 1
+y 17
+end
+arch floor_sand_d1
+x 1
+y 18
+end
+arch floor_sand_d2
+x 1
+y 19
+end
+arch floor_sand_d2
+x 1
+y 20
+end
+arch fwall_rock2
+x 1
+y 20
+end
+arch floor_sand_d2
+x 1
+y 21
+end
+arch fwall_rock1
+x 1
+y 21
+end
+arch floor_sand_d1
+x 1
+y 22
+end
+arch fwall_rock1
+x 1
+y 22
+end
+arch floor_sand_d3
+x 1
+y 23
+end
+arch fwall_rock1
+x 1
+y 23
 end
 arch floor_sand_d3
 x 2
@@ -279,117 +256,50 @@ end
 arch plant2_wall.151
 x 2
 end
-arch floor_sand_d2
+arch floor_sand_d3
 x 2
 y 1
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 2
 y 2
 end
-arch sand_dm6
-x 2
-y 2
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 2
-y 2
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 2
 y 3
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 2
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 2
 y 4
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 2
-y 4
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 2
 y 5
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch mushroom_spot1
 x 2
 y 5
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch light3
+x 2
+y 5
+end
+arch floor_sand_d4
 x 2
 y 6
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch corpse_human
+speed 0
+is_used_up 0
+name decaying corpse
 x 2
 y 6
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 2
 y 7
 end
-arch sand_dm7
-x 2
-y 7
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch dirt_floor4
 x 2
 y 7
 end
@@ -417,6 +327,110 @@ arch fwall_rock3
 x 2
 y 10
 end
+arch floor_sand_d4
+x 2
+y 11
+end
+arch fwall_rock1
+x 2
+y 11
+end
+arch floor_sand_d2
+x 2
+y 12
+end
+arch fwall_rock3
+x 2
+y 12
+end
+arch floor_sand_d4
+x 2
+y 13
+end
+arch fwall_rock1
+x 2
+y 13
+end
+arch floor_sand_d4
+x 2
+y 14
+end
+arch fwall_rock2
+x 2
+y 14
+end
+arch floor_sand_d4
+x 2
+y 15
+end
+arch crystal_red
+x 2
+y 15
+end
+arch light4
+x 2
+y 15
+end
+arch floor_sand_d1
+x 2
+y 16
+end
+arch mushroom_spot1
+x 2
+y 16
+end
+arch light4
+x 2
+y 16
+end
+arch floor_sand_d4
+x 2
+y 17
+end
+arch mushroom_spot1
+x 2
+y 17
+end
+arch light4
+x 2
+y 17
+end
+arch floor_sand_d3
+x 2
+y 18
+end
+arch floor_sand_d3
+x 2
+y 19
+end
+arch dirt_floor3
+x 2
+y 19
+end
+arch floor_sand_d3
+x 2
+y 20
+end
+arch floor_sand_d3
+x 2
+y 21
+end
+arch floor_sand_d1
+x 2
+y 22
+end
+arch mushroom_medium
+x 2
+y 22
+end
+arch light4
+x 2
+y 22
+end
+arch floor_sand_d2
+x 2
+y 23
+end
 arch floor_sand_d3
 x 3
 end
@@ -427,129 +441,39 @@ arch floor_sand_d3
 x 3
 y 1
 end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch mushroom_medium
+x 3
+y 1
+end
+arch light3
+x 3
+y 1
+end
+arch floor_sand_d3
 x 3
 y 2
 end
-arch sand_dm15
+arch dirt_floor2
 x 3
 y 2
 end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 3
-y 2
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d2
 x 3
 y 3
 end
-arch sand_dm9
-x 3
-y 3
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 3
-y 3
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d1
 x 3
 y 4
 end
-arch sand_dm9
-x 3
-y 4
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 3
-y 4
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d3
 x 3
 y 5
 end
-arch sand_dm9
-x 3
-y 5
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 3
-y 5
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
+arch floor_sand_d4
 x 3
 y 6
 end
-arch sand_dm9
-x 3
-y 6
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
-x 3
-y 6
-end
-arch blocked
-player_only 1
-blocksview 0
-no_pass 0
-x 3
-y 7
-end
-arch sand_dm16
-x 3
-y 7
-end
-arch damager
-name falling into the abyss
-dam 10000
-speed 1.0
-attack_internal 100
-slow_move 1
-exp 2
+arch floor_sand_d1
 x 3
 y 7
 end
@@ -565,29 +489,89 @@ arch floor_sand_d3
 x 3
 y 10
 end
-arch fwall_rock2
-x 3
-y 10
-end
 arch floor_sand_d1
-x 4
+x 3
+y 11
 end
-arch fwall_rock2
-x 4
-end
-arch floor_sand_d2
-x 4
-y 1
-end
-arch mushroom_medium
-x 4
-y 1
+arch mushroom_spot1
+x 3
+y 11
 end
 arch light4
+x 3
+y 11
+end
+arch floor_sand_d4
+x 3
+y 12
+end
+arch mushroom_spot2
+x 3
+y 12
+end
+arch light4
+x 3
+y 12
+end
+arch floor_sand_d2
+x 3
+y 13
+end
+arch floor_sand_d1
+x 3
+y 14
+end
+arch floor_sand_d1
+x 3
+y 15
+end
+arch floor_sand_d3
+x 3
+y 16
+end
+arch floor_sand_d3
+x 3
+y 17
+end
+arch floor_sand_d2
+x 3
+y 18
+end
+arch floor_sand_d2
+x 3
+y 19
+end
+arch floor_sand_d4
+x 3
+y 20
+end
+arch floor_sand_d2
+x 3
+y 21
+end
+arch floor_sand_d3
+x 3
+y 22
+end
+arch blood_floor1
+x 3
+y 22
+end
+arch floor_sand_d2
+x 3
+y 23
+end
+arch floor_sand_d1
+x 4
+end
+arch fwall_rock2
+x 4
+end
+arch floor_sand_d1
 x 4
 y 1
 end
-arch floor_sand_d1
+arch floor_sand_d3
 x 4
 y 2
 end
@@ -595,15 +579,22 @@ arch floor_sand_d3
 x 4
 y 3
 end
+arch corpse_human
+speed 0
+is_used_up 0
+name decaying corpse
+x 4
+y 3
+end
 arch floor_sand_d1
 x 4
 y 4
 end
-arch dirt_floor4
+arch floor_sand_d4
 x 4
-y 4
+y 5
 end
-arch floor_sand_d1
+arch mushroom_giant2
 x 4
 y 5
 end
@@ -611,19 +602,11 @@ arch floor_sand_d4
 x 4
 y 6
 end
-arch floor_sand_d1
+arch floor_sand_d3
 x 4
 y 7
 end
-arch mushroom_medium
-x 4
-y 7
-end
-arch light4
-x 4
-y 7
-end
-arch floor_sand_d2
+arch floor_sand_d4
 x 4
 y 8
 end
@@ -635,17 +618,73 @@ arch floor_sand_d2
 x 4
 y 10
 end
-arch fwall_rock2
+arch dirt_floor2
 x 4
 y 10
 end
+arch floor_sand_d4
+x 4
+y 11
+end
+arch floor_sand_d4
+x 4
+y 12
+end
+arch floor_sand_d3
+x 4
+y 13
+end
+arch floor_sand_d4
+x 4
+y 14
+end
+arch floor_sand_d1
+x 4
+y 15
+end
+arch dirt_floor2
+x 4
+y 15
+end
+arch floor_sand_d4
+x 4
+y 16
+end
+arch floor_sand_d1
+x 4
+y 17
+end
+arch floor_sand_d4
+x 4
+y 18
+end
+arch floor_sand_d1
+x 4
+y 19
+end
+arch floor_sand_d2
+x 4
+y 20
+end
+arch floor_sand_d3
+x 4
+y 21
+end
+arch floor_sand_d3
+x 4
+y 22
+end
+arch floor_sand_d2
+x 4
+y 23
+end
 arch floor_sand_d3
 x 5
 end
-arch fwall_rock3
+arch fwall_rock1
 x 5
 end
-arch floor_sand_d2
+arch floor_sand_d3
 x 5
 y 1
 end
@@ -657,15 +696,7 @@ arch floor_sand_d3
 x 5
 y 2
 end
-arch fwall_rock2
-x 5
-y 2
-end
-arch floor_sand_d4
-x 5
-y 3
-end
-arch fwall_rock1
+arch floor_sand_d1
 x 5
 y 3
 end
@@ -673,26 +704,11 @@ arch floor_sand_d2
 x 5
 y 4
 end
-arch fwall_rock1
-x 5
-y 4
-end
 arch floor_sand_d4
 x 5
 y 5
 end
-arch fwall_rock2
-x 5
-y 5
-end
 arch floor_sand_d2
-x 5
-y 6
-end
-arch announcement
-msg
-Herein rest Balrog, the fire and shadow demons. Unlucky or foolish is the person who dares wake them up.
-endmsg
 x 5
 y 6
 end
@@ -716,15 +732,123 @@ arch floor_sand_d4
 x 5
 y 10
 end
-arch fwall_rock3
+arch floor_sand_d1
 x 5
-y 10
+y 11
+end
+arch floor_sand_d4
+x 5
+y 12
+end
+arch floor_sand_d2
+x 5
+y 13
+end
+arch floor_sand_d2
+x 5
+y 14
+end
+arch floor_sand_d3
+x 5
+y 15
+end
+arch floor_sand_d2
+x 5
+y 16
+end
+arch floor_sand_d2
+x 5
+y 17
+end
+arch mushroom_giant1
+x 5
+y 17
+end
+arch floor_sand_d3
+x 5
+y 18
+end
+arch fwall_rock2
+x 5
+y 18
+end
+arch floor_sand_d3
+x 5
+y 19
+end
+arch fwall_rock2
+x 5
+y 19
+end
+arch floor_sand_d2
+x 5
+y 20
+end
+arch fwall_rock1
+x 5
+y 20
+end
+arch floor_sand_d3
+x 5
+y 21
+end
+arch fwall_rock2
+x 5
+y 21
+end
+arch floor_sand_d2
+x 5
+y 22
+end
+arch fwall_rock2
+x 5
+y 22
+end
+arch floor_sand_d4
+x 5
+y 23
+end
+arch fwall_rock1
+x 5
+y 23
+end
+arch floor_sand_d2
+x 6
+y 1
+end
+arch fwall_rock3
+x 6
+y 1
+end
+arch floor_sand_d3
+x 6
+y 2
+end
+arch fwall_rock2
+x 6
+y 2
+end
+arch floor_sand_d4
+x 6
+y 3
+end
+arch fwall_rock1
+x 6
+y 3
+end
+arch floor_sand_d2
+x 6
+y 4
+end
+arch fwall_rock1
+x 6
+y 4
 end
 arch floor_sand_d4
 x 6
 y 5
 end
-arch fwall_rock3
+arch fwall_rock2
 x 6
 y 5
 end
@@ -732,11 +856,18 @@ arch floor_sand_d2
 x 6
 y 6
 end
-arch dirt_floor1
+arch fwall_rock3
 x 6
 y 6
 end
 arch floor_sand_d4
+x 6
+y 7
+end
+arch announcement
+msg
+Herein rest Balrog, the fire and shadow demons. Unlucky or foolish is the person who dares wake them up.
+endmsg
 x 6
 y 7
 end
@@ -764,6 +895,70 @@ arch fwall_rock2
 x 6
 y 10
 end
+arch floor_sand_d2
+x 6
+y 11
+end
+arch fwall_rock3
+x 6
+y 11
+end
+arch floor_sand_d3
+x 6
+y 12
+end
+arch fwall_rock2
+x 6
+y 12
+end
+arch floor_sand_d1
+x 6
+y 13
+end
+arch fwall_rock2
+x 6
+y 13
+end
+arch floor_sand_d2
+x 6
+y 14
+end
+arch fwall_rock3
+x 6
+y 14
+end
+arch floor_sand_d2
+x 6
+y 15
+end
+arch fwall_rock3
+x 6
+y 15
+end
+arch floor_sand_d4
+x 6
+y 16
+end
+arch fwall_rock2
+x 6
+y 16
+end
+arch floor_sand_d3
+x 6
+y 17
+end
+arch fwall_rock1
+x 6
+y 17
+end
+arch floor_sand_d3
+x 6
+y 18
+end
+arch fwall_rock1
+x 6
+y 18
+end
 arch floor_sand_d1
 x 7
 y 5
@@ -784,6 +979,15 @@ arch floor_sand_d3
 x 7
 y 7
 end
+arch announcement
+msg
+** The writing appears hastily written **
+
+Everyone, keep off the lava! The lava burns us alive instantly, but we are fine, so long as we keep to the volcanic floor, or its edges, where we only have to worry about the heat coming from the lava. We shall banish these Balrog or perish in the attempt!
+endmsg
+x 7
+y 7
+end
 arch floor_sand_d4
 x 7
 y 8
@@ -876,7 +1080,15 @@ arch floor_sand_d3
 x 8
 y 7
 end
+arch border_abyss_w1
+x 8
+y 7
+end
 arch floor_sand_d4
+x 8
+y 8
+end
+arch border_abyss_w1
 x 8
 y 8
 end
@@ -1044,39 +1256,21 @@ terrain_type 1
 x 9
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 9
 y 2
-end
-arch floor_lava_3
-glow_radius 3
-terrain_type 1
-x 9
-y 3
-end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 9
-y 4
-end
-arch floor_lava_3
-glow_radius 3
-terrain_type 1
-x 9
-y 5
-end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 9
-y 6
-end
-arch sand_dm7
-x 9
-y 6
 end
 arch damager
 name lava
@@ -1086,9 +1280,79 @@ attack_internal 100
 slow_move 1
 exp 2
 x 9
+y 2
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 3
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 4
+end
+arch lava_blob
+state 4
+x 9
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
 y 6
 end
-arch floor_sand_d2
+arch border_lava_s1
+x 9
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 6
+end
+arch floor_volcano_4
 x 9
 y 7
 end
@@ -1096,7 +1360,7 @@ arch dirt_floor1
 x 9
 y 7
 end
-arch floor_sand_d4
+arch floor_volcano_3
 x 9
 y 8
 end
@@ -1106,17 +1370,14 @@ terrain_type 1
 x 9
 y 9
 end
-arch sand_dm6
+arch border_lava_n1
 x 9
 y 9
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 9
 y 9
 end
@@ -1126,9 +1387,34 @@ terrain_type 1
 x 9
 y 10
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 10
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 9
+y 11
+end
+arch lava_blob
+state 3
+x 9
+y 11
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 9
 y 11
 end
@@ -1138,9 +1424,29 @@ terrain_type 1
 x 9
 y 12
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 12
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 9
+y 13
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 9
 y 13
 end
@@ -1150,9 +1456,29 @@ terrain_type 1
 x 9
 y 14
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 14
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 9
+y 15
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 9
 y 15
 end
@@ -1162,13 +1488,31 @@ terrain_type 1
 x 9
 y 16
 end
+arch border_lava_se2
+x 9
+y 16
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 16
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 9
 y 17
 end
-arch sand_dm9
+arch border_lava_e1
+x 9
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 9
 y 17
 end
@@ -1178,9 +1522,30 @@ terrain_type 1
 x 9
 y 18
 end
+arch border_lava_ne21
+x 9
+y 18
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 18
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 9
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 9
 y 19
 end
@@ -1190,9 +1555,30 @@ terrain_type 1
 x 9
 y 20
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 20
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 9
+y 21
+end
+arch border_lava_se2
+x 9
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 9
 y 21
 end
@@ -1202,13 +1588,31 @@ terrain_type 1
 x 9
 y 22
 end
-arch sand_dm9
+arch border_lava_e1
+x 9
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 9
 y 22
 end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 9
+y 23
+end
+arch border_lava_ne21
+x 9
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 9
 y 23
 end
@@ -1226,9 +1630,30 @@ terrain_type 1
 x 10
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 10
+y 2
+end
+arch border_lava_se2
+x 10
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 10
 y 2
 end
@@ -1238,13 +1663,31 @@ terrain_type 1
 x 10
 y 3
 end
-arch sand_dm9
+arch border_lava_e1
+x 10
+y 3
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 10
 y 3
 end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 10
+y 4
+end
+arch border_lava_ne21
+x 10
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 10
 y 4
 end
@@ -1253,8 +1696,9 @@ x 10
 y 4
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 108
-exp 117
+exp 137
 wc 4
 ac 10
 Con 5
@@ -1281,16 +1725,6 @@ terrain_type 1
 x 10
 y 5
 end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 10
-y 6
-end
-arch sand_dm7
-x 10
-y 6
-end
 arch damager
 name lava
 dam 10000
@@ -1299,9 +1733,26 @@ attack_internal 100
 slow_move 1
 exp 2
 x 10
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
 y 6
 end
-arch floor_sand_d1
+arch border_lava_s1
+x 10
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 6
+end
+arch floor_volcano_4
 x 10
 y 7
 end
@@ -1309,7 +1760,7 @@ arch blood_floor2
 x 10
 y 7
 end
-arch floor_sand_d1
+arch floor_volcano_4
 x 10
 y 8
 end
@@ -1319,17 +1770,14 @@ terrain_type 1
 x 10
 y 9
 end
-arch sand_dm6
+arch border_lava_n1
 x 10
 y 9
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 10
 y 9
 end
@@ -1339,9 +1787,29 @@ terrain_type 1
 x 10
 y 10
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 10
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 10
+y 11
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 10
 y 11
 end
@@ -1350,8 +1818,9 @@ x 10
 y 11
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 109
-exp 152
+exp 172
 wc 4
 ac 10
 Con 5
@@ -1378,9 +1847,29 @@ terrain_type 1
 x 10
 y 12
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 12
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 10
+y 13
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 10
 y 13
 end
@@ -1390,9 +1879,29 @@ terrain_type 1
 x 10
 y 14
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 14
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 10
+y 15
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 10
 y 15
 end
@@ -1402,11 +1911,18 @@ terrain_type 1
 x 10
 y 16
 end
-arch sand_dm7
+arch border_lava_s1
 x 10
 y 16
 end
-arch floor_sand_d2
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 16
+end
+arch floor_volcano_4
 x 10
 y 17
 end
@@ -1420,7 +1936,14 @@ terrain_type 1
 x 10
 y 18
 end
-arch sand_dm6
+arch border_lava_n1
+x 10
+y 18
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 10
 y 18
 end
@@ -1430,9 +1953,33 @@ terrain_type 1
 x 10
 y 19
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 19
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 10
+y 20
+end
+arch lava_blob
+x 10
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 10
 y 20
 end
@@ -1442,11 +1989,18 @@ terrain_type 1
 x 10
 y 21
 end
-arch sand_dm7
+arch border_lava_s1
 x 10
 y 21
 end
-arch floor_sand_d4
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 21
+end
+arch floor_volcano_3
 x 10
 y 22
 end
@@ -1460,7 +2014,14 @@ terrain_type 1
 x 10
 y 23
 end
-arch sand_dm6
+arch border_lava_n1
+x 10
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 10
 y 23
 end
@@ -1478,17 +2039,34 @@ terrain_type 1
 x 11
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 11
 y 2
 end
-arch sand_dm7
+arch border_lava_s1
 x 11
 y 2
 end
-arch floor_sand_d2
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 11
+y 2
+end
+arch floor_volcano_1
 x 11
 y 3
 end
@@ -1502,7 +2080,14 @@ terrain_type 1
 x 11
 y 4
 end
-arch sand_dm6
+arch border_lava_n1
+x 11
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 11
 y 4
 end
@@ -1512,16 +2097,6 @@ terrain_type 1
 x 11
 y 5
 end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 11
-y 6
-end
-arch sand_dm7
-x 11
-y 6
-end
 arch damager
 name lava
 dam 10000
@@ -1530,13 +2105,30 @@ attack_internal 100
 slow_move 1
 exp 2
 x 11
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 11
 y 6
 end
-arch floor_sand_d2
+arch border_lava_s1
+x 11
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 11
+y 6
+end
+arch floor_volcano_1
 x 11
 y 7
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 11
 y 8
 end
@@ -1546,17 +2138,14 @@ terrain_type 1
 x 11
 y 9
 end
-arch sand_dm15
+arch border_lava_ne1
 x 11
 y 9
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 11
 y 9
 end
@@ -1566,13 +2155,14 @@ terrain_type 1
 x 11
 y 10
 end
+arch border_lava_ne21
+x 11
+y 10
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 11
 y 10
 end
@@ -1582,9 +2172,29 @@ terrain_type 1
 x 11
 y 11
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 11
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 11
+y 12
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 11
 y 12
 end
@@ -1594,9 +2204,34 @@ terrain_type 1
 x 11
 y 13
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 13
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 11
+y 14
+end
+arch lava_blob
+state 1
+x 11
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 11
 y 14
 end
@@ -1606,9 +2241,30 @@ terrain_type 1
 x 11
 y 15
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 15
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 11
+y 16
+end
+arch border_lava_sw2
+x 11
+y 16
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 11
 y 16
 end
@@ -1618,7 +2274,14 @@ terrain_type 1
 x 11
 y 17
 end
-arch sand_dm8
+arch border_lava_w1
+x 11
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 11
 y 17
 end
@@ -1628,9 +2291,30 @@ terrain_type 1
 x 11
 y 18
 end
+arch border_lava_nw2
+x 11
+y 18
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 11
+y 18
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 11
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 11
 y 19
 end
@@ -1639,8 +2323,9 @@ x 11
 y 19
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 111
-exp 142
+exp 172
 wc 4
 ac 10
 Con 5
@@ -1667,9 +2352,30 @@ terrain_type 1
 x 11
 y 20
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 20
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 11
+y 21
+end
+arch border_lava_sw2
+x 11
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 11
 y 21
 end
@@ -1679,13 +2385,31 @@ terrain_type 1
 x 11
 y 22
 end
-arch sand_dm8
+arch border_lava_w1
+x 11
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 11
 y 22
 end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 11
+y 23
+end
+arch border_lava_nw2
+x 11
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 11
 y 23
 end
@@ -1703,9 +2427,35 @@ terrain_type 1
 x 12
 y 1
 end
+arch lava_blob
+state 3
+x 12
+y 1
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 12
+y 2
+end
+arch border_lava_sw2
+x 12
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 12
 y 2
 end
@@ -1715,7 +2465,14 @@ terrain_type 1
 x 12
 y 3
 end
-arch sand_dm8
+arch border_lava_w1
+x 12
+y 3
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 12
 y 3
 end
@@ -1725,9 +2482,30 @@ terrain_type 1
 x 12
 y 4
 end
+arch border_lava_nw2
+x 12
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 12
+y 4
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 12
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 12
 y 5
 end
@@ -1737,33 +2515,30 @@ terrain_type 1
 x 12
 y 6
 end
-arch sand_dm7
+arch border_lava_s1
 x 12
 y 6
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 12
 y 6
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 12
 y 7
 end
-arch crystal_red_s
+arch obstacle_volcano_5
 x 12
 y 7
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 12
 y 8
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 12
 y 9
 end
@@ -1773,17 +2548,14 @@ terrain_type 1
 x 12
 y 10
 end
-arch sand_dm6
+arch border_lava_n1
 x 12
 y 10
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 12
 y 10
 end
@@ -1793,13 +2565,31 @@ terrain_type 1
 x 12
 y 11
 end
+arch border_lava_se2
+x 12
+y 11
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 12
+y 11
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 12
 y 12
 end
-arch sand_dm9
+arch border_lava_e1
+x 12
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 12
 y 12
 end
@@ -1809,9 +2599,30 @@ terrain_type 1
 x 12
 y 13
 end
+arch border_lava_ne21
+x 12
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 12
+y 13
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 12
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 12
 y 14
 end
@@ -1821,13 +2632,24 @@ terrain_type 1
 x 12
 y 15
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 15
+end
 arch spawn_point
 x 12
 y 15
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 109
-exp 122
+exp 142
 wc 4
 ac 10
 Con 5
@@ -1854,9 +2676,29 @@ terrain_type 1
 x 12
 y 16
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 16
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 12
+y 17
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 12
 y 17
 end
@@ -1866,9 +2708,29 @@ terrain_type 1
 x 12
 y 18
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 18
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 12
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 12
 y 19
 end
@@ -1878,13 +2740,14 @@ terrain_type 1
 x 12
 y 20
 end
+arch border_lava_se2
+x 12
+y 20
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 12
 y 20
 end
@@ -1894,17 +2757,14 @@ terrain_type 1
 x 12
 y 21
 end
-arch sand_dm9
+arch border_lava_e1
 x 12
 y 21
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 12
 y 21
 end
@@ -1914,17 +2774,14 @@ terrain_type 1
 x 12
 y 22
 end
-arch sand_dm9
+arch border_lava_e1
 x 12
 y 22
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 12
 y 22
 end
@@ -1934,17 +2791,14 @@ terrain_type 1
 x 12
 y 23
 end
-arch sand_dm9
+arch border_lava_e1
 x 12
 y 23
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 12
 y 23
 end
@@ -1962,9 +2816,29 @@ terrain_type 1
 x 13
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 13
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 13
 y 2
 end
@@ -1974,9 +2848,29 @@ terrain_type 1
 x 13
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 3
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 13
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 13
 y 4
 end
@@ -1986,12 +2880,6 @@ terrain_type 1
 x 13
 y 5
 end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 13
-y 6
-end
 arch damager
 name lava
 dam 10000
@@ -2000,6 +2888,23 @@ attack_internal 100
 slow_move 1
 exp 2
 x 13
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
+y 6
+end
+arch border_lava_sw2
+x 13
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 13
 y 6
 end
 arch floor_lava_4
@@ -2008,25 +2913,22 @@ terrain_type 1
 x 13
 y 7
 end
-arch sand_dm13
+arch border_lava_sw1
 x 13
 y 7
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 13
 y 7
 end
-arch floor_sand_d3
+arch floor_volcano_4
 x 13
 y 8
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 13
 y 9
 end
@@ -2040,17 +2942,14 @@ terrain_type 1
 x 13
 y 10
 end
-arch sand_dm6
+arch border_lava_n1
 x 13
 y 10
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 13
 y 10
 end
@@ -2060,11 +2959,18 @@ terrain_type 1
 x 13
 y 11
 end
-arch sand_dm7
+arch border_lava_s1
 x 13
 y 11
 end
-arch floor_sand_d1
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 13
+y 11
+end
+arch floor_volcano_3
 x 13
 y 12
 end
@@ -2078,7 +2984,14 @@ terrain_type 1
 x 13
 y 13
 end
-arch sand_dm6
+arch border_lava_n1
+x 13
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 13
 y 13
 end
@@ -2088,45 +3001,21 @@ terrain_type 1
 x 13
 y 14
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 14
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 13
 y 15
-end
-arch floor_lava_3
-glow_radius 3
-terrain_type 1
-x 13
-y 16
-end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 13
-y 17
-end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 13
-y 18
-end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 13
-y 19
-end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 13
-y 20
-end
-arch sand_dm7
-x 13
-y 20
 end
 arch damager
 name lava
@@ -2136,17 +3025,98 @@ attack_internal 100
 slow_move 1
 exp 2
 x 13
+y 15
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 13
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
+y 17
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 13
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
 y 20
 end
-arch floor_sand_d2
+arch border_lava_s1
+x 13
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 13
+y 20
+end
+arch floor_volcano_4
 x 13
 y 21
 end
-arch crystal_purple_s
+arch obstacle_volcano_2
 x 13
 y 21
 end
-arch floor_sand_d3
+arch floor_volcano_3
 x 13
 y 22
 end
@@ -2154,7 +3124,7 @@ arch blood_floor1
 x 13
 y 22
 end
-arch floor_sand_d4
+arch floor_volcano_3
 x 13
 y 23
 end
@@ -2172,9 +3142,29 @@ terrain_type 1
 x 14
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 14
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 14
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 14
 y 2
 end
@@ -2184,9 +3174,29 @@ terrain_type 1
 x 14
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 14
+y 3
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 14
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 14
 y 4
 end
@@ -2195,8 +3205,9 @@ x 14
 y 4
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 109
-exp 152
+exp 172
 wc 4
 ac 10
 Con 5
@@ -2223,9 +3234,29 @@ terrain_type 1
 x 14
 y 5
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 14
+y 5
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 14
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 14
 y 6
 end
@@ -2235,21 +3266,18 @@ terrain_type 1
 x 14
 y 7
 end
-arch sand_dm7
+arch border_lava_s1
 x 14
 y 7
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 7
 end
-arch floor_sand_d1
+arch floor_volcano_1
 x 14
 y 8
 end
@@ -2257,7 +3285,7 @@ arch bone_broken
 x 14
 y 8
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 14
 y 9
 end
@@ -2267,17 +3295,14 @@ terrain_type 1
 x 14
 y 10
 end
-arch sand_dm6
+arch border_lava_n1
 x 14
 y 10
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 10
 end
@@ -2287,19 +3312,48 @@ terrain_type 1
 x 14
 y 11
 end
+arch border_lava_sw2
+x 14
+y 11
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 14
+y 11
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 14
 y 12
 end
-arch sand_dm8
+arch border_lava_w1
+x 14
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 14
 y 12
 end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 14
+y 13
+end
+arch border_lava_nw2
+x 14
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 14
 y 13
 end
@@ -2325,13 +3379,14 @@ terrain_type 1
 x 14
 y 15
 end
+arch border_lava_se2
+x 14
+y 15
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 15
 end
@@ -2341,17 +3396,14 @@ terrain_type 1
 x 14
 y 16
 end
-arch sand_dm9
+arch border_lava_e1
 x 14
 y 16
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 16
 end
@@ -2361,17 +3413,14 @@ terrain_type 1
 x 14
 y 17
 end
-arch sand_dm9
+arch border_lava_e1
 x 14
 y 17
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 17
 end
@@ -2381,17 +3430,14 @@ terrain_type 1
 x 14
 y 18
 end
-arch sand_dm9
+arch border_lava_e1
 x 14
 y 18
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 18
 end
@@ -2401,17 +3447,14 @@ terrain_type 1
 x 14
 y 19
 end
-arch sand_dm9
+arch border_lava_e1
 x 14
 y 19
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 19
 end
@@ -2421,29 +3464,26 @@ terrain_type 1
 x 14
 y 20
 end
-arch sand_dm16
+arch border_lava_se1
 x 14
 y 20
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 14
 y 20
 end
-arch floor_sand_d4
+arch floor_volcano_2
 x 14
 y 21
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 14
 y 22
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 14
 y 23
 end
@@ -2461,9 +3501,29 @@ terrain_type 1
 x 15
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 15
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 15
 y 2
 end
@@ -2473,9 +3533,34 @@ terrain_type 1
 x 15
 y 3
 end
+arch lava_blob
+state 1
+x 15
+y 3
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 3
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 15
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 15
 y 4
 end
@@ -2485,9 +3570,29 @@ terrain_type 1
 x 15
 y 5
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 15
+y 5
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 15
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 15
 y 6
 end
@@ -2497,25 +3602,22 @@ terrain_type 1
 x 15
 y 7
 end
-arch sand_dm7
+arch border_lava_s1
 x 15
 y 7
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 7
 end
-arch floor_sand_d2
+arch floor_volcano_4
 x 15
 y 8
 end
-arch floor_sand_d1
+arch floor_volcano_3
 x 15
 y 9
 end
@@ -2525,17 +3627,14 @@ terrain_type 1
 x 15
 y 10
 end
-arch sand_dm15
+arch border_lava_ne1
 x 15
 y 10
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 10
 end
@@ -2545,17 +3644,14 @@ terrain_type 1
 x 15
 y 11
 end
-arch sand_dm9
+arch border_lava_e1
 x 15
 y 11
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 11
 end
@@ -2565,17 +3661,14 @@ terrain_type 1
 x 15
 y 12
 end
-arch sand_dm9
+arch border_lava_e1
 x 15
 y 12
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 12
 end
@@ -2585,17 +3678,14 @@ terrain_type 1
 x 15
 y 13
 end
-arch sand_dm9
+arch border_lava_e1
 x 15
 y 13
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 13
 end
@@ -2605,17 +3695,14 @@ terrain_type 1
 x 15
 y 14
 end
-arch sand_dm9
+arch border_lava_e1
 x 15
 y 14
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 14
 end
@@ -2625,45 +3712,42 @@ terrain_type 1
 x 15
 y 15
 end
-arch sand_dm16
+arch border_lava_se1
 x 15
 y 15
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 15
 end
-arch floor_sand_d1
+arch floor_volcano_4
 x 15
 y 16
 end
-arch crystal_red
+arch obstacle_volcano_4
 x 15
 y 16
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 15
 y 17
 end
-arch floor_sand_d2
+arch floor_volcano_3
 x 15
 y 18
 end
-arch floor_sand_d1
+arch floor_volcano_2
 x 15
 y 19
 end
-arch floor_sand_d1
+arch floor_volcano_3
 x 15
 y 20
 end
-arch floor_sand_d1
+arch floor_volcano_2
 x 15
 y 21
 end
@@ -2671,7 +3755,7 @@ arch bone_skull
 x 15
 y 21
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 15
 y 22
 end
@@ -2681,17 +3765,14 @@ terrain_type 1
 x 15
 y 23
 end
-arch sand_dm14
+arch border_lava_nw1
 x 15
 y 23
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 15
 y 23
 end
@@ -2709,9 +3790,29 @@ terrain_type 1
 x 16
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 16
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 16
 y 2
 end
@@ -2721,9 +3822,30 @@ terrain_type 1
 x 16
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 16
+y 3
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 16
+y 4
+end
+arch border_lava_se2
+x 16
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 16
 y 4
 end
@@ -2733,7 +3855,14 @@ terrain_type 1
 x 16
 y 5
 end
-arch sand_dm9
+arch border_lava_e1
+x 16
+y 5
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 16
 y 5
 end
@@ -2743,31 +3872,39 @@ terrain_type 1
 x 16
 y 6
 end
+arch border_lava_ne21
+x 16
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 16
+y 6
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 16
 y 7
 end
-arch sand_dm7
+arch border_lava_s1
 x 16
 y 7
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 16
 y 7
 end
-arch floor_sand_d1
+arch floor_volcano_4
 x 16
 y 8
 end
-arch floor_sand_d2
+arch floor_volcano_3
 x 16
 y 9
 end
@@ -2775,11 +3912,11 @@ arch dirt_floor3
 x 16
 y 9
 end
-arch floor_sand_d1
+arch floor_volcano_2
 x 16
 y 10
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 16
 y 11
 end
@@ -2787,19 +3924,19 @@ arch blood_floor2
 x 16
 y 11
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 16
 y 12
 end
-arch floor_sand_d1
+arch floor_volcano_1
 x 16
 y 13
 end
-arch floor_sand_d4
+arch floor_volcano_2
 x 16
 y 14
 end
-arch floor_sand_d3
+arch floor_volcano_2
 x 16
 y 15
 end
@@ -2807,19 +3944,19 @@ arch dirt_floor3
 x 16
 y 15
 end
-arch floor_sand_d3
+arch floor_volcano_1
 x 16
 y 16
 end
-arch floor_sand_d3
+arch floor_volcano_1
 x 16
 y 17
 end
-arch floor_sand_d4
+arch floor_volcano_2
 x 16
 y 18
 end
-arch floor_sand_d1
+arch floor_volcano_4
 x 16
 y 19
 end
@@ -2827,11 +3964,11 @@ arch blood_floor1
 x 16
 y 19
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 16
 y 20
 end
-arch floor_sand_d1
+arch floor_volcano_4
 x 16
 y 21
 end
@@ -2841,17 +3978,14 @@ terrain_type 1
 x 16
 y 22
 end
-arch sand_dm14
+arch border_lava_nw1
 x 16
 y 22
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 16
 y 22
 end
@@ -2861,13 +3995,14 @@ terrain_type 1
 x 16
 y 23
 end
+arch border_lava_nw2
+x 16
+y 23
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 16
 y 23
 end
@@ -2885,9 +4020,29 @@ terrain_type 1
 x 17
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 17
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 17
 y 2
 end
@@ -2897,17 +4052,34 @@ terrain_type 1
 x 17
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 17
+y 3
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 17
 y 4
 end
-arch sand_dm7
+arch border_lava_s1
 x 17
 y 4
 end
-arch floor_sand_d3
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 17
+y 4
+end
+arch floor_volcano_2
 x 17
 y 5
 end
@@ -2921,7 +4093,14 @@ terrain_type 1
 x 17
 y 6
 end
-arch sand_dm6
+arch border_lava_n1
+x 17
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 17
 y 6
 end
@@ -2931,57 +4110,54 @@ terrain_type 1
 x 17
 y 7
 end
-arch sand_dm7
+arch border_lava_s1
 x 17
 y 7
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 17
 y 7
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 17
 y 8
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 17
 y 9
 end
-arch floor_sand_d1
+arch floor_volcano_4
 x 17
 y 10
 end
-arch floor_sand_d2
+arch floor_volcano_4
 x 17
 y 11
 end
-arch floor_sand_d3
+arch floor_volcano_3
 x 17
 y 12
 end
-arch floor_sand_d1
+arch floor_volcano_2
 x 17
 y 13
 end
-arch floor_sand_d3
+arch floor_volcano_1
 x 17
 y 14
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 17
 y 15
 end
-arch floor_sand_d1
+arch floor_volcano_2
 x 17
 y 16
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 17
 y 17
 end
@@ -2991,17 +4167,14 @@ terrain_type 1
 x 17
 y 18
 end
-arch sand_dm14
+arch border_lava_nw1
 x 17
 y 18
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 17
 y 18
 end
@@ -3011,17 +4184,14 @@ terrain_type 1
 x 17
 y 19
 end
-arch sand_dm8
+arch border_lava_w1
 x 17
 y 19
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 17
 y 19
 end
@@ -3031,17 +4201,14 @@ terrain_type 1
 x 17
 y 20
 end
-arch sand_dm8
+arch border_lava_w1
 x 17
 y 20
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 17
 y 20
 end
@@ -3051,17 +4218,19 @@ terrain_type 1
 x 17
 y 21
 end
-arch sand_dm8
+arch border_lava_se2
+x 17
+y 21
+end
+arch border_lava_w1
+layer 3
 x 17
 y 21
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 17
 y 21
 end
@@ -3071,23 +4240,36 @@ terrain_type 1
 x 17
 y 22
 end
-arch sand_dm9
+arch border_lava_nw2
+x 17
+y 22
+end
+arch border_lava_e1
+layer 3
 x 17
 y 22
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 17
 y 22
 end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 17
+y 23
+end
+arch border_lava_ne21
+x 17
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 17
 y 23
 end
@@ -3105,9 +4287,33 @@ terrain_type 1
 x 18
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 1
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 18
+y 2
+end
+arch lava_blob
+x 18
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 18
 y 2
 end
@@ -3117,9 +4323,30 @@ terrain_type 1
 x 18
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 3
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 18
+y 4
+end
+arch border_lava_sw2
+x 18
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 18
 y 4
 end
@@ -3129,7 +4356,14 @@ terrain_type 1
 x 18
 y 5
 end
-arch sand_dm8
+arch border_lava_w1
+x 18
+y 5
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 18
 y 5
 end
@@ -3139,19 +4373,31 @@ terrain_type 1
 x 18
 y 6
 end
+arch border_lava_nw2
+x 18
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 18
+y 6
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 18
 y 7
 end
+arch border_lava_sw2
+x 18
+y 7
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 7
 end
@@ -3161,25 +4407,22 @@ terrain_type 1
 x 18
 y 8
 end
-arch sand_dm13
+arch border_lava_sw1
 x 18
 y 8
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 8
 end
-arch floor_sand_d4
+arch floor_volcano_4
 x 18
 y 9
 end
-arch floor_sand_d3
+arch floor_volcano_2
 x 18
 y 10
 end
@@ -3189,17 +4432,14 @@ terrain_type 1
 x 18
 y 11
 end
-arch sand_dm14
+arch border_lava_nw1
 x 18
 y 11
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 11
 end
@@ -3209,17 +4449,14 @@ terrain_type 1
 x 18
 y 12
 end
-arch sand_dm8
+arch border_lava_w1
 x 18
 y 12
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 12
 end
@@ -3229,17 +4466,14 @@ terrain_type 1
 x 18
 y 13
 end
-arch sand_dm8
+arch border_lava_w1
 x 18
 y 13
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 13
 end
@@ -3249,17 +4483,14 @@ terrain_type 1
 x 18
 y 14
 end
-arch sand_dm8
+arch border_lava_w1
 x 18
 y 14
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 14
 end
@@ -3269,17 +4500,14 @@ terrain_type 1
 x 18
 y 15
 end
-arch sand_dm8
+arch border_lava_w1
 x 18
 y 15
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 15
 end
@@ -3289,17 +4517,14 @@ terrain_type 1
 x 18
 y 16
 end
-arch sand_dm8
+arch border_lava_w1
 x 18
 y 16
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 16
 end
@@ -3309,17 +4534,14 @@ terrain_type 1
 x 18
 y 17
 end
-arch sand_dm8
+arch border_lava_w1
 x 18
 y 17
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 17
 end
@@ -3329,13 +4551,14 @@ terrain_type 1
 x 18
 y 18
 end
+arch border_lava_nw2
+x 18
+y 18
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 18
 y 18
 end
@@ -3345,9 +4568,29 @@ terrain_type 1
 x 18
 y 19
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 18
+y 19
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 18
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 18
 y 20
 end
@@ -3357,11 +4600,18 @@ terrain_type 1
 x 18
 y 21
 end
-arch sand_dm7
+arch border_lava_s1
 x 18
 y 21
 end
-arch floor_sand_d2
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 18
+y 21
+end
+arch floor_volcano_2
 x 18
 y 22
 end
@@ -3375,7 +4625,14 @@ terrain_type 1
 x 18
 y 23
 end
-arch sand_dm6
+arch border_lava_n1
+x 18
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 18
 y 23
 end
@@ -3393,9 +4650,29 @@ terrain_type 1
 x 19
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 19
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 19
 y 2
 end
@@ -3405,9 +4682,29 @@ terrain_type 1
 x 19
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 3
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 19
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 19
 y 4
 end
@@ -3416,8 +4713,9 @@ x 19
 y 4
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 110
-exp 122
+exp 142
 wc 4
 ac 10
 Con 5
@@ -3444,9 +4742,29 @@ terrain_type 1
 x 19
 y 5
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 5
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 19
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 19
 y 6
 end
@@ -3456,16 +4774,6 @@ terrain_type 1
 x 19
 y 7
 end
-arch floor_lava_3
-glow_radius 3
-terrain_type 1
-x 19
-y 8
-end
-arch sand_dm7
-x 19
-y 8
-end
 arch damager
 name lava
 dam 10000
@@ -3474,13 +4782,30 @@ attack_internal 100
 slow_move 1
 exp 2
 x 19
+y 7
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 19
 y 8
 end
-arch floor_sand_d1
+arch border_lava_s1
+x 19
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 19
+y 8
+end
+arch floor_volcano_2
 x 19
 y 9
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 19
 y 10
 end
@@ -3490,17 +4815,14 @@ terrain_type 1
 x 19
 y 11
 end
-arch sand_dm6
+arch border_lava_n1
 x 19
 y 11
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 19
 y 11
 end
@@ -3510,9 +4832,30 @@ terrain_type 1
 x 19
 y 12
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 12
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 19
+y 13
+end
+arch border_lava_se2
+x 19
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 19
 y 13
 end
@@ -3522,7 +4865,14 @@ terrain_type 1
 x 19
 y 14
 end
-arch sand_dm9
+arch border_lava_e1
+x 19
+y 14
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 19
 y 14
 end
@@ -3532,9 +4882,30 @@ terrain_type 1
 x 19
 y 15
 end
+arch border_lava_ne21
+x 19
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 19
+y 15
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 19
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 19
 y 16
 end
@@ -3544,9 +4915,29 @@ terrain_type 1
 x 19
 y 17
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 17
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 19
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 19
 y 18
 end
@@ -3556,9 +4947,29 @@ terrain_type 1
 x 19
 y 19
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 19
+y 19
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 19
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 19
 y 20
 end
@@ -3568,13 +4979,25 @@ terrain_type 1
 x 19
 y 21
 end
+arch border_lava_sw2
+x 19
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 19
+y 21
+end
 arch spawn_point
 x 19
 y 21
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 111
-exp 122
+exp 142
 wc 4
 ac 10
 Con 5
@@ -3601,13 +5024,31 @@ terrain_type 1
 x 19
 y 22
 end
-arch sand_dm8
+arch border_lava_w1
+x 19
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 19
 y 22
 end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 19
+y 23
+end
+arch border_lava_nw2
+x 19
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 19
 y 23
 end
@@ -3625,9 +5066,30 @@ terrain_type 1
 x 20
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 20
+y 2
+end
+arch border_lava_se2
+x 20
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 20
 y 2
 end
@@ -3637,7 +5099,14 @@ terrain_type 1
 x 20
 y 3
 end
-arch sand_dm9
+arch border_lava_e1
+x 20
+y 3
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 20
 y 3
 end
@@ -3647,9 +5116,30 @@ terrain_type 1
 x 20
 y 4
 end
+arch border_lava_ne21
+x 20
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 20
+y 4
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 20
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 20
 y 5
 end
@@ -3659,9 +5149,29 @@ terrain_type 1
 x 20
 y 6
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 6
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 20
+y 7
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 20
 y 7
 end
@@ -3671,25 +5181,22 @@ terrain_type 1
 x 20
 y 8
 end
-arch sand_dm7
+arch border_lava_s1
 x 20
 y 8
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 20
 y 8
 end
-arch floor_sand_d1
+arch floor_volcano_1
 x 20
 y 9
 end
-arch floor_sand_d4
+arch floor_volcano_1
 x 20
 y 10
 end
@@ -3699,17 +5206,14 @@ terrain_type 1
 x 20
 y 11
 end
-arch sand_dm15
+arch border_lava_ne1
 x 20
 y 11
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 20
 y 11
 end
@@ -3719,13 +5223,14 @@ terrain_type 1
 x 20
 y 12
 end
+arch border_lava_ne21
+x 20
+y 12
+end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 20
 y 12
 end
@@ -3735,11 +5240,18 @@ terrain_type 1
 x 20
 y 13
 end
-arch sand_dm7
+arch border_lava_s1
 x 20
 y 13
 end
-arch floor_sand_d2
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 20
+y 13
+end
+arch floor_volcano_2
 x 20
 y 14
 end
@@ -3753,7 +5265,14 @@ terrain_type 1
 x 20
 y 15
 end
-arch sand_dm6
+arch border_lava_n1
+x 20
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 20
 y 15
 end
@@ -3763,9 +5282,29 @@ terrain_type 1
 x 20
 y 16
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 16
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 20
+y 17
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 20
 y 17
 end
@@ -3774,8 +5313,9 @@ x 20
 y 17
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 110
-exp 152
+exp 172
 wc 4
 ac 10
 Con 5
@@ -3802,9 +5342,34 @@ terrain_type 1
 x 20
 y 18
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 18
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 20
+y 19
+end
+arch lava_blob
+state 3
+x 20
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 20
 y 19
 end
@@ -3814,9 +5379,29 @@ terrain_type 1
 x 20
 y 20
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 20
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 20
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 20
 y 21
 end
@@ -3826,9 +5411,29 @@ terrain_type 1
 x 20
 y 22
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 20
+y 22
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 20
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 20
 y 23
 end
@@ -3846,17 +5451,34 @@ terrain_type 1
 x 21
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 21
 y 2
 end
-arch sand_dm7
+arch border_lava_s1
 x 21
 y 2
 end
-arch floor_sand_d4
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 21
+y 2
+end
+arch floor_volcano_2
 x 21
 y 3
 end
@@ -3870,7 +5492,14 @@ terrain_type 1
 x 21
 y 4
 end
-arch sand_dm6
+arch border_lava_n1
+x 21
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 21
 y 4
 end
@@ -3880,9 +5509,34 @@ terrain_type 1
 x 21
 y 5
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 5
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 21
+y 6
+end
+arch lava_blob
+state 3
+x 21
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 21
 y 6
 end
@@ -3892,16 +5546,6 @@ terrain_type 1
 x 21
 y 7
 end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 21
-y 8
-end
-arch sand_dm7
-x 21
-y 8
-end
 arch damager
 name lava
 dam 10000
@@ -3910,17 +5554,34 @@ attack_internal 100
 slow_move 1
 exp 2
 x 21
+y 7
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 21
 y 8
 end
-arch floor_sand_d2
+arch border_lava_s1
+x 21
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 21
+y 8
+end
+arch floor_volcano_4
 x 21
 y 9
 end
-arch crystal_purple_s
+arch obstacle_volcano_6
 x 21
 y 9
 end
-arch floor_sand_d3
+arch floor_volcano_2
 x 21
 y 10
 end
@@ -3928,7 +5589,7 @@ arch dirt_floor1
 x 21
 y 10
 end
-arch floor_sand_d2
+arch floor_volcano_2
 x 21
 y 11
 end
@@ -3938,17 +5599,14 @@ terrain_type 1
 x 21
 y 12
 end
-arch sand_dm6
+arch border_lava_n1
 x 21
 y 12
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 21
 y 12
 end
@@ -3958,13 +5616,31 @@ terrain_type 1
 x 21
 y 13
 end
+arch border_lava_sw2
+x 21
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 21
+y 13
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 21
 y 14
 end
-arch sand_dm8
+arch border_lava_w1
+x 21
+y 14
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 21
 y 14
 end
@@ -3974,9 +5650,30 @@ terrain_type 1
 x 21
 y 15
 end
+arch border_lava_nw2
+x 21
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 21
+y 15
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 21
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 21
 y 16
 end
@@ -3986,9 +5683,29 @@ terrain_type 1
 x 21
 y 17
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 17
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 21
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 21
 y 18
 end
@@ -3998,13 +5715,31 @@ terrain_type 1
 x 21
 y 19
 end
+arch border_lava_se2
+x 21
+y 19
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 21
+y 19
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 21
 y 20
 end
-arch sand_dm9
+arch border_lava_e1
+x 21
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 21
 y 20
 end
@@ -4014,15 +5749,46 @@ terrain_type 1
 x 21
 y 21
 end
+arch border_lava_ne21
+x 21
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 21
+y 21
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
 x 21
 y 22
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 21
+y 22
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 21
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 21
 y 23
 end
@@ -4040,9 +5806,30 @@ terrain_type 1
 x 22
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 22
+y 2
+end
+arch border_lava_sw2
+x 22
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 22
 y 2
 end
@@ -4052,7 +5839,14 @@ terrain_type 1
 x 22
 y 3
 end
-arch sand_dm8
+arch border_lava_w1
+x 22
+y 3
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 22
 y 3
 end
@@ -4062,9 +5856,30 @@ terrain_type 1
 x 22
 y 4
 end
+arch border_lava_nw2
+x 22
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 22
+y 4
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 22
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 22
 y 5
 end
@@ -4074,13 +5889,24 @@ terrain_type 1
 x 22
 y 6
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+y 6
+end
 arch spawn_point
 x 22
 y 6
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 111
-exp 142
+exp 172
 wc 4
 ac 10
 Con 5
@@ -4107,12 +5933,6 @@ terrain_type 1
 x 22
 y 7
 end
-arch floor_lava_4
-glow_radius 3
-terrain_type 1
-x 22
-y 8
-end
 arch damager
 name lava
 dam 10000
@@ -4121,6 +5941,23 @@ attack_internal 100
 slow_move 1
 exp 2
 x 22
+y 7
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 22
+y 8
+end
+arch border_lava_sw2
+x 22
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 22
 y 8
 end
 arch floor_lava_4
@@ -4129,25 +5966,22 @@ terrain_type 1
 x 22
 y 9
 end
-arch sand_dm13
+arch border_lava_sw1
 x 22
 y 9
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 22
 y 9
 end
-arch floor_sand_d1
+arch floor_volcano_1
 x 22
 y 10
 end
-arch floor_sand_d4
+arch floor_volcano_2
 x 22
 y 11
 end
@@ -4157,17 +5991,14 @@ terrain_type 1
 x 22
 y 12
 end
-arch sand_dm6
+arch border_lava_n1
 x 22
 y 12
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 22
 y 12
 end
@@ -4177,9 +6008,34 @@ terrain_type 1
 x 22
 y 13
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+y 13
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 22
+y 14
+end
+arch lava_blob
+state 4
+x 22
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 22
 y 14
 end
@@ -4188,8 +6044,9 @@ x 22
 y 14
 arch demon_fire
 name balrog
+randomitems mob_balrog
 level 110
-exp 117
+exp 137
 wc 4
 ac 10
 Con 5
@@ -4216,9 +6073,29 @@ terrain_type 1
 x 22
 y 15
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+y 15
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 22
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 22
 y 16
 end
@@ -4228,9 +6105,29 @@ terrain_type 1
 x 22
 y 17
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+y 17
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 22
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 22
 y 18
 end
@@ -4240,11 +6137,18 @@ terrain_type 1
 x 22
 y 19
 end
-arch sand_dm7
+arch border_lava_s1
 x 22
 y 19
 end
-arch floor_sand_d2
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 22
+y 19
+end
+arch floor_volcano_4
 x 22
 y 20
 end
@@ -4258,7 +6162,14 @@ terrain_type 1
 x 22
 y 21
 end
-arch sand_dm6
+arch border_lava_n1
+x 22
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 22
 y 21
 end
@@ -4268,9 +6179,34 @@ terrain_type 1
 x 22
 y 22
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 22
+y 22
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 22
+y 23
+end
+arch lava_blob
+state 2
+x 22
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 22
 y 23
 end
@@ -4288,9 +6224,29 @@ terrain_type 1
 x 23
 y 1
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 1
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 2
 end
@@ -4300,9 +6256,29 @@ terrain_type 1
 x 23
 y 3
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 3
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 4
 end
@@ -4312,9 +6288,29 @@ terrain_type 1
 x 23
 y 5
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 5
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 6
 end
@@ -4324,9 +6320,29 @@ terrain_type 1
 x 23
 y 7
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 7
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 8
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 8
 end
@@ -4336,21 +6352,18 @@ terrain_type 1
 x 23
 y 9
 end
-arch sand_dm7
+arch border_lava_s1
 x 23
 y 9
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 23
 y 9
 end
-arch floor_sand_d1
+arch floor_volcano_1
 x 23
 y 10
 end
@@ -4358,7 +6371,7 @@ arch bones1
 x 23
 y 10
 end
-arch floor_sand_d2
+arch floor_volcano_1
 x 23
 y 11
 end
@@ -4368,17 +6381,14 @@ terrain_type 1
 x 23
 y 12
 end
-arch sand_dm6
+arch border_lava_n1
 x 23
 y 12
 end
 arch damager
-name lava
-dam 10000
-speed 1.0
+name lava's heat
+dam 20
 attack_internal 100
-slow_move 1
-exp 2
 x 23
 y 12
 end
@@ -4388,9 +6398,29 @@ terrain_type 1
 x 23
 y 13
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 13
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 14
 end
@@ -4400,9 +6430,29 @@ terrain_type 1
 x 23
 y 15
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 15
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
+x 23
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 16
 end
@@ -4412,9 +6462,29 @@ terrain_type 1
 x 23
 y 17
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 17
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 18
 end
@@ -4424,13 +6494,31 @@ terrain_type 1
 x 23
 y 19
 end
+arch border_lava_sw2
+x 23
+y 19
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 23
+y 19
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 23
 y 20
 end
-arch sand_dm8
+arch border_lava_w1
+x 23
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
 x 23
 y 20
 end
@@ -4440,15 +6528,46 @@ terrain_type 1
 x 23
 y 21
 end
+arch border_lava_nw2
+x 23
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 23
+y 21
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
 x 23
 y 22
 end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 23
+y 22
+end
 arch floor_lava_3
 glow_radius 3
 terrain_type 1
+x 23
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
 x 23
 y 23
 end

@@ -7,7 +7,7 @@ AC_DEFUN([CHECK_PYTHON],
 	PY_INCLUDES=""
 	dir=""
 	if test "x$PYTHON_HOME" != "x"; then
-		for dir in $PYTHON_HOME/include/python{,3.1,3.0,2.7,2.6,2.5} ; do
+		for dir in $PYTHON_HOME/include/python{,3.2,3.1,3.0,2.7,2.6,2.5} ; do
 			AC_CHECK_HEADERS(["$dir/Python.h"],[have_python_h=yes])
 			if test "x$have_python_h" != "x" ; then
 				PY_INCLUDES="-I$dir"
@@ -18,7 +18,7 @@ AC_DEFUN([CHECK_PYTHON],
 	else
 		AC_CHECK_HEADERS([Python.h],[have_python_h=yes])
 		if test "x$have_python_h" = "x"  ; then
-			for dir in  /usr{,/local}/include/python{,3.1,3.0,2.7,2.6,2.5} ; do
+			for dir in  /usr{,/local}/include/python{,3.2,3.1,3.0,2.7,2.6,2.5} ; do
 				AC_CHECK_HEADERS(["$dir/Python.h"],[have_python_h=yes])
 				if test "x$have_python_h" != "x" ; then
 					PY_INCLUDES="-I$dir"
@@ -59,10 +59,16 @@ AC_DEFUN([CHECK_PYTHON],
 			elif test -f $PYTHON_HOME/lib/$python/config/lib$python-pic.a ; then
 				PYTHON_LIB="$PYTHON_HOME/lib/$python/config/lib$python-pic.a"
 				AC_MSG_RESULT([found in $PYTHON_HOME/lib/$python/config])
+			elif test -f $PYTHON_HOME/lib/$python/lib$python.a ; then
+				PYTHON_LIB="$PYTHON_HOME/lib/$python/lib$python.a"
+				AC_MSG_RESULT([found in $PYTHON_HOME/lib/$python])
+			elif test -f $PYTHON_HOME/lib/$python/config/lib$python.a ; then
+				PYTHON_LIB="$PYTHON_HOME/lib/$python/config/lib$python.a"
+				AC_MSG_RESULT([found in $PYTHON_HOME/lib/$python/config])
 			fi
 
 		else
-			for lib in python{,3.1,3.0,2.7,2.6,2.5} ; do
+			for lib in python{,3.2,3.1,3.0,2.7,2.6,2.5} ; do
 				AC_CHECK_LIB($lib, PyArg_ParseTuple,[PYTHON_LIB="-l$lib"])
 				if test "x$PYTHON_LIB" != "x" ; then
 					break
@@ -75,13 +81,18 @@ AC_DEFUN([CHECK_PYTHON],
 			python=`echo $dir | awk -F/ '{print $NF}'`;
 			if test "x$PYTHON_LIB" = "x"  ; then
 				AC_MSG_CHECKING([For python lib in various places])
-				if test -f /usr/lib/$python/lib$python-pic.a ; then
-					PYTHON_LIB="/usr/lib/$python/lib$python-pic.a"
-					AC_MSG_RESULT([found in /usr/lib/$python])
-				elif test -f /usr/lib/$python/config/lib$python.a ; then
-					PYTHON_LIB="/usr/lib/$python/config/lib$python-pic.a"
-					AC_MSG_RESULT([found in /usr/lib/$python/config])
-				fi
+
+				for ver in {-pic,} ; do
+					if test -f /usr/lib/$python/lib$python$ver.a ; then
+						PYTHON_LIB="/usr/lib/$python/lib$python$ver.a"
+						AC_MSG_RESULT([found in /usr/lib/$python])
+						break;
+					elif test -f /usr/lib/$python/config/lib$python$ver.a ; then
+						PYTHON_LIB="/usr/lib/$python/config/lib$python$ver.a"
+						AC_MSG_RESULT([found in /usr/lib/$python/config])
+						break;
+					fi
+				done
 			fi
 		fi
 		if test "x$PYTHON_LIB" != "x"  ; then

@@ -1,5 +1,6 @@
 Object class_sorcerer
 name sorcerer
+name_female sorceress
 type 37
 layer 0
 sys_object 1

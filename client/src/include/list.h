@@ -125,8 +125,23 @@ typedef struct list_struct
 	/** If 1, this list has the active focus. */
 	uint8 focus;
 
+	/** Is the scrollbar being dragged? */
+	uint8 scrollbar_dragging;
+
+	/** Does the list use scrollbars? */
+	uint8 scrollbar;
+
+	/** Scrollbar height. */
+	int scrollbar_h;
+
+	/** Scrollbar Y position modifier. */
+	int scrollbar_y;
+
 	/** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
 	int font;
+
+	/** Surface used to draw the list on. */
+	SDL_Surface *surface;
 
 	/**
 	 * Function that will draw frame (and/or other effects) right before
@@ -172,6 +187,15 @@ typedef struct list_struct
 	 * @retval 0 Handled the event.
 	 * @retval 1 Handled the event, and allow keyboard repeating. */
 	int (*key_event_func)(struct list_struct *list, SDLKey key);
+
+	/**
+	 * Hook to use for setting text color based on row/column.
+	 * @param list List.
+	 * @param default_color Color that will be used by default.
+	 * @param row Text row.
+	 * @param col Column.
+	 * @return Color to use for the text. */
+	SDL_Color (*text_color_hook)(struct list_struct *list, SDL_Color default_color, uint32 row, uint32 col);
 } list_struct;
 
 /**
@@ -184,6 +208,12 @@ typedef struct list_struct
 #define LIST_NEWS 2
 /** List for use of displaying data in character creation screen. */
 #define LIST_CREATION 3
+/** List used in the music player widget. */
+#define LIST_MPLAYER 4
+/** List used in the spells widget. */
+#define LIST_SPELLS 5
+/** List used in the skills widget. */
+#define LIST_SKILLS 6
 /*@}*/
 
 /** Calculate list's row height. */
@@ -201,7 +231,17 @@ typedef struct list_struct
 /** Figure out full height of the list, including its header. */
 #define LIST_HEIGHT_FULL(list) ((int) LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
 /** Calculate whether mouse is over the specified list. */
-#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + (list)->width && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
+#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + (list)->width + LIST_SCROLLBAR_WIDTH && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
+/** Scrollbar width used by lists. */
+#define LIST_SCROLLBAR_WIDTH 6
+
+/**
+ * @defgroup LIST_SORT_xxx List sort types
+ * List sort types.
+ *@{*/
+/** Alphabetical sort. */
+#define LIST_SORT_ALPHA 1
+/*@}*/
 
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300

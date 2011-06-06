@@ -45,6 +45,16 @@ static uint8 text_anchor_help_clicked = 0;
 /** Help GUI to open if ::text_anchor_help_clicked is 1. */
 static char text_anchor_help[HUGE_BUF];
 
+/** Mouse X offset. */
+static int text_offset_mx = -1;
+/** Mouse Y offset. */
+static int text_offset_my = -1;
+
+/** Default link color. */
+SDL_Color text_link_color_default = {96, 160, 255, 0};
+/** Current text link color. */
+SDL_Color text_link_color = {0, 0, 0, 0};
+
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
@@ -94,7 +104,35 @@ font_struct fonts[FONTS_MAX] =
 	{"fonts/arial.ttf", 15, NULL, 0},
 	{"fonts/arial.ttf", 16, NULL, 0},
 	{"fonts/arial.ttf", 18, NULL, 0},
-	{"fonts/arial.ttf", 20, NULL, 0}
+	{"fonts/arial.ttf", 20, NULL, 0},
+	{"fonts/logisoso.ttf", 8, NULL, 0},
+	{"fonts/logisoso.ttf", 10, NULL, 0},
+	{"fonts/logisoso.ttf", 12, NULL, 0},
+	{"fonts/logisoso.ttf", 14, NULL, 0},
+	{"fonts/logisoso.ttf", 16, NULL, 0},
+	{"fonts/logisoso.ttf", 18, NULL, 0},
+	{"fonts/logisoso.ttf", 20, NULL, 0},
+	{"fonts/fanwood.otf", 8, NULL, 0},
+	{"fonts/fanwood.otf", 10, NULL, 0},
+	{"fonts/fanwood.otf", 12, NULL, 0},
+	{"fonts/fanwood.otf", 14, NULL, 0},
+	{"fonts/fanwood.otf", 16, NULL, 0},
+	{"fonts/fanwood.otf", 18, NULL, 0},
+	{"fonts/fanwood.otf", 20, NULL, 0},
+	{"fonts/courier.otf", 8, NULL, 0},
+	{"fonts/courier.otf", 10, NULL, 0},
+	{"fonts/courier.otf", 12, NULL, 0},
+	{"fonts/courier.otf", 14, NULL, 0},
+	{"fonts/courier.otf", 16, NULL, 0},
+	{"fonts/courier.otf", 18, NULL, 0},
+	{"fonts/courier.otf", 20, NULL, 0},
+	{"fonts/pecita.otf", 8, NULL, 0},
+	{"fonts/pecita.otf", 10, NULL, 0},
+	{"fonts/pecita.otf", 12, NULL, 0},
+	{"fonts/pecita.otf", 14, NULL, 0},
+	{"fonts/pecita.otf", 16, NULL, 0},
+	{"fonts/pecita.otf", 18, NULL, 0},
+	{"fonts/pecita.otf", 20, NULL, 0}
 };
 
 /**
@@ -118,6 +156,8 @@ void text_init()
 		fonts[i].font = font;
 		fonts[i].height = TTF_FontLineSkip(font);
 	}
+
+	text_link_color = text_link_color_default;
 }
 
 /**
@@ -132,6 +172,43 @@ void text_deinit()
 	}
 
 	TTF_Quit();
+}
+
+/**
+ * If string_blt() is called on surface that is not ScreenSurface, you
+ * must use this to set mouse X/Y detection offset, so things like links
+ * will work correctly.
+ *
+ * Note that this is not required for widget surfaces, as it's done
+ * automatically by searching the widgets for the surface that is being
+ * used.
+ * @param x X position of the surface.
+ * @param y Y position of the surface. */
+void text_offset_set(int x, int y)
+{
+	text_offset_mx = x;
+	text_offset_my = y;
+}
+
+/**
+ * Reset the text offset. This must be done after text_offset_set() and
+ * string_blt() calls eventually, */
+void text_offset_reset()
+{
+	text_offset_mx = text_offset_my = -1;
+}
+
+/**
+ * Set color to use for links. Will be reset to default color after the
+ * next call to string rendering is done.
+ * @param r Red.
+ * @param g Green.
+ * @param b Blue. */
+void text_color_set(int r, int g, int b)
+{
+	text_link_color.r = r;
+	text_link_color.g = g;
+	text_link_color.b = b;
 }
 
 /**
@@ -186,6 +263,81 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_
 }
 
 /**
+ * Remove all markup tags, including their contents.
+ *
+ * Entities will also be replaced with their proper replacements.
+ * @param buf Buffer containing the text with markup, from which to
+ * remove tags.
+ * @param[out] len Length of 'buf'. This will contain the length of the
+ * new string, without markup tags. Can be NULL, in which case length of
+ * the original string will be calculated automatically.
+ * @param do_free If 1, will automatically free 'buf'.
+ * @return Newly allocated string with markup removed, and entities
+ * replaced. */
+char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
+{
+	char *cp;
+	size_t pos = 0, cp_pos = 0, len;
+	uint8 in_tag = 0;
+
+	if (buf_len)
+	{
+		len = *buf_len;
+	}
+	else
+	{
+		len = strlen(buf);
+	}
+
+	cp = malloc(sizeof(char) * (len + 1));
+
+	while (pos < len)
+	{
+		if (buf[pos] == '<')
+		{
+			in_tag = 1;
+		}
+		else if (buf[pos] == '>')
+		{
+			in_tag = 0;
+		}
+		else if (!in_tag)
+		{
+			if (!strncmp(buf + pos, "&lt;", 4))
+			{
+				cp[cp_pos++] = '<';
+				pos += 3;
+			}
+			else if (!strncmp(buf + pos, "&gt;", 4))
+			{
+				cp[cp_pos++] = '>';
+				pos += 3;
+			}
+			else
+			{
+				cp[cp_pos++] = buf[pos];
+			}
+		}
+
+		pos++;
+	}
+
+	cp[cp_pos] = '\0';
+
+	if (do_free)
+	{
+		free(buf);
+	}
+
+	if (buf_len)
+	{
+		*buf_len = strlen(cp);
+	}
+
+	return cp;
+}
+
+/**
  * Draw one character on the screen or parse markup (if applicable).
  * @param[out] font Font to use. One of @ref FONT_xxx.
  * @param orig_font Original font, used for the font tag.
@@ -206,7 +358,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[HUGE_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
-	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255;
+	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255, in_bold = 0;
+	uint8 remove_bold = 0;
 
 	if (c == '\r')
 	{
@@ -331,12 +484,28 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Bold. */
 		else if (!strncmp(cp, "<b>", 3))
 		{
-			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+			}
+			else
+			{
+				in_bold = 1;
+			}
+
 			return 3;
 		}
 		else if (!strncmp(cp, "</b>", 4))
 		{
-			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+			if (surface)
+			{
+				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+			}
+			else
+			{
+				in_bold = 0;
+			}
+
 			return 4;
 		}
 		/* Italic. */
@@ -492,14 +661,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				/* Change to light blue only if no custom color was specified. */
 				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b)
 				{
-					color->r = 96;
-					color->g = 160;
-					color->b = 255;
+					color->r = text_link_color.r;
+					color->g = text_link_color.g;
+					color->b = text_link_color.b;
 				}
 
 				anchor_tag = strchr(cp, '>') + 1;
 				anchor_action[0] = '\0';
-				outline_show = 1;
 			}
 
 			/* Scan for action other than the default. */
@@ -516,7 +684,6 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			{
 				reset_color(surface, color, orig_color);
 				anchor_tag = NULL;
-				outline_show = 0;
 			}
 
 			return 4;
@@ -804,10 +971,21 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
+	if (in_bold && !surface && !(TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD))
+	{
+		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+		remove_bold = 1;
+	}
+
 	/* Get the glyph's metrics. */
 	if (TTF_GlyphMetrics(fonts[*font].font, c, &minx, NULL, NULL, NULL, &width) == -1)
 	{
 		return ret;
+	}
+
+	if (remove_bold)
+	{
+		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
 	}
 
 	if (minx < 0)
@@ -833,12 +1011,27 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (surface != ScreenSurface)
 			{
-				widgetdata *widget = widget_find_by_surface(surface);
-
-				if (widget)
+				if (text_offset_mx != -1 || text_offset_my != -1)
 				{
-					mx -= widget->x1;
-					my -= widget->y1;
+					if (text_offset_mx != -1)
+					{
+						mx -= text_offset_mx;
+					}
+
+					if (text_offset_my != -1)
+					{
+						my -= text_offset_my;
+					}
+				}
+				else
+				{
+					widgetdata *widget = widget_find_by_surface(surface);
+
+					if (widget)
+					{
+						mx -= widget->x1;
+						my -= widget->y1;
+					}
 				}
 			}
 
@@ -871,6 +1064,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				/* Default to executing player commands such as /say. */
 				if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
 				{
+					buf = text_strip_markup(buf, &len, 1);
+
 					/* It's not a command, so prepend "/say " to it. */
 					if (buf[0] != '/')
 					{
@@ -988,6 +1183,28 @@ int glyph_get_width(int font, char c)
 		}
 
 		return width;
+	}
+
+	return 0;
+}
+
+/**
+ * Get glyph's height.
+ * @param font Font of the glyph.
+ * @param c The glyph.
+ * @return The height. */
+int glyph_get_height(int font, char c)
+{
+	int miny, maxy;
+
+	if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, &miny, &maxy, NULL) != -1)
+	{
+		if (miny)
+		{
+			maxy -= miny;
+		}
+
+		return maxy;
 	}
 
 	return 0;
@@ -1208,6 +1425,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		text_anchor_help_clicked = 0;
 		show_help(text_anchor_help);
 	}
+
+	text_link_color = text_link_color_default;
 }
 
 /**
@@ -1321,6 +1540,30 @@ int string_get_height(int font, const char *text, uint64 flags)
 	}
 
 	return max_height;
+}
+
+/**
+ * Truncate a text string if overflow would occur when rendering it.
+ * @param font Font used for the text.
+ * @param text The text.
+ * @param max_width Maximum possible width. */
+void string_truncate_overflow(int font, char *text, int max_width)
+{
+	size_t pos = 0;
+	int width = 0;
+
+	while (text[pos] != '\0')
+	{
+		width += glyph_get_width(font, text[pos]);
+
+		if (width > max_width)
+		{
+			text[pos] = '\0';
+			break;
+		}
+
+		pos++;
+	}
 }
 
 /**

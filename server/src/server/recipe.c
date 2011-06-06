@@ -62,7 +62,7 @@ static recipelist *init_recipelist()
 
 	if (tl == NULL)
 	{
-		LOG(llevError, "ERROR: init_recipelist(): Out of memory.\n");
+		LOG(llevError, "init_recipelist(): Out of memory.\n");
 	}
 
 	tl->total_chance = 0;
@@ -81,7 +81,7 @@ static recipe *get_empty_formula()
 
 	if (t == NULL)
 	{
-		LOG(llevError, "ERROR: get_empty_formula(): Out of memory.\n");
+		LOG(llevError, "get_empty_formula(): Out of memory.\n");
 	}
 
 	t->chance = 0;
@@ -130,13 +130,13 @@ static int check_recipe(recipe *rp)
 
 		if (!art && rp->title != shstr_cons.NONE)
 		{
-			LOG(llevBug, "BUG: Formula %s of %s has no artifact.\n", rp->arch_name, rp->title);
+			LOG(llevBug, "Formula %s of %s has no artifact.\n", rp->arch_name, rp->title);
 			return 0;
 		}
 	}
 	else
 	{
-		LOG(llevBug, "BUG: Can't find archetype:%s for formula:%s\n", rp->arch_name, rp->title);
+		LOG(llevBug, "Can't find archetype:%s for formula:%s\n", rp->arch_name, rp->title);
 		return 0;
 	}
 
@@ -174,7 +174,7 @@ void init_formulae()
 
 	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
 	{
-		LOG(llevBug, "BUG: Can't open %s.\n", filename);
+		LOG(llevBug, "Can't open %s.\n", filename);
 		return;
 	}
 
@@ -271,7 +271,7 @@ void init_formulae()
 		}
 		else
 		{
-			LOG(llevBug, "BUG: Unknown input in file %s: %s\n", filename, buf);
+			LOG(llevBug, "Unknown input in file %s: %s\n", filename, buf);
 		}
 	}
 
@@ -305,8 +305,8 @@ static void check_formulae()
 			{
 				if (check->index == formula->index)
 				{
-					LOG(llevBug, "BUG: On %d ingred list: ", numb);
-					LOG(llevBug, "BUG: Formulae [%s] of %s and [%s] of %s have matching index id (%d)\n", formula->arch_name, formula->title, check->arch_name, check->title, formula->index);
+					LOG(llevBug, "On %d ingred list: ", numb);
+					LOG(llevBug, "Formulae [%s] of %s and [%s] of %s have matching index id (%d)\n", formula->arch_name, formula->title, check->arch_name, check->title, formula->index);
 				}
 			}
 		}
@@ -349,7 +349,7 @@ void dump_alchemy()
 
 					if (!art && formula->title != shstr_cons.NONE)
 					{
-						LOG(llevBug, "BUG: Formula %s has no artifact\n", formula->title);
+						LOG(llevBug, "Formula %s has no artifact\n", formula->title);
 					}
 					else
 					{
@@ -385,14 +385,14 @@ void dump_alchemy()
 
 							if (tval != formula->index)
 							{
-								LOG(llevInfo, "WARNING: ingredient list and formula values not equal.\n");
+								LOG(llevInfo, "ingredient list and formula values not equal.\n");
 							}
 						}
 					}
 				}
 				else
 				{
-					LOG(llevBug, "BUG: Can't find archetype:%s for formula %s\n", string, formula->title);
+					LOG(llevBug, "Can't find archetype:%s for formula %s\n", string, formula->title);
 				}
 
 				string = strtok(NULL, ",");
@@ -632,7 +632,7 @@ void dump_alchemy_costs()
 
 					if (!art && formula->title != shstr_cons.NONE)
 					{
-						LOG(llevBug, "BUG: Formula %s has no artifact\n", formula->title);
+						LOG(llevBug, "Formula %s has no artifact\n", formula->title);
 					}
 					else
 					{
@@ -720,7 +720,7 @@ void dump_alchemy_costs()
 				}
 				else
 				{
-					LOG(llevBug, "BUG: Can't find archetype:%s for formula %s\n", string, formula->title);
+					LOG(llevBug, "Can't find archetype:%s for formula %s\n", string, formula->title);
 				}
 
 				string = strtok(NULL, ",");
@@ -734,7 +734,7 @@ void dump_alchemy_costs()
 
 	if (num_errors > 0)
 	{
-		LOG(llevInfo, "WARNING: %d objects required by the formulae do not exist in the game.\n", num_errors);
+		LOG(llevInfo, "%d objects required by the formulae do not exist in the game.\n", num_errors);
 	}
 }
 
@@ -862,7 +862,7 @@ static recipelist *get_random_recipelist()
 	/* Failed! */
 	if (!fl)
 	{
-		LOG(llevBug, "BUG: get_random_recipelist(): no recipelists found!\n");
+		LOG(llevBug, "get_random_recipelist(): no recipelists found!\n");
 	}
 	else if (fl->total_chance == 0)
 	{

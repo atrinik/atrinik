@@ -106,6 +106,11 @@ void spring_trap(object *trap, object *victim)
 	env = get_env_recursive(trap);
 	trap_show(trap, env);
 
+	if (victim->type == PLAYER)
+	{
+		CONTR(victim)->stat_traps_sprung++;
+	}
+
 	/* No spell, simple attack. */
 	if (trap->stats.sp == -1)
 	{
@@ -183,6 +188,12 @@ int trap_see(object *op, object *trap, int level)
 	if ((trap->level <= level && rndm_chance(10)) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0))))))
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
+
+		if (trap->stats.Cha != 1)
+		{
+			CONTR(op)->stat_traps_found++;
+		}
+
 		return 1;
 	}
 
@@ -245,6 +256,7 @@ int trap_disarm(object *disarmer, object *trap)
 		remove_ob(trap);
 		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 		set_trapped_flag(env);
+		CONTR(disarmer)->stat_traps_disarmed++;
 		return 1;
 	}
 	else
@@ -271,7 +283,7 @@ int trap_disarm(object *disarmer, object *trap)
  * @param difficulty Map difficulty. */
 void trap_adjust(object *trap, int difficulty)
 {
-	int off;
+	int off, level, hide;
 
 	if (difficulty < 1)
 	{
@@ -279,19 +291,11 @@ void trap_adjust(object *trap, int difficulty)
 	}
 
 	off = (int) ((float) difficulty * 0.2f);
+	level = rndm(difficulty - off, difficulty + off);
+	level = MAX(1, MIN(level, MAXLEVEL));
+	hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
+	hide = MAX(1, MIN(hide, SINT8_MAX));
 
-	trap->level = rndm(difficulty - off, difficulty + off);
-
-	if (trap->level < 1)
-	{
-		trap->level = 1;
-	}
-
-	/* Set the hiddenness of the trap */
-	trap->stats.Cha = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
-
-	if (trap->stats.Cha < 1)
-	{
-		trap->stats.Cha = 1;
-	}
+	trap->level = level;
+	trap->stats.Cha = hide;
 }

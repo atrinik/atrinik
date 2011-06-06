@@ -1,0 +1,998 @@
+arch map
+name Old Outpost
+msg
+Created:  2011-05-14 Alex Tokar
+Modified: 2011-05-14 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 27
+darkness 2
+tile_path_3 old_outpost_a_0203
+bg_music desert_town.mid
+region old_outpost
+end
+arch floor_stone3b
+y 11
+end
+arch fwall_flagstone2a
+y 11
+end
+arch floor_stone3a
+y 12
+end
+arch fwall_flagstone2a
+y 12
+end
+arch ring_wall.151
+direction 7
+y 12
+end
+arch floor_stone3e
+y 13
+end
+arch fwall_flagstone2a
+y 13
+end
+arch floor_stone3e
+y 14
+end
+arch fwall_flagstone2a
+y 14
+end
+arch picture14
+direction 7
+y 14
+end
+arch floor_stone3a
+y 15
+end
+arch fwall_flagstone2a
+y 15
+end
+arch floor_stone3a
+y 16
+end
+arch fwall_flagstone2a
+y 16
+end
+arch floor_stone3e
+y 17
+end
+arch fwall_flagstone2a
+y 17
+end
+arch floor_stone3a
+y 18
+end
+arch fwall_flagstone2a
+y 18
+end
+arch floor_stone3a
+y 19
+end
+arch fwall_flagstone2a
+y 19
+end
+arch floor_stone3e
+y 20
+end
+arch fwall_flagstone2a
+y 20
+end
+arch chains2.151
+direction 7
+y 20
+end
+arch floor_stone3a
+y 21
+end
+arch fwall_flagstone2a
+y 21
+end
+arch chains3.151
+direction 7
+y 21
+end
+arch floor_stone3d
+y 22
+end
+arch fwall_flagstone2a
+y 22
+end
+arch floor_stone3a
+y 23
+end
+arch fwall_flagstone2a
+y 23
+end
+arch floor_stone3e
+x 1
+y 11
+end
+arch fwall_flagstone2a
+x 1
+y 11
+end
+arch floor_stone3d
+x 1
+y 12
+end
+arch pottery1.101
+x 1
+y 12
+end
+arch floor_stone3a
+x 1
+y 13
+end
+arch torch_wall_1
+direction 7
+x 1
+y 13
+end
+arch floor_stone3c
+x 1
+y 14
+end
+arch floor_stone3b
+x 1
+y 15
+end
+arch floor_stone3b
+x 1
+y 16
+end
+arch lab_cauld_brk
+x 1
+y 16
+end
+arch floor_stone3b
+x 1
+y 17
+end
+arch torch_wall_1
+direction 7
+x 1
+y 17
+end
+arch floor_stone3c
+x 1
+y 18
+end
+arch floor_stone3d
+x 1
+y 19
+end
+arch chained_skel.111
+direction 7
+x 1
+y 19
+end
+arch floor_stone3d
+x 1
+y 20
+end
+arch floor_stone3d
+x 1
+y 21
+end
+arch floor_stone3d
+x 1
+y 22
+end
+arch dirt_floor2
+x 1
+y 22
+end
+arch torch_wall_1
+direction 7
+x 1
+y 22
+end
+arch floor_stone3c
+x 1
+y 23
+end
+arch floor_stone3e
+x 2
+y 11
+end
+arch fwall_flagstone2a
+x 2
+y 11
+end
+arch floor_stone3d
+x 2
+y 12
+end
+arch chest_m
+slaying no_entry
+x 2
+y 12
+end
+arch floor_stone3b
+x 2
+y 13
+end
+arch floor_stone3c
+x 2
+y 14
+end
+arch floor_stone3e
+x 2
+y 15
+end
+arch floor_stone3a
+x 2
+y 16
+end
+arch blood_floor1
+x 2
+y 16
+end
+arch floor_stone3c
+x 2
+y 17
+end
+arch floor_stone3c
+x 2
+y 18
+end
+arch floor_stone3e
+x 2
+y 19
+end
+arch floor_stone3b
+x 2
+y 20
+end
+arch floor_stone3d
+x 2
+y 21
+end
+arch dirt_floor2
+x 2
+y 21
+end
+arch floor_stone3c
+x 2
+y 22
+end
+arch floor_stone3b
+x 2
+y 23
+end
+arch floor_stone3b
+x 3
+y 11
+end
+arch fwall_flagstone2a
+x 3
+y 11
+end
+arch chains2.151
+x 3
+y 11
+end
+arch floor_stone3b
+x 3
+y 12
+end
+arch chest_m
+slaying no_entry
+x 3
+y 12
+end
+arch floor_stone3b
+x 3
+y 13
+end
+arch floor_stone3d
+x 3
+y 14
+end
+arch dirt_floor2
+x 3
+y 14
+end
+arch floor_stone3e
+x 3
+y 15
+end
+arch floor_stone3d
+x 3
+y 16
+end
+arch floor_stone3d
+x 3
+y 17
+end
+arch floor_stone3d
+x 3
+y 18
+end
+arch floor_stone3c
+x 3
+y 19
+end
+arch blood_floor1
+x 3
+y 19
+end
+arch floor_stone3a
+x 3
+y 20
+end
+arch floor_stone3c
+x 3
+y 21
+end
+arch fwall_flagstone2a
+x 3
+y 21
+end
+arch floor_stone3b
+x 3
+y 22
+end
+arch fwall_flagstone2a
+x 3
+y 22
+end
+arch floor_stone3e
+x 3
+y 23
+end
+arch fwall_flagstone2a
+x 3
+y 23
+end
+arch floor_stone3e
+x 4
+y 11
+end
+arch fwall_flagstone2a
+x 4
+y 11
+end
+arch floor_stone3e
+x 4
+y 12
+end
+arch chest_m
+slaying no_entry
+x 4
+y 12
+end
+arch floor_stone3e
+x 4
+y 13
+end
+arch floor_stone3e
+x 4
+y 14
+end
+arch floor_stone3a
+x 4
+y 15
+end
+arch table_wood1.111
+direction 7
+x 4
+y 15
+end
+arch ball_and_chain
+layer 5
+z 28
+zoom 85
+align 6
+x 4
+y 15
+end
+arch floor_stone3a
+x 4
+y 16
+end
+arch table_wood1.111
+direction 7
+x 4
+y 16
+end
+arch axe
+layer 5
+zoom 80
+z 24
+align 6
+x 4
+y 16
+end
+arch floor_stone3b
+x 4
+y 17
+end
+arch table_wood1.111
+direction 7
+x 4
+y 17
+end
+arch hammer_giant
+layer 5
+zoom 80
+z 28
+align 6
+x 4
+y 17
+end
+arch floor_stone3e
+x 4
+y 18
+end
+arch table_wood1.111
+direction 7
+x 4
+y 18
+end
+arch bow_short
+z 24
+layer 5
+zoom 90
+align 5
+x 4
+y 18
+end
+arch floor_stone3e
+x 4
+y 19
+end
+arch table_wood1.111
+direction 7
+layer 3
+x 4
+y 19
+end
+arch bracers_ac
+layer 4
+z 33
+zoom 75
+align 15
+x 4
+y 19
+end
+arch breastplate
+layer 5
+z 22
+zoom 80
+x 4
+y 19
+end
+arch floor_stone3b
+x 4
+y 20
+end
+arch floor_stone3c
+x 4
+y 21
+end
+arch fwall_flagstone2a
+x 4
+y 21
+end
+arch floor_stone3c
+x 5
+y 11
+end
+arch fwall_flagstone2a
+x 5
+y 11
+end
+arch floor_stone3b
+x 5
+y 12
+end
+arch chest_m
+slaying no_entry
+x 5
+y 12
+end
+arch torch_wall_1
+x 5
+y 12
+end
+arch floor_stone3d
+x 5
+y 13
+end
+arch floor_stone3e
+x 5
+y 14
+end
+arch blood_floor2
+x 5
+y 14
+end
+arch floor_stone3c
+x 5
+y 15
+end
+arch table_wood1.111
+layer 3
+z 2
+align 5
+x 5
+y 15
+end
+arch arrow
+layer 4
+z 32
+zoom 70
+align 5
+x 5
+y 15
+end
+arch arrow
+layer 5
+z 25
+zoom 70
+align 17
+x 5
+y 15
+end
+arch floor_stone3b
+x 5
+y 16
+end
+arch floor_stone3b
+x 5
+y 17
+end
+arch dirt_floor2
+x 5
+y 17
+end
+arch floor_stone3a
+x 5
+y 18
+end
+arch floor_stone3e
+x 5
+y 19
+end
+arch floor_stone3e
+x 5
+y 20
+end
+arch floor_stone3c
+x 5
+y 21
+end
+arch fwall_flagstone2a
+x 5
+y 21
+end
+arch floor_stone3e
+x 6
+y 11
+end
+arch fwall_flagstone2a
+x 6
+y 11
+end
+arch floor_stone3c
+x 6
+y 12
+end
+arch chest_m
+slaying no_entry
+x 6
+y 12
+end
+arch floor_stone3c
+x 6
+y 13
+end
+arch floor_stone3b
+x 6
+y 14
+end
+arch floor_stone3d
+x 6
+y 15
+end
+arch floor_stone3d
+x 6
+y 16
+end
+arch floor_stone3d
+x 6
+y 17
+end
+arch glower.101
+x 6
+y 17
+end
+arch light5
+x 6
+y 17
+end
+arch floor_stone3c
+x 6
+y 18
+end
+arch floor_stone3b
+x 6
+y 19
+end
+arch dirt_floor3
+x 6
+y 19
+end
+arch floor_stone3e
+x 6
+y 20
+end
+arch floor_stone3e
+x 6
+y 21
+end
+arch fwall_flagstone2a
+x 6
+y 21
+end
+arch floor_stone3c
+x 7
+y 11
+end
+arch fwall_flagstone2a
+x 7
+y 11
+end
+arch floor_stone3d
+x 7
+y 12
+end
+arch chained_skel.111
+x 7
+y 12
+end
+arch floor_stone3c
+x 7
+y 13
+end
+arch floor_stone3d
+x 7
+y 14
+end
+arch floor_stone3e
+x 7
+y 15
+end
+arch floor_stone3e
+x 7
+y 16
+end
+arch floor_stone3a
+x 7
+y 17
+end
+arch pool_ember
+x 7
+y 17
+end
+arch floor_stone3b
+x 7
+y 18
+end
+arch dirt_floor3
+x 7
+y 18
+end
+arch floor_stone3a
+x 7
+y 19
+end
+arch floor_stone3c
+x 7
+y 20
+end
+arch floor_stone3b
+x 7
+y 21
+end
+arch fwall_flagstone2a
+x 7
+y 21
+end
+arch floor_stone3b
+x 8
+y 11
+end
+arch fwall_flagstone2a
+x 8
+y 11
+end
+arch floor_stone3a
+x 8
+y 12
+end
+arch table_lab3.111
+x 8
+y 12
+end
+arch light2
+x 8
+y 12
+end
+arch floor_stone3e
+x 8
+y 13
+end
+arch chair2_111
+direction 5
+zoom 125
+x 8
+y 13
+end
+arch floor_stone3c
+x 8
+y 14
+end
+arch floor_stone3e
+x 8
+y 15
+end
+arch floor_stone3e
+x 8
+y 16
+end
+arch floor_stone3d
+x 8
+y 17
+end
+arch floor_stone3a
+x 8
+y 18
+end
+arch floor_stone3a
+x 8
+y 19
+end
+arch well_stone
+slaying ../../world_b_0623
+hp 14
+sp 14
+x 8
+y 19
+end
+arch floor_stone3a
+x 8
+y 20
+end
+arch floor_stone3a
+x 8
+y 21
+end
+arch fwall_flagstone2a
+x 8
+y 21
+end
+arch floor_stone3b
+x 9
+y 11
+end
+arch fwall_flagstone2a
+x 9
+y 11
+end
+arch chains3.151
+x 9
+y 11
+end
+arch floor_stone3a
+x 9
+y 12
+end
+arch floor_stone3d
+x 9
+y 13
+end
+arch blood_floor2
+x 9
+y 13
+end
+arch floor_stone3c
+x 9
+y 14
+end
+arch floor_stone3a
+x 9
+y 15
+end
+arch dirt_floor1
+x 9
+y 15
+end
+arch floor_stone3e
+x 9
+y 16
+end
+arch floor_stone3a
+x 9
+y 17
+end
+arch floor_stone3c
+x 9
+y 18
+end
+arch floor_stone3d
+x 9
+y 19
+end
+arch floor_stone3b
+x 9
+y 20
+end
+arch pottery2.101
+x 9
+y 20
+end
+arch floor_stone3b
+x 9
+y 21
+end
+arch fwall_flagstone2a
+x 9
+y 21
+end
+arch floor_stone3d
+x 10
+y 11
+end
+arch fwall_flagstone2a
+x 10
+y 11
+end
+arch floor_stone3c
+x 10
+y 12
+end
+arch floor_stone3b
+x 10
+y 13
+end
+arch floor_stone3d
+x 10
+y 14
+end
+arch floor_stone3c
+x 10
+y 15
+end
+arch floor_stone3e
+x 10
+y 16
+end
+arch floor_stone3c
+x 10
+y 17
+end
+arch floor_stone3d
+x 10
+y 18
+end
+arch pottery1.101
+x 10
+y 18
+end
+arch floor_stone3b
+x 10
+y 19
+end
+arch pottery6.101
+x 10
+y 19
+end
+arch floor_stone3d
+x 10
+y 20
+end
+arch pottery5.101
+x 10
+y 20
+end
+arch floor_stone3b
+x 10
+y 21
+end
+arch fwall_flagstone2a
+x 10
+y 21
+end
+arch floor_stone3e
+x 11
+y 11
+end
+arch fwall_flagstone2a
+x 11
+y 11
+end
+arch floor_stone3d
+x 11
+y 12
+end
+arch fwall_flagstone2a
+x 11
+y 12
+end
+arch floor_stone3d
+x 11
+y 13
+end
+arch fwall_flagstone2a
+x 11
+y 13
+end
+arch floor_stone3e
+x 11
+y 14
+end
+arch fwall_flagstone2a
+x 11
+y 14
+end
+arch floor_stone3c
+x 11
+y 15
+end
+arch fwall_flagstone2a
+x 11
+y 15
+end
+arch floor_stone3a
+x 11
+y 16
+end
+arch fwall_flagstone2a
+x 11
+y 16
+end
+arch floor_stone3d
+x 11
+y 17
+end
+arch fwall_flagstone2a
+x 11
+y 17
+end
+arch floor_stone3e
+x 11
+y 18
+end
+arch fwall_flagstone2a
+x 11
+y 18
+end
+arch floor_stone3b
+x 11
+y 19
+end
+arch fwall_flagstone2a
+x 11
+y 19
+end
+arch floor_stone3a
+x 11
+y 20
+end
+arch fwall_flagstone2a
+x 11
+y 20
+end
+arch floor_stone3c
+x 11
+y 21
+end
+arch fwall_flagstone2a
+x 11
+y 21
+end

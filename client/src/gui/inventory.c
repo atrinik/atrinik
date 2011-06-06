@@ -303,8 +303,6 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			}
 
 			draggingInvItem(DRAG_NONE);
-			/* ready for next item */
-			itemExamined = 0;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -489,14 +487,14 @@ void widget_show_inventory_window(widgetdata *widget)
 		{
 			if (tmp->tag == cpl.mark_count)
 			{
-				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 			}
 
-			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
+			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32);
 
 			if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 			{
-				sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 				show_inventory_item_stats(tmp, widget);
 			}
 
@@ -506,7 +504,7 @@ void widget_show_inventory_window(widgetdata *widget)
 		/* We have an open container - 'insert' the items inside in the panel */
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
-			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 30, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 32, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
 jump_in_container1:
@@ -514,25 +512,25 @@ jump_in_container1:
 			{
 				if (tmpc->tag == cpl.mark_count)
 				{
-					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 				}
 
-				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
+				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32);
 
 				if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 				{
-					sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+					sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 
 					show_inventory_item_stats(tmpc, widget);
 				}
 
-				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32, NULL, NULL);
 				i++;
 			}
 
 			if (!tmpc)
 			{
-				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 30, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 32, NULL, NULL);
 			}
 		}
 	}
@@ -543,8 +541,6 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 	/* ground ( IWIN_BELOW )  */
 	if (y >= widget->y1 + 19 && y <= widget->y1 + widget->ht - 4 && x > widget->x1 + 4 && x < widget->x1 + widget->wd - 12)
 	{
-		object *Item;
-
 		if (cpl.inventory_win == IWIN_INV)
 		{
 			cpl.inventory_win = IWIN_BELOW;
@@ -553,8 +549,6 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 		cpl.win_below_slot = (x - widget->x1 - 5) / 32;
 
 		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-
-		Item = object_find(cpl.win_below_tag);
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 		{
@@ -649,7 +643,7 @@ void widget_show_below_window(widgetdata *widget)
 		if (tmp->tag != cpl.container_tag)
 			tmp->flags &= ~F_APPLIED;
 
-		blt_inv_item(tmp, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
+		blt_inv_item(tmp, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19);
 
 		if (at)
 		{
@@ -684,7 +678,7 @@ void widget_show_below_window(widgetdata *widget)
 jump_in_container2:
 			for (; tmpc && i < INVITEMBELOWXLEN * INVITEMBELOWYLEN; tmpc = tmpc->next)
 			{
-				blt_inv_item(tmpc, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
+				blt_inv_item(tmpc, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19);
 
 				if (i + cpl.win_below_start == cpl.win_below_slot)
 				{
@@ -854,170 +848,71 @@ int blt_inv_item_centered(object *tmp, int x, int y)
  * and draws nrof (if higher than 1) of items near the bottom.
  * @param tmp Pointer to the inventory item
  * @param x X position of the item
- * @param y Y position of the item
- * @param nrof If non-zero, will use the value instead of the item's own
- * nrof. */
-void blt_inv_item(object *tmp, int x, int y, int nrof)
+ * @param y Y position of the item */
+void blt_inv_item(object *tmp, int x, int y)
 {
-	int tmp_nrof = tmp->nrof;
-
-	if (nrof)
-	{
-		tmp_nrof = nrof;
-	}
+	int fire_ready;
 
 	blt_inv_item_centered(tmp, x, y);
 
-	if (tmp_nrof > 1)
+	if (tmp->nrof > 1)
 	{
 		char buf[64];
 
-		if (tmp_nrof > 9999)
+		if (tmp->nrof > 9999)
 		{
 			snprintf(buf, sizeof(buf), "many");
 		}
 		else
 		{
-			snprintf(buf, sizeof(buf), "%d", tmp_nrof);
+			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 18, COLOR_WHITE, NULL, NULL);
 	}
 
-	if (tmp->flags & F_LOCKED)
-		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + ICONDEFLEN - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
+	/* Determine whether there is a readied object for firing or not. */
+	fire_ready = fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag;
 
-	/* Applied and unpaid same spot - can't apply unpaid items */
 	if (tmp->flags & F_APPLIED)
+	{
 		sprite_blt(Bitmaps[BITMAP_APPLY], x, y, NULL, NULL);
 
-	if (tmp->flags & F_UNPAID)
-		sprite_blt(Bitmaps[BITMAP_UNPAID], x, y, NULL, NULL);
-
-	if (tmp->flags & F_MAGIC)
-		sprite_blt(Bitmaps[BITMAP_MAGIC], x + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + ICONDEFLEN-Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
-
-	if (tmp->flags & F_CURSED)
-		sprite_blt(Bitmaps[BITMAP_CURSED], x + ICONDEFLEN-Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
-
-	if (tmp->flags & F_DAMNED)
-		sprite_blt(Bitmaps[BITMAP_DAMNED], x + ICONDEFLEN - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
-
-	if (tmp->flags & F_TRAPPED)
-		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + 8, y + 7, NULL, NULL);
-}
-
-void examine_range_inv()
-{
-	object *op, *tmp;
-
-	op = cpl.ob;
-
-	if (!op->inv)
-		return;
-
-	fire_mode_tab[FIRE_MODE_BOW].item = FIRE_ITEM_NO;
-	fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
-
-	for (tmp = op->inv; tmp; tmp = tmp->next)
-	{
-		if (tmp->flags & F_APPLIED && tmp->itype == TYPE_BOW)
+		if (fire_ready)
 		{
-			fire_mode_tab[FIRE_MODE_BOW].item = tmp->tag;
-		}
-		else if (tmp->flags & F_APPLIED && (tmp->itype == TYPE_WAND || tmp->itype == TYPE_ROD || tmp->itype == TYPE_HORN))
-		{
-			fire_mode_tab[FIRE_MODE_WAND].item = tmp->tag;
+			sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y + 8, NULL, NULL);
 		}
 	}
-}
-
-/* For throwing and ammunition, we need a "ready/apply/use" mechanism.
- * I used the mark cmd, because we can include this selection mechanism
- * inside the old cmd structure. Also, the mark cmd is extended with it.
- * Notice, that the range part of the mark cmd is client side only...
- * The server has no knowledge about this double use. It marks the item too
- * but we don't care about it. That's because we have to mark always in only very
- * special cases (like ignite something or mark an item for enchanting).
- * Here are the only double effects, that we want server side mark something
- * but we set the item then too as throw/ammunition on client side.
- * Here the player must take care and remark the right range item
- * because range selection is a fight action and marking items server side
- * is not, we will have no bad game play effects. MT. */
-void examine_range_marks(int tag)
-{
-	object *op, *tmp;
-	char buf[256];
-
-	op = cpl.ob;
-
-	if (!op->inv)
-		return;
-
-	/* lets check the inventory for the marked item */
-	for (tmp = op->inv; tmp; tmp = tmp->next)
+	else if (tmp->flags & F_UNPAID)
 	{
-		/* if item is in inventory, check the stats and adjust the range table */
-		if (tmp->tag == tag)
-		{
-#if 0
-			snprintf(buf, sizeof(buf), "GO ready %s (%d %d).", tmp->s_name, tmp->stype, tmp->stype & 128);
-			draw_info(buf, COLOR_WHITE);
-#endif
+		sprite_blt(Bitmaps[BITMAP_UNPAID], x, y, NULL, NULL);
+	}
+	else if (fire_ready)
+	{
+		sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y, NULL, NULL);
+	}
 
-			if ((tmp->itype == TYPE_ARROW && !(tmp->stype & 128)) || tmp->itype == TYPE_CONTAINER)
-			{
-#if 0
-				snprintf(buf, sizeof(buf), "GO1 ready %s.", tmp->s_name);
-				draw_info(buf, COLOR_WHITE);
-#endif
-				if (fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag)
-				{
-					snprintf(buf, sizeof(buf), "Unready %s.", tmp->s_name);
-					draw_info(buf, COLOR_WHITE);
+	if (tmp->flags & F_LOCKED)
+	{
+		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + ICONDEFLEN - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
+	}
 
-					fire_mode_tab[FIRE_MODE_BOW].amun = FIRE_ITEM_NO;
-				}
-				else if (fire_mode_tab[FIRE_MODE_BOW].item != FIRE_ITEM_NO)
-				{
-					snprintf(buf, sizeof(buf), "Ready %s as ammunition.", tmp->s_name);
-					draw_info(buf, COLOR_WHITE);
+	if (tmp->flags & F_MAGIC)
+	{
+		sprite_blt(Bitmaps[BITMAP_MAGIC], x + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + ICONDEFLEN - Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
+	}
 
-					fire_mode_tab[FIRE_MODE_BOW].amun = tmp->tag;
-				}
+	if (tmp->flags & F_DAMNED)
+	{
+		sprite_blt(Bitmaps[BITMAP_DAMNED], x + ICONDEFLEN - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
+	}
+	else if (tmp->flags & F_CURSED)
+	{
+		sprite_blt(Bitmaps[BITMAP_CURSED], x + ICONDEFLEN - Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
+	}
 
-				return;
-			}
-			else if ((tmp->itype == TYPE_POTION && tmp->stype & 128) || (tmp->stype & 128 && tmp->itype != TYPE_WEAPON) || (tmp->itype == TYPE_WEAPON && tmp->flags & F_APPLIED))
-			{
-#if 0
-				snprintf(buf, sizeof(buf), "GO2 ready %s. (%d)", tmp->s_name, tmp->stype & 128);
-				draw_info(buf, COLOR_WHITE);
-#endif
-				if (fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag)
-				{
-					snprintf(buf, sizeof(buf), "Unready %s.", tmp->s_name);
-					draw_info(buf, COLOR_WHITE);
-
-					fire_mode_tab[FIRE_MODE_THROW].item = FIRE_ITEM_NO;
-				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "Ready %s for throwing.", tmp->s_name);
-					draw_info(buf, COLOR_WHITE);
-
-					fire_mode_tab[FIRE_MODE_THROW].item = tmp->tag;
-				}
-
-				return;
-			}
-
-			if (tmp->itype == TYPE_WEAPON && !(tmp->flags & F_APPLIED))
-				snprintf(buf, sizeof(buf), "Can't ready unapplied weapon %s", tmp->s_name);
-			else
-				snprintf(buf, sizeof(buf), "Can't throw %s.", tmp->s_name);
-
-			draw_info(buf, COLOR_WHITE);
-		}
+	if (tmp->flags & F_TRAPPED)
+	{
+		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + ICONDEFLEN / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->w / 2, y + ICONDEFLEN / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->h / 2, NULL, NULL);
 	}
 }

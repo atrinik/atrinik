@@ -49,3 +49,14 @@ type 98
 layer 4
 no_pick 1
 end
+
+Object wallsign_text
+name sign
+face wallsign_text.131
+animation wallsign_text
+is_turnable 1
+direction 3
+type 98
+layer 4
+no_pick 1
+end

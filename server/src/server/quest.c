@@ -283,7 +283,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 		}
 
 		default:
-			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type);
+			LOG(llevBug, "Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type);
 	}
 }
 

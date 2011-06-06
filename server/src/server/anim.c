@@ -81,7 +81,7 @@ void init_anim()
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{
-		LOG(llevError, "ERROR: Can not open animations file Filename=%s\n", buf);
+		LOG(llevError, "Can not open animations file Filename=%s\n", buf);
 	}
 
 	while (fgets(buf, MAX_BUF - 1, fp) != NULL)
@@ -98,7 +98,7 @@ void init_anim()
 		{
 			if (num_frames)
 			{
-				LOG(llevError, "ERROR: Didn't get a mina before %s\n", buf);
+				LOG(llevError, "Didn't get a mina before %s\n", buf);
 				num_frames = 0;
 			}
 
@@ -152,7 +152,7 @@ void init_anim()
 		{
 			if (!(faces[num_frames++] = find_face(buf, 0)))
 			{
-				LOG(llevBug, "BUG: Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
+				LOG(llevBug, "Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
 			}
 		}
 	}
@@ -192,7 +192,7 @@ int find_animation(char *name)
 		return match->num;
 	}
 
-	LOG(llevBug, "BUG: Unable to find animation %s\n", STRING_SAFE(name));
+	LOG(llevBug, "Unable to find animation %s\n", STRING_SAFE(name));
 	return 0;
 }
 
@@ -218,7 +218,7 @@ void animate_object(object *op, int count)
 #if 0
 		/* ONLY activate for active debugging */
 		if (op->animation_id)
-			LOG(llevBug,"BUG: Object %s (arch %s) lacks animation. (is tail: %s)\n", STRING_OBJ_NAME(op), STRING_OBJ_ARCH_NAME(op), op->head ? "yes" : "no");
+			LOG(llevBug,"Object %s (arch %s) lacks animation. (is tail: %s)\n", STRING_OBJ_NAME(op), STRING_OBJ_ARCH_NAME(op), op->head ? "yes" : "no");
 #endif
 		return;
 	}

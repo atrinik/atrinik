@@ -181,7 +181,7 @@ map_no_region = on
 decor_wall_l2 = off
 decor_wall_l3 = off
 decor_wall_l4 = off
-sys_not_on_top = off
+sys_not_on_top = on
 """)
 
 config = ConfigParser()
@@ -781,7 +781,7 @@ class ObjectParser:
 				if parsed:
 					(attr, value) = parsed
 
-					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack"):
+					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "z", "zoom", "alpha", "align"):
 						archetype["modified_artifact"] = True
 
 		if invalid_arch:
@@ -1324,9 +1324,10 @@ if not cli:
 					maps.append(m_path)
 
 			# Get default environment variables.
-			envs = os.environ
+			envs = dict(os.environ)
+			delimiter = ";" if sys.platform.startswith("win") else ":"
 			# Extend the PATH environment variable with the script's dir.
-			envs["PATH"] += ":" + sys.path[0]
+			envs["PATH"] += delimiter + os.path.dirname(__file__)
 			# Execute Gridarta.
 			subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs)
 

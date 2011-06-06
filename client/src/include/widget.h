@@ -222,6 +222,7 @@ enum _MEvent
 /** The widget type IDs. */
 typedef enum WidgetID
 {
+	MAP_ID,
 	STATS_ID,
 	RESIST_ID,
 	MAIN_LVL_ID,
@@ -242,6 +243,9 @@ typedef enum WidgetID
 	IN_CONSOLE_ID,
 	IN_NUMBER_ID,
 	FPS_ID,
+	MPLAYER_ID,
+	SPELLS_ID,
+	SKILLS_ID,
 	CONTAINER_ID,
 	LABEL_ID,
 	BITMAP_ID,

@@ -39,16 +39,26 @@
 #include <stdarg.h>
 #include <global.h>
 
-/** How often to print out timestamps, in seconds. */
-#define TIMESTAMP_INTERVAL 600
+/**
+ * Human-readable names of log levels. */
+static const char *const loglevel_names[] =
+{
+	"[System] ",
+	"[Error]  ",
+	"[Bug]    ",
+	"[Chat]   ",
+	"[Info]   ",
+	"[Debug]  "
+};
 
-/** Last timestamp. */
-static struct timeval last_timestamp = {0, 0};
+/**
+ * If 1, will not print one of ::loglevel_names on the next LOG() call. */
+static uint8 loglevel_name_disable = 0;
 
 /**
  * Put a string to either stderr or logfile.
  * @param buf String to put. */
-static void do_print(char *buf)
+static void do_print(const char *buf)
 {
 #ifdef WIN32
 	if (logfile)
@@ -60,13 +70,6 @@ static void do_print(char *buf)
 	{
 		fputs(buf, stderr);
 	}
-
-#ifdef DEBUG
-	if (logfile)
-	{
-		fflush(logfile);
-	}
-#endif
 
 	if (logfile && logfile != stderr)
 	{
@@ -82,27 +85,13 @@ static void do_print(char *buf)
 		fputs(buf, stderr);
 	}
 #endif
-}
 
-/**
- * Check if timestamp is due. */
-static void check_timestamp()
-{
-	struct timeval now;
-
-	GETTIMEOFDAY(&now);
-
-	if (now.tv_sec >= last_timestamp.tv_sec + TIMESTAMP_INTERVAL)
+#ifdef DEBUG
+	if (logfile)
 	{
-		struct tm *tim;
-		char buf[256];
-		time_t temp_time = now.tv_sec;
-
-		last_timestamp.tv_sec = now.tv_sec;
-		tim = localtime(&temp_time);
-		snprintf(buf, sizeof(buf), "\n*** TIMESTAMP: %02d:%02d:%02d %02d-%02d-%4d ***\n\n", tim->tm_hour, tim->tm_min, tim->tm_sec, tim->tm_mday, tim->tm_mon + 1, tim->tm_year + 1900);
-		do_print(buf);
+		fflush(logfile);
 	}
+#endif
 }
 
 /**
@@ -122,17 +111,51 @@ void LOG(LogLevel logLevel, const char *format, ...)
 	static int fatal_error = 0;
 	char buf[HUGE_BUF * 2];
 
-	va_list ap;
-	va_start(ap, format);
-	check_timestamp();
-
 	if (logLevel <= settings.debug)
 	{
-		vsnprintf(buf, sizeof(buf), format, ap);
-		do_print(buf);
-	}
+		va_list ap;
+		int written;
 
-	va_end(ap);
+		/* If loglevel name was disabled but this is a bug or an error,
+		 * make an exception and put it onto the next line. */
+		if (loglevel_name_disable && (logLevel == llevBug || logLevel == llevError))
+		{
+			loglevel_name_disable = 0;
+			do_print("\n");
+		}
+
+		if (!loglevel_name_disable)
+		{
+			/* Prefix with timestamp. */
+			if (settings.timestamp)
+			{
+				snprintf(buf, sizeof(buf), "[%"FMT64U"] ", (uint64) time(NULL));
+				do_print(buf);
+			}
+
+			do_print(loglevel_names[logLevel]);
+		}
+
+		va_start(ap, format);
+		written = vsnprintf(buf, sizeof(buf), format, ap);
+		do_print(buf);
+
+		if (written > 0)
+		{
+			/* If the last character isn't a newline, mark the next LOG
+			 * call to have the loglevel name disabled. */
+			if (buf[written - 1] != '\n')
+			{
+				loglevel_name_disable = 1;
+			}
+			else
+			{
+				loglevel_name_disable = 0;
+			}
+		}
+
+		va_end(ap);
+	}
 
 	if (logLevel == llevBug)
 	{

@@ -58,7 +58,7 @@ region *get_region_by_name(const char *region_name)
 		}
 	}
 
-	LOG(llevInfo, "BUG: Got no region for region %s.\n", region_name);
+	LOG(llevDebug, "Got no region for region %s.\n", region_name);
 	return NULL;
 }
 
@@ -81,7 +81,7 @@ char *get_region_longname(const region *r)
 		return get_region_longname(r->parent);
 	}
 
-	LOG(llevDebug, "BUG: Region %s has no parent and no longname.\n", r->name);
+	LOG(llevDebug, "Region %s has no parent and no longname.\n", r->name);
 	return "no region name";
 }
 
@@ -101,7 +101,7 @@ char *get_region_msg(const region *r)
 		return get_region_msg(r->parent);
 	}
 
-	LOG(llevDebug, "BUG: Region %s has no parent and no msg.\n", r->name);
+	LOG(llevDebug, "Region %s has no parent and no msg.\n", r->name);
 	return "no region message";
 }
 
@@ -118,7 +118,7 @@ object *get_jail_exit(object *op)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: get_jail_exit() called for non-player object.\n");
+		LOG(llevBug, "get_jail_exit() called for non-player object.\n");
 		return NULL;
 	}
 
@@ -316,7 +316,7 @@ static region *get_region_struct()
 
 	if (new == NULL)
 	{
-		LOG(llevError, "ERROR: get_region_struct(): Out of memory.");
+		LOG(llevError, "get_region_struct(): Out of memory.");
 	}
 
 	memset(new, 0, sizeof(region));

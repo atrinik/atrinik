@@ -51,6 +51,7 @@ static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 {
 	/* base widgets */
+	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -61,7 +62,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PLAYERDOLL",        0,  41, 221, 224, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -71,6 +72,9 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
 	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
@@ -455,6 +459,13 @@ void remove_widget_object_intern(widgetdata *widget)
 		widget->subwidget = NULL;
 	}
 
+	switch (widget_subtype_id)
+	{
+		case MPLAYER_ID:
+			widget_mplayer_deinit(widget);
+			break;
+	}
+
 	/* finally de-allocate the widget node, this should always be the last node removed in here */
 	remove_widget(widget);
 
@@ -688,8 +699,8 @@ widgetdata *create_widget(int widget_id)
 	/* increment the unique ID counter */
 	++widget_uid;
 
-	LOG(llevDebug, "..ALLOCATED: %s, WidgetObjID: %d\n", node->name, node->WidgetObjID);
 #ifdef DEBUG_WIDGET
+	LOG(llevDebug, "..ALLOCATED: %s, WidgetObjID: %d\n", node->name, node->WidgetObjID);
 	debug_count_nodes(1);
 
 	LOG(llevInfo, "..create_widget(): Done.\n");
@@ -793,7 +804,9 @@ void remove_widget(widgetdata *widget)
 		}
 	}
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..REMOVED: %s, WidgetObjID: %d\n", widget->name, widget->WidgetObjID);
+#endif
 
 	/* free the surface */
 	if (widget->widgetSF)
@@ -930,7 +943,6 @@ static int load_interface_file(char *filename)
 	int i = -1, pos;
 	FILE *stream;
 	widgetdata *widget = NULL;
-	_textwin *textwin = NULL;
 	char line[256], keyword[256], parameter[256];
 	int found_widget[TOTAL_SUBWIDGETS] = {0};
 
@@ -1006,8 +1018,6 @@ static int load_interface_file(char *filename)
 					LOG(llevDebug, ".. Failed to create widget!\n");
 					continue;
 				}
-
-				textwin = TEXTWIN(widget);
 
 				while (fgets(line, 255, stream))
 				{
@@ -1104,7 +1114,7 @@ void save_interface_file()
 	fputs("#############################################\n", stream);
 
 	/* start walking through the widgets */
-	save_interface_file_rec(widget_list_head, stream);
+	save_interface_file_rec(widget_list_foot, stream);
 
 	fclose(stream);
 }
@@ -1119,14 +1129,14 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		/* skip the widget if it shouldn't be saved */
 		if (!widget->save)
 		{
-			widget = widget->next;
+			widget = widget->prev;
 			continue;
 		}
 
 		/* we want to process the widgets starting from the left hand side of the tree first */
-		if (widget->inv)
+		if (widget->inv_rev)
 		{
-			save_interface_file_rec(widget->inv, stream);
+			save_interface_file_rec(widget->inv_rev, stream);
 		}
 
 		fprintf(stream, "\nWidget: %s\n", widget->name);
@@ -1145,7 +1155,7 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		fputs("end\n", stream);
 
 		/* get the next sibling for our next loop */
-		widget = widget->next;
+		widget = widget->prev;
 	}
 	while (widget);
 }
@@ -1179,7 +1189,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
-	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT))
+	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT) && widget->WidgetTypeID != MAP_ID)
 	{
 		/* For some reason, checking for the ctrl key won't work here. */
 		if (cpl.fire_on)
@@ -1228,16 +1238,12 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		/* Place here all the mousedown handlers. */
 		switch (widget->WidgetTypeID)
 		{
-			case SKILL_EXP_ID:
-				widget_skill_exp_event(widget);
-				break;
-
 			case MENU_B_ID:
-				widget_menubuttons_event(widget, x, y);
+				widget_menubuttons_event(widget, event);
 				break;
 
 			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, x, y, MOUSE_DOWN);
+				widget_quickslots_mouse_event(widget, event);
 				break;
 
 			case CHATWIN_ID:
@@ -1267,6 +1273,22 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case IN_NUMBER_ID:
 				widget_number_event(widget, x, y);
+				break;
+
+			case MPLAYER_ID:
+				widget_mplayer_mevent(widget, event);
+				break;
+
+			case SPELLS_ID:
+				widget_spells_mevent(widget, event);
+				break;
+
+			case MAP_ID:
+				widget_map_mevent(widget, event);
+				break;
+
+			case SKILLS_ID:
+				widget_skills_mevent(widget, event);
 				break;
 		}
 	}
@@ -1355,7 +1377,7 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 		switch (widget->WidgetTypeID)
 		{
 			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, x, y, MOUSE_UP);
+				widget_quickslots_mouse_event(widget, event);
 				break;
 
 			case CHATWIN_ID:
@@ -1373,6 +1395,26 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case MAIN_INV_ID:
 				widget_inventory_event(widget, x, y, *event);
+				break;
+
+			case MPLAYER_ID:
+				widget_mplayer_mevent(widget, event);
+				break;
+
+			case SPELLS_ID:
+				widget_spells_mevent(widget, event);
+				break;
+
+			case MENU_B_ID:
+				widget_menubuttons_event(widget, event);
+				break;
+
+			case MAP_ID:
+				widget_map_mevent(widget, event);
+				break;
+
+			case SKILLS_ID:
+				widget_skills_mevent(widget, event);
 				break;
 		}
 
@@ -1543,6 +1585,26 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 			case MAIN_INV_ID:
 				widget_inventory_event(widget, x, y, *event);
 				break;
+
+			case MPLAYER_ID:
+				widget_mplayer_mevent(widget, event);
+				break;
+
+			case SPELLS_ID:
+				widget_spells_mevent(widget, event);
+				break;
+
+			case MENU_B_ID:
+				widget_menubuttons_event(widget, event);
+				break;
+
+			case MAP_ID:
+				widget_map_mevent(widget, event);
+				break;
+
+			case SKILLS_ID:
+				widget_skills_mevent(widget, event);
+				break;
 		}
 
 		return 1;
@@ -1680,25 +1742,6 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 
 		switch (widget->WidgetTypeID)
 		{
-			/* Playerdoll widget is NOT a rectangle, handle special... */
-			case PDOLL_ID:
-				if (x > widget->x1 + 111)
-				{
-					if (x <= widget->x1 + widget->wd && y >= widget->y1 && y <= ((x - (widget->x1 + 111)) / -2) + 215 + widget->y1)
-					{
-						return widget;
-					}
-				}
-				else
-				{
-					if (x >= widget->x1 && y >= widget->y1 && y <= ((x - widget->x1) / 2) + 160 + widget->y1)
-					{
-						return widget;
-					}
-				}
-
-				break;
-
 			default:
 				if (x >= widget->x1 && x <= (widget->x1 + widget->wd) && y >= widget->y1 && y <= (widget->y1 + widget->ht))
 				{
@@ -1809,6 +1852,32 @@ static void process_widget(widgetdata *widget)
 		case BITMAP_ID:
 			widget_show_bitmap(widget);
 			break;
+
+		case MPLAYER_ID:
+			widget_show_mplayer(widget);
+			break;
+
+		case SPELLS_ID:
+			widget_spells_render(widget);
+			break;
+
+		case SKILLS_ID:
+			widget_skills_render(widget);
+			break;
+	}
+}
+
+/**
+ * Process background tasks of a widget; called even if the widget is
+ * not currently visible.
+ * @param widget The widget. */
+static void process_widget_background(widgetdata *widget)
+{
+	switch (widget->WidgetTypeID)
+	{
+		case MPLAYER_ID:
+			widget_mplayer_background(widget);
+			break;
 	}
 }
 
@@ -1832,13 +1901,19 @@ void process_widgets()
  * This makes it as fast as a linear linked list if there are no child nodes. */
 void process_widgets_rec(widgetdata *widget)
 {
+	popup_struct *popup;
+
+	popup = popup_get_visible();
+
 	do
 	{
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show && widget->visible)
+		if (widget->show && widget->visible && (!popup || popup_overlay_need_update(popup)))
 		{
 			process_widget(widget);
 		}
+
+		process_widget_background(widget);
 
 		/* we want to process the widgets starting from the right hand side of the tree first */
 		if (widget->inv_rev)
@@ -1859,20 +1934,31 @@ void process_widgets_rec(widgetdata *widget)
  * and then work our way back down again, bringing each node in front of its siblings. */
 void SetPriorityWidget(widgetdata *node)
 {
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "Entering SetPriorityWidget(WidgetObjID=%d)..\n", node->WidgetObjID);
+#endif
 
 	/* widget doesn't exist, means parent node has no children, so nothing to do here */
 	if (!node)
 	{
+#ifdef DEBUG_WIDGET
 		LOG(llevDebug, "..SetPriorityWidget(): Done (Node does not exist).\n");
+#endif
 		return;
 	}
 
+	if (node->WidgetTypeID == MAP_ID)
+	{
+		return;
+	}
+
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..BEFORE:\n");
 	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
 	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
 	LOG(llevDebug, "....node->prev: %p - %s, node->next: %p - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
 	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
+#endif
 
 	/* see if the node has a parent before continuing */
 	if (node->env)
@@ -1893,7 +1979,9 @@ void SetPriorityWidget(widgetdata *node)
 	/* now we need to move our other node in front of the first sibling */
 	if (!node->prev)
 	{
+#ifdef DEBUG_WIDGET
 		LOG(llevDebug, "..SetPriorityWidget(): Done (Node already at front).\n");
+#endif
 		/* no point continuing, node is already at the front */
 		return;
 	}
@@ -1943,6 +2031,7 @@ void SetPriorityWidget(widgetdata *node)
 	/* There's no siblings in front of node now. */
 	node->prev = NULL;
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..AFTER:\n");
 	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
 	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
@@ -1950,6 +2039,56 @@ void SetPriorityWidget(widgetdata *node)
 	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
 
 	LOG(llevDebug, "..SetPriorityWidget(): Done.\n");
+#endif
+}
+
+/**
+ * Like SetPriorityWidget(), but in reverse.
+ * @param node The widget. */
+void SetPriorityWidget_reverse(widgetdata *node)
+{
+	if (!node)
+	{
+		return;
+	}
+
+	if (!node->next)
+	{
+		return;
+	}
+
+	if (!node->prev)
+	{
+		if (node->env)
+		{
+			node->env->inv_rev = node->next;
+		}
+		else
+		{
+			widget_list_head = node->next;
+		}
+
+		node->next->prev = NULL;
+	}
+	else
+	{
+		node->next->prev = node->prev;
+		node->prev->next = node->next;
+	}
+
+	if (node->env)
+	{
+		node->prev = node->env->inv;
+		node->env->inv = node;
+	}
+	else
+	{
+		node->prev = widget_list_foot;
+		widget_list_foot = node;
+	}
+
+	node->prev->next = node;
+	node->next = NULL;
 }
 
 void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget)

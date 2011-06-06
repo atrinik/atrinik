@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-01-31 Alex Tokar
+Modified: 2011-04-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1026,11 +1026,11 @@ arch wall_stone4_1
 x 6
 y 13
 end
-arch flag_04
-x 6
-y 13
-end
 arch floor_pattern_brown2
+x 6
+y 14
+end
+arch clock
 x 6
 y 14
 end
@@ -1322,29 +1322,7 @@ end
 arch shelf3c.111
 x 8
 y 14
-arch book_red
-msg
-<b t="Abandoned Mine"><t t="Entrance">
-The entrance has an inscription written on the gate:
-
-|Pedo mellon a minno!|
-
-Which translates to:
-
-|Speak friend and enter!|
-
-The riddle, as I figured out, is that you need to say 'Mellon' for the gate to open.
-<p><t t="Moroch Temple">
-Not much is known about this temple, which is rumored to be hidden somewhere in the mine. It is said to be an entrance with an altar devoted to Moroch, with several portals leading to the same dimension in which Moroch Temple is, and as the rumor says, Moroch himself.
-
-<p><t t="One-way exits">
-The mine is supposed to have one-way exits to both Fort Ghzal and Giant Mountains.
-endmsg
-exp 0
-no_skill_ident 1
-name Lothost's Notes
-level 25
-no_pick 1
+arch book_notes_lothost
 end
 end
 arch floor_pattern_brown2

@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-26 Alex Tokar
+Modified: 2011-05-22 Edwin Miltenburg
 endmsg
 width 24
 height 24
@@ -3191,7 +3191,6 @@ arch guard_royal
 type 83
 level 70
 unaggressive 0
-friendly 1
 stand_still 0
 end
 end
@@ -3230,7 +3229,6 @@ arch guard_royal
 type 83
 level 70
 unaggressive 0
-friendly 1
 stand_still 0
 direction 1
 end

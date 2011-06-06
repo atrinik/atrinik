@@ -44,6 +44,7 @@ static void *cur_buffer;
 static int object_load_flag;
 static int lex_error;
 static char msgbuf[HUGE_BUF];
+static artifact *art_amask;
 
 /**
  * Utility macro to set or clear an object's flag depending whether the
@@ -196,6 +197,7 @@ lex_error = 0;
 						if (op->arch)
 						{
 							object *tmp;
+							artifact *art_amask_tmp;
 
 							tmp = get_object();
 							tmp->arch = find_archetype(yval());
@@ -209,6 +211,9 @@ lex_error = 0;
 
 							(*depth)++;
 							items[*depth] = tmp;
+
+							art_amask_tmp = art_amask;
+							art_amask = NULL;
 
 							if (linemode == 0)
 							{
@@ -238,12 +243,18 @@ lex_error = 0;
 								}
 							}
 
+							if (art_amask)
+							{
+								give_artifact_abilities(tmp, art_amask);
+							}
+
+							art_amask = art_amask_tmp;
+
 							if (!(map_flags & MAP_STYLE))
 							{
-								float old_sleft, old_speed;
+								float old_sleft;
 
 								old_sleft = tmp->speed_left;
-								old_speed = tmp->speed;
 
 								/* First adjust speed.
 								 * Only change something if we:
@@ -306,7 +317,7 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevError, "ERROR: Object lacks name.\n");
+							LOG(llevError, "Object lacks name.\n");
 							return LL_IGNORED;
 						}
 
@@ -360,7 +371,7 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevBug, "BUG: Custom name without val.\n");
+							LOG(llevBug, "Custom name without val.\n");
 						}
 						else
 						{
@@ -382,6 +393,14 @@ lex_error = 0;
 						}
 					}
 ^artifact{S}        FREE_AND_COPY_HASH(op->artifact, yval());
+^amask{S}           {
+						art_amask = find_artifact_type(yval(), op->arch->clone.type);
+
+						if (!art_amask)
+						{
+							LOG(llevBug, "Invalid amask '%s'.\n", yval());
+						}
+					}
 ^quickslot{S}       op->quickslot = IVAL;
 
 ^other_arch{S}      op->other_arch = find_archetype(yval());
@@ -451,7 +470,7 @@ lex_error = 0;
 
 						if (!_face_)
 						{
-							LOG(llevBug, "BUG: Object %s - can't find face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+							LOG(llevBug, "Object %s - can't find face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
 						}
                     }
 ^inv_face{S}        {
@@ -460,7 +479,7 @@ lex_error = 0;
 
 						if (!_face_)
 						{
-							LOG(llevBug, "BUG: Object %s - can't find inv_face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+							LOG(llevBug, "Object %s - can't find inv_face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
 						}
                     }
 
@@ -503,6 +522,7 @@ lex_error = 0;
 ^zoom{S}            op->zoom = IVAL;
 ^align{S}           op->align = IVAL;
 ^alpha{S}           op->alpha = IVAL;
+^rotate{S}          op->rotate = IVAL;
 ^nrof{S}            op->nrof = atol(yval());
 ^level{S}           op->level = IVAL;
 ^direction{S}       op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
@@ -531,11 +551,13 @@ lex_error = 0;
 ^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
 ^is_thrown{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
 ^auto_apply{S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
+^is_ready{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_READY, IVAL);
 ^treasure{S}        {}
 ^is_assassin{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
 ^is_missile{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
 ^draw_direction{S}  SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DIRECTION, IVAL);
 ^draw_double{S}     SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE, IVAL);
+^draw_double_always{S} SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE_ALWAYS, IVAL);
 ^see_invisible{S}   SET_OR_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
 ^make_invisible{S}  SET_OR_CLEAR_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL);
 ^make_ethereal{S}   SET_OR_CLEAR_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL);
@@ -788,7 +810,7 @@ lex_error = 0;
 
 						if (*y == '\0')
 						{
-							LOG(llevBug, "BUG: loader(): Title without value.\n");
+							LOG(llevBug, "loader(): Title without value.\n");
 						}
 						else
 						{
@@ -981,7 +1003,7 @@ void *create_loader_buffer(void *fp)
 int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags)
 {
 	int retval = 0;
-	float old_speed, old_sleft;
+	float old_sleft;
 	char inbuf[HUGE_BUF];
 	object *items[MAXDEPTH];
 	int depth = 0;
@@ -998,13 +1020,13 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	 * case, these values are the arch pre sets. We need to track this
 	 * down to adjust for the "real in-game" object the right speed and
 	 * speed_left. */
-	old_speed = op->speed;
 	old_sleft = op->speed_left;
 	/* We assume an "arch" load as default */
 	object_load_flag = 0;
 
 	*msgbuf = '\0';
 	items[0] = op;
+	art_amask = NULL;
 
 	if (bufstate == LO_REPEAT)
 	{
@@ -1132,6 +1154,11 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			{
 				op->speed_left = op->speed_left + (float)(RANDOM() % 90) / 100.0f;
 			}
+		}
+
+		if (art_amask)
+		{
+			give_artifact_abilities(op, art_amask);
 		}
 
 		update_ob_speed(op);
@@ -1432,6 +1459,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->alpha != op2->alpha)
 	{
 		FAST_SAVE_LONG(sb, "alpha ", op->alpha);
+	}
+
+	if (op->rotate != op2->rotate)
+	{
+		FAST_SAVE_LONG(sb, "rotate ", op->rotate);
 	}
 
 	if (op->speed != op2->speed)

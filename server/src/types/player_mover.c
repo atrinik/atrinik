@@ -35,29 +35,40 @@
  * @param op The player mover. */
 void move_player_mover(object *op)
 {
-	object *victim, *nextmover;
+	object *victim, *victim_next;
 	mapstruct *mt;
 	int xt, yt, dir = op->direction;
+
+	op->value = pticks;
 
 	if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_ALIVE | P_IS_PLAYER)))
 	{
 		return;
 	}
 
-	/* Determine direction now for random movers so we do the right thing */
+	/* Determine direction now for random movers so we do the right thing. */
 	if (!dir)
 	{
 		dir = get_random_dir();
 	}
 
-	for (victim = GET_BOTTOM_MAP_OB(op); victim != NULL; victim = victim->above)
+	for (victim = GET_BOTTOM_MAP_OB(op); victim; victim = victim_next)
 	{
+		victim_next = victim->above;
+
 		if (IS_LIVE(victim) && (!(QUERY_FLAG(victim, FLAG_FLYING)) || op->stats.maxhp))
 		{
 			if (QUERY_FLAG(op, FLAG_LIFESAVE) && op->stats.hp-- < 0)
 			{
 				destruct_ob(op);
 				return;
+			}
+
+			/* No direction, this means 'xrays 1' was set; so use the
+			 * victim's direction instead. */
+			if (!op->direction && QUERY_FLAG(op, FLAG_XRAYS))
+			{
+				dir = victim->direction;
 			}
 
 			xt = op->x + freearr_x[dir];
@@ -68,17 +79,29 @@ void move_player_mover(object *op)
 				return;
 			}
 
-			for (nextmover = get_map_ob(mt, xt, yt); nextmover != NULL; nextmover = nextmover->above)
+			/* Flag to stop moving if there's a wall. */
+			if (QUERY_FLAG(op, FLAG_STAND_STILL) && blocked(victim, mt, xt, yt, victim->terrain_flag))
 			{
-				if (nextmover->type == PLAYERMOVER)
-				{
-					nextmover->speed_left = -0.99f;
-				}
+				continue;
+			}
 
-				/* wait until the next thing gets out of the way */
-				if (IS_LIVE(nextmover))
+			/* Unless there is an alive object or a player on the square
+			 * this object is being moved onto, disable the mover on that
+			 * square, if any. This is done so the object doesn't rocket
+			 * across a bunch of movers. */
+			if (!(blocked(NULL, mt, xt, yt, TERRAIN_NOTHING) & (P_IS_ALIVE | P_IS_PLAYER)))
+			{
+				object *nextmover;
+
+				for (nextmover = GET_MAP_OB(mt, xt, yt); nextmover; nextmover = nextmover->above)
 				{
-					op->speed_left = -1.1f;
+					/* Only disable movers that didn't go this tick yet;
+					 * otherwise they wouldn't trigger on the next tick to
+					 * move objects they may have on top of them. */
+					if (nextmover->type == PLAYERMOVER && nextmover->value != op->value)
+					{
+						nextmover->speed_left--;
+					}
 				}
 			}
 
@@ -89,20 +112,27 @@ void move_player_mover(object *op)
 				{
 					/* Following is a bit of hack.  We need to make sure it
 					 * is cleared, otherwise the player will get stuck in
-					 * place.  This can happen if the player used a spell to
+					 * place. This can happen if the player used a spell to
 					 * get to this space. */
 					CONTR(victim)->fire_on = 0;
 					victim->speed_left = -FABS(victim->speed);
 					move_player(victim, dir);
+					/* Clear player's path; they probably can't move there
+					 * any more after being pushed, or might not want to. */
+					player_path_clear(CONTR(victim));
 				}
 				else
 				{
-					return;
+					continue;
 				}
+			}
+			else if (op->stats.grace)
+			{
+				move_object(victim, dir);
 			}
 			else
 			{
-				move_object(victim, dir);
+				continue;
 			}
 
 			if (!op->stats.maxsp && op->stats.sp)
@@ -113,7 +143,7 @@ void move_player_mover(object *op)
 			/* flag to paralyze the player */
 			if (op->stats.sp)
 			{
-				victim->speed_left = -FABS(op->stats.maxsp * victim->speed / op->speed);
+				victim->speed_left = -(op->stats.maxsp * FABS(victim->speed));
 			}
 		}
 	}

@@ -111,39 +111,7 @@ void reset_keys()
 /* Here we look in the user defined keymap and try to get same useful macros */
 int check_menu_macros(char *text)
 {
-	if (!strcmp("?M_SPELL_LIST", text))
-	{
-		if (cpl.menustatus == MENU_KEYBIND)
-			save_keybind_file(KEYBIND_FILE);
-
-		map_udate_flag = 2;
-
-		if (cpl.menustatus != MENU_SPELL)
-			cpl.menustatus = MENU_SPELL;
-		else
-			cpl.menustatus = MENU_NO;
-
-		sound_play_effect("scroll.ogg", 100);
-		reset_keys();
-		return 1;
-	}
-	else if (!strcmp("?M_SKILL_LIST", text))
-	{
-		if (cpl.menustatus == MENU_KEYBIND)
-			save_keybind_file(KEYBIND_FILE);
-
-		map_udate_flag = 2;
-
-		if (cpl.menustatus != MENU_SKILL)
-			cpl.menustatus = MENU_SKILL;
-		else
-			cpl.menustatus = MENU_NO;
-
-		sound_play_effect("scroll.ogg", 100);
-		reset_keys();
-		return 1;
-	}
-	else if (!strcmp("?M_KEYBIND", text))
+	if (!strcmp("?M_KEYBIND", text))
 	{
 		map_udate_flag = 2;
 
@@ -274,19 +242,18 @@ void check_keys(int key)
 int process_macro_keys(int id, int value)
 {
 	int nrof, tag = 0, loc = 0;
-	char buf[256];
+	char buf[MAX_BUF];
 	object *it, *tmp;
 	widgetdata *widget;
 
 	switch (id)
 	{
 		case KEYFUNC_FIREREADY:
-			if (cpl.inventory_win == IWIN_BELOW)
-				tag = cpl.win_below_tag;
-			else
-				tag = cpl.win_inv_tag;
+			if (cpl.inventory_win == IWIN_INV && cpl.win_inv_tag != -1)
+			{
+				ready_object(object_find(cpl.win_inv_tag));
+			}
 
-			examine_range_marks(tag);
 			break;
 
 		case KEYFUNC_PAGEUP:
@@ -334,34 +301,8 @@ int process_macro_keys(int id, int value)
 			break;
 
 		case KEYFUNC_SPELL:
-			map_udate_flag = 2;
-			sound_play_effect("scroll.ogg", 100);
-
-			if (cpl.menustatus == MENU_KEYBIND)
-				save_keybind_file(KEYBIND_FILE);
-
-			if (cpl.menustatus != MENU_SPELL)
-				cpl.menustatus = MENU_SPELL;
-			else
-				cpl.menustatus = MENU_NO;
-
-			reset_keys();
-			break;
-
-		case KEYFUNC_SKILL:
-			map_udate_flag = 2;
-
-			if (cpl.menustatus == MENU_KEYBIND)
-				save_keybind_file(KEYBIND_FILE);
-
-			sound_play_effect("scroll.ogg", 100);
-
-			if (cpl.menustatus != MENU_SKILL)
-				cpl.menustatus = MENU_SKILL;
-			else
-				cpl.menustatus = MENU_NO;
-
-			reset_keys();
+			cur_widget[SPELLS_ID]->show = 1;
+			SetPriorityWidget(cur_widget[SPELLS_ID]);
 			break;
 
 		case KEYFUNC_KEYBIND:

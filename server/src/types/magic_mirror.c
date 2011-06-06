@@ -43,7 +43,7 @@ void magic_mirror_init(object *mirror)
 
 	if (!mirror->map)
 	{
-		LOG(llevBug, "BUG: magic_mirror_init(): Magic mirror not on map.\n");
+		LOG(llevBug, "magic_mirror_init(): Magic mirror not on map.\n");
 		return;
 	}
 
@@ -122,7 +122,7 @@ mapstruct *magic_mirror_get_map(object *mirror)
 
 	if (!data->map)
 	{
-		LOG(llevBug, "BUG: magic_mirror_get_map(): Could not load map '%s'.\n", mirror->slaying);
+		LOG(llevBug, "magic_mirror_get_map(): Could not load map '%s'.\n", mirror->slaying);
 		return NULL;
 	}
 

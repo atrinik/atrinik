@@ -36,7 +36,7 @@ void widget_show_resist(widgetdata *widget)
 {
 	SDL_Rect box;
 	size_t i;
-	int x = 0, y = 2, mx, my;
+	int x = 5, y = 2, mx, my;
 
 	if (!widget->widgetSF)
 	{
@@ -52,7 +52,7 @@ void widget_show_resist(widgetdata *widget)
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
-		string_blt(widget->widgetSF, FONT_SERIF8, s_settings->text[SERVER_TEXT_PROTECTION_GROUPS], 5, 1, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP | TEXT_OUTLINE, NULL);
+		string_blt(widget->widgetSF, FONT_SERIF10, "Protection Table", x, y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_OUTLINE, NULL);
 	}
 
 	SDL_GetMouseState(&mx, &my);
@@ -62,22 +62,41 @@ void widget_show_resist(widgetdata *widget)
 		if (!(i % 5))
 		{
 			y += 15;
-			x = 50;
+			x = 5;
 		}
 
 		if (widget->redraw)
 		{
-			string_blt(widget->widgetSF, FONT_SANS9, s_settings->protection_letters[i], x + 2 - string_get_width(FONT_SANS8, s_settings->protection_letters[i], 0) / 2, y + 1, COLOR_SIMPLE(COLOR_HGOLD), 0, NULL);
-			string_blt_format(widget->widgetSF, FONT_MONO9, x + 10, y + 1, COLOR_SIMPLE(cpl.stats.protection[i] ? (cpl.stats.protection[i] < 0 ? COLOR_RED : (cpl.stats.protection[i] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY), 0, NULL, "%02d", cpl.stats.protection[i]);
+			int color;
+
+			/* Figure out color for the protection value. */
+			if (!cpl.stats.protection[i])
+			{
+				color = COLOR_GREY;
+			}
+			else if (cpl.stats.protection[i] < 0)
+			{
+				color = COLOR_RED;
+			}
+			else if (cpl.stats.protection[i] >= 100)
+			{
+				color = COLOR_ORANGE;
+			}
+			else
+			{
+				color = COLOR_WHITE;
+			}
+
+			string_blt_format(widget->widgetSF, FONT_MONO9, x, y + 1, COLOR_SIMPLE(color), TEXT_MARKUP, NULL, "<c=#d4d553>%s</c>%s %02d", s_settings->protection_letters[i], s_settings->protection_letters[i][1] == '\0' ? " " : "", cpl.stats.protection[i]);
 		}
 
 		/* Show a tooltip with the protection's full name. */
-		if (mx > widget->x1 + x && mx < widget->x1 + x + 25 && my > widget->y1 + y && my < widget->y1 + y + 15)
+		if (mx >= widget->x1 + x && mx < widget->x1 + x + 38 && my >= widget->y1 + y && my < widget->y1 + y + 15)
 		{
 			tooltip_create(mx, my, FONT_ARIAL10, s_settings->protection_full[i]);
 		}
 
-		x += 30;
+		x += 38;
 	}
 
 	widget->redraw = 0;

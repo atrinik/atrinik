@@ -33,7 +33,6 @@
 int old_mouse_y = 0;
 
 int cursor_type = 0;
-int itemExamined = 0;
 
 /**
  * Table of all the keys recognized by SDL. If an element is 1, that key
@@ -77,6 +76,11 @@ void resize_window(int width, int height)
 
 	Screensize->x = width;
 	Screensize->y = height;
+
+	if (!options.allow_widgets_offscreen && width > 100 && height > 100)
+	{
+		widgets_ensure_onscreen();
+	}
 }
 
 /**
@@ -86,9 +90,7 @@ int Event_PollInputDevice()
 {
 	SDL_Event event;
 	int x, y, done = 0;
-	static int active_scrollbar = 0;
-	static int itemExamined = 0;
-	static Uint32 Ticks= 0;
+	static Uint32 Ticks = 0;
 	Uint32 videoflags = get_video_flags();
 	int tx, ty;
 
@@ -104,7 +106,7 @@ int Event_PollInputDevice()
 			}
 			/* Mouse gesture: hold right+left buttons or middle button
 			 * to fire. */
-			else if (!cpl.action_timer && cpl.menustatus == MENU_NO && !widget_mouse_event.owner)
+			else if (!cpl.action_timer && cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID])
 			{
 				int state = SDL_GetMouseState(&x, &y);
 
@@ -121,8 +123,6 @@ int Event_PollInputDevice()
 
 	while (SDL_PollEvent(&event))
 	{
-		static int old_mouse_y = 0, old_map_mouse_x = 0, old_map_mouse_y = 0;
-
 		if (event.type == SDL_KEYUP)
 		{
 			keys_pressed[event.key.keysym.sym] = 0;
@@ -159,11 +159,17 @@ int Event_PollInputDevice()
 			case SDL_MOUSEBUTTONUP:
 				cursor_type = 0;
 
-				if (GameStatus < GAME_STATUS_PLAY)
-					break;
-
 				mb_clicked = 0;
-				active_scrollbar = 0;
+
+				if (lists_handle_mouse(x, y, &event))
+				{
+					break;
+				}
+
+				if (GameStatus < GAME_STATUS_PLAY)
+				{
+					break;
+				}
 
 				/* Widget has higher priority than anything below, except menus
 				 * so break if we had a widget event */
@@ -173,10 +179,6 @@ int Event_PollInputDevice()
 
 					/* Sanity handling */
 					draggingInvItem(DRAG_NONE);
-
-					/* Ready for next item */
-					itemExamined = 0;
-
 					break;
 				}
 
@@ -206,15 +208,10 @@ int Event_PollInputDevice()
 				}
 
 				draggingInvItem(DRAG_NONE);
-
-				/* Ready for next item */
-				itemExamined  = 0;
 				break;
 
 			case SDL_MOUSEMOTION:
 			{
-				int map_mouse_x, map_mouse_y;
-
 				mb_clicked = 0;
 
 				if (lists_handle_mouse(x, y, &event))
@@ -234,13 +231,6 @@ int Event_PollInputDevice()
 				if (cpl.menustatus != MENU_NO)
 				{
 					break;
-				}
-
-				if (mouse_to_tile_coords(x, y, &map_mouse_x, &map_mouse_y) && (map_mouse_x != old_map_mouse_x || map_mouse_y != old_map_mouse_y))
-				{
-					map_redraw_flag = 1;
-					old_map_mouse_x = map_mouse_x;
-					old_map_mouse_y = map_mouse_y;
 				}
 
 				if (widget_event_mousemv(x, y, &event))
@@ -305,45 +295,6 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				/* Mouse in play field */
-				if (mouse_to_tile_coords(x, y, &tx, &ty))
-				{
-					uint8 state = SDL_GetMouseState(NULL, NULL);
-
-					cpl.inventory_win = IWIN_BELOW;
-
-					/* Targeting */
-					if (state == SDL_BUTTON(SDL_BUTTON_RIGHT))
-					{
-						char buf[MAX_BUF];
-
-						snprintf(buf, sizeof(buf), "/target !%d %d", tx, ty);
-						send_command(buf);
-					}
-					/* Running */
-					else if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
-					{
-						if (cpl.fire_on || cpl.run_on)
-						{
-							move_keys(dir_from_tile_coords(tx, ty));
-						}
-						else
-						{
-							SockList sl;
-							uint8 buf[HUGE_BUF];
-
-							sl.buf = buf;
-							sl.len = 0;
-							SockList_AddString(&sl, "mp ");
-							SockList_AddChar(&sl, tx);
-							SockList_AddChar(&sl, ty);
-							send_socklist(sl);
-						}
-					}
-
-					break;
-				}
-
 				break;
 			}
 
@@ -359,6 +310,7 @@ int Event_PollInputDevice()
 			default:
 				break;
 		}
+
 		old_mouse_y = y;
 	}
 

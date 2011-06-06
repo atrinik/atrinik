@@ -49,48 +49,50 @@ static const char *const directions_run[DIRECTIONS_NUM] =
 
 /**
  * Directions to fire into. */
-static const char *const directions_fire[DIRECTIONS_NUM] =
+static const int directions_fire[DIRECTIONS_NUM] =
 {
-	"fire 6", "fire 5", "fire 4", "fire 7", "fire 0", "fire 3", "fire 8", "fire 1", "fire 2"
+	6, 5, 4, 7, 0, 3, 8, 1, 2
 };
 
 void move_keys(int num)
 {
-	char buf[256];
-
 	/* Runmode on, or ALT key trigger */
 	if ((cpl.runkey_on || cpl.run_on) && (!cpl.firekey_on && !cpl.fire_on))
 	{
 		send_command(directions_run[num - 1]);
-		strcpy(buf, "run ");
 	}
-	/* That's the range menu - we handle its messages unique */
 	else if (cpl.firekey_on || cpl.fire_on)
 	{
+		SockList sl;
+		char buf[MAX_BUF];
+
+		sl.buf = (unsigned char *) buf;
+		strcpy((char *) sl.buf, "fire ");
+		sl.len = 5;
+		SockList_AddChar(&sl, directions_fire[num - 1]);
+		SockList_AddChar(&sl, RangeFireMode);
+
 		if (RangeFireMode == FIRE_MODE_SKILL)
 		{
-			if (!fire_mode_tab[FIRE_MODE_SKILL].skill || fire_mode_tab[FIRE_MODE_SKILL].skill->flag == -1)
+			if (!fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
 				draw_info("No skill selected.", COLOR_WHITE);
 				return;
 			}
 
-			snprintf(buf, sizeof(buf), "/%s %d %d %s", directions_fire[num - 1], RangeFireMode, -1,fire_mode_tab[RangeFireMode].skill->name);
+			SockList_AddString(&sl, fire_mode_tab[RangeFireMode].skill->name);
 		}
 		else if (RangeFireMode == FIRE_MODE_SPELL)
 		{
-			if (!fire_mode_tab[FIRE_MODE_SPELL].spell || fire_mode_tab[FIRE_MODE_SPELL].spell->flag == -1)
+			if (!fire_mode_tab[FIRE_MODE_SPELL].spell)
 			{
 				draw_info("No spell selected.", COLOR_WHITE);
 				return;
 			}
 
-			snprintf(buf, sizeof(buf), "/%s %d %d %s", directions_fire[num - 1], RangeFireMode, -1, fire_mode_tab[RangeFireMode].spell->name);
+			SockList_AddString(&sl, fire_mode_tab[RangeFireMode].spell->name);
 		}
-		else
-			snprintf(buf, sizeof(buf), "/%s %d %d %d", directions_fire[num - 1], RangeFireMode, fire_mode_tab[RangeFireMode].item, fire_mode_tab[RangeFireMode].amun);
-
-		if (RangeFireMode == FIRE_MODE_BOW)
+		else if (RangeFireMode == FIRE_MODE_BOW)
 		{
 			if (fire_mode_tab[FIRE_MODE_BOW].item == FIRE_ITEM_NO)
 			{
@@ -120,8 +122,7 @@ void move_keys(int num)
 			}
 		}
 
-		cs_write_string(buf, strlen(buf));
-		return;
+		send_socklist(sl);
 	}
 	else
 	{

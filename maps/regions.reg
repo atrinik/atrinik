@@ -5,6 +5,7 @@ Somewhere in the world...
 endmsg
 jail /shattered_islands/strakewood_island/greyton/jail/jail_a 1 11
 end
+
 region creation
 parent world
 longname Plane of Creation
@@ -13,7 +14,20 @@ No one knows where this place is, but all have seen it.
 
 As mysterious as it is, it's just another part of life.
 endmsg
+map_first /planes/creation/creation_0101
+map_bg #009ffb
 end
+
+region tutorial
+parent world
+longname The Starting Tutorial
+msg
+No one knows where this place is, but all have seen it.
+
+As mysterious as it is, it's just another part of life.
+endmsg
+end
+
 region tutorial_island
 parent world
 longname The Tutorial Island
@@ -133,6 +147,16 @@ longname Fort Ghzal
 msg
 
 endmsg
+end
+
+# Rockforge.
+region rockforge
+parent strakewood_island
+longname Rockforge
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_a_0101
 end
 
 ##########################

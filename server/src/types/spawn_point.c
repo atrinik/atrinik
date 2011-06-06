@@ -143,53 +143,101 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 }
 
 /**
- * Check whether the current darkness on the spawn point's map allows
- * spawn a monster.
- * @param spawn_point The spawn point.
- * @param darkness Darkness needed.
- * @return 1 if the spawn can be done, 0 otherwise. */
-static inline int spawn_point_darkness(object *spawn_point, int darkness)
+ * Check whether monster can be spawned, depending on the spawn point
+ * map's darkness and other factors.
+ * @param map Spawn point's map.
+ * @param monster The monster to check.
+ * @param darkness Darkness the monster may spawn int.
+ * @return 1 if the monster can be spawned, 0 otherwise. */
+static inline int spawn_point_can_spawn(mapstruct *map, object *monster, int darkness)
 {
-	int map_light;
+	shstr *spawn_time;
 
-	if (!spawn_point->map)
+	if (!map)
 	{
 		return 0;
 	}
 
-	/* Outdoor map */
-	if (MAP_OUTDOORS(spawn_point->map))
+	/* Check darkness. */
+	if (darkness)
 	{
-		map_light = world_darkness;
-	}
-	else
-	{
-		if (MAP_DARKNESS(spawn_point->map) == -1)
+		int map_darkness;
+
+		/* Figure out the map's darkness. */
+		if (MAP_OUTDOORS(map))
 		{
-			map_light = MAX_DARKNESS;
+			map_darkness = world_darkness;
+		}
+		else if (MAP_DARKNESS(map) == -1)
+		{
+			map_darkness = MAX_DARKNESS;
 		}
 		else
 		{
-			map_light = MAP_DARKNESS(spawn_point->map);
+			map_darkness = MAP_DARKNESS(map);
+		}
+
+		if (darkness < 0)
+		{
+			if (map_darkness > -darkness)
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			if (map_darkness < darkness)
+			{
+				return 0;
+			}
 		}
 	}
 
-	if (darkness < 0)
+	spawn_time = object_get_value(monster, "spawn_time");
+
+	/* Check if the time is right for the monster to be spawned. */
+	if (spawn_time)
 	{
-		if (map_light < -darkness)
+		int hour, minute, hour2, minute2;
+
+		if (sscanf(spawn_time, "%d:%d - %d:%d", &hour, &minute, &hour2, &minute2) == 4)
 		{
+			timeofday_t tod;
+
+			get_tod(&tod);
+
+			/* Same day. */
+			if (hour <= hour2)
+			{
+				if (tod.hour < hour || tod.hour > hour2)
+				{
+					return 0;
+				}
+			}
+			/* Overnight. */
+			else
+			{
+				if (tod.hour < hour && tod.hour > hour2)
+				{
+					return 0;
+				}
+			}
+
+			/* Check minutes. */
+			if ((tod.hour == hour && tod.minute < minute) || (tod.hour == hour2 && tod.minute > minute2))
+			{
+				return 0;
+			}
+
 			return 1;
 		}
-	}
-	else
-	{
-		if (map_light > darkness)
+		else
 		{
-			return 1;
+			LOG(llevBug, "spawn_point_can_spawn(): Syntax error in spawn_time attribute: %s\n", spawn_time);
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 /**
@@ -223,7 +271,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 
 					if (tmp2->type == RANDOM_DROP)
 					{
-						LOG(llevDebug, "DEBUG:: RANDOM_DROP not allowed inside another RANDOM_DROP. Monster: >%s< map: %s (x: %d, y: %d)\n", query_name(monster, NULL), op->map ? op->map->path : "null", op->x, op->y);
+						LOG(llevDebug, "RANDOM_DROP not allowed inside another RANDOM_DROP. Monster: >%s< map: %s (x: %d, y: %d)\n", query_name(monster, NULL), op->map ? op->map->path : "null", op->x, op->y);
 					}
 					else
 					{
@@ -265,15 +313,8 @@ void spawn_point(object *op)
 	{
 		if (OBJECT_VALID(op->enemy, op->enemy_count))
 		{
-			/* Check darkness if needed */
-			if (op->last_eat)
+			if (!spawn_point_can_spawn(op->map, op->enemy, op->last_eat))
 			{
-				if (spawn_point_darkness(op, op->last_eat))
-				{
-					return;
-				}
-
-				/* Darkness has changed - now remove the spawned monster */
 				remove_ob(op->enemy);
 				check_walk_off(op->enemy, NULL, MOVE_APPLY_VANISHED);
 			}
@@ -307,7 +348,7 @@ void spawn_point(object *op)
 	/* Spawn point without inventory! */
 	if (!op->inv)
 	{
-		LOG(llevBug, "BUG: Spawn point without inventory! --> map %s (x: %d, y: %d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
+		LOG(llevBug, "Spawn point without inventory! --> map %s (x: %d, y: %d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
@@ -324,16 +365,13 @@ void spawn_point(object *op)
 
 		if (tmp->type != SPAWN_POINT_MOB)
 		{
-			LOG(llevBug, "BUG: Spawn point in map %s (x: %d, y: %d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
+			LOG(llevBug, "Spawn point in map %s (x: %d, y: %d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
 		}
 		else if ((int) tmp->enemy_count <= op->stats.sp && (int) tmp->enemy_count >= rmt)
 		{
-			if (tmp->last_eat)
+			if (!spawn_point_can_spawn(op->map, tmp, tmp->last_eat))
 			{
-				if (!spawn_point_darkness(op, tmp->last_eat))
-				{
-					continue;
-				}
+				continue;
 			}
 
 			rmt = (int) tmp->enemy_count;

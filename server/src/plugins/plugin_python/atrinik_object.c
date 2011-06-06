@@ -140,6 +140,7 @@ static fields_struct fields[] =
 	{"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
 	{"z", FIELDTYPE_SINT16, offsetof(object, z), 0, 0},
 	{"zoom", FIELDTYPE_UINT8, offsetof(object, zoom), 0, 0},
+	{"rotate", FIELDTYPE_SINT16, offsetof(object, rotate), 0, 0},
 	{"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0},
 	{"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0},
 	/* Returns the object's face in a tuple containing the face name as
@@ -1967,6 +1968,20 @@ static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
 	}
 }
 
+/**
+ * <h1>object.Activate()</h1>
+ * Activates the object's connection, if it has one. */
+static PyObject *Atrinik_Object_Activate(Atrinik_Object *obj, PyObject *args)
+{
+	(void) args;
+
+	OBJEXISTCHECK(obj);
+	hooks->push_button(obj->obj);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2021,6 +2036,7 @@ static PyMethodDef methods[] =
 	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
 	{"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
+	{"Activate", (PyCFunction) Atrinik_Object_Activate, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2136,6 +2152,17 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 			/* Restore original speed and type info. */
 			obj->obj->speed = old_speed;
 			obj->obj->type = SPAWN_POINT_MOB;
+		}
+	}
+	/* Direction, update object's facing. */
+	else if (field->offset == offsetof(object, direction))
+	{
+		obj->obj->anim_last_facing = obj->obj->anim_last_facing_last = obj->obj->facing = obj->obj->direction;
+
+		/* If the object is animated and turnable, updated its face as well. */
+		if (obj->obj->animation_id && QUERY_FLAG(obj->obj, FLAG_IS_TURNABLE))
+		{
+			SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) / NUM_FACINGS(obj->obj)) * obj->obj->direction + obj->obj->state);
 		}
 	}
 

@@ -47,12 +47,11 @@ void VersionCmd(char *data);
 void SendVersion();
 void RequestFile(int index);
 void SendAddMe();
-void SkilllistCmd(char *data);
-void SpelllistCmd(char *data);
 void NewCharCmd();
 void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
 void QuestListCmd(unsigned char *data, int len);
+void ReadyCmd(unsigned char *data, int len);
 
 /* client/curl.c */
 int curl_connect(void *c_data);
@@ -99,6 +98,7 @@ object *object_create(object *env, sint32 tag, int bflag);
 void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
 void toggle_locked(object *op);
 void object_send_mark(object *op);
+void ready_object(object *op);
 void objects_init();
 void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
 void animate_objects();
@@ -147,14 +147,11 @@ void init_player_data();
 void widget_player_data_event(widgetdata *widget, int x, int y);
 void widget_show_player_data(widgetdata *widget);
 void widget_player_stats(widgetdata *widget);
-void widget_menubuttons(widgetdata *widget);
-void widget_menubuttons_event(widgetdata *widget, int x, int y);
 void widget_skillgroups(widgetdata *widget);
 void widget_show_player_doll_event();
 void widget_show_player_doll(widgetdata *widget);
 void widget_show_main_lvl(widgetdata *widget);
 void widget_show_skill_exp(widgetdata *widget);
-void widget_skill_exp_event(widgetdata *widget);
 void widget_show_regeneration(widgetdata *widget);
 void widget_show_container(widgetdata *widget);
 void widget_highlight_menu(widgetdata *widget);
@@ -208,8 +205,11 @@ void sound_deinit();
 void sound_play_effect(const char *filename, int volume);
 void sound_start_bg_music(const char *filename, int volume, int loop);
 void sound_stop_bg_music();
-void parse_map_bg_music(const char *bg_music);
+void update_map_bg_music(const char *bg_music);
 void sound_update_volume();
+const char *sound_get_bg_music();
+const char *sound_get_bg_music_basename();
+uint8 sound_map_background(int new);
 void SoundCmd(uint8 *data, int len);
 
 /* client/sprite.c */
@@ -218,7 +218,7 @@ _Sprite *sprite_load_file(char *fname, uint32 flags);
 _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop);
 void sprite_free_sprite(_Sprite *sprite);
 void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom);
+void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom, sint16 rotate);
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
@@ -231,8 +231,6 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value);
 void remove_anim(struct _anim *anim);
 void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
-SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
-void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 
 /* client/tilestretcher.c */
@@ -306,6 +304,7 @@ void book_handle_event(SDL_Event *event);
 /* gui/effects.c */
 void effects_init();
 void effects_deinit();
+void effects_reinit();
 void effect_sprites_free(effect_struct *effect);
 void effect_free(effect_struct *effect);
 void effect_sprite_def_free(effect_sprite_def *sprite_def);
@@ -315,6 +314,8 @@ void effect_sprites_play();
 int effect_start(const char *name);
 void effect_debug(const char *type);
 void effect_stop();
+uint8 effect_has_overlay();
+void effect_scale(_Sprite *sprite);
 
 /* gui/fps.c */
 void widget_show_fps(widgetdata *widget);
@@ -341,9 +342,7 @@ void widget_show_inventory_window(widgetdata *widget);
 void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
 void widget_show_below_window(widgetdata *widget);
 int blt_inv_item_centered(object *tmp, int x, int y);
-void blt_inv_item(object *tmp, int x, int y, int nrof);
-void examine_range_inv();
-void examine_range_marks(int tag);
+void blt_inv_item(object *tmp, int x, int y);
 
 /* gui/keybind.c */
 void show_keybind();
@@ -358,17 +357,29 @@ void clear_map();
 void display_mapscroll(int dx, int dy);
 void map_draw_map_clear();
 void update_map_name(const char *name);
-void update_map_bg_music(const char *bg_music);
 void update_map_weather(const char *weather);
 void init_map_data(int xl, int yl, int px, int py);
 void align_tile_stretch(int x, int y);
 void adjust_tile_stretch();
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha);
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate);
 void map_clear_cell(int x, int y);
 void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
 void map_draw_one(int x, int y, _Sprite *sprite);
+void widget_map_mevent(widgetdata *widget, SDL_Event *event);
+void widget_map_render(widgetdata *widget);
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
+
+/* gui/menu_buttons.c */
+void widget_menubuttons(widgetdata *widget);
+void widget_menubuttons_event(widgetdata *widget, SDL_Event *event);
+
+/* gui/mplayer.c */
+void widget_show_mplayer(widgetdata *widget);
+void widget_mplayer_background(widgetdata *widget);
+void widget_mplayer_deinit(widgetdata *widget);
+void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
+void mplayer_now_playing();
 
 /* gui/party.c */
 void switch_tabs();
@@ -383,12 +394,12 @@ int console_party();
 void widget_show_resist(widgetdata *widget);
 
 /* gui/quickslots.c */
-void quickslot_key(SDL_KeyboardEvent *key, int slot);
+void quickslots_init();
+void quickslots_handle_key(SDL_KeyboardEvent *key, int slot);
 int get_quickslot(int x, int y);
 void show_quickslots(int x, int y, int vertical_quickslot);
 void widget_quickslots(widgetdata *widget);
-void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent);
-void update_quickslots(int del_item);
+void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event);
 void QuickSlotCmd(unsigned char *data, int len);
 
 /* gui/range.c */
@@ -405,16 +416,27 @@ void region_map_show();
 /* gui/settings.c */
 void optwin_draw_options(int x, int y);
 void show_optwin();
+void settings_open();
 
-/* gui/skill_list.c */
-void show_skilllist();
-void read_skills();
+/* gui/skills.c */
+void widget_skills_render(widgetdata *widget);
+void widget_skills_mevent(widgetdata *widget, SDL_Event *event);
+int skill_find(const char *name, size_t *type, size_t *id);
+int skill_find_type_selected(const char *name, size_t *id);
+skill_entry_struct *skill_get(size_t type, size_t id);
+void skills_init();
+void skills_reload();
+void SkilllistCmd(char *data);
 
-/* gui/spell_list.c */
-void show_spelllist();
-void read_spells();
-int find_spell(const char *name, int *spell_group, int *spell_class, int *spell_nr);
+/* gui/spells.c */
+void widget_spells_render(widgetdata *widget);
+void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
+int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
+int spell_find_path_selected(const char *name, size_t *spell_id);
+spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
+void spells_init();
 void spells_reload();
+void SpelllistCmd(char *data);
 
 /* gui/target.c */
 void widget_event_target(widgetdata *widget, int x, int y);
@@ -432,7 +454,11 @@ void textwin_event(int e, SDL_Event *event, widgetdata *widget);
 void change_textwin_font(int font);
 
 /* toolkit/button.c */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow);
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags);
+void button_create(button_struct *button);
+void button_render(button_struct *button, const char *text);
+int button_event(button_struct *button, SDL_Event *event);
+void button_tooltip(button_struct *button, int font, const char *text);
 
 /* toolkit/list.c */
 list_struct *list_get_focused();
@@ -441,14 +467,18 @@ list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, 
 void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
 void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
 void list_set_font(list_struct *list, int font);
+void list_scrollbar_enable(list_struct *list);
 void list_show(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
 int lists_handle_keyboard(SDL_KeyboardEvent *event);
-void list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
+int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
 void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
+void list_sort(list_struct *list, int type);
+void list_clear_rows(list_struct *list);
+int list_set_selected(list_struct *list, const char *str, uint32 col);
 
 /* toolkit/popup.c */
 popup_struct *popup_create(int bitmap_id);
@@ -464,17 +494,41 @@ int range_buttons_show(int x, int y, int *val, int advance);
 /* toolkit/scroll_buttons.c */
 void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 
+/* toolkit/SDL_rotozoom.c */
+Uint32 _colorkey(SDL_Surface *src);
+int _shrinkSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
+int _shrinkSurfaceY(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
+int _zoomSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int flipx, int flipy, int smooth);
+int _zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst, int flipx, int flipy);
+void _transformSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int cx, int cy, int isin, int icos, int flipx, int flipy, int smooth);
+void transformSurfaceY(SDL_Surface *src, SDL_Surface *dst, int cx, int cy, int isin, int icos, int flipx, int flipy);
+SDL_Surface *rotateSurface90Degrees(SDL_Surface *src, int numClockwiseTurns);
+void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx, double zoomy, int *dstwidth, int *dstheight, double *canglezoom, double *sanglezoom);
+void rotozoomSurfaceSizeXY(int width, int height, double angle, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight);
+SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
+SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoomx, double zoomy, int smooth);
+void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
+SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
+
 /* toolkit/text.c */
 void text_init();
 void text_deinit();
+void text_offset_set(int x, int y);
+void text_offset_reset();
+void text_color_set(int r, int g, int b);
+char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
+int glyph_get_height(int font, char c);
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box);
 void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
 void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
 int string_get_width(int font, const char *text, uint64 flags);
 int string_get_height(int font, const char *text, uint64 flags);
+void string_truncate_overflow(int font, char *text, int max_width);
 void text_enable_debug();
 
 /* toolkit/text_input.c */
@@ -520,6 +574,7 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 void process_widgets();
 void process_widgets_rec(widgetdata *widget);
 void SetPriorityWidget(widgetdata *node);
+void SetPriorityWidget_reverse(widgetdata *node);
 void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
 widgetdata *get_outermost_container(widgetdata *widget);
 widgetdata *widget_find_by_surface(SDL_Surface *surface);

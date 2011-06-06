@@ -222,6 +222,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_FILE_SPELLS_V2);
 		}
+		else if (!strcmp(cmd, "skfv2"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SKILLS_V2);
+		}
 		else if (!strcmp(cmd, "stf"))
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_SETTINGS);
@@ -277,7 +281,6 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		}
 	}
 
-	/*LOG(llevInfo, "SendBack SetupCmd:: %s\n", cmdback);*/
 	Write_String_To_Socket(ns, BINARY_CMD_SETUP, cmdback, strlen(cmdback));
 }
 
@@ -308,6 +311,7 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
 		ns->addme = 1;
 		/* Reset idle counter */
 		ns->login_count = 0;
+		ns->keepalive = 0;
 		socket_info.nconns--;
 		ns->status = Ns_Avail;
 	}
@@ -383,7 +387,7 @@ void ReplyCmd(char *buf, int len, player *pl)
 	{
 		case ST_PLAYING:
 			pl->socket.status = Ns_Dead;
-			LOG(llevBug, "BUG: Got reply message with ST_PLAYING input state (player %s)\n", query_name(pl->ob, NULL));
+			LOG(llevBug, "Got reply message with ST_PLAYING input state (player %s)\n", query_name(pl->ob, NULL));
 			break;
 
 		case ST_GET_NAME:
@@ -397,7 +401,7 @@ void ReplyCmd(char *buf, int len, player *pl)
 
 		default:
 			pl->socket.status = Ns_Dead;
-			LOG(llevBug, "BUG: Unknown input state: %d\n", pl->state);
+			LOG(llevBug, "Unknown input state: %d\n", pl->state);
 			break;
 	}
 }
@@ -419,7 +423,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 	/* *only* allow this command between the first login and the "addme" command! */
 	if (ns->status != Ns_Add || !buf || !len)
 	{
-		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -428,7 +431,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 
 	if (id < 0 || id >= SRV_CLIENT_FILES)
 	{
-		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -436,9 +438,9 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 	switch (id)
 	{
 		case SRV_CLIENT_SKILLS:
+		case SRV_CLIENT_SKILLS_V2:
 			if (ns->rf_skills)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call skills \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -453,7 +455,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_FILE_SPELLS_V2:
 			if (ns->rf_spells)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call spells \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -468,7 +469,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_SERVER_SETTINGS:
 			if (ns->rf_settings)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call settings \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -482,7 +482,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_BMAPS:
 			if (ns->rf_bmaps)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call bmaps \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -497,7 +496,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_ANIMS_V2:
 			if (ns->rf_anims)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call anims \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -511,7 +509,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 		case SRV_CLIENT_HFILES:
 			if (ns->rf_hfiles)
 			{
-				LOG(llevInfo, "RF: received bad rf command - double call hfiles \n");
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -536,7 +533,6 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (!buf || !len || ns->version)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "INFO: VersionCmd(): Received corrupted version command\n");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -548,7 +544,7 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (!cp)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "INFO: VersionCmd(): Connection from false client (invalid name)\n");
+		LOG(llevDebug, "VersionCmd(): Connection from false client (invalid name)\n");
 		ns->status = Ns_Zombie;
 		return;
 	}
@@ -587,7 +583,6 @@ void MoveCmd(char *buf, int len, player *pl)
 
 	if (sscanf(buf, "%d %d %d", &vals[0], &vals[1], &vals[2]) != 3)
 	{
-		LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
 		return;
 	}
 
@@ -770,8 +765,10 @@ void esrv_update_stats(player *pl)
 	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM);
 	AddIfChar(pl->last_weapon_sp, pl->weapon_sp, CS_STAT_WEAP_SP);
 
-	if (pl->ob != NULL)
+	if (pl->ob)
 	{
+		object *arrow;
+
 		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP);
 		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP);
 		AddIfShort(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP);
@@ -800,6 +797,22 @@ void esrv_update_stats(player *pl)
 		AddIfShort(pl->last_stats.dam, pl->client_dam, CS_STAT_DAM);
 		AddIfShort(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD);
 		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
+
+		if (pl->socket.socket_version >= 1050)
+		{
+		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race, -1)))
+		{
+			AddIfShort(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM);
+			AddIfShort(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC);
+			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WS);
+		}
+		else
+		{
+			AddIfShort(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM);
+			AddIfShort(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC);
+			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS);
+		}
+		}
 	}
 
 	for (i = 0; i < pl->last_skill_index; i++)
@@ -976,7 +989,7 @@ void draw_client_map(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: draw_client_map(): Called with non-player: %s\n", pl->name);
+		LOG(llevBug, "draw_client_map(): Called with non-player: %s\n", pl->name);
 		return;
 	}
 
@@ -1270,7 +1283,7 @@ void draw_client_map2(object *pl)
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
-	int oldlen;
+	int oldlen, outdoor;
 	object *mirror = NULL;
 
 	/* Do we have dm_light? */
@@ -1366,7 +1379,7 @@ void draw_client_map2(object *pl)
 			{
 				if (!QUERY_FLAG(pl, FLAG_WIZ))
 				{
-					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
+					LOG(llevDebug, "draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
 				}
 
 				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
@@ -1400,8 +1413,10 @@ void draw_client_map2(object *pl)
 				}
 			}
 
+			outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
+
 			/* Calculate the darkness/light value for this tile. */
-			if ((MAP_OUTDOORS(m) && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!MAP_OUTDOORS(m) && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR))
+			if (((outdoor && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!outdoor && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0))
 			{
 				d = msp->light_value + wdark + dm_light;
 			}
@@ -1687,7 +1702,7 @@ void draw_client_map2(object *pl)
 
 					/* Draw the object twice if set, but only if it's not
 					 * in the bottom quadrant of the map. */
-					if (QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2))
+					if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS))
 					{
 						if (CONTR(pl)->socket.socket_version >= 1043)
 						{
@@ -1698,6 +1713,11 @@ void draw_client_map2(object *pl)
 					if (head->alpha)
 					{
 						flags2 |= MAP2_FLAG2_ALPHA;
+					}
+
+					if (head->rotate && CONTR(pl)->socket.socket_version >= 1049)
+					{
+						flags2 |= MAP2_FLAG2_ROTATE;
 					}
 
 					if (flags2)
@@ -1828,6 +1848,11 @@ void draw_client_map2(object *pl)
 						if (flags2 & MAP2_FLAG2_ALPHA)
 						{
 							SockList_AddChar(&sl_layer, head->alpha);
+						}
+
+						if (flags2 & MAP2_FLAG2_ROTATE)
+						{
+							SockList_AddShort(&sl_layer, head->rotate);
 						}
 					}
 				}
@@ -2066,7 +2091,7 @@ void SetSound(char *buf, int len, socket_struct *ns)
  * @param buf Data.
  * @param len Length of 'buf'.
  * @param pl Player. */
-void command_move_path(char *buf, int len, player *pl)
+void command_move_path(uint8 *buf, int len, player *pl)
 {
 	sint8 x, y;
 	mapstruct *m;
@@ -2133,4 +2158,131 @@ void command_move_path(char *buf, int len, player *pl)
 	/* The last x,y where we wanted to move is not included in the
 	 * above paths finding, so we have to add it manually. */
 	player_path_add(pl, m, xt, yt);
+}
+
+/**
+ * The ready command; client informs the server about new object to
+ * mark as ready.
+ * @param buf Data.
+ * @param len Length of the data.
+ * @param pl Player. */
+void cmd_ready(uint8 *buf, int len, player *pl)
+{
+	tag_t tag;
+	object *tmp;
+	int type;
+
+	if (!buf || len < 4)
+	{
+		return;
+	}
+
+	/* Get the ID of the object this is being done for. */
+	tag = GetInt_String(buf);
+
+	/* Search for the object in the player's inventory. */
+	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->count == tag)
+		{
+			/* Determine whether this object can be readied. */
+			type = cmd_ready_determine(tmp);
+
+			if (type == -1)
+			{
+				return;
+			}
+
+			/* If it's already readied, just unready it. */
+			if (QUERY_FLAG(tmp, FLAG_IS_READY))
+			{
+				CLEAR_FLAG(tmp, FLAG_IS_READY);
+				pl->ready_object[type] = NULL;
+				/* Inform the client about the change. */
+				cmd_ready_send(pl, -1, type);
+
+				new_draw_info_format(NDI_UNIQUE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
+			}
+			/* Otherwise ready it. */
+			else
+			{
+				/* Unready previously readied object of this type, if any. */
+				cmd_ready_clear(pl->ob, type);
+				SET_FLAG(tmp, FLAG_IS_READY);
+				pl->ready_object[type] = tmp;
+				/* Inform the client about the change. */
+				cmd_ready_send(pl, tag, type);
+
+				if (type == READY_OBJ_ARROW)
+				{
+					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
+				}
+				else if (type == READY_OBJ_THROW)
+				{
+					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
+				}
+			}
+
+			break;
+		}
+	}
+}
+
+/**
+ * The fire command used by client's range widget, and triggered by the
+ * player using ctrl + numpad.
+ * @param buf Data.
+ * @param len Length of the data.
+ * @param pl Player. */
+void command_fire(uint8 *buf, int len, player *pl)
+{
+	int dir, pos = 0;
+	uint8 type;
+
+	if (!buf || len < 2)
+	{
+		return;
+	}
+
+	/* Get the direction for firing and the fire mode (type). */
+	dir = buf[pos++];
+	dir = MAX(0, MIN(dir, 8));
+	type = buf[pos++];
+
+	/* For spell and skill firing, get the name of what to use. */
+	if (type == FIRE_MODE_SPELL || type == FIRE_MODE_SKILL)
+	{
+		if (len < 4)
+		{
+			return;
+		}
+
+		/* Store the name. */
+		strncpy(pl->firemode_name, (char *) buf + pos, sizeof(pl->firemode_name) - 1);
+		pl->firemode_name[sizeof(pl->firemode_name) - 1] = '\0';
+	}
+
+	/* Check that we can actually cast this spell... */
+	if (type == FIRE_MODE_SPELL && !fire_cast_spell(pl->ob, pl->firemode_name))
+	{
+		return;
+	}
+
+	pl->fire_on = 1;
+	pl->firemode_type = type;
+	move_player(pl->ob, dir);
+	pl->fire_on = 0;
+	pl->firemode_type = -1;
+}
+
+/**
+ * Client notifies the server that it is still alive.
+ * @param buf Data.
+ * @param len Length of data.
+ * @param ns The client's socket. */
+void cmd_keepalive(char *buf, int len, socket_struct *ns)
+{
+	(void) buf;
+	(void) len;
+	ns->keepalive = 0;
 }

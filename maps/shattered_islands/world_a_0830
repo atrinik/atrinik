@@ -2,14 +2,16 @@ arch map
 name Slime Tunnels
 msg
 Created:  2011-01-29 emperorbma
-Modified: 2011-01-30 Alex Tokar
+Modified: 2011-05-13 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 8
 darkness 1
 tile_path_1 world_a_0831
+tile_path_7 world_a_0729
 tile_path_8 world_a_0731
+bg_music sewers.ogg
 region asteria_sewers
 end
 arch earth_brown2

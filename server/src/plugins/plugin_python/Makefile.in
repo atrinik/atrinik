@@ -36,7 +36,8 @@ SRCS = \
 	atrinik_object.c \
 	atrinik_player.c \
 	atrinik_archetype.c \
-	atrinik_region.c
+	atrinik_region.c \
+	attr_list.c
 
 OBJECTS = $(SRCS:.c=.o)
 INCLUDE = -I./include -I../../include -I../../random_maps @PY_INCLUDES@

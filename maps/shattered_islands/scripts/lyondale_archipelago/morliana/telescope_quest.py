@@ -43,8 +43,6 @@ quest = {
 	],
 }
 
-qm = QuestManagerMulti(activator, quest)
-
 ## Handle Albar in Morliana research center.
 def npc_albar():
 	if not qm.completed():
@@ -149,7 +147,7 @@ def npc_silmedsen():
 			obj = activator.FindObject(name = "Silmedsen's potion bottle")
 
 			# Do we have the potion, and is it filled?
-			if obj.face[0] != "potion_empty.101":
+			if obj and obj.face[0] != "potion_empty.101":
 				activator.Write("You hand the bottle full of clean water to {}.".format(me.name), COLOR_YELLOW)
 				# Remove the potion.
 				obj.Remove()
@@ -194,6 +192,7 @@ def item_potion():
 if GetEventNumber() == EVENT_SAY:
 	msg = WhatIsMessage().strip().lower()
 	is_hello = msg in ("hi", "hey", "hello")
+	qm = QuestManagerMulti(activator, quest)
 
 	# Handle NPCs.
 	if me.name == "Albar":

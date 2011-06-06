@@ -49,7 +49,7 @@ void push_button(object *op)
 
 		if (!tmp || tmp->count != ol->id)
 		{
-			LOG(llevBug, "BUG: Internal error in push_button (%s).\n", op->name);
+			LOG(llevBug, "Internal error in push_button (%s).\n", op->name);
 			continue;
 		}
 
@@ -61,7 +61,7 @@ void push_button(object *op)
 		 * re-loaded.  As such, just exit this function if that is the case. */
 		if (!OBJECT_ACTIVE(tmp))
 		{
-			LOG(llevDebug, "DEBUG: push_button: button link with invalid object! (%x - %x)", QUERY_FLAG(tmp, FLAG_REMOVED), tmp->count);
+			LOG(llevDebug, "push_button: button link with invalid object! (%x - %x)", QUERY_FLAG(tmp, FLAG_REMOVED), tmp->count);
 			return;
 		}
 
@@ -98,7 +98,15 @@ void push_button(object *op)
 			case SIGN:
 				if (!tmp->stats.food || tmp->last_eat < tmp->stats.food)
 				{
-					new_info_map(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
+					if (tmp->title)
+					{
+						play_sound_map(tmp->map, CMD_SOUND_EFFECT, tmp->title, tmp->x, tmp->y, 0, 0);
+					}
+
+					if (tmp->msg)
+					{
+						new_info_map(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
+					}
 
 					if (tmp->stats.food)
 					{
@@ -142,11 +150,7 @@ void push_button(object *op)
 					/* next direction */
 					if (tmp->stats.maxsp)
 					{
-						if ((tmp->direction += tmp->stats.maxsp) > 8)
-						{
-							tmp->direction = (tmp->direction % 8) + 1;
-						}
-
+						tmp->direction = absdir(tmp->direction + tmp->stats.maxsp);
 						animate_turning(tmp);
 					}
 				}
@@ -157,11 +161,7 @@ void push_button(object *op)
 				/* next direction */
 				if (tmp->stats.maxsp)
 				{
-					if ((tmp->direction += tmp->stats.maxsp) > 8)
-					{
-						tmp->direction = (tmp->direction % 8) + 1;
-					}
-
+					tmp->direction = absdir(tmp->direction + tmp->stats.maxsp);
 					animate_turning(tmp);
 				}
 
@@ -299,7 +299,7 @@ void update_buttons(mapstruct *m)
 		{
 			if (!ol->objlink.ob || ol->objlink.ob->count != ol->id)
 			{
-				LOG(llevBug, "BUG: Internal error in update_button (%s (%dx%d):%d, connected %ld ).\n", ol->objlink.ob ? ol->objlink.ob->name : "null", ol->objlink.ob ? ol->objlink.ob->x:-1, ol->objlink.ob ? ol->objlink.ob->y:-1, ol->id, obp->value);
+				LOG(llevBug, "Internal error in update_button (%s (%dx%d):%d, connected %ld ).\n", ol->objlink.ob ? ol->objlink.ob->name : "null", ol->objlink.ob ? ol->objlink.ob->x:-1, ol->objlink.ob ? ol->objlink.ob->y:-1, ol->id, obp->value);
 				continue;
 			}
 
@@ -558,7 +558,7 @@ void add_button_link(object *button, mapstruct *map, int connected)
 
 	if (!map)
 	{
-		LOG(llevBug, "BUG: Tried to add button-link without map.\n");
+		LOG(llevBug, "Tried to add button-link without map.\n");
 		return;
 	}
 
@@ -597,13 +597,13 @@ void remove_button_link(object *op)
 
 	if (op->map == NULL)
 	{
-		LOG(llevBug, "BUG: remove_button_link(): Object without map.\n");
+		LOG(llevBug, "remove_button_link(): Object without map.\n");
 		return;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_IS_LINKED))
 	{
-		LOG(llevBug, "BUG: remove_button_link(): Unlinked object.\n");
+		LOG(llevBug, "remove_button_link(): Unlinked object.\n");
 		return;
 	}
 
@@ -620,7 +620,7 @@ void remove_button_link(object *op)
 		}
 	}
 
-	LOG(llevBug, "BUG: remove_button_link(): Couldn't find object.\n");
+	LOG(llevBug, "remove_button_link(): Couldn't find object.\n");
 	CLEAR_FLAG(op, FLAG_IS_LINKED);
 }
 
