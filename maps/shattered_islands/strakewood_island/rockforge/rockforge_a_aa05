@@ -451,6 +451,11 @@ arch floor_marble1
 x 4
 y 14
 end
+arch sign
+name library
+x 4
+y 14
+end
 arch floor_marble1b
 x 4
 y 15

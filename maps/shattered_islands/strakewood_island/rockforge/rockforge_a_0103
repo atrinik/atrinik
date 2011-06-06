@@ -1229,11 +1229,6 @@ arch floor_marble1b
 x 10
 y 23
 end
-arch lamp_wall
-direction 7
-x 10
-y 23
-end
 arch floor_marble1b
 x 11
 end
