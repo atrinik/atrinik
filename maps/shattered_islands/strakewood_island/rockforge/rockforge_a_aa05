@@ -1831,6 +1831,11 @@ arch floor_marble1a
 x 17
 y 11
 end
+arch lamp_wall
+direction 7
+x 17
+y 11
+end
 arch floor_marble1b
 x 17
 y 12
@@ -1847,6 +1852,11 @@ arch floor_marble1a
 x 17
 y 15
 end
+arch lamp_wall
+direction 7
+x 17
+y 15
+end
 arch floor_marble1
 x 17
 y 16
@@ -1860,6 +1870,11 @@ x 17
 y 18
 end
 arch floor_marble1a
+x 17
+y 19
+end
+arch lamp_wall
+direction 7
 x 17
 y 19
 end
@@ -2019,7 +2034,37 @@ arch floor_marble1b
 x 19
 y 9
 end
-arch floor_marble1a
+arch chair1_111
+x 19
+y 9
+end
+arch spawn_point
+x 19
+y 9
+arch dwarf_lord
+msg
+@match ^hi$|^hey$|^hello$
+Ahhhh, that ale really hit the spot!
+endmsg
+type 83
+name Vhor Demonbreaker
+level 50
+end
+end
+arch floor_marble1b
+x 19
+y 10
+end
+arch table_wood1.111
+direction 3
+x 19
+y 10
+end
+arch beer
+layer 5
+z 27
+zoom 85
+align 3
 x 19
 y 10
 end
@@ -2027,7 +2072,12 @@ arch floor_marble1
 x 19
 y 11
 end
-arch floor_marble1b
+arch chair1_111
+direction 5
+x 19
+y 11
+end
+arch floor_marble1
 x 19
 y 12
 end
@@ -2035,11 +2085,33 @@ arch floor_marble1
 x 19
 y 13
 end
-arch floor_marble1
+arch chair1_111
+x 19
+y 13
+end
+arch floor_marble1b
 x 19
 y 14
 end
-arch floor_marble1b
+arch table_wood1.111
+direction 3
+x 19
+y 14
+end
+arch cup_coffee
+layer 5
+zoom 80
+z 30
+align 4
+x 19
+y 14
+end
+arch floor_marble1a
+x 19
+y 15
+end
+arch chair1_111
+direction 5
 x 19
 y 15
 end
@@ -2051,13 +2123,60 @@ arch floor_marble1
 x 19
 y 17
 end
+arch chair1_111
+x 19
+y 17
+end
 arch floor_marble1a
+x 19
+y 18
+end
+arch table_wood1.111
+layer 3
+x 19
+y 18
+end
+arch booze2
+layer 4
+z 33
+zoom 75
+align 11
+x 19
+y 18
+end
+arch booze2
+layer 5
+z 34
+zoom 75
+align -2
 x 19
 y 18
 end
 arch floor_marble1
 x 19
 y 19
+end
+arch chair1_111
+direction 5
+x 19
+y 19
+end
+arch spawn_point
+x 19
+y 19
+arch dwarf_berserker
+msg
+@match ^hi$|^hey$|^hello$
+<yellow>*hic* *hic* *hic*</yellow>
+<a><b>Excuse</b> me?</a>
+@match ^excuse me\?$|excuse$
+<yellow>*HIC* *hic* *HIC* *HIC* *HIC*</yellow>
+endmsg
+type 83
+direction 1
+name Gomre Mountainkiller
+level 38
+end
 end
 arch floor_marble1
 x 19
@@ -2113,11 +2232,28 @@ arch floor_marble1
 x 20
 y 8
 end
+arch lamp_wall
+x 20
+y 8
+end
 arch floor_marble1b
 x 20
 y 9
 end
-arch floor_marble1a
+arch chair1_111
+x 20
+y 9
+end
+arch floor_marble1b
+x 20
+y 10
+end
+arch table_wood1.111
+direction 3
+x 20
+y 10
+end
+arch light5
 x 20
 y 10
 end
@@ -2125,7 +2261,12 @@ arch floor_marble1b
 x 20
 y 11
 end
-arch floor_marble1b
+arch chair1_111
+direction 5
+x 20
+y 11
+end
+arch floor_marble1
 x 20
 y 12
 end
@@ -2133,11 +2274,37 @@ arch floor_marble1
 x 20
 y 13
 end
-arch floor_marble1
+arch chair1_111
+x 20
+y 13
+end
+arch floor_marble1b
 x 20
 y 14
 end
-arch floor_marble1b
+arch table_wood1.111
+direction 3
+x 20
+y 14
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 20
+y 14
+end
+arch light5
+x 20
+y 14
+end
+arch floor_marble1a
+x 20
+y 15
+end
+arch chair1_111
+direction 5
 x 20
 y 15
 end
@@ -2149,11 +2316,28 @@ arch floor_marble1a
 x 20
 y 17
 end
+arch chair1_111
+x 20
+y 17
+end
 arch floor_marble1a
 x 20
 y 18
 end
+arch table_wood1.111
+x 20
+y 18
+end
+arch light5
+x 20
+y 18
+end
 arch floor_marble1b
+x 20
+y 19
+end
+arch chair1_111
+direction 5
 x 20
 y 19
 end
@@ -2215,7 +2399,24 @@ arch floor_marble1a
 x 21
 y 9
 end
-arch floor_marble1
+arch chair1_111
+x 21
+y 9
+end
+arch floor_marble1b
+x 21
+y 10
+end
+arch table_wood1.111
+direction 3
+x 21
+y 10
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
 x 21
 y 10
 end
@@ -2223,7 +2424,12 @@ arch floor_marble1a
 x 21
 y 11
 end
-arch floor_marble1b
+arch chair1_111
+direction 5
+x 21
+y 11
+end
+arch floor_marble1a
 x 21
 y 12
 end
@@ -2231,11 +2437,33 @@ arch floor_marble1
 x 21
 y 13
 end
-arch floor_marble1a
+arch chair1_111
+x 21
+y 13
+end
+arch floor_marble1
 x 21
 y 14
 end
-arch floor_marble1
+arch table_wood1.111
+direction 3
+x 21
+y 14
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 21
+y 14
+end
+arch floor_marble1a
+x 21
+y 15
+end
+arch chair1_111
+direction 5
 x 21
 y 15
 end
@@ -2247,11 +2475,49 @@ arch floor_marble1
 x 21
 y 17
 end
+arch chair1_111
+x 21
+y 17
+end
 arch floor_marble1a
 x 21
 y 18
 end
+arch table_wood1.111
+layer 3
+x 21
+y 18
+end
+arch bath_tub3
+name bowl
+z 23
+zoom 90
+align 8
+x 21
+y 18
+end
+arch food_fish
+layer 5
+zoom 65
+z 27
+align 13
+x 21
+y 18
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
+x 21
+y 18
+end
 arch floor_marble1
+x 21
+y 19
+end
+arch chair1_111
+direction 5
 x 21
 y 19
 end
@@ -2313,7 +2579,20 @@ arch floor_marble1
 x 22
 y 9
 end
-arch floor_marble1
+arch chair1_111
+x 22
+y 9
+end
+arch floor_marble1a
+x 22
+y 10
+end
+arch table_wood1.111
+direction 3
+x 22
+y 10
+end
+arch light5
 x 22
 y 10
 end
@@ -2321,7 +2600,12 @@ arch floor_marble1
 x 22
 y 11
 end
-arch floor_marble1a
+arch chair1_111
+direction 5
+x 22
+y 11
+end
+arch floor_marble1b
 x 22
 y 12
 end
@@ -2329,11 +2613,29 @@ arch floor_marble1a
 x 22
 y 13
 end
-arch floor_marble1
+arch chair1_111
+x 22
+y 13
+end
+arch floor_marble1b
+x 22
+y 14
+end
+arch table_wood1.111
+direction 3
+x 22
+y 14
+end
+arch light5
 x 22
 y 14
 end
 arch floor_marble1b
+x 22
+y 15
+end
+arch chair1_111
+direction 5
 x 22
 y 15
 end
@@ -2345,11 +2647,28 @@ arch floor_marble1a
 x 22
 y 17
 end
+arch chair1_111
+x 22
+y 17
+end
 arch floor_marble1
 x 22
 y 18
 end
+arch table_wood1.111
+x 22
+y 18
+end
+arch light5
+x 22
+y 18
+end
 arch floor_marble1
+x 22
+y 19
+end
+arch chair1_111
+direction 5
 x 22
 y 19
 end
@@ -2411,7 +2730,16 @@ arch floor_marble1a
 x 23
 y 9
 end
-arch floor_marble1b
+arch chair1_111
+x 23
+y 9
+end
+arch floor_marble1
+x 23
+y 10
+end
+arch table_wood1.111
+direction 3
 x 23
 y 10
 end
@@ -2419,7 +2747,12 @@ arch floor_marble1a
 x 23
 y 11
 end
-arch floor_marble1
+arch chair1_111
+direction 5
+x 23
+y 11
+end
+arch floor_marble1a
 x 23
 y 12
 end
@@ -2427,11 +2760,33 @@ arch floor_marble1
 x 23
 y 13
 end
-arch floor_marble1a
+arch chair1_111
+x 23
+y 13
+end
+arch floor_marble1
+x 23
+y 14
+end
+arch table_wood1.111
+direction 3
+x 23
+y 14
+end
+arch cup_empty
+zoom 50
+align 3
+z 37
+layer 7
 x 23
 y 14
 end
 arch floor_marble1
+x 23
+y 15
+end
+arch chair1_111
+direction 5
 x 23
 y 15
 end
@@ -2443,11 +2798,24 @@ arch floor_marble1b
 x 23
 y 17
 end
+arch chair1_111
+x 23
+y 17
+end
 arch floor_marble1
 x 23
 y 18
 end
+arch table_wood1.111
+x 23
+y 18
+end
 arch floor_marble1b
+x 23
+y 19
+end
+arch chair1_111
+direction 5
 x 23
 y 19
 end
