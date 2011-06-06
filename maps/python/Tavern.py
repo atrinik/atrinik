@@ -2,6 +2,7 @@
 ## API for handling taverns.
 
 from Atrinik import CostString, COLOR_YELLOW
+import json
 
 ## Handle bartenders.
 ##
@@ -18,9 +19,25 @@ from Atrinik import CostString, COLOR_YELLOW
 ## @param hello_msg_after Message to display after the list of provisions.
 ## @param num_max Maximum number of provisions a player can purchase at a
 ## time.
-def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = None, hello_msg_after = None, num_max = 100):
+## @param event_config Can be used to change the NPC's default messages.
+def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = None, hello_msg_after = None, num_max = 100, event_config = None):
+	config = {
+		"welcome_text": "\nWelcome to my tavern, dear customer! I am {}.",
+		"buy_text": "\nHere you go, {} {}, just as you ordered!\nPleasure doing business with you!",
+	}
+
+	if event.msg:
+		cp = config.copy()
+		cp.update(json.loads(event.msg))
+		config = cp
+
+	if event_config:
+		cp = config.copy()
+		cp.update(event_config)
+		config = cp
+
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to my tavern, dear customer! I am {}.".format(me.name))
+		me.SayTo(activator, config["welcome_text"].format(me.name))
 
 		if hello_msg:
 			me.SayTo(activator, hello_msg, True)
@@ -62,7 +79,7 @@ def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = 
 				# Pay the amount.
 				elif activator.PayAmount(obj.value * num):
 					activator.Write("You pay {} to {}.".format(CostString(obj.value * num), me.name), COLOR_YELLOW)
-					me.SayTo(activator, "\nHere you go, {} {}, just as you ordered!\nPleasure doing business with you!".format(num, obj.name))
+					me.SayTo(activator, config["buy_text"].format(num, obj.name))
 					# Clone the object.
 					clone = obj.Clone()
 					# Adjust the nrof.
