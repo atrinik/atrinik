@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -76,6 +76,9 @@ end
 arch floor_marble1b
 y 12
 end
+arch lamp_wall
+y 12
+end
 arch floor_marble1
 y 13
 end
@@ -141,27 +144,70 @@ arch floor_marble1a
 x 1
 y 5
 end
+arch lamp_wall
+direction 7
+x 1
+y 5
+end
 arch floor_marble1b
 x 1
 y 6
 end
-arch floor_marble1
+arch border_top_s1
+x 1
+y 6
+end
+arch water_still
 x 1
 y 7
 end
-arch floor_marble1b
+arch border_wall_nw1
+x 1
+y 7
+end
+arch water_still
 x 1
 y 8
 end
-arch floor_marble1b
+arch border_wall_w1
+x 1
+y 8
+end
+arch dwarf_wheel_2
+z -2
+align 5
+x 1
+y 8
+end
+arch light9
+x 1
+y 8
+end
+arch water_still
 x 1
 y 9
 end
-arch floor_marble1
+arch border_wall_w1
+x 1
+y 9
+end
+arch light9
+x 1
+y 9
+end
+arch water_still
+x 1
+y 10
+end
+arch border_wall_w1
 x 1
 y 10
 end
 arch floor_marble1
+x 1
+y 11
+end
+arch border_top_n1
 x 1
 y 11
 end
@@ -186,6 +232,11 @@ x 1
 y 16
 end
 arch floor_marble1
+x 1
+y 17
+end
+arch lamp_wall
+direction 7
 x 1
 y 17
 end
@@ -233,7 +284,15 @@ arch floor_marble1b
 x 2
 y 6
 end
+arch border_top_sw1
+x 2
+y 6
+end
 arch floor_marble1a
+x 2
+y 7
+end
+arch border_top_w1
 x 2
 y 7
 end
@@ -241,7 +300,15 @@ arch floor_marble1a
 x 2
 y 8
 end
+arch border_top_w1
+x 2
+y 8
+end
 arch floor_marble1a
+x 2
+y 9
+end
+arch border_top_w1
 x 2
 y 9
 end
@@ -249,7 +316,15 @@ arch floor_marble1b
 x 2
 y 10
 end
+arch border_top_w1
+x 2
+y 10
+end
 arch floor_marble1a
+x 2
+y 11
+end
+arch border_top_nw1
 x 2
 y 11
 end
@@ -273,7 +348,11 @@ arch floor_marble1
 x 2
 y 16
 end
-arch floor_marble1
+arch floor_marble1a
+x 2
+y 17
+end
+arch fence_metal.181
 x 2
 y 17
 end
@@ -281,7 +360,15 @@ arch floor_marble1
 x 2
 y 18
 end
+arch fence_metal.131
+x 2
+y 18
+end
 arch floor_marble1b
+x 2
+y 19
+end
+arch fence_metal.131
 x 2
 y 19
 end
@@ -309,15 +396,19 @@ arch floor_marble1
 x 3
 y 3
 end
-arch floor_marble1a
+arch lamp_wall
+x 3
+y 3
+end
+arch floor_marble1b
 x 3
 y 4
 end
-arch floor_marble1
+arch floor_marble1b
 x 3
 y 5
 end
-arch floor_marble1
+arch floor_marble1a
 x 3
 y 6
 end
@@ -325,7 +416,7 @@ arch floor_marble1a
 x 3
 y 7
 end
-arch floor_marble1b
+arch floor_marble1
 x 3
 y 8
 end
@@ -365,11 +456,37 @@ arch floor_marble1
 x 3
 y 17
 end
-arch floor_marble1a
+arch fence_metal.111
+x 3
+y 17
+end
+arch floor_marble1
 x 3
 y 18
 end
-arch floor_marble1
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 3
+y 18
+end
+arch hammer
+layer 5
+z 16
+align -6
+x 3
+y 18
+end
+arch light9
+x 3
+y 18
+end
+arch floor_marble1a
+x 3
+y 19
+end
+arch fence_metal.111
 x 3
 y 19
 end
@@ -401,11 +518,23 @@ arch floor_marble1a
 x 4
 y 4
 end
-arch floor_marble1a
+arch fence_metal.181
+x 4
+y 4
+end
+arch floor_marble1
 x 4
 y 5
 end
-arch floor_marble1a
+arch fence_metal.131
+x 4
+y 5
+end
+arch floor_marble1
+x 4
+y 6
+end
+arch fence_metal.131
 x 4
 y 6
 end
@@ -413,11 +542,23 @@ arch floor_marble1a
 x 4
 y 7
 end
+arch fence_metal.131
+x 4
+y 7
+end
 arch floor_marble1b
 x 4
 y 8
 end
-arch floor_marble1a
+arch fence_metal.131
+x 4
+y 8
+end
+arch floor_marble1b
+x 4
+y 9
+end
+arch fence_metal.131
 x 4
 y 9
 end
@@ -449,15 +590,23 @@ arch floor_marble1b
 x 4
 y 16
 end
-arch floor_marble1a
+arch floor_marble1b
 x 4
 y 17
 end
-arch floor_marble1
+arch fence_metal.111
+x 4
+y 17
+end
+arch floor_marble1a
 x 4
 y 18
 end
 arch floor_marble1a
+x 4
+y 19
+end
+arch fence_metal.111
 x 4
 y 19
 end
@@ -489,161 +638,268 @@ arch floor_marble1a
 x 5
 y 4
 end
+arch fence_metal.111
+x 5
+y 4
+end
 arch floor_marble1a
 x 5
 y 5
 end
+arch floor_marble1a
+x 5
+y 6
+end
+arch floor_marble1a
+x 5
+y 7
+end
 arch floor_marble1b
 x 5
+y 8
+end
+arch floor_marble1a
+x 5
+y 9
+end
+arch fence_metal.111
+x 5
+y 9
+end
+arch floor_marble1a
+x 5
+y 10
+end
+arch floor_marble1
+x 5
+y 11
+end
+arch floor_marble1
+x 5
+y 12
+end
+arch bar1
+direction 8
+x 5
+y 12
+end
+arch light9
+x 5
+y 12
+end
+arch floor_marble1
+x 5
+y 13
+end
+arch bar1
+direction 7
+x 5
+y 13
+end
+arch floor_marble1b
+x 5
+y 14
+end
+arch bar1
+direction 6
+x 5
+y 14
+end
+arch light9
+x 5
+y 14
+end
+arch floor_marble1b
+x 5
+y 15
+end
+arch floor_marble1b
+x 5
+y 16
+end
+arch floor_marble1
+x 5
+y 17
+end
+arch fence_metal.111
+x 5
+y 17
+end
+arch floor_marble1
+x 5
+y 18
+end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 5
+y 18
+end
+arch nug_mit_big
+z 27
+layer 5
+x 5
+y 18
+end
+arch light9
+x 5
+y 18
+end
+arch floor_marble1b
+x 5
+y 19
+end
+arch fence_metal.111
+x 5
+y 19
+end
+arch floor_marble1a
+x 5
+y 20
+end
+arch floor_marble1a
+x 5
+y 21
+end
+arch wall_marble1.131a
+x 5
+y 21
+end
+arch blocked
+x 6
+y 2
+end
+arch wall_marble1.131a
+x 6
+y 2
+end
+arch floor_marble1
+x 6
+y 3
+end
+arch floor_marble1a
+x 6
+y 4
+end
+arch fence_metal.111
+x 6
+y 4
+end
+arch floor_marble1a
+x 6
+y 5
+end
+arch floor_marble1b
+x 6
 y 6
 end
 arch dwarven_machine
-x 5
+x 6
 y 6
 end
 arch dwarven_teleporter
 z 80
 align -8
-x 5
+x 6
+y 6
+end
+arch light9
+x 6
 y 6
 end
 arch floor_marble1
-x 5
+x 6
+y 7
+end
+arch light9
+x 6
 y 7
 end
 arch floor_marble1
-x 5
+x 6
+y 8
+end
+arch light9
+x 6
 y 8
 end
 arch floor_marble1b
-x 5
+x 6
 y 9
 end
-arch floor_marble1a
-x 5
+arch fence_metal.111
+x 6
+y 9
+end
+arch floor_marble1
+x 6
 y 10
 end
 arch floor_marble1
-x 5
+x 6
 y 11
 end
-arch floor_marble1
-x 5
+arch floor_marble1b
+x 6
 y 12
 end
-arch floor_marble1
-x 5
+arch bar1
+direction 5
+x 6
+y 12
+end
+arch floor_marble1b
+x 6
 y 13
 end
+arch chair3
+direction 3
+x 6
+y 13
+end
+arch spawn_point
+x 6
+y 13
+arch dwarf_runemaster
+type 83
+name Nodih Blackbreaker
+level 37
+end
+end
 arch floor_marble1b
-x 5
+x 6
 y 14
 end
-arch floor_marble1b
-x 5
+arch bar1
+x 6
+y 14
+end
+arch floor_marble1a
+x 6
 y 15
 end
-arch floor_marble1b
-x 5
+arch floor_marble1a
+x 6
 y 16
 end
-arch floor_marble1
-x 5
+arch floor_marble1a
+x 6
+y 17
+end
+arch fence_metal.111
+x 6
 y 17
 end
 arch floor_marble1
-x 5
+x 6
 y 18
 end
 arch floor_marble1b
-x 5
+x 6
 y 19
 end
-arch floor_marble1a
-x 5
-y 20
-end
-arch floor_marble1a
-x 5
-y 21
-end
-arch wall_marble1.131a
-x 5
-y 21
-end
-arch blocked
-x 6
-y 2
-end
-arch wall_marble1.131a
-x 6
-y 2
-end
-arch floor_marble1
-x 6
-y 3
-end
-arch floor_marble1
-x 6
-y 4
-end
-arch floor_marble1b
-x 6
-y 5
-end
-arch floor_marble1a
-x 6
-y 6
-end
-arch floor_marble1b
-x 6
-y 7
-end
-arch floor_marble1
-x 6
-y 8
-end
-arch floor_marble1a
-x 6
-y 9
-end
-arch floor_marble1
-x 6
-y 10
-end
-arch floor_marble1
-x 6
-y 11
-end
-arch floor_marble1b
-x 6
-y 12
-end
-arch floor_marble1b
-x 6
-y 13
-end
-arch floor_marble1b
-x 6
-y 14
-end
-arch floor_marble1a
-x 6
-y 15
-end
-arch floor_marble1a
-x 6
-y 16
-end
-arch floor_marble1a
-x 6
-y 17
-end
-arch floor_marble1a
-x 6
-y 18
-end
-arch floor_marble1
+arch fence_metal.111
 x 6
 y 19
 end
@@ -671,7 +927,15 @@ arch floor_marble1
 x 7
 y 3
 end
+arch lamp_wall
+x 7
+y 3
+end
 arch floor_marble1
+x 7
+y 4
+end
+arch fence_metal.111
 x 7
 y 4
 end
@@ -679,19 +943,35 @@ arch floor_marble1b
 x 7
 y 5
 end
-arch floor_marble1
+arch floor_marble1a
 x 7
 y 6
 end
-arch floor_marble1a
+arch light9
+x 7
+y 6
+end
+arch floor_marble1b
 x 7
 y 7
 end
-arch floor_marble1a
+arch light9
+x 7
+y 7
+end
+arch floor_marble1
 x 7
 y 8
 end
-arch floor_marble1
+arch light9
+x 7
+y 8
+end
+arch floor_marble1a
+x 7
+y 9
+end
+arch fence_metal.111
 x 7
 y 9
 end
@@ -707,11 +987,24 @@ arch floor_marble1a
 x 7
 y 12
 end
+arch bar1
+direction 5
+x 7
+y 12
+end
 arch floor_marble1b
 x 7
 y 13
 end
+arch light9
+x 7
+y 13
+end
 arch floor_marble1b
+x 7
+y 14
+end
+arch bar1
 x 7
 y 14
 end
@@ -723,15 +1016,42 @@ arch floor_marble1a
 x 7
 y 16
 end
-arch floor_marble1a
+arch floor_marble1
 x 7
 y 17
 end
-arch floor_marble1b
+arch fence_metal.111
+x 7
+y 17
+end
+arch floor_marble1
 x 7
 y 18
 end
-arch floor_marble1b
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 7
+y 18
+end
+arch smoking_pipe
+rotate -50
+layer 5
+z 31
+align -2
+x 7
+y 18
+end
+arch light9
+x 7
+y 18
+end
+arch floor_marble1a
+x 7
+y 19
+end
+arch fence_metal.111
 x 7
 y 19
 end
@@ -759,15 +1079,23 @@ arch floor_marble1
 x 8
 y 3
 end
-arch floor_marble1a
+arch floor_marble1
 x 8
 y 4
 end
-arch floor_marble1
+arch fence_metal.111
+x 8
+y 4
+end
+arch floor_marble1b
 x 8
 y 5
 end
-arch floor_marble1b
+arch floor_marble1
+x 8
+y 6
+end
+arch light9
 x 8
 y 6
 end
@@ -775,11 +1103,23 @@ arch floor_marble1a
 x 8
 y 7
 end
-arch floor_marble1
+arch light9
+x 8
+y 7
+end
+arch floor_marble1a
 x 8
 y 8
 end
-arch floor_marble1a
+arch light9
+x 8
+y 8
+end
+arch floor_marble1
+x 8
+y 9
+end
+arch fence_metal.111
 x 8
 y 9
 end
@@ -795,11 +1135,31 @@ arch floor_marble1
 x 8
 y 12
 end
+arch bar1
+direction 5
+x 8
+y 12
+end
 arch floor_marble1a
 x 8
 y 13
 end
 arch floor_marble1b
+x 8
+y 14
+end
+arch door_bar1
+direction 5
+slaying rockforge_museum
+x 8
+y 14
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying rockforge_museum
+sp 1
+last_grace 1
 x 8
 y 14
 end
@@ -811,7 +1171,11 @@ arch floor_marble1
 x 8
 y 16
 end
-arch floor_marble1a
+arch floor_marble1b
+x 8
+y 17
+end
+arch fence_metal.111
 x 8
 y 17
 end
@@ -819,7 +1183,11 @@ arch floor_marble1a
 x 8
 y 18
 end
-arch floor_marble1b
+arch floor_marble1a
+x 8
+y 19
+end
+arch fence_metal.111
 x 8
 y 19
 end
@@ -847,15 +1215,27 @@ arch floor_marble1a
 x 9
 y 3
 end
-arch floor_marble1
+arch floor_marble1a
 x 9
 y 4
 end
-arch floor_marble1b
+arch fence_metal.111
+x 9
+y 4
+end
+arch floor_marble1
 x 9
 y 5
 end
-arch floor_marble1
+arch fence_metal.131
+x 9
+y 5
+end
+arch floor_marble1b
+x 9
+y 6
+end
+arch fence_metal.131
 x 9
 y 6
 end
@@ -863,11 +1243,23 @@ arch floor_marble1a
 x 9
 y 7
 end
-arch floor_marble1b
+arch fence_metal.131
+x 9
+y 7
+end
+arch floor_marble1
+x 9
+y 8
+end
+arch fence_metal.131
 x 9
 y 8
 end
 arch floor_marble1a
+x 9
+y 9
+end
+arch fence_metal.141
 x 9
 y 9
 end
@@ -883,11 +1275,34 @@ arch floor_marble1a
 x 9
 y 12
 end
+arch bar1
+direction 2
+x 9
+y 12
+end
+arch light9
+x 9
+y 12
+end
 arch floor_marble1b
 x 9
 y 13
 end
+arch bar1
+direction 3
+x 9
+y 13
+end
 arch floor_marble1
+x 9
+y 14
+end
+arch bar1
+direction 4
+x 9
+y 14
+end
+arch light9
 x 9
 y 14
 end
@@ -899,7 +1314,11 @@ arch floor_marble1
 x 9
 y 16
 end
-arch floor_marble1
+arch floor_marble1b
+x 9
+y 17
+end
+arch fence_metal.111
 x 9
 y 17
 end
@@ -907,7 +1326,29 @@ arch floor_marble1
 x 9
 y 18
 end
-arch floor_marble1
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 9
+y 18
+end
+arch fix_mercury
+layer 5
+z 27
+align 2
+x 9
+y 18
+end
+arch light9
+x 9
+y 18
+end
+arch floor_marble1a
+x 9
+y 19
+end
+arch fence_metal.111
 x 9
 y 19
 end
@@ -991,11 +1432,19 @@ arch floor_marble1b
 x 10
 y 17
 end
+arch fence_metal.111
+x 10
+y 17
+end
 arch floor_marble1a
 x 10
 y 18
 end
-arch floor_marble1b
+arch floor_marble1a
+x 10
+y 19
+end
+arch fence_metal.111
 x 10
 y 19
 end
@@ -1023,7 +1472,15 @@ arch floor_marble1a
 x 11
 y 3
 end
+arch lamp_wall
+x 11
+y 3
+end
 arch floor_marble1a
+x 11
+y 4
+end
+arch fence_metal.181
 x 11
 y 4
 end
@@ -1031,7 +1488,15 @@ arch floor_marble1
 x 11
 y 5
 end
+arch fence_metal.131
+x 11
+y 5
+end
 arch floor_marble1b
+x 11
+y 6
+end
+arch fence_metal.131
 x 11
 y 6
 end
@@ -1075,15 +1540,40 @@ arch floor_marble1
 x 11
 y 16
 end
-arch floor_marble1a
+arch floor_marble1
 x 11
 y 17
 end
-arch floor_marble1b
+arch fence_metal.111
+x 11
+y 17
+end
+arch floor_marble1
 x 11
 y 18
 end
-arch floor_marble1b
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 11
+y 18
+end
+arch true_lead
+layer 5
+z 25
+x 11
+y 18
+end
+arch light9
+x 11
+y 18
+end
+arch floor_marble1a
+x 11
+y 19
+end
+arch fence_metal.111
 x 11
 y 19
 end
@@ -1115,11 +1605,37 @@ arch floor_marble1
 x 12
 y 4
 end
+arch fence_metal.111
+x 12
+y 4
+end
 arch floor_marble1
 x 12
 y 5
 end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 12
+y 5
+end
+arch clock
+z 23
+align -2
+layer 5
+x 12
+y 5
+end
+arch light9
+x 12
+y 5
+end
 arch floor_marble1a
+x 12
+y 6
+end
+arch fence_metal.111
 x 12
 y 6
 end
@@ -1131,7 +1647,15 @@ arch floor_marble1b
 x 12
 y 8
 end
+arch fence_metal.181
+x 12
+y 8
+end
 arch floor_marble1a
+x 12
+y 9
+end
+arch fence_metal.131
 x 12
 y 9
 end
@@ -1139,7 +1663,15 @@ arch floor_marble1
 x 12
 y 10
 end
+arch fence_metal.131
+x 12
+y 10
+end
 arch floor_marble1a
+x 12
+y 11
+end
+arch fence_metal.131
 x 12
 y 11
 end
@@ -1163,7 +1695,11 @@ arch floor_marble1
 x 12
 y 16
 end
-arch floor_marble1a
+arch floor_marble1b
+x 12
+y 17
+end
+arch fence_metal.111
 x 12
 y 17
 end
@@ -1171,7 +1707,11 @@ arch floor_marble1a
 x 12
 y 18
 end
-arch floor_marble1
+arch floor_marble1a
+x 12
+y 19
+end
+arch fence_metal.111
 x 12
 y 19
 end
@@ -1203,11 +1743,19 @@ arch floor_marble1b
 x 13
 y 4
 end
+arch fence_metal.111
+x 13
+y 4
+end
 arch floor_marble1a
 x 13
 y 5
 end
 arch floor_marble1a
+x 13
+y 6
+end
+arch fence_metal.111
 x 13
 y 6
 end
@@ -1219,6 +1767,10 @@ arch floor_marble1b
 x 13
 y 8
 end
+arch fence_metal.111
+x 13
+y 8
+end
 arch floor_marble1
 x 13
 y 9
@@ -1227,7 +1779,28 @@ arch floor_marble1a
 x 13
 y 10
 end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 13
+y 10
+end
+arch tipper
+z 25
+layer 5
+x 13
+y 10
+end
+arch light9
+x 13
+y 10
+end
 arch floor_marble1
+x 13
+y 11
+end
+arch fence_metal.111
 x 13
 y 11
 end
@@ -1251,15 +1824,40 @@ arch floor_marble1a
 x 13
 y 16
 end
-arch floor_marble1a
+arch floor_marble1
 x 13
 y 17
 end
-arch floor_marble1b
+arch fence_metal.111
+x 13
+y 17
+end
+arch floor_marble1
+x 13
+y 18
+end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 13
+y 18
+end
+arch uf6
+z 26
+layer 5
+x 13
+y 18
+end
+arch light9
 x 13
 y 18
 end
 arch floor_marble1a
+x 13
+y 19
+end
+arch fence_metal.111
 x 13
 y 19
 end
@@ -1291,11 +1889,36 @@ arch floor_marble1
 x 14
 y 4
 end
-arch floor_marble1b
+arch fence_metal.111
+x 14
+y 4
+end
+arch floor_marble1
+x 14
+y 5
+end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 14
+y 5
+end
+arch compass
+z 25
+layer 5
+x 14
+y 5
+end
+arch light9
 x 14
 y 5
 end
 arch floor_marble1b
+x 14
+y 6
+end
+arch fence_metal.111
 x 14
 y 6
 end
@@ -1304,6 +1927,10 @@ x 14
 y 7
 end
 arch floor_marble1a
+x 14
+y 8
+end
+arch fence_metal.111
 x 14
 y 8
 end
@@ -1316,6 +1943,10 @@ x 14
 y 10
 end
 arch floor_marble1a
+x 14
+y 11
+end
+arch fence_metal.111
 x 14
 y 11
 end
@@ -1339,7 +1970,11 @@ arch floor_marble1b
 x 14
 y 16
 end
-arch floor_marble1
+arch floor_marble1a
+x 14
+y 17
+end
+arch fence_metal.111
 x 14
 y 17
 end
@@ -1347,7 +1982,11 @@ arch floor_marble1b
 x 14
 y 18
 end
-arch floor_marble1
+arch floor_marble1b
+x 14
+y 19
+end
+arch fence_metal.111
 x 14
 y 19
 end
@@ -1375,15 +2014,27 @@ arch floor_marble1
 x 15
 y 3
 end
-arch floor_marble1
+arch lamp_wall
+x 15
+y 3
+end
+arch floor_marble1a
 x 15
 y 4
 end
-arch floor_marble1b
+arch fence_metal.111
+x 15
+y 4
+end
+arch floor_marble1
 x 15
 y 5
 end
 arch floor_marble1b
+x 15
+y 6
+end
+arch fence_metal.111
 x 15
 y 6
 end
@@ -1395,6 +2046,10 @@ arch floor_marble1a
 x 15
 y 8
 end
+arch fence_metal.111
+x 15
+y 8
+end
 arch floor_marble1b
 x 15
 y 9
@@ -1403,7 +2058,28 @@ arch floor_marble1a
 x 15
 y 10
 end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 15
+y 10
+end
+arch anvil_big_111
+z 25
+layer 5
+x 15
+y 10
+end
+arch light9
+x 15
+y 10
+end
 arch floor_marble1a
+x 15
+y 11
+end
+arch fence_metal.111
 x 15
 y 11
 end
@@ -1427,15 +2103,42 @@ arch floor_marble1
 x 15
 y 16
 end
-arch floor_marble1a
+arch floor_marble1
 x 15
 y 17
 end
-arch floor_marble1b
+arch fence_metal.111
+x 15
+y 17
+end
+arch floor_marble1
 x 15
 y 18
 end
-arch floor_marble1
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 15
+y 18
+end
+arch mithril_lamp
+layer 5
+face lamp_mithril_lit.101
+z 21
+glow_radius 5
+x 15
+y 18
+end
+arch light9
+x 15
+y 18
+end
+arch floor_marble1b
+x 15
+y 19
+end
+arch fence_metal.111
 x 15
 y 19
 end
@@ -1463,15 +2166,40 @@ arch floor_marble1
 x 16
 y 3
 end
-arch floor_marble1b
+arch floor_marble1
 x 16
 y 4
 end
-arch floor_marble1a
+arch fence_metal.111
+x 16
+y 4
+end
+arch floor_marble1
+x 16
+y 5
+end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 16
+y 5
+end
+arch box_tinder
+z 25
+layer 5
+x 16
+y 5
+end
+arch light9
 x 16
 y 5
 end
 arch floor_marble1a
+x 16
+y 6
+end
+arch fence_metal.111
 x 16
 y 6
 end
@@ -1480,6 +2208,10 @@ x 16
 y 7
 end
 arch floor_marble1b
+x 16
+y 8
+end
+arch fence_metal.111
 x 16
 y 8
 end
@@ -1492,6 +2224,10 @@ x 16
 y 10
 end
 arch floor_marble1b
+x 16
+y 11
+end
+arch fence_metal.111
 x 16
 y 11
 end
@@ -1519,11 +2255,19 @@ arch floor_marble1b
 x 16
 y 17
 end
+arch fence_metal.111
+x 16
+y 17
+end
 arch floor_marble1b
 x 16
 y 18
 end
-arch floor_marble1
+arch floor_marble1a
+x 16
+y 19
+end
+arch fence_metal.111
 x 16
 y 19
 end
@@ -1551,15 +2295,23 @@ arch floor_marble1
 x 17
 y 3
 end
-arch floor_marble1
+arch floor_marble1b
 x 17
 y 4
 end
-arch floor_marble1
+arch fence_metal.111
+x 17
+y 4
+end
+arch floor_marble1a
 x 17
 y 5
 end
-arch floor_marble1
+arch floor_marble1a
+x 17
+y 6
+end
+arch fence_metal.111
 x 17
 y 6
 end
@@ -1571,7 +2323,27 @@ arch floor_marble1
 x 17
 y 8
 end
+arch fence_metal.111
+x 17
+y 8
+end
 arch floor_marble1b
+x 17
+y 9
+end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 17
+y 9
+end
+arch cannon
+z 23
+x 17
+y 9
+end
+arch light9
 x 17
 y 9
 end
@@ -1579,7 +2351,22 @@ arch floor_marble1
 x 17
 y 10
 end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 17
+y 10
+end
+arch light9
+x 17
+y 10
+end
 arch floor_marble1a
+x 17
+y 11
+end
+arch fence_metal.111
 x 17
 y 11
 end
@@ -1603,15 +2390,40 @@ arch floor_marble1
 x 17
 y 16
 end
-arch floor_marble1
+arch floor_marble1b
 x 17
 y 17
 end
-arch floor_marble1b
+arch fence_metal.111
+x 17
+y 17
+end
+arch floor_marble1
 x 17
 y 18
 end
-arch floor_marble1
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 17
+y 18
+end
+arch flint_steel
+z 27
+layer 5
+x 17
+y 18
+end
+arch light9
+x 17
+y 18
+end
+arch floor_marble1a
+x 17
+y 19
+end
+arch fence_metal.111
 x 17
 y 19
 end
@@ -1643,11 +2455,36 @@ arch floor_marble1b
 x 18
 y 4
 end
+arch fence_metal.111
+x 18
+y 4
+end
 arch floor_marble1
 x 18
 y 5
 end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 18
+y 5
+end
+arch weight_10k
+z 27
+layer 5
+x 18
+y 5
+end
+arch light9
+x 18
+y 5
+end
 arch floor_marble1a
+x 18
+y 6
+end
+arch fence_metal.111
 x 18
 y 6
 end
@@ -1659,7 +2496,22 @@ arch floor_marble1a
 x 18
 y 8
 end
+arch fence_metal.111
+x 18
+y 8
+end
 arch floor_marble1
+x 18
+y 9
+end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 18
+y 9
+end
+arch light9
 x 18
 y 9
 end
@@ -1667,7 +2519,22 @@ arch floor_marble1
 x 18
 y 10
 end
+arch fwall_marble2a
+layer 4
+blocksview 0
+draw_double 0
+x 18
+y 10
+end
+arch light9
+x 18
+y 10
+end
 arch floor_marble1
+x 18
+y 11
+end
+arch fence_metal.111
 x 18
 y 11
 end
@@ -1691,15 +2558,27 @@ arch floor_marble1
 x 18
 y 16
 end
-arch floor_marble1a
+arch floor_marble1b
 x 18
 y 17
 end
-arch floor_marble1a
+arch fence_metal.111
+x 18
+y 17
+end
+arch floor_marble1
+x 18
+y 18
+end
+arch fence_metal.131
 x 18
 y 18
 end
 arch floor_marble1a
+x 18
+y 19
+end
+arch fence_metal.141
 x 18
 y 19
 end
@@ -1727,7 +2606,15 @@ arch floor_marble1b
 x 19
 y 3
 end
+arch lamp_wall
+x 19
+y 3
+end
 arch floor_marble1b
+x 19
+y 4
+end
+arch fence_metal.111
 x 19
 y 4
 end
@@ -1735,7 +2622,15 @@ arch floor_marble1
 x 19
 y 5
 end
+arch fence_metal.131
+x 19
+y 5
+end
 arch floor_marble1a
+x 19
+y 6
+end
+arch fence_metal.141
 x 19
 y 6
 end
@@ -1747,7 +2642,15 @@ arch floor_marble1b
 x 19
 y 8
 end
+arch fence_metal.111
+x 19
+y 8
+end
 arch floor_marble1
+x 19
+y 9
+end
+arch fence_metal.131
 x 19
 y 9
 end
@@ -1755,7 +2658,15 @@ arch floor_marble1a
 x 19
 y 10
 end
+arch fence_metal.131
+x 19
+y 10
+end
 arch floor_marble1
+x 19
+y 11
+end
+arch fence_metal.141
 x 19
 y 11
 end
@@ -1779,7 +2690,7 @@ arch floor_marble1
 x 19
 y 16
 end
-arch floor_marble1b
+arch floor_marble1
 x 19
 y 17
 end
