@@ -198,6 +198,12 @@ void text_offset_reset()
 	text_offset_mx = text_offset_my = -1;
 }
 
+/**
+ * Set color to use for links. Will be reset to default color after the
+ * next call to string rendering is done.
+ * @param r Red.
+ * @param g Green.
+ * @param b Blue. */
 void text_color_set(int r, int g, int b)
 {
 	text_link_color.r = r;
