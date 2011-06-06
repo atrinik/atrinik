@@ -134,6 +134,7 @@ void draw_info(const char *str, int flags)
 	textwin->entries[textwin->entries_size + len + 1] = '\0';
 	textwin->entries_size += len + 1;
 
+	box.y = 0;
 	/* Get the string's height. */
 	string_blt(NULL, textwin->font, str, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font) + 1;
