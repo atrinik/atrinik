@@ -518,6 +518,7 @@ void text_deinit();
 void text_offset_set(int x, int y);
 void text_offset_reset();
 void text_color_set(int r, int g, int b);
+char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
 int glyph_get_height(int font, char c);

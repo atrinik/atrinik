@@ -263,6 +263,81 @@ static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_
 }
 
 /**
+ * Remove all markup tags, including their contents.
+ *
+ * Entities will also be replaced with their proper replacements.
+ * @param buf Buffer containing the text with markup, from which to
+ * remove tags.
+ * @param[out] len Length of 'buf'. This will contain the length of the
+ * new string, without markup tags. Can be NULL, in which case length of
+ * the original string will be calculated automatically.
+ * @param do_free If 1, will automatically free 'buf'.
+ * @return Newly allocated string with markup removed, and entities
+ * replaced. */
+char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
+{
+	char *cp;
+	size_t pos = 0, cp_pos = 0, len;
+	uint8 in_tag = 0;
+
+	if (buf_len)
+	{
+		len = *buf_len;
+	}
+	else
+	{
+		len = strlen(buf);
+	}
+
+	cp = malloc(sizeof(char) * (len + 1));
+
+	while (pos < len)
+	{
+		if (buf[pos] == '<')
+		{
+			in_tag = 1;
+		}
+		else if (buf[pos] == '>')
+		{
+			in_tag = 0;
+		}
+		else if (!in_tag)
+		{
+			if (!strncmp(buf + pos, "&lt;", 4))
+			{
+				cp[cp_pos++] = '<';
+				pos += 3;
+			}
+			else if (!strncmp(buf + pos, "&gt;", 4))
+			{
+				cp[cp_pos++] = '>';
+				pos += 3;
+			}
+			else
+			{
+				cp[cp_pos++] = buf[pos];
+			}
+		}
+
+		pos++;
+	}
+
+	cp[cp_pos] = '\0';
+
+	if (do_free)
+	{
+		free(buf);
+	}
+
+	if (buf_len)
+	{
+		*buf_len = strlen(cp);
+	}
+
+	return cp;
+}
+
+/**
  * Draw one character on the screen or parse markup (if applicable).
  * @param[out] font Font to use. One of @ref FONT_xxx.
  * @param orig_font Original font, used for the font tag.
@@ -989,6 +1064,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 				/* Default to executing player commands such as /say. */
 				if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
 				{
+					buf = text_strip_markup(buf, &len, 1);
+
 					/* It's not a command, so prepend "/say " to it. */
 					if (buf[0] != '/')
 					{
