@@ -1233,9 +1233,23 @@ blocksview 0
 x 8
 end
 arch wall_marble1.131
+layer 4
+x 8
+end
+arch plant2_wall.151
+layer 5
+x 8
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 8
 end
 arch earth_brown3
+x 8
+y 1
+end
+arch grass_thickm4
 x 8
 y 1
 end
@@ -1371,10 +1385,24 @@ arch blocked
 blocksview 0
 x 9
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 9
+end
+arch plant2_wall.151
+layer 5
+x 9
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 9
 end
 arch earth_brown3
+x 9
+y 1
+end
+arch grass_thickm4
 x 9
 y 1
 end
@@ -1490,10 +1518,24 @@ arch blocked
 blocksview 0
 x 10
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 10
+end
+arch plant2_wall.151
+layer 5
+x 10
+end
+arch plant2_wall.151
+z 6
+rotate 180
 x 10
 end
 arch earth_brown1
+x 10
+y 1
+end
+arch grass_thickm4
 x 10
 y 1
 end
@@ -1641,10 +1683,24 @@ arch blocked
 blocksview 0
 x 11
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 11
+end
+arch plant2_wall.151
+layer 5
+x 11
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 11
 end
 arch earth_brown4
+x 11
+y 1
+end
+arch grass_thickm4
 x 11
 y 1
 end
@@ -1822,10 +1878,24 @@ arch blocked
 blocksview 0
 x 12
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 12
+end
+arch plant2_wall.151
+layer 5
+x 12
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 12
 end
 arch earth_brown2
+x 12
+y 1
+end
+arch grass_thickm4
 x 12
 y 1
 end
@@ -1958,9 +2028,23 @@ blocksview 0
 x 13
 end
 arch wall_marble1.131
+layer 4
+x 13
+end
+arch plant2_wall.151
+layer 5
+x 13
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 13
 end
 arch earth_brown2
+x 13
+y 1
+end
+arch grass_thickm4
 x 13
 y 1
 end
@@ -2114,9 +2198,23 @@ blocksview 0
 x 14
 end
 arch wall_marble1.131
+layer 4
+x 14
+end
+arch plant2_wall.151
+layer 5
+x 14
+end
+arch plant2_wall.151
+z 6
+rotate 180
 x 14
 end
 arch earth_brown3
+x 14
+y 1
+end
+arch grass_thickm4
 x 14
 y 1
 end
@@ -2256,10 +2354,24 @@ arch blocked
 blocksview 0
 x 15
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 15
+end
+arch plant2_wall.151
+layer 5
+x 15
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 15
 end
 arch earth_brown2
+x 15
+y 1
+end
+arch grass_thickm4
 x 15
 y 1
 end
@@ -2412,9 +2524,23 @@ blocksview 0
 x 16
 end
 arch wall_marble1.131
+layer 4
+x 16
+end
+arch plant2_wall.151
+layer 5
+x 16
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 16
 end
 arch earth_brown4
+x 16
+y 1
+end
+arch grass_thickm4
 x 16
 y 1
 end
@@ -2539,9 +2665,23 @@ blocksview 0
 x 17
 end
 arch wall_marble1.131
+layer 4
+x 17
+end
+arch plant2_wall.151
+layer 5
+x 17
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 17
 end
 arch earth_brown3
+x 17
+y 1
+end
+arch grass_thickm4
 x 17
 y 1
 end
@@ -2681,7 +2821,17 @@ arch blocked
 blocksview 0
 x 18
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 18
+end
+arch plant2_wall.151
+layer 5
+x 18
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 18
 end
 arch earth_brown4
@@ -2828,7 +2978,17 @@ arch blocked
 blocksview 0
 x 19
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 19
+end
+arch plant2_wall.151
+layer 5
+x 19
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 19
 end
 arch earth_brown1
@@ -2988,6 +3148,16 @@ blocksview 0
 x 20
 end
 arch wall_marble1.131
+layer 4
+x 20
+end
+arch plant2_wall.151
+layer 5
+x 20
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 20
 end
 arch earth_brown4
@@ -3150,7 +3320,17 @@ arch blocked
 blocksview 0
 x 21
 end
-arch wall_marble1.131a
+arch wall_marble1.131
+layer 4
+x 21
+end
+arch plant2_wall.151
+layer 5
+x 21
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 21
 end
 arch earth_brown1
@@ -3314,6 +3494,16 @@ blocksview 0
 x 22
 end
 arch wall_marble1.131
+layer 4
+x 22
+end
+arch plant2_wall.151
+layer 5
+x 22
+end
+arch plant2_wall.151
+z 28
+rotate 180
 x 22
 end
 arch earth_brown1
