@@ -2552,7 +2552,7 @@ treasureone random_armour_helm
   more
   arch crown_generic
     magic 1
-    chance 10
+    chance 15
     material_quality 80
     material_range 15
   more
