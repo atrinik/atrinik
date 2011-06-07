@@ -80,12 +80,10 @@ install:: all
 	$(MKDIR) -p $(prefix)/bitmaps
 	$(MKDIR) -p $(prefix)/gfx_user
 	$(MKDIR) -p $(prefix)/srv_files
-	$(MKDIR) -p $(prefix)/icons
 	$(MKDIR) -p $(prefix)/fonts
 	$(CP) ../../sfx/*.* $(prefix)/sfx
 	$(CP) ../../media/*.* $(prefix)/media
 	$(CP) ../../cache/*.* $(prefix)/cache
-	$(CP) ../../icons/*.* $(prefix)/icons
 	$(CP) ../../srv_files/*.* $(prefix)/srv_files
 	$(CP) ../../gfx_user/*.* $(prefix)/gfx_user
 	$(CP) ../../bitmaps/*.* $(prefix)/bitmaps
