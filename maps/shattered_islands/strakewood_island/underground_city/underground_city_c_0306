@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-05-01 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -289,6 +289,22 @@ arch floor_sand_d1
 x 4
 y 6
 end
+arch spawn_point
+x 4
+y 6
+arch demon_green
+randomitems mob_drow
+level 90
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+end
+end
 arch floor_sand_d3
 x 4
 y 7
@@ -320,6 +336,23 @@ end
 arch floor_sand_d4
 x 4
 y 13
+end
+arch spawn_point
+x 4
+y 13
+arch bone_devil
+randomitems mob_drow
+level 90
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+direction 3
+end
 end
 arch floor_sand_d4
 x 4
@@ -1048,6 +1081,32 @@ arch floor_sand_d4
 x 9
 y 18
 end
+arch spawn_point
+x 9
+y 18
+arch lom_lobon
+randomitems mob_drow_mage
+level 91
+exp 130
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+can_cast_spell 1
+maxsp 30
+Dex 2
+type 83
+arch ability_firestorm
+sp 1
+hp 1
+end
+arch ability_firestorm
+sp 7
+hp 8
+end
+end
+end
 arch floor_sand_d4
 x 9
 y 19
@@ -1137,7 +1196,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 38
@@ -1456,7 +1515,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
@@ -2362,6 +2421,22 @@ arch floor_sand_d4
 x 15
 y 21
 end
+arch spawn_point
+x 15
+y 21
+arch demon_green
+randomitems mob_drow
+level 91
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+end
+end
 arch floor_sand_d4
 x 15
 y 22
@@ -2560,7 +2635,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 47
@@ -2697,7 +2772,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 38
@@ -4172,6 +4247,32 @@ arch dirt_floor4
 x 22
 y 19
 end
+arch spawn_point
+x 22
+y 19
+arch lom_lobon
+randomitems mob_drow_mage
+level 90
+exp 130
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+can_cast_spell 1
+maxsp 30
+Dex 2
+type 83
+arch ability_firestorm
+sp 1
+hp 1
+end
+arch ability_firestorm
+sp 7
+hp 8
+end
+end
+end
 arch floor_sand_d3
 x 22
 y 20
@@ -4273,7 +4374,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
@@ -4414,7 +4515,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 50

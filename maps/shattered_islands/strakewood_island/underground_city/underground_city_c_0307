@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-24 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -27,6 +27,21 @@ speed 0
 is_used_up 0
 name decaying corpse
 y 1
+end
+arch spawn_point
+y 1
+arch bone_devil
+randomitems mob_drow
+level 89
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+end
 end
 arch floor_sand_d1
 y 2
@@ -473,6 +488,32 @@ arch floor_sand_d4
 x 3
 y 6
 end
+arch spawn_point
+x 3
+y 6
+arch lom_lobon
+randomitems mob_drow_mage
+level 89
+exp 130
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+can_cast_spell 1
+maxsp 30
+Dex 2
+type 83
+arch ability_firestorm
+sp 1
+hp 1
+end
+arch ability_firestorm
+sp 7
+hp 8
+end
+end
+end
 arch floor_sand_d1
 x 3
 y 7
@@ -540,6 +581,22 @@ end
 arch floor_sand_d2
 x 3
 y 19
+end
+arch spawn_point
+x 3
+y 19
+arch demon_green
+randomitems mob_drow
+level 90
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+end
 end
 arch floor_sand_d4
 x 3
@@ -629,6 +686,22 @@ end
 arch floor_sand_d4
 x 4
 y 12
+end
+arch spawn_point
+x 4
+y 12
+arch bone_devil
+randomitems mob_drow
+level 89
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+end
 end
 arch floor_sand_d3
 x 4
@@ -979,6 +1052,10 @@ arch floor_sand_d3
 x 7
 y 7
 end
+arch border_abyss_w1
+x 7
+y 7
+end
 arch announcement
 msg
 ** The writing appears hastily written **
@@ -989,6 +1066,10 @@ x 7
 y 7
 end
 arch floor_sand_d4
+x 7
+y 8
+end
+arch border_abyss_w1
 x 7
 y 8
 end
@@ -1076,19 +1157,11 @@ arch fwall_lava1d
 x 8
 y 6
 end
-arch floor_sand_d3
+arch floor_volcano_1
 x 8
 y 7
 end
-arch border_abyss_w1
-x 8
-y 7
-end
-arch floor_sand_d4
-x 8
-y 8
-end
-arch border_abyss_w1
+arch floor_volcano_2
 x 8
 y 8
 end
@@ -1709,7 +1782,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 47
@@ -1831,7 +1904,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 50
@@ -2336,7 +2409,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
@@ -2660,7 +2733,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 38
@@ -3218,7 +3291,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 50
@@ -4726,7 +4799,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 38
@@ -5008,7 +5081,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 38
@@ -5326,7 +5399,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 50
@@ -5917,7 +5990,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
@@ -6057,7 +6130,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 47

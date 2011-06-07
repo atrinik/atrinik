@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-24 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -692,6 +692,22 @@ arch floor_sand_d4
 x 2
 y 19
 end
+arch spawn_point
+x 2
+y 19
+arch bone_devil
+randomitems mob_drow
+level 90
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+end
+end
 arch floor_sand_d4
 x 2
 y 20
@@ -764,7 +780,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
@@ -890,7 +906,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 50
@@ -1952,7 +1968,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 47
@@ -2090,7 +2106,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 38
@@ -2680,6 +2696,22 @@ arch floor_sand_d3
 x 10
 y 22
 end
+arch spawn_point
+x 10
+y 22
+arch demon_green
+randomitems mob_drow
+level 90
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+end
+end
 arch floor_sand_d1
 x 10
 y 23
@@ -3115,7 +3147,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 47
@@ -3498,34 +3530,6 @@ exp 2
 x 13
 y 16
 end
-arch spawn_point
-x 13
-y 16
-arch demon_fire
-name balrog
-randomitems mob_balrog
-level 114
-exp 142
-wc 4
-ac 10
-Con 5
-attack_cleave 20
-attack_fire 80
-can_cast_spell 1
-sp -1
-maxsp 30
-Pow 10
-Dex 2
-sleep 1
-type 83
-arch ability_firestorm
-sp 38
-hp 38
-end
-arch ability_firestorm
-end
-end
-end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
@@ -3662,7 +3666,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
@@ -4148,19 +4152,15 @@ arch floor_volcano_2
 x 15
 y 18
 end
+arch floor_volcano_2
+x 15
+y 19
+end
 arch floor_sand_d4
-x 15
-y 19
-end
-arch border_abyss_s1
-x 15
-y 19
-end
-arch floor_sand_d3
 x 15
 y 20
 end
-arch bone_skull
+arch border_abyss_s1
 x 15
 y 20
 end
@@ -4348,6 +4348,34 @@ exp 2
 x 16
 y 13
 end
+arch spawn_point
+x 16
+y 13
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 114
+exp 142
+wc 4
+ac 10
+Con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+Pow 10
+Dex 2
+Wis 6
+type 83
+arch ability_firestorm
+sp 38
+hp 38
+end
+arch ability_firestorm
+end
+end
+end
 arch floor_lava_4
 glow_radius 3
 terrain_type 1
@@ -4398,21 +4426,47 @@ arch dirt_floor3
 x 16
 y 18
 end
+arch floor_volcano_1
+x 16
+y 19
+end
 arch floor_sand_d3
 x 16
-y 19
+y 20
 end
 arch border_abyss_s1
-x 16
-y 19
-end
-arch floor_sand_d4
 x 16
 y 20
 end
 arch floor_sand_d3
 x 16
 y 21
+end
+arch spawn_point
+x 16
+y 21
+arch lom_lobon
+randomitems mob_drow_mage
+level 90
+exp 130
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+can_cast_spell 1
+maxsp 30
+Dex 2
+type 83
+arch ability_firestorm
+sp 1
+hp 1
+end
+arch ability_firestorm
+sp 7
+hp 8
+end
+end
 end
 arch floor_sand_d3
 x 16
@@ -5122,7 +5176,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 50
@@ -5667,7 +5721,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 6
 type 83
 arch ability_firestorm
 sp 35
