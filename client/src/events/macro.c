@@ -305,6 +305,11 @@ int process_macro_keys(int id, int value)
 			SetPriorityWidget(cur_widget[SPELLS_ID]);
 			break;
 
+		case KEYFUNC_SKILL:
+			cur_widget[SKILLS_ID]->show = 1;
+			SetPriorityWidget(cur_widget[SKILLS_ID]);
+			break;
+
 		case KEYFUNC_KEYBIND:
 			map_udate_flag = 2;
 
