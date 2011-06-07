@@ -1142,10 +1142,6 @@ arch floor_marble1a
 x 10
 y 14
 end
-arch carpet1.131
-x 10
-y 14
-end
 arch chair1_111
 direction 3
 x 10
@@ -1155,23 +1151,11 @@ arch floor_marble1b
 x 10
 y 15
 end
-arch carpet1.131
-x 10
-y 15
-end
 arch floor_marble1a
 x 10
 y 16
 end
-arch carpet1.131
-x 10
-y 16
-end
 arch floor_marble1b
-x 10
-y 17
-end
-arch carpet1.131
 x 10
 y 17
 end
@@ -1258,15 +1242,13 @@ arch floor_marble1
 x 11
 y 13
 end
-arch carpet1.151
-x 11
-y 13
-end
 arch floor_marble1b
 x 11
 y 14
 end
-arch carpet1
+arch wall_marble1.181
+blocksview 0
+draw_double 0
 x 11
 y 14
 end
@@ -1274,7 +1256,9 @@ arch floor_marble1
 x 11
 y 15
 end
-arch carpet1
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
 x 11
 y 15
 end
@@ -1282,7 +1266,9 @@ arch floor_marble1b
 x 11
 y 16
 end
-arch carpet1
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
 x 11
 y 16
 end
@@ -1290,7 +1276,7 @@ arch floor_marble1a
 x 11
 y 17
 end
-arch carpet1
+arch carpet1.151
 x 11
 y 17
 end
@@ -1379,23 +1365,32 @@ arch floor_marble1b
 x 12
 y 13
 end
-arch carpet1.151
-x 12
-y 13
-end
 arch floor_marble1
 x 12
 y 14
 end
-arch carpet1
+arch wall_marble1.131
+blocksview 0
+draw_double 0
 x 12
 y 14
 end
-arch floor_marble1a
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 15
 end
-arch carpet1
+arch lamp_wall
+direction 7
+z -18
+x 12
+y 15
+end
+arch invis_exit
+slaying rockforge_b_0104
+hp 12
+sp 15
 x 12
 y 15
 end
@@ -1403,7 +1398,11 @@ arch floor_marble1a
 x 12
 y 16
 end
-arch carpet1
+arch stairs_stone_down
+direction 1
+slaying rockforge_b_0104
+hp 12
+sp 15
 x 12
 y 16
 end
@@ -1411,7 +1410,7 @@ arch floor_marble1a
 x 12
 y 17
 end
-arch carpet1
+arch carpet1.151
 x 12
 y 17
 end
@@ -1501,23 +1500,26 @@ arch floor_marble1
 x 13
 y 13
 end
-arch carpet1.151
-x 13
-y 13
-end
 arch floor_marble1a
 x 13
 y 14
 end
-arch carpet1
+arch wall_marble1.131
+blocksview 0
+draw_double 0
 x 13
 y 14
 end
-arch floor_marble1a
+arch blocked
+no_pass 0
+blocksview 0
 x 13
 y 15
 end
-arch carpet1
+arch invis_exit
+slaying rockforge_b_0104
+hp 13
+sp 15
 x 13
 y 15
 end
@@ -1525,7 +1527,11 @@ arch floor_marble1
 x 13
 y 16
 end
-arch carpet1
+arch stairs_stone_down
+direction 1
+slaying rockforge_b_0104
+hp 13
+sp 15
 x 13
 y 16
 end
@@ -1533,7 +1539,7 @@ arch floor_marble1a
 x 13
 y 17
 end
-arch carpet1
+arch carpet1.151
 x 13
 y 17
 end
@@ -1614,15 +1620,13 @@ arch floor_marble1a
 x 14
 y 13
 end
-arch carpet1.151
-x 14
-y 13
-end
 arch floor_marble1a
 x 14
 y 14
 end
-arch carpet1
+arch wall_marble1.131a
+blocksview 0
+draw_double 0
 x 14
 y 14
 end
@@ -1630,7 +1634,9 @@ arch floor_marble1
 x 14
 y 15
 end
-arch carpet1
+arch fwall_marble2a
+blocksview 0
+draw_double 0
 x 14
 y 15
 end
@@ -1638,7 +1644,9 @@ arch floor_marble1b
 x 14
 y 16
 end
-arch carpet1
+arch fwall_marble2a
+blocksview 0
+draw_double 0
 x 14
 y 16
 end
@@ -1646,7 +1654,7 @@ arch floor_marble1a
 x 14
 y 17
 end
-arch carpet1
+arch carpet1.151
 x 14
 y 17
 end
@@ -1739,10 +1747,6 @@ arch floor_marble1
 x 15
 y 14
 end
-arch carpet1.171
-x 15
-y 14
-end
 arch chair1_111
 direction 7
 x 15
@@ -1752,23 +1756,11 @@ arch floor_marble1
 x 15
 y 15
 end
-arch carpet1.171
-x 15
-y 15
-end
 arch floor_marble1b
 x 15
 y 16
 end
-arch carpet1.171
-x 15
-y 16
-end
 arch floor_marble1a
-x 15
-y 17
-end
-arch carpet1.171
 x 15
 y 17
 end
