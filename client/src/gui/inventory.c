@@ -443,7 +443,7 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	sprite_blt(Bitmaps[BITMAP_INVENTORY], widget->x1, widget->y1, NULL, NULL);
 
-	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 229, widget->y1 + 40);
+	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 229, widget->y1 + 42);
 
 	if (!cpl.ob)
 	{
