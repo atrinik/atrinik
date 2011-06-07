@@ -335,6 +335,49 @@ static int list_scrollbar_get_size(list_struct *list, SDL_Rect *box)
 }
 
 /**
+ * Get slider's size.
+ * @param list List.
+ * @param box Where to store the size of the slider.
+ * @return 1 on success, 0 on failure (no scrollbar active, so no slider
+ * either). */
+static int list_slider_get_size(list_struct *list, SDL_Rect *box)
+{
+	if (!list_scrollbar_get_size(list, box))
+	{
+		return 0;
+	}
+
+	box->x += 1;
+	box->y += 1;
+	box->w -= 1;
+	box->h -= 1;
+
+	if (list->rows > list->max_rows)
+	{
+		int scroll;
+
+		scroll = list->max_rows + list->row_offset;
+		list->scrollbar_h = box->h * list->max_rows / list->rows;
+		list->scrollbar_y = ((scroll - list->max_rows) * box->h) / list->rows;
+
+		if (list->scrollbar_h < 1)
+		{
+			list->scrollbar_h = 1;
+		}
+
+		if (scroll - list->max_rows > 0 && list->scrollbar_y + list->scrollbar_h < box->h)
+		{
+			list->scrollbar_y++;
+		}
+
+		box->h = list->scrollbar_h;
+		box->y += list->scrollbar_y;
+	}
+
+	return 1;
+}
+
+/**
  * Render scrollbar for a list.
  * @param list The list. */
 static void list_scrollbar_render(list_struct *list)
@@ -351,32 +394,7 @@ static void list_scrollbar_render(list_struct *list)
 
 	draw_frame(list->surface, scrollbar_box.x, scrollbar_box.y, scrollbar_box.w, scrollbar_box.h);
 
-	scrollbar_box.x += 1;
-	scrollbar_box.y += 1;
-	scrollbar_box.w -= 1;
-	scrollbar_box.h -= 1;
-
-	if (list->rows > list->max_rows)
-	{
-		int scroll;
-
-		scroll = list->max_rows + list->row_offset;
-		list->scrollbar_h = scrollbar_box.h * list->max_rows / list->rows;
-		list->scrollbar_y = ((scroll - list->max_rows) * scrollbar_box.h) / list->rows;
-
-		if (list->scrollbar_h < 1)
-		{
-			list->scrollbar_h = 1;
-		}
-
-		if (scroll - list->max_rows > 0 && list->scrollbar_y + list->scrollbar_h < scrollbar_box.h)
-		{
-			list->scrollbar_y++;
-		}
-
-		scrollbar_box.h = list->scrollbar_h;
-		scrollbar_box.y += list->scrollbar_y;
-	}
+	list_slider_get_size(list, &scrollbar_box);
 
 	/* Adjust the mouse X/Y positions for lists that are not rendered
 	 * directly on the screen surface, in order to simplify the checks
@@ -836,7 +854,7 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 		{
 			SDL_Rect scrollbar_box;
 
-			if (list_scrollbar_get_size(list, &scrollbar_box) && mx > scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my > scrollbar_box.y + list->scrollbar_y && my < scrollbar_box.y + list->scrollbar_y + list->scrollbar_h)
+			if (list_slider_get_size(list, &scrollbar_box) && mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + list->scrollbar_h)
 			{
 				old_scrollbar_pos = event->motion.y - list->scrollbar_y;
 				list->scrollbar_dragging = 1;
@@ -846,11 +864,21 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 	}
 	else if (event->type == SDL_MOUSEBUTTONUP)
 	{
-		list->scrollbar_dragging = 0;
+		if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			list->scrollbar_dragging = 0;
+		}
+
 		return 1;
 	}
 	else if (event->type == SDL_MOUSEMOTION)
 	{
+		if (list->scrollbar_dragging && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LEFT))
+		{
+			list->scrollbar_dragging = 0;
+			return 0;
+		}
+
 		if (list->scrollbar_dragging)
 		{
 			SDL_Rect scrollbar_box;
