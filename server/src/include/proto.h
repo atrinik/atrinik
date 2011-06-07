@@ -1049,6 +1049,7 @@ void apply_armour_improver(object *op, object *tmp);
 sint32 bow_get_ws(object *bow, object *arrow);
 sint16 arrow_get_wc(object *op, object *bow, object *arrow);
 sint16 arrow_get_damage(object *op, object *bow, object *arrow);
+int bow_get_skill(object *bow);
 object *arrow_find(object *op, shstr *type, int tag);
 void bow_fire(object *op, int dir);
 object *fix_stopped_arrow(object *op);

@@ -692,21 +692,7 @@ int check_skill_to_apply(object *who, object *item)
 			break;
 
 		case BOW:
-			tmp = item->sub_type;
-
-			if (tmp == RANGE_WEAP_BOW)
-			{
-				skill = SK_MISSILE_WEAPON;
-			}
-			else if (tmp == RANGE_WEAP_XBOWS)
-			{
-				skill = SK_XBOW_WEAP;
-			}
-			else
-			{
-				skill = SK_SLING_WEAP;
-			}
-
+			skill = bow_get_skill(item);
 			break;
 
 		case POTION:
