@@ -875,41 +875,6 @@ void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len)
 }
 
 /**
- * Show a tooltip.
- * @param mx X position.
- * @param my Y position.
- * @param text Text for the tooltip. */
-void show_tooltip(int mx, int my, char *text)
-{
-	SDL_Rect rec;
-	char *tooltip = text;
-
-	if (!options.show_tooltips)
-	{
-		return;
-	}
-
-	rec.w = 3;
-
-	while (*text)
-	{
-		rec.w += SystemFont.c[(int) *text++].w + SystemFont.char_offset;
-	}
-
-	rec.x = mx + 9;
-	rec.y = my + 17;
-	rec.h = 12;
-
-	if (rec.x + rec.w >= Screensize->x)
-	{
-		rec.x -= (rec.x + rec.w + 1) - Screensize->x;
-	}
-
-	SDL_FillRect(ScreenSurface, &rec, -1);
-	StringBlt(ScreenSurface, &SystemFont, tooltip, rec.x + 2, rec.y - 1, COLOR_BLACK, NULL, NULL);
-}
-
-/**
  * Get the pixel length of a text.
  * @param text Text.
  * @param font Font used.

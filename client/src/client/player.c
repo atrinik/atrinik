@@ -726,7 +726,7 @@ void widget_show_player_doll(widgetdata *widget)
 	/* Draw item name tooltip */
 	if (tooltip_index != -1)
 	{
-		show_tooltip(mx, my, tooltip_text);
+		tooltip_create(mx, my, FONT_ARIAL10, tooltip_text);
 	}
 }
 

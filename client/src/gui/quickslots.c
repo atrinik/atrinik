@@ -295,7 +295,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 				/* And show tooltip, if mouse is over it */
 				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
 				{
-					show_tooltip(mx, my, tmp->s_name);
+					tooltip_create(mx, my, FONT_ARIAL10, tmp->s_name);
 				}
 			}
 		}
