@@ -2210,6 +2210,7 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 				cmd_ready_clear(pl->ob, type);
 				SET_FLAG(tmp, FLAG_IS_READY);
 				pl->ready_object[type] = tmp;
+				pl->ready_object_tag[type] = tmp->count;
 				/* Inform the client about the change. */
 				cmd_ready_send(pl, tag, type);
 

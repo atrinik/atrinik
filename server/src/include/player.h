@@ -303,13 +303,11 @@ typedef struct pl_player
 	/** Player's quest container. */
 	object *quest_container;
 
-	/**
-	 * Readied objects (arrows, quivers, bolts, etc). Whenever a readied
-	 * object is removed by remove_ob(), the applicable entry is removed
-	 * from this array (set to NULL), thus no additional checking like
-	 * "is the object still in player's inventory" or "does the object
-	 * even exist" is necessary. */
+	/** Readied objects (arrows, quivers, bolts, etc). */
 	object *ready_object[READY_OBJ_MAX];
+
+	/** UIDs of the readied objects. */
+	tag_t ready_object_tag[READY_OBJ_MAX];
 
 	/** For the client target HP marker. */
 	int target_hp;

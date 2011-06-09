@@ -181,6 +181,11 @@ else
 		return NULL;
 	}
 
+	if (CONTR(op)->socket.socket_version >= 1048 && !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_ARROW]))
+	{
+		return NULL;
+	}
+
 	/* The type does not match the arrow/quiver. */
 	if (tmp->race != type)
 	{

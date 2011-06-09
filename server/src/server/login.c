@@ -737,6 +737,7 @@ void check_login(object *op)
 			if (type != -1)
 			{
 				pl->ready_object[type] = tmp;
+				pl->ready_object_tag[type] = tmp->count;
 				cmd_ready_send(pl, tmp->count, type);
 			}
 		}

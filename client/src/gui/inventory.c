@@ -872,7 +872,7 @@ void blt_inv_item(object *tmp, int x, int y)
 	}
 
 	/* Determine whether there is a readied object for firing or not. */
-	fire_ready = fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag;
+	fire_ready = (fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag) && tmp->env == cpl.ob;
 
 	if (tmp->flags & F_APPLIED)
 	{

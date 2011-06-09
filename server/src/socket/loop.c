@@ -452,7 +452,7 @@ void doeric_server()
 		{
 			if (init_sockets[i].status > Ns_Wait)
 			{
-				if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
+				if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 				{
 					FREE_SOCKET(i);
 					continue;
@@ -475,7 +475,7 @@ void doeric_server()
 			pl->socket.status = Ns_Dead;
 		}
 
-		if (pl->socket.status != Ns_Dead && pl->socket.socket_version >= 1052 && pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
+		if (pl->socket.status != Ns_Dead && pl->socket.socket_version >= 1052 && pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 		{
 			pl->socket.status = Ns_Dead;
 		}

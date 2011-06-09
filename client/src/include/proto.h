@@ -223,7 +223,6 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
 void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len);
-void show_tooltip(int mx, int my, char *text);
 int get_string_pixel_length(const char *text, struct _Font *font);
 int StringWidth(_Font *font, char *text);
 int StringWidthOffset(_Font *font, char *text, int *line, int len);
