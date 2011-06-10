@@ -1012,6 +1012,7 @@ void widget_map_render(widgetdata *widget)
 		add_menuitem(menu, "Walk Here", &menu_map_walk_here, MENU_NORMAL, 0);
 		add_menuitem(menu, "Talk To NPC", &menu_map_talk_to, MENU_NORMAL, 0);
 		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+		menu_finalize(menu);
 		right_click_ticks = -1;
 	}
 }

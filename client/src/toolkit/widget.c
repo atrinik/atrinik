@@ -1222,6 +1222,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU, 0);
 			}
 #endif
+			menu_finalize(menu);
 
 			/* Bit hack-ish, but this is to fix the menu from disappearing. */
 			widget = menu;
@@ -2508,10 +2509,10 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 	/* Point the menu to the owner. */
 	(MENU(widget_menu))->owner = owner;
 	/* Magic numbers for now, maybe it will be possible in future to customize this in files. */
-	container_menu->outer_padding_left = 4;
-	container_menu->outer_padding_right = 4;
-	container_menu->outer_padding_top = 4;
-	container_menu->outer_padding_bottom = 4;
+	container_menu->outer_padding_left = 2;
+	container_menu->outer_padding_right = 2;
+	container_menu->outer_padding_top = 2;
+	container_menu->outer_padding_bottom = 2;
 	container_strip_menu->inner_padding = 0;
 
 	return widget_menu;
@@ -2531,9 +2532,9 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 	container_strip_menuitem = CONTAINER_STRIP(widget_menuitem);
 
 	/* Initialize attributes. */
-	container_menuitem->outer_padding_left = 2;
+	container_menuitem->outer_padding_left = 4;
 	container_menuitem->outer_padding_right = 2;
-	container_menuitem->outer_padding_top = 0;
+	container_menuitem->outer_padding_top = 2;
 	container_menuitem->outer_padding_bottom = 0;
 	container_strip_menuitem->inner_padding = 4;
 	container_strip_menuitem->horizontal = 1;
@@ -2586,6 +2587,48 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 void add_separator(widgetdata *widget)
 {
 	(void) widget;
+}
+
+/**
+ * Finalizes menu creation.
+ *
+ * Makes sure the menu does not go over the screen size by adding x/y,
+ * using standard GUI behavior.
+ * @param widget The menu to finalize. */
+void menu_finalize(widgetdata *widget)
+{
+	int xoff = 0, yoff = 0;
+
+	/* Would the menu go over the maximum screen width? */
+	if (widget->x1 + widget->wd > ScreenSurface->w)
+	{
+		/* Will appear to the left of the cursor instead of right of it. */
+		xoff = -widget->wd;
+
+		/* Take submenus into account, and shift them depending on the
+		 * parent menu's width. */
+		if (widget->type_prev && widget->type_prev->WidgetSubtypeID == MENU_ID)
+		{
+			xoff += -widget->type_prev->wd + 4;
+		}
+	}
+
+	/* Similar checks for screen height. */
+	if (widget->y1 + widget->ht > ScreenSurface->h)
+	{
+		/* Submenu, shift it up, so all of it can appear. */
+		if (widget->type_prev && widget->type_prev->WidgetSubtypeID == MENU_ID)
+		{
+			yoff = ScreenSurface->h - widget->ht - widget->y1 - 1;
+		}
+		/* Will appear above the cursor. */
+		else
+		{
+			yoff = -widget->ht;
+		}
+	}
+
+	move_widget(widget, xoff, yoff);
 }
 
 /** Redraws all widgets of a particular type. */

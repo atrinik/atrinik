@@ -586,6 +586,7 @@ widgetdata *add_bitmap(int bitmap_id);
 widgetdata *create_menu(int x, int y, widgetdata *owner);
 void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type, int val);
 void add_separator(widgetdata *widget);
+void menu_finalize(widgetdata *widget);
 void widget_redraw_all(int widget_type_id);
 void menu_move_widget(widgetdata *widget, int x, int y);
 void menu_create_widget(widgetdata *widget, int x, int y);

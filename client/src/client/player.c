@@ -1232,7 +1232,7 @@ void widget_highlight_menu(widgetdata *widget)
 			if (menuitem->menu_type == MENU_SUBMENU)
 			{
 				create_submenu = 1;
-				x = tmp->x1 + tmp->wd;
+				x = tmp->x1 + widget->wd - 4;
 				y = tmp->y1 - (CONTAINER(widget))->outer_padding_top;
 			}
 		}
@@ -1312,6 +1312,8 @@ void widget_highlight_menu(widgetdata *widget)
 			add_menuitem(tmp_menu->submenu, "Test", &menu_detach_widget, MENU_SUBMENU, 0);
 			add_menuitem(tmp_menu->submenu, "Test2", &menu_detach_widget, MENU_SUBMENU, 0);
 		}
+
+		menu_finalize(tmp_menu->submenu);
 	}
 }
 
