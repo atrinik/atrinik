@@ -552,7 +552,10 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 		{
-			draggingInvItem(DRAG_IWIN_BELOW);
+			if (cpl.below->inv)
+			{
+				draggingInvItem(DRAG_IWIN_BELOW);
+			}
 		}
 		else
 		{
