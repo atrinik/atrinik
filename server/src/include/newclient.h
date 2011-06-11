@@ -209,6 +209,8 @@
 #define NDI_DK_GREEN 12
 /** Dark orange. */
 #define NDI_DK_ORANGE 17
+/** Bright purple. */
+#define NDI_BRIGHT_PURPLE 197
 
 /** Last color value in */
 #define NDI_MAX_COLOR 11

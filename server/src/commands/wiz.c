@@ -2663,11 +2663,11 @@ int command_mod_shout(object *op, char *params)
 	{
 		if (can_do_wiz_command(pl, "mod_shout"))
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[Moderator] (%s): %s", op->name, params);
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_BRIGHT_PURPLE, pl->ob, "[Moderator] (%s): %s", op->name, params);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[Moderator]: %s", params);
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_BRIGHT_PURPLE, pl->ob, "[Moderator]: %s", params);
 		}
 	}
 
