@@ -92,7 +92,6 @@ static const struct player_cmd_mapping player_commands[] =
 	{"/fire", command_fire_old, 0},
 	{"fire", (func_uint8_int_pl) command_fire, 0},
 	{"nc",          command_new_char, 0},
-	{"pt",          PartyCmd, 0},
 	{"qs",          (func_uint8_int_pl) QuickSlotCmd, 0},
 	{"shop",        ShopCmd, 0},
 	{"qlist",       QuestListCmd, 0},

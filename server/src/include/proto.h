@@ -664,7 +664,6 @@ int party_can_open_corpse(object *pl, object *corpse);
 void party_handle_corpse(object *pl, object *corpse);
 void send_party_message(party_struct *party, const char *msg, int flag, object *op);
 void remove_party(party_struct *party);
-void PartyCmd(char *buf, int len, player *pl);
 
 /* server/pathfinder.c */
 void request_new_path(object *waypoint);
