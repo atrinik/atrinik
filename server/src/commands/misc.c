@@ -690,7 +690,7 @@ int command_party(object *op, char *params)
 
 		if (!params || !*params || !++params)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Current looting mode: ~%s~.", party_loot_modes[CONTR(op)->party->loot]);
+			new_draw_info_format(NDI_UNIQUE, op, "Current looting mode: <green>%s</green>.", party_loot_modes[CONTR(op)->party->loot]);
 			return 1;
 		}
 
@@ -715,7 +715,7 @@ int command_party(object *op, char *params)
 
 		for (i = 0; i < PARTY_LOOT_MAX; i++)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "~%s~: %s.", party_loot_modes[i], party_loot_modes_help[i]);
+			new_draw_info_format(NDI_UNIQUE, op, "<green>%s</green>: %s.", party_loot_modes[i], party_loot_modes_help[i]);
 		}
 
 		return 1;
@@ -976,7 +976,7 @@ int command_statistics(object *op, char *params)
 
 	for (i = 0; i < NUM_STATS; i++)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "~%s:~ %d (%d)", short_stat_name[i], get_attr_value(&CONTR(op)->orig_stats, i), get_attr_value(&op->stats, i));
+		new_draw_info_format(NDI_UNIQUE, op, "<green>%s:</green> %d (%d)", short_stat_name[i], get_attr_value(&CONTR(op)->orig_stats, i), get_attr_value(&op->stats, i));
 	}
 
 	new_draw_info_format(NDI_UNIQUE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
