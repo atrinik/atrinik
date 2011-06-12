@@ -158,8 +158,8 @@ static void check_cleanup_chat_string(const char *str, const char *expected)
 
 START_TEST(test_cleanup_chat_string)
 {
-	check_cleanup_chat_string("   ---   ~ ~;   ", "---      ;   ");
-	check_cleanup_chat_string("   ^test^ ping", "test  ping");
+	check_cleanup_chat_string("   ---   ~ ~;   ", "---   ~ ~;   ");
+	check_cleanup_chat_string("   ^test^ ping", "^test^ ping");
 	check_cleanup_chat_string("              ", "");
 }
 END_TEST
