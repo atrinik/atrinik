@@ -557,7 +557,7 @@ object *get_random_mon()
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-	snprintf(buf, size, "<t t=\"%s\">%s", mon->name, describe_item(mon));
+	snprintf(buf, size, "<title>%s</title>\n%s", mon->name, describe_item(mon));
 	return buf;
 }
 
@@ -573,7 +573,7 @@ static char *mon_info_msg(char *buf, size_t booksize)
 	object *tmp;
 
 	/* Preamble */
-	strncpy(buf, "<t t=\"Bestiary\">Herein are detailed creatures found in the world around.\n", booksize - 1);
+	strncpy(buf, "<title>Bestiary</title>\nHerein are detailed creatures found in the world around.\n", booksize - 1);
 
 	/* Lets print info on as many monsters as will fit in our
 	 * document. */
@@ -653,7 +653,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 	}
 
 	/* Ok, let's print out the contents */
-	snprintf(buf, booksize, "<t t=\"Magical %s\">Herein %s detailed %s...\n", art_name_array[index].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
+	snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[index].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
 
 	/* Artifact msg attributes loop. Let's keep adding entries to the 'book'
 	 * as long as we have space up to the allowed max # (book_entries) */
@@ -669,7 +669,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 		give_artifact_abilities(tmp, art);
 		SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-		stringbuffer_append_printf(desc, "\n<t t=\"%s\">It is ", query_material_name(tmp));
+		stringbuffer_append_printf(desc, "\n<title>%s</title>\nIt is ", query_material_name(tmp));
 
 		/* Chance of finding. */
 		chance = 100 * ((float) art->chance / al->total_chance);
@@ -737,7 +737,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 	buf[0] = '\0';
 
 	/* Preamble */
-	stringbuffer_append_printf(desc, "<t t=\"Path of %s\">Herein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
+	stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
 
 	/* Now go through the entire list of spells. Add appropriate spells
 	 * in our message buffer */
