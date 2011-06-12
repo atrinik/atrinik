@@ -428,6 +428,9 @@ def check_msg_suspicious_match(msg):
 			parts = line[7:].split("|")
 
 			for part in parts:
+				if part == "*":
+					continue
+
 				if part[:1] != "^" or part[-1:] != "$":
 					return True
 
