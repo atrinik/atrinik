@@ -149,10 +149,20 @@ msg
 endmsg
 end
 
-# Rockforge.
+# Rockforge Palace.
+region rockforge_palace
+parent strakewood_island
+longname Rockforge Palace
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_0101
+end
+
+# Rockforge City.
 region rockforge
 parent strakewood_island
-longname Rockforge
+longname Rockforge City
 msg
 
 endmsg
