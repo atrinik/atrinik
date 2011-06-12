@@ -21,7 +21,7 @@ qm = QuestManager(activator, quest)
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started():
-			me.SayTo(activator, "\nHello there...\n\n^Are you Lynren?^")
+			me.SayTo(activator, "\nHello there...\n\n<a>Are you Lynren?</a>")
 		elif qm.finished():
 			me.SayTo(activator, "\nSplendid! Alright, let me have that book... This is what you have to do...")
 			activator.Controller().AcquireSpell(GetSpellNr("holy word"))
@@ -38,10 +38,10 @@ def main():
 	elif not qm.started():
 		if msg == "are you lynren?":
 			me.Communicate("/sigh")
-			me.SayTo(activator, "\nYes, that is my name... Lynren the paladin...\n\n^Why are you here?^")
+			me.SayTo(activator, "\nYes, that is my name... Lynren the paladin...\n\n<a>Why are you here?</a>")
 
 		elif msg == "why are you here?":
-			me.SayTo(activator, "\nI have set out on a mission to destroy all evil, and set this evil place as my first target... But I was overpowered and my magics were subdued by the evil magicians here...\n\n^Anything I can do to help?^\n^I see. Farewell.^")
+			me.SayTo(activator, "\nI have set out on a mission to destroy all evil, and set this evil place as my first target... But I was overpowered and my magics were subdued by the evil magicians here...\n\n<a>Anything I can do to help?</a>\n<a>I see. Farewell.</a>")
 
 		elif msg == "anything i can do to help?":
 			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("divine prayers"))
@@ -49,7 +49,7 @@ def main():
 			if not skill or skill.level < 35:
 				me.SayTo(activator, "\nNo... I am afraid you can't... You don't have the power to break the unholy magics that imprisoned me... You would need at least lvl 35 divine prayers skill...")
 			else:
-				me.SayTo(activator, "\nWell... You could visit my home in Asteria among the various temples, and bring me my book of holy word... The holy word prayer should work to set me free... Would you do this for me?\n^I will^\n^Farewell^")
+				me.SayTo(activator, "\nWell... You could visit my home in Asteria among the various temples, and bring me my book of holy word... The holy word prayer should work to set me free... Would you do this for me?\n<a>I will</a>\n<a>Farewell</a>")
 
 		elif msg == "i will":
 			me.SayTo(activator, "\nExcellent! Please make haste and bring me my book of holy word from my home.")
