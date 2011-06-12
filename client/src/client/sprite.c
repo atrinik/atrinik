@@ -398,19 +398,18 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		return;
 	}
 
-	if (zoom && zoom != 100)
+	if (rotate)
 	{
-		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, options.zoom_smooth);
+		blt_sprite = rotozoomSurface(blt_sprite, rotate, zoom ? zoom / 100.0 : 1.0, options.zoom_smooth);
 
 		if (!blt_sprite)
 		{
 			return;
 		}
 	}
-
-	if (rotate)
+	else if (zoom && zoom != 100)
 	{
-		blt_sprite = rotozoomSurface(blt_sprite, rotate, 1.0, options.zoom_smooth);
+		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, options.zoom_smooth);
 
 		if (!blt_sprite)
 		{
