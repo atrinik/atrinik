@@ -549,14 +549,14 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 		return;
 	}
 
-	if (ns->socket_version == 991017)
+	if (ns->socket_version == 991017 || ns->socket_version < 1045)
 	{
 		version_mismatch_msg(ns);
 		ns->status = Ns_Zombie;
 		return;
 	}
 
-	if (ns->socket_version != 991017 && ns->socket_version > SOCKET_VERSION)
+	if (ns->socket_version > SOCKET_VERSION)
 	{
 		send_socket_message(NDI_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
 		ns->status = Ns_Zombie;
