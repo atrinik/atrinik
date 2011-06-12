@@ -17,23 +17,23 @@ def main():
 		return
 
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nHello {}. Do you want to manage ^members^, the ^guild^ itself or the ^ranks^?".format(activator.name))
+		me.SayTo(activator, "\nHello {}. Do you want to manage <a>members</a>, the <a>guild</a> itself or the <a>ranks</a>?".format(activator.name))
 
 		if activator.f_wiz:
-			me.SayTo(activator, "Since you're the Wizard, you can also ^add^ members directly or change the guild's ^founder^.", 1)
+			me.SayTo(activator, "Since you're the Wizard, you can also <a>add</a> members directly or change the guild's <a>founder</a>.", 1)
 
 	# Show member related commands.
 	elif msg == "members":
-		me.SayTo(activator, "\nI can show you the guild's list of ^applications^ or ^remove^ a member from the guild (removing will also close an application if any).\nOr would you rather ^give admin^ status to a member, or perhaps ^remove admin^ status from a fellow administrator?")
+		me.SayTo(activator, "\nI can show you the guild's list of <a>applications</a> or <a>remove</a> a member from the guild (removing will also close an application if any).\nOr would you rather <a>give admin</a> status to a member, or perhaps <a>remove admin</a> status from a fellow administrator?")
 
 	# Show guild related commands.
 	elif msg == "guild":
 		closed = guild.guild_check(guild.guild_closed)
-		me.SayTo(activator, "\nThe guild is currently {}. Would you like to ^{}^ it?".format(closed and "closed" or "open", closed and "open" or "close"))
+		me.SayTo(activator, "\nThe guild is currently {}. Would you like to <a>{}</a> it?".format(closed and "closed" or "open", closed and "open" or "close"))
 
 	# Show rank related commands.
 	elif msg == "ranks":
-		me.SayTo(activator, "\nDo you want to see the ^ranks list^, create a ^new rank^, ^remove rank^, ^change rank^ setting or ^view rank^ setting?\nYou can also ^assign^ a member to one of the existing ranks and ^clear rank^ of a member, or see members ^without rank^.")
+		me.SayTo(activator, "\nDo you want to see the <a>ranks list</a>, create a <a>new rank</a>, <a>remove rank</a>, <a>change rank</a> setting or <a>view rank</a> setting?\nYou can also <a>assign</a> a member to one of the existing ranks and <a>clear rank</a> of a member, or see members <a>without rank</a>.")
 
 	# Show the list of ranks.
 	elif msg == "ranks list":
@@ -54,7 +54,7 @@ def main():
 	# Create a new rank.
 	elif msg[:8] == "new rank":
 		if not msg[9:]:
-			me.SayTo(activator, "\nThe 'new rank' command can add a new rank to the list of ranks.\nExample: ~new rank Junior Member~")
+			me.SayTo(activator, "\nThe 'new rank' command can add a new rank to the list of ranks.\nExample: <green>new rank Junior Member</green>")
 		else:
 			rank = guild.rank_sanitize(WhatIsMessage()[9:])
 
@@ -72,7 +72,7 @@ def main():
 	# Assign member to a rank.
 	elif msg[:6] == "assign":
 		if len(text) < 3:
-			me.SayTo(activator, "\nAssign what member to what rank?\nExample: ~assign Atrinik Junior Member~")
+			me.SayTo(activator, "\nAssign what member to what rank?\nExample: <green>assign Atrinik Junior Member</green>")
 		else:
 			name = text[1].capitalize()
 			rank = WhatIsMessage()[7 + len(name) + 1:]
@@ -89,7 +89,7 @@ def main():
 	# Remove a rank.
 	elif msg[:11] == "remove rank":
 		if not msg[12:]:
-			me.SayTo(activator, "\nRemove what rank? Removing a rank will also clear rank of all members in that rank.\nExample: ~remove rank Junior Member~")
+			me.SayTo(activator, "\nRemove what rank? Removing a rank will also clear rank of all members in that rank.\nExample: <green>remove rank Junior Member</green>")
 		else:
 			rank = WhatIsMessage()[12:]
 
@@ -103,7 +103,7 @@ def main():
 	# Clear member's rank.
 	elif msg[:10] == "clear rank":
 		if not msg[11:]:
-			me.SayTo(activator, "\nClear rank for which member?\nExample: ~clear rank Atrinik~")
+			me.SayTo(activator, "\nClear rank for which member?\nExample: <green>clear rank Atrinik</green>")
 		else:
 			name = msg[11:].capitalize()
 
@@ -117,7 +117,7 @@ def main():
 	# Change rank's setting.
 	elif msg[:11] == "change rank":
 		if len(text) < 5:
-			me.SayTo(activator, "\nChange what? Examples:\nTo change rank's value limit (how much can be taken from the guild in copper, 0 means unlimited) to 1 gold and 50 silver:\n~change rank limit 15000 Junior Member~\nTo change when ranks get limit reset to 12 hours (default is 24 hours and the timer starts on the first pickup):\n~change rank time 12 Junior Member~")
+			me.SayTo(activator, "\nChange what? Examples:\nTo change rank's value limit (how much can be taken from the guild in copper, 0 means unlimited) to 1 gold and 50 silver:\n<green>change rank limit 15000 Junior Member</green>\nTo change when ranks get limit reset to 12 hours (default is 24 hours and the timer starts on the first pickup):\n<green>change rank time 12 Junior Member</green>")
 		else:
 			what = text[2]
 			value = text[3]
@@ -140,12 +140,12 @@ def main():
 				else:
 					me.SayTo(activator, "\nCould not change {} to {} hour(s).".format(what, value))
 			else:
-				me.SayTo(activator, "\nInvalid setting, see ^change rank^ for possible settings.")
+				me.SayTo(activator, "\nInvalid setting, see <a>change rank</a> for possible settings.")
 
 	# View rank's setting.
 	elif msg[:9] == "view rank":
 		if len(text) < 4:
-			me.SayTo(activator, "\nView what? Examples:\nTo view rank's value limit (how much can be taken from the guild in copper, 0 means unlimited):\n~view rank limit Junior Member~\nTo view when ranks get limit reset:\n~view rank time Junior Member~")
+			me.SayTo(activator, "\nView what? Examples:\nTo view rank's value limit (how much can be taken from the guild in copper, 0 means unlimited):\n<green>view rank limit Junior Member</green>\nTo view when ranks get limit reset:\n<green>view rank time Junior Member</green>")
 		else:
 			what = text[2]
 			rank = WhatIsMessage()[10 + len(what) + 1:]
@@ -157,7 +157,7 @@ def main():
 			elif what == "time":
 				me.SayTo(activator, "\nThe setting '{}' is set to {} hour(s) for rank '{}'.".format(what, guild.rank_get(rank, "value_reset"), rank))
 			else:
-				me.SayTo(activator, "\nInvalid setting, see ^view rank^ for possible settings.")
+				me.SayTo(activator, "\nInvalid setting, see <a>view rank</a> for possible settings.")
 
 	# Close the guild.
 	elif msg == "close":
@@ -171,7 +171,7 @@ def main():
 
 	# List members awaiting membership application.
 	elif msg == "applications":
-		me.SayTo(activator, "\nList of membership applications:\nExample: ~approve Atrinik~ or ~remove Atrinik~")
+		me.SayTo(activator, "\nList of membership applications:\nExample: <green>approve Atrinik</green> or <green>remove Atrinik</green>")
 		l = []
 
 		for member in guild.get_members():
@@ -189,7 +189,7 @@ def main():
 	# Give administrator rights to a member.
 	elif msg[:10] == "give admin":
 		if not msg[11:]:
-			me.SayTo(activator, "\nThe 'give admin' command is used to give administrator rights to a guild member.\nExample: ~give admin Atrinik~")
+			me.SayTo(activator, "\nThe 'give admin' command is used to give administrator rights to a guild member.\nExample: <green>give admin Atrinik</green>")
 		else:
 			name = msg[11:].capitalize()
 
@@ -206,7 +206,7 @@ def main():
 	# Remove administrator rights from a member.
 	elif msg[:12] == "remove admin":
 		if not msg[13:]:
-			me.SayTo(activator, "\nThe 'remove admin' command is used to take administrator rights from a guild member.\nExample: ~remove admin Atrinik~")
+			me.SayTo(activator, "\nThe 'remove admin' command is used to take administrator rights from a guild member.\nExample: <green>remove admin Atrinik</green>")
 		else:
 			name = msg[13:].capitalize()
 
@@ -227,7 +227,7 @@ def main():
 	# Remove a member from the guild, or decline their membership application.
 	elif msg[:6] == "remove":
 		if not msg[7:]:
-			me.SayTo(activator, "\nThe remove command can be used to remove a member from the guild, or decline their membership application.\nExample: ~remove Atrinik~")
+			me.SayTo(activator, "\nThe remove command can be used to remove a member from the guild, or decline their membership application.\nExample: <green>remove Atrinik</green>")
 		else:
 			name = msg[7:].capitalize()
 
@@ -246,7 +246,7 @@ def main():
 	# Approve a membership application.
 	elif msg[:7] == "approve":
 		if not msg[8:]:
-			me.SayTo(activator, "\nThe approve command is used to approve a member that applied for the guild membership.\nExample: ~approve Atrinik~")
+			me.SayTo(activator, "\nThe approve command is used to approve a member that applied for the guild membership.\nExample: <green>approve Atrinik</green>")
 		else:
 			name = msg[8:].capitalize()
 
@@ -265,7 +265,7 @@ def main():
 		# Directly add a member.
 		if msg[:3] == "add":
 			if not msg[4:]:
-				me.SayTo(activator, "\nThe add command can be used by DMs to directly add a member to the guild.\nExample: ~add Atrinik~")
+				me.SayTo(activator, "\nThe add command can be used by DMs to directly add a member to the guild.\nExample: <green>add Atrinik</green>")
 			else:
 				name = msg[4:].capitalize()
 
@@ -280,7 +280,7 @@ def main():
 		# Set founder of the guild.
 		elif msg[:7] == "founder":
 			if not msg[8:]:
-				me.SayTo(activator, "\nThe founder command sets a founder of the guild.\nExample: ~founder Atrinik~")
+				me.SayTo(activator, "\nThe founder command sets a founder of the guild.\nExample: <green>founder Atrinik</green>")
 			else:
 				name = msg[8:].capitalize()
 
