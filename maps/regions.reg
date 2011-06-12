@@ -179,6 +179,16 @@ endmsg
 map_first /shattered_islands/strakewood_island/rockforge/rockforge_b_0101
 end
 
+# Rockforge Mines.
+region rockforge_mines
+parent strakewood_island
+longname Rockforge Mines
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_c_0101
+end
+
 ##########################
 # Dungeons on Strakewood #
 ##########################
