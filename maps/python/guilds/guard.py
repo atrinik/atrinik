@@ -11,7 +11,7 @@ msg = WhatIsMessage().strip().lower()
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to the guild, {}. Would you like to see the ^ranks^ list?".format(activator.name))
+		me.SayTo(activator, "\nWelcome to the guild, {}. Would you like to see the <a>ranks</a> list?".format(activator.name))
 		rank = guild.member_get_rank(activator.name)
 
 		# Show the player's rank.
