@@ -55,16 +55,16 @@ if text[0] == "hello" or text[0] == "hi" or text[0] == "hey":
 	apartment_links = []
 
 	for apartment in sort_apartments(apartments):
-		apartment_links.append("^{0}^".format(apartment))
+		apartment_links.append("<a>{0}</a>".format(apartment))
 
-	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have {0} ones.".format(", ".join(apartment_links)))
+	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an <a>apartment</a>.\nI have {0} ones.".format(", ".join(apartment_links)))
 
 # Explain what an apartment is
 elif text[0] == "apartment":
 	if pinfo != None:
 		pinfo.last_heal = -1
 
-	me.SayTo(activator, "\nAn apartment is a kind of unique place you can buy.\nOnly you can enter it!\nYou can safely store or drop your items there.\nThey will not vanish with the time.\nIf you leave the game they will be still there when you come back later.\nApartments have different sizes and styles.\nYou can have only one apartment at once in a city,\nbut you can ^upgrade^ it.")
+	me.SayTo(activator, "\nAn apartment is a kind of unique place you can buy.\nOnly you can enter it!\nYou can safely store or drop your items there.\nThey will not vanish with the time.\nIf you leave the game they will be still there when you come back later.\nApartments have different sizes and styles.\nYou can have only one apartment at once in a city,\nbut you can <a>upgrade</a> it.")
 
 # Explain how upgrading works
 elif msg == "upgrade":
@@ -73,7 +73,7 @@ elif msg == "upgrade":
 	else:
 		pinfo.last_heal = -1
 
-		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get |no| money back for your old apartment.\n3.) All items in your old apartment are |automatically| transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one, for example.\nGo to upgrade ^procedure^ if you want to upgrade now.")
+		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get <yellow>no</yellow> money back for your old apartment.\n3.) All items in your old apartment are <yellow>automatically</yellow> transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one, for example.\nGo to upgrade <a>procedure</a> if you want to upgrade now.")
 
 # Upgrade procedure.
 elif text[0] == "procedure":
@@ -88,7 +88,7 @@ elif text[0] == "procedure":
 		for apartment in sort_apartments(apartments):
 			if apartment != pinfo.slaying:
 				upgrades.append(apartment)
-				upgrade_links.append("^upgrade to {0} apartment^".format(apartment))
+				upgrade_links.append("<a>upgrade to {0} apartment</a>".format(apartment))
 
 		me.SayTo(activator, "\nYour current home here is {0} apartment.\nYou can upgrade it to one of {1}.\nTo upgrade say one of:\n{2}\nAfter you have said the sentence I will ask you to confirm.".format(pinfo.slaying, ", ".join(upgrades), "\n".join(upgrade_links)))
 
@@ -105,7 +105,7 @@ elif text[0] == "upgrade" and text[1] == "to" and text[2] in apartments and text
 		else:
 			pinfo.last_heal = apartments[text[2]]["id"]
 
-			me.SayTo(activator, "\nThe {0} apartment will cost you {1}.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to {0} apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it.".format(text[2], CostString(apartments[text[2]]["price"])))
+			me.SayTo(activator, "\nThe {0} apartment will cost you {1}.\n<green>Now listen</green>: To do the upgrade you must confirm it.\nDo you really want to upgrade to {0} apartment now?\nSay <green>Yes, I do</green> and it will be done.\nSay anything else to cancel it.".format(text[2], CostString(apartments[text[2]]["price"])))
 
 # The player said "Yes, I do", and we can upgrade the apartment now.
 elif msg == "yes, i do":
@@ -113,7 +113,7 @@ elif msg == "yes, i do":
 		me.SayTo(activator, "\nYou don't have any apartment to upgrade.")
 	else:
 		if pinfo.last_heal <= 0:
-			me.SayTo(activator, "\nFirst go to the upgrade ^procedure^ before you confirm your choice.")
+			me.SayTo(activator, "\nFirst go to the upgrade <a>procedure</a> before you confirm your choice.")
 		else:
 			apartment_info = apartments[apartments_info[apartment_id]["apartment_ids"][pinfo.last_heal]]
 
@@ -158,10 +158,10 @@ elif text[0] == "sell" and text[1] == "me" and text[2] in apartments and text[3]
 	else:
 		pinfo.last_heal = -1
 
-		me.SayTo(activator, "\nYou have bought an apartment here in the past.\nYou can ^upgrade^ it.")
+		me.SayTo(activator, "\nYou have bought an apartment here in the past.\nYou can <a>upgrade</a> it.")
 
 # Otherwise if the player said anything else, and they were in the upgrade procedure, cancel it.
 else:
 	if pinfo != None and pinfo.last_heal > 0:
-		me.SayTo(activator, "\nUpgrade canceled!\nYou did not say ~Yes, I do~.")
+		me.SayTo(activator, "\nUpgrade canceled!\nYou did not say <green>Yes, I do</green>.")
 		pinfo.last_heal = -1
