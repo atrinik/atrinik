@@ -1,7 +1,7 @@
 arch map
 name Asteria Palace Dungeon
 msg
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1729,7 +1729,7 @@ y 21
 end
 arch magic_ear
 msg
-@match eagle
+@match ^eagle$
 Correct, you may pass.
 endmsg
 connected 101
