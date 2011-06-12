@@ -53,11 +53,11 @@ def npc_maplevale():
 		me.SayTo(activator, "\nGreetings, {0}. I am {1}, a priest of the Elven god Llwyfen.".format(activator.name, me.name))
 
 		if is_tabernacle:
-			me.SayTo(activator, "I am here to learn the ^teachings^ of the god of Tabernacle.", 1)
+			me.SayTo(activator, "I am here to learn the <a>teachings</a> of the god of Tabernacle.", 1)
 
 		if found_portal:
 			if not qm_m.started():
-				me.SayTo(activator, "\n^I found Llwyfen's portal^", 1)
+				me.SayTo(activator, "\n<a>I found Llwyfen's portal</a>", 1)
 			elif qm_m.completed():
 				if qm_t.completed():
 					me.SayTo(activator, "\nThank you for saving Brynknot.", 1)
@@ -75,7 +75,7 @@ def npc_maplevale():
 	if found_portal:
 		if not qm_m.started():
 			if msg == "i found llwyfen's portal":
-				me.SayTo(activator, "\nHmm... So you're saying you found a portal that requires an amulet of Llwyfen to enter in the Underground City? That is the most unsettling news I have heard about that area recently...\nWould you please go investigate it?\n\n^Sure^")
+				me.SayTo(activator, "\nHmm... So you're saying you found a portal that requires an amulet of Llwyfen to enter in the Underground City? That is the most unsettling news I have heard about that area recently...\nWould you please go investigate it?\n\n<a>Sure</a>")
 				return
 
 			if msg == "sure":
@@ -87,16 +87,16 @@ def npc_maplevale():
 	# Some information about gods if our god is Tabernacle.
 	if is_tabernacle:
 		if msg == "teachings":
-			me.SayTo(activator, "\nYes, words of wisdom. But alas, so far I have not been able to hear any particular teaching from the priests of Tabernacle. There seems to be none who ever had a direct ^interaction^ with the god.")
+			me.SayTo(activator, "\nYes, words of wisdom. But alas, so far I have not been able to hear any particular teaching from the priests of Tabernacle. There seems to be none who ever had a direct <a>interaction</a> with the god.")
 
 		elif msg == "interaction":
-			me.SayTo(activator, "\nYes, like seeing, listening, and talking to the god. Strange enough, none of the priest even knows the real name of the god of Tabernacle, and still call the god by the name of the altar! It seems your god has not ^revealed^ himself to anyone yet.")
+			me.SayTo(activator, "\nYes, like seeing, listening, and talking to the god. Strange enough, none of the priest even knows the real name of the god of Tabernacle, and still call the god by the name of the altar! It seems your god has not <a>revealed</a> himself to anyone yet.")
 
 		elif msg == "revealed":
-			me.SayTo(activator, "\nIn our legend, the Tabernacle was crafted by Vashla, the Goddess of Vanity. Some elves believe that this goddess is the God of Tabernacle but I have ^confirmed^ that these two are totally different.")
+			me.SayTo(activator, "\nIn our legend, the Tabernacle was crafted by Vashla, the Goddess of Vanity. Some elves believe that this goddess is the God of Tabernacle but I have <a>confirmed</a> that these two are totally different.")
 
 		elif msg == "confirmed":
-			me.SayTo(activator, "\nOh certainly! Vashla was the Goddess of Vanity. What do you expect? It was very difficult to satisfy her appetite for praise. That was one of the reasons the elves of Eromir refused to worship her. I know it because I once saw the book of liturgy.\n\nOh I shouldn't make fun of a goddess. Anyway, the point is, deities do not change and Vashla wouldn't have allowed her followers to worship her like you do. As I observe, you do not even have any other ritual than touching the altar, while fully enjoying his ^gifts^.")
+			me.SayTo(activator, "\nOh certainly! Vashla was the Goddess of Vanity. What do you expect? It was very difficult to satisfy her appetite for praise. That was one of the reasons the elves of Eromir refused to worship her. I know it because I once saw the book of liturgy.\n\nOh I shouldn't make fun of a goddess. Anyway, the point is, deities do not change and Vashla wouldn't have allowed her followers to worship her like you do. As I observe, you do not even have any other ritual than touching the altar, while fully enjoying his <a>gifts</a>.")
 
 		elif msg == "gifts":
 			me.SayTo(activator, "\nResurrections, of course! A great and powerful god he must be.\n\nHmmm... it leads me to wonder. If the god of Tabernacle is not Vashla, who is he then? What is his purpose and why is he helping you? Maybe your gods are different from Elven gods? Oh don't worry, I was merely thinking out loud.")
@@ -108,7 +108,7 @@ def npc_talthor():
 
 		if not qm_t.started():
 			if qm_m.completed():
-				me.SayTo(activator, "\nSo the city's major sent you? Oh, you don't know! Maplevale is the Brynknot major. What's the matter?\n\n^There are enemies under Brynknot^", 1)
+				me.SayTo(activator, "\nSo the city's major sent you? Oh, you don't know! Maplevale is the Brynknot major. What's the matter?\n\n<a>There are enemies under Brynknot</a>", 1)
 		elif qm_t.completed():
 			me.SayTo(activator, "\nThank you for saving our city.", 1)
 		elif qm_t.finished():
@@ -132,7 +132,7 @@ def npc_talthor():
 	elif qm_m.completed():
 		if not qm_t.started():
 			if msg == "there are enemies under brynknot":
-				me.SayTo(activator, "\nWhat?! Tell me more about this.\n...\nI see. The passage you have discovered through the portal is actually a part of the Brynknot sewers, but it's been sealed off. It leads to a maze-like part of the sewers, dug out by monsters, and not by humans. But I don't know who is responsible for all of this. Would you go and try to kill their boss, whoever it is?\n\n^Okay^")
+				me.SayTo(activator, "\nWhat?! Tell me more about this.\n...\nI see. The passage you have discovered through the portal is actually a part of the Brynknot sewers, but it's been sealed off. It leads to a maze-like part of the sewers, dug out by monsters, and not by humans. But I don't know who is responsible for all of this. Would you go and try to kill their boss, whoever it is?\n\n<a>Okay</a>")
 
 			elif msg == "okay":
 				me.SayTo(activator, "\nThe fate of our city rests upon you. Take this key, which will unlock the gate in the passage for you. Then kill whoever is responsible for the attack.")
