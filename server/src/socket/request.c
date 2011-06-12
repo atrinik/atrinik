@@ -1686,28 +1686,19 @@ void draw_client_map2(object *pl)
 					 * should affect the zoom value of this layer. */
 					if ((head->zoom && head->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << layer)))
 					{
-						if (CONTR(pl)->socket.socket_version >= 1040)
-						{
 						flags |= MAP2_FLAG_ZOOM;
-						}
 					}
 
 					if (head->align || (mirror && mirror->align))
 					{
-						if (CONTR(pl)->socket.socket_version >= 1041)
-						{
 						flags |= MAP2_FLAG_ALIGN;
-						}
 					}
 
 					/* Draw the object twice if set, but only if it's not
 					 * in the bottom quadrant of the map. */
 					if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS))
 					{
-						if (CONTR(pl)->socket.socket_version >= 1043)
-						{
 						flags |= MAP2_FLAG_DOUBLE;
-						}
 					}
 
 					if (head->alpha)
@@ -1722,10 +1713,7 @@ void draw_client_map2(object *pl)
 
 					if (flags2)
 					{
-						if (CONTR(pl)->socket.socket_version >= 1043)
-						{
 						flags |= MAP2_FLAG_MORE;
-						}
 					}
 
 					/* Damage animation? Store it for later. */
