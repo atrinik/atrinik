@@ -47,14 +47,14 @@ def handle_bartender(activator, me, msg, event = None, ignore = [], hello_msg = 
 			# The list of provisions is loaded from the event's inventory
 			# and sorted by name, and a table for display is built out of
 			# the provisions not in 'ignore', along with the cost of each.
-			me.SayTo(activator, "I can offer you the following ^provisions^:\n\n" + "\n".join("^" + x.name + "^ for " + CostString(x.value) for x in sorted(event.inv, key = lambda obj: obj.name) if not x.name in ignore), True)
+			me.SayTo(activator, "I can offer you the following <a>provisions</a>:\n\n" + "\n".join("<a>" + x.name + "</a> for " + CostString(x.value) for x in sorted(event.inv, key = lambda obj: obj.name) if not x.name in ignore), True)
 
 		if hello_msg_after:
 			me.SayTo(activator, hello_msg_after, True)
 
 	# Display information about provisions.
 	elif event and msg == "provisions":
-		me.SayTo(activator, "\nYou can either buy the provisions one by one, or prefix the provision name with a number (maximum {0}), for example:\n^{1} {2}^".format(num_max, min(num_max, 10), event.inv.name))
+		me.SayTo(activator, "\nYou can either buy the provisions one by one, or prefix the provision name with a number (maximum {0}), for example:\n<a>{1} {2}</a>".format(num_max, min(num_max, 10), event.inv.name))
 
 	# See if the message matched one of the provision names.
 	elif event:
