@@ -35,7 +35,7 @@ def adjust_map_music(m, music):
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		l = list(map(lambda l: "^" + l[1] + "^", area))
+		l = list(map(lambda l: "<a>" + l[1] + "</a>", area))
 		me.SayTo(activator, "\nGreetings {0}, I am {1}.\nI can play the following songs for everyone in range:\n{2}.".format(activator.name, me.name, ", ".join(l[:-2] + [""]) + " and ".join(l[-2:])))
 
 	else:
@@ -54,7 +54,7 @@ def main():
 			else:
 				me.SayTo(activator, "\nI'm not playing anything at the moment.")
 		else:
-			me.SayTo(activator, "\nOkay, I will play ~{0}~ then... Hold on one moment... There!".format(l[1]))
+			me.SayTo(activator, "\nOkay, I will play <green>{0}</green> then... Hold on one moment... There!".format(l[1]))
 
 		event_msg = WhatIsEvent().msg
 
