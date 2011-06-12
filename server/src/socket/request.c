@@ -876,14 +876,7 @@ void esrv_update_stats(player *pl)
 			break;
 		}
 
-		if (pl->socket.socket_version < 1035)
-		{
-			AddIfChar(pl->last_protection[i], MAX(0, pl->ob->protection[i]), CS_STAT_PROT_START + i);
-		}
-		else
-		{
 		AddIfChar(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i);
-		}
 	}
 
 	if (pl->socket.ext_title_flag)
@@ -899,7 +892,9 @@ void esrv_update_stats(player *pl)
 
 	/* Only send it away if we have some actual data */
 	if (sl.len > 1)
+	{
 		Send_With_Handling(&pl->socket, &sl);
+	}
 }
 
 /**
