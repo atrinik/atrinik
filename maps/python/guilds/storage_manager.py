@@ -12,10 +12,10 @@ msg = WhatIsMessage().strip().lower()
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nHello {}. Welcome to the guild's storage. Anything you drop in one of the rooms here will stay there until another guild member picks it up.\nDo you want to learn about the ^limits^?".format(activator.name))
+		me.SayTo(activator, "\nHello {}. Welcome to the guild's storage. Anything you drop in one of the rooms here will stay there until another guild member picks it up.\nDo you want to learn about the <a>limits</a>?".format(activator.name))
 
 		if guild.member_is_admin(activator.name) or activator.f_wiz:
-			me.SayTo(activator, "\nAs a guild administrator, you can drop any item into one of the non-pickable containers with custom name set to ~rank access: Junior Member~, to only allow members of the Junior Member rank to open it.\nUse ~rank access: None~ to reset it back so anyone can access it.", 1)
+			me.SayTo(activator, "\nAs a guild administrator, you can drop any item into one of the non-pickable containers with custom name set to <green>rank access: Junior Member</green>, to only allow members of the Junior Member rank to open it.\nUse <green>rank access: None</green> to reset it back so anyone can access it.", 1)
 
 	# Explain storage limits.
 	elif msg == "limits":
