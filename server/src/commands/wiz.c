@@ -903,7 +903,7 @@ int command_inventory(object *op, char *params)
 			continue;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, op, "#~%d~: %s", tmp->count, query_name(tmp, op));
+		new_draw_info_format(NDI_UNIQUE, op, "#<green>%d</green>: %s", tmp->count, query_name(tmp, op));
 	}
 
 	return 1;
