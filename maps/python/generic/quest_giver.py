@@ -37,7 +37,7 @@ def main():
 
 		if not qm.started():
 			me.SayTo(activator, quest["messages"]["not_started"], 1)
-			me.SayTo(activator, "Do you ^accept^ this quest?", 1)
+			me.SayTo(activator, "Do you <a>accept</a> this quest?", 1)
 		elif qm.completed():
 			me.SayTo(activator, "I have no more quests for you.", 1)
 		elif qm.finished():
