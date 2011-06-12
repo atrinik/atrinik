@@ -169,6 +169,16 @@ endmsg
 map_first /shattered_islands/strakewood_island/rockforge/rockforge_a_0101
 end
 
+# Rockforge City basement.
+region rockforge2
+parent strakewood_island
+longname Rockforge City Basement
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_b_0101
+end
+
 ##########################
 # Dungeons on Strakewood #
 ##########################
