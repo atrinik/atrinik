@@ -28,13 +28,13 @@ def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started() or not qm.completed():
 			if not qm.started():
-				me.SayTo(activator, "\nHello, mercenary. I'm Supply Chief Chereth.\nFomerly Archery Commander Chereth, before I lost my eyes.\nWell, I still know a lot about ^archery^.\nPerhaps you want to ^learn^ an archery skill?")
+				me.SayTo(activator, "\nHello, mercenary. I'm Supply Chief Chereth.\nFomerly Archery Commander Chereth, before I lost my eyes.\nWell, I still know a lot about <a>archery</a>.\nPerhaps you want to <a>learn</a> an archery skill?")
 			elif qm.finished():
-				me.SayTo(activator, "\nThe head! You have done it!\nNow we can repair the water well.\nSay ^teach^ to me now to learn an archery skill!")
+				me.SayTo(activator, "\nThe head! You have done it!\nNow we can repair the water well.\nSay <a>teach</a> to me now to learn an archery skill!")
 			else:
-				me.SayTo(activator, "\nRemember, you need to bring me the proof that you killed the ant queen, then I will ^teach^ you.")
+				me.SayTo(activator, "\nRemember, you need to bring me the proof that you killed the ant queen, then I will <a>teach</a> you.")
 		else:
-			me.SayTo(activator, "\nHello {0}.\nGood to see you back.\nI have no quest for you or your ^archery^ skill.".format(activator.name))
+			me.SayTo(activator, "\nHello {0}.\nGood to see you back.\nI have no quest for you or your <a>archery</a> skill.".format(activator.name))
 
 	# Explain archery skills
 	elif text[0] == "archery":
@@ -43,14 +43,14 @@ def main():
 	# Give out a link to the quest
 	elif text[0] == "learn":
 		if qm.started() and qm.completed():
-			me.SayTo(activator, "\nSorry, I can only teach you |one| archery skill.")
+			me.SayTo(activator, "\nSorry, I can only teach you <yellow>one</yellow> archery skill.")
 		else:
-			me.SayTo(activator, "\nWell, there are three different ^archery^ skills.\nI can teach you only |one| of them.\nYou have to stay with it then. So choose wisely.\nI can tell you more about ^archery^. But before I teach you I have a little ^quest^ for you.")
+			me.SayTo(activator, "\nWell, there are three different <a>archery</a> skills.\nI can teach you only <yellow>one</yellow> of them.\nYou have to stay with it then. So choose wisely.\nI can tell you more about <a>archery</a>. But before I teach you I have a little <a>quest</a> for you.")
 
 	# Teach bow archery
 	elif msg == "teach me bow":
 		if not qm.started() or not qm.finished() or qm.completed():
-			me.SayTo(activator, "\nI can't ^teach^ you this now.")
+			me.SayTo(activator, "\nI can't <a>teach</a> you this now.")
 		else:
 			complete_quest()
 
@@ -68,7 +68,7 @@ def main():
 	# Teach sling archery
 	elif msg == "teach me sling":
 		if not qm.started() or not qm.finished() or qm.completed():
-			me.SayTo(activator, "\nI can't ^teach^ you this now.")
+			me.SayTo(activator, "\nI can't <a>teach</a> you this now.")
 		else:
 			complete_quest()
 
@@ -86,7 +86,7 @@ def main():
 	# Teach crossbow archery
 	elif msg == "teach me crossbow":
 		if not qm.started() or not qm.finished() or qm.completed():
-			me.SayTo(activator, "\nI can't ^teach^ you this now.")
+			me.SayTo(activator, "\nI can't <a>teach</a> you this now.")
 		else:
 			complete_quest()
 
@@ -104,12 +104,12 @@ def main():
 	# Give out links to the various archery skills
 	elif text[0] == "teach":
 		if qm.started() and qm.completed():
-			me.SayTo(activator, "\nSorry, I can only teach you |one| archery skill.")
+			me.SayTo(activator, "\nSorry, I can only teach you <yellow>one</yellow> archery skill.")
 		else:
 			if not qm.finished():
-				me.SayTo(activator, "\nWhere is the ant queen's head? I don't see it.\nSolve the ^quest^ first and kill the ant queen.\nThen I will teach you.")
+				me.SayTo(activator, "\nWhere is the ant queen's head? I don't see it.\nSolve the <a>quest</a> first and kill the ant queen.\nThen I will teach you.")
 			else:
-				me.SayTo(activator, "\nAs reward I will teach you an archery skill.\nChoose wisely. I can only teach you |one| of three archery skills.\nDo you want some information about the ^archery^ skills?\nIf you know your choice tell me ^teach me bow^,\n^teach me sling^ or ^teach me crossbow^.")
+				me.SayTo(activator, "\nAs reward I will teach you an archery skill.\nChoose wisely. I can only teach you <yellow>one</yellow> of three archery skills.\nDo you want some information about the <a>archery</a> skills?\nIf you know your choice tell me <a>teach me bow</a>,\n<a>teach me sling</a> or <a>teach me crossbow</a>.")
 
 	# Give out the quest information
 	elif text[0] == "quest":
@@ -117,12 +117,12 @@ def main():
 			me.SayTo(activator, "\nI have no quest for you after you helped us out.")
 		else:
 			if not qm.finished():
-				me.SayTo(activator, "\nYes, we need your help first.\nAs supply chief the water support of this outpost is under my command. We noticed last few days problems with our main water source.\nIt seems some giant ants have invaded the caverns under our water well.\nEnter the well next to this house and kill the ant queen!\nBring me her head as a proof and I will ^teach^ you.")
+				me.SayTo(activator, "\nYes, we need your help first.\nAs supply chief the water support of this outpost is under my command. We noticed last few days problems with our main water source.\nIt seems some giant ants have invaded the caverns under our water well.\nEnter the well next to this house and kill the ant queen!\nBring me her head as a proof and I will <a>teach</a> you.")
 
 				if not qm.started():
-					me.SayTo(activator, "Do you ^accept^ this quest?", 1)
+					me.SayTo(activator, "Do you <a>accept</a> this quest?", 1)
 			else:
-				me.SayTo(activator, "\nThe head! You have done it!\nNow we can repair the water well.\nSay ^teach^ to me now to learn an archery skill!")
+				me.SayTo(activator, "\nThe head! You have done it!\nNow we can repair the water well.\nSay <a>teach</a> to me now to learn an archery skill!")
 
 	# Accept the quest.
 	elif text[0] == "accept":
