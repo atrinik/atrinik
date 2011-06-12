@@ -292,8 +292,14 @@ arch spawn_point
 x 8
 y 3
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We'll have no trouble here, stranger.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1b
@@ -597,8 +603,14 @@ arch spawn_point
 x 10
 y 8
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We're watching you.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1
@@ -650,8 +662,14 @@ arch spawn_point
 x 10
 y 13
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We'll have no trouble here, stranger.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1a
@@ -703,8 +721,14 @@ arch spawn_point
 x 10
 y 18
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We'll have no trouble here, stranger.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1
@@ -1242,7 +1266,13 @@ arch spawn_point
 x 13
 y 8
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+Keep moving.
+endmsg
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1b
@@ -1290,6 +1320,8 @@ x 13
 y 13
 arch dwarf_steelclad
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1a
@@ -1336,7 +1368,13 @@ arch spawn_point
 x 13
 y 18
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We're watching you.
+endmsg
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1a
@@ -1597,7 +1635,13 @@ arch spawn_point
 x 15
 y 3
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We're watching you.
+endmsg
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1
