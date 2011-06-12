@@ -345,7 +345,7 @@ char *cleanup_chat_string(char *ustring)
 	/* Now clear all special characters. */
 	for (i = 0; *(ustring + i) != '\0'; i++)
 	{
-		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|' || *(ustring + i) < ' ' || *(ustring + i) > '~')
+		if (*(ustring + i) < ' ' || *(ustring + i) > '~')
 		{
 			*(ustring + i) = ' ';
 		}
