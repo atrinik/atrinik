@@ -8,7 +8,7 @@ no_teleport 1
 no_pick 1
 pass_thru 1
 face gate_door1.114
-animation gate_open
+animation gate
 is_turnable 1
 anim_speed 1
 is_animated 0
@@ -17,6 +17,7 @@ wc 0
 dam 1
 maxsp 1
 end
+
 Object gate_closed
 name gate
 no_teleport 1
@@ -25,7 +26,7 @@ layer 5
 level 1
 no_pick 1
 face gate_door1.111
-animation gate_open
+animation gate
 anim_speed 1
 is_turnable 1
 is_animated 0
