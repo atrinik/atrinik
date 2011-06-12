@@ -55,7 +55,7 @@ def npc_tortwald():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		# Not started?
 		if not qm_t.started():
-			me.SayTo(activator, "\n*sob*... Hello there...\n\n^Who are you?^")
+			me.SayTo(activator, "\n*sob*... Hello there...\n\n<a>Who are you?</a>")
 		else:
 			# We haven't completed Tortwald's quest?
 			if not qm_t.completed():
@@ -100,13 +100,13 @@ def npc_tortwald():
 	# Dialogue when we haven't started Tortwald's quest.
 	elif not qm_t.started():
 		if msg == "who are you?":
-			me.SayTo(activator, "\nI'm {0}, a guard from Fort Ghzal...\n\n^Why are you here?^".format(me.name))
+			me.SayTo(activator, "\nI'm {0}, a guard from Fort Ghzal...\n\n<a>Why are you here?</a>".format(me.name))
 
 		elif msg == "why are you here?":
-			me.SayTo(activator, "\nI was captured by the creatures living in this terrible place... I don't know what they want to do with me...\n\n^Can I help you?^")
+			me.SayTo(activator, "\nI was captured by the creatures living in this terrible place... I don't know what they want to do with me...\n\n<a>Can I help you?</a>")
 
 		elif msg == "can i help you?":
-			me.SayTo(activator, "\nNo... I'm too weak to escape... But... Would you, please, deliver a letter to my wife in Fort Ghzal for me...?\n\n^Yes, I will^\n^No thanks^")
+			me.SayTo(activator, "\nNo... I'm too weak to escape... But... Would you, please, deliver a letter to my wife in Fort Ghzal for me...?\n\n<a>Yes, I will</a>\n<a>No thanks</a>")
 
 		elif msg == "yes, i will" or msg == "alright then":
 			me.SayTo(activator, "\nThank you... Here's the letter. Please deliver it to Rienn in Fort Ghzal...")
@@ -115,7 +115,7 @@ def npc_tortwald():
 			create_letter()
 
 		elif msg == "no thanks":
-			me.SayTo(activator, "\n*sobs*... Please?\n\n^Alright then^")
+			me.SayTo(activator, "\n*sobs*... Please?\n\n<a>Alright then</a>")
 
 ## Handle Rienn.
 def npc_rienn():
