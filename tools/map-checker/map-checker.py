@@ -65,6 +65,7 @@ class types:
 	magic_mirror = 28
 	door = 20
 	gate = 91
+	book = 8
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -400,6 +401,22 @@ def check_map(map):
 					if not "unpaid" in obj or obj["unpaid"] == 0:
 						add_error(map["file"], "Object '{0}' is on a shop tile but is not unpaid.".format(obj["archname"]), errors.high, x, y)
 
+## Check whether a message contains control characters like '^'.
+## @param msg The message to check.
+## @return True if the message contains any control characters, False
+## otherwise.
+def check_msg_control_chars(msg):
+	for line in msg.split("\n"):
+		# Ignore @match lines.
+		if line.startswith("@match "):
+			continue
+
+		for c in line:
+			if c == "^" or c == "~" or c == "|":
+				return True
+
+	return False
+
 # Recursively check object.
 # @param obj Object to check.
 # @param map Map.
@@ -551,6 +568,13 @@ def check_obj(obj, map):
 
 		if get_entry(obj, "no_magic") == 1:
 			add_error(map["file"], "Object {0} has 'no_magic 1' flag set, which may be an error, as this flag is usually set on floor objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+	if obj["type"] in (types.spawn_point_mob, types.book, types.sign):
+		msg = get_entry(obj, "msg")
+
+		if msg:
+			if check_msg_control_chars(msg):
+				add_error(map["file"], "Object {0} contains deprecated control characters.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
