@@ -334,18 +334,6 @@ void PlayerCmd(char *buf, int len, player *pl)
 		return;
 	}
 
-	if (pl->socket.socket_version < 1034)
-	{
-		if (len < 7)
-		{
-			return;
-		}
-
-		(void) GetShort_String(buf);
-		(void) GetInt_String(buf + 2);
-		buf += 6;
-	}
-
 	if (len >= MAX_BUF)
 	{
 		len = MAX_BUF - 1;
