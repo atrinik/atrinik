@@ -2,7 +2,7 @@ arch map
 name Temple of Loki
 msg
 Created:  2010-05-11 Asa
-Modified: 2011-02-05 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1972,7 +1972,7 @@ y 10
 arch snake
 msg
 @match ^hi$|^hello$|^hey$
-Welcome worshipper! Pray with caution, ^Loki^ can be very unpredictable!
+Welcome worshipper! Pray with caution, <a>Loki</a> can be very unpredictable!
 @match ^loki$
 Loki is regarded as a god of chaos, due to his playful, unpredictable nature. He is by nature however, a shapeshifter.
 endmsg
