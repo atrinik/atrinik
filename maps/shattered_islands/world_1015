@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -4188,7 +4188,7 @@ y 12
 arch guard_pole
 msg
 @match ^hi$|^hey$|^hello$
-Hello there. Be careful, please! Right up ahead is nasty quicksand. It is blocking the road to Greyton; you will have to go to ^Asteria^ and take a ship to Greyton instead.
+Hello there. Be careful, please! Right up ahead is nasty quicksand. It is blocking the road to Greyton; you will have to go to <a>Asteria</a> and take a ship to Greyton instead.
 @match ^asteria$
 Asteria is northeast from Giant Mountains, which are located north of Aris.
 endmsg
