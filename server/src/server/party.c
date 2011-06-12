@@ -115,21 +115,10 @@ void remove_party_member(party_struct *party, object *op)
 		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
-	/* Tell the client that we have left the party. */
-	if (CONTR(op)->socket.socket_version < 1032)
-	{
-		char tmpbuf[MAX_BUF];
-
-		strncpy(tmpbuf, "Xjoin\nsuccess\n ", sizeof(tmpbuf) - 1);
-		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmpbuf, strlen(tmpbuf));
-	}
-	else
-	{
 	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 	SockList_AddChar(&sl, CMD_PARTY_LEAVE);
 	Send_With_Handling(&CONTR(op)->socket, &sl);
-	}
 
 	CONTR(op)->party = NULL;
 }
