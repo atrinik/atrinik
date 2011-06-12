@@ -6,7 +6,7 @@ Modified: 2011-06-08 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_2 rockforge_a_aa05
 tile_path_3 rockforge_a_ab04
