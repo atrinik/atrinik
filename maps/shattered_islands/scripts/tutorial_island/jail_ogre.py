@@ -22,18 +22,18 @@ qm = QuestManager(activator, quest_items["jail_ogre"]["info"])
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started() or qm.completed():
-			me.SayTo(activator, "\nYo shut up.\nYo grack zhal hihzuk alshzu...\nMe mighty ogre chief.\nMe ^warrior^ will destroy yo. They come.\nGuard and ^Kobolds^ will die then.")
+			me.SayTo(activator, "\nYo shut up.\nYo grack zhal hihzuk alshzu...\nMe mighty ogre chief.\nMe <a>warrior</a> will destroy yo. They come.\nGuard and <a>Kobolds</a> will die then.")
 		elif qm.finished():
 			skill = GetSkillNr("find traps")
 
 			if activator.Controller().GetSkill(Type.SKILL, skill) == None:
 				me.Communicate("/grin " + activator.name)
-				me.SayTo(activator, "\nAshahk! Yo bring me note!\nKobold chief bad time now, ha?\nNow me will teach you!\nSay ^teach me find traps^ now!")
+				me.SayTo(activator, "\nAshahk! Yo bring me note!\nKobold chief bad time now, ha?\nNow me will teach you!\nSay <a>teach me find traps</a> now!")
 			else:
 				me.Communicate("/grin " + activator.name)
 				qm.complete()
 		else:
-			me.SayTo(activator, "\nBring Frah'ak note from ^kobolds^ first!")
+			me.SayTo(activator, "\nBring Frah'ak note from <a>kobolds</a> first!")
 
 	# Jail guard annoying Frah'ak
 	elif msg == "still there, frah'ak?":
@@ -46,7 +46,7 @@ def main():
 		me.SayTo(activator, "\nKobolds traitors!\nGive gold for note, kobolds don't bring note to ogres.\nMe tell you: Kill kobold chief!\nMe will teach you find traps skill!\nShow me note I will teach you.\nKobolds in hole next room. Secret entry in wall.")
 
 		if not qm.started():
-			me.SayTo(activator, "Do yo ^accept^ mission?", 1)
+			me.SayTo(activator, "Do yo <a>accept</a> mission?", 1)
 
 	# Accept the quest.
 	elif text[0] == "accept":
@@ -58,7 +58,7 @@ def main():
 
 	elif msg == "teach me find traps":
 		if not qm.finished():
-			me.SayTo(activator, "\nNah, bring Frah'ak note from ^kobolds^ first!")
+			me.SayTo(activator, "\nNah, bring Frah'ak note from <a>kobolds</a> first!")
 		elif not qm.completed():
 			## Get the skill number of the find traps skill.
 			skill = GetSkillNr("find traps")
