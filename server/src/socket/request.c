@@ -1942,14 +1942,7 @@ void QuestListCmd(char *data, int len, player *pl)
 
 	if (!quest_container || !quest_container->inv)
 	{
-		if (pl->socket.socket_version >= 1043)
-		{
 		stringbuffer_append_string(sb, "qlist <title>No quests to speak of.</title>");
-		}
-		else
-		{
-		stringbuffer_append_string(sb, "qlist <t t=\"No quests to speak of.\">");
-		}
 
 		cp_len = sb->pos;
 		cp = stringbuffer_finish(sb);
@@ -1958,14 +1951,7 @@ void QuestListCmd(char *data, int len, player *pl)
 		return;
 	}
 
-	if (pl->socket.socket_version >= 1043)
-	{
 	stringbuffer_append_string(sb, "qlist <book=Quest List><title>Incomplete quests:</title>\n");
-	}
-	else
-	{
-	stringbuffer_append_string(sb, "qlist <b t=\"Quest List\"><t t=\"|Incomplete quests:|\">");
-	}
 
 	/* First show incomplete quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
@@ -1975,14 +1961,7 @@ void QuestListCmd(char *data, int len, player *pl)
 			continue;
 		}
 
-		if (pl->socket.socket_version >= 1043)
-		{
 		stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
-		else
-		{
-		stringbuffer_append_printf(sb, "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
 
 		if (tmp->sub_type == QUEST_TYPE_MULTI)
 		{
@@ -2027,14 +2006,7 @@ void QuestListCmd(char *data, int len, player *pl)
 		}
 	}
 
-	if (pl->socket.socket_version >= 1043)
-	{
 	stringbuffer_append_string(sb, "<p>\n<title>Completed quests:</title>\n");
-	}
-	else
-	{
-	stringbuffer_append_string(sb, "<p><t t=\"|Completed quests:|\">");
-	}
 
 	/* Now show completed quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
@@ -2044,14 +2016,7 @@ void QuestListCmd(char *data, int len, player *pl)
 			continue;
 		}
 
-		if (pl->socket.socket_version >= 1043)
-		{
 		stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
-		else
-		{
-		stringbuffer_append_printf(sb, "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
 	}
 
 	cp_len = sb->pos;
