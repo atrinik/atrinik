@@ -346,7 +346,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 	len = msg->len;
 
 #if COMPRESS_DATA_PACKETS
-	if (len > COMPRESS_DATA_PACKETS_SIZE && buf[0] != BINARY_CMD_DATA && ns->socket_version >= 1039)
+	if (len > COMPRESS_DATA_PACKETS_SIZE && buf[0] != BINARY_CMD_DATA)
 	{
 		size_t new_size = compressBound(len);
 
