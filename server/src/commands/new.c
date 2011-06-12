@@ -312,136 +312,68 @@ int command_target(object *op, char *params)
 	/* !x y = mouse map target */
 	if (params[0] == '!')
 	{
-		if (CONTR(op)->socket.socket_version < 1042)
-		{
-		int xstart, ystart;
-		char *ctmp;
+		int x, y, i;
 
-		xstart = atoi(params + 1);
-
-		ctmp = strchr(params + 1, ' ');
-
-		/* bad format.. skip */
-		if (!ctmp)
+		/* Try to get the x/y for the target. */
+		if (sscanf(params + 1, "%d %d", &x, &y) != 2)
 		{
 			return 0;
 		}
 
-		ystart = atoi(ctmp + 1);
-
-		for (n = 0; n < SIZEOFFREE; n++)
+		/* Validate the passed x/y. */
+		if (x < 0 || x >= CONTR(op)->socket.mapx || y < 0 || y >= CONTR(op)->socket.mapy)
 		{
-			int xx, yy;
-
-			/* that's the trick: we get  op map pos, but we have 2 offsets:
-			 * the offset from the client mouse click - can be
-			 * +- CONTR(op)->socket.mapx/2 - and the freearr_x/y offset for
-			 * the search. */
-			xt = op->x + (xx = freearr_x[n] + xstart);
-			yt = op->y + (yy = freearr_y[n] + ystart);
-
-			if (xx < -(int) (CONTR(op)->socket.mapx_2) || xx > (int) (CONTR(op)->socket.mapx_2) || yy < -(int) (CONTR(op)->socket.mapy_2) || yy > (int) (CONTR(op)->socket.mapy_2))
-			{
-				continue;
-			}
-
-			block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
-
-			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = get_map_from_coord(op->map, &xt, &yt)))
-			{
-				continue;
-			}
-
-			/* we can have more as one possible target
-			 * on a square - but i try this first without
-			 * handle it. */
-			for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
-			{
-				/* this is a possible target */
-				/* ensure we have head */
-				tmp->head != NULL ? (head = tmp->head) : (head = tmp);
-
-				if ((QUERY_FLAG(head, FLAG_MONSTER) || QUERY_FLAG(head, FLAG_FRIENDLY)) || (head->type == PLAYER && pvp_area(op, head)))
-				{
-					/* this can happen when our old target has moved to next position */
-					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) || OBJECT_IS_HIDDEN(op, head))
-					{
-						continue;
-					}
-
-					CONTR(op)->target_object = head;
-					CONTR(op)->target_object_count = head->count;
-					CONTR(op)->target_map_pos = n;
-					goto found_target;
-				}
-			}
-		}
-		}
-		else
-		{
-			int x, y, i;
-
-			/* Try to get the x/y for the target. */
-			if (sscanf(params + 1, "%d %d", &x, &y) != 2)
-			{
-				return 0;
-			}
-
-			/* Validate the passed x/y. */
-			if (x < 0 || x >= CONTR(op)->socket.mapx || y < 0 || y >= CONTR(op)->socket.mapy)
-			{
-				return 0;
-			}
-
-			for (i = 0; i <= SIZEOFFREE1; i++)
-			{
-				/* Check whether we are still in range of the player's
-				 * viewport, and whether the player can see the square. */
-				if (x + freearr_x[i] < 0 || x + freearr_x[i] >= CONTR(op)->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= CONTR(op)->socket.mapy || CONTR(op)->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW)
-				{
-					continue;
-				}
-
-				/* The x/y we got above is from the client's map, so 0,0 is
-				 * actually topmost (northwest) corner of the map in the client,
-				 * and not 0,0 of the actual map, so we need to transform it to
-				 * actual map coordinates. */
-				xt = op->x + (x - CONTR(op)->socket.mapx_2) + freearr_x[i];
-				yt = op->y + (y - CONTR(op)->socket.mapy_2) + freearr_y[i];
-				m = get_map_from_coord(op->map, &xt, &yt);
-
-				/* Invalid x/y. */
-				if (!m)
-				{
-					continue;
-				}
-
-				/* Nothing alive on this spot. */
-				if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
-				{
-					continue;
-				}
-
-				/* Try to find an alive object here. */
-				for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
-				{
-					head = HEAD(tmp);
-
-					if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op) || OBJECT_IS_HIDDEN(op, head))
-					{
-						continue;
-					}
-
-					CONTR(op)->target_object = head;
-					CONTR(op)->target_object_count = head->count;
-					CONTR(op)->target_map_pos = i;
-					send_target_command(CONTR(op));
-					return 1;
-				}
-			}
-
 			return 0;
 		}
+
+		for (i = 0; i <= SIZEOFFREE1; i++)
+		{
+			/* Check whether we are still in range of the player's
+			 * viewport, and whether the player can see the square. */
+			if (x + freearr_x[i] < 0 || x + freearr_x[i] >= CONTR(op)->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= CONTR(op)->socket.mapy || CONTR(op)->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW)
+			{
+				continue;
+			}
+
+			/* The x/y we got above is from the client's map, so 0,0 is
+			 * actually topmost (northwest) corner of the map in the client,
+			 * and not 0,0 of the actual map, so we need to transform it to
+			 * actual map coordinates. */
+			xt = op->x + (x - CONTR(op)->socket.mapx_2) + freearr_x[i];
+			yt = op->y + (y - CONTR(op)->socket.mapy_2) + freearr_y[i];
+			m = get_map_from_coord(op->map, &xt, &yt);
+
+			/* Invalid x/y. */
+			if (!m)
+			{
+				continue;
+			}
+
+			/* Nothing alive on this spot. */
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			{
+				continue;
+			}
+
+			/* Try to find an alive object here. */
+			for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+			{
+				head = HEAD(tmp);
+
+				if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op) || OBJECT_IS_HIDDEN(op, head))
+				{
+					continue;
+				}
+
+				CONTR(op)->target_object = head;
+				CONTR(op)->target_object_count = head->count;
+				CONTR(op)->target_map_pos = i;
+				send_target_command(CONTR(op));
+				return 1;
+			}
+		}
+
+		return 0;
 	}
 	else if (params[0] == '0')
 	{
