@@ -827,6 +827,7 @@ class ObjectParser:
 			msg = self.msg_buf[:-1]
 			# Add it to the dict without the last newline.
 			d["msg"] = msg
+			self.msg_buf = ""
 			return ("msg", msg)
 		# We are in a message, store it in a buffer.
 		elif self.in_msg:
