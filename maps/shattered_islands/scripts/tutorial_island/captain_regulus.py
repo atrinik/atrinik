@@ -20,7 +20,7 @@ qm = QuestManager(activator, quest_items["captain_regulus"]["info"])
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started():
-			me.SayTo(activator, "\nHello {0}. If you are interested, I have a ^quest^ for you.".format(activator.name))
+			me.SayTo(activator, "\nHello {0}. If you are interested, I have a <a>quest</a> for you.".format(activator.name))
 		elif qm.finished():
 			skill = GetSkillNr("remove traps")
 
@@ -28,7 +28,7 @@ def main():
 				me.SayTo(activator, "Unknown skill - remove traps.")
 			else:
 				if activator.Controller().GetSkill(Type.SKILL, skill) == None:
-					me.SayTo(activator, "\nYou have done it! Really great! Thanks so much! Now say ^teach me remove traps^ for the reward.")
+					me.SayTo(activator, "\nYou have done it! Really great! Thanks so much! Now say <a>teach me remove traps</a> for the reward.")
 				else:
 					me.SayTo(activator, "\nThank you for helping us out, but it seems like you already know the remove traps skill so I have nothing to reward you with.")
 					qm.complete()
@@ -40,9 +40,9 @@ def main():
 	# Give out information about the quest.
 	elif text[0] == "quest":
 		if not qm.started():
-			me.SayTo(activator, "\nThere appears to be some kind of hole in the ground over here.\nI have sent some guards down in there, but none returned. I can hear some strange noises from under there, like slimes or something.\nI fear there is some kind of attack going to happen, if no one stops it before it happens.\nYou must go in there now, and kill their leader, whoever it is!\nDo you ^accept^ this quest?")
+			me.SayTo(activator, "\nThere appears to be some kind of hole in the ground over here.\nI have sent some guards down in there, but none returned. I can hear some strange noises from under there, like slimes or something.\nI fear there is some kind of attack going to happen, if no one stops it before it happens.\nYou must go in there now, and kill their leader, whoever it is!\nDo you <a>accept</a> this quest?")
 		elif qm.finished():
-			me.SayTo(activator, "\nYou have done it! Really great! Now say ^teach me remove traps^ for the reward.")
+			me.SayTo(activator, "\nYou have done it! Really great! Now say <a>teach me remove traps</a> for the reward.")
 
 	# Accept the quest.
 	elif text[0] == "accept":
