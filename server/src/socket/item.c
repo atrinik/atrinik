@@ -37,12 +37,6 @@
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);
 
-/**
- * Legacy macro to support older clients, and properly show skill items
- * in client's player doll.
- * @deprecated */
-#define SOCKET_OBJ_TYPE(ob, pl) (CONTR((pl))->socket.socket_version < 1031 ? (ob->type == SKILL_ITEM ? SKILL : (ob->type == SKILL ? 0 : ob->type)) : ob->type)
-
 /** This is the maximum number of bytes we expect any item to take up. */
 #define MAXITEMLEN 300
 
@@ -193,7 +187,7 @@ static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 
 
 	if (flags & UPD_TYPE)
 	{
-		SockList_AddChar(sl, SOCKET_OBJ_TYPE(op, pl));
+		SockList_AddChar(sl, op->type);
 		SockList_AddChar(sl, op->sub_type);
 
 		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
