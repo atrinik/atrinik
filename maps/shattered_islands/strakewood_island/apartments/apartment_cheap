@@ -2,7 +2,7 @@ arch map
 name Cheap Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-08-28 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 6
 height 5
@@ -13,23 +13,23 @@ no_harm 1
 bg_music harmony2.mid
 region strakewood_island
 end
-arch floor_ostone2
+arch blocked
 end
 arch wall_pattern3.181
 end
-arch floor_ostone2
+arch blocked
 y 1
 end
 arch wall_pattern3.131
 y 1
 end
-arch floor_ostone2
+arch blocked
 y 2
 end
 arch wall_pattern3.131
 y 2
 end
-arch floor_ostone2
+arch blocked
 y 3
 end
 arch wall_pattern3.131
@@ -39,13 +39,13 @@ arch picture2.151
 direction 7
 y 3
 end
-arch floor_ostone2
+arch blocked
 y 4
 end
 arch wall_pattern3.131
 y 4
 end
-arch floor_ostone2
+arch blocked
 x 1
 end
 arch wall_pattern3.111
@@ -89,7 +89,7 @@ arch wall_pattern3.111
 x 1
 y 4
 end
-arch floor_ostone2
+arch blocked
 x 2
 end
 arch wall_pattern3.111
@@ -102,20 +102,6 @@ arch floor_ostone2
 x 2
 y 1
 end
-arch letter
-msg
-<tt="Welcome to your new apartment!">
-You have a container here you can use
-to store your collected items.
-All items here will be PERMANENTLY
-saved - even after a server restart.
-To ensure that nothing bad can happen,
-type "/save" when you leave here to force
-the saving of this apartment.
-endmsg
-x 2
-y 1
-end
 arch floor_ostone2
 x 2
 y 2
@@ -132,7 +118,7 @@ arch wall_pattern3.111
 x 2
 y 4
 end
-arch floor_ostone2
+arch blocked
 x 3
 end
 arch wall_pattern3.111
@@ -158,7 +144,7 @@ arch wall_pattern3.111
 x 3
 y 4
 end
-arch floor_ostone2
+arch blocked
 x 4
 end
 arch wall_pattern3.111
@@ -210,7 +196,7 @@ arch wall_pattern3.111
 x 4
 y 4
 end
-arch floor_ostone2
+arch blocked
 x 5
 end
 arch wall_pattern3.111
