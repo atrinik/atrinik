@@ -183,6 +183,7 @@ decor_wall_l2 = off
 decor_wall_l3 = off
 decor_wall_l4 = off
 sys_not_on_top = on
+suspicious_dialogue_match = off
 """)
 
 config = ConfigParser()
@@ -417,6 +418,21 @@ def check_msg_control_chars(msg):
 
 	return False
 
+## Check whether @match in the dialogue message is not using regex.
+## @param msg Message to check.
+## @return True if one of the @match tests doesn't use regex, False
+## otherwise.
+def check_msg_suspicious_match(msg):
+	for line in msg.split("\n"):
+		if line.startswith("@match "):
+			parts = line[7:].split("|")
+
+			for part in parts:
+				if part[:1] != "^" or part[-1:] != "$":
+					return True
+
+	return False
+
 # Recursively check object.
 # @param obj Object to check.
 # @param map Map.
@@ -575,6 +591,13 @@ def check_obj(obj, map):
 		if msg:
 			if check_msg_control_chars(msg):
 				add_error(map["file"], "Object {0} contains deprecated control characters.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+	if obj["type"] in (types.spawn_point_mob, types.sign) and config.getboolean("Errors", "suspicious_dialogue_match"):
+		msg = get_entry(obj, "msg")
+
+		if msg:
+			if check_msg_suspicious_match(msg):
+				add_error(map["file"], "Object {0} has a @match that doesn't use regex.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
@@ -1016,6 +1039,7 @@ if not cli:
 				[pref_types.checkbox, "Layer 3 object on square with a wall", ("Errors", "decor_wall_l3")],
 				[pref_types.checkbox, "Layer 4 object on square with a wall", ("Errors", "decor_wall_l4")],
 				[pref_types.checkbox, "System object not on top of normal objects", ("Errors", "sys_not_on_top")],
+				[pref_types.checkbox, "Suspicious @match (not using regex)", ("Errors", "suspicious_dialogue_match")],
 			], "\n<b>Note:</b> You need to do a new scan to see the results."],
 			["Suppress", "These allow you to suppress an entire category of error messages.", [
 				[pref_types.checkbox, "Warning", ("Suppress", "warning")],
