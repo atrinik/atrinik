@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-08 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1518,6 +1518,11 @@ arch wall_marble1.111
 x 14
 y 14
 end
+arch picture6.151
+direction 7
+x 14
+y 14
+end
 arch floor_marble2c
 x 14
 y 15
@@ -1584,6 +1589,11 @@ arch wall_marble1.111a
 x 14
 y 22
 end
+arch picture5.151
+direction 7
+x 14
+y 22
+end
 arch floor_marble2c
 x 14
 y 23
@@ -1652,7 +1662,16 @@ arch floor_marble1
 x 15
 y 14
 end
+arch broom.111
+x 15
+y 14
+end
 arch floor_marble1
+x 15
+y 15
+end
+arch lamp_wall
+direction 7
 x 15
 y 15
 end
@@ -1668,7 +1687,16 @@ arch floor_marble1b
 x 15
 y 18
 end
+arch lamp_wall
+direction 7
+x 15
+y 18
+end
 arch floor_marble1b
+x 15
+y 19
+end
+arch fireplace_left
 x 15
 y 19
 end
@@ -1677,6 +1705,10 @@ x 15
 y 20
 end
 arch floor_marble1a
+x 15
+y 21
+end
+arch wood_pile.101
 x 15
 y 21
 end
@@ -1752,6 +1784,10 @@ arch floor_marble1
 x 16
 y 14
 end
+arch amphora1.101
+x 16
+y 14
+end
 arch floor_marble1a
 x 16
 y 15
@@ -1760,7 +1796,15 @@ arch floor_marble1a
 x 16
 y 16
 end
+arch carpet1.131
+x 16
+y 16
+end
 arch floor_marble1a
+x 16
+y 17
+end
+arch carpet1.131
 x 16
 y 17
 end
@@ -1768,11 +1812,23 @@ arch floor_marble1
 x 16
 y 18
 end
+arch carpet1.131
+x 16
+y 18
+end
 arch floor_marble1b
 x 16
 y 19
 end
+arch light5
+x 16
+y 19
+end
 arch floor_marble1b
+x 16
+y 20
+end
+arch light5
 x 16
 y 20
 end
@@ -1857,7 +1913,26 @@ arch floor_marble1a
 x 17
 y 14
 end
+arch exit
+hp 17
+sp 16
+x 17
+y 14
+arch event_obj
+sub_type 10
+race /python/generic/apartment_teleport.py
+slaying strakewood_island
+end
+end
+arch light5
+x 17
+y 14
+end
 arch floor_marble1a
+x 17
+y 15
+end
+arch carpet1.151
 x 17
 y 15
 end
@@ -1865,7 +1940,15 @@ arch floor_marble1a
 x 17
 y 16
 end
+arch carpet1
+x 17
+y 16
+end
 arch floor_marble1a
+x 17
+y 17
+end
+arch carpet1
 x 17
 y 17
 end
@@ -1873,7 +1956,15 @@ arch floor_marble1a
 x 17
 y 18
 end
+arch carpet1
+x 17
+y 18
+end
 arch floor_marble1
+x 17
+y 19
+end
+arch carpet1.111
 x 17
 y 19
 end
@@ -1881,14 +1972,32 @@ arch floor_marble1
 x 17
 y 20
 end
+arch desk2
+x 17
+y 20
+end
 arch floor_marble1b
 x 17
 y 21
 end
-arch sign
-name apartments
+arch chair2_111
+direction 5
 x 17
 y 21
+end
+arch spawn_point
+x 17
+y 21
+arch dwarf_guard
+type 83
+direction 1
+name Nherd Ogrekiller
+arch event_obj
+sub_type 6
+race /python/generic/apartment_seller.py
+slaying strakewood_island
+end
+end
 end
 arch floor_marble1
 x 17
@@ -1962,7 +2071,15 @@ arch floor_marble1b
 x 18
 y 14
 end
+arch amphora1.101
+x 18
+y 14
+end
 arch floor_marble1b
+x 18
+y 15
+end
+arch carpet1.151
 x 18
 y 15
 end
@@ -1970,7 +2087,19 @@ arch floor_marble1b
 x 18
 y 16
 end
+arch carpet1
+x 18
+y 16
+end
 arch floor_marble1
+x 18
+y 17
+end
+arch carpet1
+x 18
+y 17
+end
+arch light9
 x 18
 y 17
 end
@@ -1978,7 +2107,15 @@ arch floor_marble1b
 x 18
 y 18
 end
+arch carpet1
+x 18
+y 18
+end
 arch floor_marble1a
+x 18
+y 19
+end
+arch carpet1.111
 x 18
 y 19
 end
@@ -1998,7 +2135,15 @@ arch floor_marble1
 x 18
 y 23
 end
+arch candlelight4.101
+x 18
+y 23
+end
 arch wall_marble1.131
+x 18
+y 23
+end
+arch light5
 x 18
 y 23
 end
@@ -2058,6 +2203,10 @@ arch wall_marble1.131a
 x 19
 y 13
 end
+arch wmask_mirror
+x 19
+y 13
+end
 arch floor_marble1a
 x 19
 y 14
@@ -2066,7 +2215,15 @@ arch floor_marble1
 x 19
 y 15
 end
+arch carpet1.151
+x 19
+y 15
+end
 arch floor_marble1
+x 19
+y 16
+end
+arch carpet1
 x 19
 y 16
 end
@@ -2074,11 +2231,23 @@ arch floor_marble1a
 x 19
 y 17
 end
+arch carpet1
+x 19
+y 17
+end
 arch floor_marble1b
 x 19
 y 18
 end
+arch carpet1
+x 19
+y 18
+end
 arch floor_marble1b
+x 19
+y 19
+end
+arch carpet1.111
 x 19
 y 19
 end
@@ -2162,6 +2331,10 @@ arch floor_marble1b
 x 20
 y 14
 end
+arch box_big.101
+x 20
+y 14
+end
 arch floor_marble1
 x 20
 y 15
@@ -2170,11 +2343,23 @@ arch floor_marble1b
 x 20
 y 16
 end
+arch carpet1.171
+x 20
+y 16
+end
 arch floor_marble1a
 x 20
 y 17
 end
+arch carpet1.171
+x 20
+y 17
+end
 arch floor_marble1b
+x 20
+y 18
+end
+arch carpet1.171
 x 20
 y 18
 end
@@ -2187,6 +2372,11 @@ x 20
 y 20
 end
 arch floor_marble1
+x 20
+y 21
+end
+arch chair2_111
+direction 7
 x 20
 y 21
 end
@@ -2262,7 +2452,15 @@ arch floor_marble1b
 x 21
 y 14
 end
+arch box_big.101
+x 21
+y 14
+end
 arch floor_marble1
+x 21
+y 15
+end
+arch box1.101
 x 21
 y 15
 end
@@ -2286,11 +2484,28 @@ arch floor_marble1b
 x 21
 y 20
 end
+arch chair2_111
+x 21
+y 20
+end
 arch floor_marble1
 x 21
 y 21
 end
+arch kettle_table
+x 21
+y 21
+end
+arch light5
+x 21
+y 21
+end
 arch floor_marble1
+x 21
+y 22
+end
+arch chair2_111
+direction 5
 x 21
 y 22
 end
@@ -2410,7 +2625,15 @@ arch floor_marble1a
 x 22
 y 16
 end
+arch candlelight4.101
+x 22
+y 16
+end
 arch wall_marble1.111a
+x 22
+y 16
+end
+arch light5
 x 22
 y 16
 end
