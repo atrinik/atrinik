@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -865,7 +865,7 @@ y 14
 arch tailor
 msg
 @match ^hi$|^hey$|^hello$
-I'll haff ano'er ^beer^ peesh.
+I'll haff ano'er <a>beer</a> peesh.
 @match ^beer$
 Yeah! Beer ish my life!
 @match ^pisshead$|^drunk$|^alcoholic$|^alcy$|^drunkard$
