@@ -22,7 +22,7 @@ qm = QuestManager(activator, quest_items["priest_manard"]["info"])
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if activator.GetGod() == "Tabernacle":
-			me.SayTo(activator, "\nVery good. Now listen:\nI will teach you the prayer ~minor healing~ if you say ^healing^ to me.\nBut first you should ask me how to ^cast^ spells and prayers.\nI will tell you the ways you can cast a prayer or spell. When you have learned that, say ^quest^ to me.")
+			me.SayTo(activator, "\nVery good. Now listen:\nI will teach you the prayer <green>minor healing</green> if you say <a>healing</a> to me.\nBut first you should ask me how to <a>cast</a> spells and prayers.\nI will tell you the ways you can cast a prayer or spell. When you have learned that, say <a>quest</a> to me.")
 		else:
 			me.SayTo(activator, "\nWelcome to the church of the Tabernacle.\nTo access the powers of the Tabernacle, you have to apply altar of Tabernacle. One is over there, west of me.\nStep over it and apply it. Then come back to me.")
 
@@ -71,9 +71,9 @@ def main():
 					me.SayTo(activator, "\nMy apprentice went with some guards to explore the hole you might have noticed in the southwest area.\nHe was the only one who returned, and as Captain Regulus probably told you, all the guards that he sent were slain.\nHowever, the apprentice lost a prayerbook, containing the wisdom of the cause light wounds prayer.\nIf you can find the book and return it to me, I will teach you the prayer of cause light wounds.\nI suggest you first do quest Captain Regulus has first, if you have not already.")
 
 					if not qm.started():
-						me.SayTo(activator, "Do you ^accept^ this quest?", 1)
+						me.SayTo(activator, "Do you <a>accept</a> this quest?", 1)
 				else:
-					me.SayTo(activator, "\nYou found the book! Very good. Say ^cause^ now to learn the prayer of cause light wounds, as your reward.")
+					me.SayTo(activator, "\nYou found the book! Very good. Say <a>cause</a> now to learn the prayer of cause light wounds, as your reward.")
 		else:
 			me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
 
