@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1447,7 +1447,7 @@ This is the first point in the game where you meet other players.
 
 This place is called the "Tutorial Island", a place where new players can learn how to play the game together, and solve first basic quests.
 
-Read the next sign in order to learn how to talk to NPCs. When you are done here, exit the building and head to ~Twitriel, the weapon master~. You will see a direction sign, so apply it to learn which direction to go.
+Read the next sign in order to learn how to talk to NPCs. When you are done here, exit the building and head to <green>Twitriel, the weapon master</green>. You will see a direction sign, so apply it to learn which direction to go.
 endmsg
 name Welcome to Atrinik
 x 12
@@ -1828,9 +1828,9 @@ y 18
 end
 arch sign
 msg
-~Talk to NPCs~
-To talk with NPCs (Non Player Characters) you have to open the ~input console~. Press ~enter~ to do that. Now a small cursor appears under this text in the text window.
-Now type "hello" or "hi", and press ~enter~ again.
+<green>Talk to NPCs</green>
+To talk with NPCs (Non Player Characters) you have to open the <green>input console</green>. Press <green>enter</green> to do that. Now a small cursor appears under this text in the text window.
+Now type "hello" or "hi", and press <green>enter</green> again.
 You will see that the NPC here will answer you, unless you stand too far away. You must be inside a range of two tiles to him.
 endmsg
 name Talk to NPCs
@@ -1949,25 +1949,24 @@ x 16
 y 16
 arch monk
 msg
-@match roger
-You have said ~roger~ to me.
+@match ^roger$
+You have said <green>roger</green> to me.
 Many people in the game have hidden keywords
 which you must find out. Sometimes you have
 to listen carefully, other times you have to read
 a hint somewhere else.
 @match *
 Hello stranger!
-You can talk to me by pressing the ~enter~ key
-again. Type ^roger^ and I will give you some hints
+You can talk to me by pressing the <green>enter</green> key
+again. Type <a>roger</a> and I will give you some hints
 related to chatting. I will repeat this text every time
-you ask me something different. So type ^roger^ now.
+you ask me something different. So type <green>roger</a> now.
 You can also click on the blue roger text using
 your mouse. Read the signs nearby to learn more
 about mouse and chatting.
 endmsg
 type 83
 level 3
-friendly 1
 end
 end
 arch floor_wood2_l1
@@ -2256,7 +2255,7 @@ y 16
 end
 arch sign
 msg
-~Other chatting commands~
+<green>Other chatting commands</green>
 There are some more chat commands in the game:
 /shout <message> Sends a message to all players in the game.
 /tell <player name> <message> Sends a private message to one player.
@@ -2265,7 +2264,7 @@ There are some more chat commands in the game:
 /say is the default chat command - if you type something in the console it
 will be handled as "said", as long as it doesn't start with a '/'.
 The '/' is reserved for marking commands.
-Try ^/help^ as an example!
+Try <a=help:main>/help</a> as an example!
 endmsg
 name Other Chatting Commands
 x 18
@@ -2567,7 +2566,7 @@ y 16
 end
 arch sign
 msg
-~Talking using the mouse~
+<green>Talking using the mouse</green>
 You can talk to NPCs using the mouse only: Click on the NPC with the right mouse button to target him.
 A bit right of the target name you will see a "hello" button. Click on it with the left mouse button.
 This will make you say "hello" to the NPC. You can then click with the left mouse button on any blue keywords in the text window to say it out loud.
