@@ -65,21 +65,11 @@ void add_party_member(party_struct *party, object *op)
 	CONTR(op)->party = party;
 
 	/* Tell the client what party we have joined. */
-	if (CONTR(op)->socket.socket_version < 1032)
-	{
-		char tmpbuf[MAX_BUF];
-
-		snprintf(tmpbuf, sizeof(tmpbuf), "Xjoin\nsuccess\n%s", party->name);
-		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmpbuf, strlen(tmpbuf));
-	}
-	else
-	{
 	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 	SockList_AddChar(&sl, CMD_PARTY_JOIN);
 	SockList_AddString(&sl, (char *) party->name);
 	Send_With_Handling(&CONTR(op)->socket, &sl);
-	}
 }
 
 /**
