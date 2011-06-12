@@ -1696,7 +1696,7 @@ arch mage_old
 msg
 @match ^hi$|^hey$|^hello$
 Welcome to the Wizard's Tower. The area is <a>protected</a> by magic; monsters outside cannot touch you.
-@match protected
+@match ^protected$
 Magic protects this place. No snow can fall here, but it's still pretty cold.
 The grass around the lake you can see from here is also magically enchanted.
 endmsg
