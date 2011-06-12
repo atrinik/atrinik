@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -357,19 +357,6 @@ end
 arch floor_wood2_l2
 x 3
 y 3
-end
-arch spawn_point
-x 3
-y 3
-arch priest_green
-name Book Maker
-level 16
-type 83
-arch event_obj
-sub_type 6
-race /python/guilds/guild_bookmaker.py
-end
-end
 end
 arch floor_wood2_l1
 x 3
