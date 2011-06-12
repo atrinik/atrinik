@@ -817,15 +817,7 @@ void esrv_update_stats(player *pl)
 
 	for (i = 0; i < pl->last_skill_index; i++)
 	{
-		if (pl->socket.socket_version < 1033)
-		{
-			AddIfInt(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
-		}
-		else
-		{
 		AddIfInt64(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
-		}
-
 		AddIfChar(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i] + 1);
 	}
 
