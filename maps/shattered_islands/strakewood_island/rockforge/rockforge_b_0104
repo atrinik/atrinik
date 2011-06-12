@@ -9,6 +9,14 @@ height 24
 difficulty 1
 darkness 3
 region rockforge2
+tile_path_1 rockforge_b_0105
+tile_path_2 rockforge_b_0204
+tile_path_3 rockforge_b_0103
+tile_path_4 rockforge_b_aa04
+tile_path_5 rockforge_b_0205
+tile_path_6 rockforge_b_0203
+tile_path_7 rockforge_b_aa03
+tile_path_8 rockforge_b_aa05
 end
 arch blocked
 x 1
