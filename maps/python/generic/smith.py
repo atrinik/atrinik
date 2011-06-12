@@ -31,7 +31,7 @@ def main():
 			cost_strings["identify"] = "free"
 			cost_strings["identify_all"] = "free"
 
-		me.SayTo(activator, "\nWelcome to my shop. We have what you want!\nI can offer you the following ^services^:\n^identify^ for {0}\n^identify all^ for {1}.".format(cost_strings["identify"], cost_strings["identify_all"]))
+		me.SayTo(activator, "\nWelcome to my shop. We have what you want!\nI can offer you the following <a>services</a>:\n<a>identify</a> for {0}\n<a>identify all</a> for {1}.".format(cost_strings["identify"], cost_strings["identify_all"]))
 
 	# Identify a single marked item
 	elif msg == "identify":
@@ -66,6 +66,6 @@ def main():
 				me.SayTo(activator, "\nSorry, you do not have enough money.")
 
 	elif msg == "services":
-		me.SayTo(activator, "\n~identify~ will identify only one item, the one which you have marked with |M|.\n~identify all~ will identify all items in your inventory, or if you have a marked container, all items inside it.")
+		me.SayTo(activator, "\n<green>identify</green> will identify only one item, the one which you have marked with <yellow>M</yellow>.\n<green>identify all</green> will identify all items in your inventory, or if you have a marked container, all items inside it.")
 
 main()
