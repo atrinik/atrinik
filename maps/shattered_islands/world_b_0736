@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -755,7 +755,7 @@ y 17
 end
 arch magic_ear
 msg
-@match eagle
+@match ^eagle$
 Click.
 endmsg
 connected 101
