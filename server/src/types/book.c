@@ -83,9 +83,6 @@ void apply_book(object *op, object *tmp)
 	int lev_diff;
 	SockList sl;
 	unsigned char sock_buf[MAXSOCKBUF];
-	char buf[MAXSOCKBUF - 10];
-	const char *cp = tmp->msg;
-	size_t pos = 0, len = 0;
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
 	{
@@ -144,35 +141,10 @@ void apply_book(object *op, object *tmp)
 	sl.buf = sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
 
-	while (cp[pos] != '\0')
-	{
-		if (!strncmp(cp + pos, "\">", 2))
-		{
-			strncpy(buf + len, "\">\n", sizeof(buf) - len - 1);
-			len += 3;
-			pos += 1;
-		}
-		else
-		{
-			buf[len] = cp[pos];
-			len++;
-		}
-
-		pos++;
-
-		if (len > sizeof(buf) - 1)
-		{
-			break;
-		}
-	}
-
 	SockList_AddStringUnterm(&sl, "<book>");
 	SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
 	SockList_AddStringUnterm(&sl, "</book>");
-
-	buf[len] = '\0';
-	strcpy((char *) sl.buf + sl.len, buf);
-	sl.len += strlen(buf) + 1;
+	SockList_AddString(&sl, (char *) tmp->msg);
 
 	Send_With_Handling(&CONTR(op)->socket, &sl);
 
