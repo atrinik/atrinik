@@ -782,16 +782,7 @@ void esrv_update_stats(player *pl)
 		AddIfChar(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX);
 		AddIfChar(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON);
 		AddIfChar(pl->last_stats.Cha, pl->ob->stats.Cha, CS_STAT_CHA);
-
-		if (pl->socket.socket_version < 1033)
-		{
-			AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
-		}
-		else
-		{
-			AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
-		}
-
+		AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
 		AddIfShort(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC);
 		AddIfShort(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC);
 		AddIfShort(pl->last_stats.dam, pl->client_dam, CS_STAT_DAM);
