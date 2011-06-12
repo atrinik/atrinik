@@ -2981,20 +2981,10 @@ int wall_blocked(mapstruct *m, int x, int y)
  * holds map name, it will be used to override the actual map's name. */
 void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info)
 {
-	if (!pl || CONTR(pl)->socket.socket_version >= 1045)
-	{
-		SockList_AddString(sl, "<b><o=0,0,0>");
-		/* Ignore the terminating NUL. */
-		sl->len--;
-		SockList_AddString(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
-		/* Ignore the terminating NUL. */
-		sl->len--;
-		SockList_AddString(sl, "</o></b>");
-	}
-	else
-	{
-		SockList_AddString(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
-	}
+	(void) pl;
+	SockList_AddStringUnterm(sl, "<b><o=0,0,0>");
+	SockList_AddStringUnterm(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
+	SockList_AddString(sl, "</o></b>");
 }
 
 /**
