@@ -622,16 +622,8 @@ void send_srv_file(socket_struct *ns, int id)
 	sl.buf = malloc(SrvClientFiles[id].len + 6);
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DATA);
-
-	if (ns->socket_version < 1036)
-	{
-		SockList_AddChar(&sl, (char) (id + 1) | DATA_PACKED_CMD);
-	}
-	else
-	{
 	SockList_AddChar(&sl, (char) id);
 	SockList_AddInt(&sl, SrvClientFiles[id].len_ucomp);
-	}
 
 	memcpy(sl.buf + sl.len, SrvClientFiles[id].file, SrvClientFiles[id].len);
 	sl.len += SrvClientFiles[id].len;
