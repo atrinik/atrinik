@@ -112,10 +112,6 @@ void apply_sign(object *op, object *sign)
 
 		sl.buf = sock_buf;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
-		if (CONTR(op)->socket.socket_version < 1043)
-		{
-			SockList_AddInt(&sl, 0);
-		}
 		strcpy((char *) sl.buf + sl.len, sign->msg);
 		sl.len += strlen(sign->msg) + 1;
 		Send_With_Handling(&CONTR(op)->socket, &sl);
