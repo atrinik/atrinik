@@ -26,11 +26,11 @@ qm = QuestManager(activator, quest)
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started():
-			me.SayTo(activator, "\nHello there. Hmm, do you happen to know anything about the ^undead^?")
+			me.SayTo(activator, "\nHello there. Hmm, do you happen to know anything about the <a>undead</a>?")
 		elif qm.completed():
-			me.SayTo(activator, "\nThank you, the undead have stopped coming. Or are you here to learn about ^finger of death^?")
+			me.SayTo(activator, "\nThank you, the undead have stopped coming. Or are you here to learn about <a>finger of death</a>?")
 		elif qm.finished():
-			me.SayTo(activator, "\nYou've done it! Thank you kind adventurer.\nNow, let me teach you the knowledge of ^finger of death^ as your reward...")
+			me.SayTo(activator, "\nYou've done it! Thank you kind adventurer.\nNow, let me teach you the knowledge of <a>finger of death</a> as your reward...")
 			activator.Controller().AcquireSpell(GetSpellNr("finger of death"))
 			qm.complete()
 		else:
@@ -39,10 +39,10 @@ def main():
 	# Not started yet.
 	elif not qm.started():
 		if msg == "undead":
-			me.SayTo(activator, "\nWe seem to have an undead ^infestation^ going on under this temple's graveyard.")
+			me.SayTo(activator, "\nWe seem to have an undead <a>infestation</a> going on under this temple's graveyard.")
 
 		elif msg == "infestation":
-			me.SayTo(activator, "\nThey have started coming out of that open grave in the graveyard, and no matter how many we kill, they keep coming back! We're just not strong enough to banish them once and for all. That is why the door to the graveyard has been ^sealed off^ by magic.")
+			me.SayTo(activator, "\nThey have started coming out of that open grave in the graveyard, and no matter how many we kill, they keep coming back! We're just not strong enough to banish them once and for all. That is why the door to the graveyard has been <a>sealed off</a> by magic.")
 
 		elif msg == "sealed off":
 			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("divine prayers"))
