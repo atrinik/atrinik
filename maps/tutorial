@@ -2,7 +2,7 @@ arch map
 name The Starting Tutorial
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -294,10 +294,10 @@ y 4
 end
 arch sign
 msg
-~The Below Window~
+<green>The Below Window</green>
 
 You will find the below window below the map.
-It shows you all the objects under your feet. Select an object in the below window by using the ~cursor~ keys. The blue box indicates the selected object.
+It shows you all the objects under your feet. Select an object in the below window by using the <green>cursor</green> keys. The blue box indicates the selected object.
 You "use" an object by pressing the 'a' key, which stands for 'a'pply.
 Now, go to the nearby lever, use the cursor keys to move the blue box over the lever and press 'a' to apply it - this will open the gate to the next room.
 endmsg
@@ -331,10 +331,10 @@ y 9
 end
 arch sign
 msg
-~The Inventory~
-You can access your inventory by pressing the ~shift~ key. ~Shift~ toggles between inventory and the below window.
-Press ~shift~ and hold it. You can move around in your inventory with the cursor keys like in the below window.
-With the mouse, you can click the bag icon on the inventory window, which will open the inventory without the need of holding ~shift~.
+<green>The Inventory</green>
+You can access your inventory by pressing the <green>shift</green> key. <green>Shift</green> toggles between inventory and the below window.
+Press <green>shift</green> and hold it. You can move around in your inventory with the cursor keys like in the below window.
+With the mouse, you can click the bag icon on the inventory window, which will open the inventory without the need of holding <green>shift</green>.
 While your inventory is open, your player doll is shown as well.
 endmsg
 name The Inventory
@@ -359,12 +359,12 @@ y 12
 end
 arch sign
 msg
-~Using Objects~
+<green>Using Objects</green>
 The 'a' key will apply (use) an object. If you apply a weapon, you will wield it.
 If you apply food you will eat it.
-You can also ~get~ items.
+You can also <green>get</green> items.
 Go to the nearby food and press 'g' to get it.
-Then press ~shift~ and look in your inventory. There it is.
+Then press <green>shift</green> and look in your inventory. There it is.
 Move the blue box over the food and press 'a'. Now you have eaten the food.
 endmsg
 name Using Objects
@@ -381,12 +381,12 @@ y 14
 end
 arch sign
 msg
-~Using Exits~
-There are two kinds of ~exits~. Some exits like magic portals or invisible map exits will
+<green>Using Exits</green>
+There are two kinds of <green>exits</green>. Some exits like magic portals or invisible map exits will
 transfer you to a different location (map) when you step on them.
-The other class of ~exits~ are objects like stairs, ladders and holes.
+The other class of <green>exits</green> are objects like stairs, ladders and holes.
 To enter this kind of exits you have to 'a'pply them like other usable objects.
-Step over the ladder there and ~apply~ it.
+Step over the ladder there and <green>apply</green> it.
 
 You will be transfered to the next room.
 endmsg
@@ -412,7 +412,7 @@ y 17
 end
 arch sign
 msg
-~The Apply Command~
+<green>The Apply Command</green>
 As shown before, the apply command will 'use' an object.
 Food is eaten, levers are pulled and weapons wielded.
 Remember that some items can't be applied. You
@@ -432,7 +432,7 @@ y 18
 end
 arch sign
 msg
-~The Examine Command~
+<green>The Examine Command</green>
 By selecting an object in the below or inventory windows (cursor keys) you can get a full description of it by pressing the 'e' (examine) key. You will get all information about the item, but only if it is identified.
 Try it on the 2 boulders nearby.
 One is identified, the other not. Most items you will find are unidentified. The 'identify' spell, a 'scroll of identify' or a helpful NPC can be used to identify the items.
@@ -447,12 +447,12 @@ y 19
 end
 arch sign
 msg
-~The Get And Drop Commands~
+<green>The Get And Drop Commands</green>
 As described before the 'g' key will get items from below and put them in your inventory.
-Remember to open the inventory by holding ~shift~ key.
-To ~drop~ items from your inventory below your feet, you have to use the 'd' (drop) key.
+Remember to open the inventory by holding <green>shift</green> key.
+To <green>drop</green> items from your inventory below your feet, you have to use the 'd' (drop) key.
 It works like the get command but in the other direction.
-One-drop items will ~vanish~ forever when dropped, so be careful!
+One-drop items will <green>vanish</green> forever when dropped, so be careful!
 endmsg
 name The Get and Drop Commands
 x 5
@@ -464,8 +464,8 @@ y 20
 end
 arch sign
 msg
-~Object Stacks~
-If there are mutiple objects of the same kind, they can build ~stacks~. Not all objects can build stacks.
+<green>Object Stacks</green>
+If there are mutiple objects of the same kind, they can build <green>stacks</green>. Not all objects can build stacks.
 Coins for example can build stacks. There is a stack of 4 copper coins in front of this sign. Get them with the 'g'et command. You will then be asked in a small window how many of the 4 coins you want to get. Pressing return or 'g' again will get all. You can also enter a number getting only a part of the stack. Items not picked up will stay on the floor.
 endmsg
 name Object Stacks
@@ -672,9 +672,9 @@ y 7
 end
 arch sign
 msg
-~Scrolling in the message windows~
+<green>Scrolling in the message windows</green>
 Sometimes messages are too long to fit the window, or maybe you just want to look back and see what was said five minutes ago.
-You can use the ~page up~ and ~page down~ keys to view older messages. You can also control the scroll bar with your mouse.
+You can use the <green>page up</green> and <green>page down</green> keys to view older messages. You can also control the scroll bar with your mouse.
 Note that it is easy to miss new messages if you aren't at the bottom of the message windows.
 There are two message windows. The right one shows this text and game related notices like fighting in combat, the left one shows messages from other players.
 endmsg
@@ -732,10 +732,10 @@ y 17
 end
 arch sign
 msg
-~Other Inventory Command~
+<green>Other Inventory Command</green>
 There are some more commands for objects.
-With 'm', which stands for ~mark~, you can mark an object. Some NPCs might want a marked object when they do an action, for example identifying a single object.
-With 'l', which means ~lock~ you can lock an item in your inventory.
+With 'm', which stands for <green>mark</green>, you can mark an object. Some NPCs might want a marked object when they do an action, for example identifying a single object.
+With 'l', which means <green>lock</green> you can lock an item in your inventory.
 You cannot drop a locked item unless you first unlock it by pressing the 'l' key again.
 This is useful for making sure you don't accidentally drop your important items.
 endmsg
@@ -951,9 +951,9 @@ y 1
 end
 arch sign
 msg
-~Containers for your inventory~
+<green>Containers for your inventory</green>
 Some containers like this sack can be picked up and carried in your inventory, but their usage is different: To open the container, you must apply it two times.
-The first apply will ~ready~ it. If you now pick up an item, the item will be automatically stored in your readied container.
+The first apply will <green>ready</green> it. If you now pick up an item, the item will be automatically stored in your readied container.
 That's very useful to collect arrows in a quiver, for example. A second apply will open the container and let you move things in and out of it with the 'g' key.
 endmsg
 name Containers for your inventory
@@ -997,9 +997,9 @@ y 5
 end
 arch sign
 msg
-~Containers~
+<green>Containers</green>
 Containers can be used to store other objects inside.
-You can only have ~one~ open container at any time - if you open another, the first one will close automatically.
+You can only have <green>one</green> open container at any time - if you open another, the first one will close automatically.
 To open a container like this chest, move to it and 'a'pply it. It will open and you will see all items inside. Select the item you want and 'g'et it with 'g' key. To put an item inside, just 'd'rop it.
 The shelf and locker on the wall are also containers, and you will find many more in the game.
 Get the throwing daggers from the chest as well. Throwing and range system will be explained soon.
@@ -1176,7 +1176,7 @@ y 18
 end
 arch sign
 msg
-~Doors~
+<green>Doors</green>
 You open doors by moving into them. They will open if they are not locked by a key.
 After some time they will close automatically.
 If the door needs a key, you will get a message.
@@ -1417,18 +1417,6 @@ arch floor_stone_b4
 x 12
 y 18
 end
-arch sign
-msg
-~Fog Of War~
-Some objects like walls and solid doors will block your ~line of sight~ (LOS). You can't see what's
-behind them. But for some time you will remember the structure of an area where you have recently been.
-That area is shown in a dark blue color. Note that your memory will vanish for areas you haven't
-visited for a while or if you visit other areas.
-endmsg
-name Fog of War
-x 12
-y 18
-end
 arch floor_stone_b1
 x 12
 y 19
@@ -1477,9 +1465,9 @@ y 5
 end
 arch sign
 msg
-~Light Sources and Darkness~
+<green>Light Sources and Darkness</green>
 Some areas are darker than others. In outdoor areas you might get surprised by nightfall, and some dungeons can be completely dark.
-To have a light, get this torch. Apply the torch ~two~ times. The first apply will light the torch. The light is hidden until the second apply which will put the torch in your hand. You will see it appear on your player doll, if you have it open.
+To have a light, get this torch. Apply the torch <green>two</green> times. The first apply will light the torch. The light is hidden until the second apply which will put the torch in your hand. You will see it appear on your player doll, if you have it open.
 Open the door if your torch is ready - it's dark on the other side.
 endmsg
 name Light Sources and Darkness
@@ -1960,7 +1948,7 @@ y 9
 end
 arch sign
 msg
-~Saving~
+<green>Saving</green>
 Your character is automatically saved if you log out. You can also use the /save command or apply a bed to reality.
 But you will ONLY be saved if you have proven yourself worthy and collected some experience points, so don't log out too soon!
 endmsg
@@ -1978,7 +1966,7 @@ y 11
 end
 arch sign
 msg
-~End of Tutorial~
+<green>End of Tutorial</green>
 You have reached the end of the tutorial, but there is still more to learn, including talking to NPCs, using archery, casting spells, fighting, and more.
 Go through the gate, and step into the portal. The portal will take you to Tutorial Island, a place where you can meet other players and learn more things.
 endmsg
