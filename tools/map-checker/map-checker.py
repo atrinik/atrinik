@@ -66,6 +66,7 @@ class types:
 	door = 20
 	gate = 91
 	book = 8
+	magic_ear = 29
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -183,6 +184,7 @@ decor_wall_l2 = off
 decor_wall_l3 = off
 decor_wall_l4 = off
 sys_not_on_top = on
+deprecated_control_chars = off
 suspicious_dialogue_match = off
 """)
 
@@ -588,14 +590,14 @@ def check_obj(obj, map):
 		if get_entry(obj, "no_magic") == 1:
 			add_error(map["file"], "Object {0} has 'no_magic 1' flag set, which may be an error, as this flag is usually set on floor objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
-	if obj["type"] in (types.spawn_point_mob, types.book, types.sign):
+	if obj["type"] in (types.spawn_point_mob, types.book, types.sign) and config.getboolean("Errors", "deprecated_control_chars"):
 		msg = get_entry(obj, "msg")
 
 		if msg:
 			if check_msg_control_chars(msg):
 				add_error(map["file"], "Object {0} contains deprecated control characters.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
-	if obj["type"] in (types.spawn_point_mob, types.sign) and config.getboolean("Errors", "suspicious_dialogue_match"):
+	if obj["type"] in (types.spawn_point_mob, types.magic_ear) and config.getboolean("Errors", "suspicious_dialogue_match"):
 		msg = get_entry(obj, "msg")
 
 		if msg:
@@ -1042,6 +1044,7 @@ if not cli:
 				[pref_types.checkbox, "Layer 3 object on square with a wall", ("Errors", "decor_wall_l3")],
 				[pref_types.checkbox, "Layer 4 object on square with a wall", ("Errors", "decor_wall_l4")],
 				[pref_types.checkbox, "System object not on top of normal objects", ("Errors", "sys_not_on_top")],
+				[pref_types.checkbox, "Check for deprecated control characters", ("Errors", "deprecated_control_chars")],
 				[pref_types.checkbox, "Suspicious @match (not using regex)", ("Errors", "suspicious_dialogue_match")],
 			], "\n<b>Note:</b> You need to do a new scan to see the results."],
 			["Suppress", "These allow you to suppress an entire category of error messages.", [
