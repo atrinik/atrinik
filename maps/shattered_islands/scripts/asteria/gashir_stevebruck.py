@@ -26,10 +26,10 @@ def npc_gashir():
 			me.Communicate("/smile")
 			me.SayTo(activator, "\nFinally, I get my shipment of Charob Beer!")
 			activator.Write("You give the {0} to {1}.".format(quest["item_name"], me.name), COLOR_WHITE)
-			me.SayTo(activator, "Thank you! Now I can serve you with ^Charob Beer^ for 8 copper. I am sure you'll get a nice reward for your delivery too!", 1)
+			me.SayTo(activator, "Thank you! Now I can serve you with <a>Charob Beer</a> for 8 copper. I am sure you'll get a nice reward for your delivery too!", 1)
 			qm.complete()
 		else:
-			me.SayTo(activator, "\nWelcome to Asterian Arms Tavern\nI'm Gashir, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can sell you ^booze^ for just 5 copper, really ^strong booze^ for 10 copper or ^food^ for 10 copper. We have also some ^water^, for 2 copper, and finally our local special, ^Charob Beer^, for 8 copper. Also, please, do not ^complain^ about quality of strong booze.")
+			me.SayTo(activator, "\nWelcome to Asterian Arms Tavern\nI'm Gashir, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can sell you <a>booze</a> for just 5 copper, really <a>strong booze</a> for 10 copper or <a>food</a> for 10 copper. We have also some <a>water</a>, for 2 copper, and finally our local special, <a>Charob Beer</a>, for 8 copper. Also, please, do not <a>complain</a> about quality of strong booze.")
 
 	elif msg == "complain":
 		me.SayTo(activator, "\nI told you it is really strong! What did you expect? Elvish wine?")
@@ -84,12 +84,12 @@ def npc_steve():
 		me.SayTo(activator, "\nWelcome to Charob Beer's Shipping Department.\nI am as usual overworked and underpaid.")
 
 		if not qm.started():
-			me.SayTo(activator, "I also have this ^shipment^ of beer gathering dust here.", 1)
+			me.SayTo(activator, "I also have this <a>shipment</a> of beer gathering dust here.", 1)
 		elif qm.completed():
 			if qm.quest_object.hp:
 				me.SayTo(activator, "Thanks for the help with that shipment, I should have another one soon.", 1)
 			else:
-				me.SayTo(activator, "|{0} smiles at you appreciatively.|\nThank you! I hope he wasn't too upset about the late delivery!".format(me.name), 1)
+				me.SayTo(activator, "<yellow>{0} smiles at you appreciatively.</yellow>\nThank you! I hope he wasn't too upset about the late delivery!".format(me.name), 1)
 				me.SayTo(activator, "Here is your payment...", 1)
 				activator.CreateObject("silvercoin", 5)
 				activator.Write("You received 5 silver coins.", COLOR_WHITE)
