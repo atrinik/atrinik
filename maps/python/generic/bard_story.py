@@ -65,7 +65,7 @@ def main():
 
 	# Show available plays.
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nGreetings {0}, I am {1}.\nIf you like, I can perform the following plays:\n\n{2}".format(activator.name, me.name, "\n".join(list(map(lambda l: "^" + l[0] + "^", stories[GetOptions()])))))
+		me.SayTo(activator, "\nGreetings {0}, I am {1}.\nIf you like, I can perform the following plays:\n\n{2}".format(activator.name, me.name, "\n".join(list(map(lambda l: "<a>" + l[0] + "</a>", stories[GetOptions()])))))
 	# See if player chose one of the plays.
 	else:
 		l = list(filter(lambda l: l[0].lower() == msg, stories[GetOptions()]))
