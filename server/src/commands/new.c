@@ -1107,6 +1107,8 @@ void generate_ext_title(player *pl)
 	char rank[32] = "";
 	char align[32] = "";
 	char race[MAX_BUF];
+	char name[MAX_BUF];
+	shstr *godname;
 
 	for (walk = pl->ob->inv; walk; walk = walk->below)
 	{
@@ -1154,11 +1156,6 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [WIZ]");
 	}
 
-	if (pl->socket.socket_version >= 1044)
-	{
-	char name[MAX_BUF];
-	shstr *godname;
-
 	snprintf(name, sizeof(name), "%s%s%s", rank, pl->ob->name, title);
 
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
@@ -1179,10 +1176,5 @@ void generate_ext_title(player *pl)
 	{
 		strncat(pl->ext_title, " follower of ", sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
 		strncat(pl->ext_title, godname, sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
-	}
-	}
-	else
-	{
-	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", player_get_race_class(pl->ob, race, sizeof(race)), prof, align, determine_god(pl->ob), *gender_noun[object_get_gender(pl->ob)]);
 	}
 }
