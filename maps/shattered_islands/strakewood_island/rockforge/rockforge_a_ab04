@@ -242,6 +242,8 @@ msg
 <yellow> The dwarf appears to be sleeping like a stone... Suddenly, he yells out, as if from a dream:</yellow>
 
 This is vewrry!!! Weird!!!
+@match ^shutdown$
+Aaahhhhhhhhhhhhhhhhhhhhhhh!!!!!
 endmsg
 name Fede Greatblade
 level 38
