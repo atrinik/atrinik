@@ -241,6 +241,9 @@ msg
 This is vewrry!!! Weird!!!
 @match ^shutdown$
 Aaahhhhhhhhhhhhhhhhhhhhhhh!!!!!
+@match ^faction$
+*snort*
+<yellow>The dwarf continues sleeping...</yellow>
 endmsg
 name Fede Greatblade
 is_animated 0
