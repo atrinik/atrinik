@@ -1845,6 +1845,13 @@ spawn_time 08:30 - 23:00
 type 83
 end
 end
+arch check_inv
+layer 0
+sys_object 1
+last_grace 1
+x 11
+y 9
+end
 arch floor_marble1a
 x 11
 y 10
