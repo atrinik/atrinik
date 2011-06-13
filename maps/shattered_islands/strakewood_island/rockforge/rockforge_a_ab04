@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-08 Alex Tokar
+Modified: 2011-06-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -203,9 +203,55 @@ arch floor_marble2a
 x 1
 y 9
 end
+arch bed_1a.111
+direction 7
+x 1
+y 9
+end
+arch check_inv
+layer 0
+sys_object 1
+last_grace 1
+x 1
+y 9
+end
 arch floor_marble2b
 x 1
 y 10
+end
+arch bed_1b.111
+direction 5
+x 1
+y 10
+end
+arch check_inv
+layer 0
+sys_object 1
+last_grace 1
+x 1
+y 10
+end
+arch spawn_point
+speed 0.05
+last_grace 0
+x 1
+y 10
+arch dwarf_pathfinder
+msg
+@match ^hi$|^hey$|^hello$
+<yellow> The dwarf appears to be sleeping like a stone... Suddenly, he yells out, as if from a dream:</yellow>
+
+This is vewrry!!! Weird!!!
+endmsg
+name Fede Greatblade
+level 38
+spawn_time 23:30 - 8:00
+type 83
+rotate -41
+z 30
+align 8
+is_animated 0
+end
 end
 arch floor_marble2c
 x 1
