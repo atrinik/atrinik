@@ -1484,13 +1484,13 @@ void Map2Cmd(unsigned char *data, int len)
 			/* Clear this layer. */
 			if (type == MAP2_LAYER_CLEAR)
 			{
-				map_set_data(x, y, data[pos++], 0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0, 0);
+				map_set_data(x, y, data[pos++], 0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			}
 			/* We have some data. */
 			else
 			{
 				sint16 face = GetShort_String(data + pos), height = 0, zoom = 0, align = 0, rotate = 0;
-				uint8 flags, obj_flags, quick_pos = 0, player_color = 0, probe = 0, draw_double = 0, alpha = 0;
+				uint8 flags, obj_flags, quick_pos = 0, player_color = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0;
 				char player_name[64];
 
 				player_name[0] = '\0';
@@ -1573,10 +1573,15 @@ void Map2Cmd(unsigned char *data, int len)
 						rotate = GetShort_String(data + pos);
 						pos += 2;
 					}
+
+					if (flags2 & MAP2_FLAG2_INFRAVISION)
+					{
+						infravision = 1;
+					}
 				}
 
 				/* Set the data we figured out. */
-				map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe, zoom, align, draw_double, alpha, rotate);
+				map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe, zoom, align, draw_double, alpha, rotate, infravision);
 			}
 		}
 

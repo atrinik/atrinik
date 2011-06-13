@@ -366,8 +366,9 @@ void adjust_tile_stretch()
  * @param probe Target's HP bar.
  * @param zoom How much to zoom the face by.
  * @param align X align.
- * @param rotate Rotation in degrees. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate)
+ * @param rotate Rotation in degrees.
+ * @param infravision Whether to show the object in red. */
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -383,6 +384,7 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].draw_double[layer] = draw_double;
 	the_map.cells[x][y].alpha[layer] = alpha;
 	the_map.cells[x][y].rotate[layer] = rotate;
+	the_map.cells[x][y].infravision[layer] = infravision;
 }
 
 /**
@@ -406,6 +408,7 @@ void map_clear_cell(int x, int y)
 		the_map.cells[x][y].zoom[i] = 0;
 		the_map.cells[x][y].align[i] = 0;
 		the_map.cells[x][y].rotate[i] = 0;
+		the_map.cells[x][y].infravision[i] = 0;
 	}
 }
 
@@ -541,7 +544,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
 
-	if (cpl.stats.flags & SF_INFRAVISION && layer == 6 && map->darkness < 150)
+	if (map->infravision[layer])
 	{
 		bltfx.flags |= BLTFX_FLAG_RED;
 	}

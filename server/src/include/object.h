@@ -595,6 +595,11 @@ extern struct mempool_chunk *removed_objects;
 /*@}*/
 
 /**
+ * Value in percent of time above which the corpse will be highlighted
+ * in infravision mode. */
+#define CORPSE_INFRAVISION_PERCENT 75
+
+/**
  * Returns the head part of an object. For single-tile objects returns the
  * object itself.
  * @param op The object.

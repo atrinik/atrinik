@@ -72,6 +72,8 @@
 #define MAP2_FLAG2_ALPHA 1
 /** Custom rotate value in degrees. */
 #define MAP2_FLAG2_ROTATE 2
+/** The object should be highlighted in red. */
+#define MAP2_FLAG2_INFRAVISION 4
 /*@}*/
 
 /**

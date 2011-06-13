@@ -1553,7 +1553,7 @@ void drop_ob_inv(object *ob)
 		}
 		else if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
 		{
-			corpse->stats.food = 3;
+			corpse->stats.food = 5;
 		}
 
 		/* Change sub_type to mark this corpse */
@@ -1569,6 +1569,9 @@ void drop_ob_inv(object *ob)
 				corpse->sub_type = ST1_CONTAINER_CORPSE_player;
 			}
 		}
+
+		/* Store the original food value. */
+		corpse->last_eat = corpse->stats.food;
 
 		if (ob->env)
 		{
