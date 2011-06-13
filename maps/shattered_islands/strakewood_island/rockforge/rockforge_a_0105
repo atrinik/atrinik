@@ -1836,6 +1836,8 @@ arch dwarf_pathfinder
 msg
 @match ^hi$|^hey$|^hello$
 No, you can't fool me! That cake is surely a lie! ... or is it? Hmm....
+@match ^portal$
+What? I just want cake!
 endmsg
 name Fede Greatblade
 level 38
