@@ -53,13 +53,13 @@ state 7
 is_turnable 1
 no_pass 1
 pass_thru 1
-blocksview 1
 wc 7
 maxsp 0
 dam 1
 maxhp 20
 hp 20
 speed 0.35
+ac 1
 end
 
 Object portcullis_trigger_open
@@ -83,4 +83,5 @@ maxhp 20
 hp 20
 attack_impact 100
 speed 0.35
+ac 1
 end
