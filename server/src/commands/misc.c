@@ -1015,14 +1015,26 @@ int command_region_map(object *op, char *params)
 
 	if (params_check)
 	{
-		size_t params_len = strlen(params);
-
 		/* Search for the region the player wants. */
 		for (r = first_region; r; r = r->next)
 		{
-			if (!strncasecmp(r->name, params, params_len))
+			if (!strcasecmp(r->name, params))
 			{
 				break;
+			}
+		}
+
+		/* Not found, try partial region names. */
+		if (!r)
+		{
+			size_t params_len = strlen(params);
+
+			for (r = first_region; r; r = r->next)
+			{
+				if (!strncasecmp(r->name, params, params_len))
+				{
+					break;
+				}
 			}
 		}
 
