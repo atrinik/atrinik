@@ -265,7 +265,9 @@ typedef enum
 	/** Player's known spells array. */
 	FIELDTYPE_KNOWN_SPELLS,
 	/** Player's command permissions. */
-	FIELDTYPE_CMD_PERMISSIONS
+	FIELDTYPE_CMD_PERMISSIONS,
+	/** Player's faction reputations. */
+	FIELDTYPE_FACTIONS
 } field_type;
 
 /**
