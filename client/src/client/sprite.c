@@ -429,7 +429,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}
 
-	if (stretch || (zoom && zoom != 100))
+	if (stretch || (zoom && zoom != 100) || rotate)
 	{
 		SDL_FreeSurface(blt_sprite);
 	}
