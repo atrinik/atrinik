@@ -362,6 +362,9 @@ typedef struct pl_player
 	/** Number of player::cmd_permissions. */
 	int num_cmd_permissions;
 
+	/** Fame rating in the world. */
+	sint64 fame;
+
 	/** weapon_speed_left * 1000 and cast from float to int for client. */
 	float action_timer;
 

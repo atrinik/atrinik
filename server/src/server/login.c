@@ -243,6 +243,7 @@ int save_player(object *op, int flag)
 		}
 	}
 
+	fprintf(fp, "fame %"FMT64"\n", pl->fame);
 	fprintf(fp, "endplst\n");
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -621,6 +622,10 @@ void check_login(object *op)
 			}
 
 			pl->spell_quickslots[value] = spell_id;
+		}
+		else if (!strcmp(buf, "fame"))
+		{
+			pl->fame = value;
 		}
 	}
 
