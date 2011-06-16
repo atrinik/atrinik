@@ -239,6 +239,9 @@ typedef struct pl_player
 	/** DM command permissions. */
 	char **cmd_permissions;
 
+	/** Faction IDs. */
+	shstr **faction_ids;
+
 	/** Last map info name sent. */
 	char map_info_name[HUGE_BUF];
 
@@ -361,6 +364,12 @@ typedef struct pl_player
 
 	/** Number of player::cmd_permissions. */
 	int num_cmd_permissions;
+
+	/** Number of faction IDs. */
+	int num_faction_ids;
+
+	/** Reputations with the various factions. */
+	sint64 *faction_reputation;
 
 	/** Fame rating in the world. */
 	sint64 fame;

@@ -250,6 +250,23 @@ void free_player(player *pl)
 		free(pl->cmd_permissions);
 	}
 
+	if (pl->faction_ids)
+	{
+		int i;
+
+		for (i = 0; i < pl->num_faction_ids; i++)
+		{
+			FREE_ONLY_HASH(pl->faction_ids[i]);
+		}
+
+		free(pl->faction_ids);
+	}
+
+	if (pl->faction_reputation)
+	{
+		free(pl->faction_reputation);
+	}
+
 	player_path_clear(pl);
 
 	/* Now remove from list of players. */

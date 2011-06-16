@@ -243,6 +243,14 @@ int save_player(object *op, int flag)
 		}
 	}
 
+	for (i = 0; i < pl->num_faction_ids; i++)
+	{
+		if (pl->faction_ids[i])
+		{
+			fprintf(fp, "faction %s %"FMT64"\n", pl->faction_ids[i], pl->faction_reputation[i]);
+		}
+	}
+
 	fprintf(fp, "fame %"FMT64"\n", pl->fame);
 	fprintf(fp, "endplst\n");
 
@@ -622,6 +630,20 @@ void check_login(object *op)
 			}
 
 			pl->spell_quickslots[value] = spell_id;
+		}
+		else if (!strcmp(buf, "faction"))
+		{
+			char faction_id[MAX_BUF];
+			sint64 rep;
+
+			if (sscanf(bufall, "faction %s %"FMT64, faction_id, &rep) == 2)
+			{
+				pl->faction_ids = realloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
+				pl->faction_reputation = realloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
+				pl->faction_ids[pl->num_faction_ids] = add_string(faction_id);
+				pl->faction_reputation[pl->num_faction_ids] = rep;
+				pl->num_faction_ids++;
+			}
 		}
 		else if (!strcmp(buf, "fame"))
 		{
