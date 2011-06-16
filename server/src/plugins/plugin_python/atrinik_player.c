@@ -56,6 +56,7 @@ static fields_struct fields[] =
 	{"no_shout", FIELDTYPE_BOOLEAN, offsetof(player, no_shout), 0, 0},
 	{"known_spells", FIELDTYPE_LIST, offsetof(player, known_spells), 0, FIELDTYPE_KNOWN_SPELLS},
 	{"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
+	{"fame", FIELDTYPE_SINT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
 
 	{"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},
