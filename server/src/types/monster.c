@@ -1811,12 +1811,56 @@ static int talk_to_wall(object *op, object *npc, char *txt)
 }
 
 /**
+ * Check if player is a friend or enemy of monster's faction.
+ * @param mon Monster.
+ * @param pl The player.
+ * @retval -1 Neutral.
+ * @retval 0 Enemy.
+ * @retval 1 Friend. */
+int faction_is_friend_of(object *mon, object *pl)
+{
+	shstr *faction, *faction_rep;
+	sint64 pl_rep, rep;
+
+	faction = object_get_value(mon, "faction");
+
+	if (!faction)
+	{
+		return -1;
+	}
+
+	faction_rep = object_get_value(mon, "faction_rep");
+
+	if (!faction_rep)
+	{
+		return -1;
+	}
+
+	rep = atoll(faction_rep);
+	pl_rep = player_faction_reputation(CONTR(pl), faction);
+
+	if (rep < 0)
+	{
+		return pl_rep <= rep ? 0 : -1;
+	}
+	else if (rep > 0)
+	{
+		return pl_rep >= rep ? 1 : -1;
+	}
+
+	return -1;
+}
+
+/**
  * Check if object op is friend of obj.
  * @param op The first object
  * @param obj The second object to check against the first one
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
+	uint8 friend = 0;
+	sint8 faction_friend = -1;
+
 	/* We are obviously friends with ourselves. */
 	if (op == obj)
 	{
@@ -1846,23 +1890,37 @@ int is_friend_of(object *op, object *obj)
 		return 0;
 	}
 
-	/* TODO: This needs to be sorted out better */
 	if (QUERY_FLAG(op, FLAG_FRIENDLY) || op->type == PLAYER)
 	{
 		if (!QUERY_FLAG(obj, FLAG_MONSTER) || QUERY_FLAG(obj, FLAG_FRIENDLY) || obj->type == PLAYER)
 		{
-			return 1;
+			friend = 1;
 		}
 	}
 	else
 	{
 		if (!QUERY_FLAG(obj, FLAG_FRIENDLY) && obj->type != PLAYER)
 		{
-			return 1;
+			friend = 1;
 		}
 	}
 
-	return 0;
+	/* Check factions. */
+	if (op->type == PLAYER)
+	{
+		faction_friend = faction_is_friend_of(obj, op);
+	}
+	else if (obj->type == PLAYER)
+	{
+		faction_friend = faction_is_friend_of(op, obj);
+	}
+
+	if (faction_friend != -1)
+	{
+		friend = faction_friend;
+	}
+
+	return friend;
 }
 
 /**

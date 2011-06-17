@@ -1836,3 +1836,49 @@ void player_path_handle(player *pl)
 		}
 	}
 }
+
+/**
+ * Get player's reputation for the specified faction.
+ * @param pl The player.
+ * @param faction The faction name.
+ * @return The faction reputation. */
+sint64 player_faction_reputation(player *pl, shstr *faction)
+{
+	int i;
+
+	for (i = 0; i < pl->num_faction_ids; i++)
+	{
+		if (pl->faction_ids[i] == faction)
+		{
+			return pl->faction_reputation[i];
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Update player's faction reputation.
+ * @param pl The player.
+ * @param faction Name of the faction.
+ * @param add How much to modify the player's faction reputation (if
+ * any). */
+void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
+{
+	int i;
+
+	for (i = 0; i < pl->num_faction_ids; i++)
+	{
+		if (pl->faction_ids[i] == faction)
+		{
+			pl->faction_reputation[i] += add;
+			return;
+		}
+	}
+
+	pl->faction_ids = realloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
+	pl->faction_reputation = realloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
+	pl->faction_ids[pl->num_faction_ids] = add_string(faction);
+	pl->faction_reputation[pl->num_faction_ids] = add;
+	pl->num_faction_ids++;
+}

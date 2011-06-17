@@ -1000,8 +1000,15 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 		if (op->type == MONSTER)
 		{
+			shstr *faction, *faction_kill_penalty;
+
 			CONTR(owner)->stat_kills_mob++;
 			statistic_update("kills", owner, 1, op->name);
+
+			if ((faction = object_get_value(op, "faction")) && (faction_kill_penalty = object_get_value(op, "faction_kill_penalty")))
+			{
+				player_faction_reputation_update(CONTR(owner), faction, -atoll(faction_kill_penalty));
+			}
 		}
 		else if (op->type == PLAYER)
 		{

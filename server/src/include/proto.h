@@ -1138,6 +1138,7 @@ object *find_enemy(object *npc, rv_vector *rv);
 int move_monster(object *op);
 void communicate(object *op, char *txt);
 int talk_to_npc(object *op, object *npc, char *txt);
+int faction_is_friend_of(object *mon, object *pl);
 int is_friend_of(object *op, object *obj);
 int check_good_weapon(object *who, object *item);
 int check_good_armour(object *who, object *item);
@@ -1170,6 +1171,8 @@ char *player_get_race_class(object *op, char *buf, size_t size);
 void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y);
 void player_path_clear(player *pl);
 void player_path_handle(player *pl);
+sint64 player_faction_reputation(player *pl, shstr *faction);
+void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
 
 /* types/player_mover.c */
 void move_player_mover(object *op);
