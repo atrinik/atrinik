@@ -1190,22 +1190,6 @@ int main(int argc, char *argv[])
 			FrameCount = 0;
 		}
 
-		if (GameStatus == GAME_STATUS_PLAY)
-		{
-			if (cpl.input_mode == INPUT_MODE_CONSOLE)
-			{
-				do_console();
-			}
-			else if (cpl.input_mode == INPUT_MODE_NUMBER)
-			{
-				do_number();
-			}
-			else if (cpl.input_mode == INPUT_MODE_GETKEY)
-			{
-				do_keybind_input();
-			}
-		}
-
 		/* If not connected, walk through connection chain and/or wait for action */
 		if (GameStatus != GAME_STATUS_PLAY)
 		{
