@@ -174,8 +174,8 @@ void ignore_command(char *cmd)
 	{
 		ignore_list_struct *tmp;
 
-		draw_info("\nIGNORE LIST", COLOR_WHITE);
-		draw_info("--------------------------", COLOR_WHITE);
+		draw_info(COLOR_WHITE, "\nIGNORE LIST");
+		draw_info(COLOR_WHITE, "--------------------------");
 
 		for (tmp = ignore_list; tmp; tmp = tmp->next)
 		{

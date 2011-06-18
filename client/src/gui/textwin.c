@@ -92,14 +92,14 @@ void draw_info_format(int flags, char *format, ...)
 	vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
-	draw_info(buf, flags);
+	draw_info(flags, buf);
 }
 
 /**
  * Add string to the text window.
- * @param str The string.
- * @param flags Various flags, like color. */
-void draw_info(const char *str, int flags)
+ * @param flags Various flags, like color.
+ * @param str The string. */
+void draw_info(int flags, const char *str)
 {
 	widgetdata *widget;
 	_textwin *textwin;

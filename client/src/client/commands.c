@@ -346,7 +346,7 @@ void DrawInfoCmd(unsigned char *data)
 		buf++;
 	}
 
-	draw_info(buf, color);
+	draw_info(color, buf);
 }
 
 /**
@@ -473,7 +473,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 		msg_anim.tick = LastTick;
 	}
 
-	draw_info(buf, flags);
+	draw_info(flags, buf);
 }
 
 /**

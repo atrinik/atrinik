@@ -110,7 +110,7 @@ void script_load(const char *cparams)
 
 	if (!cparams)
 	{
-		draw_info("Please specify a script to execute.", COLOR_RED);
+		draw_info(COLOR_RED, "Please specify a script to execute.");
 		return;
 	}
 
@@ -161,14 +161,14 @@ void script_load(const char *cparams)
 
 	if (stat(argv[0], &statbuf) || !S_ISREG(statbuf.st_mode) || !(statbuf.st_mode & S_IXUSR))
 	{
-		draw_info("The script does not exist, is not a regular file or is not executable.", COLOR_RED);
+		draw_info(COLOR_RED, "The script does not exist, is not a regular file or is not executable.");
 		return;
 	}
 
 	/* Create a pair of sockets */
 	if (socketpair(PF_LOCAL, SOCK_STREAM, AF_LOCAL, pipe))
 	{
-		draw_info("Unable to start script: socketpair failed.", COLOR_RED);
+		draw_info(COLOR_RED, "Unable to start script: socketpair failed.");
 		return;
 	}
 
@@ -179,7 +179,7 @@ void script_load(const char *cparams)
 		close(pipe[0]);
 		close(pipe[1]);
 
-		draw_info("Unable to start script: fork failed.", COLOR_RED);
+		draw_info(COLOR_RED, "Unable to start script: fork failed.");
 		return;
 	}
 
@@ -232,19 +232,19 @@ void script_load(const char *cparams)
 
 	if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0))
 	{
-		draw_info("script_load(): stdout CreatePipe() failed.", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): stdout CreatePipe() failed.");
 		return;
 	}
 
 	if (!SetStdHandle(STD_OUTPUT_HANDLE, hChildStdoutWr))
 	{
-		draw_info("script_load(): Failed to redirect stdout using SetStdHandle().", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): Failed to redirect stdout using SetStdHandle().");
 		return;
 	}
 
 	if (!DuplicateHandle(GetCurrentProcess(), hChildStdoutRd, GetCurrentProcess(), &hChildStdoutRdDup, 0, 0, DUPLICATE_SAME_ACCESS))
 	{
-		draw_info("script_load(): Failed to duplicate stdout using DuplicateHandle().", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): Failed to duplicate stdout using DuplicateHandle().");
 		return;
 	}
 
@@ -254,19 +254,19 @@ void script_load(const char *cparams)
 
 	if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0))
 	{
-		draw_info("script_load(): stdin CreatePipe() failed.", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): stdin CreatePipe() failed.");
 		return;
 	}
 
 	if (!SetStdHandle(STD_INPUT_HANDLE, hChildStdinRd))
 	{
-		draw_info("script_load(): Failed to redirect stdin using SetStdHandle().", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): Failed to redirect stdin using SetStdHandle().");
 		return;
 	}
 
 	if (!DuplicateHandle(GetCurrentProcess(), hChildStdinWr, GetCurrentProcess(), &hChildStdinWrDup, 0, 0, DUPLICATE_SAME_ACCESS))
 	{
-		draw_info("script_load(): failed to duplicate stdin using DuplicateHandle()", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): failed to duplicate stdin using DuplicateHandle()");
 		return;
 	}
 
@@ -283,7 +283,7 @@ void script_load(const char *cparams)
 
 	if (!CreateProcess(NULL, name, NULL, NULL, 1, CREATE_NEW_PROCESS_GROUP, NULL, NULL, &siStartupInfo, &piProcInfo))
 	{
-		draw_info("script_load(): CreateProcess() failed.", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): CreateProcess() failed.");
 		return;
 	}
 
@@ -296,13 +296,13 @@ void script_load(const char *cparams)
 
 	if (!SetStdHandle(STD_INPUT_HANDLE, hSaveStdin))
 	{
-		draw_info("script_load(): Restoring original stdin failed.", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): Restoring original stdin failed.");
 		return;
 	}
 
 	if (!SetStdHandle(STD_OUTPUT_HANDLE, hSaveStdout))
 	{
-		draw_info("script_load(): Restoring original stdout failed.", COLOR_RED);
+		draw_info(COLOR_RED, "script_load(): Restoring original stdout failed.");
 		return;
 	}
 #endif
@@ -334,7 +334,7 @@ void script_list()
 {
 	if (num_scripts == 0)
 	{
-		draw_info("No scripts are currently running.", COLOR_WHITE);
+		draw_info(COLOR_WHITE, "No scripts are currently running.");
 	}
 	else
 	{
@@ -354,7 +354,7 @@ void script_list()
 				snprintf(buf, sizeof(buf), "%d %s", i + 1, scripts[i].name);
 			}
 
-			draw_info(buf, COLOR_WHITE);
+			draw_info(COLOR_WHITE, buf);
 		}
 	}
 }
@@ -513,7 +513,7 @@ static void script_process_cmd(int i)
 			c++;
 		}
 
-		draw_info(c, color);
+		draw_info(color, c);
 	}
 	else if (!strncmp(cmd, "log ", 4))
 	{
@@ -1076,7 +1076,7 @@ void script_send(char *params)
 
 	if (i < 0)
 	{
-		draw_info("No such running script.", COLOR_RED);
+		draw_info(COLOR_RED, "No such running script.");
 		return;
 	}
 
@@ -1084,7 +1084,7 @@ void script_send(char *params)
 
 	if (!c)
 	{
-		draw_info("No message to send specified.", COLOR_RED);
+		draw_info(COLOR_RED, "No message to send specified.");
 		return;
 	}
 
@@ -1229,7 +1229,7 @@ void script_unload(const char *params)
 
 	if (i < 0 || i >= num_scripts)
 	{
-		draw_info("No such running script.", COLOR_RED);
+		draw_info(COLOR_RED, "No such running script.");
 		return;
 	}
 

@@ -360,7 +360,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 								draw_info_format(COLOR_WHITE, "\nMatching commands:\n%s", cmd_buf);
 							}
 
-							draw_info(help_files_tmp->helpname, COLOR_WHITE);
+							draw_info(COLOR_WHITE, help_files_tmp->helpname);
 						}
 
 						possibilities++;

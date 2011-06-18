@@ -80,9 +80,6 @@ int key_event(SDL_KeyboardEvent *key)
 				case SDLK_LALT:
 				case SDLK_RALT:
 					send_command("/run_stop");
-#if 0
-					draw_info("run_stop", COLOR_DGOLD);
-#endif
 					cpl.run_on = 0;
 					break;
 
@@ -666,7 +663,7 @@ void check_menu_keys(int menu, int key)
 						text_input_open(8);
 
 						/* Output some info as to why the console magically opened. */
-						draw_info("Type the new party password, or press ESC to cancel.", 10);
+						draw_info(10, "Type the new party password, or press ESC to cancel.");
 
 						/* Close the menu */
 						cpl.menustatus = MENU_NO;
@@ -696,7 +693,7 @@ void check_menu_keys(int menu, int key)
 						text_input_open(60);
 
 						/* Output some info as to why the console magically opened */
-						draw_info("Type the party name to form, or press ESC to cancel.", 10);
+						draw_info(10, "Type the party name to form, or press ESC to cancel.");
 
 						/* Close the menu */
 						cpl.menustatus = MENU_NO;

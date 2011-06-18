@@ -558,7 +558,7 @@ void widget_show_player_doll_event()
 	{
 		if (object_find(cpl.win_inv_tag)->flags & F_APPLIED)
 		{
-			draw_info("This is applied already!", COLOR_WHITE);
+			draw_info(COLOR_WHITE, "This is applied already!");
 		}
 		/* Drop to player doll */
 		else

@@ -538,6 +538,6 @@ void mplayer_now_playing()
 	}
 	else
 	{
-		draw_info("You are not playing any custom music.", COLOR_RED);
+		draw_info(COLOR_RED, "You are not playing any custom music.");
 	}
 }

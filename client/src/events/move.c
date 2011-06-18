@@ -76,7 +76,7 @@ void move_keys(int num)
 		{
 			if (!fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
-				draw_info("No skill selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No skill selected.");
 				return;
 			}
 
@@ -86,7 +86,7 @@ void move_keys(int num)
 		{
 			if (!fire_mode_tab[FIRE_MODE_SPELL].spell)
 			{
-				draw_info("No spell selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No spell selected.");
 				return;
 			}
 
@@ -96,12 +96,12 @@ void move_keys(int num)
 		{
 			if (fire_mode_tab[FIRE_MODE_BOW].item == FIRE_ITEM_NO)
 			{
-				draw_info("No range weapon selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No range weapon selected.");
 				return;
 			}
 			else if (fire_mode_tab[FIRE_MODE_BOW].amun == FIRE_ITEM_NO)
 			{
-				draw_info("No ammunition selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No ammunition selected.");
 				return;
 			}
 		}
@@ -109,7 +109,7 @@ void move_keys(int num)
 		{
 			if (fire_mode_tab[FIRE_MODE_THROW].item == FIRE_ITEM_NO)
 			{
-				draw_info("No item selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No item selected.");
 				return;
 			}
 		}
@@ -117,7 +117,7 @@ void move_keys(int num)
 		{
 			if (fire_mode_tab[FIRE_MODE_WAND].item == FIRE_ITEM_NO)
 			{
-				draw_info("No device selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No device selected.");
 				return;
 			}
 		}

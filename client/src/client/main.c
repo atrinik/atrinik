@@ -615,7 +615,7 @@ static int game_status_chain()
 		/* Skip if -nometa in command line */
 		if (options.no_meta)
 		{
-			draw_info("Metaserver ignored.", COLOR_GREEN);
+			draw_info(COLOR_GREEN, "Metaserver ignored.");
 			ms_connecting(0);
 		}
 		else
@@ -644,7 +644,7 @@ static int game_status_chain()
 	{
 		map_udate_flag = 2;
 		snprintf(buf, sizeof(buf), "Trying server %s (%d)...", selected_server->name, selected_server->port);
-		draw_info(buf, COLOR_GREEN);
+		draw_info(COLOR_GREEN, buf);
 		last_keepalive = time(NULL);
 		GameStatus = GAME_STATUS_CONNECT;
 	}
@@ -652,14 +652,14 @@ static int game_status_chain()
 	{
 		if (!socket_open(&csocket, selected_server->ip, selected_server->port))
 		{
-			draw_info("Connection failed!", COLOR_RED);
+			draw_info(COLOR_RED, "Connection failed!");
 			GameStatus = GAME_STATUS_START;
 			return 1;
 		}
 
 		socket_thread_start();
 		GameStatus = GAME_STATUS_VERSION;
-		draw_info("Connected. Exchange version.", COLOR_GREEN);
+		draw_info(COLOR_GREEN, "Connected. Exchange version.");
 		cpl.name[0] = '\0';
 		cpl.password[0] = '\0';
 		region_map_clear();
@@ -696,7 +696,7 @@ static int game_status_chain()
 	{
 		if (text_input_string_esc_flag)
 		{
-			draw_info("Break login.", COLOR_RED);
+			draw_info(COLOR_RED, "Break login.");
 			GameStatus = GAME_STATUS_START;
 		}
 
@@ -1108,7 +1108,7 @@ int main(int argc, char *argv[])
 	script_autoload();
 
 	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", PACKAGE_VERSION);
-	draw_info("Init network...", COLOR_GREEN);
+	draw_info(COLOR_GREEN, "Init network...");
 
 	if (!socket_initialize())
 	{

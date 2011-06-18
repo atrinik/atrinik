@@ -375,7 +375,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 
 				if (!object_find_object_inv(cpl.ob, cpl.dragging.tag))
 				{
-					draw_info("Only items from main inventory are allowed in quickslots.", COLOR_RED);
+					draw_info(COLOR_RED, "Only items from main inventory are allowed in quickslots.");
 				}
 				else
 				{

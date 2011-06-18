@@ -45,7 +45,7 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /ready_spell <spell name>", COLOR_GREEN);
+			draw_info(COLOR_GREEN, "Usage: /ready_spell <spell name>");
 		}
 		else
 		{
@@ -70,7 +70,7 @@ int client_command_check(char *cmd)
 			}
 		}
 
-		draw_info("Unknown spell.", COLOR_RED);
+		draw_info(COLOR_RED, "Unknown spell.");
 		return 1;
 	}
 	else if (!strncasecmp(cmd, "/ready_skill", 12))
@@ -79,7 +79,7 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /ready_skill <skill name>", COLOR_RED);
+			draw_info(COLOR_RED, "Usage: /ready_skill <skill name>");
 		}
 		else
 		{
@@ -109,7 +109,7 @@ int client_command_check(char *cmd)
 			}
 		}
 
-		draw_info("Unknown skill.", COLOR_RED);
+		draw_info(COLOR_RED, "Unknown skill.");
 		return 1;
 	}
 	else if (!strncasecmp(cmd, "/pray", 5))
@@ -117,7 +117,7 @@ int client_command_check(char *cmd)
 		/* Give out "You are at full grace." when needed -
 		 * server will not send us anything when this happens */
 		if (cpl.stats.grace == cpl.stats.maxgrace)
-			draw_info("You are at full grace. You stop praying.", COLOR_WHITE);
+			draw_info(COLOR_WHITE, "You are at full grace. You stop praying.");
 	}
 	else if (!strncasecmp(cmd, "/keybind", 8))
 	{
@@ -200,13 +200,13 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /reply <message>", COLOR_RED);
+			draw_info(COLOR_RED, "Usage: /reply <message>");
 		}
 		else
 		{
 			if (!cpl.player_reply[0])
 			{
-				draw_info("There is no one you can /reply.", COLOR_RED);
+				draw_info(COLOR_RED, "There is no one you can /reply.");
 			}
 			else
 			{
@@ -230,7 +230,7 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /resetwidget <name>", COLOR_RED);
+			draw_info(COLOR_RED, "Usage: /resetwidget <name>");
 		}
 		else
 		{
@@ -244,7 +244,7 @@ int client_command_check(char *cmd)
 		if (!strcmp(cmd + 8, "none"))
 		{
 			effect_stop();
-			draw_info("Stopped effect.", COLOR_GREEN);
+			draw_info(COLOR_GREEN, "Stopped effect.");
 			return 1;
 		}
 

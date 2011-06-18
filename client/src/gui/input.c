@@ -131,7 +131,7 @@ void do_number()
 				else
 					sound_play_effect("drop.ogg", 100);
 
-				draw_info(buf, COLOR_DGOLD);
+				draw_info(COLOR_DGOLD, buf);
 			}
 		}
 
@@ -217,11 +217,6 @@ void do_console()
 		if (text_input_string[0])
 		{
 			char buf[MAX_INPUT_STRING + 32];
-
-#if 0
-			sprintf(buf, ":%s", text_input_string);
-			draw_info(buf, COLOR_DGOLD);
-#endif
 
 			/* If it's not command, it's say */
 			if (*text_input_string != '/')

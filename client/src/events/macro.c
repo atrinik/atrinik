@@ -206,7 +206,7 @@ void process_macro(_keymap macro)
 
 		if (check_macro_keys(cp))
 		{
-			draw_info(cp, COLOR_DGOLD);
+			draw_info(COLOR_DGOLD, cp);
 
 			if (!client_command_check(cp))
 			{
@@ -352,9 +352,6 @@ int process_macro_keys(int id, int value)
 			}
 
 			snprintf(buf, sizeof(buf), "runmode %s", cpl.runkey_on ? "on" : "off");
-#if 0
-			draw_info(buf, COLOR_DGOLD);
-#endif
 			break;
 
 		case KEYFUNC_MOVE:
@@ -382,7 +379,7 @@ int process_macro_keys(int id, int value)
 				return 0;
 
 			snprintf(buf, sizeof(buf), "apply %s", object_find(tag)->s_name);
-			draw_info(buf, COLOR_DGOLD);
+			draw_info(COLOR_DGOLD, buf);
 			client_send_apply(tag);
 			return 0;
 
@@ -397,7 +394,7 @@ int process_macro_keys(int id, int value)
 
 			client_send_examine(tag);
 			snprintf(buf, sizeof(buf), "examine %s", object_find(tag)->s_name);
-			draw_info(buf, COLOR_DGOLD);
+			draw_info(COLOR_DGOLD, buf);
 			return 0;
 
 		case KEYFUNC_MARK:
@@ -433,7 +430,7 @@ int process_macro_keys(int id, int value)
 			else
 				snprintf(buf, sizeof(buf), "lock %s", it->s_name);
 
-			draw_info(buf, COLOR_DGOLD);
+			draw_info(COLOR_DGOLD, buf);
 			return 0;
 
 		case KEYFUNC_GET:
@@ -483,17 +480,13 @@ int process_macro_keys(int id, int value)
 							}
 
 							if (tag == -1)
-								draw_info("You already have it.", COLOR_DGOLD);
+								draw_info(COLOR_DGOLD, "You already have it.");
 						}
 					}
 				}
 				else
 				{
-					draw_info("You have no open container to put it in.", COLOR_DGOLD);
-#if 0
-					tag = cpl.win_inv_tag;
-					loc = cpl.ob->tag;
-#endif
+					draw_info(COLOR_DGOLD, "You have no open container to put it in.");
 					tag = -1;
 				}
 			}
@@ -531,7 +524,7 @@ int process_macro_keys(int id, int value)
 
 			sound_play_effect("get.ogg", 100);
 			snprintf(buf, sizeof(buf), "get %s", it->s_name);
-			draw_info(buf, COLOR_DGOLD);
+			draw_info(COLOR_DGOLD, buf);
 			client_send_move(loc, tag, nrof);
 			return 0;
 
@@ -564,7 +557,7 @@ int process_macro_keys(int id, int value)
 			else
 			{
 				snprintf(buf, sizeof(buf), "The item is already on the floor.");
-				draw_info(buf, COLOR_DGOLD);
+				draw_info(COLOR_DGOLD, buf);
 				return 0;
 			}
 
@@ -579,7 +572,7 @@ int process_macro_keys(int id, int value)
 			if (it->flags & F_LOCKED)
 			{
 				sound_play_effect("click_fail.ogg", 100);
-				draw_info("Unlock item first!", COLOR_DGOLD);
+				draw_info(COLOR_DGOLD, "Unlock item first!");
 				return 0;
 			}
 
@@ -608,7 +601,7 @@ int process_macro_keys(int id, int value)
 
 			sound_play_effect("drop.ogg", 100);
 			snprintf(buf, sizeof(buf), "drop %s", it->s_name);
-			draw_info(buf, COLOR_DGOLD);
+			draw_info(COLOR_DGOLD, buf);
 			client_send_move(loc, tag, nrof);
 			return 0;
 

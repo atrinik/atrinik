@@ -783,7 +783,7 @@ void effect_debug(const char *type)
 
 		if (!current_effect)
 		{
-			draw_info("No effect is currently playing.", COLOR_RED);
+			draw_info(COLOR_RED, "No effect is currently playing.");
 			return;
 		}
 
@@ -799,7 +799,7 @@ void effect_debug(const char *type)
 	}
 	else if (!strcmp(type, "sizeof"))
 	{
-		draw_info("Information about various data structures used by effects:\n", COLOR_WHITE);
+		draw_info(COLOR_WHITE, "Information about various data structures used by effects:\n");
 		draw_info_format(COLOR_WHITE, "Size of a single sprite definition: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite_def));
 		draw_info_format(COLOR_WHITE, "Size of a single visible sprite: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite));
 		draw_info_format(COLOR_WHITE, "Size of a single effect structure: <green>%"FMT64U"</green>", (uint64) sizeof(effect_struct));

@@ -444,7 +444,7 @@ void widget_show_target(widgetdata *widget);
 /* gui/textwin.c */
 void textwin_scroll_adjust(widgetdata *widget);
 void draw_info_format(int flags, char *format, ...) __attribute__((format(printf, 2, 3)));
-void draw_info(const char *str, int flags);
+void draw_info(int flags, const char *str);
 void textwin_show(int x, int y, int w, int h);
 void widget_textwin_show(widgetdata *widget);
 void textwin_button_event(widgetdata *widget, SDL_Event event);
