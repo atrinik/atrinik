@@ -351,7 +351,6 @@ int process_macro_keys(int id, int value)
 				send_command("/run_stop");
 			}
 
-			snprintf(buf, sizeof(buf), "runmode %s", cpl.runkey_on ? "on" : "off");
 			break;
 
 		case KEYFUNC_MOVE:
@@ -378,8 +377,7 @@ int process_macro_keys(int id, int value)
 			if (tag == -1 || !object_find(tag))
 				return 0;
 
-			snprintf(buf, sizeof(buf), "apply %s", object_find(tag)->s_name);
-			draw_info(COLOR_DGOLD, buf);
+			draw_info_format(COLOR_DGOLD, "apply %s", object_find(tag)->s_name);
 			client_send_apply(tag);
 			return 0;
 
@@ -393,8 +391,7 @@ int process_macro_keys(int id, int value)
 				return 0;
 
 			client_send_examine(tag);
-			snprintf(buf, sizeof(buf), "examine %s", object_find(tag)->s_name);
-			draw_info(COLOR_DGOLD, buf);
+			draw_info_format(COLOR_DGOLD, "examine %s", object_find(tag)->s_name);
 			return 0;
 
 		case KEYFUNC_MARK:
@@ -426,11 +423,14 @@ int process_macro_keys(int id, int value)
 				return 0;
 
 			if (it->flags & F_LOCKED)
-				snprintf(buf, sizeof(buf), "unlock %s", it->s_name);
+			{
+				draw_info_format(COLOR_DGOLD, "unlock %s", it->s_name);
+			}
 			else
-				snprintf(buf, sizeof(buf), "lock %s", it->s_name);
+			{
+				draw_info_format(COLOR_DGOLD, "lock %s", it->s_name);
+			}
 
-			draw_info(COLOR_DGOLD, buf);
 			return 0;
 
 		case KEYFUNC_GET:
@@ -523,8 +523,7 @@ int process_macro_keys(int id, int value)
 			}
 
 			sound_play_effect("get.ogg", 100);
-			snprintf(buf, sizeof(buf), "get %s", it->s_name);
-			draw_info(COLOR_DGOLD, buf);
+			draw_info_format(COLOR_DGOLD, "get %s", it->s_name);
 			client_send_move(loc, tag, nrof);
 			return 0;
 
@@ -556,8 +555,7 @@ int process_macro_keys(int id, int value)
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "The item is already on the floor.");
-				draw_info(COLOR_DGOLD, buf);
+				draw_info(COLOR_DGOLD, "The item is already on the floor.");
 				return 0;
 			}
 
@@ -600,8 +598,7 @@ int process_macro_keys(int id, int value)
 			}
 
 			sound_play_effect("drop.ogg", 100);
-			snprintf(buf, sizeof(buf), "drop %s", it->s_name);
-			draw_info(COLOR_DGOLD, buf);
+			draw_info_format(COLOR_DGOLD, "drop %s", it->s_name);
 			client_send_move(loc, tag, nrof);
 			return 0;
 

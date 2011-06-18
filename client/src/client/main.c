@@ -643,8 +643,7 @@ static int game_status_chain()
 	else if (GameStatus == GAME_STATUS_STARTCONNECT)
 	{
 		map_udate_flag = 2;
-		snprintf(buf, sizeof(buf), "Trying server %s (%d)...", selected_server->name, selected_server->port);
-		draw_info(COLOR_GREEN, buf);
+		draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
 		last_keepalive = time(NULL);
 		GameStatus = GAME_STATUS_CONNECT;
 	}

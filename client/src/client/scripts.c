@@ -339,7 +339,6 @@ void script_list()
 	else
 	{
 		int i;
-		char buf[MAX_BUF];
 
 		draw_info_format(COLOR_WHITE, "%d scripts are currently running:", num_scripts);
 
@@ -347,14 +346,12 @@ void script_list()
 		{
 			if (scripts[i].params)
 			{
-				snprintf(buf, sizeof(buf), "%d %s  %s", i + 1, scripts[i].name, scripts[i].params);
+				draw_info_format(COLOR_WHITE, "%d %s  %s", i + 1, scripts[i].name, scripts[i].params);
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "%d %s", i + 1, scripts[i].name);
+				draw_info_format(COLOR_WHITE, "%d %s", i + 1, scripts[i].name);
 			}
-
-			draw_info(COLOR_WHITE, buf);
 		}
 	}
 }

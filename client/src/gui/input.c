@@ -114,7 +114,6 @@ void do_number()
 		if (text_input_string[0])
 		{
 			int tmp;
-			char buf[300];
 			tmp = atoi(text_input_string);
 
 			/* If you enter a number higher than the real nrof, you will pickup all */
@@ -124,14 +123,12 @@ void do_number()
 			if (tmp > 0 && tmp <= cpl.nrof)
 			{
 				client_send_move(cpl.loc, cpl.tag, tmp);
-				snprintf(buf, sizeof(buf), "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
+				draw_info_format(COLOR_DGOLD, "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
 
 				if (cpl.nummode == NUM_MODE_GET)
 					sound_play_effect("get.ogg", 100);
 				else
 					sound_play_effect("drop.ogg", 100);
-
-				draw_info(COLOR_DGOLD, buf);
 			}
 		}
 
