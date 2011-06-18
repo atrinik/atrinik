@@ -722,11 +722,6 @@ int blt_inv_item_centered(object *tmp, int x, int y)
 	bltfx.surface = NULL;
 	bltfx.alpha = 128;
 
-#if 0
-	bltfx.flags = 1;
-	bltfx.dark_level = 0;
-#endif
-
 	if (!FaceList[tmp->face].sprite)
 		return 0;
 
