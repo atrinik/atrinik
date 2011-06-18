@@ -1,4 +1,4 @@
-Object witch2
+Object witch3
 name witch
 race human
 type 80
@@ -12,8 +12,8 @@ terrain_flag 1
 weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
-face witch2.131
-animation witch2
+face witch3.131
+animation witch3
 is_animated 1
 anim_speed 4
 speed -0.047
