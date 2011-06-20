@@ -12,6 +12,7 @@ Zerosumtiles - Freeware:
 	benches
 	carpet
 	masks_floor
+	kitchen
 	basin1.101.png
 	basin1_full.101.png
 	basket1.101.png
@@ -39,6 +40,11 @@ Zerosumtiles - Freeware:
 	trash_wood1.101.png
 	trash_wood2.101.png
 	wood_pile.101.png
+	candle2_off.101.png
+	candle2_on.101.png
+	candle_off.101.png
+	candle_on.101.png
+	quill_pen.101.png
 
 Wesnoth 1.9.4 - http://wesnoth.org/ - GPLv2:
 	brazier
