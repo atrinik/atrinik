@@ -8,7 +8,6 @@ animation bed_double
 is_turnable 1
 direction 1
 no_pick 1
-no_pass 1
 end
 More
 Object bed_double_b
@@ -19,7 +18,6 @@ mpart_id 3
 mpart_nr 1
 x 1
 no_pick 1
-no_pass 1
 end
 More
 Object bed_double_c
@@ -30,7 +28,6 @@ mpart_id 3
 mpart_nr 2
 y 1
 no_pick 1
-no_pass 1
 end
 More
 Object bed_double_d
@@ -42,5 +39,4 @@ mpart_nr 3
 x 1
 y 1
 no_pick 1
-no_pass 1
 end
