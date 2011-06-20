@@ -1,0 +1,90 @@
+anim kitchen_cleaver
+facings 9
+dummy.111
+kitchen_cleaver.111
+kitchen_cleaver.111
+kitchen_cleaver.111
+kitchen_cleaver.171
+kitchen_cleaver.171
+kitchen_cleaver.171
+kitchen_cleaver.171
+kitchen_cleaver.111
+mina
+
+anim kitchen_fork
+facings 9
+dummy.111
+kitchen_fork.111
+kitchen_fork.111
+kitchen_fork.111
+kitchen_fork.171
+kitchen_fork.171
+kitchen_fork.171
+kitchen_fork.171
+kitchen_fork.111
+mina
+
+anim kitchen_knife
+facings 9
+dummy.111
+kitchen_knife.111
+kitchen_knife.111
+kitchen_knife.111
+kitchen_knife.171
+kitchen_knife.171
+kitchen_knife.171
+kitchen_knife.171
+kitchen_knife.111
+mina
+
+anim kitchen_knife2
+facings 9
+dummy.111
+kitchen_knife2.111
+kitchen_knife2.111
+kitchen_knife2.111
+kitchen_knife2.171
+kitchen_knife2.171
+kitchen_knife2.171
+kitchen_knife2.171
+kitchen_knife2.111
+mina
+
+anim kitchen_plate_wall
+facings 9
+dummy.111
+kitchen_plate_wall.111
+kitchen_plate_wall.111
+kitchen_plate_wall.111
+kitchen_plate_wall.171
+kitchen_plate_wall.171
+kitchen_plate_wall.171
+kitchen_plate_wall.171
+kitchen_plate_wall.111
+mina
+
+anim kitchen_plate_wall2
+facings 9
+dummy.111
+kitchen_plate_wall2.111
+kitchen_plate_wall2.111
+kitchen_plate_wall2.111
+kitchen_plate_wall2.171
+kitchen_plate_wall2.171
+kitchen_plate_wall2.171
+kitchen_plate_wall2.171
+kitchen_plate_wall2.111
+mina
+
+anim kitchen_spoon
+facings 9
+dummy.111
+kitchen_spoon.111
+kitchen_spoon.111
+kitchen_spoon.111
+kitchen_spoon.171
+kitchen_spoon.171
+kitchen_spoon.171
+kitchen_spoon.171
+kitchen_spoon.111
+mina
