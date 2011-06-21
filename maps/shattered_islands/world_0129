@@ -69,6 +69,14 @@ end
 arch water_lt2
 y 16
 end
+arch map_info
+hp 23
+sp 7
+race Centennial
+slaying yewtree.mid
+stand_still 1
+y 16
+end
 arch water_lt
 y 17
 end
@@ -1338,6 +1346,11 @@ arch floor_sand_d4
 x 10
 y 21
 end
+arch ladder_tall_up
+direction 7
+x 10
+y 21
+end
 arch floor_sand_d3
 x 10
 y 22
@@ -1467,10 +1480,29 @@ x 11
 y 21
 end
 arch spawn_point
+msg
+
+endmsg
 x 11
 y 21
 arch witch3
+msg
+@match ^hi$|^hey$|^hello$
+Shh, I'm trying to study.
+@match ^Patchouli$|^Patchouli Knowledge$
+Hmm.  I'm in a good mood today.  Maybe I'll just have to show you "Sun Sign: <a>Royal Flare</a>..."
+@match ^Royal Flare$
+Grr... take a hint or I'll show you to the <a>basement</a>.  Kihihihihihi.
+@match ^basement$
+Geez.  You must be as dumb as that <a>fairy</a>.
+@match ^Cirno$|^fairy$
+C'mon.  Let me study, man...
+endmsg
+name student witch
+level 25
 type 83
+arch ability_cause_lig_wound
+end
 end
 end
 arch floor_sand_d1
@@ -1824,6 +1856,12 @@ x 14
 y 20
 end
 arch grassd_5
+x 14
+y 21
+end
+arch sign_generic
+name Dormitory A
+direction 3
 x 14
 y 21
 end
@@ -2323,6 +2361,11 @@ arch floor_sand_d3
 x 18
 y 23
 end
+arch ladder_tall_up
+direction 7
+x 18
+y 23
+end
 arch swamp1
 x 19
 end
@@ -2433,7 +2476,19 @@ arch spawn_point
 x 19
 y 23
 arch witch4
+msg
+@match ^hi$|^hey$|^hello$
+Hi, what's up?
+@match ^Alice$|^Alice's$|^Margatroid$|^Alice Margatroid$
+Ooh, she's the best.  I've even got a <a>Shanghai doll</a>!
+@match ^Shanghai doll$
+Yeah, they're <a>Alice's</a> favorite.
+endmsg
+name student witch
+level 26
 type 83
+arch ability_cause_lig_wound
+end
 end
 end
 arch swamp1

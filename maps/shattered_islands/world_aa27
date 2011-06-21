@@ -1053,6 +1053,14 @@ end
 arch grassd_2
 x 10
 end
+arch map_info
+hp 13
+sp 23
+race Centennial
+slaying yewtree.mid
+stand_still 1
+x 10
+end
 arch grassd_7
 x 10
 y 1
