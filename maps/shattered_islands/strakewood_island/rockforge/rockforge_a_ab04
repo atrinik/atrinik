@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-13 Alex Tokar
+Modified: 2011-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2140,6 +2140,13 @@ arch wall_marble1.111
 x 14
 y 17
 end
+arch picture2.151
+direction 7
+align -9
+z -3
+x 14
+y 17
+end
 arch floor_marble2a
 x 14
 y 18
@@ -2152,12 +2159,20 @@ arch floor_marble2c
 x 14
 y 19
 end
+arch carpet1.131
+x 14
+y 19
+end
 arch door1_locked
 direction 3
 x 14
 y 19
 end
 arch floor_marble2c
+x 14
+y 20
+end
+arch carpet1.131
 x 14
 y 20
 end
@@ -2244,7 +2259,21 @@ arch floor_marble2a
 x 15
 y 11
 end
+arch bath_tub2
+x 15
+y 11
+end
+arch torch_wall_1
+direction 7
+x 15
+y 11
+end
 arch floor_marble2c
+x 15
+y 12
+end
+arch wall_well.131
+direction 7
 x 15
 y 12
 end
@@ -2252,7 +2281,17 @@ arch floor_marble2b
 x 15
 y 13
 end
+arch throne.111
+direction 7
+x 15
+y 13
+end
 arch floor_marble2a
+x 15
+y 14
+end
+arch mirror_big.111
+direction 7
 x 15
 y 14
 end
@@ -2260,7 +2299,15 @@ arch floor_marble2a
 x 15
 y 15
 end
+arch wall_marble1.131
+x 15
+y 15
+end
 arch floor_marble2a
+x 15
+y 16
+end
+arch wall_marble1.131
 x 15
 y 16
 end
@@ -2268,7 +2315,20 @@ arch floor_marble2a
 x 15
 y 17
 end
+arch locker1.111
+x 15
+y 17
+end
 arch floor_marble2b
+x 15
+y 18
+end
+arch carpet1.151
+x 15
+y 18
+end
+arch torch_wall_1
+direction 7
 x 15
 y 18
 end
@@ -2276,7 +2336,15 @@ arch floor_marble2c
 x 15
 y 19
 end
+arch carpet1
+x 15
+y 19
+end
 arch floor_marble2a
+x 15
+y 20
+end
+arch carpet1
 x 15
 y 20
 end
@@ -2284,7 +2352,21 @@ arch floor_marble2a
 x 15
 y 21
 end
+arch carpet1.111
+x 15
+y 21
+end
+arch torch_wall_1
+direction 7
+x 15
+y 21
+end
 arch floor_marble2a
+x 15
+y 22
+end
+arch rack.111
+direction 7
 x 15
 y 22
 end
@@ -2350,6 +2432,10 @@ arch floor_marble2b
 x 16
 y 11
 end
+arch broom.111
+x 16
+y 11
+end
 arch floor_marble2a
 x 16
 y 12
@@ -2362,7 +2448,15 @@ arch floor_marble2c
 x 16
 y 14
 end
+arch basket1.101
+x 16
+y 14
+end
 arch floor_marble2c
+x 16
+y 15
+end
+arch wall_marble1.131a
 x 16
 y 15
 end
@@ -2370,7 +2464,15 @@ arch floor_marble2b
 x 16
 y 16
 end
+arch wall_marble1.131a
+x 16
+y 16
+end
 arch floor_marble2b
+x 16
+y 17
+end
+arch locker2.111
 x 16
 y 17
 end
@@ -2378,7 +2480,15 @@ arch floor_marble2a
 x 16
 y 18
 end
+arch carpet1.151
+x 16
+y 18
+end
 arch floor_marble2a
+x 16
+y 19
+end
+arch carpet1
 x 16
 y 19
 end
@@ -2386,11 +2496,23 @@ arch floor_marble2b
 x 16
 y 20
 end
+arch carpet1
+x 16
+y 20
+end
 arch floor_marble2b
 x 16
 y 21
 end
+arch carpet1.111
+x 16
+y 21
+end
 arch floor_marble2a
+x 16
+y 22
+end
+arch box2.101
 x 16
 y 22
 end
@@ -2456,7 +2578,16 @@ arch floor_marble2c
 x 17
 y 11
 end
+arch wall_marble1.111a
+x 17
+y 11
+end
 arch floor_marble2c
+x 17
+y 12
+end
+arch curtain1
+direction 7
 x 17
 y 12
 end
@@ -2464,7 +2595,20 @@ arch floor_marble2a
 x 17
 y 13
 end
+arch wall_marble1.111a
+x 17
+y 13
+end
 arch floor_marble2b
+x 17
+y 14
+end
+arch wall_marble1.111
+x 17
+y 14
+end
+arch picture6.151
+direction 7
 x 17
 y 14
 end
@@ -2472,7 +2616,15 @@ arch floor_marble2c
 x 17
 y 15
 end
+arch wall_marble1.141
+x 17
+y 15
+end
 arch floor_marble2a
+x 17
+y 16
+end
+arch wall_marble1.141
 x 17
 y 16
 end
@@ -2480,7 +2632,24 @@ arch floor_marble2a
 x 17
 y 17
 end
+arch wall_marble1.111a
+x 17
+y 17
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 17
+y 17
+end
 arch floor_marble2b
+x 17
+y 18
+end
+arch carpet1.151
+x 17
+y 18
+end
+arch wall_marble1.111a
 x 17
 y 18
 end
@@ -2488,7 +2657,25 @@ arch floor_marble2a
 x 17
 y 19
 end
+arch carpet1
+x 17
+y 19
+end
+arch door_wood1
+direction 3
+x 17
+y 19
+end
 arch floor_marble2c
+x 17
+y 20
+end
+arch carpet1
+x 17
+y 20
+end
+arch door_wood1
+direction 5
 x 17
 y 20
 end
@@ -2496,7 +2683,24 @@ arch floor_marble2b
 x 17
 y 21
 end
+arch carpet1.111
+x 17
+y 21
+end
+arch wall_marble1.111a
+x 17
+y 21
+end
 arch floor_marble2b
+x 17
+y 22
+end
+arch wall_marble1.111a
+x 17
+y 22
+end
+arch wmask_mirror
+direction 7
 x 17
 y 22
 end
@@ -2504,7 +2708,7 @@ arch floor_marble2a
 x 17
 y 23
 end
-arch wall_marble1.131a
+arch wall_marble1.141
 x 17
 y 23
 end
@@ -2578,6 +2782,10 @@ arch floor_marble2c
 x 18
 y 15
 end
+arch doorway_curtain
+x 18
+y 15
+end
 arch floor_marble2c
 x 18
 y 16
@@ -2586,7 +2794,20 @@ arch floor_marble2c
 x 18
 y 17
 end
+arch carpet1.131
+x 18
+y 17
+end
 arch floor_marble2c
+x 18
+y 18
+end
+arch carpet1.141
+x 18
+y 18
+end
+arch torch_wall_1
+direction 7
 x 18
 y 18
 end
@@ -2594,11 +2815,28 @@ arch floor_marble2c
 x 18
 y 19
 end
+arch carpet1
+x 18
+y 19
+end
 arch floor_marble2a
 x 18
 y 20
 end
+arch carpet1
+x 18
+y 20
+end
 arch floor_marble2c
+x 18
+y 21
+end
+arch carpet1.121
+x 18
+y 21
+end
+arch torch_wall_1
+direction 7
 x 18
 y 21
 end
@@ -2668,7 +2906,16 @@ arch floor_marble2b
 x 19
 y 11
 end
+arch wall_marble1.111a
+x 19
+y 11
+end
 arch floor_marble2b
+x 19
+y 12
+end
+arch door_wood2
+direction 7
 x 19
 y 12
 end
@@ -2676,7 +2923,15 @@ arch floor_marble2a
 x 19
 y 13
 end
+arch wall_marble1.111
+x 19
+y 13
+end
 arch floor_marble2a
+x 19
+y 14
+end
+arch wall_marble1.111
 x 19
 y 14
 end
@@ -2684,7 +2939,15 @@ arch floor_marble2c
 x 19
 y 15
 end
+arch wall_marble1.141
+x 19
+y 15
+end
 arch floor_marble2a
+x 19
+y 16
+end
+arch carpet1.151
 x 19
 y 16
 end
@@ -2692,7 +2955,20 @@ arch floor_marble2b
 x 19
 y 17
 end
+arch carpet1
+x 19
+y 17
+end
 arch floor_marble2a
+x 19
+y 18
+end
+arch carpet1
+x 19
+y 18
+end
+arch chair2_111
+direction 7
 x 19
 y 18
 end
@@ -2700,7 +2976,15 @@ arch floor_marble2a
 x 19
 y 19
 end
+arch carpet1
+x 19
+y 19
+end
 arch floor_marble2c
+x 19
+y 20
+end
+arch carpet1
 x 19
 y 20
 end
@@ -2708,7 +2992,15 @@ arch floor_marble2a
 x 19
 y 21
 end
+arch carpet1
+x 19
+y 21
+end
 arch floor_marble2c
+x 19
+y 22
+end
+arch carpet1.111
 x 19
 y 22
 end
@@ -2716,7 +3008,7 @@ arch floor_marble2c
 x 19
 y 23
 end
-arch wall_marble1.131a
+arch wall_marble1.131
 x 19
 y 23
 end
@@ -2774,11 +3066,26 @@ arch floor_marble2c
 x 20
 y 11
 end
+arch locker3.111
+x 20
+y 11
+end
 arch floor_marble2c
 x 20
 y 12
 end
 arch floor_marble2b
+x 20
+y 13
+end
+arch bed_double
+direction 7
+x 20
+y 13
+end
+arch torch_wall_1
+direction 7
+z 6
 x 20
 y 13
 end
@@ -2790,7 +3097,19 @@ arch floor_marble2b
 x 20
 y 15
 end
+arch wall_marble1.131a
+x 20
+y 15
+end
 arch floor_marble2c
+x 20
+y 16
+end
+arch carpet1.151
+x 20
+y 16
+end
+arch fireplace_right
 x 20
 y 16
 end
@@ -2798,7 +3117,30 @@ arch floor_marble2a
 x 20
 y 17
 end
+arch carpet1
+x 20
+y 17
+end
+arch light5
+x 20
+y 17
+end
 arch floor_marble2a
+x 20
+y 18
+end
+arch carpet1
+x 20
+y 18
+end
+arch table_stone_c
+layer 3
+x 20
+y 18
+end
+arch kitchen_plate
+z 30
+align 10
 x 20
 y 18
 end
@@ -2806,7 +3148,15 @@ arch floor_marble2a
 x 20
 y 19
 end
+arch carpet1
+x 20
+y 19
+end
 arch floor_marble2a
+x 20
+y 20
+end
+arch carpet1
 x 20
 y 20
 end
@@ -2814,7 +3164,43 @@ arch floor_marble2a
 x 20
 y 21
 end
+arch carpet1
+x 20
+y 21
+end
+arch desk2
+no_pass 1
+direction 7
+x 20
+y 21
+end
+arch candle_on
+layer 5
+z 30
+align 10
+x 20
+y 21
+end
+arch quill_pen
+layer 7
+z 38
+align 24
+x 20
+y 21
+end
+arch light3
+x 20
+y 21
+end
 arch floor_marble2c
+x 20
+y 22
+end
+arch carpet1.111
+x 20
+y 22
+end
+arch beer_barrel.101
 x 20
 y 22
 end
@@ -2880,6 +3266,10 @@ arch floor_marble2b
 x 21
 y 11
 end
+arch locker1.111
+x 21
+y 11
+end
 arch floor_marble2a
 x 21
 y 12
@@ -2896,7 +3286,15 @@ arch floor_marble2b
 x 21
 y 15
 end
+arch wall_marble1.131
+x 21
+y 15
+end
 arch floor_marble2b
+x 21
+y 16
+end
+arch carpet1.151
 x 21
 y 16
 end
@@ -2904,7 +3302,37 @@ arch floor_marble2b
 x 21
 y 17
 end
+arch carpet1
+x 21
+y 17
+end
+arch light5
+x 21
+y 17
+end
 arch floor_marble2b
+x 21
+y 18
+end
+arch carpet1
+x 21
+y 18
+end
+arch table_stone_a
+layer 3
+x 21
+y 18
+end
+arch kitchen_plate
+z 27
+align 13
+x 21
+y 18
+end
+arch kitchen_bottle9
+layer 5
+z 38
+align 12
 x 21
 y 18
 end
@@ -2912,7 +3340,15 @@ arch floor_marble2c
 x 21
 y 19
 end
+arch carpet1
+x 21
+y 19
+end
 arch floor_marble2a
+x 21
+y 20
+end
+arch carpet1
 x 21
 y 20
 end
@@ -2920,7 +3356,20 @@ arch floor_marble2a
 x 21
 y 21
 end
+arch carpet1
+x 21
+y 21
+end
+arch chair2_111
+direction 3
+x 21
+y 21
+end
 arch floor_marble2a
+x 21
+y 22
+end
+arch carpet1.111
 x 21
 y 22
 end
@@ -2986,6 +3435,10 @@ arch floor_marble2c
 x 22
 y 11
 end
+arch locker2.111
+x 22
+y 11
+end
 arch floor_marble2b
 x 22
 y 12
@@ -3002,7 +3455,19 @@ arch floor_marble2b
 x 22
 y 15
 end
+arch wall_marble1.131a
+x 22
+y 15
+end
+arch picture1.151
+x 22
+y 15
+end
 arch floor_marble2c
+x 22
+y 16
+end
+arch wood_pile.101
 x 22
 y 16
 end
@@ -3010,7 +3475,20 @@ arch floor_marble2a
 x 22
 y 17
 end
+arch carpet1.171
+x 22
+y 17
+end
 arch floor_marble2c
+x 22
+y 18
+end
+arch carpet1.171
+x 22
+y 18
+end
+arch chair2_111
+direction 3
 x 22
 y 18
 end
@@ -3018,11 +3496,23 @@ arch floor_marble2c
 x 22
 y 19
 end
+arch carpet1.171
+x 22
+y 19
+end
 arch floor_marble2a
 x 22
 y 20
 end
+arch carpet1.171
+x 22
+y 20
+end
 arch floor_marble2b
+x 22
+y 21
+end
+arch carpet1.171
 x 22
 y 21
 end
@@ -3160,7 +3650,7 @@ arch floor_marble2c
 x 23
 y 15
 end
-arch wall_marble1.111a
+arch wall_marble1.141
 x 23
 y 15
 end
