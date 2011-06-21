@@ -7,6 +7,15 @@ type 79
 layer 4
 end
 
+Object table_round2
+name table
+face table_round2.101
+no_pick 1
+no_pass 1
+type 79
+layer 4
+end
+
 Object table_small1
 name table
 face table_small1.101
