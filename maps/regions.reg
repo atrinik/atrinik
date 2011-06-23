@@ -189,6 +189,15 @@ endmsg
 map_first /shattered_islands/strakewood_island/rockforge/rockforge_c_0101
 end
 
+# Centennial, city of witches.
+region centennial
+parent strakewood_island
+longname Centennial
+msg
+Centennial, a festive magical town where young girls train to learn the art of being withes.
+endmsg
+end
+
 ##########################
 # Dungeons on Strakewood #
 ##########################
