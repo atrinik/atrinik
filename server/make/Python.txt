@@ -1,6 +1,6 @@
 Python
 
-The server makes use of Python 3.1. You will need to download Python 3.1 from
+The server makes use of Python 3.2. You will need to download Python 3.2 from
 the Python homepage [1] to compile the server, or adjust the project files by
 hand.
 
