@@ -1607,7 +1607,12 @@ static int do_script(PythonContext *context, const char *filename, object *event
 		pushContext(context);
 		dict = PyDict_New();
 		PyDict_SetItemString(dict, "__builtins__", PyEval_GetBuiltins());
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
+		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
+#else
 		ret = PyEval_EvalCode(pycode, dict, NULL);
+#endif
 
 		if (PyErr_Occurred())
 		{
