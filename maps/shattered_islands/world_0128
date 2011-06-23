@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-06-20 emperorbma
+Modified: 2011-06-23 emperorbma
 endmsg
 width 24
 height 24
@@ -162,6 +162,11 @@ arch wall_wood3_3
 x 1
 y 6
 end
+arch wmask_ruin1a.111
+direction 7
+x 1
+y 6
+end
 arch grassd_2
 x 1
 y 7
@@ -207,6 +212,11 @@ x 1
 y 12
 end
 arch wall_wood2_3
+x 1
+y 12
+end
+arch wmask_ruin1a.111
+direction 7
 x 1
 y 12
 end
@@ -310,7 +320,17 @@ No, I won't do an "In the name of the Moon" speech for you.  Go away.
 endmsg
 name Usagi, the witch instructor
 direction 3
+level 35
+spawn_time 8:00-16:00
+sp -1
+maxsp 15
+Pow 4
 type 83
+arch ability_mbullet
+name ability lightning
+sp 48
+hp 48
+end
 end
 end
 arch floor_wood2_l1
@@ -354,13 +374,23 @@ msg
 *sigh* I wish they'd stop talking about those novels all day.
 @match ^Patchouli$|^Patchouli Knowledge$
 Well, they say Patchouli is a gateway herb, or character as the case may be...  *chuckle*
-@match ^Puella Magi Madoka Magica$
+@match ^Puella Magi Madoka Magica$|^Puella$
 Yeah, everyone in town is named from one novel or other.  The town is weird like that.
+@match ^contract$
+What?  Are you trying to be <a>Kyubey</a> or something?
+@match ^Kyubey$
+No, we don't have a Kyubey...
 endmsg
 name Madoka, the witch instructor
 direction 3
-level 23
+level 32
+spawn_time 8:00-16:00
+sp -1
+maxsp 15
+Pow 4
 type 83
+arch ability_firestorm
+end
 end
 end
 arch floor_wood2_l1
@@ -735,6 +765,9 @@ Maybe later, I've really gotta pass this test.
 endmsg
 name student witch
 level 25
+spawn_time 8:00-14:00
+sp -1
+maxsp 12
 type 83
 arch ability_cause_lig_wound
 end
@@ -775,6 +808,9 @@ endmsg
 name student witch
 direction 7
 level 27
+spawn_time 8:00-14:00
+sp -1
+maxsp 12
 type 83
 arch ability_cause_lig_wound
 end
@@ -842,6 +878,10 @@ She's the best, ze.
 endmsg
 name student witch
 level 25
+spawn_time 8:00-14:00
+can_cast_spell 1
+sp -1
+maxsp 12
 type 83
 arch ability_cause_lig_wound
 end
@@ -1005,6 +1045,9 @@ Now Reimu *is* totally awesome...
 endmsg
 name student witch
 level 28
+spawn_time 8:00-14:00
+sp -1
+maxsp 12
 type 83
 arch ability_cause_lig_wound
 end
@@ -1140,6 +1183,11 @@ arch floor_wood2_l1
 x 7
 y 5
 end
+arch door_wood2
+direction 7
+x 7
+y 5
+end
 arch floor_wood2_l1
 x 7
 y 6
@@ -1173,6 +1221,11 @@ x 7
 y 9
 end
 arch floor_wood2_l1
+x 7
+y 10
+end
+arch door_wood2
+direction 7
 x 7
 y 10
 end
@@ -1298,7 +1351,15 @@ arch floor_wood2_l1
 x 8
 y 7
 end
+arch statue_black1
+x 8
+y 7
+end
 arch floor_wood2_l1
+x 8
+y 8
+end
+arch statue_black_big1
 x 8
 y 8
 end
@@ -1534,6 +1595,9 @@ x 10
 y 3
 end
 arch stairs_wood_down
+slaying world_a_0128
+hp 11
+sp 4
 x 10
 y 3
 end
@@ -1676,6 +1740,9 @@ x 11
 y 3
 end
 arch invis_exit
+slaying world_a_0128
+hp 11
+sp 4
 x 11
 y 3
 end
@@ -1875,7 +1942,9 @@ arch floor_wood2_l1
 x 12
 y 7
 end
-arch wall_wood3_3
+arch door1_locked
+direction 4
+cursed 1
 x 12
 y 7
 end
@@ -1884,7 +1953,8 @@ x 12
 y 8
 end
 arch door1_locked
-direction 3
+direction 5
+cursed 1
 x 12
 y 8
 end
