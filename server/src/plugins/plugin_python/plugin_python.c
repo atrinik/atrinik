@@ -1406,66 +1406,19 @@ static PyMethodDef AtrinikMethods[] =
 };
 
 /**
- * Open a Python file.
- * @param filename File to open.
- * @return Python object of the file, NULL on failure. */
-static PyObject *python_openfile(char *filename)
-{
-	PyObject *scriptfile;
-#ifdef IS_PY3K
-	int fd = open(filename, O_RDONLY);
-
-	if (fd == -1)
-	{
-		return NULL;
-	}
-
-	scriptfile = PyFile_FromFd(fd, filename, "r", -1, NULL, NULL, NULL, 1);
-#else
-	if (!(scriptfile = PyFile_FromString(filename, "r")))
-	{
-		return NULL;
-	}
-#endif
-
-	return scriptfile;
-}
-
-/**
- * Return a FILE object from a Python file object.
- * @param obj Python object of the file.
- * @return FILE pointer to the file. */
-static FILE *python_pyfile_asfile(PyObject *obj)
-{
-#ifdef IS_PY3K
-	return fdopen(PyObject_AsFileDescriptor(obj), "r");
-#else
-	return PyFile_AsFile(obj);
-#endif
-}
-
-/**
  * Outputs the compiled bytecode for a given python file, using in-memory
  * caching of bytecode. */
 static PyCodeObject *compilePython(char *filename)
 {
-	PyObject *scriptfile;
 	shstr *sh_path = NULL;
 	struct stat stat_buf;
 	struct _node *n;
 	int i;
 	cacheentry *replace = NULL, *run = NULL;
 
-	if (!(scriptfile = python_openfile(filename)))
-	{
-		LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
-		return NULL;
-	}
-
 	if (stat(filename, &stat_buf))
 	{
 		LOG(llevDebug, "Python: The script file %s can't be stat()ed.\n", filename);
-		Py_DECREF(scriptfile);
 		return NULL;
 	}
 
@@ -1512,7 +1465,16 @@ static PyCodeObject *compilePython(char *filename)
 	/* Replace a specific cache index with the file. */
 	if (replace)
 	{
-		FILE *pyfile;
+		FILE *fp;
+
+		fp = fopen(filename, "r");
+
+		if (!fp)
+		{
+			LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
+			FREE_AND_CLEAR_HASH(sh_path);
+			return NULL;
+		}
 
 		Py_XDECREF(replace->code);
 		replace->code = NULL;
@@ -1528,9 +1490,28 @@ static PyCodeObject *compilePython(char *filename)
 			FREE_AND_COPY_HASH(replace->file, sh_path);
 		}
 
-		pyfile = python_pyfile_asfile(scriptfile);
+#ifdef WIN32
+		{
+			char buf[HUGE_BUF], *pystr = NULL;
+			size_t buf_len = 0, pystr_len = 0;
 
-		if ((n = PyParser_SimpleParseFile(pyfile, filename, Py_file_input)))
+			while (fgets(buf, sizeof(buf), fp))
+			{
+				buf_len = strlen(buf);
+				pystr_len += buf_len;
+				pystr = realloc(pystr, sizeof(char) * (pystr_len + 1));
+				strcpy(pystr + pystr_len - buf_len, buf);
+				pystr[pystr_len] = '\0';
+			}
+
+			n = PyParser_SimpleParseString(pystr, Py_file_input);
+			free(pystr);
+		}
+#else
+		n = PyParser_SimpleParseFile(fp, filename, Py_file_input);
+#endif
+
+		if (n)
 		{
 			replace->code = PyNode_Compile(n, filename);
 			PyNode_Free(n);
@@ -1546,11 +1527,11 @@ static PyCodeObject *compilePython(char *filename)
 			replace->used_time = time(NULL);
 		}
 
+		fclose(fp);
 		run = replace;
 	}
 
 	FREE_AND_CLEAR_HASH(sh_path);
-	Py_DECREF(scriptfile);
 
 	if (run)
 	{
@@ -1952,22 +1933,31 @@ static int cmd_customPython(object *op, char *params)
 
 MODULEAPI void postinitPlugin()
 {
-	PyObject *scriptfile;
 	char path[HUGE_BUF];
+	FILE *fp;
 
 	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
 	strncpy(path, hooks->create_pathname("/python/events/python_init.py"), sizeof(path) - 1);
-	scriptfile = python_openfile(path);
+	fp = fopen(path, "r");
 
-	if (scriptfile)
+	if (fp)
 	{
-		FILE *pyfile = python_pyfile_asfile(scriptfile);
+#ifdef WIN32
+		char *pystring;
 
-		PyRun_SimpleFile(pyfile, path);
-		Py_DECREF(scriptfile);
+		fclose(fp);
+
+		pystring = malloc(strlen(path) + 64);
+		sprintf(pystring, "exec(open('%s').read())", path);
+		PyRun_SimpleString(pystring);
+		free(pystring);
+#else
+		PyRun_SimpleFile(fp, path);
+		fclose(fp);
+#endif
 	}
 }
 
