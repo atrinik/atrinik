@@ -942,6 +942,26 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return 10;
 		}
+		else if (!strncmp(cp, "<bar=#", 6))
+		{
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			{
+				int r, g, b, bar_w, bar_h;
+
+				if (sscanf(cp + 6, "%2X%2X%2X %d %d>", &r, &g, &b, &bar_w, &bar_h) == 5)
+				{
+					SDL_Rect bar_dst;
+
+					bar_dst.x = dest->x;
+					bar_dst.y = dest->y;
+					bar_dst.w = bar_w;
+					bar_dst.h = bar_h;
+					SDL_FillRect(surface, &bar_dst, SDL_MapRGB(surface->format, r, g, b));
+				}
+			}
+
+			return strchr(cp + 6, '>') - cp + 1;
+		}
 	}
 
 	if (in_book_title && !strncmp(cp, "\">", 2))
