@@ -53,8 +53,6 @@ static void list_draw_frame(list_struct *list)
  * @param box Contains base x/y/width/height information to use. */
 static void list_row_color(list_struct *list, int row, SDL_Rect box)
 {
-	(void) list;
-
 	if (row & 1)
 	{
 		SDL_FillRect(list->surface, &box, sdl_gray2);
@@ -71,7 +69,6 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
  * @param box Contains base x/y/width/height information to use. */
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
-	(void) list;
 	SDL_FillRect(list->surface, &box, sdl_dgreen);
 }
 
@@ -81,7 +78,6 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
  * @param box Contains base x/y/width/height information to use. */
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
-	(void) list;
 	SDL_FillRect(list->surface, &box, sdl_blue1);
 }
 
