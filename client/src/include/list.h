@@ -143,6 +143,9 @@ typedef struct list_struct
 	/** Surface used to draw the list on. */
 	SDL_Surface *surface;
 
+	/** Additional text API @ref TEXT_xxx "flags". */
+	uint64 text_flags;
+
 	/**
 	 * Function that will draw frame (and/or other effects) right before
 	 * the column names and the actual rows.
