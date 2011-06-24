@@ -574,6 +574,8 @@ void list_clear(list_struct *list)
 	free(list->text);
 	list->text = NULL;
 	list->rows = 0;
+	list->row_selected = 1;
+	list->row_highlighted = 0;
 }
 
 /**
