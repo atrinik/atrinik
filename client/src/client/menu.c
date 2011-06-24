@@ -138,17 +138,6 @@ int client_command_check(char *cmd)
 		reset_keys();
 		return 1;
 	}
-	else if (!strncmp(cmd, "/target", 7))
-	{
-		/* Logic is: if first parameter char is a digit, is enemy, friend or self.
-		 * If first char a character - then it's a name of a living object. */
-		if (!strncmp(cmd, "/target friend", 14))
-			strcpy(cmd, "/target 1");
-		else if (!strncmp(cmd,"/target enemy", 13))
-			strcpy(cmd, "/target 0");
-		else if (!strncmp(cmd, "/target self", 12))
-			strcpy(cmd, "/target 2");
-	}
 	else if (!strncmp(cmd, "/help", 5))
 	{
 		cmd += 5;
