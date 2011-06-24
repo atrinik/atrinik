@@ -430,6 +430,11 @@ void list_show(list_struct *list)
 	int w = 0, extra_width = 0;
 	SDL_Rect box;
 
+	if (!list)
+	{
+		return;
+	}
+
 	/* Keys needing repeat? */
 	if (list->repeat_key != -1)
 	{
