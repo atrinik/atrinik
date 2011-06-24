@@ -273,6 +273,17 @@ int client_command_check(char *cmd)
 }
 
 /**
+ * Same as send_command(), but also check client commands.
+ * @param cmd Command to send. */
+void send_command_check(const char *cmd)
+{
+	if (!client_command_check(cmd))
+	{
+		send_command(cmd);
+	}
+}
+
+/**
  * Blit face from inventory located by tag.
  * @param tag Item tag to locate
  * @param x X position to blit the item
