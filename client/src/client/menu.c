@@ -268,6 +268,20 @@ int client_command_check(const char *cmd)
 		Mix_ResumeMusic();
 		return 1;
 	}
+	else if (!strncmp(cmd, "/party joinpassword ", 20))
+	{
+		cmd += 20;
+
+		if (cpl.partyjoin[0] != '\0')
+		{
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "/party join %s\t%s", cpl.partyjoin, cmd ? cmd : " ");
+			send_command(buf);
+		}
+
+		return 1;
+	}
 
 	return 0;
 }

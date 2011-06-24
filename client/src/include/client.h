@@ -322,8 +322,13 @@ typedef struct Player_Struct
 	/* Range attack chosen */
 	char range[MAX_BUF];
 
-	/* Party name this player is member of */
+	/** Party name this player is member of. */
 	char partyname[MAX_BUF];
+
+	/**
+	 * Buffer for party name the player is joining, but has to enter
+	 * password first. */
+	char partyjoin[MAX_BUF];
 
 	/** Whom to reply to. */
 	char player_reply[64];

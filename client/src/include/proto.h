@@ -381,10 +381,10 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
 void mplayer_now_playing();
 
 /* gui/party.c */
+void widget_party_background(widgetdata *widget);
 void widget_party_render(widgetdata *widget);
 void widget_party_mevent(widgetdata *widget, SDL_Event *event);
 void PartyCmd(unsigned char *data, int len);
-int party_handle_cmd(const char *cmd);
 
 /* gui/protections.c */
 void widget_show_resist(widgetdata *widget);

@@ -1896,6 +1896,10 @@ static void process_widget_background(widgetdata *widget)
 		case MPLAYER_ID:
 			widget_mplayer_background(widget);
 			break;
+
+		case PARTY_ID:
+			widget_party_background(widget);
+			break;
 	}
 }
 
