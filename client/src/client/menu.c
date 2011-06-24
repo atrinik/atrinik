@@ -37,7 +37,7 @@ int keybind_status;
  * Sort out the "client intern" commands and expand or pre process them for the server.
  * @param cmd Command to check
  * @return 0 to send command to server, 1 to not send it */
-int client_command_check(char *cmd)
+int client_command_check(const char *cmd)
 {
 	if (!strncasecmp(cmd, "/ready_spell", 12))
 	{
@@ -316,8 +316,6 @@ void show_menu()
 	{
 		region_map_show();
 	}
-	else if (cpl.menustatus == MENU_PARTY)
-		show_party();
 	else if (cpl.menustatus == MENU_OPTION)
 		show_optwin();
 }

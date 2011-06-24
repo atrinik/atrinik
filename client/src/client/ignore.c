@@ -166,7 +166,7 @@ int ignore_check(const char *name, const char *type)
 /**
  * Parse /ignore command.
  * @param cmd The command to parse, without the "/ignore" part. */
-void ignore_command(char *cmd)
+void ignore_command(const char *cmd)
 {
 	char name[64], type[64];
 

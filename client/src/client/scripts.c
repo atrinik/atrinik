@@ -1059,17 +1059,30 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 /**
  * Send a message by player to a running script.
  * @param params The script name to find and send the message to. */
-void script_send(char *params)
+void script_send(const char *params)
 {
 	int i = 0, w;
-	char *c = strtok(params, " ");
+	char *p;
 
-	if (!c)
+	if (!params)
 	{
 		return;
 	}
 
-	i = script_by_name(c);
+	p = strchr(params, ' ');
+
+	if (!p)
+	{
+		draw_info(COLOR_RED, "No message to send specified.");
+		return;
+	}
+
+	while (*p == ' ')
+	{
+		*p++ = '\0';
+	}
+
+	i = script_by_name(params);
 
 	if (i < 0)
 	{
@@ -1077,17 +1090,9 @@ void script_send(char *params)
 		return;
 	}
 
-	c = strtok(NULL, " ");
-
-	if (!c)
-	{
-		draw_info(COLOR_RED, "No message to send specified.");
-		return;
-	}
-
 	/* Send the message */
 	w = write(scripts[i].out_fd, "scriptsend ", 11);
-	w = write(scripts[i].out_fd, c, strlen(c));
+	w = write(scripts[i].out_fd, p, strlen(p));
 	w = write(scripts[i].out_fd, "\n", 1);
 
 	if (w < 0)

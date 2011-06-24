@@ -129,7 +129,7 @@ void read_help_files()
  * Show a help GUI.
  * Uses book GUI to show the help.
  * @param helpname Help to be shown. */
-void show_help(char *helpname)
+void show_help(const char *helpname)
 {
 	int len;
 	unsigned char *data;
