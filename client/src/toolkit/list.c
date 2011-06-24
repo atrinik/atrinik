@@ -215,6 +215,11 @@ list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, 
  * @param str Text to add. */
 void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 {
+	if (!list)
+	{
+		return;
+	}
+
 	if (col > list->cols)
 	{
 		LOG(llevBug, "list_add(): Attempted to add column #%u, but columns max is %u.\n", col, list->cols);
