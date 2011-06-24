@@ -550,12 +550,43 @@ void list_show(list_struct *list)
 }
 
 /**
+ * Clear and free list's entries.
+ * @param list List. */
+void list_clear(list_struct *list)
+{
+	uint32 row, col;
+
+	if (!list || !list->text)
+	{
+		return;
+	}
+
+	/* Free the texts. */
+	for (row = 0; row < list->rows; row++)
+	{
+		for (col = 0; col < list->cols; col++)
+		{
+			if (list->text[row][col])
+			{
+				free(list->text[row][col]);
+			}
+		}
+
+		free(list->text[row]);
+	}
+
+	free(list->text);
+	list->text = NULL;
+	list->rows = 0;
+}
+
+/**
  * Remove the specified list from the linked list of visible lists and
  * deinitialize it.
  * @param list List to remove. */
 void list_remove(list_struct *list)
 {
-	uint32 row, col;
+	uint32 col;
 
 	if (!list)
 	{
@@ -581,21 +612,8 @@ void list_remove(list_struct *list)
 		list->next->prev = list->prev;
 	}
 
-	/* Free the texts. */
-	for (row = 0; row < list->rows; row++)
-	{
-		for (col = 0; col < list->cols; col++)
-		{
-			if (list->text[row][col])
-			{
-				free(list->text[row][col]);
-			}
-		}
+	list_clear(list);
 
-		free(list->text[row]);
-	}
-
-	free(list->text);
 	free(list->col_widths);
 	free(list->col_spacings);
 	free(list->col_centered);
