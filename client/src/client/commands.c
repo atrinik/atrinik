@@ -77,20 +77,6 @@ void BookCmd(unsigned char *data, int len)
 }
 
 /**
- * Party command, used to initialize the party GUI.
- * @param data Data for the party interface
- * @param len Length of the data */
-void PartyCmd(unsigned char *data, int len)
-{
-	gui_interface_party = load_party_interface((char *) data, len);
-
-	if (gui_interface_party)
-	{
-		cpl.menustatus = MENU_PARTY;
-	}
-}
-
-/**
  * Setup command. Used to set up a new server connection, initialize
  * necessary data, etc.
  * @param buf The incoming data.

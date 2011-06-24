@@ -126,6 +126,10 @@ void widget_menubuttons(widgetdata *widget)
 		{
 			buttons[i].pressed = cur_widget[SKILLS_ID]->show;
 		}
+		else if (i == BUTTON_PARTY)
+		{
+			buttons[i].pressed = cur_widget[PARTY_ID]->show;
+		}
 
 		buttons[i].x = widget->x1 + x;
 		buttons[i].y = widget->y1 + y;
@@ -170,7 +174,14 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			}
 			else if (i == BUTTON_PARTY)
 			{
-				send_command("/party list");
+				if (cur_widget[PARTY_ID]->show)
+				{
+					cur_widget[PARTY_ID]->show = 0;
+				}
+				else
+				{
+					send_command_check("/party list");
+				}
 			}
 			else if (i == BUTTON_MPLAYER)
 			{

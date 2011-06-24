@@ -44,8 +44,6 @@
 #define MENU_CREATE 32
 /** Book GUI. */
 #define MENU_BOOK 64
-/** Party GUI. */
-#define MENU_PARTY 128
 #define MENU_REGION_MAP 256
 /*@}*/
 

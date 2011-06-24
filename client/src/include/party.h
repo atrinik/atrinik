@@ -30,48 +30,6 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-/** Party tabs. */
-enum
-{
-	PARTY_TAB_LIST,
-	PARTY_TAB_WHO,
-	PARTY_TAB_LEAVE,
-	PARTY_TAB_PASSWORD,
-	PARTY_TABS
-};
-
-/** The main party GUI structure. */
-typedef struct gui_party_struct
-{
-	/** Command to run. Something like "list", "who", etc. */
-	char command[MAX_BUF];
-
-	/** Linked list of lines. */
-	struct gui_party_line *start;
-
-	/** Number of lines. */
-	int lines;
-
-	/** Scroll bar position. */
-	int yoff;
-
-	/** Selected row. */
-	int selected;
-
-	/** Selected tab. */
-	int tab;
-} _gui_party_struct;
-
-/** Structure for the party GUI lines. */
-typedef struct gui_party_line
-{
-	/** The next line. */
-	struct gui_party_line *next;
-
-	/** Line contents. */
-	char line[MAX_BUF + 1];
-} _gui_party_line;
-
 /**
  * @defgroup CMD_PARTY_xxx Party socket command types
  * Various types of the BINARY_CMD_PARTY socket command.

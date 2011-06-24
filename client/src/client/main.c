@@ -77,8 +77,6 @@ int y_custom_cursor = 0;
 /* update map area */
 int map_udate_flag, map_redraw_flag;
 
-/** The party GUI. */
-struct gui_party_struct *gui_interface_party;
 /** All the loaded help files. */
 help_files_struct *help_files;
 /** Global status identifier. */
@@ -323,7 +321,6 @@ static void init_game_data()
 	text_input_string_esc_flag = 0;
 	csocket.fd = SOCKET_NO;
 	RangeFireMode = 0;
-	gui_interface_party = NULL;
 	help_files = NULL;
 	options.resolution_x = WINDOW_DEFAULT_WIDTH;
 	options.resolution_y = WINDOW_DEFAULT_HEIGHT;

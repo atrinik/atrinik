@@ -194,12 +194,9 @@ void do_console()
 {
 	map_udate_flag = 2;
 
-	/* If ESC was pressed or console_party() returned 1, close console. */
-	if (text_input_string_esc_flag || console_party())
+	/* If ESC was pressed, close console. */
+	if (text_input_string_esc_flag)
 	{
-		if (gui_interface_party)
-			clear_party_interface();
-
 		sound_play_effect("console.ogg", 100);
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;

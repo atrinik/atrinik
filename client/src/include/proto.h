@@ -20,7 +20,6 @@ void check_animation_status(int anum);
 
 /* client/commands.c */
 void BookCmd(unsigned char *data, int len);
-void PartyCmd(unsigned char *data, int len);
 void SetupCmd(char *buf, int len);
 void AddMeFail(unsigned char *data, int len);
 void AddMeSuccess(unsigned char *data, int len);
@@ -75,7 +74,7 @@ void draw_tabs(const char *tabs[], int *act_tab, const char *head_text, int x, i
 void ignore_list_clear();
 void ignore_list_load();
 int ignore_check(const char *name, const char *type);
-void ignore_command(char *cmd);
+void ignore_command(const char *cmd);
 
 /* client/image.c */
 bmap_struct *bmap_find(const char *name);
@@ -111,7 +110,8 @@ void list_vid_modes();
 int main(int argc, char *argv[]);
 
 /* client/menu.c */
-int client_command_check(char *cmd);
+int client_command_check(const char *cmd);
+void send_command_check(const char *cmd);
 void blt_inventory_face_from_tag(int tag, int x, int y);
 void show_menu();
 void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y);
@@ -166,7 +166,7 @@ void script_load(const char *cparams);
 void script_list();
 void script_process();
 int script_trigger_event(const char *cmd, const uint8 *data, const int data_len, const enum CmdFormat format);
-void script_send(char *params);
+void script_send(const char *params);
 void script_killall();
 void script_autoload();
 void script_unload(const char *params);
@@ -322,7 +322,7 @@ void widget_show_fps(widgetdata *widget);
 /* gui/help.c */
 void free_help_files();
 void read_help_files();
-void show_help(char *helpname);
+void show_help(const char *helpname);
 
 /* gui/input.c */
 void widget_number_event(widgetdata *widget, int x, int y);
@@ -381,13 +381,10 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
 void mplayer_now_playing();
 
 /* gui/party.c */
-void switch_tabs();
-void draw_party_tabs(int x, int y);
-void show_party();
-void gui_party_interface_mouse(SDL_Event *e);
-void clear_party_interface();
-_gui_party_struct *load_party_interface(char *data, int len);
-int console_party();
+void widget_party_render(widgetdata *widget);
+void widget_party_mevent(widgetdata *widget, SDL_Event *event);
+void PartyCmd(unsigned char *data, int len);
+int party_handle_cmd(const char *cmd);
 
 /* gui/protections.c */
 void widget_show_resist(widgetdata *widget);
@@ -468,6 +465,7 @@ void list_set_column(list_struct *list, uint32 col, int width, int spacing, cons
 void list_set_font(list_struct *list, int font);
 void list_scrollbar_enable(list_struct *list);
 void list_show(list_struct *list);
+void list_clear(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
 int lists_handle_keyboard(SDL_KeyboardEvent *event);

@@ -260,16 +260,6 @@ int Event_PollInputDevice()
 				if (GameStatus < GAME_STATUS_PLAY)
 					break;
 
-				/* For party GUI, we call the mouse event function that handles scrolling, selecting, etc. */
-				if (cpl.menustatus == MENU_PARTY)
-				{
-					if (event.button.button == SDL_BUTTON_WHEELUP || event.button.button == SDL_BUTTON_WHEELDOWN)
-					{
-						gui_party_interface_mouse(&event);
-						break;
-					}
-				}
-
 				/* If this is book GUI, handle the click */
 				if (cpl.menustatus == MENU_BOOK)
 				{

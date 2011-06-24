@@ -663,8 +663,6 @@ enum
 	MSCURSOR_MOVE = 1
 };
 
-extern struct gui_party_struct *gui_interface_party;
-
 extern struct _Font MediumFont;
 
 extern char text_input_string[MAX_INPUT_STRING];
