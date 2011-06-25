@@ -283,6 +283,7 @@ void ImageCmd(unsigned char *data, int len)
 	FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
+	book_redraw();
 }
 
 /**

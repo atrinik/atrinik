@@ -237,3 +237,10 @@ void book_handle_event(SDL_Event *event)
 		redraw = 1;
 	}
 }
+
+/**
+ * Redraw the book GUI. */
+void book_redraw()
+{
+	redraw = 1;
+}

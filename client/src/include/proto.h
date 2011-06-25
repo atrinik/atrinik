@@ -299,6 +299,7 @@ void book_load(const char *data, int len);
 void book_show();
 void book_handle_key(SDLKey key);
 void book_handle_event(SDL_Event *event);
+void book_redraw();
 
 /* gui/effects.c */
 void effects_init();
