@@ -280,6 +280,11 @@ void PartyCmd(unsigned char *data, int len)
 			}
 		}
 
+		if (type == CMD_PARTY_WHO)
+		{
+			list_sort(list, LIST_SORT_ALPHA);
+		}
+
 		list_set_column(list, 0, -1, -1, type == CMD_PARTY_LIST ? "Party name" : "Player", -1);
 		list_set_column(list, 1, -1, -1, type == CMD_PARTY_LIST ? "Leader" : "Stats", -1);
 
