@@ -425,4 +425,9 @@ void spawn_point(object *op)
 	fix_monster(monster);
 
 	insert_ob_in_map(monster, monster->map, op, 0);
+
+	if (QUERY_FLAG(monster, FLAG_ANIMATE))
+	{
+		animate_object(monster, 0);
+	}
 }
