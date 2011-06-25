@@ -43,7 +43,8 @@ static char *yval();
 static void *cur_buffer;
 static int object_load_flag;
 static int lex_error;
-static char msgbuf[HUGE_BUF];
+static char msgbuf[HUGE_BUF * 4];
+static size_t msgbuf_len;
 static artifact *art_amask;
 
 /**
@@ -207,8 +208,6 @@ lex_error = 0;
 								copy_object(&tmp->arch->clone, tmp, 1);
 							}
 
-							strcpy(msgbuf, "");
-
 							(*depth)++;
 							items[*depth] = tmp;
 
@@ -334,25 +333,18 @@ lex_error = 0;
 ^msg{WS}            {
 						BEGIN(MESSAGE);
 						msgbuf[0] = '\0';
+						msgbuf_len = 0;
                     }
 <MESSAGE>^endmsg{WS} {
-						size_t len = strlen(msgbuf);
-
 						BEGIN(INITIAL);
 
 						/* Remove last newline. */
-						msgbuf[len - 1] = '\0';
+						msgbuf[msgbuf_len - 1] = '\0';
 						FREE_AND_COPY_HASH(op->msg, msgbuf);
-
-						/* Just print a warning so we can be reasonably safe
-					 	 * about not overflowing the buffer. */
-						if (len > (HUGE_BUF / 2))
-						{
-							LOG(llevDebug, "\n\tWarning: message length > %d (max allowed=%d): %"FMT64U"\n>%.80s<\n", HUGE_BUF / 2, HUGE_BUF, (uint64) strlen(op->msg), op->msg);
-						}
                      }
 <MESSAGE>.*{NL}	    {
-						strcat(msgbuf, yytext);
+						strncat(msgbuf, yytext, sizeof(msgbuf) - msgbuf_len - 1);
+						msgbuf_len += yyleng;
 					}
 ^name{S}            {
 						char *yv = yval();
@@ -1024,7 +1016,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	/* We assume an "arch" load as default */
 	object_load_flag = 0;
 
-	*msgbuf = '\0';
 	items[0] = op;
 	art_amask = NULL;
 
@@ -1187,7 +1178,6 @@ int set_variable(object *op, char *buf)
 	int retval, depth;
 	object *items[MAXDEPTH];
 
-	strcpy(msgbuf, "");
 	yy_push_state(INITIAL);
 	yybufstate = yy_scan_string(buf);
 
