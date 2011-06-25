@@ -7,7 +7,7 @@ endmsg
 width 24
 height 24
 difficulty 30
-outdoor 1
+darkness 2
 no_harm 1
 bg_music yewtree.mid
 region centennial
@@ -121,6 +121,10 @@ x 2
 y 3
 end
 arch shelf1_wall.111
+x 2
+y 3
+end
+arch light5
 x 2
 y 3
 end
@@ -347,6 +351,10 @@ x 3
 y 8
 end
 arch floor_wood2_l1
+x 3
+y 9
+end
+arch light5
 x 3
 y 9
 end
@@ -1148,7 +1156,6 @@ y 10
 arch tome_black
 msg
 <title>Eastern Project: Immaterial and Missing Power</title>
-by ZUN
 
 In the year after the long winter, Gensokyo had recovered.  It was summer and there were weekly parties happening at Reimu's shrine.  Nobody had suspected that these parties were being caused by some outside force.  Reimu, however, had grown suspicious and wondered what the cause of the parties was.  She could sense something but couldn't quite figure out what.
 
@@ -1163,14 +1170,15 @@ Reimu was about to give up and go home when Yukari Yakumo appeared at her shrine
 There, Reimu met the oni, Suika Ibuki, who was surprised that Yukari suddenly dumped a new guest in her home.  Reimu demanded to know what the oni was doing with these feasts.  Suika said she just wanted to have some fun so she could gather her fellow oni from where they were hiding.  Suika had been changing her own density so the mist was, in fact, herself and she was manipulating everyone into having feasts all the time.
 
 Reimu was already in a mood to pick a fight, though, so she decided to convince the oni to stop these feasts by force.  After beating Suika, Reimu went home.  Suika, who was bored, decided to hang out at Reimu's shrine.  Reimu was in a better mood since the annoying feasts had stopped, so she decided not to oust her new guest.
+
+<font=pecita 20>ZUN</font>
 endmsg
 name Eastern Project: Book 7.5
+no_pick 1
 end
 arch book
 msg
 <title>Eastern Project: Perfect Cherry Blossom</title>
-by ZUN
-
 You read a story about Gensokyo.  It had been a long winter in Gensokyo and Reimu Hakurei was upset that spring was very late.  She enlisted the help of Marisa Kirisame and the maid of the Scarlet Devil Mansion, Sakuya Izayoi, to find out what was happening.
 
 The trio first encountered various random fairies including the ice fairy Cirno.  Cirno, like the tomboyish fairy she is, decided to fight and (to no one's surprise) lost.  (Yes, she's a bit of an idiot... like most fairies)  The other fairies were also quickly defeated.  Following this encounter, however, the group happened upon the dangerous "snow woman" youkai named Letty Whiterock.  Letty decided that the heroines should be "sleeping" during winter and decided to make this a reality.  However, the team was strong enough to prevent her assault from being effective.
@@ -1184,15 +1192,16 @@ Inside the Netherworld gate, there were many ghosts and spirits.  The team was m
 Yuyuko then asked Reimu to remind her friend to fix the portal to Netherworld which she had weakened so Yuyuko could steal the spring essence.  As Reimu went to do this, she was attacked again by Chen who was stronger than the last time they had met.  Chen was defeated again, but it turns out that Chen was a familiar belonging to a fox youkai named Ran who was upset by the defeats and attacked Reimu because she had beaten her familiar.  Ran put up a fierce battle but was defeated.  Ran suggested that Reimu should come back at night for a rematch.
 
 Reimu returned later and Ran's rematch also resulted in Ran being defeated but Ran's secret was revealed.  Ran, it turns out, was the familiar to an even stronger youkai named Yukari Yakumo whose power is the manipulation of barriers.  Yukari, having been asleep, wasn't happy that Reimu had barged in and proceeded to fight the shrine maiden.  After a long and difficult fight, Reimu eventually figured out that this was the person that Yuyuko had wanted her to talk to and delivered her message.  Yukari then resealed the portal as Yuyuko had requested.
+
+<font=pecita 20>ZUN</font>
 endmsg
-face book_snowflake.101
 name Eastern Project: Book 7
+face book_snowflake.101
+no_pick 1
 end
 arch book_red
 msg
 <title>Eastern Project: Embodiment of Scarlet Devil</title>
-by ZUN
-
 You read a story about Scarlet Mist incident in the land of Gensokyo.  The sky had been darkened by a red mist of unknown origin.  Reimu Hakurei, the shrine maiden decided to figure out the origin of the mist.  Marisa Kirisame, the extraordinary ordinary magician, decided that she would follow along in case there was some loot she can acquire.
 
 The first creature the team met was the darkness youkai, Rumia, who was a bit silly and tended to blind herself with her own powers, but she was still known to eat humans occasionally.  Reimu set about to exterminate the interloping creature as (she believes) her job description requires this.  After defeating Rumia, the heroines advanced toward the Misty Lake where the red mist seemed to originate from.  Along the way, countless fairies and birds assaulted the shrine maiden and the witch who were forced to blast their way through them.  They were soon met by a powerful fairy named Daiyousei who tried to play with them but soon left after it was clear that the heroines weren't in the mood for games.  Another fairy named Cirno, whose special ability was ice magic, sensed a strong opponent and decided she wanted to test her strength.  The fairy assaulted the heroines but was quickly taught a lesson about being too aggressive.
@@ -1206,15 +1215,16 @@ Reimu, meanwhile, faced the chief maid of the mansion, Sakuya Izayoi, who was sk
 The owner was the vampire princess, Remilia Scarlet, who had ordered the mist to be released to allow herself to go outside during the day without fear of the sun.  Reimu demanded that the mist be stopped, but Remilia refused.  Reimu fought the obstinate vampiress and finally convinced her to relent.
 
 Later, the vampire decided to visit Reimu at her shrine.  (Reimu is lazy about maintaining her shrine, so it wasn't harmful to vampires...)  The vampire had figured out that using a parasol would protect her from the effects of the sun so she could go out anyway.  Marisa, meanwhile, had sensed that there were more books calling her name.  Patchouli was feeling particularly well, so she put up a better defense and Marisa managed to learn a few of Patchouli's better spell techniques during the fight.  However, this began a sort of "Centennial Festival for magical girls" because during the ensuing fight, the Remilia's sister, Flandre, broke out of the basement where she had been confined (for 495 years; hence the title) to prevent her destructive abilities from causing damage to the neighbors.  Flandre had merely wanted to "play" with the new guests, but hadn't had the chance.  Marisa carefully dodged Flandre's magic (which were themed on various murder mysteries) and let the vampire wear herself out before quickly returning home with her new loot rather glad to escape being injured by the vampire's fatal magic.
+
+<font=pecita 20>ZUN</font>
 endmsg
-face tome_red.101
 name Eastern Project: Book 6
+face tome_red.101
+no_pick 1
 end
 arch book_red
 msg
 <title>Eastern Project: Mystic Square</title>
-by ZUN
-
 You read a story about the world of Gensokyo.  Yet another incident has caused youkai and spirits to appear and attack her the shrine of Reimu Hakurei.  She tracks the invasion to the portal to Makai and plans her assault.  She decided to swallow her pride and ask Marisa to help her exterminate the pesky invaders.  At the same time, Mima and Yuuka decided they wanted to be involved because they were bored so they decided to sneak around after the shrine maiden.
 
 The four adventurers quickly charged toward the gateway.  While Reimu was busy fighting the first guardian, Sara, the others slipped into Makai.  Within, Marisa faces another demon named Louise.  Yuuka happens upon a strange girl with a magical text named Alice who controlled several living dolls.  Mima faced a pair of sisters named Yuki and Mai.
@@ -1222,14 +1232,15 @@ The four adventurers quickly charged toward the gateway.  While Reimu was busy f
 After defeating the opponents, the heroines advanced upon the city of Pandemonium where they found the dark goddess Shinki and her follower Yumeko.  Shinki explains that this is the doing of a tourist agency and she didn't really have anything to do with it.  Reimu, however, is none too pleased and attacks anyway.  Yumeko defended her master and intervened, but was defeated and Reimu advanced to defeat Shinki.  After extracting a promise from Shinki that something would be done about the invasion, Reimu left satisfied.
 
 Later, Yuuka faced Alice again who was upset over her prior defeat and demanded a rematch.  Yuuka was again victorious but Yuuka felt sorry for Alice and decided that she'd give Alice some training about how to fight better.
+
+<font=pecita 20>ZUN</font>
 endmsg
 name Eastern Project: Book 5
+no_pick 1
 end
 arch book_pink
 msg
 <title>Eastern Project: Lotus Land Story</title>
-by ZUN
-
 You read the story of Reimu Hakurei, the shrine maiden of Hakurei Shrine in the wonderous land of Gensokyo, who is yet again faced with invaders who assaulted her shrine.  At around the same time, the witch Marisa Kirisame sensed a source of power that she had an interest in... acquiring.  Marisa, realizing Reimu seemed to be going in the same direction, followed her thief's instinct and trailed stealthily behind.
 
 On the way, Reimu first met a rather harmless youkai named Orange.  Reimu, since it is part of her job as a shrine maiden (or so she believes) to do so, attacks and defeats this youkai.  Further inward,  Further onward, she finds a lake of blood guarded by a vampire named Kurumi.  Reimu defeats her and moves on.  Marisa is caught by the same vampire who was rather wry from her defeat and had to defeat the vampire again.
@@ -1241,27 +1252,29 @@ Inside the mansion, Reimu and Marisa meet and Reimu accuses Marisa of being resp
 After defeating Reimu, Marisa finds the source of the power that she was trying to find, the flower youkai named Yuuka Kazami.  The youkai had been sleeping and despite being slow and tired put up a tremendous fight against Marisa.  Marisa, however, managed to win and acquire the power she had desired... the Master Spark spell.
 
 Later, Reimu tried to return to Yuuka's mansion but was happened upon by the sisters Gengetsu and Mugetsu who attacked the hapless adventurer.  The situation had already resolved itself, however, because Marisa had defeated Yuuka already so Reimu returned home after defeating her aggressors.
+
+<font=pecita 20>ZUN</font>
 endmsg
 name Eastern Project: Book 4
+no_pick 1
 end
 arch book_green
 msg
 <title>Eastern Project: Phantasmagoria of Dimension Dream</title>
-by ZUN
-
 You read the story of Reimu Hakurei, the shrine maiden of Gensokyo.  She was walking peacefully one day when suddenly she discovered some strange ruins near her shrine.  Her old rival, Marisa Kirisame, arrives with her mentor Mima who had yet again broken her seal.  Marisa explains that they had received a pamphlet explaining that these ruins were accepting "visitors" and that whoever managed to brave them would receive a gift.
 
 Further hopeful recipients arrived and a battle ensued to decide who would receive the gift.  After triumphing in the melee, Reimu enters the ruins discovers that they belong to a scientist named Yumemi who wants to recover and capture a specimen that proves that magic exists to her Academy.  In order to secure a specimen, her helper Chiyuri sent the pamphlets out.  Yumemi promises that if Reimu should defeat them, then she will receive her wish if it was within Yumemi's power to grant.  Reimu obliges and defeats the scientist and her assistant.
 
 As a result of the wish, the others (who had snuck in later) received various gifts.  Marisa received a pet missile. Reimu received a robotic assistant.  Mima wished that the moon would be stationary so she could pester Reimu forever.  While these gifts were received, they later disappear for no adequately explained reason.  Yumemi returns to her world where she is later kicked out of her Academy for having such a ridiculous theory.  Afterward she returns to Gensokyo and is never heard from again.
+
+<font=pecita 20>ZUN</font>
 endmsg
 name Eastern Project: Book 3
+no_pick 1
 end
 arch book_blue
 msg
 <title>Eastern Project: Story of Eastern Wonderland</title>
-by ZUN
-
 You read the story of Reimu Hakurei, the shrine maiden of Gensokyo, whose shrine was suddenly attacked by ghosts and monsters.  She sets out to find the reason and stop the assault.
 
 Along the way, she encounters a girl named Rika who attacks Reimu with her mechanical Flower Tanks and lure Reimu into a trap.  Reimu realizes this and avoids the trap that had been set.
@@ -1269,14 +1282,15 @@ Along the way, she encounters a girl named Rika who attacks Reimu with her mecha
 As she continued her journey, Reimu was attacked by a samurai named Meira who wanted to take Reimu's powers for her own.  After defeating this assault, Reimu is trapped in a dream world where she faced 5 magical orbs.
 
 Upon defeating these orbs, Reimu discovers that the true culprit is the evil ghost Mima whom she had faced in her prior adventure.  Before Reimu could react, Mima summoned her protege, Marisa Kirisame, and ordered her to battle Reimu.  Reimu defeated Marisa and advanced on to foil the evil ghost's schemes and again seal her into the ruined shrine.
+
+<font=pecita 20>ZUN</font>
 endmsg
 name Eastern Project: Book 2
+no_pick 1
 end
 arch book
 msg
 <title>Eastern Project 1: Highly Responsive to Prayers</title>
-by ZUN
-
 You read a story about a shrine maiden named Reimu Hakurei and her first adventure in magical, sealed off, land of Gensokyo.  She set out with her shrine's special heirloom, the Yin-Yang Orbs, which were believed to have the power to defeat demons.
 
 During her adventure, she first faced by the guardian Shingyoku.  After defeating this adversary, she first descended into Makai where she faced the demon eyes and the demon Elis.
@@ -1284,8 +1298,11 @@ During her adventure, she first faced by the guardian Shingyoku.  After defeatin
 She then decided to continue forward and take on the forces of Jigoku.  There she faced and defeated the evil ghost, Mima, who had broken out of a shrine where she had been sealed.  At the end of her adventure, the shrine maiden faced and defeated the fallen angel Sariel.
 
 After her journey, she returned home satisfied that she had learned to master the control of the Yin-Yang orbs.
+
+<font=pecita 20>ZUN</font>
 endmsg
 name Eastern Project: Book 1
+no_pick 1
 end
 end
 arch floor_wood2_l1
@@ -1413,6 +1430,10 @@ x 11
 y 10
 end
 arch floor_wood2_l1
+x 11
+y 11
+end
+arch light5
 x 11
 y 11
 end
