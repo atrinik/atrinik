@@ -1122,7 +1122,7 @@ x 10
 y 10
 arch book_red
 msg
-<img-yukkuri.101>
+<img=yukkuri.101>
 endmsg
 name Take it Easy
 end
