@@ -354,11 +354,12 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
  * actually drawn. */
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust)
 {
-	int width, minx, ret = 1;
+	int width, minx, ret = 1, restore_font = -1;
 	char c = *cp;
 	static char *anchor_tag = NULL, anchor_action[HUGE_BUF];
 	static SDL_Color outline_color = {0, 0, 0, 0};
 	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255, in_bold = 0;
+	static int in_font = -1;
 	uint8 remove_bold = 0;
 
 	if (c == '\r')
@@ -557,13 +558,16 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			{
 				int font_id = get_font_id(font_name, font_size);
 
-				if (font_id == -1)
+				if (font_id != -1)
 				{
-					LOG(llevBug, "blt_character(): Invalid font in string (%s, %d): %.80s.\n", font_name, font_size, cp);
-				}
-				else
-				{
-					*font = font_id;
+					if (surface)
+					{
+						*font = font_id;
+					}
+					else
+					{
+						in_font = font_id;
+					}
 				}
 			}
 
@@ -598,13 +602,16 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				font_id = get_font_id(tmp, font_size);
 
-				if (font_id == -1)
+				if (font_id != -1)
 				{
-					LOG(llevBug, "blt_character(): Invalid font in string (%d): %.80s.\n", font_size, cp);
-				}
-				else
-				{
-					*font = font_id;
+					if (surface)
+					{
+						*font = font_id;
+					}
+					else
+					{
+						in_font = font_id;
+					}
 				}
 			}
 
@@ -620,7 +627,15 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</font>", 7) || !strncmp(cp, "</size>", 7))
 		{
-			*font = orig_font;
+			if (surface)
+			{
+				*font = orig_font;
+			}
+			else
+			{
+				in_font = -1;
+			}
+
 			return 7;
 		}
 		/* Make text centered. */
@@ -880,7 +895,14 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (!(flags & TEXT_NO_FONT_CHANGE))
 			{
-				*font = FONT_SERIF14;
+				if (surface)
+				{
+					*font = FONT_SERIF14;
+				}
+				else
+				{
+					in_font = FONT_SERIF14;
+				}
 			}
 
 			if (surface)
@@ -895,9 +917,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (surface)
 			{
 				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+				*font = orig_font;
+			}
+			else
+			{
+				in_font = -1;
 			}
 
-			*font = orig_font;
 			return 8;
 		}
 		else if (!strncmp(cp, "<t t=\"", 6) || !strncmp(cp, "<tt=\"", 5))
@@ -906,7 +932,14 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			if (!(flags & TEXT_NO_FONT_CHANGE))
 			{
-				*font = FONT_SERIF14;
+				if (surface)
+				{
+					*font = FONT_SERIF14;
+				}
+				else
+				{
+					in_font = FONT_SERIF14;
+				}
 			}
 
 			if (surface)
@@ -969,9 +1002,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		if (surface)
 		{
 			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+			*font = orig_font;
+		}
+		else
+		{
+			in_font = -1;
 		}
 
-		*font = orig_font;
 		in_book_title = 0;
 		return 2;
 	}
@@ -991,6 +1028,12 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
+	if (in_font != -1 && !surface)
+	{
+		restore_font = *font;
+		*font = in_font;
+	}
+
 	if (in_bold && !surface && !(TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD))
 	{
 		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
@@ -1006,6 +1049,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	if (remove_bold)
 	{
 		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+	}
+
+	if (restore_font != -1)
+	{
+		in_font = -1;
+		*font = restore_font;
+		restore_font = -1;
 	}
 
 	if (minx < 0)
