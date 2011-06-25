@@ -1120,6 +1120,12 @@ arch shelf3c.111
 direction 7
 x 10
 y 10
+arch book_red
+msg
+<img-yukkuri.101>
+endmsg
+name Take it Easy
+end
 arch note
 msg
 <title>Catalog of Eastern Project Titles</title>
@@ -1150,6 +1156,7 @@ Double Spoiler (12-13) [out]
 Fairy Wars (12-13) [out]
 
 Fan works:
+Take it Easy
 ... the list continues for several pages...
 endmsg
 name Catalog of Eastern Project
