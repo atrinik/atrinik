@@ -30,3 +30,14 @@ no_pick 1
 type 79
 layer 4
 end
+
+Object bench3
+name bench
+face bench3.111
+animation bench3
+is_turnable 1
+direction 1
+no_pick 1
+type 79
+layer 4
+end
