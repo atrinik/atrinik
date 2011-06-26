@@ -242,6 +242,40 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 }
 
 /**
+ * Remove row from a list.
+ * @param list List.
+ * @param row Row ID to remove. */
+void list_remove_row(list_struct *list, uint32 row)
+{
+	uint32 col, row2;
+
+	/* Sanity checks. */
+	if (!list || !list->text || row >= list->rows)
+	{
+		return;
+	}
+
+	/* Free the columns of the row that is being removed. */
+	for (col = 0; col < list->cols; col++)
+	{
+		free(list->text[row][col]);
+	}
+
+	/* If there are any rows below the one that is being removed, they
+	 * need to be moved up. */
+	for (row2 = row + 1; row2 < list->rows; row2++)
+	{
+		for (col = 0; col < list->cols; col++)
+		{
+			list->text[row2 - 1][col] = list->text[row2][col];
+		}
+	}
+
+	list->rows--;
+	list->text = realloc(list->text, sizeof(*list->text) * list->rows);
+}
+
+/**
  * Set options for one column.
  * @param list List.
  * @param col Column ID.

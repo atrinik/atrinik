@@ -97,6 +97,23 @@ void remove_party_member(party_struct *party, object *op)
 		}
 	}
 
+	sl.buf = buf;
+
+	if (party->members)
+	{
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+		SockList_AddChar(&sl, CMD_PARTY_REMOVE_MEMBER);
+		SockList_AddString(&sl, (char *) op->name);
+
+		for (ol = party->members; ol; ol = ol->next)
+		{
+			if (CONTR(ol->objlink.ob)->socket.socket_version >= 1054)
+			{
+			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
+			}
+		}
+	}
+
 	/* If no members left, remove the party. */
 	if (!party->members)
 	{
@@ -109,7 +126,6 @@ void remove_party_member(party_struct *party, object *op)
 		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
-	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 	SockList_AddChar(&sl, CMD_PARTY_LEAVE);
 	Send_With_Handling(&CONTR(op)->socket, &sl);

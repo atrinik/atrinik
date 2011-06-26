@@ -462,6 +462,7 @@ list_struct *list_get_focused();
 void list_set_focus(list_struct *list);
 list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, int spacing);
 void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
+void list_remove_row(list_struct *list, uint32 row);
 void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
 void list_set_font(list_struct *list, int font);
 void list_scrollbar_enable(list_struct *list);

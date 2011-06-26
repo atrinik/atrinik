@@ -327,7 +327,7 @@ void PartyCmd(unsigned char *data, int len)
 		char name[MAX_BUF], bars[MAX_BUF];
 		uint8 hp, sp, grace;
 		list_struct *list;
-		size_t row;
+		uint32 row;
 
 		if (list_contents != CMD_PARTY_WHO)
 		{
@@ -356,5 +356,29 @@ void PartyCmd(unsigned char *data, int len)
 		list_add(list, list->rows, 0, name);
 		list_add(list, list->rows - 1, 1, bars);
 		list_sort(list, LIST_SORT_ALPHA);
+	}
+	else if (type == CMD_PARTY_REMOVE_MEMBER)
+	{
+		char name[MAX_BUF];
+		list_struct *list;
+		uint32 row;
+
+		if (list_contents != CMD_PARTY_WHO)
+		{
+			return;
+		}
+
+		GetString_String(data, &pos, name, sizeof(name));
+		list = list_exists(LIST_PARTY);
+		cur_widget[PARTY_ID]->redraw = 1;
+
+		for (row = 0; row < list->rows; row++)
+		{
+			if (!strcmp(list->text[row][0], name))
+			{
+				list_remove_row(list, row);
+				return;
+			}
+		}
 	}
 }
