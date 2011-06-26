@@ -239,7 +239,15 @@ arch grassd_3
 x 1
 y 15
 end
+arch wall_wood_8
+x 1
+y 15
+end
 arch grassd_5
+x 1
+y 16
+end
+arch wall_wood_3
 x 1
 y 16
 end
@@ -247,7 +255,15 @@ arch grassd_3
 x 1
 y 17
 end
+arch wall_wood_3
+x 1
+y 17
+end
 arch grassd_5
+x 1
+y 18
+end
+arch wall_wood_3
 x 1
 y 18
 end
@@ -255,7 +271,15 @@ arch grassd_3
 x 1
 y 19
 end
+arch wall_wood_3
+x 1
+y 19
+end
 arch grassd_2
+x 1
+y 20
+end
+arch wall_wood_3
 x 1
 y 20
 end
@@ -432,23 +456,39 @@ arch grassd_7
 x 2
 y 15
 end
-arch grassd_4
+arch wall_wood3_1
+x 2
+y 15
+end
+arch shop_floor
 x 2
 y 16
 end
-arch grassd_6
+arch potion_cure_illness
+unpaid 1
+x 2
+y 16
+end
+arch shop_randomitem
+randomitems random_potion
 x 2
 y 17
 end
-arch grassd_1
+arch shop_randomitem
+randomitems random_potion
 x 2
 y 18
 end
-arch grassd_4
+arch shop_randomitem
+randomitems random_potion
 x 2
 y 19
 end
-arch grassd_1
+arch shop_floor_normal
+x 2
+y 20
+end
+arch wall_wood_1
 x 2
 y 20
 end
@@ -554,23 +594,39 @@ arch grassd_2
 x 3
 y 15
 end
-arch grassd_3
+arch wall_wood3_1
+x 3
+y 15
+end
+arch shop_floor
 x 3
 y 16
 end
-arch grassd_6
+arch potion_cure_sickness
+unpaid 1
+x 3
+y 16
+end
+arch shop_randomitem
+randomitems random_potion
 x 3
 y 17
 end
-arch grassd_1
+arch shop_randomitem
+randomitems random_potion
 x 3
 y 18
 end
-arch grassd_2
+arch shop_randomitem
+randomitems random_potion
 x 3
 y 19
 end
-arch grassd_1
+arch shop_floor_normal
+x 3
+y 20
+end
+arch wall_wood_1
 x 3
 y 20
 end
@@ -704,23 +760,37 @@ arch grassd_2
 x 4
 y 15
 end
-arch grassd_1
+arch wall_wood3_1
+x 4
+y 15
+end
+arch shop_floor_normal
 x 4
 y 16
 end
-arch grassd_6
+arch shop_mat
+x 4
+y 16
+end
+arch shop_randomitem
+randomitems random_potion
 x 4
 y 17
 end
-arch grassd_8
+arch shop_randomitem
+randomitems random_potion
 x 4
 y 18
 end
-arch grassd_6
+arch shop_floor_normal
 x 4
 y 19
 end
-arch grassd_3
+arch shop_floor_normal
+x 4
+y 20
+end
+arch wall_wood_1
 x 4
 y 20
 end
@@ -923,47 +993,47 @@ arch grassd_6
 x 5
 y 15
 end
-arch wall_wood_8
+arch wall_wood3_1
 x 5
 y 15
 end
-arch grassd_4
+arch shop_floor_normal
 x 5
 y 16
 end
-arch wall_wood_3
+arch grate1_3
 x 5
 y 16
 end
-arch grassd_1
+arch shop_floor_normal
 x 5
 y 17
 end
-arch wall_wood_3
+arch grate1_3e
 x 5
 y 17
 end
-arch grassd_6
+arch shop_floor_normal
 x 5
 y 18
 end
-arch wall_wood_3
+arch grate1_3
 x 5
 y 18
 end
-arch grassd_6
+arch shop_floor_normal
 x 5
 y 19
 end
-arch wall_wood_3
+arch grate1_3e
 x 5
 y 19
 end
-arch grassd_7
+arch shop_floor_normal
 x 5
 y 20
 end
-arch wall_wood_3
+arch wall_wood_4
 x 5
 y 20
 end
@@ -1130,6 +1200,10 @@ arch floor_green1
 x 6
 y 16
 end
+arch shop_mat
+x 6
+y 16
+end
 arch floor_green1
 x 6
 y 17
@@ -1138,7 +1212,15 @@ arch floor_green1
 x 6
 y 18
 end
+arch chair2_111
+x 6
+y 18
+end
 arch floor_green1
+x 6
+y 19
+end
+arch table_round1
 x 6
 y 19
 end
@@ -1291,6 +1373,10 @@ arch floor_green1
 x 7
 y 16
 end
+arch broom.111
+x 7
+y 16
+end
 arch floor_green1
 x 7
 y 17
@@ -1429,9 +1515,37 @@ arch floor_green1
 x 8
 y 16
 end
+arch cauldron
+x 8
+y 16
+end
 arch floor_green1
 x 8
 y 17
+end
+arch spawn_point
+x 8
+y 17
+arch witch1
+msg
+@match ^hi$|^hey$|^hello$
+Hello.  Welcome to my shop.
+@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
+Yeah, she's pretty awesome.
+@match ^Takano$|^Miyo Takano$^Miyoko Tanishi$|^Higurashi no Naku Koro ni$
+Hihihi,  Good job guessing where my name is from.  Don't worry, I don't turn out like her...
+endmsg
+name Miyoko, the potion shopkeeper
+level 32
+spawn_time 8:00-14:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+arch ability_cause_lig_wound
+end
+end
 end
 arch floor_green1
 x 8
@@ -1552,6 +1666,10 @@ arch floor_green1
 x 9
 y 16
 end
+arch table_lab1.111
+x 9
+y 16
+end
 arch floor_green1
 x 9
 y 17
@@ -1569,7 +1687,6 @@ x 9
 y 20
 end
 arch door_wood1
-slaying no_entry_temp
 x 9
 y 20
 end
@@ -1696,6 +1813,10 @@ arch floor_green1
 x 10
 y 16
 end
+arch kettle_table
+x 10
+y 16
+end
 arch floor_green1
 x 10
 y 17
@@ -1704,7 +1825,17 @@ arch floor_green1
 x 10
 y 18
 end
+arch bed_2a.111
+direction 5
+x 10
+y 18
+end
 arch floor_green1
+x 10
+y 19
+end
+arch bed_2b.111
+direction 5
 x 10
 y 19
 end
