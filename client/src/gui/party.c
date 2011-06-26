@@ -29,16 +29,24 @@
 
 #include <include.h>
 
+/** Width of the hp/sp/grace stat bar. */
 #define STAT_BAR_WIDTH 60
 
+/** Macro to create the stat bar markup. */
 #define PARTY_STAT_BAR() \
 	snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 4><bar=#cb0202 %d 4><y=4><bar=#000000 %d 4><bar=#1818a4 %d 4><y=4><bar=#000000 %d 4><bar=#15bc15 %d 4>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (grace / 100.0)));
 
 /** Button buffer. */
 static button_struct button_close, button_help, button_parties, button_members, button_form, button_leave, button_password, button_chat;
 
+/**
+ * What type of data is currently in the list; -1 means no data,
+ * otherwise one of @ref CMD_PARTY_xxx. */
 static sint8 list_contents = -1;
 
+/**
+ * Handle enter/double click for the party list.
+ * @param list List. */
 static void list_handle_enter(list_struct *list)
 {
 	if (list_contents == CMD_PARTY_LIST && list->text)
@@ -50,6 +58,10 @@ static void list_handle_enter(list_struct *list)
 	}
 }
 
+/**
+ * Highlight a row in the party list.
+ * @param list List.
+ * @param box Dimensions for the row. */
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
 	if (list_contents == CMD_PARTY_WHO)
@@ -60,6 +72,10 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
 	SDL_FillRect(list->surface, &box, sdl_dgreen);
 }
 
+/**
+ * Highlight selected row in the party list.
+ * @param list List.
+ * @param box Dimensions for the row. */
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
 	if (list_contents == CMD_PARTY_WHO)
@@ -70,6 +86,13 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 	SDL_FillRect(list->surface, &box, sdl_blue1);
 }
 
+/**
+ * Process the party widget in the background (even if it's hidden).
+ *
+ * This is mostly so the surface and the list are always created, in the
+ * case that the widget is hidden, but player uses "/party list" or
+ * similar.
+ * @param widget The widget. */
 void widget_party_background(widgetdata *widget)
 {
 	list_struct *list;
@@ -82,7 +105,7 @@ void widget_party_background(widgetdata *widget)
 
 	list = list_exists(LIST_PARTY);
 
-	/* Create the skill list. */
+	/* Create the party list. */
 	if (!list)
 	{
 		list = list_create(LIST_PARTY, 10, 23, 12, 2, 8);
@@ -114,6 +137,9 @@ void widget_party_background(widgetdata *widget)
 	}
 }
 
+/**
+ * Render the party widget.
+ * @param widget The widget. */
 void widget_party_render(widgetdata *widget)
 {
 	list_struct *list;
@@ -170,10 +196,6 @@ void widget_party_render(widgetdata *widget)
 	else
 	{
 		button_render(&button_members, list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
-	}
-
-	if (cpl.partyname[0] != '\0')
-	{
 		button_leave.x = button_password.x = button_chat.x = widget->x1 + 244;
 		button_leave.y = widget->y1 + 82;
 		button_password.y = widget->y1 + 104;
@@ -184,6 +206,10 @@ void widget_party_render(widgetdata *widget)
 	}
 }
 
+/**
+ * Handle mouse events inside the party widget.
+ * @param widget The widget.
+ * @param event Event to handle. */
 void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 {
 	list_struct *list = list_exists(LIST_PARTY);
@@ -251,6 +277,7 @@ void PartyCmd(unsigned char *data, int len)
 	pos = 0;
 	type = data[pos++];
 
+	/* List of parties, or list of party members. */
 	if (type == CMD_PARTY_LIST || type == CMD_PARTY_WHO)
 	{
 		list_struct *list = list_exists(LIST_PARTY);
@@ -283,11 +310,13 @@ void PartyCmd(unsigned char *data, int len)
 			}
 		}
 
+		/* Sort the list of party members alphabetically. */
 		if (type == CMD_PARTY_WHO)
 		{
 			list_sort(list, LIST_SORT_ALPHA);
 		}
 
+		/* Update column names, depending on the list contents. */
 		list_set_column(list, 0, -1, -1, type == CMD_PARTY_LIST ? "Party name" : "Player", -1);
 		list_set_column(list, 1, -1, -1, type == CMD_PARTY_LIST ? "Leader" : "Stats", -1);
 
@@ -296,6 +325,8 @@ void PartyCmd(unsigned char *data, int len)
 		cur_widget[PARTY_ID]->show = 1;
 		SetPriorityWidget(cur_widget[SKILLS_ID]);
 	}
+	/* Join command; store the party name we're member of, and show the
+	 * list of party members, if the party widget is not hidden. */
 	else if (type == CMD_PARTY_JOIN)
 	{
 		GetString_String(data, &pos, cpl.partyname, sizeof(cpl.partyname));
@@ -305,6 +336,8 @@ void PartyCmd(unsigned char *data, int len)
 			send_command("/party who");
 		}
 	}
+	/* Leave; clear the party name and switch to list of parties (unless
+	 * the party widget is hidden). */
 	else if (type == CMD_PARTY_LEAVE)
 	{
 		cpl.partyname[0] = '\0';
@@ -314,6 +347,8 @@ void PartyCmd(unsigned char *data, int len)
 			send_command("/party list");
 		}
 	}
+	/* Party requires password, bring up the console for the player to
+	 * enter the password. */
 	else if (type == CMD_PARTY_PASSWORD)
 	{
 		GetString_String(data, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
@@ -322,6 +357,7 @@ void PartyCmd(unsigned char *data, int len)
 		text_input_open(253);
 		text_input_add_string("/party joinpassword ");
 	}
+	/* Update list of party members. */
 	else if (type == CMD_PARTY_UPDATE)
 	{
 		char name[MAX_BUF], bars[MAX_BUF];
@@ -357,6 +393,7 @@ void PartyCmd(unsigned char *data, int len)
 		list_add(list, list->rows - 1, 1, bars);
 		list_sort(list, LIST_SORT_ALPHA);
 	}
+	/* Remove member from the list of party members. */
 	else if (type == CMD_PARTY_REMOVE_MEMBER)
 	{
 		char name[MAX_BUF];
