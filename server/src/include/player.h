@@ -688,6 +688,15 @@ typedef struct pl_player
 	 * no entry in /who list. */
 	uint8 dm_stealth;
 
+	/** Last HP sent to party members. */
+	uint8 last_party_hp;
+
+	/** Last SP sent to party members. */
+	uint8 last_party_sp;
+
+	/** Last grace sent to party members. */
+	uint8 last_party_grace;
+
 	/** Which range attack is being used by player. */
 	rangetype shoottype;
 

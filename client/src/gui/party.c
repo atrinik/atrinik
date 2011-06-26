@@ -31,6 +31,9 @@
 
 #define STAT_BAR_WIDTH 60
 
+#define PARTY_STAT_BAR() \
+	snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 4><bar=#cb0202 %d 4><y=4><bar=#000000 %d 4><bar=#1818a4 %d 4><y=4><bar=#000000 %d 4><bar=#15bc15 %d 4>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (grace / 100.0)));
+
 /** Button buffer. */
 static button_struct button_close, button_help, button_parties, button_members, button_form, button_leave, button_password, button_chat;
 
@@ -275,7 +278,7 @@ void PartyCmd(unsigned char *data, int len)
 				sp = data[pos++];
 				grace = data[pos++];
 				list_add(list, list->rows, 0, name);
-				snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 4><bar=#cb0202 %d 4><y=4><bar=#000000 %d 4><bar=#1818a4 %d 4><y=4><bar=#000000 %d 4><bar=#15bc15 %d 4>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (grace / 100.0)));
+				PARTY_STAT_BAR();
 				list_add(list, list->rows - 1, 1, bars);
 			}
 		}
@@ -318,5 +321,39 @@ void PartyCmd(unsigned char *data, int len)
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
 		text_input_add_string("/party joinpassword ");
+	}
+	else if (type == CMD_PARTY_UPDATE)
+	{
+		char name[MAX_BUF], bars[MAX_BUF];
+		uint8 hp, sp, grace;
+		list_struct *list;
+		size_t row;
+
+		if (list_contents != CMD_PARTY_WHO)
+		{
+			return;
+		}
+
+		GetString_String(data, &pos, name, sizeof(name));
+		hp = data[pos++];
+		sp = data[pos++];
+		grace = data[pos++];
+		list = list_exists(LIST_PARTY);
+
+		PARTY_STAT_BAR();
+		cur_widget[PARTY_ID]->redraw = 1;
+
+		for (row = 0; row < list->rows; row++)
+		{
+			if (!strcmp(list->text[row][0], name))
+			{
+				free(list->text[row][1]);
+				list->text[row][1] = strdup(bars);
+				return;
+			}
+		}
+
+		list_add(list, list->rows, 0, name);
+		list_add(list, list->rows - 1, 1, bars);
 	}
 }

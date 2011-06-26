@@ -841,11 +841,10 @@ int command_party(object *op, char *params)
 			{
 			if (CONTR(op)->socket.socket_version >= 1054)
 			{
-				snprintf(buf, sizeof(buf), "%s [%s]", ol->objlink.ob->name, ol->objlink.ob->map->name);
-				SockList_AddString(&sl, buf);
-				SockList_AddChar(&sl, MAX(0, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
-				SockList_AddChar(&sl, MAX(0, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
-				SockList_AddChar(&sl, MAX(0, MIN((double) ol->objlink.ob->stats.grace / ol->objlink.ob->stats.maxgrace * 100.0f, 100)));
+				SockList_AddString(&sl, (char *) ol->objlink.ob->name);
+				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
+				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
+				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.grace / ol->objlink.ob->stats.maxgrace * 100.0f, 100)));
 			}
 			else
 			{

@@ -693,6 +693,7 @@ void doeric_server_write()
 		}
 
 		esrv_update_stats(pl);
+		party_update_who(pl);
 
 		if (pl->update_skills)
 		{

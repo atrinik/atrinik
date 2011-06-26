@@ -70,6 +70,10 @@ void add_party_member(party_struct *party, object *op)
 	SockList_AddChar(&sl, CMD_PARTY_JOIN);
 	SockList_AddString(&sl, (char *) party->name);
 	Send_With_Handling(&CONTR(op)->socket, &sl);
+
+	CONTR(op)->last_party_hp = 0;
+	CONTR(op)->last_party_sp = 0;
+	CONTR(op)->last_party_grace = 0;
 }
 
 /**
@@ -398,4 +402,45 @@ void remove_party(party_struct *party)
 	FREE_AND_CLEAR_HASH(party->name);
 	FREE_AND_CLEAR_HASH(party->leader);
 	return_poolchunk(party, pool_parties);
+}
+
+/**
+ * Update player's hp/sp/etc in the party widget of all party members.
+ * @param pl Player. */
+void party_update_who(player *pl)
+{
+	unsigned char sockbuf[HUGE_BUF];
+	uint8 hp, sp, grace;
+	SockList sl;
+
+	if (!pl->party)
+	{
+		return;
+	}
+
+	sl.buf = sockbuf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+	SockList_AddChar(&sl, CMD_PARTY_UPDATE);
+
+	hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
+	sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
+	grace = MAX(1, MIN((double) pl->ob->stats.grace / pl->ob->stats.maxgrace * 100.0f, 100));
+
+	if (hp != pl->last_party_hp || sp != pl->last_party_sp || grace != pl->last_party_grace)
+	{
+		objectlink *ol;
+
+		SockList_AddString(&sl, (char *) pl->ob->name);
+		SockList_AddChar(&sl, hp);
+		SockList_AddChar(&sl, sp);
+		SockList_AddChar(&sl, grace);
+
+		for (ol = pl->party->members; ol; ol = ol->next)
+		{
+			if (CONTR(ol->objlink.ob)->socket.socket_version >= 1054)
+			{
+			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
+			}
+		}
+	}
 }
