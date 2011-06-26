@@ -716,8 +716,7 @@ void esrv_update_skills(player *pl)
  * commands for now. */
 void esrv_update_stats(player *pl)
 {
-	/* hm, in theory... can this all be more as 256 bytes?? *I* never tested it.*/
-	static char sock_buf[MAX_BUF];
+	static char sock_buf[HUGE_BUF];
 	SockList sl;
 	int i;
 	uint16 flags;
