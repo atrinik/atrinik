@@ -460,26 +460,26 @@ arch wall_wood3_1
 x 2
 y 15
 end
-arch shop_floor
-x 2
-y 16
-end
-arch potion_cure_illness
-unpaid 1
+arch shop_randomitem
+cursed 1
+randomitems random_potion
 x 2
 y 16
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 2
 y 17
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 2
 y 18
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 2
 y 19
@@ -598,26 +598,26 @@ arch wall_wood3_1
 x 3
 y 15
 end
-arch shop_floor
-x 3
-y 16
-end
-arch potion_cure_sickness
-unpaid 1
+arch shop_randomitem
+cursed 1
+randomitems random_potion
 x 3
 y 16
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 3
 y 17
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 3
 y 18
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 3
 y 19
@@ -773,16 +773,20 @@ x 4
 y 16
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 4
 y 17
 end
 arch shop_randomitem
+cursed 1
 randomitems random_potion
 x 4
 y 18
 end
-arch shop_floor_normal
+arch shop_randomitem
+cursed 1
+randomitems random_potion
 x 4
 y 19
 end
@@ -1523,18 +1527,29 @@ arch floor_green1
 x 8
 y 17
 end
+arch magic_ear
+msg
+@match ^hi$|^hey$|^hello$
+
+Miyoko, the potion shopkeeper says:
+Hello.  Welcome to my shop.
+@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
+
+Miyoko, the potion shopkeeper says:
+Yeah, she's pretty awesome.
+@match ^Takano$|^Miyo Takano$^Miyoko Tanishi$|^Higurashi no Naku Koro ni$
+
+Miyoko, the potion shopkeeper says:
+Hihihi,  Good job guessing where my name is from.  Don't worry, I don't turn out like her...
+endmsg
+name Miyoko_bonus_dialog
+x 8
+y 17
+end
 arch spawn_point
 x 8
 y 17
 arch witch1
-msg
-@match ^hi$|^hey$|^hello$
-Hello.  Welcome to my shop.
-@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
-Yeah, she's pretty awesome.
-@match ^Takano$|^Miyo Takano$^Miyoko Tanishi$|^Higurashi no Naku Koro ni$
-Hihihi,  Good job guessing where my name is from.  Don't worry, I don't turn out like her...
-endmsg
 name Miyoko, the potion shopkeeper
 level 32
 spawn_time 8:00-14:00
@@ -1544,6 +1559,18 @@ maxsp 12
 Dex 3
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race /python/Market.py
+arch potion_cure_illness
+nrof 100
+level 20
+end
+arch potion_cure_sickness
+nrof 100
+level 20
+end
 end
 end
 end
