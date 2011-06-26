@@ -355,5 +355,6 @@ void PartyCmd(unsigned char *data, int len)
 
 		list_add(list, list->rows, 0, name);
 		list_add(list, list->rows - 1, 1, bars);
+		list_sort(list, LIST_SORT_ALPHA);
 	}
 }
