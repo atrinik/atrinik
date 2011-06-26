@@ -1529,15 +1529,11 @@ y 17
 end
 arch magic_ear
 msg
-@match ^hi$|^hey$|^hello$
-
-Miyoko, the potion shopkeeper says:
-Hello.  Welcome to my shop.
 @match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
 
 Miyoko, the potion shopkeeper says:
 Yeah, she's pretty awesome.
-@match ^Takano$|^Miyo Takano$^Miyoko Tanishi$|^Higurashi no Naku Koro ni$
+@match ^Takano$|^Miyo Takano$|^Tanishi$|^Miyoko Tanishi$|^Higurashi no Naku Koro ni$
 
 Miyoko, the potion shopkeeper says:
 Hihihi,  Good job guessing where my name is from.  Don't worry, I don't turn out like her...
@@ -1552,7 +1548,6 @@ y 17
 arch witch1
 name Miyoko, the potion shopkeeper
 level 32
-spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
@@ -1562,7 +1557,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race /python/Market.py
+race /python/generic/merchant.py
 arch potion_cure_illness
 nrof 100
 identified 1
