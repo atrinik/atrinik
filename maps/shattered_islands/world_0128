@@ -1565,11 +1565,13 @@ sub_type 6
 race /python/Market.py
 arch potion_cure_illness
 nrof 100
-level 20
+identified 1
+level 15
 end
 arch potion_cure_sickness
 nrof 100
-level 20
+identified 1
+level 15
 end
 end
 end
