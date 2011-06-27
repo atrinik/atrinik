@@ -505,16 +505,15 @@ int text_input_handle(SDL_KeyboardEvent *key)
 		case SDLK_v:
 			if (key->keysym.mod & KMOD_CTRL)
 			{
-				size_t text_buffer_length = 0;
-				char *text_buffer = NULL;
+				char *clipboard_contents;
 
-				SDLScrap_PasteFromClipboard(SDL_CLIPBOARD_TEXT_TYPE, &text_buffer_length, &text_buffer);
+				clipboard_contents = clipboard_get();
 
-				if (text_buffer)
+				if (clipboard_contents)
 				{
 					int i;
 
-					strncat(text_input_string, text_buffer, sizeof(text_input_string) - text_input_count - 1);
+					strncat(text_input_string, clipboard_contents, sizeof(text_input_string) - text_input_count - 1);
 					text_input_cursor_pos = text_input_count = strlen(text_input_string);
 
 					for (i = 0; i < text_input_count; i++)
@@ -526,7 +525,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 					}
 				}
 
-				SDLScrap_FreeBuffer(text_buffer);
+				free(clipboard_contents);
 				return 1;
 			}
 

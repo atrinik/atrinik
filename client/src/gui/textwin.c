@@ -236,7 +236,7 @@ void textwin_handle_copy()
 
 	cp[i] = '\0';
 
-	SDLScrap_CopyToClipboard(SDL_CLIPBOARD_TEXT_TYPE, strlen(cp), cp);
+	clipboard_set(cp);
 	free(str);
 	free(cp);
 }

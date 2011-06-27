@@ -163,7 +163,7 @@
 		<Unit filename="..\..\..\src\toolkit\SDL_rotozoom.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\SDL_clipboard.c">
+		<Unit filename="..\..\..\src\toolkit\clipboard.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\popup.h">

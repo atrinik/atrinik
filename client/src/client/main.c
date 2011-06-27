@@ -1111,9 +1111,9 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (SDLScrap_Init() < 0)
+	if (!clipboard_init())
 	{
-		LOG(llevError, "Couldn't init clipboard: %s\n", SDL_GetError());
+		draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
 	}
 
 	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
