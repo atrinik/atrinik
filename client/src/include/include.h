@@ -82,6 +82,11 @@ typedef signed char sint8;
 #	endif
 #endif
 
+typedef const char SDLScrap_DataType;
+
+SDLScrap_DataType *SDL_CLIPBOARD_TEXT_TYPE;
+SDLScrap_DataType *SDL_CLIPBOARD_IMAGE_TYPE;
+
 #ifndef MIN
 #	define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif

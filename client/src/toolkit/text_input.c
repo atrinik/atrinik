@@ -502,6 +502,34 @@ int text_input_handle(SDL_KeyboardEvent *key)
 			text_input_cursor_pos = text_input_count;
 			return 1;
 
+		case SDLK_v:
+			if (key->keysym.mod & KMOD_CTRL)
+			{
+				size_t text_buffer_length = 0;
+				char *text_buffer = NULL;
+
+				SDLScrap_PasteFromClipboard(SDL_CLIPBOARD_TEXT_TYPE, &text_buffer_length, &text_buffer);
+
+				if (text_buffer)
+				{
+					int i;
+
+					strncat(text_input_string, text_buffer, sizeof(text_input_string) - text_input_count - 1);
+					text_input_cursor_pos = text_input_count = strlen(text_input_string);
+
+					for (i = 0; i < text_input_count; i++)
+					{
+						if (text_input_string[i] < ' ' || text_input_string[i] > '~')
+						{
+							text_input_string[i] = ' ';
+						}
+					}
+				}
+
+				SDLScrap_FreeBuffer(text_buffer);
+				return 1;
+			}
+
 		default:
 		{
 			char c;

@@ -282,9 +282,19 @@ int event_poll_key(SDL_Event *event)
 		}
 
 		if (event->key.keysym.mod & KMOD_RCTRL || event->key.keysym.mod & KMOD_LCTRL || event->key.keysym.mod & KMOD_CTRL)
+		{
+			if (event->key.keysym.sym == SDLK_c && event->key.type != SDL_KEYUP)
+			{
+				textwin_handle_copy();
+				return 0;
+			}
+
 			cpl.fire_on = 1;
+		}
 		else
+		{
 			cpl.fire_on = 0;
+		}
 	}
 
 	if (lists_handle_keyboard(&event->key))

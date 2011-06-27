@@ -50,6 +50,13 @@ static int text_offset_mx = -1;
 /** Mouse Y offset. */
 static int text_offset_my = -1;
 
+/** Pointer to integer holding the selection start. */
+static sint64 *selection_start = NULL;
+/** Pointer to integer holding the selection end. */
+static sint64 *selection_end = NULL;
+/** If 1, selection start has been set, and the end should be updated next. */
+static uint8 *selection_started = NULL;
+
 /** Default link color. */
 SDL_Color text_link_color_default = {96, 160, 255, 0};
 /** Current text link color. */
@@ -212,6 +219,21 @@ void text_color_set(int r, int g, int b)
 }
 
 /**
+ * Allow grabbing a text selection.
+ * @param start Pointer that will be used to store start of selection.
+ * @param end Pointer that will be used to store start of selection.
+ * @param started Pointer that is used to determine whether to store
+ * selection data in start or end.
+ * @note You must call this with all arguments set to NULL after your
+ * call to string drawing routines. */
+void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
+{
+	selection_start = start;
+	selection_end = end;
+	selection_started = started;
+}
+
+/**
  * Get font's ID from its xxx.ttf name (not including path) and the pixel
  * size.
  * @param name The font name.
@@ -335,6 +357,43 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
 	}
 
 	return cp;
+}
+
+/**
+ * Adjust mouse X/Y coordinates for mouse-related checks based on which
+ * surface we're using.
+ * @param surface The surface.
+ * @param[out] mx Mouse X, may be modified.
+ * @param[out] my Mouse Y, may be modified. */
+static void text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
+{
+	if (surface == ScreenSurface)
+	{
+		return;
+	}
+
+	if (text_offset_mx != -1 || text_offset_my != -1)
+	{
+		if (text_offset_mx != -1)
+		{
+			*mx -= text_offset_mx;
+		}
+
+		if (text_offset_my != -1)
+		{
+			*my -= text_offset_my;
+		}
+	}
+	else
+	{
+		widgetdata *widget = widget_find_by_surface(surface);
+
+		if (widget)
+		{
+			*mx -= widget->x1;
+			*my -= widget->y1;
+		}
+	}
 }
 
 /**
@@ -1079,31 +1138,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Are we inside an anchor tag and we clicked the text? */
 		if (anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT))
 		{
-			if (surface != ScreenSurface)
-			{
-				if (text_offset_mx != -1 || text_offset_my != -1)
-				{
-					if (text_offset_mx != -1)
-					{
-						mx -= text_offset_mx;
-					}
-
-					if (text_offset_my != -1)
-					{
-						my -= text_offset_my;
-					}
-				}
-				else
-				{
-					widgetdata *widget = widget_find_by_surface(surface);
-
-					if (widget)
-					{
-						mx -= widget->x1;
-						my -= widget->y1;
-					}
-				}
-			}
+			text_adjust_coords(surface, &mx, &my);
 
 			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
 			{
@@ -1303,6 +1338,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	uint16 *heights = NULL;
 	size_t num_heights = 0;
 	int x_adjust = 0;
+	int mx, my, mstate = 0, old_x;
+	sint64 select_start = 0, select_end = 0;
 
 	if (text_debug && box && surface)
 	{
@@ -1318,6 +1355,12 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	if (box && flags & TEXT_VALIGN_CENTER)
 	{
 		y += box->h / 2 - FONT_HEIGHT(font) / 2;
+	}
+
+	if (selection_start && selection_end)
+	{
+		mstate = SDL_GetMouseState(&mx, &my);
+		text_adjust_coords(surface, &mx, &my);
 	}
 
 	/* Store the x/y. */
@@ -1369,7 +1412,48 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
+				old_x = dest.x;
+
+				if (!skip && selection_start && selection_end)
+				{
+					select_start = *selection_start;
+					select_end = *selection_end;
+
+					if (select_end < select_start)
+					{
+						select_start = *selection_end;
+						select_end = *selection_start;
+					}
+
+					if (select_start >= 0 && select_end >= 0 && cp - text >= select_start && cp - text <= select_end)
+					{
+						SDL_Rect selection_box;
+
+						selection_box.x = dest.x;
+						selection_box.y = dest.y;
+						selection_box.w = glyph_get_width(font, *cp);
+						selection_box.h = FONT_HEIGHT(font);
+						SDL_FillRect(surface, &selection_box, -1);
+					}
+				}
+
 				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust);
+
+				if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT)
+				{
+					if (my >= dest.y && my <= dest.y + FONT_HEIGHT(font) && mx >= old_x && mx <= old_x + glyph_get_width(font, *cp))
+					{
+						if (*selection_started)
+						{
+							*selection_end = cp - text;
+						}
+						else
+						{
+							*selection_start = cp - text;
+						}
+					}
+				}
+
 				cp += ret;
 				last_space -= ret;
 

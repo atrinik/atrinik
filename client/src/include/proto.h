@@ -443,6 +443,7 @@ void widget_show_target(widgetdata *widget);
 void textwin_scroll_adjust(widgetdata *widget);
 void draw_info_format(int flags, char *format, ...) __attribute__((format(printf, 2, 3)));
 void draw_info(int flags, const char *str);
+void textwin_handle_copy();
 void textwin_show(int x, int y, int w, int h);
 void widget_textwin_show(widgetdata *widget);
 void textwin_button_event(widgetdata *widget, SDL_Event event);
@@ -493,6 +494,13 @@ int range_buttons_show(int x, int y, int *val, int advance);
 /* toolkit/scroll_buttons.c */
 void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 
+/* toolkit/SDL_clipboard.c */
+int SDLScrap_Init();
+int SDLScrap_Lost();
+void SDLScrap_CopyToClipboard(SDLScrap_DataType *type, size_t srclen, const char *src);
+void SDLScrap_PasteFromClipboard(SDLScrap_DataType *type, size_t *dstlen, char **dst);
+void SDLScrap_FreeBuffer(char *clipboard_buffer);
+
 /* toolkit/SDL_rotozoom.c */
 Uint32 _colorkey(SDL_Surface *src);
 int _shrinkSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
@@ -521,6 +529,7 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
 int glyph_get_height(int font, char c);
+void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
 void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box);
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box);
 void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));

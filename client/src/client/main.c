@@ -1111,6 +1111,11 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	if (SDLScrap_Init() < 0)
+	{
+		LOG(llevError, "Couldn't init clipboard: %s\n", SDL_GetError());
+	}
+
 	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
 
 	while (!done)

@@ -33,6 +33,9 @@ int textwin_flags = 0;
 static int old_slider_pos = 0;
 static SDL_Surface *txtwinbg = NULL;
 static int old_txtwin_alpha = -1;
+static sint64 selection_start = -1, selection_end = -1;
+static uint8 selection_started = 0;
+static widgetdata *selection_widget = NULL;
 
 /**
  * Makes sure textwin's scroll value is a sane number.
@@ -179,6 +182,66 @@ void draw_info(int flags, const char *str)
 }
 
 /**
+ * Handle ctrl+C. */
+void textwin_handle_copy()
+{
+	sint64 start, end;
+	_textwin *textwin;
+	char *str, *cp;
+	size_t i, pos;
+
+	/* Nothing to copy? */
+	if (!selection_widget || selection_start < 0 || selection_end < 0)
+	{
+		return;
+	}
+
+	textwin = TEXTWIN(selection_widget);
+
+	start = selection_start;
+	end = selection_end;
+
+	if (end < start)
+	{
+		start = selection_end;
+		end = selection_start;
+	}
+
+	if (end - start <= 0)
+	{
+		return;
+	}
+
+	/* Get the string to copy, depending on the start and end positions. */
+	str = malloc(sizeof(char) * (end - start + 1 + 1));
+	memcpy(str, textwin->entries + start, end - start + 1);
+	str[end - start + 1] = '\0';
+
+	cp = malloc(sizeof(char) * (end - start + 1 + 1));
+	i = 0;
+
+	/* Remove the special \r color changers. */
+	for (pos = 0; pos < (size_t) (end - start + 1); pos++)
+	{
+		if (str[pos] == '\r')
+		{
+			pos++;
+		}
+		else
+		{
+			cp[i] = str[pos];
+			i++;
+		}
+	}
+
+	cp[i] = '\0';
+
+	SDLScrap_CopyToClipboard(SDL_CLIPBOARD_TEXT_TYPE, strlen(cp), cp);
+	free(str);
+	free(cp);
+}
+
+/**
  * Draw a text window.
  * @param actWin The text window ID.
  * @param x X position of the text window.
@@ -200,7 +263,9 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 		box.h = widget->ht;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
+		text_set_selection(&selection_start, &selection_end, &selection_started);
 		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+		text_set_selection(NULL, NULL, NULL);
 	}
 
 	/* Only draw scrollbar if needed */
@@ -392,6 +457,13 @@ void widget_textwin_show(widgetdata *widget)
 	box2.x = x;
 	box2.y = y;
 	SDL_BlitSurface(txtwinbg, &box, ScreenSurface, &box2);
+
+	if (widget_mouse_event.owner != widget && widget == selection_widget && selection_start >= 0 && selection_end >= 0)
+	{
+		selection_start = -1;
+		selection_end = -1;
+		WIDGET_REDRAW(widget);
+	}
 
 	/* Let's draw the widgets in the backbuffer */
 	if (widget->redraw)
@@ -640,6 +712,26 @@ int textwin_move_event(widgetdata *widget, SDL_Event event)
  * @param WidgetID Widget ID. */
 void textwin_event(int e, SDL_Event *event, widgetdata *widget)
 {
+	if (event->button.button == SDL_BUTTON_LEFT)
+	{
+		if (event->type == SDL_MOUSEBUTTONUP)
+		{
+			selection_started = 0;
+		}
+		else if (event->type == SDL_MOUSEBUTTONDOWN)
+		{
+			selection_started = 0;
+			selection_start = -1;
+			selection_end = -1;
+			selection_widget = widget;
+		}
+		else if (event->type == SDL_MOUSEMOTION)
+		{
+			WIDGET_REDRAW(widget);
+			selection_started = 1;
+		}
+	}
+
 	if (e == TW_CHECK_BUT_DOWN)
 	{
 		textwin_button_event(widget, *event);
