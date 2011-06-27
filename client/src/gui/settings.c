@@ -66,6 +66,7 @@ _option opt[] =
 	{"Chat Timestamps:", "Show a timestamp before each chat message.", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
 	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "10px#11px#12px#13px#14px#15px#16px", SEL_RANGE, 0, 6, 1, 1, &options.chat_font_size, VAL_INT},
 	{"Maximum chat lines:", "Maximum number of lines in the chat boxes.", "", SEL_RANGE, 20, 1000, 10, 200, &options.chat_max_lines, VAL_INT},
+	{"Snap radius:", "Widget snap radius in pixels. Use 0 to disable.", "", SEL_RANGE, 0, 100, 1, 5, &options.snap_radius, VAL_INT},
 	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */

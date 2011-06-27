@@ -1459,11 +1459,12 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 int widget_event_mousemv(int x, int y, SDL_Event *event)
 {
 	widgetdata *widget;
-	int dx = 0, dy = 0;
 
 	/* Widget moving condition */
 	if (widget_event_move.active)
 	{
+		int nx, ny;
+
 		widget = widget_event_move.owner;
 
 		/* The widget being moved doesn't exist. Sanity check in case something mad like this happens. */
@@ -1472,88 +1473,116 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 			return 0;
 		}
 
-#ifdef WIDGET_SNAP
-		if (options.widget_snap > 0)
+		x -= widget_event_move.xOffset;
+		y -= widget_event_move.yOffset;
+		nx = x;
+		ny = y;
+
+		/* Widget snapping logic courtesy of OpenTTD (GPLv2). */
+		if (options.snap_radius)
 		{
-			if (event->motion.xrel != 0 && event->motion.yrel != 0)
+			widgetdata *tmp;
+			int delta, hsnap, vsnap;
+
+			delta = 0;
+			hsnap = vsnap = options.snap_radius;
+
+			for (tmp = widget_list_head; tmp; tmp = tmp->next)
 			{
-				int mID = widget_event_move.owner->WidgetTypeID;
-				widget_node *node;
-
-				for (node = priority_list_head; node; node = node->next)
+				if (tmp == widget)
 				{
-					int nID = node->WidgetID;
-					int done = 0;
+					continue;
+				}
 
-					if (nID == mID || !cur_widget[nID].show)
+				if (y + widget->ht > tmp->y1 && y < tmp->y1 + tmp->ht)
+				{
+					/* Your left border <-> other right border */
+					delta = abs(tmp->x1 + tmp->wd - x);
+
+					if (delta <= hsnap)
 					{
-						continue;
+						nx = tmp->x1 + tmp->wd;
+						hsnap = delta;
 					}
 
-					if ((TOP(mID) >= TOP(nID) && TOP(mID) <= BOTTOM (nID)) || (BOTTOM(mID) >= TOP(nID) && BOTTOM(mID) <= BOTTOM(nID)))
+					/* Your right border <-> other left border */
+					delta = abs(tmp->x1 - x - widget->wd);
+
+					if (delta <= hsnap)
 					{
-						if (event->motion.xrel < 0 && LEFT(mID) <= RIGHT(nID) + options.widget_snap && LEFT(mID) > RIGHT(nID))
-						{
-#if 0
-							adjx = RIGHT(nID);
-#endif
-							event->motion.x = RIGHT(nID) + widget_event_move.xOffset;
-							done = 1;
-						}
-						else if (event->motion.xrel > 0 && RIGHT(mID) >= LEFT(nID) - options.widget_snap && RIGHT(mID) < LEFT(nID))
-						{
-#if 0
-							adjx = LEFT(nID) - cur_widget[mID].wd;
-#endif
-							event->motion.x = LEFT(nID) - cur_widget[mID].wd + widget_event_move.xOffset;
-							done = 1;
-						}
+						nx = tmp->x1 - widget->wd;
+						hsnap = delta;
+					}
+				}
+
+				if (widget->y1 + widget->ht >= tmp->y1 && widget->y1 <= tmp->y1 + tmp->ht)
+				{
+					/* Your left border <-> other left border */
+					delta = abs(tmp->x1 - x);
+
+					if (delta <= hsnap)
+					{
+						nx = tmp->x1;
+						hsnap = delta;
 					}
 
-					if ((LEFT(mID) >= LEFT(nID) && LEFT(mID) <= RIGHT(nID)) || (RIGHT(mID) >= LEFT(nID) && RIGHT(mID) <= RIGHT(nID)))
+					/* Your right border <-> other right border */
+					delta = abs(tmp->x1 + tmp->wd - x - widget->wd);
+
+					if (delta <= hsnap)
 					{
-						if (event->motion.yrel < 0 && TOP(mID) <= BOTTOM(nID) + options.widget_snap && TOP(mID) > BOTTOM(nID))
-						{
-#if 0
-							adjy = BOTTOM(nID);
-#endif
-							event->motion.y = BOTTOM(nID) + widget_event_move.yOffset;
-							done = 1;
-						}
-						else if (event->motion.yrel > 0 && BOTTOM(mID) >= TOP(nID) - options.widget_snap && BOTTOM(mID) < TOP(nID))
-						{
-#if 0
-							adjy = TOP(nID) - cur_widget[mID].ht;
-#endif
-							event->motion.y = TOP(nID) - cur_widget[mID].ht + widget_event_move.yOffset;
-							done = 1;
-						}
+						nx = tmp->x1 + tmp->wd - widget->wd;
+						hsnap = delta;
+					}
+				}
+
+				if (x + widget->wd > tmp->x1 && x < tmp->x1 + tmp->wd)
+				{
+					/* Your top border <-> other bottom border */
+					delta = abs(tmp->y1 + tmp->ht - y);
+
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1 + tmp->ht;
+						vsnap = delta;
 					}
 
-					if (done)
-					{
-#if 0
-						draw_info_format(COLOR_RED, "%s l=%d r=%d t=%d b=%d", cur_widget[nID].name, LEFT(nID), RIGHT(nID), TOP(nID), BOTTOM(nID));
-#endif
-						sound_play_effect("scroll.ogg", 10);
+					/* Your bottom border <-> other top border */
+					delta = abs(tmp->y1 - y - widget->ht);
 
-						/* Acts as a brake, preventing mID from 'skipping' through a stack of nodes */
-						event->motion.xrel = event->motion.yrel = 0;
-						SDL_PushEvent(event);
-						break;
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1 - widget->ht;
+						vsnap = delta;
+					}
+				}
+
+				if (widget->x1 + widget->wd >= tmp->x1 && widget->x1 <= tmp->x1 + tmp->wd)
+				{
+					/* Your top border <-> other top border */
+					delta = abs(tmp->y1 - y);
+
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1;
+						vsnap = delta;
+					}
+
+					/* Your bottom border <-> other bottom border */
+					delta = abs(tmp->y1 + tmp->ht - y - widget->ht);
+
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1 + tmp->ht - widget->ht;
+						vsnap = delta;
 					}
 				}
 			}
 		}
-#endif
-
-		/* get the offset */
-		dx = x - widget_event_move.xOffset - widget->x1;
-		dy = y - widget_event_move.yOffset - widget->y1;
 
 		/* we move the widget here, as well as all the widgets inside it if they exist */
 		/* we use the recursive version since we already have the outermost container */
-		move_widget_rec(widget, dx, dy);
+		move_widget_rec(widget, nx - widget->x1, ny - widget->y1);
 
 		/* Ensure widget is on-screen. */
 		if (!options.allow_widgets_offscreen)

@@ -355,18 +355,4 @@ extern widgetevent widget_mouse_event;
 #define MENUITEM(__menuitem) \
 	(_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget)) ->subcontainer)) ->subcontainer_strip))
 
-#ifdef WIDGET_SNAP
-/** Left position. */
-#define LEFT(ID) (cur_widget[(ID)].x1)
-
-/** Right position. */
-#define RIGHT(ID) (cur_widget[(ID)].x1 + cur_widget[(ID)].wd)
-
-/** Top position. */
-#define TOP(ID) (cur_widget[(ID)].y1)
-
-/** Bottom position. */
-#define BOTTOM(ID) (cur_widget[(ID)].y1 + cur_widget[(ID)].ht)
-#endif
-
 #endif

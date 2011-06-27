@@ -45,9 +45,6 @@
 /** Name of the icon. */
 #define CLIENT_ICON_NAME "icon.png"
 
-/* Experimental feature of widget snapping */
-/*#define WIDGET_SNAP*/
-
 /** Maximum number of faces. */
 #define MAX_FACE_TILES 32767
 

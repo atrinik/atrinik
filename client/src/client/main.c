@@ -325,9 +325,6 @@ static void init_game_data()
 	options.resolution_x = WINDOW_DEFAULT_WIDTH;
 	options.resolution_y = WINDOW_DEFAULT_HEIGHT;
 	options.playerdoll = 0;
-#ifdef WIDGET_SNAP
-	options.widget_snap = 0;
-#endif
 
 	options.zoom = 100;
 
