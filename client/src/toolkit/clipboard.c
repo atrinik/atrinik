@@ -33,11 +33,12 @@
 
 #include <include.h>
 #include <SDL_syswm.h>
+
+#if defined(__LINUX)
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
 
-#if defined(__LINUX)
 static Display *SDL_Display = NULL;
 static Window SDL_Window;
 #elif defined(WIN32)
@@ -322,11 +323,11 @@ char *clipboard_get()
 		HANDLE hMem;
 		char *src;
 
-		hMem = GetClipboardData(format);
+		hMem = GetClipboardData(CF_TEXT);
 
 		if (hMem)
 		{
-			str = (char *) GlobalLock(hMem);
+			src = (char *) GlobalLock(hMem);
 			result = strdup(src);
 			GlobalUnlock(hMem);
 		}
