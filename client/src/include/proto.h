@@ -452,6 +452,7 @@ void textwin_button_event(widgetdata *widget, SDL_Event event);
 int textwin_move_event(widgetdata *widget, SDL_Event event);
 void textwin_event(int e, SDL_Event *event, widgetdata *widget);
 void change_textwin_font(int font);
+void menu_textwin_clear(widgetdata *widget, int x, int y);
 
 /* toolkit/button.c */
 int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags);

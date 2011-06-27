@@ -1220,14 +1220,14 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			menu = create_menu(x, y, widget);
 			/* This bit probably shouldn't be hard coded in future. */
 			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Create Widget", &menu_create_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Remove Widget", &menu_remove_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Detach Widget", &menu_detach_widget, MENU_NORMAL, 0);
-			add_separator(menu);
 
 			if (widget->WidgetSubtypeID == MAIN_INV_ID)
 			{
 				add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
+			}
+			else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
+			{
+				add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
 			}
 #if 0
 			else

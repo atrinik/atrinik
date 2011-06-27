@@ -732,3 +732,20 @@ void change_textwin_font(int font)
 		WIDGET_REDRAW(cur_widget[CHATWIN_ID]);
 	}
 }
+
+/**
+ * The 'Clear' menu action for text windows.
+ * @param widget The text window widget. */
+void menu_textwin_clear(widgetdata *widget, int x, int y)
+{
+	_textwin *textwin;
+
+	(void) x;
+	(void) y;
+
+	textwin = TEXTWIN(widget);
+	free(textwin->entries);
+	textwin->entries = NULL;
+	textwin->num_entries = textwin->entries_size = textwin->scroll = textwin->slider_h = textwin->slider_y = 0;
+	WIDGET_REDRAW(widget);
+}
