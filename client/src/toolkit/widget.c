@@ -51,38 +51,38 @@ static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 {
 	/* base widgets */
-	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"TARGET",          336, 681, 264,  31, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MAININV",           1, 508, 239,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0},
+	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0},
+	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"TARGET",          336, 681, 264,  31, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MAININV",           1, 508, 239,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
 	/* subwidgets */
-	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
+	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0},
 };
 
 
@@ -114,6 +114,12 @@ widgetevent widget_mouse_event =
 static widgetmove widget_event_move =
 {
 	0, NULL, 0, 0
+};
+
+/** This is used when resizing a widget with the mouse. */
+static widgetresize widget_event_resize =
+{
+	0, NULL
 };
 
 /**
@@ -401,6 +407,11 @@ void remove_widget_object_intern(widgetdata *widget)
 		widget_event_move.owner = NULL;
 	}
 
+	if (widget_event_resize.owner == widget)
+	{
+		widget_event_resize.owner = NULL;
+	}
+
 	/* If any menu is open and this widget is the owner, bad things could happen here too. Clear the pointers. */
 	if (cur_widget[MENU_ID] && (MENU(cur_widget[MENU_ID]))->owner == widget)
 	{
@@ -540,6 +551,7 @@ void kill_widgets()
 	/* get rid of the pointer to the widgets first */
 	widget_mouse_event.owner = NULL;
 	widget_event_move.owner = NULL;
+	widget_event_resize.owner = NULL;
 
 	/* kick off the chain reaction, there's no turning back now :) */
 	if (widget_list_head)
@@ -1229,6 +1241,11 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			widget = menu;
 		}
 	}
+	else if (widget->resizeable && widget->resize_flags && event->button.button == SDL_BUTTON_LEFT)
+	{
+		widget_event_resize.active = 1;
+		widget_event_resize.owner = widget;
+	}
 	/* Normal condition - respond to mouse down event */
 	else
 	{
@@ -1362,6 +1379,12 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 		return 1;
 	}
+	else if (widget_event_resize.active)
+	{
+		widget_event_resize.active = 0;
+		widget_event_resize.owner = NULL;
+		return 1;
+	}
 	/* Normal condition - respond to mouse up event */
 	else
 	{
@@ -1443,9 +1466,6 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 {
 	widgetdata *widget;
 	int dx = 0, dy = 0;
-
-	/* With widgets we have to clear every loop the txtwin cursor */
-	cursor_type = 0;
 
 	/* Widget moving condition */
 	if (widget_event_move.active)
@@ -1551,6 +1571,35 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 		return 1;
 	}
+	else if (widget_event_resize.active)
+	{
+		widget = widget_event_resize.owner;
+
+		if (!widget)
+		{
+			return 0;
+		}
+
+		if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
+		{
+			resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x1 - x + widget->wd : x - widget->x1));
+		}
+
+		if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
+		{
+			resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y1 - y + widget->ht : y - widget->y1));
+		}
+
+		switch (widget->WidgetTypeID)
+		{
+			case MSGWIN_ID:
+			case CHATWIN_ID:
+				textwin_readjust(widget);
+				break;
+		}
+
+		return 1;
+	}
 	/* Normal condition - respond to mouse move event */
 	else
 	{
@@ -1568,6 +1617,30 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		if (!widget)
 		{
 			return 0;
+		}
+
+		if (widget->resizeable)
+		{
+			widget->resizeable = 1;
+			widget->resize_flags = 0;
+
+			if (y >= widget->y1 && y <= widget->y1 + 2)
+			{
+				widget->resize_flags |= RESIZE_TOP;
+			}
+			else if (y >= widget->y1 + widget->ht - 2 && y <= widget->y1 + widget->ht)
+			{
+				widget->resize_flags |= RESIZE_BOTTOM;
+			}
+
+			if (x >= widget->x1 && x <= widget->x1 + 2)
+			{
+				widget->resize_flags |= RESIZE_LEFT;
+			}
+			else if (x >= widget->x1 + widget->wd - 2 && x <= widget->x1 + widget->wd)
+			{
+				widget->resize_flags |= RESIZE_RIGHT;
+			}
 		}
 
 		/* Handlers for miscellaneous mouse movements go here */
@@ -1687,11 +1760,6 @@ int widget_event_respond(int x, int y)
 /** Priority override function, we have to have that here for resizing... */
 int widget_event_override()
 {
-	if (textwin_flags & (TW_RESIZE | TW_RESIZE2))
-	{
-		return 1;
-	}
-
 	return 0;
 }
 

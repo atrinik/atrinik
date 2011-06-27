@@ -115,6 +115,14 @@ typedef struct widgetdata
 
 	/** A unique ID for the widget object. */
 	int WidgetObjID;
+
+	uint8 resizeable;
+
+	int min_w;
+
+	int min_h;
+
+	int resize_flags;
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
@@ -317,6 +325,16 @@ typedef struct widgetmove
 	/** Y offset. */
 	int yOffset;
 } widgetmove;
+
+/** This is used when resizing a widget with the mouse. */
+typedef struct widgetresize
+{
+	/** Is the widget active? */
+	int active;
+
+	/** The widget involved in the resize event. */
+	widgetdata *owner;
+} widgetresize;
 
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;

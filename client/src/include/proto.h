@@ -440,7 +440,9 @@ void widget_event_target(widgetdata *widget, int x, int y);
 void widget_show_target(widgetdata *widget);
 
 /* gui/textwin.c */
+void textwin_init();
 void textwin_scroll_adjust(widgetdata *widget);
+void textwin_readjust(widgetdata *widget);
 void draw_info_format(int flags, char *format, ...) __attribute__((format(printf, 2, 3)));
 void draw_info(int flags, const char *str);
 void textwin_handle_copy();

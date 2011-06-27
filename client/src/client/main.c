@@ -1116,6 +1116,8 @@ int main(int argc, char *argv[])
 		draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
 	}
 
+	textwin_init();
+
 	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
 
 	while (!done)
@@ -1243,35 +1245,6 @@ int main(int argc, char *argv[])
 		show_menu();
 
 		tooltip_show();
-
-		/* We have a non-standard mouse-pointer (win-size changer, etc.) */
-		if (cursor_type)
-		{
-			SDL_Rect rec;
-
-			SDL_GetMouseState(&x, &y);
-
-			if (cursor_type == 1)
-			{
-				rec.w = 14;
-				rec.h = 1;
-				rec.x = x - 7;
-				rec.y = y - 2;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-				rec.y = y - 5;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-			}
-			else if (cursor_type == 2)
-			{
-				rec.w = 1;
-				rec.h = 14;
-				rec.x = x - 2;
-				rec.y = y - 7;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-				rec.x = x - 5;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-			}
-		}
 
 		if (f_custom_cursor)
 		{

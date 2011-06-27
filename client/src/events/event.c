@@ -32,8 +32,6 @@
 
 int old_mouse_y = 0;
 
-int cursor_type = 0;
-
 /**
  * Table of all the keys recognized by SDL. If an element is 1, that key
  * is currently being held. */
@@ -157,8 +155,6 @@ int Event_PollInputDevice()
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				cursor_type = 0;
-
 				mb_clicked = 0;
 
 				if (lists_handle_mouse(x, y, &event))

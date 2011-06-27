@@ -52,9 +52,7 @@ enum
 /* Flags */
 enum
 {
-	TW_SCROLL = 1,
-	TW_RESIZE = 2,
-	TW_RESIZE2 = 4
+	TW_SCROLL = 1
 };
 
 /** Custom attributes for text window widgets. */
@@ -86,13 +84,14 @@ struct _textwin
 
 	/** Font used. */
 	int font;
+
+	/** Flags. */
+	int flags;
 };
 
 /** Get the maximum number of visible rows. */
 #define TEXTWIN_ROWS_VISIBLE(widget) ((widget)->ht / FONT_HEIGHT(TEXTWIN((widget))->font))
 /** Get the base flags depending on the text window. */
 #define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE : TEXT_WORD_WRAP)
-
-int textwin_flags;
 
 #endif

@@ -104,8 +104,6 @@ enum
 	DRAG_PDOLL
 };
 
-extern int cursor_type;
-
 SDLKey get_action_keycode, drop_action_keycode;
 
 typedef struct _keys
