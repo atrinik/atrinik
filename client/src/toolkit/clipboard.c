@@ -178,7 +178,7 @@ int clipboard_set(const char *str)
 	{
 		char buf[4096 * 4];
 
-		snprintf(buf, sizeof(buf), "dbus-send --type=method_call --dest=org.kde.klipper /klipper org.kde.klipper.klipper.setClipboardContents string: \"%s\"", str);
+		snprintf(buf, sizeof(buf), "dbus-send --type=method_call --dest=org.kde.klipper /klipper org.kde.klipper.klipper.setClipboardContents string:\"%s\"", str);
 
 		if (system(buf) != 0)
 		{
