@@ -1184,7 +1184,7 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
  * @return 1 if this is a widget and we're handling the mouse, 0 otherwise. */
 int widget_event_mousedn(int x, int y, SDL_Event *event)
 {
-	widgetdata *widget, *menu, *tmp;
+	widgetdata *widget;
 
 	/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
 	if (!widget_event_respond(x, y))
@@ -1203,46 +1203,69 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	/* Set the priority to this widget */
 	SetPriorityWidget(widget);
 
-	/* Right mouse button was clicked */
-	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT) && widget->WidgetTypeID != MAP_ID)
+	if (widget_event_move.active)
 	{
-		/* For some reason, checking for the ctrl key won't work here. */
-		if (cpl.fire_on)
-		{
-			/* Move the widget. */
-			if (!widget_event_start_move(widget, x, y))
-			{
-				return 0;
-			}
-		}
-		/* Normal right click. */
-		else if (!cur_widget[MENU_ID])
-		{
-			/* Create a context menu for the widget clicked on. */
-			menu = create_menu(x, y, widget);
-			/* This bit probably shouldn't be hard coded in future. */
-			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+		widgetdata *widget_container;
 
-			if (widget->WidgetSubtypeID == MAIN_INV_ID)
-			{
-				add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
-			}
-			else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
-			{
-				add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
-			}
-#if 0
-			else
-			{
-				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU, 0);
-			}
-#endif
-			menu_finalize(menu);
+		widget = widget_mouse_event.owner;
 
-			/* Bit hack-ish, but this is to fix the menu from disappearing. */
-			widget = menu;
+		widget_event_move.active = 0;
+		widget_mouse_event.x = x;
+		widget_mouse_event.y = y;
+		/* no widgets are being moved now */
+		widget_event_move.owner = NULL;
+
+		/* Disable the custom cursor */
+		f_custom_cursor = 0;
+
+		/* Show the system cursor */
+		SDL_ShowCursor(1);
+
+		/* Due to a bug in SDL 1.2.x, the mouse X/Y position is not updated
+		 * while in fullscreen with the cursor hidden, so we must take care
+		 * of it ourselves. Apparently SDL 1.3 should fix it.
+		 * See http://old.nabble.com/Mouse-movement-problems-in-fullscreen-mode-td20890669.html
+		 * for details. */
+		SDL_WarpMouse(x, y);
+
+		/* Somehow the owner before the widget dragging is gone now. Not a good idea to carry on... */
+		if (!widget)
+		{
+			return 0;
 		}
+
+		/* check to see if it's on top of a widget container */
+		widget_container = get_widget_owner(x, y, widget->next, NULL);
+
+		/* attempt to insert it into the widget container if it exists */
+		insert_widget_in_container(widget_container, widget);
+		return 1;
 	}
+
+	/* Right mouse button was clicked */
+	if (event->button.button == SDL_BUTTON_RIGHT && widget->WidgetTypeID != MAP_ID)
+	{
+		widgetdata *menu;
+
+		/* Create a context menu for the widget clicked on. */
+		menu = create_menu(x, y, widget);
+		/* This bit probably shouldn't be hard coded in future. */
+		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+
+		if (widget->WidgetSubtypeID == MAIN_INV_ID)
+		{
+			add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
+		}
+		else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
+		{
+			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+		}
+
+		menu_finalize(menu);
+
+		return 1;
+	}
+	/* Start resizing. */
 	else if (widget->resizeable && widget->resize_flags && event->button.button == SDL_BUTTON_LEFT)
 	{
 		widget_event_resize.active = 1;
@@ -1321,6 +1344,8 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	/* User didn't click on a menu, so remove any menus that exist. */
 	if (widget->WidgetSubtypeID != MENU_ID)
 	{
+		widgetdata *menu, *tmp;
+
 		for (menu = cur_widget[MENU_ID]; menu; menu = tmp)
 		{
 			tmp = menu->type_next;
@@ -1341,46 +1366,13 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 int widget_event_mouseup(int x, int y, SDL_Event *event)
 {
 	widgetdata *widget;
-	widgetdata *widget_container = NULL;
 
-	/* Widget moving condition */
+	/* Widget is now being moved, don't do anything. */
 	if (widget_event_move.active)
 	{
-		widget = widget_mouse_event.owner;
-
-		widget_event_move.active = 0;
-		widget_mouse_event.x = x;
-		widget_mouse_event.y = y;
-		/* no widgets are being moved now */
-		widget_event_move.owner = NULL;
-
-		/* Disable the custom cursor */
-		f_custom_cursor = 0;
-
-		/* Show the system cursor */
-		SDL_ShowCursor(1);
-
-		/* Due to a bug in SDL 1.2.x, the mouse X/Y position is not updated
-		 * while in fullscreen with the cursor hidden, so we must take care
-		 * of it ourselves. Apparently SDL 1.3 should fix it.
-		 * See http://old.nabble.com/Mouse-movement-problems-in-fullscreen-mode-td20890669.html
-		 * for details. */
-		SDL_WarpMouse(x, y);
-
-		/* Somehow the owner before the widget dragging is gone now. Not a good idea to carry on... */
-		if (!widget)
-		{
-			return 0;
-		}
-
-		/* check to see if it's on top of a widget container */
-		widget_container = get_widget_owner(x, y, widget->next, NULL);
-
-		/* attempt to insert it into the widget container if it exists */
-		insert_widget_in_container(widget_container, widget);
-
 		return 1;
 	}
+	/* End resizing. */
 	else if (widget_event_resize.active)
 	{
 		widget_event_resize.active = 0;
