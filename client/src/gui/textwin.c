@@ -48,7 +48,7 @@ void textwin_init()
  * @param widget Text window's widget. */
 void textwin_scroll_adjust(widgetdata *widget)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 
 	if (textwin->scroll < TEXTWIN_ROWS_VISIBLE(widget))
 	{
@@ -67,7 +67,7 @@ void textwin_scroll_adjust(widgetdata *widget)
  * @param widget Text window's widget. */
 void textwin_readjust(widgetdata *widget)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
 	int scroll;
 
@@ -111,7 +111,7 @@ void draw_info_format(int flags, char *format, ...)
 void draw_info(int flags, const char *str)
 {
 	widgetdata *widget;
-	_textwin *textwin;
+	textwin_struct *textwin;
 	size_t len, scroll;
 	SDL_Rect box;
 
@@ -192,7 +192,7 @@ void draw_info(int flags, const char *str)
 void textwin_handle_copy()
 {
 	sint64 start, end;
-	_textwin *textwin;
+	textwin_struct *textwin;
 	char *str, *cp;
 	size_t i, pos;
 
@@ -255,7 +255,7 @@ void textwin_handle_copy()
  * @param bltfx The surface. */
 static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
 	int temp;
 
@@ -388,7 +388,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 void textwin_show(int x, int y, int w, int h)
 {
 	widgetdata *widget = cur_widget[MSGWIN_ID];
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
 	int scroll;
 
@@ -422,7 +422,7 @@ void widget_textwin_show(widgetdata *widget)
 	int len;
 	SDL_Rect box, box2;
 	_BLTFX bltfx;
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	int x = widget->x1;
 	int y = widget->y1;
 	int mx, my;
@@ -531,7 +531,7 @@ void widget_textwin_show(widgetdata *widget)
  * @param WidgetID Widget ID. */
 void textwin_event(widgetdata *widget, SDL_Event *event)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 
 	if (!textwin)
 	{
@@ -695,7 +695,7 @@ void change_textwin_font(int font)
  * @param widget The text window widget. */
 void menu_textwin_clear(widgetdata *widget, int x, int y)
 {
-	_textwin *textwin;
+	textwin_struct *textwin;
 
 	(void) x;
 	(void) y;

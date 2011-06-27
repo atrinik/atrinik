@@ -33,8 +33,6 @@
 /* If you want (a LOT of) debug info about widgets, uncomment this */
 /*#define DEBUG_WIDGET*/
 
-typedef struct _textwin _textwin;
-
 /** Information about a widget. */
 typedef struct widgetdata
 {
@@ -346,7 +344,7 @@ extern widgetevent widget_mouse_event;
 #define WIDGET_REDRAW_ALL(__id) widget_redraw_all(__id);
 
 /** Macros to grab extended widget attributes. This works similar to inheritance. */
-#define TEXTWIN(__textwin) ((_textwin *) ((__textwin)->subwidget))
+#define TEXTWIN(__textwin) ((textwin_struct *) ((__textwin)->subwidget))
 #define CONTAINER(__widget_container) (_widget_container *) (__widget_container->subwidget)
 #define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
 #define BITMAP(__widget_bitmap) (_widget_bitmap *) (__widget_bitmap->subwidget)

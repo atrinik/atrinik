@@ -48,7 +48,7 @@ enum
 };
 
 /** Custom attributes for text window widgets. */
-struct _textwin
+typedef struct textwin_struct
 {
 	/** startpos of the window */
 	int x, y;
@@ -88,7 +88,7 @@ struct _textwin
 
 	/** End of selection. */
 	sint64 selection_end;
-};
+} textwin_struct;
 
 /** Get the maximum number of visible rows. */
 #define TEXTWIN_ROWS_VISIBLE(widget) ((widget)->ht / FONT_HEIGHT(TEXTWIN((widget))->font))

@@ -179,7 +179,7 @@ void init_widgets_fromCurrent()
 widgetdata *create_widget_object(int widget_subtype_id)
 {
 	widgetdata *widget;
-	_textwin *textwin;
+	textwin_struct *textwin;
 	_widget_container *container;
 	_widget_container_strip *container_strip;
 	_menu *menu;
@@ -226,7 +226,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	{
 		case CHATWIN_ID:
 		case MSGWIN_ID:
-			textwin = calloc(1, sizeof(_textwin));
+			textwin = calloc(1, sizeof(textwin_struct));
 
 			if (!textwin)
 			{
@@ -238,7 +238,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			textwin->selection_end = -1;
 			/* that's right, a void * cast to _textwin *.
 			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
-			widget->subwidget = (_textwin *) textwin;
+			widget->subwidget = (textwin_struct *) textwin;
 			break;
 
 		case MAPNAME_ID:
@@ -458,7 +458,7 @@ void remove_widget_object_intern(widgetdata *widget)
 			case CHATWIN_ID:
 			case MSGWIN_ID:
 			{
-				_textwin *textwin = TEXTWIN(widget);
+				textwin_struct *textwin = TEXTWIN(widget);
 
 				if (textwin->entries)
 				{
@@ -1597,7 +1597,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 	/* Normal condition - respond to mouse move event */
 	else
 	{
-		_textwin *textwin = NULL;
+		textwin_struct *textwin = NULL;
 
 		/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
 		if (!widget_event_respond(x, y))
