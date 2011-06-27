@@ -80,10 +80,13 @@ struct _textwin
 	/** Flags. */
 	int flags;
 
+	/** Whether there is anything in selection_start yet. */
 	uint8 selection_started;
 
+	/** Start of selection. */
 	sint64 selection_start;
 
+	/** End of selection. */
 	sint64 selection_end;
 };
 
