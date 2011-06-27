@@ -138,7 +138,7 @@ convert_format(SDLScrap_DataType* type)
 #endif /* scrap type */
 	}
 
-	return XA_STRING;
+	return 0;
 }
 
 /* Convert internal data to scrap format */
@@ -222,7 +222,7 @@ convert_data(SDLScrap_DataType* type, char *dst, const char *src, int srclen)
 		 * information I can find. So we just need to remove
 		 * the first 14-bytes by not copying them in.
 		 */
-		if(srclen > sizeof(BITMAPFILEHEADER))
+		if(srclen > (int) sizeof(BITMAPFILEHEADER))
 		{
 			dstlen = srclen - sizeof(BITMAPFILEHEADER);
 
