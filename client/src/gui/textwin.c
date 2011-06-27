@@ -32,8 +32,6 @@
 static int old_slider_pos = 0;
 static SDL_Surface *txtwinbg = NULL;
 static int old_txtwin_alpha = -1;
-static sint64 selection_start = -1, selection_end = -1;
-static uint8 selection_started = 0;
 static widgetdata *selection_widget = NULL;
 static Uint32 textwin_border, textwin_border_selected;
 
@@ -199,20 +197,20 @@ void textwin_handle_copy()
 	size_t i, pos;
 
 	/* Nothing to copy? */
-	if (!selection_widget || selection_start < 0 || selection_end < 0)
+	if (!selection_widget)
 	{
 		return;
 	}
 
 	textwin = TEXTWIN(selection_widget);
 
-	start = selection_start;
-	end = selection_end;
+	start = textwin->selection_start;
+	end = textwin->selection_end;
 
 	if (end < start)
 	{
-		start = selection_end;
-		end = selection_start;
+		start = textwin->selection_end;
+		end = textwin->selection_start;
 	}
 
 	if (end - start <= 0)
@@ -271,7 +269,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 		box.h = widget->ht;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
-		text_set_selection(&selection_start, &selection_end, &selection_started);
+		text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
 		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 		text_set_selection(NULL, NULL, NULL);
 	}
@@ -467,10 +465,10 @@ void widget_textwin_show(widgetdata *widget)
 	box2.y = y;
 	SDL_BlitSurface(txtwinbg, &box, ScreenSurface, &box2);
 
-	if (widget_mouse_event.owner != widget && widget == selection_widget && selection_start >= 0 && selection_end >= 0)
+	if (widget_mouse_event.owner != widget && widget == selection_widget && textwin->selection_start >= 0 && textwin->selection_end >= 0)
 	{
-		selection_start = -1;
-		selection_end = -1;
+		textwin->selection_start = -1;
+		textwin->selection_end = -1;
 		WIDGET_REDRAW(widget);
 	}
 
@@ -528,186 +526,145 @@ void widget_textwin_show(widgetdata *widget)
 }
 
 /**
- * Handle mouse button events inside the text window.
- * @param actWin The text window.
- * @param event SDL event type. */
-void textwin_button_event(widgetdata *widget, SDL_Event event)
-{
-	_textwin *textwin = TEXTWIN(widget);
-
-	/* Sanity check. */
-	if (!textwin)
-	{
-		return;
-	}
-
-	/* Scrolling */
-	if (event.motion.x < widget->x1 || (textwin->flags & TW_SCROLL))
-	{
-		return;
-	}
-
-	/* Mousewheel up */
-	if (event.button.button == 4)
-	{
-		textwin->scroll--;
-		WIDGET_REDRAW(widget);
-	}
-	/* Mousewheel down */
-	else if (event.button.button == 5)
-	{
-		textwin->scroll++;
-		WIDGET_REDRAW(widget);
-	}
-	else if (event.button.button == SDL_BUTTON_LEFT)
-	{
-		WIDGET_REDRAW(widget);
-
-		/* Clicked scroller button up */
-		if (textwin->highlight == TW_HL_UP)
-		{
-			textwin->scroll--;
-		}
-		/* Clicked above the slider */
-		else if (textwin->highlight == TW_ABOVE)
-		{
-			textwin->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
-		}
-		else if (textwin->highlight == TW_HL_SLIDER)
-		{
-			/* Clicked on the slider */
-			textwin->flags |= TW_SCROLL;
-			textwin->highlight = TW_HL_SLIDER;
-			old_slider_pos = event.motion.y - textwin->slider_y;
-		}
-		/* Clicked under the slider */
-		else if (textwin->highlight == TW_UNDER)
-		{
-			textwin->scroll += TEXTWIN_ROWS_VISIBLE(widget);
-		}
-		/* Clicked scroller button down */
-		else if (textwin->highlight == TW_HL_DOWN)
-		{
-			textwin->scroll++;
-		}
-	}
-
-	textwin_scroll_adjust(widget);
-}
-
-/**
- * Mouse move event inside the text window.
- * @param actWin The text window.
- * @param event SDL event type.
- * @return 1 if mouse is out of window, 0 otherwise. */
-int textwin_move_event(widgetdata *widget, SDL_Event event)
-{
-	_textwin *textwin = TEXTWIN(widget);
-
-	if (!textwin)
-	{
-		return 1;
-	}
-
-	if (textwin->highlight != TW_HL_NONE)
-	{
-		textwin->highlight = TW_HL_NONE;
-		WIDGET_REDRAW(widget);
-	}
-
-	/* Mouse out of window */
-	/* We have to leave this here! For sanity, also the widget stuff does some area checking */
-	if (event.motion.y < widget->y1 || event.motion.x > widget->x1 + widget->wd || event.motion.y > widget->y1 + widget->ht)
-	{
-		return 1;
-	}
-
-	/* Highlighting */
-	if (event.motion.x > widget->x1 + widget->wd - 11 && event.motion.y > widget->y1 + 2 && event.motion.x < widget->x1 + widget->wd - 2 && event.motion.y < widget->y1 + widget->ht - 2)
-	{
-#define OFFSET (textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3)
-		if (event.motion.y < OFFSET)
-		{
-			textwin->highlight = TW_HL_UP;
-		}
-		else if (event.motion.y < OFFSET + textwin->slider_y)
-		{
-			textwin->highlight = TW_ABOVE;
-		}
-		else if (event.motion.y < OFFSET + textwin->slider_y + textwin->slider_h + 3)
-		{
-			textwin->highlight = TW_HL_SLIDER;
-		}
-		else if (event.motion.y < widget->y1 + widget->ht - 12)
-		{
-			textwin->highlight = TW_UNDER;
-		}
-		else if (event.motion.y < widget->y1 + widget->ht)
-		{
-			textwin->highlight = TW_HL_DOWN;
-		}
-#undef OFFSET
-
-		WIDGET_REDRAW(widget);
-
-		if (event.button.button != SDL_BUTTON_LEFT)
-		{
-			return 0;
-		}
-	}
-
-	/* Slider scrolling */
-	if (textwin->flags & TW_SCROLL)
-	{
-		textwin->slider_y = event.motion.y - old_slider_pos;
-
-		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / (widget->ht - 20);
-		textwin_scroll_adjust(widget);
-
-		WIDGET_REDRAW(widget);
-
-		return 0;
-	}
-
-	return 0;
-}
-
-/**
  * Handle text window mouse events.
- * @param e Event.
  * @param event SDL event type.
  * @param WidgetID Widget ID. */
-void textwin_event(int e, SDL_Event *event, widgetdata *widget)
+void textwin_event(widgetdata *widget, SDL_Event *event)
 {
+	_textwin *textwin = TEXTWIN(widget);
+
+	if (!textwin)
+	{
+		return;
+	}
+
 	if (event->button.button == SDL_BUTTON_LEFT)
 	{
 		if (event->type == SDL_MOUSEBUTTONUP)
 		{
-			selection_started = 0;
-			TEXTWIN(widget)->flags &= ~TW_SCROLL;
+			textwin->selection_started = 0;
+			textwin->flags &= ~TW_SCROLL;
 		}
 		else if (event->type == SDL_MOUSEBUTTONDOWN)
 		{
-			selection_started = 0;
-			selection_start = -1;
-			selection_end = -1;
+			textwin->selection_started = 0;
+			textwin->selection_start = -1;
+			textwin->selection_end = -1;
 			selection_widget = widget;
 			WIDGET_REDRAW(widget);
 		}
 		else if (event->type == SDL_MOUSEMOTION)
 		{
 			WIDGET_REDRAW(widget);
-			selection_started = 1;
+			textwin->selection_started = 1;
 		}
 	}
 
-	if (e == TW_CHECK_BUT_DOWN)
+	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
-		textwin_button_event(widget, *event);
+		int old_scroll;
+
+		/* Scrolling */
+		if (textwin->flags & TW_SCROLL)
+		{
+			return;
+		}
+
+		old_scroll = textwin->scroll;
+
+		if (event->button.button == SDL_BUTTON_WHEELUP)
+		{
+			textwin->scroll--;
+		}
+		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			textwin->scroll++;
+		}
+		else if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			/* Clicked scroller button up */
+			if (textwin->highlight == TW_HL_UP)
+			{
+				textwin->scroll--;
+			}
+			/* Clicked above the slider */
+			else if (textwin->highlight == TW_ABOVE)
+			{
+				textwin->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
+			}
+			/* Clicked on the slider */
+			else if (textwin->highlight == TW_HL_SLIDER)
+			{
+				textwin->flags |= TW_SCROLL;
+				textwin->highlight = TW_HL_SLIDER;
+				old_slider_pos = event->motion.y - textwin->slider_y;
+				WIDGET_REDRAW(widget);
+			}
+			/* Clicked under the slider */
+			else if (textwin->highlight == TW_UNDER)
+			{
+				textwin->scroll += TEXTWIN_ROWS_VISIBLE(widget);
+			}
+			/* Clicked scroller button down */
+			else if (textwin->highlight == TW_HL_DOWN)
+			{
+				textwin->scroll++;
+			}
+		}
+
+		textwin_scroll_adjust(widget);
+
+		if (textwin->scroll != old_scroll)
+		{
+			WIDGET_REDRAW(widget);
+		}
 	}
-	else
+	else if (event->type == SDL_MOUSEMOTION)
 	{
-		textwin_move_event(widget, *event);
+		int old_highlight = textwin->highlight;
+
+		textwin->highlight = TW_HL_NONE;
+
+		/* Highlighting */
+		if (event->motion.x > widget->x1 + widget->wd - 11 && event->motion.y > widget->y1 + 2 && event->motion.x < widget->x1 + widget->wd - 2 && event->motion.y < widget->y1 + widget->ht - 2)
+		{
+			if (event->motion.y < textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3)
+			{
+				textwin->highlight = TW_HL_UP;
+			}
+			else if (event->motion.y < textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y)
+			{
+				textwin->highlight = TW_ABOVE;
+			}
+			else if (event->motion.y < textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y + textwin->slider_h + 3)
+			{
+				textwin->highlight = TW_HL_SLIDER;
+			}
+			else if (event->motion.y < widget->y1 + widget->ht - 12)
+			{
+				textwin->highlight = TW_UNDER;
+			}
+			else if (event->motion.y < widget->y1 + widget->ht)
+			{
+				textwin->highlight = TW_HL_DOWN;
+			}
+		}
+
+		if (textwin->highlight != old_highlight)
+		{
+			WIDGET_REDRAW(widget);
+		}
+
+		/* Slider scrolling */
+		if (textwin->flags & TW_SCROLL && event->button.button == SDL_BUTTON_LEFT)
+		{
+			textwin->slider_y = event->motion.y - old_slider_pos;
+
+			textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / (widget->ht - 20);
+			textwin_scroll_adjust(widget);
+
+			WIDGET_REDRAW(widget);
+		}
 	}
 }
 

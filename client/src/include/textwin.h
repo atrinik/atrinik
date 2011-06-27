@@ -30,14 +30,6 @@
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
 
-/* Events */
-enum
-{
-	TW_CHECK_BUT_DOWN,
-	TW_CHECK_BUT_UP,
-	TW_CHECK_MOVE
-};
-
 /* Highlights */
 enum
 {
@@ -87,6 +79,12 @@ struct _textwin
 
 	/** Flags. */
 	int flags;
+
+	uint8 selection_started;
+
+	sint64 selection_start;
+
+	sint64 selection_end;
 };
 
 /** Get the maximum number of visible rows. */

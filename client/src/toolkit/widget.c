@@ -234,6 +234,8 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			}
 
 			textwin->font = FONT_ARIAL10;
+			textwin->selection_start = -1;
+			textwin->selection_end = -1;
 			/* that's right, a void * cast to _textwin *.
 			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
 			widget->subwidget = (_textwin *) textwin;
@@ -1267,7 +1269,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-				textwin_event(TW_CHECK_BUT_DOWN, event, widget);
+				textwin_event(widget, event);
 				break;
 
 			case RANGE_ID:
@@ -1411,7 +1413,7 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-				textwin_event(TW_CHECK_BUT_UP, event, widget);
+				textwin_event(widget, event);
 				break;
 
 			case PDOLL_ID:
@@ -1662,7 +1664,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 					}
 				}
 
-				textwin_event(TW_CHECK_MOVE, event, widget);
+				textwin_event(widget, event);
 				break;
 
 			case MAIN_INV_ID:

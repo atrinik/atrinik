@@ -448,9 +448,7 @@ void draw_info(int flags, const char *str);
 void textwin_handle_copy();
 void textwin_show(int x, int y, int w, int h);
 void widget_textwin_show(widgetdata *widget);
-void textwin_button_event(widgetdata *widget, SDL_Event event);
-int textwin_move_event(widgetdata *widget, SDL_Event event);
-void textwin_event(int e, SDL_Event *event, widgetdata *widget);
+void textwin_event(widgetdata *widget, SDL_Event *event);
 void change_textwin_font(int font);
 void menu_textwin_clear(widgetdata *widget, int x, int y);
 
