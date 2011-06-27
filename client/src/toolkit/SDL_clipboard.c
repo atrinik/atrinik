@@ -516,6 +516,18 @@ SDLScrap_CopyToClipboard(SDLScrap_DataType* type, size_t srclen, const char *src
       convert_data(type, dst, src, srclen);
       XChangeProperty(SDL_Display, DefaultRootWindow(SDL_Display),
         XA_CUT_BUFFER0, format, 8, PropModeReplace, (unsigned char *) dst, dstlen);
+
+	  if (getenv("KDE_FULL_SESSION"))
+	  {
+		char buf[4096 * 4];
+
+	  snprintf(buf, sizeof(buf), "dbus-send --type=method_call --dest=org.kde.klipper /klipper org.kde.klipper.klipper.setClipboardContents string: \"%s\"", dst);
+
+	  if (system(buf) != 0)
+		{
+		}
+	  }
+
       my_free(dst);
       if ( SDLScrap_Lost() )
         XSetSelectionOwner(SDL_Display, XA_PRIMARY, SDL_Window, CurrentTime);
