@@ -61,6 +61,7 @@ proto:
 
 clean::
 	$(RM) -f atrinik-client $(OBJS)
+	find -name "*.o" -delete
 
 distclean:: clean
 	$(RM) -f Makefile include/define.h
