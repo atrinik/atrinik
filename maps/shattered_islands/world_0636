@@ -3850,7 +3850,7 @@ z 50
 x 23
 y 8
 end
-arch bed_10b
+arch bed_8b
 x 23
 y 8
 end
