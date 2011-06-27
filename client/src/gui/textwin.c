@@ -724,6 +724,7 @@ void textwin_event(int e, SDL_Event *event, widgetdata *widget)
 			selection_start = -1;
 			selection_end = -1;
 			selection_widget = widget;
+			WIDGET_REDRAW(widget);
 		}
 		else if (event->type == SDL_MOUSEMOTION)
 		{
