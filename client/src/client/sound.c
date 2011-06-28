@@ -37,6 +37,8 @@ static uint8 sound_map_background_disabled = 0;
 static sound_data_struct *sound_data;
 /** Number of ::sound_data. */
 static size_t sound_data_num;
+/** Whether the sound system is active. */
+static uint8 enabled = 0;
 
 /**
  * Compare two sound data structure filenames.
@@ -114,10 +116,12 @@ void sound_init()
 	sound_background = NULL;
 	sound_data = NULL;
 	sound_data_num = 0;
+	enabled = 1;
 
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
-		LOG(llevError, "sound_init(): Couldn't set sound device. Reason: %s\n", SDL_GetError());
+		draw_info_format(COLOR_RED, "Could not initialize audio device; sound will not be heard. Reason: %s", Mix_GetError());
+		enabled = 0;
 	}
 }
 
@@ -136,6 +140,7 @@ void sound_deinit()
 	sound_data = NULL;
 	sound_data_num = 0;
 	Mix_CloseAudio();
+	enabled = 0;
 }
 
 /**
@@ -148,6 +153,11 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 	int channel;
 	sound_data_struct *tmp;
 	Mix_Chunk *chunk = NULL;
+
+	if (!enabled)
+	{
+		return;
+	}
 
 	/* Try to find the sound first. */
 	tmp = sound_find(filename);
@@ -204,6 +214,11 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	char path[HUGE_BUF];
 	sound_data_struct *tmp;
 	Mix_Music *music = NULL;
+
+	if (!enabled)
+	{
+		return;
+	}
 
 	if (!strcmp(filename, "no_music") || !strcmp(filename, "Disable music"))
 	{
@@ -262,6 +277,11 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
  * Stop the background music, if there is any. */
 void sound_stop_bg_music()
 {
+	if (!enabled)
+	{
+		return;
+	}
+
 	if (sound_background)
 	{
 		Mix_HaltMusic();
@@ -303,6 +323,11 @@ void update_map_bg_music(const char *bg_music)
  * Update volume of the background sound being played. */
 void sound_update_volume()
 {
+	if (!enabled)
+	{
+		return;
+	}
+
 	Mix_VolumeMusic(options.music_volume);
 
 	/* If there is any background music, due to a bug in SDL_mixer, we
