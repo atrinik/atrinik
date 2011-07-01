@@ -121,6 +121,8 @@ typedef struct widgetdata
 	int min_h;
 
 	int resize_flags;
+
+	int disable_snapping;
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
