@@ -961,7 +961,9 @@ static int load_interface_file(char *filename)
 	char line[256], keyword[256], parameter[256];
 	int found_widget[TOTAL_SUBWIDGETS] = {0};
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "Entering load_interface_file()..\n");
+#endif
 
 	/* Sanity check - if the file doesn't exist, exit with error */
 	if (!(stream = fopen_wrapper(filename, "r")))
@@ -997,7 +999,9 @@ static int load_interface_file(char *filename)
 		/* Beginning */
 		if (strncmp(keyword, "Widget:", 7) == 0)
 		{
+#ifdef DEBUG_WIDGET
 			LOG(llevDebug, "..Trying to find \"Widget: %s\"\n", parameter);
+#endif
 
 			pos = 0;
 
@@ -1030,7 +1034,9 @@ static int load_interface_file(char *filename)
 				/* in case something went wrong */
 				if (!widget)
 				{
+#ifdef DEBUG_WIDGET
 					LOG(llevDebug, ".. Failed to create widget!\n");
+#endif
 					continue;
 				}
 
@@ -1061,32 +1067,44 @@ static int load_interface_file(char *filename)
 					if (strncmp(keyword, "x:", 2) == 0)
 					{
 						widget->x1 = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->x1);
+#endif
 					}
 					else if (strncmp(keyword, "y:", 2) == 0)
 					{
 						widget->y1 = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->y1);
+#endif
 					}
 					else if (strncmp(keyword, "moveable:", 9) == 0)
 					{
 						widget->moveable = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->moveable);
+#endif
 					}
 					else if (strncmp(keyword, "active:", 7) == 0)
 					{
 						widget->show = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->show);
+#endif
 					}
 					else if (strncmp(keyword, "width:", 6) == 0)
 					{
 						widget->wd = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->wd);
+#endif
 					}
 					else if (strncmp(keyword, "height:", 7) == 0)
 					{
 						widget->ht = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->ht);
+#endif
 					}
 				}
 			}
@@ -1107,7 +1125,9 @@ static int load_interface_file(char *filename)
 		}
 	}
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..load_interface_file(): Done.\n");
+#endif
 
 	return 1;
 }
