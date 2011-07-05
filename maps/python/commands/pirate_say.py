@@ -15,5 +15,5 @@ if not message:
 	activator.Write("No message given.", COLOR_RED)
 else:
 	new_message = english2pirate(message)
-	LOG(llevInfo, "CLOG PIRATE_SAY: {0} >{1}< >{2}<\n".format(activator.name, message, new_message))
+	LOG(llevChat, "Pirate say: {0} >{1}< >{2}<\n".format(activator.name, message, new_message))
 	activator.Communicate(new_message)
