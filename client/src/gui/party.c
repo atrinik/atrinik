@@ -324,7 +324,7 @@ void PartyCmd(unsigned char *data, int len)
 		list_contents = type;
 		cur_widget[PARTY_ID]->redraw = 1;
 		cur_widget[PARTY_ID]->show = 1;
-		SetPriorityWidget(cur_widget[SKILLS_ID]);
+		SetPriorityWidget(cur_widget[PARTY_ID]);
 	}
 	/* Join command; store the party name we're member of, and show the
 	 * list of party members, if the party widget is not hidden. */
