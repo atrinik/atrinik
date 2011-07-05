@@ -55,11 +55,11 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 {
 	if (row & 1)
 	{
-		SDL_FillRect(list->surface, &box, sdl_gray2);
+		SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x55, 0x55, 0x55));
 	}
 	else
 	{
-		SDL_FillRect(list->surface, &box, sdl_gray1);
+		SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x45, 0x45, 0x45));
 	}
 }
 
@@ -69,7 +69,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
  * @param box Contains base x/y/width/height information to use. */
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
-	SDL_FillRect(list->surface, &box, sdl_dgreen);
+	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
 }
 
 /**
@@ -78,7 +78,7 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
  * @param box Contains base x/y/width/height information to use. */
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
-	SDL_FillRect(list->surface, &box, sdl_blue1);
+	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
 }
 
 /**
@@ -136,15 +136,24 @@ void list_set_focus(list_struct *list)
 }
 
 /**
+ * Update list's parent X/Y coordinates.
+ * @param list The list.
+ * @param px Parent X.
+ * @param py Parent Y. */
+void list_set_parent(list_struct *list, int px, int py)
+{
+	list->px = px;
+	list->py = py;
+}
+
+/**
  * Create new list.
  * @param id ID of the list, one of @ref LIST_xxx.
- * @param x X position of the list.
- * @param y Y position of the list.
  * @param max_rows Maximum number of visible rows to show.
  * @param cols How many columns per row.
  * @param spacing Spacing between column names and the actual rows start.
  * @return The created list. */
-list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, int spacing)
+list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing)
 {
 	list_struct *list = calloc(1, sizeof(list_struct));
 
@@ -156,8 +165,6 @@ list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, 
 
 	/* Store the values. */
 	list->id = id;
-	list->x = x;
-	list->y = y;
 	list->max_rows = max_rows;
 	list->cols = cols;
 	list->spacing = spacing;
@@ -431,19 +438,8 @@ static void list_scrollbar_render(list_struct *list)
 
 	list_slider_get_size(list, &scrollbar_box);
 
-	/* Adjust the mouse X/Y positions for lists that are not rendered
-	 * directly on the screen surface, in order to simplify the checks
-	 * below. */
-	if (list->surface != ScreenSurface)
-	{
-		widgetdata *widget = widget_find_by_surface(list->surface);
-
-		if (widget)
-		{
-			mx -= widget->x1;
-			my -= widget->y1;
-		}
-	}
+	mx -= list->px;
+	my -= list->py;
 
 	if (mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + scrollbar_box.h)
 	{
@@ -457,8 +453,10 @@ static void list_scrollbar_render(list_struct *list)
 
 /**
  * Show one list.
- * @param list List to show. */
-void list_show(list_struct *list)
+ * @param list List to show.
+ * @param x X position.
+ * @param y Y position. */
+void list_show(list_struct *list, int x, int y)
 {
 	uint32 row, col;
 	int w = 0, extra_width = 0;
@@ -468,6 +466,9 @@ void list_show(list_struct *list)
 	{
 		return;
 	}
+
+	list->x = x;
+	list->y = y;
 
 	/* Keys needing repeat? */
 	if (list->repeat_key != -1)
@@ -501,7 +502,7 @@ void list_show(list_struct *list)
 		/* Actually draw the column name. */
 		if (list->col_names[col])
 		{
-			string_blt_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+			string_blt_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, list->focus ? COLOR_WHITE : COLOR_GRAY, COLOR_BLACK, 0, NULL);
 		}
 
 		w += list->col_widths[col] + list->col_spacings[col];
@@ -554,7 +555,7 @@ void list_show(list_struct *list)
 			/* Is there any text to show? */
 			if (list->text[row][col])
 			{
-				SDL_Color text_color;
+				const char *text_color;
 				SDL_Rect text_rect;
 
 				extra_width = 0;
@@ -565,7 +566,7 @@ void list_show(list_struct *list)
 					extra_width = list->col_widths[col] / 2 - string_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
 				}
 
-				text_color = COLOR_SIMPLE(list->focus ? COLOR_WHITE : COLOR_GREY);
+				text_color = list->focus ? COLOR_WHITE : COLOR_GRAY;
 
 				if (list->text_color_hook)
 				{
@@ -576,7 +577,12 @@ void list_show(list_struct *list)
 				text_rect.w = list->col_widths[col] + list->col_spacings[col];
 				text_rect.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP | list->text_flags, &text_rect);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_BLACK, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+			}
+
+			if (list->post_column_func)
+			{
+				list->post_column_func(list, row, col);
 			}
 
 			w += list->col_widths[col] + list->col_spacings[col];
@@ -647,6 +653,11 @@ void list_remove(list_struct *list)
 	else
 	{
 		list->next->prev = list->prev;
+	}
+
+	if (list->focus && list_head)
+	{
+		list_head->focus = 1;
 	}
 
 	list_clear(list);
@@ -811,24 +822,12 @@ static int list_handle_key(list_struct *list, SDLKey key)
 }
 
 /**
- * Handle keyboard event.
- * @param event Event.
+ * Handle keyboard event for the specified list.
+ * @param list List.
+ * @param event The keyboard event.
  * @return 1 if we handled the event, 0 otherwise. */
-int lists_handle_keyboard(SDL_KeyboardEvent *event)
+int list_handle_keyboard(list_struct *list, SDL_KeyboardEvent *event)
 {
-	list_struct *list = list_get_focused();
-
-	/* No list exists. */
-	if (!list)
-	{
-		return 0;
-	}
-
-	if (list->surface != ScreenSurface)
-	{
-		return 0;
-	}
-
 	if (event->type == SDL_KEYDOWN)
 	{
 		/* Rotate between lists using tab. */
@@ -886,6 +885,28 @@ int lists_handle_keyboard(SDL_KeyboardEvent *event)
 	}
 
 	return 0;
+}
+
+/**
+ * Handle keyboard event.
+ * @param event Event.
+ * @return 1 if we handled the event, 0 otherwise. */
+int lists_handle_keyboard(SDL_KeyboardEvent *event)
+{
+	list_struct *list = list_get_focused();
+
+	/* No list exists. */
+	if (!list)
+	{
+		return 0;
+	}
+
+	if (list->surface != ScreenSurface)
+	{
+		return 0;
+	}
+
+	return list_handle_keyboard(list, event);
 }
 
 /**
@@ -988,6 +1009,11 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 		/* Is the mouse over this row? */
 		if ((uint32) my > (LIST_ROWS_START(list) + LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) + 1) * LIST_ROW_HEIGHT(list))
 		{
+			if (list->handle_mouse_row_func)
+			{
+				list->handle_mouse_row_func(list, row, event);
+			}
+
 			/* Mouse click? */
 			if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 			{
@@ -1049,22 +1075,6 @@ int lists_handle_mouse(int mx, int my, SDL_Event *event)
 	}
 
 	return 0;
-}
-
-/**
- * Updated Y position of lists after a resize event.
- * @param y_offset Y offset to add to (or subtract from) list's Y. */
-void lists_handle_resize(int y_offset)
-{
-	list_struct *tmp;
-
-	for (tmp = list_head; tmp; tmp = tmp->next)
-	{
-		if (tmp->surface == ScreenSurface)
-		{
-			tmp->y += y_offset;
-		}
-	}
 }
 
 /**

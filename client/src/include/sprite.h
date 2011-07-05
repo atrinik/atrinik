@@ -98,19 +98,6 @@ typedef struct _Sprite
 	SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
 
-/** One font. */
-typedef struct _Font
-{
-	/** The font's sprite. */
-	_Sprite *sprite;
-
-	/** Space in pixel between 2 chars in a word. */
-	int char_offset;
-
-	/** Characters. */
-	SDL_Rect c[256];
-}_Font;
-
 /**
  * @defgroup ANIM_xxx Animation types
  * Animation types.

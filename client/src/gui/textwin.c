@@ -29,18 +29,23 @@
 
 #include <include.h>
 
-static int old_slider_pos = 0;
-static SDL_Surface *txtwinbg = NULL;
-static int old_txtwin_alpha = -1;
+/**
+ * The widget that player is making a selection in (or has finished doing
+ * so). */
 static widgetdata *selection_widget = NULL;
-static Uint32 textwin_border, textwin_border_selected;
+/** Color to use for the text window border. */
+static Uint32 textwin_border_color;
+/**
+ * Color to use for the text window border when the mouse is hovering
+ * over it. */
+static Uint32 textwin_border_color_selected;
 
 /**
  * Initialize text window variables. */
 void textwin_init()
 {
-	textwin_border = SDL_MapRGBA(ScreenSurface->format, 0x60, 0x60, 0x60, 255);
-	textwin_border_selected = SDL_MapRGBA(ScreenSurface->format, 177, 126, 5, 255);
+	textwin_border_color = SDL_MapRGB(ScreenSurface->format, 96, 96, 96);
+	textwin_border_color_selected = SDL_MapRGB(ScreenSurface->format, 177, 126, 5);
 }
 
 /**
@@ -80,7 +85,7 @@ void textwin_readjust(widgetdata *widget)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font);
 
 	/* Adjust the counts. */
@@ -88,27 +93,7 @@ void textwin_readjust(widgetdata *widget)
 	textwin->num_entries = scroll;
 }
 
-/**
- * Draw info with format arguments.
- * @param flags Various flags, like color.
- * @param format Format arguments. */
-void draw_info_format(int flags, char *format, ...)
-{
-	char buf[4096];
-	va_list ap;
-
-	va_start(ap, format);
-	vsnprintf(buf, sizeof(buf), format, ap);
-	va_end(ap);
-
-	draw_info(flags, buf);
-}
-
-/**
- * Add string to the text window.
- * @param flags Various flags, like color.
- * @param str The string. */
-void draw_info(int flags, const char *str)
+void draw_info_flags(const char *color, int flags, const char *str)
 {
 	widgetdata *widget;
 	textwin_struct *textwin;
@@ -132,11 +117,16 @@ void draw_info(int flags, const char *str)
 
 	len = strlen(str);
 	/* Resize the characters array as needed. */
-	textwin->entries = realloc(textwin->entries, textwin->entries_size + len + 4);
+	textwin->entries = realloc(textwin->entries, textwin->entries_size + len + 9);
 	/* Tells the text module what color to use. */
 	textwin->entries[textwin->entries_size] = '\r';
-	textwin->entries[textwin->entries_size + 1] = (flags & 0xff) + 1;
-	textwin->entries_size += 2;
+	textwin->entries[textwin->entries_size + 1] = color[0];
+	textwin->entries[textwin->entries_size + 2] = color[1];
+	textwin->entries[textwin->entries_size + 3] = color[2];
+	textwin->entries[textwin->entries_size + 4] = color[3];
+	textwin->entries[textwin->entries_size + 5] = color[4];
+	textwin->entries[textwin->entries_size + 6] = color[5];
+	textwin->entries_size += 7;
 	/* Add the string, newline and terminating \0. */
 	strcpy(textwin->entries + textwin->entries_size, str);
 	textwin->entries[textwin->entries_size + len] = '\n';
@@ -145,7 +135,7 @@ void draw_info(int flags, const char *str)
 
 	box.y = 0;
 	/* Get the string's height. */
-	string_blt(NULL, textwin->font, str, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, str, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font) + 1;
 
 	/* Adjust the counts. */
@@ -153,11 +143,11 @@ void draw_info(int flags, const char *str)
 	textwin->num_entries += scroll;
 
 	/* Have the entries gone over maximum allowed lines? */
-	if (textwin->entries && textwin->num_entries >= (size_t) options.chat_max_lines)
+	if (textwin->entries && textwin->num_entries >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES))
 	{
 		char *cp;
 
-		while (textwin->num_entries >= (size_t) options.chat_max_lines && (cp = strchr(textwin->entries, '\n')))
+		while (textwin->num_entries >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES) && (cp = strchr(textwin->entries, '\n')))
 		{
 			size_t pos = cp - textwin->entries + 1;
 			char *buf = malloc(pos + 1);
@@ -169,7 +159,7 @@ void draw_info(int flags, const char *str)
 
 			/* Get the string's height. */
 			box.h = 0;
-			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 			scroll = box.h / FONT_HEIGHT(textwin->font);
 
 			free(buf);
@@ -185,6 +175,31 @@ void draw_info(int flags, const char *str)
 			textwin->num_entries -= scroll;
 		}
 	}
+}
+
+/**
+ * Draw info with format arguments.
+ * @param flags Various flags, like color.
+ * @param format Format arguments. */
+void draw_info_format(const char *color, char *format, ...)
+{
+	char buf[HUGE_BUF * 2];
+	va_list ap;
+
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
+	va_end(ap);
+
+	draw_info_flags(color, 0, buf);
+}
+
+/**
+ * Add string to the text window.
+ * @param flags Various flags, like color.
+ * @param str The string. */
+void draw_info(const char *color, const char *str)
+{
+	draw_info_flags(color, 0, str);
 }
 
 /**
@@ -270,7 +285,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		box.h = widget->ht;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
 		text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 		text_set_selection(NULL, NULL, NULL);
 	}
 
@@ -396,7 +411,7 @@ void textwin_show(int x, int y, int w, int h)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font);
 
 	box.x = x;
@@ -411,7 +426,7 @@ void textwin_show(int x, int y, int w, int h)
 
 	box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
 
-	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 }
 
 /**
@@ -441,29 +456,11 @@ void widget_textwin_show(widgetdata *widget)
 	if (!widget->widgetSF)
 	{
 		/* Need to do this, or the foreground could be semi-transparent too. */
-		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
-		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(widget->widgetSF->format, 0, 0, 0));
-	}
-
-	if (old_txtwin_alpha != options.textwin_alpha)
-	{
-		if (txtwinbg)
-		{
-			SDL_FreeSurface(txtwinbg);
-		}
-
-		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, options.textwin_alpha);
-		txtwinbg = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
-		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
-		old_txtwin_alpha = options.textwin_alpha;
-
-		WIDGET_REDRAW(widget);
 	}
 
 	box2.x = x;
 	box2.y = y;
-	SDL_BlitSurface(txtwinbg, &box, ScreenSurface, &box2);
 
 	if (widget_mouse_event.owner != widget && widget == selection_widget && textwin->selection_start >= 0 && textwin->selection_end >= 0)
 	{
@@ -477,7 +474,7 @@ void widget_textwin_show(widgetdata *widget)
 	{
 		widget->redraw = 0;
 
-		SDL_FillRect(widget->widgetSF, NULL, SDL_MapRGBA(widget->widgetSF->format, 0, 0, 0, options.textwin_alpha));
+		SDL_FillRect(widget->widgetSF, NULL, 0);
 
 		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
@@ -507,22 +504,22 @@ void widget_textwin_show(widgetdata *widget)
 	box.y = y;
 	box.h = 1;
 	box.w = widget->wd;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_TOP ? textwin_border_selected : textwin_border);
+	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color);
 	box.x = x;
 	box.y = y + widget->ht - 1;
 	box.h = 1;
 	box.w = widget->wd;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_selected : textwin_border);
+	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color);
 	box.x = x;
 	box.y = y;
 	box.w = 1;
 	box.h = widget->ht;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_LEFT ? textwin_border_selected : textwin_border);
+	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color);
 	box.x = x + widget->wd - 1;
 	box.y = y;
 	box.w = 1;
 	box.h = widget->ht;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_RIGHT ? textwin_border_selected : textwin_border);
+	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color);
 }
 
 /**
@@ -597,7 +594,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 			{
 				textwin->flags |= TW_SCROLL;
 				textwin->highlight = TW_HL_SLIDER;
-				old_slider_pos = event->motion.y - textwin->slider_y;
+				textwin->old_slider_pos = event->motion.y - textwin->slider_y;
 				WIDGET_REDRAW(widget);
 			}
 			/* Clicked under the slider */
@@ -658,7 +655,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 		/* Slider scrolling */
 		if (textwin->flags & TW_SCROLL && event->button.button == SDL_BUTTON_LEFT)
 		{
-			textwin->slider_y = event->motion.y - old_slider_pos;
+			textwin->slider_y = event->motion.y - textwin->old_slider_pos;
 
 			textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / (widget->ht - 20);
 			textwin_scroll_adjust(widget);
@@ -669,30 +666,10 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 }
 
 /**
- * Change the font used for drawing text in text windows.
- * @param font ID of the font to change to. */
-void change_textwin_font(int font)
-{
-	font = FONT_ARIAL10 + font;
-
-	if (TEXTWIN(cur_widget[MSGWIN_ID])->font != font)
-	{
-		TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
-		textwin_readjust(cur_widget[MSGWIN_ID]);
-		WIDGET_REDRAW(cur_widget[MSGWIN_ID]);
-	}
-
-	if (TEXTWIN(cur_widget[CHATWIN_ID])->font != font)
-	{
-		TEXTWIN(cur_widget[CHATWIN_ID])->font = font;
-		textwin_readjust(cur_widget[CHATWIN_ID]);
-		WIDGET_REDRAW(cur_widget[CHATWIN_ID]);
-	}
-}
-
-/**
  * The 'Clear' menu action for text windows.
- * @param widget The text window widget. */
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
 void menu_textwin_clear(widgetdata *widget, int x, int y)
 {
 	textwin_struct *textwin;
@@ -705,4 +682,48 @@ void menu_textwin_clear(widgetdata *widget, int x, int y)
 	textwin->entries = NULL;
 	textwin->num_entries = textwin->entries_size = textwin->scroll = textwin->slider_h = textwin->slider_y = 0;
 	WIDGET_REDRAW(widget);
+}
+
+/**
+ * Adjust the specified text window widget's font size.
+ * @param widget The text window.
+ * @param adjust How much to adjust the size by. */
+static void textwin_font_adjust(widgetdata *widget, int adjust)
+{
+	textwin_struct *textwin;
+	int font;
+
+	textwin = TEXTWIN(widget);
+	font = MAX(FONT_ARIAL10, MIN(FONT_ARIAL16, textwin->font + adjust));
+
+	if (textwin->font != font)
+	{
+		textwin->font = font;
+		textwin_readjust(widget);
+		WIDGET_REDRAW(widget);
+	}
+}
+
+/**
+ * The 'Increase Font Size' menu action for text windows.
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
+void menu_textwin_font_inc(widgetdata *widget, int x, int y)
+{
+	(void) x;
+	(void) y;
+	textwin_font_adjust(widget, 1);
+}
+
+/**
+ * The 'Decrease Font Size' menu action for text windows.
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
+void menu_textwin_font_dec(widgetdata *widget, int x, int y)
+{
+	(void) x;
+	(void) y;
+	textwin_font_adjust(widget, -1);
 }

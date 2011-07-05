@@ -35,43 +35,43 @@ _keys keys[MAX_KEYS];
 
 static key_macro defkey_macro[] =
 {
-	{"?M_SOUTHWEST",    	"southwest",        KEYFUNC_MOVE,  			1, SC_NORMAL},
-	{"?M_SOUTH",	      	"south",	        KEYFUNC_MOVE,  			2, SC_NORMAL},
-	{"?M_SOUTHEAST",    	"southeast",        KEYFUNC_MOVE,  			3, SC_NORMAL},
-	{"?M_WEST",		      	"west",		        KEYFUNC_MOVE,  			4, SC_NORMAL},
-	{"?M_STAY",		      	"stay",		        KEYFUNC_MOVE,  			5, SC_NORMAL},
-	{"?M_EAST",		      	"east",		        KEYFUNC_MOVE,  			6, SC_NORMAL},
-	{"?M_NORTHWEST",    	"northwest",        KEYFUNC_MOVE,  			7, SC_NORMAL},
-	{"?M_NORTH",	      	"north",	        KEYFUNC_MOVE,  			8, SC_NORMAL},
-	{"?M_NORTHEAST",    	"northeast",        KEYFUNC_MOVE,  			9, SC_NORMAL},
-	{"?M_RUN",		      	"run",		        KEYFUNC_RUN,   			0, SC_NORMAL},
-	{"?M_CONSOLE",	    	"console",          KEYFUNC_CONSOLE,		0, SC_NORMAL},
-	{"?M_UP",		        "up",		        KEYFUNC_CURSOR,			0, SC_NORMAL},
-	{"?M_DOWN",		      	"down",				KEYFUNC_CURSOR,			1, SC_NORMAL},
-	{"?M_LEFT",		      	"left",             KEYFUNC_CURSOR,			2, SC_NORMAL},
-	{"?M_RIGHT",	      	"right",            KEYFUNC_CURSOR,			3, SC_NORMAL},
-	{"?M_RANGE",	      	"toggle range",     KEYFUNC_RANGE,			0, SC_NORMAL},
-	{"?M_APPLY",	      	"apply <tag>",      KEYFUNC_APPLY,			0, SC_NORMAL},
-	{"?M_EXAMINE",	    	"examine <tag>",    KEYFUNC_EXAMINE,		0, SC_NORMAL},
-	{"?M_DROP",		      	"drop <tag>",       KEYFUNC_DROP,			0, SC_NORMAL},
-	{"?M_GET",		      	"get <tag>",        KEYFUNC_GET,			0, SC_NORMAL},
-	{"?M_LOCK",		      	"lock <tag>",       KEYFUNC_LOCK,			0, SC_NORMAL},
-	{"?M_MARK",		      	"mark<tag>",        KEYFUNC_MARK,			0, SC_NORMAL},
-	{"?M_OPTION",		    "option",           KEYFUNC_OPTION,       	0, SC_NORMAL},
-	{"?M_KEYBIND",	    	"key bind",         KEYFUNC_KEYBIND,      	0, SC_NORMAL},
-	{"?M_SKILL_LIST",   	"skill list",       KEYFUNC_SKILL,        	0, SC_NORMAL},
-	{"?M_SPELL_LIST",   	"spell list",       KEYFUNC_SPELL,        	0, SC_NORMAL},
-	{"?M_PAGEUP",		    "scroll up",        KEYFUNC_PAGEUP,       	0, SC_NORMAL},
-	{"?M_PAGEDOWN",	    	"scroll down",      KEYFUNC_PAGEDOWN,     	0, SC_NORMAL},
-	{"?M_FIRE_READY",   	"fire_ready <tag>", KEYFUNC_FIREREADY,    	0, SC_NORMAL},
-	{"?M_HELP",             "show help",        KEYFUNC_HELP,         	0, SC_NORMAL},
-	{"?M_PAGEUP_TOP",	  	"scroll up",        KEYFUNC_PAGEUP_TOP,   	0, SC_NORMAL},
-	{"?M_PAGEDOWN_TOP", 	"scroll down",      KEYFUNC_PAGEDOWN_TOP, 	0, SC_NORMAL},
-	{"?M_TARGET_ENEMY", 	"/target enemy",    KEYFUNC_TARGET_ENEMY, 	0, SC_NORMAL},
-	{"?M_TARGET_FRIEND",	"/target friend",   KEYFUNC_TARGET_FRIEND,	0, SC_NORMAL},
-	{"?M_TARGET_SELF",		"/target self",     KEYFUNC_TARGET_SELF,  	0, SC_NORMAL},
-	{"?M_COMBAT_TOGGLE",	"/combat",          KEYFUNC_COMBAT,       	0, SC_NORMAL},
-	{"?M_QLIST",            "quest list",       KEYFUNC_QLIST,          0, SC_NORMAL},
+	{"?M_SOUTHWEST",    	"southwest",        KEYFUNC_MOVE,  			1, 0},
+	{"?M_SOUTH",	      	"south",	        KEYFUNC_MOVE,  			2, 0},
+	{"?M_SOUTHEAST",    	"southeast",        KEYFUNC_MOVE,  			3, 0},
+	{"?M_WEST",		      	"west",		        KEYFUNC_MOVE,  			4, 0},
+	{"?M_STAY",		      	"stay",		        KEYFUNC_MOVE,  			5, 0},
+	{"?M_EAST",		      	"east",		        KEYFUNC_MOVE,  			6, 0},
+	{"?M_NORTHWEST",    	"northwest",        KEYFUNC_MOVE,  			7, 0},
+	{"?M_NORTH",	      	"north",	        KEYFUNC_MOVE,  			8, 0},
+	{"?M_NORTHEAST",    	"northeast",        KEYFUNC_MOVE,  			9, 0},
+	{"?M_RUN",		      	"run",		        KEYFUNC_RUN,   			0, 0},
+	{"?M_CONSOLE",	    	"console",          KEYFUNC_CONSOLE,		0, 0},
+	{"?M_UP",		        "up",		        KEYFUNC_CURSOR,			0, 0},
+	{"?M_DOWN",		      	"down",				KEYFUNC_CURSOR,			1, 0},
+	{"?M_LEFT",		      	"left",             KEYFUNC_CURSOR,			2, 0},
+	{"?M_RIGHT",	      	"right",            KEYFUNC_CURSOR,			3, 0},
+	{"?M_RANGE",	      	"toggle range",     KEYFUNC_RANGE,			0, 0},
+	{"?M_APPLY",	      	"apply <tag>",      KEYFUNC_APPLY,			0, 0},
+	{"?M_EXAMINE",	    	"examine <tag>",    KEYFUNC_EXAMINE,		0, 0},
+	{"?M_DROP",		      	"drop <tag>",       KEYFUNC_DROP,			0, 0},
+	{"?M_GET",		      	"get <tag>",        KEYFUNC_GET,			0, 0},
+	{"?M_LOCK",		      	"lock <tag>",       KEYFUNC_LOCK,			0, 0},
+	{"?M_MARK",		      	"mark<tag>",        KEYFUNC_MARK,			0, 0},
+	{"?M_OPTION",		    "option",           KEYFUNC_OPTION,       	0, 0},
+	{"?M_KEYBIND",	    	"key bind",         KEYFUNC_KEYBIND,      	0, 0},
+	{"?M_SKILL_LIST",   	"skill list",       KEYFUNC_SKILL,        	0, 0},
+	{"?M_SPELL_LIST",   	"spell list",       KEYFUNC_SPELL,        	0, 0},
+	{"?M_PAGEUP",		    "scroll up",        KEYFUNC_PAGEUP,       	0, 0},
+	{"?M_PAGEDOWN",	    	"scroll down",      KEYFUNC_PAGEDOWN,     	0, 0},
+	{"?M_FIRE_READY",   	"fire_ready <tag>", KEYFUNC_FIREREADY,    	0, 0},
+	{"?M_HELP",             "show help",        KEYFUNC_HELP,         	0, 0},
+	{"?M_PAGEUP_TOP",	  	"scroll up",        KEYFUNC_PAGEUP_TOP,   	0, 0},
+	{"?M_PAGEDOWN_TOP", 	"scroll down",      KEYFUNC_PAGEDOWN_TOP, 	0, 0},
+	{"?M_TARGET_ENEMY", 	"/target enemy",    KEYFUNC_TARGET_ENEMY, 	0, 0},
+	{"?M_TARGET_FRIEND",	"/target friend",   KEYFUNC_TARGET_FRIEND,	0, 0},
+	{"?M_TARGET_SELF",		"/target self",     KEYFUNC_TARGET_SELF,  	0, 0},
+	{"?M_COMBAT_TOGGLE",	"/combat",          KEYFUNC_COMBAT,       	0, 0},
+	{"?M_QLIST",            "quest list",       KEYFUNC_QLIST,          0, 0},
 };
 
 #define DEFAULT_KEYMAP_MACROS (sizeof(defkey_macro) / sizeof(struct key_macro))
@@ -505,7 +505,7 @@ int process_macro_keys(int id, int value)
 			}
 			else
 			{
-				if (!(options.collect_mode & 1))
+				if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 1))
 				{
 					reset_keys();
 					cpl.input_mode = INPUT_MODE_NUMBER;
@@ -580,7 +580,7 @@ int process_macro_keys(int id, int value)
 			}
 			else
 			{
-				if (!(options.collect_mode & 2))
+				if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 2))
 				{
 					reset_keys();
 					cpl.input_mode = INPUT_MODE_NUMBER;

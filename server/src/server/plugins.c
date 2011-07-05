@@ -311,12 +311,12 @@ void display_plugins_list(object *op)
 	DIR *plugdir;
 	atrinik_plugin *plugin;
 
-	new_draw_info(NDI_UNIQUE, op, "List of loaded plugins:");
-	new_draw_info(NDI_UNIQUE, op, "-----------------------");
+	new_draw_info(0, COLOR_WHITE, op, "List of loaded plugins:");
+	new_draw_info(0, COLOR_WHITE, op, "-----------------------");
 
 	for (plugin = plugins_list; plugin; plugin = plugin->next)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s, %s", plugin->id, plugin->fullname);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s, %s", plugin->id, plugin->fullname);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/", PLUGINDIR);
@@ -327,8 +327,8 @@ void display_plugins_list(object *op)
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "\nList of loadable plugins:");
-	new_draw_info(NDI_UNIQUE, op, "-----------------------");
+	new_draw_info(0, COLOR_WHITE, op, "\nList of loadable plugins:");
+	new_draw_info(0, COLOR_WHITE, op, "-----------------------");
 
 	/* Go through the files in the directory */
 	while ((currentfile = readdir(plugdir)))
@@ -337,7 +337,7 @@ void display_plugins_list(object *op)
 
 		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
 		{
-			new_draw_info(NDI_UNIQUE, op, currentfile->d_name);
+			new_draw_info(0, COLOR_WHITE, op, currentfile->d_name);
 		}
 	}
 

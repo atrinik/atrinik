@@ -109,12 +109,7 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 
 	memset(sprite, 0, sizeof(_Sprite));
 
-	ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT;
-
-	if (options.rleaccel_flag)
-	{
-		ckflags |= SDL_RLEACCEL;
-	}
+	ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT | SDL_RLEACCEL;
 
 	if (bitmap->format->palette)
 	{
@@ -325,6 +320,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			{
 				SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA, dark_alpha[bltfx->dark_level]);
 				darkness_filter[bltfx->dark_level] = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
+				SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
 			}
 
 			if (sprite->dark_level[bltfx->dark_level])
@@ -400,7 +396,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 
 	if (rotate)
 	{
-		blt_sprite = rotozoomSurface(blt_sprite, rotate, zoom ? zoom / 100.0 : 1.0, options.zoom_smooth);
+		blt_sprite = rotozoomSurface(blt_sprite, rotate, zoom ? zoom / 100.0 : 1.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM_SMOOTH));
 
 		if (!blt_sprite)
 		{
@@ -409,7 +405,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 	}
 	else if (zoom && zoom != 100)
 	{
-		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, options.zoom_smooth);
+		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM_SMOOTH));
 
 		if (!blt_sprite)
 		{
@@ -667,306 +663,6 @@ down_border:
 }
 
 /**
- * Blit a string.
- * @param surf Surface to blit the string on.
- * @param font Font used to blit the string.
- * @param text The string to blit.
- * @param x X position.
- * @param y Y position.
- * @param col Color.
- * @param area Area.
- * @param bltfx Bltfx.
- * @deprecated Use the new text API -- string_blt() and family. */
-void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
-{
-	int i, tmp, line_clip = -1, line_count = 0;
-	int gflag, colorToggle = 0, color_real;
-	SDL_Rect src, dst;
-	SDL_Color color, color_g;
-
-	if (area)
-	{
-		line_clip = area->w;
-	}
-
-	color_real = col & 0xff;
-
-	/* .w/h are not used from BlitSurface to draw */
-	dst.x = x;
-	dst.y = y;
-
-	/* Dark brown text will have dark blue links */
-	if (color_real == COLOR_DBROWN)
-	{
-		color_g.r = 72;
-		color_g.g = 5;
-		color_g.b = 195;
-	}
-	/* Otherwise light blue is used */
-	else
-	{
-		color_g.r = 96;
-		color_g.g = 160;
-		color_g.b = 255;
-	}
-
-	color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].r;
-	color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].g;
-	color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].b;
-
-	SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
-
-	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA)
-	{
-		SDL_SetAlpha(font->sprite->bitmap, SDL_SRCALPHA, bltfx->alpha);
-	}
-	else
-	{
-		SDL_SetAlpha(font->sprite->bitmap, SDL_RLEACCEL, 255);
-	}
-
-	gflag = 0;
-
-	for (i = 0; text[i] != '\0'; i++)
-	{
-		/* Change text color */
-		if (text[i] == '~' || text[i] == '|')
-		{
-			/* No highlighting in black text */
-			if (color_real == COLOR_BLACK)
-			{
-				continue;
-			}
-
-			if (colorToggle)
-			{
-				color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].r;
-				color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].g;
-				color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].b;
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
-			}
-			else
-			{
-				/* Change color for dark brown (generally the book interface) */
-				if (color_real == COLOR_DBROWN)
-				{
-					/* For | the color will be red */
-					if (text[i] == '|')
-					{
-						color.r = 184;
-						color.g = 6;
-						color.b = 6;
-					}
-					/* Otherwise purple */
-					else
-					{
-						color.r = 149;
-						color.g = 24;
-						color.b = 172;
-					}
-				}
-				/* Otherwise green is used for ~, yellow for | */
-				else
-				{
-					if (text[i] == '|')
-					{
-						color.r = 0xff;
-					}
-					else
-					{
-						color.r = 0x00;
-					}
-
-					color.g = 0xff;
-					color.b = 0x00;
-				}
-
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
-			}
-
-			colorToggle = (colorToggle + 1) & 1;
-			continue;
-		}
-		/* Link */
-		else if (text[i] == '^')
-		{
-			if (gflag)
-			{
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
-				gflag = 0;
-			}
-			else
-			{
-				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color_g, 1, 1);
-				gflag = 1;
-			}
-
-			continue;
-		}
-
-		tmp = font->c[(int) (text[i])].w + font->char_offset;
-
-		/* If set, we have a clipping line */
-		if (line_clip >= 0)
-		{
-			if ((line_count += tmp) > line_clip)
-			{
-				return;
-			}
-		}
-
-		if (text[i] != ' ')
-		{
-			src.x = font->c[(int) (text[i])].x;
-			src.y = font->c[(int) (text[i])].y;
-			src.w = font->c[(int) (text[i])].w;
-			src.h = font->c[(int) (text[i])].h;
-			SDL_BlitSurface(font->sprite->bitmap, &src, surf, &dst);
-		}
-
-		dst.x += tmp;
-	}
-}
-
-/**
- * Initialize a new font.
- * @param sprite Sprite we're initializing the font from.
- * @param font The font.
- * @param xlen X len of one character.
- * @param ylen Y len of one character.
- * @param c32len Char offset. */
-void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len)
-{
-	int i, y, flag;
-
-	SDL_LockSurface(sprite->bitmap);
-	font->sprite = sprite;
-
-	for (i = 0; i < 256; i++)
-	{
-		font->c[i].x = (i % 32) * (xlen + 1) + 1;
-		font->c[i].y = (i / 32) * (ylen + 1) + 1;
-		font->c[i].h = ylen;
-		font->c[i].w = xlen;
-		flag = 0;
-
-		/* Better no error in font bitmap... or this will lock up */
-		while (1)
-		{
-			for (y = font->c[i].h - 1; y >= 0; y--)
-			{
-				if (getpixel(sprite->bitmap, font->c[i].x + font->c[i].w - 1, font->c[i].y + y))
-				{
-					flag = 1;
-					break;
-				}
-			}
-
-			if (flag)
-				break;
-
-			font->c[i].w--;
-		}
-	}
-
-	SDL_UnlockSurface(sprite->bitmap);
-	font->char_offset = c32len;
-}
-
-/**
- * Get the pixel length of a text.
- * @param text Text.
- * @param font Font used.
- * @return Length of the text. */
-int get_string_pixel_length(const char *text, struct _Font *font)
-{
-	int i, len = 0;
-
-	for (i = 0; text[i] != '\0'; i++)
-	{
-		if (text[i] == '^' || text[i] == '~' || text[i] == '|')
-		{
-			continue;
-		}
-
-		len += font->c[(int) text[i]].w + font->char_offset;
-	}
-
-	return len;
-}
-
-/**
- * Calculate the displayed width of the text.
- * @param font Font used to display the text
- * @param text The text to calculate width
- * @return The width in integer value */
-int StringWidth(_Font *font, char *text)
-{
-	int w = 0, i;
-
-	for (i = 0; text[i] != '\0'; i++)
-	{
-		switch (text[i])
-		{
-			case '~':
-			case '|':
-			case '^':
-				break;
-
-			default:
-				w += font->c[(int) (text[i])].w + font->char_offset;
-				break;
-		}
-	}
-
-	return w;
-}
-
-/**
- * Calculate the displayed characters for a given width
- * @param font The font used for text
- * @param text The text
- * @param line Line
- * @param len Length
- * @return 1 if width will be more than length, 0 otherwise */
-int StringWidthOffset(_Font *font, char *text, int *line, int len)
-{
-	int w = 0, i, c, flag = 0;
-
-	for (c = i = 0; text[i] != '\0'; i++)
-	{
-		switch (text[i])
-		{
-			case '~':
-			case '|':
-			case '^':
-				break;
-
-			default:
-				w += font->c[(int) (text[i])].w + font->char_offset;
-
-				if (w >= len && !flag)
-				{
-					flag = 1;
-					*line = c;
-				}
-
-				break;
-		}
-
-		c++;
-	}
-
-	/* Line is in limit */
-	if (!flag)
-	{
-		*line = c;
-	}
-
-	return flag;
-}
-
-/**
  * Add an animation.
  * @param type
  * @param mapx
@@ -1102,20 +798,20 @@ void play_anims()
 				case ANIM_DAMAGE:
 					tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
 
-					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + options.map_size_x && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + options.map_size_y)
+					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
 					{
-						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
-						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
+						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
+						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
 
 						if (anim->value < 0)
 						{
 							snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_SIMPLE(COLOR_GREEN), TEXT_OUTLINE, NULL);
+							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_GREEN, TEXT_OUTLINE, NULL);
 						}
 						else
 						{
 							snprintf(buf, sizeof(buf), "%d", anim->value);
-							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_SIMPLE(COLOR_ORANGE), TEXT_OUTLINE, NULL);
+							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_ORANGE, TEXT_OUTLINE, NULL);
 						}
 					}
 
@@ -1124,10 +820,10 @@ void play_anims()
 				case ANIM_KILL:
 					tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
 
-					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + options.map_size_x && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + options.map_size_y)
+					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
 					{
-						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
-						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
+						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
+						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
 
 						sprite_blt(Bitmaps[BITMAP_DEATH], xpos + anim->x - 5, ypos + tmp_y - 4, NULL, NULL);
 						snprintf(buf, sizeof(buf), "%d", anim->value);
@@ -1144,7 +840,7 @@ void play_anims()
 						else if (anim->value < 10000)
 							tmp_off = -12;
 
-						string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_SIMPLE(COLOR_ORANGE), TEXT_OUTLINE, NULL);
+						string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
 					}
 
 					break;
@@ -1235,4 +931,101 @@ void surface_pan(SDL_Surface *surface, SDL_Rect *box)
 	{
 		box->y = 0;
 	}
+}
+
+/**
+ * Draw a single frame.
+ * @param surface Surface to draw on.
+ * @param x X position.
+ * @param y Y position.
+ * @param w Width of the frame.
+ * @param h Height of the frame. */
+void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
+{
+	SDL_Rect box;
+
+	box.x = x;
+	box.y = y;
+	box.h = h;
+	box.w = 1;
+	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
+	box.x = x + w;
+	box.h++;
+	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
+	box.x = x;
+	box.y+= h;
+	box.w = w;
+	box.h = 1;
+	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
+	box.x++;
+	box.y = y;
+	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
+}
+
+/**
+ * Create a border around the specified coordinates.
+ * @param surface Surface to use.
+ * @param x X start of the border.
+ * @param y Y start of the border.
+ * @param w Maximum border width.
+ * @param h Maximum border height.
+ * @param color Color to use for the border.
+ * @param size Border's size. */
+void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size)
+{
+	SDL_Rect box;
+
+	/* Left border. */
+	box.x = x;
+	box.y = y;
+	box.h = h;
+	box.w = size;
+	SDL_FillRect(surface, &box, color);
+
+	/* Right border. */
+	box.x = x + w - size;
+	SDL_FillRect(surface, &box, color);
+
+	/* Top border. */
+	box.x = x + size;
+	box.y = y;
+	box.w = w - size * 2;
+	box.h = size;
+	SDL_FillRect(surface, &box, color);
+
+	/* Bottom border. */
+	box.y = y + h - size;
+	SDL_FillRect(surface, &box, color);
+}
+
+void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation)
+{
+	SDL_Color color;
+	SDL_Rect dst;
+	Uint32 color_mapped;
+
+	if (!text_color_parse(color_notation, &color))
+	{
+		LOG(llevBug, "border_create_color(): Invalid color: %s\n", color_notation);
+		return;
+	}
+
+	color_mapped = SDL_MapRGB(surface->format, color.r, color.g, color.b);
+
+	dst.x = coords->x;
+	dst.y = coords->y;
+	dst.h = coords->h;
+	dst.w = 1;
+	SDL_FillRect(surface, &dst, color_mapped);
+	dst.x = coords->x + coords->w;
+	dst.h++;
+	SDL_FillRect(surface, &dst, color_mapped);
+	dst.x = coords->x;
+	dst.y += coords->h;
+	dst.w = coords->w;
+	dst.h = 1;
+	SDL_FillRect(surface, &dst, color_mapped);
+	dst.x++;
+	dst.y = coords->y;
+	SDL_FillRect(surface, &dst, color_mapped);
 }

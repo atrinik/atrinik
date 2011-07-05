@@ -115,11 +115,11 @@ sint64 find_traps(object *pl, int level)
 
 	if (!suc)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "You can't detect any trap here.");
+		new_draw_info(0, COLOR_WHITE, pl, "You can't detect any trap here.");
 	}
 	else if (suc == 2)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "You detect trap signs!");
+		new_draw_info(0, COLOR_WHITE, pl, "You detect trap signs!");
 	}
 
 	return 0;
@@ -177,7 +177,7 @@ sint64 remove_trap(object *op)
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "There is no trap to remove nearby.");
+	new_draw_info(0, COLOR_WHITE, op, "There is no trap to remove nearby.");
 	return 0;
 }
 
@@ -235,18 +235,18 @@ else
 		 * startequip which can't be dropped. */
 		if (tmp->type != WEAPON || !QUERY_FLAG(tmp, FLAG_IS_THROWN))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You can't throw %s.", query_base_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You can't throw %s.", query_base_name(tmp, NULL));
 			return NULL;
 		}
 		else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You can't throw god-given item!");
+			new_draw_info(0, COLOR_WHITE, op, "You can't throw god-given item!");
 			return NULL;
 		}
 		/* If cursed or damned, we can't unapply it - no throwing. */
 		else if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "The %s sticks to your hand!", query_base_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "The %s sticks to your hand!", query_base_name(tmp, NULL));
 			return NULL;
 		}
 		/* It's a throw hybrid weapon - unapply it. Then we will fire it
@@ -265,13 +265,13 @@ else
 		/* Not weapon nor throwable - no throwing. */
 		if ((tmp->type != WEAPON && tmp->type != POTION) && !QUERY_FLAG(tmp, FLAG_IS_THROWN))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You can't throw %s.", query_base_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You can't throw %s.", query_base_name(tmp, NULL));
 			return NULL;
 		}
 		/* Special message for throw hybrid weapons. */
 		else if (tmp->type == WEAPON)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You must apply the %s first.", query_base_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You must apply the %s first.", query_base_name(tmp, NULL));
 			return NULL;
 		}
 	}
@@ -294,7 +294,7 @@ void do_throw(object *op, object *toss_item, int dir)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You have nothing to throw.");
+			new_draw_info(0, COLOR_WHITE, op, "You have nothing to throw.");
 		}
 
 		return;
@@ -304,7 +304,7 @@ void do_throw(object *op, object *toss_item, int dir)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, op, "The gods won't let you throw that.");
+			new_draw_info(0, COLOR_WHITE, op, "The gods won't let you throw that.");
 		}
 
 		return;
@@ -312,7 +312,7 @@ void do_throw(object *op, object *toss_item, int dir)
 
 	if (throw_ob->weight <= 0)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You can't throw %s.\n", query_base_name(throw_ob, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "You can't throw %s.\n", query_base_name(throw_ob, NULL));
 		return;
 	}
 
@@ -387,11 +387,11 @@ void do_throw(object *op, object *toss_item, int dir)
 		{
 			if (!dir)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You drop %s at the ground.", query_name(throw_ob, NULL));
+				new_draw_info_format(0, COLOR_WHITE, op, "You drop %s at the ground.", query_name(throw_ob, NULL));
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
+				new_draw_info(0, COLOR_WHITE, op, "Something is in the way.");
 			}
 		}
 

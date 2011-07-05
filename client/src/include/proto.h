@@ -61,15 +61,6 @@ void curl_data_free(curl_data *data);
 void curl_init();
 void curl_deinit();
 
-/* client/dialog.c */
-void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
-void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
-void add_close_button(int x, int y, int menu);
-int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h);
-int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char *text_h);
-void add_value(void *value, int type, int offset, int min, int max);
-void draw_tabs(const char *tabs[], int *act_tab, const char *head_text, int x, int y);
-
 /* client/ignore.c */
 void ignore_list_clear();
 void ignore_list_load();
@@ -103,8 +94,6 @@ void update_object(int tag, int loc, const char *name, int weight, int face, int
 void animate_objects();
 
 /* client/main.c */
-void save_options_dat();
-void load_options_dat();
 void free_bitmaps();
 void list_vid_modes();
 int main(int argc, char *argv[]);
@@ -118,6 +107,7 @@ void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, in
 
 /* client/metaserver.c */
 void metaserver_init();
+void metaserver_disable();
 server_struct *server_get_id(size_t num);
 size_t server_get_count();
 int ms_connecting(int val);
@@ -221,16 +211,14 @@ void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
 void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom, sint16 rotate);
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx);
-void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len);
-int get_string_pixel_length(const char *text, struct _Font *font);
-int StringWidth(_Font *font, char *text);
-int StringWidthOffset(_Font *font, char *text, int *line, int len);
 struct _anim *add_anim(int type, int mapx, int mapy, int value);
 void remove_anim(struct _anim *anim);
 void play_anims();
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
 void surface_pan(SDL_Surface *surface, SDL_Rect *box);
+void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
+void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
+void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
 
 /* client/tilestretcher.c */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
@@ -248,8 +236,10 @@ void upgrade_do(const char *source_dir);
 void upgrader_init();
 
 /* client/video.c */
+int video_get_bpp();
 int video_set_size();
 uint32 get_video_flags();
+int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags);
 
 /* client/wrapper.c */
 void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
@@ -318,6 +308,8 @@ uint8 effect_has_overlay();
 void effect_scale(_Sprite *sprite);
 
 /* gui/fps.c */
+void fps_init();
+void fps_do();
 void widget_show_fps(widgetdata *widget);
 
 /* gui/help.c */
@@ -355,13 +347,12 @@ void load_mapdef_dat();
 void widget_show_mapname(widgetdata *widget);
 void clear_map();
 void display_mapscroll(int dx, int dy);
-void map_draw_map_clear();
 void update_map_name(const char *name);
 void update_map_weather(const char *weather);
 void init_map_data(int xl, int yl, int px, int py);
 void align_tile_stretch(int x, int y);
 void adjust_tile_stretch();
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision);
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision);
 void map_clear_cell(int x, int y);
 void map_set_darkness(int x, int y, uint8 darkness);
 void map_draw_map();
@@ -411,8 +402,20 @@ void region_map_handle_event(SDL_Event *event);
 void region_map_show();
 
 /* gui/settings.c */
-void optwin_draw_options(int x, int y);
-void show_optwin();
+void *setting_get(setting_struct *setting);
+const char *setting_get_str(int cat, int setting);
+sint64 setting_get_int(int cat, int setting);
+void setting_apply_change(int cat, int setting);
+void setting_set_int(int cat, int setting, sint64 val);
+int setting_is_text(setting_struct *setting);
+void setting_load_value(setting_struct *setting, const char *str);
+void settings_apply();
+void settings_init();
+void settings_save();
+sint64 category_from_name(const char *name);
+sint64 setting_from_name(const char *name);
+void settings_load();
+void settings_deinit();
 void settings_open();
 
 /* gui/skills.c */
@@ -443,17 +446,19 @@ void widget_show_target(widgetdata *widget);
 void textwin_init();
 void textwin_scroll_adjust(widgetdata *widget);
 void textwin_readjust(widgetdata *widget);
-void draw_info_format(int flags, char *format, ...) __attribute__((format(printf, 2, 3)));
-void draw_info(int flags, const char *str);
+void draw_info_flags(const char *color, int flags, const char *str);
+void draw_info_format(const char *color, char *format, ...) __attribute__((format(printf, 2, 3)));
+void draw_info(const char *color, const char *str);
 void textwin_handle_copy();
 void textwin_show(int x, int y, int w, int h);
 void widget_textwin_show(widgetdata *widget);
 void textwin_event(widgetdata *widget, SDL_Event *event);
-void change_textwin_font(int font);
 void menu_textwin_clear(widgetdata *widget, int x, int y);
+void menu_textwin_font_inc(widgetdata *widget, int x, int y);
+void menu_textwin_font_dec(widgetdata *widget, int x, int y);
 
 /* toolkit/button.c */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags);
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags);
 void button_create(button_struct *button);
 void button_render(button_struct *button, const char *text);
 int button_event(button_struct *button, SDL_Event *event);
@@ -467,20 +472,21 @@ char *clipboard_get();
 /* toolkit/list.c */
 list_struct *list_get_focused();
 void list_set_focus(list_struct *list);
-list_struct *list_create(uint32 id, int x, int y, uint32 max_rows, uint32 cols, int spacing);
+void list_set_parent(list_struct *list, int px, int py);
+list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing);
 void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
 void list_remove_row(list_struct *list, uint32 row);
 void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
 void list_set_font(list_struct *list, int font);
 void list_scrollbar_enable(list_struct *list);
-void list_show(list_struct *list);
+void list_show(list_struct *list, int x, int y);
 void list_clear(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
+int list_handle_keyboard(list_struct *list, SDL_KeyboardEvent *event);
 int lists_handle_keyboard(SDL_KeyboardEvent *event);
 int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
-void lists_handle_resize(int y_offset);
 list_struct *list_exists(uint32 id);
 void list_sort(list_struct *list, int type);
 void list_clear_rows(list_struct *list);
@@ -499,6 +505,84 @@ int range_buttons_show(int x, int y, int *val, int advance);
 
 /* toolkit/scroll_buttons.c */
 void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
+
+/* toolkit/SDL_gfx.c */
+int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
+int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
+int fastPixelColor(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
+int fastPixelRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int fastPixelRGBANolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha);
+int pixelColor(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
+int pixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
+int _filledRectAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha);
+int filledRectAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+int _HLineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color);
+int _VLineAlpha(SDL_Surface *dst, Sint16 x, Sint16 y1, Sint16 y2, Uint32 color);
+int pixelColorWeight(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight);
+int pixelColorWeightNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight);
+int pixelRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int hlineColorStore(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color);
+int hlineRGBAStore(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int hlineColor(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color);
+int hlineRGBA(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int vlineColor(SDL_Surface *dst, Sint16 x, Sint16 y1, Sint16 y2, Uint32 color);
+int vlineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y1, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int rectangleColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+int rectangleRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int roundedRectangleColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color);
+int roundedRectangleRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int roundedBoxColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color);
+int roundedBoxRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int boxColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+int boxRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int lineColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+int lineRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int _aalineColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, int draw_endpoint);
+int aalineColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+int aalineRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int circleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
+int circleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int arcColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
+int arcRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int aacircleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
+int aacircleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledCircleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
+int filledCircleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int ellipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
+int ellipseRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int aaellipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
+int aaellipseRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledEllipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
+int filledEllipseRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int _pieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color, Uint8 filled);
+int pieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
+int pieRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledPieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
+int filledPieRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int trigonColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
+int trigonRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int aatrigonColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
+int aatrigonRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledTrigonColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
+int filledTrigonRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int polygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
+int polygonRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int aapolygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
+int aapolygonRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int _gfxPrimitivesCompareInt(const void *a, const void *b);
+int filledPolygonColorMT(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color, int **polyInts, int *polyAllocated);
+int filledPolygonRGBAMT(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int **polyInts, int *polyAllocated);
+int filledPolygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
+int filledPolygonRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int _HLineTextured(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surface *texture, int texture_dx, int texture_dy);
+int texturedPolygonMT(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, SDL_Surface *texture, int texture_dx, int texture_dy, int **polyInts, int *polyAllocated);
+int texturedPolygon(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, SDL_Surface *texture, int texture_dx, int texture_dy);
+double _evaluateBezier(double *data, int ndata, double t);
+int bezierColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint32 color);
+int bezierRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int thickLineColor(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color);
+int thickLineRGBA(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* toolkit/SDL_rotozoom.c */
 Uint32 _colorkey(SDL_Surface *src);
@@ -525,14 +609,17 @@ void text_offset_set(int x, int y);
 void text_offset_reset();
 void text_color_set(int r, int g, int b);
 void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
+const char *get_font_filename(int font);
+int get_font_id(const char *name, size_t size);
 char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
+int text_color_parse(const char *color_notation, SDL_Color *color);
 int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
 int glyph_get_width(int font, char c);
 int glyph_get_height(int font, char c);
-void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box);
-void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box);
-void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
-void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
+void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box);
+void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box);
+void string_blt_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
+void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
 int string_get_width(int font, const char *text, uint64 flags);
 int string_get_height(int font, const char *text, uint64 flags);
 void string_truncate_overflow(int font, char *text, int max_width);
@@ -541,14 +628,13 @@ void text_enable_debug();
 /* toolkit/text_input.c */
 int text_input_center_offset();
 void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box);
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box);
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
 void text_input_clear();
 void text_input_open(int maxchar);
 void text_input_history_clear();
 void text_input_add_string(const char *text);
 int text_input_handle(SDL_KeyboardEvent *key);
-const char *show_input_string(const char *text, struct _Font *font, int wlen);
 
 /* toolkit/tooltip.c */
 void tooltip_create(int mx, int my, int font, const char *text);
@@ -589,7 +675,7 @@ void move_widget(widgetdata *widget, int x, int y);
 void move_widget_rec(widgetdata *widget, int x, int y);
 void resize_widget(widgetdata *widget, int side, int offset);
 void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height);
-widgetdata *add_label(char *text, _Font *font, int color);
+widgetdata *add_label(char *text, int font, const char *color);
 widgetdata *add_bitmap(int bitmap_id);
 widgetdata *create_menu(int x, int y, widgetdata *owner);
 void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type, int val);

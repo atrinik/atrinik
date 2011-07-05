@@ -123,7 +123,7 @@ void remove_party_member(party_struct *party, object *op)
 	else if (op->name == party->leader)
 	{
 		FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
-		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
+		new_draw_info_format(0, COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
@@ -159,7 +159,7 @@ void form_party(object *op, const char *name)
 	party_struct *party = make_party(name);
 
 	add_party_member(party, op);
-	new_draw_info_format(NDI_UNIQUE, op, "You have formed party: %s", name);
+	new_draw_info_format(0, COLOR_WHITE, op, "You have formed party: %s", name);
 	FREE_AND_ADD_REF_HASH(party->leader, op->name);
 	CONTR(op)->stat_formed_party++;
 }
@@ -285,7 +285,7 @@ static void party_loot_random(object *pl, object *corpse)
 				{
 					if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof)))
 					{
-						new_draw_info_format(NDI_UNIQUE | NDI_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+						new_draw_info_format(0, COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
 						esrv_del_item(CONTR(pl), tmp->count, tmp->env);
 						remove_ob(tmp);
 						tmp = insert_ob_in_ob(tmp, ol->objlink.ob);
@@ -311,7 +311,7 @@ int party_can_open_corpse(object *pl, object *corpse)
 	/* Check if the player is in the same party. */
 	if (!CONTR(pl)->party || corpse->slaying != CONTR(pl)->party->name)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "It's not your party's bounty.");
+		new_draw_info(0, COLOR_WHITE, pl, "It's not your party's bounty.");
 		return 0;
 	}
 
@@ -326,7 +326,7 @@ int party_can_open_corpse(object *pl, object *corpse)
 		case PARTY_LOOT_LEADER:
 			if (pl->name != CONTR(pl)->party->leader)
 			{
-				new_draw_info(NDI_UNIQUE, pl, "You're not the party's leader.");
+				new_draw_info(0, COLOR_WHITE, pl, "You're not the party's leader.");
 				return 0;
 			}
 
@@ -374,11 +374,11 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
 
 		if (flag == PARTY_MESSAGE_STATUS)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_YELLOW, ol->objlink.ob, msg);
+			new_draw_info(0, COLOR_YELLOW, ol->objlink.ob, msg);
 		}
 		else if (flag == PARTY_MESSAGE_CHAT)
 		{
-			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_YELLOW, ol->objlink.ob, msg);
+			new_draw_info(NDI_PLAYER, COLOR_YELLOW, ol->objlink.ob, msg);
 		}
 	}
 }

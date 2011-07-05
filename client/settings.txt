@@ -1,0 +1,217 @@
+category General
+	setting Player doll
+		type bool
+		default off
+		desc Whether to always show the playerdoll.\nIf unchecked, the playerdoll is only shown while the inventory is open.
+	end
+	setting Show yourself targeted
+		type bool
+		default off
+		desc Show your name in the target area instead of blank.
+	end
+	setting Collect mode
+		type select
+		option None
+		option Get
+		option Drop
+		option Both
+		default 0
+		desc If enabled, will get/drop all items in the stack instead of asking how many to get/drop.
+	end
+	setting Exp display
+		type select
+		option Level/LExp
+		option LExp/%
+		option LExp/LExp 4nl
+		option TExp/TExp 4nl
+		option (LExp/%) LExp tnl
+		desc The format key is:\n<green>4nl</green> = For next level\n<green>tnl</green> = Till next level\n<green>LExp</green> = Level exp\n<green>TExp</green> = Total exp
+	end
+	setting Chat timestamps
+		type select
+		option Disabled
+		option HH:MM
+		option HH:MM:SS
+		option H:MM AM/PM
+		option H:MM:SS AM/PM
+		default 0
+		desc Show a timestamp in front of each chat message.
+	end
+	setting Maximum chat lines
+		type range
+		range 20 - 5000
+		advance 10
+		default 200
+		desc Maximum number of lines in text windows.
+	end
+	setting Snap radius
+		type range
+		range 0 - 100
+		advance 1
+		default 5
+		desc Enables widget snapping. If enabled (non-zero) and when moving a widget, the widget will snap to any nearby widget(s). This value indicates how close "nearby" is - a value of 5-10 is usually recommended.
+	end
+end
+#############
+category Client
+	setting Resolution
+		type select
+		option Custom
+		option 800x600
+		option 960x600
+		option 1024x768
+		option 1100x700
+		option 1280x720
+		option 1280x800
+		option 1280x960
+		option 1280x1024
+		option 1440x900
+		option 1400x1050
+		option 1600x1200
+		option 1680x1050
+		option 1920x1080
+		option 1920x1200
+		option 2048x1536
+		option 2560x1600
+		desc Resolution to use.
+	end
+	setting Fullscreen
+		type bool
+		default off
+		desc Whether to use fullscreen mode or not.
+	end
+	setting Smooth zoom
+		type bool
+		default on
+		desc Use smooth zoom. This makes zoomed objects/playfield look better by using anti-aliasing, but also takes more resources.
+	end
+	setting Key repeat speed
+		type select
+		option Very slow
+		option Slow
+		option Medium
+		option Fast
+		option Very fast
+		default 2
+		desc How fast to repeat a held down key.
+	end
+	setting Sleep time
+		type range
+		range 0 - 1000
+		advance 5
+		default 0
+		desc If non-zero, will sleep the specified amount of milliseconds each frame. If zero, will use automatic fps capping, which results in best game-play experience.
+	end
+	setting Disable file updates
+		type bool
+		default off
+		desc If on, will not update sound effects/background music/etc on server connect. This may be useful for users with low bandwidth.
+	end
+	setting Minimize latency
+		type bool
+		default on
+		desc Disables Nagle's Algorithm in order to minimize latency, at the expense of more outgoing bandwidth.\nRequires server re-connection.
+	end
+	setting Allow off-screen widgets
+		type bool
+		default off
+		desc Allows moving widgets off-screen.
+	end
+	setting Resolution X
+		type int
+		default 1024
+		internal yes
+	end
+	setting Resolution Y
+		type int
+		default 768
+		internal yes
+	end
+end
+
+category Map
+	setting Player names
+		type select
+		option No names
+		option All names
+		option Only other
+		option Only yours
+		default 1
+		desc Show names of players above their heads.
+	end
+	setting Map zoom
+		type range
+		range 50 - 400
+		advance 5
+		default 100
+		desc Zoom percentage of the map.
+	end
+	setting Low health warning
+		type range
+		range 0 - 100
+		advance 5
+		default 0
+		desc Shows a low health warning above your head.\nActivated if health is less than the given percent value.
+	end
+	setting Low food warning
+		type range
+		range 0 - 100
+		advance 5
+		default 5
+		desc Shows a low food warning above your head.\nActivated if food is less than the given percent value.
+	end
+	setting Map width
+		type range
+		range 9 - 17
+		advance 1
+		default 17
+		desc Width of the map. If you have very low bandwidth, you may want to consider lowering this somewhat.
+	end
+	setting Map height
+		type range
+		range 9 - 17
+		advance 1
+		default 17
+		desc Height of the map. If you have very low bandwidth, you may want to consider lowering this somewhat.
+	end
+end
+
+category Sound
+	setting Music volume
+		type range
+		range 0 - 100
+		advance 5
+		default 100
+		desc Volume of background music. Use 0 to disable.
+	end
+	setting Sound volume
+		type range
+		range 0 - 100
+		advance 5
+		default 80
+		desc Volume of sound effects such as footsteps, combat, etc. Use 0 to disable.
+	end
+end
+
+category Devel
+	setting Show fps
+		type bool
+		default off
+		desc Show the fps (frames per second) widget.
+	end
+	setting Reload user's graphics
+		type bool
+		default off
+		desc If on, always try to reload faces from user's graphics (gfx_user) directory, even if they have been reloaded previously. This is especially useful when creating new images and testing out how they look in the game.
+	end
+	setting Disable region map cache
+		type bool
+		default off
+		desc Disables the region maps cache.
+	end
+	setting Enable quickport
+		type bool
+		default off
+		desc Enables using middle-click on the region map for instant teleportation.
+	end
+end

@@ -97,52 +97,6 @@ int key_event(SDL_KeyboardEvent *key)
 	{
 		if (cpl.menustatus != MENU_NO)
 		{
-			/* We catch here the keybind key, when we insert a new macro there */
-			if (cpl.menustatus == MENU_KEYBIND)
-			{
-				if (keybind_status == KEYBIND_STATUS_EDITKEY)
-				{
-					keybind_status = KEYBIND_STATUS_NO;
-
-					if (key->keysym.sym != SDLK_ESCAPE)
-					{
-						int i, j, already_bound = 0;
-
-						for (i = 0; i < BINDKEY_LIST_MAX; i++)
-						{
-							for (j = 0; j < OPTWIN_MAX_OPT; j++)
-							{
-								if (i == bindkey_list_set.group_nr && j == bindkey_list_set.entry_nr)
-								{
-									continue;
-								}
-
-								if (bindkey_list[i].entry[j].key == (int) key->keysym.sym)
-								{
-									already_bound = 1;
-									draw_info_format(COLOR_RED, "The key %s is already bound!", bindkey_list[i].entry[j].keyname);
-									break;
-								}
-							}
-						}
-
-						/* If the key is already bound, just continue trying to get a different key. */
-						if (already_bound)
-						{
-							keybind_status = KEYBIND_STATUS_EDITKEY;
-						}
-						else
-						{
-							sound_play_effect("scroll.ogg", 100);
-							strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname, SDL_GetKeyName(key->keysym.sym));
-							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = key->keysym.sym;
-						}
-					}
-
-					return 0;
-				}
-			}
-
 			keys[key->keysym.sym].pressed = 1;
 			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
 
@@ -211,8 +165,12 @@ int key_event(SDL_KeyboardEvent *key)
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
 					SetPriorityWidget(cur_widget[MAIN_INV_ID]);
-					if (!options.playerdoll)
+
+					if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
+					{
 						SetPriorityWidget(cur_widget[PDOLL_ID]);
+					}
+
 					cpl.inventory_win = IWIN_INV;
 					break;
 
@@ -435,8 +393,6 @@ void key_repeat()
 /* Handle keystrokes in menu dialog. */
 void check_menu_keys(int menu, int key)
 {
-	int shiftPressed = SDL_GetModState() & KMOD_SHIFT;
-
 	if (cpl.menustatus == MENU_NO)
 		return;
 
@@ -465,156 +421,6 @@ void check_menu_keys(int menu, int key)
 		case MENU_REGION_MAP:
 			region_map_handle_key(key);
 			menuRepeatKey = key;
-			break;
-
-		case MENU_OPTION:
-			switch (key)
-			{
-				case SDLK_LEFT:
-					option_list_set.key_change =-1;
-					menuRepeatKey = SDLK_LEFT;
-					break;
-
-				case SDLK_RIGHT:
-					option_list_set.key_change = 1;
-					menuRepeatKey = SDLK_RIGHT;
-					break;
-
-				case SDLK_UP:
-					if (!shiftPressed)
-					{
-						if (option_list_set.entry_nr > 0)
-							option_list_set.entry_nr--;
-						else
-							sound_play_effect("click_fail.ogg", MENU_SOUND_VOL);
-					}
-					else
-					{
-						if (option_list_set.group_nr > 0)
-						{
-							option_list_set.group_nr--;
-							option_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_UP;
-					break;
-
-				case SDLK_DOWN:
-					if (!shiftPressed)
-					{
-						option_list_set.entry_nr++;
-					}
-					else
-					{
-						if (opt_tab[option_list_set.group_nr + 1])
-						{
-							option_list_set.group_nr++;
-							option_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_DOWN;
-					break;
-
-				case SDLK_d:
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					map_udate_flag = 2;
-
-					if (cpl.menustatus == MENU_KEYBIND)
-						save_keybind_file(KEYBIND_FILE);
-
-					if (cpl.menustatus == MENU_OPTION)
-					{
-						save_options_dat();
-
-						if (options.playerdoll)
-						{
-							cur_widget[PDOLL_ID]->show = 1;
-						}
-
-						change_textwin_font(options.chat_font_size);
-						sound_update_volume();
-
-						if (options.resolution && (screen_definitions[options.resolution - 1][0] != Screensize->x || screen_definitions[options.resolution - 1][1] != Screensize->y))
-						{
-							resize_window(screen_definitions[options.resolution - 1][0], screen_definitions[options.resolution - 1][1]);
-							video_set_size();
-						}
-					}
-
-					cpl.menustatus = MENU_NO;
-					reset_keys();
-					break;
-			}
-			break;
-
-		case MENU_KEYBIND:
-			switch (key)
-			{
-				case SDLK_UP:
-					if (!shiftPressed)
-					{
-						if (bindkey_list_set.entry_nr > 0)
-							bindkey_list_set.entry_nr--;
-					}
-					else
-					{
-						if (bindkey_list_set.group_nr > 0)
-						{
-							bindkey_list_set.group_nr--;
-							bindkey_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_UP;
-					break;
-
-				case SDLK_DOWN:
-					if (!shiftPressed)
-					{
-						if (bindkey_list_set.entry_nr < OPTWIN_MAX_OPT - 1)
-							bindkey_list_set.entry_nr++;
-					}
-					else
-					{
-						if (bindkey_list_set.group_nr < BINDKEY_LIST_MAX - 1 && bindkey_list[bindkey_list_set.group_nr+1].name[0])
-						{
-							bindkey_list_set.group_nr++;
-							bindkey_list_set.entry_nr = 0;
-						}
-					}
-
-					menuRepeatKey = SDLK_DOWN;
-					break;
-
-				case SDLK_d:
-					save_keybind_file(KEYBIND_FILE);
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					map_udate_flag = 2;
-					cpl.menustatus = MENU_NO;
-					reset_keys();
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					break;
-
-				case SDLK_RETURN:
-				case SDLK_KP_ENTER:
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					keybind_status = KEYBIND_STATUS_EDIT;
-					reset_keys();
-					text_input_open(240);
-					text_input_add_string(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text);
-					cpl.input_mode = INPUT_MODE_GETKEY;
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					break;
-
-				case SDLK_r:
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag = bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag ? 0 : 1;
-					sound_play_effect("scroll.ogg", MENU_SOUND_VOL);
-					break;
-			}
-
 			break;
 	}
 }

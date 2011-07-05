@@ -457,7 +457,7 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 
 				if (op)
 				{
-					new_draw_info(NDI_UNIQUE, op, buf);
+					new_draw_info(0, COLOR_WHITE, op, buf);
 				}
 
 				LOG(llevSystem, "%s\n", buf);

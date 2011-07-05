@@ -39,8 +39,8 @@ void map_info(object *op)
 	char map_path[MAX_BUF];
 	long sec = seconds();
 
-	new_draw_info_format(NDI_UNIQUE, op, "Current time is: %02ld:%02ld:%02ld.", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
-	new_draw_info(NDI_UNIQUE, op, "Path               Pl PlM IM   TO Dif Reset");
+	new_draw_info_format(0, COLOR_WHITE, op, "Current time is: %02ld:%02ld:%02ld.", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
+	new_draw_info(0, COLOR_WHITE, op, "Path               Pl PlM IM   TO Dif Reset");
 
 	for (m = first_map; m != NULL; m = m->next)
 	{
@@ -54,7 +54,7 @@ void map_info(object *op)
 			strcpy(map_path, m->path + strlen(m->path) - 18);
 		}
 
-		new_draw_info_format(NDI_UNIQUE, op, "%-18.18s %2d   %c %4d %2d  %02d:%02d:%02d", map_path, players_on_map(m), m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', m->timeout, m->difficulty, (MAP_WHEN_RESET(m) % 86400) / 3600, (MAP_WHEN_RESET(m) % 3600) / 60, MAP_WHEN_RESET(m) % 60);
+		new_draw_info_format(0, COLOR_WHITE, op, "%-18.18s %2d   %c %4d %2d  %02d:%02d:%02d", map_path, players_on_map(m), m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', m->timeout, m->difficulty, (MAP_WHEN_RESET(m) % 86400) / 3600, (MAP_WHEN_RESET(m) % 3600) / 60, MAP_WHEN_RESET(m) % 60);
 	}
 }
 
@@ -130,54 +130,54 @@ void malloc_info(object *op)
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "Sizeof: object=%ld  player=%ld  map=%ld", (long) sizeof(object), (long) sizeof(player), (long) sizeof(mapstruct));
+	new_draw_info_format(0, COLOR_WHITE, op, "Sizeof: object=%ld  player=%ld  map=%ld", (long) sizeof(object), (long) sizeof(player), (long) sizeof(mapstruct));
 
 	dump_mempool_statistics(op, &sum_used, &sum_alloc);
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d active objects", count_active());
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d active objects", count_active());
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d maps allocated:  %8d", nrofmaps, i = (nrofmaps * sizeof(mapstruct)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d maps allocated:  %8d", nrofmaps, i = (nrofmaps * sizeof(mapstruct)));
 	sum_alloc += i;
 	sum_used += nrm * sizeof(mapstruct);
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d maps in memory:  %8d", nrm, mapmem);
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d maps in memory:  %8d", nrm, mapmem);
 	sum_alloc += mapmem;
 	sum_used += mapmem;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d archetypes:      %8d", anr, i = (anr * sizeof(archetype)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d archetypes:      %8d", anr, i = (anr * sizeof(archetype)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d animations:      %8d", anims, i = (anims * sizeof(Fontindex)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d animations:      %8d", anims, i = (anims * sizeof(Fontindex)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d treasurelists    %8d", tlnr, i = (tlnr * sizeof(treasurelist)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d treasurelists    %8d", tlnr, i = (tlnr * sizeof(treasurelist)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4ld treasures        %8d", nroftreasures, i = (nroftreasures * sizeof(treasure)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4ld treasures        %8d", nroftreasures, i = (nroftreasures * sizeof(treasure)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4ld artifacts        %8d", nrofartifacts, i = (nrofartifacts * sizeof(artifact)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4ld artifacts        %8d", nrofartifacts, i = (nrofartifacts * sizeof(artifact)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4ld artifacts strngs %8d", nrofallowedstr, i = (nrofallowedstr * sizeof(linked_char)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4ld artifacts strngs %8d", nrofallowedstr, i = (nrofallowedstr * sizeof(linked_char)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "%4d artifactlists    %8d", alnr, i = (alnr * sizeof(artifactlist)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d artifactlists    %8d", alnr, i = (alnr * sizeof(artifactlist)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, op, "Total space allocated:%8d", sum_alloc);
-	new_draw_info_format(NDI_UNIQUE, op, "Total space used:     %8d", sum_used);
+	new_draw_info_format(0, COLOR_WHITE, op, "Total space allocated:%8d", sum_alloc);
+	new_draw_info_format(0, COLOR_WHITE, op, "Total space used:     %8d", sum_used);
 }
 
 /**
@@ -194,16 +194,16 @@ static void current_map_info(object *op)
 	}
 
 	msp = GET_MAP_SPACE_PTR(m, op->x, op->y);
-	new_draw_info_format(NDI_UNIQUE, op, "%s (%s, %s, x: %d, y: %d)", msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->race ? msp->map_info->race : m->name, msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->slaying ? msp->map_info->slaying : (m->bg_music ? m->bg_music : "no_music"), m->path, op->x, op->y);
+	new_draw_info_format(0, COLOR_WHITE, op, "%s (%s, %s, x: %d, y: %d)", msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->race ? msp->map_info->race : m->name, msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->slaying ? msp->map_info->slaying : (m->bg_music ? m->bg_music : "no_music"), m->path, op->x, op->y);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
+		new_draw_info_format(0, COLOR_WHITE, op, "Players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
 	}
 
 	if (m->msg)
 	{
-		new_draw_info(NDI_UNIQUE, op, m->msg);
+		new_draw_info(0, COLOR_WHITE, op, m->msg);
 	}
 }
 
@@ -226,7 +226,7 @@ int command_who(object *op, char *params)
 		return 1;
 	}
 
-	new_draw_info(NDI_UNIQUE, op, " ");
+	new_draw_info(0, COLOR_WHITE, op, " ");
 
 	wiz = QUERY_FLAG(op, FLAG_WIZ);
 
@@ -279,11 +279,11 @@ int command_who(object *op, char *params)
 				}
 			}
 
-			new_draw_info(NDI_UNIQUE, op, buf);
+			new_draw_info(0, COLOR_WHITE, op, buf);
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
+	new_draw_info_format(0, COLOR_WHITE, op, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
 
 	return 1;
 }
@@ -334,7 +334,7 @@ int command_hiscore(object *op, char *params)
 		}
 		else if (strlen(params) < PLAYER_NAME_MIN)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
+			new_draw_info_format(0, COLOR_WHITE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
 			return 1;
 		}
 	}
@@ -462,7 +462,7 @@ void receive_player_password(object *op)
 
 		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
 		{
-			send_socket_message(NDI_RED, &CONTR(op)->socket, "The passwords did not match.");
+			send_socket_message(COLOR_RED, &CONTR(op)->socket, "The passwords did not match.");
 			get_name(op);
 			return;
 		}
@@ -493,15 +493,15 @@ int command_save(object *op, char *params)
 
 	if (MAP_PLAYER_NO_SAVE(op->map))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You cannot save here.");
+		new_draw_info(0, COLOR_WHITE, op, "You cannot save here.");
 	}
 	else if (save_player(op, 1))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You have been saved.");
+		new_draw_info(0, COLOR_WHITE, op, "You have been saved.");
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "SAVE FAILED!");
+		new_draw_info(0, COLOR_WHITE, op, "SAVE FAILED!");
 	}
 
 	return 1;
@@ -519,13 +519,13 @@ int command_afk(object *op, char *params)
 	if (CONTR(op)->afk)
 	{
 		CONTR(op)->afk = 0;
-		new_draw_info(NDI_UNIQUE, op, "You are no longer AFK.");
+		new_draw_info(0, COLOR_WHITE, op, "You are no longer AFK.");
 	}
 	else
 	{
 		CONTR(op)->afk = 1;
 		CONTR(op)->stat_afk_used++;
-		new_draw_info(NDI_UNIQUE, op, "You are now AFK.");
+		new_draw_info(0, COLOR_WHITE, op, "You are now AFK.");
 	}
 
 	CONTR(op)->socket.ext_title_flag = 1;
@@ -569,12 +569,12 @@ int command_party(object *op, char *params)
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You are not a member of any party.");
-			new_draw_info(NDI_UNIQUE, op, "For help try: /party help");
+			new_draw_info(0, COLOR_WHITE, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_WHITE, op, "For help try: /party help");
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You are a member of party %s (leader: %s).", CONTR(op)->party->name, CONTR(op)->party->leader);
+			new_draw_info_format(0, COLOR_WHITE, op, "You are a member of party %s (leader: %s).", CONTR(op)->party->name, CONTR(op)->party->leader);
 		}
 
 		return 1;
@@ -582,25 +582,25 @@ int command_party(object *op, char *params)
 
 	if (!strcmp(params, "help"))
 	{
-		new_draw_info(NDI_UNIQUE, op, "To form a party type: /party form <partyname>");
-		new_draw_info(NDI_UNIQUE, op, "To join a party type: /party join <partyname>");
-		new_draw_info(NDI_UNIQUE, op, "If the party has a password, it will prompt you for it.");
-		new_draw_info(NDI_UNIQUE, op, "For a list of current parties type: /party list");
-		new_draw_info(NDI_UNIQUE, op, "To leave a party type: /party leave");
-		new_draw_info(NDI_UNIQUE, op, "To change a password for a party type: /party password <password>");
-		new_draw_info(NDI_UNIQUE, op, "There is a 8 character max for password.");
-		new_draw_info(NDI_UNIQUE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
-		new_draw_info(NDI_UNIQUE, op, "To see who is in your party: /party who");
-		new_draw_info(NDI_UNIQUE, op, "To change the party's looting mode: /party loot mode");
-		new_draw_info(NDI_UNIQUE, op, "To kick another player from your party: /party kick <name>");
-		new_draw_info(NDI_UNIQUE, op, "To change party leader: /party leader <name>");
+		new_draw_info(0, COLOR_WHITE, op, "To form a party type: /party form <partyname>");
+		new_draw_info(0, COLOR_WHITE, op, "To join a party type: /party join <partyname>");
+		new_draw_info(0, COLOR_WHITE, op, "If the party has a password, it will prompt you for it.");
+		new_draw_info(0, COLOR_WHITE, op, "For a list of current parties type: /party list");
+		new_draw_info(0, COLOR_WHITE, op, "To leave a party type: /party leave");
+		new_draw_info(0, COLOR_WHITE, op, "To change a password for a party type: /party password <password>");
+		new_draw_info(0, COLOR_WHITE, op, "There is a 8 character max for password.");
+		new_draw_info(0, COLOR_WHITE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
+		new_draw_info(0, COLOR_WHITE, op, "To see who is in your party: /party who");
+		new_draw_info(0, COLOR_WHITE, op, "To change the party's looting mode: /party loot mode");
+		new_draw_info(0, COLOR_WHITE, op, "To kick another player from your party: /party kick <name>");
+		new_draw_info(0, COLOR_WHITE, op, "To change party leader: /party leader <name>");
 		return 1;
 	}
 	else if (!strncmp(params, "say ", 4))
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_WHITE, op, "You are not a member of any party.");
 			return 1;
 		}
 
@@ -621,11 +621,11 @@ int command_party(object *op, char *params)
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_WHITE, op, "You are not a member of any party.");
 			return 1;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, op, "You leave party %s.", CONTR(op)->party->name);
+		new_draw_info_format(0, COLOR_WHITE, op, "You leave party %s.", CONTR(op)->party->name);
 		snprintf(buf, sizeof(buf), "%s leaves party %s.", op->name, CONTR(op)->party->name);
 		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op);
 
@@ -636,13 +636,13 @@ int command_party(object *op, char *params)
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_RED, op, "You are not a member of any party.");
 			return 1;
 		}
 
 		if (CONTR(op)->party->leader != op->name)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the password.");
+			new_draw_info(0, COLOR_RED, op, "Only the party's leader can change the password.");
 			return 1;
 		}
 
@@ -657,19 +657,19 @@ int command_party(object *op, char *params)
 
 		if (!params || *params == '\0')
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Invalid party name to form.");
+			new_draw_info(0, COLOR_RED, op, "Invalid party name to form.");
 			return 1;
 		}
 
 		if (CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You must leave your current party before forming a new one.");
+			new_draw_info(0, COLOR_RED, op, "You must leave your current party before forming a new one.");
 			return 1;
 		}
 
 		if (find_party(params))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "The party %s already exists, pick another name.", params);
+			new_draw_info_format(0, COLOR_WHITE, op, "The party %s already exists, pick another name.", params);
 			return 1;
 		}
 
@@ -684,19 +684,19 @@ int command_party(object *op, char *params)
 
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_RED, op, "You are not a member of any party.");
 			return 1;
 		}
 
 		if (!params || !*params || !++params)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Current looting mode: <green>%s</green>.", party_loot_modes[CONTR(op)->party->loot]);
+			new_draw_info_format(0, COLOR_WHITE, op, "Current looting mode: <green>%s</green>.", party_loot_modes[CONTR(op)->party->loot]);
 			return 1;
 		}
 
 		if (CONTR(op)->party->leader != op->name)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the looting mode.");
+			new_draw_info(0, COLOR_RED, op, "Only the party's leader can change the looting mode.");
 			return 1;
 		}
 
@@ -711,11 +711,11 @@ int command_party(object *op, char *params)
 			}
 		}
 
-		new_draw_info(NDI_UNIQUE, op, "Invalid looting mode. Valid modes are:");
+		new_draw_info(0, COLOR_WHITE, op, "Invalid looting mode. Valid modes are:");
 
 		for (i = 0; i < PARTY_LOOT_MAX; i++)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "<green>%s</green>: %s.", party_loot_modes[i], party_loot_modes_help[i]);
+			new_draw_info_format(0, COLOR_WHITE, op, "<green>%s</green>: %s.", party_loot_modes[i], party_loot_modes_help[i]);
 		}
 
 		return 1;
@@ -726,13 +726,13 @@ int command_party(object *op, char *params)
 
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_RED, op, "You are not a member of any party.");
 			return 1;
 		}
 
 		if (CONTR(op)->party->leader != op->name)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can kick other members of the party.");
+			new_draw_info(0, COLOR_RED, op, "Only the party's leader can kick other members of the party.");
 			return 1;
 		}
 
@@ -740,13 +740,13 @@ int command_party(object *op, char *params)
 
 		if (!params || *params == '\0')
 		{
-			new_draw_info(NDI_UNIQUE, op, "Whom do you want to kick from the party?");
+			new_draw_info(0, COLOR_WHITE, op, "Whom do you want to kick from the party?");
 			return 1;
 		}
 
 		if (!strncasecmp(op->name, params, MAX_NAME))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You cannot kick yourself.");
+			new_draw_info(0, COLOR_RED, op, "You cannot kick yourself.");
 			return 1;
 		}
 
@@ -757,12 +757,12 @@ int command_party(object *op, char *params)
 				remove_party_member(CONTR(op)->party, ol->objlink.ob);
 				snprintf(buf, sizeof(buf), "%s has been kicked from the party.", ol->objlink.ob->name);
 				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
-				new_draw_info_format(NDI_UNIQUE | NDI_RED, ol->objlink.ob, "You have been kicked from the party '%s'.", CONTR(op)->party->name);
+				new_draw_info_format(0, COLOR_RED, ol->objlink.ob, "You have been kicked from the party '%s'.", CONTR(op)->party->name);
 				return 1;
 			}
 		}
 
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "There's no player with that name in your party.");
+		new_draw_info(0, COLOR_RED, op, "There's no player with that name in your party.");
 		return 1;
 	}
 	else if (!strncmp(params, "leader ", 7))
@@ -771,13 +771,13 @@ int command_party(object *op, char *params)
 
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			new_draw_info(0, COLOR_RED, op, "You are not a member of any party.");
 			return 1;
 		}
 
 		if (CONTR(op)->party->leader != op->name)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the leader.");
+			new_draw_info(0, COLOR_RED, op, "Only the party's leader can change the leader.");
 			return 1;
 		}
 
@@ -785,25 +785,25 @@ int command_party(object *op, char *params)
 
 		if (!pl)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "No such player.");
+			new_draw_info(0, COLOR_RED, op, "No such player.");
 			return 1;
 		}
 
 		if (pl->ob == op)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are already the party leader.");
+			new_draw_info(0, COLOR_RED, op, "You are already the party leader.");
 			return 1;
 		}
 
 		if (!pl->party || pl->party != CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "That player is not a member of your party.");
+			new_draw_info(0, COLOR_RED, op, "That player is not a member of your party.");
 			return 1;
 		}
 
 		FREE_AND_ADD_REF_HASH(pl->party->leader, pl->ob->name);
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "You are the new leader of party %s!", pl->party->name);
-		new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s is the new leader of your party.", pl->ob->name);
+		new_draw_info_format(0, COLOR_WHITE, pl->ob, "You are the new leader of party %s!", pl->party->name);
+		new_draw_info_format(0, COLOR_GREEN, op, "%s is the new leader of your party.", pl->ob->name);
 		return 1;
 	}
 	else
@@ -831,7 +831,7 @@ int command_party(object *op, char *params)
 
 			if (!CONTR(op)->party)
 			{
-				new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+				new_draw_info(0, COLOR_RED, op, "You are not a member of any party.");
 				return 1;
 			}
 
@@ -860,7 +860,7 @@ int command_party(object *op, char *params)
 
 			if (CONTR(op)->party)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You must leave your current party before joining another.");
+				new_draw_info(0, COLOR_WHITE, op, "You must leave your current party before joining another.");
 				return 1;
 			}
 
@@ -878,7 +878,7 @@ int command_party(object *op, char *params)
 
 			if (!party)
 			{
-				new_draw_info(NDI_UNIQUE, op, "No such party.");
+				new_draw_info(0, COLOR_WHITE, op, "No such party.");
 				return 1;
 			}
 
@@ -889,7 +889,7 @@ int command_party(object *op, char *params)
 				{
 					add_party_member(party, op);
 					CONTR(op)->stat_joined_party++;
-					new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "You have joined party: %s.", party->name);
+					new_draw_info_format(0, COLOR_GREEN, op, "You have joined party: %s.", party->name);
 					snprintf(buf, sizeof(buf), "%s joined party %s.", op->name, party->name);
 					send_party_message(party, buf, PARTY_MESSAGE_STATUS, op);
 					return 1;
@@ -897,13 +897,13 @@ int command_party(object *op, char *params)
 				/* Party password was typed but it wasn't correct. */
 				else if (party_password)
 				{
-					new_draw_info(NDI_UNIQUE | NDI_RED, op, "Incorrect party password.");
+					new_draw_info(0, COLOR_RED, op, "Incorrect party password.");
 					return 1;
 				}
 				/* Otherwise ask them to type the password */
 				else
 				{
-					new_draw_info(NDI_UNIQUE | NDI_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
+					new_draw_info(0, COLOR_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
 					SockList_AddChar(&sl, CMD_PARTY_PASSWORD);
 					SockList_AddString(&sl, (char *) party->name);
 				}
@@ -929,13 +929,13 @@ int command_whereami(object *op, char *params)
 {
 	if (!op->map->region)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You appear to be lost somewhere...");
+		new_draw_info(0, COLOR_WHITE, op, "You appear to be lost somewhere...");
 		return 1;
 	}
 
 	(void) params;
 
-	new_draw_info_format(NDI_UNIQUE, op, "You are in %s.\n%s", get_region_longname(op->map->region), get_region_msg(op->map->region));
+	new_draw_info_format(0, COLOR_WHITE, op, "You are in %s.\n%s", get_region_longname(op->map->region), get_region_msg(op->map->region));
 	return 1;
 }
 
@@ -949,12 +949,12 @@ int command_ms_privacy(object *op, char *params)
 	if (CONTR(op)->ms_privacy)
 	{
 		CONTR(op)->ms_privacy = 0;
-		new_draw_info(NDI_UNIQUE, op, "Metaserver privacy turned off.");
+		new_draw_info(0, COLOR_WHITE, op, "Metaserver privacy turned off.");
 	}
 	else
 	{
 		CONTR(op)->ms_privacy = 1;
-		new_draw_info(NDI_UNIQUE, op, "Metaserver privacy turned on.");
+		new_draw_info(0, COLOR_WHITE, op, "Metaserver privacy turned on.");
 	}
 
 	(void) params;
@@ -972,24 +972,24 @@ int command_statistics(object *op, char *params)
 
 	(void) params;
 
-	new_draw_info_format(NDI_UNIQUE, op, "Experience: %s", format_number_comma(op->stats.exp));
+	new_draw_info_format(0, COLOR_WHITE, op, "Experience: %s", format_number_comma(op->stats.exp));
 
 	if (op->level < MAXLEVEL)
 	{
 		char *cp = strdup_local(format_number_comma(level_exp(op->level + 1, 1.0)));
 
-		new_draw_info_format(NDI_UNIQUE, op, "Next Level:  %s (%s)", cp, format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
+		new_draw_info_format(0, COLOR_WHITE, op, "Next Level:  %s (%s)", cp, format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
 		free(cp);
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "\nStat: Natural (Real)");
+	new_draw_info(0, COLOR_WHITE, op, "\nStat: Natural (Real)");
 
 	for (i = 0; i < NUM_STATS; i++)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "<green>%s:</green> %d (%d)", short_stat_name[i], get_attr_value(&CONTR(op)->orig_stats, i), get_attr_value(&op->stats, i));
+		new_draw_info_format(0, COLOR_WHITE, op, "<green>%s:</green> %d (%d)", short_stat_name[i], get_attr_value(&CONTR(op)->orig_stats, i), get_attr_value(&op->stats, i));
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
+	new_draw_info_format(0, COLOR_WHITE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
 
 	return 1;
 }
@@ -1015,7 +1015,7 @@ int command_region_map(object *op, char *params)
 	/* Server has not configured client maps URL. */
 	if (settings.client_maps_url[0] == '\0')
 	{
-		new_draw_info(NDI_UNIQUE, op, "This server does not support that command.");
+		new_draw_info(0, COLOR_WHITE, op, "This server does not support that command.");
 		return 1;
 	}
 
@@ -1050,7 +1050,7 @@ int command_region_map(object *op, char *params)
 
 		if (!r)
 		{
-			new_draw_info(NDI_UNIQUE, op, "No such region.");
+			new_draw_info(0, COLOR_WHITE, op, "No such region.");
 			return 1;
 		}
 	}
@@ -1073,11 +1073,11 @@ int command_region_map(object *op, char *params)
 	{
 		if (params_check)
 		{
-			new_draw_info(NDI_UNIQUE, op, "That region doesn't have a map.");
+			new_draw_info(0, COLOR_WHITE, op, "That region doesn't have a map.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, "You cannot use that command here.");
+			new_draw_info(0, COLOR_WHITE, op, "You cannot use that command here.");
 		}
 
 		return 1;

@@ -473,7 +473,7 @@ int request_face(int pnum)
 	char buf[MAX_BUF];
 	uint16 num = (uint16) (pnum &~ 0x8000);
 
-	if (options.reload_gfx_user && load_gfx_user_face(num))
+	if (setting_get_int(OPT_CAT_DEVEL, OPT_RELOAD_GFX) && load_gfx_user_face(num))
 	{
 		return 1;
 	}

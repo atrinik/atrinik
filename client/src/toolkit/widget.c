@@ -71,7 +71,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"FPS",             123,  47,  70,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -233,7 +233,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 				exit(0);
 			}
 
-			textwin->font = FONT_ARIAL10;
+			textwin->font = FONT_ARIAL11;
 			textwin->selection_start = -1;
 			textwin->selection_end = -1;
 			/* that's right, a void * cast to _textwin *.
@@ -345,8 +345,8 @@ widgetdata *create_widget_object(int widget_subtype_id)
 
 			/* begin initializing the members */
 			label->text = "";
-			label->font = &SystemFont;
-			label->color = COLOR_DEFAULT;
+			label->font = FONT_ARIAL10;
+			label->color = COLOR_WHITE;
 			/* have the subwidget point to it */
 			widget->subwidget = (_widget_label *) label;
 			break;
@@ -599,18 +599,18 @@ static void widget_ensure_onscreen(widgetdata *widget)
 	{
 		dx = -widget->x1;
 	}
-	else if (widget->x1 + widget->wd > Screensize->x)
+	else if (widget->x1 + widget->wd > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X))
 	{
-		dx = Screensize->x - widget->wd - widget->x1;
+		dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->wd - widget->x1;
 	}
 
 	if (widget->y1 < 0)
 	{
 		dy = -widget->y1;
 	}
-	else if (widget->y1 + widget->ht > Screensize->y)
+	else if (widget->y1 + widget->ht > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y))
 	{
-		dy = Screensize->y - widget->ht - widget->y1;
+		dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->ht - widget->y1;
 	}
 
 	move_widget_rec(widget, dx, dy);
@@ -1106,6 +1106,17 @@ static int load_interface_file(char *filename)
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->ht);
 #endif
 					}
+					else if (!strncmp(keyword, "font:", 5))
+					{
+						textwin_struct *textwin = TEXTWIN(widget);
+						char font_name[MAX_BUF];
+						int font_size, font_id;
+
+						if (textwin && sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1)
+						{
+							textwin->font = font_id;
+						}
+					}
 				}
 			}
 		}
@@ -1184,6 +1195,18 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 		{
 			fprintf(stream, "width: %d\n", widget->wd);
 			fprintf(stream, "height: %d\n", widget->ht);
+		}
+
+		switch (widget->WidgetTypeID)
+		{
+			case CHATWIN_ID:
+			case MSGWIN_ID:
+			{
+				textwin_struct *textwin = TEXTWIN(widget);
+
+				fprintf(stream, "font: %s %"FMT64U"\n", get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+				break;
+			}
 		}
 
 		/* End of block */
@@ -1279,6 +1302,8 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
 		{
 			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
+			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
 		}
 
 		menu_finalize(menu);
@@ -1499,17 +1524,17 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		ny = y;
 
 		/* Widget snapping logic courtesy of OpenTTD (GPLv2). */
-		if (options.snap_radius)
+		if (setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS))
 		{
 			widgetdata *tmp;
 			int delta, hsnap, vsnap;
 
 			delta = 0;
-			hsnap = vsnap = options.snap_radius;
+			hsnap = vsnap = setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS);
 
 			for (tmp = widget_list_head; tmp; tmp = tmp->next)
 			{
-				if (tmp == widget || tmp->disable_snapping)
+				if (tmp == widget || tmp->disable_snapping || !tmp->show || !tmp->visible)
 				{
 					continue;
 				}
@@ -1605,7 +1630,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		move_widget_rec(widget, nx - widget->x1, ny - widget->y1);
 
 		/* Ensure widget is on-screen. */
-		if (!options.allow_widgets_offscreen)
+		if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 		{
 			widget_ensure_onscreen(widget);
 		}
@@ -1771,7 +1796,7 @@ int widget_event_start_move(widgetdata *widget, int x, int y)
 	 * is in the center of the screen if we are in fullscreen mode. */
 	if (ScreenSurface->flags & SDL_FULLSCREEN)
 	{
-		SDL_WarpMouse(Screensize->x / 2, Screensize->y / 2);
+		SDL_WarpMouse(ScreenSurface->w / 2, ScreenSurface->h / 2);
 	}
 #endif
 
@@ -2592,7 +2617,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 }
 
 /** Creates a label with the given text, font and colour, and sets the size of the widget to the correct boundaries. */
-widgetdata *add_label(char *text, _Font *font, int color)
+widgetdata *add_label(char *text, int font, const char *color)
 {
 	widgetdata *widget;
 	_widget_label *label;
@@ -2605,8 +2630,8 @@ widgetdata *add_label(char *text, _Font *font, int color)
 	label->font = font;
 	label->color = color;
 
-	resize_widget(widget, RESIZE_RIGHT, get_string_pixel_length(text, font));
-	resize_widget(widget, RESIZE_BOTTOM, font->c[0].h);
+	resize_widget(widget, RESIZE_RIGHT, string_get_width(font, text, 0));
+	resize_widget(widget, RESIZE_BOTTOM, string_get_height(font, text, 0) + 3);
 
 	return widget;
 }
@@ -2671,7 +2696,7 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 	container_strip_menuitem->inner_padding = 4;
 	container_strip_menuitem->horizontal = 1;
 
-	widget_label = add_label(text, &SystemFont, COLOR_WHITE);
+	widget_label = add_label(text, FONT_ARIAL10, COLOR_WHITE);
 
 	if (menu_type == MENU_CHECKBOX)
 	{

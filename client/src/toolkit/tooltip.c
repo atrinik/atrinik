@@ -60,8 +60,8 @@ void tooltip_show()
 {
 	SDL_Rect box;
 
-	/* User doesn't want tooltips, or there isn't one to show. */
-	if (!options.show_tooltips || tooltip_x == -1 || tooltip_y == -1)
+	/* No tooltip to show. */
+	if (tooltip_x == -1 || tooltip_y == -1)
 	{
 		return;
 	}
@@ -74,13 +74,13 @@ void tooltip_show()
 
 	/* Push the tooltip to the left if it would go beyond maximum screen
 	 * size. */
-	if (box.x + box.w >= Screensize->x)
+	if (box.x + box.w >= ScreenSurface->w)
 	{
-		box.x -= (box.x + box.w + 1) - Screensize->x;
+		box.x -= (box.x + box.w + 1) - ScreenSurface->w;
 	}
 
 	SDL_FillRect(ScreenSurface, &box, -1);
-	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y - 1, COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y - 1, COLOR_BLACK, 0, NULL);
 
 	/* Set stored x/y back to -1, so the next frame the tooltip isn't
 	 * shown again, unless tooltip_create() gets called. */

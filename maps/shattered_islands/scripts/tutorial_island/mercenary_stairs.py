@@ -32,10 +32,10 @@ SetReturnValue(1)
 guild_force = activator.GetGuildForce()
 
 if guild_force.slaying != guild_tag:
-	activator.Write("Only members of the Mercenaries can enter here.", 2)
-	activator.Write("A strong magic guardian force pushes you back.", 3)
+	activator.Write("Only members of the Mercenaries can enter here.", COLOR_NAVY)
+	activator.Write("A strong magic guardian force pushes you back.", COLOR_RED)
 	activator.TeleportTo(maps["island"]["map"], maps["island"]["x"], maps["island"]["y"], 0)
 else:
-	activator.Write("You can enter.", 2)
-	activator.Write("A magic guardian force moves you down the stairs.", 4)
+	activator.Write("You can enter.", COLOR_NAVY)
+	activator.Write("A magic guardian force moves you down the stairs.", COLOR_GREEN)
 	activator.TeleportTo(maps["merc_guild"]["map"], maps["merc_guild"]["x"], maps["merc_guild"]["y"], 0)

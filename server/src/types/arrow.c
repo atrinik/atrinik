@@ -232,7 +232,7 @@ void bow_fire(object *op, int dir)
 
 	if (!dir)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't shoot yourself!");
+		new_draw_info(0, COLOR_WHITE, op, "You can't shoot yourself!");
 		return;
 	}
 
@@ -245,19 +245,19 @@ void bow_fire(object *op, int dir)
 
 	if (!bow->race)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your %s is broken.", bow->name);
+		new_draw_info_format(0, COLOR_WHITE, op, "Your %s is broken.", bow->name);
 		return;
 	}
 
 	if ((arrow = arrow_find(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You have no %s left.", bow->race);
+		new_draw_info_format(0, COLOR_WHITE, op, "You have no %s left.", bow->race);
 		return;
 	}
 
 	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
+		new_draw_info(0, COLOR_WHITE, op, "Something is in the way.");
 		return;
 	}
 

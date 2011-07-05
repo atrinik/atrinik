@@ -107,7 +107,7 @@ void book_load(const char *data, int len)
 	/* Calculate the line numbers. */
 	box.w = BOOK_CONTENT_WIDTH;
 	box.h = BOOK_CONTENT_HEIGHT;
-	string_blt(NULL, FONT_ARIAL11, book_content, 30, 50, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	string_blt(NULL, FONT_ARIAL11, book_content, 30, 50, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	book_lines = box.h;
 	book_scroll_lines = box.y;
 	redraw = 1;
@@ -153,14 +153,14 @@ void book_show()
 		box.w = Bitmaps[BITMAP_BOOK]->bitmap->w - 60;
 		box.h = 0;
 		text_offset_set(x, y);
-		string_blt(surface, FONT_SERIF16, book_name, 30, 30, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		string_blt(surface, FONT_SERIF16, book_name, 30, 30, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
 		box.w = BOOK_CONTENT_WIDTH;
 		box.h = BOOK_CONTENT_HEIGHT;
 		box.y = book_scroll;
 		text_color_set(0, 0, 255);
-		string_blt(surface, FONT_ARIAL11, book_content, 30, 50, COLOR_SIMPLE(COLOR_BLACK), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_blt(surface, FONT_ARIAL11, book_content, 30, 50, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 	}
 
@@ -174,7 +174,7 @@ void book_show()
 	scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box);
 
 	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x, y + 30, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x, y + 30, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		cpl.menustatus = MENU_NO;
 		map_udate_flag = 2;

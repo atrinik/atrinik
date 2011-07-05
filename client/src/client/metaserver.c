@@ -44,6 +44,8 @@ static server_struct *start_server;
 static size_t server_count;
 /** Mutex to protect ::start_server and ::server_count. */
 static SDL_mutex *start_server_mutex;
+/** Is metaserver enabled? */
+static uint8 enabled;
 
 /**
  * Initialize the metaserver data. */
@@ -53,10 +55,19 @@ void metaserver_init()
 	start_server = NULL;
 	server_count = 0;
 	metaserver_connecting = 1;
+	enabled = 1;
 
 	/* Initialize mutexes. */
 	metaserver_connecting_mutex = SDL_CreateMutex();
 	start_server_mutex = SDL_CreateMutex();
+}
+
+/**
+ * Disable the metaserver. */
+void metaserver_disable()
+{
+	enabled = 0;
+	metaserver_connecting = 0;
 }
 
 /**
@@ -243,6 +254,11 @@ int metaserver_thread(void *dummy)
 void metaserver_get_servers()
 {
 	SDL_Thread *thread;
+
+	if (!enabled)
+	{
+		return;
+	}
 
 	SDL_LockMutex(metaserver_connecting_mutex);
 	metaserver_connecting = 1;

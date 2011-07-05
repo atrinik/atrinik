@@ -183,7 +183,7 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 		return;
 	}
 
-	Mix_Volume(channel, (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
+	Mix_Volume(channel, (int) (((double) setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
 
 	/* Re-sort the array as needed. */
 	if (chunk)
@@ -315,7 +315,7 @@ void update_map_bg_music(const char *bg_music)
 			return;
 		}
 
-		sound_start_bg_music(filename, options.music_volume + vol, loop);
+		sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + vol, loop);
 	}
 }
 
@@ -328,14 +328,14 @@ void sound_update_volume()
 		return;
 	}
 
-	Mix_VolumeMusic(options.music_volume);
+	Mix_VolumeMusic(setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC));
 
 	/* If there is any background music, due to a bug in SDL_mixer, we
 	 * may need to pause or unpause the music. */
 	if (sound_background)
 	{
 		/* If the new volume is 0, pause the music. */
-		if (options.music_volume == 0)
+		if (setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) == 0)
 		{
 			if (!Mix_PausedMusic())
 			{
@@ -439,7 +439,7 @@ void SoundCmd(uint8 *data, int len)
 	{
 		if (!sound_map_background_disabled)
 		{
-			sound_start_bg_music(filename, options.music_volume + volume, loop);
+			sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume, loop);
 		}
 	}
 	else if (type == CMD_SOUND_ABSOLUTE)

@@ -41,6 +41,6 @@ def main():
 		player = FindPlayer(member)
 
 		if player:
-			player.Write("[{0}] {1}: {2}".format(guildname, activator.name, message), COLOR_BLUE | NDI_PLAYER)
+			player.Write("[{0}] {1}: {2}".format(guildname, activator.name, message), COLOR_BLUE, NDI_PLAYER)
 
 main()

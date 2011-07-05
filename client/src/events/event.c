@@ -67,15 +67,10 @@ int draggingInvItem(int src)
  * @param height Height to set. */
 void resize_window(int width, int height)
 {
-	lists_handle_resize(height - Screensize->y);
+	setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, width);
+	setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y, height);
 
-	options.resolution_x = width;
-	options.resolution_y = height;
-
-	Screensize->x = width;
-	Screensize->y = height;
-
-	if (!options.allow_widgets_offscreen && width > 100 && height > 100)
+	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS) && width > 100 && height > 100)
 	{
 		widgets_ensure_onscreen();
 	}
@@ -89,7 +84,6 @@ int Event_PollInputDevice()
 	SDL_Event event;
 	int x, y, done = 0;
 	static Uint32 Ticks = 0;
-	Uint32 videoflags = get_video_flags();
 	int tx, ty;
 
 	/* Execute mouse actions, even if mouse button is being held. */
@@ -142,21 +136,19 @@ int Event_PollInputDevice()
 		{
 			/* Screen has been resized, update screen size. */
 			case SDL_VIDEORESIZE:
-				ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags);
+				ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
 
 				if (!ScreenSurface)
 				{
 					LOG(llevError, "Unable to grab surface after resize event: %s\n", SDL_GetError());
 				}
 
+				/* Set resolution to custom. */
+				setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
 				resize_window(event.resize.w, event.resize.h);
-				/* Custom resolution */
-				options.resolution = 0;
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				mb_clicked = 0;
-
 				if (lists_handle_mouse(x, y, &event))
 				{
 					break;
@@ -208,8 +200,6 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEMOTION:
 			{
-				mb_clicked = 0;
-
 				if (lists_handle_mouse(x, y, &event))
 				{
 					break;
@@ -241,8 +231,6 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				mb_clicked = 1;
-
 				if (lists_handle_mouse(x, y, &event))
 				{
 					break;

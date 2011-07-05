@@ -105,7 +105,6 @@ void system_end()
 	list_remove_all();
 	script_killall();
 	save_interface_file();
-	save_options_dat();
 	kill_widgets();
 	curl_deinit();
 	socket_deinitialize();
@@ -114,6 +113,7 @@ void system_end()
 	text_deinit();
 	free_help_files();
 	effects_deinit();
+	settings_deinit();
 	SDL_Quit();
 }
 

@@ -327,7 +327,7 @@ void print_tod(object *op)
 	int day;
 
 	get_tod(&tod);
-	new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s, on %s", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
+	new_draw_info_format(0, COLOR_WHITE, op, "It is %d minute%s past %d o'clock %s, on %s", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
 
 	day = tod.day + 1;
 
@@ -348,8 +348,8 @@ void print_tod(object *op)
 		suf = "th";
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
-	new_draw_info_format(NDI_UNIQUE, op, "Time of Year: %s", season_name[tod.season]);
+	new_draw_info_format(0, COLOR_WHITE, op, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
+	new_draw_info_format(0, COLOR_WHITE, op, "Time of Year: %s", season_name[tod.season]);
 }
 
 /**
@@ -366,10 +366,10 @@ void time_info(object *op)
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "Total time:\nticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
-	new_draw_info_format(NDI_UNIQUE, op, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
-	new_draw_info_format(NDI_UNIQUE, op, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
-	new_draw_info_format(NDI_UNIQUE, op, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
+	new_draw_info_format(0, COLOR_WHITE, op, "Total time:\nticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
+	new_draw_info_format(0, COLOR_WHITE, op, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
+	new_draw_info_format(0, COLOR_WHITE, op, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
+	new_draw_info_format(0, COLOR_WHITE, op, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
 
 	for (i = 0; i < (pticks > PBUFLEN ? PBUFLEN : pticks); i++)
 	{
@@ -391,8 +391,8 @@ void time_info(object *op)
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
-	new_draw_info_format(NDI_UNIQUE, op, "ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
+	new_draw_info_format(0, COLOR_WHITE, op, "avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
+	new_draw_info_format(0, COLOR_WHITE, op, "ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
 }
 
 /**

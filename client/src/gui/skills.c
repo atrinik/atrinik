@@ -58,14 +58,14 @@ static void list_handle_enter(list_struct *list)
 
 /**
  * Handle list::text_color_hook in the skills list. */
-static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color, uint32 row, uint32 col)
+static const char *list_text_color_hook(list_struct *list, const char *default_color, uint32 row, uint32 col)
 {
 	size_t id;
 
 	/* If the skill is not known, use gray instead of the default color. */
 	if (skill_find_type_selected(list->text[row][col], &id) && !skill_list[skill_list_type][id]->known)
 	{
-		return COLOR_SIMPLE(COLOR_GREY);
+		return COLOR_GRAY;
 	}
 
 	return default_color;
@@ -162,7 +162,7 @@ void widget_skills_render(widgetdata *widget)
 	{
 		skill_list_filter_known = 0;
 
-		list = list_create(LIST_SKILLS, 10, 2, 12, 1, 8);
+		list = list_create(LIST_SKILLS, 12, 1, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->text_color_hook = list_text_color_hook;
 		list->surface = widget->widgetSF;
@@ -196,19 +196,20 @@ void widget_skills_render(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Skills", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		list->focus = 1;
-		list_show(list);
+		list_set_parent(list, widget->x1, widget->y1);
+		list_show(list, 10, 2);
 
 		box.w = 160;
-		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->skill_types[skill_list_type], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->skill_types[skill_list_type], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		/* Show the skill's description. */
 		if (list->text && skill_find_type_selected(list->text[list->row_selected - 1][0], &skill_id))
 		{
 			box.h = 120;
 			box.w = 150;
-			string_blt(widget->widgetSF, FONT_ARIAL10, skill_list[skill_list_type][skill_id]->desc, 160, 40, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+			string_blt(widget->widgetSF, FONT_ARIAL10, skill_list[skill_list_type][skill_id]->desc, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 		}
 
 		/* Show the skill's icon, if it's known. */
@@ -237,8 +238,8 @@ void widget_skills_render(widgetdata *widget)
 				exp_buf[sizeof(exp_buf) - 1] = '\0';
 			}
 
-			string_blt(widget->widgetSF, FONT_ARIAL10, level_buf, 160, widget->ht - 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP, NULL);
-			string_blt(widget->widgetSF, FONT_ARIAL10, exp_buf, 160, widget->ht - 18, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP, NULL);
+			string_blt(widget->widgetSF, FONT_ARIAL10, level_buf, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL);
+			string_blt(widget->widgetSF, FONT_ARIAL10, exp_buf, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL);
 
 			draw_frame(widget->widgetSF, widget->wd - 6 - icon->bitmap->w, widget->ht - 6 - icon->bitmap->h, icon->bitmap->w + 1, icon->bitmap->h + 1);
 			sprite_blt(icon, widget->wd - 5 - icon->bitmap->w, widget->ht - 5 - icon->bitmap->h, NULL, &bltfx);

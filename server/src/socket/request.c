@@ -348,7 +348,7 @@ void PlayerCmd(char *buf, int len, player *pl)
 	 * them an idea of the problem, but they deserve what they get. */
 	if (pl->state != ST_PLAYING)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
+		new_draw_info_format(0, COLOR_WHITE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
 		return;
 	}
 
@@ -399,7 +399,7 @@ void ReplyCmd(char *buf, int len, player *pl)
  * @param ns The socket to send the message to */
 static void version_mismatch_msg(socket_struct *ns)
 {
-	send_socket_message(NDI_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
+	send_socket_message(COLOR_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
 }
 
 /**
@@ -546,7 +546,7 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 
 	if (ns->socket_version > SOCKET_VERSION)
 	{
-		send_socket_message(NDI_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
+		send_socket_message(COLOR_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
 		ns->status = Ns_Zombie;
 		return;
 	}
@@ -1205,26 +1205,25 @@ void draw_client_map(object *pl)
 }
 
 /**
- * Figure out player name color for the client to show.
+ * Figure out player name color for the client to show, in HTML notation.
  *
- * As you can see in this function, it is easy to add
- * new player name colors, just check for the match
- * and make it return the correct color.
- * @param pl Player object that will get the map drawn
- * @param op Player object on the map, to get the name from
- * @return NDI_WHITE if no custom color, otherwise other NDI color */
-static int get_playername_color(object *pl, object *op)
+ * As you can see in this function, it is easy to add new player name
+ * colors, just check for the match and make it return the correct color.
+ * @param pl Player object that will get the map data sent to.
+ * @param op Player object on the map, to get the name from.
+ * @return The color. */
+static const char *get_playername_color(object *pl, object *op)
 {
 	if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL && CONTR(pl)->party == CONTR(op)->party)
 	{
-		return NDI_GREEN;
+		return COLOR_GREEN;
 	}
 	else if (pl != op && pvp_area(pl, op))
 	{
-		return NDI_RED;
+		return COLOR_RED;
 	}
 
-	return NDI_WHITE;
+	return COLOR_WHITE;
 }
 
 /** Darkness table */
@@ -1752,7 +1751,14 @@ void draw_client_map2(object *pl)
 					if (flags & MAP2_FLAG_NAME)
 					{
 						SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
-						SockList_AddChar(&sl_layer, (char) get_playername_color(pl, tmp));
+						if (CONTR(pl)->socket.socket_version >= 1055)
+						{
+						SockList_AddString(&sl_layer, (char *) get_playername_color(pl, tmp));
+						}
+						else
+						{
+						SockList_AddChar(&sl_layer, (char) color_notation_to_flag(get_playername_color(pl, tmp)));
+						}
 					}
 
 					/* Target's HP bar. */
@@ -2124,7 +2130,7 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 				/* Inform the client about the change. */
 				cmd_ready_send(pl, -1, type);
 
-				new_draw_info_format(NDI_UNIQUE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
+				new_draw_info_format(0, COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
 			}
 			/* Otherwise ready it. */
 			else
@@ -2139,11 +2145,11 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 
 				if (type == READY_OBJ_ARROW)
 				{
-					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
+					new_draw_info_format(0, COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
 				}
 				else if (type == READY_OBJ_THROW)
 				{
-					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
+					new_draw_info_format(0, COLOR_WHITE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
 				}
 			}
 

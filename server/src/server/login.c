@@ -49,7 +49,7 @@ void emergency_save(int flag)
 		}
 
 		LOG(llevSystem, "%s ", pl->ob->name);
-		new_draw_info(NDI_UNIQUE, pl->ob, "Emergency save...");
+		new_draw_info(0, COLOR_WHITE, pl->ob, "Emergency save...");
 
 		/* If we are not exiting the game (ie, this is sort of a backup
 		 * save), then don't change the location back to the village.
@@ -73,7 +73,7 @@ void emergency_save(int flag)
 		if (!save_player(pl->ob, flag))
 		{
 			LOG(llevSystem, "(failed) ");
-			new_draw_info(NDI_UNIQUE, pl->ob, "Emergency save failed, checking score...");
+			new_draw_info(0, COLOR_WHITE, pl->ob, "Emergency save failed, checking score...");
 		}
 
 		hiscore_check(pl->ob, 1);
@@ -99,7 +99,7 @@ int check_name(player *pl, char *name)
 
 	if (name[0] == '\0')
 	{
-		send_socket_message(NDI_RED, &pl->socket, "You must provide a name to log in.");
+		send_socket_message(COLOR_RED, &pl->socket, "You must provide a name to log in.");
 		return 0;
 	}
 
@@ -107,13 +107,13 @@ int check_name(player *pl, char *name)
 
 	if (name_len < PLAYER_NAME_MIN || name_len > PLAYER_NAME_MAX)
 	{
-		send_socket_message(NDI_RED, &pl->socket, "That name has an invalid length.");
+		send_socket_message(COLOR_RED, &pl->socket, "That name has an invalid length.");
 		return 0;
 	}
 
 	if (!playername_ok(name))
 	{
-		send_socket_message(NDI_RED, &pl->socket, "That name contains illegal characters.");
+		send_socket_message(COLOR_RED, &pl->socket, "That name contains illegal characters.");
 		return 0;
 	}
 
@@ -162,7 +162,7 @@ int save_player(object *op, int flag)
 
 	if (!fp)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can't open file for saving.");
+		new_draw_info(0, COLOR_WHITE, op, "Can't open file for saving.");
 		LOG(llevDebug, "Can't open file for saving (%s).\n", filename);
 		rename(backupfile, filename);
 		return 0;
@@ -263,7 +263,7 @@ int save_player(object *op, int flag)
 	/* Make sure the write succeeded */
 	if (fclose(fp) == EOF)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can't save character.");
+		new_draw_info(0, COLOR_WHITE, op, "Can't save character.");
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 		rename(backupfile, filename);
 		return 0;
@@ -337,7 +337,7 @@ static void wrong_password(player *pl)
 	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
 	{
 		LOG(llevSystem, "%s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
-		send_socket_message(NDI_RED, &pl->socket, "You have failed to provide a correct password too many times.");
+		send_socket_message(COLOR_RED, &pl->socket, "You have failed to provide a correct password too many times.");
 		pl->socket.status = Ns_Zombie;
 	}
 	else
@@ -387,7 +387,7 @@ void check_login(object *op)
 	if (pl->state == ST_PLAYING)
 	{
 		LOG(llevSystem, ">%s< from IP %s - double login!\n", op->name, pl->socket.host);
-		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
+		send_socket_message(COLOR_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
@@ -395,7 +395,7 @@ void check_login(object *op)
 	if (checkbanned(op->name, pl->socket.host))
 	{
 		LOG(llevSystem, "Ban: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
-		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou are banned!");
+		send_socket_message(COLOR_RED, &pl->socket, "Connection refused.\nYou are banned!");
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
@@ -714,7 +714,7 @@ void check_login(object *op)
 
 	if (!pl->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
+		new_draw_info_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
 	}
 
 	/* Trigger the global LOGIN event */

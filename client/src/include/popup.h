@@ -55,6 +55,12 @@ typedef struct popup_struct
 	/** Optional integers. */
 	sint64 i[3];
 
+	/** X position of the popup. */
+	int x;
+
+	/** Y position of the popup. */
+	int y;
+
 	/**
 	 * Function used for drawing on the popup's surface.
 	 * @param popup The popup. */
@@ -63,10 +69,8 @@ typedef struct popup_struct
 	/**
 	 * Function used for drawing after blitting the popup's surface on
 	 * the main surface.
-	 * @param popup The popup.
-	 * @param x X position of the popup.
-	 * @param y Y position of the popup. */
-	void (*draw_func_post)(struct popup_struct *popup, int x, int y);
+	 * @param popup The popup.. */
+	void (*draw_func_post)(struct popup_struct *popup);
 
 	/**
 	 * Function used for handling mouse/key events when popup is visible.

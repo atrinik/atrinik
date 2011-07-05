@@ -23,74 +23,126 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Dialog header file. */
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
-#ifndef DIALOG_H
-#define DIALOG_H
-
-/** Option window max tabs */
-#define OPTWIN_MAX_TAB 20
-
-/** Option windows max options */
-#define OPTWIN_MAX_OPT 26
-
-/** Maximum length in pixels for a single server description line. */
-#define MAX_MS_DESC_LINE 298
-
-/** Option structure. */
-typedef struct _option
+enum
 {
-	/** Option name. */
+	OPT_CAT_GENERAL,
+	OPT_CAT_CLIENT,
+	OPT_CAT_MAP,
+	OPT_CAT_SOUND,
+	OPT_CAT_DEVEL
+};
+
+enum
+{
+	OPT_PLAYERDOLL,
+	OPT_TARGET_SELF,
+	OPT_COLLECT_MODE,
+	OPT_EXP_DISPLAY,
+	OPT_CHAT_TIMESTAMPS,
+	OPT_MAX_CHAT_LINES,
+	OPT_SNAP_RADIUS
+};
+
+enum
+{
+	OPT_RESOLUTION,
+	OPT_FULLSCREEN,
+	OPT_MAP_ZOOM_SMOOTH,
+	OPT_KEY_REPEAT_SPEED,
+	OPT_SLEEP_TIME,
+	OPT_DISABLE_FILE_UPDATES,
+	OPT_MINIMIZE_LATENCY,
+	OPT_OFFSCREEN_WIDGETS,
+
+	OPT_RESOLUTION_X,
+	OPT_RESOLUTION_Y
+};
+
+enum
+{
+	OPT_PLAYER_NAMES,
+	OPT_MAP_ZOOM,
+	OPT_HEALTH_WARNING,
+	OPT_FOOD_WARNING,
+	OPT_MAP_WIDTH,
+	OPT_MAP_HEIGHT
+};
+
+enum
+{
+	OPT_VOLUME_MUSIC,
+	OPT_VOLUME_SOUND
+};
+
+enum
+{
+	OPT_SHOW_FPS,
+	OPT_RELOAD_GFX,
+	OPT_DISABLE_RM_CACHE,
+	OPT_QUICKPORT
+};
+
+enum
+{
+	OPT_TYPE_BOOL,
+	OPT_TYPE_INPUT_NUM,
+	OPT_TYPE_INPUT_TEXT,
+	OPT_TYPE_RANGE,
+	OPT_TYPE_SELECT,
+	OPT_TYPE_INT,
+
+	OPT_TYPE_NUM
+};
+
+typedef struct setting_range
+{
+	sint64 min;
+
+	sint64 max;
+
+	sint64 advance;
+} setting_range;
+
+typedef struct setting_select
+{
+	char **options;
+
+	size_t options_len;
+} setting_select;
+
+typedef struct setting_struct
+{
 	char *name;
 
-	/** Info text. */
-	char *info;
+	char *desc;
 
-	/** Text replacement for number values. */
-	char *val_text;
+	uint8 type;
 
-	/** Select type. */
-	int sel_type;
+	uint8 internal;
 
-	/** Ranges. */
-	int minRange, maxRange, deltaRange;
+	void *custom_attrset;
 
-	/** Default value. */
-	int default_val;
+	union
+	{
+		char *str;
 
-	/** Value. */
-	void *value;
+		sint64 i;
+	} val;
+} setting_struct;
 
-	/** Value type. */
-	int value_type;
-} _option;
-
-extern _option opt[];
-
-/** Value types for _option::value_type. */
-extern enum
+typedef struct setting_category
 {
-	/** True/false. */
-	VAL_BOOL,
-	/**
-	 * Text.
-	 * @todo Implement. */
-	VAL_TEXT,
-	/** Uint8. */
-	VAL_CHAR,
-	/** Integer. */
-	VAL_INT,
-	/** Uint32. */
-	VAL_U32
-} value_type;
+	char *name;
 
-#define TXT_START_NAME  136
-#define TXT_Y_START      82
+	setting_struct **settings;
 
-extern int active_button;
+	size_t settings_num;
+} setting_category;
 
-extern const char *opt_tab[];
+#define SETTING_SELECT(_setting) ((setting_select *) (_setting)->custom_attrset)
+#define SETTING_RANGE(_setting) ((setting_range *) (_setting)->custom_attrset)
 
 #endif

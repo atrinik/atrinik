@@ -123,24 +123,6 @@ void upgrade_do(const char *source_dir)
 		copy_rec(source_dir, files_copy[i], dest_dir);
 	}
 
-	load_options_dat();
-
-	/* Change resolution X/Y if needed. */
-	if (options.resolution_x < WINDOW_DEFAULT_WIDTH)
-	{
-		options.resolution_x = WINDOW_DEFAULT_WIDTH;
-	}
-
-	if (options.resolution_y < WINDOW_DEFAULT_HEIGHT)
-	{
-		options.resolution_y = WINDOW_DEFAULT_HEIGHT;
-	}
-
-	options.chat_font_size = 1;
-	options.textwin_alpha = 255;
-
-	save_options_dat();
-
 	read_keybind_file(KEYBIND_FILE);
 
 	bindkey_list[0].entry[9].key = 91;

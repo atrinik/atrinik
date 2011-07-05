@@ -322,16 +322,12 @@ void show_menu()
 	if (!cpl.menustatus)
 		return;
 
-	if (cpl.menustatus == MENU_KEYBIND)
-		show_keybind();
-	else if (cpl.menustatus == MENU_BOOK)
+	if (cpl.menustatus == MENU_BOOK)
 		book_show();
 	else if (cpl.menustatus == MENU_REGION_MAP)
 	{
 		region_map_show();
 	}
-	else if (cpl.menustatus == MENU_OPTION)
-		show_optwin();
 }
 
 /**

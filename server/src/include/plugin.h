@@ -198,8 +198,8 @@ struct plugin_hooklist
 	void (*remove_ob)(object *);
 	void (*fix_player)(object *);
 	object *(*insert_ob_in_ob)(object *, object *);
-	void (*new_info_map)(int, mapstruct *, int, int, int, const char *);
-	void (*new_info_map_except)(int , mapstruct *, int, int, int, object *, object *, const char *);
+	void (*new_info_map)(int, const char *color, mapstruct *, int, int, int, const char *);
+	void (*new_info_map_except)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);
 	void (*spring_trap)(object *, object *);
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
@@ -230,7 +230,7 @@ struct plugin_hooklist
 	sint64 (*query_money)(object *);
 	int (*pay_for_item)(object *, object *);
 	int (*pay_for_amount)(sint64, object *);
-	void (*new_draw_info)(int, object *, const char *);
+	void (*new_draw_info)(int, const char *, object *, const char *);
 	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
 	object *(*get_object)();
@@ -274,7 +274,7 @@ struct plugin_hooklist
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
 	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
-	void (*new_draw_info_format)(int, object *, char *, ...);
+	void (*new_draw_info_format)(int, const char *, object *, char *, ...);
 	int (*was_destroyed)(object *, tag_t);
 	int (*object_get_gender)(object *);
 	int (*change_abil)(object *, object *);

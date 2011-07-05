@@ -44,19 +44,19 @@ void apply_skillscroll(object *op, object *tmp)
 	switch (learn_skill(op, tmp, NULL, 0, 1))
 	{
 		case 0:
-			new_draw_info(NDI_UNIQUE, op, "You already possess the knowledge ");
-			new_draw_info_format(NDI_UNIQUE, op, "held within the %s.\n", query_name(tmp, NULL));
+			new_draw_info(0, COLOR_WHITE, op, "You already possess the knowledge ");
+			new_draw_info_format(0, COLOR_WHITE, op, "held within the %s.\n", query_name(tmp, NULL));
 			return;
 
 		case 1:
-			new_draw_info_format(NDI_UNIQUE, op, "You succeed in learning %s", skills[tmp->stats.sp].name);
+			new_draw_info_format(0, COLOR_WHITE, op, "You succeed in learning %s", skills[tmp->stats.sp].name);
 			/* to immediately link new skill to exp object */
 			fix_player(op);
 			decrease_ob(tmp);
 			return;
 
 		default:
-			new_draw_info_format(NDI_UNIQUE, op, "You fail to learn the knowledge of the %s.\n", query_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You fail to learn the knowledge of the %s.\n", query_name(tmp, NULL));
 			decrease_ob(tmp);
 			return;
 	}

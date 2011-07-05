@@ -98,7 +98,7 @@ int command_run(object *op, char *params)
 
 	if (dir <= 0 || dir > 9)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can't run into a non-adjacent square.");
+		new_draw_info(0, COLOR_WHITE, op, "Can't run into a non-adjacent square.");
 		return 0;
 	}
 
@@ -130,6 +130,106 @@ int command_run_stop(object *op, char *params)
  * @param pl Player requesting this. */
 void send_target_command(player *pl)
 {
+	if (pl->socket.socket_version >= 1055)
+	{
+	SockList sl;
+	unsigned char sockbuf[HUGE_BUF];
+
+	if (!pl->ob->map)
+	{
+		return;
+	}
+
+	sl.buf = sockbuf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_TARGET);
+	SockList_AddChar(&sl, pl->combat_mode);
+
+	pl->ob->enemy = NULL;
+	pl->ob->enemy_count = 0;
+
+	if (!pl->target_object || pl->target_object == pl->ob || !OBJECT_VALID(pl->target_object, pl->target_object_count) || IS_INVISIBLE(pl->target_object, pl->ob))
+	{
+		SockList_AddChar(&sl, CMD_TARGET_SELF);
+		SockList_AddString(&sl, COLOR_YELLOW);
+		SockList_AddString(&sl, (char *) pl->ob->name);
+
+		pl->target_object = pl->ob;
+		pl->target_object_count = 0;
+		pl->target_map_pos = 0;
+	}
+	else
+	{
+		const char *color;
+
+		if (is_friend_of(pl->ob, pl->target_object))
+		{
+			SockList_AddChar(&sl, CMD_TARGET_FRIEND);
+		}
+		else
+		{
+			SockList_AddChar(&sl, CMD_TARGET_ENEMY);
+
+			pl->ob->enemy = pl->target_object;
+			pl->ob->enemy_count = pl->target_object_count;
+		}
+
+		if (pl->target_object->level < level_color[pl->ob->level].yellow)
+		{
+			if (pl->target_object->level < level_color[pl->ob->level].green)
+			{
+				color = COLOR_GRAY;
+			}
+			else
+			{
+				if (pl->target_object->level < level_color[pl->ob->level].blue)
+				{
+					color = COLOR_GREEN;
+				}
+				else
+				{
+					color = COLOR_BLUE;
+				}
+			}
+		}
+		else
+		{
+			if (pl->target_object->level >= level_color[pl->ob->level].purple)
+			{
+				color = COLOR_PURPLE;
+			}
+			else if (pl->target_object->level >= level_color[pl->ob->level].red)
+			{
+				color = COLOR_RED;
+			}
+			else if (pl->target_object->level >= level_color[pl->ob->level].orange)
+			{
+				color = COLOR_ORANGE;
+			}
+			else
+			{
+				color = COLOR_YELLOW;
+			}
+		}
+
+		SockList_AddString(&sl, (char *) color);
+
+		if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+		{
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "%s (lvl %d)", pl->target_object->name, pl->target_object->level);
+			SockList_AddString(&sl, buf);
+		}
+		else
+		{
+			SockList_AddString(&sl, (char *) pl->target_object->name);
+		}
+	}
+
+	Send_With_Handling(&pl->socket, &sl);
+	}
+	else
+	{
 	int aim_self_flag = 0;
 	char tmp[256];
 
@@ -215,40 +315,39 @@ void send_target_command(player *pl)
 		/* if < the green border value, the mob is gray */
 		if (pl->target_object->level < level_color[pl->ob->level].green)
 		{
-			tmp[2] = NDI_GREY;
+			tmp[2] = 6;
 		}
 		/* calc green or blue */
 		else
 		{
 			if (pl->target_object->level < level_color[pl->ob->level].blue)
 			{
-				tmp[2] = NDI_GREEN;
+				tmp[2] = 4;
 			}
 			else
 			{
-				tmp[2] = NDI_BLUE;
+				tmp[2] = 5;
 			}
 		}
-
 	}
 	/* target is higher or as yellow min. range */
 	else
 	{
 		if (pl->target_object->level >= level_color[pl->ob->level].purple)
 		{
-			tmp[2] = NDI_PURPLE;
+			tmp[2] = 8;
 		}
 		else if (pl->target_object->level >= level_color[pl->ob->level].red)
 		{
-			tmp[2] = NDI_RED;
+			tmp[2] = 3;
 		}
 		else if (pl->target_object->level >= level_color[pl->ob->level].orange)
 		{
-			tmp[2] = NDI_ORANGE;
+			tmp[2] = 1;
 		}
 		else
 		{
-			tmp[2] = NDI_YELLOW;
+			tmp[2] = 10;
 		}
 	}
 
@@ -262,6 +361,7 @@ void send_target_command(player *pl)
 	}
 
 	Write_String_To_Socket(&pl->socket, BINARY_CMD_TARGET, tmp, strlen(tmp + 4) + 4);
+	}
 }
 
 /**
@@ -861,7 +961,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, op, "%s entered the game.", op->name);
+		new_draw_info_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
 	}
 
 	CLEAR_FLAG(op, FLAG_WIZ);

@@ -25,418 +25,597 @@
 
 /**
  * @file
- *  */
+ * Settings GUI. */
 
 #include <include.h>
 
-/** Option list set */
-struct _dialog_list_set option_list_set;
-
-/** Option tabs. */
-const char *opt_tab[] =
+static const char *const opt_types[OPT_TYPE_NUM] =
 {
-	"General",
-	"Client",
-	"Map",
-	"Sound",
-	"Fullscreen flags",
-	"Windowed flags",
-	"Debug",
-	NULL
+	"bool", "input_num", "input_text", "range", "select", "int"
 };
 
-/** Selection types */
-enum
+static setting_category **setting_categories;
+static size_t setting_categories_num;
+static uint8 setting_update_mapsize = 0;
+
+#define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
+#define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
+
+void *setting_get(setting_struct *setting)
 {
-	SEL_BUTTON,
-	SEL_CHECKBOX,
-	SEL_RANGE,
-	SEL_TEXT
-};
-// get drop both
-/** The actual options. */
-_option opt[] =
-{
-	/* General */
-	{"Playerdoll:", "Whether to always show the playerdoll.\nIf unchecked, the playerdoll is only shown while the inventory is open.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.playerdoll, VAL_BOOL},
-	{"Show yourself targeted:", "Show your name in the target area instead of blank.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_target_self, VAL_BOOL},
-	{"Show Tooltips:", "Show tooltips when hovering with the mouse over items.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_tooltips, VAL_BOOL},
-	{"Collect mode:", "If enabled, will get/drop all items in the stack instead of asking\nhow many to get/drop.", "None#Get#Drop#Both", SEL_RANGE, 0, 3, 1, 0, &options.collect_mode, VAL_INT},
-	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;\n~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
-	{"Chat Timestamps:", "Show a timestamp before each chat message.", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
-	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "10px#11px#12px#13px#14px#15px#16px", SEL_RANGE, 0, 6, 1, 1, &options.chat_font_size, VAL_INT},
-	{"Maximum chat lines:", "Maximum number of lines in the chat boxes.", "", SEL_RANGE, 20, 1000, 10, 200, &options.chat_max_lines, VAL_INT},
-	{"Snap radius:", "Widget snap radius in pixels. Use 0 to disable.", "", SEL_RANGE, 0, 100, 1, 5, &options.snap_radius, VAL_INT},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Client */
-	{"Fullscreen:", "Toggle fullscreen to windowed mode.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
-	{"Resolution:", "The resolution of the screen/window.\nIf you change to lower resolutions your GUI-windows may be hidden.", "Custom#800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
-	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
-	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.\nNOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
-	{"Textwindows alpha value:", "Transparent value of text windows. Higher = darker", "", SEL_RANGE, 0, 255, 5, 255, &options.textwin_alpha, VAL_INT},
-	{"Use intelligent fps cap:", "Enables intelligent fps capping.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.intelligent_fps_cap, VAL_BOOL},
-	{"Save CPU time with sleep():", "Client eats less CPU time when set.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
-	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 25, &options.sleep, VAL_INT},
-	{"Key repeat speed:", "How fast to repeat a held down key.", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
-	{"Disable file updates:", "If on, will not update sound effects/background music/etc on server\nconnect. This may be useful for users with low bandwidth.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_updates, VAL_BOOL},
-	{"Minimize latency:", "Disables Nagle's Algorithm in order to minimize latency, at the expense\nof more outgoing bandwidth.\nRequires server re-connection.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.tcp_nodelay, VAL_BOOL},
-	{"Allow off-screen widgets:", "Allows moving (parts of) widgets off-screen.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.allow_widgets_offscreen, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Map */
-	{"Player Names:", "Show names of players above their heads.", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
-	{"Playfield zoom:", "The zoom percentage of the playfield.", "", SEL_RANGE, 50, 200, 5, 100, &options.zoom, VAL_INT},
-	{"Smooth zoom:", "Whether to use smooth zoom on the playfield.\nWarning: Very CPU intensive.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.zoom_smooth, VAL_BOOL},
-	{"Low health warning:", "Shows a low health warning above your head.\nActivated if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
-	{"Low food warning:", "Shows a low food warning above your head.\nActivated if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
-	{"Map X size:", "The X size of the map. If you have very low bandwidth, you may\nwant to consider lowering this somewhat.", "", SEL_RANGE, 9, MAP_MAX_SIZE, 1, MAP_MAX_SIZE, &options.map_size_x, VAL_INT},
-	{"Map Y size:", "The Y size of the map. If you have very low bandwidth, you may\nwant to consider lowering this somewhat.", "", SEL_RANGE, 9, MAP_MAX_SIZE, 1, MAP_MAX_SIZE, &options.map_size_y, VAL_INT},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Sound */
-	{"Sound volume:", "Set sound volume for effects.", "", SEL_RANGE, 0, 100, 5, 100, &options.sound_volume, VAL_INT},
-	{"Music volume:", "Set music volume for background.", "", SEL_RANGE, 0, 100, 5, 80, &options.music_volume, VAL_INT},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Fullscreen Flags */
-	{"Hardware Surface:", "Don't change unless you know what you're doing\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_HWSURFACE, VAL_BOOL},
-	{"Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_SWSURFACE, VAL_BOOL},
-	{"Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWACCEL, VAL_BOOL},
-	{"Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_DOUBLEBUF, VAL_BOOL},
-	{"Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_ANYFORMAT, VAL_BOOL},
-	{"Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ASYNCBLIT, VAL_BOOL},
-	{"Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWPALETTE, VAL_BOOL},
-	{"Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_RESIZABLE, VAL_BOOL},
-	{"No frame:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_NOFRAME, VAL_BOOL},
-	{"RLE accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_RLEACCEL, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Windowed flags */
-	{"Window Hardware Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWSURFACE, VAL_BOOL},
-	{"Window Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_SWSURFACE, VAL_BOOL},
-	{"Window Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWACCEL, VAL_BOOL},
-	{"Window Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_DOUBLEBUF, VAL_BOOL},
-	{"Window Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_ANYFORMAT, VAL_BOOL},
-	{"Window Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_ASYNCBLIT, VAL_BOOL},
-	{"Window Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_HWPALETTE, VAL_BOOL},
-	{"Window Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RESIZABLE, VAL_BOOL},
-	{"Window No frame:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_NOFRAME, VAL_BOOL},
-	{"Window RLE accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RLEACCEL, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Debug */
-	{"Show Framerate:", "Show the framerate.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_frame, VAL_BOOL},
-	{"Force Redraw:", "Forces the system to redraw EVERY frame.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.force_redraw, VAL_BOOL},
-	{"Use Update Rect:", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
-	{"Reload user's graphics", "If on, always try to reload faces from user's graphics (gfx_user)\ndirectory, even if they have been reloaded previously.\nThis is especially useful when creating new images and testing out how\nthey look in the game.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.reload_gfx_user, VAL_BOOL},
-	{"Disable region map cache:", "Disables the region maps cache.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_rm_cache, VAL_BOOL},
-	{"Enable quickport:", "Enables using middle-click on the region map for instant teleportation.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fastport, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	{0, "", "", 0, 0, 0, 0, 0, 0, 0},
-};
-
-/**
- * Parse a given value to a string.
- * @param value Value to parse.
- * @param type @ref value_type "Type" of the value.
- * @return Static character array representing the given value. */
-static char *get_value(void *value, int type)
-{
-	static char txt_value[20];
-
-	switch (type)
+	switch (setting->type)
 	{
-		case VAL_INT:
-			snprintf(txt_value, sizeof(txt_value), "%d", *((int *) value));
-			return txt_value;
+		case OPT_TYPE_BOOL:
+		case OPT_TYPE_INPUT_NUM:
+		case OPT_TYPE_RANGE:
+		case OPT_TYPE_INT:
+		case OPT_TYPE_SELECT:
+			return &setting->val.i;
 
-		case VAL_U32:
-			snprintf(txt_value, sizeof(txt_value), "%d", *((uint32 *) value));
-			return txt_value;
+		case OPT_TYPE_INPUT_TEXT:
+			return setting->val.str;
+	}
 
-		case VAL_CHAR:
-			snprintf(txt_value, sizeof(txt_value), "%d", *((uint8 *) value));
-			return txt_value;
+	return NULL;
+}
 
-		default:
-			return NULL;
+const char *setting_get_str(int cat, int setting)
+{
+	return (const char *) setting_get(setting_categories[cat]->settings[setting]);
+}
+
+sint64 setting_get_int(int cat, int setting)
+{
+	return *(sint64 *) setting_get(setting_categories[cat]->settings[setting]);
+}
+
+static int setting_apply(int cat, int setting)
+{
+	switch (cat)
+	{
+		case OPT_CAT_GENERAL:
+			switch (setting)
+			{
+				case OPT_PLAYERDOLL:
+					cur_widget[PDOLL_ID]->show = setting_get_int(cat, setting);
+					return 1;
+			}
+
+			break;
+
+		case OPT_CAT_DEVEL:
+			switch (setting)
+			{
+				case OPT_SHOW_FPS:
+					cur_widget[FPS_ID]->show = setting_get_int(cat, setting);
+					return 1;
+			}
+	}
+
+	return 0;
+}
+
+void setting_apply_change(int cat, int setting)
+{
+	if (setting_apply(cat, setting))
+	{
+		return;
+	}
+
+	switch (cat)
+	{
+		case OPT_CAT_GENERAL:
+			switch (setting)
+			{
+				case OPT_EXP_DISPLAY:
+					WIDGET_REDRAW_ALL(SKILL_EXP_ID);
+					break;
+			}
+
+			break;
+
+		case OPT_CAT_CLIENT:
+			switch (setting)
+			{
+				case OPT_RESOLUTION:
+				{
+					int w, h;
+
+					if (sscanf(SETTING_SELECT(setting_categories[cat]->settings[setting])->options[setting_get_int(cat, setting)], "%dx%d", &w, &h) == 2 && (ScreenSurface->w != w || ScreenSurface->h != h))
+					{
+						resize_window(w, h);
+						video_set_size();
+					}
+
+					break;
+				}
+
+				case OPT_FULLSCREEN:
+					if ((setting_get_int(cat, setting) && !(ScreenSurface->flags & SDL_FULLSCREEN)) || (!setting_get_int(cat, setting) && ScreenSurface->flags & SDL_FULLSCREEN))
+					{
+						video_fullscreen_toggle(&ScreenSurface, NULL);
+					}
+
+					break;
+			}
+
+			break;
+
+		case OPT_CAT_MAP:
+			switch (setting)
+			{
+				case OPT_MAP_WIDTH:
+				case OPT_MAP_HEIGHT:
+					if (setting_update_mapsize)
+					{
+						char buf[MAX_BUF];
+
+						snprintf(buf, sizeof(buf), "setup mapsize %"FMT64"x%"FMT64, setting_get_int(cat, OPT_MAP_WIDTH), setting_get_int(cat, OPT_MAP_HEIGHT));
+						cs_write_string(buf, strlen(buf));
+						setting_update_mapsize = 0;
+					}
+
+					break;
+			}
+
+			break;
+
+		case OPT_CAT_SOUND:
+			switch (setting)
+			{
+				case OPT_VOLUME_MUSIC:
+					sound_update_volume();
+					break;
+			}
+
+			break;
 	}
 }
 
-/**
- * Draw all options for the actual options group.
- * @param x X position.
- * @param y Y position. */
-void optwin_draw_options(int x, int y)
+void setting_set_int(int cat, int setting, sint64 val)
 {
-#define LEN_NAME 111
-	int i = -1, pos = 0, max = 0;
-	/* for info text */
-	int y2 = y + 344;
-	int mxy_opt = -1;
-	int page = option_list_set.group_nr;
-	int id = 0;
-	int mx, my, mb, tmp;
+	void *dst = setting_get(setting_categories[cat]->settings[setting]);
 
-	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	(*(sint64 *) dst) = val;
 
-	/* Find actual page */
-	while (page && opt[++i].name)
+	if (cat == OPT_CAT_MAP && (setting == OPT_MAP_WIDTH || setting == OPT_MAP_HEIGHT))
 	{
-		if (opt[i].name[0] == '#')
-		{
-			page--;
-		}
+		setting_update_mapsize = 1;
+	}
+}
+
+int setting_is_text(setting_struct *setting)
+{
+	switch (setting->type)
+	{
+		case OPT_TYPE_INPUT_TEXT:
+			return 1;
 	}
 
-	/* Draw actual page */
-	while (opt[++i].name && opt[i].name[0] != '#')
+	return 0;
+}
+
+void setting_load_value(setting_struct *setting, const char *str)
+{
+	switch (setting->type)
 	{
-		max++;
-		StringBlt(ScreenSurface, &SystemFont, opt[i].name, x + 1, y + 3, COLOR_BLACK, NULL, NULL);
-
-		switch (opt[i].sel_type)
-		{
-			case SEL_CHECKBOX:
-				tmp = COLOR_WHITE;
-
-				if (option_list_set.entry_nr == max - 1)
-				{
-					tmp = COLOR_HGOLD;
-					/* Remember this tab for later use */
-					if (mxy_opt == -1)
-					{
-						mxy_opt = i;
-					}
-				}
-
-				if (mx > x && mx < x + 280 && my > y && my < y + 20 )
-				{
-					tmp = COLOR_GREEN;
-					/* Remember this tab for later use */
-					mxy_opt = i;
-				}
-
-				StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, tmp, NULL, NULL);
-
-				sprite_blt(Bitmaps[BITMAP_DIALOG_CHECKER], x + LEN_NAME, y, NULL, NULL);
-
-				if (*((int *) opt[i].value) == 1)
-				{
-					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 8, y + 2, COLOR_BLACK, NULL, NULL);
-					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 7, y + 1, COLOR_WHITE, NULL, NULL);
-				}
-
-				if ((pos == option_list_set.entry_nr && option_list_set.key_change) || (mb && mb_clicked && active_button < 0 && mx > x + LEN_NAME && mx < x + LEN_NAME + 20 && my > y && my < y + 18))
-				{
-					mb_clicked = 0;
-					option_list_set.key_change = 0;
-
-					if (*((int *) opt[i].value) == 1)
-					{
-						*((int *) opt[i].value) = 0;
-					}
-					else
-					{
-						*((int *) opt[i].value) = 1;
-					}
-				}
-				break;
-
-			case SEL_RANGE:
+		case OPT_TYPE_BOOL:
+			if (KEYWORD_IS_TRUE(str))
 			{
-#define LEN_VALUE 100
-				SDL_Rect box;
-				box.x = x + LEN_NAME, box.y = y + 1;
-				box.h = 16, box.w = LEN_VALUE;
+				setting->val.i = 1;
+			}
+			else if (KEYWORD_IS_FALSE(str))
+			{
+				setting->val.i = 0;
+			}
+			else
+			{
+				setting->val.i = atoi(str);
+			}
 
-				tmp = COLOR_WHITE;
+			break;
 
-				if (option_list_set.entry_nr == max - 1)
+		case OPT_TYPE_INPUT_NUM:
+		case OPT_TYPE_RANGE:
+		case OPT_TYPE_INT:
+		case OPT_TYPE_SELECT:
+			setting->val.i = atoi(str);
+			break;
+
+		case OPT_TYPE_INPUT_TEXT:
+			if (setting->val.str)
+			{
+				free(setting->val.str);
+			}
+
+			setting->val.str = strdup(str);
+			break;
+	}
+}
+
+void settings_apply()
+{
+	size_t i, j;
+
+	for (i = 0; i < setting_categories_num; i++)
+	{
+		for (j = 0; j < setting_categories[i]->settings_num; j++)
+		{
+			setting_apply(i, j);
+		}
+	}
+}
+
+void settings_init()
+{
+	FILE *fp;
+	char buf[HUGE_BUF], *cp;
+	setting_category *category;
+	setting_struct *setting;
+
+	fp = fopen_wrapper("settings.txt", "r");
+
+	if (!fp)
+	{
+		LOG(llevError, "settings_init(): Missing settings.txt file, cannot continue.\n");
+	}
+
+	category = NULL;
+	setting = NULL;
+	setting_categories = NULL;
+	setting_categories_num = 0;
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
+	{
+		cp = strchr(buf, '\n');
+
+		if (cp)
+		{
+			*cp = '\0';
+		}
+
+		cp = buf;
+
+		while (*cp != '\0')
+		{
+			if (isspace(*cp))
+			{
+				cp++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		if (*cp == '#' || *cp == '\0')
+		{
+			continue;
+		}
+
+		if (!strcmp(cp, "end"))
+		{
+			if (setting)
+			{
+				category->settings = realloc(category->settings, sizeof(category->settings) * (category->settings_num + 1));
+				category->settings[category->settings_num] = setting;
+				category->settings_num++;
+				setting = NULL;
+			}
+			else if (category)
+			{
+				setting_categories = realloc(setting_categories, sizeof(*setting_categories) * (setting_categories_num + 1));
+				setting_categories[setting_categories_num] = category;
+				setting_categories_num++;
+				category = NULL;
+			}
+		}
+		else if (setting)
+		{
+			if (!strncmp(cp, "type ", 5))
+			{
+				size_t type_id;
+
+				for (type_id = 0; type_id < OPT_TYPE_NUM; type_id++)
 				{
-					tmp = COLOR_HGOLD;
-
-					/* Remember this tab for later use */
-					if (mxy_opt == -1)
+					if (!strcmp(cp + 5, opt_types[type_id]))
 					{
-						mxy_opt = i;
+						setting->type = type_id;
+						break;
 					}
 				}
 
-				if (mx > x && mx < x + 280 && my > y && my < y + 20)
+				if (type_id == OPT_TYPE_NUM)
 				{
-					tmp = COLOR_GREEN;
-					/* Remember this tab for later use */
-					mxy_opt = i;
+					LOG(llevError, "Invalid type: %s\n", cp + 5);
 				}
-
-				StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, tmp, NULL, NULL);
-				SDL_FillRect(ScreenSurface, &box, 0);
-
-				if (*opt[i].val_text == '\0')
+				else if (type_id == OPT_TYPE_SELECT)
 				{
-					StringBlt(ScreenSurface, &SystemFont, get_value(opt[i].value, opt[i].value_type), box.x + 2, y + 2, COLOR_WHITE, NULL, NULL);
+					setting->custom_attrset = calloc(1, sizeof(setting_select));
+				}
+				else if (type_id == OPT_TYPE_RANGE)
+				{
+					setting->custom_attrset = calloc(1, sizeof(setting_range));
+				}
+			}
+			else if (!strncmp(cp, "default ", 8))
+			{
+				setting_load_value(setting, cp + 8);
+			}
+			else if (!strncmp(cp, "desc ", 5))
+			{
+				setting->desc = strdup(cp + 5);
+				convert_newline(setting->desc);
+			}
+			else if (!strncmp(cp, "internal ", 9))
+			{
+				setting->internal = KEYWORD_IS_TRUE(cp + 9) ? 1 : 0;
+			}
+			else if (setting->type == OPT_TYPE_SELECT && !strncmp(cp, "option ", 7))
+			{
+				setting_select *select = SETTING_SELECT(setting);
+
+				select->options = realloc(select->options, sizeof(*select->options) * (select->options_len + 1));
+				select->options[select->options_len] = strdup(cp + 7);
+				select->options_len++;
+			}
+			else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "range ", 6))
+			{
+				setting_range *range = SETTING_RANGE(setting);
+				sint64 min, max;
+
+				if (sscanf(cp + 6, "%"FMT64" - %"FMT64, &min, &max) == 2)
+				{
+					range->min = min;
+					range->max = max;
 				}
 				else
 				{
-#define MAX_LEN 40
-					char text[MAX_LEN + 1];
-					int o= *((int *) opt[i].value);
-					int p = 0, q = -1;
-
-					/* Find starting position of string */
-					while (o && opt[i].val_text[p])
-					{
-						if (opt[i].val_text[p++] == '#')
-						{
-							o--;
-						}
-					}
-
-					/* Find ending position of string */
-					while (q++ < MAX_LEN  && opt[i].val_text[p])
-					{
-						if ((text[q] = opt[i].val_text[p++]) == '#')
-						{
-							break;
-						}
-					}
-
-					text[q] = '\0';
-					StringBlt(ScreenSurface, &SystemFont,text, box.x + 2, y + 2, COLOR_WHITE, NULL, NULL);
-#undef MAX_LEN
+					LOG(llevBug, "settings_init(): Invalid line: %s\n", cp);
 				}
-
-				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_OFF], x + LEN_NAME + LEN_VALUE, y, NULL, NULL);
-
-				/* Keyboard event */
-				if (option_list_set.key_change && option_list_set.entry_nr == pos)
-				{
-					if (option_list_set.key_change == -1)
-					{
-						add_value(opt[i].value, opt[i].value_type,-opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-					}
-					else if (option_list_set.key_change == 1)
-					{
-						add_value(opt[i].value, opt[i].value_type, opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-					}
-
-					option_list_set.key_change = 0;
-				}
-
-				if (mx > x + LEN_NAME + LEN_VALUE && mx < x + LEN_NAME + LEN_VALUE + 14 && my > y && my < y + 18)
-				{
-					/* 2 buttons per row */
-					if (mb && active_button < 0)
-					{
-						active_button = id + 1;
-					}
-
-					if (active_button == id + 1)
-					{
-						sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_L], x + LEN_NAME + LEN_VALUE, y, NULL, NULL);
-
-						if (!mb)
-						{
-							add_value(opt[i].value, opt[i].value_type, -opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-						}
-					}
-				}
-				else if (mx > x + LEN_NAME + LEN_VALUE + 14 && mx < x + LEN_NAME + LEN_VALUE + 28 && my > y && my < y + 18)
-				{
-					if (mb && active_button < 0)
-					{
-						active_button = id;
-					}
-
-					if (active_button == id)
-					{
-						sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_R], x + LEN_NAME+LEN_VALUE + 14, y, NULL, NULL);
-
-						if (!mb)
-						{
-							add_value(opt[i].value, opt[i].value_type, opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-						}
-					}
-				}
-#undef LEN_VALUE
-				break;
 			}
-
-			case SEL_BUTTON:
-				sprite_blt(Bitmaps[BITMAP_DIALOG_BUTTON_UP], x, y, NULL, NULL);
-				break;
+			else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "advance ", 8))
+			{
+				SETTING_RANGE(setting)->advance = atoi(cp + 8);
+			}
+			else
+			{
+				LOG(llevBug, "settings_init(): Invalid line: %s\n", cp);
+			}
 		}
-
-		y += 20;
-		pos++;
-		id += 2;
-	}
-
-	if (option_list_set.entry_nr > max - 1)
-	{
-		option_list_set.entry_nr = max - 1;
-	}
-
-	/* Print the info text */
-	x += 20;
-
-	if (mxy_opt >= 0)
-	{
-		char *cp, buf[MAX_BUF];
-		int y_tmp = 0;
-
-		strncpy(buf, opt[mxy_opt].info, sizeof(buf) - 1);
-		buf[sizeof(buf) - 1] = '\0';
-		cp = strtok(buf, "\n");
-
-		while (cp)
+		else if (category)
 		{
-			StringBlt(ScreenSurface, &SystemFont, cp, x + 11, y2 + 1 + y_tmp, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, cp, x + 10, y2 + y_tmp, COLOR_WHITE, NULL, NULL);
-			y_tmp += 12;
-			cp = strtok(NULL, "\n");
+			if (!strncmp(cp, "setting ", 8))
+			{
+				setting = calloc(1, sizeof(*setting));
+				setting->name = strdup(cp + 8);
+			}
+			else
+			{
+				LOG(llevBug, "settings_init(): Invalid line: %s\n", cp);
+			}
+		}
+		else if (!strncmp(cp, "category ", 9))
+		{
+			category = calloc(1, sizeof(*category));
+			category->name = strdup(cp + 9);
 		}
 	}
-#undef LEN_NAME
+
+	fclose(fp);
+
+	settings_load();
 }
 
-/**
- * Show the options window. */
-void show_optwin()
+#define FILE_SETTINGS_DAT "settings/settings.dat"
+
+void settings_save()
 {
-	char buf[128];
-	int x, y;
-	int mx, my, mb;
-	int numButton = 0;
+	FILE *fp;
+	size_t cat, set;
+	setting_struct *setting;
 
-	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
-	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS]->bitmap->w / 2, y + 14, NULL, NULL);
-	add_close_button(x, y, MENU_OPTION);
+	fp = fopen_wrapper(FILE_SETTINGS_DAT, "w");
 
-	draw_tabs(opt_tab, &option_list_set.group_nr, "Option Group", x + 8, y + 70);
-	optwin_draw_options(x + 130, y + 90);
-
-	sprintf(buf, "~SHIFT~ + ~%c%c~ to select group            ~%c%c~ to select option          ~%c%c~ to change option", ASCII_UP, ASCII_DOWN, ASCII_UP, ASCII_DOWN, ASCII_RIGHT, ASCII_LEFT);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 135, y + 410, COLOR_WHITE, NULL, NULL);
-
-	/* Mark active entry */
-	StringBlt(ScreenSurface, &SystemFont, ">", x + TXT_START_NAME - 15, y + 10 + TXT_Y_START + option_list_set.entry_nr * 20, COLOR_HGOLD, NULL, NULL);
-
-	/* save button */
-	if (add_button(x + 25, y + 454, numButton++, BITMAP_DIALOG_BUTTON_UP, "Done", "~D~one"))
+	if (!fp)
 	{
-		check_menu_keys(MENU_OPTION, SDLK_d);
+		LOG(llevBug, "Could not open settings file ("FILE_SETTINGS_DAT").\n");
+		return;
 	}
 
-	if (!mb)
+	for (cat = 0; cat < setting_categories_num; cat++)
 	{
-		active_button = -1;
+		fprintf(fp, "category %s\n", setting_categories[cat]->name);
+
+		for (set = 0; set < setting_categories[cat]->settings_num; set++)
+		{
+			setting = setting_categories[cat]->settings[set];
+
+			fprintf(fp, "%s\n", setting->name);
+
+			if (setting_is_text(setting))
+			{
+				fprintf(fp, "%s\n", setting->val.str);
+			}
+			else
+			{
+				fprintf(fp, "%"FMT64"\n", setting->val.i);
+			}
+		}
+	}
+
+	fclose(fp);
+}
+
+sint64 category_from_name(const char *name)
+{
+	size_t cat;
+
+	for (cat = 0; cat < setting_categories_num; cat++)
+	{
+		if (!strcmp(setting_categories[cat]->name, name))
+		{
+			return cat;
+		}
+	}
+
+	return -1;
+}
+
+sint64 setting_from_name(const char *name)
+{
+	size_t cat, setting;
+
+	for (cat = 0; cat < setting_categories_num; cat++)
+	{
+		for (setting = 0; setting < setting_categories[cat]->settings_num; setting++)
+		{
+			if (!strcmp(setting_categories[cat]->settings[setting]->name, name))
+			{
+				return setting;
+			}
+		}
+	}
+
+	return -1;
+}
+
+void settings_load()
+{
+	FILE *fp;
+	char buf[HUGE_BUF], *cp;
+	size_t cat, setting;
+	uint8 is_setting_name = 1;
+
+	fp = fopen_wrapper(FILE_SETTINGS_DAT, "r");
+
+	if (!fp)
+	{
+		return;
+	}
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
+	{
+		cp = strchr(buf, '\n');
+
+		if (cp)
+		{
+			*cp = '\0';
+		}
+
+		cp = buf;
+
+		while (*cp != '\0')
+		{
+			if (isspace(*cp))
+			{
+				cp++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		if (*cp == '#' || *cp == '\0')
+		{
+			continue;
+		}
+
+		if (!strncmp(cp, "category ", 9))
+		{
+			cat = category_from_name(cp + 9);
+		}
+		else
+		{
+			if (is_setting_name)
+			{
+				setting = setting_from_name(cp);
+			}
+			else
+			{
+				setting_load_value(setting_categories[cat]->settings[setting], cp);
+			}
+
+			is_setting_name = !is_setting_name;
+		}
+	}
+
+	fclose(fp);
+}
+
+void settings_deinit()
+{
+	size_t cat, setting;
+
+	settings_save();
+
+	for (cat = 0; cat < setting_categories_num; cat++)
+	{
+		for (setting = 0; setting < setting_categories[cat]->settings_num; setting++)
+		{
+			if (setting_is_text(setting_categories[cat]->settings[setting]))
+			{
+				free(setting_categories[cat]->settings[setting]->val.str);
+			}
+
+			free(setting_categories[cat]->settings[setting]->name);
+
+			if (setting_categories[cat]->settings[setting]->desc)
+			{
+				free(setting_categories[cat]->settings[setting]->desc);
+			}
+
+			if (setting_categories[cat]->settings[setting]->type == OPT_TYPE_SELECT)
+			{
+				setting_select *select = SETTING_SELECT(setting_categories[cat]->settings[setting]);
+				size_t option;
+
+				for (option = 0; option < select->options_len; option++)
+				{
+					free(select->options[option]);
+				}
+
+				if (select->options)
+				{
+					free(select->options);
+				}
+			}
+
+			if (setting_categories[cat]->settings[setting]->custom_attrset)
+			{
+				free(setting_categories[cat]->settings[setting]->custom_attrset);
+			}
+		}
+
+		if (setting_categories[cat]->settings)
+		{
+			free(setting_categories[cat]->settings);
+		}
+
+		free(setting_categories[cat]->name);
+		free(setting_categories[cat]);
+	}
+
+	if (setting_categories)
+	{
+		free(setting_categories);
+		setting_categories = NULL;
+	}
+
+	setting_categories_num = 0;
+}
+
+static void settings_apply_change()
+{
+	size_t cat, setting;
+
+	for (cat = 0; cat < setting_categories_num; cat++)
+	{
+		for (setting = 0; setting < setting_categories[cat]->settings_num; setting++)
+		{
+			setting_apply_change(cat, setting);
+		}
 	}
 }
 
@@ -459,6 +638,259 @@ static const char *const button_names[BUTTON_NUM] =
 
 /** Currently selected button. */
 static size_t button_selected;
+static size_t setting_category_selected;
+static uint32 list_row_clicked;
+static uint32 list_clicked = 0;
+
+static void settings_list_reload(list_struct *list)
+{
+	size_t i;
+	setting_struct *setting;
+
+	list_clear(list);
+
+	for (i = 0; i < setting_categories[setting_category_selected]->settings_num; i++)
+	{
+		setting = setting_categories[setting_category_selected]->settings[i];
+
+		if (setting->internal)
+		{
+			continue;
+		}
+
+		list_add(list, list->rows, 0, "");
+	}
+}
+
+static void list_color_func(list_struct *list, int row, SDL_Rect box)
+{
+	if (row & 1)
+	{
+		SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 67, 67, 67));
+	}
+	else
+	{
+		SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 83, 83, 83));
+	}
+}
+
+static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *event)
+{
+	(void) list;
+
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		list_row_clicked = row;
+		list_clicked = 1;
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		list->row_selected = row + 1;
+	}
+}
+
+static void list_handle_esc(list_struct *list)
+{
+	(void) list;
+	popup_destroy_visible();
+}
+
+static void list_post_column(list_struct *list, uint32 row, uint32 col)
+{
+	setting_struct *setting;
+	int x, y, mx, my, mstate;
+
+	(void) col;
+
+	setting = setting_categories[setting_category_selected]->settings[row];
+
+	if (setting->internal)
+	{
+		return;
+	}
+
+	x = list->x + list->frame_offset;
+	y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
+
+	string_blt_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 5, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
+
+	mstate = SDL_GetMouseState(&mx, &my);
+
+	if (setting->type == OPT_TYPE_BOOL)
+	{
+		SDL_Rect checkbox;
+
+		checkbox.x = x + list->width - 17;
+		checkbox.y = y + 1;
+		checkbox.w = 14;
+		checkbox.h = 14;
+		SDL_FillRect(list->surface, &checkbox, SDL_MapRGB(list->surface->format, 0, 0, 0));
+
+		if (setting_get_int(setting_category_selected, row))
+		{
+			lineRGBA(list->surface, checkbox.x, checkbox.y, checkbox.x + checkbox.w, checkbox.y + checkbox.h, 212, 213, 83, 255);
+			lineRGBA(list->surface, checkbox.x + checkbox.w, checkbox.y, checkbox.x, checkbox.y + checkbox.h, 212, 213, 83, 255);
+		}
+
+		draw_frame(list->surface, checkbox.x, checkbox.y, checkbox.w, checkbox.h);
+
+		if (mx >= checkbox.x && mx <= checkbox.x + checkbox.w && my >= checkbox.y && my <= checkbox.y + checkbox.h)
+		{
+			border_create_color(list->surface, &checkbox, "b09a9a");
+
+			if (list_clicked && list_row_clicked == row && mstate == SDL_BUTTON_LEFT)
+			{
+				setting_set_int(setting_category_selected, row, !setting_get_int(setting_category_selected, row));
+				list_clicked = 0;
+			}
+		}
+		else
+		{
+			border_create_color(list->surface, &checkbox, "8c7a7a");
+		}
+	}
+	else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE)
+	{
+		SDL_Rect dst;
+		sint64 val, new_val, advance;
+
+		val = new_val = setting_get_int(setting_category_selected, row);
+		advance = 1;
+
+		if (setting->type == OPT_TYPE_RANGE)
+		{
+			advance = SETTING_RANGE(setting)->advance;
+		}
+
+		x += list->width - 1;
+		y += 1;
+
+		x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			new_val = val + advance;
+		}
+
+		dst.x = x - 150;
+		dst.y = y;
+		dst.w = 150;
+		dst.h = LIST_ROW_HEIGHT(list) - 2;
+
+		SDL_FillRect(list->surface, &dst, SDL_MapRGB(list->surface->format, 0, 0, 0));
+
+		if (setting->type == OPT_TYPE_SELECT)
+		{
+			string_blt(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
+		}
+		else if (setting->type == OPT_TYPE_RANGE)
+		{
+			string_blt_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"FMT64, val);
+		}
+
+		dst.x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w + 1;
+
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			new_val = val - advance;
+		}
+
+		if (setting->type == OPT_TYPE_SELECT)
+		{
+			setting_select *select = SETTING_SELECT(setting);
+
+			if (new_val >= (sint64) select->options_len)
+			{
+				new_val = 0;
+			}
+			else if (new_val < 0)
+			{
+				new_val = select->options_len - 1;
+			}
+		}
+		else if (setting->type == OPT_TYPE_RANGE)
+		{
+			setting_range *range = SETTING_RANGE(setting);
+
+			new_val = MAX(range->min, MIN(range->max, new_val));
+		}
+
+		if (val != new_val)
+		{
+			setting_set_int(setting_category_selected, row, new_val);
+		}
+	}
+}
+
+static void settings_popup_draw_func_post(popup_struct *popup)
+{
+	list_struct *list;
+	int x, y;
+
+	list = list_exists(LIST_SETTINGS);
+
+	if (list)
+	{
+		size_t new_cat = setting_category_selected;
+		setting_struct *setting;
+		SDL_Rect dst;
+
+		x = popup->x + 30;
+		y = popup->y + 50;
+		setting = setting_categories[setting_category_selected]->settings[list->row_selected - 1];
+
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			if (new_cat == 0)
+			{
+				new_cat = setting_categories_num - 1;
+			}
+			else
+			{
+				new_cat--;
+			}
+		}
+
+		dst.w = list->width + 8 - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+		dst.h = 0;
+
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			if (new_cat == setting_categories_num - 1)
+			{
+				new_cat = 0;
+			}
+			else
+			{
+				new_cat++;
+			}
+		}
+
+		dst.w -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+		string_blt(list->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, x + Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w, y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &dst);
+
+		dst.h = 66;
+		string_blt_shadow(list->surface, FONT_ARIAL11, setting->desc ? setting->desc : "", x - 2, popup->y + popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &dst);
+
+		if (new_cat != setting_category_selected)
+		{
+			setting_category_selected = new_cat;
+			settings_list_reload(list);
+		}
+
+		list_show(list, x, y);
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 55, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			settings_apply_change();
+		}
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			popup_destroy_visible();
+		}
+	}
+}
 
 /**
  * Draw the settings popup.
@@ -475,45 +907,56 @@ static void settings_popup_draw_func(popup_struct *popup)
 	box.y = 10;
 	box.w = popup->surface->w;
 	box.h = 0;
-	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 	box.y += 50;
 
-	SDL_GetMouseState(&mx, &my);
-
-	for (i = 0; i < BUTTON_NUM; i++)
+	if (!list_exists(LIST_SETTINGS))
 	{
-		if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
-		{
-			continue;
-		}
+		SDL_GetMouseState(&mx, &my);
 
-		flags = TEXT_ALIGN_CENTER;
-		x = Screensize->x / 2 - popup->surface->w / 2 + box.x;
-		y = Screensize->y / 2 - popup->surface->h / 2 + box.y;
-
-		if (mx >= x && mx < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
+		for (i = 0; i < BUTTON_NUM; i++)
 		{
-			snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
-			flags |= TEXT_MARKUP;
-		}
-		else
-		{
-			strncpy(buf, button_names[i], sizeof(buf) - 1);
-			buf[sizeof(buf) - 1] = '\0';
-		}
+			if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
+			{
+				continue;
+			}
 
-		if (button_selected == i)
-		{
-			string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), flags | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", buf);
-		}
-		else
-		{
+			flags = TEXT_ALIGN_CENTER;
+			x = ScreenSurface->w / 2 - popup->surface->w / 2 + box.x;
+			y = ScreenSurface->h / 2 - popup->surface->h / 2 + box.y;
 
-			string_blt_shadow(popup->surface, FONT_SERIF40, buf, box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), flags, &box);
-		}
+			if (mx >= x && mx < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
+			{
+				snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
+				flags |= TEXT_MARKUP;
+			}
+			else
+			{
+				strncpy(buf, button_names[i], sizeof(buf) - 1);
+				buf[sizeof(buf) - 1] = '\0';
+			}
 
-		box.y += FONT_HEIGHT(FONT_SERIF40);
+			if (button_selected == i)
+			{
+				string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_HGOLD, COLOR_BLACK, flags | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", buf);
+			}
+			else
+			{
+
+				string_blt_shadow(popup->surface, FONT_SERIF40, buf, box.x, box.y, COLOR_WHITE, COLOR_BLACK, flags, &box);
+			}
+
+			box.y += FONT_HEIGHT(FONT_SERIF40);
+		}
 	}
+}
+
+static int settings_popup_destroy_callback(popup_struct *popup)
+{
+	(void) popup;
+	settings_apply_change();
+	list_remove(list_exists(LIST_SETTINGS));
+	return 1;
 }
 
 /**
@@ -521,14 +964,25 @@ static void settings_popup_draw_func(popup_struct *popup)
  * @param button The button ID. */
 static void settings_button_handle(size_t button)
 {
-	if (button == BUTTON_KEY_SETTINGS)
+	if (button == BUTTON_KEY_SETTINGS || button == BUTTON_SETTINGS)
 	{
-		keybind_status = KEYBIND_STATUS_NO;
-		cpl.menustatus = MENU_KEYBIND;
-	}
-	else if (button == BUTTON_SETTINGS)
-	{
-		cpl.menustatus = MENU_OPTION;
+		list_struct *list;
+
+		setting_category_selected = 0;
+
+		list = list_create(LIST_SETTINGS, 9, 1, 8);
+		list->row_color_func = list_color_func;
+		list->post_column_func = list_post_column;
+		list->row_highlight_func = NULL;
+		list->row_selected_func = NULL;
+		list->handle_mouse_row_func = list_handle_mouse_row;
+		list->handle_esc_func = list_handle_esc;
+		list_scrollbar_enable(list);
+		list_set_column(list, 0, 430, 7, NULL, -1);
+		list_set_focus(list);
+		list_set_font(list, FONT_SANS14);
+		settings_list_reload(list);
+		return;
 	}
 	else if (button == BUTTON_LOGOUT)
 	{
@@ -543,6 +997,28 @@ static void settings_button_handle(size_t button)
  * Handle events for the settings popup. */
 static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 {
+	list_struct *list = list_exists(LIST_SETTINGS);
+
+	if (list)
+	{
+		if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+		{
+			if (list_handle_keyboard(list, &event->key))
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
+			{
+				return 1;
+			}
+		}
+
+		return -1;
+	}
+
 	if (event->type == SDL_KEYDOWN)
 	{
 		/* Move the selected button up and down. */
@@ -578,8 +1054,8 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 			int x, y;
 			size_t i;
 
-			x = Screensize->x / 2 - popup->surface->w / 2;
-			y = Screensize->y / 2 - popup->surface->h / 2 + 60;
+			x = ScreenSurface->w / 2 - popup->surface->w / 2;
+			y = ScreenSurface->h / 2 - popup->surface->h / 2 + 60;
 
 			for (i = 0; i < BUTTON_NUM; i++)
 			{
@@ -606,6 +1082,8 @@ void settings_open()
 	popup = popup_create(BITMAP_POPUP);
 	popup->draw_func = settings_popup_draw_func;
 	popup->event_func = settings_popup_event_func;
+	popup->destroy_callback_func = settings_popup_destroy_callback;
+	popup->draw_func_post = settings_popup_draw_func_post;
 
 	button_selected = GameStatus == GAME_STATUS_PLAY ? BUTTON_BACK : BUTTON_SETTINGS;
 }

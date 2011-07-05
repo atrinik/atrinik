@@ -88,6 +88,9 @@ typedef struct textwin_struct
 
 	/** End of selection. */
 	sint64 selection_end;
+
+	/** Slider position. */
+	int old_slider_pos;
 } textwin_struct;
 
 /** Get the maximum number of visible rows. */

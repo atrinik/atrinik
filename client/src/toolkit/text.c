@@ -234,16 +234,39 @@ void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
 }
 
 /**
+ * Get font's filename; removes the path/to/fontdir part from the font's
+ * path and returns it.
+ * @param font Font ID.
+ * @return The filename. */
+const char *get_font_filename(int font)
+{
+	const char *cp;
+
+	cp = strrchr(fonts[font].path, '/');
+
+	if (!cp)
+	{
+		cp = fonts[font].path;
+	}
+	else
+	{
+		cp++;
+	}
+
+	return cp;
+}
+
+/**
  * Get font's ID from its xxx.ttf name (not including path) and the pixel
  * size.
  * @param name The font name.
  * @param size The size.
  * @return The font ID, -1 if there is no such font. */
-static int get_font_id(const char *name, size_t size)
+int get_font_id(const char *name, size_t size)
 {
 	size_t i;
 	const char *cp;
-	uint8 ext = strstr(name, ".ttf") ? 1 : 0;
+	uint8 ext = strstr(name, ".ttf") || strstr(name, ".otf") ? 1 : 0;
 
 	for (i = 0; i < FONTS_MAX; i++)
 	{
@@ -397,6 +420,27 @@ static void text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 }
 
 /**
+ * Parse the given string as a HTML notation color, and store the RGB
+ * values in 'color'.
+ * @param color_notation The HTML notation to parse.
+ * @param color Where the RGB values will be stored.
+ * @return 1 if the notation was parsed successfully, 0 otherwise. */
+int text_color_parse(const char *color_notation, SDL_Color *color)
+{
+	int r, g, b;
+
+	if (sscanf(color_notation, "%2X%2X%2X", &r, &g, &b) == 3)
+	{
+		color->r = r;
+		color->g = g;
+		color->b = b;
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
  * Draw one character on the screen or parse markup (if applicable).
  * @param[out] font Font to use. One of @ref FONT_xxx.
  * @param orig_font Original font, used for the font tag.
@@ -423,13 +467,19 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 	if (c == '\r')
 	{
-		SDL_Color new_color = COLOR_SIMPLE((uint8) cp[1] - 1);
+		if (text_color_parse(cp + 1, color))
+		{
+			orig_color->r = color->r;
+			orig_color->g = color->g;
+			orig_color->b = color->b;
+			return 7;
+		}
+		else
+		{
+			LOG(llevBug, "blt_character(): Invalid color: %s\n", cp + 1);
+		}
 
-		color->r = orig_color->r = new_color.r;
-		color->g = orig_color->g = new_color.g;
-		color->b = orig_color->b = new_color.b;
-
-		return 2;
+		return 1;
 	}
 
 	/* Doing markup? */
@@ -1322,24 +1372,34 @@ int glyph_get_height(int font, char c)
  * @param text The string to draw.
  * @param x X position.
  * @param y Y position.
- * @param color Color to use.
+ * @param color_notation Color to use.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @param box If word wrap was enabled by passing @ref TEXT_WORD_WRAP as
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box)
+void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
 {
 	const char *cp = text;
 	SDL_Rect dest;
 	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
-	SDL_Color orig_color = color;
+	SDL_Color color, orig_color;
 	int orig_font = font, lines = 1, width = 0;
 	uint16 *heights = NULL;
 	size_t num_heights = 0;
 	int x_adjust = 0;
 	int mx, my, mstate = 0, old_x;
 	sint64 select_start = 0, select_end = 0;
+
+	if (text_color_parse(color_notation, &color))
+	{
+		orig_color = color;
+	}
+	else
+	{
+		LOG(llevBug, "string_blt(): Invalid color: %s\n", color_notation);
+		return;
+	}
 
 	if (text_debug && box && surface)
 	{
@@ -1590,31 +1650,31 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
  * @param text The string to draw.
  * @param x X position.
  * @param y Y position.
- * @param color Color to use.
- * @param color_shadow Color to use for the shadow.
+ * @param color_notation Color to use.
+ * @param color_shadow_notation Color to use for the shadow.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @param box If word wrap was enabled by passing @ref TEXT_WORD_WRAP as
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box)
+void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
 {
-	string_blt(surface, font, text, x + 1, y - 1, color_shadow, flags | TEXT_NO_COLOR_CHANGE, box);
-	string_blt(surface, font, text, x, y - 2, color, flags, box);
+	string_blt(surface, font, text, x + 1, y - 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
+	string_blt(surface, font, text, x, y - 2, color_notation, flags, box);
 }
 
 /**
  * Like string_blt(), but allows using printf-like format specifiers.
  *
  * @copydoc string_blt() */
-void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, uint64 flags, SDL_Rect *box, const char *text, ...)
+void string_blt_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
 	va_start(ap, text);
 	vsnprintf(buf, sizeof(buf), text, ap);
-	string_blt(surface, font, buf, x, y, color, flags, box);
+	string_blt(surface, font, buf, x, y, color_notation, flags, box);
 	va_end(ap);
 }
 
@@ -1622,14 +1682,14 @@ void string_blt_format(SDL_Surface *surface, int font, int x, int y, SDL_Color c
  * Like string_blt_shadow(), but allows using printf-like format specifiers.
  *
  * @copydoc string_blt_shadow() */
-void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, SDL_Color color, SDL_Color color_shadow, uint64 flags, SDL_Rect *box, const char *text, ...)
+void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
 	va_start(ap, text);
 	vsnprintf(buf, sizeof(buf), text, ap);
-	string_blt_shadow(surface, font, buf, x, y, color, color_shadow, flags, box);
+	string_blt_shadow(surface, font, buf, x, y, color_notation, color_shadow_notation, flags, box);
 	va_end(ap);
 }
 

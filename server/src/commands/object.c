@@ -68,7 +68,7 @@ int command_uskill(object *pl, char *params)
 {
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "Usage: /use_skill <skill name>");
+		new_draw_info(0, COLOR_WHITE, pl, "Usage: /use_skill <skill name>");
 		return 0;
 	}
 
@@ -91,7 +91,7 @@ int command_rskill(object *pl, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "Usage: /ready_skill <skill name>");
+		new_draw_info(0, COLOR_WHITE, pl, "Usage: /ready_skill <skill name>");
 		return 0;
 	}
 
@@ -104,7 +104,7 @@ int command_rskill(object *pl, char *params)
 
 	if (skillno == -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "Couldn't find the skill %s", params);
+		new_draw_info_format(0, COLOR_WHITE, pl, "Couldn't find the skill %s", params);
 		return 0;
 	}
 
@@ -162,7 +162,7 @@ int command_apply(object *op, char *params)
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Could not find any match to the %s.", params);
+			new_draw_info_format(0, COLOR_WHITE, op, "Could not find any match to the %s.", params);
 		}
 	}
 
@@ -207,7 +207,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 	{
 		if (pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, buf);
+			new_draw_info(0, COLOR_WHITE, pl, buf);
 		}
 
 		return 0;
@@ -240,13 +240,13 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 	 * containers not allowed as of now) */
 	if (QUERY_FLAG(pl, FLAG_FLYING) && !QUERY_FLAG(pl, FLAG_WIZ) && is_player_inv(tmp) != pl)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "You are levitating, you can't reach the ground!");
+		new_draw_info(0, COLOR_WHITE, pl, "You are levitating, you can't reach the ground!");
 		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
+		new_draw_info(0, COLOR_WHITE, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
 
 		if (pl->type == PLAYER)
 		{
@@ -269,7 +269,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 	if (!player_can_carry(pl, WEIGHT_NROF(tmp, nrof)))
 	{
-		new_draw_info(NDI_UNIQUE, pl, "That item is too heavy for you to pick up.");
+		new_draw_info(0, COLOR_WHITE, pl, "That item is too heavy for you to pick up.");
 		return;
 	}
 
@@ -338,7 +338,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 		if (!tmp)
 		{
-			new_draw_info(NDI_UNIQUE, pl, err);
+			new_draw_info(0, COLOR_WHITE, pl, err);
 			return;
 		}
 
@@ -372,7 +372,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, pl, buf);
+	new_draw_info(0, COLOR_WHITE, pl, buf);
 	tmp = insert_ob_in_ob(tmp, op);
 
 	/* All the stuff below deals with client/server code, and is only
@@ -417,7 +417,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	{
 		if (!can_pick(op, alt))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You can't pick up %s.", alt->name);
+			new_draw_info_format(0, COLOR_WHITE, op, "You can't pick up %s.", alt->name);
 			goto leave;
 		}
 
@@ -427,7 +427,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	{
 		if (op->below == NULL || !can_pick(op, op->below))
 		{
-			new_draw_info(NDI_UNIQUE, op, "There is nothing to pick up here.");
+			new_draw_info(0, COLOR_WHITE, op, "There is nothing to pick up here.");
 			goto leave;
 		}
 
@@ -518,7 +518,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	/* Startequip items are not allowed to be put into containers. */
 	if (op->type == PLAYER && alt->type == CONTAINER && QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 	{
-		new_draw_info(NDI_UNIQUE, op, "This object cannot be put into containers!");
+		new_draw_info(0, COLOR_WHITE, op, "This object cannot be put into containers!");
 		goto leave;
 	}
 
@@ -572,13 +572,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (sack->type != CONTAINER)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "The %s is not a container.", query_name(sack, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "The %s is not a container.", query_name(sack, NULL));
 		return;
 	}
 
 	if (check_magical_container(tmp, sack))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't put a magical container into another magical container.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't put a magical container into another magical container.");
 		return;
 	}
 
@@ -621,13 +621,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 			SET_FLAG(tmp, FLAG_STARTEQUIP);
 			tmp->nrof = nrof;
 			tmp_nrof = nrof;
-			new_draw_info_format(NDI_UNIQUE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
+			new_draw_info_format(0, COLOR_WHITE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
 		}
 		/* This is an unique shop item */
 		else
 		{
 			tmp->nrof = nrof;
-			new_draw_info_format(NDI_UNIQUE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
+			new_draw_info_format(0, COLOR_WHITE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
 			tmp->nrof = tmp_nrof;
 		}
 	}
@@ -643,7 +643,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 		if (!tmp)
 		{
-			new_draw_info(NDI_UNIQUE, op, err);
+			new_draw_info(0, COLOR_WHITE, op, err);
 			return;
 		}
 
@@ -675,7 +675,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	tmp_tag = tmp->count;
 	tmp_cont = tmp->env;
 	tmp2 = insert_ob_in_ob(tmp, sack);
-	new_draw_info(NDI_UNIQUE, op, buf);
+	new_draw_info(0, COLOR_WHITE, op, buf);
 	/* This is overkill, fix_player() is called somewhere in object.c */
 	fix_player(op);
 
@@ -704,7 +704,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't drop that item.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -751,7 +751,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 		if (!tmp)
 		{
-			new_draw_info(NDI_UNIQUE, op, err);
+			new_draw_info(0, COLOR_WHITE, op, err);
 			return;
 		}
 
@@ -788,12 +788,12 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You drop the %s.", query_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You drop the %s.", query_name(tmp, NULL));
 			esrv_del_item(CONTR(op), tmp->count, tmp->env);
 
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				new_draw_info(NDI_UNIQUE, op, "The shop magic put it back to the storage.");
+				new_draw_info(0, COLOR_WHITE, op, "The shop magic put it back to the storage.");
 
 				floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
 
@@ -807,7 +807,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "The god-given item vanishes to nowhere as you drop it!");
+				new_draw_info(0, COLOR_WHITE, op, "The god-given item vanishes to nowhere as you drop it!");
 			}
 		}
 
@@ -837,7 +837,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 		{
 			if (op->type == PLAYER)
 			{
-				new_draw_info(NDI_UNIQUE, op, "The shop magic put it to the storage.");
+				new_draw_info(0, COLOR_WHITE, op, "The shop magic put it to the storage.");
 				esrv_del_item(CONTR(op), tmp->count, tmp->env);
 			}
 
@@ -884,19 +884,19 @@ void drop(object *op, object *tmp, int no_mevent)
 {
 	if (tmp == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You don't have anything to drop.");
+		new_draw_info(0, COLOR_WHITE, op, "You don't have anything to drop.");
 		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_INV_LOCKED))
 	{
-		new_draw_info(NDI_UNIQUE, op, "This item is locked.");
+		new_draw_info(0, COLOR_WHITE, op, "This item is locked.");
 		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't drop that item.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -931,7 +931,7 @@ int command_take(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Take what?");
+		new_draw_info(0, COLOR_WHITE, op, "Take what?");
 		return 0;
 	}
 
@@ -946,7 +946,7 @@ int command_take(object *op, char *params)
 
 	if (!tmp)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing to take.");
+		new_draw_info(0, COLOR_WHITE, op, "Nothing to take.");
 		return 0;
 	}
 
@@ -1021,16 +1021,16 @@ int command_take(object *op, char *params)
 	}
 	else if (!missed)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing to take.");
+		new_draw_info(0, COLOR_WHITE, op, "Nothing to take.");
 	}
 
 	if (missed == 1)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You were unable to take one of the items.");
+		new_draw_info(0, COLOR_WHITE, op, "You were unable to take one of the items.");
 	}
 	else if (missed > 1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You were unable to take %d of the items.", missed);
+		new_draw_info_format(0, COLOR_WHITE, op, "You were unable to take %d of the items.", missed);
 	}
 
 	if (op->type == PLAYER)
@@ -1053,7 +1053,7 @@ int command_drop(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Drop what?");
+		new_draw_info(0, COLOR_WHITE, op, "Drop what?");
 		return 0;
 	}
 
@@ -1097,16 +1097,16 @@ int command_drop(object *op, char *params)
 	}
 	else if (!missed)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing to drop.");
+		new_draw_info(0, COLOR_WHITE, op, "Nothing to drop.");
 	}
 
 	if (missed == 1)
 	{
-		new_draw_info(NDI_UNIQUE, op, "One item couldn't be dropped because it was locked.");
+		new_draw_info(0, COLOR_WHITE, op, "One item couldn't be dropped because it was locked.");
 	}
 	else if (missed > 1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%d items couldn't be dropped because they were locked.", missed);
+		new_draw_info_format(0, COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
 	}
 
 	if (op->type == PLAYER)
@@ -1199,24 +1199,24 @@ void examine_living(object *op, object *tmp)
 
 	if (QUERY_FLAG(mon, FLAG_IS_GOOD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_EVIL))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
-	new_draw_info_format(NDI_UNIQUE, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
-	new_draw_info_format(NDI_UNIQUE, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
+	new_draw_info_format(0, COLOR_WHITE, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
+	new_draw_info_format(0, COLOR_WHITE, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
+	new_draw_info_format(0, COLOR_WHITE, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
 
 	for (val = val2 = -1, i = 0; i < NROFATTACKS; i++)
 	{
@@ -1232,12 +1232,12 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
 	}
 
 	if (val2 != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
 	}
 
 	for (val =- 1, val2 = i = 0; i < NROFATTACKS; i++)
@@ -1251,36 +1251,36 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Best armour protection seems to be for %s.", attack_name[val]);
+		new_draw_info_format(0, COLOR_WHITE, op, "Best armour protection seems to be for %s.", attack_name[val]);
 	}
 
 	if (QUERY_FLAG(mon, FLAG_UNDEAD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is an undead force.", gender_subjective_upper[gender]);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s is an undead force.", gender_subjective_upper[gender]);
 	}
 
 	switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
 	{
 		case 1:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
+			new_draw_info_format(0, COLOR_WHITE, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
 			break;
 
 		case 2:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is hurt.", gender_subjective_upper[gender]);
+			new_draw_info_format(0, COLOR_WHITE, op, "%s is hurt.", gender_subjective_upper[gender]);
 			break;
 
 		case 3:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
+			new_draw_info_format(0, COLOR_WHITE, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
 			break;
 
 		default:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
+			new_draw_info_format(0, COLOR_WHITE, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
 			break;
 	}
 
 	if (present_in_ob(POISONING, mon) != NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s looks very ill.", gender_subjective_upper[gender]);
+		new_draw_info_format(0, COLOR_WHITE, op, "%s looks very ill.", gender_subjective_upper[gender]);
 	}
 }
 
@@ -1384,17 +1384,17 @@ void examine(object *op, object *tmp)
 	}
 
 	buf[VERY_BIG_BUF - 1] = '\0';
-	new_draw_info(NDI_UNIQUE, op, buf);
+	new_draw_info(0, COLOR_WHITE, op, buf);
 	buf[0] = '\0';
 
 	if (tmp->custom_name)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You name it %s.", tmp->custom_name);
+		new_draw_info_format(0, COLOR_WHITE, op, "You name it %s.", tmp->custom_name);
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
+		new_draw_info_format(0, COLOR_WHITE, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
 		examine_living(op, tmp);
 	}
 	/* We don't double use the item_xxx arch commands, so they are always valid */
@@ -1402,26 +1402,26 @@ void examine(object *op, object *tmp)
 	{
 		if (QUERY_FLAG(tmp, FLAG_IS_GOOD))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "It is good aligned.");
+			new_draw_info_format(0, COLOR_WHITE, op, "It is good aligned.");
 		}
 		else if (QUERY_FLAG(tmp, FLAG_IS_EVIL))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "It is evil aligned.");
+			new_draw_info_format(0, COLOR_WHITE, op, "It is evil aligned.");
 		}
 		else if (QUERY_FLAG(tmp, FLAG_IS_NEUTRAL))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "It is neutral aligned.");
+			new_draw_info_format(0, COLOR_WHITE, op, "It is neutral aligned.");
 		}
 
 		if (tmp->item_level)
 		{
 			if (tmp->item_skill)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(tmp->item_skill));
+				new_draw_info_format(0, COLOR_WHITE, op, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(tmp->item_skill));
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "It needs a level of %d to use.", tmp->item_level);
+				new_draw_info_format(0, COLOR_WHITE, op, "It needs a level of %d to use.", tmp->item_level);
 			}
 		}
 
@@ -1429,11 +1429,11 @@ void examine(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(tmp, FLAG_INDESTRUCTIBLE))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
+				new_draw_info_format(0, COLOR_WHITE, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
+				new_draw_info_format(0, COLOR_WHITE, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
 			}
 		}
 
@@ -1466,7 +1466,7 @@ void examine(object *op, object *tmp)
 				{
 					int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
 
-					new_draw_info(NDI_UNIQUE, op, buf);
+					new_draw_info(0, COLOR_WHITE, op, buf);
 
 					/* Gray. */
 					if (tmp->level < level_color[level].green)
@@ -1525,7 +1525,7 @@ void examine(object *op, object *tmp)
 					/* Has magic modifier? */
 					if (tmp->weapon_speed != 1.0f)
 					{
-						new_draw_info(NDI_UNIQUE, op, buf);
+						new_draw_info(0, COLOR_WHITE, op, buf);
 
 						/* Bad */
 						if (tmp->weapon_speed > 1.0f)
@@ -1549,7 +1549,7 @@ void examine(object *op, object *tmp)
 					/* Has magic modifier? */
 					if (tmp->weapon_speed != 1.0f)
 					{
-						new_draw_info(NDI_UNIQUE, op, buf);
+						new_draw_info(0, COLOR_WHITE, op, buf);
 
 						/* Bad */
 						if (tmp->weapon_speed > 1.0f)
@@ -1564,7 +1564,7 @@ void examine(object *op, object *tmp)
 					}
 				}
 
-				new_draw_info(NDI_UNIQUE, op, buf);
+				new_draw_info(0, COLOR_WHITE, op, buf);
 
 				if (tmp->weapon_speed == 1.0f)
 				{
@@ -1657,7 +1657,7 @@ void examine(object *op, object *tmp)
 
 	if (buf[0] != '\0')
 	{
-		new_draw_info(NDI_UNIQUE, op, buf);
+		new_draw_info(0, COLOR_WHITE, op, buf);
 	}
 
 	if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED)))
@@ -1673,7 +1673,7 @@ void examine(object *op, object *tmp)
 			}
 		}
 
-		new_draw_info(NDI_UNIQUE, op, buf);
+		new_draw_info(0, COLOR_WHITE, op, buf);
 	}
 
 	if (tmp->weight)
@@ -1682,15 +1682,15 @@ void examine(object *op, object *tmp)
 
 		if (tmp->type == MONSTER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
+			new_draw_info_format(0, COLOR_WHITE, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
 		}
 		else if (tmp->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
+			new_draw_info_format(0, COLOR_WHITE, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
+			new_draw_info_format(0, COLOR_WHITE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
 		}
 	}
 
@@ -1699,22 +1699,22 @@ void examine(object *op, object *tmp)
 		/* Unpaid clone shop item */
 		if (QUERY_FLAG(tmp, FLAG_UNPAID))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+			new_draw_info_format(0, COLOR_WHITE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 		}
 		/* God-given item */
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
+			new_draw_info_format(0, COLOR_WHITE, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{
 				if (tmp->value)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
+					new_draw_info_format(0, COLOR_WHITE, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
+					new_draw_info_format(0, COLOR_WHITE, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 				}
 			}
 		}
@@ -1725,11 +1725,11 @@ void examine(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+				new_draw_info_format(0, COLOR_WHITE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
+				new_draw_info_format(0, COLOR_WHITE, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
 				goto dirty_little_jump1;
 			}
 		}
@@ -1756,7 +1756,7 @@ dirty_little_jump1:
 					}
 				}
 
-				new_draw_info_format(NDI_UNIQUE, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, COST_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
+				new_draw_info_format(0, COLOR_WHITE, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, COST_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
 			}
 		}
 	}
@@ -1766,11 +1766,11 @@ dirty_little_jump1:
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
+				new_draw_info_format(0, COLOR_WHITE, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
+				new_draw_info_format(0, COLOR_WHITE, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 			}
 		}
 	}
@@ -1783,15 +1783,15 @@ dirty_little_jump1:
 		 * out the extra message */
 		if ((need_identify(tmp) || QUERY_FLAG(tmp, FLAG_QUEST_ITEM)) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
-			new_draw_info(NDI_UNIQUE, op, "The object has a story:");
-			new_draw_info(NDI_UNIQUE, op, tmp->msg);
+			new_draw_info(0, COLOR_WHITE, op, "The object has a story:");
+			new_draw_info(0, COLOR_WHITE, op, tmp->msg);
 		}
 	}
 
 	trigger_map_event(MEVENT_EXAMINE, op->map, op, tmp, NULL, NULL, 0);
 
 	/* Blank line */
-	new_draw_info(NDI_UNIQUE, op, " ");
+	new_draw_info(0, COLOR_WHITE, op, " ");
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
@@ -1801,7 +1801,7 @@ dirty_little_jump1:
 		stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 		dump_object(tmp, sb);
 		diff = stringbuffer_finish(sb);
-		new_draw_info(NDI_UNIQUE, op, diff);
+		new_draw_info(0, COLOR_WHITE, op, diff);
 		free(diff);
 	}
 }
@@ -1818,7 +1818,7 @@ int command_rename_item(object *op, char *params)
 
 	if (!tmp)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No marked item to rename.");
+		new_draw_info(0, COLOR_WHITE, op, "No marked item to rename.");
 		return 1;
 	}
 
@@ -1830,37 +1830,37 @@ int command_rename_item(object *op, char *params)
 	{
 		if (!tmp->custom_name)
 		{
-			new_draw_info(NDI_UNIQUE, op, "This item has no custom name.");
+			new_draw_info(0, COLOR_WHITE, op, "This item has no custom name.");
 			return 1;
 		}
 
 		FREE_AND_CLEAR_HASH(tmp->custom_name);
-		new_draw_info_format(NDI_UNIQUE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
 	}
 	else
 	{
 		if (tmp->type == MONEY)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You cannot rename that item.");
+			new_draw_info(0, COLOR_WHITE, op, "You cannot rename that item.");
 			return 1;
 		}
 
 		if (strlen(params) > 127)
 		{
-			new_draw_info(NDI_UNIQUE, op, "New name is too long, maximum is 127 characters.");
+			new_draw_info(0, COLOR_WHITE, op, "New name is too long, maximum is 127 characters.");
 			return 1;
 		}
 
 		if (tmp->custom_name && !strcmp(tmp->custom_name, params))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
+			new_draw_info_format(0, COLOR_WHITE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
 			return 1;
 		}
 
 		string_remove_markup(params);
 		/* Set custom name. */
 		FREE_AND_COPY_HASH(tmp->custom_name, params);
-		new_draw_info_format(NDI_UNIQUE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+		new_draw_info_format(0, COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
 		CONTR(op)->stat_renamed_items++;
 	}
 

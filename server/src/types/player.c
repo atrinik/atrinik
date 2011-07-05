@@ -96,11 +96,11 @@ void display_motd(object *op)
 			*cp = '\0';
 		}
 
-		new_draw_info(NDI_UNIQUE, op, buf);
+		new_draw_info(0, COLOR_WHITE, op, buf);
 	}
 
 	fclose(fp);
-	new_draw_info(NDI_UNIQUE, op, " ");
+	new_draw_info(0, COLOR_WHITE, op, " ");
 }
 
 /**
@@ -640,11 +640,11 @@ void fire(object *op, int dir)
 			if (weap->stats.food <= 0)
 			{
 				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
-				new_draw_info(NDI_UNIQUE, op, "The wand says poof.");
+				new_draw_info(0, COLOR_WHITE, op, "The wand says poof.");
 				return;
 			}
 
-			new_draw_info(NDI_UNIQUE, op, "fire wand");
+			new_draw_info(0, COLOR_WHITE, op, "fire wand");
 
 			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CAST_WAND, NULL))
 			{
@@ -700,7 +700,7 @@ trick_jump:
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "You have no tool readied.");
+					new_draw_info_format(0, COLOR_WHITE, op, "You have no tool readied.");
 					return;
 				}
 			}
@@ -714,7 +714,7 @@ trick_jump:
 			 * don't allow using the device. */
 			if (!CONTR(op)->exp_ptr[EXP_MAGICAL] || weap->level > CONTR(op)->exp_ptr[EXP_MAGICAL]->level + settings.magic_devices_level)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "The %s is impossible to handle for you.", weap->name);
+				new_draw_info_format(0, COLOR_WHITE, op, "The %s is impossible to handle for you.", weap->name);
 				return;
 			}
 
@@ -724,11 +724,11 @@ trick_jump:
 
 				if (CONTR(op)->shoottype == range_rod)
 				{
-					new_draw_info(NDI_UNIQUE, op, "The rod whines for a while, but nothing happens.");
+					new_draw_info(0, COLOR_WHITE, op, "The rod whines for a while, but nothing happens.");
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, op, "No matter how hard you try you can't get another note out.");
+					new_draw_info(0, COLOR_WHITE, op, "No matter how hard you try you can't get another note out.");
 				}
 
 				return;
@@ -761,13 +761,13 @@ trick_jump:
 			if (!op->chosen_skill)
 			{
 				if (op->type == PLAYER)
-					new_draw_info(NDI_UNIQUE, op, "You have no applicable skill to use.");
+					new_draw_info(0, COLOR_WHITE, op, "You have no applicable skill to use.");
 				return;
 			}
 
 			if (op->chosen_skill->sub_type != ST1_SKILL_USE)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
+				new_draw_info(0, COLOR_WHITE, op, "You can't use this skill in this way.");
 			}
 			else
 			{
@@ -777,7 +777,7 @@ trick_jump:
 			return;
 
 		default:
-			new_draw_info(NDI_UNIQUE, op, "Illegal shoot type.");
+			new_draw_info(0, COLOR_WHITE, op, "Illegal shoot type.");
 			return;
 	}
 }
@@ -927,7 +927,7 @@ static int save_life(object *op)
 		if (QUERY_FLAG(tmp, FLAG_APPLIED) && QUERY_FLAG(tmp, FLAG_LIFESAVE))
 		{
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
-			new_draw_info_format(NDI_UNIQUE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
 
 			if (CONTR(op))
 			{
@@ -1145,20 +1145,20 @@ void do_some_living(object *op)
 			{
 				if (CONTR(op)->combat_mode)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
+					new_draw_info_format(0, COLOR_WHITE, op, "You stop combat and start praying to %s...", god->name);
 					CONTR(op)->combat_mode = 0;
 					send_target_command(CONTR(op));
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
+					new_draw_info_format(0, COLOR_WHITE, op, "You start praying to %s...", god->name);
 				}
 
 				CONTR(op)->was_praying = 1;
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
+				new_draw_info(0, COLOR_WHITE, op, "You worship no deity to pray to!");
 				CONTR(op)->praying = 0;
 			}
 		}
@@ -1170,7 +1170,7 @@ void do_some_living(object *op)
 	}
 	else if (!CONTR(op)->praying && CONTR(op)->was_praying)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You stop praying.");
+		new_draw_info(0, COLOR_WHITE, op, "You stop praying.");
 		CONTR(op)->was_praying = 0;
 	}
 
@@ -1200,7 +1200,7 @@ void do_some_living(object *op)
 		if (op->stats.grace >= op->stats.maxgrace)
 		{
 			op->stats.grace = op->stats.maxgrace;
-			new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
+			new_draw_info(0, COLOR_WHITE, op, "You are full of grace and stop praying.");
 			CONTR(op)->was_praying = 0;
 		}
 	}
@@ -1237,7 +1237,7 @@ void do_some_living(object *op)
 			{
 				if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
 				{
-					new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+					new_draw_info(0, COLOR_WHITE, op, "You blindly grab for a bite of food.");
 					manual_apply(op, tmp, 0);
 
 					if (op->stats.food >= 0 || op->stats.hp < 0)
@@ -1256,7 +1256,7 @@ void do_some_living(object *op)
 		 * eat flesh instead. */
 		if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+			new_draw_info(0, COLOR_WHITE, op, "You blindly grab for a bite of food.");
 			manual_apply(op, flesh, 0);
 		}
 	}
@@ -1269,7 +1269,7 @@ void do_some_living(object *op)
 
 	if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info_format(NDI_ALL, NULL, "%s starved to death.", op->name);
+		new_draw_info_format(NDI_ALL, COLOR_WHITE, NULL, "%s starved to death.", op->name);
 		strcpy(CONTR(op)->killer, "starvation");
 		kill_player(op);
 	}
@@ -1293,7 +1293,7 @@ void kill_player(object *op)
 
 	if (pvp_area(NULL, op))
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
+		new_draw_info(0, COLOR_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
 
 		/* Restore player */
 		cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
@@ -1387,7 +1387,7 @@ void kill_player(object *op)
 			check_stat_bounds(&(op->stats));
 			change_attr_value(&(CONTR(op)->orig_stats), i, -1);
 			check_stat_bounds(&(CONTR(op)->orig_stats));
-			new_draw_info(NDI_UNIQUE, op, lose_msg[i]);
+			new_draw_info(0, COLOR_WHITE, op, lose_msg[i]);
 			lost_a_stat = 1;
 		}
 		else if (op->level > 3)
@@ -1452,7 +1452,7 @@ void kill_player(object *op)
 				{
 					change_attr_value(&(dep->stats), i, -1);
 					SET_FLAG(dep, FLAG_APPLIED);
-					new_draw_info(NDI_UNIQUE, op, lose_msg[i]);
+					new_draw_info(0, COLOR_WHITE, op, lose_msg[i]);
 					fix_player(op);
 					lost_a_stat = 1;
 				}
@@ -1467,11 +1467,11 @@ void kill_player(object *op)
 
 		if (god && god != shstr_cons.none)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
+			new_draw_info_format(0, COLOR_WHITE, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, "For a brief moment you feel a holy presence protecting you.");
+			new_draw_info(0, COLOR_WHITE, op, "For a brief moment you feel a holy presence protecting you.");
 		}
 	}
 
@@ -1524,7 +1524,7 @@ void kill_player(object *op)
 	enter_player_savebed(op);
 
 	/* Show a nasty message */
-	new_draw_info(NDI_UNIQUE, op, "YOU HAVE DIED.");
+	new_draw_info(0, COLOR_WHITE, op, "YOU HAVE DIED.");
 	save_player(op, 1);
 }
 
@@ -1573,7 +1573,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
 	if (op->type == PLAYER && arch)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You cast %s.", query_name(throw_ob, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "You cast %s.", query_name(throw_ob, NULL));
 	}
 
 	if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))

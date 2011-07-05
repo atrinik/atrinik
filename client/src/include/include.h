@@ -193,13 +193,13 @@ typedef enum LogLevel
 #include <scripts.h>
 #include <inventory.h>
 #include <menu.h>
-#include <dialog.h>
 #include <list.h>
 #include <button.h>
 #include <popup.h>
 #include <server_settings.h>
 #include <server_files.h>
 #include <image.h>
+#include <settings.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>

@@ -302,7 +302,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 
 		/* For each quickslot, output the F1-F8 shortcut */
 		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 6, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
@@ -310,11 +310,11 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 	/* Now output the group */
 	if (vertical_quickslot)
 	{
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + 3, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 	else
 	{
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 }
 

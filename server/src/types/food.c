@@ -52,17 +52,17 @@ void apply_food(object *op, object *tmp)
 		{
 			if ((op->stats.food + tmp->stats.food) - FOOD_MAX > tmp->stats.food / 5)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You are too full to eat this right now!");
+				new_draw_info(0, COLOR_WHITE, op, "You are too full to eat this right now!");
 				return;
 			}
 
 			if (tmp->type == FOOD || tmp->type == FLESH)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You feel full, but what a waste of food!");
+				new_draw_info(0, COLOR_WHITE, op, "You feel full, but what a waste of food!");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "Most of the drink goes down your face not your throat!");
+				new_draw_info(0, COLOR_WHITE, op, "Most of the drink goes down your face not your throat!");
 			}
 		}
 
@@ -113,7 +113,7 @@ void apply_food(object *op, object *tmp)
 
 		CONTR(op)->stat_food_num_consumed++;
 
-		new_draw_info(NDI_UNIQUE, op, buf);
+		new_draw_info(0, COLOR_WHITE, op, buf);
 
 		/* adjust food to borders when needed */
 		if (op->stats.food > FOOD_MAX)
@@ -300,11 +300,11 @@ void eat_special_food(object *who, object *food)
 				who->stats.hp += tmp * 3;
 			}
 
-			new_draw_info(NDI_UNIQUE, who, "Eck!... that was rotten food!");
+			new_draw_info(0, COLOR_WHITE, who, "Eck!... that was rotten food!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, who, "You begin to feel better.");
+			new_draw_info(0, COLOR_WHITE, who, "You begin to feel better.");
 			who->stats.hp += food->stats.hp;
 
 			if (who->stats.hp > who->stats.maxhp)
@@ -325,7 +325,7 @@ void eat_special_food(object *who, object *food)
 				tmp = -tmp;
 			}
 
-			new_draw_info(NDI_UNIQUE, who, "Your mana is drained!");
+			new_draw_info(0, COLOR_WHITE, who, "Your mana is drained!");
 
 			if (QUERY_FLAG(food, FLAG_CURSED))
 			{
@@ -343,7 +343,7 @@ void eat_special_food(object *who, object *food)
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, who, "You feel a rush of magical energy!");
+			new_draw_info(0, COLOR_WHITE, who, "You feel a rush of magical energy!");
 			who->stats.sp += food->stats.sp;
 
 			if (who->stats.sp > who->stats.maxsp)
@@ -364,7 +364,7 @@ void eat_special_food(object *who, object *food)
 				tmp = -tmp;
 			}
 
-			new_draw_info(NDI_UNIQUE, who, "Your grace is drained!");
+			new_draw_info(0, COLOR_WHITE, who, "Your grace is drained!");
 
 			if (QUERY_FLAG(food, FLAG_CURSED))
 			{
@@ -382,7 +382,7 @@ void eat_special_food(object *who, object *food)
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, who, "You are returned to a state of grace.");
+			new_draw_info(0, COLOR_WHITE, who, "You are returned to a state of grace.");
 			who->stats.grace += food->stats.grace;
 
 			if (who->stats.grace > who->stats.maxgrace)

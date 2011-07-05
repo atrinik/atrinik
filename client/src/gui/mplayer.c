@@ -48,21 +48,21 @@ static button_struct button_play, button_shuffle, button_blacklist, button_close
  * @param list The music list. */
 static void list_handle_enter(list_struct *list)
 {
-	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, -1);
+	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 	sound_map_background(1);
 	shuffle = 0;
 }
 
 /**
  * Handle list::text_color_hook in the music player list. */
-static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color, uint32 row, uint32 col)
+static const char *list_text_color_hook(list_struct *list, const char *default_color, uint32 row, uint32 col)
 {
 	(void) list;
 	(void) col;
 
 	if (shuffle_blacklist[row])
 	{
-		return COLOR_SIMPLE(COLOR_RED);
+		return COLOR_RED;
 	}
 
 	return default_color;
@@ -111,7 +111,7 @@ static void mplayer_do_shuffle(list_struct *list)
 
 	list->row_selected = selected + 1;
 	list->row_offset = MIN(list->rows - list->max_rows, selected);
-	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, 0);
+	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), 0);
 	cur_widget[MPLAYER_ID]->redraw = 1;
 }
 
@@ -290,7 +290,7 @@ void widget_show_mplayer(widgetdata *widget)
 	if (!list)
 	{
 		/* Create the list and set up settings. */
-		list = list_create(LIST_MPLAYER, 10, 2, 12, 1, 8);
+		list = list_create(LIST_MPLAYER, 12, 1, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->text_color_hook = list_text_color_hook;
 		list->surface = widget->widgetSF;
@@ -369,14 +369,15 @@ void widget_show_mplayer(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		list->focus = 1;
-		list_show(list);
+		list_set_parent(list, widget->x1, widget->y1);
+		list_show(list, 10, 2);
 		box.w /= 2;
-		string_blt(widget->widgetSF, FONT_SANS10, "Currently playing:", widget->wd / 2, 22, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SANS10, "Currently playing:", widget->wd / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		box.h = 120;
 		box.w -= 6;
-		string_blt(widget->widgetSF, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->wd / 2, 60, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(widget->widgetSF, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->wd / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	box2.x = widget->x1;
@@ -397,7 +398,7 @@ void widget_show_mplayer(widgetdata *widget)
 	}
 
 	/* Show the music that is being played. */
-	string_blt(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+	string_blt(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 	button_play.x = widget->x1 + 10;
 	button_play.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;

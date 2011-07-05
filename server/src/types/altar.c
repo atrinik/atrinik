@@ -54,7 +54,7 @@ int apply_altar(object *altar, object *sacrifice, object *originator)
 		 * properly. */
 		if (altar->stats.sp != -1)
 		{
-			new_draw_info_format(NDI_WHITE, originator, "The altar casts %s.", spells[altar->stats.sp].name);
+			new_draw_info_format(0, COLOR_WHITE, originator, "The altar casts %s.", spells[altar->stats.sp].name);
 			cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, CAST_POTION, NULL);
 			/* If it is connected, push the button. Fixes some problems
 			 * with old maps. */
@@ -154,7 +154,7 @@ int operate_altar(object *altar, object **sacrifice)
 
 	if (altar->msg)
 	{
-		new_info_map(NDI_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, altar->msg);
+		new_info_map(0, COLOR_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, altar->msg);
 	}
 
 	return 1;

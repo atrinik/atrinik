@@ -82,9 +82,6 @@
 		<Unit filename="..\..\..\src\client\server_settings.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\dialog.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\..\..\src\client\sound.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -163,6 +160,9 @@
 		<Unit filename="..\..\..\src\toolkit\SDL_rotozoom.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\toolkit\SDL_gfx.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\toolkit\clipboard.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -199,7 +199,7 @@
 		<Unit filename="..\..\..\src\include\event.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\dialog.h">
+		<Unit filename="..\..\..\src\include\settings.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\effects.h">
@@ -256,8 +256,6 @@
 		<Unit filename="..\..\..\src\include\ignore.h">
 			<Option compilerVar="CC" />
 		</Unit>
-
-
 		<Unit filename="..\..\..\src\include\commands.h">
 			<Option compilerVar="CC" />
 		</Unit>

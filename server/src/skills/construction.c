@@ -112,7 +112,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 		{
 			if (tmp->arch == new_floor->arch)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You feel too lazy to redo the exact same floor.");
+				new_draw_info(0, COLOR_WHITE, op, "You feel too lazy to redo the exact same floor.");
 				return 0;
 			}
 
@@ -131,7 +131,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 	new_floor->x = x;
 	new_floor->y = y;
 	insert_ob_in_map(new_floor, op->map, NULL, 0);
-	new_draw_info(NDI_UNIQUE, op, "You change the floor to better suit your tastes.");
+	new_draw_info(0, COLOR_WHITE, op, "You change the floor to better suit your tastes.");
 
 	return 1;
 }
@@ -151,7 +151,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
 	/* If it's not a wallmask, don't allow building on top of blocked squares. */
 	if (new_item->type != WALL && w)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
 		return 0;
 	}
 	/* Wallmask, only allow building on top of blocked square that only
@@ -162,12 +162,12 @@ static int builder_item(object *op, object *new_item, int x, int y)
 
 		if (!w || !wall)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
 			return 0;
 		}
 		else if (wall->above && wall->above->type == WALL)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall->above, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall->above, NULL));
 			return 0;
 		}
 	}
@@ -183,7 +183,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
 
 	if (!floor)
 	{
-		new_draw_info(NDI_UNIQUE, op, "This square has no floor, you can't build here.");
+		new_draw_info(0, COLOR_WHITE, op, "This square has no floor, you can't build here.");
 		return 0;
 	}
 
@@ -202,7 +202,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
 
 		if (!book || (!book->msg && !book->custom_name))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You need to put a book with your message (or custom name) on the floor.");
+			new_draw_info(0, COLOR_WHITE, op, "You need to put a book with your message (or custom name) on the floor.");
 			return 0;
 		}
 
@@ -232,7 +232,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
 	new_item->x = x;
 	new_item->y = y;
 	insert_ob_in_map(new_item, op->map, NULL, 0);
-	new_draw_info_format(NDI_UNIQUE, op, "You build the %s.", query_name(new_item, NULL));
+	new_draw_info_format(0, COLOR_WHITE, op, "You build the %s.", query_name(new_item, NULL));
 
 	return 1;
 }
@@ -398,13 +398,13 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 
 		if (!wall_split_orientation(wall, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You don't see a way to redecorate that wall.");
+			new_draw_info(0, COLOR_WHITE, op, "You don't see a way to redecorate that wall.");
 			return 0;
 		}
 
 		if (!strncmp(wall->arch->name, wall_name, strlen(wall_name)))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You feel too lazy to redo the exact same wall.");
+			new_draw_info(0, COLOR_WHITE, op, "You feel too lazy to redo the exact same wall.");
 			return 0;
 		}
 	}
@@ -419,7 +419,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 		new_wall->y = y;
 		insert_ob_in_map(new_wall, op->map, NULL, 0);
 		fix_walls(op->map, x, y);
-		new_draw_info(NDI_UNIQUE, op, "You redecorate the wall to better suit your tastes.");
+		new_draw_info(0, COLOR_WHITE, op, "You redecorate the wall to better suit your tastes.");
 	}
 	/* Else insert new wall and fix all walls around */
 	else
@@ -443,7 +443,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 			}
 		}
 
-		new_draw_info(NDI_UNIQUE, op, "You build a wall.");
+		new_draw_info(0, COLOR_WHITE, op, "You build a wall.");
 	}
 
 	return 1;
@@ -468,18 +468,18 @@ static int builder_window(object *op, int x, int y)
 
 	if (!wall)
 	{
-		new_draw_info(NDI_UNIQUE, op, "There is no wall there.");
+		new_draw_info(0, COLOR_WHITE, op, "There is no wall there.");
 		return 0;
 	}
 
 	if (!wall_split_orientation(wall, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You don't see a way to build a window in that wall.");
+		new_draw_info(0, COLOR_WHITE, op, "You don't see a way to build a window in that wall.");
 		return 0;
 	}
 	else if (!strcmp(orientation, "_1") && !strcmp(orientation, "_3"))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You cannot build a window in that wall.");
+		new_draw_info(0, COLOR_WHITE, op, "You cannot build a window in that wall.");
 		return 0;
 	}
 
@@ -491,7 +491,7 @@ static int builder_window(object *op, int x, int y)
 	/* That type of wall doesn't have corresponding window archetype. */
 	if (!new_arch)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You cannot build a window in that wall.");
+		new_draw_info(0, COLOR_WHITE, op, "You cannot build a window in that wall.");
 		return 0;
 	}
 
@@ -516,7 +516,7 @@ static int builder_window(object *op, int x, int y)
 	}
 
 	CLEAR_FLAG(window, FLAG_BLOCKSVIEW);
-	new_draw_info(NDI_UNIQUE, op, "You build a window in the wall.");
+	new_draw_info(0, COLOR_WHITE, op, "You build a window in the wall.");
 	return 1;
 }
 
@@ -535,13 +535,13 @@ static void construction_builder(object *op, int x, int y)
 
 	if (!material)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You need to mark raw materials to use.");
+		new_draw_info(0, COLOR_WHITE, op, "You need to mark raw materials to use.");
 		return;
 	}
 
 	if (material->type != MATERIAL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't use the marked item to build.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't use the marked item to build.");
 		return;
 	}
 
@@ -551,7 +551,7 @@ static void construction_builder(object *op, int x, int y)
 	if (!new_arch)
 	{
 		LOG(llevBug, "construction_builder(): Unable to find archetype %s.\n", material->slaying);
-		new_draw_info(NDI_UNIQUE, op, "You can't use this strange material.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't use this strange material.");
 		return;
 	}
 
@@ -560,7 +560,7 @@ static void construction_builder(object *op, int x, int y)
 
 	if (!can_build_over(op->map, new_item, x, y))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't build there.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't build there.");
 		return;
 	}
 
@@ -585,7 +585,7 @@ static void construction_builder(object *op, int x, int y)
 
 		default:
 			LOG(llevBug, "construction_builder(): Invalid material subtype %d.\n", material->sub_type);
-			new_draw_info(NDI_UNIQUE, op, "Don't know how to apply this material, sorry.");
+			new_draw_info(0, COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
 			break;
 	}
 
@@ -622,14 +622,14 @@ static void construction_destroyer(object *op, int x, int y)
 
 	if (!item)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing to remove.");
+		new_draw_info(0, COLOR_WHITE, op, "Nothing to remove.");
 		return;
 	}
 
 	/* Do not allow destroying containers with inventory. */
 	if (item->type == CONTAINER && item->inv)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You cannot remove the %s, since it contains items.", query_name(item, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "You cannot remove the %s, since it contains items.", query_name(item, NULL));
 		return;
 	}
 
@@ -652,7 +652,7 @@ static void construction_destroyer(object *op, int x, int y)
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "You remove the %s.", query_name(item, NULL));
+	new_draw_info_format(0, COLOR_WHITE, op, "You remove the %s.", query_name(item, NULL));
 }
 
 /**
@@ -674,19 +674,19 @@ void construction_do(object *op, int dir)
 
 	if (!skill_item)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You need to apply a skill item to use this skill.");
+		new_draw_info(0, COLOR_WHITE, op, "You need to apply a skill item to use this skill.");
 		return;
 	}
 
 	if (skill_item->stats.sp != SK_CONSTRUCTION)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "The %s cannot be used with the construction skill.", query_name(skill_item, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "The %s cannot be used with the construction skill.", query_name(skill_item, NULL));
 		return;
 	}
 
 	if (!dir)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't build or destroy under yourself.");
+		new_draw_info(0, COLOR_WHITE, op, "You can't build or destroy under yourself.");
 		return;
 	}
 
@@ -695,7 +695,7 @@ void construction_do(object *op, int dir)
 
 	if ((1 > x) || (1 > y) || ((MAP_WIDTH(op->map) - 2) < x) || ((MAP_HEIGHT(op->map) - 2) < y))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can't build on map edge.");
+		new_draw_info(0, COLOR_WHITE, op, "Can't build on map edge.");
 		return;
 	}
 
@@ -706,7 +706,7 @@ void construction_do(object *op, int dir)
 	if (!floor)
 	{
 		LOG(llevBug, "construction_do(): Undefined square on map %s (%d, %d)\n", op->map->path, x, y);
-		new_draw_info(NDI_UNIQUE, op, "You'd better not build here, it looks weird.");
+		new_draw_info(0, COLOR_WHITE, op, "You'd better not build here, it looks weird.");
 		return;
 	}
 
@@ -721,7 +721,7 @@ void construction_do(object *op, int dir)
 
 			if (!QUERY_FLAG(tmp, FLAG_IS_BUILDABLE))
 			{
-				new_draw_info(NDI_UNIQUE, op, "You can't build there.");
+				new_draw_info(0, COLOR_WHITE, op, "You can't build there.");
 				return;
 			}
 		}
@@ -743,7 +743,7 @@ void construction_do(object *op, int dir)
 
 		if (!found_destroyer)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You cannot build without having a destroyer at hand.");
+			new_draw_info(0, COLOR_WHITE, op, "You cannot build without having a destroyer at hand.");
 			return;
 		}
 	}
@@ -760,7 +760,7 @@ void construction_do(object *op, int dir)
 
 		default:
 			LOG(llevBug, "Skill item %s has invalid subtype.\n", query_name(skill_item, NULL));
-			new_draw_info(NDI_UNIQUE, op, "Don't know how to apply this tool, sorry.");
+			new_draw_info(0, COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
 			break;
 	}
 }

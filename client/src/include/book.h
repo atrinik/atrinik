@@ -36,8 +36,8 @@
 #define BOOK_CONTENT_HEIGHT (Bitmaps[BITMAP_BOOK]->bitmap->h - 80)
 
 /** X position of the book. */
-#define BOOK_BACKGROUND_X (Screensize->x / 2 - Bitmaps[BITMAP_BOOK]->bitmap->w / 2)
+#define BOOK_BACKGROUND_X (ScreenSurface->w / 2 - Bitmaps[BITMAP_BOOK]->bitmap->w / 2)
 /** Y position of the book. */
-#define BOOK_BACKGROUND_Y (Screensize->y / 2 - Bitmaps[BITMAP_BOOK]->bitmap->h / 2)
+#define BOOK_BACKGROUND_Y (ScreenSurface->h / 2 - Bitmaps[BITMAP_BOOK]->bitmap->h / 2)
 
 #endif

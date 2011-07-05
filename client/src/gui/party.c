@@ -69,7 +69,7 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
 		box.w -= STAT_BAR_WIDTH + list->col_spacings[0];
 	}
 
-	SDL_FillRect(list->surface, &box, sdl_dgreen);
+	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
 }
 
 /**
@@ -83,7 +83,7 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 		box.w -= STAT_BAR_WIDTH + list->col_spacings[0];
 	}
 
-	SDL_FillRect(list->surface, &box, sdl_blue1);
+	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
 }
 
 /**
@@ -108,7 +108,7 @@ void widget_party_background(widgetdata *widget)
 	/* Create the party list. */
 	if (!list)
 	{
-		list = list_create(LIST_PARTY, 10, 23, 12, 2, 8);
+		list = list_create(LIST_PARTY, 12, 2, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->surface = widget->widgetSF;
 		list->text_flags = TEXT_MARKUP;
@@ -160,12 +160,13 @@ void widget_party_render(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		if (list)
 		{
 			list->focus = 1;
-			list_show(list);
+			list_set_parent(list, widget->x1, widget->y1);
+			list_show(list, 10, 23);
 		}
 	}
 

@@ -207,11 +207,11 @@ void script_load(const char *cparams)
 
 		if (r != -1)
 		{
-			printf("draw %d Script child: no error, but no execvp().\n", COLOR_RED);
+			printf("draw %s Script child: no error, but no execvp().\n", COLOR_RED);
 		}
 		else
 		{
-			printf("draw %d Script child failed to start: %s\n", COLOR_RED, strerror(errno));
+			printf("draw %s Script child failed to start: %s\n", COLOR_RED, strerror(errno));
 		}
 
 		exit(1);
@@ -475,42 +475,16 @@ static void script_process_cmd(int i)
 	 * Process it. */
 	if (!strncmp(cmd, "draw ", 5))
 	{
-		int color;
+		char color[COLOR_BUF];
+		const char *cp = cmd;
 
-		c = cmd + 5;
+		cp += 5;
 
-		while (*c && !isdigit(*c))
-		{
-			c++;
-		}
+		snprintf(color, sizeof(color), "%s", cp);
+		color[sizeof(color) - 1] = '\0';
+		cp += 7;
 
-		/* No color specified */
-		if (!*c)
-		{
-			LOG(llevBug, "script_process_cmd(): Draw command did not have color specified.\n");
-			return;
-		}
-
-		color = atoi(c);
-
-		while (*c && *c != ' ')
-		{
-			c++;
-		}
-
-		/* No message specified */
-		if (!*c)
-		{
-			LOG(llevBug, "script_process_cmd(): Draw command did not have message set.\n");
-			return;
-		}
-
-		while (*c == ' ')
-		{
-			c++;
-		}
-
-		draw_info(color, c);
+		draw_info(color, cp);
 	}
 	else if (!strncmp(cmd, "log ", 4))
 	{

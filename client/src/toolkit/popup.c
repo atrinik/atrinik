@@ -177,17 +177,25 @@ void popup_draw()
 	}
 
 	/* Show the popup in the middle of the screen. */
-	box.x = Screensize->x / 2 - popup_visible->surface->w / 2;
-	box.y = Screensize->y / 2 - popup_visible->surface->h / 2;
+	box.x = ScreenSurface->w / 2 - popup_visible->surface->w / 2;
+	box.y = ScreenSurface->h / 2 - popup_visible->surface->h / 2;
 	SDL_BlitSurface(popup_visible->surface, NULL, ScreenSurface, &box);
+
+	popup_visible->x = box.x;
+	popup_visible->y = box.y;
 
 	if (popup_visible->draw_func_post)
 	{
-		popup_visible->draw_func_post(popup_visible, box.x, box.y);
+		popup_visible->draw_func_post(popup_visible);
+	}
+
+	if (!popup_visible)
+	{
+		return;
 	}
 
 	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		popup_destroy_visible();
 	}

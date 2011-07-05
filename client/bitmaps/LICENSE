@@ -6,7 +6,6 @@ Alex "Cleo" Tokar - GPLv2:
 	arrow_up2.png
 	below.png
 	below_scroll.png
-	black_tile.png
 	button.png
 	button_down.png
 	button_rect.png
@@ -23,11 +22,6 @@ Alex "Cleo" Tokar - GPLv2:
 	content.png
 	cursed.png
 	damned.png
-	dialog_title_keybind.png
-	dialog_title_options.png
-	dialog_title_party.png
-	dialog_title_skill.png
-	dialog_title_spell.png
 	exp_border.png
 	exp_bubble.png
 	exp_bubble2.png
@@ -68,7 +62,6 @@ Alex "Cleo" Tokar - GPLv2:
 	map_marker.png
 	menu_buttons.png
 	number.png
-	palette.png
 	paralyzed.png
 	player_doll_bg.png (doll picture by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
 	player_info_bg.png
@@ -93,6 +86,10 @@ Alex "Cleo" Tokar - GPLv2:
 	textwin_mask.png
 	textwin_scroll.png
 	unpaid.png
+	range_buttons_left.png
+	range_buttons_off.png
+	range_buttons_right.png
+	fps.png
 
 Glenn Hanna - GPLv2:
 	book.png (borders by: Alex "Cleo" Tokar - GPLv2)

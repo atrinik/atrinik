@@ -446,12 +446,12 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 
 	if (mode)
 	{
-		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, message);
+		hooks->new_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, message);
 	}
 	else
 	{
 		snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
-		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, buf);
+		hooks->new_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -481,17 +481,17 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
 
 	if (mode)
 	{
-		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target->obj, message);
+		hooks->new_draw_info(0, COLOR_NAVY, target->obj, message);
 	}
 	else
 	{
 		char buf[HUGE_BUF];
 
 		snprintf(buf, sizeof(buf), "%s talks to %s.", hooks->query_name(obj->obj, NULL), hooks->query_name(target->obj, NULL));
-		hooks->new_info_map_except(NDI_UNIQUE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
+		hooks->new_info_map_except(0, COLOR_WHITE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
 
 		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(obj->obj, NULL), message);
-		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target->obj, buf);
+		hooks->new_draw_info(0, COLOR_NAVY, target->obj, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -499,23 +499,26 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Write(string message, int color)</h1>
+ * <h1>object.Write(string message, string [color = @ref COLOR_ORANGE], int [flags = 0])</h1>
  * Writes a message to a specific player object.
  * @param message The message to write.
- * @param color Color to write the message in. Defaults to orange. */
-static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args)
+ * @param color Color to write the message in. Can be one of
+ * @ref COLOR_xxx or a HTML color notation.
+ * @param flags Optional flags, one of @ref NDI_xxx. */
+static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	int color = NDI_UNIQUE | NDI_ORANGE;
-	const char *message;
+	static char *kwlist[] = {"message", "color", "flags", NULL};
+	int flags = 0;
+	const char *message, *color = COLOR_ORANGE;
 
-	if (!PyArg_ParseTuple(args, "s|i", &message, &color))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|si", kwlist, &message, &color, &flags))
 	{
 		return NULL;
 	}
 
 	OBJEXISTCHECK(obj);
 
-	hooks->new_draw_info(color, obj->obj, message);
+	hooks->new_draw_info(flags, color, obj->obj, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1998,7 +2001,7 @@ static PyMethodDef methods[] =
 	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
 	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
 	{"SayTo", (PyCFunction) Atrinik_Object_SayTo, METH_VARARGS, 0},
-	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS, 0},
+	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
 	{"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
 	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},

@@ -48,6 +48,16 @@ typedef struct list_struct
 	/** Y position of the list. */
 	int y;
 
+	/**
+	 * Parent X position, ie, X position of the surface the list is being
+	 * drawn on. */
+	int px;
+
+	/**
+	 * Parent Y position, ie, Y position of the surface the list is being
+	 * drawn on. */
+	int py;
+
 	/** List's maximum width. */
 	int width;
 
@@ -198,7 +208,11 @@ typedef struct list_struct
 	 * @param row Text row.
 	 * @param col Column.
 	 * @return Color to use for the text. */
-	SDL_Color (*text_color_hook)(struct list_struct *list, SDL_Color default_color, uint32 row, uint32 col);
+	const char *(*text_color_hook)(struct list_struct *list, const char *default_color, uint32 row, uint32 col);
+
+	void (*post_column_func)(struct list_struct *list, uint32 row, uint32 col);
+
+	void (*handle_mouse_row_func)(struct list_struct *list, uint32 row, SDL_Event *event);
 } list_struct;
 
 /**
@@ -219,6 +233,8 @@ typedef struct list_struct
 #define LIST_SKILLS 6
 /** Party list. */
 #define LIST_PARTY 7
+/** Settings list. */
+#define LIST_SETTINGS 8
 /*@}*/
 
 /** Calculate list's row height. */

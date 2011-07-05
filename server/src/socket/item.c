@@ -1040,7 +1040,7 @@ void LockItem(uint8 *data, int len, player *pl)
 	/* Only lock item inside the player's own inventory */
 	if (is_player_inv(op) != pl->ob)
 	{
-		new_draw_info(NDI_UNIQUE, pl->ob, "You can't lock items outside your inventory!");
+		new_draw_info(0, COLOR_WHITE, pl->ob, "You can't lock items outside your inventory!");
 		return;
 	}
 
@@ -1081,13 +1081,13 @@ void MarkItem(uint8 *data, int len, player *pl)
 
 	if (pl->mark_count == op->count)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
+		new_draw_info_format(0, COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
 		pl->mark = NULL;
 		pl->mark_count = -1;
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "Marked item %s.", query_name(op, NULL));
+		new_draw_info_format(0, COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
 		pl->mark_count = op->count;
 		pl->mark = op;
 	}
@@ -1123,11 +1123,11 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		if ((tmp = check_container(pl, op)))
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
+			new_draw_info(0, COLOR_WHITE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(pl, FLAG_INV_LOCKED))
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't drop a container with locked items inside!");
+			new_draw_info(0, COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
 		}
 		else
 		{
@@ -1172,15 +1172,15 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		if (QUERY_FLAG(pl, FLAG_INV_LOCKED) && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't drop a container with locked items inside!");
+			new_draw_info(0, COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
 		}
 		else if (tmp && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
+			new_draw_info(0, COLOR_WHITE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't store god-given items outside your inventory!");
+			new_draw_info(0, COLOR_WHITE, pl, "You can't store god-given items outside your inventory!");
 		}
 		else
 		{

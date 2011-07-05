@@ -85,11 +85,11 @@ void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap)
  * @param y Y position.
  * @param font Font to use.
  * @param text Text to draw.
- * @param color Color to use.
+ * @param color_notation Color to use.
  * @param flags Text @ref TEXT_xxx "flags".
  * @param bitmap Bitmap to use.
  * @param box Contains coordinates to use and maximum string width. */
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box)
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box)
 {
 	if (!box)
 	{
@@ -110,7 +110,7 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
 	box->x = 0;
 	box->y = 0;
 
-	string_blt(surface, font, text, x, y, color, flags | TEXT_WIDTH, box);
+	string_blt(surface, font, text, x, y, color_notation, flags | TEXT_WIDTH, box);
 }
 
 /**
@@ -120,11 +120,11 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
  * @param y Y position.
  * @param font Font to use.
  * @param text Text to draw.
- * @param color Color to use.
+ * @param color_notation Color to use.
  * @param flags Text @ref TEXT_xxx "flags".
  * @param bitmap Bitmap to use.
  * @param box Contains coordinates to use and maximum string width. */
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box)
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box)
 {
 	char buf[HUGE_BUF];
 	SDL_Rect box2;
@@ -165,7 +165,7 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 	}
 
 	/* Draw the text. */
-	text_input_draw_text(surface, x, y, font, buf, color, flags, bitmap, box);
+	text_input_draw_text(surface, x, y, font, buf, color_notation, flags, bitmap, box);
 }
 
 /**
@@ -187,8 +187,10 @@ void text_input_clear()
  * @param maxchar Maximum number of allowed characters. */
 void text_input_open(int maxchar)
 {
-	int interval = (options.key_repeat > 0) ? 70 / options.key_repeat : 0;
-	int delay = (options.key_repeat > 0) ? interval + 280 / options.key_repeat : 0;
+	int interval, delay;
+
+	interval = 120 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
+	delay = interval + 300 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
 
 	text_input_clear();
 	text_input_max = maxchar;
@@ -648,62 +650,4 @@ int text_input_handle(SDL_KeyboardEvent *key)
 	}
 
 	return 0;
-}
-
-/**
- * Show string that is being inputted.
- * @param text String to show.
- * @param font Font to use.
- * @param wlen Maximum length of the string.
- * @return String to show, based on the cursor position.
- * @deprecated Use text_input_show() instead. */
-const char *show_input_string(const char *text, struct _Font *font, int wlen)
-{
-	int i, len;
-	size_t j;
-	static char buf[MAX_INPUT_STR];
-
-	strcpy(buf, text);
-
-	len = (int) strlen(buf);
-
-	while (len >= text_input_cursor_pos)
-	{
-		buf[len + 1] = buf[len];
-		len--;
-	}
-
-	buf[text_input_cursor_pos] = '_';
-
-	for (len = 25, i = text_input_cursor_pos; i >= 0; i--)
-	{
-		if (!buf[i])
-		{
-			continue;
-		}
-
-		if (len + font->c[(int) (buf[i])].w + font->char_offset >= wlen)
-		{
-			i--;
-			break;
-		}
-
-		len += font->c[(int) (buf[i])].w + font->char_offset;
-	}
-
-	len -= 25;
-
-	for (j = text_input_cursor_pos; j <= strlen(buf); j++)
-	{
-		if (len + font->c[(int) (buf[j])].w + font->char_offset >= wlen)
-		{
-			break;
-		}
-
-		len += font->c[(int) (buf[j])].w + font->char_offset;
-	}
-
-	buf[j] = '\0';
-
-	return &buf[++i];
 }

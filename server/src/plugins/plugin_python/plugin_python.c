@@ -151,21 +151,6 @@ static const Atrinik_Constant constants[] =
 	{"EXP_PHYSICAL", EXP_PHYSICAL},
 	{"EXP_WISDOM", EXP_WISDOM},
 
-	{"COLOR_WHITE", NDI_WHITE},
-	{"COLOR_ORANGE", NDI_ORANGE},
-	{"COLOR_NAVY", NDI_NAVY},
-	{"COLOR_RED", NDI_RED},
-	{"COLOR_GREEN", NDI_GREEN},
-	{"COLOR_BLUE", NDI_BLUE},
-	{"COLOR_GREY", NDI_GREY},
-	{"COLOR_BROWN", NDI_BROWN},
-	{"COLOR_PURPLE", NDI_PURPLE},
-	{"COLOR_PINK", NDI_PINK},
-	{"COLOR_YELLOW", NDI_YELLOW},
-	{"COLOR_DK_NAVY", NDI_DK_NAVY},
-	{"COLOR_DK_GREEN", NDI_DK_GREEN},
-	{"COLOR_DK_ORANGE", NDI_DK_ORANGE},
-
 	{"NDI_SAY", NDI_SAY},
 	{"NDI_SHOUT", NDI_SHOUT},
 	{"NDI_TELL", NDI_TELL},
@@ -451,6 +436,34 @@ static const Atrinik_Constant constants_gender[] =
 	{"HERMAPHRODITE", GENDER_HERMAPHRODITE},
 
 	{NULL, 0}
+};
+/* @endcparser */
+
+/**
+ * Color constants */
+/* @cparser
+ * @page plugin_python_constants_colors Python color constants
+ * <h2>Python color constants</h2>
+ * List of the Python plugin color constants and their meaning. */
+static const char *const constants_colors[][2] =
+{
+	{"COLOR_WHITE", COLOR_WHITE},
+	{"COLOR_ORANGE", COLOR_ORANGE},
+	{"COLOR_NAVY", COLOR_NAVY},
+	{"COLOR_RED", COLOR_RED},
+	{"COLOR_GREEN", COLOR_GREEN},
+	{"COLOR_BLUE", COLOR_BLUE},
+	{"COLOR_GRAY", COLOR_GRAY},
+	{"COLOR_BROWN", COLOR_BROWN},
+	{"COLOR_PURPLE", COLOR_PURPLE},
+	{"COLOR_PINK", COLOR_PINK},
+	{"COLOR_YELLOW", COLOR_YELLOW},
+	{"COLOR_DK_NAVY", COLOR_DK_NAVY},
+	{"COLOR_DK_GREEN", COLOR_DK_GREEN},
+	{"COLOR_DK_ORANGE", COLOR_DK_ORANGE},
+	{"COLOR_HGOLD", COLOR_HGOLD},
+	{"COLOR_DGOLD", COLOR_DGOLD},
+	{NULL, NULL}
 };
 /* @endcparser */
 
@@ -2127,6 +2140,12 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	for (i = 0; constants[i].name; i++)
 	{
 		PyModule_AddIntConstant(m, constants[i].name, constants[i].value);
+	}
+
+	/* Initialize integer constants */
+	for (i = 0; constants_colors[i][0]; i++)
+	{
+		PyModule_AddStringConstant(m, constants_colors[i][0], constants_colors[i][1]);
 	}
 
 	module_tmp = module_create("Gender");

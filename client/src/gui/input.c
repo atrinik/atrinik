@@ -63,7 +63,7 @@ void widget_show_console(widgetdata *widget)
 	box.y = 0;
 	box.w = Bitmaps[BITMAP_TEXTINPUT]->bitmap->w;
 	box.h = Bitmaps[BITMAP_TEXTINPUT]->bitmap->h;
-	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL11, text_input_string, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_TEXTINPUT, &box);
+	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_TEXTINPUT, &box);
 }
 
 /**
@@ -72,16 +72,18 @@ void widget_show_console(widgetdata *widget)
  * @param y Y position of the number input */
 void widget_show_number(widgetdata *widget)
 {
-	SDL_Rect tmp;
-	char buf[512];
+	SDL_Rect box;
+	char buf[MAX_BUF];
 
-	tmp.w = 238;
+	box.x = 3;
+	box.y = 9;
+	box.w = Bitmaps[BITMAP_NUMBER]->bitmap->w - 22;
+	box.h = Bitmaps[BITMAP_NUMBER]->bitmap->h;
+	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_NUMBER, &box);
 
-	sprite_blt(Bitmaps[BITMAP_NUMBER], widget->x1, widget->y1, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%s how many from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", cpl.nrof, cpl.num_text);
-
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, &tmp, NULL);
-	StringBlt(ScreenSurface, &SystemFont, show_input_string(text_input_string, &SystemFont, Bitmaps[BITMAP_NUMBER]->bitmap->w - 22), widget->x1 + 8, widget->y1 + 25, COLOR_WHITE, &tmp, NULL);
+	string_truncate_overflow(FONT_ARIAL10, buf, 220);
+	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, 0, NULL);
 }
 
 /**

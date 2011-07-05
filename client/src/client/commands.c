@@ -318,22 +318,11 @@ void SkillRdyCmd(char *data, int len)
  * @param data The text to output. */
 void DrawInfoCmd(unsigned char *data)
 {
-	int color = atoi((char *) data);
-	char *buf;
+	char color[COLOR_BUF];
+	int pos = 0;
 
-	buf = strchr((char *) data, ' ');
-
-	if (!buf)
-	{
-		LOG(llevBug, "DrawInfoCmd - got no data\n");
-		buf = "";
-	}
-	else
-	{
-		buf++;
-	}
-
-	draw_info(color, buf);
+	GetString_String(data, &pos, color, sizeof(color));
+	draw_info(color, (char *) data + pos);
 }
 
 /**
@@ -344,12 +333,16 @@ void DrawInfoCmd(unsigned char *data)
 void DrawInfoCmd2(unsigned char *data, int len)
 {
 	int flags;
-	char buf[20048], *tmp = NULL;
+	char color[COLOR_BUF], buf[20048], *tmp = NULL;
+	int pos = 0;
 
 	flags = (int) GetShort_String(data);
-	data += 2;
+	pos += 2;
 
-	len -= 2;
+	GetString_String(data, &pos, color, sizeof(color));
+	len -= pos;
+
+	data += pos;
 
 	if (len >= 0)
 	{
@@ -358,14 +351,14 @@ void DrawInfoCmd2(unsigned char *data, int len)
 			len = 20000;
 		}
 
-		if (options.chat_timestamp && (flags & NDI_PLAYER))
+		if (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS) && (flags & NDI_PLAYER))
 		{
 			time_t now = time(NULL);
 			char timebuf[32], *format;
 			struct tm *tmp = localtime(&now);
 			size_t timelen;
 
-			switch (options.chat_timestamp)
+			switch (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS))
 			{
 				/* HH:MM */
 				case 1:
@@ -456,11 +449,12 @@ void DrawInfoCmd2(unsigned char *data, int len)
 	if (flags & NDI_ANIM)
 	{
 		strncpy(msg_anim.message, buf, sizeof(msg_anim.message) - 1);
-		msg_anim.flags = flags;
 		msg_anim.tick = LastTick;
+		strncpy(msg_anim.color, color, sizeof(msg_anim.color) - 1);
+		msg_anim.color[sizeof(msg_anim.color) - 1] = '\0';
 	}
 
-	draw_info(flags, buf);
+	draw_info_flags(color, flags, buf);
 }
 
 /**
@@ -469,7 +463,11 @@ void DrawInfoCmd2(unsigned char *data, int len)
  * @param len Length of the data */
 void TargetObject(unsigned char *data, int len)
 {
-	cpl.target_mode = *data++;
+	int pos = 0;
+
+	(void) len;
+
+	cpl.target_mode = data[pos++];
 
 	if (cpl.target_mode)
 	{
@@ -480,9 +478,10 @@ void TargetObject(unsigned char *data, int len)
 		sound_play_effect("weapon_hold.ogg", 100);
 	}
 
-	cpl.target_color = *data++;
-	cpl.target_code = *data++;
-	strncpy(cpl.target_name, (char *)data, len);
+	cpl.target_code = data[pos++];
+	GetString_String(data, &pos, cpl.target_color, sizeof(cpl.target_color));
+	GetString_String(data, &pos, cpl.target_name, sizeof(cpl.target_name));
+
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
 }
@@ -928,7 +927,6 @@ void PlayerCmd(unsigned char *data, int len)
 	}
 
 	new_player(tag, weight, (short) face);
-	map_draw_map_clear();
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
@@ -1471,16 +1469,17 @@ void Map2Cmd(unsigned char *data, int len)
 			/* Clear this layer. */
 			if (type == MAP2_LAYER_CLEAR)
 			{
-				map_set_data(x, y, data[pos++], 0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+				map_set_data(x, y, data[pos++], 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0);
 			}
 			/* We have some data. */
 			else
 			{
 				sint16 face = GetShort_String(data + pos), height = 0, zoom = 0, align = 0, rotate = 0;
-				uint8 flags, obj_flags, quick_pos = 0, player_color = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0;
-				char player_name[64];
+				uint8 flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0;
+				char player_name[64], player_color[COLOR_BUF];
 
 				player_name[0] = '\0';
+				player_color[0] = '\0';
 
 				pos += 2;
 				/* Request the face. */
@@ -1499,16 +1498,8 @@ void Map2Cmd(unsigned char *data, int len)
 				/* Player name? */
 				if (flags & MAP2_FLAG_NAME)
 				{
-					size_t i = 0;
-					char c;
-
-					while ((c = (char) (data[pos++])))
-					{
-						player_name[i++] = c;
-					}
-
-					player_name[i] = '\0';
-					player_color = data[pos++];
+					GetString_String(data, &pos, player_name, sizeof(player_name));
+					GetString_String(data, &pos, player_color, sizeof(player_color));
 				}
 
 				/* Target's HP? */

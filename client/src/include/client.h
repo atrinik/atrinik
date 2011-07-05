@@ -52,33 +52,13 @@
 #define FFLAG_BLINDED	0x10
 /* Object is invisible (but when sent, player can see it) */
 #define FFLAG_INVISIBLE	0x20
-/* Object is ethereal - but when sent, object can be seen */
-#define FFLAG_ETHEREAL	0x40
-/* Object is target of player */
-#define FFLAG_PROBE		0x80
 
 #define INPUT_MODE_NO		0
 #define INPUT_MODE_CONSOLE	1
-#define INPUT_MODE_NUMBER	4
-#define INPUT_MODE_GETKEY	8
+#define INPUT_MODE_NUMBER	2
 
 #define NUM_MODE_GET  1
 #define NUM_MODE_DROP 2
-
-/* Values for send_command option */
-#define SC_NORMAL 0
-
-/** Screensize structure */
-typedef struct screensize
-{
-	/** Screen X */
-	int x;
-
-	/** Screen Y */
-	int y;
-} _screensize;
-
-extern struct screensize *Screensize;
 
 typedef struct Animations
 {
@@ -143,7 +123,7 @@ typedef struct Stat_struct
 
 	/* Weapon Class and Armour Class */
 	sint16 wc, ac;
-	sint8 level;
+	uint32 level;
 
 	/* Hit Points. */
 	sint32 hp;
@@ -239,7 +219,7 @@ typedef struct Player_Struct
 	int	target_code;
 
 	/* Target's color */
-	int	target_color;
+	char target_color[COLOR_BUF];
 
 	/* Inventory windows */
 	int inventory_win;
@@ -496,26 +476,6 @@ extern Client_Player cpl;
 #define UPD_ANIMSPEED	0x40
 #define UPD_NROF		0x80
 #define UPD_DIRECTION	0x100
-
-/* White */
-#define COLOR_DEFAULT 	0
-#define COLOR_WHITE  	0
-#define COLOR_ORANGE 	1
-/* Navy */
-#define COLOR_LBLUE  	2
-#define COLOR_RED		3
-#define COLOR_GREEN 	4
-#define COLOR_BLUE  	5
-#define COLOR_GREY  	6
-#define COLOR_YELLOW  	7
-#define COLOR_DK_NAVY  	8
-
-/* Client only colors */
-#define COLOR_HGOLD 	64
-#define COLOR_DGOLD		65
-#define COLOR_DBROWN  	44
-
-#define COLOR_BLACK 	255
 
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1

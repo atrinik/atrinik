@@ -42,14 +42,14 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 
 	if (!msg || *msg == '\0')
 	{
-		new_draw_info(NDI_UNIQUE, op, "No message to write. Usage:\n/use_skill inscription <message>");
+		new_draw_info(0, COLOR_WHITE, op, "No message to write. Usage:\n/use_skill inscription <message>");
 		return 0;
 	}
 
 	/* Prevent cheating. */
 	if (strcasestr_local(msg, "endmsg"))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Trying to cheat now are we?");
+		new_draw_info(0, COLOR_WHITE, op, "Trying to cheat now are we?");
 		LOG(llevInfo, "%s tried to write a bogus message using inscription skill.\n", op->name);
 		return 0;
 	}
@@ -57,7 +57,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 	/* Check if we can fit the message into the book. */
 	if (book_overflow(marked->msg, msg, sizeof(buf)))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your message won't fit in the %s.", query_short_name(marked, op));
+		new_draw_info_format(0, COLOR_WHITE, op, "Your message won't fit in the %s.", query_short_name(marked, op));
 		return 0;
 	}
 
@@ -71,7 +71,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 	}
 
 	FREE_AND_COPY_HASH(marked->msg, buf);
-	new_draw_info_format(NDI_UNIQUE, op, "You write in the %s.", query_short_name(marked, op));
+	new_draw_info_format(0, COLOR_WHITE, op, "You write in the %s.", query_short_name(marked, op));
 	CONTR(op)->stat_books_inscribed++;
 
 	return strlen(msg);
@@ -89,7 +89,7 @@ int skill_inscription(object *op, const char *params)
 	/* Can't write anything without being able to read... */
 	if (!find_skill(op, SK_LITERACY))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You must learn to read before you can write!");
+		new_draw_info(0, COLOR_WHITE, op, "You must learn to read before you can write!");
 		return 0;
 	}
 
@@ -97,19 +97,19 @@ int skill_inscription(object *op, const char *params)
 
 	if (!skill_item)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You need to apply a writing pen to use this skill.");
+		new_draw_info(0, COLOR_WHITE, op, "You need to apply a writing pen to use this skill.");
 		return 0;
 	}
 
 	if (skill_item->stats.sp != SK_INSCRIPTION)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "The %s cannot be used with this skill.", query_short_name(skill_item, NULL));
+		new_draw_info_format(0, COLOR_WHITE, op, "The %s cannot be used with this skill.", query_short_name(skill_item, NULL));
 		return 0;
 	}
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You are unable to write while blind.");
+		new_draw_info(0, COLOR_WHITE, op, "You are unable to write while blind.");
 		return 0;
 	}
 
@@ -117,7 +117,7 @@ int skill_inscription(object *op, const char *params)
 
 	if (!marked)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You don't have any marked item to write on.");
+		new_draw_info(0, COLOR_WHITE, op, "You don't have any marked item to write on.");
 		return 0;
 	}
 
@@ -126,6 +126,6 @@ int skill_inscription(object *op, const char *params)
 		return inscribe_book(op, params, marked);
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "You can't write on the %s.", query_short_name(marked, NULL));
+	new_draw_info_format(0, COLOR_WHITE, op, "You can't write on the %s.", query_short_name(marked, NULL));
 	return 0;
 }

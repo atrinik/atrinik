@@ -811,7 +811,7 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
 
-	if (options.tcp_nodelay)
+	if (setting_get_int(OPT_CAT_CLIENT, OPT_MINIMIZE_LATENCY))
 	{
 		int tmp = 1;
 

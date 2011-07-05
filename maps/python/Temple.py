@@ -81,7 +81,7 @@ class BaseTemple:
 	def handle_spell(self, spell):
 		if self._activator.PayAmount(self.services[spell][1]):
 			if self.services[spell][1]:
-				self._activator.Write("You pay {}.".format(CostString(self.services[spell][1])), 0)
+				self._activator.Write("You pay {}.".format(CostString(self.services[spell][1])), COLOR_WHITE)
 
 			self._me.SayTo(self._activator, "\nOk, I will cast {0} on you now.".format(spell))
 			self._me.Cast(GetSpellNr(spell), self._activator)

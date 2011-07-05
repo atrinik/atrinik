@@ -25,7 +25,7 @@ def learn_weapon_skill(skill, weapon):
 		else:
 			activator.Controller().AcquireSkill(skill_nr)
 			obj = activator.CreateObject(weapon, value = 1)
-			activator.Write("{0} gives you a {1}.".format(me.name, obj.name), 0)
+			activator.Write("{0} gives you a {1}.".format(me.name, obj.name), COLOR_WHITE)
 			activator.Apply(obj, 0)
 
 def main():

@@ -344,7 +344,7 @@ void remove_ns_dead_player(player *pl)
 
 		if (!pl->dm_stealth)
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+			new_draw_info_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
 		}
 
 		/* If this player is in a party, leave the party */

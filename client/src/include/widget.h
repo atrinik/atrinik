@@ -168,10 +168,10 @@ typedef struct _widget_label
 	char *text;
 
 	/** The font of the text. */
-	_Font *font;
+	int font;
 
-	/** The colour of the text. */
-	int color;
+	/** The color of the text. */
+	const char *color;
 } _widget_label;
 
 typedef struct _widget_bitmap

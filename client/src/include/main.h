@@ -34,6 +34,7 @@
 #define MAX_BUF 256
 /** Maximum frames per second. */
 #define FRAMES_PER_SECOND 30
+#define COLOR_BUF 7
 
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
@@ -92,8 +93,8 @@ typedef struct msg_anim_struct
 	/** Tick when it started. */
 	uint32 tick;
 
-	/** Flags as determined in DrawInfoCmd2(). */
-	int flags;
+	/** Color of the message animation. */
+	char color[COLOR_BUF];
 } msg_anim_struct;
 
 extern struct msg_anim_struct msg_anim;
@@ -103,104 +104,6 @@ extern struct msg_anim_struct msg_anim;
 #endif
 
 #define FILE_ATRINIK_P0 "atrinik.p0"
-
-extern Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
-extern int mb_clicked;
-
-/* IMPORTANT: datatype must also be changed in dialog.c */
-typedef struct _options
-{
-	/* Sound */
-	int sound_volume;
-	int music_volume;
-
-	/* Visual */
-	int video_bpp;
-	int fullscreen;
-	int resolution_x;
-	int resolution_y;
-	int resolution;
-	int textwin_alpha;
-	int snap_radius;
-	int map_size_x;
-	int map_size_y;
-
-	/* Look & Feel */
-	int player_names;
-	int playerdoll;
-	int zoom;
-	int zoom_smooth;
-	int show_target_self;
-	int warning_hp;
-	int warning_food;
-	int show_tooltips;
-	int chat_timestamp;
-	int chat_font_size;
-	int chat_max_lines;
-
-	int collect_mode;
-	int key_repeat;
-
-	/* Exp display */
-	int expDisplay;
-
-	/* Debug */
-	int force_redraw;
-
-	/* True: show frame rate */
-	int show_frame;
-	int intelligent_fps_cap;
-	int sleep;
-	int max_speed;
-	int auto_bpp_flag;
-	int use_rect;
-
-	/* Fullscreen Flags */
-	int Full_HWSURFACE;
-	int Full_SWSURFACE;
-	int Full_HWACCEL;
-	int Full_DOUBLEBUF;
-	int Full_ANYFORMAT;
-	int Full_ASYNCBLIT;
-	int Full_HWPALETTE;
-	int Full_RESIZABLE;
-	int Full_NOFRAME;
-	int Full_RLEACCEL;
-
-	/* Windowed flags */
-	int Win_HWSURFACE;
-	int Win_SWSURFACE;
-	int Win_HWACCEL;
-	int Win_DOUBLEBUF;
-	int Win_ANYFORMAT;
-	int Win_ASYNCBLIT;
-	int Win_HWPALETTE;
-	int Win_RESIZABLE;
-	int Win_NOFRAME;
-	int Win_RLEACCEL;
-
-	/* INTERNAL FLAGS - Setup depends on option settings and selected mode */
-
-	/* We are in fullscreen mode */
-	int fullscreen_flag;
-
-	/* We doublebuf */
-	int doublebuf_flag;
-	int rleaccel_flag;
-	int no_meta;
-	Uint8 used_video_bpp;
-	Uint8 real_video_bpp;
-	uint32 videoflags_full;
-	uint32 videoflags_win;
-	int reload_gfx_user;
-	int disable_updates;
-	int tcp_nodelay;
-	int disable_rm_cache;
-	int fastport;
-	int allow_widgets_offscreen;
-}_options;
-
-extern struct _options options;
 
 /* Face requested from server - do it only one time */
 #define FACE_REQUESTED		16
@@ -221,19 +124,11 @@ typedef struct _face_struct
 
 #define NUM_STATS 7
 
-/* This entry is unused */
-#define LIST_ENTRY_UNUSED 	-1
-/* Entry is used but player doesn't have it */
-#define LIST_ENTRY_USED		1
-/* Player knows this used entry */
-#define LIST_ENTRY_KNOWN	2
-#define LIST_NAME_MAX		64
+/** Option windows max options */
+#define OPTWIN_MAX_OPT 26
+
 #define DIALOG_LIST_ENTRY	26
 #define OPTWIN_MAX_TABLEN	14
-
-/* Skill list defines */
-
-/* Bind key list defines */
 
 /** Bindkey list max */
 #define BINDKEY_LIST_MAX 10
@@ -450,8 +345,6 @@ extern int y_custom_cursor;
 
 extern _game_status GameStatus;
 extern uint32 LastTick;
-extern uint32 tmpGameTick;
-extern uint32 FrameCount;
 extern server_struct *selected_server;
 extern int map_udate_flag, map_redraw_flag;
 
@@ -494,17 +387,10 @@ typedef struct _bitmap_name
 
 typedef enum _bitmap_index
 {
-	BITMAP_PALETTE,
-	BITMAP_FONT1,
-	BITMAP_FONT6x3OUT,
-	BITMAP_BIGFONT,
-	BITMAP_FONTMEDIUM,
 	BITMAP_INTRO,
 
 	BITMAP_DOLL,
 
-	/* blacktile for map */
-	BITMAP_BLACKTILE,
 	BITMAP_LOGIN_INP,
 	BITMAP_INVSLOT,
 
@@ -575,22 +461,9 @@ typedef enum _bitmap_index
 	BITMAP_WARN_HP,
 	BITMAP_WARN_FOOD,
 
-	BITMAP_DIALOG_BG,
-	BITMAP_DIALOG_TITLE_OPTIONS,
-	BITMAP_DIALOG_TITLE_KEYBIND,
-	BITMAP_DIALOG_TITLE_SKILL,
-	BITMAP_DIALOG_TITLE_SPELL,
-	BITMAP_DIALOG_TITLE_PARTY,
-	BITMAP_DIALOG_BUTTON_UP,
-	BITMAP_DIALOG_BUTTON_DOWN,
-	BITMAP_DIALOG_TAB_START,
-	BITMAP_DIALOG_TAB,
-	BITMAP_DIALOG_TAB_STOP,
-	BITMAP_DIALOG_TAB_SEL,
-	BITMAP_DIALOG_CHECKER,
-	BITMAP_DIALOG_RANGE_OFF,
-	BITMAP_DIALOG_RANGE_L,
-	BITMAP_DIALOG_RANGE_R,
+	BITMAP_RANGE_BUTTONS_OFF,
+	BITMAP_RANGE_BUTTONS_LEFT,
+	BITMAP_RANGE_BUTTONS_RIGHT,
 
 	BITMAP_TARGET_HP,
 	BITMAP_TARGET_HP_B,
@@ -651,6 +524,7 @@ typedef enum _bitmap_index
 	BITMAP_ICON_MAP,
 	BITMAP_ICON_COGS,
 	BITMAP_ICON_QUEST,
+	BITMAP_FPS,
 
 	BITMAP_INIT
 }_bitmap_index;
@@ -660,8 +534,6 @@ enum
 {
 	MSCURSOR_MOVE = 1
 };
-
-extern struct _Font MediumFont;
 
 extern char text_input_string[MAX_INPUT_STRING];
 extern int text_input_count;
@@ -678,13 +550,6 @@ extern struct _Sprite *Bitmaps[];
 
 /* Face data */
 extern _face_struct FaceList[MAX_FACE_TILES];
-
-/* Bigger font */
-extern struct _Font BigFont;
-/* Our main font */
-extern struct _Font SystemFont;
-/* 6x3 mini font */
-extern struct _Font Font6x3Out;
 
 extern SDL_Surface *ScreenSurface;
 

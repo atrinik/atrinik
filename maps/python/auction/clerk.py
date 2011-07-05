@@ -634,7 +634,7 @@ def main():
 			me.SayTo(activator, "\nThat object is not available anymore.")
 			return
 
-		activator.Write("\nexamine {}".format(obj.GetName()), 65)
+		activator.Write("\nexamine {}".format(obj.GetName()), COLOR_DGOLD)
 		pl.Examine(obj)
 
 	# Withdraw an item.
@@ -728,7 +728,7 @@ def main():
 
 		# Cannot sell locked items.
 		if marked.f_inv_locked:
-			activator.Write("Unlock item first!", 65)
+			activator.Write("Unlock item first!", COLOR_DGOLD)
 			return
 		# Or containers with items.
 		elif marked.type == Type.CONTAINER and marked.inv:
