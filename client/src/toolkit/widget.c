@@ -540,6 +540,11 @@ void init_widgets()
 	/* initiate the widget tree and everything else that links to it. */
 	for (i = 0; i < TOTAL_SUBWIDGETS; ++i)
 	{
+		if (!con_widget[i].no_kill)
+		{
+			continue;
+		}
+
 	    create_widget_object(i);
 	}
 
@@ -1019,6 +1024,11 @@ static int load_interface_file(char *filename)
 			/* Get the block */
 			else
 			{
+				if (!con_widget[pos].no_kill)
+				{
+					continue;
+				}
+
 				/* If we haven't found this widget, mark it */
 				if (!found_widget[pos])
 				{
