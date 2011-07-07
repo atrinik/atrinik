@@ -103,7 +103,7 @@ extern struct msg_anim_struct msg_anim;
 #define SYSPATH "./"
 #endif
 
-#define FILE_ATRINIK_P0 "atrinik.p0"
+#define FILE_ATRINIK_P0 "data/atrinik.p0"
 
 /* Face requested from server - do it only one time */
 #define FACE_REQUESTED		16

@@ -762,6 +762,9 @@ int main(int argc, char *argv[])
 	size_t i;
 
 	init_signals();
+#ifndef WIN32
+	br_init(NULL);
+#endif
 	settings_init();
 	upgrader_init();
 	init_game_data();

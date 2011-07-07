@@ -31,15 +31,13 @@
 #define SOCKET_VERSION 1055
 
 /** File with all the key bindings. */
-#define KEYBIND_FILE "keys.dat"
-/** File with the options. */
-#define OPTION_FILE "options.dat"
+#define KEYBIND_FILE "settings/keys.dat"
 /** File the the arch definitions. */
-#define ARCHDEF_FILE "archdef.dat"
+#define ARCHDEF_FILE "data/archdef.dat"
 /** File with the widgets' positions. */
-#define INTERFACE_FILE "interface.gui"
+#define INTERFACE_FILE "settings/interface.gui"
 /** What scripts to autoload on client startup. */
-#define SCRIPTS_AUTOLOAD "scripts_autoload"
+#define SCRIPTS_AUTOLOAD "settings/scripts_autoload"
 /** Log file. */
 #define LOG_FILE "client.log"
 /** Name of the icon. */

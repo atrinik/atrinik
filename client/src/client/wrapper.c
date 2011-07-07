@@ -200,7 +200,7 @@ static int mkdir_recurse(const char *path)
 void copy_file(const char *filename, const char *filename_out)
 {
 	FILE *fp, *fp_out;
-	char buf[MAX_BUF];
+	char buf[HUGE_BUF];
 
 	fp = fopen(filename, "r");
 
@@ -259,8 +259,8 @@ const char *get_config_dir()
  * @return The path to the file. */
 char *file_path(const char *fname, const char *mode)
 {
-	static char tmp[256];
-	char *stmp, ctmp;
+	static char tmp[HUGE_BUF];
+	char *stmp, ctmp, *data_dir;
 
 	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", get_config_dir(), fname);
 
@@ -278,9 +278,17 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, W_OK))
 		{
-			char otmp[256];
+			char otmp[HUGE_BUF];
 
-			snprintf(otmp, sizeof(otmp), "%s%s", SYSPATH, fname);
+#ifdef WIN32
+			data_dir = SYSPATH;
+#else
+			data_dir = br_find_data_dir(SYSPATH);
+#endif
+			snprintf(otmp, sizeof(otmp), "%s%s", data_dir, fname);
+#ifndef WIN32
+			free(data_dir);
+#endif
 
 			if ((stmp = strrchr(tmp, '/')))
 			{
@@ -297,7 +305,15 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, R_OK))
 		{
-			snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
+#ifdef WIN32
+			data_dir = SYSPATH;
+#else
+			data_dir = br_find_data_dir(SYSPATH);
+#endif
+			snprintf(tmp, sizeof(tmp), "%s%s", data_dir, fname);
+#ifndef WIN32
+			free(data_dir);
+#endif
 		}
 	}
 

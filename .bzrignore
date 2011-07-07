@@ -42,6 +42,12 @@ cmake.h
 cmake_install.cmake
 client/atrinik
 *.kdev*
+client/CPackConfig.cmake
+client/CPackSourceConfig.cmake
+client/_CPack_Packages/
+*.deb
+*.rpm
+client/install_manifest.txt
 
 # Win32
 Thumbs.db

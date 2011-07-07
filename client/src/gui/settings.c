@@ -253,11 +253,11 @@ void settings_init()
 	setting_category *category;
 	setting_struct *setting;
 
-	fp = fopen_wrapper("settings.txt", "r");
+	fp = fopen_wrapper("data/settings.txt", "r");
 
 	if (!fp)
 	{
-		LOG(llevError, "settings_init(): Missing settings.txt file, cannot continue.\n");
+		LOG(llevError, "settings_init(): Missing data/settings.txt file, cannot continue.\n");
 	}
 
 	category = NULL;

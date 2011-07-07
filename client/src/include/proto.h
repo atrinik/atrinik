@@ -445,6 +445,22 @@ void tooltip_create(int mx, int my, int font, const char *text);
 void tooltip_show();
 /* src/toolkit/scroll_buttons.c */
 void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
+/* src/toolkit/binreloc.c */
+int PTeH3518859728963_br_init(BrInitError *error);
+int PTeH3518859728963_br_init_lib(BrInitError *error);
+char *PTeH3518859728963_br_find_exe(const char *default_exe);
+char *PTeH3518859728963_br_find_exe_dir(const char *default_dir);
+char *PTeH3518859728963_br_find_prefix(const char *default_prefix);
+char *PTeH3518859728963_br_find_bin_dir(const char *default_bin_dir);
+char *PTeH3518859728963_br_find_sbin_dir(const char *default_sbin_dir);
+char *PTeH3518859728963_br_find_data_dir(const char *default_data_dir);
+char *PTeH3518859728963_br_find_locale_dir(const char *default_locale_dir);
+char *PTeH3518859728963_br_find_lib_dir(const char *default_lib_dir);
+char *PTeH3518859728963_br_find_libexec_dir(const char *default_libexec_dir);
+char *PTeH3518859728963_br_find_etc_dir(const char *default_etc_dir);
+char *PTeH3518859728963_br_strcat(const char *str1, const char *str2);
+char *PTeH3518859728963_br_build_path(const char *dir, const char *file);
+char *PTeH3518859728963_br_dirname(const char *path);
 /* src/toolkit/text_input.c */
 int text_input_center_offset();
 void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
