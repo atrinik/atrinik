@@ -246,7 +246,7 @@ void textwin_handle_copy()
 	{
 		if (str[pos] == '\r')
 		{
-			pos++;
+			pos += 6;
 		}
 		else
 		{
