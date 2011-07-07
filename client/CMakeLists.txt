@@ -37,7 +37,7 @@ include_directories(${ZLIB_INCLUDE_DIR})
 set(HAVE_ZLIB true)
 
 # SDL_mixer is optional, as sound is not a must-have.
-#find_package(SDL_mixer)
+find_package(SDL_mixer)
 
 if (SDLMIXER_FOUND)
 	include_directories(${SDLMIXER_INCLUDE_DIR})
