@@ -155,7 +155,7 @@ void convert_newline(char *str)
  * @param url URL to open. */
 void browser_open(const char *url)
 {
-#if defined(__LINUX)
+#if defined(LINUX)
 	char buf[HUGE_BUF];
 
 	snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);

@@ -1,0 +1,148 @@
+# The Atrinik CMakeLists file.
+
+project(atrinik C)
+cmake_minimum_required(VERSION 2.6)
+
+# Include build configuration.
+include(build.config)
+
+# Compiling on GNU/Linux.
+set(LINUX true)
+
+# SDL is required to run the client.
+find_package(SDL REQUIRED)
+include_directories(${SDL_INCLUDE_DIR})
+set(HAVE_SDL true)
+
+# SDL_image is also required, otherwise no bitmaps or map images could be
+# displayed.
+find_package(SDL_image REQUIRED)
+include_directories(${SDLIMAGE_INCLUDE_DIR})
+set(HAVE_SDL_IMAGE true)
+
+# SDL_ttf is used for all text drawing, so it's required.
+find_package(SDL_ttf REQUIRED)
+include_directories(${SDLTTF_INCLUDE_DIR})
+set(HAVE_SDL_TTF true)
+
+# cURL is required by the metaserver.
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+set(HAVE_CURL true)
+
+# zlib is required to uncompress binary commands (if they have been
+# compressed by the server) and data files sent by the server.
+find_package(ZLIB REQUIRED)
+include_directories(${ZLIB_INCLUDE_DIR})
+set(HAVE_ZLIB true)
+
+# SDL_mixer is optional, as sound is not a must-have.
+#find_package(SDL_mixer)
+
+if (SDLMIXER_FOUND)
+	include_directories(${SDLMIXER_INCLUDE_DIR})
+	set(HAVE_SDL_MIXER true)
+else (SDLMIXER_FOUND)
+	message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
+endif (SDLMIXER_FOUND)
+
+# X11 is optional, since it's only used for clipboard support on GNU/Linux.
+# Thus, if X11 is not available, clipboard support will be disabled.
+find_package(X11)
+
+if (X11_FOUND)
+	include_directories(${X11_INCLUDE_DIR})
+	set(HAVE_X11 true)
+
+	# Try to find X11 XMU.
+	find_library(X11_XMU_LIBRARY Xmu /usr/openwin/lib)
+
+	if (X11_XMU_LIBRARY)
+		set(HAVE_X11_XMU true)
+	else (X11_XMU_LIBRARY)
+		message(STATUS "Warning: X11 XMU not found - ctrl+v support will be disabled")
+	endif (X11_XMU_LIBRARY)
+else (X11_FOUND)
+	message(STATUS "Warning: X11 not found - clipboard support will be disabled")
+endif (X11_FOUND)
+
+# Add some useful compile flags.
+add_definitions(-Wall -Wextra)
+
+# Turn warnings into errors?
+if (DISABLE_WARNING_ERRORS)
+	add_definitions(-Werror)
+endif (DISABLE_WARNING_ERRORS)
+
+# Disable optimization?
+if (DISABLE_OPTIMIZING)
+	add_definitions(-O0)
+endif (DISABLE_OPTIMIZING)
+
+# Check sizes of 'long' and 'long long' to determine architecture (32-bit
+# or 64-bit)
+include(CheckTypeSize)
+check_type_size("long" SIZEOF_LONG)
+check_type_size("long long" SIZEOF_LONG_LONG)
+
+# Configure the .h file with the configuration options (size of long, 
+# package version, etc).
+configure_file(src/include/cmake.h.def src/include/cmake.h)
+
+# Add our includes.
+include_directories(src/include)
+
+# Add sources.
+file(GLOB SOURCES src/client/*.c src/events/*.c src/gui/*.c src/toolkit/*.c)
+
+# Compile the sources into an executable.
+add_executable(atrinik ${SOURCES})
+
+# Link all the available libraries.
+target_link_libraries(atrinik ${SDL_LIBRARY})
+target_link_libraries(atrinik ${SDLIMAGE_LIBRARY})
+target_link_libraries(atrinik ${SDLTTF_LIBRARY})
+target_link_libraries(atrinik ${CURL_LIBRARY})
+target_link_libraries(atrinik ${ZLIB_LIBRARY})
+
+# Link SDL_mixer if available.
+if (HAVE_SDL_MIXER)
+	target_link_libraries(atrinik ${SDLMIXER_LIBRARY})
+endif (HAVE_SDL_MIXER)
+
+# Link X11 if available.
+if (HAVE_X11)
+	target_link_libraries(atrinik ${X11_LIBRARY})
+endif (HAVE_X11)
+
+# Link X11 XMU if available.
+if (HAVE_X11_XMU)
+	target_link_libraries(atrinik ${X11_XMU_LIBRARY})
+endif (HAVE_X11_XMU)
+
+# Get all the include directories used to compile the client.
+get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
+
+# Go through the include directories and construct a string.
+foreach (var ${INCLUDES})
+	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
+	set(INCLUDES_STRING "${INCLUDES_STRING} -I${var}")
+endforeach (var)
+
+# Go through the source files and construct a string.
+foreach (var ${SOURCES})
+	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
+	set(SOURCES_STRING "${SOURCES_STRING} "${var}"")
+endforeach (var)
+
+# Create a 'proto' build target, which generates the proto.h file.
+add_custom_target(proto
+	cproto -o src/include/proto.h.bak -D__PROTO__${INCLUDES_STRING}${SOURCES_STRING}
+	COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
+	COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
+	COMMAND cmake -E echo "#endif" >> src/include/proto.h
+	COMMAND cmake -E remove -f src/include/proto.h.bak
+	COMMAND python src/adjust_proto.py src/include/proto.h || exit 5
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	COMMENT "Generating prototypes..."
+	VERBATIM)

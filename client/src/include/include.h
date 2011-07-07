@@ -36,7 +36,7 @@
 #endif
 
 #ifndef WIN32
-#	include "define.h"
+#	include <cmake.h>
 #else
 #	include "win32.h"
 #endif
@@ -82,11 +82,6 @@ typedef signed char sint8;
 #	endif
 #endif
 
-typedef const char SDLScrap_DataType;
-
-SDLScrap_DataType *SDL_CLIPBOARD_TEXT_TYPE;
-SDLScrap_DataType *SDL_CLIPBOARD_IMAGE_TYPE;
-
 #ifndef MIN
 #	define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
@@ -100,37 +95,15 @@ SDLScrap_DataType *SDL_CLIPBOARD_IMAGE_TYPE;
 
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 
-#include <SDL_mixer.h>
-
 #ifdef WIN32
 #	include "win32.h"
 #else
-#	ifdef HAVE_SYS_STAT_H
-#		include <sys/stat.h>
-#	endif
-
-#	ifdef HAVE_SYS_TIME_H
-#		include <sys/time.h>
-#	endif
-
+#	include <sys/stat.h>
+#	include <sys/time.h>
 #	include <time.h>
-
-#	ifdef HAVE_STRING_H
-#		include <string.h>
-#	endif
-
-#	ifdef HAVE_UNISTD_H
-#		include <unistd.h>
-#	endif
-
-#	ifdef HAVE_FCNTL_H
-#		include <fcntl.h>
-#	endif
-
-#	ifdef HAVE_DMALLOC_H
-#		include <dmalloc.h>
-#	endif
-
+#	include <string.h>
+#	include <unistd.h>
+#	include <fcntl.h>
 #	include <sys/types.h>
 #	include <errno.h>
 #	include <ctype.h>
@@ -141,12 +114,17 @@ SDLScrap_DataType *SDL_CLIPBOARD_IMAGE_TYPE;
 #	include <netinet/in.h>
 #	include <netinet/tcp.h>
 #	include <arpa/inet.h>
-#	include <SDL.h>
-#	include <SDL_main.h>
-#	include <SDL_image.h>
-#	include <SDL_ttf.h>
 
 	typedef int SOCKET;
+#endif
+
+#include <SDL.h>
+#include <SDL_main.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+
+#ifdef HAVE_SDL_MIXER
+#	include <SDL_mixer.h>
 #endif
 
 #if !defined(WIN32) || defined(MINGW)

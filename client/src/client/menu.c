@@ -260,12 +260,12 @@ int client_command_check(const char *cmd)
 	}
 	else if (!strncmp(cmd, "/music_pause", 12))
 	{
-		Mix_PauseMusic();
+		sound_pause_music();
 		return 1;
 	}
 	else if (!strncmp(cmd, "/music_resume", 13))
 	{
-		Mix_ResumeMusic();
+		sound_resume_music();
 		return 1;
 	}
 	else if (!strncmp(cmd, "/party joinpassword ", 20))

@@ -78,7 +78,7 @@ int curl_connect(void *c_data)
 
 	/* Store user agent for cURL, including if this is GNU/Linux build of client
 	 * or Windows one. */
-#if defined(__LINUX)
+#if defined(LINUX)
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
 #elif defined(WIN32)
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);

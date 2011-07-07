@@ -23,83 +23,46 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#ifndef WIN32_H
-#define WIN32_H
-#ifdef __WIN_32
+#ifndef CMAKE_H
+#define CMAKE_H
 
-#define STRICT
+/* Is SDL available? (should be in all cases) */
+#cmakedefine HAVE_SDL
 
-#if _MSC_VER > 1000
-#pragma once
-#endif /* _MSC_VER > 1000 */
+/* Is SDL_image available? (same as SDL, should be available) */
+#cmakedefine HAVE_SDL_IMAGE
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+/* Is SDL_ttf available? (same as SDL, should be available) */
+#cmakedefine HAVE_SDL_TTF
 
-#include <windowsx.h>
-#include <mmsystem.h>
-#include <winsock2.h>
-#include <io.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <string.h>
-#include <malloc.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <direct.h>
-#include <shellapi.h>
+/* Is cURL available? */
+#cmakedefine HAVE_CURL
 
-#define snprintf _snprintf
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#define inline __inline
+/* Is zlib available? */
+#cmakedefine HAVE_ZLIB
 
-#ifndef MINGW
-#	define strdup _strdup
-#	define fileno _fileno
-#	define unlink _unlink
-#	define lseek _lseek
-#	define access _access
-#	define strtoull _strtoui64
-#	define strtok_r strtok_s
-#	define F_OK 6
-#	define R_OK 6
-#	define W_OK 2
-	/* Conversion from 'xxx' to 'yyy', possible loss of data */
-#	pragma warning(disable: 4244)
-	/* Conversion from 'size_t' to 'int', possible loss of data */
-#	pragma warning(disable: 4267)
-	/* Initializing float f = 0.05; instead of f = 0.05f; */
-#	pragma warning(disable: 4305)
-#else
-#   define strtok_r(_s, _sep, _lasts) (*(_lasts) = strtok((_s), (_sep)))
-#endif
+/* Is SDL_mixer available? */
+#cmakedefine HAVE_SDL_MIXER
 
-/* Doesn't exist, just a plain int */
-#ifndef socklen_t
-#	define socklen_t int
-#endif
+/* Is X11 available? */
+#cmakedefine HAVE_X11
 
-#define mkdir(__a, __b) _mkdir(__a)
+/* Is X11 XMU available? */
+#cmakedefine HAVE_X11_XMU
 
-#define HAVE_STRICMP
-#define HAVE_STRNICMP
-#define HAVE_SDL
-#define HAVE_SDL_IMAGE
-#define HAVE_SDL_TTF
-#define HAVE_CURL
-#define HAVE_ZLIB
-#define HAVE_SDL_MIXER
+/* Are we compiling on GNU/Linux? */
+#cmakedefine LINUX
 
-/* Define to the full name of this package. */
-#define PACKAGE_NAME "Atrinik Client"
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "2.0"
+/* The size of 'long'. */
+#define SIZEOF_LONG @SIZEOF_LONG@
 
-#endif
+/* The size of 'long long'. */
+#define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+
+/* Name of the package. */
+#define PACKAGE_NAME "@PACKAGE_NAME@"
+
+/* Version of the package. */
+#define PACKAGE_VERSION "@PACKAGE_VERSION@"
+
 #endif

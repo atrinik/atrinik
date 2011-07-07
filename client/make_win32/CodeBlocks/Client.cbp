@@ -8,8 +8,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release">
-				<Option output="..\..\..\atrinik.exe" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="..\..\..\..\client" />
+				<Option output="..\..\atrinik.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="..\..\..\client" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -19,8 +19,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Debug">
-				<Option output="..\..\..\atrinik.exe" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="..\..\..\..\client" />
+				<Option output="..\..\atrinik.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="..\..\..\client" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -39,8 +39,8 @@
 			<Add option="-D__WIN_32" />
 			<Add option="-DMINGW" />
 			<Add option="-DCURL_STATICLIB" />
-			<Add directory="..\..\..\src\include" />
-			<Add directory="..\..\..\src\zlib\include" />
+			<Add directory="..\..\src\include" />
+			<Add directory="..\..\src\zlib\include" />
 			<Add directory="sdl_inc" />
 			<Add directory="sdl_inc\SDL" />
 			<Add directory="..\CodeBlocks" />
@@ -61,328 +61,328 @@
 			<Add library="libwinmm.a" />
 		</Linker>
 		<Unit filename="README" />
-		<Unit filename="..\..\..\src\client\image.c">
+		<Unit filename="..\..\src\client\image.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\socket.c">
+		<Unit filename="..\..\src\client\socket.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\metaserver.c">
+		<Unit filename="..\..\src\client\metaserver.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\curl.c">
+		<Unit filename="..\..\src\client\curl.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\main.c">
+		<Unit filename="..\..\src\client\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\commands.c">
+		<Unit filename="..\..\src\client\commands.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\server_settings.c">
+		<Unit filename="..\..\src\client\server_settings.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\sound.c">
+		<Unit filename="..\..\src\client\sound.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\ignore.c">
+		<Unit filename="..\..\src\client\ignore.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\animations.c">
+		<Unit filename="..\..\src\client\animations.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\menu.c">
+		<Unit filename="..\..\src\client\menu.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\updates.c">
+		<Unit filename="..\..\src\client\updates.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\player.c">
+		<Unit filename="..\..\src\client\player.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\client.c">
+		<Unit filename="..\..\src\client\client.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\video.c">
+		<Unit filename="..\..\src\client\video.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\upgrader.c">
+		<Unit filename="..\..\src\client\upgrader.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\misc.c">
+		<Unit filename="..\..\src\client\misc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\scripts.c">
+		<Unit filename="..\..\src\client\scripts.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\item.c">
+		<Unit filename="..\..\src\client\item.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\sprite.c">
+		<Unit filename="..\..\src\client\sprite.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\wrapper.c">
+		<Unit filename="..\..\src\client\wrapper.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\tilestretcher.c">
+		<Unit filename="..\..\src\client\tilestretcher.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\client\server_files.c">
+		<Unit filename="..\..\src\client\server_files.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\popup.c">
+		<Unit filename="..\..\src\toolkit\popup.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\text.c">
+		<Unit filename="..\..\src\toolkit\text.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\tooltip.c">
+		<Unit filename="..\..\src\toolkit\tooltip.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\scroll_buttons.c">
+		<Unit filename="..\..\src\toolkit\scroll_buttons.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\text_input.c">
+		<Unit filename="..\..\src\toolkit\text_input.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\list.c">
+		<Unit filename="..\..\src\toolkit\list.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\button.c">
+		<Unit filename="..\..\src\toolkit\button.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\range_buttons.c">
+		<Unit filename="..\..\src\toolkit\range_buttons.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\widget.c">
+		<Unit filename="..\..\src\toolkit\widget.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\SDL_rotozoom.c">
+		<Unit filename="..\..\src\toolkit\SDL_rotozoom.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\SDL_gfx.c">
+		<Unit filename="..\..\src\toolkit\SDL_gfx.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\toolkit\clipboard.c">
+		<Unit filename="..\..\src\toolkit\clipboard.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\popup.h">
+		<Unit filename="..\..\src\include\popup.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\client.h">
+		<Unit filename="..\..\src\include\client.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\player.h">
+		<Unit filename="..\..\src\include\player.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\list.h">
+		<Unit filename="..\..\src\include\list.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\inventory.h">
+		<Unit filename="..\..\src\include\inventory.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\widget.h">
+		<Unit filename="..\..\src\include\widget.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\text.h">
+		<Unit filename="..\..\src\include\text.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\party.h">
+		<Unit filename="..\..\src\include\party.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\proto.h">
+		<Unit filename="..\..\src\include\proto.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\sprite.h">
+		<Unit filename="..\..\src\include\sprite.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\event.h">
+		<Unit filename="..\..\src\include\event.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\settings.h">
+		<Unit filename="..\..\src\include\settings.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\effects.h">
+		<Unit filename="..\..\src\include\effects.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\main.h">
+		<Unit filename="..\..\src\include\main.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\sdlsocket.h">
+		<Unit filename="..\..\src\include\sdlsocket.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\menu.h">
+		<Unit filename="..\..\src\include\menu.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\map.h">
+		<Unit filename="..\..\src\include\map.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\region_map.h">
+		<Unit filename="..\..\src\include\region_map.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\book.h">
+		<Unit filename="..\..\src\include\book.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\win32.h">
+		<Unit filename="..\..\src\include\win32.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\config.h">
+		<Unit filename="..\..\src\include\config.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\image.h">
+		<Unit filename="..\..\src\include\image.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\curl.h">
+		<Unit filename="..\..\src\include\curl.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\sound.h">
+		<Unit filename="..\..\src\include\sound.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\misc.h">
+		<Unit filename="..\..\src\include\misc.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\include.h">
+		<Unit filename="..\..\src\include\include.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\scripts.h">
+		<Unit filename="..\..\src\include\scripts.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\server_files.h">
+		<Unit filename="..\..\src\include\server_files.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\textwin.h">
+		<Unit filename="..\..\src\include\textwin.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\ignore.h">
+		<Unit filename="..\..\src\include\ignore.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\commands.h">
+		<Unit filename="..\..\src\include\commands.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\item.h">
+		<Unit filename="..\..\src\include\item.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\include\server_settings.h">
+		<Unit filename="..\..\src\include\server_settings.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\adler32.c">
+		<Unit filename="..\..\src\zlib\adler32.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\inftrees.c">
+		<Unit filename="..\..\src\zlib\inftrees.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\inffast.h">
+		<Unit filename="..\..\src\zlib\include\inffast.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\zutil.h">
+		<Unit filename="..\..\src\zlib\include\zutil.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\zconf.h">
+		<Unit filename="..\..\src\zlib\include\zconf.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\inflate.h">
+		<Unit filename="..\..\src\zlib\include\inflate.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\zlib.h">
+		<Unit filename="..\..\src\zlib\include\zlib.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\crc32.h">
+		<Unit filename="..\..\src\zlib\include\crc32.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\include\inftrees.h">
+		<Unit filename="..\..\src\zlib\include\inftrees.h">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\crc32.c">
+		<Unit filename="..\..\src\zlib\crc32.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\zutil.c">
+		<Unit filename="..\..\src\zlib\zutil.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\uncompr.c">
+		<Unit filename="..\..\src\zlib\uncompr.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\inflate.c">
+		<Unit filename="..\..\src\zlib\inflate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\zlib\inffast.c">
+		<Unit filename="..\..\src\zlib\inffast.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\input.c">
+		<Unit filename="..\..\src\gui\input.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\party.c">
+		<Unit filename="..\..\src\gui\party.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\help.c">
+		<Unit filename="..\..\src\gui\help.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\fps.c">
+		<Unit filename="..\..\src\gui\fps.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\protections.c">
+		<Unit filename="..\..\src\gui\protections.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\map.c">
+		<Unit filename="..\..\src\gui\map.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\book.c">
+		<Unit filename="..\..\src\gui\book.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\effects.c">
+		<Unit filename="..\..\src\gui\effects.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\main.c">
+		<Unit filename="..\..\src\gui\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\range.c">
+		<Unit filename="..\..\src\gui\range.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\mplayer.c">
+		<Unit filename="..\..\src\gui\mplayer.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\menu_buttons.c">
+		<Unit filename="..\..\src\gui\menu_buttons.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\region_map.c">
+		<Unit filename="..\..\src\gui\region_map.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\spells.c">
+		<Unit filename="..\..\src\gui\spells.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\keybind.c">
+		<Unit filename="..\..\src\gui\keybind.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\quickslots.c">
+		<Unit filename="..\..\src\gui\quickslots.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\textwin.c">
+		<Unit filename="..\..\src\gui\textwin.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\settings.c">
+		<Unit filename="..\..\src\gui\settings.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\inventory.c">
+		<Unit filename="..\..\src\gui\inventory.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\target.c">
+		<Unit filename="..\..\src\gui\target.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\gui\skills.c">
+		<Unit filename="..\..\src\gui\skills.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\events\console.c">
+		<Unit filename="..\..\src\events\console.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\events\keys.c">
+		<Unit filename="..\..\src\events\keys.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\events\move.c">
+		<Unit filename="..\..\src\events\move.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\events\macro.c">
+		<Unit filename="..\..\src\events\macro.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\src\events\event.c">
+		<Unit filename="..\..\src\events\event.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

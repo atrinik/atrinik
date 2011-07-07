@@ -40,6 +40,8 @@ static size_t sound_data_num;
 /** Whether the sound system is active. */
 static uint8 enabled = 0;
 
+#ifdef HAVE_SDL_MIXER
+
 /**
  * Compare two sound data structure filenames.
  * @param a First sound data.
@@ -86,6 +88,8 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data)
 	return &sound_data[sound_data_num - 1];
 }
 
+#endif
+
 /**
  * Free one sound data entry.
  * @param tmp What to free. */
@@ -94,11 +98,15 @@ static void sound_free(sound_data_struct *tmp)
 	switch (tmp->type)
 	{
 		case SOUND_TYPE_CHUNK:
+#ifdef HAVE_SDL_MIXER
 			Mix_FreeChunk((Mix_Chunk *) tmp->data);
+#endif
 			break;
 
 		case SOUND_TYPE_MUSIC:
+#ifdef HAVE_SDL_MIXER
 			Mix_FreeMusic((Mix_Music *) tmp->data);
+#endif
 			break;
 
 		default:
@@ -118,11 +126,15 @@ void sound_init()
 	sound_data_num = 0;
 	enabled = 1;
 
+#ifdef HAVE_SDL_MIXER
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
 		draw_info_format(COLOR_RED, "Could not initialize audio device; sound will not be heard. Reason: %s", Mix_GetError());
 		enabled = 0;
 	}
+#else
+	enabled =0;
+#endif
 }
 
 /**
@@ -139,7 +151,9 @@ void sound_deinit()
 	free(sound_data);
 	sound_data = NULL;
 	sound_data_num = 0;
+#ifdef HAVE_SDL_MIXER
 	Mix_CloseAudio();
+#endif
 	enabled = 0;
 }
 
@@ -150,6 +164,7 @@ void sound_deinit()
  * @param loop How many times to loop, -1 for infinite number. */
 static void sound_add_effect(const char *filename, int volume, int loop)
 {
+#ifdef HAVE_SDL_MIXER
 	int channel;
 	sound_data_struct *tmp;
 	Mix_Chunk *chunk = NULL;
@@ -190,6 +205,11 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 	{
 		sound_sort();
 	}
+#else
+	(void) filename;
+	(void) volume;
+	(void) loop;
+#endif
 }
 
 /**
@@ -211,6 +231,7 @@ void sound_play_effect(const char *filename, int volume)
  * @param loop How many times to loop, -1 for infinite number. */
 void sound_start_bg_music(const char *filename, int volume, int loop)
 {
+#ifdef HAVE_SDL_MIXER
 	char path[HUGE_BUF];
 	sound_data_struct *tmp;
 	Mix_Music *music = NULL;
@@ -271,6 +292,11 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	{
 		sound_sort();
 	}
+#else
+	(void) filename;
+	(void) volume;
+	(void) loop;
+#endif
 }
 
 /**
@@ -284,7 +310,9 @@ void sound_stop_bg_music()
 
 	if (sound_background)
 	{
+#ifdef HAVE_SDL_MIXER
 		Mix_HaltMusic();
+#endif
 		free(sound_background);
 		sound_background = NULL;
 	}
@@ -328,6 +356,7 @@ void sound_update_volume()
 		return;
 	}
 
+#ifdef HAVE_SDL_MIXER
 	Mix_VolumeMusic(setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC));
 
 	/* If there is any background music, due to a bug in SDL_mixer, we
@@ -348,6 +377,7 @@ void sound_update_volume()
 			Mix_ResumeMusic();
 		}
 	}
+#endif
 }
 
 /**
@@ -451,4 +481,34 @@ void SoundCmd(uint8 *data, int len)
 		LOG(llevBug, "SoundCmd(): Invalid sound type: %d\n", type);
 		return;
 	}
+}
+
+/**
+ * Pause playing background music. */
+void sound_pause_music()
+{
+#ifdef HAVE_SDL_MIXER
+	Mix_PauseMusic();
+#endif
+}
+
+/**
+ * Resume playing background music. */
+void sound_resume_music()
+{
+#ifdef HAVE_SDL_MIXER
+	Mix_ResumeMusic();
+#endif
+}
+
+/**
+ * Check whether background music is being played.
+ * @return 1 if background music is being played, 0 otherwise. */
+int sound_playing_music()
+{
+#ifdef HAVE_SDL_MIXER
+	return Mix_PlayingMusic();
+#else
+	return 0;
+#endif
 }

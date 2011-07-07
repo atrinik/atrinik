@@ -34,10 +34,13 @@
 #include <include.h>
 #include <SDL_syswm.h>
 
-#if defined(__LINUX)
+#if defined(LINUX) && defined(HAVE_X11)
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-#include <X11/Xmu/Atoms.h>
+
+#ifdef HAVE_X11_XMU
+#	include <X11/Xmu/Atoms.h>
+#endif
 
 static Display *SDL_Display = NULL;
 static Window SDL_Window;
@@ -45,7 +48,7 @@ static Window SDL_Window;
 static HWND SDL_Window = NULL;
 #endif
 
-#if defined(__LINUX)
+#if defined(LINUX) && defined(HAVE_X11)
 static int clipboard_filter(const SDL_Event *event)
 {
 	/* Post all non-window manager specific events */
@@ -119,7 +122,7 @@ int clipboard_init()
 	if (SDL_GetWMInfo(&info))
 	{
 		/* Save the information for later use. */
-#if defined(__LINUX)
+#if defined(LINUX) && defined(HAVE_X11)
 		if (info.subsystem == SDL_SYSWM_X11)
 		{
 			SDL_Display = info.info.x11.display;
@@ -156,7 +159,7 @@ int clipboard_init()
  * @return 1 on success, 0 on failure. */
 int clipboard_set(const char *str)
 {
-#if defined(__LINUX)
+#if defined(LINUX) && defined(HAVE_X11)
 	if (!SDL_Display)
 	{
 		return 0;
@@ -169,10 +172,12 @@ int clipboard_set(const char *str)
 		XSetSelectionOwner(SDL_Display, XA_PRIMARY, SDL_Window, CurrentTime);
 	}
 
+#ifdef HAVE_X11_XMU
 	if (XGetSelectionOwner(SDL_Display, XA_CLIPBOARD(SDL_Display)) != SDL_Window)
 	{
 		XSetSelectionOwner(SDL_Display, XA_CLIPBOARD(SDL_Display), SDL_Window, CurrentTime);
 	}
+#endif
 
 	if (getenv("KDE_FULL_SESSION"))
 	{
@@ -245,8 +250,6 @@ int clipboard_set(const char *str)
 	return 1;
 #else
 	(void) str;
-	(void) len;
-	LOG(llevBug, "Unsupported platform to set clipboard for.\n");
 	return 0;
 #endif
 }
@@ -258,7 +261,7 @@ int clipboard_set(const char *str)
 char *clipboard_get()
 {
 	char *result;
-#if defined(__LINUX)
+#if defined(LINUX) && defined(HAVE_X11)
 	Window owner;
 	Atom selection, seln_type;
 	int seln_format;
@@ -335,7 +338,6 @@ char *clipboard_get()
 		CloseClipboard();
 	}
 #else
-	LOG(llevBug, "Unsupported platform to get clipboard for.\n");
 	result = NULL;
 #endif
 

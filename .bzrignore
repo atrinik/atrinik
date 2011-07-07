@@ -1,3 +1,4 @@
+# General
 .dedit
 *.log
 *.pyc
@@ -16,6 +17,7 @@ tools/map-checker/config.cfg
 codeblocks.txt
 visualc*.txt
 
+# GNU/Linux
 Makefile
 core
 configure
@@ -29,12 +31,19 @@ aclocal.m4
 autom4te.cache
 atrinik-client
 client-2.0
-client/src/include/define.h
 *.o
 *.so
 server/atrinik_server
 server/atrinikloop
 
+CMakeCache.txt
+CMakeFiles
+cmake.h
+cmake_install.cmake
+client/atrinik
+*.kdev*
+
+# Win32
 Thumbs.db
 atrinik.exe
 atrinik_server.exe

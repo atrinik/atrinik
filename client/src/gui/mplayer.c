@@ -119,7 +119,7 @@ static void mplayer_do_shuffle(list_struct *list)
  * Check whether we need to start another song. */
 static void mplayer_check_shuffle()
 {
-	if (!Mix_PlayingMusic())
+	if (!sound_playing_music())
 	{
 		mplayer_do_shuffle(list_exists(LIST_MPLAYER));
 	}
@@ -532,7 +532,7 @@ void mplayer_now_playing()
 {
 	char buf[HUGE_BUF];
 
-	if (sound_map_background(-1) && Mix_PlayingMusic())
+	if (sound_map_background(-1) && sound_playing_music())
 	{
 		snprintf(buf, sizeof(buf), "/me is currently listening to: %s", sound_get_bg_music_basename());
 		send_command(buf);

@@ -493,7 +493,7 @@ int socket_close(struct ClientSocket *csock)
 		return 1;
 	}
 
-#ifdef __LINUX
+#ifdef LINUX
 	if (shutdown(csock->fd, SHUT_RDWR))
 	{
 		perror("shutdown");

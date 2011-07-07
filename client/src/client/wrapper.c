@@ -235,7 +235,7 @@ const char *get_config_dir()
 {
 	const char *desc;
 
-#ifdef __LINUX
+#ifdef LINUX
 	desc = getenv("HOME");
 #else
 	desc = getenv("APPDATA");
