@@ -45,7 +45,7 @@
 #endif
 
 #ifndef WIN32
-#	include <autoconf.h>
+#	include <cmake.h>
 #endif
 
 /* Decstations have trouble with fabs()... */

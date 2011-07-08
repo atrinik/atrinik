@@ -39,7 +39,7 @@ extern int errno;
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "../include/autoconf.h"
+#include "../include/cmake.h"
 #endif
 
 /**

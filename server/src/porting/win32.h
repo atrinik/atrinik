@@ -73,7 +73,6 @@
 #ifndef HAVE_STDDEF_H
 #define HAVE_STDDEF_H
 #endif
-#define GETTIMEOFDAY_TWO_ARGS
 #define MAXPATHLEN 256
 #ifndef SIZEOF_LONG
 #define SIZEOF_LONG 8
@@ -119,8 +118,6 @@
 #ifndef F_OK
 #define F_OK 6
 #endif
-
-#define PREFIXDIR ""
 
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)

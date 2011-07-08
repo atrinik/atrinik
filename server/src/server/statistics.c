@@ -36,14 +36,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#	include <netdb.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
 /** File descriptor used for sending datagrams. */
 static int fd = -1;
 /** Destination address. */

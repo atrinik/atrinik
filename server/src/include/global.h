@@ -677,11 +677,7 @@ typedef struct cache_struct
 #	define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
 
-#ifdef GETTIMEOFDAY_TWO_ARGS
-#	define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
-#else
-#	define GETTIMEOFDAY(last_time) gettimeofday(last_time);
-#endif
+#define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
 
 /**
  * @defgroup SCRIPT_FIX_xxx For plugin events

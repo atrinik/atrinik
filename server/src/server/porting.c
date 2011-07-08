@@ -40,7 +40,7 @@
 #	include <sys/wait.h>
 #	include <sys/param.h>
 #	include <stdio.h>
-#	include <autoconf.h>
+#	include <cmake.h>
 #endif
 
 /* Has to be after above includes so we don't redefine some values */

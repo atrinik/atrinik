@@ -571,7 +571,7 @@ static void set_unit_tests()
 
 static void set_world_maker(const char *data)
 {
-#if defined(HAVE_GD)
+#if defined(HAVE_WORLD_MAKER)
 	settings.world_maker = 1;
 
 	if (data)
@@ -1001,7 +1001,7 @@ static void help()
 	LOG(llevInfo, " -tests      Runs unit tests.\n");
 #endif
 
-#if defined(HAVE_GD)
+#if defined(HAVE_WORLD_MAKER)
 	LOG(llevInfo, " -world_maker <path> Generates region maps and stores them in the specified path.\n");
 #endif
 

@@ -30,24 +30,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#	include <sys/types.h>
-#	include <sys/time.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netdb.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#	include <unistd.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
-#include <newserver.h>
-
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
 /** Prototype for functions the client sends without player interaction. */

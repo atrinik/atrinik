@@ -1575,10 +1575,11 @@ int main(int argc, char **argv)
 	}
 #endif
 
-#if defined(HAVE_GD)
+#if defined(HAVE_WORLD_MAKER)
 	if (settings.world_maker)
 	{
 		LOG(llevInfo, "Running the world maker...\n");
+		void world_maker();
 		world_maker();
 		exit(0);
 	}

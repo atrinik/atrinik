@@ -1,5 +1,0 @@
-To compile and install the Atrinik server:
-
-1) ./autogen.sh
-2) make
-3) make install

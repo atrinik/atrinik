@@ -35,29 +35,6 @@
 
 #include <global.h>
 
-#include <newclient.h>
-#include <newserver.h>
-#include <living.h>
-#include <commands.h>
-
-#ifndef WIN32
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
-#include "sounds.h"
-
 #define GET_CLIENT_FLAGS(_O_)	((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 

@@ -2,7 +2,7 @@
 #
 # This is the Atrinik loop and log script
 
-CMDNAME="./atrinik_server"
+CMDNAME="./atrinik-server"
 maxrestart=500
 logdir="data/log"
 
@@ -23,7 +23,7 @@ while [ ! "$logcount"x = "$maxrestart"x ]; do
 
 	if [ -f core ]; then
 		mv core core.$logcount
-		@GZIP@ core.$logcount
+		/bin/gzip core.$logcount
 	fi
 
 	logcount=`expr $logcount + 1`

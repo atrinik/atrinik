@@ -16,38 +16,29 @@ editor/*.conf
 tools/map-checker/config.cfg
 codeblocks.txt
 visualc*.txt
+logfile.log
+RE:server/unit/.*
+./server/tools/upgrade/config.cfg
 
 # GNU/Linux
-Makefile
 core
-configure
-config.status
-server/src/atrinik_server
-server/src/include/autoconf.h
+core.*
 server/src/loaders/*.c
-server/tools/atrinikloop
-server/tools/atrinik_watchdog
-aclocal.m4
-autom4te.cache
-atrinik-client
-client-2.0
 *.o
 *.so
-server/atrinik_server
-server/atrinikloop
-
+server/atrinik-server
 CMakeCache.txt
 CMakeFiles
 cmake.h
 cmake_install.cmake
 client/atrinik
 *.kdev*
-client/CPackConfig.cmake
-client/CPackSourceConfig.cmake
-client/_CPack_Packages/
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
 *.deb
 *.rpm
-client/install_manifest.txt
+install_manifest.txt
 
 # Win32
 Thumbs.db

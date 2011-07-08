@@ -50,14 +50,6 @@
 
 #include <global.h>
 
-#ifdef HAVE_TIME_H
-#	include <time.h>
-#endif
-
-#ifndef WIN32
-#include <dirent.h>
-#endif
-
 /**
  * @defgroup PLUGIN_EVENT_xxx Plugin event types
  * The plugin event types.

@@ -28,23 +28,6 @@
  * Socket initialization related code. */
 
 #include <global.h>
-
-#ifndef WIN32
-#	include <sys/types.h>
-#	include <sys/time.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
-#	include <netdb.h>
-#	include <sys/stat.h>
-#	include <stdio.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
-#include <newserver.h>
 #include "zlib.h"
 
 /** All the server/client files. */

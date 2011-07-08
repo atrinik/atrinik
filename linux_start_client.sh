@@ -1,6 +1,9 @@
 #!/bin/sh
 
 cd client
-chmod u+x atrinik-client
-./atrinik-client
-cd ..
+
+if [ -t 1 ]; then
+	./atrinik "$@"
+else
+	./atrinik
+fi

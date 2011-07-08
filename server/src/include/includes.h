@@ -30,29 +30,11 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-#if defined(osf1) && !defined(__osf__)
-#	define __osf__
-#endif
-
-#if defined(sgi) && !defined(__sgi__)
-#	define __sgi__
-#endif
-
-#ifdef sun
-#	ifndef __sun__
-#		define __sun__
-#	endif
-#endif
-
-#if defined(ultrix) && !defined(__ultrix__)
-#	define __ultrix__
-#endif
-
 /* Include this first, because it lets us know what we are missing */
 #ifdef WIN32
 #	include "win32.h"
 #else
-#	include <autoconf.h>
+#	include <cmake.h>
 #endif
 
 #include <stdio.h>
@@ -68,10 +50,6 @@
 #	include <fcntl.h>
 #endif
 
-#ifdef HAVE_LIBDMALLOC
-#	include <dmalloc.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 #	include <unistd.h>
 #endif
@@ -80,7 +58,7 @@
 #	include <sys/time.h>
 #endif
 
-#if defined(HAVE_TIME_H) && defined(TIME_WITH_SYS_TIME)
+#if defined(HAVE_TIME_H)
 #	include <time.h>
 #endif
 
@@ -89,8 +67,18 @@
 #	include <stddef.h>
 #endif
 
-#include <sys/types.h>
+#ifndef WIN32
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <netinet/tcp.h>
+#	include <netdb.h>
+#endif
 
+#ifdef HAVE_ARPA_INET_H
+#	include <arpa/inet.h>
+#endif
+
+#include <sys/types.h>
 #include <sys/stat.h>
 
 #include "config.h"
@@ -113,19 +101,19 @@ time_t mktime(struct tm *);
 #endif
 
 #ifndef WIN32
-#	if HAVE_DIRENT_H
+#	ifdef HAVE_DIRENT_H
 #		include <dirent.h>
 #		define NAMLEN(dirent) strlen((dirent)->d_name)
 #	else
 #		define dirent direct
-#		define NAMLEN(dirent) (dirnet)->d_namlen
-#		if HAVE_SYS_NDIR_H
+#		define NAMLEN(dirent) (dirent)->d_namlen
+#		ifdef HAVE_SYS_NDIR_H
 #			include <sys/ndir.h>
 #		endif
-#		if HAVE_SYS_DIR_H
+#		ifdef HAVE_SYS_DIR_H
 #			include <sys/dir.h>
 #		endif
-#		if HAVE_NDIR_H
+#		ifdef HAVE_NDIR_H
 #			include <ndir.h>
 #		endif
 #	endif

@@ -54,7 +54,7 @@
 
 /** Location of plugins */
 #ifndef PLUGINDIR
-#define PLUGINDIR "./plugins"
+#define PLUGINDIR "./"
 #endif
 
 /** Where the DM file is located. */

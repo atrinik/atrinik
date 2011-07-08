@@ -36,14 +36,7 @@ extern int errno;
 #   include <errno.h>
 #endif
 
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
 #include <zlib.h>
-
-#ifndef WIN32
-#	include <netinet/tcp.h>
-#endif
 
 /**
  * Add a NULL terminated string.
