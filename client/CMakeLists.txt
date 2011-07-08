@@ -70,9 +70,9 @@ endif (X11_FOUND)
 add_definitions(-Wall -Wextra)
 
 # Turn warnings into errors?
-if (DISABLE_WARNING_ERRORS)
+if (NOT DISABLE_WARNING_ERRORS)
 	add_definitions(-Werror)
-endif (DISABLE_WARNING_ERRORS)
+endif (NOT DISABLE_WARNING_ERRORS)
 
 # Disable optimization?
 if (DISABLE_OPTIMIZING)
