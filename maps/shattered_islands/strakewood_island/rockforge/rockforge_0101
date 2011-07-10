@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-07-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -186,7 +186,7 @@ arch fmask_rockforge
 rotate -15
 layer 4
 align -14
-z 12
+z 2
 x 7
 y 2
 end
@@ -194,7 +194,7 @@ arch fmask_rockforge
 rotate 15
 layer 5
 align 12
-z 12
+z 2
 x 7
 y 2
 end
@@ -1706,7 +1706,7 @@ arch fmask_rockforge
 rotate -15
 layer 4
 align -14
-z 12
+z 2
 x 16
 y 2
 end
@@ -1714,7 +1714,7 @@ arch fmask_rockforge
 rotate 15
 layer 5
 align 12
-z 12
+z 2
 x 16
 y 2
 end
