@@ -448,7 +448,11 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bitmap_h = face_sprite->bitmap->h;
 	bitmap_w = face_sprite->bitmap->w;
 
-	if (map->zoom[layer] && map->zoom[layer] != 100)
+	if (map->rotate[layer])
+	{
+		rotozoomSurfaceSize(bitmap_w, bitmap_h, map->rotate[layer], map->zoom[layer] ? map->zoom[layer] / 100.0 : 1.0, &bitmap_w, &bitmap_h);
+	}
+	else if (map->zoom[layer] && map->zoom[layer] != 100)
 	{
 		zoomSurfaceSize(bitmap_w, bitmap_h, map->zoom[layer] / 100.0, map->zoom[layer] / 100.0, &bitmap_w, &bitmap_h);
 	}
