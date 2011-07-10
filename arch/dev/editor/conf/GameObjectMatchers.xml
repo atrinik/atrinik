@@ -90,6 +90,12 @@
 		</And>
 	</GameObjectMatcher>
 
+	<!-- Objects to remain on top in insertion tool -->
+	<GameObjectMatcher id="system_system_object" system="true">
+		<title xml:lang="en">System Object</title>
+		<Attrib name="sys_object" type="int" op="ne" value="0" />
+	</GameObjectMatcher>
+
 	<!-- Objects to be treated as monsters in insertion tool -->
 	<GameObjectMatcher id="system_monster" system="true">
 		<title xml:lang="en">Monster</title>
