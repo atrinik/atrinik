@@ -428,7 +428,7 @@ void world_maker()
 		/* Custom background to use? */
 		if (r->map_bg)
 		{
-			int im_r, im_g, im_b;
+			uint32 im_r, im_g, im_b;
 
 			/* Parse HTML color and fill the image with it. */
 			if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3)
