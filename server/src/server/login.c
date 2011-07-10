@@ -287,7 +287,7 @@ int save_player(object *op, int flag)
  * @return Return value of strcmp on the two spell names. */
 static int spell_sort(const void *a1, const void *a2)
 {
-	return strcmp(spells[(int)*(sint16 *) a1].name, spells[(int)*(sint16 *) a2].name);
+	return strcmp(spells[(int) *(sint16 *) a1].name, spells[(int) *(sint16 *) a2].name);
 }
 
 /**

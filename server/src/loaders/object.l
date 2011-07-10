@@ -215,8 +215,6 @@ lex_error = 0;
 
 							if (linemode == 0)
 							{
-								extern int arch_init;
-
 								lex_load(depth, items, maxdepth, map_flags, linemode);
 								(*depth)--;
 

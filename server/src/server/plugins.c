@@ -622,7 +622,7 @@ void map_event_obj_deinit(object *ob)
  * @param text String related to this event.
  * @param parm Integer related to this event.
  * @return 1 if the event returns an event value, 0 otherwise. */
-int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, char *text, int parm)
+int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm)
 {
 	map_event *tmp;
 

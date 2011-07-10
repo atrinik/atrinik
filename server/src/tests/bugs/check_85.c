@@ -30,6 +30,7 @@
  * Location: http://bugzilla.atrinik.org/show_bug.cgi?id=85 */
 
 #include <global.h>
+#include <check_proto.h>
 #include <check.h>
 
 START_TEST(test_run)

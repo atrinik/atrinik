@@ -6,6 +6,10 @@ cmake_minimum_required(VERSION 2.6)
 # Include build configuration.
 include(build.config)
 
+if (EXISTS build.user)
+	include(build.user)
+endif (EXISTS build.user)
+
 # Compiling on GNU/Linux.
 set(LINUX true)
 # Plugin suffix.
@@ -106,11 +110,15 @@ check_function_exists(strerror HAVE_STRERROR)
 check_function_exists(strerror HAVE_STRERROR)
 
 # Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wswitch-enum -Wunused-parameter -Wno-unused-parameter -ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wlogical-op -Waggregate-return -Wmissing-declarations -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all)
+add_definitions(-Wall -Wextra)
+
+if (ENABLE_EXTRA_WARNINGS)
+	add_definitions(-Wswitch -Wunused-parameter -Wno-unused-parameter -ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all)
+endif (ENABLE_EXTRA_WARNINGS)
 
 # Turn warnings into errors?
 if (NOT DISABLE_WARNING_ERRORS)
-#	add_definitions(-Werror)
+	add_definitions(-Werror)
 endif (NOT DISABLE_WARNING_ERRORS)
 
 # Disable optimization?

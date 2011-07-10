@@ -2445,11 +2445,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 		case FIELDTYPE_FLOAT:
 			if (PyFloat_Check(value))
 			{
-				*(float *) field_ptr = (float) PyFloat_AsDouble(value);
+				*(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
 			}
 			else if (PyInt_Check(value))
 			{
-				*(float *) field_ptr = (float) PyLong_AsLong(value);
+				*(float *) field_ptr = PyLong_AsLong(value) * 1.0;
 			}
 			else
 			{

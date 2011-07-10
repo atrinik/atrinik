@@ -570,7 +570,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 	/* Trigger the map-wide spell event. */
 	if (op->map && op->map->events)
 	{
-		int retval = trigger_map_event(MEVENT_SPELL_CAST, op->map, op, caster, NULL, (char *) stringarg, type);
+		int retval = trigger_map_event(MEVENT_SPELL_CAST, op->map, op, caster, NULL, stringarg, type);
 
 		/* So the plugin's return value can affect the returned value. */
 		if (retval)

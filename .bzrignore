@@ -40,6 +40,7 @@ _CPack_Packages/
 *.rpm
 install_manifest.txt
 Makefile
+build.user
 
 # Win32
 Thumbs.db
