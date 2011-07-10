@@ -28,14 +28,6 @@
  * Low level socket related functions. */
 
 #include <global.h>
-#include <newclient.h>
-
-#ifdef NO_ERRNO_H
-extern int errno;
-#else
-#   include <errno.h>
-#endif
-
 #include <zlib.h>
 
 /**

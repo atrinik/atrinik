@@ -40,8 +40,6 @@
  * </pre> */
 
 #include <global.h>
-#include <object.h>
-#include <ctype.h>
 
 /** Pointer to first recipelist. */
 static recipelist *formulalist;

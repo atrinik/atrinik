@@ -45,13 +45,6 @@
 #include <re-cmp.h>
 #include <ctype.h>
 
-/* Get prototype functions to prevent warnings. */
-#if defined (__sun__) && defined(StupidSunHeaders)
-#  include <sys/types.h>
-#  include <sys/time.h>
-#  include "sunos.h"
-#endif
-
 const char *re_cmp(const char *, const char *);
 static int re_cmp_step(const char *, const char *, int, int);
 static void re_init(void);

@@ -27,9 +27,7 @@
  * @file
  * Square-spiral layout generator. */
 
-#include <stdio.h>
 #include <global.h>
-#include <time.h>
 
 /**
  * This starts from within a centered onion layer (or between two layers),

@@ -30,9 +30,6 @@
  * what items should be sent. */
 
 #include <global.h>
-#include <object.h>
-#include <newclient.h>
-#include <newserver.h>
 
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);

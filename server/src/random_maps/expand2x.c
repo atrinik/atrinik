@@ -24,7 +24,6 @@
 ************************************************************************/
 
 #include <stdlib.h>
-#include <expand2x.h>
 
 static void expand_misc(char **newlayout, int i, int j, char **layout);
 static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize, int ysize);
@@ -98,12 +97,6 @@ static void expand_misc(char **newlayout, int i, int j, char **layout)
 	newlayout[i * 2][j * 2] = layout[i][j];
 }
 
-/* Returns a bitmap that represents which squares on the right and bottom
- * edges of a square (i,j) match the given character:
- *	1	match on (i+1, j)
- *	2	match on (i, j+1)
- *	4	match on (i+1, j+1)
- * and the possible combinations thereof. */
 /**
  * Returns a bitmap that represents which squares on the right and bottom
  * edges of a square (i, j) match the given character.

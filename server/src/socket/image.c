@@ -28,9 +28,6 @@
  * This file deals with the image related communication to the client. */
 
 #include <global.h>
-
-#include <newclient.h>
-#include <newserver.h>
 #include <loader.h>
 #include "zlib.h"
 

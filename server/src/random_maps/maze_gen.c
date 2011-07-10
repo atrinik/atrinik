@@ -31,9 +31,7 @@
  * mazes: a straightforward recursive random walk maze generator would
  * generate a map with a trivial circle-the-outer-wall solution */
 
-#include <stdio.h>
 #include <global.h>
-#include <time.h>
 
 /** Contains free walls in the map. */
 typedef struct free_walls_struct

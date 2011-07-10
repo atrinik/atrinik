@@ -26,7 +26,6 @@
 
 #include <global.h>
 #include <loader.h>
-#include <newserver.h>
 
 #define YY_DECL int rmap_lex_read(RMParms *RP)
 
