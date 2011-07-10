@@ -2033,7 +2033,7 @@ int command_shutdown(object *op, char *params)
 		bp++;
 	}
 
-	if (bp && bp == 0)
+	if (bp && *bp == '\0')
 	{
 		bp = NULL;
 	}
