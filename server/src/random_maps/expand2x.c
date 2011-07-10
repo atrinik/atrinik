@@ -228,4 +228,3 @@ static void expand_door(char **newlayout, int i, int j, char **layout, int xsize
 		}
 	}
 }
-
