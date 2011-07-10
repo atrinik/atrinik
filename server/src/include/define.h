@@ -59,7 +59,7 @@
 #	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 #ifndef SGN
-#	define SGN(x) ((x) > 0 ? 1 : ((x) < 0 ? - 1 : 0))
+#	define SGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
 #endif
 
 #ifndef NAME_MAX
