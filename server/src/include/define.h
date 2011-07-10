@@ -44,10 +44,6 @@
 #	error "Your ANSI C compiler should be defining __STDC__";
 #endif
 
-#ifndef WIN32
-#	include <cmake.h>
-#endif
-
 /* Decstations have trouble with fabs()... */
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 #define abs(x) ((x) < 0 ? -(x) : (x))
