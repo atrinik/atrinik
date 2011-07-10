@@ -138,15 +138,6 @@
 #endif
 
 /**
- * DEBUG generates copious amounts of output. By default, you probably
- * don't want this defined. */
-#ifndef WIN32
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif
-
-/**
  * This determines the maximum map size the client can request (and
  * thus what the server will send to the client.
  *

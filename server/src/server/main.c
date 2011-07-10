@@ -30,12 +30,8 @@
 #include <global.h>
 #include <check_proto.h>
 
-#ifdef HAVE_DES_H
-#	include <des.h>
-#else
-#	ifdef HAVE_CRYPT_H
+#ifdef HAVE_CRYPT_H
 #		include <crypt.h>
-#	endif
 #endif
 
 #ifdef MEMPOOL_OBJECT_TRACKING
@@ -107,7 +103,7 @@ void version(object *op)
  * @return The crypted string. */
 char *crypt_string(char *str, char *salt)
 {
-#ifndef WIN32
+#ifdef HAVE_CRYPT
 	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 	char s[2];
 
@@ -124,11 +120,7 @@ char *crypt_string(char *str, char *salt)
 		s[1] = salt[1];
 	}
 
-#	ifdef HAVE_LIBDES
-	return (char *) des_crypt(str, s);
-#	endif
-
-	return (char *) crypt(str, s);
+	return crypt(str, s);
 #else
 	return str;
 #endif
@@ -1351,163 +1343,6 @@ static void do_specials()
 }
 
 /**
- * Check if key was pressed in the interactive mode.
- * @return 0 if no key was pressed, non zero otherwise */
-static int keyboard_press()
-{
-#ifndef WIN32
-	struct timeval tv = {0L, 0L};
-	fd_set fds;
-
-	FD_SET(0, &fds);
-
-	return select(1, &fds, NULL, NULL, &tv);
-#else
-	return 0;
-#endif
-}
-
-/**
- * Process keyboard input by the interactive mode
- * @param input The keyboard input */
-static void process_keyboard_input(char *input)
-{
-	player *pl;
-
-	/* Show help */
-	if (strncmp(input, "help", 4) == 0)
-	{
-		LOG(llevInfo, "Atrinik Interactive Server Interface Help\n");
-		LOG(llevInfo, "The Atrinik Interface Server Interface is used to allow server administrators\nto easily maintain their servers if ran from terminal.\nThe following commands are available:\n\n");
-		LOG(llevInfo, "help: Display this help.\n");
-		LOG(llevInfo, "list: Display logged in players and their IPs.\n");
-		LOG(llevInfo, "kill <player name or IP>: Kill player's socket or all players on specified IP.\n");
-		LOG(llevInfo, "system <message>: Send system message in green to all players.\n");
-	}
-	/* Show list of players online */
-	else if (strncmp(input, "list", 4) == 0)
-	{
-		int count = 0;
-
-		/* Loop through the players, if the player is playing, show
-		 * their name, otherwise show "(not playing)". */
-		for (pl = first_player; pl != NULL; pl = pl->next)
-		{
-			if (pl->state == ST_PLAYING)
-			{
-				LOG(llevInfo, "%s (%s)\n", pl->ob->name, pl->socket.host);
-			}
-			else
-			{
-				LOG(llevInfo, "(not playing) %s\n", pl->socket.host);
-			}
-
-			count++;
-		}
-
-		/* Show count of players online */
-		if (count)
-		{
-			LOG(llevInfo, "Total of %d players online.\n", count);
-		}
-		else
-		{
-			LOG(llevInfo, "Currently, there are no players online.\n");
-		}
-	}
-	/* Kill a player's socket. If IP was presented, kill all players on that IP. */
-	else if (strncmp(input, "kill ", 5) == 0)
-	{
-		int success = 0;
-
-		input += 5;
-
-		/* Loop through the players */
-		for (pl = first_player; pl != NULL; pl = pl->next)
-		{
-			/* If name matches, kill this player's socket, and break out */
-			if (strcasecmp(pl->ob->name, input) == 0)
-			{
-				success = 1;
-
-				pl->socket.status = Ns_Dead;
-				LOG(llevInfo, "Killed socket for player %s successfully.\n", pl->ob->name);
-
-				break;
-			}
-			/* Otherwise if player's IP matches, kill this player's socket,
-			 * but do not break out, since there may be more players on this IP.*/
-			else if (strcmp(pl->socket.host, input) == 0)
-			{
-				success = 1;
-
-				pl->socket.status = Ns_Dead;
-				LOG(llevInfo, "Killed socket for IP %s (%s) successfully.\n", pl->socket.host, pl->ob->name);
-			}
-		}
-
-		if (!success)
-		{
-			LOG(llevInfo, "Failed to find player/IP: '%s'\n", input);
-		}
-	}
-	/* Send a system message */
-	else if (strncmp(input, "system ", 7) == 0)
-	{
-		input += 7;
-
-		input = cleanup_chat_string(input);
-
-		LOG(llevChat, "System: %s\n", input);
-		new_draw_info_format(NDI_ALL | NDI_PLAYER, COLOR_GREEN, NULL, "[System]: %s", input);
-	}
-	/* Ban command */
-	else if (strncmp(input, "ban ", 4) == 0)
-	{
-		input += 4;
-
-		/* Add a new ban */
-		if (strncmp(input, "add ", 4) == 0)
-		{
-			input += 4;
-
-			if (add_ban(input))
-			{
-				LOG(llevInfo, "Added new ban successfully.\n");
-			}
-			else
-			{
-				LOG(llevInfo, "Failed to add new ban!\n");
-			}
-		}
-		/* Remove ban */
-		else if (strncmp(input, "remove ", 7) == 0)
-		{
-			input += 7;
-
-			if (remove_ban(input))
-			{
-				LOG(llevInfo, "Removed ban successfully.\n");
-			}
-			else
-			{
-				LOG(llevInfo, "Failed to remove ban!\n");
-			}
-		}
-		/* List bans */
-		else if (strncmp(input, "list", 4) == 0)
-		{
-			list_bans(NULL);
-		}
-	}
-	/* Unknown command */
-	else
-	{
-		LOG(llevInfo, "Unknown interactive server command: %s\nTry 'help' for available commands.\n", input);
-	}
-}
-
-/**
  * Iterate the main loop. */
 static void iterate_main_loop()
 {
@@ -1558,8 +1393,8 @@ int main(int argc, char **argv)
 	FILE *fp;
 
 #ifdef WIN32
-	/* ---win32 this sets the win32 from 0d0a to 0a handling */
-	_fmode = _O_BINARY;
+	/* Open all files in binary mode by default. */
+	_set_fmode(_O_BINARY);
 #endif
 
 	init(argc, argv);
@@ -1575,7 +1410,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
-#if defined(HAVE_WORLD_MAKER)
+#ifdef HAVE_WORLD_MAKER
 	if (settings.world_maker)
 	{
 		LOG(llevInfo, "Running the world maker...\n");
@@ -1610,28 +1445,8 @@ int main(int argc, char **argv)
 
 	LOG(llevInfo, "Server ready. Waiting for connections...\n");
 
-	if (settings.interactive)
+	for (; ;)
 	{
-		for (; ;)
-		{
-			/* Do all the necessary functions as long as keyboard input was not entered */
-			while (!keyboard_press())
-			{
-				iterate_main_loop();
-			}
-
-			/* Otherwise we've got some keyboard input, parse it */
-			if (scanf("\n%4096[^\n]", buf))
-			{
-				process_keyboard_input(buf);
-			}
-		}
-	}
-	else
-	{
-		for (; ;)
-		{
-			iterate_main_loop();
-		}
+		iterate_main_loop();
 	}
 }

@@ -86,19 +86,6 @@
 #include <global.h>
 #include <stdarg.h>
 
-#undef MODULEAPI
-
-#ifdef WIN32
-#ifdef PYTHON_PLUGIN_EXPORTS
-#define MODULEAPI __declspec(dllexport)
-#else
-#define MODULEAPI __declspec(dllimport)
-#endif
-
-#else
-#define MODULEAPI
-#endif
-
 /** Plugin name */
 #define PLUGIN_NAME "Arena"
 

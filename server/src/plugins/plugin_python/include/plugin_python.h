@@ -61,18 +61,6 @@
 #	define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
 #endif
 
-#undef MODULEAPI
-
-#ifdef WIN32
-#	ifdef PYTHON_PLUGIN_EXPORTS
-#		define MODULEAPI __declspec(dllexport)
-#	else
-#		define MODULEAPI __declspec(dllimport)
-#	endif
-#else
-#	define MODULEAPI
-#endif
-
 /** Name of the plugin. */
 #define PLUGIN_NAME "Python"
 /** Name of the plugin, and its version. */

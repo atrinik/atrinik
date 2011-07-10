@@ -30,10 +30,6 @@
 #include <global.h>
 #include <loader.h>
 
-#ifndef WIN32
-#include <unistd.h>
-#endif
-
 int	global_darkness_table[MAX_DARKNESS + 1] =
 {
 	0, 20, 40, 80, 160, 320, 640, 1280

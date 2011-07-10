@@ -30,16 +30,17 @@
  *
  * Also some Windows-specific includes and tweaks. */
 
-#if !defined(AFX_STDAFX_H__31666CA1_2474_11D5_AE6C_F07569C10000__INCLUDED_)
+#ifndef AFX_STDAFX_H__31666CA1_2474_11D5_AE6C_F07569C10000__INCLUDED_
 #define AFX_STDAFX_H__31666CA1_2474_11D5_AE6C_F07569C10000__INCLUDED_
 
 #if _MSC_VER > 1000
-#pragma once
+#	pragma once
 #endif
 
 #endif
 
 #define WIN32_LEAN_AND_MEAN
+
 #include <winsock2.h>
 #include <time.h>
 #include <direct.h>
@@ -52,12 +53,12 @@
 #include <process.h>
 
 #ifndef __STDC__
-#define __STDC__ 1
+#	define __STDC__ 1
 #endif
 
 #ifndef HAVE_SNPRINTF
-#define HAVE_SNPRINTF 1
-#define snprintf _snprintf
+#	define HAVE_SNPRINTF 1
+#	define snprintf _snprintf
 #endif
 
 #include "version.h"
@@ -67,18 +68,22 @@
 #define HAVE_STRNICMP
 #define HAVE_STRERROR
 #define HAVE_SRAND
+
 #ifndef HAVE_FCNTL_H
-#define HAVE_FCNTL_H
-#endif
-#ifndef HAVE_STDDEF_H
-#define HAVE_STDDEF_H
-#endif
-#define MAXPATHLEN 256
-#ifndef SIZEOF_LONG
-#define SIZEOF_LONG 8
+#	define HAVE_FCNTL_H
 #endif
 
-/* Many defines to redirect UNIX functions or fake standard UNIX values */
+#ifndef HAVE_STDDEF_H
+#	define HAVE_STDDEF_H
+#endif
+
+#define MAXPATHLEN 256
+
+#ifndef SIZEOF_LONG
+#	define SIZEOF_LONG 8
+#endif
+
+/* Many defines to redirect UNIX functions */
 #define inline __inline
 #define unlink(__a) _unlink(__a)
 #define mkdir(__a, __b) _mkdir(__a)
@@ -108,45 +113,51 @@
 #endif
 
 #ifndef R_OK
-#define R_OK 6
+#	define R_OK 6
 #endif
 
 #ifndef W_OK
-#define W_OK 2
+#	define W_OK 2
 #endif
 
 #ifndef F_OK
-#define F_OK 6
+#	define F_OK 6
 #endif
 
 #ifndef S_ISDIR
-#define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
+#	define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
 #endif
 
 #ifndef S_ISREG
-#define S_ISREG(x) (((x) & S_IFMT) == S_IFREG)
+#	define S_ISREG(x) (((x) & S_IFMT) == S_IFREG)
 #endif
 
 #ifndef S_ISGID
-#define S_ISGID 0002000
+#	define S_ISGID 0002000
 #endif
+
 #ifndef S_IWOTH
-#define S_IWOTH 0000200
+#	define S_IWOTH 0000200
 #endif
+
 #ifndef S_IWGRP
-#define S_IWGRP 0000020
+#	define S_IWGRP 0000020
 #endif
+
 #ifndef S_IWUSR
-#define S_IWUSR 0000002
+#	define S_IWUSR 0000002
 #endif
+
 #ifndef S_IROTH
-#define S_IROTH 0000400
+#	define S_IROTH 0000400
 #endif
+
 #ifndef S_IRGRP
-#define S_IRGRP 0000040
+#	define S_IRGRP 0000040
 #endif
+
 #ifndef S_IRUSR
-#define S_IRUSR 0000004
+#	define S_IRUSR 0000004
 #endif
 
 #define COMPRESS "/usr/bin/compress"
@@ -155,11 +166,12 @@
 #define GUNZIP "/bin/gunzip"
 #define BZIP "/usr/bin/bzip2"
 #define BUNZIP "/usr/bin/bunzip2"
+#define PLUGIN_SUFFIX ".dll"
 
 #define YY_NEVER_INTERACTIVE 1
 
 #ifndef MSG_DONWAIT
-#define MSG_DONTWAIT 0
+#	define MSG_DONTWAIT 0
 #endif
 
 #define WIFEXITED(x) 1
@@ -170,46 +182,52 @@
 #	define socklen_t int
 #endif
 
+/* Same as socklen_t, doesn't exist... */
+#ifndef pid_t
+	#define pid_t int
+#endif
+
 #define sleep(x) Sleep(x * 1000)
 
-/* struct dirent - same as Unix */
-
+/**
+ * Dirent - same structure data as UNIX. */
 typedef struct dirent
 {
-	/* inode (always 1 in WIN32) */
+	/** inode (always 1 on WIN32). */
 	long d_ino;
 
-	/* offset to this dirent */
+	/** Offset to this dirent. */
 	off_t d_off;
 
-	/* length of d_name */
+	/** Length of d_name. */
 	unsigned short d_reclen;
 
-	/* filename (null terminated) */
+	/** Filename (NULL terminated). */
 	char d_name[_MAX_FNAME + 1];
 } dirent;
 
 #define NAMLEN(dirent) strlen((dirent)->d_name)
 
-/* typedef DIR - not the same as Unix */
+/**
+ * Directory handle. */
 typedef struct
 {
-	/* _findfirst/_findnext handle */
+	/** _findfirst/_findnext handle. */
 	long handle;
 
-	/* offset into directory */
+	/** Offset into directory. */
 	short offset;
 
-	/* 1 if there are not more files */
+	/** 1 if there are no more files. */
 	short finished;
 
-	/* from _findfirst/_findnext */
+	/** From _findfirst/_findnext. */
 	struct _finddata_t fileinfo;
 
-	/* the dir we are reading */
+	/** The dir we are reading. */
 	char *dir;
 
-	/* the dirent to return */
+	/** The dirent to return. */
 	struct dirent dent;
 } DIR;
 
@@ -221,8 +239,8 @@ struct timezone
 };
 
 /* Function prototypes */
-extern int gettimeofday(struct timeval *tv, struct timezone *timezone_Info);
-extern DIR *opendir(const char *);
-extern struct dirent *readdir(DIR *);
-extern int closedir(DIR *);
-extern void rewinddir(DIR *);
+int gettimeofday(struct timeval *tv, struct timezone *timezone_Info);
+DIR *opendir(const char *);
+struct dirent *readdir(DIR *);
+int closedir(DIR *);
+void rewinddir(DIR *);

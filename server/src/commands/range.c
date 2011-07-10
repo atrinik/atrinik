@@ -28,7 +28,6 @@
  * Range related commands (casting, shooting, throwing, etc.). */
 
 #include <global.h>
-#include <newclient.h>
 
 /**
  * Finds spell by name.

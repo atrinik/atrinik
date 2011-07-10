@@ -29,12 +29,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#endif
-
 #include <skillist.h>
 #include <loader.h>
 

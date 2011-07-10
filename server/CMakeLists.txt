@@ -8,6 +8,8 @@ include(build.config)
 
 # Compiling on GNU/Linux.
 set(LINUX true)
+# Plugin suffix.
+set(PLUGIN_SUFFIX ".so")
 
 # cURL is required by the metaserver.
 find_package(CURL REQUIRED)
@@ -18,6 +20,16 @@ set(HAVE_CURL true)
 find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
 set(HAVE_ZLIB true)
+
+# Need Flex...
+find_package(FLEX REQUIRED)
+
+# libdl is required.
+find_library(DL_LIBRARY dl)
+
+if (NOT DL_LIBRARY)
+	message(FATAL_ERROR "Could not find dl library.")
+endif (NOT DL_LIBRARY)
 
 # Try to find some GNU/Linux libraries.
 if (UNIX)
@@ -53,13 +65,6 @@ elseif (GD_LIBRARY)
 	message(STATUS "Could not find gd library, world maker module will be disabled.")
 endif (GD_LIBRARY)
 
-# Try to use DES for encrypting player passwords, if possible.
-find_library(DES_LIBRARY des)
-
-if (DES_LIBRARY)
-	set(HAVE_LIBDES true)
-endif (DES_LIBRARY)
-
 # Find some useful executables.
 find_program(COMPRESS compress)
 find_program(UNCOMPRESS uncompress)
@@ -67,12 +72,6 @@ find_program(GZIP gzip)
 find_program(GUNZIP gunzip)
 find_program(BZIP bzip2)
 find_program(BUNZIP bunzip2)
-find_program(FLEX_EXECUTABLE flex)
-
-# Flex is required to compile, so if it was not found, bail out.
-if (NOT FLEX_EXECUTABLE)
-	message(FATAL_ERROR "Could not find flex executable.")
-endif (NOT FLEX_EXECUTABLE)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -136,27 +135,21 @@ include_directories(src/tests)
 
 # Scan for lexers.
 file(GLOB LEXERS src/loaders/*.l)
-set(LEX_FILES)
+set(LEXERS_OUT)
 
 # Add command to parse the lexer files with flex.
-foreach (name ${lexer_srcs})
+foreach (name ${LEXERS})
 	string(REPLACE ".l" "" name ${name})
-	set(src "${CMAKE_CURRENT_SOURCE_DIR}/${name}.l")
-	set(dst "${CMAKE_CURRENT_SOURCE_DIR}/${name}.c")
-	add_custom_command(
-		OUTPUT "${dst}"
-		DEPENDS "${src}"
-		COMMAND
-		${FLEX_EXECUTABLE}
-		-i -t --prefix yy_${name} -o${dst} ${src})
-	set(LEX_FILES ${LEX_FILES} "${dst}")
+	set(src "${name}.l")
+	set(dst "${name}.c")
+	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/src/loaders/" "" name ${name})
+	flex_target(${name} ${src} ${dst} COMPILE_FLAGS "-i --prefix yy_${name}")
+	get_property(out VARIABLE PROPERTY FLEX_${name}_OUTPUTS)
+	set(LEXERS_OUT ${LEXERS_OUT} ${out})
 endforeach (name)
 
-# Add the lexer files target.
-add_custom_target(RerunLex DEPENDS ${LEX_FILES})
-
 # Add sources.
-file(GLOB SOURCES src/commands/*.c src/loaders/*.c src/random_maps/*.c src/server/*.c src/skills/*.c src/socket/*.c src/types/*.c)
+file(GLOB SOURCES src/commands/*.c src/random_maps/*.c src/server/*.c src/skills/*.c src/socket/*.c src/types/*.c)
 
 # Find unit test source files if check is installed.
 if (CHECK_LIBRARY)
@@ -173,11 +166,12 @@ elseif (HAVE_WORLD_MAKER)
 endif (HAVE_WORLD_MAKER)
 
 # Compile the sources into an executable.
-add_executable(atrinik-server ${SOURCES} ${LEX_FILES} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
+add_executable(atrinik-server ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
 
 # Link libraries.
 target_link_libraries(atrinik-server ${CURL_LIBRARY})
 target_link_libraries(atrinik-server ${ZLIB_LIBRARY})
+target_link_libraries(atrinik-server ${DL_LIBRARY})
 
 # Link math...
 if (MATH_LIBRARY)
@@ -188,11 +182,6 @@ endif (MATH_LIBRARY)
 if (CRYPT_LIBRARY)
 	target_link_libraries(atrinik-server ${CRYPT_LIBRARY})
 endif (CRYPT_LIBRARY)
-
-# Link DES.
-if (DES_LIBRARY)
-	target_link_libraries(atrinik-server ${DES_LIBRARY})
-endif (DES_LIBRARY)
 
 # Link check.
 if (CHECK_LIBRARY)

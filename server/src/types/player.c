@@ -28,11 +28,6 @@
  * Player related functions. */
 
 #include <global.h>
-#ifndef WIN32
-#include <pwd.h>
-#endif
-#include <sounds.h>
-#include <newclient.h>
 
 static archetype *get_player_archetype(archetype *at);
 static int save_life(object *op);

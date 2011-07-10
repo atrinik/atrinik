@@ -29,12 +29,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#endif
-
 long max_time = MAX_TIME;
 
 /** Size of history buffer. */

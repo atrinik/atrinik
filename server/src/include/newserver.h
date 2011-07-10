@@ -36,10 +36,6 @@
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
 /**
  * @defgroup MAP2_FLAG_xxx Map2 layer flags
  * Flags used to mark what kind of data there is on layers
@@ -188,10 +184,6 @@ typedef struct socket_buffer
 	/** If 1, will send this packet without delay. */
 	uint8 ndelay;
 } socket_buffer;
-
-#ifdef WIN32
-#pragma pack(pop)
-#endif
 
 /** This contains basic information on the socket structure. */
 typedef struct socket_struct

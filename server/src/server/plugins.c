@@ -30,13 +30,6 @@
 #include <plugin.h>
 #include <loader.h>
 
-/** The plugin suffix. */
-#ifndef WIN32
-#	define PLUGIN_SUFFIX ".so"
-#else
-#	define PLUGIN_SUFFIX ".dll"
-#endif
-
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
 

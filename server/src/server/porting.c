@@ -31,19 +31,6 @@
  * dependent stuff is contained here, with the program calling these
  * functions. */
 
-#ifdef WIN32
-#	include "process.h"
-#	define pid_t int
-#else
-#	include <ctype.h>
-#	include <sys/stat.h>
-#	include <sys/wait.h>
-#	include <sys/param.h>
-#	include <stdio.h>
-#	include <cmake.h>
-#endif
-
-/* Has to be after above includes so we don't redefine some values */
 #include <global.h>
 
 /** Used to generate temporary unique name. */
@@ -64,7 +51,7 @@ char *tempnam_local(const char *dir, const char *pfx)
 
 	if (!pfx)
 	{
-		pfx = "cftmp.";
+		pfx = "tmp.";
 	}
 
 	/* This is a pretty simple method - put the pid as a hex digit and

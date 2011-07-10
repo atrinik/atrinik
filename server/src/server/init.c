@@ -42,11 +42,7 @@ struct Settings settings =
 	"",
 	/* Client/server port */
 	CSPORT,
-#ifdef DEBUG
 	llevDebug,
-#else
-	llevInfo,
-#endif
 	/* dumpvalues, dumparg, daemonmode */
 	0, NULL, 0,
 	DATADIR,
@@ -1200,19 +1196,11 @@ static void rec_sigpipe(int i)
 {
 	(void) i;
 
-	/* Keep running if we receive a sigpipe.  Crossfire should really be able
-	 * to handle this signal (at least at some point in the future if not
-	 * right now).  By causing a dump right when it is received, it is not
-	 * doing much good.  However, if it core dumps later on, at least it can
-	 * be looked at later on, and maybe fix the problem that caused it to
-	 * dump core.  There is no reason that SIGPIPES should be fatal */
-#if 1 && !defined(WIN32) /* ***win32: we don't want send SIGPIPE */
-	LOG(llevSystem, "\nReceived SIGPIPE, ignoring...\n");
-	/* hocky-pux clears signal handlers */
+#ifndef WIN32
+	LOG(llevSystem, "\nSIGPIPE received, ignoring\n");
 	signal(SIGPIPE, rec_sigpipe);
 #else
-	LOG(llevSystem, "\nSIGPIPE received, not ignoring...\n");
-	/* Might consider to uncomment this line */
+	LOG(llevSystem, "\nSIGPIPE received\n");
 	fatal_signal(1);
 #endif
 }
@@ -1269,9 +1257,9 @@ static void init_signals()
 	signal(SIGQUIT, rec_sigquit);
 	signal(SIGSEGV, rec_sigsegv);
 	signal(SIGPIPE, rec_sigpipe);
-#ifdef SIGBUS
+#	ifdef SIGBUS
 	signal(SIGBUS, rec_sigbus);
-#endif
+#	endif
 	signal(SIGTERM, rec_sigterm);
 #endif
 }

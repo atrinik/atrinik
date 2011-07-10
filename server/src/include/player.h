@@ -27,6 +27,9 @@
  * @file
  * Handles player related structures, enums and defines. */
 
+#ifndef PLAYER_H
+#define PLAYER_H
+
 /** Level color structure. */
 typedef struct _level_color
 {
@@ -181,10 +184,6 @@ enum
 	READY_OBJ_THROW,
 	READY_OBJ_MAX
 };
-
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
 
 /** The player structure. */
 typedef struct pl_player
@@ -722,6 +721,4 @@ typedef struct pl_player
 /** Maximum length a player name can have. */
 #define PLAYER_NAME_MAX 12
 
-#ifdef WIN32
-#pragma pack(pop)
 #endif

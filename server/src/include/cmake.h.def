@@ -38,9 +38,6 @@
 /* Is crypt available? */
 #cmakedefine HAVE_CRYPT
 
-/* Is libdes available? */
-#cmakedefine HAVE_LIBDES
-
 /* Is libcheck (unit tests) available? */
 #cmakedefine HAVE_CHECK
 
@@ -156,5 +153,7 @@
 #define GUNZIP "@GUNZIP@"
 #define BZIP "@BZIP@"
 #define BUNZIP "@BUNZUP@"
+
+#define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
 #endif

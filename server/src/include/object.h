@@ -30,10 +30,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
 /**
  * Get the weight of an object. If the object is a container or doesn't
  * have nrof, include the weight it is carrying. */
@@ -461,10 +457,6 @@ typedef struct obj
 	/** Fields not explicitly known by the loader. */
 	key_value *key_values;
 } object;
-
-#ifdef WIN32
-#pragma pack(pop)
-#endif
 
 /** Used to link together several objects. */
 typedef struct oblnk
