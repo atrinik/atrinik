@@ -284,7 +284,7 @@ enum spellnrs
 	SP_LIGHTNING,
 	SP_FORKED_LIGHTNING,
 	SP_NEGABOLT,
-	SP_HOLYWORD,
+	SP_HOLYWORD
 };
 
 extern spell spells[NROFREALSPELLS];
