@@ -1439,10 +1439,8 @@ void drop_ob_inv(object *ob)
 		return;
 	}
 
-	/* TODO */
 	if (ob->env == NULL && (ob->map == NULL || ob->map->in_memory != MAP_IN_MEMORY))
 	{
-		LOG(llevDebug, "drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%p)\n", ob->name, ob->map);
 		return;
 	}
 
