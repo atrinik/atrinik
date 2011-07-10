@@ -39,6 +39,7 @@ _CPack_Packages/
 *.deb
 *.rpm
 install_manifest.txt
+Makefile
 
 # Win32
 Thumbs.db
