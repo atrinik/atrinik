@@ -463,7 +463,7 @@ void SoundCmd(uint8 *data, int len)
 
 		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
 		snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
-		sound_add_effect(path, dist_volume + volume, loop);
+		sound_add_effect(file_path(path, "r"), dist_volume + volume, loop);
 	}
 	else if (type == CMD_SOUND_BACKGROUND)
 	{

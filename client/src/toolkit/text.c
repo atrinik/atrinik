@@ -153,7 +153,7 @@ void text_init()
 
 	for (i = 0; i < FONTS_MAX; i++)
 	{
-		font = TTF_OpenFont(fonts[i].path, fonts[i].size);
+		font = TTF_OpenFont_wrapper(fonts[i].path, fonts[i].size);
 
 		if (!font)
 		{

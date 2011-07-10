@@ -98,10 +98,6 @@ include(CheckTypeSize)
 check_type_size("long" SIZEOF_LONG)
 check_type_size("long long" SIZEOF_LONG_LONG)
 
-# Configure the .h file with the configuration options (size of long, 
-# package version, etc).
-configure_file(src/include/cmake.h.def src/include/cmake.h)
-
 # Add our includes.
 include_directories(src/include)
 
@@ -216,3 +212,7 @@ set(CPACK_BINARY_STGZ "OFF")
 set(CPACK_BINARY_TGZ "OFF")
 set(CPACK_BINARY_TZ "OFF")
 include(CPack)
+
+# Configure the .h file with the configuration options (size of long, 
+# package version, etc).
+configure_file(src/include/cmake.h.def src/include/cmake.h)

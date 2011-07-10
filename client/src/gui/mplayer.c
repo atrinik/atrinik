@@ -299,9 +299,11 @@ void widget_show_mplayer(widgetdata *widget)
 		list_set_font(list, FONT_ARIAL10);
 
 		/* Add default media directory songs. */
-		mplayer_list_init(list, DIRECTORY_MEDIA, 0);
-		snprintf(buf, sizeof(buf), "%s/.atrinik/"PACKAGE_VERSION"/"DIRECTORY_MEDIA, get_config_dir());
+		get_data_dir_file(buf, sizeof(buf), DIRECTORY_MEDIA);
+		mplayer_list_init(list, buf, 0);
+
 		/* Now add custom ones, but ignore duplicates. */
+		snprintf(buf, sizeof(buf), "%s/.atrinik/"PACKAGE_VERSION"/"DIRECTORY_MEDIA, get_config_dir());
 		mplayer_list_init(list, buf, 1);
 
 		/* If we added any, sort the list alphabetically and add an entry

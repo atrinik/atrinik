@@ -252,6 +252,31 @@ const char *get_config_dir()
 }
 
 /**
+ * Get path to a file in the data directory.
+ * @param buf Buffer where to store the path.
+ * @param len Size of buf.
+ * @param fname File. */
+void get_data_dir_file(char *buf, size_t len, const char *fname)
+{
+	/* Try the current directory first. */
+	snprintf(buf, len, "./%s", fname);
+
+#ifdef INSTALL_SUBDIR_SHARE
+	/* Not found, try the share directory since it was defined... */
+	if (access(buf, R_OK))
+	{
+		char *prefix;
+
+		/* Get the prefix. */
+		prefix = br_find_prefix("./");
+		/* Construct the path. */
+		snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE"/%s", prefix, fname);
+		free(prefix);
+	}
+#endif
+}
+
+/**
  * Get path to file, to implement saving settings related data to user's
  * home directory.
  * @param fname The file path.
@@ -260,7 +285,7 @@ const char *get_config_dir()
 char *file_path(const char *fname, const char *mode)
 {
 	static char tmp[HUGE_BUF];
-	char *stmp, ctmp, *data_dir;
+	char *stmp, ctmp;
 
 	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", get_config_dir(), fname);
 
@@ -280,15 +305,7 @@ char *file_path(const char *fname, const char *mode)
 		{
 			char otmp[HUGE_BUF];
 
-#ifdef WIN32
-			data_dir = SYSPATH;
-#else
-			data_dir = br_find_data_dir(SYSPATH);
-#endif
-			snprintf(otmp, sizeof(otmp), "%s%s", data_dir, fname);
-#ifndef WIN32
-			free(data_dir);
-#endif
+			get_data_dir_file(otmp, sizeof(otmp), fname);
 
 			if ((stmp = strrchr(tmp, '/')))
 			{
@@ -305,15 +322,7 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, R_OK))
 		{
-#ifdef WIN32
-			data_dir = SYSPATH;
-#else
-			data_dir = br_find_data_dir(SYSPATH);
-#endif
-			snprintf(tmp, sizeof(tmp), "%s%s", data_dir, fname);
-#ifndef WIN32
-			free(data_dir);
-#endif
+			get_data_dir_file(tmp, sizeof(tmp), fname);
 		}
 	}
 
@@ -332,8 +341,8 @@ char *file_path(const char *fname, const char *mode)
 
 /**
  * fopen wrapper.
- * @param fname The file name
- * @param mode File mode
+ * @param fname The file name.
+ * @param mode File mode.
  * @return Return value of fopen().  */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
@@ -347,5 +356,15 @@ FILE *fopen_wrapper(const char *fname, const char *mode)
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
 	return IMG_Load(file_path(file, "r"));
+}
+
+/**
+ * TTF_OpenFont wrapper.
+ * @param file The file name.
+ * @param ptsize Size of font.
+ * @return Return value of TTF_OpenFont(). */
+TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize)
+{
+	return TTF_OpenFont(file_path(file, "r"), ptsize);
 }
 /*@}*/

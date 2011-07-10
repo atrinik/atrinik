@@ -55,24 +55,4 @@ typedef enum {
 	BR_INIT_ERROR_DISABLED
 } BrInitError;
 
-
-#ifndef DOXYGEN
-/* Mangle symbol names to avoid symbol collisions with other ELF objects. */
-	#define br_init             PTeH3518859728963_br_init
-	#define br_init_lib         PTeH3518859728963_br_init_lib
-	#define br_find_exe         PTeH3518859728963_br_find_exe
-	#define br_find_exe_dir     PTeH3518859728963_br_find_exe_dir
-	#define br_find_prefix      PTeH3518859728963_br_find_prefix
-	#define br_find_bin_dir     PTeH3518859728963_br_find_bin_dir
-	#define br_find_sbin_dir    PTeH3518859728963_br_find_sbin_dir
-	#define br_find_data_dir    PTeH3518859728963_br_find_data_dir
-	#define br_find_locale_dir  PTeH3518859728963_br_find_locale_dir
-	#define br_find_lib_dir     PTeH3518859728963_br_find_lib_dir
-	#define br_find_libexec_dir PTeH3518859728963_br_find_libexec_dir
-	#define br_find_etc_dir     PTeH3518859728963_br_find_etc_dir
-	#define br_strcat           PTeH3518859728963_br_strcat
-	#define br_build_path       PTeH3518859728963_br_build_path
-	#define br_dirname          PTeH3518859728963_br_dirname
-#endif
-
 #endif

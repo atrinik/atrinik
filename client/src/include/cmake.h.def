@@ -65,4 +65,6 @@
 /* Version of the package. */
 #define PACKAGE_VERSION "@PACKAGE_VERSION@"
 
+#define INSTALL_SUBDIR_SHARE "@INSTALL_SUBDIR_SHARE@"
+
 #endif
