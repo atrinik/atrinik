@@ -6,6 +6,10 @@ cmake_minimum_required(VERSION 2.6)
 # Include build configuration.
 include(build.config)
 
+if (EXISTS build.user)
+	include(build.user)
+endif (EXISTS build.user)
+
 # Compiling on GNU/Linux.
 set(LINUX true)
 
@@ -68,6 +72,15 @@ endif (X11_FOUND)
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra)
+add_definitions(${CUSTOM_WARNINGS})
+
+if (ENABLE_EXTRA_WARNINGS)
+	add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat=2 -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wpointer-arith -Wbad-function-cast)
+endif (ENABLE_EXTRA_WARNINGS)
+
+if (ENABLE_AGGRESSIVE_WARNINGS)
+	add_definitions(-Wcast-qual -Wmissing-declarations)
+endif (ENABLE_AGGRESSIVE_WARNINGS)
 
 # Turn warnings into errors?
 if (NOT DISABLE_WARNING_ERRORS)
