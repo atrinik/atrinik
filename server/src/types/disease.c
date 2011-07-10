@@ -309,15 +309,15 @@ int infect_object(object *victim, object *disease, int force)
 	{
 		if (disease->env && disease->env->type == PLAYER)
 		{
-			object *player = disease->env;
+			object *pl = disease->env;
 
 			/* hm, we should for hit use the weapon? or the skill attached to this
 			 * specific disease? hmmm */
-			new_disease->chosen_skill = find_skill(player, SK_PRAYING);
+			new_disease->chosen_skill = find_skill(pl, SK_PRAYING);
 
 			if (new_disease->chosen_skill)
 			{
-				set_owner(new_disease, player);
+				set_owner(new_disease, pl);
 				new_disease->exp_obj = new_disease->chosen_skill->exp_obj;
 			}
 		}

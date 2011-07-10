@@ -478,16 +478,16 @@ void do_forget_spell(object *op, int spell)
  * field exit->name cause the field exit->owner doesn't survive in the
  * swapping (in fact the whole exit doesn't survive).
  * @param op Player to check for.
- * @param exit Exit object.
+ * @param exit_ob Exit object.
  * @return 1 if exit is not two way, 0 otherwise. */
-static int is_legal_2ways_exit(object* op, object *exit)
+static int is_legal_2ways_exit(object *op, object *exit_ob)
 {
 	object *tmp, *exit_owner;
 	player *pp;
 	mapstruct *exitmap;
 
 	/* This is not a two way, so it is legal */
-	if (exit->stats.exp != 1)
+	if (exit_ob->stats.exp != 1)
 	{
 		return 1;
 	}
@@ -495,25 +495,25 @@ static int is_legal_2ways_exit(object* op, object *exit)
 	/* To know if an exit has a correspondant, we look at
 	 * all the exits in destination and try to find one with same path as
 	 * the current exit's position */
-	if (!strncmp(EXIT_PATH (exit), settings.localdir, strlen(settings.localdir)))
+	if (!strncmp(EXIT_PATH(exit_ob), settings.localdir, strlen(settings.localdir)))
 	{
-		exitmap = ready_map_name(EXIT_PATH (exit), MAP_NAME_SHARED|MAP_PLAYER_UNIQUE);
+		exitmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED | MAP_PLAYER_UNIQUE);
 	}
 	else
 	{
-		exitmap = ready_map_name(EXIT_PATH (exit), MAP_NAME_SHARED);
+		exitmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
 	}
 
 	if (exitmap)
 	{
-		tmp = get_map_ob(exitmap, EXIT_X(exit), EXIT_Y(exit));
+		tmp = get_map_ob(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob));
 
 		if (!tmp)
 		{
 			return 0;
 		}
 
-		for ((tmp = get_map_ob(exitmap, EXIT_X(exit), EXIT_Y(exit))); tmp; tmp = tmp->above)
+		for ((tmp = get_map_ob(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob))); tmp; tmp = tmp->above)
 		{
 			/* Not an exit */
 			if (tmp->type != EXIT)
@@ -528,13 +528,13 @@ static int is_legal_2ways_exit(object* op, object *exit)
 			}
 
 			/* Not in the same place */
-			if ((EXIT_X(tmp) != exit->x) || (EXIT_Y(tmp) != exit->y))
+			if ((EXIT_X(tmp) != exit_ob->x) || (EXIT_Y(tmp) != exit_ob->y))
 			{
 				continue;
 			}
 
 			/* Not in the same map */
-			if (!exit->race && exit->map->path == EXIT_PATH(tmp))
+			if (!exit_ob->race && exit_ob->map->path == EXIT_PATH(tmp))
 			{
 				continue;
 			}
@@ -543,7 +543,7 @@ static int is_legal_2ways_exit(object* op, object *exit)
 			 * here the check of the exit owner. It is important for the
 			 * town portals to prevent strangers from visiting your apartments */
 			/* No owner, free for all! */
-			if (!exit->race)
+			if (!exit_ob->race)
 			{
 				return 1;
 			}
@@ -557,7 +557,7 @@ static int is_legal_2ways_exit(object* op, object *exit)
 					continue;
 				}
 
-				if (pp->ob->name != exit->race)
+				if (pp->ob->name != exit_ob->race)
 				{
 					continue;
 				}

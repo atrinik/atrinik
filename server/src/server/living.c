@@ -2141,8 +2141,8 @@ object *find_base_info_object(object *op)
  * 4/5 = mov is running/attack speed
  * 5/5 = mob is hasted and moving full speed
  * @param op Monster.
- * @param index Index. */
-void set_mobile_speed(object *op, int index)
+ * @param idx Index. */
+void set_mobile_speed(object *op, int idx)
 {
 	object *base;
 	float speed, tmp;
@@ -2153,9 +2153,9 @@ void set_mobile_speed(object *op, int index)
 
 	tmp = op->speed;
 
-	if (index)
+	if (idx)
 	{
-		op->speed = speed * index;
+		op->speed = speed * idx;
 	}
 	/* We will generate the speed by setting of the monster */
 	else

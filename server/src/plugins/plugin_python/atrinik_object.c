@@ -796,9 +796,9 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject 
 {
 	const char *txt;
 	object *myob;
-	int time = 0;
+	int expire_time = 0;
 
-	if (!PyArg_ParseTuple(args, "s|i", &txt, &time))
+	if (!PyArg_ParseTuple(args, "s|i", &txt, &expire_time))
 	{
 		return NULL;
 	}
@@ -814,10 +814,10 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject 
 	}
 
 	/* For temporary forces */
-	if (time > 0)
+	if (expire_time > 0)
 	{
 		SET_FLAG(myob, FLAG_IS_USED_UP);
-		myob->stats.food = time;
+		myob->stats.food = expire_time;
 		myob->speed = 0.02f;
 		hooks->update_ob_speed(myob);
 	}
@@ -960,10 +960,10 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *obj, PyObject 
 static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 {
 	const char *name;
-	int time = 0;
+	int expire_time = 0;
 	object *force;
 
-	if (!PyArg_ParseTuple(args, "s|i", &name, &time))
+	if (!PyArg_ParseTuple(args, "s|i", &name, &expire_time))
 	{
 		return NULL;
 	}
@@ -972,10 +972,10 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 
 	force = hooks->get_archetype("force");
 
-	if (time > 0)
+	if (expire_time > 0)
 	{
 		SET_FLAG(force, FLAG_IS_USED_UP);
-		force->stats.food = time;
+		force->stats.food = expire_time;
 		force->speed = 0.02f;
 	}
 	else
@@ -1873,11 +1873,11 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
 static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"treasure", "level", "flags", "a_chance", NULL};
-	const char *treasure = NULL;
+	const char *treasure_name = NULL;
 	int level = 0, flags = 0, a_chance = ART_CHANCE_UNSET;
 	treasurelist *t;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ziii", kwlist, &treasure, &level, &flags, &a_chance))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ziii", kwlist, &treasure_name, &level, &flags, &a_chance))
 	{
 		return NULL;
 	}
@@ -1885,9 +1885,9 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
 	OBJEXISTCHECK(obj);
 
 	/* Figure out the treasure list. */
-	if (treasure)
+	if (treasure_name)
 	{
-		t = hooks->find_treasurelist(treasure);
+		t = hooks->find_treasurelist(treasure_name);
 	}
 	else
 	{
@@ -1897,9 +1897,9 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
 	/* Invalid treasure list. */
 	if (!t)
 	{
-		if (treasure)
+		if (treasure_name)
 		{
-			PyErr_Format(PyExc_ValueError, "CreateTreasure(): '%s' is not a valid treasure list.", treasure);
+			PyErr_Format(PyExc_ValueError, "CreateTreasure(): '%s' is not a valid treasure list.", treasure_name);
 		}
 		else
 		{

@@ -603,7 +603,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 {
 	artifactlist *al;
 	artifact *art;
-	int chance, i, type, index;
+	int chance, i, type, idx;
 	int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
 	char *final, *ch;
 	object *tmp = NULL;
@@ -623,8 +623,8 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 
 	do
 	{
-		index = rndm(1, arraysize(art_name_array)) - 1;
-		type = art_name_array[index].type;
+		idx = rndm(1, arraysize(art_name_array)) - 1;
+		type = art_name_array[idx].type;
 		al = find_artifactlist(type);
 		i++;
 	}
@@ -653,7 +653,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 	}
 
 	/* Ok, let's print out the contents */
-	snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[index].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
+	snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
 
 	/* Artifact msg attributes loop. Let's keep adding entries to the 'book'
 	 * as long as we have space up to the allowed max # (book_entries) */

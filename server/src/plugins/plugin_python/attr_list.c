@@ -107,9 +107,9 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 /**
  * Get value from an AttrList object.
  * @param al The AttrList object.
- * @param index Pointer to the index value/key.
+ * @param idx Pointer to the index value/key.
  * @return 0 on success, -1 on failure. */
-static PyObject *attr_list_get(Atrinik_AttrList *al, void *index)
+static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
 {
 	void *ptr;
 	fields_struct field = {"xxx", 0, 0, 0, 0};
@@ -120,12 +120,12 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, void *index)
 	if (al->field == FIELDTYPE_KNOWN_SPELLS)
 	{
 		field.type = FIELDTYPE_SINT16;
-		ptr = &((sint16 *) ptr)[*(unsigned PY_LONG_LONG *) index];
+		ptr = &((sint16 *) ptr)[*(unsigned PY_LONG_LONG *) idx];
 	}
 	else if (al->field == FIELDTYPE_CMD_PERMISSIONS)
 	{
 		field.type = FIELDTYPE_CSTR;
-		ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) index];
+		ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) idx];
 	}
 	else if (al->field == FIELDTYPE_FACTIONS)
 	{
@@ -136,7 +136,7 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, void *index)
 
 		for (i = 0; i < len; i++)
 		{
-			if (!strcmp((const char *) (char *) index, *(const char **) (&(*(shstr ***) ptr)[i])))
+			if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i])))
 			{
 				ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
 				return generic_field_getter(&field, ptr);
@@ -190,10 +190,10 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
 /**
  * Set new value for an array member that AttrList object is wrapping.
  * @param al The AttrList object.
- * @param index Pointer to the index value/key.
+ * @param idx Pointer to the index value/key.
  * @param value New value to set.
  * @return 0 on success, -1 on failure. */
-static int attr_list_set(Atrinik_AttrList *al, void *index, PyObject *value)
+static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 {
 	unsigned PY_LONG_LONG len;
 	void *ptr;
@@ -208,7 +208,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *index, PyObject *value)
 	/* Known spells array. */
 	if (al->field == FIELDTYPE_KNOWN_SPELLS)
 	{
-		i = *(unsigned PY_LONG_LONG *) index;
+		i = *(unsigned PY_LONG_LONG *) idx;
 
 		/* Known spells array is fixed size; cannot go over the maximum. */
 		if (len >= sizeof(((player *) NULL)->known_spells))
@@ -231,7 +231,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *index, PyObject *value)
 	/* Command permissions. */
 	else if (al->field == FIELDTYPE_CMD_PERMISSIONS)
 	{
-		i = *(unsigned PY_LONG_LONG *) index;
+		i = *(unsigned PY_LONG_LONG *) idx;
 
 		/* Over the maximum size; resize the array, as it's dynamic. */
 		if (i >= len)
@@ -257,7 +257,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *index, PyObject *value)
 		/* Try to find an existing entry. */
 		for (i = 0; i < len; i++)
 		{
-			if (!strcmp((const char *) (char *) index, *(const char **) (&(*(shstr ***) ptr)[i])))
+			if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i])))
 			{
 				break;
 			}
@@ -268,7 +268,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *index, PyObject *value)
 		{
 			(*(int *) attr_list_len_ptr(al))++;
 			*(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-			*(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) index);
+			*(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) idx);
 			*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
 			/* Make sure ptr points to the right memory... */
 			ptr = (void *) ((char *) al->ptr + offsetof(player, faction_reputation));
@@ -331,7 +331,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *index, PyObject *value)
  * failure. */
 static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 {
-	void *index;
+	void *idx;
 
 	if (al->field == FIELDTYPE_FACTIONS)
 	{
@@ -344,7 +344,7 @@ static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 		}
 
 		cstr = PyString_AsString(key);
-		index = cstr;
+		idx = cstr;
 	}
 	else
 	{
@@ -373,10 +373,10 @@ static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 			return NULL;
 		}
 
-		index = &i;
+		idx = &i;
 	}
 
-	return attr_list_get(al, index);
+	return attr_list_get(al, idx);
 }
 
 /**
@@ -454,7 +454,7 @@ static PyObject *iternext(Atrinik_AttrList *al)
 	/* Possible to continue iteration? */
 	if (al->iter < attr_list_len(al))
 	{
-		void *index;
+		void *idx;
 
 		al->iter++;
 
@@ -462,16 +462,16 @@ static PyObject *iternext(Atrinik_AttrList *al)
 		{
 			char *key = *(char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]);
 
-			index = key;
+			idx = key;
 		}
 		else
 		{
 			unsigned PY_LONG_LONG i = al->iter - 1;
 
-			index = &i;
+			idx = &i;
 		}
 
-		return attr_list_get(al, index);
+		return attr_list_get(al, idx);
 	}
 
 	/* Stop iteration. */
@@ -495,19 +495,19 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
  * @return Return value of attr_list_set(). */
 static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 {
-	void *index;
+	void *idx;
 
 	if (al->field == FIELDTYPE_FACTIONS)
 	{
-		index = PyString_AsString(key);
+		idx = PyString_AsString(key);
 	}
 	else
 	{
 		unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(key);
-		index = &i;
+		idx = &i;
 	}
 
-	return attr_list_set(al, index, value);
+	return attr_list_set(al, idx, value);
 }
 
 /**

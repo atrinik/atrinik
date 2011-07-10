@@ -52,7 +52,7 @@ char *long_desc(object *tmp, object *caller);
 void examine(object *op, object *tmp);
 int command_rename_item(object *op, char *params);
 /* src/commands/misc.c */
-void map_info(object *op);
+void maps_info(object *op);
 int command_motd(object *op, char *params);
 void malloc_info(object *op);
 int command_who(object *op, char *params);
@@ -753,7 +753,7 @@ void statistics_player_logout(player *pl);
 void init_spells();
 void dump_spells();
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
-spell *find_spell(int spelltype);
+spell_struct *find_spell(int spelltype);
 int check_spell_known(object *op, int spell_type);
 int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg);
 int cast_create_obj(object *op, object *new_op, int dir);

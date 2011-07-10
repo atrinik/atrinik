@@ -1246,7 +1246,7 @@ void draw_client_map2(object *pl)
 
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
-		MapSpace *msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 
 		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
 		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
@@ -1559,7 +1559,7 @@ void draw_client_map2(object *pl)
 				{
 					sint16 face;
 					uint8 quick_pos = tmp->quick_pos;
-					uint8 flags = 0, probe = 0;
+					uint8 flags = 0, probe_val = 0;
 					uint32 flags2 = 0;
 					object *head = tmp->head ? tmp->head : tmp;
 
@@ -1614,7 +1614,7 @@ void draw_client_map2(object *pl)
 					if (head->count == CONTR(pl)->target_object_count)
 					{
 						flags |= MAP2_FLAG_PROBE;
-						probe = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
+						probe_val = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
 					}
 
 					/* Z position set? */
@@ -1671,7 +1671,7 @@ void draw_client_map2(object *pl)
 					}
 
 					/* Now, check if we have cached this. */
-					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags && mp->probe == probe)
+					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags && mp->probe == probe_val)
 					{
 						continue;
 					}
@@ -1683,7 +1683,7 @@ void draw_client_map2(object *pl)
 
 					if (layer == LAYER_LIVING - 1)
 					{
-						mp->probe = probe;
+						mp->probe = probe_val;
 					}
 
 					if (OBJECT_IS_HIDDEN(pl, head))
@@ -1741,7 +1741,7 @@ void draw_client_map2(object *pl)
 					/* Target's HP bar. */
 					if (flags & MAP2_FLAG_PROBE)
 					{
-						SockList_AddChar(&sl_layer, (char) probe);
+						SockList_AddChar(&sl_layer, (char) probe_val);
 					}
 
 					/* Z position. */

@@ -31,7 +31,7 @@
 #include "spells.h"
 
 /** Array of all the spells. */
-spell spells[NROFREALSPELLS] =
+spell_struct spells[NROFREALSPELLS] =
 {
 	{"firestorm", SPELL_TYPE_WIZARD,
 	 "icon_firestorm.101", "A cone of fire you project in front of you. The spell gains strength as you grow in level, so it remains one of your best spells even at high level.",

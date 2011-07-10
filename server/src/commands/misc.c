@@ -33,7 +33,7 @@
 /**
  * Show maps information.
  * @param op The object to show the information to. */
-void map_info(object *op)
+void maps_info(object *op)
 {
 	mapstruct *m;
 	char map_path[MAX_BUF];
@@ -152,7 +152,7 @@ void malloc_info(object *op)
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(0, COLOR_WHITE, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
+	new_draw_info_format(0, COLOR_WHITE, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell_struct)));
 	sum_alloc += i;
 	sum_used += i;
 

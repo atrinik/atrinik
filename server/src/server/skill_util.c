@@ -120,8 +120,8 @@ static int do_skill_attack(object *tmp, object *op, char *string);
  * Find and assign the skill experience stuff.
  * @param pl Player.
  * @param exp Experience object.
- * @param index Index. */
-static void find_skill_exp_name(object *pl, object *exp, int index)
+ * @param idx Index. */
+static void find_skill_exp_name(object *pl, object *exp, int idx)
 {
 	int s;
 
@@ -129,8 +129,8 @@ static void find_skill_exp_name(object *pl, object *exp, int index)
 	{
 		if (!strcmp(skill_name_table[s].name, exp->name))
 		{
-			CONTR(pl)->last_skill_ob[index] = exp;
-			CONTR(pl)->last_skill_id[index] = skill_name_table[s].id;
+			CONTR(pl)->last_skill_ob[idx] = exp;
+			CONTR(pl)->last_skill_id[idx] = skill_name_table[s].id;
 			CONTR(pl)->last_skill_index++;
 			return;
 		}
@@ -1396,7 +1396,7 @@ object *SK_skill(object *op)
  * @return Amount of time the skill takes. */
 float get_skill_time(object *op, int skillnr)
 {
-	float time = skills[skillnr].time;
+	float skill_time = skills[skillnr].time;
 
 	if (op->type != PLAYER)
 	{
@@ -1409,7 +1409,7 @@ float get_skill_time(object *op, int skillnr)
 		return 0;
 	}
 
-	if (!time)
+	if (!skill_time)
 	{
 		return 0.0f;
 	}
@@ -1418,18 +1418,18 @@ float get_skill_time(object *op, int skillnr)
 		int level = SK_level(op) / 10;
 
 		/* Now this should be MUCH harder */
-		if (time > 1.0f)
+		if (skill_time > 1.0f)
 		{
-			time -= (level / 3) * 0.1f;
+			skill_time -= (level / 3) * 0.1f;
 
-			if (time < 1.0f)
+			if (skill_time < 1.0f)
 			{
-				time = 1.0f;
+				skill_time = 1.0f;
 			}
 		}
 	}
 
-	return FABS(time);
+	return FABS(skill_time);
 }
 
 /**

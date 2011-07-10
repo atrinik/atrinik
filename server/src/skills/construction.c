@@ -158,16 +158,16 @@ static int builder_item(object *op, object *new_item, int x, int y)
 	 * contains a wall. */
 	else if (new_item->type == WALL)
 	{
-		object *wall = get_wall(op->map, x, y);
+		object *wall_ob = get_wall(op->map, x, y);
 
-		if (!w || !wall)
+		if (!w || !wall_ob)
 		{
 			new_draw_info_format(0, COLOR_WHITE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
 			return 0;
 		}
-		else if (wall->above && wall->above->type == WALL)
+		else if (wall_ob->above && wall_ob->above->type == WALL)
 		{
-			new_draw_info_format(0, COLOR_WHITE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall->above, NULL));
+			new_draw_info_format(0, COLOR_WHITE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall_ob->above, NULL));
 			return 0;
 		}
 	}
@@ -245,11 +245,11 @@ static int builder_item(object *op, object *new_item, int x, int y)
  * @param orientation Where the wall's orientation will go.
  * @param orientation_size Size of 'orientation'.
  * @return 1 on success, 0 on failure. */
-static int wall_split_orientation(const object *wall, char *wall_name, size_t wall_name_size, char *orientation, size_t orientation_size)
+static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t wall_name_size, char *orientation, size_t orientation_size)
 {
 	int l;
 
-	strncpy(wall_name, wall->arch->name, wall_name_size - 1);
+	strncpy(wall_name, wall_ob->arch->name, wall_name_size - 1);
 
 	/* Extract the wall name, which is the text up to the last '_'. */
 	for (l = wall_name_size; l >= 0; l--)
@@ -276,44 +276,44 @@ static int wall_split_orientation(const object *wall, char *wall_name, size_t wa
  * @param y Y where to fix. */
 static void fix_walls(mapstruct *map, int x, int y)
 {
-	int connect = 0;
-	object *wall;
+	int connect_val;
+	object *wall_ob;
 	char wall_name[MAX_BUF], orientation[MAX_BUF];
 	uint32 old_flags[NUM_FLAGS_32];
 	archetype *new_arch;
 	int flag;
 
 	/* First, find the wall on that spot */
-	wall = get_wall(map, x, y);
+	wall_ob = get_wall(map, x, y);
 
-	if (!wall || !wall_split_orientation(wall, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
+	if (!wall_ob || !wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
 	{
 		return;
 	}
 
-	connect = 0;
+	connect_val = 0;
 
 	if (x > 0 && get_wall(map, x - 1, y))
 	{
-		connect |= 1;
+		connect_val |= 1;
 	}
 
 	if (x < MAP_WIDTH(map) - 1 && get_wall(map, x + 1, y))
 	{
-		connect |= 2;
+		connect_val |= 2;
 	}
 
 	if (y > 0 && get_wall(map, x, y - 1))
 	{
-		connect |= 4;
+		connect_val |= 4;
 	}
 
 	if (y < MAP_HEIGHT(map) - 1 && get_wall(map, x, y + 1))
 	{
-		connect |= 8;
+		connect_val |= 8;
 	}
 
-	switch (connect)
+	switch (connect_val)
 	{
 		case 0:
 			return;
@@ -347,7 +347,7 @@ static void fix_walls(mapstruct *map, int x, int y)
 	}
 
 	/* No need to change anything if the old and new names are identical. */
-	if (!strncmp(wall_name, wall->arch->name, sizeof(wall_name)))
+	if (!strncmp(wall_name, wall_ob->arch->name, sizeof(wall_name)))
 	{
 		return;
 	}
@@ -364,20 +364,20 @@ static void fix_walls(mapstruct *map, int x, int y)
 	 * We save flags to avoid any trouble with buildable/non buildable, etc. */
 	for (flag = 0; flag < NUM_FLAGS_32; flag++)
 	{
-		old_flags[flag] = wall->flags[flag];
+		old_flags[flag] = wall_ob->flags[flag];
 	}
 
-	remove_ob(wall);
+	remove_ob(wall_ob);
 
-	wall = arch_to_object(new_arch);
-	wall->type = WALL;
-	wall->x = x;
-	wall->y = y;
-	insert_ob_in_map(wall, map, NULL, 0);
+	wall_ob = arch_to_object(new_arch);
+	wall_ob->type = WALL;
+	wall_ob->x = x;
+	wall_ob->y = y;
+	insert_ob_in_map(wall_ob, map, NULL, 0);
 
 	for (flag = 0; flag < NUM_FLAGS_32; flag++)
 	{
-		wall->flags[flag] = old_flags[flag];
+		wall_ob->flags[flag] = old_flags[flag];
 	}
 }
 
@@ -390,19 +390,19 @@ static void fix_walls(mapstruct *map, int x, int y)
  * @return 1 if the wall was built, 0 otherwise. */
 static int builder_wall(object *op, object *new_wall, int x, int y)
 {
-	object *wall = get_wall(op->map, x, y);
+	object *wall_ob = get_wall(op->map, x, y);
 
-	if (wall)
+	if (wall_ob)
 	{
 		char wall_name[MAX_BUF], orientation[MAX_BUF];
 
-		if (!wall_split_orientation(wall, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
+		if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
 		{
 			new_draw_info(0, COLOR_WHITE, op, "You don't see a way to redecorate that wall.");
 			return 0;
 		}
 
-		if (!strncmp(wall->arch->name, wall_name, strlen(wall_name)))
+		if (!strncmp(wall_ob->arch->name, wall_name, strlen(wall_name)))
 		{
 			new_draw_info(0, COLOR_WHITE, op, "You feel too lazy to redo the exact same wall.");
 			return 0;
@@ -412,9 +412,9 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 	new_wall->type = WALL;
 
 	/* If existing wall, replace it, no need to fix other walls */
-	if (wall)
+	if (wall_ob)
 	{
-		remove_ob(wall);
+		remove_ob(wall_ob);
 		new_wall->x = x;
 		new_wall->y = y;
 		insert_ob_in_map(new_wall, op->map, NULL, 0);
@@ -457,22 +457,22 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
  * @return 1 if the window was built, 0 otherwise. */
 static int builder_window(object *op, int x, int y)
 {
-	object *wall;
+	object *wall_ob;
 	char wall_name[MAX_BUF], orientation[MAX_BUF];
 	archetype *new_arch;
 	object *window;
 	uint32 old_flags[NUM_FLAGS_32];
 	int flag;
 
-	wall = get_wall(op->map, x, y);
+	wall_ob = get_wall(op->map, x, y);
 
-	if (!wall)
+	if (!wall_ob)
 	{
 		new_draw_info(0, COLOR_WHITE, op, "There is no wall there.");
 		return 0;
 	}
 
-	if (!wall_split_orientation(wall, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
+	if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation)))
 	{
 		new_draw_info(0, COLOR_WHITE, op, "You don't see a way to build a window in that wall.");
 		return 0;
@@ -499,10 +499,10 @@ static int builder_window(object *op, int x, int y)
 	 * We save flags to avoid any trouble with buildable/non buildable, etc. */
 	for (flag = 0; flag < NUM_FLAGS_32; flag++)
 	{
-		old_flags[flag] = wall->flags[flag];
+		old_flags[flag] = wall_ob->flags[flag];
 	}
 
-	remove_ob(wall);
+	remove_ob(wall_ob);
 
 	window = arch_to_object(new_arch);
 	window->type = WALL;

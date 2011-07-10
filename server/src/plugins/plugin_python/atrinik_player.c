@@ -196,15 +196,15 @@ static PyObject *Atrinik_Player_GetSkill(Atrinik_Player *pl, PyObject *args)
 static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 {
 	uint32 skill;
-	sint64 exp;
+	sint64 exp_gain;
 	int exact = 0;
 
-	if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp, &exact))
+	if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp_gain, &exact))
 	{
 		return NULL;
 	}
 
-	hooks->add_exp(pl->pl->ob, exp, skill, exact);
+	hooks->add_exp(pl->pl->ob, exp_gain, skill, exact);
 
 	Py_INCREF(Py_None);
 	return Py_None;

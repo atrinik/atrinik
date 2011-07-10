@@ -1309,10 +1309,9 @@
 
 #define SLOW_PENALTY(xyz) ((xyz)->stats.exp)
 
-#define EXIT_PATH(xyz) (xyz)->slaying
-#define EXIT_LEVEL(xyz) (xyz)->stats.food
-#define EXIT_X(xyz) (xyz)->stats.hp
-#define EXIT_Y(xyz) (xyz)->stats.sp
+#define EXIT_PATH(xyz) ((xyz)->slaying)
+#define EXIT_X(xyz) ((xyz)->stats.hp)
+#define EXIT_Y(xyz) ((xyz)->stats.sp)
 
 /**
  * @defgroup COST_xxx Cost modes

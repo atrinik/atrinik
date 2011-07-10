@@ -995,7 +995,7 @@ static void remove_unpaid_objects(object *op, object *env)
 static int get_regen_amount(uint16 regen, uint16 *remainder)
 {
 	int ret = 0;
-	float div;
+	float division;
 
 	/* Check whether it's time to update the remainder variable (which
 	 * will distribute the remainder evenly over time). */
@@ -1006,18 +1006,18 @@ static int get_regen_amount(uint16 regen, uint16 *remainder)
 
 	/* First check if we can distribute it evenly, if not, try to remove
 	 * leftovers, if any. */
-	for (div = (float) 1000000 / MAX_TIME; ; div = 1.0f)
+	for (division = (float) 1000000 / MAX_TIME; ; division = 1.0f)
 	{
-		if (*remainder / 10.0f / div >= 1.0f)
+		if (*remainder / 10.0f / division >= 1.0f)
 		{
-			int add = (int) *remainder / 10.0f / div;
+			int add = (int) *remainder / 10.0f / division;
 
 			ret += add;
 			*remainder -= add * 10;
 			break;
 		}
 
-		if (div == 1.0f)
+		if (division == 1.0f)
 		{
 			break;
 		}

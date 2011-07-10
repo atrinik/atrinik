@@ -565,7 +565,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 	{
 		if (coin_objs[i]->nrof)
 		{
-			object *tmp = insert_ob_in_ob(coin_objs[i], pouch);
+			tmp = insert_ob_in_ob(coin_objs[i], pouch);
 
 			for (who = pouch; who && who->type != PLAYER && who->env != NULL; who = who->env)
 			{

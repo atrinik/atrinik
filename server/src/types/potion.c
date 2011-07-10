@@ -68,7 +68,7 @@ static const char *const potion_improve_stat_names[POTION_IMPROVE_STATS] =
 static int potion_improve_apply(object *op, object *tmp)
 {
 	int indices[POTION_IMPROVE_STATS] = {POTION_IMPROVE_HP, POTION_IMPROVE_SP, POTION_IMPROVE_GRACE};
-	int stat, i, level, max, cursed;
+	int stat_id, i, level, max, cursed;
 	char *levarr, oldlev;
 
 	/* Shuffle the array so we check all the stats for possible
@@ -84,16 +84,16 @@ static int potion_improve_apply(object *op, object *tmp)
 	/* Check all the stats. As 'indices' has been shuffled, that is used
 	 * to determine which stat we're working on, instead of directly
 	 * using 'stat'. */
-	for (stat = 0; stat < POTION_IMPROVE_STATS; stat++)
+	for (stat_id = 0; stat_id < POTION_IMPROVE_STATS; stat_id++)
 	{
 		/* Determine level related to this stat, and the maximum possible
 		 * value it can be improved to. */
-		if (indices[stat] == POTION_IMPROVE_HP)
+		if (indices[stat_id] == POTION_IMPROVE_HP)
 		{
 			level = op->level;
 			max = op->arch->clone.stats.maxhp;
 		}
-		else if (indices[stat] == POTION_IMPROVE_SP)
+		else if (indices[stat_id] == POTION_IMPROVE_SP)
 		{
 			level = CONTR(op)->exp_ptr[EXP_MAGICAL]->level;
 			max = op->arch->clone.stats.maxsp;
@@ -112,7 +112,7 @@ static int potion_improve_apply(object *op, object *tmp)
 		{
 			/* Get pointer to the array that stores the level
 			 * improvements for this stat. */
-			levarr = (void *) ((char *) CONTR(op) + potion_improve_stat_offsets[indices[stat]]);
+			levarr = (void *) ((char *) CONTR(op) + potion_improve_stat_offsets[indices[stat_id]]);
 
 			if (cursed)
 			{
@@ -126,7 +126,7 @@ static int potion_improve_apply(object *op, object *tmp)
 					fix_player(op);
 					insert_spell_effect("meffect_purple", op->map, op->x, op->y);
 					play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-					new_draw_info_format(0, COLOR_WHITE, op, "The foul potion burns like fire inside you, and your %s decreases by %d!", potion_improve_stat_names[indices[stat]], oldlev - levarr[i]);
+					new_draw_info_format(0, COLOR_WHITE, op, "The foul potion burns like fire inside you, and your %s decreases by %d!", potion_improve_stat_names[indices[stat_id]], oldlev - levarr[i]);
 					return 1;
 				}
 			}
@@ -141,7 +141,7 @@ static int potion_improve_apply(object *op, object *tmp)
 					fix_player(op);
 					insert_spell_effect("meffect_yellow", op->map, op->x, op->y);
 					play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-					new_draw_info_format(0, COLOR_WHITE, op, "You feel a little more perfect, and your %s increases by %d!", potion_improve_stat_names[indices[stat]], levarr[i] - oldlev);
+					new_draw_info_format(0, COLOR_WHITE, op, "You feel a little more perfect, and your %s increases by %d!", potion_improve_stat_names[indices[stat_id]], levarr[i] - oldlev);
 					return 1;
 				}
 			}

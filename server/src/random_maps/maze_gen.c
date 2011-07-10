@@ -176,14 +176,14 @@ static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_wa
  * @param free_walls Free walls list. */
 static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls)
 {
-	int index = RANDOM() % free_walls->wall_free_size;
+	int i = RANDOM() % free_walls->wall_free_size;
 
-	*x = free_walls->wall_x_list[index];
-	*y = free_walls->wall_y_list[index];
+	*x = free_walls->wall_x_list[i];
+	*y = free_walls->wall_y_list[i];
 
 	/* Write the last array point here */
-	free_walls->wall_x_list[index] = free_walls->wall_x_list[free_walls->wall_free_size - 1];
-	free_walls->wall_y_list[index] = free_walls->wall_y_list[free_walls->wall_free_size - 1];
+	free_walls->wall_x_list[i] = free_walls->wall_x_list[free_walls->wall_free_size - 1];
+	free_walls->wall_y_list[i] = free_walls->wall_y_list[free_walls->wall_free_size - 1];
 
 	free_walls->wall_free_size--;
 }

@@ -1133,8 +1133,9 @@ create_one_treasure_again_jmp:
 		else
 		{
 			/* If t->magic is != 0, that's our value - if not use default setting */
-			int i, value = t->magic ? t->magic : t->item->clone.value;
+			int i;
 
+			value = t->magic ? t->magic : t->item->clone.value;
 			value *= difficulty;
 
 			/* So we have 80% to 120% of the fixed value */
@@ -2162,7 +2163,7 @@ jump_break1:
 
 						if (rndm_chance(4))
 						{
-							int d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+							d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 							if (set_ring_bonus(op, d, difficulty))
 							{

@@ -270,7 +270,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
  * Find a spell in the ::spells array.
  * @param spelltype ID of the spell to find.
  * @return The spell from the ::spells array, NULL if not found. */
-spell *find_spell(int spelltype)
+spell_struct *find_spell(int spelltype)
 {
 	if (spelltype < 0 || spelltype >= NROFREALSPELLS)
 	{
@@ -316,7 +316,7 @@ int check_spell_known(object *op, int spell_type)
  * drain mana/grace. */
 int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg)
 {
-	spell *s = find_spell(type);
+	spell_struct *s = find_spell(type);
 	shstr *godname = NULL;
 	object *target = NULL;
 	int success = 0, duration, spell_cost = 0;
@@ -1825,7 +1825,7 @@ int SP_level_strength_adjust(object *caster, int spell_type)
  * @return Spell points cost. */
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 {
-	spell *s = find_spell(spell_type);
+	spell_struct *s = find_spell(spell_type);
 	int level = (caster_level == -1 ? SK_level(caster) : caster_level), sp;
 
 	if (spells[spell_type].spl)

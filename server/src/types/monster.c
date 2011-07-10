@@ -31,7 +31,7 @@
 
 #include <global.h>
 
-extern spell spells[NROFREALSPELLS];
+extern spell_struct spells[NROFREALSPELLS];
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
@@ -942,7 +942,7 @@ static int can_hit(object *ob1, rv_vector *rv)
 static object *monster_choose_random_spell(object *monster, uint32 flags)
 {
 	object *altern[MAX_KNOWN_SPELLS], *tmp;
-	spell *spell;
+	spell_struct *spell;
 	int i = 0, j;
 
 	for (tmp = monster->inv; tmp != NULL; tmp = tmp->below)
@@ -1010,7 +1010,7 @@ static int monster_spell_useful(object *target, int spell_id)
 static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32 flags)
 {
 	object *spell_item, *target = NULL;
-	spell *sp;
+	spell_struct *sp;
 	int sp_typ, ability;
 
 	if ((spell_item = monster_choose_random_spell(head, flags)) == NULL)
@@ -1655,13 +1655,13 @@ static char *find_matching_message(const char *msg, const char *match)
 			}
 			else
 			{
-				char *pipe, *pnext = NULL;
+				char *pipe_sep, *pnext = NULL;
 
 				/* Need to parse all the | separators.  Our re_cmp isn't
 				 * really a fully blown regex parser. */
-				for (pipe = regex; pipe; pipe = pnext)
+				for (pipe_sep = regex; pipe_sep; pipe_sep = pnext)
 				{
-					pnext = strchr(pipe, '|');
+					pnext = strchr(pipe_sep, '|');
 
 					if (pnext)
 					{
@@ -1669,7 +1669,7 @@ static char *find_matching_message(const char *msg, const char *match)
 						pnext ++;
 					}
 
-					if (re_cmp(match, pipe))
+					if (re_cmp(match, pipe_sep))
 					{
 						gotmatch = 1;
 						break;

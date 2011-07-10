@@ -149,16 +149,16 @@ int check_weapon_power(object *who, int improvs)
  * @param op Player improving.
  * @param improver Scroll used to improve.
  * @param weapon Improved weapon.
- * @param stat What statistic to improve.
+ * @param stat_id What statistic to improve.
  * @param sacrifice_count How much to improve stat by.
- * @param statname Name of stat to display to player.
+ * @param stat_name Name of stat to display to player.
  * @return Always returns 1. */
-static int improve_weapon_stat(object *op, object *improver, object *weapon, signed char *stat, int sacrifice_count, char *statname)
+static int improve_weapon_stat(object *op, object *improver, object *weapon, signed char *stat_id, int sacrifice_count, char *stat_name)
 {
 	new_draw_info(0, COLOR_WHITE, op, "Your sacrifice was accepted.");
-	*stat += sacrifice_count;
+	*stat_id += sacrifice_count;
 	weapon->last_eat++;
-	new_draw_info_format(0, COLOR_WHITE, op, "Weapon's bonus to %s improved by %d.", statname, sacrifice_count);
+	new_draw_info_format(0, COLOR_WHITE, op, "Weapon's bonus to %s improved by %d.", stat_name, sacrifice_count);
 	decrease_ob(improver);
 
 	/* So it updates the players stats and the window */

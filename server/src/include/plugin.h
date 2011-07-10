@@ -304,7 +304,7 @@ struct plugin_hooklist
 	const char **weekdays;
 	const char **month_name;
 	const char **periodsofday;
-	spell *spells;
+	spell_struct *spells;
 	struct shstr_constants *shstr_cons;
 	const char **gender_noun;
 	const char **gender_subjective;

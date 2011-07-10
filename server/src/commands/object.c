@@ -635,9 +635,10 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	/* We want to put some portion of the item into the container */
 	if (nrof != tmp_nrof)
 	{
-		object *tmp2 = tmp, *tmp2_cont = tmp->env;
+		object *tmp2_cont = tmp->env;
 		char err[MAX_BUF];
 
+		tmp2 = tmp;
 		tmp2_tag = tmp2->count;
 		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
@@ -1598,8 +1599,6 @@ void examine(object *op, object *tmp)
 			}
 			else
 			{
-				int i;
-
 				/* Higher capacity crystals */
 				if (tmp->stats.maxsp > 1000)
 				{
@@ -1668,7 +1667,7 @@ void examine(object *op, object *tmp)
 		{
 			if (tmp->material & (1 << i))
 			{
-				strcat(buf, material[i].name);
+				strcat(buf, materials[i].name);
 				strcat(buf, " ");
 			}
 		}

@@ -1428,7 +1428,7 @@ static PyCodeObject *compilePython(char *filename)
 	struct stat stat_buf;
 	struct _node *n;
 	int i;
-	cacheentry *replace = NULL, *run = NULL;
+	cacheentry *entry_replace = NULL, *run = NULL;
 
 	if (stat(filename, &stat_buf))
 	{
@@ -1449,7 +1449,7 @@ static PyCodeObject *compilePython(char *filename)
 		if (python_cache[i].file == NULL)
 		{
 			/* Add to end of cache. */
-			replace = &python_cache[i];
+			entry_replace = &python_cache[i];
 			break;
 		}
 		else if (python_cache[i].file == sh_path)
@@ -1458,26 +1458,26 @@ static PyCodeObject *compilePython(char *filename)
 			if (python_cache[i].code == NULL || (python_cache[i].cached_time < stat_buf.st_mtime))
 			{
 				/* Cache older than file, replace cached. */
-				replace = &python_cache[i];
+				entry_replace = &python_cache[i];
 			}
 			else
 			{
 				/* cache up-to-date, use cached*/
-				replace = NULL;
+				entry_replace = NULL;
 				run = &python_cache[i];
 			}
 
 			break;
 		}
-		else if (replace == NULL || python_cache[i].used_time < replace->used_time)
+		else if (entry_replace == NULL || python_cache[i].used_time < entry_replace->used_time)
 		{
 			/* If we haven't found it yet, set replace to the oldest cache */
-			replace = &python_cache[i];
+			entry_replace = &python_cache[i];
 		}
 	}
 
 	/* Replace a specific cache index with the file. */
-	if (replace)
+	if (entry_replace)
 	{
 		FILE *fp;
 
@@ -1490,18 +1490,18 @@ static PyCodeObject *compilePython(char *filename)
 			return NULL;
 		}
 
-		Py_XDECREF(replace->code);
-		replace->code = NULL;
+		Py_XDECREF(entry_replace->code);
+		entry_replace->code = NULL;
 
 		/* Need to replace path string? */
-		if (replace->file != sh_path)
+		if (entry_replace->file != sh_path)
 		{
-			if (replace->file)
+			if (entry_replace->file)
 			{
-				FREE_AND_CLEAR_HASH(replace->file);
+				FREE_AND_CLEAR_HASH(entry_replace->file);
 			}
 
-			FREE_AND_COPY_HASH(replace->file, sh_path);
+			FREE_AND_COPY_HASH(entry_replace->file, sh_path);
 		}
 
 #ifdef WIN32
@@ -1527,7 +1527,7 @@ static PyCodeObject *compilePython(char *filename)
 
 		if (n)
 		{
-			replace->code = PyNode_Compile(n, filename);
+			entry_replace->code = PyNode_Compile(n, filename);
 			PyNode_Free(n);
 		}
 
@@ -1537,12 +1537,12 @@ static PyCodeObject *compilePython(char *filename)
 		}
 		else
 		{
-			replace->cached_time = stat_buf.st_mtime;
-			replace->used_time = time(NULL);
+			entry_replace->cached_time = stat_buf.st_mtime;
+			entry_replace->used_time = time(NULL);
 		}
 
 		fclose(fp);
-		run = replace;
+		run = entry_replace;
 	}
 
 	FREE_AND_CLEAR_HASH(sh_path);
@@ -2018,7 +2018,7 @@ static PyObject *module_create(const char *name)
  * @param module Module to add to.
  * @param name Name of the created module.
  * @param constants Constants to add. */
-static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *constants)
+static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *consts)
 {
 	size_t i = 0;
 	PyObject *module_tmp;
@@ -2027,9 +2027,9 @@ static void module_add_constants(PyObject *module, const char *name, const Atrin
 	module_tmp = module_create(name);
 
 	/* Append constants. */
-	while (constants[i].name)
+	while (consts[i].name)
 	{
-		PyModule_AddIntConstant(module_tmp, constants[i].name, constants[i].value);
+		PyModule_AddIntConstant(module_tmp, consts[i].name, consts[i].value);
 		i++;
 	}
 
@@ -2085,7 +2085,7 @@ static PyObject *python_openlogfile(FILE *fp, char *name)
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	PyObject *m, *d, *module_tmp, *logfile;
+	PyObject *m, *d, *module_tmp, *logfile_ptr;
 	int i;
 
 	hooks = hooklist;
@@ -2126,12 +2126,12 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		return;
 	}
 
-	logfile = python_openlogfile(*hooks->logfile, "<stdout>");
-	PySys_SetObject("stdout", logfile);
-	PySys_SetObject("__stdout__", logfile);
-	logfile = python_openlogfile(*hooks->logfile, "<stderr>");
-	PySys_SetObject("stderr", logfile);
-	PySys_SetObject("__stderr__", logfile);
+	logfile_ptr = python_openlogfile(*hooks->logfile, "<stdout>");
+	PySys_SetObject("stdout", logfile_ptr);
+	PySys_SetObject("__stdout__", logfile_ptr);
+	logfile_ptr = python_openlogfile(*hooks->logfile, "<stderr>");
+	PySys_SetObject("stderr", logfile_ptr);
+	PySys_SetObject("__stderr__", logfile_ptr);
 
 	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);

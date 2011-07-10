@@ -35,13 +35,13 @@
  * @param spawn_point Spawn point.
  * @param range Maximum range the monster can be spawned away.
  * @return The generated monster, NULL on failure. */
-static object *spawn_monster(object *monster, object *spawn_point, int range)
+static object *spawn_monster(object *monster, object *spawn_point_ob, int range)
 {
 	int i;
 	object *op, *head = NULL, *prev = NULL, *ret = NULL;
 	archetype *at = monster->arch;
 
-	i = find_first_free_spot2(at, spawn_point->map, spawn_point->x, spawn_point->y, 0, range);
+	i = find_first_free_spot2(at, spawn_point_ob->map, spawn_point_ob->x, spawn_point_ob->y, 0, range);
 
 	if (i == -1)
 	{
@@ -66,9 +66,9 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 			copy_object(&at->clone, op, 0);
 		}
 
-		op->x = spawn_point->x + freearr_x[i] + at->clone.x;
-		op->y = spawn_point->y + freearr_y[i] + at->clone.y;
-		op->map = spawn_point->map;
+		op->x = spawn_point_ob->x + freearr_x[i] + at->clone.x;
+		op->y = spawn_point_ob->y + freearr_y[i] + at->clone.y;
+		op->map = spawn_point_ob->map;
 
 		if (head)
 		{
@@ -92,7 +92,7 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 
 	if (ret && ret->item_condition)
 	{
-		int level = MAX(1, MIN(ret->level, MAXLEVEL)), min, max, diff = spawn_point->map->difficulty;
+		int level = MAX(1, MIN(ret->level, MAXLEVEL)), min, max, diff = spawn_point_ob->map->difficulty;
 
 		switch (ret->item_condition)
 		{
@@ -136,7 +136,7 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 
 	if (ret->randomitems)
 	{
-		create_treasure(ret->randomitems, ret, 0, ret->level ? ret->level : spawn_point->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+		create_treasure(ret->randomitems, ret, 0, ret->level ? ret->level : spawn_point_ob->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 	}
 
 	return ret;

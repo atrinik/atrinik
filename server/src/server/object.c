@@ -142,7 +142,7 @@ const char *gender_reflexive[GENDER_MAX] =
 };
 
 /** Material types. */
-materialtype material[NROFMATERIALS] =
+materialtype materials[NROFMATERIALS] =
 {
 	{"paper"},
 	{"metal"},
@@ -2932,14 +2932,14 @@ object *present_arch_in_ob(archetype *at, object *op)
  * @todo Document. */
 int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
-	int i, index = 0;
+	int i, inx = 0;
 	static int altern[SIZEOFFREE];
 
 	for (i = start; i < stop; i++)
 	{
 		if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i]))
 		{
-			altern[index++] = i;
+			altern[inx++] = i;
 		}
 		else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop)
 		{
@@ -2947,12 +2947,12 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
 		}
 	}
 
-	if (!index)
+	if (!inx)
 	{
 		return -1;
 	}
 
-	return altern[rndm(1, index) - 1];
+	return altern[rndm(1, inx) - 1];
 }
 
 /**
@@ -3493,13 +3493,13 @@ void free_key_values(object *op)
  * otherwise. */
 key_value *object_get_key_link(const object *ob, const char *key)
 {
-	key_value *link;
+	key_value *field;
 
-	for (link = ob->key_values; link; link = link->next)
+	for (field = ob->key_values; field; field = field->next)
 	{
-		if (link->key == key)
+		if (field->key == key)
 		{
-			return link;
+			return field;
 		}
 	}
 
@@ -3515,7 +3515,7 @@ key_value *object_get_key_link(const object *ob, const char *key)
  * @note The returned string is shared. */
 const char *object_get_value(const object *op, const char *const key)
 {
-	key_value *link;
+	key_value *field;
 	const char *canonical_key = find_string(key);
 
 	if (canonical_key == NULL)
@@ -3525,11 +3525,11 @@ const char *object_get_value(const object *op, const char *const key)
 
 	/* This is copied from object_get_key_link() above - only 4 lines, and
 	 * saves the function call overhead. */
-	for (link = op->key_values; link; link = link->next)
+	for (field = op->key_values; field; field = field->next)
 	{
-		if (link->key == canonical_key)
+		if (field->key == canonical_key)
 		{
-			return link->value;
+			return field->value;
 		}
 	}
 

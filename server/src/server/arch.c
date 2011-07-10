@@ -631,19 +631,19 @@ static unsigned long hasharch(const char *str, int tablesize)
 archetype *find_archetype(const char *name)
 {
 	archetype *at;
-	unsigned long index;
+	unsigned long idx;
 
 	if (name == NULL)
 	{
 		return NULL;
 	}
 
-	index = hasharch(name, ARCHTABLE);
+	idx = hasharch(name, ARCHTABLE);
 	arch_search++;
 
 	for (; ;)
 	{
-		at = arch_table[index];
+		at = arch_table[idx];
 
 		/* Not in archetype list - let's try the artifacts file */
 		if (at == NULL)
@@ -658,9 +658,9 @@ archetype *find_archetype(const char *name)
 			return at;
 		}
 
-		if (++index >= ARCHTABLE)
+		if (++idx >= ARCHTABLE)
 		{
-			index = 0;
+			idx = 0;
 		}
 	}
 }
@@ -669,27 +669,27 @@ archetype *find_archetype(const char *name)
  * Adds an archetype to the hashtable. */
 static void add_arch(archetype *at)
 {
-	unsigned long index = hasharch(at->name, ARCHTABLE), org_index = index;
+	unsigned long idx = hasharch(at->name, ARCHTABLE), org_idx = idx;
 
 	for (; ;)
 	{
-		if (arch_table[index] && !strcmp(arch_table[index]->name, at->name))
+		if (arch_table[idx] && !strcmp(arch_table[idx]->name, at->name))
 		{
 			LOG(llevError, "add_arch(): Double use of arch name %s.\n", STRING_ARCH_NAME(at));
 		}
 
-		if (arch_table[index] == NULL)
+		if (arch_table[idx] == NULL)
 		{
-			arch_table[index] = at;
+			arch_table[idx] = at;
 			return;
 		}
 
-		if (++index == ARCHTABLE)
+		if (++idx == ARCHTABLE)
 		{
-			index = 0;
+			idx = 0;
 		}
 
-		if (index == org_index)
+		if (idx == org_idx)
 		{
 			LOG(llevError, "add_arch(): Archtable too small.\n");
 		}

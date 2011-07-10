@@ -800,31 +800,31 @@ int command_create(object *op, char *params)
 	for (i = 0; i < (set_nrof ? nrof : 1); i++)
 	{
 		archetype *atmp;
-		object *prev = NULL, *head = NULL, *dup;
+		object *prev = NULL, *head = NULL, *ob_dup;
 
 		for (atmp = at; atmp; atmp = atmp->more)
 		{
-			dup = arch_to_object(atmp);
+			ob_dup = arch_to_object(atmp);
 
 			/* The head is what contains all the important bits,
 			 * so just copying it over should be fine. */
 			if (head == NULL)
 			{
-				head = dup;
-				copy_object(tmp, dup, 0);
+				head = ob_dup;
+				copy_object(tmp, ob_dup, 0);
 			}
 
-			dup->x = op->x + dup->arch->clone.x;
-			dup->y = op->y + dup->arch->clone.y;
-			dup->map = op->map;
+			ob_dup->x = op->x + ob_dup->arch->clone.x;
+			ob_dup->y = op->y + ob_dup->arch->clone.y;
+			ob_dup->map = op->map;
 
-			if (head != dup)
+			if (head != ob_dup)
 			{
-				dup->head = head;
-				prev->more = dup;
+				ob_dup->head = head;
+				prev->more = ob_dup;
 			}
 
-			prev = dup;
+			prev = ob_dup;
 		}
 
 		if (head->randomitems)
@@ -2158,7 +2158,7 @@ int command_maps(object *op, char *params)
 {
 	(void) params;
 
-	map_info(op);
+	maps_info(op);
 	return 1;
 }
 
