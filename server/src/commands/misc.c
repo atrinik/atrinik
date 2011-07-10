@@ -821,8 +821,8 @@ int command_party(object *op, char *params)
 
 			for (party = first_party; party; party = party->next)
 			{
-				SockList_AddString(&sl, (char *) party->name);
-				SockList_AddString(&sl, (char *) party->leader);
+				SockList_AddString(&sl, party->name);
+				SockList_AddString(&sl, party->leader);
 			}
 		}
 		else if (!strcmp(params, "who"))
@@ -841,14 +841,14 @@ int command_party(object *op, char *params)
 			{
 			if (CONTR(op)->socket.socket_version >= 1054)
 			{
-				SockList_AddString(&sl, (char *) ol->objlink.ob->name);
+				SockList_AddString(&sl, ol->objlink.ob->name);
 				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
 				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
 				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.grace / ol->objlink.ob->stats.maxgrace * 100.0f, 100)));
 			}
 			else
 			{
-				SockList_AddString(&sl, (char *) ol->objlink.ob->name);
+				SockList_AddString(&sl, ol->objlink.ob->name);
 				SockList_AddString(&sl, ol->objlink.ob->map->name);
 				SockList_AddChar(&sl, (char) ol->objlink.ob->level);
 			}
@@ -905,7 +905,7 @@ int command_party(object *op, char *params)
 				{
 					new_draw_info(0, COLOR_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
 					SockList_AddChar(&sl, CMD_PARTY_PASSWORD);
-					SockList_AddString(&sl, (char *) party->name);
+					SockList_AddString(&sl, party->name);
 				}
 			}
 		}
@@ -1085,7 +1085,7 @@ int command_region_map(object *op, char *params)
 
 	sl.buf = sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_REGION_MAP);
-	SockList_AddString(&sl, (char *) op->map->path);
+	SockList_AddString(&sl, op->map->path);
 	SockList_AddShort(&sl, op->x);
 	SockList_AddShort(&sl, op->y);
 	SockList_AddString(&sl, r->name);

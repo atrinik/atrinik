@@ -34,7 +34,7 @@
  * Add a NULL terminated string.
  * @param sl SockList instance to add to.
  * @param data The string to add. */
-void SockList_AddString(SockList *sl, char *data)
+void SockList_AddString(SockList *sl, const char *data)
 {
 	char c;
 

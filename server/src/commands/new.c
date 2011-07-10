@@ -151,7 +151,7 @@ void send_target_command(player *pl)
 	{
 		SockList_AddChar(&sl, CMD_TARGET_SELF);
 		SockList_AddString(&sl, COLOR_YELLOW);
-		SockList_AddString(&sl, (char *) pl->ob->name);
+		SockList_AddString(&sl, pl->ob->name);
 
 		pl->target_object = pl->ob;
 		pl->target_object_count = 0;
@@ -211,7 +211,7 @@ void send_target_command(player *pl)
 			}
 		}
 
-		SockList_AddString(&sl, (char *) color);
+		SockList_AddString(&sl, color);
 
 		if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 		{
@@ -222,7 +222,7 @@ void send_target_command(player *pl)
 		}
 		else
 		{
-			SockList_AddString(&sl, (char *) pl->target_object->name);
+			SockList_AddString(&sl, pl->target_object->name);
 		}
 	}
 

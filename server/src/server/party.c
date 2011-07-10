@@ -68,7 +68,7 @@ void add_party_member(party_struct *party, object *op)
 	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 	SockList_AddChar(&sl, CMD_PARTY_JOIN);
-	SockList_AddString(&sl, (char *) party->name);
+	SockList_AddString(&sl, party->name);
 	Send_With_Handling(&CONTR(op)->socket, &sl);
 
 	CONTR(op)->last_party_hp = 0;
@@ -103,7 +103,7 @@ void remove_party_member(party_struct *party, object *op)
 	{
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 		SockList_AddChar(&sl, CMD_PARTY_REMOVE_MEMBER);
-		SockList_AddString(&sl, (char *) op->name);
+		SockList_AddString(&sl, op->name);
 
 		for (ol = party->members; ol; ol = ol->next)
 		{
@@ -446,7 +446,7 @@ void party_update_who(player *pl)
 	{
 		objectlink *ol;
 
-		SockList_AddString(&sl, (char *) pl->ob->name);
+		SockList_AddString(&sl, pl->ob->name);
 		SockList_AddChar(&sl, hp);
 		SockList_AddChar(&sl, sp);
 		SockList_AddChar(&sl, grace);

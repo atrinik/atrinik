@@ -1730,7 +1730,7 @@ void draw_client_map2(object *pl)
 						SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
 						if (CONTR(pl)->socket.socket_version >= 1055)
 						{
-						SockList_AddString(&sl_layer, (char *) get_playername_color(pl, tmp));
+						SockList_AddString(&sl_layer, get_playername_color(pl, tmp));
 						}
 						else
 						{

@@ -157,7 +157,7 @@ void new_draw_info(int flags, const char *color, object *pl, const char *buf)
 	if (CONTR(pl)->socket.socket_version >= 1055)
 	{
 	SockList_AddShort(&sl, flags);
-	SockList_AddString(&sl, (char *) color);
+	SockList_AddString(&sl, color);
 	}
 	else
 	{

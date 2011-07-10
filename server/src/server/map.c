@@ -2979,7 +2979,7 @@ void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_i
 {
 	(void) pl;
 	SockList_AddStringUnterm(sl, "<b><o=0,0,0>");
-	SockList_AddStringUnterm(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
+	SockList_AddStringUnterm(sl, map_info && map_info->race ? map_info->race : map->name);
 	SockList_AddString(sl, "</o></b>");
 }
 
@@ -2994,7 +2994,7 @@ void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_i
 void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info)
 {
 	(void) pl;
-	SockList_AddString(sl, map_info && map_info->slaying ? (char *) map_info->slaying : (map->bg_music ? map->bg_music : "no_music"));
+	SockList_AddString(sl, map_info && map_info->slaying ? map_info->slaying : (map->bg_music ? map->bg_music : "no_music"));
 }
 
 /**
@@ -3012,5 +3012,5 @@ void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *ma
 		return;
 	}
 
-	SockList_AddString(sl, map_info && map_info->title ? (char *) map_info->title : (map->weather ? map->weather : "none"));
+	SockList_AddString(sl, map_info && map_info->title ? map_info->title : (map->weather ? map->weather : "none"));
 }

@@ -62,7 +62,7 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_SOUND);
 
 	SockList_AddChar(&sl, (char) type);
-	SockList_AddString(&sl, (char *) filename);
+	SockList_AddString(&sl, filename);
 	SockList_AddChar(&sl, loop);
 	SockList_AddChar(&sl, volume);
 

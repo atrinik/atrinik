@@ -144,7 +144,7 @@ void apply_book(object *op, object *tmp)
 	SockList_AddStringUnterm(&sl, "<book>");
 	SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
 	SockList_AddStringUnterm(&sl, "</book>");
-	SockList_AddString(&sl, (char *) tmp->msg);
+	SockList_AddString(&sl, tmp->msg);
 
 	Send_With_Handling(&CONTR(op)->socket, &sl);
 
