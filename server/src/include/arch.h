@@ -53,6 +53,7 @@ typedef struct archt
 	object clone;
 } archetype;
 
-EXTERN archetype *first_archetype;
+archetype *first_archetype;
+int arch_init;
 
 #endif

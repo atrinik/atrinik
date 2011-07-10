@@ -1137,8 +1137,6 @@ void update_turn_face(object *op)
  * @param op The object */
 void update_ob_speed(object *op)
 {
-	extern int arch_init;
-
 	/* No reason putting the archetypes objects on the speed list,
 	 * since they never really need to be updated. */
 	if (OBJECT_FREE(op) && op->speed)
