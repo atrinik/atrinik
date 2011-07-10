@@ -113,7 +113,7 @@ check_function_exists(strerror HAVE_STRERROR)
 add_definitions(-Wall -Wextra)
 
 if (ENABLE_EXTRA_WARNINGS)
-	add_definitions(-Wswitch -Wunused-parameter -Wno-unused-parameter -ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all)
+	add_definitions(-Wswitch -Wunused-parameter -Wno-unused-parameter -ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat)
 endif (ENABLE_EXTRA_WARNINGS)
 
 if (ENABLE_EXTRA_WARNINGS)
