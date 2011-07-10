@@ -1381,6 +1381,10 @@ static void iterate_main_loop()
 	sleep_delta();
 }
 
+#ifdef HAVE_WORLD_MAKER
+void world_maker();
+#endif
+
 /**
  * The main function.
  * @param argc Number of arguments.
@@ -1414,7 +1418,6 @@ int main(int argc, char **argv)
 	if (settings.world_maker)
 	{
 		LOG(llevInfo, "Running the world maker...\n");
-		void world_maker();
 		world_maker();
 		exit(0);
 	}
