@@ -128,7 +128,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 		if (find_skill(caster, SK_ALCHEMY) != NULL)
 		{
 			change_skill(caster, SK_ALCHEMY);
-			ability += (int) ((float) SK_level(caster) * (float) ((float) (4 + cauldron->magic) / 4.0f));
+			ability += (int) (SK_level(caster) * (float) ((float) (4 + cauldron->magic) / 4.0f));
 		}
 
 #ifdef ALCHEMY_DEBUG
@@ -206,7 +206,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 #endif
 
 				/* Roll the dice */
-				if ((float) (rndm(0, 99)) <= 100.0 * success_chance)
+				if (rndm(0, 99) <= 100.0 * success_chance)
 				{
 					/* We learn from our experience IF we know something of the alchemical arts */
 					if (caster->chosen_skill && caster->chosen_skill->stats.sp == SK_ALCHEMY)
@@ -381,7 +381,7 @@ static void adjust_product(object *item, int lvl, int yield)
 
 	if (item->nrof)
 	{
-		nrof = (int) ((1.0f - 1.0f / ((float) lvl / 10.0f + 1.0f)) * (float) (rndm(0, yield - 1) + (float) rndm(0, yield - 1) + (float) rndm(0, yield - 1)) + 1.0f);
+		nrof = (int) ((1.0f - 1.0f / ((float) lvl / 10.0f + 1.0f)) * (float) (rndm(0, yield - 1) + rndm(0, yield - 1) + rndm(0, yield - 1)) + 1.0f);
 
 		if (nrof > yield)
 		{

@@ -952,7 +952,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 					value *= (difficulty / 2) + 1;
 
 					/* So we have 80% to 120% of the fixed value */
-					value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
+					value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
 					for (i = 0; i < NUM_COINS; i++)
 					{
@@ -1138,7 +1138,7 @@ create_one_treasure_again_jmp:
 			value *= difficulty;
 
 			/* So we have 80% to 120% of the fixed value */
-			value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
+			value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
 			for (i = 0; i < NUM_COINS; i++)
 			{

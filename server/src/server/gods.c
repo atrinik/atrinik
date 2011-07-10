@@ -912,7 +912,7 @@ static void god_intervention(object *op, object *god)
 		{
 			int max = (int) ((float) op->stats.maxsp * ((float) item->stats.maxsp / (float) 100.0));
 			/* Restore to 50 .. 100%, if sp < 50% */
-			int new_sp = (int) ((float) rndm(1000, 1999) / (float) 2000.0 * (float) max);
+			int new_sp = (int) (rndm(1000, 1999) / 2000.0 * (float) max);
 
 			if (op->stats.sp >= max / 2)
 			{
