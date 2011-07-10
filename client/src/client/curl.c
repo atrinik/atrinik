@@ -230,11 +230,11 @@ void curl_data_free(curl_data *data)
 
 /**
  * Lock the share handle. */
-static void curl_share_lock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr)
+static void curl_share_lock(CURL *handle, curl_lock_data data, curl_lock_access lock_access, void *userptr)
 {
 	(void) handle;
 	(void) data;
-	(void) access;
+	(void) lock_access;
 	SDL_LockMutex(userptr);
 }
 

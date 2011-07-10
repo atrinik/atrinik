@@ -353,11 +353,11 @@ void settings_init()
 			}
 			else if (setting->type == OPT_TYPE_SELECT && !strncmp(cp, "option ", 7))
 			{
-				setting_select *select = SETTING_SELECT(setting);
+				setting_select *s_select = SETTING_SELECT(setting);
 
-				select->options = realloc(select->options, sizeof(*select->options) * (select->options_len + 1));
-				select->options[select->options_len] = strdup(cp + 7);
-				select->options_len++;
+				s_select->options = realloc(s_select->options, sizeof(*s_select->options) * (s_select->options_len + 1));
+				s_select->options[s_select->options_len] = strdup(cp + 7);
+				s_select->options_len++;
 			}
 			else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "range ", 6))
 			{
@@ -568,17 +568,17 @@ void settings_deinit()
 
 			if (setting_categories[cat]->settings[setting]->type == OPT_TYPE_SELECT)
 			{
-				setting_select *select = SETTING_SELECT(setting_categories[cat]->settings[setting]);
+				setting_select *s_select = SETTING_SELECT(setting_categories[cat]->settings[setting]);
 				size_t option;
 
-				for (option = 0; option < select->options_len; option++)
+				for (option = 0; option < s_select->options_len; option++)
 				{
-					free(select->options[option]);
+					free(s_select->options[option]);
 				}
 
-				if (select->options)
+				if (s_select->options)
 				{
-					free(select->options);
+					free(s_select->options);
 				}
 			}
 
@@ -797,15 +797,15 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 		if (setting->type == OPT_TYPE_SELECT)
 		{
-			setting_select *select = SETTING_SELECT(setting);
+			setting_select *s_select = SETTING_SELECT(setting);
 
-			if (new_val >= (sint64) select->options_len)
+			if (new_val >= (sint64) s_select->options_len)
 			{
 				new_val = 0;
 			}
 			else if (new_val < 0)
 			{
-				new_val = select->options_len - 1;
+				new_val = s_select->options_len - 1;
 			}
 		}
 		else if (setting->type == OPT_TYPE_RANGE)

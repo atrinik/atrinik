@@ -427,7 +427,7 @@ static void text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
  * @return 1 if the notation was parsed successfully, 0 otherwise. */
 int text_color_parse(const char *color_notation, SDL_Color *color)
 {
-	int r, g, b;
+	uint32 r, g, b;
 
 	if (sscanf(color_notation, "%2X%2X%2X", &r, &g, &b) == 3)
 	{
@@ -492,10 +492,10 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
-				int r, g, b;
+				uint32 r, g, b;
 
 				/* Parse the r,g,b colors. */
-				if ((cp[3] == '#' && sscanf(cp, "<c=#%2X%2X%2X>", &r, &g, &b) == 3) || sscanf(cp, "<c=%d,%d,%d>", &r, &g, &b) == 3)
+				if ((cp[3] == '#' && sscanf(cp, "<c=#%2X%2X%2X>", &r, &g, &b) == 3))
 				{
 					color->r = r;
 					color->g = g;
@@ -879,10 +879,10 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (surface)
 			{
-				int r, g, b;
+				uint32 r, g, b;
 
 				/* Parse the r,g,b colors. */
-				if ((cp[3] == '#' && sscanf(cp, "<o=#%2X%2X%2X>", &r, &g, &b) == 3) || sscanf(cp, "<o=%d,%d,%d>", &r, &g, &b) == 3)
+				if ((cp[3] == '#' && sscanf(cp, "<o=#%2X%2X%2X>", &r, &g, &b) == 3))
 				{
 					outline_color.r = r;
 					outline_color.g = g;
@@ -1088,7 +1088,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
-				int r, g, b, bar_w, bar_h;
+				uint32 r, g, b;
+				int bar_w, bar_h;
 
 				if (sscanf(cp + 6, "%2X%2X%2X %d %d>", &r, &g, &b, &bar_w, &bar_h) == 5)
 				{
@@ -1193,7 +1194,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
 			{
 				size_t len;
-				char *buf, *pos;
+				char *buf2, *pos;
 
 				ticks = SDL_GetTicks();
 
@@ -1201,8 +1202,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				if (pos && pos + 1)
 				{
-					buf = strdup(pos + 1);
-					len = strlen(buf);
+					buf2 = strdup(pos + 1);
+					len = strlen(buf2);
 					anchor_action[pos - anchor_action] = '\0';
 				}
 				else
@@ -1211,43 +1212,43 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 					len = strstr(anchor_tag, "</a>") - anchor_tag;
 					/* Allocate a temporary buffer and copy the text until the
 					 * ending </a>, so we have the text between the anchor tags. */
-					buf = malloc(len + 1);
-					memcpy(buf, anchor_tag, len);
-					buf[len] = '\0';
+					buf2 = malloc(len + 1);
+					memcpy(buf2, anchor_tag, len);
+					buf2[len] = '\0';
 				}
 
 				/* Default to executing player commands such as /say. */
 				if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
 				{
-					buf = text_strip_markup(buf, &len, 1);
+					buf2 = text_strip_markup(buf2, &len, 1);
 
 					/* It's not a command, so prepend "/say " to it. */
-					if (buf[0] != '/')
+					if (buf2[0] != '/')
 					{
 						/* Resize the buffer so it can hold 5 more bytes. */
-						buf = realloc(buf, len + 5 + 1);
+						buf2 = realloc(buf2, len + 5 + 1);
 						/* Copy the existing bytes to the end, so we have 5
 						 * we can use in the front. */
-						memmove(buf + 5, buf, len + 1);
+						memmove(buf2 + 5, buf2, len + 1);
 						/* Prepend "/say ". */
-						memcpy(buf, "/say ", 5);
+						memcpy(buf2, "/say ", 5);
 					}
 
-					send_command(buf);
+					send_command(buf2);
 				}
 				/* Help GUI. */
 				else if (GameStatus == GAME_STATUS_PLAY && !strcmp(anchor_action, "help"))
 				{
-					strncpy(text_anchor_help, buf, sizeof(text_anchor_help) - 1);
+					strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
 					text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
 					text_anchor_help_clicked = 1;
 				}
 				else if (!strcmp(anchor_action, "url"))
 				{
-					browser_open(buf);
+					browser_open(buf2);
 				}
 
-				free(buf);
+				free(buf2);
 			}
 		}
 

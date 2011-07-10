@@ -513,8 +513,6 @@ int text_input_handle(SDL_KeyboardEvent *key)
 
 				if (clipboard_contents)
 				{
-					int i;
-
 					strncat(text_input_string, clipboard_contents, sizeof(text_input_string) - text_input_count - 1);
 					text_input_cursor_pos = text_input_count = strlen(text_input_string);
 

@@ -355,7 +355,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 		{
 			time_t now = time(NULL);
 			char timebuf[32], *format;
-			struct tm *tmp = localtime(&now);
+			struct tm *tm = localtime(&now);
 			size_t timelen;
 
 			switch (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS))
@@ -382,7 +382,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 					break;
 			}
 
-			timelen = strftime(timebuf, sizeof(timebuf), format, tmp);
+			timelen = strftime(timebuf, sizeof(timebuf), format, tm);
 
 			if (timelen == 0)
 			{
@@ -513,19 +513,19 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_REG_HP:
-					cpl.gen_hp = ((float)GetShort_String(data + i)) / 10.0f;
+					cpl.gen_hp = abs(GetShort_String(data + i)) / 10.0f;
 					i += 2;
 					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_MANA:
-					cpl.gen_sp = ((float)GetShort_String(data + i)) / 10.0f;
+					cpl.gen_sp = abs(GetShort_String(data + i)) / 10.0f;
 					i += 2;
 					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_GRACE:
-					cpl.gen_grace = ((float)GetShort_String(data + i)) / 10.0f;
+					cpl.gen_grace = abs(GetShort_String(data + i)) / 10.0f;
 					i += 2;
 					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
@@ -742,7 +742,7 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_ACTION_TIME:
-					cpl.action_timer = ((float) abs(GetInt_String(data + i))) / 1000.0f;
+					cpl.action_timer = abs(GetInt_String(data + i)) / 1000.0f;
 					i += 4;
 					WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 					break;
@@ -1615,12 +1615,12 @@ void SendVersion()
 /**
  * Request srv file.
  * @param csock Socket to request from
- * @param index SRV file ID */
-void RequestFile(int index)
+ * @param idx SRV file ID */
+void RequestFile(int idx)
 {
 	char buf[MAX_BUF];
 
-	sprintf(buf, "rf %d", index);
+	sprintf(buf, "rf %d", idx);
 	cs_write_string(buf, strlen(buf));
 }
 

@@ -572,7 +572,7 @@ void widget_show_player_doll(widgetdata *widget)
 {
 	object *tmp;
 	char *tooltip_text = NULL;
-	int index, tooltip_index = -1, ring_flag = 0;
+	int idx, tooltip_index = -1, ring_flag = 0;
 	int mx, my;
 
 	/* This is ugly to calculate because it's a curve which increases heavily
@@ -621,88 +621,88 @@ void widget_show_player_doll(widgetdata *widget)
 	{
 		if (tmp->flags & F_APPLIED)
 		{
-			index = -1;
+			idx = -1;
 
 			switch (tmp->itype)
 			{
 				case TYPE_ARMOUR:
-					index = PDOLL_ARMOUR;
+					idx = PDOLL_ARMOUR;
 					break;
 
 				case TYPE_HELMET:
-					index = PDOLL_HELM;
+					idx = PDOLL_HELM;
 					break;
 
 				case TYPE_GIRDLE:
-					index = PDOLL_GIRDLE;
+					idx = PDOLL_GIRDLE;
 					break;
 
 				case TYPE_BOOTS:
-					index = PDOLL_BOOT;
+					idx = PDOLL_BOOT;
 					break;
 
 				case TYPE_WEAPON:
-					index = PDOLL_RHAND;
+					idx = PDOLL_RHAND;
 					break;
 
 				case TYPE_SHIELD:
-					index = PDOLL_LHAND;
+					idx = PDOLL_LHAND;
 					break;
 
 				case TYPE_RING:
-					index = PDOLL_RRING;
+					idx = PDOLL_RRING;
 					break;
 
 				case TYPE_BRACERS:
-					index = PDOLL_BRACER;
+					idx = PDOLL_BRACER;
 					break;
 
 				case TYPE_AMULET:
-					index = PDOLL_AMULET;
+					idx = PDOLL_AMULET;
 					break;
 
 				case TYPE_SKILL_ITEM:
-					index = PDOLL_SKILL_ITEM;
+					idx = PDOLL_SKILL_ITEM;
 					break;
 
 				case TYPE_BOW:
-					index = PDOLL_BOW;
+					idx = PDOLL_BOW;
 					break;
 
 				case TYPE_GLOVES:
-					index = PDOLL_GAUNTLET;
+					idx = PDOLL_GAUNTLET;
 					break;
 
 				case TYPE_CLOAK:
-					index = PDOLL_ROBE;
+					idx = PDOLL_ROBE;
 					break;
 
 				case TYPE_LIGHT_APPLY:
-					index = PDOLL_LIGHT;
+					idx = PDOLL_LIGHT;
 					break;
 
 				case TYPE_WAND:
 				case TYPE_ROD:
 				case TYPE_HORN:
-					index = PDOLL_WAND;
+					idx = PDOLL_WAND;
 					break;
 			}
 
-			if (index == PDOLL_RRING)
+			if (idx == PDOLL_RRING)
 			{
-				index += ++ring_flag & 1;
+				idx += ++ring_flag & 1;
 			}
 
-			if (index != -1)
+			if (idx != -1)
 			{
 				int mb;
-				blt_inv_item_centered(tmp, player_doll[index].xpos + widget->x1, player_doll[index].ypos + widget->y1);
+				blt_inv_item_centered(tmp, player_doll[idx].xpos + widget->x1, player_doll[idx].ypos + widget->y1);
 				mb = SDL_GetMouseState(&mx, &my);
 
 				/* Prepare item name tooltip */
-				if (mx >= widget->x1 + player_doll[index].xpos && mx < widget->x1 + player_doll[index].xpos + 33 && my >= widget->y1 + player_doll[index].ypos && my < widget->y1 + player_doll[index].ypos + 33)
+				if (mx >= widget->x1 + player_doll[idx].xpos && mx < widget->x1 + player_doll[idx].xpos + 33 && my >= widget->y1 + player_doll[idx].ypos && my < widget->y1 + player_doll[idx].ypos + 33)
 				{
-					tooltip_index = index;
+					tooltip_index = idx;
 					tooltip_text = tmp->s_name;
 
 					if ((mb & SDL_BUTTON(SDL_BUTTON_LEFT)) && !draggingInvItem(DRAG_GET_STATUS))
@@ -1055,19 +1055,19 @@ void widget_show_regeneration(widgetdata *widget)
 		string_blt(widget->widgetSF, FONT_ARIAL10, "HP:", 13, 3, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_hp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 45);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 50, 3, COLOR_WHITE, 0, NULL);
+		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 3, COLOR_WHITE, 0, NULL);
 
 		/* Mana */
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Mana:", 13, 13, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_sp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 45);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 50, 13, COLOR_WHITE, 0, NULL);
+		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 13, COLOR_WHITE, 0, NULL);
 
 		/* Grace */
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Grace:", 13, 23, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_grace);
 		string_truncate_overflow(FONT_ARIAL10, buf, 45);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 50, 23, COLOR_WHITE, 0, NULL);
+		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 23, COLOR_WHITE, 0, NULL);
 	}
 
 	box.x = widget->x1;

@@ -324,7 +324,6 @@ void widget_show_mplayer(widgetdata *widget)
 
 			if (fp)
 			{
-				char buf[MAX_BUF];
 				size_t row;
 
 				while (fgets(buf, sizeof(buf) - 1, fp))

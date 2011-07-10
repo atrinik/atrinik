@@ -584,7 +584,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	/* Use new (getaddrinfo()) or old (gethostbyname()) socket API */
 #if !defined(HAVE_GETADDRINFO) || defined(WIN32)
 	/* This method is preferable unless IPv6 is required, due to buggy distros. */
-	struct sockaddr_in insock;
+	struct sockaddr_in addr;
 #ifndef WIN32
 	struct protoent *protox;
 	int flags;
@@ -611,12 +611,12 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
 
-	insock.sin_family = AF_INET;
-	insock.sin_port = htons((unsigned short) port);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons((unsigned short) port);
 
 	if (isdigit(*host))
 	{
-		insock.sin_addr.s_addr = inet_addr(host);
+		addr.sin_addr.s_addr = inet_addr(host);
 	}
 	else
 	{
@@ -628,7 +628,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 			return 0;
 		}
 
-		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
+		memcpy(&addr.sin_addr, hostbn->h_addr, hostbn->h_length);
 	}
 
 #ifndef WIN32
@@ -656,7 +656,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	/* Try to connect. */
 	start_timer = SDL_GetTicks();
 
-	while (connect(*fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
+	while (connect(*fd, (struct sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		SDL_Delay(3);
 

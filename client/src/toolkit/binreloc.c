@@ -185,16 +185,18 @@ _br_find_exe (BrInitError *error)
 static char *
 _br_find_exe_for_symbol (const void *symbol, BrInitError *error)
 {
-	symbol = symbol; // [Christoph] mark it as used
 #ifndef ENABLE_BINRELOC
+	(void) symbol;
 	if (error)
 		*error = BR_INIT_ERROR_DISABLED;
 	return (char *) NULL;
 #else
-	#define SIZE PATH_MAX + 100
+#	define SIZE PATH_MAX + 100
 	FILE *f;
 	size_t address_string_len;
 	char *address_string, line[SIZE], *found;
+
+	(void) error;
 
 	if (symbol == NULL)
 		return (char *) NULL;

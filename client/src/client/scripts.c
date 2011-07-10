@@ -96,7 +96,7 @@ void script_load(const char *cparams)
 {
 #ifndef WIN32
 	pid_t pid;
-	int pipe[2], i = 1;
+	int fds[2], i = 1;
 	char *argv[256];
 	struct stat statbuf;
 #else
@@ -166,7 +166,7 @@ void script_load(const char *cparams)
 	}
 
 	/* Create a pair of sockets */
-	if (socketpair(PF_LOCAL, SOCK_STREAM, AF_LOCAL, pipe))
+	if (socketpair(PF_LOCAL, SOCK_STREAM, AF_LOCAL, fds))
 	{
 		draw_info(COLOR_RED, "Unable to start script: socketpair failed.");
 		return;
@@ -176,8 +176,8 @@ void script_load(const char *cparams)
 
 	if (pid == -1)
 	{
-		close(pipe[0]);
-		close(pipe[1]);
+		close(fds[0]);
+		close(fds[1]);
 
 		draw_info(COLOR_RED, "Unable to start script: fork failed.");
 		return;
@@ -188,14 +188,14 @@ void script_load(const char *cparams)
 		int r;
 
 		/* Clean up file descriptor space */
-		r = dup2(pipe[0], 0);
+		r = dup2(fds[0], 0);
 
 		if (r != 0)
 		{
 			fprintf(stderr, "Script Child: Failed to set pipe as stdin\n");
 		}
 
-		r = dup2(pipe[0], 1);
+		r = dup2(fds[0], 1);
 
 		if (r != 1)
 		{
@@ -217,9 +217,9 @@ void script_load(const char *cparams)
 		exit(1);
 	}
 
-	close(pipe[0]);
+	close(fds[0]);
 
-	if (fcntl(pipe[1], F_SETFL, O_NDELAY) == -1)
+	if (fcntl(fds[1], F_SETFL, O_NDELAY) == -1)
 	{
 		LOG(llevDebug, "Error on fcntl.\n");
 	}
@@ -313,8 +313,8 @@ void script_load(const char *cparams)
 	scripts[num_scripts].params = args ? strdup(args) : NULL;
 
 #ifndef WIN32
-	scripts[num_scripts].out_fd = pipe[1];
-	scripts[num_scripts].in_fd = pipe[1];
+	scripts[num_scripts].out_fd = fds[1];
+	scripts[num_scripts].in_fd = fds[1];
 	scripts[num_scripts].pid = pid;
 #else
 	scripts[num_scripts].out_fd = hChildStdinWrDup;
@@ -800,151 +800,151 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 
 				case STATS:
 				{
-					int i = 0, c, be = 0;
+					int j = 0, c, be = 0;
 
-					while (i < len)
+					while (j < len)
 					{
-						c = data[i++];
+						c = data[j++];
 
 						be += snprintf(buf + be, sizeof(buf) - be, "event %s", cmd);
 
 						if (c >= CS_STAT_PROT_START && c <= CS_STAT_PROT_END)
 						{
-							be += snprintf(buf + be, sizeof(buf) - be, " protects %d %d\n", c - CS_STAT_PROT_START, (sint16) *(data + i++));
+							be += snprintf(buf + be, sizeof(buf) - be, " protects %d %d\n", c - CS_STAT_PROT_START, (sint16) *(data + j++));
 						}
 						else
 						{
 							switch (c)
 							{
 								case CS_STAT_TARGET_HP:
-									be += snprintf(buf + be, sizeof(buf) - be, " target_hp %d\n", (int)*(data + i++));
-									cpl.target_hp = (int)*(data + i++);
+									be += snprintf(buf + be, sizeof(buf) - be, " target_hp %d\n", (int)*(data + j++));
+									cpl.target_hp = (int)*(data + j++);
 									break;
 
 								case CS_STAT_REG_HP:
-									be += snprintf(buf + be, sizeof(buf) - be, " regen_hp %f\n", ((float)GetShort_String(data + i)) / 10.0f);
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " regen_hp %f\n", GetShort_String(data + j) / 10.0f);
+									j += 2;
 									break;
 
 								case CS_STAT_REG_MANA:
-									be += snprintf(buf + be, sizeof(buf) - be, " regen_mana %f\n", ((float)GetShort_String(data + i)) / 10.0f);
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " regen_mana %f\n", GetShort_String(data + j) / 10.0f);
+									j += 2;
 									break;
 
 								case CS_STAT_REG_GRACE:
-									be += snprintf(buf + be, sizeof(buf) - be, " regen_grace %f\n", ((float)GetShort_String(data + i)) / 10.0f);
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " regen_grace %f\n", GetShort_String(data + j) / 10.0f);
+									j += 2;
 									break;
 
 								case CS_STAT_HP:
-									be += snprintf(buf + be, sizeof(buf) - be, " hp %d\n", GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " hp %d\n", GetInt_String(data + j));
+									j += 4;
 									break;
 
 								case CS_STAT_MAXHP:
-									be += snprintf(buf + be, sizeof(buf) - be, " maxhp %d\n", GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " maxhp %d\n", GetInt_String(data + j));
+									j += 4;
 									break;
 
 								case CS_STAT_SP:
-									be += snprintf(buf + be, sizeof(buf) - be, " sp %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " sp %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_MAXSP:
-									be += snprintf(buf + be, sizeof(buf) - be, " maxsp %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " maxsp %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_GRACE:
-									be += snprintf(buf + be, sizeof(buf) - be, " grace %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " grace %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_MAXGRACE:
-									be += snprintf(buf + be, sizeof(buf) - be, " maxgrace %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " maxgrace %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_STR:
-									be += snprintf(buf + be, sizeof(buf) - be, " str %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " str %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_INT:
-									be += snprintf(buf + be, sizeof(buf) - be, " int %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " int %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_POW:
-									be += snprintf(buf + be, sizeof(buf) - be, " pow %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " pow %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_WIS:
-									be += snprintf(buf + be, sizeof(buf) - be, " wis %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " wis %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_DEX:
-									be += snprintf(buf + be, sizeof(buf) - be, " dex %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " dex %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_CON:
-									be += snprintf(buf + be, sizeof(buf) - be, " con %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " con %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_CHA:
-									be += snprintf(buf + be, sizeof(buf) - be, " cha %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " cha %d\n", (int) *(data + j++));
 									break;
 
 								case CS_STAT_EXP:
-									be += snprintf(buf + be, sizeof(buf) - be, " exp %d\n", GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " exp %d\n", GetInt_String(data + j));
+									j += 4;
 									break;
 
 								case CS_STAT_LEVEL:
-									be += snprintf(buf + be, sizeof(buf) - be, " level %d\n", (char)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " level %d\n", (char) *(data + j++));
 									break;
 
 								case CS_STAT_WC:
-									be += snprintf(buf + be, sizeof(buf) - be, " wc %d\n", (char)GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " wc %d\n", (char) GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_AC:
-									be += snprintf(buf + be, sizeof(buf) - be, " ac %d\n", (char)GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " ac %d\n", (char) GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_DAM:
-									be += snprintf(buf + be, sizeof(buf) - be, " dam %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " dam %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_SPEED:
-									be += snprintf(buf + be, sizeof(buf) - be, " speed %d\n", GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " speed %d\n", GetInt_String(data + j));
+									j += 4;
 									break;
 
 								case CS_STAT_FOOD:
-									be += snprintf(buf + be, sizeof(buf) - be, " food %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " food %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_WEAP_SP:
-									be += snprintf(buf + be, sizeof(buf) - be, " weapon_speed %d\n", (int)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " weapon_speed %d\n", (int)*(data + j++));
 									break;
 
 								case CS_STAT_FLAGS:
-									be += snprintf(buf + be, sizeof(buf) - be, " flags %d\n", GetShort_String(data + i));
-									i += 2;
+									be += snprintf(buf + be, sizeof(buf) - be, " flags %d\n", GetShort_String(data + j));
+									j += 2;
 									break;
 
 								case CS_STAT_WEIGHT_LIM:
-									be += snprintf(buf + be, sizeof(buf) - be, " weight_limit %d\n", GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " weight_limit %d\n", GetInt_String(data + j));
+									j += 4;
 									break;
 
 								case CS_STAT_ACTION_TIME:
-									be += snprintf(buf + be, sizeof(buf) - be, " action_time %f\n", ((float) abs(GetInt_String(data + i))) / 1000.0f);
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " action_time %f\n", abs(GetInt_String(data + j)) / 1000.0f);
+									j += 4;
 									break;
 
 								case CS_STAT_SKILLEXP_AGILITY:
@@ -953,8 +953,8 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 								case CS_STAT_SKILLEXP_PHYSIQUE:
 								case CS_STAT_SKILLEXP_MAGIC:
 								case CS_STAT_SKILLEXP_WISDOM:
-									be += snprintf(buf + be, sizeof(buf) - be, " skill_exp %d %"FMT64"\n", (c - CS_STAT_SKILLEXP_START) / 2, GetInt64_String(data + i));
-									i += 8;
+									be += snprintf(buf + be, sizeof(buf) - be, " skill_exp %d %"FMT64"\n", (c - CS_STAT_SKILLEXP_START) / 2, GetInt64_String(data + j));
+									j += 8;
 									break;
 
 								case CS_STAT_SKILLEXP_AGLEVEL:
@@ -963,29 +963,29 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 								case CS_STAT_SKILLEXP_PHLEVEL:
 								case CS_STAT_SKILLEXP_MALEVEL:
 								case CS_STAT_SKILLEXP_WILEVEL:
-									be += snprintf(buf + be, sizeof(buf) - be, " skill_level %d %d\n", (c - CS_STAT_SKILLEXP_START - 1) / 2, (sint16)*(data + i++));
+									be += snprintf(buf + be, sizeof(buf) - be, " skill_level %d %d\n", (c - CS_STAT_SKILLEXP_START - 1) / 2, (sint16)*(data + j++));
 									break;
 
 								case CS_STAT_RANGE:
 								{
-									int rlen = data[i++];
+									int rlen = data[j++];
 
 									be += snprintf(buf + be, sizeof(buf) - be, " range %s\n", cpl.range);
-									i += rlen;
+									j += rlen;
 									break;
 								}
 
 								case CS_STAT_EXT_TITLE:
 								{
-									int rlen = data[i++];
+									int rlen = data[j++];
 
 									be += snprintf(buf + be, sizeof(buf) - be, " ext_title %s\n", cpl.ext_title);
-									i += rlen;
+									j += rlen;
 									break;
 								}
 
 								default:
-									i = len;
+									j = len;
 									break;
 							}
 						}

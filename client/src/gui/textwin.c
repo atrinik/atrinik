@@ -292,8 +292,6 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 	/* Only draw scrollbar if needed */
 	if (textwin->num_entries > (size_t) TEXTWIN_ROWS_VISIBLE(widget))
 	{
-		SDL_Rect box;
-
 		box.x = box.y = 0;
 		box.w = Bitmaps[BITMAP_SLIDER]->bitmap->w;
 		box.h = widget->ht - 12;

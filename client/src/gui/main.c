@@ -322,23 +322,23 @@ static void char_creation_enter(list_struct *list)
 /**
  * Adjust specified stat, taking into account the character's min/max
  * stats.
- * @param stat Stat ID.
+ * @param stat_id Stat ID.
  * @param adjust If higher than 0 the stat will be increased, if lower
  * than 0 it will be decreased. */
-static void char_stat_change(int stat, int adjust)
+static void char_stat_change(int stat_id, int adjust)
 {
-	int points = s_settings->characters[char_race_selected].stats_base[stat] + char_points_assigned[stat];
+	int points = s_settings->characters[char_race_selected].stats_base[stat_id] + char_points_assigned[stat_id];
 
 	/* Add to stat, if possible. */
-	if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[stat])
+	if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[stat_id])
 	{
-		char_points_assigned[stat]++;
+		char_points_assigned[stat_id]++;
 		char_points_left--;
 	}
 	/* Subtract from stat, if possible. */
-	else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[stat])
+	else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[stat_id])
 	{
-		char_points_assigned[stat]--;
+		char_points_assigned[stat_id]--;
 		char_points_left++;
 	}
 }
@@ -491,7 +491,6 @@ static void popup_draw_func_post(popup_struct *popup)
 	if (char_step == 2)
 	{
 		int adjust = 0;
-		size_t i;
 
 		for (i = 0; i < NUM_STATS; i++)
 		{

@@ -39,6 +39,8 @@
 #ifndef BINRELOC_H
 #define BINRELOC_H
 
+#define ENABLE_BINRELOC
+
 /** These error codes can be returned by br_init(), br_init_lib(), gbr_init() or gbr_init_lib(). */
 typedef enum {
 	/** Cannot allocate memory. */

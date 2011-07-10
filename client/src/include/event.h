@@ -61,7 +61,7 @@ typedef enum key_funcs
 	KEYFUNC_TARGET_SELF,
 	KEYFUNC_FIREREADY,
 	KEYFUNC_COMBAT,
-	KEYFUNC_QLIST,
+	KEYFUNC_QLIST
 } key_funcs;
 
 /** One key macro. */

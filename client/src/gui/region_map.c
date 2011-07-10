@@ -157,12 +157,15 @@ static void rm_def_create(char *str)
 		/* Map command, add it to the list of maps. */
 		else if (!strncmp(cp, "map ", 4))
 		{
+			uint32 x, y;
 			char path[HUGE_BUF * 4];
 
 			rm_def->maps = realloc(rm_def->maps, sizeof(*rm_def->maps) * (rm_def->num_maps + 1));
 
-			if (sscanf(cp + 4, "%x %x %s", &rm_def->maps[rm_def->num_maps].xpos, &rm_def->maps[rm_def->num_maps].ypos, path) == 3)
+			if (sscanf(cp + 4, "%x %x %s", &x, &y, path) == 3)
 			{
+				rm_def->maps[rm_def->num_maps].xpos = x;
+				rm_def->maps[rm_def->num_maps].ypos = y;
 				rm_def->maps[rm_def->num_maps].path = strdup(path);
 			}
 
@@ -171,7 +174,7 @@ static void rm_def_create(char *str)
 		/* Add label. */
 		else if (!strncmp(cp, "label ", 6))
 		{
-			int x, y;
+			uint32 x, y;
 			char label_name[MAX_BUF], label_text[HUGE_BUF * 2];
 
 			if (sscanf(cp + 6, "%x %x %s %8191[^\n]", &x, &y, label_name, label_text) == 4)
@@ -194,7 +197,7 @@ static void rm_def_create(char *str)
 		/* Add tooltip. */
 		else if (!strncmp(cp, "tooltip ", 8))
 		{
-			int x, y, w, h;
+			uint32 x, y, w, h;
 			char tooltip_name[MAX_BUF], tooltip[HUGE_BUF * 2];
 
 			if (sscanf(cp + 8, "%x %x %x %x %s %8191[^\n]", &x, &y, &w, &h, tooltip_name, tooltip) == 6)
@@ -219,7 +222,8 @@ static void rm_def_create(char *str)
 		}
 		else if (!strncmp(cp, "t_outline ", 10))
 		{
-			int r, g, b, outline_size = 1;
+			uint32 r, g, b;
+			int outline_size = 1;
 
 			if (sscanf(cp + 10, "#%2X%2X%2X %d", &r, &g, &b, &outline_size) >= 3)
 			{
@@ -788,7 +792,6 @@ void region_map_show()
 		}
 		else if (state == SDL_BUTTON(SDL_BUTTON_MIDDLE) && setting_get_int(OPT_CAT_DEVEL, OPT_QUICKPORT))
 		{
-			size_t i;
 			int xpos, ypos;
 
 			xpos = region_map_pos.x + mx - box.x;

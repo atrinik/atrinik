@@ -540,31 +540,31 @@ static void load_bitmaps()
  * Load a single bitmap.
  * @param index ID of the bitmap to load.
  * @return 1 on success, 0 on failure. */
-static int load_bitmap(int index)
+static int load_bitmap(int idx)
 {
 	char buf[2048];
 	uint32 flags = 0;
 
-	snprintf(buf, sizeof(buf), DIRECTORY_BITMAPS"/%s", bitmap_name[index].name);
+	snprintf(buf, sizeof(buf), DIRECTORY_BITMAPS"/%s", bitmap_name[idx].name);
 
-	if (bitmap_name[index].type == PIC_TYPE_PALETTE)
+	if (bitmap_name[idx].type == PIC_TYPE_PALETTE)
 	{
 		flags |= SURFACE_FLAG_PALETTE;
 	}
 
-	if (bitmap_name[index].type == PIC_TYPE_TRANS)
+	if (bitmap_name[idx].type == PIC_TYPE_TRANS)
 	{
 		flags |= SURFACE_FLAG_COLKEY_16M;
 	}
 
-	if (index >= BITMAP_INTRO && index != BITMAP_TEXTWIN_MASK)
+	if (idx >= BITMAP_INTRO && idx != BITMAP_TEXTWIN_MASK)
 	{
-		flags |= bitmap_name[index].type == PIC_TYPE_ALPHA ? SURFACE_FLAG_DISPLAYFORMATALPHA : SURFACE_FLAG_DISPLAYFORMAT;
+		flags |= bitmap_name[idx].type == PIC_TYPE_ALPHA ? SURFACE_FLAG_DISPLAYFORMATALPHA : SURFACE_FLAG_DISPLAYFORMAT;
 	}
 
-	Bitmaps[index] = sprite_load_file(buf, flags);
+	Bitmaps[idx] = sprite_load_file(buf, flags);
 
-	if (!Bitmaps[index] || !Bitmaps[index]->bitmap)
+	if (!Bitmaps[idx] || !Bitmaps[idx]->bitmap)
 	{
 		LOG(llevBug, "load_bitmap(): Can't load bitmap %s\n", buf);
 		return 0;

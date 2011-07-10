@@ -842,7 +842,7 @@ uint8 effect_has_overlay()
  * @param sprite The sprite to add overlay to. */
 void effect_scale(_Sprite *sprite)
 {
-	int j, k, r, g, b, a, index;
+	int j, k, r, g, b, a, idx;
 	Uint8 vals[4];
 	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
 
@@ -852,7 +852,7 @@ void effect_scale(_Sprite *sprite)
 		{
 			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &vals[0], &vals[1], &vals[2], &vals[3]);
 
-			index = 0;
+			idx = 0;
 			EFFECT_SCALE_ADJUST(r, current_effect->overlay);
 			EFFECT_SCALE_ADJUST(g, current_effect->overlay);
 			EFFECT_SCALE_ADJUST(b, current_effect->overlay);

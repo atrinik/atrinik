@@ -198,7 +198,7 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 		return;
 	}
 
-	Mix_Volume(channel, (int) (((double) setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
+	Mix_Volume(channel, (int) ((setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / 100.0) * ((double) volume * (MIX_MAX_VOLUME / 100.0))));
 
 	/* Re-sort the array as needed. */
 	if (chunk)
