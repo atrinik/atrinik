@@ -487,7 +487,7 @@ int socket_close(struct ClientSocket *csock)
 {
 	SDL_LockMutex(socket_mutex);
 
-	if ((int) csock->fd == SOCKET_NO)
+	if (csock->fd == -1)
 	{
 		SDL_UnlockMutex(socket_mutex);
 		return 1;
@@ -508,7 +508,7 @@ int socket_close(struct ClientSocket *csock)
 	closesocket(csock->fd);
 #endif
 
-	csock->fd = SOCKET_NO;
+	csock->fd = -1;
 
 	abort_thread = 1;
 
@@ -531,7 +531,7 @@ int socket_initialize()
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	int error;
 
-	csocket.fd = SOCKET_NO;
+	csocket.fd = -1;
 	error = WSAStartup(wVersionRequested, &w);
 
 	if (error)
@@ -561,7 +561,7 @@ int socket_initialize()
  * Deinitialize the socket. */
 void socket_deinitialize()
 {
-	if ((int) csocket.fd != SOCKET_NO)
+	if (csocket.fd != -1)
 	{
 		socket_close(&csocket);
 	}
@@ -739,7 +739,7 @@ static int socket_create(int *fd, char *host, int port)
 		if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
 		{
 			LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-			*fd = SOCKET_NO;
+			*fd = -1;
 			return 0;
 		}
 
@@ -759,10 +759,10 @@ static int socket_create(int *fd, char *host, int port)
 		}
 
 		/* Set back to blocking. */
-		if (*fd != SOCKET_NO && fcntl(*fd, F_SETFL, flags) == -1)
+		if (*fd != -1 && fcntl(*fd, F_SETFL, flags) == -1)
 		{
 			LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-			*fd = SOCKET_NO;
+			*fd = -1;
 			return 0;
 		}
 

@@ -280,7 +280,7 @@ static void init_game_data()
 	text_input_string_flag = 0;
 	text_input_string_end_flag = 0;
 	text_input_string_esc_flag = 0;
-	csocket.fd = SOCKET_NO;
+	csocket.fd = -1;
 	RangeFireMode = 0;
 	help_files = NULL;
 
@@ -396,7 +396,7 @@ static int game_status_chain()
 	{
 		map_udate_flag = 2;
 
-		if ((int) csocket.fd != SOCKET_NO)
+		if (csocket.fd != -1)
 		{
 			socket_close(&csocket);
 		}

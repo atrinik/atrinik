@@ -98,6 +98,31 @@ include(CheckTypeSize)
 check_type_size("long" SIZEOF_LONG)
 check_type_size("long long" SIZEOF_LONG_LONG)
 
+include(CheckIncludeFiles)
+include(CheckFunctionExists)
+
+# Check for various include files.
+check_include_files(fcntl.h HAVE_FCNTL_H)
+check_include_files(unistd.h HAVE_UNISTD_H)
+check_include_files(sys/time.h HAVE_SYS_TIME_H)
+check_include_files(time.h HAVE_TIME_H)
+check_include_files(stddef.h HAVE_STDDEF_H)
+check_include_files(dirent.h HAVE_DIRENT_H)
+check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
+check_include_files(sys/dir.h HAVE_SYS_DIR_H)
+check_include_files(ndir.h HAVE_NDIR_H)
+check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
+
+# Check for various functions.
+check_function_exists(strerror HAVE_STRERROR)
+check_function_exists(strcasecmp HAVE_STRCASECMP)
+check_function_exists(strncasecmp HAVE_STRNCASECMP)
+check_function_exists(stricmp HAVE_STRICMP)
+check_function_exists(strnicmp HAVE_STRNICMP)
+check_function_exists(srandom HAVE_SRANDOM)
+check_function_exists(srand48 HAVE_SRAND48)
+check_function_exists(srand HAVE_SRAND)
+
 # Add our includes.
 include_directories(src/include)
 

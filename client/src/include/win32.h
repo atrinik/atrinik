@@ -33,29 +33,17 @@
 #endif
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
+#include <windows.h>
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <winsock2.h>
 #include <io.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <string.h>
 #include <malloc.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdlib.h>
 #include <direct.h>
 #include <shellapi.h>
 
 #define snprintf _snprintf
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
 #define inline __inline
 
 #ifndef MINGW
@@ -94,6 +82,16 @@
 #define HAVE_CURL
 #define HAVE_ZLIB
 #define HAVE_SDL_MIXER
+#define HAVE_STRERROR
+#define HAVE_SRANDOM
+
+#define HAVE_FCNTL_H
+#define HAVE_TIME_H
+#define HAVE_STDDEF_H
+
+#ifdef MINGW
+#	define HAVE_DIRENT_H
+#endif
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "Atrinik Client"

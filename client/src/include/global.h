@@ -35,13 +35,20 @@
 #	define  __attribute__(x)
 #endif
 
+#include <SDL.h>
+#include <SDL_main.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <curl/curl.h>
+#include <zlib.h>
+
 #ifndef WIN32
 #	include <cmake.h>
 #else
 #	include "win32.h"
 #endif
 
-#include "config.h"
+#include <config.h>
 
 /** Unsigned 32-bit integer. */
 typedef unsigned int uint32;
@@ -89,43 +96,95 @@ typedef signed char sint8;
 #	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
-#define RANDOM() rand()
-#define SRANDOM(xyz) srand(xyz)
+#ifndef FABS
+#	define FABS(x) ((x) < 0 ? -(x) : (x))
+#endif
 
-#define FABS(x) ((x) < 0 ? -(x) : (x))
+/* Include standard headers. */
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <signal.h>
 
-#ifdef WIN32
-#	include "win32.h"
-#else
-#	include <sys/stat.h>
-#	include <sys/time.h>
-#	include <time.h>
-#	include <string.h>
-#	include <unistd.h>
-#	include <fcntl.h>
-#	include <sys/types.h>
-#	include <errno.h>
-#	include <ctype.h>
-#	include <stdarg.h>
+#ifdef HAVE_STDDEF_H
 #	include <stddef.h>
+#endif
+
+#ifdef HAVE_FCNTL_H
+#	include <fcntl.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#	include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+#	include <sys/time.h>
+#endif
+
+#ifdef HAVE_TIME_H
+#	include <time.h>
+#endif
+
+#ifdef LINUX
 #	include <netdb.h>
 #	include <sys/socket.h>
 #	include <netinet/in.h>
 #	include <netinet/tcp.h>
-#	include <arpa/inet.h>
 #endif
 
-#include <SDL.h>
-#include <SDL_main.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#ifdef HAVE_ARPA_INET_H
+#	include <arpa/inet.h>
+#endif
 
 #ifdef HAVE_SDL_MIXER
 #	include <SDL_mixer.h>
 #endif
 
-#if !defined(WIN32) || defined(MINGW)
+#ifdef HAVE_DIRENT_H
 #	include <dirent.h>
+#	define NAMLEN(dirent) (strlen((dirent)->d_name))
+#elif defined(HAVE_SYS_NDIR_H) || defined(HAVE_SYS_DIR_H) || defined(HAVE_NDIR_H)
+#	define dirent direct
+#	define NAMLEN(dirent) ((dirent)->d_namlen)
+#	ifdef HAVE_SYS_NDIR_H
+#		include <sys/ndir.h>
+#	endif
+#	ifdef HAVE_SYS_DIR_H
+#		include <sys/dir.h>
+#	endif
+#	ifdef HAVE_NDIR_H
+#		include <ndir.h>
+#	endif
+#endif
+
+#ifdef HAVE_SRANDOM
+#	define RANDOM() random()
+#	define SRANDOM(xyz) srandom(xyz)
+#else
+#	ifdef HAVE_SRAND48
+#		define RANDOM() lrand48()
+#		define SRANDOM(xyz) srand48(xyz)
+#	else
+#		ifdef HAVE_SRAND
+#			define RANDOM() rand()
+#			define SRANDOM(xyz) srand(xyz)
+#		else
+#			error "Could not find a usable random routine"
+#		endif
+#	endif
+#endif
+
+#ifdef HAVE_STRICMP
+#	define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
+#endif
+
+#ifdef HAVE_STRNICMP
+#	define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
 #endif
 
 /** The log levels. */
@@ -141,16 +200,10 @@ typedef enum LogLevel
 	llevInfo
 } LogLevel;
 
-#include <signal.h>
-#include <curl/curl.h>
-
-#include <zlib.h>
 #include <item.h>
-
 #include <text.h>
 #include <curl.h>
 #include <book.h>
-#include <sdlsocket.h>
 #include <commands.h>
 #include <main.h>
 #include <client.h>

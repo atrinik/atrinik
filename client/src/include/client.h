@@ -90,6 +90,27 @@ extern Animations *animations;
 extern size_t animations_num;
 
 /**
+ * Timeout when attempting a connection in milliseconds. */
+#define SOCKET_TIMEOUT_MS 4000
+
+/**
+ * One command buffer. */
+typedef struct command_buffer
+{
+	/** Next command in queue. */
+	struct command_buffer *next;
+
+	/** Previous command in queue. */
+	struct command_buffer *prev;
+
+	/** Length of the data. */
+	int len;
+
+	/** The data. */
+	uint8 data[1];
+} command_buffer;
+
+/**
  * Contains the base information we use to make up a packet we want to send. */
 typedef struct SockList
 {
