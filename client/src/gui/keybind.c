@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /** Bindkey list set */
 struct _dialog_list_set bindkey_list_set;

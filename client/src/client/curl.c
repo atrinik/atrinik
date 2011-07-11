@@ -27,7 +27,7 @@
  * @file
  * cURL module for downloading data from URLs. */
 
-#include <include.h>
+#include <global.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;

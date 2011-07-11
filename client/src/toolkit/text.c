@@ -27,7 +27,7 @@
  * @file
  * Text drawing API. Used SDL_ttf for rendering. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * If 1, all text shown using 'box' parameter of string_blt() for max

@@ -27,7 +27,7 @@
  * @file
  * Handles code for file updates by the server. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * How many file updates have been requested. This is used to block the

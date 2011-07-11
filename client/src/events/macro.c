@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 SDLKey get_action_keycode, drop_action_keycode;
 

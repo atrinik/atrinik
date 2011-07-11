@@ -27,7 +27,7 @@
  * @file
  * This file holds ignore list related code. */
 
-#include <include.h>
+#include <global.h>
 
 /** The ignore list. */
 static ignore_list_struct *ignore_list = NULL;

@@ -27,7 +27,7 @@
  * @file
  * Upgrades the settings from an older installation. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Client version numbers to migrate settings from. The last is tried

@@ -27,7 +27,7 @@
  * @file
  * Handles music player widget code. */
 
-#include <include.h>
+#include <global.h>
 
 /** File where the blacklist data is stored. */
 #define FILE_MPLAYER_BLACKLIST "mplayer.blacklist"

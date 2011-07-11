@@ -27,7 +27,7 @@
  * @file
  * Implements the skills widget. */
 
-#include <include.h>
+#include <global.h>
 
 /** The skill list. */
 static skill_entry_struct **skill_list[SKILL_LIST_TYPES];

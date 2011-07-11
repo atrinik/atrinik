@@ -27,7 +27,7 @@
  * @file
  * Socket related code. */
 
-#include <include.h>
+#include <global.h>
 
 static SDL_Thread *input_thread;
 static SDL_mutex *input_buffer_mutex;

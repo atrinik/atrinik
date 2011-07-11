@@ -27,7 +27,7 @@
  * @file
  * Implements the protections table widget. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Show the protection table widget.

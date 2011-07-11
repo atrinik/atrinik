@@ -27,7 +27,7 @@
  * @file
  * Handles the spells widget code. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Available filter types.

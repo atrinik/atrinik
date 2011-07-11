@@ -41,7 +41,7 @@
  * - vX: Scrolls a custom number of lines down per click (often the whole
  *       visible page). */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Show one scroll button.

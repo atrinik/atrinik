@@ -27,7 +27,7 @@
  * @file
  * Map effects handling. */
 
-#include <include.h>
+#include <global.h>
 
 /** Linked list of possible effects. */
 static effect_struct *effects = NULL;

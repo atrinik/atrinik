@@ -27,7 +27,7 @@
  * @file
  * Miscellaneous functions. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Computes the integer square root.

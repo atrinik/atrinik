@@ -27,7 +27,7 @@
  * @file
  * Text input API. */
 
-#include <include.h>
+#include <global.h>
 
 /** Current text input string. */
 char text_input_string[MAX_INPUT_STRING];

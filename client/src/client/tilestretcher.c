@@ -42,7 +42,7 @@
  * @author James "JLittle" Little
  * @author Documentation by: Karon Webb */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Pixel y-co-ordinate (offset) of the edge of a standard

@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Frees the ::help_files structure. */

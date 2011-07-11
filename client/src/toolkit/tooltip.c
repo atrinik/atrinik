@@ -27,7 +27,7 @@
  * @file
  * Tooltip API. */
 
-#include <include.h>
+#include <global.h>
 
 /** Tooltip's text. */
 static char tooltip_text[HUGE_BUF];

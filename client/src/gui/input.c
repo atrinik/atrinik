@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Mouse event for number input widget.

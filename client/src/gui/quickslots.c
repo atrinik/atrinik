@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /** Quick slot entries */
 static _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];

@@ -27,7 +27,7 @@
  * @file
  * Handles fps widget. */
 
-#include <include.h>
+#include <global.h>
 
 static Uint32 fps_lasttime;
 static Uint32 fps_current;

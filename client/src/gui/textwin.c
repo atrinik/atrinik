@@ -27,7 +27,7 @@
  * @file
  * This file handles all text window related functions */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * The widget that player is making a selection in (or has finished doing

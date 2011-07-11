@@ -27,7 +27,7 @@
  * @file
  * The region map dialog. */
 
-#include <include.h>
+#include <global.h>
 #include <region_map.h>
 
 /** cURL data pointer to the downloaded map PNG. */

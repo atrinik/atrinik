@@ -31,7 +31,7 @@
  *
  * @author Alex Tokar */
 
-#include <include.h>
+#include <global.h>
 #include <SDL_syswm.h>
 
 #if defined(HAVE_X11)

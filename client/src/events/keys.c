@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 #define KEY_REPEAT_TIME 35
 #define KEY_REPEAT_TIME_INIT 175

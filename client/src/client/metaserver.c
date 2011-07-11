@@ -27,7 +27,7 @@
  * @file
  * Handles connection to the metaserver and receiving data from it. */
 
-#include <include.h>
+#include <global.h>
 
 /** List of metaservers. Will loop these until we successfully connect to one. */
 static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://atokar.is-a-geek.net/", "http://www.wordowl.com/misc/atrinik/"};

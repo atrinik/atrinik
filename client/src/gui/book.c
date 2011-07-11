@@ -27,7 +27,7 @@
  * @file
  * Book GUI related code. */
 
-#include <include.h>
+#include <global.h>
 
 /** The book's content. */
 static char *book_content = NULL;

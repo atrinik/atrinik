@@ -27,7 +27,7 @@
  * @file
  * Implements menu buttons code. */
 
-#include <include.h>
+#include <global.h>
 
 /** The different buttons inside the widget. */
 enum

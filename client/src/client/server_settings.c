@@ -27,7 +27,7 @@
  * @file
  * Server settings. */
 
-#include <include.h>
+#include <global.h>
 
 /** Server settings. */
 server_settings *s_settings = NULL;

@@ -27,7 +27,7 @@
  * @file
  * Sound related functions. */
 
-#include <include.h>
+#include <global.h>
 
 /** Path to the background music file being played. */
 static char *sound_background;

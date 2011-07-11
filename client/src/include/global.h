@@ -27,8 +27,8 @@
  * @file
  * The main include file, included by most C files. */
 
-#ifndef INCLUDE_H
-#define INCLUDE_H
+#ifndef GLOBAL_H
+#define GLOBAL_H
 
 /* If we're not using GNU C, ignore __attribute__ */
 #ifndef __GNUC__

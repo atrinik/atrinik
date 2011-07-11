@@ -6,7 +6,7 @@ LGPL (c) A. Schiffler
 
 */
 
-#include <include.h>
+#include <global.h>
 #include <math.h>
 
 /* -===================- */

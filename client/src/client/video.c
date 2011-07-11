@@ -27,7 +27,7 @@
  * @file
  * Video-related code. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Get the bits per pixel value to use

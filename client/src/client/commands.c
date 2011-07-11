@@ -64,7 +64,7 @@
  *   else as well.
  *   The unpacking routines basically perform the opposite operations. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Book command, used to initialize the book interface.

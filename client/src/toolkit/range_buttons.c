@@ -27,7 +27,7 @@
  * @file
  * Range buttons API. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Last clicked ticks to prevent single button click from triggering many

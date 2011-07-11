@@ -27,7 +27,7 @@
  * @file
  * Servers list, logging to a server, creating new character, etc. */
 
-#include <include.h>
+#include <global.h>
 
 /** How often to blink the eyes in ticks. */
 #define EYES_BLINK_TIME (10 * 1000)

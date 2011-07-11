@@ -27,7 +27,7 @@
  * @file
  * Menu related functions. */
 
-#include <include.h>
+#include <global.h>
 
 /** Keybind menu */
 int keybind_status;

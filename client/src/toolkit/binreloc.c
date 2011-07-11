@@ -36,7 +36,7 @@
  * more information and how to use this.
  */
 
-#include <include.h>
+#include <global.h>
 
 /** @internal
  * Find the canonical filename of the executable. Returns the filename

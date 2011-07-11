@@ -27,7 +27,7 @@
  * @file
  * Client main related functions. */
 
-#include <include.h>
+#include <global.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;

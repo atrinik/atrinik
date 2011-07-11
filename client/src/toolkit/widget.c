@@ -35,7 +35,7 @@
  * -# If applicable, add handler code to get_widget_owner().
  * -# Add handler function to process_widget(). */
 
-#include <include.h>
+#include <global.h>
 
 static int load_interface_file(char *filename);
 static void process_widget(widgetdata *widget);

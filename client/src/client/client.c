@@ -41,7 +41,7 @@
  * characters, and byte arrays that can be converted to a machine
  * independent format. */
 
-#include <include.h>
+#include <global.h>
 
 /** Client player structure with things like stats, damage, etc */
 Client_Player cpl;

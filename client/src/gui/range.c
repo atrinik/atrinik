@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /** Default icon length */
 #define ICONDEFLEN 32

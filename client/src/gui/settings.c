@@ -27,7 +27,7 @@
  * @file
  * Settings GUI. */
 
-#include <include.h>
+#include <global.h>
 
 static const char *const opt_types[OPT_TYPE_NUM] =
 {

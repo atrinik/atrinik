@@ -27,7 +27,7 @@
  * @file
  * Handles the party widget. */
 
-#include <include.h>
+#include <global.h>
 
 /** Width of the hp/sp/grace stat bar. */
 #define STAT_BAR_WIDTH 60

@@ -27,7 +27,7 @@
  * @file
  * Sprite related functions. */
 
-#include <include.h>
+#include <global.h>
 
 /** Anim queue of current active map */
 struct _anim *start_anim;

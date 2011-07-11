@@ -27,7 +27,7 @@
  * @file
  * General convenience functions for the client. */
 
-#include <include.h>
+#include <global.h>
 
 static FILE *logstream = NULL;
 

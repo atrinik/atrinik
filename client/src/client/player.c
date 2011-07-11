@@ -34,7 +34,7 @@
  *
  * Does most of the work for sending messages to the server */
 
-#include <include.h>
+#include <global.h>
 #include <math.h>
 
 /**

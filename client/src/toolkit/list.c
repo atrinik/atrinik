@@ -27,7 +27,7 @@
  * @file
  * Generic lists implementation. */
 
-#include <include.h>
+#include <global.h>
 
 /** Start of the visible lists. */
 static list_struct *list_head = NULL;

@@ -27,7 +27,7 @@
  * @file
  * Implements client side scripting support. */
 
-#include <include.h>
+#include <global.h>
 
 #ifndef WIN32
 #	include <sys/wait.h>

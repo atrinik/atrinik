@@ -27,7 +27,7 @@
  * @file
  * Map drawing. */
 
-#include <include.h>
+#include <global.h>
 
 /** Font used for the map name. */
 #define MAP_NAME_FONT FONT_SERIF14

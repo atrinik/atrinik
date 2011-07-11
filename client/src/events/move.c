@@ -27,7 +27,7 @@
  * @file
  * Handles movement events. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Number of the possible directions. */

@@ -38,7 +38,7 @@
  * actual popup drawing. When the screen size changes, the overlay is
  * re-created. */
 
-#include <include.h>
+#include <global.h>
 
 /** The currently visible popup. NULL if there is no visible popup. */
 static popup_struct *popup_visible = NULL;

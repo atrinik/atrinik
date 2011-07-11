@@ -27,8 +27,6 @@
  * @file
  * Various defines. */
 
-#include "include.h"
-
 /** Default width. */
 #define WINDOW_DEFAULT_WIDTH 1024
 /** Default height. */

@@ -27,7 +27,7 @@
  * @file
  * Manages server file updates. */
 
-#include <include.h>
+#include <global.h>
 
 /** File names of the server files inside srv_files directory. */
 static const char *const server_file_names[SERVER_FILES_MAX] =
