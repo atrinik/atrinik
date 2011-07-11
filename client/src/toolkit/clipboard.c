@@ -34,7 +34,7 @@
 #include <include.h>
 #include <SDL_syswm.h>
 
-#if defined(LINUX) && defined(HAVE_X11)
+#if defined(HAVE_X11)
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -48,7 +48,7 @@ static Window SDL_Window;
 static HWND SDL_Window = NULL;
 #endif
 
-#if defined(LINUX) && defined(HAVE_X11)
+#if defined(HAVE_X11)
 static int clipboard_filter(const SDL_Event *event)
 {
 	/* Post all non-window manager specific events */
@@ -122,7 +122,7 @@ int clipboard_init()
 	if (SDL_GetWMInfo(&info))
 	{
 		/* Save the information for later use. */
-#if defined(LINUX) && defined(HAVE_X11)
+#if defined(HAVE_X11)
 		if (info.subsystem == SDL_SYSWM_X11)
 		{
 			SDL_Display = info.info.x11.display;
@@ -159,7 +159,7 @@ int clipboard_init()
  * @return 1 on success, 0 on failure. */
 int clipboard_set(const char *str)
 {
-#if defined(LINUX) && defined(HAVE_X11)
+#if defined(HAVE_X11)
 	if (!SDL_Display)
 	{
 		return 0;
@@ -261,7 +261,7 @@ int clipboard_set(const char *str)
 char *clipboard_get()
 {
 	char *result;
-#if defined(LINUX) && defined(HAVE_X11)
+#if defined(HAVE_X11)
 	Window owner;
 	Atom selection, seln_type;
 	int seln_format;
