@@ -27,7 +27,7 @@
  * @file
  * Handles inventory related functions. */
 
-#include "include.h"
+#include <include.h>
 
 char *skill_level_name[] =
 {

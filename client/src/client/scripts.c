@@ -30,10 +30,7 @@
 #include <include.h>
 
 #ifndef WIN32
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
+#	include <sys/wait.h>
 #endif
 
 static void script_dead(int i);

@@ -28,7 +28,7 @@
  * This file controls various event functions, like character mouse movement,
  * parsing macro keys etc. */
 
-#include "include.h"
+#include <include.h>
 
 int old_mouse_y = 0;
 
