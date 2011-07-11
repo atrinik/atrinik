@@ -25,13 +25,12 @@
 
 #ifndef WIN32_H
 #define WIN32_H
-#ifdef __WIN_32
 
 #define STRICT
 
 #if _MSC_VER > 1000
 #pragma once
-#endif /* _MSC_VER > 1000 */
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -101,5 +100,4 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "2.0"
 
-#endif
 #endif

@@ -111,8 +111,7 @@ typedef struct SockList
  * of globals. */
 typedef struct ClientSocket
 {
-	/* Typedef your socket type to SOCKET */
-	SOCKET fd;
+	int fd;
 } ClientSocket;
 
 extern ClientSocket csocket;

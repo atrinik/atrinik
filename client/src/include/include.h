@@ -43,18 +43,17 @@
 
 #include "config.h"
 
-/* This is for the DevCpp IDE */
-#ifndef __WIN_32
-#	ifdef WIN32
-#		define __WIN_32
-#	endif
-#endif
-
+/** Unsigned 32-bit integer. */
 typedef unsigned int uint32;
+/** Signed 32-bit integer. */
 typedef signed int sint32;
+/** Unsigned 16-bit integer. */
 typedef unsigned short uint16;
+/** Signed 16-bit integer. */
 typedef signed short sint16;
+/** Unsigned 8-bit integer. */
 typedef unsigned char uint8;
+/** Signed 8-bit integer. */
 typedef signed char sint8;
 
 #ifdef WIN32
@@ -114,8 +113,6 @@ typedef signed char sint8;
 #	include <netinet/in.h>
 #	include <netinet/tcp.h>
 #	include <arpa/inet.h>
-
-	typedef int SOCKET;
 #endif
 
 #include <SDL.h>

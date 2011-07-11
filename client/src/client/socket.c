@@ -577,7 +577,7 @@ void socket_deinitialize()
  * @param host Host to connect to.
  * @param port Port to use.
  * @return 1 on success, 0 on failure. */
-static int socket_create(SOCKET *fd, char *host, int port)
+static int socket_create(int *fd, char *host, int port)
 {
 	uint32 start_timer;
 
