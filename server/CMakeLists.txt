@@ -92,7 +92,6 @@ check_include_files(sys/dir.h HAVE_SYS_DIR_H)
 check_include_files(ndir.h HAVE_NDIR_H)
 check_include_files(crypt.h HAVE_CRYPT_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-check_include_files(des.h HAVE_DES_H)
 
 # Check for various functions.
 check_function_exists(strerror HAVE_STRERROR)

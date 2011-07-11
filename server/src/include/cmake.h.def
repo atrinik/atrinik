@@ -103,10 +103,6 @@
 #cmakedefine HAVE_ARPA_INET_H
 #endif
 
-#ifndef HAVE_DES_H
-#cmakedefine HAVE_DES_H
-#endif
-
 #ifndef HAVE_STRERROR
 #cmakedefine HAVE_STRERROR
 #endif
