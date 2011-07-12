@@ -532,15 +532,30 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
  * @param buf Message to send. */
 void send_socket_message(const char *color, socket_struct *ns, const char *buf)
 {
-	char tmp[MAX_BUF];
-
 	if (ns->socket_version >= 1055)
 	{
-	snprintf(tmp, sizeof(tmp), "X%s%s", color, buf);
+	SockList sl;
+	unsigned char sockbuf[HUGE_BUF];
+	size_t len;
+
+	sl.buf = sockbuf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO);
+
+	SockList_AddString(&sl, color);
+
+	/* Make sure we don't copy more bytes than available space in the buffer. */
+	len = MIN(strlen(buf), sizeof(sockbuf) - sl.len - 1);
+	memcpy(sl.buf + sl.len, buf, len);
+	sl.len += len;
+
+	/* Terminate the string. */
+	SockList_AddChar(&sl, '\0');
+	Send_With_Handling(ns, &sl);
 	}
 	else
 	{
+	char tmp[HUGE_BUF];
 	snprintf(tmp, sizeof(tmp), "X%d %s", color_notation_to_flag(color), buf);
-	}
 	Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, tmp, strlen(tmp));
+	}
 }
