@@ -185,6 +185,18 @@ enum
 	READY_OBJ_MAX
 };
 
+/** Minimum length a player name must have. */
+#define PLAYER_NAME_MIN 2
+
+/** Maximum length a player name can have. */
+#define PLAYER_NAME_MAX 12
+
+/** Minimum length a player password must have. */
+#define PLAYER_PASSWORD_MIN 2
+
+/** Maximum length a player password can have. */
+#define PLAYER_PASSWORD_MAX 30
+
 /** The player structure. */
 typedef struct pl_player
 {
@@ -229,8 +241,8 @@ typedef struct pl_player
 	/** Holds arbitrary input from client. */
 	char write_buf[MAX_BUF];
 
-	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
-	char password[16];
+	/** 2 (seed) + 11 (crypted) + 1 (NUL) + 6 (safety) = 20 */
+	char password[20];
 
 	/** Player the DM is following. */
 	char followed_player[BIG_NAME];
@@ -714,11 +726,5 @@ typedef struct pl_player
 	/** End of the movement path queue. */
 	player_path *move_path_end;
 } player;
-
-/** Minimum length a player name must have. */
-#define PLAYER_NAME_MIN 2
-
-/** Maximum length a player name can have. */
-#define PLAYER_NAME_MAX 12
 
 #endif
