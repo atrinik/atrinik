@@ -450,7 +450,7 @@ void receive_player_password(object *op)
 {
 	unsigned int pwd_len = strlen(CONTR(op)->write_buf);
 
-	if (pwd_len <= 1 || pwd_len > 17)
+	if (pwd_len < PLAYER_PASSWORD_MIN || pwd_len > PLAYER_PASSWORD_MAX)
 	{
 		get_name(op);
 		return;
