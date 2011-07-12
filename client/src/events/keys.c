@@ -29,11 +29,9 @@
 
 #include <global.h>
 
-#define KEY_REPEAT_TIME 35
-#define KEY_REPEAT_TIME_INIT 175
-
 static int menuRepeatKey = -1;
 static Uint32 menuRepeatTicks = 0, menuRepeatTime = KEY_REPEAT_TIME_INIT;
+_keys keys[MAX_KEYS];
 
 /**
  * Screen definitions used when changing between resolutions in the
@@ -58,39 +56,45 @@ static const int screen_definitions[16][2] =
 	{2560, 1600},
 };
 
+/**
+ * Initialize keys and movement queue. */
+void init_keys()
+{
+	int i;
+
+	for (i = 0; i < MAX_KEYS; i++)
+	{
+		keys[i].time = 0;
+	}
+
+	reset_keys();
+}
+
+void reset_keys()
+{
+	int i;
+
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+
+	text_input_string_flag = 0;
+	text_input_string_end_flag = 0;
+	text_input_string_esc_flag = 0;
+
+	for (i = 0; i < MAX_KEYS; i++)
+	{
+		keys[i].pressed = 0;
+	}
+}
+
 int key_event(SDL_KeyboardEvent *key)
 {
 	if (key->type == SDL_KEYUP)
 	{
-		if (cpl.menustatus != MENU_NO)
+		keys[key->keysym.sym].pressed = 0;
+
+		if (cpl.menustatus == MENU_NO)
 		{
-			keys[key->keysym.sym].pressed = 0;
-		}
-		else
-		{
-			keys[key->keysym.sym].pressed = 0;
-
-			switch (key->keysym.sym)
-			{
-				case SDLK_LSHIFT:
-				case SDLK_RSHIFT:
-					cpl.inventory_win = IWIN_BELOW;
-					break;
-
-				case SDLK_LALT:
-				case SDLK_RALT:
-					send_command("/run_stop");
-					cpl.run_on = 0;
-					break;
-
-				case SDLK_RCTRL:
-				case SDLK_LCTRL:
-					cpl.fire_on = 0;
-					break;
-
-				default:
-					break;
-			}
+			keybind_process_event(key);
 		}
 	}
 	else if (key->type == SDL_KEYDOWN)
@@ -99,95 +103,24 @@ int key_event(SDL_KeyboardEvent *key)
 		{
 			keys[key->keysym.sym].pressed = 1;
 			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-
-			if (keybind_status == KEYBIND_STATUS_NO)
-			{
-				check_menu_keys(cpl.menustatus, key->keysym.sym);
-			}
+			check_menu_keys(cpl.menustatus, key->keysym.sym);
 		}
 		/* no menu */
 		else
 		{
 			keys[key->keysym.sym].pressed = 1;
 			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-			check_keys(key->keysym.sym);
 
-			switch ((int)key->keysym.sym)
+			if (keybind_command_matches_event("?COPY", key))
 			{
-				case SDLK_F1:
-					quickslots_handle_key(key, 0);
-					break;
-
-				case SDLK_F2:
-					quickslots_handle_key(key, 1);
-					break;
-
-				case SDLK_F3:
-					quickslots_handle_key(key, 2);
-					break;
-
-				case SDLK_F4:
-					quickslots_handle_key(key, 3);
-					break;
-
-				case SDLK_F5:
-					quickslots_handle_key(key, 4);
-					break;
-
-				case SDLK_F6:
-					quickslots_handle_key(key, 5);
-					break;
-
-				case SDLK_F7:
-					quickslots_handle_key(key, 6);
-					break;
-
-				case SDLK_F8:
-					quickslots_handle_key(key, 7);
-					break;
-
-				case SDLK_END:
-					quickslot_group++;
-
-					if (quickslot_group > MAX_QUICKSLOT_GROUPS)
-						quickslot_group = MAX_QUICKSLOT_GROUPS;
-
-					break;
-
-				case SDLK_HOME:
-					quickslot_group--;
-
-					if (quickslot_group < 1)
-						quickslot_group = 1;
-
-					break;
-
-				case SDLK_LSHIFT:
-				case SDLK_RSHIFT:
-					SetPriorityWidget(cur_widget[MAIN_INV_ID]);
-
-					if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
-					{
-						SetPriorityWidget(cur_widget[PDOLL_ID]);
-					}
-
-					cpl.inventory_win = IWIN_INV;
-					break;
-
-				case SDLK_RALT:
-				case SDLK_LALT:
-					cpl.run_on = 1;
-					break;
-
-				case SDLK_RCTRL:
-				case SDLK_LCTRL:
-					cpl.fire_on = 1;
-					break;
-
-				case SDLK_ESCAPE:
-					settings_open();
-					break;
+				textwin_handle_copy();
 			}
+			else if (key->keysym.sym == SDLK_ESCAPE)
+			{
+				settings_open();
+			}
+
+			keybind_process_event(key);
 		}
 	}
 
@@ -197,62 +130,11 @@ int key_event(SDL_KeyboardEvent *key)
 /* We have a key event */
 int event_poll_key(SDL_Event *event)
 {
-	if (event->key.type == SDL_KEYUP)
+	if (event->type == SDL_KEYUP)
 	{
 		/* End of key repeat. */
 		menuRepeatKey = -1;
 		menuRepeatTime = KEY_REPEAT_TIME_INIT;
-	}
-
-	if (cpl.menustatus == MENU_NO && !text_input_string_flag)
-	{
-		if (event->key.keysym.mod & KMOD_SHIFT)
-		{
-			cpl.inventory_win = IWIN_INV;
-
-			if (GameStatus == GAME_STATUS_PLAY && event->key.type != SDL_KEYUP)
-			{
-				if (event->key.keysym.sym == SDLK_1)
-				{
-					inventory_filter_set(INVENTORY_FILTER_ALL);
-					return 0;
-				}
-				else if (event->key.keysym.sym == SDLK_2)
-				{
-					inventory_filter_set(INVENTORY_FILTER_APPLIED);
-					return 0;
-				}
-				else if (event->key.keysym.sym == SDLK_3)
-				{
-					inventory_filter_set(INVENTORY_FILTER_LOCKED);
-					return 0;
-				}
-				else if (event->key.keysym.sym == SDLK_4)
-				{
-					inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
-					return 0;
-				}
-			}
-		}
-		else
-		{
-			cpl.inventory_win = IWIN_BELOW;
-		}
-
-		if (event->key.keysym.mod & KMOD_RCTRL || event->key.keysym.mod & KMOD_LCTRL || event->key.keysym.mod & KMOD_CTRL)
-		{
-			if (event->key.keysym.sym == SDLK_c && event->key.type != SDL_KEYUP)
-			{
-				textwin_handle_copy();
-				return 0;
-			}
-
-			cpl.fire_on = 1;
-		}
-		else
-		{
-			cpl.fire_on = 0;
-		}
 	}
 
 	if (lists_handle_keyboard(&event->key))
@@ -349,30 +231,9 @@ void cursor_keys(int num)
 /* Handle key repeating. */
 void key_repeat()
 {
-	int i, j;
-
 	if (cpl.menustatus == MENU_NO)
 	{
-		/* Groups */
-		for (j = 0; j < BINDKEY_LIST_MAX; j++)
-		{
-			for (i = 0; i < OPTWIN_MAX_OPT; i++)
-			{
-				/* Key for this keymap is pressed */
-				if (keys[bindkey_list[j].entry[i].key].pressed && bindkey_list[j].entry[i].repeatflag)
-				{
-					/* If time to repeat */
-					if (keys[bindkey_list[j].entry[i].key].time + KEY_REPEAT_TIME - 5 < LastTick)
-					{
-						/* Repeat x times*/
-						while ((keys[bindkey_list[j].entry[i].key].time += KEY_REPEAT_TIME - 5) < LastTick)
-						{
-							process_macro(bindkey_list[j].entry[i]);
-						}
-					}
-				}
-			}
-		}
+		keybind_repeat();
 	}
 	/* check menu keys for repeat */
 	else
@@ -399,17 +260,11 @@ void check_menu_keys(int menu, int key)
 	/* close menu */
 	if (key == SDLK_ESCAPE)
 	{
-		if (cpl.menustatus == MENU_KEYBIND)
-			save_keybind_file(KEYBIND_FILE);
-
 		cpl.menustatus = MENU_NO;
 		map_udate_flag = 2;
 		reset_keys();
 		return;
 	}
-
-	if (check_keys_menu_status(key))
-		return;
 
 	switch (menu)
 	{

@@ -102,7 +102,7 @@ void do_number()
 		cur_widget[IN_NUMBER_ID]->show = 0;
 	}
 
-	if (((cpl.nummode == NUM_MODE_GET && key_is_pressed(get_action_keycode)) || (cpl.nummode == NUM_MODE_DROP && key_is_pressed(drop_action_keycode))) && SDL_GetTicks() - text_input_opened > 125)
+	if (((cpl.nummode == NUM_MODE_GET && key_is_pressed(key_find_by_command("?GET"))) || (cpl.nummode == NUM_MODE_DROP && key_is_pressed(key_find_by_command("?DROP")))) && SDL_GetTicks() - text_input_opened > 125)
 	{
 		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 		text_input_string_flag = 0;
@@ -138,7 +138,7 @@ void do_number()
 
 		if (held)
 		{
-			SDLKey key = cpl.nummode == NUM_MODE_GET ? get_action_keycode : drop_action_keycode;
+			SDLKey key = cpl.nummode == NUM_MODE_GET ? key_find_by_command("?GET") : key_find_by_command("?DROP");
 
 			keys[key].pressed = 1;
 			keys[key].time = LastTick + 125;
@@ -149,44 +149,6 @@ void do_number()
 	}
 	else
 		cur_widget[IN_NUMBER_ID]->show = 1;
-}
-
-/**
- * Wait for input in the keybind menu.
- * If ESC was pressed, close the input. */
-void do_keybind_input()
-{
-	if (text_input_string_esc_flag)
-	{
-		reset_keys();
-		sound_play_effect("click_fail.ogg", 100);
-		cpl.input_mode = INPUT_MODE_NO;
-		keybind_status = KEYBIND_STATUS_NO;
-		map_udate_flag = 2;
-	}
-
-	/* If set, we got a finished input */
-	if (text_input_string_flag == 0 && text_input_string_end_flag)
-	{
-		if (text_input_string[0])
-		{
-			strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text, text_input_string);
-			/* Now get the key code */
-			keybind_status = KEYBIND_STATUS_EDITKEY;
-		}
-		/* Cleared string - delete entry */
-		else
-		{
-			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[0] = '\0';
-			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[0] = '\0';
-			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = '\0';
-			keybind_status = KEYBIND_STATUS_NO;
-		}
-
-		reset_keys();
-		cpl.input_mode = INPUT_MODE_NO;
-		map_udate_flag = 2;
-	}
 }
 
 /**

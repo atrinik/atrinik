@@ -1,48 +1,21 @@
 #ifndef __CPROTO__
-/* src/client/image.c */
-bmap_struct *bmap_find(const char *name);
-void bmap_add(bmap_struct *bmap);
-void read_bmaps_p0();
-void read_bmaps();
-void finish_face_cmd(int pnum, uint32 checksum, char *face);
-int request_face(int pnum);
-int get_bmap_id(char *name);
-void blit_face(int id, int x, int y);
-/* src/client/socket.c */
-void command_buffer_free(command_buffer *buf);
-int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
-int send_socklist(SockList msg);
-command_buffer *get_next_input_command();
-void socket_thread_start();
-void socket_thread_stop();
-int handle_socket_shutdown();
-int socket_get_error();
-int socket_close(struct ClientSocket *csock);
-int socket_initialize();
-void socket_deinitialize();
-int socket_open(struct ClientSocket *csock, char *host, int port);
-/* src/client/metaserver.c */
-void metaserver_init();
-void metaserver_disable();
-server_struct *server_get_id(size_t num);
-size_t server_get_count();
-int ms_connecting(int val);
-void metaserver_clear_data();
-void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
-int metaserver_thread(void *dummy);
-void metaserver_get_servers();
-/* src/client/curl.c */
-int curl_connect(void *c_data);
-curl_data *curl_data_new(const char *url);
-curl_data *curl_download_start(const char *url);
-sint8 curl_download_finished(curl_data *data);
-void curl_data_free(curl_data *data);
-void curl_init();
-void curl_deinit();
-/* src/client/main.c */
-void free_bitmaps();
-void list_vid_modes();
-int main(int argc, char *argv[]);
+/* src/client/animations.c */
+void read_anims();
+void anims_reset();
+/* src/client/client.c */
+void DoClient();
+void SockList_Init(SockList *sl);
+void SockList_AddChar(SockList *sl, char c);
+void SockList_AddShort(SockList *sl, uint16 data);
+void SockList_AddInt(SockList *sl, uint32 data);
+void SockList_AddString(SockList *sl, char *data);
+void SockList_AddStringTerminated(SockList *sl, char *data);
+int GetInt_String(const unsigned char *data);
+sint64 GetInt64_String(const unsigned char *data);
+short GetShort_String(const unsigned char *data);
+char *GetString_String(uint8 *data, int *pos, char *dest, size_t dest_size);
+int cs_write_string(char *buf, size_t len);
+void check_animation_status(int anum);
 /* src/client/commands.c */
 void BookCmd(unsigned char *data, int len);
 void SetupCmd(char *buf, int len);
@@ -76,42 +49,87 @@ void DataCmd(unsigned char *data, int len);
 void ShopCmd(unsigned char *data, int len);
 void QuestListCmd(unsigned char *data, int len);
 void ReadyCmd(unsigned char *data, int len);
-/* src/client/server_settings.c */
-void server_settings_init();
-void server_settings_deinit();
-/* src/client/sound.c */
-void sound_init();
-void sound_deinit();
-void sound_play_effect(const char *filename, int volume);
-void sound_start_bg_music(const char *filename, int volume, int loop);
-void sound_stop_bg_music();
-void update_map_bg_music(const char *bg_music);
-void sound_update_volume();
-const char *sound_get_bg_music();
-const char *sound_get_bg_music_basename();
-uint8 sound_map_background(int new);
-void SoundCmd(uint8 *data, int len);
-void sound_pause_music();
-void sound_resume_music();
-int sound_playing_music();
+/* src/client/curl.c */
+int curl_connect(void *c_data);
+curl_data *curl_data_new(const char *url);
+curl_data *curl_download_start(const char *url);
+sint8 curl_download_finished(curl_data *data);
+void curl_data_free(curl_data *data);
+void curl_init();
+void curl_deinit();
 /* src/client/ignore.c */
 void ignore_list_clear();
 void ignore_list_load();
 int ignore_check(const char *name, const char *type);
 void ignore_command(const char *cmd);
-/* src/client/animations.c */
-void read_anims();
-void anims_reset();
+/* src/client/image.c */
+bmap_struct *bmap_find(const char *name);
+void bmap_add(bmap_struct *bmap);
+void read_bmaps_p0();
+void read_bmaps();
+void finish_face_cmd(int pnum, uint32 checksum, char *face);
+int request_face(int pnum);
+int get_bmap_id(char *name);
+void blit_face(int id, int x, int y);
+/* src/client/item.c */
+void objects_free(object *op);
+object *object_find_object_inv(object *op, sint32 tag);
+object *object_find_object(object *op, sint32 tag);
+object *object_find(sint32 tag);
+void object_remove(object *op);
+void object_remove_inventory(object *op);
+object *object_create(object *env, sint32 tag, int bflag);
+void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
+void toggle_locked(object *op);
+void object_send_mark(object *op);
+void ready_object(object *op);
+void objects_init();
+void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
+void animate_objects();
+/* src/client/keybind.c */
+void keybind_load();
+void keybind_save();
+void keybind_deinit();
+void keybind_remove(size_t i);
+void keybind_repeat_toggle(size_t i);
+SDLMod keybind_adjust_kmod(SDLMod mod);
+void keybind_add(SDLKey key, SDLMod mod, const char *command);
+void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command);
+void keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len);
+SDLKey key_find_by_command(const char *cmd);
+int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event);
+int keybind_process_event(SDL_KeyboardEvent *event);
+void keybind_repeat();
+void keybind_process(keybind_struct *keybind, uint8 type);
+int keybind_process_command_up(const char *cmd);
+int keybind_process_command(const char *cmd);
+/* src/client/main.c */
+void free_bitmaps();
+void list_vid_modes();
+int main(int argc, char *argv[]);
 /* src/client/menu.c */
 int client_command_check(const char *cmd);
 void send_command_check(const char *cmd);
 void blt_inventory_face_from_tag(int tag, int x, int y);
 void show_menu();
 void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y);
-/* src/client/updates.c */
-void cmd_request_update(unsigned char *data, int len);
-int file_updates_finished();
-void file_updates_parse();
+/* src/client/metaserver.c */
+void metaserver_init();
+void metaserver_disable();
+server_struct *server_get_id(size_t num);
+size_t server_get_count();
+int ms_connecting(int val);
+void metaserver_clear_data();
+void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
+int metaserver_thread(void *dummy);
+void metaserver_get_servers();
+/* src/client/misc.c */
+unsigned long isqrt(unsigned long n);
+size_t split_string(char *str, char *array[], size_t array_size, char sep);
+void *reallocz(void *ptr, size_t old_size, size_t new_size);
+void convert_newline(char *str);
+void browser_open(const char *url);
+int rndm(int min, int max);
 /* src/client/player.c */
 void clear_player();
 void new_player(long tag, long weight, short face);
@@ -138,35 +156,6 @@ void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_pt
 void widget_show_label(widgetdata *widget);
 void widget_show_bitmap(widgetdata *widget);
 int gender_to_id(const char *gender);
-/* src/client/client.c */
-void DoClient();
-void SockList_Init(SockList *sl);
-void SockList_AddChar(SockList *sl, char c);
-void SockList_AddShort(SockList *sl, uint16 data);
-void SockList_AddInt(SockList *sl, uint32 data);
-void SockList_AddString(SockList *sl, char *data);
-void SockList_AddStringTerminated(SockList *sl, char *data);
-int GetInt_String(const unsigned char *data);
-sint64 GetInt64_String(const unsigned char *data);
-short GetShort_String(const unsigned char *data);
-char *GetString_String(uint8 *data, int *pos, char *dest, size_t dest_size);
-int cs_write_string(char *buf, size_t len);
-void check_animation_status(int anum);
-/* src/client/video.c */
-int video_get_bpp();
-int video_set_size();
-uint32 get_video_flags();
-int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags);
-/* src/client/upgrader.c */
-void upgrade_do(const char *source_dir);
-void upgrader_init();
-/* src/client/misc.c */
-unsigned long isqrt(unsigned long n);
-size_t split_string(char *str, char *array[], size_t array_size, char sep);
-void *reallocz(void *ptr, size_t old_size, size_t new_size);
-void convert_newline(char *str);
-void browser_open(const char *url);
-int rndm(int min, int max);
 /* src/client/scripts.c */
 void script_load(const char *cparams);
 void script_list();
@@ -176,21 +165,62 @@ void script_send(const char *params);
 void script_killall();
 void script_autoload();
 void script_unload(const char *params);
-/* src/client/item.c */
-void objects_free(object *op);
-object *object_find_object_inv(object *op, sint32 tag);
-object *object_find_object(object *op, sint32 tag);
-object *object_find(sint32 tag);
-void object_remove(object *op);
-void object_remove_inventory(object *op);
-object *object_create(object *env, sint32 tag, int bflag);
-void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir);
-void toggle_locked(object *op);
-void object_send_mark(object *op);
-void ready_object(object *op);
-void objects_init();
-void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
-void animate_objects();
+/* src/client/server_files.c */
+void server_files_init();
+void server_files_load(int post_load);
+FILE *server_file_open(size_t id);
+void server_file_save(size_t id, unsigned char *data, size_t len);
+int server_files_updating();
+void server_files_setup_add(char *buf, size_t buf_size);
+int server_files_parse_setup(const char *cmd, const char *param);
+void server_files_clear_update();
+/* src/client/server_settings.c */
+void server_settings_init();
+void server_settings_deinit();
+/* src/client/settings.c */
+void *setting_get(setting_struct *setting);
+const char *setting_get_str(int cat, int setting);
+sint64 setting_get_int(int cat, int setting);
+void setting_apply_change(int cat, int setting);
+void setting_set_int(int cat, int setting, sint64 val);
+int setting_is_text(setting_struct *setting);
+void setting_load_value(setting_struct *setting, const char *str);
+void settings_apply();
+void settings_init();
+void settings_save();
+sint64 category_from_name(const char *name);
+sint64 setting_from_name(const char *name);
+void settings_load();
+void settings_deinit();
+void settings_apply_change();
+/* src/client/socket.c */
+void command_buffer_free(command_buffer *buf);
+int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
+int send_socklist(SockList msg);
+command_buffer *get_next_input_command();
+void socket_thread_start();
+void socket_thread_stop();
+int handle_socket_shutdown();
+int socket_get_error();
+int socket_close(struct ClientSocket *csock);
+int socket_initialize();
+void socket_deinitialize();
+int socket_open(struct ClientSocket *csock, char *host, int port);
+/* src/client/sound.c */
+void sound_init();
+void sound_deinit();
+void sound_play_effect(const char *filename, int volume);
+void sound_start_bg_music(const char *filename, int volume, int loop);
+void sound_stop_bg_music();
+void update_map_bg_music(const char *bg_music);
+void sound_update_volume();
+const char *sound_get_bg_music();
+const char *sound_get_bg_music_basename();
+uint8 sound_map_background(int new);
+void SoundCmd(uint8 *data, int len);
+void sound_pause_music();
+void sound_resume_music();
+int sound_playing_music();
 /* src/client/sprite.c */
 void sprite_init_system();
 _Sprite *sprite_load_file(char *fname, uint32 flags);
@@ -208,6 +238,23 @@ void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
+/* src/client/tilestretcher.c */
+int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
+int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
+int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
+SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
+/* src/client/updates.c */
+void cmd_request_update(unsigned char *data, int len);
+int file_updates_finished();
+void file_updates_parse();
+/* src/client/upgrader.c */
+void upgrade_do(const char *source_dir);
+void upgrader_init();
+/* src/client/video.c */
+int video_get_bpp();
+int video_set_size();
+uint32 get_video_flags();
+int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags);
 /* src/client/wrapper.c */
 void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(printf, 2, 3)));
 void system_start();
@@ -220,23 +267,16 @@ char *file_path(const char *fname, const char *mode);
 FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
 TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
-/* src/client/tilestretcher.c */
-int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
-int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
-int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
-SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
-/* src/client/server_files.c */
-void server_files_init();
-void server_files_load(int post_load);
-FILE *server_file_open(size_t id);
-void server_file_save(size_t id, unsigned char *data, size_t len);
-int server_files_updating();
-void server_files_setup_add(char *buf, size_t buf_size);
-int server_files_parse_setup(const char *cmd, const char *param);
-void server_files_clear_update();
 /* src/events/console.c */
 void mouse_InputNumber();
+/* src/events/event.c */
+uint8 key_is_pressed(SDLKey key);
+int draggingInvItem(int src);
+void resize_window(int width, int height);
+int Event_PollInputDevice();
 /* src/events/keys.c */
+void init_keys();
+void reset_keys();
 int key_event(SDL_KeyboardEvent *key);
 int event_poll_key(SDL_Event *event);
 void cursor_keys(int num);
@@ -245,43 +285,13 @@ void check_menu_keys(int menu, int key);
 /* src/events/move.c */
 void move_keys(int num);
 int dir_from_tile_coords(int tx, int ty);
-/* src/events/macro.c */
-void init_keys();
-void reset_keys();
-int check_menu_macros(char *text);
-int check_keys_menu_status(int key);
-void process_macro(_keymap macro);
-void check_keys(int key);
-int process_macro_keys(int id, int value);
-void read_keybind_file(char *fname);
-void save_keybind_file(char *fname);
-/* src/events/event.c */
-uint8 key_is_pressed(SDLKey key);
-int draggingInvItem(int src);
-void resize_window(int width, int height);
-int Event_PollInputDevice();
-/* src/gui/input.c */
-void widget_number_event(widgetdata *widget, int x, int y);
-void widget_show_console(widgetdata *widget);
-void widget_show_number(widgetdata *widget);
-void do_number();
-void do_keybind_input();
-void do_console();
-/* src/gui/party.c */
-void widget_party_background(widgetdata *widget);
-void widget_party_render(widgetdata *widget);
-void widget_party_mevent(widgetdata *widget, SDL_Event *event);
-void PartyCmd(unsigned char *data, int len);
-/* src/gui/help.c */
-void free_help_files();
-void read_help_files();
-void show_help(const char *helpname);
-/* src/gui/fps.c */
-void fps_init();
-void fps_do();
-void widget_show_fps(widgetdata *widget);
-/* src/gui/protections.c */
-void widget_show_resist(widgetdata *widget);
+/* src/gui/book.c */
+void book_name_change(const char *name, size_t len);
+void book_load(const char *data, int len);
+void book_show();
+void book_handle_key(SDLKey key);
+void book_handle_event(SDL_Event *event);
+void book_redraw();
 /* src/gui/effects.c */
 void effects_init();
 void effects_deinit();
@@ -297,6 +307,32 @@ void effect_debug(const char *type);
 void effect_stop();
 uint8 effect_has_overlay();
 void effect_scale(_Sprite *sprite);
+/* src/gui/fps.c */
+void fps_init();
+void fps_do();
+void widget_show_fps(widgetdata *widget);
+/* src/gui/help.c */
+void free_help_files();
+void read_help_files();
+void show_help(const char *helpname);
+/* src/gui/input.c */
+void widget_number_event(widgetdata *widget, int x, int y);
+void widget_show_console(widgetdata *widget);
+void widget_show_number(widgetdata *widget);
+void do_number();
+void do_console();
+/* src/gui/inventory.c */
+void inventory_filter_set(uint64 filter);
+void inventory_filter_toggle(uint64 filter);
+int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
+void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
+void widget_show_inventory_window(widgetdata *widget);
+void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
+void widget_show_below_window(widgetdata *widget);
+int blt_inv_item_centered(object *tmp, int x, int y);
+void blt_inv_item(object *tmp, int x, int y);
+/* src/gui/main.c */
+void show_meta_server();
 /* src/gui/map.c */
 void load_mapdef_dat();
 void widget_show_mapname(widgetdata *widget);
@@ -315,15 +351,30 @@ void map_draw_one(int x, int y, _Sprite *sprite);
 void widget_map_mevent(widgetdata *widget, SDL_Event *event);
 void widget_map_render(widgetdata *widget);
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
-/* src/gui/book.c */
-void book_name_change(const char *name, size_t len);
-void book_load(const char *data, int len);
-void book_show();
-void book_handle_key(SDLKey key);
-void book_handle_event(SDL_Event *event);
-void book_redraw();
-/* src/gui/main.c */
-void show_meta_server();
+/* src/gui/menu_buttons.c */
+void widget_menubuttons(widgetdata *widget);
+void widget_menubuttons_event(widgetdata *widget, SDL_Event *event);
+/* src/gui/mplayer.c */
+void widget_show_mplayer(widgetdata *widget);
+void widget_mplayer_background(widgetdata *widget);
+void widget_mplayer_deinit(widgetdata *widget);
+void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
+void mplayer_now_playing();
+/* src/gui/party.c */
+void widget_party_background(widgetdata *widget);
+void widget_party_render(widgetdata *widget);
+void widget_party_mevent(widgetdata *widget, SDL_Event *event);
+void PartyCmd(unsigned char *data, int len);
+/* src/gui/protections.c */
+void widget_show_resist(widgetdata *widget);
+/* src/gui/quickslots.c */
+void quickslots_init();
+void quickslots_handle_key(int slot);
+int get_quickslot(int x, int y);
+void show_quickslots(int x, int y, int vertical_quickslot);
+void widget_quickslots(widgetdata *widget);
+void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event);
+void QuickSlotCmd(unsigned char *data, int len);
 /* src/gui/range.c */
 void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent);
 void widget_show_range(widgetdata *widget);
@@ -333,19 +384,29 @@ void region_map_clear();
 void region_map_handle_key(SDLKey key);
 void region_map_handle_event(SDL_Event *event);
 void region_map_show();
-/* src/gui/keybind.c */
-void show_keybind();
-/* src/gui/menu_buttons.c */
-void widget_menubuttons(widgetdata *widget);
-void widget_menubuttons_event(widgetdata *widget, SDL_Event *event);
-/* src/gui/quickslots.c */
-void quickslots_init();
-void quickslots_handle_key(SDL_KeyboardEvent *key, int slot);
-int get_quickslot(int x, int y);
-void show_quickslots(int x, int y, int vertical_quickslot);
-void widget_quickslots(widgetdata *widget);
-void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event);
-void QuickSlotCmd(unsigned char *data, int len);
+/* src/gui/settings.c */
+void settings_open();
+/* src/gui/skills.c */
+void widget_skills_render(widgetdata *widget);
+void widget_skills_mevent(widgetdata *widget, SDL_Event *event);
+int skill_find(const char *name, size_t *type, size_t *id);
+int skill_find_type_selected(const char *name, size_t *id);
+skill_entry_struct *skill_get(size_t type, size_t id);
+void skills_init();
+void skills_reload();
+void SkilllistCmd(char *data);
+/* src/gui/spells.c */
+void widget_spells_render(widgetdata *widget);
+void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
+int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
+int spell_find_path_selected(const char *name, size_t *spell_id);
+spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
+void spells_init();
+void spells_reload();
+void SpelllistCmd(char *data);
+/* src/gui/target.c */
+void widget_event_target(widgetdata *widget, int x, int y);
+void widget_show_target(widgetdata *widget);
 /* src/gui/textwin.c */
 void textwin_init();
 void textwin_scroll_adjust(widgetdata *widget);
@@ -360,93 +421,6 @@ void textwin_event(widgetdata *widget, SDL_Event *event);
 void menu_textwin_clear(widgetdata *widget, int x, int y);
 void menu_textwin_font_inc(widgetdata *widget, int x, int y);
 void menu_textwin_font_dec(widgetdata *widget, int x, int y);
-/* src/gui/spells.c */
-void widget_spells_render(widgetdata *widget);
-void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
-int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
-int spell_find_path_selected(const char *name, size_t *spell_id);
-spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
-void spells_init();
-void spells_reload();
-void SpelllistCmd(char *data);
-/* src/gui/settings.c */
-void *setting_get(setting_struct *setting);
-const char *setting_get_str(int cat, int setting);
-sint64 setting_get_int(int cat, int setting);
-void setting_apply_change(int cat, int setting);
-void setting_set_int(int cat, int setting, sint64 val);
-int setting_is_text(setting_struct *setting);
-void setting_load_value(setting_struct *setting, const char *str);
-void settings_apply();
-void settings_init();
-void settings_save();
-sint64 category_from_name(const char *name);
-sint64 setting_from_name(const char *name);
-void settings_load();
-void settings_deinit();
-void settings_open();
-/* src/gui/inventory.c */
-void inventory_filter_set(uint64 filter);
-void inventory_filter_toggle(uint64 filter);
-int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen);
-void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event);
-void widget_show_inventory_window(widgetdata *widget);
-void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent);
-void widget_show_below_window(widgetdata *widget);
-int blt_inv_item_centered(object *tmp, int x, int y);
-void blt_inv_item(object *tmp, int x, int y);
-/* src/gui/mplayer.c */
-void widget_show_mplayer(widgetdata *widget);
-void widget_mplayer_background(widgetdata *widget);
-void widget_mplayer_deinit(widgetdata *widget);
-void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
-void mplayer_now_playing();
-/* src/gui/target.c */
-void widget_event_target(widgetdata *widget, int x, int y);
-void widget_show_target(widgetdata *widget);
-/* src/gui/skills.c */
-void widget_skills_render(widgetdata *widget);
-void widget_skills_mevent(widgetdata *widget, SDL_Event *event);
-int skill_find(const char *name, size_t *type, size_t *id);
-int skill_find_type_selected(const char *name, size_t *id);
-skill_entry_struct *skill_get(size_t type, size_t id);
-void skills_init();
-void skills_reload();
-void SkilllistCmd(char *data);
-/* src/toolkit/popup.c */
-popup_struct *popup_create(int bitmap_id);
-void popup_destroy_visible();
-int popup_overlay_need_update(popup_struct *popup);
-void popup_draw();
-int popup_handle_event(SDL_Event *event);
-popup_struct *popup_get_visible();
-/* src/toolkit/text.c */
-void text_init();
-void text_deinit();
-void text_offset_set(int x, int y);
-void text_offset_reset();
-void text_color_set(int r, int g, int b);
-void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
-const char *get_font_filename(int font);
-int get_font_id(const char *name, size_t size);
-char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
-int text_color_parse(const char *color_notation, SDL_Color *color);
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
-int glyph_get_width(int font, char c);
-int glyph_get_height(int font, char c);
-void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box);
-void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box);
-void string_blt_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
-void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
-int string_get_width(int font, const char *text, uint64 flags);
-int string_get_height(int font, const char *text, uint64 flags);
-void string_truncate_overflow(int font, char *text, int max_width);
-void text_enable_debug();
-/* src/toolkit/tooltip.c */
-void tooltip_create(int mx, int my, int font, const char *text);
-void tooltip_show();
-/* src/toolkit/scroll_buttons.c */
-void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 /* src/toolkit/binreloc.c */
 int br_init(BrInitError *error);
 int br_init_lib(BrInitError *error);
@@ -463,16 +437,16 @@ char *br_find_etc_dir(const char *default_etc_dir);
 char *br_strcat(const char *str1, const char *str2);
 char *br_build_path(const char *dir, const char *file);
 char *br_dirname(const char *path);
-/* src/toolkit/text_input.c */
-int text_input_center_offset();
-void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
-void text_input_clear();
-void text_input_open(int maxchar);
-void text_input_history_clear();
-void text_input_add_string(const char *text);
-int text_input_handle(SDL_KeyboardEvent *key);
+/* src/toolkit/button.c */
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags);
+void button_create(button_struct *button);
+void button_render(button_struct *button, const char *text);
+int button_event(button_struct *button, SDL_Event *event);
+void button_tooltip(button_struct *button, int font, const char *text);
+/* src/toolkit/clipboard.c */
+int clipboard_init();
+int clipboard_set(const char *str);
+char *clipboard_get();
 /* src/toolkit/list.c */
 list_struct *list_get_focused();
 void list_set_focus(list_struct *list);
@@ -484,7 +458,9 @@ void list_set_column(list_struct *list, uint32 col, int width, int spacing, cons
 void list_set_font(list_struct *list, int font);
 void list_scrollbar_enable(list_struct *list);
 void list_show(list_struct *list, int x, int y);
+void list_clear_rows(list_struct *list);
 void list_clear(list_struct *list);
+void list_offsets_ensure(list_struct *list);
 void list_remove(list_struct *list);
 void list_remove_all();
 int list_handle_keyboard(list_struct *list, SDL_KeyboardEvent *event);
@@ -493,8 +469,18 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
 int lists_handle_mouse(int mx, int my, SDL_Event *event);
 list_struct *list_exists(uint32 id);
 void list_sort(list_struct *list, int type);
-void list_clear_rows(list_struct *list);
 int list_set_selected(list_struct *list, const char *str, uint32 col);
+/* src/toolkit/popup.c */
+popup_struct *popup_create(int bitmap_id);
+void popup_destroy_visible();
+int popup_overlay_need_update(popup_struct *popup);
+void popup_draw();
+int popup_handle_event(SDL_Event *event);
+popup_struct *popup_get_visible();
+/* src/toolkit/range_buttons.c */
+int range_buttons_show(int x, int y, int *val, int advance);
+/* src/toolkit/scroll_buttons.c */
+void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 /* src/toolkit/SDL_gfx.c */
 int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
@@ -572,14 +558,6 @@ int bezierColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int
 int bezierRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 int thickLineColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color);
 int thickLineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-/* src/toolkit/button.c */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags);
-void button_create(button_struct *button);
-void button_render(button_struct *button, const char *text);
-int button_event(button_struct *button, SDL_Event *event);
-void button_tooltip(button_struct *button, int font, const char *text);
-/* src/toolkit/range_buttons.c */
-int range_buttons_show(int x, int y, int *val, int advance);
 /* src/toolkit/SDL_rotozoom.c */
 Uint32 _colorkey(SDL_Surface *src);
 int _shrinkSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
@@ -597,7 +575,42 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoomx, dou
 void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
-/* src/toolkit/widget.c */
+/* src/toolkit/text.c */
+void text_init();
+void text_deinit();
+void text_offset_set(int x, int y);
+void text_offset_reset();
+void text_color_set(int r, int g, int b);
+void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
+const char *get_font_filename(int font);
+int get_font_id(const char *name, size_t size);
+char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
+int text_color_parse(const char *color_notation, SDL_Color *color);
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust);
+int glyph_get_width(int font, char c);
+int glyph_get_height(int font, char c);
+void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box);
+void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box);
+void string_blt_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 8, 9)));
+void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...) __attribute__((format(printf, 9, 10)));
+int string_get_width(int font, const char *text, uint64 flags);
+int string_get_height(int font, const char *text, uint64 flags);
+void string_truncate_overflow(int font, char *text, int max_width);
+void text_enable_debug();
+/* src/toolkit/text_input.c */
+int text_input_center_offset();
+void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap);
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
+void text_input_clear();
+void text_input_open(int maxchar);
+void text_input_history_clear();
+void text_input_add_string(const char *text);
+int text_input_handle(SDL_KeyboardEvent *key);
+/* src/toolkit/tooltip.c */
+void tooltip_create(int mx, int my, int font, const char *text);
+void tooltip_show();
+/* src/toolkit/widget.c*/
 void init_widgets_fromCurrent();
 widgetdata *create_widget_object(int widget_subtype_id);
 void remove_widget_object(widgetdata *widget);
@@ -657,8 +670,4 @@ void menu_inv_filter_cursed();
 void menu_inv_filter_unidentified();
 void menu_inv_filter_locked();
 void menu_inv_filter_unapplied();
-/* src/toolkit/clipboard.c*/
-int clipboard_init();
-int clipboard_set(const char *str);
-char *clipboard_get();
 #endif

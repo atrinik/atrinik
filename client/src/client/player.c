@@ -542,7 +542,7 @@ void widget_show_player_doll_event()
 		/* Drop to player doll */
 		if (!(object_find(cpl.win_inv_tag)->flags & F_APPLIED))
 		{
-			process_macro_keys(KEYFUNC_APPLY, 0);
+			keybind_process_command("?APPLY");
 		}
 	}
 
@@ -555,7 +555,7 @@ void widget_show_player_doll_event()
 		/* Drop to player doll */
 		else
 		{
-			process_macro_keys(KEYFUNC_APPLY, 0);
+			keybind_process_command("?APPLY");
 		}
 	}
 

@@ -29,9 +29,6 @@
 
 #include <global.h>
 
-/** Keybind menu */
-int keybind_status;
-
 /**
  * Analyze /cmd type commands the player has typed in the console or bound to a key.
  * Sort out the "client intern" commands and expand or pre process them for the server.
@@ -118,25 +115,6 @@ int client_command_check(const char *cmd)
 		 * server will not send us anything when this happens */
 		if (cpl.stats.grace == cpl.stats.maxgrace)
 			draw_info(COLOR_WHITE, "You are at full grace. You stop praying.");
-	}
-	else if (!strncasecmp(cmd, "/keybind", 8))
-	{
-		map_udate_flag = 2;
-
-		if (cpl.menustatus != MENU_KEYBIND)
-		{
-			keybind_status = KEYBIND_STATUS_NO;
-			cpl.menustatus = MENU_KEYBIND;
-		}
-		else
-		{
-			save_keybind_file(KEYBIND_FILE);
-			cpl.menustatus = MENU_NO;
-		}
-
-		sound_play_effect("scroll.ogg", 100);
-		reset_keys();
-		return 1;
 	}
 	else if (!strncmp(cmd, "/help", 5))
 	{
@@ -278,6 +256,45 @@ int client_command_check(const char *cmd)
 
 			snprintf(buf, sizeof(buf), "/party join %s\t%s", cpl.partyjoin, cmd ? cmd : " ");
 			send_command(buf);
+		}
+
+		return 1;
+	}
+	else if (!strncmp(cmd, "/invfilter ", 11))
+	{
+		cmd += 11;
+
+		if (!strcmp(cmd, "all"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_ALL);
+		}
+		else if (!strcmp(cmd, "applied"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_APPLIED);
+		}
+		else if (!strcmp(cmd, "container"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_CONTAINER);
+		}
+		else if (!strcmp(cmd, "magical"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_MAGICAL);
+		}
+		else if (!strcmp(cmd, "cursed"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_CURSED);
+		}
+		else if (!strcmp(cmd, "unidentified"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
+		}
+		else if (!strcmp(cmd, "unapplied"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_UNAPPLIED);
+		}
+		else if (!strcmp(cmd, "locked"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_LOCKED);
 		}
 
 		return 1;

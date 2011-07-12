@@ -89,7 +89,7 @@ static void skill_list_reload()
 	offset = list->row_offset;
 	selected = list->row_selected;
 	rows = list->rows;
-	list_clear_rows(list);
+	list_clear(list);
 
 	for (i = 0; i < skill_list_num[skill_list_type]; i++)
 	{

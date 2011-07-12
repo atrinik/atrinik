@@ -114,6 +114,7 @@ void system_end()
 	free_help_files();
 	effects_deinit();
 	settings_deinit();
+	keybind_deinit();
 	SDL_Quit();
 }
 

@@ -100,6 +100,15 @@ list_struct *list_get_focused()
 		}
 	}
 
+	/* Try to set the focus to the servers list, if possible. */
+	tmp = list_exists(LIST_SERVERS);
+
+	if (tmp)
+	{
+		tmp->focus = 1;
+		return tmp;
+	}
+
 	/* Failsafe in case there are lists, but none with active focus. */
 	if (list_head)
 	{
@@ -591,9 +600,9 @@ void list_show(list_struct *list, int x, int y)
 }
 
 /**
- * Clear and free list's entries.
- * @param list List. */
-void list_clear(list_struct *list)
+ * Clear the list's rows.
+ * @param list The list. */
+void list_clear_rows(list_struct *list)
 {
 	uint32 row, col;
 
@@ -619,8 +628,39 @@ void list_clear(list_struct *list)
 	free(list->text);
 	list->text = NULL;
 	list->rows = 0;
+}
+
+/**
+ * Clear and free list's entries.
+ * @param list List. */
+void list_clear(list_struct *list)
+{
+	list_clear_rows(list);
+
 	list->row_selected = 1;
 	list->row_highlighted = 0;
+	list->row_offset = 0;
+}
+
+/**
+ * Ensure the list's offsets are in a valid range. The offsets could be
+ * invalid due to a row removal, for example.
+ * @param list List to ensure for. */
+void list_offsets_ensure(list_struct *list)
+{
+	if (list->row_selected >= list->rows)
+	{
+		list->row_selected = list->rows;
+	}
+
+	if (list->rows < list->max_rows)
+	{
+		list->row_offset = 0;
+	}
+	else if (list->row_offset >= list->rows - list->max_rows)
+	{
+		list->row_offset = list->rows - list->max_rows;
+	}
 }
 
 /**
@@ -655,9 +695,10 @@ void list_remove(list_struct *list)
 		list->next->prev = list->prev;
 	}
 
-	if (list->focus && list_head)
+	/* Removing the focused list, try to update the focus. */
+	if (list->focus)
 	{
-		list_head->focus = 1;
+		list_get_focused();
 	}
 
 	list_clear(list);
@@ -1123,37 +1164,6 @@ void list_sort(list_struct *list, int type)
 	{
 		qsort((void *) list->text, list->rows, sizeof(*list->text), (void *) (int (*)()) list_compare_alpha);
 	}
-}
-
-/**
- * Clear all the allocated rows of a list.
- * @param list The list. */
-void list_clear_rows(list_struct *list)
-{
-	uint32 row, col;
-
-	for (row = 0; row < list->rows; row++)
-	{
-		for (col = 0; col < list->cols; col++)
-		{
-			if (list->text[row][col])
-			{
-				free(list->text[row][col]);
-			}
-		}
-
-		free(list->text[row]);
-	}
-
-	if (list->text)
-	{
-		free(list->text);
-		list->text = NULL;
-	}
-
-	list->rows = 0;
-	list->row_selected = 1;
-	list->row_offset = 0;
 }
 
 /**

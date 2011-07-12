@@ -187,7 +187,7 @@ int Event_PollInputDevice()
 					{
 						if (draggingInvItem(DRAG_GET_STATUS) != DRAG_QUICKSLOT_SPELL)
 						{
-							process_macro_keys(KEYFUNC_DROP, 0);
+							keybind_process_command("?DROP");
 						}
 					}
 

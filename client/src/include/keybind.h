@@ -23,17 +23,26 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- *  */
+#ifndef KEYBIND_H
+#define KEYBIND_H
 
-#include <global.h>
+#define FILE_KEYBIND "settings/keys.dat"
 
-/** Bindkey list set */
-struct _dialog_list_set bindkey_list_set;
-
-/**
- * Show the keybinds window. */
-void show_keybind()
+typedef struct keybind_struct
 {
-}
+	char *command;
+
+	SDLKey key;
+
+	SDLMod mod;
+
+	uint8 repeat;
+} keybind_struct;
+
+keybind_struct **keybindings;
+size_t keybindings_num;
+
+#define KEY_REPEAT_TIME 35
+#define KEY_REPEAT_TIME_INIT 175
+
+#endif

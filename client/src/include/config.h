@@ -30,8 +30,6 @@
 /** Socket version. */
 #define SOCKET_VERSION 1055
 
-/** File with all the key bindings. */
-#define KEYBIND_FILE "settings/keys.dat"
 /** File the the arch definitions. */
 #define ARCHDEF_FILE "data/archdef.dat"
 /** File with the widgets' positions. */

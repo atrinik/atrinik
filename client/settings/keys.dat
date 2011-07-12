@@ -1,54 +1,347 @@
-+"Movement"
-265 1 "[9]" "?M_NORTH"
-262 1 "[6]" "?M_NORTHEAST"
-259 1 "[3]" "?M_EAST"
-258 1 "[2]" "?M_SOUTHEAST"
-257 1 "[1]" "?M_SOUTH"
-260 1 "[4]" "?M_SOUTHWEST"
-263 1 "[7]" "?M_WEST"
-264 1 "[8]" "?M_NORTHWEST"
-261 1 "[5]" "?M_STAY"
-091 1 "[" "/left"
-093 1 "]" "/right"
-107 1 "k" "/push"
-
-+"Textwindows"
-280 1 "page up" "?M_PAGEUP"
-281 1 "page down" "?M_PAGEDOWN"
-277 1 "insert" "?M_PAGEUP_TOP"
-127 1 "delete" "?M_PAGEDOWN_TOP"
-271 1 "enter" "?M_CONSOLE"
-013 1 "return" "?M_CONSOLE"
-
-+"Inventory"
-097 0 "a" "?M_APPLY"
-101 0 "e" "?M_EXAMINE"
-108 0 "l" "?M_LOCK"
-109 0 "m" "?M_MARK"
-100 0 "d" "?M_DROP"
-103 0 "g" "?M_GET"
-032 0 "space" "/apply"
-
-+"Menus"
-290 0 "f9" "?M_SPELL_LIST"
-292 0 "f11" "?M_KEYBIND"
-291 0 "f10" "?M_SKILL_LIST"
-293 1 "f12" "?M_HELP"
-273 1 "up" "?M_UP"
-274 1 "down" "?M_DOWN"
-276 1 "left" "?M_LEFT"
-275 1 "right" "?M_RIGHT"
-113 0 "q" "?M_QLIST"
-114 0 "r" "/region_map"
-
-+"Targetting"
-009 0 "tab" "?M_RANGE"
-102 0 "f" "?M_FIRE_READY"
-099 0 "c" "?M_COMBAT_TOGGLE"
-120 0 "x" "?M_TARGET_ENEMY"
-115 0 "s" "?M_TARGET_FRIEND"
-112 0 "p" "/pray"
-
-+"Debug"
-
-+"Misc"
+bind
+	# [9]
+	key 265
+	repeat 1
+	command ?MOVE_N
+end
+bind
+	# [6]
+	key 262
+	repeat 1
+	command ?MOVE_NE
+end
+bind
+	# [3]
+	key 259
+	repeat 1
+	command ?MOVE_E
+end
+bind
+	# [2]
+	key 258
+	repeat 1
+	command ?MOVE_SE
+end
+bind
+	# [1]
+	key 257
+	repeat 1
+	command ?MOVE_S
+end
+bind
+	# [4]
+	key 260
+	repeat 1
+	command ?MOVE_SW
+end
+bind
+	# [7]
+	key 263
+	repeat 1
+	command ?MOVE_W
+end
+bind
+	# [8]
+	key 264
+	repeat 1
+	command ?MOVE_NW
+end
+bind
+	# [5]
+	key 261
+	repeat 1
+	command ?MOVE_STAY
+end
+bind
+	# [
+	key 91
+	repeat 1
+	command /left
+end
+bind
+	# ]
+	key 93
+	repeat 1
+	command /right
+end
+bind
+	# k
+	key 107
+	repeat 1
+	command /push
+end
+bind
+	# page up
+	key 280
+	repeat 1
+	command ?PAGEUP
+end
+bind
+	# page down
+	key 281
+	repeat 1
+	command ?PAGEDOWN
+end
+bind
+	# insert
+	key 277
+	repeat 1
+	command ?PAGEUP_MSG
+end
+bind
+	# delete
+	key 127
+	repeat 1
+	command ?PAGEDOWN_MSG
+end
+bind
+	# return
+	key 13
+	command ?CONSOLE
+end
+bind
+	# enter
+	key 271
+	command ?CONSOLE
+end
+bind
+	# a
+	key 97
+	command ?APPLY
+end
+bind
+	# e
+	key 101
+	command ?EXAMINE
+end
+bind
+	# l
+	key 108
+	mod 3
+	command ?LOCK
+end
+bind
+	# m
+	key 109
+	mod 3
+	command ?MARK
+end
+bind
+	# d
+	key 100
+	mod 3
+	repeat 1
+	command ?DROP
+end
+bind
+	# g
+	key 103
+	repeat 1
+	command ?GET
+end
+bind
+	# space
+	key 32
+	command /apply
+end
+bind
+	# f9
+	key 290
+	command ?SPELL_LIST
+end
+bind
+	# f10
+	key 291
+	command ?SKILL_LIST
+end
+bind
+	# f11
+	key 292
+	command ?PARTY_LIST
+end
+bind
+	# f12
+	key 293
+	command ?HELP
+end
+bind
+	# up
+	key 273
+	repeat 1
+	command ?UP
+end
+bind
+	# down
+	key 274
+	repeat 1
+	command ?DOWN
+end
+bind
+	# left
+	key 276
+	repeat 1
+	command ?LEFT
+end
+bind
+	# right
+	key 275
+	repeat 1
+	command ?RIGHT
+end
+bind
+	# q
+	key 113
+	command ?QLIST
+end
+bind
+	# r
+	key 114
+	command /region_map
+end
+bind
+	# tab
+	key 9
+	command ?RANGE
+end
+bind
+	# f
+	key 102
+	mod 3
+	command ?FIRE_READY
+end
+bind
+	# c
+	key 99
+	command ?COMBAT_TOGGLE
+end
+bind
+	# x
+	key 120
+	command ?TARGET_ENEMY
+end
+bind
+	# s
+	key 115
+	command ?TARGET_FRIEND
+end
+bind
+	# p
+	key 112
+	command /pray
+end
+bind
+	# left shift
+	key 304
+	command ?INVENTORY
+end
+bind
+	# right shift
+	key 303
+	command ?INVENTORY
+end
+bind
+	# left alt
+	key 308
+	command ?RUNON
+end
+bind
+	# right alt
+	key 307
+	command ?RUNON
+end
+bind
+	# right ctrl
+	key 305
+	command ?FIREON
+end
+bind
+	# left ctrl
+	key 306
+	command ?FIREON
+end
+bind
+	# home
+	key 278
+	command ?QUICKSLOT_GROUP_PREV
+end
+bind
+	# end
+	key 279
+	command ?QUICKSLOT_GROUP_NEXT
+end
+bind
+	# f1
+	key 282
+	command ?QUICKSLOT_1
+end
+bind
+	# f2
+	key 283
+	command ?QUICKSLOT_2
+end
+bind
+	# f3
+	key 284
+	command ?QUICKSLOT_3
+end
+bind
+	# f4
+	key 285
+	command ?QUICKSLOT_4
+end
+bind
+	# f5
+	key 286
+	command ?QUICKSLOT_5
+end
+bind
+	# f6
+	key 287
+	command ?QUICKSLOT_6
+end
+bind
+	# f7
+	key 288
+	command ?QUICKSLOT_7
+end
+bind
+	# f8
+	key 289
+	command ?QUICKSLOT_8
+end
+bind
+	# 1
+	key 49
+	mod 3
+	command /invfilter all
+end
+bind
+	# 2
+	key 50
+	mod 3
+	command /invfilter applied
+end
+bind
+	# 3
+	key 51
+	mod 3
+	command /invfilter locked
+end
+bind
+	# 4
+	key 52
+	mod 3
+	command /invfilter unidentified
+end
+bind
+	# c
+	key 99
+	mod 192
+	command ?COPY
+end
+bind
+	# v
+	key 118
+	mod 192
+	command ?PASTE
+end

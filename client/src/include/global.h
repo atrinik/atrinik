@@ -228,6 +228,7 @@ typedef enum LogLevel
 #include <server_files.h>
 #include <image.h>
 #include <settings.h>
+#include <keybind.h>
 
 #ifndef WIN32
 #	include <binreloc.h>

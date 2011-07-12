@@ -131,7 +131,69 @@ check_function_exists(srand HAVE_SRAND)
 include_directories(src/include)
 
 # Add sources.
-file(GLOB SOURCES src/client/*.c src/events/*.c src/gui/*.c src/toolkit/*.c)
+set(SOURCES
+	src/client/animations.c
+	src/client/client.c
+	src/client/commands.c
+	src/client/curl.c
+	src/client/ignore.c
+	src/client/image.c
+	src/client/item.c
+	src/client/keybind.c
+	src/client/main.c
+	src/client/menu.c
+	src/client/metaserver.c
+	src/client/misc.c
+	src/client/player.c
+	src/client/scripts.c
+	src/client/server_files.c
+	src/client/server_settings.c
+	src/client/settings.c
+	src/client/socket.c
+	src/client/sound.c
+	src/client/sprite.c
+	src/client/tilestretcher.c
+	src/client/updates.c
+	src/client/upgrader.c
+	src/client/video.c
+	src/client/wrapper.c
+	src/events/console.c
+	src/events/event.c
+	src/events/keys.c
+	src/events/move.c
+	src/gui/book.c
+	src/gui/effects.c
+	src/gui/fps.c
+	src/gui/help.c
+	src/gui/input.c
+	src/gui/inventory.c
+	src/gui/main.c
+	src/gui/map.c
+	src/gui/menu_buttons.c
+	src/gui/mplayer.c
+	src/gui/party.c
+	src/gui/protections.c
+	src/gui/quickslots.c
+	src/gui/range.c
+	src/gui/region_map.c
+	src/gui/settings.c
+	src/gui/skills.c
+	src/gui/spells.c
+	src/gui/target.c
+	src/gui/textwin.c
+	src/toolkit/binreloc.c
+	src/toolkit/button.c
+	src/toolkit/clipboard.c
+	src/toolkit/list.c
+	src/toolkit/popup.c
+	src/toolkit/range_buttons.c
+	src/toolkit/scroll_buttons.c
+	src/toolkit/SDL_gfx.c
+	src/toolkit/SDL_rotozoom.c
+	src/toolkit/text.c
+	src/toolkit/text_input.c
+	src/toolkit/tooltip.c
+	src/toolkit/widget.c)
 
 # Compile the sources into an executable.
 add_executable(atrinik ${SOURCES})

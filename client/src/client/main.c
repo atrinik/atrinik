@@ -836,7 +836,7 @@ int main(int argc, char *argv[])
 	}
 
 	sound_init();
-	read_keybind_file(KEYBIND_FILE);
+	keybind_load();
 	load_mapdef_dat();
 	read_bmaps_p0();
 	server_files_init();

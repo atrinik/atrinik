@@ -36,6 +36,11 @@ enum
 
 enum
 {
+	KEYBINDING_APPLY
+};
+
+enum
+{
 	OPT_CAT_GENERAL,
 	OPT_CAT_CLIENT,
 	OPT_CAT_MAP,
@@ -152,5 +157,8 @@ typedef struct setting_category
 
 #define SETTING_SELECT(_setting) ((setting_select *) (_setting)->custom_attrset)
 #define SETTING_RANGE(_setting) ((setting_range *) (_setting)->custom_attrset)
+
+setting_category **setting_categories;
+size_t setting_categories_num;
 
 #endif

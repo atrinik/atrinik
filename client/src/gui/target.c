@@ -37,7 +37,7 @@ void widget_event_target(widgetdata *widget, int x, int y)
 {
 	/* Combat modes */
 	if (y > widget->y1 + 3 && y < widget->y1 + 38 && x > widget->x1 + 3 && x < widget->x1 + 30)
-		check_keys(SDLK_c);
+		keybind_process_command("?COMBAT");
 
 	/* Talk button */
 	if (y > widget->y1 + 7 && y < widget->y1 + 25 && x > widget->x1 + 223 && x < widget->x1 + 259)

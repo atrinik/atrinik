@@ -194,7 +194,7 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			}
 			else if (i == BUTTON_QUEST)
 			{
-				process_macro_keys(KEYFUNC_QLIST, 0);
+				keybind_process_command("?QLIST");
 			}
 			else if (i == BUTTON_HELP)
 			{

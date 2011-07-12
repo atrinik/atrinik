@@ -298,7 +298,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 					/* We don't have to check for the coordinates, if we are here we are in the widget */
 
 					/* Drop to inventory */
-					process_macro_keys(KEYFUNC_APPLY, 0);
+					keybind_process_command("?APPLY");
 				}
 
 				cpl.inventory_win = old_inv_win;
@@ -306,8 +306,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			}
 			else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_BELOW)
 			{
-				sound_play_effect("get.ogg", 100);
-				process_macro_keys(KEYFUNC_GET, 0);
+				keybind_process_command("?GET");
 			}
 
 			draggingInvItem(DRAG_NONE);
@@ -359,7 +358,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 					cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 
 					if (event.button.button == SDL_BUTTON_RIGHT || event.button.button == SDL_BUTTON_MIDDLE)
-						process_macro_keys(KEYFUNC_MARK, 0);
+						keybind_process_command("?MARK");
 					else
 					{
 						if (cpl.inventory_win == IWIN_INV)
@@ -566,7 +565,7 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 		}
 		else
 		{
-			process_macro_keys(KEYFUNC_APPLY, 0);
+			keybind_process_command("?APPLY");
 		}
 	}
 	else if (y >= widget->y1 + 20 && y <= widget->y1 + 29 && x > widget->x1 + 262 && x < widget->x1 + 269 && MEvent == MOUSE_DOWN)

@@ -301,6 +301,31 @@ int text_input_handle(SDL_KeyboardEvent *key)
 		return 0;
 	}
 
+	if (keybind_command_matches_event("?PASTE", key))
+	{
+		char *clipboard_contents;
+
+		clipboard_contents = clipboard_get();
+
+		if (clipboard_contents)
+		{
+			strncat(text_input_string, clipboard_contents, sizeof(text_input_string) - text_input_count - 1);
+			text_input_cursor_pos = text_input_count = strlen(text_input_string);
+
+			for (i = 0; i < text_input_count; i++)
+			{
+				if (text_input_string[i] < ' ' || text_input_string[i] > '~')
+				{
+					text_input_string[i] = ' ';
+				}
+			}
+
+			free(clipboard_contents);
+		}
+
+		return 1;
+	}
+
 	switch (key->keysym.sym)
 	{
 		case SDLK_ESCAPE:
@@ -504,38 +529,13 @@ int text_input_handle(SDL_KeyboardEvent *key)
 			text_input_cursor_pos = text_input_count;
 			return 1;
 
-		case SDLK_v:
-			if (key->keysym.mod & KMOD_CTRL)
-			{
-				char *clipboard_contents;
-
-				clipboard_contents = clipboard_get();
-
-				if (clipboard_contents)
-				{
-					strncat(text_input_string, clipboard_contents, sizeof(text_input_string) - text_input_count - 1);
-					text_input_cursor_pos = text_input_count = strlen(text_input_string);
-
-					for (i = 0; i < text_input_count; i++)
-					{
-						if (text_input_string[i] < ' ' || text_input_string[i] > '~')
-						{
-							text_input_string[i] = ' ';
-						}
-					}
-				}
-
-				free(clipboard_contents);
-				return 1;
-			}
-
 		default:
 		{
 			char c;
 
 			/* If we are in number console mode, use GET as quick enter
 			 * mode. */
-			if (cpl.input_mode == INPUT_MODE_NUMBER && (key->keysym.sym == get_action_keycode || key->keysym.sym == drop_action_keycode))
+			if (cpl.input_mode == INPUT_MODE_NUMBER && (key->keysym.sym == key_find_by_command("?GET") || key->keysym.sym == key_find_by_command("?DROP")))
 			{
 				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 				text_input_string_flag = 0;

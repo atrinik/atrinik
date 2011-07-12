@@ -46,12 +46,12 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 		{
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
-				process_macro_keys(KEYFUNC_RANGE, 0);
+				keybind_process_command("?RANGE");
 			}
 			/* Mousewheel up */
 			else if (event.button.button == 4)
 			{
-				process_macro_keys(KEYFUNC_RANGE, 0);
+				keybind_process_command("?RANGE");
 			}
 		}
 		else if (MEvent == MOUSE_UP)
@@ -71,7 +71,7 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 					RangeFireMode = 4;
 
 					/* Drop to player doll. */
-					process_macro_keys(KEYFUNC_APPLY, 0);
+					keybind_process_command("?APPLY");
 				}
 
 				cpl.inventory_win = old_inv_win;

@@ -606,3 +606,8 @@ extern Client_Player cpl;
 /** Change map weather. */
 #define CMD_MAPSTATS_WEATHER 3
 /*@}*/
+
+/** Check if the keyword represents a true value. */
+#define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
+/** Check if the keyword represents a false value. */
+#define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))

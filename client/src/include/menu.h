@@ -36,23 +36,10 @@
  *@{*/
 /** No menu. */
 #define MENU_NO 1
-/** The keybinding menu. */
-#define MENU_KEYBIND 2
-/** Settings menu. */
-#define MENU_OPTION 16
-/** Character creation. */
-#define MENU_CREATE 32
 /** Book GUI. */
 #define MENU_BOOK 64
 #define MENU_REGION_MAP 256
 /*@}*/
-
-/** Sound volume for menus. */
-#define MENU_SOUND_VOL 40
-
-struct _bindkey_list bindkey_list[BINDKEY_LIST_MAX];
-extern _dialog_list_set bindkey_list_set;
-extern int keybind_status;
 
 /** Maximum quickslots in a single group. */
 #define MAX_QUICK_SLOTS 8

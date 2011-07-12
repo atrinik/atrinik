@@ -41,22 +41,6 @@
 /* For hash table (bmap, ...) */
 #define MAXSTRING 20
 
-/** Keymap structure */
-typedef struct _keymap
-{
-	/** The command text, submitted to server when key is pressed. */
-	char text[256];
-
-	/** Key name. */
-	char keyname[256];
-
-	/** Scan code of key. */
-	int key;
-
-	/** If true, key will be repeated when pressed. */
-	int repeatflag;
-}_keymap;
-
 /** The servers list, as given by the metaserver. */
 typedef struct server_struct
 {
@@ -99,10 +83,6 @@ typedef struct msg_anim_struct
 
 extern struct msg_anim_struct msg_anim;
 
-#ifndef SYSPATH
-#define SYSPATH "./"
-#endif
-
 #define FILE_ATRINIK_P0 "data/atrinik.p0"
 
 /* Face requested from server - do it only one time */
@@ -123,44 +103,6 @@ typedef struct _face_struct
 }_face_struct;
 
 #define NUM_STATS 7
-
-/** Option windows max options */
-#define OPTWIN_MAX_OPT 26
-
-#define DIALOG_LIST_ENTRY	26
-#define OPTWIN_MAX_TABLEN	14
-
-/** Bindkey list max */
-#define BINDKEY_LIST_MAX 10
-
-/** Bindkey list structure */
-typedef struct _bindkey_list
-{
-	/** Entry */
-	_keymap entry[DIALOG_LIST_ENTRY];
-
-	/** Name */
-	char name[OPTWIN_MAX_TABLEN];
-
-	/** Size */
-	int size;
-}_bindkey_list;
-
-/** Dialog list structure */
-typedef struct _dialog_list_set
-{
-	/** Group number */
-	int group_nr;
-
-	/** Entry number */
-	int entry_nr;
-
-	/** For spell-list => spell, prayer, ... */
-	int class_nr;
-
-	/** Key change */
-	int key_change;
-}_dialog_list_set;
 
 typedef struct spell_entry_struct
 {
@@ -555,6 +497,5 @@ extern SDL_Surface *ScreenSurface;
 
 /* Server's attributes */
 extern struct sockaddr_in insock;
-
 
 #endif

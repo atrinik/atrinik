@@ -141,7 +141,7 @@ static void quickslots_remove(int tag)
 }
 
 /* Handle quickslot key event. */
-void quickslots_handle_key(SDL_KeyboardEvent *key, int slot)
+void quickslots_handle_key(int slot)
 {
 	int tag, real_slot;
 
@@ -149,7 +149,7 @@ void quickslots_handle_key(SDL_KeyboardEvent *key, int slot)
 	slot = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + slot;
 
 	/* Put item into quickslot */
-	if (key && key->keysym.mod & KMOD_SHIFT && cpl.inventory_win == IWIN_INV)
+	if (cpl.inventory_win == IWIN_INV)
 	{
 		tag = cpl.win_inv_tag;
 
@@ -176,7 +176,7 @@ void quickslots_handle_key(SDL_KeyboardEvent *key, int slot)
 		}
 	}
 	/* Apply item or ready spell */
-	else if (key)
+	else
 	{
 		if (quick_slots[slot].spell)
 		{
