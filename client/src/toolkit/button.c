@@ -215,6 +215,11 @@ int button_event(button_struct *button, SDL_Event *event)
 	_Sprite *sprite;
 	int old_mouse_over;
 
+	if (event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEMOTION)
+	{
+		return 0;
+	}
+
 	/* Mouse button is released, the button is no longer being pressed. */
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{

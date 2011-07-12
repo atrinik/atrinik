@@ -37,6 +37,8 @@ static const char *const opt_types[OPT_TYPE_NUM] =
 static setting_category **setting_categories;
 static size_t setting_categories_num;
 static uint8 setting_update_mapsize = 0;
+static uint8 setting_type = SETTING_TYPE_NONE;
+static button_struct button_password;
 
 #define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
 #define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
@@ -825,15 +827,22 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 static void settings_popup_draw_func_post(popup_struct *popup)
 {
 	list_struct *list;
-	int x, y;
 
-	list = list_exists(LIST_SETTINGS);
-
-	if (list)
+	if (setting_type == SETTING_TYPE_NONE)
+	{
+		if (GameStatus == GAME_STATUS_PLAY)
+		{
+			button_password.x = popup->x + 15;
+			button_password.y = popup->y + 15;
+			button_render(&button_password, "Password");
+		}
+	}
+	else if ((list = list_exists(LIST_SETTINGS)))
 	{
 		size_t new_cat = setting_category_selected;
 		setting_struct *setting;
 		SDL_Rect dst;
+		int x, y;
 
 		x = popup->x + 30;
 		y = popup->y + 50;
@@ -892,27 +901,27 @@ static void settings_popup_draw_func_post(popup_struct *popup)
 	}
 }
 
+static uint8 setting_password_confirmed;
+
 /**
  * Draw the settings popup.
  * @param popup The popup. */
 static void settings_popup_draw_func(popup_struct *popup)
 {
 	SDL_Rect box;
-	size_t i;
-	int x, y, mx, my;
-	char buf[MAX_BUF];
-	uint64 flags;
 
 	box.x = 0;
 	box.y = 10;
 	box.w = popup->surface->w;
 	box.h = 0;
-	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
-	box.y += 50;
 
-	if (!list_exists(LIST_SETTINGS))
+	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+
+	if (setting_type == SETTING_TYPE_NONE)
 	{
-		SDL_GetMouseState(&mx, &my);
+		size_t i;
+
+		box.y += 50;
 
 		for (i = 0; i < BUTTON_NUM; i++)
 		{
@@ -921,32 +930,50 @@ static void settings_popup_draw_func(popup_struct *popup)
 				continue;
 			}
 
-			flags = TEXT_ALIGN_CENTER;
-			x = ScreenSurface->w / 2 - popup->surface->w / 2 + box.x;
-			y = ScreenSurface->h / 2 - popup->surface->h / 2 + box.y;
-
-			if (mx >= x && mx < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
-			{
-				snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
-				flags |= TEXT_MARKUP;
-			}
-			else
-			{
-				strncpy(buf, button_names[i], sizeof(buf) - 1);
-				buf[sizeof(buf) - 1] = '\0';
-			}
-
 			if (button_selected == i)
 			{
-				string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_HGOLD, COLOR_BLACK, flags | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", buf);
+				string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", button_names[i]);
 			}
 			else
 			{
 
-				string_blt_shadow(popup->surface, FONT_SERIF40, buf, box.x, box.y, COLOR_WHITE, COLOR_BLACK, flags, &box);
+				string_blt_shadow(popup->surface, FONT_SERIF40, button_names[i], box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			}
 
 			box.y += FONT_HEIGHT(FONT_SERIF40);
+		}
+	}
+	else if (setting_type == SETTING_TYPE_PASSWORD)
+	{
+		char buf[MAX_BUF];
+		int i;
+
+		for (i = 0; i < text_input_count; i++)
+		{
+			buf[i] = '*';
+		}
+
+		buf[i] = '\0';
+
+		box.x = popup->surface->w / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
+		box.y = popup->surface->h / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->h / 2 - 50;
+
+		text_input_show(popup->surface, box.x, box.y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
+
+		if (!setting_password_confirmed)
+		{
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Enter your current password:", 0, box.y - 14, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Allows you to change your character's", 0, box.y + 24, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "password. Press Esc to cancel.", 0, box.y + 36, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+		}
+		else
+		{
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Enter the new password:", 0, box.y - 14, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Make sure to use a strong password.", 0, box.y + 24, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "A good password usually consists of a ", 0, box.y + 36, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "mix of uppercase and lowercase letters,", 0, box.y + 48, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "numbers, symbols, and does not include", 0, box.y + 60, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "words found in common dictionaries.", 0, box.y + 72, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 		}
 	}
 }
@@ -967,6 +994,15 @@ static void settings_button_handle(size_t button)
 	if (button == BUTTON_KEY_SETTINGS || button == BUTTON_SETTINGS)
 	{
 		list_struct *list;
+
+		if (button == BUTTON_KEY_SETTINGS)
+		{
+			setting_type = SETTING_TYPE_KEYBINDINGS;
+		}
+		else if (button == BUTTON_SETTINGS)
+		{
+			setting_type = SETTING_TYPE_SETTINGS;
+		}
 
 		setting_category_selected = 0;
 
@@ -997,9 +1033,138 @@ static void settings_button_handle(size_t button)
  * Handle events for the settings popup. */
 static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	list_struct *list = list_exists(LIST_SETTINGS);
+	list_struct *list;
 
-	if (list)
+	if (setting_type == SETTING_TYPE_NONE)
+	{
+		if (GameStatus == GAME_STATUS_PLAY && button_event(&button_password, event))
+		{
+			setting_type = SETTING_TYPE_PASSWORD;
+			setting_password_confirmed = 0;
+			text_input_open(64);
+			return 1;
+		}
+
+		if (event->type == SDL_KEYDOWN)
+		{
+			/* Move the selected button up and down. */
+			if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN)
+			{
+				int selected = button_selected, num_buttons;
+
+				selected += event->key.keysym.sym == SDLK_DOWN ? 1 : -1;
+				num_buttons = (GameStatus == GAME_STATUS_PLAY ? BUTTON_NUM : BUTTON_LOGOUT) - 1;
+
+				if (selected < 0)
+				{
+					selected = num_buttons;
+				}
+				else if (selected > num_buttons)
+				{
+					selected = 0;
+				}
+
+				button_selected = selected;
+				return 1;
+			}
+			else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER)
+			{
+				settings_button_handle(button_selected);
+				return 1;
+			}
+		}
+		else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION)
+		{
+			int x, y, width;
+			size_t i;
+
+			y = popup->y + 60;
+
+			for (i = 0; i < BUTTON_NUM; i++)
+			{
+				if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
+				{
+					continue;
+				}
+
+				if (event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40))
+				{
+					width = string_get_width(FONT_SERIF40, button_names[i], 0);
+					x = popup->x + popup->surface->w / 2 - width / 2;
+
+					if (event->motion.x >= x && event->motion.x < x + width)
+					{
+						if (event->type == SDL_MOUSEMOTION)
+						{
+							button_selected = i;
+						}
+						else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+						{
+							settings_button_handle(i);
+						}
+
+						break;
+					}
+				}
+
+				y += FONT_HEIGHT(FONT_SERIF40);
+			}
+		}
+	}
+	else if (setting_type == SETTING_TYPE_PASSWORD)
+	{
+		if (event->type == SDL_KEYDOWN)
+		{
+			if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
+			{
+				if (!setting_password_confirmed)
+				{
+					if (!strcmp(text_input_string, cpl.password))
+					{
+						setting_password_confirmed = 1;
+						text_input_open(64);
+						return 1;
+					}
+					else
+					{
+						draw_info(COLOR_RED, "The current password did not match.");
+					}
+				}
+				else
+				{
+					if (text_input_string[0] == '\0')
+					{
+						draw_info(COLOR_WHITE, "Canceled password change.");
+					}
+					else
+					{
+						SockList sl;
+						unsigned char sockbuf[MAX_BUF];
+
+						sl.buf = sockbuf;
+						sl.len = 0;
+						SockList_AddString(&sl, "pc ");
+						SockList_AddStringTerminated(&sl, cpl.password);
+						SockList_AddStringTerminated(&sl, text_input_string);
+						send_socklist(sl);
+
+						strncpy(cpl.password, text_input_string, sizeof(cpl.password) - 1);
+						cpl.password[sizeof(cpl.password) - 1] = '\0';
+					}
+				}
+			}
+			else if (event->key.keysym.sym != SDLK_ESCAPE)
+			{
+				text_input_handle(&event->key);
+				return 1;
+			}
+
+			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+			text_input_string_flag = 0;
+			popup_destroy_visible();
+		}
+	}
+	else if ((list = list_exists(LIST_SETTINGS)))
 	{
 		if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
 		{
@@ -1013,59 +1178,6 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 			if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
 			{
 				return 1;
-			}
-		}
-
-		return -1;
-	}
-
-	if (event->type == SDL_KEYDOWN)
-	{
-		/* Move the selected button up and down. */
-		if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN)
-		{
-			int selected = button_selected, num_buttons;
-
-			selected += event->key.keysym.sym == SDLK_DOWN ? 1 : -1;
-			num_buttons = (GameStatus == GAME_STATUS_PLAY ? BUTTON_NUM : BUTTON_LOGOUT) - 1;
-
-			if (selected < 0)
-			{
-				selected = num_buttons;
-			}
-			else if (selected > num_buttons)
-			{
-				selected = 0;
-			}
-
-			button_selected = selected;
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER)
-		{
-			settings_button_handle(button_selected);
-			return 1;
-		}
-	}
-	else if (event->type == SDL_MOUSEBUTTONDOWN)
-	{
-		if (event->button.button == SDL_BUTTON_LEFT)
-		{
-			int x, y;
-			size_t i;
-
-			x = ScreenSurface->w / 2 - popup->surface->w / 2;
-			y = ScreenSurface->h / 2 - popup->surface->h / 2 + 60;
-
-			for (i = 0; i < BUTTON_NUM; i++)
-			{
-				if (event->motion.x >= x && event->motion.x < x + popup->surface->w && event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40))
-				{
-					settings_button_handle(i);
-					break;
-				}
-
-				y += FONT_HEIGHT(FONT_SERIF40);
 			}
 		}
 	}
@@ -1084,6 +1196,9 @@ void settings_open()
 	popup->event_func = settings_popup_event_func;
 	popup->destroy_callback_func = settings_popup_destroy_callback;
 	popup->draw_func_post = settings_popup_draw_func_post;
+	setting_type = SETTING_TYPE_NONE;
+
+	button_create(&button_password);
 
 	button_selected = GameStatus == GAME_STATUS_PLAY ? BUTTON_BACK : BUTTON_SETTINGS;
 }

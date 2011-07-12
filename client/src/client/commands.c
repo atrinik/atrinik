@@ -853,7 +853,7 @@ void PreParseInfoStat(char *cmd)
 
 	if (GameStatus >= GAME_STATUS_NAME && GameStatus <= GAME_STATUS_VERIFYPSWD)
 	{
-		text_input_open(12);
+		text_input_open(64);
 	}
 }
 
