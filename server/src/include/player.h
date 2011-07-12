@@ -241,8 +241,8 @@ typedef struct pl_player
 	/** Holds arbitrary input from client. */
 	char write_buf[MAX_BUF];
 
-	/** 2 (seed) + 11 (crypted) + 1 (NUL) + 6 (safety) = 20 */
-	char password[20];
+	/** The player's password. May be encrypted. */
+	char password[PLAYER_PASSWORD_MAX + 1];
 
 	/** Player the DM is following. */
 	char followed_player[BIG_NAME];
