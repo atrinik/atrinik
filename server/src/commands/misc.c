@@ -452,6 +452,7 @@ void receive_player_password(object *op)
 
 	if (pwd_len < PLAYER_PASSWORD_MIN || pwd_len > PLAYER_PASSWORD_MAX)
 	{
+		send_socket_message(COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
 		get_name(op);
 		return;
 	}
