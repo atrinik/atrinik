@@ -448,7 +448,7 @@ void receive_player_name(object *op)
  * @param op Object. */
 void receive_player_password(object *op)
 {
-	unsigned int pwd_len = strlen(CONTR(op)->write_buf);
+	unsigned int pwd_len = strlen(CONTR(op)->write_buf + 1);
 
 	if (pwd_len < PLAYER_PASSWORD_MIN || pwd_len > PLAYER_PASSWORD_MAX)
 	{
