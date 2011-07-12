@@ -51,16 +51,17 @@ void SockList_AddString(SockList *sl, const char *data)
 /**
  * Construct a string from data packet.
  * @param data Data packet.
+ * @param len Length of 'data'.
  * @param[out] pos Position in the data packet.
  * @param dest Will contain the string from data packet.
  * @param dest_size Size of 'dest'.
  * @return 'dest'. */
-char *GetString_String(uint8 *data, int *pos, char *dest, size_t dest_size)
+char *GetString_String(uint8 *data, int len, int *pos, char *dest, size_t dest_size)
 {
 	size_t i = 0;
 	char c;
 
-	while ((c = (char) (data[(*pos)++])))
+	while (*pos < len && (c = (char) (data[(*pos)++])))
 	{
 		if (i < dest_size - 1)
 		{
