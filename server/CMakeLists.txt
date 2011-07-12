@@ -127,6 +127,10 @@ if (DISABLE_OPTIMIZING)
 	add_definitions(-O0)
 endif (DISABLE_OPTIMIZING)
 
+if (ENABLE_DEBUG)
+	add_definitions(-g)
+endif (ENABLE_DEBUG)
+
 # Check sizes of 'long' and 'long long' to determine architecture (32-bit
 # or 64-bit)
 include(CheckTypeSize)
