@@ -584,7 +584,7 @@ static void popup_draw_func(popup_struct *popup)
 	/* Show the progress dots. */
 	for (i = 0; i < LOGIN_PROGRESS_DOTS; i++)
 	{
-		sprite_blt(Bitmaps[progress_dot == i || !downloading ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], LOGIN_PROGRESS_X + Bitmaps[BITMAP_LOADING_ON]->bitmap->w * i, 30, NULL, &bltfx);
+		sprite_blt(Bitmaps[progress_dot == i || !downloading ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], LOGIN_PROGRESS_X + (Bitmaps[BITMAP_LOADING_ON]->bitmap->w + 2) * i, 30, NULL, &bltfx);
 	}
 
 	/* Progress the lit dot. */
