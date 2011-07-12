@@ -79,6 +79,7 @@ static const struct player_cmd_mapping player_commands[] =
 	{"qlist",       QuestListCmd, 0},
 	{"mp", (func_uint8_int_pl) command_move_path, 0},
 	{"rd", (func_uint8_int_pl) cmd_ready, 0},
+	{"pc", (func_uint8_int_pl) cmd_password_change, 0},
 	{NULL, NULL, 0}
 };
 

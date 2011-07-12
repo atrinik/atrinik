@@ -2193,3 +2193,56 @@ void cmd_keepalive(char *buf, int len, socket_struct *ns)
 	(void) len;
 	ns->keepalive = 0;
 }
+
+/**
+ * Client requests a password change for a player.
+ * @param buf Data.
+ * @param len Length of data.
+ * @param pl The player. */
+void cmd_password_change(uint8 *buf, int len, player *pl)
+{
+	char pswd_current[MAX_BUF], pswd_new[MAX_BUF];
+	int pos = 0;
+	size_t pswd_len;
+
+	/* This makes the assumption that there is at least 1 character
+	 * in both current and new password. */
+	if (len < 4)
+	{
+		return;
+	}
+
+	/* Get the current and new password. */
+	GetString_String(buf, len, &pos, pswd_current, sizeof(pswd_current));
+	GetString_String(buf, len, &pos, pswd_new, sizeof(pswd_new));
+
+	/* Make sure there are no untypeable characters... */
+	cleanup_chat_string(pswd_current);
+	cleanup_chat_string(pswd_new);
+
+	/* Make sure there is current and new password. */
+	if (!*pswd_current || !*pswd_new)
+	{
+		return;
+	}
+
+	pswd_len = strlen(pswd_new);
+
+	/* Make sure the new password has a valid length. */
+	if (pswd_len < PLAYER_PASSWORD_MIN || pswd_len > PLAYER_PASSWORD_MAX)
+	{
+		new_draw_info_format(0, COLOR_RED, pl->ob, "That password has an invalid length (must be %d-%d).", PLAYER_PASSWORD_MIN, PLAYER_PASSWORD_MAX);
+		return;
+	}
+
+	/* Ensure the current password matches, but silently ignore if it
+	 * doesn't as the client should handle this. */
+	if (!strcmp(crypt_string(pswd_current, NULL), pl->password))
+	{
+		return;
+	}
+
+	/* Update the player's password. */
+	strcpy(pl->password, crypt_string(pswd_new, NULL));
+	new_draw_info(0, COLOR_GREEN, pl->ob, "Your password has been changed successfully.");
+}

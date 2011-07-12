@@ -650,7 +650,7 @@ void fix_player(object *op);
 void fix_monster(object *op);
 object *insert_base_info_object(object *op);
 object *find_base_info_object(object *op);
-void set_mobile_speed(object *op, int index);
+void set_mobile_speed(object *op, int idx);
 /* src/server/region.c */
 region *get_region_by_name(const char *region_name);
 char *get_region_longname(const region *r);
@@ -847,8 +847,10 @@ void command_move_path(uint8 *buf, int len, player *pl);
 void cmd_ready(uint8 *buf, int len, player *pl);
 void command_fire(uint8 *buf, int len, player *pl);
 void cmd_keepalive(char *buf, int len, socket_struct *ns);
+void cmd_password_change(uint8 *buf, int len, player *pl);
 /* src/socket/lowlevel.c */
 void SockList_AddString(SockList *sl, const char *data);
+char *GetString_String(uint8 *data, int len, int *pos, char *dest, size_t dest_size);
 int SockList_ReadPacket(socket_struct *ns, int len);
 int SockList_ReadCommand(SockList *sl, SockList *sl2);
 void socket_enable_no_delay(int fd);
