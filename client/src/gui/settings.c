@@ -46,7 +46,7 @@ enum
 /** Names of the buttons. */
 static const char *const button_names[BUTTON_NUM] =
 {
-	"Client Settings", "Key settings", "Logout", "Back to play"
+	"Client Settings", "Key Settings", "Logout", "Back to Play"
 };
 
 /** Currently selected button. */
