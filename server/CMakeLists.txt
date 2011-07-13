@@ -147,7 +147,10 @@ include_directories(src/random_maps)
 include_directories(src/tests)
 
 # Scan for lexers.
-file(GLOB LEXERS src/loaders/*.l)
+set(LEXERS
+	src/loaders/map_header.l
+	src/loaders/object.l
+	src/loaders/random_map.l)
 set(LEXERS_OUT)
 
 # Add command to parse the lexer files with flex.
@@ -155,25 +158,164 @@ foreach (name ${LEXERS})
 	string(REPLACE ".l" "" name ${name})
 	set(src "${name}.l")
 	set(dst "${name}.c")
-	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/src/loaders/" "" name ${name})
+	string(REPLACE "src/loaders/" "" name ${name})
 	flex_target(${name} ${src} ${dst} COMPILE_FLAGS "-i --prefix yy_${name}")
 	get_property(out VARIABLE PROPERTY FLEX_${name}_OUTPUTS)
 	set(LEXERS_OUT ${LEXERS_OUT} ${out})
 endforeach (name)
 
 # Add sources.
-file(GLOB SOURCES src/commands/*.c src/random_maps/*.c src/server/*.c src/skills/*.c src/socket/*.c src/types/*.c)
+set(SOURCES
+	src/commands/chat.c
+	src/commands/commands.c
+	src/commands/misc.c
+	src/commands/move.c
+	src/commands/new.c
+	src/commands/object.c
+	src/commands/range.c
+	src/commands/wiz.c
+	src/random_maps/decor.c
+	src/random_maps/door.c
+	src/random_maps/exit.c
+	src/random_maps/expand2x.c
+	src/random_maps/floor.c
+	src/random_maps/maze_gen.c
+	src/random_maps/monster.c
+	src/random_maps/random_map.c
+	src/random_maps/rogue_layout.c
+	src/random_maps/room_gen_onion.c
+	src/random_maps/room_gen_spiral.c
+	src/random_maps/snake.c
+	src/random_maps/square_spiral.c
+	src/random_maps/style.c
+	src/random_maps/wall.c
+	src/server/alchemy.c
+	src/server/anim.c
+	src/server/apply.c
+	src/server/arch.c
+	src/server/attack.c
+	src/server/ban.c
+	src/server/button.c
+	src/server/cache.c
+	src/server/daemon.c
+	src/server/exp.c
+	src/server/gods.c
+	src/server/hiscore.c
+	src/server/holy.c
+	src/server/image.c
+	src/server/info.c
+	src/server/init.c
+	src/server/item.c
+	src/server/links.c
+	src/server/living.c
+	src/server/logger.c
+	src/server/login.c
+	src/server/los.c
+	src/server/main.c
+	src/server/map.c
+	src/server/mempool.c
+	src/server/move.c
+	src/server/object.c
+	src/server/object_process.c
+	src/server/party.c
+	src/server/pathfinder.c
+	src/server/plugins.c
+	src/server/porting.c
+	src/server/quest.c
+	src/server/race.c
+	src/server/readable.c
+	src/server/recipe.c
+	src/server/re-cmp.c
+	src/server/region.c
+	src/server/rune.c
+	src/server/shop.c
+	src/server/shstr.c
+	src/server/skills.c
+	src/server/skill_util.c
+	src/server/spell_effect.c
+	src/server/spell_util.c
+	src/server/statistics.c
+	src/server/stringbuffer.c
+	src/server/swap.c
+	src/server/time.c
+	src/server/timers.c
+	src/server/treasure.c
+	src/server/utils.c
+	src/server/weather.c
+	src/skills/construction.c
+	src/skills/inscription.c
+	src/socket/image.c
+	src/socket/info.c
+	src/socket/init.c
+	src/socket/item.c
+	src/socket/loop.c
+	src/socket/lowlevel.c
+	src/socket/metaserver.c
+	src/socket/request.c
+	src/socket/sounds.c
+	src/socket/updates.c
+	src/types/altar.c
+	src/types/armour_improver.c
+	src/types/arrow.c
+	src/types/beacon.c
+	src/types/book.c
+	src/types/container.c
+	src/types/converter.c
+	src/types/creator.c
+	src/types/deep_swamp.c
+	src/types/detector.c
+	src/types/disease.c
+	src/types/door.c
+	src/types/duplicator.c
+	src/types/food.c
+	src/types/gate.c
+	src/types/gravestone.c
+	src/types/identify_altar.c
+	src/types/light.c
+	src/types/magic_mirror.c
+	src/types/map_info.c
+	src/types/marker.c
+	src/types/monster.c
+	src/types/pit.c
+	src/types/player.c
+	src/types/player_mover.c
+	src/types/poison.c
+	src/types/potion.c
+	src/types/power_crystal.c
+	src/types/rod.c
+	src/types/savebed.c
+	src/types/scroll.c
+	src/types/shop_mat.c
+	src/types/sign.c
+	src/types/skillscroll.c
+	src/types/spawn_point.c
+	src/types/spellbook.c
+	src/types/teleporter.c
+	src/types/treasure.c
+	src/types/waypoint.c
+	src/types/weapon_improver.c)
 
 # Find unit test source files if check is installed.
 if (CHECK_LIBRARY)
-	file(GLOB SOURCES_CHECK src/tests/*.c src/tests/bugs/*.c src/tests/unit/commands/*.c src/tests/unit/server/*.c)
+	set(SOURCES_CHECK
+		src/tests/check.c
+		src/tests/bugs/check_85.c
+		src/tests/unit/commands/check_object.c
+		src/tests/unit/server/check_arch.c
+		src/tests/unit/server/check_ban.c
+		src/tests/unit/server/check_cache.c
+		src/tests/unit/server/check_object.c
+		src/tests/unit/server/check_re_cmp.c
+		src/tests/unit/server/check_shstr.c
+		src/tests/unit/server/check_utils.c)
 elseif (CHECK_LIBRARY)
 	set(SOURCES_CHECK)
 endif (CHECK_LIBRARY)
 
 # Find the world maker files, if enabled.
 if (HAVE_WORLD_MAKER)
-	file(GLOB SOURCES_WORLD_MAKER src/modules/world_maker.c)
+	set(SOURCES_WORLD_MAKER
+		src/modules/world_maker.c)
 elseif (HAVE_WORLD_MAKER)
 	set(SOURCES_WORLD_MAKER)
 endif (HAVE_WORLD_MAKER)
@@ -254,7 +396,8 @@ if (CHECK_LIBRARY)
 endif (CHECK_LIBRARY)
 
 # Create the Arena plugin.
-file(GLOB SOURCES_PLUGIN_ARENA src/plugins/plugin_arena/*.c)
+set(SOURCES_PLUGIN_ARENA
+	src/plugins/plugin_arena/plugin_arena.c)
 add_library(plugin_arena MODULE ${SOURCES_PLUGIN_ARENA})
 
 # Set the preferred order of Python versions to find.
@@ -269,7 +412,15 @@ if (PYTHONLIBS_FOUND)
 	set(HAVE_PYTHON true)
 
 	add_definitions(-Wno-missing-field-initializers)
-	file(GLOB SOURCES_PLUGIN_PYTHON src/plugins/plugin_python/*.c)
+	set(SOURCES_PLUGIN_PYTHON
+		src/plugins/plugin_python/atrinik_archetype.c
+		src/plugins/plugin_python/atrinik_map.c
+		src/plugins/plugin_python/atrinik_object.c
+		src/plugins/plugin_python/atrinik_party.c
+		src/plugins/plugin_python/atrinik_player.c
+		src/plugins/plugin_python/atrinik_region.c
+		src/plugins/plugin_python/attr_list.c
+		src/plugins/plugin_python/plugin_python.c)
 	add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
 	target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
 elseif (PYTHONLIBS_FOUND)
