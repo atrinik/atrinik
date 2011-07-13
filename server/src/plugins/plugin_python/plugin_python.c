@@ -1420,6 +1420,46 @@ static PyMethodDef AtrinikMethods[] =
 };
 
 /**
+ * Log a Python exception. Will also send the exception to any online
+ * DMs or those with /resetmap command permission. */
+static void PyErr_LOG()
+{
+	PyObject *globals, *locals, *ret;
+	PyObject *ptype, *pvalue, *ptraceback;
+	const char *err_handle =
+"from Atrinik import *\n"
+"import traceback\n"
+"exception = \"\".join(traceback.format_exception(exc_type, exc_value, exc_traceback))\n"
+"LOG(llevDebug, exception)\n"
+"player = GetFirst(\"player\")\n"
+"while player:\n"
+"	if player.ob.f_wiz or \"resetmap\" in player.cmd_permissions:\n"
+"		player.ob.Write(exception, COLOR_RED)\n"
+"	player = player.next\n";
+
+	/* Fetch the exception data. */
+	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+	PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
+
+	/* Construct globals dictionary. */
+	globals = PyDict_New();
+	PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
+
+	/* Construct locals dictionary, with the exception data. */
+	locals = PyDict_New();
+	PyDict_SetItemString(locals, "exc_type", ptype);
+	PyDict_SetItemString(locals, "exc_value", pvalue);
+	PyDict_SetItemString(locals, "exc_traceback", ptraceback);
+
+	/* Run the Python code. */
+	ret = PyRun_String(err_handle, Py_file_input, globals, locals);
+
+	Py_DECREF(globals);
+	Py_DECREF(locals);
+	Py_XDECREF(ret);
+}
+
+/**
  * Outputs the compiled bytecode for a given python file, using in-memory
  * caching of bytecode. */
 static PyCodeObject *compilePython(char *filename)
@@ -1533,7 +1573,7 @@ static PyCodeObject *compilePython(char *filename)
 
 		if (PyErr_Occurred())
 		{
-			PyErr_Print();
+			PyErr_LOG();
 		}
 		else
 		{
@@ -1612,7 +1652,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 				if (PyErr_Occurred())
 				{
-					PyErr_Print();
+					PyErr_LOG();
 				}
 			}
 		}
@@ -1630,7 +1670,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 		if (PyErr_Occurred())
 		{
-			PyErr_Print();
+			PyErr_LOG();
 		}
 
 		Py_XDECREF(ret);
