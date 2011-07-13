@@ -349,7 +349,10 @@
 		<Unit filename="..\..\src\gui\spells.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\src\gui\keybind.c">
+		<Unit filename="..\..\src\client\keybind.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\client\settings.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\src\gui\quickslots.c">
@@ -377,9 +380,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\src\events\move.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\..\src\events\macro.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\src\events\event.c">
