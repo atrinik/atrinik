@@ -11,7 +11,7 @@ rem cURL
 
 move pthread\* ..\*
 
-move *.dll ..\..\..\
+move *.dll ..\..\
 
 rem ====================================
 rem Clean up.
