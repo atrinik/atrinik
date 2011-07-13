@@ -237,11 +237,11 @@ static void show_inventory_item_stats(object *tmp, widgetdata *widget)
 		snprintf(buf, sizeof(buf), "%s", tmp->s_name);
 	}
 
-	string_truncate_overflow(FONT_ARIAL10, buf, 145);
+	string_truncate_overflow(FONT_ARIAL10, buf, widget->wd - 26 - 4);
 	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 2, COLOR_HGOLD, 0, NULL);
 
 	snprintf(buf, sizeof(buf), "%4.3f kg", tmp->weight * (double) tmp->nrof);
-	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 2, COLOR_HGOLD, 0, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 	/* This comes from server when not identified */
 	if (tmp->item_qua == 255)
@@ -250,10 +250,10 @@ static void show_inventory_item_stats(object *tmp, widgetdata *widget)
 	}
 	else
 	{
-		string_blt(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 174, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 		snprintf(buf, sizeof(buf), "%d/%d", tmp->item_qua, tmp->item_con);
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 		if (tmp->item_level)
 		{
@@ -261,16 +261,16 @@ static void show_inventory_item_stats(object *tmp, widgetdata *widget)
 
 			if ((!tmp->item_skill && tmp->item_level <= cpl.stats.level) || (tmp->item_skill && tmp->item_level <= cpl.stats.skill_level[tmp->item_skill - 1]))
 			{
-				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 101, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 			}
 			else
 			{
-				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 15, COLOR_RED, 0, NULL);
+				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 101, widget->y1 + 15, COLOR_RED, 0, NULL);
 			}
 		}
 		else
 		{
-			string_blt(ScreenSurface, FONT_ARIAL10, "allowed: all", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+			string_blt(ScreenSurface, FONT_ARIAL10, "allowed: all", widget->x1 + 101, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 		}
 	}
 }
@@ -325,7 +325,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			}
 
 			/* scrollbar */
-			if (mx > 226 && mx < 236)
+			if (mx > 258 && mx < 268)
 			{
 				if (my <= 39 && my >= 30 && cpl.win_inv_slot >= INVITEMXLEN)
 					cpl.win_inv_slot -= INVITEMXLEN;
@@ -416,17 +416,17 @@ void widget_show_inventory_window(widgetdata *widget)
 
 		sprite_blt(Bitmaps[BITMAP_INV_BG], widget->x1, widget->y1, NULL, NULL);
 
-		string_blt(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 130, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
 
 		snprintf(buf, sizeof(buf), "%4.3f kg", cpl.real_weight);
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 175, widget->y1 + 4, COLOR_WHITE, 0, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL);
 
-		string_blt(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 130, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 162, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 		snprintf(buf, sizeof(buf), "%4.3f kg", (float) cpl.weight_limit / 1000.0);
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 175, widget->y1 + 15, COLOR_WHITE, 0, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL);
 
-		string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 27, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
 		return;
 	}
 
@@ -449,7 +449,7 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	sprite_blt(Bitmaps[BITMAP_INVENTORY], widget->x1, widget->y1, NULL, NULL);
 
-	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 229, widget->y1 + 42);
+	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 261, widget->y1 + 42);
 
 	if (!cpl.ob)
 	{
