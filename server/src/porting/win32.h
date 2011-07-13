@@ -110,6 +110,11 @@
 #	pragma warning(disable: 4305)
 	/* Right shift by too large amount, data loss */
 #	pragma warning(disable: 4333)
+#else
+#	define _set_fmode(_mode) \
+{ \
+	_fmode = (_mode); \
+}
 #endif
 
 #ifndef R_OK
