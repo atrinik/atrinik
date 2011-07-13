@@ -621,7 +621,7 @@ static void popup_draw_func(popup_struct *popup)
 		text_input_string[0] = toupper(text_input_string[0]);
 		text_input_show(popup->surface, x, y, FONT_ARIAL10, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 	}
-	else
+	else if (cpl.name[0])
 	{
 		cpl.name[0] = toupper(cpl.name[0]);
 		text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
