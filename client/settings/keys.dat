@@ -212,7 +212,7 @@ end
 bind
 	# c
 	key 99
-	command ?COMBAT_TOGGLE
+	command ?COMBAT
 end
 bind
 	# x
