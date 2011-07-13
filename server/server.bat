@@ -7,7 +7,7 @@ if not exist "lib" (
 
 if not exist "data" (
 	echo Creating data directory...
-	xcopy /s/e install data
+	xcopy /s/e install_data data
 )
 
 copy ..\arch\*.* lib\*.*
