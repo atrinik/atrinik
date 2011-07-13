@@ -93,9 +93,13 @@
 #	define HAVE_DIRENT_H
 #endif
 
-/* Define to the full name of this package. */
+/* Name of the package. */
 #define PACKAGE_NAME "Atrinik Client"
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "2.0"
+/* Major version of the package. */
+#define PACKAGE_VERSION_MAJOR 2
+/* Minor version of the package. */
+#define PACKAGE_VERSION_MINOR 5
+/* Patch version of the package. */
+#define PACKAGE_VERSION_PATCH 0
 
 #endif

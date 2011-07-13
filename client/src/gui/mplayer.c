@@ -289,6 +289,8 @@ void widget_show_mplayer(widgetdata *widget)
 	/* The list doesn't exist yet, create it. */
 	if (!list)
 	{
+		char version[MAX_BUF];
+
 		/* Create the list and set up settings. */
 		list = list_create(LIST_MPLAYER, 12, 1, 8);
 		list->handle_enter_func = list_handle_enter;
@@ -303,7 +305,7 @@ void widget_show_mplayer(widgetdata *widget)
 		mplayer_list_init(list, buf, 0);
 
 		/* Now add custom ones, but ignore duplicates. */
-		snprintf(buf, sizeof(buf), "%s/.atrinik/"PACKAGE_VERSION"/"DIRECTORY_MEDIA, get_config_dir());
+		snprintf(buf, sizeof(buf), "%s/.atrinik/%s/"DIRECTORY_MEDIA, package_get_version_partial(version, sizeof(version)), get_config_dir());
 		mplayer_list_init(list, buf, 1);
 
 		/* If we added any, sort the list alphabetically and add an entry

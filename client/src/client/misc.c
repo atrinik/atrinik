@@ -197,3 +197,32 @@ int rndm(int min, int max)
 
 	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }
+
+/**
+ * Get the full package version as string.
+ *
+ * If patch version is 0, it will not be appended to the version string.
+ * @param dst Where to store the version.
+ * @param dstlen Size of dst.
+ * @return 'dst'. */
+char *package_get_version_full(char *dst, size_t dstlen)
+{
+#if PACKAGE_VERSION_PATCH == 0
+	package_get_version_partial(dst, dstlen);
+#else
+	snprintf(dst, dstlen, "%d.%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR, PACKAGE_VERSION_PATCH);
+#endif
+	return dst;
+}
+
+/**
+ * Get the partial package version. This means that the patch version
+ * will not be included, even if it's not 0.
+ * @param dst Where to store the version.
+ * @param dstlen Size of dst.
+ * @return 'dst' */
+char *package_get_version_partial(char *dst, size_t dstlen)
+{
+	snprintf(dst, dstlen, "%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR);
+	return dst;
+}

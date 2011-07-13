@@ -760,13 +760,14 @@ int main(int argc, char *argv[])
 	int x, y, drag, done = 0;
 	uint32 anim_tick, frame_start_time;
 	size_t i;
+	char version[MAX_BUF];
 
 	init_signals();
 #ifndef WIN32
 	br_init(NULL);
 #endif
-	settings_init();
 	upgrader_init();
+	settings_init();
 	init_game_data();
 	curl_init();
 
@@ -845,7 +846,7 @@ int main(int argc, char *argv[])
 
 	script_autoload();
 
-	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", PACKAGE_VERSION);
+	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", package_get_version_full(version, sizeof(version)));
 	draw_info(COLOR_GREEN, "Init network...");
 
 	if (!socket_initialize())

@@ -207,7 +207,7 @@ SDLMod keybind_adjust_kmod(SDLMod mod)
 	return mod;
 }
 
-void keybind_add(SDLKey key, SDLMod mod, const char *command)
+keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
 {
 	keybind_struct *keybind;
 
@@ -219,6 +219,8 @@ void keybind_add(SDLKey key, SDLMod mod, const char *command)
 	keybindings = realloc(keybindings, sizeof(keybindings) * (keybindings_num + 1));
 	keybindings[keybindings_num] = keybind;
 	keybindings_num++;
+
+	return keybind;
 }
 
 void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
@@ -267,6 +269,21 @@ void keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len)
 	}
 }
 
+keybind_struct *keybind_find_by_command(const char *cmd)
+{
+	size_t i;
+
+	for (i = 0; i < keybindings_num; i++)
+	{
+		if (!strcmp(cmd, keybindings[i]->command))
+		{
+			return keybindings[i];
+		}
+	}
+
+	return NULL;
+}
+
 SDLKey key_find_by_command(const char *cmd)
 {
 	size_t i;
@@ -288,7 +305,7 @@ int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
 
 	for (i = 0; i < keybindings_num; i++)
 	{
-		if (!strcmp(keybindings[i]->command, cmd) && event->keysym.sym == keybindings[i]->key && ((*keybindings[i]->command == '?' && !keybindings[i]->mod) || keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)))
+		if (!strcmp(keybindings[i]->command, cmd) && event->keysym.sym == keybindings[i]->key && (!keybindings[i]->mod || keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)))
 		{
 			return 1;
 		}
@@ -303,7 +320,7 @@ int keybind_process_event(SDL_KeyboardEvent *event)
 
 	for (i = 0; i < keybindings_num; i++)
 	{
-		if (event->keysym.sym == keybindings[i]->key && ((*keybindings[i]->command == '?' && !keybindings[i]->mod) || keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)))
+		if (event->keysym.sym == keybindings[i]->key && (!keybindings[i]->mod || keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)))
 		{
 			keybind_process(keybindings[i], event->type);
 			return 1;

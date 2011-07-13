@@ -93,9 +93,10 @@ void keybind_deinit();
 void keybind_remove(size_t i);
 void keybind_repeat_toggle(size_t i);
 SDLMod keybind_adjust_kmod(SDLMod mod);
-void keybind_add(SDLKey key, SDLMod mod, const char *command);
+keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command);
 void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command);
 void keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len);
+keybind_struct *keybind_find_by_command(const char *cmd);
 SDLKey key_find_by_command(const char *cmd);
 int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event);
 int keybind_process_event(SDL_KeyboardEvent *event);
@@ -130,6 +131,8 @@ void *reallocz(void *ptr, size_t old_size, size_t new_size);
 void convert_newline(char *str);
 void browser_open(const char *url);
 int rndm(int min, int max);
+char *package_get_version_full(char *dst, size_t dstlen);
+char *package_get_version_partial(char *dst, size_t dstlen);
 /* src/client/player.c */
 void clear_player();
 void new_player(long tag, long weight, short face);
@@ -248,7 +251,6 @@ void cmd_request_update(unsigned char *data, int len);
 int file_updates_finished();
 void file_updates_parse();
 /* src/client/upgrader.c */
-void upgrade_do(const char *source_dir);
 void upgrader_init();
 /* src/client/video.c */
 int video_get_bpp();
@@ -261,6 +263,8 @@ void system_start();
 void system_end();
 char *get_word_from_string(char *str, int *pos);
 void copy_file(const char *filename, const char *filename_out);
+void copy_if_exists(const char *from, const char *to, const char *src, const char *dst);
+void copy_rec(const char *src, const char *dst);
 const char *get_config_dir();
 void get_data_dir_file(char *buf, size_t len, const char *fname);
 char *file_path(const char *fname, const char *mode);

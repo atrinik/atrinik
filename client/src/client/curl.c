@@ -71,19 +71,21 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 int curl_connect(void *c_data)
 {
 	curl_data *data = (curl_data *) c_data;
-	char user_agent[MAX_BUF];
+	char user_agent[MAX_BUF], version[MAX_BUF];
 	CURL *handle;
 	CURLcode res;
 	long http_code;
 
+	package_get_version_full(version, sizeof(version));
+
 	/* Store user agent for cURL, including if this is GNU/Linux build of client
 	 * or Windows one. */
 #if defined(LINUX)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", version, SOCKET_VERSION);
 #elif defined(WIN32)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", version, SOCKET_VERSION);
 #else
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", version, SOCKET_VERSION);
 #endif
 
 	/* Init "easy" cURL */

@@ -62,8 +62,14 @@
 /* Name of the package. */
 #define PACKAGE_NAME "@PACKAGE_NAME@"
 
-/* Version of the package. */
-#define PACKAGE_VERSION "@PACKAGE_VERSION@"
+/* Major version of the package. */
+#define PACKAGE_VERSION_MAJOR @PACKAGE_VERSION_MAJOR@
+
+/* Minor version of the package. */
+#define PACKAGE_VERSION_MINOR @PACKAGE_VERSION_MINOR@
+
+/* Patch version of the package. */
+#define PACKAGE_VERSION_PATCH @PACKAGE_VERSION_PATCH@
 
 #define INSTALL_SUBDIR_SHARE "@INSTALL_SUBDIR_SHARE@"
 
