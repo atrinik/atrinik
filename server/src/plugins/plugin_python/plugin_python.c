@@ -2129,7 +2129,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	logfile_ptr = python_openlogfile(*hooks->logfile, "<stdout>");
 	PySys_SetObject("stdout", logfile_ptr);
 	PySys_SetObject("__stdout__", logfile_ptr);
-	logfile_ptr = python_openlogfile(*hooks->logfile, "<stderr>");
 	PySys_SetObject("stderr", logfile_ptr);
 	PySys_SetObject("__stderr__", logfile_ptr);
 
