@@ -353,7 +353,7 @@ typedef void *(*f_plug_pinit) ();
 #endif
 
 /** One loaded plugin. */
-typedef struct _atrinik_plugin
+typedef struct atrinik_plugin
 {
 	/** Event handler function. */
 	f_plug_api eventfunc;
@@ -377,7 +377,7 @@ typedef struct _atrinik_plugin
 	sint8 gevent[GEVENT_NUM];
 
 	/** Next plugin in list. */
-	struct _atrinik_plugin *next;
+	struct atrinik_plugin *next;
 } atrinik_plugin;
 
 /**

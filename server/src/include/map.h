@@ -532,7 +532,7 @@ typedef struct map_event
 
 	/**
 	 * Plugin the map event object is using. */
-	struct _atrinik_plugin *plugin;
+	struct atrinik_plugin *plugin;
 } map_event;
 
 /**
