@@ -27,7 +27,7 @@
  * @file
  * Handles the plugins code. */
 
-#include <plugin.h>
+#include <global.h>
 #include <loader.h>
 
 static void register_global_event(const char *plugin_name, int event_nr);
