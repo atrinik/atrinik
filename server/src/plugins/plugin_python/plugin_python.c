@@ -2109,6 +2109,7 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 	PyDict_SetItemString(PyModule_GetDict(module), name, list);
 }
 
+#ifndef WIN32
 /**
  * Open a log file in replacement for stdout and stderr.
  * @param fp File pointer.
@@ -2122,6 +2123,7 @@ static PyObject *python_openlogfile(FILE *fp, char *name)
 	return PyFile_FromFile(fp, name, "w", 0);
 #endif
 }
+#endif
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
@@ -2166,11 +2168,14 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		return;
 	}
 
+#ifndef WIN32
 	logfile_ptr = python_openlogfile(*hooks->logfile, "<stdout>");
 	PySys_SetObject("stdout", logfile_ptr);
 	PySys_SetObject("__stdout__", logfile_ptr);
+	logfile_ptr = python_openlogfile(*hooks->logfile, "<stderr>");
 	PySys_SetObject("stderr", logfile_ptr);
 	PySys_SetObject("__stderr__", logfile_ptr);
+#endif
 
 	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
