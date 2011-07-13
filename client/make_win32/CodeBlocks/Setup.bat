@@ -21,7 +21,7 @@ rem cURL
 rem ====================================
 rem Copy the dlls to main directory.
 rem ====================================
-move sdl_dll\*.dll ..\..\..\
+move sdl_dll\*.dll ..\..\
 rmdir sdl_dll
 
 rem ====================================
