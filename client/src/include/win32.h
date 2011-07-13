@@ -85,7 +85,7 @@
 #define HAVE_ZLIB
 #define HAVE_SDL_MIXER
 #define HAVE_STRERROR
-#define HAVE_SRANDOM
+#define HAVE_SRAND
 
 #define HAVE_FCNTL_H
 #define HAVE_TIME_H
