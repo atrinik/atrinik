@@ -26,10 +26,12 @@
 #ifndef WIN32_H
 #define WIN32_H
 
-#define STRICT
+#ifndef STRICT
+#	define STRICT
+#endif
 
 #if _MSC_VER > 1000
-#pragma once
+#	pragma once
 #endif
 
 #define WIN32_LEAN_AND_MEAN
