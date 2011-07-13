@@ -37,7 +37,7 @@ def collect_images():
 	for file in find_files(dev_dir, "bug.101.png") + sorted(find_files(paths["arch"], ".png", ignore_paths = [dev_dir]), key = lambda path: os.path.basename(path)[:-4]):
 		name = os.path.basename(file)[:-4]
 		# Write it out to the bmaps file.
-		bmaps.write(name + "\n")
+		bmaps.write("{0}\n".format(name).encode())
 
 		# Get the image's file size.
 		size = os.path.getsize(file)
@@ -76,9 +76,9 @@ def collect_animations():
 
 	for anim in sorted(l, key = lambda anim: anim[0][5:]):
 		for line in anim:
-			animations.write(line + "\n")
+			animations.write("{0}\n".format(line).encode())
 
-		animations.write("mina\n")
+		animations.write("mina\n".encode())
 
 	animations.close()
 
@@ -193,7 +193,7 @@ def file_copy(file, output):
 		if not line or line[0] == "#":
 			continue
 
-		output.write(line.rstrip() + "\n")
+		output.write("{0}\n".format(line.rstrip()).encode())
 
 	fp.close()
 
