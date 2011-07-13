@@ -352,6 +352,9 @@ typedef void *(*f_plug_pinit) ();
 #	define plugins_dlsym(lib, name) GetProcAddress(lib, name)
 #endif
 
+/** Check if the specified filename is a plugin file. */
+#define FILENAME_IS_PLUGIN(_path) (strstr((_path), "plugin_") && !strcmp((_path) + strlen((_path)) - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
+
 /** One loaded plugin. */
 typedef struct atrinik_plugin
 {

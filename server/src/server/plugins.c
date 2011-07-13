@@ -326,9 +326,7 @@ void display_plugins_list(object *op)
 	/* Go through the files in the directory */
 	while ((currentfile = readdir(plugdir)))
 	{
-		size_t l = strlen(currentfile->d_name);
-
-		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
+		if (FILENAME_IS_PLUGIN(currentfile->d_name))
 		{
 			new_draw_info(0, COLOR_WHITE, op, currentfile->d_name);
 		}
@@ -356,9 +354,7 @@ void init_plugins()
 
 	while ((currentfile = readdir(plugdir)))
 	{
-		size_t l = strlen(currentfile->d_name);
-
-		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
+		if (FILENAME_IS_PLUGIN(currentfile->d_name))
 		{
 			snprintf(pluginfile, sizeof(pluginfile), "%s/%s", PLUGINDIR, currentfile->d_name);
 			LOG(llevInfo, "Loading plugin %s\n", currentfile->d_name);
