@@ -229,10 +229,7 @@ typedef enum LogLevel
 #include <image.h>
 #include <settings.h>
 #include <keybind.h>
-
-#ifndef WIN32
-#	include <binreloc.h>
-#endif
+#include <binreloc.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>
