@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
 	/* No updates, execute the client. */
 	else
 	{
-        snprintf(path, sizeof(path), "%s\\atrinik.exe", getcwd(wdir, sizeof(wdir) - 1));
-        ShellExecute(NULL, "open", path, params, NULL, SW_SHOWNORMAL);
+		snprintf(path, sizeof(path), "%s\\atrinik.exe", getcwd(wdir, sizeof(wdir) - 1));
+		ShellExecute(NULL, "open", path, params, NULL, SW_SHOWNORMAL);
 	}
 
 	return 0;
