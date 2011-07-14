@@ -27,87 +27,114 @@
 
 #define UPDATER_CHECK_URL "http://www.atrinik.org/page/client_update"
 #define UPDATER_PATH_URL "http://www.atrinik.org/cms/uploads"
-#define UPDATER_PATCH_SUFFIX ".tar.gz"
 
 static curl_data *dl_data = NULL;
 static char **download_packages_file;
 static char **download_packages_sha1;
 static size_t download_packages_num = 0;
 static size_t download_package_next = 0;
+static size_t download_packages_downloaded = 0;
 static uint8 download_package_process = 0;
+static progress_dots progress;
+
+static char *updater_get_dir(char *buf, size_t len)
+{
+	snprintf(buf, len, "%s/.atrinik/temp", get_config_dir());
+	return buf;
+}
 
 static void cleanup_patch_files()
 {
-	DIR *dir;
-	struct dirent *currentfile;
+	char dir_path[HUGE_BUF];
 
-	dir = opendir(".");
-
-	if (!dir)
-	{
-		return;
-	}
-
-	while ((currentfile = readdir(dir)))
-	{
-		if (!strcmp(currentfile->d_name + strlen(currentfile->d_name) - strlen(UPDATER_PATCH_SUFFIX), UPDATER_PATCH_SUFFIX))
-		{
-			unlink(currentfile->d_name);
-		}
-	}
-
-	closedir(dir);
+	rmrf(updater_get_dir(dir_path, sizeof(dir_path)));
 }
 
 static void popup_draw_func_post(popup_struct *popup)
 {
-	(void) popup;
+	SDL_Rect box;
+
+	box.x = popup->x;
+	box.y = popup->y + 10;
+	box.w = popup->surface->w;
+	box.h = popup->surface->h;
+
+	string_blt(ScreenSurface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y + 10, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	box.y += 50;
+
+	progress_dots_show(&progress, ScreenSurface, box.x + box.w / 2 - progress_dots_width(&progress) / 2, box.y);
+	box.y += 30;
+
+	if (!progress.done && dl_data)
+	{
+		if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL)))
+		{
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Downloading list of updates...", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+		}
+		else
+		{
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64" out of %"FMT64"...", download_package_next, download_packages_num);
+		}
+	}
 
 	if (dl_data)
 	{
 		sint8 ret = curl_download_finished(dl_data);
 
-		if (ret == 0)
-		{
-			// downloading
-		}
-		else if (ret == -1)
+		progress.done = 0;
+
+		if (ret == -1)
 		{
 			cleanup_patch_files();
+			progress.done = 1;
 
-			// timed out, retry button
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Connection timed out.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+
+			box.y += 20;
+
+			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			{
+				popup_destroy_visible();
+				updater_open();
+				return;
+			}
 		}
 		else if (ret == 1)
 		{
 			if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL)))
 			{
-				char *cp, *line, *tmp[2];
-
-				cp = strdup(dl_data->memory);
-
-				line = strtok(cp, "\n");
-
-				while (line)
+				if (dl_data->memory)
 				{
-					if (split_string(line, tmp, arraysize(tmp), '\t') == 2)
+					char *cp, *line, *tmp[2];
+
+					cp = strdup(dl_data->memory);
+
+					line = strtok(cp, "\n");
+
+					while (line)
 					{
-						download_packages_file = realloc(download_packages_file, sizeof(*download_packages_file) * (download_packages_num + 1));
-						download_packages_sha1 = realloc(download_packages_sha1, sizeof(*download_packages_sha1) * (download_packages_num + 1));
-						download_packages_file[download_packages_num] = strdup(tmp[0]);
-						download_packages_sha1[download_packages_num] = strdup(tmp[1]);
-						download_packages_num++;
+						if (split_string(line, tmp, arraysize(tmp), '\t') == 2)
+						{
+							download_packages_file = realloc(download_packages_file, sizeof(*download_packages_file) * (download_packages_num + 1));
+							download_packages_sha1 = realloc(download_packages_sha1, sizeof(*download_packages_sha1) * (download_packages_num + 1));
+							download_packages_file[download_packages_num] = strdup(tmp[0]);
+							download_packages_sha1[download_packages_num] = strdup(tmp[1]);
+							download_packages_num++;
+						}
+
+						line = strtok(NULL, "\n");
 					}
 
-					line = strtok(NULL, "\n");
+					free(cp);
 				}
 
-				free(cp);
-
+#ifdef WIN32
 				if (download_packages_num)
 				{
 					download_package_process = 1;
 					download_package_next = 0;
 				}
+#endif
 
 				curl_data_free(dl_data);
 				dl_data = NULL;
@@ -133,7 +160,7 @@ static void popup_draw_func_post(popup_struct *popup)
 						char dir_path[HUGE_BUF], filename[HUGE_BUF];
 						FILE *fp;
 
-						snprintf(dir_path, sizeof(dir_path), "%s/.atrinik/temp", get_config_dir());
+						updater_get_dir(dir_path, sizeof(dir_path));
 
 						if (access(dir_path, R_OK) != 0)
 						{
@@ -147,18 +174,19 @@ static void popup_draw_func_post(popup_struct *popup)
 						{
 							fwrite(dl_data->memory, 1, dl_data->size, fp);
 							fclose(fp);
+							download_packages_downloaded++;
 						}
 					}
 					else
 					{
-						download_package_process = 0;
+						download_package_next = download_packages_num;
 					}
 
 					curl_data_free(dl_data);
 					dl_data = NULL;
 				}
 
-				if (download_package_process && download_package_next < download_packages_num)
+				if (download_package_next < download_packages_num)
 				{
 					char url[HUGE_BUF];
 
@@ -171,7 +199,49 @@ static void popup_draw_func_post(popup_struct *popup)
 	}
 	else
 	{
-		// up-to-date
+		progress.done = 1;
+
+		if (!download_packages_num)
+		{
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			box.y += 60;
+
+			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			{
+				popup_destroy_visible();
+				return;
+			}
+		}
+		else
+		{
+#ifdef WIN32
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" updates downloaded successfully.", download_packages_downloaded);
+			box.y += 20;
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Restart the client to complete the update.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+
+			if (download_packages_downloaded < download_packages_num)
+			{
+				string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" updates failed to download (possibly due to a connection failure).", download_packages_num - download_packages_downloaded);
+				string_blt_shadow(ScreenSurface, FONT_ARIAL11, "You may need to retry updating after restarting the client.", box.x, box.y + 40, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			}
+
+			box.y += 60;
+
+			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Restart", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			{
+				char path[HUGE_BUF], wdir[HUGE_BUF];
+
+				snprintf(path, sizeof(path), "%s\\updater.bat", getcwd(wdir, sizeof(wdir) - 1));
+				ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
+				system_end();
+				exit(0);
+			}
+#else
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Updates are available; please use your distribution's package/update", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			box.y += 20;
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "manager to update, or visit <a=url:http://www.atrinik.org/>www.atrinik.org</a> for help.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+#endif
+		}
 	}
 }
 
@@ -204,6 +274,7 @@ static int popup_destroy_callback(popup_struct *popup)
 	download_packages_num = 0;
 	download_package_next = 0;
 	download_package_process = 0;
+	download_packages_downloaded = 0;
 
 	return 1;
 }
@@ -226,4 +297,6 @@ void updater_open()
 	curl_easy_cleanup(curl);
 
 	dl_data = curl_download_start(url);
+
+	progress_dots_create(&progress);
 }
