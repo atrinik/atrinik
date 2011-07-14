@@ -31,7 +31,7 @@
 
 static curl_data *dl_data = NULL;
 static char **download_packages_file;
-static char **download_packages_md5;
+static char **download_packages_sha1;
 static size_t download_packages_num = 0;
 static size_t download_package_next = 0;
 static uint8 download_package_process = 0;
@@ -92,9 +92,9 @@ static void popup_draw_func_post(popup_struct *popup)
 					if (split_string(line, tmp, arraysize(tmp), '\t') == 2)
 					{
 						download_packages_file = realloc(download_packages_file, sizeof(*download_packages_file) * (download_packages_num + 1));
-						download_packages_md5 = realloc(download_packages_md5, sizeof(*download_packages_md5) * (download_packages_num + 1));
+						download_packages_sha1 = realloc(download_packages_sha1, sizeof(*download_packages_sha1) * (download_packages_num + 1));
 						download_packages_file[download_packages_num] = strdup(tmp[0]);
-						download_packages_md5[download_packages_num] = strdup(tmp[1]);
+						download_packages_sha1[download_packages_num] = strdup(tmp[1]);
 						download_packages_num++;
 					}
 
@@ -117,30 +117,46 @@ static void popup_draw_func_post(popup_struct *popup)
 			{
 				if (download_package_next != 0 && dl_data)
 				{
-					FILE *fp;
-					char filename[MAX_BUF];
+					char sha1_output_ascii[41];
+					unsigned char sha1_output[20];
+					size_t i;
 
-					snprintf(filename, sizeof(filename), "client_patch_%09"FMT64".tar.gz", (size_t) download_package_next - 1);
+					sha1((unsigned char *) dl_data->memory, dl_data->size, sha1_output);
 
-					fp = fopen(filename, "wb");
-
-					if (fp)
+					for (i = 0; i < 20; i++)
 					{
-						fwrite(dl_data->memory, 1, dl_data->size, fp);
-						fclose(fp);
+						sprintf(sha1_output_ascii + i * 2, "%02x", sha1_output[i]);
+					}
+
+					if (!strcmp(download_packages_sha1[download_package_next - 1], sha1_output_ascii))
+					{
+						char filename[MAX_BUF];
+						FILE *fp;
+
+						snprintf(filename, sizeof(filename), "client_patch_%09"FMT64".tar.gz", (sint64) download_package_next - 1);
+						fp = fopen(filename, "wb");
+
+						if (fp)
+						{
+							fwrite(dl_data->memory, 1, dl_data->size, fp);
+							fclose(fp);
+						}
+					}
+					else
+					{
+						download_package_process = 0;
 					}
 
 					curl_data_free(dl_data);
 					dl_data = NULL;
 				}
 
-				if (download_package_next < download_packages_num)
+				if (download_package_process && download_package_next < download_packages_num)
 				{
 					char url[HUGE_BUF];
 
 					snprintf(url, sizeof(url), UPDATER_PATH_URL"/%s", download_packages_file[download_package_next]);
 					dl_data = curl_download_start(url);
-					LOG(llevInfo, "%s\n", url);
 					download_package_next++;
 				}
 			}
@@ -167,15 +183,15 @@ static int popup_destroy_callback(popup_struct *popup)
 	for (i = 0; i < download_packages_num; i++)
 	{
 		free(download_packages_file[i]);
-		free(download_packages_md5[i]);
+		free(download_packages_sha1[i]);
 	}
 
 	if (download_packages_file)
 	{
 		free(download_packages_file);
 		download_packages_file = NULL;
-		free(download_packages_md5);
-		download_packages_md5 = NULL;
+		free(download_packages_sha1);
+		download_packages_sha1 = NULL;
 	}
 
 	download_packages_num = 0;

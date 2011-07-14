@@ -581,6 +581,17 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoomx, dou
 void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
+/* src/toolkit/sha1.c */
+void sha1_starts(sha1_context *ctx);
+void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+void sha1_finish(sha1_context *ctx, unsigned char output[20]);
+void sha1(const unsigned char *input, size_t ilen, unsigned char output[20]);
+int sha1_file(const char *path, unsigned char output[20]);
+void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen);
+void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
+void sha1_hmac_reset(sha1_context *ctx);
+void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit/text.c */
 void text_init();
 void text_deinit();
