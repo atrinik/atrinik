@@ -23,21 +23,29 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles the Windows client wrapper. Basically this updater is executed
+ * by shortcuts instead of atrinik.exe in order to handle extracting
+ * update patches. */
+
 #include <stdio.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <direct.h>
 #include <shellapi.h>
-#include <stdafx.h>
+
+#define HUGE_BUF 4096 * 12
 
 int main(int argc, char *argv[])
 {
 	FILE *fp;
-	char params[HUGE_BUF], path[HUGE_BUF];
+	char params[HUGE_BUF], path[HUGE_BUF], wdir[HUGE_BUF];
 	int i;
 
-	while (!(fp = fopen("atrinik.exe", "w")))
+	/* Delay until atrinik.exe is not in use. */
+	while (!(fp = fopen("atrinik.exe", "a+b")))
 	{
 		Sleep(500);
 	}
@@ -45,34 +53,47 @@ int main(int argc, char *argv[])
 	fclose(fp);
 	params[0] = '\0';
 
+	/* Construct the command parameters from arguments. */
 	for (i = 1; i < argc; i++)
 	{
 		strncat(params, argv[i], sizeof(params) - strlen(params) - 1);
 	}
 
+	/* Check if we have upgrades to apply. */
 	snprintf(path, sizeof(path), "%s/.atrinik/temp", getenv("APPDATA"));
 
 	if (access(path, R_OK) == 0)
 	{
 		SHELLEXECUTEINFO shExecInfo;
 
+		/* Do not start up another updater if one is already running. */
+		fp = fopen("updater.bat", "a+b");
+
+		if (!fp)
+		{
+			return;
+		}
+
+		fclose(fp);
+
 		shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-		shExecInfo.fMask = NULL;
+		shExecInfo.fMask = 0;
 		shExecInfo.hwnd = NULL;
-		shExecInfo.lpVerb = L"runas";
-		shExecInfo.lpFile = L"updater.bat";
-		shExecInfo.lpParameters = NULL;
+		shExecInfo.lpVerb = "runas";
+		shExecInfo.lpFile = "updater.bat";
+		shExecInfo.lpParameters = params;
 		shExecInfo.lpDirectory = NULL;
-		shExecInfo.nShow = SW_SHOWNORMAL;
+		shExecInfo.nShow = SW_SHOW;
 		shExecInfo.hInstApp = NULL;
 
 		ShellExecuteEx(&shExecInfo);
 	}
-
-	while (access(path, R_OK) == 0)
+	/* No updates, execute the client. */
+	else
 	{
-		Sleep(500);
+        snprintf(path, sizeof(path), "%s\\atrinik.exe", getcwd(wdir, sizeof(wdir) - 1));
+        ShellExecute(NULL, "open", path, params, NULL, SW_SHOWNORMAL);
 	}
 
-	ShellExecute(NULL, "atrinik.exe", params, NULL, NULL, SW_SHOWDEFAULT);
+	return 0;
 }
