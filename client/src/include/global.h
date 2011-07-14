@@ -231,6 +231,7 @@ typedef enum LogLevel
 #include <keybind.h>
 #include <binreloc.h>
 #include <sha1.h>
+#include <progress.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>
