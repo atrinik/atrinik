@@ -36,6 +36,7 @@ Section "Client (required)"
 
   SetOutPath $INSTDIR
   File "atrinik.exe"
+  File "updater.exe"
   File "*.dll"
   File "COPYING"
   File "README"
@@ -105,14 +106,14 @@ Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}"
   CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Atrinik Client.lnk" "$INSTDIR\updater.bat" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Atrinik Client.lnk" "$INSTDIR\updater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Optional desktop shortcut.
 Section /o "Desktop Shortcut"
   SetShellVarContext all
   
-  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\updater.bat" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\updater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Uninstaller.
