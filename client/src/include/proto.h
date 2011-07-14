@@ -264,6 +264,7 @@ void system_end();
 char *get_word_from_string(char *str, int *pos);
 void copy_file(const char *filename, const char *filename_out);
 void copy_if_exists(const char *from, const char *to, const char *src, const char *dst);
+int rmrf(const char *path);
 void copy_rec(const char *src, const char *dst);
 const char *get_config_dir();
 void get_data_dir_file(char *buf, size_t len, const char *fname);
