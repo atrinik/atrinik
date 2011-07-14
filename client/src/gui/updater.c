@@ -130,10 +130,17 @@ static void popup_draw_func_post(popup_struct *popup)
 
 					if (!strcmp(download_packages_sha1[download_package_next - 1], sha1_output_ascii))
 					{
-						char filename[MAX_BUF];
+						char dir_path[HUGE_BUF], filename[HUGE_BUF];
 						FILE *fp;
 
-						snprintf(filename, sizeof(filename), "client_patch_%09"FMT64".tar.gz", (sint64) download_package_next - 1);
+						snprintf(dir_path, sizeof(dir_path), "%s/.atrinik/temp", get_config_dir());
+
+						if (access(dir_path, R_OK) != 0)
+						{
+							mkdir(dir_path, 0755);
+						}
+
+						snprintf(filename, sizeof(filename), "%s/client_patch_%09"FMT64".tar.gz", dir_path, (sint64) download_package_next - 1);
 						fp = fopen(filename, "wb");
 
 						if (fp)
