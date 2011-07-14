@@ -191,6 +191,7 @@ set(SOURCES
 	src/toolkit/scroll_buttons.c
 	src/toolkit/SDL_gfx.c
 	src/toolkit/SDL_rotozoom.c
+	src/toolkit/sha1.c
 	src/toolkit/text.c
 	src/toolkit/text_input.c
 	src/toolkit/tooltip.c

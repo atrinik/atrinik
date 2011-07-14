@@ -160,6 +160,9 @@
 		<Unit filename="..\..\src\toolkit\SDL_rotozoom.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\src\toolkit\sha1.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\src\toolkit\SDL_gfx.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -359,6 +362,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\src\gui\textwin.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\gui\updater.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\src\gui\settings.c">
