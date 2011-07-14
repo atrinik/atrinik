@@ -7,3 +7,5 @@ for %%f in (*.tar.gz) do (
 	del %%f
 	del %%~nf
 )
+
+atrinik.exe %*
