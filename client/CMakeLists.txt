@@ -187,6 +187,7 @@ set(SOURCES
 	src/toolkit/clipboard.c
 	src/toolkit/list.c
 	src/toolkit/popup.c
+	src/toolkit/progress.c
 	src/toolkit/range_buttons.c
 	src/toolkit/scroll_buttons.c
 	src/toolkit/SDL_gfx.c

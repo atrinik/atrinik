@@ -133,6 +133,9 @@
 		<Unit filename="..\..\src\toolkit\popup.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\src\toolkit\progress.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\src\toolkit\text.c">
 			<Option compilerVar="CC" />
 		</Unit>
