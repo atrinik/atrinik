@@ -28,6 +28,7 @@
  * General convenience functions for the client. */
 
 #include <global.h>
+#include <ftw.h>
 
 static FILE *logstream = NULL;
 
@@ -258,6 +259,35 @@ void copy_if_exists(const char *from, const char *to, const char *src, const cha
 	{
 		copy_rec(src_path, dst_path);
 	}
+}
+
+/**
+ * Used for file tree walk in rmrf(). */
+static int rmrf_fn(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+{
+	int rv = remove(fpath);
+
+	(void) sb;
+	(void) typeflag;
+	(void) ftwbuf;
+
+	if (rv)
+	{
+		LOG(llevBug, "rmrf_fn(): %s: %s\n", fpath, strerror(errno));
+	}
+
+	return rv;
+}
+
+/**
+ * Recursively remove a directory and its contents.
+ *
+ * Effectively same as 'rf -rf path'.
+ * @param path What to remove.
+ * @return 0 on success, non-zero on failure. */
+int rmrf(const char *path)
+{
+	return nftw(path, rmrf_fn, 64, FTW_DEPTH | FTW_PHYS);
 }
 
 /**
