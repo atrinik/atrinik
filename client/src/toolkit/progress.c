@@ -43,7 +43,7 @@ void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, in
 
 	for (i = 0; i < PROGRESS_DOTS_NUM; i++)
 	{
-		sprite_blt(Bitmaps[progress->dot == i || progress->done ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], x + (Bitmaps[BITMAP_LOADING_ON]->bitmap->w + 2) * i, y, NULL, &bltfx);
+		sprite_blt(Bitmaps[progress->dot == i || progress->done ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], x + (Bitmaps[BITMAP_LOADING_ON]->bitmap->w + PROGRESS_DOTS_SPACING) * i, y, NULL, &bltfx);
 	}
 
 	/* Progress the lit dot. */

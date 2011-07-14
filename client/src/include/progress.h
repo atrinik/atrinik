@@ -37,6 +37,8 @@ typedef struct progress_dots
 
 /** Number of progress dots shown. */
 #define PROGRESS_DOTS_NUM (5)
+/** Spacing between the dots. */
+#define PROGRESS_DOTS_SPACING (2)
 /** How often to advance the progress dots, in ticks. */
 #define PROGRESS_DOTS_TICKS (275)
 
