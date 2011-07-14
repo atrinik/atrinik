@@ -425,6 +425,8 @@ void textwin_event(widgetdata *widget, SDL_Event *event);
 void menu_textwin_clear(widgetdata *widget, int x, int y);
 void menu_textwin_font_inc(widgetdata *widget, int x, int y);
 void menu_textwin_font_dec(widgetdata *widget, int x, int y);
+/* src/gui/updater.c */
+void updater_open();
 /* src/toolkit/binreloc.c */
 int br_init(BrInitError *error);
 int br_init_lib(BrInitError *error);

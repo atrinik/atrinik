@@ -993,7 +993,12 @@ void show_meta_server()
 		settings_open();
 	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 85, "Update", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	{
+		updater_open();
+	}
+
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 228, "Quit", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		system_end();
 		exit(0);

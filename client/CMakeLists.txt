@@ -181,6 +181,7 @@ set(SOURCES
 	src/gui/spells.c
 	src/gui/target.c
 	src/gui/textwin.c
+	src/gui/updater.c
 	src/toolkit/binreloc.c
 	src/toolkit/button.c
 	src/toolkit/clipboard.c
