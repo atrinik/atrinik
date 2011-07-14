@@ -42,9 +42,9 @@ Section "Client (required)"
   File "README"
   File "INSTALL"
   File "timidity.cfg"
-  File "updater.bat"
   File "make_win32/tools/gunzip.exe"
   File "make_win32/tools/tar.exe"
+  File "make_win32/tools/updater.bat"
 
   CreateDirectory $INSTDIR\bitmaps
   SetOutPath $INSTDIR\bitmaps
