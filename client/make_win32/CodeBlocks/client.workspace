@@ -2,6 +2,6 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="Client.cbp" active="1" />
-		<Project filename="Updater.cbp" active="0" />
+		<Project filename="Updater.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
