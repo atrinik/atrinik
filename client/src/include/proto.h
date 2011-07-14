@@ -487,6 +487,7 @@ popup_struct *popup_get_visible();
 /* src/toolkit/progress.c */
 void progress_dots_create(progress_dots *progress);
 void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
+int progress_dots_width(progress_dots *progress);
 /* src/toolkit/range_buttons.c */
 int range_buttons_show(int x, int y, int *val, int advance);
 /* src/toolkit/scroll_buttons.c */

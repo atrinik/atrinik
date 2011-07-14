@@ -59,3 +59,10 @@ void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, in
 		}
 	}
 }
+
+int progress_dots_width(progress_dots *progress)
+{
+	(void) progress;
+
+	return (Bitmaps[BITMAP_LOADING_ON]->bitmap->w + PROGRESS_DOTS_SPACING) * PROGRESS_DOTS_NUM - PROGRESS_DOTS_SPACING;
+}
