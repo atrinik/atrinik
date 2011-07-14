@@ -783,7 +783,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (surface)
 			{
 				/* Change to light blue only if no custom color was specified. */
-				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b)
+				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
 				{
 					color->r = text_link_color.r;
 					color->g = text_link_color.g;
