@@ -8,4 +8,4 @@ for %%f in (*.tar.gz) do (
 	del %%~nf
 )
 
-atrinik.exe %*
+start atrinik.exe %*
