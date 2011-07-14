@@ -305,7 +305,15 @@ int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
 
 	for (i = 0; i < keybindings_num; i++)
 	{
-		if (!strcmp(keybindings[i]->command, cmd) && event->keysym.sym == keybindings[i]->key && (!keybindings[i]->mod || keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)))
+		if (!strcmp(keybindings[i]->command, cmd) && event->keysym.sym == keybindings[i]->key && keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod))
+		{
+			return 1;
+		}
+	}
+
+	for (i = 0; i < keybindings_num; i++)
+	{
+		if (!strcmp(keybindings[i]->command, cmd) && event->keysym.sym == keybindings[i]->key && !keybindings[i]->mod)
 		{
 			return 1;
 		}
@@ -320,7 +328,16 @@ int keybind_process_event(SDL_KeyboardEvent *event)
 
 	for (i = 0; i < keybindings_num; i++)
 	{
-		if (event->keysym.sym == keybindings[i]->key && (!keybindings[i]->mod || keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)))
+		if (event->keysym.sym == keybindings[i]->key && keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod))
+		{
+			keybind_process(keybindings[i], event->type);
+			return 1;
+		}
+	}
+
+	for (i = 0; i < keybindings_num; i++)
+	{
+		if (event->keysym.sym == keybindings[i]->key && !keybindings[i]->mod)
 		{
 			keybind_process(keybindings[i], event->type);
 			return 1;
@@ -336,7 +353,23 @@ void keybind_repeat()
 
 	for (i = 0; i < keybindings_num; i++)
 	{
-		if (keys[keybindings[i]->key].pressed && keybindings[i]->repeat && ((*keybindings[i]->command == '?' && !keybindings[i]->mod) || keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState())))
+		if (keys[keybindings[i]->key].pressed && keybindings[i]->repeat && keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState()))
+		{
+			/* If time to repeat */
+			if (keys[keybindings[i]->key].time + KEY_REPEAT_TIME - 5 < LastTick)
+			{
+				/* Repeat x times */
+				while ((keys[keybindings[i]->key].time += KEY_REPEAT_TIME - 5) < LastTick)
+				{
+					keybind_process(keybindings[i], SDL_KEYDOWN);
+				}
+			}
+		}
+	}
+
+	for (i = 0; i < keybindings_num; i++)
+	{
+		if (keys[keybindings[i]->key].pressed && keybindings[i]->repeat && !keybindings[i]->mod)
 		{
 			/* If time to repeat */
 			if (keys[keybindings[i]->key].time + KEY_REPEAT_TIME - 5 < LastTick)
