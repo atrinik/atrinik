@@ -35,13 +35,15 @@
 #include <mmsystem.h>
 #include <direct.h>
 #include <shellapi.h>
+#include <tlhelp32.h>
+#include <ctype.h>
 
 #define HUGE_BUF 4096 * 12
 
 int find_proc_by_name(const char *szToFind)
 {
     BOOL bResult,bResultm;
-    DWORD aiPID[1000],iCb=1000,iNumProc,iV2000=0;
+    DWORD aiPID[1000],iCb=1000,iNumProc;
     DWORD iCbneeded,i;
     char szName[MAX_PATH],szToFindUpper[MAX_PATH];
     HANDLE hProc,hSnapShot,hSnapShotm;
