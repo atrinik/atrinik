@@ -51,12 +51,12 @@ client/stderr.txt
 *.cbTemp
 *.depend
 .objs
-curl
-sdl_inc
-sdl_lib
 Release
 pthread.h
 sched.h
 semaphore.h
 *.dll
 *.layout
+**/CodeBlocks/bin
+**/CodeBlocks/include
+**/CodeBlocks/lib

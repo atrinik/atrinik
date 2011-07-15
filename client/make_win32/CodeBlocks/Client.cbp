@@ -28,23 +28,20 @@
 			<Add option="-DMINGW" />
 			<Add option="-DCURL_STATICLIB" />
 			<Add directory="..\..\src\include" />
-			<Add directory="..\..\src\zlib\include" />
-			<Add directory="sdl_inc" />
-			<Add directory="sdl_inc\SDL" />
-			<Add directory="..\CodeBlocks" />
-			<Add directory="sdl_lib" />
+			<Add directory="include" />
+			<Add directory="include\SDL" />
 		</Compiler>
 		<Linker>
 			<Add library="mingw32" />
 			<Add library="wsock32" />
-			<Add library="sdl_lib\libSDLmain.a" />
-			<Add library="sdl_lib\libSDL_image.dll.a" />
-			<Add library="sdl_lib\libSDL_mixer.dll.a" />
-			<Add library="sdl_lib\libSDL_ttf.dll.a" />
-			<Add library="sdl_lib\libSDL.dll.a" />
-			<Add library="sdl_lib\libcurl.a" />
-			<Add directory="sdl_lib" />
-			<Add directory="..\CodeBlocks" />
+			<Add directory="lib" />
+			<Add library="SDLmain" />
+			<Add library="SDL_image.dll" />
+			<Add library="SDL_mixer.dll" />
+			<Add library="SDL_ttf.dll" />
+			<Add library="SDL.dll" />
+			<Add library="curl" />
+			<Add library="z" />
 			<Add library="libwsock32.a" />
 			<Add library="libwinmm.a" />
 		</Linker>
@@ -86,13 +83,6 @@
 		<Unit filename="..\..\src\toolkit\sha1.c" />
 		<Unit filename="..\..\src\toolkit\SDL_gfx.c" />
 		<Unit filename="..\..\src\toolkit\clipboard.c" />
-		<Unit filename="..\..\src\zlib\adler32.c" />
-		<Unit filename="..\..\src\zlib\inftrees.c" />
-		<Unit filename="..\..\src\zlib\crc32.c" />
-		<Unit filename="..\..\src\zlib\zutil.c" />
-		<Unit filename="..\..\src\zlib\uncompr.c" />
-		<Unit filename="..\..\src\zlib\inflate.c" />
-		<Unit filename="..\..\src\zlib\inffast.c" />
 		<Unit filename="..\..\src\gui\input.c" />
 		<Unit filename="..\..\src\gui\party.c" />
 		<Unit filename="..\..\src\gui\help.c" />
