@@ -41,7 +41,7 @@
 			<Add library="SDL_ttf.dll" />
 			<Add library="SDL.dll" />
 			<Add library="curl" />
-			<Add library="z" />
+			<Add library="zdll" />
 			<Add library="libwsock32.a" />
 			<Add library="libwinmm.a" />
 		</Linker>
