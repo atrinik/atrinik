@@ -73,7 +73,7 @@ static void popup_draw_func_post(popup_struct *popup)
 		}
 		else
 		{
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64" out of %"FMT64"...", download_package_next, download_packages_num);
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64" out of %"FMT64"...", (uint64) download_package_next, (uint64) download_packages_num);
 		}
 	}
 
@@ -215,13 +215,13 @@ static void popup_draw_func_post(popup_struct *popup)
 		else
 		{
 #ifdef WIN32
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" updates downloaded successfully.", download_packages_downloaded);
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" updates downloaded successfully.", (uint64) download_packages_downloaded);
 			box.y += 20;
 			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Restart the client to complete the update.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 			if (download_packages_downloaded < download_packages_num)
 			{
-				string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" updates failed to download (possibly due to a connection failure).", download_packages_num - download_packages_downloaded);
+				string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" updates failed to download (possibly due to a connection failure).", (uint64) (download_packages_num - download_packages_downloaded));
 				string_blt_shadow(ScreenSurface, FONT_ARIAL11, "You may need to retry updating after restarting the client.", box.x, box.y + 40, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			}
 
