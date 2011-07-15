@@ -51,9 +51,6 @@ int main(int argc, char *argv[])
 		strncat(params, argv[i], sizeof(params) - strlen(params) - 1);
 	}
 
-	GetModuleFileName(NULL, path, sizeof(path));
-	chdir(path);
-
 	/* Check if we have upgrades to apply. */
 	snprintf(path, sizeof(path), "%s/.atrinik/temp", getenv("APPDATA"));
 
