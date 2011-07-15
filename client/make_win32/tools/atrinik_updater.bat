@@ -2,11 +2,16 @@
 
 echo Updating Atrinik installation, please wait...
 
+rem Make sure we are running in the directory the Batch file is in.
+%0\
+cd %0\..
+cd /d %0\.. 
+
 rem Wait a few seconds to make sure upgrader.exe has finished.
 timeout /NOBREAK 2
 
 rem Make sure no Atrinik clients are running.
-taskkill /f/t /im atrinik.exe
+taskkill /f /t /im atrinik.exe
 
 rem Store the current working directory.
 set old_dir=%CD%
