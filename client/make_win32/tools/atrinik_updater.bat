@@ -11,7 +11,7 @@ rem Wait a few seconds to make sure upgrader.exe has finished.
 timeout /NOBREAK 2
 
 rem Make sure no Atrinik clients are running.
-taskkill /f /t /im atrinik.exe
+taskkill /f /t /im atrinik.exe >nul 2>&1
 
 rem Store the current working directory.
 set old_dir=%CD%
