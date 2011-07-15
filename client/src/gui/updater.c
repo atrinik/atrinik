@@ -229,9 +229,10 @@ static void popup_draw_func_post(popup_struct *popup)
 
 			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Restart", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
-				char path[HUGE_BUF], wdir[HUGE_BUF];
+				char path[HUGE_BUF], exedir[HUGE_BUF];
 
-				snprintf(path, sizeof(path), "%s\\updater.bat", getcwd(wdir, sizeof(wdir) - 1));
+				GetModuleFileName(NULL, exedir, sizeof(exedir));
+				snprintf(path, sizeof(path), "%s\\updater.exe", exedir);
 				ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
 				system_end();
 				exit(0);
