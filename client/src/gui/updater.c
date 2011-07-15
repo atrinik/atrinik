@@ -167,7 +167,7 @@ static void popup_draw_func_post(popup_struct *popup)
 							mkdir(dir_path, 0755);
 						}
 
-						snprintf(filename, sizeof(filename), "%s/client_patch_%09"FMT64".tar.gz", dir_path, (sint64) download_package_next - 1);
+						snprintf(filename, sizeof(filename), "%s/client_patch_%09"FMT64".tar.gz", dir_path, (uint64) download_package_next - 1);
 						fp = fopen(filename, "wb");
 
 						if (fp)
