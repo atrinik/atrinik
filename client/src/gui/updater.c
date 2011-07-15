@@ -232,7 +232,7 @@ static void popup_draw_func_post(popup_struct *popup)
 				char path[HUGE_BUF], exedir[HUGE_BUF];
 
 				GetModuleFileName(NULL, exedir, sizeof(exedir));
-				snprintf(path, sizeof(path), "%s\\updater.exe", exedir);
+				snprintf(path, sizeof(path), "%s\\up_dater.exe", exedir);
 				ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
 				system_end();
 				exit(0);
