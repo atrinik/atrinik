@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
 		if (!fp)
 		{
-			return;
+			return 0;
 		}
 
 		fclose(fp);
