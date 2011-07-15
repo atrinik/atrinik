@@ -50,7 +50,6 @@ client/stdout.txt
 client/stderr.txt
 *.cbTemp
 *.depend
-plugin*.layout
 .objs
 curl
 sdl_inc
@@ -60,3 +59,4 @@ pthread.h
 sched.h
 semaphore.h
 *.dll
+*.layout
