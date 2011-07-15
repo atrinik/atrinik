@@ -36,7 +36,7 @@ Section "Client (required)"
 
   SetOutPath $INSTDIR
   File "atrinik.exe"
-  File "updater.exe"
+  File "up_dater.exe"
   File "*.dll"
   File "COPYING"
   File "README"
@@ -44,7 +44,7 @@ Section "Client (required)"
   File "timidity.cfg"
   File "make_win32/tools/gunzip.exe"
   File "make_win32/tools/tar.exe"
-  File "make_win32/tools/updater.bat"
+  File "make_win32/tools/atrinik_updater.bat"
 
   CreateDirectory $INSTDIR\bitmaps
   SetOutPath $INSTDIR\bitmaps
@@ -106,14 +106,14 @@ Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}"
   CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Atrinik Client.lnk" "$INSTDIR\updater.exe" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Atrinik Client.lnk" "$INSTDIR\up_dater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Optional desktop shortcut.
 Section /o "Desktop Shortcut"
   SetShellVarContext all
   
-  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\updater.exe" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\up_dater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Uninstaller.
