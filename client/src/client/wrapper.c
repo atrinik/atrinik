@@ -28,7 +28,6 @@
  * General convenience functions for the client. */
 
 #include <global.h>
-#include <ftw.h>
 
 static FILE *logstream = NULL;
 
@@ -262,32 +261,50 @@ void copy_if_exists(const char *from, const char *to, const char *src, const cha
 }
 
 /**
- * Used for file tree walk in rmrf(). */
-static int rmrf_fn(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
-{
-	int rv = remove(fpath);
-
-	(void) sb;
-	(void) typeflag;
-	(void) ftwbuf;
-
-	if (rv)
-	{
-		LOG(llevBug, "rmrf_fn(): %s: %s\n", fpath, strerror(errno));
-	}
-
-	return rv;
-}
-
-/**
  * Recursively remove a directory and its contents.
  *
  * Effectively same as 'rf -rf path'.
- * @param path What to remove.
- * @return 0 on success, non-zero on failure. */
-int rmrf(const char *path)
+ * @param path What to remove. */
+void rmrf(const char *path)
 {
-	return nftw(path, rmrf_fn, 64, FTW_DEPTH | FTW_PHYS);
+	DIR *dir;
+	struct dirent *currentfile;
+	char buf[HUGE_BUF];
+	struct stat st;
+
+	dir = opendir(path);
+
+	if (!dir)
+	{
+		return;
+	}
+
+	while ((currentfile = readdir(dir)))
+	{
+		if (!strcmp(currentfile->d_name, ".") || !strcmp(currentfile->d_name, ".."))
+		{
+			continue;
+		}
+
+		snprintf(buf, sizeof(buf), "%s/%s", path, currentfile->d_name);
+
+		if (stat(buf, &st) != 0)
+		{
+			continue;
+		}
+
+		if (S_ISDIR(st.st_mode))
+		{
+			rmrf(buf);
+		}
+		else if (S_ISREG(st.st_mode))
+		{
+			unlink(buf);
+		}
+	}
+
+	closedir(dir);
+	rmdir(path);
 }
 
 /**
