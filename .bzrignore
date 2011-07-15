@@ -60,3 +60,6 @@ semaphore.h
 **/CodeBlocks/bin
 **/CodeBlocks/include
 **/CodeBlocks/lib
+client/timidity/
+client/timidity.cfg
+client/up_dater.exe
