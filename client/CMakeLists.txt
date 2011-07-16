@@ -307,6 +307,6 @@ set(CPACK_BINARY_TGZ "OFF")
 set(CPACK_BINARY_TZ "OFF")
 include(CPack)
 
-# Configure the .h file with the configuration options (size of long, 
+# Configure the .h file with the configuration options (size of long,
 # package version, etc).
-configure_file(src/include/cmake.h.def src/include/cmake.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/include/cmake.h.def ${CMAKE_CURRENT_SOURCE_DIR}/src/include/cmake.h)
