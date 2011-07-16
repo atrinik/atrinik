@@ -477,7 +477,7 @@ void settings_load()
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *cp;
-	size_t cat, setting;
+	size_t cat = 0, setting = 0;
 	uint8 is_setting_name = 1;
 
 	fp = fopen_wrapper(FILE_SETTINGS_DAT, "r");
