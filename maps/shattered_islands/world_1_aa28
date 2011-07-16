@@ -69,35 +69,21 @@ path_attuned 124
 x 15
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 15
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 15
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 15
-y 9
+y 14
 end
-arch floor_wood4c
-x 15
-y 10
-end
-arch floor_wood4c
-x 15
-y 11
-end
-arch floor_wood4c
-x 15
-y 12
-end
-arch floor_wood4c
-x 15
-y 13
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 15
 y 14
 end
@@ -228,35 +214,21 @@ path_attuned 124
 x 16
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 16
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 16
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 16
-y 9
+y 14
 end
-arch floor_wood4c
-x 16
-y 10
-end
-arch floor_wood4c
-x 16
-y 11
-end
-arch floor_wood4c
-x 16
-y 12
-end
-arch floor_wood4c
-x 16
-y 13
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 16
 y 14
 end
@@ -387,35 +359,21 @@ path_attuned 124
 x 17
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 17
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 17
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 17
-y 9
+y 14
 end
-arch floor_wood4c
-x 17
-y 10
-end
-arch floor_wood4c
-x 17
-y 11
-end
-arch floor_wood4c
-x 17
-y 12
-end
-arch floor_wood4c
-x 17
-y 13
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 17
 y 14
 end
@@ -546,35 +504,29 @@ path_attuned 124
 x 18
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 18
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 18
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 18
-y 9
+y 14
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 18
-y 10
+y 14
 end
-arch floor_wood4c
-x 18
-y 11
-end
-arch floor_wood4c
-x 18
-y 12
-end
-arch floor_wood4c
-x 18
-y 13
-end
-arch floor_wood4c
+arch wmask_ruin1a.111
+name door
+face door_wood1.111
+animation door_wood2
+zoom 80
 x 18
 y 14
 end
@@ -705,35 +657,21 @@ path_attuned 124
 x 19
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 19
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 19
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 19
-y 9
+y 14
 end
-arch floor_wood4c
-x 19
-y 10
-end
-arch floor_wood4c
-x 19
-y 11
-end
-arch floor_wood4c
-x 19
-y 12
-end
-arch floor_wood4c
-x 19
-y 13
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 19
 y 14
 end
@@ -864,35 +802,21 @@ path_attuned 124
 x 20
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 20
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 20
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 20
-y 9
+y 14
 end
-arch floor_wood4c
-x 20
-y 10
-end
-arch floor_wood4c
-x 20
-y 11
-end
-arch floor_wood4c
-x 20
-y 12
-end
-arch floor_wood4c
-x 20
-y 13
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 20
 y 14
 end
@@ -1023,35 +947,21 @@ path_attuned 124
 x 21
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 21
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 21
-y 8
+y 7
 end
-arch floor_wood4c
+arch blocked
 x 21
-y 9
+y 14
 end
-arch floor_wood4c
-x 21
-y 10
-end
-arch floor_wood4c
-x 21
-y 11
-end
-arch floor_wood4c
-x 21
-y 12
-end
-arch floor_wood4c
-x 21
-y 13
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 21
 y 14
 end
@@ -1182,35 +1092,75 @@ path_attuned 124
 x 22
 y 6
 end
-arch floor_wood4c
+arch grassd_1
 x 22
 y 7
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
+x 22
+y 7
+end
+arch blocked
 x 22
 y 8
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 22
+y 8
+end
+arch blocked
 x 22
 y 9
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 22
+y 9
+end
+arch blocked
 x 22
 y 10
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 22
+y 10
+end
+arch blocked
 x 22
 y 11
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 22
+y 11
+end
+arch blocked
 x 22
 y 12
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 22
+y 12
+end
+arch blocked
 x 22
 y 13
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 22
+y 13
+end
+arch blocked
+x 22
+y 14
+end
+arch wall_wood_4
+draw_double 0
 x 22
 y 14
 end

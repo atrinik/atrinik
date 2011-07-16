@@ -301,27 +301,57 @@ path_attuned 124
 x 1
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 1
 y 15
 end
-arch floor_wood4c
+arch wall_wood_8
+draw_double 0
+x 1
+y 15
+end
+arch grassd_3
 x 1
 y 16
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 1
+y 16
+end
+arch grassd_3
 x 1
 y 17
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 1
+y 17
+end
+arch grassd_3
 x 1
 y 18
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 1
+y 18
+end
+arch grassd_3
 x 1
 y 19
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 1
+y 19
+end
+arch grassd_3
+x 1
+y 20
+end
+arch wall_wood2_3
+draw_double 0
 x 1
 y 20
 end
@@ -376,7 +406,40 @@ arch floor_wood2_l1
 x 2
 y 3
 end
+arch chair2_111
+x 2
+y 3
+end
+arch spawn_point
+x 2
+y 3
+arch witch2
+msg
+@match ^hi$|^hey$|^hello$
+Aww, maybe tomorrow I'll learn how to summon a <a>fairy</a>.
+@match ^fairy$
+Fairies are kinda cute.
+@match ^Reimu$|^Hakurei$|^Reimu Hakurei$
+Neko Miko Reimu.  Aishite'ru...
+endmsg
+name student witch
+level 28
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+direction 3
+arch ability_cause_lig_wound
+end
+end
+end
 arch floor_wood2_l1
+x 2
+y 4
+end
+arch table_round1
 x 2
 y 4
 end
@@ -392,15 +455,73 @@ arch floor_wood2_l1
 x 2
 y 6
 end
+arch quill_pen
+layer 5
+z 38
+align 12
+x 2
+y 6
+end
+arch note
+z 30
+zoom 60
+align 10
+layer 7
+x 2
+y 6
+end
+arch table_wood1.111
+layer 3
+face desk1.111
+animation desk1.111
+direction 3
+x 2
+y 6
+end
 arch floor_wood2_l1
 x 2
 y 7
+end
+arch chair3
+direction 5
+x 2
+y 7
+end
+arch spawn_point
+x 2
+y 7
+arch witch4
+msg
+@match ^hi$|^hey$|^hello$
+Welcome to the Centennial Witch Academy.  How can I <a>help</a> you?
+@match ^help$
+As the headmistress of the school, it is my duty to ensure all of our guests are taken care of.
+@match ^Alice$|^Margatroid$|^Alice Margatroid$
+*laughs*  That's a pretty amusing association you have made.
+endmsg
+name Margaret, the Headmistress
+direction 1
+level 45
+can_cast_spell 1
+sp -1
+maxsp 15
+Pow 4
+Dex 2
+type 83
+arch ability_cause_lig_wound
+end
+end
 end
 arch floor_wood2_l1
 x 2
 y 8
 end
 arch floor_wood2_l1
+x 2
+y 9
+end
+arch broom.111
+direction 7
 x 2
 y 9
 end
@@ -416,9 +537,39 @@ arch floor_wood2_l1
 x 2
 y 11
 end
+arch table_poker2
+x 2
+y 11
+end
 arch floor_wood2_l1
 x 2
 y 12
+end
+arch chair1_111
+direction 5
+x 2
+y 12
+end
+arch spawn_point
+x 2
+y 12
+arch witch4
+msg
+@match ^Alice$|^Margatroid$|^Alice Margatroid$
+Too busy now.  Trying to win against this cheater.
+endmsg
+name student witch
+level 25
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+direction 1
+arch ability_cause_lig_wound
+end
+end
 end
 arch floor_wood2_l1
 x 2
@@ -436,27 +587,21 @@ path_attuned 124
 x 2
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 2
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 2
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 2
-y 17
+y 20
 end
-arch floor_wood4c
-x 2
-y 18
-end
-arch floor_wood4c
-x 2
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 2
 y 20
 end
@@ -515,6 +660,10 @@ arch floor_wood2_l1
 x 3
 y 4
 end
+arch chair_small
+x 3
+y 4
+end
 arch floor_wood2_l1
 x 3
 y 5
@@ -524,6 +673,10 @@ x 3
 y 5
 end
 arch floor_wood2_l1
+x 3
+y 6
+end
+arch torch_wall_1
 x 3
 y 6
 end
@@ -551,6 +704,36 @@ arch floor_wood2_l1
 x 3
 y 11
 end
+arch chair1_111
+direction 3
+x 3
+y 11
+end
+arch spawn_point
+x 3
+y 11
+arch witch1
+msg
+@match ^hi$|^hey$|^hello$
+Heh.  This sucker keeps falling for the same trick.
+@match ^cheater$
+It ain't cheating, I'm just playing creatively.  Haha.~
+@match ^Marisa$|^Kirisame$|^Marisa Kirisame$
+Marisa's awesome isn't she?
+endmsg
+name student witch
+direction 7
+level 27
+spawn_time 8:00-14:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+arch ability_cause_lig_wound
+end
+end
+end
 arch floor_wood2_l1
 x 3
 y 12
@@ -571,27 +754,21 @@ path_attuned 124
 x 3
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 3
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 3
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 3
-y 17
+y 20
 end
-arch floor_wood4c
-x 3
-y 18
-end
-arch floor_wood4c
-x 3
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 3
 y 20
 end
@@ -741,27 +918,21 @@ path_attuned 124
 x 4
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 4
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 4
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 4
-y 17
+y 20
 end
-arch floor_wood4c
-x 4
-y 18
-end
-arch floor_wood4c
-x 4
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 4
 y 20
 end
@@ -804,11 +975,11 @@ path_attuned 124
 x 5
 y 1
 end
-arch grassd_2
+arch grassd_8
 x 5
 y 2
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 5
 y 2
 end
@@ -856,7 +1027,7 @@ arch floor_wood2_l1
 x 5
 y 13
 end
-arch wall_wood_1
+arch wall_wood_w_1
 x 5
 y 13
 end
@@ -868,27 +1039,21 @@ path_attuned 124
 x 5
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 5
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 5
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 5
-y 17
+y 20
 end
-arch floor_wood4c
-x 5
-y 18
-end
-arch floor_wood4c
-x 5
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 5
 y 20
 end
@@ -1027,27 +1192,21 @@ path_attuned 124
 x 6
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 6
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 6
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 6
-y 17
+y 20
 end
-arch floor_wood4c
-x 6
-y 18
-end
-arch floor_wood4c
-x 6
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 6
 y 20
 end
@@ -1102,11 +1261,51 @@ arch floor_wood2_l1
 x 7
 y 3
 end
+arch chair2_111
+direction 7
+x 7
+y 3
+end
 arch floor_wood2_l1
 x 7
 y 4
 end
+arch chair2_111
+direction 7
+x 7
+y 4
+end
+arch spawn_point
+x 7
+y 4
+arch witch2
+msg
+@match ^hi$|^hey$|^hello$
+Whoa.  Hey!  Maybe I can learn to summon a <a>fairy</a>!
+@match ^fairy$
+Fairies are kinda cute.
+@match ^Reimu$|^Hakurei$|^Reimu Hakurei$
+Neko Miko Reimu.  Aishite'ru...
+endmsg
+name student witch
+level 28
+spawn_time 8:00-14:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+direction 3
+arch ability_cause_lig_wound
+end
+end
+end
 arch floor_wood2_l1
+x 7
+y 5
+end
+arch chair2_111
+direction 7
 x 7
 y 5
 end
@@ -1142,6 +1341,11 @@ arch floor_wood2_l1
 x 7
 y 11
 end
+arch chair1_111
+direction 7
+x 7
+y 11
+end
 arch floor_wood2_l1
 x 7
 y 12
@@ -1162,27 +1366,21 @@ path_attuned 124
 x 7
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 7
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 7
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 7
-y 17
+y 20
 end
-arch floor_wood4c
-x 7
-y 18
-end
-arch floor_wood4c
-x 7
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 7
 y 20
 end
@@ -1233,6 +1431,10 @@ arch wall_wood3_1
 x 8
 y 2
 end
+arch wmask_ruin1b.111
+x 8
+y 2
+end
 arch floor_wood2_l1
 x 8
 y 3
@@ -1278,9 +1480,41 @@ arch floor_wood2_l1
 x 8
 y 11
 end
+arch table_round2
+x 8
+y 11
+end
 arch floor_wood2_l1
 x 8
 y 12
+end
+arch chair1_111
+direction 5
+x 8
+y 12
+end
+arch spawn_point
+x 8
+y 12
+arch witch4
+msg
+@match ^hi$|^hey$|^hello$
+Being on the student council is hard work.
+@match ^Alice$|^Margatroid$|^Alice Margatroid$
+Maybe later, I've got a student council to run.
+endmsg
+name student witch
+level 25
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+direction 1
+arch ability_cause_lig_wound
+end
+end
 end
 arch grassd_8
 x 8
@@ -1298,27 +1532,21 @@ path_attuned 124
 x 8
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 8
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 8
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 8
-y 17
+y 20
 end
-arch floor_wood4c
-x 8
-y 18
-end
-arch floor_wood4c
-x 8
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 8
 y 20
 end
@@ -1361,11 +1589,11 @@ path_attuned 124
 x 9
 y 1
 end
-arch grassd_4
+arch grassd_8
 x 9
 y 2
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 9
 y 2
 end
@@ -1373,7 +1601,94 @@ arch floor_wood2_l1
 x 9
 y 3
 end
-arch floor_wood2_l1
+arch spawn_point
+x 9
+y 3
+arch witch5
+msg
+@match ^hi$|^hey$|^hello$
+Hey.  You're not in my summoning class...
+@match ^Sanae$|^Kotiya$|^Sanae Kotiya$
+I'll remind you not to pry into other people's hobbies, thank you.
+@match ^Kanako Yasaka$
+Somebody wants to be put through the wringer, do they?
+endmsg
+name Kanako, the witch instructor
+level 35
+spawn_time 8:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 15
+Pow 4
+Dex 2
+type 83
+arch ability_mbullet
+name ability lightning
+sp 48
+hp 48
+end
+end
+end
+arch floor_ostone8
+x 9
+y 4
+end
+arch candle_on
+layer 6
+z 10
+align 38
+x 9
+y 4
+end
+arch candle_on
+layer 5
+z 18
+align 20
+x 9
+y 4
+end
+arch candle_on
+z 1
+align 20
+x 9
+y 4
+end
+arch candle_on
+layer 3
+z 10
+align 4
+x 9
+y 4
+end
+arch spawn_point
+x 9
+y 4
+arch tiger
+spawn_time 8:00-16:00
+unaggressive 1
+friendly 1
+type 83
+end
+arch snake
+spawn_time 8:00-16:00
+unaggressive 1
+friendly 1
+type 83
+end
+arch slime
+spawn_time 8:00-16:00
+unaggressive 1
+friendly 1
+type 83
+end
+arch spider
+spawn_time 8:00-16:00
+unaggressive 1
+friendly 1
+type 83
+end
+end
+arch light4
 x 9
 y 4
 end
@@ -1417,6 +1732,11 @@ arch floor_wood2_l1
 x 9
 y 11
 end
+arch chair1_111
+direction 3
+x 9
+y 11
+end
 arch floor_wood2_l1
 x 9
 y 12
@@ -1437,27 +1757,29 @@ path_attuned 124
 x 9
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 9
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 9
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 9
-y 17
+y 20
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 9
-y 18
+y 20
 end
-arch floor_wood4c
-x 9
-y 19
-end
-arch floor_wood4c
+arch wmask_ruin1a.111
+name door
+face door_wood1.111
+animation door_wood1
+zoom 80
 x 9
 y 20
 end
@@ -1581,27 +1903,21 @@ path_attuned 124
 x 10
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 10
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 10
-y 16
+y 15
 end
-arch floor_wood4c
+arch blocked
 x 10
-y 17
+y 20
 end
-arch floor_wood4c
-x 10
-y 18
-end
-arch floor_wood4c
-x 10
-y 19
-end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
 x 10
 y 20
 end
@@ -1656,13 +1972,51 @@ arch floor_wood2_l1
 x 11
 y 3
 end
+arch chair2_111
+direction 3
+x 11
+y 3
+end
 arch floor_wood2_l1
+x 11
+y 4
+end
+arch chair2_111
+direction 3
 x 11
 y 4
 end
 arch floor_wood2_l1
 x 11
 y 5
+end
+arch chair2_111
+direction 3
+x 11
+y 5
+end
+arch spawn_point
+x 11
+y 5
+arch witch4
+msg
+@match ^hi$|^hey$|^hello$
+She only summons the boring animals!
+@match ^Alice$|^Margatroid$|^Alice Margatroid$
+Now she can summon exploding dolls!  Awesome!
+endmsg
+name student witch
+level 25
+spawn_time 8:00-14:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+direction 7
+arch ability_cause_lig_wound
+end
+end
 end
 arch floor_wood2_l1
 x 11
@@ -1729,27 +2083,57 @@ path_attuned 124
 x 11
 y 14
 end
-arch floor_wood4c
+arch grassd_1
 x 11
 y 15
 end
-arch floor_wood4c
+arch wall_wood3_1
+draw_double 0
+x 11
+y 15
+end
+arch blocked
 x 11
 y 16
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 11
+y 16
+end
+arch blocked
 x 11
 y 17
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 11
+y 17
+end
+arch blocked
 x 11
 y 18
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 11
+y 18
+end
+arch blocked
 x 11
 y 19
 end
-arch floor_wood4c
+arch wall_wood2_3
+draw_double 0
+x 11
+y 19
+end
+arch blocked
+x 11
+y 20
+end
+arch wall_wood_4
+draw_double 0
 x 11
 y 20
 end
