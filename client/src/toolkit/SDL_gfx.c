@@ -3176,7 +3176,7 @@ int arcColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Si
 	Uint8 *colorptr;
 	Uint8 drawoct;
 	int startoct, endoct, oct, stopval_start = 0, stopval_end;
-	double temp;
+	double temp = 0;
 
 	/*
 	* Check visibility of clipping rectangle
