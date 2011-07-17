@@ -4069,33 +4069,6 @@ int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uin
 
 /* ----- AA Ellipse */
 
-/* Win32 does not have lrint, so provide a local inline version */
-#if defined(_MSC_VER)
-/* Detect 64bit and use intrinsic version */
-#ifdef _M_X64
-#include <emmintrin.h>
-static __inline long
-lrint(float f)
-{
-	return _mm_cvtss_si32(_mm_load_ss(&f));
-}
-#elif defined(_M_IX86)
-__inline long int
-lrint (double flt)
-{
-	int intgr;
-	_asm
-	{
-		fld flt
-			fistp intgr
-	};
-	return intgr;
-}
-#else
-#error lrint needed for MSVC on non X86/AMD64 targets.
-#endif
-#endif
-
 /*!
 \brief Draw anti-aliased ellipse with blending.
 
