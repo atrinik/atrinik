@@ -187,10 +187,6 @@ typedef signed char sint8;
 #	define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
 #endif
 
-#ifndef _ISOC99_SOURCE
-#	define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
-#endif
-
 /** The log levels. */
 typedef enum LogLevel
 {
