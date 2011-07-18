@@ -126,6 +126,7 @@ check_function_exists(strnicmp HAVE_STRNICMP)
 check_function_exists(srandom HAVE_SRANDOM)
 check_function_exists(srand48 HAVE_SRAND48)
 check_function_exists(srand HAVE_SRAND)
+check_function_exists(strtok_r HAVE_STRTOK_R)
 
 # Add our includes.
 include_directories(src/include)
@@ -145,6 +146,7 @@ set(SOURCES
 	src/client/metaserver.c
 	src/client/misc.c
 	src/client/player.c
+	src/client/porting.c
 	src/client/scripts.c
 	src/client/server_files.c
 	src/client/server_settings.c
@@ -310,3 +312,4 @@ include(CPack)
 # Configure the .h file with the configuration options (size of long,
 # package version, etc).
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/include/cmake.h.def ${CMAKE_CURRENT_SOURCE_DIR}/src/include/cmake.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h.def ${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h)

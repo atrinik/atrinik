@@ -7,11 +7,6 @@ LGPL (c) A. Schiffler
 */
 
 #include <global.h>
-#include <math.h>
-
-#ifndef _ISOC99_SOURCE
-#	define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
-#endif
 
 /* -===================- */
 

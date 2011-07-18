@@ -59,18 +59,6 @@
 /* The size of 'long long'. */
 #define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
 
-/* Name of the package. */
-#define PACKAGE_NAME "@PACKAGE_NAME@"
-
-/* Major version of the package. */
-#define PACKAGE_VERSION_MAJOR @PACKAGE_VERSION_MAJOR@
-
-/* Minor version of the package. */
-#define PACKAGE_VERSION_MINOR @PACKAGE_VERSION_MINOR@
-
-/* Patch version of the package. */
-#define PACKAGE_VERSION_PATCH @PACKAGE_VERSION_PATCH@
-
 #define INSTALL_SUBDIR_SHARE "@INSTALL_SUBDIR_SHARE@"
 
 #ifndef HAVE_FCNTL_H
@@ -143,6 +131,10 @@
 
 #ifndef HAVE_SRAND
 #cmakedefine HAVE_SRAND
+#endif
+
+#ifndef HAVE_STRTOK_R
+#cmakedefine HAVE_STRTOK_R
 #endif
 
 #endif

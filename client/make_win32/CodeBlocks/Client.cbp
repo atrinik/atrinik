@@ -59,6 +59,7 @@
 		<Unit filename="..\..\src\client\menu.c" />
 		<Unit filename="..\..\src\client\updates.c" />
 		<Unit filename="..\..\src\client\player.c" />
+		<Unit filename="..\..\src\client\porting.c" />
 		<Unit filename="..\..\src\client\client.c" />
 		<Unit filename="..\..\src\client\video.c" />
 		<Unit filename="..\..\src\client\upgrader.c" />

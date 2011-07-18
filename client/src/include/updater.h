@@ -23,85 +23,33 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#ifndef WIN32_H
-#define WIN32_H
+/**
+ * @file
+ * Header file for the updater GUI. */
 
-#ifndef STRICT
-#	define STRICT
-#endif
+#ifndef UPDATER_H
+#define UPDATER_H
 
-#if _MSC_VER > 1000
-#	pragma once
-#endif
+/**
+ * URL where the updater will check for updates. "&version=VERSION" will
+ * be appended to this URL, replacing VERSION with the current client's
+ * version number. */
+#define UPDATER_CHECK_URL "http://www.atrinik.org/page/client_update"
+/**
+ * Base directory of all the updates. This is where the updates will be
+ * downloaded from, as the updater server will only tell us the
+ * filenames. */
+#define UPDATER_PATH_URL "http://www.atrinik.org/cms/uploads"
 
-#define WIN32_LEAN_AND_MEAN
+/**
+ * A single update file that is to be downloaded. */
+typedef struct update_file_struct
+{
+	/** File name to download. */
+	char *filename;
 
-#include <windows.h>
-#include <windowsx.h>
-#include <mmsystem.h>
-#include <winsock2.h>
-#include <io.h>
-#include <malloc.h>
-#include <direct.h>
-#include <shellapi.h>
-
-#define snprintf _snprintf
-#define inline __inline
-
-#ifndef MINGW
-#	define strdup _strdup
-#	define fileno _fileno
-#	define unlink _unlink
-#	define lseek _lseek
-#	define access _access
-#	define strtoull _strtoui64
-#	define strtok_r strtok_s
-#	define F_OK 6
-#	define R_OK 6
-#	define W_OK 2
-	/* Conversion from 'xxx' to 'yyy', possible loss of data */
-#	pragma warning(disable: 4244)
-	/* Conversion from 'size_t' to 'int', possible loss of data */
-#	pragma warning(disable: 4267)
-	/* Initializing float f = 0.05; instead of f = 0.05f; */
-#	pragma warning(disable: 4305)
-#else
-#   define strtok_r(_s, _sep, _lasts) (*(_lasts) = strtok((_s), (_sep)))
-#endif
-
-/* Doesn't exist, just a plain int */
-#ifndef socklen_t
-#	define socklen_t int
-#endif
-
-#define mkdir(__a, __b) _mkdir(__a)
-
-#define HAVE_STRICMP
-#define HAVE_STRNICMP
-#define HAVE_SDL
-#define HAVE_SDL_IMAGE
-#define HAVE_SDL_TTF
-#define HAVE_CURL
-#define HAVE_ZLIB
-#define HAVE_SDL_MIXER
-#define HAVE_STRERROR
-#define HAVE_SRAND
-
-#define HAVE_FCNTL_H
-#define HAVE_TIME_H
-#define HAVE_STDDEF_H
-
-#ifdef MINGW
-#	define HAVE_DIRENT_H
-#endif
-
-/* Name of the package. */
-#define PACKAGE_NAME "Atrinik Client"
-/* Major version of the package. */
-#define PACKAGE_VERSION_MAJOR 2
-/* Minor version of the package. */
-#define PACKAGE_VERSION_MINOR 5
-/* Patch version of the package. */
-#define PACKAGE_VERSION_PATCH 0
+	/** SHA-1. */
+	char *sha1;
+} update_file_struct;
 
 #endif

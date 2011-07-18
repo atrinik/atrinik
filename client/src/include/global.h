@@ -30,26 +30,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-/* If we're not using GNU C, ignore __attribute__ */
-#ifndef __GNUC__
-#	define  __attribute__(x)
-#endif
-
-#include <SDL.h>
-#include <SDL_main.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <curl/curl.h>
-#include <zlib.h>
-
-#ifndef WIN32
-#	include <cmake.h>
-#else
-#	include "win32.h"
-#endif
-
-#include <config.h>
-
 /** Unsigned 32-bit integer. */
 typedef unsigned int uint32;
 /** Signed 32-bit integer. */
@@ -63,44 +43,20 @@ typedef unsigned char uint8;
 /** Signed 8-bit integer. */
 typedef signed char sint8;
 
-#ifdef WIN32
-	typedef unsigned __int64            uint64;
-	typedef signed __int64              sint64;
-#	define atoll                        _atoi64
-#	define FMT64                        "I64d"
-#	define FMT64U                       "I64u"
-#else
-#	if SIZEOF_LONG == 8
-		typedef unsigned long           uint64;
-		typedef signed long             sint64;
-#		define FMT64                    "ld"
-#		define FMT64U                   "lu"
-
-#	elif SIZEOF_LONG_LONG == 8
-		typedef unsigned long long      uint64;
-		typedef signed long long        sint64;
-#		define FMT64                    "lld"
-#		define FMT64U                   "llu"
-
-#	else
-#		error Do not know how to get a 64 bit value on this system.
-#		error Correct and send email to the Atrinik Team on how to do this.
-#	endif
-#endif
-
-#ifndef MIN
-#	define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-
-#ifndef MAX
-#	define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-#ifndef FABS
-#	define FABS(x) ((x) < 0 ? -(x) : (x))
+/* If we're not using GNU C, ignore __attribute__ */
+#ifndef __GNUC__
+#	define  __attribute__(x)
 #endif
 
 /* Include standard headers. */
+#include <SDL.h>
+#include <SDL_main.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <curl/curl.h>
+#include <zlib.h>
+#include <math.h>
+#include <config.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -109,6 +65,8 @@ typedef signed char sint8;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+
+#include <porting.h>
 
 #ifdef HAVE_STDDEF_H
 #	include <stddef.h>
@@ -187,6 +145,18 @@ typedef signed char sint8;
 #	define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
 #endif
 
+#ifndef MIN
+#	define MIN(x, y) ((x) < (y) ? (x) : (y))
+#endif
+
+#ifndef MAX
+#	define MAX(x, y) ((x) > (y) ? (x) : (y))
+#endif
+
+#ifndef FABS
+#	define FABS(x) ((x) < 0 ? -(x) : (x))
+#endif
+
 /** The log levels. */
 typedef enum LogLevel
 {
@@ -200,6 +170,7 @@ typedef enum LogLevel
 	llevInfo
 } LogLevel;
 
+#include <version.h>
 #include <item.h>
 #include <text.h>
 #include <curl.h>
@@ -232,6 +203,7 @@ typedef enum LogLevel
 #include <binreloc.h>
 #include <sha1.h>
 #include <progress.h>
+#include <updater.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>

@@ -864,23 +864,23 @@ void play_anims()
  * @param sprite1
  * @param sprite2
  * @return  */
-int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2)
+int sprite_collision(int x, int y, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2)
 {
 	int left1, left2;
 	int right1, right2;
 	int top1, top2;
 	int bottom1, bottom2;
 
-	left1 = x1 + sprite1->border_left;
+	left1 = x + sprite1->border_left;
 	left2 = x2 + sprite2->border_left;
 
-	right1 = x1 + sprite1->bitmap->w - sprite1->border_right;
+	right1 = x + sprite1->bitmap->w - sprite1->border_right;
 	right2 = x2 + sprite2->bitmap->w - sprite2->border_right;
 
-	top1 = y1 + sprite1->border_up;
+	top1 = y + sprite1->border_up;
 	top2 = y2 + sprite2->border_down;
 
-	bottom1 = y1 + sprite1->bitmap->h - sprite1->border_down;
+	bottom1 = y + sprite1->bitmap->h - sprite1->border_down;
 	bottom2 = y2 + sprite2->bitmap->h - sprite2->border_down;
 
 	if (bottom1 < top2)

@@ -23,10 +23,70 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <global.h>
+/**
+ * @file
+ * Handles the update popup, which is triggered by clicking the 'Update'
+ * button on the main client screen.
+ *
+ * As soon as the update popup is opened, cURL will attempt to check with
+ * the update server whether there are any new versions available, by
+ * sending it the current client's version, which the update server
+ * checks. The update server will send a response, which may be empty,
+ * but may contain filenames and SHA-1 sums of updates that the client
+ * has to download in order to update to the latest version.
+ *
+ * Now, the behavior is different on the platform the client is running
+ * on.
+ *
+ * For Windows:
+ *
+ * When the response is received, it is parsed, and the updates (if any)
+ * are stored in ::download_packages_file and ::download_packages_sha1
+ * for the update file names and SHA-1 sums, respectively. The client
+ * will then attempt to download the updates by their file names one-by-
+ * one by using cURL, and saving the result in "client_patch_NUM.tar.gz"
+ * where NUM is the ID of the update (starting with zero and increasing
+ * each time a new file is downloaded) and is padded with zeroes. The
+ * directory the file is saved in is determined by updater_get_dir(). On
+ * Windows, for example, it would be stored in %AppData%/.atrinik/temp.
+ * It is not saved in the same directory as the client executable due to
+ * Windows UAC, which marks various directories, including Program Files
+ * as protected.
+ *
+ * Note that if the downloaded file content does not match the SHA-1, the
+ * update will be stopped, and it will only install the updates
+ * downloaded prior to the one that failed the SHA-1 check (if any).
+ *
+ * After the updater has finished downloading all updates (if none, it
+ * just informs the user that they are running an up-to-date client), it
+ * tells the user to restart their client to apply the updates, and shows
+ * a handy 'Restart' button, which closes the client and opens it again.
+ * This is done by calling up_dater.exe - which is also the executable
+ * called by shortcuts - which runs atrinik_updater.bat as administrator
+ * (popping up UAC prompt), which extracts the downloaded updates,
+ * removes the temporary directory, and starts up the client. If there
+ * are no updates, up_dater.exe simply starts up the Atrinik client
+ * normally.
+ *
+ * The reason there is up_dater.exe and atrinik_updater.bat is that
+ * Windows UAC is unable to only prompt for administrator password when
+ * requested from a running program - it can only do so when starting up
+ * a program, and administrator rights are necessary to write to
+ * protected directories, such as Program Files, where the client may be
+ * installed. up_dater.exe has an underscore in its filename because
+ * otherwise Windows would (due to backwards compatibility, or some other
+ * reason) popup UAC prompt each time it's started, even when there are
+ * no updates available and it's not running atrinik_updater.bat as
+ * administrator.
+ *
+ * For GNU/Linux:
+ *
+ * If there are any updates available, the user is simply instructed to
+ * use their update manager to update.
+ *
+ * @author Alex Tokar */
 
-#define UPDATER_CHECK_URL "http://www.atrinik.org/page/client_update"
-#define UPDATER_PATH_URL "http://www.atrinik.org/cms/uploads"
+#include <global.h>
 
 static curl_data *dl_data = NULL;
 static char **download_packages_file;

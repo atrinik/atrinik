@@ -190,24 +190,24 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
  * if necessary.
  * @warning brightness above 1.0 is (apparently) allowed but brightness < 0
  * is not tested and could cause problems. */
-int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness)
+int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness)
 {
 	Uint32 color;
 	Uint8 red, green, blue, alpha, alpha_2;
 	Uint8 red_2, green_2, blue_2;
 	Uint16 n;
 
-	if (x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0)
+	if (x < 0 || y < 0 || x2 < 0 || y2 < 0)
 	{
 		return 0;
 	}
 
-	if (x1 >= src->w || x2 >= dest->w || y1 >= src->h || y2 >= dest->h)
+	if (x >= src->w || x2 >= dest->w || y >= src->h || y2 >= dest->h)
 	{
 		return 0;
 	}
 
-	color = getpixel(src, x1, y1);
+	color = getpixel(src, x, y);
 
 	/* No need to copy transparent pixels */
 	if (src->format->BitsPerPixel == 8 && (color == src->format->colorkey))
@@ -400,7 +400,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 	int dest_x_inc, dest_y_inc;
 	float kicker, kicker_2;
 	int dest_y_inc_2;
-	int x1, y1, y2;
+	int x, y, y2;
 	int at_least_one;
 	int src_len;
 	Uint32 color;
@@ -573,8 +573,8 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 
 		/* Initialise loop controls: "kicker" means the co-ordinate
 		 * crosses the line (another weird name) */
-		x1 = dest_sx;
-		y1 = dest_sy;
+		x = dest_sx;
+		y = dest_sy;
 		kicker = 0.0;
 		y2 = dest_sy_2;
 		kicker_2 = 0.0;
@@ -588,7 +588,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 		 *
 		 * effective loop control when non-horizontal:
 		 * for (x1 = dest_sx; x1 != dest_ex; x1 += dest_x_inc) */
-		while (((dest_slope != 0.0) && (x1 != dest_ex) && (y1 != dest_ey)) || ((at_least_one == 0) && (dest_slope == 0.0)))
+		while (((dest_slope != 0.0) && (x != dest_ex) && (y != dest_ey)) || ((at_least_one == 0) && (dest_slope == 0.0)))
 		{
 			/* Exit the loop after the first iteration if the line is exactly horizontal (or vertical) */
 			at_least_one = 1;
@@ -596,7 +596,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 			if (kicker >= 1.0)
 			{
 				kicker = kicker - 1.0;
-				y1 = y1 + dest_y_inc;
+				y = y + dest_y_inc;
 			}
 
 			if (kicker_2 >= 1.0)
@@ -606,42 +606,42 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 			}
 
 			/* Choose y co-ordinates either side of the central horizontal */
-			src_len = std_tile_half_len[x1];
+			src_len = std_tile_half_len[x];
 
 			if (ln_num < 2)
 			{
-				copy_vertical_line(src, destination, x1, 11 + src_len, 11 - src_len, x1, y1, y2, w_dark, flat);
+				copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len, x, y, y2, w_dark, flat);
 			}
 			else
 			{
-				copy_vertical_line(src, destination, x1, 11 + src_len, 11 - src_len, x1, y1, y2, e_dark, flat);
+				copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len, x, y, y2, e_dark, flat);
 			}
 
-			x1 = x1 + dest_x_inc;
+			x = x + dest_x_inc;
 
 			kicker = kicker + dest_slope;
 			kicker_2 = kicker_2 + dest_slope_2;
 		}
 	}
 
-	for (x1 = 22; x1 < 22 + 2; x1++)
+	for (x = 22; x < 22 + 2; x++)
 	{
-		copy_vertical_line(src, destination, x1, 0, 23, x1, 0, 23 + n - s, w_dark, flat);
+		copy_vertical_line(src, destination, x, 0, 23, x, 0, 23 + n - s, w_dark, flat);
 	}
 
-	for (x1 = 24; x1 < 24 + 2; x1++)
+	for (x = 24; x < 24 + 2; x++)
 	{
-		copy_vertical_line(src, destination, x1, 0, 23, x1, 0, 23 + n - s, e_dark, flat);
+		copy_vertical_line(src, destination, x, 0, 23, x, 0, 23 + n - s, e_dark, flat);
 	}
 
-	for (x1 = 0; x1 < 2; x1++)
+	for (x = 0; x < 2; x++)
 	{
-		copy_pixel_to_pixel(src,destination, x1, 11, x1, 11 + n - w, w_dark);
+		copy_pixel_to_pixel(src,destination, x, 11, x, 11 + n - w, w_dark);
 	}
 
-	for (x1 = 46; x1 < 48; x1++)
+	for (x = 46; x < 48; x++)
 	{
-		copy_pixel_to_pixel(src, destination, x1, 11, x1, 11 + n - e, e_dark);
+		copy_pixel_to_pixel(src, destination, x, 11, x, 11 + n - e, e_dark);
 	}
 
 	SDL_UnlockSurface(src);
