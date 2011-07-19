@@ -23,26 +23,39 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Keybindings header file. */
+
 #ifndef KEYBIND_H
 #define KEYBIND_H
 
+/** Where keybindings are saved. */
 #define FILE_KEYBIND "settings/keys.dat"
 
+/**
+ * One keybind. */
 typedef struct keybind_struct
 {
+	/** Command to execute. */
 	char *command;
 
+	/** Key bound. */
 	SDLKey key;
 
+	/** Ctrl/shift/etc modifiers. */
 	SDLMod mod;
 
+	/** Whether to trigger repeat. */
 	uint8 repeat;
 } keybind_struct;
 
+/** How quickly the key repeats. */
+#define KEY_REPEAT_TIME (35)
+/** Ticks that must pass before the key begins repeating. */
+#define KEY_REPEAT_TIME_INIT (175)
+
 keybind_struct **keybindings;
 size_t keybindings_num;
-
-#define KEY_REPEAT_TIME 35
-#define KEY_REPEAT_TIME_INIT 175
 
 #endif
