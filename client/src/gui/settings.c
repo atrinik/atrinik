@@ -29,7 +29,7 @@
 
 #include <global.h>
 
-static uint8 setting_type = SETTING_TYPE_NONE;
+/** Password button. */
 static button_struct button_password;
 
 /** The different buttons of the settings popup. */
@@ -49,18 +49,40 @@ static const char *const button_names[BUTTON_NUM] =
 	"Client Settings", "Key Settings", "Logout", "Back to Play"
 };
 
+/** Currently selected setting type. */
+static uint8 setting_type = SETTING_TYPE_NONE;
 /** Currently selected button. */
 static size_t button_selected;
+/** Selected setting category. */
 static size_t setting_category_selected;
+/** Which row was clicked. */
 static uint32 list_row_clicked;
+/** 1 if there is a clicked to handle. */
 static uint32 list_clicked = 0;
+/** Step in the keybinding GUI. */
+static uint8 setting_keybind_step;
+/** Key of the shortcut being added/edited. */
+static SDLKey setting_keybind_key;
+/** Modifier for the shortcut. */
+static SDLMod setting_keybind_mod;
+/** If not -1, we're editing this keybinding ID. */
+static sint32 setting_keybind_id;
+/**
+ * Whether player has entered their current password in the password
+ * changing GUI. */
+static uint8 setting_password_confirmed;
 
+/**
+ * Reload the settings list.
+ * @param list The list. */
 static void settings_list_reload(list_struct *list)
 {
 	size_t i;
 
+	/* Clear all the rows. */
 	list_clear_rows(list);
 
+	/* Settings? */
 	if (setting_type == SETTING_TYPE_SETTINGS)
 	{
 		setting_struct *setting;
@@ -69,14 +91,16 @@ static void settings_list_reload(list_struct *list)
 		{
 			setting = setting_categories[setting_category_selected]->settings[i];
 
+			/* Internal, no need to go any further. */
 			if (setting->internal)
 			{
-				continue;
+				break;
 			}
 
 			list_add(list, list->rows, 0, "");
 		}
 	}
+	/* Keybindings? */
 	else if (setting_type == SETTING_TYPE_KEYBINDINGS)
 	{
 		char buf[MAX_BUF];
@@ -93,22 +117,13 @@ static void settings_list_reload(list_struct *list)
 	list_offsets_ensure(list);
 }
 
-static void list_color_func(list_struct *list, int row, SDL_Rect box)
-{
-	if (row & 1)
-	{
-		SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 67, 67, 67));
-	}
-	else
-	{
-		SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 83, 83, 83));
-	}
-}
-
+/**
+ * Handle mouse event in a list.
+ * @param list The list.
+ * @param row Row the mouse is over.
+ * @param event The mouse event. */
 static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *event)
 {
-	(void) list;
-
 	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		list_row_clicked = row;
@@ -120,12 +135,81 @@ static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *even
 	}
 }
 
+/**
+ * Handle ESC in a list.
+ *
+ * In this case, just destroys the visible popup.
+ * @param list The list. */
 static void list_handle_esc(list_struct *list)
 {
 	(void) list;
 	popup_destroy_visible();
 }
 
+/**
+ * Change setting value.
+ * @param cat Category.
+ * @param set Setting.
+ * @param val Modifier. */
+static void setting_change_value(int cat, int set, sint64 val)
+{
+	setting_struct *setting = setting_categories[cat]->settings[set];
+
+	if (setting->type == OPT_TYPE_BOOL)
+	{
+		setting_set_int(cat, set, !setting_get_int(cat, set));
+	}
+	else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE)
+	{
+		sint64 old_val, new_val, advance;
+
+		if (!val)
+		{
+			return;
+		}
+
+		new_val = old_val = setting_get_int(cat, set);
+		advance = 1;
+
+		if (setting->type == OPT_TYPE_RANGE)
+		{
+			advance = SETTING_RANGE(setting)->advance;
+		}
+
+		new_val = old_val + (advance * val);
+
+		if (setting->type == OPT_TYPE_SELECT)
+		{
+			setting_select *s_select = SETTING_SELECT(setting);
+
+			if (new_val >= (sint64) s_select->options_len)
+			{
+				new_val = 0;
+			}
+			else if (new_val < 0)
+			{
+				new_val = s_select->options_len - 1;
+			}
+		}
+		else if (setting->type == OPT_TYPE_RANGE)
+		{
+			setting_range *range = SETTING_RANGE(setting);
+
+			new_val = MAX(range->min, MIN(range->max, new_val));
+		}
+
+		if (old_val != new_val)
+		{
+			setting_set_int(cat, set, new_val);
+		}
+	}
+}
+
+/**
+ * Do custom drawing after the list has finished drawing a column.
+ * @param list The list.
+ * @param row The row.
+ * @param col Column being drawn. */
 static void list_post_column(list_struct *list, uint32 row, uint32 col)
 {
 	int x, y;
@@ -135,6 +219,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 	x = list->x + list->frame_offset;
 	y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
 
+	/* Settings list. */
 	if (setting_type == SETTING_TYPE_SETTINGS)
 	{
 		setting_struct *setting;
@@ -147,10 +232,12 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 			return;
 		}
 
+		/* Show the actual setting name. */
 		string_blt_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 5, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
 
 		mstate = SDL_GetMouseState(&mx, &my);
 
+		/* Checkbox? */
 		if (setting->type == OPT_TYPE_BOOL)
 		{
 			SDL_Rect checkbox;
@@ -175,7 +262,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 				if (list_clicked && list_row_clicked == row && mstate == SDL_BUTTON_LEFT)
 				{
-					setting_set_int(setting_category_selected, row, !setting_get_int(setting_category_selected, row));
+					setting_change_value(setting_category_selected, row, 0);
 					list_clicked = 0;
 				}
 			}
@@ -184,18 +271,13 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 				border_create_color(list->surface, &checkbox, "8c7a7a");
 			}
 		}
+		/* Select or range. */
 		else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE)
 		{
 			SDL_Rect dst;
-			sint64 val, new_val, advance;
+			sint64 val;
 
-			val = new_val = setting_get_int(setting_category_selected, row);
-			advance = 1;
-
-			if (setting->type == OPT_TYPE_RANGE)
-			{
-				advance = SETTING_RANGE(setting)->advance;
-			}
+			val = setting_get_int(setting_category_selected, row);
 
 			x += list->width - 1;
 			y += 1;
@@ -204,7 +286,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
-				new_val = val + advance;
+				setting_change_value(setting_category_selected, row, 1);
 			}
 
 			dst.x = x - 150;
@@ -227,88 +309,66 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
-				new_val = val - advance;
-			}
-
-			if (setting->type == OPT_TYPE_SELECT)
-			{
-				setting_select *s_select = SETTING_SELECT(setting);
-
-				if (new_val >= (sint64) s_select->options_len)
-				{
-					new_val = 0;
-				}
-				else if (new_val < 0)
-				{
-					new_val = s_select->options_len - 1;
-				}
-			}
-			else if (setting->type == OPT_TYPE_RANGE)
-			{
-				setting_range *range = SETTING_RANGE(setting);
-
-				new_val = MAX(range->min, MIN(range->max, new_val));
-			}
-
-			if (val != new_val)
-			{
-				setting_set_int(setting_category_selected, row, new_val);
+				setting_change_value(setting_category_selected, row, -1);
 			}
 		}
 	}
 }
 
-enum
-{
-	KEYBIND_STEP_COMMAND,
-	KEYBIND_STEP_KEY,
-	KEYBIND_STEP_DONE
-};
-
-static uint8 setting_keybind_step;
-static SDLKey setting_keybind_key;
-static SDLMod setting_keybind_mod;
-static sint32 setting_id;
-
+/**
+ * Apply keybinding changes - adds or edits a keybinding.
+ * @param list The keybinding list. */
 static void setting_keybind_apply(list_struct *list)
 {
+	/* Nothing to apply. */
 	if (text_input_string[0] == '\0' || setting_keybind_key == SDLK_UNKNOWN)
 	{
 		return;
 	}
 
-	if (setting_id == -1)
+	/* Add new. */
+	if (setting_keybind_id == -1)
 	{
 		keybind_add(setting_keybind_key, setting_keybind_mod, text_input_string);
+		/* It'll be added to the end, so select it. */
 		list->row_selected = list->rows + 1;
 		list->row_offset = MIN(list->rows + 1 - list->max_rows, list->row_selected - 1);
 	}
+	/* Edit existing. */
 	else
 	{
-		keybind_edit(setting_id, setting_keybind_key, setting_keybind_mod, text_input_string);
+		keybind_edit(setting_keybind_id, setting_keybind_key, setting_keybind_mod, text_input_string);
 	}
 
 	text_input_string_flag = 0;
 	settings_list_reload(list);
 }
 
+/**
+ * Do an action related to the keybind settings list.
+ * @param key Key used.
+ * @param list The keybinding list.
+ * @return 1 if the action was handled, 0 otherwise. */
 static int setting_keybind_action(SDLKey key, list_struct *list)
 {
+	/* Create a new keybinding. */
 	if (key == SDLK_n)
 	{
 		text_input_open(255);
 		setting_keybind_step = KEYBIND_STEP_COMMAND;
 		setting_keybind_key = SDLK_UNKNOWN;
 		setting_keybind_mod = KMOD_NONE;
-		setting_id = -1;
+		setting_keybind_id = -1;
 		return 1;
 	}
+	/* Delete existing keybinding. */
 	else if (key == SDLK_DELETE)
 	{
 		keybind_remove(list->row_selected - 1);
 		settings_list_reload(list);
 		return 1;
 	}
+	/* Toggle repeat on/off. */
 	else if (key == SDLK_r)
 	{
 		keybind_repeat_toggle(list->row_selected - 1);
@@ -319,19 +379,47 @@ static int setting_keybind_action(SDLKey key, list_struct *list)
 	return 0;
 }
 
-static void list_handle_enter(list_struct *list)
+/**
+ * Change the currently selected setting category.
+ * @param advance If -1, change to the previous category; if 1, change to
+ * the next one. */
+static void setting_category_change(int advance)
 {
-	if (list->text && list->row_selected)
-	{
-		setting_keybind_action(SDLK_n, list);
+	size_t new_cat = setting_category_selected;
 
-		setting_id = list->row_selected - 1;
-		text_input_add_string(keybindings[setting_id]->command);
-		setting_keybind_key = keybindings[setting_id]->key;
-		setting_keybind_mod = keybindings[setting_id]->mod;
+	if (advance == 1)
+	{
+		if (new_cat == setting_categories_num - 1)
+		{
+			new_cat = 0;
+		}
+		else
+		{
+			new_cat++;
+		}
+	}
+	else if (advance == -1)
+	{
+		if (new_cat == 0)
+		{
+			new_cat = setting_categories_num - 1;
+		}
+		else
+		{
+			new_cat--;
+		}
+	}
+
+	if (new_cat != setting_category_selected)
+	{
+		setting_category_selected = new_cat;
+		settings_list_reload(list_exists(LIST_SETTINGS));
 	}
 }
 
+/**
+ * Do drawing immediately after finishing drawing the settings popup.
+ * @param popup The settings popup. */
 static void settings_popup_draw_func_post(popup_struct *popup)
 {
 	list_struct *list = list_exists(LIST_SETTINGS);
@@ -350,24 +438,15 @@ static void settings_popup_draw_func_post(popup_struct *popup)
 	}
 	else if (setting_type == SETTING_TYPE_SETTINGS)
 	{
-		size_t new_cat = setting_category_selected;
 		setting_struct *setting;
 		SDL_Rect dst;
 
 		x = popup->x + 30;
 		y = popup->y + 50;
-		setting = setting_categories[setting_category_selected]->settings[list->row_selected - 1];
 
 		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
-			if (new_cat == 0)
-			{
-				new_cat = setting_categories_num - 1;
-			}
-			else
-			{
-				new_cat--;
-			}
+			setting_category_change(-1);
 		}
 
 		dst.w = list->width + 8 - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
@@ -375,27 +454,16 @@ static void settings_popup_draw_func_post(popup_struct *popup)
 
 		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
-			if (new_cat == setting_categories_num - 1)
-			{
-				new_cat = 0;
-			}
-			else
-			{
-				new_cat++;
-			}
+			setting_category_change(1);
 		}
+
+		setting = setting_categories[setting_category_selected]->settings[list->row_selected - 1];
 
 		dst.w -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
 		string_blt(list->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, x + Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w, y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &dst);
 
 		dst.h = 66;
 		string_blt_shadow(list->surface, FONT_ARIAL11, setting->desc ? setting->desc : "", x - 2, popup->y + popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &dst);
-
-		if (new_cat != setting_category_selected)
-		{
-			setting_category_selected = new_cat;
-			settings_list_reload(list);
-		}
 
 		list_show(list, x, y);
 
@@ -486,8 +554,6 @@ static void settings_popup_draw_func_post(popup_struct *popup)
 	}
 }
 
-static uint8 setting_password_confirmed;
-
 /**
  * Draw the settings popup.
  * @param popup The popup. */
@@ -563,6 +629,10 @@ static void settings_popup_draw_func(popup_struct *popup)
 	}
 }
 
+/**
+ * Exit the settings popup.
+ * @param popup The popup.
+ * @return 1. */
 static int settings_popup_destroy_callback(popup_struct *popup)
 {
 	(void) popup;
@@ -576,6 +646,70 @@ static int settings_popup_destroy_callback(popup_struct *popup)
 	}
 
 	keybind_save();
+
+	return 1;
+}
+
+/**
+ * Handle using enter in the settings list.
+ * @param list The list. */
+static void list_handle_enter(list_struct *list)
+{
+	if (list->text && list->row_selected)
+	{
+		if (setting_type == SETTING_TYPE_KEYBINDINGS)
+		{
+			setting_keybind_action(SDLK_n, list);
+
+			setting_keybind_id = list->row_selected - 1;
+			text_input_add_string(keybindings[setting_keybind_id]->command);
+			setting_keybind_key = keybindings[setting_keybind_id]->key;
+			setting_keybind_mod = keybindings[setting_keybind_id]->mod;
+		}
+		else if (setting_type == SETTING_TYPE_SETTINGS)
+		{
+			setting_change_value(setting_category_selected, list->row_selected - 1, 0);
+			list_clicked = 0;
+		}
+	}
+}
+
+/**
+ * Handle list key events.
+ * @param list List.
+ * @param key Key that was pressed.
+ * @return 1 if the key was handled, -1 otherwise. */
+static int list_key_event(list_struct *list, SDLKey key)
+{
+	switch (key)
+	{
+		case SDLK_RIGHT:
+			if (SDL_GetModState() & KMOD_SHIFT)
+			{
+				setting_category_change(1);
+			}
+			else
+			{
+				setting_change_value(setting_category_selected, list->row_selected - 1, 1);
+			}
+
+			break;
+
+		case SDLK_LEFT:
+			if (SDL_GetModState() & KMOD_SHIFT)
+			{
+				setting_category_change(-1);
+			}
+			else
+			{
+				setting_change_value(setting_category_selected, list->row_selected - 1, -1);
+			}
+
+			break;
+
+		default:
+			return -1;
+	}
 
 	return 1;
 }
@@ -607,6 +741,7 @@ static void settings_button_handle(size_t button)
 
 		list = list_create(LIST_SETTINGS, max_rows, cols, 8);
 		list->handle_esc_func = list_handle_esc;
+		list->handle_enter_func = list_handle_enter;
 		list_scrollbar_enable(list);
 
 		if (button == BUTTON_SETTINGS)
@@ -614,14 +749,13 @@ static void settings_button_handle(size_t button)
 			list_set_column(list, 0, 430, 7, NULL, -1);
 			list_set_font(list, FONT_SANS14);
 			list->handle_mouse_row_func = list_handle_mouse_row;
+			list->key_event_func = list_key_event;
 			list->row_highlight_func = NULL;
 			list->row_selected_func = NULL;
-			list->row_color_func = list_color_func;
 			list->post_column_func = list_post_column;
 		}
 		else if (button == BUTTON_KEY_SETTINGS)
 		{
-			list->handle_enter_func = list_handle_enter;
 			list_set_font(list, FONT_ARIAL11);
 			list_set_column(list, 0, 273, 7, "Command", -1);
 			list_set_column(list, 1, 93, 7, "Key", 1);
@@ -825,6 +959,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 			}
 		}
 
+		/* Handle list events. */
 		if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
 		{
 			if (list_handle_keyboard(list, &event->key))
@@ -850,6 +985,7 @@ void settings_open()
 {
 	popup_struct *popup;
 
+	/* Create the popup. */
 	popup = popup_create(BITMAP_POPUP);
 	popup->draw_func = settings_popup_draw_func;
 	popup->event_func = settings_popup_event_func;
