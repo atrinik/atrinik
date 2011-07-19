@@ -23,15 +23,24 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Header file for progress indicators. */
+
 #ifndef PROGRESS_H
 #define PROGRESS_H
 
+/**
+ * Dots progress indicator. */
 typedef struct progress_dots
 {
+	/** Last time when one of the dots was lit. */
 	uint32 ticks;
 
+	/** Which dot is currently lit. */
 	uint8 dot;
 
+	/** Whether the progress is done. */
 	uint8 done;
 } progress_dots;
 
