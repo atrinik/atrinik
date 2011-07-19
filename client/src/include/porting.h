@@ -50,13 +50,12 @@
 #	include <direct.h>
 #	include <shellapi.h>
 
-#	ifndef MINGW
-#		define socklen_t int
-#	else
+#	ifdef MINGW
 #		define HAVE_DIRENT_H
 #	endif
 
 #	define mkdir(__a, __b) _mkdir(__a)
+#	define socklen_t int
 
 #	define HAVE_STRICMP
 #	define HAVE_STRNICMP
