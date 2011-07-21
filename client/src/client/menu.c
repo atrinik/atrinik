@@ -315,24 +315,6 @@ void send_command_check(const char *cmd)
 }
 
 /**
- * Blit face from inventory located by tag.
- * @param tag Item tag to locate
- * @param x X position to blit the item
- * @param y Y position to blit the item */
-void blt_inventory_face_from_tag(int tag, int x, int y)
-{
-	object *tmp;
-
-	/* Check item is in inventory and faces are loaded, etc */
-	tmp = object_find(tag);
-
-	if (!tmp)
-		return;
-
-	blt_inv_item_centered(tmp, x, y);
-}
-
-/**
  * Show one of the menus (book, party, etc). */
 void show_menu()
 {
