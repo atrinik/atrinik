@@ -40,6 +40,10 @@
 #define LOG_FILE "client.log"
 /** Name of the icon. */
 #define CLIENT_ICON_NAME "icon.png"
+/** File that contains the default settings. */
+#define FILE_SETTINGS_TXT "data/settings.txt"
+/** File that contains the user settings. */
+#define FILE_SETTINGS_DAT "settings/settings.dat"
 
 /** Maximum number of faces. */
 #define MAX_FACE_TILES 32767

@@ -182,21 +182,19 @@ void server_files_clear_update();
 void server_settings_init();
 void server_settings_deinit();
 /* src/client/settings.c */
+void settings_init();
+void settings_load();
+void settings_save();
+void settings_deinit();
 void *setting_get(setting_struct *setting);
 const char *setting_get_str(int cat, int setting);
 sint64 setting_get_int(int cat, int setting);
-void setting_apply_change(int cat, int setting);
+void settings_apply();
+void settings_apply_change();
 void setting_set_int(int cat, int setting, sint64 val);
 int setting_is_text(setting_struct *setting);
-void setting_load_value(setting_struct *setting, const char *str);
-void settings_apply();
-void settings_init();
-void settings_save();
 sint64 category_from_name(const char *name);
 sint64 setting_from_name(const char *name);
-void settings_load();
-void settings_deinit();
-void settings_apply_change();
 /* src/client/socket.c */
 void command_buffer_free(command_buffer *buf);
 int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
