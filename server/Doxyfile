@@ -31,7 +31,7 @@ PROJECT_NAME           = "Atrinik Server"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.0
+PROJECT_NUMBER         = 2.5
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -661,7 +661,9 @@ RECURSIVE              = YES
 
 EXCLUDE                = src/libs \
                          src/porting \
-                         tools
+                         tools \
+                         make_win32 \
+                         CMakeFiles
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded

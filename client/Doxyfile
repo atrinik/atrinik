@@ -31,7 +31,7 @@ PROJECT_NAME           = "Atrinik Client"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.0
+PROJECT_NUMBER         = 2.5
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -659,18 +659,8 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = src/zlib/zutil.c \
-                         src/zlib/uncompr.c \
-                         src/zlib/inftrees.c \
-                         src/zlib/inflate.c \
-                         src/zlib/include/inflate.h \
-                         src/zlib/include/inftrees.h \
-                         src/zlib/inffast.c \
-                         src/zlib/include/inffast.h \
-                         src/zlib/crc32.c \
-                         src/zlib/include/zutil.h \
-                         src/zlib/include/zlib.h \
-                         src/zlib/include/zconf.h
+EXCLUDE                = make_win32 \
+                         CMakeFiles
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded
