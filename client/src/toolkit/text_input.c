@@ -533,16 +533,6 @@ int text_input_handle(SDL_KeyboardEvent *key)
 		{
 			char c;
 
-			/* If we are in number console mode, use GET as quick enter
-			 * mode. */
-			if (cpl.input_mode == INPUT_MODE_NUMBER && (key->keysym.sym == key_find_by_command("?GET") || key->keysym.sym == key_find_by_command("?DROP")))
-			{
-				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-				text_input_string_flag = 0;
-				text_input_string_end_flag = 1;
-				return 1;
-			}
-
 			if (text_input_count < text_input_max)
 			{
 				c = 0;

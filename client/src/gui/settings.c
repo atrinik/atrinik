@@ -107,9 +107,8 @@ static void settings_list_reload(list_struct *list)
 
 		for (i = 0; i < keybindings_num; i++)
 		{
-			keybind_get_key_shortcut(keybindings[i]->key, keybindings[i]->mod, buf, sizeof(buf));
 			list_add(list, i, 0, keybindings[i]->command);
-			list_add(list, i, 1, buf);
+			list_add(list, i, 1, keybind_get_key_shortcut(keybindings[i]->key, keybindings[i]->mod, buf, sizeof(buf)));
 			list_add(list, i, 2, keybindings[i]->repeat ? "on" : "off");
 		}
 	}

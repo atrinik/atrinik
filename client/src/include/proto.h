@@ -89,16 +89,16 @@ void animate_objects();
 /* src/client/keybind.c */
 void keybind_load();
 void keybind_save();
+void keybind_free(keybind_struct *keybind);
 void keybind_deinit();
-void keybind_remove(size_t i);
-void keybind_repeat_toggle(size_t i);
-SDLMod keybind_adjust_kmod(SDLMod mod);
 keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command);
 void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command);
-void keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len);
+void keybind_remove(size_t i);
+void keybind_repeat_toggle(size_t i);
+char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len);
 keybind_struct *keybind_find_by_command(const char *cmd);
-SDLKey key_find_by_command(const char *cmd);
 int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event);
+int keybind_command_matches_state(const char *cmd);
 int keybind_process_event(SDL_KeyboardEvent *event);
 void keybind_repeat();
 void keybind_process(keybind_struct *keybind, uint8 type);
@@ -159,6 +159,7 @@ void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_pt
 void widget_show_label(widgetdata *widget);
 void widget_show_bitmap(widgetdata *widget);
 int gender_to_id(const char *gender);
+/* src/client/porting.c */
 /* src/client/scripts.c */
 void script_load(const char *cparams);
 void script_list();
@@ -236,14 +237,14 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 struct _anim *add_anim(int type, int mapx, int mapy, int value);
 void remove_anim(struct _anim *anim);
 void play_anims();
-int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
+int sprite_collision(int x, int y, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2);
 void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
 /* src/client/tilestretcher.c */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
-int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
+int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness);
 int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
 SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 /* src/client/updates.c */
