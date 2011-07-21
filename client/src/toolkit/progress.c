@@ -23,8 +23,15 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Implements progress indicators. */
+
 #include <global.h>
 
+/**
+ * Create progress dots indicator.
+ * @param progress Where to store indicator data. */
 void progress_dots_create(progress_dots *progress)
 {
 	progress->ticks = SDL_GetTicks();
@@ -32,6 +39,12 @@ void progress_dots_create(progress_dots *progress)
 	progress->done = 0;
 }
 
+/**
+ * Show the progress dots.
+ * @param progress The progress dots indicator data.
+ * @param surface Surface to draw on.
+ * @param x X position.
+ * @param y Y position. */
 void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y)
 {
 	uint8 i;
@@ -60,6 +73,10 @@ void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, in
 	}
 }
 
+/**
+ * Calculate the width of progress dots.
+ * @param progress The progress dots indicator data.
+ * @return The width. */
 int progress_dots_width(progress_dots *progress)
 {
 	(void) progress;
