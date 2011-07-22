@@ -274,7 +274,7 @@ void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
 
 	/* Store the values. */
 	keybindings[i]->key = key;
-	keybindings[i]->mod = mod;
+	keybindings[i]->mod = keybind_adjust_kmod(mod);
 	free(keybindings[i]->command);
 	keybindings[i]->command = strdup(command);
 }
