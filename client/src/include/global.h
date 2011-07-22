@@ -67,6 +67,7 @@ typedef signed char sint8;
 #include <signal.h>
 
 #include <porting.h>
+#define HASH_FUNCTION HASH_BER
 #include <uthash.h>
 
 #ifdef HAVE_STDDEF_H
