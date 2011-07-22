@@ -67,6 +67,8 @@ static SDLKey setting_keybind_key;
 static SDLMod setting_keybind_mod;
 /** If not -1, we're editing this keybinding ID. */
 static sint32 setting_keybind_id;
+/** Whether to ignore keybind keypress. */
+static uint8 setting_keybind_ignore = 0;
 /**
  * Whether player has entered their current password in the password
  * changing GUI. */
@@ -358,6 +360,7 @@ static int setting_keybind_action(SDLKey key, list_struct *list)
 		setting_keybind_key = SDLK_UNKNOWN;
 		setting_keybind_mod = KMOD_NONE;
 		setting_keybind_id = -1;
+		setting_keybind_ignore = 0;
 		return 1;
 	}
 	/* Delete existing keybinding. */
@@ -664,6 +667,7 @@ static void list_handle_enter(list_struct *list)
 			text_input_add_string(keybindings[setting_keybind_id]->command);
 			setting_keybind_key = keybindings[setting_keybind_id]->key;
 			setting_keybind_mod = keybindings[setting_keybind_id]->mod;
+			setting_keybind_ignore = 1;
 		}
 		else if (setting_type == SETTING_TYPE_SETTINGS)
 		{
@@ -912,7 +916,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 	{
 		if (setting_type == SETTING_TYPE_KEYBINDINGS && (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP))
 		{
-			if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
+			if (text_input_string_flag && event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
 			{
 				if (text_input_string_flag)
 				{
@@ -921,7 +925,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 					return 1;
 				}
 			}
-			else if (setting_keybind_step == KEYBIND_STEP_KEY)
+			else if (text_input_string_flag && setting_keybind_step == KEYBIND_STEP_KEY)
 			{
 				if (event->type == SDL_KEYUP)
 				{
@@ -932,9 +936,13 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 
 				return 1;
 			}
-			else if (event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_TAB)
+			else if (text_input_string_flag && (event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_TAB))
 			{
-				if (setting_keybind_step == KEYBIND_STEP_COMMAND && event->type == SDL_KEYUP)
+				if (setting_keybind_ignore)
+				{
+					setting_keybind_ignore = 0;
+				}
+				else if (setting_keybind_step == KEYBIND_STEP_COMMAND && event->type == SDL_KEYUP)
 				{
 					setting_keybind_step = KEYBIND_STEP_KEY;
 				}
