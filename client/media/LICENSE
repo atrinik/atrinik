@@ -96,8 +96,8 @@ wood.s3m: Retro, battle
 = Dung Truong - http://www.yoyogames.com/downloads/resources/res03.zip - Freeware =
 ===================================================================================
 
-allusion_world.mid, allusion_world.ogg: Town music
-joyful_life.mid, joyful_life.ogg: Town music
+allusion_world.mid: Town music
+joyful_life.mid: Town music
 inner_peace.mid: Romance, peace
 inner_stampede.mid: Carnival, lively
 rock_on.mid: Tropical
