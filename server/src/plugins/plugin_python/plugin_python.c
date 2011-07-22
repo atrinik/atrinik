@@ -469,31 +469,11 @@ static const char *const constants_colors[][2] =
 /* @endcparser */
 
 /** All the custom commands. */
-static PythonCmd CustomCommand[NR_CUSTOM_CMD];
-/** Contains the index of the next command that needs to be run. */
-static int NextCustomCommand;
-
-/** Maximum number of cached scripts. */
-#define PYTHON_CACHE_SIZE 256
-
-/** One cache entry. */
-typedef struct
-{
-	/** The script file. */
-	const char *file;
-
-	/** The cached code. */
-	PyCodeObject *code;
-
-	/** Last cached time. */
-	time_t cached_time;
-
-	/** Last used time. */
-	time_t used_time;
-} cacheentry;
-
+static python_cmd *python_commands = NULL;
+/** Next command that needs to be run. */
+static python_cmd *next_python_command = NULL;
 /** The Python cache. */
-static cacheentry python_cache[PYTHON_CACHE_SIZE];
+static python_cache_entry *python_cache = NULL;
 
 static int cmd_customPython(object *op, char *params);
 
@@ -872,7 +852,7 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
  * <h1>RegisterCommand(string name, string path, float speed)</h1>
  * Register a custom command ran using Python script.
  * @param name Name of the command. For example, "roll" in order to create /roll
- * command. Note the lack forward slash in the name.
+ * command. Note the lack of forward slash in the name.
  * @param path Path to the Python script to be executed when the command is used.
  * @param speed How long it takes to execute the command; 1.0 is usually fine.
  * @throws ValueError if the command is already registered. */
@@ -880,7 +860,7 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
 	const char *name, *path;
 	double speed;
-	size_t i;
+	python_cmd *command;
 
 	(void) self;
 
@@ -889,28 +869,19 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	for (i = 0; i < NR_CUSTOM_CMD; i++)
+	HASH_FIND_STR(python_commands, name, command);
+
+	if (command)
 	{
-		if (CustomCommand[i].name)
-		{
-			if (!strcmp(CustomCommand[i].name, name))
-			{
-				PyErr_SetString(PyExc_ValueError, "RegisterCommand(): Command is already registered.");
-				return NULL;
-			}
-		}
+		PyErr_SetString(PyExc_ValueError, "RegisterCommand(): Command is already registered.");
+		return NULL;
 	}
 
-	for (i = 0; i < NR_CUSTOM_CMD; i++)
-	{
-		if (!CustomCommand[i].name)
-		{
-			CustomCommand[i].name = hooks->strdup_local(name);
-			CustomCommand[i].script = hooks->strdup_local(path);
-			CustomCommand[i].speed = speed;
-			break;
-		}
-	}
+	command = malloc(sizeof(python_cmd));
+	command->name = hooks->strdup_local(name);
+	command->script = hooks->strdup_local(path);
+	command->speed = speed;
+	HASH_ADD_KEYPTR(hh, python_commands, command->name, strlen(command->name), command);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1449,7 +1420,16 @@ static void PyErr_LOG()
 	locals = PyDict_New();
 	PyDict_SetItemString(locals, "exc_type", ptype);
 	PyDict_SetItemString(locals, "exc_value", pvalue);
-	PyDict_SetItemString(locals, "exc_traceback", ptraceback);
+
+	if (ptraceback)
+	{
+		PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
+	}
+	else
+	{
+		Py_INCREF(Py_None);
+		PyDict_SetItemString(locals, "exc_traceback", Py_None);
+	}
 
 	/* Run the Python code. */
 	ret = PyRun_String(err_handle, Py_file_input, globals, locals);
@@ -1464,11 +1444,8 @@ static void PyErr_LOG()
  * caching of bytecode. */
 static PyCodeObject *compilePython(char *filename)
 {
-	shstr *sh_path = NULL;
 	struct stat stat_buf;
-	struct _node *n;
-	int i;
-	cacheentry *entry_replace = NULL, *run = NULL;
+	python_cache_entry *cache;
 
 	if (stat(filename, &stat_buf))
 	{
@@ -1476,72 +1453,28 @@ static PyCodeObject *compilePython(char *filename)
 		return NULL;
 	}
 
-	FREE_AND_COPY_HASH(sh_path, filename);
+	HASH_FIND_STR(python_cache, filename, cache);
 
-	/* Search through cache. Three cases:
-	 * 1) script in cache, but older than file  -> replace cached
-	 * 2) script in cache and up to date        -> use cached
-	 * 3) script not in cache, cache not full   -> add to end of cache
-	 * 4) script not in cache, cache full       -> replace least recently used */
-	for (i = 0; i < PYTHON_CACHE_SIZE; i++)
-	{
-		/* Script not in cache, cache not full */
-		if (python_cache[i].file == NULL)
-		{
-			/* Add to end of cache. */
-			entry_replace = &python_cache[i];
-			break;
-		}
-		else if (python_cache[i].file == sh_path)
-		{
-			/* Script in cache */
-			if (python_cache[i].code == NULL || (python_cache[i].cached_time < stat_buf.st_mtime))
-			{
-				/* Cache older than file, replace cached. */
-				entry_replace = &python_cache[i];
-			}
-			else
-			{
-				/* cache up-to-date, use cached*/
-				entry_replace = NULL;
-				run = &python_cache[i];
-			}
-
-			break;
-		}
-		else if (entry_replace == NULL || python_cache[i].used_time < entry_replace->used_time)
-		{
-			/* If we haven't found it yet, set replace to the oldest cache */
-			entry_replace = &python_cache[i];
-		}
-	}
-
-	/* Replace a specific cache index with the file. */
-	if (entry_replace)
+	if (!cache || cache->cached_time < stat_buf.st_mtime)
 	{
 		FILE *fp;
+		struct _node *n;
+		PyCodeObject *code = NULL;
+
+		if (cache)
+		{
+			HASH_DEL(python_cache, cache);
+			Py_XDECREF(cache->code);
+			free(cache->file);
+			free(cache);
+		}
 
 		fp = fopen(filename, "r");
 
 		if (!fp)
 		{
 			LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
-			FREE_AND_CLEAR_HASH(sh_path);
 			return NULL;
-		}
-
-		Py_XDECREF(entry_replace->code);
-		entry_replace->code = NULL;
-
-		/* Need to replace path string? */
-		if (entry_replace->file != sh_path)
-		{
-			if (entry_replace->file)
-			{
-				FREE_AND_CLEAR_HASH(entry_replace->file);
-			}
-
-			FREE_AND_COPY_HASH(entry_replace->file, sh_path);
 		}
 
 #ifdef WIN32
@@ -1567,32 +1500,26 @@ static PyCodeObject *compilePython(char *filename)
 
 		if (n)
 		{
-			entry_replace->code = PyNode_Compile(n, filename);
+			code = PyNode_Compile(n, filename);
 			PyNode_Free(n);
 		}
+
+		fclose(fp);
 
 		if (PyErr_Occurred())
 		{
 			PyErr_LOG();
-		}
-		else
-		{
-			entry_replace->cached_time = stat_buf.st_mtime;
-			entry_replace->used_time = time(NULL);
+			return NULL;
 		}
 
-		fclose(fp);
-		run = entry_replace;
+		cache = malloc(sizeof(*cache));
+		cache->file = hooks->strdup_local(filename);
+		cache->code = code;
+		cache->cached_time = stat_buf.st_mtime;
+		HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
 	}
 
-	FREE_AND_CLEAR_HASH(sh_path);
-
-	if (run)
-	{
-		return run->code;
-	}
-
-	return NULL;
+	return cache->code;
 }
 
 static int do_script(PythonContext *context, const char *filename, object *event)
@@ -1899,7 +1826,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 {
 	va_list args;
 	const char *propname;
-	int i, size;
+	int size;
 	char *buf;
 
 	va_start(args, type);
@@ -1909,23 +1836,20 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 	{
 		const char *cmdname = va_arg(args, const char *);
 		CommArray_s *rtn_cmd = va_arg(args, CommArray_s *);
+		python_cmd *command;
 
 		va_end(args);
 
-		for (i = 0; i < NR_CUSTOM_CMD; i++)
+		HASH_FIND_STR(python_commands, cmdname, command);
+
+		if (command)
 		{
-			if (CustomCommand[i].name != NULL)
-			{
-				if (!strcmp(CustomCommand[i].name, cmdname))
-				{
-					rtn_cmd->name = CustomCommand[i].name;
-					rtn_cmd->time = (float) CustomCommand[i].speed;
-					rtn_cmd->func = cmd_customPython;
-					rtn_cmd->flags = 0;
-					NextCustomCommand = i;
-					return rtn_cmd;
-				}
-			}
+			rtn_cmd->name = command->name;
+			rtn_cmd->time = command->speed;
+			rtn_cmd->func = cmd_customPython;
+			rtn_cmd->flags = 0;
+			next_python_command = command;
+			return rtn_cmd;
 		}
 
 		return NULL;
@@ -1961,7 +1885,7 @@ static int cmd_customPython(object *op, char *params)
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
 
-	LOG(llevDebug, "Python: handling command %s using script: %s\n", CustomCommand[NextCustomCommand].name, CustomCommand[NextCustomCommand].script);
+	LOG(llevDebug, "Python: handling command %s using script: %s\n", next_python_command->name, next_python_command->script);
 
 	context->activator = op;
 	context->who = op;
@@ -1975,7 +1899,7 @@ static int cmd_customPython(object *op, char *params)
 	context->options = NULL;
 	context->returnvalue = 0;
 
-	if (!do_script(context, CustomCommand[NextCustomCommand].script, NULL))
+	if (!do_script(context, next_python_command->script, NULL))
 	{
 		freeContext(context);
 		return 0;
@@ -2155,13 +2079,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	d = PyModule_GetDict(m);
 	AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
 	PyDict_SetItemString(d, "AtrinikError", AtrinikError);
-
-	for (i = 0; i < NR_CUSTOM_CMD; i++)
-	{
-		CustomCommand[i].name = NULL;
-		CustomCommand[i].script = NULL;
-		CustomCommand[i].speed = 0.0;
-	}
 
 	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) || !Atrinik_AttrList_init(m))
 	{
