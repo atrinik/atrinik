@@ -52,6 +52,9 @@ typedef struct sound_data_struct
 
 	/** Filename that was used to load sound_data_struct::data from. */
 	char *filename;
+
+	/** Hash handle. */
+	UT_hash_handle hh;
 } sound_data_struct;
 
 #define POW2(x) ((x) * (x))

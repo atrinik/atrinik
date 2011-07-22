@@ -33,43 +33,13 @@
 static char *sound_background;
 /** If 1, will not allow music change based on map. */
 static uint8 sound_map_background_disabled = 0;
-/** Loaded sounds. */
-static sound_data_struct *sound_data;
-/** Number of ::sound_data. */
-static size_t sound_data_num;
 /** Whether the sound system is active. */
 static uint8 enabled = 0;
 
 #ifdef HAVE_SDL_MIXER
 
-/**
- * Compare two sound data structure filenames.
- * @param a First sound data.
- * @param b Second sound data.
- * @return Return value of strcmp(). */
-static int sound_compare(const void *a, const void *b)
-{
-	return strcmp(((sound_data_struct *) a)->filename, ((sound_data_struct *) b)->filename);
-}
-
-/**
- * (Re-)Sort the ::sound_data array using Quicksort. */
-static void sound_sort()
-{
-	qsort((void *) sound_data, sound_data_num, sizeof(sound_data_struct), (void *) (int (*)()) sound_compare);
-}
-
-/**
- * Try to find the specified sound file name in ::sound_data.
- * @param filename What to look for.
- * @return The ::sound_data entry if found, NULL otherwise. */
-static sound_data_struct *sound_find(const char *filename)
-{
-	sound_data_struct key;
-
-	key.filename = (char *) filename;
-	return (sound_data_struct *) bsearch((void *) &key, (void *) sound_data, sound_data_num, sizeof(sound_data_struct), sound_compare);
-}
+/** Loaded sounds. */
+static sound_data_struct *sound_data;
 
 /**
  * Add a sound entry to the ::sound_data array.
@@ -79,16 +49,16 @@ static sound_data_struct *sound_find(const char *filename)
  * @return Pointer to the entry in ::sound_data. */
 static sound_data_struct *sound_new(int type, const char *filename, void *data)
 {
-	sound_data_num++;
-	sound_data = realloc(sound_data, sizeof(sound_data_struct) * sound_data_num);
-	sound_data[sound_data_num - 1].type = type;
-	sound_data[sound_data_num - 1].filename = strdup(filename);
-	sound_data[sound_data_num - 1].data = data;
+	sound_data_struct *tmp;
 
-	return &sound_data[sound_data_num - 1];
+	tmp = malloc(sizeof(sound_data_struct));
+	tmp->type = type;
+	tmp->filename = strdup(filename);
+	tmp->data = data;
+	HASH_ADD_STR(sound_data, filename, tmp);
+
+	return tmp;
 }
-
-#endif
 
 /**
  * Free one sound data entry.
@@ -98,42 +68,41 @@ static void sound_free(sound_data_struct *tmp)
 	switch (tmp->type)
 	{
 		case SOUND_TYPE_CHUNK:
-#ifdef HAVE_SDL_MIXER
 			Mix_FreeChunk((Mix_Chunk *) tmp->data);
-#endif
 			break;
 
 		case SOUND_TYPE_MUSIC:
-#ifdef HAVE_SDL_MIXER
 			Mix_FreeMusic((Mix_Music *) tmp->data);
-#endif
 			break;
 
 		default:
 			LOG(llevBug, "sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
-			return;
+			break;
 	}
 
 	free(tmp->filename);
+	free(tmp);
 }
+
+#endif
 
 /**
  * Initialize the sound system. */
 void sound_init()
 {
 	sound_background = NULL;
-	sound_data = NULL;
-	sound_data_num = 0;
-	enabled = 1;
 
 #ifdef HAVE_SDL_MIXER
+	sound_data = NULL;
+	enabled = 1;
+
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
 		draw_info_format(COLOR_RED, "Could not initialize audio device; sound will not be heard. Reason: %s", Mix_GetError());
 		enabled = 0;
 	}
 #else
-	enabled =0;
+	enabled = 0;
 #endif
 }
 
@@ -141,19 +110,18 @@ void sound_init()
  * Deinitialize the sound system. */
 void sound_deinit()
 {
-	size_t i;
+#ifdef HAVE_SDL_MIXER
+	sound_data_struct *curr, *tmp;
 
-	for (i = 0; i < sound_data_num; i++)
+	HASH_ITER(hh, sound_data, curr, tmp)
 	{
-		sound_free(&sound_data[i]);
+		HASH_DEL(sound_data, curr);
+		sound_free(curr);
 	}
 
-	free(sound_data);
-	sound_data = NULL;
-	sound_data_num = 0;
-#ifdef HAVE_SDL_MIXER
 	Mix_CloseAudio();
 #endif
+
 	enabled = 0;
 }
 
@@ -167,7 +135,6 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 #ifdef HAVE_SDL_MIXER
 	int channel;
 	sound_data_struct *tmp;
-	Mix_Chunk *chunk = NULL;
 
 	if (!enabled)
 	{
@@ -175,11 +142,11 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 	}
 
 	/* Try to find the sound first. */
-	tmp = sound_find(filename);
+	HASH_FIND_STR(sound_data, filename, tmp);
 
 	if (!tmp)
 	{
-		chunk = Mix_LoadWAV(filename);
+		Mix_Chunk *chunk = Mix_LoadWAV(filename);
 
 		if (!chunk)
 		{
@@ -199,12 +166,6 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 	}
 
 	Mix_Volume(channel, (int) ((setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / 100.0) * ((double) volume * (MIX_MAX_VOLUME / 100.0))));
-
-	/* Re-sort the array as needed. */
-	if (chunk)
-	{
-		sound_sort();
-	}
 #else
 	(void) filename;
 	(void) volume;
@@ -234,7 +195,6 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 #ifdef HAVE_SDL_MIXER
 	char path[HUGE_BUF];
 	sound_data_struct *tmp;
-	Mix_Music *music = NULL;
 
 	if (!enabled)
 	{
@@ -256,11 +216,11 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	}
 
 	/* Try to find the music. */
-	tmp = sound_find(path);
+	HASH_FIND_STR(sound_data, path, tmp);
 
 	if (!tmp)
 	{
-		music = Mix_LoadMUS(file_path(path, "r"));
+		Mix_Music *music = Mix_LoadMUS(file_path(path, "r"));
 
 		if (!music)
 		{
@@ -285,12 +245,6 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	if (volume == 0)
 	{
 		Mix_PauseMusic();
-	}
-
-	/* Re-sort the array as needed. */
-	if (music)
-	{
-		sound_sort();
 	}
 #else
 	(void) filename;

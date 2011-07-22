@@ -67,6 +67,7 @@ typedef signed char sint8;
 #include <signal.h>
 
 #include <porting.h>
+#include <uthash.h>
 
 #ifdef HAVE_STDDEF_H
 #	include <stddef.h>
