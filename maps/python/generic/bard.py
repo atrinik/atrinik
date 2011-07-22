@@ -12,8 +12,8 @@ msg = WhatIsMessage().strip().lower()
 
 ## All the possible areas.
 areas = {
-	"greyton_house": [("desert_town.mid", "Desert Town"), ("harmony2.mid", "Harmony"), ("joyful_life.ogg", "Joyful Life"), ("town_music.ogg", "Town Music"), ("campfire_tales.mid", "Campfire Tales"), ("fuego.ogg", "Fuego"), ("solemn.mid", "Solemn"), (None, "None")],
-	"everlink": [("harmony2.mid", "Harmony"), ("joyful_life.ogg", "Joyful Life"), ("town_music.ogg", "Town Music"), (None, "None")],
+	"greyton_house": [("desert_town.mid", "Desert Town"), ("harmony2.mid", "Harmony"), ("joyful_life.mid", "Joyful Life"), ("town_music.ogg", "Town Music"), ("campfire_tales.mid", "Campfire Tales"), ("fuego.ogg", "Fuego"), ("solemn.mid", "Solemn"), (None, "None")],
+	"everlink": [("harmony2.mid", "Harmony"), ("joyful_life.mid", "Joyful Life"), ("town_music.ogg", "Town Music"), (None, "None")],
 }
 
 # Get the current working area.

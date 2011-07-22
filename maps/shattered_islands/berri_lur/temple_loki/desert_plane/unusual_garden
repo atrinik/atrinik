@@ -2,7 +2,7 @@ arch map
 name An Unusual Garden
 msg
 Created:  2010-05-26 Asa
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-07-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,7 +11,7 @@ swap_time 1
 difficulty 1
 darkness 7
 fixed_resettime 1
-bg_music joyful_life.ogg
+bg_music joyful_life.mid
 region berri_lur
 end
 arch grassd_8
