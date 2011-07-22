@@ -55,7 +55,7 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data)
 	tmp->type = type;
 	tmp->filename = strdup(filename);
 	tmp->data = data;
-	HASH_ADD_STR(sound_data, filename, tmp);
+	HASH_ADD_KEYPTR(hh, sound_data, tmp->filename, strlen(tmp->filename), tmp);
 
 	return tmp;
 }
