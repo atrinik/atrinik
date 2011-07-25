@@ -951,17 +951,24 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "SPELL_LIST"))
 		{
-			cur_widget[SPELLS_ID]->show = 1;
+			cur_widget[SPELLS_ID]->show = !cur_widget[SPELLS_ID]->show;
 			SetPriorityWidget(cur_widget[SPELLS_ID]);
 		}
 		else if (!strcmp(cmd, "SKILL_LIST"))
 		{
-			cur_widget[SKILLS_ID]->show = 1;
+			cur_widget[SKILLS_ID]->show = !cur_widget[SKILLS_ID]->show;
 			SetPriorityWidget(cur_widget[SKILLS_ID]);
 		}
 		else if (!strcmp(cmd, "PARTY_LIST"))
 		{
-			send_command("/party list");
+			if (cur_widget[PARTY_ID]->show)
+			{
+				cur_widget[PARTY_ID]->show = 0;
+			}
+			else
+			{
+				send_command("/party list");
+			}
 		}
 		else if (!strncmp(cmd, "MCON ", 4))
 		{
