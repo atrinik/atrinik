@@ -949,7 +949,7 @@ void widget_map_render(widgetdata *widget)
 	}
 
 	/* We recreate the map only when there is a change. */
-	if (map_redraw_flag && (!popup_get_visible() || popup_overlay_need_update(popup_get_visible())))
+	if (map_redraw_flag && (!popup_get_head() || popup_overlay_need_update(popup_get_head())))
 	{
 		SDL_FillRect(widget->widgetSF, NULL, 0);
 		map_draw_map();

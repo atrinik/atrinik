@@ -72,7 +72,7 @@ const int char_step_max = 2;
 static progress_dots progress;
 
 /** @copydoc popup_struct::draw_func */
-static void news_popup_draw_func(popup_struct *popup)
+static int news_popup_draw_func(popup_struct *popup)
 {
 	/* Got the news yet? */
 	if (popup->buf)
@@ -106,7 +106,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
 		/* Show scroll buttons. */
 		scroll_buttons_show(popup->surface, ScreenSurface->w / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, ScreenSurface->h / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i[0], popup->i[2] - popup->i[1], popup->i[1], &box);
-		return;
+		return 1;
 	}
 	/* Haven't started downloading yet. */
 	else if (!popup->custom_data)
@@ -118,8 +118,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Shouldn't happen... */
 		if (!list)
 		{
-			popup_destroy_visible();
-			return;
+			return 0;
 		}
 
 		/* Initialize cURL, escape the selected row's text and construct
@@ -155,6 +154,7 @@ static void news_popup_draw_func(popup_struct *popup)
 
 	/* Haven't downloaded the text yet, inform the user. */
 	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 10, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
+	return 1;
 }
 
 /** @copydoc popup_struct::event_func */
@@ -349,7 +349,7 @@ static int char_creation_key(list_struct *list, SDLKey key)
 }
 
 /** @copydoc popup_struct::draw_func_post */
-static void popup_draw_func_post(popup_struct *popup)
+static int popup_draw_func_post(popup_struct *popup)
 {
 	list_struct *list = NULL;
 	size_t i;
@@ -363,7 +363,7 @@ static void popup_draw_func_post(popup_struct *popup)
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
 	{
 		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 30, 220, 132);
-		return;
+		return 1;
 	}
 
 	list = list_exists(LIST_CREATION);
@@ -518,12 +518,14 @@ static void popup_draw_func_post(popup_struct *popup)
 	{
 		char_creation_enter(list);
 	}
+
+	return 1;
 }
 
 /**
  * Draw the server connection/character creation popup.
  * @param popup Popup. */
-static void popup_draw_func(popup_struct *popup)
+static int popup_draw_func(popup_struct *popup)
 {
 	uint8 downloading;
 	SDL_Rect box;
@@ -536,7 +538,7 @@ static void popup_draw_func(popup_struct *popup)
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = Bitmaps[popup->bitmap_id]->bitmap->h;
 		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-		return;
+		return 1;
 	}
 	else if (GameStatus == GAME_STATUS_NEW_CHAR)
 	{
@@ -546,20 +548,18 @@ static void popup_draw_func(popup_struct *popup)
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 40;
 		box.h = char_step == 2 ? 70 : 30;
 		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
-		return;
+		return 1;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
 	else if (GameStatus == GAME_STATUS_PLAY)
 	{
-		popup_destroy_visible();
 		list_remove_all();
-		return;
+		return 0;
 	}
 	/* Connection terminated while we were trying to login. */
 	else if (GameStatus <= GAME_STATUS_WAITLOOP)
 	{
-		popup_destroy_visible();
-		return;
+		return 0;
 	}
 
 	/* Downloading the files, or updates haven't finished yet? */
@@ -575,7 +575,7 @@ static void popup_draw_func(popup_struct *popup)
 
 	if (downloading)
 	{
-		return;
+		return 1;
 	}
 
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w / 2;
@@ -647,6 +647,8 @@ static void popup_draw_func(popup_struct *popup)
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 45;
 	box.h = 120;
 	string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_LOGIN], x, y, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+
+	return 1;
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
@@ -773,7 +775,7 @@ void show_meta_server()
 	SDL_Rect box;
 
 	/* Active popup, no need to do anything. */
-	if (popup_get_visible() && !popup_overlay_need_update(popup_get_visible()))
+	if (popup_get_head() && !popup_overlay_need_update(popup_get_head()))
 	{
 		return;
 	}

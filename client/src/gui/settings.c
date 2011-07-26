@@ -144,7 +144,7 @@ static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *even
 static void list_handle_esc(list_struct *list)
 {
 	(void) list;
-	popup_destroy_visible();
+	popup_destroy_all();
 }
 
 /**
@@ -422,7 +422,7 @@ static void setting_category_change(int advance)
 /**
  * Do drawing immediately after finishing drawing the settings popup.
  * @param popup The settings popup. */
-static void settings_popup_draw_func_post(popup_struct *popup)
+static int settings_popup_draw_func_post(popup_struct *popup)
 {
 	list_struct *list = list_exists(LIST_SETTINGS);
 	int x, y, mx, my, mstate;
@@ -476,7 +476,7 @@ static void settings_popup_draw_func_post(popup_struct *popup)
 
 		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
-			popup_destroy_visible();
+			return 0;
 		}
 	}
 	else if (setting_type == SETTING_TYPE_KEYBINDINGS)
@@ -554,12 +554,14 @@ static void settings_popup_draw_func_post(popup_struct *popup)
 			}
 		}
 	}
+
+	return 1;
 }
 
 /**
  * Draw the settings popup.
  * @param popup The popup. */
-static void settings_popup_draw_func(popup_struct *popup)
+static int settings_popup_draw_func(popup_struct *popup)
 {
 	SDL_Rect box;
 
@@ -629,6 +631,8 @@ static void settings_popup_draw_func(popup_struct *popup)
 			string_blt_shadow(popup->surface, FONT_ARIAL11, "words found in common dictionaries.", 0, box.y + 72, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 		}
 	}
+
+	return 1;
 }
 
 /**
@@ -776,7 +780,7 @@ static void settings_button_handle(size_t button)
 		GameStatus = GAME_STATUS_INIT;
 	}
 
-	popup_destroy_visible();
+	popup_destroy_all();
 }
 
 /**
@@ -909,7 +913,8 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 				return 1;
 			}
 
-			popup_destroy_visible();
+			popup_destroy_all();
+			return 1;
 		}
 	}
 	else if ((list = list_exists(LIST_SETTINGS)))

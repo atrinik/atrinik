@@ -874,7 +874,7 @@ int main(int argc, char *argv[])
 		{
 			GameStatus = GAME_STATUS_INIT;
 			/* Make sure no popup is visible. */
-			popup_destroy_visible();
+			popup_destroy_all();
 			list_remove_all();
 			continue;
 		}
@@ -981,7 +981,7 @@ int main(int argc, char *argv[])
 		LastTick = SDL_GetTicks();
 
 		script_process();
-		popup_draw();
+		popup_render_head();
 
 		SDL_Flip(ScreenSurface);
 

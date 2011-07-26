@@ -123,8 +123,64 @@ static void cleanup_patch_files()
 }
 
 /**
+ * Start updater download. */
+static void updater_download_start()
+{
+	CURL *curl;
+	char url[HUGE_BUF], version[MAX_BUF], *version_escaped;
+
+	/* Construct URL. */
+	curl = curl_easy_init();
+	package_get_version_full(version, sizeof(version));
+	version_escaped = curl_easy_escape(curl, version, 0);
+	snprintf(url, sizeof(url), UPDATER_CHECK_URL"&version=%s", version_escaped);
+	curl_free(version_escaped);
+	curl_easy_cleanup(curl);
+
+	/* Start downloading the list of available updates. */
+	dl_data = curl_download_start(url);
+
+	progress_dots_create(&progress);
+}
+
+/**
+ * Cleanup after downloading. */
+static void updater_download_clean()
+{
+	size_t i;
+
+	/* Free data that is being downloaded, if the user quits mid-download.
+	 * Also remove the temp directory, as the update has clearly not
+	 * finished downloading its data */
+	if (dl_data)
+	{
+		cleanup_patch_files();
+		curl_data_free(dl_data);
+		dl_data = NULL;
+	}
+
+	/* Free the allocated filenames and SHA-1 sums. */
+	for (i = 0; i < download_packages_num; i++)
+	{
+		free(download_packages[i].filename);
+		free(download_packages[i].sha1);
+	}
+
+	if (download_packages)
+	{
+		free(download_packages);
+		download_packages = NULL;
+	}
+
+	download_packages_num = 0;
+	download_package_next = 0;
+	download_package_process = 0;
+	download_packages_downloaded = 0;
+}
+
+/**
  * Draw contents in the popup. */
-static void popup_draw_func_post(popup_struct *popup)
+static int popup_draw_func_post(popup_struct *popup)
 {
 	SDL_Rect box;
 
@@ -173,12 +229,12 @@ static void popup_draw_func_post(popup_struct *popup)
 
 			box.y += 20;
 
-			/* Give the user a chance to retroy. */
+			/* Give the user a chance to retry. */
 			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
-				popup_destroy_visible();
-				updater_open();
-				return;
+				updater_download_clean();
+				updater_download_start();
+				return 1;
 			}
 		}
 		/* Finished downloading. */
@@ -306,8 +362,7 @@ static void popup_draw_func_post(popup_struct *popup)
 
 			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
-				popup_destroy_visible();
-				return;
+				return 0;
 			}
 		}
 		else
@@ -344,6 +399,8 @@ static void popup_draw_func_post(popup_struct *popup)
 #endif
 		}
 	}
+
+	return 1;
 }
 
 /**
@@ -352,37 +409,9 @@ static void popup_draw_func_post(popup_struct *popup)
  * @param popup Updater popup. */
 static int popup_destroy_callback(popup_struct *popup)
 {
-	size_t i;
-
 	(void) popup;
 
-	/* Free data that is being downloaded, if the user quits mid-download.
-	 * Also remove the temp directory, as the update has clearly not
-	 * finished downloading its data */
-	if (dl_data)
-	{
-		cleanup_patch_files();
-		curl_data_free(dl_data);
-		dl_data = NULL;
-	}
-
-	/* Free the allocated filenames and SHA-1 sums. */
-	for (i = 0; i < download_packages_num; i++)
-	{
-		free(download_packages[i].filename);
-		free(download_packages[i].sha1);
-	}
-
-	if (download_packages)
-	{
-		free(download_packages);
-		download_packages = NULL;
-	}
-
-	download_packages_num = 0;
-	download_package_next = 0;
-	download_package_process = 0;
-	download_packages_downloaded = 0;
+	updater_download_clean();
 
 	return 1;
 }
@@ -392,24 +421,11 @@ static int popup_destroy_callback(popup_struct *popup)
 void updater_open()
 {
 	popup_struct *popup;
-	CURL *curl;
-	char url[HUGE_BUF], version[MAX_BUF], *version_escaped;
 
 	/* Create the popup. */
 	popup = popup_create(BITMAP_POPUP);
 	popup->destroy_callback_func = popup_destroy_callback;
 	popup->draw_func_post = popup_draw_func_post;
 
-	/* Construct URL. */
-	curl = curl_easy_init();
-	package_get_version_full(version, sizeof(version));
-	version_escaped = curl_easy_escape(curl, version, 0);
-	snprintf(url, sizeof(url), UPDATER_CHECK_URL"&version=%s", version_escaped);
-	curl_free(version_escaped);
-	curl_easy_cleanup(curl);
-
-	/* Start downloading the list of available updates. */
-	dl_data = curl_download_start(url);
-
-	progress_dots_create(&progress);
+	updater_download_start();
 }

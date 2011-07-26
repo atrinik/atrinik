@@ -102,7 +102,7 @@ void system_start()
  * End the system. */
 void system_end()
 {
-	popup_destroy_visible();
+	popup_destroy_all();
 	list_remove_all();
 	script_killall();
 	save_interface_file();

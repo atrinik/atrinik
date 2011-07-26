@@ -2071,7 +2071,7 @@ void process_widgets_rec(widgetdata *widget)
 {
 	popup_struct *popup;
 
-	popup = popup_get_visible();
+	popup = popup_get_head();
 
 	do
 	{

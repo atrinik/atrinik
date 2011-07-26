@@ -61,16 +61,30 @@ typedef struct popup_struct
 	/** Y position of the popup. */
 	int y;
 
+	/** X offset of the close button. */
+	int close_button_xoff;
+
+	/** Y offset of the close button. */
+	int close_button_yoff;
+
+	/** Next popup in a doubly-linked list. */
+	struct popup_struct *next;
+
+	/** Previous popup in a doubly-linked list. */
+	struct popup_struct *prev;
+
 	/**
 	 * Function used for drawing on the popup's surface.
-	 * @param popup The popup. */
-	void (*draw_func)(struct popup_struct *popup);
+	 * @param popup The popup.
+	 * @return 0 to destroy the popup, 1 otherwise. */
+	int (*draw_func)(struct popup_struct *popup);
 
 	/**
 	 * Function used for drawing after blitting the popup's surface on
 	 * the main surface.
-	 * @param popup The popup.. */
-	void (*draw_func_post)(struct popup_struct *popup);
+	 * @param popup The popup.
+	 * @return 0 to destroy the popup, 1 otherwise. */
+	int (*draw_func_post)(struct popup_struct *popup);
 
 	/**
 	 * Function used for handling mouse/key events when popup is visible.
