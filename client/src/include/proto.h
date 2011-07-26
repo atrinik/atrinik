@@ -103,6 +103,7 @@ int keybind_process_event(SDL_KeyboardEvent *event);
 void keybind_repeat();
 void keybind_process(keybind_struct *keybind, uint8 type);
 int keybind_process_command_up(const char *cmd);
+void keybind_state_ensure();
 int keybind_process_command(const char *cmd);
 /* src/client/main.c */
 void free_bitmaps();
@@ -278,9 +279,7 @@ void resize_window(int width, int height);
 int Event_PollInputDevice();
 /* src/events/keys.c */
 void init_keys();
-void reset_keys();
-void key_event(SDL_KeyboardEvent *key);
-void event_poll_key(SDL_KeyboardEvent *event);
+void key_handle_event(SDL_KeyboardEvent *event);
 void cursor_keys(int num);
 void key_repeat();
 void check_menu_keys(int menu, int key);
@@ -321,8 +320,7 @@ void show_help(const char *helpname);
 void widget_number_event(widgetdata *widget, int x, int y);
 void widget_show_console(widgetdata *widget);
 void widget_show_number(widgetdata *widget);
-void do_number();
-void do_console();
+void widget_input_do(widgetdata *widget);
 /* src/gui/inventory.c */
 void inventory_filter_set(uint64 filter);
 void inventory_filter_toggle(uint64 filter);
@@ -623,6 +621,7 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
 void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box);
 void text_input_clear();
 void text_input_open(int maxchar);
+void text_input_close();
 void text_input_history_clear();
 void text_input_add_string(const char *text);
 int text_input_handle(SDL_KeyboardEvent *key);

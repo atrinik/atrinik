@@ -216,6 +216,18 @@ void text_input_open(int maxchar)
 }
 
 /**
+ * Close previously opened text input. */
+void text_input_close()
+{
+	cpl.input_mode = INPUT_MODE_NO;
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+	text_input_string_flag = 0;
+	text_input_string_end_flag = 0;
+	text_input_string_esc_flag = 0;
+	keybind_state_ensure();
+}
+
+/**
  * Add string to the text input history.
  * @param text The text to add to the history. */
 static void text_input_history_add(const char *text)

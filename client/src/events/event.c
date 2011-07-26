@@ -219,7 +219,9 @@ int Event_PollInputDevice()
 				}
 
 				if (GameStatus < GAME_STATUS_PLAY)
+				{
 					break;
+				}
 
 				/* If this is book GUI, handle the click */
 				if (cpl.menustatus == MENU_BOOK)
@@ -251,7 +253,7 @@ int Event_PollInputDevice()
 
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
-				event_poll_key(&event.key);
+				key_handle_event(&event.key);
 				break;
 
 			case SDL_QUIT:
@@ -265,15 +267,6 @@ int Event_PollInputDevice()
 		old_mouse_y = y;
 	}
 
-	/* OK, now we have processed all real events.
-	 * Now run through the list of keybinds and control repeat time value.
-	 * If the key is still marked as pressed in our keyboard mirror table,
-	 * and the time this is pressed <= keybind press value + repeat value,
-	 * we assume a repeat flag is true.
-	 * Sadly, SDL doesn't have a tick count inside the event messages, which
-	 * means the tick value when the event really was triggered. So, the
-	 * client can't simulate the buffered "rhythm" of the key pressings when
-	 * the client lags. */
 	key_repeat();
 
 	return done;

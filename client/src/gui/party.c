@@ -240,14 +240,12 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (cpl.partyname[0] == '\0' && button_event(&button_form, event))
 	{
-		reset_keys();
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
 		text_input_add_string("/party form ");
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_password, event))
 	{
-		reset_keys();
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
 		text_input_add_string("/party password ");
@@ -259,7 +257,6 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_chat, event))
 	{
-		reset_keys();
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
 		text_input_add_string("/gsay ");
@@ -353,7 +350,6 @@ void PartyCmd(unsigned char *data, int len)
 	else if (type == CMD_PARTY_PASSWORD)
 	{
 		GetString_String(data, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
-		reset_keys();
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
 		text_input_add_string("/party joinpassword ");

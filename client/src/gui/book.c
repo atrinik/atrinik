@@ -177,8 +177,6 @@ void book_show()
 	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x, y + 30, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		cpl.menustatus = MENU_NO;
-		map_udate_flag = 2;
-		reset_keys();
 	}
 }
 

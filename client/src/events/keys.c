@@ -34,60 +34,16 @@ static Uint32 menuRepeatTicks = 0, menuRepeatTime = KEY_REPEAT_TIME_INIT;
 key_struct keys[SDLK_LAST];
 
 /**
- * Screen definitions used when changing between resolutions in the
- * client. */
-static const int screen_definitions[16][2] =
-{
-	{800, 600},
-	{960, 600},
-	{1024, 768},
-	{1100, 700},
-	{1280, 720},
-	{1280, 800},
-	{1280, 960},
-	{1280, 1024},
-	{1440, 900},
-	{1400, 1050},
-	{1600, 1200},
-	{1680, 1050},
-	{1920, 1080},
-	{1920, 1200},
-	{2048, 1536},
-	{2560, 1600},
-};
-
-/**
- * Initialize keys and movement queue. */
+ * Initialize keys. */
 void init_keys()
 {
-	size_t i;
-
-	for (i = 0; i < arraysize(keys); i++)
-	{
-		keys[i].time = 0;
-	}
-
-	reset_keys();
+	memset(keys, 0, sizeof(*keys) * arraysize(keys));
 }
 
-void reset_keys()
-{
-	size_t i;
-
-	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-
-	text_input_string_flag = 0;
-	text_input_string_end_flag = 0;
-	text_input_string_esc_flag = 0;
-
-	for (i = 0; i < arraysize(keys); i++)
-	{
-		keys[i].pressed = 0;
-	}
-}
-
-/* We have a key event */
-void event_poll_key(SDL_KeyboardEvent *event)
+/**
+ * Handle a keyboard event.
+ * @param event The event to handle. */
+void key_handle_event(SDL_KeyboardEvent *event)
 {
 	if (event->type == SDL_KEYUP)
 	{
@@ -162,6 +118,11 @@ void cursor_keys(int num)
 /* Handle key repeating. */
 void key_repeat()
 {
+	if (text_input_string_flag)
+	{
+		return;
+	}
+
 	if (cpl.menustatus == MENU_NO)
 	{
 		keybind_repeat();
@@ -192,8 +153,6 @@ void check_menu_keys(int menu, int key)
 	if (key == SDLK_ESCAPE)
 	{
 		cpl.menustatus = MENU_NO;
-		map_udate_flag = 2;
-		reset_keys();
 		return;
 	}
 

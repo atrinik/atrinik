@@ -86,122 +86,102 @@ void widget_show_number(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, 0, NULL);
 }
 
-/**
- * Wait for number input.
- * If ESC was pressed, close the input widget. */
-void do_number()
+void widget_input_do(widgetdata *widget)
 {
-	int held = 0;
-	keybind_struct *keybind = NULL;
-
-	if (cpl.nummode == NUM_MODE_GET)
-	{
-		keybind = keybind_find_by_command("?GET");
-	}
-	else if (cpl.nummode == NUM_MODE_DROP)
-	{
-		keybind = keybind_find_by_command("?DROP");
-	}
-
-	map_udate_flag = 2;
-
+	/* ESC was pressed. */
 	if (text_input_string_esc_flag)
 	{
-		reset_keys();
-		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_NUMBER_ID]->show = 0;
+		widget->show = 0;
+		text_input_close();
+		return;
 	}
 
-	if (keybind && keys[keybind->key].pressed && SDL_GetTicks() - text_input_opened > 125)
+	/* Handle ?DROP and ?GET key repeating for number input. */
+	if (cpl.input_mode == INPUT_MODE_NUMBER)
 	{
-		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-		text_input_string_flag = 0;
-		text_input_string_end_flag = 1;
-		held = 1;
+		keybind_struct *keybind = NULL;
+
+		if (cpl.nummode == NUM_MODE_GET)
+		{
+			keybind = keybind_find_by_command("?GET");
+		}
+		else if (cpl.nummode == NUM_MODE_DROP)
+		{
+			keybind = keybind_find_by_command("?DROP");
+		}
+
+		/* If the macro key is active and enough time has passed, end the
+		 * input string. */
+		if (keybind && keys[keybind->key].pressed && SDL_GetTicks() - text_input_opened > 125)
+		{
+			text_input_string_flag = 0;
+			text_input_string_end_flag = 1;
+			keys[keybind->key].time = SDL_GetTicks() + 125;
+		}
 	}
 
-	/* if set, we got a finished input!*/
+	/* Is there a finished input? */
 	if (text_input_string_flag == 0 && text_input_string_end_flag)
 	{
-		if (text_input_string[0])
+		/* Any input? */
+		if (text_input_string[0] != '\0')
 		{
-			int tmp;
-			tmp = atoi(text_input_string);
-
-			/* If you enter a number higher than the real nrof, you will pickup all */
-			if (tmp > cpl.nrof)
-				tmp = cpl.nrof;
-
-			if (tmp > 0 && tmp <= cpl.nrof)
+			/* Handle number input. */
+			if (cpl.input_mode == INPUT_MODE_NUMBER)
 			{
-				client_send_move(cpl.loc, cpl.tag, tmp);
-				draw_info_format(COLOR_DGOLD, "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
+				int tmp;
 
-				if (cpl.nummode == NUM_MODE_GET)
-					sound_play_effect("get.ogg", 100);
+				tmp = atoi(text_input_string);
+
+				/* If you enter a number higher than the real nrof, you
+				 * will pickup all. */
+				if (tmp > cpl.nrof)
+				{
+					tmp = cpl.nrof;
+				}
+
+				if (tmp > 0 && tmp <= cpl.nrof)
+				{
+					client_send_move(cpl.loc, cpl.tag, tmp);
+					draw_info_format(COLOR_DGOLD, "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
+
+					if (cpl.nummode == NUM_MODE_GET)
+					{
+						sound_play_effect("get.ogg", 100);
+					}
+					else
+					{
+						sound_play_effect("drop.ogg", 100);
+					}
+				}
+			}
+			/* Handle console input. */
+			else if (cpl.input_mode == INPUT_MODE_CONSOLE)
+			{
+				char buf[MAX_INPUT_STRING + 32];
+
+				/* If it's not command, it's say */
+				if (*text_input_string != '/')
+				{
+					snprintf(buf, sizeof(buf), "/say %s", text_input_string);
+				}
 				else
-					sound_play_effect("drop.ogg", 100);
+				{
+					strcpy(buf, text_input_string);
+				}
+
+				if (!client_command_check(text_input_string))
+				{
+					send_command(buf);
+				}
 			}
 		}
 
-		reset_keys();
-
-		if (held && keybind)
-		{
-			keys[keybind->key].pressed = 1;
-			keys[keybind->key].time = LastTick + 125;
-		}
-
-		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_NUMBER_ID]->show = 0;
+		widget->show = 0;
+		text_input_close();
 	}
 	else
-		cur_widget[IN_NUMBER_ID]->show = 1;
-}
-
-/**
- * Wait for console input.
- * If ESC was pressed or this is input for party menu, just close the console. */
-void do_console()
-{
-	map_udate_flag = 2;
-
-	/* If ESC was pressed, close console. */
-	if (text_input_string_esc_flag)
 	{
-		sound_play_effect("console.ogg", 100);
-		reset_keys();
-		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_CONSOLE_ID]->show = 0;
+		widget->show = 1;
 	}
-
-	/* If set, we've got a finished input */
-	if (text_input_string_flag == 0 && text_input_string_end_flag)
-	{
-		sound_play_effect("console.ogg", 100);
-
-		if (text_input_string[0])
-		{
-			char buf[MAX_INPUT_STRING + 32];
-
-			/* If it's not command, it's say */
-			if (*text_input_string != '/')
-			{
-				snprintf(buf, sizeof(buf), "/say %s", text_input_string);
-			}
-			else
-			{
-				strcpy(buf, text_input_string);
-			}
-
-			if (!client_command_check(text_input_string))
-				send_command(buf);
-		}
-
-		reset_keys();
-		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_CONSOLE_ID]->show = 0;
-	}
-	else
-		cur_widget[IN_CONSOLE_ID]->show = 1;
 }

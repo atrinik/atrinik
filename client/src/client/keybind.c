@@ -405,16 +405,17 @@ int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
  * @return 1 if it matches, 0 otherwise. */
 int keybind_command_matches_state(const char *cmd)
 {
-	keybind_struct *keybind = keybind_find_by_command(cmd);
+	size_t i;
 
-	if (!keybind)
+	for (i = 0; i < keybindings_num; i++)
 	{
-		return 0;
-	}
-
-	if (keys[keybind->key].pressed && (!keybind->mod || keybind->mod == keybind_adjust_kmod(SDL_GetModState())))
-	{
-		return 1;
+		if (!strcmp(cmd, keybindings[i]->command))
+		{
+			if (keys[keybindings[i]->key].pressed && (!keybindings[i]->mod || keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState())))
+			{
+				return 1;
+			}
+		}
 	}
 
 	return 0;
@@ -470,6 +471,7 @@ void keybind_repeat()
 				/* Repeat x times */
 				while ((keys[keybindings[i]->key].time += KEY_REPEAT_TIME - 5) < LastTick)
 				{
+					keybindings[i]->repeated = 1;
 					keybind_process(keybindings[i], SDL_KEYDOWN);
 				}
 			}
@@ -487,6 +489,7 @@ void keybind_repeat()
 				/* Repeat x times */
 				while ((keys[keybindings[i]->key].time += KEY_REPEAT_TIME - 5) < LastTick)
 				{
+					keybindings[i]->repeated = 1;
 					keybind_process(keybindings[i], SDL_KEYDOWN);
 				}
 			}
@@ -525,6 +528,11 @@ void keybind_process(keybind_struct *keybind, uint8 type)
 
 		cp = strtok(NULL, ";");
 	}
+
+	if (type == SDL_KEYUP)
+	{
+		keybind->repeated = 0;
+	}
 }
 
 /**
@@ -533,6 +541,8 @@ void keybind_process(keybind_struct *keybind, uint8 type)
  * @return 1 if the command was handled, 0 otherwise. */
 int keybind_process_command_up(const char *cmd)
 {
+	const char *cmd_orig = cmd;
+
 	if (*cmd == '?')
 	{
 		cmd++;
@@ -550,11 +560,43 @@ int keybind_process_command_up(const char *cmd)
 		{
 			cpl.fire_on = 0;
 		}
+		else if (!strncmp(cmd, "MOVE_", 5))
+		{
+			keybind_struct *keybind;
+
+			cmd += 5;
+
+			if (strcmp(cmd, "STAY") && (keybind = keybind_find_by_command(cmd_orig)) && keybind->repeated)
+			{
+				move_keys(5);
+			}
+		}
 
 		return 1;
 	}
 
 	return 0;
+}
+
+/**
+ * Ensure that keybindings which should trigger on 'key up' event have
+ * done so, even if the 'key up' event was handled by something else. */
+void keybind_state_ensure()
+{
+	if (cpl.inventory_win != IWIN_BELOW && !keybind_command_matches_state("?INVENTORY"))
+	{
+		keybind_process_command_up("?INVENTORY");
+	}
+
+	if (cpl.run_on && !keybind_command_matches_state("?RUNON"))
+	{
+		keybind_process_command_up("?RUNON");
+	}
+
+	if (cpl.fire_on && !keybind_command_matches_state("?FIREON"))
+	{
+		keybind_process_command_up("?FIREON");
+	}
 }
 
 /**
@@ -642,8 +684,6 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "CONSOLE"))
 		{
-			reset_keys();
-
 			if (cpl.input_mode == INPUT_MODE_NO)
 			{
 				cpl.input_mode = INPUT_MODE_CONSOLE;
@@ -824,7 +864,6 @@ int keybind_process_command(const char *cmd)
 			{
 				char buf[MAX_BUF];
 
-				reset_keys();
 				cpl.input_mode = INPUT_MODE_NUMBER;
 				text_input_open(22);
 				cpl.loc = loc;
@@ -840,6 +879,7 @@ int keybind_process_command(const char *cmd)
 
 			draw_info_format(COLOR_DGOLD, "get %s", it->s_name);
 			client_send_move(loc, tag, nrof);
+			sound_play_effect("get.ogg", 100);
 		}
 		else if (!strcmp(cmd, "DROP"))
 		{
@@ -894,7 +934,6 @@ int keybind_process_command(const char *cmd)
 			{
 				char buf[MAX_BUF];
 
-				reset_keys();
 				cpl.input_mode = INPUT_MODE_NUMBER;
 				text_input_open(22);
 				cpl.loc = loc;
@@ -910,6 +949,7 @@ int keybind_process_command(const char *cmd)
 
 			draw_info_format(COLOR_DGOLD, "drop %s", it->s_name);
 			client_send_move(loc, tag, nrof);
+			sound_play_effect("drop.ogg", 100);
 		}
 		else if (!strcmp(cmd, "HELP"))
 		{
@@ -1011,13 +1051,27 @@ int keybind_process_command(const char *cmd)
 
 			cpl.inventory_win = IWIN_INV;
 		}
-		else if (!strcmp(cmd, "RUNON"))
+		else if (!strncmp(cmd, "RUNON", 5))
 		{
-			cpl.run_on = 1;
+			if (!strcmp(cmd + 5, "_TOGGLE"))
+			{
+				cpl.run_on = !cpl.run_on;
+			}
+			else
+			{
+				cpl.run_on = 1;
+			}
 		}
-		else if (!strcmp(cmd, "FIREON"))
+		else if (!strncmp(cmd, "FIREON", 6))
 		{
-			cpl.fire_on = 1;
+			if (!strcmp(cmd + 6, "_TOGGLE"))
+			{
+				cpl.fire_on = !cpl.fire_on;
+			}
+			else
+			{
+				cpl.fire_on = 1;
+			}
 		}
 		else if (!strncmp(cmd, "QUICKSLOT_", 10))
 		{

@@ -688,8 +688,7 @@ void region_map_show()
 	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w, y + 10, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		cpl.menustatus = MENU_NO;
-		map_udate_flag = 2;
-		reset_keys();
+		return;
 	}
 
 	/* Show direction markers. */
@@ -809,8 +808,6 @@ void region_map_show()
 					send_command(buf);
 
 					cpl.menustatus = MENU_NO;
-					map_udate_flag = 2;
-					reset_keys();
 					/* Workaround so the middle click doesn't also trigger a
 					 * fire action. */
 					cpl.action_timer = 0.0001f;

@@ -46,7 +46,7 @@ enum
 typedef struct key_struct
 {
 	/** If 1, the key is pressed. */
-	int pressed;
+	uint8 pressed;
 
 	/** Last repeat time. */
 	uint32 time;

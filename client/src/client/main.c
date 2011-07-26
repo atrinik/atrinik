@@ -404,7 +404,6 @@ static int game_status_chain()
 		clear_map();
 		map_redraw_flag = 1;
 		clear_player();
-		reset_keys();
 		GameStatus = GAME_STATUS_WAITLOOP;
 	}
 	else if (GameStatus == GAME_STATUS_STARTCONNECT)
@@ -731,11 +730,11 @@ static void display_layer4()
 
 		if (cpl.input_mode == INPUT_MODE_CONSOLE)
 		{
-			do_console();
+			widget_input_do(cur_widget[IN_CONSOLE_ID]);
 		}
 		else if (cpl.input_mode == INPUT_MODE_NUMBER)
 		{
-			do_number();
+			widget_input_do(cur_widget[IN_NUMBER_ID]);
 		}
 	}
 }

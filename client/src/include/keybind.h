@@ -48,6 +48,8 @@ typedef struct keybind_struct
 
 	/** Whether to trigger repeat. */
 	uint8 repeat;
+
+	uint8 repeated;
 } keybind_struct;
 
 /** How quickly the key repeats. */
