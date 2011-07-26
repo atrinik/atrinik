@@ -86,142 +86,76 @@ void reset_keys()
 	}
 }
 
-int key_event(SDL_KeyboardEvent *key)
-{
-	if (key->type == SDL_KEYUP)
-	{
-		keys[key->keysym.sym].pressed = 0;
-
-		if (cpl.menustatus == MENU_NO)
-		{
-			keybind_process_event(key);
-		}
-	}
-	else if (key->type == SDL_KEYDOWN)
-	{
-		keys[key->keysym.sym].pressed = 1;
-		keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-
-		if (cpl.menustatus != MENU_NO)
-		{
-			check_menu_keys(cpl.menustatus, key->keysym.sym);
-		}
-		else
-		{
-			if (keybind_command_matches_event("?COPY", key))
-			{
-				textwin_handle_copy();
-			}
-			else if (key->keysym.sym == SDLK_ESCAPE)
-			{
-				settings_open();
-			}
-
-			keybind_process_event(key);
-		}
-	}
-
-	return 0;
-}
-
 /* We have a key event */
-int event_poll_key(SDL_Event *event)
+void event_poll_key(SDL_KeyboardEvent *event)
 {
 	if (event->type == SDL_KEYUP)
 	{
 		/* End of key repeat. */
 		menuRepeatKey = -1;
 		menuRepeatTime = KEY_REPEAT_TIME_INIT;
+		keys[event->keysym.sym].pressed = 0;
 	}
-
-	if (lists_handle_keyboard(&event->key))
+	else if (event->type == SDL_KEYDOWN)
 	{
-		return 0;
+		keys[event->keysym.sym].pressed = 1;
+		keys[event->keysym.sym].time = SDL_GetTicks() + KEY_REPEAT_TIME_INIT;
 	}
 
+	/* Handle lists. */
+	if (lists_handle_keyboard(event))
+	{
+		return;
+	}
+
+	/* Handle text input. */
 	if (text_input_string_flag)
 	{
-		if (cpl.input_mode != INPUT_MODE_NUMBER)
-			cpl.inventory_win = IWIN_BELOW;
-
-		text_input_handle(&event->key);
+		text_input_handle(event);
+		return;
 	}
-	else if (!text_input_string_end_flag)
+	else if (text_input_string_end_flag)
 	{
-		if (GameStatus == GAME_STATUS_PLAY)
-			return key_event(&event->key);
+		return;
 	}
 
-	return 0;
+	if (event->type == SDL_KEYDOWN)
+	{
+		if (cpl.menustatus != MENU_NO)
+		{
+			check_menu_keys(cpl.menustatus, event->keysym.sym);
+			return;
+		}
+
+		if (GameStatus == GAME_STATUS_PLAY && event->keysym.sym == SDLK_ESCAPE)
+		{
+			settings_open();
+			return;
+		}
+	}
+
+	keybind_process_event(event);
 }
 
 void cursor_keys(int num)
 {
-	switch (num)
+	const int below_inv_adjust[4] = {-INVITEMBELOWXLEN, INVITEMBELOWXLEN, -1, 1};
+	const int inv_adjust[4] = {-INVITEMXLEN, INVITEMXLEN, -1, 1};
+
+	if (num < 0 || num >= 4)
 	{
-		case 0:
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				if (cpl.win_below_slot - INVITEMBELOWXLEN >= 0)
-					cpl.win_below_slot -= INVITEMBELOWXLEN;
+		return;
+	}
 
-				cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-			}
-			else
-			{
-				if (cpl.win_inv_slot - INVITEMXLEN >= 0)
-					cpl.win_inv_slot -= INVITEMXLEN;
-
-				cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-			}
-			break;
-
-		case 1:
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				if (cpl.win_below_slot + INVITEMXLEN < cpl.win_below_count)
-					cpl.win_below_slot += INVITEMXLEN;
-
-				cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-			}
-			else
-			{
-				if (cpl.win_inv_slot + INVITEMXLEN < cpl.win_inv_count)
-					cpl.win_inv_slot += INVITEMXLEN;
-
-				cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-			}
-			break;
-
-		case 2:
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				cpl.win_below_slot--;
-
-				cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-			}
-			else
-			{
-				cpl.win_inv_slot--;
-
-				cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-			}
-			break;
-
-		case 3:
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				cpl.win_below_slot++;
-
-				cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-			}
-			else
-			{
-				cpl.win_inv_slot++;
-
-				cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-			}
-			break;
+	if (cpl.inventory_win == IWIN_BELOW)
+	{
+		cpl.win_below_slot += below_inv_adjust[num];
+		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
+	}
+	else
+	{
+		cpl.win_inv_slot += inv_adjust[num];
+		cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 	}
 }
 

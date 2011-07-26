@@ -1046,6 +1046,10 @@ int keybind_process_command(const char *cmd)
 				quickslots_handle_key(MAX(1, MIN(8, atoi(cmd))) - 1);
 			}
 		}
+		else if (!strcmp(cmd, "COPY"))
+		{
+			textwin_handle_copy();
+		}
 
 		return 1;
 	}

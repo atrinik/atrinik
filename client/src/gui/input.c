@@ -92,6 +92,16 @@ void widget_show_number(widgetdata *widget)
 void do_number()
 {
 	int held = 0;
+	keybind_struct *keybind = NULL;
+
+	if (cpl.nummode == NUM_MODE_GET)
+	{
+		keybind = keybind_find_by_command("?GET");
+	}
+	else if (cpl.nummode == NUM_MODE_DROP)
+	{
+		keybind = keybind_find_by_command("?DROP");
+	}
 
 	map_udate_flag = 2;
 
@@ -102,7 +112,7 @@ void do_number()
 		cur_widget[IN_NUMBER_ID]->show = 0;
 	}
 
-	if (((cpl.nummode == NUM_MODE_GET && keybind_command_matches_state("?GET")) || (cpl.nummode == NUM_MODE_DROP && keybind_command_matches_state("?DROP"))) && SDL_GetTicks() - text_input_opened > 125)
+	if (keybind && keys[keybind->key].pressed && SDL_GetTicks() - text_input_opened > 125)
 	{
 		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 		text_input_string_flag = 0;
@@ -136,24 +146,10 @@ void do_number()
 
 		reset_keys();
 
-		if (held)
+		if (held && keybind)
 		{
-			keybind_struct *keybind = NULL;
-
-			if (cpl.nummode == NUM_MODE_GET)
-			{
-				keybind = keybind_find_by_command("?GET");
-			}
-			else if (cpl.nummode == NUM_MODE_DROP)
-			{
-				keybind = keybind_find_by_command("?DROP");
-			}
-
-			if (keybind)
-			{
-				keys[keybind->key].pressed = 1;
-				keys[keybind->key].time = LastTick + 125;
-			}
+			keys[keybind->key].pressed = 1;
+			keys[keybind->key].time = LastTick + 125;
 		}
 
 		cpl.input_mode = INPUT_MODE_NO;

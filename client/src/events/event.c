@@ -251,7 +251,7 @@ int Event_PollInputDevice()
 
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
-				done = event_poll_key(&event);
+				event_poll_key(&event.key);
 				break;
 
 			case SDL_QUIT:

@@ -111,7 +111,6 @@ int main(int argc, char *argv[]);
 /* src/client/menu.c */
 int client_command_check(const char *cmd);
 void send_command_check(const char *cmd);
-void blt_inventory_face_from_tag(int tag, int x, int y);
 void show_menu();
 void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y);
 /* src/client/metaserver.c */
@@ -274,15 +273,14 @@ TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 /* src/events/console.c */
 void mouse_InputNumber();
 /* src/events/event.c */
-uint8 key_is_pressed(SDLKey key);
 int draggingInvItem(int src);
 void resize_window(int width, int height);
 int Event_PollInputDevice();
 /* src/events/keys.c */
 void init_keys();
 void reset_keys();
-int key_event(SDL_KeyboardEvent *key);
-int event_poll_key(SDL_Event *event);
+void key_event(SDL_KeyboardEvent *key);
+void event_poll_key(SDL_KeyboardEvent *event);
 void cursor_keys(int num);
 void key_repeat();
 void check_menu_keys(int menu, int key);
