@@ -412,7 +412,7 @@ int keybind_command_matches_state(const char *cmd)
 		return 0;
 	}
 
-	if (key_is_pressed(keybind->key) && (!keybind->mod || keybind->mod == keybind_adjust_kmod(SDL_GetModState())))
+	if (keys[keybind->key].pressed && (!keybind->mod || keybind->mod == keybind_adjust_kmod(SDL_GetModState())))
 	{
 		return 1;
 	}

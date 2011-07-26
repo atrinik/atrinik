@@ -31,7 +31,7 @@
 
 static int menuRepeatKey = -1;
 static Uint32 menuRepeatTicks = 0, menuRepeatTime = KEY_REPEAT_TIME_INIT;
-_keys keys[MAX_KEYS];
+key_struct keys[SDLK_LAST];
 
 /**
  * Screen definitions used when changing between resolutions in the
@@ -60,9 +60,9 @@ static const int screen_definitions[16][2] =
  * Initialize keys and movement queue. */
 void init_keys()
 {
-	int i;
+	size_t i;
 
-	for (i = 0; i < MAX_KEYS; i++)
+	for (i = 0; i < arraysize(keys); i++)
 	{
 		keys[i].time = 0;
 	}
@@ -72,7 +72,7 @@ void init_keys()
 
 void reset_keys()
 {
-	int i;
+	size_t i;
 
 	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 
@@ -80,7 +80,7 @@ void reset_keys()
 	text_input_string_end_flag = 0;
 	text_input_string_esc_flag = 0;
 
-	for (i = 0; i < MAX_KEYS; i++)
+	for (i = 0; i < arraysize(keys); i++)
 	{
 		keys[i].pressed = 0;
 	}
@@ -99,18 +99,15 @@ int key_event(SDL_KeyboardEvent *key)
 	}
 	else if (key->type == SDL_KEYDOWN)
 	{
+		keys[key->keysym.sym].pressed = 1;
+		keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
+
 		if (cpl.menustatus != MENU_NO)
 		{
-			keys[key->keysym.sym].pressed = 1;
-			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
 			check_menu_keys(cpl.menustatus, key->keysym.sym);
 		}
-		/* no menu */
 		else
 		{
-			keys[key->keysym.sym].pressed = 1;
-			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-
 			if (keybind_command_matches_event("?COPY", key))
 			{
 				textwin_handle_copy();

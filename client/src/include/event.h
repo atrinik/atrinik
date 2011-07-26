@@ -30,10 +30,6 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#define MAX_KEYS 512
-
-extern int old_mouse_y;
-
 enum
 {
 	DRAG_GET_STATUS = -1,
@@ -45,12 +41,18 @@ enum
 	DRAG_PDOLL
 };
 
-typedef struct _keys
+/**
+ * Key information. */
+typedef struct key_struct
 {
-	int pressed; /*true: key is pressed*/
-	uint32 time; /*tick time last repeat is initiated*/
-} _keys;
+	/** If 1, the key is pressed. */
+	int pressed;
 
-_keys keys[MAX_KEYS];
+	/** Last repeat time. */
+	uint32 time;
+} key_struct;
+
+int old_mouse_y;
+key_struct keys[SDLK_LAST];
 
 #endif
