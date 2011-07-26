@@ -49,6 +49,12 @@ static const char *const button_names[BUTTON_NUM] =
 	"Client Settings", "Key Settings", "Logout", "Back to Play"
 };
 
+/** Help filenames for setting actions. */
+static const char *const setting_type_help[SETTING_TYPE_NUM] =
+{
+	"esc menu", "client settings", "keybinding settings", "password change"
+};
+
 /** Currently selected setting type. */
 static uint8 setting_type = SETTING_TYPE_NONE;
 /** Currently selected button. */
@@ -426,6 +432,12 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 {
 	list_struct *list = list_exists(LIST_SETTINGS);
 	int x, y, mx, my, mstate;
+
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	{
+		show_help(setting_type_help[setting_type]);
+		return 1;
+	}
 
 	mstate = SDL_GetMouseState(&mx, &my);
 

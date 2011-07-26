@@ -170,7 +170,10 @@ enum
 	/** Keybindings. */
 	SETTING_TYPE_KEYBINDINGS,
 	/** Character's password. */
-	SETTING_TYPE_PASSWORD
+	SETTING_TYPE_PASSWORD,
+
+	/** Number of the setting types. */
+	SETTING_TYPE_NUM
 };
 
 /** Range setting data. */
