@@ -384,20 +384,6 @@ extern _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
 
 extern CS_Stats cst_tot, cst_lst;
 
-#define DATA_PACKED_CMD 0x80
-
-/** Data commands. */
-enum
-{
-	DATA_CMD_NO,
-	DATA_CMD_SKILL_LIST,
-	DATA_CMD_SPELL_LIST,
-	DATA_CMD_SETTINGS_LIST,
-	DATA_CMD_ANIM_LIST,
-	DATA_CMD_BMAP_LIST,
-	DATA_CMD_HFILES_LIST
-};
-
 /** Set binary socket command. */
 #define SOCKET_SET_BINARY_CMD(__s__, __bc__) \
 	(__s__)->buf[0] = __bc__;                \
