@@ -44,11 +44,6 @@ typedef struct popup_struct
 	/** Disable automatically blitting the bitmap on the popup surface? */
 	uint8 disable_bitmap_blit;
 
-	/**
-	 * Overlay image to draw before popup_struct::surface over the
-	 * ::ScreenSurface. */
-	SDL_Surface *overlay;
-
 	/** Custom data. */
 	void *custom_data;
 
