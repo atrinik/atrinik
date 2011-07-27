@@ -454,56 +454,18 @@ int keybind_process_event(SDL_KeyboardEvent *event)
 }
 
 /**
- * Handle key repeating. */
-void keybind_repeat()
-{
-	size_t i;
-
-	/* Same as in keybind_process_event(), handle keybindings with
-	 * modifier keys first. */
-	for (i = 0; i < keybindings_num; i++)
-	{
-		if (keys[keybindings[i]->key].pressed && keybindings[i]->repeat && keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState()))
-		{
-			/* If time to repeat */
-			if (keys[keybindings[i]->key].time + KEY_REPEAT_TIME - 5 < LastTick)
-			{
-				/* Repeat x times */
-				while ((keys[keybindings[i]->key].time += KEY_REPEAT_TIME - 5) < LastTick)
-				{
-					keybindings[i]->repeated = 1;
-					keybind_process(keybindings[i], SDL_KEYDOWN);
-				}
-			}
-		}
-	}
-
-	/* And then keybindings with no modifier keys. */
-	for (i = 0; i < keybindings_num; i++)
-	{
-		if (keys[keybindings[i]->key].pressed && keybindings[i]->repeat && !keybindings[i]->mod)
-		{
-			/* If time to repeat */
-			if (keys[keybindings[i]->key].time + KEY_REPEAT_TIME - 5 < LastTick)
-			{
-				/* Repeat x times */
-				while ((keys[keybindings[i]->key].time += KEY_REPEAT_TIME - 5) < LastTick)
-				{
-					keybindings[i]->repeated = 1;
-					keybind_process(keybindings[i], SDL_KEYDOWN);
-				}
-			}
-		}
-	}
-}
-
-/**
  * Process a keybinding.
  * @param keybind The keybinding to process.
  * @param type Either SDL_KEYDOWN or SDL_KEYUP. */
 void keybind_process(keybind_struct *keybind, uint8 type)
 {
 	char command[MAX_BUF], *cp;
+
+	/* Do not repeat keys that should not be repeated. */
+	if (!keybind->repeat && keys[keybind->key].repeated)
+	{
+		return;
+	}
 
 	strncpy(command, keybind->command, sizeof(command) - 1);
 	command[sizeof(command) - 1] = '\0';
@@ -527,11 +489,6 @@ void keybind_process(keybind_struct *keybind, uint8 type)
 		}
 
 		cp = strtok(NULL, ";");
-	}
-
-	if (type == SDL_KEYUP)
-	{
-		keybind->repeated = 0;
 	}
 }
 
@@ -566,7 +523,7 @@ int keybind_process_command_up(const char *cmd)
 
 			cmd += 5;
 
-			if (strcmp(cmd, "STAY") && (keybind = keybind_find_by_command(cmd_orig)) && keybind->repeated)
+			if (strcmp(cmd, "STAY") && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated)
 			{
 				move_keys(5);
 			}

@@ -29,8 +29,6 @@
 
 #include <global.h>
 
-static int menuRepeatKey = -1;
-static Uint32 menuRepeatTicks = 0, menuRepeatTime = KEY_REPEAT_TIME_INIT;
 key_struct keys[SDLK_LAST];
 
 /**
@@ -45,19 +43,6 @@ void init_keys()
  * @param event The event to handle. */
 void key_handle_event(SDL_KeyboardEvent *event)
 {
-	if (event->type == SDL_KEYUP)
-	{
-		/* End of key repeat. */
-		menuRepeatKey = -1;
-		menuRepeatTime = KEY_REPEAT_TIME_INIT;
-		keys[event->keysym.sym].pressed = 0;
-	}
-	else if (event->type == SDL_KEYDOWN)
-	{
-		keys[event->keysym.sym].pressed = 1;
-		keys[event->keysym.sym].time = SDL_GetTicks() + KEY_REPEAT_TIME_INIT;
-	}
-
 	/* Handle lists. */
 	if (lists_handle_keyboard(event))
 	{
@@ -115,34 +100,6 @@ void cursor_keys(int num)
 	}
 }
 
-/* Handle key repeating. */
-void key_repeat()
-{
-	if (text_input_string_flag)
-	{
-		return;
-	}
-
-	if (cpl.menustatus == MENU_NO)
-	{
-		keybind_repeat();
-	}
-	/* check menu keys for repeat */
-	else
-	{
-		if (SDL_GetTicks() - menuRepeatTicks > menuRepeatTime || !menuRepeatTicks || menuRepeatKey < 0)
-		{
-			menuRepeatTicks = SDL_GetTicks();
-
-			if (menuRepeatKey >= 0)
-			{
-				check_menu_keys(cpl.menustatus, menuRepeatKey);
-				menuRepeatTime = KEY_REPEAT_TIME;
-			}
-		}
-	}
-}
-
 /* Handle keystrokes in menu dialog. */
 void check_menu_keys(int menu, int key)
 {
@@ -160,7 +117,6 @@ void check_menu_keys(int menu, int key)
 	{
 		case MENU_REGION_MAP:
 			region_map_handle_key(key);
-			menuRepeatKey = key;
 			break;
 	}
 }

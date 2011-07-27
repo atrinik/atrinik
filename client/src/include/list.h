@@ -124,14 +124,6 @@ typedef struct list_struct
 	 * ticks value). */
 	uint32 click_tick;
 
-	/** Which key to repeat. If -1, no key. */
-	sint32 repeat_key;
-
-	/**
-	 * Used for figuring out how many key repeats to simulate (keeps the
-	 * ticks value). */
-	uint32 repeat_key_ticks;
-
 	/** If 1, this list has the active focus. */
 	uint8 focus;
 
@@ -196,9 +188,10 @@ typedef struct list_struct
 	 * Custom function to call for handling keyboard events.
 	 * @param list List.
 	 * @param key Key ID.
-	 * @retval -1 Did not handle the event.
-	 * @retval 0 Handled the event.
-	 * @retval 1 Handled the event, and allow keyboard repeating. */
+	 * @retval -1 Did not handle the event, but should still attempt to
+	 * handle generic list events (eg, scrolling with arrow keys).
+	 * @retval 0 Did not handle the event.
+	 * @retval 1 Handled the event. */
 	int (*key_event_func)(struct list_struct *list, SDLKey key);
 
 	/**
@@ -266,9 +259,5 @@ typedef struct list_struct
 
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300
-/** Key repeat delay in ticks. */
-#define KEY_REPEAT_DELAY 25
-/** Initial delay value. */
-#define KEY_REPEAT_DELAY_INIT 175
 
 #endif

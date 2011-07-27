@@ -48,14 +48,14 @@ typedef struct keybind_struct
 
 	/** Whether to trigger repeat. */
 	uint8 repeat;
-
-	uint8 repeated;
 } keybind_struct;
 
 /** How quickly the key repeats. */
 #define KEY_REPEAT_TIME (35)
 /** Ticks that must pass before the key begins repeating. */
 #define KEY_REPEAT_TIME_INIT (175)
+/** Check whether the specified key is a modifier key. */
+#define KEY_IS_MODIFIER(_key) ((_key) == SDLK_LSHIFT || (_key) == SDLK_RSHIFT || (_key) == SDLK_LALT || (_key) == SDLK_RALT || (_key) == SDLK_LCTRL || (_key) == SDLK_RCTRL || (_key) == SDLK_LSUPER || (_key) == SDLK_RSUPER || (_key) == SDLK_LMETA || (_key) == SDLK_RMETA)
 
 keybind_struct **keybindings;
 size_t keybindings_num;

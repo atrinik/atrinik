@@ -50,6 +50,9 @@ typedef struct key_struct
 
 	/** Last repeat time. */
 	uint32 time;
+
+	/** Whether the key is being repeated. */
+	uint8 repeated;
 } key_struct;
 
 int old_mouse_y;

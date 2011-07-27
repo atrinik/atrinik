@@ -184,7 +184,6 @@ list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing)
 	list->frame_offset = -2;
 	list->header_height = 12;
 	list->row_selected = 1;
-	list->repeat_key = -1;
 
 	/* Generic functions. */
 	list->draw_frame_func = list_draw_frame;
@@ -478,18 +477,6 @@ void list_show(list_struct *list, int x, int y)
 
 	list->x = x;
 	list->y = y;
-
-	/* Keys needing repeat? */
-	if (list->repeat_key != -1)
-	{
-		if (list->repeat_key_ticks + KEY_REPEAT_DELAY - 5 < LastTick)
-		{
-			while ((list->repeat_key_ticks += KEY_REPEAT_DELAY - 5) < LastTick)
-			{
-				list_handle_key(list, list->repeat_key);
-			}
-		}
-	}
 
 	/* Draw a frame, if needed. */
 	if (list->draw_frame_func)
@@ -800,7 +787,7 @@ static void list_scroll(list_struct *list, int up, int scroll)
  * Handle one key press.
  * @param list List to do the keypress for.
  * @param key The key.
- * @return 1 to allow key repeating, 0 otherwise. */
+ * @return 1 if the key was handled, 0 otherwise. */
 static int list_handle_key(list_struct *list, SDLKey key)
 {
 	if (list->key_event_func)
@@ -842,7 +829,7 @@ static int list_handle_key(list_struct *list, SDLKey key)
 				list->handle_esc_func(list);
 			}
 
-			return 0;
+			break;
 
 		/* Enter. */
 		case SDLK_RETURN:
@@ -852,7 +839,7 @@ static int list_handle_key(list_struct *list, SDLKey key)
 				list->handle_enter_func(list);
 			}
 
-			return 0;
+			break;
 
 		/* Unhandled key. */
 		default:
@@ -905,24 +892,9 @@ int list_handle_keyboard(list_struct *list, SDL_KeyboardEvent *event)
 			return 1;
 		}
 
-		/* Handle the key. */
-		if (list_handle_key(list, event->keysym.sym))
-		{
-			/* Store the pressed key and ticks for repeating. */
-			list->repeat_key = event->keysym.sym;
-			list->repeat_key_ticks = LastTick + KEY_REPEAT_DELAY_INIT;
-		}
+		list_handle_key(list, event->keysym.sym);
 
 		return 1;
-	}
-	/* Key was released. */
-	else if (event->type == SDL_KEYUP)
-	{
-		/* If the key is the one we stored previously, reset it. */
-		if (event->keysym.sym == (SDLKey) list->repeat_key)
-		{
-			list->repeat_key = -1;
-		}
 	}
 
 	return 0;

@@ -104,6 +104,20 @@ int Event_PollInputDevice()
 		x = event.motion.x;
 		y = event.motion.y;
 
+		if (event.type == SDL_KEYDOWN)
+		{
+			if (!keys[event.key.keysym.sym].pressed)
+			{
+				keys[event.key.keysym.sym].repeated = 0;
+				keys[event.key.keysym.sym].pressed = 1;
+				keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
+			}
+		}
+		else if (event.type == SDL_KEYUP)
+		{
+			keys[event.key.keysym.sym].pressed = 0;
+		}
+
 		if ((event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) && popup_handle_event(&event))
 		{
 			continue;
@@ -261,7 +275,35 @@ int Event_PollInputDevice()
 		old_mouse_y = y;
 	}
 
-	key_repeat();
+	if (!text_input_string_flag)
+	{
+		size_t i;
+
+		for (i = 0; i < SDLK_LAST; i++)
+		{
+			/* Ignore modifier keys. */
+			if (KEY_IS_MODIFIER(i))
+			{
+				continue;
+			}
+
+			if (keys[i].pressed && keys[i].time + KEY_REPEAT_TIME - 5 < LastTick)
+			{
+				while ((keys[i].time += KEY_REPEAT_TIME - 5) < LastTick)
+				{
+					keys[i].repeated = 1;
+
+					event.type = SDL_KEYDOWN;
+					event.key.which = 0;
+					event.key.state = SDL_PRESSED;
+					event.key.keysym.unicode = 0;
+					event.key.keysym.mod = SDL_GetModState();
+					event.key.keysym.sym = i;
+					SDL_PushEvent(&event);
+				}
+			}
+		}
+	}
 
 	return done;
 }
