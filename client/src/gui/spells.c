@@ -403,7 +403,7 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("spell list");
+		help_show("spell list");
 	}
 	else if (list->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !draggingInvItem(DRAG_GET_STATUS))
 	{

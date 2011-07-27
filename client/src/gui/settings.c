@@ -435,7 +435,7 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 
 	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
-		show_help(setting_type_help[setting_type]);
+		help_show(setting_type_help[setting_type]);
 		return 1;
 	}
 

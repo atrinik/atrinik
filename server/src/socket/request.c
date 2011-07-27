@@ -223,6 +223,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
 		}
+		else if (!strcmp(cmd, "hpfv2"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES_V2);
+		}
 		else if (!strcmp(cmd, "upf"))
 		{
 			parse_srv_setup(param, cmdback, SRV_FILE_UPDATES);
@@ -472,6 +476,7 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 			break;
 
 		case SRV_CLIENT_HFILES:
+		case SRV_CLIENT_HFILES_V2:
 			if (ns->rf_hfiles)
 			{
 				ns->status = Ns_Dead;

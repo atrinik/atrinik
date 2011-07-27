@@ -70,6 +70,7 @@ typedef signed char sint8;
 #define HASH_FUNCTION HASH_BER
 #include <uthash.h>
 #include <utlist.h>
+#include <utarray.h>
 
 #ifdef HAVE_STDDEF_H
 #	include <stddef.h>

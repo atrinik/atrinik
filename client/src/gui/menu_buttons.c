@@ -188,25 +188,29 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 				cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
 				SetPriorityWidget(cur_widget[MPLAYER_ID]);
 			}
-			else if (i == BUTTON_MAP)
-			{
-				send_command("/region_map");
-			}
-			else if (i == BUTTON_QUEST)
-			{
-				keybind_process_command("?QLIST");
-			}
-			else if (i == BUTTON_HELP)
-			{
-				show_help("main");
-			}
-			else if (i == BUTTON_SETTINGS)
+			else if (i == BUTTON_SETTINGS || i == BUTTON_HELP || i == BUTTON_QUEST || i == BUTTON_MAP)
 			{
 				/* Popup will block any future events, including the mouse
 				 * being released, so we have to take care of clearing the
 				 * pressed state of the button ourselves. */
 				buttons[i].pressed = 0;
-				settings_open();
+
+				if (i == BUTTON_SETTINGS)
+				{
+					settings_open();
+				}
+				else if (i == BUTTON_MAP)
+				{
+					send_command("/region_map");
+				}
+				else if (i == BUTTON_QUEST)
+				{
+					keybind_process_command("?QLIST");
+				}
+				else if (i == BUTTON_HELP)
+				{
+					help_show("main");
+				}
 			}
 
 			break;

@@ -535,6 +535,9 @@ void init_srv_files()
 	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_HFILES);
 
+	snprintf(buf, sizeof(buf), "%s/hfiles_v2", settings.datadir);
+	load_srv_file(buf, SRV_CLIENT_HFILES_V2);
+
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_ANIMS);
 

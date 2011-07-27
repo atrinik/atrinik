@@ -182,29 +182,22 @@ typedef struct _fire_mode
 	char name[128];
 }_fire_mode;
 
-/** Help files structure. */
-typedef struct help_files_struct
+/**
+ * A single help file entry. */
+typedef struct hfile_struct
 {
-	/** Help name, like "main", or "apply". */
-	char helpname[MAX_BUF];
+	char *key;
 
-	/** Help title (shown at the start of the book). */
-	char title[MAX_BUF];
+	char *msg;
 
-	/** The help message. */
-	char message[HUGE_BUF * 12];
+	size_t msg_len;
 
-	/** Is this for DMs only? */
-	int dm_only;
+	uint8 autocomplete;
 
-	/** Can the command be autocompleted using the tab key? */
-	int autocomplete;
+	uint8 autocomplete_wiz;
 
-	/** Next help entry. */
-	struct help_files_struct *next;
-} help_files_struct;
-
-extern help_files_struct *help_files;
+	UT_hash_handle hh;
+} hfile_struct;
 
 typedef enum _fire_mode_id
 {

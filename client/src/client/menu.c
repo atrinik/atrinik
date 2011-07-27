@@ -114,16 +114,22 @@ int client_command_check(const char *cmd)
 		/* Give out "You are at full grace." when needed -
 		 * server will not send us anything when this happens */
 		if (cpl.stats.grace == cpl.stats.maxgrace)
+		{
 			draw_info(COLOR_WHITE, "You are at full grace. You stop praying.");
+		}
 	}
 	else if (!strncmp(cmd, "/help", 5))
 	{
 		cmd += 5;
 
-		if (cmd == NULL || strcmp(cmd, "") == 0)
-			show_help("main");
+		if (!cmd || *cmd == '\0')
+		{
+			help_show("main");
+		}
 		else
-			show_help(cmd + 1);
+		{
+			help_show(cmd + 1);
+		}
 
 		return 1;
 	}

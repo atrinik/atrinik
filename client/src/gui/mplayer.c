@@ -525,7 +525,7 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("music player");
+		help_show("music player");
 	}
 }
 

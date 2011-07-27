@@ -1638,7 +1638,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	if (text_anchor_help_clicked)
 	{
 		text_anchor_help_clicked = 0;
-		show_help(text_anchor_help);
+		help_show(text_anchor_help);
 	}
 
 	text_link_color = text_link_color_default;

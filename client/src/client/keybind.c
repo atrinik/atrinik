@@ -525,7 +525,7 @@ int keybind_process_command_up(const char *cmd)
 
 			if (strcmp(cmd, "STAY") && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated)
 			{
-				move_keys(5);
+				cs_write_string("clr", 3);
 			}
 		}
 
@@ -910,7 +910,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "HELP"))
 		{
-			show_help("main");
+			help_show("main");
 		}
 		else if (!strcmp(cmd, "QLIST"))
 		{

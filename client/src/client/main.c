@@ -57,8 +57,6 @@ int y_custom_cursor = 0;
 /* update map area */
 int map_udate_flag, map_redraw_flag;
 
-/** All the loaded help files. */
-help_files_struct *help_files;
 /** Global status identifier. */
 _game_status GameStatus;
 /** The stored "anim commands" we created out of anims.tmp. */
@@ -282,7 +280,6 @@ static void init_game_data()
 	text_input_string_esc_flag = 0;
 	csocket.fd = -1;
 	RangeFireMode = 0;
-	help_files = NULL;
 
 	text_input_history_clear();
 	delete_player_lists();

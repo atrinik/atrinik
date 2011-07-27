@@ -228,7 +228,7 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("party list");
+		help_show("party list");
 	}
 	else if (button_event(&button_parties, event))
 	{

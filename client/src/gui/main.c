@@ -969,7 +969,7 @@ void show_meta_server()
 
 	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 110, "Help", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
-		show_help("main screen");
+		help_show("main screen");
 	}
 
 	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 228, "Quit", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))

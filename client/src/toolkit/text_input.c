@@ -365,53 +365,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 			}
 			else if (key->keysym.sym == SDLK_TAB)
 			{
-				help_files_struct *help_files_tmp;
-				int possibilities = 0;
-				char cmd_buf[MAX_BUF];
-
-				if (text_input_string[0] != '/' || strrchr(text_input_string, ' '))
-				{
-					return 1;
-				}
-
-				for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
-				{
-					if (strcmp(help_files_tmp->title + strlen(help_files_tmp->title) - 8, " Command"))
-					{
-						continue;
-					}
-
-					if (!strncmp(help_files_tmp->helpname, text_input_string + 1, text_input_count - 1))
-					{
-						if ((help_files_tmp->dm_only && !cpl.dm) || !help_files_tmp->autocomplete)
-						{
-							continue;
-						}
-
-						if (possibilities == 0)
-						{
-							strncpy(cmd_buf, help_files_tmp->helpname, sizeof(cmd_buf));
-						}
-						else
-						{
-							if (possibilities == 1)
-							{
-								draw_info_format(COLOR_WHITE, "\nMatching commands:\n%s", cmd_buf);
-							}
-
-							draw_info(COLOR_WHITE, help_files_tmp->helpname);
-						}
-
-						possibilities++;
-					}
-				}
-
-				if (possibilities == 1)
-				{
-					snprintf(text_input_string, sizeof(text_input_string), "/%s ", cmd_buf);
-					text_input_count = text_input_cursor_pos = (int) strlen(text_input_string);
-				}
-
+				help_handle_tabulator();
 				return 1;
 			}
 

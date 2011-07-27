@@ -182,7 +182,6 @@ void book_load(const char *data, int len)
 {
 	SDL_Rect box;
 	int pos;
-	popup_struct *popup;
 
 	/* Nothing to do. */
 	if (!data || !len)
@@ -228,14 +227,19 @@ void book_load(const char *data, int len)
 	book_scroll_lines = box.y;
 	redraw = 1;
 
-	/* Create the book popup. */
-	popup = popup_create(BITMAP_BOOK);
-	popup->draw_func = popup_draw_func;
-	popup->draw_func_post = popup_draw_func_post;
-	popup->event_func = popup_event_func;
-	popup->disable_bitmap_blit = 1;
-	popup->close_button_xoff = 30;
-	popup->close_button_yoff = 30;
+	/* Create the book popup if it doesn't exist yet. */
+	if (!popup_get_head() || popup_get_head()->bitmap_id != BITMAP_BOOK)
+	{
+		popup_struct *popup;
+
+		popup = popup_create(BITMAP_BOOK);
+		popup->draw_func = popup_draw_func;
+		popup->draw_func_post = popup_draw_func_post;
+		popup->event_func = popup_event_func;
+		popup->disable_bitmap_blit = 1;
+		popup->close_button_xoff = 30;
+		popup->close_button_yoff = 30;
+	}
 }
 
 /**

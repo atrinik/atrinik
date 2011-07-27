@@ -25,137 +25,204 @@
 
 /**
  * @file
- *  */
+ * Handles help files. */
 
 #include <global.h>
 
 /**
- * Frees the ::help_files structure. */
-void free_help_files()
-{
-	help_files_struct *help_file_tmp, *help_file = help_files;
+ * Hashtable that contains the help files. */
+static hfile_struct *hfiles = NULL;
+/**
+ * Array of command matches in console text input. */
+static UT_array *command_matches = NULL;
+/**
+ * Index in ::command_matches to add to text input on the next tabulator
+ * key press. */
+static size_t command_index = 0;
+/**
+ * ::text_input_string cache. */
+static char command_buf[MAX_INPUT_STRING];
 
-	while (help_file)
+/**
+ * Frees the ::hfiles hashtable. */
+void hfiles_deinit()
+{
+	hfile_struct *hfile, *tmp;
+
+	HASH_ITER(hh, hfiles, hfile, tmp)
 	{
-		help_file_tmp = help_file->next;
-		free(help_file);
-		help_file = help_file_tmp;
+		HASH_DEL(hfiles, hfile);
+		free(hfile->key);
+		free(hfile->msg);
+		free(hfile);
 	}
 
-	help_files = NULL;
+	if (command_matches)
+	{
+		utarray_free(command_matches);
+		command_matches = NULL;
+	}
 }
 
 /**
- * Read help files from file.
- *
- * This will also initialize and fill the linked list of help
- * files. The {@link #show_help} function then only needs to
- * loop through that list. */
-void read_help_files()
+ * Read help files from file. */
+void hfiles_init()
 {
-	FILE *fp = server_file_open(SERVER_FILE_HFILES);
-	char buf[HUGE_BUF], helpname[MAX_BUF], title[MAX_BUF], message[HUGE_BUF * 12];
-	int end_marker = 0, dm_only = 0, autocomplete = 1;
+	FILE *fp;
+	char buf[HUGE_BUF], message[HUGE_BUF * 12], *end;
+	uint8 in_msg = 0;
+	hfile_struct *hfile = NULL;
+
+	fp = server_file_open(SERVER_FILE_HFILES);
 
 	if (!fp)
 	{
 		return;
 	}
 
-	if (help_files)
+	hfiles_deinit();
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
-		free_help_files();
-	}
-
-	helpname[0] = title[0] = message[0] = '\0';
-
-	/* Loop through the lines */
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		char *end = strchr(buf, '\n');
-
-		if (!strncmp(buf, "Name: ", 6))
-		{
-			*end = '\0';
-			strncpy(helpname, buf + 6, sizeof(helpname) - 1);
-		}
-		else if (!strncmp(buf, "Title: ", 7))
-		{
-			*end = '\0';
-			strncpy(title, buf + 7, sizeof(title) - 1);
-		}
-		else if (!strcmp(buf, "DM: 1\n"))
-		{
-			dm_only = 1;
-		}
-		else if (!strcmp(buf, "Autocomplete: 0\n"))
-		{
-			autocomplete = 0;
-		}
-		else if (!strcmp(buf, "==========\n"))
-		{
-			end_marker = 1;
-		}
-		else
-		{
-			strncat(message, buf, sizeof(message) - strlen(message) - 1);
-		}
-
-		if (end_marker)
-		{
-			help_files_struct *help_files_tmp = (help_files_struct *) malloc(sizeof(help_files_struct));
-
-			help_files_tmp->next = help_files;
-			help_files = help_files_tmp;
-
-			strncpy(help_files_tmp->helpname, helpname, sizeof(help_files_tmp->helpname) - 1);
-			strncpy(help_files_tmp->title, title, sizeof(help_files_tmp->title) - 1);
-			strncpy(help_files_tmp->message, message, sizeof(help_files_tmp->message) - 1);
-			help_files_tmp->dm_only = dm_only;
-			help_files_tmp->autocomplete = autocomplete;
-
-			helpname[0] = title[0] = message[0] = '\0';
-			dm_only = 0;
-			autocomplete = 1;
-
-			end_marker = 0;
-		}
-	}
-
-	fclose(fp);
-}
-
-/**
- * Show a help GUI.
- * Uses book GUI to show the help.
- * @param helpname Help to be shown. */
-void show_help(const char *helpname)
-{
-	int len;
-	unsigned char *data;
-	char message[HUGE_BUF * 16];
-	help_files_struct *help_files_tmp;
-
-	/* This will be the default message if we don't find the help we want */
-	snprintf(message, sizeof(message), "<book=Help not found><t t=\"The specified help file could not be found.\">\n");
-
-	/* Loop through the linked list of help files */
-	for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
-	{
-		/* If title or message are empty or helpname doesn't match, just continue to the next item */
-		if (help_files_tmp->title[0] == '\0' || help_files_tmp->message[0] == '\0' || strcmp(help_files_tmp->helpname, helpname))
+		/* Ignore comments and blank lines. */
+		if (*buf == '\0' || *buf == '#' || (*buf == '\n' && !in_msg))
 		{
 			continue;
 		}
 
-		/* Got what we wanted, replace it with the default message */
-		snprintf(message, sizeof(message), "<book>%s</book><title>%s</title>\n%s", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
-		break;
+		end = strchr(buf, '\n');
+
+		if (hfile)
+		{
+			if (!strcmp(buf, "endmsg\n"))
+			{
+				in_msg = 0;
+				hfile->msg = strdup(message);
+				hfile->msg_len = strlen(hfile->msg);
+			}
+			else if (in_msg)
+			{
+				strncat(message, buf, sizeof(message) - strlen(message) - 1);
+			}
+			else if (!strcmp(buf, "end\n"))
+			{
+				HASH_ADD_KEYPTR(hh, hfiles, hfile->key, strlen(hfile->key), hfile);
+				hfile = NULL;
+			}
+			else if (!strcmp(buf, "msg\n"))
+			{
+				in_msg = 1;
+			}
+			else if (!strncmp(buf, "autocomplete ", 13))
+			{
+				hfile->autocomplete = atoi(buf + 13);
+			}
+			else if (!strncmp(buf, "autocomplete_wiz ", 17))
+			{
+				hfile->autocomplete_wiz = atoi(buf + 17);
+			}
+			else if (!strncmp(buf, "title ", 6))
+			{
+				*end = '\0';
+				snprintf(message, sizeof(message), "<book>%s</book>", buf + 6);
+			}
+		}
+		else if (!strncmp(buf, "help ", 5))
+		{
+			*end = '\0';
+			hfile = calloc(1, sizeof(*hfile));
+			hfile->key = strdup(buf + 5);
+			message[0] = '\0';
+		}
 	}
 
-	data = (uint8 *) message;
+	fclose(fp);
 
-	len = (int) strlen((char *) data);
+	command_buf[0] = '\0';
+	utarray_new(command_matches, &ut_str_icd);
+}
 
-	book_load((char *) data, len);
+/**
+ * Show a help GUI.
+ * @param name Name of the help file entry to show. */
+void help_show(const char *name)
+{
+	hfile_struct *hfile;
+
+	HASH_FIND_STR(hfiles, name, hfile);
+
+	if (!hfile)
+	{
+		char buf[HUGE_BUF];
+
+		snprintf(buf, sizeof(buf), "<book=Help not found><title>\n<center>The specified help file could not be found.</center></title>");
+		book_load(buf, strlen(buf));
+	}
+	else
+	{
+		book_load(hfile->msg, hfile->msg_len);
+	}
+}
+
+/**
+ * Comparison function used in help_handle_tabulator(). */
+static int command_match_cmp(const void *a, const void *b)
+{
+	return strcmp(*(char * const *) a, *(char * const *) b);
+}
+
+/**
+ * Handle tabulator key in console text input. */
+void help_handle_tabulator()
+{
+	size_t len;
+	char buf[MAX_INPUT_STRING], *space;
+
+	/* Only handle the key if we have any help files, the text input
+	 * starts with '/', and there is either no space in the text input
+	 * or there is nothing after the space. */
+	if (!command_matches || *text_input_string != '/' || ((space = strrchr(text_input_string, ' ')) && *(space + 1) != '\0'))
+	{
+		return;
+	}
+
+	/* Does not match the previous command buffer, so rebuild the array. */
+	if (strcmp(command_buf, text_input_string))
+	{
+		hfile_struct *hfile, *tmp;
+
+		utarray_clear(command_matches);
+
+		HASH_ITER(hh, hfiles, hfile, tmp)
+		{
+			if ((hfile->autocomplete || (cpl.dm && hfile->autocomplete_wiz)) && !strncasecmp(hfile->key, text_input_string + 1, text_input_count - 1))
+			{
+				utarray_push_back(command_matches, &hfile->key);
+			}
+		}
+
+		utarray_sort(command_matches, command_match_cmp);
+		command_index = 0;
+
+		/* Cannot overflow, same size as ::text_input_string. */
+		strcpy(command_buf, text_input_string);
+	}
+
+	len = utarray_len(command_matches);
+
+	if (!len)
+	{
+		return;
+	}
+
+	snprintf(buf, sizeof(buf), "/%s ", *((char **) utarray_eltptr(command_matches, command_index)));
+	text_input_add_string(buf);
+	strcpy(command_buf, buf);
+
+	command_index++;
+
+	if (command_index >= len)
+	{
+		command_index = 0;
+	}
 }

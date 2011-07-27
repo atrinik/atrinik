@@ -499,7 +499,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	/* Show a close button. */
 	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w - 25, popup->y + 8, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
-		show_help("region map");
+		help_show("region map");
 		return 1;
 	}
 
@@ -785,7 +785,6 @@ void RegionMapCmd(uint8 *data, int len)
 	popup = popup_create(BITMAP_REGION_MAP);
 	popup->draw_func_post = popup_draw_func_post;
 	popup->event_func = popup_event_func;
-	//popup->close_button_xoff = RM_BORDER_SIZE;
 	popup->close_button_yoff = 8;
 
 	/* Construct URL for the image. */

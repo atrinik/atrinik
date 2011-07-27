@@ -112,7 +112,7 @@ void system_end()
 	sound_deinit();
 	free_bitmaps();
 	text_deinit();
-	free_help_files();
+	hfiles_deinit();
 	effects_deinit();
 	settings_deinit();
 	keybind_deinit();

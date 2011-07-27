@@ -111,7 +111,6 @@ int main(int argc, char *argv[]);
 /* src/client/menu.c */
 int client_command_check(const char *cmd);
 void send_command_check(const char *cmd);
-void show_menu();
 void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y);
 /* src/client/metaserver.c */
 void metaserver_init();
@@ -280,7 +279,6 @@ int Event_PollInputDevice();
 void init_keys();
 void key_handle_event(SDL_KeyboardEvent *event);
 void cursor_keys(int num);
-void check_menu_keys(int menu, int key);
 /* src/events/move.c */
 void move_keys(int num);
 int dir_from_tile_coords(int tx, int ty);
@@ -308,9 +306,10 @@ void fps_init();
 void fps_do();
 void widget_show_fps(widgetdata *widget);
 /* src/gui/help.c */
-void free_help_files();
-void read_help_files();
-void show_help(const char *helpname);
+void hfiles_deinit();
+void hfiles_init();
+void help_show(const char *name);
+void help_handle_tabulator();
 /* src/gui/input.c */
 void widget_number_event(widgetdata *widget, int x, int y);
 void widget_show_console(widgetdata *widget);

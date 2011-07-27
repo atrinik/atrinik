@@ -312,7 +312,7 @@ void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("skill list");
+		help_show("skill list");
 	}
 }
 
