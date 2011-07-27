@@ -84,7 +84,7 @@ int Event_PollInputDevice()
 			}
 			/* Mouse gesture: hold right+left buttons or middle button
 			 * to fire. */
-			else if (!cpl.action_timer && cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID])
+			else if (!cpl.action_timer && widget_mouse_event.owner == cur_widget[MAP_ID])
 			{
 				int state = SDL_GetMouseState(&x, &y);
 
@@ -150,40 +150,11 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				/* Widget has higher priority than anything below, except menus
-				 * so break if we had a widget event */
-				if (widget_event_mouseup(x,y, &event))
+				if (widget_event_mouseup(x, y, &event))
 				{
-					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
-
 					/* Sanity handling */
 					draggingInvItem(DRAG_NONE);
 					break;
-				}
-
-				if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
-					break;
-
-				/* Only drop to ground has to be handled, the rest do the widget handlers */
-				if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
-				{
-					/* KEYFUNC_APPLY and KEYFUNC_DROP works only if cpl.inventory_win = IWIN_INV. The tag must
-					 * be placed in cpl.win_inv_tag. So we do this and after DnD we restore the old values. */
-					int old_inv_win = cpl.inventory_win;
-					int old_inv_tag = cpl.win_inv_tag;
-					cpl.inventory_win = IWIN_INV;
-
-					/* Drop to ground */
-					if (mouse_to_tile_coords(x, y, NULL, NULL))
-					{
-						if (draggingInvItem(DRAG_GET_STATUS) != DRAG_QUICKSLOT_SPELL)
-						{
-							keybind_process_command("?DROP");
-						}
-					}
-
-					cpl.inventory_win = old_inv_win;
-					cpl.win_inv_tag = old_inv_tag;
 				}
 
 				draggingInvItem(DRAG_NONE);
@@ -204,16 +175,8 @@ int Event_PollInputDevice()
 				x_custom_cursor = x;
 				y_custom_cursor = y;
 
-				/* We have to break now when menu is active - menu is higher priority than any widget! */
-				if (cpl.menustatus != MENU_NO)
-				{
-					break;
-				}
-
 				if (widget_event_mousemv(x, y, &event))
 				{
-					/* NOTE: place here special handlings that have to be done, even if a widget owns it */
-
 					break;
 				}
 
@@ -227,27 +190,13 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				if (GameStatus == GAME_STATUS_WAITLOOP)
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;
 				}
 
-				/* Beyond here only when no menu is active. */
-				if (cpl.menustatus != MENU_NO)
-				{
-					break;
-				}
-
-				/* Widget System */
 				if (widget_event_mousedn(x, y, &event))
 				{
-					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
-
 					break;
 				}
 

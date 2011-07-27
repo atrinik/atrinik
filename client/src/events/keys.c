@@ -62,12 +62,6 @@ void key_handle_event(SDL_KeyboardEvent *event)
 
 	if (event->type == SDL_KEYDOWN)
 	{
-		if (cpl.menustatus != MENU_NO)
-		{
-			check_menu_keys(cpl.menustatus, event->keysym.sym);
-			return;
-		}
-
 		if (GameStatus == GAME_STATUS_PLAY && event->keysym.sym == SDLK_ESCAPE)
 		{
 			settings_open();
@@ -97,23 +91,5 @@ void cursor_keys(int num)
 	{
 		cpl.win_inv_slot += inv_adjust[num];
 		cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-	}
-}
-
-/* Handle keystrokes in menu dialog. */
-void check_menu_keys(int menu, int key)
-{
-	if (cpl.menustatus == MENU_NO)
-		return;
-
-	/* close menu */
-	if (key == SDLK_ESCAPE)
-	{
-		cpl.menustatus = MENU_NO;
-		return;
-	}
-
-	switch (menu)
-	{
 	}
 }

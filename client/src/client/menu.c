@@ -315,15 +315,6 @@ void send_command_check(const char *cmd)
 }
 
 /**
- * Show one of the menus (book, party, etc). */
-void show_menu()
-{
-	if (!cpl.menustatus)
-		return;
-
-}
-
-/**
  * Blit a window slider.
  * @param slider Sprite of the slider
  * @param maxlen Maximum length of the slider

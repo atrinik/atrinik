@@ -203,9 +203,6 @@ void init_player_data()
 	cpl.ob->nrof = 1;
 	cpl.partyname[0] = cpl.partyjoin[0] = '\0';
 
-	cpl.menustatus = MENU_NO;
-	cpl.menustatus = MENU_NO;
-
 	/* Avoid division by 0 errors */
 	cpl.stats.maxsp = 1;
 	cpl.stats.maxhp = 1;

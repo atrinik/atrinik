@@ -619,11 +619,10 @@ static int popup_draw_func_post(popup_struct *popup)
 					snprintf(buf, sizeof(buf), "/goto %s %d %d", rm_def->maps[i].path, xpos, ypos);
 					send_command(buf);
 
-					cpl.menustatus = MENU_NO;
 					/* Workaround so the middle click doesn't also trigger a
 					 * fire action. */
 					cpl.action_timer = 0.0001f;
-					break;
+					return 0;
 				}
 			}
 		}

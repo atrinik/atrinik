@@ -774,7 +774,7 @@ void map_draw_map()
 		}
 	}
 
-	if (cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
+	if (widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
 	{
 		map_draw_one(tx, ty, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
 	}
@@ -850,9 +850,21 @@ void widget_map_mevent(widgetdata *widget, SDL_Event *event)
 
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{
+		/* Drop item. */
+		if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
+		{
+			int old_inv_win = cpl.inventory_win;
+			int old_inv_tag = cpl.win_inv_tag;
+
+			cpl.inventory_win = IWIN_INV;
+			keybind_process_command("?DROP");
+
+			cpl.inventory_win = old_inv_win;
+			cpl.win_inv_tag = old_inv_tag;
+		}
 		/* Send target command if we released the right button in time;
 		 * otherwise the widget menu will be created. */
-		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
+		else if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
 		{
 			send_target(tx, ty);
 		}

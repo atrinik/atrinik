@@ -30,15 +30,6 @@
 #ifndef MENU_H
 #define MENU_H
 
-/**
- * @defgroup MENU_xxx Menu types
- * The menu types.
- *@{*/
-/** No menu. */
-#define MENU_NO 1
-#define MENU_REGION_MAP 256
-/*@}*/
-
 /** Maximum quickslots in a single group. */
 #define MAX_QUICK_SLOTS 8
 /** Maximum quickslot groups. */

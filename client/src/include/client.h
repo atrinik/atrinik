@@ -242,9 +242,6 @@ typedef struct Player_Struct
 	/* Inventory windows */
 	int inventory_win;
 
-	/* Menu that is opened */
-	int menustatus;
-
 	int loc;
 	int tag;
 	int nrof;

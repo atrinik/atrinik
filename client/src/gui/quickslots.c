@@ -276,7 +276,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			blit_face(quick_slots[j].spell->icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 
 			/* If mouse is over the quickslot, show a tooltip */
-			if (cpl.menustatus == MENU_NO && mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
+			if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
 			{
 				tooltip_create(mx, my, FONT_ARIAL10, quick_slots[j].spell->name);
 			}

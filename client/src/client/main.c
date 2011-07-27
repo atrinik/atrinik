@@ -968,9 +968,6 @@ int main(int argc, char *argv[])
 			show_meta_server();
 		}
 
-		/* Show all kind of the big dialog windows */
-		show_menu();
-
 		tooltip_show();
 
 		if (f_custom_cursor)
