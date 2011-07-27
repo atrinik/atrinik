@@ -523,9 +523,9 @@ int keybind_process_command_up(const char *cmd)
 
 			cmd += 5;
 
-			if (strcmp(cmd, "STAY") && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated)
+			if (strcmp(cmd, "STAY") && !cpl.fire_on && !cpl.run_on && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated)
 			{
-				cs_write_string("clr", 3);
+				move_keys(5);
 			}
 		}
 
