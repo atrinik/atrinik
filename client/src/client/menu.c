@@ -321,10 +321,6 @@ void show_menu()
 	if (!cpl.menustatus)
 		return;
 
-	if (cpl.menustatus == MENU_REGION_MAP)
-	{
-		region_map_show();
-	}
 }
 
 /**

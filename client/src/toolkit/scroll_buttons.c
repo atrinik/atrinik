@@ -99,11 +99,14 @@ static void scroll_buttons_show_one(SDL_Surface *surface, int x, int y, int *pos
  * @param max_pos Maximum possible value for 'pos'.
  * @param advance How many rows to advance when using the custom-scroll
  * buttons.
- * @param box Box containing coordinates, usually same as x/y. */
-void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box)
+ * @param box Box containing coordinates, usually same as x/y.
+ * @return 1 if the scroll value changed, 0 otherwise. */
+int scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box)
 {
 	_BLTFX bltfx;
+	int old_pos;
 
+	old_pos = *pos;
 	bltfx.surface = surface;
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
@@ -138,4 +141,6 @@ void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_p
 	{
 		*pos = 0;
 	}
+
+	return *pos != old_pos;
 }

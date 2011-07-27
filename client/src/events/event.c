@@ -237,11 +237,6 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				if (cpl.menustatus == MENU_REGION_MAP)
-				{
-					region_map_handle_event(&event);
-				}
-
 				/* Beyond here only when no menu is active. */
 				if (cpl.menustatus != MENU_NO)
 				{

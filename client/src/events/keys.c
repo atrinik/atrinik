@@ -115,8 +115,5 @@ void check_menu_keys(int menu, int key)
 
 	switch (menu)
 	{
-		case MENU_REGION_MAP:
-			region_map_handle_key(key);
-			break;
 	}
 }

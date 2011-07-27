@@ -431,101 +431,6 @@ static int region_map_is_same(const char *url)
 }
 
 /**
- * Parse a region map command from the server.
- * @param data Data to parse.
- * @param len Length of 'data'. */
-void RegionMapCmd(uint8 *data, int len)
-{
-	char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], text[HUGE_BUF];
-	int pos = 0;
-
-	/* Get the player's map, X and Y. */
-	GetString_String(data, &pos, current_map, sizeof(current_map));
-	current_x = GetShort_String(data + pos);
-	pos += 2;
-	current_y = GetShort_String(data + pos);
-	pos += 2;
-	/* Get the region and the URL base for the maps. */
-	GetString_String(data, &pos, region, sizeof(region));
-	GetString_String(data, &pos, url_base, sizeof(url_base));
-
-	/* Rest of the data packet may be labels/tooltips/etc. */
-	while (pos < len)
-	{
-		uint8 type = data[pos++];
-
-		GetString_String(data, &pos, text, sizeof(text));
-
-		if (type == RM_TYPE_LABEL)
-		{
-			cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
-			cmd_labels[num_cmd_labels] = strdup(text);
-			num_cmd_labels++;
-		}
-		else if (type == RM_TYPE_TOOLTIP)
-		{
-			cmd_tooltips = realloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
-			cmd_tooltips[num_cmd_tooltips] = strdup(text);
-			num_cmd_tooltips++;
-		}
-	}
-
-	cpl.menustatus = MENU_REGION_MAP;
-
-	/* Construct URL for the image. */
-	snprintf(url, sizeof(url), "%s/%s.png", url_base, region);
-
-	/* Free old map surface. */
-	if (region_map_png)
-	{
-		/* If zoom was used, we have to free both. */
-		if (region_map_png != region_map_png_orig)
-		{
-			SDL_FreeSurface(region_map_png);
-		}
-
-		SDL_FreeSurface(region_map_png_orig);
-		region_map_png = NULL;
-		region_map_png_orig = NULL;
-	}
-
-	/* Default zoom. */
-	region_map_zoom = RM_ZOOM_DEFAULT;
-
-	region_map_pos.x = 0;
-	region_map_pos.y = 0;
-	region_map_pos.w = Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE * 2;
-	region_map_pos.h = Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE * 2 -RM_TOOLTIP_HEIGHT;
-
-	/* The map is the same, no downloading needed. */
-	if (region_map_is_same(url))
-	{
-		if (cmd_labels)
-		{
-			free(cmd_labels);
-			cmd_labels = NULL;
-		}
-
-		if (cmd_tooltips)
-		{
-			free(cmd_tooltips);
-			cmd_tooltips = NULL;
-		}
-
-		num_cmd_labels = 0;
-		num_cmd_tooltips = 0;
-		return;
-	}
-
-	region_map_clear();
-
-	/* Start the downloads. */
-	data_png = curl_download_start(url);
-	snprintf(url, sizeof(url), "%s/%s.def", url_base, region);
-	data_def = curl_download_start(url);
-}
-
-/**
  * Clears the cached png and definitions. */
 void region_map_clear()
 {
@@ -578,124 +483,31 @@ static void region_map_resize(int adjust)
 	surface_pan(region_map_png, &region_map_pos);
 }
 
-/**
- * Handle key press.
- * @param key Key. */
-void region_map_handle_key(SDLKey key)
+/** @copydoc popup_struct::draw_func_post */
+static int popup_draw_func_post(popup_struct *popup)
 {
-	int pos = RM_SCROLL;
-
-	if (!region_map_png)
-	{
-		return;
-	}
-
-	/* Shift is held, increase the scrolling 'speed'. */
-	if (SDL_GetModState() & KMOD_SHIFT)
-	{
-		pos = RM_SCROLL_SHIFT;
-	}
-
-	if (key == SDLK_UP)
-	{
-		region_map_pos.y -= pos;
-	}
-	else if (key == SDLK_DOWN)
-	{
-		region_map_pos.y += pos;
-	}
-	else if (key == SDLK_LEFT)
-	{
-		region_map_pos.x -= pos;
-	}
-	else if (key == SDLK_RIGHT)
-	{
-		region_map_pos.x += pos;
-	}
-	else if (key == SDLK_PAGEUP)
-	{
-		if (region_map_zoom < RM_ZOOM_MAX)
-		{
-			region_map_resize(RM_ZOOM_PROGRESS);
-		}
-	}
-	else if (key == SDLK_PAGEDOWN)
-	{
-		if (region_map_zoom > RM_ZOOM_MIN)
-		{
-			region_map_resize(-RM_ZOOM_PROGRESS);
-		}
-	}
-	else
-	{
-		return;
-	}
-
-	surface_pan(region_map_png, &region_map_pos);
-}
-
-/**
- * Handle mouse event.
- * @param event The event. */
-void region_map_handle_event(SDL_Event *event)
-{
-	if (!region_map_png)
-	{
-		return;
-	}
-
-	if (event->type == SDL_MOUSEBUTTONDOWN)
-	{
-		/* Zoom in. */
-		if (event->button.button == SDL_BUTTON_WHEELUP)
-		{
-			if (region_map_zoom < RM_ZOOM_MAX)
-			{
-				region_map_resize(RM_ZOOM_PROGRESS);
-			}
-		}
-		/* Zoom out. */
-		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
-		{
-			if (region_map_zoom > RM_ZOOM_MIN)
-			{
-				region_map_resize(-RM_ZOOM_PROGRESS);
-			}
-		}
-	}
-}
-
-/**
- * Show the region map menu. */
-void region_map_show()
-{
-	int x, y, ret_png, ret_def;
+	int ret_png, ret_def;
 	SDL_Rect box, dest;
 	int state, mx, my;
 	size_t i;
 
-	/* Show the background. */
-	x = (ScreenSurface->w / 2 - Bitmaps[BITMAP_REGION_MAP]->bitmap->w / 2);
-	y = (ScreenSurface->h / 2 - Bitmaps[BITMAP_REGION_MAP]->bitmap->h / 2);
-	sprite_blt(Bitmaps[BITMAP_REGION_MAP], x, y, NULL, NULL);
-
-	box.x = x + RM_BORDER_SIZE;
-	box.y = y + RM_BORDER_SIZE;
+	box.x = popup->x + RM_BORDER_SIZE;
+	box.y = popup->y + RM_BORDER_SIZE;
 	box.w = region_map_pos.w;
 	box.h = region_map_pos.h;
 
 	/* Show a close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w, y + 10, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w - 25, popup->y + 8, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
-		cpl.menustatus = MENU_NO;
-		return;
+		show_help("region map");
+		return 1;
 	}
 
 	/* Show direction markers. */
-	string_blt(ScreenSurface, FONT_SERIF14, "N", box.x, y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "E", x + Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_HGOLD, TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "S", box.x, y + Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2 - RM_TOOLTIP_HEIGHT, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "W", x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_HGOLD, TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "N", box.x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "E", popup->x + Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_HGOLD, TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "S", box.x, popup->y + Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2 - RM_TOOLTIP_HEIGHT, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_HGOLD, TEXT_OUTLINE, &box);
 
 	/* Check the status of the downloads. */
 	ret_png = curl_download_finished(data_png);
@@ -705,14 +517,14 @@ void region_map_show()
 	if (ret_png == -1 || ret_def == -1)
 	{
 		string_blt(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
-		return;
+		return 1;
 	}
 
 	/* Still in progress. */
 	if (ret_png == 0 || ret_def == 0)
 	{
 		string_blt(ScreenSurface, FONT_SERIF14, "Downloading the map, please wait...", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
-		return;
+		return 1;
 	}
 
 	/* Parse the definitions. */
@@ -823,16 +635,14 @@ void region_map_show()
 	/* Actually blit the map. */
 	SDL_BlitSurface(region_map_png, &region_map_pos, ScreenSurface, &dest);
 
-	string_blt(ScreenSurface, FONT_ARIAL11, "Move the mouse cursor over buildings to see additional information about them, if any. Scroll the map by pressing left mouse click.", box.x + 3, y + Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE - FONT_HEIGHT(FONT_ARIAL11) - 3, COLOR_WHITE, TEXT_OUTLINE, NULL);
-
 	if (mx >= box.x && mx <= box.x + box.w && my >= box.y && my <= box.y + box.h)
 	{
 		SDL_Rect tooltip_box;
 
 		tooltip_box.x = box.x + 3;
 		tooltip_box.y = box.y + box.h + RM_BORDER_SIZE + 3;
-		tooltip_box.w = box.w;
-		tooltip_box.h = RM_TOOLTIP_HEIGHT - RM_BORDER_SIZE * 2;
+		tooltip_box.w = box.w - 6;
+		tooltip_box.h = RM_TOOLTIP_HEIGHT - RM_BORDER_SIZE - 6;
 
 		for (i = 0; i < rm_def->num_tooltips; i++)
 		{
@@ -843,4 +653,191 @@ void region_map_show()
 			}
 		}
 	}
+
+	return 1;
+}
+
+/** @copydoc popup_struct::event_func */
+static int popup_event_func(popup_struct *popup, SDL_Event *event)
+{
+	(void) popup;
+
+	if (!region_map_png)
+	{
+		return -1;
+	}
+
+	if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		/* Zoom in. */
+		if (event->button.button == SDL_BUTTON_WHEELUP)
+		{
+			if (region_map_zoom < RM_ZOOM_MAX)
+			{
+				region_map_resize(RM_ZOOM_PROGRESS);
+				return 1;
+			}
+		}
+		/* Zoom out. */
+		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			if (region_map_zoom > RM_ZOOM_MIN)
+			{
+				region_map_resize(-RM_ZOOM_PROGRESS);
+				return 1;
+			}
+		}
+	}
+	else if (event->type == SDL_KEYDOWN)
+	{
+		int pos = RM_SCROLL;
+
+		if (event->key.keysym.mod & KMOD_SHIFT)
+		{
+			pos = RM_SCROLL_SHIFT;
+		}
+
+		if (event->key.keysym.sym == SDLK_UP)
+		{
+			region_map_pos.y -= pos;
+			surface_pan(region_map_png, &region_map_pos);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_DOWN)
+		{
+			region_map_pos.y += pos;
+			surface_pan(region_map_png, &region_map_pos);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_LEFT)
+		{
+			region_map_pos.x -= pos;
+			surface_pan(region_map_png, &region_map_pos);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_RIGHT)
+		{
+			region_map_pos.x += pos;
+			surface_pan(region_map_png, &region_map_pos);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEUP)
+		{
+			if (region_map_zoom < RM_ZOOM_MAX)
+			{
+				region_map_resize(RM_ZOOM_PROGRESS);
+				return 1;
+			}
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
+		{
+			if (region_map_zoom > RM_ZOOM_MIN)
+			{
+				region_map_resize(-RM_ZOOM_PROGRESS);
+				return 1;
+			}
+		}
+	}
+
+	return -1;
+}
+
+/**
+ * Parse a region map command from the server.
+ * @param data Data to parse.
+ * @param len Length of 'data'. */
+void RegionMapCmd(uint8 *data, int len)
+{
+	char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], text[HUGE_BUF];
+	int pos = 0;
+	popup_struct *popup;
+
+	/* Get the player's map, X and Y. */
+	GetString_String(data, &pos, current_map, sizeof(current_map));
+	current_x = GetShort_String(data + pos);
+	pos += 2;
+	current_y = GetShort_String(data + pos);
+	pos += 2;
+	/* Get the region and the URL base for the maps. */
+	GetString_String(data, &pos, region, sizeof(region));
+	GetString_String(data, &pos, url_base, sizeof(url_base));
+
+	/* Rest of the data packet may be labels/tooltips/etc. */
+	while (pos < len)
+	{
+		uint8 type = data[pos++];
+
+		GetString_String(data, &pos, text, sizeof(text));
+
+		if (type == RM_TYPE_LABEL)
+		{
+			cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
+			cmd_labels[num_cmd_labels] = strdup(text);
+			num_cmd_labels++;
+		}
+		else if (type == RM_TYPE_TOOLTIP)
+		{
+			cmd_tooltips = realloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
+			cmd_tooltips[num_cmd_tooltips] = strdup(text);
+			num_cmd_tooltips++;
+		}
+	}
+
+	popup = popup_create(BITMAP_REGION_MAP);
+	popup->draw_func_post = popup_draw_func_post;
+	popup->event_func = popup_event_func;
+	//popup->close_button_xoff = RM_BORDER_SIZE;
+	popup->close_button_yoff = 8;
+
+	/* Construct URL for the image. */
+	snprintf(url, sizeof(url), "%s/%s.png", url_base, region);
+
+	/* Free old map surface. */
+	if (region_map_png)
+	{
+		/* If zoom was used, we have to free both. */
+		if (region_map_png != region_map_png_orig)
+		{
+			SDL_FreeSurface(region_map_png);
+		}
+
+		SDL_FreeSurface(region_map_png_orig);
+		region_map_png = NULL;
+		region_map_png_orig = NULL;
+	}
+
+	/* Default zoom. */
+	region_map_zoom = RM_ZOOM_DEFAULT;
+
+	region_map_pos.x = 0;
+	region_map_pos.y = 0;
+	region_map_pos.w = Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE * 2;
+	region_map_pos.h = Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE * 2 -RM_TOOLTIP_HEIGHT;
+
+	/* The map is the same, no downloading needed. */
+	if (region_map_is_same(url))
+	{
+		if (cmd_labels)
+		{
+			free(cmd_labels);
+			cmd_labels = NULL;
+		}
+
+		if (cmd_tooltips)
+		{
+			free(cmd_tooltips);
+			cmd_tooltips = NULL;
+		}
+
+		num_cmd_labels = 0;
+		num_cmd_tooltips = 0;
+		return;
+	}
+
+	region_map_clear();
+
+	/* Start the downloads. */
+	data_png = curl_download_start(url);
+	snprintf(url, sizeof(url), "%s/%s.def", url_base, region);
+	data_def = curl_download_start(url);
 }

@@ -56,11 +56,10 @@ void book_name_change(const char *name, size_t len)
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
-	SDL_Rect box;
-
 	if (redraw)
 	{
 		_BLTFX bltfx;
+		SDL_Rect box;
 
 		bltfx.surface = popup->surface;
 		bltfx.flags = 0;
@@ -84,10 +83,22 @@ static int popup_draw_func(popup_struct *popup)
 		text_offset_reset();
 	}
 
+	return 1;
+}
+
+/** @copydoc popup_struct::draw_func_post */
+static int popup_draw_func_post(popup_struct *popup)
+{
+	SDL_Rect box;
+
 	/* Show scroll buttons. */
 	box.x = popup->x + popup->surface->w - 50;
 	box.y = popup->y + popup->surface->h / 2 - 55;
-	scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box);
+
+	if (scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box))
+	{
+		redraw = 1;
+	}
 
 	return 1;
 }
@@ -220,6 +231,7 @@ void book_load(const char *data, int len)
 	/* Create the book popup. */
 	popup = popup_create(BITMAP_BOOK);
 	popup->draw_func = popup_draw_func;
+	popup->draw_func_post = popup_draw_func_post;
 	popup->event_func = popup_event_func;
 	popup->disable_bitmap_blit = 1;
 	popup->close_button_xoff = 30;

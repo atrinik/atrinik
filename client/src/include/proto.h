@@ -100,7 +100,6 @@ keybind_struct *keybind_find_by_command(const char *cmd);
 int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event);
 int keybind_command_matches_state(const char *cmd);
 int keybind_process_event(SDL_KeyboardEvent *event);
-void keybind_repeat();
 void keybind_process(keybind_struct *keybind, uint8 type);
 int keybind_process_command_up(const char *cmd);
 void keybind_state_ensure();
@@ -281,7 +280,6 @@ int Event_PollInputDevice();
 void init_keys();
 void key_handle_event(SDL_KeyboardEvent *event);
 void cursor_keys(int num);
-void key_repeat();
 void check_menu_keys(int menu, int key);
 /* src/events/move.c */
 void move_keys(int num);
@@ -289,9 +287,6 @@ int dir_from_tile_coords(int tx, int ty);
 /* src/gui/book.c */
 void book_name_change(const char *name, size_t len);
 void book_load(const char *data, int len);
-void book_show();
-void book_handle_key(SDLKey key);
-void book_handle_event(SDL_Event *event);
 void book_redraw();
 /* src/gui/effects.c */
 void effects_init();
@@ -379,11 +374,8 @@ void QuickSlotCmd(unsigned char *data, int len);
 void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent);
 void widget_show_range(widgetdata *widget);
 /* src/gui/region_map.c */
-void RegionMapCmd(uint8 *data, int len);
 void region_map_clear();
-void region_map_handle_key(SDLKey key);
-void region_map_handle_event(SDL_Event *event);
-void region_map_show();
+void RegionMapCmd(uint8 *data, int len);
 /* src/gui/settings.c */
 void settings_open();
 /* src/gui/skills.c */
@@ -488,7 +480,7 @@ int progress_dots_width(progress_dots *progress);
 /* src/toolkit/range_buttons.c */
 int range_buttons_show(int x, int y, int *val, int advance);
 /* src/toolkit/scroll_buttons.c */
-void scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
+int scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 /* src/toolkit/SDL_gfx.c */
 int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
