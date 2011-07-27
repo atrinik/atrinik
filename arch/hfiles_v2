@@ -359,7 +359,6 @@ endmsg
 end
 
 help drop_key
-autocomplete 1
 title Drop
 msg
 The drop key is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
@@ -1142,7 +1141,6 @@ endmsg
 end
 
 help writing pen
-autocomplete 1
 title Writing Pen
 msg
 <book>Inscription Skill</book>You can apply a writing pen to use the inscription skill in order to write messages into books and letters. You simply mark the object you want to write into and type:
