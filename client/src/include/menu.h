@@ -36,8 +36,6 @@
  *@{*/
 /** No menu. */
 #define MENU_NO 1
-/** Book GUI. */
-#define MENU_BOOK 64
 #define MENU_REGION_MAP 256
 /*@}*/
 

@@ -223,12 +223,6 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				/* If this is book GUI, handle the click */
-				if (cpl.menustatus == MENU_BOOK)
-				{
-					book_handle_event(&event);
-				}
-
 				if (cpl.menustatus == MENU_REGION_MAP)
 				{
 					region_map_handle_event(&event);

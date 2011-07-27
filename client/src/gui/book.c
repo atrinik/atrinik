@@ -39,14 +39,8 @@ static int book_lines = 0;
 static int book_scroll_lines = 0;
 /** Lines scrolled. */
 static int book_scroll = 0;
-/** Book GUI surface. */
-static SDL_Surface *surface = NULL;
 /** Is it time to redraw? */
 static uint8 redraw = 1;
-/**
- * Cache of ::book_scroll, used to check whether it's time to redraw due
- * to scroll change. */
-static int redraw_scroll = 0;
 
 /**
  * Change the book's displayed name.
@@ -59,6 +53,116 @@ void book_name_change(const char *name, size_t len)
 	book_name[len] = '\0';
 }
 
+/** @copydoc popup_struct::draw_func */
+static int popup_draw_func(popup_struct *popup)
+{
+	SDL_Rect box;
+
+	if (redraw)
+	{
+		_BLTFX bltfx;
+
+		bltfx.surface = popup->surface;
+		bltfx.flags = 0;
+		bltfx.alpha = 0;
+		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
+
+		redraw = 0;
+
+		/* Draw the book name. */
+		box.w = popup->surface->w - 60;
+		box.h = 0;
+		text_offset_set(popup->x, popup->y);
+		string_blt(popup->surface, FONT_SERIF16, book_name, 30, 30, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+
+		/* Draw the content. */
+		box.w = BOOK_CONTENT_WIDTH;
+		box.h = BOOK_CONTENT_HEIGHT;
+		box.y = book_scroll;
+		text_color_set(0, 0, 255);
+		string_blt(popup->surface, FONT_ARIAL11, book_content, 30, 50, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_offset_reset();
+	}
+
+	/* Show scroll buttons. */
+	box.x = popup->x + popup->surface->w - 50;
+	box.y = popup->y + popup->surface->h / 2 - 55;
+	scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box);
+
+	return 1;
+}
+
+/** @copydoc popup_struct::event_func */
+static int popup_event_func(popup_struct *popup, SDL_Event *event)
+{
+	int old_book_scroll, ret;
+
+	old_book_scroll = book_scroll;
+	ret = -1;
+
+	/* Mouse event and the mouse is inside the book. */
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x > popup->x && event->motion.x < popup->x + popup->surface->w && event->motion.y > popup->y && event->motion.y < popup->y + popup->surface->h)
+	{
+		/* Scroll the book. */
+		if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			book_scroll++;
+		}
+		else if (event->button.button == SDL_BUTTON_WHEELUP)
+		{
+			book_scroll--;
+		}
+
+		/* Always redraw, to make sure link clicks are handled correctly
+		 * by the text API. */
+		redraw = 1;
+		ret = 1;
+	}
+
+	if (event->type == SDL_KEYDOWN)
+	{
+		/* Scrolling. */
+		if (event->key.keysym.sym == SDLK_DOWN)
+		{
+			book_scroll++;
+			ret = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_UP)
+		{
+			book_scroll--;
+			ret = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
+		{
+			book_scroll += book_scroll_lines;
+			ret = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEUP)
+		{
+			book_scroll -= book_scroll_lines;
+			ret = 1;
+		}
+	}
+
+	/* Make sure the new scroll value is within range. */
+	if (book_scroll < 0)
+	{
+		book_scroll = 0;
+	}
+	else if (book_scroll > book_lines - book_scroll_lines)
+	{
+		book_scroll = book_lines - book_scroll_lines;
+	}
+
+	/* If the scroll value changed, redraw. */
+	if (book_scroll != old_book_scroll)
+	{
+		redraw = 1;
+	}
+
+	return ret;
+}
+
 /**
  * Load the book interface.
  * @param data Book's content.
@@ -67,6 +171,7 @@ void book_load(const char *data, int len)
 {
 	SDL_Rect box;
 	int pos;
+	popup_struct *popup;
 
 	/* Nothing to do. */
 	if (!data || !len)
@@ -112,128 +217,13 @@ void book_load(const char *data, int len)
 	book_scroll_lines = box.y;
 	redraw = 1;
 
-	/* The book menu is now ready to be shown. */
-	cpl.menustatus = MENU_BOOK;
-}
-
-/**
- * Actually show the book interface. */
-void book_show()
-{
-	SDL_Rect box, box2;
-	int x, y;
-
-	/* Draw the background. */
-	x = BOOK_BACKGROUND_X;
-	y = BOOK_BACKGROUND_Y;
-
-	if (!surface)
-	{
-		surface = SDL_ConvertSurface(Bitmaps[BITMAP_BOOK]->bitmap, Bitmaps[BITMAP_BOOK]->bitmap->format, Bitmaps[BITMAP_BOOK]->bitmap->flags);
-	}
-
-	if (book_scroll != redraw_scroll)
-	{
-		redraw = 1;
-	}
-
-	if (redraw)
-	{
-		_BLTFX bltfx;
-
-		bltfx.surface = surface;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[BITMAP_BOOK], 0, 0, NULL, &bltfx);
-
-		redraw = 0;
-		redraw_scroll = book_scroll;
-
-		/* Draw the book name. */
-		box.w = Bitmaps[BITMAP_BOOK]->bitmap->w - 60;
-		box.h = 0;
-		text_offset_set(x, y);
-		string_blt(surface, FONT_SERIF16, book_name, 30, 30, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
-
-		/* Draw the content. */
-		box.w = BOOK_CONTENT_WIDTH;
-		box.h = BOOK_CONTENT_HEIGHT;
-		box.y = book_scroll;
-		text_color_set(0, 0, 255);
-		string_blt(surface, FONT_ARIAL11, book_content, 30, 50, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
-		text_offset_reset();
-	}
-
-	box2.x = x;
-	box2.y = y;
-	SDL_BlitSurface(surface, NULL, ScreenSurface, &box2);
-
-	/* Show scroll buttons. */
-	box.x = x + Bitmaps[BITMAP_BOOK]->bitmap->w - 50;
-	box.y = y + Bitmaps[BITMAP_BOOK]->bitmap->h / 2 - 55;
-	scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box);
-
-	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x, y + 30, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		cpl.menustatus = MENU_NO;
-	}
-}
-
-/**
- * Handle a key.
- * @param key The key. */
-void book_handle_key(SDLKey key)
-{
-	/* Scrolling. */
-	if (key == SDLK_DOWN)
-	{
-		book_scroll++;
-	}
-	else if (key == SDLK_UP)
-	{
-		book_scroll--;
-	}
-	else if (key == SDLK_PAGEDOWN)
-	{
-		book_scroll += book_scroll_lines;
-	}
-	else if (key == SDLK_PAGEUP)
-	{
-		book_scroll -= book_scroll_lines;
-	}
-
-	/* Make sure the new scroll value is within range. */
-	if (book_scroll < 0)
-	{
-		book_scroll = 0;
-	}
-	else if (book_scroll > book_lines - book_scroll_lines)
-	{
-		book_scroll = book_lines - book_scroll_lines;
-	}
-}
-
-/**
- * Handle book events, such as mouse wheel scrolling.
- * @param event The event. */
-void book_handle_event(SDL_Event *event)
-{
-	/* Mouse event and the mouse is inside the book. */
-	if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x > BOOK_BACKGROUND_X && event->motion.x < BOOK_BACKGROUND_X + Bitmaps[BITMAP_BOOK]->bitmap->w && event->motion.y > BOOK_BACKGROUND_Y && event->motion.y < BOOK_BACKGROUND_Y + Bitmaps[BITMAP_BOOK]->bitmap->h)
-	{
-		/* Scroll the book. */
-		if (event->button.button == SDL_BUTTON_WHEELDOWN)
-		{
-			book_handle_key(SDLK_DOWN);
-		}
-		else if (event->button.button == SDL_BUTTON_WHEELUP)
-		{
-			book_handle_key(SDLK_UP);
-		}
-
-		redraw = 1;
-	}
+	/* Create the book popup. */
+	popup = popup_create(BITMAP_BOOK);
+	popup->draw_func = popup_draw_func;
+	popup->event_func = popup_event_func;
+	popup->disable_bitmap_blit = 1;
+	popup->close_button_xoff = 30;
+	popup->close_button_yoff = 30;
 }
 
 /**

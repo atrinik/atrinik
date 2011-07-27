@@ -153,18 +153,22 @@ int popup_overlay_need_update()
 void popup_render(popup_struct *popup)
 {
 	SDL_Rect box;
-	_BLTFX bltfx;
 
 	/* Draw the overlay. */
 	box.x = 0;
 	box.y = 0;
 	SDL_BlitSurface(popup_overlay, NULL, ScreenSurface, &box);
 
-	/* Draw the background of the popup. */
-	bltfx.surface = popup->surface;
-	bltfx.flags = 0;
-	bltfx.alpha = 0;
-	sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
+	if (!popup->disable_bitmap_blit)
+	{
+		_BLTFX bltfx;
+
+		/* Draw the background of the popup. */
+		bltfx.surface = popup->surface;
+		bltfx.flags = 0;
+		bltfx.alpha = 0;
+		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
+	}
 
 	/* Calculate the popup's X/Y positions. */
 	popup->x = ScreenSurface->w / 2 - popup->surface->w / 2;
