@@ -47,6 +47,9 @@ typedef struct server_struct
 	/** Next server in the list. */
 	struct server_struct *next;
 
+	/** Previous server in the list. */
+	struct server_struct *prev;
+
 	/** IP of the server. */
 	char *ip;
 
