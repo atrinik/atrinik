@@ -150,6 +150,7 @@ void help_show(const char *name)
 	hfile_struct *hfile;
 
 	HASH_FIND_STR(hfiles, name, hfile);
+	book_add_help_history(name);
 
 	if (!hfile)
 	{
@@ -160,7 +161,6 @@ void help_show(const char *name)
 	}
 	else
 	{
-		book_add_help_history(name);
 		book_load(hfile->msg, hfile->msg_len);
 	}
 }
