@@ -61,6 +61,16 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 	anims_reset, effects_reinit, skills_reload, NULL
 };
 
+/**
+ * Init-time functions to call. Needed for things like help files, which
+ * are necessary before we connect to a server. */
+static void (*server_file_funcs_init[SERVER_FILES_MAX])() =
+{
+	NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, hfiles_init
+};
+
 /** The server files. */
 static server_files_struct server_files[SERVER_FILES_MAX];
 
@@ -68,7 +78,17 @@ static server_files_struct server_files[SERVER_FILES_MAX];
  * Initialize the necessary structures. */
 void server_files_init()
 {
+	size_t i;
+
 	memset(&server_files, 0, sizeof(server_files));
+
+	for (i = 0; i < SERVER_FILES_MAX; i++)
+	{
+		if (server_file_funcs_init[i])
+		{
+			server_file_funcs_init[i]();
+		}
+	}
 }
 
 /**
