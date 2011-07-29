@@ -160,6 +160,7 @@ void help_show(const char *name)
 	}
 	else
 	{
+		book_add_help_history(name);
 		book_load(hfile->msg, hfile->msg_len);
 	}
 }

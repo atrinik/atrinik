@@ -286,6 +286,7 @@ int dir_from_tile_coords(int tx, int ty);
 void book_name_change(const char *name, size_t len);
 void book_load(const char *data, int len);
 void book_redraw();
+void book_add_help_history(const char *name);
 /* src/gui/effects.c */
 void effects_init();
 void effects_deinit();

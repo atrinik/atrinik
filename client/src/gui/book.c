@@ -41,6 +41,10 @@ static int book_scroll_lines = 0;
 static int book_scroll = 0;
 /** Is it time to redraw? */
 static uint8 redraw = 1;
+/** Help history - used for the 'Back' button. */
+UT_array *book_help_history = NULL;
+/** Whether the help history is enabled for this book GUI. */
+static uint8 book_help_history_enabled = 0;
 
 /**
  * Change the book's displayed name.
@@ -98,6 +102,31 @@ static int popup_draw_func_post(popup_struct *popup)
 	if (scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box))
 	{
 		redraw = 1;
+	}
+
+	if (book_help_history_enabled)
+	{
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->close_button_xoff, popup->y + popup->close_button_yoff, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			size_t len;
+
+			len = utarray_len(book_help_history);
+
+			if (len >= 2)
+			{
+				size_t pos;
+				char **p;
+
+				pos = len - 2;
+				p = (char **) utarray_eltptr(book_help_history, pos);
+
+				if (p)
+				{
+					help_show(*p);
+					utarray_erase(book_help_history, pos, 2);
+				}
+			}
+		}
 	}
 
 	return 1;
@@ -174,6 +203,21 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	return ret;
 }
 
+/** @copydoc popup_struct::destroy_callback_func */
+static int popup_destroy_callback(popup_struct *popup)
+{
+	(void) popup;
+
+	if (book_help_history)
+	{
+		utarray_free(book_help_history);
+		book_help_history = NULL;
+	}
+
+	book_help_history_enabled = 0;
+	return 1;
+}
+
 /**
  * Load the book interface.
  * @param data Book's content.
@@ -236,6 +280,7 @@ void book_load(const char *data, int len)
 		popup->draw_func = popup_draw_func;
 		popup->draw_func_post = popup_draw_func_post;
 		popup->event_func = popup_event_func;
+		popup->destroy_callback_func = popup_destroy_callback;
 		popup->disable_bitmap_blit = 1;
 		popup->close_button_xoff = 30;
 		popup->close_button_yoff = 30;
@@ -247,4 +292,17 @@ void book_load(const char *data, int len)
 void book_redraw()
 {
 	redraw = 1;
+}
+
+/**
+ * Enable book help history. */
+void book_add_help_history(const char *name)
+{
+	if (!book_help_history_enabled)
+	{
+		book_help_history_enabled = 1;
+		utarray_new(book_help_history, &ut_str_icd);
+	}
+
+	utarray_push_back(book_help_history, &name);
 }
