@@ -76,7 +76,6 @@ static int popup_draw_func(popup_struct *popup)
 		box.w = popup->surface->w - 60;
 		box.h = 0;
 		text_offset_set(popup->x, popup->y);
-		LOG(llevInfo, "redrawing\n");
 		string_blt(popup->surface, FONT_SERIF16, book_name, 30, 30, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
