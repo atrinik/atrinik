@@ -962,7 +962,7 @@ int main(int argc, char *argv[])
 
 		if (GameStatus <= GAME_STATUS_WAITFORPLAY)
 		{
-			show_meta_server();
+			main_screen_render();
 		}
 
 		tooltip_show();

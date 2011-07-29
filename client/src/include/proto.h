@@ -327,7 +327,8 @@ void widget_show_below_window(widgetdata *widget);
 int blt_inv_item_centered(object *tmp, int x, int y);
 void blt_inv_item(object *tmp, int x, int y);
 /* src/gui/main.c */
-void show_meta_server();
+void main_screen_render();
+int main_screen_event(SDL_Event *event);
 /* src/gui/map.c */
 void load_mapdef_dat();
 void widget_show_mapname(widgetdata *widget);

@@ -70,6 +70,8 @@ const int char_step_max = 2;
 
 /** Progress dots in login. */
 static progress_dots progress;
+/** Button buffer. */
+static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_quit;
 
 /** @copydoc popup_struct::draw_func */
 static int news_popup_draw_func(popup_struct *popup)
@@ -765,7 +767,7 @@ static void list_handle_esc(list_struct *list)
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc. */
-void show_meta_server()
+void main_screen_render()
 {
 	int x, y;
 	list_struct *list;
@@ -841,6 +843,13 @@ void show_meta_server()
 
 		/* Store the new count. */
 		last_server_count = server_count;
+
+		button_create(&button_play);
+		button_create(&button_refresh);
+		button_create(&button_settings);
+		button_create(&button_update);
+		button_create(&button_help);
+		button_create(&button_quit);
 	}
 
 	/* Actually draw the list. */
@@ -943,38 +952,69 @@ void show_meta_server()
 		sprite_blt(Bitmaps[BITMAP_EYES], Bitmaps[BITMAP_INTRO]->bitmap->w - 90, 310, NULL, NULL);
 	}
 
-	/* Show the play button. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 10, "Play", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	button_play.x = button_refresh.x = button_settings.x = button_update.x = button_help.x = button_quit.x = 489;
+	y += 2;
+
+	button_play.y = y + 10;
+	button_render(&button_play, "Play");
+
+	button_refresh.y = y + 35;
+	button_render(&button_refresh, "Refresh");
+
+	button_settings.y = y + 60;
+	button_render(&button_settings, "Settings");
+
+	button_update.y = y + 85;
+	button_render(&button_update, "Update");
+
+	button_help.y = y + 110;
+	button_render(&button_help, "Help");
+
+	button_quit.y = y + 224;
+	button_render(&button_quit, "Quit");
+}
+
+/**
+ * Handle event in the main screen.
+ * @param event The event to handle.
+ * @return 1 if the event was handled, 0 otherwise. */
+int main_screen_event(SDL_Event *event)
+{
+	if (button_event(&button_play, event))
 	{
 		list_handle_enter(list_exists(LIST_SERVERS));
+		return 1;
 	}
-
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 35, "Refresh", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	else if (button_event(&button_refresh, event))
 	{
 		if (!ms_connecting(-1))
 		{
 			GameStatus = GAME_STATUS_META;
 		}
-	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 60, "Settings", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		return 1;
+	}
+	else if (button_event(&button_settings, event))
 	{
 		settings_open();
+		return 1;
 	}
-
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 85, "Update", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	else if (button_event(&button_update, event))
 	{
 		updater_open();
+		return 1;
 	}
-
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 110, "Help", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	else if (button_event(&button_help, event))
 	{
 		help_show("main screen");
+		return 1;
 	}
-
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 228, "Quit", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	else if (button_event(&button_quit, event))
 	{
 		system_end();
 		exit(0);
+		return 1;
 	}
+
+	return 0;
 }

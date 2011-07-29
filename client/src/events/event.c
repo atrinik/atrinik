@@ -118,9 +118,16 @@ int Event_PollInputDevice()
 			keys[event.key.keysym.sym].pressed = 0;
 		}
 
-		if ((event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) && popup_handle_event(&event))
+		if (event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN)
 		{
-			continue;
+			if (popup_handle_event(&event))
+			{
+				continue;
+			}
+			else if (GameStatus <= GAME_STATUS_WAITFORPLAY && main_screen_event(&event))
+			{
+				continue;
+			}
 		}
 
 		switch (event.type)
