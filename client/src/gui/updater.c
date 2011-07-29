@@ -189,7 +189,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	box.w = popup->surface->w;
 	box.h = popup->surface->h;
 
-	string_blt(ScreenSurface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y + 10, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF20, "<u>Updater</u>", box.x, box.y + 10, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 	box.y += 50;
 
 	/* Show the progress dots. */
