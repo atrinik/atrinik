@@ -1237,7 +1237,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 					send_command(buf2);
 				}
 				/* Help GUI. */
-				else if (GameStatus == GAME_STATUS_PLAY && !strcmp(anchor_action, "help"))
+				else if (!strcmp(anchor_action, "help"))
 				{
 					strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
 					text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
