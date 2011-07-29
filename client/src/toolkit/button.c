@@ -67,8 +67,7 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 	/* Get state of the mouse and the x/y. */
 	state = SDL_GetMouseState(&mx, &my);
 
-	/* Is the mouse inside the button, and also not on top of button's
-	 * transparent pixel? */
+	/* Is the mouse inside the button? */
 	if (mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
 	{
 		/* Change color. */
@@ -164,16 +163,27 @@ void button_render(button_struct *button, const char *text)
 	_Sprite *sprite;
 
 	/* Make sure the mouse is still over the button. */
-	if (button->mouse_over)
+	if (button->mouse_over || button->pressed)
 	{
-		int mx, my;
+		int state, mx, my, mover;
 
-		SDL_GetMouseState(&mx, &my);
+		state = SDL_GetMouseState(&mx, &my);
+		mover = BUTTON_MOUSE_OVER(button, mx, my, Bitmaps[button->bitmap]);
 
-		if (!BUTTON_MOUSE_OVER(button, mx, my, Bitmaps[button->bitmap]))
+		if (!mover)
 		{
 			button->mouse_over = 0;
 		}
+
+		if (!mover || state != SDL_BUTTON_LEFT)
+		{
+			button->pressed = 0;
+		}
+	}
+
+	if (button->pressed_forced)
+	{
+		button->pressed = 1;
 	}
 
 	sprite = button_determine_sprite(button);

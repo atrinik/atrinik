@@ -78,8 +78,13 @@ typedef struct button_struct
 	/** 1 if the mouse is over the button. */
 	int mouse_over;
 
-	/** 1 if the button is being pressed. */
+	/**
+	 * 1 if the button is being pressed.
+	 * @private */
 	int pressed;
+
+	/** 1 if the button should be forced to be pressed. */
+	int pressed_forced;
 
 	/** If 1, the button is in disabled state and cannot be pressed. */
 	int disabled;

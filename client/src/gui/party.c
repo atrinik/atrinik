@@ -224,7 +224,6 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
-		button_close.pressed = 0;
 	}
 	else if (button_event(&button_help, event))
 	{
@@ -253,7 +252,6 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	else if (cpl.partyname[0] != '\0' && button_event(&button_leave, event))
 	{
 		send_command("/party leave");
-		button_leave.pressed = 0;
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_chat, event))
 	{

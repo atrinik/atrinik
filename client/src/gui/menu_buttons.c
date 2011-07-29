@@ -116,19 +116,19 @@ void widget_menubuttons(widgetdata *widget)
 		}
 		else if (i == BUTTON_SPELLS)
 		{
-			buttons[i].pressed = cur_widget[SPELLS_ID]->show;
+			buttons[i].pressed_forced = cur_widget[SPELLS_ID]->show;
 		}
 		else if (i == BUTTON_MPLAYER)
 		{
-			buttons[i].pressed = cur_widget[MPLAYER_ID]->show;
+			buttons[i].pressed_forced = cur_widget[MPLAYER_ID]->show;
 		}
 		else if (i == BUTTON_SKILLS)
 		{
-			buttons[i].pressed = cur_widget[SKILLS_ID]->show;
+			buttons[i].pressed_forced = cur_widget[SKILLS_ID]->show;
 		}
 		else if (i == BUTTON_PARTY)
 		{
-			buttons[i].pressed = cur_widget[PARTY_ID]->show;
+			buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
 		}
 
 		buttons[i].x = widget->x1 + x;
@@ -188,29 +188,21 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 				cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
 				SetPriorityWidget(cur_widget[MPLAYER_ID]);
 			}
-			else if (i == BUTTON_SETTINGS || i == BUTTON_HELP || i == BUTTON_QUEST || i == BUTTON_MAP)
+			else if (i == BUTTON_SETTINGS)
 			{
-				/* Popup will block any future events, including the mouse
-				 * being released, so we have to take care of clearing the
-				 * pressed state of the button ourselves. */
-				buttons[i].pressed = 0;
-
-				if (i == BUTTON_SETTINGS)
-				{
-					settings_open();
-				}
-				else if (i == BUTTON_MAP)
-				{
-					send_command("/region_map");
-				}
-				else if (i == BUTTON_QUEST)
-				{
-					keybind_process_command("?QLIST");
-				}
-				else if (i == BUTTON_HELP)
-				{
-					help_show("main");
-				}
+				settings_open();
+			}
+			else if (i == BUTTON_MAP)
+			{
+				send_command("/region_map");
+			}
+			else if (i == BUTTON_QUEST)
+			{
+				keybind_process_command("?QLIST");
+			}
+			else if (i == BUTTON_HELP)
+			{
+				help_show("main");
 			}
 
 			break;

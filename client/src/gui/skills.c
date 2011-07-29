@@ -269,7 +269,7 @@ void widget_skills_render(widgetdata *widget)
 
 	if (skill_list_filter_known)
 	{
-		button_filter_known.pressed = 1;
+		button_filter_known.pressed_forced = 1;
 	}
 
 	button_filter_known.x = widget->x1 + 158;
@@ -303,7 +303,6 @@ void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
-		button_close.pressed = 0;
 	}
 	else if (button_event(&button_filter_known, event))
 	{

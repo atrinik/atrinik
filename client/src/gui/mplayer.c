@@ -412,7 +412,7 @@ void widget_show_mplayer(widgetdata *widget)
 
 	if (shuffle)
 	{
-		button_shuffle.pressed = 1;
+		button_shuffle.pressed_forced = 1;
 	}
 
 	button_render(&button_shuffle, "Shuffle");
@@ -521,7 +521,6 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
-		button_close.pressed = 0;
 	}
 	else if (button_event(&button_help, event))
 	{
