@@ -1384,13 +1384,14 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	const char *cp = text;
 	SDL_Rect dest;
 	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
-	SDL_Color color, orig_color;
+	SDL_Color color, orig_color, select_color_orig;
 	int orig_font = font, lines = 1, width = 0;
 	uint16 *heights = NULL;
 	size_t num_heights = 0;
 	int x_adjust = 0;
 	int mx, my, mstate = 0, old_x;
 	sint64 select_start = 0, select_end = 0;
+	uint8 select_color_changed = 0;
 
 	if (text_color_parse(color_notation, &color))
 	{
@@ -1492,15 +1493,29 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 						selection_box.x = dest.x;
 						selection_box.y = dest.y;
-						selection_box.w = glyph_get_width(font, *cp);
+						selection_box.w = 0;
 						selection_box.h = FONT_HEIGHT(font);
-						SDL_FillRect(surface, &selection_box, -1);
+
+						if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust) == 1)
+						{
+							SDL_FillRect(surface, &selection_box, -1);
+
+							select_color_orig = color;
+							color.r = color.g = color.b = 0;
+							select_color_changed = 1;
+						}
 					}
 				}
 
 				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust);
 
-				if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT)
+				if (select_color_changed)
+				{
+					color = select_color_orig;
+					select_color_changed = 0;
+				}
+
+				if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && *cp != '\r')
 				{
 					if (my >= dest.y && my <= dest.y + FONT_HEIGHT(font) && mx >= old_x && mx <= old_x + glyph_get_width(font, *cp))
 					{
