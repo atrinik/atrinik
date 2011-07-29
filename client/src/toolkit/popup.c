@@ -112,6 +112,11 @@ popup_struct *popup_create(int bitmap_id)
  * Destroy the visible popup, freeing it. */
 void popup_destroy(popup_struct *popup)
 {
+	if (popup->destroy_callback_func && !popup->destroy_callback_func(popup))
+	{
+		return;
+	}
+
 	SDL_FreeSurface(popup->surface);
 
 	if (popup->buf)
@@ -131,11 +136,6 @@ void popup_destroy_all()
 
 	DL_FOREACH_SAFE(popup_head, popup, tmp)
 	{
-		if (popup->destroy_callback_func && !popup->destroy_callback_func(popup))
-		{
-			continue;
-		}
-
 		popup_destroy(popup);
 	}
 }
