@@ -353,7 +353,10 @@ char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len)
 		strncat(buf, "super + ", len - strlen(buf) - 1);
 	}
 
-	strncat(buf, SDL_GetKeyName(key), len - strlen(buf) - 1);
+	if (key != SDLK_UNKNOWN)
+	{
+		strncat(buf, SDL_GetKeyName(key), len - strlen(buf) - 1);
+	}
 
 	return buf;
 }
