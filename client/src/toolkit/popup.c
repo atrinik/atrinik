@@ -117,6 +117,7 @@ void popup_destroy(popup_struct *popup)
 		return;
 	}
 
+	DL_DELETE(popup_head, popup);
 	SDL_FreeSurface(popup->surface);
 
 	if (popup->buf)
@@ -125,7 +126,6 @@ void popup_destroy(popup_struct *popup)
 	}
 
 	free(popup);
-	DL_DELETE(popup_head, popup);
 }
 
 /**
