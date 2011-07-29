@@ -793,6 +793,17 @@ void main_screen_render()
 	list = list_exists(LIST_SERVERS);
 	server_count = server_get_count();
 
+	/* Create the buttons. */
+	if (!list)
+	{
+		button_create(&button_play);
+		button_create(&button_refresh);
+		button_create(&button_settings);
+		button_create(&button_update);
+		button_create(&button_help);
+		button_create(&button_quit);
+	}
+
 	/* List doesn't exist or the count changed? Create new list. */
 	if (!list || last_server_count != server_count)
 	{
@@ -843,13 +854,6 @@ void main_screen_render()
 
 		/* Store the new count. */
 		last_server_count = server_count;
-
-		button_create(&button_play);
-		button_create(&button_refresh);
-		button_create(&button_settings);
-		button_create(&button_update);
-		button_create(&button_help);
-		button_create(&button_quit);
 	}
 
 	/* Actually draw the list. */
