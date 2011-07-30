@@ -1296,7 +1296,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	}
 
 	/* Right mouse button was clicked */
-	if (event->button.button == SDL_BUTTON_RIGHT && widget->WidgetTypeID != MAP_ID)
+	if (event->button.button == SDL_BUTTON_RIGHT && widget->WidgetTypeID != MAP_ID && !cur_widget[MENU_ID])
 	{
 		widgetdata *menu;
 
