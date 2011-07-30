@@ -126,6 +126,11 @@ static int popup_draw_func_post(popup_struct *popup)
 					utarray_erase(book_help_history, pos, 2);
 				}
 			}
+			else
+			{
+				utarray_clear(book_help_history);
+				help_show("main");
+			}
 		}
 	}
 
