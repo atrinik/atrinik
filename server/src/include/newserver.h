@@ -295,7 +295,7 @@ typedef struct socket_struct
 /**
  * How many seconds must pass since the last keep alive command for the
  * socket to be disconnected. */
-#define SOCKET_KEEPALIVE_TIMEOUT (60 * 5)
+#define SOCKET_KEEPALIVE_TIMEOUT (60 * 10)
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct
