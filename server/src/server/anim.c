@@ -209,6 +209,7 @@ void animate_object(object *op, int count)
 	/* starting index # to draw from */
 	int base_state;
 	int	dir;
+	New_Face *old_face;
 
 	numanim = NUM_ANIMATIONS(op);
 	numfacing = NUM_FACINGS(op);
@@ -464,7 +465,11 @@ void animate_object(object *op, int count)
 		}
 	}
 
+	old_face = op->face;
 	SET_ANIMATION(op, op->state + base_state);
 
-	update_object(op, UP_OBJ_FACE);
+	if (op->face != old_face)
+	{
+		update_object(op, UP_OBJ_FACE);
+	}
 }
