@@ -270,7 +270,6 @@ void animate_object(object *op, int count)
 			op->state = 0;
 		}
 	}
-
 	/* that's the new extended animation: base_state is */
 	/* 0:     that's the dying anim - "non direction" facing */
 	/* 1-8:   guard/stand_still anim frames */
