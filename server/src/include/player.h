@@ -658,9 +658,6 @@ typedef struct pl_player
 	/** Last regeneration of grace sent to client. */
 	uint16 last_gen_grace;
 
-	/** Condition adjusted damage sent to client. */
-	sint16 client_dam;
-
 	/** Table of last skill levels sent to client. */
 	sint16 skill_level[NROFSKILLS];
 

@@ -849,7 +849,7 @@ void fix_player(object *op)
 	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
 	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
 	object *grace_obj = NULL, *mana_obj = NULL, *hp_obj = NULL, *wc_obj = NULL, *tmp, *skill_weapon = NULL;
-	float f,max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
+	float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
 
 	if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER))
@@ -1817,8 +1817,6 @@ fix_player_jump_resi:
 	/* No weapon in our hand - we must use our hands */
 	if (pl->set_skill_weapon == NO_SKILL_READY)
 	{
-		f = 1.0f;
-
 		if (skill_weapon)
 		{
 			/* Now we must add this special skill attack */
@@ -1846,8 +1844,6 @@ fix_player_jump_resi:
 	/* Weapon in hand */
 	else
 	{
-		f = (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
-
 		/* Weapon without the skill applied... */
 		if (!pl->skill_ptr[pl->set_skill_weapon])
 		{
@@ -1857,6 +1853,7 @@ fix_player_jump_resi:
 		{
 			op->stats.wc = wc + pl->skill_ptr[pl->set_skill_weapon]->level;
 			op->stats.dam = (sint16) ((float) op->stats.dam * LEVEL_DAMAGE(pl->skill_ptr[pl->set_skill_weapon]->level));
+			op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
 		}
 	}
 
@@ -1868,7 +1865,6 @@ fix_player_jump_resi:
 		op->stats.dam = 0;
 	}
 
-	CONTR(op)->client_dam = (sint16) ((float) op->stats.dam * f);
 	op->stats.wc += thaco_bonus[op->stats.Dex];
 
 	/* For the client */
