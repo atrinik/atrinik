@@ -93,6 +93,15 @@ static void upgrade_20_to_25(const char *from, const char *to)
 
 					keybind->repeat = repeat;
 				}
+				else if (!strncmp(command, "?M_MCON ", 8))
+				{
+					char mcon_buf[HUGE_BUF];
+
+					snprintf(mcon_buf, sizeof(mcon_buf), "?MCON %s", command + 8);
+
+					keybind = keybind_add(keycode, 0, mcon_buf);
+					keybind->repeat = repeat;
+				}
 				else if (*command == '?')
 				{
 					const char *new_cmd = command;
