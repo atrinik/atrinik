@@ -970,10 +970,18 @@ int keybind_process_command(const char *cmd)
 				send_command("/party list");
 			}
 		}
-		else if (!strncmp(cmd, "MCON ", 4))
+		else if (!strncmp(cmd, "MCON", 4))
 		{
 			keybind_process_command("?CONSOLE");
-			text_input_add_string(cmd + 4);
+
+			cmd += 4;
+
+			while (*cmd == ' ')
+			{
+				cmd++;
+			}
+
+			text_input_add_string(cmd);
 		}
 		else if (!strcmp(cmd, "UP"))
 		{
