@@ -496,7 +496,7 @@ void widget_show_inventory_window(widgetdata *widget)
 				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 			}
 
-			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32);
+			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31);
 
 			if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 			{
@@ -510,7 +510,7 @@ void widget_show_inventory_window(widgetdata *widget)
 		/* We have an open container - 'insert' the items inside in the panel */
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
-			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 32, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 3, widget->y1 + ((i - 1) / invxlen) * 32 + 31, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
 jump_in_container1:
@@ -521,7 +521,7 @@ jump_in_container1:
 					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 				}
 
-				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32);
+				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31);
 
 				if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 				{
@@ -530,13 +530,13 @@ jump_in_container1:
 					show_inventory_item_stats(tmpc, widget);
 				}
 
-				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 				i++;
 			}
 
 			if (!tmpc)
 			{
-				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 32, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 3, widget->y1 + ((i - 1) / invxlen) * 32 + 31, NULL, NULL);
 			}
 		}
 	}
