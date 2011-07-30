@@ -461,7 +461,7 @@ do {                                                                            
     for(el=head;el;el=el->next)
 
 #define DL_FOREACH_REVERSE(head, el) \
-	for ((el) = (head) ? (head)->prev : NULL; (el); (el) = (el)->prev)
+	for ((el) = (head) ? (head)->prev : NULL; (el); (el) = ((el)->prev == (head->prev) ? NULL : (el)->prev))
 
 /* this version is safe for deleting the elements during iteration */
 #define DL_FOREACH_SAFE(head,el,tmp)                                                           \
