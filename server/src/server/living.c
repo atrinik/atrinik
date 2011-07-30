@@ -1671,7 +1671,7 @@ fix_player_jump_resi:
 	else
 	{
 		/* Max kg we can carry */
-		f = ((float) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
+		double f = ((double) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
 
 		if (((sint32) f) <= op->carrying)
 		{
@@ -1682,9 +1682,9 @@ fix_player_jump_resi:
 			else
 			{
 				/* Total encumbrance weight part */
-				f = ((float) weight_limit[op->stats.Str] - f);
+				f = ((double) weight_limit[op->stats.Str] - f);
 				/* Value from 0.0 to 1.0 encumbrance */
-				f = ((float) weight_limit[op->stats.Str] - op->carrying) / f;
+				f = ((double) weight_limit[op->stats.Str] - op->carrying) / f;
 
 				if (f < 0.0f)
 				{
