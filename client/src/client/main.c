@@ -74,7 +74,7 @@ _face_struct FaceList[MAX_FACE_TILES];
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
 /** Last time we sent keepalive command. */
-static time_t last_keepalive;
+static uint32 last_keepalive;
 
 /** All the bitmaps. */
 static _bitmap_name bitmap_name[BITMAP_INIT] =
@@ -407,7 +407,7 @@ static int game_status_chain()
 	{
 		map_udate_flag = 2;
 		draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
-		last_keepalive = time(NULL);
+		last_keepalive = SDL_GetTicks();
 		GameStatus = GAME_STATUS_CONNECT;
 	}
 	else if (GameStatus == GAME_STATUS_CONNECT)
@@ -879,10 +879,10 @@ int main(int argc, char *argv[])
 		if (GameStatus > GAME_STATUS_CONNECT)
 		{
 			/* Send keepalive command every 2 minutes. */
-			if (time(NULL) - last_keepalive > 2 * 60)
+			if (SDL_GetTicks() - last_keepalive > (2 * 60) * 1000)
 			{
 				cs_write_string("ka", 2);
-				last_keepalive = time(NULL);
+				last_keepalive = SDL_GetTicks();
 			}
 
 			DoClient();
