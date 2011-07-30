@@ -93,8 +93,10 @@ static void popup_create_overlay()
  * @return The created popup. */
 popup_struct *popup_create(int bitmap_id)
 {
-	popup_struct *popup = calloc(1, sizeof(popup_struct));
+	popup_struct *popup;
+	int mx, my;
 
+	popup = calloc(1, sizeof(popup_struct));
 	/* Create the surface used by the popup. */
 	popup->surface = SDL_ConvertSurface(Bitmaps[bitmap_id]->bitmap, Bitmaps[bitmap_id]->bitmap->format, Bitmaps[bitmap_id]->bitmap->flags);
 	/* Store the bitmap used. */
@@ -104,6 +106,10 @@ popup_struct *popup_create(int bitmap_id)
 	DL_PREPEND(popup_head, popup);
 
 	popup_create_overlay();
+
+	SDL_GetMouseState(&mx, &my);
+	/* Make sure the mouse is no longer moving any widget. */
+	widget_event_move_stop(mx, my);
 
 	return popup;
 }

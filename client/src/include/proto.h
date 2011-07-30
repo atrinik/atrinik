@@ -643,6 +643,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event);
 int widget_event_mouseup(int x, int y, SDL_Event *event);
 int widget_event_mousemv(int x, int y, SDL_Event *event);
 int widget_event_start_move(widgetdata *widget, int x, int y);
+int widget_event_move_stop(int x, int y);
 int widget_event_respond(int x, int y);
 int widget_event_override();
 widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
