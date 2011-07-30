@@ -126,6 +126,13 @@ void popup_destroy(popup_struct *popup)
 	}
 
 	free(popup);
+
+	/* Free the overlay; will need to be re-created. */
+	if (popup_overlay)
+	{
+		SDL_FreeSurface(popup_overlay);
+		popup_overlay = NULL;
+	}
 }
 
 /**
@@ -141,11 +148,12 @@ void popup_destroy_all()
 }
 
 /**
- * See if popup needs an overlay update due to screen resize.
+ * See if popup needs an overlay update due to screen resize or some
+ * other reason.
  * @return Whether the overlay needs to be updated or not. */
 int popup_overlay_need_update()
 {
-	return popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h;
+	return !popup_overlay || popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h;
 }
 
 /**
@@ -202,6 +210,7 @@ void popup_render(popup_struct *popup)
 	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - popup->close_button_xoff, box.y + popup->close_button_yoff, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		popup_destroy(popup);
+		return;
 	}
 }
 
