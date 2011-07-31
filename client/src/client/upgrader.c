@@ -37,6 +37,9 @@ static const char *const client_versions[] =
 	"2.0", "2.5", "3.0"
 };
 
+/** ::client_versions entry we are currently migrating. */
+static sint64 version_id_migrating = -1;
+
 /**
  * Upgrade 2.0 settings to 2.5.
  *
@@ -358,6 +361,7 @@ void upgrader_init()
 	char tmp[HUGE_BUF], tmp2[HUGE_BUF], version[MAX_BUF];
 	size_t i;
 
+	version_id_migrating = -1;
 	snprintf(tmp, sizeof(tmp), "%s/.atrinik", get_config_dir());
 
 	/* The .atrinik directory doesn't exist yet, nothing to migrate. */
@@ -398,6 +402,8 @@ void upgrader_init()
 		/* Create the new version directory. */
 		mkdir(tmp2, 0755);
 
+		version_id_migrating = i;
+
 		/* Migrate 2.0 to 2.5. */
 		if (!strcmp(client_versions[i], "2.0"))
 		{
@@ -408,4 +414,25 @@ void upgrader_init()
 			upgrade_25_to_30(tmp, tmp2);
 		}
 	}
+
+	version_id_migrating = -1;
+}
+
+/**
+ * Get the version the upgrader is currently working on.
+ * @param dst Where to store the version.
+ * @param dstlen Size of dst.
+ * @return 'dst' or NULL if the upgrader is not working on any version. */
+char *upgrader_get_version_partial(char *dst, size_t dstlen)
+{
+	/* No version is being migrated. */
+	if (version_id_migrating == -1)
+	{
+		return NULL;
+	}
+
+	strncpy(dst, client_versions[version_id_migrating], dstlen - 1);
+	dst[dstlen - 1] = '\0';
+
+	return dst;
 }

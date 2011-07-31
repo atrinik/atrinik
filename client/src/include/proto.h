@@ -249,6 +249,7 @@ int file_updates_finished();
 void file_updates_parse();
 /* src/client/upgrader.c */
 void upgrader_init();
+char *upgrader_get_version_partial(char *dst, size_t dstlen);
 /* src/client/video.c */
 int video_get_bpp();
 int video_set_size();

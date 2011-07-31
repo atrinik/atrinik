@@ -223,6 +223,13 @@ char *package_get_version_full(char *dst, size_t dstlen)
  * @return 'dst' */
 char *package_get_version_partial(char *dst, size_t dstlen)
 {
+	/* Upgrader version will overrule the package version if the upgrader
+	 * is currently doing its job. */
+	if (upgrader_get_version_partial(dst, dstlen))
+	{
+		return dst;
+	}
+
 	snprintf(dst, dstlen, "%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR);
 	return dst;
 }
