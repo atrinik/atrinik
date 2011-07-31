@@ -102,7 +102,9 @@ static int news_popup_draw_func(popup_struct *popup)
 		/* Skip rows we scrolled past. */
 		box.y = popup->i[0];
 		/* Show the news. */
+		text_offset_set(popup->x, popup->y);
 		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_offset_reset();
 
 		box.x = Bitmaps[popup->bitmap_id]->bitmap->w - 30;
 		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
