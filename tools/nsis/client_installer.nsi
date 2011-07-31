@@ -2,7 +2,7 @@
 ; To make the installer, place this script in your client directory and
 ; run `makensis client_installer.nsi`
 
-!define CLIENT_VERSION "2.5"
+!define CLIENT_VERSION "3.0"
 
 ; Installer name.
 Name "Atrinik Client ${CLIENT_VERSION}"
