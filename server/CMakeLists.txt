@@ -140,6 +140,7 @@ check_type_size("long long" SIZEOF_LONG_LONG)
 # Configure the .h file with the configuration options (size of long,
 # package version, etc).
 configure_file(src/include/cmake.h.def src/include/cmake.h)
+configure_file(src/include/version.h.def src/include/version.h)
 
 # Add our includes.
 include_directories(src/include)

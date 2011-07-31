@@ -34,7 +34,7 @@
  * explained in upgrader_init(). */
 static const char *const client_versions[] =
 {
-	"2.0", "2.5"
+	"2.0", "2.5", "3.0"
 };
 
 /**
@@ -342,6 +342,15 @@ static void upgrade_20_to_25(const char *from, const char *to)
 }
 
 /**
+ * Upgrade 2.5 settings to 3.0.
+ * @param from The old settings directory.
+ * @param to The new setting directory. */
+static void upgrade_25_to_30(const char *from, const char *to)
+{
+	copy_if_exists(from, to, "settings", "settings");
+}
+
+/**
  * Called before anything else on start, to check if we need to migrate
  * settings. */
 void upgrader_init()
@@ -393,6 +402,10 @@ void upgrader_init()
 		if (!strcmp(client_versions[i], "2.0"))
 		{
 			upgrade_20_to_25(tmp, tmp2);
+		}
+		else if (!strcmp(client_versions[i], "2.5"))
+		{
+			upgrade_25_to_30(tmp, tmp2);
 		}
 	}
 }

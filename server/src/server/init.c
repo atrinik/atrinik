@@ -159,7 +159,7 @@ void init_library()
 	/* Inits the pooling memory manager and the new object system */
 	init_mempools();
 	init_block();
-	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
+	LOG(llevInfo, "Atrinik Server, v%s\n", PACKAGE_VERSION);
 	LOG(llevInfo, "Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team.\n");
 	read_bmap_names();
 	init_materials();

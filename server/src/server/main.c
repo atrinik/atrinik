@@ -83,16 +83,16 @@ void version(object *op)
 	{
 		if (branch_revision)
 		{
-			new_draw_info_format(0, COLOR_WHITE, op, "This is Atrinik v%s (r%d)", VERSION, branch_revision);
+			new_draw_info_format(0, COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, branch_revision);
 		}
 		else
 		{
-			new_draw_info_format(0, COLOR_WHITE, op, "This is Atrinik v%s", VERSION);
+			new_draw_info_format(0, COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
 		}
 	}
 	else
 	{
-		LOG(llevInfo, "This is Atrinik v%s.\n", VERSION);
+		LOG(llevInfo, "This is Atrinik v%s.\n", PACKAGE_VERSION);
 	}
 }
 

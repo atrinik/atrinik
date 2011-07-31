@@ -53,12 +53,6 @@
 /* The size of 'long long'. */
 #define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
 
-/* Name of the package. */
-#define PACKAGE_NAME "@PACKAGE_NAME@"
-
-/* Version of the package. */
-#define PACKAGE_VERSION "@PACKAGE_VERSION@"
-
 #ifndef HAVE_FCNTL_H
 #cmakedefine HAVE_FCNTL_H
 #endif
