@@ -426,7 +426,16 @@ void widget_show_inventory_window(widgetdata *widget)
 		snprintf(buf, sizeof(buf), "%4.3f kg", (float) cpl.weight_limit / 1000.0);
 		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL);
 
-		string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		if (inventory_filter == INVENTORY_FILTER_ALL)
+		{
+			string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		}
+		else
+		{
+			string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
+			string_blt(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x1 + 54, widget->y1 + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		}
+
 		return;
 	}
 
