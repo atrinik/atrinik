@@ -52,14 +52,6 @@ static void upgrade_20_to_25(const char *from, const char *to)
 	char src[MAX_BUF], buf[HUGE_BUF];
 	FILE *fp;
 
-	/* interface.gui and scripts_autoload changed locations in 2.5, copy
-	 * them to the correct new location. */
-	copy_if_exists(from, to, "interface.gui", "settings/interface.gui");
-	copy_if_exists(from, to, "scripts_autoload", "settings/scripts_autoload");
-	/* Copy over settings directory - in 2.0 and before only used to have
-	 * ignore lists. */
-	copy_if_exists(from, to, "settings", "settings");
-
 	/* Try to upgrade keybindings, if they exist. */
 	snprintf(src, sizeof(src), "%s/keys.dat", from);
 	fp = fopen(src, "r");
@@ -102,8 +94,11 @@ static void upgrade_20_to_25(const char *from, const char *to)
 
 					snprintf(mcon_buf, sizeof(mcon_buf), "?MCON %s", command + 7);
 
-					keybind = keybind_add(keycode, 0, mcon_buf);
-					keybind->repeat = repeat;
+					if (!keybind_find_by_command(mcon_buf))
+					{
+						keybind = keybind_add(keycode, 0, mcon_buf);
+						keybind->repeat = repeat;
+					}
 				}
 				else if (*command == '?')
 				{
@@ -342,6 +337,14 @@ static void upgrade_20_to_25(const char *from, const char *to)
 		settings_deinit();
 		fclose(fp);
 	}
+
+	/* interface.gui and scripts_autoload changed locations in 2.5, copy
+	 * them to the correct new location. */
+	copy_if_exists(from, to, "interface.gui", "settings/interface.gui");
+	copy_if_exists(from, to, "scripts_autoload", "settings/scripts_autoload");
+	/* Copy over settings directory - in 2.0 and before only used to have
+	 * ignore lists. */
+	copy_if_exists(from, to, "settings", "settings");
 }
 
 /**
