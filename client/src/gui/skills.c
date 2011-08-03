@@ -267,11 +267,7 @@ void widget_skills_render(widgetdata *widget)
 	button_type_right.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
 	button_render(&button_type_right, ">");
 
-	if (skill_list_filter_known)
-	{
-		button_filter_known.pressed_forced = 1;
-	}
-
+	button_filter_known.pressed_forced = skill_list_filter_known;
 	button_filter_known.x = widget->x1 + 158;
 	button_filter_known.y = widget->y1 + 22;
 	button_render(&button_filter_known, "Known");

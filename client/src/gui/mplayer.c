@@ -409,12 +409,7 @@ void widget_show_mplayer(widgetdata *widget)
 
 	button_shuffle.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5;
 	button_shuffle.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
-
-	if (shuffle)
-	{
-		button_shuffle.pressed_forced = 1;
-	}
-
+	button_shuffle.pressed_forced = shuffle;
 	button_render(&button_shuffle, "Shuffle");
 
 	button_blacklist.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w * 2 + 5 * 2;

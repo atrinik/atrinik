@@ -350,11 +350,7 @@ void widget_spells_render(widgetdata *widget)
 	button_filter_right.y = widget->y1 + 24;
 	button_render(&button_filter_right, ">");
 
-	if (spell_list_filter_known)
-	{
-		button_filter_known.pressed_forced = 1;
-	}
-
+	button_filter_known.pressed_forced = spell_list_filter_known;
 	button_filter_known.x = widget->x1 + 243;
 	button_filter_known.y = widget->y1 + 22;
 	button_render(&button_filter_known, "Known");

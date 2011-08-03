@@ -7,10 +7,10 @@ Quick help:
 
 Move with numpad keys. Press C to toggle combat mode on/off. Press X to target nearest enemy. Press S to target nearest friend. Press A to apply things on ground or in your inventory. Press ENTER to show the console box. Press SHIFT to show your inventory. Use ARROW keys to move around in your inventory. Hold ALT + direction to run. Hold CTRL + direction to cast/shoot.
 
-<title>See also:</title>
+<title>See Also:</title>
 List of <a=help>contributors</a>
-<p>
-<title>Useful commands</title>
+
+<title>Useful Commands</title>
 <a=help>afk</a>
 <a=help>apply</a>
 <a=help>cast</a>
@@ -27,6 +27,9 @@ List of <a=help>contributors</a>
 <a=help>mark</a>
 <a=help>motd</a>
 <a=help>ms_privacy</a>
+<a=help>music_pause</a>
+<a=help>music_resume</a>
+<a=help>np</a>
 <a=help>party</a>
 <a=help>pray</a>
 <a=help>push</a>
@@ -49,6 +52,7 @@ List of <a=help>contributors</a>
 <a=help>version</a>
 <a=help>whereami</a>
 <a=help>who</a>
+
 <title>Miscellaneous</title>
 <a=help>drop and take</a>
 <a=help>writing pen</a>
@@ -1351,5 +1355,49 @@ msg
 If you are logged in, you can change your character's password by clicking the <b>Password</b> button in the <a=help:esc menu>settings</a> popup ("ESC menu").
 
 You will need to provide the current password of your character, and the new one.
+endmsg
+end
+
+help np
+title Now Playing Command
+autocomplete 1
+msg
+If you are currently playing a music file from the <a=help:music player>music player widget</a>, this command will display the currently playing music for nearby players to see in their chat windows, using the /me command.
+
+<title>Syntax:</title>
+
+/np
+endmsg
+end
+
+help music_pause
+title Pause Music Command
+autocomplete 1
+msg
+Pauses currently playing background music, if any.
+
+<title>Syntax:</title>
+
+/music_pause
+
+<title>See Also:</title>
+
+<a=help>music_resume</a>
+endmsg
+end
+
+help music_resume
+title Resume Music Command
+autocomplete 1
+msg
+Resumes previously paused music.
+
+<title>Syntax:</title>
+
+/music_resume
+
+<title>See Also:</title>
+
+<a=help>music_pause</a>
 endmsg
 end
