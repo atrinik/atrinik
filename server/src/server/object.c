@@ -1665,13 +1665,6 @@ void destroy_object(object *ob)
 	{
 		beacon_remove(ob);
 	}
-	else if (ob->type == MAP_EVENT_OBJ)
-	{
-		if (ob->map->in_memory == MAP_IN_MEMORY)
-		{
-			map_event_obj_deinit(ob);
-		}
-	}
 
 	FREE_AND_CLEAR_HASH2(ob->name);
 	FREE_AND_CLEAR_HASH2(ob->title);
@@ -1881,6 +1874,10 @@ void remove_ob(object *op)
 		{
 			container_unlink(pltemp, NULL);
 		}
+	}
+	else if (op->type == MAP_EVENT_OBJ)
+	{
+		map_event_obj_deinit(op);
 	}
 
 	update_object(op, UP_OBJ_REMOVE);
@@ -2205,6 +2202,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		}
 
 		op->map->player_first = op;
+	}
+	else if (op->type == MAP_EVENT_OBJ)
+	{
+		map_event_obj_init(op);
 	}
 
 	/* We updated something here - mark this tile as changed! */
@@ -3663,7 +3664,6 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 void init_object_initializers()
 {
 	object_initializers[BEACON] = beacon_add;
-	object_initializers[MAP_EVENT_OBJ] = map_event_obj_init;
 	object_initializers[MAGIC_MIRROR] = magic_mirror_init;
 	object_initializers[MAP_INFO] = map_info_init;
 }
