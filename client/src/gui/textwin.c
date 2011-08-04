@@ -494,26 +494,10 @@ void widget_textwin_show(widgetdata *widget)
 		widget->resize_flags = 0;
 	}
 
-	box.x = widget->x1;
-	box.y = widget->y1;
-	box.h = 1;
-	box.w = widget->wd;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color);
-	box.x = widget->x1;
-	box.y = widget->y1 + widget->ht - 1;
-	box.h = 1;
-	box.w = widget->wd;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color);
-	box.x = widget->x1;
-	box.y = widget->y1;
-	box.w = 1;
-	box.h = widget->ht;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color);
-	box.x = widget->x1 + widget->wd - 1;
-	box.y = widget->y1;
-	box.w = 1;
-	box.h = widget->ht;
-	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color);
+	BORDER_CREATE_TOP(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_LEFT(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_RIGHT(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color, 1);
 }
 
 /**

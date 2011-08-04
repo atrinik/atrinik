@@ -1076,24 +1076,18 @@ void widget_show_regeneration(widgetdata *widget)
  * @param widget The widget object. */
 void widget_show_container(widgetdata *widget)
 {
-	SDL_Rect box, box2;
-	int x = widget->x1;
-	int y = widget->y1;
+	SDL_Rect box;
 
-	/* special case, menuitem is highlighted when mouse is moved over it */
+	/* Special case, menuitem is highlighted when mouse is moved over it. */
 	if (widget->WidgetSubtypeID == MENU_ID)
 	{
 		widget_highlight_menu(widget);
 	}
 
-	box.x = box.y = 0;
-	box.w = widget->wd;
-	box.h = widget->ht;
-
-	/* if we don't have a backbuffer, create it */
+	/* If we don't have a backbuffer, create it. */
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
+		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), widget->wd, widget->ht, video_get_bpp(), 0, 0, 0, 0);
 	}
 
 	if (widget->redraw)
@@ -1101,38 +1095,16 @@ void widget_show_container(widgetdata *widget)
 		widget->redraw = 0;
 
 		SDL_FillRect(widget->widgetSF, NULL, 0);
-
 		box.x = 0;
 		box.y = 0;
-		box.h = 1;
 		box.w = widget->wd;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		box.y = widget->ht;
-		box.h = 1;
-		box.x = 0;
-		box.w = widget->wd;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		box.w = widget->wd;
-		box.x = box.w - 1;
-		box.w = 1;
-		box.y = 0;
 		box.h = widget->ht;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		box.x = 0;
-		box.y = 0;
-		box.h = widget->ht;
-		box.w = 1;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+		border_create_color(widget->widgetSF, &box, "606060");
 	}
 
-	box.x = x;
-	box.y = y;
-	box2.x = 0;
-	box2.y = 0;
-	box2.w = widget->wd;
-	box2.h = widget->ht + 1;
-
-	SDL_BlitSurface(widget->widgetSF, &box2, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 }
 
 /* Handles highlighting of menuitems when the cursor is hovering over them. */

@@ -998,11 +998,21 @@ void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, 
 	SDL_FillRect(surface, &box, color);
 }
 
+void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color)
+{
+	SDL_Rect dst;
+
+	dst.x = x;
+	dst.y = y;
+	dst.w = w;
+	dst.h = h;
+	SDL_FillRect(surface, &dst, color);
+}
+
 void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation)
 {
 	SDL_Color color;
-	SDL_Rect dst;
-	Uint32 color_mapped;
+	uint32 color_mapped;
 
 	if (!text_color_parse(color_notation, &color))
 	{
@@ -1012,20 +1022,8 @@ void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *col
 
 	color_mapped = SDL_MapRGB(surface->format, color.r, color.g, color.b);
 
-	dst.x = coords->x;
-	dst.y = coords->y;
-	dst.h = coords->h;
-	dst.w = 1;
-	SDL_FillRect(surface, &dst, color_mapped);
-	dst.x = coords->x + coords->w;
-	dst.h++;
-	SDL_FillRect(surface, &dst, color_mapped);
-	dst.x = coords->x;
-	dst.y += coords->h;
-	dst.w = coords->w;
-	dst.h = 1;
-	SDL_FillRect(surface, &dst, color_mapped);
-	dst.x++;
-	dst.y = coords->y;
-	SDL_FillRect(surface, &dst, color_mapped);
+	BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
+	BORDER_CREATE_BOTTOM(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
+	BORDER_CREATE_LEFT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
+	BORDER_CREATE_RIGHT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
 }

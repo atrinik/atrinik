@@ -251,8 +251,8 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			checkbox.x = x + list->width - 17;
 			checkbox.y = y + 1;
-			checkbox.w = 14;
-			checkbox.h = 14;
+			checkbox.w = 15;
+			checkbox.h = 15;
 			SDL_FillRect(list->surface, &checkbox, SDL_MapRGB(list->surface->format, 0, 0, 0));
 
 			if (setting_get_int(setting_category_selected, row))
@@ -263,7 +263,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			draw_frame(list->surface, checkbox.x, checkbox.y, checkbox.w, checkbox.h);
 
-			if (mx >= checkbox.x && mx <= checkbox.x + checkbox.w && my >= checkbox.y && my <= checkbox.y + checkbox.h)
+			if (mx >= checkbox.x && mx < checkbox.x + checkbox.w && my >= checkbox.y && my < checkbox.y + checkbox.h)
 			{
 				border_create_color(list->surface, &checkbox, "b09a9a");
 

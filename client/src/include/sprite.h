@@ -148,14 +148,10 @@ typedef struct _anim
 	int mapy;
 }_anim;
 
-/** ASCII code for UP character */
-#define ASCII_UP 28
-/** ASCII code for DOWN character */
-#define ASCII_DOWN 29
-/** ASCII code for LEFT character */
-#define ASCII_LEFT 30
-/** ASCII code for RIGHT character*/
-#define ASCII_RIGHT 31
+#define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))
+#define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y) + (_h) - (_thickness), (_w), (_thickness), (_color))
+#define BORDER_CREATE_LEFT(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_thickness), (_h), (_color))
+#define BORDER_CREATE_RIGHT(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x) + (_w) - (_thickness), (_y), (_thickness), (_h), (_color))
 
 extern struct _anim *start_anim;
 

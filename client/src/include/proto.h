@@ -237,6 +237,7 @@ int sprite_collision(int x, int y, int x2, int y2, _Sprite *sprite1, _Sprite *sp
 void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
+void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color);
 void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
 /* src/client/tilestretcher.c */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
