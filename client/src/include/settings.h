@@ -85,6 +85,8 @@ enum
 	OPT_MINIMIZE_LATENCY,
 	/** Whether to allow dragging widgets off-screen. */
 	OPT_OFFSCREEN_WIDGETS,
+	/** Transparency of text windows. */
+	OPT_TEXT_WINDOW_TRANSPARENCY,
 
 	/** Internal: stores the current resolution width. */
 	OPT_RESOLUTION_X,

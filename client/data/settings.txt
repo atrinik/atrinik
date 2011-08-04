@@ -117,6 +117,13 @@ category Client
 		default off
 		desc Allows moving widgets off-screen.
 	end
+	setting Text window background transparency
+		type range
+		range 0 - 255
+		advance 5
+		default 255
+		desc Transparency of text window background. 255 is fully opaque, and 0 is fully transparent.
+	end
 	setting Resolution X
 		type int
 		default 1024

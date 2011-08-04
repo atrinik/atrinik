@@ -432,13 +432,9 @@ void textwin_show(int x, int y, int w, int h)
  * @param widget The widget object. */
 void widget_textwin_show(widgetdata *widget)
 {
-	int len;
-	SDL_Rect box, box2;
-	_BLTFX bltfx;
+	SDL_Rect box;
 	textwin_struct *textwin = TEXTWIN(widget);
-	int x = widget->x1;
-	int y = widget->y1;
-	int mx, my;
+	int mx, my, alpha;
 
 	/* Sanity check. */
 	if (!textwin)
@@ -446,19 +442,17 @@ void widget_textwin_show(widgetdata *widget)
 		return;
 	}
 
-	box.x = box.y = 0;
-	box.w = widget->wd;
-	box.h = len = widget->ht;
-
 	/* If we don't have a backbuffer, create it */
-	if (!widget->widgetSF)
+	if (!widget->widgetSF || widget->wd != widget->widgetSF->w || widget->ht != widget->widgetSF->h)
 	{
-		/* Need to do this, or the foreground could be semi-transparent too. */
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
-	}
+		if (widget->widgetSF)
+		{
+			SDL_FreeSurface(widget->widgetSF);
+		}
 
-	box2.x = x;
-	box2.y = y;
+		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), widget->wd, widget->ht, video_get_bpp(), 0, 0, 0, 0);
+		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(widget->widgetSF->format, 0, 0, 0));
+	}
 
 	if (widget_mouse_event.owner != widget && widget == selection_widget && textwin->selection_start >= 0 && textwin->selection_end >= 0)
 	{
@@ -467,9 +461,16 @@ void widget_textwin_show(widgetdata *widget)
 		WIDGET_REDRAW(widget);
 	}
 
+	if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY)))
+	{
+		filledRectAlpha(ScreenSurface, widget->x1, widget->y1, widget->x1 + widget->wd - 1, widget->y1 + widget->ht - 1, alpha);
+	}
+
 	/* Let's draw the widgets in the backbuffer */
 	if (widget->redraw)
 	{
+		_BLTFX bltfx;
+
 		widget->redraw = 0;
 
 		SDL_FillRect(widget->widgetSF, NULL, 0);
@@ -478,17 +479,12 @@ void widget_textwin_show(widgetdata *widget)
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 
-		show_window(widget, x, y - 2, &bltfx);
+		show_window(widget, widget->x1, widget->y1 - 2, &bltfx);
 	}
 
-	box.x = x;
-	box.y = y;
-	box2.x = 0;
-	box2.y = 0;
-	box2.w = widget->wd;
-	box2.h = widget->ht;
-
-	SDL_BlitSurface(widget->widgetSF, &box2, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 
 	SDL_GetMouseState(&mx, &my);
 
@@ -498,23 +494,23 @@ void widget_textwin_show(widgetdata *widget)
 		widget->resize_flags = 0;
 	}
 
-	box.x = x;
-	box.y = y;
+	box.x = widget->x1;
+	box.y = widget->y1;
 	box.h = 1;
 	box.w = widget->wd;
 	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color);
-	box.x = x;
-	box.y = y + widget->ht - 1;
+	box.x = widget->x1;
+	box.y = widget->y1 + widget->ht - 1;
 	box.h = 1;
 	box.w = widget->wd;
 	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color);
-	box.x = x;
-	box.y = y;
+	box.x = widget->x1;
+	box.y = widget->y1;
 	box.w = 1;
 	box.h = widget->ht;
 	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color);
-	box.x = x + widget->wd - 1;
-	box.y = y;
+	box.x = widget->x1 + widget->wd - 1;
+	box.y = widget->y1;
 	box.w = 1;
 	box.h = widget->ht;
 	SDL_FillRect(ScreenSurface, &box, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color);
