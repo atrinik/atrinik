@@ -209,6 +209,7 @@ void text_input_open(int maxchar)
 	else if (cpl.input_mode == INPUT_MODE_CONSOLE)
 	{
 		SetPriorityWidget(cur_widget[IN_CONSOLE_ID]);
+		sound_play_effect("console.ogg", 100);
 	}
 
 	text_input_string_flag = 1;
