@@ -439,6 +439,7 @@ enum
 	 * bolts, quivers, throwing knives, etc. */
 	BINARY_CMD_READY,
 	BINARY_CMD_KEEPALIVE,
+	BINARY_CMD_SOUND_AMBIENT,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

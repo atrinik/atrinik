@@ -367,6 +367,9 @@ typedef struct MapSpace_s
 	/** Map info object bound to this tile. */
 	object *map_info;
 
+	/** Ambient sound effect object bound to this tile. */
+	object *sound_ambient;
+
 	/** Used to create chained light source list. */
 	struct MapSpace_s *prev_light;
 
@@ -378,6 +381,9 @@ typedef struct MapSpace_s
 
 	/** ID of ::map_info. */
 	tag_t map_info_count;
+
+	/** ID of ::sound_ambient. */
+	tag_t sound_ambient_count;
 
 	/** Counter for update tile */
 	uint32 update_tile;

@@ -99,6 +99,7 @@ void widget_show_mapname(widgetdata *widget)
 void clear_map()
 {
 	memset(&the_map, 0, sizeof(Map));
+	sound_ambient_clear();
 }
 
 /**
@@ -126,6 +127,7 @@ void display_mapscroll(int dx, int dy)
 	}
 
 	memcpy((char *) &the_map, (char *) &newmap, sizeof(struct Map));
+	sound_ambient_mapcroll(dx, dy);
 }
 
 /**

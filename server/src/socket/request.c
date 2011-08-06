@@ -870,11 +870,6 @@ void esrv_new_player(player *pl, uint32 weight)
 	free(sl.buf);
 }
 
-/** Clears a map cell */
-#define map_clearcell(_cell_)                  \
-	memset((_cell_), 0, sizeof(MapCell));      \
-	(_cell_)->count = -1
-
 /**
  * Get ID of a tiled map by checking player::last_update.
  * @param pl Player.
@@ -1211,6 +1206,23 @@ static const char *get_playername_color(object *pl, object *op)
 /** Darkness table */
 static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
 
+/** Clear a map cell. */
+#define map_clearcell(_cell_) \
+{ \
+	memset((void *) ((char *) (_cell_) + offsetof(MapCell, count)), 0, sizeof(MapCell) - offsetof(MapCell, count)); \
+	(_cell_)->count = -1; \
+}
+
+/** Clear a map cell, but only if it has not been cleared before. */
+#define map_if_clearcell() \
+{ \
+	if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1) \
+	{ \
+		SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR); \
+		map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
+	} \
+}
+
 /** Draw the client map. */
 void draw_client_map2(object *pl)
 {
@@ -1222,8 +1234,8 @@ void draw_client_map2(object *pl)
 	int x_start, dm_light = 0;
 	int special_vision;
 	uint16 mask;
-	SockList sl, sl_layer;
-	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF];
+	SockList sl, sl_layer, sl_sound;
+	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF], sock_buf_sound[MAXSOCKBUF];
 	int wdark;
 	int inv_flag = QUERY_FLAG(pl, FLAG_SEE_INVISIBLE);
 	int layer, dark;
@@ -1231,6 +1243,7 @@ void draw_client_map2(object *pl)
 	int num_layers;
 	int oldlen, outdoor;
 	object *mirror = NULL;
+	uint8 have_sound_ambient;
 
 	/* Do we have dm_light? */
 	if (CONTR(pl)->dm_light)
@@ -1245,6 +1258,9 @@ void draw_client_map2(object *pl)
 
 	sl.buf = sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
+
+	sl_sound.buf = sock_buf_sound;
+	SOCKET_SET_BINARY_CMD(&sl_sound, BINARY_CMD_SOUND_AMBIENT);
 
 	/* Marker */
 	SockList_AddChar(&sl, (char) CONTR(pl)->map_update_cmd);
@@ -1305,16 +1321,12 @@ void draw_client_map2(object *pl)
 			d = CONTR(pl)->blocked_los[ax][ay];
 			/* Form the data packet for x and y positions. */
 			mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
+			mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
 
 			/* Space is out of map or blocked. Update space and clear values if needed. */
-			if (d & (BLOCKED_LOS_OUT_OF_MAP | BLOCKED_LOS_BLOCKED))
+			if (d & BLOCKED_LOS_OUT_OF_MAP)
 			{
-				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-				{
-					SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
-					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-				}
-
+				map_if_clearcell();
 				continue;
 			}
 
@@ -1323,21 +1335,44 @@ void draw_client_map2(object *pl)
 
 			if (!(m = get_map_from_coord(pl->map, &nx, &ny)))
 			{
-				if (!QUERY_FLAG(pl, FLAG_WIZ))
-				{
-					LOG(llevDebug, "draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
-				}
-
-				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-				{
-					SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
-					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-				}
-
+				map_if_clearcell();
 				continue;
 			}
 
 			msp = GET_MAP_SPACE_PTR(m, nx, ny);
+			/* Check whether there is ambient sound effect on this tile. */
+			have_sound_ambient = msp->sound_ambient && OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
+
+			/* If there is an ambient sound effect and we haven't sent it
+			 * before, or there isn't one but it was sent before, send an
+			 * update. */
+			if ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) || (!have_sound_ambient && mp->sound_ambient_count))
+			{
+				SockList_AddChar(&sl_sound, ax);
+				SockList_AddChar(&sl_sound, ay);
+				SockList_AddInt(&sl_sound, mp->sound_ambient_count);
+
+				if (msp->sound_ambient)
+				{
+					SockList_AddInt(&sl_sound, msp->sound_ambient->count);
+					SockList_AddString(&sl_sound, msp->sound_ambient->race);
+					SockList_AddChar(&sl_sound, msp->sound_ambient->item_condition);
+
+					mp->sound_ambient_count = msp->sound_ambient->count;
+				}
+				else
+				{
+					SockList_AddInt(&sl_sound, 0);
+
+					mp->sound_ambient_count = 0;
+				}
+			}
+
+			if (d & BLOCKED_LOS_BLOCKED)
+			{
+				map_if_clearcell();
+				continue;
+			}
 
 			/* Border tile, we can ignore every LOS change */
 			if (!(d & BLOCKED_LOS_IGNORE))
@@ -1429,12 +1464,7 @@ void draw_client_map2(object *pl)
 				}
 				else
 				{
-					if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-					{
-						SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
-						map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-					}
-
+					map_if_clearcell();
 					continue;
 				}
 			}
@@ -1467,8 +1497,6 @@ void draw_client_map2(object *pl)
 			{
 				d = 30;
 			}
-
-			mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
 
 			/* Initialize default values for some variables. */
 			dark = NO_FACE_SEND;
@@ -1856,6 +1884,11 @@ void draw_client_map2(object *pl)
 	if (sl.len > 4)
 	{
 		Send_With_Handling(&CONTR(pl)->socket, &sl);
+	}
+
+	if (sl_sound.len > 1 && CONTR(pl)->socket.socket_version >= 1056)
+	{
+		Send_With_Handling(&CONTR(pl)->socket, &sl_sound);
 	}
 }
 

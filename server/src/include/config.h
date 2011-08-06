@@ -323,7 +323,7 @@
 #define NO_EMERGENCY_SAVE
 
 /** Socket version. */
-#define SOCKET_VERSION 1055
+#define SOCKET_VERSION 1056
 
 /**
  * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE

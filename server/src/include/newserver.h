@@ -125,6 +125,12 @@
  * to the client. */
 typedef struct MapCell_struct
 {
+	/** Cache of last sent ambient sound. */
+	tag_t sound_ambient_count;
+
+	/* Everything below will be cleared by memset() in when the map
+	 * cell is no longer visible. */
+
 	/** Darkness cache. */
 	int	count;
 

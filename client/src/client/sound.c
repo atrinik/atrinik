@@ -35,6 +35,8 @@ static char *sound_background;
 static uint8 sound_map_background_disabled = 0;
 /** Whether the sound system is active. */
 static uint8 enabled = 0;
+/** Doubly-linked list of all playing ambient sound effects. */
+static sound_ambient_struct *sound_ambient_head = NULL;
 
 #ifdef HAVE_SDL_MIXER
 
@@ -422,7 +424,7 @@ void SoundCmd(uint8 *data, int len)
 			int angle, distance;
 
 			angle = 0;
-			distance = (255 * sqrt(POW2(x) + POW2(y))) / MAX_SOUND_DISTANCE;
+			distance = (255 * isqrt(POW2(x) + POW2(y))) / MAX_SOUND_DISTANCE;
 
 			if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance >= (255 / MAX_SOUND_DISTANCE) * 2)
 			{
@@ -450,6 +452,156 @@ void SoundCmd(uint8 *data, int len)
 	{
 		LOG(llevBug, "SoundCmd(): Invalid sound type: %d\n", type);
 		return;
+	}
+}
+
+/**
+ * Free an ambient sound effect.
+ *
+ * The sound effect
+ * @param tmp Sound effect to free. */
+static void sound_ambient_free(sound_ambient_struct *tmp)
+{
+	DL_DELETE(sound_ambient_head, tmp);
+#ifdef HAVE_SDL_MIXER
+	Mix_HaltChannel(tmp->channel);
+#endif
+	free(tmp);
+}
+
+/**
+ * Set distance and angle of an ambient sound effect.
+ * @param tmp Sound effect. */
+static void sound_ambient_set_position(sound_ambient_struct *tmp)
+{
+#ifdef HAVE_SDL_MIXER
+	int x, y, angle, distance;
+
+	/* The x/y positions stored in the sound effect structure are the
+	 * positions on the map, so we have to convert it to coordinates
+	 * relative to the player. */
+	x = tmp->x - setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2;
+	y = tmp->y - setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
+
+	angle = 0;
+	/* Calculate the distance. */
+	distance = (255 * isqrt(POW2(x) + POW2(y))) / MAX_SOUND_DISTANCE;
+
+	/* Calculate the angle. */
+	if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance)
+	{
+		angle = atan2(-y, x) * (180 / M_PI);
+		angle = 90 - angle;
+	}
+
+	Mix_SetPosition(tmp->channel, angle, distance);
+#else
+	(void) tmp;
+#endif
+}
+
+/**
+ * Handle map scroll for ambient sound effects. We need to check whether
+ * the sound effect is now off-screen and if so, remove it. We also need
+ * to adjust the angle and distance effects of the channel the sound
+ * effect is playing on.
+ * @param xoff X offset.
+ * @param yoff Y offset. */
+void sound_ambient_mapcroll(int xoff, int yoff)
+{
+	sound_ambient_struct *sound_ambient, *tmp;
+
+	DL_FOREACH_SAFE(sound_ambient_head, sound_ambient, tmp)
+	{
+		/* Adjust the coordinates. */
+		sound_ambient->x -= xoff;
+		sound_ambient->y -= yoff;
+
+		/* If the sound effect is now off-screen, remove it. */
+		if (sound_ambient->x < 0 || sound_ambient->x >= setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) || sound_ambient->y < 0 || sound_ambient->y >= setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
+		{
+			sound_ambient_free(sound_ambient);
+			continue;
+		}
+
+		/* Adjust the distance and angle. */
+		sound_ambient_set_position(sound_ambient);
+	}
+}
+
+/**
+ * Stop all ambient sound effects. */
+void sound_ambient_clear()
+{
+	sound_ambient_struct *sound_ambient, *tmp;
+
+	DL_FOREACH_SAFE(sound_ambient_head, sound_ambient, tmp)
+	{
+		sound_ambient_free(sound_ambient);
+	}
+}
+
+/**
+ * The server informs us about the ambient sound effects to play/stop.
+ * @param data Data.
+ * @param len Length of 'data'. */
+void cmd_sound_ambient(uint8 *data, int len)
+{
+	int pos = 0, tag, tag_old;
+	char filename[MAX_BUF], path[HUGE_BUF];
+	uint8 x, y, volume;
+	sound_ambient_struct *sound_ambient;
+
+	/* Loop through the data, as there may be multiple sound effects. */
+	while (pos < len)
+	{
+		x = data[pos++];
+		y = data[pos++];
+		tag_old = GetInt_String(data + pos);
+		pos += 4;
+		tag = GetInt_String(data + pos);
+		pos += 4;
+
+		/* If there is an old tag, the server is telling us to stop
+		 * playing a sound effect. */
+		if (tag_old)
+		{
+			DL_FOREACH(sound_ambient_head, sound_ambient)
+			{
+				if (sound_ambient->tag == tag_old)
+				{
+					sound_ambient_free(sound_ambient);
+					break;
+				}
+			}
+		}
+
+		/* Is there a new sound effect to start playing? */
+		if (tag)
+		{
+			int channel;
+
+			/* Get the sound effect filename and volume. */
+			GetString_String(data, &pos, filename, sizeof(filename));
+			volume = data[pos++];
+
+			/* Try to start playing the sound effect. */
+			snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
+			channel = sound_add_effect(file_path(path, "r"), volume, -1);
+
+			/* Successfully started playing the effect, add it to the
+			 * list of active sound effects. */
+			if (channel != -1)
+			{
+				sound_ambient = calloc(1, sizeof(*sound_ambient));
+				sound_ambient->channel = channel;
+				sound_ambient->tag = tag;
+				sound_ambient->x = x;
+				sound_ambient->y = y;
+				sound_ambient_set_position(sound_ambient);
+				DL_APPEND(sound_ambient_head, sound_ambient);
+			}
+		}
 	}
 }
 

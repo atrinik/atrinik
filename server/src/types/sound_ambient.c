@@ -25,64 +25,31 @@
 
 /**
  * @file
- * Sound related header file. */
+ * Handles @ref SOUND_AMBIENT "ambient sound effect" objects. */
 
-#ifndef SOUND_H
-#define SOUND_H
-
-/**
- * @defgroup SOUND_TYPE_xxx Sound mixer type
- * Sound mixer types.
- *@{*/
-/** Sound chunk, OGG/WAV, no MIDI. */
-#define SOUND_TYPE_CHUNK 1
-/** Music, OGG/MIDI/etc. */
-#define SOUND_TYPE_MUSIC 2
-/*@}*/
+#include <global.h>
 
 /**
- * One 'cached' sound. */
-typedef struct sound_data_struct
+ * Initialize ambient sound effect object.
+ * @param ob The object to initialize. */
+void sound_ambient_init(object *ob)
 {
-	/** The sound's data. */
-	void *data;
+	MapSpace *msp;
 
-	/** Sound's type, one of @ref SOUND_TYPE_xxx. */
-	int type;
+	/* Must be on map... */
+	if (!ob->map)
+	{
+		LOG(llevBug, "Ambient sound effect object not on map.\n");
+		return;
+	}
 
-	/** Filename that was used to load sound_data_struct::data from. */
-	char *filename;
+	if (!ob->race || *ob->race == '\0')
+	{
+		LOG(llevBug, "Ambient sound effect object is missing sound effect filename.\n");
+		return;
+	}
 
-	/** Hash handle. */
-	UT_hash_handle hh;
-} sound_data_struct;
-
-#define POW2(x) ((x) * (x))
-
-/** This value is defined in server too - change only both at once */
-#define MAX_SOUND_DISTANCE 12
-
-/**
- * One ambient sound effect. */
-typedef struct sound_ambient_struct
-{
-	/** Next ambient sound effect in a doubly-linked list. */
-	struct sound_ambient_struct *next;
-
-	/** Previous ambient sound effect in a doubly-linked list. */
-	struct sound_ambient_struct *prev;
-
-	/** ID of the object the sound is coming from. */
-	int tag;
-
-	/** Channel ID we are playing the sound effect on. */
-	int channel;
-
-	/** X position of the sound effect object on the client map. */
-	int x;
-
-	/** Y position of the sound effect object on the client map. */
-	int y;
-} sound_ambient_struct;
-
-#endif
+	msp = GET_MAP_SPACE_PTR(ob->map, ob->x, ob->y);
+	msp->sound_ambient = ob;
+	msp->sound_ambient_count = ob->count;
+}

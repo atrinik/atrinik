@@ -98,6 +98,7 @@ enum
 	BINARY_CMD_REGION_MAP,
 	BINARY_CMD_READY,
 	BINARY_CMD_KEEPALIVE,
+	BINARY_CMD_SOUND_AMBIENT,
 	/* last entry */
 	BINAR_CMD
 };
@@ -144,6 +145,7 @@ struct CmdMapping commands[] =
 	{"region_map", RegionMapCmd, ASCII},
 	{"rd", ReadyCmd, INT_ARRAY},
 	{"ka", NULL, NODATA},
+	{"sound_ambient", cmd_sound_ambient, MIXED},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd, NODATA},
