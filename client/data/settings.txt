@@ -198,6 +198,11 @@ category Sound
 		default 80
 		desc Volume of sound effects such as footsteps, combat, etc. Use 0 to disable.
 	end
+	setting 3D sound effects
+		type bool
+		default off
+		desc Use 3D (angular) sound effects.
+	end
 end
 
 category Devel

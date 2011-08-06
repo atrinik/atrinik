@@ -56,12 +56,19 @@ enum
  * Options in the ::OPT_CAT_GENERAL category. */
 enum
 {
+	/** Whether to always show the playerdoll. */
 	OPT_PLAYERDOLL,
+	/** Whether to target self if no target is selected. */
 	OPT_TARGET_SELF,
+	/** Collect mode. */
 	OPT_COLLECT_MODE,
+	/** How to display experience. */
 	OPT_EXP_DISPLAY,
+	/** How to display chat timestamps. */
 	OPT_CHAT_TIMESTAMPS,
+	/** Maximum number of chat lines. */
 	OPT_MAX_CHAT_LINES,
+	/** Widget snap radius. */
 	OPT_SNAP_RADIUS
 };
 
@@ -119,7 +126,9 @@ enum
 	/** Music volume. */
 	OPT_VOLUME_MUSIC,
 	/** Sound volume. */
-	OPT_VOLUME_SOUND
+	OPT_VOLUME_SOUND,
+	/** Use 3D (angular) sound effects. */
+	OPT_3D_SOUNDS
 };
 
 /**

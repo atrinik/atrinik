@@ -129,8 +129,9 @@ void sound_deinit()
  * Add sound effect to the playing queue.
  * @param filename Sound file name to play. Will be loaded as needed.
  * @param volume Volume to play at.
- * @param loop How many times to loop, -1 for infinite number. */
-static void sound_add_effect(const char *filename, int volume, int loop)
+ * @param loop How many times to loop, -1 for infinite number.
+ * @return Channel the sound effect is being played on, -1 on failure. */
+static int sound_add_effect(const char *filename, int volume, int loop)
 {
 #ifdef HAVE_SDL_MIXER
 	int channel;
@@ -138,7 +139,7 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 
 	if (!enabled)
 	{
-		return;
+		return -1;
 	}
 
 	/* Try to find the sound first. */
@@ -151,7 +152,7 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 		if (!chunk)
 		{
 			LOG(llevBug, "sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
-			return;
+			return -1;
 		}
 
 		/* We loaded it now, so add it to the array of loaded sounds. */
@@ -162,14 +163,18 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 
 	if (channel == -1)
 	{
-		return;
+		return -1;
 	}
 
 	Mix_Volume(channel, (int) ((setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / 100.0) * ((double) volume * (MIX_MAX_VOLUME / 100.0))));
+
+	return channel;
 #else
 	(void) filename;
 	(void) volume;
 	(void) loop;
+
+	return -1;
 #endif
 }
 
@@ -403,21 +408,32 @@ void SoundCmd(uint8 *data, int len)
 	if (type == CMD_SOUND_EFFECT)
 	{
 		sint8 x, y;
-		int dist_volume;
 		char path[HUGE_BUF];
+		int channel;
 
 		x = data[pos++];
 		y = data[pos++];
-		dist_volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
 
-		if (dist_volume < 0)
-		{
-			dist_volume = 0;
-		}
-
-		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
 		snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
-		sound_add_effect(file_path(path, "r"), dist_volume + volume, loop);
+		channel = sound_add_effect(file_path(path, "r"), 100 + volume, loop);
+
+		if (channel != -1)
+		{
+			int angle, distance;
+
+			angle = 0;
+			distance = (255 * sqrt(POW2(x) + POW2(y))) / MAX_SOUND_DISTANCE;
+
+			if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance >= (255 / MAX_SOUND_DISTANCE) * 2)
+			{
+				angle = atan2(-y, x) * (180 / M_PI);
+				angle = 90 - angle;
+			}
+
+#ifdef HAVE_SDL_MIXER
+			Mix_SetPosition(channel, angle, distance);
+#endif
+		}
 	}
 	else if (type == CMD_SOUND_BACKGROUND)
 	{
