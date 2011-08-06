@@ -256,7 +256,7 @@ void settings_load()
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *cp;
-	size_t cat = 0, setting = 0;
+	sint64 cat = 0, setting = 0;
 	uint8 is_setting_name = 1;
 
 	fp = fopen_wrapper(FILE_SETTINGS_DAT, "r");
@@ -307,7 +307,10 @@ void settings_load()
 			}
 			else
 			{
-				setting_load_value(setting_categories[cat]->settings[setting], cp);
+				if (cat != -1 && setting != -1)
+				{
+					setting_load_value(setting_categories[cat]->settings[setting], cp);
+				}
 			}
 
 			is_setting_name = !is_setting_name;
