@@ -125,7 +125,7 @@ void display_mapscroll(int dx, int dy)
 		}
 	}
 
-	memcpy((char *) &the_map, (char *) & newmap, sizeof(struct Map));
+	memcpy((char *) &the_map, (char *) &newmap, sizeof(struct Map));
 }
 
 /**
