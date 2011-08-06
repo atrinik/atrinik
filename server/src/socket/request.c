@@ -893,7 +893,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
 	{
 		if (pl->last_update->tile_path[i] == map->path)
 		{
-			return i+1;
+			return i + 1;
 		}
 	}
 
