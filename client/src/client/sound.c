@@ -475,17 +475,20 @@ static void sound_ambient_free(sound_ambient_struct *tmp)
 static void sound_ambient_set_position(sound_ambient_struct *tmp)
 {
 #ifdef HAVE_SDL_MIXER
-	int x, y, angle, distance;
+	int x, y, angle, distance, cx, cy;
+
+	cx = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2;
+	cy = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
 
 	/* The x/y positions stored in the sound effect structure are the
 	 * positions on the map, so we have to convert it to coordinates
 	 * relative to the player. */
-	x = tmp->x - setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2;
-	y = tmp->y - setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
+	x = tmp->x - cx;
+	y = tmp->y - cy;
 
 	angle = 0;
 	/* Calculate the distance. */
-	distance = (255 * isqrt(POW2(x) + POW2(y))) / MAX_SOUND_DISTANCE;
+	distance = MIN(255, (255 * isqrt(POW2(x) + POW2(y))) / (tmp->max_range + (tmp->max_range / 2)));
 
 	/* Calculate the angle. */
 	if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance)
@@ -548,8 +551,8 @@ void sound_ambient_clear()
 void cmd_sound_ambient(uint8 *data, int len)
 {
 	int pos = 0, tag, tag_old;
-	char filename[MAX_BUF], path[HUGE_BUF];
-	uint8 x, y, volume;
+	char path[HUGE_BUF];
+	uint8 x, y;
 	sound_ambient_struct *sound_ambient;
 
 	/* Loop through the data, as there may be multiple sound effects. */
@@ -579,11 +582,14 @@ void cmd_sound_ambient(uint8 *data, int len)
 		/* Is there a new sound effect to start playing? */
 		if (tag)
 		{
+			char filename[MAX_BUF];
+			uint8 volume, max_range;
 			int channel;
 
 			/* Get the sound effect filename and volume. */
 			GetString_String(data, &pos, filename, sizeof(filename));
 			volume = data[pos++];
+			max_range = data[pos++];
 
 			/* Try to start playing the sound effect. */
 			snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
@@ -598,6 +604,7 @@ void cmd_sound_ambient(uint8 *data, int len)
 				sound_ambient->tag = tag;
 				sound_ambient->x = x;
 				sound_ambient->y = y;
+				sound_ambient->max_range = max_range;
 				sound_ambient_set_position(sound_ambient);
 				DL_APPEND(sound_ambient_head, sound_ambient);
 			}

@@ -83,6 +83,9 @@ typedef struct sound_ambient_struct
 
 	/** Y position of the sound effect object on the client map. */
 	int y;
+
+	/** Maximum range. */
+	uint8 max_range;
 } sound_ambient_struct;
 
 #endif

@@ -28,7 +28,7 @@
  * This is the config file for the client. */
 
 /** Socket version. */
-#define SOCKET_VERSION 1056
+#define SOCKET_VERSION 1057
 
 /** File the the arch definitions. */
 #define ARCHDEF_FILE "data/archdef.dat"

@@ -1343,6 +1343,14 @@ void draw_client_map2(object *pl)
 			/* Check whether there is ambient sound effect on this tile. */
 			have_sound_ambient = msp->sound_ambient && OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
 
+			/* If there is an ambient sound effect but it cannot be heard
+			 * through walls due to its configuration, we will pretend
+			 * there is no sound effect here. */
+			if (have_sound_ambient && !QUERY_FLAG(msp->sound_ambient, FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED)
+			{
+				have_sound_ambient = 0;
+			}
+
 			/* If there is an ambient sound effect and we haven't sent it
 			 * before, or there isn't one but it was sent before, send an
 			 * update. */
@@ -1352,11 +1360,16 @@ void draw_client_map2(object *pl)
 				SockList_AddChar(&sl_sound, ay);
 				SockList_AddInt(&sl_sound, mp->sound_ambient_count);
 
-				if (msp->sound_ambient)
+				if (have_sound_ambient)
 				{
 					SockList_AddInt(&sl_sound, msp->sound_ambient->count);
 					SockList_AddString(&sl_sound, msp->sound_ambient->race);
 					SockList_AddChar(&sl_sound, msp->sound_ambient->item_condition);
+
+					if (CONTR(pl)->socket.socket_version >= 1057)
+					{
+						SockList_AddChar(&sl_sound, msp->sound_ambient->item_level);
+					}
 
 					mp->sound_ambient_count = msp->sound_ambient->count;
 				}
