@@ -142,6 +142,7 @@ hidden_passage.ogg: Night club
 world.ogg: Forest, magic forest, eerie
 world2.ogg: Eerie, cave
 town_music.ogg: Town music, sinister, Berri Lur
+travelling.ogg: Traveling music, ships
 
 =====================================
 = Edwin "Mamoru" Miltenburg - GPLv2 =
@@ -345,13 +346,11 @@ crystal_falls.ogg
 falls.ogg
 hollow_wind.ogg
 
-=====================
-= GPL (unconfirmed) =
-=====================
+====================
+= Bliss - Freeware =
+====================
 
 fuego.ogg: Tribal, luxury house
-ghostly_passage.ogg: Eerie/ghostly passage/cave
-travelling.ogg: Traveling music, ships
 
 ===========
 = Unknown =
