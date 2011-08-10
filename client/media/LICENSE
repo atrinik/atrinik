@@ -269,7 +269,7 @@ dg9.mid: Castle, fort, palace
 running.ogg: Dungeon
 evil_temple.ogg: Evil eerie temple, chanting
 lost_in_meadows.ogg: Peaceful, meadow
-sewer_rats.ogg
+sewer_rats.ogg: Sewers, abandoned church
 
 =================================================================
 = Gobusto - http://opengameart.org/users/gobusto - CC-BY-SA 3.0 =
@@ -311,7 +311,7 @@ th_13.mid: Septette for the Dead Princess: Castle, forest clearing, jester
 th_14.mid: Lunate Elf: King's secret chamber
 th_15.mid: Corpse Voyage ~ Be of Good Cheer: Fanfares, fort
 th_16.mid: A Maiden's Illusory Funeral ~ Necrofantasy: Slime pit, place with quicksand traps
-th_17.mid: Lunar Clock ~ Luna Dial
+th_17.mid: Lunar Clock ~ Luna Dial: Speciality shop
 th_18.mid: BAD Apple!!
 th_19.mid: Solar Sect of Mystic Wisdom ~ Nuclear Fusion
 th_20.mid: Beware the Umbrella Left There Forever
@@ -343,8 +343,6 @@ vonstantine.mid: Boss
 ==========================================================
 
 crystal_falls.ogg: Crystal cave
-falls.ogg: Running water
-hollow_wind.ogg: Wind
 
 ====================
 = Bliss - Freeware =
