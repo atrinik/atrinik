@@ -342,9 +342,9 @@ vonstantine.mid: Boss
 = Ecrivain - http://opengameart.org/users/Ecrivain - CC0 =
 ==========================================================
 
-crystal_falls.ogg
-falls.ogg
-hollow_wind.ogg
+crystal_falls.ogg: Crystal cave
+falls.ogg: Running water
+hollow_wind.ogg: Wind
 
 ====================
 = Bliss - Freeware =
@@ -370,13 +370,4 @@ thonkdonk.ogg: Tribal, dungeon-like
 = Yo Frankie! - http://www.yofrankie.org/ - CC-BY 3.0 =
 =======================================================
 
-frankie.ogg
-
-====================================================================
-= http://opengameart.org/content/4-atmospheric-ghostly-loops - CC0 =
-====================================================================
-
-eerie.ogg
-eerie2.ogg
-eerie3.ogg
-eerie4.ogg
+frankie.ogg: Thieves
