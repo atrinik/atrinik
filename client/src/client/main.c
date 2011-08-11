@@ -370,6 +370,7 @@ static int game_status_chain()
 		LOG(llevInfo, "GAMES_STATUS_INIT_2\n");
 		sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 		clear_map();
+		effect_stop();
 		LOG(llevInfo, "GAMES_STATUS_INIT_3\n");
 		LOG(llevInfo, "GAMES_STATUS_INIT_4\n");
 		GameStatus = GAME_STATUS_META;

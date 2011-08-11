@@ -210,6 +210,7 @@ int socket_open(struct ClientSocket *csock, char *host, int port);
 void sound_init();
 void sound_deinit();
 void sound_play_effect(const char *filename, int volume);
+int sound_play_effect_loop(const char *filename, int volume, int loop);
 void sound_start_bg_music(const char *filename, int volume, int loop);
 void sound_stop_bg_music();
 void update_map_bg_music(const char *bg_music);

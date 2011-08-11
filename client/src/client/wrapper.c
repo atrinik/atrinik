@@ -109,11 +109,11 @@ void system_end()
 	kill_widgets();
 	curl_deinit();
 	socket_deinitialize();
+	effects_deinit();
 	sound_deinit();
 	free_bitmaps();
 	text_deinit();
 	hfiles_deinit();
-	effects_deinit();
 	settings_deinit();
 	keybind_deinit();
 	SDL_Quit();

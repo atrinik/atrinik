@@ -300,6 +300,15 @@ void effects_init()
 			{
 				effect->sprites_per_move = atoi(buf + 17);
 			}
+			else if (!strncmp(buf, "sound_effect ", 13))
+			{
+				strncpy(effect->sound_effect, buf + 13, sizeof(effect->sound_effect) - 1);
+				effect->sound_effect[sizeof(effect->sound_effect) - 1] = '\0';
+			}
+			else if (!strncmp(buf, "sound_volume ", 13))
+			{
+				effect->sound_volume = atoi(buf + 13);
+			}
 			/* Start of sprite block. */
 			else if (!strncmp(buf, "sprite ", 7))
 			{
@@ -344,6 +353,8 @@ void effects_init()
 			effect->wind_mod = 1.0;
 			effect->max_sprites = -1;
 			effect->sprites_per_move = 1;
+			effect->sound_channel = -1;
+			effect->sound_volume = 100;
 		}
 	}
 
@@ -409,6 +420,14 @@ void effect_sprites_free(effect_struct *effect)
 	}
 
 	effect->sprites = effect->sprites_end = NULL;
+
+	if (effect->sound_channel != -1)
+	{
+#ifdef HAVE_SDL_MIXER
+		Mix_HaltChannel(effect->sound_channel);
+#endif
+		effect->sound_channel = -1;
+	}
 }
 
 /**
@@ -760,6 +779,11 @@ int effect_start(const char *name)
 						}
 					}
 				}
+			}
+
+			if (current_effect->sound_effect[0] != '\0')
+			{
+				current_effect->sound_channel = sound_play_effect_loop(current_effect->sound_effect, current_effect->sound_volume, -1);
 			}
 
 			return 1;

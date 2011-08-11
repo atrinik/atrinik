@@ -98,6 +98,17 @@ typedef struct effect_struct
 	/** Sprites per move, defaults to 1. */
 	int sprites_per_move;
 
+	/** Sound effect filename. */
+	char sound_effect[MAX_BUF];
+
+	/** Volume for the sound effect, defaults to 100 (percent). */
+	int sound_volume;
+
+	/**
+	 * Channel the sound effect is playing on, or -1 if there isn't any
+	 * sound effect playing. */
+	int sound_channel;
+
 	/** Map overlay. */
 	struct effect_overlay *overlay;
 } effect_struct;

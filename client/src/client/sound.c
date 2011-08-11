@@ -193,6 +193,22 @@ void sound_play_effect(const char *filename, int volume)
 }
 
 /**
+ * Same as sound_play_effect(), but allows specifying how many times to
+ * loop the sound effect.
+ * @param filename Sound file name to play.
+ * @param volume Volume to play at.
+ * @param loop How many times to loop the sound effect, -1 to loop it
+ * infinitely.
+ * @return Channel the sound effect will be playing on, -1 on failure. */
+int sound_play_effect_loop(const char *filename, int volume, int loop)
+{
+	char path[HUGE_BUF];
+
+	snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
+	return sound_add_effect(file_path(path, "r"), volume, loop);
+}
+
+/**
  * Start background music.
  * @param filename Filename of the music to start.
  * @param volume Volume to use.
@@ -410,14 +426,12 @@ void SoundCmd(uint8 *data, int len)
 	if (type == CMD_SOUND_EFFECT)
 	{
 		sint8 x, y;
-		char path[HUGE_BUF];
 		int channel;
 
 		x = data[pos++];
 		y = data[pos++];
 
-		snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
-		channel = sound_add_effect(file_path(path, "r"), 100 + volume, loop);
+		channel = sound_play_effect_loop(filename, 100 + volume, loop);
 
 		if (channel != -1)
 		{
@@ -551,7 +565,6 @@ void sound_ambient_clear()
 void cmd_sound_ambient(uint8 *data, int len)
 {
 	int pos = 0, tag, tag_old;
-	char path[HUGE_BUF];
 	uint8 x, y;
 	sound_ambient_struct *sound_ambient;
 
@@ -592,8 +605,7 @@ void cmd_sound_ambient(uint8 *data, int len)
 			max_range = data[pos++];
 
 			/* Try to start playing the sound effect. */
-			snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
-			channel = sound_add_effect(file_path(path, "r"), volume, -1);
+			channel = sound_play_effect_loop(filename, volume, -1);
 
 			/* Successfully started playing the effect, add it to the
 			 * list of active sound effects. */
