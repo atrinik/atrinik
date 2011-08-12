@@ -977,7 +977,7 @@ void widget_map_render(widgetdata *widget)
 				SDL_FreeSurface(zoomed);
 			}
 
-			zoomed = zoomSurface(widget->widgetSF, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_ZOOM_SMOOTH));
+			zoomed = zoomSurface(widget->widgetSF, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
 		}
 	}
 

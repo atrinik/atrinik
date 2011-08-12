@@ -46,6 +46,9 @@ static popup_struct *popup_head = NULL;
 /**
  * Grayed out copy of ::ScreenSurface. */
 static SDL_Surface *popup_overlay = NULL;
+/**
+ * Whether the popup overlay needs redrawing. */
+static uint8 popup_overlay_need_redraw = 0;
 
 /**
  * Create an overlay to be used as popup background. */
@@ -85,6 +88,8 @@ static void popup_create_overlay()
 			putpixel(popup_overlay, j, k, SDL_MapRGBA(popup_overlay->format, r, g, b, a));
 		}
 	}
+
+	popup_overlay_need_redraw = 0;
 }
 
 /**
@@ -159,7 +164,7 @@ void popup_destroy_all()
  * @return Whether the overlay needs to be updated or not. */
 int popup_overlay_need_update()
 {
-	return !popup_overlay || popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h;
+	return !popup_overlay || popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h || popup_overlay_need_redraw;
 }
 
 /**
@@ -279,4 +284,11 @@ int popup_handle_event(SDL_Event *event)
 popup_struct *popup_get_head()
 {
 	return popup_head;
+}
+
+/**
+ * Mark popup overlay as needing an update. */
+void popup_overlay_redraw()
+{
+	popup_overlay_need_redraw = 1;
 }

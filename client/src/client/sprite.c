@@ -396,7 +396,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 
 	if (rotate)
 	{
-		blt_sprite = rotozoomSurface(blt_sprite, rotate, zoom ? zoom / 100.0 : 1.0, setting_get_int(OPT_CAT_MAP, OPT_ZOOM_SMOOTH));
+		blt_sprite = rotozoomSurface(blt_sprite, rotate, zoom ? zoom / 100.0 : 1.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
 
 		if (!blt_sprite)
 		{
@@ -405,7 +405,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 	}
 	else if (zoom && zoom != 100)
 	{
-		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, setting_get_int(OPT_CAT_MAP, OPT_ZOOM_SMOOTH));
+		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
 
 		if (!blt_sprite)
 		{

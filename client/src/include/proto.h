@@ -480,6 +480,7 @@ void popup_render(popup_struct *popup);
 void popup_render_head();
 int popup_handle_event(SDL_Event *event);
 popup_struct *popup_get_head();
+void popup_overlay_redraw();
 /* src/toolkit/progress.c */
 void progress_dots_create(progress_dots *progress);
 void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);

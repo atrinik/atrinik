@@ -466,7 +466,7 @@ static void region_map_resize(int adjust)
 	}
 
 	/* Zoom the surface. */
-	region_map_png = zoomSurface(region_map_png_orig, region_map_zoom / 100.0, region_map_zoom / 100.0, setting_get_int(OPT_CAT_MAP, OPT_ZOOM_SMOOTH));
+	region_map_png = zoomSurface(region_map_png_orig, region_map_zoom / 100.0, region_map_zoom / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
 
 	if (adjust > 0)
 	{
