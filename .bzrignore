@@ -19,6 +19,7 @@ visualc*.txt
 logfile.log
 RE:server/unit/.*
 ./server/tools/upgrade/config.cfg
+*.db
 
 # GNU/Linux
 core
