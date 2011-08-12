@@ -329,7 +329,7 @@ void PlayerCmd(char *buf, int len, player *pl)
 	 * them an idea of the problem, but they deserve what they get. */
 	if (pl->state != ST_PLAYING)
 	{
-		new_draw_info_format(0, COLOR_WHITE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
+		draw_info_format(0, COLOR_WHITE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
 		return;
 	}
 
@@ -2158,7 +2158,7 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 				/* Inform the client about the change. */
 				cmd_ready_send(pl, -1, type);
 
-				new_draw_info_format(0, COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
+				draw_info_format(0, COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
 			}
 			/* Otherwise ready it. */
 			else
@@ -2173,11 +2173,11 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 
 				if (type == READY_OBJ_ARROW)
 				{
-					new_draw_info_format(0, COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
+					draw_info_format(0, COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
 				}
 				else if (type == READY_OBJ_THROW)
 				{
-					new_draw_info_format(0, COLOR_WHITE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
+					draw_info_format(0, COLOR_WHITE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
 				}
 			}
 
@@ -2282,7 +2282,7 @@ void cmd_password_change(uint8 *buf, int len, player *pl)
 	/* Make sure the new password has a valid length. */
 	if (pswd_len < PLAYER_PASSWORD_MIN || pswd_len > PLAYER_PASSWORD_MAX)
 	{
-		new_draw_info_format(0, COLOR_RED, pl->ob, "That password has an invalid length (must be %d-%d).", PLAYER_PASSWORD_MIN, PLAYER_PASSWORD_MAX);
+		draw_info_format(0, COLOR_RED, pl->ob, "That password has an invalid length (must be %d-%d).", PLAYER_PASSWORD_MIN, PLAYER_PASSWORD_MAX);
 		return;
 	}
 
@@ -2295,5 +2295,5 @@ void cmd_password_change(uint8 *buf, int len, player *pl)
 
 	/* Update the player's password. */
 	strcpy(pl->password, crypt_string(pswd_new, NULL));
-	new_draw_info(0, COLOR_GREEN, pl->ob, "Your password has been changed successfully.");
+	draw_info(0, COLOR_GREEN, pl->ob, "Your password has been changed successfully.");
 }

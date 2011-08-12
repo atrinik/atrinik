@@ -218,7 +218,7 @@
 
 /**
  * @defgroup NDI_xxx New draw info flags
- * Various flags for new_draw_info().
+ * Various flags for draw_info().
  *@{*/
 /** Say command. */
 #define NDI_SAY 0x0100

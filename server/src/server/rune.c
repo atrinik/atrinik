@@ -100,7 +100,7 @@ void spring_trap(object *trap, object *victim)
 
 	if (victim && victim->type == PLAYER && trap->msg)
 	{
-		new_draw_info(0, COLOR_WHITE, victim, trap->msg);
+		draw_info(0, COLOR_WHITE, victim, trap->msg);
 	}
 
 	env = get_env_recursive(trap);
@@ -187,7 +187,7 @@ int trap_see(object *op, object *trap, int level)
 	/* Decide if we can see the rune or not */
 	if ((trap->level <= level && rndm_chance(10)) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0))))))
 	{
-		new_draw_info_format(0, COLOR_WHITE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
+		draw_info_format(0, COLOR_WHITE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
 
 		if (trap->stats.Cha != 1)
 		{
@@ -252,7 +252,7 @@ int trap_disarm(object *disarmer, object *trap)
 
 	if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{
-		new_draw_info_format(0, COLOR_WHITE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
+		draw_info_format(0, COLOR_WHITE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
 		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 		set_trapped_flag(env);
@@ -261,13 +261,13 @@ int trap_disarm(object *disarmer, object *trap)
 	}
 	else
 	{
-		new_draw_info_format(0, COLOR_WHITE, disarmer, "You fail to remove the %s (lvl %d).", trap->name, trap->level);
+		draw_info_format(0, COLOR_WHITE, disarmer, "You fail to remove the %s (lvl %d).", trap->name, trap->level);
 
 		if (trap->level > disarmer_level * 1.4f || rndm(0, 2))
 		{
 			if (!(rndm(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1)))
 			{
-				new_draw_info(0, COLOR_WHITE, disarmer, "In fact, you set it off!");
+				draw_info(0, COLOR_WHITE, disarmer, "In fact, you set it off!");
 				spring_trap(trap, disarmer);
 			}
 		}

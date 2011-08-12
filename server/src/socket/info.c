@@ -117,7 +117,7 @@ int color_notation_to_flag(const char *color)
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
  * @param buf The message to draw. */
-void new_draw_info(int flags, const char *color, object *pl, const char *buf)
+void draw_info(int flags, const char *color, object *pl, const char *buf)
 {
 	unsigned char info_string[HUGE_BUF];
 	size_t len;
@@ -130,7 +130,7 @@ void new_draw_info(int flags, const char *color, object *pl, const char *buf)
 
 		for (tmppl = first_player; tmppl; tmppl = tmppl->next)
 		{
-			new_draw_info((flags & ~NDI_ALL), color, tmppl->ob, buf);
+			draw_info((flags & ~NDI_ALL), color, tmppl->ob, buf);
 		}
 
 		return;
@@ -143,7 +143,7 @@ void new_draw_info(int flags, const char *color, object *pl, const char *buf)
 
 	if (CONTR(pl) == NULL)
 	{
-		LOG(llevBug, "new_draw_info(): Called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
+		LOG(llevBug, "draw_info(): Called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
 		return;
 	}
 
@@ -174,13 +174,13 @@ void new_draw_info(int flags, const char *color, object *pl, const char *buf)
 }
 
 /**
- * Similar to new_draw_info() but allows to use printf style
+ * Similar to draw_info() but allows to use printf style
  * formatting.
  * @param flags Flags.
  * @param pl Player.
  * @param format Format.
- * @see new_draw_info() */
-void new_draw_info_format(int flags, const char *color, object *pl, char *format, ...)
+ * @see draw_info() */
+void draw_info_format(int flags, const char *color, object *pl, char *format, ...)
 {
 	char buf[HUGE_BUF];
 
@@ -189,7 +189,7 @@ void new_draw_info_format(int flags, const char *color, object *pl, char *format
 	vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
-	new_draw_info(flags, color, pl, buf);
+	draw_info(flags, color, pl, buf);
 }
 
 /**
@@ -209,7 +209,7 @@ static void new_info_map_all_except(int flags, const char *color, mapstruct *map
 		{
 			if (tmp != op && tmp != op1)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -253,7 +253,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -266,7 +266,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -279,7 +279,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -292,7 +292,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -305,7 +305,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -319,7 +319,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -333,7 +333,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -347,7 +347,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -361,7 +361,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -407,7 +407,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -420,7 +420,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -433,7 +433,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -446,7 +446,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -459,7 +459,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -473,7 +473,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -487,7 +487,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -501,7 +501,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
@@ -515,14 +515,14 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(flags, color, tmp, str);
+				draw_info(flags, color, tmp, str);
 			}
 		}
 	}
 }
 
 /**
- * Send a socket message, similar to new_draw_info() but the message will
+ * Send a socket message, similar to draw_info() but the message will
  * be sent using Write_String_To_Socket() instead.
  *
  * Used for messages that are sent to player before they have finished

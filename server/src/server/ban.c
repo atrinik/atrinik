@@ -214,7 +214,7 @@ void list_bans(object *op)
 
 	if (op)
 	{
-		new_draw_info(0, COLOR_WHITE, op, "List of bans:");
+		draw_info(0, COLOR_WHITE, op, "List of bans:");
 	}
 	else
 	{
@@ -225,7 +225,7 @@ void list_bans(object *op)
 	{
 		if (op)
 		{
-			new_draw_info_format(0, COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
+			draw_info_format(0, COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
 		}
 		else
 		{

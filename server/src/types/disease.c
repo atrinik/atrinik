@@ -342,17 +342,17 @@ int infect_object(object *victim, object *disease, int force)
 
 		if (victim->type == PLAYER)
 		{
-			new_draw_info(0, COLOR_RED, new_disease->owner, buf);
+			draw_info(0, COLOR_RED, new_disease->owner, buf);
 		}
 		else
 		{
-			new_draw_info(0, COLOR_WHITE, new_disease->owner, buf);
+			draw_info(0, COLOR_WHITE, new_disease->owner, buf);
 		}
 	}
 
 	if (victim->type == PLAYER)
 	{
-		new_draw_info(0, COLOR_RED, victim, "You suddenly feel ill.");
+		draw_info(0, COLOR_RED, victim, "You suddenly feel ill.");
 	}
 
 	return 1;
@@ -611,7 +611,7 @@ void move_symptom(object *symptom)
 
 	if (victim->type == PLAYER)
 	{
-		new_draw_info(0, COLOR_RED, victim, symptom->msg);
+		draw_info(0, COLOR_RED, victim, symptom->msg);
 	}
 }
 
@@ -660,7 +660,7 @@ int cure_disease(object *sufferer, object *caster)
 
 	if (caster != sufferer && sufferer->type == PLAYER)
 	{
-		new_draw_info_format(0, COLOR_WHITE, sufferer, "%s casts cure disease on you!", caster->name ? caster->name : "someone");
+		draw_info_format(0, COLOR_WHITE, sufferer, "%s casts cure disease on you!", caster->name ? caster->name : "someone");
 	}
 
 	for (disease = sufferer->inv; disease; disease = next)
@@ -680,12 +680,12 @@ int cure_disease(object *sufferer, object *caster)
 			{
 				if (sufferer->type == PLAYER)
 				{
-					new_draw_info_format(0, COLOR_WHITE, sufferer, "You are healed from disease %s.", disease->name);
+					draw_info_format(0, COLOR_WHITE, sufferer, "You are healed from disease %s.", disease->name);
 				}
 
 				if (sufferer != caster && caster->type == PLAYER)
 				{
-					new_draw_info_format(0, COLOR_WHITE, caster, "You heal %s from disease %s.", sufferer->name, disease->name);
+					draw_info_format(0, COLOR_WHITE, caster, "You heal %s from disease %s.", sufferer->name, disease->name);
 				}
 
 				remove_symptoms(disease);
@@ -701,12 +701,12 @@ int cure_disease(object *sufferer, object *caster)
 			{
 				if (sufferer->type == PLAYER)
 				{
-					new_draw_info_format(0, COLOR_WHITE, sufferer, "The disease %s resists the cure prayer!", disease->name);
+					draw_info_format(0, COLOR_WHITE, sufferer, "The disease %s resists the cure prayer!", disease->name);
 				}
 
 				if (sufferer != caster && caster->type == PLAYER)
 				{
-					new_draw_info_format(0, COLOR_WHITE, caster, "The disease %s resists the cure prayer!", disease->name);
+					draw_info_format(0, COLOR_WHITE, caster, "The disease %s resists the cure prayer!", disease->name);
 				}
 			}
 		}
@@ -716,12 +716,12 @@ int cure_disease(object *sufferer, object *caster)
 	{
 		if (sufferer->type == PLAYER)
 		{
-			new_draw_info(0, COLOR_WHITE, sufferer, "You are not diseased!");
+			draw_info(0, COLOR_WHITE, sufferer, "You are not diseased!");
 		}
 
 		if (sufferer != caster && caster->type == PLAYER)
 		{
-			new_draw_info_format(0, COLOR_WHITE, caster, "%s is not diseased!", sufferer->name ? sufferer->name : "someone");
+			draw_info_format(0, COLOR_WHITE, caster, "%s is not diseased!", sufferer->name ? sufferer->name : "someone");
 		}
 	}
 
@@ -755,7 +755,7 @@ int reduce_symptoms(object *sufferer, int reduction)
 
 	if (success)
 	{
-		new_draw_info(0, COLOR_WHITE, sufferer, "Your illness seems less severe.");
+		draw_info(0, COLOR_WHITE, sufferer, "Your illness seems less severe.");
 	}
 
 	return success;

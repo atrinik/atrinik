@@ -302,7 +302,7 @@ int execute_newserver_command(object *pl, char *command)
 	 * something else after the slash. */
 	if (command[0] != '/' || !command[1])
 	{
-		new_draw_info_format(0, COLOR_WHITE, pl, "'%s' is not a valid command.", command);
+		draw_info_format(0, COLOR_WHITE, pl, "'%s' is not a valid command.", command);
 		return 0;
 	}
 
@@ -353,7 +353,7 @@ int execute_newserver_command(object *pl, char *command)
 	/* We didn't find the command anywhere. */
 	if (!csp)
 	{
-		new_draw_info_format(0, COLOR_WHITE, pl, "'/%s' is not a valid command.", command);
+		draw_info_format(0, COLOR_WHITE, pl, "'/%s' is not a valid command.", command);
 		return 0;
 	}
 

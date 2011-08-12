@@ -130,7 +130,7 @@ void pray_at_altar(object *pl, object *altar)
 	{
 		int bonus = ((pl->stats.Wis / 10) + (SK_level(pl) / 10));
 
-		new_draw_info_format(0, COLOR_WHITE, pl, "You feel the powers of your deity %s.", pl_god->name);
+		draw_info_format(0, COLOR_WHITE, pl, "You feel the powers of your deity %s.", pl_god->name);
 
 		/* We can get negative grace up faster */
 		if (pl->stats.grace < 0)
@@ -179,15 +179,15 @@ void pray_at_altar(object *pl, object *altar)
 			{
 				/* you really screwed up */
 				angry = 3;
-				new_draw_info_format(0, COLOR_NAVY, pl, "Foul priest! %s punishes you!", pl_god->name);
+				draw_info_format(0, COLOR_NAVY, pl, "Foul priest! %s punishes you!", pl_god->name);
 				cast_magic_storm(pl, get_archetype("loose_magic"), pl_god->level + 20);
 			}
 
-			new_draw_info_format(0, COLOR_NAVY, pl, "Foolish heretic! %s is livid!", pl_god->name);
+			draw_info_format(0, COLOR_NAVY, pl, "Foolish heretic! %s is livid!", pl_god->name);
 		}
 		else
 		{
-			new_draw_info_format(0, COLOR_NAVY, pl, "Heretic! %s is angered!", pl_god->name);
+			draw_info_format(0, COLOR_NAVY, pl, "Heretic! %s is angered!", pl_god->name);
 		}
 
 		/* whether we will be successfull in defecting or not -
@@ -209,7 +209,7 @@ void pray_at_altar(object *pl, object *altar)
 		else
 		{
 			/* toss this player off the altar.  He can try again. */
-			new_draw_info_format(0, COLOR_NAVY, pl, "A divine force pushes you off the altar.");
+			draw_info_format(0, COLOR_NAVY, pl, "A divine force pushes you off the altar.");
 			/* back him off the way he came. */
 			move_player(pl, absdir(pl->facing + 4));
 		}
@@ -323,7 +323,7 @@ void become_follower(object *op, object *new_god)
 
 	if (op->race && new_god->slaying && strstr(op->race, new_god->slaying))
 	{
-		new_draw_info_format(0, COLOR_NAVY, op, "Fool! %s detests your kind!", new_god->name);
+		draw_info_format(0, COLOR_NAVY, op, "Fool! %s detests your kind!", new_god->name);
 
 		if (rndm(0, op->level - 1) - 5 > 0)
 		{
@@ -333,12 +333,12 @@ void become_follower(object *op, object *new_god)
 		return;
 	}
 
-	new_draw_info_format(0, COLOR_NAVY, op, "You become a follower of %s!", new_god->name);
+	draw_info_format(0, COLOR_NAVY, op, "You become a follower of %s!", new_god->name);
 
 	/* get rid of old god */
 	if (exp_obj->title)
 	{
-		new_draw_info_format(0, COLOR_WHITE, op, "%s's blessing is withdrawn from you.", exp_obj->title);
+		draw_info_format(0, COLOR_WHITE, op, "%s's blessing is withdrawn from you.", exp_obj->title);
 		CLEAR_FLAG(exp_obj, FLAG_APPLIED);
 		(void) change_abil(op, exp_obj);
 		FREE_AND_CLEAR_HASH2(exp_obj->title);
@@ -379,7 +379,7 @@ void become_follower(object *op, object *new_god)
 	update_priest_flag(new_god, exp_obj, FLAG_XRAYS);
 #endif
 
-	new_draw_info_format(0, COLOR_WHITE, op, "You are bathed in %s's aura.", new_god->name);
+	draw_info_format(0, COLOR_WHITE, op, "You are bathed in %s's aura.", new_god->name);
 
 #ifdef MORE_PRIEST_GIFTS
 	/* Weapon/armour use are special...handle flag toggles here as this can
@@ -426,11 +426,11 @@ static int worship_forbids_use(object *op, object *exp_obj, uint32 flag, char *s
 
 			if (QUERY_FLAG(op, flag))
 			{
-				new_draw_info_format(0, COLOR_WHITE, op, "You may use %s again.", string);
+				draw_info_format(0, COLOR_WHITE, op, "You may use %s again.", string);
 			}
 			else
 			{
-				new_draw_info_format(0, COLOR_WHITE, op, "You are forbidden to use %s.", string);
+				draw_info_format(0, COLOR_WHITE, op, "You are forbidden to use %s.", string);
 				return 1;
 			}
 		}
@@ -618,7 +618,7 @@ static int god_removes_curse(object *op, int remove_damnation)
 
 	if (success)
 	{
-		new_draw_info(0, COLOR_WHITE, op, "You feel like someone is helping you.");
+		draw_info(0, COLOR_WHITE, op, "You feel like someone is helping you.");
 	}
 
 	return success;
@@ -692,14 +692,14 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 			esrv_update_item(UPD_NAME, op, weapon);
 		}
 
-		new_draw_info(0, COLOR_WHITE, op, "Your weapon quivers as if struck!");
+		draw_info(0, COLOR_WHITE, op, "Your weapon quivers as if struck!");
 	}
 
 	/* Allow the weapon to slay enemies */
 	if (!weapon->slaying && god->slaying)
 	{
 		FREE_AND_COPY_HASH(weapon->slaying, god->slaying);
-		new_draw_info_format(0, COLOR_WHITE, op, "Your %s now hungers to slay enemies of your god!", weapon->name);
+		draw_info_format(0, COLOR_WHITE, op, "Your %s now hungers to slay enemies of your god!", weapon->name);
 		return 1;
 	}
 
@@ -708,7 +708,7 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 
 	if (weapon->magic < tmp)
 	{
-		new_draw_info(0, COLOR_WHITE, op, "A phosphorescent glow envelops your weapon!");
+		draw_info(0, COLOR_WHITE, op, "A phosphorescent glow envelops your weapon!");
 		weapon->magic++;
 
 		if (op->type == PLAYER)
@@ -796,7 +796,7 @@ static int god_gives_present(object *op, object *god, treasure *tr)
 	}
 
 	tmp = arch_to_object(tr->item);
-	new_draw_info_format(0, COLOR_WHITE, op, "%s lets %s appear in your hands.", god->name, query_short_name(tmp, NULL));
+	draw_info_format(0, COLOR_WHITE, op, "%s lets %s appear in your hands.", god->name, query_short_name(tmp, NULL));
 	tmp = insert_ob_in_ob(tmp, op);
 
 	if (op->type == PLAYER)
@@ -831,7 +831,7 @@ static void god_intervention(object *op, object *god)
 		return;
 	}
 
-	new_draw_info(0, COLOR_WHITE, op, "You feel a holy presence!");
+	draw_info(0, COLOR_WHITE, op, "You feel a holy presence!");
 
 	for (tr = god->randomitems->items; tr != NULL; tr = tr->next)
 	{
@@ -852,7 +852,7 @@ static void god_intervention(object *op, object *god)
 				continue;
 			}
 
-			new_draw_info(0, COLOR_WHITE, op, "Something appears before your eyes. You catch it before it falls to the ground.");
+			draw_info(0, COLOR_WHITE, op, "Something appears before your eyes. You catch it before it falls to the ground.");
 			create_treasure(tl, op, GT_STARTEQUIP | GT_ONLY_GOOD | GT_UPDATE_INV, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 			return;
 		}
@@ -890,7 +890,7 @@ static void god_intervention(object *op, object *god)
 			}
 
 			op->stats.grace = rndm(0, 9);
-			new_draw_info(0, COLOR_WHITE, op, "You are returned to a state of grace.");
+			draw_info(0, COLOR_WHITE, op, "You are returned to a state of grace.");
 			return;
 		}
 
@@ -902,7 +902,7 @@ static void god_intervention(object *op, object *god)
 				continue;
 			}
 
-			new_draw_info(0, COLOR_WHITE, op, "A white light surrounds and heals you!");
+			draw_info(0, COLOR_WHITE, op, "A white light surrounds and heals you!");
 			op->stats.hp = op->stats.maxhp;
 			return;
 		}
@@ -919,7 +919,7 @@ static void god_intervention(object *op, object *god)
 				continue;
 			}
 
-			new_draw_info(0, COLOR_WHITE, op, "A blue lightning strikes your head but doesn't hurt you!");
+			draw_info(0, COLOR_WHITE, op, "A blue lightning strikes your head but doesn't hurt you!");
 			op->stats.sp = new_sp;
 		}
 
@@ -982,13 +982,13 @@ static void god_intervention(object *op, object *god)
 				continue;
 			}
 
-			new_draw_info(0, COLOR_WHITE, op, "Shimmering light surrounds and restores you!");
+			draw_info(0, COLOR_WHITE, op, "Shimmering light surrounds and restores you!");
 
 			for (i = 0; i < NUM_STATS; i++)
 			{
 				if (get_attr_value(&depl->stats, i))
 				{
-					new_draw_info(0, COLOR_WHITE, op, restore_msg[i]);
+					draw_info(0, COLOR_WHITE, op, restore_msg[i]);
 				}
 			}
 
@@ -1000,7 +1000,7 @@ static void god_intervention(object *op, object *god)
 		/* Messages */
 		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.message)
 		{
-			new_draw_info(0, COLOR_WHITE, op, item->msg);
+			draw_info(0, COLOR_WHITE, op, item->msg);
 			return;
 		}
 
@@ -1034,7 +1034,7 @@ static void god_intervention(object *op, object *god)
 
 			if (IS_SYS_INVISIBLE(item))
 			{
-				new_draw_info_format(0, COLOR_WHITE, op, "%s grants you use of a special prayer!", god->name);
+				draw_info_format(0, COLOR_WHITE, op, "%s grants you use of a special prayer!", god->name);
 				do_learn_spell(op, spell, 1);
 				return;
 			}
@@ -1075,7 +1075,7 @@ static void god_intervention(object *op, object *god)
 		}
 	}
 
-	new_draw_info(0, COLOR_WHITE, op, "You feel rapture.");
+	draw_info(0, COLOR_WHITE, op, "You feel rapture.");
 }
 
 /**
@@ -1118,7 +1118,7 @@ static int god_examines_priest(object *op, object *god)
 			cast_magic_storm(op, get_archetype("loose_magic"), SK_level(op) + (angry * 3));
 		}
 
-		new_draw_info_format(0, COLOR_NAVY, op, "%s becomes angry and punishes you!", god->name);
+		draw_info_format(0, COLOR_NAVY, op, "%s becomes angry and punishes you!", god->name);
 	}
 
 	return reaction;
@@ -1164,7 +1164,7 @@ static int god_examines_item(object *god, object *item)
 		{
 			if (item->env)
 			{
-				new_draw_info_format(0, COLOR_NAVY, item->env, "Heretic! You are using %s!", query_name(item, NULL));
+				draw_info_format(0, COLOR_NAVY, item->env, "Heretic! You are using %s!", query_name(item, NULL));
 			}
 
 			return -1;

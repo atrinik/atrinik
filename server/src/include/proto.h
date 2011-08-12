@@ -807,8 +807,8 @@ int esrv_send_face(socket_struct *ns, short face_num);
 void face_get_data(int face, uint8 **ptr, uint16 *len);
 /* src/socket/info.c */
 int color_notation_to_flag(const char *color);
-void new_draw_info(int flags, const char *color, object *pl, const char *buf);
-void new_draw_info_format(int flags, const char *color, object *pl, char *format, ...) __attribute__((format(printf, 4, 5)));
+void draw_info(int flags, const char *color, object *pl, const char *buf);
+void draw_info_format(int flags, const char *color, object *pl, char *format, ...) __attribute__((format(printf, 4, 5)));
 void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, const char *str);
 void new_info_map_except(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op1, object *op, const char *str);
 void send_socket_message(const char *color, socket_struct *ns, const char *buf);

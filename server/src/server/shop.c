@@ -627,7 +627,7 @@ int get_payment(object *pl, object *op)
 			sint64 i = query_cost(op, pl, COST_BUY) - query_money(pl);
 
 			CLEAR_FLAG(op, FLAG_UNPAID);
-			new_draw_info_format(0, COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(i), query_name(op, NULL));
+			draw_info_format(0, COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(i), query_name(op, NULL));
 			SET_FLAG(op, FLAG_UNPAID);
 			return 0;
 		}
@@ -641,7 +641,7 @@ int get_payment(object *pl, object *op)
 
 			if (pl->type == PLAYER)
 			{
-				new_draw_info_format(0, COLOR_WHITE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
+				draw_info_format(0, COLOR_WHITE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
 			}
 
 			tmp = merge_ob(op, NULL);
@@ -697,7 +697,7 @@ void sell_item(object *op, object *pl, sint64 value)
 	{
 		if (op)
 		{
-			new_draw_info_format(0, COLOR_WHITE, pl, "We're not interested in %s.", query_name(op, NULL));
+			draw_info_format(0, COLOR_WHITE, pl, "We're not interested in %s.", query_name(op, NULL));
 		}
 	}
 
@@ -713,7 +713,7 @@ void sell_item(object *op, object *pl, sint64 value)
 		LOG(llevBug, "Warning - payment not zero: %"FMT64"\n", i);
 	}
 
-	new_draw_info_format(0, COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
+	draw_info_format(0, COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
 	SET_FLAG(op, FLAG_UNPAID);
 
 	/* Identify the item. Makes any unidentified item sold to unique shop appear identified. */

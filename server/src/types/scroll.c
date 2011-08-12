@@ -40,7 +40,7 @@ void apply_scroll(object *op, object *tmp)
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info(0, COLOR_WHITE, op, "You are unable to read while blind.");
+		draw_info(0, COLOR_WHITE, op, "You are unable to read while blind.");
 		return;
 	}
 
@@ -51,7 +51,7 @@ void apply_scroll(object *op, object *tmp)
 
 	if (scroll_spell < 0 || scroll_spell >= NROFREALSPELLS)
 	{
-		new_draw_info(0, COLOR_WHITE, op, "The scroll just doesn't make sense!");
+		draw_info(0, COLOR_WHITE, op, "The scroll just doesn't make sense!");
 		return;
 	}
 
@@ -60,7 +60,7 @@ void apply_scroll(object *op, object *tmp)
 		/* players need a literacy skill to read stuff! */
 		if (!change_skill(op, SK_LITERACY))
 		{
-			new_draw_info(0, COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
+			draw_info(0, COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
 			return;
 		}
 
@@ -69,7 +69,7 @@ void apply_scroll(object *op, object *tmp)
 		 * skill. This makes scroll different from wands or potions. */
 		if (!change_skill(op, (spells[scroll_spell].type == SPELL_TYPE_PRIEST ? SK_PRAYING : SK_SPELL_CASTING)))
 		{
-			new_draw_info(0, COLOR_WHITE, op, "You can read the scroll but you don't understand it.");
+			draw_info(0, COLOR_WHITE, op, "You can read the scroll but you don't understand it.");
 			return;
 		}
 
@@ -83,7 +83,7 @@ void apply_scroll(object *op, object *tmp)
 		CONTR(op)->stat_scrolls_used++;
 	}
 
-	new_draw_info_format(0, COLOR_WHITE, op, "The scroll of %s turns to dust.", spells[tmp->stats.sp].name);
+	draw_info_format(0, COLOR_WHITE, op, "The scroll of %s turns to dust.", spells[tmp->stats.sp].name);
 
 	cast_spell(op, tmp, op->facing ? op->facing : 4, scroll_spell, 0, CAST_SCROLL, NULL);
 	decrease_ob(tmp);

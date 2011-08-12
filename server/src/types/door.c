@@ -61,7 +61,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 				{
 					if (op->type == PLAYER && mode)
 					{
-						new_draw_info(0, COLOR_NAVY, op, tmp->msg);
+						draw_info(0, COLOR_NAVY, op, tmp->msg);
 					}
 
 					return 0;
@@ -77,11 +77,11 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 				{
 					if (key->type == KEY)
 					{
-						new_draw_info_format(0, COLOR_WHITE, op, "You open the door with the %s.", query_short_name(key, NULL));
+						draw_info_format(0, COLOR_WHITE, op, "You open the door with the %s.", query_short_name(key, NULL));
 					}
 					else if (key->type == FORCE)
 					{
-						new_draw_info(0, COLOR_WHITE, op, "The door is opened for you.");
+						draw_info(0, COLOR_WHITE, op, "The door is opened for you.");
 					}
 				}
 			}

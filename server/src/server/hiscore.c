@@ -350,7 +350,7 @@ void hiscore_check(object *op, int quiet)
 	{
 		if (!quiet)
 		{
-			new_draw_info(0, COLOR_WHITE, op, "Since you have been in wizard mode, you can't enter the high-score list.");
+			draw_info(0, COLOR_WHITE, op, "Since you have been in wizard mode, you can't enter the high-score list.");
 		}
 
 		return;
@@ -428,14 +428,14 @@ void hiscore_check(object *op, int quiet)
 		}
 	}
 
-	new_draw_info(0, COLOR_WHITE, op, message);
+	draw_info(0, COLOR_WHITE, op, message);
 
 	if (old_score.position != -1)
 	{
-		new_draw_info(0, COLOR_WHITE, op, draw_one_high_score(&old_score, bufscore, sizeof(bufscore)));
+		draw_info(0, COLOR_WHITE, op, draw_one_high_score(&old_score, bufscore, sizeof(bufscore)));
 	}
 
-	new_draw_info(0, COLOR_WHITE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
+	draw_info(0, COLOR_WHITE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 }
 
 /**
@@ -449,7 +449,7 @@ void hiscore_display(object *op, int max, const char *match)
 	int printed_entries = 0;
 	size_t j;
 
-	new_draw_info(0, COLOR_WHITE, op, "Nr    Score   Who <max hp><max sp><max grace>");
+	draw_info(0, COLOR_WHITE, op, "Nr    Score   Who <max hp><max sp><max grace>");
 
 	for (j = 0; j < HIGHSCORE_LENGTH && hiscore_table.entry[j].name[0] != '\0' && printed_entries < max; j++)
 	{
@@ -469,7 +469,7 @@ void hiscore_display(object *op, int max, const char *match)
 		}
 		else
 		{
-			new_draw_info(0, COLOR_WHITE, op, scorebuf);
+			draw_info(0, COLOR_WHITE, op, scorebuf);
 		}
 	}
 }

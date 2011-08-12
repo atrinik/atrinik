@@ -369,14 +369,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 		/* No magic and not a prayer. */
 		if (MAP_NOMAGIC(cast_op->map) && spells[type].type == SPELL_TYPE_WIZARD)
 		{
-			new_draw_info(0, COLOR_WHITE, op, "Powerful countermagic cancels all spellcasting here!");
+			draw_info(0, COLOR_WHITE, op, "Powerful countermagic cancels all spellcasting here!");
 			return 0;
 		}
 
 		/* No prayer and a prayer. */
 		if (MAP_NOPRIEST(cast_op->map) && spells[type].type == SPELL_TYPE_PRIEST)
 		{
-			new_draw_info(0, COLOR_WHITE, op, "Powerful countermagic cancels all prayer spells here!");
+			draw_info(0, COLOR_WHITE, op, "Powerful countermagic cancels all prayer spells here!");
 			return 0;
 		}
 
@@ -385,7 +385,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 		/* No harm spell and not town safe. */
 		if ((MAP_NOHARM(cast_op->map) || (msp->extra_flags & MSP_EXTRA_NO_HARM)) && !(MAP_NOHARM(cast_op->map) && (msp->extra_flags & MSP_EXTRA_NO_HARM)) && !(spells[type].flags & SPELL_DESC_TOWN))
 		{
-			new_draw_info(0, COLOR_WHITE, op, "Powerful countermagic cancels all harmful magic here!");
+			draw_info(0, COLOR_WHITE, op, "Powerful countermagic cancels all harmful magic here!");
 			return 0;
 		}
 
@@ -399,7 +399,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			{
 				if (caster->path_denied & s->path)
 				{
-					new_draw_info(0, COLOR_WHITE, op, "It is denied for you to cast that spell.");
+					draw_info(0, COLOR_WHITE, op, "It is denied for you to cast that spell.");
 					return 0;
 				}
 
@@ -407,13 +407,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 				{
 					if (spells[type].type == SPELL_TYPE_WIZARD && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
 					{
-						new_draw_info(0, COLOR_WHITE, op, "You don't have enough mana.");
+						draw_info(0, COLOR_WHITE, op, "You don't have enough mana.");
 						return 0;
 					}
 
 					if (spells[type].type == SPELL_TYPE_PRIEST && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
 					{
-						new_draw_info(0, COLOR_WHITE, op, "You don't have enough grace.");
+						draw_info(0, COLOR_WHITE, op, "You don't have enough grace.");
 						return 0;
 					}
 				}
@@ -425,7 +425,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			{
 				if ((godname = determine_god(op)) == shstr_cons.none)
 				{
-					new_draw_info(0, COLOR_WHITE, op, "You need a deity to cast a prayer!");
+					draw_info(0, COLOR_WHITE, op, "You need a deity to cast a prayer!");
 					return 0;
 				}
 			}
@@ -435,7 +435,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 		 * knows what they are doing. */
 		if (item == CAST_NORMAL && !ability && SK_level(caster) < s->level && !QUERY_FLAG(op, FLAG_WIZ))
 		{
-			new_draw_info(0, COLOR_WHITE, op, "You lack enough skill to cast that spell.");
+			draw_info(0, COLOR_WHITE, op, "You lack enough skill to cast that spell.");
 			return 0;
 		}
 
@@ -451,7 +451,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 		}
 		else if (find_target_for_spell(op, &target, spells[type].flags) == 0)
 		{
-			new_draw_info_format(0, COLOR_WHITE, op, "You can't cast that spell on %s!", target ? target->name : "yourself");
+			draw_info_format(0, COLOR_WHITE, op, "You can't cast that spell on %s!", target ? target->name : "yourself");
 			return 0;
 		}
 
@@ -462,14 +462,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 			if (!get_rangevector_from_mapcoords(op->map, op->x, op->y, target->map, target->x, target->y, &rv, RV_DIAGONAL_DISTANCE) || rv.distance > (unsigned int) spells[type].range)
 			{
-				new_draw_info(0, COLOR_WHITE, op, "Your target is out of range!");
+				draw_info(0, COLOR_WHITE, op, "Your target is out of range!");
 				return 0;
 			}
 		}
 
 		if (op->type == PLAYER && target == op && CONTR(op)->target_object != op)
 		{
-			new_draw_info(0, COLOR_WHITE, op, "You auto-target yourself with this spell!");
+			draw_info(0, COLOR_WHITE, op, "You auto-target yourself with this spell!");
 		}
 
 		if (!ability && ((s->type == SPELL_TYPE_WIZARD && blocks_magic(op->map, op->x, op->y)) || (s->type == SPELL_TYPE_PRIEST && blocks_cleric(op->map, op->x, op->y))))
@@ -481,30 +481,30 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 			if (s->type == SPELL_TYPE_PRIEST)
 			{
-				new_draw_info_format(0, COLOR_WHITE, op, "This ground is unholy! %s ignores you.", godname);
+				draw_info_format(0, COLOR_WHITE, op, "This ground is unholy! %s ignores you.", godname);
 			}
 			else
 			{
 				switch (CONTR(op)->shoottype)
 				{
 					case range_magic:
-						new_draw_info(0, COLOR_WHITE, op, "Something blocks your spellcasting.");
+						draw_info(0, COLOR_WHITE, op, "Something blocks your spellcasting.");
 						break;
 
 					case range_wand:
-						new_draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your wand.");
+						draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your wand.");
 						break;
 
 					case range_rod:
-						new_draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your rod.");
+						draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your rod.");
 						break;
 
 					case range_horn:
-						new_draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your horn.");
+						draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your horn.");
 						break;
 
 					case range_scroll:
-						new_draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your scroll.");
+						draw_info(0, COLOR_WHITE, op, "Something blocks the magic of your scroll.");
 						break;
 
 					default:
@@ -521,7 +521,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			if (s->type == SPELL_TYPE_PRIEST && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
 			{
 				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "missspell.ogg", 0, 0, 0, 0);
-				new_draw_info(0, COLOR_WHITE, op, "You fumble the prayer because your wisdom is low.");
+				draw_info(0, COLOR_WHITE, op, "You fumble the prayer because your wisdom is low.");
 
 				/* Shouldn't happen... */
 				if (s->sp == 0)
@@ -538,7 +538,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 				if (failure < 0)
 				{
-					new_draw_info(0, COLOR_WHITE, op, "You bungle the spell because you have too much heavy equipment in use.");
+					draw_info(0, COLOR_WHITE, op, "You bungle the spell because you have too much heavy equipment in use.");
 					return rndm(0, SP_level_spellpoint_cost(caster, type, -1));
 				}
 			}
@@ -781,7 +781,7 @@ int cast_create_obj(object *op, object *new_op, int dir)
 
 	if (dir && blocked(op, mt, xt, yt, op->terrain_flag))
 	{
-		new_draw_info(0, COLOR_WHITE, op, "Something is in the way.\nYou cast it at your feet.");
+		draw_info(0, COLOR_WHITE, op, "Something is in the way.\nYou cast it at your feet.");
 		dir = 0;
 	}
 
@@ -864,7 +864,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	if (!dir)
 	{
-		new_draw_info(0, COLOR_WHITE, op, "You can't fire that at yourself!");
+		draw_info(0, COLOR_WHITE, op, "You can't fire that at yourself!");
 		return 0;
 	}
 
@@ -898,7 +898,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	if (wall(op->map, tmp->x, tmp->y))
 	{
-		new_draw_info(0, COLOR_WHITE, op, "There is something in the way.");
+		draw_info(0, COLOR_WHITE, op, "There is something in the way.");
 		return 0;
 	}
 

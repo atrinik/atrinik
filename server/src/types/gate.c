@@ -189,7 +189,7 @@ void move_gate(object *op)
 					if (IS_LIVE(tmp))
 					{
 						hit_player(tmp, 4, op, AT_PHYSICAL);
-						new_draw_info_format(0, COLOR_WHITE, tmp, "You are crushed by the %s!", op->name);
+						draw_info_format(0, COLOR_WHITE, tmp, "You are crushed by the %s!", op->name);
 					}
 
 					i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, 9);

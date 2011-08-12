@@ -1755,7 +1755,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(0, COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
+			draw_info_format(0, COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
 			snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
 			new_info_map_except(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
@@ -1801,7 +1801,7 @@ static int talk_to_wall(object *op, object *npc, char *txt)
 	}
 	else
 	{
-		new_draw_info(0, COLOR_NAVY, op, cp);
+		draw_info(0, COLOR_NAVY, op, cp);
 	}
 
 	use_trigger(npc);

@@ -360,7 +360,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	exp = adjust_exp(op, exp_skill, exp);
 
 	/* Notify the player of the exp gain */
-	new_draw_info_format(0, COLOR_WHITE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
+	draw_info_format(0, COLOR_WHITE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
 	CONTR(op)->stat_exp_gained += exp;
 
 	/* adjust_exp() has adjusted the skill and all exp_obj and player
@@ -481,7 +481,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d in %s based skills.", op->level, op->name);
-				new_draw_info(0, COLOR_RED, who, buf);
+				draw_info(0, COLOR_RED, who, buf);
 			}
 		}
 		else if (op->level > 1 && op->type == SKILL)
@@ -495,7 +495,7 @@ void player_lvl_adj(object *who, object *op)
 				}
 
 				snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);
-				new_draw_info(0, COLOR_RED, who, buf);
+				draw_info(0, COLOR_RED, who, buf);
 			}
 		}
 		else
@@ -503,7 +503,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d.", op->level);
-				new_draw_info(0, COLOR_RED, who, buf);
+				draw_info(0, COLOR_RED, who, buf);
 			}
 		}
 
@@ -529,7 +529,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d in %s based skills.", op->level, op->name);
-				new_draw_info(0, COLOR_RED, who, buf);
+				draw_info(0, COLOR_RED, who, buf);
 			}
 		}
 		else if (op->type == SKILL)
@@ -537,7 +537,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d in the skill %s.", op->level, op->name);
-				new_draw_info(0, COLOR_RED, who, buf);
+				draw_info(0, COLOR_RED, who, buf);
 			}
 		}
 		else
@@ -545,7 +545,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d.", op->level);
-				new_draw_info(0, COLOR_RED, who, buf);
+				draw_info(0, COLOR_RED, who, buf);
 			}
 		}
 
