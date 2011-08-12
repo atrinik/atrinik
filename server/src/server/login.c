@@ -49,7 +49,7 @@ void emergency_save(int flag)
 		}
 
 		LOG(llevSystem, "%s ", pl->ob->name);
-		draw_info(0, COLOR_WHITE, pl->ob, "Emergency save...");
+		draw_info(COLOR_WHITE, pl->ob, "Emergency save...");
 
 		/* If we are not exiting the game (ie, this is sort of a backup
 		 * save), then don't change the location back to the village.
@@ -73,7 +73,7 @@ void emergency_save(int flag)
 		if (!save_player(pl->ob, flag))
 		{
 			LOG(llevSystem, "(failed) ");
-			draw_info(0, COLOR_WHITE, pl->ob, "Emergency save failed, checking score...");
+			draw_info(COLOR_WHITE, pl->ob, "Emergency save failed, checking score...");
 		}
 
 		hiscore_check(pl->ob, 1);
@@ -162,7 +162,7 @@ int save_player(object *op, int flag)
 
 	if (!fp)
 	{
-		draw_info(0, COLOR_WHITE, op, "Can't open file for saving.");
+		draw_info(COLOR_WHITE, op, "Can't open file for saving.");
 		LOG(llevDebug, "Can't open file for saving (%s).\n", filename);
 		rename(backupfile, filename);
 		return 0;
@@ -263,7 +263,7 @@ int save_player(object *op, int flag)
 	/* Make sure the write succeeded */
 	if (fclose(fp) == EOF)
 	{
-		draw_info(0, COLOR_WHITE, op, "Can't save character.");
+		draw_info(COLOR_WHITE, op, "Can't save character.");
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 		rename(backupfile, filename);
 		return 0;
@@ -714,7 +714,7 @@ void check_login(object *op)
 
 	if (!pl->dm_stealth)
 	{
-		draw_info_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
+		draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
 	}
 
 	/* Trigger the global LOGIN event */

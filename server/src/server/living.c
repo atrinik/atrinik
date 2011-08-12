@@ -434,11 +434,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "Your hands begin to glow red.");
+			draw_info(COLOR_WHITE, op, "Your hands begin to glow red.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "Your hands stop glowing red.");
+			draw_info(COLOR_GRAY, op, "Your hands stop glowing red.");
 		}
 	}
 
@@ -448,11 +448,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel very protected.");
+			draw_info(COLOR_WHITE, op, "You feel very protected.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You don't feel protected anymore.");
+			draw_info(COLOR_GRAY, op, "You don't feel protected anymore.");
 		}
 	}
 
@@ -462,11 +462,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "A magic force shimmers around you.");
+			draw_info(COLOR_WHITE, op, "A magic force shimmers around you.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "The magic force fades away.");
+			draw_info(COLOR_GRAY, op, "The magic force fades away.");
 		}
 	}
 
@@ -476,11 +476,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel more safe now, somehow.");
+			draw_info(COLOR_WHITE, op, "You feel more safe now, somehow.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "Suddenly you feel less safe, somehow.");
+			draw_info(COLOR_GRAY, op, "Suddenly you feel less safe, somehow.");
 		}
 	}
 
@@ -493,11 +493,11 @@ int change_abil(object *op, object *tmp)
 			/* If we're already flying then fly higher */
 			if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING))
 			{
-				draw_info(0, COLOR_WHITE, op, "You float a little higher in the air.");
+				draw_info(COLOR_WHITE, op, "You float a little higher in the air.");
 			}
 			else
 			{
-				draw_info(0, COLOR_GRAY, op, "You start to float in the air!");
+				draw_info(COLOR_GRAY, op, "You start to float in the air!");
 
 				SET_MULTI_FLAG(op, FLAG_FLYING);
 
@@ -514,11 +514,11 @@ int change_abil(object *op, object *tmp)
 			/* If we're already flying then fly lower */
 			if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING))
 			{
-				draw_info(0, COLOR_WHITE, op, "You float a little lower in the air.");
+				draw_info(COLOR_WHITE, op, "You float a little lower in the air.");
 			}
 			else
 			{
-				draw_info(0, COLOR_GRAY, op, "You float down to the ground.");
+				draw_info(COLOR_GRAY, op, "You float down to the ground.");
 				check_walk_on(op, op, 0);
 			}
 		}
@@ -535,7 +535,7 @@ int change_abil(object *op, object *tmp)
 			if (flag > 0)
 			{
 				FREE_AND_COPY_HASH(op->race, "undead");
-				draw_info(0, COLOR_GRAY, op, "Your lifeforce drains away!");
+				draw_info(COLOR_GRAY, op, "Your lifeforce drains away!");
 			}
 			else
 			{
@@ -546,7 +546,7 @@ int change_abil(object *op, object *tmp)
 					FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 				}
 
-				draw_info(0, COLOR_WHITE, op, "Your lifeforce returns!");
+				draw_info(COLOR_WHITE, op, "Your lifeforce returns!");
 			}
 		}
 	}
@@ -557,11 +557,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You walk more quietly.");
+			draw_info(COLOR_WHITE, op, "You walk more quietly.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You walk more noisily.");
+			draw_info(COLOR_GRAY, op, "You walk more noisily.");
 		}
 	}
 
@@ -571,11 +571,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You see invisible things.");
+			draw_info(COLOR_WHITE, op, "You see invisible things.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "Your vision becomes less clear.");
+			draw_info(COLOR_GRAY, op, "Your vision becomes less clear.");
 		}
 	}
 
@@ -585,11 +585,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You become transparent.");
+			draw_info(COLOR_WHITE, op, "You become transparent.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You can see yourself.");
+			draw_info(COLOR_GRAY, op, "You can see yourself.");
 		}
 	}
 
@@ -603,11 +603,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				draw_info(0, COLOR_GRAY, op, "Your mortal self is blinded.");
+				draw_info(COLOR_GRAY, op, "Your mortal self is blinded.");
 			}
 			else
 			{
-				draw_info(0, COLOR_GRAY, op, "You are blinded.");
+				draw_info(COLOR_GRAY, op, "You are blinded.");
 				SET_FLAG(op, FLAG_BLIND);
 
 				if (op->type == PLAYER)
@@ -620,11 +620,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				draw_info(0, COLOR_WHITE, op, "Your mortal self can now see again.");
+				draw_info(COLOR_WHITE, op, "Your mortal self can now see again.");
 			}
 			else
 			{
-				draw_info(0, COLOR_WHITE, op, "Your vision returns.");
+				draw_info(COLOR_WHITE, op, "Your vision returns.");
 				CLEAR_FLAG(op, FLAG_BLIND);
 
 				if (op->type == PLAYER)
@@ -641,11 +641,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "Your vision is better in the dark.");
+			draw_info(COLOR_WHITE, op, "Your vision is better in the dark.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You see less well in the dark.");
+			draw_info(COLOR_GRAY, op, "You see less well in the dark.");
 		}
 	}
 
@@ -657,11 +657,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				draw_info(0, COLOR_WHITE, op, "Your vision becomes a little clearer.");
+				draw_info(COLOR_WHITE, op, "Your vision becomes a little clearer.");
 			}
 			else
 			{
-				draw_info(0, COLOR_GRAY, op, "Everything becomes transparent.");
+				draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
 
 				if (op->type == PLAYER)
 				{
@@ -673,11 +673,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				draw_info(0, COLOR_WHITE, op, "Your vision becomes a bit out of focus.");
+				draw_info(COLOR_WHITE, op, "Your vision becomes a bit out of focus.");
 			}
 			else
 			{
-				draw_info(0, COLOR_GRAY, op, "Everything suddenly looks very solid.");
+				draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
 
 				if (op->type == PLAYER)
 				{
@@ -693,11 +693,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.hp) > 0 || (flag * tmp->stats.maxhp) > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel much more healthy!");
+			draw_info(COLOR_WHITE, op, "You feel much more healthy!");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You feel much less healthy!");
+			draw_info(COLOR_GRAY, op, "You feel much less healthy!");
 		}
 	}
 
@@ -707,11 +707,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.sp) > 0 || (flag * tmp->stats.maxsp) > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel one with the powers of magic!");
+			draw_info(COLOR_WHITE, op, "You feel one with the powers of magic!");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You suddenly feel very mundane.");
+			draw_info(COLOR_GRAY, op, "You suddenly feel very mundane.");
 		}
 	}
 
@@ -721,11 +721,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.grace) > 0 || (flag * tmp->stats.maxgrace) > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel closer to your deity!");
+			draw_info(COLOR_WHITE, op, "You feel closer to your deity!");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You suddenly feel less holy.");
+			draw_info(COLOR_GRAY, op, "You suddenly feel less holy.");
 		}
 	}
 
@@ -735,11 +735,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((tmp->stats.food * flag) > 0)
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel your digestion slowing down.");
+			draw_info(COLOR_WHITE, op, "You feel your digestion slowing down.");
 		}
 		else
 		{
-			draw_info(0, COLOR_GRAY, op, "You feel your digestion speeding up.");
+			draw_info(COLOR_GRAY, op, "You feel your digestion speeding up.");
 		}
 	}
 
@@ -752,11 +752,11 @@ int change_abil(object *op, object *tmp)
 
 			if (op->protection[i] > refop.protection[i])
 			{
-				draw_info_format(0, COLOR_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
+				draw_info_format(COLOR_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
 			}
 			else
 			{
-				draw_info_format(0, COLOR_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
+				draw_info_format(COLOR_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
 			}
 		}
 	}
@@ -778,11 +778,11 @@ int change_abil(object *op, object *tmp)
 
 				if ((i * flag) > 0)
 				{
-					draw_info(0, COLOR_WHITE, op, gain_msg[j]);
+					draw_info(COLOR_WHITE, op, gain_msg[j]);
 				}
 				else
 				{
-					draw_info(0, COLOR_GRAY, op, lose_msg[j]);
+					draw_info(COLOR_GRAY, op, lose_msg[j]);
 				}
 			}
 		}
@@ -825,7 +825,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 		}
 	}
 
-	draw_info(0, COLOR_WHITE, op, drain_msg[deplete_stats]);
+	draw_info(COLOR_WHITE, op, drain_msg[deplete_stats]);
 	change_attr_value(&tmp->stats, deplete_stats, -1);
 	fix_player(op);
 }

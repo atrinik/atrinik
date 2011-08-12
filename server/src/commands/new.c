@@ -98,7 +98,7 @@ int command_run(object *op, char *params)
 
 	if (dir <= 0 || dir > 9)
 	{
-		draw_info(0, COLOR_WHITE, op, "Can't run into a non-adjacent square.");
+		draw_info(COLOR_WHITE, op, "Can't run into a non-adjacent square.");
 		return 0;
 	}
 
@@ -961,7 +961,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		draw_info_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
+		draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
 	}
 
 	CLEAR_FLAG(op, FLAG_WIZ);

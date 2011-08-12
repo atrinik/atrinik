@@ -83,11 +83,11 @@ void version(object *op)
 	{
 		if (branch_revision)
 		{
-			draw_info_format(0, COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, branch_revision);
+			draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, branch_revision);
 		}
 		else
 		{
-			draw_info_format(0, COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
+			draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
 		}
 	}
 	else
@@ -516,7 +516,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	}
 	else
 	{
-		draw_info_format(0, COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
+		draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
 LOG(llevDebug, "enter_unique_map: Exit %s (%d,%d) on map %s leads no where.\n", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
 	}
 }
@@ -648,7 +648,7 @@ void enter_exit(object *op, object *exit_ob)
 			{
 				if (op->type == PLAYER)
 				{
-					draw_info_format(0, COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
+					draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
 				}
 
 				return;
@@ -812,7 +812,7 @@ static void process_players1()
 			}
 			else
 			{
-				draw_info_format(0, COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
+				draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
 				pl->followed_player[0] = '\0';
 			}
 		}

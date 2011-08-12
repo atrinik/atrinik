@@ -415,13 +415,13 @@ int arena_enter(object *who, object *exit_ob, const char *arena_script)
 			/* If the arena is full, show a message to the player */
 			if (arena_full(arena_maps_tmp))
 			{
-				hooks->draw_info(0, COLOR_WHITE, who, arena_maps_tmp->message_arena_full);
+				hooks->draw_info(COLOR_WHITE, who, arena_maps_tmp->message_arena_full);
 				return 1;
 			}
 			/* Not full but it's party arena and the player is not in a party? */
 			else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && !CONTR(who)->party)
 			{
-				hooks->draw_info(0, COLOR_WHITE, who, arena_maps_tmp->message_arena_party);
+				hooks->draw_info(COLOR_WHITE, who, arena_maps_tmp->message_arena_party);
 				return 1;
 			}
 			/* Add the player to the list of players and increase the number of players/parties */
@@ -476,14 +476,14 @@ int arena_enter(object *who, object *exit_ob, const char *arena_script)
 	/* If this arena is full, show a message and return */
 	if (arena_full(arena_maps_tmp))
 	{
-		hooks->draw_info(0, COLOR_WHITE, who, arena_maps_tmp->message_arena_full);
+		hooks->draw_info(COLOR_WHITE, who, arena_maps_tmp->message_arena_full);
 		free(arena_maps_tmp);
 		return 1;
 	}
 	/* Otherwise if not full and the player is not in party */
 	else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && !CONTR(who)->party)
 	{
-		hooks->draw_info(0, COLOR_WHITE, who, arena_maps_tmp->message_arena_party);
+		hooks->draw_info(COLOR_WHITE, who, arena_maps_tmp->message_arena_party);
 		free(arena_maps_tmp);
 		return 1;
 	}
@@ -533,29 +533,29 @@ int arena_sign(object *who, const char *path)
 		{
 			arena_map_players *player_list_tmp;
 
-			hooks->draw_info(0, COLOR_YELLOW, who, "This arena has the following players in:\n");
+			hooks->draw_info(COLOR_YELLOW, who, "This arena has the following players in:\n");
 
 			/* Now go through the list of players in this arena */
 			for (player_list_tmp = arena_maps_tmp->player_list; player_list_tmp; player_list_tmp = player_list_tmp->next)
 			{
-				hooks->draw_info_format(0, COLOR_YELLOW, who, "%s (level %d)", player_list_tmp->op->name, player_list_tmp->op->level);
+				hooks->draw_info_format(COLOR_YELLOW, who, "%s (level %d)", player_list_tmp->op->name, player_list_tmp->op->level);
 			}
 
 			if (!(arena_maps_tmp->flags & ARENA_FLAG_PARTY) || (arena_maps_tmp->flags & ARENA_FLAG_PARTY && arena_maps_tmp->flags & ARENA_FLAG_PARTY_PLAYERS))
 			{
-				hooks->draw_info_format(0, COLOR_YELLOW, who, "\nTotal players: %d\nMaximum players:  %d", arena_maps_tmp->players, arena_maps_tmp->max_players);
+				hooks->draw_info_format(COLOR_YELLOW, who, "\nTotal players: %d\nMaximum players:  %d", arena_maps_tmp->players, arena_maps_tmp->max_players);
 			}
 
 			if (arena_maps_tmp->flags & ARENA_FLAG_PARTY)
 			{
-				hooks->draw_info_format(0, COLOR_YELLOW, who, "\nTotal parties: %d\nMaximum parties:  %d", arena_maps_tmp->parties, arena_maps_tmp->max_parties);
+				hooks->draw_info_format(COLOR_YELLOW, who, "\nTotal parties: %d\nMaximum parties:  %d", arena_maps_tmp->parties, arena_maps_tmp->max_parties);
 			}
 
 			return 1;
 		}
 	}
 
-	hooks->draw_info(0, COLOR_YELLOW, who, "This arena is currently empty.");
+	hooks->draw_info(COLOR_YELLOW, who, "This arena is currently empty.");
 	return 1;
 }
 

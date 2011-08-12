@@ -461,19 +461,38 @@ static PyObject *Atrinik_Player_Sound(Atrinik_Player *pl, PyObject *args, PyObje
 }
 
 /**
- * <h1>player.Examine(object obj)</h1>
+ * <h1>player.Examine(object obj, bool [ret = False])</h1>
  * Makes player examine the specified object.
  * @param obj Object to examine. */
 static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
 {
 	Atrinik_Object *obj;
+	int ret = 0;
+	StringBuffer *sb_capture = NULL;
 
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &obj))
+	if (!PyArg_ParseTuple(args, "O!|i", &Atrinik_ObjectType, &obj, &ret))
 	{
 		return NULL;
 	}
 
-	hooks->examine(pl->pl->ob, obj->obj);
+	if (ret)
+	{
+		sb_capture = hooks->stringbuffer_new();
+	}
+
+	hooks->examine(pl->pl->ob, obj->obj, sb_capture);
+
+	if (ret)
+	{
+		char *cp;
+		PyObject *retval;
+
+		cp = hooks->stringbuffer_finish(sb_capture);
+		retval = Py_BuildValue("s", cp);
+		free(cp);
+
+		return retval;
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;

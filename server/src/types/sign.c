@@ -40,7 +40,7 @@ void apply_sign(object *op, object *sign)
 {
 	if (!sign->msg && !sign->title)
 	{
-		draw_info(0, COLOR_WHITE, op, "Nothing is written on it.");
+		draw_info(COLOR_WHITE, op, "Nothing is written on it.");
 		return;
 	}
 
@@ -50,7 +50,7 @@ void apply_sign(object *op, object *sign)
 		{
 			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 			{
-				draw_info(0, COLOR_WHITE, op, "You cannot read it anymore.");
+				draw_info(COLOR_WHITE, op, "You cannot read it anymore.");
 			}
 
 			return;
@@ -67,7 +67,7 @@ void apply_sign(object *op, object *sign)
 	 * for magic mouths that have been made visible. */
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ) && !QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 	{
-		draw_info(0, COLOR_WHITE, op, "You are unable to read while blind.");
+		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
 		return;
 	}
 
@@ -79,7 +79,7 @@ void apply_sign(object *op, object *sign)
 		{
 			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 			{
-				draw_info(0, COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
+				draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
 			}
 
 			return;
@@ -121,6 +121,6 @@ void apply_sign(object *op, object *sign)
 	}
 	else
 	{
-		draw_info(0, COLOR_NAVY, op, sign->msg);
+		draw_info(COLOR_NAVY, op, sign->msg);
 	}
 }

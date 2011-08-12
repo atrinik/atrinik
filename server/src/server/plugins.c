@@ -80,7 +80,6 @@ struct plugin_hooklist hooklist =
 	query_money,
 	pay_for_item,
 	pay_for_amount,
-	draw_info,
 	communicate,
 	object_create_clone,
 	get_object,
@@ -124,7 +123,6 @@ struct plugin_hooklist hooklist =
 	find_face,
 	find_animation,
 	play_sound_player_only,
-	draw_info_format,
 	was_destroyed,
 	object_get_gender,
 	change_abil,
@@ -157,6 +155,10 @@ struct plugin_hooklist hooklist =
 	send_target_command,
 	examine,
 	push_button,
+	draw_info,
+	draw_info_format,
+	draw_info_flags,
+	draw_info_flags_format,
 
 	season_name,
 	weekdays,
@@ -304,12 +306,12 @@ void display_plugins_list(object *op)
 	DIR *plugdir;
 	atrinik_plugin *plugin;
 
-	draw_info(0, COLOR_WHITE, op, "List of loaded plugins:");
-	draw_info(0, COLOR_WHITE, op, "-----------------------");
+	draw_info(COLOR_WHITE, op, "List of loaded plugins:");
+	draw_info(COLOR_WHITE, op, "-----------------------");
 
 	for (plugin = plugins_list; plugin; plugin = plugin->next)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s, %s", plugin->id, plugin->fullname);
+		draw_info_format(COLOR_WHITE, op, "%s, %s", plugin->id, plugin->fullname);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/", PLUGINDIR);
@@ -320,15 +322,15 @@ void display_plugins_list(object *op)
 		return;
 	}
 
-	draw_info(0, COLOR_WHITE, op, "\nList of loadable plugins:");
-	draw_info(0, COLOR_WHITE, op, "-----------------------");
+	draw_info(COLOR_WHITE, op, "\nList of loadable plugins:");
+	draw_info(COLOR_WHITE, op, "-----------------------");
 
 	/* Go through the files in the directory */
 	while ((currentfile = readdir(plugdir)))
 	{
 		if (FILENAME_IS_PLUGIN(currentfile->d_name))
 		{
-			draw_info(0, COLOR_WHITE, op, currentfile->d_name);
+			draw_info(COLOR_WHITE, op, currentfile->d_name);
 		}
 	}
 

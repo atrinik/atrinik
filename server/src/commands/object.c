@@ -68,7 +68,7 @@ int command_uskill(object *pl, char *params)
 {
 	if (!params)
 	{
-		draw_info(0, COLOR_WHITE, pl, "Usage: /use_skill <skill name>");
+		draw_info(COLOR_WHITE, pl, "Usage: /use_skill <skill name>");
 		return 0;
 	}
 
@@ -91,7 +91,7 @@ int command_rskill(object *pl, char *params)
 
 	if (!params)
 	{
-		draw_info(0, COLOR_WHITE, pl, "Usage: /ready_skill <skill name>");
+		draw_info(COLOR_WHITE, pl, "Usage: /ready_skill <skill name>");
 		return 0;
 	}
 
@@ -104,7 +104,7 @@ int command_rskill(object *pl, char *params)
 
 	if (skillno == -1)
 	{
-		draw_info_format(0, COLOR_WHITE, pl, "Couldn't find the skill %s", params);
+		draw_info_format(COLOR_WHITE, pl, "Couldn't find the skill %s", params);
 		return 0;
 	}
 
@@ -162,7 +162,7 @@ int command_apply(object *op, char *params)
 		}
 		else
 		{
-			draw_info_format(0, COLOR_WHITE, op, "Could not find any match to the %s.", params);
+			draw_info_format(COLOR_WHITE, op, "Could not find any match to the %s.", params);
 		}
 	}
 
@@ -207,7 +207,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 	{
 		if (pl)
 		{
-			draw_info(0, COLOR_WHITE, pl, buf);
+			draw_info(COLOR_WHITE, pl, buf);
 		}
 
 		return 0;
@@ -240,13 +240,13 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 	 * containers not allowed as of now) */
 	if (QUERY_FLAG(pl, FLAG_FLYING) && !QUERY_FLAG(pl, FLAG_WIZ) && is_player_inv(tmp) != pl)
 	{
-		draw_info(0, COLOR_WHITE, pl, "You are levitating, you can't reach the ground!");
+		draw_info(COLOR_WHITE, pl, "You are levitating, you can't reach the ground!");
 		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
-		draw_info(0, COLOR_WHITE, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
+		draw_info(COLOR_WHITE, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
 
 		if (pl->type == PLAYER)
 		{
@@ -269,7 +269,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 	if (!player_can_carry(pl, WEIGHT_NROF(tmp, nrof)))
 	{
-		draw_info(0, COLOR_WHITE, pl, "That item is too heavy for you to pick up.");
+		draw_info(COLOR_WHITE, pl, "That item is too heavy for you to pick up.");
 		return;
 	}
 
@@ -338,7 +338,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 		if (!tmp)
 		{
-			draw_info(0, COLOR_WHITE, pl, err);
+			draw_info(COLOR_WHITE, pl, err);
 			return;
 		}
 
@@ -372,7 +372,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 		}
 	}
 
-	draw_info(0, COLOR_WHITE, pl, buf);
+	draw_info(COLOR_WHITE, pl, buf);
 	tmp = insert_ob_in_ob(tmp, op);
 
 	/* All the stuff below deals with client/server code, and is only
@@ -417,7 +417,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	{
 		if (!can_pick(op, alt))
 		{
-			draw_info_format(0, COLOR_WHITE, op, "You can't pick up %s.", alt->name);
+			draw_info_format(COLOR_WHITE, op, "You can't pick up %s.", alt->name);
 			goto leave;
 		}
 
@@ -427,7 +427,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	{
 		if (op->below == NULL || !can_pick(op, op->below))
 		{
-			draw_info(0, COLOR_WHITE, op, "There is nothing to pick up here.");
+			draw_info(COLOR_WHITE, op, "There is nothing to pick up here.");
 			goto leave;
 		}
 
@@ -518,7 +518,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 	/* Startequip items are not allowed to be put into containers. */
 	if (op->type == PLAYER && alt->type == CONTAINER && QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 	{
-		draw_info(0, COLOR_WHITE, op, "This object cannot be put into containers!");
+		draw_info(COLOR_WHITE, op, "This object cannot be put into containers!");
 		goto leave;
 	}
 
@@ -572,13 +572,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (sack->type != CONTAINER)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "The %s is not a container.", query_name(sack, NULL));
+		draw_info_format(COLOR_WHITE, op, "The %s is not a container.", query_name(sack, NULL));
 		return;
 	}
 
 	if (check_magical_container(tmp, sack))
 	{
-		draw_info(0, COLOR_WHITE, op, "You can't put a magical container into another magical container.");
+		draw_info(COLOR_WHITE, op, "You can't put a magical container into another magical container.");
 		return;
 	}
 
@@ -621,13 +621,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 			SET_FLAG(tmp, FLAG_STARTEQUIP);
 			tmp->nrof = nrof;
 			tmp_nrof = nrof;
-			draw_info_format(0, COLOR_WHITE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
+			draw_info_format(COLOR_WHITE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
 		}
 		/* This is an unique shop item */
 		else
 		{
 			tmp->nrof = nrof;
-			draw_info_format(0, COLOR_WHITE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
+			draw_info_format(COLOR_WHITE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
 			tmp->nrof = tmp_nrof;
 		}
 	}
@@ -644,7 +644,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 		if (!tmp)
 		{
-			draw_info(0, COLOR_WHITE, op, err);
+			draw_info(COLOR_WHITE, op, err);
 			return;
 		}
 
@@ -676,7 +676,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	tmp_tag = tmp->count;
 	tmp_cont = tmp->env;
 	tmp2 = insert_ob_in_ob(tmp, sack);
-	draw_info(0, COLOR_WHITE, op, buf);
+	draw_info(COLOR_WHITE, op, buf);
 	/* This is overkill, fix_player() is called somewhere in object.c */
 	fix_player(op);
 
@@ -705,7 +705,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		draw_info(0, COLOR_WHITE, op, "You can't drop that item.");
+		draw_info(COLOR_WHITE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -752,7 +752,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 		if (!tmp)
 		{
-			draw_info(0, COLOR_WHITE, op, err);
+			draw_info(COLOR_WHITE, op, err);
 			return;
 		}
 
@@ -789,12 +789,12 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	{
 		if (op->type == PLAYER)
 		{
-			draw_info_format(0, COLOR_WHITE, op, "You drop the %s.", query_name(tmp, NULL));
+			draw_info_format(COLOR_WHITE, op, "You drop the %s.", query_name(tmp, NULL));
 			esrv_del_item(CONTR(op), tmp->count, tmp->env);
 
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				draw_info(0, COLOR_WHITE, op, "The shop magic put it back to the storage.");
+				draw_info(COLOR_WHITE, op, "The shop magic put it back to the storage.");
 
 				floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
 
@@ -808,7 +808,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 			}
 			else
 			{
-				draw_info(0, COLOR_WHITE, op, "The god-given item vanishes to nowhere as you drop it!");
+				draw_info(COLOR_WHITE, op, "The god-given item vanishes to nowhere as you drop it!");
 			}
 		}
 
@@ -838,7 +838,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 		{
 			if (op->type == PLAYER)
 			{
-				draw_info(0, COLOR_WHITE, op, "The shop magic put it to the storage.");
+				draw_info(COLOR_WHITE, op, "The shop magic put it to the storage.");
 				esrv_del_item(CONTR(op), tmp->count, tmp->env);
 			}
 
@@ -885,19 +885,19 @@ void drop(object *op, object *tmp, int no_mevent)
 {
 	if (tmp == NULL)
 	{
-		draw_info(0, COLOR_WHITE, op, "You don't have anything to drop.");
+		draw_info(COLOR_WHITE, op, "You don't have anything to drop.");
 		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_INV_LOCKED))
 	{
-		draw_info(0, COLOR_WHITE, op, "This item is locked.");
+		draw_info(COLOR_WHITE, op, "This item is locked.");
 		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 	{
-		draw_info(0, COLOR_WHITE, op, "You can't drop that item.");
+		draw_info(COLOR_WHITE, op, "You can't drop that item.");
 		return;
 	}
 
@@ -932,7 +932,7 @@ int command_take(object *op, char *params)
 
 	if (!params)
 	{
-		draw_info(0, COLOR_WHITE, op, "Take what?");
+		draw_info(COLOR_WHITE, op, "Take what?");
 		return 0;
 	}
 
@@ -947,7 +947,7 @@ int command_take(object *op, char *params)
 
 	if (!tmp)
 	{
-		draw_info(0, COLOR_WHITE, op, "Nothing to take.");
+		draw_info(COLOR_WHITE, op, "Nothing to take.");
 		return 0;
 	}
 
@@ -1022,16 +1022,16 @@ int command_take(object *op, char *params)
 	}
 	else if (!missed)
 	{
-		draw_info(0, COLOR_WHITE, op, "Nothing to take.");
+		draw_info(COLOR_WHITE, op, "Nothing to take.");
 	}
 
 	if (missed == 1)
 	{
-		draw_info(0, COLOR_WHITE, op, "You were unable to take one of the items.");
+		draw_info(COLOR_WHITE, op, "You were unable to take one of the items.");
 	}
 	else if (missed > 1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "You were unable to take %d of the items.", missed);
+		draw_info_format(COLOR_WHITE, op, "You were unable to take %d of the items.", missed);
 	}
 
 	if (op->type == PLAYER)
@@ -1054,7 +1054,7 @@ int command_drop(object *op, char *params)
 
 	if (!params)
 	{
-		draw_info(0, COLOR_WHITE, op, "Drop what?");
+		draw_info(COLOR_WHITE, op, "Drop what?");
 		return 0;
 	}
 
@@ -1098,16 +1098,16 @@ int command_drop(object *op, char *params)
 	}
 	else if (!missed)
 	{
-		draw_info(0, COLOR_WHITE, op, "Nothing to drop.");
+		draw_info(COLOR_WHITE, op, "Nothing to drop.");
 	}
 
 	if (missed == 1)
 	{
-		draw_info(0, COLOR_WHITE, op, "One item couldn't be dropped because it was locked.");
+		draw_info(COLOR_WHITE, op, "One item couldn't be dropped because it was locked.");
 	}
 	else if (missed > 1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
+		draw_info_format(COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
 	}
 
 	if (op->type == PLAYER)
@@ -1190,7 +1190,7 @@ object *find_marked_object(object *op)
  * Player examines a living object.
  * @param op Player.
  * @param tmp Object being examined. */
-void examine_living(object *op, object *tmp)
+static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 {
 	object *mon = tmp->head ? tmp->head : tmp;
 	int val, val2, i, gender;
@@ -1200,24 +1200,24 @@ void examine_living(object *op, object *tmp)
 
 	if (QUERY_FLAG(mon, FLAG_IS_GOOD))
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_EVIL))
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL))
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 
-	draw_info_format(0, COLOR_WHITE, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
-	draw_info_format(0, COLOR_WHITE, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
-	draw_info_format(0, COLOR_WHITE, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
+	draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
+	draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
+	draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
 
 	for (val = val2 = -1, i = 0; i < NROFATTACKS; i++)
 	{
@@ -1233,12 +1233,12 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
 	}
 
 	if (val2 != -1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
 	}
 
 	for (val =- 1, val2 = i = 0; i < NROFATTACKS; i++)
@@ -1252,36 +1252,36 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "Best armour protection seems to be for %s.", attack_name[val]);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "Best armour protection seems to be for %s.", attack_name[val]);
 	}
 
 	if (QUERY_FLAG(mon, FLAG_UNDEAD))
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s is an undead force.", gender_subjective_upper[gender]);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is an undead force.", gender_subjective_upper[gender]);
 	}
 
 	switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
 	{
 		case 1:
-			draw_info_format(0, COLOR_WHITE, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
 			break;
 
 		case 2:
-			draw_info_format(0, COLOR_WHITE, op, "%s is hurt.", gender_subjective_upper[gender]);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is hurt.", gender_subjective_upper[gender]);
 			break;
 
 		case 3:
-			draw_info_format(0, COLOR_WHITE, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
 			break;
 
 		default:
-			draw_info_format(0, COLOR_WHITE, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
 			break;
 	}
 
 	if (present_in_ob(POISONING, mon) != NULL)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s looks very ill.", gender_subjective_upper[gender]);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s looks very ill.", gender_subjective_upper[gender]);
 	}
 }
 
@@ -1363,7 +1363,7 @@ char *long_desc(object *tmp, object *caller)
  * Player examines some object.
  * @param op Player.
  * @param tmp Object to examine. */
-void examine(object *op, object *tmp)
+void examine(object *op, object *tmp, StringBuffer *sb_capture)
 {
 	char buf[VERY_BIG_BUF], tmp_buf[64];
 	int i;
@@ -1385,44 +1385,44 @@ void examine(object *op, object *tmp)
 	}
 
 	buf[VERY_BIG_BUF - 1] = '\0';
-	draw_info(0, COLOR_WHITE, op, buf);
+	draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 	buf[0] = '\0';
 
 	if (tmp->custom_name)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "You name it %s.", tmp->custom_name);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "You name it %s.", tmp->custom_name);
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
-		examine_living(op, tmp);
+		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
+		examine_living(op, tmp, sb_capture);
 	}
 	/* We don't double use the item_xxx arch commands, so they are always valid */
 	else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 	{
 		if (QUERY_FLAG(tmp, FLAG_IS_GOOD))
 		{
-			draw_info_format(0, COLOR_WHITE, op, "It is good aligned.");
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It is good aligned.");
 		}
 		else if (QUERY_FLAG(tmp, FLAG_IS_EVIL))
 		{
-			draw_info_format(0, COLOR_WHITE, op, "It is evil aligned.");
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It is evil aligned.");
 		}
 		else if (QUERY_FLAG(tmp, FLAG_IS_NEUTRAL))
 		{
-			draw_info_format(0, COLOR_WHITE, op, "It is neutral aligned.");
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It is neutral aligned.");
 		}
 
 		if (tmp->item_level)
 		{
 			if (tmp->item_skill)
 			{
-				draw_info_format(0, COLOR_WHITE, op, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(tmp->item_skill));
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(tmp->item_skill));
 			}
 			else
 			{
-				draw_info_format(0, COLOR_WHITE, op, "It needs a level of %d to use.", tmp->item_level);
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d to use.", tmp->item_level);
 			}
 		}
 
@@ -1430,11 +1430,11 @@ void examine(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(tmp, FLAG_INDESTRUCTIBLE))
 			{
-				draw_info_format(0, COLOR_WHITE, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
 			}
 			else
 			{
-				draw_info_format(0, COLOR_WHITE, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
 			}
 		}
 
@@ -1467,7 +1467,7 @@ void examine(object *op, object *tmp)
 				{
 					int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
 
-					draw_info(0, COLOR_WHITE, op, buf);
+					draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 
 					/* Gray. */
 					if (tmp->level < level_color[level].green)
@@ -1526,7 +1526,7 @@ void examine(object *op, object *tmp)
 					/* Has magic modifier? */
 					if (tmp->weapon_speed != 1.0f)
 					{
-						draw_info(0, COLOR_WHITE, op, buf);
+						draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 
 						/* Bad */
 						if (tmp->weapon_speed > 1.0f)
@@ -1550,7 +1550,7 @@ void examine(object *op, object *tmp)
 					/* Has magic modifier? */
 					if (tmp->weapon_speed != 1.0f)
 					{
-						draw_info(0, COLOR_WHITE, op, buf);
+						draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 
 						/* Bad */
 						if (tmp->weapon_speed > 1.0f)
@@ -1565,7 +1565,7 @@ void examine(object *op, object *tmp)
 					}
 				}
 
-				draw_info(0, COLOR_WHITE, op, buf);
+				draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 
 				if (tmp->weapon_speed == 1.0f)
 				{
@@ -1656,7 +1656,7 @@ void examine(object *op, object *tmp)
 
 	if (buf[0] != '\0')
 	{
-		draw_info(0, COLOR_WHITE, op, buf);
+		draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 	}
 
 	if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED)))
@@ -1672,7 +1672,7 @@ void examine(object *op, object *tmp)
 			}
 		}
 
-		draw_info(0, COLOR_WHITE, op, buf);
+		draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
 	}
 
 	if (tmp->weight)
@@ -1681,15 +1681,15 @@ void examine(object *op, object *tmp)
 
 		if (tmp->type == MONSTER)
 		{
-			draw_info_format(0, COLOR_WHITE, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
 		}
 		else if (tmp->type == PLAYER)
 		{
-			draw_info_format(0, COLOR_WHITE, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
 		}
 		else
 		{
-			draw_info_format(0, COLOR_WHITE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
 		}
 	}
 
@@ -1698,22 +1698,22 @@ void examine(object *op, object *tmp)
 		/* Unpaid clone shop item */
 		if (QUERY_FLAG(tmp, FLAG_UNPAID))
 		{
-			draw_info_format(0, COLOR_WHITE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 		}
 		/* God-given item */
 		else
 		{
-			draw_info_format(0, COLOR_WHITE, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
+			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{
 				if (tmp->value)
 				{
-					draw_info_format(0, COLOR_WHITE, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
+					draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
 				}
 				else
 				{
-					draw_info_format(0, COLOR_WHITE, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
+					draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 				}
 			}
 		}
@@ -1724,11 +1724,11 @@ void examine(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				draw_info_format(0, COLOR_WHITE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 			}
 			else
 			{
-				draw_info_format(0, COLOR_WHITE, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
 				goto dirty_little_jump1;
 			}
 		}
@@ -1755,7 +1755,7 @@ dirty_little_jump1:
 					}
 				}
 
-				draw_info_format(0, COLOR_WHITE, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, COST_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, COST_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
 			}
 		}
 	}
@@ -1765,11 +1765,11 @@ dirty_little_jump1:
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				draw_info_format(0, COLOR_WHITE, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
 			}
 			else
 			{
-				draw_info_format(0, COLOR_WHITE, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 			}
 		}
 	}
@@ -1782,15 +1782,15 @@ dirty_little_jump1:
 		 * out the extra message */
 		if ((need_identify(tmp) || QUERY_FLAG(tmp, FLAG_QUEST_ITEM)) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
-			draw_info(0, COLOR_WHITE, op, "The object has a story:");
-			draw_info(0, COLOR_WHITE, op, tmp->msg);
+			draw_info_full(0, COLOR_WHITE, sb_capture, op, "The object has a story:");
+			draw_info_full(0, COLOR_WHITE, sb_capture, op, tmp->msg);
 		}
 	}
 
 	trigger_map_event(MEVENT_EXAMINE, op->map, op, tmp, NULL, NULL, 0);
 
 	/* Blank line */
-	draw_info(0, COLOR_WHITE, op, " ");
+	draw_info_full(0, COLOR_WHITE, sb_capture, op, " ");
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
@@ -1800,7 +1800,7 @@ dirty_little_jump1:
 		stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 		dump_object(tmp, sb);
 		diff = stringbuffer_finish(sb);
-		draw_info(0, COLOR_WHITE, op, diff);
+		draw_info_full(0, COLOR_WHITE, sb_capture, op, diff);
 		free(diff);
 	}
 }
@@ -1817,7 +1817,7 @@ int command_rename_item(object *op, char *params)
 
 	if (!tmp)
 	{
-		draw_info(0, COLOR_WHITE, op, "No marked item to rename.");
+		draw_info(COLOR_WHITE, op, "No marked item to rename.");
 		return 1;
 	}
 
@@ -1829,37 +1829,37 @@ int command_rename_item(object *op, char *params)
 	{
 		if (!tmp->custom_name)
 		{
-			draw_info(0, COLOR_WHITE, op, "This item has no custom name.");
+			draw_info(COLOR_WHITE, op, "This item has no custom name.");
 			return 1;
 		}
 
 		FREE_AND_CLEAR_HASH(tmp->custom_name);
-		draw_info_format(0, COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
+		draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
 	}
 	else
 	{
 		if (tmp->type == MONEY)
 		{
-			draw_info(0, COLOR_WHITE, op, "You cannot rename that item.");
+			draw_info(COLOR_WHITE, op, "You cannot rename that item.");
 			return 1;
 		}
 
 		if (strlen(params) > 127)
 		{
-			draw_info(0, COLOR_WHITE, op, "New name is too long, maximum is 127 characters.");
+			draw_info(COLOR_WHITE, op, "New name is too long, maximum is 127 characters.");
 			return 1;
 		}
 
 		if (tmp->custom_name && !strcmp(tmp->custom_name, params))
 		{
-			draw_info_format(0, COLOR_WHITE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
+			draw_info_format(COLOR_WHITE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
 			return 1;
 		}
 
 		string_remove_markup(params);
 		/* Set custom name. */
 		FREE_AND_COPY_HASH(tmp->custom_name, params);
-		draw_info_format(0, COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+		draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
 		CONTR(op)->stat_renamed_items++;
 	}
 

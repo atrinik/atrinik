@@ -232,7 +232,7 @@ void bow_fire(object *op, int dir)
 
 	if (!dir)
 	{
-		draw_info(0, COLOR_WHITE, op, "You can't shoot yourself!");
+		draw_info(COLOR_WHITE, op, "You can't shoot yourself!");
 		return;
 	}
 
@@ -245,19 +245,19 @@ void bow_fire(object *op, int dir)
 
 	if (!bow->race)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "Your %s is broken.", bow->name);
+		draw_info_format(COLOR_WHITE, op, "Your %s is broken.", bow->name);
 		return;
 	}
 
 	if ((arrow = arrow_find(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "You have no %s left.", bow->race);
+		draw_info_format(COLOR_WHITE, op, "You have no %s left.", bow->race);
 		return;
 	}
 
 	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
 	{
-		draw_info(0, COLOR_WHITE, op, "Something is in the way.");
+		draw_info(COLOR_WHITE, op, "Something is in the way.");
 		return;
 	}
 

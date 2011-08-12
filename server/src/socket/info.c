@@ -37,6 +37,13 @@
 #include <global.h>
 #include <stdarg.h>
 
+#define DRAW_INFO_FORMAT_CONSTRUCT() \
+	char buf[HUGE_BUF]; \
+	va_list ap; \
+	va_start(ap, format); \
+	vsnprintf(buf, sizeof(buf), format, ap); \
+	va_end(ap);
+
 int color_notation_to_flag(const char *color)
 {
 	if (!strcmp(color, COLOR_WHITE))
@@ -117,12 +124,8 @@ int color_notation_to_flag(const char *color)
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
  * @param buf The message to draw. */
-void draw_info(int flags, const char *color, object *pl, const char *buf)
+void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *buf)
 {
-	unsigned char info_string[HUGE_BUF];
-	size_t len;
-	SockList sl;
-
 	/* Handle global messages. */
 	if (flags & NDI_ALL)
 	{
@@ -130,7 +133,7 @@ void draw_info(int flags, const char *color, object *pl, const char *buf)
 
 		for (tmppl = first_player; tmppl; tmppl = tmppl->next)
 		{
-			draw_info((flags & ~NDI_ALL), color, tmppl->ob, buf);
+			draw_info_full((flags & ~NDI_ALL), color, NULL, tmppl->ob, buf);
 		}
 
 		return;
@@ -141,36 +144,42 @@ void draw_info(int flags, const char *color, object *pl, const char *buf)
 		return;
 	}
 
-	if (CONTR(pl) == NULL)
-	{
-		LOG(llevBug, "draw_info(): Called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
-		return;
-	}
-
 	if (CONTR(pl)->state != ST_PLAYING)
 	{
 		return;
 	}
 
-	sl.buf = info_string;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
-	if (CONTR(pl)->socket.socket_version >= 1055)
+	if (sb_capture)
 	{
-	SockList_AddShort(&sl, flags);
-	SockList_AddString(&sl, color);
+		stringbuffer_append_string(sb_capture, buf);
+		stringbuffer_append_string(sb_capture, "\n");
 	}
 	else
 	{
-	SockList_AddShort(&sl, flags | color_notation_to_flag(color));
-	}
-	/* Make sure we don't copy more bytes than available space in the buffer. */
-	len = MIN(strlen(buf), sizeof(info_string) - sl.len - 1);
-	memcpy((char *) sl.buf + sl.len, buf, len);
-	sl.len += len;
+		unsigned char info_string[HUGE_BUF];
+		size_t len;
+		SockList sl;
 
-	/* Terminate the string. */
-	SockList_AddChar(&sl, '\0');
-	Send_With_Handling(&CONTR(pl)->socket, &sl);
+		sl.buf = info_string;
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
+		if (CONTR(pl)->socket.socket_version >= 1055)
+		{
+		SockList_AddShort(&sl, flags);
+		SockList_AddString(&sl, color);
+		}
+		else
+		{
+		SockList_AddShort(&sl, flags | color_notation_to_flag(color));
+		}
+		/* Make sure we don't copy more bytes than available space in the buffer. */
+		len = MIN(strlen(buf), sizeof(info_string) - sl.len - 1);
+		memcpy((char *) sl.buf + sl.len, buf, len);
+		sl.len += len;
+
+		/* Terminate the string. */
+		SockList_AddChar(&sl, '\0');
+		Send_With_Handling(&CONTR(pl)->socket, &sl);
+	}
 }
 
 /**
@@ -180,16 +189,32 @@ void draw_info(int flags, const char *color, object *pl, const char *buf)
  * @param pl Player.
  * @param format Format.
  * @see draw_info() */
-void draw_info_format(int flags, const char *color, object *pl, char *format, ...)
+void draw_info_full_format(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...)
 {
-	char buf[HUGE_BUF];
+	DRAW_INFO_FORMAT_CONSTRUCT();
+	draw_info_full(flags, color, sb_capture, pl, buf);
+}
 
-	va_list ap;
-	va_start(ap, format);
-	vsnprintf(buf, sizeof(buf), format, ap);
-	va_end(ap);
+void draw_info_flags(int flags, const char *color, object *pl, const char *buf)
+{
+	draw_info_full(flags, color, NULL, pl, buf);
+}
 
-	draw_info(flags, color, pl, buf);
+void draw_info_flags_format(int flags, const char *color, object *pl, const char *format, ...)
+{
+	DRAW_INFO_FORMAT_CONSTRUCT();
+	draw_info_full(flags, color, NULL, pl, buf);
+}
+
+void draw_info(const char *color, object *pl, const char *buf)
+{
+	draw_info_full(0, color, NULL, pl, buf);
+}
+
+void draw_info_format(const char *color, object *pl, const char *format, ...)
+{
+	DRAW_INFO_FORMAT_CONSTRUCT();
+	draw_info_full(0, color, NULL, pl, buf);
 }
 
 /**
@@ -209,7 +234,7 @@ static void new_info_map_all_except(int flags, const char *color, mapstruct *map
 		{
 			if (tmp != op && tmp != op1)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -253,7 +278,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -266,7 +291,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -279,7 +304,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -292,7 +317,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -305,7 +330,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -319,7 +344,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -333,7 +358,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -347,7 +372,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -361,7 +386,7 @@ void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, in
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -407,7 +432,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -420,7 +445,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -433,7 +458,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -446,7 +471,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -459,7 +484,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -473,7 +498,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -487,7 +512,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -501,7 +526,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}
@@ -515,7 +540,7 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				draw_info(flags, color, tmp, str);
+				draw_info_flags(flags, color, tmp, str);
 			}
 		}
 	}

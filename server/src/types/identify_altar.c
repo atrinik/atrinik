@@ -61,12 +61,12 @@ int apply_identify_altar(object *money, object *altar, object *pl)
 		if (operate_altar(altar, &money))
 		{
 			identify(marked);
-			draw_info_format(0, COLOR_WHITE, pl, "You have %s.", long_desc(marked, pl));
+			draw_info_format(COLOR_WHITE, pl, "You have %s.", long_desc(marked, pl));
 
 			if (marked->msg)
 			{
-				draw_info(0, COLOR_WHITE, pl, "The item has a story:");
-				draw_info(0, COLOR_WHITE, pl, marked->msg);
+				draw_info(COLOR_WHITE, pl, "The item has a story:");
+				draw_info(COLOR_WHITE, pl, marked->msg);
 			}
 
 			return money == NULL;
@@ -80,12 +80,12 @@ int apply_identify_altar(object *money, object *altar, object *pl)
 			if (operate_altar(altar, &money))
 			{
 				identify(id);
-				draw_info_format(0, COLOR_WHITE, pl, "You have %s.", long_desc(id, pl));
+				draw_info_format(COLOR_WHITE, pl, "You have %s.", long_desc(id, pl));
 
 				if (id->msg)
 				{
-					draw_info(0, COLOR_WHITE, pl, "The item has a story:");
-					draw_info(0, COLOR_WHITE, pl, id->msg);
+					draw_info(COLOR_WHITE, pl, "The item has a story:");
+					draw_info(COLOR_WHITE, pl, id->msg);
 				}
 
 				success = 1;
@@ -106,7 +106,7 @@ int apply_identify_altar(object *money, object *altar, object *pl)
 
 	if (!success)
 	{
-		draw_info(0, COLOR_WHITE, pl, "You have nothing that needs identifying.");
+		draw_info(COLOR_WHITE, pl, "You have nothing that needs identifying.");
 	}
 
 	return money == NULL;

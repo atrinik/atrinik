@@ -130,9 +130,8 @@ void drop(object *op, object *tmp, int no_mevent);
 int command_take(object *op, char *params);
 int command_drop(object *op, char *params);
 object *find_marked_object(object *op);
-void examine_living(object *op, object *tmp);
 char *long_desc(object *tmp, object *caller);
-void examine(object *op, object *tmp);
+void examine(object *op, object *tmp, StringBuffer *sb_capture);
 int command_rename_item(object *op, char *params);
 /* src/commands/range.c */
 int command_cast_spell(object *op, char *params);
@@ -807,8 +806,12 @@ int esrv_send_face(socket_struct *ns, short face_num);
 void face_get_data(int face, uint8 **ptr, uint16 *len);
 /* src/socket/info.c */
 int color_notation_to_flag(const char *color);
-void draw_info(int flags, const char *color, object *pl, const char *buf);
-void draw_info_format(int flags, const char *color, object *pl, char *format, ...) __attribute__((format(printf, 4, 5)));
+void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *buf);
+void draw_info_full_format(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...) __attribute__((format(printf, 5, 6)));
+void draw_info_flags(int flags, const char *color, object *pl, const char *buf);
+void draw_info_flags_format(int flags, const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 4, 5)));
+void draw_info(const char *color, object *pl, const char *buf);
+void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
 void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, const char *str);
 void new_info_map_except(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op1, object *op, const char *str);
 void send_socket_message(const char *color, socket_struct *ns, const char *buf);

@@ -126,7 +126,7 @@ static int potion_improve_apply(object *op, object *tmp)
 					fix_player(op);
 					insert_spell_effect("meffect_purple", op->map, op->x, op->y);
 					play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-					draw_info_format(0, COLOR_WHITE, op, "The foul potion burns like fire inside you, and your %s decreases by %d!", potion_improve_stat_names[indices[stat_id]], oldlev - levarr[i]);
+					draw_info_format(COLOR_WHITE, op, "The foul potion burns like fire inside you, and your %s decreases by %d!", potion_improve_stat_names[indices[stat_id]], oldlev - levarr[i]);
 					return 1;
 				}
 			}
@@ -141,7 +141,7 @@ static int potion_improve_apply(object *op, object *tmp)
 					fix_player(op);
 					insert_spell_effect("meffect_yellow", op->map, op->x, op->y);
 					play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-					draw_info_format(0, COLOR_WHITE, op, "You feel a little more perfect, and your %s increases by %d!", potion_improve_stat_names[indices[stat_id]], levarr[i] - oldlev);
+					draw_info_format(COLOR_WHITE, op, "You feel a little more perfect, and your %s increases by %d!", potion_improve_stat_names[indices[stat_id]], levarr[i] - oldlev);
 					return 1;
 				}
 			}
@@ -153,12 +153,12 @@ static int potion_improve_apply(object *op, object *tmp)
 	if (cursed)
 	{
 		play_sound_map(op->map, CMD_SOUND_EFFECT, "poison.ogg", op->x, op->y, 0, 0);
-		draw_info(0, COLOR_WHITE, op, "The potion was foul but had no effect on your tortured body.");
+		draw_info(COLOR_WHITE, op, "The potion was foul but had no effect on your tortured body.");
 	}
 	else
 	{
 		play_sound_map(op->map, CMD_SOUND_EFFECT, "magic_default.ogg", op->x, op->y, 0, 0);
-		draw_info(0, COLOR_WHITE, op, "The potion had no effect - you are already perfect.");
+		draw_info(COLOR_WHITE, op, "The potion had no effect - you are already perfect.");
 	}
 
 	return 1;
@@ -270,7 +270,7 @@ static int potion_special_apply(object *op, object *tmp)
 
 	if (!change_abil(op, force))
 	{
-		draw_info(0, COLOR_WHITE, op, "Nothing happened.");
+		draw_info(COLOR_WHITE, op, "Nothing happened.");
 	}
 
 	decrease_ob(tmp);
@@ -321,7 +321,7 @@ static int potion_restoration_apply(object *op, object *tmp)
 		{
 			if (get_attr_value(&depletion->stats, i))
 			{
-				draw_info(0, COLOR_WHITE, op, restore_msg[i]);
+				draw_info(COLOR_WHITE, op, restore_msg[i]);
 			}
 		}
 
@@ -330,7 +330,7 @@ static int potion_restoration_apply(object *op, object *tmp)
 	}
 	else
 	{
-		draw_info(0, COLOR_WHITE, op, "You are not depleted.");
+		draw_info(COLOR_WHITE, op, "You are not depleted.");
 	}
 
 	insert_spell_effect("meffect_green", op->map, op->x, op->y);
@@ -390,7 +390,7 @@ int apply_potion(object *op, object *tmp)
 
 	if (tmp->stats.sp == SP_NO_SPELL)
 	{
-		draw_info(0, COLOR_WHITE, op, "Nothing happens as you apply it.");
+		draw_info(COLOR_WHITE, op, "Nothing happens as you apply it.");
 		decrease_ob(tmp);
 		return 0;
 	}

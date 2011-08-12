@@ -106,13 +106,13 @@ int command_cast_spell(object *op, char *params)
 
 	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		draw_info(0, COLOR_WHITE, op, "You don't know any spells.");
+		draw_info(COLOR_WHITE, op, "You don't know any spells.");
 		return 0;
 	}
 
 	if (params == NULL)
 	{
-		draw_info(0, COLOR_WHITE, op, "Cast which spell?");
+		draw_info(COLOR_WHITE, op, "Cast which spell?");
 		return 0;
 	}
 
@@ -140,7 +140,7 @@ int command_cast_spell(object *op, char *params)
 	/* We don't know this spell name */
 	if (spnum == -1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "You don't know the spell %s.", params);
+		draw_info_format(COLOR_WHITE, op, "You don't know the spell %s.", params);
 		return 0;
 	}
 
@@ -207,13 +207,13 @@ int fire_cast_spell(object *op, char *params)
 
 	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		draw_info(0, COLOR_WHITE, op, "You don't know any spells.");
+		draw_info(COLOR_WHITE, op, "You don't know any spells.");
 		return 0;
 	}
 
 	if (params == NULL)
 	{
-		draw_info(0, COLOR_WHITE, op, "Cast which spell?");
+		draw_info(COLOR_WHITE, op, "Cast which spell?");
 		return 0;
 	}
 
@@ -241,7 +241,7 @@ int fire_cast_spell(object *op, char *params)
 	/* We don't know this spell name */
 	if (spnum == -1)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "You don't know the spell %s.", params);
+		draw_info_format(COLOR_WHITE, op, "You don't know the spell %s.", params);
 		return 0;
 	}
 

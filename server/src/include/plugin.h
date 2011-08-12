@@ -222,7 +222,6 @@ struct plugin_hooklist
 	sint64 (*query_money)(object *);
 	int (*pay_for_item)(object *, object *);
 	int (*pay_for_amount)(sint64, object *);
-	void (*draw_info)(int, const char *, object *, const char *);
 	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
 	object *(*get_object)();
@@ -266,7 +265,6 @@ struct plugin_hooklist
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
 	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
-	void (*draw_info_format)(int, const char *, object *, char *, ...);
 	int (*was_destroyed)(object *, tag_t);
 	int (*object_get_gender)(object *);
 	int (*change_abil)(object *, object *);
@@ -297,8 +295,12 @@ struct plugin_hooklist
 	void (*set_map_darkness)(mapstruct *, int);
 	int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
 	void (*send_target_command)(player *);
-	void (*examine)(object *, object *);
+	void (*examine)(object *, object *, StringBuffer *sb_capture);
 	void (*push_button)(object *);
+	void (*draw_info)(const char *, object *, const char *);
+	void (*draw_info_format)(const char *, object *, const char *, ...);
+	void (*draw_info_flags)(int, const char *, object *, const char *);
+	void (*draw_info_flags_format)(int, const char *, object *, const char *, ...);
 
 	const char **season_name;
 	const char **weekdays;

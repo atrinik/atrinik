@@ -86,7 +86,7 @@ void move_marker(object *op)
 
 				if (op->msg)
 				{
-					draw_info(0, COLOR_NAVY, tmp, op->msg);
+					draw_info(COLOR_NAVY, tmp, op->msg);
 				}
 
 				if (op->stats.hp > 0)

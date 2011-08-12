@@ -94,7 +94,7 @@ static void remove_confusion(object *op)
 
 		if (op->env->type == PLAYER)
 		{
-			draw_info(0, COLOR_WHITE, op->env, "You regain your senses.");
+			draw_info(COLOR_WHITE, op->env, "You regain your senses.");
 		}
 	}
 
@@ -118,7 +118,7 @@ static void execute_wor(object *op)
 	{
 		if (blocks_magic(op->map, op->x, op->y))
 		{
-			draw_info(0, COLOR_WHITE, op, "You feel something fizzle inside you.");
+			draw_info(COLOR_WHITE, op, "You feel something fizzle inside you.");
 		}
 		else
 		{
@@ -275,7 +275,7 @@ static void change_object(object *op)
 						/* Inside player? */
 						if (op->env->type == PLAYER)
 						{
-							draw_info_format(0, COLOR_WHITE, op->env, "The %s burnt out.", query_name(op, NULL));
+							draw_info_format(COLOR_WHITE, op->env, "The %s burnt out.", query_name(op, NULL));
 							op->glow_radius = 0;
 							esrv_send_item(op->env, op);
 							/* Fix player will take care about adjusting light masks */
@@ -309,7 +309,7 @@ static void change_object(object *op)
 					/* But give the player a note about it too. */
 					if (op->env && op->env->type == PLAYER)
 					{
-						draw_info_format(0, COLOR_WHITE, op->env, "The %s burnt out.", query_name(op, NULL));
+						draw_info_format(COLOR_WHITE, op->env, "The %s burnt out.", query_name(op, NULL));
 					}
 				}
 			}

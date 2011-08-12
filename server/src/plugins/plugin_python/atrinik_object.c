@@ -481,7 +481,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
 
 	if (mode)
 	{
-		hooks->draw_info(0, COLOR_NAVY, target->obj, message);
+		hooks->draw_info(COLOR_NAVY, target->obj, message);
 	}
 	else
 	{
@@ -491,7 +491,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
 		hooks->new_info_map_except(0, COLOR_WHITE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
 
 		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(obj->obj, NULL), message);
-		hooks->draw_info(0, COLOR_NAVY, target->obj, buf);
+		hooks->draw_info(COLOR_NAVY, target->obj, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -518,7 +518,7 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args, PyObj
 
 	OBJEXISTCHECK(obj);
 
-	hooks->draw_info(flags, color, obj->obj, message);
+	hooks->draw_info_flags(flags, color, obj->obj, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;

@@ -86,20 +86,20 @@ void apply_book(object *op, object *tmp)
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
 	{
-		draw_info(0, COLOR_WHITE, op, "You are unable to read while blind.");
+		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
 		return;
 	}
 
 	if (tmp->msg == NULL)
 	{
-		draw_info_format(0, COLOR_WHITE, op, "You open the %s and find it empty.", tmp->name);
+		draw_info_format(COLOR_WHITE, op, "You open the %s and find it empty.", tmp->name);
 		return;
 	}
 
 	/* Need a literacy skill to read stuff! */
 	if (!change_skill(op, SK_LITERACY))
 	{
-		draw_info(0, COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
+		draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
 		return;
 	}
 
@@ -109,33 +109,33 @@ void apply_book(object *op, object *tmp)
 	{
 		if (lev_diff < 2)
 		{
-			draw_info(0, COLOR_WHITE, op, "This book is just barely beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is just barely beyond your comprehension.");
 		}
 		else if (lev_diff < 3)
 		{
-			draw_info(0, COLOR_WHITE, op, "This book is slightly beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is slightly beyond your comprehension.");
 		}
 		else if (lev_diff < 5)
 		{
-			draw_info(0, COLOR_WHITE, op, "This book is beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is beyond your comprehension.");
 		}
 		else if (lev_diff < 8)
 		{
-			draw_info(0, COLOR_WHITE, op, "This book is quite a bit beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is quite a bit beyond your comprehension.");
 		}
 		else if (lev_diff < 15)
 		{
-			draw_info(0, COLOR_WHITE, op, "This book is way beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is way beyond your comprehension.");
 		}
 		else
 		{
-			draw_info(0, COLOR_WHITE, op, "This book is totally beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is totally beyond your comprehension.");
 		}
 
 		return;
 	}
 
-	draw_info_format(0, COLOR_WHITE, op, "You open the %s and start reading.", tmp->name);
+	draw_info_format(COLOR_WHITE, op, "You open the %s and start reading.", tmp->name);
 	CONTR(op)->stat_books_read++;
 
 	sl.buf = sock_buf;

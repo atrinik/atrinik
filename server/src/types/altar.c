@@ -54,7 +54,7 @@ int apply_altar(object *altar, object *sacrifice, object *originator)
 		 * properly. */
 		if (altar->stats.sp != -1)
 		{
-			draw_info_format(0, COLOR_WHITE, originator, "The altar casts %s.", spells[altar->stats.sp].name);
+			draw_info_format(COLOR_WHITE, originator, "The altar casts %s.", spells[altar->stats.sp].name);
 			cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, CAST_POTION, NULL);
 			/* If it is connected, push the button. Fixes some problems
 			 * with old maps. */
