@@ -758,8 +758,6 @@ void esrv_update_stats(player *pl)
 		AddIfShort(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD);
 		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
 
-		if (pl->socket.socket_version >= 1050)
-		{
 		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race)))
 		{
 			AddIfShort(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM);
@@ -771,7 +769,6 @@ void esrv_update_stats(player *pl)
 			AddIfShort(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM);
 			AddIfShort(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC);
 			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS);
-		}
 		}
 	}
 
