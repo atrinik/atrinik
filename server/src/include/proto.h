@@ -112,7 +112,6 @@ int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
 void new_chars_init();
 void command_new_char(char *params, int len, player *pl);
-void command_fire_old(char *params, int len, player *pl);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
 void send_skilllist_cmd(object *op, object *skillp, int mode);
 void send_ready_skill(object *op, const char *skillname);
