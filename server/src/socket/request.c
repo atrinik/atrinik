@@ -1690,12 +1690,12 @@ void draw_client_map2(object *pl)
 						flags2 |= MAP2_FLAG2_ALPHA;
 					}
 
-					if (head->rotate && CONTR(pl)->socket.socket_version >= 1049)
+					if (head->rotate)
 					{
 						flags2 |= MAP2_FLAG2_ROTATE;
 					}
 
-					if (CONTR(pl)->socket.socket_version >= 1053 && QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0)))
+					if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0)))
 					{
 						flags2 |= MAP2_FLAG2_INFRAVISION;
 					}
