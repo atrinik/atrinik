@@ -557,8 +557,6 @@ void new_info_map_except(int flags, const char *color, mapstruct *map, int x, in
  * @param buf Message to send. */
 void send_socket_message(const char *color, socket_struct *ns, const char *buf)
 {
-	if (ns->socket_version >= 1055)
-	{
 	SockList sl;
 	unsigned char sockbuf[HUGE_BUF];
 	size_t len;
@@ -576,11 +574,4 @@ void send_socket_message(const char *color, socket_struct *ns, const char *buf)
 	/* Terminate the string. */
 	SockList_AddChar(&sl, '\0');
 	Send_With_Handling(ns, &sl);
-	}
-	else
-	{
-	char tmp[HUGE_BUF];
-	snprintf(tmp, sizeof(tmp), "X%d %s", color_notation_to_flag(color), buf);
-	Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, tmp, strlen(tmp));
-	}
 }
