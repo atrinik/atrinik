@@ -161,7 +161,7 @@ static player *get_player(player *p)
 	/* Init. respawn position */
 	strcpy(p->savebed_map, first_map_path);
 
-	p->firemode_type = p->firemode_tag1 = p->firemode_tag2 = -1;
+	p->firemode_type = -1;
 	/* This is where we set up initial CONTR(op) */
 	op->custom_attrset = p;
 	p->ob = op;

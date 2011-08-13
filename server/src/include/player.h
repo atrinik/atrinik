@@ -341,12 +341,6 @@ typedef struct pl_player
 	/** firemode_xxx are set from command_fire() */
 	int firemode_type;
 
-	/** ID of the object being thrown. @deprecated */
-	int firemode_tag1;
-
-	/** ID of the object being used as ammunition for bow/crossbow/etc. @deprecated */
-	int firemode_tag2;
-
 	/**
 	 * Array showing what spaces the player can see. For maps smaller
 	 * than MAP_CLIENT_.., the upper left is used. */
