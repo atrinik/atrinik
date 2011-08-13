@@ -519,7 +519,7 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 		return;
 	}
 
-	if (ns->socket_version == 991017 || ns->socket_version < 1045)
+	if (ns->socket_version == 991017 || ns->socket_version < 1055)
 	{
 		version_mismatch_msg(ns);
 		ns->status = Ns_Zombie;
