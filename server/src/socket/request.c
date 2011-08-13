@@ -1046,10 +1046,6 @@ void draw_client_map(object *pl)
 		unsigned char sock_buf[MAXSOCKBUF];
 		MapSpace *msp;
 
-		/* Newer clients support the MAPSTATS command, which is specially
-		 * for things like this. */
-		if (CONTR(pl)->socket.socket_version >= 1046)
-		{
 		sl.buf = sock_buf;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAPSTATS);
 		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
@@ -1123,57 +1119,6 @@ void draw_client_map(object *pl)
 		if (sl.len > 1)
 		{
 			Send_With_Handling(&CONTR(pl)->socket, &sl);
-		}
-		}
-		/* Backwards compatibility... */
-		else if (CONTR(pl)->socket.socket_version >= 1044)
-		{
-		sl.buf = sock_buf;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
-		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
-
-		SockList_AddChar(&sl, MAP_UPDATE_CMD_NEW);
-
-		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
-		{
-			if ((msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name)) || (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music)))
-			{
-				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
-				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
-
-				if (msp->map_info->race)
-				{
-					strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
-					CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
-				}
-
-				if (msp->map_info->slaying)
-				{
-					strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
-					CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
-				}
-			}
-		}
-		else
-		{
-			if (CONTR(pl)->map_info_name[0] != '\0' || CONTR(pl)->map_info_music[0] != '\0')
-			{
-				SockList_AddMapName(&sl, pl, pl->map, NULL);
-				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
-				CONTR(pl)->map_info_name[0] = '\0';
-				CONTR(pl)->map_info_music[0] = '\0';
-			}
-		}
-
-		SockList_AddChar(&sl, 0);
-		SockList_AddChar(&sl, 0);
-		SockList_AddChar(&sl, pl->x);
-		SockList_AddChar(&sl, pl->y);
-
-		if (sl.len > 6)
-		{
-			Send_With_Handling(&CONTR(pl)->socket, &sl);
-		}
 		}
 	}
 }
