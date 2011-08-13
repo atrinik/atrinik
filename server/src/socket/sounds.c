@@ -89,130 +89,35 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
  * @param volume Volume adjustment. */
 void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume)
 {
-	int xt, yt;
-	object *tmp;
+	object *pl;
+	int i;
+	rv_vector rv;
 
 	if (!map || map->in_memory != MAP_IN_MEMORY)
 	{
 		return;
 	}
 
-	/* any player on this map? */
-	if (map->player_first)
+	/* Check the map for players. */
+	for (pl = map->player_first; pl; pl = CONTR(pl)->map_above)
 	{
-		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
+		if ((POW2(pl->x - x) + POW2(pl->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
 		{
-			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, x - tmp->x, y - tmp->y, loop, volume);
-			}
+			play_sound_player_only(CONTR(pl), type, filename, x - pl->x, y - pl->y, loop, volume);
 		}
 	}
 
-	if (map->tile_map[0] && map->tile_map[0]->in_memory == MAP_IN_MEMORY && map->tile_map[0]->player_first)
+	/* Check tiled maps for players. */
+	for (i = 0; i < TILED_MAPS; i++)
 	{
-		yt = y + MAP_HEIGHT(map->tile_map[0]);
-
-		for (tmp = map->tile_map[0]->player_first; tmp; tmp = CONTR(tmp)->map_above)
+		if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY)
 		{
-			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
+			for (pl = map->tile_map[i]->player_first; pl; pl = CONTR(pl)->map_above)
 			{
-				play_sound_player_only(CONTR(tmp), type, filename, x - tmp->x, yt - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[1] && map->tile_map[1]->in_memory == MAP_IN_MEMORY && map->tile_map[1]->player_first)
-	{
-		xt = x - MAP_WIDTH(map);
-
-		for (tmp = map->tile_map[1]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, xt - tmp->x, y - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[2] && map->tile_map[2]->in_memory == MAP_IN_MEMORY && map->tile_map[2]->player_first)
-	{
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[2]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, x - tmp->x, yt - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[3] && map->tile_map[3]->in_memory == MAP_IN_MEMORY && map->tile_map[3]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[3]);
-
-		for (tmp = map->tile_map[3]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, xt - tmp->x, y - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[4] && map->tile_map[4]->in_memory == MAP_IN_MEMORY && map->tile_map[4]->player_first)
-	{
-		yt = y + MAP_HEIGHT(map->tile_map[4]);
-		xt = x - MAP_WIDTH(map);
-
-		for (tmp = map->tile_map[4]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, xt - tmp->x, yt - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[5] && map->tile_map[5]->in_memory == MAP_IN_MEMORY && map->tile_map[5]->player_first)
-	{
-		xt = x - MAP_WIDTH(map);
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[5]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, xt - tmp->x, yt - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[6] && map->tile_map[6]->in_memory == MAP_IN_MEMORY && map->tile_map[6]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[6]);
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[6]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, xt - tmp->x, yt - tmp->y, loop, volume);
-			}
-		}
-	}
-
-	if (map->tile_map[7] && map->tile_map[7]->in_memory == MAP_IN_MEMORY && map->tile_map[7]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[7]);
-		yt = y + MAP_HEIGHT(map->tile_map[7]);
-
-		for (tmp = map->tile_map[7]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= MAX_SOUND_DISTANCE_SQUARED)
-			{
-				play_sound_player_only(CONTR(tmp), type, filename, xt - tmp->x, yt - tmp->y, loop, volume);
+				if (get_rangevector_from_mapcoords(map, x, y, pl->map, pl->x, pl->y, &rv, RV_NO_DISTANCE) && POW2(rv.distance_x) + POW2(rv.distance_y) <= MAX_SOUND_DISTANCE_SQUARED)
+				{
+					play_sound_player_only(CONTR(pl), type, filename, rv.distance_x, rv.distance_y, loop, volume);
+				}
 			}
 		}
 	}
