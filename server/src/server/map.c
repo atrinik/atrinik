@@ -2888,7 +2888,7 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *m
 	switch (flags & (0x04 | 0x08))
 	{
 		case RV_MANHATTAN_DISTANCE:
-			retval->distance =  abs(retval->distance_x) + abs(retval->distance_y);
+			retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
 			break;
 
 		case RV_EUCLIDIAN_DISTANCE:
