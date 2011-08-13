@@ -457,7 +457,7 @@ void doeric_server()
 			pl->socket.status = Ns_Dead;
 		}
 
-		if (pl->socket.status != Ns_Dead && pl->socket.socket_version >= 1052 && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
+		if (pl->socket.status != Ns_Dead && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 		{
 			LOG(llevInfo, "Keepalive: disconnecting %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
 			pl->socket.status = Ns_Dead;
