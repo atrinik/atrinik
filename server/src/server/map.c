@@ -3007,10 +3007,6 @@ void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_
  * holds map weather, it will be used to override the actual map's weather. */
 void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info)
 {
-	if (pl && CONTR(pl)->socket.socket_version < 1047)
-	{
-		return;
-	}
-
+	(void) pl;
 	SockList_AddString(sl, map_info && map_info->title ? map_info->title : (map->weather ? map->weather : "none"));
 }
