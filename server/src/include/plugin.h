@@ -190,8 +190,7 @@ struct plugin_hooklist
 	void (*remove_ob)(object *);
 	void (*fix_player)(object *);
 	object *(*insert_ob_in_ob)(object *, object *);
-	void (*new_info_map)(int, const char *color, mapstruct *, int, int, int, const char *);
-	void (*new_info_map_except)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);
+	void (*draw_info_map)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);
 	void (*spring_trap)(object *, object *);
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);

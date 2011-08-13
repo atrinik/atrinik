@@ -137,329 +137,65 @@ void draw_info_format(const char *color, object *pl, const char *format, ...)
 }
 
 /**
- * Give message to all people on one, specified map.
- * @param color Flags.
- * @param map The map.
- * @param op1 Will not write to this object.
- * @param op Will not write to this object.
- * @param str What to write. */
-static void new_info_map_all_except(int flags, const char *color, mapstruct *map, object *op1, object *op, const char *str)
-{
-	object *tmp;
-
-	if (map->player_first)
-	{
-		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-}
-
-/**
  * Writes to everyone on the specified map.
  *
  * Tiled maps will be considered.
- * @param color Flags.
+ * @param flags A combination of @ref NDI_xxx.
+ * @param color One of @ref COLOR_xxx.
  * @param map Map to write on.
- * @param x X position.
- * @param y Y position.
- * @param dist Distance.
- * @param str What to write. */
-void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, const char *str)
+ * @param x X position where the message is coming from.
+ * @param x Y position where the message is coming from.
+ * @param dist Maximum distance from xy a player may be in order to see
+ * the message.
+ * @param op Will not write to this player.
+ * @param op2 Will not write to this player either.
+ * @param buf What to write. */
+void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf)
 {
-	int xt, yt, d;
-	object *tmp;
+	int distance, i;
+	object *pl;
+	rv_vector rv;
 
 	if (!map || map->in_memory != MAP_IN_MEMORY)
 	{
 		return;
 	}
 
-	if (dist != MAP_INFO_ALL)
+	if (dist == MAP_INFO_ALL)
 	{
-		d = POW2(dist);
-	}
-	else
-	{
-		/* We want all on this map */
-		new_info_map_all_except(flags, color, map, NULL, NULL, str);
+		for (pl = map->player_first; pl; pl = CONTR(pl)->map_above)
+		{
+			if (pl != op && pl != op2)
+			{
+				draw_info_flags(flags, color, pl, buf);
+			}
+		}
+
 		return;
 	}
+
+	distance = POW2(dist);
 
 	/* Any players on this map? */
-	if (map->player_first)
+	for (pl = map->player_first; pl; pl = CONTR(pl)->map_above)
 	{
-		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
+		if (pl != op && pl != op2 && (POW2(pl->x - x) + POW2(pl->y - y)) <= distance)
 		{
-			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
+			draw_info_flags(flags, color, pl, buf);
 		}
 	}
 
-	if (map->tile_map[0] && map->tile_map[0]->in_memory == MAP_IN_MEMORY && map->tile_map[0]->player_first)
+	/* Try tiled maps. */
+	for (i = 0; i < TILED_MAPS; i++)
 	{
-		yt = y + MAP_HEIGHT(map->tile_map[0]);
-
-		for (tmp = map->tile_map[0]->player_first; tmp; tmp = CONTR(tmp)->map_above)
+		if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY)
 		{
-			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
+			for (pl = map->tile_map[i]->player_first; pl; pl = CONTR(pl)->map_above)
 			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[1] && map->tile_map[1]->in_memory == MAP_IN_MEMORY && map->tile_map[1]->player_first)
-	{
-		xt = x - MAP_WIDTH(map);
-
-		for (tmp = map->tile_map[1]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[2] && map->tile_map[2]->in_memory == MAP_IN_MEMORY && map->tile_map[2]->player_first)
-	{
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[2]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[3] && map->tile_map[3]->in_memory == MAP_IN_MEMORY && map->tile_map[3]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[3]);
-
-		for (tmp = map->tile_map[3]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[4] && map->tile_map[4]->in_memory == MAP_IN_MEMORY && map->tile_map[4]->player_first)
-	{
-		yt = y + MAP_HEIGHT(map->tile_map[4]);
-		xt = x - MAP_WIDTH(map);
-
-		for (tmp = map->tile_map[4]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[5] && map->tile_map[5]->in_memory == MAP_IN_MEMORY && map->tile_map[5]->player_first)
-	{
-		xt = x - MAP_WIDTH(map);
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[5]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[6] && map->tile_map[6]->in_memory == MAP_IN_MEMORY && map->tile_map[6]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[6]);
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[6]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[7] && map->tile_map[7]->in_memory == MAP_IN_MEMORY && map->tile_map[7]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[7]);
-		yt = y + MAP_HEIGHT(map->tile_map[7]);
-
-		for (tmp = map->tile_map[7]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-}
-
-/**
- * Writes to everyone on the map *except* op and op1. This is useful for emotions.
- *
- * Tiled maps will be considered.
- * @param color Flags.
- * @param map Map to write on.
- * @param x X position.
- * @param y Y position.
- * @param dist Distance.
- * @param op1 Will not write to this object.
- * @param op Will not write to this object.
- * @param str What to write. */
-void new_info_map_except(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op1, object *op, const char *str)
-{
-	int xt, yt, d;
-	object *tmp;
-
-	if (!map || map->in_memory != MAP_IN_MEMORY)
-	{
-		return;
-	}
-
-	if (dist != MAP_INFO_ALL)
-	{
-		d = POW2(dist);
-	}
-	else
-	{
-		/* We want all on this map */
-		new_info_map_all_except(flags, color, map, op1, op, str);
-		return;
-	}
-
-	/* Any players on this map? */
-	if (map->player_first)
-	{
-		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[0] && map->tile_map[0]->in_memory == MAP_IN_MEMORY && map->tile_map[0]->player_first)
-	{
-		yt = y + MAP_HEIGHT(map->tile_map[0]);
-
-		for (tmp = map->tile_map[0]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[1] && map->tile_map[1]->in_memory == MAP_IN_MEMORY && map->tile_map[1]->player_first)
-	{
-		xt = x - MAP_WIDTH(map);
-
-		for (tmp = map->tile_map[1]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[2] && map->tile_map[2]->in_memory == MAP_IN_MEMORY && map->tile_map[2]->player_first)
-	{
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[2]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[3] && map->tile_map[3]->in_memory == MAP_IN_MEMORY && map->tile_map[3]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[3]);
-
-		for (tmp = map->tile_map[3]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[4] && map->tile_map[4]->in_memory == MAP_IN_MEMORY && map->tile_map[4]->player_first)
-	{
-		yt = y + MAP_HEIGHT(map->tile_map[4]);
-		xt = x - MAP_WIDTH(map);
-
-		for (tmp = map->tile_map[4]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[5] && map->tile_map[5]->in_memory == MAP_IN_MEMORY && map->tile_map[5]->player_first)
-	{
-		xt = x - MAP_WIDTH(map);
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[5]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[6] && map->tile_map[6]->in_memory == MAP_IN_MEMORY && map->tile_map[6]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[6]);
-		yt = y - MAP_HEIGHT(map);
-
-		for (tmp = map->tile_map[6]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
-			}
-		}
-	}
-
-	if (map->tile_map[7] && map->tile_map[7]->in_memory == MAP_IN_MEMORY && map->tile_map[7]->player_first)
-	{
-		xt = x + MAP_WIDTH(map->tile_map[7]);
-		yt = y + MAP_HEIGHT(map->tile_map[7]);
-
-		for (tmp = map->tile_map[7]->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		{
-			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			{
-				draw_info_flags(flags, color, tmp, str);
+				if (pl != op && pl != op2 && get_rangevector_from_mapcoords(map, x, y, pl->map, pl->x, pl->y, &rv, RV_NO_DISTANCE) && POW2(rv.distance_x) + POW2(rv.distance_y) <= distance)
+				{
+					draw_info_flags(flags, color, pl, buf);
+				}
 			}
 		}
 	}

@@ -446,12 +446,12 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 
 	if (mode)
 	{
-		hooks->new_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, message);
+		hooks->draw_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, message);
 	}
 	else
 	{
 		snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
-		hooks->new_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, buf);
+		hooks->draw_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -488,7 +488,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
 		char buf[HUGE_BUF];
 
 		snprintf(buf, sizeof(buf), "%s talks to %s.", hooks->query_name(obj->obj, NULL), hooks->query_name(target->obj, NULL));
-		hooks->new_info_map_except(0, COLOR_WHITE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
+		hooks->draw_info_map(0, COLOR_WHITE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
 
 		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(obj->obj, NULL), message);
 		hooks->draw_info(COLOR_NAVY, target->obj, buf);

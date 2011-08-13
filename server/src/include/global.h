@@ -209,7 +209,7 @@ typedef struct _money_block
 
 /** Normal map info, to everyone in range of 12 tiles. */
 #define MAP_INFO_NORMAL 12
-/** To everyone on a map; a value of 9999 should be enough. */
+/** To everyone on a map; this is a special value. */
 #define MAP_INFO_ALL 9999
 /*@}*/
 

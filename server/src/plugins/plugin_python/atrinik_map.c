@@ -275,7 +275,7 @@ static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args, PyObject 
 		return NULL;
 	}
 
-	hooks->new_info_map(flags, color, map->map, x, y, d, message);
+	hooks->draw_info_map(flags, color, map->map, x, y, d, NULL, NULL, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;

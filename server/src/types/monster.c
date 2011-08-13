@@ -1569,11 +1569,11 @@ void communicate(object *op, char *txt)
 
 	if (op->type == PLAYER)
 	{
-		new_info_map(NDI_PLAYER | NDI_SAY, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+		draw_info_map(NDI_PLAYER | NDI_SAY, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 	}
 	else
 	{
-		new_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+		draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 	}
 
 	for (i = 0; i <= SIZEOFFREE2; i++)
@@ -1757,12 +1757,12 @@ int talk_to_npc(object *op, object *npc, char *txt)
 		{
 			draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
 			snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
-			new_info_map_except(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
 		else
 		{
 			snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), cp);
-			new_info_map_except(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
 
 		free(cp);
@@ -1797,7 +1797,7 @@ static int talk_to_wall(object *op, object *npc, char *txt)
 
 	if (QUERY_FLAG(npc, FLAG_XRAYS))
 	{
-		new_info_map(0, COLOR_NAVY, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+		draw_info_map(0, COLOR_NAVY, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, NULL, NULL, cp);
 	}
 	else
 	{

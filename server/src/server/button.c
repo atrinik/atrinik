@@ -105,7 +105,7 @@ void push_button(object *op)
 
 					if (tmp->msg)
 					{
-						new_info_map(0, COLOR_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
+						draw_info_map(0, COLOR_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, NULL, NULL, tmp->msg);
 					}
 
 					if (tmp->stats.food)

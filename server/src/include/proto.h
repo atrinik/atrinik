@@ -810,8 +810,7 @@ void draw_info_flags(int flags, const char *color, object *pl, const char *buf);
 void draw_info_flags_format(int flags, const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 4, 5)));
 void draw_info(const char *color, object *pl, const char *buf);
 void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
-void new_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, const char *str);
-void new_info_map_except(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op1, object *op, const char *str);
+void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
 void send_socket_message(const char *color, socket_struct *ns, const char *buf);
 /* src/socket/init.c */
 void init_connection(socket_struct *ns, const char *from_ip);

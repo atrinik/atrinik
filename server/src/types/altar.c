@@ -154,7 +154,7 @@ int operate_altar(object *altar, object **sacrifice)
 
 	if (altar->msg)
 	{
-		new_info_map(0, COLOR_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, altar->msg);
+		draw_info_map(0, COLOR_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, NULL, NULL, altar->msg);
 	}
 
 	return 1;
