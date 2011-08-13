@@ -901,7 +901,7 @@ sint32 bow_get_ws(object *bow, object *arrow);
 sint16 arrow_get_wc(object *op, object *bow, object *arrow);
 sint16 arrow_get_damage(object *op, object *bow, object *arrow);
 int bow_get_skill(object *bow);
-object *arrow_find(object *op, shstr *type, int tag);
+object *arrow_find(object *op, shstr *type);
 void bow_fire(object *op, int dir);
 object *fix_stopped_arrow(object *op);
 void move_arrow(object *op);

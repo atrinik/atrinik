@@ -116,9 +116,8 @@ int bow_get_skill(object *bow)
  * container (quiver).
  * @param op Player.
  * @param type Type of the ammunition (arrows, bolts, etc).
- * @param tag Firemode tag.
  * @return Pointer to the arrow, NULL if not found. */
-object *arrow_find(object *op, shstr *type, int tag)
+object *arrow_find(object *op, shstr *type)
 {
 	object *tmp;
 
@@ -192,7 +191,7 @@ void bow_fire(object *op, int dir)
 		return;
 	}
 
-	if ((arrow = arrow_find(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
+	if ((arrow = arrow_find(op, bow->race)) == NULL)
 	{
 		draw_info_format(COLOR_WHITE, op, "You have no %s left.", bow->race);
 		return;

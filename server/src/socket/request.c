@@ -760,7 +760,7 @@ void esrv_update_stats(player *pl)
 
 		if (pl->socket.socket_version >= 1050)
 		{
-		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race, -1)))
+		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race)))
 		{
 			AddIfShort(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM);
 			AddIfShort(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC);
