@@ -162,15 +162,8 @@ void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, obje
 
 		sl.buf = info_string;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
-		if (CONTR(pl)->socket.socket_version >= 1055)
-		{
 		SockList_AddShort(&sl, flags);
 		SockList_AddString(&sl, color);
-		}
-		else
-		{
-		SockList_AddShort(&sl, flags | color_notation_to_flag(color));
-		}
 		/* Make sure we don't copy more bytes than available space in the buffer. */
 		len = MIN(strlen(buf), sizeof(info_string) - sl.len - 1);
 		memcpy((char *) sl.buf + sl.len, buf, len);
