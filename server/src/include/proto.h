@@ -804,7 +804,6 @@ void SendFaceCmd(char *buf, int len, socket_struct *ns);
 int esrv_send_face(socket_struct *ns, short face_num);
 void face_get_data(int face, uint8 **ptr, uint16 *len);
 /* src/socket/info.c */
-int color_notation_to_flag(const char *color);
 void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *buf);
 void draw_info_full_format(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...) __attribute__((format(printf, 5, 6)));
 void draw_info_flags(int flags, const char *color, object *pl, const char *buf);

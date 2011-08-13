@@ -120,68 +120,12 @@ int bow_get_skill(object *bow)
  * @return Pointer to the arrow, NULL if not found. */
 object *arrow_find(object *op, shstr *type, int tag)
 {
-if (op->type != PLAYER || CONTR(op)->socket.socket_version < 1048)
-{
-	object *tmp = NULL;
+	object *tmp;
 
-	if (tag == -2)
-	{
-		for (op = op->inv; op; op = op->below)
-		{
-			if (!tmp && op->type == CONTAINER && op->race == type && QUERY_FLAG(op, FLAG_APPLIED))
-			{
-				tmp = arrow_find(op, type, -2);
-			}
-			else if (op->type == ARROW && op->race == type)
-			{
-				return op;
-			}
-		}
-
-		return tmp;
-	}
-	else
-	{
-		if (tag == -1)
-		{
-			return tmp;
-		}
-
-		for (op = op->inv; op; op = op->below)
-		{
-			if (op->count == (tag_t) tag)
-			{
-				/* Simple task: we have an arrow marked */
-				if (op->race == type && op->type == ARROW)
-				{
-					return op;
-				}
-
-				/* we have container marked as missile source. Skip
-				 * search when there is nothing in. Use the standard
-				 * search now. */
-				if (op->race == type && op->type == CONTAINER)
-				{
-					tmp = arrow_find(op, type, -2);
-					return tmp;
-				}
-			}
-		}
-
-		return tmp;
-	}
-}
-else
-{
-	object *tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
+	tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
 
 	/* Nothing readied. */
-	if (!tmp)
-	{
-		return NULL;
-	}
-
-	if (CONTR(op)->socket.socket_version >= 1048 && !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_ARROW]))
+	if (!tmp || !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_ARROW]))
 	{
 		return NULL;
 	}
@@ -210,7 +154,6 @@ else
 	}
 
 	return NULL;
-}
 }
 
 /**
