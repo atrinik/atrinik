@@ -107,10 +107,7 @@ void remove_party_member(party_struct *party, object *op)
 
 		for (ol = party->members; ol; ol = ol->next)
 		{
-			if (CONTR(ol->objlink.ob)->socket.socket_version >= 1054)
-			{
 			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
-			}
 		}
 	}
 
