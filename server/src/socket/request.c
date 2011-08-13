@@ -1774,14 +1774,7 @@ void draw_client_map2(object *pl)
 					if (flags & MAP2_FLAG_NAME)
 					{
 						SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
-						if (CONTR(pl)->socket.socket_version >= 1055)
-						{
 						SockList_AddString(&sl_layer, get_playername_color(pl, tmp));
-						}
-						else
-						{
-						SockList_AddChar(&sl_layer, (char) color_notation_to_flag(get_playername_color(pl, tmp)));
-						}
 					}
 
 					/* Target's HP bar. */
