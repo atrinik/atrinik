@@ -560,22 +560,19 @@ void fire(object *op, int dir)
 			return;
 
 		case range_bow:
-			if (CONTR(op)->firemode_tag2 != -1 || CONTR(op)->socket.socket_version >= 1048)
+			/* Still need to recover from range action? */
+			if (!check_skill_action_time(op, op->chosen_skill))
 			{
-				/* Still need to recover from range action? */
-				if (!check_skill_action_time(op, op->chosen_skill))
-				{
-					return;
-				}
+				return;
+			}
 
-				bow_fire(op, dir);
-				get_skill_time(op, op->chosen_skill->stats.sp);
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+			bow_fire(op, dir);
+			get_skill_time(op, op->chosen_skill->stats.sp);
+			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
-				if (CONTR(op)->last_action_timer > 0)
-				{
-					CONTR(op)->action_timer *= -1;
-				}
+			if (CONTR(op)->last_action_timer > 0)
+			{
+				CONTR(op)->action_timer *= -1;
 			}
 
 			return;
