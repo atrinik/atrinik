@@ -196,34 +196,9 @@ object *find_throw_tag(object *op, tag_t tag)
 {
 	object *tmp;
 
-if (CONTR(op)->socket.socket_version < 1048)
-{
-	/* Look through the inventory. */
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		/* Can't toss invisible or inv-locked items */
-		if (IS_SYS_INVISIBLE(tmp) || QUERY_FLAG(tmp, FLAG_INV_LOCKED))
-		{
-			continue;
-		}
-
-		if (tmp->count == tag)
-		{
-			break;
-		}
-	}
-}
-else
-{
 	tmp = CONTR(op)->ready_object[READY_OBJ_THROW];
-}
 
-	if (!tmp)
-	{
-		return NULL;
-	}
-
-	if (CONTR(op)->socket.socket_version >= 1048 && !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
+	if (!tmp || !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
 	{
 		return NULL;
 	}
