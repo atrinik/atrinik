@@ -504,7 +504,7 @@ void fire(object *op, int dir)
 			}
 
 			/* Special case - we must redirect the fire cmd to throwing something */
-			tmp = find_throw_tag(op, (tag_t) CONTR(op)->firemode_tag1);
+			tmp = find_throw_tag(op);
 
 			if (tmp)
 			{

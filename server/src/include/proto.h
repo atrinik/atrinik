@@ -650,7 +650,7 @@ void ss_dump_table(int what, char *buf, size_t size);
 /* src/server/skills.c */
 sint64 find_traps(object *pl, int level);
 sint64 remove_trap(object *op);
-object *find_throw_tag(object *op, tag_t tag);
+object *find_throw_tag(object *op);
 void do_throw(object *op, object *toss_item, int dir);
 /* src/server/skill_util.c */
 int find_skill_exp_level(object *pl, int item_skill);

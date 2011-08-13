@@ -192,7 +192,7 @@ sint64 remove_trap(object *op)
  * @param op Object to search in.
  * @param tag Tag of the object we're looking for.
  * @return The found object or NULL. */
-object *find_throw_tag(object *op, tag_t tag)
+object *find_throw_tag(object *op)
 {
 	object *tmp;
 
