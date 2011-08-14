@@ -1435,6 +1435,10 @@ static void PyErr_LOG()
 	/* Run the Python code. */
 	ret = PyRun_String(err_handle, Py_file_input, globals, locals);
 
+	Py_XDECREF(ptype);
+	Py_XDECREF(pvalue);
+	Py_XDECREF(ptraceback);
+
 	Py_DECREF(globals);
 	Py_DECREF(locals);
 	Py_XDECREF(ret);
