@@ -52,7 +52,7 @@ void apply_food(object *op, object *tmp)
 		{
 			if ((op->stats.food + tmp->stats.food) - FOOD_MAX > tmp->stats.food / 5)
 			{
-				draw_info(COLOR_WHITE, op, "You are too full to eat this right now!");
+				draw_info_format(COLOR_WHITE, op, "You are too full to %s this right now!", tmp->type == DRINK ? "drink" : "eat");
 				return;
 			}
 
