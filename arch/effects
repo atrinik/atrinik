@@ -44,7 +44,6 @@ wind_blow_dir 1
 wind_mod 6
 sprites_per_move 5
 delay 30
-sound_effect rain2.ogg
 end
 
 effect snow_heavy_right
@@ -65,7 +64,6 @@ wind_blow_dir 2
 wind_mod 6
 sprites_per_move 5
 delay 30
-sound_effect rain2.ogg
 end
 
 effect rain_light_straight
