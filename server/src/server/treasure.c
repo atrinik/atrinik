@@ -2184,6 +2184,7 @@ jump_break1:
 				if (!op->msg && !rndm_chance(10))
 				{
 					int level = 5;
+					size_t msg_len = 0;
 
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
@@ -2220,10 +2221,13 @@ jump_break1:
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					generate_artifact(op, 1, T_STYLE_UNSET, 100);
 
+					msg_len = op->msg ? strlen(op->msg) : 0;
+
 					/* Books with info are worth more! */
-					if (op->msg && strlen(op->msg) > 0)
+					if (msg_len)
 					{
-						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((strlen(op->msg) / 250) + 1));
+						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((msg_len / 250) + 1));
+						op->stats.exp = 105 + (msg_len / 25) + (rndm(0, 20) - 10);
 					}
 
 					/* For library, chained books! */
@@ -2237,9 +2241,6 @@ jump_break1:
 					{
 						FREE_AND_COPY_HASH(op->slaying, creator->slaying);
 					}
-
-					/* Add exp so reading it gives xp (once) */
-					op->stats.exp = op->value > 10000 ? op->value / 5 : op->value / 10;
 				}
 
 				break;
