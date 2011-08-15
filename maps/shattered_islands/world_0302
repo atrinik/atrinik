@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2011-08-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -125,7 +125,7 @@ end
 arch fwall_fstone2
 y 22
 end
-arch water_still
+arch water_lt4
 y 23
 end
 arch grassd_5
@@ -324,7 +324,7 @@ arch fwall_fstone2
 x 1
 y 22
 end
-arch water_still
+arch water_lt4
 x 1
 y 23
 end
@@ -467,7 +467,7 @@ arch fwall_fstone2
 x 2
 y 22
 end
-arch water_still
+arch water_lt3
 x 2
 y 23
 end
@@ -614,7 +614,7 @@ arch fwall_fstone2
 x 3
 y 22
 end
-arch water_still
+arch water_lt3
 x 3
 y 23
 end
@@ -737,7 +737,7 @@ arch fwall_fstone2
 x 4
 y 22
 end
-arch water_still
+arch water_lt
 x 4
 y 23
 end
@@ -881,7 +881,7 @@ arch fwall_fstone2
 x 5
 y 22
 end
-arch water_still
+arch water_lt4
 x 5
 y 23
 end
@@ -1040,7 +1040,7 @@ arch fwall_fstone2
 x 6
 y 22
 end
-arch water_still
+arch water_lt4
 x 6
 y 23
 end
@@ -1174,7 +1174,7 @@ arch fwall_fstone2
 x 7
 y 22
 end
-arch water_still
+arch water_lt3
 x 7
 y 23
 end
@@ -1325,7 +1325,7 @@ arch fwall_fstone2
 x 8
 y 22
 end
-arch water_still
+arch water_lt2
 x 8
 y 23
 end
@@ -1436,7 +1436,7 @@ arch fwall_fstone2
 x 9
 y 22
 end
-arch water_still
+arch water_lt2
 x 9
 y 23
 end
@@ -1551,7 +1551,7 @@ arch fwall_fstone2
 x 10
 y 22
 end
-arch water_still
+arch water_lt4
 x 10
 y 23
 end
@@ -1662,7 +1662,7 @@ arch fwall_fstone2
 x 11
 y 22
 end
-arch water_still
+arch water_lt
 x 11
 y 23
 end
@@ -1777,7 +1777,7 @@ arch fwall_fstone2
 x 12
 y 22
 end
-arch water_still
+arch water_lt4
 x 12
 y 23
 end
@@ -1888,7 +1888,7 @@ arch fwall_fstone2
 x 13
 y 22
 end
-arch water_still
+arch water_lt2
 x 13
 y 23
 end
@@ -2021,7 +2021,7 @@ arch fwall_fstone2
 x 14
 y 22
 end
-arch water_still
+arch water_lt4
 x 14
 y 23
 end
@@ -2135,7 +2135,7 @@ arch fwall_fstone2
 x 15
 y 22
 end
-arch water_still
+arch water_lt
 x 15
 y 23
 end
@@ -2254,7 +2254,7 @@ arch fwall_fstone2
 x 16
 y 22
 end
-arch water_still
+arch water_lt
 x 16
 y 23
 end
@@ -2365,7 +2365,7 @@ arch fwall_fstone2
 x 17
 y 22
 end
-arch water_still
+arch water_lt4
 x 17
 y 23
 end
@@ -2496,7 +2496,7 @@ arch fwall_fstone2
 x 18
 y 22
 end
-arch water_still
+arch water_lt4
 x 18
 y 23
 end
@@ -2630,7 +2630,7 @@ arch fwall_fstone2
 x 19
 y 22
 end
-arch water_still
+arch water_lt2
 x 19
 y 23
 end
@@ -2799,7 +2799,7 @@ arch fwall_fstone2
 x 20
 y 22
 end
-arch water_still
+arch water_lt
 x 20
 y 23
 end
@@ -2917,7 +2917,7 @@ arch fwall_fstone2
 x 21
 y 22
 end
-arch water_still
+arch water_lt3
 x 21
 y 23
 end
@@ -3039,7 +3039,7 @@ arch fwall_fstone2
 x 22
 y 22
 end
-arch water_still
+arch water_lt2
 x 22
 y 23
 end
@@ -3163,7 +3163,7 @@ arch fwall_fstone2
 x 23
 y 22
 end
-arch water_still
+arch water_lt3
 x 23
 y 23
 end
