@@ -340,7 +340,7 @@ lex_error = 0;
 						FREE_AND_COPY_HASH(op->msg, msgbuf);
                      }
 <MESSAGE>.*{NL}	    {
-						strncat(msgbuf, yytext, sizeof(msgbuf) - msgbuf_len - 1);
+						memcpy(msgbuf + msgbuf_len, yytext, MIN((size_t) yyleng, sizeof(msgbuf) - msgbuf_len - 1));
 						msgbuf_len += yyleng;
 					}
 ^name{S}            {
@@ -394,23 +394,27 @@ lex_error = 0;
 
 ^other_arch{S}      op->other_arch = find_archetype(yval());
 ^animation{S}       {
-						if (strcmp(yval(), "NONE") == 0)
+						char *yv = yval();
+
+						if (!strcmp(yv, "NONE"))
 						{
 							op->animation_id = 0;
 						}
 						else
 						{
-							op->animation_id = find_animation(yval());
+							op->animation_id = find_animation(yv);
 						}
                     }
 ^inv_animation{S}   {
-						if (strcmp(yval(), "NONE") == 0)
+						char *yv = yval();
+
+						if (!strcmp(yv, "NONE"))
 						{
 							op->inv_animation_id = 0;
 						}
 						else
 						{
-							op->inv_animation_id = find_animation(yval());
+							op->inv_animation_id = find_animation(yv);
 						}
                     }
 
@@ -917,9 +921,10 @@ static char *yval()
 {
 	static char *em = "";
 	char *cp, *end;
+	size_t len = yyleng;
 
 	/* First skip over start of line, like animation or name */
-	for (cp = yytext; *cp != ' '; cp++)
+	for (cp = yytext; *cp != ' '; cp++, len--)
 	{
 		if (*cp == '\0')
 		{
@@ -928,7 +933,7 @@ static char *yval()
 	}
 
 	/* Skip over whitespace */
-	for (; *cp == ' '; cp++)
+	for (; *cp == ' '; cp++, len--)
 	{
 		if (*cp == '\0')
 		{
@@ -938,7 +943,7 @@ static char *yval()
 
 	/* Get last character before null and strip
 	 * off trailing whitespace. */
-	for (end = cp + strlen(cp) - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--)
+	for (end = cp + len - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--)
 	{
 		if (end == cp)
 		{
