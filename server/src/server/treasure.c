@@ -632,6 +632,8 @@ void init_artifacts()
 				first_artifactlist = al;
 			}
 
+			arch_add(&art->def_at);
+
 			art->next = al->items;
 			al->items = art;
 		}

@@ -82,7 +82,6 @@
 #include <sys/stat.h>
 #include <sys/param.h>
 
-#define HASH_FUNCTION HASH_BER
 #include <uthash.h>
 
 #include "config.h"

@@ -271,15 +271,15 @@ void player_apply_below(object *pl);
 int apply_special(object *who, object *op, int aflags);
 int monster_apply_special(object *who, object *op, int aflags);
 /* src/server/arch.c */
+archetype *find_archetype(const char *name);
+void arch_add(archetype *at);
 archetype *get_skill_archetype(int skillnr);
 void init_archetypes();
-void arch_info(object *op);
 void dump_all_archetypes();
 void free_all_archs();
 object *arch_to_object(archetype *at);
 object *create_singularity(const char *name);
 object *get_archetype(const char *name);
-archetype *find_archetype(const char *name);
 /* src/server/attack.c */
 int attack_ob(object *op, object *hitter);
 int hit_player(object *op, int dam, object *hitter, int type);
