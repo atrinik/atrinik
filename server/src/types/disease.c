@@ -194,9 +194,9 @@ static void check_infection(object *disease)
 		return;
 	}
 
-	for (i = -range; i <= range; i++)
+	for (i = -range; i < range + 1; i++)
 	{
-		for (j = -range; j <= range; j++)
+		for (j = -range; j < range + 1; j++)
 		{
 			xt = x + i;
 			yt = y + j;

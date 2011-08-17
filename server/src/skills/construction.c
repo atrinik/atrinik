@@ -430,9 +430,9 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 		new_wall->y = y;
 		insert_ob_in_map(new_wall, op->map, NULL, 0);
 
-		for (xt = x - 1; xt <= x + 1; xt++)
+		for (xt = x - 1; xt < x + 1 + 1; xt++)
 		{
-			for (yt = y - 1; yt <= y + 1; yt++)
+			for (yt = y - 1; yt < y + 1 + 1; yt++)
 			{
 				if (OUT_OF_REAL_MAP(op->map, xt, yt))
 				{
@@ -640,9 +640,9 @@ static void construction_destroyer(object *op, int x, int y)
 	{
 		int xt, yt;
 
-		for (xt = x - 1; xt <= x + 1; xt++)
+		for (xt = x - 1; xt < x + 1 + 1; xt++)
 		{
-			for (yt = y - 1; yt <= y + 1; yt++)
+			for (yt = y - 1; yt < y + 1 + 1; yt++)
 			{
 				if (!OUT_OF_REAL_MAP(op->map, xt, yt))
 				{
